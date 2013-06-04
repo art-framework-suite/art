@@ -101,12 +101,11 @@ namespace art {
     stopwatch_(new RunStopwatch::StopwatchPointer::element_type)
   {
     assert(actReg_);
-    ParameterSet services(process_pset_.get<ParameterSet>("services",
-                                                          ParameterSet()));
+    ParameterSet services(process_pset_.get<ParameterSet>("services", ParameterSet()));
     ParameterSet opts(services.get<ParameterSet>("scheduler", ParameterSet()));
     bool hasPath = false;
     int trig_bitpos = 0;
-    for (auto const & trig_name : trig_name_list_) {
+  for (auto const & trig_name : trig_name_list_) {
       fillTrigPath(trig_bitpos, trig_name, results_, pregistry);
       ++trig_bitpos;
       hasPath = true;
@@ -125,10 +124,9 @@ namespace art {
     { fillEndPath(bitpos, *eib, pregistry); }
     //See if all modules were used
     set<string> usedWorkerLabels;
-    for (auto const & worker_ptr : all_workers_)
+  for (auto const & worker_ptr : all_workers_)
     { usedWorkerLabels.insert(worker_ptr->description().moduleLabel_); }
-    vstring const & modulesInConfig(proc_pset.get<vstring >("all_modules",
-                                                            vstring()));
+    vstring const & modulesInConfig(proc_pset.get<vstring >("all_modules", vstring()));
     set<string> modulesInConfigSet(modulesInConfig.begin(),
                                    modulesInConfig.end());
     vstring unusedLabels;
@@ -214,7 +212,7 @@ namespace art {
     // refactor this huge constructor into a series of well-named
     // private functions.
     size_t all_workers_count = all_workers_.size();
-    for (auto const & worker_ptr : all_workers_) {
+  for (auto const & worker_ptr : all_workers_) {
       OutputWorker * ow = dynamic_cast<OutputWorker *>(worker_ptr);
       if (ow) { all_output_workers_.push_back(ow); }
     }
@@ -234,7 +232,7 @@ namespace art {
   bool Schedule::terminate() const
   {
     if (all_output_workers_.empty()) { return false; }
-    for (auto const & ow_ptr : all_output_workers_) {
+  for (auto const & ow_ptr : all_output_workers_) {
       if (ow_ptr->limitReached() == false) { return false; }
     }
     LogInfo("SuccessfulTermination")
@@ -258,7 +256,7 @@ namespace art {
     ParameterSet outputs   = process_pset_.get<ParameterSet>("outputs", empty);
     //vstring::iterator it(modnames.begin()),ie(modnames.end());
     PathWorkers tmpworkers;
-    for (auto const & modname : modnames) {
+  for (auto const & modname : modnames) {
       WorkerInPath::FilterAction filterAction = WorkerInPath::Normal;
       if (modname[0] == '!')       { filterAction = WorkerInPath::Veto; }
       else if (modname[0] == '-')  { filterAction = WorkerInPath::Ignore; }
@@ -305,7 +303,7 @@ namespace art {
     PathWorkers tmpworkers;
     Workers holder;
     fillWorkers(name, tmpworkers, true, pregistry);
-    for (auto const & worker : tmpworkers) { holder.push_back(worker.getWorker()); }
+  for (auto const & worker : tmpworkers) { holder.push_back(worker.getWorker()); }
     if (!tmpworkers.empty()) {
       Path p(bitpos, name, tmpworkers, trptr,
              process_pset_, *act_table_, actReg_, false);
@@ -314,13 +312,12 @@ namespace art {
     for_all(holder, std::bind(&art::Schedule::addToAllWorkers, this, _1));
   }
 
-  void Schedule::fillEndPath(int bitpos, string const & name,
-                             MasterProductRegistry & pregistry)
+  void Schedule::fillEndPath(int bitpos, string const & name, MasterProductRegistry & pregistry)
   {
     PathWorkers tmpworkers;
     fillWorkers(name, tmpworkers, false, pregistry);
     Workers holder;
-    for (auto const & pw : tmpworkers) { holder.push_back(pw.getWorker()); }
+  for (auto const & pw : tmpworkers) { holder.push_back(pw.getWorker()); }
     if (!tmpworkers.empty()) {
       Path p(bitpos, name, tmpworkers, endpath_results_,
              process_pset_, *act_table_, actReg_, true);
@@ -365,8 +362,7 @@ namespace art {
     // The trigger report (pass/fail etc.):
     // Printed even if summary not requested, per issue #1864.
     LogAbsolute("ArtSummary") << "";
-    LogAbsolute("ArtSummary") << "TrigReport " <<
-                              "---------- Event  Summary ------------";
+    LogAbsolute("ArtSummary") << "TrigReport " << "---------- Event  Summary ------------";
     LogAbsolute("ArtSummary") << "TrigReport"
                               << " Events total = " << totalEvents()
                               << " passed = " << totalEventsPassed()
@@ -374,8 +370,7 @@ namespace art {
                               << "";
     if (wantSummary_) {
       LogAbsolute("ArtSummary") << "";
-      LogAbsolute("ArtSummary") << "TrigReport " <<
-                                "---------- Path   Summary ------------";
+      LogAbsolute("ArtSummary") << "TrigReport " << "---------- Path   Summary ------------";
       LogAbsolute("ArtSummary") << "TrigReport "
                                 << right << setw(10) << "Trig Bit#" << " "
                                 << right << setw(10) << "Run" << " "
@@ -396,8 +391,7 @@ namespace art {
                                   << pi->name() << "";
       }
       LogAbsolute("ArtSummary") << "";
-      LogAbsolute("ArtSummary") << "TrigReport " <<
-                                "-------End-Path   Summary ------------";
+      LogAbsolute("ArtSummary") << "TrigReport " << "-------End-Path   Summary ------------";
       LogAbsolute("ArtSummary") << "TrigReport "
                                 << right << setw(10) << "Trig Bit#" << " "
                                 << right << setw(10) << "Run" << " "
@@ -421,8 +415,7 @@ namespace art {
       pe = trig_paths_.end();
       for (; pi != pe; ++pi) {
         LogAbsolute("ArtSummary") << "";
-        LogAbsolute("ArtSummary") << "TrigReport " << "---------- Modules in Path: " <<
-                                  pi->name() << " ------------";
+        LogAbsolute("ArtSummary") << "TrigReport " << "---------- Modules in Path: " << pi->name() << " ------------";
         LogAbsolute("ArtSummary") << "TrigReport "
                                   << right << setw(10) << "Trig Bit#" << " "
                                   << right << setw(10) << "Visited" << " "
@@ -447,8 +440,7 @@ namespace art {
     pe = end_paths_.end();
     for (; pi != pe; ++pi) {
       LogAbsolute("ArtSummary") << "";
-      LogAbsolute("ArtSummary") << "TrigReport " << "------ Modules in End-Path: " <<
-                                pi->name() << " ------------";
+      LogAbsolute("ArtSummary") << "TrigReport " << "------ Modules in End-Path: " << pi->name() << " ------------";
       LogAbsolute("ArtSummary") << "TrigReport "
                                 << right << setw(10) << "Trig Bit#" << " "
                                 << right << setw(10) << "Visited" << " "
@@ -470,8 +462,7 @@ namespace art {
     Workers::iterator ai, ae;
     if (wantSummary_) {
       LogAbsolute("ArtSummary") << "";
-      LogAbsolute("ArtSummary") << "TrigReport " <<
-                                "---------- Module Summary ------------";
+      LogAbsolute("ArtSummary") << "TrigReport " << "---------- Module Summary ------------";
       LogAbsolute("ArtSummary") << "TrigReport "
                                 << right << setw(10) << "Visited" << " "
                                 << right << setw(10) << "Run" << " "
@@ -491,8 +482,7 @@ namespace art {
     }
     LogAbsolute("ArtSummary") << "";
     // The timing report (CPU and Real Time):
-    LogAbsolute("ArtSummary") << "TimeReport " <<
-                              "---------- Time  Summary ---[sec]----";
+    LogAbsolute("ArtSummary") << "TimeReport " << "---------- Time  Summary ---[sec]----";
     LogAbsolute("ArtSummary") << "TimeReport"
                               << setprecision(6) << fixed
                               << " CPU = " << timeCpuReal().first
@@ -500,16 +490,14 @@ namespace art {
                               << "";
     LogAbsolute("ArtSummary") << "";
     if (wantSummary_) {
-      LogAbsolute("ArtSummary") << "TimeReport " <<
-                                "---------- Event  Summary ---[sec]----";
+      LogAbsolute("ArtSummary") << "TimeReport " << "---------- Event  Summary ---[sec]----";
       LogAbsolute("ArtSummary") << "TimeReport"
                                 << setprecision(6) << fixed
                                 << " CPU/event = " << timeCpuReal().first / max(1, totalEvents())
                                 << " Real/event = " << timeCpuReal().second / max(1, totalEvents())
                                 << "";
       LogAbsolute("ArtSummary") << "";
-      LogAbsolute("ArtSummary") << "TimeReport " <<
-                                "---------- Path   Summary ---[sec]----";
+      LogAbsolute("ArtSummary") << "TimeReport " << "---------- Path   Summary ---[sec]----";
       LogAbsolute("ArtSummary") << "TimeReport "
                                 << right << setw(22) << "per event "
                                 << right << setw(22) << "per path-run "
@@ -542,8 +530,7 @@ namespace art {
                                 << right << setw(22) << "per path-run "
                                 << "";
       LogAbsolute("ArtSummary") << "";
-      LogAbsolute("ArtSummary") << "TimeReport " <<
-                                "-------End-Path   Summary ---[sec]----";
+      LogAbsolute("ArtSummary") << "TimeReport " << "-------End-Path   Summary ---[sec]----";
       LogAbsolute("ArtSummary") << "TimeReport "
                                 << right << setw(22) << "per event "
                                 << right << setw(22) << "per endpath-run "
@@ -579,8 +566,7 @@ namespace art {
       pe = trig_paths_.end();
       for (; pi != pe; ++pi) {
         LogAbsolute("ArtSummary") << "";
-        LogAbsolute("ArtSummary") << "TimeReport " << "---------- Modules in Path: " <<
-                                  pi->name() << " ---[sec]----";
+        LogAbsolute("ArtSummary") << "TimeReport " << "---------- Modules in Path: " << pi->name() << " ---[sec]----";
         LogAbsolute("ArtSummary") << "TimeReport "
                                   << right << setw(22) << "per event "
                                   << right << setw(22) << "per module-visit "
@@ -596,10 +582,8 @@ namespace art {
                                     << setprecision(6) << fixed
                                     << right << setw(10) << pi->timeCpuReal(i).first / max(1, totalEvents()) << " "
                                     << right << setw(10) << pi->timeCpuReal(i).second / max(1, totalEvents()) << " "
-                                    << right << setw(10) << pi->timeCpuReal(i).first / max(1,
-                                        pi->timesVisited(i)) << " "
-                                    << right << setw(10) << pi->timeCpuReal(i).second / max(1,
-                                        pi->timesVisited(i)) << " "
+                                    << right << setw(10) << pi->timeCpuReal(i).first / max(1, pi->timesVisited(i)) << " "
+                                    << right << setw(10) << pi->timeCpuReal(i).second / max(1, pi->timesVisited(i)) << " "
                                     << pi->getWorker(i)->description().moduleLabel_ << "";
         }
       }
@@ -617,8 +601,7 @@ namespace art {
       pe = end_paths_.end();
       for (; pi != pe; ++pi) {
         LogAbsolute("ArtSummary") << "";
-        LogAbsolute("ArtSummary") << "TimeReport " << "------ Modules in End-Path: " <<
-                                  pi->name() << " ---[sec]----";
+        LogAbsolute("ArtSummary") << "TimeReport " << "------ Modules in End-Path: " << pi->name() << " ---[sec]----";
         LogAbsolute("ArtSummary") << "TimeReport "
                                   << right << setw(22) << "per event "
                                   << right << setw(22) << "per module-visit "
@@ -634,10 +617,8 @@ namespace art {
                                     << setprecision(6) << fixed
                                     << right << setw(10) << pi->timeCpuReal(i).first / max(1, totalEvents()) << " "
                                     << right << setw(10) << pi->timeCpuReal(i).second / max(1, totalEvents()) << " "
-                                    << right << setw(10) << pi->timeCpuReal(i).first / max(1,
-                                        pi->timesVisited(i)) << " "
-                                    << right << setw(10) << pi->timeCpuReal(i).second / max(1,
-                                        pi->timesVisited(i)) << " "
+                                    << right << setw(10) << pi->timeCpuReal(i).first / max(1, pi->timesVisited(i)) << " "
+                                    << right << setw(10) << pi->timeCpuReal(i).second / max(1, pi->timesVisited(i)) << " "
                                     << pi->getWorker(i)->description().moduleLabel_ << "";
         }
       }
@@ -652,8 +633,7 @@ namespace art {
                                 << right << setw(22) << "per module-visit "
                                 << "";
       LogAbsolute("ArtSummary") << "";
-      LogAbsolute("ArtSummary") << "TimeReport " <<
-                                "---------- Module Summary ---[sec]----";
+      LogAbsolute("ArtSummary") << "TimeReport " << "---------- Module Summary ---[sec]----";
       LogAbsolute("ArtSummary") << "TimeReport "
                                 << right << setw(22) << "per event "
                                 << right << setw(22) << "per module-run "
@@ -672,18 +652,12 @@ namespace art {
       for (; ai != ae; ++ai) {
         LogAbsolute("ArtSummary") << "TimeReport "
                                   << setprecision(6) << fixed
-                                  << right << setw(10) << (*ai)->timeCpuReal().first / max(1,
-                                      totalEvents()) << " "
-                                  << right << setw(10) << (*ai)->timeCpuReal().second / max(1,
-                                      totalEvents()) << " "
-                                  << right << setw(10) << (*ai)->timeCpuReal().first / max(1,
-                                      (*ai)->timesRun()) << " "
-                                  << right << setw(10) << (*ai)->timeCpuReal().second / max(1,
-                                      (*ai)->timesRun()) << " "
-                                  << right << setw(10) << (*ai)->timeCpuReal().first / max(1,
-                                      (*ai)->timesVisited()) << " "
-                                  << right << setw(10) << (*ai)->timeCpuReal().second / max(1,
-                                      (*ai)->timesVisited()) << " "
+                                  << right << setw(10) << (*ai)->timeCpuReal().first / max(1, totalEvents()) << " "
+                                  << right << setw(10) << (*ai)->timeCpuReal().second / max(1, totalEvents()) << " "
+                                  << right << setw(10) << (*ai)->timeCpuReal().first / max(1, (*ai)->timesRun()) << " "
+                                  << right << setw(10) << (*ai)->timeCpuReal().second / max(1, (*ai)->timesRun()) << " "
+                                  << right << setw(10) << (*ai)->timeCpuReal().first / max(1, (*ai)->timesVisited()) << " "
+                                  << right << setw(10) << (*ai)->timeCpuReal().second / max(1, (*ai)->timesVisited()) << " "
                                   << (*ai)->description().moduleLabel_ << "";
       }
       LogAbsolute("ArtSummary") << "TimeReport "
@@ -712,20 +686,17 @@ namespace art {
 
   void Schedule::openOutputFiles(FileBlock & fb)
   {
-    for_all(all_output_workers_, std::bind(&OutputWorker::openFile, _1,
-                                           std::cref(fb)));
+    for_all(all_output_workers_, std::bind(&OutputWorker::openFile, _1, std::cref(fb)));
   }
 
   void Schedule::writeRun(RunPrincipal const & rp)
   {
-    for_all(all_output_workers_, std::bind(&OutputWorker::writeRun, _1,
-                                           std::cref(rp)));
+    for_all(all_output_workers_, std::bind(&OutputWorker::writeRun, _1, std::cref(rp)));
   }
 
   void Schedule::writeSubRun(SubRunPrincipal const & srp)
   {
-    for_all(all_output_workers_, std::bind(&OutputWorker::writeSubRun, _1,
-                                           std::cref(srp)));
+    for_all(all_output_workers_, std::bind(&OutputWorker::writeSubRun, _1, std::cref(srp)));
   }
 
   bool Schedule::shouldWeCloseOutput() const
@@ -738,26 +709,22 @@ namespace art {
 
   void Schedule::respondToOpenInputFile(FileBlock const & fb)
   {
-    for_all(all_workers_, std::bind(&Worker::respondToOpenInputFile, _1,
-                                    std::cref(fb)));
+    for_all(all_workers_, std::bind(&Worker::respondToOpenInputFile, _1, std::cref(fb)));
   }
 
   void Schedule::respondToCloseInputFile(FileBlock const & fb)
   {
-    for_all(all_workers_, std::bind(&Worker::respondToCloseInputFile, _1,
-                                    std::cref(fb)));
+    for_all(all_workers_, std::bind(&Worker::respondToCloseInputFile, _1, std::cref(fb)));
   }
 
   void Schedule::respondToOpenOutputFiles(FileBlock const & fb)
   {
-    for_all(all_workers_, std::bind(&Worker::respondToOpenOutputFiles, _1,
-                                    std::cref(fb)));
+    for_all(all_workers_, std::bind(&Worker::respondToOpenOutputFiles, _1, std::cref(fb)));
   }
 
   void Schedule::respondToCloseOutputFiles(FileBlock const & fb)
   {
-    for_all(all_workers_, std::bind(&Worker::respondToCloseOutputFiles, _1,
-                                    std::cref(fb)));
+    for_all(all_workers_, std::bind(&Worker::respondToCloseOutputFiles, _1, std::cref(fb)));
   }
 
   void Schedule::beginJob()
@@ -840,7 +807,7 @@ namespace art {
   }
 
   void
-  Schedule::getAllWorkers(std::vector<Worker *> & out)
+  Schedule::getAllWorkers(std::vector<Worker *> &out)
   {
     copy_all(all_workers_, std::back_inserter(out));
   }
@@ -878,22 +845,18 @@ namespace art {
   }
 
   void
-  Schedule::makeTriggerResultsInserter(ParameterSet const & trig_pset,
-                                       MasterProductRegistry & pregistry)
+  Schedule::makeTriggerResultsInserter(ParameterSet const & trig_pset, MasterProductRegistry & pregistry)
   {
-    WorkerParams work_args(process_pset_, trig_pset, pregistry, *act_table_,
-                           processName_);
+    WorkerParams work_args(process_pset_, trig_pset, pregistry, *act_table_, processName_);
     ModuleDescription md;
     md.parameterSetID_ = trig_pset.id();
     md.moduleName_ = "TriggerResultInserter";
     md.moduleLabel_ = "TriggerResults";
-    md.processConfiguration_ = ProcessConfiguration(processName_,
-                                                    process_pset_.id(), getReleaseVersion(), getPassID());
+    md.processConfiguration_ = ProcessConfiguration(processName_, process_pset_.id(), getReleaseVersion(), getPassID());
     actReg_->sPreModuleConstruction.invoke(md);
     unique_ptr<EDProducer> producer(new TriggerResultInserter(trig_pset, results_));
     actReg_->sPostModuleConstruction.invoke(md);
-    results_inserter_.reset(new WorkerT<EDProducer>(std::move(producer), md,
-                                                    work_args));
+    results_inserter_.reset(new WorkerT<EDProducer>(std::move(producer), md, work_args));
     results_inserter_->setActivityRegistry(actReg_);
   }
 
@@ -926,8 +889,8 @@ namespace art {
   {
     BranchesByModuleLabel::const_iterator
     lb(branchLookup.lower_bound(wp->label())),
-    e(branchLookup.end()),
-    ub(branchLookup.upper_bound(wp->label()));
+       e(branchLookup.end()),
+       ub(branchLookup.upper_bound(wp->label()));
     if (lb == ub) { return; } // This worker produces nothing.
     for (BranchesByModuleLabel::const_iterator i = lb;
          i != ub;
@@ -936,8 +899,7 @@ namespace art {
     }
   }
 
-  void Schedule::pathConsistencyCheck(size_t expected_num_workers __attribute__((
-                                        unused))) const
+  void Schedule::pathConsistencyCheck(size_t expected_num_workers __attribute__((unused))) const
   {
     // Major sanity check: make sure nobody has added a worker after
     // we've already relied on all_workers_ being full. Failure here
@@ -971,8 +933,8 @@ namespace art {
   }
 
   size_t Schedule::accumulateConsistencyFailures(size_t current_num_failures,
-                                                 art::Path const & path,
-                                                 bool isEndPath) const
+      art::Path const & path,
+      bool isEndPath) const
   {
     return current_num_failures +
            checkOnePath(path, isEndPath);
