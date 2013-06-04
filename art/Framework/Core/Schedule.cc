@@ -42,37 +42,6 @@ using namespace art;
 using std::placeholders::_1;
 using std::placeholders::_2;
 
-namespace {
-
-  // Function template to transform each element in the input range to
-  // a value placed into the output range. The supplied function
-  // should take a const_reference to the 'input', and write to a
-  // reference to the 'output'.
-  template <class InputIterator, class ForwardIterator, class Func>
-  void
-  transform_into(InputIterator begin, InputIterator end,
-                 ForwardIterator out, Func func)
-  {
-    for (; begin != end; ++begin, ++out) { func(*begin, *out); }
-  }
-
-  // Function template that takes a sequence 'from', a sequence
-  // 'to', and a callable object 'func'. It and applies
-  // transform_into to fill the 'to' sequence with the values
-  // calcuated by the callable object, taking care to fill the
-  // outupt only if all calls succeed.
-  template <class FROM, class TO, class FUNC>
-  void
-  fill_summary(FROM const & from, TO & to, FUNC func)
-  {
-    TO temp(from.size());
-    transform_into(from.begin(), from.end(), temp.begin(), func);
-    to.swap(temp);
-  }
-
-}  // namespace
-
-
 art::Schedule::Schedule(ParameterSet const & proc_pset,
                         art::TriggerNamesService const & tns,
                         WorkerRegistry & wreg,
@@ -762,71 +731,6 @@ void art::Schedule::respondToCloseOutputFiles(FileBlock const & fb)
 void art::Schedule::beginJob()
 {
   for_all(all_workers_, std::bind(&Worker::beginJob, _1));
-}
-
-void
-fillModuleInPathSummary(Path const &,
-                        ModuleInPathSummary &)
-{
-}
-
-
-void
-fillModuleInPathSummary(Path const & path,
-                        size_t which,
-                        ModuleInPathSummary & sum)
-{
-  sum.timesVisited = path.timesVisited(which);
-  sum.timesPassed  = path.timesPassed(which);
-  sum.timesFailed  = path.timesFailed(which);
-  sum.timesExcept  = path.timesExcept(which);
-  sum.moduleLabel  =
-    path.getWorker(which)->description().moduleLabel_;
-}
-
-void
-fillPathSummary(Path const & path, PathSummary & sum)
-{
-  sum.name        = path.name();
-  sum.bitPosition = path.bitPosition();
-  sum.timesRun    = path.timesRun();
-  sum.timesPassed = path.timesPassed();
-  sum.timesFailed = path.timesFailed();
-  sum.timesExcept = path.timesExcept();
-  Path::size_type sz = path.size();
-  vector<ModuleInPathSummary> temp(sz);
-  for (size_t i = 0; i != sz; ++i) {
-    fillModuleInPathSummary(path, i, temp[i]);
-  }
-  sum.moduleInPathSummaries.swap(temp);
-}
-
-void
-fillWorkerSummaryAux(Worker const & w, WorkerSummary & sum)
-{
-  sum.timesVisited = w.timesVisited();
-  sum.timesRun     = w.timesRun();
-  sum.timesPassed  = w.timesPassed();
-  sum.timesFailed  = w.timesFailed();
-  sum.timesExcept  = w.timesExcept();
-  sum.moduleLabel  = w.description().moduleLabel_;
-}
-
-void
-fillWorkerSummary(Worker const * pw, WorkerSummary & sum)
-{
-  fillWorkerSummaryAux(*pw, sum);
-}
-
-void
-art::Schedule::getTriggerReport(TriggerReport & rep) const
-{
-  rep.eventSummary.totalEvents = totalEvents();
-  rep.eventSummary.totalEventsPassed = totalEventsPassed();
-  rep.eventSummary.totalEventsFailed = totalEventsFailed();
-  fill_summary(trig_paths_,  rep.trigPathSummaries, &fillPathSummary);
-  fill_summary(end_paths_,   rep.endPathSummaries,  &fillPathSummary);
-  fill_summary(all_workers_, rep.workerSummaries,   &fillWorkerSummary);
 }
 
 void

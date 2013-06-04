@@ -180,10 +180,6 @@ private:
   /// (N.B. totalEventsFailed() + totalEventsPassed() == totalEvents()
   int totalEventsFailed() const;
 
-  /// Return the trigger report information on paths,
-  /// modules-in-path, modules-in-endpath, and modules.
-  void getTriggerReport(TriggerReport & rep) const;
-
   ///  Clear all the counters in the trigger report.
   void clearCounters();
 
