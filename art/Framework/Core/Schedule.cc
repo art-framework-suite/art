@@ -839,8 +839,7 @@ void art::Schedule::catalogOneOnDemandWorker(cet::exempt_ptr<Worker> wp,
 }
 
 void art::Schedule::pathConsistencyCheck(size_t expected_num_workers
-                                         __attribute__((
-                                                         unused))) const
+                                         __attribute__((unused))) const
 {
   // Major sanity check: make sure nobody has added a worker after
   // we've already relied on all_workers_ being full. Failure here
