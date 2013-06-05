@@ -28,19 +28,25 @@
 #include "cpp0x/algorithm"
 #include "cpp0x/functional"
 #include "cpp0x/numeric"
+
+#include <algorithm>
 #include <cassert>
 #include <cstdlib>
+#include <functional>
 #include <iomanip>
-#include <list>
 
-using namespace cet;
-using namespace fhicl;
-using namespace mf;
-using namespace std;
-using namespace art;
-
+// Commonly-used (and unambiguous) symbols from other namespaces.
+using cet::for_all;
+using fhicl::ParameterSet;
+using mf::LogAbsolute;
+using mf::LogError;
+using mf::LogInfo;
+using std::fixed;
 using std::placeholders::_1;
 using std::placeholders::_2;
+using std::right;
+using std::setprecision;
+using std::setw;
 
 art::Schedule::Schedule(ParameterSet const & proc_pset,
                         art::TriggerNamesService const & tns,
@@ -92,17 +98,17 @@ art::Schedule::Schedule(ParameterSet const & proc_pset,
   for (int bitpos = 0; eib != eie; ++eib, ++bitpos)
   { fillEndPath(bitpos, *eib, pregistry); }
   //See if all modules were used
-  set<string> usedWorkerLabels;
+  std::set<std::string> usedWorkerLabels;
   for (auto const & worker_ptr : all_workers_)
   { usedWorkerLabels.insert(worker_ptr->description().moduleLabel_); }
   vstring const & modulesInConfig(proc_pset.get<vstring >("all_modules",
                                                           vstring()));
-  set<string> modulesInConfigSet(modulesInConfig.begin(),
-                                 modulesInConfig.end());
+  std::set<std::string> modulesInConfigSet(modulesInConfig.begin(),
+                                           modulesInConfig.end());
   vstring unusedLabels;
-  set_difference(modulesInConfigSet.begin(), modulesInConfigSet.end(),
-                 usedWorkerLabels.begin(), usedWorkerLabels.end(),
-                 back_inserter(unusedLabels));
+  std::set_difference(modulesInConfigSet.begin(), modulesInConfigSet.end(),
+                      usedWorkerLabels.begin(), usedWorkerLabels.end(),
+                      back_inserter(unusedLabels));
   //does the configuration say we should allow on demand?
   bool allowUnscheduled = opts.get<bool>("allowUnscheduled", false);
   if (!unusedLabels.empty()) {
@@ -160,7 +166,7 @@ art::Schedule::Schedule(ParameterSet const & proc_pset,
       catalogOnDemandBranches(onDemandWorkers, branchLookup);
     }
     if (!shouldBeUsedLabels.empty()) {
-      ostringstream unusedStream;
+      std::ostringstream unusedStream;
       unusedStream << "'" << shouldBeUsedLabels.front() << "'";
       for (vstring::iterator
            i = shouldBeUsedLabels.begin() + 1,
@@ -205,7 +211,7 @@ bool art::Schedule::terminate() const
 }
 
 void
-art::Schedule::fillWorkers(string const & name,
+art::Schedule::fillWorkers(std::string const & name,
                            PathWorkers & out,
                            bool isTrigPath,
                            MasterProductRegistry & pregistry)
@@ -223,7 +229,7 @@ art::Schedule::fillWorkers(string const & name,
     WorkerInPath::FilterAction filterAction = WorkerInPath::Normal;
     if (modname[0] == '!')       { filterAction = WorkerInPath::Veto; }
     else if (modname[0] == '-')  { filterAction = WorkerInPath::Ignore; }
-    string realname(modname);
+    std::string realname(modname);
     if (filterAction != WorkerInPath::Normal) { realname.erase(0, 1); }
     ParameterSet modpset;
     // Look for the module's parameter set in the module
@@ -240,9 +246,9 @@ art::Schedule::fillWorkers(string const & name,
       tmpworkers.push_back(w);
     }
     else {
-      string pathType("endpath");
-      if (!search_all(end_path_name_list_, name)) {
-        pathType = string("path");
+      std::string pathType("endpath");
+      if (!cet::search_all(end_path_name_list_, name)) {
+        pathType = std::string("path");
       }
       throw art::Exception(art::errors::Configuration)
           << "The unknown module label '"
@@ -259,7 +265,7 @@ art::Schedule::fillWorkers(string const & name,
 
 void
 art::Schedule::fillTrigPath(int bitpos,
-                            string const & name,
+                            std::string const & name,
                             TrigResPtr trptr,
                             MasterProductRegistry & pregistry)
 {
@@ -275,7 +281,7 @@ art::Schedule::fillTrigPath(int bitpos,
   for_all(holder, std::bind(&Schedule::addToAllWorkers, this, _1));
 }
 
-void art::Schedule::fillEndPath(int bitpos, string const & name,
+void art::Schedule::fillEndPath(int bitpos, std::string const & name,
                                 MasterProductRegistry & pregistry)
 {
   PathWorkers tmpworkers;
@@ -465,8 +471,8 @@ void art::Schedule::writeSummary()
                               "---------- Event  Summary ---[sec]----";
     LogAbsolute("ArtSummary") << "TimeReport"
                               << setprecision(6) << fixed
-                              << " CPU/event = " << timeCpuReal().first / max(1, totalEvents())
-                              << " Real/event = " << timeCpuReal().second / max(1, totalEvents())
+                              << " CPU/event = " << timeCpuReal().first / std::max(1, totalEvents())
+                              << " Real/event = " << timeCpuReal().second / std::max(1, totalEvents())
                               << "";
     LogAbsolute("ArtSummary") << "";
     LogAbsolute("ArtSummary") << "TimeReport " <<
@@ -486,10 +492,10 @@ void art::Schedule::writeSummary()
     for (; pi != pe; ++pi) {
       LogAbsolute("ArtSummary") << "TimeReport "
                                 << setprecision(6) << fixed
-                                << right << setw(10) << pi->timeCpuReal().first / max(1, totalEvents()) << " "
-                                << right << setw(10) << pi->timeCpuReal().second / max(1, totalEvents()) << " "
-                                << right << setw(10) << pi->timeCpuReal().first / max(1, pi->timesRun()) << " "
-                                << right << setw(10) << pi->timeCpuReal().second / max(1, pi->timesRun()) << " "
+                                << right << setw(10) << pi->timeCpuReal().first / std::max(1, totalEvents()) << " "
+                                << right << setw(10) << pi->timeCpuReal().second / std::max(1, totalEvents()) << " "
+                                << right << setw(10) << pi->timeCpuReal().first / std::max(1, pi->timesRun()) << " "
+                                << right << setw(10) << pi->timeCpuReal().second /std:: max(1, pi->timesRun()) << " "
                                 << pi->name() << "";
     }
     LogAbsolute("ArtSummary") << "TimeReport "
@@ -520,10 +526,10 @@ void art::Schedule::writeSummary()
     for (; pi != pe; ++pi) {
       LogAbsolute("ArtSummary") << "TimeReport "
                                 << setprecision(6) << fixed
-                                << right << setw(10) << pi->timeCpuReal().first / max(1, totalEvents()) << " "
-                                << right << setw(10) << pi->timeCpuReal().second / max(1, totalEvents()) << " "
-                                << right << setw(10) << pi->timeCpuReal().first / max(1, pi->timesRun()) << " "
-                                << right << setw(10) << pi->timeCpuReal().second / max(1, pi->timesRun()) << " "
+                                << right << setw(10) << pi->timeCpuReal().first / std::max(1, totalEvents()) << " "
+                                << right << setw(10) << pi->timeCpuReal().second / std::max(1, totalEvents()) << " "
+                                << right << setw(10) << pi->timeCpuReal().first / std::max(1, pi->timesRun()) << " "
+                                << right << setw(10) << pi->timeCpuReal().second / std::max(1, pi->timesRun()) << " "
                                 << pi->name() << "";
     }
     LogAbsolute("ArtSummary") << "TimeReport "
@@ -555,11 +561,11 @@ void art::Schedule::writeSummary()
       for (unsigned int i = 0; i < pi->size(); ++i) {
         LogAbsolute("ArtSummary") << "TimeReport "
                                   << setprecision(6) << fixed
-                                  << right << setw(10) << pi->timeCpuReal(i).first / max(1, totalEvents()) << " "
-                                  << right << setw(10) << pi->timeCpuReal(i).second / max(1, totalEvents()) << " "
-                                  << right << setw(10) << pi->timeCpuReal(i).first / max(1,
+                                  << right << setw(10) << pi->timeCpuReal(i).first / std::max(1, totalEvents()) << " "
+                                  << right << setw(10) << pi->timeCpuReal(i).second / std::max(1, totalEvents()) << " "
+                                  << right << setw(10) << pi->timeCpuReal(i).first / std::max(1,
                                       pi->timesVisited(i)) << " "
-                                  << right << setw(10) << pi->timeCpuReal(i).second / max(1,
+                                  << right << setw(10) << pi->timeCpuReal(i).second / std::max(1,
                                       pi->timesVisited(i)) << " "
                                   << pi->getWorker(i)->description().moduleLabel_ << "";
       }
@@ -593,11 +599,11 @@ void art::Schedule::writeSummary()
       for (unsigned int i = 0; i < pi->size(); ++i) {
         LogAbsolute("ArtSummary") << "TimeReport "
                                   << setprecision(6) << fixed
-                                  << right << setw(10) << pi->timeCpuReal(i).first / max(1, totalEvents()) << " "
-                                  << right << setw(10) << pi->timeCpuReal(i).second / max(1, totalEvents()) << " "
-                                  << right << setw(10) << pi->timeCpuReal(i).first / max(1,
+                                  << right << setw(10) << pi->timeCpuReal(i).first / std::max(1, totalEvents()) << " "
+                                  << right << setw(10) << pi->timeCpuReal(i).second / std::max(1, totalEvents()) << " "
+                                  << right << setw(10) << pi->timeCpuReal(i).first / std::max(1,
                                       pi->timesVisited(i)) << " "
-                                  << right << setw(10) << pi->timeCpuReal(i).second / max(1,
+                                  << right << setw(10) << pi->timeCpuReal(i).second / std::max(1,
                                       pi->timesVisited(i)) << " "
                                   << pi->getWorker(i)->description().moduleLabel_ << "";
       }
@@ -633,17 +639,17 @@ void art::Schedule::writeSummary()
     for (; ai != ae; ++ai) {
       LogAbsolute("ArtSummary") << "TimeReport "
                                 << setprecision(6) << fixed
-                                << right << setw(10) << (*ai)->timeCpuReal().first / max(1,
+                                << right << setw(10) << (*ai)->timeCpuReal().first / std::max(1,
                                     totalEvents()) << " "
-                                << right << setw(10) << (*ai)->timeCpuReal().second / max(1,
+                                << right << setw(10) << (*ai)->timeCpuReal().second / std::max(1,
                                     totalEvents()) << " "
-                                << right << setw(10) << (*ai)->timeCpuReal().first / max(1,
+                                << right << setw(10) << (*ai)->timeCpuReal().first / std::max(1,
                                     (*ai)->timesRun()) << " "
-                                << right << setw(10) << (*ai)->timeCpuReal().second / max(1,
+                                << right << setw(10) << (*ai)->timeCpuReal().second / std::max(1,
                                     (*ai)->timesRun()) << " "
-                                << right << setw(10) << (*ai)->timeCpuReal().first / max(1,
+                                << right << setw(10) << (*ai)->timeCpuReal().first / std::max(1,
                                     (*ai)->timesVisited()) << " "
-                                << right << setw(10) << (*ai)->timeCpuReal().second / max(1,
+                                << right << setw(10) << (*ai)->timeCpuReal().second / std::max(1,
                                     (*ai)->timesVisited()) << " "
                                 << (*ai)->description().moduleLabel_ << "";
     }
@@ -738,7 +744,7 @@ art::Schedule::clearCounters()
 void
 art::Schedule::getAllWorkers(std::vector<Worker *> & out)
 {
-  copy_all(all_workers_, std::back_inserter(out));
+  cet::copy_all(all_workers_, std::back_inserter(out));
 }
 
 void
@@ -752,7 +758,7 @@ art::Schedule::resetAll()
 void
 art::Schedule::addToAllWorkers(Worker * w)
 {
-  if (!search_all(all_workers_, w)) { all_workers_.push_back(w); }
+  if (!cet::search_all(all_workers_, w)) { all_workers_.push_back(w); }
 }
 
 // FIXME: This can work with generic Principals just as soon as the
@@ -786,7 +792,7 @@ art::Schedule::makeTriggerResultsInserter(ParameterSet const & trig_pset,
   md.processConfiguration_ = ProcessConfiguration(processName_,
                                                   process_pset_.id(), getReleaseVersion(), getPassID());
   actReg_->sPreModuleConstruction.invoke(md);
-  unique_ptr<EDProducer> producer(new TriggerResultInserter(trig_pset, results_));
+  std::unique_ptr<EDProducer> producer(new TriggerResultInserter(trig_pset, results_));
   actReg_->sPostModuleConstruction.invoke(md);
   results_inserter_.reset(new WorkerT<EDProducer>(std::move(producer), md,
                                                   work_args));
