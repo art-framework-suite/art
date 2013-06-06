@@ -1,5 +1,5 @@
-#ifndef TTHTHTHT
-#define TTHTHTHT
+#ifndef art_Framework_Services_System_detail_ScheduleContextSetter_h
+#define art_Framework_Services_System_detail_ScheduleContextSetter_h
 
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/System/ScheduleContext.h"
@@ -34,4 +34,8 @@ resetContext()
   return sh_->resetContext();
 }
 
-#endif
+#endif /* art_Framework_Services_System_detail_ScheduleContextSetter_h */
+
+// Local Variables:
+// mode: c++
+// End:
