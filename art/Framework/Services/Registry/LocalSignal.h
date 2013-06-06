@@ -68,7 +68,7 @@ public:
   void
   watchAll(ResultType(T::*slot)(Args...) const, T const & t);
 
-  ResultType invoke(ScheduleID sID, Args... args) const;
+  ResultType invoke(ScheduleID sID, Args && ... args) const;
   void clear(ScheduleID sID);
   void clearAll();
 
@@ -147,7 +147,7 @@ watchAll(ResultType(T::*slot)(Args...) const, T const & t)
 template <art::detail::SignalResponseType STYPE, typename ResultType, typename... Args>
 ResultType
 art::LocalSignal<STYPE, ResultType, Args...>::
-invoke(ScheduleID sID, Args... args) const
+invoke(ScheduleID sID, Args && ... args) const
 {
   return signals_.at(sID.id())(std::forward<Args>(args)...);
 }

@@ -53,7 +53,7 @@ public:
   void
   watch(T const * t, ResultType(T::*slot)(Args...) const);
 
-  ResultType invoke(Args... args) const;
+  ResultType invoke(Args && ... args) const;
   void clear();
 
 private:
@@ -114,7 +114,7 @@ watch(T const * t, ResultType(T::*slot)(Args...) const)
 template <art::detail::SignalResponseType STYPE, typename ResultType, typename... Args>
 ResultType
 art::GlobalSignal<STYPE, ResultType, Args...>::
-invoke(Args... args) const
+invoke(Args && ... args) const
 {
   return signal_(std::forward<Args>(args)...);
 }
