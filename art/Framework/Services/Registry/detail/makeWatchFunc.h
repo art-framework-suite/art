@@ -7,40 +7,24 @@
 ////////////////////////////////////////////////////////////////////////
 // makeWatchFunc
 //
-// Overloaded SFINAE functions to ensure the correct binding gets done
-// in GlobalSignal and LocalSignal..
+// Construct the correct lambda to allow general registration of
+// pointer-to-member callback functions for global and local signals.
 namespace art {
   namespace detail {
     template <typename T, typename ResultType, typename...Args>
-    typename std::enable_if<sizeof...(Args) == 0, std::function<ResultType(Args...)>>::type
-    makeWatchFunc(ResultType(T::*slot)(Args...), T & t) {
-      return std::bind(slot, std::ref(t));
-    }
-    template <typename T, typename ResultType, typename...Args>
-    typename std::enable_if<sizeof...(Args) == 1, std::function<ResultType(Args...)>>::type
-    makeWatchFunc(ResultType(T::*slot)(Args...), T & t) {
-      return std::bind(slot, std::ref(t), std::placeholders::_1);
-    }
-    template <typename T, typename ResultType, typename...Args>
-    typename std::enable_if<sizeof...(Args) == 2, std::function<ResultType(Args...)>>::type
-    makeWatchFunc(ResultType(T::*slot)(Args...), T & t) {
-      return std::bind(slot, std::ref(t), std::placeholders::_1, std::placeholders::_2);
+    std::function<ResultType(Args...)>
+    makeWatchFunc(ResultType(T::*slot)(Args...), T & t)
+    {
+      return [slot, &t](Args && ... args) -> ResultType
+      { return (t.*slot)(std::forward<Args>(args)...); };
     }
 
     template <typename T, typename ResultType, typename...Args>
-    typename std::enable_if<sizeof...(Args) == 0, std::function<ResultType(Args...)>>::type
-    makeWatchFunc(ResultType(T::*slot)(Args...) const, T const & t) {
-      return std::bind(slot, std::cref(t));
-    }
-    template <typename T, typename ResultType, typename...Args>
-    typename std::enable_if<sizeof...(Args) == 1, std::function<ResultType(Args...)>>::type
-    makeWatchFunc(ResultType(T::*slot)(Args...) const, T const & t) {
-      return std::bind(slot, std::cref(t), std::placeholders::_1);
-    }
-    template <typename T, typename ResultType, typename...Args>
-    typename std::enable_if<sizeof...(Args) == 2, std::function<ResultType(Args...)>>::type
-    makeWatchFunc(ResultType(T::*slot)(Args...) const, T const & t) {
-      return std::bind(slot, std::cref(t), std::placeholders::_1, std::placeholders::_2);
+    std::function<ResultType(Args...)>
+    makeWatchFunc(ResultType(T::*slot)(Args...) const, T const & t)
+    {
+      return [slot, &t](Args && ... args) -> ResultType
+      { return (t.*slot)(std::forward<Args>(args)...); };
     }
   }
 }
