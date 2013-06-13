@@ -6,9 +6,10 @@
 
 #include "art/Framework/Core/WorkerRegistry.h"
 
-#include "art/Framework/Core/ModuleFactory.h"
 #include "art/Framework/Principal/Worker.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
+#include "art/Utilities/GetPassID.h"
+#include "art/Version/GetReleaseVersion.h"
 
 #include <sstream>
 
@@ -20,13 +21,17 @@ namespace
   ModuleDescription
     createModuleDescription(WorkerParams const &p)
   {
-    ParameterSet const& procParams = *p.procPset_;
-    ParameterSet const& conf = *p.pset_;
+    ParameterSet const& procParams = p.procPset_;
+    ParameterSet const& conf = p.pset_;
     ModuleDescription md;
     md.parameterSetID_ = conf.id();
     md.moduleName_ = conf.get<std::string>("module_type");
     md.moduleLabel_ = conf.get<std::string>("module_label");
-    md.processConfiguration_ = ProcessConfiguration(p.processName_, procParams.id(), p.releaseVersion_, p.passID_);
+    md.processConfiguration_ =
+      ProcessConfiguration(p.processName_,
+                           procParams.id(),
+                           getReleaseVersion(),
+                           getPassID());
     return md;
   }
 } // namespace
@@ -35,7 +40,8 @@ namespace art {
 
   WorkerRegistry::WorkerRegistry(std::shared_ptr<ActivityRegistry> areg) :
     m_workerMap(),
-    actReg_(areg)
+    actReg_(areg),
+    fact_()
   { }
 
   void WorkerRegistry::clear() {
@@ -44,8 +50,7 @@ namespace art {
 
   Worker* WorkerRegistry::getWorker(const WorkerParams& p) {
     std::string workerid =
-      mangleWorkerParameters(*p.pset_, p.processName_,
-                             p.releaseVersion_,p.passID_);
+      mangleWorkerParameters(p.pset_, p.processName_);
 
     WorkerMap::iterator workerIt = m_workerMap.find(workerid);
 
@@ -55,7 +60,7 @@ namespace art {
         ModuleDescription moduleDesc(createModuleDescription(p));
         actReg_->sPreModuleConstruction.invoke(moduleDesc);
 
-        std::unique_ptr<Worker> workerPtr = ModuleFactory::makeWorker(p, moduleDesc);
+        std::unique_ptr<Worker> workerPtr = fact_.makeWorker(p, moduleDesc);
 
         actReg_->sPostModuleConstruction.invoke(moduleDesc);
         workerPtr->setActivityRegistry(actReg_);
@@ -70,15 +75,11 @@ namespace art {
 
 
   std::string WorkerRegistry::mangleWorkerParameters(ParameterSet const& parameterSet,
-                                                     std::string const& processName,
-                                                     ReleaseVersion const& releaseVersion,
-                                                     PassID const& passID) {
+                                                     std::string const& processName) {
 
   std::stringstream mangled_parameters;
   mangled_parameters<< parameterSet.to_string()
-                    << processName
-                    << releaseVersion
-                    << passID;
+                    << processName;
 
     return mangled_parameters.str();
 

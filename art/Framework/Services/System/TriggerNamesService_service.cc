@@ -24,18 +24,31 @@ static  vector<string> empty_svec;
 
 // ----------------------------------------------------------------------
 
-TriggerNamesService::TriggerNamesService(ParameterSet const & pset)
-  : trigger_pset_(pset.get<ParameterSet>("trigger_paths", empty_pset))
-  , trignames_(trigger_pset_.get<vector<string> >("trigger_paths"
-               , empty_svec))
-  , trigpos_()
-  , end_names_()
-  , end_pos_()
-  , modulenames_()
-  , process_name_(pset.get<string>("process_name"))
-  , wantSummary_(pset.get<bool>("services.scheduler.wantSummary", false))
+TriggerNamesService::TriggerNamesService(ParameterSet const & procPS)
+:
+  TriggerNamesService(procPS,
+                      procPS.get<std::vector<std::string> >("trigger_paths.trigger_paths",
+                        { }))
 {
-  ParameterSet physics = pset.get<ParameterSet>("physics", empty_pset);
+}
+
+TriggerNamesService::TriggerNamesService(ParameterSet const & procPS,
+                                         std::vector<std::string> const & trigger_path_names)
+  :
+  trignames_(trigger_path_names),
+  trigpos_(),
+  end_names_(),
+  end_pos_(),
+  trigger_pset_(),
+  modulenames_(),
+  process_name_(procPS.get<string>("process_name")),
+  wantSummary_(procPS.get<bool>("services.scheduler.wantSummary", false))
+{
+  // Make and hold onto a parameter set for posterity.
+  trigger_pset_.put("trigger_paths",  trignames_);
+  ParameterSetRegistry::put(trigger_pset_);
+
+  ParameterSet physics = procPS.get<ParameterSet>("physics", empty_pset);
   end_names_ = physics.get<vector<string> >("end_paths", empty_svec);
   loadPosMap(trigpos_, trignames_);
   loadPosMap(end_pos_, end_names_);

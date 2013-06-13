@@ -130,7 +130,7 @@ private:
   State state_;
 
   ModuleDescription md_;
-  ActionTable const* actions_; // memory assumed to be managed elsewhere
+  ActionTable const & actions_;
   std::shared_ptr<art::Exception> cached_exception_; // if state is 'exception'
 
   std::shared_ptr<ActivityRegistry> actReg_;
@@ -239,7 +239,7 @@ bool art::Worker::doWork(typename T::MyPrincipal& ep,
 
     // Get the action corresponding to this exception.  However, if processing
     // something other than an event (e.g. run, subRun) always rethrow.
-    actions::ActionCodes action = (T::isEvent_ ? actions_->find(e.root_cause()) : actions::Rethrow);
+    actions::ActionCodes action = (T::isEvent_ ? actions_.find(e.root_cause()) : actions::Rethrow);
 
     // If we are processing an endpath, treat SkipEvent or FailPath
     // as FailModule, so any subsequent OutputModules are still run.

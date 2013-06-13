@@ -10,12 +10,14 @@
 //
 // ======================================================================
 
+#include "art/Framework/Core/detail/ModuleFactory.h"
 #include "art/Framework/Principal/WorkerParams.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Persistency/Provenance/PassID.h"
 #include "art/Persistency/Provenance/ReleaseVersion.h"
 #include "cpp0x/memory"
 #include "fhiclcpp/ParameterSet.h"
+
 #include <map>
 #include <string>
 
@@ -46,9 +48,7 @@ namespace art {
     /// Get a unique name for the worker
     /** Form a string to be used as a key in the map of workers */
     std::string mangleWorkerParameters(fhicl::ParameterSet const& parameterSet,
-                                       std::string const& processName,
-                                       ReleaseVersion const& releaseVersion,
-                                       PassID const& passID);
+                                       std::string const& processName);
 
     /// the container of workers
     typedef std::map<std::string, std::shared_ptr<Worker> > WorkerMap;
@@ -56,6 +56,7 @@ namespace art {
     /// internal map of registered workers (owned).
     WorkerMap m_workerMap;
     std::shared_ptr<ActivityRegistry> actReg_;
+    detail::ModuleFactory fact_;
 
   };  // WorkerRegistry
 

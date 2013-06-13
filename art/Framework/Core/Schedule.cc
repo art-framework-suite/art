@@ -59,8 +59,8 @@ art::Schedule::Schedule(ParameterSet const & proc_pset,
   act_table_(&actions),
   processName_(tns.getProcessName()),
   actReg_(areg),
-  trig_name_list_(tns.getTrigPaths()),
-  end_path_name_list_(tns.getEndPaths()),
+  trig_name_list_(proc_pset.get<std::vector<std::string>>("trigger_paths.trigger_paths", { })),
+  end_path_name_list_(proc_pset.get<std::vector<std::string>>("physics.end_paths", { })),
   results_(new HLTGlobalStatus(trig_name_list_.size())),
   endpath_results_(), // delay!
   results_inserter_(),
@@ -86,7 +86,6 @@ art::Schedule::Schedule(ParameterSet const & proc_pset,
     hasPath = true;
   }
   if (hasPath) {
-    // the results inserter stands alone
     makeTriggerResultsInserter(tns.getTriggerPSet(), pregistry);
     addToAllWorkers(results_inserter_.get());
   }
@@ -139,8 +138,7 @@ art::Schedule::Schedule(ParameterSet const & proc_pset,
         analyzers.get_if_present(*itLabel, workersParams);
         WorkerParams params(proc_pset, workersParams,
                             pregistry, *act_table_,
-                            processName_, getReleaseVersion(),
-                            getPassID());
+                            processName_);
         Worker * newWorker(wreg.getWorker(params));
         if (dynamic_cast<WorkerT<EDProducer>*>(newWorker) ||
             dynamic_cast<WorkerT<EDFilter>*>(newWorker)) {
@@ -241,7 +239,7 @@ art::Schedule::fillWorkers(std::string const & name,
         (isTrigPath ? analyzers : producers).get_if_present(realname, modpset) ||
         (isTrigPath ? outputs : filters).get_if_present(realname, modpset)) {
       WorkerParams params(process_pset_, modpset, pregistry, *act_table_,
-                          processName_, getReleaseVersion(), getPassID());
+                          processName_);
       WorkerInPath w(worker_reg_->getWorker(params), filterAction);
       tmpworkers.push_back(w);
     }

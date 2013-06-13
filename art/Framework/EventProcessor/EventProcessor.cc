@@ -316,7 +316,8 @@ configureServices_(ParameterSet const & pset)
   // no configuration available
   serviceToken_.add(std::unique_ptr<CurrentModule>(new CurrentModule(*actReg_)));
   // special construction
-  serviceToken_.add(std::unique_ptr<TriggerNamesService>(new TriggerNamesService(pset)));
+  serviceToken_.add(std::unique_ptr<TriggerNamesService>
+                    (new TriggerNamesService(pset)));
   ParameterSet const fpc_pset = services.get<ParameterSet>("floating_point_control", ParameterSet());
   serviceToken_.add(std::unique_ptr<FloatingPointControl>(new FloatingPointControl(fpc_pset, *actReg_)));
   serviceToken_.add(std::unique_ptr<ScheduleContext>(new ScheduleContext));
