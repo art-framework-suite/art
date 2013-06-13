@@ -8,6 +8,7 @@
 //
 ////////////////////////////////////////////////////////////////////////
 #include "art/Utilities/LibraryManager.h"
+#include "art/Framework/Core/ModuleType.h"
 #include "art/Framework/Principal/Worker.h"
 #include "art/Framework/Principal/WorkerParams.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
@@ -28,6 +29,7 @@ public:
   ModuleFactory(ModuleFactory const &) = delete;
   ModuleFactory & operator = (ModuleFactory const &) = delete;
 
+  ModuleType moduleType(std::string const & libspec);
 
   std::unique_ptr<Worker>
   makeWorker(WorkerParams const & wp,

@@ -15,7 +15,9 @@
 ////////////////////////////////////////////////////////////////////////
 
 #include "art/Framework/Principal/WorkerParams.h"
+#include "art/Framework/Core/ModuleType.h"
 #include "art/Framework/Core/WorkerT.h"
+#include "art/Framework/Core/detail/ModuleTypeDeducer.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "cpp0x/memory"
 #include "fhiclcpp/ParameterSet.h"
@@ -28,7 +30,8 @@
 namespace art {
   namespace detail {
     typedef art::Worker* (WorkerMaker_t) (art::WorkerParams const&,
-                                           art::ModuleDescription const&);
+                                          art::ModuleDescription const&);
+    typedef art::ModuleType (ModuleTypeFunc_t) ();
   }
 }
 
@@ -42,6 +45,12 @@ namespace art {
       return new                                                        \
         klass::WorkerType(std::unique_ptr<klass::ModuleType>            \
                           (new klass(wp.pset_)), md, wp);               \
+    }                                                                   \
+    art::ModuleType                                                     \
+    constexpr                                                           \
+    moduleType()                                                        \
+    {                                                                   \
+      return art::detail::ModuleTypeDeducer<klass::ModuleType>::value;  \
     }                                                                   \
   }
 
