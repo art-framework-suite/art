@@ -7,17 +7,16 @@
 
 art::detail::ModuleConfigInfo::
 ModuleConfigInfo(fhicl::ParameterSet const & procPS,
-                 std::string const & labelInPathConfig,
+                 std::string const & label,
                  std::string const & configPath)
   :
-  labelInPathConfig_(labelInPathConfig),
+  label_(label),
   configPath_(configPath),
   filterAction_(calcFilterAction_()),
-  simpleLabel_(calcSimpleLabel_()),
   moduleType_(calcConfigType_()),
   libSpec_(procPS.get<std::string>(configPath_ +
                                    '.' +
-                                   simpleLabel_ +
+                                   label_ +
                                    ".module_type"))
 {
 }
@@ -35,19 +34,33 @@ allModulePathRoots()
   return s_allModulePathRoots;
 }
 
+std::string
+art::detail::ModuleConfigInfo::
+stripLabel(std::string const & labelInPathConfig)
+{
+  auto label_start = labelInPathConfig.find_first_not_of("!-");
+  if (label_start > 1) {
+    throw Exception(errors::Configuration)
+        << "Module label "
+        << labelInPathConfig
+        << " is illegal.\n";
+  }
+  return labelInPathConfig.substr(label_start);
+}
+
 // Called from initializer: verify initialization order with member data
 // use if altering this function!
 art::WorkerInPath::FilterAction
 art::detail::ModuleConfigInfo::
 calcFilterAction_() const
 {
-  if (labelInPathConfig_.empty()) {
+  if (label_.empty()) {
     throw Exception(errors::Configuration)
         << "Empty module label in path "
         << configPath_
         << ".\n";
   }
-  switch (labelInPathConfig_[0]) {
+  switch (label_[0]) {
     case '!':
       return WorkerInPath::FilterAction::Veto;
     case '-':
@@ -55,24 +68,6 @@ calcFilterAction_() const
     default:
       return WorkerInPath::FilterAction::Normal;
   }
-}
-
-// Called from initializer: verify initialization order with member data
-// use if altering this function!
-std::string
-art::detail::ModuleConfigInfo::
-calcSimpleLabel_() const
-{
-  auto label_start = labelInPathConfig_.find_first_not_of("!-");
-  if (label_start == std::string::npos) {
-    throw Exception(errors::Configuration)
-        << "Module label "
-        << labelInPathConfig_
-        << " in path "
-        << configPath_
-        << " is illegal.\n";
-  }
-  return labelInPathConfig_.substr(label_start);
 }
 
 // Called from initializer: verify initialization order with member data

@@ -28,39 +28,31 @@ namespace art {
 class art::detail::ModuleConfigInfo {
 public:
   ModuleConfigInfo(fhicl::ParameterSet const & procPS,
-                   std::string const & labelInPathConfig,
+                   std::string const & label,
                    std::string const & configPath);
 
-  std::string const & labelInPathConfig() const;
+  std::string const & label() const;
   std::string const & configPath() const;
   WorkerInPath::FilterAction filterAction() const;
-  std::string const & simpleLabel() const;
   ModuleType moduleType() const;
   std::string const & libSpec() const;
 
   static
   std::vector<std::string> const & allModulePathRoots();
 
+  static
+  std::string stripLabel(std::string const & labelInPathConfig);
+
 private:
   WorkerInPath::FilterAction calcFilterAction_() const;
-  std::string calcSimpleLabel_() const;
   ModuleType calcConfigType_() const;
 
-  std::string labelInPathConfig_;
+  std::string label_;
   std::string configPath_;
   WorkerInPath::FilterAction filterAction_;
-  std::string simpleLabel_;
   ModuleType moduleType_;
   std::string libSpec_;
 };
-
-inline
-std::string const &
-art::detail::ModuleConfigInfo::
-labelInPathConfig() const
-{
-  return labelInPathConfig_;
-}
 
 inline
 std::string const &
@@ -81,9 +73,9 @@ filterAction() const
 inline
 std::string const &
 art::detail::ModuleConfigInfo::
-simpleLabel() const
+label() const
 {
-  return simpleLabel_;
+  return label_;
 }
 
 inline
