@@ -86,15 +86,13 @@ namespace {
       // any EDproducts,which would be registered in the
       // MasterProductRegistry.  Also fill in the process history item
       // for this process.
-      art::ModuleDescription md;
-      md.parameterSetID_ = main_input.id();
-      md.moduleName_ = main_input.get<std::string>("module_type");
-      md.moduleLabel_ = main_input.get<std::string>("module_label");
-      md.processConfiguration_ =
-        art::ProcessConfiguration(processName,
-                                  params.id(),
-                                  art::getReleaseVersion(),
-                                  art::getPassID());
+      art::ModuleDescription md(main_input.id(),
+                                main_input.get<std::string>("module_type"),
+                                main_input.get<std::string>("module_label"),
+                                art::ProcessConfiguration(processName,
+                                                          params.id(),
+                                                          art::getReleaseVersion(),
+                                                          art::getPassID()));
       sourceSpecified = true;
       art::InputSourceDescription isd(md, preg, *areg);
       return std::shared_ptr<art::InputSource>

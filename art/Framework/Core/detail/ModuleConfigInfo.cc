@@ -14,10 +14,10 @@ ModuleConfigInfo(fhicl::ParameterSet const & procPS,
   configPath_(configPath),
   filterAction_(calcFilterAction_()),
   moduleType_(calcConfigType_()),
-  libSpec_(procPS.get<std::string>(configPath_ +
-                                   '.' +
-                                   label_ +
-                                   ".module_type"))
+  modPS_(procPS.get<fhicl::ParameterSet>(configPath_ +
+                                  '.' +
+                                  label_)),
+  libSpec_(modPS_.get<std::string>("module_type"))
 {
 }
 

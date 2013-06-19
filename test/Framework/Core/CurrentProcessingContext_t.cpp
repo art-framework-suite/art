@@ -2,6 +2,8 @@
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "cetlib/exception.h"
 #include "cpp0x/cstddef"
+#include "fhiclcpp/ParameterSet.h"
+
 #include <cassert>
 #include <iostream>
 #include <string>
@@ -24,9 +26,10 @@ namespace
   // Test helpers
   art::ModuleDescription makeModuleDescription(std::string const& label)
   {
-    art::ModuleDescription temp;
-    temp.moduleLabel_ = label;
-    return temp;
+    return art::ModuleDescription(fhicl::ParameterSet().id(),
+                                  "",
+                                  label,
+                                  art::ProcessConfiguration());
   }
 
   void setup_ctx(art::CurrentProcessingContext& ctx)

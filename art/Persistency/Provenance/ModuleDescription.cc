@@ -19,6 +19,18 @@ namespace art {
     processConfiguration_()
   { }
 
+  ModuleDescription::ModuleDescription(fhicl::ParameterSetID parameterSetID,
+                                       std::string const & modName,
+                                       std::string const & modLabel,
+                                       ProcessConfiguration pc)
+  :
+    parameterSetID_(parameterSetID),
+    moduleName_(modName),
+    moduleLabel_(modLabel),
+    processConfiguration_(std::move(pc))
+  {
+  }
+
   bool
   ModuleDescription::operator<(ModuleDescription const& rh) const {
     if (moduleLabel() < rh.moduleLabel()) return true;

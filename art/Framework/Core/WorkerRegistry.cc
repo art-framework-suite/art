@@ -23,16 +23,13 @@ namespace
   {
     ParameterSet const& procParams = p.procPset_;
     ParameterSet const& conf = p.pset_;
-    ModuleDescription md;
-    md.parameterSetID_ = conf.id();
-    md.moduleName_ = conf.get<std::string>("module_type");
-    md.moduleLabel_ = conf.get<std::string>("module_label");
-    md.processConfiguration_ =
-      ProcessConfiguration(p.processName_,
-                           procParams.id(),
-                           getReleaseVersion(),
-                           getPassID());
-    return md;
+    return ModuleDescription (conf.id(),
+                              conf.get<std::string>("module_type"),
+                              conf.get<std::string>("module_label"),
+                              ProcessConfiguration(p.processName_,
+                                                   procParams.id(),
+                                                   getReleaseVersion(),
+                                                   getPassID()));
   }
 } // namespace
 

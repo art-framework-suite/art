@@ -167,7 +167,7 @@ art::detail::
 exceptionContext(ModuleDescription const& iMD,
                  T const& ip,
                  cet::exception& iEx) {
-  iEx << iMD.moduleName_ << "/" << iMD.moduleLabel_
+  iEx << iMD.moduleName() << "/" << iMD.moduleLabel()
       << " " << ip.id() << "\n";
   return iEx;
 }

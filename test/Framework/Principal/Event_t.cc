@@ -112,10 +112,10 @@ MPRGlobalTestFixture::MPRGlobalTestFixture()
 
   TypeID product_type(typeid(prod_t));
 
-  currentModuleDescription_->parameterSetID_       = moduleParams.id();
-  currentModuleDescription_->moduleName_           = moduleClassName;
-  currentModuleDescription_->moduleLabel_          = moduleLabel;
-  currentModuleDescription_->processConfiguration_ = process;
+  currentModuleDescription_.reset(new ModuleDescription(moduleParams.id(),
+                                                        moduleClassName,
+                                                        moduleLabel,
+                                                        process));
 
   std::string productInstanceName("int1");
 
@@ -155,11 +155,10 @@ registerProduct(std::string const& tag,
   process.passID_         = getPassID();
   process.parameterSetID_ = processParams.id();
 
-  ModuleDescription localModuleDescription;
-  localModuleDescription.parameterSetID_       = moduleParams.id();
-  localModuleDescription.moduleName_           = moduleClassName;
-  localModuleDescription.moduleLabel_          = moduleLabel;
-  localModuleDescription.processConfiguration_ = process;
+  ModuleDescription localModuleDescription(moduleParams.id(),
+                                           moduleClassName,
+                                           moduleLabel,
+                                           process);
 
   TypeID product_type(typeid(T));
 

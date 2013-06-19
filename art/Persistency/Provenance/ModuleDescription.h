@@ -21,9 +21,13 @@ namespace art {
   // once a module is born, these parts of the module's product provenance
   // are constant   (change to ModuleDescription)
 
-  struct ModuleDescription {
-
+  class ModuleDescription {
+public:
     ModuleDescription();
+    ModuleDescription(fhicl::ParameterSetID parameterSetID,
+                      std::string const & modName,
+                      std::string const & modLabel,
+                      ProcessConfiguration pc); // Feel free to use move semantics.
 
     void write(std::ostream& os) const;
 
@@ -47,6 +51,7 @@ namespace art {
 
     ModuleDescriptionID id() const; // For backward compatibility
 
+private:
     // ID of parameter set of the creator
     fhicl::ParameterSetID parameterSetID_;
 

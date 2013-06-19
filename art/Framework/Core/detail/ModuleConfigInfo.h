@@ -35,6 +35,7 @@ public:
   std::string const & configPath() const;
   WorkerInPath::FilterAction filterAction() const;
   ModuleType moduleType() const;
+  fhicl::ParameterSet const & modPS() const;
   std::string const & libSpec() const;
 
   static
@@ -47,11 +48,12 @@ private:
   WorkerInPath::FilterAction calcFilterAction_() const;
   ModuleType calcConfigType_() const;
 
-  std::string label_;
-  std::string configPath_;
-  WorkerInPath::FilterAction filterAction_;
-  ModuleType moduleType_;
-  std::string libSpec_;
+  std::string const label_;
+  std::string const configPath_;
+  WorkerInPath::FilterAction const filterAction_;
+  ModuleType const moduleType_;
+  fhicl::ParameterSet const modPS_;
+  std::string const libSpec_;
 };
 
 inline
@@ -84,6 +86,14 @@ art::detail::ModuleConfigInfo::
 moduleType() const
 {
   return moduleType_;
+}
+
+inline
+fhicl::ParameterSet const &
+art::detail::ModuleConfigInfo::
+modPS() const
+{
+  return modPS_;
 }
 
 inline

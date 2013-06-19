@@ -99,7 +99,7 @@ art::Schedule::Schedule(ParameterSet const & proc_pset,
   //See if all modules were used
   std::set<std::string> usedWorkerLabels;
   for (auto const & worker_ptr : all_workers_)
-  { usedWorkerLabels.insert(worker_ptr->description().moduleLabel_); }
+  { usedWorkerLabels.insert(worker_ptr->description().moduleLabel()); }
   vstring const & modulesInConfig(proc_pset.get<vstring >("all_modules",
                                                           vstring()));
   std::set<std::string> modulesInConfigSet(modulesInConfig.begin(),
@@ -403,7 +403,7 @@ void art::Schedule::writeSummary()
                                   << right << setw(10) << pi->timesPassed(i) << " "
                                   << right << setw(10) << pi->timesFailed(i) << " "
                                   << right << setw(10) << pi->timesExcept(i) << " "
-                                  << pi->getWorker(i)->description().moduleLabel_ << "";
+                                  << pi->getWorker(i)->description().moduleLabel() << "";
       }
     }
   }
@@ -429,7 +429,7 @@ void art::Schedule::writeSummary()
                                 << right << setw(10) << pi->timesPassed(i) << " "
                                 << right << setw(10) << pi->timesFailed(i) << " "
                                 << right << setw(10) << pi->timesExcept(i) << " "
-                                << pi->getWorker(i)->description().moduleLabel_ << "";
+                                << pi->getWorker(i)->description().moduleLabel() << "";
     }
   }
   Workers::iterator ai, ae;
@@ -451,7 +451,7 @@ void art::Schedule::writeSummary()
                                 << right << setw(10) << (*ai)->timesPassed() << " "
                                 << right << setw(10) << (*ai)->timesFailed() << " "
                                 << right << setw(10) << (*ai)->timesExcept() << " "
-                                << (*ai)->description().moduleLabel_ << "";
+                                << (*ai)->description().moduleLabel() << "";
     }
   }
   LogAbsolute("ArtSummary") << "";
@@ -565,7 +565,7 @@ void art::Schedule::writeSummary()
                                       pi->timesVisited(i)) << " "
                                   << right << setw(10) << pi->timeCpuReal(i).second / std::max(1,
                                       pi->timesVisited(i)) << " "
-                                  << pi->getWorker(i)->description().moduleLabel_ << "";
+                                  << pi->getWorker(i)->description().moduleLabel() << "";
       }
     }
     LogAbsolute("ArtSummary") << "TimeReport "
@@ -603,7 +603,7 @@ void art::Schedule::writeSummary()
                                       pi->timesVisited(i)) << " "
                                   << right << setw(10) << pi->timeCpuReal(i).second / std::max(1,
                                       pi->timesVisited(i)) << " "
-                                  << pi->getWorker(i)->description().moduleLabel_ << "";
+                                  << pi->getWorker(i)->description().moduleLabel() << "";
       }
     }
     LogAbsolute("ArtSummary") << "TimeReport "
@@ -649,7 +649,7 @@ void art::Schedule::writeSummary()
                                     (*ai)->timesVisited()) << " "
                                 << right << setw(10) << (*ai)->timeCpuReal().second / std::max(1,
                                     (*ai)->timesVisited()) << " "
-                                << (*ai)->description().moduleLabel_ << "";
+                                << (*ai)->description().moduleLabel() << "";
     }
     LogAbsolute("ArtSummary") << "TimeReport "
                               << right << setw(10) << "CPU" << " "
@@ -783,12 +783,13 @@ art::Schedule::makeTriggerResultsInserter(ParameterSet const & trig_pset,
 {
   WorkerParams work_args(process_pset_, trig_pset, pregistry, *act_table_,
                          processName_);
-  ModuleDescription md;
-  md.parameterSetID_ = trig_pset.id();
-  md.moduleName_ = "TriggerResultInserter";
-  md.moduleLabel_ = "TriggerResults";
-  md.processConfiguration_ = ProcessConfiguration(processName_,
-                                                  process_pset_.id(), getReleaseVersion(), getPassID());
+  ModuleDescription md(trig_pset.id(),
+                       "TriggerResultInserter",
+                       "TriggerResults",
+                       ProcessConfiguration(processName_,
+                                            process_pset_.id(),
+                                            getReleaseVersion(),
+                                            getPassID()));
   actReg_->sPreModuleConstruction.invoke(md);
   std::unique_ptr<EDProducer> producer(new TriggerResultInserter(trig_pset, results_));
   actReg_->sPostModuleConstruction.invoke(md);

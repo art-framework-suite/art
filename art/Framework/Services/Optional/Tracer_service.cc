@@ -281,12 +281,12 @@ Tracer::postPathEvent(std::string const& /*iName*/, HLTPathStatus const&) {
 void
 Tracer::preModuleEvent(ModuleDescription const& iDescription) {
    ++depth_;
-   indent(3+depth_) << " module for event:" << iDescription.moduleLabel_ << std::endl;
+   indent(3+depth_) << " module for event:" << iDescription.moduleLabel() << std::endl;
 }
 void
 Tracer::postModuleEvent(ModuleDescription const& iDescription) {
    --depth_;
-   indent(4+depth_) << " finished for event:" << iDescription.moduleLabel_ << std::endl;
+   indent(4+depth_) << " finished for event:" << iDescription.moduleLabel() << std::endl;
 }
 
 void
@@ -316,12 +316,12 @@ Tracer::postPathBeginRun(std::string const& /*iName*/, HLTPathStatus const&) {
 void
 Tracer::preModuleBeginRun(ModuleDescription const& iDescription) {
    ++depth_;
-   indent(3+depth_) << " module for begin run:" << iDescription.moduleLabel_ << std::endl;
+   indent(3+depth_) << " module for begin run:" << iDescription.moduleLabel() << std::endl;
 }
 void
 Tracer::postModuleBeginRun(ModuleDescription const& iDescription) {
    --depth_;
-   indent(4+depth_) << " finished for begin run:" << iDescription.moduleLabel_ << std::endl;
+   indent(4+depth_) << " finished for begin run:" << iDescription.moduleLabel() << std::endl;
 }
 
 void
@@ -347,12 +347,12 @@ Tracer::postPathEndRun(std::string const& /*iName*/, HLTPathStatus const&) {
 void
 Tracer::preModuleEndRun(ModuleDescription const& iDescription) {
    ++depth_;
-   indent(3+depth_) << " module for end run:" << iDescription.moduleLabel_ << std::endl;
+   indent(3+depth_) << " module for end run:" << iDescription.moduleLabel() << std::endl;
 }
 void
 Tracer::postModuleEndRun(ModuleDescription const& iDescription) {
    --depth_;
-   indent(4+depth_) << " finished for end run:" << iDescription.moduleLabel_ << std::endl;
+   indent(4+depth_) << " finished for end run:" << iDescription.moduleLabel() << std::endl;
 }
 
 void
@@ -382,12 +382,12 @@ Tracer::postPathBeginSubRun(std::string const& /*iName*/, HLTPathStatus const&) 
 void
 Tracer::preModuleBeginSubRun(ModuleDescription const& iDescription) {
    ++depth_;
-   indent(3+depth_) << " module for begin subRun:" << iDescription.moduleLabel_ << std::endl;
+   indent(3+depth_) << " module for begin subRun:" << iDescription.moduleLabel() << std::endl;
 }
 void
 Tracer::postModuleBeginSubRun(ModuleDescription const& iDescription) {
    --depth_;
-   indent(4) << " finished for begin subRun:" << iDescription.moduleLabel_ << std::endl;
+   indent(4) << " finished for begin subRun:" << iDescription.moduleLabel() << std::endl;
 }
 
 void
@@ -413,43 +413,43 @@ Tracer::postPathEndSubRun(std::string const& /*iName*/, HLTPathStatus const&) {
 void
 Tracer::preModuleEndSubRun(ModuleDescription const& iDescription) {
    ++depth_;
-   indent(3+depth_) << " module for end subRun:" << iDescription.moduleLabel_ << std::endl;
+   indent(3+depth_) << " module for end subRun:" << iDescription.moduleLabel() << std::endl;
 }
 
 void
 Tracer::postModuleEndSubRun(ModuleDescription const& iDescription) {
    --depth_;
-   indent(4+depth_) << " finished for end subRun:" << iDescription.moduleLabel_ << std::endl;
+   indent(4+depth_) << " finished for end subRun:" << iDescription.moduleLabel() << std::endl;
 }
 
 void
 Tracer::preModuleConstruction(ModuleDescription const& iDescription) {
-  indent(1) << " constructing module:" << iDescription.moduleLabel_ << std::endl;
+  indent(1) << " constructing module:" << iDescription.moduleLabel() << std::endl;
 }
 
 void
 Tracer::postModuleConstruction(ModuleDescription const& iDescription) {
-  indent(1) << " construction finished:" << iDescription.moduleLabel_ << std::endl;
+  indent(1) << " construction finished:" << iDescription.moduleLabel() << std::endl;
 }
 
 void
 Tracer::preModuleBeginJob(ModuleDescription const& iDescription) {
-  indent(1) << " beginJob module:" << iDescription.moduleLabel_ << std::endl;
+  indent(1) << " beginJob module:" << iDescription.moduleLabel() << std::endl;
 }
 
 void
 Tracer::postModuleBeginJob(ModuleDescription const& iDescription) {
-  indent(1) << " beginJob finished:" << iDescription.moduleLabel_ << std::endl;
+  indent(1) << " beginJob finished:" << iDescription.moduleLabel() << std::endl;
 }
 
 void
 Tracer::preModuleEndJob(ModuleDescription const& iDescription) {
-  indent(1) << " endJob module:" << iDescription.moduleLabel_ << std::endl;
+  indent(1) << " endJob module:" << iDescription.moduleLabel() << std::endl;
 }
 
 void
 Tracer::postModuleEndJob(ModuleDescription const& iDescription) {
-  indent(1) << " endJob finished:" << iDescription.moduleLabel_ << std::endl;
+  indent(1) << " endJob finished:" << iDescription.moduleLabel() << std::endl;
 }
 
 // ======================================================================
