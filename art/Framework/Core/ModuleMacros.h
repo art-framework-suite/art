@@ -47,7 +47,6 @@ namespace art {
                           (new klass(wp.pset_)), md, wp);               \
     }                                                                   \
     art::ModuleType                                                     \
-    constexpr                                                           \
     moduleType()                                                        \
     {                                                                   \
       return art::detail::ModuleTypeDeducer<klass::ModuleType>::value;  \
