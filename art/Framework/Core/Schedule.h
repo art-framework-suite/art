@@ -160,7 +160,6 @@ public:
 private:
   typedef std::vector<std::string> vstring;
   typedef std::vector<Path> Paths;
-  typedef std::shared_ptr<HLTGlobalStatus> TrigResPtr;
   typedef std::shared_ptr<Worker> WorkerPtr;
   typedef std::vector<OutputWorker *> OutputWorkers;
   typedef std::vector<WorkerInPath> PathWorkers;
@@ -212,7 +211,7 @@ private:
 
   void fillWorkers(std::string const & name, PathWorkers & out, bool IsTrigPath,
                    MasterProductRegistry & pregistry);
-  void fillTrigPath(int bitpos, std::string const & name, TrigResPtr trptr,
+  void fillTrigPath(int bitpos, std::string const & name, HLTGlobalStatus & pathResults,
                     MasterProductRegistry & pregistry);
   void fillEndPath(int bitpos, std::string const & name,
                    MasterProductRegistry & pregistry);
@@ -247,8 +246,8 @@ private:
   vstring trig_name_list_;
   vstring end_path_name_list_;
 
-  TrigResPtr   results_;
-  TrigResPtr   endpath_results_;
+  HLTGlobalStatus results_;
+  HLTGlobalStatus endpath_results_;
 
   WorkerPtr      results_inserter_;
   Workers        all_workers_;
@@ -386,7 +385,7 @@ art::Schedule::runTriggerPaths(typename T::MyPrincipal & ep)
   using std::placeholders::_1;
   cet::for_all(trig_paths_,
                std::bind(&Path::processOneOccurrence<T>, _1, std::ref(ep)));
-  return results_->accept();
+  return results_.accept();
 }
 
 template <typename T>

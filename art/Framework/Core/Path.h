@@ -32,11 +32,11 @@ namespace art {
 
     typedef std::vector<WorkerInPath> WorkersInPath;
     typedef WorkersInPath::size_type        size_type;
-    typedef std::shared_ptr<HLTGlobalStatus> TrigResPtr;
+    typedef cet::exempt_ptr<HLTGlobalStatus> TrigResPtr;
 
     Path(int bitpos, std::string const& path_name,
          WorkersInPath const& workers,
-         TrigResPtr trptr,
+         HLTGlobalStatus & pathResults,
          fhicl::ParameterSet const& proc_pset,
          ActionTable& actions,
          std::shared_ptr<ActivityRegistry> reg,

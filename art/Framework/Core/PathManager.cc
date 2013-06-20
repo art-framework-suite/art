@@ -1,5 +1,9 @@
 #include "art/Framework/Core/PathManager.h"
+#include "art/Framework/Services/Registry/ServiceHandle.h"
+#include "art/Framework/Services/System/TriggerNamesService.h"
+#include "art/Version/GetReleaseVersion.h"
 #include "art/Utilities/Exception.h"
+#include "art/Utilities/GetPassID.h"
 
 using fhicl::ParameterSet;
 
@@ -25,7 +29,9 @@ PathManager(ParameterSet const & procPS,
   endPath_(),
   triggerPathWorkers_(),
   triggerPaths_(),
-  triggerPathNames_(processPathConfigs_())
+  triggerPathNames_(processPathConfigs_()),
+  triggerResults_(),
+  endPathResults_(1) // Only one end path.
 {
 }
 
@@ -35,7 +41,11 @@ endPath()
 {
   if (!endPath_) {
     // Need to create path from proto information.
-    endPath_ = fillWorkers_(protoEndPathInfo_, endPathWorkers_);
+    endPath_ = fillWorkers_(0,
+                            "end_path",
+                            protoEndPathInfo_,
+                            endPathResults_,
+                            endPathWorkers_);
   }
   return *endPath_;
 }
@@ -52,11 +62,19 @@ triggerPaths(ScheduleID sID)
     if (it == triggerPaths_.end()) {
       // FIXME: use emplace().
       it = triggerPaths_.insert(std::make_pair(sID, Paths())).first;
+      int bitpos { 0 };
       std::for_each(protoTrigPathMap_.cbegin(),
-                    protoTrigPathMap_.cbegin(),
-                    [this, sID, it](typename decltype(protoTrigPathMap_)::value_type const & val)
+                    protoTrigPathMap_.cend(),
+                    [this, sID, it, &bitpos](typename decltype(protoTrigPathMap_)::value_type const & val)
                     {
-                      it->second.emplace_back(fillWorkers_(val.second, triggerPathWorkers_[sID]));
+                      // Use emplace.
+                      auto trit = triggerResults_.insert(std::make_pair(sID, HLTGlobalStatus(triggerPathNames_.size()))).first;
+                      it->second.emplace_back(fillWorkers_(bitpos,
+                                                           val.first,
+                                                           val.second,
+                                                           trit->second,
+                                                           triggerPathWorkers_[sID]));
+                      ++bitpos;
                     });
     }
     return it->second;
@@ -208,9 +226,48 @@ processOnePathConfig_(std::string const & path_name __attribute__((unused)),
 
 std::unique_ptr<art::Path>
 art::PathManager::
-fillWorkers_(ModInfos const & modInfos __attribute__((unused)),
-             WorkerMap & workers __attribute__((unused)))
+fillWorkers_(int bitpos,
+             std::string const & pathName,
+             ModInfos const & modInfos,
+             HLTGlobalStatus & pathResults,
+             WorkerMap & workers)
 {
-  // FIXME: do something real!
-  return std::unique_ptr<art::Path>();
+  std::vector<WorkerInPath> pathWorkers;
+  std::for_each(modInfos.cbegin(),
+                modInfos.cend(),
+                [this, &workers, &pathWorkers](detail::ModuleConfigInfo const * mci)
+                {
+                  auto it = workers.find(mci->label());
+                  if (it == workers.end()) { // Need workers.
+                    WorkerParams p(procPS_,
+                                   procPS_.get<ParameterSet>(mci->configPath() + '.' + mci->label()),
+                                   preg_,
+                                   exceptActions_,
+                                   art::ServiceHandle<art::TriggerNamesService>()->getProcessName());
+                    ModuleDescription md(procPS_.id(),
+                                         p.pset_.get<std::string>("module_type"),
+                                         p.pset_.get<std::string>("module_label"),
+                                         ProcessConfiguration(p.processName_,
+                                                              procPS_.id(),
+                                                              getReleaseVersion(),
+                                                              getPassID()));
+                    areg_->sPreModuleConstruction.invoke(md);
+                    // FIXME: Use emplace.
+                    it = workers.
+                         insert(std::make_pair(mci->label(),
+                                               fact_.makeWorker(p, md))).first;
+                    areg_->sPostModuleConstruction.invoke(md);
+                    it->second->setActivityRegistry(areg_);
+                    pathWorkers.emplace_back(it->second.get());
+                  }
+                });
+  return std::unique_ptr<art::Path>
+    (new art::Path(bitpos,
+                   pathName,
+                   std::move(pathWorkers),
+                   pathResults,
+                   procPS_,
+                   exceptActions_,
+                   areg_,
+                   is_observer(modInfos.front()->moduleType())));
 }

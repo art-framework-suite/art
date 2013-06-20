@@ -61,8 +61,8 @@ art::Schedule::Schedule(ParameterSet const & proc_pset,
   actReg_(areg),
   trig_name_list_(proc_pset.get<std::vector<std::string>>("trigger_paths.trigger_paths", { })),
   end_path_name_list_(proc_pset.get<std::vector<std::string>>("physics.end_paths", { })),
-  results_(new HLTGlobalStatus(trig_name_list_.size())),
-  endpath_results_(), // delay!
+  results_(trig_name_list_.size()),
+  endpath_results_(end_path_name_list_.size()),
   results_inserter_(),
   all_workers_(),
   all_output_workers_(),
@@ -89,8 +89,6 @@ art::Schedule::Schedule(ParameterSet const & proc_pset,
     makeTriggerResultsInserter(tns.getTriggerPSet(), pregistry);
     addToAllWorkers(results_inserter_.get());
   }
-  TrigResPtr epptr(new HLTGlobalStatus(end_path_name_list_.size()));
-  endpath_results_ = epptr;
   // fill normal endpaths
   vstring::iterator eib(end_path_name_list_.begin());
   vstring::iterator eie(end_path_name_list_.end());
@@ -264,7 +262,7 @@ art::Schedule::fillWorkers(std::string const & name,
 void
 art::Schedule::fillTrigPath(int bitpos,
                             std::string const & name,
-                            TrigResPtr trptr,
+                            HLTGlobalStatus & pathResults,
                             MasterProductRegistry & pregistry)
 {
   PathWorkers tmpworkers;
@@ -272,7 +270,7 @@ art::Schedule::fillTrigPath(int bitpos,
   fillWorkers(name, tmpworkers, true, pregistry);
   for (auto const & worker : tmpworkers) { holder.push_back(worker.getWorker()); }
   if (!tmpworkers.empty()) {
-    Path p(bitpos, name, tmpworkers, trptr,
+    Path p(bitpos, name, tmpworkers, pathResults,
            process_pset_, *act_table_, actReg_, false);
     trig_paths_.push_back(p);
   }
@@ -749,8 +747,8 @@ void
 art::Schedule::resetAll()
 {
   for_all(all_workers_, std::bind(&Worker::reset, _1));
-  results_->reset();
-  endpath_results_->reset();
+  results_.reset();
+  endpath_results_.reset();
 }
 
 void
