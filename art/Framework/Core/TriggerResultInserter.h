@@ -29,11 +29,10 @@ namespace art {
     typedef std::shared_ptr<HLTGlobalStatus> TrigResPtr;
 
     // standard constructor not supported for this module
-    explicit TriggerResultInserter(fhicl::ParameterSet const& ps);
+    explicit TriggerResultInserter(fhicl::ParameterSet const& ps) = delete;
 
     // the pset needed here is the one that defines the trigger path names
     TriggerResultInserter(fhicl::ParameterSet const& ps, const TrigResPtr& trptr);
-    virtual ~TriggerResultInserter();
 
     virtual void produce(art::Event& e);
 
