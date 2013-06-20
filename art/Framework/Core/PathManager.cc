@@ -10,7 +10,7 @@ using fhicl::ParameterSet;
 #include <algorithm>
 #include <map>
 #include <set>
-
+#include <sstream>
 art::PathManager::
 PathManager(ParameterSet const & procPS,
             MasterProductRegistry & preg,
@@ -87,6 +87,7 @@ fillAllModules_()
 {
   static ParameterSet const empty;
   detail::ModuleConfigInfoMap all_modules;
+  std::ostringstream error_stream;
   for (auto const & pathRootName :
        detail::ModuleConfigInfo::allModulePathRoots()) {
     auto const pathRoot = procPS_.get<ParameterSet>(pathRootName, empty);
@@ -95,8 +96,8 @@ fillAllModules_()
       detail::ModuleConfigInfo mci(procPS_, name, pathRootName);
       auto actualModType = fact_.moduleType(mci.libSpec());
       if (actualModType != mci.moduleType()) {
-        throw Exception(errors::Configuration)
-            << "Module with label "
+        error_stream
+            << "  ERROR: Module with label "
             << mci.label()
             << " of type "
             << mci.libSpec()
@@ -110,8 +111,8 @@ fillAllModules_()
         all_modules.insert(typename decltype(all_modules)::
                            value_type(mci.label(), mci));
       if (!result.second) {
-        throw Exception(errors::Configuration)
-            << "Module label "
+        error_stream
+            << "  ERROR: Module label "
             << mci.label()
             << " has been used in "
             << result.first->second.configPath()
@@ -120,6 +121,12 @@ fillAllModules_()
             << ".\n";
       }
     }
+  }
+  auto error_messages = error_stream.str();
+  if (!error_messages.empty()) {
+    throw Exception(errors::Configuration)
+      << "The following were encountered while processing the module configurations:\n"
+      << error_messages;
   }
   return std::move(all_modules);
 }
@@ -159,20 +166,28 @@ processPathConfigs_()
                       std::back_inserter(path_names));
   std::set<std::string> specified_modules;
   // Process each path.
+  std::ostringstream error_stream;
   for (auto const & path_name : path_names) {
     auto const path_seq = physics.get<vstring>(path_name);
-    if (processOnePathConfig_(path_name, path_seq)) {
+    if (processOnePathConfig_(path_name, path_seq, error_stream)) {
       trigger_path_names.push_back(path_name);
     }
     specified_modules.insert(path_seq.cbegin(), path_seq.cend());
+  }
+  auto error_messages = error_stream.str();
+  if (!error_messages.empty()) {
+    throw Exception(errors::Configuration, "Path configuration: ")
+      << "The following were encountered while processing path configurations:\n"
+      << error_messages;
   }
   return std::move(trigger_path_names);
 }
 
 bool // Is trigger path.
 art::PathManager::
-processOnePathConfig_(std::string const & path_name __attribute__((unused)),
-                      vstring const & path_seq)
+processOnePathConfig_(std::string const & path_name,
+                      vstring const & path_seq,
+                      std::ostream & error_stream)
 {
   enum class mod_cat_t { UNSET, OBSERVER, MODIFIER };
   mod_cat_t cat { mod_cat_t::UNSET };
@@ -180,8 +195,8 @@ processOnePathConfig_(std::string const & path_name __attribute__((unused)),
     auto const label = detail::ModuleConfigInfo::stripLabel(modname);
     auto const it = allModules_.find(label);
     if (it == allModules_.end()) {
-      throw Exception(errors::Configuration)
-        << "Entry "
+      error_stream
+        << "  ERROR: Entry "
         << modname
         << " in path "
         << path_name
@@ -204,8 +219,8 @@ processOnePathConfig_(std::string const & path_name __attribute__((unused)),
       }
     }
     else if (cat != mtype) {
-      throw Exception(errors::Configuration)
-        << "Entry "
+      error_stream
+        << "  ERROR: Entry "
         << modname
         << " in path "
         << path_name

@@ -69,7 +69,8 @@ BOOST_AUTO_TEST_CASE ( Construct )
      "}",
      art::errors::Configuration,
      "---- Configuration BEGIN\n"
-     "  Module with label p of type PMTestFilter is configured as a producer but defined in code as a filter.\n"
+     "  The following were encountered while processing the module configurations:\n"
+     "    ERROR: Module with label p of type PMTestFilter is configured as a producer but defined in code as a filter.\n"
      "---- Configuration END\n"); // Module type mismatch.
   test_sets.emplace_back
     ("process_name: \"test\" "
@@ -84,7 +85,8 @@ BOOST_AUTO_TEST_CASE ( Construct )
      "}",
      art::errors::Configuration,
      "---- Configuration BEGIN\n"
-     "  Module label p has been used in physics.analyzers and physics.filters.\n"
+     "  The following were encountered while processing the module configurations:\n"
+     "    ERROR: Module label p has been used in physics.analyzers and physics.filters.\n"
      "---- Configuration END\n"); // Duplicate label.
   test_sets.emplace_back
     ("process_name: \"test\" "
@@ -102,16 +104,20 @@ BOOST_AUTO_TEST_CASE ( Construct )
      "}",
      art::errors::Configuration,
      "---- Configuration BEGIN\n"
-     "  Entry a in path p1 is an observer while previous entries in the same path are all modifiers.\n"
+     "  Path configuration: The following were encountered while processing path configurations:\n"
+     "    ERROR: Entry a in path p1 is an observer while previous entries in the same path are all modifiers.\n"
      "---- Configuration END\n"); // Inhomogeneous path.
   test_sets.emplace_back
     ("process_name: \"test\" "
      "physics: { "
-     " p1: [ f, p, a ] "
+     " p1: [ \"-f\", p, a ] "
      "}",
      art::errors::Configuration,
      "---- Configuration BEGIN\n"
-     "  Entry f in path p1 refers to a module label f which is not configured.\n"
+     "  Path configuration: The following were encountered while processing path configurations:\n"
+     "    ERROR: Entry -f in path p1 refers to a module label f which is not configured.\n"
+     "    ERROR: Entry p in path p1 refers to a module label p which is not configured.\n"
+     "    ERROR: Entry a in path p1 refers to a module label a which is not configured.\n"
      "---- Configuration END\n"); // Unconfigured label.
   test_sets.emplace_back
     ("process_name: \"test\" "

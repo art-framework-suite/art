@@ -22,6 +22,7 @@
 #include "art/Utilities/ScheduleID.h"
 #include "fhiclcpp/ParameterSet.h"
 
+#include <iosfwd>
 #include <memory>
 #include <set>
 #include <string>
@@ -58,7 +59,8 @@ private:
   vstring processPathConfigs_();
   // Returns true if path is a trigger path.
   bool processOnePathConfig_(std::string const & path_name,
-                             vstring const & path_seq);
+                             vstring const & path_seq,
+                             std::ostream & error_stream);
   void
   makeWorker_(detail::ModuleConfigInfo const * mci,
               WorkerMap & workers,
