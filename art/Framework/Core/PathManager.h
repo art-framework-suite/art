@@ -6,6 +6,10 @@
 // Class to handle the processing of the configuration of modules in
 // art, including the creation of paths and construction of modules as
 // appropriate.
+//
+// Intended to be constructed early, prior to services, since
+// TriggerNamesService will need some of the information herein at
+// construction time.
 ////////////////////////////////////////////////////////////////////////
 
 #include "art/Framework/Core/Path.h"
@@ -55,6 +59,10 @@ private:
   // Returns true if path is a trigger path.
   bool processOnePathConfig_(std::string const & path_name,
                              vstring const & path_seq);
+  void
+  makeWorker_(detail::ModuleConfigInfo const * mci,
+              WorkerMap & workers,
+              std::vector<WorkerInPath> & pathWorkers);
   std::unique_ptr<Path> fillWorkers_(int bitpos,
                                      std::string const & pathName,
                                      ModInfos const & modInfos,
@@ -70,11 +78,11 @@ private:
   detail::ModuleConfigInfoMap allModules_;
   std::map<std::string, ModInfos> protoTrigPathMap_;
   ModInfos protoEndPathInfo_;
+  vstring triggerPathNames_;
   WorkerMap endPathWorkers_;
   std::unique_ptr<Path> endPath_;
   std::map<ScheduleID, WorkerMap> triggerPathWorkers_; // Per-schedule.
   std::map<ScheduleID, Paths> triggerPaths_; // Per-schedule.
-  vstring triggerPathNames_;
   std::map<ScheduleID, HLTGlobalStatus> triggerResults_; // Per-schedule.
   HLTGlobalStatus endPathResults_;
 };

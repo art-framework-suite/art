@@ -35,7 +35,7 @@ namespace art {
     typedef cet::exempt_ptr<HLTGlobalStatus> TrigResPtr;
 
     Path(int bitpos, std::string const& path_name,
-         WorkersInPath const& workers,
+         WorkersInPath workers, // Feel free to use move semantics.
          HLTGlobalStatus & pathResults,
          fhicl::ParameterSet const& proc_pset,
          ActionTable& actions,

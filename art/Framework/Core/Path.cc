@@ -14,7 +14,7 @@ using namespace std;
 
 namespace art {
   Path::Path(int bitpos, string const& path_name,
-             WorkersInPath const& workers,
+             WorkersInPath workers,
              HLTGlobalStatus & pathResults,
              ParameterSet const&,
              ActionTable& actions,
@@ -31,7 +31,7 @@ namespace art {
     trptr_(&pathResults),
     actReg_(areg),
     act_table_(&actions),
-    workers_(workers),
+    workers_(std::move(workers)),
     isEndPath_(isEndPath)
   {
   }

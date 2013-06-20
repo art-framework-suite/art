@@ -25,11 +25,11 @@ PathManager(ParameterSet const & procPS,
   allModules_(fillAllModules_()),
   protoTrigPathMap_(),
   protoEndPathInfo_(),
+  triggerPathNames_(processPathConfigs_()),
   endPathWorkers_(),
   endPath_(),
   triggerPathWorkers_(),
   triggerPaths_(),
-  triggerPathNames_(processPathConfigs_()),
   triggerResults_(),
   endPathResults_(1) // Only one end path.
 {
@@ -224,6 +224,38 @@ processOnePathConfig_(std::string const & path_name __attribute__((unused)),
   return (cat == mod_cat_t::MODIFIER); // Path is a trigger path.
 }
 
+void
+art::PathManager::
+makeWorker_(detail::ModuleConfigInfo const * mci,
+            WorkerMap & workers,
+            std::vector<WorkerInPath> & pathWorkers)
+{
+  auto it = workers.find(mci->label());
+  if (it == workers.end()) { // Need workers.
+    WorkerParams p(procPS_,
+                   procPS_.get<ParameterSet>(mci->configPath() + '.' + mci->label()),
+                   preg_,
+                   exceptActions_,
+                   art::ServiceHandle<art::TriggerNamesService>()->getProcessName());
+    ModuleDescription md(procPS_.id(),
+                         p.pset_.get<std::string>("module_type"),
+                         p.pset_.get<std::string>("module_label"),
+                         ProcessConfiguration(p.processName_,
+                                              procPS_.id(),
+                                              getReleaseVersion(),
+                                              getPassID()));
+    areg_->sPreModuleConstruction.invoke(md);
+    auto worker = fact_.makeWorker(p, md);
+    areg_->sPostModuleConstruction.invoke(md);
+    // FIXME: Use emplace.
+    it = workers.
+         insert(std::make_pair(mci->label(),
+                               std::move(worker))).first;
+    it->second->setActivityRegistry(areg_);
+    pathWorkers.emplace_back(it->second.get());
+  }
+}
+
 std::unique_ptr<art::Path>
 art::PathManager::
 fillWorkers_(int bitpos,
@@ -235,32 +267,12 @@ fillWorkers_(int bitpos,
   std::vector<WorkerInPath> pathWorkers;
   std::for_each(modInfos.cbegin(),
                 modInfos.cend(),
-                [this, &workers, &pathWorkers](detail::ModuleConfigInfo const * mci)
-                {
-                  auto it = workers.find(mci->label());
-                  if (it == workers.end()) { // Need workers.
-                    WorkerParams p(procPS_,
-                                   procPS_.get<ParameterSet>(mci->configPath() + '.' + mci->label()),
-                                   preg_,
-                                   exceptActions_,
-                                   art::ServiceHandle<art::TriggerNamesService>()->getProcessName());
-                    ModuleDescription md(procPS_.id(),
-                                         p.pset_.get<std::string>("module_type"),
-                                         p.pset_.get<std::string>("module_label"),
-                                         ProcessConfiguration(p.processName_,
-                                                              procPS_.id(),
-                                                              getReleaseVersion(),
-                                                              getPassID()));
-                    areg_->sPreModuleConstruction.invoke(md);
-                    // FIXME: Use emplace.
-                    it = workers.
-                         insert(std::make_pair(mci->label(),
-                                               fact_.makeWorker(p, md))).first;
-                    areg_->sPostModuleConstruction.invoke(md);
-                    it->second->setActivityRegistry(areg_);
-                    pathWorkers.emplace_back(it->second.get());
-                  }
-                });
+                std::bind(&art::PathManager::makeWorker_,
+                          this,
+                          std::placeholders::_1,
+                          workers,
+                          pathWorkers)
+               );
   return std::unique_ptr<art::Path>
     (new art::Path(bitpos,
                    pathName,

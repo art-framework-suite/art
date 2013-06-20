@@ -285,7 +285,7 @@ void art::Schedule::fillEndPath(int bitpos, std::string const & name,
   Workers holder;
   for (auto const & pw : tmpworkers) { holder.push_back(pw.getWorker()); }
   if (!tmpworkers.empty()) {
-    Path p(bitpos, name, tmpworkers, endpath_results_,
+    Path p(bitpos, name, std::move(tmpworkers), endpath_results_,
            process_pset_, *act_table_, actReg_, true);
     end_paths_.push_back(p);
   }
