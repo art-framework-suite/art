@@ -28,11 +28,12 @@ set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/Modules
 include(CetCMakeEnv)
 cet_cmake_env()
 
-cet_set_compiler_flags(DIAGS VIGILANT 
-                       WERROR 
-		       NO_UNDEFINED 
-		       EXTRA_FLAGS -pedantic
-		       EXTRA_CXX_FLAGS -std=c++11)
+cet_set_compiler_flags(DIAGS VIGILANT
+  WERROR
+  NO_UNDEFINED
+  EXTRA_FLAGS -pedantic
+  EXTRA_CXX_FLAGS -std=c++11
+  )
 cet_have_qual(sse2 SSE2)
 if ( SSE2 )
   cet_add_compiler_flags(CXX -msse2 -ftree-vectorizer-verbose=2)
