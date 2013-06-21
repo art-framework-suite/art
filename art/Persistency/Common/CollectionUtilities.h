@@ -120,7 +120,6 @@ namespace art {
   template <typename C>
   size_t (C::* art::detail::mix_offset<C>::offset)() const = &C::size;
 
-  template<>
   template <typename P>
   size_t (cet::map_vector<P>::* art::detail::mix_offset<cet::map_vector<P> >::offset)() const  = &cet::map_vector<P>::delta;
 
