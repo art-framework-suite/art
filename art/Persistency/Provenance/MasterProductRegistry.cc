@@ -33,12 +33,7 @@ art::MasterProductRegistry::MasterProductRegistry()
   productLookup_(),
   elementLookup_()
 {
-   // FIXME: Use C++2011 initialization when available.
-  for (std::array<bool, NumBranchTypes>::size_type i = 0;
-       i < productProduced_.size();
-       ++i) {
-    productProduced_[i] = false;
-  }
+  productProduced_.fill(false);
 }
 
 std::vector<std::string>
