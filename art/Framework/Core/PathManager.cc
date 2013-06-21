@@ -26,12 +26,8 @@ PathManager(ParameterSet const & procPS,
   protoTrigPathMap_(),
   protoEndPathInfo_(),
   triggerPathNames_(processPathConfigs_()),
-  endPathWorkers_(),
-  endPath_(),
-  triggerPathWorkers_(),
-  triggerPaths_(),
-  triggerResults_(),
-  endPathResults_(1) // Only one end path.
+  endPathInfo_(),
+  triggerPathsInfo_()
 {
 }
 
@@ -39,45 +35,45 @@ art::Path &
 art::PathManager::
 endPath()
 {
-  if (!endPath_) {
+  if (!endPathInfo_.pathPtrs.size()) {
     // Need to create path from proto information.
-    endPath_ = fillWorkers_(0,
-                            "end_path",
-                            protoEndPathInfo_,
-                            endPathResults_,
-                            endPathWorkers_);
+    endPathInfo_.pathResults = HLTGlobalStatus(1)
+    endPathInfo_.pathPtrs.emplace_back
+      (fillWorkers_(0,
+                    "end_path",
+                    protoEndPathInfo_,
+                    endPathInfo_.pathResults,
+                    endPathInfo_.workers));
   }
-  return *endPath_;
+  return *endPathInfo_.pathPtrs.front();
 }
 
-art::PathManager::Paths const &
+art::PathPtrs const &
 art::PathManager::
-triggerPaths(ScheduleID sID)
+triggerPathPtrs(ScheduleID sID)
 {
   if (triggerPathNames_.empty()) {
-    return triggerPaths_[sID]; // Empty.
+    return triggerPathsInfo_[sID].pathPtrs; // Empty.
   } else {
     auto it =
-      triggerPaths_.find(sID);
-    if (it == triggerPaths_.end()) {
-      // FIXME: use emplace().
-      it = triggerPaths_.insert(std::make_pair(sID, Paths())).first;
+      triggerPathsInfo_.find(sID);
+    if (it == triggerPathsInfo_.end()) {
+      it = triggerPathsInfo_.emplace(sID, PathsInfo()).first;
       int bitpos { 0 };
       std::for_each(protoTrigPathMap_.cbegin(),
                     protoTrigPathMap_.cend(),
                     [this, sID, it, &bitpos](typename decltype(protoTrigPathMap_)::value_type const & val)
                     {
-                      // Use emplace.
-                      auto trit = triggerResults_.insert(std::make_pair(sID, HLTGlobalStatus(triggerPathNames_.size()))).first;
-                      it->second.emplace_back(fillWorkers_(bitpos,
-                                                           val.first,
-                                                           val.second,
-                                                           trit->second,
-                                                           triggerPathWorkers_[sID]));
+                      it->second.pathResults = HLTGlobalStatus(triggerPathNames_.size());
+                      it->second.pathPtrs.emplace_back(fillWorkers_(bitpos,
+                                                                    val.first,
+                                                                    val.second,
+                                                                    it->second.pathResults,
+                                                                    it->second.workers));
                       ++bitpos;
                     });
     }
-    return it->second;
+    return it->second.pathPtrs;
   }
 }
 
@@ -167,10 +163,19 @@ processPathConfigs_()
   std::set<std::string> specified_modules;
   // Process each path.
   std::ostringstream error_stream;
+  size_t end_paths { 0 };
   for (auto const & path_name : path_names) {
     auto const path_seq = physics.get<vstring>(path_name);
-    if (processOnePathConfig_(path_name, path_seq, error_stream)) {
+    if (processOnePathConfig_(path_name, path_seq, error_stream)) { // Trigger
       trigger_path_names.push_back(path_name);
+    }
+    else { // End path
+      ++end_paths;
+    }
+    if (end_paths > 1) {
+      mf::LogInfo("PathConfiguration")
+        << "Multiple end paths have been combined into one end path\n"
+        << "since order is irrelevant.\n";
     }
     specified_modules.insert(path_seq.cbegin(), path_seq.cend());
   }
@@ -262,10 +267,9 @@ makeWorker_(detail::ModuleConfigInfo const * mci,
     areg_->sPreModuleConstruction.invoke(md);
     auto worker = fact_.makeWorker(p, md);
     areg_->sPostModuleConstruction.invoke(md);
-    // FIXME: Use emplace.
     it = workers.
-         insert(std::make_pair(mci->label(),
-                               std::move(worker))).first;
+         emplace(mci->label(),
+                 std::move(worker)).first;
     it->second->setActivityRegistry(areg_);
     pathWorkers.emplace_back(it->second.get());
   }

@@ -15,6 +15,7 @@
 #include "art/Framework/Core/Path.h"
 #include "art/Framework/Core/detail/ModuleFactory.h"
 #include "art/Framework/Core/detail/ModuleConfigInfo.h"
+#include "art/Framework/Core/detail/PathsInfo.h"
 #include "art/Framework/Principal/Actions.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Persistency/Common/HLTGlobalStatus.h"
@@ -34,7 +35,6 @@ namespace art {
 
 class art::PathManager {
 public:
-  typedef std::vector<std::unique_ptr<Path> > Paths;
   typedef std::vector<Worker *> Workers;
   typedef std::vector<std::string> vstring;
 
@@ -47,12 +47,11 @@ public:
 
   // These methods will trigger module construction.
   Path & endPath();
-  Paths const & triggerPaths(ScheduleID sID);
+  PathPtrs const & triggerPathPtrs(ScheduleID sID);
 
   void resetAll(); // Reset trigger results ready for next event.
 
 private:
-  typedef std::map<std::string, std::shared_ptr<Worker>> WorkerMap;
   typedef std::vector<detail::ModuleConfigInfo const *> ModInfos;
 
   detail::ModuleConfigInfoMap fillAllModules_();
@@ -81,12 +80,9 @@ private:
   std::map<std::string, ModInfos> protoTrigPathMap_;
   ModInfos protoEndPathInfo_;
   vstring triggerPathNames_;
-  WorkerMap endPathWorkers_;
-  std::unique_ptr<Path> endPath_;
-  std::map<ScheduleID, WorkerMap> triggerPathWorkers_; // Per-schedule.
-  std::map<ScheduleID, Paths> triggerPaths_; // Per-schedule.
-  std::map<ScheduleID, HLTGlobalStatus> triggerResults_; // Per-schedule.
-  HLTGlobalStatus endPathResults_;
+
+  PathsInfo endPathInfo_;
+  std::map<ScheduleID, PathsInfo> triggerPathsInfo_; // Per-schedule.
 };
 
 #endif /* art_Framework_Core_PathManager_h */
