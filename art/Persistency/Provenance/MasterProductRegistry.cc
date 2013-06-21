@@ -11,7 +11,7 @@
 
 namespace {
   void checkDicts(art::BranchDescription const &productDesc) {
-    if (productDesc.transient()) { // FIXME: make this go away soon.
+    if (productDesc.transient()) {
       art::checkDictionaries(productDesc.producedClassName(), true);
     } else {
       art::checkDictionaries(art::wrappedClassName(productDesc.producedClassName()), false);
