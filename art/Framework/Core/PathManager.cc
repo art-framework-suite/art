@@ -21,6 +21,8 @@ PathManager(ParameterSet const & procPS,
   preg_(preg),
   exceptActions_(exceptActions),
   areg_(areg),
+  allowUnscheduled_(procPS_.get<bool>("services.scheduler.allowUnscheduled",
+                                      false)),
   fact_(),
   allModules_(fillAllModules_()),
   protoTrigPathMap_(),
@@ -35,9 +37,9 @@ art::Path &
 art::PathManager::
 endPath()
 {
-  if (!endPathInfo_.pathPtrs.size()) {
+  if (endPathInfo_.pathPtrs.empty()) {
     // Need to create path from proto information.
-    endPathInfo_.pathResults = HLTGlobalStatus(1)
+    endPathInfo_.pathResults = HLTGlobalStatus(1);
     endPathInfo_.pathPtrs.emplace_back
       (fillWorkers_(0,
                     "end_path",
@@ -135,10 +137,9 @@ processPathConfigs_()
   auto services = procPS_.get<ParameterSet>("services",
                                             ParameterSet());
   auto opts(services.get<ParameterSet>("scheduler", ParameterSet()));
-  bool allowUnscheduled { opts.get<bool>("allowUnscheduled", false) };
   auto nSchedules = opts.get<size_t>("num_schedules", 1);
   // Check we're not being asked to do something we can't.
-  if (allowUnscheduled && nSchedules > 1) {
+  if (allowUnscheduled_ && nSchedules > 1) {
     throw Exception(errors::UnimplementedFeature)
         << "Multi-schedule operation is not possible with on-demand "
         << "module execution.\n";
@@ -155,10 +156,10 @@ processPathConfigs_()
   auto const physics = procPS_.get<ParameterSet>("physics", empty);
   auto const keys = physics.get_keys();
   vstring path_names;
-  std::set_difference(keys.begin(),
-                      keys.end(),
-                      known_pars.begin(),
-                      known_pars.end(),
+  std::set_difference(keys.cbegin(),
+                      keys.cend(),
+                      known_pars.cbegin(),
+                      known_pars.cend(),
                       std::back_inserter(path_names));
   std::set<std::string> specified_modules;
   // Process each path.
@@ -174,11 +175,52 @@ processPathConfigs_()
     }
     if (end_paths > 1) {
       mf::LogInfo("PathConfiguration")
-        << "Multiple end paths have been combined into one end path\n"
-        << "since order is irrelevant.\n";
+        << "Multiple end paths have been combined into one end path,\n"
+        << " \"end_path\" since order is irrelevant.\n";
     }
     specified_modules.insert(path_seq.cbegin(), path_seq.cend());
   }
+
+  if (allowUnscheduled_) {
+    // All modifiers are "used."
+    for (auto const & val : allModules_) {
+      if (is_modifier(val.second.moduleType())) {
+        specified_modules.emplace(val.second.label());
+      }
+    };
+  }
+
+  vstring unused_modules;
+  std::set<std::string> all_module_labels;
+  for(auto const & val : allModules_) {
+    all_module_labels.insert(val.first);
+  }
+
+  std::set_difference(all_module_labels.cbegin(),
+                      all_module_labels.cend(),
+                      specified_modules.cbegin(),
+                      specified_modules.cend(),
+                      std::back_inserter(unused_modules));
+
+  // Complain about unused modules.
+  if (!unused_modules.empty()) {
+    std::ostringstream unusedStream;
+    unusedStream << "The following module label"
+                 << ((unused_modules.size() == 1) ? " is" : "s are")
+                 << "s are not assigned to any path:\n"
+                 << "'" << unused_modules.front() << "'";
+    for (auto i = unused_modules.cbegin() + 1,
+              e = unused_modules.cend();
+         i != e;
+         ++i) {
+      unusedStream << ", " << *i << "'";
+    }
+    mf::LogInfo("path")
+      << unusedStream.str()
+      << "\n";
+  }
+
+  // Check for fatal errors.
   auto error_messages = error_stream.str();
   if (!error_messages.empty()) {
     throw Exception(errors::Configuration, "Path configuration: ")

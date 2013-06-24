@@ -13,9 +13,9 @@
 ////////////////////////////////////////////////////////////////////////
 
 #include "art/Framework/Core/Path.h"
-#include "art/Framework/Core/detail/ModuleFactory.h"
+#include "art/Framework/Core/PathsInfo.h"
 #include "art/Framework/Core/detail/ModuleConfigInfo.h"
-#include "art/Framework/Core/detail/PathsInfo.h"
+#include "art/Framework/Core/detail/ModuleFactory.h"
 #include "art/Framework/Principal/Actions.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Persistency/Common/HLTGlobalStatus.h"
@@ -75,6 +75,7 @@ private:
   ActionTable & exceptActions_;
   std::shared_ptr<ActivityRegistry> const & areg_;
 
+  bool const allowUnscheduled_; // Cached parameter.
   detail::ModuleFactory fact_;
   detail::ModuleConfigInfoMap allModules_;
   std::map<std::string, ModInfos> protoTrigPathMap_;
