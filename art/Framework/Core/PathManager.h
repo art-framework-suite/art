@@ -86,6 +86,13 @@ private:
   std::map<ScheduleID, PathsInfo> triggerPathsInfo_; // Per-schedule.
 };
 
+inline
+art::PathManager::vstring const &
+art::PathManager::triggerPathNames() const
+{
+  return triggerPathNames_;
+}
+
 #endif /* art_Framework_Core_PathManager_h */
 
 // Local Variables:

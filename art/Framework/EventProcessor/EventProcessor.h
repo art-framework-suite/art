@@ -14,6 +14,7 @@
 #include "art/Framework/Core/IEventProcessor.h"
 #include "art/Framework/Core/InputSource.h"
 #include "art/Framework/Core/MFStatusUpdater.h"
+#include "art/Framework/Core/PathManager.h"
 #include "art/Framework/Core/PrincipalCache.h"
 #include "art/Persistency/Provenance/MasterProductRegistry.h"
 #include "art/Framework/Core/WorkerRegistry.h"
@@ -149,6 +150,7 @@ namespace art {
     tbb::task_scheduler_init tbbManager_;
     std::unique_ptr<Schedule>                       schedule_;
     ActionTable                                   act_table_;
+    std::unique_ptr<PathManager> pathManager_;
 
     std::shared_ptr<FileBlock>                    fb_;
 

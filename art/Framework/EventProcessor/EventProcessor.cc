@@ -186,6 +186,7 @@ art::EventProcessor::EventProcessor(ParameterSet const & pset)
   tbbManager_(tbb::task_scheduler_init::deferred),
   schedule_(),
   act_table_(),
+  pathManager_(),
   fb_(),
   shouldWeStop_(false),
   alreadyHandlingException_(false)
@@ -202,6 +203,9 @@ art::EventProcessor::EventProcessor(ParameterSet const & pset)
   handleEmptyRuns_ = scheduler.get<bool>("handleEmptyRuns", true);
   handleEmptySubRuns_ = scheduler.get<bool>("handleEmptySubRuns", true);
   std::string const processName = pset.get<std::string>("process_name");
+
+  // New PathManager. Required in time to construct TriggerNamesService.
+  pathManager_.reset(new PathManager(pset, preg_, act_table_, actReg_));
 
   // Services
   configureServices_(pset);
@@ -315,7 +319,7 @@ configureServices_(ParameterSet const & pset)
   serviceToken_.add(std::unique_ptr<CurrentModule>(new CurrentModule(*actReg_)));
   // special construction
   serviceToken_.add(std::unique_ptr<TriggerNamesService>
-                    (new TriggerNamesService(pset)));
+                    (new TriggerNamesService(pset, pathManager_->triggerPathNames())));
   ParameterSet const fpc_pset = services.get<ParameterSet>("floating_point_control", ParameterSet());
   serviceToken_.add(std::unique_ptr<FloatingPointControl>(new FloatingPointControl(fpc_pset, *actReg_)));
   serviceToken_.add(std::unique_ptr<ScheduleContext>(new ScheduleContext));

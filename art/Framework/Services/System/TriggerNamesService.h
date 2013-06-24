@@ -43,7 +43,6 @@ public:
   typedef  std::map<std::string, unsigned int>  PosMap;
   typedef  PosMap::size_type                    size_type;
 
-  explicit TriggerNamesService(fhicl::ParameterSet const & procPS);
   TriggerNamesService(fhicl::ParameterSet const & procPS,
                       std::vector<std::string> const & triggerPathNames);
 

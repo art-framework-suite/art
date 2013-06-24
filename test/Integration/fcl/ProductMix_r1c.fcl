@@ -21,5 +21,6 @@ services.message:
 physics.filters.mixFilter.wrapFiles: true
 physics.analyzers: {}
 outputs: {}
-physics.end_paths: [ ]
+physics.e1: []
+physics.end_paths: []
 source.maxEvents: 400

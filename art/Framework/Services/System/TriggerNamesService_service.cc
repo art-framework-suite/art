@@ -24,14 +24,6 @@ static  vector<string> empty_svec;
 
 // ----------------------------------------------------------------------
 
-TriggerNamesService::TriggerNamesService(ParameterSet const & procPS)
-:
-  TriggerNamesService(procPS,
-                      procPS.get<std::vector<std::string> >("trigger_paths.trigger_paths",
-                        { }))
-{
-}
-
 TriggerNamesService::TriggerNamesService(ParameterSet const & procPS,
                                          std::vector<std::string> const & trigger_path_names)
   :
