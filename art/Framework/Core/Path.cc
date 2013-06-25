@@ -15,7 +15,7 @@ using namespace std;
 namespace art {
   Path::Path(int bitpos, string const& path_name,
              WorkersInPath workers,
-             HLTGlobalStatus & pathResults,
+             TrigResPtr pathResults,
              ParameterSet const&,
              ActionTable& actions,
              std::shared_ptr<ActivityRegistry> areg,
@@ -28,7 +28,7 @@ namespace art {
     state_(art::hlt::Ready),
     bitpos_(bitpos),
     name_(path_name),
-    trptr_(&pathResults),
+    trptr_(std::move(pathResults)),
     actReg_(areg),
     act_table_(&actions),
     workers_(std::move(workers)),
@@ -79,7 +79,7 @@ namespace art {
 
   void
   Path::recordStatus(int nwrwue, bool isEvent) {
-    if(isEvent) {
+    if (isEvent && trptr_) {
       (*trptr_)[bitpos_]=HLTPathStatus(state_, nwrwue);
     }
   }

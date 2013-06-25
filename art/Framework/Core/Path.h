@@ -39,7 +39,7 @@ public:
 
   Path(int bitpos, std::string const& path_name,
        WorkersInPath workers, // Feel free to use move semantics.
-       HLTGlobalStatus & pathResults,
+       TrigResPtr pathResults,
        fhicl::ParameterSet const& proc_pset,
        ActionTable& actions,
        std::shared_ptr<ActivityRegistry> reg,

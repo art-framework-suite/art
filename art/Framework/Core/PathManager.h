@@ -67,7 +67,7 @@ private:
   std::unique_ptr<Path> fillWorkers_(int bitpos,
                                      std::string const & pathName,
                                      ModInfos const & modInfos,
-                                     HLTGlobalStatus & pathResults,
+                                     Path::TrigResPtr pathResults,
                                      WorkerMap & workers);
 
   fhicl::ParameterSet procPS_;

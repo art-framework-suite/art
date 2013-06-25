@@ -44,7 +44,7 @@ endPathInfo()
       (fillWorkers_(0,
                     "end_path",
                     protoEndPathInfo_,
-                    endPathInfo_.pathResults(),
+                    nullptr, // End path, no trigger results needed.
                     endPathInfo_.workers()));
   }
   return endPathInfo_;
@@ -68,10 +68,10 @@ triggerPathsInfo(ScheduleID sID)
                     {
                       it->second.pathResults() = HLTGlobalStatus(triggerPathNames_.size());
                       it->second.pathPtrs().emplace_back(fillWorkers_(bitpos,
-                                                                    val.first,
-                                                                    val.second,
-                                                                    it->second.pathResults(),
-                                                                    it->second.workers()));
+                                                                      val.first,
+                                                                      val.second,
+                                                                      Path::TrigResPtr(&it->second.pathResults()),
+                                                                      it->second.workers()));
                       ++bitpos;
                     });
     }
@@ -322,7 +322,7 @@ art::PathManager::
 fillWorkers_(int bitpos,
              std::string const & pathName,
              ModInfos const & modInfos,
-             HLTGlobalStatus & pathResults,
+             Path::TrigResPtr pathResults,
              WorkerMap & workers)
 {
   std::vector<WorkerInPath> pathWorkers;
@@ -338,7 +338,7 @@ fillWorkers_(int bitpos,
     (new art::Path(bitpos,
                    pathName,
                    std::move(pathWorkers),
-                   pathResults,
+                   std::move(pathResults),
                    procPS_,
                    exceptActions_,
                    areg_,
