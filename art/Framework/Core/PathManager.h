@@ -46,8 +46,8 @@ public:
   vstring const & triggerPathNames() const;
 
   // These methods will trigger module construction.
-  Path & endPath();
-  PathPtrs const & triggerPathPtrs(ScheduleID sID);
+  PathsInfo & endPathInfo();
+  PathsInfo & triggerPathsInfo(ScheduleID sID);
 
   void resetAll(); // Reset trigger results ready for next event.
 

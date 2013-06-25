@@ -33,29 +33,29 @@ PathManager(ParameterSet const & procPS,
 {
 }
 
-art::Path &
+art::PathsInfo &
 art::PathManager::
-endPath()
+endPathInfo()
 {
-  if (endPathInfo_.pathPtrs.empty()) {
+  if (endPathInfo_.pathPtrs().empty()) {
     // Need to create path from proto information.
-    endPathInfo_.pathResults = HLTGlobalStatus(1);
-    endPathInfo_.pathPtrs.emplace_back
+    endPathInfo_.pathResults() = HLTGlobalStatus(1);
+    endPathInfo_.pathPtrs().emplace_back
       (fillWorkers_(0,
                     "end_path",
                     protoEndPathInfo_,
-                    endPathInfo_.pathResults,
-                    endPathInfo_.workers));
+                    endPathInfo_.pathResults(),
+                    endPathInfo_.workers()));
   }
-  return *endPathInfo_.pathPtrs.front();
+  return endPathInfo_;
 }
 
-art::PathPtrs const &
+art::PathsInfo &
 art::PathManager::
-triggerPathPtrs(ScheduleID sID)
+triggerPathsInfo(ScheduleID sID)
 {
   if (triggerPathNames_.empty()) {
-    return triggerPathsInfo_[sID].pathPtrs; // Empty.
+    return triggerPathsInfo_[sID]; // Empty.
   } else {
     auto it =
       triggerPathsInfo_.find(sID);
@@ -66,16 +66,16 @@ triggerPathPtrs(ScheduleID sID)
                     protoTrigPathMap_.cend(),
                     [this, sID, it, &bitpos](typename decltype(protoTrigPathMap_)::value_type const & val)
                     {
-                      it->second.pathResults = HLTGlobalStatus(triggerPathNames_.size());
-                      it->second.pathPtrs.emplace_back(fillWorkers_(bitpos,
+                      it->second.pathResults() = HLTGlobalStatus(triggerPathNames_.size());
+                      it->second.pathPtrs().emplace_back(fillWorkers_(bitpos,
                                                                     val.first,
                                                                     val.second,
-                                                                    it->second.pathResults,
-                                                                    it->second.workers));
+                                                                    it->second.pathResults(),
+                                                                    it->second.workers()));
                       ++bitpos;
                     });
     }
-    return it->second.pathPtrs;
+    return it->second;
   }
 }
 
