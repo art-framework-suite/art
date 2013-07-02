@@ -33,7 +33,6 @@ public:
 
   std::string const & label() const;
   std::string const & configPath() const;
-  WorkerInPath::FilterAction filterAction() const;
   ModuleType moduleType() const;
   fhicl::ParameterSet const & modPS() const;
   std::string const & libSpec() const;
@@ -41,16 +40,11 @@ public:
   static
   std::vector<std::string> const & allModulePathRoots();
 
-  static
-  std::string stripLabel(std::string const & labelInPathConfig);
-
 private:
-  WorkerInPath::FilterAction calcFilterAction_() const;
   ModuleType calcConfigType_() const;
 
   std::string const label_;
   std::string const configPath_;
-  WorkerInPath::FilterAction const filterAction_;
   ModuleType const moduleType_;
   fhicl::ParameterSet const modPS_;
   std::string const libSpec_;
@@ -62,14 +56,6 @@ art::detail::ModuleConfigInfo::
 configPath() const
 {
   return configPath_;
-}
-
-inline
-art::WorkerInPath::FilterAction
-art::detail::ModuleConfigInfo::
-filterAction() const
-{
-  return filterAction_;
 }
 
 inline

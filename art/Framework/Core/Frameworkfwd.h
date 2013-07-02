@@ -21,6 +21,7 @@ namespace art {
   class EDFilter;
   class EDLooper;
   class EDProducer;
+  class EndPathExecutor;
   class FileBlock;
   class GeneratedInputSource;
   class InputSource;
@@ -32,8 +33,10 @@ namespace art {
   class Schedule;
 
   struct EventSummary;
+  struct ModuleInPathSummary;
   struct PathSummary;
   struct TriggerReport;
+  struct WorkerSummary;
 
 }  // art
 

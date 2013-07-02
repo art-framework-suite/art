@@ -21,9 +21,12 @@ public:
   void addPass();
   std::unique_ptr<RunStopwatch> runStopwatch(bool run = true);
 
+  WorkerMap const & workers() const;
+  PathPtrs const & pathPtrs() const;
   size_t passedEvents() const;
   size_t failedEvents() const;
   size_t totalEvents() const;
+  std::pair<double, double> timeCpuReal() const;
 
 private:
   WorkerMap workers_;
@@ -85,6 +88,22 @@ runStopwatch(bool run)
 }
 
 inline
+art::WorkerMap const &
+art::PathsInfo::
+workers() const
+{
+  return workers_;
+}
+
+inline
+art::PathPtrs const &
+art::PathsInfo::
+pathPtrs() const
+{
+  return pathPtrs_;
+}
+
+inline
 size_t
 art::PathsInfo::
 passedEvents() const
@@ -106,6 +125,14 @@ art::PathsInfo::
 totalEvents() const
 {
   return totalEvents_;
+}
+
+inline
+std::pair<double, double>
+art::PathsInfo::
+timeCpuReal() const
+{
+  return std::pair<double, double>(stopwatch_->realTime(), stopwatch_->cpuTime());
 }
 
 #endif /* art_Framework_Core_PathsInfo_h */

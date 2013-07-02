@@ -1,15 +1,15 @@
 #include "art/Framework/EventProcessor/EventProcessor.h"
 
 #include "art/Framework/Core/Breakpoints.h"
-#include "art/Framework/EventProcessor/EPStates.h"
-#include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Core/FileBlock.h"
 #include "art/Framework/Core/InputSource.h"
 #include "art/Framework/Core/InputSourceDescription.h"
 #include "art/Framework/Core/InputSourceFactory.h"
+#include "art/Framework/EventProcessor/EPStates.h"
+#include "art/Framework/EventProcessor/detail/writeSummary.h"
+#include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Principal/OccurrenceTraits.h"
 #include "art/Framework/Principal/RunPrincipal.h"
-#include "art/Framework/Core/Schedule.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Framework/Services/Optional/RandomNumberGenerator.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
@@ -25,6 +25,7 @@
 #include "art/Utilities/DebugMacros.h"
 #include "art/Utilities/Exception.h"
 #include "art/Utilities/GetPassID.h"
+#include "art/Utilities/ScheduleID.h"
 #include "art/Utilities/UnixSignalHandlers.h"
 #include "art/Version/GetReleaseVersion.h"
 #include "boost/thread/xtime.hpp"
@@ -42,6 +43,7 @@
 using fhicl::ParameterSet;
 
 namespace {
+  // Most signals.
   class SignalSentry {
   public:
     SignalSentry(SignalSentry const &) = delete;
@@ -59,6 +61,7 @@ namespace {
     Sig & post_;
   };
 
+  ////////////////////////////////////
   void setupAsDefaultEmptySource(ParameterSet & p)
   {
     p.put("module_type", "EmptyEvent");
@@ -179,16 +182,26 @@ art::EventProcessor::EventProcessor(ParameterSet const & pset)
   :
   actReg_(new ActivityRegistry),
   mfStatusUpdater_(*actReg_),
-  wreg_(actReg_),
   preg_(),
   serviceToken_(),
   input_(),
   tbbManager_(tbb::task_scheduler_init::deferred),
-  schedule_(),
-  act_table_(),
   pathManager_(),
+  schedule_(),
+  endPathExecutor_(),
+  act_table_(),
   fb_(),
+  machine_(),
+  principalCache_(),
+  sm_evp_(),
   shouldWeStop_(false),
+  stateMachineWasInErrorState_(false),
+  fileMode_(),
+  handleEmptyRuns_(false),
+  handleEmptySubRuns_(false),
+  exceptionMessageFiles_(),
+  exceptionMessageRuns_(),
+  exceptionMessageSubRuns_(),
   alreadyHandlingException_(false)
 {
   // The BranchIDListRegistry and ProductIDListRegistry are indexed registries, and are singletons.
@@ -220,6 +233,9 @@ art::EventProcessor::EventProcessor(ParameterSet const & pset)
   input_->storeMPRforBrokenRandomAccess(preg_);
 
   initSchedules_(pset);
+  endPathExecutor_.reset(new EndPathExecutor(*pathManager_,
+                                             act_table_,
+                                             actReg_));
   FDEBUG(2) << pset.to_string() << std::endl;
   BranchIDListHelper::updateRegistries(preg_);
 }
@@ -242,7 +258,6 @@ art::EventProcessor::~EventProcessor()
   // manually destroy all these thing that may need the services around
   schedule_.reset();
   input_.reset();
-  wreg_.clear();
   actReg_.reset();
 }
 
@@ -281,10 +296,10 @@ art::EventProcessor::beginJob()
     throw;
   }
   schedule_->beginJob();
+  endPathExecutor_->beginJob();
   actReg_->sPostBeginJob.invoke();
-  Schedule::Workers aw_vec;
-  schedule_->getAllWorkers(aw_vec);
-  actReg_->sPostBeginJobWorkers.invoke(input_.get(), aw_vec);
+
+  invokePostBeginJobWorkers_();
 }
 
 void
@@ -296,6 +311,10 @@ art::EventProcessor::endJob()
   ServiceRegistry::Operate operate(serviceToken_);
   c.call(std::bind(&EventProcessor::terminateMachine_, this));
   c.call(std::bind(&Schedule::endJob, schedule_.get()));
+  c.call(std::bind(&EndPathExecutor::endJob, endPathExecutor_.get()));
+  c.call(std::bind(&detail::writeSummary,
+                   std::ref(*pathManager_),
+                   ServiceHandle<TriggerNamesService>()->wantSummary()));
   c.call(std::bind(&InputSource::doEndJob, input_));
   c.call(std::bind(&decltype(ActivityRegistry::sPostEndJob)::invoke, actReg_->sPostEndJob));
 }
@@ -342,12 +361,34 @@ initSchedules_(ParameterSet const & pset)
 
   schedule_ =
     std::unique_ptr<Schedule>
-    (new Schedule(pset,
+    (new Schedule(ScheduleID::first(),
+                  *pathManager_,
+                  pset,
                   ServiceRegistry::instance().get<TriggerNamesService>(),
-                  wreg_,
                   preg_,
                   act_table_,
                   actReg_));
+}
+
+void
+art::EventProcessor::
+invokePostBeginJobWorkers_()
+{
+  // Need to convert multiple lists of workers into a long list that the
+  // postBeginJobWorkers callbacks can understand.
+  std::vector<Worker *> allWorkers;
+  allWorkers.reserve(pathManager_->triggerPathsInfo(ScheduleID::first()).workers().size() +
+                     pathManager_->endPathInfo().workers().size());
+  auto workerStripper = [&allWorkers](WorkerMap::value_type const & val) {
+    allWorkers.emplace_back(val.second.get());
+  };
+  std::for_each(pathManager_->triggerPathsInfo(ScheduleID::first()).workers().cbegin(),
+                pathManager_->triggerPathsInfo(ScheduleID::first()).workers().cend(),
+                workerStripper);
+  std::for_each(pathManager_->endPathInfo().workers().cbegin(),
+                pathManager_->endPathInfo().workers().cend(),
+                workerStripper);
+  actReg_->sPostBeginJobWorkers.invoke(input_.get(), allWorkers);
 }
 
 art::ServiceToken
@@ -572,14 +613,14 @@ art::EventProcessor::closeInputFile()
 void
 art::EventProcessor::openOutputFiles()
 {
-  schedule_->openOutputFiles(*fb_);
+  endPathExecutor_->openOutputFiles(*fb_);
   FDEBUG(1) << "\topenOutputFiles\n";
 }
 
 void
 art::EventProcessor::closeOutputFiles()
 {
-  schedule_->closeOutputFiles();
+  endPathExecutor_->closeOutputFiles();
   FDEBUG(1) << "\tcloseOutputFiles\n";
 }
 
@@ -587,6 +628,7 @@ void
 art::EventProcessor::respondToOpenInputFile()
 {
   schedule_->respondToOpenInputFile(*fb_);
+  endPathExecutor_->respondToOpenInputFile(*fb_);
   FDEBUG(1) << "\trespondToOpenInputFile\n";
 }
 
@@ -594,6 +636,7 @@ void
 art::EventProcessor::respondToCloseInputFile()
 {
   schedule_->respondToCloseInputFile(*fb_);
+  endPathExecutor_->respondToCloseInputFile(*fb_);
   FDEBUG(1) << "\trespondToCloseInputFile\n";
 }
 
@@ -601,6 +644,7 @@ void
 art::EventProcessor::respondToOpenOutputFiles()
 {
   schedule_->respondToOpenOutputFiles(*fb_);
+  endPathExecutor_->respondToOpenOutputFiles(*fb_);
   FDEBUG(1) << "\trespondToOpenOutputFiles\n";
 }
 
@@ -608,6 +652,7 @@ void
 art::EventProcessor::respondToCloseOutputFiles()
 {
   schedule_->respondToCloseOutputFiles(*fb_);
+  endPathExecutor_->respondToCloseOutputFiles(*fb_);
   FDEBUG(1) << "\trespondToCloseOutputFiles\n";
 }
 
@@ -644,7 +689,7 @@ art::EventProcessor::writeSubRunCache()
   while (!principalCache_.noMoreSubRuns()) {
     auto const & lowestSubRun = principalCache_.lowestSubRun();
     if (!lowestSubRun.id().isFlush()) {
-      schedule_->writeSubRun(lowestSubRun);
+      endPathExecutor_->writeSubRun(lowestSubRun);
     }
     principalCache_.deleteLowestSubRun();
   }
@@ -657,7 +702,7 @@ art::EventProcessor::writeRunCache()
   while (!principalCache_.noMoreRuns()) {
     auto const & lowestRun = principalCache_.lowestRun();
     if (!lowestRun.id().isFlush()) {
-      schedule_->writeRun(lowestRun);
+      endPathExecutor_->writeRun(lowestRun);
     }
     principalCache_.deleteLowestRun();
   }
@@ -668,7 +713,7 @@ bool
 art::EventProcessor::shouldWeCloseOutput() const
 {
   FDEBUG(1) << "\tshouldWeCloseOutput\n";
-  return schedule_->shouldWeCloseOutput();
+  return endPathExecutor_->shouldWeCloseOutput();
 }
 
 void
@@ -688,7 +733,8 @@ art::EventProcessor::beginRun(RunID run)
 {
   if (!run.isFlush()) {
     RunPrincipal & runPrincipal = principalCache_.runPrincipal(run);
-    schedule_->processOneOccurrence<OccurrenceTraits<RunPrincipal, BranchActionBegin> >(runPrincipal);
+    processOneOccurrence_<OccurrenceTraits<RunPrincipal, BranchActionBegin> >
+      (runPrincipal);
     FDEBUG(1) << "\tbeginRun " << run.run() << "\n";
   }
 }
@@ -698,7 +744,8 @@ art::EventProcessor::endRun(RunID run)
 {
   if (!run.isFlush()) {
     RunPrincipal & runPrincipal = principalCache_.runPrincipal(run);
-    schedule_->processOneOccurrence<OccurrenceTraits<RunPrincipal, BranchActionEnd> >(runPrincipal);
+    processOneOccurrence_<OccurrenceTraits<RunPrincipal, BranchActionEnd> >
+      (runPrincipal);
     FDEBUG(1) << "\tendRun " << run.run() << "\n";
   }
 }
@@ -711,7 +758,8 @@ art::EventProcessor::beginSubRun(SubRunID const & sr)
     // is a bad idea subRun blocks know their start and end times why
     // not also start and end events?
     SubRunPrincipal & subRunPrincipal = principalCache_.subRunPrincipal(sr);
-    schedule_->processOneOccurrence<OccurrenceTraits<SubRunPrincipal, BranchActionBegin> >(subRunPrincipal);
+    processOneOccurrence_<OccurrenceTraits<SubRunPrincipal, BranchActionBegin> >
+      (subRunPrincipal);
     FDEBUG(1) << "\tbeginSubRun " << sr << "\n";
   }
 }
@@ -724,7 +772,8 @@ art::EventProcessor::endSubRun(SubRunID const & sr)
     // a bad idea subRun blocks know their start and end times why not
     // also start and end events?
     SubRunPrincipal & subRunPrincipal = principalCache_.subRunPrincipal(sr);
-    schedule_->processOneOccurrence<OccurrenceTraits<SubRunPrincipal, BranchActionEnd> >(subRunPrincipal);
+    processOneOccurrence_<OccurrenceTraits<SubRunPrincipal, BranchActionEnd> >
+      (subRunPrincipal);
     FDEBUG(1) << "\tendSubRun " << sr << "\n";
   }
 }
@@ -753,7 +802,7 @@ void
 art::EventProcessor::writeRun(RunID run)
 {
   if (!run.isFlush()) {
-    schedule_->writeRun(principalCache_.runPrincipal(run));
+    endPathExecutor_->writeRun(principalCache_.runPrincipal(run));
     FDEBUG(1) << "\twriteRun " << run.run() << "\n";
   }
 }
@@ -769,7 +818,7 @@ void
 art::EventProcessor::writeSubRun(SubRunID const & sr)
 {
   if (!sr.isFlush()) {
-    schedule_->writeSubRun(principalCache_.subRunPrincipal(sr));
+    endPathExecutor_->writeSubRun(principalCache_.subRunPrincipal(sr));
     FDEBUG(1) << "\twriteSubRun " << sr.run() << "/" << sr.subRun() << "\n";
   }
 }
@@ -792,7 +841,8 @@ void
 art::EventProcessor::processEvent()
 {
   if (!sm_evp_->id().isFlush()) {
-    schedule_->processOneOccurrence<OccurrenceTraits<EventPrincipal, BranchActionBegin> >(*sm_evp_);
+    processOneOccurrence_<OccurrenceTraits<EventPrincipal, BranchActionBegin> >
+      (*sm_evp_);
     FDEBUG(1) << "\tprocessEvent\n";
   }
 }
@@ -802,7 +852,7 @@ art::EventProcessor::shouldWeStop() const
 {
   FDEBUG(1) << "\tshouldWeStop\n";
   if (shouldWeStop_) { return true; }
-  return schedule_->terminate();
+  return endPathExecutor_->terminate();
 }
 
 void

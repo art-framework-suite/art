@@ -52,17 +52,12 @@ Schedule(ScheduleID sID,
   actReg_(areg),
   triggerPathsInfo_(pm.triggerPathsInfo(sID_)),
   results_inserter_(),
-  demand_branches_()
+  demand_branches_(catalogOnDemandBranches_(pm.onDemandWorkers(),
+                                            pregistry.productList()))
 {
   assert(actReg_);
   if (!triggerPathsInfo_.pathPtrs().empty()) {
-    makeTriggerResultsInserter(tns.getTriggerPSet(), pregistry);
-    // Deal with on-demand registration.
-    if (process_pset_.get<bool>("services.scheduler.allowUnscheduled", false)) {
-      BranchesByModuleLabel branchLookup;
-      fillBranchLookup(pregistry.productList(), branchLookup);
-      catalogOnDemandBranches(branchLookup);
-    }
+    makeTriggerResultsInserter_(tns.getTriggerPSet(), pregistry);
   }
   pregistry.setFrozen();
   if (sID == ScheduleID::first()) {
@@ -141,7 +136,7 @@ beginJob()
 
 void
 art::Schedule::
-resetAll()
+resetAll_()
 {
   doForAllWorkers_(std::bind(&Worker::reset, _1));
   triggerPathsInfo_.pathResults().reset();
@@ -152,7 +147,7 @@ resetAll()
 // conversion for all principal types.
 void
 art::Schedule::
-setupOnDemandSystem(EventPrincipal & p)
+setupOnDemandSystem_(EventPrincipal & p)
 {
   BranchType b(p.branchType());
   for (auto & val : demand_branches_) {
@@ -164,8 +159,8 @@ setupOnDemandSystem(EventPrincipal & p)
 
 void
 art::Schedule::
-makeTriggerResultsInserter(ParameterSet const & trig_pset,
-                                          MasterProductRegistry & pregistry)
+makeTriggerResultsInserter_(ParameterSet const & trig_pset,
+                           MasterProductRegistry & pregistry)
 {
   WorkerParams work_args(process_pset_, trig_pset, pregistry, *act_table_,
                          processName_);
@@ -187,8 +182,8 @@ makeTriggerResultsInserter(ParameterSet const & trig_pset,
 
 void
 art::Schedule::
-fillBranchLookup(ProductList const & pList,
-                 BranchesByModuleLabel & branchLookup) const
+fillBranchLookup_(ProductList const & pList,
+                  BranchesByModuleLabel & branchLookup) const
 {
   for (ProductList::const_iterator
        i = pList.begin(),
@@ -200,39 +195,24 @@ fillBranchLookup(ProductList const & pList,
   }
 }
 
-void
+art::Schedule::OnDemandBranches
 art::Schedule::
-catalogOnDemandBranches(BranchesByModuleLabel const & branchLookup)
+catalogOnDemandBranches_(PathManager::Workers && workers,
+                         ProductList const & plist)
 {
-  for (auto const & val : triggerPathsInfo_.workers()) {
+  OnDemandBranches result;
+  BranchesByModuleLabel branchLookup;
+  fillBranchLookup_(plist, branchLookup);
+  for (auto w : workers) {
+    auto const & label = w->description().moduleLabel();
     BranchesByModuleLabel::const_iterator
-      lb(branchLookup.lower_bound(val.first)),
-      e(branchLookup.end()),
-      ub(branchLookup.upper_bound(val.first));
-    if (lb == ub) { return; } // This worker produces nothing.
+      lb(branchLookup.lower_bound(label)),
+      ub(branchLookup.upper_bound(label));
     for (BranchesByModuleLabel::const_iterator i = lb;
          i != ub;
          ++i) {
-      demand_branches_.emplace(typename OnDemandBranches::key_type(val.second.get()), i->second);
+      result.emplace(typename OnDemandBranches::key_type(w), i->second);
     }
   }
-}
-
-void
-art::Schedule::
-doForAllWorkers_(std::function<void (Worker *)> func)
-{
-  for (auto const & val : triggerPathsInfo_.workers()) {
-    func(val.second.get());
-  }
-  func(results_inserter_.get()); // Do this last -- not part of main list.
-}
-
-void
-art::Schedule::
-doForAllPaths_(std::function<void (Path *)> func)
-{
-  for (auto const & path : triggerPathsInfo_.pathPtrs()) {
-    func(path.get());
-  }
+  return std::move(result);
 }

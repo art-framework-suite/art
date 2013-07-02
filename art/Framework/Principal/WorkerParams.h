@@ -23,7 +23,7 @@ struct art::WorkerParams {
                std::string const & processName);
 
   fhicl::ParameterSet const & procPset_;
-  fhicl::ParameterSet const & pset_;
+  fhicl::ParameterSet const pset_;
   MasterProductRegistry & reg_;
   ActionTable & actions_;
   std::string const processName_;
