@@ -144,50 +144,26 @@ art::Schedule::processOneOccurrence(typename T::MyPrincipal & ep)
     setupOnDemandSystem_(dynamic_cast<EventPrincipal &>(ep));
   }
   try {
-    try {
-      if (runTriggerPaths_<T>(ep) && T::isEvent_) {
-        triggerPathsInfo_.addPass();
-      }
-      if (results_inserter_.get()) {
-        results_inserter_->doWork<T>(ep, 0);
-      }
+    if (runTriggerPaths_<T>(ep) && T::isEvent_) {
+      triggerPathsInfo_.addPass();
     }
-    catch (cet::exception & e) {
-      actions::ActionCodes action = (T::isEvent_ ? act_table_->find(
-                                       e.root_cause()) : actions::Rethrow);
-      assert(action != actions::IgnoreCompletely);
-      assert(action != actions::FailPath);
-      assert(action != actions::FailModule);
-      if (action == actions::SkipEvent) {
-        mf::LogWarning(e.category())
-            << "an exception occurred and all paths for the event are being skipped: \n"
-            << cet::trim_right_copy(e.what(), " \n");
-      }
-      else
-      { throw; }
+    if (results_inserter_.get()) {
+      results_inserter_->doWork<T>(ep, 0);
     }
   }
-  catch (cet::exception & ex) {
+  catch (cet::exception & e) {
     actions::ActionCodes action = (T::isEvent_ ? act_table_->find(
-                                     ex.root_cause()) : actions::Rethrow);
-    switch (action) {
-      case actions::IgnoreCompletely: {
-        mf::LogWarning(ex.category())
-            << "exception being ignored for current event:\n"
-            << cet::trim_right_copy(ex.what(), " \n");
-        break;
-      }
-      default: {
-        throw art::Exception(errors::EventProcessorFailure)
-            << "An exception occurred during current event processing\n"
-            << ex;
-      }
+                                     e.root_cause()) : actions::Rethrow);
+    assert(action != actions::IgnoreCompletely);
+    assert(action != actions::FailPath);
+    assert(action != actions::FailModule);
+    if (action == actions::SkipEvent) {
+      mf::LogWarning(e.category())
+        << "an exception occurred and all paths for the event are being skipped: \n"
+        << cet::trim_right_copy(e.what(), " \n");
     }
-  }
-  catch (...) {
-    mf::LogError("PassingThrough")
-        << "an exception occurred during current event processing\n";
-    throw;
+    else
+    { throw; }
   }
 }
 
