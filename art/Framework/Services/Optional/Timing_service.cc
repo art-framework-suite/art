@@ -149,11 +149,12 @@ void Timing::postModule(ModuleDescription const& desc)
 {
   double t = getTime() - curr_module_time_;
   if (not summary_only_) {
-    mf::LogAbsolute("TimeModule") << "TimeModule> "
-       << curr_event_ << " "
-       << desc.moduleLabel_ << " "
-       << desc.moduleName_ << " "
-       << t;
+    mf::LogAbsolute("TimeModule")
+      << "TimeModule> "
+      << curr_event_ << " "
+      << desc.moduleLabel() << " "
+      << desc.moduleName()<< " "
+      << t;
   }
 }
 

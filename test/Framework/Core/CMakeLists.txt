@@ -32,6 +32,21 @@ cet_test(RootDictionaryManager_t USE_BOOST_UNIT
   LIBRARIES ${default_test_libraries}
   )
 
+foreach (type Analyzer Filter Output Producer)
+  SET_SOURCE_FILES_PROPERTIES(PMTest${type}_module.cc
+    PROPERTIES
+    COMPILE_FLAGS "-Wno-unused-parameter -Wno-return-type"
+    )
+  simple_plugin(PMTest${type} "module" NO_INSTALL)
+endforeach()
+
+cet_test(PathManager_t USE_BOOST_UNIT
+  LIBRARIES
+  art_Framework_Core
+  ${FHICLCPP}
+  ${CETLIB}
+  )
+
 #########################################################################
 # Old (pre-ART fork) tests.
 

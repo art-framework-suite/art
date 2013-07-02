@@ -115,19 +115,16 @@ fake_single_process_branch(std::string const& tag,
                            std::string const& processName,
                            std::string const& productInstanceName)
 {
-  art::ModuleDescription mod;
   std::string moduleLabel = processName + "dummyMod";
   std::string moduleClass("DummyModule");
   art::TypeID dummyType(typeid(arttest::DummyProduct));
   fhicl::ParameterSet modParams;
   modParams.put<std::string>("module_type", moduleClass);
   modParams.put<std::string>("module_label", moduleLabel);
-  mod.parameterSetID_ = modParams.id();
-  mod.moduleName_ = moduleClass;
-  mod.moduleLabel_ = moduleLabel;
-  art::ProcessConfiguration* process =
-    fake_single_module_process(tag, processName, modParams);
-  mod.processConfiguration_ = *process;
+  art::ModuleDescription mod(modParams.id(),
+                             moduleClass,
+                             moduleLabel,
+                             *fake_single_module_process(tag, processName, modParams));
 
   art::BranchDescription* result =
     new art::BranchDescription(art::TypeLabel(art::InEvent,

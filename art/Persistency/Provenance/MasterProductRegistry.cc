@@ -11,7 +11,7 @@
 
 namespace {
   void checkDicts(art::BranchDescription const &productDesc) {
-    if (productDesc.transient()) { // FIXME: make this go away soon.
+    if (productDesc.transient()) {
       art::checkDictionaries(productDesc.producedClassName(), true);
     } else {
       art::checkDictionaries(art::wrappedClassName(productDesc.producedClassName()), false);
@@ -33,12 +33,7 @@ art::MasterProductRegistry::MasterProductRegistry()
   productLookup_(),
   elementLookup_()
 {
-   // FIXME: Use C++2011 initialization when available.
-  for (std::array<bool, NumBranchTypes>::size_type i = 0;
-       i < productProduced_.size();
-       ++i) {
-    productProduced_[i] = false;
-  }
+  productProduced_.fill(false);
 }
 
 std::vector<std::string>

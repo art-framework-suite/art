@@ -12,6 +12,7 @@
 
 #include "art/Framework/Core/EDProducer.h"
 #include "art/Framework/Principal/fwd.h"
+#include "cetlib/exempt_ptr.h"
 #include "cpp0x/memory"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/ParameterSetID.h"
@@ -26,14 +27,13 @@ namespace art {
     : public art::EDProducer
   {
   public:
-    typedef std::shared_ptr<HLTGlobalStatus> TrigResPtr;
+    typedef cet::exempt_ptr<HLTGlobalStatus> TrigResPtr;
 
     // standard constructor not supported for this module
-    explicit TriggerResultInserter(fhicl::ParameterSet const& ps);
+    explicit TriggerResultInserter(fhicl::ParameterSet const& ps) = delete;
 
     // the pset needed here is the one that defines the trigger path names
-    TriggerResultInserter(fhicl::ParameterSet const& ps, const TrigResPtr& trptr);
-    virtual ~TriggerResultInserter();
+    TriggerResultInserter(fhicl::ParameterSet const& ps, HLTGlobalStatus & pathResults);
 
     virtual void produce(art::Event& e);
 

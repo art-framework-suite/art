@@ -34,7 +34,7 @@ namespace art {
    public:
 
       // Constructor - for n paths
-      HLTGlobalStatus(const unsigned int n=0) : paths_(n) {}
+      explicit HLTGlobalStatus(const unsigned int n=0) : paths_(n) {}
 
          // Get number of paths stored
          unsigned int size() const { return paths_.size(); }

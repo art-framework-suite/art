@@ -1,0 +1,448 @@
+#include "art/Framework/Core/PathManager.h"
+#include "art/Framework/Services/Registry/ServiceHandle.h"
+#include "art/Framework/Services/System/TriggerNamesService.h"
+#include "art/Version/GetReleaseVersion.h"
+#include "art/Utilities/Exception.h"
+#include "art/Utilities/GetPassID.h"
+
+using fhicl::ParameterSet;
+
+#include <algorithm>
+#include <map>
+#include <set>
+#include <sstream>
+
+namespace {
+  std::unique_ptr<std::set<std::string> >
+  findLegacyConfig(fhicl::ParameterSet const & ps,
+                   std::string const & param)
+  {
+    std::vector<std::string> tmp;
+    std::unique_ptr<std::set<std::string> > result;
+    if (ps.get_if_present(param, tmp)) {
+      mf::LogWarning("DeprecatedConfig")
+        << "Obsolete configuration parameter \""
+        << param
+        << "\" has been specified.\nIt will be honored for now but may cause "
+        << "an error in future versions of art.\n";
+      result.reset(new std::set<std::string>);
+      result->insert(tmp.cbegin(), tmp.cend());
+    }
+    return std::move(result);
+  }
+
+  std::string
+  stripLabel(std::string const & labelInPathConfig)
+  {
+    auto label_start = labelInPathConfig.find_first_not_of("!-");
+    if (label_start > 1) {
+      throw art::Exception(art::errors::Configuration)
+        << "Module label "
+        << labelInPathConfig
+        << " is illegal.\n";
+    }
+    return labelInPathConfig.substr(label_start);
+  }
+
+  art::WorkerInPath::FilterAction
+  filterAction(std::string const & labelInPathConfig)
+  {
+    switch (labelInPathConfig[0]) {
+    case '!':
+      return art::WorkerInPath::FilterAction::Veto;
+    case '-':
+      return art::WorkerInPath::FilterAction::Ignore;
+    default:
+      return art::WorkerInPath::FilterAction::Normal;
+    }
+  }
+
+}
+
+art::PathManager::
+PathManager(ParameterSet const & procPS,
+            MasterProductRegistry & preg,
+            ActionTable & exceptActions,
+            std::shared_ptr<ActivityRegistry> const & areg)
+  :
+  procPS_(procPS),
+  preg_(preg),
+  exceptActions_(exceptActions),
+  areg_(areg),
+  allowUnscheduled_(procPS_.get<bool>("services.scheduler.allowUnscheduled",
+                                      false)),
+  trigger_paths_config_(findLegacyConfig(procPS_, "physics.trigger_paths")),
+  end_paths_config_(findLegacyConfig(procPS_, "physics.end_paths")),
+  fact_(),
+  allModules_(fillAllModules_()),
+  protoTrigPathMap_(),
+  protoEndPathInfo_(),
+  triggerPathNames_(processPathConfigs_()),
+  endPathInfo_(),
+  triggerPathsInfo_()
+{
+}
+
+art::PathsInfo &
+art::PathManager::
+endPathInfo()
+{
+  if (!protoEndPathInfo_.empty() &&
+      endPathInfo_.pathPtrs().empty()) {
+    // Need to create path from proto information.
+    endPathInfo_.pathPtrs().emplace_back
+      (fillWorkers_(0,
+                    "end_path",
+                    protoEndPathInfo_,
+                    nullptr, // End path, no trigger results needed.
+                    endPathInfo_.workers()));
+  }
+  return endPathInfo_;
+}
+
+art::PathsInfo &
+art::PathManager::
+triggerPathsInfo(ScheduleID sID)
+{
+  if (triggerPathNames_.empty()) {
+    return triggerPathsInfo_[sID]; // Empty.
+  } else {
+    auto it =
+      triggerPathsInfo_.find(sID);
+    if (it == triggerPathsInfo_.end()) {
+      it = triggerPathsInfo_.emplace(sID, PathsInfo()).first;
+      it->second.pathResults() = HLTGlobalStatus(triggerPathNames_.size());
+      int bitpos { 0 };
+      std::for_each(protoTrigPathMap_.cbegin(),
+                    protoTrigPathMap_.cend(),
+                    [this, sID, it, &bitpos](typename decltype(protoTrigPathMap_)::value_type const & val)
+                    {
+                      it->second.pathPtrs().emplace_back(fillWorkers_(bitpos,
+                                                                      val.first,
+                                                                      val.second,
+                                                                      Path::TrigResPtr(&it->second.pathResults()),
+                                                                      it->second.workers()));
+                      ++bitpos;
+                    });
+    }
+    return it->second;
+  }
+}
+
+art::PathManager::Workers
+art::PathManager::
+onDemandWorkers()
+{
+  Workers result;
+  // FIXME: until we go truly multi-schedule and can deal with
+  // multiply-constructed or shared modules, glom onto the primary
+  // schedule's worker map.
+  if (allowUnscheduled()) {
+    for (auto const & val : allModules_) {
+      if (is_modifier(val.second.moduleType())) {
+        result.push_back(makeWorker_(val.second,
+                                     triggerPathsInfo(ScheduleID::first()).workers()));
+      }
+    }
+  }
+  return std::move(result);
+}
+
+
+art::detail::ModuleConfigInfoMap
+art::PathManager::
+fillAllModules_()
+{
+  static ParameterSet const empty;
+  detail::ModuleConfigInfoMap all_modules;
+  std::ostringstream error_stream;
+  for (auto const & pathRootName :
+       detail::ModuleConfigInfo::allModulePathRoots()) {
+    auto const pathRoot = procPS_.get<ParameterSet>(pathRootName, empty);
+    auto const names = pathRoot.get_keys();
+    for (auto const & name : names) {
+      detail::ModuleConfigInfo mci(procPS_, name, pathRootName);
+      auto actualModType = fact_.moduleType(mci.libSpec());
+      if (actualModType != mci.moduleType()) {
+        error_stream
+            << "  ERROR: Module with label "
+            << mci.label()
+            << " of type "
+            << mci.libSpec()
+            << " is configured as a "
+            << to_string(mci.moduleType())
+            << " but defined in code as a "
+            << to_string(actualModType)
+            << ".\n";
+      }
+      auto result =
+        all_modules.insert(typename decltype(all_modules)::
+                           value_type(mci.label(), mci));
+      if (!result.second) {
+        error_stream
+            << "  ERROR: Module label "
+            << mci.label()
+            << " has been used in "
+            << result.first->second.configPath()
+            << " and "
+            << pathRootName
+            << ".\n";
+      }
+    }
+  }
+  auto error_messages = error_stream.str();
+  if (!error_messages.empty()) {
+    throw Exception(errors::Configuration)
+      << "The following were encountered while processing the module configurations:\n"
+      << error_messages;
+  }
+  return std::move(all_modules);
+}
+
+art::PathManager::vstring
+art::PathManager::
+processPathConfigs_()
+{
+  vstring trigger_path_names;
+  auto services = procPS_.get<ParameterSet>("services",
+                                            ParameterSet());
+  auto opts(services.get<ParameterSet>("scheduler", ParameterSet()));
+  auto nSchedules = opts.get<size_t>("num_schedules", 1);
+  // Check we're not being asked to do something we can't.
+  if (allowUnscheduled_ && nSchedules > 1) {
+    throw Exception(errors::UnimplementedFeature)
+        << "Multi-schedule operation is not possible with on-demand "
+        << "module execution.\n";
+  }
+  // Identify and process paths.
+  std::set<std::string> known_pars {
+    "analyzers",
+    "filters",
+    "producers",
+    "trigger_paths",
+    "end_paths"
+  };
+  ParameterSet empty;
+  auto const physics = procPS_.get<ParameterSet>("physics", empty);
+  auto const keys = physics.get_keys();
+  vstring path_names;
+  std::set_difference(keys.cbegin(),
+                      keys.cend(),
+                      known_pars.cbegin(),
+                      known_pars.cend(),
+                      std::back_inserter(path_names));
+  std::set<std::string> specified_modules;
+  // Process each path.
+  std::ostringstream error_stream;
+  size_t num_end_paths { 0 };
+  for (auto const & path_name : path_names) {
+    auto const path_seq = physics.get<vstring>(path_name);
+    if (processOnePathConfig_(path_name,
+                              path_seq,
+                              trigger_path_names,
+                              error_stream)) {
+      ++num_end_paths;
+    }
+    specified_modules.insert(path_seq.cbegin(), path_seq.cend());
+  }
+  if (num_end_paths > 1) {
+    mf::LogInfo("PathConfiguration")
+      << "Multiple end paths have been combined into one end path,\n"
+      << "\"end_path\" since order is irrelevant.\n";
+  }
+
+  if (allowUnscheduled_) {
+    // All modifiers are "used."
+    for (auto const & val : allModules_) {
+      if (is_modifier(val.second.moduleType())) {
+        specified_modules.emplace(val.second.label());
+      }
+    };
+  }
+
+  vstring unused_modules;
+  std::set<std::string> all_module_labels;
+  for(auto const & val : allModules_) {
+    all_module_labels.insert(val.first);
+  }
+
+  std::set_difference(all_module_labels.cbegin(),
+                      all_module_labels.cend(),
+                      specified_modules.cbegin(),
+                      specified_modules.cend(),
+                      std::back_inserter(unused_modules));
+
+  // Complain about unused modules.
+  if (!unused_modules.empty()) {
+    std::ostringstream unusedStream;
+    unusedStream << "The following module label"
+                 << ((unused_modules.size() == 1) ? " is" : "s are")
+                 << " not assigned to any path:\n"
+                 << "'" << unused_modules.front() << "'";
+    for (auto i = unused_modules.cbegin() + 1,
+              e = unused_modules.cend();
+         i != e;
+         ++i) {
+      unusedStream << ", " << *i << "'";
+    }
+    mf::LogInfo("path")
+      << unusedStream.str()
+      << "\n";
+  }
+
+  // Check for fatal errors.
+  auto error_messages = error_stream.str();
+  if (!error_messages.empty()) {
+    throw Exception(errors::Configuration, "Path configuration: ")
+      << "The following were encountered while processing path configurations:\n"
+      << error_messages;
+  }
+  return std::move(trigger_path_names);
+}
+
+bool // Is wanted end path.
+art::PathManager::
+processOnePathConfig_(std::string const & path_name,
+                      vstring const & path_seq,
+                      vstring & trigger_path_names,
+                      std::ostream & error_stream)
+{
+  enum class mod_cat_t { UNSET, OBSERVER, MODIFIER };
+  mod_cat_t cat { mod_cat_t::UNSET };
+  for (auto const & modname : path_seq) {
+    auto const label = stripLabel(modname);
+    auto const it = allModules_.find(label);
+    if (it == allModules_.end()) {
+      error_stream
+        << "  ERROR: Entry "
+        << modname
+        << " in path "
+        << path_name
+        << " refers to a module label "
+        << label
+        << " which is not configured.\n";
+      continue;
+    }
+    auto mtype = is_observer(it->second.moduleType()) ?
+                 mod_cat_t::OBSERVER :
+                 mod_cat_t::MODIFIER;
+    if (cat == mod_cat_t::UNSET) {
+      cat = mtype;
+      // Efficiency.
+      if (cat == mod_cat_t::MODIFIER) {
+        if (trigger_paths_config_ &&
+            (trigger_paths_config_->find(path_name) ==
+             trigger_paths_config_->cend())) {
+          mf::LogWarning("DeprecatedConfig")
+            << "Detected trigger path \""
+            << path_name
+            << "\" which was not found in\n"
+            << "deprecated parameter \"physics.trigger_paths\". "
+            << "Path will be ignored.\n";
+          return false;
+        }
+        trigger_path_names.push_back(path_name);
+        protoTrigPathMap_[path_name].reserve(path_seq.size());
+      }
+      else {
+        if (end_paths_config_ &&
+            (end_paths_config_->find(path_name) ==
+             end_paths_config_->cend())) {
+          mf::LogWarning("DeprecatedConfig")
+            << "Detected end path \""
+            << path_name
+            << "\" which was not found in\n"
+            << "deprecated parameter \"physics.end_paths\". "
+            << "Path will be ignored.\n";
+          return false;
+        }
+        protoEndPathInfo_.reserve(protoEndPathInfo_.size() +
+                                   path_seq.size());
+      }
+    }
+    else if (cat != mtype) {
+      error_stream
+        << "  ERROR: Entry "
+        << modname
+        << " in path "
+        << path_name
+        << " is a"
+        << (cat == mod_cat_t::OBSERVER ? " modifier" : "n observer")
+        << " while previous entries in the same path are all "
+        << (cat == mod_cat_t::OBSERVER ? "observers" : "modifiers")
+        << ".\n";
+    }
+    if (cat == mod_cat_t::MODIFIER) {
+      protoTrigPathMap_[path_name].emplace_back(it->second, filterAction(modname));
+    } else { // Only one end path.
+      protoEndPathInfo_.emplace_back(it->second, filterAction(modname));
+    }
+  }
+  return (cat == mod_cat_t::OBSERVER);
+}
+
+void
+art::PathManager::
+makeWorker_(detail::ModuleInPathInfo const & mipi,
+            WorkerMap & workers,
+            std::vector<WorkerInPath> & pathWorkers)
+{
+  auto w = makeWorker_(mipi.moduleConfigInfo(), workers);
+  pathWorkers.emplace_back(w, mipi.filterAction());
+}
+
+art::Worker *
+art::PathManager::
+makeWorker_(detail::ModuleConfigInfo const & mci,
+            WorkerMap & workers)
+{
+  auto it = workers.find(mci.label());
+  if (it == workers.end()) { // Need worker.
+    auto moduleConfig = procPS_.get<ParameterSet>(mci.configPath() + '.' + mci.label());
+    WorkerParams p(procPS_,
+                   moduleConfig,
+                   preg_,
+                   exceptActions_,
+                   art::ServiceHandle<art::TriggerNamesService>()->getProcessName());
+    ModuleDescription md(moduleConfig.id(),
+                         p.pset_.get<std::string>("module_type"),
+                         p.pset_.get<std::string>("module_label"),
+                         ProcessConfiguration(p.processName_,
+                                              procPS_.id(),
+                                              getReleaseVersion(),
+                                              getPassID()));
+    areg_->sPreModuleConstruction.invoke(md);
+    auto worker = fact_.makeWorker(p, md);
+    areg_->sPostModuleConstruction.invoke(md);
+    it = workers.
+         emplace(mci.label(),
+                 std::move(worker)).first;
+    it->second->setActivityRegistry(areg_);
+  }
+  return it->second.get();
+}
+
+// Precondition: !modInfos.empty();
+std::unique_ptr<art::Path>
+art::PathManager::
+fillWorkers_(int bitpos,
+             std::string const & pathName,
+             ModInfos const & modInfos,
+             Path::TrigResPtr pathResults,
+             WorkerMap & workers)
+{
+  assert(!modInfos.empty());
+  std::vector<WorkerInPath> pathWorkers;
+  for (auto const & mci : modInfos) {
+    makeWorker_(mci, workers, pathWorkers);
+  }
+  return std::unique_ptr<art::Path>
+    (new art::Path(bitpos,
+                   pathName,
+                   std::move(pathWorkers),
+                   std::move(pathResults),
+                   procPS_,
+                   exceptActions_,
+                   areg_,
+                   is_observer(modInfos.front().moduleConfigInfo().moduleType())));
+}

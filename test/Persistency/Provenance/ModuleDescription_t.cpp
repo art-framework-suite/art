@@ -1,5 +1,7 @@
 #include "art/Persistency/Provenance/ModuleDescription.h"
-#include <assert.h>
+#include "fhiclcpp/ParameterSet.h"
+
+#include <cassert>
 
 int main()
 {
@@ -7,9 +9,14 @@ int main()
   assert(md1 == md1);
   art::ModuleDescription md2;
   assert(md1 == md2);
-  md2.moduleName_ = "class2";
-  art::ModuleDescription md3;
-  md3.moduleName_ = "class3";
+  md2 = art::ModuleDescription(fhicl::ParameterSet().id(),
+                               "class2",
+                               "",
+                               art::ProcessConfiguration());
+  art::ModuleDescription md3(fhicl::ParameterSet().id(),
+                          "class3",
+                          "",
+                          art::ProcessConfiguration());
 
   art::ModuleDescriptionID id1 = md1.id();
   art::ModuleDescriptionID id2 = md2.id();
@@ -19,8 +26,10 @@ int main()
   assert(id2 != id3);
   assert(id3 != id1);
 
-  art::ModuleDescription md4;
-  md4.moduleName_ = "class2";
+  art::ModuleDescription md4(fhicl::ParameterSet().id(),
+                             "class2",
+                             "",
+                             art::ProcessConfiguration());;
   art::ModuleDescriptionID id4 = md4.id();
   assert(md4 == md2);
   assert (id4 == id2);

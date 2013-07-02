@@ -3,4 +3,5 @@
 physics.filters.mixFilter.testZeroSecondaries: true
 physics.analyzers: {}
 outputs: {}
-physics.end_paths: [ ]
+physics.e1: []
+physics.end_paths: []

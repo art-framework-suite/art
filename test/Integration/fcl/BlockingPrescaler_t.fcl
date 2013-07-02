@@ -27,5 +27,4 @@ physics:
     }
   }
   p1: [ prescale ]
-  trigger_paths: [ p1 ]
 }

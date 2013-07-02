@@ -255,10 +255,6 @@ namespace art {
     respondToCloseOutputFiles(fb);
   }
 
-  void OutputModule::maybeOpenFile() {
-    if (!isFileOpen()) doOpenFile();
-  }
-
   void OutputModule::doCloseFile() {
     if (isFileOpen()) reallyCloseFile();
   }

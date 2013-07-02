@@ -2,6 +2,8 @@
 #define art_Framework_Core_detail_wrapLibraryManagerException_h
 
 #include "art/Utilities/Exception.h"
+#include "art/Version/GetReleaseVersion.h"
+
 #include <string>
 
 namespace art {
@@ -9,7 +11,7 @@ namespace art {
     void wrapLibraryManagerException(art::Exception const &e,
                                      std::string const &item_type,
                                      std::string const &libspec,
-                                     std::string const &release);
+                                     std::string const &release = getReleaseVersion());
   }
 }
 
