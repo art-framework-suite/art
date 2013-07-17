@@ -853,6 +853,42 @@ SET_TESTS_PROPERTIES(signal_handling_01_t PROPERTIES
   "Art caught and handled signal 2\\."
   )
 
+cet_test(signal_handling_02_t HANDBUILT
+  TEST_EXEC signal_handling_t.sh
+  TEST_ARGS -c signal_sigint.fcl SIGQUIT
+  DATAFILES
+  fcl/signal_sigint.fcl
+  )
+
+SET_TESTS_PROPERTIES(signal_handling_02_t PROPERTIES
+  PASS_REGULAR_EXPRESSION
+  "Art caught and handled signal 3\\."
+  )
+
+cet_test(signal_handling_03_t HANDBUILT
+  TEST_EXEC signal_handling_t.sh
+  TEST_ARGS -c signal_sigint.fcl SIGTERM
+  DATAFILES
+  fcl/signal_sigint.fcl
+  )
+
+SET_TESTS_PROPERTIES(signal_handling_03_t PROPERTIES
+  PASS_REGULAR_EXPRESSION
+  "Art caught and handled signal 15\\."
+  )
+
+cet_test(signal_handling_04_t HANDBUILT
+  TEST_EXEC signal_handling_t.sh
+  TEST_ARGS -c signal_sigint.fcl SIGUSR2
+  DATAFILES
+  fcl/signal_sigint.fcl
+  )
+
+SET_TESTS_PROPERTIES(signal_handling_04_t PROPERTIES
+  PASS_REGULAR_EXPRESSION
+  "Art caught and handled signal 12\\."
+  )
+
 ########################################################################
 # Old tests converted from CMS FWCore/Framework/test
 
