@@ -119,14 +119,14 @@ namespace art {
 
 //--------------------------------------------------------------
 
-    void installCustomHandler( const int signum, CFUNC /*func*/ )
+    void installCustomHandler( const int signum, CFUNC func )
     {
       sigset_t oldset;
       art::disableAllSigs(&oldset);
 #if defined(__linux__)
       art::disableRTSigs();
 #endif
-      art::installSig(signum,art::ep_sigusr2);
+      art::installSig(signum, func);
       art::reenableSigs(&oldset);
     }
 
