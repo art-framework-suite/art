@@ -22,18 +22,18 @@ namespace art {
 
 //--------------------------------------------------------------
 
-    volatile bool shutdown_flag = false;
+    volatile int shutdown_flag = 0;
 
     extern "C" {
       void ep_sigusr2(int which,siginfo_t*,void*)
       {
         FDEBUG(1) << "in sigusr2 handler\n";
-        if(which==SIGINT && shutdown_flag==true)
+        if(which==SIGINT && shutdown_flag > 0)
           {
             std::cerr << "User signal SIGINT terminating the process\n";
             std::terminate();
           }
-        shutdown_flag = true;
+        shutdown_flag = which;
       }
     }
 

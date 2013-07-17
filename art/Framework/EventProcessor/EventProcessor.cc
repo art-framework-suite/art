@@ -443,7 +443,7 @@ art::EventProcessor::runCommon_()
       // Look for a shutdown signal
       {
         boost::mutex::scoped_lock sl(usr2_lock);
-        if (art::shutdown_flag) {
+        if (art::shutdown_flag > 0) {
           //changeState(mShutdownSignal);
           returnCode = epSignal;
           machine_->process_event(statemachine::Stop());

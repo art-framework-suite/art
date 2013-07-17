@@ -292,7 +292,11 @@ int art::run_art_common_(fhicl::ParameterSet main_pset)
     proc = std::move(procTmp);
     proc->beginJob();
     proc.on();
-    proc->runToCompletion();
+    if (proc->runToCompletion() == EventProcessor::epSignal) {
+      std::cerr << "Art caught and handled signal "
+                << art::shutdown_flag
+                << ".\n";
+    }
     proc.off();
     proc->endJob();
     rc = 0;
