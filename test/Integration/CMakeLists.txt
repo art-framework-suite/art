@@ -1,3 +1,4 @@
+
 # project name
 add_library(test_Integration
   SHARED
@@ -30,12 +31,13 @@ simple_plugin(AssnsAnalyzer               "module" NO_INSTALL USE_BOOST_UNIT )
 simple_plugin(AssnsProducer               "module" NO_INSTALL )
 simple_plugin(BareStringAnalyzer          "module" NO_INSTALL )
 simple_plugin(BareStringProducer          "module" NO_INSTALL )
-simple_plugin(ValidHandleTester           "module" NO_INSTALL )
+simple_plugin(CompressedIntProducer       "module" NO_INSTALL )
+simple_plugin(CompressedIntTestAnalyzer   "module" NO_INSTALL )
 simple_plugin(DerivedPtrVectorProducer    "module" NO_INSTALL )
 simple_plugin(DoubleProducer              "module" NO_INSTALL )
 simple_plugin(DoubleTestAnalyzer          "module" NO_INSTALL )
-simple_plugin(DropTestParentageFaker      "module" NO_INSTALL )
 simple_plugin(DropTestAnalyzer            "module" NO_INSTALL USE_BOOST_UNIT )
+simple_plugin(DropTestParentageFaker      "module" NO_INSTALL )
 simple_plugin(FailingAnalyzer             "module" NO_INSTALL )
 simple_plugin(FailingProducer             "module" NO_INSTALL )
 simple_plugin(FlushingGenerator           "source" art_Framework_IO_Sources NO_INSTALL )
@@ -44,8 +46,6 @@ simple_plugin(FlushingGeneratorTestFilter "module" NO_INSTALL )
 simple_plugin(GeneratorTest               "source" art_Framework_IO_Sources NO_INSTALL )
 simple_plugin(IntProducer                 "module" NO_INSTALL )
 simple_plugin(IntTestAnalyzer             "module" NO_INSTALL )
-simple_plugin(CompressedIntProducer       "module" NO_INSTALL )
-simple_plugin(CompressedIntTestAnalyzer   "module" NO_INSTALL )
 simple_plugin(IntVectorAnalyzer           "module" NO_INSTALL )
 simple_plugin(IntVectorProducer           "module" NO_INSTALL )
 simple_plugin(MixAnalyzer                 "module" NO_INSTALL USE_BOOST_UNIT )
@@ -57,6 +57,7 @@ simple_plugin(MixFilterTestOldStartEvent  "module" art_Framework_IO_ProductMix N
 simple_plugin(MixProducer                 "module" NO_INSTALL )
 simple_plugin(MockClusterListAnalyzer     "module" NO_INSTALL )
 simple_plugin(MockClusterListProducer     "module" NO_INSTALL )
+simple_plugin(PausingAnalyzer             "module" NO_INSTALL )
 simple_plugin(ProductIDGetter             "module" NO_INSTALL USE_BOOST_UNIT )
 simple_plugin(ProductIDGetterAnalyzer     "module" NO_INSTALL USE_BOOST_UNIT )
 simple_plugin(PtrListAnalyzer             "module" NO_INSTALL )
@@ -84,6 +85,7 @@ simple_plugin(ToyRawInput                 "source" test_Integration art_Framewor
 simple_plugin(ToyRawInputTester           "module" NO_INSTALL )
 simple_plugin(ToyRawProductAnalyzer       "module" NO_INSTALL )
 simple_plugin(U_S                         "module" ALLOW_UNDERSCORES NO_INSTALL )
+simple_plugin(ValidHandleTester           "module" NO_INSTALL )
 simple_plugin(Wanted                      "service" NO_INSTALL )
 
 art_dictionary(DICTIONARY_LIBRARIES ${CETLIB} NO_INSTALL)
@@ -834,6 +836,22 @@ cet_test(test_compressed_simple_01_t.sh PREBUILT
   fcl/test_compressed_simple_01r.fcl
   fcl/messageDefaults.fcl
 )
+
+# Test signal handling.
+
+cet_script(signal_handling_t.sh NO_INSTALL)
+
+cet_test(signal_handling_01_t HANDBUILT
+  TEST_EXEC signal_handling_t.sh
+  TEST_ARGS -c signal_sigint.fcl SIGINT 
+  DATAFILES
+  fcl/signal_sigint.fcl
+  )
+
+SET_TESTS_PROPERTIES(signal_handling_01_t PROPERTIES
+  PASS_REGULAR_EXPRESSION
+  "Art caught and handled signal 2\\."
+  )
 
 ########################################################################
 # Old tests converted from CMS FWCore/Framework/test
