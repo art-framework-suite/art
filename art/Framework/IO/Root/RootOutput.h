@@ -87,7 +87,7 @@ namespace art {
 
     bool isFileOpen() const override;
     bool shouldWeCloseFile() const override;
-    void doOpenFile() override;
+    void doOpenFile();
 
 
     void startEndFile() override;

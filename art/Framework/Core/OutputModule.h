@@ -36,189 +36,241 @@ namespace art {
 
   typedef art::detail::CachedProducts::handle_t Trig;
 
-  std::vector<std::string> const& getAllTriggerNames();
+  std::vector<std::string> const & getAllTriggerNames();
 
-  class OutputModule : public EventObserver {
-  public:
-    OutputModule(OutputModule const&) = delete;
-    OutputModule& operator=(OutputModule const&) = delete;
+  class OutputModule;
+}
 
-    template <typename T> friend class WorkerT;
-    friend class OutputWorker;
-    typedef OutputModule ModuleType;
-    typedef OutputWorker WorkerType;
+class art::OutputModule : public EventObserver {
+public:
+  OutputModule(OutputModule const &) = delete;
+  OutputModule & operator=(OutputModule const &) = delete;
 
-    explicit OutputModule(fhicl::ParameterSet const& pset);
-    virtual ~OutputModule() = default;
-    void reconfigure(fhicl::ParameterSet const&);
-    // Accessor for maximum number of events to be written.
-    // -1 is used for unlimited.
-    int maxEvents() const {return maxEvents_;}
+  template <typename T> friend class WorkerT;
+  friend class OutputWorker;
+  typedef OutputModule ModuleType;
+  typedef OutputWorker WorkerType;
 
-    // Accessor for remaining number of events to be written.
-    // -1 is used for unlimited.
-    int remainingEvents() const {return remainingEvents_;}
+  explicit OutputModule(fhicl::ParameterSet const & pset);
+  virtual ~OutputModule() = default;
+  void reconfigure(fhicl::ParameterSet const &);
+  // Accessor for maximum number of events to be written.
+  // -1 is used for unlimited.
+  int maxEvents() const;
 
-    bool selected(BranchDescription const& desc) const;
+  // Accessor for remaining number of events to be written.
+  // -1 is used for unlimited.
+  int remainingEvents() const;
 
-    std::string const& processName() const {return process_name_;}
-    SelectionsArray const& keptProducts() const {return keptProducts_;}
-    std::array<bool, NumBranchTypes> const& hasNewlyDroppedBranch() const {return hasNewlyDroppedBranch_;}
+  bool selected(BranchDescription const & desc) const;
 
-    BranchChildren const& branchChildren() const {return branchChildren_;}
+  std::string const & processName() const;
+  SelectionsArray const & keptProducts() const;
+  std::array<bool, NumBranchTypes> const & hasNewlyDroppedBranch() const;
 
-  protected:
-    Trig getTriggerResults(Event const& e) const;
+  BranchChildren const & branchChildren() const;
 
-    // The returned pointer will be null unless the this is currently
-    // executing its event loop function ('write').
-    CurrentProcessingContext const* currentContext() const;
+protected:
+  Trig getTriggerResults(Event const & e) const;
 
-    ModuleDescription const& description() const;
+  // The returned pointer will be null unless the this is currently
+  // executing its event loop function ('write').
+  CurrentProcessingContext const * currentContext() const;
 
-    bool wantAllEvents() const {return wantAllEvents_;}
+  ModuleDescription const & description() const;
 
-    fhicl::ParameterSetID selectorConfig() const { return selector_config_id_; }
+  bool wantAllEvents() const {return wantAllEvents_;}
 
-  private:
-    int maxEvents_;
-    int remainingEvents_;
+  fhicl::ParameterSetID selectorConfig() const { return selector_config_id_; }
 
-    // TODO: Give OutputModule
-    // an interface (protected?) that supplies client code with the
-    // needed functionality *without* giving away implementation
-    // details ... don't just return a reference to keptProducts_, because
-    // we are looking to have the flexibility to change the
-    // implementation of keptProducts_ without modifying clients. When this
-    // change is made, we'll have a one-time-only task of modifying
-    // clients (classes derived from OutputModule) to use the
-    // newly-introduced interface.
-    // TODO: Consider using shared pointers here?
+private:
+  int maxEvents_;
+  int remainingEvents_;
 
-    // keptProducts_ are pointers to the BranchDescription objects describing
-    // the branches we are to write.
-    //
-    // We do not own the BranchDescriptions to which we point.
-    SelectionsArray keptProducts_;
+  // TODO: Give OutputModule
+  // an interface (protected?) that supplies client code with the
+  // needed functionality *without* giving away implementation
+  // details ... don't just return a reference to keptProducts_, because
+  // we are looking to have the flexibility to change the
+  // implementation of keptProducts_ without modifying clients. When this
+  // change is made, we'll have a one-time-only task of modifying
+  // clients (classes derived from OutputModule) to use the
+  // newly-introduced interface.
+  // TODO: Consider using shared pointers here?
 
-    std::array<bool, NumBranchTypes> hasNewlyDroppedBranch_;
+  // keptProducts_ are pointers to the BranchDescription objects describing
+  // the branches we are to write.
+  //
+  // We do not own the BranchDescriptions to which we point.
+  SelectionsArray keptProducts_;
 
-    std::string process_name_;
-    GroupSelectorRules groupSelectorRules_;
-    GroupSelector groupSelector_;
-    ModuleDescription moduleDescription_;
+  std::array<bool, NumBranchTypes> hasNewlyDroppedBranch_;
 
-    // We do not own the pointed-to CurrentProcessingContext.
-    CurrentProcessingContext const* current_context_;
+  std::string process_name_;
+  GroupSelectorRules groupSelectorRules_;
+  GroupSelector groupSelector_;
+  ModuleDescription moduleDescription_;
 
-    //This will store TriggerResults objects for the current event.
-    // mutable std::vector<Trig> prods_;
-    mutable bool prodsValid_;
+  // We do not own the pointed-to CurrentProcessingContext.
+  CurrentProcessingContext const * current_context_;
 
-    bool wantAllEvents_;
-    mutable detail::CachedProducts selectors_;
-    // ID of the ParameterSet that configured the event selector
-    // subsystem.
-    fhicl::ParameterSetID selector_config_id_;
+  //This will store TriggerResults objects for the current event.
+  // mutable std::vector<Trig> prods_;
+  mutable bool prodsValid_;
 
-    typedef std::map<BranchID, std::set<ParentageID> > BranchParents;
-    BranchParents branchParents_;
+  bool wantAllEvents_;
+  mutable detail::CachedProducts selectors_;
+  // ID of the ParameterSet that configured the event selector
+  // subsystem.
+  fhicl::ParameterSetID selector_config_id_;
 
-    BranchChildren branchChildren_;
+  typedef std::map<BranchID, std::set<ParentageID> > BranchParents;
+  BranchParents branchParents_;
 
-    std::string dataTier_;
-    std::string streamName_;
-    ServiceHandle<CatalogInterface> ci_;
+  BranchChildren branchChildren_;
 
-    //------------------------------------------------------------------
-    // private member functions
-    //------------------------------------------------------------------
-    void configure(OutputModuleDescription const& desc);
-    void selectProducts();
-    void doBeginJob();
-    void doEndJob();
-    bool doEvent(EventPrincipal const& ep,
-                    CurrentProcessingContext const* cpc);
-    bool doBeginRun(RunPrincipal const& rp,
-                    CurrentProcessingContext const* cpc);
-    bool doEndRun(RunPrincipal const& rp,
-                    CurrentProcessingContext const* cpc);
-    bool doBeginSubRun(SubRunPrincipal const& srp,
-                    CurrentProcessingContext const* cpc);
-    bool doEndSubRun(SubRunPrincipal const& srp,
-                    CurrentProcessingContext const* cpc);
-    void doWriteRun(RunPrincipal const& rp);
-    void doWriteSubRun(SubRunPrincipal const& srp);
-    void doOpenFile(FileBlock const& fb);
-    void doRespondToOpenInputFile(FileBlock const& fb);
-    void doRespondToCloseInputFile(FileBlock const& fb);
-    void doRespondToOpenOutputFiles(FileBlock const& fb);
-    void doRespondToCloseOutputFiles(FileBlock const& fb);
+  std::string dataTier_;
+  std::string streamName_;
+  ServiceHandle<CatalogInterface> ci_;
 
-    std::string workerType() const {return "OutputWorker";}
+  //------------------------------------------------------------------
+  // private member functions
+  //------------------------------------------------------------------
+  void configure(OutputModuleDescription const & desc);
+  void selectProducts();
+  void doBeginJob();
+  void doEndJob();
+  bool doEvent(EventPrincipal const & ep,
+               CurrentProcessingContext const * cpc);
+  bool doBeginRun(RunPrincipal const & rp,
+                  CurrentProcessingContext const * cpc);
+  bool doEndRun(RunPrincipal const & rp,
+                CurrentProcessingContext const * cpc);
+  bool doBeginSubRun(SubRunPrincipal const & srp,
+                     CurrentProcessingContext const * cpc);
+  bool doEndSubRun(SubRunPrincipal const & srp,
+                   CurrentProcessingContext const * cpc);
+  void doWriteRun(RunPrincipal const & rp);
+  void doWriteSubRun(SubRunPrincipal const & srp);
+  void doOpenFile(FileBlock const & fb);
+  void doRespondToOpenInputFile(FileBlock const & fb);
+  void doRespondToCloseInputFile(FileBlock const & fb);
+  void doRespondToOpenOutputFiles(FileBlock const & fb);
+  void doRespondToCloseOutputFiles(FileBlock const & fb);
 
-    // Tell the OutputModule that is must end the current file.
-    void doCloseFile();
+  std::string workerType() const {return "OutputWorker";}
 
-    // Do the end-of-file tasks; this is only called internally, after
-    // the appropriate tests have been done.
-    void reallyCloseFile();
+  // Tell the OutputModule that is must end the current file.
+  void doCloseFile();
 
-    // Ask the OutputModule if we should end the current file.
-    virtual bool shouldWeCloseFile() const {return false;}
+  // Do the end-of-file tasks; this is only called internally, after
+  // the appropriate tests have been done.
+  void reallyCloseFile();
 
-    virtual void write(EventPrincipal const& e) = 0;
-    virtual void beginJob(){}
-    virtual void endJob(){}
-    virtual void beginRun(RunPrincipal const&){}
-    virtual void endRun(RunPrincipal const&){}
-    virtual void writeRun(RunPrincipal const& r) = 0;
-    virtual void beginSubRun(SubRunPrincipal const&){}
-    virtual void endSubRun(SubRunPrincipal const&){}
-    virtual void writeSubRun(SubRunPrincipal const& sr) = 0;
-    virtual void openFile(FileBlock const&) {}
-    virtual void respondToOpenInputFile(FileBlock const&) {}
-    virtual void respondToCloseInputFile(FileBlock const&) {}
-    virtual void respondToOpenOutputFiles(FileBlock const&) {}
-    virtual void respondToCloseOutputFiles(FileBlock const&) {}
+  // Ask the OutputModule if we should end the current file.
+  virtual bool shouldWeCloseFile() const {return false;}
 
-    virtual bool isFileOpen() const { return true; }
+  // Write the event.
+  virtual void write(EventPrincipal const & e) = 0;
 
-    virtual void doOpenFile() { }
+  virtual void beginJob();
+  virtual void endJob();
+  virtual void beginRun(RunPrincipal const &);
+  virtual void endRun(RunPrincipal const &);
+  virtual void writeRun(RunPrincipal const & r) = 0;
+  virtual void beginSubRun(SubRunPrincipal const &);
+  virtual void endSubRun(SubRunPrincipal const &);
+  virtual void writeSubRun(SubRunPrincipal const & sr) = 0;
+  virtual void openFile(FileBlock const &);
+  virtual void respondToOpenInputFile(FileBlock const &);
+  virtual void respondToCloseInputFile(FileBlock const &);
+  virtual void respondToOpenOutputFiles(FileBlock const &);
+  virtual void respondToCloseOutputFiles(FileBlock const &);
 
-    void setModuleDescription(ModuleDescription const& md) {
-      moduleDescription_ = md;
-    }
+  virtual bool isFileOpen() const;
 
-    void updateBranchParents(EventPrincipal const& ep);
-    void fillDependencyGraph();
+  void setModuleDescription(ModuleDescription const & md) {
+    moduleDescription_ = md;
+  }
 
-    bool limitReached() const {return remainingEvents_ == 0;}
+  void updateBranchParents(EventPrincipal const & ep);
+  void fillDependencyGraph();
 
-    // The following member functions are part of the Template Method
-    // pattern, used for implementing doCloseFile() and maybeEndFile().
+  bool limitReached() const {return remainingEvents_ == 0;}
 
-    virtual void startEndFile() {}
-    virtual void writeFileFormatVersion() {}
-    virtual void writeFileIdentifier() {}
-    virtual void writeFileIndex() {}
-    virtual void writeEventHistory() {}
-    virtual void writeProcessConfigurationRegistry() {}
-    virtual void writeProcessHistoryRegistry() {}
-    virtual void writeParameterSetRegistry() {}
-    virtual void writeBranchIDListRegistry() {}
-    virtual void writeParentageRegistry() {}
-    virtual void writeProductDescriptionRegistry() {}
-    void writeFileCatalogMetadata();
-    virtual void doWriteFileCatalogMetadata(FileCatalogMetadata::collection_type const &) { }
-    virtual void writeProductDependencies() {}
-    virtual void writeBranchMapper() {}
-    virtual void finishEndFile() {}
-  };  // OutputModule
+  // The following member functions are part of the Template Method
+  // pattern, used for implementing doCloseFile() and maybeEndFile().
 
-}  // art
+  virtual void startEndFile();
+  virtual void writeFileFormatVersion();
+  virtual void writeFileIdentifier();
+  virtual void writeFileIndex();
+  virtual void writeEventHistory();
+  virtual void writeProcessConfigurationRegistry();
+  virtual void writeProcessHistoryRegistry();
+  virtual void writeParameterSetRegistry();
+  virtual void writeBranchIDListRegistry();
+  virtual void writeParentageRegistry();
+  virtual void writeProductDescriptionRegistry();
+  void writeFileCatalogMetadata();
+  virtual void doWriteFileCatalogMetadata(FileCatalogMetadata::collection_type
+                                          const &);
+  virtual void writeProductDependencies();
+  virtual void writeBranchMapper();
+  virtual void finishEndFile();
+};  // OutputModule
 
-// ======================================================================
+#ifndef __GCCXML__
+inline
+int
+art::OutputModule::
+maxEvents() const
+{
+  return maxEvents_;
+}
+
+inline
+int
+art::OutputModule::
+remainingEvents() const
+{
+  return remainingEvents_;
+}
+
+inline
+std::string const &
+art::OutputModule::
+processName() const
+{
+  return process_name_;
+}
+
+inline
+auto
+art::OutputModule::
+keptProducts() const
+-> SelectionsArray const &
+{
+  return keptProducts_;
+}
+
+inline
+auto
+art::OutputModule::
+hasNewlyDroppedBranch() const
+-> std::array<bool, NumBranchTypes> const &
+{
+  return hasNewlyDroppedBranch_;
+}
+
+inline
+art::BranchChildren const &
+art::OutputModule::
+branchChildren() const
+{
+  return branchChildren_;
+}
+#endif /* _GCCXML__ */
 
 #endif /* art_Framework_Core_OutputModule_h */
 
