@@ -20,8 +20,9 @@ art_make_library( LIBRARY_NAME art_Framework_IO_RootVersion
 )
 
 art_make_library( LIBRARY_NAME art_Framework_IO_Root
-                  SOURCE ${art_Framework_IO_Root_sources}
-                  LIBRARIES art_Framework_Core
+  SOURCE ${art_Framework_IO_Root_sources}
+  LIBRARIES art_Framework_Core
+  art_Framework_IO
   art_Framework_IO_Catalog
   art_Framework_Principal
   art_Framework_Services_Registry

@@ -28,7 +28,7 @@
 #include "art/Persistency/Provenance/ProductProvenance.h"
 #include "art/Persistency/Provenance/Selections.h"
 #include "art/Persistency/RootDB/SQLite3Wrapper.h"
-
+#include "boost/filesystem.hpp"
 #include "cpp0x/array"
 #include "cpp0x/memory"
 
@@ -70,6 +70,8 @@ namespace art {
     void beginInputFile(FileBlock const& fb, bool fastClone);
     void respondToCloseInputFile(FileBlock const& fb);
     bool shouldWeCloseFile() const;
+
+    std::string const & currentFileName() const;
 
   private:
 
@@ -117,6 +119,12 @@ namespace art {
     std::set<BranchID> branchesWithStoredHistory_;
     SQLite3Wrapper metaDataHandle_;
   };  // RootOutputFile
+
+  inline
+  std::string const &
+  RootOutputFile::currentFileName() const {
+    return file_;
+  }
 
 }  // art
 

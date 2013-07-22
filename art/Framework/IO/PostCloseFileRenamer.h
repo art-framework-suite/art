@@ -16,12 +16,17 @@ namespace art {
 
 class art::PostCloseFileRenamer {
 public:
-  explicit PostCloseFileRenamer(std::string const & filePattern,
-                               std::string const & moduleLabel);
+  PostCloseFileRenamer(std::string const & filePattern,
+                       std::string const & moduleLabel,
+                       std::string const & processName);
+
+  std::string parentPath() const;
 
   void recordFileOpen();
   void recordEvent(EventID const & id);
   void recordFileClose();
+
+  std::string applySubstitutions() const;
 
   void maybeRenameFile(std::string const & inPath); // Rename given file.
 
@@ -30,6 +35,7 @@ public:
 private:
   std::string filePattern_;
   std::string moduleLabel_;
+  std::string processName_;
   EventID lowest_;
   EventID highest_;
   boost::posix_time::ptime fo_;

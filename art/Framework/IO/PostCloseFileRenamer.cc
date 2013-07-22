@@ -1,6 +1,4 @@
 #include "art/Framework/IO/PostCloseFileRenamer.h"
-#include "art/Framework/Services/Registry/ServiceHandle.h"
-#include "art/Framework/Services/System/TriggerNamesService.h"
 #include "boost/algorithm/string/replace.hpp"
 #include "boost/date_time/posix_time/posix_time.hpp"
 #include "boost/filesystem.hpp"
@@ -12,15 +10,29 @@
 
 art::PostCloseFileRenamer::
 PostCloseFileRenamer(std::string const & filePattern,
-                     std::string const & moduleLabel)
+                     std::string const & moduleLabel,
+                     std::string const & processName)
   :
   filePattern_(filePattern),
   moduleLabel_(moduleLabel),
+  processName_(processName),
   lowest_(),
   highest_(),
   fo_(),
   fc_()
 {
+}
+
+std::string
+art::PostCloseFileRenamer::
+parentPath() const
+{
+  boost::filesystem::path parent_path(boost::filesystem::path(filePattern_).parent_path());
+  if (parent_path.empty()) {
+    return std::string(".");
+  } else {
+    return parent_path.native();
+  }
 }
 
 void
@@ -55,36 +67,40 @@ namespace {
   void filled_replace(std::string & target,
                       char c,
                       size_t num) {
-    boost::regex e(std::string("%(\\d*)") + c + "\\b");
+    boost::regex const e(std::string("%(\\d*)") + c);
     boost::match_results<std::string::const_iterator> match_results;
     while (boost::regex_search(target, match_results, e)) {
       std::ostringstream num_str;
-      if (match_results.size() == 2) {
+      if (match_results[1].length() > 0) {
         num_str << std::setfill('0') << std::setw(std::stoul(match_results[1]));
-      } else {
-        num_str << num;
       }
+      num_str << num;
       boost::replace_all(target, match_results[0].str(), num_str.str());
     }
   }
 }
 
-void
+std::string
 art::PostCloseFileRenamer::
-maybeRenameFile(std::string const & inPath) {
+applySubstitutions() const {
   auto result = filePattern_;
   using boost::replace_all;
   replace_all(result, "%l", moduleLabel_);
-  replace_all(result, "%p", ServiceHandle<TriggerNamesService>()->getProcessName());
+  replace_all(result, "%p", processName_);
   filled_replace(result, 'r', lowest_.run());
   filled_replace(result, 'R', highest_.run());
   filled_replace(result, 's', lowest_.subRun());
   filled_replace(result, 'S', highest_.subRun());
   replace_all(result, "%to", boost::posix_time::to_iso_string(fo_));
   replace_all(result, "%tc", boost::posix_time::to_iso_string(fc_));
-  if (inPath != result) {
-    boost::filesystem::rename(inPath, result);
-  }
+  return std::move(result);
+}
+
+void
+art::PostCloseFileRenamer::
+maybeRenameFile(std::string const & inPath) {
+  auto newFile = applySubstitutions();
+  boost::filesystem::rename(inPath, newFile);
   reset();
 }
 

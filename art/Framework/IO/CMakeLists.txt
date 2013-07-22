@@ -2,7 +2,6 @@
 project(art_Framework_IO)
 
 art_make(LIB_LIBRARIES
-  art_Framework_Services_Registry
   art_Persistency_Provenance
   ${Boost_DATE_TIME_LIBRARY}
   ${Boost_FILESYSTEM_LIBRARY}
