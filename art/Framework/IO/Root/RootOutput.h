@@ -34,8 +34,8 @@ namespace art {
     friend class RootOutputFile;
     explicit RootOutput(fhicl::ParameterSet const& ps);
     virtual ~RootOutput();
+private:
     std::string const& fileName() const {return fileName_;}
-    std::string const& logicalFileName() const {return logicalFileName_;}
     int const& compressionLevel() const {return compressionLevel_;}
     int const& basketSize() const {return basketSize_;}
     int const& splitLevel() const {return splitLevel_;}
@@ -77,7 +77,6 @@ namespace art {
 
     OutputItemListArray const& selectedOutputItemList() const {return selectedOutputItemList_;}
 
-  private:
     void openFile(FileBlock const& fb) override;
     void respondToOpenInputFile(FileBlock const& fb) override;
     void respondToCloseInputFile(FileBlock const& fb) override;

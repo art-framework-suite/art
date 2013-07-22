@@ -48,8 +48,7 @@ namespace art {
     typedef RootOutput::OutputItem OutputItem;
     typedef RootOutput::OutputItemList OutputItemList;
     typedef std::array<RootOutputTree *, NumBranchTypes> RootOutputTreePtrArray;
-    explicit RootOutputFile(RootOutput * om, std::string const& fileName,
-                            std::string const& logicalFileName);
+    explicit RootOutputFile(RootOutput * om, std::string const& fileName);
     // use compiler-generated copy c'tor, copy assignment, and d'tor
     void writeOne(EventPrincipal const& e);
     //void endFile();
@@ -90,7 +89,6 @@ namespace art {
     // Member data
 
     std::string file_;
-    std::string logicalFile_;
     RootOutput const* om_;
     bool currentlyFastCloning_;
     std::shared_ptr<TFile> filePtr_;

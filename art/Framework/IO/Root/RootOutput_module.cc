@@ -33,7 +33,6 @@ namespace art {
   : OutputModule               ( ps )
   , selectedOutputItemList_    ( )
   , fileName_                  ( ps.get<string>("fileName") )
-  , logicalFileName_           ( ps.get<string>("logicalFileName", string()) )
   , catalog_                   ( ps.get<string>("catalog", string()) )
   , maxFileSize_               ( ps.get<int>("maxSize", 0x7f000000) )
   , compressionLevel_          ( ps.get<int>("compressionLevel", 7) )
@@ -188,15 +187,11 @@ namespace art {
       std::ostringstream ofilename;
       std::ostringstream lfilename;
       ofilename << fileBase;
-      lfilename << logicalFileName();
       if (outputFileCount_) {
         ofilename << std::setw(3) << std::setfill('0') << outputFileCount_;
-        if (!logicalFileName().empty()) {
-          lfilename << std::setw(3) << std::setfill('0') << outputFileCount_;
-        }
       }
       ofilename << suffix;
-      rootOutputFile_.reset(new RootOutputFile(this, ofilename.str(), lfilename.str()));
+      rootOutputFile_.reset(new RootOutputFile(this, ofilename.str()));
       ++outputFileCount_;
   }
 
