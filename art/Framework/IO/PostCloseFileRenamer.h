@@ -23,7 +23,7 @@ public:
   void recordEvent(EventID const & id);
   void recordFileClose();
 
-  void renameFile(std::string const & inPath); // Rename given file.
+  void maybeRenameFile(std::string const & inPath); // Rename given file.
 
   void reset(); // Reset statistics without renaming.
 

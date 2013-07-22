@@ -71,7 +71,7 @@ namespace {
 
 void
 art::PostCloseFileRenamer::
-renameFile(std::string const & inPath) {
+maybeRenameFile(std::string const & inPath) {
   auto result = filePattern_;
   using boost::replace_all;
   replace_all(result, "%l", moduleLabel_);
@@ -82,7 +82,9 @@ renameFile(std::string const & inPath) {
   filled_replace(result, 'S', highest_.subRun());
   replace_all(result, "%to", boost::posix_time::to_iso_string(fo_));
   replace_all(result, "%tc", boost::posix_time::to_iso_string(fc_));
-  boost::filesystem::rename(inPath, result);
+  if (inPath != result) {
+    boost::filesystem::rename(inPath, result);
+  }
   reset();
 }
 
