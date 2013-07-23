@@ -39,6 +39,7 @@ void
 art::PostCloseFileRenamer::
 recordFileOpen()
 {
+  reset_(); // Reset statistics.
   fo_ = boost::posix_time::second_clock::universal_time();
 }
 
@@ -99,14 +100,12 @@ applySubstitutions() const {
 void
 art::PostCloseFileRenamer::
 maybeRenameFile(std::string const & inPath) {
-  auto newFile = applySubstitutions();
-  boost::filesystem::rename(inPath, newFile);
-  reset();
+  boost::filesystem::rename(inPath, applySubstitutions());
 }
 
 void
 art::PostCloseFileRenamer::
-reset()
+reset_()
 {
   fo_ =
     fc_ = boost::posix_time::ptime();

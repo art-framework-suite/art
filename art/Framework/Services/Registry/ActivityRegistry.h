@@ -10,13 +10,11 @@
 // Services can connect to the signals distributed by the
 // ActivityRegistry in order to monitor the activity of the application.
 //
-// To register for a callback, call watchXXX(...) where XXX is the
-// watchpoint (e.g. preBeginJob) and ... is a callable object whose
-// signature matches that specified by the watchpoint declaration macro.
+// Signals are either global or local (per-schedule). Register a
+// watchpoint by calling the watch() function of the appropriate signal.
 //
-// For instance:
-//
-// AR_DECL_VOID_1ARG_SIGNAL(FIFO, ModuleDescription const &, PreModuleBeginJob)
+//  GlobalSignal<detail::SignalResponseType::FIFO, void,
+//               ModuleDescription const &> sPreModuleBeginJob;
 //
 // describes a watchpoint whose callable objects should have void return
 // type and take a single argument which should be a ModuleDescription
@@ -40,11 +38,12 @@ namespace art {
   class Event;
   class HLTPathStatus;
   class InputSource;
-  class SubRun;
-  class SubRunID;
   class ModuleDescription;
+  class OutputFileInfo;
   class Run;
   class RunID;
+  class SubRun;
+  class SubRunID;
   class Timestamp;
   class Worker;
 
@@ -63,7 +62,6 @@ public:
 
   // ---------- signals ------------------------------------
   // Signal is emitted after all modules have had their beginJob called
-  //AR_DECL_VOID_0ARG_SIGNAL(FIFO, PostBeginJob)
   GlobalSignal<detail::SignalResponseType::FIFO, void> sPostBeginJob;
 
   // Signal is emitted after all modules have had their endJob called
@@ -103,6 +101,11 @@ public:
 
   // Signal is emitted after the source opens a file
   GlobalSignal<detail::SignalResponseType::LIFO, void> sPostCloseFile;
+
+  // Signal is emitted after an output has closed a file (provides file
+  // name).
+  GlobalSignal<detail::SignalResponseType::LIFO, void,
+               OutputFileInfo const &> sPostCloseOutputFile;
 
   // Signal is emitted after the Event has been created by the
   // InputSource but before any modules have seen the Event

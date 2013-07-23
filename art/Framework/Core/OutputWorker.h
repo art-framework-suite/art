@@ -28,6 +28,8 @@ namespace art {
 
     virtual ~OutputWorker();
 
+    std::string const & lastClosedFileName() const;
+
     // Call closeFile() on the controlled OutputModule.
     void closeFile();
 
@@ -49,7 +51,6 @@ namespace art {
 private:
     ServiceHandle<CatalogInterface> ci_;
   };
-
 }
 
 #endif /* art_Framework_Core_OutputWorker_h */

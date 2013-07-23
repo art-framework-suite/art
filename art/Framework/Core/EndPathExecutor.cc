@@ -1,5 +1,7 @@
 #include "art/Framework/Core/EndPathExecutor.h"
 
+#include "art/Framework/Core/OutputFileInfo.h"
+
 using std::placeholders::_1;
 
 art::EndPathExecutor::
@@ -73,7 +75,13 @@ endJob()
 
 void art::EndPathExecutor::closeOutputFiles()
 {
-  doForAllOutputWorkers_(std::bind(&OutputWorker::closeFile, _1));
+  doForAllOutputWorkers_([this](OutputWorker * ow) {
+      ow->closeFile();
+      actReg_->
+        sPostCloseOutputFile.invoke(OutputFileInfo(ow->label(),
+                                                   ow->lastClosedFileName()));
+    }
+    );
 }
 
 void art::EndPathExecutor::openOutputFiles(FileBlock & fb)

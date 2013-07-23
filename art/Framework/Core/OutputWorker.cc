@@ -17,11 +17,18 @@ namespace art {
     WorkerT<OutputModule>(std::move(mod), md, wp),
     ci_()
   {
-    ci_->outputModuleInitiated(description().moduleLabel(),
+    ci_->outputModuleInitiated(label(),
                                fhicl::ParameterSetRegistry::get(description().parameterSetID()));
   }
 
   OutputWorker::~OutputWorker() {
+  }
+
+  std::string const &
+  OutputWorker::
+  lastClosedFileName() const
+  {
+    return module().lastClosedFileName();
   }
 
   void

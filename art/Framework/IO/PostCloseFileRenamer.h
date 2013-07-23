@@ -30,9 +30,9 @@ public:
 
   void maybeRenameFile(std::string const & inPath); // Rename given file.
 
-  void reset(); // Reset statistics without renaming.
-
 private:
+  void reset_(); // Reset statistics without renaming.
+
   std::string filePattern_;
   std::string moduleLabel_;
   std::string processName_;
