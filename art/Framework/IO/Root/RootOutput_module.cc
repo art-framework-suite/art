@@ -12,8 +12,6 @@
 #include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
-#include "art/Framework/Services/Registry/ServiceHandle.h"
-#include "art/Framework/Services/System/TriggerNamesService.h"
 #include "art/Persistency/Provenance/FileFormatVersion.h"
 #include "art/Utilities/Exception.h"
 #include "cetlib/container_algorithms.h"
@@ -57,7 +55,8 @@ namespace art {
   , rootOutputFile_            ( )
   , fileRenamer_               ( ps.get<string>("fileName"),
                                  moduleLabel_,
-                                 ServiceHandle<TriggerNamesService>()->getProcessName() )
+                                 processName() )
+  , lastClosedFileName_        ( )
   {
     string dropMetaData(ps.get<string>("dropMetaData", string()));
     if (dropMetaData.empty())                 dropMetaData_ = DropNone;
@@ -183,6 +182,7 @@ namespace art {
   void RootOutput::finishEndFile() {
     rootOutputFile_->finishEndFile();
     fileRenamer_.recordFileClose();
+    lastClosedFileName_ = fileRenamer_.applySubstitutions();
     fileRenamer_.maybeRenameFile(rootOutputFile_->currentFileName());
     rootOutputFile_.reset();
   }
@@ -227,6 +227,15 @@ namespace art {
       rootOutputFile_.reset(new RootOutputFile(this,
                                                unique_filename(fileRenamer_.parentPath() + "/RootOutput")));
       fileRenamer_.recordFileOpen();
+  }
+
+  std::string const &
+  RootOutput::lastClosedFileName() const {
+    if (lastClosedFileName_.empty()) {
+      throw Exception(errors::LogicError, "RootOutput::currentFileName(): ")
+        << "called before meaningful.\n";
+    }
+    return lastClosedFileName_;
   }
 
 }  // art

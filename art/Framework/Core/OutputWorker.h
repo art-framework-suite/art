@@ -48,7 +48,6 @@ namespace art {
 
 private:
     ServiceHandle<CatalogInterface> ci_;
-    std::string fileName_; // Needed for CatalogInterface interactions.
   };
 
 }

@@ -54,6 +54,7 @@ public:
   explicit OutputModule(fhicl::ParameterSet const & pset);
   virtual ~OutputModule() = default;
   void reconfigure(fhicl::ParameterSet const &);
+
   // Accessor for maximum number of events to be written.
   // -1 is used for unlimited.
   int maxEvents() const;
@@ -62,15 +63,20 @@ public:
   // -1 is used for unlimited.
   int remainingEvents() const;
 
+  // Name of output file (may be overridden if default implementation is
+  // not appropriate).
+  virtual std::string const & lastClosedFileName() const;
+
   bool selected(BranchDescription const & desc) const;
 
-  std::string const & processName() const;
   SelectionsArray const & keptProducts() const;
   std::array<bool, NumBranchTypes> const & hasNewlyDroppedBranch() const;
 
   BranchChildren const & branchChildren() const;
 
 protected:
+  std::string const & processName() const;
+
   Trig getTriggerResults(Event const & e) const;
 
   // The returned pointer will be null unless the this is currently
@@ -129,6 +135,7 @@ private:
 
   BranchChildren branchChildren_;
 
+  std::string configuredFileName_;
   std::string dataTier_;
   std::string streamName_;
   ServiceHandle<CatalogInterface> ci_;
@@ -189,14 +196,12 @@ private:
 
   virtual bool isFileOpen() const;
 
-  void setModuleDescription(ModuleDescription const & md) {
-    moduleDescription_ = md;
-  }
+  void setModuleDescription(ModuleDescription const & md);
 
   void updateBranchParents(EventPrincipal const & ep);
   void fillDependencyGraph();
 
-  bool limitReached() const {return remainingEvents_ == 0;}
+  bool limitReached() const;
 
   // The following member functions are part of the Template Method
   // pattern, used for implementing doCloseFile() and maybeEndFile().
@@ -270,6 +275,24 @@ branchChildren() const
 {
   return branchChildren_;
 }
+
+inline
+void
+art::OutputModule::
+setModuleDescription(ModuleDescription const & md)
+{
+  moduleDescription_ = md;
+}
+
+inline
+bool
+art::OutputModule::
+limitReached() const
+{
+  return remainingEvents_ == 0;
+}
+
+
 #endif /* _GCCXML__ */
 
 #endif /* art_Framework_Core_OutputModule_h */

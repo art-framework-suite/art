@@ -46,6 +46,7 @@ OutputModule(ParameterSet const & pset)
   selector_config_id_(),
   branchParents_(),
   branchChildren_(),
+  configuredFileName_(pset.get<std::string>("fileName", "")),
   dataTier_(pset.get<std::string>("dataTier", "")),
   streamName_(pset.get<std::string>("streamName", "")),
   ci_()
@@ -78,6 +79,13 @@ OutputModule(ParameterSet const & pset)
   for (size_t i = 0; i < path_specs.size(); ++i)
   { detail::parse_path_spec(path_specs[i], parsed_paths[i]); }
   selectors_.setup(parsed_paths, getAllTriggerNames(), process_name_);
+}
+
+std::string const &
+art::OutputModule::
+lastClosedFileName() const
+{
+  return configuredFileName_;
 }
 
 void

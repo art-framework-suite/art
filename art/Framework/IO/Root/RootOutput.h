@@ -36,6 +36,7 @@ namespace art {
     explicit RootOutput(fhicl::ParameterSet const& ps);
     virtual ~RootOutput();
 private:
+    std::string const & lastClosedFileName() const override;
     int const& compressionLevel() const {return compressionLevel_;}
     int const& basketSize() const {return basketSize_;}
     int const& splitLevel() const {return splitLevel_;}
@@ -119,6 +120,7 @@ private:
     int inputFileCount_;
     boost::scoped_ptr<RootOutputFile> rootOutputFile_;
     PostCloseFileRenamer fileRenamer_;
+    std::string lastClosedFileName_;
   };
 
 }  // art
