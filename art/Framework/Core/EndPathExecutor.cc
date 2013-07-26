@@ -12,18 +12,21 @@ EndPathExecutor(PathManager & pm,
   endPathInfo_(pm.endPathInfo()),
   act_table_(&actions),
   actReg_(areg),
-  outputWorkers_()
+  outputWorkers_(),
+  workersEnabled_(endPathInfo_.workers().size(), true),
+  outputWorkersEnabled_()
 {
-  // All the workers should be in all_workers_ by this point. Thus
-  // we can now fill all_output_workers_.  We provide a little
-  // sanity-check to make sure no code modifications alter the
-  // number of workers at a later date... Much better would be to
-  // refactor this huge constructor into a series of well-named
-  // private functions.
-  doForAllWorkers_([this](Worker * w) {
-      OutputWorker * ow = dynamic_cast<OutputWorker *>(w);
-      if (ow) { outputWorkers_.emplace_back(ow); }
-    });
+  // For clarity, don't used doForAllEnabledWorkers_(), here.
+  for (auto const & val : endPathInfo_.workers()) {
+    auto w = val.second.get();
+    OutputWorker * ow = dynamic_cast<OutputWorker *>(w);
+    size_t index = 0;
+    if (ow) {
+      outputWorkers_.emplace_back(ow);
+      outputWorkersEnabled_.emplace_back(workersEnabled_[index]);
+    }
+    ++index;
+  }
 }
 
 bool art::EndPathExecutor::terminate() const
@@ -49,7 +52,7 @@ endJob()
 {
   bool failure = false;
   Exception error(errors::EndJobFailure);
-  doForAllWorkers_
+  doForAllEnabledWorkers_
     ([&failure, &error](Worker * w)
      {
        try {
@@ -75,7 +78,7 @@ endJob()
 
 void art::EndPathExecutor::closeOutputFiles()
 {
-  doForAllOutputWorkers_([this](OutputWorker * ow) {
+  doForAllEnabledOutputWorkers_([this](OutputWorker * ow) {
       ow->closeFile();
       actReg_->
         sPostCloseOutputFile.invoke(OutputFileInfo(ow->label(),
@@ -86,17 +89,17 @@ void art::EndPathExecutor::closeOutputFiles()
 
 void art::EndPathExecutor::openOutputFiles(FileBlock & fb)
 {
-  doForAllOutputWorkers_(std::bind(&OutputWorker::openFile, _1, std::cref(fb)));
+  doForAllEnabledOutputWorkers_(std::bind(&OutputWorker::openFile, _1, std::cref(fb)));
 }
 
 void art::EndPathExecutor::writeRun(RunPrincipal const & rp)
 {
-  doForAllOutputWorkers_(std::bind(&OutputWorker::writeRun, _1, std::cref(rp)));
+  doForAllEnabledOutputWorkers_(std::bind(&OutputWorker::writeRun, _1, std::cref(rp)));
 }
 
 void art::EndPathExecutor::writeSubRun(SubRunPrincipal const & srp)
 {
-  doForAllOutputWorkers_(std::bind(&OutputWorker::writeSubRun, _1, std::cref(srp)));
+  doForAllEnabledOutputWorkers_(std::bind(&OutputWorker::writeSubRun, _1, std::cref(srp)));
 }
 
 bool art::EndPathExecutor::shouldWeCloseOutput() const
@@ -108,31 +111,65 @@ bool art::EndPathExecutor::shouldWeCloseOutput() const
 
 void art::EndPathExecutor::respondToOpenInputFile(FileBlock const & fb)
 {
-  doForAllWorkers_(std::bind(&Worker::respondToOpenInputFile, _1, std::cref(fb)));
+  doForAllEnabledWorkers_(std::bind(&Worker::respondToOpenInputFile, _1, std::cref(fb)));
 }
 
 void art::EndPathExecutor::respondToCloseInputFile(FileBlock const & fb)
 {
-  doForAllWorkers_(std::bind(&Worker::respondToCloseInputFile, _1, std::cref(fb)));
+  doForAllEnabledWorkers_(std::bind(&Worker::respondToCloseInputFile, _1, std::cref(fb)));
 }
 
 void art::EndPathExecutor::respondToOpenOutputFiles(FileBlock const & fb)
 {
-  doForAllWorkers_(std::bind(&Worker::respondToOpenOutputFiles, _1, std::cref(fb)));
+  doForAllEnabledWorkers_(std::bind(&Worker::respondToOpenOutputFiles, _1, std::cref(fb)));
 }
 
 void art::EndPathExecutor::respondToCloseOutputFiles(FileBlock const & fb)
 {
-  doForAllWorkers_(std::bind(&Worker::respondToCloseOutputFiles, _1, std::cref(fb)));
+  doForAllEnabledWorkers_(std::bind(&Worker::respondToCloseOutputFiles, _1, std::cref(fb)));
 }
 
 void art::EndPathExecutor::beginJob()
 {
-  doForAllWorkers_(std::bind(&Worker::beginJob, _1));
+  doForAllEnabledWorkers_(std::bind(&Worker::beginJob, _1));
+}
+
+bool
+art::EndPathExecutor::
+setEndPathModuleEnabled(std::string const & label, bool enable)
+{
+  bool result;
+  auto & workers = endPathInfo_.workers();
+  WorkerMap::iterator foundW;
+  if ((foundW = workers.find(label)) != workers.end()) {
+    size_t index = std::distance(workers.begin(), foundW);
+    result = workersEnabled_[index];
+    workersEnabled_[index] = enable;
+  } else {
+    throw Exception(errors::ScheduleExecutionFailure)
+      << "Attempt to "
+      << (enable?"enable":"disable")
+      << " unconfigured module "
+      << label
+      << ".\n";
+  }
+  auto owFinder =
+    [&label](OutputWorkers::const_reference ow)
+  {
+    return ow->label() == label;
+  };
+  OutputWorkers::iterator foundOW;
+  if ((foundOW = std::find_if(outputWorkers_.begin(),
+                              outputWorkers_.end(),
+                              owFinder)) != outputWorkers_.end()) {
+    auto index = std::distance(outputWorkers_.begin(), foundOW);
+    outputWorkersEnabled_[index] = enable;
+  }
+  return result;
 }
 
 void
 art::EndPathExecutor::resetAll()
 {
-  doForAllWorkers_(std::bind(&Worker::reset, _1));
+  doForAllEnabledWorkers_(std::bind(&Worker::reset, _1));
 }

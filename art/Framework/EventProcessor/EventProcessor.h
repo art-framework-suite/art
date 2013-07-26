@@ -133,6 +133,9 @@ public:
   void setExceptionMessageSubRuns(std::string & message) override;
   bool alreadyHandlingException() const override;
 
+  bool setTriggerPathEnabled(std::string const & name, bool enable) override;
+  bool setEndPathModuleEnabled(std::string const & label, bool enable) override;
+
 private:
   void configureServices_(fhicl::ParameterSet const & pset);
   void initSchedules_(fhicl::ParameterSet const & pset);

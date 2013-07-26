@@ -17,6 +17,7 @@
 #include "art/Framework/Services/System/CurrentModule.h"
 #include "art/Framework/Services/System/FileCatalogMetadata.h"
 #include "art/Framework/Services/System/FloatingPointControl.h"
+#include "art/Framework/Services/System/PathSelection.h"
 #include "art/Framework/Services/System/ScheduleContext.h"
 #include "art/Framework/Services/System/TriggerNamesService.h"
 #include "art/Persistency/Provenance/BranchIDListHelper.h"
@@ -342,6 +343,10 @@ configureServices_(ParameterSet const & pset)
   ParameterSet const fpc_pset = services.get<ParameterSet>("floating_point_control", ParameterSet());
   serviceToken_.add(std::unique_ptr<FloatingPointControl>(new FloatingPointControl(fpc_pset, *actReg_)));
   serviceToken_.add(std::unique_ptr<ScheduleContext>(new ScheduleContext));
+  ParameterSet pathSelection;
+  if (services.get_if_present("PathSelection", pathSelection)) {
+    serviceToken_.add(std::unique_ptr<PathSelection>(new PathSelection(*this)));
+  }
 }
 
 void
@@ -877,6 +882,20 @@ bool
 art::EventProcessor::alreadyHandlingException() const
 {
   return alreadyHandlingException_;
+}
+
+bool
+art::EventProcessor::
+setTriggerPathEnabled(std::string const & name, bool enable)
+{
+  return schedule_->setTriggerPathEnabled(name, enable);
+}
+
+bool
+art::EventProcessor::
+setEndPathModuleEnabled(std::string const & label, bool enable)
+{
+  return endPathExecutor_->setEndPathModuleEnabled(label, enable);
 }
 
 void

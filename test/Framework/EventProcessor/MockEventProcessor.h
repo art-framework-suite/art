@@ -71,6 +71,9 @@ namespace art
 
     bool alreadyHandlingException() const override;
 
+    bool setTriggerPathEnabled(std::string const & name, bool enable) override;
+    bool setEndPathModuleEnabled(std::string const & label, bool enable) override;
+
   private:
     std::string mockData_;
     std::ostream & output_;

@@ -51,6 +51,7 @@ Schedule(ScheduleID sID,
   processName_(tns.getProcessName()),
   actReg_(areg),
   triggerPathsInfo_(pm.triggerPathsInfo(sID_)),
+  pathsEnabled_(triggerPathsInfo_.pathPtrs().size(), true),
   results_inserter_(),
   demand_branches_(catalogOnDemandBranches_(pm.onDemandWorkers(),
                                             pregistry.productList()))
@@ -125,6 +126,35 @@ respondToCloseOutputFiles(FileBlock const & fb)
 {
   doForAllWorkers_(std::bind(&Worker::respondToCloseOutputFiles, _1,
                                   std::cref(fb)));
+}
+
+bool
+art::Schedule::
+setTriggerPathEnabled(std::string const & name, bool enable)
+{
+  auto & pp = triggerPathsInfo_.pathPtrs();
+  PathPtrs::iterator found;
+  auto pathFinder =
+    [&name](std::unique_ptr<Path> const & p_ptr)
+    {
+      return p_ptr->name() == name;
+    };
+  if ((found =
+      std::find_if(pp.begin(),
+                   pp.end(),
+                   pathFinder)) != pp.end()) {
+    size_t index = std::distance(pp.begin(), found);
+    auto result = pathsEnabled_[index];
+    pathsEnabled_[index] = enable;
+    return result;
+  } else {
+    throw Exception(errors::ScheduleExecutionFailure)
+      << "Attempt to "
+      << (enable?"enable":"disable")
+      << " unconfigured path "
+      << name
+      << ".\n";
+  }
 }
 
 void

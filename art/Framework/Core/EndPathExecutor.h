@@ -66,8 +66,11 @@ public:
   // Call shouldWeCloseFile() on all OutputModules.
   bool shouldWeCloseOutput() const;
 
-  /// Return whether a module has reached its maximum count.
+  // Return whether a module has reached its maximum count.
   bool terminate() const;
+
+  // Temporarily enable or disable a configured end path module.
+  bool setEndPathModuleEnabled(std::string const & label, bool enable);
 
 private:
   typedef std::vector<OutputWorker *> OutputWorkers;
@@ -77,13 +80,15 @@ private:
   template <typename T>
   void runEndPaths(typename T::MyPrincipal &);
 
-  void doForAllWorkers_(std::function<void (Worker *)> func);
-  void doForAllOutputWorkers_(std::function<void (OutputWorker *)> func);
+  void doForAllEnabledWorkers_(std::function<void (Worker *)> func);
+  void doForAllEnabledOutputWorkers_(std::function<void (OutputWorker *)> func);
 
   PathsInfo & endPathInfo_;
   ActionTable * act_table_;
   std::shared_ptr<ActivityRegistry> actReg_;
   OutputWorkers  outputWorkers_;
+  std::vector<unsigned char> workersEnabled_;
+  std::vector<unsigned char> outputWorkersEnabled_;
 };
 
 template <typename T>
@@ -130,20 +135,26 @@ processOneOccurrence(typename T::MyPrincipal & ep)
 inline
 void
 art::EndPathExecutor::
-doForAllWorkers_(std::function<void (Worker *)> func)
+doForAllEnabledWorkers_(std::function<void (Worker *)> func)
 {
+  size_t index = 0;
   for (auto const & val : endPathInfo_.workers()) {
-    func(val.second.get());
+    if (workersEnabled_[index++]) {
+      func(val.second.get());
+    }
   }
 }
 
 inline
 void
 art::EndPathExecutor::
-doForAllOutputWorkers_(std::function<void (OutputWorker *)> func)
+doForAllEnabledOutputWorkers_(std::function<void (OutputWorker *)> func)
 {
+  size_t index = 0;
   for (auto ow : outputWorkers_) {
-    func(ow);
+    if (outputWorkersEnabled_[index++]) {
+      func(ow);
+    }
   }
 }
 

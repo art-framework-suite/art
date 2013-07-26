@@ -233,4 +233,8 @@ namespace art {
   void MockEventProcessor::setExceptionMessageSubRuns(std::string& /*message*/) { }
 
   bool MockEventProcessor::alreadyHandlingException() const { return false; }
+
+  bool MockEventProcessor::setTriggerPathEnabled(std::string const &, bool) { return true; }
+  bool MockEventProcessor::setEndPathModuleEnabled(std::string const &, bool) { return true; }
+
 }
