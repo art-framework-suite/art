@@ -38,7 +38,6 @@ namespace ui {
   void UserInteraction::postBeginJobWorkers(InputSource * is,
       std::vector<art::Worker *> const & workers)
   {
-    std::cout << "Post Begin Job Workers" << std::endl;
     std::vector<art::Worker *>::const_iterator ib(workers.begin()), ie(workers.end());
     std::vector<ModuleInfo> mi;
     for (; ib != ie; ++ib) {
