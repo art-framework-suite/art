@@ -36,17 +36,17 @@ namespace ui {
   }
 
   void UserInteraction::postBeginJobWorkers(InputSource * is,
-      std::vector<art::Worker *> const & workers)
+                                            std::vector<art::Worker *> const & workers)
   {
-    std::vector<art::Worker *>::const_iterator ib(workers.begin()), ie(workers.end());
     std::vector<ModuleInfo> mi;
-    for (; ib != ie; ++ib) {
-      workers_.push_back(*ib);
-      const ModuleDescription & md = (*ib)->description();
+    for (auto const w : workers) {
+      workers_.push_back(w);
+      const ModuleDescription & md = w->description();
       //std::cout << md.moduleName() << " " << md.moduleLabel() << "\n";
-      mi.push_back(ModuleInfo(md.moduleLabel(),
-                              md.moduleName(),
-                              fhicl::ParameterSet()));
+      mi.emplace_back(md.moduleLabel(),
+                      md.moduleName(),
+                      !w->modifiesEvent(),
+                      fhicl::ParameterSet());
       fhicl::ParameterSetRegistry::get(md.parameterSetID(),
                                        mi.back().pset);
     }
