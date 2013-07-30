@@ -1,6 +1,6 @@
 # The parent line must be the first non-comment line in the file
 # This line defines the product name and version
-parent art	v1_08_00
+parent art	v1_08_01
 defaultqual	e4
 #
 product		version
@@ -12,7 +12,7 @@ gccxml		v0_9_20130621
 python		v2_7_5
 root		v5_34_09
 sqlite		v3_07_17_00
-messagefacility	v1_10_19
+messagefacility	v1_10_20
 tbb		v4_1_3
 # list products required ONLY for the build
 # any products here must NOT have qualifiers
