@@ -24,6 +24,7 @@ public:
 
 private:
   std::vector<ModuleInfo> moduleInfos_;
+  // Note user implementations would cache by value, not pointer.
   std::unique_ptr<art::ServiceHandle<art::PathSelection> > pathSelectionService_;
 
   size_t callCount_;
