@@ -83,6 +83,10 @@ namespace art
     virtual void setExceptionMessageSubRuns(std::string& message) = 0;
 
     virtual bool alreadyHandlingException() const = 0;
+
+    // Return code should be previous status of element.
+    virtual bool setTriggerPathEnabled(std::string const & name, bool enable) = 0;
+    virtual bool setEndPathModuleEnabled(std::string const & label, bool enable) = 0;
   };
 }
 

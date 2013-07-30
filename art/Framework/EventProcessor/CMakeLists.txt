@@ -4,6 +4,7 @@ art_make(
   art_Framework_Services_System_CurrentModule_service
   art_Framework_Services_System_FileCatalogMetadata_service
   art_Framework_Services_System_FloatingPointControl_service
+  art_Framework_Services_System_PathSelection_service
   art_Framework_Services_System_ScheduleContext_service
   art_Framework_Services_System_TriggerNamesService_service
   art_Framework_Core

@@ -1,0 +1,60 @@
+process_name: TEST
+
+physics:
+{
+  producers:
+  {
+    ip1:
+    {
+      module_type: IntProducer
+      ivalue: 1
+    }
+
+    ip2:
+    {
+      module_type: IntProducer
+      ivalue: 2
+    }
+  }
+
+  analyzers:
+  {
+    ia1:
+    {
+      module_type: IntTestAnalyzer
+      input_label: ip1
+      expected_value: 1
+      require_presence: true
+    }
+
+    ia2:
+    {
+      module_type: IntTestAnalyzer
+      input_label: ip2
+      expected_value: 2
+      require_presence: true
+    }
+  }
+
+  p1: [ ip1 ]
+  p2: [ ip2 ]
+  e1: [ ia1, ia2 ]
+}
+
+services:
+{
+  PathSelection: { }
+  user:
+  {
+    InFlightConfiguration:
+    {
+      reconfigureModule: true
+    }
+ }
+}
+
+source:
+{
+  module_type: EmptyEvent
+  maxEvents: 2
+}

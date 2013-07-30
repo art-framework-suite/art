@@ -90,6 +90,9 @@ public:
   // Call respondToCloseOutputFiles() on all Modules
   void respondToCloseOutputFiles(FileBlock const & fb);
 
+  // Temporarily enable or disable a configured path.
+  bool setTriggerPathEnabled(std::string const & name, bool enable);
+
 private:
   typedef std::shared_ptr<Worker> WorkerPtr;
 
@@ -119,7 +122,7 @@ private:
                                             ProductList const & plist);
 
   void doForAllWorkers_(std::function<void (Worker *)> func);
-  void doForAllPaths_(std::function<void (Path *)> func);
+  void doForAllEnabledPaths_(std::function<void (Path *)> func);
 
   ScheduleID const sID_;
   fhicl::ParameterSet process_pset_;
@@ -127,6 +130,7 @@ private:
   std::string         processName_;
   std::shared_ptr<ActivityRegistry> actReg_;
   PathsInfo & triggerPathsInfo_;
+  std::vector<unsigned char> pathsEnabled_;
   WorkerPtr      results_inserter_;
   OnDemandBranches demand_branches_;
 };
@@ -172,9 +176,9 @@ inline
 bool
 art::Schedule::runTriggerPaths_(typename T::MyPrincipal & ep)
 {
-  doForAllPaths_(std::bind(&Path::processOneOccurrence<T>,
-                           std::placeholders::_1,
-                           std::ref(ep)));
+  doForAllEnabledPaths_(std::bind(&Path::processOneOccurrence<T>,
+                                  std::placeholders::_1,
+                                  std::ref(ep)));
   return triggerPathsInfo_.pathResults().accept();
 }
 
@@ -194,10 +198,13 @@ doForAllWorkers_(std::function<void (Worker *)> func)
 inline
 void
 art::Schedule::
-doForAllPaths_(std::function<void (Path *)> func)
+doForAllEnabledPaths_(std::function<void (Path *)> func)
 {
+  size_t path_index = 0;
   for (auto const & path : triggerPathsInfo_.pathPtrs()) {
-    func(path.get());
+    if (pathsEnabled_[path_index++]) {
+      func(path.get());
+    }
   }
 }
 

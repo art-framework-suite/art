@@ -53,7 +53,7 @@ public:
 
   explicit OutputModule(fhicl::ParameterSet const & pset);
   virtual ~OutputModule() = default;
-  void reconfigure(fhicl::ParameterSet const &);
+  virtual void reconfigure(fhicl::ParameterSet const &);
 
   // Accessor for maximum number of events to be written.
   // -1 is used for unlimited.

@@ -12,6 +12,8 @@
 #include "art/Persistency/Provenance/BranchDescription.h"
 #include "art/Persistency/Provenance/ParentageRegistry.h"
 #include "art/Utilities/DebugMacros.h"
+#include "art/Utilities/Exception.h"
+#include "cetlib/demangle.h"
 #include "cpp0x/utility"
 
 
@@ -134,9 +136,10 @@ void
 art::OutputModule::
 reconfigure(ParameterSet const &)
 {
-  mf::LogError("FeatureNotImplemented")
-      << "This module is not reconfigurable."
-      << "\n";
+  throw art::Exception(errors::UnimplementedFeature)
+    << "Modules of type "
+    << cet::demangle_symbol(typeid(*this).name())
+    << " are not reconfigurable.\n";
 }
 
 void
