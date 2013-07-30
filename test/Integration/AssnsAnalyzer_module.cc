@@ -22,8 +22,8 @@
 #include "cpp0x/type_traits"
 #include "test/TestObjects/AssnTestData.h"
 
-#include <boost/test/included/unit_test.hpp>
-#include <boost/type_traits.hpp>
+#include "boost/test/included/unit_test.hpp"
+#include "boost/type_traits.hpp"
 
 namespace arttest {
    class AssnsAnalyzer;
