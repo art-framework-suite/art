@@ -68,7 +68,7 @@ class art::detail::ServiceWrapper : public ServiceWrapperBase {
 public:
   // Non-copyable.
   ServiceWrapper(ServiceWrapper const &) = delete;
-  void operator=(ServiceWrapper const &) = delete;
+  ServiceWrapper& operator=(ServiceWrapper const &) = delete;
 
   // C'tor from ParameterSet, ActivityRegistry.
   ServiceWrapper(fhicl::ParameterSet const & ps,

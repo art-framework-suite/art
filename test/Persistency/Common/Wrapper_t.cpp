@@ -15,7 +15,7 @@ class CopyNoSwappy
  public:
   CopyNoSwappy() {}
   CopyNoSwappy(CopyNoSwappy const&) { /* std::cout << "copied\n"; */ }
-  CopyNoSwappy& operator=(CopyNoSwappy const&) { /*std::cout << "assigned\n";*/ return *this;}
+  CopyNoSwappy& operator=(CopyNoSwappy const&) &  { /*std::cout << "assigned\n";*/ return *this;}
  private:
 };
 

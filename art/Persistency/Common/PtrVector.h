@@ -78,6 +78,7 @@ public:
 
   // Mutators
   template <typename U>
+  // We can't ref-qualify assignment because of GCC_XML.
   PtrVector<T> &operator=(PtrVector<U> const &other);
   iterator begin();
   iterator end();

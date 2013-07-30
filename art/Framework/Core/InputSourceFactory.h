@@ -21,9 +21,8 @@ namespace art {
 
 class art::InputSourceFactory
 {
-  // non-copyable:
-  InputSourceFactory( InputSourceFactory const & );
-  void  operator = ( InputSourceFactory const & );
+  InputSourceFactory( InputSourceFactory const & ) = delete;
+  InputSourceFactory& operator = ( InputSourceFactory const & ) = delete;
 
  public:
   static std::unique_ptr<InputSource>

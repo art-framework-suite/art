@@ -39,6 +39,7 @@ namespace art {
     explicit Hash(value_type const& v);
 
     Hash(Hash<I> const&);
+    // We can't ref-qualify assignment because of GCC_XML
     Hash<I> const& operator=(Hash<I> const& iRHS);
 
     // For now, just check the most basic: a default constructed

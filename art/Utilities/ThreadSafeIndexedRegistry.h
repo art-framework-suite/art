@@ -83,8 +83,8 @@ namespace art {
       ~ThreadSafeIndexedRegistry();
 
       // Not copyable:
-      ThreadSafeIndexedRegistry(ThreadSafeIndexedRegistry<T, E> const&);
-      void operator= (ThreadSafeIndexedRegistry<T, E> const&);
+      ThreadSafeIndexedRegistry(ThreadSafeIndexedRegistry<T, E> const&) = delete;
+      ThreadSafeIndexedRegistry<T,E>& operator= (ThreadSafeIndexedRegistry<T, E> const&) = delete;
 
       collection_type data_;
       extra_type      extra_;
@@ -100,7 +100,7 @@ namespace art {
     template <typename T, typename E>
     inline
     std::ostream&
-    operator<< (std::ostream& os, ThreadSafeIndexedRegistry<T, E> const& reg) {
+    operator<< (std::ostream& os, ThreadSafeIndexedRegistry<T, E> const& reg)  {
       reg.print(os);
       return os;
     }

@@ -78,6 +78,7 @@ namespace art {
          // swap function
          void swap(HLTGlobalStatus& other) { paths_.swap(other.paths_); }
          // copy assignment implemented with swap()
+         // Cannot ref-qualify assignment because of GCC_XML.
          HLTGlobalStatus& operator=(HLTGlobalStatus const& rhs) {
             HLTGlobalStatus temp(rhs);
             this->swap(temp);
