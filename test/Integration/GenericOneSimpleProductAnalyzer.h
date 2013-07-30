@@ -72,6 +72,17 @@ public:
     }
   }
 
+  void reconfigure(fhicl::ParameterSet const & pset) override {
+    input_label_ = pset.get<std::string>("input_label");
+    require_presence_ = pset.get<bool>("require_presence", true);
+    if (require_presence_) {
+      value_ = pset.get<V>("expected_value");
+    } else {
+      V tmp;
+      std::swap(value_, tmp);
+    }
+  }
+
 private:
   V value_;
   std::string input_label_;

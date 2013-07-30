@@ -44,7 +44,7 @@ simple_plugin(FlushingGenerator           "source"  NO_INSTALL art_Framework_IO_
 simple_plugin(FlushingGeneratorTest       "module"  NO_INSTALL )
 simple_plugin(FlushingGeneratorTestFilter "module"  NO_INSTALL )
 simple_plugin(GeneratorTest               "source"  NO_INSTALL art_Framework_IO_Sources )
-simple_plugin(InFlightConfiguration       "service" NO_INSTALL art_Framework_Services_Registry art_Framework_Services_UserInteraction art_Framework_Services_System_PathSelection_service )
+simple_plugin(InFlightConfiguration       "service" NO_INSTALL USE_BOOST_UNIT art_Framework_Services_Registry art_Framework_Services_UserInteraction art_Framework_Services_System_PathSelection_service )
 simple_plugin(IntProducer                 "module"  NO_INSTALL )
 simple_plugin(IntTestAnalyzer             "module"  NO_INSTALL )
 simple_plugin(IntVectorAnalyzer           "module"  NO_INSTALL )
@@ -890,6 +890,14 @@ SET_TESTS_PROPERTIES(signal_handling_04_t PROPERTIES
   "Art caught and handled signal 12\\."
   )
 
+foreach (num 1 2)
+  cet_test(InFlightConfiguration_0${num}_t HANDBUILT
+    TEST_EXEC art_ut
+    TEST_ARGS -c InFlightConfiguration_0${num}.fcl
+    DATAFILES
+    fcl/InFlightConfiguration_0${num}.fcl
+    )
+endforeach()
 
 ########################################################################
 # Old tests converted from CMS FWCore/Framework/test

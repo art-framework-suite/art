@@ -24,7 +24,9 @@ public:
 
 private:
   std::vector<ModuleInfo> moduleInfos_;
-  art::ServiceHandle<art::PathSelection> pathSelectionService_;
+  std::unique_ptr<art::ServiceHandle<art::PathSelection> > pathSelectionService_;
+
+  size_t callCount_;
 };
 
 DECLARE_ART_SERVICE(arttest::InFlightConfiguration, LEGACY)
