@@ -242,7 +242,7 @@ int main()
   ServiceToken serviceToken_ =
     ServiceRegistry::createSet(ServiceRegistry::ParameterSets(), aReg);
 
-  serviceToken_.add(std::unique_ptr<TNS>(new TNS(proc_pset)));
+  serviceToken_.add(std::unique_ptr<TNS>(new TNS(proc_pset, trigger_path_names)));
 
   //make the services available
   ServiceRegistry::Operate operate(serviceToken_);

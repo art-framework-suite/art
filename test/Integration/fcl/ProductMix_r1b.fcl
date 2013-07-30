@@ -3,5 +3,6 @@
 physics.filters.mixFilter.fileNames[1]: " ../ProductMix_w.d/mix.root"
 physics.analyzers: {}
 outputs: {}
-physics.end_paths: [ ]
+physics.e1: []
+physics.end_paths: []
 source.maxEvents: 210

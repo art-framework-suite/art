@@ -30,7 +30,6 @@ namespace art {
 
   RootInputFileSequence::RootInputFileSequence( fhicl::ParameterSet const& pset,
                                                 InputFileCatalog & catalog,
-                                                bool primarySequence,
                                                 FastCloningInfoProvider const &fcip,
                                                 InputSource::ProcessingMode pMode,
                                                 MasterProductRegistry &mpr,
@@ -53,13 +52,11 @@ namespace art {
     forcedRunOffset_(0),
     setRun_(0U),
     groupSelectorRules_(pset, "inputCommands", "InputSource"),
-    primarySequence_(primarySequence),
     duplicateChecker_(),
     dropDescendants_(pset.get<bool>("dropDescendantsOfDroppedBranches", true)),
     fastCloningInfo_(fcip),
     processingMode_(pMode),
     processConfiguration_(processConfig) {
-
     RunNumber_t firstRun;
     bool haveFirstRun = pset.get_if_present("firstRun", firstRun);
     SubRunNumber_t firstSubRun;
@@ -74,7 +71,6 @@ namespace art {
                                           firstEvent):
                    EventID::firstEvent(firstSubRunID);
 
-    if (!primarySequence_) noEventSort_ = false;
     if (noEventSort_ && (haveFirstEvent || !eventsToProcess_.empty())) {
       throw art::Exception(errors::Configuration)
         << "Illegal configuration options passed to RootInput\n"
@@ -82,7 +78,7 @@ namespace art {
         << "or \"eventsToProcess\".\n";
     }
 
-    if (primarySequence_ && primary()) duplicateChecker_.reset(new DuplicateChecker(pset));
+    if (primary()) duplicateChecker_.reset(new DuplicateChecker(pset));
 
 
     sort_all(eventsToProcess_);
@@ -150,7 +146,7 @@ namespace art {
         // We found it. Close the currently open file, and open the correct one.
         catalog_.rewindTo( std::distance(itBegin, it) );
         initFile(false);
-        if (rootFile_ && primarySequence_) mergeMPR(mpr);
+        if (rootFile_) mergeMPR(mpr);
 
         // Now get the event from the correct file.
         found = rootFile_->setEntryAtEvent(eID, exact);
@@ -239,7 +235,7 @@ namespace art {
                                                            fastCloningInfo_, treeCacheSize_, treeMaxVirtualSize_,
                                                            processingMode_,
                                                            forcedRunOffset_, eventsToProcess_, noEventSort_,
-                                                           groupSelectorRules_, !primarySequence_, duplicateChecker_, dropDescendants_));
+                                                           groupSelectorRules_, false, duplicateChecker_, dropDescendants_));
       assert( catalog_.currentIndex()!=InputFileCatalog::indexEnd );
       if( catalog_.currentIndex()+1 > fileIndexes_.size() )
         fileIndexes_.resize( catalog_.currentIndex()+1 );
@@ -257,28 +253,14 @@ namespace art {
 
   bool RootInputFileSequence::nextFile(MasterProductRegistry& mpr)
   {
-    if( !catalog_.getNextFile() )
-    {
+    if( !catalog_.getNextFile() ) {
       // no more files
-      if( primarySequence_ )
-      {
-        return false;
-      }
-
-      // rewind only if searchable
-      if( catalog_.isSearchable() )
-      {
-        catalog_.rewind();
-      }
-      else
-      {
-        return false;
-      }
+      return false;
     }
 
     initFile(skipBadFiles_);
 
-    if (primarySequence_ && rootFile_) mergeMPR(mpr);
+    if (rootFile_) mergeMPR(mpr);
     return true;
   }
 
@@ -293,9 +275,7 @@ namespace art {
     // first file in the catalog, move to the last file in the list
     if( catalog_.currentIndex()==0 )
     {
-      if( primarySequence_ ) return false;
-
-      while( catalog_.getNextFile() ) ;
+      return false;
     }
     else
     {
@@ -305,7 +285,7 @@ namespace art {
     initFile(false);
 
     if (rootFile_) {
-      if (primarySequence_) mergeMPR(mpr);
+      mergeMPR(mpr);
       rootFile_->setToLastEntry();
     }
     return true;
@@ -564,14 +544,12 @@ namespace art {
   }
 
   void RootInputFileSequence::logFileAction(const char* msg, string const& file) {
-    if (primarySequence_) {
-      time_t t = time(0);
-      char ts[] = "dd-Mon-yyyy hh:mm:ss TZN     ";
-      strftime( ts, strlen(ts)+1, "%d-%b-%Y %H:%M:%S %Z", localtime(&t) );
-      mf::LogAbsolute("fileAction")
-        << ts << msg << file;
-      mf::FlushMessageLog();
-    }
+    time_t t = time(0);
+    char ts[] = "dd-Mon-yyyy hh:mm:ss TZN     ";
+    strftime( ts, strlen(ts)+1, "%d-%b-%Y %H:%M:%S %Z", localtime(&t) );
+    mf::LogAbsolute("fileAction")
+      << ts << msg << file;
+    mf::FlushMessageLog();
   }
 
   void

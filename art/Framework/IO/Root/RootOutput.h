@@ -17,6 +17,7 @@
 
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/OutputModule.h"
+#include "art/Framework/IO/PostCloseFileRenamer.h"
 #include "boost/scoped_ptr.hpp"
 #include "cpp0x/array"
 #include "fhiclcpp/ParameterSet.h"
@@ -34,8 +35,8 @@ namespace art {
     friend class RootOutputFile;
     explicit RootOutput(fhicl::ParameterSet const& ps);
     virtual ~RootOutput();
-    std::string const& fileName() const {return fileName_;}
-    std::string const& logicalFileName() const {return logicalFileName_;}
+private:
+    std::string const & lastClosedFileName() const override;
     int const& compressionLevel() const {return compressionLevel_;}
     int const& basketSize() const {return basketSize_;}
     int const& splitLevel() const {return splitLevel_;}
@@ -77,7 +78,6 @@ namespace art {
 
     OutputItemListArray const& selectedOutputItemList() const {return selectedOutputItemList_;}
 
-  private:
     void openFile(FileBlock const& fb) override;
     void respondToOpenInputFile(FileBlock const& fb) override;
     void respondToCloseInputFile(FileBlock const& fb) override;
@@ -87,7 +87,7 @@ namespace art {
 
     bool isFileOpen() const override;
     bool shouldWeCloseFile() const override;
-    void doOpenFile() override;
+    void doOpenFile();
 
 
     void startEndFile() override;
@@ -107,8 +107,6 @@ namespace art {
     void fillSelectedItemList(BranchType branchtype, TTree *theTree);
 
     OutputItemListArray selectedOutputItemList_;
-    std::string const fileName_;
-    std::string const logicalFileName_;
     std::string const catalog_;
     unsigned int const maxFileSize_;
     int const compressionLevel_;
@@ -119,9 +117,10 @@ namespace art {
     DropMetaData dropMetaData_;
     bool dropMetaDataForDroppedData_;
     std::string const moduleLabel_;
-    int outputFileCount_;
     int inputFileCount_;
     boost::scoped_ptr<RootOutputFile> rootOutputFile_;
+    PostCloseFileRenamer fileRenamer_;
+    std::string lastClosedFileName_;
   };
 
 }  // art

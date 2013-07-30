@@ -44,6 +44,7 @@ art_make_library( LIBRARY_NAME art_Framework_Art
                   SOURCE ${art_Framework_Art_sources} 
                   LIBRARIES ${Boost_PROGRAM_OPTIONS_LIBRARY}
   art_Framework_IO_Root
+  art_Framework_EventProcessor
   art_Framework_Core
   art_Framework_Services_Registry
   art_Persistency_Common

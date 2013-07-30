@@ -28,7 +28,7 @@
 #include "art/Persistency/Provenance/ProductProvenance.h"
 #include "art/Persistency/Provenance/Selections.h"
 #include "art/Persistency/RootDB/SQLite3Wrapper.h"
-
+#include "boost/filesystem.hpp"
 #include "cpp0x/array"
 #include "cpp0x/memory"
 
@@ -48,8 +48,7 @@ namespace art {
     typedef RootOutput::OutputItem OutputItem;
     typedef RootOutput::OutputItemList OutputItemList;
     typedef std::array<RootOutputTree *, NumBranchTypes> RootOutputTreePtrArray;
-    explicit RootOutputFile(RootOutput * om, std::string const& fileName,
-                            std::string const& logicalFileName);
+    explicit RootOutputFile(RootOutput * om, std::string const& fileName);
     // use compiler-generated copy c'tor, copy assignment, and d'tor
     void writeOne(EventPrincipal const& e);
     //void endFile();
@@ -72,6 +71,8 @@ namespace art {
     void respondToCloseInputFile(FileBlock const& fb);
     bool shouldWeCloseFile() const;
 
+    std::string const & currentFileName() const;
+
   private:
 
     //-------------------------------
@@ -90,7 +91,6 @@ namespace art {
     // Member data
 
     std::string file_;
-    std::string logicalFile_;
     RootOutput const* om_;
     bool currentlyFastCloning_;
     std::shared_ptr<TFile> filePtr_;
@@ -119,6 +119,12 @@ namespace art {
     std::set<BranchID> branchesWithStoredHistory_;
     SQLite3Wrapper metaDataHandle_;
   };  // RootOutputFile
+
+  inline
+  std::string const &
+  RootOutputFile::currentFileName() const {
+    return file_;
+  }
 
 }  // art
 

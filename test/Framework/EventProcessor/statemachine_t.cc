@@ -6,11 +6,11 @@ Test of the statemachine classes.
 
 ----------------------------------------------------------------------*/
 
-#include "art/Framework/Core/EPStates.h"
+#include "art/Framework/EventProcessor/EPStates.h"
 #include "art/Framework/Core/IEventProcessor.h"
-#include "test/Framework/Core/MockEventProcessor.h"
+#include "test/Framework/EventProcessor/MockEventProcessor.h"
 
-#include <boost/program_options.hpp>
+#include "boost/program_options.hpp"
 
 #include <string>
 #include <iostream>

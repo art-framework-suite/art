@@ -1,5 +1,5 @@
-#ifndef art_Framework_Core_EPStates_h
-#define art_Framework_Core_EPStates_h
+#ifndef art_Framework_EventProcessor_EPStates_h
+#define art_Framework_EventProcessor_EPStates_h
 
 // ======================================================================
 //
@@ -16,10 +16,10 @@
 #include "boost/statechart/event.hpp"
 #include "boost/statechart/state_machine.hpp"
 #include "cpp0x/utility"
-#include <boost/mpl/list.hpp>
-#include <boost/statechart/custom_reaction.hpp>
-#include <boost/statechart/state.hpp>
-#include <boost/statechart/transition.hpp>
+#include "boost/mpl/list.hpp"
+#include "boost/statechart/custom_reaction.hpp"
+#include "boost/statechart/state.hpp"
+#include "boost/statechart/transition.hpp"
 #include <set>
 #include <vector>
 
@@ -428,7 +428,7 @@ namespace statemachine {
 
 // ======================================================================
 
-#endif /* art_Framework_Core_EPStates_h */
+#endif /* art_Framework_EventProcessor_EPStates_h */
 
 // Local Variables:
 // mode: c++

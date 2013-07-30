@@ -33,16 +33,16 @@ namespace {
                         std::string const &instanceName,
                         fhicl::ParameterSet const &pset,
                         art::TypeID const &producedType) {
-    art::ModuleDescription md;
-    md.parameterSetID_ = pset.id();
-    md.moduleName_ = "arttest::NOMOD";
-    md.moduleLabel_ = moduleLabel;
-    md.processConfiguration_ =
-      art::ProcessConfiguration(processName,
-                                fhicl::ParameterSet().id(),
-                                art::getReleaseVersion(),
-                                "");
-    return art::BranchDescription(art::TypeLabel(bt, producedType, instanceName), md);
+    return
+      art::BranchDescription(art::TypeLabel(bt, producedType, instanceName),
+                             art::ModuleDescription
+                             (pset.id(),
+                              "arttest::NOMOD",
+                              moduleLabel,
+                              art::ProcessConfiguration(processName,
+                                                        fhicl::ParameterSet().id(),
+                                                        art::getReleaseVersion(),
+                                                        "")));
   }
 
   void apply_gs(art::GroupSelector const& gs,

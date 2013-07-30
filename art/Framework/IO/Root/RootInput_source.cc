@@ -30,7 +30,6 @@ RootInput::RootInput( fhicl::ParameterSet const & pset,
   primaryFileSequence_
   (new RootInputFileSequence(pset,
                              catalog_,
-                             true,
                              FastCloningInfoProvider(cet::exempt_ptr<RootInput>(this)),
                              processingMode(),
                              desc.productRegistry,

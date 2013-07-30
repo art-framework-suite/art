@@ -15,23 +15,26 @@ namespace art {
                              ModuleDescription const& md,
                              WorkerParams const& wp):
     WorkerT<OutputModule>(std::move(mod), md, wp),
-    ci_(),
-    fileName_()
+    ci_()
   {
-    ci_->outputModuleInitiated(description().moduleLabel(),
+    ci_->outputModuleInitiated(label(),
                                fhicl::ParameterSetRegistry::get(description().parameterSetID()));
   }
 
   OutputWorker::~OutputWorker() {
   }
 
+  std::string const &
+  OutputWorker::
+  lastClosedFileName() const
+  {
+    return module().lastClosedFileName();
+  }
+
   void
   OutputWorker::closeFile() {
     module().doCloseFile();
-    if (!fileName_.empty()) {
-      ci_->outputFileClosed(description().moduleLabel(), fileName_);
-      fileName_ = std::string();
-    }
+    ci_->outputFileClosed(description().moduleLabel(), module().lastClosedFileName());
   }
 
   bool
@@ -40,24 +43,9 @@ namespace art {
   }
 
   void
-  OutputWorker::openNewFileIfNeeded() {
-    module().maybeOpenFile();
-  }
-
-  void
   OutputWorker::openFile(FileBlock const& fb) {
-    // FIXME: FileBlock abstraction is currently broken! When it is
-    // fixed, we should get the correct filename (or generate it here,
-    // even), since the FileBlock currently contains only the details
-    // for the input file.
-    //
-    //    fileName_ = fb.fileName();
-    fhicl::ParameterSetRegistry::
-      get(description().parameterSetID()).get_if_present("fileName", fileName_);
     module().doOpenFile(fb);
-    if (!fileName_.empty()) {
-      ci_->outputFileOpened(description().moduleLabel());
-    }
+    ci_->outputFileOpened(description().moduleLabel());
   }
 
   void

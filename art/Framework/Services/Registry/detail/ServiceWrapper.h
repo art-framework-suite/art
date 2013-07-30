@@ -137,7 +137,7 @@ public:
     ServiceWrapperBase(),
     service_ptrs_() {
     service_ptrs_.reserve(nSchedules);
-    ScheduleID id(ScheduleID::min_id());
+    ScheduleID id(ScheduleID::first());
     size_t iSched(0);
     for (; iSched < nSchedules; ++iSched, id = id.next()) {
       service_ptrs_.emplace_back(new T(ps,

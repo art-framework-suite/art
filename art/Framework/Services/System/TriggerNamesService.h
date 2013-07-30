@@ -43,7 +43,8 @@ public:
   typedef  std::map<std::string, unsigned int>  PosMap;
   typedef  PosMap::size_type                    size_type;
 
-  explicit TriggerNamesService(fhicl::ParameterSet const & proc_pset);
+  TriggerNamesService(fhicl::ParameterSet const & procPS,
+                      std::vector<std::string> const & triggerPathNames);
 
   // Use compiler-generated copy c'tor, copy assignment, and d'tor
 
@@ -64,10 +65,6 @@ public:
   // Returns false if it fails to find the trigger path names.
   bool getTrigPaths(TriggerResults const & triggerResults,
                     Strings & trigPaths) const;
-
-  Strings const & getEndPaths() const { return end_names_; }
-  std::string const & getEndPath(size_type const i) const { return end_names_.at(i);}
-  size_type  findEndPath(std::string const & name) const { return find(end_pos_, name);}
 
   Strings const & getTrigPathModules(std::string const & name) const {
     return modulenames_.at(find(trigpos_, name));
@@ -106,18 +103,18 @@ public:
   fhicl::ParameterSet const & getTriggerPSet() const { return trigger_pset_; }
 
 private:
-  fhicl::ParameterSet trigger_pset_;
-
   Strings trignames_;
   PosMap  trigpos_;
   Strings end_names_;
   PosMap  end_pos_;
 
-  std::vector<Strings> modulenames_; // of modules on trigger paths
+  fhicl::ParameterSet trigger_pset_; // Parameter set of trigger paths
+                                     // (used by TriggerResults
+                                     // objects).
+  std::vector<Strings> modulenames_; // Labels of modules on trigger paths
 
   std::string process_name_;
   bool wantSummary_;
-
 };  // TriggerNamesService
 
 // ======================================================================

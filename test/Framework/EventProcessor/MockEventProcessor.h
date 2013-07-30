@@ -1,5 +1,5 @@
-#ifndef test_Framework_Core_MockEventProcessor_h
-#define test_Framework_Core_MockEventProcessor_h
+#ifndef test_Framework_EventProcessor_MockEventProcessor_h
+#define test_Framework_EventProcessor_MockEventProcessor_h
 
 /*
 
@@ -11,7 +11,7 @@ Original Authors: W. David Dagenhart, Marc Paterno
 */
 
 #include "art/Framework/Core/IEventProcessor.h"
-#include "art/Framework/Core/EPStates.h"
+#include "art/Framework/EventProcessor/EPStates.h"
 #include <iostream>
 #include <string>
 
@@ -71,6 +71,9 @@ namespace art
 
     bool alreadyHandlingException() const override;
 
+    bool setTriggerPathEnabled(std::string const & name, bool enable) override;
+    bool setEndPathModuleEnabled(std::string const & label, bool enable) override;
+
   private:
     std::string mockData_;
     std::ostream & output_;
@@ -86,7 +89,7 @@ namespace art
   };
 }
 
-#endif /* test_Framework_Core_MockEventProcessor_h */
+#endif /* test_Framework_EventProcessor_MockEventProcessor_h */
 
 // Local Variables:
 // mode: c++

@@ -3,7 +3,7 @@
 #include "art/Framework/Art/BasicOptionsHandler.h"
 #include "art/Framework/Art/BasicPostProcessor.h"
 #include "art/Framework/Art/InitRootHandlers.h"
-#include "art/Framework/Core/EventProcessor.h"
+#include "art/Framework/EventProcessor/EventProcessor.h"
 #include "art/Framework/Core/RootDictionaryManager.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/Registry/ServiceRegistry.h"
@@ -14,6 +14,7 @@
 #include "cetlib/container_algorithms.h"
 #include "cetlib/exception.h"
 #include "fhiclcpp/ParameterSet.h"
+#include "fhiclcpp/ParameterSetRegistry.h"
 #include "fhiclcpp/intermediate_table.h"
 #include "fhiclcpp/make_ParameterSet.h"
 #include "fhiclcpp/parse.h"
@@ -161,7 +162,14 @@ for (auto & handler : handlers) {
         << "\n";
     return 7003;
   }
-
+  // Main parameter set must be placed in registry manually.
+  try {
+    fhicl::ParameterSetRegistry::put(main_pset);
+  }
+  catch (...) {
+    std::cerr << "Uncaught exception while inserting main parameter set into registry.\n";
+    throw;
+  }
   return run_art_common_(main_pset);
 }
 
@@ -199,7 +207,14 @@ int art::run_art_string_config(const std::string& config_string)
         << "\n";
     return 7003;
   }
-
+  // Main parameter set must be placed in registry manually.
+  try {
+    fhicl::ParameterSetRegistry::put(main_pset);
+  }
+  catch (...) {
+    std::cerr << "Uncaught exception while inserting main parameter set into registry.\n";
+    throw;
+  }
   return run_art_common_(main_pset);
 }
 
@@ -277,7 +292,11 @@ int art::run_art_common_(fhicl::ParameterSet main_pset)
     proc = std::move(procTmp);
     proc->beginJob();
     proc.on();
-    proc->runToCompletion();
+    if (proc->runToCompletion() == EventProcessor::epSignal) {
+      std::cerr << "Art caught and handled signal "
+                << art::shutdown_flag
+                << ".\n";
+    }
     proc.off();
     proc->endJob();
     rc = 0;

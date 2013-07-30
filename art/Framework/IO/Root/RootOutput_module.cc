@@ -6,20 +6,22 @@
 
 #include "art/Framework/IO/Root/RootOutput.h"
 
-#include "TBranchElement.h"
-#include "TObjArray.h"
-#include "TTree.h"
-#include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Core/FileBlock.h"
 #include "art/Framework/Core/ModuleMacros.h"
+#include "art/Framework/IO/Root/RootOutputFile.h"
+#include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
-#include "art/Framework/IO/Root/RootOutputFile.h"
 #include "art/Persistency/Provenance/FileFormatVersion.h"
 #include "art/Utilities/Exception.h"
 #include "cetlib/container_algorithms.h"
 #include "cpp0x/utility"
 #include "fhiclcpp/ParameterSet.h"
+
+#include "TBranchElement.h"
+#include "TObjArray.h"
+#include "TTree.h"
+
 #include <iomanip>
 #include <sstream>
 
@@ -27,13 +29,16 @@ using art::RootOutput;
 using fhicl::ParameterSet;
 using std::string;
 
+extern "C" {
+#include <fcntl.h>
+#include "unistd.h"
+}
+
 namespace art {
 
   RootOutput::RootOutput(ParameterSet const& ps)
   : OutputModule               ( ps )
   , selectedOutputItemList_    ( )
-  , fileName_                  ( ps.get<string>("fileName") )
-  , logicalFileName_           ( ps.get<string>("logicalFileName", string()) )
   , catalog_                   ( ps.get<string>("catalog", string()) )
   , maxFileSize_               ( ps.get<int>("maxSize", 0x7f000000) )
   , compressionLevel_          ( ps.get<int>("compressionLevel", 7) )
@@ -46,9 +51,12 @@ namespace art {
   , dropMetaDataForDroppedData_( ps.get<bool>( "dropMetaDataForDroppedData"
                                              , false) )
   , moduleLabel_               ( ps.get<string>("module_label")  )
-  , outputFileCount_           ( 0 )
   , inputFileCount_            ( 0 )
   , rootOutputFile_            ( )
+  , fileRenamer_               ( ps.get<string>("fileName"),
+                                 moduleLabel_,
+                                 processName() )
+  , lastClosedFileName_        ( )
   {
     string dropMetaData(ps.get<string>("dropMetaData", string()));
     if (dropMetaData.empty())                 dropMetaData_ = DropNone;
@@ -143,6 +151,7 @@ namespace art {
   void RootOutput::write(EventPrincipal const& e) {
       if (hasNewlyDroppedBranch()[InEvent]) e.addToProcessHistory();
       rootOutputFile_->writeOne(e);
+      fileRenamer_.recordEvent(e.id());
   }
 
   void RootOutput::writeSubRun(SubRunPrincipal const& sr) {
@@ -170,9 +179,44 @@ namespace art {
   void RootOutput::writeBranchIDListRegistry() { rootOutputFile_->writeBranchIDListRegistry(); }
   void RootOutput::doWriteFileCatalogMetadata(FileCatalogMetadata::collection_type const & md) { rootOutputFile_->writeFileCatalogMetadata(md); }
   void RootOutput::writeProductDependencies() { rootOutputFile_->writeProductDependencies(); }
-  void RootOutput::finishEndFile() { rootOutputFile_->finishEndFile(); rootOutputFile_.reset(); }
+  void RootOutput::finishEndFile() {
+    rootOutputFile_->finishEndFile();
+    fileRenamer_.recordFileClose();
+    lastClosedFileName_ = fileRenamer_.applySubstitutions();
+    fileRenamer_.maybeRenameFile(rootOutputFile_->currentFileName());
+    rootOutputFile_.reset();
+  }
   bool RootOutput::isFileOpen() const { return rootOutputFile_.get() != 0; }
   bool RootOutput::shouldWeCloseFile() const { return rootOutputFile_->shouldWeCloseFile(); }
+
+  namespace {
+    std::string unique_filename(std::string stem)
+    {
+      boost::filesystem::path const p(stem + "-%%%%-%%%%-%%%%-%%%%.root");
+      boost::filesystem::path outpath;
+      boost::system::error_code ec;
+      int tmp_fd = -1, error = 0;
+      do {
+        outpath = boost::filesystem::unique_path(p, ec);
+      } while (!ec &&
+               (tmp_fd = creat(outpath.c_str(), S_IRUSR | S_IWUSR)) == -1 &&
+               (error = errno) == EEXIST);
+      if (tmp_fd != -1) {
+        close(tmp_fd);
+      } else {
+        art::Exception e(art::errors::FileOpenError);
+        e << "RootOutput cannot ascertain a unique temporary filename for output: ";
+        if (ec) {
+          e << ec;
+        } else {
+          e << strerror(error);
+        }
+        e << ".\n";
+        throw e;
+      }
+      return outpath.native();
+    }
+  }
 
   void RootOutput::doOpenFile() {
       if (inputFileCount_ == 0) {
@@ -180,24 +224,18 @@ namespace art {
           << "Attempt to open output file before input file. "
           << "Please report this to the core framework developers.\n";
       }
-      string suffix(".root");
-      string::size_type offset = fileName().rfind(suffix);
-      bool ext = (offset == fileName().size() - suffix.size());
-      if (!ext) suffix.clear();
-      string fileBase(ext ? fileName().substr(0, offset) : fileName());
-      std::ostringstream ofilename;
-      std::ostringstream lfilename;
-      ofilename << fileBase;
-      lfilename << logicalFileName();
-      if (outputFileCount_) {
-        ofilename << std::setw(3) << std::setfill('0') << outputFileCount_;
-        if (!logicalFileName().empty()) {
-          lfilename << std::setw(3) << std::setfill('0') << outputFileCount_;
-        }
-      }
-      ofilename << suffix;
-      rootOutputFile_.reset(new RootOutputFile(this, ofilename.str(), lfilename.str()));
-      ++outputFileCount_;
+      rootOutputFile_.reset(new RootOutputFile(this,
+                                               unique_filename(fileRenamer_.parentPath() + "/RootOutput")));
+      fileRenamer_.recordFileOpen();
+  }
+
+  std::string const &
+  RootOutput::lastClosedFileName() const {
+    if (lastClosedFileName_.empty()) {
+      throw Exception(errors::LogicError, "RootOutput::currentFileName(): ")
+        << "called before meaningful.\n";
+    }
+    return lastClosedFileName_;
   }
 
 }  // art

@@ -238,7 +238,7 @@ art::Source<T>::Source(fhicl::ParameterSet const & p,
   InputSource(),
   act_(&d.activityRegistry),
   h_(),
-  pc_(d.moduleDescription.processConfiguration_),
+  pc_(d.moduleDescription.processConfiguration()),
   principalMaker_(pc_),
   detail_(p, h_, principalMaker_),
   state_(input::IsInvalid),
@@ -621,14 +621,13 @@ template <class T>
 void
 art::Source<T>::finishProductRegistration_(InputSourceDescription & d)
 {
-  ModuleDescription md;
   // These _xERROR_ strings should never appear in branch names; they
   // are here as tracers to help identify any failures in coding.
-  md.moduleName_ = "_NAMEERROR_";
-  md.moduleLabel_ = "_LABELERROR_";
-  md.processConfiguration_.processName_ = d.moduleDescription.processConfiguration_.processName_;
-  md.parameterSetID_ = fhicl::ParameterSet().id(); // Dummy
-  h_.registerProducts(d.productRegistry, md);
+  h_.registerProducts(d.productRegistry,
+                      ModuleDescription(fhicl::ParameterSet().id(), // Dummy
+                                        "_NAMEERROR_",
+                                        "_LABELERROR_",
+                                        d.moduleDescription.processConfiguration()));
 }
 
 #endif /* art_Framework_IO_Sources_Source_h */

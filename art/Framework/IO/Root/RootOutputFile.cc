@@ -58,41 +58,41 @@ using art::rootNames::metaBranchRootName;
 
 namespace art {
 
-  RootOutputFile::RootOutputFile(RootOutput *om, string const& fileName, string const& logicalFileName) :
-      file_(fileName),
-      logicalFile_(logicalFileName),
-      om_(om),
-      currentlyFastCloning_(),
-      filePtr_(TFile::Open(file_.c_str(), "recreate", "", om_->compressionLevel())),
-      fileIndex_(),
-      eventEntryNumber_(0LL),
-      subRunEntryNumber_(0LL),
-      runEntryNumber_(0LL),
-      metaDataTree_(0),
-      parentageTree_(0),
-      eventHistoryTree_(0),
-      pEventAux_(0),
-      pSubRunAux_(0),
-      pRunAux_(0),
-      eventProductProvenanceVector_(),
-      subRunProductProvenanceVector_(),
-      runProductProvenanceVector_(),
-      pEventProductProvenanceVector_(&eventProductProvenanceVector_),
-      pSubRunProductProvenanceVector_(&subRunProductProvenanceVector_),
-      pRunProductProvenanceVector_(&runProductProvenanceVector_),
-      pHistory_(0),
-      eventTree_(static_cast<EventPrincipal *>(0),
-                 filePtr_, InEvent, pEventAux_, pEventProductProvenanceVector_,
-                 om_->basketSize(), om_->splitLevel(), om_->treeMaxVirtualSize()),
-      subRunTree_(static_cast<SubRunPrincipal *>(0),
+  RootOutputFile::RootOutputFile(RootOutput *om, string const& fileName)
+    :
+    file_(fileName),
+    om_(om),
+    currentlyFastCloning_(),
+    filePtr_(TFile::Open(file_.c_str(), "recreate", "", om_->compressionLevel())),
+    fileIndex_(),
+    eventEntryNumber_(0LL),
+    subRunEntryNumber_(0LL),
+    runEntryNumber_(0LL),
+    metaDataTree_(0),
+    parentageTree_(0),
+    eventHistoryTree_(0),
+    pEventAux_(0),
+    pSubRunAux_(0),
+    pRunAux_(0),
+    eventProductProvenanceVector_(),
+    subRunProductProvenanceVector_(),
+    runProductProvenanceVector_(),
+    pEventProductProvenanceVector_(&eventProductProvenanceVector_),
+    pSubRunProductProvenanceVector_(&subRunProductProvenanceVector_),
+    pRunProductProvenanceVector_(&runProductProvenanceVector_),
+    pHistory_(0),
+    eventTree_(static_cast<EventPrincipal *>(0),
+               filePtr_, InEvent, pEventAux_, pEventProductProvenanceVector_,
+               om_->basketSize(), om_->splitLevel(), om_->treeMaxVirtualSize()),
+    subRunTree_(static_cast<SubRunPrincipal *>(0),
                 filePtr_, InSubRun, pSubRunAux_, pSubRunProductProvenanceVector_,
                 om_->basketSize(), om_->splitLevel(), om_->treeMaxVirtualSize()),
-      runTree_(static_cast<RunPrincipal *>(0),
-               filePtr_, InRun, pRunAux_, pRunProductProvenanceVector_,
-               om_->basketSize(), om_->splitLevel(), om_->treeMaxVirtualSize()),
-      treePointers_(),
-      dataTypeReported_(false),
-      metaDataHandle_(filePtr_.get(), "RootFileDB", SQLITE_OPEN_CREATE | SQLITE_OPEN_READWRITE)
+    runTree_(static_cast<RunPrincipal *>(0),
+             filePtr_, InRun, pRunAux_, pRunProductProvenanceVector_,
+             om_->basketSize(), om_->splitLevel(), om_->treeMaxVirtualSize()),
+    treePointers_(),
+    dataTypeReported_(false),
+    metaDataHandle_(filePtr_.get(), "RootFileDB", SQLITE_OPEN_CREATE | SQLITE_OPEN_READWRITE)
   {
     treePointers_[InEvent] = &eventTree_;
     treePointers_[InSubRun]  = &subRunTree_;
@@ -101,8 +101,8 @@ namespace art {
     for (int i = InEvent; i < NumBranchTypes; ++i) {
       BranchType branchType = static_cast<BranchType>(i);
       for (OutputItemList::const_iterator it = om_->selectedOutputItemList()[branchType].begin(),
-          itEnd = om_->selectedOutputItemList()[branchType].end();
-          it != itEnd; ++it) {
+                                       itEnd = om_->selectedOutputItemList()[branchType].end();
+           it != itEnd; ++it) {
         treePointers_[branchType]->addBranch(*it->branchDescription_,
                                              it->product_);
       }

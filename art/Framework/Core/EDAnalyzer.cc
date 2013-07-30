@@ -4,7 +4,8 @@
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Principal/Run.h"
 #include "art/Framework/Principal/SubRun.h"
-
+#include "art/Utilities/Exception.h"
+#include "cetlib/demangle.h"
 
 namespace art
 {
@@ -33,10 +34,11 @@ namespace art
 
   void
   EDAnalyzer::reconfigure(fhicl::ParameterSet const&) {
-     mf::LogError("FeatureNotImplemented")
-        << "This module is not reconfigurable."
-        << "\n";
-   }
+    throw art::Exception(errors::UnimplementedFeature)
+      << "Modules of type "
+      << cet::demangle_symbol(typeid(*this).name())
+      << " are not reconfigurable.\n";
+  }
 
   bool
   EDAnalyzer::doBeginRun(RunPrincipal const& rp,

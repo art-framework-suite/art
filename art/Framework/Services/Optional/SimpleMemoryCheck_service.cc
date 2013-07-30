@@ -425,12 +425,12 @@ namespace art {
 
   void SimpleMemoryCheck::postModuleConstruction(const ModuleDescription & md)
   {
-    updateAndPrint("ctor", md.moduleLabel_, md.moduleName_);
+    updateAndPrint("ctor", md.moduleLabel(), md.moduleName());
   }
 
   void SimpleMemoryCheck::postModuleBeginJob(const ModuleDescription & md)
   {
-    updateAndPrint("beginJob", md.moduleLabel_, md.moduleName_);
+    updateAndPrint("beginJob", md.moduleLabel(), md.moduleName());
   }
 
   void SimpleMemoryCheck::postEndJob()
@@ -593,14 +593,14 @@ namespace art {
   void SimpleMemoryCheck::postModule(const ModuleDescription & md)
   {
     if (!oncePerEventMode) {
-      updateAndPrint("module", md.moduleLabel_, md.moduleName_);
+      updateAndPrint("module", md.moduleLabel(), md.moduleName());
     }
     else if (moduleSummaryRequested) {                        // changelog 2
       update();
     }
     if (moduleSummaryRequested) {                             // changelog 2
       double dv = current_->vsize - moduleEntryVsize_;
-      std::string label =  md.moduleLabel_;
+      std::string label =  md.moduleLabel();
       updateModuleMemoryStats(modules_[label], dv);
     }
   }

@@ -28,6 +28,7 @@ namespace art {
   class Provenance;
   std::ostream & operator << ( std::ostream &, Provenance const & );
   bool operator==(Provenance const& a, Provenance const& b);
+  void swap(Provenance& x, Provenance& y);
 }
 
 // ----------------------------------------------------------------------
@@ -66,6 +67,8 @@ public:
   std::ostream & write(std::ostream& os) const;
   bool equals(Provenance const& other) const { return group_ == other.group_; }
 
+  void swap(Provenance & other) { std::swap(group_, other.group_); }
+
 private:
   cet::exempt_ptr<Group const> group_;
 
@@ -84,6 +87,12 @@ inline bool
 art::operator==( art::Provenance const& a, art::Provenance const& b)
 {
   return a.equals(b);
+}
+
+inline void
+art::swap(art::Provenance & x, art::Provenance & y)
+{
+  x.swap(y);
 }
 
 // ======================================================================

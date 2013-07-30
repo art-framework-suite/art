@@ -18,7 +18,6 @@ TrigReport     1    0         25         10         15          0 prescale
 TrigReport ---------- Module Summary ------------
 TrigReport    Visited        Run     Passed     Failed      Error Name
 TrigReport         25         25         10         15          0 prescale
-TrigReport         25         25         25          0          0 TriggerResults
 
 
 

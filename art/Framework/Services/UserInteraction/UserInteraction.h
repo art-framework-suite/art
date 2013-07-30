@@ -19,6 +19,7 @@
 
 #include "fhiclcpp/ParameterSet.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
+
 #include <vector>
 #include <string>
 
@@ -37,10 +38,12 @@ namespace ui {
 
     struct ModuleInfo {
       ModuleInfo(std::string const & lab, std::string const & n,
+                 bool isEndPathModule,
                  fhicl::ParameterSet const & p):
-        label(lab), class_name(n), pset(p) { }
+        label(lab), class_name(n), endPathModule(isEndPathModule), pset(p) { }
       std::string label;
       std::string class_name;
+      bool endPathModule;
       fhicl::ParameterSet pset;
     };
 

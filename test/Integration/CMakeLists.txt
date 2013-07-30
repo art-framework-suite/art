@@ -1,3 +1,4 @@
+
 # project name
 add_library(test_Integration
   SHARED
@@ -25,65 +26,67 @@ set_source_files_properties(MixFilterTestOldStartEvent_module.cc
   PROPERTIES COMPILE_DEFINITIONS ART_TEST_OLD_STARTEVENT
 )
 
-simple_plugin(AddIntsProducer             "module" NO_INSTALL )
-simple_plugin(AssnsAnalyzer               "module" NO_INSTALL USE_BOOST_UNIT )
-simple_plugin(AssnsProducer               "module" NO_INSTALL )
-simple_plugin(BareStringAnalyzer          "module" NO_INSTALL )
-simple_plugin(BareStringProducer          "module" NO_INSTALL )
-simple_plugin(ValidHandleTester           "module" NO_INSTALL )
-simple_plugin(DerivedPtrVectorProducer    "module" NO_INSTALL )
-simple_plugin(DoubleProducer              "module" NO_INSTALL )
-simple_plugin(DoubleTestAnalyzer          "module" NO_INSTALL )
-simple_plugin(DropTestParentageFaker      "module" NO_INSTALL )
-simple_plugin(DropTestAnalyzer            "module" NO_INSTALL USE_BOOST_UNIT )
-simple_plugin(FailingAnalyzer             "module" NO_INSTALL )
-simple_plugin(FailingProducer             "module" NO_INSTALL )
-simple_plugin(FlushingGenerator           "source" art_Framework_IO_Sources NO_INSTALL )
-simple_plugin(FlushingGeneratorTest       "module" NO_INSTALL )
-simple_plugin(FlushingGeneratorTestFilter "module" NO_INSTALL )
-simple_plugin(GeneratorTest               "source" art_Framework_IO_Sources NO_INSTALL )
-simple_plugin(IntProducer                 "module" NO_INSTALL )
-simple_plugin(IntTestAnalyzer             "module" NO_INSTALL )
-simple_plugin(CompressedIntProducer       "module" NO_INSTALL )
-simple_plugin(CompressedIntTestAnalyzer   "module" NO_INSTALL )
-simple_plugin(IntVectorAnalyzer           "module" NO_INSTALL )
-simple_plugin(IntVectorProducer           "module" NO_INSTALL )
-simple_plugin(MixAnalyzer                 "module" NO_INSTALL USE_BOOST_UNIT )
-simple_plugin(MixFilterTest               "module" art_Framework_IO_ProductMix NO_INSTALL USE_BOOST_UNIT )
-simple_plugin(MixFilterTestETS            "module" art_Framework_IO_ProductMix NO_INSTALL USE_BOOST_UNIT )
-simple_plugin(MixFilterTestETSc           "module" art_Framework_IO_ProductMix NO_INSTALL USE_BOOST_UNIT )
-simple_plugin(MixFilterTestNoStartEvent   "module" art_Framework_IO_ProductMix NO_INSTALL USE_BOOST_UNIT )
-simple_plugin(MixFilterTestOldStartEvent  "module" art_Framework_IO_ProductMix NO_INSTALL USE_BOOST_UNIT )
-simple_plugin(MixProducer                 "module" NO_INSTALL )
-simple_plugin(MockClusterListAnalyzer     "module" NO_INSTALL )
-simple_plugin(MockClusterListProducer     "module" NO_INSTALL )
-simple_plugin(ProductIDGetter             "module" NO_INSTALL USE_BOOST_UNIT )
-simple_plugin(ProductIDGetterAnalyzer     "module" NO_INSTALL USE_BOOST_UNIT )
-simple_plugin(PtrListAnalyzer             "module" NO_INSTALL )
-simple_plugin(PtrVectorAnalyzer           "module" NO_INSTALL )
-simple_plugin(PtrVectorProducer           "module" NO_INSTALL )
-simple_plugin(PtrVectorSimpleAnalyzer     "module" NO_INSTALL )
-simple_plugin(PtrmvAnalyzer               "module" NO_INSTALL USE_BOOST_UNIT )
-simple_plugin(PtrmvProducer               "module" NO_INSTALL )
-simple_plugin(RandomNumberSaveTest        "module" NO_INSTALL USE_BOOST_UNIT )
+simple_plugin(AddIntsProducer             "module"  NO_INSTALL )
+simple_plugin(AssnsAnalyzer               "module"  NO_INSTALL USE_BOOST_UNIT )
+simple_plugin(AssnsProducer               "module"  NO_INSTALL )
+simple_plugin(BareStringAnalyzer          "module"  NO_INSTALL )
+simple_plugin(BareStringProducer          "module"  NO_INSTALL )
+simple_plugin(CompressedIntProducer       "module"  NO_INSTALL )
+simple_plugin(CompressedIntTestAnalyzer   "module"  NO_INSTALL )
+simple_plugin(DerivedPtrVectorProducer    "module"  NO_INSTALL )
+simple_plugin(DoubleProducer              "module"  NO_INSTALL )
+simple_plugin(DoubleTestAnalyzer          "module"  NO_INSTALL )
+simple_plugin(DropTestAnalyzer            "module"  NO_INSTALL USE_BOOST_UNIT )
+simple_plugin(DropTestParentageFaker      "module"  NO_INSTALL )
+simple_plugin(FailingAnalyzer             "module"  NO_INSTALL )
+simple_plugin(FailingProducer             "module"  NO_INSTALL )
+simple_plugin(FlushingGenerator           "source"  NO_INSTALL art_Framework_IO_Sources )
+simple_plugin(FlushingGeneratorTest       "module"  NO_INSTALL )
+simple_plugin(FlushingGeneratorTestFilter "module"  NO_INSTALL )
+simple_plugin(GeneratorTest               "source"  NO_INSTALL art_Framework_IO_Sources )
+simple_plugin(InFlightConfiguration       "service" NO_INSTALL USE_BOOST_UNIT art_Framework_Services_Registry art_Framework_Services_UserInteraction art_Framework_Services_System_PathSelection_service )
+simple_plugin(IntProducer                 "module"  NO_INSTALL )
+simple_plugin(IntTestAnalyzer             "module"  NO_INSTALL )
+simple_plugin(IntVectorAnalyzer           "module"  NO_INSTALL )
+simple_plugin(IntVectorProducer           "module"  NO_INSTALL )
+simple_plugin(MixAnalyzer                 "module"  NO_INSTALL USE_BOOST_UNIT )
+simple_plugin(MixFilterTest               "module"  NO_INSTALL USE_BOOST_UNIT art_Framework_IO_ProductMix )
+simple_plugin(MixFilterTestETS            "module"  NO_INSTALL USE_BOOST_UNIT art_Framework_IO_ProductMix )
+simple_plugin(MixFilterTestETSc           "module"  NO_INSTALL USE_BOOST_UNIT art_Framework_IO_ProductMix )
+simple_plugin(MixFilterTestNoStartEvent   "module"  NO_INSTALL USE_BOOST_UNIT art_Framework_IO_ProductMix )
+simple_plugin(MixFilterTestOldStartEvent  "module"  NO_INSTALL USE_BOOST_UNIT art_Framework_IO_ProductMix )
+simple_plugin(MixProducer                 "module"  NO_INSTALL )
+simple_plugin(MockClusterListAnalyzer     "module"  NO_INSTALL )
+simple_plugin(MockClusterListProducer     "module"  NO_INSTALL )
+simple_plugin(PausingAnalyzer             "module"  NO_INSTALL )
+simple_plugin(ProductIDGetter             "module"  NO_INSTALL USE_BOOST_UNIT )
+simple_plugin(ProductIDGetterAnalyzer     "module"  NO_INSTALL USE_BOOST_UNIT )
+simple_plugin(PtrListAnalyzer             "module"  NO_INSTALL )
+simple_plugin(PtrVectorAnalyzer           "module"  NO_INSTALL )
+simple_plugin(PtrVectorProducer           "module"  NO_INSTALL )
+simple_plugin(PtrVectorSimpleAnalyzer     "module"  NO_INSTALL )
+simple_plugin(PtrmvAnalyzer               "module"  NO_INSTALL USE_BOOST_UNIT )
+simple_plugin(PtrmvProducer               "module"  NO_INSTALL )
+simple_plugin(RandomNumberSaveTest        "module"  NO_INSTALL USE_BOOST_UNIT )
 simple_plugin(Reconfigurable              "service" NO_INSTALL )
-simple_plugin(Reconfiguring               "module" NO_INSTALL )
-simple_plugin(SAMMetadataTest             "module" NO_INSTALL )
+simple_plugin(Reconfiguring               "module"  NO_INSTALL )
+simple_plugin(SAMMetadataTest             "module"  NO_INSTALL art_Framework_Services_System_FileCatalogMetadata_service )
 simple_plugin(ServiceUsing                "service" NO_INSTALL )
-simple_plugin(SimpleDerivedAnalyzer       "module" NO_INSTALL )
-simple_plugin(SimpleDerivedProducer       "module" NO_INSTALL )
-simple_plugin(TestBitsOutput              "module" NO_INSTALL )
-simple_plugin(TestFilter                  "module" NO_INSTALL )
-simple_plugin(TestOutput                  "module" NO_INSTALL )
-simple_plugin(TestProvenanceDumper        "module" NO_INSTALL USE_BOOST_UNIT )
-simple_plugin(TestResultAnalyzer          "module" NO_INSTALL )
-simple_plugin(TestServiceUsingService     "module" NO_INSTALL USE_BOOST_UNIT )
+simple_plugin(SimpleDerivedAnalyzer       "module"  NO_INSTALL )
+simple_plugin(SimpleDerivedProducer       "module"  NO_INSTALL )
+simple_plugin(TestBitsOutput              "module"  NO_INSTALL )
+simple_plugin(TestFilter                  "module"  NO_INSTALL )
+simple_plugin(TestOutput                  "module"  NO_INSTALL )
+simple_plugin(TestProvenanceDumper        "module"  NO_INSTALL USE_BOOST_UNIT )
+simple_plugin(TestResultAnalyzer          "module"  NO_INSTALL )
+simple_plugin(TestServiceUsingService     "module"  NO_INSTALL USE_BOOST_UNIT )
 simple_plugin(Throwing                    "service" NO_INSTALL )
-simple_plugin(ToyRawFileInput             "source" test_Integration art_Framework_IO_Sources NO_INSTALL USE_BOOST_UNIT )
-simple_plugin(ToyRawInput                 "source" test_Integration art_Framework_IO_Sources NO_INSTALL USE_BOOST_UNIT )
-simple_plugin(ToyRawInputTester           "module" NO_INSTALL )
-simple_plugin(ToyRawProductAnalyzer       "module" NO_INSTALL )
-simple_plugin(U_S                         "module" ALLOW_UNDERSCORES NO_INSTALL )
+simple_plugin(ToyRawFileInput             "source"  NO_INSTALL USE_BOOST_UNIT test_Integration art_Framework_IO_Sources )
+simple_plugin(ToyRawInput                 "source"  NO_INSTALL USE_BOOST_UNIT test_Integration art_Framework_IO_Sources )
+simple_plugin(ToyRawInputTester           "module"  NO_INSTALL )
+simple_plugin(ToyRawProductAnalyzer       "module"  NO_INSTALL )
+simple_plugin(U_S                         "module"  NO_INSTALL ALLOW_UNDERSCORES )
+simple_plugin(ValidHandleTester           "module"  NO_INSTALL )
 simple_plugin(Wanted                      "service" NO_INSTALL )
 
 art_dictionary(DICTIONARY_LIBRARIES ${CETLIB} NO_INSTALL)
@@ -834,6 +837,67 @@ cet_test(test_compressed_simple_01_t.sh PREBUILT
   fcl/test_compressed_simple_01r.fcl
   fcl/messageDefaults.fcl
 )
+
+# Test signal handling.
+
+cet_script(signal_handling_t.sh NO_INSTALL)
+
+cet_test(signal_handling_01_t HANDBUILT
+  TEST_EXEC signal_handling_t.sh
+  TEST_ARGS -c signal_sigint.fcl SIGINT 
+  DATAFILES
+  fcl/signal_sigint.fcl
+  )
+
+SET_TESTS_PROPERTIES(signal_handling_01_t PROPERTIES
+  PASS_REGULAR_EXPRESSION
+  "Art caught and handled signal 2\\."
+  )
+
+cet_test(signal_handling_02_t HANDBUILT
+  TEST_EXEC signal_handling_t.sh
+  TEST_ARGS -c signal_sigint.fcl SIGQUIT
+  DATAFILES
+  fcl/signal_sigint.fcl
+  )
+
+SET_TESTS_PROPERTIES(signal_handling_02_t PROPERTIES
+  PASS_REGULAR_EXPRESSION
+  "Art caught and handled signal 3\\."
+  )
+
+cet_test(signal_handling_03_t HANDBUILT
+  TEST_EXEC signal_handling_t.sh
+  TEST_ARGS -c signal_sigint.fcl SIGTERM
+  DATAFILES
+  fcl/signal_sigint.fcl
+  )
+
+SET_TESTS_PROPERTIES(signal_handling_03_t PROPERTIES
+  PASS_REGULAR_EXPRESSION
+  "Art caught and handled signal 15\\."
+  )
+
+cet_test(signal_handling_04_t HANDBUILT
+  TEST_EXEC signal_handling_t.sh
+  TEST_ARGS -c signal_sigint.fcl SIGUSR2
+  DATAFILES
+  fcl/signal_sigint.fcl
+  )
+
+SET_TESTS_PROPERTIES(signal_handling_04_t PROPERTIES
+  PASS_REGULAR_EXPRESSION
+  "Art caught and handled signal 12\\."
+  )
+
+foreach (num 1 2)
+  cet_test(InFlightConfiguration_0${num}_t HANDBUILT
+    TEST_EXEC art_ut
+    TEST_ARGS -c InFlightConfiguration_0${num}.fcl
+    DATAFILES
+    fcl/InFlightConfiguration_0${num}.fcl
+    )
+endforeach()
 
 ########################################################################
 # Old tests converted from CMS FWCore/Framework/test

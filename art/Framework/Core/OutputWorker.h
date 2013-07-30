@@ -28,13 +28,13 @@ namespace art {
 
     virtual ~OutputWorker();
 
+    std::string const & lastClosedFileName() const;
+
     // Call closeFile() on the controlled OutputModule.
     void closeFile();
 
     // Call shouldWeCloseFile() on the controlled OutputModule.
     bool shouldWeCloseFile() const;
-
-    void openNewFileIfNeeded();
 
     bool wantAllEvents() const;
 
@@ -50,9 +50,7 @@ namespace art {
 
 private:
     ServiceHandle<CatalogInterface> ci_;
-    std::string fileName_; // Needed for CatalogInterface interactions.
   };
-
 }
 
 #endif /* art_Framework_Core_OutputWorker_h */
