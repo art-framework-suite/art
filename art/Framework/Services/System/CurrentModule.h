@@ -24,9 +24,8 @@ namespace fhicl {
 
 class art::CurrentModule
 {
-  // non-copyable:
-  CurrentModule( CurrentModule const & );
-  void  operator = ( CurrentModule const & );
+  CurrentModule( CurrentModule const & ) = delete;
+  CurrentModule operator = ( CurrentModule const & ) = delete;
 
 public:
   // c'tor:

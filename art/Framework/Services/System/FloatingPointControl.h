@@ -111,9 +111,8 @@ using fhicl::ParameterSet;
 
 class art::FloatingPointControl
 {
-  // non-copyable:
-  FloatingPointControl( FloatingPointControl const & );
-  void  operator = ( FloatingPointControl const & );
+  FloatingPointControl( FloatingPointControl const & ) = delete;
+  FloatingPointControl& operator = ( FloatingPointControl const & ) = delete;
 
 public:
   // c'tor:

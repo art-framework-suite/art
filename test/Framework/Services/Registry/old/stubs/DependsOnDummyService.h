@@ -42,7 +42,7 @@ namespace testserviceregistry {
    private:
       DependsOnDummyService(const DependsOnDummyService&); // stop default
 
-      const DependsOnDummyService& operator=(const DependsOnDummyService&); // stop default
+      const DependsOnDummyService& operator=(const DependsOnDummyService&) = delete;
 
       // ---------- member data --------------------------------
       int value_;

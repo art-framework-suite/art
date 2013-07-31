@@ -17,6 +17,7 @@ InFlightConfiguration(fhicl::ParameterSet const & ps,
   pathSelectionService_(),
   callCount_(0)
 {
+  // Testing only: user implementations would not do this!
   if (ps.get("test_missing_pathselection", false)) {
     BOOST_REQUIRE(!art::ServiceRegistry::instance().isAvailable<art::PathSelection>());
   } else {
@@ -35,7 +36,7 @@ void
 arttest::InFlightConfiguration::
 pickModule()
 {
-  if (!pathSelectionService_) {
+  if (!pathSelectionService_) { // Not necessary if caching by value.
     return;
   }
   // Receive messages here and decide what to do.
@@ -69,6 +70,9 @@ pickModule()
   //
   //  In both cases, the return value from the function is the
   // *previous* enablement state of the specified module.
+  ////////////////////////////////////////////////////////////////////////
+
+  // Testing code only ...
   ++callCount_;
   if (callCount_ == 1) {
     // Deactivate path.

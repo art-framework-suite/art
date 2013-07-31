@@ -25,8 +25,8 @@ class art::TFileService
   : public TFileDirectory
 {
   // non-copyable:
-  TFileService( TFileService const & );
-  void  operator = ( TFileService const & );
+  TFileService( TFileService const & ) = delete;
+  TFileService operator = ( TFileService const & ) = delete;
 
 public:
   // c'tor:

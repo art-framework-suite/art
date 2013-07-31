@@ -31,6 +31,7 @@ public:
   BoolCache() : isCached_(false) {}
   BoolCache(bool iValue) : isCached_(iValue) {}
   operator bool() { return isCached_; }
+  // Cannot ref-qualify assignment operator because of GCC_XML.
   BoolCache & operator=( bool b ) { isCached_ = b; return *this; }
 private:
   bool isCached_;

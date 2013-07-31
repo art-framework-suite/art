@@ -241,7 +241,7 @@ public:
   ValidHandle() = delete;
   ValidHandle(T const* prod, Provenance prov);
   ValidHandle(ValidHandle const&) = default;
-  ValidHandle& operator=(ValidHandle const&) = default;
+  ValidHandle& operator=(ValidHandle const&) & = default;
 
   // pointer behaviors
   operator T const*() const;    // conversion to T const*

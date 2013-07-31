@@ -57,6 +57,7 @@ namespace art {
     }
 
     // Copy assignment using swap.
+    // We can't ref-qualify assignment because of GCC_XML.
     TriggerResults& operator=(TriggerResults const& rhs) {
       TriggerResults temp(rhs);
       this->swap(temp);

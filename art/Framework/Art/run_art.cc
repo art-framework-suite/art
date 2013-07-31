@@ -52,7 +52,7 @@ namespace {
       callEndJob_(false) { }
     EventProcessorWithSentry(EventProcessorWithSentry &&) = default;
     EventProcessorWithSentry &
-    operator =(EventProcessorWithSentry &&) = default;
+    operator =(EventProcessorWithSentry &&) & = default;
 
     ~EventProcessorWithSentry() {
       if (callEndJob_ && ep_.get()) {

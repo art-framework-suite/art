@@ -18,7 +18,7 @@ namespace art
   { }
 
   Selector&
-  Selector::operator= (Selector const& other)
+  Selector::operator= (Selector const& other) &
   {
     Selector temp(other);
     swap(temp);

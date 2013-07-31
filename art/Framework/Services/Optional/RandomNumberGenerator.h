@@ -193,8 +193,8 @@ class art::RandomNumberGenerator
   friend class RandomNumberSaver;
 
   // --- Prevent copying:
-  RandomNumberGenerator( RandomNumberGenerator const & );
-  void  operator = ( RandomNumberGenerator const & );
+  RandomNumberGenerator( RandomNumberGenerator const & ) = delete;
+  RandomNumberGenerator& operator = ( RandomNumberGenerator const & ) = delete;
 
 public:
   // --- CLHEP engine characteristics:

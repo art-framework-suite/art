@@ -287,7 +287,7 @@ class art::Selector : public art::SelectorBase {
 public:
   template <class T> Selector(T const& expression);
   Selector(Selector const& other);
-  Selector& operator= (Selector const& other);
+  Selector& operator= (Selector const& other) &;
   void swap(Selector& other);
   virtual ~Selector();
   virtual Selector* clone() const override;

@@ -33,6 +33,7 @@ public:
   typedef T value_type;
   Transient(T value = T()) : value_(value) {}
   operator T() const { return value_; }
+  // We cannot ref-qualify the assignment operator because of GCC_XML.
   Transient & operator=(T rh) { value_ = rh; return *this; }
   T const& get() const { return value_;}
   T & get() { return value_;}

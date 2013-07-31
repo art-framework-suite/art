@@ -174,8 +174,8 @@ namespace {
     art::detail::CachedProducts & p;
     bool & v;
 
-    PVSentry(PVSentry const &); // not implemented
-    PVSentry & operator=(PVSentry const &); // not implemented
+    PVSentry(PVSentry const &) = delete;
+    PVSentry & operator=(PVSentry const &) = delete;
   };
 }
 

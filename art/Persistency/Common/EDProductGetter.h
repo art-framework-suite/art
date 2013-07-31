@@ -16,6 +16,7 @@ public:
   EDProductGetter() {};
 private:
   EDProductGetter(EDProductGetter const&);
+  // Cannot ref-qualify assignment because of GCC_XML.
   EDProductGetter& operator=(EDProductGetter const&);
 public:
 

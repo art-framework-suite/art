@@ -25,8 +25,8 @@ namespace art {
   class ServiceRegistry
   {
     // non-copyable:
-    ServiceRegistry( ServiceRegistry const & );
-    void  operator=( ServiceRegistry const & );
+    ServiceRegistry( ServiceRegistry const & ) = delete;
+    ServiceRegistry& operator=( ServiceRegistry const & ) = delete;
 
   public:
     class Operate
