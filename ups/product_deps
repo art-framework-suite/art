@@ -1,6 +1,6 @@
 # The parent line must be the first non-comment line in the file
 # This line defines the product name and version
-parent art	v1_08_01
+parent art	v1_08_02
 defaultqual	e4
 #
 product		version
@@ -23,10 +23,10 @@ qualifier	messagefacility	root		clhep		cppunit		libsigcpp	gccxml	python	sqlite	g
 e4:debug	e4:debug	e4:debug	e4:debug	e4:debug	e4:debug	-nq-	-nq-	debug	-nq-	e4:debug	-std=c++0x
 e4:prof		e4:prof		e4:prof		e4:prof		e4:prof		e4:prof		-nq-	-nq-	prof	-nq-	e4:prof		-std=c++0x
 e4:prof:sse2	e4:prof		e4:prof		e4:prof		e4:prof		e4:prof		-nq-	-nq-	prof	-nq-	e4:prof		-std=c++0x -msse2 -ftree-vectorizer-verbose
-mu2e:e4:debug	e4:debug	e4:mu2e:debug	e4:debug	e4:debug	e4:debug	-nq-	gcc47	debug	-nq-	e4:debug	-std=c++0x
-mu2e:e4:prof	e4:prof		e4:mu2e:prof	e4:prof		e4:prof		e4:prof		-nq-	gcc47	prof	-nq-	e4:prof		-std=c++0x
-nu:e4:debug	e4:debug	e4:nu:debug	e4:debug	e4:debug	e4:debug	-nq-	gcc47	debug	-nq-	e4:debug	-std=c++0x
-nu:e4:prof	e4:prof		e4:nu:prof	e4:prof		e4:prof		e4:prof		-nq-	gcc47	prof	-nq-	e4:prof		-std=c++0x
+mu2e:e4:debug	e4:debug	e4:mu2e:debug	e4:debug	e4:debug	e4:debug	-nq-	-nq-	debug	-nq-	e4:debug	-std=c++0x
+mu2e:e4:prof	e4:prof		e4:mu2e:prof	e4:prof		e4:prof		e4:prof		-nq-	-nq-	prof	-nq-	e4:prof		-std=c++0x
+nu:e4:debug	e4:debug	e4:nu:debug	e4:debug	e4:debug	e4:debug	-nq-	-nq-	debug	-nq-	e4:debug	-std=c++0x
+nu:e4:prof	e4:prof		e4:nu:prof	e4:prof		e4:prof		e4:prof		-nq-	-nq-	prof	-nq-	e4:prof		-std=c++0x
 
 # Local Variables:
 # tab-width: 8
