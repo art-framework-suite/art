@@ -1,5 +1,10 @@
 #include "art/Framework/Services/System/FloatingPointControl.h"
 
+extern "C" {
+#include <fenv.h>
+}
+
+#pragma GCC diagnostic ignored "-Wunused-function"
 static  char const *
   on_or_off( bool b )
 {
@@ -180,16 +185,14 @@ void
 void
   FloatingPointControl::controlFpe( )
 {
-  unsigned short int FE_PRECISION = 1<<5;
-  unsigned short int suppress;
-
+  unsigned short int FE_PRECISION __attribute__((unused)) = 1<<5;
 #ifdef __linux__
 
 /*
  * NB: We do not let users control signaling inexact (FE_INEXACT).
  */
 
-  suppress = FE_PRECISION;
+  unsigned short int suppress = FE_PRECISION;
   if ( !enableDivByZeroEx_ ) suppress |= FE_DIVBYZERO;
   if ( !enableInvalidEx_ )   suppress |= FE_INVALID;
   if ( !enableOverFlowEx_ )  suppress |= FE_OVERFLOW;
@@ -216,6 +219,7 @@ void
 void
   FloatingPointControl::echoState( )
 {
+#ifdef __linux__
   if( reportSettings_ ) {
     int femask = fegetexcept();
     mf::LogVerbatim("FPE_Enable")
@@ -227,6 +231,7 @@ void
       << "\tUnderFlow exception is" << on_or_off(femask & FE_UNDERFLOW)
       ;
   }
+#endif
 }
 
 // ======================================================================
