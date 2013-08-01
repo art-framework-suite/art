@@ -828,7 +828,11 @@ static int full_fsync(int fd, int fullSync, int dataOnly)
   int rc;
   UNUSED_PARAMETER(fullSync);
   UNUSED_PARAMETER(dataOnly);
+#if __APPLE__ && __MACH__
+  rc = fcntl(fd, F_FULLFSYNC);
+#else
   rc = fdatasync(fd);
+#endif
   return rc;
 }
 
