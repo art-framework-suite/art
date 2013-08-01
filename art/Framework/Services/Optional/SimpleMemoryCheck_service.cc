@@ -14,18 +14,21 @@
 #include "cpp0x/utility"
 #include "fhiclcpp/ParameterSet.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
+extern "C" {
 #include <fcntl.h>
-#include <iostream>
-#include <malloc.h>
-#include <sstream>
 #include <unistd.h>
+}
+
+#include <cstdlib>
+#include <iostream>
+#include <sstream>
 
 #ifdef __linux__
 #define LINUX 1
 #endif
 
 #ifdef LINUX
-#include <stdio.h>
+#include <cstdio>
 #endif
 
 namespace art {
@@ -258,8 +261,8 @@ namespace art {
   procInfo SimpleMemoryCheck::fetch()
   {
     procInfo ret;
-    double pr_size = 0.0, pr_rssize = 0.0;
 #ifdef LINUX
+    double pr_size = 0.0, pr_rssize = 0.0;
     linux_proc pinfo;
     int cnt;
     lseek(fd_, 0, SEEK_SET);
@@ -492,6 +495,7 @@ namespace art {
     { eventStatOutput("SecondLargestVsizeEventT2", eventT2_, reportData); }
     if (eventT3_.vsize > 0)
     { eventStatOutput("LargestVsizeEventT1",       eventT1_, reportData); }
+#if LINUX
     struct mallinfo minfo = mallinfo();
     reportData.insert(
       std::make_pair("HEAP_ARENA_SIZE_BYTES", minfo.arena));
@@ -507,6 +511,7 @@ namespace art {
       std::make_pair("HEAP_USED_BYTES", minfo.uordblks));
     reportData.insert(
       std::make_pair("HEAP_UNUSED_BYTES", minfo.fordblks));
+#endif
     if (moduleSummaryRequested) {                             // changelog 2
       for (SignificantModulesMap::iterator im = modules_.begin();
            im != modules_.end(); ++im) {
@@ -549,6 +554,7 @@ namespace art {
         eventStatOutput("SecondLargestVsizeEventT2", eventT2_));
     if (eventT3_.vsize > 0) reportData.push_back(
         eventStatOutput("LargestVsizeEventT1", eventT1_));
+#if LINUX
     struct mallinfo minfo = mallinfo();
     reportData.push_back(
       mallOutput("HEAP_ARENA_SIZE_BYTES", minfo.arena));
@@ -564,6 +570,7 @@ namespace art {
       mallOutput("HEAP_USED_BYTES", minfo.uordblks));
     reportData.push_back(
       mallOutput("HEAP_UNUSED_BYTES", minfo.fordblks));
+#endif
 #endif
   } // postEndJob
 
@@ -677,6 +684,7 @@ namespace art {
               << "\n";
         }
         else {
+#if LINUX
           struct mallinfo minfo = mallinfo();
           mf::LogWarning("MemoryCheck")
               << "MemoryCheck: " << type << " "
@@ -691,6 +699,7 @@ namespace art {
               << " HEAP-USED-BYTES " << minfo.uordblks
               << " HEAP-UNUSED-BYTES " << minfo.fordblks
               << "\n";
+#endif
         }
       }
     }
