@@ -8,8 +8,6 @@
 // Each RunID contains a fixed-size unsigned integer, the run number.
 //
 
-#include "art/Persistency/Provenance/SortInvalidFirst.h"
-#include "art/Utilities/Exception.h"
 #include "cpp0x/cstdint"
 #include <iosfwd>
 
@@ -109,6 +107,8 @@ isFlush() const
   return (run_ == FLUSH_RUN_NUMBER());
 }
 
+#include "art/Utilities/Exception.h"
+
 inline
 art::RunID
 art::RunID::
@@ -181,6 +181,8 @@ operator!=(RunID const & other) const
 {
   return !(*this == other);
 }
+
+#include "art/Persistency/Provenance/SortInvalidFirst.h"
 
 inline
 bool

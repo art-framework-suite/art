@@ -4,7 +4,6 @@
 // An EventID labels an unique readout of the data acquisition system,
 // which we call an "event".
 
-#include "art/Persistency/Provenance/SortInvalidFirst.h"
 #include "art/Persistency/Provenance/SubRunID.h"
 #include "cpp0x/cstdint"
 
@@ -311,6 +310,8 @@ operator!=(EventID const & other) const
   return !(*this == other);
 }
 
+#include "art/Persistency/Provenance/SortInvalidFirst.h"
+
 inline
 bool
 art::EventID::
@@ -366,6 +367,8 @@ EventID(RunID rID, FlushFlag)
   event_(FLUSH_EVENT_NUMBER())
 {
 }
+
+#include "art/Utilities/Exception.h"
 
 inline
 art::EventNumber_t
