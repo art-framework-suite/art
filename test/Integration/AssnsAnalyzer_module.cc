@@ -22,7 +22,7 @@
 #include "cpp0x/type_traits"
 #include "test/TestObjects/AssnTestData.h"
 
-#include "boost/test/included/unit_test.hpp"
+#include "art/Utilities/quiet_unit_test.hpp"
 #include "boost/type_traits.hpp"
 
 namespace arttest {

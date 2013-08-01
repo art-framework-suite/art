@@ -7,6 +7,9 @@
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Woverloaded-virtual"
+#if __APPLE__ && __MACH__
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#endif
 #include "boost/test/included/unit_test.hpp"
 #pragma GCC diagnostic pop
 
