@@ -36,7 +36,7 @@ MACRO(check_class_version)
     ADD_CUSTOM_TARGET(${dictname}_check ALL
       COMMAND checkClassVersion
       ${ART_CCV_EXTRA_ARGS}
-      -l ${LIBRARY_OUTPUT_PATH}/lib${dictname}_dict.so
+      -l ${LIBRARY_OUTPUT_PATH}/lib${dictname}_dict
       -x ${CMAKE_CURRENT_SOURCE_DIR}/classes_def.xml
       DEPENDS classes_def.xml
       VERBATIM
