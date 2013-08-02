@@ -51,6 +51,7 @@ art_make_library( LIBRARY_NAME art_Framework_Art
   art_Persistency_Provenance
   art_Utilities
   ${ROOT_HIST}
+  ${ROOT_MATRIX}
   )
 
 set (ART_EXEC_ROOT_LIBS

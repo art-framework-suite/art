@@ -893,7 +893,7 @@ SET_TESTS_PROPERTIES(signal_handling_04_t PROPERTIES
 foreach (num 1 2)
   cet_test(InFlightConfiguration_0${num}_t HANDBUILT
     TEST_EXEC art_ut
-    TEST_ARGS -c InFlightConfiguration_0${num}.fcl
+    TEST_ARGS --config InFlightConfiguration_0${num}.fcl
     DATAFILES
     fcl/InFlightConfiguration_0${num}.fcl
     )
