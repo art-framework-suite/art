@@ -10,7 +10,7 @@
 #if __APPLE__ && __MACH__
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 #endif
-#include "boost/test/included/unit_test.hpp"
+#include "boost/test/unit_test.hpp"
 #pragma GCC diagnostic pop
 
 #endif /* art_Utilities_quiet_unit_test_hpp */
