@@ -51,6 +51,7 @@ find_ups_product( messagefacility v1_10_00 )
 find_ups_product( sqlite v3_07_08_00 )
 find_ups_root( v5_34_00 )
 find_ups_product( tbb v4_1 )
+find_ups_boost(v1_53_0)
 
 cet_check_gcc()
 
