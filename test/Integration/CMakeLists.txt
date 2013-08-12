@@ -885,9 +885,15 @@ cet_test(signal_handling_04_t HANDBUILT
   fcl/signal_sigint.fcl
   )
 
+if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin" )
+  set(sigusr_two_signal 31)
+else()
+  set(sigusr_two_signal 12)
+endif()
+
 SET_TESTS_PROPERTIES(signal_handling_04_t PROPERTIES
   PASS_REGULAR_EXPRESSION
-  "Art caught and handled signal 12\\."
+  "Art caught and handled signal ${sigusr_two_signal}\\."
   )
 
 foreach (num 1 2)
