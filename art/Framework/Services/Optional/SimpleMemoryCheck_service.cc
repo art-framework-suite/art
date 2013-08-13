@@ -29,6 +29,7 @@ extern "C" {
 
 #ifdef LINUX
 #include <cstdio>
+#include <malloc.h>
 #endif
 
 namespace art {
