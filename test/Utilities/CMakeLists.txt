@@ -12,6 +12,8 @@ set(default_test_libraries
 
 cet_test(CPUTimer_t USE_BOOST_UNIT
   LIBRARIES ${default_test_libraries}
+  TEST_PROPERTIES RUN_SERIAL true
+  OPTIONAL_GROUPS LOAD_SENSITIVE RELEASE
   )
 
 cet_test(FriendlyName_t USE_BOOST_UNIT
