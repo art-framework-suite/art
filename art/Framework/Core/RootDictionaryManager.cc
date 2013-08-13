@@ -1,11 +1,14 @@
 #include "art/Framework/Core/RootDictionaryManager.h"
 
-#include "Cintex/Cintex.h"
-#include "cetlib/exception.h"
+#include "art/Utilities/Exception.h"
+#include "cetlib/shlib_utils.h"
 #include "cpp0x/regex"
+
 #include <iostream>
 #include <iterator>
 #include <sstream>
+
+#include "Cintex/Cintex.h"
 
 art::RootDictionaryManager::RootDictionaryManager()
    :
@@ -32,19 +35,26 @@ dumpReflexDictionaryInfo(std::ostream &os) const {
   return os;
 }
 
-std::ostream &art::RootDictionaryManager::
+std::ostream &
+art::RootDictionaryManager::
 dumpReflexDictionaryInfo(std::ostream &os, std::string const &libpath) const {
    typedef void (*CapFunc)(const char **&, int &);
    std::ostringstream map_lib;
    std::ostream_iterator<char, char> oi(map_lib);
    std::regex_replace(oi, libpath.begin(), libpath.end(),
-                        std::regex(std::string("_(") + dm_.libType() + ")(" + dm_.dllExt() + ")$"),
-                        std::string("(?1_" + mm_.libType() + "$2)"),
-                        boost::match_default | boost::format_all);
+                      std::regex(std::string("_(") +
+                                 dm_.libType() + ")(\\" +
+                                 cet::shlib_suffix() +
+                                 ")$"),
+                      std::string("(?1_" + mm_.libType() + "$2)"),
+                      boost::match_default | boost::format_all);
    CapFunc func = mm_.getSymbolByPath<CapFunc>(map_lib.str(), "SEAL_CAPABILITIES");
    if (func == nullptr) {
       // TODO: Throw correct exception.
-      throw cet::exception("Unable to find properly constructed map library corresponding to dictionary" + libpath);
+     throw Exception(errors::DictionaryNotFound)
+       << "Unable to find properly constructed map library corresponding to "
+       << "dictionary "
+       << libpath;
    }
    int size;
    char const ** names;

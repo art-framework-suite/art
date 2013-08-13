@@ -5,9 +5,11 @@ using namespace art;
 #define BOOST_TEST_MODULE ( LibraryManager Test )
 #include "boost/test/auto_unit_test.hpp"
 
-#include "cpp0x/algorithm"
+#include "art/Utilities/Exception.h"
 #include "cetlib/container_algorithms.h"
 #include "cetlib/exception.h"
+#include "cpp0x/algorithm"
+
 #include <iostream>
 #include <iterator>
 
@@ -22,7 +24,7 @@ struct LibraryManagerTestFixture {
 
 LibraryManagerTestFixture::LibraryManagerTestFixture()
   :
-  lm("dict"),
+  lm("module"),
   lm_ref(lm)
 {
 }
@@ -61,29 +63,34 @@ BOOST_AUTO_TEST_CASE(libListIter)
 
 BOOST_AUTO_TEST_CASE(getSymbolLong)
 {
-  BOOST_REQUIRE(lm_ref.getSymbolByLibspec<void *>("art/Persistency/Common",
-                "_init") != nullptr);
+  BOOST_REQUIRE(lm_ref.getSymbolByLibspec<void *>("art/Framework/Modules/BlockingPrescaler",
+                "moduleType") != nullptr);
 }
 
 BOOST_AUTO_TEST_CASE(getSymbolShort)
 {
-  BOOST_REQUIRE(lm_ref.getSymbolByLibspec<void *>("Common",
-                "_init") != nullptr);
+  BOOST_REQUIRE(lm_ref.getSymbolByLibspec<void *>("BlockingPrescaler",
+                "moduleType") != nullptr);
 }
 
 BOOST_AUTO_TEST_CASE(getSymbolPathPrecedence)
 {
-  BOOST_CHECK_NO_THROW(lm_ref.getSymbolByLibspec<void *> ("1/1/1", "_init"));
+  BOOST_CHECK_NO_THROW(lm_ref.getSymbolByLibspec<void *> ("1/1/1", "moduleType"));
 }
 
 BOOST_AUTO_TEST_CASE(getSymbolAmbiguity)
 {
-  BOOST_CHECK_THROW(lm_ref.getSymbolByLibspec<void *> ("3", "_init"), cet::exception);
+  BOOST_CHECK_EXCEPTION(lm_ref.getSymbolByLibspec<void *> ("3", "moduleType"), \
+                        art::Exception,                                 \
+                        [](art::Exception const & e)                    \
+                        {                                               \
+                          return e.categoryCode() == art::errors::Configuration; \
+                        });                                             \
 }
 
 BOOST_AUTO_TEST_CASE(getSymbolNoAmbiguity)
 {
-  BOOST_CHECK_NO_THROW(lm_ref.getSymbolByLibspec<void *> ("2/1/3", "_init"));
+  BOOST_CHECK_NO_THROW(lm_ref.getSymbolByLibspec<void *> ("2/1/3", "moduleType"));
 }
 
 BOOST_AUTO_TEST_CASE(dictLoadable)

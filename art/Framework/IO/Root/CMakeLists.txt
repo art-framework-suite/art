@@ -30,6 +30,8 @@ art_make_library( LIBRARY_NAME art_Framework_IO_Root
   art_Persistency_Provenance
   art_Framework_IO_RootVersion
   ${ROOT_TREE}
+  ${ROOT_NET}
+  ${ROOT_MATHCORE}
   )
 
 simple_plugin(RootInput "source" art_Framework_IO_Root art_Framework_IO_Catalog )

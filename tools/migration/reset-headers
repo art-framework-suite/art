@@ -12,6 +12,16 @@
 #
 ########################################################################
 
+if [[ `uname -s` == Darwin ]]; then
+  find=gfind
+else
+  find=find
+fi
+
+type -t ${find} >/dev/null 2>&1 || \
+{ echo "Unable to find GNU find. For Mac OS X, install findutils from homebrew." 1>&2;
+  exit 1; }
+
 function usage() {
     echo "usage: ${0##*/} [-e] [--] <top-dir>"
     exit ${1:-1}
@@ -150,7 +160,7 @@ EOX
   }
   close(FILEIN);
   close(FILEOUT);
-  if (system("cmp \"${file}\" \"${tmp_file}\" 2>&1 >/dev/null || cp -b \"${tmp_file}\" \"${file}\"") == 0) {
+  if (system("cmp \"${file}\" \"${tmp_file}\" 2>&1 >/dev/null || { cp -f \"${file}\"{,~} && cp \"${tmp_file}\" \"${file}\"; }") == 0) {
     print "OK\n";
   } else {
     print STDERR "ERROR: failed to copy in new version of $file; Nothing changed.\n";
@@ -164,13 +174,15 @@ EOF
 chmod +x "${TMP}"
 
 for F in \
-  `find "$TOP" \( -type d \( -name .git -o -name .svn -o -name CVS -o -name doc -o \
+  `${find} "$TOP" \( -type d \( -name .git -o -name .svn -o -name CVS -o -name doc -o \
                              -name ups -o -path '*/tools/migration' -o \
                              -path '*/art/ParameterSet' \) \
                   -prune \) -o \
                -type f \! \( -name '*~' -o -name '*.bak' -o -name '*.new' \) \
                \( -name '*.[Hh]' -o -name '*.hpp' -o -name '*.hxx' -o \
-                  -name '*.hh' \) \
+                  -name '*.hh' -o \
+                  -name '*.[Hh].in' -o -name '*.hpp.in' -o -name '*.hxx.in' -o \
+                  -name '*.hh.in' \) \
                -printf "%P\n"`; do
   one_file "${F}"
 done

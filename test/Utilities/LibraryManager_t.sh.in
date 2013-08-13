@@ -4,7 +4,7 @@ function libname() {
     echo "@CMAKE_SHARED_LIBRARY_PREFIX@${1}@CMAKE_SHARED_LIBRARY_SUFFIX@"
 }
 
-expected_lib="@LIBRARY_OUTPUT_PATH@/$(libname art_Persistency_Common_dict)"
+expected_lib="@LIBRARY_OUTPUT_PATH@/$(libname art_Framework_Modules_BlockingPrescaler_module)"
 
 if [[ ! -r "$expected_lib" ]]; then
   echo "Expected library \"$expected_lib\" does not exist!" 1>&2
@@ -20,13 +20,13 @@ trap "[[ -z \"$DEBUG\" ]] && [[ -d \"$TMP_DIR\" ]] && rm -rf \"$TMP_DIR\"" EXIT
 
 mkdir lib1
 cd lib1
-for i in 1_1_{1,2,3}_dict; do
+for i in 1_1_{1,2,3}_module; do
   ln -sfv "$expected_lib" "$(libname $i)"
 done
 cd - >/dev/null
 mkdir lib2
 cd lib2
-for i in {1_1_1,2_1_3,2_1_5}_dict; do
+for i in {1_1_1,2_1_3,2_1_5}_module; do
   ln -sfv "$expected_lib" "$(libname $i)"
 done
 cd - >/dev/null

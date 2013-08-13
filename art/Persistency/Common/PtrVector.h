@@ -10,14 +10,7 @@
 
 #include "art/Persistency/Common/Ptr.h"
 #include "art/Persistency/Common/PtrVectorBase.h"
-#include "art/Utilities/TypeID.h"
-#include "cetlib/demangle.h"
-#include "cpp0x/functional"
-#include "cpp0x/type_traits"
 
-#include "boost/iterator.hpp"
-
-#include <iterator>
 #include <vector>
 
 namespace art {
@@ -128,6 +121,12 @@ private:
 }; // PtrVector<T>
 
 #ifndef __GCCXML__
+#include "cpp0x/functional"
+#include "cpp0x/type_traits"
+
+#include "boost/iterator.hpp"
+
+#include <iterator>
 template <typename T>
 inline
 art::PtrVector<T>::PtrVector()

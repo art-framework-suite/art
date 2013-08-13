@@ -58,7 +58,7 @@ ostream & operator << (ostream & os,
   return os;
 }
 
-#include "boost/test/included/unit_test.hpp"
+#include "art/Utilities/quiet_unit_test.hpp"
 
 arttest::RandomNumberSaveTest::RandomNumberSaveTest(fhicl::ParameterSet const & p)
   :
