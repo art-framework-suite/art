@@ -58,6 +58,12 @@ ${prog} <tag>+
 EOF
 }
 
+getopt -T >/dev/null 2>&1
+if (( $? != 4 )); then
+  echo "ERROR: GNU getopt required! Obtain from homebrew (http://brew.sh)." 1>&2
+  exit 1
+fi
+
 TEMP=`getopt -n "$prog" -o ':h\?' --long help -- "${@}"`
 
 eval set -- "$TEMP"
