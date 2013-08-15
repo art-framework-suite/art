@@ -90,7 +90,7 @@ function one_file() {
 # Prepare:
 getopt -T >/dev/null 2>&1
 if (( $? != 4 )); then
-  echo "ERROR: GNU getopt required! Obtain from homebrew (http://brew.sh)." 1>&2
+  echo "ERROR: GNU getopt required! Check SETUP_GETOPT and PATH." 1>&2
   exit 1
 fi
 
