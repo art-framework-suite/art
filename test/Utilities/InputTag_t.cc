@@ -77,5 +77,25 @@ BOOST_AUTO_TEST_CASE ( InputTag_convert_from_cstring )
   BOOST_CHECK_EQUAL(std::string(mylabel), result);
 }
 
+BOOST_AUTO_TEST_CASE ( InputTag_comparison )
+{
+  art::InputTag a1("alabel:aname:aprocess"),
+    a2("alabel:aname:aprocess"),
+    a3(a1),
+    b1("alabel:aname:anotherprocess"),
+    b2("alabel:anothername:aprocess"),
+    b3("anotherlabel:aname:aprocess");
+  BOOST_CHECK_EQUAL(a1, a2);
+  BOOST_CHECK_EQUAL(a1, a3);
+  BOOST_CHECK_EQUAL(a2, a3);
+  BOOST_CHECK_EQUAL(a3, a1);
+  BOOST_CHECK_NE(a1, b1);
+  BOOST_CHECK_NE(a1, b2);
+  BOOST_CHECK_NE(a1, b3);
+  BOOST_CHECK_NE(b1, b2);
+  BOOST_CHECK_NE(b1, b3);
+  BOOST_CHECK_NE(b2, b3);
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 

@@ -7,7 +7,13 @@ art_make_library( LIBRARY_NAME art_Framework_Services_Optional
                   SOURCE ${art_Framework_Services_Optional_sources}
                   LIBRARIES ${CETLIB}
   ${ROOT_HIST}
+  ${ROOT_MATRIX}
+  ${ROOT_MATHCORE}
   ${ROOT_CORE}
+  ${ROOT_CINT}
+  ${Boost_FILESYSTEM_LIBRARY}
+  ${Boost_REGEX_LIBRARY}
+  ${Boost_SYSTEM_LIBRARY}
 )
 
 simple_plugin(RandomNumberGenerator "service"
@@ -22,7 +28,7 @@ simple_plugin(RandomNumberGenerator "service"
 
 simple_plugin(SimpleInteraction "service" art_Framework_Services_UserInteraction)
 simple_plugin(SimpleMemoryCheck "service" art_Persistency_Provenance)
-simple_plugin(TFileService "service" art_Framework_Services_Optional ${ROOT_RIO})
+simple_plugin(TFileService "service" art_Framework_Services_Optional ${ROOT_RIO} ${ROOT_THREAD})
 simple_plugin(Timing "service" art_Persistency_Provenance)
 simple_plugin(Tracer "service" art_Persistency_Provenance)
 simple_plugin(TrivialFileDelivery "service")

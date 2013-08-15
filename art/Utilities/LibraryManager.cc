@@ -1,14 +1,12 @@
 #include "art/Utilities/LibraryManager.h"
-#include "art/Utilities/Exception.h"
+
 
 #include "art/Utilities/Exception.h"
 #include "boost/filesystem.hpp"
-
+#include "boost/regex.hpp"
 #include "cetlib/demangle.h"
 #include "cetlib/search_path.h"
 #include "cpp0x/functional"
-
-#include "boost/regex.hpp"
 
 extern "C" {
 #include <dlfcn.h>
@@ -36,11 +34,10 @@ art::LibraryManager::LibraryManager(std::string const & lib_type)
   // TODO: We could also consider searching the ld.so.conf list, if
   // anyone asks for it.
   static cet::search_path const ld_lib_path("LD_LIBRARY_PATH");
-  static std::string const pattern("@CMAKE_SHARED_LIBRARY_PREFIX@([-A-Za-z0-9]*_)*[A-Za-z0-9]+_");
+  static std::string const pattern(cet::shlib_prefix() +
+                                   "([-A-Za-z0-9]*_)*[A-Za-z0-9]+_");
   std::vector<std::string> matches;
-  ld_lib_path.find_files(pattern + lib_type +
-                         "\\@CMAKE_SHARED_LIBRARY_SUFFIX@",
-                         matches);
+  ld_lib_path.find_files(pattern + lib_type + dllExtPattern(), matches);
   // Note the use of reverse iterators here: files found earlier in the
   // vector will therefore overwrite those found later, which is what
   // we want from "search path"-type behavior.
@@ -140,8 +137,7 @@ spec_trans_map_inserter(lib_loc_map_t::value_type const & entry,
                         std::string const & lib_type)
 {
   // First obtain short spec.
-  boost::regex e("([^_]+)_" + lib_type +
-                 "\\@CMAKE_SHARED_LIBRARY_SUFFIX@" + "$");
+  boost::regex e("([^_]+)_" + lib_type + dllExtPattern() + '$');
   boost::match_results<std::string::const_iterator> match_results;
   if (boost::regex_search(entry.first, match_results, e)) {
     spec_trans_map_[match_results[1]].insert(entry.second);

@@ -1,4 +1,6 @@
 #define BOOST_TEST_ALTERNATIVE_INIT_API
+#undef BOOST_TEST_MAIN
+#define BOOST_TEST_NO_MAIN
 #include "art/Utilities/quiet_unit_test.hpp"
 
 #include "art/Framework/Art/@ART_MAIN_FUNC@.h"
@@ -22,7 +24,10 @@ void art_ut()
 bool
 init_unit_test_suite()
 {
-  framework::master_test_suite().add(BOOST_TEST_CASE(&art_ut));
+//  framework::master_test_suite().add(BOOST_TEST_CASE(&art_ut));
+  auto ts = BOOST_TEST_SUITE("art_ut");
+  ts->add(BOOST_TEST_CASE(&art_ut));
+  framework::master_test_suite().add(ts);
   return true;
 }
 

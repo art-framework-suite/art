@@ -88,6 +88,12 @@ function one_file() {
 
 # ======================================================================
 # Prepare:
+getopt -T >/dev/null 2>&1
+if (( $? != 4 )); then
+  echo "ERROR: GNU getopt required! Check SETUP_GETOPT and PATH." 1>&2
+  exit 1
+fi
+
 TEMP=`getopt -n "$prog" -o a --long all-lumi-cases --long one-file: --long no-fix-pset -- "${@}"`
 eval set -- "$TEMP"
 while true; do

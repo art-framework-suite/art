@@ -51,6 +51,7 @@ art_make_library( LIBRARY_NAME art_Framework_Art
   art_Persistency_Provenance
   art_Utilities
   ${ROOT_HIST}
+  ${ROOT_MATRIX}
   )
 
 set (ART_EXEC_ROOT_LIBS
@@ -71,14 +72,16 @@ set (ART_EXEC_ROOT_LIBS
 
 # Build an art exec.
 macro(art_exec TARGET_STEM IN_STEM MAIN_FUNC)
+  cet_parse_args(AE "LIBRARIES" "" ${ARGN})
   set(ART_MAIN_FUNC ${MAIN_FUNC})
   configure_file(${CMAKE_CURRENT_SOURCE_DIR}/${IN_STEM}.cc.in
     ${CMAKE_CURRENT_BINARY_DIR}/${TARGET_STEM}.cc @ONLY
     )
   art_make_exec(NAME ${TARGET_STEM}
     SOURCE ${CMAKE_CURRENT_BINARY_DIR}/${TARGET_STEM}.cc
-    ${ARGN}
+    ${AE_DEFAULT_ARGS}
     LIBRARIES
+    ${AE_LIBRARIES}
     art_Framework_Art
     # ROOT libraries added for use convenience ONLY -- they will go away
     # eventually.
@@ -95,11 +98,11 @@ art_exec(mu2e art mu2eapp)
 art_exec(nova art artapp)
 
 # Execs with Boost unit testing enabled for modules.
-art_exec(art_ut art_ut artapp USE_BOOST_UNIT)
-art_exec(gm2_ut art_ut artapp USE_BOOST_UNIT)
-art_exec(lar_ut art_ut artapp USE_BOOST_UNIT)
-art_exec(mu2e_ut art_ut mu2eapp USE_BOOST_UNIT)
-art_exec(nova_ut art_ut artapp USE_BOOST_UNIT)
+art_exec(art_ut art_ut artapp LIBRARIES ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+art_exec(gm2_ut art_ut artapp LIBRARIES ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+art_exec(lar_ut art_ut artapp LIBRARIES ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+art_exec(mu2e_ut art_ut mu2eapp LIBRARIES ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+art_exec(nova_ut art_ut artapp LIBRARIES ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 
 art_make_exec(NAME check_libs
   SOURCE ${CMAKE_CURRENT_BINARY_DIR}/check_libs.cc

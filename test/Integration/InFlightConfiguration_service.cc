@@ -1,4 +1,4 @@
-#include "boost/test/included/unit_test.hpp"
+#include "art/Utilities/quiet_unit_test.hpp"
 
 #include "test/Integration/InFlightConfiguration.h"
 

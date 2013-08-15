@@ -7,7 +7,7 @@
 // from art v0_07_09.
 ////////////////////////////////////////////////////////////////////////
 
-#include "boost/test/included/unit_test.hpp"
+#include "art/Utilities/quiet_unit_test.hpp"
 
 #include "art/Framework/Core/EDProducer.h"
 #include "art/Framework/Core/ModuleMacros.h"

@@ -258,17 +258,13 @@ foreach(num 02 03 04)
   )
 endforeach()
 
-
-SET_TESTS_PROPERTIES(ToyRawInput_t_02 PROPERTIES
-  PASS_REGULAR_EXPRESSION
-  "Assertion `outR \\|\\| inR' failed"
-)
-
-SET_TESTS_PROPERTIES(ToyRawInput_t_03 ToyRawInput_t_04
-  PROPERTIES
-  PASS_REGULAR_EXPRESSION
-  "Assertion `outSR \\|\\| inSR' failed"
-)
+cet_test_assertion("outR \\\\|\\\\| inR"
+  ToyRawInput_t_02
+  )
+cet_test_assertion("outSR \\\\|\\\\| inSR"
+  ToyRawInput_t_03
+  ToyRawInput_t_04
+  )
 
 foreach(num 05 06 07 08 09 10 11 12)
   cet_test(ToyRawInput_t_${num} HANDBUILT
@@ -885,15 +881,21 @@ cet_test(signal_handling_04_t HANDBUILT
   fcl/signal_sigint.fcl
   )
 
+if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin" )
+  set(sigusr_two_signal 31)
+else()
+  set(sigusr_two_signal 12)
+endif()
+
 SET_TESTS_PROPERTIES(signal_handling_04_t PROPERTIES
   PASS_REGULAR_EXPRESSION
-  "Art caught and handled signal 12\\."
+  "Art caught and handled signal ${sigusr_two_signal}\\."
   )
 
 foreach (num 1 2)
   cet_test(InFlightConfiguration_0${num}_t HANDBUILT
     TEST_EXEC art_ut
-    TEST_ARGS -c InFlightConfiguration_0${num}.fcl
+    TEST_ARGS --config InFlightConfiguration_0${num}.fcl
     DATAFILES
     fcl/InFlightConfiguration_0${num}.fcl
     )
@@ -956,9 +958,11 @@ SET_TESTS_PROPERTIES(Unscheduled_02_t PROPERTIES
 cet_test(Unscheduled_03_t HANDBUILT
   TEST_EXEC test_must_abort
   TEST_ARGS art --rethrow-all -c "Unscheduled_03_t.fcl"
-  TEST_PROPERTIES PASS_REGULAR_EXPRESSION
-  "Assertion `handle.isValid\\\\\\\\(\\\\\\\\) == require_presence_' failed."
   DATAFILES
   fcl/Unscheduled_03_t.fcl
   fcl/messageDefaults.fcl
 )
+
+cet_test_assertion("handle\\\\.isValid\\\\(\\\\) == require_presence_"
+  Unscheduled_03_t
+  )
