@@ -1,7 +1,8 @@
-project ( art_TestObjects )
+art_make_library(SOURCE TH1Data.cc
+  LIBRARIES ${ROOT_HIST} ${ROOT_CORE} NO_INSTALL
+  )
 
-install(FILES
-	      ToyProducts.h
-	DESTINATION ${product}/${version}/include/art/TestObjects )
-
-art_dictionary( DICTIONARY_LIBRARIES art_Persistency_Common_dict NO_INSTALL )
+art_dictionary(DICTIONARY_LIBRARIES
+  test_TestObjects
+  NO_INSTALL
+  )

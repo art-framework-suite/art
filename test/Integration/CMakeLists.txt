@@ -74,6 +74,7 @@ simple_plugin(SAMMetadataTest             "module"  NO_INSTALL art_Framework_Ser
 simple_plugin(ServiceUsing                "service" NO_INSTALL )
 simple_plugin(SimpleDerivedAnalyzer       "module"  NO_INSTALL )
 simple_plugin(SimpleDerivedProducer       "module"  NO_INSTALL )
+simple_plugin(TH1DataProducer             "module"  NO_INSTALL test_TestObjects)
 simple_plugin(TestBitsOutput              "module"  NO_INSTALL )
 simple_plugin(TestFilter                  "module"  NO_INSTALL )
 simple_plugin(TestOutput                  "module"  NO_INSTALL )
@@ -900,6 +901,13 @@ foreach (num 1 2)
     fcl/InFlightConfiguration_0${num}.fcl
     )
 endforeach()
+
+cet_test(TH1Data_t HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS -c TH1Data_t.fcl
+  DATAFILES
+  fcl/TH1Data_t.fcl
+  )
 
 ########################################################################
 # Old tests converted from CMS FWCore/Framework/test
