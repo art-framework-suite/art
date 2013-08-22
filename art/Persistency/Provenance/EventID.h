@@ -4,6 +4,7 @@
 // An EventID labels an unique readout of the data acquisition system,
 // which we call an "event".
 
+#include "art/Persistency/Provenance/RunID.h"
 #include "art/Persistency/Provenance/SubRunID.h"
 #include "cpp0x/cstdint"
 
@@ -50,6 +51,7 @@ public:
   static EventID invalidEvent(SubRunID const & srID);
   static EventID flushEvent();
   static EventID flushEvent(RunID rID);
+  static EventID flushEvent(RunID rID, SubRunID srID);
 
   // Comparison operators.
   bool operator==(EventID const & other) const;
@@ -67,6 +69,7 @@ private:
 
   explicit EventID(FlushFlag);
   EventID(RunID rID, FlushFlag);
+  EventID(RunID rID, SubRunID srID, FlushFlag);
 
   EventNumber_t inRangeOrInvalid(EventNumber_t e);
 
@@ -76,6 +79,7 @@ private:
   static constexpr EventNumber_t MAX_NATURAL_EVENT_NUMBER();
   static constexpr EventNumber_t FIRST_EVENT_NUMBER();
 
+  RunID run_;
   SubRunID subRun_;
   EventNumber_t event_;
 };
@@ -293,6 +297,14 @@ flushEvent(RunID rID)
   return EventID(rID, FlushFlag());
 }
 
+inline
+art::EventID
+art::EventID::
+flushEvent(RunID rID, SubRunID srID)
+{
+  return EventID(rID, srID, FlushFlag());
+}
+
 // Comparison operators.
 inline
 bool
@@ -364,6 +376,16 @@ art::EventID::
 EventID(RunID rID, FlushFlag)
   :
   subRun_(SubRunID::flushSubRun(rID)),
+  event_(FLUSH_EVENT_NUMBER())
+{
+}
+
+inline
+art::EventID::
+EventID(RunID rID, SubRunID srID, FlushFlag)
+  :
+  run_(std::move(rID)),
+  subRun_(std::move(srID)),
   event_(FLUSH_EVENT_NUMBER())
 {
 }

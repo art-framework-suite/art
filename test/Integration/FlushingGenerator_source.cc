@@ -74,7 +74,7 @@ readNext(art::RunPrincipal * const & inR,
          art::EventPrincipal *& outE)
 {
   art::Timestamp runstart;
-  if (++ev_num_ > 10) { // Done.
+  if (++ev_num_ > 17) { // Done.
     return false;
   }
   else if (ev_num_ == 3) { // Flush subrun, current run.
@@ -90,6 +90,12 @@ readNext(art::RunPrincipal * const & inR,
     outE = pm_.makeEventPrincipal(evid, runstart);
     curr_evid_ = curr_evid_.nextRun();
   }
+  else if (ev_num_ == 11 || ev_num_ == 12 || ev_num_ == 16) { // Flush event. current run, next subrun
+    outSR = pm_.makeSubRunPrincipal(curr_evid_.nextSubRun().subRunID(), runstart);
+    art::EventID const evid(art::EventID::flushEvent(inR->id(), outSR->id()));
+    outE = pm_.makeEventPrincipal(evid, runstart);
+    curr_evid_ = curr_evid_.nextSubRun();
+  }
   else {
     if (inR == nullptr || inR->id() != curr_evid_.runID()) {
       outR = pm_.makeRunPrincipal(curr_evid_.runID(), runstart);
@@ -100,6 +106,7 @@ readNext(art::RunPrincipal * const & inR,
     outE = pm_.makeEventPrincipal(curr_evid_, runstart);
     curr_evid_ = curr_evid_.next();
   }
+  std::cout << "ev_num_ = " << ev_num_ << std::endl;
   return true;
 }
 
