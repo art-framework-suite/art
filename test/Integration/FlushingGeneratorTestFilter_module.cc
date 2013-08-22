@@ -40,8 +40,9 @@ arttest::FlushingGeneratorTestFilter::FlushingGeneratorTestFilter(fhicl::Paramet
 {
 }
 
-bool arttest::FlushingGeneratorTestFilter::filter(art::Event &)
+bool arttest::FlushingGeneratorTestFilter::filter(art::Event & e)
 {
+  assert(!e.id().isFlush());
   return true;
 }
 
