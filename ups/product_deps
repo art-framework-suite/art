@@ -1,6 +1,6 @@
 # The parent line must be the first non-comment line in the file
 # This line defines the product name and version
-parent art	v1_08_04
+parent art	v1_08_05
 defaultqual	e4
 #
 product		version
@@ -16,7 +16,7 @@ messagefacility	v1_10_24
 tbb		v4_1_3
 # list products required ONLY for the build
 # any products here must NOT have qualifiers
-only_for_build	cetbuildtools	v3_06_02
+only_for_build	cetbuildtools	v3_06_03
 
 # e4  - with gcc 4.7.1 and -std=c++0x
 qualifier	messagefacility	root		clhep		cppunit		libsigcpp	gccxml	python	sqlite	gcc	tbb		notes

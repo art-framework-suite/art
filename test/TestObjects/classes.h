@@ -7,6 +7,9 @@
 #include "test/TestObjects/ProductWithPtrs.h"
 #include "test/TestObjects/ToyProducts.h"
 
+#include "test/TestObjects/TH1Data.h"
+
+template class art::Wrapper<arttest::TH1Data>;
 template class art::Wrapper<arttest::DummyProduct>;
 template class art::Wrapper<arttest::IntProduct>;
 template class art::Wrapper<arttest::CompressedIntProduct>;

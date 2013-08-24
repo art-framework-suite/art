@@ -1,0 +1,30 @@
+process_name: DEVEL
+
+source:
+{
+  module_type: EmptyEvent
+  maxEvents: 250
+}
+
+physics:
+{
+  producers:
+  {
+    th1d:
+    {
+      module_type: TH1DataProducer
+    }
+  }
+
+  p1: [ th1d ]
+  e1: [ o1 ]
+}
+
+outputs:
+{
+  o1:
+  {
+    module_type: RootOutput
+    fileName: "out.root"
+  }
+}

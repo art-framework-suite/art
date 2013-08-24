@@ -1,5 +1,5 @@
-#ifndef art_Framework_Core_LibraryManager_h
-#define art_Framework_Core_LibraryManager_h
+#ifndef art_Utilities_LibraryManager_h
+#define art_Utilities_LibraryManager_h
 
 #include "art/Utilities/hard_cast.h"
 #include "cetlib/shlib_utils.h"
@@ -286,7 +286,7 @@ size_t art::LibraryManager::getValidLibspecs(OutIter dest) const
   return count;
 }
 
-#endif /* art_Framework_Core_LibraryManager_h */
+#endif /* art_Utilities_LibraryManager_h */
 
 // Local Variables:
 // mode: c++

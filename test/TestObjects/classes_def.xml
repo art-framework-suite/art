@@ -36,6 +36,10 @@
  <class name="arttest::AssnTestData" ClassVersion="10">
   <version ClassVersion="10" checksum="171613676"/>
  </class>
+ <class name="arttest::TH1Data" ClassVersion="10">
+  <version ClassVersion="10" checksum="3907138095"/>
+ </class>
+ <class name="TH1D"/>
  <class name="art::Wrapper<arttest::DummyProduct>"/>
  <class name="art::Wrapper<arttest::IntProduct>"/>
  <class name="art::Wrapper<arttest::CompressedIntProduct>" compression="9"/>
@@ -61,4 +65,5 @@
  <class name="art::Wrapper<arttest::ProductWithPtrs>"/>
  <class name="art::Wrapper<std::vector<art::Ptr<double> > >"/>
  <class name="art::Wrapper<art::PtrVector<double> >"/>
+ <class name="art::Wrapper<arttest::TH1Data>"/>
 </lcgdict>
