@@ -31,7 +31,11 @@ for i in {1_1_1,2_1_3,2_1_5}_module; do
 done
 cd - >/dev/null
 
-export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:${TMP_DIR}/lib2:${TMP_DIR}/lib1"
+if [[ $(uname -s) == "Darwin" ]]; then
+  export DYLD_LIBRARY_PATH="$DYLD_LIBRARY_PATH:${TMP_DIR}/lib2:${TMP_DIR}/lib1"
+else
+  export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:${TMP_DIR}/lib2:${TMP_DIR}/lib1"
+fi
 
 export BOOST_TEST_SHOW_PROGRESS=${BOOST_TEST_SHOW_PROGRESS:-yes}
 export BOOST_TEST_LOG_LEVEL=${BOOST_TEST_LOG_LEVEL:-message}

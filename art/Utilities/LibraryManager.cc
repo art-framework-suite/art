@@ -33,7 +33,12 @@ art::LibraryManager::LibraryManager(std::string const & lib_type)
 {
   // TODO: We could also consider searching the ld.so.conf list, if
   // anyone asks for it.
-  static cet::search_path const ld_lib_path("LD_LIBRARY_PATH");
+  static cet::search_path const
+    ld_lib_path(
+#if __APPLE__ && __MACH__
+      "DY"
+#endif
+      "LD_LIBRARY_PATH");
   static std::string const pattern(cet::shlib_prefix() +
                                    "([-A-Za-z0-9]*_)*[A-Za-z0-9]+_");
   std::vector<std::string> matches;
@@ -225,7 +230,11 @@ getSymbolByLibspec_(std::string const & libspec,
                 std::ostream_iterator<std::string>(error_msg, "\n"));
     }
     else {
-      error_msg << " does not correspond to any library in LD_LIBRARY_PATH of type \""
+      error_msg << " does not correspond to any library in " <<
+#if __APPLE__ && __MACH__
+        "DY"
+#endif
+        "LD_LIBRARY_PATH of type \""
                 << lib_type_
                 << "\"\n";
     }
