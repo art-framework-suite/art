@@ -12,11 +12,11 @@ gccxml		v0_9_20130621
 python		v2_7_5
 root		v5_34_09
 sqlite		v3_07_17_00
-messagefacility	v1_10_24
+messagefacility	v1_10_25
 tbb		v4_1_3
 # list products required ONLY for the build
 # any products here must NOT have qualifiers
-only_for_build	cetbuildtools	v3_06_03
+only_for_build	cetbuildtools	v3_06_04
 
 # e4  - with gcc 4.7.1 and -std=c++0x
 qualifier	messagefacility	root		clhep		cppunit		libsigcpp	gccxml	python	sqlite	gcc	tbb		notes
