@@ -54,4 +54,32 @@ BOOST_AUTO_TEST_CASE(testSubstitutions)
   }
 }
 
+BOOST_AUTO_TEST_CASE(resetFileOpen)
+{
+  PostCloseFileRenamer fr("%to", "label", "DEVEL");
+  simulateJob(fr);
+  auto const before = fr.applySubstitutions();
+  sleep(1);
+  fr.recordFileOpen();
+  fr.recordFileClose();
+  auto const after = fr.applySubstitutions();
+  BOOST_CHECK_NE(before, after);
+}
+
+BOOST_AUTO_TEST_CASE(resetEvents)
+{
+  PostCloseFileRenamer fr("%R_%S", "label", "DEVEL");
+  auto const before = fr.applySubstitutions();
+  auto const cmp_before = std::string("-_-");
+  BOOST_CHECK_EQUAL(before, cmp_before);
+  simulateJob(fr);
+  auto after = fr.applySubstitutions();
+  auto const cmp_after = std::string("2_3");
+  BOOST_CHECK_EQUAL(after, cmp_after);
+  fr.recordFileOpen();
+  fr.recordFileClose();
+  after = fr.applySubstitutions();
+  BOOST_CHECK_EQUAL(after, cmp_before);
+}
+
 BOOST_AUTO_TEST_SUITE_END()

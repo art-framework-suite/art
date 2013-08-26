@@ -51,7 +51,7 @@ recordEvent(EventID const & id)
       id <= lowest_) {
     lowest_ = id;
   }
-  if (!lowest_.isValid() ||
+  if (!highest_.isValid() ||
       id >= highest_) {
     highest_ = id;
   }
@@ -88,10 +88,27 @@ applySubstitutions() const {
   using boost::replace_all;
   replace_all(result, "%l", moduleLabel_);
   replace_all(result, "%p", processName_);
-  filled_replace(result, 'r', lowest_.run());
-  filled_replace(result, 'R', highest_.run());
-  filled_replace(result, 's', lowest_.subRun());
-  filled_replace(result, 'S', highest_.subRun());
+  static std::string const none { "-" };
+  if (lowest_.runID().isValid()) {
+    filled_replace(result, 'r', lowest_.run());
+  } else {
+    replace_all(result, "%r", "-");
+  }
+  if (highest_.runID().isValid()) {
+    filled_replace(result, 'R', highest_.run());
+  } else {
+    replace_all(result, "%R", "-");
+  }
+  if (lowest_.subRunID().isValid()) {
+    filled_replace(result, 's', lowest_.subRun());
+  } else {
+    replace_all(result, "%s", "-");
+  }
+  if (highest_.subRunID().isValid()) {
+    filled_replace(result, 'S', highest_.subRun());
+  } else {
+    replace_all(result, "%S", "-");
+  }
   replace_all(result, "%to", boost::posix_time::to_iso_string(fo_));
   replace_all(result, "%tc", boost::posix_time::to_iso_string(fc_));
   return std::move(result);
@@ -109,4 +126,6 @@ reset_()
 {
   fo_ =
     fc_ = boost::posix_time::ptime();
+  lowest_ = EventID();
+  highest_ = EventID();
 }
