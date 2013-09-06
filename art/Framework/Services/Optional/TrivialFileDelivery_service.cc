@@ -8,6 +8,20 @@ using namespace art;
 using namespace std;
 using fhicl::ParameterSet;
 
+namespace {
+  void throwIfFileNotExist(char const * fname)
+  {
+    std::ifstream f(fname);
+    if (!f) {
+      // Throw here, otherwise we don't know what file we couldn't find.
+      throw Exception(errors::CatalogServiceError)
+        << "Input file not found: "
+        << fname
+        << ".\n";
+    }
+  }
+}
+
 art::TrivialFileDelivery::TrivialFileDelivery
 (ParameterSet const &, ActivityRegistry &)
   : fileList()
@@ -23,24 +37,25 @@ void art::TrivialFileDelivery::doConfigure(std::vector<std::string> const & item
   endOfFiles = fileList.end();
 }
 
-int  art::TrivialFileDelivery::doGetNextFileURI(std::string & uri, double & waitTime)
+int
+art::TrivialFileDelivery::
+doGetNextFileURI(std::string & uri, double & waitTime)
 {
   FileDeliveryStatus stat;
   if (nextFile == endOfFiles) {
     stat = FileDeliveryStatus::NO_MORE_FILES;
     return stat;
   }
-  {
-    ifstream f(nextFile->c_str());
-    if (!f) {
-      // Throw here, otherwise we don't know what file we couldn't find.
-      throw Exception(errors::CatalogServiceError)
-        << "Input file not found: "
-        << *nextFile
-        << ".\n";
-    }
+  auto pos = nextFile->find("://"); // Look for protocol.
+  if (pos == std::string::npos) { // Bare filename.
+    throwIfFileNotExist(nextFile->c_str());
+    uri = prependFileDesignation(*nextFile);
+  } else if (nextFile->substr(0, pos) == "file") { // file://
+    throwIfFileNotExist(nextFile->c_str() + pos + 3);
+    uri = *nextFile;
+  } else { // Unknown URI.
+    uri = *nextFile;
   }
-  uri = prependFileDesignation(*nextFile);
   waitTime = 0.0;
   stat = FileDeliveryStatus::SUCCESS;
   ++nextFile;
