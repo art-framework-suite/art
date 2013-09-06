@@ -20,11 +20,11 @@ bool
   RefCore::isAvailable() const
 {
     return productPtr() != 0
-        || (    id_.isValid()
-             && productGetter() != 0
-////             && productGetter()->getIt(id_) != 0
-             && productGetter()->getIt() != 0
-           );
+      || (    id_.isValid()
+              && productGetter() != 0
+              && productGetter()->isReady()
+              && productGetter()->getIt() != 0
+         );
 }  // RefCore::isAvailable()
 
 EDProduct const *
