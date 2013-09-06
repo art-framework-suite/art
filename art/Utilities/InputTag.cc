@@ -1,7 +1,8 @@
 #include "art/Utilities/InputTag.h"
 
-#include "cetlib/split.h"
 #include "art/Utilities/Exception.h"
+#include "boost/algorithm/string/classification.hpp"
+#include "boost/algorithm/string/split.hpp"
 
 #include <vector>
 
@@ -10,7 +11,8 @@ namespace art {
   {
     // string is delimited by colons
     std::vector<std::string> tokens;
-    cet::split(s, ':', std::back_inserter(tokens));
+    // cet::split(s, ':', std::back_inserter(tokens));
+    boost::split(tokens, s, boost::is_any_of(":"), boost::token_compress_off);
 
     int nwords = tokens.size();
     if(nwords > 3) {
