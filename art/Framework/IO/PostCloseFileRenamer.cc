@@ -117,7 +117,16 @@ applySubstitutions() const {
 void
 art::PostCloseFileRenamer::
 maybeRenameFile(std::string const & inPath) {
-  boost::filesystem::rename(inPath, applySubstitutions());
+  auto newFile = applySubstitutions();
+  boost::system::error_code ec;
+  boost::filesystem::rename(inPath, newFile, ec);
+  if (ec) { // Fail (different flesystems? Try copy / delete instead).
+    boost::filesystem::
+      copy_file(inPath,
+                newFile,
+                boost::filesystem::copy_option::overwrite_if_exists);
+    (void) boost::filesystem::remove(inPath);
+  }
 }
 
 void

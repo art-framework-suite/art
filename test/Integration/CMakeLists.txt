@@ -909,6 +909,13 @@ cet_test(TH1Data_t HANDBUILT
   fcl/TH1Data_t.fcl
   )
 
+cet_test(PostCloseFileRename_Integration HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS -c PostCloseFileRename_t.fcl
+  DATAFILES
+  fcl/PostCloseFileRename_t.fcl
+)
+
 ########################################################################
 # Old tests converted from CMS FWCore/Framework/test
 

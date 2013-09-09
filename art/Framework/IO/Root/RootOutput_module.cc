@@ -56,6 +56,8 @@ namespace art {
   , fileRenamer_               ( ps.get<string>("fileName"),
                                  moduleLabel_,
                                  processName() )
+  , tmpDir_                    ( ps.get<string>("tmpDir",
+                                                fileRenamer_.parentPath()))
   , lastClosedFileName_        ( )
   {
     string dropMetaData(ps.get<string>("dropMetaData", string()));
@@ -205,7 +207,8 @@ namespace art {
         close(tmp_fd);
       } else {
         art::Exception e(art::errors::FileOpenError);
-        e << "RootOutput cannot ascertain a unique temporary filename for output: ";
+        e << "RootOutput cannot ascertain a unique temporary filename for output based on stem\n\""
+          << stem << "\": ";
         if (ec) {
           e << ec;
         } else {
@@ -225,7 +228,8 @@ namespace art {
           << "Please report this to the core framework developers.\n";
       }
       rootOutputFile_.reset(new RootOutputFile(this,
-                                               unique_filename(fileRenamer_.parentPath() + "/RootOutput")));
+                                               unique_filename(tmpDir_ +
+                                                               "/RootOutput")));
       fileRenamer_.recordFileOpen();
   }
 
