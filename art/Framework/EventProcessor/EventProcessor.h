@@ -16,6 +16,7 @@
 #include "art/Framework/Core/PathManager.h"
 #include "art/Framework/Core/PrincipalCache.h"
 #include "art/Framework/Core/Schedule.h"
+#include "art/Framework/EventProcessor/ServiceDirector.h"
 #include "art/Framework/Principal/Actions.h"
 #include "art/Framework/Principal/fwd.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
@@ -137,7 +138,7 @@ public:
   bool setEndPathModuleEnabled(std::string const & label, bool enable) override;
 
 private:
-  void configureServices_(fhicl::ParameterSet const & pset);
+  void addSystemServices_(fhicl::ParameterSet const & pset);
   void initSchedules_(fhicl::ParameterSet const & pset);
   void invokePostBeginJobWorkers_();
   template <typename T>
@@ -161,6 +162,9 @@ private:
   MFStatusUpdater                               mfStatusUpdater_;
   MasterProductRegistry                         preg_;
   ServiceToken                                  serviceToken_;
+  std::unique_ptr<ServiceDirector>              serviceDirector_;
+  // destructorOperate_ should be populated in destructor only!
+  std::unique_ptr<ServiceRegistry::Operate> destructorOperate_;
   std::shared_ptr<InputSource>                  input_;
   tbb::task_scheduler_init tbbManager_;
   std::unique_ptr<PathManager> pathManager_; // Destroy after schedules.

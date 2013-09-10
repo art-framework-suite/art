@@ -120,64 +120,7 @@ namespace {
     }
     return std::shared_ptr<art::InputSource>();
   }
-
-  //////////////////////////////////////////////////////////////////////
-  // Functions to help prepare the services for initialization.
-
-  typedef std::vector<ParameterSet> ParameterSets;
-
-  void
-  addService(std::string const & name, ParameterSets & service_set)
-  {
-    service_set.push_back(ParameterSet());
-    service_set.back().put("service_type", name);
-  }
-
-  void
-  addOptionalService(std::string const & name,
-                     ParameterSet const & source,
-                     ParameterSets & service_set)
-  {
-    ParameterSet pset;
-    if (source.get_if_present(name, pset)) {
-      pset.put("service_type", name);
-      service_set.push_back(pset);
-    }
-  }
-
-  void
-  addService(std::string const & name,
-             ParameterSet const & source,
-             ParameterSets & service_set)
-  {
-    service_set.push_back(source.get<ParameterSet>(name, ParameterSet()));
-    service_set.back().put("service_type", name);
-  }
-
-  void extractServices(ParameterSet const & services, ParameterSets & service_set)
-  {
-    // this is not ideal.  Need to change the ServiceRegistry "createSet" and ServicesManager "put"
-    // functions to take the parameter set vector and a list of service objects to be added to
-    // the service token.  Alternatively we could get the service token and be allowed to add
-    // service objects to it.  Since the servicetoken contains the servicemanager, we might
-    // be able to simply add a function to the serviceregistry or servicesmanager that given
-    // a service token, it injects a new service object using the "put" of the
-    // servicesManager.
-    // order might be important here
-    // only configured if pset present in services
-    addOptionalService("RandomNumberGenerator", services, service_set);
-    addOptionalService("SimpleMemoryCheck", services, service_set);
-    addOptionalService("Timing", services, service_set);
-    addOptionalService("TFileService", services, service_set);
-    addService("FileCatalogMetadata", services, service_set);
-    ParameterSet user_services = services.get<ParameterSet>("user", ParameterSet());
-    std::vector<std::string> keys = user_services.get_pset_keys();
-    for (std::vector<std::string>::iterator i = keys.begin(), e = keys.end(); i != e; ++i)
-    { addService(*i, user_services, service_set); }
-  }
 }
-
-// ----------- event processor functions ------------------
 
 art::EventProcessor::EventProcessor(ParameterSet const & pset)
   :
@@ -185,6 +128,8 @@ art::EventProcessor::EventProcessor(ParameterSet const & pset)
   mfStatusUpdater_(*actReg_),
   preg_(),
   serviceToken_(),
+  serviceDirector_(),
+  destructorOperate_(),
   input_(),
   tbbManager_(tbb::task_scheduler_init::deferred),
   pathManager_(),
@@ -205,8 +150,9 @@ art::EventProcessor::EventProcessor(ParameterSet const & pset)
   exceptionMessageSubRuns_(),
   alreadyHandlingException_(false)
 {
-  // The BranchIDListRegistry and ProductIDListRegistry are indexed registries, and are singletons.
-  //  They must be cleared here because some processes run multiple EventProcessors in succession.
+  // The BranchIDListRegistry is an indexed registry, and is a
+  //  singleton. It must be cleared here because some processes run
+  //  multiple EventProcessors in succession.
   BranchIDListHelper::clearRegistries();
   // TODO: Fix const-correctness. The ParameterSets that are
   // returned here should be const, so that we can be sure they are
@@ -219,16 +165,17 @@ art::EventProcessor::EventProcessor(ParameterSet const & pset)
   std::string const processName = pset.get<std::string>("process_name");
 
   // New PathManager. Required in time to construct TriggerNamesService.
+  act_table_ = ActionTable(scheduler);
   pathManager_.reset(new PathManager(pset, preg_, act_table_, actReg_));
 
   // Services
-  configureServices_(pset);
+  serviceDirector_.reset(new ServiceDirector(pset, *actReg_, serviceToken_));
   ServiceRegistry::Operate operate(serviceToken_); // Make usable.
+  addSystemServices_(pset);
   serviceToken_.forceCreation();
-  // FileCatalogMetadata needs to know about the process name.
+  // System service FileCatalogMetadata needs to know about the process name.
   ServiceHandle<art::FileCatalogMetadata>()->addMetadata("process_name", processName);
 
-  act_table_ = ActionTable(scheduler);
   input_ = makeInput(pset, processName, preg_, actReg_);
   // Old input sources may need this for now.
   input_->storeMPRforBrokenRandomAccess(preg_);
@@ -243,9 +190,10 @@ art::EventProcessor::EventProcessor(ParameterSet const & pset)
 
 art::EventProcessor::~EventProcessor()
 {
-  // Make the services available while everything is being deleted.
-  ServiceToken token = getToken_();
-  ServiceRegistry::Operate op(token);
+  // Populating the destructOperate_ data member will ensure that
+  // services stay usable until it goes out of scope, meaning that
+  // modules may (say) use services in their destructors.
+  destructorOperate_.reset(new ServiceRegistry::Operate(serviceToken_));
   // The state machine should have already been cleaned up
   // and destroyed at this point by a call to EndJob or
   // earlier when it completed processing events, but if it
@@ -256,10 +204,6 @@ art::EventProcessor::~EventProcessor()
   // the EventProcessor to explicitly call EndJob or use runToCompletion,
   // then the next line of code is never executed.
   terminateMachine_();
-  // manually destroy all these thing that may need the services around
-  schedule_.reset();
-  input_.reset();
-  actReg_.reset();
 }
 
 void
@@ -322,30 +266,22 @@ art::EventProcessor::endJob()
 
 void
 art::EventProcessor::
-configureServices_(ParameterSet const & pset)
+addSystemServices_(ParameterSet const & pset)
 {
   ParameterSet const services = pset.get<ParameterSet>("services", ParameterSet());
-  ParameterSet const scheduler = services.get<ParameterSet>("scheduler", ParameterSet());
-  bool const wantTracer = scheduler.get<bool>("wantTracer", false);
-  // build a list of service parameter sets that will be used by the service registry
-  ParameterSets service_set;
-  extractServices(services, service_set);
-  // configured based on optional parameters
-  if (wantTracer) { addService("Tracer", service_set); }
-  serviceToken_ = ServiceRegistry::createSet(service_set, *actReg_);
+  ParameterSet const fpc_pset = services.get<ParameterSet>("floating_point_control", ParameterSet());
   // NOTE: the order here might be backwards, due to the "push_front" registering
   // that sigc++ does way in the guts of the add operation.
   // no configuration available
-  serviceToken_.add(std::unique_ptr<CurrentModule>(new CurrentModule(*actReg_)));
+  serviceDirector_->addSystemService(std::unique_ptr<CurrentModule>(new CurrentModule(*actReg_)));
   // special construction
-  serviceToken_.add(std::unique_ptr<TriggerNamesService>
+  serviceDirector_->addSystemService(std::unique_ptr<TriggerNamesService>
                     (new TriggerNamesService(pset, pathManager_->triggerPathNames())));
-  ParameterSet const fpc_pset = services.get<ParameterSet>("floating_point_control", ParameterSet());
-  serviceToken_.add(std::unique_ptr<FloatingPointControl>(new FloatingPointControl(fpc_pset, *actReg_)));
-  serviceToken_.add(std::unique_ptr<ScheduleContext>(new ScheduleContext));
+  serviceDirector_->addSystemService(std::unique_ptr<FloatingPointControl>(new FloatingPointControl(fpc_pset, *actReg_)));
+  serviceDirector_->addSystemService(std::unique_ptr<ScheduleContext>(new ScheduleContext));
   ParameterSet pathSelection;
   if (services.get_if_present("PathSelection", pathSelection)) {
-    serviceToken_.add(std::unique_ptr<PathSelection>(new PathSelection(*this)));
+    serviceDirector_->addSystemService(std::unique_ptr<PathSelection>(new PathSelection(*this)));
   }
 }
 
