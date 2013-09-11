@@ -20,11 +20,6 @@ namespace {
     std::vector<std::string> tmp;
     std::unique_ptr<std::set<std::string> > result;
     if (ps.get_if_present(param, tmp)) {
-      mf::LogWarning("DeprecatedConfig")
-        << "Obsolete configuration parameter \""
-        << param
-        << "\" has been specified.\nIt will be honored for now but may cause "
-        << "an error in future versions of art.\n";
       result.reset(new std::set<std::string>);
       result->insert(tmp.cbegin(), tmp.cend());
     }
@@ -63,7 +58,7 @@ art::PathManager::
 PathManager(ParameterSet const & procPS,
             MasterProductRegistry & preg,
             ActionTable & exceptActions,
-            std::shared_ptr<ActivityRegistry> const & areg)
+            ActivityRegistry & areg)
   :
   procPS_(procPS),
   preg_(preg),
@@ -333,12 +328,12 @@ processOnePathConfig_(std::string const & path_name,
         if (trigger_paths_config_ &&
             (trigger_paths_config_->find(path_name) ==
              trigger_paths_config_->cend())) {
-          mf::LogWarning("DeprecatedConfig")
+          mf::LogInfo("DeactivatedPath")
             << "Detected trigger path \""
             << path_name
             << "\" which was not found in\n"
-            << "deprecated parameter \"physics.trigger_paths\". "
-            << "Path will be ignored.\n";
+            << "parameter \"physics.trigger_paths\". "
+            << "Path will be ignored.";
           return false;
         }
         trigger_path_names.push_back(path_name);
@@ -348,12 +343,12 @@ processOnePathConfig_(std::string const & path_name,
         if (end_paths_config_ &&
             (end_paths_config_->find(path_name) ==
              end_paths_config_->cend())) {
-          mf::LogWarning("DeprecatedConfig")
+          mf::LogInfo("DeactivatedPath")
             << "Detected end path \""
             << path_name
             << "\" which was not found in\n"
-            << "deprecated parameter \"physics.end_paths\". "
-            << "Path will be ignored.\n";
+            << "parameter \"physics.end_paths\". "
+            << "Path will be ignored.";
           return false;
         }
         protoEndPathInfo_.reserve(protoEndPathInfo_.size() +
@@ -411,13 +406,13 @@ makeWorker_(detail::ModuleConfigInfo const & mci,
                                               procPS_.id(),
                                               getReleaseVersion(),
                                               getPassID()));
-    areg_->sPreModuleConstruction.invoke(md);
+    areg_.sPreModuleConstruction.invoke(md);
     auto worker = fact_.makeWorker(p, md);
-    areg_->sPostModuleConstruction.invoke(md);
+    areg_.sPostModuleConstruction.invoke(md);
     it = workers.
          emplace(mci.label(),
                  std::move(worker)).first;
-    it->second->setActivityRegistry(areg_);
+    it->second->setActivityRegistry(&areg_);
   }
   return it->second.get();
 }

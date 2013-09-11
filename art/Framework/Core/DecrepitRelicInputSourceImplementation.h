@@ -172,9 +172,6 @@ namespace art
     /// RunsSubRunsAndEvents (default), RunsAndSubRuns, or Runs.
     ProcessingMode processingMode() const {return processingMode_;}
 
-    /// Accessor for Activity Registry
-    //std::shared_ptr<ActivityRegistry> actReg() const {return actReg_;}
-
     using ProductRegistryHelper::reconstitutes;
 
   protected:
@@ -222,7 +219,6 @@ namespace art
     virtual void endJob();
 
   private:
-    std::shared_ptr<ActivityRegistry> actReg_;
     int maxEvents_;
     int remainingEvents_;
     int maxSubRuns_;
@@ -236,7 +232,6 @@ namespace art
     input::ItemType state_;
     std::shared_ptr<RunPrincipal>  runPrincipal_;
     std::shared_ptr<SubRunPrincipal>  subRunPrincipal_;
-    bool usingSequentialAccess_;
   };  // DecrepitRelicInputSourceImplementation
 
 }  // art

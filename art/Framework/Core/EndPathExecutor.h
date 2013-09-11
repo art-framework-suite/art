@@ -31,7 +31,7 @@ class art::EndPathExecutor {
 public:
   EndPathExecutor(PathManager & pm,
                   ActionTable & actions,
-                  std::shared_ptr<ActivityRegistry> areg);
+                  ActivityRegistry & areg);
 
   template <typename T>
   void processOneOccurrence(typename T::MyPrincipal & principal);
@@ -85,7 +85,7 @@ private:
 
   PathsInfo & endPathInfo_;
   ActionTable * act_table_;
-  std::shared_ptr<ActivityRegistry> actReg_;
+  ActivityRegistry & actReg_;
   OutputWorkers  outputWorkers_;
   std::vector<unsigned char> workersEnabled_;
   std::vector<unsigned char> outputWorkersEnabled_;

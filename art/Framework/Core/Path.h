@@ -42,7 +42,7 @@ public:
        TrigResPtr pathResults,
        fhicl::ParameterSet const& proc_pset,
        ActionTable& actions,
-       std::shared_ptr<ActivityRegistry> reg,
+       ActivityRegistry & reg,
        bool isEndPath);
 
   template <typename T>
@@ -93,7 +93,7 @@ private:
   int bitpos_;
   std::string name_;
   TrigResPtr trptr_;
-  std::shared_ptr<ActivityRegistry> actReg_;
+  ActivityRegistry & actReg_;
   ActionTable* act_table_;
 
   WorkersInPath workers_;
@@ -113,19 +113,19 @@ namespace art {
     template <typename T>
     class PathSignalSentry {
   public:
-      PathSignalSentry(ActivityRegistry *a,
+      PathSignalSentry(ActivityRegistry & a,
                        std::string const& name,
                        int const& nwrwue,
                        hlt::HLTState const& state) :
         a_(a), name_(name), nwrwue_(nwrwue), state_(state) {
-        if (a_) T::prePathSignal(a_, name_);
+        T::prePathSignal(&a_, name_);
       }
       ~PathSignalSentry() {
         HLTPathStatus status(state_, nwrwue_);
-        if(a_) T::postPathSignal(a_, name_, status);
+        T::postPathSignal(&a_, name_, status);
       }
   private:
-      ActivityRegistry* a_;
+      ActivityRegistry & a_;
       std::string const& name_;
       int const& nwrwue_;
       hlt::HLTState const& state_;
@@ -139,7 +139,7 @@ void art::Path::processOneOccurrence(typename T::MyPrincipal& ep)
   //Create the PathSignalSentry before the RunStopwatch so that
   // we only record the time spent in the path not from the signal
   int nwrwue = -1;
-  std::unique_ptr<PathSignalSentry<T> > signaler(new PathSignalSentry<T>(actReg_.get(), name_, nwrwue, state_));
+  std::unique_ptr<PathSignalSentry<T> > signaler(new PathSignalSentry<T>(actReg_, name_, nwrwue, state_));
 
   // A RunStopwatch, but only if we are processing an event.
   std::unique_ptr<RunStopwatch> stopwatch(T::isEvent_ ? new RunStopwatch(stopwatch_) : 0);

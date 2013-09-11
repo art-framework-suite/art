@@ -7,7 +7,7 @@ using std::placeholders::_1;
 art::EndPathExecutor::
 EndPathExecutor(PathManager & pm,
                 ActionTable & actions,
-                std::shared_ptr<ActivityRegistry> areg)
+                ActivityRegistry & areg)
   :
   endPathInfo_(pm.endPathInfo()),
   act_table_(&actions),
@@ -80,7 +80,7 @@ void art::EndPathExecutor::closeOutputFiles()
 {
   doForAllEnabledOutputWorkers_([this](OutputWorker * ow) {
       ow->closeFile();
-      actReg_->
+      actReg_.
         sPostCloseOutputFile.invoke(OutputFileInfo(ow->label(),
                                                    ow->lastClosedFileName()));
     }
