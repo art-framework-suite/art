@@ -165,29 +165,29 @@ private:
   MFStatusUpdater mfStatusUpdater_;
   MasterProductRegistry preg_;
   ServiceToken serviceToken_;
-  std::unique_ptr<ServiceDirector> serviceDirector_;
+  ServiceDirector serviceDirector_;
   // destructorOperate_ should be populated in destructor only!
   std::unique_ptr<ServiceRegistry::Operate> destructorOperate_;
-  std::shared_ptr<InputSource> input_;
+  std::unique_ptr<InputSource> input_;
   tbb::task_scheduler_init tbbManager_;
-  std::unique_ptr<PathManager> pathManager_; // Destroy after schedules.
+  PathManager pathManager_; // Must outlive schedules.
   std::unique_ptr<Schedule> schedule_;
   std::unique_ptr<EndPathExecutor> endPathExecutor_;
 
-  std::shared_ptr<FileBlock>                    fb_;
+  std::shared_ptr<FileBlock> fb_;
 
-  std::unique_ptr<statemachine::Machine>          machine_;
-  PrincipalCache                                principalCache_;
-  std::unique_ptr<EventPrincipal>                 sm_evp_;
-  bool                                          shouldWeStop_;
-  bool                                          stateMachineWasInErrorState_;
-  std::string                                   fileMode_;
-  bool                                          handleEmptyRuns_;
-  bool                                          handleEmptySubRuns_;
-  std::string                                   exceptionMessageFiles_;
-  std::string                                   exceptionMessageRuns_;
-  std::string                                   exceptionMessageSubRuns_;
-  bool                                          alreadyHandlingException_;
+  std::unique_ptr<statemachine::Machine> machine_;
+  PrincipalCache principalCache_;
+  std::unique_ptr<EventPrincipal> sm_evp_;
+  bool shouldWeStop_;
+  bool stateMachineWasInErrorState_;
+  std::string fileMode_;
+  bool handleEmptyRuns_;
+  bool handleEmptySubRuns_;
+  std::string exceptionMessageFiles_;
+  std::string exceptionMessageRuns_;
+  std::string exceptionMessageSubRuns_;
+  bool alreadyHandlingException_;
 };  // EventProcessor
 
 ////////////////////////////////////

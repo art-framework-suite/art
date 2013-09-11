@@ -70,7 +70,7 @@ private:
     p.put("maxEvents", 1);
   }
 
-  std::shared_ptr<art::InputSource>
+  std::unique_ptr<art::InputSource>
   makeInput(ParameterSet const & params,
             std::string const & processName,
             art::MasterProductRegistry & preg,
@@ -99,7 +99,7 @@ private:
                                                           art::getPassID()));
       sourceSpecified = true;
       art::InputSourceDescription isd(md, preg, areg);
-      return std::shared_ptr<art::InputSource>
+      return std::unique_ptr<art::InputSource>
         (art::InputSourceFactory::make(main_input, isd).release());
     }
     catch (art::Exception const & x) {
@@ -118,7 +118,7 @@ private:
         << "Configuration of main input source has failed\n"
         << x;
     }
-    return std::shared_ptr<art::InputSource>();
+    return std::unique_ptr<art::InputSource>();
   }
 
 
@@ -132,11 +132,11 @@ art::EventProcessor::EventProcessor(ParameterSet const & pset)
   mfStatusUpdater_(actReg_),
   preg_(),
   serviceToken_(),
-  serviceDirector_(new ServiceDirector(pset, actReg_, serviceToken_)),
+  serviceDirector_(pset, actReg_, serviceToken_),
   destructorOperate_(),
   input_(),
   tbbManager_(tbb::task_scheduler_init::deferred),
-  pathManager_(new PathManager(pset, preg_, act_table_, actReg_)),
+  pathManager_(pset, preg_, act_table_, actReg_),
   schedule_(),
   endPathExecutor_(),
   fb_(),
@@ -167,7 +167,7 @@ art::EventProcessor::EventProcessor(ParameterSet const & pset)
   input_->storeMPRforBrokenRandomAccess(preg_);
 
   initSchedules_(pset);
-  endPathExecutor_.reset(new EndPathExecutor(*pathManager_,
+  endPathExecutor_.reset(new EndPathExecutor(pathManager_,
                                              act_table_,
                                              actReg_));
   FDEBUG(2) << pset.to_string() << std::endl;
@@ -244,9 +244,9 @@ art::EventProcessor::endJob()
   c.call(std::bind(&Schedule::endJob, schedule_.get()));
   c.call(std::bind(&EndPathExecutor::endJob, endPathExecutor_.get()));
   c.call(std::bind(&detail::writeSummary,
-                   std::ref(*pathManager_),
+                   std::ref(pathManager_),
                    ServiceHandle<TriggerNamesService>()->wantSummary()));
-  c.call(std::bind(&InputSource::doEndJob, input_));
+  c.call(std::bind(&InputSource::doEndJob, input_.get()));
   c.call(std::bind(&decltype(ActivityRegistry::sPostEndJob)::invoke, actReg_.sPostEndJob));
 }
 
@@ -258,15 +258,15 @@ addSystemServices_(ParameterSet const & pset)
   // NOTE: the order here might be backwards, due to the "push_front" registering
   // that sigc++ does way in the guts of the add operation.
   // no configuration available
-  serviceDirector_->addSystemService(std::unique_ptr<CurrentModule>(new CurrentModule(actReg_)));
+  serviceDirector_.addSystemService(std::unique_ptr<CurrentModule>(new CurrentModule(actReg_)));
   // special construction
-  serviceDirector_->addSystemService(std::unique_ptr<TriggerNamesService>
-                    (new TriggerNamesService(pset, pathManager_->triggerPathNames())));
-  serviceDirector_->addSystemService(std::unique_ptr<FloatingPointControl>(new FloatingPointControl(fpc_pset, actReg_)));
-  serviceDirector_->addSystemService(std::unique_ptr<ScheduleContext>(new ScheduleContext));
+  serviceDirector_.addSystemService(std::unique_ptr<TriggerNamesService>
+                    (new TriggerNamesService(pset, pathManager_.triggerPathNames())));
+  serviceDirector_.addSystemService(std::unique_ptr<FloatingPointControl>(new FloatingPointControl(fpc_pset, actReg_)));
+  serviceDirector_.addSystemService(std::unique_ptr<ScheduleContext>(new ScheduleContext));
   ParameterSet pathSelection;
   if (helper_.servicesPS().get_if_present("PathSelection", pathSelection)) {
-    serviceDirector_->addSystemService(std::unique_ptr<PathSelection>(new PathSelection(*this)));
+    serviceDirector_.addSystemService(std::unique_ptr<PathSelection>(new PathSelection(*this)));
   }
 }
 
@@ -284,7 +284,7 @@ initSchedules_(ParameterSet const & pset)
   schedule_ =
     std::unique_ptr<Schedule>
     (new Schedule(ScheduleID::first(),
-                  *pathManager_,
+                  pathManager_,
                   pset,
                   ServiceRegistry::instance().get<TriggerNamesService>(),
                   preg_,
@@ -299,16 +299,16 @@ invokePostBeginJobWorkers_()
   // Need to convert multiple lists of workers into a long list that the
   // postBeginJobWorkers callbacks can understand.
   std::vector<Worker *> allWorkers;
-  allWorkers.reserve(pathManager_->triggerPathsInfo(ScheduleID::first()).workers().size() +
-                     pathManager_->endPathInfo().workers().size());
+  allWorkers.reserve(pathManager_.triggerPathsInfo(ScheduleID::first()).workers().size() +
+                     pathManager_.endPathInfo().workers().size());
   auto workerStripper = [&allWorkers](WorkerMap::value_type const & val) {
     allWorkers.emplace_back(val.second.get());
   };
-  std::for_each(pathManager_->triggerPathsInfo(ScheduleID::first()).workers().cbegin(),
-                pathManager_->triggerPathsInfo(ScheduleID::first()).workers().cend(),
+  std::for_each(pathManager_.triggerPathsInfo(ScheduleID::first()).workers().cbegin(),
+                pathManager_.triggerPathsInfo(ScheduleID::first()).workers().cend(),
                 workerStripper);
-  std::for_each(pathManager_->endPathInfo().workers().cbegin(),
-                pathManager_->endPathInfo().workers().cend(),
+  std::for_each(pathManager_.endPathInfo().workers().cbegin(),
+                pathManager_.endPathInfo().workers().cend(),
                 workerStripper);
   actReg_.sPostBeginJobWorkers.invoke(input_.get(), allWorkers);
 }
