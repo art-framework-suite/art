@@ -42,9 +42,10 @@ public:
   typedef std::vector<fhicl::ParameterSet> ParameterSets;
 
 public:
-  ServicesManager(ParameterSets const &,
-                  LibraryManager const &,
-                  ActivityRegistry &);
+  ServicesManager(ParameterSets const & serviceSets,
+                  size_t numSchedules,
+                  LibraryManager const & lm,
+                  ActivityRegistry & reg);
 
   ~ServicesManager();
 
@@ -105,10 +106,9 @@ private:
   art::ActivityRegistry & registry_;
   detail::ServiceCache factory_;
   NameIndex index_;
-
   TypeIDs requestedCreationOrder_;
   detail::ServiceStack actualCreationOrder_;
-
+  size_t numSchedules_;
 };  // ServicesManager
 
 // ----------------------------------------------------------------------

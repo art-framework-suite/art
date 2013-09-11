@@ -16,13 +16,15 @@
 
 art::ServicesManager::
 ServicesManager(ParameterSets const & psets,
+                size_t numSchedules,
                 LibraryManager const & lm,
                 ActivityRegistry & reg):
   registry_(reg),
   factory_(),
   index_(),
   requestedCreationOrder_(),
-  actualCreationOrder_()
+  actualCreationOrder_(),
+  numSchedules_(numSchedules)
 {
   fillCache_(psets, lm);
 }
@@ -82,10 +84,9 @@ putParameterSets(ParameterSets const & n)
 
 void
 art::ServicesManager::
-fillCache_(ParameterSets  const & psets, LibraryManager const & lm)
+fillCache_(ParameterSets const & psets, LibraryManager const & lm)
 {
-  // Receive from EventProcessor when we go multi-schedule.
-  detail::ServiceCacheEntry::setNSchedules(1);
+  detail::ServiceCacheEntry::setNSchedules(numSchedules_);
   // Loop over each configured service parameter set.
   for (auto const & ps : psets) {
     std::string service_name(ps.get<std::string>("service_type"));

@@ -79,5 +79,8 @@ ServiceDirector(fhicl::ParameterSet const & pset,
   extractServices(services, service_set);
   // configured based on optional parameters
   if (wantTracer) { addService("Tracer", service_set); }
-  serviceToken = ServiceRegistry::createSet(service_set, areg);
+  serviceToken =
+    ServiceRegistry::createSet(service_set,
+                               areg,
+                               scheduler.get<size_t>("num_schedules", 1));
 }

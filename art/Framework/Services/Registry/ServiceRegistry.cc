@@ -41,10 +41,13 @@ ServiceToken
 }
 
 ServiceToken
-ServiceRegistry::createSet(ParameterSets const & iPS, ActivityRegistry & reg)
+ServiceRegistry::createSet(ParameterSets const & iPS,
+                           ActivityRegistry & reg,
+                           size_t numSchedules)
 {
   std::shared_ptr<ServicesManager>
     result(new ServicesManager(iPS,
+                               numSchedules,
                                ServiceRegistry::instance().lm_,
                                reg)
           );
