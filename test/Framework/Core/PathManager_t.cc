@@ -31,7 +31,7 @@ struct PathManagerTestFixture {
 
   art::ActionTable atable;
   art::MasterProductRegistry preg;
-  std::shared_ptr<art::ActivityRegistry> areg;
+  art::ActivityRegistry areg;
 };
 
 PathManagerTestFixture::
@@ -39,7 +39,7 @@ PathManagerTestFixture()
 :
   atable(),
   preg(),
-  areg(new art::ActivityRegistry)
+  areg()
 {
 }
 

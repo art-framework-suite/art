@@ -74,7 +74,7 @@ private:
   makeInput(ParameterSet const & params,
             std::string const & processName,
             art::MasterProductRegistry & preg,
-            std::shared_ptr<art::ActivityRegistry> areg)
+            art::ActivityRegistry & areg)
   {
     ParameterSet defaultEmptySource;
     setupAsDefaultEmptySource(defaultEmptySource);
@@ -98,7 +98,7 @@ private:
                                                           art::getReleaseVersion(),
                                                           art::getPassID()));
       sourceSpecified = true;
-      art::InputSourceDescription isd(md, preg, *areg);
+      art::InputSourceDescription isd(md, preg, areg);
       return std::shared_ptr<art::InputSource>
         (art::InputSourceFactory::make(main_input, isd).release());
     }
@@ -128,11 +128,11 @@ art::EventProcessor::EventProcessor(ParameterSet const & pset)
   :
   helper_(pset),
   act_table_(helper_.schedulerPS()),
-  actReg_(new ActivityRegistry),
-  mfStatusUpdater_(*actReg_),
+  actReg_(),
+  mfStatusUpdater_(actReg_),
   preg_(),
   serviceToken_(),
-  serviceDirector_(new ServiceDirector(pset, *actReg_, serviceToken_)),
+  serviceDirector_(new ServiceDirector(pset, actReg_, serviceToken_)),
   destructorOperate_(),
   input_(),
   tbbManager_(tbb::task_scheduler_init::deferred),
@@ -228,7 +228,7 @@ art::EventProcessor::beginJob()
   }
   schedule_->beginJob();
   endPathExecutor_->beginJob();
-  actReg_->sPostBeginJob.invoke();
+  actReg_.sPostBeginJob.invoke();
 
   invokePostBeginJobWorkers_();
 }
@@ -247,7 +247,7 @@ art::EventProcessor::endJob()
                    std::ref(*pathManager_),
                    ServiceHandle<TriggerNamesService>()->wantSummary()));
   c.call(std::bind(&InputSource::doEndJob, input_));
-  c.call(std::bind(&decltype(ActivityRegistry::sPostEndJob)::invoke, actReg_->sPostEndJob));
+  c.call(std::bind(&decltype(ActivityRegistry::sPostEndJob)::invoke, actReg_.sPostEndJob));
 }
 
 void
@@ -258,11 +258,11 @@ addSystemServices_(ParameterSet const & pset)
   // NOTE: the order here might be backwards, due to the "push_front" registering
   // that sigc++ does way in the guts of the add operation.
   // no configuration available
-  serviceDirector_->addSystemService(std::unique_ptr<CurrentModule>(new CurrentModule(*actReg_)));
+  serviceDirector_->addSystemService(std::unique_ptr<CurrentModule>(new CurrentModule(actReg_)));
   // special construction
   serviceDirector_->addSystemService(std::unique_ptr<TriggerNamesService>
                     (new TriggerNamesService(pset, pathManager_->triggerPathNames())));
-  serviceDirector_->addSystemService(std::unique_ptr<FloatingPointControl>(new FloatingPointControl(fpc_pset, *actReg_)));
+  serviceDirector_->addSystemService(std::unique_ptr<FloatingPointControl>(new FloatingPointControl(fpc_pset, actReg_)));
   serviceDirector_->addSystemService(std::unique_ptr<ScheduleContext>(new ScheduleContext));
   ParameterSet pathSelection;
   if (helper_.servicesPS().get_if_present("PathSelection", pathSelection)) {
@@ -310,7 +310,7 @@ invokePostBeginJobWorkers_()
   std::for_each(pathManager_->endPathInfo().workers().cbegin(),
                 pathManager_->endPathInfo().workers().cend(),
                 workerStripper);
-  actReg_->sPostBeginJobWorkers.invoke(input_.get(), allWorkers);
+  actReg_.sPostBeginJobWorkers.invoke(input_.get(), allWorkers);
 }
 
 art::ServiceToken
@@ -512,7 +512,7 @@ art::EventProcessor::runCommon_()
 void
 art::EventProcessor::readFile()
 {
-  actReg_->sPreOpenFile.invoke();
+  actReg_.sPreOpenFile.invoke();
   FDEBUG(1) << " \treadFile\n";
   fb_ = input_->readFile(preg_);
   if (!fb_) {
@@ -520,14 +520,14 @@ art::EventProcessor::readFile()
         << "Source readFile() did not return a valid FileBlock: FileBlock "
         << "should be valid or readFile() should throw.\n";
   }
-  actReg_->sPostOpenFile.invoke(fb_->fileName());
+  actReg_.sPostOpenFile.invoke(fb_->fileName());
 }
 
 void
 art::EventProcessor::closeInputFile()
 {
-  SignalSentry fileCloseSentry(actReg_->sPreCloseFile.signal_,
-                               actReg_->sPostCloseFile.signal_);
+  SignalSentry fileCloseSentry(actReg_.sPreCloseFile.signal_,
+                               actReg_.sPostCloseFile.signal_);
   input_->closeFile();
   FDEBUG(1) << "\tcloseInputFile\n";
 }
@@ -703,8 +703,8 @@ art::EventProcessor::endSubRun(SubRunID const & sr)
 art::RunID
 art::EventProcessor::readAndCacheRun()
 {
-  SignalSentry runSourceSentry(actReg_->sPreSourceRun.signal_,
-                               actReg_->sPostSourceRun.signal_);
+  SignalSentry runSourceSentry(actReg_.sPreSourceRun.signal_,
+                               actReg_.sPostSourceRun.signal_);
   principalCache_.insert(input_->readRun());
   FDEBUG(1) << "\treadAndCacheRun " << "\n";
   return principalCache_.runPrincipal().id();
@@ -713,8 +713,8 @@ art::EventProcessor::readAndCacheRun()
 art::SubRunID
 art::EventProcessor::readAndCacheSubRun()
 {
-  SignalSentry subRunSourceSentry(actReg_->sPreSourceSubRun.signal_,
-                                  actReg_->sPostSourceSubRun.signal_);
+  SignalSentry subRunSourceSentry(actReg_.sPreSourceSubRun.signal_,
+                                  actReg_.sPostSourceSubRun.signal_);
   principalCache_.insert(input_->readSubRun(principalCache_.runPrincipalPtr()));
   FDEBUG(1) << "\treadAndCacheSubRun " << "\n";
   return principalCache_.subRunPrincipal().id();

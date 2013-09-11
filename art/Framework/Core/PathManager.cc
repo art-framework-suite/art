@@ -63,7 +63,7 @@ art::PathManager::
 PathManager(ParameterSet const & procPS,
             MasterProductRegistry & preg,
             ActionTable & exceptActions,
-            std::shared_ptr<ActivityRegistry> const & areg)
+            ActivityRegistry & areg)
   :
   procPS_(procPS),
   preg_(preg),
@@ -411,13 +411,13 @@ makeWorker_(detail::ModuleConfigInfo const & mci,
                                               procPS_.id(),
                                               getReleaseVersion(),
                                               getPassID()));
-    areg_->sPreModuleConstruction.invoke(md);
+    areg_.sPreModuleConstruction.invoke(md);
     auto worker = fact_.makeWorker(p, md);
-    areg_->sPostModuleConstruction.invoke(md);
+    areg_.sPostModuleConstruction.invoke(md);
     it = workers.
          emplace(mci.label(),
                  std::move(worker)).first;
-    it->second->setActivityRegistry(areg_);
+    it->second->setActivityRegistry(&areg_);
   }
   return it->second.get();
 }

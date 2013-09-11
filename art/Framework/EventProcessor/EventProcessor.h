@@ -160,19 +160,19 @@ private:
   // really needed, we should remove them.
 
   EvProcInitHelper helper_;
-  ActionTable                                   act_table_;
-  std::shared_ptr<ActivityRegistry>             actReg_;
-  MFStatusUpdater                               mfStatusUpdater_;
-  MasterProductRegistry                         preg_;
-  ServiceToken                                  serviceToken_;
-  std::unique_ptr<ServiceDirector>              serviceDirector_;
+  ActionTable act_table_;
+  ActivityRegistry actReg_;
+  MFStatusUpdater mfStatusUpdater_;
+  MasterProductRegistry preg_;
+  ServiceToken serviceToken_;
+  std::unique_ptr<ServiceDirector> serviceDirector_;
   // destructorOperate_ should be populated in destructor only!
   std::unique_ptr<ServiceRegistry::Operate> destructorOperate_;
-  std::shared_ptr<InputSource>                  input_;
+  std::shared_ptr<InputSource> input_;
   tbb::task_scheduler_init tbbManager_;
   std::unique_ptr<PathManager> pathManager_; // Destroy after schedules.
-  std::unique_ptr<Schedule>                       schedule_;
-  std::unique_ptr<EndPathExecutor>              endPathExecutor_;
+  std::unique_ptr<Schedule> schedule_;
+  std::unique_ptr<EndPathExecutor> endPathExecutor_;
 
   std::shared_ptr<FileBlock>                    fb_;
 
@@ -230,7 +230,7 @@ template <typename T>
 void
 art::EventProcessor::processOneOccurrence_(typename T::MyPrincipal & p)
 try {
-  detail::PrincipalSignalSentry<T> sentry(*actReg_, p);
+  detail::PrincipalSignalSentry<T> sentry(actReg_, p);
   schedule_->processOneOccurrence<T>(p);
   endPathExecutor_->processOneOccurrence<T>(p);
 }
