@@ -46,7 +46,7 @@ using fhicl::ParameterSet;
 namespace {
   // Most signals.
   class SignalSentry {
-  public:
+public:
     SignalSentry(SignalSentry const &) = delete;
     SignalSentry & operator=(SignalSentry const &) = delete;
     typedef sigc::signal<void> Sig;
@@ -58,7 +58,7 @@ namespace {
     ~SignalSentry() {
       post_();
     }
-  private:
+private:
     Sig & post_;
   };
 
@@ -84,7 +84,7 @@ namespace {
     try {
       if (!params.get_if_present("source", main_input)) {
         mf::LogInfo("EventProcessorSourceConfig")
-            << "Could not find a source configuration: using default.";
+          << "Could not find a source configuration: using default.";
       }
       // Fill in "ModuleDescription", in case the input source produces
       // any EDproducts,which would be registered in the
@@ -100,14 +100,14 @@ namespace {
       sourceSpecified = true;
       art::InputSourceDescription isd(md, preg, *areg);
       return std::shared_ptr<art::InputSource>
-             (art::InputSourceFactory::make(main_input, isd).release());
+        (art::InputSourceFactory::make(main_input, isd).release());
     }
     catch (art::Exception const & x) {
       if (sourceSpecified == false &&
           art::errors::Configuration == x.categoryCode()) {
         throw art::Exception(art::errors::Configuration, "FailedInputSource")
-            << "Configuration of main input source has failed\n"
-            << x;
+          << "Configuration of main input source has failed\n"
+          << x;
       }
       else {
         throw;
@@ -115,15 +115,18 @@ namespace {
     }
     catch (cet::exception const & x) {
       throw art::Exception(art::errors::Configuration, "FailedInputSource")
-          << "Configuration of main input source has failed\n"
-          << x;
+        << "Configuration of main input source has failed\n"
+        << x;
     }
     return std::shared_ptr<art::InputSource>();
   }
+
+
 }
 
 art::EventProcessor::EventProcessor(ParameterSet const & pset)
   :
+  helper_(pset),
   actReg_(new ActivityRegistry),
   mfStatusUpdater_(*actReg_),
   preg_(),
@@ -150,22 +153,13 @@ art::EventProcessor::EventProcessor(ParameterSet const & pset)
   exceptionMessageSubRuns_(),
   alreadyHandlingException_(false)
 {
-  // The BranchIDListRegistry is an indexed registry, and is a
-  //  singleton. It must be cleared here because some processes run
-  //  multiple EventProcessors in succession.
-  BranchIDListHelper::clearRegistries();
-  // TODO: Fix const-correctness. The ParameterSets that are
-  // returned here should be const, so that we can be sure they are
-  // not modified.
-  ParameterSet const services = pset.get<ParameterSet>("services", ParameterSet());
-  ParameterSet const scheduler = services.get<ParameterSet>("scheduler", ParameterSet());
-  fileMode_ = scheduler.get<std::string>("fileMode", "");
-  handleEmptyRuns_ = scheduler.get<bool>("handleEmptyRuns", true);
-  handleEmptySubRuns_ = scheduler.get<bool>("handleEmptySubRuns", true);
+  fileMode_ = helper_.schedulerPS().get<std::string>("fileMode", "");
+  handleEmptyRuns_ = helper_.schedulerPS().get<bool>("handleEmptyRuns", true);
+  handleEmptySubRuns_ = helper_.schedulerPS().get<bool>("handleEmptySubRuns", true);
   std::string const processName = pset.get<std::string>("process_name");
 
   // New PathManager. Required in time to construct TriggerNamesService.
-  act_table_ = ActionTable(scheduler);
+  act_table_ = ActionTable(helper_.schedulerPS());
   pathManager_.reset(new PathManager(pset, preg_, act_table_, actReg_));
 
   // Services
@@ -268,8 +262,7 @@ void
 art::EventProcessor::
 addSystemServices_(ParameterSet const & pset)
 {
-  ParameterSet const services = pset.get<ParameterSet>("services", ParameterSet());
-  ParameterSet const fpc_pset = services.get<ParameterSet>("floating_point_control", ParameterSet());
+  ParameterSet const fpc_pset = helper_.servicesPS().get<ParameterSet>("floating_point_control", ParameterSet());
   // NOTE: the order here might be backwards, due to the "push_front" registering
   // that sigc++ does way in the guts of the add operation.
   // no configuration available
@@ -280,7 +273,7 @@ addSystemServices_(ParameterSet const & pset)
   serviceDirector_->addSystemService(std::unique_ptr<FloatingPointControl>(new FloatingPointControl(fpc_pset, *actReg_)));
   serviceDirector_->addSystemService(std::unique_ptr<ScheduleContext>(new ScheduleContext));
   ParameterSet pathSelection;
-  if (services.get_if_present("PathSelection", pathSelection)) {
+  if (helper_.servicesPS().get_if_present("PathSelection", pathSelection)) {
     serviceDirector_->addSystemService(std::unique_ptr<PathSelection>(new PathSelection(*this)));
   }
 }
@@ -289,15 +282,11 @@ void
 art::EventProcessor::
 initSchedules_(ParameterSet const & pset)
 {
-  ParameterSet const services =
-    pset.get<ParameterSet>("services", ParameterSet());
-  ParameterSet const scheduler =
-    services.get<ParameterSet>("scheduler", ParameterSet());
 
   // Initialize TBB with desired number of threads.
   int num_threads =
-    scheduler.get<int>("num_threads",
-                       tbb::task_scheduler_init::default_num_threads());
+    helper_.servicesPS().get<int>("num_threads",
+                                  tbb::task_scheduler_init::default_num_threads());
   tbbManager_.initialize(num_threads);
 
   schedule_ =

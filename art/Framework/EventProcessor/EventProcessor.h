@@ -16,6 +16,7 @@
 #include "art/Framework/Core/PathManager.h"
 #include "art/Framework/Core/PrincipalCache.h"
 #include "art/Framework/Core/Schedule.h"
+#include "art/Framework/EventProcessor/EvProcInitHelper.h"
 #include "art/Framework/EventProcessor/ServiceDirector.h"
 #include "art/Framework/Principal/Actions.h"
 #include "art/Framework/Principal/fwd.h"
@@ -158,6 +159,7 @@ private:
   // only during construction, and never again. If they aren't
   // really needed, we should remove them.
 
+  EvProcInitHelper helper_;
   std::shared_ptr<ActivityRegistry>             actReg_;
   MFStatusUpdater                               mfStatusUpdater_;
   MasterProductRegistry                         preg_;
