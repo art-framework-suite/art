@@ -1,5 +1,5 @@
-#ifndef IIIIAHDGAHST
-#define IIIIAHDGAHST
+#ifndef art_Framework_EventProcessor_ServiceDirector_h
+#define art_Framework_EventProcessor_ServiceDirector_h
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/ServiceToken.h"
 #include "fhiclcpp/ParameterSet.h"
@@ -29,4 +29,8 @@ addSystemService(std::unique_ptr<SERVICE> && servicePtr)
 }
 #endif
 
-#endif
+#endif /* art_Framework_EventProcessor_ServiceDirector_h */
+
+// Local Variables:
+// mode: c++
+// End:

@@ -1,5 +1,5 @@
-#ifndef QQQJJSDHSKDAJT
-#define QQQJJSDHSKDAJT
+#ifndef art_Framework_EventProcessor_EvProcInitHelper_h
+#define art_Framework_EventProcessor_EvProcInitHelper_h
 
 #include "fhiclcpp/ParameterSet.h"
 
@@ -34,4 +34,8 @@ schedulerPS() const
   return schedulerPS_;
 }
 
-#endif
+#endif /* art_Framework_EventProcessor_EvProcInitHelper_h */
+
+// Local Variables:
+// mode: c++
+// End:
