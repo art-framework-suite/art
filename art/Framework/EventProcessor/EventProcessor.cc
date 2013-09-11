@@ -127,43 +127,35 @@ private:
 art::EventProcessor::EventProcessor(ParameterSet const & pset)
   :
   helper_(pset),
+  act_table_(helper_.schedulerPS()),
   actReg_(new ActivityRegistry),
   mfStatusUpdater_(*actReg_),
   preg_(),
   serviceToken_(),
-  serviceDirector_(),
+  serviceDirector_(new ServiceDirector(pset, *actReg_, serviceToken_)),
   destructorOperate_(),
   input_(),
   tbbManager_(tbb::task_scheduler_init::deferred),
-  pathManager_(),
+  pathManager_(new PathManager(pset, preg_, act_table_, actReg_)),
   schedule_(),
   endPathExecutor_(),
-  act_table_(),
   fb_(),
   machine_(),
   principalCache_(),
   sm_evp_(),
   shouldWeStop_(false),
   stateMachineWasInErrorState_(false),
-  fileMode_(),
-  handleEmptyRuns_(false),
-  handleEmptySubRuns_(false),
+  fileMode_(helper_.schedulerPS().get<std::string>("fileMode", "")),
+  handleEmptyRuns_(helper_.schedulerPS().get<bool>("handleEmptyRuns", true)),
+  handleEmptySubRuns_(helper_.schedulerPS().get<bool>("handleEmptySubRuns", true)),
   exceptionMessageFiles_(),
   exceptionMessageRuns_(),
   exceptionMessageSubRuns_(),
   alreadyHandlingException_(false)
 {
-  fileMode_ = helper_.schedulerPS().get<std::string>("fileMode", "");
-  handleEmptyRuns_ = helper_.schedulerPS().get<bool>("handleEmptyRuns", true);
-  handleEmptySubRuns_ = helper_.schedulerPS().get<bool>("handleEmptySubRuns", true);
   std::string const processName = pset.get<std::string>("process_name");
 
-  // New PathManager. Required in time to construct TriggerNamesService.
-  act_table_ = ActionTable(helper_.schedulerPS());
-  pathManager_.reset(new PathManager(pset, preg_, act_table_, actReg_));
-
   // Services
-  serviceDirector_.reset(new ServiceDirector(pset, *actReg_, serviceToken_));
   ServiceRegistry::Operate operate(serviceToken_); // Make usable.
   addSystemServices_(pset);
   serviceToken_.forceCreation();

@@ -160,6 +160,7 @@ private:
   // really needed, we should remove them.
 
   EvProcInitHelper helper_;
+  ActionTable                                   act_table_;
   std::shared_ptr<ActivityRegistry>             actReg_;
   MFStatusUpdater                               mfStatusUpdater_;
   MasterProductRegistry                         preg_;
@@ -172,7 +173,6 @@ private:
   std::unique_ptr<PathManager> pathManager_; // Destroy after schedules.
   std::unique_ptr<Schedule>                       schedule_;
   std::unique_ptr<EndPathExecutor>              endPathExecutor_;
-  ActionTable                                   act_table_;
 
   std::shared_ptr<FileBlock>                    fb_;
 
