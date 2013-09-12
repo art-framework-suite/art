@@ -40,7 +40,9 @@ public:
   // This is the (horrible, mangled, platform-dependent) name of the type.
   char const * name() const { return t_->name(); }
 
-  std::string className() const;
+  std::string persistentClassName() const;
+
+  std::string stdClassName() const;
 
   std::string friendlyClassName() const;
 

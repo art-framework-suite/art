@@ -19,7 +19,7 @@ namespace art
       emulatedModule(emulatedMod)
     {}
 
-    std::string className() const { return typeID.className(); }
+    std::string persistentClassName() const { return typeID.persistentClassName(); }
     std::string friendlyClassName() const { return typeID.friendlyClassName(); }
     bool hasEmulatedModule() const { return !emulatedModule.empty(); }
 

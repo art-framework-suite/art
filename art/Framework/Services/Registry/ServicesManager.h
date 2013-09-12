@@ -145,11 +145,18 @@ art::ServicesManager::put(std::unique_ptr<T> && premade_service)
 {
   std::unique_ptr<detail::ServiceHelperBase>
   service_helper(new detail::ServiceHelper<T>);
+  if (numSchedules_ > 1 && service_helper->scope() == ServiceScope::LEGACY) {
+    throw Exception(errors::Configuration)
+      << "The system has added manually a LEGACY service of type "
+      << cet::demangle_symbol(typeid(T).name())
+      << ",\nwhich is incompatible with multi-schedule operation.\n"
+      << "Contact the art developers <artists@fnal.gov>.\n";
+  }
   TypeID id(typeid(T));
   detail::ServiceCache::const_iterator it = factory_.find(id);
   if (it != factory_.end()) {
     throw art::Exception(art::errors::LogicError, "Service")
-        << "The system has manually added service of type "
+        << "The system has added manually a service of type "
         << cet::demangle_symbol(id.name())
         << ", but the service system already has a configured service"
         << " of that type\n";
@@ -171,7 +178,7 @@ art::ServicesManager::put(std::vector<SP> && premade_services)
   detail::ServiceCache::const_iterator it = factory_.find(id);
   if (it != factory_.end()) {
     throw art::Exception(art::errors::LogicError, "Service:")
-        << "The system has manually added service of type "
+        << "The system has added manually a service of type "
         << cet::demangle_symbol(id.name())
         << ", but the service system already has a configured service"
         << " of that type\n";

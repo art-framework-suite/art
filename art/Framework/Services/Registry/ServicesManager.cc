@@ -96,12 +96,25 @@ fillCache_(ParameterSets const & psets, LibraryManager const & lm)
       lm.getSymbolByLibspec<SHBCREATOR_t>(service_provider,
       "create_service_helper")()
     };
+    // Check this service type is valid for our current configuration.
+    if (numSchedules_ > 1 &&
+        service_helper->scope() == ServiceScope::LEGACY) {
+      throw Exception(errors::Configuration)
+        << "Service "
+        << service_name
+        << " (of type "
+        << service_helper->get_typeid().stdClassName()
+        << ")\nhas been registered as a LEGACY service, which is "
+        << "incompatible with\nmulti-schedule operation. "
+        << "Either remove this service from the configuration\n"
+        << " or configure services.scheduler.num_schedules: 1.\n";
+    }
     if (service_helper->is_interface()) {
       throw Exception(errors::LogicError)
         << "Service "
         << service_name
         << " (of type "
-        << service_helper->get_typeid().className()
+        << service_helper->get_typeid().stdClassName()
         << ")\nhas been registered as an interface in its header using\n"
         << "DECLARE_ART_SERVICE_INTERFACE.\n"
         << "Use DECLARE_ART_SERVICE OR DECLARE_ART_SERVICE_INTERFACE_IMPL\n"
@@ -122,11 +135,11 @@ fillCache_(ParameterSets const & psets, LibraryManager const & lm)
           << " is internally inconsistent: "
           << iface_helper->get_typeid()
           << " ("
-          << iface_helper->get_typeid().className()
+          << iface_helper->get_typeid().stdClassName()
           << ") != "
           << dynamic_cast<detail::ServiceInterfaceImplHelper *>(service_helper.get())->get_interface_typeid()
           << " ("
-          << dynamic_cast<detail::ServiceInterfaceImplHelper *>(service_helper.get())->get_interface_typeid().className()
+          << dynamic_cast<detail::ServiceInterfaceImplHelper *>(service_helper.get())->get_interface_typeid().stdClassName()
           << ").\n"
           << "Contact the art developers <artists@fnal.gov>.\n";
       }
@@ -175,7 +188,7 @@ insertInterface_(fhicl::ParameterSet const & pset,
                  detail::ServiceCache::iterator implEntry)
 {
   // Need temporary because we can't guarantee the order of evaluation
-  // of the arguments to std::make_pair() below.
+  // of the arguments to std::make_pair() below (helper might be gone).
   TypeID iType(helper->get_typeid());
   factory_.insert(std::make_pair(iType,
                                  detail::ServiceCacheEntry(pset,

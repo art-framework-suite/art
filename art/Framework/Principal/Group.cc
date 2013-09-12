@@ -107,9 +107,9 @@ Group::resolveProductIfAvailable(bool fillOnDemand,
   if (wanted_wrapper_type != wrapper_type_) {
     throw Exception(errors::LogicError)
       << "Attempted to obtain a product of different type ("
-      << wanted_wrapper_type.className()
+      << wanted_wrapper_type.persistentClassName()
       << ") than produced ("
-      << wrapper_type_.className()
+      << wrapper_type_.persistentClassName()
       << ").\n";
   }
   std::unique_ptr<EDProduct>

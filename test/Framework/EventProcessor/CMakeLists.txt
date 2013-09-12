@@ -1,8 +1,5 @@
-# Compile the exec (don't run). Yes, add_executable /
-# target_link_libraries is also fine but this is one command with a
-# uniform interface.
-cet_test(Statemachine_t NO_AUTO
-  SOURCES statemachine_t.cc MockEventProcessor.cc
+art_make_exec(Statemachine_t
+  SOURCE statemachine_t.cc MockEventProcessor.cc
   LIBRARIES
   ${Boost_PROGRAM_OPTIONS_LIBRARY}
   art_Framework_EventProcessor
@@ -41,3 +38,9 @@ statemachine_test(09)
 statemachine_test(10)
 statemachine_test(11)
 statemachine_test(12 -m)
+
+cet_test(ServiceDirector_t USE_BOOST_UNIT
+  LIBRARIES
+  art_Framework_EventProcessor
+  art_Framework_Services_Registry
+  )

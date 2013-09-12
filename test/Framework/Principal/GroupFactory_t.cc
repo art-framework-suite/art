@@ -28,7 +28,7 @@
 namespace {
   void checkTypeAndWrapper(art::TypeID const &producedType) {
     BOOST_REQUIRE(producedType.hasDictionary());
-    BOOST_REQUIRE(Reflex::Type::ByName(art::wrappedClassName(producedType.className())));
+    BOOST_REQUIRE(Reflex::Type::ByName(art::wrappedClassName(producedType.persistentClassName())));
   }
   art::BranchDescription
   makeBranchDescription(art::BranchType bt,

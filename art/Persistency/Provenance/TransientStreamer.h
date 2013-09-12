@@ -33,7 +33,7 @@ private:
 
 template <typename T>
 art::TransientStreamer<T>::TransientStreamer() :
-  className_(TypeID(typeid(T)).className()),
+  className_(TypeID(typeid(T)).persistentClassName()),
   cl_(className_.c_str())
 {}
 

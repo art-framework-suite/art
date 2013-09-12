@@ -51,7 +51,7 @@ namespace art {
     char const *metaBranchRootName() {
       throw Exception(errors::LogicError)
         << "art::metaBranchRootName requires a specialization for type "
-        << TypeID(typeid(T)).className()
+        << TypeID(typeid(T)).persistentClassName()
         << "\n";
     }
 

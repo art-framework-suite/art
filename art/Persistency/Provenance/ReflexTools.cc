@@ -306,8 +306,8 @@ namespace art
     return obj.CastObject(Type::ByTypeInfo(toType)).Address();
   }
 
-  std::string cint_wrapper_name(std::string const &className) {
-    return ROOT::Cintex::CintName(wrappedClassName(className));
+  std::string cint_wrapper_name(std::string const &name) {
+    return ROOT::Cintex::CintName(wrappedClassName(name));
   }
 
   Reflex::Type type_of_template_arg(Reflex::Type const &template_instance,

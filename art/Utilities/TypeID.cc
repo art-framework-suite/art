@@ -14,7 +14,7 @@
 namespace art {
   void
   TypeID::print(std::ostream& os) const {
-    os << className();
+    os << persistentClassName();
   }
 
   static
@@ -22,13 +22,13 @@ namespace art {
     Reflex::Type t = Reflex::Type::ByTypeInfo(iType);
     if (!bool(t)) {
       throw art::Exception(errors::DictionaryNotFound,"NoMatch")
-        << "TypeID::className: No dictionary for class " << cet::demangle_symbol(iType.name()) << '\n';
+        << "TypeID::persistentClassName: No dictionary for class " << cet::demangle_symbol(iType.name()) << '\n';
     }
     return t.Name(Reflex::SCOPED);
   }
 
   std::string
-  TypeID::className() const {
+  TypeID::persistentClassName() const {
     typedef std::map<art::TypeID, std::string> Map;
     static boost::thread_specific_ptr<Map> s_typeToName;
     if(0 == s_typeToName.get()){
@@ -42,8 +42,13 @@ namespace art {
   }
 
   std::string
+  TypeID::stdClassName() const {
+    return cet::demangle_symbol(typeInfo().name());
+  }
+
+  std::string
   TypeID::friendlyClassName() const {
-    return friendlyname::friendlyName(className());
+    return friendlyname::friendlyName(persistentClassName());
   }
 
   bool

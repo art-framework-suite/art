@@ -87,7 +87,7 @@ namespace art
                         Reflex::Type const& dynamicType,
                         std::type_info const& toType);
 
-  std::string cint_wrapper_name(std::string const &className);
+  std::string cint_wrapper_name(std::string const & name);
 
   Reflex::Type type_of_template_arg(Reflex::Type const &template_instance,
                                     size_t arg_index);

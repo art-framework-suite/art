@@ -296,11 +296,11 @@ namespace art {
     cet::exempt_ptr<ProcessLookup const>
       pl(findProcessLookup(wanted_product, typeLookup));
     if (pl) {
-      Reflex::Type rt(Reflex::Type::ByName(wrappedClassName(wanted_product.className())));
+      Reflex::Type rt(Reflex::Type::ByName(wrappedClassName(wanted_product.persistentClassName())));
       if (!rt) {
         throw Exception(errors::DictionaryNotFound)
           << "Dictionary not found for "
-          << wrappedClassName(wanted_product.className())
+          << wrappedClassName(wanted_product.persistentClassName())
           << ".\n";
       }
       return findGroups(*pl,
