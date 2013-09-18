@@ -15,8 +15,14 @@ public:
                   ServiceToken & token);
   template <typename SERVICE>
     void addSystemService(std::unique_ptr<SERVICE> && servicePtr);
+
 private:
+  typedef std::vector<fhicl::ParameterSet> ParameterSets;
+  void extractServices(fhicl::ParameterSet const & services,
+                       ParameterSets & service_set);
+
   ServiceToken & serviceToken_;
+  size_t numSchedules_;
 };
 
 #ifndef __GCCXML__

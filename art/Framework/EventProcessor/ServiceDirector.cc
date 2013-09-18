@@ -40,28 +40,6 @@ namespace {
     service_set.push_back(source.get<ParameterSet>(name, ParameterSet()));
     service_set.back().put("service_type", name);
   }
-
-  void extractServices(ParameterSet const & services, ParameterSets & service_set)
-  {
-    // this is not ideal.  Need to change the ServiceRegistry "createSet" and ServicesManager "put"
-    // functions to take the parameter set vector and a list of service objects to be added to
-    // the service token.  Alternatively we could get the service token and be allowed to add
-    // service objects to it.  Since the servicetoken contains the servicemanager, we might
-    // be able to simply add a function to the serviceregistry or servicesmanager that given
-    // a service token, it injects a new service object using the "put" of the
-    // servicesManager.
-    // order might be important here
-    // only configured if pset present in services
-    addOptionalService("RandomNumberGenerator", services, service_set);
-    addOptionalService("SimpleMemoryCheck", services, service_set);
-    addOptionalService("Timing", services, service_set);
-    addOptionalService("TFileService", services, service_set);
-    addService("FileCatalogMetadata", services, service_set);
-    ParameterSet user_services = services.get<ParameterSet>("user", ParameterSet());
-    std::vector<std::string> keys = user_services.get_pset_keys();
-    for (std::vector<std::string>::iterator i = keys.begin(), e = keys.end(); i != e; ++i)
-    { addService(*i, user_services, service_set); }
-  }
 }
 
 art::ServiceDirector::
@@ -69,18 +47,48 @@ ServiceDirector(fhicl::ParameterSet const & pset,
                 ActivityRegistry & areg,
                 ServiceToken & serviceToken)
 :
-  serviceToken_(serviceToken)
+  serviceToken_(serviceToken),
+  numSchedules_(pset.get<size_t>("services.scheduler.num_schedules", 1))
 {
-  fhicl::ParameterSet const services = pset.get<ParameterSet>("services", ParameterSet());
-  fhicl::ParameterSet const scheduler = services.get<ParameterSet>("scheduler", ParameterSet());
-  bool const wantTracer = scheduler.get<bool>("wantTracer", false);
-  // build a list of service parameter sets that will be used by the service registry
+  // Build a list of service parameter sets that will be used by the
+  // service registry.
   ParameterSets service_set;
+  fhicl::ParameterSet const services =
+    pset.get<ParameterSet>("services", ParameterSet());
   extractServices(services, service_set);
   // configured based on optional parameters
-  if (wantTracer) { addService("Tracer", service_set); }
   serviceToken =
     ServiceRegistry::createSet(service_set,
                                areg,
-                               scheduler.get<size_t>("num_schedules", 1));
+                               numSchedules_);
+}
+
+void
+art::ServiceDirector::
+extractServices(ParameterSet const & services, ParameterSets & service_set)
+{
+  // this is not ideal.  Need to change the ServiceRegistry "createSet" and ServicesManager "put"
+  // functions to take the parameter set vector and a list of service objects to be added to
+  // the service token.  Alternatively we could get the service token and be allowed to add
+  // service objects to it.  Since the servicetoken contains the servicemanager, we might
+  // be able to simply add a function to the serviceregistry or servicesmanager that given
+  // a service token, it injects a new service object using the "put" of the
+  // servicesManager.
+  // order might be important here
+  // only configured if pset present in services
+  addOptionalService("RandomNumberGenerator", services, service_set);
+  addOptionalService("SimpleMemoryCheck", services, service_set);
+  addOptionalService("Timing", services, service_set);
+  addOptionalService("TFileService", services, service_set);
+  if (numSchedules_ == 1) { // Disabled for now.
+    addService("FileCatalogMetadata", services, service_set);
+  }
+  if (services.get<bool>("scheduler.wantTracer", false)) {
+    addService("Tracer", service_set);
+  }
+  ParameterSet user_services = services.get<ParameterSet>("user", ParameterSet());
+  std::vector<std::string> keys = user_services.get_pset_keys();
+  for (auto const & key : keys) {
+    addService(key, user_services, service_set);
+  }
 }
