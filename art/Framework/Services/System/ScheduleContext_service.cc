@@ -1,6 +1,6 @@
 #include "art/Framework/Services/System/ScheduleContext.h"
 
-#include "art/Framework/Core/detail/ScheduleTask.h"
+#include "art/Utilities/ScheduleTask.h"
 #include "art/Utilities/Exception.h"
 
 #include "tbb/task.h"
@@ -8,7 +8,16 @@
 art::ScheduleContext::
 ScheduleContext()
   :
-  in_context_(false)
+  in_context_(false),
+  inContextNoTaskSID_()
+{
+}
+
+art::ScheduleContext::
+ScheduleContext(SIDOneReturn)
+  :
+  in_context_(false),
+  inContextNoTaskSID_(ScheduleID::first())
 {
 }
 
@@ -23,5 +32,5 @@ currentScheduleID()
          (st = dynamic_cast<detail::ScheduleTask *>(ct)) == nullptr) {
     ct = ct->parent();
   }
-  return (st ? st->scheduleID() : ScheduleID());
+  return (st ? st->scheduleID() : inContextNoTaskSID_);
 }

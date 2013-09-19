@@ -9,6 +9,7 @@ art_make(LIB_LIBRARIES
 	${Boost_THREAD_LIBRARY}
 	${ROOT_CINT}
 	${ROOT_REFLEX}
+  ${TBB}
 	-lpthread
 	-ldl
   )

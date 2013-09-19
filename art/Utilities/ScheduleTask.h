@@ -1,5 +1,5 @@
-#ifndef art_Framework_Core_detail_ScheduleTask_h
-#define art_Framework_Core_detail_ScheduleTask_h
+#ifndef art_Utilities_ScheduleTask_h
+#define art_Utilities_ScheduleTask_h
 ////////////////////////////////////////////////////////////////////////
 // ScheduleTask
 //
@@ -44,7 +44,7 @@ scheduleID() const
 {
   return id_;
 }
-#endif /* art_Framework_Core_detail_ScheduleTask_h */
+#endif /* art_Utilities_ScheduleTask_h */
 
 // Local Variables:
 // mode: c++

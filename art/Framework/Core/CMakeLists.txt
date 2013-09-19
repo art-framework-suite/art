@@ -29,7 +29,6 @@ art_make(
   ${CETLIB}
   ${CLHEP}
   ${SIGC}
-  ${TBB}
   )
 
 install_headers(SUBDIRS detail)

@@ -18,7 +18,9 @@ extern int main(); //Forward declaration for friendship of test.
 
 class art::ScheduleContext {
 public:
+  class SIDOneReturn { };
   ScheduleContext();
+  explicit ScheduleContext(SIDOneReturn);
   ScheduleID currentScheduleID();
 
   friend class detail::ScheduleContextSetter;
@@ -30,6 +32,8 @@ private:
 
   typedef unsigned char flag_type;
   std::atomic<flag_type> in_context_;
+
+  ScheduleID const inContextNoTaskSID_;
 };
 
 #ifndef __GCCXML__
