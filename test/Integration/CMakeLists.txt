@@ -236,10 +236,30 @@ cet_test(issue_0930_t HANDBUILT
   PASS_REGULAR_EXPRESSION "LogicError BEGIN"
 )
 
-cet_test(test_FileDumperOutput.sh PREBUILT
+cet_test(FileDumperOutput_w HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --rethrow-all -c FileDumperOutputTest_w.fcl
   DATAFILES
   fcl/FileDumperOutputTest_w.fcl
+)
+
+SET_TESTS_PROPERTIES(FileDumperOutput_w
+  PROPERTIES
+  PASS_REGULAR_EXPRESSION "Total products \\(present, not present\\): 3 \\(3, 0\\)\\."
+)
+
+cet_test(FileDumperOutput_r HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --rethrow-all -c FileDumperOutputTest_r.fcl
+  DATAFILES
   fcl/FileDumperOutputTest_r.fcl
+  TEST_PROPERTIES
+  DEPENDS FileDumperOutput_w
+)
+
+SET_TESTS_PROPERTIES(FileDumperOutput_r
+  PROPERTIES
+  PASS_REGULAR_EXPRESSION "Total products \\(present, not present\\): 3 \\(2, 1\\)\\."
 )
 
 cet_test(ToyRawInput_t_01 HANDBUILT
