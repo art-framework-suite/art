@@ -8,6 +8,8 @@
 // ======================================================================
 
 #include "art/Framework/Services/Registry/BranchActionType.h"
+#include "art/Framework/Services/Registry/ServiceHandle.h"
+#include "art/Framework/Services/System/ScheduleContext.h"
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Principal/Run.h"
@@ -32,23 +34,28 @@ namespace art {
     static bool const isEvent_ = true;
     static void preScheduleSignal(ActivityRegistry *a, EventPrincipal * ep) {
       Event ev(*ep, ModuleDescription());
-      a->sPreProcessEvent.invoke(ev);
+      a->sPreProcessEvent.invoke(sID_(), ev);
     }
     static void postScheduleSignal(ActivityRegistry *a, EventPrincipal* ep) {
       Event ev(*ep, ModuleDescription());
-      a->sPostProcessEvent.invoke(ev);
+      a->sPostProcessEvent.invoke(sID_(), ev);
     }
     static void prePathSignal(ActivityRegistry *a, std::string const& s) {
-      a->sPreProcessPath.invoke(s);
+      a->sPreProcessPath.invoke(sID_(), s);
     }
     static void postPathSignal(ActivityRegistry *a, std::string const& s, HLTPathStatus const& status) {
-      a->sPostProcessPath.invoke(s, status);
+      a->sPostProcessPath.invoke(sID_(), s, status);
     }
     static void preModuleSignal(ActivityRegistry *a, ModuleDescription const* md) {
-      a->sPreModule.invoke(*md);
+      a->sPreModule.invoke(sID_(), *md);
     }
     static void postModuleSignal(ActivityRegistry *a, ModuleDescription const* md) {
-      a->sPostModule.invoke(*md);
+      a->sPostModule.invoke(sID_(), *md);
+    }
+private:
+    static ScheduleID sID_() {
+      static ServiceHandle<ScheduleContext> s_scH;
+      return s_scH->currentScheduleID();
     }
   };
 
