@@ -29,7 +29,7 @@ namespace arttest
 arttest::Throwing::Throwing(fhicl::ParameterSet const &,
                             art::ActivityRegistry & r)
 {
-  r.sPostProcessEvent.watch(this, &Throwing::throwError);
+  r.sPostProcessEvent.watchAll(&Throwing::throwError, *this);
   mf::LogInfo("testing") << "Throwing service created";
 }
 

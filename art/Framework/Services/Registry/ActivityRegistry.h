@@ -57,11 +57,14 @@ namespace art {
 
 class art::ActivityRegistry {
 public:
-  ActivityRegistry() = default;
+  explicit ActivityRegistry(size_t nSchedules);
   ActivityRegistry(ActivityRegistry const&) = delete;
   ActivityRegistry& operator=(ActivityRegistry const&) = delete;
 
-  // ---------- signals ------------------------------------
+  ////////////////////////////////////
+  // Signals.
+  ////////////////////////////////////
+
   // Signal is emitted after all modules have had their beginJob called
   GlobalSignal<detail::SignalResponseType::FIFO, void> sPostBeginJob;
 

@@ -28,11 +28,9 @@ namespace ui {
 
   UserInteraction::UserInteraction(ActivityRegistry & iReg)
   {
-    iReg.sPostBeginJobWorkers.watch(this, &UserInteraction::postBeginJobWorkers);
-    //iReg.sPreModule.watch(this, &Tracer::preModuleEvent);
-    //iReg.sPostModule.watch(this, &UserInteraction::postModuleEvent);
-    iReg.sPreProcessEvent.watch(this, &UserInteraction::preEvent);
-    iReg.sPostProcessEvent.watch(this, &UserInteraction::postEvent);
+    iReg.sPostBeginJobWorkers.watch(&UserInteraction::postBeginJobWorkers, *this);
+    iReg.sPreProcessEvent.watchAll(&UserInteraction::preEvent, *this);
+    iReg.sPostProcessEvent.watchAll(&UserInteraction::postEvent, *this);
   }
 
   void UserInteraction::postBeginJobWorkers(InputSource * is,

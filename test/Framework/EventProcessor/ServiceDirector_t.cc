@@ -19,6 +19,7 @@ namespace {
   }
 
   struct TestFixture {
+    TestFixture() : areg(1), token() { }
     art::ActivityRegistry areg;
     art::ServiceToken token;
   };

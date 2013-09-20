@@ -219,9 +219,9 @@ RandomNumberGenerator( ParameterSet const    & pset
 , debug_                  ( pset.get<bool>( "debug", DEFAULT_DEBUG_VALUE) )
 {
   // Register for callbacks:
-  reg.sPostBeginJob.watch   (this, & RNGservice::postBeginJob   );
-  reg.sPostEndJob.watch     (this, & RNGservice::postEndJob     );
-  reg.sPreProcessEvent.watch(this, & RNGservice::preProcessEvent);
+  reg.sPostBeginJob.watch(&RNGservice::postBeginJob, *this);
+  reg.sPostEndJob.watch(&RNGservice::postEndJob, *this);
+  reg.sPreProcessEvent.watchAll(&RNGservice::preProcessEvent, *this);
 
   assert( invariant_holds_() && "RNGservice::RNGservice()" );
 }  // RNGservice()

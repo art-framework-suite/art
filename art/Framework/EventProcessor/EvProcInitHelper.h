@@ -12,9 +12,11 @@ public:
   EvProcInitHelper(fhicl::ParameterSet const & ps);
   fhicl::ParameterSet const & servicesPS() const;
   fhicl::ParameterSet const & schedulerPS() const;
+  size_t numSchedules() const;
 private:
   fhicl::ParameterSet const servicesPS_;
   fhicl::ParameterSet const schedulerPS_;
+  size_t numSchedules_;
 };
 
 
@@ -32,6 +34,14 @@ art::EvProcInitHelper::
 schedulerPS() const
 {
   return schedulerPS_;
+}
+
+inline
+size_t
+art::EvProcInitHelper::
+numSchedules() const
+{
+  return numSchedules_;
 }
 
 #endif /* art_Framework_EventProcessor_EvProcInitHelper_h */

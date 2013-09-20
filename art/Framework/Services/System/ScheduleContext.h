@@ -14,7 +14,6 @@ namespace art {
   }
 }
 
-extern int main(); //Forward declaration for friendship of test.
 
 class art::ScheduleContext {
 public:
@@ -24,12 +23,12 @@ public:
   ScheduleID currentScheduleID();
 
   friend class detail::ScheduleContextSetter;
-  friend int ::main();
+
+  // For use by event processor only, not client code!
+  bool setContext(); // In multi-schedule task context.
+  bool resetContext(); // No longer in multi-schedule task context.
 
 private:
-  bool setContext();
-  bool resetContext();
-
   typedef unsigned char flag_type;
   std::atomic<flag_type> in_context_;
 

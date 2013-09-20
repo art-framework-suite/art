@@ -38,11 +38,12 @@ private:
   typedef std::vector<SigType_> ContainerType_;
 public:
   // Typedefs
+  typedef typename SigType_::slot_type slot_type;
   typedef ResultType result_type;
   typedef typename ContainerType_::size_type size_type;
 
   // Constructor.
-  LocalSignal(size_t nSchedules);
+  LocalSignal(size_type nSchedules);
 
   // 1. Free function or functor (or pre-bound member function).
   void
@@ -78,7 +79,7 @@ private:
 
 template <art::detail::SignalResponseType STYPE, typename ResultType, typename...Args>
 art::LocalSignal<STYPE, ResultType, Args...>::
-LocalSignal(size_t nSchedules)
+LocalSignal(size_type nSchedules)
 :
   signals_(nSchedules)
 {

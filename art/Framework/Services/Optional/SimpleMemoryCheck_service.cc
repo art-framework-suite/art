@@ -351,33 +351,22 @@ namespace art {
     }
 #endif
     if (!oncePerEventMode) { // default, prints on increases
-      iReg.sPostSource.watch(this,
-                           &SimpleMemoryCheck::postSource);
-      iReg.sPostModuleConstruction.watch(this,
-                                       &SimpleMemoryCheck::postModuleConstruction);
-      iReg.sPostModuleBeginJob.watch(this,
-                                   &SimpleMemoryCheck::postModuleBeginJob);
-      iReg.sPostProcessEvent.watch(this,
-                                 &SimpleMemoryCheck::postEventProcessing);
-      iReg.sPostModule.watch(this,
-                           &SimpleMemoryCheck::postModule);
-      iReg.sPostEndJob.watch(this,
-                           &SimpleMemoryCheck::postEndJob);
+      iReg.sPostSource.watch(&SimpleMemoryCheck::postSource, *this);
+      iReg.sPostModuleConstruction.watch(&SimpleMemoryCheck::postModuleConstruction, *this);
+      iReg.sPostModuleBeginJob.watch(&SimpleMemoryCheck::postModuleBeginJob, *this);
+      iReg.sPostProcessEvent.watchAll(&SimpleMemoryCheck::postEventProcessing, *this);
+      iReg.sPostModule.watchAll(&SimpleMemoryCheck::postModule, *this);
+      iReg.sPostEndJob.watch(&SimpleMemoryCheck::postEndJob, *this);
     }
     else {
-      iReg.sPostProcessEvent.watch(this,
-                                 &SimpleMemoryCheck::postEventProcessing);
-      iReg.sPostEndJob.watch(this,
-                           &SimpleMemoryCheck::postEndJob);
+      iReg.sPostProcessEvent.watchAll(&SimpleMemoryCheck::postEventProcessing, *this);
+      iReg.sPostEndJob.watch(&SimpleMemoryCheck::postEndJob, *this);
     }
     if (moduleSummaryRequested) {                             // changelog 2
-      iReg.sPreProcessEvent.watch(this,
-                                &SimpleMemoryCheck::preEventProcessing);
-      iReg.sPreModule.watch(this,
-                          &SimpleMemoryCheck::preModule);
+      iReg.sPreProcessEvent.watchAll(&SimpleMemoryCheck::preEventProcessing, *this);
+      iReg.sPreModule.watchAll(&SimpleMemoryCheck::preModule, *this);
       if (oncePerEventMode) {
-        iReg.sPostModule.watch(this,
-                             &SimpleMemoryCheck::postModule);
+        iReg.sPostModule.watchAll(&SimpleMemoryCheck::postModule, *this);
       }
     }
     // The following are not currenty used/implemented below for either

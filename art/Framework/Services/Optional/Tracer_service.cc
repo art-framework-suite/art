@@ -123,77 +123,77 @@ Tracer::Tracer(fhicl::ParameterSet const& iPS, ActivityRegistry&iRegistry)
 : indentation_( iPS.get<std::string>("indentation", "++") )
 , depth_      ( 0 )
 {
-  iRegistry.sPostBeginJob.watch(this, &Tracer::postBeginJob);
-  iRegistry.sPostEndJob.watch(this, &Tracer::postEndJob);
+  iRegistry.sPostBeginJob.watch(&Tracer::postBeginJob, *this);
+  iRegistry.sPostEndJob.watch(&Tracer::postEndJob, *this);
 
-  iRegistry.sPreModule.watch(this, &Tracer::preModuleEvent);
-  iRegistry.sPostModule.watch(this, &Tracer::postModuleEvent);
+  iRegistry.sPreModule.watchAll(&Tracer::preModuleEvent, *this);
+  iRegistry.sPostModule.watchAll(&Tracer::postModuleEvent, *this);
 
-  iRegistry.sPreModuleConstruction.watch(this, &Tracer::preModuleConstruction);
-  iRegistry.sPostModuleConstruction.watch(this, &Tracer::postModuleConstruction);
+  iRegistry.sPreModuleConstruction.watch(&Tracer::preModuleConstruction, *this);
+  iRegistry.sPostModuleConstruction.watch(&Tracer::postModuleConstruction, *this);
 
-  iRegistry.sPreModuleBeginJob.watch(this, &Tracer::preModuleBeginJob);
-  iRegistry.sPostModuleBeginJob.watch(this, &Tracer::postModuleBeginJob);
+  iRegistry.sPreModuleBeginJob.watch(&Tracer::preModuleBeginJob, *this);
+  iRegistry.sPostModuleBeginJob.watch(&Tracer::postModuleBeginJob, *this);
 
-  iRegistry.sPreModuleEndJob.watch(this, &Tracer::preModuleEndJob);
-  iRegistry.sPostModuleEndJob.watch(this, &Tracer::postModuleEndJob);
+  iRegistry.sPreModuleEndJob.watch(&Tracer::preModuleEndJob, *this);
+  iRegistry.sPostModuleEndJob.watch(&Tracer::postModuleEndJob, *this);
 
-  iRegistry.sPreModuleBeginRun.watch(this, &Tracer::preModuleBeginRun);
-  iRegistry.sPostModuleBeginRun.watch(this, &Tracer::postModuleBeginRun);
+  iRegistry.sPreModuleBeginRun.watch(&Tracer::preModuleBeginRun, *this);
+  iRegistry.sPostModuleBeginRun.watch(&Tracer::postModuleBeginRun, *this);
 
-  iRegistry.sPreModuleEndRun.watch(this, &Tracer::preModuleEndRun);
-  iRegistry.sPostModuleEndRun.watch(this, &Tracer::postModuleEndRun);
+  iRegistry.sPreModuleEndRun.watch(&Tracer::preModuleEndRun, *this);
+  iRegistry.sPostModuleEndRun.watch(&Tracer::postModuleEndRun, *this);
 
-  iRegistry.sPreModuleBeginSubRun.watch(this, &Tracer::preModuleBeginSubRun);
-  iRegistry.sPostModuleBeginSubRun.watch(this, &Tracer::postModuleBeginSubRun);
+  iRegistry.sPreModuleBeginSubRun.watch(&Tracer::preModuleBeginSubRun, *this);
+  iRegistry.sPostModuleBeginSubRun.watch(&Tracer::postModuleBeginSubRun, *this);
 
-  iRegistry.sPreModuleEndSubRun.watch(this, &Tracer::preModuleEndSubRun);
-  iRegistry.sPostModuleEndSubRun.watch(this, &Tracer::postModuleEndSubRun);
+  iRegistry.sPreModuleEndSubRun.watch(&Tracer::preModuleEndSubRun, *this);
+  iRegistry.sPostModuleEndSubRun.watch(&Tracer::postModuleEndSubRun, *this);
 
-  iRegistry.sPreProcessPath.watch(this, &Tracer::prePathEvent);
-  iRegistry.sPostProcessPath.watch(this, &Tracer::postPathEvent);
+  iRegistry.sPreProcessPath.watchAll(&Tracer::prePathEvent, *this);
+  iRegistry.sPostProcessPath.watchAll(&Tracer::postPathEvent, *this);
 
-  iRegistry.sPrePathBeginRun.watch(this, &Tracer::prePathBeginRun);
-  iRegistry.sPostPathBeginRun.watch(this, &Tracer::postPathBeginRun);
+  iRegistry.sPrePathBeginRun.watch(&Tracer::prePathBeginRun, *this);
+  iRegistry.sPostPathBeginRun.watch(&Tracer::postPathBeginRun, *this);
 
-  iRegistry.sPrePathEndRun.watch(this, &Tracer::prePathEndRun);
-  iRegistry.sPostPathEndRun.watch(this, &Tracer::postPathEndRun);
+  iRegistry.sPrePathEndRun.watch(&Tracer::prePathEndRun, *this);
+  iRegistry.sPostPathEndRun.watch(&Tracer::postPathEndRun, *this);
 
-  iRegistry.sPrePathBeginSubRun.watch(this, &Tracer::prePathBeginSubRun);
-  iRegistry.sPostPathBeginSubRun.watch(this, &Tracer::postPathBeginSubRun);
+  iRegistry.sPrePathBeginSubRun.watch(&Tracer::prePathBeginSubRun, *this);
+  iRegistry.sPostPathBeginSubRun.watch(&Tracer::postPathBeginSubRun, *this);
 
-  iRegistry.sPrePathEndSubRun.watch(this, &Tracer::prePathEndSubRun);
-  iRegistry.sPostPathEndSubRun.watch(this, &Tracer::postPathEndSubRun);
+  iRegistry.sPrePathEndSubRun.watch(&Tracer::prePathEndSubRun, *this);
+  iRegistry.sPostPathEndSubRun.watch(&Tracer::postPathEndSubRun, *this);
 
-  iRegistry.sPreProcessEvent.watch(this, &Tracer::preEvent);
-  iRegistry.sPostProcessEvent.watch(this, &Tracer::postEvent);
+  iRegistry.sPreProcessEvent.watchAll(&Tracer::preEvent, *this);
+  iRegistry.sPostProcessEvent.watchAll(&Tracer::postEvent, *this);
 
-  iRegistry.sPreBeginRun.watch(this, &Tracer::preBeginRun);
-  iRegistry.sPostBeginRun.watch(this, &Tracer::postBeginRun);
+  iRegistry.sPreBeginRun.watch(&Tracer::preBeginRun, *this);
+  iRegistry.sPostBeginRun.watch(&Tracer::postBeginRun, *this);
 
-  iRegistry.sPreEndRun.watch(this, &Tracer::preEndRun);
-  iRegistry.sPostEndRun.watch(this, &Tracer::postEndRun);
+  iRegistry.sPreEndRun.watch(&Tracer::preEndRun, *this);
+  iRegistry.sPostEndRun.watch(&Tracer::postEndRun, *this);
 
-  iRegistry.sPreBeginSubRun.watch(this, &Tracer::preBeginSubRun);
-  iRegistry.sPostBeginSubRun.watch(this, &Tracer::postBeginSubRun);
+  iRegistry.sPreBeginSubRun.watch(&Tracer::preBeginSubRun, *this);
+  iRegistry.sPostBeginSubRun.watch(&Tracer::postBeginSubRun, *this);
 
-  iRegistry.sPreEndSubRun.watch(this, &Tracer::preEndSubRun);
-  iRegistry.sPostEndSubRun.watch(this, &Tracer::postEndSubRun);
+  iRegistry.sPreEndSubRun.watch(&Tracer::preEndSubRun, *this);
+  iRegistry.sPostEndSubRun.watch(&Tracer::postEndSubRun, *this);
 
-  iRegistry.sPreSource.watch(this, &Tracer::preSourceEvent);
-  iRegistry.sPostSource.watch(this, &Tracer::postSourceEvent);
+  iRegistry.sPreSource.watch(&Tracer::preSourceEvent, *this);
+  iRegistry.sPostSource.watch(&Tracer::postSourceEvent, *this);
 
-  iRegistry.sPreOpenFile.watch(this, &Tracer::preOpenFile);
-  iRegistry.sPostOpenFile.watch(this, &Tracer::postOpenFile);
+  iRegistry.sPreOpenFile.watch(&Tracer::preOpenFile, *this);
+  iRegistry.sPostOpenFile.watch(&Tracer::postOpenFile, *this);
 
-  iRegistry.sPreCloseFile.watch(this, &Tracer::preCloseFile);
-  iRegistry.sPostCloseFile.watch(this, &Tracer::postCloseFile);
+  iRegistry.sPreCloseFile.watch(&Tracer::preCloseFile, *this);
+  iRegistry.sPostCloseFile.watch(&Tracer::postCloseFile, *this);
 
-  iRegistry.sPreSourceRun.watch(this, &Tracer::preSourceRun);
-  iRegistry.sPostSourceRun.watch(this, &Tracer::postSourceRun);
+  iRegistry.sPreSourceRun.watch(&Tracer::preSourceRun, *this);
+  iRegistry.sPostSourceRun.watch(&Tracer::postSourceRun, *this);
 
-  iRegistry.sPreSourceSubRun.watch(this, &Tracer::preSourceSubRun);
-  iRegistry.sPostSourceSubRun.watch(this, &Tracer::postSourceSubRun);
+  iRegistry.sPreSourceSubRun.watch(&Tracer::preSourceSubRun, *this);
+  iRegistry.sPostSourceSubRun.watch(&Tracer::postSourceSubRun, *this);
 }
 
 // ======================================================================

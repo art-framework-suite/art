@@ -128,7 +128,7 @@ art::EventProcessor::EventProcessor(ParameterSet const & pset)
   :
   helper_(pset),
   act_table_(helper_.schedulerPS()),
-  actReg_(),
+  actReg_(helper_.numSchedules()),
   mfStatusUpdater_(actReg_),
   preg_(),
   serviceToken_(),
@@ -263,7 +263,8 @@ addSystemServices_(ParameterSet const & pset)
   serviceDirector_.addSystemService(std::unique_ptr<TriggerNamesService>
                     (new TriggerNamesService(pset, pathManager_.triggerPathNames())));
   serviceDirector_.addSystemService(std::unique_ptr<FloatingPointControl>(new FloatingPointControl(fpc_pset, actReg_)));
-  serviceDirector_.addSystemService(std::unique_ptr<ScheduleContext>(new ScheduleContext));
+  serviceDirector_.addSystemService(std::unique_ptr<ScheduleContext>
+                                    (new ScheduleContext(ScheduleContext::SIDOneReturn())));
   ParameterSet pathSelection;
   if (helper_.servicesPS().get_if_present("PathSelection", pathSelection)) {
     serviceDirector_.addSystemService(std::unique_ptr<PathSelection>(new PathSelection(*this)));

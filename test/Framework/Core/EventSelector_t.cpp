@@ -232,7 +232,7 @@ int main()
   // Now create and setup the service
   typedef art::TriggerNamesService TNS;
 
-  art::ActivityRegistry aReg;
+  art::ActivityRegistry aReg(1);
 
   ServiceToken serviceToken_ =
     ServiceRegistry::createSet(ServiceRegistry::ParameterSets(), aReg);

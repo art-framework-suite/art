@@ -16,7 +16,10 @@
 #include <utility>
 
 #define MFSU_WATCH_UPDATER(stateTag)                                \
-  areg.s##stateTag.watch(this, &art::MFStatusUpdater::updateStatusTo##stateTag)
+  areg.s##stateTag.watch(&art::MFStatusUpdater::updateStatusTo##stateTag, *this)
+
+#define MFSU_WATCHALL_UPDATER(stateTag)                                \
+  areg.s##stateTag.watchAll(&art::MFStatusUpdater::updateStatusTo##stateTag, *this)
 
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 
@@ -40,8 +43,8 @@ art::MFStatusUpdater::MFStatusUpdater(ActivityRegistry &areg) :
   MFSU_WATCH_UPDATER(PostOpenFile);
   MFSU_WATCH_UPDATER(PreCloseFile);
   MFSU_WATCH_UPDATER(PostCloseFile);
-  MFSU_WATCH_UPDATER(PreProcessEvent);
-  MFSU_WATCH_UPDATER(PostProcessEvent);
+  MFSU_WATCHALL_UPDATER(PreProcessEvent);
+  MFSU_WATCHALL_UPDATER(PostProcessEvent);
   MFSU_WATCH_UPDATER(PreBeginRun);
   MFSU_WATCH_UPDATER(PostBeginRun);
   MFSU_WATCH_UPDATER(PreEndRun);
@@ -50,8 +53,8 @@ art::MFStatusUpdater::MFStatusUpdater(ActivityRegistry &areg) :
   MFSU_WATCH_UPDATER(PostBeginSubRun);
   MFSU_WATCH_UPDATER(PreEndSubRun);
   MFSU_WATCH_UPDATER(PostEndSubRun);
-  MFSU_WATCH_UPDATER(PreProcessPath);
-  MFSU_WATCH_UPDATER(PostProcessPath);
+  MFSU_WATCHALL_UPDATER(PreProcessPath);
+  MFSU_WATCHALL_UPDATER(PostProcessPath);
   MFSU_WATCH_UPDATER(PrePathBeginRun);
   MFSU_WATCH_UPDATER(PostPathBeginRun);
   MFSU_WATCH_UPDATER(PrePathEndRun);
@@ -67,8 +70,8 @@ art::MFStatusUpdater::MFStatusUpdater(ActivityRegistry &areg) :
   MFSU_WATCH_UPDATER(PostModuleBeginJob);
   MFSU_WATCH_UPDATER(PreModuleEndJob);
   MFSU_WATCH_UPDATER(PostModuleEndJob);
-  MFSU_WATCH_UPDATER(PreModule);
-  MFSU_WATCH_UPDATER(PostModule);
+  MFSU_WATCHALL_UPDATER(PreModule);
+  MFSU_WATCHALL_UPDATER(PostModule);
   MFSU_WATCH_UPDATER(PreModuleBeginRun);
   MFSU_WATCH_UPDATER(PostModuleBeginRun);
   MFSU_WATCH_UPDATER(PreModuleEndRun);

@@ -39,7 +39,7 @@ PathManagerTestFixture()
 :
   atable(),
   preg(),
-  areg()
+  areg(1)
 {
 }
 

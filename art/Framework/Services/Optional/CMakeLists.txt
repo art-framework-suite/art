@@ -1,11 +1,6 @@
-set( art_Framework_Services_Optional_sources
-  TFileDirectory.cc
-  detail/TH1AddDirectorySentry.cc
-)
-
-art_make_library( LIBRARY_NAME art_Framework_Services_Optional
-                  SOURCE ${art_Framework_Services_Optional_sources}
-                  LIBRARIES ${CETLIB}
+art_make(NO_PLUGINS
+  SUBDIRS detail
+  LIB_LIBRARIES ${CETLIB}
   ${ROOT_HIST}
   ${ROOT_MATRIX}
   ${ROOT_MATHCORE}

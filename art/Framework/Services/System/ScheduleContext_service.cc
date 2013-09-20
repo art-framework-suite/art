@@ -25,7 +25,9 @@ art::ScheduleID
 art::ScheduleContext::
 currentScheduleID()
 {
-  if (!in_context_.load()) { return ScheduleID(); } // Not in schedule-running context.
+  // FIXME: Temporary!
+  if (!in_context_.load()) { return inContextNoTaskSID_; } // Not in schedule-running context.
+  //  if (!in_context_.load()) { return ScheduleID(); } // Not in schedule-running context.
   tbb::task * ct = & tbb::task::self();
   detail::ScheduleTask * st { nullptr };
   while (ct != nullptr &&
