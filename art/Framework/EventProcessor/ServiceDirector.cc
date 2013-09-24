@@ -1,14 +1,9 @@
 #include "art/Framework/EventProcessor/ServiceDirector.h"
 
-#include "art/Framework/Services/Optional/RandomNumberGenerator.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/Registry/ServiceRegistry.h"
-#include "art/Framework/Services/System/CurrentModule.h"
-#include "art/Framework/Services/System/FileCatalogMetadata.h"
-#include "art/Framework/Services/System/FloatingPointControl.h"
-#include "art/Framework/Services/System/PathSelection.h"
-#include "art/Framework/Services/System/ScheduleContext.h"
-#include "art/Framework/Services/System/TriggerNamesService.h"
+
+using fhicl::ParameterSet;
 
 namespace {
   typedef std::vector<ParameterSet> ParameterSets;
@@ -43,7 +38,7 @@ namespace {
 }
 
 art::ServiceDirector::
-ServiceDirector(fhicl::ParameterSet const & pset,
+ServiceDirector(ParameterSet const & pset,
                 ActivityRegistry & areg,
                 ServiceToken & serviceToken)
 :
@@ -53,7 +48,7 @@ ServiceDirector(fhicl::ParameterSet const & pset,
   // Build a list of service parameter sets that will be used by the
   // service registry.
   ParameterSets service_set;
-  fhicl::ParameterSet const services =
+  ParameterSet const services =
     pset.get<ParameterSet>("services", ParameterSet());
   extractServices(services, service_set);
   // configured based on optional parameters
@@ -86,7 +81,8 @@ extractServices(ParameterSet const & services, ParameterSets & service_set)
   if (services.get<bool>("scheduler.wantTracer", false)) {
     addService("Tracer", service_set);
   }
-  ParameterSet user_services = services.get<ParameterSet>("user", ParameterSet());
+  ParameterSet user_services =
+    services.get<ParameterSet>("user", ParameterSet());
   std::vector<std::string> keys = user_services.get_pset_keys();
   for (auto const & key : keys) {
     addService(key, user_services, service_set);
