@@ -28,7 +28,7 @@ namespace art {
 
     // Partial specialization.
     template <typename T>
-    class ServiceWrapper<T, ServiceScope::PER_SCHEDULE>;
+    class ServiceWrapper<T, ServiceScope::LOCAL>;
 
     ////////////////////////////////////
     // Support structures.
@@ -104,7 +104,7 @@ private:
 
 // Partially-specialized template.
 template <typename T>
-class art::detail::ServiceWrapper<T, art::ServiceScope::PER_SCHEDULE> : public ServiceWrapperBase {
+class art::detail::ServiceWrapper<T, art::ServiceScope::LOCAL> : public ServiceWrapperBase {
 public:
   // Non-copyable.
   ServiceWrapper(ServiceWrapper const &) = delete;
@@ -149,7 +149,7 @@ public:
   T & get(ScheduleID sID) { return *service_ptrs_.at(sID.id()); }
 
   template<typename U, typename = typename std::enable_if<std::is_base_of<U, T>::value>::type>
-  ServiceWrapper<U, art::ServiceScope::PER_SCHEDULE> * getAs() const {
+  ServiceWrapper<U, art::ServiceScope::LOCAL> * getAs() const {
     std::vector<std::shared_ptr<U>> converted_ptrs(service_ptrs_.size());
     std::transform(service_ptrs_.begin(),
                    service_ptrs_.end(),
@@ -157,7 +157,7 @@ public:
     [](std::shared_ptr<T> const & ptr_in) {
       return std::static_pointer_cast<U>(ptr_in);
     });
-    return new ServiceWrapper<U, art::ServiceScope::PER_SCHEDULE>(std::move(converted_ptrs));
+    return new ServiceWrapper<U, art::ServiceScope::LOCAL>(std::move(converted_ptrs));
   }
 
 private:

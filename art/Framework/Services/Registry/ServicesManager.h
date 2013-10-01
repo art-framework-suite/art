@@ -50,12 +50,12 @@ public:
   ~ServicesManager();
 
   template < class T,
-           typename = typename std::enable_if < detail::ServiceHelper<T>::scope_val != ServiceScope::PER_SCHEDULE >::type >
+           typename = typename std::enable_if < detail::ServiceHelper<T>::scope_val != ServiceScope::LOCAL >::type >
   T &
   get();
 
   template < class T,
-           typename = typename std::enable_if<detail::ServiceHelper<T>::scope_val == ServiceScope::PER_SCHEDULE>::type >
+           typename = typename std::enable_if<detail::ServiceHelper<T>::scope_val == ServiceScope::LOCAL>::type >
   T &
   get(ScheduleID);
 
@@ -68,14 +68,14 @@ public:
   }
 
   template < typename T,
-           typename = typename std::enable_if < detail::ServiceHelper<T>::scope_val != ServiceScope::PER_SCHEDULE >::type >
+           typename = typename std::enable_if < detail::ServiceHelper<T>::scope_val != ServiceScope::LOCAL >::type >
   void
   put(std::unique_ptr<T> && premade_service);
 
   // SP<T> must be convertible to std::shared_ptr<T>.
   template < class SP,
            typename = typename std::enable_if < detail::ServiceHelper<typename SP::element_type>::scope_val ==
-           ServiceScope::PER_SCHEDULE >::type >
+           ServiceScope::LOCAL >::type >
   void
   put(std::vector<SP> && premade_services);  // force all the services that are not alrady made into existance
 

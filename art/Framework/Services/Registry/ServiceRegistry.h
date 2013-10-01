@@ -43,7 +43,7 @@ public:
 
   virtual ~ServiceRegistry();
 
-  template< class T, typename = typename std::enable_if<detail::ServiceHelper<T>::scope_val != ServiceScope::PER_SCHEDULE>::type>
+  template< class T, typename = typename std::enable_if<detail::ServiceHelper<T>::scope_val != ServiceScope::LOCAL>::type>
   T & get() const
     {
       if( ! manager_.get() )
@@ -52,7 +52,7 @@ public:
       return manager_-> template get<T>();
     }
 
-  template< class T, typename = typename std::enable_if<detail::ServiceHelper<T>::scope_val == ServiceScope::PER_SCHEDULE>::type>
+  template< class T, typename = typename std::enable_if<detail::ServiceHelper<T>::scope_val == ServiceScope::LOCAL>::type>
   T & get(ScheduleID sID) const
     {
       if( ! manager_.get() )

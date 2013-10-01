@@ -12,7 +12,7 @@
 // headers *and* their compile units.
 //
 // * In order to declare your service, you must define your service as
-// either a LEGACY, GLOBAL or PER_SCHEDULE service, as follows:
+// either a LEGACY, GLOBAL or LOCAL service, as follows:
 //
 //   * LEGACY services are unaware of multi-schedule operation, and
 //     configuration of such a service precludes multi-schedule
@@ -28,13 +28,13 @@
 //     schedule signals (however the same callback must be registered
 //     for all schedules per the ActivityRegistry interface).
 //
-//   * PER_SCHEDULE services must provide a signature:
+//   * LOCAL services must provide a signature:
 //
 //       MyService(fhicl::ParameterSet const &,
 //                 art::ActivityRegistry &,
 //                 art::ScheduleID);
 //
-//     Note that Per-schedule services may register for global callbacks,
+//     Note that Local services may register for global callbacks,
 //     but there will be n unique instances of the service (and
 //     therefore unique callbacks), one for each schedule.
 ////////////////////////////////////////////////////////////////////////

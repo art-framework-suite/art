@@ -17,14 +17,14 @@ cet_test(MyServiceUsingIface_t HANDBUILT
   DATAFILES fcl/MyServiceUsingIface_t.fcl
   )
 
-simple_plugin(PSTest "service" NO_INSTALL)
-simple_plugin(PSTestAnalyzer "module" NO_INSTALL
-  test_Framework_Services_Optional_PSTest_service)
+simple_plugin(LocalServiceTest "service" NO_INSTALL)
+simple_plugin(LocalServiceTestAnalyzer "module" NO_INSTALL
+  test_Framework_Services_Optional_LocalServiceTest_service)
 
-simple_plugin(PSTestInterfaceImpl "service" NO_INSTALL)
+simple_plugin(LocalServiceTestInterfaceImpl "service" NO_INSTALL)
 
-cet_test(PSTest_t HANDBUILT
+cet_test(LocalServiceTest_t HANDBUILT
   TEST_EXEC art
-  TEST_ARGS --rethrow-all -c PSTest_t.fcl
-  DATAFILES fcl/PSTest_t.fcl
+  TEST_ARGS --rethrow-all -c LocalServiceTest_t.fcl
+  DATAFILES fcl/LocalServiceTest_t.fcl
   )

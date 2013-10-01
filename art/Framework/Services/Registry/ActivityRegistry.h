@@ -10,7 +10,7 @@
 // Services can connect to the signals distributed by the
 // ActivityRegistry in order to monitor the activity of the application.
 //
-// Signals are either global or local (per-schedule). Register a
+// Signals are either global or local (local). Register a
 // watchpoint by calling the watch() function of the appropriate signal.
 //
 //  GlobalSignal<detail::SignalResponseType::FIFO, void,

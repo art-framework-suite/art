@@ -1,0 +1,16 @@
+process_name: LocalServiceTest
+
+services.user:
+{
+  LocalServiceTest: { }
+  LocalServiceTestInterface: { service_provider: LocalServiceTestInterfaceImpl }
+}
+
+physics:
+{
+  analyzers: { a1: { module_type: LocalServiceTestAnalyzer } }
+
+  e1: [ a1 ]
+
+  end_paths: [ e1 ]
+}

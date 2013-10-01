@@ -52,11 +52,11 @@ public:
   void putParameterSet(fhicl::ParameterSet const & newConfig);
 
   template < typename T,
-           typename = typename std::enable_if < detail::ServiceHelper<T>::scope_val != ServiceScope::PER_SCHEDULE >::type >
+           typename = typename std::enable_if < detail::ServiceHelper<T>::scope_val != ServiceScope::LOCAL >::type >
   T & get(ActivityRegistry & reg, detail::ServiceStack & creationOrder) const;
 
   template < typename T,
-           typename = typename std::enable_if<detail::ServiceHelper<T>::scope_val == ServiceScope::PER_SCHEDULE>::type >
+           typename = typename std::enable_if<detail::ServiceHelper<T>::scope_val == ServiceScope::LOCAL>::type >
   T & get(ActivityRegistry & reg,
           detail::ServiceStack & creationOrder,
           ScheduleID sID) const;
@@ -140,7 +140,7 @@ T &
 art::detail::ServiceCacheEntry::
 get(ActivityRegistry & reg, detail::ServiceStack & creationOrder) const
 {
-  assert(serviceScope() != ServiceScope::PER_SCHEDULE &&
+  assert(serviceScope() != ServiceScope::LOCAL &&
          "Called wrong service get() function: need ScheduleID");
   WrapperBase_ptr swb = getService(reg, creationOrder);
   return *reinterpret_cast<T *>(dynamic_cast<detail::ServiceLGRHelper &>(*helper_).retrieve(swb));
@@ -154,7 +154,7 @@ get(ActivityRegistry & reg,
     detail::ServiceStack & creationOrder,
     ScheduleID sID) const
 {
-  assert(serviceScope() == ServiceScope::PER_SCHEDULE &&
+  assert(serviceScope() == ServiceScope::LOCAL &&
          "Called wrong service get() function!");
   WrapperBase_ptr swb = getService(reg, creationOrder);
   return *reinterpret_cast<T *>(dynamic_cast<detail::ServicePSRHelper &>(*helper_).retrieve(swb, sID));

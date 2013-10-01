@@ -8,7 +8,7 @@
 //
 // Note invocation only requires one template argument, but the
 // constructor will require zero or one arguments depending on the scope
-// of the service (LEGACY, GLOBAL or PER_SCHEDULE).
+// of the service (LEGACY, GLOBAL or LOCAL).
 //
 // ======================================================================
 
@@ -21,7 +21,7 @@
 
 namespace art {
   template< class T, ServiceScope SCOPE = art::detail::ServiceHelper<T>::scope_val> class ServiceHandle;
-  template <class T> class ServiceHandle<T, art::ServiceScope::PER_SCHEDULE>;
+  template <class T> class ServiceHandle<T, art::ServiceScope::LOCAL>;
 }
 
 // General template.
@@ -41,9 +41,9 @@ private:
   T  * instance;
 };
 
-// Per-schedule template. SFINAE wouldn't work here.
+// Local template. SFINAE wouldn't work here.
 template< class T>
-class art::ServiceHandle<T, art::ServiceScope::PER_SCHEDULE> {
+class art::ServiceHandle<T, art::ServiceScope::LOCAL> {
 public:
   // c'tor:
   ServiceHandle(ScheduleID sID)

@@ -1,6 +1,6 @@
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 
-// Only per-schedule signals are mentioned here: global signals are
+// Only local signals are mentioned here: global signals are
 // default constructed.
 art::ActivityRegistry::ActivityRegistry(size_t numSchedules)
  :

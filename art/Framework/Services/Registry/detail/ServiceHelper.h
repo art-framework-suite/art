@@ -13,7 +13,7 @@
 // ServiceHelper
 //
 // The ServiceHelper class and associated interface classes to simplify
-// the service cache in the face of pre-made and per-schedule services,
+// the service cache in the face of pre-made and local services,
 // and services implementing interfaces.
 //
 ////////////////////////////////////////////////////////////////////////
@@ -73,7 +73,7 @@ struct art::detail::ServiceInterfaceHelper :
   bool is_interface_impl() const final override { return false; }
 };
 
-// A per-schedule service.
+// A local service.
 struct art::detail::ServicePSMHelper {
   virtual
   std::unique_ptr<ServiceWrapperBase>

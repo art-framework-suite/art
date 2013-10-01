@@ -95,7 +95,7 @@ private:
   ModInfos protoEndPathInfo_;
   vstring triggerPathNames_;
   PathsInfo endPathInfo_;
-  std::map<ScheduleID, PathsInfo> triggerPathsInfo_; // Per-schedule.
+  std::map<ScheduleID, PathsInfo> triggerPathsInfo_; // Local.
 };
 
 inline

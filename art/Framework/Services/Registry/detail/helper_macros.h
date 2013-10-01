@@ -28,7 +28,7 @@
 #define DEFINE_ART_SH_GLOBAL_SCOPE_M_INTERFACE \
   DEFINE_ART_SH_L_G_SCOPE_M_INTERFACE
 
-#define DEFINE_ART_SH_PER_SCHEDULE_SCOPE_M_INTERFACE \
+#define DEFINE_ART_SH_LOCAL_SCOPE_M_INTERFACE \
   public ServicePSMHelper
 
 #define DEFINE_ART_SH_SCOPE_M_INTERFACE(scopeArg) \
@@ -44,7 +44,7 @@
 #define DEFINE_ART_SH_GLOBAL_SCOPE_R_INTERFACE \
   DEFINE_ART_SH_L_G_SCOPE_R_INTERFACE
 
-#define DEFINE_ART_SH_PER_SCHEDULE_SCOPE_R_INTERFACE \
+#define DEFINE_ART_SH_LOCAL_SCOPE_R_INTERFACE \
   public ServicePSRHelper
 
 #define DEFINE_ART_SH_SCOPE_R_INTERFACE(scopeArg) \
@@ -85,13 +85,13 @@
 #define DEFINE_ART_GLOBAL_SERVICE_RETRIEVER(svc) \
   DEFINE_ART_L_G_SERVICE_RETRIEVER(svc,GLOBAL)
 
-// Per-schedule service.
-#define DEFINE_ART_PER_SCHEDULE_SERVICE_RETRIEVER(svc) \
+// Local service.
+#define DEFINE_ART_LOCAL_SERVICE_RETRIEVER(svc) \
   void * \
   retrieve(std::shared_ptr<ServiceWrapperBase> & swb, \
            ScheduleID sID) const final override \
   { return \
-           &dynamic_cast<ServiceWrapper<svc, ServiceScope::PER_SCHEDULE> *>(swb.get())->get(sID); \
+           &dynamic_cast<ServiceWrapper<svc, ServiceScope::LOCAL> *>(swb.get())->get(sID); \
   }
 
 ////////////////////////////////////////////////////////////////////////
@@ -115,8 +115,8 @@
 #define DEFINE_ART_GLOBAL_SERVICE_MAKER(svc) \
   DEFINE_ART_L_G_SERVICE_MAKER(svc,GLOBAL)
 
-// Per-schedule services.
-#define DEFINE_ART_PER_SCHEDULE_SERVICE_MAKER(svc) \
+// Local services.
+#define DEFINE_ART_LOCAL_SERVICE_MAKER(svc) \
   std::unique_ptr<ServiceWrapperBase> \
   make(fhicl::ParameterSet const & cfg, \
        ActivityRegistry & reg, \
@@ -124,7 +124,7 @@
   { return \
            std::unique_ptr<art::detail::ServiceWrapperBase> \
            (new ServiceWrapper<svc, \
-            ServiceScope::PER_SCHEDULE>(cfg, reg, nSchedules)); \
+            ServiceScope::LOCAL>(cfg, reg, nSchedules)); \
   }
 
 // CreateHelper.

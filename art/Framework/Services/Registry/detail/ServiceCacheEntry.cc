@@ -100,7 +100,7 @@ makeAndCacheService(ActivityRegistry & reg) const
 {
   assert(is_impl() && "ServiceCacheEntry::makeAndCacheService called on a service interface!");
   try {
-    if (serviceScope() == ServiceScope::PER_SCHEDULE) {
+    if (serviceScope() == ServiceScope::LOCAL) {
       service_ = dynamic_cast<detail::ServicePSMHelper &>(*helper_).make(config_, reg, nSchedules());
     }
     else {
