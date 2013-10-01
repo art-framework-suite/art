@@ -1,54 +1,7 @@
-#include "messageDefaults.fcl"
-
-services:
-{
-  # Always-present services; configuration optional.
-  floating_point_control: { }
-
-  scheduler:  # options block in the old system
-  {
-    Rethrow: ['OtherArt','StdException','Unknown','BadAlloc',
-              'BadExceptionType','ProductNotFound','DictionaryNotFound',
-              'InsertFailure','Configuration','LogicError','UnimplementedFeature',
-              'InvalidReference','NullPointerError','NoProductSpecified','EventTimeout',
-              'DataCorruption','ScheduleExecutionFailure','EventProcessorFailure',
-              'FileInPathError','FileOpenError','FileReadError','FatalRootError',
-              'MismatchedInputFiles','ProductDoesNotSupportViews',
-              'ProductDoesNotSupportPtr','NotFound']
-    # IgnoreCompletely: []
-    wantSummary: true
-    # wantTracer: false
-    # fileMode: ""
-    # handleEmptyRuns: true
-    # handleEmptySubRuns: true
-    # enableSigInt: true
-    # unloadRootSigHandler: false
-    # resetRootErrHandler: true
-  }
-
-   # These are provided by Art, but are not system services and therefore
-   # need to be configured to come to life.
-   Timing: { }
-   SimpleMemoryCheck: { }
-
-   user:
-   {
-     # user-defined, plugin services
-   }
-}
-
-services.message: @local::messageDefaults
+services.scheduler.wantSummary: true
 
 physics:
 {
-  producers:
-  {
-  }
-
-  filters:
-  {
-  }
-
   analyzers:
   {
     r1a:
@@ -72,20 +25,12 @@ physics:
   }
 
   e1: [ r1a, r1b, r2a ]
-
-  trigger_paths: [ ]
-  end_paths: [ e1 ]
-}
-
-outputs:
-{
 }
 
 source:
 {
   module_type: RootInput
-  fileNames: [ "out2.root" ]
-
+  fileNames: [ "../EventSelectorFromFile_w.d/out2.root" ]
 }
 
 process_name: DEVELr

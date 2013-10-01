@@ -123,12 +123,27 @@ cet_test(ReflexTools_t USE_BOOST_UNIT
   LIBRARIES ${default_test_libraries}
   )
 
-cet_test(EventSelectorFromFile_t.sh PREBUILT
+cet_test(EventSelectorFromFile_w HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --rethrow-all --config EventSelectorFromFile_w.fcl
   DATAFILES
   fcl/EventSelectorFromFile_w.fcl
+)
+
+cet_test(EventSelectorFromFile_r1 HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --rethrow-all --config EventSelectorFromFile_r1.fcl
+  DATAFILES
   fcl/EventSelectorFromFile_r1.fcl
+  TEST_PROPERTIES DEPENDS EventSelectorFromFile_w
+)
+
+cet_test(EventSelectorFromFile_r2 HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --rethrow-all --config EventSelectorFromFile_r2.fcl
+  DATAFILES
   fcl/EventSelectorFromFile_r2.fcl
-  fcl/messageDefaults.fcl
+  TEST_PROPERTIES DEPENDS EventSelectorFromFile_w
 )
 
 cet_test(test_simple_01_t.sh PREBUILT
