@@ -26,8 +26,8 @@ namespace art {
 
 class art::ServiceRegistry {
   // non-copyable:
-  ServiceRegistry( ServiceRegistry const & ) = delete;
-  ServiceRegistry& operator=( ServiceRegistry const & ) = delete;
+  ServiceRegistry(ServiceRegistry const &) = delete;
+  ServiceRegistry & operator=(ServiceRegistry const &) = delete;
 
 public:
   typedef std::vector<fhicl::ParameterSet> ParameterSets;
@@ -38,36 +38,33 @@ public:
                                 ActivityRegistry & areg,
                                 size_t numSchedules = 1);
 
-  friend int main( int argc, char* argv[] );
+  friend int main(int argc, char * argv[]);
   friend class Operate;
 
   virtual ~ServiceRegistry();
 
-  template< class T, typename = typename std::enable_if<detail::ServiceHelper<T>::scope_val != ServiceScope::LOCAL>::type>
-  T & get() const
-    {
-      if( ! manager_.get() )
-        throw art::Exception(art::errors::NotFound, "Service")
-          <<" no ServiceRegistry has been set for this thread";
-      return manager_-> template get<T>();
-    }
+  template < class T, typename = typename std::enable_if < detail::ServiceHelper<T>::scope_val != ServiceScope::LOCAL >::type >
+  T & get() const {
+    if (! manager_.get())
+      throw art::Exception(art::errors::NotFound, "Service")
+          << " no ServiceRegistry has been set for this thread";
+    return manager_-> template get<T>();
+  }
 
   template< class T, typename = typename std::enable_if<detail::ServiceHelper<T>::scope_val == ServiceScope::LOCAL>::type>
-  T & get(ScheduleID sID) const
-    {
-      if( ! manager_.get() )
-        throw art::Exception(art::errors::NotFound, "Service")
-          <<" no ServiceRegistry has been set for this thread";
-      return manager_-> template get<T>(sID);
-    }
+  T & get(ScheduleID sID) const {
+    if (! manager_.get())
+      throw art::Exception(art::errors::NotFound, "Service")
+          << " no ServiceRegistry has been set for this thread";
+    return manager_-> template get<T>(sID);
+  }
 
-  template<class T> bool isAvailable() const
-    {
-      if( ! manager_.get() )
-        throw art::Exception(art::errors::NotFound, "Service")
-          <<" no ServiceRegistry has been set for this thread";
-      return manager_-> template isAvailable<T>();
-    }
+  template<class T> bool isAvailable() const {
+    if (! manager_.get())
+      throw art::Exception(art::errors::NotFound, "Service")
+          << " no ServiceRegistry has been set for this thread";
+    return manager_-> template isAvailable<T>();
+  }
 
   // The token can be passed to another thread in order to have the
   // same services available in the other thread.
@@ -78,8 +75,8 @@ public:
 
 private:
   // returns old token
-  ServiceToken setContext( ServiceToken const & iNewToken );
-  void unsetContext( ServiceToken const & iOldToken );
+  ServiceToken setContext(ServiceToken const & iNewToken);
+  void unsetContext(ServiceToken const & iOldToken);
 
   ServiceRegistry();
 
@@ -91,20 +88,20 @@ private:
 
 class art::ServiceRegistry::Operate {
   // non-copyable:
-  Operate( Operate const & );
-  void  operator = ( Operate const & );
+  Operate(Operate const &);
+  void  operator = (Operate const &);
 
   // override operator new to stop use on heap?
 
 public:
   // c'tor:
   Operate(const ServiceToken & iToken)
-  : oldToken_( ServiceRegistry::instance().setContext(iToken) )
-    { }
+    : oldToken_(ServiceRegistry::instance().setContext(iToken))
+  { }
 
   // d'tor:
   ~Operate()
-    { ServiceRegistry::instance().unsetContext(oldToken_); }
+  { ServiceRegistry::instance().unsetContext(oldToken_); }
 
 private:
   ServiceToken oldToken_;

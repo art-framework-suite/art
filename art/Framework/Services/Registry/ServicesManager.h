@@ -116,7 +116,8 @@ private:
 template < class T,
          typename >
 T &
-art::ServicesManager::get() {
+art::ServicesManager::get()
+{
   // Find the correct ServiceCacheEntry object.
   detail::ServiceCache::iterator it = factory_.find(TypeID(typeid(T)));
   if (it == factory_.end())
@@ -129,7 +130,8 @@ art::ServicesManager::get() {
 template < class T,
          typename >
 T &
-art::ServicesManager::get(ScheduleID sID) {
+art::ServicesManager::get(ScheduleID sID)
+{
   // Find the correct ServiceCacheEntry object.
   detail::ServiceCache::iterator it = factory_.find(TypeID(typeid(T)));
   if (it == factory_.end())
@@ -147,10 +149,10 @@ art::ServicesManager::put(std::unique_ptr<T> && premade_service)
   service_helper(new detail::ServiceHelper<T>);
   if (numSchedules_ > 1 && service_helper->scope() == ServiceScope::LEGACY) {
     throw Exception(errors::Configuration)
-      << "The system has added manually a LEGACY service of type "
-      << cet::demangle_symbol(typeid(T).name())
-      << ",\nwhich is incompatible with multi-schedule operation.\n"
-      << "Contact the art developers <artists@fnal.gov>.\n";
+        << "The system has added manually a LEGACY service of type "
+        << cet::demangle_symbol(typeid(T).name())
+        << ",\nwhich is incompatible with multi-schedule operation.\n"
+        << "Contact the art developers <artists@fnal.gov>.\n";
   }
   TypeID id(typeid(T));
   detail::ServiceCache::const_iterator it = factory_.find(id);

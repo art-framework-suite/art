@@ -29,7 +29,7 @@ public:
 
   // Noncopyable
   ServiceWrapperBase(ServiceWrapperBase const &) = delete;
-  ServiceWrapperBase& operator = (ServiceWrapperBase const &) = delete;
+  ServiceWrapperBase & operator = (ServiceWrapperBase const &) = delete;
 
   virtual ~ServiceWrapperBase() = default;
 

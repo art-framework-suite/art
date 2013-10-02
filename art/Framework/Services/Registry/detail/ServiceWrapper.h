@@ -32,7 +32,7 @@ namespace art {
 
     ////////////////////////////////////
     // Support structures.
-    template<typename T, void (T:: *)(fhicl::ParameterSet const &)>  struct reconfig_function;
+    template<typename T, void (T::*)(fhicl::ParameterSet const &)>  struct reconfig_function;
     template<typename T> no_tag  has_reconfig_helper(...);
     template<typename T> yes_tag has_reconfig_helper(reconfig_function<T, &T::reconfigure> * dummy);
 
@@ -68,7 +68,7 @@ class art::detail::ServiceWrapper : public ServiceWrapperBase {
 public:
   // Non-copyable.
   ServiceWrapper(ServiceWrapper const &) = delete;
-  ServiceWrapper& operator=(ServiceWrapper const &) = delete;
+  ServiceWrapper & operator=(ServiceWrapper const &) = delete;
 
   // C'tor from ParameterSet, ActivityRegistry.
   ServiceWrapper(fhicl::ParameterSet const & ps,
@@ -124,7 +124,7 @@ public:
     ServiceWrapperBase(),
     service_ptrs_() {
     service_ptrs_.reserve(service_ptrs.size());
-  for (auto && up : service_ptrs) {
+    for (auto && up : service_ptrs) {
       service_ptrs_.emplace_back(std::move(up));
     }
   }
@@ -165,7 +165,7 @@ private:
     typename std::conditional < detail::has_reconfig_function<T>::value,
              detail::DoReconfig<T>,
              detail::DoNothing<T> >::type reconfig_or_nothing;
-  for (auto & service_ptr : service_ptrs_) {
+    for (auto & service_ptr : service_ptrs_) {
       reconfig_or_nothing(*service_ptr, n);
     }
   }

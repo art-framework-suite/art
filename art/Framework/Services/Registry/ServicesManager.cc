@@ -100,26 +100,26 @@ fillCache_(ParameterSets const & psets, LibraryManager const & lm)
     if (numSchedules_ > 1 &&
         service_helper->scope() == ServiceScope::LEGACY) {
       throw Exception(errors::Configuration)
-        << "Service "
-        << service_name
-        << " (of type "
-        << service_helper->get_typeid().stdClassName()
-        << ")\nhas been registered as a LEGACY service, which is "
-        << "incompatible with\nmulti-schedule operation. "
-        << "Either remove this service from the configuration\n"
-        << " or configure services.scheduler.num_schedules: 1.\n";
+          << "Service "
+          << service_name
+          << " (of type "
+          << service_helper->get_typeid().stdClassName()
+          << ")\nhas been registered as a LEGACY service, which is "
+          << "incompatible with\nmulti-schedule operation. "
+          << "Either remove this service from the configuration\n"
+          << " or configure services.scheduler.num_schedules: 1.\n";
     }
     if (service_helper->is_interface()) {
       throw Exception(errors::LogicError)
-        << "Service "
-        << service_name
-        << " (of type "
-        << service_helper->get_typeid().stdClassName()
-        << ")\nhas been registered as an interface in its header using\n"
-        << "DECLARE_ART_SERVICE_INTERFACE.\n"
-        << "Use DECLARE_ART_SERVICE OR DECLARE_ART_SERVICE_INTERFACE_IMPL\n"
-        << "as appropriate. A true service interface should *not* be\n"
-        << "compiled into a  _service.so plugin library.\n";
+          << "Service "
+          << service_name
+          << " (of type "
+          << service_helper->get_typeid().stdClassName()
+          << ")\nhas been registered as an interface in its header using\n"
+          << "DECLARE_ART_SERVICE_INTERFACE.\n"
+          << "Use DECLARE_ART_SERVICE OR DECLARE_ART_SERVICE_INTERFACE_IMPL\n"
+          << "as appropriate. A true service interface should *not* be\n"
+          << "compiled into a  _service.so plugin library.\n";
     }
     std::unique_ptr<detail::ServiceInterfaceHelper> iface_helper;
     if (service_helper->is_interface_impl()) { // Expect an interface helper
@@ -130,18 +130,18 @@ fillCache_(ParameterSets const & psets, LibraryManager const & lm)
       if (dynamic_cast<detail::ServiceInterfaceImplHelper *>(service_helper.get())->get_interface_typeid() !=
           iface_helper->get_typeid()) {
         throw Exception(errors::LogicError)
-          << "Service registration for "
-          << service_provider
-          << " is internally inconsistent: "
-          << iface_helper->get_typeid()
-          << " ("
-          << iface_helper->get_typeid().stdClassName()
-          << ") != "
-          << dynamic_cast<detail::ServiceInterfaceImplHelper *>(service_helper.get())->get_interface_typeid()
-          << " ("
-          << dynamic_cast<detail::ServiceInterfaceImplHelper *>(service_helper.get())->get_interface_typeid().stdClassName()
-          << ").\n"
-          << "Contact the art developers <artists@fnal.gov>.\n";
+            << "Service registration for "
+            << service_provider
+            << " is internally inconsistent: "
+            << iface_helper->get_typeid()
+            << " ("
+            << iface_helper->get_typeid().stdClassName()
+            << ") != "
+            << dynamic_cast<detail::ServiceInterfaceImplHelper *>(service_helper.get())->get_interface_typeid()
+            << " ("
+            << dynamic_cast<detail::ServiceInterfaceImplHelper *>(service_helper.get())->get_interface_typeid().stdClassName()
+            << ").\n"
+            << "Contact the art developers <artists@fnal.gov>.\n";
       }
       if (service_provider == service_name) {
         std::string iface_name(cet::demangle(iface_helper->get_typeid().name()));
