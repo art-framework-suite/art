@@ -3,7 +3,6 @@ art_make(SUBDIRS detail
   art_Utilities
   ${FHICLCPP}
   ${SIGC}
-  ${TBB}
   )
 
 install_headers(SUBDIRS detail)
