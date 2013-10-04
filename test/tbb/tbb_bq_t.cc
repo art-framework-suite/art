@@ -17,6 +17,5 @@ int main()
   {
     bq.pop(i);
     std::cout << i << std::endl;
-    bq.push(i);
   }
 }
