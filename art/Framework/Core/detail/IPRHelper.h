@@ -113,7 +113,8 @@ public:
 
   // 2. Algorithm useful when index of Acoll == index of desired Ptr in Assns.
   template <typename PidProvider, typename Acoll, typename Bcoll>
-  typename std::enable_if <std::is_same<typename std::remove_cv<typename std::remove_pointer<typename Acoll::value_type>::type>::type, ProdA>::value, shared_exception_t>::type
+  typename std::enable_if<std::is_same<typename std::remove_cv<typename std::remove_pointer<typename Acoll::value_type>::type>::type, ProdA>::value,
+                          shared_exception_t>::type
   operator()(Acoll const & aColl, PidProvider const & pp, Bcoll & bColl, dataColl_t & dColl) const;
 
   // 3. Algorithm useful when dealing with collections of Ptrs.
@@ -129,9 +130,10 @@ private:
 // 1.
 template <typename ProdA, typename ProdB, typename Data, typename DATACOLL>
 template <typename PidProvider, typename Acoll, typename Bcoll>
-typename art::detail::IPRHelper<ProdA, ProdB, Data, DATACOLL>::shared_exception_t
+auto
 art::detail::IPRHelper<ProdA, ProdB, Data, DATACOLL>::
 operator()(Acoll const & aColl, PidProvider const & pp, Bcoll & bColl) const
+-> shared_exception_t
 {
   IPRHelperDef dummy;
   return (*this)(aColl, pp, bColl, dummy);
@@ -140,10 +142,12 @@ operator()(Acoll const & aColl, PidProvider const & pp, Bcoll & bColl) const
 // 2.
 template <typename ProdA, typename ProdB, typename Data, typename DATACOLL>
 template <typename PidProvider, typename Acoll, typename Bcoll>
-typename std::enable_if <std::is_same<typename std::remove_cv<typename std::remove_pointer<typename Acoll::value_type>::type>::type, ProdA>::value,
-                         typename art::detail::IPRHelper<ProdA, ProdB, Data, DATACOLL>::shared_exception_t>::type
+auto
 art::detail::IPRHelper<ProdA, ProdB, Data, DATACOLL>::
 operator()(Acoll const & aColl, PidProvider const & pp, Bcoll & bColl, dataColl_t & dColl) const
+-> typename std::enable_if<std::is_same<typename std::remove_cv<typename std::remove_pointer<typename Acoll::value_type>::type>::type, ProdA>::value,
+                           shared_exception_t>::type
+
 {
   detail::BcollHelper<ProdB> bh(assnsTag_);
   detail::DataCollHelper<Data> dh(assnsTag_);
@@ -174,10 +178,12 @@ operator()(Acoll const & aColl, PidProvider const & pp, Bcoll & bColl, dataColl_
 // 3.
 template <typename ProdA, typename ProdB, typename Data, typename DATACOLL>
 template <typename PidProvider, typename Acoll, typename Bcoll>
-typename std::enable_if<std::is_same<typename Acoll::value_type, art::Ptr<ProdA> >::value,
-                        typename art::detail::IPRHelper<ProdA, ProdB, Data, DATACOLL>::shared_exception_t>::type
+auto
 art::detail::IPRHelper<ProdA, ProdB, Data, DATACOLL>::
 operator()(Acoll const & aColl, PidProvider const & pp, Bcoll & bColl, dataColl_t & dColl) const
+-> typename std::enable_if<std::is_same<typename Acoll::value_type, art::Ptr<ProdA> >::value,
+                           shared_exception_t>::type
+
 {
   detail::BcollHelper<ProdB> bh(assnsTag_);
   detail::DataCollHelper<Data> dh(assnsTag_);
