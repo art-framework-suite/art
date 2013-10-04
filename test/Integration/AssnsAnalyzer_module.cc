@@ -29,6 +29,8 @@ namespace arttest {
    class AssnsAnalyzer;
 }
 
+#include <initializer_list>
+
 class arttest::AssnsAnalyzer : public art::EDAnalyzer {
 public:
   explicit AssnsAnalyzer(fhicl::ParameterSet const & p);
@@ -180,13 +182,24 @@ testOne(art::Event const & e) const
 
   // First, check we can make an FO on a non-existent label without
   // barfing immediately.
-  FO<std::string, void> foDead(hAcoll, e, "noModule");
+  FO<std::string, arttest::AssnTestData> foDead(hAcoll, e, "noModule");
   BOOST_REQUIRE(!foDead.isValid());
-  BOOST_REQUIRE_THROW(foDead.size(), cet::exception);
+  BOOST_REQUIRE_EXCEPTION(foDead.size(),                                \
+                          art::Exception,                               \
+                          [](art::Exception const & e)                  \
+                          {                                             \
+                            return e.categoryCode() == art::errors::LogicError && \
+                              e.history().back() == "ProductNotFound";  \
+                          });                                           \
+  BOOST_REQUIRE_EXCEPTION(foDead.data(0),                               \
+                          art::Exception,                               \
+                          [](art::Exception const & e)                  \
+                          {                                             \
+                            return e.categoryCode() == art::errors::LogicError && \
+                              e.history().back() == "ProductNotFound";  \
+                          });
 
   // Now do our normal checks.
-  FO<std::string, arttest::AssnTestData> foB(hAcoll, e, inputLabel_);
-  FO<std::string, void> foBV(hAcoll, e, inputLabel_);
   art::Handle<std::vector<std::string> > hBcoll;
   std::unique_ptr<FO<size_t, arttest::AssnTestData> > foA;
   std::unique_ptr<FO<size_t, void> > foAV;
@@ -195,7 +208,13 @@ testOne(art::Event const & e) const
     foA.reset(new FO<size_t, arttest::AssnTestData>(hBcoll, e, inputLabel_));
     foAV.reset(new FO<size_t, void>(hBcoll, e, inputLabel_));
   }
+  FO<std::string, arttest::AssnTestData> foB(hAcoll, e, inputLabel_);
+  FO<std::string, arttest::AssnTestData> foB2(hAcoll, e, inputLabel_);
+  FO<std::string, void> foBV(hAcoll, e, inputLabel_);
+  std::vector<art::Ptr<size_t> > vp;
+  vp.reserve(3);
   for (size_t i = 0; i < 3; ++i) {
+    vp.emplace_back(hAcoll, i);
     if (testAB_) {
       BOOST_CHECK_EQUAL(*(*hAB)[i].first, i);
       if (! bCollMissing_) {
@@ -222,21 +241,23 @@ testOne(art::Event const & e) const
       }
       BOOST_CHECK_EQUAL(*(*hBAV)[i].second, i);
     }
-    // Check FindOne.
     if (bCollMissing_) {
       BOOST_CHECK(!foBV.at(i));
-    } else {
-      BOOST_CHECK_EQUAL(dereference(foB.at(i)), std::string(x[ai[i]]));
     }
-    BOOST_CHECK_EQUAL(dereference(foB.data(i)).d1, i);
-    BOOST_CHECK_EQUAL(dereference(foB.data(i)).d2, bi[i]);
-    if (!bCollMissing_) {
+    else {
       BOOST_CHECK_EQUAL(dereference(foBV.at(i)), std::string(x[ai[i]]));
       BOOST_CHECK_EQUAL(dereference(foA->at(i)), bi[i]);
       BOOST_CHECK_EQUAL(dereference(foA->data(i)).d1, ai[i]);
       BOOST_CHECK_EQUAL(dereference(foA->data(i)).d2, i);
       BOOST_CHECK_EQUAL(dereference(foAV->at(i)), bi[i]);
       BOOST_CHECK_NO_THROW(check_get(*foA, *foAV));
+    }
+    for (auto const & f : { foB, foB2 } ) {
+      if (!bCollMissing_) {
+        BOOST_CHECK_EQUAL(dereference(f.at(i)), std::string(x[ai[i]]));
+      }
+      BOOST_CHECK_EQUAL(dereference(f.data(i)).d1, i);
+      BOOST_CHECK_EQUAL(dereference(f.data(i)).d2, bi[i]);
     }
   }
   // Check alternative accessors and range checking for Assns.
@@ -297,28 +318,47 @@ testMany(art::Event const & e) const
   art::Handle<std::vector<size_t> > hAcoll;
   BOOST_REQUIRE(e.getByLabel(inputLabel_, hAcoll));
 
-  // First, check we can make an FO on a non-existent label without
+  // First, check we can make an FM on a non-existent label without
   // barfing immediately.
-  FM<B_t, void> fmDead(hAcoll, e, "noModule");
+  FM<B_t, arttest::AssnTestData> fmDead(hAcoll, e, "noModule");
   BOOST_REQUIRE(!fmDead.isValid());
-  BOOST_REQUIRE_THROW(fmDead.size(), cet::exception);
+  BOOST_REQUIRE_EXCEPTION(fmDead.size(),                                \
+                          art::Exception,                               \
+                          [](art::Exception const & e)                  \
+                          {                                             \
+                            return e.categoryCode() == art::errors::LogicError && \
+                              e.history().back() == "ProductNotFound";  \
+                          });                                           \
+  BOOST_REQUIRE_EXCEPTION(fmDead.data(0),                               \
+                          art::Exception,                               \
+                          [](art::Exception const & e)                  \
+                          {                                             \
+                            return e.categoryCode() == art::errors::LogicError && \
+                              e.history().back() == "ProductNotFound";  \
+                          });
 
   // Now do our normal checks.
   // Check FindMany.
-  FM<B_t, arttest::AssnTestData> fmB(hAcoll, e, art::InputTag(inputLabel_, "M"));
-  BOOST_REQUIRE_EQUAL(fmB.size(), 3ul);
-  if (bCollMissing_) {
-    BOOST_CHECK(fmB.at(0).size() == 0);
-    BOOST_CHECK(fmB.at(1).size() == 0);
-    BOOST_CHECK(fmB.at(2).size() == 0);
-  } else {
-    BOOST_CHECK_EQUAL(fmB.at(0).size(), 1ul);
-    BOOST_CHECK_EQUAL(fmB.at(1).size(), 2ul);
-    BOOST_CHECK_EQUAL(fmB.at(2).size(), 1ul);
+  FM<B_t, arttest::AssnTestData>
+    fmB(hAcoll, e, art::InputTag(inputLabel_, "M"));
+  art::Ptr<size_t> larry(hAcoll, 0), curly(hAcoll, 1), mo(hAcoll, 2);
+  FM<B_t, arttest::AssnTestData>
+    fmB2({larry, curly, mo}, e, art::InputTag(inputLabel_, "M"));
+  for (auto const & f : { fmB, fmB2 }) {
+    BOOST_REQUIRE_EQUAL(f.size(), 3ul);
+    if (bCollMissing_) {
+      BOOST_CHECK(f.at(0).size() == 0);
+      BOOST_CHECK(f.at(1).size() == 0);
+      BOOST_CHECK(f.at(2).size() == 0);
+    } else {
+      BOOST_CHECK_EQUAL(f.at(0).size(), 1ul);
+      BOOST_CHECK_EQUAL(f.at(1).size(), 2ul);
+      BOOST_CHECK_EQUAL(f.at(2).size(), 1ul);
+    }
+    BOOST_CHECK_EQUAL(f.data(0).size(), 1ul);
+    BOOST_CHECK_EQUAL(f.data(1).size(), 2ul);
+    BOOST_CHECK_EQUAL(f.data(2).size(), 1ul);
   }
-  BOOST_CHECK_EQUAL(fmB.data(0).size(), 1ul);
-  BOOST_CHECK_EQUAL(fmB.data(1).size(), 2ul);
-  BOOST_CHECK_EQUAL(fmB.data(2).size(), 1ul);
   FM<B_t, void> fmBV(hAcoll, e, art::InputTag(inputLabel_, "M"));
   if (bCollMissing_) {
     BOOST_CHECK(fmBV.at(0).size() == 0);
