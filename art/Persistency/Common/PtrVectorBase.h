@@ -62,6 +62,7 @@ private:
   friend class art::detail::PtrVectorBaseStreamer;
 }; // PtrVectorBase
 
+#ifndef __GCCXML__
 inline bool
 art::PtrVectorBase::isNonnull() const {
   return core_.isNonnull();
@@ -111,7 +112,7 @@ art::PtrVectorBase::swap(PtrVectorBase &other) {
 
 inline void
 art::PtrVectorBase::updateCore(RefCore const &core) {
-  core_.pushBackItem(core, false);
+  core_.pushBackItem(core);
 }
 
 template <typename T>
@@ -120,7 +121,7 @@ typename art::Ptr<T>::key_type
 art::PtrVectorBase::key(Ptr<T> const &ptr) const {
   return ptr.key();
 }
-
+#endif /* __GCCXML__ */
 #endif /* art_Persistency_Common_PtrVectorBase_h */
 
 // Local Variables:
