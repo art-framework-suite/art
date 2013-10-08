@@ -31,7 +31,7 @@ namespace art {
     template <typename TO, typename PTRVAL>
     struct EnsurePointer<TO, Ptr<PTRVAL> > {
       TO
-      operator()(Ptr<PTRVAL> &from) const { return detail::addr<TO, PTRVAL const>(*from); }
+      operator()(Ptr<PTRVAL> & from) const { return detail::addr<TO, PTRVAL const>(*from); }
       TO
       operator()(Ptr<PTRVAL> const & from) const { return detail::addr<TO, PTRVAL const>(*from); }
     };
@@ -45,8 +45,8 @@ public:
 
   typedef std::size_t   key_type;
   typedef T             value_type;
-  typedef T const *     const_pointer;
-  typedef T const &     const_reference;
+  typedef T const   *   const_pointer;
+  typedef T const   &   const_reference;
 
   // Create a Ptr<T> to a specific element within a collection
   // identified by 'handle', and the element in the collection is
@@ -139,8 +139,10 @@ public:
   RefCore const & refCore() const { return core_; }
 
   // Fulfills the role of, "convertible to bool"
-  operator void const * () const { return(isNonnull() &&
-                                          isAvailable()) ? get() : nullptr; }
+  operator void const * () const {
+    return (isNonnull() &&
+            isAvailable()) ? get() : nullptr;
+  }
 
   // Accessor for product getter.
   EDProductGetter const * productGetter() const { return core_.productGetter(); }
@@ -265,7 +267,7 @@ namespace art {
   {
     if (core_.isNull()) {
       throw Exception(errors::InvalidReference)
-        << "Attempt to construct a Ptr from a Handle with invalid ProductID. Perhaps a\ndefault-constructed Ptr is what you want?";
+          << "Attempt to construct a Ptr from a Handle with invalid ProductID. Perhaps a\ndefault-constructed Ptr is what you want?";
     }
   }
 
@@ -318,7 +320,7 @@ namespace art {
 
   template <class T, class H>
   void
-  fill_ptr_vector(std::vector<Ptr<T> >& ptrs, H const & h)
+  fill_ptr_vector(std::vector<Ptr<T> > & ptrs, H const & h)
   {
     for (std::size_t i = 0, sz = h->size(); i != sz; ++i)
     { ptrs.push_back(Ptr<T>(h, i)); }
@@ -326,7 +328,7 @@ namespace art {
 
   template <class T, class H>
   void
-  fill_ptr_list(std::list<Ptr<T> >& ptrs, H const & h)
+  fill_ptr_list(std::list<Ptr<T> > & ptrs, H const & h)
   {
     for (std::size_t i = 0, sz = h->size(); i != sz; ++i)
     { ptrs.push_back(Ptr<T>(h, i)); }
