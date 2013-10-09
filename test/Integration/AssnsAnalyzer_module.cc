@@ -133,6 +133,7 @@ namespace {
 arttest::AssnsAnalyzer::
 AssnsAnalyzer(fhicl::ParameterSet const & p)
   :
+  art::EDAnalyzer(p),
   inputLabel_(p.get<std::string>("input_label")),
   testAB_(p.get<bool>("test_AB", true)),
   testBA_(p.get<bool>("test_BA", false)),

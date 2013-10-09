@@ -33,6 +33,7 @@ private:
 
 arttest::ProductIDGetterAnalyzer::ProductIDGetterAnalyzer(fhicl::ParameterSet const &p)
   :
+  art::EDAnalyzer(p),
   input_label_(p.get<std::string>("input_label"))
 {
 }
