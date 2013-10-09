@@ -37,6 +37,7 @@ namespace arttest {
   };
 
   HistoryAnalyzer::HistoryAnalyzer(const ParameterSet& params) :
+    EDAnalyzer(params),
     pass_(params.get<int>("historySize")),
     eventCount_(0),
     expectedCount_(params.get<int>("expectedCount")),

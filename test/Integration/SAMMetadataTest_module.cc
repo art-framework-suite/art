@@ -35,7 +35,8 @@ private:
 };
 
 
-arttest::SAMMetadataTest::SAMMetadataTest(fhicl::ParameterSet const &)
+arttest::SAMMetadataTest::SAMMetadataTest(fhicl::ParameterSet const &p)
+  : art::EDAnalyzer(p)
 {
 }
 

@@ -22,7 +22,8 @@ enum {
 // constructors and destructor
 //
 TestFailuresAnalyzer::TestFailuresAnalyzer(const fhicl::ParameterSet& iConfig)
-: whichFailure_(iConfig.get<int>("whichFailure"))
+  : EDAnalyzer(iConfig)
+  , whichFailure_(iConfig.get<int>("whichFailure"))
 {
    //now do what ever initialization is needed
    if(whichFailure_ == kConstructor){

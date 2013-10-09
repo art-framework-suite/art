@@ -63,7 +63,8 @@ private:
 };  // SimpleDerivedAnalyzer
 
 SimpleDerivedAnalyzer::SimpleDerivedAnalyzer(fhicl::ParameterSet const & p)
-  : inputLabel_(p.get<std::string>("input_label"))
+  : art::EDAnalyzer(p)
+  , inputLabel_(p.get<std::string>("input_label"))
   , inputLabel2_(p.get<std::string>("input_label2"))
   , nvalues_(p.get<int>("nvalues"))
 {

@@ -31,6 +31,7 @@ private:
 
 
 ValidHandleTester::ValidHandleTester(fhicl::ParameterSet const & ps) :
+  art::EDAnalyzer(ps),
   input_tag_(ps.get<std::string>("input_label")),
   expected_value_(ps.get<std::string>("expected_value"))
 { }

@@ -36,6 +36,7 @@ namespace arttest
   { }
 
   PtrListAnalyzer::PtrListAnalyzer(fhicl::ParameterSet const& pset) :
+    art::EDAnalyzer(pset),
     input_label_(pset.get<std::string>("input_label")),
     num_expected_(pset.get<unsigned>("nvalues"))
   { }

@@ -37,8 +37,7 @@ private:
 
 
 arttest::PMTestAnalyzer::PMTestAnalyzer(fhicl::ParameterSet const & p)
-// :
-// Initialize member data here.
+  : art::EDAnalyzer(p)
 {
 }
 

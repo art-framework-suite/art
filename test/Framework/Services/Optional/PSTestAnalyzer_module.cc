@@ -28,7 +28,8 @@ private:
 };
 
 
-arttest::PSTestAnalyzer::PSTestAnalyzer(fhicl::ParameterSet const &)
+arttest::PSTestAnalyzer::PSTestAnalyzer(fhicl::ParameterSet const& pset)
+  : art::EDAnalyzer(pset)
 {
   art::ScheduleID const id(art::ScheduleID::first());
   (void) art::ServiceHandle<arttest::PSTest>(id)->schedule();

@@ -43,6 +43,7 @@ private:
 
 arttest::PtrmvAnalyzer::PtrmvAnalyzer(fhicl::ParameterSet const &p)
   :
+  art::EDAnalyzer(p),
   inputLabel_(p.get<std::string>("input_label"))
 {
 }

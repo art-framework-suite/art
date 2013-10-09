@@ -17,8 +17,11 @@ namespace art
   EDAnalyzer::doEvent(EventPrincipal const& ep,
                         CurrentProcessingContext const* cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
+    detail::PVSentry pvSentry(selectors_);
     Event e(const_cast<EventPrincipal &>(ep), moduleDescription_);
-    this->analyze(e);
+    if (wantAllEvents_ || selectors_.wantEvent(e)) {
+      this->analyze(e);
+    }
     return true;
   }
 
