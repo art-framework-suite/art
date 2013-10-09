@@ -33,8 +33,9 @@ namespace art
     typedef EDAnalyzer ModuleType;
     typedef WorkerT<EDAnalyzer> WorkerType;
 
-    EDAnalyzer()
-      : EngineCreator()
+    explicit EDAnalyzer(fhicl::ParameterSet const& pset)
+      : EventObserver(pset)
+      , EngineCreator()
       , moduleDescription_()
       , current_context_(0)
     { }

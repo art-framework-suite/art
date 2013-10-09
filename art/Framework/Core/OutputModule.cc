@@ -22,30 +22,17 @@ using std::vector;
 using std::string;
 
 
-namespace art {
-  vector<std::string> const & getAllTriggerNames()
-  {
-    art::ServiceHandle<art::TriggerNamesService> tns;
-    return tns->getTrigPaths();
-  }
-}
-
 art::OutputModule::
 OutputModule(ParameterSet const & pset)
-  :
+  : EventObserver(pset),
   maxEvents_(-1),
   remainingEvents_(maxEvents_),
   keptProducts_(),
   hasNewlyDroppedBranch_(),
-  process_name_(),
   groupSelectorRules_(pset, "outputCommands", "OutputModule"),
   groupSelector_(),
   moduleDescription_(),
   current_context_(0),
-  prodsValid_(false),
-  wantAllEvents_(false),
-  selectors_(),
-  selector_config_id_(),
   branchParents_(),
   branchChildren_(),
   configuredFileName_(pset.get<std::string>("fileName", "")),
@@ -54,33 +41,6 @@ OutputModule(ParameterSet const & pset)
   ci_()
 {
   hasNewlyDroppedBranch_.fill(false);
-  ServiceHandle<art::TriggerNamesService> tns;
-  process_name_ = tns->getProcessName();
-  ParameterSet selectevents =
-    pset.get<fhicl::ParameterSet>("SelectEvents", ParameterSet());
-  selector_config_id_ = selectevents.id();
-  // If selectevents is an emtpy ParameterSet, then we are to write
-  // all events, or one which contains a vstrig 'SelectEvents' that
-  // is empty, we are to write all events. We have no need for any
-  // EventSelectors.
-  if (selectevents.is_empty()) {
-    wantAllEvents_ = true;
-    selectors_.setupDefault(getAllTriggerNames());
-    return;
-  }
-  vector<std::string> path_specs =
-    selectevents.get<std::vector<std::string> >("SelectEvents");
-  if (path_specs.empty()) {
-    wantAllEvents_ = true;
-    selectors_.setupDefault(getAllTriggerNames());
-    return;
-  }
-  // If we get here, we have the possibility of having to deal with
-  // path_specs that look at more than one process.
-  vector<detail::parsed_path_spec_t> parsed_paths(path_specs.size());
-  for (size_t i = 0; i < path_specs.size(); ++i)
-  { detail::parse_path_spec(path_specs[i], parsed_paths[i]); }
-  selectors_.setup(parsed_paths, getAllTriggerNames(), process_name_);
 }
 
 std::string const &
@@ -158,40 +118,19 @@ doEndJob()
 }
 
 
-art::Trig
-art::OutputModule::getTriggerResults(Event const & e) const
-{
-  return selectors_.getOneTriggerResults(e);
-}
-
-namespace {
-  class PVSentry {
-  public:
-    PVSentry(art::detail::CachedProducts & prods, bool & valid) : p(prods),
-      v(valid) {}
-    ~PVSentry() { p.clear(); v = false; }
-  private:
-    art::detail::CachedProducts & p;
-    bool & v;
-
-    PVSentry(PVSentry const &) = delete;
-    PVSentry & operator=(PVSentry const &) = delete;
-  };
-}
-
 bool
 art::OutputModule::
 doEvent(EventPrincipal const & ep,
         CurrentProcessingContext const * cpc)
 {
   detail::CPCSentry sentry(current_context_, cpc);
-  PVSentry products_sentry(selectors_, prodsValid_);
+  detail::PVSentry pvSentry(selectors_);
   FDEBUG(2) << "writeEvent called\n";
   Event e(const_cast<EventPrincipal &>(ep), moduleDescription_);
   if (wantAllEvents_ || selectors_.wantEvent(e)) {
     write(ep); // Write the event.
     // Declare that the event was selected for write.
-    Trig trHandle(getTriggerResults(e));
+    art::Handle<art::TriggerResults> trHandle(getTriggerResults(e));
     HLTGlobalStatus const &
     trRef(trHandle.isValid() ?
           static_cast<HLTGlobalStatus>(*trHandle) :
