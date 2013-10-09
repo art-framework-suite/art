@@ -75,6 +75,7 @@ simple_plugin(ServiceUsing                "service" NO_INSTALL )
 simple_plugin(SimpleDerivedAnalyzer       "module"  NO_INSTALL )
 simple_plugin(SimpleDerivedProducer       "module"  NO_INSTALL )
 simple_plugin(TH1DataProducer             "module"  NO_INSTALL test_TestObjects)
+simple_plugin(TestAnalyzerSelect          "module"  NO_INSTALL )
 simple_plugin(TestBitsOutput              "module"  NO_INSTALL )
 simple_plugin(TestFilter                  "module"  NO_INSTALL )
 simple_plugin(TestOutput                  "module"  NO_INSTALL )
@@ -949,6 +950,13 @@ cet_test(PostCloseFileRename_Integration HANDBUILT
   TEST_ARGS -c PostCloseFileRename_t.fcl
   DATAFILES
   fcl/PostCloseFileRename_t.fcl
+)
+
+cet_test(TestAnalyzerSelect HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS -c "TestAnalyzerSelect.fcl"
+  DATAFILES
+  fcl/TestAnalyzerSelect.fcl
 )
 
 ########################################################################
