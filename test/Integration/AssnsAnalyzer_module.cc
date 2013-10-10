@@ -308,7 +308,6 @@ testOne(art::Event const & e) const
   // Check for range errors.
   BOOST_CHECK_THROW(foApv.at(3), std::out_of_range);
   BOOST_CHECK_THROW(foApv.data(3), std::out_of_range);
-  // BOOST_CHECK_THROW((FO<B_t, arttest::AssnTestData> (hAcoll, e, art::InputTag(inputLabel_, "M"))), art::Exception);
 }
 
 template <template <typename, typename> class FM>
@@ -348,9 +347,9 @@ testMany(art::Event const & e) const
   for (auto const & f : { fmB, fmB2 }) {
     BOOST_REQUIRE_EQUAL(f.size(), 3ul);
     if (bCollMissing_) {
-      BOOST_CHECK(f.at(0).size() == 0);
-      BOOST_CHECK(f.at(1).size() == 0);
-      BOOST_CHECK(f.at(2).size() == 0);
+      BOOST_CHECK_EQUAL(f.at(0).size(), 0ul);
+      BOOST_CHECK_EQUAL(f.at(1).size(), 0ul);
+      BOOST_CHECK_EQUAL(f.at(2).size(), 0ul);
     } else {
       BOOST_CHECK_EQUAL(f.at(0).size(), 1ul);
       BOOST_CHECK_EQUAL(f.at(1).size(), 2ul);
@@ -362,9 +361,9 @@ testMany(art::Event const & e) const
   }
   FM<B_t, void> fmBV(hAcoll, e, art::InputTag(inputLabel_, "M"));
   if (bCollMissing_) {
-    BOOST_CHECK(fmBV.at(0).size() == 0);
-    BOOST_CHECK(fmBV.at(1).size() == 0);
-    BOOST_CHECK(fmBV.at(2).size() == 0);
+    BOOST_CHECK_EQUAL(fmBV.at(0).size(), 0ul);
+    BOOST_CHECK_EQUAL(fmBV.at(1).size(), 0ul);
+    BOOST_CHECK_EQUAL(fmBV.at(2).size(), 0ul);
   } else {
     BOOST_CHECK_EQUAL(fmBV.at(0).size(), 1ul);
     BOOST_CHECK_EQUAL(fmBV.at(1).size(), 2ul);

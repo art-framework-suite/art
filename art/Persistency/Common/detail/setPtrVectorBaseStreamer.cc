@@ -21,6 +21,7 @@ art::detail::PtrVectorBaseStreamer::operator()(TBuffer &R_b, void *objp) {
   if (R_b.IsReading()) {
     obj->zeroTransients(); // Clear transient rep.
     cl->ReadBuffer(R_b, objp);
+    obj->fillPtrs(); // Fill transient rep.
   } else {
     obj->fill_offsets(obj->indicies_); // Fill persistent rep.
     cl->WriteBuffer(R_b, objp);

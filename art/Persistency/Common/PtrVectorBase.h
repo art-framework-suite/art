@@ -25,7 +25,11 @@ protected:
 public:
   typedef indices_t::size_type size_type;
 
-  virtual ~PtrVectorBase();
+  virtual ~PtrVectorBase()
+#ifndef __GCCXML__
+  = default
+#endif
+    ;
 
   // Observers
   bool isNonnull() const;
@@ -38,7 +42,11 @@ public:
   void setProductGetter(EDProductGetter *g) const;
 
 protected:
-  PtrVectorBase();
+  PtrVectorBase()
+#ifndef __GCCXML__
+  = default
+#endif
+    ;
 
   void clear();
   void reserve(size_type n);
@@ -121,6 +129,14 @@ typename art::Ptr<T>::key_type
 art::PtrVectorBase::key(Ptr<T> const &ptr) const {
   return ptr.key();
 }
+
+inline
+bool
+art::PtrVectorBase::
+operator==(PtrVectorBase const &other) const {
+  return core_ == other.core_;
+}
+
 #endif /* __GCCXML__ */
 #endif /* art_Persistency_Common_PtrVectorBase_h */
 
