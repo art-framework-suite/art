@@ -12,8 +12,12 @@
 #include "cpp0x/regex"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
+#include <algorithm>
 #include <cassert>
+#include <iterator>
 #include <limits>
+#include <numeric>
+#include <unordered_set>
 
 #include "Rtypes.h"
 
@@ -36,13 +40,6 @@ namespace {
   private:
     art::EventIDIndex const & index_;
   };
-
-
-  std::regex const & modeRegex()
-  {
-    static std::regex r("^seq", std::regex_constants::icase);
-    return r;
-  }
 }  // namespace
 
 inline
@@ -88,8 +85,7 @@ art::MixHelper::MixHelper(fhicl::ParameterSet const & pset,
   mixOps_(),
   ptrRemapper_(),
   currentFilename_(filenames_.begin()),
-  readMode_(std::regex_search(pset.get<std::string>("readMode", "sequential"),
-                              modeRegex()) ? SEQUENTIAL : RANDOM),
+  readMode_(initReadMode(pset.get<std::string>("readMode", "sequential"))),
   coverageFraction_(pset.get<double>("coverageFraction", 1.0)),
   nEventsReadThisFile_(0),
   nEventsInFile_(0),
@@ -98,13 +94,15 @@ art::MixHelper::MixHelper(fhicl::ParameterSet const & pset,
   ffVersion_(),
   ptpBuilder_(),
   dist_(),
+  eventsToSkip_(),
+  shuffledSequence_(),
   eventIDIndex_(),
   currentFile_(),
   currentMetaDataTree_(),
   currentEventTree_(),
   dataBranches_()
 {
-  if (readMode_ == RANDOM) {
+  if (readMode_ > Mode::SEQUENTIAL) {
     if (ServiceRegistry::instance().isAvailable<RandomNumberGenerator>()) {
       dist_.reset(new CLHEP::RandFlat(ServiceHandle<RandomNumberGenerator>()->getEngine()));
     } else {
@@ -119,6 +117,37 @@ art::MixHelper::MixHelper(fhicl::ParameterSet const & pset,
         << "coverageFraction > 1: treating as a percentage.\n";
     coverageFraction_ /= 100.0;
   }
+}
+
+auto
+art::MixHelper::
+initReadMode(std::string const & mode) const
+-> Mode
+{
+  // These regexes must correspond by index to the valid Mode enumerator
+  // values.
+  static std::regex const robjs[4] {
+    std::regex("^seq", std::regex_constants::icase),
+      std::regex("^random(replace)?$", std::regex_constants::icase),
+      std::regex("^randomlimreplace$", std::regex_constants::icase),
+      std::regex("^randomnoreplace$", std::regex_constants::icase)
+      };
+  int i { 0 };
+  for (auto const & r : robjs) {
+    if (std::regex_search(mode, r)) {
+      return Mode(i);
+    }
+    else {
+      ++i;
+    }
+  }
+  throw Exception(errors::Configuration)
+    << "Unrecognized value of readMode parameter: \""
+    << mode << "\". Valid values are:\n"
+    << "  sequential,\n"
+    << "  randomReplace (random is accepted for reasons of legacy),\n"
+    << "  randomLimReplace,\n"
+    << "  randomNoReplace.\n";
 }
 
 void
@@ -212,6 +241,15 @@ art::MixHelper::openAndReadMetaData(std::string const & filename)
   ProdToProdMapBuilder::BranchIDTransMap transMap;
   buildBranchIDTransMap(transMap);
   ptpBuilder_.prepareTranslationTables(transMap, branchIDLists, ehTree);
+  if (readMode_ == Mode::RANDOM_NO_REPLACE) {
+    // Prepare shuffled event sequence.
+    shuffledSequence_.resize(static_cast<size_t>(nEventsInFile_));
+    std::iota(shuffledSequence_.begin(), shuffledSequence_.end(), 0);
+    std::random_shuffle(shuffledSequence_.begin(),
+                        shuffledSequence_.end(),
+                        [this](EntryNumberSequence::difference_type const &n)
+                        { return dist_.get()->fireInt(n); });
+  }
 }
 
 void
@@ -245,7 +283,7 @@ generateEventSequence(size_t nSecondaries,
   assert(enSeq.empty());
   assert(eIDseq.empty());
   assert(nEventsInFile_ >= 0);
-  bool over_threshold = (readMode_ == SEQUENTIAL) ?
+  bool over_threshold = (readMode_ == Mode::SEQUENTIAL || readMode_ == Mode::RANDOM_NO_REPLACE) ?
                         ((nEventsReadThisFile_ + nSecondaries) > static_cast<size_t>(nEventsInFile_)) :
                         ((nEventsReadThisFile_ + nSecondaries) > (nEventsInFile_ * coverageFraction_));
   if (over_threshold) {
@@ -256,22 +294,51 @@ generateEventSequence(size_t nSecondaries,
       return false;
     }
   }
-  if (readMode_ == SEQUENTIAL) {
+  switch (readMode_) {
+  case Mode::SEQUENTIAL:
     for (size_t
-         i = nEventsReadThisFile_,
-         end = nEventsReadThisFile_ + nSecondaries;
+           i = nEventsReadThisFile_,
+           end = nEventsReadThisFile_ + nSecondaries;
          i < end;
          ++i) {
       enSeq.push_back(i);
     }
-  }
-  else {   // RANDOM
+    break;
+  case Mode::RANDOM_REPLACE:
     std::generate_n(std::back_inserter(enSeq),
                     nSecondaries,
-                    std::bind(static_cast<long(CLHEP::RandFlat:: *)(long)>
-                              (&CLHEP::RandFlat::fireInt), // Resolve overload.
-                              dist_.get(), nEventsInFile_));
+                    [this]() { return dist_.get()->fireInt(nEventsInFile_); });
     std::sort(enSeq.begin(), enSeq.end());
+    break;
+  case Mode::RANDOM_LIM_REPLACE:
+  {
+    std::unordered_set<EntryNumberSequence::value_type> entries; // Guaranteed unique.
+    while (entries.size() < nSecondaries) {
+      std::generate_n(std::inserter(entries, entries.begin()),
+                      nSecondaries - entries.size(),
+                      [this]() { return dist_.get()->fireInt(nEventsInFile_); });
+    }
+    enSeq.assign(entries.cbegin(), entries.cend());
+    std::sort(enSeq.begin(), enSeq.end());
+    // Since we need to sort at the end anyway, it's unclear whether
+    // unordered_set is faster than set even though inserts are
+    // approximately linear time. Since the complexity of the sort is
+    // NlogN, we'd need a profile run for it all to come out in the
+    // wash.
+    assert(enSeq.size() == nSecondaries); // Should be true by construction.
+  }
+  break;
+  case Mode::RANDOM_NO_REPLACE:
+  {
+    auto i = shuffledSequence_.cbegin() + nEventsReadThisFile_;
+    enSeq.assign(i, i + nSecondaries);
+  }
+  break;
+  default:
+    throw Exception(errors::LogicError)
+      << "Unrecognized read mode "
+      << static_cast<int>(readMode_)
+      << ". Contact the art developers.\n";
   }
   std::transform(enSeq.begin(),
                  enSeq.end(),
@@ -322,7 +389,7 @@ art::MixHelper::openNextFile()
       return false;
     }
   }
-  nEventsReadThisFile_ = (readMode_ == SEQUENTIAL && eventsToSkip_) ?
+  nEventsReadThisFile_ = (readMode_ == Mode::SEQUENTIAL && eventsToSkip_) ?
                          eventsToSkip_() - 1 :
                          0; // Reset for this file.
   openAndReadMetaData(*currentFilename_);

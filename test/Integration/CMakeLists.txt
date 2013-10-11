@@ -484,7 +484,7 @@ cet_test(ProductMix_r1b HANDBUILT
 )
 
 # Mix the events from ProductMix_w, testing that things behave properly
-# with secondary input file wrappring and no eventsToSkip().
+# with secondary input file wrapping and no eventsToSkip().
 cet_test(ProductMix_r1c1 HANDBUILT
   TEST_EXEC art_ut
   TEST_ARGS --rethrow-all -c "ProductMix_r1c.fcl"
@@ -500,7 +500,7 @@ SET_TESTS_PROPERTIES(ProductMix_r1c1
   )
 
 # Mix the events from ProductMix_w, testing that things behave properly
-# with secondary input file wrappring and eventsToSkip().
+# with secondary input file wrapping and eventsToSkip().
 cet_test(ProductMix_r1c2 HANDBUILT
   TEST_EXEC art_ut
   TEST_ARGS --rethrow-all -c "ProductMix_r1c2.fcl"
@@ -512,7 +512,7 @@ cet_test(ProductMix_r1c2 HANDBUILT
 )
 
 # Mix the events from ProductMix_w, testing that things behave properly
-# with secondary input file wrappring and eventsToSkip() const.
+# with secondary input file wrapping and eventsToSkip() const.
 cet_test(ProductMix_r1c3 HANDBUILT
   TEST_EXEC art_ut
   TEST_ARGS --rethrow-all -c "ProductMix_r1c3.fcl"
@@ -544,6 +544,25 @@ cet_test(ProductMix_r1d2 HANDBUILT
   fcl/ProductMix_r1d2.fcl
   TEST_PROPERTIES DEPENDS ProductMix_w
 )
+
+# Mix the events from ProductMix_w, testing that the secondary event
+# selection is as specified. Order is:
+#   SEQUENTIAL
+#   RANDOM_REPLACE
+#   RANDOM_LIM_REPLACE (require no dupes within a primary)
+#   RANDOM_LIM_REPLACE (require dupes across a job).
+#   RANDOM_NO_REPLACE
+foreach(test 1 2 3 4 5)
+  cet_test(ProductMix_r1e${test} HANDBUILT
+    TEST_EXEC art_ut
+    TEST_ARGS --rethrow-all -c "ProductMix_r1e${test}.fcl"
+    DATAFILES
+    fcl/ProductMix_r1.fcl
+    fcl/ProductMix_r1e.fcl
+    fcl/ProductMix_r1e${test}.fcl
+    TEST_PROPERTIES DEPENDS ProductMix_w
+    )
+endforeach()
 
 SET_TESTS_PROPERTIES(
   ProductMix_r1c2

@@ -1,0 +1,8 @@
+#include "ProductMix_r1.fcl"
+
+source.maxEvents: 1
+
+services.user.RandomNumberGenerator: {}
+
+physics.end_paths: [ ]
+physics.filters.mixFilter.testEventOrdering: true
