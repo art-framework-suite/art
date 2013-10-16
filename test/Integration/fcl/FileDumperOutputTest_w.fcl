@@ -30,11 +30,15 @@ physics: {
 }
 
 outputs: {
-  out1: { module_type: FileDumperOutput }
+  out1: 
+  {
+    module_type: FileDumperOutput
+  }
   out2:
   {
     module_type: RootOutput
     fileName: "out.root"
+    outputCommands: [ "keep *", "drop *_m1a_*_*" ]
   }
 }
 

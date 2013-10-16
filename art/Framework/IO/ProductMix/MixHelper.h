@@ -7,7 +7,41 @@
 // users' "detail" mixing classes. (A "detail" class is the template
 // argument to the instantiation of the "MixFilter" module template.)
 //
-//////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+// Configuration.
+//
+// MixHelper will be passed the configuration of the module. The
+// following items are significant:
+//
+// fileNames (no default)
+//
+//   Sequence of secondary files for mixing.
+//
+// readMode (default sequential).
+//
+//   Specify how events should be chosen from each file. Valid values
+//   are:
+//
+//     sequential -- read the secondary events in order
+//     randomReplace -- random with replacement
+//     randomLimReplace -- events unique within a primary event
+//     randomNoReplace -- events guaranteed to be used once only.
+//
+// coverageFraction (default 1.0).
+//
+//   Ratio of sampled events to total events in a file. Used by
+//   randomReplace and randomLimReplace modes only.
+//
+// wrapFiles (default false).
+//
+//   Start from fileNames[0] after secondary events are exhausted.
+//
+////////////////////////////////////////////////////////////////////////
+// readMode()
+//
+// Return the enumerated value representing the event mixing strategy.
+//
+////////////////////////////////////////////////////////////////////////
 // declareMixOp templates.
 //
 // These function templates should be used by writers of product-mixing
@@ -151,11 +185,20 @@ namespace art {
 
 class art::MixHelper {
 public:
-  MixHelper(MixHelper const&) = delete;
-  MixHelper& operator=(MixHelper const&) = delete;
+  enum class Mode
+  { SEQUENTIAL = 0,
+      RANDOM_REPLACE,
+      RANDOM_LIM_REPLACE,
+      RANDOM_NO_REPLACE,
+      UKNOWN
+      };
 
+  // Constructor.
   MixHelper(fhicl::ParameterSet const & pset,
             ProducerBase & producesProvider);
+
+  // Returns the current mixing mode.
+  Mode readMode() const;
 
   // A.
   template <class P>
@@ -235,10 +278,13 @@ public:
   void setEventsToSkipFunction(std::function < size_t () > eventsToSkip);
 
 private:
+  MixHelper(MixHelper const&) = delete;
+  MixHelper& operator=(MixHelper const&) = delete;
+
   typedef std::vector<std::shared_ptr<MixOpBase> > MixOpList;
   typedef MixOpList::iterator MixOpIter;
 
-  enum Mode { SEQUENTIAL, RANDOM };
+  Mode initReadMode(std::string const & mode) const;
 
   void openAndReadMetaData(std::string const & fileName);
   void buildEventIDIndex(FileIndex const & fileIndex);
@@ -263,6 +309,7 @@ private:
   ProdToProdMapBuilder ptpBuilder_;
   std::unique_ptr<CLHEP::RandFlat> dist_;
   std::function < size_t () > eventsToSkip_;
+  EntryNumberSequence shuffledSequence_; // RANDOM_NO_REPLACE only.s
 
   // Root-specific state.
   EventIDIndex eventIDIndex_;
@@ -271,6 +318,15 @@ private:
   cet::exempt_ptr<TTree> currentEventTree_;
   RootBranchInfoList dataBranches_;
 };
+
+inline
+auto
+art::MixHelper::
+readMode() const
+-> Mode
+{
+  return readMode_;
+}
 
 // A.
 template <class P>

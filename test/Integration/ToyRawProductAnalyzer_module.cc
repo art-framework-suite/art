@@ -40,6 +40,7 @@ private:
 arttest::ToyRawProductAnalyzer::ToyRawProductAnalyzer(fhicl::ParameterSet const &p)
   // Initialize member data here.
   :
+art::EDAnalyzer(p),
 doBeginRun_(p.get<bool>("beginRun", true)),
 doBeginSubRun_(p.get<bool>("beginSubRun", true))
 {

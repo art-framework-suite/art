@@ -4,8 +4,8 @@
 // ======================================================================
 //
 // RefCore: The component of art::Ptr containing
-//            - the product ID and
-//            - the product getter.
+// - the product ID and
+// - the product getter.
 //
 // ======================================================================
 
@@ -17,120 +17,193 @@ namespace art {
   class EDProduct;
   class RefCore;
 
-  bool  operator == ( RefCore const &, RefCore const & );
-  bool  operator != ( RefCore const &, RefCore const & );
-  bool  operator <  ( RefCore const &, RefCore const & );
+  bool operator == (RefCore const &, RefCore const &);
+  bool operator != (RefCore const &, RefCore const &);
+  bool operator < (RefCore const &, RefCore const &);
 
-  void  swap( art::RefCore &, art::RefCore & );
+  void swap(art::RefCore &, art::RefCore &);
 }
 
-// ======================================================================
-
-class art::RefCore
-{
+class art::RefCore {
 public:
-  // --- Construction/destruction:
+  RefCore();
+  RefCore(ProductID const & theId,
+          void const * prodPtr,
+          EDProductGetter const * prodGetter);
 
-    RefCore()
-  : id_        ( )
-  , transients_( )
-  { }
-
-    RefCore( ProductID const &       theId
-           , void const *            prodPtr
-           , EDProductGetter const * prodGetter )
-  : id_        ( theId )
-  , transients_( prodPtr, prodGetter )
-  { }
-
-  // --- Observers:
-
-  bool  isNonnull()   const { return id_.isValid(); }
-  bool  isNull()      const { return !isNonnull(); }
-  bool  operator ! () const { return isNull(); }
+  // Observers.
+  bool isNonnull() const;
+  bool isNull() const;
+  bool operator !() const;
 
   // Checks if collection is in memory or available
-  // in the Event. No type checking is done.
-  bool  isAvailable()    const;
+  // in the Event; no type checking is done.
+  bool isAvailable() const;
 
-  ProductID         id()            const { return id_; }
-  void const *      productPtr()    const { return transients_.itemPtr_; }
-  EDProduct const * getProductPtr() const;
+  ProductID id() const;
+  void const * productPtr() const;
+  EDProductGetter const * productGetter() const;
 
-  // --- Mutators:
+  // Modifiers.
+  void setProductPtr(void const * prodPtr) const;
+  void setProductGetter(EDProductGetter const * prodGetter) const;
+  void swap(RefCore & other);
+  void pushBackItem(RefCore const & productToBeInserted);
 
-  void
-    setProductPtr( void const * prodPtr ) const
-  { transients_.setProductPtr(prodPtr); }
+  struct RefCoreTransients {
+    // itemPtr_ is the address of the item for which the Ptr in which
+    // this RefCoreTransients object resides is a pointer.
+    mutable void const * itemPtr_; // transient
+    mutable EDProductGetter const * prodGetter_; // transient
 
-  EDProductGetter const * productGetter() const
-  { return transients_.prodGetter_; }
-
-  void
-    setProductGetter( EDProductGetter const * prodGetter ) const;
-
-  void
-    swap( RefCore & other )
-  { std::swap(id_, other.id_), std::swap(transients_, other.transients_); }
-
-  void
-    pushBackItem( RefCore const & productToBeInserted
-                , bool            checkPointer );
-
-  struct RefCoreTransients
-  {
-    // itemPtr_ is the address of the item for which the Ptr in which this
-    // RefCoreTransients object resides is a pointer
-    mutable void const *            itemPtr_;     // transient
-    mutable EDProductGetter const * prodGetter_;  // transient
-
-    // --- Construction/destruction:
-      RefCoreTransients()
-    : itemPtr_   ( 0 )
-    , prodGetter_( 0 )
-    { }
-    explicit
-      RefCoreTransients( void const *            prodPtr
-                       , EDProductGetter const * prodGetter )
-    : itemPtr_   ( prodPtr )
-    , prodGetter_( prodGetter )
-    { }
-
-    // --- Mutators:
-    void setProductGetter( EDProductGetter const * prodGetter ) const;
-    void setProductPtr(void const * itemPtr) const { itemPtr_ = itemPtr; }
-
-  };  // RefCoreTransients
+    RefCoreTransients();
+    explicit RefCoreTransients(void const * prodPtr,
+                               EDProductGetter const * prodGetter);
+  }; // RefCoreTransients
 
 private:
 
-  void  setId( ProductID const & iId ) { id_ = iId; }
+  ProductID id_;
+  RefCoreTransients transients_;
+};
 
-  ProductID          id_;
-  RefCoreTransients  transients_;
+#ifndef __GCCXML__
+inline
+art::RefCore::
+RefCore()
+  :
+  id_(),
+  transients_()
+{
+}
 
-};  // RefCore
+inline
+art::RefCore::
+RefCore(ProductID const & id,
+        void const * prodPtr,
+        EDProductGetter const * prodGetter)
+  :
+  id_(id),
+  transients_(prodPtr, prodGetter)
+{
+}
 
-// ======================================================================
+inline
+bool
+art::RefCore::
+isNonnull() const
+{
+  return id_.isValid();
+}
 
-inline bool
-  art::operator == ( RefCore const & lhs, RefCore const & rhs )
+inline
+bool
+art::RefCore::
+isNull() const
+{
+  return !isNonnull();
+}
+
+inline
+bool
+art::RefCore::
+operator !() const
+{
+  return isNull();
+}
+
+inline
+auto
+art::RefCore::
+id() const
+-> ProductID
+{
+  return id_;
+}
+
+inline
+void const *
+art::RefCore::
+productPtr() const
+{
+  return transients_.itemPtr_;
+}
+
+inline
+auto
+art::RefCore::
+productGetter() const
+-> EDProductGetter const *
+{
+  return transients_.prodGetter_;
+}
+
+inline
+void
+art::RefCore::
+setProductPtr(void const * prodPtr) const
+{
+  transients_.itemPtr_ = prodPtr;
+}
+
+inline
+void
+art::RefCore::
+setProductGetter(EDProductGetter const * prodGetter) const
+{
+  transients_.prodGetter_ = prodGetter;
+}
+
+inline
+void
+art::RefCore::
+swap(RefCore & other)
+{
+  using std::swap;
+  swap(id_, other.id_);
+  swap(transients_, other.transients_);
+}
+
+inline
+art::RefCore::RefCoreTransients::
+RefCoreTransients()
+:
+  itemPtr_(0),
+  prodGetter_(0)
+{
+}
+
+inline
+art::RefCore::RefCoreTransients::
+RefCoreTransients(void const * prodPtr,
+                  EDProductGetter const * prodGetter)
+:
+  itemPtr_(prodPtr),
+  prodGetter_(prodGetter)
+{
+}
+
+inline
+bool
+art::operator == (RefCore const & lhs, RefCore const & rhs)
 { return lhs.id() == rhs.id(); }
 
-inline bool
-  art::operator != ( RefCore const & lhs, RefCore const & rhs )
-{ return ! (lhs == rhs); }
+inline
+bool
+art::operator != (RefCore const & lhs, RefCore const & rhs)
+{ return !(lhs == rhs); }
 
-inline bool
-  art::operator < ( RefCore const & lhs, RefCore const & rhs )
+inline
+bool
+art::operator < (RefCore const & lhs, RefCore const & rhs)
 { return lhs.id() < rhs.id(); }
 
 inline void
-  art::swap( art::RefCore & lhs, art::RefCore & rhs )
+art::swap(art::RefCore & lhs, art::RefCore & rhs)
 { lhs.swap(rhs); }
 
-// ======================================================================
 
+#endif /* __GCCXML__ */
 #endif /* art_Persistency_Common_RefCore_h */
 
 // Local Variables:

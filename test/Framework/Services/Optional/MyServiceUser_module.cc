@@ -26,7 +26,8 @@ public:
 
 };
 
-arttest::MyServiceUser::MyServiceUser(fhicl::ParameterSet const &)
+arttest::MyServiceUser::MyServiceUser(fhicl::ParameterSet const &p)
+  : art::EDAnalyzer(p)
 {
   art::ServiceHandle<MyServiceInterface>();
   art::ServiceHandle<MyService>();

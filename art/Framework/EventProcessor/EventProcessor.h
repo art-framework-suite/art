@@ -16,6 +16,8 @@
 #include "art/Framework/Core/PathManager.h"
 #include "art/Framework/Core/PrincipalCache.h"
 #include "art/Framework/Core/Schedule.h"
+#include "art/Framework/EventProcessor/EvProcInitHelper.h"
+#include "art/Framework/EventProcessor/ServiceDirector.h"
 #include "art/Framework/Principal/Actions.h"
 #include "art/Framework/Principal/fwd.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
@@ -137,7 +139,7 @@ public:
   bool setEndPathModuleEnabled(std::string const & label, bool enable) override;
 
 private:
-  void configureServices_(fhicl::ParameterSet const & pset);
+  void addSystemServices_(fhicl::ParameterSet const & pset);
   void initSchedules_(fhicl::ParameterSet const & pset);
   void invokePostBeginJobWorkers_();
   template <typename T>
@@ -157,31 +159,35 @@ private:
   // only during construction, and never again. If they aren't
   // really needed, we should remove them.
 
-  std::shared_ptr<ActivityRegistry>             actReg_;
-  MFStatusUpdater                               mfStatusUpdater_;
-  MasterProductRegistry                         preg_;
-  ServiceToken                                  serviceToken_;
-  std::shared_ptr<InputSource>                  input_;
+  EvProcInitHelper helper_;
+  ActionTable act_table_;
+  ActivityRegistry actReg_;
+  MFStatusUpdater mfStatusUpdater_;
+  MasterProductRegistry preg_;
+  ServiceToken serviceToken_;
+  ServiceDirector serviceDirector_;
+  // destructorOperate_ should be populated in destructor only!
+  std::unique_ptr<ServiceRegistry::Operate> destructorOperate_;
+  std::unique_ptr<InputSource> input_;
   tbb::task_scheduler_init tbbManager_;
-  std::unique_ptr<PathManager> pathManager_; // Destroy after schedules.
-  std::unique_ptr<Schedule>                       schedule_;
-  std::unique_ptr<EndPathExecutor>              endPathExecutor_;
-  ActionTable                                   act_table_;
+  PathManager pathManager_; // Must outlive schedules.
+  std::unique_ptr<Schedule> schedule_;
+  std::unique_ptr<EndPathExecutor> endPathExecutor_;
 
-  std::shared_ptr<FileBlock>                    fb_;
+  std::shared_ptr<FileBlock> fb_;
 
-  std::unique_ptr<statemachine::Machine>          machine_;
-  PrincipalCache                                principalCache_;
-  std::unique_ptr<EventPrincipal>                 sm_evp_;
-  bool                                          shouldWeStop_;
-  bool                                          stateMachineWasInErrorState_;
-  std::string                                   fileMode_;
-  bool                                          handleEmptyRuns_;
-  bool                                          handleEmptySubRuns_;
-  std::string                                   exceptionMessageFiles_;
-  std::string                                   exceptionMessageRuns_;
-  std::string                                   exceptionMessageSubRuns_;
-  bool                                          alreadyHandlingException_;
+  std::unique_ptr<statemachine::Machine> machine_;
+  PrincipalCache principalCache_;
+  std::unique_ptr<EventPrincipal> sm_evp_;
+  bool shouldWeStop_;
+  bool stateMachineWasInErrorState_;
+  std::string fileMode_;
+  bool handleEmptyRuns_;
+  bool handleEmptySubRuns_;
+  std::string exceptionMessageFiles_;
+  std::string exceptionMessageRuns_;
+  std::string exceptionMessageSubRuns_;
+  bool alreadyHandlingException_;
 };  // EventProcessor
 
 ////////////////////////////////////
@@ -224,7 +230,7 @@ template <typename T>
 void
 art::EventProcessor::processOneOccurrence_(typename T::MyPrincipal & p)
 try {
-  detail::PrincipalSignalSentry<T> sentry(*actReg_, p);
+  detail::PrincipalSignalSentry<T> sentry(actReg_, p);
   schedule_->processOneOccurrence<T>(p);
   endPathExecutor_->processOneOccurrence<T>(p);
 }

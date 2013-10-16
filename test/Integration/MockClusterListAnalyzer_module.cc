@@ -33,7 +33,8 @@ public:
    typedef  std::vector<arttest::SimpleDerived>  SimpleDerivedProduct;
 
    explicit MockClusterListAnalyzer( fhicl::ParameterSet const & p )
-      : inputLabel_( p.get<std::string>("input_label") )
+      : art::EDAnalyzer(p)
+      , inputLabel_( p.get<std::string>("input_label") )
       , nvalues_   ( p.get<int>("nvalues") )
    { }
 

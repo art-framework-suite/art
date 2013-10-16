@@ -5,7 +5,6 @@ set(art_Persistency_Common_sources
   CacheStreamers.cc
   DelayedReader.cc
   EDProduct.cc
-  EDProductGetter.cc
   GroupQueryResult.cc
   PtrVectorBase.cc
   RNGsnapshot.cc

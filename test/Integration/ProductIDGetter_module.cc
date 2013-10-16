@@ -67,6 +67,8 @@ void arttest::ProductIDGetter::produce(art::Event &e) {
 
   BOOST_REQUIRE_EQUAL(ptr->id(), ptr_check.id());
 
+  BOOST_REQUIRE(!ptr_check.isAvailable());
+
   e.put(std::move(ptr));
 }
 

@@ -77,6 +77,38 @@ BOOST_AUTO_TEST_CASE ( InputTag_convert_from_cstring )
   BOOST_CHECK_EQUAL(std::string(mylabel), result);
 }
 
+BOOST_AUTO_TEST_CASE ( InputTagEmptyFields_1 )
+{
+  art::InputTag a1("alabel::aprocess");
+  BOOST_CHECK_EQUAL(a1.label(), std::string("alabel"));
+  BOOST_CHECK_EQUAL(a1.instance(), std::string());
+  BOOST_CHECK_EQUAL(a1.process(), std::string("aprocess"));
+}
+
+BOOST_AUTO_TEST_CASE ( InputTagEmptyFields_2 )
+{
+  art::InputTag a1(":aninstance:aprocess");
+  BOOST_CHECK_EQUAL(a1.label(), std::string());
+  BOOST_CHECK_EQUAL(a1.instance(), std::string("aninstance"));
+  BOOST_CHECK_EQUAL(a1.process(), std::string("aprocess"));
+}
+
+BOOST_AUTO_TEST_CASE ( InputTagEmptyFields_3 )
+{
+  art::InputTag a1("alabel:aninstance:");
+  BOOST_CHECK_EQUAL(a1.label(), std::string("alabel"));
+  BOOST_CHECK_EQUAL(a1.instance(), std::string("aninstance"));
+  BOOST_CHECK_EQUAL(a1.process(), std::string());
+}
+
+BOOST_AUTO_TEST_CASE ( InputTagEmptyFields_4 )
+{
+  art::InputTag a1("alabel:aninstance");
+  BOOST_CHECK_EQUAL(a1.label(), std::string("alabel"));
+  BOOST_CHECK_EQUAL(a1.instance(), std::string("aninstance"));
+  BOOST_CHECK_EQUAL(a1.process(), std::string());
+}
+
 BOOST_AUTO_TEST_CASE ( InputTag_comparison )
 {
   art::InputTag a1("alabel:aname:aprocess"),

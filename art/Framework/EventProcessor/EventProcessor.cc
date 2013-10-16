@@ -46,7 +46,7 @@ using fhicl::ParameterSet;
 namespace {
   // Most signals.
   class SignalSentry {
-  public:
+public:
     SignalSentry(SignalSentry const &) = delete;
     SignalSentry & operator=(SignalSentry const &) = delete;
     typedef sigc::signal<void> Sig;
@@ -58,7 +58,7 @@ namespace {
     ~SignalSentry() {
       post_();
     }
-  private:
+private:
     Sig & post_;
   };
 
@@ -70,11 +70,11 @@ namespace {
     p.put("maxEvents", 1);
   }
 
-  std::shared_ptr<art::InputSource>
+  std::unique_ptr<art::InputSource>
   makeInput(ParameterSet const & params,
             std::string const & processName,
             art::MasterProductRegistry & preg,
-            std::shared_ptr<art::ActivityRegistry> areg)
+            art::ActivityRegistry & areg)
   {
     ParameterSet defaultEmptySource;
     setupAsDefaultEmptySource(defaultEmptySource);
@@ -84,7 +84,7 @@ namespace {
     try {
       if (!params.get_if_present("source", main_input)) {
         mf::LogInfo("EventProcessorSourceConfig")
-            << "Could not find a source configuration: using default.";
+          << "Could not find a source configuration: using default.";
       }
       // Fill in "ModuleDescription", in case the input source produces
       // any EDproducts,which would be registered in the
@@ -98,16 +98,16 @@ namespace {
                                                           art::getReleaseVersion(),
                                                           art::getPassID()));
       sourceSpecified = true;
-      art::InputSourceDescription isd(md, preg, *areg);
-      return std::shared_ptr<art::InputSource>
-             (art::InputSourceFactory::make(main_input, isd).release());
+      art::InputSourceDescription isd(md, preg, areg);
+      return std::unique_ptr<art::InputSource>
+        (art::InputSourceFactory::make(main_input, isd).release());
     }
     catch (art::Exception const & x) {
       if (sourceSpecified == false &&
           art::errors::Configuration == x.categoryCode()) {
         throw art::Exception(art::errors::Configuration, "FailedInputSource")
-            << "Configuration of main input source has failed\n"
-            << x;
+          << "Configuration of main input source has failed\n"
+          << x;
       }
       else {
         throw;
@@ -115,126 +115,59 @@ namespace {
     }
     catch (cet::exception const & x) {
       throw art::Exception(art::errors::Configuration, "FailedInputSource")
-          << "Configuration of main input source has failed\n"
-          << x;
+        << "Configuration of main input source has failed\n"
+        << x;
     }
-    return std::shared_ptr<art::InputSource>();
+    return std::unique_ptr<art::InputSource>();
   }
 
-  //////////////////////////////////////////////////////////////////////
-  // Functions to help prepare the services for initialization.
 
-  typedef std::vector<ParameterSet> ParameterSets;
-
-  void
-  addService(std::string const & name, ParameterSets & service_set)
-  {
-    service_set.push_back(ParameterSet());
-    service_set.back().put("service_type", name);
-  }
-
-  void
-  addOptionalService(std::string const & name,
-                     ParameterSet const & source,
-                     ParameterSets & service_set)
-  {
-    ParameterSet pset;
-    if (source.get_if_present(name, pset)) {
-      pset.put("service_type", name);
-      service_set.push_back(pset);
-    }
-  }
-
-  void
-  addService(std::string const & name,
-             ParameterSet const & source,
-             ParameterSets & service_set)
-  {
-    service_set.push_back(source.get<ParameterSet>(name, ParameterSet()));
-    service_set.back().put("service_type", name);
-  }
-
-  void extractServices(ParameterSet const & services, ParameterSets & service_set)
-  {
-    // this is not ideal.  Need to change the ServiceRegistry "createSet" and ServicesManager "put"
-    // functions to take the parameter set vector and a list of service objects to be added to
-    // the service token.  Alternatively we could get the service token and be allowed to add
-    // service objects to it.  Since the servicetoken contains the servicemanager, we might
-    // be able to simply add a function to the serviceregistry or servicesmanager that given
-    // a service token, it injects a new service object using the "put" of the
-    // servicesManager.
-    // order might be important here
-    // only configured if pset present in services
-    addOptionalService("RandomNumberGenerator", services, service_set);
-    addOptionalService("SimpleMemoryCheck", services, service_set);
-    addOptionalService("Timing", services, service_set);
-    addOptionalService("TFileService", services, service_set);
-    addService("FileCatalogMetadata", services, service_set);
-    ParameterSet user_services = services.get<ParameterSet>("user", ParameterSet());
-    std::vector<std::string> keys = user_services.get_pset_keys();
-    for (std::vector<std::string>::iterator i = keys.begin(), e = keys.end(); i != e; ++i)
-    { addService(*i, user_services, service_set); }
-  }
 }
-
-// ----------- event processor functions ------------------
 
 art::EventProcessor::EventProcessor(ParameterSet const & pset)
   :
-  actReg_(new ActivityRegistry),
-  mfStatusUpdater_(*actReg_),
+  helper_(pset),
+  act_table_(helper_.schedulerPS()),
+  actReg_(),
+  mfStatusUpdater_(actReg_),
   preg_(),
   serviceToken_(),
+  serviceDirector_(pset, actReg_, serviceToken_),
+  destructorOperate_(),
   input_(),
   tbbManager_(tbb::task_scheduler_init::deferred),
-  pathManager_(),
+  pathManager_(pset, preg_, act_table_, actReg_),
   schedule_(),
   endPathExecutor_(),
-  act_table_(),
   fb_(),
   machine_(),
   principalCache_(),
   sm_evp_(),
   shouldWeStop_(false),
   stateMachineWasInErrorState_(false),
-  fileMode_(),
-  handleEmptyRuns_(false),
-  handleEmptySubRuns_(false),
+  fileMode_(helper_.schedulerPS().get<std::string>("fileMode", "")),
+  handleEmptyRuns_(helper_.schedulerPS().get<bool>("handleEmptyRuns", true)),
+  handleEmptySubRuns_(helper_.schedulerPS().get<bool>("handleEmptySubRuns", true)),
   exceptionMessageFiles_(),
   exceptionMessageRuns_(),
   exceptionMessageSubRuns_(),
   alreadyHandlingException_(false)
 {
-  // The BranchIDListRegistry and ProductIDListRegistry are indexed registries, and are singletons.
-  //  They must be cleared here because some processes run multiple EventProcessors in succession.
-  BranchIDListHelper::clearRegistries();
-  // TODO: Fix const-correctness. The ParameterSets that are
-  // returned here should be const, so that we can be sure they are
-  // not modified.
-  ParameterSet const services = pset.get<ParameterSet>("services", ParameterSet());
-  ParameterSet const scheduler = services.get<ParameterSet>("scheduler", ParameterSet());
-  fileMode_ = scheduler.get<std::string>("fileMode", "");
-  handleEmptyRuns_ = scheduler.get<bool>("handleEmptyRuns", true);
-  handleEmptySubRuns_ = scheduler.get<bool>("handleEmptySubRuns", true);
   std::string const processName = pset.get<std::string>("process_name");
 
-  // New PathManager. Required in time to construct TriggerNamesService.
-  pathManager_.reset(new PathManager(pset, preg_, act_table_, actReg_));
-
   // Services
-  configureServices_(pset);
   ServiceRegistry::Operate operate(serviceToken_); // Make usable.
+  addSystemServices_(pset);
   serviceToken_.forceCreation();
-  // FileCatalogMetadata needs to know about the process name.
+  // System service FileCatalogMetadata needs to know about the process name.
   ServiceHandle<art::FileCatalogMetadata>()->addMetadata("process_name", processName);
 
-  act_table_ = ActionTable(scheduler);
   input_ = makeInput(pset, processName, preg_, actReg_);
   // Old input sources may need this for now.
   input_->storeMPRforBrokenRandomAccess(preg_);
 
   initSchedules_(pset);
-  endPathExecutor_.reset(new EndPathExecutor(*pathManager_,
+  endPathExecutor_.reset(new EndPathExecutor(pathManager_,
                                              act_table_,
                                              actReg_));
   FDEBUG(2) << pset.to_string() << std::endl;
@@ -243,9 +176,10 @@ art::EventProcessor::EventProcessor(ParameterSet const & pset)
 
 art::EventProcessor::~EventProcessor()
 {
-  // Make the services available while everything is being deleted.
-  ServiceToken token = getToken_();
-  ServiceRegistry::Operate op(token);
+  // Populating the destructOperate_ data member will ensure that
+  // services stay usable until it goes out of scope, meaning that
+  // modules may (say) use services in their destructors.
+  destructorOperate_.reset(new ServiceRegistry::Operate(serviceToken_));
   // The state machine should have already been cleaned up
   // and destroyed at this point by a call to EndJob or
   // earlier when it completed processing events, but if it
@@ -256,10 +190,6 @@ art::EventProcessor::~EventProcessor()
   // the EventProcessor to explicitly call EndJob or use runToCompletion,
   // then the next line of code is never executed.
   terminateMachine_();
-  // manually destroy all these thing that may need the services around
-  schedule_.reset();
-  input_.reset();
-  actReg_.reset();
 }
 
 void
@@ -298,7 +228,7 @@ art::EventProcessor::beginJob()
   }
   schedule_->beginJob();
   endPathExecutor_->beginJob();
-  actReg_->sPostBeginJob.invoke();
+  actReg_.sPostBeginJob.invoke();
 
   invokePostBeginJobWorkers_();
 }
@@ -314,38 +244,29 @@ art::EventProcessor::endJob()
   c.call(std::bind(&Schedule::endJob, schedule_.get()));
   c.call(std::bind(&EndPathExecutor::endJob, endPathExecutor_.get()));
   c.call(std::bind(&detail::writeSummary,
-                   std::ref(*pathManager_),
+                   std::ref(pathManager_),
                    ServiceHandle<TriggerNamesService>()->wantSummary()));
-  c.call(std::bind(&InputSource::doEndJob, input_));
-  c.call(std::bind(&decltype(ActivityRegistry::sPostEndJob)::invoke, actReg_->sPostEndJob));
+  c.call(std::bind(&InputSource::doEndJob, input_.get()));
+  c.call(std::bind(&decltype(ActivityRegistry::sPostEndJob)::invoke, actReg_.sPostEndJob));
 }
 
 void
 art::EventProcessor::
-configureServices_(ParameterSet const & pset)
+addSystemServices_(ParameterSet const & pset)
 {
-  ParameterSet const services = pset.get<ParameterSet>("services", ParameterSet());
-  ParameterSet const scheduler = services.get<ParameterSet>("scheduler", ParameterSet());
-  bool const wantTracer = scheduler.get<bool>("wantTracer", false);
-  // build a list of service parameter sets that will be used by the service registry
-  ParameterSets service_set;
-  extractServices(services, service_set);
-  // configured based on optional parameters
-  if (wantTracer) { addService("Tracer", service_set); }
-  serviceToken_ = ServiceRegistry::createSet(service_set, *actReg_);
+  ParameterSet const fpc_pset = helper_.servicesPS().get<ParameterSet>("floating_point_control", ParameterSet());
   // NOTE: the order here might be backwards, due to the "push_front" registering
   // that sigc++ does way in the guts of the add operation.
   // no configuration available
-  serviceToken_.add(std::unique_ptr<CurrentModule>(new CurrentModule(*actReg_)));
+  serviceDirector_.addSystemService(std::unique_ptr<CurrentModule>(new CurrentModule(actReg_)));
   // special construction
-  serviceToken_.add(std::unique_ptr<TriggerNamesService>
-                    (new TriggerNamesService(pset, pathManager_->triggerPathNames())));
-  ParameterSet const fpc_pset = services.get<ParameterSet>("floating_point_control", ParameterSet());
-  serviceToken_.add(std::unique_ptr<FloatingPointControl>(new FloatingPointControl(fpc_pset, *actReg_)));
-  serviceToken_.add(std::unique_ptr<ScheduleContext>(new ScheduleContext));
+  serviceDirector_.addSystemService(std::unique_ptr<TriggerNamesService>
+                    (new TriggerNamesService(pset, pathManager_.triggerPathNames())));
+  serviceDirector_.addSystemService(std::unique_ptr<FloatingPointControl>(new FloatingPointControl(fpc_pset, actReg_)));
+  serviceDirector_.addSystemService(std::unique_ptr<ScheduleContext>(new ScheduleContext));
   ParameterSet pathSelection;
-  if (services.get_if_present("PathSelection", pathSelection)) {
-    serviceToken_.add(std::unique_ptr<PathSelection>(new PathSelection(*this)));
+  if (helper_.servicesPS().get_if_present("PathSelection", pathSelection)) {
+    serviceDirector_.addSystemService(std::unique_ptr<PathSelection>(new PathSelection(*this)));
   }
 }
 
@@ -353,21 +274,17 @@ void
 art::EventProcessor::
 initSchedules_(ParameterSet const & pset)
 {
-  ParameterSet const services =
-    pset.get<ParameterSet>("services", ParameterSet());
-  ParameterSet const scheduler =
-    services.get<ParameterSet>("scheduler", ParameterSet());
 
   // Initialize TBB with desired number of threads.
   int num_threads =
-    scheduler.get<int>("num_threads",
-                       tbb::task_scheduler_init::default_num_threads());
+    helper_.servicesPS().get<int>("num_threads",
+                                  tbb::task_scheduler_init::default_num_threads());
   tbbManager_.initialize(num_threads);
 
   schedule_ =
     std::unique_ptr<Schedule>
     (new Schedule(ScheduleID::first(),
-                  *pathManager_,
+                  pathManager_,
                   pset,
                   ServiceRegistry::instance().get<TriggerNamesService>(),
                   preg_,
@@ -382,18 +299,18 @@ invokePostBeginJobWorkers_()
   // Need to convert multiple lists of workers into a long list that the
   // postBeginJobWorkers callbacks can understand.
   std::vector<Worker *> allWorkers;
-  allWorkers.reserve(pathManager_->triggerPathsInfo(ScheduleID::first()).workers().size() +
-                     pathManager_->endPathInfo().workers().size());
+  allWorkers.reserve(pathManager_.triggerPathsInfo(ScheduleID::first()).workers().size() +
+                     pathManager_.endPathInfo().workers().size());
   auto workerStripper = [&allWorkers](WorkerMap::value_type const & val) {
     allWorkers.emplace_back(val.second.get());
   };
-  std::for_each(pathManager_->triggerPathsInfo(ScheduleID::first()).workers().cbegin(),
-                pathManager_->triggerPathsInfo(ScheduleID::first()).workers().cend(),
+  std::for_each(pathManager_.triggerPathsInfo(ScheduleID::first()).workers().cbegin(),
+                pathManager_.triggerPathsInfo(ScheduleID::first()).workers().cend(),
                 workerStripper);
-  std::for_each(pathManager_->endPathInfo().workers().cbegin(),
-                pathManager_->endPathInfo().workers().cend(),
+  std::for_each(pathManager_.endPathInfo().workers().cbegin(),
+                pathManager_.endPathInfo().workers().cend(),
                 workerStripper);
-  actReg_->sPostBeginJobWorkers.invoke(input_.get(), allWorkers);
+  actReg_.sPostBeginJobWorkers.invoke(input_.get(), allWorkers);
 }
 
 art::ServiceToken
@@ -595,7 +512,7 @@ art::EventProcessor::runCommon_()
 void
 art::EventProcessor::readFile()
 {
-  actReg_->sPreOpenFile.invoke();
+  actReg_.sPreOpenFile.invoke();
   FDEBUG(1) << " \treadFile\n";
   fb_ = input_->readFile(preg_);
   if (!fb_) {
@@ -603,14 +520,14 @@ art::EventProcessor::readFile()
         << "Source readFile() did not return a valid FileBlock: FileBlock "
         << "should be valid or readFile() should throw.\n";
   }
-  actReg_->sPostOpenFile.invoke(fb_->fileName());
+  actReg_.sPostOpenFile.invoke(fb_->fileName());
 }
 
 void
 art::EventProcessor::closeInputFile()
 {
-  SignalSentry fileCloseSentry(actReg_->sPreCloseFile.signal_,
-                               actReg_->sPostCloseFile.signal_);
+  SignalSentry fileCloseSentry(actReg_.sPreCloseFile.signal_,
+                               actReg_.sPostCloseFile.signal_);
   input_->closeFile();
   FDEBUG(1) << "\tcloseInputFile\n";
 }
@@ -786,8 +703,8 @@ art::EventProcessor::endSubRun(SubRunID const & sr)
 art::RunID
 art::EventProcessor::readAndCacheRun()
 {
-  SignalSentry runSourceSentry(actReg_->sPreSourceRun.signal_,
-                               actReg_->sPostSourceRun.signal_);
+  SignalSentry runSourceSentry(actReg_.sPreSourceRun.signal_,
+                               actReg_.sPostSourceRun.signal_);
   principalCache_.insert(input_->readRun());
   FDEBUG(1) << "\treadAndCacheRun " << "\n";
   return principalCache_.runPrincipal().id();
@@ -796,8 +713,8 @@ art::EventProcessor::readAndCacheRun()
 art::SubRunID
 art::EventProcessor::readAndCacheSubRun()
 {
-  SignalSentry subRunSourceSentry(actReg_->sPreSourceSubRun.signal_,
-                                  actReg_->sPostSourceSubRun.signal_);
+  SignalSentry subRunSourceSentry(actReg_.sPreSourceSubRun.signal_,
+                                  actReg_.sPostSourceSubRun.signal_);
   principalCache_.insert(input_->readSubRun(principalCache_.runPrincipalPtr()));
   FDEBUG(1) << "\treadAndCacheSubRun " << "\n";
   return principalCache_.subRunPrincipal().id();

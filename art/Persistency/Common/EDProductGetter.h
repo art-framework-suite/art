@@ -13,7 +13,8 @@ class art::EDProductGetter {
 public:
 
 #ifdef __GCCXML__
-  EDProductGetter() {};
+  EDProductGetter();
+  ~EDProductGetter();
 private:
   EDProductGetter(EDProductGetter const&);
   // Cannot ref-qualify assignment because of GCC_XML.
@@ -24,10 +25,11 @@ public:
   EDProductGetter() = default;
   EDProductGetter(EDProductGetter const&) = delete;
   EDProductGetter& operator=(EDProductGetter const&) = delete;
+  virtual ~EDProductGetter() = default;
 #endif
 
-  virtual ~EDProductGetter();
-
+  // Can you even try to resolve the product?
+  virtual bool isReady() const = 0;
   virtual EDProduct const *getIt() const = 0;
   virtual EDProduct const *anyProduct() const = 0;
   virtual EDProduct const *uniqueProduct() const = 0;

@@ -42,7 +42,7 @@ public:
   PathManager(fhicl::ParameterSet const & procPS,
               MasterProductRegistry & preg,
               ActionTable & exceptActions,
-              std::shared_ptr<ActivityRegistry> const & areg);
+              ActivityRegistry & areg);
 
   vstring const & triggerPathNames() const;
 
@@ -81,7 +81,7 @@ private:
   fhicl::ParameterSet procPS_;
   MasterProductRegistry & preg_;
   ActionTable & exceptActions_;
-  std::shared_ptr<ActivityRegistry> const & areg_;
+  ActivityRegistry & areg_;
 
   // Cached parameters.
   bool const allowUnscheduled_;

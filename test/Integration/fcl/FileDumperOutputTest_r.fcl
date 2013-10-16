@@ -10,10 +10,11 @@ outputs: {
   {
     module_type: FileDumperOutput
     wantProductFriendlyClassName: true
+    onlyIfPresent: true
   }
 }
 
 source: {
   module_type: RootInput
-  fileNames: [ "out.root" ]
+  fileNames: [ "../FileDumperOutput_w.d/out.root" ]
 }

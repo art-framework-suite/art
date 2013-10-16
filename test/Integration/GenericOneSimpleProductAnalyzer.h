@@ -47,6 +47,7 @@ template <typename V, typename P> class arttest::GenericOneSimpleProductAnalyzer
 {
 public:
   GenericOneSimpleProductAnalyzer(fhicl::ParameterSet const &conf) :
+    art::EDAnalyzer(conf),
     value_(),
     input_label_(conf.get<std::string>("input_label")),
     require_presence_(conf.get<bool>("require_presence", true))
