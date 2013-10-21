@@ -334,6 +334,12 @@ test_PtrVector(art::PtrVector<DATA_TYPE> const & v,
         << " but obtained " << (*i)->key
         << ".\n";
     }
+    assert(*i == *i); // Check operator ==.
+    if (k == 0 && sz > 1) {
+      assert(*i != *(i + 1)); // Check operator !=.
+      assert(*(i) < *(i+1)); // Check operator <.
+    }
+
     double expect = 1.5 * k + 100.0;
     if ((*i)->value != expect) {
       throw cet::exception("ValueMismatch")

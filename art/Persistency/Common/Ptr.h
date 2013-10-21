@@ -59,10 +59,15 @@ namespace art {
   template <typename T>
   class Ptr;
 
-  template <typename T>
-  bool operator == (Ptr<T> const & lhs, Ptr<T> const & rhs);
-  template <typename T>
-  bool operator < (Ptr<T> const & lhs, Ptr<T> const & rhs);
+  template <typename T, typename U>
+  typename std::enable_if<std::is_same<T,U>::value || std::is_base_of<T,U>::value || std::is_base_of<U,T>::value, bool>::type
+  operator == (Ptr<T> const & lhs, Ptr<U> const & rhs);
+  template <typename T, typename U>
+  typename std::enable_if<std::is_same<T,U>::value || std::is_base_of<T,U>::value || std::is_base_of<U,T>::value, bool>::type
+  operator != (Ptr<T> const & lhs, Ptr<U> const & rhs);
+  template <typename T, typename U>
+  typename std::enable_if<std::is_same<T,U>::value || std::is_base_of<T,U>::value || std::is_base_of<U,T>::value, bool>::type
+  operator < (Ptr<T> const & lhs, Ptr<U> const & rhs);
 
   // Fill a vector of Ptrs from a persistent collection. Alternatively,
   // construct a PtrVector.
@@ -473,18 +478,29 @@ getData_() const
   }
 }
 
-template <typename T>
+template <typename T, typename U>
 inline
-bool
-art::operator == (Ptr<T> const & lhs, Ptr<T> const & rhs)
+auto
+art::operator == (Ptr<T> const & lhs, Ptr<U> const & rhs)
+-> typename std::enable_if<std::is_same<T,U>::value || std::is_base_of<T,U>::value || std::is_base_of<U,T>::value, bool>::type
 {
   return lhs.refCore() == rhs.refCore() && lhs.key() == rhs.key();
 }
 
-template <typename T>
+template <typename T, typename U>
 inline
-bool
-art::operator < (Ptr<T> const & lhs, Ptr<T> const & rhs)
+auto
+art::operator != (Ptr<T> const & lhs, Ptr<U> const & rhs)
+-> typename std::enable_if<std::is_same<T,U>::value || std::is_base_of<T,U>::value || std::is_base_of<U,T>::value, bool>::type
+{
+  return ! (lhs == rhs);
+}
+
+template <typename T, typename U>
+inline
+auto
+art::operator < (Ptr<T> const & lhs, Ptr<U> const & rhs)
+-> typename std::enable_if<std::is_same<T,U>::value || std::is_base_of<T,U>::value || std::is_base_of<U,T>::value, bool>::type
 {
   // The ordering of integer keys guarantees that the ordering of Ptrs within
   // a collection will be identical to the ordering of the referenced objects in the collection.
