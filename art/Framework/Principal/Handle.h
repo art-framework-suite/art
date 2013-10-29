@@ -49,6 +49,18 @@ namespace art {
   // forward declarations:
   class EDProduct;
   template <typename T>  class Wrapper;
+
+  namespace detail {
+    // SFINAE magic.
+    template <class T, class R = void>
+    struct enable_if_type { typedef R type; };
+
+    template <class T, class Enable = void>
+    struct is_handle : std::false_type {};
+
+    template <class T>
+    struct is_handle<T, typename enable_if_type<typename T::HandleTag>::type> : std::true_type { };
+  }
 }
 
 // ======================================================================
@@ -57,7 +69,8 @@ template <typename T>
 class art::Handle
 {
 public:
-  typedef  T  element_type;
+  typedef T element_type;
+  class HandleTag { };
 
   // c'tors:
   Handle( );  // Default-constructed handles are invalid.
@@ -237,6 +250,7 @@ class art::ValidHandle
 {
 public:
   typedef T element_type;
+  class HandleTag { };
 
   ValidHandle() = delete;
   ValidHandle(T const* prod, Provenance prov);
@@ -263,7 +277,7 @@ public:
 
 private:
   T const*   prod_;
-  Provenance prov_;  
+  Provenance prov_;
 };
 
 template <class T>
