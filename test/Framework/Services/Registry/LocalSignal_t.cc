@@ -10,11 +10,16 @@
 
 namespace {
   typedef art::LocalSignal<art::detail::SignalResponseType::FIFO, void, std::ostream &, std::string const &> TestSignal2;
+  typedef art::LocalSignal<art::detail::SignalResponseType::LIFO, void, std::ostream &, std::string const &> TestSignal2a;
   typedef art::LocalSignal<art::detail::SignalResponseType::FIFO, void, std::ostream &> TestSignal1;
   typedef art::LocalSignal<art::detail::SignalResponseType::FIFO, void> TestSignal0;
+  template <uint16_t n>
   void
   testCallback(std::ostream & os, std::string const & text)
   {
+    if (n > 0) {
+      os << n << ": ";
+    }
     os << text;
   }
 
@@ -40,11 +45,31 @@ BOOST_AUTO_TEST_SUITE(LocalSignal_t)
 BOOST_AUTO_TEST_CASE(TestSignal2_t)
 {
   TestSignal2 s(nSchedules);
-  std::string const test_text { "Test text" };
+  std::string const test_text { "Test text.\n" };
   boost::test_tools::output_test_stream os;
-  BOOST_CHECK_NO_THROW(s.watch(sID, testCallback));
+  BOOST_CHECK_NO_THROW(s.watch(sID, testCallback<1>));
+  BOOST_CHECK_NO_THROW(s.watch(sID, testCallback<2>));
+  BOOST_CHECK_NO_THROW(s.watch(sID, testCallback<3>));
+  std::string const cmp_text { std::string("1: ") + test_text +
+      "2: " + test_text +
+      "3: " + test_text };
   BOOST_CHECK_NO_THROW(s.invoke(sID, os, test_text));
-  BOOST_CHECK(os.is_equal(test_text));
+  BOOST_CHECK(os.is_equal(cmp_text));
+}
+
+BOOST_AUTO_TEST_CASE(TestSignal2a_t)
+{
+  TestSignal2a s(nSchedules);
+  std::string const test_text { "Test text.\n" };
+  boost::test_tools::output_test_stream os;
+  BOOST_CHECK_NO_THROW(s.watch(sID, testCallback<1>));
+  BOOST_CHECK_NO_THROW(s.watch(sID, testCallback<2>));
+  BOOST_CHECK_NO_THROW(s.watch(sID, testCallback<3>));
+  std::string const cmp_text { std::string("3: ") + test_text +
+      "2: " + test_text +
+      "1: " + test_text };
+  BOOST_CHECK_NO_THROW(s.invoke(sID, os, test_text));
+  BOOST_CHECK(os.is_equal(cmp_text));
 }
 
 BOOST_AUTO_TEST_CASE(TestSignal2_func_t)
@@ -75,7 +100,7 @@ BOOST_AUTO_TEST_CASE(TestSignal1_t)
   std::string const test_text { "Test text" };
   boost::test_tools::output_test_stream os;
   BOOST_CHECK_NO_THROW(s.watch(sID,
-                               std::bind(testCallback,
+                               std::bind(testCallback<0>,
                                          std::placeholders::_1,
                                          std::cref(test_text))));
   BOOST_CHECK_NO_THROW(s.invoke(sID, os));
@@ -94,7 +119,7 @@ BOOST_AUTO_TEST_CASE(TestSignal0_t)
   // output_test_stream is a callable entity.
   std::ostringstream & osr __attribute__((unused))(os);
   BOOST_CHECK_NO_THROW(s.watch(sID,
-                               std::bind(testCallback,
+                               std::bind(testCallback<0>,
                                          std::ref(osr),
                                          std::cref(test_text))));
   BOOST_CHECK_NO_THROW(s.invoke(sID));
@@ -106,7 +131,7 @@ BOOST_AUTO_TEST_CASE(TestSignal2_All_t)
   TestSignal2 s(nSchedules);
   std::string const test_text { "Test text" };
   boost::test_tools::output_test_stream os;
-  BOOST_CHECK_NO_THROW(s.watchAll(testCallback));
+  BOOST_CHECK_NO_THROW(s.watchAll(testCallback<0>));
   BOOST_CHECK_NO_THROW(s.invoke(sID, os, test_text));
   BOOST_CHECK(os.is_equal(test_text));
 }
@@ -116,7 +141,7 @@ BOOST_AUTO_TEST_CASE(TestSignal2_clear_t)
   TestSignal2 s(nSchedules);
   std::string const test_text { "Test text" };
   boost::test_tools::output_test_stream os;
-  BOOST_CHECK_NO_THROW(s.watchAll(testCallback));
+  BOOST_CHECK_NO_THROW(s.watchAll(testCallback<0>));
   BOOST_CHECK_NO_THROW(s.clear(sID));
   BOOST_CHECK_NO_THROW(s.invoke(sID, os, test_text));
   BOOST_CHECK(os.is_empty());
@@ -127,7 +152,7 @@ BOOST_AUTO_TEST_CASE(TestSignal2_clearAll_t)
   TestSignal2 s(nSchedules);
   std::string const test_text { "Test text" };
   boost::test_tools::output_test_stream os;
-  BOOST_CHECK_NO_THROW(s.watchAll(testCallback));
+  BOOST_CHECK_NO_THROW(s.watchAll(testCallback<0>));
   BOOST_CHECK_NO_THROW(s.clearAll());
   BOOST_CHECK_NO_THROW(s.invoke(sID, os, test_text));
   BOOST_CHECK(os.is_empty());
@@ -138,7 +163,7 @@ BOOST_AUTO_TEST_CASE(TestSignal1_All_t)
   TestSignal1 s(nSchedules);
   std::string const test_text { "Test text" };
   boost::test_tools::output_test_stream os;
-  BOOST_CHECK_NO_THROW(s.watchAll(std::bind(testCallback,
+  BOOST_CHECK_NO_THROW(s.watchAll(std::bind(testCallback<0>,
                                             std::placeholders::_1,
                                             std::cref(test_text))));
   BOOST_CHECK_NO_THROW(s.invoke(sID, os));
@@ -156,7 +181,7 @@ BOOST_AUTO_TEST_CASE(TestSignal0_All_t)
   // std::ref's attempt to determine whether output_test_stream is a
   // callable entity.
   std::ostringstream & osr(os);
-  BOOST_CHECK_NO_THROW(s.watchAll(std::bind(testCallback,
+  BOOST_CHECK_NO_THROW(s.watchAll(std::bind(testCallback<0>,
                                             std::ref(osr),
                                             std::cref(test_text))));
   BOOST_CHECK_NO_THROW(s.invoke(sID));
@@ -174,7 +199,7 @@ BOOST_AUTO_TEST_CASE(watchFail)
   // std::ref's attempt to determine whether output_test_stream is a
   // callable entity.
   std::ostringstream & osr(os);
-  BOOST_CHECK_THROW((s.watch(art::ScheduleID(4), std::bind(testCallback, std::ref(osr), std::cref(test_text)))), std::out_of_range);
+  BOOST_CHECK_THROW((s.watch(art::ScheduleID(4), std::bind(testCallback<0>, std::ref(osr), std::cref(test_text)))), std::out_of_range);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
