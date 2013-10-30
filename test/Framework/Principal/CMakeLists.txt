@@ -6,7 +6,6 @@ link_libraries(
   art_Framework_Core
   art_Framework_Principal
   art_Utilities
-  ${SIGC}
   ${Boost_FILESYSTEM_LIBRARY}
   ${ROOT_CINTEX}
   ${ROOT_TREE}

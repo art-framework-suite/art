@@ -99,7 +99,6 @@ set(default_test_libraries
   art_Framework_Services_Registry
   art_Utilities
   art_Framework_Core
-  ${SIGC}
   ${Boost_FILESYSTEM_LIBRARY}
   ${Boost_PROGRAM_OPTIONS_LIBRARY}
   ${ROOT_CINTEX}

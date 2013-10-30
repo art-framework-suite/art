@@ -47,19 +47,20 @@ namespace {
   // Most signals.
   class SignalSentry {
 public:
+    typedef art::GlobalSignal<art::detail::SignalResponseType::FIFO, void> PreSig_t;
+    typedef art::GlobalSignal<art::detail::SignalResponseType::LIFO, void> PostSig_t;
     SignalSentry(SignalSentry const &) = delete;
     SignalSentry & operator=(SignalSentry const &) = delete;
-    typedef sigc::signal<void> Sig;
-    SignalSentry(Sig & pre, Sig & post)
+    SignalSentry(PreSig_t & pre, PostSig_t & post)
       :
       post_(post) {
-      pre();
+      pre.invoke();
     }
     ~SignalSentry() {
-      post_();
+      post_.invoke();
     }
 private:
-    Sig & post_;
+    PostSig_t & post_;
   };
 
   ////////////////////////////////////
@@ -255,8 +256,6 @@ art::EventProcessor::
 addSystemServices_(ParameterSet const & pset)
 {
   ParameterSet const fpc_pset = helper_.servicesPS().get<ParameterSet>("floating_point_control", ParameterSet());
-  // NOTE: the order here might be backwards, due to the "push_front" registering
-  // that sigc++ does way in the guts of the add operation.
   // no configuration available
   serviceDirector_.addSystemService(std::unique_ptr<CurrentModule>(new CurrentModule(actReg_)));
   // special construction
@@ -526,8 +525,8 @@ art::EventProcessor::readFile()
 void
 art::EventProcessor::closeInputFile()
 {
-  SignalSentry fileCloseSentry(actReg_.sPreCloseFile.signal_,
-                               actReg_.sPostCloseFile.signal_);
+  SignalSentry fileCloseSentry(actReg_.sPreCloseFile,
+                               actReg_.sPostCloseFile);
   input_->closeFile();
   FDEBUG(1) << "\tcloseInputFile\n";
 }
@@ -703,8 +702,8 @@ art::EventProcessor::endSubRun(SubRunID const & sr)
 art::RunID
 art::EventProcessor::readAndCacheRun()
 {
-  SignalSentry runSourceSentry(actReg_.sPreSourceRun.signal_,
-                               actReg_.sPostSourceRun.signal_);
+  SignalSentry runSourceSentry(actReg_.sPreSourceRun,
+                               actReg_.sPostSourceRun);
   principalCache_.insert(input_->readRun());
   FDEBUG(1) << "\treadAndCacheRun " << "\n";
   return principalCache_.runPrincipal().id();
@@ -713,8 +712,8 @@ art::EventProcessor::readAndCacheRun()
 art::SubRunID
 art::EventProcessor::readAndCacheSubRun()
 {
-  SignalSentry subRunSourceSentry(actReg_.sPreSourceSubRun.signal_,
-                                  actReg_.sPostSourceSubRun.signal_);
+  SignalSentry subRunSourceSentry(actReg_.sPreSourceSubRun,
+                                  actReg_.sPostSourceSubRun);
   principalCache_.insert(input_->readSubRun(principalCache_.runPrincipalPtr()));
   FDEBUG(1) << "\treadAndCacheSubRun " << "\n";
   return principalCache_.subRunPrincipal().id();

@@ -16,21 +16,21 @@
 
 #define MFSU_1_ARG_UPDATER_DECL(stateTag)                   \
   typename decltype(ActivityRegistry::s##stateTag)::result_type \
-  updateStatusTo##stateTag(typename decltype(ActivityRegistry::s##stateTag)::slot_type::arg1_type_)
+  updateStatusTo##stateTag(typename decltype(ActivityRegistry::s##stateTag)::slot_type::argument_type)
 #define MFSU_1_ARG_UPDATER_DEFN(stateTag)                           \
   typename decltype(art::ActivityRegistry::s##stateTag)::result_type    \
   art::MFStatusUpdater::                                                \
-  updateStatusTo##stateTag(typename decltype(ActivityRegistry::s##stateTag)::slot_type::arg1_type_ arg1 __attribute__((unused)))
+  updateStatusTo##stateTag(typename decltype(ActivityRegistry::s##stateTag)::slot_type::argument_type arg1 [[gnu::unused]])
 
 #define MFSU_2_ARG_UPDATER_DECL(stateTag)                           \
   typename decltype(ActivityRegistry::s##stateTag)::result_type         \
-  updateStatusTo##stateTag(typename decltype(ActivityRegistry::s##stateTag)::slot_type::arg1_type_, \
-                           typename decltype(ActivityRegistry::s##stateTag)::slot_type::arg2_type_)
+  updateStatusTo##stateTag(typename decltype(ActivityRegistry::s##stateTag)::slot_type::first_argument_type, \
+                           typename decltype(ActivityRegistry::s##stateTag)::slot_type::second_argument_type)
 #define MFSU_2_ARG_UPDATER_DEFN(stateTag)                           \
   typename decltype(art::ActivityRegistry::s##stateTag)::result_type    \
   art::MFStatusUpdater::                                                \
-  updateStatusTo##stateTag(typename decltype(ActivityRegistry::s##stateTag)::slot_type::arg1_type_ arg1 __attribute__((unused)), \
-                           typename decltype(ActivityRegistry::s##stateTag)::slot_type::arg2_type_ arg2 __attribute__((unused)))
+  updateStatusTo##stateTag(typename decltype(ActivityRegistry::s##stateTag)::slot_type::first_argument_type arg1 [[gnu::unused]], \
+                           typename decltype(ActivityRegistry::s##stateTag)::slot_type::second_argument_type arg2 [[gnu::unused]])
 
 namespace art {
   class MFStatusUpdater;
