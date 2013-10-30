@@ -133,6 +133,7 @@ namespace {
 arttest::AssnsAnalyzer::
 AssnsAnalyzer(fhicl::ParameterSet const & p)
   :
+  art::EDAnalyzer(p),
   inputLabel_(p.get<std::string>("input_label")),
   testAB_(p.get<bool>("test_AB", true)),
   testBA_(p.get<bool>("test_BA", false)),
@@ -179,7 +180,7 @@ testOne(art::Event const & e) const
   // Construct a FO using a handle to a collection.
   art::Handle<std::vector<size_t> > hAcoll;
   BOOST_REQUIRE(e.getByLabel(inputLabel_, hAcoll));
-
+  auto vhAcoll = e.getValidHandle<std::vector<size_t> >(inputLabel_);
   // First, check we can make an FO on a non-existent label without
   // barfing immediately.
   FO<std::string, arttest::AssnTestData> foDead(hAcoll, e, "noModule");
@@ -209,7 +210,7 @@ testOne(art::Event const & e) const
     foAV.reset(new FO<size_t, void>(hBcoll, e, inputLabel_));
   }
   FO<std::string, arttest::AssnTestData> foB(hAcoll, e, inputLabel_);
-  FO<std::string, arttest::AssnTestData> foB2(hAcoll, e, inputLabel_);
+  FO<std::string, arttest::AssnTestData> foB2(vhAcoll, e, inputLabel_);
   FO<std::string, void> foBV(hAcoll, e, inputLabel_);
   std::vector<art::Ptr<size_t> > vp;
   vp.reserve(3);
@@ -307,7 +308,6 @@ testOne(art::Event const & e) const
   // Check for range errors.
   BOOST_CHECK_THROW(foApv.at(3), std::out_of_range);
   BOOST_CHECK_THROW(foApv.data(3), std::out_of_range);
-  // BOOST_CHECK_THROW((FO<B_t, arttest::AssnTestData> (hAcoll, e, art::InputTag(inputLabel_, "M"))), art::Exception);
 }
 
 template <template <typename, typename> class FM>
@@ -347,9 +347,9 @@ testMany(art::Event const & e) const
   for (auto const & f : { fmB, fmB2 }) {
     BOOST_REQUIRE_EQUAL(f.size(), 3ul);
     if (bCollMissing_) {
-      BOOST_CHECK(f.at(0).size() == 0);
-      BOOST_CHECK(f.at(1).size() == 0);
-      BOOST_CHECK(f.at(2).size() == 0);
+      BOOST_CHECK_EQUAL(f.at(0).size(), 0ul);
+      BOOST_CHECK_EQUAL(f.at(1).size(), 0ul);
+      BOOST_CHECK_EQUAL(f.at(2).size(), 0ul);
     } else {
       BOOST_CHECK_EQUAL(f.at(0).size(), 1ul);
       BOOST_CHECK_EQUAL(f.at(1).size(), 2ul);
@@ -361,9 +361,9 @@ testMany(art::Event const & e) const
   }
   FM<B_t, void> fmBV(hAcoll, e, art::InputTag(inputLabel_, "M"));
   if (bCollMissing_) {
-    BOOST_CHECK(fmBV.at(0).size() == 0);
-    BOOST_CHECK(fmBV.at(1).size() == 0);
-    BOOST_CHECK(fmBV.at(2).size() == 0);
+    BOOST_CHECK_EQUAL(fmBV.at(0).size(), 0ul);
+    BOOST_CHECK_EQUAL(fmBV.at(1).size(), 0ul);
+    BOOST_CHECK_EQUAL(fmBV.at(2).size(), 0ul);
   } else {
     BOOST_CHECK_EQUAL(fmBV.at(0).size(), 1ul);
     BOOST_CHECK_EQUAL(fmBV.at(1).size(), 2ul);

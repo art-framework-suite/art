@@ -36,6 +36,7 @@ private:
 
 arttest::PausingAnalyzer::PausingAnalyzer(fhicl::ParameterSet const & p)
 :
+  art::EDAnalyzer(p),
   pauseTime_(p.get<unsigned int>("pauseTime", 5))
 {
 }

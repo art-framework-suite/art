@@ -23,8 +23,7 @@
 #include "art/Utilities/ScheduleID.h"
 #include "cetlib/container_algorithms.h"
 
-#include "sigc++/signal.h"
-
+#include <deque>
 #include <functional>
 
 namespace art {
@@ -33,13 +32,14 @@ namespace art {
 
 template <art::detail::SignalResponseType STYPE, typename ResultType, typename...Args>
 class art::LocalSignal {
-private:
-  typedef sigc::signal<ResultType, Args...> SigType_;
-  typedef std::vector<SigType_> ContainerType_;
 public:
   // Typedefs
-  typedef typename SigType_::slot_type slot_type;
+  typedef std::function<ResultType(Args...)> slot_type;
   typedef ResultType result_type;
+private:
+  // Required for derivative typedef below.
+  typedef std::vector<std::deque<slot_type> > ContainerType_;
+public:
   typedef typename ContainerType_::size_type size_type;
 
   // Constructor.
@@ -69,7 +69,8 @@ public:
   void
   watchAll(ResultType(T::*slot)(Args...) const, T const & t);
 
-  ResultType invoke(ScheduleID sID, Args && ... args) const;
+  void invoke(ScheduleID sID, Args && ... args) const; // Discard ResultType.
+
   void clear(ScheduleID sID);
   void clearAll();
 
@@ -146,11 +147,13 @@ watchAll(ResultType(T::*slot)(Args...) const, T const & t)
 }
 
 template <art::detail::SignalResponseType STYPE, typename ResultType, typename... Args>
-ResultType
+void
 art::LocalSignal<STYPE, ResultType, Args...>::
 invoke(ScheduleID sID, Args && ... args) const
 {
-  return signals_.at(sID.id())(std::forward<Args>(args)...);
+  for (auto f : signals_.at(sID.id())) {
+    f(std::forward<Args>(args)...);
+  }
 }
 
 template <art::detail::SignalResponseType STYPE, typename ResultType, typename... Args>

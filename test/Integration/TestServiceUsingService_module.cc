@@ -35,8 +35,9 @@ private:
 };
 
 
-arttest::TestServiceUsingService::TestServiceUsingService(fhicl::ParameterSet const &)
+arttest::TestServiceUsingService::TestServiceUsingService(fhicl::ParameterSet const &p)
  :
+  art::EDAnalyzer(p),
   debug_level_(art::ServiceHandle<ServiceUsing>()->getCachedValue())
 {
 }

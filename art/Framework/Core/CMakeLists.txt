@@ -28,7 +28,6 @@ art_make(
   ${FHICLCPP}
   ${CETLIB}
   ${CLHEP}
-  ${SIGC}
   )
 
 install_headers(SUBDIRS detail)

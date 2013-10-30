@@ -9,7 +9,6 @@ art_make(LIB_LIBRARIES
   ${FHICLCPP}
   ${CETLIB}
   ${CLHEP}
-  ${SIGC}
 )
 
 install_headers(SUBDIRS detail)

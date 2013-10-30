@@ -24,7 +24,8 @@ using namespace art;
 class Reconfiguring : public art::EDAnalyzer
 {
 public:
-  explicit Reconfiguring( fhicl::ParameterSet const & )
+  explicit Reconfiguring( fhicl::ParameterSet const & p)
+    : art::EDAnalyzer(p)
   {
   }
 

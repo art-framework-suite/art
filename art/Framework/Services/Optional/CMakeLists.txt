@@ -17,7 +17,6 @@ simple_plugin(RandomNumberGenerator "service"
   ${MF_MESSAGELOGGER}
   ${MF_UTILITIES}
   ${CETLIB}
-  ${SIGC}
   ${CLHEP}
   )
 

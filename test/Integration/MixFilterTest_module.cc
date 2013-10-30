@@ -10,10 +10,15 @@
 #include "art/Utilities/InputTag.h"
 #include "cetlib/map_vector.h"
 #include "cpp0x/memory"
+#include "messagefacility/MessageLogger/MessageLogger.h"
 #include "test/TestObjects/ProductWithPtrs.h"
 #include "test/TestObjects/ToyProducts.h"
 
 #include "boost/noncopyable.hpp"
+
+#include <algorithm>
+#include <iterator>
+#include <unordered_set>
 
 namespace arttest {
   class MixFilterTestDetail;
@@ -34,7 +39,7 @@ namespace arttest {
   typedef art::MixFilter<MixFilterTestDetail> ART_MFT;
 }
 
-class arttest::MixFilterTestDetail : private boost::noncopyable {
+class arttest::MixFilterTestDetail {
 public:
   typedef cet::map_vector<unsigned int> mv_t;
   typedef typename mv_t::value_type mvv_t;
@@ -45,6 +50,11 @@ public:
   // MixHelperproduces().
   MixFilterTestDetail(fhicl::ParameterSet const & p,
                       art::MixHelper & helper);
+
+  MixFilterTestDetail(MixFilterTestDetail const &) = delete;
+  MixFilterTestDetail & operator=(MixFilterTestDetail const &) = delete;
+
+  ~MixFilterTestDetail();
 
 #ifdef ART_TEST_OLD_STARTEVENT
   // Old startEvent signature -- check it still works
@@ -121,15 +131,22 @@ public:
   void verifyInSize(COLL const & in) const;
 
 private:
-  size_t nSecondaries_;
-  bool testRemapper_;
+  size_t const nSecondaries_;
+  bool const testRemapper_;
   std::vector<size_t> doubleVectorOffsets_, map_vectorOffsets_;
   std::unique_ptr<art::EventIDSequence> eIDs_;
   bool startEvent_called_;
   bool processEventIDs_called_;
   int currentEvent_;
-  bool testZeroSecondaries_;
-  bool testPtrFailure_;
+  bool const testZeroSecondaries_;
+  bool const testPtrFailure_;
+  bool const testEventOrdering_;
+  bool const testNoLimEventDupes_;
+  art::MixHelper::Mode const readMode_;
+
+  // For testing no_replace mode only:
+  std::vector<int> allEvents_;
+  std::unordered_set<int> uniqueEvents_;
 };
 
 template <typename COLL>
@@ -155,7 +172,12 @@ MixFilterTestDetail(fhicl::ParameterSet const & p,
   processEventIDs_called_(false),
   currentEvent_(-1),
   testZeroSecondaries_(p.get<bool>("testZeroSecondaries", false)),
-  testPtrFailure_(p.get<bool>("testPtrFailure", false))
+  testPtrFailure_(p.get<bool>("testPtrFailure", false)),
+  testEventOrdering_(p.get<bool>("testEventOrdering", false)),
+  testNoLimEventDupes_(p.get<bool>("testNoLimEventDupes", false)),
+  readMode_(helper.readMode()),
+  allEvents_(),
+  uniqueEvents_()
 {
   std::string mixProducerLabel(p.get<std::string>("mixProducerLabel",
                                "mixProducer"));
@@ -192,6 +214,19 @@ MixFilterTestDetail(fhicl::ParameterSet const & p,
    &MixFilterTestDetail::mixmap_vectorPtrs, *this);
 }
 
+arttest::MixFilterTestDetail::
+~MixFilterTestDetail()
+{
+  if (readMode_ == art::MixHelper::Mode::RANDOM_LIM_REPLACE &&
+      testNoLimEventDupes_ == false) {
+    // Require dupes across the job.
+    BOOST_CHECK_GT(allEvents_.size(), uniqueEvents_.size());
+  } else if (readMode_ == art::MixHelper::Mode::RANDOM_NO_REPLACE) {
+    // Require no dupes across the job.
+    BOOST_CHECK_EQUAL(allEvents_.size(), uniqueEvents_.size());
+  }
+}
+
 #ifndef ART_TEST_NO_STARTEVENT
 void
 arttest::MixFilterTestDetail::
@@ -220,11 +255,55 @@ arttest::MixFilterTestDetail::
 processEventIDs(art::EventIDSequence const & seq)
 {
 #ifdef ART_TEST_NO_STARTEVENT
-// Need to deal with this here
+  // Need to deal with this here
   ++currentEvent_;
 #endif
   processEventIDs_called_ = true;
   eIDs_.reset(new art::EventIDSequence(seq));
+  if (!testEventOrdering_) {
+    return;
+  }
+  switch (readMode_) {
+  case art::MixHelper::Mode::SEQUENTIAL:
+  {
+    auto count(1);
+    for (auto const & eid : seq) {
+      BOOST_REQUIRE_EQUAL(eid.event(), currentEvent_ * nSecondaries() + count++);
+    }
+  }
+  break;
+  case art::MixHelper::Mode::RANDOM_REPLACE:
+  {
+    // We should have a duplicate within the secondaries.
+    std::unordered_set<int> s;
+    std::transform(seq.cbegin(), seq.cend(), std::inserter(s, s.begin()), [](art::EventID const & eid) { return eid.event(); });
+    BOOST_CHECK_GT(seq.size(), s.size());
+  }
+  break;
+  case art::MixHelper::Mode::RANDOM_LIM_REPLACE:
+    if (testNoLimEventDupes_) {
+      // We should have no duplicate within the secondaries.
+      std::unordered_set<int> s;
+      std::transform(seq.cbegin(), seq.cend(), std::inserter(s, s.begin()), [](art::EventID const & eid) { return eid.event(); });
+      BOOST_CHECK_EQUAL(seq.size(), s.size());
+    } else { // Require dupes over 2 events.
+      auto checkpoint(allEvents_.size());
+      std::transform(seq.cbegin(), seq.cend(), std::back_inserter(allEvents_), [](art::EventID const & eid) { return eid.event(); });
+      uniqueEvents_.insert(allEvents_.cbegin() + checkpoint, allEvents_.cend());
+      // Test at end job for duplicates.
+    }
+    break;
+  case art::MixHelper::Mode::RANDOM_NO_REPLACE:
+  {
+    auto checkpoint(allEvents_.size());
+    std::transform(seq.cbegin(), seq.cend(), std::back_inserter(allEvents_), [](art::EventID const & eid) { return eid.event(); });
+    uniqueEvents_.insert(allEvents_.cbegin() + checkpoint, allEvents_.cend());
+    // Test at end job for no duplicates.
+  }
+  break;
+  default:
+    ;
+  }
 }
 
 void

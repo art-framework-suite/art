@@ -75,6 +75,7 @@ simple_plugin(ServiceUsing                "service" NO_INSTALL )
 simple_plugin(SimpleDerivedAnalyzer       "module"  NO_INSTALL )
 simple_plugin(SimpleDerivedProducer       "module"  NO_INSTALL )
 simple_plugin(TH1DataProducer             "module"  NO_INSTALL test_TestObjects)
+simple_plugin(TestAnalyzerSelect          "module"  NO_INSTALL )
 simple_plugin(TestBitsOutput              "module"  NO_INSTALL )
 simple_plugin(TestFilter                  "module"  NO_INSTALL )
 simple_plugin(TestOutput                  "module"  NO_INSTALL )
@@ -98,7 +99,6 @@ set(default_test_libraries
   art_Framework_Services_Registry
   art_Utilities
   art_Framework_Core
-  ${SIGC}
   ${Boost_FILESYSTEM_LIBRARY}
   ${Boost_PROGRAM_OPTIONS_LIBRARY}
   ${ROOT_CINTEX}
@@ -483,7 +483,7 @@ cet_test(ProductMix_r1b HANDBUILT
 )
 
 # Mix the events from ProductMix_w, testing that things behave properly
-# with secondary input file wrappring and no eventsToSkip().
+# with secondary input file wrapping and no eventsToSkip().
 cet_test(ProductMix_r1c1 HANDBUILT
   TEST_EXEC art_ut
   TEST_ARGS --rethrow-all -c "ProductMix_r1c.fcl"
@@ -499,7 +499,7 @@ SET_TESTS_PROPERTIES(ProductMix_r1c1
   )
 
 # Mix the events from ProductMix_w, testing that things behave properly
-# with secondary input file wrappring and eventsToSkip().
+# with secondary input file wrapping and eventsToSkip().
 cet_test(ProductMix_r1c2 HANDBUILT
   TEST_EXEC art_ut
   TEST_ARGS --rethrow-all -c "ProductMix_r1c2.fcl"
@@ -511,7 +511,7 @@ cet_test(ProductMix_r1c2 HANDBUILT
 )
 
 # Mix the events from ProductMix_w, testing that things behave properly
-# with secondary input file wrappring and eventsToSkip() const.
+# with secondary input file wrapping and eventsToSkip() const.
 cet_test(ProductMix_r1c3 HANDBUILT
   TEST_EXEC art_ut
   TEST_ARGS --rethrow-all -c "ProductMix_r1c3.fcl"
@@ -543,6 +543,25 @@ cet_test(ProductMix_r1d2 HANDBUILT
   fcl/ProductMix_r1d2.fcl
   TEST_PROPERTIES DEPENDS ProductMix_w
 )
+
+# Mix the events from ProductMix_w, testing that the secondary event
+# selection is as specified. Order is:
+#   SEQUENTIAL
+#   RANDOM_REPLACE
+#   RANDOM_LIM_REPLACE (require no dupes within a primary)
+#   RANDOM_LIM_REPLACE (require dupes across a job).
+#   RANDOM_NO_REPLACE
+foreach(test 1 2 3 4 5)
+  cet_test(ProductMix_r1e${test} HANDBUILT
+    TEST_EXEC art_ut
+    TEST_ARGS --rethrow-all -c "ProductMix_r1e${test}.fcl"
+    DATAFILES
+    fcl/ProductMix_r1.fcl
+    fcl/ProductMix_r1e.fcl
+    fcl/ProductMix_r1e${test}.fcl
+    TEST_PROPERTIES DEPENDS ProductMix_w
+    )
+endforeach()
 
 SET_TESTS_PROPERTIES(
   ProductMix_r1c2
@@ -949,6 +968,13 @@ cet_test(PostCloseFileRename_Integration HANDBUILT
   TEST_ARGS -c PostCloseFileRename_t.fcl
   DATAFILES
   fcl/PostCloseFileRename_t.fcl
+)
+
+cet_test(TestAnalyzerSelect HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS -c "TestAnalyzerSelect.fcl"
+  DATAFILES
+  fcl/TestAnalyzerSelect.fcl
 )
 
 ########################################################################

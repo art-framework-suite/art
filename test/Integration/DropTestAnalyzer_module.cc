@@ -36,6 +36,7 @@ private:
 
 arttest::DropTestAnalyzer::DropTestAnalyzer(fhicl::ParameterSet const &p)
   :
+   art::EDAnalyzer(p),
    inputLabel_(p.get<std::string>("input_label")),
    keepString_(p.get<bool>("keepString", false)),
    keepMapVector_(p.get<bool>("keepMapVector", true))

@@ -1,30 +1,35 @@
 #include "art/Framework/Core/detail/OutputModuleUtils.h"
 
 #include <algorithm>
+#include <string>
+#include <utility>
+
+using namespace std;
+
+namespace art {
+namespace detail {
 
 void
-art::detail::
-remove_whitespace(std::string & s)
+remove_whitespace(string& S)
 {
-  s.erase(std::remove(s.begin(), s.end(), ' '), s.end());
-  s.erase(std::remove(s.begin(), s.end(), '\t'), s.end());
+  S.erase(remove(S.begin(), S.end(), ' '), S.end());
+  S.erase(remove(S.begin(), S.end(), '\t'), S.end());
 }
 
 void
-art::detail::
-parse_path_spec(std::string const & path_spec,
-                parsed_path_spec_t & output)
+parse_path_spec(string const& PS, pair<string,string>& PPS)
 {
-  std::string trimmed_path_spec(path_spec);
-  detail::remove_whitespace(trimmed_path_spec);
-  std::string::size_type colon = trimmed_path_spec.find(":");
-  if (colon == std::string::npos) {
-    output.first = trimmed_path_spec;
+  string T(PS);
+  detail::remove_whitespace(T);
+  string::size_type C = T.find(":");
+  if (C == string::npos) {
+    PPS.first = T;
+    return;
   }
-  else {
-    output.first  = trimmed_path_spec.substr(0, colon);
-    output.second =
-      trimmed_path_spec.substr(colon + 1, trimmed_path_spec.size());
-  }
+  PPS.first  = T.substr(0, C);
+  PPS.second = T.substr(C + 1);
 }
+
+} // namespace art
+} // namespace detail
 

@@ -48,6 +48,7 @@ private:
 
 arttest::MixAnalyzer::MixAnalyzer(fhicl::ParameterSet const &p)
   :
+  art::EDAnalyzer(p),
   eventCounter_(0),
   nSecondaries_(p.get<size_t>("numSecondaries", 1)),
   mixFilterLabel_(p.get<std::string>("mixFilterLabel", "mixFilter"))

@@ -13,7 +13,7 @@
 #include "cetlib/exception.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
-#include "sigc++/signal.h"
+
 #include <iostream>
 #include <sys/time.h>
 

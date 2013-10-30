@@ -27,7 +27,6 @@
 #include "art/Framework/Services/Registry/detail/SignalResponseType.h"
 
 #include "cpp0x/functional"
-#include "sigc++/signal.h"
 
 #include <string>
 #include <vector>

@@ -9,7 +9,10 @@
 #include "cpp0x/memory"
 #include "test/Framework/Core/stubs/TestBeginEndJobAnalyzer.h"
 
-TestBeginEndJobAnalyzer::TestBeginEndJobAnalyzer(const fhicl::ParameterSet& /* iConfig */) {
+TestBeginEndJobAnalyzer::
+TestBeginEndJobAnalyzer(const fhicl::ParameterSet& pset)
+  : art::EDAnalyzer(pset)
+{
 }
 
 TestBeginEndJobAnalyzer::~TestBeginEndJobAnalyzer() {

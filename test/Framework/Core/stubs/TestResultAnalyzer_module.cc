@@ -38,6 +38,7 @@ namespace arttest
   };
 
   TestResultAnalyzer::TestResultAnalyzer(fhicl::ParameterSet const& ps):
+    EDAnalyzer(ps),
     passed_(),
     failed_(),
     dump_(ps.get<bool>("dump",false)),

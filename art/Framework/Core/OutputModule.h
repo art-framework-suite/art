@@ -8,7 +8,6 @@
 //
 // ======================================================================
 
-#include "art/Framework/Core/CachedProducts.h"
 #include "art/Framework/Core/EventObserver.h"
 #include "art/Framework/Principal/fwd.h"
 #include "art/Framework/Core/Frameworkfwd.h"
@@ -33,11 +32,6 @@
 // ----------------------------------------------------------------------
 
 namespace art {
-
-  typedef art::detail::CachedProducts::handle_t Trig;
-
-  std::vector<std::string> const & getAllTriggerNames();
-
   class OutputModule;
 }
 
@@ -75,19 +69,11 @@ public:
   BranchChildren const & branchChildren() const;
 
 protected:
-  std::string const & processName() const;
-
-  Trig getTriggerResults(Event const & e) const;
-
   // The returned pointer will be null unless the this is currently
   // executing its event loop function ('write').
   CurrentProcessingContext const * currentContext() const;
 
   ModuleDescription const & description() const;
-
-  bool wantAllEvents() const {return wantAllEvents_;}
-
-  fhicl::ParameterSetID selectorConfig() const { return selector_config_id_; }
 
 private:
   int maxEvents_;
@@ -112,23 +98,12 @@ private:
 
   std::array<bool, NumBranchTypes> hasNewlyDroppedBranch_;
 
-  std::string process_name_;
   GroupSelectorRules groupSelectorRules_;
   GroupSelector groupSelector_;
   ModuleDescription moduleDescription_;
 
   // We do not own the pointed-to CurrentProcessingContext.
   CurrentProcessingContext const * current_context_;
-
-  //This will store TriggerResults objects for the current event.
-  // mutable std::vector<Trig> prods_;
-  mutable bool prodsValid_;
-
-  bool wantAllEvents_;
-  mutable detail::CachedProducts selectors_;
-  // ID of the ParameterSet that configured the event selector
-  // subsystem.
-  fhicl::ParameterSetID selector_config_id_;
 
   typedef std::map<BranchID, std::set<ParentageID> > BranchParents;
   BranchParents branchParents_;
@@ -240,14 +215,6 @@ art::OutputModule::
 remainingEvents() const
 {
   return remainingEvents_;
-}
-
-inline
-std::string const &
-art::OutputModule::
-processName() const
-{
-  return process_name_;
 }
 
 inline

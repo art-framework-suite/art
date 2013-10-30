@@ -27,7 +27,8 @@ public:
   typedef  art::PtrVector<int>  product_t;
 
   PtrVectorAnalyzer( fhicl::ParameterSet const & p )
-  : input_label_( p.get<std::string>("input_label") )
+  : art::EDAnalyzer(p)
+  , input_label_( p.get<std::string>("input_label") )
   , nvalues_    ( p.get<unsigned   >("nvalues") )
   { }
 
