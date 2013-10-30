@@ -44,7 +44,6 @@ cet_report_compiler_flags()
 # these are minimum required versions, not the actual product versions
 find_ups_product( cppunit v1_12_1 )
 find_ups_product( gccxml v0_9 )
-find_ups_product( libsigcpp v2_2_10 )
 find_ups_product( clhep v2_1_2_2 )
 find_ups_product( cetbuildtools v3_06_00 )
 find_ups_product( messagefacility v1_10_00 )
