@@ -161,11 +161,21 @@ cet_test(test_view_01_t.sh PREBUILT
   fcl/messageDefaults.fcl
 )
 
-cet_test(test_ptrvector_01_t.sh PREBUILT
+cet_test(test_ptrvector_01a_t HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --config test_ptrvector_01a.fcl --rethrow-all
   DATAFILES
   fcl/test_ptrvector_01a.fcl
+  fcl/messageDefaults.fcl
+)
+
+cet_test(test_ptrvector_01b_t HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --config test_ptrvector_01b.fcl --rethrow-all
+  DATAFILES
   fcl/test_ptrvector_01b.fcl
   fcl/messageDefaults.fcl
+  TEST_PROPERTIES DEPENDS test_ptrvector_01a_t
 )
 
 cet_test(SimpleDerived_01_w HANDBUILT
