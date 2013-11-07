@@ -33,6 +33,8 @@ simple_plugin(BareStringAnalyzer          "module"  NO_INSTALL )
 simple_plugin(BareStringProducer          "module"  NO_INSTALL )
 simple_plugin(CompressedIntProducer       "module"  NO_INSTALL )
 simple_plugin(CompressedIntTestAnalyzer   "module"  NO_INSTALL )
+simple_plugin(DeferredIsReadyWithAssnsAnalyzer "module"  NO_INSTALL )
+simple_plugin(DeferredIsReadyWithAssnsProducer "module"  NO_INSTALL )
 simple_plugin(DerivedPtrVectorProducer    "module"  NO_INSTALL )
 simple_plugin(DoubleProducer              "module"  NO_INSTALL )
 simple_plugin(DoubleTestAnalyzer          "module"  NO_INSTALL )
@@ -638,8 +640,15 @@ foreach(num 1 2 3)
     fcl/Assns_r_inc.fcl
     fcl/Assns_r${num}.fcl
     TEST_PROPERTIES DEPENDS Assns_w
-  )
+    )
 endforeach()
+
+cet_test(DeferredIsReadyWithAssns_t HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --rethrow-all --config "DeferredIsReadyWithAssns_t.fcl"
+  DATAFILES
+  fcl/DeferredIsReadyWithAssns_t.fcl
+  )
 
 # Use the file from Ptrmv_w to test DropOnInput and outputCommand drops.
 #
