@@ -6,6 +6,7 @@
 # USAGE:
 # simple_plugin( <name> <plugin type>
 #                [library list]
+#                [USE_BOOST_UNIT]
 #                [ALLOW_UNDERSCORES]
 #                [BASENAME_ONLY]
 #                [NO_INSTALL]
@@ -73,7 +74,22 @@ macro (simple_plugin name type)
   set(codename "${name}_${type}.cc")
   #message(STATUS "SIMPLE_PLUGIN: generating ${plugin_name}")
   add_library(${plugin_name} SHARED ${codename} )
-  set(simple_plugin_liblist "${SP_DEFAULT_ARGS}")
+  # check the library list and substitute if appropriate
+  ##set(simple_plugin_liblist "${SP_DEFAULT_ARGS}")
+  foreach (lib ${SP_DEFAULT_ARGS})
+    string(REGEX MATCH [/] has_path "${lib}")
+    if( has_path )
+      list(APPEND simple_plugin_liblist ${lib})   
+    else()
+      ##message(STATUS "simple_plugin: check ${lib}" )
+      string(TOUPPER  ${lib} ${lib}_UC )
+      if( ${${lib}_UC} )
+	list(APPEND simple_plugin_liblist ${${${lib}_UC}})   
+      else()
+	list(APPEND simple_plugin_liblist ${lib})   
+      endif()
+    endif( has_path ) 
+  endforeach()
   if(SP_USE_BOOST_UNIT)
     set_target_properties(${plugin_name}
       PROPERTIES
