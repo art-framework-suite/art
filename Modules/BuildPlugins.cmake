@@ -43,6 +43,14 @@
 
 # simple plugin libraries
 include(CetParseArgs)
+
+macro (_sp_debug_message)
+  string(TOUPPER ${CMAKE_BUILD_TYPE} BTYPE_UC)
+  if (BTYPE_UC STREQUAL "DEBUG")
+    message(STATUS "SIMPLE_PLUGIN: " ${ARGN})
+  endif()
+endmacro()
+
 macro (simple_plugin name type)
   cet_parse_args(SP "" "USE_BOOST_UNIT;ALLOW_UNDERSCORES;BASENAME_ONLY;NO_INSTALL;NOINSTALL" ${ARGN})
   if (NOINSTALL)
@@ -76,14 +84,16 @@ macro (simple_plugin name type)
   add_library(${plugin_name} SHARED ${codename} )
   # check the library list and substitute if appropriate
   ##set(simple_plugin_liblist "${SP_DEFAULT_ARGS}")
+  set(simple_plugin_liblist "")
   foreach (lib ${SP_DEFAULT_ARGS})
     string(REGEX MATCH [/] has_path "${lib}")
     if( has_path )
       list(APPEND simple_plugin_liblist ${lib})   
     else()
-      ##message(STATUS "simple_plugin: check ${lib}" )
       string(TOUPPER  ${lib} ${lib}_UC )
+      #_sp_debug_message( "simple_plugin: check ${lib}" )
       if( ${${lib}_UC} )
+        _sp_debug_message( "changing ${lib} to ${${${lib}_UC}}")
 	list(APPEND simple_plugin_liblist ${${${lib}_UC}})   
       else()
 	list(APPEND simple_plugin_liblist ${lib})   
