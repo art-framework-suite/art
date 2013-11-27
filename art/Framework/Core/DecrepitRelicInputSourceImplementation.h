@@ -54,7 +54,7 @@ Some examples of InputSource subclasses may be:
 #include "cetlib/exempt_ptr.h"
 #include "cpp0x/memory"
 #include "fhiclcpp/ParameterSet.h"
-#include "sigc++/signal.h"
+
 #include <string>
 
 // ----------------------------------------------------------------------

@@ -180,7 +180,7 @@ testOne(art::Event const & e) const
   // Construct a FO using a handle to a collection.
   art::Handle<std::vector<size_t> > hAcoll;
   BOOST_REQUIRE(e.getByLabel(inputLabel_, hAcoll));
-
+  auto vhAcoll = e.getValidHandle<std::vector<size_t> >(inputLabel_);
   // First, check we can make an FO on a non-existent label without
   // barfing immediately.
   FO<std::string, arttest::AssnTestData> foDead(hAcoll, e, "noModule");
@@ -210,7 +210,7 @@ testOne(art::Event const & e) const
     foAV.reset(new FO<size_t, void>(hBcoll, e, inputLabel_));
   }
   FO<std::string, arttest::AssnTestData> foB(hAcoll, e, inputLabel_);
-  FO<std::string, arttest::AssnTestData> foB2(hAcoll, e, inputLabel_);
+  FO<std::string, arttest::AssnTestData> foB2(vhAcoll, e, inputLabel_);
   FO<std::string, void> foBV(hAcoll, e, inputLabel_);
   std::vector<art::Ptr<size_t> > vp;
   vp.reserve(3);

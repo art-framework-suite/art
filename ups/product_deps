@@ -1,32 +1,31 @@
 # The parent line must be the first non-comment line in the file
 # This line defines the product name and version
-parent art	v1_08_09
+parent art	v1_08_10
 defaultqual	e4
 #
 product		version
 gcc		v4_8_1
 clhep		v2_1_3_1
 cppunit		v1_12_1
-libsigcpp	v2_2_11
 gccxml		v0_9_20130621
-python		v2_7_5b
-root		v5_34_09b
+python		v2_7_5c
+root		v5_34_12
 sqlite		v3_08_00_02
 messagefacility	v1_10_26
 tbb		v4_1_3
 # list products required ONLY for the build
 # any products here must NOT have qualifiers
-only_for_build	cetbuildtools	v3_06_07
+only_for_build	cetbuildtools	v3_07_02
 
 # e4  - with gcc 4.7.1 and -std=c++11
-qualifier	messagefacility	root		clhep		cppunit		libsigcpp	gccxml	python	sqlite	gcc	tbb		notes
-e4:debug	e4:debug	e4:debug	e4:debug	e4:debug	e4:debug	-nq-	-nq-	-nq-	-nq-	e4:debug	-std=c++11
-e4:prof		e4:prof		e4:prof		e4:prof		e4:prof		e4:prof		-nq-	-nq-	-nq-	-nq-	e4:prof		-std=c++11
-e4:prof:sse2	e4:prof		e4:prof		e4:prof		e4:prof		e4:prof		-nq-	-nq-	-nq-	-nq-	e4:prof		-std=c++11 -msse2 -ftree-vectorizer-verbose
-mu2e:e4:debug	e4:debug	e4:mu2e:debug	e4:debug	e4:debug	e4:debug	-nq-	-nq-	-nq-	-nq-	e4:debug	-std=c++11
-mu2e:e4:prof	e4:prof		e4:mu2e:prof	e4:prof		e4:prof		e4:prof		-nq-	-nq-	-nq-	-nq-	e4:prof		-std=c++11
-nu:e4:debug	e4:debug	e4:nu:debug	e4:debug	e4:debug	e4:debug	-nq-	-nq-	-nq-	-nq-	e4:debug	-std=c++11
-nu:e4:prof	e4:prof		e4:nu:prof	e4:prof		e4:prof		e4:prof		-nq-	-nq-	-nq-	-nq-	e4:prof		-std=c++11
+qualifier	messagefacility	root		clhep		cppunit		gccxml	python	sqlite	gcc	tbb		notes
+e4:debug	e4:debug	e4:debug	e4:debug	e4:debug	-nq-	-nq-	-nq-	-nq-	e4:debug	-std=c++11
+e4:prof		e4:prof		e4:prof		e4:prof		e4:prof		-nq-	-nq-	-nq-	-nq-	e4:prof		-std=c++11
+e4:prof:sse2	e4:prof		e4:prof		e4:prof		e4:prof		-nq-	-nq-	-nq-	-nq-	e4:prof		-std=c++11 -msse2 -ftree-vectorizer-verbose
+mu2e:e4:debug	e4:debug	e4:mu2e:debug	e4:debug	e4:debug	-nq-	-nq-	-nq-	-nq-	e4:debug	-std=c++11
+mu2e:e4:prof	e4:prof		e4:mu2e:prof	e4:prof		e4:prof		-nq-	-nq-	-nq-	-nq-	e4:prof		-std=c++11
+nu:e4:debug	e4:debug	e4:nu:debug	e4:debug	e4:debug	-nq-	-nq-	-nq-	-nq-	e4:debug	-std=c++11
+nu:e4:prof	e4:prof		e4:nu:prof	e4:prof		e4:prof		-nq-	-nq-	-nq-	-nq-	e4:prof		-std=c++11
 
 # Local Variables:
 # tab-width: 8

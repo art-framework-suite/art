@@ -13,11 +13,11 @@ namespace art {
 
     template <SignalResponseType STYPE, typename SIGNAL, typename FUNC>
     typename std::enable_if<STYPE == SignalResponseType::FIFO>::type
-    connect_to_signal(SIGNAL s, FUNC f) { s.connect(f); }
+    connect_to_signal(SIGNAL & s, FUNC f) { s.emplace_back(f); }
 
     template <SignalResponseType STYPE, typename SIGNAL, typename FUNC>
     typename std::enable_if<STYPE == SignalResponseType::LIFO>::type
-    connect_to_signal(SIGNAL s, FUNC f) { s.slots().push_front(f); }
+    connect_to_signal(SIGNAL & s, FUNC f) { s.emplace_front(f); }
   }
 }
 
