@@ -15,7 +15,7 @@ messagefacility	v1_10_26
 tbb		v4_1_3
 # list products required ONLY for the build
 # any products here must NOT have qualifiers
-only_for_build	cetbuildtools	v3_06_07
+only_for_build	cetbuildtools	v3_07_02
 
 # e4  - with gcc 4.7.1 and -std=c++11
 qualifier	messagefacility	root		clhep		cppunit		gccxml	python	sqlite	gcc	tbb		notes
