@@ -997,17 +997,30 @@ cet_test(TestAnalyzerSelect HANDBUILT
 )
 
 # Issue 5157
-cet_test(UnusedModule HANDBUILT
+cet_test(UnusedModule_t HANDBUILT
   TEST_EXEC art
   TEST_ARGS --rethrow-all -c FilterIgnore_t.fcl
   DATAFILES
   fcl/FilterIgnore_t.fcl
   )
 
-SET_TESTS_PROPERTIES(UnusedModule PROPERTIES
+SET_TESTS_PROPERTIES(UnusedModule_t PROPERTIES
   FAIL_REGULAR_EXPRESSION
   "not assigned to any path"
+  )
+
+# Issue 5114
+cet_test(MissingModuleType_t HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --rethrow-all -c MissingModuleType_t.fcl
+  DATAFILES
+  fcl/MissingModuleType_t.fcl
 )
+
+SET_TESTS_PROPERTIES(MissingModuleType_t PROPERTIES
+  PASS_REGULAR_EXPRESSION
+  "ERROR: Configuration of module with label BadModuleConfig encountered the following error:\n"
+  )
 
 ########################################################################
 # Old tests converted from CMS FWCore/Framework/test
