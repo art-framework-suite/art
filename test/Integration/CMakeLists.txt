@@ -996,6 +996,19 @@ cet_test(TestAnalyzerSelect HANDBUILT
   fcl/TestAnalyzerSelect.fcl
 )
 
+# Issue 5157
+cet_test(UnusedModule HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --rethrow-all -c FilterIgnore_t.fcl
+  DATAFILES
+  fcl/FilterIgnore_t.fcl
+  )
+
+SET_TESTS_PROPERTIES(UnusedModule PROPERTIES
+  FAIL_REGULAR_EXPRESSION
+  "not assigned to any path"
+)
+
 ########################################################################
 # Old tests converted from CMS FWCore/Framework/test
 

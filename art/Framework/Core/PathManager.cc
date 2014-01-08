@@ -238,7 +238,9 @@ processPathConfigs_()
                               error_stream)) {
       ++num_end_paths;
     }
-    specified_modules.insert(path_seq.cbegin(), path_seq.cend());
+    for (auto const & mod : path_seq) {
+      specified_modules.insert(stripLabel(mod));
+    }
   }
   if (num_end_paths > 1) {
     mf::LogInfo("PathConfiguration")
@@ -278,7 +280,7 @@ processPathConfigs_()
               e = unused_modules.cend();
          i != e;
          ++i) {
-      unusedStream << ", " << *i << "'";
+      unusedStream << ", '" << *i << "'";
     }
     mf::LogInfo("path")
       << unusedStream.str()
