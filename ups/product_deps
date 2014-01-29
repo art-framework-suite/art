@@ -22,8 +22,6 @@ qualifier	messagefacility	root		clhep		cppunit		gccxml	python	sqlite	gcc	tbb		no
 e4:debug	e4:debug	e4:debug	e4:debug	e4:debug	-nq-	-nq-	-nq-	-nq-	e4:debug	-std=c++11
 e4:prof		e4:prof		e4:prof		e4:prof		e4:prof		-nq-	-nq-	-nq-	-nq-	e4:prof		-std=c++11
 e4:prof:sse2	e4:prof		e4:prof		e4:prof		e4:prof		-nq-	-nq-	-nq-	-nq-	e4:prof		-std=c++11 -msse2 -ftree-vectorizer-verbose
-mu2e:e4:debug	e4:debug	e4:mu2e:debug	e4:debug	e4:debug	-nq-	-nq-	-nq-	-nq-	e4:debug	-std=c++11
-mu2e:e4:prof	e4:prof		e4:mu2e:prof	e4:prof		e4:prof		-nq-	-nq-	-nq-	-nq-	e4:prof		-std=c++11
 nu:e4:debug	e4:debug	e4:nu:debug	e4:debug	e4:debug	-nq-	-nq-	-nq-	-nq-	e4:debug	-std=c++11
 nu:e4:prof	e4:prof		e4:nu:prof	e4:prof		e4:prof		-nq-	-nq-	-nq-	-nq-	e4:prof		-std=c++11
 
