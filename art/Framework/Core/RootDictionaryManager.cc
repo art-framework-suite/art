@@ -12,8 +12,8 @@
 
 art::RootDictionaryManager::RootDictionaryManager()
    :
-   dm_("dict"),
-   mm_("map")
+  dm_("dict", "([-A-Za-z0-9]*_)*[-A-Za-z0-9]+_"),
+  mm_("map", "([-A-Za-z0-9]*_)*[-A-Za-z0-9]+_")
 {
    // Enable Cintex so that dictionary information is jammed into CINT
    // when a Reflex dictionary is loaded.
