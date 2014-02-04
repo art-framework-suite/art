@@ -273,6 +273,9 @@ int art::run_art_common_(fhicl::ParameterSet main_pset)
   RootErrorHandlerSentry re_sentry(scheduler_pset.get<bool>("resetRootErrHandler", true));
   // Load all dictionaries.
   art::RootDictionaryManager rdm;
+  if (scheduler_pset.get<bool>("debugDictionaries", false)) {
+    rdm.dumpReflexDictionaryInfo(std::cerr);
+  }
   art::completeRootHandlers();
   art::ServiceToken dummyToken;
   // TODO: Possibly remove addServices -- we have already made

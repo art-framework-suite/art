@@ -1,0 +1,10 @@
+process_name: ESS
+
+physics.producers.ess2:
+{
+  module_type: ESSecondaryProducer
+  moduleLabel: esp2
+  index: 1
+}
+
+physics.tp1: [ ess2 ]

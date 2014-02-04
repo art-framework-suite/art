@@ -23,7 +23,8 @@ extern "C" {
 
 using std::placeholders::_1;
 
-art::LibraryManager::LibraryManager(std::string const & lib_type)
+art::LibraryManager::LibraryManager(std::string const & lib_type,
+                                    std::string pattern)
   :
   lib_type_(lib_type),
   lib_loc_map_(),
@@ -39,10 +40,10 @@ art::LibraryManager::LibraryManager(std::string const & lib_type)
       "DY"
 #endif
       "LD_LIBRARY_PATH");
-  static std::string const pattern(cet::shlib_prefix() +
-                                   "([-A-Za-z0-9]*_)*[A-Za-z0-9]+_");
   std::vector<std::string> matches;
-  ld_lib_path.find_files(pattern + lib_type + dllExtPattern(), matches);
+  ld_lib_path.find_files(cet::shlib_prefix() + pattern +
+                         lib_type + dllExtPattern(),
+                         matches);
   // Note the use of reverse iterators here: files found earlier in the
   // vector will therefore overwrite those found later, which is what
   // we want from "search path"-type behavior.
