@@ -66,4 +66,6 @@
  <class name="art::Wrapper<std::vector<art::Ptr<double> > >"/>
  <class name="art::Wrapper<art::PtrVector<double> >"/>
  <class name="art::Wrapper<arttest::TH1Data>"/>
+ <class name="arttest::VSimpleProduct"/>
+ <class name="art::Wrapper<arttest::VSimpleProduct>"/>
 </lcgdict>
