@@ -113,6 +113,9 @@ void art::BranchDescription::fluffTransients_() const {
   transients_.get().branchName_ += underscore;
   transients_.get().branchName_ += processName();
   transients_.get().branchName_ += period;
+  // It is *absolutely* needed to have the trailing period on the branch
+  // name, as this gives instruction to ROOT to split this branch in the
+  // modern (v4+) way vs the old way (v3-).
 
   Reflex::Type t = Reflex::Type::ByName(producedClassName());
   Reflex::PropertyList p = t.Properties();
