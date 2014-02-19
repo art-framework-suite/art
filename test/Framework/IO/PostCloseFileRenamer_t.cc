@@ -68,13 +68,13 @@ BOOST_AUTO_TEST_CASE(resetFileOpen)
 
 BOOST_AUTO_TEST_CASE(resetEvents)
 {
-  PostCloseFileRenamer fr("%R_%S", "label", "DEVEL");
+  PostCloseFileRenamer fr("%02r_%02s_%R_%S", "label", "DEVEL");
   auto const before = fr.applySubstitutions();
-  auto const cmp_before = std::string("-_-");
+  auto const cmp_before = std::string("-_-_-_-");
   BOOST_CHECK_EQUAL(before, cmp_before);
   simulateJob(fr);
   auto after = fr.applySubstitutions();
-  auto const cmp_after = std::string("2_3");
+  auto const cmp_after = std::string("01_00_2_3");
   BOOST_CHECK_EQUAL(after, cmp_after);
   fr.recordFileOpen();
   fr.recordFileClose();
