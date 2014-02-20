@@ -24,6 +24,8 @@ public:
 
   void recordFileOpen();
   void recordEvent(EventID const & id);
+  void recordRun(RunID const & id);
+  void recordSubRun(SubRunID const & id);
   void recordFileClose();
 
   std::string applySubstitutions() const;
@@ -36,8 +38,8 @@ private:
   std::string filePattern_;
   std::string moduleLabel_;
   std::string processName_;
-  EventID lowest_;
-  EventID highest_;
+  SubRunID lowest_;
+  SubRunID highest_;
   boost::posix_time::ptime fo_;
   boost::posix_time::ptime fc_;
 };

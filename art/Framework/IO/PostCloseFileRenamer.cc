@@ -48,12 +48,38 @@ void
 art::PostCloseFileRenamer::
 recordEvent(EventID const & id)
 {
-  if (!lowest_.isValid() ||
-      id <= lowest_) {
+  // Don't care about the event number at the moment.
+  recordSubRun(id.subRunID());
+}
+
+void
+art::PostCloseFileRenamer::
+recordRun(RunID const & id)
+{
+  if ((!lowest_.runID().isValid()) ||
+      id < lowest_.runID()) {
+    lowest_ = SubRunID::invalidSubRun(id);
+  }
+  if ((!highest_.runID().isValid()) ||
+      id > highest_.runID()) {
+    highest_ = SubRunID::invalidSubRun(id);
+  }
+}
+
+
+void
+art::PostCloseFileRenamer::
+recordSubRun(SubRunID const & id)
+{
+  if ((!lowest_.runID().isValid()) || // No lowest run yet.
+      id.runID() < lowest_.runID() || // New lower run.
+      (id.runID() == lowest_.runID() &&
+       (id.isValid() &&
+        ((!lowest_.isValid()) || // No valid subrun yet.
+         id < lowest_)))) {
     lowest_ = id;
   }
-  if (!highest_.isValid() ||
-      id >= highest_) {
+  if (id > highest_) { // Sort-invalid-first gives the correct answer.
     highest_ = id;
   }
 }
@@ -101,12 +127,12 @@ applySubstitutions() const {
   } else {
     replace_all_regex(result, boost::regex("%\\d*R"), none);
   }
-  if (lowest_.subRunID().isValid()) {
+  if (lowest_.isValid()) {
     filled_replace(result, 's', lowest_.subRun());
   } else {
     replace_all_regex(result, boost::regex("%\\d*s"), none);
   }
-  if (highest_.subRunID().isValid()) {
+  if (highest_.isValid()) {
     filled_replace(result, 'S', highest_.subRun());
   } else {
     replace_all_regex(result, boost::regex("%\\d*S"), none);
@@ -137,6 +163,6 @@ reset_()
 {
   fo_ =
     fc_ = boost::posix_time::ptime();
-  lowest_ = EventID();
-  highest_ = EventID();
+  lowest_ = SubRunID();
+  highest_ = SubRunID();
 }

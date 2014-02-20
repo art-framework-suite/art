@@ -159,11 +159,13 @@ namespace art {
   void RootOutput::writeSubRun(SubRunPrincipal const& sr) {
       if (hasNewlyDroppedBranch()[InSubRun]) sr.addToProcessHistory();
       rootOutputFile_->writeSubRun(sr);
+      fileRenamer_.recordSubRun(sr.id());
   }
 
   void RootOutput::writeRun(RunPrincipal const& r) {
       if (hasNewlyDroppedBranch()[InRun]) r.addToProcessHistory();
       rootOutputFile_->writeRun(r);
+      fileRenamer_.recordRun(r.id());
   }
 
   // At some later date, we may move functionality from finishEndFile() to here.
