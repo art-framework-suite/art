@@ -1,5 +1,6 @@
 #include "art/Framework/IO/PostCloseFileRenamer.h"
 #include "boost/algorithm/string/replace.hpp"
+#include "boost/algorithm/string/regex.hpp"
 #include "boost/date_time/posix_time/posix_time.hpp"
 #include "boost/filesystem.hpp"
 #include "boost/regex.hpp"
@@ -86,28 +87,29 @@ art::PostCloseFileRenamer::
 applySubstitutions() const {
   auto result = filePattern_;
   using boost::replace_all;
+  using boost::replace_all_regex;
   replace_all(result, "%l", moduleLabel_);
   replace_all(result, "%p", processName_);
   static std::string const none { "-" };
   if (lowest_.runID().isValid()) {
     filled_replace(result, 'r', lowest_.run());
   } else {
-    replace_all(result, "%r", "-");
+    replace_all_regex(result, boost::regex("%\\d*r"), none);
   }
   if (highest_.runID().isValid()) {
     filled_replace(result, 'R', highest_.run());
   } else {
-    replace_all(result, "%R", "-");
+    replace_all_regex(result, boost::regex("%\\d*R"), none);
   }
   if (lowest_.subRunID().isValid()) {
     filled_replace(result, 's', lowest_.subRun());
   } else {
-    replace_all(result, "%s", "-");
+    replace_all_regex(result, boost::regex("%\\d*s"), none);
   }
   if (highest_.subRunID().isValid()) {
     filled_replace(result, 'S', highest_.subRun());
   } else {
-    replace_all(result, "%S", "-");
+    replace_all_regex(result, boost::regex("%\\d*S"), none);
   }
   replace_all(result, "%to", boost::posix_time::to_iso_string(fo_));
   replace_all(result, "%tc", boost::posix_time::to_iso_string(fc_));
