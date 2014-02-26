@@ -1,5 +1,6 @@
 #include "art/Utilities/quiet_unit_test.hpp"
 
+#include "art/Framework/Core/FileBlock.h"
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Core/PtrRemapper.h"
 #include "art/Framework/IO/ProductMix/MixHelper.h"
@@ -37,6 +38,51 @@ namespace arttest {
 #  define ART_MFT MixFilterTest
 #endif
   typedef art::MixFilter<MixFilterTestDetail> ART_MFT;
+}
+
+namespace {
+  class SecondaryFileNameProvider {
+public:
+    SecondaryFileNameProvider(std::vector<std::string> && fileNames)
+      :
+      fileNames_(std::move(fileNames)),
+      fileNameIter_(fileNames_.cbegin())
+      {
+      }
+    SecondaryFileNameProvider(SecondaryFileNameProvider &&) = default;
+
+    SecondaryFileNameProvider &
+    operator = (SecondaryFileNameProvider &&) = default;
+
+    SecondaryFileNameProvider(SecondaryFileNameProvider const & other)
+    :
+      fileNames_(other.fileNames_),
+      fileNameIter_(fileNames_.cbegin() + (other.fileNameIter_ - other.fileNames_.cbegin()))
+      {
+      }
+
+    SecondaryFileNameProvider &
+    operator = (SecondaryFileNameProvider const & other)
+      {
+        SecondaryFileNameProvider tmp(other);
+        std::swap(tmp, *this);
+        return *this;
+      }
+
+    ~SecondaryFileNameProvider() noexcept = default;
+
+    std::string operator () ()
+      {
+        if (fileNameIter_ == fileNames_.end()) {
+          return std::string();
+        } else {
+          return *(fileNameIter_++);
+        }
+      }
+private:
+    std::vector<std::string> fileNames_;
+    decltype(fileNames_.cbegin()) fileNameIter_;
+  };
 }
 
 class arttest::MixFilterTestDetail {
@@ -83,6 +129,13 @@ public:
   // *not* place mix products into the event: this will already have
   // been done for you.
   void finalizeEvent(art::Event & t);
+
+  // Optional respondToXXXfunctions, called at the right time if they
+  // exist.
+  void respondToOpenInputFile(art::FileBlock const & fb);
+  void respondToCloseInputFile(art::FileBlock const & fb);
+  void respondToOpenOutputFiles(art::FileBlock const & fb);
+  void respondToCloseOutputFiles(art::FileBlock const & fb);
 
   // Mixing functions. Note that they do not *have* to be member
   // functions of this detail class: they may be member functions of a
@@ -144,6 +197,8 @@ private:
   bool const testNoLimEventDupes_;
   art::MixHelper::Mode const readMode_;
 
+  size_t respondFunctionsSeen_;
+
   // For testing no_replace mode only:
   std::vector<int> allEvents_;
   std::unordered_set<int> uniqueEvents_;
@@ -176,9 +231,20 @@ MixFilterTestDetail(fhicl::ParameterSet const & p,
   testEventOrdering_(p.get<bool>("testEventOrdering", false)),
   testNoLimEventDupes_(p.get<bool>("testNoLimEventDupes", false)),
   readMode_(helper.readMode()),
+  respondFunctionsSeen_(0),
   allEvents_(),
   uniqueEvents_()
 {
+  std::vector<std::string> fnToProvide;
+  if (p.get_if_present("fileNamesToProvide", fnToProvide))
+  {
+    std::cerr << "Calling registerSecondaryFileNameProvider.\n";
+    std::copy(fnToProvide.cbegin(), fnToProvide.cend(),
+              std::ostream_iterator<std::string>(std::cerr, ", "));
+    std::cerr << "\n";
+    helper.registerSecondaryFileNameProvider(SecondaryFileNameProvider(std::move(fnToProvide)));
+  }
+
   std::string mixProducerLabel(p.get<std::string>("mixProducerLabel",
                                "mixProducer"));
   helper.produces<std::string>(); // "Bookkeeping"
@@ -225,6 +291,7 @@ arttest::MixFilterTestDetail::
     // Require no dupes across the job.
     BOOST_CHECK_EQUAL(allEvents_.size(), uniqueEvents_.size());
   }
+  BOOST_CHECK_EQUAL(respondFunctionsSeen_, 4ul);
 }
 
 #ifndef ART_TEST_NO_STARTEVENT
@@ -318,6 +385,30 @@ finalizeEvent(art::Event & e)
 #endif
   BOOST_REQUIRE(processEventIDs_called_);
   processEventIDs_called_ = false;
+}
+
+void
+arttest::MixFilterTestDetail::
+respondToOpenInputFile(art::FileBlock const &) {
+  ++respondFunctionsSeen_;
+}
+
+void
+arttest::MixFilterTestDetail::
+respondToCloseInputFile(art::FileBlock const &) {
+  ++respondFunctionsSeen_;
+}
+
+void
+arttest::MixFilterTestDetail::
+respondToOpenOutputFiles(art::FileBlock const &) {
+  ++respondFunctionsSeen_;
+}
+
+void
+arttest::MixFilterTestDetail::
+respondToCloseOutputFiles(art::FileBlock const &) {
+  ++respondFunctionsSeen_;
 }
 
 template<typename T>

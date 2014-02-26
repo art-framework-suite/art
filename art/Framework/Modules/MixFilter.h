@@ -71,6 +71,7 @@
 #include "art/Framework/IO/ProductMix/MixOpBase.h"
 #include "art/Framework/Services/Registry/ServiceRegistry.h"
 #include "art/Utilities/detail/metaprogramming.h"
+#include "cpp0x/functional"
 #include "cpp0x/type_traits"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
@@ -169,7 +170,6 @@ namespace art {
     call_eventsToSkip(T & t) { return t.eventsToSkip(); }
 
     template <typename T> struct setup_eventsToSkip {
-    public:
       setup_eventsToSkip(MixHelper & helper, T & t) {
         helper.setEventsToSkipFunction(std::bind(&detail::call_eventsToSkip<T>, std::ref(t)));
       }
@@ -253,6 +253,96 @@ namespace art {
     };
     ////////////////////////////////////////////////////////////////////
 
+    ////////////////////////////////////////////////////////////////////
+    // Does the detail object have respondToXXX methods()?
+    template <typename T, void (T:: *)(FileBlock const &)>
+    struct respondToXXX_function;
+
+    template <typename T> struct do_not_call_respondToXXX {
+      do_not_call_respondToXXX(T &, FileBlock const &) {}
+    };
+
+    template <typename T> struct call_respondToOpenInputFile {
+      call_respondToOpenInputFile(T & t, FileBlock const & fb) {
+        t.respondToOpenInputFile(fb);
+      }
+    };
+
+    template <typename T> struct call_respondToCloseInputFile {
+      call_respondToCloseInputFile(T & t, FileBlock const & fb) {
+        t.respondToCloseInputFile(fb);
+      }
+    };
+
+    template <typename T> struct call_respondToOpenOutputFiles {
+      call_respondToOpenOutputFiles(T & t, FileBlock const & fb) {
+        t.respondToOpenOutputFiles(fb);
+      }
+    };
+
+    template <typename T> struct call_respondToCloseOutputFiles {
+      call_respondToCloseOutputFiles(T & t, FileBlock const & fb) {
+        t.respondToCloseOutputFiles(fb);
+      }
+    };
+
+    template <typename T>
+    no_tag
+    has_respondToOpenInputFile_helper(...);
+
+    template <typename T>
+    yes_tag
+    has_respondToOpenInputFile_helper(respondToXXX_function<T, &T::respondToOpenInputFile> * dummy);
+
+    template <typename T>
+    no_tag
+    has_respondToCloseInputFile_helper(...);
+
+    template <typename T>
+    yes_tag
+    has_respondToCloseInputFile_helper(respondToXXX_function<T, &T::respondToCloseInputFile> * dummy);
+
+    template <typename T>
+    no_tag
+    has_respondToOpenOutputFiles_helper(...);
+
+    template <typename T>
+    yes_tag
+    has_respondToOpenOutputFiles_helper(respondToXXX_function<T, &T::respondToOpenOutputFiles> * dummy);
+
+    template <typename T>
+    no_tag
+    has_respondToCloseOutputFiles_helper(...);
+
+    template <typename T>
+    yes_tag
+    has_respondToCloseOutputFiles_helper(respondToXXX_function<T, &T::respondToCloseOutputFiles> * dummy);
+
+    template <typename T>
+    struct has_respondToOpenInputFile {
+      static bool const value =
+        sizeof(has_respondToOpenInputFile_helper<T>(0)) == sizeof(yes_tag);
+    };
+
+    template <typename T>
+    struct has_respondToCloseInputFile {
+      static bool const value =
+        sizeof(has_respondToCloseInputFile_helper<T>(0)) == sizeof(yes_tag);
+    };
+
+    template <typename T>
+    struct has_respondToOpenOutputFiles {
+      static bool const value =
+        sizeof(has_respondToOpenOutputFiles_helper<T>(0)) == sizeof(yes_tag);
+    };
+
+    template <typename T>
+    struct has_respondToCloseOutputFiles {
+      static bool const value =
+        sizeof(has_respondToCloseOutputFiles_helper<T>(0)) == sizeof(yes_tag);
+    };
+    ////////////////////////////////////////////////////////////////////
+
   } // detail namespace
 
 } // art namespace
@@ -263,8 +353,12 @@ public:
   typedef T MixDetail;
   explicit MixFilter(fhicl::ParameterSet const & p);
 
-  virtual void beginJob();
-  virtual bool filter(art::Event & e);
+  void beginJob() override;
+  void respondToOpenInputFile(FileBlock const & fb) override;
+  void respondToCloseInputFile(FileBlock const & fb) override;
+  void respondToOpenOutputFiles(FileBlock const & fb) override;
+  void respondToCloseOutputFiles(FileBlock const & fb) override;
+  bool filter(art::Event & e) override;
 
 private:
   fhicl::ParameterSet const &
@@ -296,6 +390,46 @@ void
 art::MixFilter<T>::beginJob()
 {
   helper_.postRegistrationInit();
+}
+
+template <class T>
+void
+art::MixFilter<T>::respondToOpenInputFile(FileBlock const & fb)
+{
+  typename std::conditional<detail::has_respondToOpenInputFile<T>::value,
+                            detail::call_respondToOpenInputFile<T>,
+                            detail::do_not_call_respondToXXX<T>>::type
+    (detail_, fb);
+}
+
+template <class T>
+void
+art::MixFilter<T>::respondToCloseInputFile(FileBlock const & fb)
+{
+  typename std::conditional<detail::has_respondToCloseInputFile<T>::value,
+                            detail::call_respondToCloseInputFile<T>,
+                            detail::do_not_call_respondToXXX<T>>::type
+    (detail_, fb);
+}
+
+template <class T>
+void
+art::MixFilter<T>::respondToOpenOutputFiles(FileBlock const & fb)
+{
+  typename std::conditional<detail::has_respondToOpenOutputFiles<T>::value,
+                            detail::call_respondToOpenOutputFiles<T>,
+                            detail::do_not_call_respondToXXX<T>>::type
+    (detail_, fb);
+}
+
+template <class T>
+void
+art::MixFilter<T>::respondToCloseOutputFiles(FileBlock const & fb)
+{
+  typename std::conditional <detail::has_respondToCloseOutputFiles<T>::value,
+                             detail::call_respondToCloseOutputFiles<T>,
+                             detail::do_not_call_respondToXXX<T>>::type
+    (detail_, fb);
 }
 
 template <class T>

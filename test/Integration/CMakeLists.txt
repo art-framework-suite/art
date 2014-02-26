@@ -489,7 +489,8 @@ SET_TESTS_PROPERTIES(ProductMix_r1c1
   )
 
 # Mix the events from ProductMix_w, testing that things behave properly
-# with secondary input file wrapping and eventsToSkip().
+# with secondary input file wrapping, respondToXXX() functions and
+# eventsToSkip().
 cet_test(ProductMix_r1c2 HANDBUILT
   TEST_EXEC art_ut
   TEST_ARGS --rethrow-all -c "ProductMix_r1c2.fcl"
@@ -552,6 +553,18 @@ foreach(test 1 2 3 4 5)
     TEST_PROPERTIES DEPENDS ProductMix_w
     )
 endforeach()
+
+# Mix the events from ProductMix_w, obtaining the filenames from a
+# detail-object-provided function rather than from fileNames_.
+cet_test(ProductMix_r1f1 HANDBUILT
+  TEST_EXEC art_ut
+  TEST_ARGS --rethrow-all -c "ProductMix_r1f1.fcl"
+  DATAFILES
+  fcl/ProductMix_r1.fcl
+  fcl/ProductMix_r1c.fcl
+  fcl/ProductMix_r1c2.fcl
+  fcl/ProductMix_r1f1.fcl
+)
 
 SET_TESTS_PROPERTIES(
   ProductMix_r1c2
