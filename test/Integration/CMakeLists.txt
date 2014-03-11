@@ -564,6 +564,7 @@ cet_test(ProductMix_r1f1 HANDBUILT
   fcl/ProductMix_r1c.fcl
   fcl/ProductMix_r1c2.fcl
   fcl/ProductMix_r1f1.fcl
+  TEST_PROPERTIES DEPENDS ProductMix_w
 )
 
 SET_TESTS_PROPERTIES(
