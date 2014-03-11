@@ -48,7 +48,6 @@ protected: // Use GroupFactory to make.
   friend std::unique_ptr<Group> gfactory::make_group(std::unique_ptr<EDProduct> &&, BranchDescription const&, ProductID const &);
 #endif
 public:
-  virtual ~Group();
 
   void swap(Group &other);
 

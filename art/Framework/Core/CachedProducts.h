@@ -16,8 +16,7 @@
 #include "art/Framework/Principal/Selector.h"
 #include "art/Framework/Principal/Handle.h"
 #include "art/Persistency/Common/TriggerResults.h"
-//#include "cpp0x/utility"
-#include <algorithm>
+
 #include <string>
 #include <vector>
 
@@ -72,14 +71,7 @@ public:
   art::Handle<art::TriggerResults> getOneTriggerResults(Event const&) const;
 
 private:
-  void
-  clearTriggerResults() {
-    std::for_each(p_and_e_selectors_.begin(), p_and_e_selectors_.end(),
-                  std::bind(&ProcessAndEventSelector::clearTriggerResults, std::placeholders::_1));
-    loadDone_ = false;
-    numberFound_ = 0;
-  }
-
+  void clearTriggerResults();
   void loadTriggerResults(Event const&);
 };
 
