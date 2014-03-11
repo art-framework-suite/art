@@ -12,4 +12,8 @@ void parse_path_spec(std::string const& path_spec,
 }
 }
 
-#endif // art_Framework_Core_detail_OutputModuleUtils_h
+#endif /* art_Framework_Core_detail_OutputModuleUtils_h */
+
+// Local Variables:
+// mode: c++
+// End:
