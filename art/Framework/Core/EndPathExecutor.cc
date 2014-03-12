@@ -79,6 +79,7 @@ endJob()
 void art::EndPathExecutor::closeOutputFiles()
 {
   doForAllEnabledOutputWorkers_([this](OutputWorker * ow) {
+      actReg_.sPreCloseOutputFile.invoke(ow->label());
       ow->closeFile();
       actReg_.
         sPostCloseOutputFile.invoke(OutputFileInfo(ow->label(),
