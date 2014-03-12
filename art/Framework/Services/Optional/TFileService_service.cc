@@ -32,11 +32,11 @@ TFileService::TFileService(ParameterSet const & cfg,
   closeFileFast_(cfg.get<bool>("closeFileFast", false)),
   fileRenamer_(cfg.get<string>("fileName"),
                cfg.get<std::string>("service_type"),
-               ServiceHandle<TriggerNamesService>()->getProcessName())
+               ServiceHandle<TriggerNamesService>()->getProcessName()),
+  uniqueFilename_(unique_filename( fileRenamer_.parentPath() + "/TFileService"))
 {
   assert(file_ == nullptr && "TFile pointer should always be zero here!");
-  file_ = new TFile(unique_filename(fileRenamer_.parentPath() + "/TFileService").c_str(),
-                    "RECREATE");
+  file_ = new TFile(uniqueFilename_.c_str(), "RECREATE");
   // Activities to monitor in order to set the proper directory.
   r.sPreModuleConstruction.watch(this, & TFileService::setDirectoryName);
   r.sPreModule.watch            (this, & TFileService::setDirectoryName);
@@ -56,7 +56,6 @@ TFileService::TFileService(ParameterSet const & cfg,
 }
 
 // ----------------------------------------------------------------------
-
 TFileService::~TFileService()
 {
   file_->Write();
@@ -65,7 +64,7 @@ TFileService::~TFileService()
   file_->Close();
   delete file_;
   fileRenamer_.applySubstitutions();
-  fileRenamer_.maybeRenameFile(fullPath());
+  fileRenamer_.maybeRenameFile(uniqueFilename_);
 }
 
 // ----------------------------------------------------------------------

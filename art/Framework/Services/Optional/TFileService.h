@@ -45,6 +45,7 @@ public:
 private:
   bool const closeFileFast_;
   PostCloseFileRenamer fileRenamer_;
+  std::string uniqueFilename_;
 
   // set current directory according to module name and prepare to create directory
   void setDirectoryName( art::ModuleDescription const & desc );
