@@ -7,6 +7,7 @@
 //
 // ======================================================================
 
+#include "art/Framework/IO/PostCloseFileRenamer.h"
 #include "art/Framework/Services/Optional/TFileDirectory.h"
 #include "art/Framework/Services/Registry/ServiceMacros.h"
 
@@ -42,8 +43,9 @@ public:
     file( ) const { return * file_; }
 
 private:
-  TFile * file_;           // pointer to opened TFile
-  bool closeFileFast_;
+  bool const closeFileFast_;
+  PostCloseFileRenamer fileRenamer_;
+  std::string uniqueFilename_;
 
   // set current directory according to module name and prepare to create directory
   void setDirectoryName( art::ModuleDescription const & desc );

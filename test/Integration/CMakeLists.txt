@@ -1014,5 +1014,19 @@ SET_TESTS_PROPERTIES(MissingModuleType_t PROPERTIES
   "ERROR: Configuration of module with label BadModuleConfig encountered the following error:\n"
   )
 
+# Issue 5424
+cet_test(rename-histfile_t_w HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --rethrow-all -c rename-histfile_t.fcl
+  DATAFILES
+  fcl/rename-histfile_t.fcl
+)
+
+cet_test(rename-histfile_t_check HANDBUILT
+  TEST_EXEC ls
+  TEST_ARGS -l ../rename-histfile_t_w.d/test_1_0_2_8.root
+  TEST_PROPERTIES DEPENDS rename-histfile_t_w
+)
+
 add_subdirectory(event-shape)
 include(legacy-tests)
