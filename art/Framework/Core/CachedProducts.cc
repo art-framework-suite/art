@@ -102,6 +102,15 @@ getOneTriggerResults(Event const& ev) const
 
 void
 CachedProducts::
+clearTriggerResults() {
+  std::for_each(p_and_e_selectors_.begin(), p_and_e_selectors_.end(),
+                std::bind(&ProcessAndEventSelector::clearTriggerResults, std::placeholders::_1));
+  loadDone_ = false;
+  numberFound_ = 0;
+}
+
+void
+CachedProducts::
 loadTriggerResults(Event const& ev)
 {
   // Get all the TriggerResults objects for

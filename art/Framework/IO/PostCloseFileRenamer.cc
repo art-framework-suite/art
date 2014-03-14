@@ -1,5 +1,6 @@
 #include "art/Framework/IO/PostCloseFileRenamer.h"
 #include "boost/algorithm/string/replace.hpp"
+#include "boost/algorithm/string/regex.hpp"
 #include "boost/date_time/posix_time/posix_time.hpp"
 #include "boost/filesystem.hpp"
 #include "boost/regex.hpp"
@@ -47,12 +48,38 @@ void
 art::PostCloseFileRenamer::
 recordEvent(EventID const & id)
 {
-  if (!lowest_.isValid() ||
-      id <= lowest_) {
+  // Don't care about the event number at the moment.
+  recordSubRun(id.subRunID());
+}
+
+void
+art::PostCloseFileRenamer::
+recordRun(RunID const & id)
+{
+  if ((!lowest_.runID().isValid()) ||
+      id < lowest_.runID()) {
+    lowest_ = SubRunID::invalidSubRun(id);
+  }
+  if ((!highest_.runID().isValid()) ||
+      id > highest_.runID()) {
+    highest_ = SubRunID::invalidSubRun(id);
+  }
+}
+
+
+void
+art::PostCloseFileRenamer::
+recordSubRun(SubRunID const & id)
+{
+  if ((!lowest_.runID().isValid()) || // No lowest run yet.
+      id.runID() < lowest_.runID() || // New lower run.
+      (id.runID() == lowest_.runID() &&
+       (id.isValid() &&
+        ((!lowest_.isValid()) || // No valid subrun yet.
+         id < lowest_)))) {
     lowest_ = id;
   }
-  if (!highest_.isValid() ||
-      id >= highest_) {
+  if (id > highest_) { // Sort-invalid-first gives the correct answer.
     highest_ = id;
   }
 }
@@ -86,28 +113,29 @@ art::PostCloseFileRenamer::
 applySubstitutions() const {
   auto result = filePattern_;
   using boost::replace_all;
+  using boost::replace_all_regex;
   replace_all(result, "%l", moduleLabel_);
   replace_all(result, "%p", processName_);
   static std::string const none { "-" };
   if (lowest_.runID().isValid()) {
     filled_replace(result, 'r', lowest_.run());
   } else {
-    replace_all(result, "%r", "-");
+    replace_all_regex(result, boost::regex("%\\d*r"), none);
   }
   if (highest_.runID().isValid()) {
     filled_replace(result, 'R', highest_.run());
   } else {
-    replace_all(result, "%R", "-");
+    replace_all_regex(result, boost::regex("%\\d*R"), none);
   }
-  if (lowest_.subRunID().isValid()) {
+  if (lowest_.isValid()) {
     filled_replace(result, 's', lowest_.subRun());
   } else {
-    replace_all(result, "%s", "-");
+    replace_all_regex(result, boost::regex("%\\d*s"), none);
   }
-  if (highest_.subRunID().isValid()) {
+  if (highest_.isValid()) {
     filled_replace(result, 'S', highest_.subRun());
   } else {
-    replace_all(result, "%S", "-");
+    replace_all_regex(result, boost::regex("%\\d*S"), none);
   }
   replace_all(result, "%to", boost::posix_time::to_iso_string(fo_));
   replace_all(result, "%tc", boost::posix_time::to_iso_string(fc_));
@@ -135,6 +163,6 @@ reset_()
 {
   fo_ =
     fc_ = boost::posix_time::ptime();
-  lowest_ = EventID();
-  highest_ = EventID();
+  lowest_ = SubRunID();
+  highest_ = SubRunID();
 }

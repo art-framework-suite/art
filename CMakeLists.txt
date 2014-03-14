@@ -52,7 +52,6 @@ find_ups_root( v5_34_00 )
 find_ups_product( tbb v4_1 )
 find_ups_boost(v1_53_0)
 
-cet_check_gcc()
 
 # define CLHEP
 cet_find_library( CLHEP  NAMES CLHEP   PATHS ENV CLHEP_LIB_DIR NO_DEFAULT_PATH )
@@ -61,7 +60,7 @@ cet_find_library( CLHEP  NAMES CLHEP   PATHS ENV CLHEP_LIB_DIR NO_DEFAULT_PATH )
 cet_find_library( CPPUNIT NAMES cppunit   PATHS ENV CPPUNIT_LIB   NO_DEFAULT_PATH )
 
 # SQLite
-cet_find_library(SQLITE3 NAMES sqlite3 PATHS ENV SQLITE_LIB NO_DEFAULT_PATH)
+cet_find_library(SQLITE3 NAMES sqlite3_ups PATHS ENV SQLITE_LIB NO_DEFAULT_PATH)
 
 # macros for art_dictionary and simple_plugin
 include(ArtDictionary)

@@ -273,7 +273,7 @@ art::Assns<L, R, void>::Assns(partner_t const & other)
        e = other.ptrs_.end();
        i != e;
        ++i) {
-    ptrs_.push_back(std::make_pair(i->second, i->first));
+    ptrs_.emplace_back(i->second, i->first);
   }
   init_streamer();
 }
@@ -330,7 +330,7 @@ void
 art::Assns<L, R, void>::addSingle(Ptr<left_t> const & left,
                                   Ptr<right_t> const & right)
 {
-  ptrs_.push_back(std::make_pair(left, right));
+  ptrs_.emplace_back(left, right);
 }
 
 template <typename L, typename R>
@@ -395,12 +395,12 @@ art::Assns<L, R, void>::fill_transients()
        r = r_ref.begin();
        l != e;
        ++l, ++r) {
-    ptrs_.push_back(std::make_pair(Ptr<left_t>(l->first.id(),
+    ptrs_.emplace_back(Ptr<left_t>(l->first.id(),
                                    l->second,
                                    l->first.productGetter()),
-                                   Ptr<right_t>(r->first.id(),
-                                       r->second,
-                                       r->first.productGetter())));
+                       Ptr<right_t>(r->first.id(),
+                                    r->second,
+                                    r->first.productGetter()));
   }
   // Empty persistent representation.
   ptr_data_t tmp1, tmp2;
@@ -429,10 +429,10 @@ art::Assns<L, R, void>::fill_from_transients()
        e = ptrs_.end();
        i != e;
        ++i) {
-    l_ref.push_back(std::make_pair(i->first.refCore(),
-                                   i->first.key()));
-    r_ref.push_back(std::make_pair(i->second.refCore(),
-                                   i->second.key()));
+    l_ref.emplace_back(i->first.refCore(),
+                       i->first.key());
+    r_ref.emplace_back(i->second.refCore(),
+                       i->second.key());
   }
 }
 
@@ -452,7 +452,7 @@ art::Assns<L, R, D>::Assns()
   :
   Assns<L, R, void>()
 {
-  STATIC_ASSERT((!std::is_pointer<D>::value), "Data template argument must not be pointer type!");
+  static_assert((!std::is_pointer<D>::value), "Data template argument must not be pointer type!");
 }
 
 template <typename L, typename R, typename D>

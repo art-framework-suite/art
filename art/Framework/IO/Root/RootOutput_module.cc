@@ -14,6 +14,7 @@
 #include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Persistency/Provenance/FileFormatVersion.h"
 #include "art/Utilities/Exception.h"
+#include "art/Utilities/unique_filename.h"
 #include "cetlib/container_algorithms.h"
 #include "cpp0x/utility"
 #include "fhiclcpp/ParameterSet.h"
@@ -28,11 +29,6 @@
 using art::RootOutput;
 using fhicl::ParameterSet;
 using std::string;
-
-extern "C" {
-#include <fcntl.h>
-#include "unistd.h"
-}
 
 namespace art {
 
@@ -159,11 +155,13 @@ namespace art {
   void RootOutput::writeSubRun(SubRunPrincipal const& sr) {
       if (hasNewlyDroppedBranch()[InSubRun]) sr.addToProcessHistory();
       rootOutputFile_->writeSubRun(sr);
+      fileRenamer_.recordSubRun(sr.id());
   }
 
   void RootOutput::writeRun(RunPrincipal const& r) {
       if (hasNewlyDroppedBranch()[InRun]) r.addToProcessHistory();
       rootOutputFile_->writeRun(r);
+      fileRenamer_.recordRun(r.id());
   }
 
   // At some later date, we may move functionality from finishEndFile() to here.
@@ -190,36 +188,6 @@ namespace art {
   }
   bool RootOutput::isFileOpen() const { return rootOutputFile_.get() != 0; }
   bool RootOutput::shouldWeCloseFile() const { return rootOutputFile_->shouldWeCloseFile(); }
-
-  namespace {
-    std::string unique_filename(std::string stem)
-    {
-      boost::filesystem::path const p(stem + "-%%%%-%%%%-%%%%-%%%%.root");
-      boost::filesystem::path outpath;
-      boost::system::error_code ec;
-      int tmp_fd = -1, error = 0;
-      do {
-        outpath = boost::filesystem::unique_path(p, ec);
-      } while (!ec &&
-               (tmp_fd = creat(outpath.c_str(), S_IRUSR | S_IWUSR)) == -1 &&
-               (error = errno) == EEXIST);
-      if (tmp_fd != -1) {
-        close(tmp_fd);
-      } else {
-        art::Exception e(art::errors::FileOpenError);
-        e << "RootOutput cannot ascertain a unique temporary filename for output based on stem\n\""
-          << stem << "\": ";
-        if (ec) {
-          e << ec;
-        } else {
-          e << strerror(error);
-        }
-        e << ".\n";
-        throw e;
-      }
-      return outpath.native();
-    }
-  }
 
   void RootOutput::doOpenFile() {
       if (inputFileCount_ == 0) {

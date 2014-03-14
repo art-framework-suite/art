@@ -156,10 +156,11 @@ fillAllModules_()
     auto const pathRoot = procPS_.get<ParameterSet>(pathRootName, empty);
     auto const names = pathRoot.get_keys();
     for (auto const & name : names) {
-      detail::ModuleConfigInfo mci(procPS_, name, pathRootName);
-      auto actualModType = fact_.moduleType(mci.libSpec());
-      if (actualModType != mci.moduleType()) {
-        error_stream
+      try {
+        detail::ModuleConfigInfo mci(procPS_, name, pathRootName);
+        auto actualModType = fact_.moduleType(mci.libSpec());
+        if (actualModType != mci.moduleType()) {
+          error_stream
             << "  ERROR: Module with label "
             << mci.label()
             << " of type "
@@ -169,12 +170,12 @@ fillAllModules_()
             << " but defined in code as a "
             << to_string(actualModType)
             << ".\n";
-      }
-      auto result =
-        all_modules.insert(typename decltype(all_modules)::
-                           value_type(mci.label(), mci));
-      if (!result.second) {
-        error_stream
+        }
+        auto result =
+          all_modules.insert(typename decltype(all_modules)::
+                             value_type(mci.label(), mci));
+        if (!result.second) {
+          error_stream
             << "  ERROR: Module label "
             << mci.label()
             << " has been used in "
@@ -182,6 +183,15 @@ fillAllModules_()
             << " and "
             << pathRootName
             << ".\n";
+        }
+      }
+      catch (std::exception const &e ){
+        error_stream
+          << "  ERROR: Configuration of module with label "
+          << name
+          << " encountered the following error:\n"
+          << e.what()
+          << "\n";
       }
     }
   }
@@ -238,7 +248,9 @@ processPathConfigs_()
                               error_stream)) {
       ++num_end_paths;
     }
-    specified_modules.insert(path_seq.cbegin(), path_seq.cend());
+    for (auto const & mod : path_seq) {
+      specified_modules.insert(stripLabel(mod));
+    }
   }
   if (num_end_paths > 1) {
     mf::LogInfo("PathConfiguration")
@@ -278,7 +290,7 @@ processPathConfigs_()
               e = unused_modules.cend();
          i != e;
          ++i) {
-      unusedStream << ", " << *i << "'";
+      unusedStream << ", '" << *i << "'";
     }
     mf::LogInfo("path")
       << unusedStream.str()

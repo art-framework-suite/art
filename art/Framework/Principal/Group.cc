@@ -55,9 +55,6 @@ Group::Group(std::unique_ptr<EDProduct> && edp,
   onDemandPrincipal_()
 { }
 
-Group::~Group()
-{ }
-
 art::ProductStatus
 Group::status() const {
   if (dropped()) return productstatus::dropped();

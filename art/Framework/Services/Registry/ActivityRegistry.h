@@ -95,14 +95,19 @@ public:
   GlobalSignal<detail::SignalResponseType::LIFO, void,
                std::string const &> sPostOpenFile;
 
-  // Signal is emitted before the Closesource closes a file
+  // Signal is emitted before the source closes a file.
   GlobalSignal<detail::SignalResponseType::FIFO, void> sPreCloseFile;
 
   // Signal is emitted after the source opens a file
   GlobalSignal<detail::SignalResponseType::LIFO, void> sPostCloseFile;
 
-  // Signal is emitted after an output has closed a file (provides file
-  // name).
+  // Signal is emitted just before an output will close a file (provides
+  // module label).
+  GlobalSignal<detail::SignalResponseType::FIFO, void,
+               std::string const &> sPreCloseOutputFile;
+
+  // Signal is emitted after an output has closed a file (provides
+  // module label and file name).
   GlobalSignal<detail::SignalResponseType::LIFO, void,
                OutputFileInfo const &> sPostCloseOutputFile;
 
