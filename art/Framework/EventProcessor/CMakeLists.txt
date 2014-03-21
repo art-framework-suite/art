@@ -11,3 +11,6 @@ art_make(
   art_Utilities
   ${CETLIB}
   )
+
+install_headers(SUBDIRS detail)
+install_source(SUBDIRS detail)
