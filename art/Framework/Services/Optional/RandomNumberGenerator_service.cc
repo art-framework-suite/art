@@ -84,7 +84,7 @@ namespace {
   bool         const  DEFAULT_DEBUG_VALUE( false );
   int          const  DEFAULT_NPRINT_VALUE( 10 );
   ParameterSet const  DEFAULT_PSET
-#if __GNUC__ == 4 && __GNUC_MINOR__ == 6
+#if (__GNUC__ == 4 && __GNUC_MINOR__ == 6) || defined __ICC && __INTEL_COMPILER_BUILD_DATE <= 20140120
  // Required by C++03 & C++2011; GCC v4.6 became more strict. ISO agreed
  // to relax.
   = ParameterSet()

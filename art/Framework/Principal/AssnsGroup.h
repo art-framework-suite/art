@@ -33,13 +33,13 @@ private:
   friend std::unique_ptr<Group> gfactory::make_group(BranchDescription const&, ProductID const &, cet::exempt_ptr<Worker>, cet::exempt_ptr<EventPrincipal>);
   friend std::unique_ptr<Group> gfactory::make_group(std::unique_ptr<EDProduct> &&, BranchDescription const&, ProductID const &);
 public:
-  virtual ~AssnsGroup();
 
-  virtual EDProduct const *getIt() const;
-  virtual EDProduct const *anyProduct() const;
-  virtual EDProduct const *uniqueProduct() const;
-  virtual EDProduct const *uniqueProduct(TypeID const &wanted_wrapper_type) const;
-  virtual bool resolveProductIfAvailable(bool fillOnDemand, TypeID const &) const;
+  bool isReady() const override { return true; }
+  EDProduct const *getIt() const override;
+  EDProduct const *anyProduct() const override;
+  EDProduct const *uniqueProduct() const override;
+  EDProduct const *uniqueProduct(TypeID const &wanted_wrapper_type) const override;
+  bool resolveProductIfAvailable(bool fillOnDemand, TypeID const &) const override;
 
 private:
   std::unique_ptr<EDProduct>

@@ -81,8 +81,6 @@ FILE: foreach my $file (@ARGV) {
   open (FILEIN, "<${file}") or do { print STDERR "Unable to open \"${file}\" for read\n"; exit(2); };
   open (FILEOUT, ">${tmp_file}") or do { print STDERR "Unable to open \"${tmp_file}\" for write\n"; exit(2); };
   my $new_guard = $file;
-  while ($new_guard =~ s&[^\w\d_]&_&g) {}
-  while ($new_guard =~ s&_(?:include|inc|interface)?_&_&g) {}
   my $seen_guard_check;
   my $seen_guard_def;
   my $seen_guard_close;
@@ -98,8 +96,16 @@ FILE: foreach my $file (@ARGV) {
           next FILE;
       }
     }
-    if ((!$seen_guard_check) and m&^\s*#\s*if(?:ndef\s+([\w\d_]+)|.*?defined.*?\(\s*(.*?)\))&i) {
+    if ((!$seen_guard_check) and m&^\s*#\s*if(?:ndef\s+([^\s/]+)|.*?defined.*?\(\s*(.*?)\s*\))&i) {
       $seen_guard_check = $1?$1:$2;
+      my $trailing_template;
+      if ($seen_guard_check =~ m&^(.*?)([\$@].*)$&) { # CMake Substitution
+        $new_guard = dirname($new_guard);
+        $trailing_template = "_${2}";
+      }
+      while ($new_guard =~ s&[^\w\d_]&_&g) {}
+      while ($new_guard =~ s&_(?:include|inc|interface)?_&_&g) {}
+      $new_guard = "${new_guard}${trailing_template}" if ${trailing_template};
       if (not $seen_guard_check eq $new_guard) {
         print "replacing header guard \"$seen_guard_check\" with \"$new_guard\" ... ";
         s&\Q$seen_guard_check\E&$new_guard&;

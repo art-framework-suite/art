@@ -205,8 +205,8 @@ int print_fc_metadata_from_files(
        e = file_names.end();
        i != e;
        ++i) {
-    TFile current_file(i->c_str(), "READ");
-    if (current_file.IsZombie()) {
+    std::unique_ptr<TFile> current_file(TFile::Open(i->c_str(), "READ"));
+    if (current_file->IsZombie()) {
       ++rc;
       errors << "Unable to open file '"
              << *i
@@ -215,7 +215,7 @@ int print_fc_metadata_from_files(
     }
     else {
       output << "\nFile catalog metadata from file " << *i  << ":\n\n";
-      rc += print_fc_metadata_from_file(current_file, output, errors);
+      rc += print_fc_metadata_from_file(*current_file, output, errors);
       output << "-------------------------------\n";
     }
   }

@@ -31,6 +31,7 @@ class arttest::ToyRawInputTester :
 public:
 
   ToyRawInputTester( fhicl::ParameterSet const & p ) :
+    art::EDAnalyzer(p),
     numEventsSeen_(0),
     numEventsExpected_(0),
     numSubRunsSeen_(0),

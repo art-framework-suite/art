@@ -18,7 +18,7 @@ namespace art {
              TrigResPtr pathResults,
              ParameterSet const&,
              ActionTable& actions,
-             std::shared_ptr<ActivityRegistry> areg,
+             ActivityRegistry & areg,
              bool isEndPath):
     stopwatch_(new RunStopwatch::StopwatchPointer::element_type),
     timesRun_(),

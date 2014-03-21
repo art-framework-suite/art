@@ -57,7 +57,7 @@ physics:
 source:
 {
   module_type: RootInput
-  fileNames: [ "out.root" ]
+  fileNames: [ "../test_ptrvector_01a_t.d/out.root" ]
 }
 
 process_name: DEVEL2

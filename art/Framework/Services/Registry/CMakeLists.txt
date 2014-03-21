@@ -11,7 +11,6 @@ art_make_library( LIBRARY_NAME art_Framework_Services_Registry
   SOURCE ${art_Framework_Services_Registry_sources}
   LIBRARIES ${TBB}
   art_Utilities
-  ${SIGC}
   )
 
 install_headers(SUBDIRS detail)

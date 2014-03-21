@@ -55,8 +55,8 @@ art::Worker::~Worker() {
 }
 
 void
-art::Worker::setActivityRegistry(std::shared_ptr<ActivityRegistry> areg) {
-  actReg_ = areg;
+art::Worker::setActivityRegistry(cet::exempt_ptr<ActivityRegistry> areg) {
+  actReg_ = std::move(areg);
 }
 
 void

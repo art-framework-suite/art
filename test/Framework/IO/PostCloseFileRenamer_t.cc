@@ -54,4 +54,45 @@ BOOST_AUTO_TEST_CASE(testSubstitutions)
   }
 }
 
+BOOST_AUTO_TEST_CASE(resetFileOpen)
+{
+  PostCloseFileRenamer fr("%to", "label", "DEVEL");
+  simulateJob(fr);
+  auto const before = fr.applySubstitutions();
+  sleep(1);
+  fr.recordFileOpen();
+  fr.recordFileClose();
+  auto const after = fr.applySubstitutions();
+  BOOST_CHECK_NE(before, after);
+}
+
+BOOST_AUTO_TEST_CASE(resetEvents)
+{
+  PostCloseFileRenamer fr("%02r_%02s_%R_%S", "label", "DEVEL");
+  auto const before = fr.applySubstitutions();
+  auto const cmp_before = std::string("-_-_-_-");
+  BOOST_CHECK_EQUAL(before, cmp_before);
+  simulateJob(fr);
+  auto after = fr.applySubstitutions();
+  auto const cmp_after = std::string("01_00_2_3");
+  BOOST_CHECK_EQUAL(after, cmp_after);
+  fr.recordFileOpen();
+  fr.recordFileClose();
+  after = fr.applySubstitutions();
+  BOOST_CHECK_EQUAL(after, cmp_before);
+}
+
+BOOST_AUTO_TEST_CASE(Runs_subruns)
+{
+  PostCloseFileRenamer fr("%02r_%02s_%R_%S", "label", "DEVEL");
+  fr.recordRun(art::RunID{ 7 });
+  BOOST_CHECK_EQUAL(fr.applySubstitutions(), std::string("07_-_7_-"));
+  fr.recordSubRun(art::SubRunID{ 7, 0 });
+  BOOST_CHECK_EQUAL(fr.applySubstitutions(), std::string("07_00_7_0"));
+  fr.recordSubRun(art::SubRunID{ 7, 5 });
+  BOOST_CHECK_EQUAL(fr.applySubstitutions(), std::string("07_00_7_5"));
+  fr.recordRun(art::RunID{ 9 });
+  BOOST_CHECK_EQUAL(fr.applySubstitutions(), std::string("07_00_9_-"));
+}
+
 BOOST_AUTO_TEST_SUITE_END()

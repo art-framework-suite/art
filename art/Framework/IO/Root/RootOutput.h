@@ -120,6 +120,7 @@ private:
     int inputFileCount_;
     boost::scoped_ptr<RootOutputFile> rootOutputFile_;
     PostCloseFileRenamer fileRenamer_;
+    std::string tmpDir_;
     std::string lastClosedFileName_;
   };
 

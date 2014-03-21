@@ -1,0 +1,5 @@
+#include "ProductMix_r1c2.fcl"
+
+physics.filters.mixFilter.fileNamesToProvide: @local::physics.filters.mixFilter.fileNames
+physics.filters.mixFilter.fileNames: []
+source.maxEvents: 200

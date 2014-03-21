@@ -26,8 +26,9 @@ class arttest::IntTestAnalyzer
 public:
   typedef  std::vector<int>  intvector_t;
 
-  IntTestAnalyzer( fhicl::ParameterSet const & p )
-  : moduleLabel_( p.get<std::string>("input_label") )
+  explicit IntTestAnalyzer( fhicl::ParameterSet const & p )
+  : art::EDAnalyzer(p)
+  , moduleLabel_( p.get<std::string>("input_label") )
   , nvalues_    ( p.get<size_t>("nvalues") )
   { }
 

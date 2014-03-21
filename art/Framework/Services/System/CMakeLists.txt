@@ -8,5 +8,5 @@ simple_plugin(PathSelection "service" art_Framework_Core)
 simple_plugin(ScheduleContext "service" art_Framework_Core)
 simple_plugin(TriggerNamesService "service")
 
-install_headers()
-install_source()
+install_headers(SUBDIRS detail)
+install_source(SUBDIRS detail)

@@ -1,7 +1,6 @@
 include(CetTest)
 
 link_libraries(
-  ${SIGC}
   -ldl
 )
 

@@ -70,7 +70,7 @@ public:
            art::TriggerNamesService const & tns,
            MasterProductRegistry & pregistry,
            ActionTable & actions,
-           std::shared_ptr<ActivityRegistry> areg);
+           ActivityRegistry & areg);
 
   template <typename T>
   void processOneOccurrence(typename T::MyPrincipal & principal);
@@ -113,7 +113,8 @@ private:
   void setupOnDemandSystem_(EventPrincipal & p);
 
   void makeTriggerResultsInserter_(fhicl::ParameterSet const & trig_pset,
-                                   MasterProductRegistry & pregistry);
+                                   MasterProductRegistry & pregistry,
+                                   ActivityRegistry & areg);
 
   void fillBranchLookup_(ProductList const & pList,
                          BranchesByModuleLabel & branchLookup) const;
@@ -128,7 +129,6 @@ private:
   fhicl::ParameterSet process_pset_;
   ActionTable    *    act_table_;
   std::string         processName_;
-  std::shared_ptr<ActivityRegistry> actReg_;
   PathsInfo & triggerPathsInfo_;
   std::vector<unsigned char> pathsEnabled_;
   WorkerPtr      results_inserter_;

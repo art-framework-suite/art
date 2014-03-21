@@ -15,7 +15,7 @@ class TestTFileServiceAnalyzer
 {
 public:
   // constructor
-  TestTFileServiceAnalyzer( const fhicl::ParameterSet & );
+  explicit TestTFileServiceAnalyzer( const fhicl::ParameterSet & );
 
 private:
   // process one event
@@ -28,7 +28,8 @@ private:
 
 
 TestTFileServiceAnalyzer::TestTFileServiceAnalyzer( const ParameterSet & cfg )
-: dir1_( cfg.get<string>( "dir1" ) )
+: EDAnalyzer( cfg )
+, dir1_( cfg.get<string>( "dir1" ) )
 , dir2_( cfg.get<string>( "dir2" ) )
 {
   ServiceHandle<TFileService> fs;

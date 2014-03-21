@@ -16,94 +16,80 @@
 #include "art/Framework/Principal/Selector.h"
 #include "art/Framework/Principal/Handle.h"
 #include "art/Persistency/Common/TriggerResults.h"
-#include "cpp0x/utility"
+
 #include <string>
 #include <vector>
 
-namespace art
-{
-  namespace detail
-  {
-    typedef art::Handle<art::TriggerResults> handle_t;
+namespace art {
+namespace detail {
 
-    class NamedEventSelector
-    {
-    public:
-      NamedEventSelector(std::string const& n, EventSelector const& s) :
-        nameSelector_(n),
-        eventSelector_(s),
-        product_()
-      { }
+// Match events based on the trigger results from a given process name.
+class ProcessAndEventSelector {
+private:
+  // Select events based on a process name.
+  ProcessNameSelector processNameSelector_;
+  // Select events based on criteria applied to trigger path results.
+  EventSelector eventSelector_;
+  // Fetched trigger path results for the given process name.
+  art::Handle<art::TriggerResults> triggerResults_;
+public:
+  ProcessAndEventSelector(std::string const& process_name, EventSelector const& event_selector)
+    : processNameSelector_(process_name), eventSelector_(event_selector), triggerResults_() {}
+  //
+  //  Trigger results.
+  //
+  void loadTriggerResults(Event const& e) { e.get(/*in=*/processNameSelector_, /*out=*/triggerResults_); }
+  art::Handle<art::TriggerResults> triggerResults() const { return triggerResults_; }
+  void clearTriggerResults() { triggerResults_ = art::Handle<art::TriggerResults>(); }
+  //
+  //  Event selection.
+  //
+  bool match() { return eventSelector_.acceptEvent(*triggerResults_); }
+};
 
-      void fill(Event const& e)
-      {
-        e.get(nameSelector_, product_);
-      }
+class PVSentry;
 
-      bool match()
-      {
-        return eventSelector_.acceptEvent(*product_);
-      }
+// Handle the SelectEvents configuration parameter of modules on the end path.
+class CachedProducts {
+  friend class PVSentry;
+public: // Types
+  //typedef art::Handle<art::TriggerResults> handle_t;
+  //typedef std::vector<ProcessAndEventSelector> selectors_t;
+  //typedef selectors_t::size_type size_type;
+  //typedef std::pair<std::string, std::string> parsed_path_spec_t;
+private: // Data Members
+  std::vector<ProcessAndEventSelector> p_and_e_selectors_;
+  bool loadDone_;
+  unsigned long numberFound_;
+public:
+  CachedProducts() : p_and_e_selectors_(), loadDone_(false), numberFound_(0) {}
+  void setupDefault(std::vector<std::string> const& trigger_names);
+  void setup(std::vector<std::pair<std::string,std::string>> const& path_specs,
+             std::vector<std::string> const& trigger_names,
+             const std::string& process_name);
+  bool wantEvent(Event const&);
+  art::Handle<art::TriggerResults> getOneTriggerResults(Event const&) const;
 
-      handle_t product() const
-      {
-        return product_;
-      }
+private:
+  void clearTriggerResults();
+  void loadTriggerResults(Event const&);
+};
 
-      void clear()
-      {
-        product_ = handle_t();
-      }
-
-    private:
-      ProcessNameSelector nameSelector_;
-      EventSelector       eventSelector_;
-      handle_t            product_;
-    };
-
-
-    class CachedProducts
-    {
-    public:
-      CachedProducts();
-      typedef detail::handle_t                    handle_t;
-      typedef std::vector<NamedEventSelector>     selectors_t;
-      typedef selectors_t::size_type              size_type;
-      typedef std::pair<std::string, std::string> parsed_path_spec_t;
-
-      void setupDefault(std::vector<std::string> const& triggernames);
-
-      void setup(std::vector<parsed_path_spec_t> const& path_specs,
-                 std::vector<std::string> const& triggernames,
-                 const std::string& process_name);
-
-      bool wantEvent(Event const& e);
-
-      // Get all TriggerResults objects for the process names we're
-      // interested in.
-      size_type fill(Event const& ev);
-
-      handle_t getOneTriggerResults(Event const& e);
-
-      // Clear the cache
-      void clear();
-
-    private:
-      typedef selectors_t::iterator iter;
-
-      // Return the number of cached TriggerResult handles
-      //size_type size() const { return numberFound_; }
-
-      // If we have only one handle cached, return it; otherwise throw.
-      handle_t returnOneHandleOrThrow();
-
-
-      bool        fillDone_;
-      size_type   numberFound_;
-      selectors_t selectors_;
-    };
+class PVSentry {
+private:
+  CachedProducts& p_and_e_selectors_;
+public:
+  explicit PVSentry(CachedProducts& p_and_e_selectors)
+    : p_and_e_selectors_(p_and_e_selectors) {}
+  ~PVSentry() {
+    p_and_e_selectors_.clearTriggerResults();
   }
-}
+  PVSentry(PVSentry const&) = delete;
+  PVSentry& operator=(PVSentry const&) = delete;
+};
+
+} // namespace detail
+} // namespace art
 
 #endif /* art_Framework_Core_CachedProducts_h */
 

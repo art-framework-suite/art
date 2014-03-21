@@ -48,7 +48,6 @@ protected: // Use GroupFactory to make.
   friend std::unique_ptr<Group> gfactory::make_group(std::unique_ptr<EDProduct> &&, BranchDescription const&, ProductID const &);
 #endif
 public:
-  virtual ~Group();
 
   void swap(Group &other);
 
@@ -58,11 +57,12 @@ public:
   // Scheduled for on-demand production
   bool onDemand() const { return productProducer_ && onDemandPrincipal_; }
 
-  virtual EDProduct const *getIt() const { resolveProductIfAvailable(true, producedWrapperType()); return uniqueProduct(); }
+  bool isReady() const override { return true; }
+  EDProduct const *getIt() const override { resolveProductIfAvailable(true, producedWrapperType()); return uniqueProduct(); }
 #ifndef __GCCXML__
-  virtual EDProduct const *anyProduct() const { return product_.get(); }
-  virtual EDProduct const *uniqueProduct() const { return product_.get(); }
-  virtual EDProduct const *uniqueProduct(TypeID const &) const { return product_.get(); }
+  EDProduct const *anyProduct() const override { return product_.get(); }
+  EDProduct const *uniqueProduct() const override { return product_.get(); }
+  EDProduct const *uniqueProduct(TypeID const &) const override { return product_.get(); }
 #endif
   cet::exempt_ptr<ProductProvenance const> productProvenancePtr() const;
 

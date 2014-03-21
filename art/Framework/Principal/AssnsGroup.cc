@@ -32,10 +32,6 @@ AssnsGroup(std::unique_ptr<EDProduct> && edp,
   secondaryProduct_()
 {}
 
-art::AssnsGroup::
-~AssnsGroup()
-{}
-
 art::EDProduct const *
 art::AssnsGroup::
 getIt() const {

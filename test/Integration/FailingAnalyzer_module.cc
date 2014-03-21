@@ -21,7 +21,8 @@ public:
 };
 
 
-arttest::FailingAnalyzer::FailingAnalyzer(fhicl::ParameterSet const&)
+arttest::FailingAnalyzer::FailingAnalyzer(fhicl::ParameterSet const& pset)
+  : art::EDAnalyzer(pset)
 {
 
 }

@@ -21,6 +21,11 @@ art::TrivialFileTransfer::TrivialFileTransfer
 int art::TrivialFileTransfer::doTranslateToLocalFilename
 (std::string const & uri, std::string & fileFQname)
 {
+  static std::string const fileURI { "file://" };
+  if (uri.compare(0, 7, fileURI) != 0) {
+    fileFQname = uri; // Unexpected protocol: pass through.
+    return FileTransferStatus::SUCCESS;
+  }
   FileTransferStatus stat = FileTransferStatus::PENDING;
   fileFQname = "";
   std::string inFileName;

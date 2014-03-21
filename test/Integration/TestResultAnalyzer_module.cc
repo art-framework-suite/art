@@ -34,6 +34,7 @@ private:
 };
 
 arttest::TestResultAnalyzer::TestResultAnalyzer(fhicl::ParameterSet const& ps):
+   art::EDAnalyzer(ps),
    passed_(),
    failed_(),
    dump_(ps.get<bool>("dump",false)),

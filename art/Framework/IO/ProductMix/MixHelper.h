@@ -7,7 +7,72 @@
 // users' "detail" mixing classes. (A "detail" class is the template
 // argument to the instantiation of the "MixFilter" module template.)
 //
-//////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+// Configuration.
+//
+// MixHelper will be passed the configuration of the module. The
+// following items are significant:
+//
+// fileNames (no default)
+//
+//   Sequence of secondary files for mixing. However, see the function
+//   registerSecondaryFileNameProvider(...) below.
+//
+// readMode (default sequential).
+//
+//   Specify how events should be chosen from each file. Valid values
+//   are:
+//
+//     sequential -- read the secondary events in order
+//     randomReplace -- random with replacement
+//     randomLimReplace -- events unique within a primary event
+//     randomNoReplace -- events guaranteed to be used once only.
+//
+// coverageFraction (default 1.0).
+//
+//   Ratio of sampled events to total events in a file. Used by
+//   randomReplace and randomLimReplace modes only.
+//
+// wrapFiles (default false).
+//
+//   Re-start from fileNames[0] after secondary events are exhausted. If
+//   this is false, exhausting the secondary file stream will result in
+//   the filter returning false for the remainder of the job.
+//
+////////////////////////////////////////////////////////////////////////
+// readMode()
+//
+// Return the enumerated value representing the event mixing strategy.
+//
+////////////////////////////////////////////////////////////////////////
+// registerSecondaryFileNameProvider(<function> func)
+//
+// Register the provided function as a provider of file names for
+// mixing.
+//
+// <function> must be convertible to std::function<std::string ()>. A
+// free function taking no arguments and returning std::string, a
+// functor whose operator () has the same signature, or a bound free or
+// member function whose signature after binding is std::string () are
+// all convertible to std::function<std::string() >.
+//
+// E.g. for a detail class with member function std::string getMixFile():
+//
+//  registerSecondaryFileNameProvider(std::bind(&Detail::getMixFile,
+//                                              this));
+//
+// Notes:
+//
+// 1. It is a configuration error to provide a non-empty fileNames
+// parameter to a module which registers a file name provider.
+//
+// 2. If the file name provider returns a string which is empty, the
+// MixFilter shall thenceforth return false.
+//
+// 3. If the file name provider returns a non-empty string does not
+// correspond to a readable file, an exception shall be thrown.
+//
+////////////////////////////////////////////////////////////////////////
 // declareMixOp templates.
 //
 // These function templates should be used by writers of product-mixing
@@ -150,12 +215,28 @@ namespace art {
 }
 
 class art::MixHelper {
-public:
-  MixHelper(MixHelper const&) = delete;
-  MixHelper& operator=(MixHelper const&) = delete;
+private:
+  typedef std::function<std::string ()> ProviderFunc_;
 
+public:
+  enum class Mode
+  { SEQUENTIAL = 0,
+      RANDOM_REPLACE,
+      RANDOM_LIM_REPLACE,
+      RANDOM_NO_REPLACE,
+      UKNOWN
+      };
+
+  // Constructor.
   MixHelper(fhicl::ParameterSet const & pset,
             ProducerBase & producesProvider);
+
+  // Returns the current mixing mode.
+  Mode readMode() const;
+
+  // Registers a callback to the detail object to determing the next
+  // secondary file to read.
+  void registerSecondaryFileNameProvider(ProviderFunc_ func);
 
   // A.
   template <class P>
@@ -235,24 +316,28 @@ public:
   void setEventsToSkipFunction(std::function < size_t () > eventsToSkip);
 
 private:
+  MixHelper(MixHelper const&) = delete;
+  MixHelper& operator=(MixHelper const&) = delete;
+
   typedef std::vector<std::shared_ptr<MixOpBase> > MixOpList;
   typedef MixOpList::iterator MixOpIter;
 
-  enum Mode { SEQUENTIAL, RANDOM };
+  Mode initReadMode_(std::string const & mode) const;
 
-  void openAndReadMetaData(std::string const & fileName);
-  void buildEventIDIndex(FileIndex const & fileIndex);
-  void mixAndPutOne(std::shared_ptr<MixOpBase> mixOp,
-                    EntryNumberSequence const & enSeq,
-                    Event & e);
-  bool openNextFile();
-  void buildBranchIDTransMap(ProdToProdMapBuilder::BranchIDTransMap & transMap);
+  void openAndReadMetaData_(std::string fileName);
+  void buildEventIDIndex_(FileIndex const & fileIndex);
+  void mixAndPutOne_(std::shared_ptr<MixOpBase> mixOp,
+                     EntryNumberSequence const & enSeq,
+                     Event & e);
+  bool openNextFile_();
+  void buildBranchIDTransMap_(ProdToProdMapBuilder::BranchIDTransMap & transMap);
 
   ProducerBase & producesProvider_;
   std::vector<std::string> filenames_;
+  ProviderFunc_ providerFunc_;
   MixOpList mixOps_;
   PtrRemapper ptrRemapper_;
-  std::vector<std::string>::const_iterator currentFilename_;
+  std::vector<std::string>::const_iterator fileIter_;
   Mode readMode_;
   double coverageFraction_;
   Long64_t nEventsReadThisFile_;
@@ -263,6 +348,7 @@ private:
   ProdToProdMapBuilder ptpBuilder_;
   std::unique_ptr<CLHEP::RandFlat> dist_;
   std::function < size_t () > eventsToSkip_;
+  EntryNumberSequence shuffledSequence_; // RANDOM_NO_REPLACE only.s
 
   // Root-specific state.
   EventIDIndex eventIDIndex_;
@@ -271,6 +357,15 @@ private:
   cet::exempt_ptr<TTree> currentEventTree_;
   RootBranchInfoList dataBranches_;
 };
+
+inline
+auto
+art::MixHelper::
+readMode() const
+-> Mode
+{
+  return readMode_;
+}
 
 // A.
 template <class P>

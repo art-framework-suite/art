@@ -31,7 +31,6 @@ art_make_library( LIBRARY_NAME art_Framework_Principal
   ${FHICLCPP}
   ${CETLIB}
   ${CLHEP}
-  ${SIGC}
 )
 
 install_headers(SUBDIRS detail)

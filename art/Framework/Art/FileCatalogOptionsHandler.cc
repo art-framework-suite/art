@@ -1,6 +1,7 @@
 #include "art/Framework/Art/FileCatalogOptionsHandler.h"
 
 #include "art/Utilities/Exception.h"
+#include "art/Utilities/ensureTable.h"
 #include "cetlib/split.h"
 #include "fhiclcpp/coding.h"
 #include "fhiclcpp/extended_value.h"
@@ -180,7 +181,7 @@ doProcessOptions(bpo::variables_map const & vm,
     raw_config.put("services.user.CatalogInterface.service_provider", "IFCatalogInterface");
     raw_config.put("services.user.CatalogInterface.webURI", vm["sam-web-uri"].as<std::string>());
     raw_config.put("services.user.FileTransfer.service_provider", "IFFileTransfer");
-    raw_config.putEmptyTable("services.user.IFDH");
+    art::ensureTable(raw_config, "services.user.IFDH");
     raw_config.put("source.fileNames", std::vector<std::string> { vm["sam-process-id"].as<std::string>() });
   }
   if (requireMetadata_) {

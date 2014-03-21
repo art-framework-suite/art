@@ -23,7 +23,9 @@ public:
   //      libaa_bb_cc_xyz_<lib_type>.<ext>
   //  and where <ext> is provided automatically as appropriate for
   // the platform.
-  explicit LibraryManager(std::string const & lib_type);
+  explicit LibraryManager(std::string const & lib_type,
+                          std::string pattern =
+                          "([-A-Za-z0-9]*_)*[A-Za-z0-9]+_");
 
   // The d'tor does NOT unload libraries, because that is dangerous
   // to do in C++. Use the compiler-generated destructor.

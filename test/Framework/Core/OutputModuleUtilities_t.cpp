@@ -21,7 +21,7 @@ void test_parse_path_spec() {
   paths.push_back("ddd\t:p3");
   paths.push_back("eee:  p4  ");
 
-  std::vector<art::detail::parsed_path_spec_t> parsed(paths.size());
+  std::vector<std::pair<std::string, std::string>> parsed(paths.size());
   for (size_t i = 0; i < paths.size(); ++i)
     art::detail::parse_path_spec(paths[i], parsed[i]);
 

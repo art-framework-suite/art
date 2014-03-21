@@ -47,10 +47,12 @@ my @all_suite_versions = suite_versions(for_package("art", "cd /cvs/projects/art
 if (lc $package eq "art") { # Want ART Suite release notes.
   my $suite_version = suite_version($vnum);
   my $dot_version = dot_version($vnum);
-  print "h1. ART Suite Release Notes $dot_version.\n\n";
+  my $version_date = tag_date("art", $suite_version);
+  print "h1. ART Suite Release Notes $dot_version ($version_date).\n\n";
+  print "* \"Download page\":http://oink.fnal.gov/distro/art/art-${suite_version}.html.\n";
   my $prev = previous_version($dot_version, @all_suite_versions);
   if ($prev =~ /^\d/) {
-    print "Previous version's [[Release Notes $prev|release notes]].\n\n";
+    print "* Previous version's [[Release Notes $prev|release notes]].\n\n";
   }
   print "h2. ART ",
     vpage($dot_version),
@@ -74,10 +76,11 @@ EOF
   if ($options->{"suite-version"}) {
     $vnum = pkg_version($package, $vnum);
   }
-  printf "h2. %%(#%s)$package%% %s%s.\n",
+  printf "h2. %%(#%s)$package%% %s, %s%s.\n",
     dot_version($vnum),
       vpage($vnum),
-        suite_reference_string(suite_references($package, $vnum));
+        tag_date($package, prod_version($vnum)),
+          suite_reference_string(suite_references($package, $vnum));
 }
 
 1;
@@ -140,6 +143,13 @@ sub nosep_version {
 
 sub suite_version {
   return sprintf("ART_SUITE_%s", prod_version(shift));
+}
+
+sub tag_date {
+  my ($package, $tag) = @_;
+  my $tag_date = for_package("$package", "cd /cvs/projects/$package; git log -1 --simplify-by-decoration --pretty=\"format:\%cd\" --date=short \"$tag\"");
+  $tag_date =~ s&-&/&g;
+  return $tag_date;
 }
 
 sub ncmp {

@@ -30,3 +30,4 @@ template class art::PtrVector<double>;
 template class art::Wrapper<std::vector<art::Ptr<double> > >;
 template class art::Wrapper<art::PtrVector<double> >;
 template class art::Ptr<double>;
+template class art::Wrapper<arttest::VSimpleProduct>;

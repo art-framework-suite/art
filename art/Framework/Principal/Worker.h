@@ -31,6 +31,7 @@ the worker is reset().
 #include "art/Framework/Principal/fwd.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "cetlib/exception.h"
+#include "cetlib/exempt_ptr.h"
 #include "cpp0x/memory"
 #include "cpp0x/utility"
 #include "fhiclcpp/ParameterSet.h"
@@ -75,7 +76,7 @@ public:
   ModuleDescription const* descPtr() const {return &md_; }
   ///The signals are required to live longer than the last call to 'doWork'
   /// this was done to improve performance based on profiling
-  void setActivityRegistry(std::shared_ptr<ActivityRegistry> areg);
+  void setActivityRegistry(cet::exempt_ptr<ActivityRegistry> areg);
 
   std::pair<double,double> timeCpuReal() const {
       return std::pair<double,double>(timer_.cpuTime(),timer_.realTime());
@@ -133,7 +134,7 @@ private:
   ActionTable const & actions_;
   std::shared_ptr<art::Exception> cached_exception_; // if state is 'exception'
 
-  std::shared_ptr<ActivityRegistry> actReg_;
+  cet::exempt_ptr<ActivityRegistry> actReg_;
 };
 
 namespace art {

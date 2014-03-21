@@ -44,21 +44,19 @@ Schedule(ScheduleID sID,
          art::TriggerNamesService const & tns,
          MasterProductRegistry & pregistry,
          ActionTable & actions,
-         std::shared_ptr<ActivityRegistry> areg):
+         ActivityRegistry & areg):
   sID_(sID),
   process_pset_(proc_pset),
   act_table_(&actions),
   processName_(tns.getProcessName()),
-  actReg_(areg),
   triggerPathsInfo_(pm.triggerPathsInfo(sID_)),
   pathsEnabled_(triggerPathsInfo_.pathPtrs().size(), true),
   results_inserter_(),
   demand_branches_(catalogOnDemandBranches_(pm.onDemandWorkers(),
                                             pregistry.productList()))
 {
-  assert(actReg_);
   if (!triggerPathsInfo_.pathPtrs().empty()) {
-    makeTriggerResultsInserter_(tns.getTriggerPSet(), pregistry);
+    makeTriggerResultsInserter_(tns.getTriggerPSet(), pregistry, areg);
   }
   pregistry.setFrozen();
   if (sID == ScheduleID::first()) {
@@ -190,7 +188,8 @@ setupOnDemandSystem_(EventPrincipal & p)
 void
 art::Schedule::
 makeTriggerResultsInserter_(ParameterSet const & trig_pset,
-                           MasterProductRegistry & pregistry)
+                           MasterProductRegistry & pregistry,
+                            ActivityRegistry & areg)
 {
   WorkerParams work_args(process_pset_, trig_pset, pregistry, *act_table_,
                          processName_);
@@ -201,13 +200,13 @@ makeTriggerResultsInserter_(ParameterSet const & trig_pset,
                                             process_pset_.id(),
                                             getReleaseVersion(),
                                             getPassID()));
-  actReg_->sPreModuleConstruction.invoke(md);
+  areg.sPreModuleConstruction.invoke(md);
   std::unique_ptr<EDProducer>
     producer(new TriggerResultInserter(trig_pset, triggerPathsInfo_.pathResults()));
-  actReg_->sPostModuleConstruction.invoke(md);
+  areg.sPostModuleConstruction.invoke(md);
   results_inserter_.reset(new WorkerT<EDProducer>(std::move(producer), md,
                                                   work_args));
-  results_inserter_->setActivityRegistry(actReg_);
+  results_inserter_->setActivityRegistry(cet::exempt_ptr<ActivityRegistry>(&areg));
 }
 
 void

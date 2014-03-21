@@ -1,3 +1,9 @@
+set(CMAKE_MODULE_PATH
+	${CMAKE_MODULE_PATH}
+  ${CMAKE_CURRENT_SOURCE_DIR}
+  )
+
+include(ReflexTools_t)
 
 # project name
 add_library(test_Integration
@@ -33,6 +39,8 @@ simple_plugin(BareStringAnalyzer          "module"  NO_INSTALL )
 simple_plugin(BareStringProducer          "module"  NO_INSTALL )
 simple_plugin(CompressedIntProducer       "module"  NO_INSTALL )
 simple_plugin(CompressedIntTestAnalyzer   "module"  NO_INSTALL )
+simple_plugin(DeferredIsReadyWithAssnsAnalyzer "module"  NO_INSTALL )
+simple_plugin(DeferredIsReadyWithAssnsProducer "module"  NO_INSTALL )
 simple_plugin(DerivedPtrVectorProducer    "module"  NO_INSTALL )
 simple_plugin(DoubleProducer              "module"  NO_INSTALL )
 simple_plugin(DoubleTestAnalyzer          "module"  NO_INSTALL )
@@ -75,6 +83,7 @@ simple_plugin(ServiceUsing                "service" NO_INSTALL )
 simple_plugin(SimpleDerivedAnalyzer       "module"  NO_INSTALL )
 simple_plugin(SimpleDerivedProducer       "module"  NO_INSTALL )
 simple_plugin(TH1DataProducer             "module"  NO_INSTALL test_TestObjects)
+simple_plugin(TestAnalyzerSelect          "module"  NO_INSTALL )
 simple_plugin(TestBitsOutput              "module"  NO_INSTALL )
 simple_plugin(TestFilter                  "module"  NO_INSTALL )
 simple_plugin(TestOutput                  "module"  NO_INSTALL )
@@ -92,43 +101,29 @@ simple_plugin(Wanted                      "service" NO_INSTALL )
 
 art_dictionary(DICTIONARY_LIBRARIES ${CETLIB} NO_INSTALL)
 
-# Common library link requirements for tests here.
-set(default_test_libraries
-  art_Framework_Art
-  art_Framework_Services_Registry
-  art_Utilities
-  art_Framework_Core
-  ${SIGC}
-  ${Boost_FILESYSTEM_LIBRARY}
-  ${Boost_PROGRAM_OPTIONS_LIBRARY}
-  ${ROOT_CINTEX}
-  ${ROOT_TREE}
-  ${ROOT_HIST}
-  ${ROOT_MATRIX}
-  ${ROOT_NET}
-  ${ROOT_MATHCORE}
-  ${ROOT_THREAD}
-  ${ROOT_RIO}
-  ${ROOT_CORE}
-  ${ROOT_CINT}
-  ${ROOT_REFLEX}
-  ${CPPUNIT}
-  -ldl
- )
-
 # cet_test macro
 
-# Tests
-cet_test(ReflexTools_t USE_BOOST_UNIT
-  LIBRARIES ${default_test_libraries}
-  )
-
-cet_test(EventSelectorFromFile_t.sh PREBUILT
+cet_test(EventSelectorFromFile_w HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --rethrow-all --config EventSelectorFromFile_w.fcl
   DATAFILES
   fcl/EventSelectorFromFile_w.fcl
+)
+
+cet_test(EventSelectorFromFile_r1 HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --rethrow-all --config EventSelectorFromFile_r1.fcl
+  DATAFILES
   fcl/EventSelectorFromFile_r1.fcl
+  TEST_PROPERTIES DEPENDS EventSelectorFromFile_w
+)
+
+cet_test(EventSelectorFromFile_r2 HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --rethrow-all --config EventSelectorFromFile_r2.fcl
+  DATAFILES
   fcl/EventSelectorFromFile_r2.fcl
-  fcl/messageDefaults.fcl
+  TEST_PROPERTIES DEPENDS EventSelectorFromFile_w
 )
 
 cet_test(test_simple_01_t.sh PREBUILT
@@ -146,11 +141,21 @@ cet_test(test_view_01_t.sh PREBUILT
   fcl/messageDefaults.fcl
 )
 
-cet_test(test_ptrvector_01_t.sh PREBUILT
+cet_test(test_ptrvector_01a_t HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --config test_ptrvector_01a.fcl --rethrow-all
   DATAFILES
   fcl/test_ptrvector_01a.fcl
+  fcl/messageDefaults.fcl
+)
+
+cet_test(test_ptrvector_01b_t HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --config test_ptrvector_01b.fcl --rethrow-all
+  DATAFILES
   fcl/test_ptrvector_01b.fcl
   fcl/messageDefaults.fcl
+  TEST_PROPERTIES DEPENDS test_ptrvector_01a_t
 )
 
 cet_test(SimpleDerived_01_w HANDBUILT
@@ -236,10 +241,30 @@ cet_test(issue_0930_t HANDBUILT
   PASS_REGULAR_EXPRESSION "LogicError BEGIN"
 )
 
-cet_test(test_FileDumperOutput.sh PREBUILT
+cet_test(FileDumperOutput_w HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --rethrow-all -c FileDumperOutputTest_w.fcl
   DATAFILES
   fcl/FileDumperOutputTest_w.fcl
+)
+
+SET_TESTS_PROPERTIES(FileDumperOutput_w
+  PROPERTIES
+  PASS_REGULAR_EXPRESSION "Total products \\(present, not present\\): 3 \\(3, 0\\)\\."
+)
+
+cet_test(FileDumperOutput_r HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --rethrow-all -c FileDumperOutputTest_r.fcl
+  DATAFILES
   fcl/FileDumperOutputTest_r.fcl
+  TEST_PROPERTIES
+  DEPENDS FileDumperOutput_w
+)
+
+SET_TESTS_PROPERTIES(FileDumperOutput_r
+  PROPERTIES
+  PASS_REGULAR_EXPRESSION "Total products \\(present, not present\\): 3 \\(2, 1\\)\\."
 )
 
 cet_test(ToyRawInput_t_01 HANDBUILT
@@ -448,7 +473,7 @@ cet_test(ProductMix_r1b HANDBUILT
 )
 
 # Mix the events from ProductMix_w, testing that things behave properly
-# with secondary input file wrappring and no eventsToSkip().
+# with secondary input file wrapping and no eventsToSkip().
 cet_test(ProductMix_r1c1 HANDBUILT
   TEST_EXEC art_ut
   TEST_ARGS --rethrow-all -c "ProductMix_r1c.fcl"
@@ -464,7 +489,8 @@ SET_TESTS_PROPERTIES(ProductMix_r1c1
   )
 
 # Mix the events from ProductMix_w, testing that things behave properly
-# with secondary input file wrappring and eventsToSkip().
+# with secondary input file wrapping, respondToXXX() functions and
+# eventsToSkip().
 cet_test(ProductMix_r1c2 HANDBUILT
   TEST_EXEC art_ut
   TEST_ARGS --rethrow-all -c "ProductMix_r1c2.fcl"
@@ -476,7 +502,7 @@ cet_test(ProductMix_r1c2 HANDBUILT
 )
 
 # Mix the events from ProductMix_w, testing that things behave properly
-# with secondary input file wrappring and eventsToSkip() const.
+# with secondary input file wrapping and eventsToSkip() const.
 cet_test(ProductMix_r1c3 HANDBUILT
   TEST_EXEC art_ut
   TEST_ARGS --rethrow-all -c "ProductMix_r1c3.fcl"
@@ -506,6 +532,38 @@ cet_test(ProductMix_r1d2 HANDBUILT
   DATAFILES
   fcl/ProductMix_r1.fcl
   fcl/ProductMix_r1d2.fcl
+  TEST_PROPERTIES DEPENDS ProductMix_w
+)
+
+# Mix the events from ProductMix_w, testing that the secondary event
+# selection is as specified. Order is:
+#   SEQUENTIAL
+#   RANDOM_REPLACE
+#   RANDOM_LIM_REPLACE (require no dupes within a primary)
+#   RANDOM_LIM_REPLACE (require dupes across a job).
+#   RANDOM_NO_REPLACE
+foreach(test 1 2 3 4 5)
+  cet_test(ProductMix_r1e${test} HANDBUILT
+    TEST_EXEC art_ut
+    TEST_ARGS --rethrow-all -c "ProductMix_r1e${test}.fcl"
+    DATAFILES
+    fcl/ProductMix_r1.fcl
+    fcl/ProductMix_r1e.fcl
+    fcl/ProductMix_r1e${test}.fcl
+    TEST_PROPERTIES DEPENDS ProductMix_w
+    )
+endforeach()
+
+# Mix the events from ProductMix_w, obtaining the filenames from a
+# detail-object-provided function rather than from fileNames_.
+cet_test(ProductMix_r1f1 HANDBUILT
+  TEST_EXEC art_ut
+  TEST_ARGS --rethrow-all -c "ProductMix_r1f1.fcl"
+  DATAFILES
+  fcl/ProductMix_r1.fcl
+  fcl/ProductMix_r1c.fcl
+  fcl/ProductMix_r1c2.fcl
+  fcl/ProductMix_r1f1.fcl
   TEST_PROPERTIES DEPENDS ProductMix_w
 )
 
@@ -574,8 +632,15 @@ foreach(num 1 2 3)
     fcl/Assns_r_inc.fcl
     fcl/Assns_r${num}.fcl
     TEST_PROPERTIES DEPENDS Assns_w
-  )
+    )
 endforeach()
+
+cet_test(DeferredIsReadyWithAssns_t HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --rethrow-all --config "DeferredIsReadyWithAssns_t.fcl"
+  DATAFILES
+  fcl/DeferredIsReadyWithAssns_t.fcl
+  )
 
 # Use the file from Ptrmv_w to test DropOnInput and outputCommand drops.
 #
@@ -909,68 +974,59 @@ cet_test(TH1Data_t HANDBUILT
   fcl/TH1Data_t.fcl
   )
 
-########################################################################
-# Old tests converted from CMS FWCore/Framework/test
-
-# Utility script to turn an expected abort into a pass (see test
-# Unscheduled_03_t below).
-cet_script(test_must_abort NO_INSTALL)
-
-set(test_list
-  BitsPass_t
-  BitsFail_t
-  BitsCount_t
-  FilterIgnore_t
-  TrigBits0_t
-  TrigBits1_t
-  TrigBits2_t
-  TrigBits3_t
-  TrigBits4_t
-)
-
-set(test_list ${test_list}
-  Unscheduled_01_t
-  Unscheduled_02_t
-  Unscheduled_04_t
-  Unscheduled_05_t
-  Unscheduled_06_t
-)
-
-# There were two more Unscheduled tests in FW that tested out-of-order
-# module specification, but that is moot if we require analyzers to be
-# in end paths.
-foreach(test ${test_list})
-  cet_test(${test} HANDBUILT
-    TEST_EXEC art
-    TEST_ARGS --rethrow-all -c ${test}.fcl
-    DATAFILES
-    fcl/${test}.fcl
-    fcl/messageDefaults.fcl
-  )
-endforeach()
-
-# Extra test properties
-foreach(n 4;5;6)
-  SET_TESTS_PROPERTIES(Unscheduled_0${n}_t PROPERTIES
-    PASS_REGULAR_EXPRESSION
-    "module for event:"
-  )
-endforeach()
-
-SET_TESTS_PROPERTIES(Unscheduled_02_t PROPERTIES
-  WILL_FAIL true
-)
-
-# This test is a little more complicated because we expect it to
-# abort, which is not covered by the WILL_FAIL test property.
-cet_test(Unscheduled_03_t HANDBUILT
-  TEST_EXEC test_must_abort
-  TEST_ARGS art --rethrow-all -c "Unscheduled_03_t.fcl"
+cet_test(PostCloseFileRename_Integration HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS -c PostCloseFileRename_t.fcl
   DATAFILES
-  fcl/Unscheduled_03_t.fcl
-  fcl/messageDefaults.fcl
+  fcl/PostCloseFileRename_t.fcl
 )
 
-cet_test_assertion("handle\\\\.isValid\\\\(\\\\) == require_presence_"
-  Unscheduled_03_t
+cet_test(TestAnalyzerSelect HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS -c "TestAnalyzerSelect.fcl"
+  DATAFILES
+  fcl/TestAnalyzerSelect.fcl
+)
+
+# Issue 5157
+cet_test(UnusedModule_t HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --rethrow-all -c FilterIgnore_t.fcl
+  DATAFILES
+  fcl/FilterIgnore_t.fcl
   )
+
+SET_TESTS_PROPERTIES(UnusedModule_t PROPERTIES
+  FAIL_REGULAR_EXPRESSION
+  "not assigned to any path"
+  )
+
+# Issue 5114
+cet_test(MissingModuleType_t HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --rethrow-all -c MissingModuleType_t.fcl
+  DATAFILES
+  fcl/MissingModuleType_t.fcl
+)
+
+SET_TESTS_PROPERTIES(MissingModuleType_t PROPERTIES
+  PASS_REGULAR_EXPRESSION
+  "ERROR: Configuration of module with label BadModuleConfig encountered the following error:\n"
+  )
+
+# Issue 5424
+cet_test(rename-histfile_t_w HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --rethrow-all -c rename-histfile_t.fcl
+  DATAFILES
+  fcl/rename-histfile_t.fcl
+)
+
+cet_test(rename-histfile_t_check HANDBUILT
+  TEST_EXEC ls
+  TEST_ARGS -l ../rename-histfile_t_w.d/test_1_0_2_8.root
+  TEST_PROPERTIES DEPENDS rename-histfile_t_w
+)
+
+add_subdirectory(event-shape)
+include(legacy-tests)
