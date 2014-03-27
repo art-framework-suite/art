@@ -24,6 +24,7 @@ extern "C" {
 
 #include <iostream>
 #include <iterator>
+#include <memory>
 #include <ostream>
 #include <sstream>
 #include <string>
@@ -222,8 +223,8 @@ int print_psets_from_files(stringvec const & file_names,
        e = file_names.end();
        i != e;
        ++i) {
-    TFile current_file(i->c_str(), "READ");
-    if (current_file.IsZombie()) {
+    std::unique_ptr<TFile> current_file(TFile::Open(i->c_str(), "READ"));
+    if (current_file->IsZombie()) {
       ++rc;
       errors << "Unable to open file '"
              << *i
@@ -231,7 +232,7 @@ int print_psets_from_files(stringvec const & file_names,
              << "\nSkipping to next file.\n";
     }
     else {
-      rc += print_pset_from_file(current_file,
+      rc += print_pset_from_file(*current_file,
                                  process_names,
                                  module_labels,
                                  output,
