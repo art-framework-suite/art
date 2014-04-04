@@ -60,6 +60,6 @@ cet_test(Unscheduled_03_t HANDBUILT
   fcl/messageDefaults.fcl
 )
 
-cet_test_assertion("handle\\\\.isValid\\\\(\\\\) == require_presence_"
+cet_test_assertion("handle\\.isValid\\(\\) == require_presence_"
   Unscheduled_03_t
   )

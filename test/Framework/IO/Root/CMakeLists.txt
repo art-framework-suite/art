@@ -3,7 +3,8 @@ cet_test(GetFileFormatVersion SOURCES test_GetFileFormatVersion.cpp)
 
 cet_test(config_dumper_t HANDBUILT
   TEST_EXEC config_dumper
-  TEST_ARGS ../../../../Integration/Assns_w.d/out.root
+  TEST_ARGS -S ../../../../Integration/Assns_w.d/out.root
+  REF "${CMAKE_CURRENT_SOURCE_DIR}/config_dumper_t-ref.txt"
   TEST_PROPERTIES
   DEPENDS Assns_w
   REQUIRED_FILES ../../../../Integration/Assns_w.d/out.root
