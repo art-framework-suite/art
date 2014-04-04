@@ -206,7 +206,7 @@ int print_fc_metadata_from_files(
        i != e;
        ++i) {
     std::unique_ptr<TFile> current_file(TFile::Open(i->c_str(), "READ"));
-    if (current_file->IsZombie()) {
+    if (!current_file || current_file->IsZombie()) {
       ++rc;
       errors << "Unable to open file '"
              << *i

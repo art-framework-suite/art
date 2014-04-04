@@ -244,13 +244,10 @@ cet_test(issue_0930_t HANDBUILT
 cet_test(FileDumperOutput_w HANDBUILT
   TEST_EXEC art
   TEST_ARGS --rethrow-all -c FileDumperOutputTest_w.fcl
+  TEST_PROPERTIES
+  PASS_REGULAR_EXPRESSION "Total products \\(present, not present\\): 3 \\(3, 0\\)\\."
   DATAFILES
   fcl/FileDumperOutputTest_w.fcl
-)
-
-SET_TESTS_PROPERTIES(FileDumperOutput_w
-  PROPERTIES
-  PASS_REGULAR_EXPRESSION "Total products \\(present, not present\\): 3 \\(3, 0\\)\\."
 )
 
 cet_test(FileDumperOutput_r HANDBUILT
@@ -259,12 +256,8 @@ cet_test(FileDumperOutput_r HANDBUILT
   DATAFILES
   fcl/FileDumperOutputTest_r.fcl
   TEST_PROPERTIES
-  DEPENDS FileDumperOutput_w
-)
-
-SET_TESTS_PROPERTIES(FileDumperOutput_r
-  PROPERTIES
   PASS_REGULAR_EXPRESSION "Total products \\(present, not present\\): 3 \\(2, 1\\)\\."
+  DEPENDS FileDumperOutput_w
 )
 
 cet_test(ToyRawInput_t_01 HANDBUILT
@@ -481,12 +474,8 @@ cet_test(ProductMix_r1c1 HANDBUILT
   fcl/ProductMix_r1.fcl
   fcl/ProductMix_r1c.fcl
   TEST_PROPERTIES DEPENDS ProductMix_w
-)
-
-SET_TESTS_PROPERTIES(ProductMix_r1c1
-  PROPERTIES
   PASS_REGULAR_EXPRESSION "TrigReport Events total = 400 passed = 400 failed = 0.*MixingInputWrap      -w MixFilterTest[A-Za-z:]*                       1"
-  )
+)
 
 # Mix the events from ProductMix_w, testing that things behave properly
 # with secondary input file wrapping, respondToXXX() functions and
@@ -866,9 +855,6 @@ cet_test(SAM_metadata_verify HANDBUILT
   TEST_EXEC sam_metadata_dumper
   TEST_ARGS -s ../SAM_metadata.d/out.root
   TEST_PROPERTIES DEPENDS SAM_metadata
-)
-
-SET_TESTS_PROPERTIES(SAM_metadata_verify PROPERTIES
   PASS_REGULAR_EXPRESSION
   "\n\n0: applicationFamily  Ethel\n0: applicationVersion v0.00.01a\n0: fileType           MC\n0: process_name       SAMMetadataW\n0: testMetadata       success!\n0: dataTier           The one with the thickest frosting\n0: streamName         o1\n-"
 )
@@ -907,42 +893,29 @@ cet_script(signal_handling_t.sh NO_INSTALL)
 cet_test(signal_handling_01_t HANDBUILT
   TEST_EXEC signal_handling_t.sh
   TEST_ARGS -c signal_sigint.fcl SIGINT 
-  DATAFILES
-  fcl/signal_sigint.fcl
-  )
-
-SET_TESTS_PROPERTIES(signal_handling_01_t PROPERTIES
+  TEST_PROPERTIES
   PASS_REGULAR_EXPRESSION
   "Art caught and handled signal 2\\."
+  DATAFILES
+  fcl/signal_sigint.fcl
   )
 
 cet_test(signal_handling_02_t HANDBUILT
   TEST_EXEC signal_handling_t.sh
   TEST_ARGS -c signal_sigint.fcl SIGQUIT
-  DATAFILES
-  fcl/signal_sigint.fcl
-  )
-
-SET_TESTS_PROPERTIES(signal_handling_02_t PROPERTIES
+  TEST_PROPERTIES
   PASS_REGULAR_EXPRESSION
   "Art caught and handled signal 3\\."
+  DATAFILES
+  fcl/signal_sigint.fcl
   )
 
 cet_test(signal_handling_03_t HANDBUILT
   TEST_EXEC signal_handling_t.sh
   TEST_ARGS -c signal_sigint.fcl SIGTERM
-  DATAFILES
-  fcl/signal_sigint.fcl
-  )
-
-SET_TESTS_PROPERTIES(signal_handling_03_t PROPERTIES
+  TEST_PROPERTIES
   PASS_REGULAR_EXPRESSION
   "Art caught and handled signal 15\\."
-  )
-
-cet_test(signal_handling_04_t HANDBUILT
-  TEST_EXEC signal_handling_t.sh
-  TEST_ARGS -c signal_sigint.fcl SIGUSR2
   DATAFILES
   fcl/signal_sigint.fcl
   )
@@ -953,9 +926,14 @@ else()
   set(sigusr_two_signal 12)
 endif()
 
-SET_TESTS_PROPERTIES(signal_handling_04_t PROPERTIES
+cet_test(signal_handling_04_t HANDBUILT
+  TEST_EXEC signal_handling_t.sh
+  TEST_ARGS -c signal_sigint.fcl SIGUSR2
+  TEST_PROPERTIES
   PASS_REGULAR_EXPRESSION
   "Art caught and handled signal ${sigusr_two_signal}\\."
+  DATAFILES
+  fcl/signal_sigint.fcl
   )
 
 foreach (num 1 2)
@@ -1005,14 +983,12 @@ SET_TESTS_PROPERTIES(UnusedModule_t PROPERTIES
 cet_test(MissingModuleType_t HANDBUILT
   TEST_EXEC art
   TEST_ARGS --rethrow-all -c MissingModuleType_t.fcl
+  TEST_PROPERTIES
+  PASS_REGULAR_EXPRESSION
+  "ERROR: Configuration of module with label BadModuleConfig encountered the following error:\n"
   DATAFILES
   fcl/MissingModuleType_t.fcl
 )
-
-SET_TESTS_PROPERTIES(MissingModuleType_t PROPERTIES
-  PASS_REGULAR_EXPRESSION
-  "ERROR: Configuration of module with label BadModuleConfig encountered the following error:\n"
-  )
 
 # Issue 5424
 cet_test(rename-histfile_t_w HANDBUILT

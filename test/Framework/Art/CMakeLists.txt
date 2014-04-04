@@ -124,14 +124,10 @@ cet_test(BasicSourceOptions_02 HANDBUILT
   -s f0.txt
   -S BasicSourceOptions-srclist.txt
   TEST_PROPERTIES ENVIRONMENT ART_DEBUG_CONFIG=config.out
+  PASS_REGULAR_EXPRESSION
+  "Error: source files specified for EmptyEvent source\\."
   DATAFILES fcl/BasicSourceOptions_02.fcl
   BasicSourceOptions-srclist.txt
-  )
-
-set_tests_properties(BasicSourceOptions_02
-  PROPERTIES
-  PASS_REGULAR_EXPRESSION
-  "Error: source files specified for EmptyEvent source."
   )
 
 ####################################
@@ -195,7 +191,7 @@ cet_test(FileCatalogOptions_01 HANDBUILT
   -c opt-empty.fcl
   TEST_PROPERTIES ENVIRONMENT ART_DEBUG_CONFIG=1
   PASS_REGULAR_EXPRESSION
-  "--sam-web-uri and --sam-process-id must be used together or not at all."
+  "--sam-web-uri and --sam-process-id must be used together or not at all\\."
   DATAFILES fcl/opt-empty.fcl
 )
 
@@ -237,7 +233,7 @@ cet_test(FileCatalogOptions_04 HANDBUILT
   --sam-data-tier "The one with the thickest frosting"
   TEST_PROPERTIES ENVIRONMENT ART_DEBUG_CONFIG=config.out
   PASS_REGULAR_EXPRESSION
-  "Non-empty / default process_name required for SAM metadata."
+  "Non-empty / default process_name required for SAM metadata\\."
   DATAFILES fcl/opt-empty.fcl
 )
 
