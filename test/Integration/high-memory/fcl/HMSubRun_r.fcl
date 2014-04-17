@@ -10,6 +10,7 @@ outputs: {
     module_type: RootOutput
     fileName: "out.root"
     compressionLevel: 0
+    saveMemoryObjectThreshold: 26214400 // 25 MiB
     outputCommands: [ "keep *", "drop *_srprod_*_HMSR" ]
   }
 }
