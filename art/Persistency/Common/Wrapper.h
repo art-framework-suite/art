@@ -7,6 +7,7 @@
 ////////////////////////////////////////////////////////////////////////
 
 #include "art/Persistency/Common/EDProduct.h"
+#include "cetlib/demangle.h"
 
 #include <memory>
 
@@ -90,7 +91,6 @@ public:
   static short Class_Version() { return 10; }
 
 private:
-#ifndef __GCCXML_
   virtual
   std::unique_ptr<EDProduct>
   do_makePartner(std::type_info const & wanted_type) const;
@@ -104,6 +104,9 @@ private:
   virtual void do_getElementAddresses(std::type_info const & toType,
                                       std::vector<unsigned long> const & indices,
                                       std::vector<void const *> &ptr) const;
+
+#ifndef __GCCXML__
+  T && refOrThrow(T * ptr);
 #endif
 
   bool present;
@@ -153,11 +156,8 @@ art::Wrapper<T>::
 Wrapper(std::unique_ptr<T> ptr) :
   EDProduct(),
   present(ptr.get() != 0),
-  obj()
+  obj(refOrThrow(ptr.get()))
 {
-  if (present) {
-    obj = std::move(*ptr);
-  }
 }
 
 template <typename T>
@@ -231,6 +231,22 @@ do_getElementAddresses(std::type_info const & toType,
   maybe_filler(this->obj, toType, indices, ptrs);
 }
 
+template <typename T>
+inline
+T &&
+art::Wrapper<T>::
+refOrThrow(T * ptr)
+{
+  if (ptr) {
+    return std::move(*ptr);
+  } else {
+    throw Exception(errors::NullPointerError)
+      << "Attempt to construct "
+      << cet::demangle_symbol(typeid(*this).name())
+      << " from nullptr.\n";
+  }
+}
+
 ////////////////////////////////////////////////////////////////////////
 // Metafunction support for compile-time selection of code used in
 // Wrapper implementation.
@@ -298,8 +314,8 @@ namespace art {
     void operator()(T const &,
                     std::vector<void const *> &) {
       throw Exception(errors::ProductDoesNotSupportViews)
-          << "Product type " << typeid(T).name()
-          << " has no fillView() capability\n";
+        << "Product type " << cet::demangle_symbol(typeid(T).name())
+        << " has no fillView() capability.\n";
     }
   };  // fillView<T>
 
@@ -308,7 +324,7 @@ namespace art {
     void operator()(std::vector<bool> const &,
                     std::vector<void const *> &) {
       throw Exception(errors::ProductDoesNotSupportViews)
-          << "Product type std::vector<bool> has no fillView() capability\n";
+          << "Product type std::vector<bool> has no fillView() capability.\n";
     }
   };  // fillView<vector<bool>>
 
@@ -438,7 +454,7 @@ namespace art {
                     void const* &) const {
       throw Exception(errors::ProductDoesNotSupportPtr)
           << "The product type "
-          << typeid(T).name()
+          << cet::demangle_symbol(typeid(T).name())
           << "\ndoes not support art::Ptr\n";
     }
 
@@ -448,7 +464,7 @@ namespace art {
                     std::vector<void const *>&) const {
       throw Exception(errors::ProductDoesNotSupportPtr)
           << "The product type "
-          << typeid(T).name()
+          << cet::demangle_symbol(typeid(T).name())
           << "\ndoes not support art::PtrVector\n";
     }
   };
