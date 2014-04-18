@@ -124,7 +124,7 @@ protected:
   // *this takes ownership of the Group, which in turn owns its
   // data.
   void addGroup_(std::unique_ptr<Group> && g);
-  cet::exempt_ptr<Group const>  getExistingGroup(BranchID const &bid);
+  cet::exempt_ptr<Group const>  getExistingGroup(BranchID const &bid) const;
   void replaceGroup(std::unique_ptr<Group> && g);
   SharedConstGroupPtr const getGroup(BranchID const& bid) const;
   SharedConstGroupPtr const

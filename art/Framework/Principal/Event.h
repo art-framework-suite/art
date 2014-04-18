@@ -162,6 +162,10 @@ public:
   EDProductGetter const * productGetter(ProductID const &) const;
 
   ProductID branchIDToProductID(BranchID const &bid) const;
+
+  template <typename PROD>
+  void removeCachedProduct(Handle<PROD> & h) const;
+
 private:
   EventPrincipal const& eventPrincipal() const;
   EventPrincipal      & eventPrincipal();
@@ -211,6 +215,9 @@ private:
   mutable BranchIDSet gotBranchIDs_;
   void
   addToGotBranchIDs(Provenance const& prov) const;
+
+  void removeCachedProduct_(BranchID const & bid) const;
+
 };  // Event
 
 // ----------------------------------------------------------------------
@@ -449,6 +456,13 @@ art::Event::getView(InputTag const& tag, View<ELEMENT>& result) const
   fillView_(bhv[0], result.vals());
   result.set_innards(bhv[0].result()->productID(), bhv[0].result()->uniqueProduct());
   return true;
+}
+
+template <typename PROD>
+void
+art::Event::removeCachedProduct(Handle<PROD> & h) const {
+  removeCachedProduct_(h.provenance()->branchID());
+  h.clear();
 }
 
 // ----------------------------------------------------------------------

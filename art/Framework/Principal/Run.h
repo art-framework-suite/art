@@ -58,6 +58,9 @@ public:
   getProcessParameterSet(std::string const& processName,
                          std::vector<fhicl::ParameterSet>& ps) const;
 
+  template <typename PROD>
+  void removeCachedProduct(Handle<PROD> & h) const;
+
 private:
   RunPrincipal const&
   runPrincipal() const;
@@ -75,6 +78,8 @@ private:
   friend class EDProducer;
 
   void commit_();
+
+  void removeCachedProduct_(BranchID const & bid) const;
 
   RunAuxiliary const& aux_;
 };
@@ -102,6 +107,14 @@ art::Run::put(std::unique_ptr<PROD> && product, std::string const& productInstan
   // product.release(); // The object has been copied into the Wrapper.
   // The old copy must be deleted, so we cannot release ownership.
 }
+
+template <typename PROD>
+void
+art::Run::removeCachedProduct(Handle<PROD> & h) const {
+  removeCachedProduct_(h.provenance()->branchID());
+  h.clear();
+}
+
 #endif
 #endif /* art_Framework_Principal_Run_h */
 
