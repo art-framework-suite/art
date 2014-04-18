@@ -150,11 +150,6 @@ public:
   bool
   getView(InputTag const& tag, View<ELEMENT>& result) const;
 
-  template< typename ELEMENT >
-  void
-  fillView_( GroupQueryResult & bh,
-       std::vector<ELEMENT const *> & result) const;
-
   // Return true if this Event has been subjected to a process with
   // the given processName, and false otherwise.
   // If true is returned, then ps is filled with the ParameterSet
@@ -170,6 +165,11 @@ public:
 private:
   EventPrincipal const& eventPrincipal() const;
   EventPrincipal      & eventPrincipal();
+
+  template< typename ELEMENT >
+  void
+  fillView_( GroupQueryResult & bh,
+       std::vector<ELEMENT const *> & result) const;
 
   ProductID
   makeProductID(BranchDescription const& desc) const;
