@@ -164,7 +164,7 @@ public:
   ProductID branchIDToProductID(BranchID const &bid) const;
 
   template <typename PROD>
-  void removeCachedProduct(Handle<PROD> & h) const;
+  bool removeCachedProduct(Handle<PROD> & h) const;
 
 private:
   EventPrincipal const& eventPrincipal() const;
@@ -459,10 +459,15 @@ art::Event::getView(InputTag const& tag, View<ELEMENT>& result) const
 }
 
 template <typename PROD>
-void
+bool
 art::Event::removeCachedProduct(Handle<PROD> & h) const {
-  removeCachedProduct_(h.provenance()->branchID());
-  h.clear();
+  bool result { false };
+  if (!h.provenance()->produced()) {
+    removeCachedProduct_(h.provenance()->branchID());
+    h.clear();
+    result = true;
+  }
+  return result;
 }
 
 // ----------------------------------------------------------------------

@@ -53,6 +53,7 @@ public:
   std::string         const & producedClassName  () const {return productDescription().producedClassName();}
   std::string         const & moduleLabel        () const {return productDescription().moduleLabel();}
   std::string         const & processName        () const {return productDescription().processName();}
+  bool                        produced           () const {return productDescription().produced();}
   ProductStatus       const & productStatus      () const {return productProvenance().productStatus();}
   std::string         const & productInstanceName() const {return productDescription().productInstanceName();}
   std::string         const & friendlyClassName  () const {return productDescription().friendlyClassName();}

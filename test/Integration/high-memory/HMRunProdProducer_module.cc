@@ -59,7 +59,7 @@ void arttest::HMRunProdProducer::endSubRun(art::SubRun & sr)
     } else {
       data_[i] = cet::make_unique<HMLargeData>(*h);
     }
-    sr.removeCachedProduct(h); // Save the space.
+    assert(sr.removeCachedProduct(h)); // Save the space.
   }
 }
 

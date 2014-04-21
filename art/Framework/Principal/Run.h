@@ -59,7 +59,7 @@ public:
                          std::vector<fhicl::ParameterSet>& ps) const;
 
   template <typename PROD>
-  void removeCachedProduct(Handle<PROD> & h) const;
+  bool removeCachedProduct(Handle<PROD> & h) const;
 
 private:
   RunPrincipal const&
@@ -109,10 +109,15 @@ art::Run::put(std::unique_ptr<PROD> && product, std::string const& productInstan
 }
 
 template <typename PROD>
-void
+bool
 art::Run::removeCachedProduct(Handle<PROD> & h) const {
-  removeCachedProduct_(h.provenance()->branchID());
-  h.clear();
+  bool result { false };
+  if (!h.provenance()->produced()) {
+    removeCachedProduct_(h.provenance()->branchID());
+    h.clear();
+    result = true;
+  }
+  return result;
 }
 
 #endif

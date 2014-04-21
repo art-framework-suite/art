@@ -60,7 +60,7 @@ public:
 #endif
 
   template <typename PROD>
-  void removeCachedProduct(Handle<PROD> & h) const;
+  bool removeCachedProduct(Handle<PROD> & h) const;
 
 private:
   SubRunPrincipal const&
@@ -107,10 +107,15 @@ art::SubRun::put(std::unique_ptr<PROD> && product, std::string const& productIns
 }
 
 template <typename PROD>
-void
+bool
 art::SubRun::removeCachedProduct(Handle<PROD> & h) const {
-  removeCachedProduct_(h.provenance()->branchID());
-  h.clear();
+  bool result { false };
+  if (!h.provenance()->produced()) {
+    removeCachedProduct_(h.provenance()->branchID());
+    h.clear();
+    result = true;
+  }
+  return result;
 }
 
 #endif
