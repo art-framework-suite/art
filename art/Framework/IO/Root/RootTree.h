@@ -54,7 +54,7 @@ namespace art {
     std::vector<std::string> const& branchNames() const {return branchNames_;}
     template <typename T>
     void fillGroups(T& item);
-    std::unique_ptr<DelayedReader> makeDelayedReader(bool oldFormat = false) const;
+    std::unique_ptr<DelayedReader> makeDelayedReader() const;
     std::unique_ptr<BranchMapper> makeBranchMapper() const;
     //TBranch *auxBranch() {return auxBranch_;}
     template <typename T>

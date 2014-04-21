@@ -12,13 +12,12 @@
 art::RootDelayedReader::
 RootDelayedReader(EntryNumber const& entry,
                   std::shared_ptr<BranchMap const> bMap,
-                  std::shared_ptr<TFile const> filePtr,
-                  bool oldFormat) :
+                  std::shared_ptr<TFile const> filePtr) :
   entryNumber_(entry),
   branches_(bMap),
   filePtr_(filePtr),
-  nextReader_(),
-  oldFormat_(oldFormat) {}
+  nextReader_()
+{}
 
 art::RootDelayedReader::~RootDelayedReader() {}
 

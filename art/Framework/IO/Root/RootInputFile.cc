@@ -623,7 +623,7 @@ namespace art {
                 processConfiguration_,
                 history_,
                 eventTree_.makeBranchMapper(),
-                eventTree_.makeDelayedReader(false)));
+                eventTree_.makeDelayedReader()));
 
     // Create a group in the event for each product
     eventTree_.fillGroups(*thisEvent);

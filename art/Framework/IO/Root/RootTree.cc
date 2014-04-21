@@ -102,9 +102,9 @@ namespace art {
   }
 
   std::unique_ptr<DelayedReader>
-  RootTree::makeDelayedReader(bool oldFormat) const {
+  RootTree::makeDelayedReader() const {
     std::unique_ptr<DelayedReader>
-        store(new RootDelayedReader(entryNumber_, branches_, filePtr_, oldFormat));
+        store(new RootDelayedReader(entryNumber_, branches_, filePtr_));
     return store;
   }
 
