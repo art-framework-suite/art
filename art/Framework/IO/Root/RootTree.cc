@@ -1,16 +1,18 @@
 #include "art/Framework/IO/Root/RootTree.h"
 
-#include "Rtypes.h"
-#include "TFile.h"
-#include "TTreeCache.h"
-#include "TTreeIndex.h"
-#include "TVirtualIndex.h"
 #include "art/Framework/Principal/Principal.h"
 #include "art/Framework/IO/Root/RootDelayedReader.h"
 #include "art/Framework/Principal/Provenance.h"
 #include "art/Persistency/Provenance/BranchDescription.h"
 #include "art/Utilities/WrappedClassName.h"
-#include "cpp0x/utility"
+
+#include "Rtypes.h"
+#include "TFile.h"
+#include "TTreeCache.h"
+#include "TTreeIndex.h"
+#include "TVirtualIndex.h"
+
+#include <utility>
 #include <iostream>
 
 
@@ -27,11 +29,14 @@ namespace art {
     }
   }  // namespace
 
-  RootTree::RootTree(std::shared_ptr<TFile> filePtr, BranchType const& branchType) :
+  RootTree::RootTree(std::shared_ptr<TFile> filePtr,
+                     BranchType const& branchType,
+                     int64_t saveMemoryObjectThreshold) :
     filePtr_(filePtr),
     tree_(dynamic_cast<TTree *>(filePtr_.get() != 0 ? filePtr->Get(BranchTypeToProductTreeName(branchType).c_str()) : 0)),
     metaTree_(dynamic_cast<TTree *>(filePtr_.get() != 0 ? filePtr->Get(BranchTypeToMetaDataTreeName(branchType).c_str()) : 0)),
     branchType_(branchType),
+    saveMemoryObjectThreshold_(saveMemoryObjectThreshold),
     auxBranch_(tree_ ? getAuxiliaryBranch(tree_, branchType_) : 0),
     productProvenanceBranch_(metaTree_ ? getProductProvenanceBranch(metaTree_, branchType_) : 0),
     entries_(tree_ ? tree_->GetEntries() : 0),
@@ -73,9 +78,9 @@ namespace art {
       if (prod.present()) {
         info.productBranch_ = branch;
         //we want the new branch name for the JobReport
-        branchNames_.push_back(prod.branchName());
+        branchNames_.emplace_back(prod.branchName());
       }
-      branches_->insert(std::make_pair(key, info));
+      branches_->emplace(key, info);
   }
 
   void
@@ -103,8 +108,12 @@ namespace art {
 
   std::unique_ptr<DelayedReader>
   RootTree::makeDelayedReader() const {
-    std::unique_ptr<DelayedReader>
-        store(new RootDelayedReader(entryNumber_, branches_, filePtr_));
+    auto store =
+      std::unique_ptr<DelayedReader>
+      (new RootDelayedReader(entryNumber_,
+                             branches_,
+                             filePtr_,
+                             saveMemoryObjectThreshold_));
     return store;
   }
 

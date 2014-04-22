@@ -35,7 +35,8 @@ public:
 
   RootDelayedReader(EntryNumber const& entry,
                     std::shared_ptr<BranchMap const> bMap,
-                    std::shared_ptr<TFile const> filePtr);
+                    std::shared_ptr<TFile const> filePtr,
+                    int64_t saveMemoryObjectThreshold);
 
   virtual ~RootDelayedReader();
 
@@ -53,6 +54,7 @@ private:
   // NOTE: filePtr_ appears to be unused, but is needed to prevent
   // the TFile containing the branch from being reclaimed.
   std::shared_ptr<TFile const> filePtr_;
+  int64_t saveMemoryObjectThreshold_;
   std::shared_ptr<DelayedReader> nextReader_;
   bool customStreamers_;
 

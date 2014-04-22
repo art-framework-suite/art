@@ -48,7 +48,8 @@ namespace art {
     noEventSort_(pset.get<bool>("noEventSort", false)),
     skipBadFiles_(pset.get<bool>("skipBadFiles", false)),
     treeCacheSize_(pset.get<unsigned int>("cacheSize", 0U)),
-    treeMaxVirtualSize_(pset.get<int>("treeMaxVirtualSize", -1)),
+    treeMaxVirtualSize_(pset.get<int64_t>("treeMaxVirtualSize", -1)),
+    saveMemoryObjectThreshold_(pset.get<int64_t>("saveMemoryObjectThreshold", -1)),
     forcedRunOffset_(0),
     setRun_(0U),
     groupSelectorRules_(pset, "inputCommands", "InputSource"),
@@ -229,13 +230,13 @@ namespace art {
     }
     if (filePtr && !filePtr->IsZombie()) {
       logFileAction("  Successfully opened file ", catalog_.currentFile().fileName());
-      rootFile_ = RootInputFileSharedPtr(new RootInputFile(catalog_.currentFile().fileName(), catalog_.url(),
-                                                           processConfiguration(), catalog_.currentFile().logicalFileName(), filePtr,
-                                                           origEventID_, eventsToSkip_, whichSubRunsToSkip_,
-                                                           fastCloningInfo_, treeCacheSize_, treeMaxVirtualSize_,
-                                                           processingMode_,
-                                                           forcedRunOffset_, eventsToProcess_, noEventSort_,
-                                                           groupSelectorRules_, false, duplicateChecker_, dropDescendants_));
+      rootFile_ = std::make_shared<RootInputFile>(catalog_.currentFile().fileName(), catalog_.url(),
+                                                  processConfiguration(), catalog_.currentFile().logicalFileName(), filePtr,
+                                                  origEventID_, eventsToSkip_, whichSubRunsToSkip_,
+                                                  fastCloningInfo_, treeCacheSize_, treeMaxVirtualSize_,
+                                                  saveMemoryObjectThreshold_, processingMode_,
+                                                  forcedRunOffset_, eventsToProcess_, noEventSort_,
+                                                  groupSelectorRules_, false, duplicateChecker_, dropDescendants_);
       assert( catalog_.currentIndex()!=InputFileCatalog::indexEnd );
       if( catalog_.currentIndex()+1 > fileIndexes_.size() )
         fileIndexes_.resize( catalog_.currentIndex()+1 );

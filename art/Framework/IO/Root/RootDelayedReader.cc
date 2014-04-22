@@ -12,15 +12,16 @@
 art::RootDelayedReader::
 RootDelayedReader(EntryNumber const& entry,
                   std::shared_ptr<BranchMap const> bMap,
-                  std::shared_ptr<TFile const> filePtr) :
+                  std::shared_ptr<TFile const> filePtr,
+                  int64_t saveMemoryObjectThreshold) :
   entryNumber_(entry),
   branches_(bMap),
   filePtr_(filePtr),
+  saveMemoryObjectThreshold_(saveMemoryObjectThreshold),
   nextReader_()
 {}
 
 art::RootDelayedReader::~RootDelayedReader() {}
-
 std::unique_ptr<art::EDProduct>
 art::RootDelayedReader::getProduct_(BranchKey const& k, art::TypeID const &wrapper_type) const {
   iterator iter = branchIter(k);
@@ -49,7 +50,11 @@ art::RootDelayedReader::getProduct_(BranchKey const& k, art::TypeID const &wrapp
   std::unique_ptr<EDProduct> p(static_cast<EDProduct *>(cl->New()));
   EDProduct *pp = p.get();
   br->SetAddress(&pp);
-  input::getEntry(br, entryNumber_);
+  auto const bytesRead = input::getEntry(br, entryNumber_);
+  if (saveMemoryObjectThreshold_ > -1 &&
+      bytesRead > saveMemoryObjectThreshold_) {
+    br->DropBaskets("all");
+  }
   configureRefCoreStreamer();
   return p;
 }
