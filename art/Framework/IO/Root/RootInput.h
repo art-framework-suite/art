@@ -15,11 +15,12 @@
 #include "art/Persistency/Provenance/BranchDescription.h"
 #include "art/Persistency/Provenance/BranchID.h"
 #include "art/Persistency/Provenance/BranchType.h"
-#include "boost/scoped_ptr.hpp"
 #include "cpp0x/array"
 #include "cpp0x/memory"
 #include "cpp0x/type_traits"
 #include "messagefacility/MessageLogger/MessageLogger.h"
+
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -47,7 +48,7 @@ public:
 
 private:
   InputFileCatalog  catalog_;
-  boost::scoped_ptr< RootInputFileSequence >           primaryFileSequence_;
+  std::unique_ptr<RootInputFileSequence> primaryFileSequence_;
   std::array< std::vector<BranchID>, NumBranchTypes >  branchIDsToReplace_;
 
   class AccessState {

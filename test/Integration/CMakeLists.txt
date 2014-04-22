@@ -1005,4 +1005,6 @@ cet_test(rename-histfile_t_check HANDBUILT
 )
 
 add_subdirectory(event-shape)
+add_subdirectory(high-memory)
+
 include(legacy-tests)

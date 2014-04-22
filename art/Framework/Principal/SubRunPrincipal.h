@@ -71,6 +71,9 @@ public:
 
   BranchType branchType() const { return InSubRun; }
 
+  void
+  removeCachedProduct(BranchID const & bid) const;
+
 private:
   virtual void addOrReplaceGroup(std::unique_ptr<Group> && g);
 

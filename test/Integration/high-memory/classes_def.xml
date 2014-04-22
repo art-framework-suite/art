@@ -1,0 +1,7 @@
+<lcgdict>
+  <class name="arttest::HMLargeData" ClassVersion="11">
+   <version ClassVersion="11" checksum="3457429225"/>
+   <version ClassVersion="10" checksum="2732103714"/>
+  </class>
+  <class name="art::Wrapper<arttest::HMLargeData>"/>
+</lcgdict>

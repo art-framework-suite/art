@@ -34,7 +34,9 @@ namespace art {
 
     typedef input::BranchMap BranchMap;
     typedef input::EntryNumber EntryNumber;
-    RootTree(std::shared_ptr<TFile> filePtr, BranchType const& branchType);
+    RootTree(std::shared_ptr<TFile> filePtr,
+             BranchType const& branchType,
+             int64_t saveMemoryObjectThreshold);
 
     // use compiler-generated copy c'tor, copy assignment, and d'tor
 
@@ -54,7 +56,7 @@ namespace art {
     std::vector<std::string> const& branchNames() const {return branchNames_;}
     template <typename T>
     void fillGroups(T& item);
-    std::unique_ptr<DelayedReader> makeDelayedReader(bool oldFormat = false) const;
+    std::unique_ptr<DelayedReader> makeDelayedReader() const;
     std::unique_ptr<BranchMapper> makeBranchMapper() const;
     //TBranch *auxBranch() {return auxBranch_;}
     template <typename T>
@@ -78,6 +80,7 @@ namespace art {
     TTree *const tree_;
     TTree *const metaTree_;
     BranchType branchType_;
+    int64_t const saveMemoryObjectThreshold_;
     TBranch *const auxBranch_;
     TBranch *const productProvenanceBranch_;
     EntryNumber entries_;

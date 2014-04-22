@@ -56,7 +56,8 @@ namespace art {
                      vector<SubRunID> const& whichSubRunsToSkip,
                      FastCloningInfoProvider const &fcip,
                      unsigned int treeCacheSize,
-                     int treeMaxVirtualSize,
+                     int64_t treeMaxVirtualSize,
+                     int64_t saveMemoryObjectThreshold,
                      InputSource::ProcessingMode processingMode,
                      int forcedRunOffset,
                      vector<EventID> const& whichEventsToProcess,
@@ -86,9 +87,9 @@ namespace art {
       eventAux_(),
       subRunAux_(),
       runAux_(),
-      eventTree_(filePtr_, InEvent),
-      subRunTree_(filePtr_, InSubRun),
-      runTree_(filePtr_, InRun),
+      eventTree_(filePtr_, InEvent, saveMemoryObjectThreshold),
+      subRunTree_(filePtr_, InSubRun, saveMemoryObjectThreshold),
+      runTree_(filePtr_, InRun, saveMemoryObjectThreshold),
       treePointers_(),
       productListHolder_(),
       branchIDLists_(),
@@ -623,7 +624,7 @@ namespace art {
                 processConfiguration_,
                 history_,
                 eventTree_.makeBranchMapper(),
-                eventTree_.makeDelayedReader(false)));
+                eventTree_.makeDelayedReader()));
 
     // Create a group in the event for each product
     eventTree_.fillGroups(*thisEvent);

@@ -40,7 +40,8 @@ private:
     int const& compressionLevel() const {return compressionLevel_;}
     int const& basketSize() const {return basketSize_;}
     int const& splitLevel() const {return splitLevel_;}
-    int const& treeMaxVirtualSize() const {return treeMaxVirtualSize_;}
+    int64_t const& treeMaxVirtualSize() const {return treeMaxVirtualSize_;}
+    int64_t const & saveMemoryObjectThreshold() const { return saveMemoryObjectThreshold_; }
     bool const& fastCloning() const {return fastCloning_;}
     DropMetaData const& dropMetaData() const {return dropMetaData_;}
     bool const& dropMetaDataForDroppedData() const {return dropMetaDataForDroppedData_;}
@@ -112,7 +113,8 @@ private:
     int const compressionLevel_;
     int const basketSize_;
     int const splitLevel_;
-    int const treeMaxVirtualSize_;
+    int64_t const treeMaxVirtualSize_;
+    int64_t const saveMemoryObjectThreshold_;
     bool fastCloning_;
     DropMetaData dropMetaData_;
     bool dropMetaDataForDroppedData_;

@@ -150,11 +150,6 @@ public:
   bool
   getView(InputTag const& tag, View<ELEMENT>& result) const;
 
-  template< typename ELEMENT >
-  void
-  fillView_( GroupQueryResult & bh,
-       std::vector<ELEMENT const *> & result) const;
-
   // Return true if this Event has been subjected to a process with
   // the given processName, and false otherwise.
   // If true is returned, then ps is filled with the ParameterSet
@@ -167,9 +162,18 @@ public:
   EDProductGetter const * productGetter(ProductID const &) const;
 
   ProductID branchIDToProductID(BranchID const &bid) const;
+
+  template <typename PROD>
+  bool removeCachedProduct(Handle<PROD> & h) const;
+
 private:
   EventPrincipal const& eventPrincipal() const;
   EventPrincipal      & eventPrincipal();
+
+  template< typename ELEMENT >
+  void
+  fillView_( GroupQueryResult & bh,
+       std::vector<ELEMENT const *> & result) const;
 
   ProductID
   makeProductID(BranchDescription const& desc) const;
@@ -211,6 +215,9 @@ private:
   mutable BranchIDSet gotBranchIDs_;
   void
   addToGotBranchIDs(Provenance const& prov) const;
+
+  void removeCachedProduct_(BranchID const & bid) const;
+
 };  // Event
 
 // ----------------------------------------------------------------------
@@ -449,6 +456,18 @@ art::Event::getView(InputTag const& tag, View<ELEMENT>& result) const
   fillView_(bhv[0], result.vals());
   result.set_innards(bhv[0].result()->productID(), bhv[0].result()->uniqueProduct());
   return true;
+}
+
+template <typename PROD>
+bool
+art::Event::removeCachedProduct(Handle<PROD> & h) const {
+  bool result { false };
+  if (!h.provenance()->produced()) {
+    removeCachedProduct_(h.provenance()->branchID());
+    h.clear();
+    result = true;
+  }
+  return result;
 }
 
 // ----------------------------------------------------------------------

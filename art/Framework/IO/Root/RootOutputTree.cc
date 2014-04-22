@@ -12,6 +12,7 @@
 #include "TBranch.h"
 #include "TFile.h"
 #include "TTreeCloner.h"
+#include <iostream>
 
 using namespace cet;
 using namespace std;
@@ -88,8 +89,17 @@ namespace art {
   }
 
   void
-  RootOutputTree::fillTTree(TTree * /*tree*/, vector<TBranch *> const& branches) {
-    for_all(branches, bind(&TBranch::Fill, std::placeholders::_1));
+  RootOutputTree::fillTTree(TTree *,
+                            vector<TBranch *> const& branches,
+                            bool saveMemory) const {
+    for (auto const b : branches) {
+      auto bytesWritten = b->Fill();
+      if (saveMemory &&
+          bytesWritten > saveMemoryObjectThreshold_) {
+        b->FlushBaskets();
+        b->DropBaskets("all");
+      }
+    }
   }
 
   void
@@ -117,11 +127,12 @@ namespace art {
   void
   RootOutputTree::fillTree() const {
     fillTTree(metaTree_, metaBranches_);
-    fillTTree(tree_, producedBranches_);
+    bool saveMemory = (saveMemoryObjectThreshold_ > -1);
+    fillTTree(tree_, producedBranches_, saveMemory);
     if (currentlyFastCloning_) {
-      fillTTree(tree_, unclonedReadBranches_);
+      fillTTree(tree_, unclonedReadBranches_, saveMemory);
     } else {
-      fillTTree(tree_, readBranches_);
+      fillTTree(tree_, readBranches_, saveMemory);
     }
   }
 
