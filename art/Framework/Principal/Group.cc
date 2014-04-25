@@ -133,6 +133,16 @@ Group::productProvenancePtr() const {
 }
 
 void
+Group::removeCachedProduct() const
+{
+  // This check should already have been done by the surrounding art
+  // code, therefore this is a precondition and valid for an assertion
+  // rather than a runtime check and throw.
+  assert(!(branchDescription_ && branchDescription_->produced()));
+  product_.reset();
+}
+
+void
 Group::setProduct(std::unique_ptr<EDProduct> && prod) const {
   assert (!product_.get());
   product_ = std::move(prod);  // Group takes ownership

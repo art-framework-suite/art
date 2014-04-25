@@ -98,7 +98,7 @@ public:
   TypeID const & producedWrapperType() const { return wrapper_type_; }
 
   // Remove any cached product.
-  void removeCachedProduct() const { setProduct( {} ); }
+  void removeCachedProduct() const;
 
 protected:
 #ifndef __GCCXML__
