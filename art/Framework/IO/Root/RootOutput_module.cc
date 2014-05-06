@@ -40,7 +40,8 @@ namespace art {
   , compressionLevel_          ( ps.get<int>("compressionLevel", 7) )
   , basketSize_                ( ps.get<int>("basketSize", 16384) )
   , splitLevel_                ( ps.get<int>("splitLevel", 99) )
-  , treeMaxVirtualSize_        ( ps.get<int>("treeMaxVirtualSize", -1) )
+  , treeMaxVirtualSize_        ( ps.get<int64_t>("treeMaxVirtualSize", -1) )
+  , saveMemoryObjectThreshold_ ( ps.get<int64_t>("saveMemoryObjectThreshold", -1l) )
   , fastCloning_               ( ps.get<bool>("fastCloning", true)
                                  && wantAllEvents() )
   , dropMetaData_              ( DropNone )  // tentative: see the c'tor body

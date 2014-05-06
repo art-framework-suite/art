@@ -37,7 +37,9 @@ namespace art {
                    ProductProvenances *& pProductProvenanceVector,
                    int bufSize,
                    int splitLevel,
-                   int treeMaxVirtualSize) :
+                   int64_t treeMaxVirtualSize,
+                   int64_t saveMemoryObjectThreshold
+                  ) :
       filePtr_(filePtr),
       tree_(makeTTree(filePtr.get(), BranchTypeToProductTreeName(branchType), splitLevel)),
       metaTree_(makeTTree(filePtr.get(), BranchTypeToMetaDataTreeName(branchType), 0)),
@@ -49,7 +51,8 @@ namespace art {
       unclonedReadBranchNames_(),
       currentlyFastCloning_(),
       basketSize_(bufSize),
-      splitLevel_(splitLevel) {
+      splitLevel_(splitLevel),
+      saveMemoryObjectThreshold_(saveMemoryObjectThreshold) {
 
       if (treeMaxVirtualSize >= 0) tree_->SetMaxVirtualSize(treeMaxVirtualSize);
       auxBranch_ = tree_->Branch(BranchTypeToAuxiliaryBranchName(branchType).c_str(), &pAux, bufSize, 0);
@@ -106,7 +109,9 @@ namespace art {
     }
 
   private:
-    static void fillTTree(TTree *tree, std::vector<TBranch *> const& branches);
+    void fillTTree(TTree *tree,
+                   std::vector<TBranch *> const& branches,
+                   bool saveMemory = false) const;
 // We use bare pointers for pointers to some ROOT entities.
 // Root owns them and uses bare pointers internally.
 // Therefore,using smart pointers here will do no good.
@@ -123,6 +128,7 @@ namespace art {
     bool currentlyFastCloning_;
     int basketSize_;
     int splitLevel_;
+    int64_t saveMemoryObjectThreshold_;
   };  // RootOutputTree
 
 }  // art

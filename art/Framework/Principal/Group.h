@@ -97,6 +97,9 @@ public:
 
   TypeID const & producedWrapperType() const { return wrapper_type_; }
 
+  // Remove any cached product.
+  void removeCachedProduct() const;
+
 protected:
 #ifndef __GCCXML__
   std::unique_ptr<EDProduct> obtainDesiredProduct(bool fillOnDemand, TypeID const &) const;

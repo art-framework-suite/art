@@ -66,7 +66,7 @@ namespace art {
   }
 
   cet::exempt_ptr<Group const>
-  Principal::getExistingGroup(BranchID const &bid) {
+  Principal::getExistingGroup(BranchID const &bid) const {
     GroupCollection::const_iterator it = groups_.find(bid);
     return (it == groups_.end())?
       cet::exempt_ptr<Group const>():

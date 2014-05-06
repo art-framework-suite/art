@@ -17,7 +17,9 @@
 #include "art/Framework/IO/Root/RootInputFileSequence.h"
 #include "art/Persistency/Provenance/EventID.h"
 #include "art/Utilities/Exception.h"
-#include "cpp0x/memory"
+#include "cetlib/make_unique.h"
+
+#include <memory>
 #include <cassert>
 #include <set>
 
@@ -28,14 +30,15 @@ RootInput::RootInput( fhicl::ParameterSet const & pset,
   DecrepitRelicInputSourceImplementation(pset, desc),
   catalog_(pset),
   primaryFileSequence_
-  (new RootInputFileSequence(pset,
-                             catalog_,
-                             FastCloningInfoProvider(cet::exempt_ptr<RootInput>(this)),
-                             processingMode(),
-                             desc.productRegistry,
-                             processConfiguration()
-                             )
-   ),
+  (cet::make_unique<RootInputFileSequence>
+   (pset,
+    catalog_,
+    FastCloningInfoProvider(cet::exempt_ptr<RootInput>(this)),
+    processingMode(),
+    desc.productRegistry,
+    processConfiguration()
+   )
+  ),
   branchIDsToReplace_( ),
   accessState_(),
   mpr_()

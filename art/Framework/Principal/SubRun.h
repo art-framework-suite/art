@@ -59,6 +59,9 @@ public:
   put(std::unique_ptr<PROD> && product, std::string const& productInstanceName);
 #endif
 
+  template <typename PROD>
+  bool removeCachedProduct(Handle<PROD> & h) const;
+
 private:
   SubRunPrincipal const&
   subRunPrincipal() const;
@@ -76,6 +79,8 @@ private:
   friend class EDProducer;
 
   void commit_();
+
+  void removeCachedProduct_(BranchID const & bid) const;
 
   SubRunAuxiliary const& aux_;
   std::shared_ptr<Run const> const run_;
@@ -100,6 +105,19 @@ art::SubRun::put(std::unique_ptr<PROD> && product, std::string const& productIns
 
   putProducts().push_back(std::make_pair(wp, &desc));
 }
+
+template <typename PROD>
+bool
+art::SubRun::removeCachedProduct(Handle<PROD> & h) const {
+  bool result { false };
+  if (!h.provenance()->produced()) {
+    removeCachedProduct_(h.provenance()->branchID());
+    h.clear();
+    result = true;
+  }
+  return result;
+}
+
 #endif
 
 #endif /* art_Framework_Principal_SubRun_h */

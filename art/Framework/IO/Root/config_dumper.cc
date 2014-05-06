@@ -24,6 +24,7 @@ extern "C" {
 
 #include <iostream>
 #include <iterator>
+#include <memory>
 #include <ostream>
 #include <sstream>
 #include <string>
@@ -44,63 +45,61 @@ using art::ParameterSetMap;
 
 typedef vector<string> stringvec;
 
-// Return true if the ParameterSet 'ps' was used to configure any
-// module, regardless of its label.
-inline bool is_module_configuration(ParameterSet const & ps)
-{
+enum class PsetType { MODULE,
+    SERVICE,
+    PROCESS };
+
+std::string
+want_pset(ParameterSet const & ps,
+          stringvec const & filters,
+          PsetType mode) {
   string label;
-  // We could also check for "module_type", but that seems like needless
-  // paranoia.
-  return ps.get_if_present<string>("module_label", label);
-}
-
-
-// Print the human-readable form of a ParameterSet from which we strip
-// the "module_label" parameter.
-void print_stripped_module_pset(ParameterSet const & ps, ostream & output)
-{
-  string label = ps.get<string>("module_label");
-  ParameterSet copy(ps);
-  copy.erase("module_label");
-  output << label << ":{\n";
-  output << copy.to_indented_string();
-  output << "}\n\n";
-}
-
-// Print all the ParameterSets in the vector 'psets' which are module
-// configurations.
-void print_all_module_psets(vector<ParameterSet> const & psets,
-                            ostream & output,
-                            ostream & /*errors*/)
-{
-  for (size_t i = 0; i < psets.size(); ++i) {
-    if (is_module_configuration(psets[i]))
-    { print_stripped_module_pset(psets[i], output); }
+  switch (mode) {
+  case PsetType::MODULE:
+    ps.get_if_present<string>("module_label", label);
+    break;
+  case PsetType::SERVICE:
+    ps.get_if_present<string>("service_type", label) || 
+      ps.get_if_present<string>("service_provider", label);
+    break;
+  case PsetType::PROCESS:
+  {
+    stringvec dummy;
+    if (ps.get_if_present<stringvec>("all_modules", dummy)) {
+      label = ps.get<string>("process_name");
+    }
   }
-}
-
-// Return true if the ParameterSet 'ps' was used to configure a module
-// with a label in module_labels.
-inline bool matches_criteria(ParameterSet const & ps,
-                             stringvec const & module_labels)
-{
-  string label;
-  return ps.get_if_present<string>("module_label", label) &&
-         cet::search_all(module_labels, label);
-}
-
-// Print all the ParameterSets in the vector 'psets' that are module
-// configurations and for which the module label is included in the
-// vector 'module_labels'.
-void print_matching_parameter_sets(vector<ParameterSet> const & psets,
-                                   stringvec const & module_labels,
-                                   ostream & output,
-                                   ostream & /*errors*/)
-{
-  for (size_t i = 0; i < psets.size(); ++i) {
-    if (matches_criteria(psets[i], module_labels))
-    { print_stripped_module_pset(psets[i], output); }
+  break;
+  default:
+    throw std::string("INTERNAL ERROR: unknown mode ").
+      append(std::to_string(int(mode))).
+      append(".");
   }
+  return (filters.empty() ||
+          label.empty() ||
+          cet::search_all(filters, label)) ? label : std::string();
+}
+
+ParameterSet &
+strip_pset(ParameterSet & ps, PsetType mode)
+{
+  switch (mode) {
+  case PsetType::MODULE:
+    ps.erase("module_label");
+    break;
+  case PsetType::SERVICE:    
+    ps.erase("service_type");
+    ps.erase("service_provider");
+    break;
+  case PsetType::PROCESS:
+    ps.erase("process_name");
+    break;
+  default:
+    throw std::string("INTERNAL ERROR: unknown mode ").
+      append(std::to_string(int(mode))).
+      append(".");
+  }
+  return ps;
 }
 
 // Read all the ParameterSets stored in 'file'. Write any error messages
@@ -181,8 +180,8 @@ bool read_all_parameter_sets(TFile & file,
 // does not declare the functions we use to be const, even though they do not
 // modify the underlying file.
 int print_pset_from_file(TFile & file,
-                         stringvec const & /*process_names*/,
-                         stringvec const & module_labels,
+                         stringvec const & filters,
+                         PsetType mode,
                          ostream & output,
                          ostream & errors)
 {
@@ -191,13 +190,16 @@ int print_pset_from_file(TFile & file,
     errors << "Unable to to read parameter sets.\n";
     return 1;
   }
-  // Iterate through all the ParameterSets, printing the correct ones.
-  // In this version, we do not yet use the process_names.
-  if (module_labels.empty())
-  { print_all_module_psets(all_parameter_sets, output, errors); }
-  else
-    print_matching_parameter_sets(all_parameter_sets, module_labels,
-                                  output, errors);
+
+  for (auto & ps : all_parameter_sets) {
+    std::string label { want_pset(ps, filters, mode) };
+    if (! label.empty()) {
+      output << label << ": {\n";
+      output << strip_pset(ps, mode).to_indented_string(1);
+      output << "}\n\n";
+    }
+  }
+
   return 0;
 }
 
@@ -211,8 +213,8 @@ int print_pset_from_file(TFile & file,
 // The return value is the number of files in which errors were
 // encountered, and is thus 0 to indicate success.
 int print_psets_from_files(stringvec const & file_names,
-                           stringvec const & process_names,
-                           stringvec const & module_labels,
+                           stringvec const & filters,
+                           PsetType mode,
                            ostream & output,
                            ostream & errors)
 {
@@ -222,8 +224,8 @@ int print_psets_from_files(stringvec const & file_names,
        e = file_names.end();
        i != e;
        ++i) {
-    TFile current_file(i->c_str(), "READ");
-    if (current_file.IsZombie()) {
+    std::unique_ptr<TFile> current_file(TFile::Open(i->c_str(), "READ"));
+    if (!current_file || current_file->IsZombie()) {
       ++rc;
       errors << "Unable to open file '"
              << *i
@@ -231,16 +233,15 @@ int print_psets_from_files(stringvec const & file_names,
              << "\nSkipping to next file.\n";
     }
     else {
-      rc += print_pset_from_file(current_file,
-                                 process_names,
-                                 module_labels,
+      rc += print_pset_from_file(*current_file,
+                                 filters,
+                                 mode,
                                  output,
                                  errors);
     }
   }
   return rc;
 }
-
 
 int main(int argc, char * argv[])
 {
@@ -249,17 +250,24 @@ int main(int argc, char * argv[])
   // with command line options
   std::ostringstream descstr;
   descstr << argv[0]
-          << " <options> [<source-file>]+";
+          << " <PsetType> <options> [<source-file>]+";
   bpo::options_description desc(descstr.str());
   desc.add_options()
-  ("help,h",                             "produce help message")
-  ("label,l",   bpo::value<stringvec>(), "module label (multiple OK)")
-  ("process,p", bpo::value<stringvec>(), "process name (Not yet implemented)")
-  ("source,s",  bpo::value<stringvec>(), "source data file (multiple OK)");
-  bpo::options_description all_opts("All Options");
+    ("filter,f",  bpo::value<stringvec>()->composing(),
+     "Only entities whose identifier (label (M), service type (S) "
+     "or process name (T)) match (multiple OK).")
+    ("help,h", "this help message.")
+    ("label,l", bpo::value<stringvec>(),
+     "module label (deprecated), use --filter instead.")
+    ("modules,M", "PsetType: print module configurations (default).")
+    ("source,s", bpo::value<stringvec>()->composing(),
+     "source data file (multiple OK).")
+    ("services,S", "PsetType: print service configurations.")
+    ("process,P", "PsetType: print process configurations.");
+  bpo::options_description all_opts("All Options.");
   all_opts.add(desc);
-  // Each non-option argument is interpreted as the name of a files to
-  // be processed. Any number of filenames is allowed.
+  // Each non-option argument is interpreted as the name of a file to be
+  // processed. Any number of filenames is allowed.
   bpo::positional_options_description pd;
   pd.add("source", -1);
   // The variables_map contains the actual program options.
@@ -278,31 +286,34 @@ int main(int argc, char * argv[])
     std::cout << desc << std::endl;
     return 1;
   }
-  // Get the names of the processes we will look for; if none are
-  // specified we want them all.
-  stringvec process_names;
-  // ------------------------------------------------------------
-  // Handling of process names is not yet implemented.
-  //   if (vm.count("process"))
-  //     cet::copy_all(vm["process"].as<stringvec>(),
-  //                   std::back_inserter(process_names));
-  if (vm.count("process") > 0) {
-    std::cerr << "Handling of process names is not yet implemented.\n";
-    return 1;
+
+  // Process the mode information.
+  PsetType mode;
+  if (vm.count("services")) {
+    mode = PsetType::SERVICE;
+  } else if (vm.count("process")) {
+    mode = PsetType::PROCESS;
+  } else {
+    mode = PsetType::MODULE;
   }
-  //
-  // ------------------------------------------------------------
-  // Get the labels of the modules we will look for; if none are
-  // specified we want them all.
-  stringvec module_labels;
-  if (vm.count("label"))
+
+  // Obtain any filtering names to limit what we show.
+  stringvec filters;
+  if (vm.count("filter")) {
+    cet::copy_all(vm["filter"].as<stringvec>(),
+                  std::back_inserter(filters));
+  }
+  if (vm.count("label")) {
+    std::cerr << "WARNING: --label|-l is deprecated: use --filter instead.\n";
     cet::copy_all(vm["label"].as<stringvec>(),
-                  std::back_inserter(module_labels));
+                  std::back_inserter(filters));
+  }
+
   // Get the names of the files we will process.
   stringvec file_names;
   size_t file_count = vm.count("source");
   if (file_count < 1) {
-    cerr << "One or more input files must be specified;"
+    cerr << "ERROR: One or more input files must be specified;"
          << " supply filenames as program arguments\n"
          << "For usage and options list, please do 'config_dumper --help'.\n";
     return 3;
@@ -310,6 +321,7 @@ int main(int argc, char * argv[])
   file_names.reserve(file_count);
   cet::copy_all(vm["source"].as<stringvec>(),
                 std::back_inserter(file_names));
+
   // Prepare for dealing with Root. We use the RootDictionaryManager to
   // load all necessary dictionaries.
   art::RootDictionaryManager dictionary_loader;
@@ -319,21 +331,8 @@ int main(int argc, char * argv[])
 
   // Do the work.
   return print_psets_from_files(file_names,
-                                process_names,
-                                module_labels,
+                                filters,
+                                mode,
                                 cout,
                                 cerr);
-  // Testing.
-  //   cout << "Specified module labels\n";
-  //   cet::copy_all(module_labels,
-  //                 std::ostream_iterator<string>(cout, ", "));
-  //   cout << endl;
-  //   cout << "Specified process names\n";
-  //   cet::copy_all(process_names,
-  //                 std::ostream_iterator<string>(cout, ", "));
-  //   cout << endl;
-  //   cout << "Specified input files\n";
-  //   cet::copy_all(file_names,
-  //                 std::ostream_iterator<string>(cout, ", "));
-  //   cout << endl;
 }

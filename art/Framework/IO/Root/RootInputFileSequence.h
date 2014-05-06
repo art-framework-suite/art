@@ -38,12 +38,12 @@ namespace art {
     RootInputFileSequence(RootInputFileSequence const&) = delete;
     RootInputFileSequence& operator=(RootInputFileSequence const&) = delete;
 
-    explicit RootInputFileSequence(fhicl::ParameterSet const& pset,
-                                   InputFileCatalog & catalog,
-                                   FastCloningInfoProvider const &fcip,
-                                   InputSource::ProcessingMode pMode,
-                                   MasterProductRegistry &pReg,
-                                   ProcessConfiguration const &processConfig);
+    RootInputFileSequence(fhicl::ParameterSet const& pset,
+                          InputFileCatalog & catalog,
+                          FastCloningInfoProvider const &fcip,
+                          InputSource::ProcessingMode pMode,
+                          MasterProductRegistry &pReg,
+                          ProcessConfiguration const &processConfig);
     virtual ~RootInputFileSequence();
 
     typedef std::shared_ptr<RootInputFile> RootInputFileSharedPtr;
@@ -93,15 +93,16 @@ namespace art {
     EventNumber_t eventsToSkip_;
     std::vector<SubRunID> whichSubRunsToSkip_;
     std::vector<EventID> eventsToProcess_;
-    bool noEventSort_;
-    bool skipBadFiles_;
-    unsigned int treeCacheSize_;
-    int const treeMaxVirtualSize_;
+    bool const noEventSort_;
+    bool const skipBadFiles_;
+    unsigned int const treeCacheSize_;
+    int64_t const treeMaxVirtualSize_;
+    int64_t const saveMemoryObjectThreshold_;
     int forcedRunOffset_;
     RunNumber_t setRun_;
     GroupSelectorRules groupSelectorRules_;
     std::shared_ptr<DuplicateChecker> duplicateChecker_;
-    bool dropDescendants_;
+    bool const dropDescendants_;
     RootInputFileSharedPtr rootFileForLastReadEvent_;
     FastCloningInfoProvider fastCloningInfo_;
     InputSource::ProcessingMode processingMode_;

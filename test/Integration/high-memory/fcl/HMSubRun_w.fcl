@@ -1,0 +1,29 @@
+process_name: HMSR
+
+source: {
+  module_type: EmptyEvent
+  maxEvents: 5
+}
+
+outputs: {
+  o1: {
+    module_type: RootOutput
+    fileName: "out.root"
+    compressionLevel: 0
+    saveMemoryObjectThreshold: 26214400 // 25 MiB
+  }
+}
+
+services: {
+  scheduler: { fileMode: MERGE }
+  SimpleMemoryCheck: { }
+}
+
+physics: {
+  producers: {
+   srprod: { module_type: HMSubRunProdProducer }
+  }
+
+  p1: [ srprod ]
+  e1: [ o1 ]
+}

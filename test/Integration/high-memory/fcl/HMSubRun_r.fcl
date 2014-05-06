@@ -1,0 +1,34 @@
+process_name: HMR
+
+source: {
+  module_type: RootInput
+  fileNames: [ "../HMSubRun_w.d/out.root" ]
+  saveMemoryObjectThreshold: 26214400 // 25 MiB
+}
+
+outputs: {
+  o1: {
+    module_type: RootOutput
+    fileName: "out.root"
+    compressionLevel: 0
+    saveMemoryObjectThreshold: 26214400 // 25 MiB
+    outputCommands: [ "keep *", "drop *_srprod_*_HMSR" ]
+  }
+}
+
+services: {
+  scheduler: { fileMode: MERGE }
+  SimpleMemoryCheck: { }
+}
+
+physics: {
+  producers: {
+    rprod: {
+      module_type: HMRunProdProducer
+      inputLabel: srprod
+    }
+  }
+
+  p1: [ rprod ]
+  e1: [ o1 ]
+}
