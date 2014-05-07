@@ -101,6 +101,11 @@ public:
   // Signal is emitted after the source opens a file
   GlobalSignal<detail::SignalResponseType::LIFO, void> sPostCloseFile;
 
+  // Signal is emitted just after the output opens a file (provides
+  // module label).
+  GlobalSignal<detail::SignalResponseType::LIFO, void,
+               std::string const &> sPostOpenOutputFile;
+
   // Signal is emitted just before an output will close a file (provides
   // module label).
   GlobalSignal<detail::SignalResponseType::FIFO, void,

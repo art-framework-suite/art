@@ -1,6 +1,8 @@
 #ifndef art_Framework_Core_OutputFileInfo_h
 #define art_Framework_Core_OutputFileInfo_h
 
+#include <string>
+
 namespace art {
   class OutputFileInfo;
 }

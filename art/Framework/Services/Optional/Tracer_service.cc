@@ -5,6 +5,7 @@
 //
 // ======================================================================
 
+#include "art/Framework/Core/OutputFileInfo.h"
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Principal/Run.h"
 #include "art/Framework/Principal/SubRun.h"
@@ -87,6 +88,10 @@ public:
 
   void preCloseFile();
   void postCloseFile();
+
+  void postOpenOutputFile(std::string const & label);
+  void preCloseOutputFile(std::string const & label);
+  void postCloseOutputFile(OutputFileInfo const & info);
 
   void prePathBeginRun(std::string const& s);
   void postPathBeginRun(std::string const& s, HLTPathStatus const& hlt);
@@ -189,6 +194,10 @@ Tracer::Tracer(fhicl::ParameterSet const& iPS, ActivityRegistry&iRegistry)
   iRegistry.sPreCloseFile.watch(this, &Tracer::preCloseFile);
   iRegistry.sPostCloseFile.watch(this, &Tracer::postCloseFile);
 
+  iRegistry.sPostOpenOutputFile.watch(this, &Tracer::postOpenOutputFile);
+  iRegistry.sPreCloseOutputFile.watch(this, &Tracer::preCloseOutputFile);
+  iRegistry.sPostCloseOutputFile.watch(this, &Tracer::postCloseOutputFile);
+
   iRegistry.sPreSourceRun.watch(this, &Tracer::preSourceRun);
   iRegistry.sPostSourceRun.watch(this, &Tracer::postSourceRun);
 
@@ -253,6 +262,32 @@ Tracer::preCloseFile() {
 void
 Tracer::postCloseFile () {
   indent(2) << "finished: close input file" << std::endl;
+}
+
+void
+Tracer::postOpenOutputFile (std::string const & label) {
+  indent(2) << "opened output file from "
+            << label
+            << std::endl;
+}
+
+void
+Tracer::preCloseOutputFile (std::string const & label) {
+  indent(2) << "close output file from "
+            << label
+            << std::endl;
+}
+
+void
+Tracer::postCloseOutputFile (OutputFileInfo const & info) {
+  std::string const fn { info.fileName().empty() ?
+      std::string("<none>") :
+      info.fileName() };
+  indent(2) << "finished close output file "
+            << fn
+            << " from "
+            << info.moduleLabel()
+            << std::endl;
 }
 
 void

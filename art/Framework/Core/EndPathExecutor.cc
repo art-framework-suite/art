@@ -90,7 +90,12 @@ void art::EndPathExecutor::closeOutputFiles()
 
 void art::EndPathExecutor::openOutputFiles(FileBlock & fb)
 {
-  doForAllEnabledOutputWorkers_(std::bind(&OutputWorker::openFile, _1, std::cref(fb)));
+  doForAllEnabledOutputWorkers_([this, &fb](OutputWorker * ow) {
+      ow->openFile(fb);
+      actReg_.
+        sPostOpenOutputFile.invoke(ow->label());
+    }
+    );
 }
 
 void art::EndPathExecutor::writeRun(RunPrincipal const & rp)
