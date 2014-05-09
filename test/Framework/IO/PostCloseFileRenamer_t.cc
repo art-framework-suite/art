@@ -95,4 +95,81 @@ BOOST_AUTO_TEST_CASE(Runs_subruns)
   BOOST_CHECK_EQUAL(fr.applySubstitutions(), std::string("07_00_9_-"));
 }
 
+BOOST_AUTO_TEST_CASE(SeqNo)
+{
+  PostCloseFileRenamer fr("ethel-%02#-charlie", "label", "DEVEL");
+  BOOST_CHECK_EQUAL(fr.applySubstitutions(), std::string("ethel-00-charlie"));
+  fr.recordFileOpen();
+  BOOST_CHECK_EQUAL(fr.applySubstitutions(), std::string("ethel-00-charlie"));
+  fr.recordFileClose();
+  BOOST_CHECK_EQUAL(fr.applySubstitutions(), std::string("ethel-01-charlie"));
+  fr.recordFileOpen();
+  BOOST_CHECK_EQUAL(fr.applySubstitutions(), std::string("ethel-01-charlie"));
+  fr.recordFileClose();
+  BOOST_CHECK_EQUAL(fr.applySubstitutions(), std::string("ethel-02-charlie"));
+}
+
+BOOST_AUTO_TEST_CASE(SimpleFileNameSubs)
+{
+  PostCloseFileRenamer fr("silly_%ifb_%ifd_%ife_%ifn_%ifp.root",
+                          "label",
+                          "DEVEL");
+  // Empty.
+  fr.recordInputFile("");
+  BOOST_CHECK_EQUAL(fr.applySubstitutions(),
+                    std::string("silly_-_-_-_-_-.root"));
+  // Simple.
+  fr.recordInputFile("fileonlynoext");
+  BOOST_CHECK_EQUAL(fr.applySubstitutions(),
+                    std::string("silly_fileonlynoext_/tmp__fileonlynoext_/tmp/fileonlynoext.root"));
+  // Relative.
+  fr.recordInputFile("../bin/x.ext");
+  BOOST_CHECK_EQUAL(fr.applySubstitutions(),
+                    std::string("silly_x_/bin_.ext_x.ext_/bin/x.ext.root"));
+  // Absolute.
+  fr.recordInputFile("/usr/bin/y.ext");
+  BOOST_CHECK_EQUAL(fr.applySubstitutions(),
+                    std::string("silly_y_/usr/bin_.ext_y.ext_/usr/bin/y.ext.root"));
+}
+
+BOOST_AUTO_TEST_CASE(SimpleRegex)
+{
+  PostCloseFileRenamer fr("%ifs%root%dat%%", "label", "DEVEL");
+  fr.recordInputFile("/tmp/c.root");
+  BOOST_CHECK_EQUAL(fr.applySubstitutions(),
+                    std::string("/tmp/c.dat"));
+}
+
+BOOST_AUTO_TEST_CASE(EscapingRegex)
+{
+  PostCloseFileRenamer fr("%ifs%\\.root%.dat%%", "label", "DEVEL");
+  fr.recordInputFile("/tmp/c.root");
+  BOOST_CHECK_EQUAL(fr.applySubstitutions(),
+                    std::string("/tmp/c.dat"));
+}
+
+BOOST_AUTO_TEST_CASE(iFlagRegex)
+{
+  PostCloseFileRenamer fr("%ifs%ROOT%dat%i%", "label", "DEVEL");
+  fr.recordInputFile("/tmp/c.root");
+  BOOST_CHECK_EQUAL(fr.applySubstitutions(),
+                    std::string("/tmp/c.dat"));
+}
+
+BOOST_AUTO_TEST_CASE(gFlagRegex)
+{
+  PostCloseFileRenamer fr("%ifs%o%f%g%", "label", "DEVEL");
+  fr.recordInputFile("/tmp/c.root");
+  BOOST_CHECK_EQUAL(fr.applySubstitutions(),
+                    std::string("/tmp/c.rfft"));
+}
+
+BOOST_AUTO_TEST_CASE(GroupingRegex)
+{
+  PostCloseFileRenamer fr("%ifd/d_%ifs%^.*?_([\\d]+).*$%${1}_charlie%%%ife", "label", "DEVEL");
+  fr.recordInputFile("/tmp/c_27_ethel.root");
+  BOOST_CHECK_EQUAL(fr.applySubstitutions(),
+                    std::string("/tmp/d_27_charlie.root"));
+}
+
 BOOST_AUTO_TEST_SUITE_END()
