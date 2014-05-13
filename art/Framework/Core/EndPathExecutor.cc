@@ -1,6 +1,6 @@
 #include "art/Framework/Core/EndPathExecutor.h"
 
-#include "art/Framework/Core/OutputFileInfo.h"
+#include "art/Utilities/OutputFileInfo.h"
 
 using std::placeholders::_1;
 

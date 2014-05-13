@@ -5,7 +5,7 @@
 //
 // ======================================================================
 
-#include "art/Framework/Core/OutputFileInfo.h"
+#include "art/Utilities/OutputFileInfo.h"
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Principal/Run.h"
 #include "art/Framework/Principal/SubRun.h"
