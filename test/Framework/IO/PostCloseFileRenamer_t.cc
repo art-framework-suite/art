@@ -2,6 +2,12 @@
 #include "boost/test/auto_unit_test.hpp"
 
 #include "art/Framework/IO/PostCloseFileRenamer.h"
+#include "boost/filesystem.hpp"
+
+extern "C" {
+#include <unistd.h> // chdir().
+#include <sys/stat.h> // mkdir().
+}
 
 using art::PostCloseFileRenamer;
 
@@ -118,14 +124,29 @@ BOOST_AUTO_TEST_CASE(SimpleFileNameSubs)
   fr.recordInputFile("");
   BOOST_CHECK_EQUAL(fr.applySubstitutions(),
                     std::string("silly_-_-_-_-_-.root"));
+
   // Simple.
+  auto owd = boost::filesystem::current_path();
+  auto tmpdir = boost::filesystem::canonical(boost::filesystem::temp_directory_path()).native();
+  BOOST_REQUIRE_EQUAL(chdir(tmpdir.c_str()), 0);
+
   fr.recordInputFile("fileonlynoext");
   BOOST_CHECK_EQUAL(fr.applySubstitutions(),
-                    std::string("silly_fileonlynoext_/tmp__fileonlynoext_/tmp/fileonlynoext.root"));
+                    std::string("silly_fileonlynoext_" + tmpdir +
+                                "__fileonlynoext_" + tmpdir +
+                                "/fileonlynoext.root"));
+
   // Relative.
-  fr.recordInputFile("../bin/x.ext");
+  auto uniqueDir = boost::filesystem::unique_path("%%%%-%%%%-%%%%-%%%%");
+  BOOST_REQUIRE_EQUAL(mkdir(uniqueDir.native().c_str(), 0755), 0);
+  auto absUniqueDir = boost::filesystem::canonical(uniqueDir).native();
+  fr.recordInputFile((uniqueDir / "x.ext").native());
   BOOST_CHECK_EQUAL(fr.applySubstitutions(),
-                    std::string("silly_x_/bin_.ext_x.ext_/bin/x.ext.root"));
+                    std::string("silly_x_" + absUniqueDir +
+                                "_.ext_x.ext_" + absUniqueDir +
+                                "/x.ext.root"));
+  BOOST_REQUIRE_EQUAL(chdir(owd.native().c_str()), 0);
+
   // Absolute.
   fr.recordInputFile("/usr/bin/y.ext");
   BOOST_CHECK_EQUAL(fr.applySubstitutions(),
@@ -166,10 +187,11 @@ BOOST_AUTO_TEST_CASE(gFlagRegex)
 
 BOOST_AUTO_TEST_CASE(GroupingRegex)
 {
+  auto tmpdir = boost::filesystem::canonical("/tmp");
   PostCloseFileRenamer fr("%ifd/d_%ifs%^.*?_([\\d]+).*$%${1}_charlie%%%ife", "label", "DEVEL");
   fr.recordInputFile("/tmp/c_27_ethel.root");
   BOOST_CHECK_EQUAL(fr.applySubstitutions(),
-                    std::string("/tmp/d_27_charlie.root"));
+                    (tmpdir / "d_27_charlie.root").native());
 }
 
 BOOST_AUTO_TEST_SUITE_END()
