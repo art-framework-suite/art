@@ -124,7 +124,7 @@ int art::run_art(int argc,
     return 7000;
   }
   // Preliminary argument checking.
-for (auto & handler : handlers) {
+  for (auto & handler : handlers) {
     auto result = handler->checkOptions(vm);
     if (result != 0) {
       return result;
@@ -132,7 +132,7 @@ for (auto & handler : handlers) {
   }
   // Processing of arguments and post-processing of config.
   fhicl::intermediate_table raw_config;
-for (auto & handler : handlers) {
+  for (auto & handler : handlers) {
     auto result = handler->processOptions(vm, raw_config);
     if (result != 0) {
       return result;
@@ -153,7 +153,7 @@ for (auto & handler : handlers) {
               << "------------------------------------"
               << "------------------------------------"
               << "\n";
-  for (auto const & item : raw_config) {
+    for (auto const & item : raw_config) {
       std::cerr << item.first << ": " << item.second.to_string() << "\n";
     }
     std::cerr
