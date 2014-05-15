@@ -80,3 +80,6 @@ cet_test(LibraryManager_t.sh HANDBUILT
   )
 
 cet_test(ScheduleID_t USE_BOOST_UNIT)
+
+cet_test(parent_path_t USE_BOOST_UNIT
+  LIBRARIES art_Utilities)

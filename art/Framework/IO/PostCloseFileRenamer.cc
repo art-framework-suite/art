@@ -1,4 +1,6 @@
 #include "art/Framework/IO/PostCloseFileRenamer.h"
+
+#include "art/Framework/IO/FileStatsCollector.h"
 #include "art/Utilities/Exception.h"
 #include "boost/date_time/posix_time/posix_time.hpp"
 #include "boost/filesystem.hpp"
@@ -9,99 +11,16 @@
 #include <sstream>
 
 art::PostCloseFileRenamer::
-PostCloseFileRenamer(std::string const & filePattern,
-                     std::string const & moduleLabel,
-                     std::string const & processName)
+PostCloseFileRenamer(FileStatsCollector const & stats)
   :
-  filePattern_(filePattern),
-  moduleLabel_(moduleLabel),
-  processName_(processName),
-  lowest_(),
-  highest_(),
-  fo_(),
-  fc_(),
-  seqNo_(0ul),
-  lastOpenedInputFile_()
+  stats_(stats)
 {
 }
 
 std::string
 art::PostCloseFileRenamer::
-parentPath() const
+applySubstitutions(std::string const & filePattern) const
 {
-  boost::filesystem::path parent_path(boost::filesystem::path(filePattern_).parent_path());
-  if (parent_path.empty()) {
-    return std::string(".");
-  } else {
-    return parent_path.native();
-  }
-}
-
-void
-art::PostCloseFileRenamer::
-recordFileOpen()
-{
-  reset_(); // Reset statistics.
-  fo_ = boost::posix_time::second_clock::universal_time();
-}
-
-void
-art::PostCloseFileRenamer::
-recordEvent(EventID const & id)
-{
-  // Don't care about the event number at the moment.
-  recordSubRun(id.subRunID());
-}
-
-void
-art::PostCloseFileRenamer::
-recordRun(RunID const & id)
-{
-  if ((!lowest_.runID().isValid()) ||
-      id < lowest_.runID()) {
-    lowest_ = SubRunID::invalidSubRun(id);
-  }
-  if ((!highest_.runID().isValid()) ||
-      id > highest_.runID()) {
-    highest_ = SubRunID::invalidSubRun(id);
-  }
-}
-
-void
-art::PostCloseFileRenamer::
-recordInputFile(std::string const & inputFileName)
-{
-  lastOpenedInputFile_ = inputFileName;
-}
-
-void
-art::PostCloseFileRenamer::
-recordSubRun(SubRunID const & id)
-{
-  if ((!lowest_.runID().isValid()) || // No lowest run yet.
-      id.runID() < lowest_.runID() || // New lower run.
-      (id.runID() == lowest_.runID() &&
-       (id.isValid() &&
-        ((!lowest_.isValid()) || // No valid subrun yet.
-         id < lowest_)))) {
-    lowest_ = id;
-  }
-  if (id > highest_) { // Sort-invalid-first gives the correct answer.
-    highest_ = id;
-  }
-}
-
-void
-art::PostCloseFileRenamer::
-recordFileClose()
-{
-  fc_ =  boost::posix_time::second_clock::universal_time();
-  ++seqNo_;
-}
-
-std::string
-art::PostCloseFileRenamer::
-applySubstitutions() const {
   std::string result; // Empty
   using namespace boost::regex_constants;
   using boost::regex;
@@ -109,9 +28,9 @@ applySubstitutions() const {
   using boost::regex_search;
   using boost::smatch;
   smatch match;
-  auto sb = filePattern_.cbegin(),
+  auto sb = filePattern.cbegin(),
        si = sb,
-       se = filePattern_.cend();
+       se = filePattern.cend();
   while (regex_search(si,
                       se,
                       match,
@@ -141,10 +60,10 @@ applySubstitutions() const {
     // substitution pattern:
     switch (*(match[0].first + 1)) {
     case 'l':
-      result += moduleLabel_;
+      result += stats_.moduleLabel();
       break;
     case 'p':
-      result += processName_;
+      result += stats_.processName();
       break;
     case 'i':
       result += subInputFileName_(match);
@@ -160,7 +79,7 @@ applySubstitutions() const {
           << "Unrecognized substitution %"
           << *(match[0].first + 1)
           << " in pattern "
-          << filePattern_
+          << filePattern
           << " -- typo or misconstructed regex?\n";
       }
       break;
@@ -183,8 +102,8 @@ subInputFileName_(boost::smatch const & match) const
   std::string result;
   // If the filename is empty, substitute "-". If it is merely the
   // required substitution that is empty, substitute "".
-  if (!lastOpenedInputFile_.empty()) {
-    boost::filesystem::path const ifp(lastOpenedInputFile_);
+  if (!stats_.lastOpenedInputFile().empty()) {
+    boost::filesystem::path const ifp(stats_.lastOpenedInputFile());
     if (match[4].matched) { // %if[bdenp]
       switch (*(match[4].first)) {
       case 'b':
@@ -251,11 +170,11 @@ subInputFileName_(boost::smatch const & match) const
         mflags |= format_first_only;
       }
       regex dsub(match[5].str(), sflags);
-      result = regex_replace(lastOpenedInputFile_, dsub, match[6].str(), mflags);
+      result = regex_replace(stats_.lastOpenedInputFile(), dsub, match[6].str(), mflags);
     } else { // INTERNAL ERROR.
         throw Exception(errors::LogicError)
           << "Internal error: subInputFileName_() called for unknown reasons with pattern "
-          << filePattern_
+          << match[0].str()
           << ".\n";
     }
   } else {
@@ -271,10 +190,10 @@ subTimestamp_(boost::smatch const & match) const
   std::string result;
   switch (*(match[3].first)) {
   case 'o': // Open.
-    result = boost::posix_time::to_iso_string(fo_);
+    result = boost::posix_time::to_iso_string(stats_.outputFileOpenTime());
     break;
   case 'c': // Close.
-    result = boost::posix_time::to_iso_string(fc_);
+    result = boost::posix_time::to_iso_string(stats_.outputFileCloseTime());
     break;
   default: // INTERNAL ERROR.
     throw Exception(errors::LogicError)
@@ -297,26 +216,26 @@ subFilledNumeric_(boost::smatch const & match) const
   }
   switch (*(match[2].first)) {
   case '#':
-    num_str << seqNo_;
+    num_str << stats_.sequenceNum();
     break;
   case 'r':
-    if (lowest_.runID().isValid()) {
-      num_str << lowest_.run();
+    if (stats_.lowestSubRunID().runID().isValid()) {
+      num_str << stats_.lowestSubRunID().run();
     }
     break;
   case 'R':
-    if (highest_.runID().isValid()) {
-      num_str << highest_.run();
+    if (stats_.highestSubRunID().runID().isValid()) {
+      num_str << stats_.highestSubRunID().run();
     }
     break;
   case 's':
-    if (lowest_.isValid()) {
-      num_str << lowest_.subRun();
+    if (stats_.lowestSubRunID().isValid()) {
+      num_str << stats_.lowestSubRunID().subRun();
     }
     break;
   case 'S':
-    if (highest_.isValid()) {
-      num_str << highest_.subRun();
+    if (stats_.highestSubRunID().isValid()) {
+      num_str << stats_.highestSubRunID().subRun();
     }
     break;
   default: // INTERNAL ERROR.
@@ -329,27 +248,19 @@ subFilledNumeric_(boost::smatch const & match) const
   return result;
 }
 
-void
+std::string
 art::PostCloseFileRenamer::
-maybeRenameFile(std::string const & inPath) {
-  auto newFile = applySubstitutions();
+maybeRenameFile(std::string const & inPath, std::string const & toPattern) {
+  std::string newFile = applySubstitutions(toPattern);
   boost::system::error_code ec;
   boost::filesystem::rename(inPath, newFile, ec);
   if (ec) { // Fail (different flesystems? Try copy / delete instead).
+    // This attempt will throw on failure.
     boost::filesystem::
       copy_file(inPath,
                 newFile,
                 boost::filesystem::copy_option::overwrite_if_exists);
     (void) boost::filesystem::remove(inPath);
   }
-}
-
-void
-art::PostCloseFileRenamer::
-reset_()
-{
-  fo_ =
-    fc_ = boost::posix_time::ptime();
-  lowest_ = SubRunID();
-  highest_ = SubRunID();
+  return newFile;
 }

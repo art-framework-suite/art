@@ -7,7 +7,7 @@
 //
 // ======================================================================
 
-#include "art/Framework/IO/PostCloseFileRenamer.h"
+#include "art/Framework/IO/FileStatsCollector.h"
 #include "art/Framework/Services/Optional/TFileDirectory.h"
 #include "art/Framework/Services/Registry/ServiceMacros.h"
 
@@ -44,7 +44,8 @@ public:
 
 private:
   bool const closeFileFast_;
-  PostCloseFileRenamer fileRenamer_;
+  FileStatsCollector fstats_;
+  std::string filePattern_;
   std::string uniqueFilename_;
 
   // set current directory according to module name and prepare to create directory
