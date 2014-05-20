@@ -271,7 +271,7 @@ namespace art {
     sqlite3_exec(metaDataHandle_,
                  "BEGIN TRANSACTION; " // +
                  "DROP TABLE IF EXISTS FileCatalog_metadata; " // +
-                 "CREATE TABLE FileCatalog_metadata(ID PRIMARY KEY," //+
+                 "CREATE TABLE FileCatalog_metadata(ID INTEGER PRIMARY KEY," //+
                  "                                  Name, Value); " // +
                  "COMMIT;",
                  0,

@@ -856,7 +856,7 @@ cet_test(SAM_metadata_verify HANDBUILT
   TEST_ARGS -s ../SAM_metadata.d/out.root
   TEST_PROPERTIES DEPENDS SAM_metadata
   PASS_REGULAR_EXPRESSION
-  "\n\n0: applicationFamily  Ethel\n0: applicationVersion v0.00.01a\n0: fileType           MC\n0: process_name       SAMMetadataW\n0: testMetadata       success!\n0: dataTier           The one with the thickest frosting\n0: streamName         o1\n-"
+  "\n\n1: applicationFamily  Ethel\n2: applicationVersion v0\\.00\\.01a\n3: fileType           MC\n4: process_name       SAMMetadataW\n5: testMetadata       success!\n6: dataTier           The one with the thickest frosting\n7: streamName         o1\n-"
 )
 
 cet_test(GeneratorSource_t HANDBUILT
