@@ -22,11 +22,14 @@
 #include <string>
 #include <vector>
 
+namespace cet {
+  class LibraryManager;
+}
+
 namespace art {
   class ServicesManager;
 
   class ActivityRegistry;
-  class LibraryManager;
 }
 
 namespace fhicl {
@@ -43,7 +46,7 @@ public:
 
 public:
   ServicesManager(ParameterSets const &,
-                  LibraryManager const &,
+                  cet::LibraryManager const &,
                   ActivityRegistry &);
 
   ~ServicesManager();
@@ -90,7 +93,7 @@ private:
   typedef  std::map< std::string, detail::ServiceCache::iterator > NameIndex;
   typedef  std::vector< TypeID >      TypeIDs;
 
-  void fillCache_(ParameterSets const & psets, LibraryManager const & lm);
+  void fillCache_(ParameterSets const & psets, cet::LibraryManager const & lm);
 
   std::pair<detail::ServiceCache::iterator, bool>
   insertImpl_(fhicl::ParameterSet const & pset,

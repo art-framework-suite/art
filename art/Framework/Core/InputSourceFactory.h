@@ -8,7 +8,7 @@
 // ======================================================================
 
 #include "art/Framework/Core/InputSource.h"
-#include "art/Utilities/LibraryManager.h"
+#include "cetlib/LibraryManager.h"
 #include "cpp0x/memory"
 #include "fhiclcpp/ParameterSet.h"
 #include <string>
@@ -30,7 +30,7 @@ class art::InputSourceFactory
           InputSourceDescription &);
 
 private:
-  LibraryManager lm_;
+  cet::LibraryManager lm_;
 
   InputSourceFactory();
   ~InputSourceFactory();

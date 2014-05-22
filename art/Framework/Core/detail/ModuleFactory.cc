@@ -1,6 +1,6 @@
 #include "art/Framework/Core/detail/ModuleFactory.h"
 
-#include "art/Framework/Core/detail/wrapLibraryManagerException.h"
+#include "cetlib/detail/wrapLibraryManagerException.h"
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Utilities/Exception.h"
 #include "art/Version/GetReleaseVersion.h"
@@ -20,7 +20,7 @@ moduleType(std::string const & libspec)
     lm_.getSymbolByLibspec(libspec, "moduleType", symbol);
   }
   catch (art::Exception & e) {
-    detail::wrapLibraryManagerException(e, "Module", libspec);
+    cet::detail::wrapLibraryManagerException(e, "Module", libspec, getReleaseVersion());
   }
   if (symbol == nullptr) {
     throw art::Exception(errors::Configuration, "BadPluginLibrary")
@@ -41,7 +41,7 @@ makeWorker(WorkerParams const & p, ModuleDescription const & md)
     lm_.getSymbolByLibspec(libspec, "make_worker", symbol);
   }
   catch (art::Exception & e) {
-    detail::wrapLibraryManagerException(e, "Module", libspec);
+    cet::detail::wrapLibraryManagerException(e, "Module", libspec, getReleaseVersion());
   }
   if (symbol == nullptr) {
     throw art::Exception(errors::Configuration, "BadPluginLibrary: ")

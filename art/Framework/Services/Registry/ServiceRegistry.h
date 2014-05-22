@@ -11,7 +11,7 @@
 #include "art/Framework/Services/Registry/ServiceToken.h"
 #include "art/Framework/Services/Registry/ServicesManager.h"
 #include "art/Framework/Services/Registry/detail/ServiceHelper.h"
-#include "art/Utilities/LibraryManager.h"
+#include "cetlib/LibraryManager.h"
 #include "art/Utilities/ScheduleID.h"
 
 #include "cpp0x/memory"
@@ -103,7 +103,7 @@ namespace art {
     ServiceRegistry();
 
     // ---------- member data --------------------------------
-    LibraryManager lm_;
+    cet::LibraryManager lm_;
     std::shared_ptr<ServicesManager> manager_;
 
   };  // ServiceRegistry

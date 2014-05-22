@@ -11,6 +11,8 @@ using namespace art;
 #include <iostream>
 #include <iterator>
 
+using cet::LibraryManager;
+
 struct RootDictionaryManagerTestFixture {
 
    RootDictionaryManagerTestFixture();

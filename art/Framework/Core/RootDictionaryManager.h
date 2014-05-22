@@ -7,7 +7,7 @@
 //
 // ======================================================================
 
-#include "art/Utilities/LibraryManager.h"
+#include "cetlib/LibraryManager.h"
 #include <iosfwd>
 #include <string>
 #include <vector>
@@ -33,8 +33,8 @@ namespace art {
     typedef std::vector<std::string> lib_list_t;
     void loadAllDictionaries();
 
-    LibraryManager dm_; // Dictionaries
-    LibraryManager mm_; // Maps
+    cet::LibraryManager dm_; // Dictionaries
+    cet::LibraryManager mm_; // Maps
   };  // RootDictionaryManager
 
 }  // art

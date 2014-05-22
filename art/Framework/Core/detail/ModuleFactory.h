@@ -7,7 +7,7 @@
 // Manage the creation of workers.
 //
 ////////////////////////////////////////////////////////////////////////
-#include "art/Utilities/LibraryManager.h"
+#include "cetlib/LibraryManager.h"
 #include "art/Framework/Core/ModuleType.h"
 #include "art/Framework/Principal/Worker.h"
 #include "art/Framework/Principal/WorkerParams.h"
@@ -36,7 +36,7 @@ public:
              ModuleDescription const & md);
 
 private:
-  LibraryManager lm_;
+  cet::LibraryManager lm_;
 
 };
 #endif /* art_Framework_Core_detail_ModuleFactory_h */
