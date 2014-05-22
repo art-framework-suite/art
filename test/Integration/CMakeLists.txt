@@ -856,7 +856,7 @@ cet_test(SAM_metadata_verify HANDBUILT
   TEST_ARGS -s ../SAM_metadata.d/out.root
   TEST_PROPERTIES DEPENDS SAM_metadata
   PASS_REGULAR_EXPRESSION
-  "\n\n1: applicationFamily  Ethel\n2: applicationVersion v0\\.00\\.01a\n3: fileType           MC\n4: process_name       SAMMetadataW\n5: testMetadata       success!\n6: dataTier           The one with the thickest frosting\n7: streamName         o1\n-"
+  "\n\n 1: applicationFamily   Ethel\n 2: applicationVersion  v0\\.00\\.01a\n 3: file_type           MC\n 4: process_name        SAMMetadataW\n 5: testMetadata        success!\n 6: dataTier            The one with the thickest frosting\n 7: streamName          o1\n 8: file_format         artroot\n 9: file_format_era     ART_2011a\n10: file_format_version 5\n-"
 )
 
 cet_test(GeneratorSource_t HANDBUILT
@@ -1003,6 +1003,23 @@ cet_test(rename-histfile_t_check HANDBUILT
   TEST_ARGS -l ../rename-histfile_t_w.d/test_1_0_2_8.root
   TEST_PROPERTIES DEPENDS rename-histfile_t_w
 )
+
+simple_plugin(TestMetadata "plugin" NO_INSTALL art_Framework_Core ${FHICLCPP})
+cet_test(TestMetadata_plugin_t HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --rethrow-all -c TestMetadata_Plugin_t.fcl
+  DATAFILES
+  fcl/TestMetadata_Plugin_t.fcl
+)
+
+cet_test(TestMetadata_verify HANDBUILT
+  TEST_EXEC sam_metadata_dumper
+  TEST_ARGS -s ../TestMetadata_plugin_t.d/out.root
+  TEST_PROPERTIES DEPENDS TestMetadata_plugin_t
+  PASS_REGULAR_EXPRESSION
+  "\n\n1: process_name        DEVEL\n2: key1                value1\n3: key2                value2\n4: file_format         artroot\n5: file_format_era     ART_2011a\n6: file_format_version 5\n-"
+)
+
 
 add_subdirectory(event-shape)
 add_subdirectory(high-memory)

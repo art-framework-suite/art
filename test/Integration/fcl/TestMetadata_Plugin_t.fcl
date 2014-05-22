@@ -1,0 +1,32 @@
+process_name: DEVEL
+
+source:
+{
+  module_type: EmptyEvent
+  maxEvents: 1
+}       
+
+physics:
+{
+  producers:
+  {
+    i1:
+    {
+       module_type: IntProducer
+       ivalue: 4
+    }
+  }
+
+  tp1: [ i1 ]
+  ep1: [ o1 ]
+}
+
+outputs:
+{
+  o1:
+  {
+     module_type: RootOutput
+     fileName: "out.root"
+     FCMDPlugins: [ { plugin_type: TestMetadata } ]
+  }
+}
