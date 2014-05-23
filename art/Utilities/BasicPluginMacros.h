@@ -24,18 +24,9 @@
 #define DEFINE_BASIC_PLUGIN_MAKER(klass, base)    \
   extern "C" {                                    \
     std::unique_ptr<base>                         \
-    make_plugin(fhicl::ParameterSet const & pset) \
+    makePlugin(fhicl::ParameterSet const & pset)  \
     {                                             \
       return cet::make_unique<klass>(pset);       \
-    }                                             \
-  }
-
-#define DEFINE_BASIC_PLUGINTYPE_FUNC(base)        \
-  extern "C" {                                    \
-    std::string                                   \
-    pluginType()                                  \
-    {                                             \
-      return cet::PluginTypeDeducer<base>::value; \
     }                                             \
   }
 

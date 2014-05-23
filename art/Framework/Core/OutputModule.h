@@ -15,7 +15,7 @@
 #include "art/Framework/Core/GroupSelectorRules.h"
 #include "art/Framework/Core/OutputModuleDescription.h"
 #include "art/Framework/Core/OutputWorker.h"
-#include "cetlib/PluginFactory.h"
+#include "cetlib/BasicPluginFactory.h"
 #include "art/Framework/Principal/fwd.h"
 #include "art/Framework/Services/FileServiceInterfaces/CatalogInterface.h"
 #include "art/Framework/Services/System/FileCatalogMetadata.h"
@@ -117,9 +117,7 @@ private:
   std::string streamName_;
   ServiceHandle<CatalogInterface> ci_;
 
-  cet::PluginFactory<FileCatalogMetadataPlugin,
-                     std::unique_ptr<FileCatalogMetadataPlugin>,
-                     fhicl::ParameterSet const &> pluginFactory_;
+  cet::BasicPluginFactory pluginFactory_;
   typedef std::vector<std::unique_ptr<FileCatalogMetadataPlugin> >
   PluginCollection_t;
   PluginCollection_t plugins_;
