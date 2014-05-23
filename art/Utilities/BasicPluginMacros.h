@@ -3,15 +3,18 @@
 ////////////////////////////////////////////////////////////////////////
 // PluginMacros
 //
-// Define the macros DEFINE_BASIC_PLUGIN and its components
-// DEFINE_BASIC_PLUGIN_MAKER and DEFINE_BASIC_PLUGINTYPE_FUNC. These are
-// intended for others to use for specific plugin types, like
-// art::FileCatalogMetadataPlugin:
+// Define the macros DEFINE_BASIC_PLUGIN and a required component
+// DEFINE_BASIC_PLUGIN_MAKER. These are intended for others to use for
+// specific plugin types, like art::FileCatalogMetadataPlugin:
 /*
 #define DEFINE_FILECATALOGMETADATA_PLUGIN(klass) \
   DEFINE_BASIC_PLUGIN(klass,                     \
                       art::FileCatalogMetadata)
 */
+//
+// See also the definition of DEFINE_BASIC_PLUGINTYPE_FUNC in
+// cetlib/PluginTypeDeducer.h.
+//
 //////////////////////////////////////////////////////////////////////////
 
 #include "cetlib/PluginTypeDeducer.h"
