@@ -91,4 +91,4 @@ produceMetadata()
   return result;
 }
 
-DEFINE_FILECATALOGMETADATA_PLUGIN(arttest::TestMetadata)
+DEFINE_ART_FILECATALOGMETADATA_PLUGIN(arttest::TestMetadata)

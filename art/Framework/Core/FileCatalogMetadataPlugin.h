@@ -38,7 +38,7 @@
 #include "art/Framework/Services/System/FileCatalogMetadata.h"
 #include "fhiclcpp/ParameterSet.h"
 
-#define DEFINE_FILECATALOGMETADATA_PLUGIN(klass)      \
+#define DEFINE_ART_FILECATALOGMETADATA_PLUGIN(klass)  \
   DEFINE_BASIC_PLUGIN(klass,                          \
                       art::FileCatalogMetadataPlugin)
 
