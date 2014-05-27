@@ -155,6 +155,7 @@ generateEventSequence(size_t nSecondaries,
   }
   switch (readMode_) {
   case Mode::SEQUENTIAL:
+    enSeq.reserve(nSecondaries);
     for (size_t
            i = nEventsReadThisFile_,
            end = nEventsReadThisFile_ + nSecondaries;
@@ -414,7 +415,7 @@ openNextFile_()
     filename = *fileIter_;
   }
   nEventsReadThisFile_ = (readMode_ == Mode::SEQUENTIAL && eventsToSkip_) ?
-                         eventsToSkip_() - 1 :
+                         eventsToSkip_() :
                          0; // Reset for this file.
   openAndReadMetaData_(filename);
   return true;
