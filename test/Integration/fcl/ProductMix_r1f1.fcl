@@ -1,4 +1,4 @@
-#include "ProductMix_r1c2.fcl"
+#include "ProductMix_r1c.fcl"
 
 physics.filters.mixFilter.fileNamesToProvide: @local::physics.filters.mixFilter.fileNames
 physics.filters.mixFilter.fileNames: []

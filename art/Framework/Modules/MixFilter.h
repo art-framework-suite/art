@@ -389,7 +389,6 @@ template <class T>
 void
 art::MixFilter<T>::beginJob()
 {
-  helper_.postRegistrationInit();
 }
 
 template <class T>
