@@ -82,8 +82,7 @@ MixHelper(fhicl::ParameterSet const & pset,
           ProducerBase & producesProvider)
   :
   producesProvider_(producesProvider),
-  filenames_(pset.get<std::vector<std::string> >("fileNames"),
-             { }),
+  filenames_(pset.get<std::vector<std::string> >("fileNames", { })),
   providerFunc_(),
   mixOps_(),
   ptrRemapper_(),
@@ -129,7 +128,7 @@ registerSecondaryFileNameProvider(ProviderFunc_ func)
   if (! filenames_.empty()) {
     throw Exception(errors::Configuration)
       << "Provision of a secondary file name provider is incompatible"
-      << "with a\nnon-empty fileNames parameter to the mix filter.\n";
+      << " with a\nnon-empty fileNames parameter to the mix filter.\n";
   }
   providerFunc_ = func;
 }
