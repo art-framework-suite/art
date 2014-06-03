@@ -130,9 +130,11 @@ public:
   // compatible ProductID.
 
   bool operator==(PtrVector const & other) const;
+#ifndef __GCCXML__
+  // Hide from ROOT to avoid enforced requirement of operator< on T.
   void sort();
   template <class COMP> void sort(COMP comp);
-
+#endif
   static short Class_Version() { return 11; }
 
 private:
