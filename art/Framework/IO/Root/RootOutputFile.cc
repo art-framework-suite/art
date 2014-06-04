@@ -6,10 +6,6 @@
 
 #include "art/Framework/IO/Root/RootOutputFile.h"
 
-#include "Rtypes.h"
-#include "TClass.h"
-#include "TFile.h"
-#include "TTree.h"
 #include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Core/FileBlock.h"
 #include "art/Persistency/Provenance/ProductMetaData.h"
@@ -40,6 +36,7 @@
 #include "art/Utilities/Digest.h"
 #include "art/Utilities/Exception.h"
 #include "art/Version/GetReleaseVersion.h"
+#include "boost/date_time/posix_time/posix_time.hpp"
 #include "cetlib/canonical_string.h"
 #include "cetlib/container_algorithms.h"
 #include "cetlib/exempt_ptr.h"
@@ -48,6 +45,12 @@
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/ParameterSetID.h"
 #include "fhiclcpp/ParameterSetRegistry.h"
+
+#include "Rtypes.h"
+#include "TClass.h"
+#include "TFile.h"
+#include "TTree.h"
+
 #include <iomanip>
 #include <sstream>
 #include <vector>
@@ -316,6 +319,13 @@ namespace art {
     insert_md_row(stmt, { "file_format_era", getFileFormatEra() });
     insert_md_row(stmt, { "file_format_version",
           std::to_string(getFileFormatVersion()) });
+
+    namespace bpt = boost::posix_time;
+    // File start time.
+    insert_md_row(stmt,
+                  { "start_time",
+                      bpt::to_iso_extended_string(stats.outputFileOpenTime()) });
+
 
     // Run / subRun information.
     if (!stats.seenSubRuns().empty()) {
