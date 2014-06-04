@@ -18,8 +18,8 @@ public:
                      std::string const & processName);
 
   void recordFileOpen();
-  void recordEvent(EventID const & id);
   void recordInputFile(std::string const & inputFileName);
+  void recordEvent(EventID const & id);
   void recordRun(RunID const & id);
   void recordSubRun(SubRunID const & id);
   void recordFileClose();
@@ -31,19 +31,25 @@ public:
   SubRunID const & lowestSubRunID() const;
   SubRunID const & highestSubRunID() const;
   std::string const & lastOpenedInputFile() const;
+  std::vector<std::string> const & parents() const;
   size_t sequenceNum() const;
+  size_t eventsThisFile() const;
+  std::set<SubRunID> const & seenSubRuns() const;
 
 private:
   void reset_(); // Reset statistics without renaming.
 
   std::string const moduleLabel_;
   std::string const processName_;
-  SubRunID lowest_;
-  SubRunID highest_;
+  SubRunID lowestSubRun_;
+  SubRunID highestSubRun_;
   boost::posix_time::ptime fo_;
   boost::posix_time::ptime fc_;
   size_t seqNo_;
   std::string lastOpenedInputFile_;
+  std::vector<std::string> inputFilesSeen_;
+  size_t nEvents_;
+  std::set<SubRunID> subRunsSeen_;
 };
 
 inline
@@ -63,7 +69,7 @@ processName() const
 }
 
 inline
-boost::posix_time::ptime 
+boost::posix_time::ptime
 art::FileStatsCollector::
 outputFileOpenTime() const
 {
@@ -71,7 +77,7 @@ outputFileOpenTime() const
 }
 
 inline
-boost::posix_time::ptime 
+boost::posix_time::ptime
 art::FileStatsCollector::
 outputFileCloseTime() const
 {
@@ -83,7 +89,7 @@ art::SubRunID const &
 art::FileStatsCollector::
 lowestSubRunID() const
 {
-  return lowest_;
+  return lowestSubRun_;
 }
 
 inline
@@ -91,7 +97,7 @@ art::SubRunID const &
 art::FileStatsCollector::
 highestSubRunID() const
 {
-  return highest_;
+  return highestSubRun_;
 }
 
 inline
@@ -103,11 +109,35 @@ lastOpenedInputFile() const
 }
 
 inline
+std::vector<std::string> const &
+art::FileStatsCollector::
+parents() const
+{
+  return inputFilesSeen_;
+}
+
+inline
 size_t
 art::FileStatsCollector::
 sequenceNum() const
 {
   return seqNo_;
+}
+
+inline
+size_t
+art::FileStatsCollector::
+eventsThisFile() const
+{
+  return nEvents_;
+}
+
+inline
+std::set<art::SubRunID> const &
+art::FileStatsCollector::
+seenSubRuns() const
+{
+  return subRunsSeen_;
 }
 
 #endif /* art_Framework_IO_FileStatsCollector_h */
