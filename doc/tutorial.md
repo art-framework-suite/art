@@ -404,9 +404,9 @@ nova Command Line Arguments
          --sam-process-id arg          SAM process ID.
          --sam-application-family arg  SAM application family.
          --sam-app-family arg          SAM application family.
-         --sam-app-group arg           SAM group.
          --sam-application-version arg SAM application version.
          --sam-app-version arg         SAM application version.
+         --sam-group arg               SAM group.
          --sam-file-type arg           File type for SAM metadata.
          --sam-data-tier arg           SAM data tier (<module-label>:<tier-spec>).
          --sam-run-type arg            Global run-type for SAM metadata.
