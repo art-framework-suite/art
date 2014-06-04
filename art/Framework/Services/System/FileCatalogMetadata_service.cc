@@ -22,6 +22,7 @@ art::FileCatalogMetadata::FileCatalogMetadata(fhicl::ParameterSet const & ps,
   std::string applicationFamily,
     applicationVersion,
     fileType("unknown"),
+    runType,
     group,
     processID;
   if (ps.get_if_present("applicationFamily", applicationFamily)) {
@@ -32,6 +33,9 @@ art::FileCatalogMetadata::FileCatalogMetadata(fhicl::ParameterSet const & ps,
   }
   if (ps.get_if_present("fileType", fileType)) {
     addMetadata("file_type", fileType);
+  }
+  if (ps.get_if_present("runType", runType)) {
+    addMetadata("run_type", runType);
   }
   if (ps.get_if_present("group", group)) {
     addMetadata("group", group);

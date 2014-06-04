@@ -147,15 +147,16 @@ FileCatalogOptionsHandler(bpo::options_description & desc)
   appVersion_()
 {
   desc.add_options()
-  ("sam-web-uri", bpo::value<std::string>(), "URI for SAM web service.")
-  ("sam-process-id", bpo::value<std::string>(), "SAM process ID.")
-  ("sam-application-family", bpo::value<std::string>(&appFamily_), "SAM application family.")
-  ("sam-app-family", bpo::value<std::string>(&appFamily_), "SAM application family.")
-  ("sam-application-version", bpo::value<std::string>(&appVersion_), "SAM application version.")
-  ("sam-app-version", bpo::value<std::string>(&appVersion_), "SAM application version.")
-  ("sam-file-type", bpo::value<std::string>(), "File type for SAM metadata.")
-  ("sam-data-tier", bpo::value<std::vector<std::string> >(), "SAM data tier spec (<module-label>:<tier-spec>).")
-  ("sam-stream-name", bpo::value<std::vector<std::string> >(), "SAM stream name (<module-label>:<stream-name>).")
+    ("sam-web-uri", bpo::value<std::string>(), "URI for SAM web service.")
+    ("sam-process-id", bpo::value<std::string>(), "SAM process ID.")
+    ("sam-application-family", bpo::value<std::string>(&appFamily_), "SAM application family.")
+    ("sam-app-family", bpo::value<std::string>(&appFamily_), "SAM application family.")
+    ("sam-application-version", bpo::value<std::string>(&appVersion_), "SAM application version.")
+    ("sam-app-version", bpo::value<std::string>(&appVersion_), "SAM application version.")
+    ("sam-file-type", bpo::value<std::string>(), "File type for SAM metadata.")
+    ("sam-data-tier", bpo::value<std::vector<std::string> >(), "SAM data tier spec (<module-label>:<tier-spec>).")
+    ("sam-run-type", bpo::value<std::string>(), "Global run-type for SAM metadata.")
+    ("sam-stream-name", bpo::value<std::vector<std::string> >(), "SAM stream name (<module-label>:<stream-name>).")
   ;
 }
 
@@ -202,12 +203,16 @@ doProcessOptions(bpo::variables_map const & vm,
     raw_config.put("services.FileCatalogMetadata.applicationFamily",
                    appFamily_);
   }
+  if (vm.count("sam-run-type") > 0) {
+    raw_config.put("services.FileCatalogMetadata.runType",
+                   vm["sam-run-type"].as<std::string>());
+  }
   if (!appVersion_.empty()) {
     raw_config.put("services.FileCatalogMetadata.applicationVersion",
                    appVersion_);
   }
   if (vm.count("sam-file-type") > 0) {
-    raw_config.put("services.FileCatalogMetadata.fileType.",
+    raw_config.put("services.FileCatalogMetadata.fileType",
                    vm["sam-file-type"].as<std::string>());
   }
   bool requireMetadata =
