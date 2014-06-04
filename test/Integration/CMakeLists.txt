@@ -847,6 +847,7 @@ cet_test(SAM_metadata HANDBUILT
   --sam-file-type "MC"
   --sam-run-type "MCChallenge"
   --sam-data-tier "The one with the thickest frosting"
+  --sam-group "MyGang"
   DATAFILES
   fcl/SAMMetadata_w.fcl
 )
@@ -856,7 +857,7 @@ cet_test(SAM_metadata_verify HANDBUILT
   TEST_ARGS -s ../SAM_metadata.d/out.root
   TEST_PROPERTIES DEPENDS SAM_metadata
   PASS_REGULAR_EXPRESSION
-  "\n\n 1: applicationFamily   Ethel\n 2: applicationVersion  v0\\.00\\.01a\n 3: file_type           MC\n 4: run_type            MCChallenge\n 5: process_name        SAMMetadataW\n 6: testMetadata        success!\n 7: dataTier            The one with the thickest frosting\n 8: streamName          o1\n 9: file_format         artroot\n10: file_format_era     ART_2011a\n11: file_format_version 5\n12: runs                \\[ \\[ 1, 0, \"MCChallenge\" \\] \\]\n13: event_count         1\n-"
+  "\n\n 1: applicationFamily   Ethel\n 2: applicationVersion  v0\\.00\\.01a\n 3: file_type           MC\n 4: run_type            MCChallenge\n 5: group               MyGang\n 6: process_name        SAMMetadataW\n 7: testMetadata        success!\n 8: dataTier            The one with the thickest frosting\n 9: streamName          o1\n10: file_format         artroot\n11: file_format_era     ART_2011a\n12: file_format_version 5\n13: runs                \\[ \\[ 1, 0, \"MCChallenge\" \\] \\]\n14: event_count         1\n-"
 )
 
 cet_test(GeneratorSource_t HANDBUILT
