@@ -138,6 +138,7 @@ namespace art {
       bool fastCloneThisOne = fb.tree() != 0 &&
                             (remainingEvents() < 0 || remainingEvents() >= fb.tree()->GetEntries());
       rootOutputFile_->beginInputFile(fb, fastCloneThisOne && fastCloning_);
+      fstats_.recordInputFile(fb.fileName());
     }
   }
 
@@ -179,7 +180,14 @@ namespace art {
   void RootOutput::writeProductDescriptionRegistry() { rootOutputFile_->writeProductDescriptionRegistry(); }
   void RootOutput::writeParentageRegistry() { rootOutputFile_->writeParentageRegistry(); }
   void RootOutput::writeBranchIDListRegistry() { rootOutputFile_->writeBranchIDListRegistry(); }
-  void RootOutput::doWriteFileCatalogMetadata(FileCatalogMetadata::collection_type const & md) { rootOutputFile_->writeFileCatalogMetadata(md); }
+
+  void
+  RootOutput::
+  doWriteFileCatalogMetadata(FileCatalogMetadata::collection_type const & md)
+  {
+    rootOutputFile_->writeFileCatalogMetadata(fstats_, md);
+  }
+
   void RootOutput::writeProductDependencies() { rootOutputFile_->writeProductDependencies(); }
   void RootOutput::finishEndFile() {
     rootOutputFile_->finishEndFile();

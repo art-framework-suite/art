@@ -64,7 +64,9 @@ namespace art {
     void writeParentageRegistry();
     void writeBranchIDListRegistry();
     void writeProductDependencies();
-    void writeFileCatalogMetadata(FileCatalogMetadata::collection_type const & md);
+    void
+    writeFileCatalogMetadata(FileStatsCollector const & stats,
+                             FileCatalogMetadata::collection_type const & md);
 
     void finishEndFile();
     void beginInputFile(FileBlock const& fb, bool fastClone);

@@ -151,10 +151,11 @@ FileCatalogOptionsHandler(bpo::options_description & desc)
     ("sam-process-id", bpo::value<std::string>(), "SAM process ID.")
     ("sam-application-family", bpo::value<std::string>(&appFamily_), "SAM application family.")
     ("sam-app-family", bpo::value<std::string>(&appFamily_), "SAM application family.")
+    ("sam-app-group", bpo::value<std::string>(), "SAM group.")
     ("sam-application-version", bpo::value<std::string>(&appVersion_), "SAM application version.")
     ("sam-app-version", bpo::value<std::string>(&appVersion_), "SAM application version.")
     ("sam-file-type", bpo::value<std::string>(), "File type for SAM metadata.")
-    ("sam-data-tier", bpo::value<std::vector<std::string> >(), "SAM data tier spec (<module-label>:<tier-spec>).")
+    ("sam-data-tier", bpo::value<std::vector<std::string> >(), "SAM data tier spec-label>:<tier-spec>).")
     ("sam-run-type", bpo::value<std::string>(), "Global run-type for SAM metadata.")
     ("sam-stream-name", bpo::value<std::vector<std::string> >(), "SAM stream name (<module-label>:<stream-name>).")
   ;
@@ -202,6 +203,10 @@ doProcessOptions(bpo::variables_map const & vm,
   if (!appFamily_.empty()) {
     raw_config.put("services.FileCatalogMetadata.applicationFamily",
                    appFamily_);
+  }
+  if (vm.count("sam-group") > 0) {
+    raw_config.put("services.FileCatalogMetadata.group",
+                   vm["sam-group"].as<std::string>());
   }
   if (vm.count("sam-run-type") > 0) {
     raw_config.put("services.FileCatalogMetadata.runType",

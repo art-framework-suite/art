@@ -40,6 +40,7 @@
 #include "art/Utilities/Digest.h"
 #include "art/Utilities/Exception.h"
 #include "art/Version/GetReleaseVersion.h"
+#include "cetlib/canonical_string.h"
 #include "cetlib/container_algorithms.h"
 #include "cetlib/exempt_ptr.h"
 #include "cpp0x/algorithm"
@@ -280,7 +281,11 @@ namespace art {
     b->Fill();
   }
 
-  void RootOutputFile::writeFileCatalogMetadata(FileCatalogMetadata::collection_type const & md) {
+  void
+  RootOutputFile::
+  writeFileCatalogMetadata(FileStatsCollector const & stats,
+                           FileCatalogMetadata::collection_type const & md)
+  {
     SQLErrMsg errMsg;
     // ID is declared auto-increment, so don't specify it when filling a
     // row.
@@ -303,11 +308,65 @@ namespace art {
     for ( auto const & kv : md ) {
       insert_md_row(stmt, kv);
     }
+    ////////////////////////////////////
     // Add our own specific information:
+
+    // File format and friends.
     insert_md_row(stmt, { "file_format", "artroot" });
     insert_md_row(stmt, { "file_format_era", getFileFormatEra() });
     insert_md_row(stmt, { "file_format_version",
           std::to_string(getFileFormatVersion()) });
+
+    // Run / subRun information.
+    if (!stats.seenSubRuns().empty()) {
+      decltype(md.crbegin()) it;
+      if ((it =
+           std::find_if(md.crbegin(),
+                        md.crend(),
+                        [](std::pair<std::string, std::string> const & p)
+                        { return (p.first == "run_type"); })) != md.crend()) {
+        std::ostringstream srstring;
+        srstring << "[ ";
+        bool first = true;
+        for (auto const & srid : stats.seenSubRuns()) {
+          if (first) {
+            first = false;
+          } else {
+            srstring << ", ";
+          }
+          std::string run_type;
+          cet::canonical_string(it->second, run_type);
+          srstring << "[ "
+                   << srid.run()
+                   << ", "
+                   << srid.subRun()
+                   << ", "
+                   << run_type
+                   << " ], ";
+        }
+        // Rewind over last delimiter.
+        srstring.seekp(-2, ios_base::cur);
+        srstring << " ]";
+        insert_md_row(stmt, { "runs", srstring.str() });
+      }
+    }
+    // Number of events.
+    insert_md_row(stmt, { "event_count", std::to_string(stats.eventsThisFile()) });
+    // File parents.
+    if (!stats.parents().empty()) {
+      std::ostringstream pstring;
+      pstring << "[ ";
+      for (auto const & parent : stats.parents()) {
+        std::string cparent;
+        cet::canonical_string(parent, cparent);
+        pstring << cparent << ", ";
+      }
+      // Rewind over last delimiter.
+      pstring.seekp(-2, ios_base::cur);
+      pstring << " ]";
+      insert_md_row(stmt, { "parents", pstring.str() });
+    }
+    ////////////////////////////////////
     sqlite3_finalize(stmt);
     sqlite3_exec(metaDataHandle_, "END TRANSACTION;", 0, 0, SQLErrMsg());
   }
