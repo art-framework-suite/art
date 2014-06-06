@@ -326,6 +326,12 @@ namespace art {
                   { "start_time",
                       bpt::to_iso_extended_string(stats.outputFileOpenTime()) });
 
+    // File "end" time: now, since file is (of course) not actually
+    // closed yet.
+    insert_md_row(stmt,
+                  { "end_time",
+                      bpt::to_iso_extended_string(boost::posix_time::second_clock::universal_time())
+                  });
 
     // Run / subRun information.
     if (!stats.seenSubRuns().empty()) {
