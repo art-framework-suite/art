@@ -368,6 +368,18 @@ namespace art {
     }
     // Number of events.
     insert_md_row(stmt, { "event_count", std::to_string(stats.eventsThisFile()) });
+    // first_event and last_event.
+    auto eidToTuple = [](EventID const & eid) -> std::string
+    {
+      std::ostringstream eidStr;
+      eidStr << "[ " << eid.run() << ", " << eid.subRun()
+      << ", " << eid.event() << " ]";
+      return eidStr.str();
+    };
+    insert_md_row(stmt, { "first_event",
+          eidToTuple(stats.lowestEventID()) });
+    insert_md_row(stmt, { "last_event",
+          eidToTuple(stats.highestEventID()) });
     // File parents.
     if (!stats.parents().empty()) {
       std::ostringstream pstring;

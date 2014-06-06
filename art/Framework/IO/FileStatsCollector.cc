@@ -11,6 +11,8 @@ FileStatsCollector(std::string const & moduleLabel,
   processName_(processName),
   lowestSubRun_(),
   highestSubRun_(),
+  lowestEventIDSeen_(),
+  highestEventIDSeen_(),
   fo_(),
   fc_(),
   seqNo_(0ul),
@@ -46,9 +48,19 @@ void
 art::FileStatsCollector::
 recordEvent(EventID const & id)
 {
-  // Currently not recording by event.
-  recordSubRun(id.subRunID());
   ++nEvents_;
+  // Actually saw a real event that we've been asked to write, so
+  // EventID should be valid.
+  if (!lowestEventIDSeen_.isValid() ||
+      id < lowestEventIDSeen_) {
+    lowestEventIDSeen_ = id;
+  }
+  if (id > highestEventIDSeen_) {
+    // Sort-invalid-first gives the correct answer.
+    highestEventIDSeen_ = id;
+  }
+  // Record that we have seen this SubRunID too.
+  recordSubRun(id.subRunID());
 }
 
 void
