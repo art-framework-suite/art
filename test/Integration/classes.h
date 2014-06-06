@@ -9,6 +9,8 @@
 #include <string>
 #include <vector>
 
+template class art::Ptr<double>;
+template class art::Wrapper<art::Ptr<double> >;
 namespace {
   struct dictionary {
     cet::map_vector<std::string> mvs;
@@ -51,3 +53,7 @@ namespace {
     art::Wrapper<art::Assns<std::string, size_t, arttest::AssnTestData> > atd_w2;
   };
 }
+
+// Local Variables:
+// mode: c++
+// End:

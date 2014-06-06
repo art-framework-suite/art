@@ -91,8 +91,9 @@ public:
   // originally created by a module with label modLabel, and with an
   // optional instance name.
   template <class P, BranchType B>
-  void reconstitutes(std::string const& modLabel,
-                     std::string const& instanceName=std::string());
+  art::TypeLabel const &
+  reconstitutes(std::string const& modLabel,
+                std::string const& instanceName=std::string());
 
   void registerProducts(MasterProductRegistry &,
                         ModuleDescription const&);
@@ -106,12 +107,12 @@ private:
                      std::string const& instanceName=std::string());
 
   template <BranchType B>
-  void
+  art::TypeLabel const &
   reconstitutes_to_branch(TypeID const& productType,
                           std::string const& moduleLabel,
                           std::string const& instanceName=std::string());
 
-  void insertOrThrow(TypeLabel const &tl);
+  art::TypeLabel const & insertOrThrow(TypeLabel const &tl);
 
   TypeLabelList typeLabelList_;
 
@@ -133,14 +134,14 @@ art::ProductRegistryHelper::produces(std::string const& instanceName)
 }
 
 template <typename P, art::BranchType B>
-void
+art::TypeLabel const &
 art::ProductRegistryHelper::reconstitutes(std::string const& emulatedModule,
                                      std::string const& instanceName)
 {
   verifyInstanceName(instanceName);
   TypeID productType(typeid(P));
   verifyFriendlyClassName(productType.friendlyClassName());
-  reconstitutes_to_branch<B>(productType,
+  return reconstitutes_to_branch<B>(productType,
                              emulatedModule,
                              instanceName);
 }
@@ -154,7 +155,7 @@ art::ProductRegistryHelper::produces_in_branch(TypeID const& productType,
 }
 
 template <art::BranchType B>
-void
+art::TypeLabel const &
 art::ProductRegistryHelper::reconstitutes_to_branch(TypeID const& productType,
                                                std::string const& emulatedModule,
                                                std::string const& instanceName)
@@ -163,7 +164,7 @@ art::ProductRegistryHelper::reconstitutes_to_branch(TypeID const& productType,
     throw Exception(errors::Configuration)
       << "Input sources must call reconstitutes with a non-empty "
       << "module label.\n";
-  insertOrThrow(TypeLabel(B, productType, instanceName, emulatedModule));
+  return insertOrThrow(TypeLabel(B, productType, instanceName, emulatedModule));
 }
 
 #endif /* art_Framework_Core_ProductRegistryHelper_h */

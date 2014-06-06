@@ -1,11 +1,10 @@
-set(art_Framework_IO_Sources_sources
-  detail/FileServiceProxy.cc
-)
-
-art_make_library( LIBRARY_NAME art_Framework_IO_Sources
-  SOURCE ${art_Framework_IO_Sources_sources}
-  LIBRARIES art_Framework_Services_FileServiceInterfaces
+art_make(LIBRARY_NAME art_Framework_IO_Sources
+  SUBDIRS detail
+  LIB_LIBRARIES art_Framework_Services_FileServiceInterfaces
   art_Framework_Services_Registry
+  art_Framework_Principal
+  art_Persistency_Common
+  art_Persistency_Provenance
   art_Utilities
   )
 

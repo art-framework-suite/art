@@ -6,15 +6,11 @@ set(CMAKE_MODULE_PATH
 include(ReflexTools_t)
 
 # project name
-add_library(test_Integration
-  SHARED
-  ToySource.cc
-)
-
-target_link_libraries(test_Integration
+art_make_library(SOURCE ToySource.cc
+  LIBRARIES art_Framework_IO_Sources
   art_Framework_Core
   ${FHICLCPP}
-)
+  )
 
 set_source_files_properties(MixFilterTestETS_module.cc
   PROPERTIES COMPILE_DEFINITIONS ART_TEST_EVENTS_TO_SKIP_CONST=0
@@ -48,10 +44,10 @@ simple_plugin(DropTestAnalyzer            "module"  NO_INSTALL USE_BOOST_UNIT )
 simple_plugin(DropTestParentageFaker      "module"  NO_INSTALL )
 simple_plugin(FailingAnalyzer             "module"  NO_INSTALL )
 simple_plugin(FailingProducer             "module"  NO_INSTALL )
-simple_plugin(FlushingGenerator           "source"  NO_INSTALL art_Framework_IO_Sources )
+simple_plugin(FlushingGenerator           "source"  NO_INSTALL )
 simple_plugin(FlushingGeneratorTest       "module"  NO_INSTALL )
 simple_plugin(FlushingGeneratorTestFilter "module"  NO_INSTALL )
-simple_plugin(GeneratorTest               "source"  NO_INSTALL art_Framework_IO_Sources )
+simple_plugin(GeneratorTest               "source"  NO_INSTALL )
 simple_plugin(InFlightConfiguration       "service" NO_INSTALL USE_BOOST_UNIT art_Framework_Services_Registry art_Framework_Services_UserInteraction art_Framework_Services_System_PathSelection_service )
 simple_plugin(IntProducer                 "module"  NO_INSTALL )
 simple_plugin(IntTestAnalyzer             "module"  NO_INSTALL )
@@ -91,8 +87,8 @@ simple_plugin(TestProvenanceDumper        "module"  NO_INSTALL USE_BOOST_UNIT )
 simple_plugin(TestResultAnalyzer          "module"  NO_INSTALL )
 simple_plugin(TestServiceUsingService     "module"  NO_INSTALL USE_BOOST_UNIT )
 simple_plugin(Throwing                    "service" NO_INSTALL )
-simple_plugin(ToyRawFileInput             "source"  NO_INSTALL USE_BOOST_UNIT test_Integration art_Framework_IO_Sources )
-simple_plugin(ToyRawInput                 "source"  NO_INSTALL USE_BOOST_UNIT test_Integration art_Framework_IO_Sources )
+simple_plugin(ToyRawFileInput             "source"  NO_INSTALL USE_BOOST_UNIT test_Integration )
+simple_plugin(ToyRawInput                 "source"  NO_INSTALL USE_BOOST_UNIT test_Integration )
 simple_plugin(ToyRawInputTester           "module"  NO_INSTALL )
 simple_plugin(ToyRawProductAnalyzer       "module"  NO_INSTALL )
 simple_plugin(U_S                         "module"  NO_INSTALL ALLOW_UNDERSCORES )

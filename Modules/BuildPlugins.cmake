@@ -82,6 +82,11 @@ function(simple_plugin name type)
         ${ROOT_CORE}
         )
     endif()
+    if ("${type}" STREQUAL "source")
+      list(INSERT simple_plugin_liblist 0
+        art_Framework_IO_Sources
+        )
+    endif()
   endif()
   basic_plugin(${name} ${type} ${ARGN} ${simple_plugin_liblist})
 endfunction(simple_plugin name type)

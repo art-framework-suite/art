@@ -1,27 +1,31 @@
 #include "test/Integration/ToySource.h"
 
 #include "art/Framework/Core/ProductRegistryHelper.h"
+#include "art/Framework/IO/Sources/SourceHelper.h"
 #include "art/Framework/IO/Sources/put_product_in_principal.h"
 #include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Utilities/Exception.h"
+#include "cetlib/make_unique.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "test/TestObjects/ToyProducts.h"
 
-arttest::ToySource::ToySource(fhicl::ParameterSet const& ps,
-                          art::ProductRegistryHelper& helper,
-                          art::PrincipalMaker const &pm) :
+arttest::ToySource::
+ToySource(fhicl::ParameterSet const& ps,
+          art::ProductRegistryHelper& helper,
+          art::SourceHelper const &sHelper) :
   current_(),
   end_(),
   data_(ps),
   fileData_(),
-  pm_(pm),
+  sHelper_(sHelper),
   currentFilename_(),
   throw_on_construction_(ps.get<bool>("throw_on_construction", false)),
   throw_on_closeCurrentFile_(ps.get<bool>("throw_on_closeCurrentFile", false)),
   throw_on_readNext_(ps.get<bool>("throw_on_readNext", false)),
-  throw_on_readFile_(ps.get<bool>("throw_on_construction", false))
+  throw_on_readFile_(ps.get<bool>("throw_on_construction", false)),
+  vtl_(helper.reconstitutes<std::vector<double>, art::InEvent>("m3"))
 {
   if (throw_on_construction_) throw_exception_from("ToySource");
   helper.reconstitutes<int, art::InEvent>("m1");
@@ -29,6 +33,7 @@ arttest::ToySource::ToySource(fhicl::ParameterSet const& ps,
   helper.reconstitutes<double, art::InRun>("r1");
   helper.reconstitutes<bool, art::InEvent>("m2", "a");
   helper.reconstitutes<bool, art::InEvent>("m2", "b");
+  helper.reconstitutes<art::Ptr<double>, art::InEvent>("m3");
 }
 
 void
@@ -47,6 +52,9 @@ arttest::ToySource::readNext(art::RunPrincipal* const& inR,
                            art::SubRunPrincipal*& outSR,
                            art::EventPrincipal*& outE)
 {
+  using art::put_product_in_principal;
+  using cet::make_unique;
+
   if (throw_on_readNext_) throw_exception_from("readNext");
   // Have we any more to read?
   if (current_ == end_) return false;
@@ -58,9 +66,9 @@ arttest::ToySource::readNext(art::RunPrincipal* const& inR,
   if ((*current_)[0] != -1) // New run
   {
     art::Timestamp runstart; // current time?
-    outR = pm_.makeRunPrincipal((*current_)[0],  // run number
+    outR = sHelper_.makeRunPrincipal((*current_)[0],  // run number
                                 runstart);     // starting time
-    put_product_in_principal(std::unique_ptr<double>(new double(76.5)),
+    put_product_in_principal(make_unique<double>(76.5),
                              *outR,
                              "r1");
     readSomething = true;
@@ -79,10 +87,10 @@ arttest::ToySource::readNext(art::RunPrincipal* const& inR,
                               (*current_)[1]);
     }
     art::Timestamp runstart; // current time?
-    outSR = pm_.makeSubRunPrincipal(newSRID.run(),
+    outSR = sHelper_.makeSubRunPrincipal(newSRID.run(),
                                     newSRID.subRun(),
                                     runstart);     // starting time
-    put_product_in_principal(std::unique_ptr<double>(new double(7.0)),
+    put_product_in_principal(make_unique<double>(7.0),
                              *outSR,
                              "s1");
     readSomething = true;
@@ -91,21 +99,30 @@ arttest::ToySource::readNext(art::RunPrincipal* const& inR,
   {
     assert(outSR || inSR);
     art::Timestamp runstart; // current time?
-    outE = pm_.makeEventPrincipal(outR?outR->run():inR->run(),
+    outE = sHelper_.makeEventPrincipal(outR?outR->run():inR->run(),
                                   outSR?outSR->subRun():inSR->subRun(),
                                   (*current_)[2],  // event number
                                   runstart);     // starting time
-    art::put_product_in_principal(std::unique_ptr<int>(new int(26)),
-                                  *outE,
-                                  "m1");
-    art::put_product_in_principal(std::unique_ptr<bool>(new bool(false)),
-                                  *outE,
-                                  "m2",
-                                  "a");
-    art::put_product_in_principal(std::unique_ptr<bool>(new bool(true)),
-                                  *outE,
-                                  "m2",
-                                  "b");
+    put_product_in_principal(make_unique<int>(26),
+                             *outE,
+                             "m1");
+    put_product_in_principal(make_unique<bool>(false),
+                             *outE,
+                             "m2",
+                             "a");
+    put_product_in_principal(make_unique<bool>(true),
+                             *outE,
+                             "m2",
+                             "b");
+    put_product_in_principal(std::unique_ptr<std::vector<double> >
+                             (new std::vector<double>({ 1.0, 3.7, 5.2 })),
+                             *outE,
+                             "m3");
+    put_product_in_principal(make_unique<art::Ptr<double> >
+                             (sHelper_.make_ptr<double>(vtl_, *outE, 1)),
+                             *outE,
+                             "m3");
+
     readSomething = true;
   }
   if (readSomething)

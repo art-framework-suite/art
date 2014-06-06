@@ -1,5 +1,5 @@
-#ifndef art_Framework_Core_PluginMacros_h
-#define art_Framework_Core_PluginMacros_h
+#ifndef art_Utilities_BasicPluginMacros_h
+#define art_Utilities_BasicPluginMacros_h
 ////////////////////////////////////////////////////////////////////////
 // PluginMacros
 //
@@ -37,7 +37,7 @@
   DEFINE_BASIC_PLUGIN_MAKER(klass, base)        \
   DEFINE_BASIC_PLUGINTYPE_FUNC(base)
 
-#endif /* art_Framework_Core_PluginMacros_h */
+#endif /* art_Utilities_BasicPluginMacros_h */
 
 // Local Variables:
 // mode: c++
