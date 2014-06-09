@@ -30,6 +30,8 @@ public:
   boost::posix_time::ptime outputFileCloseTime() const;
   SubRunID const & lowestSubRunID() const;
   SubRunID const & highestSubRunID() const;
+  EventID const & lowestEventID() const;
+  EventID const & highestEventID() const;
   std::string const & lastOpenedInputFile() const;
   std::vector<std::string> const & parents() const;
   size_t sequenceNum() const;
@@ -43,6 +45,8 @@ private:
   std::string const processName_;
   SubRunID lowestSubRun_;
   SubRunID highestSubRun_;
+  EventID lowestEventIDSeen_;
+  EventID highestEventIDSeen_;
   boost::posix_time::ptime fo_;
   boost::posix_time::ptime fc_;
   size_t seqNo_;
@@ -98,6 +102,22 @@ art::FileStatsCollector::
 highestSubRunID() const
 {
   return highestSubRun_;
+}
+
+inline
+art::EventID const &
+art::FileStatsCollector::
+lowestEventID() const
+{
+  return lowestEventIDSeen_;
+}
+
+inline
+art::EventID const &
+art::FileStatsCollector::
+highestEventID() const
+{
+  return highestEventIDSeen_;
 }
 
 inline

@@ -1,20 +1,18 @@
 // sam_metadata_dumper.cc
 
-#include "cetlib/container_algorithms.h"
-
-#include "fhiclcpp/ParameterSet.h"
-#include "fhiclcpp/make_ParameterSet.h"
-#include "art/Persistency/Provenance/ParameterSetMap.h"
-#include "art/Persistency/Provenance/ParameterSetBlob.h"
-
-#include "boost/program_options.hpp"
-
 #include "art/Framework/IO/Root/GetFileFormatEra.h"
 #include "art/Framework/IO/Root/rootNames.h"
 #include "art/Framework/IO/Root/setMetaDataBranchAddress.h"
 #include "art/Persistency/Provenance/FileFormatVersion.h"
+#include "art/Persistency/Provenance/ParameterSetBlob.h"
+#include "art/Persistency/Provenance/ParameterSetMap.h"
 #include "art/Persistency/RootDB/SQLite3Wrapper.h"
 #include "art/Persistency/RootDB/tkeyvfs.h"
+#include "boost/program_options.hpp"
+#include "cetlib/container_algorithms.h"
+#include "cetlib/canonical_string.h"
+#include "fhiclcpp/ParameterSet.h"
+#include "fhiclcpp/make_ParameterSet.h"
 
 #include "TError.h"
 #include "TFile.h"
@@ -25,6 +23,7 @@ extern "C" {
 
 #include <algorithm>
 #include <cstring>
+#include <cstdlib>
 #include <iostream>
 #include <iterator>
 #include <ostream>
@@ -55,12 +54,12 @@ struct FileCatalogMetadataEntry
 
 // Print the human-readable form of a ParameterSet from which we strip
 // the "module_label" parameter.
-void print_one_fc_metadata_entry(FileCatalogMetadataEntry const & ent,
-          size_t idLen,
-          size_t longestName,
-          ostream & output)
+void
+print_one_fc_metadata_entry_hr(FileCatalogMetadataEntry const & ent,
+                               size_t idLen,
+                               size_t longestName,
+                               ostream & output)
 {
-//  std::cerr << "---> print_one_fc_metadata_entry \n";
   const size_t maxIDdigits = 5;
   const size_t maxNameSpacing = 20;
 
@@ -90,11 +89,11 @@ void print_one_fc_metadata_entry(FileCatalogMetadataEntry const & ent,
 }
 
 // Print all the entries in the file catalog metadata from a file
-void print_all_fc_metadata_entries(vector<FileCatalogMetadataEntry> const & entries,
-                                  ostream & output,
-                                  ostream & /*errors*/)
+void
+print_all_fc_metadata_entries_hr(vector<FileCatalogMetadataEntry> const & entries,
+                                 ostream & output,
+                                 ostream & /*errors*/)
 {
-//  std::cerr << "---> print_all_fc_metadata_entries \n";
   // For nice formatting, determine maximum id lenght and name size,
   // so that values can be lined up.
   int maxID = 1;
@@ -109,17 +108,69 @@ void print_all_fc_metadata_entries(vector<FileCatalogMetadataEntry> const & entr
     maxID /= 10;
     if (maxID > 0) ++idLen;
   }
-  for (size_t i = 0; i < entries.size(); ++i) {
-    print_one_fc_metadata_entry(entries[i], idLen, longestName, output);
+  for (auto const & entry : entries) {
+    print_one_fc_metadata_entry_hr(entry, idLen, longestName, output);
   }
+}
+
+// Print the JSON form of the metadata for the current entry.
+void
+print_one_fc_metadata_entry_JSON(FileCatalogMetadataEntry const & ent,
+                                 ostream & output)
+{
+  std::string cName;
+  cet::canonical_string(ent.name, cName);
+  output << cName << ": ";
+
+  std::string entryValue;
+  if (ent.value[0] == '[' ||
+      ent.value[0] == '{' ||
+      ent.value[0] == '\"')
+  {
+    // Assume entry is already a legal JSON representation.
+    entryValue = ent.value;
+  } else {
+    // Attempt to convert to number. If this works, we don't
+    // canonicalize the string. Note that we use the glibc version
+    // because we don't want to have to catch the exception. We could
+    // use streams, but we don't care about the result and dealing with
+    // streams is awkward.
+    char const * entval = ent.value.c_str();
+    char * endptr = const_cast<char *>(entval);
+    strtold(entval, &endptr);
+    if (endptr == entval + ent.value.size()) {
+      // Full conversion: no string canonicalization necessary.
+      entryValue = ent.value;
+    } else {
+      cet::canonical_string(ent.value, entryValue);
+    }
+  }
+  output << entryValue;
+}
+
+void
+print_all_fc_metadata_entries_JSON(vector<FileCatalogMetadataEntry> const & entries,
+                                   ostream & output,
+                                   ostream & /*errors*/)
+{
+  std::ostringstream buf; // Need seekp to work.
+  buf << "{ \n";
+  for (auto const & entry : entries) {
+    buf << "    "; // Indent.
+    print_one_fc_metadata_entry_JSON(entry, buf);
+    buf << ", \n";
+  }
+  buf.seekp(-3, std::ios_base::cur);
+  buf << " \n  }";
+  output << buf.str() << "\n";
 }
 
 // Read all the file catalog metadata entries stored in the table in 'file'.
 // Write any error messages to errors.
 // Return false on failure, and true on success.
 bool read_all_fc_metadata_entries(TFile & file,
-          vector<FileCatalogMetadataEntry>& all_metadata_entries,
-          ostream & errors)
+                                  vector<FileCatalogMetadataEntry>& all_metadata_entries,
+                                  ostream & errors)
 {
 //  std::cerr << "---> read_all_fc_metadata_entries \n";
   FileCatalogMetadataEntry ent;
@@ -173,8 +224,9 @@ bool read_all_fc_metadata_entries(TFile & file,
 // does not declare the functions we use to be const, even though they do not
 // modify the underlying file.
 int print_fc_metadata_from_file(TFile & file,
-                                 ostream & output,
-                                 ostream & errors)
+                                ostream & output,
+                                ostream & errors,
+                                bool want_hr)
 {
 //  std::cerr << "---> print_fc_metadata_from_file \n";
   vector<FileCatalogMetadataEntry> all_metadata_entries;
@@ -183,7 +235,22 @@ int print_fc_metadata_from_file(TFile & file,
     return 1;
   }
   // Iterate through all the entries, printing each one.
-  print_all_fc_metadata_entries(all_metadata_entries, output, errors);
+  if (want_hr) {
+    output << "\nFile catalog metadata from file "
+           << file.GetName()
+           << ":\n\n";
+    print_all_fc_metadata_entries_hr(all_metadata_entries,
+                                     output,
+                                     errors);
+    output << "-------------------------------\n";
+  } else { // JSON.
+    std::string cFN;
+    cet::canonical_string(file.GetName(), cFN);
+    output << cFN << ": ";
+    print_all_fc_metadata_entries_JSON(all_metadata_entries,
+                                       output,
+                                       errors);
+  }
   return 0;
 }
 
@@ -193,12 +260,15 @@ int print_fc_metadata_from_file(TFile & file,
 //
 // The return value is the number of files in which errors were
 // encountered, and is thus 0 to indicate success.
-int print_fc_metadata_from_files(
-         stringvec const & file_names,
-                           ostream & output,
-                           ostream & errors)
+int print_fc_metadata_from_files(stringvec const & file_names,
+                                 ostream & output,
+                                 ostream & errors,
+                                 bool want_hr)
 {
 //  std::cerr << "---> print_fc_metadata_from_files \n";
+  if (! want_hr) { // JSON.
+    output << "{\n  ";
+  }
   int rc = 0;
   for (stringvec::const_iterator
        i = file_names.begin(),
@@ -212,12 +282,12 @@ int print_fc_metadata_from_files(
              << *i
              << "' for reading."
              << "\nSkipping to next file.\n";
+    } else {
+      rc += print_fc_metadata_from_file(*current_file, output, errors, want_hr);
     }
-    else {
-      output << "\nFile catalog metadata from file " << *i  << ":\n\n";
-      rc += print_fc_metadata_from_file(*current_file, output, errors);
-      output << "-------------------------------\n";
-    }
+  }
+  if (! want_hr) { // JSON.
+    output << "}\n";
   }
   return rc;
 }
@@ -250,8 +320,12 @@ int main(int argc, char * argv[])
           << " <options> [<source-file>]+";
   bpo::options_description desc(descstr.str());
   desc.add_options()
-  ("help,h",                             "produce help message")
-  ("source,s",  bpo::value<stringvec>(), "source data file (multiple OK)");
+    ("help,h", "produce help message")
+    ("hr,H",
+     "produce human-readable output (default is JSON)")
+    ("human-readable",
+     "produce human-readable output (default is JSON)")
+    ("source,s",  bpo::value<stringvec>(), "source data file (multiple OK)");
   bpo::options_description all_opts("All Options");
   all_opts.add(desc);
   // Each non-option argument is interpreted as the name of a files to
@@ -274,6 +348,9 @@ int main(int argc, char * argv[])
     std::cout << desc << std::endl;
     return 1;
   }
+  bool want_hr = ((!!vm.count("hr")) ||
+                  (!!vm.count("human-readable"))) ; // Default is JSON.
+
   // Get the names of the files we will process.
   stringvec file_names;
   size_t file_count = vm.count("source");
@@ -295,8 +372,9 @@ int main(int argc, char * argv[])
 
   // Do the work.
   return print_fc_metadata_from_files(file_names,
-        cout,
-        cerr);
+                                      cout,
+                                      cerr,
+                                      want_hr);
   // Testing.
   //   cout << "Specified module labels\n";
   //   cet::copy_all(module_labels,

@@ -848,13 +848,28 @@ cet_test(SAM_metadata HANDBUILT
   fcl/SAMMetadata_w.fcl
 )
 
-cet_test(SAM_metadata_verify HANDBUILT
+set(date_regex "[0-9][0-9][0-9][0-9]-[01][0-9]-[0-3][0-9]T[0-2][0-9]:[0-5][0-9]:[0-5][0-9](,[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9])?")
+
+# Pipe the output of sam_metadata_dumper through the following perl
+# command to get a suitable regex:
+#
+# perl -wne 'BEGIN { print "^"; }; chomp; s&([\[\]\.])&\\\\${1}&g; s&\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:,\d{9})?&\${date_regex}&g; s&"&\\"&g; print "$_\\n"; END { print "\$\n"; }'
+
+cet_test(SAM_metadata_verify_hr HANDBUILT
+  TEST_EXEC sam_metadata_dumper
+  TEST_ARGS -H -s ../SAM_metadata.d/out.root
+  TEST_PROPERTIES DEPENDS SAM_metadata
+  PASS_REGULAR_EXPRESSION
+  "^\nFile catalog metadata from file \\.\\./SAM_metadata\\.d/out\\.root:\n\n 1: applicationFamily   Ethel\n 2: applicationVersion  v0\\.00\\.01a\n 3: file_type           MC\n 4: run_type            MCChallenge\n 5: group               MyGang\n 6: process_name        SAMMetadataW\n 7: testMetadata        success!\n 8: dataTier            The one with the thickest frosting\n 9: streamName          o1\n10: file_format         artroot\n11: file_format_era     ART_2011a\n12: file_format_version 5\n13: start_time          ${date_regex}\n14: end_time            ${date_regex}\n15: runs                \\[ \\[ 1, 0, \"MCChallenge\" \\] \\]\n16: event_count         1\n17: first_event         \\[ 1, 0, 1 \\]\n18: last_event          \\[ 1, 0, 1 \\]\n-------------------------------\n$"
+  )
+
+cet_test(SAM_metadata_verify_JSON HANDBUILT
   TEST_EXEC sam_metadata_dumper
   TEST_ARGS -s ../SAM_metadata.d/out.root
   TEST_PROPERTIES DEPENDS SAM_metadata
   PASS_REGULAR_EXPRESSION
-  "\n\n 1: applicationFamily   Ethel\n 2: applicationVersion  v0\\.00\\.01a\n 3: file_type           MC\n 4: run_type            MCChallenge\n 5: group               MyGang\n 6: process_name        SAMMetadataW\n 7: testMetadata        success!\n 8: dataTier            The one with the thickest frosting\n 9: streamName          o1\n10: file_format         artroot\n11: file_format_era     ART_2011a\n12: file_format_version 5\n13: start_time          [0-9][0-9][0-9][0-9]-[01][0-9]-[0-3][0-9]T[0-2][0-9]:[0-5][0-9]:[0-5][0-9](,[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9])?\n14: runs                \\[ \\[ 1, 0, \"MCChallenge\" \\] \\]\n15: event_count         1\n-"
-)
+  "^{\n  \"\\.\\./SAM_metadata\\.d/out\\.root\": { \n    \"applicationFamily\": \"Ethel\", \n    \"applicationVersion\": \"v0\\.00\\.01a\", \n    \"file_type\": \"MC\", \n    \"run_type\": \"MCChallenge\", \n    \"group\": \"MyGang\", \n    \"process_name\": \"SAMMetadataW\", \n    \"testMetadata\": \"success!\", \n    \"dataTier\": \"The one with the thickest frosting\", \n    \"streamName\": \"o1\", \n    \"file_format\": \"artroot\", \n    \"file_format_era\": \"ART_2011a\", \n    \"file_format_version\": 5, \n    \"start_time\": \"${date_regex}\", \n    \"end_time\": \"${date_regex}\", \n    \"runs\": \\[ \\[ 1, 0, \"MCChallenge\" \\] \\], \n    \"event_count\": 1, \n    \"first_event\": \\[ 1, 0, 1 \\], \n    \"last_event\": \\[ 1, 0, 1 \\] \n  }\n}\n$"
+  )
 
 cet_test(GeneratorSource_t HANDBUILT
   TEST_EXEC art
@@ -1009,14 +1024,21 @@ cet_test(TestMetadata_plugin_t HANDBUILT
   fcl/TestMetadata_Plugin_t.fcl
 )
 
-cet_test(TestMetadata_verify HANDBUILT
+cet_test(TestMetadata_verify_hr HANDBUILT
+  TEST_EXEC sam_metadata_dumper
+  TEST_ARGS -H -s ../TestMetadata_plugin_t.d/out.root
+  TEST_PROPERTIES DEPENDS TestMetadata_plugin_t
+  PASS_REGULAR_EXPRESSION
+  "^\nFile catalog metadata from file \\.\\./TestMetadata_plugin_t\\.d/out\\.root:\n\n 1: process_name        DEVEL\n 2: key1                value1\n 3: key2                value2\n 4: file_format         artroot\n 5: file_format_era     ART_2011a\n 6: file_format_version 5\n 7: start_time          ${date_regex}\n 8: end_time            ${date_regex}\n 9: event_count         1\n10: first_event         \\[ 1, 0, 1 \\]\n11: last_event          \\[ 1, 0, 1 \\]\n-------------------------------\n$"
+  )
+
+cet_test(TestMetadata_verify_JSON HANDBUILT
   TEST_EXEC sam_metadata_dumper
   TEST_ARGS -s ../TestMetadata_plugin_t.d/out.root
   TEST_PROPERTIES DEPENDS TestMetadata_plugin_t
   PASS_REGULAR_EXPRESSION
-  "\n\n1: process_name        DEVEL\n2: key1                value1\n3: key2                value2\n4: file_format         artroot\n5: file_format_era     ART_2011a\n6: file_format_version 5\n7: start_time          [0-9][0-9][0-9][0-9]-[01][0-9]-[0-3][0-9]T[0-2][0-9]:[0-5][0-9]:[0-5][0-9](,[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9])?\n8: event_count         1\n-"
-)
-
+  "^{\n  \"\\.\\./TestMetadata_plugin_t\\.d/out\\.root\": { \n    \"process_name\": \"DEVEL\", \n    \"key1\": \"value1\", \n    \"key2\": \"value2\", \n    \"file_format\": \"artroot\", \n    \"file_format_era\": \"ART_2011a\", \n    \"file_format_version\": 5, \n    \"start_time\": \"${date_regex}\", \n    \"end_time\": \"${date_regex}\", \n    \"event_count\": 1, \n    \"first_event\": \\[ 1, 0, 1 \\], \n    \"last_event\": \\[ 1, 0, 1 \\] \n  }\n}\n$"
+  )
 
 add_subdirectory(event-shape)
 add_subdirectory(high-memory)

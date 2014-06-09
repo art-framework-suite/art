@@ -326,6 +326,12 @@ namespace art {
                   { "start_time",
                       bpt::to_iso_extended_string(stats.outputFileOpenTime()) });
 
+    // File "end" time: now, since file is (of course) not actually
+    // closed yet.
+    insert_md_row(stmt,
+                  { "end_time",
+                      bpt::to_iso_extended_string(boost::posix_time::second_clock::universal_time())
+                  });
 
     // Run / subRun information.
     if (!stats.seenSubRuns().empty()) {
@@ -362,6 +368,18 @@ namespace art {
     }
     // Number of events.
     insert_md_row(stmt, { "event_count", std::to_string(stats.eventsThisFile()) });
+    // first_event and last_event.
+    auto eidToTuple = [](EventID const & eid) -> std::string
+    {
+      std::ostringstream eidStr;
+      eidStr << "[ " << eid.run() << ", " << eid.subRun()
+      << ", " << eid.event() << " ]";
+      return eidStr.str();
+    };
+    insert_md_row(stmt, { "first_event",
+          eidToTuple(stats.lowestEventID()) });
+    insert_md_row(stmt, { "last_event",
+          eidToTuple(stats.highestEventID()) });
     // File parents.
     if (!stats.parents().empty()) {
       std::ostringstream pstring;
