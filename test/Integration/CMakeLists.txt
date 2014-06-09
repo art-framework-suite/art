@@ -848,13 +848,15 @@ cet_test(SAM_metadata HANDBUILT
   fcl/SAMMetadata_w.fcl
 )
 
+set(date_regex "[0-9][0-9][0-9][0-9]-[01][0-9]-[0-3][0-9]T[0-2][0-9]:[0-5][0-9]:[0-5][0-9](,[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9])?")
+
 cet_test(SAM_metadata_verify HANDBUILT
   TEST_EXEC sam_metadata_dumper
   TEST_ARGS -s ../SAM_metadata.d/out.root
   TEST_PROPERTIES DEPENDS SAM_metadata
   PASS_REGULAR_EXPRESSION
-  "\n\n 1: applicationFamily   Ethel\n 2: applicationVersion  v0\\.00\\.01a\n 3: file_type           MC\n 4: run_type            MCChallenge\n 5: group               MyGang\n 6: process_name        SAMMetadataW\n 7: testMetadata        success!\n 8: dataTier            The one with the thickest frosting\n 9: streamName          o1\n10: file_format         artroot\n11: file_format_era     ART_2011a\n12: file_format_version 5\n13: start_time          [0-9][0-9][0-9][0-9]-[01][0-9]-[0-3][0-9]T[0-2][0-9]:[0-5][0-9]:[0-5][0-9](,[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9])?\n14: runs                \\[ \\[ 1, 0, \"MCChallenge\" \\] \\]\n15: event_count         1\n-"
-)
+  "\n\n 1: applicationFamily   Ethel\n 2: applicationVersion  v0\\.00\\.01a\n 3: file_type           MC\n 4: run_type            MCChallenge\n 5: group               MyGang\n 6: process_name        SAMMetadataW\n 7: testMetadata        success!\n 8: dataTier            The one with the thickest frosting\n 9: streamName          o1\n10: file_format         artroot\n11: file_format_era     ART_2011a\n12: file_format_version 5\n13: start_time          ${date_regex}\n14: end_time            ${date_regex}\n15: runs                \\[ \\[ 1, 0, \"MCChallenge\" \\] \\]\n16: event_count         1\n17: first_event         \\[ 1, 0, 1 \\]\n18: last_event          \\[ 1, 0, 1 \\]\n-"
+  )
 
 cet_test(GeneratorSource_t HANDBUILT
   TEST_EXEC art
@@ -1014,9 +1016,8 @@ cet_test(TestMetadata_verify HANDBUILT
   TEST_ARGS -s ../TestMetadata_plugin_t.d/out.root
   TEST_PROPERTIES DEPENDS TestMetadata_plugin_t
   PASS_REGULAR_EXPRESSION
-  "\n\n1: process_name        DEVEL\n2: key1                value1\n3: key2                value2\n4: file_format         artroot\n5: file_format_era     ART_2011a\n6: file_format_version 5\n7: start_time          [0-9][0-9][0-9][0-9]-[01][0-9]-[0-3][0-9]T[0-2][0-9]:[0-5][0-9]:[0-5][0-9](,[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9])?\n8: event_count         1\n-"
-)
-
+  "\n\n 1: process_name        DEVEL\n 2: key1                value1\n 3: key2                value2\n 4: file_format         artroot\n 5: file_format_era     ART_2011a\n 6: file_format_version 5\n 7: start_time          ${date_regex}\n 8: end_time            ${date_regex}\n 9: event_count         1\n10: first_event         \\[ 1, 0, 1 \\]\n11: last_event          \\[ 1, 0, 1 \\]\n-"
+  )
 
 add_subdirectory(event-shape)
 add_subdirectory(high-memory)
