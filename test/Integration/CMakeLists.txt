@@ -868,7 +868,7 @@ cet_test(SAM_metadata_verify_JSON HANDBUILT
   TEST_ARGS -s ../SAM_metadata.d/out.root
   TEST_PROPERTIES DEPENDS SAM_metadata
   PASS_REGULAR_EXPRESSION
-  "^{\n  \"\\.\\./SAM_metadata\\.d/out\\.root\": { \n    \"applicationFamily\": \"Ethel\", \n    \"applicationVersion\": \"v0\\.00\\.01a\", \n    \"file_type\": \"MC\", \n    \"run_type\": \"MCChallenge\", \n    \"group\": \"MyGang\", \n    \"process_name\": \"SAMMetadataW\", \n    \"testMetadata\": \"success!\", \n    \"dataTier\": \"The one with the thickest frosting\", \n    \"streamName\": \"o1\", \n    \"file_format\": \"artroot\", \n    \"file_format_era\": \"ART_2011a\", \n    \"file_format_version\": 5, \n    \"start_time\": \"${date_regex}\", \n    \"end_time\": \"${date_regex}\", \n    \"runs\": \\[ \\[ 1, 0, \"MCChallenge\" \\] \\], \n    \"event_count\": 1, \n    \"first_event\": \\[ 1, 0, 1 \\], \n    \"last_event\": \\[ 1, 0, 1 \\] \n  }\n}\n$"
+  "^{\n  \"\\.\\./SAM_metadata\\.d/out\\.root\": {\n    \"applicationFamily\": \"Ethel\",\n    \"applicationVersion\": \"v0\\.00\\.01a\",\n    \"file_type\": \"MC\",\n    \"run_type\": \"MCChallenge\",\n    \"group\": \"MyGang\",\n    \"process_name\": \"SAMMetadataW\",\n    \"testMetadata\": \"success!\",\n    \"dataTier\": \"The one with the thickest frosting\",\n    \"streamName\": \"o1\",\n    \"file_format\": \"artroot\",\n    \"file_format_era\": \"ART_2011a\",\n    \"file_format_version\": 5,\n    \"start_time\": \"${date_regex}\",\n    \"end_time\": \"${date_regex}\",\n    \"runs\": \\[ \\[ 1, 0, \"MCChallenge\" \\] \\],\n    \"event_count\": 1,\n    \"first_event\": \\[ 1, 0, 1 \\],\n    \"last_event\": \\[ 1, 0, 1 \\]\n  }\n}\n$"
   )
 
 cet_test(GeneratorSource_t HANDBUILT
@@ -1037,7 +1037,7 @@ cet_test(TestMetadata_verify_JSON HANDBUILT
   TEST_ARGS -s ../TestMetadata_plugin_t.d/out.root
   TEST_PROPERTIES DEPENDS TestMetadata_plugin_t
   PASS_REGULAR_EXPRESSION
-  "^{\n  \"\\.\\./TestMetadata_plugin_t\\.d/out\\.root\": { \n    \"process_name\": \"DEVEL\", \n    \"key1\": \"value1\", \n    \"key2\": \"value2\", \n    \"file_format\": \"artroot\", \n    \"file_format_era\": \"ART_2011a\", \n    \"file_format_version\": 5, \n    \"start_time\": \"${date_regex}\", \n    \"end_time\": \"${date_regex}\", \n    \"event_count\": 1, \n    \"first_event\": \\[ 1, 0, 1 \\], \n    \"last_event\": \\[ 1, 0, 1 \\] \n  }\n}\n$"
+  "^{\n  \"\\.\\./TestMetadata_plugin_t\\.d/out\\.root\": {\n    \"process_name\": \"DEVEL\",\n    \"key1\": \"value1\",\n    \"key2\": \"value2\",\n    \"file_format\": \"artroot\",\n    \"file_format_era\": \"ART_2011a\",\n    \"file_format_version\": 5,\n    \"start_time\": \"${date_regex}\",\n    \"end_time\": \"${date_regex}\",\n    \"event_count\": 1,\n    \"first_event\": \\[ 1, 0, 1 \\],\n    \"last_event\": \\[ 1, 0, 1 \\]\n  }\n}\n$"
   )
 
 add_subdirectory(event-shape)

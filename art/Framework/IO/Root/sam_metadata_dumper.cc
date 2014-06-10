@@ -154,15 +154,15 @@ print_all_fc_metadata_entries_JSON(vector<FileCatalogMetadataEntry> const & entr
                                    ostream & /*errors*/)
 {
   std::ostringstream buf; // Need seekp to work.
-  buf << "{ \n";
+  buf << "{\n";
   for (auto const & entry : entries) {
     buf << "    "; // Indent.
     print_one_fc_metadata_entry_JSON(entry, buf);
-    buf << ", \n";
+    buf << ",\n";
   }
-  buf.seekp(-3, std::ios_base::cur);
-  buf << " \n  }";
-  output << buf.str() << "\n";
+  buf.seekp(-2, std::ios_base::cur);
+  buf << "\n  }";
+  output << buf.str();
 }
 
 // Read all the file catalog metadata entries stored in the table in 'file'.
@@ -270,6 +270,7 @@ int print_fc_metadata_from_files(stringvec const & file_names,
     output << "{\n  ";
   }
   int rc = 0;
+  bool first = true;
   for (stringvec::const_iterator
        i = file_names.begin(),
        e = file_names.end();
@@ -283,11 +284,16 @@ int print_fc_metadata_from_files(stringvec const & file_names,
              << "' for reading."
              << "\nSkipping to next file.\n";
     } else {
+      if (first) {
+        first=false;
+      } else if (!want_hr) { // JSON.
+        output << ",\n  ";
+      }
       rc += print_fc_metadata_from_file(*current_file, output, errors, want_hr);
     }
   }
   if (! want_hr) { // JSON.
-    output << "}\n";
+    output << "\n}\n";
   }
   return rc;
 }
