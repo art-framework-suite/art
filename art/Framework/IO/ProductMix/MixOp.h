@@ -219,7 +219,7 @@ readFromFile(EntryNumberSequence const & seq)
   initProductList(seq.size());
   // Make sure we don't have a ProductGetter set.
   configureRefCoreStreamer();
-  // Assume the seqenece is ordered per
+  // Assume the sequence is ordered per
   // MixHelper::generateEventSequence.
   typename SpecProdList::iterator prod_iter =
     inProducts_.begin();
