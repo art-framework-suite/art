@@ -21,6 +21,7 @@ BEGIN { %inc_translations = (
                              "art/Framework/Core/NoDelayedReader.h" => "art/Framework/Principal/NoDelayedReader.h",
                              "art/Framework/Core/NovaConfigPostProcessor.h" => "art/Framework/Art/NovaConfigPostProcessor.h",
                              "art/Framework/Core/OccurrenceTraits.h" => "art/Framework/Principal/OccurrenceTraits.h",
+                             "art/Framework/Core/OutputFileInfo.h" => "art/Utilities/OutputFileInfo.h",
                              "art/Framework/Core/Principal.h" => "art/Framework/Principal/Principal.h",
                              "art/Framework/Core/ProductMetaData.h" => "art/Persistency/Provenance/ProductMetaData.h",
                              "art/Framework/Core/Run.h" => "art/Framework/Principal/Run.h",
