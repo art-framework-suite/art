@@ -5,6 +5,10 @@
 #include "art/Framework/Principal/CurrentProcessingContext.h"
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Principal/EventPrincipal.h"
+#include "art/Framework/Principal/Run.h"
+#include "art/Framework/Principal/RunPrincipal.h"
+#include "art/Framework/Principal/SubRun.h"
+#include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Persistency/Provenance/ProductMetaData.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/System/TriggerNamesService.h"
@@ -24,7 +28,8 @@ using std::string;
 
 art::OutputModule::
 OutputModule(ParameterSet const & pset)
-  : EventObserver(pset),
+  :
+  EventObserver(pset),
   maxEvents_(-1),
   remainingEvents_(maxEvents_),
   keptProducts_(),
@@ -38,7 +43,9 @@ OutputModule(ParameterSet const & pset)
   configuredFileName_(pset.get<std::string>("fileName", "")),
   dataTier_(pset.get<std::string>("dataTier", "")),
   streamName_(pset.get<std::string>("streamName", "")),
-  ci_()
+  ci_(),
+  pluginFactory_(),
+  plugins_(makePlugins_(pset.get<std::vector<fhicl::ParameterSet> >("FCMDPlugins", { })))
 {
   hasNewlyDroppedBranch_.fill(false);
 }
@@ -108,6 +115,8 @@ doBeginJob()
 {
   selectProducts();
   beginJob();
+  cet::for_all(plugins_, std::bind(&FileCatalogMetadataPlugin::doBeginJob,
+                                   std::placeholders::_1));
 }
 
 void
@@ -115,6 +124,8 @@ art::OutputModule::
 doEndJob()
 {
   endJob();
+  cet::for_all(plugins_, std::bind(&FileCatalogMetadataPlugin::doEndJob,
+                                   std::placeholders::_1));
 }
 
 
@@ -126,10 +137,11 @@ doEvent(EventPrincipal const & ep,
   detail::CPCSentry sentry(current_context_, cpc);
   detail::PVSentry pvSentry(selectors_);
   FDEBUG(2) << "writeEvent called\n";
-  Event e(const_cast<EventPrincipal &>(ep), moduleDescription_);
+  Event const e(const_cast<EventPrincipal &>(ep), moduleDescription_);
   if (wantAllEvents_ || selectors_.wantEvent(e)) {
     write(ep); // Write the event.
-    // Declare that the event was selected for write.
+    // Declare that the event was selected for write to the catalog
+    // interface
     art::Handle<art::TriggerResults> trHandle(getTriggerResults(e));
     HLTGlobalStatus const &
     trRef(trHandle.isValid() ?
@@ -138,6 +150,9 @@ doEvent(EventPrincipal const & ep,
     ci_->eventSelected(moduleDescription_.moduleLabel(),
                        ep.id(),
                        trRef);
+    // ... and invoke the plugins:
+    cet::for_all(plugins_, std::bind(&FileCatalogMetadataPlugin::doCollectMetadata,
+                                     std::placeholders::_1, std::cref(e)));
     // Finish.
     updateBranchParents(ep);
     if (remainingEvents_ > 0) {
@@ -155,6 +170,9 @@ doBeginRun(RunPrincipal const & rp,
   detail::CPCSentry sentry(current_context_, cpc);
   FDEBUG(2) << "beginRun called\n";
   beginRun(rp);
+  Run const r(const_cast<RunPrincipal &>(rp), moduleDescription_);
+  cet::for_all(plugins_, std::bind(&FileCatalogMetadataPlugin::doBeginRun,
+                                   std::placeholders::_1, std::cref(r)));
   return true;
 }
 
@@ -166,6 +184,9 @@ doEndRun(RunPrincipal const & rp,
   detail::CPCSentry sentry(current_context_, cpc);
   FDEBUG(2) << "endRun called\n";
   endRun(rp);
+  Run const r(const_cast<RunPrincipal &>(rp), moduleDescription_);
+  cet::for_all(plugins_, std::bind(&FileCatalogMetadataPlugin::doEndRun,
+                                   std::placeholders::_1, std::cref(r)));
   return true;
 }
 
@@ -185,6 +206,9 @@ doBeginSubRun(SubRunPrincipal const & srp,
   detail::CPCSentry sentry(current_context_, cpc);
   FDEBUG(2) << "beginSubRun called\n";
   beginSubRun(srp);
+  SubRun const r(const_cast<SubRunPrincipal &>(srp), moduleDescription_);
+  cet::for_all(plugins_, std::bind(&FileCatalogMetadataPlugin::doBeginSubRun,
+                                   std::placeholders::_1, std::cref(r)));
   return true;
 }
 
@@ -196,6 +220,9 @@ doEndSubRun(SubRunPrincipal const & srp,
   detail::CPCSentry sentry(current_context_, cpc);
   FDEBUG(2) << "endSubRun called\n";
   endSubRun(srp);
+  SubRun const r(const_cast<SubRunPrincipal &>(srp), moduleDescription_);
+  cet::for_all(plugins_, std::bind(&FileCatalogMetadataPlugin::doEndSubRun,
+                                   std::placeholders::_1, std::cref(r)));
   return true;
 }
 
@@ -478,14 +505,27 @@ void
 art::OutputModule::
 writeFileCatalogMetadata()
 {
+  // Add output module-specific info and tell our concrete class to write it out.
+  FileCatalogMetadata::collection_type md;
+  ServiceHandle<FileCatalogMetadata>()->getMetadata(md);
   if (!dataTier_.empty()) {
-    // Add output module-specific info and tell our concrete class to write it out.
-    FileCatalogMetadata::collection_type md;
-    ServiceHandle<FileCatalogMetadata>()->getMetadata(md);
     md.emplace_back("dataTier", dataTier_);
-    md.emplace_back("streamName", streamName_);
-    doWriteFileCatalogMetadata(md);
   }
+  if (!streamName_.empty()) {
+    md.emplace_back("streamName", streamName_);
+  }
+  // Ask any plugins for their list of metadata.
+  cet::for_all(plugins_,
+               [&md](std::unique_ptr<FileCatalogMetadataPlugin> & plugin)
+               {
+                 FileCatalogMetadata::collection_type tmp =
+                   plugin->doProduceMetadata();
+                 md.reserve(tmp.size() + md.size());
+                 for (auto && entry : tmp) {
+                   md.emplace_back(std::move(entry));
+                 }
+               });
+  doWriteFileCatalogMetadata(md);
 }
 
 void
@@ -510,4 +550,39 @@ void
 art::OutputModule::
 finishEndFile()
 {
+}
+
+auto
+art::OutputModule::
+makePlugins_(std::vector<fhicl::ParameterSet> const psets)
+-> PluginCollection_t
+{
+  PluginCollection_t result;
+  result.reserve(psets.size());
+  size_t count = 0;
+  try {
+    for (auto const & pset : psets) {
+      auto const libspec = pset.get<std::string>("plugin_type");
+      auto const pluginType = pluginFactory_.pluginType(libspec);
+      if (pluginType ==
+          cet::PluginTypeDeducer<FileCatalogMetadataPlugin>::value) {
+        result.emplace_back(pluginFactory_.
+                            makePlugin<std::unique_ptr<FileCatalogMetadataPlugin>,
+                            fhicl::ParameterSet const &>(libspec, pset));
+      } else {
+        throw Exception(errors::Configuration, "OutputModule: ")
+          << "unrecognized plugin type "
+          << pluginType
+          << ".\n";
+      }
+      ++count;
+    }
+  }
+  catch (cet::exception & e) {
+    throw Exception(errors::Configuration, "OutputModule: ", e)
+      << "Exception caught while processing FCMDPlugins["
+      << count
+      << "].\n";
+  }
+  return result;
 }

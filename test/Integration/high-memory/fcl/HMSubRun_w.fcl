@@ -2,7 +2,7 @@ process_name: HMSR
 
 source: {
   module_type: EmptyEvent
-  maxEvents: 5
+  maxEvents: 1
 }
 
 outputs: {

@@ -82,8 +82,7 @@ MixHelper(fhicl::ParameterSet const & pset,
           ProducerBase & producesProvider)
   :
   producesProvider_(producesProvider),
-  filenames_(pset.get<std::vector<std::string> >("fileNames"),
-             { }),
+  filenames_(pset.get<std::vector<std::string> >("fileNames", { })),
   providerFunc_(),
   mixOps_(),
   ptrRemapper_(),
@@ -129,7 +128,7 @@ registerSecondaryFileNameProvider(ProviderFunc_ func)
   if (! filenames_.empty()) {
     throw Exception(errors::Configuration)
       << "Provision of a secondary file name provider is incompatible"
-      << "with a\nnon-empty fileNames parameter to the mix filter.\n";
+      << " with a\nnon-empty fileNames parameter to the mix filter.\n";
   }
   providerFunc_ = func;
 }
@@ -146,7 +145,7 @@ generateEventSequence(size_t nSecondaries,
   bool over_threshold = (readMode_ == Mode::SEQUENTIAL || readMode_ == Mode::RANDOM_NO_REPLACE) ?
                         ((nEventsReadThisFile_ + nSecondaries) > static_cast<size_t>(nEventsInFile_)) :
                         ((nEventsReadThisFile_ + nSecondaries) > (nEventsInFile_ * coverageFraction_));
-  if (over_threshold) {
+  if (over_threshold || (!ffVersion_.isValid())) {
     if (openNextFile_()) {
       return generateEventSequence(nSecondaries, enSeq, eIDseq);
     }
@@ -156,6 +155,7 @@ generateEventSequence(size_t nSecondaries,
   }
   switch (readMode_) {
   case Mode::SEQUENTIAL:
+    enSeq.reserve(nSecondaries);
     for (size_t
            i = nEventsReadThisFile_,
            end = nEventsReadThisFile_ + nSecondaries;
@@ -223,18 +223,6 @@ art::MixHelper::mixAndPut(EntryNumberSequence const & enSeq,
                          std::ref(e)));
   nEventsReadThisFile_ += enSeq.size();
   totalEventsRead_ += enSeq.size();
-}
-
-void
-art::MixHelper::
-postRegistrationInit()
-{
-  if (! filenames_.empty()) {
-    // Open and read the first file to read branch information.
-    openAndReadMetaData_(*fileIter_);
-  } else if (providerFunc_) {
-    openAndReadMetaData_(providerFunc_());
-  }
 }
 
 void
@@ -407,23 +395,27 @@ openNextFile_()
     if (filename.empty()) {
       return false;
     }
+  } else if (filenames_.empty()) {
+    return false;
   } else {
-    if (++fileIter_ == filenames_.end()) {
+    if (ffVersion_.isValid()) { // Already seen one file.
+      ++fileIter_;
+    }
+    if (fileIter_ == filenames_.end()) {
       if (canWrapFiles_) {
         mf::LogWarning("MixingInputWrap")
           << "Wrapping around to initial input file for mixing after "
           << totalEventsRead_
           << " secondary events read.";
         fileIter_ = filenames_.begin();
-      }
-      else {
+      } else {
         return false;
       }
     }
     filename = *fileIter_;
   }
   nEventsReadThisFile_ = (readMode_ == Mode::SEQUENTIAL && eventsToSkip_) ?
-                         eventsToSkip_() - 1 :
+                         eventsToSkip_() :
                          0; // Reset for this file.
   openAndReadMetaData_(filename);
   return true;

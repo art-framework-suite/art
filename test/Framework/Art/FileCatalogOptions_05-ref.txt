@@ -13,6 +13,7 @@ process_name: "SAMTEST"
 services: { FileCatalogMetadata: { applicationFamily: "Ethel"
                                    applicationVersion: "v0.00.01a"
                                    fileType: "MC"
+                                   processID: [ "778213" ]
                                  }
             message: { destinations: { STDOUT: { categories: { ArtReport: { limit: 100
                                                                           }

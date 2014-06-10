@@ -36,7 +36,7 @@
 //
 //      T(fhicl::ParameterSet const &,
 //        art::ProductRegistryHelper &,
-//        art::PrincipalMaker const &);
+//        art::SourceHelper const &);
 //
 //    * Open the file of the given name, returning a new fileblock in
 //    fb. If readFile is unable to return a valid FileBlock it should
@@ -80,8 +80,8 @@
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/InputSource.h"
 #include "art/Framework/Core/InputSourceDescription.h"
-#include "art/Framework/Core/PrincipalMaker.h"
 #include "art/Framework/Core/ProductRegistryHelper.h"
+#include "art/Framework/IO/Sources/SourceHelper.h"
 #include "art/Framework/IO/Sources/SourceTraits.h"
 #include "art/Framework/IO/Sources/detail/FileNamesHandler.h"
 #include "art/Framework/Principal/EventPrincipal.h"
@@ -180,8 +180,7 @@ private:
   cet::exempt_ptr<ActivityRegistry> act_;
 
   ProductRegistryHelper h_;
-  ProcessConfiguration pc_;
-  PrincipalMaker principalMaker_; // So it can be used by detail.
+  SourceHelper sourceHelper_; // So it can be used by detail.
   SourceDetail detail_;
   input::ItemType state_;
 
@@ -238,9 +237,8 @@ art::Source<T>::Source(fhicl::ParameterSet const & p,
   InputSource(),
   act_(&d.activityRegistry),
   h_(),
-  pc_(d.moduleDescription.processConfiguration()),
-  principalMaker_(pc_),
-  detail_(p, h_, principalMaker_),
+  sourceHelper_(d.moduleDescription),
+  detail_(p, h_, sourceHelper_),
   state_(input::IsInvalid),
   fh_(p.get<std::vector<std::string>>("fileNames", std::vector<std::string>())),
   currentFileName_(),

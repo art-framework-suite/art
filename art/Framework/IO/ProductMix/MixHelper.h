@@ -13,10 +13,12 @@
 // MixHelper will be passed the configuration of the module. The
 // following items are significant:
 //
-// fileNames (no default)
+// fileNames (default empty)
 //
 //   Sequence of secondary files for mixing. However, see the function
-//   registerSecondaryFileNameProvider(...) below.
+//   registerSecondaryFileNameProvider(...) below. If a secondary file
+//   name provider is *not* registered, it is an error to have an empty
+//   fileNames.
 //
 // readMode (default sequential).
 //
@@ -48,7 +50,8 @@
 // registerSecondaryFileNameProvider(<function> func)
 //
 // Register the provided function as a provider of file names for
-// mixing.
+// mixing. This should be called from the constructor of your detail
+// object.
 //
 // <function> must be convertible to std::function<std::string ()>. A
 // free function taking no arguments and returning std::string, a
@@ -69,7 +72,7 @@
 // 2. If the file name provider returns a string which is empty, the
 // MixFilter shall thenceforth return false.
 //
-// 3. If the file name provider returns a non-empty string does not
+// 3. If the file name provider returns a non-empty string that does not
 // correspond to a readable file, an exception shall be thrown.
 //
 ////////////////////////////////////////////////////////////////////////
@@ -312,7 +315,6 @@ public:
                              EventIDSequence & eIDseq);
   void mixAndPut(EntryNumberSequence const & enSeq,
                  Event & e);
-  void postRegistrationInit();
   void setEventsToSkipFunction(std::function < size_t () > eventsToSkip);
 
 private:

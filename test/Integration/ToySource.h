@@ -9,7 +9,7 @@
 
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "fhiclcpp/ParameterSet.h"
-#include "art/Framework/Core/PrincipalMaker.h"
+#include "art/Framework/IO/Sources/SourceHelper.h"
 #include "art/Framework/Principal/fwd.h"
 
 #include <string>
@@ -24,7 +24,7 @@ class arttest::ToySource
 public:
   ToySource(fhicl::ParameterSet const& ps,
           art::ProductRegistryHelper& help,
-          art::PrincipalMaker const& pm);
+          art::SourceHelper const& sHelper);
 
   virtual ~ToySource() = default;
 
@@ -51,12 +51,14 @@ protected:
   fhicl::ParameterSet data_;
   vv_t fileData_;
 
-  art::PrincipalMaker const & pm_;
+  art::SourceHelper const & sHelper_;
   std::string currentFilename_;
-  bool throw_on_construction_;
-  bool throw_on_closeCurrentFile_;
-  bool throw_on_readNext_;
-  bool throw_on_readFile_;
+  bool const throw_on_construction_;
+  bool const throw_on_closeCurrentFile_;
+  bool const throw_on_readNext_;
+  bool const throw_on_readFile_;
+
+  art::TypeLabel vtl_;
 };
 #endif /* test_Integration_ToySource_h */
 

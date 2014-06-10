@@ -15,11 +15,13 @@ BEGIN { %inc_translations = (
                              "art/Framework/Core/FCPfwd.h" => "art/Framework/Principal/fwd.h",
                              "art/Framework/Core/Group.h" => "art/Framework/Principal/Group.h",
                              "art/Framework/Core/GroupQueryResult.h" => "art/Persistency/Common/GroupQueryResult.h",
-                             "art/Framework/Core/LibraryManager.h" => "art/Utilities/LibraryManager.h",
+                             "art/Framework/Core/LibraryManager.h" => "cetlib/LibraryManager.h",
+                             "art/Utilities/LibraryManager.h" => "cetlib/LibraryManager.h",
                              "art/Framework/Core/MasterProductRegistry.h" => "art/Persistency/Provenance/MasterProductRegistry.h",
                              "art/Framework/Core/NoDelayedReader.h" => "art/Framework/Principal/NoDelayedReader.h",
                              "art/Framework/Core/NovaConfigPostProcessor.h" => "art/Framework/Art/NovaConfigPostProcessor.h",
                              "art/Framework/Core/OccurrenceTraits.h" => "art/Framework/Principal/OccurrenceTraits.h",
+                             "art/Framework/Core/OutputFileInfo.h" => "art/Utilities/OutputFileInfo.h",
                              "art/Framework/Core/Principal.h" => "art/Framework/Principal/Principal.h",
                              "art/Framework/Core/ProductMetaData.h" => "art/Persistency/Provenance/ProductMetaData.h",
                              "art/Framework/Core/Run.h" => "art/Framework/Principal/Run.h",
@@ -71,6 +73,9 @@ BEGIN { %inc_translations = (
                              "art/Persistency/Common/View.h" => "art/Framework/Principal/View.h",
                              "art/Persistency/Provenance/Provenance.h" => "art/Framework/Principal/Provenance.h",
                              "novaapp.h" => "art/Framework/Art/novaapp.h",
+                             "art/Utilities/hard_cast.h" => "cetlib/hard_cast.h",
+                             "art/Framework/Core/detail/wrapLibraryManagerException.h" =>
+                             "cetlib/detail/wrapLibraryManagerException.h"
                             );
 
       }

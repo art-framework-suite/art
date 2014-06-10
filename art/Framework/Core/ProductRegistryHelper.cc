@@ -64,7 +64,7 @@ registerProducts(MasterProductRegistry& preg,
                          std::ref(preg)));
 }
 
-void
+art::TypeLabel const &
 art::ProductRegistryHelper::
 insertOrThrow(TypeLabel const &tl) {
   std::pair<TypeLabelList::iterator, bool>
@@ -78,4 +78,5 @@ insertOrThrow(TypeLabel const &tl) {
       << tl.productInstanceName
       << ".\n";
   }
+  return *result.first;
 }

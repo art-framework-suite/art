@@ -8,6 +8,7 @@
 
 #include "art/Framework/Core/FileBlock.h"
 #include "art/Framework/Core/ModuleMacros.h"
+#include "art/Framework/IO/PostCloseFileRenamer.h"
 #include "art/Framework/IO/Root/RootOutputFile.h"
 #include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Principal/RunPrincipal.h"
@@ -15,6 +16,7 @@
 #include "art/Persistency/Provenance/FileFormatVersion.h"
 #include "art/Utilities/Exception.h"
 #include "art/Utilities/unique_filename.h"
+#include "art/Utilities/parent_path.h"
 #include "cetlib/container_algorithms.h"
 #include "cpp0x/utility"
 #include "fhiclcpp/ParameterSet.h"
@@ -50,11 +52,10 @@ namespace art {
   , moduleLabel_               ( ps.get<string>("module_label")  )
   , inputFileCount_            ( 0 )
   , rootOutputFile_            ( )
-  , fileRenamer_               ( ps.get<string>("fileName"),
-                                 moduleLabel_,
-                                 processName() )
+  , fstats_                    ( moduleLabel_, processName() )
+  , filePattern_               ( ps.get<string>("fileName") )
   , tmpDir_                    ( ps.get<string>("tmpDir",
-                                                fileRenamer_.parentPath()))
+                                                parent_path(filePattern_)) )
   , lastClosedFileName_        ( )
   {
     string dropMetaData(ps.get<string>("dropMetaData", string()));
@@ -137,6 +138,7 @@ namespace art {
       bool fastCloneThisOne = fb.tree() != 0 &&
                             (remainingEvents() < 0 || remainingEvents() >= fb.tree()->GetEntries());
       rootOutputFile_->beginInputFile(fb, fastCloneThisOne && fastCloning_);
+      fstats_.recordInputFile(fb.fileName());
     }
   }
 
@@ -150,19 +152,19 @@ namespace art {
   void RootOutput::write(EventPrincipal const& e) {
       if (hasNewlyDroppedBranch()[InEvent]) e.addToProcessHistory();
       rootOutputFile_->writeOne(e);
-      fileRenamer_.recordEvent(e.id());
+      fstats_.recordEvent(e.id());
   }
 
   void RootOutput::writeSubRun(SubRunPrincipal const& sr) {
       if (hasNewlyDroppedBranch()[InSubRun]) sr.addToProcessHistory();
       rootOutputFile_->writeSubRun(sr);
-      fileRenamer_.recordSubRun(sr.id());
+      fstats_.recordSubRun(sr.id());
   }
 
   void RootOutput::writeRun(RunPrincipal const& r) {
       if (hasNewlyDroppedBranch()[InRun]) r.addToProcessHistory();
       rootOutputFile_->writeRun(r);
-      fileRenamer_.recordRun(r.id());
+      fstats_.recordRun(r.id());
   }
 
   // At some later date, we may move functionality from finishEndFile() to here.
@@ -178,13 +180,22 @@ namespace art {
   void RootOutput::writeProductDescriptionRegistry() { rootOutputFile_->writeProductDescriptionRegistry(); }
   void RootOutput::writeParentageRegistry() { rootOutputFile_->writeParentageRegistry(); }
   void RootOutput::writeBranchIDListRegistry() { rootOutputFile_->writeBranchIDListRegistry(); }
-  void RootOutput::doWriteFileCatalogMetadata(FileCatalogMetadata::collection_type const & md) { rootOutputFile_->writeFileCatalogMetadata(md); }
+
+  void
+  RootOutput::
+  doWriteFileCatalogMetadata(FileCatalogMetadata::collection_type const & md)
+  {
+    rootOutputFile_->writeFileCatalogMetadata(fstats_, md);
+  }
+
   void RootOutput::writeProductDependencies() { rootOutputFile_->writeProductDependencies(); }
   void RootOutput::finishEndFile() {
     rootOutputFile_->finishEndFile();
-    fileRenamer_.recordFileClose();
-    lastClosedFileName_ = fileRenamer_.applySubstitutions();
-    fileRenamer_.maybeRenameFile(rootOutputFile_->currentFileName());
+    fstats_.recordFileClose();
+    lastClosedFileName_ =
+      PostCloseFileRenamer(fstats_).
+      maybeRenameFile(rootOutputFile_->currentFileName(),
+                      filePattern_);
     rootOutputFile_.reset();
   }
   bool RootOutput::isFileOpen() const { return rootOutputFile_.get() != 0; }
@@ -199,7 +210,7 @@ namespace art {
       rootOutputFile_.reset(new RootOutputFile(this,
                                                unique_filename(tmpDir_ +
                                                                "/RootOutput")));
-      fileRenamer_.recordFileOpen();
+      fstats_.recordFileOpen();
   }
 
   std::string const &

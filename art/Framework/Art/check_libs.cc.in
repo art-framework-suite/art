@@ -11,10 +11,10 @@
 
 #include "cpp0x/regex"
 
-#include "art/Utilities/LibraryManager.h"
+#include "cetlib/LibraryManager.h"
 #include "cetlib/exception.h"
 
-using art::LibraryManager;
+using cet::LibraryManager;
 using std::string;
 using std::vector;
 using std::cout;

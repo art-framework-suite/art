@@ -23,8 +23,6 @@ private:
 
   // Data.
   bpo::options_description const & desc_;
-  bool requireMetadata_;
-  bool wantSAMweb_;
   std::string appFamily_;
   std::string appVersion_;
 };

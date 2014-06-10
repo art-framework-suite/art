@@ -19,20 +19,29 @@ art::FileCatalogMetadata::FileCatalogMetadata(fhicl::ParameterSet const & ps,
   :
   md_()
 {
-  size_t par_count = 0;
-  std::string applicationFamily;
-  std::string applicationVersion;
-  std::string fileType;
-  par_count += ps.get_if_present("applicationFamily", applicationFamily);
-  par_count += ps.get_if_present("applicationVersion", applicationVersion);
-  par_count += ps.get_if_present("fileType", fileType);
-  if (par_count) {
-    throw_if_empty(applicationFamily, "applicationFamily");
+  std::string applicationFamily,
+    applicationVersion,
+    fileType("unknown"),
+    runType,
+    group,
+    processID;
+  if (ps.get_if_present("applicationFamily", applicationFamily)) {
     addMetadata("applicationFamily", applicationFamily);
-    throw_if_empty(applicationVersion, "applicationVersion");
+  }
+  if (ps.get_if_present("applicationVersion", applicationVersion)) {
     addMetadata("applicationVersion", applicationVersion);
-    throw_if_empty(fileType, "fileType");
-    addMetadata("fileType", fileType);
+  }
+  if (ps.get_if_present("fileType", fileType)) {
+    addMetadata("file_type", fileType);
+  }
+  if (ps.get_if_present("runType", runType)) {
+    addMetadata("run_type", runType);
+  }
+  if (ps.get_if_present("group", group)) {
+    addMetadata("group", group);
+  }
+  if (ps.get_if_present("processID", processID)) {
+    addMetadata("process_id", processID);
   }
 }
 

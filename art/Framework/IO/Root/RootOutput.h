@@ -17,7 +17,7 @@
 
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/OutputModule.h"
-#include "art/Framework/IO/PostCloseFileRenamer.h"
+#include "art/Framework/IO/FileStatsCollector.h"
 #include "boost/scoped_ptr.hpp"
 #include "cpp0x/array"
 #include "fhiclcpp/ParameterSet.h"
@@ -121,7 +121,8 @@ private:
     std::string const moduleLabel_;
     int inputFileCount_;
     boost::scoped_ptr<RootOutputFile> rootOutputFile_;
-    PostCloseFileRenamer fileRenamer_;
+    FileStatsCollector fstats_;
+    std::string const filePattern_;
     std::string tmpDir_;
     std::string lastClosedFileName_;
   };

@@ -389,7 +389,6 @@ template <class T>
 void
 art::MixFilter<T>::beginJob()
 {
-  helper_.postRegistrationInit();
 }
 
 template <class T>
@@ -457,10 +456,10 @@ art::MixFilter<T>::filter(art::Event & e)
            detail::call_processEventIDs<T>,
            detail::do_not_call_processEventIDs<T> >::type maybe_call_processEventIDs;
   maybe_call_processEventIDs(detail_, eIDseq);
-  // 3. Make the MixHelper read info into all the products, invoke the
+  // 5. Make the MixHelper read info into all the products, invoke the
   // mix functions and put the products into the event.
   helper_.mixAndPut(enSeq, e);
-  // 4. Call detail object's finalizeEvent() if it exists.
+  // 6. Call detail object's finalizeEvent() if it exists.
   typename std::conditional < detail::has_finalizeEvent<T>::value,
            detail::call_finalizeEvent<T>,
            detail::do_not_call_finalizeEvent<T> >::type

@@ -9,12 +9,14 @@
 // ======================================================================
 
 #include "art/Framework/Core/EventObserver.h"
-#include "art/Framework/Principal/fwd.h"
+#include "art/Framework/Core/FileCatalogMetadataPlugin.h"
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/GroupSelector.h"
 #include "art/Framework/Core/GroupSelectorRules.h"
 #include "art/Framework/Core/OutputModuleDescription.h"
 #include "art/Framework/Core/OutputWorker.h"
+#include "cetlib/BasicPluginFactory.h"
+#include "art/Framework/Principal/fwd.h"
 #include "art/Framework/Services/FileServiceInterfaces/CatalogInterface.h"
 #include "art/Framework/Services/System/FileCatalogMetadata.h"
 #include "art/Persistency/Provenance/BranchChildren.h"
@@ -115,6 +117,11 @@ private:
   std::string streamName_;
   ServiceHandle<CatalogInterface> ci_;
 
+  cet::BasicPluginFactory pluginFactory_;
+  typedef std::vector<std::unique_ptr<FileCatalogMetadataPlugin> >
+  PluginCollection_t;
+  PluginCollection_t plugins_;
+
   //------------------------------------------------------------------
   // private member functions
   //------------------------------------------------------------------
@@ -198,6 +205,8 @@ private:
   virtual void writeProductDependencies();
   virtual void writeBranchMapper();
   virtual void finishEndFile();
+
+  PluginCollection_t makePlugins_(std::vector<fhicl::ParameterSet> const psets);
 };  // OutputModule
 
 #ifndef __GCCXML__

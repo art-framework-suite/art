@@ -52,31 +52,7 @@ foreach(cppunit_test HRTime_t.cpp)
     )
 endforeach()
 
-cet_test(LibraryManager_t USE_BOOST_UNIT NO_AUTO
-  LIBRARIES 
-  art_Utilities
-  ${Boost_FILESYSTEM_LIBRARY}
-  ${ROOT_CINTEX}
-  ${ROOT_TREE}
-  ${ROOT_HIST}
-  ${ROOT_MATRIX}
-  ${ROOT_NET}
-  ${ROOT_MATHCORE}
-  ${ROOT_RIO}
-  ${ROOT_THREAD}
-	${ROOT_CORE}
-  ${ROOT_CINT}
-	${ROOT_REFLEX}
-  -ldl
-)
-
-
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/LibraryManager_t.sh.in
-  ${CMAKE_CURRENT_BINARY_DIR}/LibraryManager_t.sh
-  @ONLY
-  )
-cet_test(LibraryManager_t.sh HANDBUILT
-  TEST_EXEC ${CMAKE_CURRENT_BINARY_DIR}/LibraryManager_t.sh
-  )
-
 cet_test(ScheduleID_t USE_BOOST_UNIT)
+
+cet_test(parent_path_t USE_BOOST_UNIT
+  LIBRARIES art_Utilities)

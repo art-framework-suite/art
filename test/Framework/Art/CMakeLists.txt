@@ -191,7 +191,9 @@ cet_test(FileCatalogOptions_01 HANDBUILT
   -c opt-empty.fcl
   TEST_PROPERTIES ENVIRONMENT ART_DEBUG_CONFIG=1
   PASS_REGULAR_EXPRESSION
-  "--sam-web-uri and --sam-process-id must be used together or not at all\\."
+  "  configurations services\\.user\\.CatalogInterface\\.webURI \\(--sam-web-uri\\) and
+  services\\.FileCatalogMetadata\\.processID \\(--sam-process-id\\) must be specified
+  together or not at all\\."
   DATAFILES fcl/opt-empty.fcl
 )
 
@@ -216,7 +218,7 @@ cet_test(FileCatalogOptions_03 HANDBUILT
   -c opt-empty.fcl
   TEST_PROPERTIES ENVIRONMENT ART_DEBUG_CONFIG=1
   PASS_REGULAR_EXPRESSION
-  "SAM metadata information is required -- missing metadata:\n  --sam-application-family\n  --sam-application-version\n  --sam-file-type\n  --sam-data-tier\n"
+  "  Output \"out\" must be configured with dataTier \\(--sam-data-tier=out:<tier>\\) and streamName \\(--sam-stream-name=out:<stream>\\)\\.\n"
   DATAFILES fcl/opt-empty.fcl
 )
 

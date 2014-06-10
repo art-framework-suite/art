@@ -1,6 +1,6 @@
 #include "art/Framework/Core/FileBlock.h"
 #include "art/Framework/Core/InputSourceMacros.h"
-#include "art/Framework/Core/PrincipalMaker.h"
+#include "art/Framework/IO/Sources/SourceHelper.h"
 #include "art/Framework/Core/ProductRegistryHelper.h"
 #include "art/Framework/IO/Sources/Source.h"
 #include "art/Framework/IO/Sources/SourceTraits.h"
@@ -18,7 +18,7 @@ public:
 
   FlushingGeneratorDetail(fhicl::ParameterSet const & ps,
                           art::ProductRegistryHelper & help,
-                          art::PrincipalMaker const & pm);
+                          art::SourceHelper const & sHelper);
 
   void closeCurrentFile();
 
@@ -32,7 +32,7 @@ public:
 
 private:
   bool readFileCalled_;
-  art::PrincipalMaker const & pm_;
+  art::SourceHelper const & sHelper_;
   size_t ev_num_;
   art::EventID curr_evid_;
 };
@@ -40,10 +40,10 @@ private:
 arttest::FlushingGeneratorDetail::
 FlushingGeneratorDetail(fhicl::ParameterSet const &,
                         art::ProductRegistryHelper &,
-                        art::PrincipalMaker const & pm)
+                        art::SourceHelper const & sHelper)
   :
   readFileCalled_(false),
-  pm_(pm),
+  sHelper_(sHelper),
   ev_num_(0),
   curr_evid_(1, 0, 1)
 {
@@ -79,31 +79,31 @@ readNext(art::RunPrincipal * const & inR,
   }
   else if (ev_num_ == 3) { // Flush subrun, current run.
     art::EventID const evid(art::EventID::flushEvent(inR->id()));
-    outSR = pm_.makeSubRunPrincipal(evid.subRunID(), runstart);
-    outE = pm_.makeEventPrincipal(evid, runstart);
+    outSR = sHelper_.makeSubRunPrincipal(evid.subRunID(), runstart);
+    outE = sHelper_.makeEventPrincipal(evid, runstart);
     curr_evid_ = curr_evid_.nextSubRun();
   }
   else if (ev_num_ == 6) { // Flush run.
     art::EventID const evid(art::EventID::flushEvent());
-    outR = pm_.makeRunPrincipal(evid.runID(), runstart);
-    outSR = pm_.makeSubRunPrincipal(evid.subRunID(), runstart);
-    outE = pm_.makeEventPrincipal(evid, runstart);
+    outR = sHelper_.makeRunPrincipal(evid.runID(), runstart);
+    outSR = sHelper_.makeSubRunPrincipal(evid.subRunID(), runstart);
+    outE = sHelper_.makeEventPrincipal(evid, runstart);
     curr_evid_ = curr_evid_.nextRun();
   }
   else if (ev_num_ == 11 || ev_num_ == 12 || ev_num_ == 16) { // Flush event. current run, next subrun
-    outSR = pm_.makeSubRunPrincipal(curr_evid_.nextSubRun().subRunID(), runstart);
+    outSR = sHelper_.makeSubRunPrincipal(curr_evid_.nextSubRun().subRunID(), runstart);
     art::EventID const evid(art::EventID::flushEvent(inR->id(), outSR->id()));
-    outE = pm_.makeEventPrincipal(evid, runstart);
+    outE = sHelper_.makeEventPrincipal(evid, runstart);
     curr_evid_ = curr_evid_.nextSubRun();
   }
   else {
     if (inR == nullptr || inR->id() != curr_evid_.runID()) {
-      outR = pm_.makeRunPrincipal(curr_evid_.runID(), runstart);
+      outR = sHelper_.makeRunPrincipal(curr_evid_.runID(), runstart);
     }
     if (inSR == nullptr || inSR->id() != curr_evid_.subRunID()) {
-      outSR = pm_.makeSubRunPrincipal(curr_evid_.subRunID(), runstart);
+      outSR = sHelper_.makeSubRunPrincipal(curr_evid_.subRunID(), runstart);
     }
-    outE = pm_.makeEventPrincipal(curr_evid_, runstart);
+    outE = sHelper_.makeEventPrincipal(curr_evid_, runstart);
     curr_evid_ = curr_evid_.next();
   }
   std::cout << "ev_num_ = " << ev_num_ << std::endl;

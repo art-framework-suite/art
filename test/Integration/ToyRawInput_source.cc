@@ -35,7 +35,7 @@ class arttest::ToyReader final : public ToySource {
 public:
   ToyReader(fhicl::ParameterSet const& ps,
             art::ProductRegistryHelper& help,
-            art::PrincipalMaker const& pm);
+            art::SourceHelper const& sHelper);
 
   void readFile(std::string const &name,
                 art::FileBlock*& fb) override;
@@ -44,9 +44,9 @@ public:
 
 arttest::ToyReader::ToyReader(fhicl::ParameterSet const& ps,
                               art::ProductRegistryHelper& help,
-                              art::PrincipalMaker const& pm)
+                              art::SourceHelper const& sHelper)
   :
-  ToySource(ps, help, pm)
+  ToySource(ps, help, sHelper)
 {
 }
 

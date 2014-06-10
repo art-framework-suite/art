@@ -1,5 +1,7 @@
-#ifndef art_Framework_Core_OutputFileInfo_h
-#define art_Framework_Core_OutputFileInfo_h
+#ifndef art_Utilities_OutputFileInfo_h
+#define art_Utilities_OutputFileInfo_h
+
+#include <string>
 
 namespace art {
   class OutputFileInfo;
@@ -45,7 +47,7 @@ fileName() const
 }
 #endif /* __GCCXML__ */
 
-#endif /* art_Framework_Core_OutputFileInfo_h */
+#endif /* art_Utilities_OutputFileInfo_h */
 
 // Local Variables:
 // mode: c++

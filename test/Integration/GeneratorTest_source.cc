@@ -1,6 +1,6 @@
 #include "art/Framework/Core/FileBlock.h"
 #include "art/Framework/Core/InputSourceMacros.h"
-#include "art/Framework/Core/PrincipalMaker.h"
+#include "art/Framework/IO/Sources/SourceHelper.h"
 #include "art/Framework/Core/ProductRegistryHelper.h"
 #include "art/Framework/IO/Sources/Source.h"
 #include "art/Framework/IO/Sources/SourceTraits.h"
@@ -18,7 +18,7 @@ public:
 
   GeneratorTestDetail(fhicl::ParameterSet const & ps,
                       art::ProductRegistryHelper & help,
-                      art::PrincipalMaker const & pm);
+                      art::SourceHelper const & sHelper);
 
   void closeCurrentFile();
 
@@ -32,17 +32,17 @@ public:
 
 private:
   bool readFileCalled_;
-  art::PrincipalMaker const & pm_;
+  art::SourceHelper const & sHelper_;
   size_t ev_num_;
 };
 
 arttest::GeneratorTestDetail::
 GeneratorTestDetail(fhicl::ParameterSet const &,
                     art::ProductRegistryHelper &,
-                    art::PrincipalMaker const & pm)
+                    art::SourceHelper const & sHelper)
   :
   readFileCalled_(false),
-  pm_(pm),
+  sHelper_(sHelper),
   ev_num_(0)
 {
 }
@@ -76,13 +76,13 @@ readNext(art::RunPrincipal * const & inR,
     return false;
   }
   if (inR == nullptr) {
-    outR = pm_.makeRunPrincipal(1, runstart);
+    outR = sHelper_.makeRunPrincipal(1, runstart);
   }
   if (inSR == nullptr) {
     art::SubRunID srid(outR?outR->run():inR->run(), 0);
-    outSR = pm_.makeSubRunPrincipal(srid.run(), srid.subRun(), runstart);
+    outSR = sHelper_.makeSubRunPrincipal(srid.run(), srid.subRun(), runstart);
   }
-  outE = pm_.makeEventPrincipal(outR?outR->run():inR->run(),
+  outE = sHelper_.makeEventPrincipal(outR?outR->run():inR->run(),
                                 outSR?outSR->subRun():inSR->subRun(),
                                 ev_num_,
                                 runstart);

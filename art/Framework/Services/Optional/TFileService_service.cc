@@ -6,6 +6,7 @@
 
 #include "art/Framework/Services/Optional/TFileService.h"
 
+#include "art/Framework/IO/PostCloseFileRenamer.h"
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Principal/Run.h"
 #include "art/Framework/Principal/SubRun.h"
@@ -13,6 +14,7 @@
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/System/TriggerNamesService.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
+#include "art/Utilities/parent_path.h"
 #include "art/Utilities/unique_filename.h"
 #include "fhiclcpp/ParameterSet.h"
 
@@ -30,10 +32,10 @@ TFileService::TFileService(ParameterSet const & cfg,
   :
   TFileDirectory("", "", nullptr, ""),
   closeFileFast_(cfg.get<bool>("closeFileFast", false)),
-  fileRenamer_(cfg.get<string>("fileName"),
-               cfg.get<std::string>("service_type"),
-               ServiceHandle<TriggerNamesService>()->getProcessName()),
-  uniqueFilename_(unique_filename( fileRenamer_.parentPath() + "/TFileService"))
+  fstats_(cfg.get<std::string>("service_type"),
+          ServiceHandle<TriggerNamesService>()->getProcessName()),
+  filePattern_(cfg.get<string>("fileName")),
+  uniqueFilename_(unique_filename(parent_path(filePattern_) + "/TFileService"))
 {
   assert(file_ == nullptr && "TFile pointer should always be zero here!");
   file_ = new TFile(uniqueFilename_.c_str(), "RECREATE");
@@ -48,11 +50,11 @@ TFileService::TFileService(ParameterSet const & cfg,
   r.sPreModuleEndSubRun.watch   (this, & TFileService::setDirectoryName);
   // Activities to monitor to keep track of events, subruns and runs seen.
   r.sPostProcessEvent.watch     ([this](Event const & e) -> void
-                                 { fileRenamer_.recordEvent(e.id()); });
+                                 { fstats_.recordEvent(e.id()); });
   r.sPostEndSubRun.watch        ([this](SubRun const & sr) -> void
-                                 { fileRenamer_.recordSubRun(sr.id()); });
+                                 { fstats_.recordSubRun(sr.id()); });
   r.sPostEndRun.watch           ([this](Run const & r) -> void
-                                 { fileRenamer_.recordRun(r.id()); });
+                                 { fstats_.recordRun(r.id()); });
 }
 
 // ----------------------------------------------------------------------
@@ -63,8 +65,8 @@ TFileService::~TFileService()
     gROOT->GetListOfFiles()->Remove(file_);
   file_->Close();
   delete file_;
-  fileRenamer_.applySubstitutions();
-  fileRenamer_.maybeRenameFile(uniqueFilename_);
+  PostCloseFileRenamer(fstats_).maybeRenameFile(uniqueFilename_,
+                                                filePattern_);
 }
 
 // ----------------------------------------------------------------------

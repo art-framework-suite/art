@@ -6,7 +6,7 @@
 
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/ServicesManager.h"
-#include "art/Utilities/LibraryManager.h"
+#include "cetlib/LibraryManager.h"
 
 #include "cpp0x/memory"
 #include "cpp0x/utility"
@@ -16,7 +16,7 @@
 
 art::ServicesManager::
 ServicesManager(ParameterSets const & psets,
-                LibraryManager const & lm,
+                cet::LibraryManager const & lm,
                 ActivityRegistry & reg):
   registry_(reg),
   factory_(),
@@ -82,7 +82,7 @@ putParameterSets(ParameterSets const & n)
 
 void
 art::ServicesManager::
-fillCache_(ParameterSets  const & psets, LibraryManager const & lm)
+fillCache_(ParameterSets  const & psets, cet::LibraryManager const & lm)
 {
   // Receive from EventProcessor when we go multi-schedule.
   detail::ServiceCacheEntry::setNSchedules(1);
