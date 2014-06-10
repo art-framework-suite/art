@@ -36,7 +36,7 @@ public:
 
   template <typename T>
   Ptr<T>
-  make_ptr(TypeLabel const & t,
+  makePtr(TypeLabel const & t,
            EventPrincipal const & ep,
            typename Ptr<T>::key_type key) const;
 
@@ -83,7 +83,7 @@ private:
 template <typename T>
 art::Ptr<T>
 art::SourceHelper::
-make_ptr(TypeLabel const & tl,
+makePtr(TypeLabel const & tl,
          EventPrincipal const & ep,
          typename Ptr<T>::key_type key) const
 {
