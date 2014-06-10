@@ -226,7 +226,7 @@ bool read_all_fc_metadata_entries(TFile & file,
 int print_fc_metadata_from_file(TFile & file,
                                 ostream & output,
                                 ostream & errors,
-                                bool want_hr)
+                                bool want_json)
 {
 //  std::cerr << "---> print_fc_metadata_from_file \n";
   vector<FileCatalogMetadataEntry> all_metadata_entries;
@@ -235,7 +235,14 @@ int print_fc_metadata_from_file(TFile & file,
     return 1;
   }
   // Iterate through all the entries, printing each one.
-  if (want_hr) {
+  if (want_json) {
+    std::string cFN;
+    cet::canonical_string(file.GetName(), cFN);
+    output << cFN << ": ";
+    print_all_fc_metadata_entries_JSON(all_metadata_entries,
+                                       output,
+                                       errors);
+  } else { // Human-readable.
     output << "\nFile catalog metadata from file "
            << file.GetName()
            << ":\n\n";
@@ -243,13 +250,6 @@ int print_fc_metadata_from_file(TFile & file,
                                      output,
                                      errors);
     output << "-------------------------------\n";
-  } else { // JSON.
-    std::string cFN;
-    cet::canonical_string(file.GetName(), cFN);
-    output << cFN << ": ";
-    print_all_fc_metadata_entries_JSON(all_metadata_entries,
-                                       output,
-                                       errors);
   }
   return 0;
 }
@@ -263,10 +263,10 @@ int print_fc_metadata_from_file(TFile & file,
 int print_fc_metadata_from_files(stringvec const & file_names,
                                  ostream & output,
                                  ostream & errors,
-                                 bool want_hr)
+                                 bool want_json)
 {
 //  std::cerr << "---> print_fc_metadata_from_files \n";
-  if (! want_hr) { // JSON.
+  if (want_json) {
     output << "{\n  ";
   }
   int rc = 0;
@@ -286,13 +286,13 @@ int print_fc_metadata_from_files(stringvec const & file_names,
     } else {
       if (first) {
         first=false;
-      } else if (!want_hr) { // JSON.
+      } else if (want_json) {
         output << ",\n  ";
       }
-      rc += print_fc_metadata_from_file(*current_file, output, errors, want_hr);
+      rc += print_fc_metadata_from_file(*current_file, output, errors, want_json);
     }
   }
-  if (! want_hr) { // JSON.
+  if (want_json) {
     output << "\n}\n";
   }
   return rc;
@@ -354,8 +354,8 @@ int main(int argc, char * argv[])
     std::cout << desc << std::endl;
     return 1;
   }
-  bool want_hr = ((!!vm.count("hr")) ||
-                  (!!vm.count("human-readable"))) ; // Default is JSON.
+  bool want_json = (!vm.count("hr")) &&
+                   (!vm.count("human-readable")) ; // Default is JSON.
 
   // Get the names of the files we will process.
   stringvec file_names;
@@ -380,7 +380,7 @@ int main(int argc, char * argv[])
   return print_fc_metadata_from_files(file_names,
                                       cout,
                                       cerr,
-                                      want_hr);
+                                      want_json);
   // Testing.
   //   cout << "Specified module labels\n";
   //   cet::copy_all(module_labels,
