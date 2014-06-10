@@ -212,7 +212,9 @@ public:
   typedef typename base::right_t right_t;
   typedef D data_t;
   typedef art::Assns<right_t, left_t, data_t> partner_t;
+  typedef typename base::assn_t assn_t;
   typedef typename base::assn_iterator assn_iterator;
+  typedef typename base::size_type size_type;
 
   Assns();
   Assns(partner_t const & other);
