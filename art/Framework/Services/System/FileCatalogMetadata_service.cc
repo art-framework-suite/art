@@ -21,7 +21,7 @@ art::FileCatalogMetadata::FileCatalogMetadata(fhicl::ParameterSet const & ps,
 {
   std::string applicationFamily,
     applicationVersion,
-    fileType("unknown"),
+    fileType(ps.get<std::string>("fileType", "unknown")),
     runType,
     group,
     processID;
