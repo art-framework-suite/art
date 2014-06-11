@@ -509,10 +509,10 @@ writeFileCatalogMetadata()
   FileCatalogMetadata::collection_type md;
   ServiceHandle<FileCatalogMetadata>()->getMetadata(md);
   if (!dataTier_.empty()) {
-    md.emplace_back("dataTier", dataTier_);
+    md.emplace_back("data_tier", dataTier_);
   }
   if (!streamName_.empty()) {
-    md.emplace_back("streamName", streamName_);
+    md.emplace_back("data_stream", streamName_);
   }
   // Ask any plugins for their list of metadata.
   cet::for_all(plugins_,
