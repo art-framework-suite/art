@@ -119,7 +119,7 @@ arttest::ToySource::readNext(art::RunPrincipal* const& inR,
                              *outE,
                              "m3");
     put_product_in_principal(make_unique<art::Ptr<double> >
-                             (sHelper_.make_ptr<double>(vtl_, *outE, 1)),
+                             (sHelper_.makePtr<double>(vtl_, *outE, 1)),
                              *outE,
                              "m3");
 

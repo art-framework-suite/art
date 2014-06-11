@@ -31,9 +31,8 @@ art::FileCatalogMetadata::FileCatalogMetadata(fhicl::ParameterSet const & ps,
   if (ps.get_if_present("applicationVersion", applicationVersion)) {
     addMetadata("applicationVersion", applicationVersion);
   }
-  if (ps.get_if_present("fileType", fileType)) {
-    addMetadata("file_type", fileType);
-  }
+  // Always write out fileType -- may be overridden.
+  addMetadata("file_type", fileType);
   if (ps.get_if_present("runType", runType)) {
     addMetadata("run_type", runType);
   }
