@@ -52,6 +52,29 @@ struct FileCatalogMetadataEntry
   std::string value;
 };
 
+namespace {
+  std::map<std::string, std::string> newToOldName
+  { { "file_type", "fileType" },
+    { "data_tier", "dataTier" },
+    { "data_stream", "streamName" } };
+
+  bool is_new_md_name(std::string const & newMD)
+  {
+    return (newToOldName.find(newMD) != newToOldName.cend());
+  }
+
+  std::string old_md_name(std::string const & newMD)
+  {
+    if (!is_new_md_name(newMD)) {
+      throw art::Exception(art::errors::LogicError)
+        << "Asked for nonexistent new -> old MD translation for MD item "
+        << newMD
+        << ".\n";
+    }
+    return newToOldName[newMD];
+  }
+}
+
 // Print the human-readable form of a ParameterSet from which we strip
 // the "module_label" parameter.
 void
@@ -60,6 +83,10 @@ print_one_fc_metadata_entry_hr(FileCatalogMetadataEntry const & ent,
                                size_t longestName,
                                ostream & output)
 {
+  std::string name = (is_new_md_name(ent.name)) ?
+                     old_md_name(ent.name) :
+                     ent.name;
+
   const size_t maxIDdigits = 5;
   const size_t maxNameSpacing = 20;
 
@@ -74,12 +101,12 @@ print_one_fc_metadata_entry_hr(FileCatalogMetadataEntry const & ent,
   for (int i = 0; i<nspaces; ++i) output << " ";
   output << ent.SMDid << ": ";
 
-  output << ent.name;
+  output << name;
 
   // right-justify value (unless name is more than 20 characters)
   size_t nameSpacing = maxNameSpacing;
   if (longestName < maxNameSpacing) nameSpacing = longestName;
-  nspaces = static_cast<int> (nameSpacing - ent.name.size());
+  nspaces = static_cast<int> (nameSpacing - name.size());
   while (nspaces > 0) {
     output << " ";
     --nspaces;
