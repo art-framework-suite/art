@@ -72,7 +72,6 @@ namespace {
                       theValue.size() + 1, SQLITE_STATIC);
     sqlite3_step(stmt);
     sqlite3_reset(stmt);
-    sqlite3_clear_bindings(stmt);
   }
 }
 
@@ -420,7 +419,7 @@ namespace art {
     for( const_iterator it = fhicl::ParameterSetRegistry::begin()
                       , e  = fhicl::ParameterSetRegistry::end(); it != e; ++it )  {
       std::string psID(it->first.to_string());
-      std::string psBlob(it->second.to_string());
+      std::string psBlob(it->second.to_compact_string());
       sqlite3_bind_text(stmt, 1, psID.c_str(), psID.size() + 1, SQLITE_STATIC);
       sqlite3_bind_text(stmt, 2, psBlob.c_str(), psBlob.size() + 1, SQLITE_STATIC);
       sqlite3_step(stmt);
