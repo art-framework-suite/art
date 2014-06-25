@@ -1,36 +1,76 @@
-INCLUDE(BuildDictionary)
-INCLUDE(CetParseArgs)
-INCLUDE(CheckClassVersion)
+########################################################################
+# art_dictionary
+#
+# Wrapper around cetbuildtools' build_dictionary featuring the addition
+# of commonly required libraries to the dictionary library link list,
+# and the use of the check_class_version to update checksums and
+# class versions for dictionary items.
+#
+####################################
+# Options and Arguments
+#
+# UPDATE_IN_PLACE
+#   Passed through to check_class_version.
+#
+# LIBRARIES
+#   Passed through to check_class_version
+#
+# DICT_FUNCTIONS
+#   Passed through to build_dictionary.
+#
+# DICT_NAME_VAR
+#   Passed through to build_dictionary.
+#
+# DICTIONARY_LIBRARIES
+#   Passed through to build_dictionary with additions.
+#
+#########################################################################
+include(BuildDictionary)
+include(CMakeParseArguments)
+include(CheckClassVersion)
 
-MACRO(art_dictionary)
-  CET_PARSE_ARGS(ART_DICT
-    "LIBRARIES;DICTIONARY_LIBRARIES;DICT_NAME_VAR"
-    "UPDATE_IN_PLACE"
+function(art_dictionary)
+  cmake_parse_arguments(AD
+    "UPDATE_IN_PLACE;DICT_FUNCTIONS"
+    "DICT_NAME_VAR"
+    "LIBRARIES;DICTIONARY_LIBRARIES"
     ${ARGN}
     )
-  IF(ART_PERSISTENCY_COMMON)
+  if(ART_PERSISTENCY_COMMON)
     # Using art as a product rather than building art itself.
-    SET(ART_DICT_DICTIONARY_LIBRARIES
-      ${ART_PERSISTENCY_COMMON} ${ART_UTILITIES} ${CETLIB} ${ART_DICT_DICTIONARY_LIBRARIES}
+    set(AD_DICTIONARY_LIBRARIES
+      ${ART_PERSISTENCY_COMMON} ${ART_UTILITIES} ${CETLIB} ${AD_DICTIONARY_LIBRARIES}
       )
   else()
-    SET(ART_DICT_DICTIONARY_LIBRARIES
-      art_Persistency_Common art_Utilities ${CETLIB} ${ART_DICT_DICTIONARY_LIBRARIES}
+    set(AD_DICTIONARY_LIBRARIES
+      art_Persistency_Common art_Utilities ${CETLIB} ${AD_DICTIONARY_LIBRARIES}
       )
   endif()
-  build_dictionary(DICT_NAME_VAR dictname
-    DICTIONARY_LIBRARIES ${ART_DICT_DICTIONARY_LIBRARIES}
-    ${ART_DICT_DEFAULT_ARGS}
-    ${ART_DICT_EXTRA_ARGS})
-  if (ART_DICT_DICT_NAME_VAR)
-    set (${ART_DICT_DICT_NAME_VAR} ${dictname} PARENT_SCOPE)
+  if (AD_DICT_FUNCTIONS)
+    set(want_build_dictionary_version v3_13_00)
+    if (COMMAND check_ups_version)
+      check_ups_version(cetbuildtools $ENV{CETBUILDTOOLS_VERSION} ${want_build_dictionary_version}
+        PRODUCT_MATCHES_VAR understands_DICT_FUNCTIONS)
+    endif()
+    if (understands_DICT_FUNCTIONS)
+      set(extra_args DICT_FUNCTIONS)
+    else()
+      message(WARNING "art_dictionary: DICT_FUNCTIONS not forwarded to build_dictionary command too old to understand it (require ${want_build_dictionary_version}, found $ENV{CETBUILDTOOLS_VERSION}).")
+    endif()
   endif()
-  IF(ART_DICT_LIBRARIES)
-    SET(ART_DICT_CCV_ARGS "LIBRARIES" ${ART_DICT_LIBRARIES})
-  ENDIF()
-  IF(ART_DICT_UPDATE_IN_PLACE)
-    SET(ART_DICT_CCV_ARGS ${ART_DICT_CCV_ARGS} "UPDATE_IN_PLACE" ${ART_DICT_UPDATE_IN_PLACE})
-  ENDIF()
-  #message(STATUS "Calling check_class_version with args ${ART_DICT_ARGS}")
-  check_class_version(${ART_DICT_LIBRARIES} UPDATE_IN_PLACE ${ART_DICT_CCV_ARGS})
-ENDMACRO()
+  build_dictionary(DICT_NAME_VAR dictname
+    DICTIONARY_LIBRARIES ${AD_DICTIONARY_LIBRARIES}
+    ${AD_UNPARSED_ARGUMENTS}
+    ${extra_args})
+  if (AD_DICT_NAME_VAR)
+    set (${AD_DICT_NAME_VAR} ${dictname} PARENT_SCOPE)
+  endif()
+  if(AD_LIBRARIES)
+    set(AD_CCV_ARGS "LIBRARIES" ${AD_LIBRARIES})
+  endif()
+  if(AD_UPDATE_IN_PLACE)
+    set(AD_CCV_ARGS ${AD_CCV_ARGS} "UPDATE_IN_PLACE" ${AD_UPDATE_IN_PLACE})
+  endif()
+  #message(STATUS "Calling check_class_version with args ${AD_ARGS}")
+  check_class_version(${AD_LIBRARIES} UPDATE_IN_PLACE ${AD_CCV_ARGS})
+endfunction()
