@@ -9,7 +9,7 @@
 
 #include "sqlite3.h"
 #include "art/Ntuple/sqlite_helpers.h"
-#include "art/ntuple/Transaction.h"
+#include "art/Ntuple/Transaction.h"
 
 namespace ntuple
 {
