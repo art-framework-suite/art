@@ -10,6 +10,7 @@
 
 #include "art/Framework/Core/RootDictionaryManager.h"
 #include "art/Framework/IO/Root/GetFileFormatEra.h"
+#include "art/Framework/IO/Root/detail/readParameterSetsFromDB.h"
 #include "art/Framework/IO/Root/rootNames.h"
 #include "art/Framework/IO/Root/setMetaDataBranchAddress.h"
 #include "art/Persistency/Provenance/FileFormatVersion.h"
@@ -60,7 +61,7 @@ want_pset(ParameterSet const & ps,
     ps.get_if_present<string>("module_label", label);
     break;
   case PsetType::SERVICE:
-    ps.get_if_present<string>("service_type", label) ||
+    ps.get_if_present<string>("service_type", label) || 
       ps.get_if_present<string>("service_provider", label);
     break;
   case PsetType::PROCESS:
@@ -89,7 +90,7 @@ strip_pset(ParameterSet const & ps, PsetType mode)
   case PsetType::MODULE:
     result.erase("module_label");
     break;
-  case PsetType::SERVICE:
+  case PsetType::SERVICE:    
     result.erase("service_type");
     result.erase("service_provider");
     break;
@@ -157,7 +158,7 @@ bool read_all_parameter_sets(TFile & file,
   if (ffv.value_ >= 5) { // Should have metadata DB.
     // Open the DB
     art::SQLite3Wrapper sqliteDB(&file, "RootFileDB");
-    fhicl::ParameterSetRegistry::importFrom(sqliteDB);
+    art::detail::readParameterSetsFromDB(sqliteDB, ffv);
   }
   return true;
 }

@@ -1,3 +1,4 @@
+#include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
 #include "art/Persistency/Provenance/BranchChildren.h"
 #include "art/Persistency/Provenance/BranchID.h"
 #include "art/Persistency/Provenance/EventAuxiliary.h"

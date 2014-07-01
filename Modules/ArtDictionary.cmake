@@ -62,9 +62,6 @@ function(art_dictionary)
     DICTIONARY_LIBRARIES ${AD_DICTIONARY_LIBRARIES}
     ${AD_UNPARSED_ARGUMENTS}
     ${extra_args})
-  if (cet_generated_code) # Bubble up to top scope.
-    set(cet_generated_code ${cet_generated_code} PARENT_SCOPE)
-  endif()
   if (AD_DICT_NAME_VAR)
     set (${AD_DICT_NAME_VAR} ${dictname} PARENT_SCOPE)
   endif()

@@ -17,9 +17,8 @@ namespace art {
 
   typedef  cet::registry_via_id<ProcessHistoryID,ProcessHistory>
            ProcessHistoryRegistry;
-
-  static_assert(std::is_same<ProcessHistoryRegistry::collection_type, ProcessHistoryMap>::value,
-                "ProcessHistoryRegistry::collection_type and ProcessHistoryMap should be the same type!");
+  typedef  ProcessHistoryRegistry::collection_type
+           ProcessHistoryMap;
 
 }  // art
 

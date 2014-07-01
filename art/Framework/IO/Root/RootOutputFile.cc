@@ -399,7 +399,35 @@ namespace art {
   }
 
   void RootOutputFile::writeParameterSetRegistry() {
-    fhicl::ParameterSetRegistry::exportTo(metaDataHandle_);
+    SQLErrMsg errMsg;
+    sqlite3_exec(metaDataHandle_,
+                 "BEGIN TRANSACTION; DROP TABLE IF EXISTS ParameterSets; " // +
+                 "CREATE TABLE ParameterSets(ID PRIMARY KEY, PSetBlob); COMMIT;",
+                 0,
+                 0,
+                 errMsg);
+    errMsg.throwIfError();
+    fillPsetMap();
+  }
+
+  void RootOutputFile::fillPsetMap() {
+    typedef  fhicl::ParameterSetRegistry::const_iterator  const_iterator;
+    SQLErrMsg errMsg;
+    sqlite3_exec(metaDataHandle_, "BEGIN TRANSACTION;", 0, 0, errMsg);
+    sqlite3_stmt *stmt = 0;
+    sqlite3_prepare_v2(metaDataHandle_, "INSERT INTO ParameterSets(ID, PSetBlob) VALUES(?, ?);", -1, &stmt, NULL);
+    for( const_iterator it = fhicl::ParameterSetRegistry::begin()
+                      , e  = fhicl::ParameterSetRegistry::end(); it != e; ++it )  {
+      std::string psID(it->first.to_string());
+      std::string psBlob(it->second.to_compact_string());
+      sqlite3_bind_text(stmt, 1, psID.c_str(), psID.size() + 1, SQLITE_STATIC);
+      sqlite3_bind_text(stmt, 2, psBlob.c_str(), psBlob.size() + 1, SQLITE_STATIC);
+      sqlite3_step(stmt);
+      sqlite3_reset(stmt);
+      sqlite3_clear_bindings(stmt);
+    }
+    sqlite3_finalize(stmt);
+    sqlite3_exec(metaDataHandle_, "END TRANSACTION;", 0, 0, SQLErrMsg());
   }
 
   void RootOutputFile::writeProductDescriptionRegistry() {

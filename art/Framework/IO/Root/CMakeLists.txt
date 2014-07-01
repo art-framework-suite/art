@@ -8,6 +8,7 @@ art_make(EXCLUDE
   config_dumper.cc
   sam_metadata_dumper.cc
   NO_PLUGINS
+  SUBDIRS detail
   LIB_LIBRARIES 
   art_Framework_Core
   art_Framework_IO
@@ -42,5 +43,5 @@ art_make_exec( NAME sam_metadata_dumper
   ${ROOT_RIO}
   )
 
-install_headers()
-install_source()
+install_headers(SUBDIRS detail)
+install_source(SUBDIRS detail)

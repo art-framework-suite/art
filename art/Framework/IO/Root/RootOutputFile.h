@@ -87,6 +87,7 @@ namespace art {
      void insertAncestors(ProductProvenance const& iGetParents,
                           Principal const& principal,
                           std::set<ProductProvenance>& oToFill);
+     void fillPsetMap();
 
     //-------------------------------
     // Member data
