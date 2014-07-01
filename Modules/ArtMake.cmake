@@ -325,6 +325,9 @@ Use EXCLUDE to exclude particular (eg exec) source files from library.")
     else()
       art_dictionary( DICT_NAME_VAR dictname)
     endif()
+    if (cet_generated_code) # Bubble up to top scope.
+      set(cet_generated_code ${cet_generated_code} PARENT_SCOPE)
+    endif()
     _debug_message("Configured to build dictionary ${dictname}.")
   endif()
 
