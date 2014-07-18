@@ -1,0 +1,132 @@
+#!/bin/bash
+########################################################################
+# make-branch
+#
+# ART-specific script
+# Takes a working directory and tag (art)
+#
+# Checkout each package in the art suite and create a branch based on the art version
+########################################################################
+
+# Subsidiary packages to be tagged, These must be in order: ie package
+# n's product_list must set up package n+1.
+declare -a packages=(messagefacility fhicl-cpp cetlib cpp0x)
+
+function ensure_gitconfig() {
+    local package=$1
+    ssh p-$1@cdcvs.fnal.gov "git config --global user.name '$package admin'; git config --global user.email 'artists@fnal.gov'"
+}
+
+function get_working_dir() 
+{
+    ( cd / ; /bin/pwd -P ) >/dev/null 2>&1
+    if (( $? == 0 )); then
+      pwd_P_arg="-P"
+    fi
+    cd ${currentDir}
+    cd ${working_dir}/${art_version}
+    reldir=`dirname ${0}`
+    my_working_dir=`cd ${reldir} && /bin/pwd ${pwd_P_arg}`
+}
+
+function product_for() {
+  local package=$1
+  case $package in
+      fhicl-cpp)
+        echo "fhiclcpp"
+      ;;
+      *)
+        echo "$package"
+  esac
+}
+
+function make_package_branch()
+{
+  local pkg=$1
+  product=`product_for "$pkg"`
+  pv=`grep    -e '^[ 	]*'"$product"'[ 	]\{1,\}' ${my_working_dir}/${last_pkg}/ups/product_deps | \
+   sed -e 's/^[ 	]*'"$product"'[ 	]\{1,\}\(v[^ 	]*\).*$/\1/'`
+  if [[ -n "$pv" ]]; then
+    echo "Found $package tag $pv corresponding to ART tag $art_version."
+  else
+    echo "Could not find tag for package $package corresponding to ART tag $art_version." 1>&2
+    continue
+  fi
+  ensure_gitconfig ${pkg}
+  set -x
+  cd ${my_working_dir}
+  git clone ssh://p-${pkg}@cdcvs.fnal.gov/cvs/projects/${pkg} || { echo "ERROR: failed to clone ${pkg}"; exit 1; }
+  cd ${my_working_dir}/${pkg}
+  git co ${pv}
+  git co -b ${pv}_branch
+  cd ${my_working_dir}
+  set +x
+}
+
+prog=${0##*/}
+
+function usage() {
+    cat 1>&2 <<EOF
+${prog} --help|-h|-\?
+${prog} <working_directory> <tag>
+EOF
+}
+
+getopt -T >/dev/null 2>&1
+if (( $? != 4 )); then
+  echo "ERROR: GNU getopt required! Check SETUP_GETOPT and PATH." 1>&2
+  exit 1
+fi
+
+TEMP=`getopt -n "$prog" -o ':h\?' --long help -- "${@}"`
+currentDir=${PWD}
+
+eval set -- "$TEMP"
+while true; do
+  case $1 in
+    --help|-h|-\?)
+      usage
+      exit 1
+      ;;
+    --)
+      shift
+      break
+      ;;
+    *)
+      echo "Bad argument \"$1\"" 1>&2
+      usage
+      exit 1
+  esac
+done
+
+[[ -z "$1" ]] && { echo "Require working directory as non-option argument" 1>&2; exit 1; }
+
+[[ -z "$2" ]] && { echo "Require existing ART tag as non-option argument" 1>&2; exit 1; }
+
+working_dir=$1
+art_version=$2
+
+# create ${working_dir}/${art_version}
+cd ${currentDir}
+if [ -d ${working_dir}/${art_version} ]; then
+        echo 'ERROR: ${working_dir}/${art_version} already exists!'
+        exit 5
+fi
+mkdir -p ${working_dir}/${art_version}
+get_working_dir
+
+ensure_gitconfig art
+set -x
+cd ${my_working_dir}
+git clone ssh://p-art@cdcvs.fnal.gov/cvs/projects/art || { echo "ERROR: failed to clone art"; exit 1; }
+cd ${my_working_dir}/art
+git co ${art_version}
+git co -b ${art_version}_branch
+cd ${my_working_dir}
+set +x
+last_pkg=art
+
+for package in "${packages[@]}"; do
+  make_package_branch ${package}
+  last_pkg=${package}
+done
