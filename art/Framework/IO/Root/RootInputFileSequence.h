@@ -98,6 +98,8 @@ namespace art {
     unsigned int const treeCacheSize_;
     int64_t const treeMaxVirtualSize_;
     int64_t const saveMemoryObjectThreshold_;
+    bool const delayedReadSubRunProducts_;
+    bool const delayedReadRunProducts_;
     int forcedRunOffset_;
     RunNumber_t setRun_;
     GroupSelectorRules groupSelectorRules_;

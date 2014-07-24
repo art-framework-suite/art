@@ -3,6 +3,7 @@ process_name: HMR
 source: {
   module_type: RootInput
   fileNames: [ "../HMSubRun_w.d/out.root" ]
+  delayedReadSubRunProducts: true
   saveMemoryObjectThreshold: 26214400 // 25 MiB
 }
 

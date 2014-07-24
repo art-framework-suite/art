@@ -50,6 +50,8 @@ namespace art {
     treeCacheSize_(pset.get<unsigned int>("cacheSize", 0U)),
     treeMaxVirtualSize_(pset.get<int64_t>("treeMaxVirtualSize", -1)),
     saveMemoryObjectThreshold_(pset.get<int64_t>("saveMemoryObjectThreshold", -1)),
+    delayedReadSubRunProducts_(pset.get<bool>("delayedReadSubRunProducts", false)),
+    delayedReadRunProducts_(pset.get<bool>("delayedReadRunProducts", false)),
     forcedRunOffset_(0),
     setRun_(0U),
     groupSelectorRules_(pset, "inputCommands", "InputSource"),
@@ -234,7 +236,10 @@ namespace art {
                                                   processConfiguration(), catalog_.currentFile().logicalFileName(), filePtr,
                                                   origEventID_, eventsToSkip_, whichSubRunsToSkip_,
                                                   fastCloningInfo_, treeCacheSize_, treeMaxVirtualSize_,
-                                                  saveMemoryObjectThreshold_, processingMode_,
+                                                  saveMemoryObjectThreshold_,
+                                                  delayedReadSubRunProducts_,
+                                                  delayedReadRunProducts_,
+                                                  processingMode_,
                                                   forcedRunOffset_, eventsToProcess_, noEventSort_,
                                                   groupSelectorRules_, false, duplicateChecker_, dropDescendants_);
       assert( catalog_.currentIndex()!=InputFileCatalog::indexEnd );

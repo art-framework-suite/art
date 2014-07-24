@@ -59,6 +59,8 @@ namespace art {
                      unsigned int treeCacheSize,
                      int64_t treeMaxVirtualSize,
                      int64_t saveMemoryObjectThreshold,
+                     bool delayedReadSubRunProducts,
+                     bool delayedReadRunProducts,
                      InputSource::ProcessingMode processingMode,
                      int forcedRunOffset,
                      vector<EventID> const& whichEventsToProcess,
@@ -70,6 +72,8 @@ namespace art {
       file_(fileName),
       logicalFile_(logicalFileName),
       catalog_(catalogName),
+      delayedReadSubRunProducts_(delayedReadSubRunProducts),
+      delayedReadRunProducts_(delayedReadRunProducts),
       processConfiguration_(processConfiguration),
       filePtr_(filePtr),
       fileFormatVersion_(),
@@ -655,8 +659,10 @@ namespace art {
                          runTree_.makeDelayedReader()));
     // Create a group in the run for each product
     runTree_.fillGroups(*thisRun);
-    // Read in all the products now.
-    thisRun->readImmediate();
+    if (!delayedReadRunProducts_) {
+      // Read in all the products now.
+      thisRun->readImmediate();
+    }
     ++fileIndexIter_;
     return thisRun;
   }
@@ -688,8 +694,10 @@ namespace art {
                             subRunTree_.makeDelayedReader()));
     // Create a group in the subRun for each product
     subRunTree_.fillGroups(*thisSubRun);
-    // Read in all the products now.
-    thisSubRun->readImmediate();
+    if (!delayedReadSubRunProducts_) {
+      // Read in all the products now.
+      thisSubRun->readImmediate();
+    }
     ++fileIndexIter_;
     return thisSubRun;
   }

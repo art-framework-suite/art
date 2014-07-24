@@ -65,6 +65,8 @@ namespace art {
              unsigned int treeCacheSize,
              int64_t treeMaxVirtualSize,
              int64_t saveMemoryObjectThreashold,
+             bool delayedReadSubRunProducts,
+             bool delayedReadRunProducts,
              InputSource::ProcessingMode processingMode,
              int forcedRunOffset,
              std::vector<EventID> const& whichEventsToProcess,
@@ -141,6 +143,8 @@ namespace art {
     std::string const file_;
     std::string const logicalFile_;
     std::string const catalog_;
+    bool delayedReadSubRunProducts_;
+    bool delayedReadRunProducts_;
     ProcessConfiguration const& processConfiguration_;
     std::shared_ptr<TFile> filePtr_;
     FileFormatVersion fileFormatVersion_;
