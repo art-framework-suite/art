@@ -23,6 +23,7 @@
 #include "art/Persistency/Provenance/RunID.h"
 #include "art/Persistency/Provenance/SubRunID.h"
 #include "art/Persistency/Provenance/Timestamp.h"
+
 #include "cpp0x/memory"
 #include "fhiclcpp/ParameterSet.h"
 #include <cstdlib>
@@ -62,6 +63,7 @@ public:
   using Base::getByLabel;
   using Base::getMany;
   using Base::getManyByType;
+  using Base::removeCachedProduct;
   using Base::me;
   using Base::processHistory;
   using Base::size;
@@ -163,9 +165,6 @@ public:
 
   ProductID branchIDToProductID(BranchID const &bid) const;
 
-  template <typename PROD>
-  bool removeCachedProduct(Handle<PROD> & h) const;
-
 private:
   EventPrincipal const& eventPrincipal() const;
   EventPrincipal      & eventPrincipal();
@@ -215,8 +214,6 @@ private:
   mutable BranchIDSet gotBranchIDs_;
   void
   addToGotBranchIDs(Provenance const& prov) const;
-
-  void removeCachedProduct_(BranchID const & bid) const;
 
 };  // Event
 
@@ -456,18 +453,6 @@ art::Event::getView(InputTag const& tag, View<ELEMENT>& result) const
   fillView_(bhv[0], result.vals());
   result.set_innards(bhv[0].result()->productID(), bhv[0].result()->uniqueProduct());
   return true;
-}
-
-template <typename PROD>
-bool
-art::Event::removeCachedProduct(Handle<PROD> & h) const {
-  bool result { false };
-  if (!h.provenance()->produced()) {
-    removeCachedProduct_(h.provenance()->branchID());
-    h.clear();
-    result = true;
-  }
-  return result;
 }
 
 // ----------------------------------------------------------------------

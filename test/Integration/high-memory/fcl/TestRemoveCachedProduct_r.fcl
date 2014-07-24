@@ -1,0 +1,11 @@
+process_name: TestRemoveCachedProductR
+
+physics: {
+  analyzers: { a1: { module_type: TestRemoveCachedProduct } }
+  e1: [ a1 ]
+}
+
+source: {
+  module_type: RootInput
+  fileNames: [ "../TestRemoveCachedProduct_w.d/out.root" ]
+}

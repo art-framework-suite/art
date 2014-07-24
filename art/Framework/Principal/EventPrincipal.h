@@ -102,9 +102,6 @@ public:
   EDProductGetter const *
   productGetter(ProductID const & pid) const;
 
-  void
-  removeCachedProduct(BranchID const & bid) const;
-
 private:
 
   BranchID productIDToBranchID(ProductID const& pid) const;

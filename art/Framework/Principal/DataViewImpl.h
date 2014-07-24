@@ -110,6 +110,9 @@ public:
   void
   getManyByType(std::vector<Handle<PROD> >& results) const;
 
+  template <typename PROD>
+  bool removeCachedProduct(Handle<PROD> & h) const;
+
   ProcessHistory const&
   processHistory() const;
 
@@ -185,6 +188,8 @@ protected:
   EDProductGetter const* prodGetter() const;
 
 private:
+  void removeCachedProduct_(BranchID const & bid) const;
+
   //------------------------------------------------------------
   // Data members
   //
@@ -324,6 +329,19 @@ art::DataViewImpl::getManyByType(std::vector<Handle<PROD> >& results) const
     ++it;
   }
   results.swap(products);
+}
+
+template <typename PROD>
+bool
+art::DataViewImpl::
+removeCachedProduct(Handle<PROD> & h) const {
+  bool result { false };
+  if (h.isValid() && !h.provenance()->produced()) {
+    removeCachedProduct_(h.provenance()->branchID());
+    h.clear();
+    result = true;
+  }
+  return result;
 }
 
 #endif /* art_Framework_Principal_DataViewImpl_h */

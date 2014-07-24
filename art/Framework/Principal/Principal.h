@@ -82,6 +82,9 @@ public:
   void getManyByType(TypeID const& tid,
                      GroupQueryResultVec& results) const;
 
+  void
+  removeCachedProduct(BranchID const & bid) const;
+
   // Return a vector of GroupQueryResults to the products which:
   //   1. are sequences,
   //   2. and have the nested type 'value_type'
@@ -137,8 +140,6 @@ protected:
 #endif
 private:
 #ifndef __GCCXML__
-  ////    virtual EDProduct const* getIt(ProductID const&) const;
-
   virtual void addOrReplaceGroup(std::unique_ptr<Group> && g) = 0;
 
 

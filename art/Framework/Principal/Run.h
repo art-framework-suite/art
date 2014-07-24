@@ -33,6 +33,7 @@ public:
   using Base::getByLabel;
   using Base::getMany;
   using Base::getManyByType;
+  using Base::removeCachedProduct;
   using Base::me;
   using Base::processHistory;
 
@@ -58,9 +59,6 @@ public:
   getProcessParameterSet(std::string const& processName,
                          std::vector<fhicl::ParameterSet>& ps) const;
 
-  template <typename PROD>
-  bool removeCachedProduct(Handle<PROD> & h) const;
-
 private:
   RunPrincipal const&
   runPrincipal() const;
@@ -78,8 +76,6 @@ private:
   friend class EDProducer;
 
   void commit_();
-
-  void removeCachedProduct_(BranchID const & bid) const;
 
   RunAuxiliary const& aux_;
 };
@@ -106,18 +102,6 @@ art::Run::put(std::unique_ptr<PROD> && product, std::string const& productInstan
 
   // product.release(); // The object has been copied into the Wrapper.
   // The old copy must be deleted, so we cannot release ownership.
-}
-
-template <typename PROD>
-bool
-art::Run::removeCachedProduct(Handle<PROD> & h) const {
-  bool result { false };
-  if (!h.provenance()->produced()) {
-    removeCachedProduct_(h.provenance()->branchID());
-    h.clear();
-    result = true;
-  }
-  return result;
 }
 
 #endif

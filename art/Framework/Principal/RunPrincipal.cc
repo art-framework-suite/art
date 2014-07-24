@@ -19,11 +19,6 @@ RunPrincipal::RunPrincipal(RunAuxiliary const& aux,
   }
 }
 
-  void
-  RunPrincipal::removeCachedProduct(BranchID const & bid) const {
-    getExistingGroup(bid)->removeCachedProduct();
-  }
-
 void
 RunPrincipal::addOrReplaceGroup(std::unique_ptr<Group> && g) {
   cet::exempt_ptr<Group const> group =

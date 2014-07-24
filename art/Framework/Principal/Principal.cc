@@ -251,6 +251,11 @@ namespace art {
     return;
   }
 
+  void
+  Principal::removeCachedProduct(BranchID const & bid) const {
+    getExistingGroup(bid)->removeCachedProduct();
+  }
+
   size_t
   Principal::getMatchingSequence(TypeID const& elementType,
                                  SelectorBase const& selector,

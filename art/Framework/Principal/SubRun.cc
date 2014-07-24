@@ -63,10 +63,4 @@ namespace art {
     putProducts().clear();
   }
 
-  void
-  SubRun::removeCachedProduct_(BranchID const & bid) const
-  {
-    subRunPrincipal().removeCachedProduct(bid);
-  }
-
 }
