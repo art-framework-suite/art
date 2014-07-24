@@ -43,12 +43,12 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 0  handleEmptySubRuns = 0
 	deleteSubRunFromCache 3/1
 	writeRun 3
 	deleteRunFromCache 3
-	respondToCloseInputFile
-	closeInputFile
 	writeSubRunCache
 	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
+	respondToCloseInputFile
+	closeInputFile
 	endOfLoop
 The state machine reports it has been terminated
 
@@ -102,12 +102,12 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 0  handleEmptySubRuns = 1
 	deleteSubRunFromCache 3/1
 	writeRun 3
 	deleteRunFromCache 3
-	respondToCloseInputFile
-	closeInputFile
 	writeSubRunCache
 	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
+	respondToCloseInputFile
+	closeInputFile
 	endOfLoop
 The state machine reports it has been terminated
 
@@ -159,12 +159,12 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 1  handleEmptySubRuns = 0
 	endRun 3
 	writeRun 3
 	deleteRunFromCache 3
-	respondToCloseInputFile
-	closeInputFile
 	writeSubRunCache
 	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
+	respondToCloseInputFile
+	closeInputFile
 	endOfLoop
 The state machine reports it has been terminated
 
@@ -222,12 +222,12 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 1  handleEmptySubRuns = 1
 	endRun 3
 	writeRun 3
 	deleteRunFromCache 3
-	respondToCloseInputFile
-	closeInputFile
 	writeSubRunCache
 	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
+	respondToCloseInputFile
+	closeInputFile
 	endOfLoop
 The state machine reports it has been terminated
 
@@ -275,12 +275,12 @@ Machine parameters:  mode = MERGE  handleEmptyRuns = 0  handleEmptySubRuns = 0
 	deleteSubRunFromCache 3/1
 	writeRun 3
 	deleteRunFromCache 3
-	respondToCloseInputFile
-	closeInputFile
 	writeSubRunCache
 	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
+	respondToCloseInputFile
+	closeInputFile
 	endOfLoop
 The state machine reports it has been terminated
 
@@ -334,12 +334,12 @@ Machine parameters:  mode = MERGE  handleEmptyRuns = 0  handleEmptySubRuns = 1
 	deleteSubRunFromCache 3/1
 	writeRun 3
 	deleteRunFromCache 3
-	respondToCloseInputFile
-	closeInputFile
 	writeSubRunCache
 	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
+	respondToCloseInputFile
+	closeInputFile
 	endOfLoop
 The state machine reports it has been terminated
 
@@ -391,12 +391,12 @@ Machine parameters:  mode = MERGE  handleEmptyRuns = 1  handleEmptySubRuns = 0
 	endRun 3
 	writeRun 3
 	deleteRunFromCache 3
-	respondToCloseInputFile
-	closeInputFile
 	writeSubRunCache
 	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
+	respondToCloseInputFile
+	closeInputFile
 	endOfLoop
 The state machine reports it has been terminated
 
@@ -454,12 +454,12 @@ Machine parameters:  mode = MERGE  handleEmptyRuns = 1  handleEmptySubRuns = 1
 	endRun 3
 	writeRun 3
 	deleteRunFromCache 3
-	respondToCloseInputFile
-	closeInputFile
 	writeSubRunCache
 	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
+	respondToCloseInputFile
+	closeInputFile
 	endOfLoop
 The state machine reports it has been terminated
 
@@ -499,12 +499,12 @@ Machine parameters:  mode = FULLLUMIMERGE  handleEmptyRuns = 0  handleEmptySubRu
     *** nextItemType: Stop 1 ***
 	writeRun 3
 	deleteRunFromCache 3
-	respondToCloseInputFile
-	closeInputFile
 	writeSubRunCache
 	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
+	respondToCloseInputFile
+	closeInputFile
 	endOfLoop
 The state machine reports it has been terminated
 
@@ -550,12 +550,12 @@ Machine parameters:  mode = FULLLUMIMERGE  handleEmptyRuns = 0  handleEmptySubRu
 	endSubRun 3/1
 	writeRun 3
 	deleteRunFromCache 3
-	respondToCloseInputFile
-	closeInputFile
 	writeSubRunCache
 	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
+	respondToCloseInputFile
+	closeInputFile
 	endOfLoop
 The state machine reports it has been terminated
 
@@ -599,12 +599,12 @@ Machine parameters:  mode = FULLLUMIMERGE  handleEmptyRuns = 1  handleEmptySubRu
 	endRun 3
 	writeRun 3
 	deleteRunFromCache 3
-	respondToCloseInputFile
-	closeInputFile
 	writeSubRunCache
 	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
+	respondToCloseInputFile
+	closeInputFile
 	endOfLoop
 The state machine reports it has been terminated
 
@@ -654,12 +654,12 @@ Machine parameters:  mode = FULLLUMIMERGE  handleEmptyRuns = 1  handleEmptySubRu
 	endRun 3
 	writeRun 3
 	deleteRunFromCache 3
-	respondToCloseInputFile
-	closeInputFile
 	writeSubRunCache
 	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
+	respondToCloseInputFile
+	closeInputFile
 	endOfLoop
 The state machine reports it has been terminated
 
@@ -693,12 +693,12 @@ Machine parameters:  mode = FULLMERGE  handleEmptyRuns = 0  handleEmptySubRuns =
     *** nextItemType: SubRun 1 ***
 	readAndCacheSubRun 1
     *** nextItemType: Stop 1 ***
-	respondToCloseInputFile
-	closeInputFile
 	writeSubRunCache
 	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
+	respondToCloseInputFile
+	closeInputFile
 	endOfLoop
 The state machine reports it has been terminated
 
@@ -738,12 +738,12 @@ Machine parameters:  mode = FULLMERGE  handleEmptyRuns = 0  handleEmptySubRuns =
     *** nextItemType: Stop 1 ***
 	beginSubRun 3/1
 	endSubRun 3/1
-	respondToCloseInputFile
-	closeInputFile
 	writeSubRunCache
 	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
+	respondToCloseInputFile
+	closeInputFile
 	endOfLoop
 The state machine reports it has been terminated
 
@@ -781,12 +781,12 @@ Machine parameters:  mode = FULLMERGE  handleEmptyRuns = 1  handleEmptySubRuns =
 	readAndCacheSubRun 1
     *** nextItemType: Stop 1 ***
 	endRun 3
-	respondToCloseInputFile
-	closeInputFile
 	writeSubRunCache
 	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
+	respondToCloseInputFile
+	closeInputFile
 	endOfLoop
 The state machine reports it has been terminated
 
@@ -830,11 +830,11 @@ Machine parameters:  mode = FULLMERGE  handleEmptyRuns = 1  handleEmptySubRuns =
 	beginSubRun 3/1
 	endSubRun 3/1
 	endRun 3
-	respondToCloseInputFile
-	closeInputFile
 	writeSubRunCache
 	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
+	respondToCloseInputFile
+	closeInputFile
 	endOfLoop
 The state machine reports it has been terminated
