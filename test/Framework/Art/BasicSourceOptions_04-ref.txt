@@ -1,5 +1,5 @@
 all_modules: []
-process_name: "DUMMY"
+process_name: "TEST"
 services: { message: { destinations: { STDOUT: { categories: { ArtReport: { limit: 100
                                                                           }
                                                                default: { limit: -1
@@ -16,7 +16,7 @@ services: { message: { destinations: { STDOUT: { categories: { ArtReport: { limi
                                   }
                   }
           }
-source: { fileNames: [ "f0.txt" ]
+source: { fileNames: []
           firstEvent: 5
           maxEvents: 4
           module_label: "source"
