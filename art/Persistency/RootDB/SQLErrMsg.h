@@ -22,7 +22,7 @@ public:
 
   // Throw a suitable message if an error occurred.
   void
-  throwIfError() const;
+  throwIfError();
 
   // Reset and release memory. This will be done automatically in the
   // destructor anyway.

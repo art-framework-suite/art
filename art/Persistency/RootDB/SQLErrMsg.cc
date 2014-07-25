@@ -7,13 +7,15 @@ extern "C" {
 }
 
 void
-art::SQLErrMsg::throwIfError() const
+art::SQLErrMsg::throwIfError()
 {
   if (errMsg_) {
+    std::string msg(errMsg_);
+    reset();
     throw Exception(errors::SQLExecutionError,
                     "SQLite3Wrapper::exec")
         << "Error executing SQL: "
-        << errMsg_
+        << msg
         << "\n";
   }
 }
