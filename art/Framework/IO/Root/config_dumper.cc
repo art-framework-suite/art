@@ -10,7 +10,6 @@
 
 #include "art/Framework/Core/RootDictionaryManager.h"
 #include "art/Framework/IO/Root/GetFileFormatEra.h"
-#include "art/Framework/IO/Root/detail/readParameterSetsFromDB.h"
 #include "art/Framework/IO/Root/rootNames.h"
 #include "art/Framework/IO/Root/setMetaDataBranchAddress.h"
 #include "art/Persistency/Provenance/FileFormatVersion.h"
@@ -24,6 +23,7 @@ extern "C" {
 #include "sqlite3.h"
 }
 
+#include <iomanip>
 #include <iostream>
 #include <iterator>
 #include <memory>
@@ -51,6 +51,39 @@ enum class PsetType { MODULE,
     SERVICE,
     PROCESS };
 
+size_t
+db_size(sqlite3 * db)
+{
+  sqlite3_stmt * stmt;
+  sqlite3_prepare_v2(db, "PRAGMA page_size;", -1, &stmt, NULL);
+  sqlite3_step(stmt);
+  size_t page_size = sqlite3_column_int64(stmt, 0);
+  sqlite3_finalize(stmt);
+  sqlite3_prepare_v2(db, "PRAGMA page_count;", -1, &stmt, NULL);
+  sqlite3_step(stmt);
+  size_t page_count = sqlite3_column_int64(stmt, 0);
+  sqlite3_finalize(stmt);
+  return page_size * page_count;
+}
+
+
+std::string
+db_size_hr(sqlite3 * db)
+{
+  std::string result;
+  double size = db_size(db);
+  std::vector<std::string> units = { "b", "KiB", "MiB", "GiB", "TiB" };
+  auto unit = units.cbegin(), end = units.cend();
+  while (size > 1024.0 && unit != end) {
+    size /= 1024.0;
+    ++unit;
+  }
+  std::ostringstream ss;
+  ss << std::fixed << std::setprecision(1) << size << " " << *unit;
+  result = ss.str();
+  return result;
+}
+
 std::string
 want_pset(ParameterSet const & ps,
           stringvec const & filters,
@@ -61,7 +94,7 @@ want_pset(ParameterSet const & ps,
     ps.get_if_present<string>("module_label", label);
     break;
   case PsetType::SERVICE:
-    ps.get_if_present<string>("service_type", label) || 
+    ps.get_if_present<string>("service_type", label) ||
       ps.get_if_present<string>("service_provider", label);
     break;
   case PsetType::PROCESS:
@@ -90,7 +123,7 @@ strip_pset(ParameterSet const & ps, PsetType mode)
   case PsetType::MODULE:
     result.erase("module_label");
     break;
-  case PsetType::SERVICE:    
+  case PsetType::SERVICE:
     result.erase("service_type");
     result.erase("service_provider");
     break;
@@ -158,7 +191,12 @@ bool read_all_parameter_sets(TFile & file,
   if (ffv.value_ >= 5) { // Should have metadata DB.
     // Open the DB
     art::SQLite3Wrapper sqliteDB(&file, "RootFileDB");
-    art::detail::readParameterSetsFromDB(sqliteDB, ffv);
+    std::cout << "# Read SQLiteDB from file, total size: "
+              << db_size_hr(sqliteDB)
+              << ".\n"
+              << std::endl;
+    fhicl::ParameterSetRegistry::importFrom(sqliteDB);
+    fhicl::ParameterSetRegistry::stageIn();
   }
   return true;
 }

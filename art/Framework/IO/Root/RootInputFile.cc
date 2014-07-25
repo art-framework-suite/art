@@ -13,7 +13,6 @@
 #include "art/Framework/IO/Root/FastCloningInfoProvider.h"
 #include "art/Framework/IO/Root/GetFileFormatEra.h"
 #include "art/Framework/IO/Root/setMetaDataBranchAddress.h"
-#include "art/Framework/IO/Root/detail/readParameterSetsFromDB.h"
 #include "art/Persistency/Common/EDProduct.h"
 #include "art/Persistency/Provenance/BranchChildren.h"
 #include "art/Persistency/Provenance/BranchDescription.h"
@@ -190,7 +189,7 @@ namespace art {
     if (fileFormatVersion_.value_ >=5) {
       // Open the DB
       SQLite3Wrapper sqliteDB(filePtr_.get(), "RootFileDB");
-      detail::readParameterSetsFromDB(sqliteDB, fileFormatVersion_);
+      fhicl::ParameterSetRegistry::importFrom(sqliteDB);
     }
 
     ProcessHistoryRegistry::put(pHistMap);

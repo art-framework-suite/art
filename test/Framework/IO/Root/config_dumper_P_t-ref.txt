@@ -1,3 +1,5 @@
+# Read SQLiteDB from file, total size: 7.0 KiB.
+
 ASSNS: {
   all_modules: [ "o1"
                , "o2"
