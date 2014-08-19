@@ -3,17 +3,6 @@
 #include "art/Utilities/Exception.h"
 #include "fhiclcpp/ParameterSet.h"
 
-namespace {
-  void throw_if_empty(std::string const & par,
-                      char const * par_name)
-  {
-    if (par.empty()) {
-      throw art::Exception(art::errors::Configuration, "Missing Required Metadata")
-          <<  par_name;
-    }
-  }
-}
-
 art::FileCatalogMetadata::FileCatalogMetadata(fhicl::ParameterSet const & ps,
     ActivityRegistry &)
   :
