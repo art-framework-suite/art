@@ -22,13 +22,26 @@ public:
 
   FileCatalogMetadata(fhicl::ParameterSet const &, ActivityRegistry &);
 
+  // Global setting: do we want the parents[] metadata item to be set
+  // for us?
+  bool wantFileParentsMetadata() const;
+
   // Add a new value to the metadata store.
   void addMetadata(std::string const & key, std::string const & value);
   void getMetadata(collection_type & coll) const; // Dump stored metadata into the provided container.
 
 private:
+  bool const wantFileParentsMetadata_;
   collection_type md_;
 };
+
+inline
+bool
+art::FileCatalogMetadata::
+wantFileParentsMetadata() const
+{
+  return wantFileParentsMetadata_;
+}
 
 inline
 void

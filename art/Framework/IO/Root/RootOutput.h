@@ -42,6 +42,7 @@ private:
     int const& splitLevel() const {return splitLevel_;}
     int64_t const& treeMaxVirtualSize() const {return treeMaxVirtualSize_;}
     int64_t const & saveMemoryObjectThreshold() const { return saveMemoryObjectThreshold_; }
+    bool wantFileParentsMetadata() const { return wantFileParentsMetadata_; }
     bool const& fastCloning() const {return fastCloning_;}
     DropMetaData const& dropMetaData() const {return dropMetaData_;}
     bool const& dropMetaDataForDroppedData() const {return dropMetaDataForDroppedData_;}
@@ -117,10 +118,11 @@ private:
     int64_t const saveMemoryObjectThreshold_;
     bool fastCloning_;
     DropMetaData dropMetaData_;
-    bool dropMetaDataForDroppedData_;
+    bool const dropMetaDataForDroppedData_;
     std::string const moduleLabel_;
     int inputFileCount_;
     boost::scoped_ptr<RootOutputFile> rootOutputFile_;
+    bool const wantFileParentsMetadata_;
     FileStatsCollector fstats_;
     std::string const filePattern_;
     std::string tmpDir_;

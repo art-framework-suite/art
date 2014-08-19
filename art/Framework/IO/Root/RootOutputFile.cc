@@ -141,7 +141,7 @@ namespace art {
 
     if (! eventHistoryTree_->Branch(rootNames::eventHistoryBranchName().c_str(), &pHistory_, om_->basketSize(), 0))
       throw art::Exception(art::errors::FatalRootError)
-        << "Failed to create a branch for Historys in the output file\n";
+        << "Failed to create a branch for History in the output file\n";
   }
 
   void RootOutputFile::beginInputFile(FileBlock const& fb, bool fastClone) {
@@ -380,7 +380,7 @@ namespace art {
     insert_md_row(stmt, { "last_event",
           eidToTuple(stats.highestEventID()) });
     // File parents.
-    if (!stats.parents().empty()) {
+    if (om_->wantFileParentsMetadata() && !stats.parents().empty()) {
       std::ostringstream pstring;
       pstring << "[ ";
       for (auto const & parent : stats.parents()) {

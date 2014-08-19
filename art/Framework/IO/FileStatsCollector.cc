@@ -1,5 +1,6 @@
 #include "art/Framework/IO/FileStatsCollector.h"
 #include "boost/date_time/posix_time/posix_time.hpp"
+#include "boost/filesystem.hpp"
 
 #include <string>
 
@@ -102,6 +103,25 @@ recordFileClose()
   fc_ =  boost::posix_time::second_clock::universal_time();
   ++seqNo_;
 }
+
+std::vector<std::string>
+art::FileStatsCollector::
+parents(bool want_basename) const
+{
+  std::vector<std::string> result;
+  if (want_basename) {
+    result.reserve(inputFilesSeen_.size());
+    for (auto const & ifile : inputFilesSeen_) {
+      boost::filesystem::path const ifp(ifile);
+      result.emplace_back(ifp.filename().native());
+    }
+  } else {
+    result = inputFilesSeen_;
+  }
+  return result;
+}
+
+
 
 void
 art::FileStatsCollector::
