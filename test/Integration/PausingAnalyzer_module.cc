@@ -20,6 +20,8 @@ extern "C" {
 #include <unistd.h>
 }
 
+#include <iostream>
+
 namespace arttest {
   class PausingAnalyzer;
 }

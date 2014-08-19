@@ -9,7 +9,7 @@
 #include "fhiclcpp/make_ParameterSet.h"
 #include "fhiclcpp/parse.h"
 
-
+#include <iostream>
 #include <sstream>
 #include <string>
 #include <vector>
