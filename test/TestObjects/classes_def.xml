@@ -20,13 +20,15 @@
  <class name="arttest::Simple" ClassVersion="10">
   <version ClassVersion="10" checksum="3883226735"/>
  </class>
- <class name="arttest::SimpleDerived" ClassVersion="10">
+ <class name="arttest::SimpleDerived" ClassVersion="11">
+  <version ClassVersion="11" checksum="2754341086"/>
   <version ClassVersion="10" checksum="3838878701"/>
  </class>
  <class name="arttest::Sortable" ClassVersion="10">
   <version ClassVersion="10" checksum="4007300496"/>
  </class>
- <class name="arttest::Prodigal" ClassVersion="10">
+ <class name="arttest::Prodigal" ClassVersion="11">
+  <version ClassVersion="11" checksum="1398299384"/>
   <version ClassVersion="10" checksum="518009779"/>
  </class>
  <class name="arttest::MockCluster" ClassVersion="10">
