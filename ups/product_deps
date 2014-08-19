@@ -1,40 +1,37 @@
 # The parent line must be the first non-comment line in the file
 # This line defines the product name and version
-parent art	v1_10_00b
+parent art	v1_11_00
 defaultqual	e6
 #
 fcldir -
 #
 product		version
-gcc		v4_8_2		e5
-gcc		v4_9_1		e6
-icc             v14_0_2
-clhep		v2_1_4_1
-cppunit		v1_12_1
-gccxml		v0_9_20131217
-python		v2_7_6
-root		v5_34_18d
-messagefacility	v1_11_11
-tbb		v4_2_3
-cetbuildtools	v4_00_00	-	only_for_build
+clhep		v2_2_0_2
+cppunit		v1_12_1a
+gccxml		v0_9_20140718
+python		v2_7_8
+root		v5_34_20
+messagefacility	v1_11_12
+tbb		v4_2_5
+cetbuildtools	v4_00_01	-	only_for_build
 end_product_list
 
 # e5  - with gcc 4.7.1 and -std=c++11
-qualifier	messagefacility	root		clhep		cppunit		gccxml	python	gcc	tbb		icc	compiler	notes
-e5:debug	e5:debug	e5:debug	e5:debug	e5:debug	-nq-	-nq-	-nq-	e5:debug	-	gcc
-e5:prof		e5:prof		e5:prof		e5:prof		e5:prof		-nq-	-nq-	-nq-	e5:prof		-	gcc
-e5:prof:sse2	e5:prof		e5:prof		e5:prof		e5:prof		-nq-	-nq-	-nq-	e5:prof		-	gcc		-msse2 -ftree-vectorizer-verbose
-nu:e5:debug	e5:debug	e5:nu:debug	e5:debug	e5:debug	-nq-	-nq-	-nq-	e5:debug	-	gcc
-nu:e5:prof	e5:prof		e5:nu:prof	e5:prof		e5:prof		-nq-	-nq-	-	e5:prof		-	gcc
-e6:debug	e6:debug	e6:debug	e6:debug	e6:debug	-nq-	-nq-	-nq-	e6:debug	-	gcc
-e6:prof		e6:prof		e6:prof		e6:prof		e6:prof		-nq-	-nq-	-nq-	e6:prof		-	gcc
-e6:prof:sse2	e6:prof		e6:prof		e6:prof		e6:prof		-nq-	-nq-	-nq-	e6:prof		-	gcc		-msse2 -ftree-vectorizer-verbose
-nu:e6:debug	e6:debug	e6:nu:debug	e6:debug	e6:debug	-nq-	-nq-	-nq-	e6:debug	-	gcc
-nu:e6:prof	e6:prof		e6:nu:prof	e6:prof		e6:prof		-nq-	-nq-	-	e6:prof		-	gcc
-i1:debug	i1:debug	e5:debug	e5:debug	e5:debug	-nq-	-nq-	-	e5:debug	i1	icc
-i1:prof		i1:prof		e5:prof		e5:prof		e5:prof		-nq-	-nq-	-	e5:prof		i1	icc
-e5:itbb:debug	e5:debug	e5:debug	e5:debug	e5:debug	-nq-	-nq-	-nq-	i1:debug	-	gcc
-e5:itbb:prof	e5:prof		e5:prof		e5:prof		e5:prof		-nq-	-nq-	-nq-	i1:prof		-	gcc
+qualifier	messagefacility	root		clhep		cppunit		gccxml	python	tbb		compiler	notes
+e5:debug	e5:debug	e5:debug	e5:debug	e5:debug	-nq-	-nq-	e5:debug	gcc
+e5:prof		e5:prof		e5:prof		e5:prof		e5:prof		-nq-	-nq-	e5:prof		gcc
+e5:prof:sse2	e5:prof		e5:prof		e5:prof		e5:prof		-nq-	-nq-	e5:prof		gcc		-msse2 -ftree-vectorizer-verbose
+nu:e5:debug	e5:debug	e5:nu:debug	e5:debug	e5:debug	-nq-	-nq-	e5:debug	gcc
+nu:e5:prof	e5:prof		e5:nu:prof	e5:prof		e5:prof		-nq-	-nq-	e5:prof		gcc
+e6:debug	e6:debug	e6:debug	e6:debug	e6:debug	-nq-	-nq-	e6:debug	gcc
+e6:prof		e6:prof		e6:prof		e6:prof		e6:prof		-nq-	-nq-	e6:prof		gcc
+e6:prof:sse2	e6:prof		e6:prof		e6:prof		e6:prof		-nq-	-nq-	e6:prof		gcc		-msse2 -ftree-vectorizer-verbose
+nu:e6:debug	e6:debug	e6:nu:debug	e6:debug	e6:debug	-nq-	-nq-	e6:debug	gcc
+nu:e6:prof	e6:prof		e6:nu:prof	e6:prof		e6:prof		-nq-	-nq-	e6:prof		gcc
+i1:debug	i1:debug	e5:debug	e5:debug	e5:debug	-nq-	-nq-	e5:debug	icc
+i1:prof		i1:prof		e5:prof		e5:prof		e5:prof		-nq-	-nq-	e5:prof		icc
+e5:itbb:debug	e5:debug	e5:debug	e5:debug	e5:debug	-nq-	-nq-	i1:debug	gcc
+e5:itbb:prof	e5:prof		e5:prof		e5:prof		e5:prof		-nq-	-nq-	i1:prof		gcc
 end_qualifier_list
 
 # Local Variables:
