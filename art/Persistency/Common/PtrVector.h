@@ -13,8 +13,15 @@
 
 #ifndef __GCCXML__
 #include <initializer_list>
+#include <iterator>
 #endif
 #include <vector>
+
+#if GCC_IS_AT_LEAST(4,9,0)
+#define PV_INSERT_POSITION_TYPE const_iterator
+#else
+#define PV_INSERT_POSITION_TYPE iterator
+#endif
 
 namespace art {
   template <typename T> class PtrVector;
@@ -120,7 +127,7 @@ public:
   template <typename U>
   void insert(iterator position, size_type n, Ptr<U> const & p);
   template <typename InputIterator>
-  void insert(iterator position, InputIterator first, InputIterator last);
+  iterator insert(PV_INSERT_POSITION_TYPE position, InputIterator first, InputIterator last);
   iterator erase(iterator position);
   iterator erase(iterator first, iterator last);
   void swap(PtrVector & other);
@@ -604,16 +611,27 @@ insert(iterator position, size_type n, Ptr<U> const & p)
 template <typename T>
 template <typename InputIterator>
 inline
-void
+auto
 art::PtrVector<T>::
-insert(iterator position, InputIterator first, InputIterator last)
+insert(PV_INSERT_POSITION_TYPE position, InputIterator first, InputIterator last)
+-> iterator
 {
   using std::placeholders::_1;
   std::for_each(first,
                 last,
                 [this](Ptr<T> const & p) { updateCore(p.refCore()); }
                );
+#if GCC_IS_AT_LEAST(4,9,0)
+  // C++2011.
+  return ptrs_.insert(position, first, last);
+#else
+  // Inefficient with C++03 interface.
+  auto const orig_dist = std::distance(ptrs_.begin(), position);
   ptrs_.insert(position, first, last);
+  iterator result = ptrs_.begin();
+  std::advance(result, orig_dist);
+  return result;
+#endif
 }
 
 template <typename T>
@@ -738,6 +756,8 @@ art::swap(PtrVector<T> & lhs, PtrVector<T> & rhs)
 }
 
 #endif // __GCCXML__
+
+#undef PV_INSERT_POSITION_TYPE
 #endif /* art_Persistency_Common_PtrVector_h */
 
 // Local Variables:

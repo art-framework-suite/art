@@ -11,6 +11,7 @@
 #include "art/Persistency/Common/PtrVector.h"
 #include "cetlib/exception.h"
 #include "fhiclcpp/ParameterSet.h"
+
 #include <string>
 #include <vector>
 
@@ -82,6 +83,16 @@ public:
     for (size_t i = 1; i != sz; ++i)
       assert(*local[i-1] > *local[i]);
 
+    // Make a new PtrVector so we can range-insert into it.
+    product_t insert_test;
+    auto half_size = h->size() / 2;
+    insert_test.insert(insert_test.begin(), h->cbegin(), h->cbegin() + half_size);
+    auto it = insert_test.insert(insert_test.end(), h->cbegin() + half_size, h->cend());
+    assert(it == insert_test.begin() + half_size);
+    assert(insert_test.size() == h->size());
+    it = insert_test.insert(it, h->cbegin(), h->end());
+    assert(it ==  insert_test.begin() + half_size);
+    assert(insert_test.size() == h->size() * 2);
   }  // analyze()
 
 private:
