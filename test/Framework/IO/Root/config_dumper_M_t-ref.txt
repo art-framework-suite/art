@@ -9,13 +9,13 @@ ap1: {
   module_type: "AssnsProducer"
 }
 
-source: {
-  maxEvents: 2
-  module_type: "EmptyEvent"
-}
-
 o1: {
   fileName: "dummy.root"
   module_type: "RootOutput"
+}
+
+source: {
+  maxEvents: 2
+  module_type: "EmptyEvent"
 }
 

@@ -94,8 +94,8 @@ want_pset(ParameterSet const & ps,
     ps.get_if_present<string>("module_label", label);
     break;
   case PsetType::SERVICE:
-    ps.get_if_present<string>("service_type", label) ||
-      ps.get_if_present<string>("service_provider", label);
+    ps.get_if_present<string>("service_provider", label) ||
+      ps.get_if_present<string>("service_type", label);
     break;
   case PsetType::PROCESS:
   {
