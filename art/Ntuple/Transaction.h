@@ -36,4 +36,8 @@ namespace sqlite
   };
 }
 
-#endif
+#endif /* art_Ntuple_Transaction_h */
+
+// Local Variables:
+// mode: c++
+// End:

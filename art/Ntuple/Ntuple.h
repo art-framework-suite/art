@@ -167,4 +167,8 @@ ntuple::Ntuple<ARGS...>::flush()
   buffer_.clear();
 }
 
-#endif
+#endif /* art_Ntuple_Ntuple_h */
+
+// Local Variables:
+// mode: c++
+// End:

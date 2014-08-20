@@ -1,5 +1,5 @@
-#ifndef art_Ntuple_sqlite_helper_h
-#define art_Ntuple_sqlite_helper_h
+#ifndef art_Ntuple_sqlite_helpers_h
+#define art_Ntuple_sqlite_helpers_h
 
 #include <assert.h>
 #include <stdexcept>
@@ -191,4 +191,8 @@ namespace sqlite
   }
 
 }
-#endif
+#endif /* art_Ntuple_sqlite_helpers_h */
+
+// Local Variables:
+// mode: c++
+// End:

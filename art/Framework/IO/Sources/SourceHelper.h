@@ -1,5 +1,5 @@
-#ifndef art_Framework_Core_SourceHelper_h
-#define art_Framework_Core_SourceHelper_h
+#ifndef art_Framework_IO_Sources_SourceHelper_h
+#define art_Framework_IO_Sources_SourceHelper_h
 
 // -----------------------------------------------------------------
 //
@@ -93,7 +93,7 @@ makePtr(TypeLabel const & tl,
 }
 
 
-#endif /* art_Framework_Core_SourceHelper_h */
+#endif /* art_Framework_IO_Sources_SourceHelper_h */
 
 // Local Variables:
 // mode: c++
