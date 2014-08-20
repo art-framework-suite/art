@@ -582,7 +582,9 @@ makePlugins_(std::vector<fhicl::ParameterSet> const psets)
     throw Exception(errors::Configuration, "OutputModule: ", e)
       << "Exception caught while processing FCMDPlugins["
       << count
-      << "].\n";
+      << "] in module "
+      << description().moduleLabel()
+      << ".\n";
   }
   return result;
 }
