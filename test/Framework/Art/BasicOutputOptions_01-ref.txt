@@ -9,6 +9,7 @@ physics: { end_paths: [ "injected_end_path_1" ]
          }
 process_name: "DUMMY"
 services: { TFileService: { fileName: "hist.root"
+                            service_type: "TFileService"
                           }
             message: { destinations: { STDOUT: { categories: { ArtReport: { limit: 100
                                                                           }
@@ -21,8 +22,10 @@ services: { TFileService: { fileName: "hist.root"
                                      }
                      }
             user: { CatalogInterface: { service_provider: "TrivialFileDelivery"
+                                        service_type: "CatalogInterface"
                                       }
                     FileTransfer: { service_provider: "TrivialFileTransfer"
+                                    service_type: "FileTransfer"
                                   }
                   }
           }

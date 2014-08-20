@@ -1,6 +1,7 @@
 all_modules: []
 process_name: "DUMMY"
-services: { SimpleMemoryCheck: {}
+services: { SimpleMemoryCheck: { service_type: "SimpleMemoryCheck"
+                               }
             message: { destinations: { STDOUT: { categories: { ArtReport: { limit: 100
                                                                           }
                                                                default: { limit: -1
@@ -15,8 +16,10 @@ services: { SimpleMemoryCheck: {}
                          wantTracer: true
                        }
             user: { CatalogInterface: { service_provider: "TrivialFileDelivery"
+                                        service_type: "CatalogInterface"
                                       }
                     FileTransfer: { service_provider: "TrivialFileTransfer"
+                                    service_type: "FileTransfer"
                                   }
                   }
           }

@@ -14,6 +14,7 @@ services: { FileCatalogMetadata: { applicationFamily: "Ethel"
                                    applicationVersion: "v0.00.01a"
                                    fileType: "MC"
                                    processID: [ "778213" ]
+                                   service_type: "FileCatalogMetadata"
                                  }
             message: { destinations: { STDOUT: { categories: { ArtReport: { limit: 100
                                                                           }
@@ -26,11 +27,14 @@ services: { FileCatalogMetadata: { applicationFamily: "Ethel"
                                      }
                      }
             user: { CatalogInterface: { service_provider: "IFCatalogInterface"
+                                        service_type: "CatalogInterface"
                                         webURI: "http://example.com"
                                       }
                     FileTransfer: { service_provider: "IFFileTransfer"
+                                    service_type: "FileTransfer"
                                   }
-                    IFDH: {}
+                    IFDH: { service_type: "IFDH"
+                          }
                   }
           }
 source: { fileNames: [ "778213" ]
