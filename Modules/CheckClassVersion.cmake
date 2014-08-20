@@ -41,6 +41,6 @@ MACRO(check_class_version)
       DEPENDS classes_def.xml
       VERBATIM
       )
-    ADD_DEPENDENCIES(${dictname}_check ${dictname}_dict ${dictname} art_Framework_Core checkClassVersion)
+    ADD_DEPENDENCIES(${dictname}_check ${dictname}_dict art_Framework_Core checkClassVersion)
   ENDIF()
 ENDMACRO()
