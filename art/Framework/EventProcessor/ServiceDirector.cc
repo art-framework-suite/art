@@ -70,7 +70,7 @@ namespace {
     { addService(*i, user_services, service_set); }
   }
 }
-#include <iostream>
+
 art::ServiceDirector::
 ServiceDirector(fhicl::ParameterSet const & pset,
                 ActivityRegistry & areg,
@@ -86,9 +86,5 @@ ServiceDirector(fhicl::ParameterSet const & pset,
   extractServices(services, service_set);
   // configured based on optional parameters
   if (wantTracer) { addService("Tracer", service_set); }
-  size_t i = 0;
-  for (auto const & ps : service_set) {
-    std::cerr << i++ << ": " << ps.to_indented_string() << "\n";
-  }
   serviceToken = ServiceRegistry::createSet(service_set, areg);
 }
