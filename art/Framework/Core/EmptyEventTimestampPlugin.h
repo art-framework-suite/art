@@ -72,12 +72,8 @@ public:
   void doEndJob();
   void doBeginRun(Run const & r);
   Timestamp doBeginRunTimestamp(RunID const & rid);
-  void doEndRun(Run const & r);
-  Timestamp doEndRunTimestamp(Run const & r);
   void doBeginSubRun(SubRun const & sr);
   Timestamp doBeginSubRunTimestamp(SubRunID const & srid);
-  void doEndSubRun(SubRun const & sr);
-  Timestamp doEndSubRunTimestamp(SubRun const & sr);
 
   Timestamp doEventTimestamp(EventID const & e);
 
@@ -92,12 +88,8 @@ private:
   virtual void endJob() { };
   virtual void beginRun(Run const &) { };
   virtual Timestamp beginRunTimestamp(RunID const &) { return lastEventTimestamp_; };
-  virtual void endRun(Run const &) { };
-  virtual Timestamp endRunTimestamp(Run const &) { return lastEventTimestamp_; };
   virtual void beginSubRun(SubRun const &) { };
   virtual Timestamp beginSubRunTimestamp(SubRunID const &) { return lastEventTimestamp_; };
-  virtual void endSubRun(SubRun const &) { };
-  virtual Timestamp endSubRunTimestamp(SubRun const &) { return lastEventTimestamp_; };
 
   virtual Timestamp eventTimestamp(EventID const &) = 0;
 
@@ -140,22 +132,6 @@ doBeginRunTimestamp(RunID const & rid)
 inline
 void
 art::EmptyEventTimestampPlugin::
-doEndRun(Run const & r)
-{
-  endRun(r);
-}
-
-inline
-art::Timestamp
-art::EmptyEventTimestampPlugin::
-doEndRunTimestamp(Run const & r)
-{
-  return endRunTimestamp(r);
-}
-
-inline
-void
-art::EmptyEventTimestampPlugin::
 doBeginSubRun(SubRun const & sr)
 {
   beginSubRun(sr);
@@ -167,22 +143,6 @@ art::EmptyEventTimestampPlugin::
 doBeginSubRunTimestamp(SubRunID const & srid)
 {
   return beginSubRunTimestamp(srid);
-}
-
-inline
-void
-art::EmptyEventTimestampPlugin::
-doEndSubRun(SubRun const & sr)
-{
-  endSubRun(sr);
-}
-
-inline
-art::Timestamp
-art::EmptyEventTimestampPlugin::
-doEndSubRunTimestamp(SubRun const & sr)
-{
-  return endSubRunTimestamp(sr);
 }
 
 inline

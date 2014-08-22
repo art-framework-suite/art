@@ -18,8 +18,10 @@
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 #include "fhiclcpp/ParameterSet.h"
+
 #include <cassert>
 #include <ctime>
+#include <iostream>
 
 using fhicl::ParameterSet;
 

@@ -46,8 +46,6 @@ private:
 
   void beginJob() override;
   void endJob() override;
-  void endSubRun(SubRun & sr) override;
-  void endRun(Run & r) override;
 
    void reallyReadEvent();
 
@@ -99,7 +97,7 @@ art::EmptyEvent::EmptyEvent
    ep_                      ( ),
    eType_                   ( EventAuxiliary::Any),
    pluginFactory_           ( ),
-   plugin_                  (makePlugin_(pset.get<fhicl::ParameterSet>("TimestampPlugin", { })))
+   plugin_                  (makePlugin_(pset.get<fhicl::ParameterSet>("timestampPlugin", { })))
 {
 
    RunNumber_t firstRun;
@@ -175,26 +173,6 @@ endJob()
 {
   if (plugin_) {
     plugin_->doEndJob();
-  }
-}
-
-void
-art::EmptyEvent::
-endSubRun(SubRun & sr)
-{
-  if (plugin_) {
-    plugin_->doEndSubRun(sr);
-    setTimestamp(plugin_->doEndSubRunTimestamp(sr));
-  }
-}
-
-void
-art::EmptyEvent::
-endRun(Run & r)
-{
-  if (plugin_) {
-    plugin_->doEndRun(r);
-    setTimestamp(plugin_->doEndRunTimestamp(r));
   }
 }
 
