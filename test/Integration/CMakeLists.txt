@@ -1029,7 +1029,7 @@ cet_test(TestMetadata_verify_hr HANDBUILT
   TEST_ARGS -H -s ../TestMetadata_plugin_t.d/out.root
   TEST_PROPERTIES DEPENDS TestMetadata_plugin_t
   PASS_REGULAR_EXPRESSION
-  "^\nFile catalog metadata from file \\.\\./TestMetadata_plugin_t\\.d/out\\.root:\n\n 1: fileType            unknown\n 2: process_name        DEVEL\n 3: key1                value1\n 4: key2                value2\n 5: file_format         artroot\n 6: file_format_era     ART_2011a\n 7: file_format_version 6\n 8: start_time          ${date_regex}\n 9: end_time            ${date_regex}\n10: event_count         1\n11: first_event         \\[ 1, 0, 1 \\]\n12: last_event          \\[ 1, 0, 1 \\]\n-------------------------------\n$"
+  "^\nFile catalog metadata from file \\.\\./TestMetadata_plugin_t\\.d/out\\.root:\n\n 1: fileType            unknown\n 2: process_name        DEVEL\n 3: file_format         artroot\n 4: file_format_era     ART_2011a\n 5: file_format_version 6\n 6: start_time          ${date_regex}\n 7: end_time            ${date_regex}\n 8: event_count         1\n 9: first_event         \\[ 1, 0, 1 \\]\n10: last_event          \\[ 1, 0, 1 \\]\n11: key1                value1\n12: key2                value2\n-------------------------------\n$"
   )
 
 cet_test(TestMetadata_verify_JSON HANDBUILT
@@ -1037,7 +1037,7 @@ cet_test(TestMetadata_verify_JSON HANDBUILT
   TEST_ARGS -s ../TestMetadata_plugin_t.d/out.root
   TEST_PROPERTIES DEPENDS TestMetadata_plugin_t
   PASS_REGULAR_EXPRESSION
-  "^{\n  \"\\.\\./TestMetadata_plugin_t\\.d/out\\.root\": {\n    \"file_type\": \"unknown\",\n    \"process_name\": \"DEVEL\",\n    \"key1\": \"value1\",\n    \"key2\": \"value2\",\n    \"file_format\": \"artroot\",\n    \"file_format_era\": \"ART_2011a\",\n    \"file_format_version\": 6,\n    \"start_time\": \"${date_regex}\",\n    \"end_time\": \"${date_regex}\",\n    \"event_count\": 1,\n    \"first_event\": \\[ 1, 0, 1 \\],\n    \"last_event\": \\[ 1, 0, 1 \\]\n  }\n}\n$"
+  "^{\n  \"\\.\\./TestMetadata_plugin_t\\.d/out\\.root\": {\n    \"file_type\": \"unknown\",\n    \"process_name\": \"DEVEL\",\n    \"file_format\": \"artroot\",\n    \"file_format_era\": \"ART_2011a\",\n    \"file_format_version\": 6,\n    \"start_time\": \"${date_regex}\",\n    \"end_time\": \"${date_regex}\",\n    \"event_count\": 1,\n    \"first_event\": \\[ 1, 0, 1 \\],\n    \"last_event\": \\[ 1, 0, 1 \\],\n    \"key1\": \"value1\",\n    \"key2\": \"value2\"\n  }\n}\n$"
   )
 
 set_source_files_properties(TestEmptyEventTimestampNoRSRTS_plugin.cc
