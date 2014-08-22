@@ -380,7 +380,7 @@ namespace art {
     insert_md_row(stmt, { "last_event",
           eidToTuple(stats.highestEventID()) });
     // File parents.
-    if (om_->wantFileParentsMetadata() && !stats.parents().empty()) {
+    if (!stats.parents().empty()) {
       std::ostringstream pstring;
       pstring << "[ ";
       for (auto const & parent : stats.parents()) {

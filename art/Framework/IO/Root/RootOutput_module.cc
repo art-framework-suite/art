@@ -52,9 +52,6 @@ namespace art {
   , moduleLabel_               ( ps.get<string>("module_label")  )
   , inputFileCount_            ( 0 )
   , rootOutputFile_            ( )
-  , wantFileParentsMetadata_   ( ps.get<bool>("wantFileParentsMetadata",
-                                              // Default to setting from FileCatalogMetadata service.
-                                              ServiceHandle<FileCatalogMetadata>()->wantFileParentsMetadata()) )
   , fstats_                    ( moduleLabel_, processName() )
   , filePattern_               ( ps.get<string>("fileName") )
   , tmpDir_                    ( ps.get<string>("tmpDir",

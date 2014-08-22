@@ -6,7 +6,6 @@
 art::FileCatalogMetadata::FileCatalogMetadata(fhicl::ParameterSet const & ps,
     ActivityRegistry &)
   :
-  wantFileParentsMetadata_(ps.get<bool>("wantFileParentsMetadata", true)),
   md_()
 {
   std::string applicationFamily,
