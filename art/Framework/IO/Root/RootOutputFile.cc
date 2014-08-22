@@ -286,7 +286,8 @@ namespace art {
   void
   RootOutputFile::
   writeFileCatalogMetadata(FileStatsCollector const & stats,
-                           FileCatalogMetadata::collection_type const & md)
+                           FileCatalogMetadata::collection_type const & md,
+                           FileCatalogMetadata::collection_type const & ssmd)
   {
     SQLErrMsg errMsg;
     // ID is declared auto-increment, so don't specify it when filling a
@@ -394,6 +395,12 @@ namespace art {
       insert_md_row(stmt, { "parents", pstring.str() });
     }
     ////////////////////////////////////
+
+    // Incoming stream-specific metadata overrides.
+    for ( auto const & kv : ssmd ) {
+      insert_md_row(stmt, kv);
+    }
+
     sqlite3_finalize(stmt);
     sqlite3_exec(metaDataHandle_, "END TRANSACTION;", 0, 0, SQLErrMsg());
   }

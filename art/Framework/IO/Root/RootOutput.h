@@ -101,7 +101,10 @@ private:
     void writeProductDescriptionRegistry() override;
     void writeParentageRegistry() override;
     void writeBranchIDListRegistry() override;
-    void doWriteFileCatalogMetadata(FileCatalogMetadata::collection_type const & md) override;
+    void
+    doWriteFileCatalogMetadata(FileCatalogMetadata::collection_type const & md,
+                               FileCatalogMetadata::collection_type const &
+                               ssmd) override;
     void writeProductDependencies() override;
     void finishEndFile() override;
 

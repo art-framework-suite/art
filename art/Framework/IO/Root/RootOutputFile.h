@@ -66,7 +66,8 @@ namespace art {
     void writeProductDependencies();
     void
     writeFileCatalogMetadata(FileStatsCollector const & stats,
-                             FileCatalogMetadata::collection_type const & md);
+                             FileCatalogMetadata::collection_type const & md,
+                             FileCatalogMetadata::collection_type const & ssmd);
 
     void finishEndFile();
     void beginInputFile(FileBlock const& fb, bool fastClone);
