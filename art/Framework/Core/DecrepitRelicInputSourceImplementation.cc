@@ -18,8 +18,10 @@
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 #include "fhiclcpp/ParameterSet.h"
+
 #include <cassert>
 #include <ctime>
+#include <iostream>
 
 using fhicl::ParameterSet;
 
@@ -56,7 +58,7 @@ namespace art {
     , reportFrequency_     ( pset.get<int>("reportFrequency", 1) )
     , processingMode_      ( RunsSubRunsAndEvents )
     , moduleDescription_   ( desc.moduleDescription )
-    , time_                ( )
+    , time_                ( Timestamp::invalidTimestamp() )
     , doneReadAhead_       ( false )
     , state_               ( input::IsInvalid )
     , runPrincipal_        ( )
@@ -340,18 +342,18 @@ namespace art {
 
   void
   DecrepitRelicInputSourceImplementation::doEndRun(RunPrincipal& rp) {
-    rp.setEndTime(time_);
     Run run(rp, moduleDescription());
     endRun(run);
     run.commit_();
+    rp.setEndTime(time_);
   }
 
   void
   DecrepitRelicInputSourceImplementation::doEndSubRun(SubRunPrincipal & srp) {
-    srp.setEndTime(time_);
     SubRun sr(srp, moduleDescription());
     endSubRun(sr);
     sr.commit_();
+    srp.setEndTime(time_);
   }
 
   //   void

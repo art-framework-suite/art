@@ -1040,6 +1040,28 @@ cet_test(TestMetadata_verify_JSON HANDBUILT
   "^{\n  \"\\.\\./TestMetadata_plugin_t\\.d/out\\.root\": {\n    \"file_type\": \"unknown\",\n    \"process_name\": \"DEVEL\",\n    \"key1\": \"value1\",\n    \"key2\": \"value2\",\n    \"file_format\": \"artroot\",\n    \"file_format_era\": \"ART_2011a\",\n    \"file_format_version\": 6,\n    \"start_time\": \"${date_regex}\",\n    \"end_time\": \"${date_regex}\",\n    \"event_count\": 1,\n    \"first_event\": \\[ 1, 0, 1 \\],\n    \"last_event\": \\[ 1, 0, 1 \\]\n  }\n}\n$"
   )
 
+set_source_files_properties(TestEmptyEventTimestampNoRSRTS_plugin.cc
+  PROPERTIES COMPILE_DEFINITIONS TEST_USE_LAST_EVENT_TIMESTAMP
+)
+
+simple_plugin(TestEmptyEventTimestamp "plugin" NO_INSTALL art_Framework_Core ${FHICLCPP})
+simple_plugin(TestEmptyEventTimestampNoRSRTS "plugin" NO_INSTALL art_Framework_Core ${FHICLCPP})
+
+cet_test(TestEmptyEventTimestamp_t HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --rethrow-all -c TestEmptyEventTimestamp_t.fcl
+  DATAFILES
+  fcl/TestEmptyEventTimestamp_t.fcl
+  )
+
+cet_test(TestEmptyEventTimestampNoRSRTS_t HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --rethrow-all -c TestEmptyEventTimestampNoRSRTS_t.fcl
+  DATAFILES
+  fcl/TestEmptyEventTimestamp_t.fcl
+  fcl/TestEmptyEventTimestampNoRSRTS_t.fcl
+  )
+
 add_subdirectory(event-shape)
 add_subdirectory(high-memory)
 
