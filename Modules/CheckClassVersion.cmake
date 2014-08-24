@@ -42,6 +42,11 @@ MACRO(check_class_version)
       -x ${CMAKE_CURRENT_SOURCE_DIR}/classes_def.xml
       VERBATIM
       )
-    add_dependencies(${dictname}_dict art_Framework_Core ${_ccv_target})
+    add_dependencies(${dictname}_dict ${_ccv_target})
+    if (ART_FRAMEWORK_CORE)
+      add_dependencies(${dictname}_dict ${ART_FRAMEWORK_CORE})
+    else()
+      add_dependencies(${dictname}_dict art_Framework_Core)
+    endif()
   ENDIF()
 ENDMACRO()
