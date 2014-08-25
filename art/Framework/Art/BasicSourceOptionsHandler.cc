@@ -15,8 +15,8 @@ art::BasicSourceOptionsHandler::
 BasicSourceOptionsHandler(bpo::options_description & desc)
 {
   desc.add_options()
-  ("source,s", bpo::value<std::vector<std::string> >(), "Source data file (multiple OK).")
-  ("source-list,S", bpo::value<std::string>(), "file containing a list of source files to read, one per line.")
+  ("source,s", bpo::value<std::vector<std::string> >(), "Source data file (multiple OK); precludes -S.")
+  ("source-list,S", bpo::value<std::string>(), "file containing a list of source files to read, one per line; precludes -s.")
   ("estart,e", bpo::value<unsigned long>(), "Event # of first event to process.")
   ("nevts,n", bpo::value<int>(), "Number of events to process.")
   ("nskip", bpo::value<unsigned long>(), "Number of events to skip.")
@@ -40,12 +40,10 @@ doProcessOptions(bpo::variables_map const & vm,
     cet::copy_all(vm["source"].as<std::vector<std::string> >(),
                   std::back_inserter(source_list));
   }
-  auto result = processSourceListArg_(vm, source_list);
-  if (result != 0) {
-    return result;
-  }
+  auto have_source_list_file = processSourceListArg_(vm, source_list);
   // Post-process the config.
-  if (source_list.size() > 0) {
+  if (source_list.size() > 0 || have_source_list_file) {
+    // Empty source list file will override non-empty FHiCL spec.
     if (raw_config.exists("source.module_type")) {
       if (raw_config.get<std::string>("source.module_type") == "EmptyEvent") {
         throw Exception(errors::Configuration)
@@ -75,12 +73,18 @@ doProcessOptions(bpo::variables_map const & vm,
   return 0;
 }
 
-int
+bool
 art::BasicSourceOptionsHandler::
 processSourceListArg_(bpo::variables_map const & vm,
                       std::vector<std::string> & source_list)
 {
-  if (vm.count("source-list")) {
+  bool result = !!vm.count("source-list");
+  if (result) {
+    if (source_list.size()) {
+      throw Exception(errors::Configuration)
+        << "--source-list (-S) and --source (-s) or non-option arguments are "
+        << "incompatible due to ordering ambiguities.\n";
+    }
     std::ifstream flist(vm["source-list"].as<std::string>().c_str());
     if (!flist) {
       throw Exception(errors::Configuration)
@@ -97,5 +101,5 @@ processSourceListArg_(bpo::variables_map const & vm,
       if (!tmp.empty()) { source_list.push_back(tmp); }
     }
   }
-  return 0;
+  return result;
 }

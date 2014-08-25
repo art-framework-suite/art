@@ -181,12 +181,6 @@ namespace art {
     }
   }
 
-  void
-  Event::removeCachedProduct_(BranchID const & bid) const
-  {
-    eventPrincipal().removeCachedProduct(bid);
-  }
-
 // ----------------------------------------------------------------------
 
   void

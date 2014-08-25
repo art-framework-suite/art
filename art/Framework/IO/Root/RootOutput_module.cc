@@ -183,9 +183,10 @@ namespace art {
 
   void
   RootOutput::
-  doWriteFileCatalogMetadata(FileCatalogMetadata::collection_type const & md)
+  doWriteFileCatalogMetadata(FileCatalogMetadata::collection_type const & md,
+                             FileCatalogMetadata::collection_type const & ssmd)
   {
-    rootOutputFile_->writeFileCatalogMetadata(fstats_, md);
+    rootOutputFile_->writeFileCatalogMetadata(fstats_, md, ssmd);
   }
 
   void RootOutput::writeProductDependencies() { rootOutputFile_->writeProductDependencies(); }

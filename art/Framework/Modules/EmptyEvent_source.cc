@@ -4,6 +4,7 @@ namespace art {
 
 #include "art/Framework/Core/DecrepitRelicInputSourceImplementation.h"
 #include "art/Framework/Principal/EventPrincipal.h"
+#include "art/Framework/Core/EmptyEventTimestampPlugin.h"
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/InputSourceDescription.h"
 #include "art/Framework/Core/InputSourceMacros.h"
@@ -18,6 +19,7 @@ namespace art {
 #include "art/Persistency/Provenance/SubRunAuxiliary.h"
 #include "art/Persistency/Provenance/SubRunID.h"
 #include "art/Persistency/Provenance/Timestamp.h"
+#include "cetlib/BasicPluginFactory.h"
 #include "cpp0x/cstdint"
 #include "cpp0x/memory"
 #include "fhiclcpp/ParameterSet.h"
@@ -26,33 +28,32 @@ class art::EmptyEvent : public art::DecrepitRelicInputSourceImplementation {
 public:
    explicit EmptyEvent(fhicl::ParameterSet const& pset,
                        InputSourceDescription & desc);
-   virtual ~EmptyEvent();
 
    unsigned int numberEventsInRun() const { return numberEventsInRun_; }
    unsigned int numberEventsInSubRun() const { return numberEventsInSubRun_; }
-   TimeValue_t presentTime() const { return presentTime_; }
-   unsigned int timeBetweenEvents() const { return timeBetweenEvents_; }
    unsigned int eventCreationDelay() const { return eventCreationDelay_; }
    unsigned int numberEventsInThisRun() const { return numberEventsInThisRun_; }
    unsigned int numberEventsInThisSubRun() const { return numberEventsInThisSubRun_; }
 
 private:
-   virtual art::input::ItemType getNextItemType();
-   virtual void setRunAndEventInfo();
-   virtual std::unique_ptr<EventPrincipal> readEvent_();
-   virtual std::shared_ptr<SubRunPrincipal> readSubRun_();
-   virtual std::shared_ptr<RunPrincipal> readRun_();
-   virtual void skip(int offset);
-   virtual void rewind_();
+   art::input::ItemType getNextItemType() override;
+   void setRunAndEventInfo();
+   std::unique_ptr<EventPrincipal> readEvent_() override;
+   std::shared_ptr<SubRunPrincipal> readSubRun_() override;
+   std::shared_ptr<RunPrincipal> readRun_() override;
+   void skip(int offset) override;
+   void rewind_() override;
 
-   void setTime(TimeValue_t t) {presentTime_ = t;}
+  void beginJob() override;
+  void endJob() override;
+
    void reallyReadEvent();
+
+  std::unique_ptr<EmptyEventTimestampPlugin>
+  makePlugin_(fhicl::ParameterSet const & pset);
 
    unsigned int numberEventsInRun_;
    unsigned int numberEventsInSubRun_;
-   TimeValue_t presentTime_;
-   TimeValue_t origTime_;
-   unsigned int timeBetweenEvents_;
    unsigned int eventCreationDelay_;  /* microseconds */
 
    unsigned int numberEventsInThisRun_;
@@ -67,6 +68,9 @@ private:
    bool resetEventOnSubRun_;
    std::unique_ptr<EventPrincipal> ep_;
    EventAuxiliary::ExperimentType eType_;
+
+  cet::BasicPluginFactory pluginFactory_;
+  std::unique_ptr<EmptyEventTimestampPlugin> plugin_;
 };  // EmptyEvent
 
 using namespace art;
@@ -74,22 +78,11 @@ using std::uint32_t;
 
 //used for defaults
 
-namespace {
-   uint32_t defaultTimeBetweenEvents() {
-      static uint32_t const kNanoSecPerSec = 1000000000U;
-      static uint32_t const kAveEventPerSec = 200U;
-      return kNanoSecPerSec / kAveEventPerSec;
-   }
-}
-
 art::EmptyEvent::EmptyEvent
 (fhicl::ParameterSet const& pset, InputSourceDescription & desc) :
    DecrepitRelicInputSourceImplementation( pset, desc ),
    numberEventsInRun_       ( pset.get<uint32_t>("numberEventsInRun", remainingEvents()) ),
    numberEventsInSubRun_    ( pset.get<uint32_t>("numberEventsInSubRun", remainingEvents()) ),
-   presentTime_             ( pset.get<uint32_t>("firstTime", 0u) ),  //time in ns
-   origTime_                ( presentTime_ ),
-   timeBetweenEvents_       ( pset.get<uint32_t>("timeBetweenEvents", defaultTimeBetweenEvents()) ),
    eventCreationDelay_      ( pset.get<uint32_t>("eventCreationDelay", 0u) ),
    numberEventsInThisRun_   ( 0 ),
    numberEventsInThisSubRun_( 0 ),
@@ -102,11 +95,10 @@ art::EmptyEvent::EmptyEvent
    skipEventIncrement_      ( true ),
    resetEventOnSubRun_      ( pset.get<bool>("resetEventOnSubRun", true) ),
    ep_                      ( ),
-   eType_                   ( EventAuxiliary::Any)
+   eType_                   ( EventAuxiliary::Any),
+   pluginFactory_           ( ),
+   plugin_                  (makePlugin_(pset.get<fhicl::ParameterSet>("timestampPlugin", { })))
 {
-   setTimestamp(Timestamp(presentTime_));
-   // We need to map this string to the EventAuxiliary::ExperimentType enumeration
-   // std::string eType = pset.get<std::string>("experimentType", std::string("Any"))),
 
    RunNumber_t firstRun;
    bool haveFirstRun = pset.get_if_present("firstRun", firstRun);
@@ -124,30 +116,40 @@ art::EmptyEvent::EmptyEvent
    eventID_ = origEventID_;
 }
 
-art::EmptyEvent::~EmptyEvent() { }
-
 std::shared_ptr<RunPrincipal>
 art::EmptyEvent::readRun_() {
-  Timestamp ts = Timestamp(presentTime_);
+  auto ts = plugin_ ?
+            plugin_->doBeginRunTimestamp(eventID_.runID()) :
+            Timestamp::invalidTimestamp();
   RunAuxiliary runAux(eventID_.runID(), ts, Timestamp::invalidTimestamp());
   newRun_ = false;
-  typedef std::shared_ptr<RunPrincipal> rp_ptr;
-  return rp_ptr(new RunPrincipal(runAux, processConfiguration()));
+  auto rp_ptr =
+    std::make_shared<RunPrincipal>(runAux, processConfiguration());
+  if (plugin_) {
+    Run r(*rp_ptr, moduleDescription());
+    plugin_->doBeginRun(r);
+  }
+  return rp_ptr;
 }
 
 std::shared_ptr<SubRunPrincipal>
 EmptyEvent::readSubRun_() {
    if (processingMode() == Runs) return std::shared_ptr<SubRunPrincipal>();
-   Timestamp ts = Timestamp(presentTime_);
+   auto ts = plugin_ ?
+             plugin_->doBeginSubRunTimestamp(eventID_.subRunID()) :
+             Timestamp::invalidTimestamp();
    SubRunAuxiliary subRunAux(eventID_.subRunID(),
                              ts,
                              Timestamp::invalidTimestamp());
-   std::shared_ptr<SubRunPrincipal>
-      subRunPrincipal(new SubRunPrincipal(subRunAux,
-                                          processConfiguration()));
-   SubRun sr(*subRunPrincipal, moduleDescription());
+   auto srp_ptr =
+     std::make_shared<SubRunPrincipal>(subRunAux,
+                                       processConfiguration());
+   if (plugin_) {
+     SubRun sr(*srp_ptr, moduleDescription());
+     plugin_->doBeginSubRun(sr);
+   }
    newSubRun_ = false;
-   return subRunPrincipal;
+   return srp_ptr;
 }
 
 std::unique_ptr<EventPrincipal>
@@ -156,12 +158,61 @@ std::unique_ptr<EventPrincipal>
    return std::move(ep_);
 }
 
+void
+art::EmptyEvent::
+beginJob()
+{
+  if (plugin_) {
+    plugin_->doBeginJob();
+  }
+}
+
+void
+art::EmptyEvent::
+endJob()
+{
+  if (plugin_) {
+    plugin_->doEndJob();
+  }
+}
+
 void art::EmptyEvent::reallyReadEvent() {
   if (processingMode() != RunsSubRunsAndEvents) return;
+  auto timestamp = plugin_ ?
+                   plugin_->doEventTimestamp(eventID_) :
+                   Timestamp::invalidTimestamp();
   EventAuxiliary eventAux(eventID_,
-                          Timestamp(presentTime_),
+                          timestamp,
                           eType_);
   ep_.reset(new EventPrincipal(eventAux, processConfiguration()));
+}
+
+std::unique_ptr<art::EmptyEventTimestampPlugin>
+art::EmptyEvent::
+makePlugin_(fhicl::ParameterSet const & pset)
+{
+  std::unique_ptr<art::EmptyEventTimestampPlugin> result;
+  try {
+    if (!pset.is_empty()) {
+      auto const libspec = pset.get<std::string>("plugin_type");
+      auto const pluginType = pluginFactory_.pluginType(libspec);
+      if (pluginType == cet::PluginTypeDeducer<EmptyEventTimestampPlugin>::value) {
+        result = pluginFactory_.makePlugin<std::unique_ptr<EmptyEventTimestampPlugin>,
+          fhicl::ParameterSet const &>(libspec, pset);
+    } else {
+        throw Exception(errors::Configuration, "EmptyEvent: ")
+          << "unrecognized plugin type "
+          << pluginType
+          << "for plugin "
+          << libspec
+          << ".\n";
+      }
+  }
+} catch (cet::exception & e) {
+    throw Exception(errors::Configuration, "EmptyEvent: ", e)
+      << "Exception caught while processing plugin spec.\n";
+  }
+  return result;
 }
 
 void art::EmptyEvent::skip(int offset)
@@ -175,7 +226,10 @@ void art::EmptyEvent::skip(int offset)
 }
 
 void art::EmptyEvent::rewind_() {
-  presentTime_ = origTime_;
+  if (plugin_) {
+    plugin_->doRewind();
+  }
+  setTimestamp(Timestamp::invalidTimestamp());
   eventID_ = origEventID_;
   skipEventIncrement_ = true;
   numberEventsInThisRun_ = 0;
@@ -259,7 +313,6 @@ art::EmptyEvent::setRunAndEventInfo() {
       // new run
       eventID_ = EventID(eventID_.nextRun().run(), origEventID_.subRun(), origEventID_.event());
    }
-   presentTime_ += timeBetweenEvents_;
    if (eventCreationDelay_ > 0) {usleep(eventCreationDelay_);}
 }
 

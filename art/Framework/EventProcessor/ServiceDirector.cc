@@ -9,6 +9,7 @@
 #include "art/Framework/Services/System/PathSelection.h"
 #include "art/Framework/Services/System/ScheduleContext.h"
 #include "art/Framework/Services/System/TriggerNamesService.h"
+#include "fhiclcpp/ParameterSetRegistry.h"
 
 namespace {
   typedef std::vector<ParameterSet> ParameterSets;
@@ -16,8 +17,10 @@ namespace {
   void
   addService(std::string const & name, ParameterSets & service_set)
   {
-    service_set.push_back(ParameterSet());
-    service_set.back().put("service_type", name);
+    ParameterSet tmp;
+    tmp.put("service_type", name);
+    fhicl::ParameterSetRegistry::put(tmp);
+    service_set.emplace_back(std::move(tmp));
   }
 
   void
@@ -27,7 +30,6 @@ namespace {
   {
     ParameterSet pset;
     if (source.get_if_present(name, pset)) {
-      pset.put("service_type", name);
       service_set.push_back(pset);
     }
   }
@@ -37,8 +39,13 @@ namespace {
              ParameterSet const & source,
              ParameterSets & service_set)
   {
-    service_set.push_back(source.get<ParameterSet>(name, ParameterSet()));
-    service_set.back().put("service_type", name);
+    ParameterSet tmp;
+    if (source.get_if_present(name, tmp)) {
+      service_set.emplace_back(std::move(tmp));
+    } else {
+      // Add a suitably simple parameter set.
+      addService(name, service_set);
+    }
   }
 
   void extractServices(ParameterSet const & services, ParameterSets & service_set)

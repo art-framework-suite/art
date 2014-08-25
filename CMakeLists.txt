@@ -32,7 +32,6 @@ cet_set_compiler_flags(DIAGS VIGILANT
   WERROR
   NO_UNDEFINED
   EXTRA_FLAGS -pedantic
-  EXTRA_CXX_FLAGS -std=c++11
   )
 cet_have_qual(sse2 SSE2)
 if ( SSE2 )
@@ -42,15 +41,16 @@ endif()
 cet_report_compiler_flags()
 
 # these are minimum required versions, not the actual product versions
-find_ups_product( cppunit v1_12_1 )
-find_ups_product( gccxml v0_9 )
-find_ups_product( clhep v2_1_2_2 )
-find_ups_product( cetbuildtools v3_12_00 )
-find_ups_product( cetlib v1_05_00 )
-find_ups_product( fhiclcpp v2_19_00 )
-find_ups_product( messagefacility v1_10_00 )
-find_ups_product( sqlite v3_07_08_00 )
-find_ups_root( v5_34_00 )
+find_ups_product( cppunit v1_12_1a )
+find_ups_product( gccxml v0_9_20140718 )
+find_ups_product( clhep v2_2_0_3 )
+find_ups_product( cetbuildtools v4_01_00 )
+find_ups_product( cetpkgsupport v1_07_00 )
+find_ups_product( cetlib v1_07_00 )
+find_ups_product( fhiclcpp v3_00_00 )
+find_ups_product( messagefacility v1_11_12 )
+find_ups_product( sqlite v3_08_05_00 )
+find_ups_root( v5_34_20 )
 find_ups_product( tbb v4_1 )
 find_ups_boost(v1_53_0)
 
@@ -60,9 +60,6 @@ cet_find_library( CLHEP  NAMES CLHEP   PATHS ENV CLHEP_LIB_DIR NO_DEFAULT_PATH )
 
 # define cppunit
 cet_find_library( CPPUNIT NAMES cppunit   PATHS ENV CPPUNIT_LIB   NO_DEFAULT_PATH )
-
-# SQLite
-cet_find_library(SQLITE3 NAMES sqlite3_ups PATHS ENV SQLITE_LIB NO_DEFAULT_PATH)
 
 # macros for art_dictionary and simple_plugin
 include(ArtDictionary)

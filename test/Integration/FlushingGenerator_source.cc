@@ -6,6 +6,7 @@
 #include "art/Framework/IO/Sources/SourceTraits.h"
 
 #include <cassert>
+#include <iostream>
 
 namespace arttest {
   class FlushingGeneratorDetail;

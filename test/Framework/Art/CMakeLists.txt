@@ -107,10 +107,8 @@ cet_test(BasicSourceOptions_01_w HANDBUILT
   TEST_ARGS --estart 5 --nevts 4 --nskip 2
   -c empty_config.fcl
   -s f0.txt
-  -S BasicSourceOptions-srclist.txt
   TEST_PROPERTIES ENVIRONMENT ART_DEBUG_CONFIG=config.out
   DATAFILES fcl/empty_config.fcl
-  BasicSourceOptions-srclist.txt
   )
 
 config_test_pass(BasicSourceOptions_01_w)
@@ -122,13 +120,55 @@ cet_test(BasicSourceOptions_02 HANDBUILT
   TEST_EXEC art
   TEST_ARGS -c BasicSourceOptions_02.fcl
   -s f0.txt
-  -S BasicSourceOptions-srclist.txt
   TEST_PROPERTIES ENVIRONMENT ART_DEBUG_CONFIG=config.out
   PASS_REGULAR_EXPRESSION
   "Error: source files specified for EmptyEvent source\\."
   DATAFILES fcl/BasicSourceOptions_02.fcl
+  )
+
+cet_test(BasicSourceOptions_03 HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --estart 5 --nevts 4 --nskip 2
+  -c empty_config.fcl
+  -s f0.txt
+  -S BasicSourceOptions-srclist.txt
+  TEST_PROPERTIES ENVIRONMENT ART_DEBUG_CONFIG=config.out
+  PASS_REGULAR_EXPRESSION
+  "--source-list \\(-S\\) and --source \\(-s\\) or non-option arguments are incompatible due to ordering ambiguities\\."
+  DATAFILES fcl/empty_config.fcl
   BasicSourceOptions-srclist.txt
   )
+
+cet_test(BasicSourceOptions_04_w HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --estart 5 --nevts 4 --nskip 2
+  -c BasicSourceOptions_04.fcl
+  -S BasicSourceOptions-empty-srclist.txt
+  TEST_PROPERTIES ENVIRONMENT ART_DEBUG_CONFIG=config.out
+  DATAFILES fcl/BasicSourceOptions_04.fcl
+  BasicSourceOptions-empty-srclist.txt
+  )
+
+config_test_pass(BasicSourceOptions_04_w)
+
+# Compare output from BasicSourceOptions_04_w against reference.
+config_ref_test(BasicSourceOptions_04)
+
+cet_test(BasicSourceOptions_05_w HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --estart 5 --nevts 4 --nskip 2
+  -c BasicSourceOptions_04.fcl
+  -S BasicSourceOptions-srclist.txt
+  TEST_PROPERTIES ENVIRONMENT ART_DEBUG_CONFIG=config.out
+  DATAFILES fcl/BasicSourceOptions_04.fcl
+  BasicSourceOptions-srclist.txt
+  )
+
+config_test_pass(BasicSourceOptions_05_w)
+
+# Compare output from BasicSourceOptions_05_w against reference.
+config_ref_test(BasicSourceOptions_05)
+
 
 ####################################
 # BasicPostProcessor.

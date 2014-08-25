@@ -11,16 +11,14 @@ services: { message: { destinations: { STDOUT: { categories: { ArtReport: { limi
                                      }
                      }
             user: { CatalogInterface: { service_provider: "TrivialFileDelivery"
+                                        service_type: "CatalogInterface"
                                       }
                     FileTransfer: { service_provider: "TrivialFileTransfer"
+                                    service_type: "FileTransfer"
                                   }
                   }
           }
-source: { fileNames: [ "f0.txt"
-                     , "f1.root"
-                     , "f2.root"
-                     , "f3.root"
-                     ]
+source: { fileNames: [ "f0.txt" ]
           firstEvent: 5
           maxEvents: 4
           module_label: "source"

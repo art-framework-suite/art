@@ -1,6 +1,7 @@
 #include "cetlib/container_algorithms.h"
 
 #include "fhiclcpp/ParameterSet.h"
+#include "fhiclcpp/ParameterSetRegistry.h"
 #include "fhiclcpp/make_ParameterSet.h"
 #include "art/Persistency/Provenance/ParameterSetMap.h"
 #include "art/Persistency/Provenance/ParameterSetBlob.h"
@@ -22,6 +23,7 @@ extern "C" {
 #include "sqlite3.h"
 }
 
+#include <iomanip>
 #include <iostream>
 #include <iterator>
 #include <memory>
@@ -49,6 +51,39 @@ enum class PsetType { MODULE,
     SERVICE,
     PROCESS };
 
+size_t
+db_size(sqlite3 * db)
+{
+  sqlite3_stmt * stmt;
+  sqlite3_prepare_v2(db, "PRAGMA page_size;", -1, &stmt, NULL);
+  sqlite3_step(stmt);
+  size_t page_size = sqlite3_column_int64(stmt, 0);
+  sqlite3_finalize(stmt);
+  sqlite3_prepare_v2(db, "PRAGMA page_count;", -1, &stmt, NULL);
+  sqlite3_step(stmt);
+  size_t page_count = sqlite3_column_int64(stmt, 0);
+  sqlite3_finalize(stmt);
+  return page_size * page_count;
+}
+
+
+std::string
+db_size_hr(sqlite3 * db)
+{
+  std::string result;
+  double size = db_size(db);
+  std::vector<std::string> units = { "b", "KiB", "MiB", "GiB", "TiB" };
+  auto unit = units.cbegin(), end = units.cend();
+  while (size > 1024.0 && unit != end) {
+    size /= 1024.0;
+    ++unit;
+  }
+  std::ostringstream ss;
+  ss << std::fixed << std::setprecision(1) << size << " " << *unit;
+  result = ss.str();
+  return result;
+}
+
 std::string
 want_pset(ParameterSet const & ps,
           stringvec const & filters,
@@ -59,8 +94,8 @@ want_pset(ParameterSet const & ps,
     ps.get_if_present<string>("module_label", label);
     break;
   case PsetType::SERVICE:
-    ps.get_if_present<string>("service_type", label) || 
-      ps.get_if_present<string>("service_provider", label);
+    ps.get_if_present<string>("service_provider", label) ||
+      ps.get_if_present<string>("service_type", label);
     break;
   case PsetType::PROCESS:
   {
@@ -80,32 +115,32 @@ want_pset(ParameterSet const & ps,
           cet::search_all(filters, label)) ? label : std::string();
 }
 
-ParameterSet &
-strip_pset(ParameterSet & ps, PsetType mode)
+ParameterSet
+strip_pset(ParameterSet const & ps, PsetType mode)
 {
+  ParameterSet result(ps);
   switch (mode) {
   case PsetType::MODULE:
-    ps.erase("module_label");
+    result.erase("module_label");
     break;
-  case PsetType::SERVICE:    
-    ps.erase("service_type");
-    ps.erase("service_provider");
+  case PsetType::SERVICE:
+    result.erase("service_type");
+    result.erase("service_provider");
     break;
   case PsetType::PROCESS:
-    ps.erase("process_name");
+    result.erase("process_name");
     break;
   default:
     throw std::string("INTERNAL ERROR: unknown mode ").
       append(std::to_string(int(mode))).
       append(".");
   }
-  return ps;
+  return result;
 }
 
 // Read all the ParameterSets stored in 'file'. Write any error messages
 // to errors.  Return false on failure, and true on success.
 bool read_all_parameter_sets(TFile & file,
-                             vector<ParameterSet>& all_read,
                              ostream & errors)
 {
   ParameterSetMap psm;
@@ -149,19 +184,19 @@ bool read_all_parameter_sets(TFile & file,
        i != e;
        ++i) {
     // Read the next ParameterSet directly into the output vector.
-    all_read.push_back(ParameterSet());
-    fhicl::make_ParameterSet(i->second.pset_, all_read.back());
+    fhicl::ParameterSet pset;
+    fhicl::make_ParameterSet(i->second.pset_, pset);
+    fhicl::ParameterSetRegistry::put(pset);
   }
   if (ffv.value_ >= 5) { // Should have metadata DB.
     // Open the DB
     art::SQLite3Wrapper sqliteDB(&file, "RootFileDB");
-    // Read the ParameterSets into memory.
-    sqlite3_stmt * stmt = 0;
-    sqlite3_prepare_v2(sqliteDB, "SELECT PSetBlob from ParameterSets;", -1, &stmt, NULL);
-    while (sqlite3_step(stmt) == SQLITE_ROW) {
-      all_read.push_back(ParameterSet());
-      fhicl::make_ParameterSet(reinterpret_cast<char const *>(sqlite3_column_text(stmt, 0)), all_read.back());
-    }
+    std::cout << "# Read SQLiteDB from file, total size: "
+              << db_size_hr(sqliteDB)
+              << ".\n"
+              << std::endl;
+    fhicl::ParameterSetRegistry::importFrom(sqliteDB);
+    fhicl::ParameterSetRegistry::stageIn();
   }
   return true;
 }
@@ -185,17 +220,19 @@ int print_pset_from_file(TFile & file,
                          ostream & output,
                          ostream & errors)
 {
-  vector<ParameterSet> all_parameter_sets;
-  if (! read_all_parameter_sets(file, all_parameter_sets, errors)) {
+  if (! read_all_parameter_sets(file, errors)) {
     errors << "Unable to to read parameter sets.\n";
     return 1;
   }
 
-  for (auto & ps : all_parameter_sets) {
-    std::string label { want_pset(ps, filters, mode) };
+  for (auto i = fhicl::ParameterSetRegistry::begin(),
+            e = fhicl::ParameterSetRegistry::end();
+       i != e;
+       ++i) {
+    std::string label { want_pset(i->second, filters, mode) };
     if (! label.empty()) {
       output << label << ": {\n";
-      output << strip_pset(ps, mode).to_indented_string(1);
+      output << strip_pset(i->second, mode).to_indented_string(1);
       output << "}\n\n";
     }
   }

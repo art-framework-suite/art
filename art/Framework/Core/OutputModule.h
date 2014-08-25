@@ -200,8 +200,9 @@ private:
   virtual void writeParentageRegistry();
   virtual void writeProductDescriptionRegistry();
   void writeFileCatalogMetadata();
-  virtual void doWriteFileCatalogMetadata(FileCatalogMetadata::collection_type
-                                          const &);
+  virtual void
+  doWriteFileCatalogMetadata(FileCatalogMetadata::collection_type const & md,
+                             FileCatalogMetadata::collection_type const & ssmd);
   virtual void writeProductDependencies();
   virtual void writeBranchMapper();
   virtual void finishEndFile();

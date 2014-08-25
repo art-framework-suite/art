@@ -22,8 +22,8 @@ private:
                        fhicl::intermediate_table & raw_config);
 
   // Private helper functions.
-  int processSourceListArg_(bpo::variables_map const & vm,
-                            std::vector<std::string> & source_list);
+  bool processSourceListArg_(bpo::variables_map const & vm,
+                             std::vector<std::string> & source_list);
 };
 #endif /* art_Framework_Art_BasicSourceOptionsHandler_h */
 

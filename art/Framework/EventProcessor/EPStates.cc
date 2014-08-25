@@ -126,12 +126,12 @@ namespace statemachine {
 
   void HandleFiles::closeFiles()
   {
-    ep_.respondToCloseInputFile();
-    ep_.closeInputFile();
     ep_.writeSubRunCache();
     ep_.writeRunCache();
     ep_.respondToCloseOutputFiles();
     ep_.closeOutputFiles();
+    ep_.respondToCloseInputFile();
+    ep_.closeInputFile();
   }
 
   void HandleFiles::goToNewInputFile()
@@ -232,12 +232,12 @@ namespace statemachine {
 
   void NewInputAndOutputFiles::goToNewInputAndOutputFiles()
   {
-    ep_.respondToCloseInputFile();
-    ep_.closeInputFile();
     ep_.writeSubRunCache();
     ep_.writeRunCache();
     ep_.respondToCloseOutputFiles();
     ep_.closeOutputFiles();
+    ep_.respondToCloseInputFile();
+    ep_.closeInputFile();
     ep_.readFile();
     ep_.respondToOpenInputFile();
     ep_.openOutputFiles();

@@ -14,6 +14,7 @@
 #include "art/Framework/Principal/SubRun.h"
 
 #include <cassert>
+#include <iostream>
 
 namespace arttest {
   class ToyRawProductAnalyzer;

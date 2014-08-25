@@ -23,7 +23,8 @@
  <class name="art::FileIndex" ClassVersion="10">
   <version ClassVersion="10" checksum="2437688295"/>
  </class>
-   <class name="art::FileIndex::Element" ClassVersion="10">
+   <class name="art::FileIndex::Element" ClassVersion="11">
+    <version ClassVersion="11" checksum="3565390397"/>
     <version ClassVersion="10" checksum="2106446510"/>
    </class>
    <class name="std::vector<art::FileIndex::Element>"/>

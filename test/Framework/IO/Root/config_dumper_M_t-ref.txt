@@ -1,7 +1,4 @@
-source: {
-  maxEvents: 2
-  module_type: "EmptyEvent"
-}
+# Read SQLiteDB from file, total size: 7.0 KiB.
 
 o2: {
   fileName: "out.root"
@@ -15,5 +12,10 @@ ap1: {
 o1: {
   fileName: "dummy.root"
   module_type: "RootOutput"
+}
+
+source: {
+  maxEvents: 2
+  module_type: "EmptyEvent"
 }
 

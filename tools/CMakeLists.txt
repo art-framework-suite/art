@@ -18,7 +18,7 @@ foreach(type Analyzer Producer Filter)
   simple_plugin(ToolsTest${type} "module" NO_INSTALL)
 endforeach()
 
-foreach(type FileCatalogMetadataPlugin)
+foreach(type FileCatalogMetadataPlugin EmptyEventTimestampPlugin)
   ADD_CUSTOM_COMMAND(OUTPUT ToolsTest${type}_plugin.cc
     COMMAND artmod
     ARGS -A ${type} arttest::ToolsTest${type}

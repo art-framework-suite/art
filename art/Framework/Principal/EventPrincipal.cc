@@ -143,11 +143,6 @@ namespace art {
     return result?result:deferredGetter_(pid);
   }
 
-  void
-  EventPrincipal::removeCachedProduct(BranchID const & bid) const {
-    getExistingGroup(bid)->removeCachedProduct();
-  }
-
   BranchID
   EventPrincipal::productIDToBranchID(ProductID const& pid) const {
     if (!pid.isValid()) {

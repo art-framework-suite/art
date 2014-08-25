@@ -55,6 +55,7 @@
 #           [WITH_STATIC_LIBRARY]
 #           [BASENAME_ONLY] (passed to simple_plugin)
 #           [NO_PLUGINS]
+#           [DICT_FUNCTIONS]
 #         )
 #
 # * In art_make(), LIBRARIES has been REMOVED! use LIB_LIBRARIES instead.
@@ -64,6 +65,8 @@
 # plugins as appropriate. If ANY of the above are specified then
 # libraries must be specified for every plugin type or dictionary
 # encountered.
+#
+# * DICT_FUNCTIONS, if present, is passed to art_dictionary().
 #
 # art_make_library( [LIBRARY_NAME <library name>]  
 #                   SOURCE <source code list>
@@ -204,7 +207,7 @@ function( art_make )
     list(APPEND plugin_glob_list "*_${plugin_type}.cc")
   endforeach()
   set(art_file_list "")
-  cet_parse_args( AM "${arg_option_names}" "WITH_STATIC_LIBRARY;BASENAME_ONLY;NO_PLUGINS" ${ARGN})
+  cet_parse_args( AM "${arg_option_names}" "WITH_STATIC_LIBRARY;BASENAME_ONLY;NO_PLUGINS;DICT_FUNCTIONS" ${ARGN})
   if(AM_SOURCE)
     message(FATAL_ERROR "ART_MAKE: SOURCE is not a valid argument: library sources are computed.
 Use EXCLUDE to exclude particular (eg exec) source files from library.")
@@ -321,9 +324,12 @@ Use EXCLUDE to exclude particular (eg exec) source files from library.")
     endif()
     list(APPEND art_make_dict_libraries ${AM_DICT_LIBRARIES})
     if(art_make_dict_libraries)
-      art_dictionary( DICTIONARY_LIBRARIES ${art_make_dict_libraries} DICT_NAME_VAR dictname)
+      art_dictionary( DICTIONARY_LIBRARIES ${AM_DICT_FUNCTIONS} ${art_make_dict_libraries} DICT_NAME_VAR dictname)
     else()
-      art_dictionary( DICT_NAME_VAR dictname)
+      art_dictionary( ${AM_DICT_FUNCTIONS} DICT_NAME_VAR dictname)
+    endif()
+    if (cet_generated_code) # Bubble up to top scope.
+      set(cet_generated_code ${cet_generated_code} PARENT_SCOPE)
     endif()
     _debug_message("Configured to build dictionary ${dictname}.")
   endif()

@@ -52,7 +52,8 @@
   <version ClassVersion="10" checksum="2764194612"/>
  </class>
  <class name="art::Wrapper<art::HLTGlobalStatus>" splitLevel="0"/>
- <class name="art::TriggerResults" ClassVersion="10">
+ <class name="art::TriggerResults" ClassVersion="11">
+  <version ClassVersion="11" checksum="3891512819"/>
   <version ClassVersion="10" checksum="1754135862"/>
  </class>
  <class name="art::Wrapper<art::TriggerResults>" splitLevel="0"/>

@@ -58,6 +58,8 @@ namespace art {
                      unsigned int treeCacheSize,
                      int64_t treeMaxVirtualSize,
                      int64_t saveMemoryObjectThreshold,
+                     bool delayedReadSubRunProducts,
+                     bool delayedReadRunProducts,
                      InputSource::ProcessingMode processingMode,
                      int forcedRunOffset,
                      vector<EventID> const& whichEventsToProcess,
@@ -69,6 +71,8 @@ namespace art {
       file_(fileName),
       logicalFile_(logicalFileName),
       catalog_(catalogName),
+      delayedReadSubRunProducts_(delayedReadSubRunProducts),
+      delayedReadRunProducts_(delayedReadRunProducts),
       processConfiguration_(processConfiguration),
       filePtr_(filePtr),
       fileFormatVersion_(),
@@ -185,14 +189,7 @@ namespace art {
     if (fileFormatVersion_.value_ >=5) {
       // Open the DB
       SQLite3Wrapper sqliteDB(filePtr_.get(), "RootFileDB");
-      // Read the ParameterSets into memory.
-      sqlite3_stmt *stmt = 0;
-      sqlite3_prepare_v2(sqliteDB, "SELECT PSetBlob from ParameterSets;", -1, &stmt, NULL);
-      while (sqlite3_step(stmt) == SQLITE_ROW) {
-        fhicl::ParameterSet pset;
-        fhicl::make_ParameterSet(reinterpret_cast<char const *>(sqlite3_column_text(stmt, 0)), pset);
-        fhicl::ParameterSetRegistry::put(pset);
-      }
+      fhicl::ParameterSetRegistry::importFrom(sqliteDB);
     }
 
     ProcessHistoryRegistry::put(pHistMap);
@@ -661,8 +658,10 @@ namespace art {
                          runTree_.makeDelayedReader()));
     // Create a group in the run for each product
     runTree_.fillGroups(*thisRun);
-    // Read in all the products now.
-    thisRun->readImmediate();
+    if (!delayedReadRunProducts_) {
+      // Read in all the products now.
+      thisRun->readImmediate();
+    }
     ++fileIndexIter_;
     return thisRun;
   }
@@ -694,8 +693,10 @@ namespace art {
                             subRunTree_.makeDelayedReader()));
     // Create a group in the subRun for each product
     subRunTree_.fillGroups(*thisSubRun);
-    // Read in all the products now.
-    thisSubRun->readImmediate();
+    if (!delayedReadSubRunProducts_) {
+      // Read in all the products now.
+      thisSubRun->readImmediate();
+    }
     ++fileIndexIter_;
     return thisSubRun;
   }

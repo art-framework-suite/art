@@ -1,3 +1,5 @@
+# Read SQLiteDB from file, total size: 7.0 KiB.
+
 ASSNS: {
   all_modules: [ "o1"
                , "o2"
@@ -40,8 +42,10 @@ ASSNS: {
                            defaultExceptions: false
                          }
               user: { CatalogInterface: { service_provider: "TrivialFileDelivery"
+                                          service_type: "CatalogInterface"
                                         }
                       FileTransfer: { service_provider: "TrivialFileTransfer"
+                                      service_type: "FileTransfer"
                                     }
                     }
             }

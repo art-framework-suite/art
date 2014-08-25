@@ -159,9 +159,10 @@ namespace art {
     return it->second;
   }
 
-////  EDProductGetter const*
-////  DataViewImpl::prodGetter() const{
-////    return principal_.prodGetter();
-////  }
+  void
+  DataViewImpl::removeCachedProduct_(BranchID const & bid) const
+  {
+    principal().removeCachedProduct(bid);
+  }
 
 }  // art

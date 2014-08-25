@@ -16,6 +16,8 @@ IF(NOT ART_CCV_ENABLED)
     )
 ENDIF()
 
+string(REPLACE "/" "+" _ccv_target "${EXECUTABLE_OUTPUT_PATH}/checkClassVersion")
+
 MACRO(check_class_version)
   CET_PARSE_ARGS(ART_CCV
     "LIBRARIES"
@@ -33,14 +35,18 @@ MACRO(check_class_version)
     MESSAGE(FATAL_ERROR "CHECK_CLASS_VERSION must be called after BUILD_DICTIONARY.")
   ENDIF()
   IF(ART_CCV_ENABLED)
-    ADD_CUSTOM_TARGET(${dictname}_check ALL
-      COMMAND checkClassVersion
-      ${ART_CCV_EXTRA_ARGS}
+    # Add the check to the end of the dictionary building step.
+    add_custom_command(TARGET ${dictname}_dict POST_BUILD
+      COMMAND checkClassVersion ${ART_CCV_EXTRA_ARGS}
       -l ${LIBRARY_OUTPUT_PATH}/lib${dictname}_dict
       -x ${CMAKE_CURRENT_SOURCE_DIR}/classes_def.xml
-      DEPENDS classes_def.xml
       VERBATIM
       )
-    ADD_DEPENDENCIES(${dictname}_check ${dictname}_dict ${dictname} art_Framework_Core checkClassVersion)
+    add_dependencies(${dictname}_dict ${_ccv_target})
+    if (ART_FRAMEWORK_CORE)
+      add_dependencies(${dictname}_dict ${ART_FRAMEWORK_CORE})
+    else()
+      add_dependencies(${dictname}_dict art_Framework_Core)
+    endif()
   ENDIF()
 ENDMACRO()

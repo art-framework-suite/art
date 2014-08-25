@@ -22,11 +22,6 @@ namespace art {
   }
 
   void
-  SubRunPrincipal::removeCachedProduct(BranchID const & bid) const {
-    getExistingGroup(bid)->removeCachedProduct();
-  }
-
-  void
   SubRunPrincipal::addOrReplaceGroup(std::unique_ptr<Group> && g) {
     cet::exempt_ptr<Group const> group =
       getExistingGroup(g->productDescription().branchID());

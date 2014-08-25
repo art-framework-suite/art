@@ -25,10 +25,11 @@
 // ART_2011a   5   ProdctRegistry changes.
 //                 BranchDescription improvements.
 //                 ParameterSets written to MetaDataDB.
+// ART_2011a   6   Improvements to ParameterSet information in MetaDataDB.
 //
 ////////////////////////////////////////////////////////////////////////
 
 namespace art
 {
-  int getFileFormatVersion() { return 5; }
+  int getFileFormatVersion() { return 6; }
 }

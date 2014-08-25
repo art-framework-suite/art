@@ -92,13 +92,14 @@ namespace art {
         sizeof(has_two_arg_insert_helper<T, typename T::const_iterator>(0)) == sizeof(yes_tag);
     };
 
-    template <typename T, typename OutIter, typename InIter, void (T::*)(OutIter, InIter, InIter)> struct three_arg_insert_func;
-    template <typename T, typename O, typename I> no_tag has_three_arg_insert_helper(...);
-    template <typename T, typename O, typename I> yes_tag has_three_arg_insert_helper(three_arg_insert_func<T, O, I, &T::insert> *dummy);
+    template <typename T, typename RET, typename OutIter, typename InIter, RET (T::*)(OutIter, InIter, InIter)> struct three_arg_insert_func;
+    template <typename T, typename R, typename O, typename I> no_tag has_three_arg_insert_helper(...);
+    template <typename T, typename R, typename O, typename I> yes_tag has_three_arg_insert_helper(three_arg_insert_func<T, R, O, I, &T::insert> *dummy);
     template <typename T>
     struct has_three_arg_insert {
       static bool const value =
-        sizeof(has_three_arg_insert_helper<T, typename T::iterator, typename T::const_iterator>(0)) == sizeof(yes_tag);
+        sizeof(has_three_arg_insert_helper<T, void, typename T::iterator, typename T::const_iterator>(0)) == sizeof(yes_tag) ||
+        sizeof(has_three_arg_insert_helper<T, typename T::iterator, typename T::const_iterator, typename T::const_iterator>(0)) == sizeof(yes_tag);
     };
 
     template <typename C>
@@ -217,7 +218,7 @@ art::detail::verifyPtrCollection(iterator beg,
 template <typename CONTAINER>
 typename std::enable_if<art::detail::has_two_arg_insert<CONTAINER>::value>::type
 art::concatContainers(CONTAINER &out, CONTAINER const &in) {
-  out.insert(in.begin(), in.end());
+  (void) out.insert(in.begin(), in.end());
 }
 // II.
 template <typename CONTAINER>

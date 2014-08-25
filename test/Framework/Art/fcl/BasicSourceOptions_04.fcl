@@ -1,0 +1,6 @@
+process_name: TEST
+source:
+{
+  module_type: RootInput
+  fileNames: [ "f7.txt", "f8.txt" ]
+}

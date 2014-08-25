@@ -4,6 +4,7 @@
 #include "art/Framework/Principal/Run.h"
 #include "art/Framework/Principal/SubRun.h"
 
+#include <iostream>
 #include <string>
 
 namespace arttest {

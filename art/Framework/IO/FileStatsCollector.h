@@ -33,7 +33,7 @@ public:
   EventID const & lowestEventID() const;
   EventID const & highestEventID() const;
   std::string const & lastOpenedInputFile() const;
-  std::vector<std::string> const & parents() const;
+  std::vector<std::string> parents(bool want_basename = true) const;
   size_t sequenceNum() const;
   size_t eventsThisFile() const;
   std::set<SubRunID> const & seenSubRuns() const;
@@ -126,14 +126,6 @@ art::FileStatsCollector::
 lastOpenedInputFile() const
 {
   return lastOpenedInputFile_;
-}
-
-inline
-std::vector<std::string> const &
-art::FileStatsCollector::
-parents() const
-{
-  return inputFilesSeen_;
 }
 
 inline

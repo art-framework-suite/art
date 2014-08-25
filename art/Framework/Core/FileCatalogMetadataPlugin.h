@@ -4,8 +4,8 @@
 ////////////////////////////////////////////////////////////////////////
 // FileCatalogMetadataPlugin
 //
-// The base class for user-defined plugins specific to a particular
-// output stream. Configure with:
+// The base class for user-defined plugins to produce SAM metadata
+// specific to a particular output stream. Configure with:
 //
 // FCMDPlugins: [ { plugin_type: <pluginClassName> ... }, ... ]
 //
@@ -22,14 +22,14 @@
 // General notes.
 //
 // * Subclasses implementing this interface *must* implement
-//   doProduceMetadata(). Other entry points are optional.
+//   produceMetadata(). Other entry points are optional.
 //
 // * Subclasses should not provide a header file: any communication with
 //   the plugin is accomplished solely via the base class interface.
 //
-// * Use the provided macro
-//   DEFINE_FILECATALOGMETADATA_PLUGIN(<classname>) at the bottom of
-//   your implementation file to declare your plugin to the art system.
+// * Use the  macro DEFINE_FILECATALOGMETADATA_PLUGIN(<classname>) (see
+//   below) at the bottom of your implementation file to declare your
+//   plugin to the art system.
 //
 ////////////////////////////////////////////////////////////////////////
 
