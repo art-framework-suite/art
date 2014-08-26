@@ -42,11 +42,11 @@ MACRO(check_class_version)
       -x ${CMAKE_CURRENT_SOURCE_DIR}/classes_def.xml
       VERBATIM
       )
-    add_dependencies(${dictname}_dict ${_ccv_target})
-    if (ART_FRAMEWORK_CORE)
-      add_dependencies(${dictname}_dict ${ART_FRAMEWORK_CORE})
-    else()
-      add_dependencies(${dictname}_dict art_Framework_Core)
+    if (NOT ART_FRAMEWORK_CORE)
+      # If we're in art, we need to be sure that CheckClassVersion and
+      # art_Framework_Core are already built; if we're outside art, this
+      # is a given.
+      add_dependencies(${dictname}_dict ${_ccv_target} art_Framework_Core)
     endif()
   ENDIF()
 ENDMACRO()
