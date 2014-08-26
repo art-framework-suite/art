@@ -12,9 +12,6 @@
 # UPDATE_IN_PLACE
 #   Passed through to check_class_version.
 #
-# LIBRARIES
-#   Passed through to check_class_version
-#
 # DICT_FUNCTIONS
 #   Passed through to build_dictionary.
 #
@@ -33,7 +30,7 @@ function(art_dictionary)
   cmake_parse_arguments(AD
     "UPDATE_IN_PLACE;DICT_FUNCTIONS"
     "DICT_NAME_VAR"
-    "LIBRARIES;DICTIONARY_LIBRARIES"
+    "DICTIONARY_LIBRARIES"
     ${ARGN}
     )
   if(ART_PERSISTENCY_COMMON)
@@ -67,9 +64,6 @@ function(art_dictionary)
   endif()
   if (AD_DICT_NAME_VAR)
     set (${AD_DICT_NAME_VAR} ${dictname} PARENT_SCOPE)
-  endif()
-  if(AD_LIBRARIES)
-    set(AD_CCV_ARGS "LIBRARIES" ${AD_LIBRARIES})
   endif()
   if(AD_UPDATE_IN_PLACE)
     set(AD_CCV_ARGS ${AD_CCV_ARGS} "UPDATE_IN_PLACE" ${AD_UPDATE_IN_PLACE})
