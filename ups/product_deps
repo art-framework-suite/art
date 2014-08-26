@@ -13,7 +13,7 @@ python		v2_7_8
 root		v5_34_20a
 messagefacility	v1_11_13
 tbb		v4_2_5
-cetbuildtools	v4_01_01	-	only_for_build
+cetbuildtools	v4_01_02	-	only_for_build
 end_product_list
 
 # e5  - with gcc 4.7.1 and -std=c++11
