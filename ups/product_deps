@@ -10,7 +10,7 @@ clhep		v2_2_0_3
 cppunit		v1_12_1a
 gccxml		v0_9_20140718
 python		v2_7_8
-root		v5_34_20a
+root		v5_34_20b
 messagefacility	v1_11_14
 tbb		v4_2_5
 cetbuildtools	v4_01_03	-	only_for_build
