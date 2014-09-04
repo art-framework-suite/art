@@ -1,10 +1,11 @@
+#pragma GCC diagnostic ignored "-Wunused-function"
+
 #include "art/Framework/Services/System/FloatingPointControl.h"
 
 extern "C" {
 #include <fenv.h>
 }
 
-#pragma GCC diagnostic ignored "-Wunused-function"
 static  char const *
   on_or_off( bool b )
 {
