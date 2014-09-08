@@ -31,19 +31,17 @@ EndPathExecutor(PathManager & pm,
 
 bool art::EndPathExecutor::terminate() const
 {
-  if (!outputWorkers_.empty() && // Necessary because std::all_of()
-                                 // returns true if range is empty.
-      std::all_of(outputWorkers_.cbegin(),
-                  outputWorkers_.cend(),
-                  [](auto& w){ return w->limitReached(); })) {
+  bool rc = !outputWorkers_.empty() && // Necessary because std::all_of()
+                                       // returns true if range is empty.
+    std::all_of(outputWorkers_.cbegin(),
+                outputWorkers_.cend(),
+                [](auto& w){ return w->limitReached(); });
+  if (rc) {
     mf::LogInfo("SuccessfulTermination")
       << "The job is terminating successfully because each output module\n"
       << "has reached its configured limit.\n";
-    return true;
   }
-  else {
-    return false;
-  }
+  return rc;
 }
 
 void
