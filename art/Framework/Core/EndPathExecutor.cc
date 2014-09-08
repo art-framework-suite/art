@@ -35,7 +35,7 @@ bool art::EndPathExecutor::terminate() const
                                  // returns true if range is empty.
       std::all_of(outputWorkers_.cbegin(),
                   outputWorkers_.cend(),
-                  std::bind(&OutputWorker::limitReached, _1))) {
+                  [](auto& w){ return w->limitReached(); })) {
     mf::LogInfo("SuccessfulTermination")
       << "The job is terminating successfully because each output module\n"
       << "has reached its configured limit.\n";
