@@ -9,7 +9,6 @@
 #include "art/Utilities/DebugMacros.h"
 #include "art/Utilities/Exception.h"
 #include "cetlib/container_algorithms.h"
-#include "cpp0x/functional"
 
 #include <string>
 
@@ -58,10 +57,7 @@ registerProducts(MasterProductRegistry& preg,
     productList_.reset();
   }
   cet::for_all(typeLabelList_,
-               std::bind(&addToRegistry,
-                         std::placeholders::_1,
-                         std::cref(md),
-                         std::ref(preg)));
+	       [&, this](auto const& tl){ addToRegistry(tl, md, preg); });
 }
 
 art::TypeLabel const &
