@@ -8,7 +8,6 @@
 #include "art/Framework/Services/Registry/ServiceRegistry.h"
 #include "art/Persistency/Provenance/FileIndex.h"
 #include "art/Persistency/Provenance/History.h"
-#include "cpp0x/functional"
 #include "cpp0x/regex"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
@@ -211,16 +210,11 @@ void
 art::MixHelper::mixAndPut(EntryNumberSequence const & enSeq,
                           Event & e)
 {
-  using std::placeholders::_1;
   // Populate the remapper in case we need to remap any Ptrs.
   ptpBuilder_.populateRemapper(ptrRemapper_, e);
   // Do the branch-wise read, mix and put.
   cet::for_all(mixOps_,
-               std::bind(&MixHelper::mixAndPutOne_,
-                         this,
-                         _1,
-                         enSeq,
-                         std::ref(e)));
+	       [&,this](auto const& op){ this->mixAndPutOne_(op, enSeq, e); });
   nEventsReadThisFile_ += enSeq.size();
   totalEventsRead_ += enSeq.size();
 }
