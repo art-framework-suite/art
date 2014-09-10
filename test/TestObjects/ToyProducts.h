@@ -150,7 +150,21 @@ namespace arttest
   };
 
   typedef std::vector<Simple>           VSimpleProduct;
+
+  struct Hit {
+    Hit() : id(-1) { }
+    Hit(size_t id) : id(id) { }
+    size_t id;
+  };
+
+  struct Track {
+    Track() : id(-1) { }
+    Track(size_t id) : id(id) { }
+    size_t id;
+  };
 }
+
+
 
 // ======================================================================
 

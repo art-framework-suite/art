@@ -1,0 +1,17 @@
+process_name: DEVELr
+
+source: {
+  module_type: RootInput
+  fileNames: [ "../FindManySpeedTest_w.d/out.root" ]
+}
+
+physics: {
+  analyzers: {
+    fmstReader: {
+      module_type: FindManySpeedTestAnalyzer
+      producerLabel: fmstWriter
+    }
+  }
+
+  e: [ fmstReader ]
+}
