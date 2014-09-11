@@ -108,20 +108,14 @@ public:
 
   IPRHelper(Event const & e, InputTag const & tag) : event_(e), assnsTag_(tag) { }
 
-  // 1. Dispatches to one of the other two: use when dColl not wanted.
+  // 1. When dColl not wanted.
   template <typename PidProvider, typename Acoll, typename Bcoll>
   shared_exception_t
   operator()(Acoll const & aColl, PidProvider const & pp, Bcoll & bColl) const;
 
-  // 2. Algorithm useful when index of Acoll == index of desired Ptr in Assns.
+  // 2. Algorithm useful when dealing with collections of Ptrs.
   template <typename PidProvider, typename Acoll, typename Bcoll>
-  typename std::enable_if<std::is_same<typename std::remove_cv<typename std::remove_pointer<typename Acoll::value_type>::type>::type, ProdA>::value,
-                          shared_exception_t>::type
-  operator()(Acoll const & aColl, PidProvider const & pp, Bcoll & bColl, dataColl_t & dColl) const;
-
-  // 3. Algorithm useful when dealing with collections of Ptrs.
-  template <typename PidProvider, typename Acoll, typename Bcoll>
-  typename std::enable_if<std::is_same<typename Acoll::value_type, Ptr<ProdA> >::value, shared_exception_t>::type
+  shared_exception_t
   operator()(Acoll const & aColl, PidProvider const & pp, Bcoll & bColl, dataColl_t & dColl) const;
 
 private:
@@ -143,42 +137,6 @@ operator()(Acoll const & aColl, PidProvider const & pp, Bcoll & bColl) const
 }
 
 // 2.
-template <typename ProdA, typename ProdB, typename Data, typename DATACOLL>
-template <typename PidProvider, typename Acoll, typename Bcoll>
-auto
-art::detail::IPRHelper<ProdA, ProdB, Data, DATACOLL>::
-operator()(Acoll const & aColl, PidProvider const & pp, Bcoll & bColl, dataColl_t & dColl) const
--> typename std::enable_if<std::is_same<typename std::remove_cv<typename std::remove_pointer<typename Acoll::value_type>::type>::type, ProdA>::value,
-                           shared_exception_t>::type
-
-{
-  detail::BcollHelper<ProdB> bh(assnsTag_);
-  detail::DataCollHelper<Data> dh(assnsTag_);
-  Handle<Assns<ProdA, ProdB, Data> > assnsHandle(detail::getAssnsHandle<ProdA, ProdB, Data>(event_, assnsTag_));
-  if (!assnsHandle.isValid()) {
-    return assnsHandle.whyFailed(); // Failed to get Assns product.
-  }
-  bh.init(aColl.size(), bColl);
-  dh.init(aColl.size(), dColl);
-  for (typename Assns<ProdA, ProdB, Data>::assn_iterator
-       beginAssns = assnsHandle->begin(),
-       itAssns = beginAssns,
-       endAssns = assnsHandle->end();
-       itAssns != endAssns;
-       ++itAssns) {
-    size_t aIndex(itAssns->first.key());
-    typename Acoll::const_iterator itA = aColl.begin();
-    std::advance(itA, aIndex);
-    if (itAssns->first.id() == pp() &&
-        pointersEqual(itAssns->first.get(), ensurePointer<typename Assns<ProdA, ProdB, Data>::assn_iterator::value_type::first_type::const_pointer>(itA))) {
-      bh.fill(aIndex, itAssns->second, bColl);
-      dh.fill(itAssns - beginAssns, *assnsHandle, aIndex, dColl);
-    }
-  }
-  return shared_exception_t();
-}
-
-// 3.
 ////////////////////////////////////////////////////////////////////////
 // Implementation notes.
 //
@@ -214,20 +172,19 @@ template <typename PidProvider, typename Acoll, typename Bcoll>
 auto
 art::detail::IPRHelper<ProdA, ProdB, Data, DATACOLL>::
 operator()(Acoll const & aColl, PidProvider const &, Bcoll & bColl, dataColl_t & dColl) const
--> typename std::enable_if<std::is_same<typename Acoll::value_type, art::Ptr<ProdA> >::value,
-                           shared_exception_t>::type
-
+-> shared_exception_t
 {
   detail::BcollHelper<ProdB> bh(assnsTag_);
   detail::DataCollHelper<Data> dh(assnsTag_);
-  Handle<Assns<ProdA, ProdB, Data> > assnsHandle(detail::getAssnsHandle<ProdA, ProdB, Data>(event_, assnsTag_));
+  Handle<Assns<ProdA, ProdB, Data> >
+    assnsHandle(detail::getAssnsHandle<ProdA, ProdB, Data>(event_, assnsTag_));
   if (!assnsHandle.isValid()) {
     return assnsHandle.whyFailed(); // Failed to get Assns product.
   }
   bh.init(aColl.size(), bColl);
   dh.init(aColl.size(), dColl);
   // Answer cache.
-  std::unordered_multimap<typename Acoll::value_type::const_pointer,
+  std::unordered_multimap<typename Ptr<ProdA>::const_pointer,
     std::pair<Ptr<ProdB>, ptrdiff_t> > lookupCache;
   ptrdiff_t counter { 0 };
   for (auto const & apair : *assnsHandle) {
@@ -244,7 +201,7 @@ operator()(Acoll const & aColl, PidProvider const &, Bcoll & bColl, dataColl_t &
          e = aColl.end();
        i != e;
        ++i, ++bIndex) {
-    auto foundItems = lookupCache.equal_range(ensurePointer<typename Acoll::value_type::const_pointer>(i));
+    auto foundItems = lookupCache.equal_range(ensurePointer<typename Ptr<ProdA>::const_pointer>(i));
     if (foundItems.first != lookupCache.cend()) {
       std::for_each(foundItems.first, foundItems.second,
                     [&bh, &dh, &bColl, bIndex, &assnsHandle, &dColl]
