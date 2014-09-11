@@ -14,12 +14,14 @@
 #include "art/Framework/Principal/Handle.h"
 #include "art/Framework/Principal/Run.h"
 #include "art/Framework/Principal/SubRun.h"
+#include "art/Framework/Principal/View.h"
 #include "art/Utilities/CPUTimer.h"
 #include "art/Utilities/InputTag.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 #include "test/TestObjects/ToyProducts.h"
 
+#include <cassert>
 #include <iostream>
 
 namespace arttest {
@@ -57,15 +59,25 @@ arttest::FindManySpeedTestAnalyzer::FindManySpeedTestAnalyzer(fhicl::ParameterSe
 
 void arttest::FindManySpeedTestAnalyzer::analyze(art::Event const & e)
 {
-  auto hH = e.getValidHandle<std::vector<arttest::Hit> >(producerLabel_);
+  auto hH = e.getValidHandle<std::vector<Hit> >(producerLabel_);
   std::cout << "Hit collection size: " << hH->size() << ".\n";
-  auto hT = e.getValidHandle<std::vector<arttest::Track> >(producerLabel_);
+  auto hT = e.getValidHandle<std::vector<Track> >(producerLabel_);
   std::cout << "Track collection size: " << hT->size() << ".\n";
-  auto hA = e.getValidHandle<art::Assns<arttest::Hit, arttest::Track> >(producerLabel_);
+  auto hA = e.getValidHandle<art::Assns<Hit, Track> >(producerLabel_);
   std::cout << "Assns size = " << hA->size() << ".\n";
+
+  // Make a collection of Ptrs so we can exercise the algorithm at
+  // issue.
+  art::View<Track> tv;
+  e.getView<Track>(producerLabel_, tv);
+  art::PtrVector<Track> tPtrs;
+  tv.fill(tPtrs);
+  assert(tPtrs.size() == hT->size());
+
+  // Time the activity under test.
   art::CPUTimer timer;
   timer.start();
-  art::FindManyP<arttest::Hit> fmp(hT, e, producerLabel_);
+  art::FindManyP<Hit> fmp(tPtrs, e, producerLabel_);
   timer.stop();
   std::cout << "FindManyP size = " << fmp.size() << ".\n";
   std::cout << "FindManyP construction time (CPU, real): (" << timer.cpuTime() << ", " << timer.realTime() << ") s.\n";
