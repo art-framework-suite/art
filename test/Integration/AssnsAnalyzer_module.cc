@@ -284,6 +284,17 @@ testOne(art::Event const & e) const
     foAv.reset(new FO<A_t, arttest::AssnTestData>(vb, e, inputLabel_));
     BOOST_REQUIRE(*foA == *foAv);
   }
+  // Check FindOne on shuffled View.
+  auto va2 = va;
+  art::View<A_t>::collection_type & va2v = va2;
+  std::random_shuffle(va2v.begin(), va2v.end());
+  FO<B_t, arttest::AssnTestData> foBv2(va2, e, inputLabel_);
+  for (size_t i = 0, e = foBv2.size(); i != e; ++i) {
+    using std::find;
+    auto it = find(va.begin(), va.end(), va2v[i]);
+    BOOST_REQUIRE(it != va.end());
+    BOOST_REQUIRE(foBv.at(std::distance(va.begin(), it)) == foBv2.at(i));
+  }
   // Check FindOne on PtrVector.
   va.vals()[1] = 0;
   art::PtrVector<A_t> pva;
