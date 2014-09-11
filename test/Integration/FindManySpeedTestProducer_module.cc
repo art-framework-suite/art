@@ -19,7 +19,9 @@
 #include "messagefacility/MessageLogger/MessageLogger.h"
 #include "test/TestObjects/ToyProducts.h"
 
+#include <chrono>
 #include <memory>
+#include <random>
 
 namespace arttest {
   class FindManySpeedTestProducer;
@@ -45,15 +47,19 @@ private:
   size_t const nTracks_;
   size_t const nHits_;
   size_t const pmHitsPerTrack_;
+  std::mt19937_64 gen_;
 
 };
 
 
-arttest::FindManySpeedTestProducer::FindManySpeedTestProducer(fhicl::ParameterSet const & p)
+arttest::FindManySpeedTestProducer::
+FindManySpeedTestProducer(fhicl::ParameterSet const & p)
   :
   nTracks_(p.get<size_t>("nTracks")),
   nHits_(p.get<size_t>("nHits")),
-  pmHitsPerTrack_(p.get<size_t>("pmHitsPerTrack"))
+  pmHitsPerTrack_(p.get<size_t>("pmHitsPerTrack")),
+  gen_(p.get<size_t>("randomSeed",
+                     std::chrono::system_clock::now().time_since_epoch().count()))
 {
   produces<std::vector<arttest::Hit> >();
   produces<std::vector<arttest::Track> >();
@@ -77,11 +83,10 @@ void arttest::FindManySpeedTestProducer::produce(art::Event & e)
 
   // Assns.
   auto assns = cet::make_unique<art::Assns<arttest::Hit, arttest::Track> >();
-  std::default_random_engine gen;
   std::poisson_distribution<size_t> pdist(pmHitsPerTrack_);
   std::uniform_int_distribution<size_t> udist(0, nHits_);
-  auto pdice = std::bind(pdist, gen);
-  auto udice = std::bind(udist, gen);
+  auto pdice = std::bind(pdist, gen_);
+  auto udice = std::bind(udist, gen_);
   auto hPG = e.productGetter(vh_pid);
   auto tPG = e.productGetter(vt_pid);
   for (size_t iTrack = 0; iTrack != nTracks_; ++iTrack) {
