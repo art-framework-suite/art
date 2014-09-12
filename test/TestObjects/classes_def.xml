@@ -70,4 +70,20 @@
  <class name="art::Wrapper<arttest::TH1Data>"/>
  <class name="arttest::VSimpleProduct"/>
  <class name="art::Wrapper<arttest::VSimpleProduct>"/>
+ <class name="arttest::Hit" ClassVersion="10">
+  <version ClassVersion="10" checksum="3431343910"/>
+ </class>
+ <class name="std::vector<arttest::Hit>"/>
+ <class name="art::Wrapper<std::vector<arttest::Hit> >"/>
+ <class name="arttest::Track" ClassVersion="10">
+  <version ClassVersion="10" checksum="2684140494"/>
+ </class>
+ <class name="std::vector<arttest::Track>"/>
+ <class name="art::Wrapper<std::vector<arttest::Track> >"/>
+ <class name="std::pair<art::Ptr<arttest::Hit>, art::Ptr<arttest::Track> >"/>
+ <class name="std::vector<std::pair<art::Ptr<arttest::Hit>, art::Ptr<arttest::Track> > >"/>
+ <class name="art::Assns<arttest::Hit, arttest::Track, void>"/>
+ <class name="art::Wrapper<art::Assns<arttest::Hit, arttest::Track, void> >"/>
+ <class name="art::Assns<arttest::Track, arttest::Hit, void>"/>
+ <class name="art::Wrapper<art::Assns<arttest::Track, arttest::Hit, void> >"/>
 </lcgdict>
