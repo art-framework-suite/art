@@ -385,6 +385,27 @@ testMany(art::Event const & e) const
     BOOST_CHECK_EQUAL(fmBV.at(2).size(), 1ul);
     BOOST_CHECK_NO_THROW(check_get(fmB, fmBV));
   }
+  // Check FindMany on View.
+  art::View<A_t> va;
+  BOOST_REQUIRE(e.getView(inputLabel_, va));
+  FM<B_t, void> fmBv(va, e, art::InputTag(inputLabel_, "M"));
+  BOOST_REQUIRE(fmBV == fmBv);
+  // Check FindMany on shuffled reference collection.
+  auto va2 = va.vals(); // Copy.
+  {
+    using std::swap;
+    swap(*va2.begin(), *(va2.begin()+1));
+    swap(*va2.begin(), *(va2.begin()+2));
+  }
+  BOOST_REQUIRE(va.vals() != va2);
+  FM<B_t, void> fmBv2(va2, e, art::InputTag(inputLabel_, "M"));
+  for (size_t i = 0, e = fmBv2.size(); i != e; ++i) {
+    using std::find;
+    auto it = find(va.begin(), va.end(), va2[i]);
+    BOOST_REQUIRE(it != va.end());
+    BOOST_REQUIRE(fmBv.at(std::distance(va.begin(), it)) == fmBv2.at(i));
+  }
+
 }
 
 DEFINE_ART_MODULE(arttest::AssnsAnalyzer)
