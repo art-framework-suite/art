@@ -28,6 +28,9 @@ set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/Modules
 include(CetCMakeEnv)
 cet_cmake_env()
 
+# needed when building with mrb
+set_install_root()
+
 cet_set_compiler_flags(DIAGS VIGILANT
   WERROR
   NO_UNDEFINED
