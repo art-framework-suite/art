@@ -284,14 +284,18 @@ testOne(art::Event const & e) const
     foAv.reset(new FO<A_t, arttest::AssnTestData>(vb, e, inputLabel_));
     BOOST_REQUIRE(*foA == *foAv);
   }
-  // Check FindOne on shuffled View.
-  auto va2 = va;
-  art::View<A_t>::collection_type & va2v = va2;
-  std::random_shuffle(va2v.begin(), va2v.end());
+  // Check FindOne on shuffled reference collection.
+  auto va2 = va.vals(); // Copy.
+  {
+    using std::swap;
+    swap(*va2.begin(), *(va2.begin()+1));
+    swap(*va2.begin(), *(va2.begin()+2));
+  }
+  BOOST_REQUIRE(va.vals() != va2);
   FO<B_t, arttest::AssnTestData> foBv2(va2, e, inputLabel_);
   for (size_t i = 0, e = foBv2.size(); i != e; ++i) {
     using std::find;
-    auto it = find(va.begin(), va.end(), va2v[i]);
+    auto it = find(va.begin(), va.end(), va2[i]);
     BOOST_REQUIRE(it != va.end());
     BOOST_REQUIRE(foBv.at(std::distance(va.begin(), it)) == foBv2.at(i));
   }
