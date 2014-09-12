@@ -123,7 +123,6 @@
 ////////////////////////////////////////////////////////////////////////
 
 #include "art/Framework/Core/detail/IPRHelper.h"
-#include "art/Framework/Core/detail/ProductIDProvider.h"
 #include "art/Framework/Principal/Handle.h"
 #include "art/Persistency/Common/Assns.h"
 #include "art/Persistency/Common/Ptr.h"
@@ -284,7 +283,7 @@ art::@ART_IPR_CLASS_NAME@<ProdB, void>::
   typedef typename HANDLE::element_type::value_type ProdA;
   detail::IPRHelper<ProdA, ProdB, void, void> finder(e, tag);
   storedException_ =
-    finder(*aCollection, detail::ConstantProductIDProvider(aCollection.id()), bCollection_);
+    finder(*aCollection, bCollection_);
 }
 
 template <typename ProdB>
@@ -300,7 +299,7 @@ art::@ART_IPR_CLASS_NAME@<ProdB, void>::
   typename View<ProdA>::collection_type const & aCollection(view.vals());
   detail::IPRHelper<ProdA, ProdB, void, void> finder(e, tag);
   storedException_ =
-    finder(aCollection, detail::ConstantProductIDProvider(view.id()), bCollection_);
+    finder(aCollection, bCollection_);
 }
 
 template <typename ProdB>
@@ -317,7 +316,7 @@ art::@ART_IPR_CLASS_NAME@<ProdB, void>::
   typedef typename PtrProdAColl::value_type::value_type ProdA;
   detail::IPRHelper<ProdA, ProdB, void, void> finder(e, tag);
   storedException_ =
-    finder(aPtrColl, detail::ProductIDProvider(), bCollection_);
+    finder(aPtrColl, bCollection_);
 }
 
 template <typename ProdB>
@@ -332,7 +331,7 @@ art::@ART_IPR_CLASS_NAME@<ProdB, void>::
 {
   detail::IPRHelper<ProdA, ProdB, void, void> finder(e, tag);
   storedException_ =
-    finder(ptrs, detail::ProductIDProvider(), bCollection_);
+    finder(ptrs, bCollection_);
 }
 
 template <typename ProdB>
@@ -425,7 +424,7 @@ art::@ART_IPR_CLASS_NAME@<ProdB, Data>::
 {
   typedef typename HANDLE::element_type::value_type ProdA;
   detail::IPRHelper<ProdA, ProdB, Data, dataColl_t> finder(e, tag);
-  base::setStoredException(finder(*aCollection, detail::ConstantProductIDProvider(aCollection.id()), base::bCollection(), dataCollection_));
+  base::setStoredException(finder(*aCollection, base::bCollection(), dataCollection_));
 }
 
 template <typename ProdB, typename Data>
@@ -440,7 +439,7 @@ art::@ART_IPR_CLASS_NAME@<ProdB, Data>::
 {
   typename View<ProdA>::collection_type const & aCollection(view.vals());
   detail::IPRHelper<ProdA, ProdB, Data, dataColl_t> finder(e, tag);
-  base::setStoredException(finder(aCollection, detail::ConstantProductIDProvider(view.id()), base::bCollection(), dataCollection_));
+  base::setStoredException(finder(aCollection, base::bCollection(), dataCollection_));
 }
 
 template <typename ProdB, typename Data>
@@ -456,7 +455,7 @@ art::@ART_IPR_CLASS_NAME@<ProdB, Data>::
 {
   typedef typename PtrProdAColl::value_type::value_type ProdA;
   detail::IPRHelper<ProdA, ProdB, Data, dataColl_t> finder(e, tag);
-  base::setStoredException(finder(aPtrColl, detail::ProductIDProvider(), base::bCollection(), dataCollection_));
+  base::setStoredException(finder(aPtrColl, base::bCollection(), dataCollection_));
 }
 
 template <typename ProdB, typename Data>
@@ -470,7 +469,7 @@ art::@ART_IPR_CLASS_NAME@<ProdB, Data>::
     dataCollection_()
 {
   detail::IPRHelper<ProdA, ProdB, Data, dataColl_t> finder(e, tag);
-  base::setStoredException(finder(ptrs, detail::ProductIDProvider(), base::bCollection(), dataCollection_));
+  base::setStoredException(finder(ptrs, base::bCollection(), dataCollection_));
 }
 
 template <typename ProdB, typename Data>

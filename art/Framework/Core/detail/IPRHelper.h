@@ -4,7 +4,6 @@
 // Helper class and associated gubbins for populating the FindOne and
 // FindMany query objects for inter-product references.
 
-#include "art/Framework/Core/detail/ProductIDProvider.h"
 #include "art/Framework/Core/detail/getAssnsHandle.h"
 #include "art/Framework/Principal/Handle.h"
 #include "art/Persistency/Common/Assns.h"
@@ -109,14 +108,14 @@ public:
   IPRHelper(Event const & e, InputTag const & tag) : event_(e), assnsTag_(tag) { }
 
   // 1. When dColl not wanted.
-  template <typename PidProvider, typename Acoll, typename Bcoll>
+  template <typename Acoll, typename Bcoll>
   shared_exception_t
-  operator()(Acoll const & aColl, PidProvider const & pp, Bcoll & bColl) const;
+  operator()(Acoll const & aColl, Bcoll & bColl) const;
 
   // 2. Algorithm useful when dealing with collections of Ptrs.
-  template <typename PidProvider, typename Acoll, typename Bcoll>
+  template <typename Acoll, typename Bcoll>
   shared_exception_t
-  operator()(Acoll const & aColl, PidProvider const & pp, Bcoll & bColl, dataColl_t & dColl) const;
+  operator()(Acoll const & aColl, Bcoll & bColl, dataColl_t & dColl) const;
 
 private:
   Event const & event_;
@@ -125,15 +124,15 @@ private:
 
 // 1.
 template <typename ProdA, typename ProdB, typename Data, typename DATACOLL>
-template <typename PidProvider, typename Acoll, typename Bcoll>
+template <typename Acoll, typename Bcoll>
 inline
 auto
 art::detail::IPRHelper<ProdA, ProdB, Data, DATACOLL>::
-operator()(Acoll const & aColl, PidProvider const & pp, Bcoll & bColl) const
+operator()(Acoll const & aColl, Bcoll & bColl) const
 -> shared_exception_t
 {
   IPRHelperDef dummy;
-  return (*this)(aColl, pp, bColl, dummy);
+  return (*this)(aColl, bColl, dummy);
 }
 
 // 2.
@@ -168,10 +167,10 @@ operator()(Acoll const & aColl, PidProvider const & pp, Bcoll & bColl) const
 // For now however, no-one has requested this,
 ////////////////////////////////////////////////////////////////////////
 template <typename ProdA, typename ProdB, typename Data, typename DATACOLL>
-template <typename PidProvider, typename Acoll, typename Bcoll>
+template <typename Acoll, typename Bcoll>
 auto
 art::detail::IPRHelper<ProdA, ProdB, Data, DATACOLL>::
-operator()(Acoll const & aColl, PidProvider const &, Bcoll & bColl, dataColl_t & dColl) const
+operator()(Acoll const & aColl, Bcoll & bColl, dataColl_t & dColl) const
 -> shared_exception_t
 {
   detail::BcollHelper<ProdB> bh(assnsTag_);
