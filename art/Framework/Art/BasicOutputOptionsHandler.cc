@@ -49,22 +49,6 @@ doProcessOptions(bpo::variables_map const & vm,
                      tFileName);
     }
   }
-  if (vm.count("tmpdir") == 1) {
-    auto tmpDir = vm["tmpdir"].as<std::string>();
-    std::string const outputs_stem("outputs.");
-    if (raw_config.exists("services.TFileService")) {
-      raw_config.put("services.TFileService.tmpDir", tmpDir);
-    }
-    if (raw_config.exists("outputs")) {
-      auto const & table = raw_config.get<table_t const &>("outputs");
-      for (auto const & output : table) {
-        if (raw_config.exists(outputs_stem + output.first + ".module_type")) {
-          // Inject tmpDir into the module configuration.
-          raw_config.put(outputs_stem + output.first + ".tmpDir", tmpDir);
-        }
-      }
-    }
-  }
   // File output.
   if (vm.count("output") == 1) {
     std::string output(vm["output"].as<std::string>());
@@ -124,5 +108,23 @@ doProcessOptions(bpo::variables_map const & vm,
       }
     }
   }
+  // tmpDir option for TFileService and output streams.
+  if (vm.count("tmpdir") == 1) {
+    auto tmpDir = vm["tmpdir"].as<std::string>();
+    std::string const outputs_stem("outputs.");
+    if (raw_config.exists("services.TFileService")) {
+      raw_config.put("services.TFileService.tmpDir", tmpDir);
+    }
+    if (raw_config.exists("outputs")) {
+      auto const & table = raw_config.get<table_t const &>("outputs");
+      for (auto const & output : table) {
+        if (raw_config.exists(outputs_stem + output.first + ".module_type")) {
+          // Inject tmpDir into the module configuration.
+          raw_config.put(outputs_stem + output.first + ".tmpDir", tmpDir);
+        }
+      }
+    }
+  }
+
   return 0;
 }
