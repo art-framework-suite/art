@@ -20,6 +20,7 @@
 #include "fhiclcpp/parse.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
+#include "boost/filesystem.hpp"
 #include "boost/program_options.hpp"
 #include "boost/regex.hpp"
 #include "TError.h"
@@ -98,7 +99,7 @@ int art::run_art(int argc,
 {
   std::ostringstream descstr;
   descstr << "Usage: "
-          << argv[0]
+          << boost::filesystem::path(argv[0]).filename().native()
           << " <-c <config-file>> <other-options> [<source-file>]+\n\n"
           << "Allowed options";
   bpo::options_description all_desc(descstr.str());
