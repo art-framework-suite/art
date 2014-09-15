@@ -8,6 +8,7 @@
 #include "art/Framework/Art/run_art.h"
 #include "art/Utilities/FirstAbsoluteOrLookupWithDotPolicy.h"
 
+#include "boost/filesystem.hpp"
 #include "boost/program_options.hpp"
 
 namespace  bpo = boost::program_options;
@@ -42,7 +43,10 @@ int @ART_MAIN_FUNC@(int argc, char * argv[])
   // be done for you.
   handlers.emplace_back(new art::BasicSourceOptionsHandler(all_desc));
   handlers.emplace_back(new art::BasicOutputOptionsHandler(all_desc));
-  handlers.emplace_back(new art::DebugOptionsHandler(all_desc, ART_RETHROW_DEFAULT));
+  handlers.emplace_back(new art::DebugOptionsHandler(all_desc,
+                                                     boost::filesystem::path(argv[0]).filename().native(),
+                                                     ART_RETHROW_DEFAULT));
+
   handlers.emplace_back(new art::FileCatalogOptionsHandler(all_desc));
   return art::run_art(argc, argv, all_desc, lookupPolicy, std::move(handlers));
 }

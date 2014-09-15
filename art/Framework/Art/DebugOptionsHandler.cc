@@ -12,6 +12,7 @@
 
 art::DebugOptionsHandler::
 DebugOptionsHandler(bpo::options_description & desc,
+                    std::string const & basename,
                     bool rethrowDefault)
 :
   rethrowDefault_(rethrowDefault)
@@ -24,8 +25,9 @@ DebugOptionsHandler(bpo::options_description & desc,
     ("default-exceptions", "Some exceptions may be handled differently by default (e.g. ProductNotFound).")
     ("rethrow-default", "All exceptions default to rethrow.")
     ("rethrow-all", "All exceptions overridden to rethrow (cf rethrow-default).")
-    ("debug-config", bpo::value<std::string>(), "Output post-processed configuration to <file> and exit. Equivalent to env ART_DEBUG_CONFIG=<file> ...")
-  ;
+    ("debug-config", bpo::value<std::string>(),
+     (std::string("Output post-processed configuration to <file> and exit. Equivalent to env ART_DEBUG_CONFIG=<file> ") +
+      basename + " ...").c_str());
 }
 
 int
