@@ -7,7 +7,7 @@ extern "C" {
 }
 
 static  char const *
-  on_or_off( bool b )
+on_or_off [[gnu::unused]] ( bool b )
 {
   static char const * on  = " on";
   static char const * off = " off";

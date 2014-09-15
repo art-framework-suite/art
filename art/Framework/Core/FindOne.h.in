@@ -63,7 +63,7 @@
 //                      Event const &,
 //                      InputTag const &);
 //
-// // From View<A>.
+// // From sequence of pointer to A (including View<A>).
 // @ART_IPR_CLASS_NAME@<ProdB>(View<ProdA> const &,
 //                Event const &,
 //                InputTag const &);
@@ -83,7 +83,6 @@
 // @ART_IPR_CLASS_NAME@<ProdB>(<brace-enclosed initializer list>,
 //                Event const &,
 //                InputTag const &);
-//
 // @ART_IPR_CLASS_NAME@<ProdB, Data>(<brace-enclosed initializer list>,
 //                      Event const &,
 //                      InputTag const &);
@@ -117,7 +116,6 @@
 //
 ////////////////////////////////////////////////////////////////////////
 #include "art/Framework/Core/detail/IPRHelper.h"
-#include "art/Framework/Core/detail/ProductIDProvider.h"
 #include "art/Framework/Principal/Handle.h"
 #include "art/Persistency/Common/Assns.h"
 #include "art/Persistency/Common/Ptr.h"
@@ -164,16 +162,18 @@ public:
                          InputTag const & tag,
                          typename std::enable_if<detail::is_handle<HANDLE>::value>::type * = 0);
 
-  template <typename ProdA>
-    @ART_IPR_CLASS_NAME@(View<ProdA> const & view,
+  template <typename ProdAColl>
+    @ART_IPR_CLASS_NAME@(ProdAColl const & view,
                          Event const & e,
-                         InputTag const & tag);
+                         InputTag const & tag,
+                         typename std::enable_if<std::is_pointer<typename ProdAColl::value_type>::value, void>::type * = 0);
 
   template <typename PtrProdAColl>
     @ART_IPR_CLASS_NAME@(PtrProdAColl const & aPtrColl,
                          Event const & e,
                          InputTag const & tag,
-                         typename std::enable_if<!detail::is_handle<PtrProdAColl>::value>::type * = 0);
+                         typename std::enable_if<std::is_same<typename PtrProdAColl::value_type,
+                         art::Ptr<typename PtrProdAColl::value_type::value_type> >::value>::type * = 0);
 
   template <typename ProdA>
     @ART_IPR_CLASS_NAME@(std::initializer_list<Ptr<ProdA> > const & ptrs,
@@ -233,16 +233,19 @@ public:
                          InputTag const & tag,
                          typename std::enable_if<detail::is_handle<HANDLE>::value>::type * = 0);
 
-  template <typename ProdA>
-    @ART_IPR_CLASS_NAME@(View<ProdA> const & view,
+  template <typename ProdAColl>
+    @ART_IPR_CLASS_NAME@(ProdAColl const & view,
                          Event const & e,
-                         InputTag const & tag);
+                         InputTag const & tag,
+                         typename std::enable_if<std::is_pointer<typename ProdAColl::value_type>::value, void>::type * = 0);
+
 
   template <typename PtrProdAColl>
     @ART_IPR_CLASS_NAME@(PtrProdAColl const & aPtrColl,
                          Event const & e,
                          InputTag const & tag,
-                         typename std::enable_if<!detail::is_handle<PtrProdAColl>::value>::type * = 0);
+                         typename std::enable_if<std::is_same<typename PtrProdAColl::value_type,
+                         art::Ptr<typename PtrProdAColl::value_type::value_type> >::value>::type * = 0);
 
   template <typename ProdA>
     @ART_IPR_CLASS_NAME@(std::initializer_list<Ptr<ProdA> > const & ptrs,
@@ -288,23 +291,24 @@ art::@ART_IPR_CLASS_NAME@<ProdB, void>::
   typedef typename HANDLE::element_type::value_type ProdA;
   detail::IPRHelper<ProdA, ProdB, void, void> finder(e, tag);
   storedException_ =
-    finder(*aCollection, detail::ConstantProductIDProvider(aCollection.id()), bCollection_);
+    finder(*aCollection, bCollection_);
 }
 
 template <typename ProdB>
-template <typename ProdA>
+template <typename ProdAColl>
 art::@ART_IPR_CLASS_NAME@<ProdB, void>::
-@ART_IPR_CLASS_NAME@(View<ProdA> const & view,
+@ART_IPR_CLASS_NAME@(ProdAColl const & view,
                      Event const & e,
-                     InputTag const & tag)
+                     InputTag const & tag,
+                     typename std::enable_if<std::is_pointer<typename ProdAColl::value_type>::value, void>::type *)
   :
   bCollection_(),
   storedException_()
 {
-  typename View<ProdA>::collection_type const & aCollection(view.vals());
+  typedef typename std::remove_const<typename std::remove_pointer<typename ProdAColl::value_type>::type>::type ProdA;
   detail::IPRHelper<ProdA, ProdB, void, void> finder(e, tag);
   storedException_ =
-    finder(aCollection, detail::ConstantProductIDProvider(view.id()), bCollection_);
+    finder(view, bCollection_);
 }
 
 template <typename ProdB>
@@ -313,7 +317,8 @@ art::@ART_IPR_CLASS_NAME@<ProdB, void>::
 @ART_IPR_CLASS_NAME@(PtrProdAColl const & aPtrColl,
                      Event const & e,
                      InputTag const & tag,
-                     typename std::enable_if<!detail::is_handle<PtrProdAColl>::value>::type *)
+                     typename std::enable_if<std::is_same<typename PtrProdAColl::value_type,
+                     art::Ptr<typename PtrProdAColl::value_type::value_type> >::value>::type *)
   :
   bCollection_(),
   storedException_()
@@ -321,7 +326,7 @@ art::@ART_IPR_CLASS_NAME@<ProdB, void>::
   typedef typename PtrProdAColl::value_type::value_type ProdA;
   detail::IPRHelper<ProdA, ProdB, void, void> finder(e, tag);
   storedException_ =
-    finder(aPtrColl, detail::ProductIDProvider(), bCollection_);
+    finder(aPtrColl, bCollection_);
 }
 
 template <typename ProdB>
@@ -336,7 +341,7 @@ art::@ART_IPR_CLASS_NAME@<ProdB, void>::
 {
   detail::IPRHelper<ProdA, ProdB, void, void> finder(e, tag);
   storedException_ =
-    finder(ptrs, detail::ProductIDProvider(), bCollection_);
+    finder(ptrs, bCollection_);
 }
 
 template <typename ProdB>
@@ -445,23 +450,24 @@ art::@ART_IPR_CLASS_NAME@<ProdB, Data>::
 {
   typedef typename HANDLE::element_type::value_type ProdA;
   detail::IPRHelper<ProdA, ProdB, Data, dataColl_t> finder(e, tag);
-  base::setStoredException(finder(*aCollection, detail::ConstantProductIDProvider(aCollection.id()), base::bCollection(), dataCollection_));
+  base::setStoredException(finder(*aCollection, base::bCollection(), dataCollection_));
 }
 
 template <typename ProdB, typename Data>
-template <typename ProdA>
+template <typename ProdAColl>
 art::@ART_IPR_CLASS_NAME@<ProdB, Data>::
-@ART_IPR_CLASS_NAME@(View<ProdA> const & view,
+@ART_IPR_CLASS_NAME@(ProdAColl const & view,
                      Event const & e,
-                     InputTag const & tag)
+                     InputTag const & tag,
+                         typename std::enable_if<std::is_pointer<typename ProdAColl::value_type>::value, void>::type *)
     :
     base(),
     dataCollection_()
 {
-  typename View<ProdA>::collection_type const & aCollection(view.vals());
+  typedef typename std::remove_const<typename std::remove_pointer<typename ProdAColl::value_type>::type>::type ProdA;
   detail::IPRHelper<ProdA, ProdB, Data, dataColl_t> finder(e, tag);
-  base::setStoredException(finder(aCollection, detail::ConstantProductIDProvider(view.id()), base::bCollection(), dataCollection_));
-                           }
+  base::setStoredException(finder(view, base::bCollection(), dataCollection_));
+}
 
 template <typename ProdB, typename Data>
 template <typename PtrProdAColl>
@@ -469,14 +475,15 @@ art::@ART_IPR_CLASS_NAME@<ProdB, Data>::
 @ART_IPR_CLASS_NAME@(PtrProdAColl const & aPtrColl,
                      Event const & e,
                      InputTag const & tag,
-                     typename std::enable_if<!detail::is_handle<PtrProdAColl>::value>::type *)
+                     typename std::enable_if<std::is_same<typename PtrProdAColl::value_type,
+                     art::Ptr<typename PtrProdAColl::value_type::value_type> >::value>::type *)
     :
     base(),
     dataCollection_()
 {
   typedef typename PtrProdAColl::value_type::value_type ProdA;
   detail::IPRHelper<ProdA, ProdB, Data, dataColl_t> finder(e, tag);
-  base::setStoredException(finder(aPtrColl, detail::ProductIDProvider(), base::bCollection(), dataCollection_));
+  base::setStoredException(finder(aPtrColl, base::bCollection(), dataCollection_));
 }
 
 template <typename ProdB, typename Data>
@@ -490,7 +497,7 @@ art::@ART_IPR_CLASS_NAME@<ProdB, Data>::
     dataCollection_()
 {
   detail::IPRHelper<ProdA, ProdB, Data, dataColl_t> finder(e, tag);
-  base::setStoredException(finder(ptrs, detail::ProductIDProvider(), base::bCollection(), dataCollection_));
+  base::setStoredException(finder(ptrs, base::bCollection(), dataCollection_));
 }
 
 template <typename ProdB, typename Data>

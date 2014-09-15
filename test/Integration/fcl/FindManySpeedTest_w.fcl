@@ -1,0 +1,27 @@
+process_name: DEVEL
+
+source: {
+  module_type: EmptyEvent
+  maxEvents: 1
+}
+
+physics: {
+  producers: {
+    fmstWriter: {
+      module_type: FindManySpeedTestProducer
+      nTracks: 1000
+      nHits: 100000
+      pmHitsPerTrack: 3000
+    }
+  }
+
+  t: [ fmstWriter ]
+  e: [ o1 ]
+}
+
+outputs: {
+  o1: {
+    module_type: RootOutput
+    fileName: "out.root"
+  }
+}

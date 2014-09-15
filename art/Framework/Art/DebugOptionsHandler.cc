@@ -6,24 +6,28 @@
 #include "fhiclcpp/intermediate_table.h"
 #include "fhiclcpp/parse.h"
 
+#include <cstdlib>
 #include <iostream>
 #include <string>
 
 art::DebugOptionsHandler::
 DebugOptionsHandler(bpo::options_description & desc,
+                    std::string const & basename,
                     bool rethrowDefault)
 :
   rethrowDefault_(rethrowDefault)
 {
   desc.add_options()
-  ("trace", "Activate tracing.")
-  ("notrace", "Deactivate tracing.")
-  ("memcheck", "Activate monitoring of memory use.")
-  ("nomemcheck", "Deactivate monitoring of memory use.")
-  ("default-exceptions", "some exceptions may be handled differently by default (e.g. ProductNotFound).")
-  ("rethrow-default", "all exceptions default to rethrow.")
-  ("rethrow-all", "all exceptions overridden to rethrow (cf rethrow-default).")
-  ;
+    ("trace", "Activate tracing.")
+    ("notrace", "Deactivate tracing.")
+    ("memcheck", "Activate monitoring of memory use.")
+    ("nomemcheck", "Deactivate monitoring of memory use.")
+    ("default-exceptions", "Some exceptions may be handled differently by default (e.g. ProductNotFound).")
+    ("rethrow-default", "All exceptions default to rethrow.")
+    ("rethrow-all", "All exceptions overridden to rethrow (cf rethrow-default).")
+    ("debug-config", bpo::value<std::string>(),
+     (std::string("Output post-processed configuration to <file> and exit. Equivalent to env ART_DEBUG_CONFIG=<file> ") +
+      basename + " ...").c_str());
 }
 
 int
@@ -37,14 +41,6 @@ doCheckOptions(bpo::variables_map const & vm)
         << "Options --default-exceptions, --rethrow-all and --rethrow-default \n"
         << "are mutually incompatible.\n";
   }
-  return 0;
-}
-
-int
-art::DebugOptionsHandler::
-doProcessOptions(bpo::variables_map const & vm,
-                 fhicl::intermediate_table & raw_config)
-{
   if (vm.count("trace") == 1 &&
       vm.count("notrace") == 1) {
     throw Exception(errors::Configuration)
@@ -55,7 +51,19 @@ doProcessOptions(bpo::variables_map const & vm,
     throw Exception(errors::Configuration)
         << "Options --memcheck and --nomemcheck are incompatible.\n";
   }
+  return 0;
+}
 
+int
+art::DebugOptionsHandler::
+doProcessOptions(bpo::variables_map const & vm,
+                 fhicl::intermediate_table & raw_config)
+{
+  if (vm.count("debug-config")) {
+    setenv("ART_DEBUG_CONFIG",
+           vm["debug-config"].as<std::string>().c_str(),
+           true /* overwrite */);
+  }
   if (vm.count("trace")) {
     raw_config.put("services.scheduler.wantTracer", true);
   }

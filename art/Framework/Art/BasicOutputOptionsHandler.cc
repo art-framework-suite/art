@@ -18,8 +18,9 @@ art::BasicOutputOptionsHandler::
 BasicOutputOptionsHandler(bpo::options_description & desc)
 {
   desc.add_options()
-  ("TFileName,T", bpo::value<std::string>(), "File name for TFileService.")
-  ("output,o", bpo::value<std::string>(), "Event output stream file.")
+    ("TFileName,T", bpo::value<std::string>(), "File name for TFileService.")
+    ("tmpdir", bpo::value<std::string>(), "Temporary directory for in-progress output files (defaults to directory of specified output file names).")
+    ("output,o", bpo::value<std::string>(), "Event output stream file.")
   ;
 }
 
@@ -107,5 +108,23 @@ doProcessOptions(bpo::variables_map const & vm,
       }
     }
   }
+  // tmpDir option for TFileService and output streams.
+  if (vm.count("tmpdir") == 1) {
+    auto tmpDir = vm["tmpdir"].as<std::string>();
+    std::string const outputs_stem("outputs.");
+    if (raw_config.exists("services.TFileService")) {
+      raw_config.put("services.TFileService.tmpDir", tmpDir);
+    }
+    if (raw_config.exists("outputs")) {
+      auto const & table = raw_config.get<table_t const &>("outputs");
+      for (auto const & output : table) {
+        if (raw_config.exists(outputs_stem + output.first + ".module_type")) {
+          // Inject tmpDir into the module configuration.
+          raw_config.put(outputs_stem + output.first + ".tmpDir", tmpDir);
+        }
+      }
+    }
+  }
+
   return 0;
 }

@@ -1,3 +1,4 @@
+#include "art/Persistency/Common/Assns.h"
 #include "art/Persistency/Common/Ptr.h"
 #include "art/Persistency/Common/PtrVector.h"
 #include "art/Persistency/Common/Wrapper.h"
@@ -31,3 +32,13 @@ template class art::Wrapper<std::vector<art::Ptr<double> > >;
 template class art::Wrapper<art::PtrVector<double> >;
 template class art::Ptr<double>;
 template class art::Wrapper<arttest::VSimpleProduct>;
+template class std::vector<arttest::Hit>;
+template class std::vector<arttest::Track>;
+template class art::Wrapper<std::vector<arttest::Hit> >;
+template class art::Wrapper<std::vector<arttest::Track> >;
+template class std::pair<art::Ptr<arttest::Hit>, art::Ptr<arttest::Track> >;
+template class std::vector<std::pair<art::Ptr<arttest::Hit>, art::Ptr<arttest::Track> > >;
+template class art::Assns<arttest::Hit, arttest::Track>;
+template class art::Wrapper<art::Assns<arttest::Hit, arttest::Track> >;
+template class art::Assns<arttest::Track, arttest::Hit>;
+template class art::Wrapper<art::Assns<arttest::Track, arttest::Hit> >;

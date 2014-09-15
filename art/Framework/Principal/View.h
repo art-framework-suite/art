@@ -24,7 +24,10 @@ template <class T>
 class art::View  {
 public:
   typedef std::vector<T const*> collection_type;
-  typedef typename std::vector<T const*>::const_iterator const_iterator;
+  typedef typename collection_type::value_type value_type;
+  typedef typename collection_type::const_iterator const_iterator;
+  typedef typename collection_type::iterator iterator;
+  typedef typename collection_type::size_type size_type;
 
   View() : vals_(), id_(), prod_(0) { }
   collection_type&       vals()       { return vals_; }
@@ -45,12 +48,16 @@ public:
   operator collection_type& ()             { return vals_; }
   operator collection_type const& () const { return vals_; }
 
+  iterator begin() { return vals_.begin(); }
+  iterator end()   { return vals_.end(); }
   const_iterator begin() const { return vals_.begin(); }
   const_iterator end() const   { return vals_.end(); }
+  const_iterator cbegin() const { return vals_.cbegin(); }
+  const_iterator cend() const   { return vals_.cend(); }
+
+  size_type size() const { return vals_.size(); }
 
 private:
-  typedef T const*              value_type;
-
   collection_type  vals_; // we do not own the pointed-to elements
   ProductID        id_;
   EDProduct const* prod_; // we do not own the product
