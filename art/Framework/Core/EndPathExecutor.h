@@ -19,7 +19,6 @@
 #include "cetlib/trim.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
-#include <functional>
 #include <memory>
 #include <vector>
 
@@ -80,8 +79,8 @@ private:
   template <typename T>
   void runEndPaths(typename T::MyPrincipal &);
 
-  void doForAllEnabledWorkers_(std::function<void (Worker *)> func);
-  void doForAllEnabledOutputWorkers_(std::function<void (OutputWorker *)> func);
+  template <class F> void doForAllEnabledWorkers_(F f);
+  template <class F> void doForAllEnabledOutputWorkers_(F f);
 
   PathsInfo & endPathInfo_;
   ActionTable * act_table_;
@@ -132,29 +131,23 @@ processOneOccurrence(typename T::MyPrincipal & ep)
   endPathInfo_.addPass();
 }
 
-inline
+template <class F>
 void
-art::EndPathExecutor::
-doForAllEnabledWorkers_(std::function<void (Worker *)> func)
+art::EndPathExecutor::doForAllEnabledWorkers_(F fcn)
 {
   size_t index = 0;
-  for (auto const & val : endPathInfo_.workers()) {
-    if (workersEnabled_[index++]) {
-      func(val.second.get());
-    }
+  for (auto const& val : endPathInfo_.workers()) {
+    if (workersEnabled_[index++]) { fcn(val.second.get()); }
   }
 }
 
-inline
+template <class F>
 void
-art::EndPathExecutor::
-doForAllEnabledOutputWorkers_(std::function<void (OutputWorker *)> func)
+art::EndPathExecutor::doForAllEnabledOutputWorkers_(F fcn)
 {
   size_t index = 0;
-  for (auto ow : outputWorkers_) {
-    if (outputWorkersEnabled_[index++]) {
-      func(ow);
-    }
+  for (auto ow : outputWorkers_ ) {
+    if (outputWorkersEnabled_[index++]) { fcn(ow); }
   }
 }
 

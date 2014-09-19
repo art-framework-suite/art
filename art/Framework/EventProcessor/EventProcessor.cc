@@ -31,7 +31,6 @@
 #include "art/Version/GetReleaseVersion.h"
 #include "boost/thread/xtime.hpp"
 #include "cetlib/exception_collector.h"
-#include "cpp0x/functional"
 #include "cpp0x/utility"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
@@ -241,14 +240,13 @@ art::EventProcessor::endJob()
   cet::exception_collector c;
   // Make the services available
   ServiceRegistry::Operate operate(serviceToken_);
-  c.call(std::bind(&EventProcessor::terminateMachine_, this));
-  c.call(std::bind(&Schedule::endJob, schedule_.get()));
-  c.call(std::bind(&EndPathExecutor::endJob, endPathExecutor_.get()));
-  c.call(std::bind(&detail::writeSummary,
-                   std::ref(pathManager_),
-                   ServiceHandle<TriggerNamesService>()->wantSummary()));
-  c.call(std::bind(&InputSource::doEndJob, input_.get()));
-  c.call(std::bind(&decltype(ActivityRegistry::sPostEndJob)::invoke, actReg_.sPostEndJob));
+  c.call([this](){ this->terminateMachine_(); });
+  c.call([this](){ schedule_.get()->endJob(); });
+  c.call([this](){ endPathExecutor_.get()->endJob(); });
+  bool summarize = ServiceHandle<TriggerNamesService>()->wantSummary();
+  c.call([=](){ detail::writeSummary(pathManager_, summarize); });
+  c.call([this](){ input_.get()->doEndJob(); });
+  c.call([this](){ actReg_.sPostEndJob.invoke(); });
 }
 
 void

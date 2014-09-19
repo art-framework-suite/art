@@ -30,12 +30,10 @@
 #include <algorithm>
 #include <cassert>
 #include <cstdlib>
-#include <functional>
 #include <iomanip>
 
 // Commonly-used (and unambiguous) symbols from other namespaces.
 using fhicl::ParameterSet;
-using std::placeholders::_1;
 
 art::Schedule::
 Schedule(ScheduleID sID,
@@ -98,32 +96,28 @@ void
 art::Schedule::
 respondToOpenInputFile(FileBlock const & fb)
 {
-  doForAllWorkers_(std::bind(&Worker::respondToOpenInputFile, _1,
-                             std::cref(fb)));
+  doForAllWorkers_([&fb](auto w){ w->respondToOpenInputFile(fb); });
 }
 
 void
 art::Schedule::
 respondToCloseInputFile(FileBlock const & fb)
 {
-  doForAllWorkers_(std::bind(&Worker::respondToCloseInputFile, _1,
-                             std::cref(fb)));
+  doForAllWorkers_([&fb](auto w){ w->respondToCloseInputFile(fb); });
 }
 
 void
 art::Schedule::
 respondToOpenOutputFiles(FileBlock const & fb)
 {
-  doForAllWorkers_(std::bind(&Worker::respondToOpenOutputFiles, _1,
-                                  std::cref(fb)));
+  doForAllWorkers_([&fb](auto w){ w->respondToOpenOutputFiles(fb); });
 }
 
 void
 art::Schedule::
 respondToCloseOutputFiles(FileBlock const & fb)
 {
-  doForAllWorkers_(std::bind(&Worker::respondToCloseOutputFiles, _1,
-                                  std::cref(fb)));
+  doForAllWorkers_([&fb](auto w){ w->respondToCloseOutputFiles(fb); });
 }
 
 bool
@@ -159,14 +153,14 @@ void
 art::Schedule::
 beginJob()
 {
-  doForAllWorkers_(std::bind(&Worker::beginJob, _1));
+  doForAllWorkers_([](auto w){ w->beginJob(); });
 }
 
 void
 art::Schedule::
 resetAll_()
 {
-  doForAllWorkers_(std::bind(&Worker::reset, _1));
+  doForAllWorkers_([](auto w){ w->reset(); });
   triggerPathsInfo_.pathResults().reset();
 }
 

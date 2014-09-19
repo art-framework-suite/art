@@ -173,7 +173,6 @@
 #include "art/Persistency/Common/PtrVector.h"
 #include "art/Persistency/Provenance/ProductID.h"
 #include "cetlib/exempt_ptr.h"
-#include "cpp0x/functional"
 #include <map>
 
 namespace art {
@@ -439,11 +438,10 @@ operator()(std::vector<PROD const *> const &in,
            OFFSETS const &offsets,
            CONT const & (X::*extractor) (PROD const *),
            X &x) const {
-  using std::placeholders::_1;
   this->operator()<CONT>(in,
                          out,
                          offsets,
-                         std::bind(extractor, &x, _1)); // 10?
+                         [&](auto& elem){ elem.extractor(x); }); // 10?
 }
 
 // 9.
@@ -455,11 +453,10 @@ operator()(std::vector<PROD const *> const &in,
            OFFSETS const &offsets,
            CONT const & (X::*extractor) (PROD const *) const,
            X const &x) const {
-  using std::placeholders::_1;
   this->operator()<CONT>(in,
                          out,
                          offsets,
-                         std::bind(extractor, &x, _1)); // 10.
+			 [&](auto& elem){ elem.extractor(x); }); // 10.
 }
 
 // 10.

@@ -31,19 +31,17 @@ EndPathExecutor(PathManager & pm,
 
 bool art::EndPathExecutor::terminate() const
 {
-  if (!outputWorkers_.empty() && // Necessary because std::all_of()
-                                 // returns true if range is empty.
-      std::all_of(outputWorkers_.cbegin(),
-                  outputWorkers_.cend(),
-                  std::bind(&OutputWorker::limitReached, _1))) {
+  bool rc = !outputWorkers_.empty() && // Necessary because std::all_of()
+                                       // returns true if range is empty.
+    std::all_of(outputWorkers_.cbegin(),
+                outputWorkers_.cend(),
+                [](auto& w){ return w->limitReached(); });
+  if (rc) {
     mf::LogInfo("SuccessfulTermination")
       << "The job is terminating successfully because each output module\n"
       << "has reached its configured limit.\n";
-    return true;
   }
-  else {
-    return false;
-  }
+  return rc;
 }
 
 void
@@ -100,44 +98,44 @@ void art::EndPathExecutor::openOutputFiles(FileBlock & fb)
 
 void art::EndPathExecutor::writeRun(RunPrincipal const & rp)
 {
-  doForAllEnabledOutputWorkers_(std::bind(&OutputWorker::writeRun, _1, std::cref(rp)));
+  doForAllEnabledOutputWorkers_([&rp](auto w){ w->writeRun(rp); });
 }
 
 void art::EndPathExecutor::writeSubRun(SubRunPrincipal const & srp)
 {
-  doForAllEnabledOutputWorkers_(std::bind(&OutputWorker::writeSubRun, _1, std::cref(srp)));
+  doForAllEnabledOutputWorkers_([&srp](auto w){ w->writeSubRun(srp); });
 }
 
 bool art::EndPathExecutor::shouldWeCloseOutput() const
 {
   return std::any_of(outputWorkers_.cbegin(),
                      outputWorkers_.cend(),
-                     std::bind(&OutputWorker::shouldWeCloseFile, _1));
+                     [](auto& w){ return w->shouldWeCloseFile(); });
 }
 
 void art::EndPathExecutor::respondToOpenInputFile(FileBlock const & fb)
 {
-  doForAllEnabledWorkers_(std::bind(&Worker::respondToOpenInputFile, _1, std::cref(fb)));
+  doForAllEnabledWorkers_([&fb](auto w){ w->respondToOpenInputFile(fb); });
 }
 
 void art::EndPathExecutor::respondToCloseInputFile(FileBlock const & fb)
 {
-  doForAllEnabledWorkers_(std::bind(&Worker::respondToCloseInputFile, _1, std::cref(fb)));
+  doForAllEnabledWorkers_([&fb](auto w){ w->respondToCloseInputFile(fb); });
 }
 
 void art::EndPathExecutor::respondToOpenOutputFiles(FileBlock const & fb)
 {
-  doForAllEnabledWorkers_(std::bind(&Worker::respondToOpenOutputFiles, _1, std::cref(fb)));
+  doForAllEnabledWorkers_([&fb](auto w){ w->respondToOpenOutputFiles(fb); });
 }
 
 void art::EndPathExecutor::respondToCloseOutputFiles(FileBlock const & fb)
 {
-  doForAllEnabledWorkers_(std::bind(&Worker::respondToCloseOutputFiles, _1, std::cref(fb)));
+  doForAllEnabledWorkers_([&fb](auto w){ w->respondToCloseOutputFiles(fb); });
 }
 
 void art::EndPathExecutor::beginJob()
 {
-  doForAllEnabledWorkers_(std::bind(&Worker::beginJob, _1));
+  doForAllEnabledWorkers_([](auto w){ w->beginJob(); });
 }
 
 bool
@@ -177,5 +175,5 @@ setEndPathModuleEnabled(std::string const & label, bool enable)
 void
 art::EndPathExecutor::resetAll()
 {
-  doForAllEnabledWorkers_(std::bind(&Worker::reset, _1));
+  doForAllEnabledWorkers_([](auto w){ w->reset(); });
 }

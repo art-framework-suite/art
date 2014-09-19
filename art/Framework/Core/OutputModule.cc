@@ -115,8 +115,7 @@ doBeginJob()
 {
   selectProducts();
   beginJob();
-  cet::for_all(plugins_, std::bind(&FileCatalogMetadataPlugin::doBeginJob,
-                                   std::placeholders::_1));
+  cet::for_all(plugins_, [](auto& p){ p->doBeginJob(); });
 }
 
 void
@@ -124,8 +123,7 @@ art::OutputModule::
 doEndJob()
 {
   endJob();
-  cet::for_all(plugins_, std::bind(&FileCatalogMetadataPlugin::doEndJob,
-                                   std::placeholders::_1));
+  cet::for_all(plugins_, [](auto& p){ p->doEndJob(); });
 }
 
 
@@ -151,8 +149,7 @@ doEvent(EventPrincipal const & ep,
                        ep.id(),
                        trRef);
     // ... and invoke the plugins:
-    cet::for_all(plugins_, std::bind(&FileCatalogMetadataPlugin::doCollectMetadata,
-                                     std::placeholders::_1, std::cref(e)));
+    cet::for_all(plugins_, [&e](auto& p){ p->doCollectMetadata(e); });
     // Finish.
     updateBranchParents(ep);
     if (remainingEvents_ > 0) {
@@ -171,8 +168,7 @@ doBeginRun(RunPrincipal const & rp,
   FDEBUG(2) << "beginRun called\n";
   beginRun(rp);
   Run const r(const_cast<RunPrincipal &>(rp), moduleDescription_);
-  cet::for_all(plugins_, std::bind(&FileCatalogMetadataPlugin::doBeginRun,
-                                   std::placeholders::_1, std::cref(r)));
+  cet::for_all(plugins_, [&r](auto& p){ p->doBeginRun(r); });
   return true;
 }
 
@@ -185,8 +181,7 @@ doEndRun(RunPrincipal const & rp,
   FDEBUG(2) << "endRun called\n";
   endRun(rp);
   Run const r(const_cast<RunPrincipal &>(rp), moduleDescription_);
-  cet::for_all(plugins_, std::bind(&FileCatalogMetadataPlugin::doEndRun,
-                                   std::placeholders::_1, std::cref(r)));
+  cet::for_all(plugins_, [&r](auto& p){ p->doEndRun(r); });
   return true;
 }
 
@@ -206,9 +201,8 @@ doBeginSubRun(SubRunPrincipal const & srp,
   detail::CPCSentry sentry(current_context_, cpc);
   FDEBUG(2) << "beginSubRun called\n";
   beginSubRun(srp);
-  SubRun const r(const_cast<SubRunPrincipal &>(srp), moduleDescription_);
-  cet::for_all(plugins_, std::bind(&FileCatalogMetadataPlugin::doBeginSubRun,
-                                   std::placeholders::_1, std::cref(r)));
+  SubRun const sr(const_cast<SubRunPrincipal &>(srp), moduleDescription_);
+  cet::for_all(plugins_, [&sr](auto& p){ p->doBeginSubRun(sr); });
   return true;
 }
 
@@ -220,9 +214,8 @@ doEndSubRun(SubRunPrincipal const & srp,
   detail::CPCSentry sentry(current_context_, cpc);
   FDEBUG(2) << "endSubRun called\n";
   endSubRun(srp);
-  SubRun const r(const_cast<SubRunPrincipal &>(srp), moduleDescription_);
-  cet::for_all(plugins_, std::bind(&FileCatalogMetadataPlugin::doEndSubRun,
-                                   std::placeholders::_1, std::cref(r)));
+  SubRun const sr(const_cast<SubRunPrincipal &>(srp), moduleDescription_);
+  cet::for_all(plugins_, [&sr](auto& p){ p->doEndSubRun(sr); });
   return true;
 }
 

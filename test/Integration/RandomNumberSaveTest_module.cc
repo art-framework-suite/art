@@ -89,11 +89,9 @@ bool arttest::RandomNumberSaveTest::filter(art::Event & e)
   static size_t const nums_size = 5;
   static size_t const random_range = 1000;
   nums.reserve(nums_size);
-  std::generate_n(std::back_inserter(nums),
-                  nums_size,
-                  std::bind(static_cast<long(CLHEP::RandFlat:: *)(long)>
-                            (&CLHEP::RandFlat::fireInt), // Resolve overload.
-                            &dist_, random_range));
+  generate_n(std::back_inserter(nums),
+	     nums_size,
+	     [=](){ return this->dist_.fireInt(random_range);});
   std::cerr << "nums: " << nums << "\n"; 
   if (e.getByLabel(myLabel_, hp)) {
     std::cerr << "(*hp): " << *hp << "\n";
