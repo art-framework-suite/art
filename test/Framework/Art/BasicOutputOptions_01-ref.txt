@@ -2,6 +2,7 @@ all_modules: [ "out" ]
 outputs: { out: { fileName: "out.root"
                   module_label: "out"
                   module_type: "RootOutput"
+                  tmpDir: "/tmp"
                 }
          }
 physics: { end_paths: [ "injected_end_path_1" ]
@@ -10,6 +11,7 @@ physics: { end_paths: [ "injected_end_path_1" ]
 process_name: "DUMMY"
 services: { TFileService: { fileName: "hist.root"
                             service_type: "TFileService"
+                            tmpDir: "/tmp"
                           }
             message: { destinations: { STDOUT: { categories: { ArtReport: { limit: 100
                                                                           }

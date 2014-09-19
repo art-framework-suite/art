@@ -35,7 +35,7 @@ TFileService::TFileService(ParameterSet const & cfg,
   fstats_(cfg.get<std::string>("service_type"),
           ServiceHandle<TriggerNamesService>()->getProcessName()),
   filePattern_(cfg.get<string>("fileName")),
-  uniqueFilename_(unique_filename(parent_path(filePattern_) + "/TFileService"))
+  uniqueFilename_(unique_filename(cfg.get<string>("tmpDir", parent_path(filePattern_)) + "/TFileService"))
 {
   assert(file_ == nullptr && "TFile pointer should always be zero here!");
   file_ = new TFile(uniqueFilename_.c_str(), "RECREATE");

@@ -1062,6 +1062,9 @@ cet_test(TestEmptyEventTimestampNoRSRTS_t HANDBUILT
   fcl/TestEmptyEventTimestampNoRSRTS_t.fcl
   )
 
+simple_plugin(FindManySpeedTestProducer "module" NO_INSTALL)
+simple_plugin(FindManySpeedTestAnalyzer "module" NO_INSTALL)
+
 add_subdirectory(event-shape)
 add_subdirectory(high-memory)
 

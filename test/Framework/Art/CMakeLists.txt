@@ -86,6 +86,7 @@ cet_test(BasicOutputOptions_01_w HANDBUILT
   TEST_EXEC art
   TEST_ARGS --TFileName hist.root
   -o out.root
+  --tmpdir /tmp
   -c opt-empty.fcl
   TEST_PROPERTIES ENVIRONMENT ART_DEBUG_CONFIG=config.out
   DATAFILES fcl/opt-empty.fcl
@@ -195,8 +196,8 @@ config_ref_test(BasicPostProcessor_01)
 cet_test(DebugOptions_01_w HANDBUILT
   TEST_EXEC art
   TEST_ARGS --trace --memcheck --rethrow-default
+  --debug-config config.out
   -c opt-empty.fcl
-  TEST_PROPERTIES ENVIRONMENT ART_DEBUG_CONFIG=config.out
   DATAFILES fcl/opt-empty.fcl
   )
 

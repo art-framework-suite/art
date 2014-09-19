@@ -4,7 +4,6 @@
 // Helper class and associated gubbins for populating the FindOne and
 // FindMany query objects for inter-product references.
 
-#include "art/Framework/Core/detail/ProductIDProvider.h"
 #include "art/Framework/Core/detail/getAssnsHandle.h"
 #include "art/Framework/Principal/Handle.h"
 #include "art/Persistency/Common/Assns.h"
@@ -13,7 +12,9 @@
 #include "art/Utilities/InputTag.h"
 #include "art/Utilities/ensurePointer.h"
 #include "art/Utilities/pointersEqual.h"
-#include "cpp0x/type_traits"
+
+#include <type_traits>
+#include <unordered_map>
 
 namespace art {
   namespace detail {
@@ -106,21 +107,15 @@ public:
 
   IPRHelper(Event const & e, InputTag const & tag) : event_(e), assnsTag_(tag) { }
 
-  // 1. Dispatches to one of the other two: use when dColl not wanted.
-  template <typename PidProvider, typename Acoll, typename Bcoll>
+  // 1. When dColl not wanted.
+  template <typename Acoll, typename Bcoll>
   shared_exception_t
-  operator()(Acoll const & aColl, PidProvider const & pp, Bcoll & bColl) const;
+  operator()(Acoll const & aColl, Bcoll & bColl) const;
 
-  // 2. Algorithm useful when index of Acoll == index of desired Ptr in Assns.
-  template <typename PidProvider, typename Acoll, typename Bcoll>
-  typename std::enable_if<std::is_same<typename std::remove_cv<typename std::remove_pointer<typename Acoll::value_type>::type>::type, ProdA>::value,
-                          shared_exception_t>::type
-  operator()(Acoll const & aColl, PidProvider const & pp, Bcoll & bColl, dataColl_t & dColl) const;
-
-  // 3. Algorithm useful when dealing with collections of Ptrs.
-  template <typename PidProvider, typename Acoll, typename Bcoll>
-  typename std::enable_if<std::is_same<typename Acoll::value_type, Ptr<ProdA> >::value, shared_exception_t>::type
-  operator()(Acoll const & aColl, PidProvider const & pp, Bcoll & bColl, dataColl_t & dColl) const;
+  // 2. Algorithm useful when dealing with collections of Ptrs.
+  template <typename Acoll, typename Bcoll>
+  shared_exception_t
+  operator()(Acoll const & aColl, Bcoll & bColl, dataColl_t & dColl) const;
 
 private:
   Event const & event_;
@@ -129,90 +124,91 @@ private:
 
 // 1.
 template <typename ProdA, typename ProdB, typename Data, typename DATACOLL>
-template <typename PidProvider, typename Acoll, typename Bcoll>
+template <typename Acoll, typename Bcoll>
+inline
 auto
 art::detail::IPRHelper<ProdA, ProdB, Data, DATACOLL>::
-operator()(Acoll const & aColl, PidProvider const & pp, Bcoll & bColl) const
+operator()(Acoll const & aColl, Bcoll & bColl) const
 -> shared_exception_t
 {
   IPRHelperDef dummy;
-  return (*this)(aColl, pp, bColl, dummy);
+  return (*this)(aColl, bColl, dummy);
 }
 
 // 2.
+////////////////////////////////////////////////////////////////////////
+// Implementation notes.
+//
+// The current implementation does not verify the that ProductID of the
+// item in the association collection matches that of the item in the
+// reference collection before attempting to dereference its Ptr
+// (although it does verify ptr.isAvailable()). This means that in the
+// case where an association collection refers to multiple vailable
+// AProd collections, all of those collections will be read from file
+// even if the reference collection does not include items from one or
+// more of those AProd collections.
+//
+// If one were to provide an implementation that did this, one would
+// change the unordered_multimap to key on the full ptr instead of the
+// pointer. This would involve defining a hashing function, something
+// along the lines of:
+//
+// auto hasher = [](typename Acoll::value_type::const_pointer const & ptr)
+//               { return std::hash((ptr.key() && 0xffffffff) +
+//                                  (ptr.id().productIndex() << 32) +
+//                                  (ptr.id().processIndex() << 48)); };
+//
+// However, it would be problematic to do the lookup if the reference
+// item was not in fact a Ptr. Maybe it would be relatively efficient if
+// one were able to do a lookup in the table against an entity not a Ptr
+// for which I could write a comparison function that compared the
+// ProductID and only if they matched, the pointer with suitable get().
+//
+// For now however, no-one has requested this,
+////////////////////////////////////////////////////////////////////////
 template <typename ProdA, typename ProdB, typename Data, typename DATACOLL>
-template <typename PidProvider, typename Acoll, typename Bcoll>
+template <typename Acoll, typename Bcoll>
 auto
 art::detail::IPRHelper<ProdA, ProdB, Data, DATACOLL>::
-operator()(Acoll const & aColl, PidProvider const & pp, Bcoll & bColl, dataColl_t & dColl) const
--> typename std::enable_if<std::is_same<typename std::remove_cv<typename std::remove_pointer<typename Acoll::value_type>::type>::type, ProdA>::value,
-                           shared_exception_t>::type
-
+operator()(Acoll const & aColl, Bcoll & bColl, dataColl_t & dColl) const
+-> shared_exception_t
 {
   detail::BcollHelper<ProdB> bh(assnsTag_);
   detail::DataCollHelper<Data> dh(assnsTag_);
-  Handle<Assns<ProdA, ProdB, Data> > assnsHandle(detail::getAssnsHandle<ProdA, ProdB, Data>(event_, assnsTag_));
+  Handle<Assns<ProdA, ProdB, Data> >
+    assnsHandle(detail::getAssnsHandle<ProdA, ProdB, Data>(event_, assnsTag_));
   if (!assnsHandle.isValid()) {
     return assnsHandle.whyFailed(); // Failed to get Assns product.
   }
   bh.init(aColl.size(), bColl);
   dh.init(aColl.size(), dColl);
-  for (typename Assns<ProdA, ProdB, Data>::assn_iterator
-       beginAssns = assnsHandle->begin(),
-       itAssns = beginAssns,
-       endAssns = assnsHandle->end();
-       itAssns != endAssns;
-       ++itAssns) {
-    size_t aIndex(itAssns->first.key());
-    typename Acoll::const_iterator itA = aColl.begin();
-    std::advance(itA, aIndex);
-    if (itAssns->first.id() == pp() &&
-        pointersEqual(itAssns->first.get(), ensurePointer<typename Assns<ProdA, ProdB, Data>::assn_iterator::value_type::first_type::const_pointer>(itA))) {
-      bh.fill(aIndex, itAssns->second, bColl);
-      dh.fill(itAssns - beginAssns, *assnsHandle, aIndex, dColl);
+  // Answer cache.
+  std::unordered_multimap<typename Ptr<ProdA>::const_pointer,
+    std::pair<Ptr<ProdB>, ptrdiff_t> > lookupCache;
+  ptrdiff_t counter { 0 };
+  for (auto const & apair : *assnsHandle) {
+    if (apair.first.isAvailable()) {
+      lookupCache.emplace(apair.first.get(),
+                          typename decltype(lookupCache)::mapped_type(apair.second, counter));
     }
+    ++counter;
   }
-  return shared_exception_t();
-}
-
-// 3.
-template <typename ProdA, typename ProdB, typename Data, typename DATACOLL>
-template <typename PidProvider, typename Acoll, typename Bcoll>
-auto
-art::detail::IPRHelper<ProdA, ProdB, Data, DATACOLL>::
-operator()(Acoll const & aColl, PidProvider const & pp, Bcoll & bColl, dataColl_t & dColl) const
--> typename std::enable_if<std::is_same<typename Acoll::value_type, art::Ptr<ProdA> >::value,
-                           shared_exception_t>::type
-
-{
-  detail::BcollHelper<ProdB> bh(assnsTag_);
-  detail::DataCollHelper<Data> dh(assnsTag_);
-  Handle<Assns<ProdA, ProdB, Data> > assnsHandle(detail::getAssnsHandle<ProdA, ProdB, Data>(event_, assnsTag_));
-  if (!assnsHandle.isValid()) {
-    return assnsHandle.whyFailed(); // Failed to get Assns product.
-  }
-  bh.init(aColl.size(), bColl);
-  dh.init(aColl.size(), dColl);
-  for (typename Assns<ProdA, ProdB, Data>::assn_iterator
-       beginAssns = assnsHandle->begin(),
-       itAssns = beginAssns,
-       endAssns = assnsHandle->end();
-       itAssns != endAssns;
-       ++itAssns) {
-    size_t bIndex(0);
-    // FIXME: Linear search: maybe we could do something more clever here?
-    for (typename Acoll::const_iterator
+  // Now use the cache.
+  size_t bIndex { 0 };
+  for (typename Acoll::const_iterator
          i = aColl.begin(),
          e = aColl.end();
-         i != e;
-         ++i, ++bIndex) {
-      if (itAssns->first.id() == pp(*i) &&
-          pointersEqual(itAssns->first.get(),
-                        ensurePointer<typename Acoll::value_type::const_pointer>(i))) {
-        bh.fill(bIndex, itAssns->second, bColl);
-        dh.fill(itAssns - beginAssns, *assnsHandle, bIndex, dColl);
-        break;
-      }
+       i != e;
+       ++i, ++bIndex) {
+    auto foundItems = lookupCache.equal_range(ensurePointer<typename Ptr<ProdA>::const_pointer>(i));
+    if (foundItems.first != lookupCache.cend()) {
+      std::for_each(foundItems.first, foundItems.second,
+                    [&bh, &dh, &bColl, bIndex, &assnsHandle, &dColl]
+                    (typename decltype(lookupCache)::const_reference itemPair)
+                    {
+                      bh.fill(bIndex, itemPair.second.first, bColl);
+                      dh.fill(itemPair.second.second, *assnsHandle, bIndex, dColl);
+                    });
     }
   }
   return shared_exception_t();
@@ -317,6 +313,7 @@ init(size_t size, Bcoll & bColl) const
 
 template <typename ProdB>
 template <typename Bcoll>
+inline
 typename std::enable_if<std::is_same<typename Bcoll::value_type, ProdB const *>::value>::type
 art::detail::BcollHelper<ProdB>::
 fill(size_t index,
@@ -335,6 +332,7 @@ fill(size_t index,
 
 template <typename ProdB>
 template <typename Bcoll>
+inline
 typename std::enable_if<std::is_convertible<typename Bcoll::value_type, art::Ptr<ProdB> >::value>::type
 art::detail::BcollHelper<ProdB>::
 fill(size_t index,

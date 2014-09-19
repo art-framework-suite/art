@@ -44,17 +44,17 @@ my ($package, $vnum) = @ARGV;
 
 my @all_suite_versions = suite_versions(for_package("art", "cd /cvs/projects/art; git tag"));
 
-if (lc $package eq "art") { # Want ART Suite release notes.
+if (lc $package eq "art") { # Want Art Suite release notes.
   my $suite_version = suite_version($vnum);
   my $dot_version = dot_version($vnum);
   my $version_date = tag_date("art", $suite_version);
-  print "h1. ART Suite Release Notes $dot_version ($version_date).\n\n";
+  print "h1. Art Suite Release Notes $dot_version ($version_date).\n\n";
   print "* \"Download page\":http://oink.fnal.gov/distro/art/art-${suite_version}.html.\n";
   my $prev = previous_version($dot_version, @all_suite_versions);
   if ($prev =~ /^\d/) {
     print "* Previous version's [[Release Notes $prev|release notes]].\n\n";
   }
-  print "h2. ART ",
+  print "h2. Art ",
     vpage($dot_version),
       ".\n\n";
   print <<EOF;
@@ -92,12 +92,12 @@ sub new_first {
   if ($first_version eq $dot_version) {
     return " (*%{color:green}new version%*)";
   } else {
-    return sprintf(" (in since ART %s)", vpage($first_version));
+    return sprintf(" (in since art %s)", vpage($first_version));
   }
 }
 
 sub help_packages {
-  print STDERR "Known packages: ART, ",
+  print STDERR "Known packages: art, ",
     join(", ", @{known_packages}),
       ".\n";
   exit(2);
@@ -184,7 +184,7 @@ sub rpage {
   my $rversion = nosep_version(${version});
   my $dot_version = dot_version(${version});
   return ($lpkg eq "art"?
-          "[[art:Release Notes ${dot_version}|ART Suite ${dot_version}]]":
+          "[[art:Release Notes ${dot_version}|Art Suite ${dot_version}]]":
           "[[$lpkg:Release Notes#${dot_version}|$package ${dot_version}]]");
 }
 
@@ -204,29 +204,25 @@ sub pkg_version {
     print STDERR "ERROR: Could not obtain log information for $package with suite tag $suite_version.\n";
     exit(1);
   }
-  $v_string =~ s&tag: &&g;
-  $v_string =~ s&^\s*\((.*)\)$&$1&;
-
-  my @pkg_versions = pkg_versions($v_string);
+  $v_string =~ s&^\s*\((.*)\)\s*$&${1}&g;
+  my @pkg_versions = sort by_version (map { if (/tag:\s*(v\d+.*)$/) { ${1} } else { (); }; } (split /,\s*/, $v_string));
 
   if (scalar @pkg_versions == 1) {
     return dot_version($pkg_versions[0]);
   } elsif (not scalar @pkg_versions) {
-    printf STDERR "ERROR: Could not find version for package $package tagged in ART Suite %s.\n", dot_version($suite_version);
+    printf STDERR "ERROR: Could not find version for package $package tagged in art suite %s.\n", dot_version($suite_version);
     exit(1);
   } else {
-    printf STDERR "ERROR: multiple matching versions for package $package in ART Suite %s.\n", dot_version($suite_version);
+    printf STDERR "ERROR: %d matching versions for package $package in art suite %s:\n",
+      scalar @pkg_versions,
+      dot_version($suite_version);
+    printf STDERR "       %s\n", join(", ", @pkg_versions);
     exit(1);
   }
 }
 
 sub suite_versions {
   my @versions = grep /^ART_SUITE/, (split /[,\s]/, $_[0]);
-  return sort by_version @versions;
-}
-
-sub pkg_versions {
-  my @versions = grep /^v\d/, (split /[,\s]/, $_[0]);
   return sort by_version @versions;
 }
 
@@ -250,7 +246,7 @@ sub suite_references {
 sub suite_reference_string {
   return (scalar @_) ?
     sprintf(' (%s)',
-            join(", ", map { if (!$_) { (); } else { rpage("ART", $_); } } sort by_version @_)) :
+            join(", ", map { if (!$_) { (); } else { rpage("art", $_); } } sort by_version @_)) :
               '';
 }
 
@@ -260,7 +256,7 @@ __END__
 
 =head1 NAME
 
-relnotes: Produce Wiki snippets for release notes for ART or a subsidiary package.
+relnotes: Produce Wiki snippets for release notes for art or a subsidiary package.
 
 =head1 SYNOPSIS
 
@@ -274,11 +270,11 @@ I<Options>: B<--suite-version|-s>
 
 =head1 DESCRIPTION
 
-I<relnotes> is a tool to produce Wiki snippets for release notes for ART packages: either ART or a subsidiary package:
+I<relnotes> is a tool to produce Wiki snippets for release notes for art packages: either art or a subsidiary package:
 
 =over
 
-=item B<ART>
+=item B<Art>
 
 Produce a skeleton Art Suite Release Notes page for pasting into a blank
 page (which by convention should be named, "Release_Notes_MMmmuu" --
@@ -290,7 +286,7 @@ Release Notes page (which by convention should be named,
 =item B<Subsidiary packages>
 
 Produce a skeleton h2 line for the specific version of said package
-including links to all the ART Suite Release Notes pages of which this
+including links to all the Art Suite Release Notes pages of which this
 package version is a part.
 
 =back
@@ -305,7 +301,7 @@ The package for which to produce the skeleton.
 
 =item I<version>
 
-The version of the package or (with I<-s>) a version of ART whose suite
+The version of the package or (with I<-s>) a version of art whose suite
 contains the desired version of I<package>.
 
 =back
@@ -318,7 +314,7 @@ contains the desired version of I<package>.
 
 =item B<-s>
 
-Interpret I<version> as the version of ART whose suite comprises the
+Interpret I<version> as the version of art whose suite comprises the
 desired version of I<package>.
 
 =back
@@ -340,9 +336,9 @@ their Target Version.
 
 =item relnotes art v0.7.13
 
-h1. ART Suite Release Notes v0.07.13.
+h1. Art Suite Release Notes v0.07.13.
 
-h2. ART version:"v0.07.13".
+h2. Art version:"v0.07.13".
 
 h2. [[cpp0x:Release_Notes#v1.01.14|cpp0x v1.01.14]].
 
@@ -354,11 +350,11 @@ h2. [[messagefacility:Release_Notes#v1.08.24|messagefacility v1.08.24]].
 
 =item relnotes -s cetlib v0.7.13
 
-h2. %(#v1.01.00)cetlib% version:"v1.01.00" ([[art:Release_Notes_v00712|ART v0_07_12]], [[art:Release_Notes_v00713|ART v0_07_13]]).
+h2. %(#v1.01.00)cetlib% version:"v1.01.00" ([[art:Release_Notes_v00712|art v0_07_12]], [[art:Release_Notes_v00713|art v0_07_13]]).
 
 =item relnotes cetlib v1.01.00
 
-h2. %(#v1.01.00)cetlib% version:"v1.01.00" ([[art:Release_Notes_v00712|ART v0_07_12]], [[art:Release_Notes_v00713|ART v0_07_13]]).
+h2. %(#v1.01.00)cetlib% version:"v1.01.00" ([[art:Release_Notes_v00712|art v0_07_12]], [[art:Release_Notes_v00713|art v0_07_13]]).
 
 =back
 

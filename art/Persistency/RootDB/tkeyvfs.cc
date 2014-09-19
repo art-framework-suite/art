@@ -468,7 +468,7 @@ static int closeUnixFile(sqlite3_file * id)
     (void *)memcpy((void *)p, (void *)pFile->pBuf, (size_t)pFile->fileSize);
     /* Write the tkey contents to the root file. */
     /* Note: This has not yet written the top-level directory entry for the key. */
-    Int_t cnt = k->WriteFile(1 /*cycle*/, 0 /*file*/);
+    Int_t cnt = k->WriteFile(cycle, 0 /*file*/);
     if (cnt == -1) {
       /* bad */
       fprintf(stderr, "tkeyvfs: failed to write root tkey containing database to root file!\n");
