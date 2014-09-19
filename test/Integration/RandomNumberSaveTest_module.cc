@@ -29,7 +29,7 @@
 #include <vector>
 
 namespace arttest {
-  class RandomNumberSaveTest;    
+  class RandomNumberSaveTest;
 }
 
 class arttest::RandomNumberSaveTest : public art::EDFilter {
@@ -90,9 +90,9 @@ bool arttest::RandomNumberSaveTest::filter(art::Event & e)
   static size_t const random_range = 1000;
   nums.reserve(nums_size);
   generate_n(std::back_inserter(nums),
-	     nums_size,
-	     [=](){ return this->dist_.fireInt(random_range);});
-  std::cerr << "nums: " << nums << "\n"; 
+       nums_size,
+       [this](){ return dist_.fireInt(random_range);});
+  std::cerr << "nums: " << nums << "\n";
   if (e.getByLabel(myLabel_, hp)) {
     std::cerr << "(*hp): " << *hp << "\n";
     // Reading.

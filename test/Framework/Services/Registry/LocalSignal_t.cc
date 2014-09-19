@@ -100,7 +100,7 @@ BOOST_AUTO_TEST_CASE(TestSignal1_t)
   std::string const test_text { "Test text" };
   boost::test_tools::output_test_stream os;
   BOOST_CHECK_NO_THROW(s.watch(sID,
-                               [&](auto& x){ testCallback<0>(x, test_text); }));
+                               [&test_text](auto& x){ testCallback<0>(x, test_text); }));
   BOOST_CHECK_NO_THROW(s.invoke(sID, os));
   BOOST_CHECK(os.is_equal(test_text));
 }
@@ -117,7 +117,7 @@ BOOST_AUTO_TEST_CASE(TestSignal0_t)
   // output_test_stream is a callable entity.
   std::ostringstream & osr __attribute__((unused))(os);
   BOOST_CHECK_NO_THROW(s.watch(sID,
-                               [&](){ testCallback<0>(osr, test_text); }));
+                               [&osr, &test_text](){ testCallback<0>(osr, test_text); }));
   BOOST_CHECK_NO_THROW(s.invoke(sID));
   BOOST_CHECK(os.is_equal(test_text));
 }
@@ -159,7 +159,7 @@ BOOST_AUTO_TEST_CASE(TestSignal1_All_t)
   TestSignal1 s(nSchedules);
   std::string const test_text { "Test text" };
   boost::test_tools::output_test_stream os;
-  BOOST_CHECK_NO_THROW(s.watchAll([&](auto& x){
+  BOOST_CHECK_NO_THROW(s.watchAll([&test_text](auto& x){
         testCallback<0>(x, test_text);
       }));
   BOOST_CHECK_NO_THROW(s.invoke(sID, os));
@@ -177,7 +177,7 @@ BOOST_AUTO_TEST_CASE(TestSignal0_All_t)
   // std::ref's attempt to determine whether output_test_stream is a
   // callable entity.
   std::ostringstream & osr(os);
-  BOOST_CHECK_NO_THROW(s.watchAll([&](){ testCallback<0>(osr, test_text); }));
+  BOOST_CHECK_NO_THROW(s.watchAll([&osr, &test_text](){ testCallback<0>(osr, test_text); }));
   BOOST_CHECK_NO_THROW(s.invoke(sID));
   BOOST_CHECK(os.is_equal(test_text));
 }
@@ -194,8 +194,8 @@ BOOST_AUTO_TEST_CASE(watchFail)
   // callable entity.
   std::ostringstream & osr(os);
   BOOST_CHECK_THROW((s.watch(art::ScheduleID(4),
-                             [&](){ testCallback<0>(osr, test_text); })),
-		    std::out_of_range);
+                             [&osr, &test_text](){ testCallback<0>(osr, test_text); })),
+        std::out_of_range);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

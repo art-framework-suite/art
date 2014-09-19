@@ -441,7 +441,7 @@ operator()(std::vector<PROD const *> const &in,
   this->operator()<CONT>(in,
                          out,
                          offsets,
-                         [&](auto& elem){ elem.extractor(x); }); // 10?
+                         [&x](auto& elem){ elem.extractor(x); }); // 10?
 }
 
 // 9.
@@ -456,7 +456,7 @@ operator()(std::vector<PROD const *> const &in,
   this->operator()<CONT>(in,
                          out,
                          offsets,
-			 [&](auto& elem){ elem.extractor(x); }); // 10.
+       [&x](auto& elem){ elem.extractor(x); }); // 10.
 }
 
 // 10.

@@ -244,7 +244,7 @@ art::EventProcessor::endJob()
   c.call([this](){ schedule_.get()->endJob(); });
   c.call([this](){ endPathExecutor_.get()->endJob(); });
   bool summarize = ServiceHandle<TriggerNamesService>()->wantSummary();
-  c.call([=](){ detail::writeSummary(pathManager_, summarize); });
+  c.call([this,summarize](){ detail::writeSummary(pathManager_, summarize); });
   c.call([this](){ input_.get()->doEndJob(); });
   c.call([this](){ actReg_.sPostEndJob.invoke(); });
 }
