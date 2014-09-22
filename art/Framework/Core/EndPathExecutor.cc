@@ -2,8 +2,6 @@
 
 #include "art/Utilities/OutputFileInfo.h"
 
-using std::placeholders::_1;
-
 art::EndPathExecutor::
 EndPathExecutor(PathManager & pm,
                 ActionTable & actions,
