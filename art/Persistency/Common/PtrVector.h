@@ -533,7 +533,6 @@ art::PtrVector<T>::
 assign(InputIterator first, InputIterator last)
 {
   PtrVectorBase::clear();
-  using std::placeholders::_1;
   std::for_each(first,
                 last,
                 [this](Ptr<T> const & p) { updateCore(p.refCore()); }
@@ -616,7 +615,6 @@ art::PtrVector<T>::
 insert(PV_INSERT_POSITION_TYPE position, InputIterator first, InputIterator last)
 -> iterator
 {
-  using std::placeholders::_1;
   std::for_each(first,
                 last,
                 [this](Ptr<T> const & p) { updateCore(p.refCore()); }
