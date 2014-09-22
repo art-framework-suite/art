@@ -4,10 +4,11 @@
 #include "art/Version/GetReleaseVersion.h"
 #include "art/Utilities/Exception.h"
 #include "art/Utilities/GetPassID.h"
+#include "cetlib/container_algorithms.h"
 
 using fhicl::ParameterSet;
 
-#include <algorithm>
+
 #include <map>
 #include <set>
 #include <sstream>
@@ -108,17 +109,16 @@ triggerPathsInfo(ScheduleID sID)
       it = triggerPathsInfo_.emplace(sID, PathsInfo()).first;
       it->second.pathResults() = HLTGlobalStatus(triggerPathNames_.size());
       int bitpos { 0 };
-      std::for_each(protoTrigPathMap_.cbegin(),
-                    protoTrigPathMap_.cend(),
-                    [this, sID, it, &bitpos](typename decltype(protoTrigPathMap_)::value_type const & val)
-                    {
-                      it->second.pathPtrs().emplace_back(fillWorkers_(bitpos,
-                                                                      val.first,
-                                                                      val.second,
-                                                                      Path::TrigResPtr(&it->second.pathResults()),
-                                                                      it->second.workers()));
-                      ++bitpos;
-                    });
+      cet::for_all(protoTrigPathMap_,
+                   [this, sID, it, &bitpos](typename decltype(protoTrigPathMap_)::value_type const & val)
+                   {
+                     it->second.pathPtrs().emplace_back(fillWorkers_(bitpos,
+                                                                     val.first,
+                                                                     val.second,
+                                                                     Path::TrigResPtr(&it->second.pathResults()),
+                                                                     it->second.workers()));
+                     ++bitpos;
+                   });
     }
     return it->second;
   }
