@@ -31,6 +31,7 @@
 #include "art/Version/GetReleaseVersion.h"
 #include "boost/thread/xtime.hpp"
 #include "cetlib/exception_collector.h"
+#include "cetlib/container_algorithms.h"
 #include "cpp0x/utility"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
@@ -301,11 +302,9 @@ invokePostBeginJobWorkers_()
   auto workerStripper = [&allWorkers](WorkerMap::value_type const & val) {
     allWorkers.emplace_back(val.second.get());
   };
-  std::for_each(pathManager_.triggerPathsInfo(ScheduleID::first()).workers().cbegin(),
-                pathManager_.triggerPathsInfo(ScheduleID::first()).workers().cend(),
-                workerStripper);
-  std::for_each(pathManager_.endPathInfo().workers().cbegin(),
-                pathManager_.endPathInfo().workers().cend(),
+  cet::for_all(pathManager_.triggerPathsInfo(ScheduleID::first()).workers(),
+               workerStripper);
+  cet::for_all(pathManager_.endPathInfo().workers(),
                 workerStripper);
   actReg_.sPostBeginJobWorkers.invoke(input_.get(), allWorkers);
 }
