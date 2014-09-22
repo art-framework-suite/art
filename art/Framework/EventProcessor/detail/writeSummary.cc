@@ -1,6 +1,7 @@
 #include "art/Framework/EventProcessor/detail/writeSummary.h"
 
 #include "art/Framework/Core/PathManager.h"
+#include "cetlib/container_algorithms.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include <iomanip>
@@ -129,12 +130,8 @@ art::detail::writeSummary(PathManager & pm, bool wantSummary)
       << right << setw(10) << val.second->timesExcept() << " "
       << val.first << "";
     };
-    std::for_each(tpi.workers().cbegin(),
-                  tpi.workers().cend(),
-                  workerstats);
-    std::for_each(epi.workers().cbegin(),
-                  epi.workers().cend(),
-                  workerstats);
+    cet::for_all(tpi.workers(), workerstats);
+    cet::for_all(epi.workers(), workerstats);
   }
   LogAbsolute("ArtSummary") << "";
   // The timing report (CPU and Real Time):
@@ -306,12 +303,8 @@ art::detail::writeSummary(PathManager & pm, bool wantSummary)
       << right << setw(10) << val.second->timeCpuReal().second / std::max(1, val.second->timesVisited()) << " "
       << val.first << "";
     };
-    std::for_each(tpi.workers().cbegin(),
-                  tpi.workers().cend(),
-                  workertimes);
-    std::for_each(epi.workers().cbegin(),
-                  epi.workers().cend(),
-                  workertimes);
+    cet::for_all(tpi.workers(), workertimes);
+    cet::for_all(epi.workers(), workertimes);
     LogAbsolute("ArtSummary") << "TimeReport "
                               << right << setw(10) << "CPU" << " "
                               << right << setw(10) << "Real" << " "
