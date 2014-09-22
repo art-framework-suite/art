@@ -8,7 +8,8 @@
 #include "art/Framework/Services/Registry/ServiceRegistry.h"
 #include "art/Persistency/Provenance/FileIndex.h"
 #include "art/Persistency/Provenance/History.h"
-#include "cpp0x/regex"
+#include "cetlib/container_algorithms.h"
+//#include "cpp0x/regex"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include <algorithm>
@@ -16,6 +17,7 @@
 #include <iterator>
 #include <limits>
 #include <numeric>
+#include <regex>
 #include <unordered_set>
 
 #include "Rtypes.h"
@@ -364,9 +366,7 @@ void
 art::MixHelper::
 buildEventIDIndex_(FileIndex const & fileIndex)
 {
-  std::for_each(fileIndex.begin(),
-                fileIndex.end(),
-                EventIDIndexBuilder(eventIDIndex_));
+  cet::for_all(fileIndex, EventIDIndexBuilder(eventIDIndex_));
 }
 
 void
