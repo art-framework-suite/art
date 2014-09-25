@@ -50,6 +50,7 @@
 #           [SOURCE_LIBRARIES <library list>]
 #           [SERVICE_LIBRARIES <library list>]
 #           [DICT_LIBRARIES <library list>]
+#           [DICT_COMPILE_FLAGS <flag list>]
 #           [SUBDIRS <source subdirectory>] (e.g., detail)
 #           [EXCLUDE <ignore these files>]
 #           [WITH_STATIC_LIBRARY]
@@ -67,6 +68,7 @@
 # encountered.
 #
 # * DICT_FUNCTIONS, if present, is passed to art_dictionary().
+# * DICT_COMPILE_FLAGS, if present, are passed to art_dictionary().
 #
 # art_make_library( [LIBRARY_NAME <library name>]  
 #                   SOURCE <source code list>
@@ -192,7 +194,7 @@ endfunction( art_make_library )
 ####################################
 function( art_make )
   set(arg_option_names
-    LIBRARY_NAME LIBRARIES SUBDIRS EXCLUDE SOURCE LIB_LIBRARIES DICT_LIBRARIES
+    LIBRARY_NAME LIBRARIES SUBDIRS EXCLUDE SOURCE LIB_LIBRARIES DICT_LIBRARIES DICT_COMPILE_FLAGS
     MODULE_LIBRARIES SERVICE_LIBRARIES SOURCE_LIBRARIES)
   set(plugin_types source module service) # Defaults
   # Add DICT_LIBRARIES, MODULE_LIBRARIES, GENERATOR_LIBRARIES, etc. as
@@ -334,10 +336,13 @@ Use EXCLUDE to exclude particular (eg exec) source files from library.")
       set(art_make_dict_libraries ${art_make_library_name})
     endif()
     list(APPEND art_make_dict_libraries ${AM_DICT_LIBRARIES})
+    if (AM_DICT_COMPILE_FLAGS)
+      set(art_dictionary_flags COMPILE_FLAGS ${AM_DICT_COMPILE_FLAGS})
+    endif()
     if(art_make_dict_libraries)
-      art_dictionary( DICTIONARY_LIBRARIES ${AM_DICT_FUNCTIONS} ${art_make_dict_libraries} DICT_NAME_VAR dictname)
+      art_dictionary( DICTIONARY_LIBRARIES ${AM_DICT_FUNCTIONS} ${art_make_dict_libraries} ${art_dictionary_flags} DICT_NAME_VAR dictname)
     else()
-      art_dictionary( ${AM_DICT_FUNCTIONS} DICT_NAME_VAR dictname)
+      art_dictionary( ${AM_DICT_FUNCTIONS} ${art_dictionary_flags} DICT_NAME_VAR dictname)
     endif()
     if (cet_generated_code) # Bubble up to top scope.
       set(cet_generated_code ${cet_generated_code} PARENT_SCOPE)

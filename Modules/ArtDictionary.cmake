@@ -21,6 +21,9 @@
 # DICTIONARY_LIBRARIES
 #   Passed through to build_dictionary with additions.
 #
+# COMPILE_FLAGS
+#   Passed through to build_dictionary.
+#
 #########################################################################
 include(BuildDictionary)
 include(CMakeParseArguments)
@@ -30,7 +33,7 @@ function(art_dictionary)
   cmake_parse_arguments(AD
     "UPDATE_IN_PLACE;DICT_FUNCTIONS"
     "DICT_NAME_VAR"
-    "DICTIONARY_LIBRARIES"
+    "DICTIONARY_LIBRARIES;COMPILE_FLAGS"
     ${ARGN}
     )
   if(ART_PERSISTENCY_COMMON)
@@ -55,10 +58,15 @@ function(art_dictionary)
       message(WARNING "art_dictionary: DICT_FUNCTIONS not forwarded to build_dictionary command too old to understand it (require ${want_build_dictionary_version}, found $ENV{CETBUILDTOOLS_VERSION}).")
     endif()
   endif()
+  if (AD_COMPILE_FLAGS)
+    # available since at least cetbuildtools v3_00_00
+    set(dict_flags COMPILE_FLAGS ${AD_COMPILE_FLAGS})
+    #message(STATUS "art_dictionary: Passing ${dict_flags} to build_dictionary")
+  endif()
   build_dictionary(DICT_NAME_VAR dictname
     DICTIONARY_LIBRARIES ${AD_DICTIONARY_LIBRARIES}
     ${AD_UNPARSED_ARGUMENTS}
-    ${extra_args})
+    ${extra_args} ${dict_flags})
   if (cet_generated_code) # Bubble up to top scope.
     set(cet_generated_code ${cet_generated_code} PARENT_SCOPE)
   endif()
