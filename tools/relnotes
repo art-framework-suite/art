@@ -55,6 +55,7 @@ if (lc $package eq "art") { # Want Art Suite release notes.
   if ($prev =~ /^\d/) {
     print "* Previous version's [[Release Notes $prev|release notes]].\n\n";
   }
+  print "h2. External package changes.\n\n\n"
   print "h2. Art ",
     vpage($dot_version),
       ".\n\n";
