@@ -47,13 +47,15 @@ my @all_suite_versions = suite_versions(for_package("art", "cd /cvs/projects/art
 if (lc $package eq "art") { # Want Art Suite release notes.
   my $suite_version = suite_version($vnum);
   my $dot_version = dot_version($vnum);
+  my $prod_version = prod_version($vnum);
   my $version_date = tag_date("art", $suite_version);
   print "h1. Art Suite Release Notes $dot_version ($version_date).\n\n";
-  print "* \"Download page\":http://oink.fnal.gov/distro/art/art-${suite_version}.html.\n";
+  print "* \"Download page\":https://scisoft.fnal.gov/scisoft/projects/art/${prod_version}/art-${prod_version}.html.\n";
   my $prev = previous_version($dot_version, @all_suite_versions);
   if ($prev =~ /^\d/) {
     print "* Previous version's [[Release Notes $prev|release notes]].\n\n";
   }
+  print "h2. External package changes.\n\n\n"
   print "h2. Art ",
     vpage($dot_version),
       ".\n\n";
