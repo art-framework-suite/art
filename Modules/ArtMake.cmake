@@ -236,6 +236,12 @@ function( art_make )
   endforeach()
   set(art_file_list "")
   cet_parse_args( AM "${arg_option_names}" "WITH_STATIC_LIBRARY;BASENAME_ONLY;NO_PLUGINS;DICT_FUNCTIONS;USE_PRODUCT_NAME" ${ARGN})
+
+  # has the cmake variable ART_MAKE_PREPEND_PRODUCT_NAME been specified?
+  if( ART_MAKE_PREPEND_PRODUCT_NAME )
+    set( AM_USE_PRODUCT_NAME TRUE )
+  endif()
+
   if (AM_DICT_FUNCTIONS)
     set(AM_DICT_FUNCTIONS DICT_FUNCTIONS)
   else()
