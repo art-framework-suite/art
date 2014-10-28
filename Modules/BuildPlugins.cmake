@@ -9,6 +9,7 @@
 #                [USE_BOOST_UNIT]
 #                [ALLOW_UNDERSCORES]
 #                [BASENAME_ONLY]
+#                [USE_PRODUCT_NAME]
 #                [NO_INSTALL]
 #   )
 #
