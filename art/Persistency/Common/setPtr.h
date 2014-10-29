@@ -44,7 +44,6 @@ art::setPtr(cet::map_vector<T> const & obj,
             unsigned long iIndex,
             void const *& oPtr)
 {
-  typedef cet::map_vector<T> product_type;
   detail::value_type_helper vh;
   std::string const wanted_type = cet::demangle_symbol(iToType.name());
   static size_t pos = vh.look_past_pair<T>();
