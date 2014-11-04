@@ -24,6 +24,9 @@
 # COMPILE_FLAGS
 #   Passed through to build_dictionary.
 #
+# USE_PRODUCT_NAME
+#   Passed through to build_dictionary.
+#
 #########################################################################
 include(BuildDictionary)
 include(CMakeParseArguments)
@@ -31,7 +34,7 @@ include(CheckClassVersion)
 
 function(art_dictionary)
   cmake_parse_arguments(AD
-    "UPDATE_IN_PLACE;DICT_FUNCTIONS"
+    "UPDATE_IN_PLACE;DICT_FUNCTIONS;USE_PRODUCT_NAME"
     "DICT_NAME_VAR"
     "DICTIONARY_LIBRARIES;COMPILE_FLAGS"
     ${ARGN}
@@ -62,6 +65,18 @@ function(art_dictionary)
     # available since at least cetbuildtools v3_00_00
     set(dict_flags COMPILE_FLAGS ${AD_COMPILE_FLAGS})
     #message(STATUS "art_dictionary: Passing ${dict_flags} to build_dictionary")
+  endif()
+  if (AD_USE_PRODUCT_NAME)
+    set(want_build_dictionary_version v4_03_00)
+    if (COMMAND check_ups_version)
+      check_ups_version(cetbuildtools $ENV{CETBUILDTOOLS_VERSION} ${want_build_dictionary_version}
+        PRODUCT_MATCHES_VAR understands_USE_PRODUCT_NAME)
+    endif()
+    if (understands_USE_PRODUCT_NAME)
+      set(extra_args USE_PRODUCT_NAME)
+    else()
+      message(WARNING "art_dictionary: USE_PRODUCT_NAME not forwarded to build_dictionary command too old to understand it (require ${want_build_dictionary_version}, found $ENV{CETBUILDTOOLS_VERSION}).")
+    endif()
   endif()
   build_dictionary(DICT_NAME_VAR dictname
     DICTIONARY_LIBRARIES ${AD_DICTIONARY_LIBRARIES}
