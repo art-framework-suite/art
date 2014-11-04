@@ -39,6 +39,10 @@
 #    If specified, the plugin library will not be part of the installed
 #    product (use for test modules, etc.).
 #
+# USE_PRODUCT_NAME
+#
+#   Passed through to basic_plugin
+#
 ########################################################################
 
 include(BasicPlugin)
