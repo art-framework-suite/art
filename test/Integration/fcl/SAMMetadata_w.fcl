@@ -6,6 +6,8 @@ source:
   maxEvents: 1
 }
 
+services.FileCatalogMetadata.checkSyntax: true
+
 physics:
 {
   producers:

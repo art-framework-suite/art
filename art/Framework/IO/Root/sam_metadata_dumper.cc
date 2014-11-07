@@ -75,8 +75,7 @@ namespace {
   }
 }
 
-// Print the human-readable form of a ParameterSet from which we strip
-// the "module_label" parameter.
+// Print the human-readable form of a single metadata entry.
 void
 print_one_fc_metadata_entry_hr(FileCatalogMetadataEntry const & ent,
                                size_t idLen,
@@ -145,14 +144,12 @@ void
 print_one_fc_metadata_entry_JSON(FileCatalogMetadataEntry const & ent,
                                  ostream & output)
 {
-  std::string cName;
-  cet::canonical_string(ent.name, cName);
-  output << cName << ": ";
+  output << cet::canonical_string(ent.name) << ": ";
 
   std::string entryValue;
   if (ent.value[0] == '[' ||
       ent.value[0] == '{' ||
-      ent.value[0] == '\"')
+      cet::is_double_quoted_string(ent.value))
   {
     // Assume entry is already a legal JSON representation.
     entryValue = ent.value;
@@ -263,9 +260,7 @@ int print_fc_metadata_from_file(TFile & file,
   }
   // Iterate through all the entries, printing each one.
   if (want_json) {
-    std::string cFN;
-    cet::canonical_string(file.GetName(), cFN);
-    output << cFN << ": ";
+    output << cet::canonical_string(file.GetName()) << ": ";
     print_all_fc_metadata_entries_JSON(all_metadata_entries,
                                        output,
                                        errors);

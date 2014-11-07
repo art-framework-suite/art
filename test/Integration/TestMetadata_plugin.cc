@@ -87,7 +87,7 @@ arttest::TestMetadata::
 produceMetadata()
 -> collection_type
 {
-  collection_type result { { "key1", "value1" }, { "key2", "value2" } };
+  collection_type result { { "key1", "\"value1\"" }, { "key2", "\"value2\"" } };
   std::cout << "TestMetadataPlugin::produceMetadata()" << std::endl;
   return result;
 }
