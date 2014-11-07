@@ -39,12 +39,14 @@ namespace ntuple
 
     void insert(ARGS...);
     void flush();
+    sqlite3_int64 lastRowid() { return last_rowid_; }
 
   private:
     sqlite3*           db_;
     std::size_t        max_;
     std::vector<row_t> buffer_;
     sqlite3_stmt*      insert_statement_;
+    sqlite3_int64      last_rowid_;
   };
 
 }
@@ -57,11 +59,12 @@ ntuple::Ntuple<ARGS...>::Ntuple(sqlite3* db,
   db_(db),
   max_(bufsize),
   buffer_(),
-  insert_statement_(nullptr)
+  insert_statement_(nullptr),
+  last_rowid_()
 {
   if (!db)
     { throw std::runtime_error("Attempt to create Ntuple with null database pointer"); }
-  sqlite::createTableIfNeeded<ARGS...>(db, name, begin(cnames), end(cnames));
+  sqlite::createTableIfNeeded<ARGS...>(db, last_rowid_, name, begin(cnames), end(cnames));
   std::string sql("INSERT INTO ");
   sql += name;
   sql += " VALUES (?";
@@ -75,6 +78,7 @@ ntuple::Ntuple<ARGS...>::Ntuple(sqlite3* db,
   if (rc != SQLITE_OK)
     { throw std::runtime_error("Failed to prepare insertion statment"); }
   buffer_.reserve(bufsize);
+
 }
 
 template <class ...ARGS>
@@ -98,6 +102,7 @@ ntuple::Ntuple<ARGS...>::insert(ARGS... args)
 {
   if (buffer_.size() == max_) { flush(); }
   buffer_.emplace_back(args...);
+  ++last_rowid_;
 }
 
 inline
@@ -112,6 +117,14 @@ inline
 void bind_one_parameter(sqlite3_stmt* s, std::size_t idx, int v)
 {
   int rc = sqlite3_bind_int(s, idx, v);
+  if (rc != SQLITE_OK)
+    { throw std::runtime_error("Failed to bind int " + std::to_string(rc)); }
+}
+
+inline
+void bind_one_parameter(sqlite3_stmt* s, std::size_t idx, std::uint32_t v)
+{
+  int rc = sqlite3_bind_int64(s, idx, v);
   if (rc != SQLITE_OK)
     { throw std::runtime_error("Failed to bind int " + std::to_string(rc)); }
 }
@@ -161,6 +174,7 @@ ntuple::Ntuple<ARGS...>::flush()
       bind_parameters<std::tuple<ARGS...>, SIZE>::bind(insert_statement_, r);
       int rc = sqlite3_step(insert_statement_);
       if (rc != SQLITE_DONE) throw std::runtime_error("SQLite step failure");
+      last_rowid_ = sqlite3_last_insert_rowid(db_);
       sqlite3_reset(insert_statement_);
     }
   txn.commit();

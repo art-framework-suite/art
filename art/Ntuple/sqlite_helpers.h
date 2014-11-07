@@ -2,6 +2,7 @@
 #define art_Ntuple_sqlite_helpers_h
 
 #include <assert.h>
+#include <iostream>
 #include <stdexcept>
 #include <string>
 #include "sqlite3.h"
@@ -60,7 +61,7 @@ namespace sqlite
 
     // BuildSQL is a helper struct, with function add_more. A struct is
     // needed because partial specialization of function templates is
-    // not supported in C++11. 
+    // not supported in C++11.
     template <class TUP, std::size_t I>
     struct BuildSQL
     {
@@ -181,13 +182,30 @@ namespace sqlite
 
   template <class ...ARGS, class IT>
   void createTableIfNeeded(sqlite3* db,
+                           sqlite3_int64& rowid,
                            std::string const& tname,
                            IT beginCol,
                            IT endCol)
   {
     std::string sqlddl = detail::sql_ddl<std::tuple<ARGS...>>(tname, beginCol, endCol);
-    if (!detail::hasTable<ARGS...>(db, tname, sqlddl))
+    if (!detail::hasTable<ARGS...>(db, tname, sqlddl)) {
       detail::createTable<ARGS...>(db, sqlddl);
+    }
+    else {
+      //  Get last rowid of table
+      std::string cmd("select count(*) from ");
+      cmd += tname;
+      char* errmsg = nullptr;
+      sqlite::detail::query_result res;
+      int status = sqlite3_exec(db,cmd.c_str(),detail::get_name, &res, &errmsg );
+      if (status != SQLITE_OK)
+        {
+          std::string msg(errmsg);
+          sqlite3_free(errmsg);
+          throw std::runtime_error(msg);
+        }
+      rowid = std::stoul( res.ddl );
+    }
   }
 
 }
