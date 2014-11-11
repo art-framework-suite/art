@@ -47,7 +47,7 @@ void arttest::SAMMetadataTest::analyze(art::Event const &)
 void arttest::SAMMetadataTest::beginJob()
 {
   art::ServiceHandle< art::FileCatalogMetadata > metadata;
-  metadata->addMetadata( "testMetadata", "success!" );
+  metadata->addMetadataString( "testMetadata", "success!" );
 }
 
 DEFINE_ART_MODULE(arttest::SAMMetadataTest)
