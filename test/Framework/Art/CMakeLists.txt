@@ -23,7 +23,7 @@ cet_test(artapp_t USE_BOOST_UNIT
   art_Framework_Art
   ${Boost_PROGRAM_OPTIONS_LIBRARY}
   DATAFILES
-  fcl/empty_config.fcl
+  fcl/opt-empty.fcl
 )
 
 ########################################################################
@@ -106,10 +106,10 @@ config_ref_test(BasicOutputOptions_01)
 cet_test(BasicSourceOptions_01_w HANDBUILT
   TEST_EXEC art
   TEST_ARGS --estart 5 --nevts 4 --nskip 2
-  -c empty_config.fcl
+  -c opt-empty.fcl
   -s f0.txt
   TEST_PROPERTIES ENVIRONMENT ART_DEBUG_CONFIG=config.out
-  DATAFILES fcl/empty_config.fcl
+  DATAFILES fcl/opt-empty.fcl
   )
 
 config_test_pass(BasicSourceOptions_01_w)
@@ -130,13 +130,13 @@ cet_test(BasicSourceOptions_02 HANDBUILT
 cet_test(BasicSourceOptions_03 HANDBUILT
   TEST_EXEC art
   TEST_ARGS --estart 5 --nevts 4 --nskip 2
-  -c empty_config.fcl
+  -c opt-empty.fcl
   -s f0.txt
   -S BasicSourceOptions-srclist.txt
   TEST_PROPERTIES ENVIRONMENT ART_DEBUG_CONFIG=config.out
   PASS_REGULAR_EXPRESSION
   "--source-list \\(-S\\) and --source \\(-s\\) or non-option arguments are incompatible due to ordering ambiguities\\."
-  DATAFILES fcl/empty_config.fcl
+  DATAFILES fcl/opt-empty.fcl
   BasicSourceOptions-srclist.txt
   )
 
