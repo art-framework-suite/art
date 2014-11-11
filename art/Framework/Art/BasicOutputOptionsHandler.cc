@@ -1,6 +1,7 @@
 #include "art/Framework/Art/BasicOutputOptionsHandler.h"
 
 #include "art/Utilities/ensureTable.h"
+#include "cetlib/canonical_string.h"
 #include "fhiclcpp/coding.h"
 #include "fhiclcpp/extended_value.h"
 #include "fhiclcpp/intermediate_table.h"
@@ -21,7 +22,7 @@ BasicOutputOptionsHandler(bpo::options_description & desc)
     ("TFileName,T", bpo::value<std::string>(), "File name for TFileService.")
     ("tmpdir", bpo::value<std::string>(), "Temporary directory for in-progress output files (defaults to directory of specified output file names).")
     ("output,o", bpo::value<std::string>(), "Event output stream file.")
-    ("no-output", bpo::value<std::string>(), "Disable all output streams.")
+    ("no-output", "Disable all output streams.")
   ;
 }
 
@@ -38,30 +39,28 @@ namespace {
 
   // Remove any occurrences of a single module label (key) from the
   // fully qualified sequence parameter pathName in raw_config.
-  void
+  // Returns true if path exists and is now empty.
+  bool
   maybeRemoveFromPath(fhicl::intermediate_table & raw_config,
                       std::string const & pathName,
                       std::string const & key)
   {
-    if (!raw_config.exists(pathName)) {
-      return; // Nothing to do.
+    bool result = false;
+    if (raw_config.exists(pathName)) {
+      sequence_t & path = raw_config.get<sequence_t &>(pathName);
+      auto path_end =
+        std::remove_if(path.begin(),
+                       path.end(),
+                       [&key](fhicl::extended_value const & s)
+                       { return cet::canonical_string(key) == fhicl::extended_value::atom_t(s); });
+      if (path_end != path.end()) { // Shrunk!
+        path.resize(std::distance(path.begin(), path_end));
+      }
+      if (path.empty()) {
+        result = true;
+      }
     }
-    std::vector<std::string> filtered_path;
-    auto const path = raw_config.get<std::vector<std::string> >(pathName);
-    filtered_path.reserve(path.size());
-    std::copy_if(path.cbegin(),
-                 path.cend(),
-                 std::back_inserter(filtered_path),
-                 [&key](std::string const & s) { return key != s; });
-    if (filtered_path.empty() && pathName != "physics.end_paths") {
-      // Remove and adjust end_paths.
-      raw_config.erase(pathName);
-      maybeRemoveFromPath(raw_config,
-                          "physics.end_paths",
-                          pathName.substr(pathName.find_last_of('.') + 1ul));
-    } else {
-      raw_config.put(pathName, filtered_path);
-    }
+    return result;
   }
 
   // Remove a given key from all paths.
@@ -79,12 +78,20 @@ namespace {
             "producers",
             "end_paths",
             "trigger_paths"});
-    for (auto & p : physics_table) {
+    auto i = physics_table.begin();
+    auto e = physics_table.end();
+    for (; i != e;) {
       if (std::find(ignoredParameters.cbegin(),
                     ignoredParameters.cend(),
-                    p.first) == ignoredParameters.end() &&
-          p.second.is_a(fhicl::SEQUENCE)) {
-        maybeRemoveFromPath(raw_config, std::string("physics.") + p.first, key);
+                    i->first) == ignoredParameters.end() &&
+          i->second.is_a(fhicl::SEQUENCE) &&
+          maybeRemoveFromPath(raw_config, std::string("physics.") + i->first, key)) {
+        // Remove empty path from end_paths.
+        maybeRemoveFromPath(raw_config, "physics.end_paths", i->first);
+        // Remove empty path from table.
+        i = physics_table.erase(i);
+      } else {
+        ++i;
       }
     }
   }
