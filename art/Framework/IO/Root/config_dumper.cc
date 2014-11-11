@@ -99,9 +99,9 @@ want_pset(ParameterSet const & ps,
     break;
   case PsetType::PROCESS:
   {
-    stringvec dummy;
-    if (ps.get_if_present<stringvec>("all_modules", dummy)) {
-      label = ps.get<string>("process_name");
+    fhicl::ParameterSet dummy;
+    if (ps.get_if_present("source", dummy)) {
+      ps.get_if_present<string>("process_name", label);
     }
   }
   break;
