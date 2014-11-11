@@ -75,8 +75,36 @@ namespace {
   }
 }
 
-// Print the human-readable form of a ParameterSet from which we strip
-// the "module_label" parameter.
+std::string
+entryValue(std::string const & value)
+{
+  std::string result;
+  if (value[0] == '[' ||
+      value[0] == '{' ||
+      cet::is_double_quoted_string(value))
+  {
+    // Assume entry is already a legal JSON representation.
+    result = value;
+  } else {
+    // Attempt to convert to number. If this works, we don't
+    // canonicalize the string. Note that we use the glibc version
+    // because we don't want to have to catch the exception. We could
+    // use streams, but we don't care about the result and dealing with
+    // streams is awkward.
+    char const * entval = value.c_str();
+    char * endptr = const_cast<char *>(entval);
+    strtold(entval, &endptr);
+    if (endptr == entval + value.size()) {
+      // Full conversion: no string canonicalization necessary.
+      result = value;
+    } else {
+      cet::canonical_string(value, result);
+    }
+  }
+  return result;
+}
+
+// Print the human-readable form of a single metadata entry.
 void
 print_one_fc_metadata_entry_hr(FileCatalogMetadataEntry const & ent,
                                size_t idLen,
@@ -112,7 +140,7 @@ print_one_fc_metadata_entry_hr(FileCatalogMetadataEntry const & ent,
     --nspaces;
   }
 
-  output << " " << ent.value << "\n";
+  output << " " << entryValue(ent.value) << "\n";
 }
 
 // Print all the entries in the file catalog metadata from a file
@@ -145,34 +173,9 @@ void
 print_one_fc_metadata_entry_JSON(FileCatalogMetadataEntry const & ent,
                                  ostream & output)
 {
-  std::string cName;
-  cet::canonical_string(ent.name, cName);
-  output << cName << ": ";
+  output << cet::canonical_string(ent.name) << ": ";
 
-  std::string entryValue;
-  if (ent.value[0] == '[' ||
-      ent.value[0] == '{' ||
-      ent.value[0] == '\"')
-  {
-    // Assume entry is already a legal JSON representation.
-    entryValue = ent.value;
-  } else {
-    // Attempt to convert to number. If this works, we don't
-    // canonicalize the string. Note that we use the glibc version
-    // because we don't want to have to catch the exception. We could
-    // use streams, but we don't care about the result and dealing with
-    // streams is awkward.
-    char const * entval = ent.value.c_str();
-    char * endptr = const_cast<char *>(entval);
-    strtold(entval, &endptr);
-    if (endptr == entval + ent.value.size()) {
-      // Full conversion: no string canonicalization necessary.
-      entryValue = ent.value;
-    } else {
-      cet::canonical_string(ent.value, entryValue);
-    }
-  }
-  output << entryValue;
+  output << entryValue(ent.value);
 }
 
 void
@@ -263,9 +266,7 @@ int print_fc_metadata_from_file(TFile & file,
   }
   // Iterate through all the entries, printing each one.
   if (want_json) {
-    std::string cFN;
-    cet::canonical_string(file.GetName(), cFN);
-    output << cFN << ": ";
+    output << cet::canonical_string(file.GetName()) << ": ";
     print_all_fc_metadata_entries_JSON(all_metadata_entries,
                                        output,
                                        errors);

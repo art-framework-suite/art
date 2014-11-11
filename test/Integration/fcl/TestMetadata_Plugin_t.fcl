@@ -30,3 +30,5 @@ outputs:
      FCMDPlugins: [ { plugin_type: TestMetadata } ]
   }
 }
+
+services.FileCatalogMetadata.checkSyntax: true

@@ -55,8 +55,7 @@ namespace {
 
   void
   injectModuleLabels(fhicl::intermediate_table & int_table,
-                     std::string const & table_spec,
-                     std::vector<std::string> & all_modules)
+                     std::string const & table_spec)
   {
     if (!int_table.exists(table_spec)) { return; }
     auto & top_table_val = int_table[table_spec];
@@ -86,7 +85,6 @@ namespace {
       };
       int_table.put(table_spec + '.' + tval.first + ".module_label",
                     tval.first);
-      all_modules.push_back(tval.first);
     }
   }
 
@@ -96,12 +94,10 @@ namespace {
     if (raw_config.exists("source")) {
       raw_config.put("source.module_label", "source");
     }
-    std::vector<std::string> all_modules;
-    injectModuleLabels(raw_config, "outputs", all_modules);
-    injectModuleLabels(raw_config, "physics.producers", all_modules);
-    injectModuleLabels(raw_config, "physics.filters", all_modules);
-    injectModuleLabels(raw_config, "physics.analyzers", all_modules);
-    raw_config.put("all_modules", all_modules);
+    injectModuleLabels(raw_config, "outputs");
+    injectModuleLabels(raw_config, "physics.producers");
+    injectModuleLabels(raw_config, "physics.filters");
+    injectModuleLabels(raw_config, "physics.analyzers");
   }
 
   void injectServiceType(fhicl::intermediate_table & raw_config,

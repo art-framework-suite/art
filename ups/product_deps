@@ -1,6 +1,6 @@
 # The parent line must be the first non-comment line in the file
 # This line defines the product name and version
-parent art	v1_12_02
+parent art	v1_12_04
 defaultqual	e6
 #
 fcldir -
@@ -10,10 +10,10 @@ clhep		v2_2_0_3
 cppunit		v1_12_1a
 gccxml		v0_9_20140718
 python		v2_7_8
-root		v5_34_21b
-messagefacility	v1_11_15
+root		v5_34_23
+messagefacility	v1_12_00
 tbb		v4_2_5
-cetbuildtools	v4_03_00	-	only_for_build
+cetbuildtools	v4_03_03	-	only_for_build
 end_product_list
 
 # e5  - with gcc 4.7.1 and -std=c++11

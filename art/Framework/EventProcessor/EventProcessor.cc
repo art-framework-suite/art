@@ -161,7 +161,7 @@ art::EventProcessor::EventProcessor(ParameterSet const & pset)
   addSystemServices_(pset);
   serviceToken_.forceCreation();
   // System service FileCatalogMetadata needs to know about the process name.
-  ServiceHandle<art::FileCatalogMetadata>()->addMetadata("process_name", processName);
+  ServiceHandle<art::FileCatalogMetadata>()->addMetadataString("process_name", processName);
 
   input_ = makeInput(pset, processName, preg_, actReg_);
   // Old input sources may need this for now.

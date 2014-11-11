@@ -27,7 +27,7 @@ BOOST_AUTO_TEST_CASE(testBadConfigOption)
 
 BOOST_AUTO_TEST_CASE(testEmptyConfig)
 {
-  char const * strings[] = { "artapp_t", "--config", "empty_config.fcl" };
+  char const * strings[] = { "artapp_t", "--config", "opt-empty.fcl" };
   BOOST_REQUIRE(artapp(3, const_cast<char **>(strings)) == 0);
 }
 

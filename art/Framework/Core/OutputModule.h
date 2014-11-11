@@ -118,6 +118,8 @@ private:
   ServiceHandle<CatalogInterface> ci_;
 
   cet::BasicPluginFactory pluginFactory_;
+  std::vector<std::string> pluginNames_; // For diagnostics.
+
   typedef std::vector<std::unique_ptr<FileCatalogMetadataPlugin> >
   PluginCollection_t;
   PluginCollection_t plugins_;

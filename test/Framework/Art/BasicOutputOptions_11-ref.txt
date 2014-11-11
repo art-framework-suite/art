@@ -1,0 +1,30 @@
+physics: { analyzers: { a1: { module_label: "a1"
+                              module_type: "dummy"
+                            }
+                        a2: { module_label: "a2"
+                              module_type: "dummy"
+                            }
+                      }
+           ep1: [ "a1" ]
+           ep3: [ "a2" ]
+         }
+process_name: "OptMultiOut"
+services: { message: { destinations: { STDOUT: { categories: { ArtReport: { limit: 100
+                                                                          }
+                                                               default: { limit: -1
+                                                                        }
+                                                             }
+                                                 threshold: "INFO"
+                                                 type: "cout"
+                                               }
+                                     }
+                     }
+            user: { CatalogInterface: { service_provider: "TrivialFileDelivery"
+                                        service_type: "CatalogInterface"
+                                      }
+                    FileTransfer: { service_provider: "TrivialFileTransfer"
+                                    service_type: "FileTransfer"
+                                  }
+                  }
+          }
+

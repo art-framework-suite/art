@@ -860,7 +860,7 @@ cet_test(SAM_metadata_verify_hr HANDBUILT
   TEST_ARGS -H -s ../SAM_metadata.d/out.root
   TEST_PROPERTIES DEPENDS SAM_metadata
   PASS_REGULAR_EXPRESSION
-  "^\nFile catalog metadata from file \\.\\./SAM_metadata\\.d/out\\.root:\n\n 1: applicationFamily   Ethel\n 2: applicationVersion  v0\\.00\\.01a\n 3: fileType            MC\n 4: run_type            MCChallenge\n 5: group               MyGang\n 6: process_name        SAMMetadataW\n 7: testMetadata        success!\n 8: dataTier            The one with the thickest frosting\n 9: streamName          o1\n10: file_format         artroot\n11: file_format_era     ART_2011a\n12: file_format_version 6\n13: start_time          ${date_regex}\n14: end_time            ${date_regex}\n15: runs                \\[ \\[ 1, 0, \"MCChallenge\" \\] \\]\n16: event_count         1\n17: first_event         \\[ 1, 0, 1 \\]\n18: last_event          \\[ 1, 0, 1 \\]\n-------------------------------\n$"
+  "^\nFile catalog metadata from file \\.\\./SAM_metadata\\.d/out\\.root:\n\n 1: applicationFamily   \"Ethel\"\n 2: applicationVersion  \"v0\\.00\\.01a\"\n 3: fileType            \"MC\"\n 4: run_type            \"MCChallenge\"\n 5: group               \"MyGang\"\n 6: process_name        \"SAMMetadataW\"\n 7: testMetadata        \"success!\"\n 8: dataTier            \"The one with the thickest frosting\"\n 9: streamName          \"o1\"\n10: file_format         \"artroot\"\n11: file_format_era     \"ART_2011a\"\n12: file_format_version 6\n13: start_time          \"${date_regex}\"\n14: end_time            \"${date_regex}\"\n15: runs                \\[ \\[ 1, 0, \"MCChallenge\" \\] \\]\n16: event_count         1\n17: first_event         \\[ 1, 0, 1 \\]\n18: last_event          \\[ 1, 0, 1 \\]\n-------------------------------\n$"
   )
 
 cet_test(SAM_metadata_verify_JSON HANDBUILT
@@ -1029,7 +1029,7 @@ cet_test(TestMetadata_verify_hr HANDBUILT
   TEST_ARGS -H -s ../TestMetadata_plugin_t.d/out.root
   TEST_PROPERTIES DEPENDS TestMetadata_plugin_t
   PASS_REGULAR_EXPRESSION
-  "^\nFile catalog metadata from file \\.\\./TestMetadata_plugin_t\\.d/out\\.root:\n\n 1: fileType            unknown\n 2: process_name        DEVEL\n 3: file_format         artroot\n 4: file_format_era     ART_2011a\n 5: file_format_version 6\n 6: start_time          ${date_regex}\n 7: end_time            ${date_regex}\n 8: event_count         1\n 9: first_event         \\[ 1, 0, 1 \\]\n10: last_event          \\[ 1, 0, 1 \\]\n11: key1                value1\n12: key2                value2\n-------------------------------\n$"
+  "^\nFile catalog metadata from file \\.\\./TestMetadata_plugin_t\\.d/out\\.root:\n\n 1: fileType            \"unknown\"\n 2: process_name        \"DEVEL\"\n 3: file_format         \"artroot\"\n 4: file_format_era     \"ART_2011a\"\n 5: file_format_version 6\n 6: start_time          \"${date_regex}\"\n 7: end_time            \"${date_regex}\"\n 8: event_count         1\n 9: first_event         \\[ 1, 0, 1 \\]\n10: last_event          \\[ 1, 0, 1 \\]\n11: key1                \"value1\"\n12: key2                \"value2\"\n-------------------------------\n$"
   )
 
 cet_test(TestMetadata_verify_JSON HANDBUILT
