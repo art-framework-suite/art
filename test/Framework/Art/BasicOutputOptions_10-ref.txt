@@ -1,11 +1,17 @@
-INFO: using default process_name, "DUMMY."
-** ART_DEBUG_CONFIG is defined: config debug output follows **
-my_configuration: { FluxFile: "new_filename"
-                    FluxType: "mono"
-                  }
-my_flux_file_check1: "new_filename"
-my_flux_file_check2: "new_filename"
-process_name: "DUMMY"
+physics: { analyzers: { a1: { module_label: "a1"
+                              module_type: "dummy"
+                            }
+                        a2: { module_label: "a2"
+                              module_type: "dummy"
+                            }
+                      }
+           end_paths: [ "ep1"
+                      , "ep3"
+                      ]
+           ep1: [ "a1" ]
+           ep3: [ "a2" ]
+         }
+process_name: "OptMultiOut"
 services: { message: { destinations: { STDOUT: { categories: { ArtReport: { limit: 100
                                                                           }
                                                                default: { limit: -1
@@ -25,4 +31,3 @@ services: { message: { destinations: { STDOUT: { categories: { ArtReport: { limi
                   }
           }
 
-Art has completed and will exit with status 1.
