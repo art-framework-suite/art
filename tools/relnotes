@@ -29,6 +29,7 @@ my %product_name = ( "fhicl-cpp" => "fhiclcpp" );
 GetOptions($options,
            "help|h|?",
            "help-packages",
+           "since",
            "suite-version|s") or pod2usafe(-exitval => 2);
 
 pod2usage(-exitval => 1, -verbose => 3) if $options->{help};
@@ -45,6 +46,9 @@ my ($package, $vnum) = @ARGV;
 my @all_suite_versions = suite_versions(for_package("art", "cd /cvs/projects/art; git tag"));
 
 if (lc $package eq "art") { # Want Art Suite release notes.
+  if ($options->{since}) {
+    print STDERR "--since option ignored for art suite release notes.\n";
+  }
   my $suite_version = suite_version($vnum);
   my $dot_version = dot_version($vnum);
   my $prod_version = prod_version($vnum);
@@ -78,14 +82,75 @@ EOF
   if ($options->{"suite-version"}) {
     $vnum = pkg_version($package, $vnum);
   }
-  printf "h2. %%(#%s)$package%% %s, %s%s.\n",
-    dot_version($vnum),
-      vpage($vnum),
-        tag_date($package, prod_version($vnum)),
-          suite_reference_string(suite_references($package, $vnum));
+  for my $version (all_versions_since($package, $vnum)) {
+    printf "h2. %%(#%s)$package%% %s, %s%s.\n",
+      dot_version($version),
+        vpage($version),
+          tag_date($package, prod_version($version)),
+            suite_reference_string(suite_references($package, $version));
+  }
 }
 
 1;
+
+sub all_versions_since {
+  my ($pkg, $first_version) = @_;
+  return $first_version unless ($options->{since}); # Easy
+  my $seen = 0;
+  return reverse # Latest first.
+    map { $seen = 1 if $_ eq $first_version; $seen ? $_ : (); } # Truncate.
+      sort by_version map { dot_version($_); } # Order by dot-version.
+        grep /^v[0-9]/, split /[,\s]/, # Version tags only.
+          for_package($pkg, "cd /cvs/projects/$pkg; git tag");
+}
+
+sub by_version {
+  # Requires dot versions.
+  my @a = split /\./, $a, 3;
+  my @b = split /\./, $b, 3;
+  my ($a_extra, $b_extra);
+  ($a[2], $a_extra) = ($a[2] =~ m&^(\d+)(.*)$&);
+  ($b[2], $b_extra) = ($b[2] =~ m&^(\d+)(.*)$&);
+  return
+    $a[0] <=> $b[0] ||
+      $a[1] <=> $b[1] ||
+        $a[2] <=> $b[2] ||
+          compare_extra($a_extra, $b_extra);
+}
+
+# aNN sorts before bNN sorts before rcNN sorts before the empty string,
+# pNN sorts after, anything else sorts after that in lexical order.
+sub compare_extra {
+  my ($a, $b) = @_;
+  my @a = ($a =~ m&^([abp]|rc)(\d+)$&);
+  @a = ('x', $a) unless (scalar @a or not $a);
+  my @b = ($b =~ m&^([abp]|rc)(\d+)$&);
+  @b = ('x', $b) unless (scalar @b or not $b);
+  my $enA = extra_num($a[0]);
+  my $enB = extra_num($b[0]);
+  return
+    $enA <=> $enB ||
+      (($enA == 0 || $enA == 2) ? ($a[1] cmp $b[1]) : ($a[1] <=> $b[1]));
+}
+
+sub extra_num {
+  my ($in) = @_;
+  return 0 unless $in;
+  if ($in eq "x") {
+    return 2;
+  } elsif ($in eq "p") {
+    return 1;
+  } elsif ($in eq "rc") {
+    return -1;
+  } elsif ($in eq "b") {
+    return -2;
+  } elsif ($in eq "a") {
+    return -3;
+  } else {
+    print STDERR "INTERNAL ERROR: unrecognized extra version letter: $in\n";
+    exit(1);
+  }
+}
 
 sub new_first {
   my ($package, $pv, $dot_version) = @_;
@@ -154,18 +219,6 @@ sub tag_date {
   return $tag_date;
 }
 
-sub ncmp {
-  my $s = ( (length($_[0]) <=> length($_[1])) > 0 ) ? length($_[0]) : length($_[1]);
-  my ($l, $r) = map { if (m&^(\d+)(.*)$&) { sprintf("%0${s}d${2}",${1}) } else { $_; } } @_;
-  return $l cmp $r;
-}
-
-sub by_version {
-  my ($aM, $am, $au) = split /\./, dot_version($a);
-  my ($bM, $bm, $bu) = split /\./, dot_version($b);
-  return ncmp($aM, $bM) || ncmp($am, $bm) || ncmp($au, $bu);
-}
-
 sub previous_version($\@) {
   my $current = dot_version(shift);
   my $vref = shift;
@@ -207,7 +260,7 @@ sub pkg_version {
     exit(1);
   }
   $v_string =~ s&^\s*\((.*)\)\s*$&${1}&g;
-  my @pkg_versions = sort by_version (map { if (/tag:\s*(v\d+.*)$/) { ${1} } else { (); }; } (split /,\s*/, $v_string));
+  my @pkg_versions = sort by_version (map { if (/tag:\s*(v\d+.*)$/) { dot_version(${1}) } else { (); }; } (split /,\s*/, $v_string));
 
   if (scalar @pkg_versions == 1) {
     return dot_version($pkg_versions[0]);
@@ -225,7 +278,7 @@ sub pkg_version {
 
 sub suite_versions {
   my @versions = grep /^ART_SUITE/, (split /[,\s]/, $_[0]);
-  return sort by_version @versions;
+  return sort by_version map { dot_version($_); } @versions;
 }
 
 sub suite_references {
@@ -248,7 +301,7 @@ sub suite_references {
 sub suite_reference_string {
   return (scalar @_) ?
     sprintf(' (%s)',
-            join(", ", map { if (!$_) { (); } else { rpage("art", $_); } } sort by_version @_)) :
+            join(", ", map { if (!$_) { (); } else { rpage("art", $_); } } sort by_version map { dot_version($_); } @_)) :
               '';
 }
 
