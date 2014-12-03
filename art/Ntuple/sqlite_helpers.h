@@ -115,7 +115,7 @@ namespace sqlite
       int count = 0;
     };
 
-    int get_name(void* data, int ncols, char** results, char** /*cnames*/)
+    int get_name(void* data, int ncols [[gnu::unused]], char** results, char** /*cnames*/)
     {
       assert(ncols == 1);
       query_result* j = static_cast<query_result*>(data);
