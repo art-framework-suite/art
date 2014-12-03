@@ -325,6 +325,16 @@ config_test_pass(DebugOptions_02_w)
 # Compare output from DebugOptions_02_w against reference.
 config_ref_test(DebugOptions_02)
 
+# Save post-processed config and execute job as normal.
+cet_test(DebugOptions_03_w HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --notrace --nomemcheck --rethrow-all --config-out=config.out
+  -c DebugOptions_02_w.fcl
+  DATAFILES fcl/DebugOptions_02_w.fcl
+)
+
+# Compare with reference.
+config_ref_test(DebugOptions_03)
 
 ####################################
 # FileCatalogOptionsHandler.

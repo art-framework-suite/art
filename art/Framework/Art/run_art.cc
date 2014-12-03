@@ -221,6 +221,12 @@ int art::run_art_string_config(const std::string& config_string)
 
 int art::run_art_common_(fhicl::ParameterSet main_pset)
 {
+  fhicl::ParameterSet
+    services_pset(main_pset.get<fhicl::ParameterSet>("services",
+                                                     fhicl::ParameterSet()));
+  fhicl::ParameterSet
+    scheduler_pset(services_pset.get<fhicl::ParameterSet>("scheduler",
+                                                          fhicl::ParameterSet()));
   char const * debug_config (getenv("ART_DEBUG_CONFIG"));
   if (debug_config != nullptr) {
     bool isFilename(false);
@@ -248,12 +254,6 @@ int art::run_art_common_(fhicl::ParameterSet main_pset)
     std::cerr << main_pset.to_indented_string() << "\n";
     return 1;
   }
-  fhicl::ParameterSet
-  services_pset(main_pset.get<fhicl::ParameterSet>("services",
-                fhicl::ParameterSet()));
-  fhicl::ParameterSet
-  scheduler_pset(services_pset.get<fhicl::ParameterSet>("scheduler",
-                 fhicl::ParameterSet()));
   //
   // Start the messagefacility
   //
@@ -263,6 +263,24 @@ int art::run_art_common_(fhicl::ParameterSet main_pset)
                            services_pset.get<fhicl::ParameterSet>("message",
                                fhicl::ParameterSet()));
   mf::LogInfo("MF_INIT_OK") << "Messagelogger initialization complete.";
+  //
+  // Configuration output (non-preempting)
+  //
+  std::string configOut;
+  if (scheduler_pset.get_if_present("configOut", configOut)) {
+    std::ofstream dc(configOut);
+    if (dc) {
+      dc << main_pset.to_indented_string() << "\n";
+      mf::LogInfo("ConfigOut") << "Post-processed configuration written to "
+                           << configOut
+                           << ".\n";
+    } else { // Error!
+      throw Exception(errors::Configuration)
+        << "Unable to write post-processed configuration to specified file "
+        << configOut
+        << ".\n";
+    }
+  }
   //
   // Initialize:
   //   unix signal facility
