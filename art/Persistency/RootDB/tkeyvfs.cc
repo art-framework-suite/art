@@ -1758,7 +1758,7 @@ extern "C" {
     assert(ArraySize(aSyscall) == 16);
     /* Register all VFSes defined in the aVfs[] array */
     for (i = 0; i < (sizeof(aVfs) / sizeof(sqlite3_vfs)); i++) {
-      sqlite3_vfs_register(&aVfs[i], i == 0);
+      sqlite3_vfs_register(&aVfs[i], 0);
     }
     return SQLITE_OK;
   }
