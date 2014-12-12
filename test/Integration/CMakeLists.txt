@@ -835,6 +835,13 @@ cet_test(ServiceUsingService_02_t HANDBUILT
   fcl/ServiceUsingService_02.fcl
 )
 
+cet_test(TimingService_issue_2979_t HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS -c issue_2979.fcl
+  DATAFILES
+  fcl/issue_2979.fcl
+)
+
 cet_test(SAM_metadata HANDBUILT
   TEST_EXEC art
   TEST_ARGS -c "SAMMetadata_w.fcl"
