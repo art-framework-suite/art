@@ -61,6 +61,7 @@ namespace {
     // only configured if pset present in services
     addOptionalService("RandomNumberGenerator", services, service_set);
     addOptionalService("SimpleMemoryCheck", services, service_set);
+    addOptionalService("TimeTracker", services, service_set);
     addOptionalService("Timing", services, service_set);
     addOptionalService("TFileService", services, service_set);
     addService("FileCatalogMetadata", services, service_set);

@@ -86,6 +86,9 @@ simple_plugin(TestOutput                  "module"  NO_INSTALL )
 simple_plugin(TestProvenanceDumper        "module"  NO_INSTALL USE_BOOST_UNIT )
 simple_plugin(TestResultAnalyzer          "module"  NO_INSTALL )
 simple_plugin(TestServiceUsingService     "module"  NO_INSTALL USE_BOOST_UNIT )
+simple_plugin(TestTimeTrackerProducer     "module"  NO_INSTALL )
+simple_plugin(TestTimeTrackerFilter       "module"  NO_INSTALL )
+simple_plugin(TestTimeTrackerAnalyzer     "module"  NO_INSTALL )
 simple_plugin(Throwing                    "service" NO_INSTALL )
 simple_plugin(ToyRawFileInput             "source"  NO_INSTALL USE_BOOST_UNIT test_Integration )
 simple_plugin(ToyRawInput                 "source"  NO_INSTALL USE_BOOST_UNIT test_Integration )
@@ -841,6 +844,10 @@ cet_test(TimingService_issue_2979_t HANDBUILT
   DATAFILES
   fcl/issue_2979.fcl
 )
+
+cet_test(TimeTracker_issue_3598_t1 HANDBUILT TEST_EXEC art TEST_ARGS -c issue_3598_t1.fcl DATAFILES fcl/issue_3598_t1.fcl)
+cet_test(TimeTracker_issue_3598_t2 HANDBUILT TEST_EXEC art TEST_ARGS -c issue_3598_t2.fcl DATAFILES fcl/issue_3598_t2.fcl)
+cet_test(TimeTracker_issue_3598_t3 HANDBUILT TEST_EXEC art TEST_ARGS -c issue_3598_t3.fcl DATAFILES fcl/issue_3598_t3.fcl)
 
 cet_test(SAM_metadata HANDBUILT
   TEST_EXEC art

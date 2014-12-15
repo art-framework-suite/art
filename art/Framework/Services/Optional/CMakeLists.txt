@@ -35,6 +35,12 @@ simple_plugin(TFileService "service"
   ${ROOT_RIO}
   ${ROOT_THREAD})
 simple_plugin(Timing "service" art_Persistency_Provenance)
+simple_plugin(TimeTracker "service"
+  art_Ntuple
+  art_Persistency_Provenance
+  ${TBB}
+  -lrt
+  )
 simple_plugin(Tracer "service" art_Persistency_Provenance)
 simple_plugin(TrivialFileDelivery "service")
 simple_plugin(TrivialFileTransfer "service")

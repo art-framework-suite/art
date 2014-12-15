@@ -72,7 +72,7 @@ void test_filling_table(sqlite3* db)
   assert(db);
   constexpr int nrows { 903 };
   {
-    Ntuple<int, double> nt(db, "zz", {"i", "x"}, 100);
+    Ntuple<int, double> nt(db, "zz", {"i", "x"}, false, 100);
     for (int i = 0; i < nrows; ++i)
       {
         std::cout << "inserting row " << i << "\n";
@@ -93,7 +93,7 @@ void test_file_create()
   const char* filename = "myfile.db";
   remove(filename);
   {
-    Ntuple<int, double, int> table(filename, "tab1", {"i", "x", "k" }, 5);
+    Ntuple<int, double, int> table(filename, "tab1", {"i", "x", "k" }, false, 5);
     for (std::size_t i = 0; i < 103; ++i) table.insert(i, 0.5*i, i*i);
   }
   sqlite3* db;

@@ -1,16 +1,23 @@
 #ifndef art_Ntuple_sqlite_helpers_h
 #define art_Ntuple_sqlite_helpers_h
 
-#include <assert.h>
-#include <iostream>
+// =======================================================
+//
+// sqlite helpers
+//
+// =======================================================
+
+#include <array>
 #include <stdexcept>
 #include <string>
+#include <vector>
+
 #include "sqlite3.h"
+
+using namespace std::string_literals;
 
 namespace sqlite
 {
-
-  template <size_t N> using name_array = std::array<std::string, N>;
 
   namespace detail
   {
@@ -20,29 +27,15 @@ namespace sqlite
     /// supported type.
     template <class T> std::string coltype();
 
-    /// createTableIfNeeded will create a table named 'tname' in the
-    /// given database, with column types determined by the types in
-    /// ARGS, and with column names specified by beginCol...endCol.
-    /// It will throw an exception if a table of the given name, but
-    /// with a different description, already exists in the database.
-    template <class ...ARGS, class IT>
-    void createTableIfNeeded(sqlite3* db,
-                             std::string const& tname,
-                             IT beginCol,
-                             IT endCol);
-
-    /// function template sql_ddl returns the SQL DDL 'CREATE TABLE'
-    /// statement to declare a table named 'tname', suitable for storing
-    /// tuples of type TUP, and with column names determined by the
-    /// range [beginCol, endCol).
+    /// Function template createTable_ddl returns the SQL DDL 'CREATE
+    /// TABLE' statement to declare a table named 'tname', suitable
+    /// for storing tuples of type TUP, and with column names
+    /// determined by the range [beginCol, endCol).
     template <class TUP, class IT>
-    std::string sql_ddl(std::string const& tname, IT beginCol, IT endCol);
+    std::string createTable_ddl(std::string const& tname, IT beginCol, IT endCol);
 
-
-    /// struct BuildSQL a helper used in sql_ddl.
+    /// struct BuildSQL a helper used in creatTable_ddl.
     template <class TUP, std::size_t I> struct BuildSQL;
-
-    // Implementation details below.
 
     // Only types for which a coltype<> specialization is implemented
     // are supported.
@@ -59,7 +52,9 @@ namespace sqlite
 
     template <> inline std::string coltype<std::string>() { return " text"; }
 
-    // BuildSQL is a helper struct, with function add_more. A struct is
+    //=====================================================================
+    // BEGIN IMPLEMENTATION FOR NAMESPACE deta
+    // BuildSQL is a helper struct, with function addMore. A struct is
     // needed because partial specialization of function templates is
     // not supported in C++11.
     template <class TUP, std::size_t I>
@@ -69,10 +64,10 @@ namespace sqlite
       using result_t = typename std::tuple_element<I, TUP>::type;
 
       template <class IT>
-      static void add_more(std::string& cmd,
-                           IT beginCol, IT endCol)
+      static void addMore(std::string& cmd,
+                          IT beginCol, IT endCol)
       {
-        BuildSQL<TUP,I-1>::add_more(cmd, beginCol, endCol);
+        BuildSQL<TUP,I-1>::addMore(cmd, beginCol, endCol);
         cmd += ", ";
         cmd += *(beginCol+I);
         cmd += " ";
@@ -87,8 +82,8 @@ namespace sqlite
       using result_t = typename std::tuple_element<0, TUP>::type;
 
       template <class IT>
-      static void add_more(std::string& cmd,
-                           IT beginCol, IT /* unused */)
+      static void addMore(std::string& cmd,
+                          IT beginCol, IT /* unused */)
       {
         cmd += *beginCol;
         cmd += " ";
@@ -96,119 +91,116 @@ namespace sqlite
       }
     };
 
+    //==========================================================================
     template <class TUP, class IT>
-    std::string sql_ddl(std::string const& tname,
-                        IT beginCol,
-                        IT endCol)
+    std::string createTable_ddl(std::string const& tname,
+                                IT beginCol,
+                                IT endCol)
     {
-      std::string cmd("CREATE TABLE ");
-      cmd += tname;
-      cmd += " ( ";
-      BuildSQL<TUP, std::tuple_size<TUP>::value-1>::add_more(cmd, beginCol, endCol);
-      cmd += " )";
-      return cmd;
+      std::string ddl("CREATE TABLE "s + tname + " ( "s);
+      BuildSQL<TUP, std::tuple_size<TUP>::value-1>::addMore(ddl, beginCol, endCol);
+      ddl += " )";
+      return ddl;
     }
 
+    //=======================================================================
     struct query_result
     {
-      std::string ddl;
+      std::vector<std::string> ddl;
       int count = 0;
     };
 
-    int get_name(void* data, int ncols [[gnu::unused]], char** results, char** /*cnames*/)
-    {
-      assert(ncols == 1);
-      query_result* j = static_cast<query_result*>(data);
-      j->count += 1;
-      j->ddl = results[0];
-      return 0;
-    }
+    void         exec (sqlite3* db, std::string const& ddl);
+    query_result query( sqlite3* db, std::string const& ddl );
 
-    /// hasTable<ARGS...>(db, name, cnames) returns true if the db has a
-    /// table named 'name', with colums named 'cns' suitable for carrying a
-    /// tuple<ARGS...>. It returns false if there is no table of that name, and
-    /// throws an exception if there is a table of the given name but it
-    /// does not match both the given column names and column types.
-    template <class ... ARGS>
-    bool hasTable(sqlite3* db,
-                  std::string const& name,
-                  std::string const& sqlddl)
-    {
-      std::string cmd("select sql from sqlite_master where type=\"table\" and name=\"");
-      cmd += name;
-      cmd += '"';
-      char* errmsg = nullptr;
-      detail::query_result res;
-      int status = sqlite3_exec(db, cmd.c_str(), detail::get_name, &res, &errmsg);
-      if (status != SQLITE_OK)
-        {
-          std::string msg(errmsg);
-          sqlite3_free(errmsg);
-          throw std::runtime_error(msg);
-        }
-      if (res.count == 0) { return false; }
-      if (res.count == 1 && res.ddl == sqlddl) { return true; }
-      throw std::runtime_error("Existing database table name does not match description");
-    }
+    int  getResult(void* data, int ncols [[gnu::unused]], char** results, char** cnames);
+    bool hasTable (sqlite3* db, std::string const& name, std::string const& sqlddl);
 
-    /// createTable table will create the table. Make sure it doesn't
-    /// already exist before calling this!
-    template <class ... ARGS>
-    void createTable(sqlite3* db,
-                     std::string const& ddl)
-    {
-      char* errmsg = nullptr;
-      int status = sqlite3_exec(db, ddl.c_str(), nullptr, nullptr, &errmsg);
-      if (status != SQLITE_OK)
-        {
-          std::string msg(errmsg);
-          sqlite3_free(errmsg);
-          throw std::runtime_error(msg);
-        }
-    }
   } // namespace detail
 
-  sqlite3*
-  openDatabaseFile(std::string const& filename)
-  {
-    sqlite3* db = nullptr;
-    int rc = sqlite3_open_v2(filename.c_str(),
-                             &db,
-                             SQLITE_OPEN_READWRITE|SQLITE_OPEN_CREATE,
-                             nullptr);
-    if (rc != SQLITE_OK) throw std::runtime_error("Failed to open SQLite database");
-    return db;
+  //=====================================================================
+  // General db functions
+
+  sqlite3* openDatabaseFile(std::string const& filename);
+  void     deleteTable( sqlite3* db, std::string const& tname );
+  void     dropTable  ( sqlite3* db, std::string const& tname );
+
+  //=====================================================================
+  // Conversion functions for querying results
+
+  template<typename T = std::vector<std::string> >
+  T convertTo( const std::vector<std::string>& ddl ) {
+    return ddl;
   }
 
+  template<>
+  inline double convertTo<double>( const std::vector<std::string>& ddl ) {
+    return std::stod( ddl[0] );
+  }
+
+  template<>
+  inline uint32_t convertTo<uint32_t>( const std::vector<std::string>& ddl) {
+    return std::stoul( ddl[0] );
+  }
+
+  //=====================================================================
+  // Querying facilities
+
+  template<typename T>
+  T query_db(sqlite3* db, std::string const& ddl )
+  {
+    detail::query_result const res = detail::query( db, ddl );
+    if (res.count == 0) throw std::runtime_error("sqlite query_db unsuccessful");
+    return convertTo<T>( res.ddl );
+  }
+
+  template<typename T>
+  auto getUniqueEntries( sqlite3* db, const std::string& tname, const std::string& colname ) {
+    return query_db<std::vector<T>>( db, "select distinct "s+colname+" from "s+tname );
+  }
+
+  //=====================================================================
   template <class ...ARGS, class IT>
   void createTableIfNeeded(sqlite3* db,
                            sqlite3_int64& rowid,
                            std::string const& tname,
                            IT beginCol,
-                           IT endCol)
+                           IT endCol,
+                           bool const delete_contents )
   {
-    std::string sqlddl = detail::sql_ddl<std::tuple<ARGS...>>(tname, beginCol, endCol);
-    if (!detail::hasTable<ARGS...>(db, tname, sqlddl)) {
-      detail::createTable<ARGS...>(db, sqlddl);
+    std::string const sqlddl = detail::createTable_ddl<std::tuple<ARGS...>>(tname, beginCol, endCol);
+    if (!detail::hasTable(db, tname, sqlddl)) {
+      detail::exec(db, sqlddl);
     }
     else {
-      //  Get last rowid of table
-      std::string cmd("select count(*) from ");
-      cmd += tname;
-      char* errmsg = nullptr;
-      sqlite::detail::query_result res;
-      int status = sqlite3_exec(db,cmd.c_str(),detail::get_name, &res, &errmsg );
-      if (status != SQLITE_OK)
-        {
-          std::string msg(errmsg);
-          sqlite3_free(errmsg);
-          throw std::runtime_error(msg);
-        }
-      rowid = std::stoul( res.ddl );
+
+      if (delete_contents) {
+        deleteTable( db, tname );
+      }
+
+      rowid = query_db<uint32_t>( db, "select count(*) from "s + tname );
+
     }
   }
 
-}
+  //=======================================================================
+  // Statistics helpers
+
+  template<typename T = double>
+  T min( sqlite3* db, const std::string& tname, const std::string& colname ) {
+    return query_db<T>( db, "select min("s+colname+") from "s + tname );
+  }
+
+  template<typename T = double>
+  T max( sqlite3* db, const std::string& tname, const std::string& colname ) {
+    return query_db<T>( db, "select max("s+colname+") from "s + tname );
+  }
+
+  double mean  ( sqlite3* db, std::string const& tname, std::string const& colname );
+  double median( sqlite3* db, std::string const& tname, std::string const& colname );
+  double rms   ( sqlite3* db, std::string const& tname, std::string const& colname );
+
+} //namespace sqlite
 #endif /* art_Ntuple_sqlite_helpers_h */
 
 // Local Variables:

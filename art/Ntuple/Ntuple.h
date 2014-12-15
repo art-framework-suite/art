@@ -28,11 +28,13 @@ namespace ntuple
     Ntuple(sqlite3* db,
            std::string const& name,
            name_array<SIZE> const& columns,
+           bool const overwriteContents = false,
            std::size_t bufsize = 1000UL);
 
     Ntuple(std::string const& filename,
            std::string const& tablename,
            name_array<SIZE> const& columns,
+           bool const overwriteContents = false,
            std::size_t bufsiz = 1000UL);
 
     ~Ntuple();
@@ -55,6 +57,7 @@ template <class ...ARGS>
 ntuple::Ntuple<ARGS...>::Ntuple(sqlite3* db,
                                 std::string const& name,
                                 name_array<SIZE> const& cnames,
+                                bool const overwriteContents,
                                 std::size_t bufsize) :
   db_(db),
   max_(bufsize),
@@ -64,7 +67,7 @@ ntuple::Ntuple<ARGS...>::Ntuple(sqlite3* db,
 {
   if (!db)
     { throw std::runtime_error("Attempt to create Ntuple with null database pointer"); }
-  sqlite::createTableIfNeeded<ARGS...>(db, last_rowid_, name, begin(cnames), end(cnames));
+  sqlite::createTableIfNeeded<ARGS...>(db, last_rowid_, name, begin(cnames), end(cnames), overwriteContents );
   std::string sql("INSERT INTO ");
   sql += name;
   sql += " VALUES (?";
@@ -85,8 +88,9 @@ template <class ...ARGS>
 ntuple::Ntuple<ARGS...>::Ntuple(std::string const& filename,
                                 std::string const& name,
                                 name_array<SIZE> const& cnames,
+                                const bool overwriteContents,
                                 std::size_t bufsize) :
-  Ntuple(sqlite::openDatabaseFile(filename), name, cnames, bufsize)
+  Ntuple(sqlite::openDatabaseFile(filename), name, cnames, overwriteContents, bufsize)
 { }
 
 template <class ... ARGS>
