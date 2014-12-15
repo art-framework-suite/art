@@ -183,11 +183,13 @@ doProcessOptions(bpo::variables_map const & vm,
                    vm["sam-web-uri"].as<std::string>());
   }
   if (vm.count("sam-process-id") > 0) {
-    for (std::string const & key : { "source.fileNames", "services.FileCatalogMetadata.processID" }) {
-      raw_config.put(key,
-                     std::vector<std::string>
-                     { vm["sam-process-id"].as<std::string>() });
-    }
+    // Sequence.
+    raw_config.put("source.fileNames",
+                   std::vector<std::string>
+                   { vm["sam-process-id"].as<std::string>() });
+    // Atom.
+    raw_config.put("services.FileCatalogMetadata.processID",
+                   vm["sam-process-id"].as<std::string>());
   }
   if (raw_config.exists("services.user.CatalogInterface.webURI") !=
       raw_config.exists("services.FileCatalogMetadata.processID")) { // Inconsistent.

@@ -44,31 +44,20 @@ doProcessOptions(bpo::variables_map const & vm,
   // Post-process the config.
   if (source_list.size() > 0 || have_source_list_file) {
     // Empty source list file will override non-empty FHiCL spec.
-    if (raw_config.exists("source.module_type")) {
-      if (raw_config.get<std::string>("source.module_type") == "EmptyEvent") {
-        throw Exception(errors::Configuration)
-          << "Error: source files specified for EmptyEvent source.";
-      }
-    }
-    else {
-      raw_config.put("source.module_type", "RootInput");
-    }
     raw_config.put("source.fileNames",
                    source_list);
   }
-  if (raw_config.exists("source.module_type")) {
-    if (vm.count("nevts")) {
-      raw_config.put("source.maxEvents",
-                     vm["nevts"].as<int>());
-    }
-    if (vm.count("estart")) {
-      raw_config.put("source.firstEvent",
-                     vm["estart"].as<unsigned long>());
-    }
-    if (vm.count("nskip")) {
-      raw_config.put("source.skipEvents",
-                     vm["nskip"].as<unsigned long>());
-    }
+  if (vm.count("nevts")) {
+    raw_config.put("source.maxEvents",
+                   vm["nevts"].as<int>());
+  }
+  if (vm.count("estart")) {
+    raw_config.put("source.firstEvent",
+                   vm["estart"].as<unsigned long>());
+  }
+  if (vm.count("nskip")) {
+    raw_config.put("source.skipEvents",
+                   vm["nskip"].as<unsigned long>());
   }
   return 0;
 }

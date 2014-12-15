@@ -30,4 +30,8 @@ services: { TFileService: { fileName: "hist.root"
                                   }
                   }
           }
+source: { maxEvents: 1
+          module_label: "source"
+          module_type: "EmptyEvent"
+        }
 

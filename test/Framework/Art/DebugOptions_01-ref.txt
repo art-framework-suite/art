@@ -22,4 +22,8 @@ services: { SimpleMemoryCheck: { service_type: "SimpleMemoryCheck"
                                   }
                   }
           }
+source: { maxEvents: 1
+          module_label: "source"
+          module_type: "EmptyEvent"
+        }
 

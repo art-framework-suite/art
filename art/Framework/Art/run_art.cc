@@ -107,6 +107,7 @@ int art::run_art(int argc,
   // BasicOptionsHandler should always be first in the list!
   handlers.emplace(handlers.begin(),
                    new BasicOptionsHandler(all_desc, lookupPolicy));
+  // BasicPostProcessor should be last.
   handlers.emplace_back(new BasicPostProcessor);
   // This must be added separately: how to deal with any non-option arguments.
   bpo::positional_options_description pd;
