@@ -38,6 +38,10 @@ services: { message: { destinations: { STDOUT: { categories: { ArtReport: { limi
                                   }
                   }
           }
+source: { maxEvents: 1
+          module_label: "source"
+          module_type: "EmptyEvent"
+        }
 trigger_paths: { trigger_paths: [ "path1" ]
                }
 
