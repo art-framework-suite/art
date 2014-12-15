@@ -122,7 +122,6 @@ private:
     return std::unique_ptr<art::InputSource>();
   }
 
-
 }
 
 art::EventProcessor::EventProcessor(ParameterSet const & pset)
@@ -133,11 +132,11 @@ art::EventProcessor::EventProcessor(ParameterSet const & pset)
   mfStatusUpdater_(actReg_),
   preg_(),
   serviceToken_(),
-  serviceDirector_(pset, actReg_, serviceToken_),
-  destructorOperate_(),
-  input_(),
   tbbManager_(tbb::task_scheduler_init::deferred),
   pathManager_(pset, preg_, act_table_, actReg_),
+  serviceDirector_(initServices_(pset, actReg_, serviceToken_)),
+  destructorOperate_(),
+  input_(),
   schedule_(),
   endPathExecutor_(),
   fb_(),
@@ -158,7 +157,6 @@ art::EventProcessor::EventProcessor(ParameterSet const & pset)
 
   // Services
   ServiceRegistry::Operate operate(serviceToken_); // Make usable.
-  addSystemServices_(pset);
   serviceToken_.forceCreation();
   // System service FileCatalogMetadata needs to know about the process name.
   ServiceHandle<art::FileCatalogMetadata>()->addMetadataString("process_name", processName);
@@ -250,22 +248,69 @@ art::EventProcessor::endJob()
   c.call([this](){ actReg_.sPostEndJob.invoke(); });
 }
 
-void
+art::ServiceDirector &&
 art::EventProcessor::
-addSystemServices_(ParameterSet const & pset)
+initServices_(ParameterSet const & top_pset,
+              ActivityRegistry & areg,
+              ServiceToken & token)
 {
-  ParameterSet const fpc_pset = helper_.servicesPS().get<ParameterSet>("floating_point_control", ParameterSet());
-  // no configuration available
-  serviceDirector_.addSystemService(std::unique_ptr<CurrentModule>(new CurrentModule(actReg_)));
-  // special construction
-  serviceDirector_.addSystemService(std::unique_ptr<TriggerNamesService>
-                    (new TriggerNamesService(pset, pathManager_.triggerPathNames())));
-  serviceDirector_.addSystemService(std::unique_ptr<FloatingPointControl>(new FloatingPointControl(fpc_pset, actReg_)));
-  serviceDirector_.addSystemService(std::unique_ptr<ScheduleContext>(new ScheduleContext));
-  ParameterSet pathSelection;
-  if (helper_.servicesPS().get_if_present("PathSelection", pathSelection)) {
-    serviceDirector_.addSystemService(std::unique_ptr<PathSelection>(new PathSelection(*this)));
+  auto services =
+    top_pset.get<ParameterSet>("services", ParameterSet());
+
+  // Save and non-standard service config, "floating_point_control" to
+  // prevent ServiceDirector trying to make one itself.
+  ParameterSet const fpc_pset =
+    services.get<ParameterSet>("floating_point_control", ParameterSet());
+  services.erase("floating_point_control");
+
+  // Remove non-standard non-service config, "message."
+  services.erase("message");
+
+  // Move all services from user into main services block.
+  auto const user =
+    services.get<ParameterSet>("user", ParameterSet());
+  if (!user.is_empty()) {
+    mf::LogWarning("CONFIG")
+      << "Use of services.user parameter set is deprecated.\n"
+      << "Define all services in services paramaeter set.";
   }
+  for (auto const & key : user.get_keys()) {
+    if (user.is_key_to_table(key)) {
+      if (!services.has_key(key)) {
+        services.put(key, user.get<ParameterSet>(key));
+      } else {
+        throw Exception(errors::Configuration)
+          << "Detected a name clash: key "
+          << key
+          << " is defined in services and services.user.";
+      }
+    } else {
+      throw Exception(errors::Configuration)
+        << "Detected a non-table parameter "
+        << key
+        << " in services.user.";
+    }
+  }
+  services.erase("user");
+
+  // Deal with possible configuration for system service requiring
+  // special construction:
+  auto pathSelection = services.get<ParameterSet>("PathSelection", {});
+  services.erase("PathSelection");
+
+  // Create the service director and all user-configured services.
+  ServiceDirector director(std::move(services), areg, token);
+
+  // Services requiring special construction.
+  director.addSystemService(std::make_unique<CurrentModule>(areg));
+  director.addSystemService(std::make_unique<TriggerNamesService>
+                            (top_pset, pathManager_.triggerPathNames()));
+  director.addSystemService(std::make_unique<FloatingPointControl>(fpc_pset, areg));
+  director.addSystemService(std::make_unique<ScheduleContext>());
+  if (!pathSelection.is_empty()) {
+    director.addSystemService(std::make_unique<PathSelection>(*this));
+  }
+  return std::move(director);
 }
 
 void

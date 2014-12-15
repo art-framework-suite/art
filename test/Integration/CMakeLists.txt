@@ -187,7 +187,9 @@ cet_test(outputCommand_t.sh PREBUILT
   fcl/messageDefaults.fcl
 )
 
-cet_test(ptr_list_t.sh PREBUILT
+cet_test(ptr_list_t HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --rethrow-all --config ptr_list_01.fcl
   DATAFILES
   fcl/ptr_list_01.fcl
   fcl/messageDefaults.fcl
@@ -899,9 +901,11 @@ cet_test(FlushingGenerator_t HANDBUILT
   fcl/FlushingGenerator_t.fcl
   )
 
-cet_test(BlockingPrescaler_t.sh PREBUILT
+cet_test(BlockingPrescaler_t HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --config BlockingPrescaler_t.fcl --rethrow-all
+  REF "${CMAKE_CURRENT_SOURCE_DIR}/BlockingPrescaler_t-ref.txt"
   DATAFILES
-  BlockingPrescaler_t-ref.txt
   fcl/BlockingPrescaler_t.fcl
   )
 

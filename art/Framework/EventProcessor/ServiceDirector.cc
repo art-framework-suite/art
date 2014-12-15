@@ -24,17 +24,6 @@ namespace {
   }
 
   void
-  addOptionalService(std::string const & name,
-                     ParameterSet const & source,
-                     ParameterSets & service_set)
-  {
-    ParameterSet pset;
-    if (source.get_if_present(name, pset)) {
-      service_set.push_back(pset);
-    }
-  }
-
-  void
   addService(std::string const & name,
              ParameterSet const & source,
              ParameterSets & service_set)
@@ -48,44 +37,37 @@ namespace {
     }
   }
 
-  void extractServices(ParameterSet const & services, ParameterSets & service_set)
+  ParameterSets
+  extractServices(ParameterSet & services)
   {
-    // this is not ideal.  Need to change the ServiceRegistry "createSet" and ServicesManager "put"
-    // functions to take the parameter set vector and a list of service objects to be added to
-    // the service token.  Alternatively we could get the service token and be allowed to add
-    // service objects to it.  Since the servicetoken contains the servicemanager, we might
-    // be able to simply add a function to the serviceregistry or servicesmanager that given
-    // a service token, it injects a new service object using the "put" of the
-    // servicesManager.
-    // order might be important here
-    // only configured if pset present in services
-    addOptionalService("RandomNumberGenerator", services, service_set);
-    addOptionalService("SimpleMemoryCheck", services, service_set);
-    addOptionalService("TimeTracker", services, service_set);
-    addOptionalService("Timing", services, service_set);
-    addOptionalService("TFileService", services, service_set);
+    ParameterSets service_set;
+    bool const wantTracer = services.get<bool>("scheduler.wantTracer", false);
+    services.erase("scheduler");
+
+    // If we want the tracer and it's not explicitly configured, insert
+    // it, otherwise it'll get picked up automatically.
+    if (wantTracer && ! services.has_key("Tracer")) {
+      addService("Tracer", service_set);
+    }
+
+    // Force presence of FileCatalogMetadata service.
     addService("FileCatalogMetadata", services, service_set);
-    ParameterSet user_services = services.get<ParameterSet>("user", ParameterSet());
-    std::vector<std::string> keys = user_services.get_pset_keys();
-    for (std::vector<std::string>::iterator i = keys.begin(), e = keys.end(); i != e; ++i)
-    { addService(*i, user_services, service_set); }
+    services.erase("FileCatalogMetadata");
+
+    // Extract all
+    for (auto const & key : services.get_pset_keys()) {
+      addService(key, services, service_set);
+    }
+    return std::move(service_set);
   }
 }
 
 art::ServiceDirector::
-ServiceDirector(fhicl::ParameterSet const & pset,
+ServiceDirector(fhicl::ParameterSet services,
                 ActivityRegistry & areg,
                 ServiceToken & serviceToken)
 :
   serviceToken_(serviceToken)
 {
-  fhicl::ParameterSet const services = pset.get<ParameterSet>("services", ParameterSet());
-  fhicl::ParameterSet const scheduler = services.get<ParameterSet>("scheduler", ParameterSet());
-  bool const wantTracer = scheduler.get<bool>("wantTracer", false);
-  // build a list of service parameter sets that will be used by the service registry
-  ParameterSets service_set;
-  extractServices(services, service_set);
-  // configured based on optional parameters
-  if (wantTracer) { addService("Tracer", service_set); }
-  serviceToken = ServiceRegistry::createSet(service_set, areg);
+  serviceToken_ = ServiceRegistry::createSet(extractServices(services), areg);
 }
