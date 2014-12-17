@@ -1,7 +1,7 @@
-%MSG-i MF_INIT_OK:  art <date-time> JobSetup
+%MSG-i MF_INIT_OK:  <date-time> JobSetup
 Messagelogger initialization complete.
 %MSG
-%MSG-w CONFIG:  art <date-time> JobSetup
+%MSG-w CONFIG:  <date-time> JobSetup
 Use of services.user parameter set is deprecated.
 Define all services in services paramaeter set.
 %MSG
