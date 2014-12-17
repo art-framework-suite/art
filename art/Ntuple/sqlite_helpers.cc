@@ -16,7 +16,7 @@ namespace sqlite
   {
 
     //=======================================================================
-    int getResult(void* data, int ncols, char** results, char** /*cnames*/)
+    int getResult(void* data, int ncols [[gnu::unused]], char** results, char** /*cnames*/)
     {
       assert(ncols == 1);
       query_result* j = static_cast<query_result*>(data);
