@@ -64,11 +64,15 @@ simple_plugin(TFileService "service"
 
 simple_plugin(Timing "service" art_Persistency_Provenance)
 
+if (NOT APPLE)
+  set(RT -lrt)
+endif()
+
 simple_plugin(TimeTracker "service"
   art_Ntuple
   art_Persistency_Provenance
   ${TBB}
-  -lrt
+  ${RT}
   )
 
 simple_plugin(Tracer "service" art_Persistency_Provenance)
