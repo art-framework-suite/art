@@ -186,7 +186,7 @@ namespace art {
 template <typename T>
 bool
 art::detail::verifyPtrCollection(std::vector<art::PtrVector<T> const *> const &in) {
-  return verifyCollection(in.begin(), in.end());
+  return verifyPtrCollection(in.begin(), in.end());
 }
 
 // B.
@@ -206,8 +206,9 @@ art::detail::verifyPtrCollection(iterator beg,
   for (iterator i = beg;
        i != end;
        ++i) {
-    if (!((*i).productGetter() && (*i).productGetter() == getter &&
-          (*i).id().isValid() && (*i).id() == id)) {
+    if ((*i) != nullptr &&
+        !((*i)->productGetter() && (*i)->productGetter() == getter &&
+          (*i)->id().isValid() && (*i)->id() == id)) {
       return false;
     }
   }
@@ -233,20 +234,16 @@ void
 art::flattenCollections(std::vector<COLLECTION const *> const &in,
                         COLLECTION &out) {
   typename COLLECTION::size_type total_size = 0;
-  typedef typename std::vector<COLLECTION const *>::const_iterator it_t;
-  it_t const
-    b = in.begin(),
-    e = in.end();
-  for(it_t i = b;
-      i != e;
-      ++i) {
-    total_size += (*i)->size();
+  for (auto collptr : in) {
+    if (collptr != nullptr) {
+      total_size += collptr->size();
+    }
   }
   out.reserve(total_size);
-  for(it_t i = b;
-      i != e;
-      ++i) {
-    concatContainers(out, **i); // I or II.
+  for (auto collptr : in) {
+    if (collptr != nullptr) {
+      concatContainers(out, *collptr);
+    }
   }
 }
 
@@ -259,14 +256,13 @@ art::flattenCollections(std::vector<COLLECTION const *> const &in,
   offsets.clear();
   offsets.reserve(in.size());
   typename COLLECTION::size_type current_offset = 0;
-  for (typename std::vector<COLLECTION const *>::const_iterator
-         i = in.begin(),
-         e = in.end();
-       i != e;
-       ++i) {
-    typename COLLECTION::size_type delta = ((*i)->*detail::mix_offset<COLLECTION>::offset)();
-    offsets.push_back(current_offset);
-    current_offset += delta;
+  for (auto collptr : in ) {
+    if (collptr != nullptr) {
+      typename COLLECTION::size_type delta =
+        (collptr->*detail::mix_offset<COLLECTION>::offset)();
+      offsets.push_back(current_offset);
+      current_offset += delta;
+    }
   }
   flattenCollections<COLLECTION>(in, out); // 1.
 }
