@@ -41,6 +41,12 @@
 //   this is false, exhausting the secondary file stream will result in
 //   the filter returning false for the remainder of the job.
 //
+// compactMissingProducts (default false).
+//
+//   In the event of a secondary evnt missing a particular product, the
+//   sequence of product pointers passed to the MixOp will be compacted
+//   to remove nullptrs.
+//
 ////////////////////////////////////////////////////////////////////////
 // readMode()
 //
@@ -336,6 +342,7 @@ private:
 
   ProducerBase & producesProvider_;
   std::vector<std::string> const filenames_;
+  bool compactMissingProducts_;
   ProviderFunc_ providerFunc_;
   MixOpList mixOps_;
   PtrRemapper ptrRemapper_;
@@ -415,11 +422,11 @@ declareMixOp(InputTag const & inputTag,
              bool outputProduct)
 {
   if (outputProduct) { producesProvider_.produces<PROD>(outputInstanceLabel); }
-  std::shared_ptr<MixOpBase> p(new MixOp<PROD>(inputTag,
-                               outputInstanceLabel,
-                               mixFunc,
-                               outputProduct));
-  mixOps_.push_back(p);
+  mixOps_.emplace_back(new MixOp<PROD>(inputTag,
+                                       outputInstanceLabel,
+                                       mixFunc,
+                                       outputProduct,
+                                       compactMissingProducts_));
 }
 
 // 3.
@@ -453,12 +460,11 @@ declareMixOp(InputTag const & inputTag,
   using std::placeholders::_2;
   using std::placeholders::_3;
   if (outputProduct) { producesProvider_.produces<PROD>(outputInstanceLabel); }
-  std::shared_ptr<MixOpBase>
-  p(new MixOp<PROD>(inputTag,
-                    outputInstanceLabel,
-                    std::bind(mixFunc, &t, _1, _2, _3),
-                    outputProduct));
-  mixOps_.push_back(p);
+  mixOps_.emplace_back(new MixOp<PROD>(inputTag,
+                                       outputInstanceLabel,
+                                       std::bind(mixFunc, &t, _1, _2, _3),
+                                       outputProduct,
+                                       compactMissingProducts_));
 }
 
 // 5.
@@ -492,12 +498,11 @@ declareMixOp(InputTag const & inputTag,
   using std::placeholders::_2;
   using std::placeholders::_3;
   if (outputProduct) { producesProvider_.produces<PROD>(outputInstanceLabel); }
-  std::shared_ptr<MixOpBase>
-  p(new MixOp<PROD>(inputTag,
-                    outputInstanceLabel,
-                    std::bind(mixFunc, &t, _1, _2, _3),
-                    outputProduct));
-  mixOps_.push_back(p);
+  mixOps_.emplace_back(new MixOp<PROD>(inputTag,
+                                       outputInstanceLabel,
+                                       std::bind(mixFunc, &t, _1, _2, _3),
+                                       outputProduct,
+                                       compactMissingProducts_));
 }
 
 #endif /* art_Framework_IO_ProductMix_MixHelper_h */

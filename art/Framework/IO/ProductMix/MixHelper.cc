@@ -115,6 +115,7 @@ MixHelper(fhicl::ParameterSet const & pset,
   :
   producesProvider_(producesProvider),
   filenames_(pset.get<std::vector<std::string> >("fileNames", { })),
+  compactMissingProducts_(pset.get<bool>("compactMissingProducts", false)),
   providerFunc_(),
   mixOps_(),
   ptrRemapper_(),

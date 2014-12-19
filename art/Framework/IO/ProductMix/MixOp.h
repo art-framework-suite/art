@@ -32,7 +32,8 @@ public:
   MixOp(InputTag const & inputTag,
         std::string const & outputInstanceLabel,
         FUNC mixFunc,
-        bool outputProduct);
+        bool outputProduct,
+        bool compactMissingProducts);
 
   virtual
   InputTag const & inputTag() const;
@@ -78,6 +79,7 @@ private:
   std::string const moduleLabel_;
   RootBranchInfo branchInfo_;
   bool const outputProduct_;
+  bool const compactMissingProducts_;
 };
 
 template <typename PROD>
@@ -86,7 +88,8 @@ art::
 MixOp<PROD>::MixOp(InputTag const & inputTag,
                    std::string const & outputInstanceLabel,
                    FUNC mixFunc,
-                   bool outputProduct)
+                   bool outputProduct,
+                   bool compactMissingProducts)
   :
   inputTag_(inputTag),
   inputType_(typeid(PROD)),
@@ -96,7 +99,8 @@ MixOp<PROD>::MixOp(InputTag const & inputTag,
   processName_(ServiceHandle<TriggerNamesService>()->getProcessName()),
   moduleLabel_(ServiceHandle<CurrentModule>()->label()),
   branchInfo_(),
-  outputProduct_(outputProduct)
+  outputProduct_(outputProduct),
+  compactMissingProducts_(compactMissingProducts)
 {}
 
 template <typename PROD>
@@ -138,12 +142,9 @@ mixAndPut(Event & e,
          endIter = inProducts_.end();
          i != endIter;
          ++i) {
-      inConverted.push_back(i->product());
-      if (!inConverted.back()) {
-        throw Exception(errors::ProductNotFound)
-            << "While processing products of type "
-            << TypeID(*rProd).friendlyClassName()
-            << " for merging: a secondary event was missing a product.\n";
+      auto prod = i->product();
+      if (prod || ! compactMissingProducts_) {
+        inConverted.emplace_back(prod);
       }
     }
   }
