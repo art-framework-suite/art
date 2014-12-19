@@ -69,15 +69,15 @@ private:
 
   void initProductList(size_t nSecondaries = 0);
 
-  InputTag inputTag_;
+  InputTag const inputTag_;
   TypeID const inputType_;
-  std::string outputInstanceLabel_;
-  std::function<bool (std::vector<PROD const *> const &, PROD &, PtrRemapper const &)> mixFunc_;
+  std::string const outputInstanceLabel_;
+  std::function<bool (std::vector<PROD const *> const &, PROD &, PtrRemapper const &)> const mixFunc_;
   SpecProdList inProducts_;
-  std::string processName_;
-  std::string moduleLabel_;
+  std::string const processName_;
+  std::string const moduleLabel_;
   RootBranchInfo branchInfo_;
-  bool outputProduct_;
+  bool const outputProduct_;
 };
 
 template <typename PROD>
