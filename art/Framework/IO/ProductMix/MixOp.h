@@ -32,7 +32,8 @@ public:
   MixOp(InputTag const & inputTag,
         std::string const & outputInstanceLabel,
         FUNC mixFunc,
-        bool outputProduct);
+        bool outputProduct,
+        bool compactMissingProducts);
 
   virtual
   InputTag const & inputTag() const;
@@ -69,15 +70,16 @@ private:
 
   void initProductList(size_t nSecondaries = 0);
 
-  InputTag inputTag_;
+  InputTag const inputTag_;
   TypeID const inputType_;
-  std::string outputInstanceLabel_;
-  std::function<bool (std::vector<PROD const *> const &, PROD &, PtrRemapper const &)> mixFunc_;
+  std::string const outputInstanceLabel_;
+  std::function<bool (std::vector<PROD const *> const &, PROD &, PtrRemapper const &)> const mixFunc_;
   SpecProdList inProducts_;
-  std::string processName_;
-  std::string moduleLabel_;
+  std::string const processName_;
+  std::string const moduleLabel_;
   RootBranchInfo branchInfo_;
-  bool outputProduct_;
+  bool const outputProduct_;
+  bool const compactMissingProducts_;
 };
 
 template <typename PROD>
@@ -86,7 +88,8 @@ art::
 MixOp<PROD>::MixOp(InputTag const & inputTag,
                    std::string const & outputInstanceLabel,
                    FUNC mixFunc,
-                   bool outputProduct)
+                   bool outputProduct,
+                   bool compactMissingProducts)
   :
   inputTag_(inputTag),
   inputType_(typeid(PROD)),
@@ -96,7 +99,8 @@ MixOp<PROD>::MixOp(InputTag const & inputTag,
   processName_(ServiceHandle<TriggerNamesService>()->getProcessName()),
   moduleLabel_(ServiceHandle<CurrentModule>()->label()),
   branchInfo_(),
-  outputProduct_(outputProduct)
+  outputProduct_(outputProduct),
+  compactMissingProducts_(compactMissingProducts)
 {}
 
 template <typename PROD>
@@ -138,12 +142,9 @@ mixAndPut(Event & e,
          endIter = inProducts_.end();
          i != endIter;
          ++i) {
-      inConverted.push_back(i->product());
-      if (!inConverted.back()) {
-        throw Exception(errors::ProductNotFound)
-            << "While processing products of type "
-            << TypeID(*rProd).friendlyClassName()
-            << " for merging: a secondary event was missing a product.\n";
+      auto prod = i->product();
+      if (prod || ! compactMissingProducts_) {
+        inConverted.emplace_back(prod);
       }
     }
   }
@@ -194,17 +195,21 @@ art::BranchID
 art::MixOp<PROD>::
 outgoingBranchID() const
 {
-  BranchKey key(inputType_.friendlyClassName(),
-                moduleLabel_,
-                outputInstanceLabel_,
-                processName_);
-  ProductList const & products = ProductMetaData::instance().productList();
-  ProductList::const_iterator i = products.find(key);
-  if (i == products.end()) {
-    throw Exception(errors::LogicError)
+  art::BranchID result;
+  if (outputProduct_) {
+    BranchKey key(inputType_.friendlyClassName(),
+                  moduleLabel_,
+                  outputInstanceLabel_,
+                  processName_);
+    ProductList const & products = ProductMetaData::instance().productList();
+    ProductList::const_iterator i = products.find(key);
+    if (i == products.end()) {
+      throw Exception(errors::LogicError)
         << "MixOp unable to find branch id for a product that should have been registered!\n";
+    }
+    result = i->second.branchID();
   }
-  return i->second.branchID();
+  return result;
 }
 
 template <typename PROD>

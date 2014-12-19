@@ -50,6 +50,7 @@ arttest::MixProducer::MixProducer(fhicl::ParameterSet const &)
 {
   produces<double>("doubleLabel");
   produces<IntProduct>("IntProductLabel");
+  produces<IntProduct>("SpottyProductLabel");
   produces<std::string>("stringLabel");
   produces<std::vector<double> >("doubleCollectionLabel");
   produces<std::vector<art::Ptr<double> > >("doubleVectorPtrLabel");
@@ -71,6 +72,11 @@ void arttest::MixProducer::produce(art::Event &e) {
 
   // IntProduct
   e.put(std::unique_ptr<IntProduct>(new IntProduct(eventCounter_ + 1000000)), "IntProductLabel");
+
+  // SpottyProduct
+  if (e.event() % 100) {
+    e.put(std::unique_ptr<IntProduct>(new IntProduct(eventCounter_)), "SpottyProductLabel");
+  }
 
   // std::string
   std::ostringstream s;
