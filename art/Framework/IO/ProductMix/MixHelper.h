@@ -335,17 +335,17 @@ private:
   void buildBranchIDTransMap_(ProdToProdMapBuilder::BranchIDTransMap & transMap);
 
   ProducerBase & producesProvider_;
-  std::vector<std::string> filenames_;
+  std::vector<std::string> const filenames_;
   ProviderFunc_ providerFunc_;
   MixOpList mixOps_;
   PtrRemapper ptrRemapper_;
   std::vector<std::string>::const_iterator fileIter_;
-  Mode readMode_;
-  double coverageFraction_;
+  Mode const readMode_;
+  double const coverageFraction_;
   Long64_t nEventsReadThisFile_;
   Long64_t nEventsInFile_;
   Long64_t totalEventsRead_;
-  bool canWrapFiles_;
+  bool const canWrapFiles_;
   FileFormatVersion ffVersion_;
   ProdToProdMapBuilder ptpBuilder_;
   std::unique_ptr<CLHEP::RandFlat> dist_;
