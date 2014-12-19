@@ -194,17 +194,21 @@ art::BranchID
 art::MixOp<PROD>::
 outgoingBranchID() const
 {
-  BranchKey key(inputType_.friendlyClassName(),
-                moduleLabel_,
-                outputInstanceLabel_,
-                processName_);
-  ProductList const & products = ProductMetaData::instance().productList();
-  ProductList::const_iterator i = products.find(key);
-  if (i == products.end()) {
-    throw Exception(errors::LogicError)
+  art::BranchID result;
+  if (outputProduct_) {
+    BranchKey key(inputType_.friendlyClassName(),
+                  moduleLabel_,
+                  outputInstanceLabel_,
+                  processName_);
+    ProductList const & products = ProductMetaData::instance().productList();
+    ProductList::const_iterator i = products.find(key);
+    if (i == products.end()) {
+      throw Exception(errors::LogicError)
         << "MixOp unable to find branch id for a product that should have been registered!\n";
+    }
+    result = i->second.branchID();
   }
-  return i->second.branchID();
+  return result;
 }
 
 template <typename PROD>
