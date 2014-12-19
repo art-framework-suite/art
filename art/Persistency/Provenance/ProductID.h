@@ -38,7 +38,7 @@ namespace art {
     bool isValid() const {return productIndex_ != 0;}
 
     ProcessIndex processIndex() const {return processIndex_;}
-    ProcessIndex productIndex() const {return productIndex_;}
+    ProductIndex productIndex() const {return productIndex_;}
 
   private:
     ProcessIndex processIndex_;
