@@ -207,5 +207,5 @@ operator()(argument_type bIDs) const
         << "Unable to find product translation from secondary file.\n";
   }
   return std::make_pair(secondary_i->second,
-                        ep_.branchIDToProductID(bIDs.second));
+                        bIDs.second.isValid() ? ep_.branchIDToProductID(bIDs.second) : ProductID() );
 }

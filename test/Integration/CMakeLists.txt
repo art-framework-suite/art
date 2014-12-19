@@ -558,6 +558,18 @@ cet_test(ProductMix_r1f1 HANDBUILT
   TEST_PROPERTIES DEPENDS ProductMix_w
 )
 
+# Mix the events from ProductMix_w, testing that things behave properly
+# with the compactMissingProducts option selected.
+cet_test(ProductMix_r1g HANDBUILT
+  TEST_EXEC art_ut
+  TEST_ARGS --rethrow-all -c "ProductMix_r1g.fcl"
+  DATAFILES
+  fcl/ProductMix_r1.fcl
+  fcl/ProductMix_r1g.fcl
+  TEST_PROPERTIES DEPENDS ProductMix_w
+)
+
+
 SET_TESTS_PROPERTIES(
   ProductMix_r1c2
   ProductMix_r1c3

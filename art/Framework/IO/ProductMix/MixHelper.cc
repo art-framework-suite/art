@@ -78,25 +78,58 @@ EventIDLookup::operator()(argument_type element) const
   return i->second;
 }
 
+namespace {
+  double initCoverageFraction(fhicl::ParameterSet const & pset)
+  {
+    double result = pset.get<double>("coverageFraction", 1.0);
+    if (result > (1 + std::numeric_limits<double>::epsilon())) {
+      mf::LogWarning("Configuration")
+        << "coverageFraction > 1: treating as a percentage.\n";
+      result /= 100.0;
+    }
+    return result;
+  }
+
+  std::unique_ptr<CLHEP::RandFlat>
+  initDist(art::MixHelper::Mode readMode)
+  {
+    using namespace art;
+    std::unique_ptr<CLHEP::RandFlat> result;
+    if (readMode > MixHelper::Mode::SEQUENTIAL) {
+      if (ServiceRegistry::instance().isAvailable<RandomNumberGenerator>()) {
+        result.reset(new CLHEP::RandFlat(ServiceHandle<RandomNumberGenerator>()->getEngine()));
+      } else {
+        throw Exception(errors::Configuration, "MixHelper")
+          << "Random event mixing selected but RandomNumberGenerator service not loaded.\n"
+          << "Ensure service is loaded with: \n"
+          << "services.RandomNumberGenerator: {}\n";
+      }
+    }
+    return result;
+  }
+
+}
+
 art::MixHelper::
 MixHelper(fhicl::ParameterSet const & pset,
           ProducerBase & producesProvider)
   :
   producesProvider_(producesProvider),
   filenames_(pset.get<std::vector<std::string> >("fileNames", { })),
+  compactMissingProducts_(pset.get<bool>("compactMissingProducts", false)),
   providerFunc_(),
   mixOps_(),
   ptrRemapper_(),
   fileIter_(filenames_.begin()),
   readMode_(initReadMode_(pset.get<std::string>("readMode", "sequential"))),
-  coverageFraction_(pset.get<double>("coverageFraction", 1.0)),
+  coverageFraction_(initCoverageFraction(pset)),
   nEventsReadThisFile_(0),
   nEventsInFile_(0),
   totalEventsRead_(0),
   canWrapFiles_(pset.get<bool>("wrapFiles", false)),
   ffVersion_(),
   ptpBuilder_(),
-  dist_(),
+  dist_(initDist(readMode_)),
   eventsToSkip_(),
   shuffledSequence_(),
   eventIDIndex_(),
@@ -105,21 +138,6 @@ MixHelper(fhicl::ParameterSet const & pset,
   currentEventTree_(),
   dataBranches_()
 {
-  if (readMode_ > Mode::SEQUENTIAL) {
-    if (ServiceRegistry::instance().isAvailable<RandomNumberGenerator>()) {
-      dist_.reset(new CLHEP::RandFlat(ServiceHandle<RandomNumberGenerator>()->getEngine()));
-    } else {
-      throw Exception(errors::Configuration, "MixHelper")
-        << "Random event mixing selected but RandomNumberGenerator service not loaded.\n"
-        << "Ensure service is loaded with: \n"
-        << "services.RandomNumberGenerator: {}\n";
-    }
-  }
-  if (coverageFraction_ > (1 + std::numeric_limits<double>::epsilon())) {
-    mf::LogWarning("Configuration")
-        << "coverageFraction > 1: treating as a percentage.\n";
-    coverageFraction_ /= 100.0;
-  }
 }
 
 void

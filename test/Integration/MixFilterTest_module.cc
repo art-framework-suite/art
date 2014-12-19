@@ -195,6 +195,7 @@ private:
   bool const testPtrFailure_;
   bool const testEventOrdering_;
   bool const testNoLimEventDupes_;
+  bool const compactMissingProducts_;
   art::MixHelper::Mode const readMode_;
 
   size_t respondFunctionsSeen_;
@@ -202,6 +203,7 @@ private:
   // For testing no_replace mode only:
   std::vector<int> allEvents_;
   std::unordered_set<int> uniqueEvents_;
+
 };
 
 template <typename COLL>
@@ -230,6 +232,7 @@ MixFilterTestDetail(fhicl::ParameterSet const & p,
   testPtrFailure_(p.get<bool>("testPtrFailure", false)),
   testEventOrdering_(p.get<bool>("testEventOrdering", false)),
   testNoLimEventDupes_(p.get<bool>("testNoLimEventDupes", false)),
+  compactMissingProducts_(p.get<bool>("compactMissingProducts", false)),
   readMode_(helper.readMode()),
   respondFunctionsSeen_(0),
   allEvents_(),
@@ -278,6 +281,36 @@ MixFilterTestDetail(fhicl::ParameterSet const & p,
   helper.declareMixOp
   (art::InputTag(mixProducerLabel, "intVectorPtrLabel"),
    &MixFilterTestDetail::mixmap_vectorPtrs, *this);
+  std::function < bool (std::vector<IntProduct const *> const &,
+                        IntProduct &,
+                        art::PtrRemapper const &) >
+    mixfunc([this](std::vector<IntProduct const *> const & in,
+                   IntProduct,
+                   art::PtrRemapper const &) -> bool
+    {
+      auto const sz = in.size();
+      auto expected = nSecondaries_;
+      if (compactMissingProducts_) {
+        expected -=
+          std::count_if(eIDs_->begin(),
+                        eIDs_->end(),
+                        [](art::EventID const & eID)
+                        { return (eID.event() % 100) == 0; });
+      }
+      for (auto i = 0ul; i < sz; ++i) {
+        if (!compactMissingProducts_ && ( (*eIDs_)[i].event() % 100 ) == 0) {
+          // Product missing
+          BOOST_REQUIRE(in[i] == nullptr);
+        } else {
+          BOOST_REQUIRE(in[i] != nullptr);
+        }
+      }
+      BOOST_REQUIRE_EQUAL(sz,
+                          (currentEvent_ == 2 && testZeroSecondaries_) ? 0ul : expected);
+      return false;
+    });
+  helper.declareMixOp(art::InputTag(mixProducerLabel, "SpottyProductLabel"),
+                      mixfunc, false);
 }
 
 arttest::MixFilterTestDetail::
@@ -419,12 +452,10 @@ mixByAddition(std::vector<T const *> const & in,
               art::PtrRemapper const &)
 {
   verifyInSize(in);
-  for (typename std::vector<T const *>::const_iterator
-       i = in.begin(),
-       e = in.end();
-       i != e;
-       ++i) {
-    out += **i;
+  for (auto const * prod : in) {
+    if (prod != nullptr) {
+      out += *prod;
+    }
   }
   return true; //  Always want product in event.
 }
