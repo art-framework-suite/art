@@ -86,6 +86,7 @@ simple_plugin(TestOutput                  "module"  NO_INSTALL )
 simple_plugin(TestProvenanceDumper        "module"  NO_INSTALL USE_BOOST_UNIT )
 simple_plugin(TestResultAnalyzer          "module"  NO_INSTALL )
 simple_plugin(TestServiceUsingService     "module"  NO_INSTALL USE_BOOST_UNIT )
+simple_plugin(TestSimpleMemoryCheckProducer "module"  NO_INSTALL )
 simple_plugin(TestTimeTrackerProducer     "module"  NO_INSTALL )
 simple_plugin(TestTimeTrackerFilter       "module"  NO_INSTALL )
 simple_plugin(TestTimeTrackerAnalyzer     "module"  NO_INSTALL )
@@ -839,6 +840,14 @@ cet_test(ServiceUsingService_02_t HANDBUILT
   fcl/test_reconfig_01.fcl
   fcl/ServiceUsingService_02.fcl
 )
+
+cet_test(SimpleMemoryCheck_t HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS -c simpleMemoryCheck.fcl
+  DATAFILES
+  fcl/simpleMemoryCheck.fcl
+  fcl/messageDefaults.fcl
+  )
 
 cet_test(TimingService_issue_2979_t HANDBUILT
   TEST_EXEC art

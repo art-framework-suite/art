@@ -1,6 +1,7 @@
 set( art_Framework_Services_Optional_sources
   TFileDirectory.cc
   detail/TH1AddDirectorySentry.cc
+  detail/LinuxProcMgr.cc
 )
 
 art_make_library(# LIBRARY_NAME art_Framework_Services_Optional
@@ -14,6 +15,7 @@ art_make_library(# LIBRARY_NAME art_Framework_Services_Optional
   ${Boost_FILESYSTEM_LIBRARY}
   ${Boost_REGEX_LIBRARY}
   ${Boost_SYSTEM_LIBRARY}
+  art_Utilities
 )
 
 simple_plugin(RandomNumberGenerator "service"
@@ -26,7 +28,10 @@ simple_plugin(RandomNumberGenerator "service"
   )
 
 simple_plugin(SimpleInteraction "service" art_Framework_Services_UserInteraction)
-simple_plugin(SimpleMemoryCheck "service" art_Persistency_Provenance)
+simple_plugin(SimpleMemoryCheck "service"
+  art_Persistency_Provenance
+  art_Framework_Services_Optional
+  )
 simple_plugin(TFileService "service"
   art_Framework_Services_System_TriggerNamesService_service
   art_Framework_Services_Optional
