@@ -39,9 +39,11 @@ namespace art {
 
       LinuxMallInfo() : minfo_( mallinfo() ) {}
 
+      struct mallinfo get() const { return minfo_; }
+
     private:
       struct mallinfo minfo_;
-      
+
       friend std::ostream& operator << ( std::ostream& os, LinuxMallInfo const & info );
     };
 

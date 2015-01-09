@@ -1,7 +1,7 @@
 #include "art/Ntuple/Transaction.h"
+#include "art/Utilities/Exception.h"
 
-#include <stdexcept>
-#include <assert.h>
+#include <cassert>
 #include "sqlite3.h"
 
 sqlite::Transaction::Transaction(sqlite3* db) :
@@ -10,14 +10,14 @@ sqlite::Transaction::Transaction(sqlite3* db) :
   assert(db_);
   int rc = sqlite3_exec(db_, "BEGIN", nullptr, nullptr, nullptr);
   if (rc != SQLITE_OK)
-    throw std::runtime_error("Failed to start SQLite transaction");
+    throw art::Exception(art::errors::SQLExecutionError,"Failed to start SQLite transaction");
 }
 
 sqlite::Transaction::~Transaction()
 {
   // We can't throw an exception from our destructor, so we just
   // swallow any error.
-  if (db_) sqlite3_exec(db_, "ROLLBACK", nullptr, nullptr, nullptr);        
+  if (db_) sqlite3_exec(db_, "ROLLBACK", nullptr, nullptr, nullptr);
 }
 
 void
@@ -26,7 +26,7 @@ sqlite::Transaction::commit()
   assert(db_);
   int rc = sqlite3_exec(db_, "COMMIT", nullptr, nullptr, nullptr);
   if (rc != SQLITE_OK)
-    throw std::runtime_error("Failed to commit SQLite transaction");
+    throw art::Exception(art::errors::SQLExecutionError,"Failed to commit SQLite transaction");
   db_ = nullptr;
 }
 

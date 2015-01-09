@@ -8,11 +8,13 @@
 // =======================================================
 
 #include <array>
-#include <stdexcept>
 #include <string>
 #include <vector>
+#include <type_traits>
 
 #include "sqlite3.h"
+#include "art/Ntuple/sqlite_stringstream.h"
+#include "art/Utilities/Exception.h"
 
 using namespace std::string_literals;
 
@@ -53,7 +55,7 @@ namespace sqlite
     template <> inline std::string coltype<std::string>() { return " text"; }
 
     //=====================================================================
-    // BEGIN IMPLEMENTATION FOR NAMESPACE deta
+    // BEGIN IMPLEMENTATION FOR NAMESPACE detail
     // BuildSQL is a helper struct, with function addMore. A struct is
     // needed because partial specialization of function templates is
     // not supported in C++11.
@@ -106,11 +108,10 @@ namespace sqlite
     //=======================================================================
     struct query_result
     {
-      std::vector<std::string> ddl;
-      int count = 0;
+      std::vector<sqlite::stringstream> data;
+      int count  = 0;
     };
 
-    void         exec (sqlite3* db, std::string const& ddl);
     query_result query( sqlite3* db, std::string const& ddl );
 
     int  getResult(void* data, int ncols [[gnu::unused]], char** results, char** cnames);
@@ -124,34 +125,58 @@ namespace sqlite
   sqlite3* openDatabaseFile(std::string const& filename);
   void     deleteTable( sqlite3* db, std::string const& tname );
   void     dropTable  ( sqlite3* db, std::string const& tname );
+  void     exec       ( sqlite3* db, std::string const& ddl   );
 
   //=====================================================================
   // Conversion functions for querying results
 
-  template<typename T = std::vector<std::string> >
-  T convertTo( const std::vector<std::string>& ddl ) {
-    return ddl;
+  template<typename T = std::vector<sqlite::stringstream> >
+  T convertTo( std::vector<sqlite::stringstream> & data ) {
+    return data;
   }
 
   template<>
-  inline double convertTo<double>( const std::vector<std::string>& ddl ) {
-    return std::stod( ddl[0] );
+  inline double convertTo<double>( std::vector<sqlite::stringstream> & data ) {
+    if ( data.size() != 1 || data[0].size() != 1 ) {
+      throw art::Exception( art::errors::LogicError,"sqlite results are not unique");
+    }
+    return std::stod( data[0][0] );
   }
 
   template<>
-  inline uint32_t convertTo<uint32_t>( const std::vector<std::string>& ddl) {
-    return std::stoul( ddl[0] );
+  inline uint32_t convertTo<uint32_t>( std::vector<sqlite::stringstream> & data ) {
+    if ( data.size() != 1 || data[0].size() != 1 ) {
+      throw art::Exception( art::errors::LogicError,"sqlite results are not unique");
+    }
+    return std::stoul( data[0][0] );
+  }
+
+  template<>
+  inline
+  std::vector<std::string>
+  convertTo<std::vector<std::string> >( std::vector<sqlite::stringstream> & data ) {
+    std::vector<std::string> strList;
+    for ( auto & entry : data ) {
+      std::string tmpstr;
+      while ( !entry.empty() ) {
+        std::string token;
+        entry >> token;
+        tmpstr += token;
+      }
+      strList.push_back( tmpstr );
+    }
+    return strList;
   }
 
   //=====================================================================
   // Querying facilities
 
-  template<typename T>
-  T query_db(sqlite3* db, std::string const& ddl )
+  template<typename T = std::vector<sqlite::stringstream> >
+  auto query_db(sqlite3* db, std::string const& ddl, bool const do_throw = true)
   {
-    detail::query_result const res = detail::query( db, ddl );
-    if (res.count == 0) throw std::runtime_error("sqlite query_db unsuccessful");
-    return convertTo<T>( res.ddl );
+    detail::query_result res = detail::query( db, ddl );
+    if ( res.data.empty() && do_throw ) throw art::Exception(art::errors::SQLExecutionError,"sqlite query_db unsuccessful");
+    return convertTo<T>( res.data );
   }
 
   template<typename T>
@@ -170,7 +195,7 @@ namespace sqlite
   {
     std::string const sqlddl = detail::createTable_ddl<std::tuple<ARGS...>>(tname, beginCol, endCol);
     if (!detail::hasTable(db, tname, sqlddl)) {
-      detail::exec(db, sqlddl);
+      exec(db, sqlddl);
     }
     else {
 

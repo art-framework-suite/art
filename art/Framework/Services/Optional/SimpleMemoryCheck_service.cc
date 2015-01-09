@@ -96,15 +96,13 @@ namespace art {
 
     void postSource();
 
-    void postBeginJob();
-
-    void preEventProcessing(art::Event const &);
+    void preEventProcessing (Event const &);
     void postEventProcessing(Event const &);
 
     void postModuleBeginJob(ModuleDescription const &);
     void postModuleConstruction(ModuleDescription const &);
 
-    void preModule(ModuleDescription const &);
+    void preModule (ModuleDescription const &);
     void postModule(ModuleDescription const &);
 
     void postEndJob();
@@ -191,7 +189,7 @@ namespace art {
   {
 #ifndef __linux__
     mf::LogAbsolute("MemoryTracker") << "\n"
-                                     << "Service currently not supported for Darwin OS.\n"
+                                     << "Service currently not supported for this operating system.\n"
                                      << "If desired, please log an issue with:\n\n"
                                      << "https://cdcvs.fnal.gov/redmine/projects/cet-is/issues/new\n\n";
 #else
@@ -237,10 +235,6 @@ namespace art {
       mf::LogWarning("MemoryCheck") << "Malloc options: " << mo << "\n";
     }
 #endif
-  }
-
-  void SimpleMemoryCheck::postBeginJob()
-  {
   }
 
   void SimpleMemoryCheck::postSource()
@@ -430,6 +424,7 @@ namespace art {
   void
   SimpleMemoryCheck::updateModuleStats(SignificantModule_ & m, double const dv)
   {
+
     if (evtCount_ < numToSkip_) {
       m.totalEarlyVsize += dv;
       m.maxEarlyVsize = std::max( m.maxEarlyVsize, dv );

@@ -2,7 +2,6 @@
 #define art_Ntuple_Ntuple_h
 
 #include <array>
-#include <stdexcept>
 #include <string>
 #include <tuple>
 #include <vector>
@@ -66,7 +65,7 @@ ntuple::Ntuple<ARGS...>::Ntuple(sqlite3* db,
   last_rowid_()
 {
   if (!db)
-    { throw std::runtime_error("Attempt to create Ntuple with null database pointer"); }
+    { throw art::Exception(art::errors::SQLExecutionError,"Attempt to create Ntuple with null database pointer"); }
   sqlite::createTableIfNeeded<ARGS...>(db, last_rowid_, name, begin(cnames), end(cnames), overwriteContents );
   std::string sql("INSERT INTO ");
   sql += name;
@@ -79,7 +78,7 @@ ntuple::Ntuple<ARGS...>::Ntuple(sqlite3* db,
                               &insert_statement_,
                               nullptr);
   if (rc != SQLITE_OK)
-    { throw std::runtime_error("Failed to prepare insertion statment"); }
+    { throw art::Exception(art::errors::SQLExecutionError,"Failed to prepare insertion statment"); }
   buffer_.reserve(bufsize);
 
 }
@@ -114,7 +113,7 @@ void bind_one_parameter(sqlite3_stmt* s, std::size_t idx, double v)
 {
   int rc = sqlite3_bind_double(s, idx, v);
   if (rc != SQLITE_OK)
-    { throw std::runtime_error("Failed to bind double " + std::to_string(rc)); }
+    { throw art::Exception(art::errors::SQLExecutionError,"Failed to bind double " + std::to_string(rc)); }
 }
 
 inline
@@ -122,7 +121,7 @@ void bind_one_parameter(sqlite3_stmt* s, std::size_t idx, int v)
 {
   int rc = sqlite3_bind_int(s, idx, v);
   if (rc != SQLITE_OK)
-    { throw std::runtime_error("Failed to bind int " + std::to_string(rc)); }
+    { throw art::Exception(art::errors::SQLExecutionError,"Failed to bind int " + std::to_string(rc)); }
 }
 
 inline
@@ -130,7 +129,7 @@ void bind_one_parameter(sqlite3_stmt* s, std::size_t idx, std::uint32_t v)
 {
   int rc = sqlite3_bind_int64(s, idx, v);
   if (rc != SQLITE_OK)
-    { throw std::runtime_error("Failed to bind int " + std::to_string(rc)); }
+    { throw art::Exception(art::errors::SQLExecutionError,"Failed to bind int " + std::to_string(rc)); }
 }
 
 inline
@@ -138,7 +137,7 @@ void bind_one_parameter(sqlite3_stmt* s, std::size_t idx, sqlite_int64 v)
 {
   int rc = sqlite3_bind_int64(s, idx, v);
   if (rc != SQLITE_OK)
-    { throw std::runtime_error("Failed to bind int64 " + std::to_string(rc)); }
+    { throw art::Exception(art::errors::SQLExecutionError,"Failed to bind int64 " + std::to_string(rc)); }
 }
 
 inline
@@ -146,7 +145,7 @@ void bind_one_parameter(sqlite3_stmt* s, std::size_t idx, std::string const& v)
 {
   int rc = sqlite3_bind_text(s, idx, v.c_str(), v.size(), nullptr);
   if (rc != SQLITE_OK)
-    { throw std::runtime_error("Failed to bind text " + std::to_string(rc)); }
+    { throw art::Exception(art::errors::SQLExecutionError,"Failed to bind text " + std::to_string(rc)); }
 }
 
 template <class TUP, size_t N>
@@ -177,7 +176,7 @@ ntuple::Ntuple<ARGS...>::flush()
     {
       bind_parameters<std::tuple<ARGS...>, SIZE>::bind(insert_statement_, r);
       int rc = sqlite3_step(insert_statement_);
-      if (rc != SQLITE_DONE) throw std::runtime_error("SQLite step failure");
+      if (rc != SQLITE_DONE) throw art::Exception(art::errors::SQLExecutionError,"SQLite step failure");
       last_rowid_ = sqlite3_last_insert_rowid(db_);
       sqlite3_reset(insert_statement_);
     }

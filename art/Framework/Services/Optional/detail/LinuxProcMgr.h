@@ -3,6 +3,10 @@
 
 #include "art/Framework/Services/Optional/detail/LinuxProcData.h"
 
+extern "C" {
+#include <sys/types.h>
+}
+
 namespace art {
   namespace detail {
 
@@ -11,13 +15,15 @@ namespace art {
 
       LinuxProcMgr();
       ~LinuxProcMgr();
-      
-      LinuxProcData::proc_array getCurrentData();
-      
+
+      LinuxProcData::proc_array getCurrentData() const;
+      double getVmPeak() const;
+
     private:
-      
-      int  fd_;
-      long pgSize_;
+
+      pid_t pid_;
+      int   fd_;
+      long  pgSize_;
 
     };
 

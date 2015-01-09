@@ -4,7 +4,7 @@
 //
 // =======================================================
 
-#include <assert.h>
+#include <cassert>
 #include <cmath>
 
 #include "art/Ntuple/sqlite_helpers.h"
@@ -18,23 +18,14 @@ namespace sqlite
     //=======================================================================
     int getResult(void* data, int ncols [[gnu::unused]], char** results, char** /*cnames*/)
     {
-      assert(ncols == 1);
+      //      assert(ncols >= 1);
       query_result* j = static_cast<query_result*>(data);
-      j->count += 1;
-      j->ddl.push_back( results[0] );
+      sqlite::stringstream resultStream;
+      for ( int i(0); i < ncols ; ++i ) {
+        resultStream << results[i];
+      }
+      j->data.push_back( std::move(resultStream) );
       return 0;
-    }
-
-    //=======================================================================
-    void exec(sqlite3* db,std::string const& ddl)
-    {
-      char* errmsg = nullptr;
-      if ( sqlite3_exec(db, ddl.c_str(), nullptr, nullptr, &errmsg) != SQLITE_OK )
-        {
-          std::string msg(errmsg);
-          sqlite3_free(errmsg);
-          throw std::runtime_error(msg);
-        }
     }
 
     //=======================================================================
@@ -46,7 +37,7 @@ namespace sqlite
         {
           std::string msg(errmsg);
           sqlite3_free(errmsg);
-          throw std::runtime_error(msg);
+          throw art::Exception(art::errors::SQLExecutionError, msg);
         }
       return res;
     }
@@ -66,8 +57,9 @@ namespace sqlite
       detail::query_result const res = query(db, cmd);
 
       if (res.count == 0) { return false; }
-      if (res.count == 1 && res.ddl[0] == sqlddl) { return true; }
-      throw std::runtime_error("Existing database table name does not match description");
+      if (res.count == 1 && res.data[0][0] == sqlddl) { return true; }
+      throw art::Exception(art::errors::SQLExecutionError,
+                           "Existing database table name does not match description");
     }
 
   } // namespace detail
@@ -80,20 +72,34 @@ namespace sqlite
                                    &db,
                                    SQLITE_OPEN_READWRITE|SQLITE_OPEN_CREATE,
                                    nullptr);
-    if (rc != SQLITE_OK) throw std::runtime_error("Failed to open SQLite database");
+    if (rc != SQLITE_OK) {
+      throw art::Exception(art::errors::SQLExecutionError,"Failed to open SQLite database");
+    }
 
     return db;
   }
 
   //=======================================================================
+  void exec(sqlite3* db,std::string const& ddl)
+  {
+    char* errmsg = nullptr;
+    if ( sqlite3_exec(db, ddl.c_str(), nullptr, nullptr, &errmsg) != SQLITE_OK )
+      {
+        std::string msg(errmsg);
+        sqlite3_free(errmsg);
+        throw art::Exception(art::errors::SQLExecutionError, msg);
+      }
+  }
+
+  //=======================================================================
   void deleteTable( sqlite3* db, std::string const& tname )
   {
-    detail::exec( db, "delete from "s + tname );
+    exec( db, "delete from "s + tname );
   }
 
   void dropTable( sqlite3* db, std::string const& tname )
   {
-    detail::exec( db, "drop table "s+ tname );
+    exec( db, "drop table "s+ tname );
   }
 
   //=======================================================================

@@ -849,6 +849,14 @@ cet_test(SimpleMemoryCheck_t HANDBUILT
   fcl/messageDefaults.fcl
   )
 
+cet_test(MemoryTracker_t HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS -c memoryTracker.fcl
+  DATAFILES
+  fcl/memoryTracker.fcl
+  fcl/messageDefaults.fcl
+  )
+
 cet_test(TimingService_issue_2979_t HANDBUILT
   TEST_EXEC art
   TEST_ARGS -c issue_2979.fcl

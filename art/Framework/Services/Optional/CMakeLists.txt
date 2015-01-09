@@ -32,6 +32,25 @@ simple_plugin(SimpleMemoryCheck "service"
   art_Persistency_Provenance
   art_Framework_Services_Optional
   )
+
+# os-dependent plugin for MemoryTracker
+IF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+  SET(PLATFORM Linux)
+ELSEIF( ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+  SET(PLATFORM Darwin)
+ENDIF()
+configure_file(
+  ${CMAKE_CURRENT_SOURCE_DIR}/MemoryTracker_service.cc.in
+  ${CMAKE_CURRENT_BINARY_DIR}/MemoryTracker_service.cc @ONLY
+  )
+simple_plugin(
+  MemoryTracker "service"
+  art_Framework_Services_Optional
+  art_Ntuple
+  art_Persistency_Provenance
+  SOURCE ${CMAKE_CURRENT_BINARY_DIR}/MemoryTracker_service.cc
+  )
+
 simple_plugin(TFileService "service"
   art_Framework_Services_System_TriggerNamesService_service
   art_Framework_Services_Optional

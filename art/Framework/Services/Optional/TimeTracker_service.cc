@@ -135,11 +135,12 @@ void art::TimeTracker::postEndJob()
                              timeEventTable_.lastRowid() );
   }
 
+  // This done here (instead of later) to determine the formatting
+  // width in the printout
   timeModuleTable_.flush();
   const std::vector<std::string> modules
     = sqlite::getUniqueEntries<std::string>( dbMgr_.get(), "TimeModule", "PathModuleId" );
 
-  // Set width of PathModuleId column
   std::size_t width(30);
   std::for_each( modules.begin(),
                  modules.end(),
@@ -177,7 +178,7 @@ void art::TimeTracker::postEndJob()
       "CREATE TABLE temp.tmpModTable AS "s +
       "SELECT * FROM TimeModule WHERE PathModuleId='"s+mod+"'"s;
 
-    sqlite::detail::exec( dbMgr_.get(), ddl );
+    sqlite::exec( dbMgr_.get(), ddl );
 
     double const modTime_min    = sqlite::min   ( dbMgr_.get(), "temp.tmpModTable", "Time" );
     double const modTime_max    = sqlite::max   ( dbMgr_.get(), "temp.tmpModTable", "Time" );
