@@ -20,7 +20,12 @@ namespace arttest {
     virtual ~TestTimeTrackerFilter() { }
 
     virtual bool filter( art::Event& ) override {
-      return  rand_(dre_) < 0.3;
+      bool const passesCuts = rand_(dre_) < 0.3;
+
+      return
+        passesCuts ?
+        EDFilter::Pass :
+        EDFilter::Fail ;
     }
   private:
     std::default_random_engine dre_;

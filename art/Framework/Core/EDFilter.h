@@ -32,6 +32,9 @@ namespace art
     , public EngineCreator
   {
   public:
+    static constexpr bool Pass = true;
+    static constexpr bool Fail = false;
+
     template <typename T> friend class WorkerT;
     typedef EDFilter ModuleType;
     typedef WorkerT<EDFilter> WorkerType;
