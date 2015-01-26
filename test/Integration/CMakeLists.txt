@@ -9,7 +9,7 @@ include(ReflexTools_t)
 art_make_library(SOURCE ToySource.cc
   LIBRARIES art_Framework_IO_Sources
   art_Framework_Core
-  ${FHICLCPP}
+  fhiclcpp
   )
 
 set_source_files_properties(MixFilterTestETS_module.cc
@@ -99,7 +99,7 @@ simple_plugin(U_S                         "module"  NO_INSTALL ALLOW_UNDERSCORES
 simple_plugin(ValidHandleTester           "module"  NO_INSTALL )
 simple_plugin(Wanted                      "service" NO_INSTALL )
 
-art_dictionary(DICTIONARY_LIBRARIES ${CETLIB} NO_INSTALL)
+art_dictionary(DICTIONARY_LIBRARIES cetlib NO_INSTALL)
 
 # cet_test macro
 
@@ -1043,7 +1043,7 @@ cet_test(rename-histfile_t_check HANDBUILT
   TEST_PROPERTIES DEPENDS rename-histfile_t_w
 )
 
-simple_plugin(TestMetadata "plugin" NO_INSTALL art_Framework_Core ${FHICLCPP})
+simple_plugin(TestMetadata "plugin" NO_INSTALL art_Framework_Core fhiclcpp)
 cet_test(TestMetadata_plugin_t HANDBUILT
   TEST_EXEC art
   TEST_ARGS --rethrow-all -c TestMetadata_Plugin_t.fcl
@@ -1071,8 +1071,8 @@ set_source_files_properties(TestEmptyEventTimestampNoRSRTS_plugin.cc
   PROPERTIES COMPILE_DEFINITIONS TEST_USE_LAST_EVENT_TIMESTAMP
 )
 
-simple_plugin(TestEmptyEventTimestamp "plugin" NO_INSTALL art_Framework_Core ${FHICLCPP})
-simple_plugin(TestEmptyEventTimestampNoRSRTS "plugin" NO_INSTALL art_Framework_Core ${FHICLCPP})
+simple_plugin(TestEmptyEventTimestamp "plugin" NO_INSTALL art_Framework_Core fhiclcpp)
+simple_plugin(TestEmptyEventTimestampNoRSRTS "plugin" NO_INSTALL art_Framework_Core fhiclcpp)
 
 cet_test(TestEmptyEventTimestamp_t HANDBUILT
   TEST_EXEC art

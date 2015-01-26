@@ -5,7 +5,7 @@ art_dictionary(NO_INSTALL)
 set(default_test_libraries
   art_Utilities
   test_Utilities_dict
-  ${MF_MESSAGELOGGER}
+  MF_MessageLogger
   ${ROOT_CINT}
   ${ROOT_REFLEX}
   )
