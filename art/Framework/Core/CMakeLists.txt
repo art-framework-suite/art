@@ -24,9 +24,9 @@ art_make(
   art_Framework_Services_Registry
   art_Utilities
   art_Version
-  ${MF_MESSAGELOGGER}
-  ${FHICLCPP}
-  ${CETLIB}
+  MF_MessageLogger
+  fhiclcpp
+  cetlib
   ${CLHEP}
   ${TBB}
   )

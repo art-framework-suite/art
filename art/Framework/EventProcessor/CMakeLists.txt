@@ -9,7 +9,7 @@ art_make(
   art_Framework_Services_System_TriggerNamesService_service
   art_Framework_Core
   art_Utilities
-  ${CETLIB}
+  cetlib
   )
 
 install_headers(SUBDIRS detail)

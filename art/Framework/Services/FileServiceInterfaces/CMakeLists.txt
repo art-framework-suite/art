@@ -6,7 +6,7 @@ set(art_Framework_Services_FileServiceInterfaces_sources
 
 art_make_library(SOURCE ${art_Framework_Services_FileServiceInterfaces_sources}
   LIBRARIES art_Framework_Services_Registry
-  ${FHICLCPP}
+  fhiclcpp
   )
 
 install_headers(SUBDIRS detail)

@@ -86,7 +86,7 @@ macro(art_exec TARGET_STEM IN_STEM MAIN_FUNC)
     # ROOT libraries added for use convenience ONLY -- they will go away
     # eventually.
     ${ART_EXEC_ROOT_LIBS}
-    ${MF_MESSAGELOGGER}
+    MF_MessageLogger
     )
 endmacro()
 
@@ -108,7 +108,7 @@ art_make_exec(NAME check_libs
   SOURCE ${CMAKE_CURRENT_BINARY_DIR}/check_libs.cc
   LIBRARIES
   art_Utilities
-  ${CETLIB}
+  cetlib
   )
 
 install_headers()

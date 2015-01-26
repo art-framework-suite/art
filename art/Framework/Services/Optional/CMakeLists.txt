@@ -6,7 +6,7 @@ set( art_Framework_Services_Optional_sources
 
 art_make_library(# LIBRARY_NAME art_Framework_Services_Optional
                   SOURCE ${art_Framework_Services_Optional_sources}
-                  LIBRARIES ${CETLIB}
+                  LIBRARIES cetlib
   ${ROOT_HIST}
   ${ROOT_MATRIX}
   ${ROOT_MATHCORE}
@@ -21,9 +21,9 @@ art_make_library(# LIBRARY_NAME art_Framework_Services_Optional
 simple_plugin(RandomNumberGenerator "service"
   art_Framework_Principal
   art_Persistency_Common
-  ${MF_MESSAGELOGGER}
-  ${MF_UTILITIES}
-  ${CETLIB}
+  MF_MessageLogger
+  MF_Utilities
+  cetlib
   ${CLHEP}
   )
 
