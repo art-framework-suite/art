@@ -796,6 +796,7 @@ art::EventProcessor::deleteSubRunFromCache(SubRunID const & sr)
 void
 art::EventProcessor::readEvent()
 {
+  SignalSentry sourceSentry(actReg_.sPreSource, actReg_.sPostSource);
   sm_evp_ = input_->readEvent(principalCache_.subRunPrincipalPtr());
   FDEBUG(1) << "\treadEvent\n";
 }
