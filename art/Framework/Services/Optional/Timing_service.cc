@@ -5,8 +5,10 @@
 // ======================================================================
 
 #include "art/Framework/Principal/Event.h"
+#include "art/Framework/Services/Optional/TimeTracker.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/ServiceMacros.h"
+#include "art/Framework/Services/Registry/ServiceRegistry.h"
 #include "art/Persistency/Provenance/EventID.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Persistency/Provenance/ProvenanceFwd.h"
@@ -76,14 +78,30 @@ Timing::Timing(ParameterSet const& iPS, ActivityRegistry& iRegistry)
   , avg_event_time_( 0. )
   , nEvt_(0.)
 {
-  iRegistry.sPostBeginJob.watch(this, &Timing::postBeginJob);
-  iRegistry.sPostEndJob.watch(this, &Timing::postEndJob);
 
-  iRegistry.sPreProcessEvent.watch(this, &Timing::preEventProcessing);
-  iRegistry.sPostProcessEvent.watch(this, &Timing::postEventProcessing);
+  if ( ServiceRegistry::instance().isAvailable<TimeTracker>() ) {
 
-  iRegistry.sPreModule.watch(this, &Timing::preModule);
-  iRegistry.sPostModule.watch(this, &Timing::postModule);
+    mf::LogWarning("CONFIG") << "\n"
+                             << " <<< 'Timing' and 'TimeTracker' have both been configured.     >>> \n"
+                             << " <<< 'Timing' is deprecated.                                   >>> \n"
+                             << " <<< Only 'TimeTracker' will be included in services schedule. >>> \n";
+
+  }
+  else {
+
+    mf::LogWarning("CONFIG") << "\n <<< 'Timing' is deprecated.  Please use 'TimeTracker'. >>>\n";
+
+    iRegistry.sPostBeginJob.watch(this, &Timing::postBeginJob);
+    iRegistry.sPostEndJob.watch(this, &Timing::postEndJob);
+
+    iRegistry.sPreProcessEvent.watch(this, &Timing::preEventProcessing);
+    iRegistry.sPostProcessEvent.watch(this, &Timing::postEventProcessing);
+
+    iRegistry.sPreModule.watch(this, &Timing::preModule);
+    iRegistry.sPostModule.watch(this, &Timing::postModule);
+
+  }
+
 }
 
 // ----------------------------------------------------------------------

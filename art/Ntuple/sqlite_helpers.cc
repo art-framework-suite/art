@@ -18,13 +18,13 @@ namespace sqlite
     //=======================================================================
     int getResult(void* data, int ncols [[gnu::unused]], char** results, char** /*cnames*/)
     {
-      //      assert(ncols >= 1);
+      assert(ncols >= 1);
       query_result* j = static_cast<query_result*>(data);
       sqlite::stringstream resultStream;
       for ( int i(0); i < ncols ; ++i ) {
         resultStream << results[i];
       }
-      j->data.push_back( std::move(resultStream) );
+      j->data.emplace_back( std::move(resultStream) );
       return 0;
     }
 
@@ -56,8 +56,8 @@ namespace sqlite
 
       detail::query_result const res = query(db, cmd);
 
-      if (res.count == 0) { return false; }
-      if (res.count == 1 && res.data[0][0] == sqlddl) { return true; }
+      if (res.data.size() == 0) { return false; }
+      if (res.data.size() == 1 && res.data[0][0] == sqlddl) { return true; }
       throw art::Exception(art::errors::SQLExecutionError,
                            "Existing database table name does not match description");
     }

@@ -272,7 +272,7 @@ initServices_(ParameterSet const & top_pset,
   if (!user.is_empty()) {
     mf::LogWarning("CONFIG")
       << "Use of services.user parameter set is deprecated.\n"
-      << "Define all services in services paramaeter set.";
+      << "Define all services in services parameter set.";
   }
   for (auto const & key : user.get_keys()) {
     if (user.is_key_to_table(key)) {

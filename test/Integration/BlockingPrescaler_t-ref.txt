@@ -3,7 +3,7 @@ Messagelogger initialization complete.
 %MSG
 %MSG-w CONFIG:  <date-time> JobSetup
 Use of services.user parameter set is deprecated.
-Define all services in services paramaeter set.
+Define all services in services parameter set.
 %MSG
 Begin processing the 1st record. run: 1 subRun: 0 event: 1 at <date-time>
 Begin processing the 2nd record. run: 1 subRun: 0 event: 2 at <date-time>

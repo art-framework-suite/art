@@ -9,8 +9,8 @@
 
 #include <array>
 #include <string>
-#include <vector>
 #include <type_traits>
+#include <vector>
 
 #include "sqlite3.h"
 #include "art/Ntuple/sqlite_stringstream.h"
@@ -109,7 +109,6 @@ namespace sqlite
     struct query_result
     {
       std::vector<sqlite::stringstream> data;
-      int count  = 0;
     };
 
     query_result query( sqlite3* db, std::string const& ddl );
@@ -130,13 +129,13 @@ namespace sqlite
   //=====================================================================
   // Conversion functions for querying results
 
-  template<typename T = std::vector<sqlite::stringstream> >
-  T convertTo( std::vector<sqlite::stringstream> & data ) {
-    return data;
+  template < typename T >
+  inline T convertTo( std::vector<sqlite::stringstream>& ) {
+    return T();
   }
 
-  template<>
-  inline double convertTo<double>( std::vector<sqlite::stringstream> & data ) {
+  template <>
+  inline double convertTo<double>( std::vector<sqlite::stringstream>& data ) {
     if ( data.size() != 1 || data[0].size() != 1 ) {
       throw art::Exception( art::errors::LogicError,"sqlite results are not unique");
     }
@@ -144,7 +143,7 @@ namespace sqlite
   }
 
   template<>
-  inline uint32_t convertTo<uint32_t>( std::vector<sqlite::stringstream> & data ) {
+  inline uint32_t convertTo<uint32_t>( std::vector<sqlite::stringstream>& data ) {
     if ( data.size() != 1 || data[0].size() != 1 ) {
       throw art::Exception( art::errors::LogicError,"sqlite results are not unique");
     }
@@ -171,8 +170,15 @@ namespace sqlite
   //=====================================================================
   // Querying facilities
 
-  template<typename T = std::vector<sqlite::stringstream> >
-  auto query_db(sqlite3* db, std::string const& ddl, bool const do_throw = true)
+  inline std::vector<sqlite::stringstream> query_db(sqlite3* db, std::string const& ddl, bool const do_throw = true)
+  {
+    detail::query_result res = detail::query( db, ddl );
+    if ( res.data.empty() && do_throw ) throw art::Exception(art::errors::SQLExecutionError,"sqlite query_db unsuccessful");
+    return std::move(res.data);
+  }
+
+  template<typename T>
+  decltype(auto) query_db(sqlite3* db, std::string const& ddl, bool const do_throw = true)
   {
     detail::query_result res = detail::query( db, ddl );
     if ( res.data.empty() && do_throw ) throw art::Exception(art::errors::SQLExecutionError,"sqlite query_db unsuccessful");

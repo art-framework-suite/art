@@ -73,7 +73,7 @@ namespace art {
 
       // supported procfs types
       enum procfs_type{ VSIZE, RSS, ntypes };
-      
+
       // aliases
       using vsize_t    = unsigned long;
       using rss_t      = long;
@@ -89,20 +89,23 @@ namespace art {
     // operator overloads for std::array arithmetic
     // ... must type 'using namespace art::detail' to use
 
-    bool operator > ( LinuxProcData::proc_array const & left, 
-                      LinuxProcData::proc_array const & right ) {
+    inline bool operator >
+    ( LinuxProcData::proc_array const & left,
+      LinuxProcData::proc_array const & right ) {
       for ( unsigned i(0) ; i < LinuxProcData::ntypes ; ++i ) {
         if ( left.at(i) > right.at(i) ) return true;
       }
       return false;
     }
-    
-    bool operator <= ( LinuxProcData::proc_array const & left, 
+
+    inline
+    bool operator <= ( LinuxProcData::proc_array const & left,
                        LinuxProcData::proc_array const & right ) {
       return !( left > right );
     }
 
-    LinuxProcData::proc_array operator- (LinuxProcData::proc_array const & left, 
+    inline
+    LinuxProcData::proc_array operator- (LinuxProcData::proc_array const & left,
                                          LinuxProcData::proc_array const & right) {
       LinuxProcData::proc_array tmp;
       for ( unsigned i(0) ; i < LinuxProcData::ntypes ; ++i ) {
@@ -111,7 +114,8 @@ namespace art {
       return tmp;
     }
 
-    LinuxProcData::proc_array& operator+= (LinuxProcData::proc_array& left, 
+    inline
+    LinuxProcData::proc_array& operator+= (LinuxProcData::proc_array& left,
                                            LinuxProcData::proc_array const & right) {
       for ( unsigned i(0) ; i < LinuxProcData::ntypes ; ++i ) {
         left.at(i) += right.at(i);

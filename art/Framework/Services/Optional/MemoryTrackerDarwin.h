@@ -1,3 +1,6 @@
+#ifndef art_Framework_Services_Optional_MemoryTrackerDarwin_h
+#define art_Framework_Services_Optional_MemoryTrackerDarwin_h
+
 // ======================================================================
 //
 // MemoryTrackerDarwin
@@ -8,27 +11,24 @@
 #include "fhiclcpp/ParameterSet.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
-#include <type_traits>
-
-//====================================================================================
-
 namespace art {
 
-#ifndef __APPLE__
-  static_assert( 0, "MemoryTracker(Darwin) incompatible with this operating system." );
-#endif
-
-  class MemoryTrackerDarwin {
+  class MemoryTracker {
   public:
 
-    MemoryTrackerDarwin(fhicl::ParameterSet const &, ActivityRegistry &) {
+    MemoryTracker(fhicl::ParameterSet const &, ActivityRegistry &) {
       mf::LogAbsolute("MemoryTracker") << "\n"
                                        << "Service currently not supported for this operating system.\n"
                                        << "If desired, please log an issue with:\n\n"
                                        << "https://cdcvs.fnal.gov/redmine/projects/cet-is/issues/new\n\n";
     }
 
-  }; // MemoryTrackerDarwin
+  };
 
 }  // art
 
+#endif // art_Framework_Services_Optional_MemoryTrackerDarwin_h
+
+// Local variables:
+// mode: c++
+// End:

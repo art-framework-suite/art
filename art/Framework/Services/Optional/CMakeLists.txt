@@ -1,5 +1,6 @@
 set( art_Framework_Services_Optional_sources
   TFileDirectory.cc
+  MemoryTrackerLinux.cc
   detail/TH1AddDirectorySentry.cc
   detail/LinuxProcMgr.cc
 )
@@ -15,7 +16,9 @@ art_make_library(# LIBRARY_NAME art_Framework_Services_Optional
   ${Boost_FILESYSTEM_LIBRARY}
   ${Boost_REGEX_LIBRARY}
   ${Boost_SYSTEM_LIBRARY}
+  art_Persistency_Provenance
   art_Utilities
+  art_Ntuple
 )
 
 simple_plugin(RandomNumberGenerator "service"
@@ -28,27 +31,20 @@ simple_plugin(RandomNumberGenerator "service"
   )
 
 simple_plugin(SimpleInteraction "service" art_Framework_Services_UserInteraction)
+
 simple_plugin(SimpleMemoryCheck "service"
   art_Persistency_Provenance
   art_Framework_Services_Optional
   )
 
-# os-dependent plugin for MemoryTracker
-IF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-  SET(PLATFORM Linux)
-ELSEIF( ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-  SET(PLATFORM Darwin)
-ENDIF()
-configure_file(
-  ${CMAKE_CURRENT_SOURCE_DIR}/MemoryTracker_service.cc.in
-  ${CMAKE_CURRENT_BINARY_DIR}/MemoryTracker_service.cc @ONLY
+simple_plugin(MemoryAdjuster "service"
+  art_Framework_Services_Optional
   )
-simple_plugin(
-  MemoryTracker "service"
+
+simple_plugin(MemoryTracker "service"
   art_Framework_Services_Optional
   art_Ntuple
   art_Persistency_Provenance
-  SOURCE ${CMAKE_CURRENT_BINARY_DIR}/MemoryTracker_service.cc
   )
 
 simple_plugin(TFileService "service"
@@ -58,15 +54,20 @@ simple_plugin(TFileService "service"
   art_Framework_Principal
   ${ROOT_RIO}
   ${ROOT_THREAD})
+
 simple_plugin(Timing "service" art_Persistency_Provenance)
+
 simple_plugin(TimeTracker "service"
   art_Ntuple
   art_Persistency_Provenance
   ${TBB}
   -lrt
   )
+
 simple_plugin(Tracer "service" art_Persistency_Provenance)
+
 simple_plugin(TrivialFileDelivery "service")
+
 simple_plugin(TrivialFileTransfer "service")
 
 install_headers(SUBDIRS detail)

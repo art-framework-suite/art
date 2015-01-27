@@ -32,6 +32,7 @@
 // =================================================================
 
 #include <deque>
+#include <iostream>
 #include <string>
 
 #include "art/Utilities/Exception.h"
@@ -45,6 +46,11 @@ namespace sqlite {
     std::size_t size() const { return data_.size(); }
 
     std::string const & operator[]( int const index ) const { return data_[index]; }
+
+    stringstream& operator<< ( const char * str ) & {
+      data_.push_back( str );
+      return *this;
+    }
 
     stringstream& operator<< ( char * str ) & {
       data_.push_back( str );
@@ -76,6 +82,12 @@ namespace sqlite {
       data_.pop_front();
       return *this;
     }
+
+    // Disable copy c'tor/assignment
+    stringstream() = default;
+    stringstream( stringstream&& ) = default;
+    stringstream( const stringstream& ) = delete;
+    stringstream& operator=( const stringstream& ) = delete;
 
   private:
 

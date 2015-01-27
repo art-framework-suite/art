@@ -855,6 +855,8 @@ cet_test(MemoryTracker_t HANDBUILT
   DATAFILES
   fcl/memoryTracker.fcl
   fcl/messageDefaults.fcl
+  REF "${CMAKE_CURRENT_SOURCE_DIR}/MemoryTracker_t-ref.txt"
+  OUTPUT_FILTER "${CMAKE_CURRENT_SOURCE_DIR}/filter-memorytracker"
   )
 
 cet_test(TimingService_issue_2979_t HANDBUILT
@@ -864,9 +866,23 @@ cet_test(TimingService_issue_2979_t HANDBUILT
   fcl/issue_2979.fcl
 )
 
-cet_test(TimeTracker_issue_3598_t1 HANDBUILT TEST_EXEC art TEST_ARGS -c issue_3598_t1.fcl DATAFILES fcl/issue_3598_t1.fcl)
+cet_test(TimeTracker_issue_3598_t1 HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS -c issue_3598_t1.fcl
+  DATAFILES fcl/issue_3598_t1.fcl
+  REF "${CMAKE_CURRENT_SOURCE_DIR}/TimeTracker_issue_3598_t1-ref.txt"
+  OUTPUT_FILTER "${CMAKE_CURRENT_SOURCE_DIR}/filter-timetracker"
+  )
+
 cet_test(TimeTracker_issue_3598_t2 HANDBUILT TEST_EXEC art TEST_ARGS -c issue_3598_t2.fcl DATAFILES fcl/issue_3598_t2.fcl)
-cet_test(TimeTracker_issue_3598_t3 HANDBUILT TEST_EXEC art TEST_ARGS -c issue_3598_t3.fcl DATAFILES fcl/issue_3598_t3.fcl)
+
+cet_test(TimeTracker_issue_3598_t3 HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS -c issue_3598_t3.fcl
+  DATAFILES fcl/issue_3598_t3.fcl
+  REF "${CMAKE_CURRENT_SOURCE_DIR}/TimeTracker_issue_3598_t3-ref.txt"
+  OUTPUT_FILTER "${CMAKE_CURRENT_SOURCE_DIR}/filter-timetracker"
+  )
 
 cet_test(SAM_metadata HANDBUILT
   TEST_EXEC art

@@ -5,15 +5,16 @@
 // ======================================================================
 
 #include "art/Framework/Principal/Event.h"
+#include "art/Framework/Services/Optional/MemoryTracker.h"
 #include "art/Framework/Services/Optional/detail/constrained_multimap.h"
 #include "art/Framework/Services/Optional/detail/LinuxMallInfo.h"
 #include "art/Framework/Services/Optional/detail/LinuxProcData.h"
 #include "art/Framework/Services/Optional/detail/LinuxProcMgr.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/ServiceMacros.h"
+#include "art/Framework/Services/Registry/ServiceRegistry.h"
 #include "art/Persistency/Provenance/EventID.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
-#include "art/Utilities/MallocOpts.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
@@ -193,47 +194,42 @@ namespace art {
                                      << "If desired, please log an issue with:\n\n"
                                      << "https://cdcvs.fnal.gov/redmine/projects/cet-is/issues/new\n\n";
 #else
-    if (!oncePerEventMode_) { // default, prints on increases
-      iReg.sPostSource.watch(this,&SimpleMemoryCheck::postSource);
-      iReg.sPostModuleConstruction.watch(this,&SimpleMemoryCheck::postModuleConstruction);
-      iReg.sPostModuleBeginJob.watch(this,&SimpleMemoryCheck::postModuleBeginJob);
-      iReg.sPostProcessEvent.watch(this,&SimpleMemoryCheck::postEventProcessing);
-      iReg.sPostModule.watch(this,&SimpleMemoryCheck::postModule);
-      iReg.sPostEndJob.watch(this,&SimpleMemoryCheck::postEndJob);
-    }
-    else {
-      iReg.sPostProcessEvent.watch(this,&SimpleMemoryCheck::postEventProcessing);
-      iReg.sPostEndJob.watch(this,&SimpleMemoryCheck::postEndJob);
-    }
-    if (moduleSummaryRequested_) {
-      iReg.sPreProcessEvent.watch(this,&SimpleMemoryCheck::preEventProcessing);
-      iReg.sPreModule.watch(this,&SimpleMemoryCheck::preModule);
-      if (oncePerEventMode_) {
-        iReg.sPostModule.watch(this,&SimpleMemoryCheck::postModule);
-      }
-    }
 
-    typedef art::MallocOpts::opt_type opt_type;
-    art::MallocOptionSetter & mopts = art::getGlobalOptionSetter();
-    opt_type
-      p_mmap_max = iPS.get<int>("M_MMAP_MAX", -1),
-      p_trim_thr = iPS.get<int>("M_TRIM_THRESHOLD", -1),
-      p_top_pad  = iPS.get<int>("M_TOP_PAD", -1),
-      p_mmap_thr = iPS.get<int>("M_MMAP_THRESHOLD", -1);
-    if (p_mmap_max >= 0) { mopts.set_mmap_max(p_mmap_max); }
-    if (p_trim_thr >= 0) { mopts.set_trim_thr(p_trim_thr); }
-    if (p_top_pad  >= 0) { mopts.set_top_pad(p_top_pad);   }
-    if (p_mmap_thr >= 0) { mopts.set_mmap_thr(p_mmap_thr); }
-    mopts.adjustMallocParams();
-    if (mopts.hasErrors()) {
-      mf::LogWarning("MemoryCheck")
-        << "ERROR: Problem with setting malloc options\n"
-        << mopts.error_message();
-    }
-    if (iPS.get<bool>("dump", false) == true) {
-      art::MallocOpts mo = mopts.get();
-      mf::LogWarning("MemoryCheck") << "Malloc options: " << mo << "\n";
-    }
+    // Check if MemoryTracker is also enabled
+
+    if ( ServiceRegistry::instance().isAvailable<MemoryTracker>() )
+      {
+
+        mf::LogWarning("CONFIG") << "\n"
+                                 << " <<< 'SimpleMemoryCheck' and 'MemoryTracker' have both been configured. >>> \n"
+                                 << " <<< 'SimpleMemoryCheck' is deprecated.                                 >>> \n"
+                                 << " <<< Only 'MemoryTracker' will be included in services schedule.        >>> \n";
+      }
+    else
+      {
+
+        mf::LogWarning("CONFIG") << "\n <<< 'SimpleMemoryCheck' is deprecated.  Please use 'MemoryTracker'. >>>\n";
+
+        if (!oncePerEventMode_) { // default, prints on increases
+          iReg.sPostSource.watch(this,&SimpleMemoryCheck::postSource);
+          iReg.sPostModuleConstruction.watch(this,&SimpleMemoryCheck::postModuleConstruction);
+          iReg.sPostModuleBeginJob.watch(this,&SimpleMemoryCheck::postModuleBeginJob);
+          iReg.sPostProcessEvent.watch(this,&SimpleMemoryCheck::postEventProcessing);
+          iReg.sPostModule.watch(this,&SimpleMemoryCheck::postModule);
+          iReg.sPostEndJob.watch(this,&SimpleMemoryCheck::postEndJob);
+        }
+        else {
+          iReg.sPostProcessEvent.watch(this,&SimpleMemoryCheck::postEventProcessing);
+          iReg.sPostEndJob.watch(this,&SimpleMemoryCheck::postEndJob);
+        }
+        if (moduleSummaryRequested_) {
+          iReg.sPreProcessEvent.watch(this,&SimpleMemoryCheck::preEventProcessing);
+          iReg.sPreModule.watch(this,&SimpleMemoryCheck::preModule);
+          if (oncePerEventMode_) {
+            iReg.sPostModule.watch(this,&SimpleMemoryCheck::postModule);
+          }
+        }
+      }
 #endif
   }
 

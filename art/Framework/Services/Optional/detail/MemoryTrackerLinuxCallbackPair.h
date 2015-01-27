@@ -50,7 +50,8 @@ namespace art {
       {
         deltas_ = procMgr_->getCurrentData()-baseline_;
         summaryTable_->insert( processStep_,
-                               "[ EVT ] #: "s +std::to_string( *counter_ ),
+                               // add one to keep easier synchronization with EventID
+                               "[ EVT ] #: "s +std::to_string( *counter_+1 ),
                                deltas_.at(LinuxProcData::VSIZE),
                                deltas_.at(LinuxProcData::RSS ) );
       }

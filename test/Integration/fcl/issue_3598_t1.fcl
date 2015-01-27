@@ -1,5 +1,10 @@
 services:
 {
+   scheduler:
+   {
+      wantSummary : true
+   }
+
    TimeTracker: { 
       printSummary : true
       dbOutput     : {

@@ -3,6 +3,7 @@
 #include <iostream>
 
 #include "art/Ntuple/Ntuple.h"
+#include "art/Utilities/Exception.h"
 
 #include "sqlite3.h"
 
@@ -20,7 +21,7 @@ void nullptr_build_failure()
       Ntuple<int, double> t2(db, "table1", {"i", "x"});
       assert("Ntuple creation failed to throw required exception" == 0);
     }
-  catch (std::runtime_error const& x) { }
+  catch (art::Exception const& x) { }
   catch (...) { assert("Ntuple creation throw the wrong type of exception" == 0); }
   std::cout << "end nullptr_build_failure\n";
 }
@@ -52,7 +53,7 @@ void test_with_colliding_table(sqlite3* db,
       Ntuple<ARGS...> xx(db, "xx", names);
       assert("Failed throw for mismatched table" == 0);
     }
-  catch (std::runtime_error const& x) { }
+  catch (art::Exception const& x) { }
   catch (...) { assert("Threw wrong exception for mismatched table" == 0); }
   std::cout << "end test_with_colliding_table\n";
 }
