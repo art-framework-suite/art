@@ -14,7 +14,7 @@ while (<>) {
   s&\d{4}-(?:0\d|1[0-2])-(?:[0-2]\d|3[01])(?:\s+(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?(?:\s+(?:[-+]\d+|[A-Z]{3}))?)?)?&<date-time> &g;
   s&\d+-(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)-\d{4}(?:\s+(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?(?:\s+(?:[-+]\d+|[A-Z]{3}))?)?)?&<date-time> &g;
   # TimeTracker summary lines
+  s&\s+0[^\S\r\n]&<mem size>&g;
   s&\s*\d+\.\d+(e[+-]\d+)?[^\S\r\n]*&<mem size>&g;
-#  s&\s*<duration>&<duration>&g;
   print;
 }
