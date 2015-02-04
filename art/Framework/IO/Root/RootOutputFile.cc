@@ -81,7 +81,7 @@ namespace art {
     :
     file_(fileName),
     om_(om),
-    currentlyFastCloning_(),
+    currentlyFastCloning_(true),
     filePtr_(TFile::Open(file_.c_str(), "recreate", "", om_->compressionLevel())),
     fileIndex_(),
     eventEntryNumber_(0LL),
@@ -145,10 +145,18 @@ namespace art {
   }
 
   void RootOutputFile::beginInputFile(FileBlock const& fb, bool fastClone) {
-
-    currentlyFastCloning_ = om_->fastCloning() && fb.fastClonable() && fastClone;
-    if (currentlyFastCloning_) currentlyFastCloning_ = eventTree_.checkSplitLevelAndBasketSize(fb.tree());
-
+    auto const origCurrentlyFastCloning = currentlyFastCloning_;
+    currentlyFastCloning_ = om_->fastCloning() && fastClone;
+    if (currentlyFastCloning_ && ! eventTree_.checkSplitLevelAndBasketSize(fb.tree())) {
+      mf::LogWarning("FastCloning")
+        << "Fast cloning deactivated for this input file due to "
+        << "splitting level and/or basket size.";
+      currentlyFastCloning_ = false;
+    }
+    if (currentlyFastCloning_ and ! origCurrentlyFastCloning) {
+      mf::LogWarning("FastCloning")
+        << "Fast cloning reactivated for this input file.";
+    }
     eventTree_.beginInputFile(currentlyFastCloning_);
     eventTree_.fastCloneTree(fb.tree());
   }
