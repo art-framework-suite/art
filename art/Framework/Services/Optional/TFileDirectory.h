@@ -1,141 +1,105 @@
 #ifndef art_Framework_Services_Optional_TFileDirectory_h
 #define art_Framework_Services_Optional_TFileDirectory_h
 
-/* \class TFileDirectory
+/* class TFileDirectory
  *
- * \author Luca Lista, INFN
+ * Original author: Luca Lista, INFN
  *
  */
 
 #include <string>
+#include <utility>
+
 #include "art/Framework/Services/Optional/detail/TH1AddDirectorySentry.h"
 
 class TFile;
+class TGraph;
+
+#include "TDirectory.h"
 
 namespace art
 {
   class TFileDirectory {
   public:
-    /// destructor
-    virtual ~TFileDirectory() { }
-    /// make new ROOT object
-    template<typename T>
-    T * make() const {
-      TH1AddDirectorySentry sentry;
-      cd(); return new T();
-    }
-    /// make new ROOT object
-    template<typename T, typename Arg1>
-    T * make( const Arg1 & a1 ) const {
-      TH1AddDirectorySentry sentry;
-      cd(); return new T( a1 );
-    }
-    /// make new ROOT object
-    template<typename T, typename Arg1, typename Arg2>
-    T * make( const Arg1 & a1, const Arg2 & a2 ) const {
-      TH1AddDirectorySentry sentry;
-      cd(); return new T( a1, a2 );
-    }
-    /// make new ROOT object
-    template<typename T, typename Arg1, typename Arg2, typename Arg3>
-    T * make( const Arg1 & a1, const Arg2 & a2, const Arg3 & a3 ) const {
-      TH1AddDirectorySentry sentry;
-      cd(); return new T( a1, a2, a3 );
-    }
-    /// make new ROOT object
-    template<typename T, typename Arg1, typename Arg2, typename Arg3, typename Arg4>
-    T * make( const Arg1 & a1, const Arg2 & a2, const Arg3 & a3, const Arg4 & a4 ) const {
-      TH1AddDirectorySentry sentry;
-      cd(); return new T( a1, a2, a3, a4 );
-    }
-    /// make new ROOT object
-    template<typename T, typename Arg1, typename Arg2, typename Arg3, typename Arg4,
-             typename Arg5>
-    T * make( const Arg1 & a1, const Arg2 & a2, const Arg3 & a3, const Arg4 & a4,
-              const Arg5 & a5 ) const {
-      TH1AddDirectorySentry sentry;
-      cd(); return new T( a1, a2, a3, a4, a5 );
-    }
-    /// make new ROOT object
-    template<typename T, typename Arg1, typename Arg2, typename Arg3, typename Arg4,
-             typename Arg5, typename Arg6>
-    T * make( const Arg1 & a1, const Arg2 & a2, const Arg3 & a3, const Arg4 & a4,
-              const Arg5 & a5, const Arg6 & a6 ) const {
-      TH1AddDirectorySentry sentry;
-      cd(); return new T( a1, a2, a3, a4, a5, a6 );
-    }
-    /// make new ROOT object
-    template<typename T, typename Arg1, typename Arg2, typename Arg3, typename Arg4,
-             typename Arg5, typename Arg6, typename Arg7>
-    T * make( const Arg1 & a1, const Arg2 & a2, const Arg3 & a3, const Arg4 & a4,
-              const Arg5 & a5, const Arg6 & a6, const Arg7 & a7 ) const {
-      TH1AddDirectorySentry sentry;
-      cd(); return new T( a1, a2, a3, a4, a5, a6, a7 );
-    }
-    /// make new ROOT object
-    template<typename T, typename Arg1, typename Arg2, typename Arg3, typename Arg4,
-             typename Arg5, typename Arg6, typename Arg7, typename Arg8>
-    T * make( const Arg1 & a1, const Arg2 & a2, const Arg3 & a3, const Arg4 & a4,
-              const Arg5 & a5, const Arg6 & a6, const Arg7 & a7, const Arg8 & a8 ) const {
-      TH1AddDirectorySentry sentry;
-      cd(); return new T( a1, a2, a3, a4, a5, a6, a7, a8 );
-    }
-    /// make new ROOT object
-    template<typename T, typename Arg1, typename Arg2, typename Arg3, typename Arg4,
-             typename Arg5, typename Arg6, typename Arg7, typename Arg8,
-             typename Arg9>
-    T * make( const Arg1 & a1, const Arg2 & a2, const Arg3 & a3, const Arg4 & a4,
-              const Arg5 & a5, const Arg6 & a6, const Arg7 & a7, const Arg8 & a8,
-              const Arg9 & a9 ) const {
-      TH1AddDirectorySentry sentry;
-      cd(); return new T( a1, a2, a3, a4, a5, a6, a7, a8, a9 );
-    }
-    /// make new ROOT object
-    template<typename T, typename Arg1, typename Arg2, typename Arg3, typename Arg4,
-             typename Arg5, typename Arg6, typename Arg7, typename Arg8,
-             typename Arg9, typename Arg10>
-    T * make( const Arg1 & a1, const Arg2 & a2, const Arg3 & a3, const Arg4 & a4,
-              const Arg5 & a5, const Arg6 & a6, const Arg7 & a7, const Arg8 & a8,
-              const Arg9 & a9, const Arg10 & a10 ) const {
-      TH1AddDirectorySentry sentry;
-      cd(); return new T( a1, a2, a3, a4, a5, a6, a7, a8, a9, a10 );
-    }
-    /// make new ROOT object
-    template<typename T, typename Arg1, typename Arg2, typename Arg3, typename Arg4,
-             typename Arg5, typename Arg6, typename Arg7, typename Arg8,
-             typename Arg9, typename Arg10, typename Arg11>
-    T * make( const Arg1 & a1, const Arg2 & a2, const Arg3 & a3, const Arg4 & a4,
-              const Arg5 & a5, const Arg6 & a6, const Arg7 & a7, const Arg8 & a8,
-              const Arg9 & a9, const Arg10 & a10, const Arg11 & a11 ) const {
-      TH1AddDirectorySentry sentry;
-      cd(); return new T( a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11 );
-    }
-    /// make new ROOT object
-    template<typename T, typename Arg1, typename Arg2, typename Arg3, typename Arg4,
-             typename Arg5, typename Arg6, typename Arg7, typename Arg8,
-             typename Arg9, typename Arg10, typename Arg11, typename Arg12>
-    T * make( const Arg1 & a1, const Arg2 & a2, const Arg3 & a3, const Arg4 & a4,
-              const Arg5 & a5, const Arg6 & a6, const Arg7 & a7, const Arg8 & a8,
-              const Arg9 & a9, const Arg10 & a10, const Arg11 & a11, const Arg12 & a12 ) const {
-      TH1AddDirectorySentry sentry;
-      cd(); return new T( a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12 );
-    }
-    /// create a new subdirectory
+
+    virtual ~TFileDirectory() = default;
+
+    /// make new ROOT object of type T, using constructor parameters
+    /// args. It will be made in the 'current directory', as
+    /// established with a call to 'cd'.
+    template <typename T, typename ... ARGS>
+    T* make(ARGS ... args) const;
+
+    /// make and register a new ROOT object of type T, giving it the
+    /// specified name and title, using constructor parameters
+    /// 'args'. The type must be registerable, and must support naming
+    /// and titling.
+    template <typename T, typename ... ARGS>
+    T* makeAndRegister(char const* name, const char* title, ARGS ... args) const;
+
+    template <typename T, typename ... ARGS>
+    T* makeAndRegister(std::string const& name, std::string const& title, ARGS ... args) const;
+
+    /// Create a new TFileDirectory, sharing the same TFile as this
+    /// one, but with an additional 'dir', and with 'path' being the
+    /// fullPath() of this one.
     TFileDirectory mkdir( const std::string & dir, const std::string & descr = "" );
 
   protected:
+    /// Create a new TFileDirectory object.
     TFileDirectory( const std::string & dir, const std::string & descr,
-                    TFile * file, const std::string & path ) :
-      file_( file ), dir_( dir ), descr_( descr ), path_( path ) {
-    }
+                    TFile * file, const std::string & path );
 
-    TFile * file_;
-    std::string dir_, descr_, path_;
+    /// Return the full pathname of the current directory, formed from
+    /// appending 'dir' to the end of 'path'.
     std::string fullPath() const;
 
+    TFile * file_;
+    std::string dir_;
+    std::string descr_;
+    std::string path_;
+
   private:
+    /// Make the current directory be the one implied by the state of
+    /// this TFileDirectory.
     void cd() const;
   };
+
+  template <typename T, typename ... ARGS>
+  T*
+  TFileDirectory::make(ARGS ... args) const
+  {
+    RootDirectorySentry sentry;
+    cd();
+    return new T(std::forward<ARGS>(args)...);
+  }
+
+  template <typename T, typename ... ARGS>
+  T*
+  TFileDirectory::makeAndRegister(char const* name,
+                                  char const* title,
+                                  ARGS ... args) const
+  {
+    RootDirectorySentry sentry;
+    cd();
+    T* p = new T(std::forward<ARGS>(args)...);
+    p->SetName(name);
+    p->SetTitle(title);
+    gDirectory->Append(p);
+    return p;
+  }
+
+  template <typename T, typename ... ARGS>
+  T*
+  TFileDirectory::makeAndRegister(std::string const& name,
+                                  std::string const& title,
+                                  ARGS ... args) const
+  {
+    return makeAndRegister(name.c_str(),
+                           title.c_str(),
+                           std::forward<ARGS>(args)...);
+  }
+
 }
 
 #endif /* art_Framework_Services_Optional_TFileDirectory_h */

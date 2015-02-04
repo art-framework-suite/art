@@ -4,7 +4,7 @@
 // -*- C++ -*-
 //
 // Package:     UtilAlgos
-// Class  :     TH1AddDirectorySentry
+// Class  :     RootDirectorySentry
 //
 /*
  Description: Manages the status of the ROOT directory
@@ -23,17 +23,17 @@
 //
 
 
-class TH1AddDirectorySentry
+class RootDirectorySentry
 {
 
 public:
-  TH1AddDirectorySentry();
-  ~TH1AddDirectorySentry();
+  RootDirectorySentry();
+  ~RootDirectorySentry();
 
 
 private:
-  TH1AddDirectorySentry(const TH1AddDirectorySentry&) = delete;
-  TH1AddDirectorySentry& operator=(const TH1AddDirectorySentry&) = delete;
+  RootDirectorySentry(const RootDirectorySentry&) = delete;
+  RootDirectorySentry& operator=(const RootDirectorySentry&) = delete;
   bool status_;
 };
 

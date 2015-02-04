@@ -131,6 +131,7 @@ cet_test(test_simple_01_t.sh PREBUILT
   fcl/test_simple_01.fcl
   fcl/test_simple_01r.fcl
   fcl/messageDefaults.fcl
+  test_simple_01_verify.cxx
 )
 
 cet_test(test_view_01_t.sh PREBUILT
