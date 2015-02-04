@@ -10,9 +10,7 @@
 
 namespace arttest
 {
-void
-  UnitTestClient::analyze( art::Event      const & e
-                           , art::EventSetup const & es )
+void UnitTestClient::analyze( art::Event      const & e)
 {
 
   double x = 1.0;
