@@ -1,0 +1,24 @@
+InputTag:  label = label, instance = instance, process = processName
+
+InputTag:  label = label0, instance = instance0, process = processName0
+InputTag:  label = label1, instance = instance1, process = processName1
+InputTag:  label = label2, instance = instance2, process = processName2
+InputTag:  label = label3, instance = instance3, process = processName3
+InputTag:  label = label4, instance = instance4, process = processName4
+InputTag:  label = label5, instance = instance5, process = processName5
+InputTag:  label = label6, instance = instance6, process = processName6
+InputTag:  label = label7, instance = instance7, process = processName7
+InputTag:  label = label8, instance = instance8, process = processName8
+InputTag:  label = label9, instance = instance9, process = processName9
+
+This is empty.
+One more time: InputTag:  label = label0, instance = instance0, process = processName0
+One more time: InputTag:  label = label1, instance = instance1, process = processName1
+One more time: InputTag:  label = label2, instance = instance2, process = processName2
+One more time: InputTag:  label = label3, instance = instance3, process = processName3
+One more time: InputTag:  label = label4, instance = instance4, process = processName4
+One more time: InputTag:  label = label5, instance = instance5, process = processName5
+One more time: InputTag:  label = label6, instance = instance6, process = processName6
+One more time: InputTag:  label = label7, instance = instance7, process = processName7
+One more time: InputTag:  label = label8, instance = instance8, process = processName8
+One more time: InputTag:  label = label9, instance = instance9, process = processName9

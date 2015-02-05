@@ -24,6 +24,12 @@ cet_test(InputTag_t USE_BOOST_UNIT
   LIBRARIES ${default_test_libraries}
   )
 
+cet_test(ParameterSet_get_vecInputTag_t
+  LIBRARIES ${default_test_libraries}
+  TEST_ARGS "dummy"
+  REF "${CMAKE_CURRENT_SOURCE_DIR}/ParameterSet_get_vecInputTag_t-ref.txt"
+  )
+
 cet_test(TypeID_t USE_BOOST_UNIT
   LIBRARIES ${default_test_libraries}
   )
