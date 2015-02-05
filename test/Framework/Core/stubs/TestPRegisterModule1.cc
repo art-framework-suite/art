@@ -5,8 +5,9 @@
 
 #include "FWCore/Framework/test/stubs/TestPRegisterModule1.h"
 #include "art/Framework/Principal/Event.h"
-#include "cpp0x/memory"
 #include "test/TestObjects/ToyProducts.h"
+
+#include <memory>
 #include <string>
 
 using namespace art;

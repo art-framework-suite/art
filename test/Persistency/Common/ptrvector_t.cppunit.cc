@@ -1,9 +1,11 @@
 #include "art/Persistency/Common/PtrVector.h"
 #include "art/Persistency/Common/TestHandle.h"
 #include "art/Persistency/Common/Wrapper.h"
-#include "cpp0x/algorithm"
+
 #include "test/Persistency/Common/IntValues.h"
 #include <cppunit/extensions/HelperMacros.h>
+
+#include <algorithm>
 #include <iostream>
 #include <vector>
 

@@ -4,12 +4,13 @@
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/System/TriggerNamesService.h"
 #include "art/Persistency/Common/TriggerResults.h"
-#include "cpp0x/algorithm"
-#include "cpp0x/numeric"
+
+#include <algorithm>
 #include <cassert>
 #include <cstdlib>
 #include <iostream>
 #include <iterator>
+#include <numeric>
 #include <string>
 
 using namespace art;

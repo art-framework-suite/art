@@ -8,11 +8,12 @@
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/Registry/ServiceRegistry.h"
-#include "cpp0x/memory"
 #include "fhiclcpp/ParameterSet.h"
 #include "test/Integration/Reconfigurable.h"
 #include "test/TestObjects/ToyProducts.h"
+
 #include <iostream>
+#include <memory>
 #include <vector>
 
 using namespace art;

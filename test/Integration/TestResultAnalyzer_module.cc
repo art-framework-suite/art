@@ -5,11 +5,12 @@
 #include "art/Framework/Principal/Handle.h"
 #include "art/Persistency/Common/TriggerResults.h"
 #include "cetlib/exception.h"
-#include "cpp0x/algorithm"
-#include "cpp0x/numeric"
 #include "messagefacility/MessageLogger/MessageLogger.h"
+
+#include <algorithm>
 #include <cassert>
 #include <iterator>
+#include <numeric>
 #include <string>
 
 namespace arttest {

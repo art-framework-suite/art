@@ -5,7 +5,7 @@ using namespace art;
 #define BOOST_TEST_MODULE ( RootDictionaryManager Test )
 #include "boost/test/auto_unit_test.hpp"
 
-#include "cpp0x/algorithm"
+#include <algorithm>
 #include "cetlib/container_algorithms.h"
 #include "cetlib/exception.h"
 #include <iostream>

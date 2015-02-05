@@ -19,11 +19,12 @@
 #include "art/Persistency/Common/Ptr.h"
 #include "art/Persistency/Common/PtrVector.h"
 #include "cetlib/maybe_ref.h"
-#include "cpp0x/type_traits"
 #include "test/TestObjects/AssnTestData.h"
 
 #include "art/Utilities/quiet_unit_test.hpp"
 #include "boost/type_traits.hpp"
+
+#include <type_traits>
 
 namespace arttest {
    class AssnsAnalyzer;

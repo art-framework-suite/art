@@ -36,7 +36,7 @@ Test of the EventPrincipal class.
 #include "art/Utilities/GetPassID.h"
 #include "art/Utilities/TypeID.h"
 #include "art/Version/GetReleaseVersion.h"
-#include "cpp0x/memory"
+#include <memory>
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/ParameterSetID.h"
 #include "test/TestObjects/ToyProducts.h"

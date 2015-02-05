@@ -1,5 +1,6 @@
-#include "cpp0x/algorithm"
 #include "test/TestObjects/StreamTestThing.h"
+
+#include <algorithm>
 #include <cstdlib>
 
 namespace {

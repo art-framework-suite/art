@@ -3,10 +3,10 @@
 #include "art/Persistency/Common/PtrVector.h"
 #include "art/Persistency/Common/Wrapper.h"
 #include "cetlib/map_vector.h"
-#include "cpp0x/utility"
 #include "test/TestObjects/AssnTestData.h"
 
 #include <string>
+#include <utility>
 #include <vector>
 
 template class art::Ptr<double>;

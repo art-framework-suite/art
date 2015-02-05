@@ -12,12 +12,13 @@ Toy EDProducers and EDProducts for testing purposes only.
 #include "art/Persistency/Common/EDProduct.h"
 #include "art/Framework/Principal/Handle.h"
 #include "art/Framework/Principal/View.h"
-#include "cpp0x/cstdint"
-#include "cpp0x/memory"
 #include "fhiclcpp/ParameterSet.h"
 #include "test/TestObjects/ToyProducts.h"
+
 #include <cassert>
+#include <cstdint>
 #include <iostream>
+#include <memory>
 #include <stdexcept>
 #include <string>
 #include <vector>

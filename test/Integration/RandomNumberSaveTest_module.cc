@@ -18,10 +18,10 @@
 #include "art/Framework/Services/Optional/RandomNumberGenerator.h"
 #include "art/Utilities/Exception.h"
 #include "cetlib/container_algorithms.h"
-#include "cpp0x/algorithm"
 
 #include "CLHEP/Random/RandFlat.h"
 
+#include <algorithm>
 #include <iostream>
 #include <iterator>
 #include <ostream>

@@ -6,11 +6,12 @@
 #include "art/Framework/Core/OutputModule.h"
 #include "art/Framework/Principal/Handle.h"
 #include "art/Persistency/Common/TriggerResults.h"
-#include "cpp0x/algorithm"
-#include "cpp0x/numeric"
 #include "fhiclcpp/ParameterSet.h"
+
+#include <algorithm>
 #include <iostream>
 #include <iterator>
+#include <numeric>
 #include <string>
 
 using namespace art;

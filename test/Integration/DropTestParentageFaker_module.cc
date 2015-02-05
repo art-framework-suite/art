@@ -17,7 +17,7 @@
 #include "art/Framework/Principal/Handle.h"
 #include "art/Persistency/Common/Ptr.h"
 
-#include <cpp0x/memory>
+#include <memory>
 
 namespace arttest {
   class DropTestParentageFaker;

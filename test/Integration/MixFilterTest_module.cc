@@ -10,7 +10,6 @@
 #include "art/Persistency/Common/PtrVector.h"
 #include "art/Utilities/InputTag.h"
 #include "cetlib/map_vector.h"
-#include "cpp0x/memory"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 #include "test/TestObjects/ProductWithPtrs.h"
 #include "test/TestObjects/ToyProducts.h"
@@ -19,6 +18,7 @@
 
 #include <algorithm>
 #include <iterator>
+#include <memory>
 #include <unordered_set>
 
 namespace arttest {

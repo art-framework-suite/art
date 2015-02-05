@@ -28,14 +28,15 @@
 #include "art/Utilities/InputTag.h"
 #include "art/Version/GetReleaseVersion.h"
 #include "cetlib/container_algorithms.h"
-#include "cpp0x/algorithm"
-#include "cpp0x/memory"
 #include "fhiclcpp/ParameterSet.h"
 #include "test/TestObjects/ToyProducts.h"
+
+#include <algorithm>
 #include <fstream>
 #include <iterator>
 #include <limits>
 #include <map>
+#include <memory>
 #include <string>
 #include <typeinfo>
 #include <vector>

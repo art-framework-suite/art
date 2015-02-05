@@ -15,7 +15,7 @@
 #include "fhiclcpp/parse.h"
 #include "test/Integration/ToySource.h"
 
-#include "cpp0x/memory"
+#include <memory>
 
 namespace arttest
 {

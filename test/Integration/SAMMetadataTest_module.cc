@@ -14,9 +14,9 @@
 #include "art/Framework/Principal/Run.h"
 #include "art/Framework/Principal/SubRun.h"
 #include "art/Framework/Services/System/FileCatalogMetadata.h"
-#include "cpp0x/memory"
 #include "fhiclcpp/ParameterSet.h"
 
+#include <memory>
 
 namespace arttest {
   class SAMMetadataTest;
