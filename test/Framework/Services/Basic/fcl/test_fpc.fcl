@@ -7,7 +7,7 @@ services:
   floating_point_control: {
         moduleNames: [ default ]
 default: {
-   enableDivByZeroEx: false
+   enableDivByZeroEx: true
 }
   }
 }

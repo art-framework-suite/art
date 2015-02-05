@@ -16,9 +16,9 @@ namespace arttest
 class UnitTestClient : public art::EDAnalyzer
 {
 public:
-  explicit UnitTestClient( fhicl::ParameterSet const & p):art::EDAnalyzer(p) { }
-  virtual ~UnitTestClient() { }
-  virtual void analyze( art::Event      const & e);
+  explicit UnitTestClient( fhicl::ParameterSet const & p);
+  virtual ~UnitTestClient();
+  virtual void analyze( art::Event const & e);
 
 private:
 };
