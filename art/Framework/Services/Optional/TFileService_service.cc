@@ -40,21 +40,22 @@ TFileService::TFileService(ParameterSet const & cfg,
   assert(file_ == nullptr && "TFile pointer should always be zero here!");
   file_ = new TFile(uniqueFilename_.c_str(), "RECREATE");
   // Activities to monitor in order to set the proper directory.
-  r.sPreModuleConstruction.watch(this, & TFileService::setDirectoryName);
-  r.sPreModule.watch            (this, & TFileService::setDirectoryName);
-  r.sPreModuleBeginJob.watch    (this, & TFileService::setDirectoryName);
-  r.sPreModuleEndJob.watch      (this, & TFileService::setDirectoryName);
-  r.sPreModuleBeginRun.watch    (this, & TFileService::setDirectoryName);
-  r.sPreModuleEndRun.watch      (this, & TFileService::setDirectoryName);
-  r.sPreModuleBeginSubRun.watch (this, & TFileService::setDirectoryName);
-  r.sPreModuleEndSubRun.watch   (this, & TFileService::setDirectoryName);
+  r.sPreModuleRespondToOpenInputFile.watch   (this, &TFileService::setDirectoryName);
+  r.sPreModuleRespondToCloseInputFile.watch  (this, &TFileService::setDirectoryName);
+  r.sPreModuleRespondToOpenOutputFiles.watch (this, &TFileService::setDirectoryName);
+  r.sPreModuleRespondToCloseOutputFiles.watch(this, &TFileService::setDirectoryName);
+  r.sPreModuleConstruction.watch      (this, &TFileService::setDirectoryName);
+  r.sPreModule.watch                  (this, &TFileService::setDirectoryName);
+  r.sPreModuleBeginJob.watch          (this, &TFileService::setDirectoryName);
+  r.sPreModuleEndJob.watch            (this, &TFileService::setDirectoryName);
+  r.sPreModuleBeginRun.watch          (this, &TFileService::setDirectoryName);
+  r.sPreModuleEndRun.watch            (this, &TFileService::setDirectoryName);
+  r.sPreModuleBeginSubRun.watch       (this, &TFileService::setDirectoryName);
+  r.sPreModuleEndSubRun.watch         (this, &TFileService::setDirectoryName);
   // Activities to monitor to keep track of events, subruns and runs seen.
-  r.sPostProcessEvent.watch     ([this](Event const & e) -> void
-                                 { fstats_.recordEvent(e.id()); });
-  r.sPostEndSubRun.watch        ([this](SubRun const & sr) -> void
-                                 { fstats_.recordSubRun(sr.id()); });
-  r.sPostEndRun.watch           ([this](Run const & r) -> void
-                                 { fstats_.recordRun(r.id()); });
+  r.sPostProcessEvent.watch([this](Event  const & e ) -> void { fstats_.recordEvent (e .id()); });
+  r.sPostEndSubRun.watch   ([this](SubRun const & sr) -> void { fstats_.recordSubRun(sr.id()); });
+  r.sPostEndRun.watch      ([this](Run    const & r ) -> void { fstats_.recordRun   (r .id()); });
 }
 
 // ----------------------------------------------------------------------

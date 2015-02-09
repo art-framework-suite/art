@@ -24,22 +24,30 @@ public:
 private:
 
   void analyze( const art::Event& e);
+  void respondToOpenInputFile(FileBlock const&);
+
   // histograms
   TH1F * h_test1 = nullptr;
   TH2F * h_test2 = nullptr;
+  TH1F * h_test3 = nullptr;
+
   // graphs
   TGraph * g1 = nullptr;
   TGraphPolar * g2 = nullptr;
+
   // sub-directory name
   std::string dir1_;
   std::string dir2_;
+  std::string dir3_;
+
 };  // TestTFileServiceAnalyzer
 
 
-TestTFileServiceAnalyzer::TestTFileServiceAnalyzer(fhicl::ParameterSet const& cfg ) : 
+TestTFileServiceAnalyzer::TestTFileServiceAnalyzer(fhicl::ParameterSet const& cfg ) :
   EDAnalyzer( cfg ),
   dir1_("a"),
-  dir2_("b")
+  dir2_("b"),
+  dir3_("respondToOpenInputFile")
 {
   assert(!dir1_.empty());
   assert(!dir2_.empty());
@@ -52,8 +60,15 @@ TestTFileServiceAnalyzer::TestTFileServiceAnalyzer(fhicl::ParameterSet const& cf
   TFileDirectory dir2 = fs->mkdir( dir2_ );
   h_test2 = dir2.make<TH2F>( "test2", "test histogram #2", 100,  0., 100., 10, 0., 20. );
 
+  TFileDirectory dir3 = fs->mkdir( dir3_ );
+  h_test3 = dir3.make<TH1F>( "test3", "test respondToInputFile", 100, 0., 10. );
+
   g1 = fs->makeAndRegister<TGraph>("graphAtTopLevel", "graph at top level", 10);
-  g2 = dir2.makeAndRegister<TGraphPolar>("graphInSubdirectory", "graph in subdirectory", 20);  
+  g2 = dir2.makeAndRegister<TGraphPolar>("graphInSubdirectory", "graph in subdirectory", 20);
+}
+
+void TestTFileServiceAnalyzer::respondToOpenInputFile( FileBlock const & ) {
+  h_test3->Fill( 3. );
 }
 
 void TestTFileServiceAnalyzer::analyze( const Event& ) {

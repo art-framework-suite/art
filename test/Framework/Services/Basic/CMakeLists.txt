@@ -12,5 +12,5 @@ cet_test(UnitTestClient HANDBUILT
   DATAFILES
   fcl/test_fpc.fcl
   # fcl/messageDefaults.fcl
-)
+  )
 
