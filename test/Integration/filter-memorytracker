@@ -16,5 +16,6 @@ while (<>) {
   # TimeTracker summary lines
   s&\s+0[^\S\r\n]&<mem size>&g;
   s&\s*\d+\.\d+(e[+-]\d+)?[^\S\r\n]*&<mem size>&g;
+  s&\s*\n&\n&g;
   print;
 }
