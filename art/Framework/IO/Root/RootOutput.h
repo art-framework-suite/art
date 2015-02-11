@@ -119,6 +119,8 @@ private:
     int64_t const treeMaxVirtualSize_;
     int64_t const saveMemoryObjectThreshold_;
     bool fastCloning_;
+    bool dropAllEvents_;
+    bool dropAllSubRuns_;
     DropMetaData dropMetaData_;
     bool dropMetaDataForDroppedData_;
     std::string const moduleLabel_;

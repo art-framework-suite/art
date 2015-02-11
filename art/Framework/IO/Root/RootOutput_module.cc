@@ -44,7 +44,8 @@ namespace art {
   , splitLevel_                ( ps.get<int>("splitLevel", 99) )
   , treeMaxVirtualSize_        ( ps.get<int64_t>("treeMaxVirtualSize", -1) )
   , saveMemoryObjectThreshold_ ( ps.get<int64_t>("saveMemoryObjectThreshold", -1l) )
-  , fastCloning_               ( ps.get<bool>("fastCloning", true) )
+  , fastCloning_               ( ps.get<bool>("fastCloning"   , true ) )
+  , dropAllSubRuns_            ( ps.get<bool>("dropAllSubRuns", false) )
   , dropMetaData_              ( DropNone )  // tentative: see the c'tor body
   , dropMetaDataForDroppedData_( ps.get<bool>( "dropMetaDataForDroppedData"
                                              , false) )
@@ -64,6 +65,23 @@ namespace art {
       mf::LogWarning("FastCloning")
         << "Fast cloning deactivated due to presence of event selection configuration.";
     }
+
+    bool const dropAllEventsSet = ps.get_if_present<bool>("dropAllEvents", dropAllEvents_ );
+
+    if ( dropAllSubRuns_ ) {
+      if ( dropAllEventsSet && !dropAllEvents_ ) {
+        std::string const errmsg =
+          "\nThe following FHiCL specification is illegal\n\n"
+          "   dropAllEvents  : false \n"
+          "   dropAllSubRuns : true  \n\n"
+          "[1] Both can be 'true', "
+          "[2] both can be 'false', or "
+          "[3] 'dropAllEvents : true' and 'dropAllSubRuns : false' is allowed.\n\n";
+        throw art::Exception( errors::Configuration, errmsg );
+      }
+      dropAllEvents_ = true;
+    }
+
     string dropMetaData(ps.get<string>("dropMetaData", string()));
     if (dropMetaData.empty())                 dropMetaData_ = DropNone;
     else if (dropMetaData == string("NONE"))  dropMetaData_ = DropNone;
@@ -71,9 +89,9 @@ namespace art {
     else if (dropMetaData == string("ALL"))   dropMetaData_ = DropAll;
     else {
       throw art::Exception( errors::Configuration
-                          , "Illegal dropMetaData parameter value: ")
-          << dropMetaData << ".\n"
-          << "Legal values are 'NONE', 'PRIOR', and 'ALL'.\n";
+                            , "Illegal dropMetaData parameter value: ")
+        << dropMetaData << ".\n"
+        << "Legal values are 'NONE', 'PRIOR', and 'ALL'.\n";
     }
   }  // c'tor
 
@@ -164,22 +182,27 @@ namespace art {
   RootOutput::~RootOutput() {
   }
 
-  void RootOutput::write(EventPrincipal const& e) {
-      if (hasNewlyDroppedBranch()[InEvent]) e.addToProcessHistory();
-      rootOutputFile_->writeOne(e);
-      fstats_.recordEvent(e.id());
+  void RootOutput::write(EventPrincipal const& e)
+  {
+    if (dropAllEvents_) return;
+    if (hasNewlyDroppedBranch()[InEvent]) e.addToProcessHistory();
+    rootOutputFile_->writeOne(e);
+    fstats_.recordEvent(e.id());
   }
 
-  void RootOutput::writeSubRun(SubRunPrincipal const& sr) {
-      if (hasNewlyDroppedBranch()[InSubRun]) sr.addToProcessHistory();
-      rootOutputFile_->writeSubRun(sr);
-      fstats_.recordSubRun(sr.id());
+  void RootOutput::writeSubRun(SubRunPrincipal const& sr)
+  {
+    if (dropAllSubRuns_) return;
+    if (hasNewlyDroppedBranch()[InSubRun]) sr.addToProcessHistory();
+    rootOutputFile_->writeSubRun(sr);
+    fstats_.recordSubRun(sr.id());
   }
 
-  void RootOutput::writeRun(RunPrincipal const& r) {
-      if (hasNewlyDroppedBranch()[InRun]) r.addToProcessHistory();
-      rootOutputFile_->writeRun(r);
-      fstats_.recordRun(r.id());
+  void RootOutput::writeRun(RunPrincipal const& r)
+  {
+    if (hasNewlyDroppedBranch()[InRun]) r.addToProcessHistory();
+    rootOutputFile_->writeRun(r);
+    fstats_.recordRun(r.id());
   }
 
   // At some later date, we may move functionality from finishEndFile() to here.

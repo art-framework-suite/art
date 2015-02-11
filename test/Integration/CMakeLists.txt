@@ -1,5 +1,5 @@
 set(CMAKE_MODULE_PATH
-	${CMAKE_MODULE_PATH}
+  ${CMAKE_MODULE_PATH}
   ${CMAKE_CURRENT_SOURCE_DIR}
   )
 
@@ -91,6 +91,7 @@ simple_plugin(TestTimeTrackerProducer     "module"  NO_INSTALL )
 simple_plugin(TestTimeTrackerFilter       "module"  NO_INSTALL )
 simple_plugin(TestTimeTrackerAnalyzer     "module"  NO_INSTALL )
 simple_plugin(Throwing                    "service" NO_INSTALL )
+simple_plugin(ToyProductProducer          "module"  NO_INSTALL )
 simple_plugin(ToyRawFileInput             "source"  NO_INSTALL USE_BOOST_UNIT test_Integration )
 simple_plugin(ToyRawInput                 "source"  NO_INSTALL USE_BOOST_UNIT test_Integration )
 simple_plugin(ToyRawInputTester           "module"  NO_INSTALL )
@@ -102,6 +103,8 @@ simple_plugin(Wanted                      "service" NO_INSTALL )
 art_dictionary(DICTIONARY_LIBRARIES cetlib NO_INSTALL)
 
 # cet_test macro
+
+cet_test(CheckLibraryList LIBRARIES cetlib art_Utilities )
 
 cet_test(EventSelectorFromFile_w HANDBUILT
   TEST_EXEC art
@@ -124,6 +127,17 @@ cet_test(EventSelectorFromFile_r2 HANDBUILT
   DATAFILES
   fcl/EventSelectorFromFile_r2.fcl
   TEST_PROPERTIES DEPENDS EventSelectorFromFile_w
+)
+
+cet_test(test_dropAllEventsSubruns_t.sh PREBUILT
+  DATAFILES
+  fcl/dropAllEvents_t.fcl
+  fcl/dropAllEventsSubruns_t1.fcl
+  fcl/dropAllEventsSubruns_t2.fcl
+  fcl/dropAllEvents_r_t.fcl
+  fcl/dropAllEventsSubruns_r_t1.fcl
+  fcl/dropAllEventsSubruns_r_t2.fcl
+  test_dropAllEventsSubruns_verify.cxx
 )
 
 cet_test(test_simple_01_t.sh PREBUILT
@@ -297,6 +311,7 @@ foreach(num 05 06 07 08 09 10 11 12)
     fcl/ToyRawInput_common.fcl
   )
 endforeach()
+
 
 SET_TESTS_PROPERTIES(ToyRawInput_t_05 PROPERTIES
   PASS_REGULAR_EXPRESSION

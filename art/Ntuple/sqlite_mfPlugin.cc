@@ -63,7 +63,7 @@ namespace sqlite {
     const string& modname    = xid.module;                             // module name
     const string& usrMsg     =
       !oss.str().compare(0,1,"\n") ? oss.str().erase(0,1) : oss.str(); // user-supplied msg
-                                                                       // (remove leading " \n" if present)
+                                                                       // (remove leading "\n" if present)
     msgHeadersTable_.insert( timestamp,
                              hostname,
                              hostaddr,
