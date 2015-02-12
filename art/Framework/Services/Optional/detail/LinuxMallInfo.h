@@ -47,7 +47,7 @@ namespace art {
       friend std::ostream& operator << ( std::ostream& os, LinuxMallInfo const & info );
     };
 
-    std::ostream& operator << ( std::ostream& os, LinuxMallInfo const & info ) {
+    inline std::ostream& operator << ( std::ostream& os, LinuxMallInfo const & info ) {
       auto const& minfo = info.minfo_;
       os << " HEAP-ARENA [ SIZE-BYTES " << minfo.arena
          << " N-UNUSED-CHUNKS " << minfo.ordblks

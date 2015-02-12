@@ -1,13 +1,19 @@
 set( art_Framework_Services_Optional_sources
   TFileDirectory.cc
-  MemoryTrackerLinux.cc
   detail/TH1AddDirectorySentry.cc
-  detail/LinuxProcMgr.cc
 )
 
-art_make_library(# LIBRARY_NAME art_Framework_Services_Optional
-                  SOURCE ${art_Framework_Services_Optional_sources}
-                  LIBRARIES cetlib
+if ( ${CMAKE_SYSTEM_NAME} MATCHES "Linux" ) 
+  list( APPEND 
+    art_Framework_Services_Optional_sources 
+    MemoryTrackerLinux.cc
+    SimpleMemoryCheckLinux.cc
+    detail/LinuxProcMgr.cc
+    )
+endif()
+
+art_make_library( SOURCE ${art_Framework_Services_Optional_sources}
+  LIBRARIES cetlib
   ${ROOT_HIST}
   ${ROOT_MATRIX}
   ${ROOT_MATHCORE}
@@ -16,6 +22,7 @@ art_make_library(# LIBRARY_NAME art_Framework_Services_Optional
   ${Boost_FILESYSTEM_LIBRARY}
   ${Boost_REGEX_LIBRARY}
   ${Boost_SYSTEM_LIBRARY}
+  art_Framework_Services_Registry
   art_Persistency_Provenance
   art_Utilities
   art_Ntuple

@@ -14,13 +14,11 @@
 
 #include <string>
 
-using namespace ntuple;
-
 namespace art {
 
   namespace detail {
 
-    using memSummary_t = Ntuple<std::string,std::string,double,double>;
+    using memSummary_t = ntuple::Ntuple<std::string,std::string,double,double>;
 
     class SourceSummaryType;
     class ModuleSummaryType;
@@ -70,7 +68,7 @@ namespace art {
 
     template<>
     template<>
-    void
+    inline void
     CallbackPair<ModuleSummaryType>::post<ModuleDescription const &>( ModuleDescription const & md ) {
       deltas_ = procMgr_->getCurrentData()-baseline_;
       summaryTable_->insert( processStep_,

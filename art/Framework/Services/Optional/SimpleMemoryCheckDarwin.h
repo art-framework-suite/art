@@ -1,9 +1,9 @@
-#ifndef art_Framework_Services_Optional_MemoryTrackerDarwin_h
-#define art_Framework_Services_Optional_MemoryTrackerDarwin_h
+#ifndef art_Framework_Services_Optional_SimpleMemoryCheckDarwin_h
+#define art_Framework_Services_Optional_SimpleMemoryCheckDarwin_h
 
 // ======================================================================
 //
-// MemoryTrackerDarwin
+// SimpleMemoryCheckDarwin
 //
 // ======================================================================
 
@@ -14,11 +14,11 @@ namespace fhicl { class ParameterSet;     }
 
 namespace art {
 
-  class MemoryTracker {
+  class SimpleMemoryCheck {
   public:
 
-    MemoryTracker(fhicl::ParameterSet const &, ActivityRegistry &) {
-      mf::LogAbsolute("MemoryTracker") << "\n"
+    SimpleMemoryCheck(fhicl::ParameterSet const &, ActivityRegistry &) {
+      mf::LogAbsolute("SimpleMemoryCheck") << "\n"
                                        << "Service currently not supported for this operating system.\n"
                                        << "If desired, please log an issue with:\n\n"
                                        << "https://cdcvs.fnal.gov/redmine/projects/cet-is/issues/new\n\n";
@@ -28,7 +28,7 @@ namespace art {
 
 }  // art
 
-#endif // art_Framework_Services_Optional_MemoryTrackerDarwin_h
+#endif // art_Framework_Services_Optional_SimpleMemoryCheckDarwin_h
 
 // Local variables:
 // mode: c++
