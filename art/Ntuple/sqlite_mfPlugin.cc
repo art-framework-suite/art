@@ -1,7 +1,6 @@
 #include "messagefacility/MessageLogger/ErrorObj.h"
 #include "messagefacility/MessageLogger/MessageDrop.h"
 #include "messagefacility/MessageService/ELdestination.h"
-#include "messagefacility/Utilities/FormatTime.h"
 
 #include "art/Ntuple/Ntuple.h"
 #include "art/Ntuple/sqlite_DBmanager.h"
@@ -53,15 +52,15 @@ namespace sqlite {
 
     const auto& xid = msg.xid();
 
-    const string& timestamp  = mf::formatTime(msg.timestamp(),format.want(mf::service::MILLISECOND) ); // timestamp
-    const string& hostname   = xid.hostname;                                 // host name
-    const string& hostaddr   = xid.hostaddr;                                 // host address
-    const string& severity   = xid.severity.getName();                       // severity
-    const string& category   = xid.id;                                       // category
-    const string& app        = xid.application;                              // application
-    const long&   pid        = xid.pid;                                      // process id
-    const string& runEventNo = mf::MessageDrop::instance()->runEvent;        // run/event no
-    const string& modname    = xid.module;                                   // module name
+    const string& timestamp  = format.timestamp( msg.timestamp() );    // timestamp
+    const string& hostname   = xid.hostname;                           // host name
+    const string& hostaddr   = xid.hostaddr;                           // host address
+    const string& severity   = xid.severity.getName();                 // severity
+    const string& category   = xid.id;                                 // category
+    const string& app        = xid.application;                        // application
+    const long&   pid        = xid.pid;                                // process id
+    const string& runEventNo = mf::MessageDrop::instance()->runEvent;  // run/event no
+    const string& modname    = xid.module;                             // module name
     const string& usrMsg     =
       !oss.str().compare(0,1,"\n") ? oss.str().erase(0,1) : oss.str(); // user-supplied msg
                                                                        // (remove leading " \n" if present)
