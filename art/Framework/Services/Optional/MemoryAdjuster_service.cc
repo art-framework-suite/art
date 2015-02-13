@@ -18,14 +18,13 @@ namespace art {
   class MemoryAdjuster {
   public:
 
-    MemoryAdjuster(fhicl::ParameterSet const & iPS, ActivityRegistry &) {
+    MemoryAdjuster(fhicl::ParameterSet const & iPS [[gnu::unused]], ActivityRegistry &) {
 #ifndef __linux__
       mf::LogAbsolute("MemoryAdjuster") << "\n"
                                         << "Service not supported for this operating system.\n"
                                         << "If desired, please log an issue with:\n\n"
                                         << "https://cdcvs.fnal.gov/redmine/projects/cet-is/issues/new\n\n";
 #else
-
       typedef art::MallocOpts::opt_type opt_type;
       art::MallocOptionSetter & mopts = art::getGlobalOptionSetter();
       opt_type
@@ -47,9 +46,8 @@ namespace art {
         art::MallocOpts mo = mopts.get();
         mf::LogWarning("MemoryCheck") << "Malloc options: " << mo << "\n";
       }
-
-    } // c'tor
 #endif
+    } // c'tor
   };
 
 }  // art

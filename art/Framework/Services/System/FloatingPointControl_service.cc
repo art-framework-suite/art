@@ -53,7 +53,9 @@ extern "C" {
 #else
   // works on MAC OS X
 #include <architecture/i386/fpu.h>
+#ifndef __GNUC__
 #pragma STDC FENV_ACCESS ON
+#endif
 // #define SET_CONTROL_EX(env,ex) env.__control &= ~(ex)
 #define SET_CONTROL_EX(env,ex) env.__control = (ex)
 #endif
