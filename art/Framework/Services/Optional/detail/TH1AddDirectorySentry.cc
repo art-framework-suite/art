@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // Package:     UtilAlgos
-// Class  :     TH1AddDirectorySentry
+// Class  :     RootDirectorySentry
 //
 // Implementation:
 //     <Notes on implementation>
@@ -20,14 +20,14 @@
 //
 // constructors and destructor
 //
-TH1AddDirectorySentry::TH1AddDirectorySentry():
+RootDirectorySentry::RootDirectorySentry():
    status_(TH1::AddDirectoryStatus())
 {
    TH1::AddDirectory(true);
 }
 
-TH1AddDirectorySentry::~TH1AddDirectorySentry()
+RootDirectorySentry::~RootDirectorySentry()
 {
-   TH1::AddDirectory(status_);
+  TH1::AddDirectory(status_);
 }
 

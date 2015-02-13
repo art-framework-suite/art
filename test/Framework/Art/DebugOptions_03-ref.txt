@@ -1,0 +1,32 @@
+process_name: "TEST"
+services: { message: { destinations: { STDOUT: { categories: { ArtReport: { limit: 100
+                                                                          }
+                                                               default: { limit: -1
+                                                                        }
+                                                             }
+                                                 threshold: "INFO"
+                                                 type: "cout"
+                                               }
+                                     }
+                     }
+            scheduler: { FailPath: []
+                         FaileModule: []
+                         IgnoreCompletely: []
+                         SkipEvent: []
+                         configOut: "config.out"
+                         defaultExceptions: false
+                         wantTracer: false
+                       }
+            user: { CatalogInterface: { service_provider: "TrivialFileDelivery"
+                                        service_type: "CatalogInterface"
+                                      }
+                    FileTransfer: { service_provider: "TrivialFileTransfer"
+                                    service_type: "FileTransfer"
+                                  }
+                  }
+          }
+source: { maxEvents: 1
+          module_label: "source"
+          module_type: "EmptyEvent"
+        }
+

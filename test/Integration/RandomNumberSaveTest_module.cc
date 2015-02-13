@@ -18,10 +18,10 @@
 #include "art/Framework/Services/Optional/RandomNumberGenerator.h"
 #include "art/Utilities/Exception.h"
 #include "cetlib/container_algorithms.h"
-#include "cpp0x/algorithm"
 
 #include "CLHEP/Random/RandFlat.h"
 
+#include <algorithm>
 #include <iostream>
 #include <iterator>
 #include <ostream>
@@ -29,7 +29,7 @@
 #include <vector>
 
 namespace arttest {
-  class RandomNumberSaveTest;    
+  class RandomNumberSaveTest;
 }
 
 class arttest::RandomNumberSaveTest : public art::EDFilter {
@@ -89,12 +89,10 @@ bool arttest::RandomNumberSaveTest::filter(art::Event & e)
   static size_t const nums_size = 5;
   static size_t const random_range = 1000;
   nums.reserve(nums_size);
-  std::generate_n(std::back_inserter(nums),
-                  nums_size,
-                  std::bind(static_cast<long(CLHEP::RandFlat:: *)(long)>
-                            (&CLHEP::RandFlat::fireInt), // Resolve overload.
-                            &dist_, random_range));
-  std::cerr << "nums: " << nums << "\n"; 
+  generate_n(std::back_inserter(nums),
+       nums_size,
+       [this](){ return dist_.fireInt(random_range);});
+  std::cerr << "nums: " << nums << "\n";
   if (e.getByLabel(myLabel_, hp)) {
     std::cerr << "(*hp): " << *hp << "\n";
     // Reading.

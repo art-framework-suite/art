@@ -81,7 +81,7 @@ namespace art {
     :
     file_(fileName),
     om_(om),
-    currentlyFastCloning_(),
+    currentlyFastCloning_(true),
     filePtr_(TFile::Open(file_.c_str(), "recreate", "", om_->compressionLevel())),
     fileIndex_(),
     eventEntryNumber_(0LL),
@@ -145,10 +145,18 @@ namespace art {
   }
 
   void RootOutputFile::beginInputFile(FileBlock const& fb, bool fastClone) {
-
-    currentlyFastCloning_ = om_->fastCloning() && fb.fastClonable() && fastClone;
-    if (currentlyFastCloning_) currentlyFastCloning_ = eventTree_.checkSplitLevelAndBasketSize(fb.tree());
-
+    auto const origCurrentlyFastCloning = currentlyFastCloning_;
+    currentlyFastCloning_ = om_->fastCloning() && fastClone;
+    if (currentlyFastCloning_ && ! eventTree_.checkSplitLevelAndBasketSize(fb.tree())) {
+      mf::LogWarning("FastCloning")
+        << "Fast cloning deactivated for this input file due to "
+        << "splitting level and/or basket size.";
+      currentlyFastCloning_ = false;
+    }
+    if (currentlyFastCloning_ and ! origCurrentlyFastCloning) {
+      mf::LogWarning("FastCloning")
+        << "Fast cloning reactivated for this input file.";
+    }
     eventTree_.beginInputFile(currentlyFastCloning_);
     eventTree_.fastCloneTree(fb.tree());
   }
@@ -315,8 +323,9 @@ namespace art {
     // Add our own specific information:
 
     // File format and friends.
-    insert_md_row(stmt, { "file_format", "artroot" });
-    insert_md_row(stmt, { "file_format_era", getFileFormatEra() });
+    insert_md_row(stmt, { "file_format", "\"artroot\"" });
+    insert_md_row(stmt, { "file_format_era",
+          cet::canonical_string(getFileFormatEra()) });
     insert_md_row(stmt, { "file_format_version",
           std::to_string(getFileFormatVersion()) });
 
@@ -324,13 +333,13 @@ namespace art {
     // File start time.
     insert_md_row(stmt,
                   { "start_time",
-                      bpt::to_iso_extended_string(stats.outputFileOpenTime()) });
+                      cet::canonical_string(bpt::to_iso_extended_string(stats.outputFileOpenTime())) });
 
     // File "end" time: now, since file is (of course) not actually
     // closed yet.
     insert_md_row(stmt,
                   { "end_time",
-                      bpt::to_iso_extended_string(boost::posix_time::second_clock::universal_time())
+                      cet::canonical_string(bpt::to_iso_extended_string(boost::posix_time::second_clock::universal_time()))
                   });
 
     // Run / subRun information.
@@ -350,14 +359,12 @@ namespace art {
           } else {
             srstring << ", ";
           }
-          std::string run_type;
-          cet::canonical_string(it->second, run_type);
           srstring << "[ "
                    << srid.run()
                    << ", "
                    << srid.subRun()
                    << ", "
-                   << run_type
+                   << cet::canonical_string(it->second)
                    << " ], ";
         }
         // Rewind over last delimiter.
@@ -385,9 +392,7 @@ namespace art {
       std::ostringstream pstring;
       pstring << "[ ";
       for (auto const & parent : stats.parents()) {
-        std::string cparent;
-        cet::canonical_string(parent, cparent);
-        pstring << cparent << ", ";
+        pstring << cet::canonical_string(parent) << ", ";
       }
       // Rewind over last delimiter.
       pstring.seekp(-2, ios_base::cur);

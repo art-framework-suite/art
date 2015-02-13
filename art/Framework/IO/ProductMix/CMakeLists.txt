@@ -11,9 +11,9 @@ art_make_library( LIBRARY_NAME art_Framework_IO_ProductMix
   art_Persistency_Common
   art_Persistency_Provenance
   art_Utilities
-  ${MF_MESSAGELOGGER}
-  ${FHICLCPP}
-  ${CETLIB}
+  MF_MessageLogger
+  fhiclcpp
+  cetlib
   )
 
 art_dictionary(DICTIONARY_LIBRARIES art_Persistency_Provenance)

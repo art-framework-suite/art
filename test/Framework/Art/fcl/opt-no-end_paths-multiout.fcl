@@ -1,0 +1,28 @@
+process_name: OptMultiOut
+
+physics:
+{
+  analyzers:
+  {
+    a1: { module_type: dummy }
+    a2: { module_type: dummy }
+  }
+
+  ep1: [ o1, a1 ]
+  ep2: [ o1, o2 ]
+  ep3: [ a2 ]
+}
+
+outputs:
+{
+  o1:
+  {
+    module_type: RootOutput
+    fileName: "junk.out"
+  }
+  o2:
+  {
+    module_type: RootOutput
+    fileName: "junk2.out"
+  }
+}

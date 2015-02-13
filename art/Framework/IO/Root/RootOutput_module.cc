@@ -44,8 +44,7 @@ namespace art {
   , splitLevel_                ( ps.get<int>("splitLevel", 99) )
   , treeMaxVirtualSize_        ( ps.get<int64_t>("treeMaxVirtualSize", -1) )
   , saveMemoryObjectThreshold_ ( ps.get<int64_t>("saveMemoryObjectThreshold", -1l) )
-  , fastCloning_               ( ps.get<bool>("fastCloning", true)
-                                 && wantAllEvents() )
+  , fastCloning_               ( ps.get<bool>("fastCloning", true) )
   , dropMetaData_              ( DropNone )  // tentative: see the c'tor body
   , dropMetaDataForDroppedData_( ps.get<bool>( "dropMetaDataForDroppedData"
                                              , false) )
@@ -58,6 +57,13 @@ namespace art {
                                                 parent_path(filePattern_)) )
   , lastClosedFileName_        ( )
   {
+    mf::LogInfo("FastCloning")
+      << "Fast cloning user configuration: " << std::boolalpha << fastCloning_;
+    if (fastCloning_ && !wantAllEvents()) {
+      fastCloning_ = false;
+      mf::LogWarning("FastCloning")
+        << "Fast cloning deactivated due to presence of event selection configuration.";
+    }
     string dropMetaData(ps.get<string>("dropMetaData", string()));
     if (dropMetaData.empty())                 dropMetaData_ = DropNone;
     else if (dropMetaData == string("NONE"))  dropMetaData_ = DropNone;
@@ -115,9 +121,6 @@ namespace art {
 
   void RootOutput::openFile(FileBlock const& fb) {
     if (!isFileOpen()) {
-      if (fb.tree() == 0) {
-      fastCloning_ = false;
-      }
       doOpenFile();
       respondToOpenInputFile(fb);
     }
@@ -135,8 +138,20 @@ namespace art {
     }
     ++inputFileCount_;
     if (isFileOpen()) {
-      bool fastCloneThisOne = fb.tree() != 0 &&
-                            (remainingEvents() < 0 || remainingEvents() >= fb.tree()->GetEntries());
+      bool fastCloneThisOne = fastCloning_ &&
+                              fb.tree() != 0 &&
+                              (remainingEvents() < 0 || remainingEvents() >= fb.tree()->GetEntries());
+      if (fastCloning_ && !fastCloneThisOne) {
+        mf::LogWarning("FastCloning")
+          << "Fast cloning deactivated for this input file due to "
+          << "empty event tree and/or event limits.";
+      }
+      if (fastCloneThisOne && ! fb.fastClonable()) {
+        mf::LogWarning("FastCloning")
+          << "Fast cloning deactivated for this input file due to "
+          << "information in FileBlock.";
+        fastCloneThisOne = false;
+      }
       rootOutputFile_->beginInputFile(fb, fastCloneThisOne && fastCloning_);
       fstats_.recordInputFile(fb.fileName());
     }

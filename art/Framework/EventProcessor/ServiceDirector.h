@@ -10,7 +10,7 @@ namespace art {
 
 class art::ServiceDirector {
 public:
-  ServiceDirector(fhicl::ParameterSet const & pset,
+  ServiceDirector(fhicl::ParameterSet services,
                   ActivityRegistry & areg,
                   ServiceToken & token);
   template <typename SERVICE>

@@ -30,7 +30,7 @@ services:
    # need to be configured to come to life.
 #   Timing: { }
 #   SimpleMemoryCheck: { }
-#   TFileService: { fileName: "tfile_output.root" }
+   TFileService: { fileName: "tfile_output.root" }
 
    user:
    {
@@ -59,13 +59,18 @@ physics:
       input_label: m1a
       expected_value: 1
     }
+
+    hist:
+    {
+      module_type: TestTFileServiceAnalyzer
+    }
   }
 
   filters:
   {
   }
   p1: [ m1a ]
-  e1: [ a1, out1 ]
+  e1: [ a1, hist, out1 ]
 
   trigger_paths: [ p1 ]
   end_paths: [ e1 ]

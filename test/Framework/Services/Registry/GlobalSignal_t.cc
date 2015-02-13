@@ -105,7 +105,7 @@ BOOST_AUTO_TEST_CASE(TestSignal1_t)
   TestSignal1 s;
   std::string const test_text { "Test text" };
   boost::test_tools::output_test_stream os;
-  s.watch(std::bind(testCallback<0>, std::placeholders::_1, std::cref(test_text)));
+  s.watch([&test_text](auto& x){ testCallback<0>(x, test_text); });
   BOOST_CHECK_NO_THROW(s.invoke(os));
   BOOST_CHECK(os.is_equal(test_text));
 }
@@ -121,7 +121,7 @@ BOOST_AUTO_TEST_CASE(TestSignal0_t)
   // screwing up std::ref's attempt to determine whether
   // output_test_stream is a callable entity.
   std::ostringstream & osr __attribute__((unused))(os);
-  s.watch(std::bind(testCallback<0>, std::ref(osr), std::cref(test_text)));
+  s.watch([&osr, &test_text](){ testCallback<0>(osr, test_text); });
   BOOST_CHECK_NO_THROW(s.invoke());
   BOOST_CHECK(os.is_equal(test_text));
 }

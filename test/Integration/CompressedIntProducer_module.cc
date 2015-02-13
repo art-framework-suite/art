@@ -11,12 +11,12 @@
 #include "art/Framework/Principal/SubRun.h"
 #include "art/Framework/Principal/Handle.h"
 #include "art/Persistency/Provenance/BranchType.h"
-#include "cpp0x/memory"
 #include "fhiclcpp/ParameterSet.h"
 
 #include "test/TestObjects/ToyProducts.h"
 
 #include <iostream>
+#include <memory>
 
 namespace arttest {
   class CompressedIntProducer;

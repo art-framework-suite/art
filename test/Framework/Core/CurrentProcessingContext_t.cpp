@@ -1,10 +1,10 @@
 #include "art/Framework/Principal/CurrentProcessingContext.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "cetlib/exception.h"
-#include "cpp0x/cstddef"
 #include "fhiclcpp/ParameterSet.h"
 
 #include <cassert>
+#include <cstddef>
 #include <iostream>
 #include <string>
 

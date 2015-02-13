@@ -139,7 +139,9 @@ public:
   bool setEndPathModuleEnabled(std::string const & label, bool enable) override;
 
 private:
-  void addSystemServices_(fhicl::ParameterSet const & pset);
+  ServiceDirector && initServices_(fhicl::ParameterSet const & top_pset,
+                                   ActivityRegistry & areg,
+                                   ServiceToken & token);
   void initSchedules_(fhicl::ParameterSet const & pset);
   void invokePostBeginJobWorkers_();
   template <typename T>
@@ -165,12 +167,12 @@ private:
   MFStatusUpdater mfStatusUpdater_;
   MasterProductRegistry preg_;
   ServiceToken serviceToken_;
+  tbb::task_scheduler_init tbbManager_;
+  PathManager pathManager_; // Must outlive schedules.
   ServiceDirector serviceDirector_;
   // destructorOperate_ should be populated in destructor only!
   std::unique_ptr<ServiceRegistry::Operate> destructorOperate_;
   std::unique_ptr<InputSource> input_;
-  tbb::task_scheduler_init tbbManager_;
-  PathManager pathManager_; // Must outlive schedules.
   std::unique_ptr<Schedule> schedule_;
   std::unique_ptr<EndPathExecutor> endPathExecutor_;
 

@@ -27,9 +27,9 @@ art_make_library( LIBRARY_NAME art_Framework_Principal
   art_Framework_Services_Registry
   art_Utilities
   art_Version
-  ${MF_MESSAGELOGGER}
-  ${FHICLCPP}
-  ${CETLIB}
+  MF_MessageLogger
+  fhiclcpp
+  cetlib
   ${CLHEP}
 )
 

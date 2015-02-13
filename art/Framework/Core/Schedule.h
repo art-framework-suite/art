@@ -122,8 +122,8 @@ private:
   OnDemandBranches catalogOnDemandBranches_(PathManager::Workers && workers,
                                             ProductList const & plist);
 
-  void doForAllWorkers_(std::function<void (Worker *)> func);
-  void doForAllEnabledPaths_(std::function<void (Path *)> func);
+  template <class F> void doForAllWorkers_(F fcn);
+  template <class F> void doForAllEnabledPaths_(F fcn);
 
   ScheduleID const sID_;
   fhicl::ParameterSet process_pset_;
@@ -176,34 +176,32 @@ inline
 bool
 art::Schedule::runTriggerPaths_(typename T::MyPrincipal & ep)
 {
-  doForAllEnabledPaths_(std::bind(&Path::processOneOccurrence<T>,
-                                  std::placeholders::_1,
-                                  std::ref(ep)));
+  doForAllEnabledPaths_([&ep](auto p){ p->processOneOccurrence<T>(ep); });
   return triggerPathsInfo_.pathResults().accept();
 }
 
-inline
+template <class F>
 void
 art::Schedule::
-doForAllWorkers_(std::function<void (Worker *)> func)
+doForAllWorkers_(F fcn)
 {
   for (auto const & val : triggerPathsInfo_.workers()) {
-    func(val.second.get());
+    fcn(val.second.get());
   }
   if (results_inserter_) {
-    func(results_inserter_.get()); // Do this last -- not part of main list.
+    fcn(results_inserter_.get()); // Do this last -- not part of main list.
   }
 }
 
-inline
+template <class F>
 void
 art::Schedule::
-doForAllEnabledPaths_(std::function<void (Path *)> func)
+doForAllEnabledPaths_(F fcn)
 {
   size_t path_index = 0;
   for (auto const & path : triggerPathsInfo_.pathPtrs()) {
     if (pathsEnabled_[path_index++]) {
-      func(path.get());
+      fcn(path.get());
     }
   }
 }

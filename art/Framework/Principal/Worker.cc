@@ -5,30 +5,32 @@
 using mf::LogError;
 
 namespace {
-  class ModuleBeginJobSignalSentry {
-  public:
-    ModuleBeginJobSignalSentry(art::ActivityRegistry* a, art::ModuleDescription& md):a_(a), md_(&md) {
-      if(a_) a_->sPreModuleBeginJob.invoke(*md_);
-    }
-    ~ModuleBeginJobSignalSentry() {
-      if(a_) a_->sPostModuleBeginJob.invoke(*md_);
-    }
-  private:
-    art::ActivityRegistry* a_;
-    art::ModuleDescription* md_;
-  };
 
-  class ModuleEndJobSignalSentry {
+  class ModuleSignalSentry {
   public:
-    ModuleEndJobSignalSentry(art::ActivityRegistry* a,
-                             art::ModuleDescription& md):a_(a), md_(&md) {
-      if(a_) a_->sPreModuleEndJob.invoke(*md_);
+
+    using PreSig_t  = art::GlobalSignal<art::detail::SignalResponseType::FIFO, void,
+                                        art::ModuleDescription const &>;
+
+    using PostSig_t = art::GlobalSignal<art::detail::SignalResponseType::LIFO, void,
+                                        art::ModuleDescription const &>;
+
+    ModuleSignalSentry( art::ActivityRegistry* a,
+                        PreSig_t & pre,
+                        PostSig_t & post,
+                        art::ModuleDescription& md )
+      : filled_(a)
+      , post_(post)
+      , md_  (&md)
+    {
+      if(filled_) pre.invoke(*md_);
     }
-    ~ModuleEndJobSignalSentry() {
-      if(a_) a_->sPostModuleEndJob.invoke(*md_);
+    ~ModuleSignalSentry() {
+      if(filled_) post_.invoke(*md_);
     }
   private:
-    art::ActivityRegistry* a_;
+    bool filled_;
+    PostSig_t post_;
     art::ModuleDescription* md_;
   };
 
@@ -62,7 +64,10 @@ art::Worker::setActivityRegistry(cet::exempt_ptr<ActivityRegistry> areg) {
 void
 art::Worker::beginJob() {
   try {
-    ModuleBeginJobSignalSentry cpp(actReg_.get(), md_);
+    ModuleSignalSentry cpp( actReg_.get(),
+                            actReg_->sPreModuleBeginJob,
+                            actReg_->sPostModuleBeginJob,
+                            md_ );
     implBeginJob();
   }
   catch(cet::exception& e) {
@@ -115,7 +120,10 @@ art::Worker::beginJob() {
 void
 art::Worker::endJob() {
   try {
-    ModuleEndJobSignalSentry cpp(actReg_.get(), md_);
+    ModuleSignalSentry cpp( actReg_.get(),
+                            actReg_->sPreModuleEndJob,
+                            actReg_->sPostModuleEndJob,
+                            md_);
     implEndJob();
   }
   catch(cet::exception& e) {
@@ -164,3 +172,41 @@ art::Worker::endJob() {
       << "An unknown Exception occurred in\n" << description() << "\n";
   }
 }
+
+void
+art::Worker::respondToOpenInputFile(FileBlock const& fb) {
+  ModuleSignalSentry cpp(actReg_.get(),
+                         actReg_->sPreModuleRespondToOpenInputFile,
+                         actReg_->sPostModuleRespondToOpenInputFile,
+                         md_);
+  implRespondToOpenInputFile(fb);
+}
+
+void
+art::Worker::respondToCloseInputFile(FileBlock const& fb) {
+  ModuleSignalSentry cpp(actReg_.get(),
+                         actReg_->sPreModuleRespondToCloseInputFile,
+                         actReg_->sPostModuleRespondToCloseInputFile,
+                         md_);
+  implRespondToCloseInputFile(fb);
+}
+
+void
+art::Worker::respondToOpenOutputFiles(FileBlock const& fb) {
+  ModuleSignalSentry cpp(actReg_.get(),
+                         actReg_->sPreModuleRespondToOpenOutputFiles,
+                         actReg_->sPostModuleRespondToOpenOutputFiles,
+                         md_);
+  implRespondToOpenOutputFiles(fb);
+}
+
+void
+art::Worker::respondToCloseOutputFiles(FileBlock const& fb) {
+  ModuleSignalSentry cpp(actReg_.get(),
+                         actReg_->sPreModuleRespondToCloseOutputFiles,
+                         actReg_->sPostModuleRespondToCloseOutputFiles,
+                         md_);
+  implRespondToCloseOutputFiles(fb);
+}
+
+

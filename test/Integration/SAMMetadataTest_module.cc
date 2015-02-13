@@ -14,9 +14,9 @@
 #include "art/Framework/Principal/Run.h"
 #include "art/Framework/Principal/SubRun.h"
 #include "art/Framework/Services/System/FileCatalogMetadata.h"
-#include "cpp0x/memory"
 #include "fhiclcpp/ParameterSet.h"
 
+#include <memory>
 
 namespace arttest {
   class SAMMetadataTest;
@@ -47,7 +47,7 @@ void arttest::SAMMetadataTest::analyze(art::Event const &)
 void arttest::SAMMetadataTest::beginJob()
 {
   art::ServiceHandle< art::FileCatalogMetadata > metadata;
-  metadata->addMetadata( "testMetadata", "success!" );
+  metadata->addMetadataString( "testMetadata", "success!" );
 }
 
 DEFINE_ART_MODULE(arttest::SAMMetadataTest)

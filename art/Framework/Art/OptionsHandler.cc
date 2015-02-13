@@ -8,7 +8,10 @@
 #include <typeinfo>
 
 namespace {
-  int exceptionCatcher(std::function<int ()> func,
+
+  // class F must be callable with no arguments, and return 'int'.
+  template <class F>
+  int exceptionCatcher(F func,
                        std::string const & funcName __attribute__((unused)) ,
                        int failureCode)
   {
@@ -57,9 +60,7 @@ art::OptionsHandler::
 checkOptions(bpo::variables_map const & vm)
 {
   std::string const thisClass(cet::demangle(typeid(*this).name()));
-  return exceptionCatcher(std::bind(&art::OptionsHandler::doCheckOptions,
-                                    this,
-                                    std::cref(vm)),
+  return exceptionCatcher([&vm,this](){ return this->doCheckOptions(vm); },
                           thisClass + "::doCheckOptions()",
                           7001);
 }
@@ -70,10 +71,9 @@ processOptions(bpo::variables_map const & vm,
                fhicl::intermediate_table & raw_config)
 {
   std::string const thisClass(cet::demangle(typeid(*this).name()));
-  return exceptionCatcher(std::bind(&art::OptionsHandler::doProcessOptions,
-                                    this,
-                                    std::cref(vm),
-                                    std::ref(raw_config)),
-                          thisClass + "::doProcessOptions()",
-                          7002);
+  return exceptionCatcher([&, this](){
+      return this->doProcessOptions(vm, raw_config);
+    },
+    thisClass + "::doProcessOptions()",
+    7002);
 }

@@ -54,9 +54,31 @@ namespace {
   }
 
   void
+  verifySourceConfig(fhicl::intermediate_table & raw_config)
+  {
+    if (raw_config.exists("source.fileNames")) {
+      if (raw_config.exists("source.module_type")) {
+        if (raw_config.get<std::string>("source.module_type") == "EmptyEvent") {
+          throw art::Exception(art::errors::Configuration)
+            << "Error: source files specified for EmptyEvent source.";
+        }
+      }
+      else {
+        raw_config.put("source.module_type", "RootInput");
+      }
+    } else if (!raw_config.exists("source.module_type")) {
+      raw_config.put("source.module_type", "EmptyEvent");
+    }
+    if (raw_config.get<std::string>("source.module_type") == "EmptyEvent" &&
+        !raw_config.exists("source.maxEvents")) {
+      // Default 1 event.
+      raw_config.put("source.maxEvents", 1);
+    }
+  }
+
+  void
   injectModuleLabels(fhicl::intermediate_table & int_table,
-                     std::string const & table_spec,
-                     std::vector<std::string> & all_modules)
+                     std::string const & table_spec)
   {
     if (!int_table.exists(table_spec)) { return; }
     auto & top_table_val = int_table[table_spec];
@@ -86,7 +108,6 @@ namespace {
       };
       int_table.put(table_spec + '.' + tval.first + ".module_label",
                     tval.first);
-      all_modules.push_back(tval.first);
     }
   }
 
@@ -96,12 +117,10 @@ namespace {
     if (raw_config.exists("source")) {
       raw_config.put("source.module_label", "source");
     }
-    std::vector<std::string> all_modules;
-    injectModuleLabels(raw_config, "outputs", all_modules);
-    injectModuleLabels(raw_config, "physics.producers", all_modules);
-    injectModuleLabels(raw_config, "physics.filters", all_modules);
-    injectModuleLabels(raw_config, "physics.analyzers", all_modules);
-    raw_config.put("all_modules", all_modules);
+    injectModuleLabels(raw_config, "outputs");
+    injectModuleLabels(raw_config, "physics.producers");
+    injectModuleLabels(raw_config, "physics.filters");
+    injectModuleLabels(raw_config, "physics.analyzers");
   }
 
   void injectServiceType(fhicl::intermediate_table & raw_config,
@@ -158,6 +177,7 @@ doProcessOptions(bpo::variables_map const &,
 {
   verifyProcessName(raw_config);
   verifyInterfaces(raw_config);
+  verifySourceConfig(raw_config);
   // trigger_paths
   if (raw_config.exists("physics.trigger_paths")) {
     raw_config["trigger_paths.trigger_paths"] =
@@ -170,7 +190,7 @@ doProcessOptions(bpo::variables_map const &,
     raw_config.put("services.message.destinations.STDOUT.type", "cout");
     raw_config.put("services.message.destinations.STDOUT.threshold", "INFO");
   }
-  // module_labels and all_modules.
+  // module_labels and service_type.
   addModuleLabels(raw_config);
   addServiceType(raw_config);
   return 0; // If anything had gone wrong, we would have thrown.

@@ -11,10 +11,11 @@
 #include "art/Persistency/Common/PtrVector.h"
 #include "art/Persistency/Provenance/EventID.h"
 #include "cetlib/exception.h"
-#include "cpp0x/memory"
 #include "fhiclcpp/ParameterSet.h"
 #include "test/TestObjects/ToyProducts.h"
+
 #include <iostream>
+#include <memory>
 #include <string>
 #include <vector>
 

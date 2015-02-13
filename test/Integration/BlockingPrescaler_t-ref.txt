@@ -1,5 +1,35 @@
+%MSG-i MF_INIT_OK:  <date-time> JobSetup
 Messagelogger initialization complete.
 %MSG
+%MSG-w CONFIG:  <date-time> JobSetup
+Use of services.user parameter set is deprecated.
+Define all services in services parameter set.
+%MSG
+Begin processing the 1st record. run: 1 subRun: 0 event: 1 at <date-time>
+Begin processing the 2nd record. run: 1 subRun: 0 event: 2 at <date-time>
+Begin processing the 3rd record. run: 1 subRun: 0 event: 3 at <date-time>
+Begin processing the 4th record. run: 1 subRun: 0 event: 4 at <date-time>
+Begin processing the 5th record. run: 1 subRun: 0 event: 5 at <date-time>
+Begin processing the 6th record. run: 1 subRun: 0 event: 6 at <date-time>
+Begin processing the 7th record. run: 1 subRun: 0 event: 7 at <date-time>
+Begin processing the 8th record. run: 1 subRun: 0 event: 8 at <date-time>
+Begin processing the 9th record. run: 1 subRun: 0 event: 9 at <date-time>
+Begin processing the 10th record. run: 1 subRun: 0 event: 10 at <date-time>
+Begin processing the 11th record. run: 1 subRun: 0 event: 11 at <date-time>
+Begin processing the 12th record. run: 1 subRun: 0 event: 12 at <date-time>
+Begin processing the 13th record. run: 1 subRun: 0 event: 13 at <date-time>
+Begin processing the 14th record. run: 1 subRun: 0 event: 14 at <date-time>
+Begin processing the 15th record. run: 1 subRun: 0 event: 15 at <date-time>
+Begin processing the 16th record. run: 1 subRun: 0 event: 16 at <date-time>
+Begin processing the 17th record. run: 1 subRun: 0 event: 17 at <date-time>
+Begin processing the 18th record. run: 1 subRun: 0 event: 18 at <date-time>
+Begin processing the 19th record. run: 1 subRun: 0 event: 19 at <date-time>
+Begin processing the 20th record. run: 1 subRun: 0 event: 20 at <date-time>
+Begin processing the 21st record. run: 1 subRun: 0 event: 21 at <date-time>
+Begin processing the 22nd record. run: 1 subRun: 0 event: 22 at <date-time>
+Begin processing the 23rd record. run: 1 subRun: 0 event: 23 at <date-time>
+Begin processing the 24th record. run: 1 subRun: 0 event: 24 at <date-time>
+Begin processing the 25th record. run: 1 subRun: 0 event: 25 at <date-time>
 
 TrigReport ---------- Event  Summary ------------
 TrigReport Events total = 25 passed = 10 failed = 15
@@ -19,11 +49,40 @@ TrigReport ---------- Module Summary ------------
 TrigReport    Visited        Run     Passed     Failed      Error Name
 TrigReport         25         25         10         15          0 prescale
 
+TimeReport ---------- Time  Summary ---[sec]----
+TimeReport CPU = <duration> Real = <duration>
 
+TimeReport ---------- Event  Summary ---[sec]----
+TimeReport CPU/event = <duration> Real/event = <duration>
 
+TimeReport ---------- Path   Summary ---[sec]----
+TimeReport             per event          per path-run 
+TimeReport        CPU       Real        CPU       Real Name
+TimeReport   <duration>   <duration>   <duration>   <duration> p<duration>
+TimeReport        CPU       Real        CPU       Real Name
+TimeReport             per event          per path-run 
 
+TimeReport -------End-Path   Summary ---[sec]----
+TimeReport             per event       per endpath-run 
+TimeReport        CPU       Real        CPU       Real Name
+TimeReport        CPU       Real        CPU       Real Name
+TimeReport             per event       per endpath-run 
 
+TimeReport ---------- Modules in Path: p<duration> ---[sec]----
+TimeReport             per event      per module-visit 
+TimeReport        CPU       Real        CPU       Real Name
+TimeReport   <duration>   <duration>   <duration>   <duration> prescale
+TimeReport        CPU       Real        CPU       Real Name
+TimeReport             per event      per module-visit 
+TimeReport        CPU       Real        CPU       Real Name
+TimeReport             per event      per module-visit 
 
+TimeReport ---------- Module Summary ---[sec]----
+TimeReport             per event        per module-run      per module-visit 
+TimeReport        CPU       Real        CPU       Real        CPU       Real Name
+TimeReport   <duration>   <duration>   <duration>   <duration>   <duration>   <duration> prescale
+TimeReport        CPU       Real        CPU       Real        CPU       Real Name
+TimeReport             per event        per module-run      per module-visit 
 
 T---Report end!
 

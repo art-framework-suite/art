@@ -24,7 +24,6 @@
 
 #include "art/Framework/Services/Registry/GlobalSignal.h"
 #include "art/Framework/Services/Registry/detail/SignalResponseType.h"
-
 #include "cpp0x/functional"
 
 #include <string>
@@ -220,12 +219,42 @@ public:
   GlobalSignal<detail::SignalResponseType::LIFO, void,
                ModuleDescription const &> sPostModuleConstruction;
 
-  // JBK added
+  // Signal is emitted before module does respondToOpenInputFile
+  GlobalSignal<detail::SignalResponseType::FIFO, void,
+               ModuleDescription const &> sPreModuleRespondToOpenInputFile;
+
+  // Signal is emitted after module has done respondToOpenInputFile
+  GlobalSignal<detail::SignalResponseType::LIFO, void,
+               ModuleDescription const &> sPostModuleRespondToOpenInputFile;
+
+  // Signal is emitted before module does respondToCloseInputFile
+  GlobalSignal<detail::SignalResponseType::FIFO, void,
+               ModuleDescription const &> sPreModuleRespondToCloseInputFile;
+
+  // Signal is emitted after module has done respondToCloseInputFile
+  GlobalSignal<detail::SignalResponseType::LIFO, void,
+               ModuleDescription const &> sPostModuleRespondToCloseInputFile;
+
+  // Signal is emitted before module does respondToOpenOutputFiles
+  GlobalSignal<detail::SignalResponseType::FIFO, void,
+               ModuleDescription const &> sPreModuleRespondToOpenOutputFiles;
+
+  // Signal is emitted after module has done respondToOpenOutputFiles
+  GlobalSignal<detail::SignalResponseType::LIFO, void,
+               ModuleDescription const &> sPostModuleRespondToOpenOutputFiles;
+
+  // Signal is emitted before module does respondToCloseOutputFiles
+  GlobalSignal<detail::SignalResponseType::FIFO, void,
+               ModuleDescription const &> sPreModuleRespondToCloseOutputFiles;
+
+  // Signal is emitted after module has done respondToCloseOutputFiles
+  GlobalSignal<detail::SignalResponseType::LIFO, void,
+               ModuleDescription const &> sPostModuleRespondToCloseOutputFiles;
+
   // Signal is emitted after beginJob
   GlobalSignal<detail::SignalResponseType::LIFO, void,
                InputSource *,
                std::vector<Worker *> const &> sPostBeginJobWorkers;
-  // end JBK added
 
   // Signal is emitted before the module does beginJob
   GlobalSignal<detail::SignalResponseType::FIFO, void,

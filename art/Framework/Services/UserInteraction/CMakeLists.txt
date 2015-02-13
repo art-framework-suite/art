@@ -4,7 +4,7 @@ art_make_library(LIBRARY_NAME art_Framework_Services_UserInteraction
   art_Framework_Principal
   art_Persistency_Provenance
   art_Framework_Services_Registry
-  ${FHICLCPP}
+  fhiclcpp
   )
 
 install_headers(SUBDIRS detail)

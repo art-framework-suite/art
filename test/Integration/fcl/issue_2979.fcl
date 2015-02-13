@@ -1,0 +1,27 @@
+process_name: issue2979
+
+services:
+{
+   Timing : {}
+}
+
+physics:
+{
+   producers:
+   {
+      a1:
+      {
+         module_type: IntProducer
+         ivalue : 2
+      }
+   }
+   
+   e1: [ a1 ]
+   end_paths: [ e1 ]
+}
+
+source:
+{
+   module_type: EmptyEvent
+   maxEvents: 2
+}

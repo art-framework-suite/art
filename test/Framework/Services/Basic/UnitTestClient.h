@@ -13,22 +13,12 @@ namespace art {
 namespace arttest
 {
 
-class UnitTestClient
-  : public art::EDAnalyzer
+class UnitTestClient : public art::EDAnalyzer
 {
 public:
-  explicit
-    UnitTestClient( fhicl::ParameterSet const & )
-  { }
-
-  virtual
-    ~UnitTestClient()
-  { }
-
-  virtual
-    void analyze( art::Event      const & e
-                , art::EventSetup const & c
-                );
+  explicit UnitTestClient( fhicl::ParameterSet const & p);
+  virtual ~UnitTestClient();
+  virtual void analyze( art::Event const & e);
 
 private:
 };

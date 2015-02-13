@@ -5,7 +5,7 @@ art_dictionary(NO_INSTALL)
 set(default_test_libraries
   art_Utilities
   test_Utilities_dict
-  ${MF_MESSAGELOGGER}
+  MF_MessageLogger
   ${ROOT_CINT}
   ${ROOT_REFLEX}
   )
@@ -22,6 +22,12 @@ cet_test(FriendlyName_t USE_BOOST_UNIT
 
 cet_test(InputTag_t USE_BOOST_UNIT
   LIBRARIES ${default_test_libraries}
+  )
+
+cet_test(ParameterSet_get_vecInputTag_t
+  LIBRARIES ${default_test_libraries}
+  TEST_ARGS "dummy"
+  REF "${CMAKE_CURRENT_SOURCE_DIR}/ParameterSet_get_vecInputTag_t-ref.txt"
   )
 
 cet_test(TypeID_t USE_BOOST_UNIT

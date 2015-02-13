@@ -5,8 +5,10 @@
 // ======================================================================
 
 #include "art/Framework/Principal/Event.h"
+#include "art/Framework/Services/Optional/TimeTracker.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/ServiceMacros.h"
+#include "art/Framework/Services/Registry/ServiceRegistry.h"
 #include "art/Persistency/Provenance/EventID.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Persistency/Provenance/ProvenanceFwd.h"
@@ -14,7 +16,8 @@
 #include "fhiclcpp/ParameterSet.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
-#include <iostream>
+#include <algorithm>
+#include <limits>
 #include <sys/time.h>
 
 namespace art {
@@ -50,7 +53,8 @@ private:
   // Min Max and average event times for summary at end of job
   double max_event_time_;    // seconds
   double min_event_time_;    // seconds
-  int total_event_count_;
+  double avg_event_time_;    // seconds
+  double nEvt_;
 
 };  // Timing
 
@@ -67,20 +71,37 @@ static double getTime()
 
 // ----------------------------------------------------------------------
 
-Timing::Timing(ParameterSet const& iPS, ActivityRegistry& iRegistry):
-  summary_only_(iPS.get<bool>("summaryOnly", false)),
-  max_event_time_(0.),
-  min_event_time_(0.),
-  total_event_count_(0)
+Timing::Timing(ParameterSet const& iPS, ActivityRegistry& iRegistry)
+  : summary_only_(iPS.get<bool>("summaryOnly", false))
+  , max_event_time_( std::numeric_limits<double>::lowest() )
+  , min_event_time_( std::numeric_limits<double>::max()    )
+  , avg_event_time_( 0. )
+  , nEvt_(0.)
 {
-  iRegistry.sPostBeginJob.watch(this, &Timing::postBeginJob);
-  iRegistry.sPostEndJob.watch(this, &Timing::postEndJob);
 
-  iRegistry.sPreProcessEvent.watch(this, &Timing::preEventProcessing);
-  iRegistry.sPostProcessEvent.watch(this, &Timing::postEventProcessing);
+  if ( ServiceRegistry::instance().isAvailable<TimeTracker>() ) {
 
-  iRegistry.sPreModule.watch(this, &Timing::preModule);
-  iRegistry.sPostModule.watch(this, &Timing::postModule);
+    mf::LogWarning("CONFIG") << "\n"
+                             << " <<< 'Timing' and 'TimeTracker' have both been configured.     >>> \n"
+                             << " <<< 'Timing' is deprecated.                                   >>> \n"
+                             << " <<< Only 'TimeTracker' will be included in services schedule. >>> \n";
+
+  }
+  else {
+
+    mf::LogWarning("CONFIG") << "\n <<< 'Timing' is deprecated.  Please use 'TimeTracker'. >>>\n";
+
+    iRegistry.sPostBeginJob.watch(this, &Timing::postBeginJob);
+    iRegistry.sPostEndJob.watch(this, &Timing::postEndJob);
+
+    iRegistry.sPreProcessEvent.watch(this, &Timing::preEventProcessing);
+    iRegistry.sPostProcessEvent.watch(this, &Timing::postEventProcessing);
+
+    iRegistry.sPreModule.watch(this, &Timing::preModule);
+    iRegistry.sPostModule.watch(this, &Timing::postModule);
+
+  }
+
 }
 
 // ----------------------------------------------------------------------
@@ -100,15 +121,15 @@ void Timing::postBeginJob()
 
 void Timing::postEndJob()
 {
-  double t = getTime() - curr_job_;
-  double average_event_t = t / total_event_count_;
-  mf::LogAbsolute("TimeReport")                            // Changelog 1
+  double const t = getTime() - curr_job_;
+
+  mf::LogAbsolute("TimeReport")
     << "TimeReport> Time report complete in "
     << t << " seconds\n"
     << " Time Summary: \n"
     << " Min: " << min_event_time_ << "\n"
     << " Max: " << max_event_time_ << "\n"
-    << " Avg: " << average_event_t << "\n";
+    << " Avg: " << avg_event_time_ << "\n";
 
 }
 
@@ -122,20 +143,21 @@ void Timing::preEventProcessing(Event const& ev)
 
 void Timing::postEventProcessing(Event const&)
 {
-  double t = getTime() - curr_event_time_;
+
+  double const t = getTime() - curr_event_time_;
+
   if (not summary_only_) {
     mf::LogAbsolute("TimeEvent")
        << "TimeEvent> "
        << curr_event_ << " " << t;
   }
-  if (total_event_count_ == 0) {
-    max_event_time_ = t;
-    min_event_time_ = t;
-  }
 
-  if (t > max_event_time_) max_event_time_ = t;
-  if (t < min_event_time_) min_event_time_ = t;
-  total_event_count_ = total_event_count_ + 1;
+  max_event_time_ = std::max( max_event_time_, t );
+  min_event_time_ = std::min( min_event_time_, t );
+  avg_event_time_ = (nEvt_*avg_event_time_ + t)/(nEvt_+1);
+
+  ++nEvt_;
+
 }
 
 // ----------------------------------------------------------------------
@@ -147,7 +169,7 @@ void Timing::preModule(ModuleDescription const&)
 
 void Timing::postModule(ModuleDescription const& desc)
 {
-  double t = getTime() - curr_module_time_;
+  double const t = getTime() - curr_module_time_;
   if (not summary_only_) {
     mf::LogAbsolute("TimeModule")
       << "TimeModule> "

@@ -23,7 +23,7 @@ cet_test(artapp_t USE_BOOST_UNIT
   art_Framework_Art
   ${Boost_PROGRAM_OPTIONS_LIBRARY}
   DATAFILES
-  fcl/empty_config.fcl
+  fcl/opt-empty.fcl
 )
 
 ########################################################################
@@ -91,12 +91,116 @@ cet_test(BasicOutputOptions_01_w HANDBUILT
   TEST_PROPERTIES ENVIRONMENT ART_DEBUG_CONFIG=config.out
   DATAFILES fcl/opt-empty.fcl
   )
-
 config_test_pass(BasicOutputOptions_01_w)
-
-# Compare output from BasicOutputOptions_01_w against reference.
 config_ref_test(BasicOutputOptions_01)
 
+# Detect ambiguity and exit with error.
+cet_test(BasicOutputOptions_02_w HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --no-output -o f.root
+  -c opt-empty.fcl
+  TEST_PROPERTIES ENVIRONMENT ART_DEBUG_CONFIG=config.out
+  PASS_REGULAR_EXPRESSION "\n  Output configuration is ambiguous: command-line specifies--output and --no-output simultaneously\\."
+  DATAFILES fcl/opt-empty.fcl
+)
+
+# Should pass -- NOP
+cet_test(BasicOutputOptions_03_w HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --no-output
+  -c opt-empty.fcl
+  TEST_PROPERTIES ENVIRONMENT ART_DEBUG_CONFIG=config.out
+  DATAFILES fcl/opt-empty.fcl
+)
+config_test_pass(BasicOutputOptions_03_w)
+config_ref_test(BasicOutputOptions_03)
+
+# Should pass -- NOP
+cet_test(BasicOutputOptions_04_w HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS -o /dev/null
+  -c opt-empty.fcl
+  TEST_PROPERTIES ENVIRONMENT ART_DEBUG_CONFIG=config.out
+  DATAFILES fcl/opt-empty.fcl
+)
+config_test_pass(BasicOutputOptions_04_w)
+config_ref_test(BasicOutputOptions_04)
+
+# Should pass -- simple.
+cet_test(BasicOutputOptions_05_w HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS -o /dev/null
+  -c opt-simple-out.fcl
+  TEST_PROPERTIES ENVIRONMENT ART_DEBUG_CONFIG=config.out
+  DATAFILES fcl/opt-simple-out.fcl
+)
+config_test_pass(BasicOutputOptions_05_w)
+config_ref_test(BasicOutputOptions_05)
+
+# Should pass -- simple.
+cet_test(BasicOutputOptions_06_w HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --no-output
+  -c opt-simple-out.fcl
+  TEST_PROPERTIES ENVIRONMENT ART_DEBUG_CONFIG=config.out
+  DATAFILES fcl/opt-simple-out.fcl
+)
+config_test_pass(BasicOutputOptions_06_w)
+config_ref_test(BasicOutputOptions_06)
+
+# Should pass -- multi-path.
+cet_test(BasicOutputOptions_07_w HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS -o /dev/null
+  -c opt-multipath-out.fcl
+  TEST_PROPERTIES ENVIRONMENT ART_DEBUG_CONFIG=config.out
+  DATAFILES fcl/opt-multipath-out.fcl
+)
+config_test_pass(BasicOutputOptions_07_w)
+config_ref_test(BasicOutputOptions_07)
+
+# Should pass -- multi-path.
+cet_test(BasicOutputOptions_08_w HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --no-output
+  -c opt-multipath-out.fcl
+  TEST_PROPERTIES ENVIRONMENT ART_DEBUG_CONFIG=config.out
+  DATAFILES fcl/opt-multipath-out.fcl
+)
+config_test_pass(BasicOutputOptions_08_w)
+config_ref_test(BasicOutputOptions_08)
+
+# Should detect ambiguity -- multi-out.
+cet_test(BasicOutputOptions_09_w HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS -o /dev/null
+  -c opt-multiout.fcl
+  TEST_PROPERTIES ENVIRONMENT ART_DEBUG_CONFIG=config.out
+  PASS_REGULAR_EXPRESSION "\n  Output configuration is ambiguous: configuration has multiple output modules\\. Cannot decide where to add specified output filename /dev/null\\."
+  DATAFILES fcl/opt-multiout.fcl
+)
+
+# Should pass -- multi-out.
+cet_test(BasicOutputOptions_10_w HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --no-output
+  -c opt-multiout.fcl
+  TEST_PROPERTIES ENVIRONMENT ART_DEBUG_CONFIG=config.out
+  DATAFILES fcl/opt-multiout.fcl
+)
+config_test_pass(BasicOutputOptions_10_w)
+config_ref_test(BasicOutputOptions_10)
+
+# Should pass -- multi-out.
+cet_test(BasicOutputOptions_11_w HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --no-output
+  -c opt-no-end_paths-multiout.fcl
+  TEST_PROPERTIES ENVIRONMENT ART_DEBUG_CONFIG=config.out
+  DATAFILES fcl/opt-no-end_paths-multiout.fcl
+)
+config_test_pass(BasicOutputOptions_11_w)
+config_ref_test(BasicOutputOptions_11)
 
 ####################################
 # BasicSourceOptionsHandler.
@@ -106,10 +210,10 @@ config_ref_test(BasicOutputOptions_01)
 cet_test(BasicSourceOptions_01_w HANDBUILT
   TEST_EXEC art
   TEST_ARGS --estart 5 --nevts 4 --nskip 2
-  -c empty_config.fcl
+  -c opt-empty.fcl
   -s f0.txt
   TEST_PROPERTIES ENVIRONMENT ART_DEBUG_CONFIG=config.out
-  DATAFILES fcl/empty_config.fcl
+  DATAFILES fcl/opt-empty.fcl
   )
 
 config_test_pass(BasicSourceOptions_01_w)
@@ -130,13 +234,13 @@ cet_test(BasicSourceOptions_02 HANDBUILT
 cet_test(BasicSourceOptions_03 HANDBUILT
   TEST_EXEC art
   TEST_ARGS --estart 5 --nevts 4 --nskip 2
-  -c empty_config.fcl
+  -c opt-empty.fcl
   -s f0.txt
   -S BasicSourceOptions-srclist.txt
   TEST_PROPERTIES ENVIRONMENT ART_DEBUG_CONFIG=config.out
   PASS_REGULAR_EXPRESSION
   "--source-list \\(-S\\) and --source \\(-s\\) or non-option arguments are incompatible due to ordering ambiguities\\."
-  DATAFILES fcl/empty_config.fcl
+  DATAFILES fcl/opt-empty.fcl
   BasicSourceOptions-srclist.txt
   )
 
@@ -221,6 +325,16 @@ config_test_pass(DebugOptions_02_w)
 # Compare output from DebugOptions_02_w against reference.
 config_ref_test(DebugOptions_02)
 
+# Save post-processed config and execute job as normal.
+cet_test(DebugOptions_03_w HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --notrace --nomemcheck --rethrow-all --config-out=config.out
+  -c DebugOptions_02_w.fcl
+  DATAFILES fcl/DebugOptions_02_w.fcl
+)
+
+# Compare with reference.
+config_ref_test(DebugOptions_03)
 
 ####################################
 # FileCatalogOptionsHandler.

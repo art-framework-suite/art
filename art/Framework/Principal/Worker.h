@@ -65,10 +65,10 @@ public:
               CurrentProcessingContext const* cpc);
   void beginJob() ;
   void endJob();
-  void respondToOpenInputFile(FileBlock const& fb) {implRespondToOpenInputFile(fb);}
-  void respondToCloseInputFile(FileBlock const& fb) {implRespondToCloseInputFile(fb);}
-  void respondToOpenOutputFiles(FileBlock const& fb) {implRespondToOpenOutputFiles(fb);}
-  void respondToCloseOutputFiles(FileBlock const& fb) {implRespondToCloseOutputFiles(fb);}
+  void respondToOpenInputFile(FileBlock const& fb);
+  void respondToCloseInputFile(FileBlock const& fb);
+  void respondToOpenOutputFiles(FileBlock const& fb);
+  void respondToCloseOutputFiles(FileBlock const& fb);
 
   void reset() { state_ = Ready; }
 

@@ -2,9 +2,11 @@
 #define art_Utilities_InputTag_h
 
 #include "art/Utilities/fwd.h"
+#include "fhiclcpp/ParameterSet.h"
 
 #include <iosfwd>
 #include <string>
+#include <vector>
 
 namespace art {
   class InputTag;
@@ -133,6 +135,20 @@ operator!=(InputTag const & left, InputTag const & right)
   return ! (left == right);
 }
 #endif /* __GCCXML__ */
+
+//=====================================================================
+// decode specialization for allowing conversions from
+//   std::string ===> art::InputTag
+
+namespace art {
+
+  inline void decode( boost::any const & a, InputTag & tag ){
+    std::string str;
+    fhicl::detail::decode(a, str);
+    tag = str;
+  }
+
+}
 
 #endif /* art_Utilities_InputTag_h */
 

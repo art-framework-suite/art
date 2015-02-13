@@ -3,6 +3,7 @@
 #include <iostream>
 
 #include "art/Ntuple/Ntuple.h"
+#include "art/Utilities/Exception.h"
 
 #include "sqlite3.h"
 
@@ -20,7 +21,7 @@ void nullptr_build_failure()
       Ntuple<int, double> t2(db, "table1", {"i", "x"});
       assert("Ntuple creation failed to throw required exception" == 0);
     }
-  catch (std::runtime_error const& x) { }
+  catch (art::Exception const& x) { }
   catch (...) { assert("Ntuple creation throw the wrong type of exception" == 0); }
   std::cout << "end nullptr_build_failure\n";
 }
@@ -52,7 +53,7 @@ void test_with_colliding_table(sqlite3* db,
       Ntuple<ARGS...> xx(db, "xx", names);
       assert("Failed throw for mismatched table" == 0);
     }
-  catch (std::runtime_error const& x) { }
+  catch (art::Exception const& x) { }
   catch (...) { assert("Threw wrong exception for mismatched table" == 0); }
   std::cout << "end test_with_colliding_table\n";
 }
@@ -72,7 +73,7 @@ void test_filling_table(sqlite3* db)
   assert(db);
   constexpr int nrows { 903 };
   {
-    Ntuple<int, double> nt(db, "zz", {"i", "x"}, 100);
+    Ntuple<int, double> nt(db, "zz", {"i", "x"}, false, 100);
     for (int i = 0; i < nrows; ++i)
       {
         std::cout << "inserting row " << i << "\n";
@@ -93,7 +94,7 @@ void test_file_create()
   const char* filename = "myfile.db";
   remove(filename);
   {
-    Ntuple<int, double, int> table(filename, "tab1", {"i", "x", "k" }, 5);
+    Ntuple<int, double, int> table(filename, "tab1", {"i", "x", "k" }, false, 5);
     for (std::size_t i = 0; i < 103; ++i) table.insert(i, 0.5*i, i*i);
   }
   sqlite3* db;

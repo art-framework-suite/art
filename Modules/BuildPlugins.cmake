@@ -1,48 +1,24 @@
 # macros for building plugin libraries
 #
-# The plugin type is expected to be service, source, or module,
-# but we do not enforce this.
+# The plugin type is expected to be service, source, or module, but we
+# do not enforce this in order to allow for user- or experiment-defined
+# plugins.
 #
 # USAGE:
-# simple_plugin( <name> <plugin type>
-#                [library list]
-#                [USE_BOOST_UNIT]
-#                [ALLOW_UNDERSCORES]
-#                [BASENAME_ONLY]
-#                [NO_INSTALL]
-#   )
 #
-# The plugin library's name is constructed from the specified name, its
-# specified plugin type (eg service, module, source), and (unless
-# BASENAME_ONLY is specified) the package subdirectory path (replacing
-# "/" with "_").
+# simple_plugin( <name> <plugin type> [<basic_plugin options>]
+#                [[NOP] <library list>] )
 #
 # Options:
 #
-# ALLOW_UNDERSCORES
+# NOP
 #
-#   Allow underscores in subdirectory names. Discouraged, as it creates
-#   a possible ambiguity in the encoded plugin library name (art_test/XX
-#   is indistinguishable from art/test/XX).
+#    Dummy option for the purpose of separating (say) multi-option
+#    arguments from non-option arguments.
 #
-# BASENAME_ONLY
-#
-#    Omit the subdirectory path from the library name. Discouraged, as
-#    it creates an ambiguity between modules with the same source
-#    filename in different packages or different subdirectories within
-#    the same package. The latter case is not possible however, because
-#    CMake will throw an error because the two CMake targets will have
-#    the same name and that is not permitted.
-#
-# NO_INSTALL
-#
-#    If specified, the plugin library will not be part of the installed
-#    product (use for test modules, etc.).
-#
-# USE_PRODUCT_NAME
-#
-#   Passed through to basic_plugin
-#
+# For other available options, please see
+# cetbuildtools/Modules/BasicPlugin.cmake
+# (https://cdcvs.fnal.gov/redmine/projects/cetbuildtools/repository/revisions/master/entry/Modules/BasicPlugin.cmake).
 ########################################################################
 
 include(BasicPlugin)
@@ -56,7 +32,10 @@ endmacro()
 
 # simple plugin libraries
 function(simple_plugin name type)
-  set(simple_plugin_liblist)
+  cmake_parse_arguments(SP "NOP" "" "SOURCE" ${ARGN})
+  if(NOT simple_plugin_liblist)
+    set(simple_plugin_liblist)
+  endif()
   if(ART_FRAMEWORK_CORE)
     # using art as a product
     if("${type}" STREQUAL "service")
@@ -76,13 +55,15 @@ function(simple_plugin name type)
   else()
     # this block is used when building art
     if("${type}" STREQUAL "service")
-      list(INSERT simple_plugin_liblist 0 art_Framework_Services_Registry)
+      list(INSERT simple_plugin_liblist 0 art_Framework_Services_Registry ${FHICLCPP} ${CETLIB})
     elseif("${type}" STREQUAL "module" OR "${type}" STREQUAL "source")
       list(INSERT simple_plugin_liblist 0
         art_Framework_Core
         art_Framework_Principal
         art_Persistency_Provenance
         art_Utilities
+        ${FHICLCPP}
+        ${CETLIB}
         ${ROOT_CORE}
         )
     endif()
@@ -92,5 +73,24 @@ function(simple_plugin name type)
         )
     endif()
   endif()
-  basic_plugin(${name} ${type} ${ARGN} ${simple_plugin_liblist})
+  check_ups_version(cetbuildtools ${CETBUILDTOOLS_VERSION} v4_05_00 PRODUCT_MATCHES_VAR BP_HAS_SOURCE)
+  if(SP_SOURCE)
+    if (BP_HAS_SOURCE)
+      list(INSERT SP_SOURCE 0 SOURCE)
+    else()
+      message(FATAL_ERROR "SOURCE option specified, but not supported by cetbuildtools ${CETBUILDTOOLS_VERSION}")
+    endif()
+  endif()
+  check_ups_version(cetbuildtools ${CETBUILDTOOLS_VERSION} v4_06_00 PRODUCT_MATCHES_VAR BP_HAS_NOP)
+  if (BP_HAS_NOP AND NOT SP_NOP)
+    # Set it anyway so we have a good separator.
+    set(SP_NOP TRUE)
+  elseif(SP_NOP AND NOT BP_HAS_NOP)
+    # Not a problem, it's already done its job.
+    unset(SP_NOP)
+  endif()
+  if (SP_NOP)
+    set (NOP_ARG NOP)
+  endif()
+  basic_plugin(${name} ${type} ${NOP_ARG} ${simple_plugin_liblist} ${ARGN} ${SP_SOURCE})
 endfunction(simple_plugin name type)

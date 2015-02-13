@@ -104,8 +104,10 @@ public:
    }
 
    const_iterator begin() const {return entries_.begin();}
+   const_iterator cbegin() const { return entries_.begin();}
 
    const_iterator end() const {return entries_.end();}
+   const_iterator cend() const { return entries_.end();}
 
    std::vector<Element>::size_type size() const {return entries_.size();}
 

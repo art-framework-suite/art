@@ -3,11 +3,11 @@
 // Package:    TestBeginEndJobAnalyzer
 // Class:      TestBeginEndJobAnalyzer
 //
-*/
 
 #include "art/Framework/Core/Frameworkfwd.h"
-#include "cpp0x/memory"
 #include "test/Framework/Core/stubs/TestBeginEndJobAnalyzer.h"
+
+#include <memory>
 
 TestBeginEndJobAnalyzer::
 TestBeginEndJobAnalyzer(const fhicl::ParameterSet& pset)

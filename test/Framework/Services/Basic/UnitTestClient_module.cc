@@ -3,16 +3,54 @@
 
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Core/ModuleMacros.h"
-#include "cpp0x/cmath"
+
+#include <cmath>
 #include <float.h>
 #include <iostream>
 #include <string>
+#include <stdexcept>
+
+#include <csignal>
+#include <cstdlib>
+#include <memory.h>
+
+extern "C"
+{
+  typedef void (*SIGFUNC)(int,siginfo_t*,void*);
+
+  void ep_sigfpu(int ,siginfo_t*, void*)
+  {
+     std::cerr << "Worked!\n";
+     exit(0);
+  }
+}
 
 namespace arttest
 {
-void
-  UnitTestClient::analyze( art::Event      const & e
-                           , art::EventSetup const & es )
+
+UnitTestClient::UnitTestClient( fhicl::ParameterSet const & p):
+  art::EDAnalyzer(p)
+{
+  struct sigaction act;
+  memset(&act,0,sizeof(act));
+  act.sa_sigaction = ep_sigfpu;
+  act.sa_flags = SA_RESTART;
+
+  if(sigaction(SIGFPE,&act,0) !=0)
+  {
+    perror("sigaction failed");
+    throw std::runtime_error("cannot install sigaction signal handler");
+  }
+
+  sigset_t newset;
+  sigemptyset(&newset);
+  sigaddset(&newset,SIGFPE);
+  pthread_sigmask(SIG_UNBLOCK, &newset,0);
+}
+
+UnitTestClient::~UnitTestClient() { }
+
+void UnitTestClient::analyze( art::Event const & e)
 {
 
   double x = 1.0;
@@ -42,6 +80,8 @@ void
     mf::LogVerbatim("FPExceptions") << "\t\tForce Underflow: d = x/y";
     double d = x / y;
     mf::LogVerbatim("FPExceptions") << "\t\td = " << d;
+
+    abort();
   }
 }
 

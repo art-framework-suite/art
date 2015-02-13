@@ -3,13 +3,13 @@
 // Package:    TestFailuresAnalyzer
 // Class:      TestFailuresAnalyzer
 //
-*/
 
 #include "FWCore/Framework/test/stubs/TestFailuresAnalyzer.h"
 #include "art/Framework/Core/ModuleMacros.h"
 #include "cetlib/exception.h"
-#include "cpp0x/memory"
 #include "fhiclcpp/ParameterSet.h"
+
+#include <memory>
 
 enum {
    kConstructor,

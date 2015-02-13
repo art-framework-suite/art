@@ -27,7 +27,9 @@ DebugOptionsHandler(bpo::options_description & desc,
     ("rethrow-all", "All exceptions overridden to rethrow (cf rethrow-default).")
     ("debug-config", bpo::value<std::string>(),
      (std::string("Output post-processed configuration to <file> and exit. Equivalent to env ART_DEBUG_CONFIG=<file> ") +
-      basename + " ...").c_str());
+      basename + " ...").c_str())
+    ("config-out", bpo::value<std::string>(),
+     "Output post-processed configuration to <file> and continue with job.");
 }
 
 int
@@ -63,6 +65,9 @@ doProcessOptions(bpo::variables_map const & vm,
     setenv("ART_DEBUG_CONFIG",
            vm["debug-config"].as<std::string>().c_str(),
            true /* overwrite */);
+  } else if (vm.count("config-out")) {
+    raw_config.put("services.scheduler.configOut",
+                   vm["config-out"].as<std::string>().c_str());
   }
   if (vm.count("trace")) {
     raw_config.put("services.scheduler.wantTracer", true);

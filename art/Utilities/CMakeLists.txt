@@ -1,8 +1,8 @@
 art_make(LIB_LIBRARIES
-  ${MF_MESSAGELOGGER}
-  ${MF_UTILITIES}
-	${FHICLCPP}
-	${CETLIB}
+  MF_MessageLogger
+  MF_Utilities
+	fhiclcpp
+	cetlib
 	${Boost_FILESYSTEM_LIBRARY}
 	${Boost_REGEX_LIBRARY}
 	${Boost_SYSTEM_LIBRARY}

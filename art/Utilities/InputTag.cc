@@ -4,8 +4,6 @@
 #include "boost/algorithm/string/classification.hpp"
 #include "boost/algorithm/string/split.hpp"
 
-#include <vector>
-
 namespace art {
   void InputTag::set_from_string_(std::string const& s)
   {

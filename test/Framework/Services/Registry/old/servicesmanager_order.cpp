@@ -4,10 +4,11 @@
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/ServiceWrapper.h"
 #include "art/Framework/Services/Registry/ServicesManager.h"
-#include "cpp0x/memory"
 #include "fhiclcpp/ParameterSet.h"
+
 #include <cstdlib>
 #include <iostream>
+#include <memory>
 #include <vector>
 
 //NOTE: I need to open a 'back door' so I can test ServiceManager 'inheritance'

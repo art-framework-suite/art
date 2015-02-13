@@ -2,8 +2,7 @@
 
 #include "art/Framework/Principal/Actions.h"
 #include "cetlib/container_algorithms.h"
-#include "cpp0x/algorithm"
-#include "cpp0x/functional"
+#include <algorithm>
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 
@@ -97,9 +96,8 @@ namespace art {
 
   void
   Path::clearCounters() {
-    using std::placeholders::_1;
     timesRun_ = timesPassed_ = timesFailed_ = timesExcept_ = 0;
-    for_all(workers_, std::bind(&WorkerInPath::clearCounters, _1));
+    for_all(workers_, [](auto& w) { w.clearCounters(); });
   }
 
    void Path::findEventModifiers(std::vector<std::string> &foundLabels) const {
@@ -112,14 +110,11 @@ namespace art {
 
    void Path::findByModifiesEvent(bool modifies,
                                   std::vector<std::string> &foundLabels) const {
-      for (WorkersInPath::const_iterator
-              i = workers_.begin(),
-              endIter = workers_.end();
-           i != endIter; ++i) {
-         if (i->modifiesEvent() == modifies) {
-            foundLabels.push_back(i->label());
-         }
-      }
+     for (auto const& w : workers_) {
+       if (w.modifiesEvent() == modifies) {
+         foundLabels.push_back(w.label());
+       }
+     }
    }
 
 }

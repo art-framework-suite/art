@@ -8,8 +8,8 @@
 #include "art/Framework/Services/Registry/ServiceRegistry.h"
 #include "art/Persistency/Provenance/FileIndex.h"
 #include "art/Persistency/Provenance/History.h"
-#include "cpp0x/functional"
-#include "cpp0x/regex"
+#include "cetlib/container_algorithms.h"
+//#include "cpp0x/regex"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include <algorithm>
@@ -17,6 +17,7 @@
 #include <iterator>
 #include <limits>
 #include <numeric>
+#include <regex>
 #include <unordered_set>
 
 #include "Rtypes.h"
@@ -77,25 +78,58 @@ EventIDLookup::operator()(argument_type element) const
   return i->second;
 }
 
+namespace {
+  double initCoverageFraction(fhicl::ParameterSet const & pset)
+  {
+    double result = pset.get<double>("coverageFraction", 1.0);
+    if (result > (1 + std::numeric_limits<double>::epsilon())) {
+      mf::LogWarning("Configuration")
+        << "coverageFraction > 1: treating as a percentage.\n";
+      result /= 100.0;
+    }
+    return result;
+  }
+
+  std::unique_ptr<CLHEP::RandFlat>
+  initDist(art::MixHelper::Mode readMode)
+  {
+    using namespace art;
+    std::unique_ptr<CLHEP::RandFlat> result;
+    if (readMode > MixHelper::Mode::SEQUENTIAL) {
+      if (ServiceRegistry::instance().isAvailable<RandomNumberGenerator>()) {
+        result.reset(new CLHEP::RandFlat(ServiceHandle<RandomNumberGenerator>()->getEngine()));
+      } else {
+        throw Exception(errors::Configuration, "MixHelper")
+          << "Random event mixing selected but RandomNumberGenerator service not loaded.\n"
+          << "Ensure service is loaded with: \n"
+          << "services.RandomNumberGenerator: {}\n";
+      }
+    }
+    return result;
+  }
+
+}
+
 art::MixHelper::
 MixHelper(fhicl::ParameterSet const & pset,
           ProducerBase & producesProvider)
   :
   producesProvider_(producesProvider),
   filenames_(pset.get<std::vector<std::string> >("fileNames", { })),
+  compactMissingProducts_(pset.get<bool>("compactMissingProducts", false)),
   providerFunc_(),
   mixOps_(),
   ptrRemapper_(),
   fileIter_(filenames_.begin()),
   readMode_(initReadMode_(pset.get<std::string>("readMode", "sequential"))),
-  coverageFraction_(pset.get<double>("coverageFraction", 1.0)),
+  coverageFraction_(initCoverageFraction(pset)),
   nEventsReadThisFile_(0),
   nEventsInFile_(0),
   totalEventsRead_(0),
   canWrapFiles_(pset.get<bool>("wrapFiles", false)),
   ffVersion_(),
   ptpBuilder_(),
-  dist_(),
+  dist_(initDist(readMode_)),
   eventsToSkip_(),
   shuffledSequence_(),
   eventIDIndex_(),
@@ -104,21 +138,6 @@ MixHelper(fhicl::ParameterSet const & pset,
   currentEventTree_(),
   dataBranches_()
 {
-  if (readMode_ > Mode::SEQUENTIAL) {
-    if (ServiceRegistry::instance().isAvailable<RandomNumberGenerator>()) {
-      dist_.reset(new CLHEP::RandFlat(ServiceHandle<RandomNumberGenerator>()->getEngine()));
-    } else {
-      throw Exception(errors::Configuration, "MixHelper")
-        << "Random event mixing selected but RandomNumberGenerator service not loaded.\n"
-        << "Ensure service is loaded with: \n"
-        << "services.RandomNumberGenerator: {}\n";
-    }
-  }
-  if (coverageFraction_ > (1 + std::numeric_limits<double>::epsilon())) {
-    mf::LogWarning("Configuration")
-        << "coverageFraction > 1: treating as a percentage.\n";
-    coverageFraction_ /= 100.0;
-  }
 }
 
 void
@@ -211,16 +230,11 @@ void
 art::MixHelper::mixAndPut(EntryNumberSequence const & enSeq,
                           Event & e)
 {
-  using std::placeholders::_1;
   // Populate the remapper in case we need to remap any Ptrs.
   ptpBuilder_.populateRemapper(ptrRemapper_, e);
   // Do the branch-wise read, mix and put.
   cet::for_all(mixOps_,
-               std::bind(&MixHelper::mixAndPutOne_,
-                         this,
-                         _1,
-                         enSeq,
-                         std::ref(e)));
+	       [&,this](auto const& op){ this->mixAndPutOne_(op, enSeq, e); });
   nEventsReadThisFile_ += enSeq.size();
   totalEventsRead_ += enSeq.size();
 }
@@ -370,9 +384,7 @@ void
 art::MixHelper::
 buildEventIDIndex_(FileIndex const & fileIndex)
 {
-  std::for_each(fileIndex.begin(),
-                fileIndex.end(),
-                EventIDIndexBuilder(eventIDIndex_));
+  cet::for_all(fileIndex, EventIDIndexBuilder(eventIDIndex_));
 }
 
 void

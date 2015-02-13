@@ -10,10 +10,11 @@
 #include "art/Framework/Principal/Handle.h"
 #include "art/Persistency/Common/Ptr.h"
 #include "art/Persistency/Common/PtrVector.h"
-#include "cpp0x/memory"
 #include "fhiclcpp/ParameterSet.h"
 #include "test/TestObjects/ToyProducts.h"
+
 #include <iostream>
+#include <memory>
 #include <vector>
 
 namespace arttest {

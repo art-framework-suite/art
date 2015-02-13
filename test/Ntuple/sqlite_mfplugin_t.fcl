@@ -1,0 +1,13 @@
+# Configuration file for messageFacility test
+
+process_name: sqlitePluginTest
+
+message : {
+   destinations :  {
+      sqliteDest : { 
+         type     : sqlite
+         filename : "sqlite_plugin_t.db"
+      }
+   }
+}
+

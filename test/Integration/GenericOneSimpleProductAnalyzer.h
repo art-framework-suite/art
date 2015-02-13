@@ -6,9 +6,10 @@
 #include "art/Framework/Principal/Handle.h"
 #include "art/Utilities/detail/metaprogramming.h"
 #include "cetlib/exception.h"
-#include "cpp0x/type_traits"
 #include "fhiclcpp/ParameterSet.h"
+
 #include <string>
+#include <type_traits>
 
 namespace arttest {
   template <typename V, typename P> class GenericOneSimpleProductAnalyzer;

@@ -4,11 +4,12 @@
 #include "art/Framework/Services/Registry/ServiceToken.h"
 #include "art/Framework/Services/System/TriggerNamesService.h"
 #include "art/Persistency/Common/TriggerResults.h"
-#include "cpp0x/array"
-#include "cpp0x/memory"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/ParameterSetRegistry.h"
+
+#include <array>
 #include <iostream>
+#include <memory>
 #include <string>
 #include <vector>
 

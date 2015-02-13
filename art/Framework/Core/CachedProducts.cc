@@ -2,8 +2,6 @@
 
 #include "cetlib/container_algorithms.h"
 
-#include <algorithm>
-#include <functional>
 #include <map>
 #include <string>
 #include <vector>
@@ -27,7 +25,7 @@ setupDefault(vector<string> const& triggernames)
 
 void
 CachedProducts::
-setup(vector<std::pair<std::string, std::string>> const& path_specs,
+setup(vector<pair<string, string>> const& path_specs,
       vector<string> const& triggernames,
       const string& process_name)
 {
@@ -69,15 +67,10 @@ wantEvent(Event const& ev)
   // configuration has been set to match all events, or the configuration
   // is set to use specific process names.
   loadTriggerResults(ev);
-  // Give each event selector a chance to accept.
-  for (auto I = p_and_e_selectors_.begin(), E = p_and_e_selectors_.end();
-      I != E; ++I) {
-    if (I->match()) {
-      return true;
-    }
-  }
-  // No event selectors accepted, we do not want this event.
-  return false;
+
+  return any_of(begin(p_and_e_selectors_),
+                end(p_and_e_selectors_),
+                [](auto& s) { return s.match(); });
 }
 
 art::Handle<art::TriggerResults>
@@ -103,8 +96,7 @@ getOneTriggerResults(Event const& ev) const
 void
 CachedProducts::
 clearTriggerResults() {
-  std::for_each(p_and_e_selectors_.begin(), p_and_e_selectors_.end(),
-                std::bind(&ProcessAndEventSelector::clearTriggerResults, std::placeholders::_1));
+  for_all(p_and_e_selectors_, [](auto& p) { p.clearTriggerResults(); });
   loadDone_ = false;
   numberFound_ = 0;
 }
@@ -115,17 +107,12 @@ loadTriggerResults(Event const& ev)
 {
   // Get all the TriggerResults objects for
   // the process names we are interested in.
-  if (loadDone_) {
-    return;
-  }
+  if (loadDone_) { return; }
   loadDone_ = true;
-  for (auto I = p_and_e_selectors_.begin(), E = p_and_e_selectors_.end();
-      I != E; ++I) {
-    // Note: The loadTriggerResults call might throw,
-    // so numberFound_ may be less than expected.
-    I->loadTriggerResults(ev);
-    ++numberFound_;
-  }
+  // Note: The loadTriggerResults call might throw,
+  // so numberFound_ may be less than expected.
+  for_all(p_and_e_selectors_,
+          [&,this](auto& s){ s.loadTriggerResults(ev); ++numberFound_;});
 }
 
 

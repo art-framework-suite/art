@@ -9,7 +9,13 @@
 
 #include "art/Persistency/Common/traits.h"
 #include "cetlib/container_algorithms.h"
-#include "cpp0x/cstdint"
+
+#ifndef __GCCXML__
+#  include <cstdint>
+#else
+#  include "boost/cstdint.hpp"
+#endif
+
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -43,14 +49,20 @@ namespace arttest
   };
 
 
-
   struct Int16_tProduct
   {
-    explicit Int16_tProduct(int16_t i=0, std::uint16_t j=1) :value(i), uvalue(j) {}
+#ifndef __GCCXML__
+    typedef std::uint16_t   uint16_t;
+#else
+    typedef boost::uint16_t uint16_t;
+#endif
+    explicit Int16_tProduct(int16_t i=0, uint16_t j=1) :value(i), uvalue(j) {}
     ~Int16_tProduct() {}
+
     int16_t value;
-    std::uint16_t uvalue;
+    uint16_t uvalue;
   };
+
 
   struct DoubleProduct
   {

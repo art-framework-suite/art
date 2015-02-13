@@ -36,6 +36,9 @@ namespace art {
 
 class art::PathManager {
 public:
+  PathManager(PathManager const &) = delete;
+  PathManager & operator = (PathManager const &) = delete;
+
   typedef std::vector<Worker *> Workers;
   typedef std::vector<std::string> vstring;
 

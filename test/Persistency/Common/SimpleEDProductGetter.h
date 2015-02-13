@@ -4,9 +4,9 @@
 #include "art/Persistency/Common/EDProduct.h"
 #include "art/Persistency/Common/EDProductGetter.h"
 #include "art/Persistency/Common/Wrapper.h"
-#include "cpp0x/memory"
-#include <map>
 
+#include <map>
+#include <memory>
 
 class SimpleEDProductGetter : public art::EDProductGetter
 {

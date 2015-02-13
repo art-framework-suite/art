@@ -2,7 +2,7 @@
 
 process_name: TESTING
 
-services.messageDefaults: @local::messageDefaults
+services.message: @local::messageDefaults
 services.scheduler.wantTracer: true
 
 source: { module_type: EmptyEvent maxEvents: 5 }

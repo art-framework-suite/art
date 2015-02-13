@@ -8,9 +8,10 @@
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Principal/Handle.h"
-#include "cpp0x/memory"
 #include "fhiclcpp/ParameterSet.h"
+
 #include <iostream>
+#include <memory>
 #include <string>
 
 namespace arttest {

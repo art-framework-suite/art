@@ -9,7 +9,7 @@ include(ReflexTools_t)
 art_make_library(SOURCE ToySource.cc
   LIBRARIES art_Framework_IO_Sources
   art_Framework_Core
-  ${FHICLCPP}
+  fhiclcpp
   )
 
 set_source_files_properties(MixFilterTestETS_module.cc
@@ -86,6 +86,10 @@ simple_plugin(TestOutput                  "module"  NO_INSTALL )
 simple_plugin(TestProvenanceDumper        "module"  NO_INSTALL USE_BOOST_UNIT )
 simple_plugin(TestResultAnalyzer          "module"  NO_INSTALL )
 simple_plugin(TestServiceUsingService     "module"  NO_INSTALL USE_BOOST_UNIT )
+simple_plugin(TestSimpleMemoryCheckProducer "module"  NO_INSTALL )
+simple_plugin(TestTimeTrackerProducer     "module"  NO_INSTALL )
+simple_plugin(TestTimeTrackerFilter       "module"  NO_INSTALL )
+simple_plugin(TestTimeTrackerAnalyzer     "module"  NO_INSTALL )
 simple_plugin(Throwing                    "service" NO_INSTALL )
 simple_plugin(ToyRawFileInput             "source"  NO_INSTALL USE_BOOST_UNIT test_Integration )
 simple_plugin(ToyRawInput                 "source"  NO_INSTALL USE_BOOST_UNIT test_Integration )
@@ -95,7 +99,7 @@ simple_plugin(U_S                         "module"  NO_INSTALL ALLOW_UNDERSCORES
 simple_plugin(ValidHandleTester           "module"  NO_INSTALL )
 simple_plugin(Wanted                      "service" NO_INSTALL )
 
-art_dictionary(DICTIONARY_LIBRARIES ${CETLIB} NO_INSTALL)
+art_dictionary(DICTIONARY_LIBRARIES cetlib NO_INSTALL)
 
 # cet_test macro
 
@@ -127,6 +131,7 @@ cet_test(test_simple_01_t.sh PREBUILT
   fcl/test_simple_01.fcl
   fcl/test_simple_01r.fcl
   fcl/messageDefaults.fcl
+  test_simple_01_verify.cxx
 )
 
 cet_test(test_view_01_t.sh PREBUILT
@@ -184,7 +189,9 @@ cet_test(outputCommand_t.sh PREBUILT
   fcl/messageDefaults.fcl
 )
 
-cet_test(ptr_list_t.sh PREBUILT
+cet_test(ptr_list_t HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --rethrow-all --config ptr_list_01.fcl
   DATAFILES
   fcl/ptr_list_01.fcl
   fcl/messageDefaults.fcl
@@ -551,6 +558,18 @@ cet_test(ProductMix_r1f1 HANDBUILT
   TEST_PROPERTIES DEPENDS ProductMix_w
 )
 
+# Mix the events from ProductMix_w, testing that things behave properly
+# with the compactMissingProducts option selected.
+cet_test(ProductMix_r1g HANDBUILT
+  TEST_EXEC art_ut
+  TEST_ARGS --rethrow-all -c "ProductMix_r1g.fcl"
+  DATAFILES
+  fcl/ProductMix_r1.fcl
+  fcl/ProductMix_r1g.fcl
+  TEST_PROPERTIES DEPENDS ProductMix_w
+)
+
+
 SET_TESTS_PROPERTIES(
   ProductMix_r1c2
   ProductMix_r1c3
@@ -835,6 +854,48 @@ cet_test(ServiceUsingService_02_t HANDBUILT
   fcl/ServiceUsingService_02.fcl
 )
 
+cet_test(SimpleMemoryCheck_t HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS -c simpleMemoryCheck.fcl
+  DATAFILES
+  fcl/simpleMemoryCheck.fcl
+  fcl/messageDefaults.fcl
+  )
+
+if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+  cet_test(MemoryTracker_t HANDBUILT
+    TEST_EXEC art
+    TEST_ARGS -c memoryTracker.fcl
+    DATAFILES
+    fcl/memoryTracker.fcl
+    fcl/messageDefaults.fcl
+    REF "${CMAKE_CURRENT_SOURCE_DIR}/MemoryTracker_t-ref.txt"
+    )
+endif()
+
+cet_test(TimingService_issue_2979_t HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS -c issue_2979.fcl
+  DATAFILES
+  fcl/issue_2979.fcl
+)
+
+cet_test(TimeTracker_issue_3598_t1 HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS -c issue_3598_t1.fcl
+  DATAFILES fcl/issue_3598_t1.fcl
+  REF "${CMAKE_CURRENT_SOURCE_DIR}/TimeTracker_issue_3598_t1-ref.txt"
+  )
+
+cet_test(TimeTracker_issue_3598_t2 HANDBUILT TEST_EXEC art TEST_ARGS -c issue_3598_t2.fcl DATAFILES fcl/issue_3598_t2.fcl)
+
+cet_test(TimeTracker_issue_3598_t3 HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS -c issue_3598_t3.fcl
+  DATAFILES fcl/issue_3598_t3.fcl
+  REF "${CMAKE_CURRENT_SOURCE_DIR}/TimeTracker_issue_3598_t3-ref.txt"
+  )
+
 cet_test(SAM_metadata HANDBUILT
   TEST_EXEC art
   TEST_ARGS -c "SAMMetadata_w.fcl"
@@ -860,7 +921,7 @@ cet_test(SAM_metadata_verify_hr HANDBUILT
   TEST_ARGS -H -s ../SAM_metadata.d/out.root
   TEST_PROPERTIES DEPENDS SAM_metadata
   PASS_REGULAR_EXPRESSION
-  "^\nFile catalog metadata from file \\.\\./SAM_metadata\\.d/out\\.root:\n\n 1: applicationFamily   Ethel\n 2: applicationVersion  v0\\.00\\.01a\n 3: fileType            MC\n 4: run_type            MCChallenge\n 5: group               MyGang\n 6: process_name        SAMMetadataW\n 7: testMetadata        success!\n 8: dataTier            The one with the thickest frosting\n 9: streamName          o1\n10: file_format         artroot\n11: file_format_era     ART_2011a\n12: file_format_version 6\n13: start_time          ${date_regex}\n14: end_time            ${date_regex}\n15: runs                \\[ \\[ 1, 0, \"MCChallenge\" \\] \\]\n16: event_count         1\n17: first_event         \\[ 1, 0, 1 \\]\n18: last_event          \\[ 1, 0, 1 \\]\n-------------------------------\n$"
+  "^\nFile catalog metadata from file \\.\\./SAM_metadata\\.d/out\\.root:\n\n 1: applicationFamily   \"Ethel\"\n 2: applicationVersion  \"v0\\.00\\.01a\"\n 3: fileType            \"MC\"\n 4: run_type            \"MCChallenge\"\n 5: group               \"MyGang\"\n 6: process_name        \"SAMMetadataW\"\n 7: testMetadata        \"success!\"\n 8: dataTier            \"The one with the thickest frosting\"\n 9: streamName          \"o1\"\n10: file_format         \"artroot\"\n11: file_format_era     \"ART_2011a\"\n12: file_format_version 6\n13: start_time          \"${date_regex}\"\n14: end_time            \"${date_regex}\"\n15: runs                \\[ \\[ 1, 0, \"MCChallenge\" \\] \\]\n16: event_count         1\n17: first_event         \\[ 1, 0, 1 \\]\n18: last_event          \\[ 1, 0, 1 \\]\n-------------------------------\n$"
   )
 
 cet_test(SAM_metadata_verify_JSON HANDBUILT
@@ -885,9 +946,11 @@ cet_test(FlushingGenerator_t HANDBUILT
   fcl/FlushingGenerator_t.fcl
   )
 
-cet_test(BlockingPrescaler_t.sh PREBUILT
+cet_test(BlockingPrescaler_t HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --config BlockingPrescaler_t.fcl --rethrow-all
+  REF "${CMAKE_CURRENT_SOURCE_DIR}/BlockingPrescaler_t-ref.txt"
   DATAFILES
-  BlockingPrescaler_t-ref.txt
   fcl/BlockingPrescaler_t.fcl
   )
 
@@ -1016,7 +1079,7 @@ cet_test(rename-histfile_t_check HANDBUILT
   TEST_PROPERTIES DEPENDS rename-histfile_t_w
 )
 
-simple_plugin(TestMetadata "plugin" NO_INSTALL art_Framework_Core ${FHICLCPP})
+simple_plugin(TestMetadata "plugin" NO_INSTALL art_Framework_Core fhiclcpp)
 cet_test(TestMetadata_plugin_t HANDBUILT
   TEST_EXEC art
   TEST_ARGS --rethrow-all -c TestMetadata_Plugin_t.fcl
@@ -1029,7 +1092,7 @@ cet_test(TestMetadata_verify_hr HANDBUILT
   TEST_ARGS -H -s ../TestMetadata_plugin_t.d/out.root
   TEST_PROPERTIES DEPENDS TestMetadata_plugin_t
   PASS_REGULAR_EXPRESSION
-  "^\nFile catalog metadata from file \\.\\./TestMetadata_plugin_t\\.d/out\\.root:\n\n 1: fileType            unknown\n 2: process_name        DEVEL\n 3: file_format         artroot\n 4: file_format_era     ART_2011a\n 5: file_format_version 6\n 6: start_time          ${date_regex}\n 7: end_time            ${date_regex}\n 8: event_count         1\n 9: first_event         \\[ 1, 0, 1 \\]\n10: last_event          \\[ 1, 0, 1 \\]\n11: key1                value1\n12: key2                value2\n-------------------------------\n$"
+  "^\nFile catalog metadata from file \\.\\./TestMetadata_plugin_t\\.d/out\\.root:\n\n 1: fileType            \"unknown\"\n 2: process_name        \"DEVEL\"\n 3: file_format         \"artroot\"\n 4: file_format_era     \"ART_2011a\"\n 5: file_format_version 6\n 6: start_time          \"${date_regex}\"\n 7: end_time            \"${date_regex}\"\n 8: event_count         1\n 9: first_event         \\[ 1, 0, 1 \\]\n10: last_event          \\[ 1, 0, 1 \\]\n11: key1                \"value1\"\n12: key2                \"value2\"\n-------------------------------\n$"
   )
 
 cet_test(TestMetadata_verify_JSON HANDBUILT
@@ -1044,8 +1107,8 @@ set_source_files_properties(TestEmptyEventTimestampNoRSRTS_plugin.cc
   PROPERTIES COMPILE_DEFINITIONS TEST_USE_LAST_EVENT_TIMESTAMP
 )
 
-simple_plugin(TestEmptyEventTimestamp "plugin" NO_INSTALL art_Framework_Core ${FHICLCPP})
-simple_plugin(TestEmptyEventTimestampNoRSRTS "plugin" NO_INSTALL art_Framework_Core ${FHICLCPP})
+simple_plugin(TestEmptyEventTimestamp "plugin" NO_INSTALL art_Framework_Core fhiclcpp)
+simple_plugin(TestEmptyEventTimestampNoRSRTS "plugin" NO_INSTALL art_Framework_Core fhiclcpp)
 
 cet_test(TestEmptyEventTimestamp_t HANDBUILT
   TEST_EXEC art

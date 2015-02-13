@@ -9,10 +9,11 @@
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Persistency/Common/PtrVector.h"
 #include "cetlib/exception.h"
-#include "cpp0x/memory"
 #include "fhiclcpp/ParameterSet.h"
 #include "test/TestObjects/MockCluster.h"
+
 #include <cassert>
+#include <memory>
 #include <string>
 #include <vector>
 
