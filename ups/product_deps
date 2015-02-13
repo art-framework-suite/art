@@ -1,37 +1,32 @@
 # The parent line must be the first non-comment line in the file
 # This line defines the product name and version
-parent art	v1_12_05
-defaultqual	e6
+parent art	v1_13_00
+defaultqual	e7
 #
 fcldir -
 #
 product		version
-clhep		v2_2_0_3
-cppunit		v1_12_1a
-gccxml		v0_9_20140718
-python		v2_7_8
-root		v5_34_23
-messagefacility	v1_13_00
-tbb		v4_2_5
-cetbuildtools	v4_06_00	-	only_for_build
+clhep		v2_2_0_5
+cppunit		v1_12_1b
+gccxml		v0_9_20140718a
+python		v2_7_9
+root		v5_34_25
+messagefacility	v1_14_00
+tbb		v4_3_3
+cetbuildtools	v4_07_02	-	only_for_build
 end_product_list
 
-# e5  - with gcc 4.7.1 and -std=c++11
 qualifier	messagefacility	root		clhep		cppunit		gccxml	python	tbb		compiler	notes
-e5:debug	e5:debug	e5:debug	e5:debug	e5:debug	-nq-	-nq-	e5:debug	gcc
-e5:prof		e5:prof		e5:prof		e5:prof		e5:prof		-nq-	-nq-	e5:prof		gcc
-e5:prof:sse2	e5:prof		e5:prof		e5:prof		e5:prof		-nq-	-nq-	e5:prof		gcc		-msse2 -ftree-vectorizer-verbose
-nu:e5:debug	e5:debug	e5:nu:debug	e5:debug	e5:debug	-nq-	-nq-	e5:debug	gcc
-nu:e5:prof	e5:prof		e5:nu:prof	e5:prof		e5:prof		-nq-	-nq-	e5:prof		gcc
 e6:debug	e6:debug	e6:debug	e6:debug	e6:debug	-nq-	-nq-	e6:debug	gcc
 e6:prof		e6:prof		e6:prof		e6:prof		e6:prof		-nq-	-nq-	e6:prof		gcc
 e6:prof:sse2	e6:prof		e6:prof		e6:prof		e6:prof		-nq-	-nq-	e6:prof		gcc		-msse2 -ftree-vectorizer-verbose
 nu:e6:debug	e6:debug	e6:nu:debug	e6:debug	e6:debug	-nq-	-nq-	e6:debug	gcc
 nu:e6:prof	e6:prof		e6:nu:prof	e6:prof		e6:prof		-nq-	-nq-	e6:prof		gcc
-i1:debug	i1:debug	e5:debug	e5:debug	e5:debug	-nq-	-nq-	e5:debug	icc
-i1:prof		i1:prof		e5:prof		e5:prof		e5:prof		-nq-	-nq-	e5:prof		icc
-e5:itbb:debug	e5:debug	e5:debug	e5:debug	e5:debug	-nq-	-nq-	i1:debug	gcc
-e5:itbb:prof	e5:prof		e5:prof		e5:prof		e5:prof		-nq-	-nq-	i1:prof		gcc
+e7:debug	e7:debug	e7:debug	e7:debug	e7:debug	-nq-	-nq-	e7:debug	gcc
+e7:prof		e7:prof		e7:prof		e7:prof		e7:prof		-nq-	-nq-	e7:prof		gcc
+e7:prof:sse2	e7:prof		e7:prof		e7:prof		e7:prof		-nq-	-nq-	e7:prof		gcc		-msse2 -ftree-vectorizer-verbose
+nu:e7:debug	e7:debug	e7:nu:debug	e7:debug	e7:debug	-nq-	-nq-	e7:debug	gcc
+nu:e7:prof	e7:prof		e7:nu:prof	e7:prof		e7:prof		-nq-	-nq-	e7:prof		gcc
 end_qualifier_list
 
 # Local Variables:
