@@ -862,15 +862,16 @@ cet_test(SimpleMemoryCheck_t HANDBUILT
   fcl/messageDefaults.fcl
   )
 
-cet_test(MemoryTracker_t HANDBUILT
-  TEST_EXEC art
-  TEST_ARGS -c memoryTracker.fcl
-  DATAFILES
-  fcl/memoryTracker.fcl
-  fcl/messageDefaults.fcl
-  REF "${CMAKE_CURRENT_SOURCE_DIR}/MemoryTracker_t-ref.txt"
-  OUTPUT_FILTER "${CMAKE_CURRENT_SOURCE_DIR}/filter-memorytracker"
-  )
+if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+  cet_test(MemoryTracker_t HANDBUILT
+    TEST_EXEC art
+    TEST_ARGS -c memoryTracker.fcl
+    DATAFILES
+    fcl/memoryTracker.fcl
+    fcl/messageDefaults.fcl
+    REF "${CMAKE_CURRENT_SOURCE_DIR}/MemoryTracker_t-ref.txt"
+    )
+endif()
 
 cet_test(TimingService_issue_2979_t HANDBUILT
   TEST_EXEC art
@@ -884,7 +885,6 @@ cet_test(TimeTracker_issue_3598_t1 HANDBUILT
   TEST_ARGS -c issue_3598_t1.fcl
   DATAFILES fcl/issue_3598_t1.fcl
   REF "${CMAKE_CURRENT_SOURCE_DIR}/TimeTracker_issue_3598_t1-ref.txt"
-  OUTPUT_FILTER "${CMAKE_CURRENT_SOURCE_DIR}/filter-timetracker"
   )
 
 cet_test(TimeTracker_issue_3598_t2 HANDBUILT TEST_EXEC art TEST_ARGS -c issue_3598_t2.fcl DATAFILES fcl/issue_3598_t2.fcl)
@@ -894,7 +894,6 @@ cet_test(TimeTracker_issue_3598_t3 HANDBUILT
   TEST_ARGS -c issue_3598_t3.fcl
   DATAFILES fcl/issue_3598_t3.fcl
   REF "${CMAKE_CURRENT_SOURCE_DIR}/TimeTracker_issue_3598_t3-ref.txt"
-  OUTPUT_FILTER "${CMAKE_CURRENT_SOURCE_DIR}/filter-timetracker"
   )
 
 cet_test(SAM_metadata HANDBUILT
