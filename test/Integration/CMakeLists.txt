@@ -104,8 +104,6 @@ art_dictionary(DICTIONARY_LIBRARIES cetlib NO_INSTALL)
 
 # cet_test macro
 
-cet_test(CheckLibraryList LIBRARIES cetlib art_Utilities )
-
 cet_test(EventSelectorFromFile_w HANDBUILT
   TEST_EXEC art
   TEST_ARGS --rethrow-all --config EventSelectorFromFile_w.fcl
