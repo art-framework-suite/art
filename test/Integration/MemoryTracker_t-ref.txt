@@ -84,19 +84,11 @@ MemoryTracker Per-event SUMMARY
 
 Events increasing Vsize (Mbytes)        Vsize      Δ Vsize      RSS         Δ RSS 
 ====================================================================================
- [3]	run: 1 subRun: 0 event: 3	<mem-size>	<mem-size>	<mem-size>	<mem-size>
- [4]	run: 1 subRun: 0 event: 4	<mem-size>	<mem-size>	<mem-size>	<mem-size>
- [5]	run: 1 subRun: 0 event: 5	<mem-size>	<mem-size>	<mem-size>	<mem-size>
- [6]	run: 1 subRun: 0 event: 6	<mem-size>	<mem-size>	<mem-size>	<mem-size>
- [7]	run: 1 subRun: 0 event: 7	<mem-size>	<mem-size>	<mem-size>	<mem-size>
+ <ev-info>
 
 Events with large Vsize (Mbytes)        Vsize      Δ Vsize      RSS         Δ RSS 
 ====================================================================================
- [10]	run: 1 subRun: 0 event: 10	<mem-size>	<mem-size>	<mem-size>	<mem-size>
- [9 ]	run: 1 subRun: 0 event: 9	<mem-size>	<mem-size>	<mem-size>	<mem-size>
- [8 ]	run: 1 subRun: 0 event: 8	<mem-size>	<mem-size>	<mem-size>	<mem-size>
- [7 ]	run: 1 subRun: 0 event: 7	<mem-size>	<mem-size>	<mem-size>	<mem-size>
- [6 ]	run: 1 subRun: 0 event: 6	<mem-size>	<mem-size>	<mem-size>	<mem-size>
+ <ev-info>
 
 ====================================================================================================
 
@@ -107,58 +99,30 @@ MemoryTracker Per-module SUMMARY
 Modules increasing Vsize (Mbytes)            Vsize      Δ Vsize      RSS         Δ RSS 
 ===========================================================================================
 p1:a1:TestSimpleMemoryCheckProducer
- [3]	run: 1 subRun: 0 event: 3	<mem-size>	<mem-size>	<mem-size>	<mem-size>
- [4]	run: 1 subRun: 0 event: 4	<mem-size>	<mem-size>	<mem-size>	<mem-size>
- [5]	run: 1 subRun: 0 event: 5	<mem-size>	<mem-size>	<mem-size>	<mem-size>
- [6]	run: 1 subRun: 0 event: 6	<mem-size>	<mem-size>	<mem-size>	<mem-size>
- [7]	run: 1 subRun: 0 event: 7	<mem-size>	<mem-size>	<mem-size>	<mem-size>
+ <ev-info>
 -------------------------------------------------------------------------------------------
 p1:a2:TestSimpleMemoryCheckProducer
- [3]	run: 1 subRun: 0 event: 3	<mem-size>	<mem-size>	<mem-size>	<mem-size>
- [4]	run: 1 subRun: 0 event: 4	<mem-size>	<mem-size>	<mem-size>	<mem-size>
- [5]	run: 1 subRun: 0 event: 5	<mem-size>	<mem-size>	<mem-size>	<mem-size>
- [6]	run: 1 subRun: 0 event: 6	<mem-size>	<mem-size>	<mem-size>	<mem-size>
- [7]	run: 1 subRun: 0 event: 7	<mem-size>	<mem-size>	<mem-size>	<mem-size>
+ <ev-info>
 -------------------------------------------------------------------------------------------
 p1:a3:TestSimpleMemoryCheckProducer
- [2]	run: 1 subRun: 0 event: 2	<mem-size>	<mem-size>	<mem-size>	<mem-size>
- [3]	run: 1 subRun: 0 event: 3	<mem-size>	<mem-size>	<mem-size>	<mem-size>
- [4]	run: 1 subRun: 0 event: 4	<mem-size>	<mem-size>	<mem-size>	<mem-size>
- [5]	run: 1 subRun: 0 event: 5	<mem-size>	<mem-size>	<mem-size>	<mem-size>
- [6]	run: 1 subRun: 0 event: 6	<mem-size>	<mem-size>	<mem-size>	<mem-size>
+ <ev-info>
 -------------------------------------------------------------------------------------------
 p1:TriggerResults:TriggerResultInserter
- [[ no events ]] 
+ <ev-info>
 
 Modules with large Vsize (Mbytes)            Vsize      Δ Vsize      RSS         Δ RSS 
 ===========================================================================================
 p1:a1:TestSimpleMemoryCheckProducer
- [10]	run: 1 subRun: 0 event: 10	<mem-size>	<mem-size>	<mem-size>	<mem-size>
- [9 ]	run: 1 subRun: 0 event: 9	<mem-size>	<mem-size>	<mem-size>	<mem-size>
- [8 ]	run: 1 subRun: 0 event: 8	<mem-size>	<mem-size>	<mem-size>	<mem-size>
- [7 ]	run: 1 subRun: 0 event: 7	<mem-size>	<mem-size>	<mem-size>	<mem-size>
- [6 ]	run: 1 subRun: 0 event: 6	<mem-size>	<mem-size>	<mem-size>	<mem-size>
+ <ev-info>
 -------------------------------------------------------------------------------------------
 p1:a2:TestSimpleMemoryCheckProducer
- [10]	run: 1 subRun: 0 event: 10	<mem-size>	<mem-size>	<mem-size>	<mem-size>
- [9 ]	run: 1 subRun: 0 event: 9	<mem-size>	<mem-size>	<mem-size>	<mem-size>
- [8 ]	run: 1 subRun: 0 event: 8	<mem-size>	<mem-size>	<mem-size>	<mem-size>
- [7 ]	run: 1 subRun: 0 event: 7	<mem-size>	<mem-size>	<mem-size>	<mem-size>
- [6 ]	run: 1 subRun: 0 event: 6	<mem-size>	<mem-size>	<mem-size>	<mem-size>
+ <ev-info>
 -------------------------------------------------------------------------------------------
 p1:a3:TestSimpleMemoryCheckProducer
- [10]	run: 1 subRun: 0 event: 10	<mem-size>	<mem-size>	<mem-size>	<mem-size>
- [9 ]	run: 1 subRun: 0 event: 9	<mem-size>	<mem-size>	<mem-size>	<mem-size>
- [8 ]	run: 1 subRun: 0 event: 8	<mem-size>	<mem-size>	<mem-size>	<mem-size>
- [7 ]	run: 1 subRun: 0 event: 7	<mem-size>	<mem-size>	<mem-size>	<mem-size>
- [6 ]	run: 1 subRun: 0 event: 6	<mem-size>	<mem-size>	<mem-size>	<mem-size>
+ <ev-info>
 -------------------------------------------------------------------------------------------
 p1:TriggerResults:TriggerResultInserter
- [10]	run: 1 subRun: 0 event: 10	<mem-size>	<mem-size>	<mem-size>	<mem-size>
- [9 ]	run: 1 subRun: 0 event: 9	<mem-size>	<mem-size>	<mem-size>	<mem-size>
- [8 ]	run: 1 subRun: 0 event: 8	<mem-size>	<mem-size>	<mem-size>	<mem-size>
- [7 ]	run: 1 subRun: 0 event: 7	<mem-size>	<mem-size>	<mem-size>	<mem-size>
- [6 ]	run: 1 subRun: 0 event: 6	<mem-size>	<mem-size>	<mem-size>	<mem-size>
+ <ev-info>
 
 ====================================================================================================
 
