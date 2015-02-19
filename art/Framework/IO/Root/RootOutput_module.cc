@@ -45,6 +45,7 @@ namespace art {
   , treeMaxVirtualSize_        ( ps.get<int64_t>("treeMaxVirtualSize", -1) )
   , saveMemoryObjectThreshold_ ( ps.get<int64_t>("saveMemoryObjectThreshold", -1l) )
   , fastCloning_               ( ps.get<bool>("fastCloning"   , true ) )
+  , dropAllEvents_             ( false )
   , dropAllSubRuns_            ( ps.get<bool>("dropAllSubRuns", false) )
   , dropMetaData_              ( DropNone )  // tentative: see the c'tor body
   , dropMetaDataForDroppedData_( ps.get<bool>( "dropMetaDataForDroppedData"
