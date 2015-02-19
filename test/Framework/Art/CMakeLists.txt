@@ -11,9 +11,9 @@ link_libraries(
   ${ROOT_MATHCORE}
   ${ROOT_THREAD}
   ${ROOT_RIO}
-	${ROOT_CORE}
+  ${ROOT_CORE}
   ${ROOT_CINT}
-	${ROOT_REFLEX}
+  ${ROOT_REFLEX}
   ${CPPUNIT}
   -ldl
  )
@@ -76,6 +76,12 @@ cet_test(BasicOptions_02_t HANDBUILT
   TEST_PROPERTIES
   PASS_REGULAR_EXPRESSION "\nAllowed options:\n"
 )
+
+cet_test(artapp_basicOptions_print_t USE_BOOST_UNIT
+  LIBRARIES
+  art_Framework_Art
+  REF "${CMAKE_CURRENT_SOURCE_DIR}/BasicOptions_printModulesServices-ref.txt"
+  )
 
 ####################################
 # BasicOutputOptionsHandler.

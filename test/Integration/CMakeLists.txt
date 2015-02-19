@@ -6,7 +6,8 @@ set(CMAKE_MODULE_PATH
 include(ReflexTools_t)
 
 # project name
-art_make_library(SOURCE ToySource.cc
+art_make_library(SOURCE 
+  ToySource.cc
   LIBRARIES art_Framework_IO_Sources
   art_Framework_Core
   fhiclcpp

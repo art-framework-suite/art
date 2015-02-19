@@ -9,7 +9,6 @@
 #include "art/Persistency/Provenance/FileIndex.h"
 #include "art/Persistency/Provenance/History.h"
 #include "cetlib/container_algorithms.h"
-//#include "cpp0x/regex"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include <algorithm>
@@ -234,7 +233,7 @@ art::MixHelper::mixAndPut(EntryNumberSequence const & enSeq,
   ptpBuilder_.populateRemapper(ptrRemapper_, e);
   // Do the branch-wise read, mix and put.
   cet::for_all(mixOps_,
-	       [&,this](auto const& op){ this->mixAndPutOne_(op, enSeq, e); });
+               [&,this](auto const& op){ this->mixAndPutOne_(op, enSeq, e); });
   nEventsReadThisFile_ += enSeq.size();
   totalEventsRead_ += enSeq.size();
 }

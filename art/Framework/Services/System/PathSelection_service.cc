@@ -18,3 +18,7 @@ art::PathSelection::
 setEndPathModuleEnabled(std::string const & label, bool enable) {
   return ep_.setEndPathModuleEnabled(label, enable);
 }
+
+// ===============================
+PROVIDE_FILE_PATH()
+// ===============================

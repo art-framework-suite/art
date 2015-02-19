@@ -71,6 +71,5 @@ TriggerNamesService::getTrigPaths(TriggerResults const & triggerResults,
 }  // getTrigPaths()
 
 // ======================================================================
-
-
+PROVIDE_FILE_PATH()
 // ======================================================================

@@ -257,17 +257,17 @@ void
   else
     enable_sse |= ART_ZM_MASK;
 
-  if ( !enableInvalidEx_ )  
+  if ( !enableInvalidEx_ )
     suppress |= FE_INVALID;
   else
     enable_sse |= ART_IM_MASK;
 
-  if ( !enableOverFlowEx_ )  
+  if ( !enableOverFlowEx_ )
     suppress |= FE_OVERFLOW;
   else
     enable_sse |= ART_OM_MASK;
 
-  if ( !enableUnderFlowEx_ ) 
+  if ( !enableUnderFlowEx_ )
     suppress |= FE_UNDERFLOW;
   else
     enable_sse |= ART_UM_MASK;
@@ -319,5 +319,6 @@ void
 
 // ======================================================================
 
+PROVIDE_FILE_PATH()
 
 // ======================================================================
