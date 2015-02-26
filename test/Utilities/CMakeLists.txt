@@ -24,6 +24,10 @@ cet_test(InputTag_t USE_BOOST_UNIT
   LIBRARIES ${default_test_libraries}
   )
 
+cet_test(ParameterSet_get_CLHEP_t
+  LIBRARIES ${default_test_libraries} ${CLHEP}
+  )
+
 cet_test(ParameterSet_get_vecInputTag_t
   LIBRARIES ${default_test_libraries}
   TEST_ARGS "dummy"
