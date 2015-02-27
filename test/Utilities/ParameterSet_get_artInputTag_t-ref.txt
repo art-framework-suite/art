@@ -22,3 +22,31 @@ One more time: InputTag:  label = label6, instance = instance6, process = proces
 One more time: InputTag:  label = label7, instance = instance7, process = processName7
 One more time: InputTag:  label = label8, instance = instance8, process = processName8
 One more time: InputTag:  label = label9, instance = instance9, process = processName9
+---- Type mismatch BEGIN
+  
+  Unsuccessful attempt to convert FHiCL parameter 'multierr1' to type 'art::InputTag'.
+  
+  [Specific error:]
+  When converting to InputTag by a sequence, FHiCL entries must follow the convention:
+  
+    [ label, instance ], or
+    [ label, instance, process_name ].
+  
+  FHiCL entries provided: [ label:something:else ]
+  
+---- Type mismatch END
+
+---- Type mismatch BEGIN
+  
+  Unsuccessful attempt to convert FHiCL parameter 'multierr2' to type 'art::InputTag'.
+  
+  [Specific error:]
+  When converting to InputTag by a sequence, FHiCL entries must follow the convention:
+  
+    [ label, instance ], or
+    [ label, instance, process_name ].
+  
+  FHiCL entries provided: [ label, instance, process, something, else ]
+  
+---- Type mismatch END
+

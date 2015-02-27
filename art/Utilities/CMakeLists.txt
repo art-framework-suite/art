@@ -7,7 +7,6 @@ art_make(LIB_LIBRARIES
   ${Boost_REGEX_LIBRARY}
   ${Boost_SYSTEM_LIBRARY}
   ${Boost_THREAD_LIBRARY}
-  ${CLHEP}
   ${ROOT_CINT}
   ${ROOT_REFLEX}
   -lpthread

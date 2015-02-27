@@ -1,12 +1,29 @@
 #include "art/Utilities/InputTag.h"
 #include "fhiclcpp/ParameterSet.h"
+#include "fhiclcpp/exception.h"
 
 #include <iostream>
 #include <sstream>
 #include <string>
 #include <vector>
 
+namespace {
+
+  void try_and_print( fhicl::ParameterSet const & pset, std::string const & parm )
+    try {
+      pset.get<art::InputTag>( parm );
+    }
+    catch(fhicl::exception const& e ){
+      std::cout << e.what() << std::endl;
+    }
+
+}
+
 int main() {
+
+  //===========================================================
+  // Test 1-argument InputTag c'tor
+  //===========================================================
 
   fhicl::ParameterSet pset;
   pset.put<std::string>("first_key","label:instance:processName");
@@ -47,5 +64,19 @@ int main() {
       std::cout << "One more time: " << tag << std::endl;
     }
   }
+
+  //===========================================================
+  // Test multi-argument constructors
+  //===========================================================
+
+  pset.put<std::vector<std::string>>("multi1",{"label","instance"});
+  pset.put<std::vector<std::string>>("multi2",{"label","instance","process"});
+  pset.put<std::vector<std::string>>("multierr1",{"label:something:else"});
+  pset.put<std::vector<std::string>>("multierr2",{"label","instance","process","something","else"});
+
+  try_and_print( pset, "multi1" );
+  try_and_print( pset, "multi2" );
+  try_and_print( pset, "multierr1" );
+  try_and_print( pset, "multierr2" );
 
 }

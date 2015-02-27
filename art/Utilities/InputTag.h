@@ -37,7 +37,7 @@ public:
 
   // Create an InputTag with the given label, instance, and process
   // specifications.
-  InputTag(char const*label,
+  InputTag(char const* label,
            char const* instance,
            char const* processName="");
 
@@ -138,14 +138,40 @@ operator!=(InputTag const & left, InputTag const & right)
 
 //=====================================================================
 // decode specialization for allowing conversions from
-//   std::string ===> art::InputTag
+//    atom     ===> InputTag
+//    sequence ===> InputTag
 
 namespace art {
 
   inline void decode( boost::any const & a, InputTag & tag ){
-    std::string str;
-    fhicl::detail::decode(a, str);
-    tag = str;
+
+    if ( fhicl::detail::is_sequence( a ) ) {
+      std::vector<std::string> tmp;
+      fhicl::detail::decode(a, tmp);
+      if      ( tmp.size() == 2 ) tag = { tmp.at(0), tmp.at(1) };
+      else if ( tmp.size() == 3 ) tag = { tmp.at(0), tmp.at(1), tmp.at(2) };
+      else {
+        std::ostringstream errmsg;
+        errmsg << "When converting to InputTag by a sequence, FHiCL entries must follow the convention:\n\n"
+               << "  [ label, instance ], or\n"
+               << "  [ label, instance, process_name ].\n\n";
+        errmsg << "FHiCL entries provided: [ ";
+        for ( auto ca = tmp.begin(); ca != tmp.cend(); ++ca ){
+          errmsg << *ca;
+          if ( ca != tmp.cend()-1) {
+            errmsg << ", ";
+          }
+        }
+        errmsg << " ]";
+        throw std::length_error( errmsg.str() );
+      }
+    }
+    else {
+      std::string tmp;
+      fhicl::detail::decode(a, tmp);
+      tag = tmp;
+    }
+
   }
 
 }

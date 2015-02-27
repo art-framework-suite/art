@@ -28,10 +28,10 @@ cet_test(ParameterSet_get_CLHEP_t
   LIBRARIES ${default_test_libraries} ${CLHEP}
   )
 
-cet_test(ParameterSet_get_vecInputTag_t
+cet_test(ParameterSet_get_artInputTag_t
   LIBRARIES ${default_test_libraries}
   TEST_ARGS "dummy"
-  REF "${CMAKE_CURRENT_SOURCE_DIR}/ParameterSet_get_vecInputTag_t-ref.txt"
+  REF "${CMAKE_CURRENT_SOURCE_DIR}/ParameterSet_get_artInputTag_t-ref.txt"
   )
 
 cet_test(TypeID_t USE_BOOST_UNIT
