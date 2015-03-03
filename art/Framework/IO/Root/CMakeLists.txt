@@ -1,11 +1,22 @@
-art_make_library( LIBRARY_NAME art_Framework_IO_RootVersion
-                  SOURCE GetFileFormatEra.cc GetFileFormatVersion.cc
-)
+art_make_library(
+  LIBRARY_NAME art_Framework_IO_Root_detail_sources
+  SOURCE detail/rootFileSizeTools.cc
+  LIBRARIES
+  ${ROOT_CORE}
+  ${ROOT_RIO}
+  ${ROOT_TREE}
+  )
+
+art_make_library(
+  LIBRARY_NAME art_Framework_IO_RootVersion
+  SOURCE GetFileFormatEra.cc GetFileFormatVersion.cc
+  )
 
 art_make(EXCLUDE
   GetFileFormatEra.cc
   GetFileFormatVersion.cc
   config_dumper.cc
+  product_sizes_dumper.cc
   sam_metadata_dumper.cc
   NO_PLUGINS
   LIB_LIBRARIES 
@@ -17,6 +28,7 @@ art_make(EXCLUDE
   art_Persistency_Common
   art_Persistency_Provenance
   art_Framework_IO_RootVersion
+  art_Framework_IO_Root_detail_sources
   ${ROOT_TREE}
   ${ROOT_NET}
   ${ROOT_MATHCORE}
@@ -24,6 +36,13 @@ art_make(EXCLUDE
 
 simple_plugin(RootInput "source" art_Framework_IO_Root art_Framework_IO_Catalog )
 simple_plugin(RootOutput "module" art_Framework_IO_Root)
+
+art_make_exec( NAME product_sizes_dumper
+  LIBRARIES
+  art_Framework_IO_Root
+  ${Boost_PROGRAM_OPTIONS_LIBRARY}
+  ${CETLIB}
+  )
 
 art_make_exec( NAME config_dumper
   LIBRARIES art_Framework_IO_Root
