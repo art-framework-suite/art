@@ -6,7 +6,6 @@
 // Used by ServicesManager to handle creation and caching of services.
 
 #include "art/Framework/Services/Registry/ServiceScope.h"
-#include "art/Framework/Services/Registry/detail/ServiceCache.h"
 #include "art/Framework/Services/Registry/detail/ServiceStack.h"
 #include "art/Framework/Services/Registry/detail/ServiceHelper.h"
 #include "cpp0x/memory"
@@ -34,7 +33,7 @@ public:
   // Service interface implementation.
   ServiceCacheEntry(fhicl::ParameterSet const & pset,
                     std::unique_ptr<detail::ServiceHelperBase> && helper,
-                    ServiceCache::iterator impl);
+                    ServiceCacheEntry const & impl);
 
   // Pre-made service (1).
   ServiceCacheEntry(WrapperBase_ptr premade_service,
@@ -83,7 +82,7 @@ private:
   fhicl::ParameterSet config_;
   std::unique_ptr<detail::ServiceHelperBase> helper_;
   mutable WrapperBase_ptr service_;
-  ServiceCache::iterator const interface_impl_;
+  ServiceCacheEntry const * const interface_impl_;
 };  // ServiceCacheEntry
 
 inline
