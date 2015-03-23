@@ -39,16 +39,9 @@ function(art_dictionary)
     "DICTIONARY_LIBRARIES;COMPILE_FLAGS"
     ${ARGN}
     )
-  if(ART_PERSISTENCY_COMMON)
-    # Using art as a product rather than building art itself.
-    set(AD_DICTIONARY_LIBRARIES
-      ${ART_PERSISTENCY_COMMON} ${ART_UTILITIES} ${CETLIB} ${AD_DICTIONARY_LIBRARIES}
-      )
-  else()
-    set(AD_DICTIONARY_LIBRARIES
-      art_Persistency_Common art_Utilities ${CETLIB} ${AD_DICTIONARY_LIBRARIES}
-      )
-  endif()
+  set(AD_DICTIONARY_LIBRARIES
+    art_Persistency_Common art_Utilities cetlib ${AD_DICTIONARY_LIBRARIES}
+    )
   if (AD_DICT_FUNCTIONS)
     set(want_build_dictionary_version v3_13_00)
     if (COMMAND check_ups_version)
