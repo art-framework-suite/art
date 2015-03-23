@@ -63,7 +63,10 @@ getService(ActivityRegistry & reg, detail::ServiceStack & creationOrder) const
   if (is_interface()) { // Service interface
     if (!service_) {
       // No cached instance, we need to make it.
-      interface_impl_->createService(reg, creationOrder);
+      if (!interface_impl_->service_) {
+        // The service provider has no cached instance, have it make one.
+        interface_impl_->createService(reg, creationOrder);
+      }
       // Convert the service provider wrapper to a service interface wrapper,
       // and use that as our cached instance.
       interface_impl_->convertService(service_);
