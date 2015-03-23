@@ -6,7 +6,6 @@
 #include "art/Framework/Services/Registry/detail/ServiceCacheEntry.h"
 
 #include "art/Framework/Services/Registry/ServiceScope.h"
-#include "art/Framework/Services/Registry/detail/ServiceCache.h"
 #include "art/Framework/Services/Registry/detail/ServiceStack.h"
 #include "art/Framework/Services/Registry/detail/ServiceWrapper.h"
 #include "art/Framework/Services/Registry/detail/ServiceHelper.h"
@@ -26,7 +25,7 @@ ServiceCacheEntry(fhicl::ParameterSet const & pset,
   config_(pset),
   helper_(std::move(helper)),
   service_(),
-  interface_impl_()
+  interface_impl_(nullptr)
 {
 }
 
@@ -34,12 +33,12 @@ ServiceCacheEntry(fhicl::ParameterSet const & pset,
 art::detail::ServiceCacheEntry::
 ServiceCacheEntry(fhicl::ParameterSet const & pset,
                   std::unique_ptr<detail::ServiceHelperBase> && helper,
-                  ServiceCache::iterator impl)
+                  ServiceCacheEntry const & impl)
   :
   config_(pset),
   helper_(std::move(helper)),
   service_(),
-  interface_impl_(impl)
+  interface_impl_(&impl)
 {
 }
 
@@ -51,7 +50,7 @@ ServiceCacheEntry(WrapperBase_ptr premade_service,
   config_(),
   helper_(std::move(helper)),
   service_(premade_service),
-  interface_impl_()
+  interface_impl_(nullptr)
 {
 }
 
@@ -64,13 +63,10 @@ getService(ActivityRegistry & reg, detail::ServiceStack & creationOrder) const
   if (is_interface()) { // Service interface
     if (!service_) {
       // No cached instance, we need to make it.
-      if (!interface_impl_->second.service_) {
-        // The service provider has no cached instance, have it make one.
-        interface_impl_->second.createService(reg, creationOrder);
-      }
+      interface_impl_->createService(reg, creationOrder);
       // Convert the service provider wrapper to a service interface wrapper,
       // and use that as our cached instance.
-      interface_impl_->second.convertService(service_);
+      interface_impl_->convertService(service_);
     }
   }
   else { // Concrete service.

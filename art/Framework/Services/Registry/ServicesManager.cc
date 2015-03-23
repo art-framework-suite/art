@@ -179,6 +179,6 @@ insertInterface_(fhicl::ParameterSet const & pset,
   factory_.insert(std::make_pair(iType,
                                  detail::ServiceCacheEntry(pset,
                                      std::move(helper),
-                                     implEntry)));
+                                     implEntry->second)));
 }
 // ======================================================================
