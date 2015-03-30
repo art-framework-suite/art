@@ -1152,4 +1152,30 @@ simple_plugin(FindManySpeedTestAnalyzer "module" NO_INSTALL)
 add_subdirectory(event-shape)
 add_subdirectory(high-memory)
 
+cet_test(FastCloningInitMessage_01_t HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --rethrow-all -c FastCloningInitMessage_01.fcl
+  DATAFILES
+  fcl/FastCloningInitMessage_01.fcl
+  TEST_PROPERTIES PASS_REGULAR_EXPRESSION "\nInitial fast cloning configuration \\(from default\\): true\n"
+)
+
+cet_test(FastCloningInitMessage_02_t HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --rethrow-all -c FastCloningInitMessage_02.fcl
+  DATAFILES
+  fcl/FastCloningInitMessage_01.fcl
+  fcl/FastCloningInitMessage_02.fcl
+  TEST_PROPERTIES PASS_REGULAR_EXPRESSION "\nInitial fast cloning configuration \\(user-set\\): true\n"
+)
+
+cet_test(FastCloningInitMessage_03_t HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --rethrow-all -c FastCloningInitMessage_03.fcl
+  DATAFILES
+  fcl/FastCloningInitMessage_01.fcl
+  fcl/FastCloningInitMessage_03.fcl
+  TEST_PROPERTIES PASS_REGULAR_EXPRESSION "\nInitial fast cloning configuration \\(user-set\\): false\n"
+)
+
 include(legacy-tests)

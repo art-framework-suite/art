@@ -41,9 +41,9 @@ namespace {
     mf::LogInfo msg("FastCloning");
     msg << "Initial fast cloning configuration ";
     if (ps.get_if_present("fastCloning", result)) {
-      msg << "(user-set):";
+      msg << "(user-set): ";
     } else {
-      msg << "(from default):";
+      msg << "(from default): ";
     }
     msg << std::boolalpha << result;
     return result;
