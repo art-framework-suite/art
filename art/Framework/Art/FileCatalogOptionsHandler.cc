@@ -1,6 +1,7 @@
 #include "art/Framework/Art/FileCatalogOptionsHandler.h"
 
 #include "art/Utilities/Exception.h"
+#include "art/Utilities/detail/serviceConfigLocation.h"
 #include "art/Utilities/ensureTable.h"
 #include "cetlib/split.h"
 #include "fhiclcpp/coding.h"
@@ -174,12 +175,16 @@ art::FileCatalogOptionsHandler::
 doProcessOptions(bpo::variables_map const & vm,
                  fhicl::intermediate_table & raw_config)
 {
+  auto ciLocation = detail::serviceConfigLocation(raw_config, "CatalogInterface");
+  auto ftLocation = detail::serviceConfigLocation(raw_config, "FileTransfer");
+  auto fcmdLocation = detail::serviceConfigLocation(raw_config, "FileCatalogMetadata");
+
   ////////////////////////////////////////////////////////////////////////
   // Load up the configuration with command-line options.
   //
   // sam-web-uri and sam-process-id.
   if (vm.count("sam-web-uri") > 0) {
-    raw_config.put("services.user.CatalogInterface.webURI",
+    raw_config.put(ciLocation + ".webURI",
                    vm["sam-web-uri"].as<std::string>());
   }
   if (vm.count("sam-process-id") > 0) {
@@ -188,47 +193,50 @@ doProcessOptions(bpo::variables_map const & vm,
                    std::vector<std::string>
                    { vm["sam-process-id"].as<std::string>() });
     // Atom.
-    raw_config.put("services.FileCatalogMetadata.processID",
+    raw_config.put(fcmdLocation + ".processID",
                    vm["sam-process-id"].as<std::string>());
   }
-  if (raw_config.exists("services.user.CatalogInterface.webURI") !=
-      raw_config.exists("services.FileCatalogMetadata.processID")) { // Inconsistent.
+  if (raw_config.exists(ciLocation + ".webURI") !=
+      raw_config.exists(fcmdLocation + ".processID")) { // Inconsistent.
     throw Exception(errors::Configuration)
-      << "configurations services.user.CatalogInterface.webURI (--sam-web-uri) and\n"
-      << "services.FileCatalogMetadata.processID (--sam-process-id) must be specified\n"
+      << "configurations "
+      << ciLocation
+      << ".webURI (--sam-web-uri) and\n"
+      << fcmdLocation
+      << ".processID (--sam-process-id) must be specified\n"
       << "together or not at all.\n";
   }
   bool wantSAMweb
-  { raw_config.exists("services.user.CatalogInterface.webURI") &&
+  { raw_config.exists(ciLocation + ".webURI") &&
       raw_config.exists("source.fileNames") };
   // Other metadata items.
   if (!appFamily_.empty()) {
-    raw_config.put("services.FileCatalogMetadata.applicationFamily",
+    raw_config.put(fcmdLocation + ".applicationFamily",
                    appFamily_);
   }
   if (vm.count("sam-group") > 0) {
-    raw_config.put("services.FileCatalogMetadata.group",
+    raw_config.put(fcmdLocation + ".group",
                    vm["sam-group"].as<std::string>());
   }
   if (vm.count("sam-run-type") > 0) {
-    raw_config.put("services.FileCatalogMetadata.runType",
+    raw_config.put(fcmdLocation + ".runType",
                    vm["sam-run-type"].as<std::string>());
   }
   if (!appVersion_.empty()) {
-    raw_config.put("services.FileCatalogMetadata.applicationVersion",
+    raw_config.put(fcmdLocation + ".applicationVersion",
                    appVersion_);
   }
   if (vm.count("sam-file-type") > 0) {
-    raw_config.put("services.FileCatalogMetadata.fileType",
+    raw_config.put(fcmdLocation + ".fileType",
                    vm["sam-file-type"].as<std::string>());
   }
   bool requireMetadata =
     have_outputs(raw_config) &&
     ( wantSAMweb ||
-      raw_config.exists("services.FileCatalogMetadata.applicationFamily") ||
-      raw_config.exists("services.FileCatalogMetadata.applicationVersion") ||
-      raw_config.exists("services.FileCatalogMetadata.fileType") ||
-      raw_config.exists("services.FileCatalogMetadata.group")
+      raw_config.exists(fcmdLocation + ".applicationFamily") ||
+      raw_config.exists(fcmdLocation + ".applicationVersion") ||
+      raw_config.exists(fcmdLocation + ".fileType") ||
+      raw_config.exists(fcmdLocation + ".group")
     );
 
   if (requireMetadata) {
@@ -246,9 +254,9 @@ doProcessOptions(bpo::variables_map const & vm,
         << "Non-empty / default process_name required for SAM metadata.\n";
   }
   if (wantSAMweb) {
-    raw_config.put("services.user.CatalogInterface.service_provider", "IFCatalogInterface");
-    raw_config.put("services.user.FileTransfer.service_provider", "IFFileTransfer");
-    art::ensureTable(raw_config, "services.user.IFDH");
+    raw_config.put(ciLocation + ".service_provider", "IFCatalogInterface");
+    raw_config.put(ftLocation + ".service_provider", "IFFileTransfer");
+    art::ensureTable(raw_config, detail::serviceConfigLocation(raw_config, "IFDH") );
   }
   return 0;
 }

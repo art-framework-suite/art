@@ -9,12 +9,21 @@ physics: { end_paths: [ "injected_end_path_1" ]
            injected_end_path_1: [ "out" ]
          }
 process_name: "SAMTEST"
-services: { FileCatalogMetadata: { applicationFamily: "Ethel"
+services: { CatalogInterface: { service_provider: "IFCatalogInterface"
+                                service_type: "CatalogInterface"
+                                webURI: "http://example.com"
+                              }
+            FileCatalogMetadata: { applicationFamily: "Ethel"
                                    applicationVersion: "v0.00.01a"
                                    fileType: "MC"
                                    processID: "778213"
                                    service_type: "FileCatalogMetadata"
                                  }
+            FileTransfer: { service_provider: "IFFileTransfer"
+                            service_type: "FileTransfer"
+                          }
+            IFDH: { service_type: "IFDH"
+                  }
             message: { destinations: { STDOUT: { categories: { ArtReport: { limit: 100
                                                                           }
                                                                default: { limit: -1
@@ -25,16 +34,6 @@ services: { FileCatalogMetadata: { applicationFamily: "Ethel"
                                                }
                                      }
                      }
-            user: { CatalogInterface: { service_provider: "IFCatalogInterface"
-                                        service_type: "CatalogInterface"
-                                        webURI: "http://example.com"
-                                      }
-                    FileTransfer: { service_provider: "IFFileTransfer"
-                                    service_type: "FileTransfer"
-                                  }
-                    IFDH: { service_type: "IFDH"
-                          }
-                  }
           }
 source: { fileNames: [ "778213" ]
           module_label: "source"
