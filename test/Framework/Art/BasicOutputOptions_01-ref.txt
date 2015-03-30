@@ -8,13 +8,7 @@ physics: { end_paths: [ "injected_end_path_1" ]
            injected_end_path_1: [ "out" ]
          }
 process_name: "DUMMY"
-services: { CatalogInterface: { service_provider: "TrivialFileDelivery"
-                                service_type: "CatalogInterface"
-                              }
-            FileTransfer: { service_provider: "TrivialFileTransfer"
-                            service_type: "FileTransfer"
-                          }
-            TFileService: { fileName: "hist.root"
+services: { TFileService: { fileName: "hist.root"
                             service_type: "TFileService"
                             tmpDir: "/tmp"
                           }
@@ -28,6 +22,13 @@ services: { CatalogInterface: { service_provider: "TrivialFileDelivery"
                                                }
                                      }
                      }
+            user: { CatalogInterface: { service_provider: "TrivialFileDelivery"
+                                        service_type: "CatalogInterface"
+                                      }
+                    FileTransfer: { service_provider: "TrivialFileTransfer"
+                                    service_type: "FileTransfer"
+                                  }
+                  }
           }
 source: { maxEvents: 1
           module_label: "source"

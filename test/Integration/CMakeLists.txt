@@ -217,19 +217,12 @@ cet_test(test_failingProducer_t.sh PREBUILT
   fcl/messageDefaults.fcl
 )
 
-cet_test(issue_0923_w HANDBUILT
-  TEST_EXEC art
-  TEST_ARGS -c issue_0923b.fcl --debug-config config.out
+cet_test(issue_0923_t.sh PREBUILT
   DATAFILES
   fcl/issue_0923a.fcl
   fcl/issue_0923b.fcl
-  TEST_PROPERTIES WILL_FAIL TRUE
-)
-
-cet_test(issue_0923_r HANDBUILT
-  TEST_EXEC diff
-  TEST_ARGS -u ${CMAKE_CURRENT_SOURCE_DIR}/issue_0923_ref.txt ../issue_0923_w.d/config.out
-  TEST_PROPERTIES DEPENDS issue_0923_w
+  fcl/messageDefaults.fcl
+  issue_0923_ref.txt
 )
 
 cet_test(issue_0926_t.sh PREBUILT

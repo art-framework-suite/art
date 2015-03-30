@@ -9,13 +9,7 @@ physics: { analyzers: { a1: { module_label: "a1"
            ep3: [ "a2" ]
          }
 process_name: "OptMultiOut"
-services: { CatalogInterface: { service_provider: "TrivialFileDelivery"
-                                service_type: "CatalogInterface"
-                              }
-            FileTransfer: { service_provider: "TrivialFileTransfer"
-                            service_type: "FileTransfer"
-                          }
-            message: { destinations: { STDOUT: { categories: { ArtReport: { limit: 100
+services: { message: { destinations: { STDOUT: { categories: { ArtReport: { limit: 100
                                                                           }
                                                                default: { limit: -1
                                                                         }
@@ -25,6 +19,13 @@ services: { CatalogInterface: { service_provider: "TrivialFileDelivery"
                                                }
                                      }
                      }
+            user: { CatalogInterface: { service_provider: "TrivialFileDelivery"
+                                        service_type: "CatalogInterface"
+                                      }
+                    FileTransfer: { service_provider: "TrivialFileTransfer"
+                                    service_type: "FileTransfer"
+                                  }
+                  }
           }
 source: { maxEvents: 1
           module_label: "source"

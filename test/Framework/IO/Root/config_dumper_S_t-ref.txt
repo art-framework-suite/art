@@ -1,11 +1,11 @@
 # Read SQLiteDB from file, total size: 7.0 KiB.
 
+FileCatalogMetadata: {
+}
+
 TrivialFileTransfer: {
 }
 
 TrivialFileDelivery: {
-}
-
-FileCatalogMetadata: {
 }
 

@@ -1,7 +1,6 @@
 #include "art/Framework/Art/BasicPostProcessor.h"
 
 #include "art/Utilities/Exception.h"
-#include "art/Utilities/detail/serviceConfigLocation.h"
 #include "cetlib/container_algorithms.h"
 #include "cetlib/filepath_maker.h"
 #include "fhiclcpp/coding.h"
@@ -44,13 +43,13 @@ namespace {
   void
   verifyInterfaces(fhicl::intermediate_table & raw_config)
   {
-    auto ciProvider = art::detail::serviceConfigLocation(raw_config, "CatalogInterface") + ".service_provider";
-    auto ftProvider = art::detail::serviceConfigLocation(raw_config, "FileTransfer") + ".service_provider";
-    if (!raw_config.exists(ciProvider)) {
-      raw_config.put(ciProvider, "TrivialFileDelivery");
+    if (!raw_config.exists("services.user.CatalogInterface.service_provider")) {
+      raw_config.put("services.user.CatalogInterface.service_provider",
+                     "TrivialFileDelivery");
     }
-    if (!raw_config.exists(ftProvider)) {
-      raw_config.put(ftProvider, "TrivialFileTransfer");
+    if (!raw_config.exists("services.user.FileTransfer.service_provider")) {
+      raw_config.put("services.user.FileTransfer.service_provider",
+                     "TrivialFileTransfer");
     }
   }
 

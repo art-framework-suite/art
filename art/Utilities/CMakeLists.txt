@@ -11,7 +11,6 @@ art_make(LIB_LIBRARIES
   ${ROOT_REFLEX}
   -lpthread
   -ldl
-  SUBDIRS detail
   )
 
 install_headers(SUBDIRS detail)
