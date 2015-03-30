@@ -1,8 +1,8 @@
 Running 2 test cases...
-======================================================================================================================================
+<separator (=)>
 
    module_type                         Type        Source location
---------------------------------------------------------------------------------------------------------------------------------------
+<separator (-)>
    AddIntsProducer                     producer    <path>/AddIntsProducer_module.cc
    AssnsAnalyzer                       analyzer    <path>/AssnsAnalyzer_module.cc
    AssnsProducer                       producer    <path>/AssnsProducer_module.cc
@@ -97,9 +97,9 @@ Running 2 test cases...
    UnitTestClient                      analyzer    <path>/UnitTestClient_module.cc
    ValidHandleTester                   analyzer    <path>/ValidHandleTester_module.cc
 
-======================================================================================================================================
+<separator (=)>
 
-===========================================================================================================================
+<separator (=)>
 
    The following types of services are included in the printout below:
 
@@ -108,7 +108,7 @@ Running 2 test cases...
         user      =  Service provided by user/experiment
 
    Services                 Type        Source location
-===========================================================================================================================
+<separator (=)>
    CurrentModule            system      <path>/CurrentModule_service.cc
    FileCatalogMetadata      system      <path>/FileCatalogMetadata_service.cc
    FloatingPointControl     system      <path>/FloatingPointControl_service.cc
@@ -137,5 +137,5 @@ Running 2 test cases...
    Wanted                   user        <path>/Wanted_service.cc
    message                  system      [ See https://cdcvs.fnal.gov/redmine/projects/art/wiki/Messagefacility ]
 
-===========================================================================================================================
+<separator (=)>
 
