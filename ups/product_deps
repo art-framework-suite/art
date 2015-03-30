@@ -13,7 +13,7 @@ python		v2_7_9
 root		v5_34_25
 messagefacility	v1_14_00
 tbb		v4_3_3a
-cetbuildtools	v4_09_01	-	only_for_build
+cetbuildtools	v4_09_02	-	only_for_build
 end_product_list
 
 qualifier	messagefacility	root		clhep		cppunit		gccxml	python	tbb		compiler	notes

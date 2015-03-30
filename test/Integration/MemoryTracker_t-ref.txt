@@ -18,34 +18,34 @@ TrigReport Events total = 10 passed = 10 failed = 0
 TimeReport ---------- Time  Summary ---[sec]----
 TimeReport CPU = <duration> Real = <duration>
 
-====================================================================================================
+<separator (=)>
 
 MemoryTracker General SUMMARY (all numbers in units of Mbytes)
 
 Peak virtual memory usage (VmPeak):	<mem-size>
 
 ProcessStep          Module ID/Event No.                              Δ Vsize      Δ RSS 
-===========================================================================================
+<separator (=)>
 Module Construction	[ MOD ] a1:TestSimpleMemoryCheckProducer	<mem-size>	<mem-size>
 Module Construction	[ MOD ] a2:TestSimpleMemoryCheckProducer	<mem-size>	<mem-size>
 Module Construction	[ MOD ] a3:TestSimpleMemoryCheckProducer	<mem-size>	<mem-size>
 Module Construction	[ MOD ] TriggerResults:TriggerResultInserter	<mem-size>	<mem-size>
--------------------------------------------------------------------------------------------
+<separator (-)>
 Module beginJob	[ MOD ] a1:TestSimpleMemoryCheckProducer	<mem-size>	<mem-size>
 Module beginJob	[ MOD ] a2:TestSimpleMemoryCheckProducer	<mem-size>	<mem-size>
 Module beginJob	[ MOD ] a3:TestSimpleMemoryCheckProducer	<mem-size>	<mem-size>
 Module beginJob	[ MOD ] TriggerResults:TriggerResultInserter	<mem-size>	<mem-size>
--------------------------------------------------------------------------------------------
+<separator (-)>
 Module beginRun	[ MOD ] a1:TestSimpleMemoryCheckProducer	<mem-size>	<mem-size>
 Module beginRun	[ MOD ] a2:TestSimpleMemoryCheckProducer	<mem-size>	<mem-size>
 Module beginRun	[ MOD ] a3:TestSimpleMemoryCheckProducer	<mem-size>	<mem-size>
 Module beginRun	[ MOD ] TriggerResults:TriggerResultInserter	<mem-size>	<mem-size>
--------------------------------------------------------------------------------------------
+<separator (-)>
 Module beginSubRun	[ MOD ] a1:TestSimpleMemoryCheckProducer	<mem-size>	<mem-size>
 Module beginSubRun	[ MOD ] a2:TestSimpleMemoryCheckProducer	<mem-size>	<mem-size>
 Module beginSubRun	[ MOD ] a3:TestSimpleMemoryCheckProducer	<mem-size>	<mem-size>
 Module beginSubRun	[ MOD ] TriggerResults:TriggerResultInserter	<mem-size>	<mem-size>
--------------------------------------------------------------------------------------------
+<separator (-)>
 Event source	[ EVT ] #: 1	<mem-size>	<mem-size>
 Event source	[ EVT ] #: 2	<mem-size>	<mem-size>
 Event source	[ EVT ] #: 3	<mem-size>	<mem-size>
@@ -56,70 +56,70 @@ Event source	[ EVT ] #: 7	<mem-size>	<mem-size>
 Event source	[ EVT ] #: 8	<mem-size>	<mem-size>
 Event source	[ EVT ] #: 9	<mem-size>	<mem-size>
 Event source	[ EVT ] #: 10	<mem-size>	<mem-size>
--------------------------------------------------------------------------------------------
+<separator (-)>
 Module endSubRun	[ MOD ] a1:TestSimpleMemoryCheckProducer	<mem-size>	<mem-size>
 Module endSubRun	[ MOD ] a2:TestSimpleMemoryCheckProducer	<mem-size>	<mem-size>
 Module endSubRun	[ MOD ] a3:TestSimpleMemoryCheckProducer	<mem-size>	<mem-size>
 Module endSubRun	[ MOD ] TriggerResults:TriggerResultInserter	<mem-size>	<mem-size>
--------------------------------------------------------------------------------------------
+<separator (-)>
 Module endRun	[ MOD ] a1:TestSimpleMemoryCheckProducer	<mem-size>	<mem-size>
 Module endRun	[ MOD ] a2:TestSimpleMemoryCheckProducer	<mem-size>	<mem-size>
 Module endRun	[ MOD ] a3:TestSimpleMemoryCheckProducer	<mem-size>	<mem-size>
 Module endRun	[ MOD ] TriggerResults:TriggerResultInserter	<mem-size>	<mem-size>
--------------------------------------------------------------------------------------------
+<separator (-)>
 Module endJob	[ MOD ] a1:TestSimpleMemoryCheckProducer	<mem-size>	<mem-size>
 Module endJob	[ MOD ] a2:TestSimpleMemoryCheckProducer	<mem-size>	<mem-size>
 Module endJob	[ MOD ] a3:TestSimpleMemoryCheckProducer	<mem-size>	<mem-size>
 Module endJob	[ MOD ] TriggerResults:TriggerResultInserter	<mem-size>	<mem-size>
 
-====================================================================================================
+<separator (=)>
 
 MemoryTracker Per-event SUMMARY
 
  ( Numbers in '[...]' correspond to the event nos. in the general summary. )
 
 Events increasing Vsize (Mbytes)        Vsize      Δ Vsize      RSS         Δ RSS 
-====================================================================================
+<separator (=)>
  <ev-info>
 
 Events with large Vsize (Mbytes)        Vsize      Δ Vsize      RSS         Δ RSS 
-====================================================================================
+<separator (=)>
  <ev-info>
 
-====================================================================================================
+<separator (=)>
 
 MemoryTracker Per-module SUMMARY
 
  ( Numbers in '[...]' correspond to the event nos. in the general summary. )
 
 Modules increasing Vsize (Mbytes)            Vsize      Δ Vsize      RSS         Δ RSS 
-===========================================================================================
+<separator (=)>
 p1:a1:TestSimpleMemoryCheckProducer
  <ev-info>
--------------------------------------------------------------------------------------------
+<separator (-)>
 p1:a2:TestSimpleMemoryCheckProducer
  <ev-info>
--------------------------------------------------------------------------------------------
+<separator (-)>
 p1:a3:TestSimpleMemoryCheckProducer
  <ev-info>
--------------------------------------------------------------------------------------------
+<separator (-)>
 p1:TriggerResults:TriggerResultInserter
  <ev-info>
 
 Modules with large Vsize (Mbytes)            Vsize      Δ Vsize      RSS         Δ RSS 
-===========================================================================================
+<separator (=)>
 p1:a1:TestSimpleMemoryCheckProducer
  <ev-info>
--------------------------------------------------------------------------------------------
+<separator (-)>
 p1:a2:TestSimpleMemoryCheckProducer
  <ev-info>
--------------------------------------------------------------------------------------------
+<separator (-)>
 p1:a3:TestSimpleMemoryCheckProducer
  <ev-info>
--------------------------------------------------------------------------------------------
+<separator (-)>
 p1:TriggerResults:TriggerResultInserter
  <ev-info>
 
-====================================================================================================
+<separator (=)>
 
 Art has completed and will exit with status 0.
