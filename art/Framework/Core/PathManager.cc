@@ -53,6 +53,28 @@ namespace {
     }
   }
 
+  void
+  check_missing_paths(std::set<std::string> const & specified_paths,
+                      art::PathManager::vstring const & path_names,
+                      std::string const & par_name,
+                      std::ostream & error_stream)
+  {
+    art::PathManager::vstring missing_paths;
+    std::set_difference(specified_paths.cbegin(),
+                        specified_paths.cend(),
+                        path_names.cbegin(),
+                        path_names.cend(),
+                        std::back_inserter(missing_paths));
+    for (auto const & path : missing_paths) {
+      error_stream
+        << "ERROR: Unknown path "
+        << path
+        << " specified by user in "
+        << par_name
+        << ".\n";
+    }
+  }
+
 }
 
 art::PathManager::
@@ -237,8 +259,22 @@ processPathConfigs_()
                       known_pars.cend(),
                       std::back_inserter(path_names));
   std::set<std::string> specified_modules;
-  // Process each path.
   std::ostringstream error_stream;
+
+  // Chcek for missing specified paths.
+  if (trigger_paths_config_) {
+    check_missing_paths(*trigger_paths_config_,
+                        path_names,
+                        "trigger_paths",
+                        error_stream);
+  }
+  if (end_paths_config_) {
+    check_missing_paths(*end_paths_config_,
+                        path_names,
+                        "end_paths",
+                        error_stream);
+  }
+  // Process each path.
   size_t num_end_paths { 0 };
   for (auto const & path_name : path_names) {
     auto const path_seq = physics.get<vstring>(path_name);
