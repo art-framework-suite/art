@@ -1,5 +1,11 @@
 process_name: "DUMMY"
-services: { SimpleMemoryCheck: { service_type: "SimpleMemoryCheck"
+services: { CatalogInterface: { service_provider: "TrivialFileDelivery"
+                                service_type: "CatalogInterface"
+                              }
+            FileTransfer: { service_provider: "TrivialFileTransfer"
+                            service_type: "FileTransfer"
+                          }
+            SimpleMemoryCheck: { service_type: "SimpleMemoryCheck"
                                }
             message: { destinations: { STDOUT: { categories: { ArtReport: { limit: 100
                                                                           }
@@ -14,13 +20,6 @@ services: { SimpleMemoryCheck: { service_type: "SimpleMemoryCheck"
             scheduler: { defaultExceptions: false
                          wantTracer: true
                        }
-            user: { CatalogInterface: { service_provider: "TrivialFileDelivery"
-                                        service_type: "CatalogInterface"
-                                      }
-                    FileTransfer: { service_provider: "TrivialFileTransfer"
-                                    service_type: "FileTransfer"
-                                  }
-                  }
           }
 source: { maxEvents: 1
           module_label: "source"

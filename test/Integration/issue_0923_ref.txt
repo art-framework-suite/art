@@ -1,12 +1,16 @@
-INFO: using default process_name, "DUMMY."
-** ART_DEBUG_CONFIG is defined: config debug output follows **
 my_configuration: { FluxFile: "new_filename"
                     FluxType: "mono"
                   }
 my_flux_file_check1: "new_filename"
 my_flux_file_check2: "new_filename"
 process_name: "DUMMY"
-services: { message: { destinations: { STDOUT: { categories: { ArtReport: { limit: 100
+services: { CatalogInterface: { service_provider: "TrivialFileDelivery"
+                                service_type: "CatalogInterface"
+                              }
+            FileTransfer: { service_provider: "TrivialFileTransfer"
+                            service_type: "FileTransfer"
+                          }
+            message: { destinations: { STDOUT: { categories: { ArtReport: { limit: 100
                                                                           }
                                                                default: { limit: -1
                                                                         }
@@ -16,17 +20,9 @@ services: { message: { destinations: { STDOUT: { categories: { ArtReport: { limi
                                                }
                                      }
                      }
-            user: { CatalogInterface: { service_provider: "TrivialFileDelivery"
-                                        service_type: "CatalogInterface"
-                                      }
-                    FileTransfer: { service_provider: "TrivialFileTransfer"
-                                    service_type: "FileTransfer"
-                                  }
-                  }
           }
 source: { maxEvents: 1
           module_label: "source"
           module_type: "EmptyEvent"
         }
 
-Art has completed and will exit with status 1.

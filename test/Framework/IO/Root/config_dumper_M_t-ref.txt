@@ -5,6 +5,11 @@ o2: {
   module_type: "RootOutput"
 }
 
+source: {
+  maxEvents: 2
+  module_type: "EmptyEvent"
+}
+
 ap1: {
   module_type: "AssnsProducer"
 }
@@ -12,10 +17,5 @@ ap1: {
 o1: {
   fileName: "dummy.root"
   module_type: "RootOutput"
-}
-
-source: {
-  maxEvents: 2
-  module_type: "EmptyEvent"
 }
 

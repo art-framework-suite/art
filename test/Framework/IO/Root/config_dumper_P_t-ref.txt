@@ -21,7 +21,13 @@ ASSNS: {
                         }
              trigger_paths: [ "p1" ]
            }
-  services: { message: { destinations: { STDOUT: { categories: { ArtReport: { limit: 100
+  services: { CatalogInterface: { service_provider: "TrivialFileDelivery"
+                                  service_type: "CatalogInterface"
+                                }
+              FileTransfer: { service_provider: "TrivialFileTransfer"
+                              service_type: "FileTransfer"
+                            }
+              message: { destinations: { STDOUT: { categories: { ArtReport: { limit: 100
                                                                             }
                                                                  default: { limit: -1
                                                                           }
@@ -37,13 +43,6 @@ ASSNS: {
                            SkipEvent: []
                            defaultExceptions: false
                          }
-              user: { CatalogInterface: { service_provider: "TrivialFileDelivery"
-                                          service_type: "CatalogInterface"
-                                        }
-                      FileTransfer: { service_provider: "TrivialFileTransfer"
-                                      service_type: "FileTransfer"
-                                    }
-                    }
             }
   source: { maxEvents: 2
             module_label: "source"
