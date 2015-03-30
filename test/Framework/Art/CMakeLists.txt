@@ -346,7 +346,7 @@ cet_test(FileCatalogOptions_01 HANDBUILT
   -c opt-empty.fcl
   TEST_PROPERTIES ENVIRONMENT ART_DEBUG_CONFIG=1
   PASS_REGULAR_EXPRESSION
-  "  configurations services\\.user\\.CatalogInterface\\.webURI \\(--sam-web-uri\\) and
+  "  configurations services\\.CatalogInterface\\.webURI \\(--sam-web-uri\\) and
   services\\.FileCatalogMetadata\\.processID \\(--sam-process-id\\) must be specified
   together or not at all\\."
   DATAFILES fcl/opt-empty.fcl
