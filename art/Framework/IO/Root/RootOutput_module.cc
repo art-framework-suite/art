@@ -32,6 +32,24 @@ using art::RootOutput;
 using fhicl::ParameterSet;
 using std::string;
 
+namespace {
+  bool fastCloningDefault = true;
+
+  bool setAndReportFastCloning(fhicl::ParameterSet const & ps)
+  {
+    bool result = fastCloningDefault;
+    mf::LogInfo msg("FastCloning");
+    msg << "Initial fast cloning configuration ";
+    if (ps.get_if_present("fastCloning", result)) {
+      msg << "(user-set): ";
+    } else {
+      msg << "(from default): ";
+    }
+    msg << std::boolalpha << result;
+    return result;
+  }
+}
+
 namespace art {
 
   RootOutput::RootOutput(ParameterSet const& ps)
@@ -44,7 +62,7 @@ namespace art {
   , splitLevel_                ( ps.get<int>("splitLevel", 99) )
   , treeMaxVirtualSize_        ( ps.get<int64_t>("treeMaxVirtualSize", -1) )
   , saveMemoryObjectThreshold_ ( ps.get<int64_t>("saveMemoryObjectThreshold", -1l) )
-  , fastCloning_               ( ps.get<bool>("fastCloning", true) )
+  , fastCloning_               ( setAndReportFastCloning(ps) )
   , dropMetaData_              ( DropNone )  // tentative: see the c'tor body
   , dropMetaDataForDroppedData_( ps.get<bool>( "dropMetaDataForDroppedData"
                                              , false) )
@@ -57,8 +75,6 @@ namespace art {
                                                 parent_path(filePattern_)) )
   , lastClosedFileName_        ( )
   {
-    mf::LogInfo("FastCloning")
-      << "Fast cloning user configuration: " << std::boolalpha << fastCloning_;
     if (fastCloning_ && !wantAllEvents()) {
       fastCloning_ = false;
       mf::LogWarning("FastCloning")
