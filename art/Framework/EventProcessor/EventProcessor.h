@@ -139,9 +139,9 @@ public:
   bool setEndPathModuleEnabled(std::string const & label, bool enable) override;
 
 private:
-  ServiceDirector && initServices_(fhicl::ParameterSet const & top_pset,
-                                   ActivityRegistry & areg,
-                                   ServiceToken & token);
+  ServiceDirector initServices_(fhicl::ParameterSet const & top_pset,
+                                ActivityRegistry & areg,
+                                ServiceToken & token);
   void initSchedules_(fhicl::ParameterSet const & pset);
   void invokePostBeginJobWorkers_();
   template <typename T>
