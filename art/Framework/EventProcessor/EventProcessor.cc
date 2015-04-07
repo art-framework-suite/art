@@ -248,7 +248,7 @@ art::EventProcessor::endJob()
   c.call([this](){ actReg_.sPostEndJob.invoke(); });
 }
 
-art::ServiceDirector &&
+art::ServiceDirector
 art::EventProcessor::
 initServices_(ParameterSet const & top_pset,
               ActivityRegistry & areg,
