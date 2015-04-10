@@ -1,8 +1,8 @@
-my_configuration: { FluxFile: "new_filename"
-                    FluxType: "mono"
-                  }
-my_flux_file_check1: "new_filename"
-my_flux_file_check2: "new_filename"
+my_configuration: { FluxFile: "new_filename"  # ./issue_0923a.fcl:7
+                    FluxType: "mono"  # ./issue_0923a.fcl:3
+                  }  # ./issue_0923b.fcl:3
+my_flux_file_check1: "new_filename"  # ./issue_0923b.fcl:5
+my_flux_file_check2: "new_filename"  # ./issue_0923b.fcl:6
 process_name: "DUMMY"
 services: { CatalogInterface: { service_provider: "TrivialFileDelivery"
                                 service_type: "CatalogInterface"

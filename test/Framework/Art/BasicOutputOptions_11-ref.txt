@@ -1,14 +1,16 @@
 physics: { analyzers: { a1: { module_label: "a1"
-                              module_type: "dummy"
-                            }
+                              module_type: "dummy"  # ./opt-no-end_paths-multiout.fcl:7
+                            }  # ./opt-no-end_paths-multiout.fcl:7
                         a2: { module_label: "a2"
-                              module_type: "dummy"
-                            }
-                      }
-           ep1: [ "a1" ]
-           ep3: [ "a2" ]
-         }
-process_name: "OptMultiOut"
+                              module_type: "dummy"  # ./opt-no-end_paths-multiout.fcl:8
+                            }  # ./opt-no-end_paths-multiout.fcl:8
+                      }  # ./opt-no-end_paths-multiout.fcl:6
+           ep1: [ "a1"  # ./opt-no-end_paths-multiout.fcl:11
+                ]
+           ep3: [ "a2"  # ./opt-no-end_paths-multiout.fcl:13
+                ]
+         }  # ./opt-no-end_paths-multiout.fcl:4
+process_name: "OptMultiOut"  # ./opt-no-end_paths-multiout.fcl:1
 services: { CatalogInterface: { service_provider: "TrivialFileDelivery"
                                 service_type: "CatalogInterface"
                               }

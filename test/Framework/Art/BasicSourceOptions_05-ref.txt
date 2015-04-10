@@ -1,4 +1,4 @@
-process_name: "TEST"
+process_name: "TEST"  # ./BasicSourceOptions_04.fcl:1
 services: { CatalogInterface: { service_provider: "TrivialFileDelivery"
                                 service_type: "CatalogInterface"
                               }
@@ -23,7 +23,7 @@ source: { fileNames: [ "f1.root"
           firstEvent: 5
           maxEvents: 4
           module_label: "source"
-          module_type: "RootInput"
+          module_type: "RootInput"  # ./BasicSourceOptions_04.fcl:4
           skipEvents: 2
-        }
+        }  # ./BasicSourceOptions_04.fcl:3
 
