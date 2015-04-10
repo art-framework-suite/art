@@ -1,13 +1,13 @@
 #include "art/Persistency/Provenance/BranchID.h"
-#include "art/Utilities/CRC32Calculator.h"
+#include "cetlib/crc32.h"
 #include <ostream>
 
 namespace art {
 
   BranchID::value_type
   BranchID::toID(std::string const& branchName) {
-    art::CRC32Calculator crc32(branchName);
-    return crc32.checksum();
+    cet::crc32 c(branchName);
+    return c.digest();
   }
 
   std::ostream&

@@ -10,12 +10,6 @@ set(default_test_libraries
   ${ROOT_REFLEX}
   )
 
-cet_test(CPUTimer_t USE_BOOST_UNIT
-  LIBRARIES ${default_test_libraries}
-  TEST_PROPERTIES RUN_SERIAL true
-  OPTIONAL_GROUPS LOAD_SENSITIVE
-  )
-
 cet_test(FriendlyName_t USE_BOOST_UNIT
   LIBRARIES ${default_test_libraries}
   )
@@ -46,7 +40,7 @@ cet_test(ensurePointer_t USE_BOOST_UNIT
   LIBRARIES ${default_test_libraries}
   )
 
-foreach(test_cpp CRC32Calculator_t.cpp Digest_t.cpp MallocOpts_t.cpp)
+foreach(test_cpp MallocOpts_t.cpp)
   get_filename_component(tname ${test_cpp} NAME_WE )
   cet_test(${tname}
     SOURCES ${test_cpp}

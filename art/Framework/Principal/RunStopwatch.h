@@ -11,7 +11,7 @@ calls the destructor which stops the clock.
 ----------------------------------------------------------------------*/
 
 
-#include "art/Utilities/CPUTimer.h"
+#include "cetlib/cpu_timer.h"
 #include <memory>
 
 namespace art
@@ -19,7 +19,7 @@ namespace art
   class RunStopwatch {
 
   public:
-    typedef std::shared_ptr<CPUTimer> StopwatchPointer;
+    typedef std::shared_ptr<cet::cpu_timer> StopwatchPointer;
 
     RunStopwatch(const StopwatchPointer& ptr): stopwatch_(ptr) {
       stopwatch_->start();

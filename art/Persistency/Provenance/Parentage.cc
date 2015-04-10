@@ -24,7 +24,7 @@ namespace art {
       }
 
     std::string stringrep = oss.str();
-    art::Digest md5alg(stringrep);
+    cet::MD5Digest md5alg(stringrep);
     return ParentageID(md5alg.digest().toString());
   }
 

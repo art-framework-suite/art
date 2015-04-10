@@ -1,7 +1,7 @@
 #include "art/Persistency/Provenance/ProcessHistory.h"
 
-#include "art/Utilities/Digest.h"
 #include "cetlib/container_algorithms.h"
+#include "cetlib/MD5Digest.h"
 #include <iterator>
 #include <ostream>
 #include <sstream>
@@ -26,7 +26,7 @@ namespace art {
           << i->passID() << ' ';
     }
     string stringrep = oss.str();
-    art::Digest md5alg(stringrep);
+    cet::MD5Digest md5alg(stringrep);
     ProcessHistoryID tmp(md5alg.digest().toString());
     phid().swap(tmp);
     return phid();

@@ -33,7 +33,6 @@
 #include "art/Persistency/Provenance/SubRunAuxiliary.h"
 #include "art/Persistency/RootDB/SQLErrMsg.h"
 #include "art/Persistency/RootDB/SQLite3Wrapper.h"
-#include "art/Utilities/Digest.h"
 #include "art/Utilities/Exception.h"
 #include "art/Version/GetReleaseVersion.h"
 #include "boost/date_time/posix_time/posix_time.hpp"
