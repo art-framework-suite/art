@@ -48,11 +48,14 @@ void arttest::PtrVectorSimpleAnalyzer::analyze(art::Event const & e)
   assert(status);
 
   int const event_num = e.id().event();
-  for (size_t i = 0, sz = h->size(); i != sz; ++i) {
-    assert((unsigned)(*h)[i]->key == sz - i + event_num);
+  size_t const sz = h->size();
+  size_t i = 0;
+  for ( const auto ptr : *h ) {
+    assert((unsigned)ptr->key == sz - i + event_num);
     double const expect = 1.5 * i + 100.0;
-    assert((*h)[i]->value == expect);
-    assert((*h)[i]->dummy() == 16.25);
+    assert(ptr->value == expect);
+    assert(ptr->dummy() == 16.25);
+    ++i;
   }
 }
 

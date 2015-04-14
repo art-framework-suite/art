@@ -48,15 +48,16 @@ public:
 
     int value = e.id().event();
     size_t count = 0;
-    for( product_t::const_iterator b = h->begin()
-            , e = h->end(); b!= e; ++b, ++value, ++count ) {
-      if( **b != value ) {
+    for ( const auto ptr : *h ) {
+      if( *ptr != value ) {
         throw cet::exception("ValueMismatch")
-          << "At position " << (b - h->begin())
+          << "At position " << count
           << " expected value " << value
-          << " but obtained " << **b
+          << " but obtained " << *ptr
           << '\n';
       }
+      ++value;
+      ++count;
     }
     if (count != sz) {
        throw cet::exception("CountMismatch")
