@@ -197,9 +197,9 @@ makeTriggerResultsInserter_(ParameterSet const & trig_pset,
   areg.sPreModuleConstruction.invoke(md);
   std::unique_ptr<EDProducer>
     producer(new TriggerResultInserter(trig_pset, triggerPathsInfo_.pathResults()));
-  areg.sPostModuleConstruction.invoke(md);
   results_inserter_.reset(new WorkerT<EDProducer>(std::move(producer), md,
                                                   work_args));
+  areg.sPostModuleConstruction.invoke(md);
   results_inserter_->setActivityRegistry(cet::exempt_ptr<ActivityRegistry>(&areg));
 }
 
