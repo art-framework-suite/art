@@ -1,9 +1,10 @@
 cet_script(checkClassVersion)
 
+set(cetskel artmod)
 # artmod is now in cetpkgsupport, but code generation is tested here.
 foreach(type Analyzer Producer Filter)
   ADD_CUSTOM_COMMAND(OUTPUT ToolsTest${type}_module.cc
-    COMMAND artmod
+    COMMAND ${cetskel}
     ARGS -A ${type} arttest::ToolsTest${type}
     COMMENT "Generating ToolsTest${type}_module.cc"
     VERBATIM
@@ -20,7 +21,7 @@ endforeach()
 
 foreach(type FileCatalogMetadataPlugin EmptyEventTimestampPlugin)
   ADD_CUSTOM_COMMAND(OUTPUT ToolsTest${type}_plugin.cc
-    COMMAND artmod
+    COMMAND ${cetskel}
     ARGS -A ${type} arttest::ToolsTest${type}
     COMMENT "Generating ToolsTest${type}_plugin.cc"
     VERBATIM
