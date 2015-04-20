@@ -61,16 +61,33 @@ using art::rootNames::metaBranchRootName;
 
 namespace {
   void insert_md_row(sqlite3_stmt * stmt,
-                     std::pair<std::string, std::string> const & kv)
+                     pair<string, string> const & kv)
   {
-    std::string const & theName  (kv.first);
-    std::string const & theValue (kv.second);
+    string const & theName  (kv.first);
+    string const & theValue (kv.second);
     sqlite3_bind_text(stmt, 1, theName.c_str(),
                       theName.size() + 1, SQLITE_STATIC);
     sqlite3_bind_text(stmt, 2, theValue.c_str(),
                       theValue.size() + 1, SQLITE_STATIC);
     sqlite3_step(stmt);
     sqlite3_reset(stmt);
+  }
+
+
+  art::EDProduct const*
+  getProductPtr(art::RootOutputFile::OutputItem const& item, vector<unique_ptr<art::EDProduct>>& keeper)
+  {
+    // No product with this ID is in the event.
+    // Add a null product.
+    char const* name = item.branchDescription_->wrappedCintName().c_str();
+    TClass *cp = TClass::GetClass(name);
+    if (!cp) 
+      {
+	throw art::Exception(art::errors::DictionaryNotFound) <<
+	  "TClass::GetClass() returned null pointer for name: " << name << '\n';
+      }
+    keeper.emplace_back(static_cast<art::EDProduct*>(cp->New()));
+    return keeper.back().get();
   }
 }
 
@@ -122,7 +139,7 @@ namespace art {
     for (int i = InEvent; i < NumBranchTypes; ++i) {
       BranchType branchType = static_cast<BranchType>(i);
       for (OutputItemList::const_iterator it = om_->selectedOutputItemList()[branchType].begin(),
-                                       itEnd = om_->selectedOutputItemList()[branchType].end();
+	     itEnd = om_->selectedOutputItemList()[branchType].end();
            it != itEnd; ++it) {
         treePointers_[branchType]->addBranch(*it->branchDescription_,
                                              it->product_);
@@ -231,12 +248,12 @@ namespace art {
     Parentage const*   desc(0);
 
     if (!parentageTree_->Branch(rootNames::parentageIDBranchName().c_str(),
-                                        &hash, om_->basketSize(), 0))
+				&hash, om_->basketSize(), 0))
       throw art::Exception(art::errors::FatalRootError)
         << "Failed to create a branch for ParentageIDs in the output file";
 
     if (!parentageTree_->Branch(rootNames::parentageBranchName().c_str(),
-                                        &desc, om_->basketSize(), 0))
+				&desc, om_->basketSize(), 0))
       throw art::Exception(art::errors::FatalRootError)
         << "Failed to create a branch for Parentages in the output file";
 
@@ -245,10 +262,10 @@ namespace art {
            e = ParentageRegistry::end();
          i != e;
          ++i) {
-        hash = const_cast<ParentageID*>(&(i->first)); // cast needed because keys are const
-        desc = &(i->second);
-        parentageTree_->Fill();
-      }
+      hash = const_cast<ParentageID*>(&(i->first)); // cast needed because keys are const
+      desc = &(i->second);
+      parentageTree_->Fill();
+    }
   }
 
   void RootOutputFile::writeFileFormatVersion() {
@@ -326,7 +343,7 @@ namespace art {
     insert_md_row(stmt, { "file_format_era",
           cet::canonical_string(getFileFormatEra()) });
     insert_md_row(stmt, { "file_format_version",
-          std::to_string(getFileFormatVersion()) });
+          to_string(getFileFormatVersion()) });
 
     namespace bpt = boost::posix_time;
     // File start time.
@@ -339,17 +356,17 @@ namespace art {
     insert_md_row(stmt,
                   { "end_time",
                       cet::canonical_string(bpt::to_iso_extended_string(boost::posix_time::second_clock::universal_time()))
-                  });
+		      });
 
     // Run / subRun information.
     if (!stats.seenSubRuns().empty()) {
       decltype(md.crbegin()) it;
       if ((it =
-           std::find_if(md.crbegin(),
+           find_if(md.crbegin(),
                         md.crend(),
-                        [](std::pair<std::string, std::string> const & p)
+                        [](pair<string, string> const & p)
                         { return (p.first == "run_type"); })) != md.crend()) {
-        std::ostringstream srstring;
+        ostringstream srstring;
         srstring << "[ ";
         bool first = true;
         for (auto const & srid : stats.seenSubRuns()) {
@@ -373,22 +390,22 @@ namespace art {
       }
     }
     // Number of events.
-    insert_md_row(stmt, { "event_count", std::to_string(stats.eventsThisFile()) });
+    insert_md_row(stmt, { "event_count", to_string(stats.eventsThisFile()) });
     // first_event and last_event.
-    auto eidToTuple = [](EventID const & eid) -> std::string
-    {
-      std::ostringstream eidStr;
-      eidStr << "[ " << eid.run() << ", " << eid.subRun()
-      << ", " << eid.event() << " ]";
-      return eidStr.str();
-    };
+    auto eidToTuple = [](EventID const & eid) -> string
+      {
+	ostringstream eidStr;
+	eidStr << "[ " << eid.run() << ", " << eid.subRun()
+	<< ", " << eid.event() << " ]";
+	return eidStr.str();
+      };
     insert_md_row(stmt, { "first_event",
           eidToTuple(stats.lowestEventID()) });
     insert_md_row(stmt, { "last_event",
           eidToTuple(stats.highestEventID()) });
     // File parents.
     if (!stats.parents().empty()) {
-      std::ostringstream pstring;
+      ostringstream pstring;
       pstring << "[ ";
       for (auto const & parent : stats.parents()) {
         pstring << cet::canonical_string(parent) << ", ";
@@ -480,7 +497,7 @@ namespace art {
     BranchMapper const& iMapper = principal.branchMapper();
     vector<BranchID> const& parentIDs = iGetParents.parentage().parents();
     for(vector<BranchID>::const_iterator it=parentIDs.begin(), itEnd = parentIDs.end();
-          it != itEnd; ++it) {
+	it != itEnd; ++it) {
       branchesWithStoredHistory_.insert(*it);
       cet::exempt_ptr<ProductProvenance const> info = iMapper.branchToProductProvenance(*it);
       if(info && om_->dropMetaData() == RootOutput::DropNone) {
@@ -493,62 +510,44 @@ namespace art {
     }
   }
 
-  void RootOutputFile::fillBranches(
-                BranchType const& branchType,
-                Principal const& principal,
-                vector<ProductProvenance>* productProvenanceVecPtr) {
-
-    vector<std::shared_ptr<EDProduct> > dummies;
-
+  void
+  RootOutputFile::fillBranches(BranchType const& branchType,
+			       Principal const& principal,
+			       vector<ProductProvenance>* productProvenanceVecPtr)
+{
+    vector<unique_ptr<EDProduct> > keeper;
     bool const fastCloning = (branchType == InEvent) && currentlyFastCloning_;
-
-    OutputItemList const& items = om_->selectedOutputItemList()[branchType];
-
     set<ProductProvenance> provenanceToKeep;
 
     // Loop over EDProduct branches, fill the provenance, and write the branch.
-    for (OutputItemList::const_iterator i = items.begin(), iEnd = items.end(); i != iEnd; ++i) {
-
-      BranchID const& id = i->branchDescription_->branchID();
+    for (auto const& item : om_->selectedOutputItemList()[branchType]) {
+      BranchID const& id = item.branchDescription_->branchID();
       branchesWithStoredHistory_.insert(id);
 
-      bool produced = i->branchDescription_->produced();
+      bool produced = item.branchDescription_->produced();
       bool keepProvenance = om_->dropMetaData() == RootOutput::DropNone ||
                            (om_->dropMetaData() == RootOutput::DropPrior && produced);
       bool getProd = (produced || !fastCloning ||
-         treePointers_[branchType]->uncloned(i->branchDescription_->branchName()));
+         treePointers_[branchType]->uncloned(item.branchDescription_->branchName()));
 
-      EDProduct const* product = 0;
+      EDProduct const* product = nullptr;
       OutputHandle const oh = principal.getForOutput(id, getProd);
-      if (!oh.productProvenance()) {
-        // No product with this ID is in the event.
-        // Create and write the provenance.
-        if (keepProvenance) {
-          if (produced) {
-            provenanceToKeep.insert(ProductProvenance(i->branchDescription_->branchID(),
-                        productstatus::neverCreated()));
-          } else {
-            provenanceToKeep.insert(ProductProvenance(i->branchDescription_->branchID(),
-                        productstatus::dropped()));
-          }
-        }
-      } else {
+      if (oh.productProvenance()) {
         product = oh.wrapper();
         if (keepProvenance) {
           provenanceToKeep.insert(*oh.productProvenance());
           insertAncestors(*oh.productProvenance(), principal, provenanceToKeep);
         }
-      }
+      } else if (keepProvenance) {
+        // No product with this ID is in the event.
+        // Create and write the provenance.
+	auto status = produced ? productstatus::neverCreated() : productstatus::dropped();
+	provenanceToKeep.insert(ProductProvenance(item.branchDescription_->branchID(), status));			
+      } else { }
+
       if (getProd) {
-        if (product == 0) {
-          // No product with this ID is in the event.
-          // Add a null product.
-          TClass *cp = TClass::GetClass(i->branchDescription_->wrappedName().c_str());
-          std::shared_ptr<EDProduct> dummy(static_cast<EDProduct *>(cp->New()));
-          dummies.push_back(dummy);
-          product = dummy.get();
-        }
-        i->product_ = product;
+	if (product == nullptr) product = getProductPtr(item, keeper);
+        item.product_ = product;
       }
     }
 

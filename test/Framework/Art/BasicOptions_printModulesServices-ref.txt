@@ -95,6 +95,7 @@ Running 2 test cases...
    ToyRawInputTester                   analyzer    <path>/ToyRawInputTester_module.cc
    ToyRawProductAnalyzer               analyzer    <path>/ToyRawProductAnalyzer_module.cc
    UnitTestClient                      analyzer    <path>/UnitTestClient_module.cc
+   UnputtingProducer                   producer    <path>/UnputtingProducer_module.cc
    ValidHandleTester                   analyzer    <path>/ValidHandleTester_module.cc
 
 <separator (=)>

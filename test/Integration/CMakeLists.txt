@@ -45,6 +45,7 @@ simple_plugin(DropTestAnalyzer            "module"  NO_INSTALL USE_BOOST_UNIT )
 simple_plugin(DropTestParentageFaker      "module"  NO_INSTALL )
 simple_plugin(FailingAnalyzer             "module"  NO_INSTALL )
 simple_plugin(FailingProducer             "module"  NO_INSTALL )
+simple_plugin(UnputtingProducer           "module"  NO_INSTALL )
 simple_plugin(FlushingGenerator           "source"  NO_INSTALL )
 simple_plugin(FlushingGeneratorTest       "module"  NO_INSTALL )
 simple_plugin(FlushingGeneratorTestFilter "module"  NO_INSTALL )
@@ -214,6 +215,16 @@ cet_test(test_failingProducer_t.sh PREBUILT
   DATAFILES
   fcl/test_failingProducer_w.fcl
   fcl/test_failingProducer_r.fcl
+  fcl/messageDefaults.fcl
+)
+
+cet_test(test_unputtingProducer_t HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --rethrow-all -c test_unputtingProducer.fcl
+  #TEST_EXEC valgrind
+  #TEST_ARGS --suppressions=${ROOTSYS}/etc/valgrind-root.supp --leak-check=no --track-origins=yes --log-file=val.log art --rethrow-all -c test_unputtingProducer.fcl
+  DATAFILES
+  fcl/test_unputtingProducer.fcl
   fcl/messageDefaults.fcl
 )
 

@@ -60,6 +60,10 @@ namespace {
   typedef art::Assns<size_t, std::string> AssnsABV_t;
   typedef art::Assns<std::string, size_t> AssnsBAV_t;
 
+  // function template to allow us to dereference both maybe_ref<T>
+  // objects and objects that have an operator*.
+  template <class R, class W> R const& dereference(W const& wrapper);
+
   // Common case, can dereference (eg Ptr<T>).
   template <typename T, template <typename> class WRAP>
   typename std::enable_if<boost::has_dereference<WRAP<T> >::value, T const &>::type
