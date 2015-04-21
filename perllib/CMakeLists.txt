@@ -1,2 +1,1 @@
-add_subdirectory(CetSkel)
-add_subdirectory(CetSkelPlugins)
+install_perllib( SUBDIRS CetSkel CetSkelPlugins )
