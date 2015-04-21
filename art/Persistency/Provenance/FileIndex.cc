@@ -78,8 +78,8 @@ namespace art {
 
    bool FileIndex::eventsUniqueAndOrdered() const {
 
-      const_iterator it = begin();
-      const_iterator itEnd = end();
+      auto it = cbegin();
+      auto itEnd = cend();
 
       // Set up the iterators to point to first two events
       // (In the trivial case where there is zero or one event,
@@ -92,7 +92,7 @@ namespace art {
          ++it;
          if (it == itEnd) return true;
       }
-      const_iterator itPrevious = it;
+      auto itPrevious = it;
 
       // Step to second event
       ++it;
@@ -234,9 +234,8 @@ namespace art {
          << setw(15) << "Event"
          << setw(15) << "TTree Entry"
          << "\n";
-      for (vector<FileIndex::Element>::const_iterator
-              it = fileIndex.begin(),
-              itEnd = fileIndex.end();
+      for ( auto it = fileIndex.cbegin(),
+              itEnd = fileIndex.cend();
            it != itEnd;
            ++it) {
          if (it->getEntryType() == FileIndex::kEvent) {

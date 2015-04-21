@@ -69,6 +69,7 @@ public:
    };
 
    typedef std::vector<Element>::const_iterator const_iterator;
+   typedef std::vector<Element>::iterator iterator;
 
    void sortBy_Run_SubRun_Event();
    void sortBy_Run_SubRun_EventEntry();
@@ -103,10 +104,10 @@ public:
       return findRunPosition(rID, exact) != entries_.end();
    }
 
-   const_iterator begin() const {return entries_.begin();}
+   iterator begin() {return entries_.begin();}
    const_iterator cbegin() const { return entries_.begin();}
 
-   const_iterator end() const {return entries_.end();}
+   iterator end() {return entries_.end();}
    const_iterator cend() const { return entries_.end();}
 
    std::vector<Element>::size_type size() const {return entries_.size();}

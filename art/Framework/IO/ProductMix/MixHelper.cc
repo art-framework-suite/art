@@ -1,6 +1,7 @@
 #include "art/Framework/IO/ProductMix/MixHelper.h"
 
 #include "art/Framework/IO/Root/GetFileFormatEra.h"
+#include "art/Framework/IO/Root/setFileIndexPointer.h"
 #include "art/Framework/IO/Root/setMetaDataBranchAddress.h"
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Services/Optional/RandomNumberGenerator.h"
@@ -312,17 +313,17 @@ openAndReadMetaData_(std::string filename)
                            Get(rootNames::eventTreeName().c_str())));
   if (currentEventTree_.get() == 0) {
     throw Exception(errors::FileReadError)
-        << "Unable to read event tree from secondary event stream file "
-        << filename
-        << ".\n";
+      << "Unable to read event tree from secondary event stream file "
+      << filename
+      << ".\n";
   }
   nEventsInFile_ = currentEventTree_->GetEntries();
   // Read meta data
   FileFormatVersion * ffVersion_p = &ffVersion_;
   setMetaDataBranchAddress(currentMetaDataTree_.get(), ffVersion_p);
   FileIndex fileIndex;
-  FileIndex * fileIndex_p = &fileIndex;
-  setMetaDataBranchAddress(currentMetaDataTree_.get(), fileIndex_p);
+  FileIndex* fileIndexPtr = &fileIndex;
+  setFileIndexPointer(currentFile_.get(),currentMetaDataTree_.get(),fileIndexPtr);
   BranchIDLists branchIDLists;
   BranchIDLists * branchIDLists_p = &branchIDLists;
   setMetaDataBranchAddress(currentMetaDataTree_.get(), branchIDLists_p);

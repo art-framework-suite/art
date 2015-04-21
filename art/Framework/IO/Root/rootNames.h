@@ -1,11 +1,12 @@
 #ifndef art_Framework_IO_Root_rootNames_h
 #define art_Framework_IO_Root_rootNames_h
 
-#include "art/Persistency/Provenance/ProductRegistry.h"
 #include "art/Persistency/Provenance/BranchChildren.h"
 #include "art/Persistency/Provenance/BranchIDList.h"
+#include "art/Persistency/Provenance/FileIndex.h"
 #include "art/Persistency/Provenance/ParameterSetMap.h"
 #include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
+#include "art/Persistency/Provenance/ProductRegistry.h"
 #include "art/Utilities/Exception.h"
 #include "art/Utilities/TypeID.h"
 
@@ -13,7 +14,6 @@
 
 namespace art {
   class FileFormatVersion;
-  class FileIndex;
   class History;
 
   namespace rootNames {
@@ -28,6 +28,9 @@ namespace art {
     //------------------------------------------------------------------
     // MetaData Tree (1 entry per file)
     std::string const & metaDataTreeName( );
+
+    // FileIndex Tree
+    std::string const & fileIndexTreeName( );
 
     // Event History Tree
     std::string const & eventHistoryTreeName( );
@@ -56,8 +59,9 @@ namespace art {
     }
 
     ART_ROOTNAME_SIMPLE(FileFormatVersion)
-    ART_ROOTNAME_SIMPLE(FileIndex)
-    ART_ROOTNAME(ProductRegistry, "ProductRegistry")
+    ART_ROOTNAME_SIMPLE(FileIndex) // supporting backwards compatibility
+    ART_ROOTNAME(FileIndex::Element,"Element")
+    ART_ROOTNAME(ProductRegistry,"ProductRegistry")
     ART_ROOTNAME_SIMPLE(ParameterSetMap)
     ART_ROOTNAME_SIMPLE(ProcessHistoryMap)
     ART_ROOTNAME_SIMPLE(BranchIDLists)

@@ -103,9 +103,10 @@ namespace art {
     eventEntryNumber_(0LL),
     subRunEntryNumber_(0LL),
     runEntryNumber_(0LL),
-    metaDataTree_(0),
-    parentageTree_(0),
-    eventHistoryTree_(0),
+    metaDataTree_(nullptr),
+    fileIndexTree_(nullptr),
+    parentageTree_(nullptr),
+    eventHistoryTree_(nullptr),
     pEventAux_(0),
     pSubRunAux_(0),
     pRunAux_(0),
@@ -146,11 +147,12 @@ namespace art {
       }
     }
     // Don't split metadata tree or event description tree
-    metaDataTree_         = RootOutputTree::makeTTree(filePtr_.get(), rootNames::metaDataTreeName(), 0);
+    metaDataTree_  = RootOutputTree::makeTTree(filePtr_.get(), rootNames::metaDataTreeName(), 0);
+    fileIndexTree_ = RootOutputTree::makeTTree(filePtr_.get(), rootNames::fileIndexTreeName(), 0);
     parentageTree_ = RootOutputTree::makeTTree(filePtr_.get(), rootNames::parentageTreeName(), 0);
 
     // Create the tree that will carry (event) History objects.
-    eventHistoryTree_     = RootOutputTree::makeTTree(filePtr_.get(), rootNames::eventHistoryTreeName(), om_->splitLevel());
+    eventHistoryTree_ = RootOutputTree::makeTTree(filePtr_.get(), rootNames::eventHistoryTreeName(), om_->splitLevel());
     if (!eventHistoryTree_)
       throw art::Exception(art::errors::FatalRootError)
         << "Failed to create the tree for History objects\n";
@@ -278,10 +280,13 @@ namespace art {
 
   void RootOutputFile::writeFileIndex() {
     fileIndex_.sortBy_Run_SubRun_Event();
-    FileIndex *findexPtr = &fileIndex_;
-    TBranch* b = metaDataTree_->Branch(metaBranchRootName<FileIndex>(), &findexPtr, om_->basketSize(), 0);
+    FileIndex::Element *findexElemPtr = nullptr;
+    TBranch* b = fileIndexTree_->Branch(metaBranchRootName<FileIndex::Element>(),&findexElemPtr, om_->basketSize(), 0);
     assert(b);
-    b->Fill();
+    for ( auto & entry : fileIndex_ ) {
+      findexElemPtr = &entry;
+      b->Fill();
+    }
   }
 
   void RootOutputFile::writeEventHistory() {
@@ -468,7 +473,7 @@ namespace art {
   void RootOutputFile::finishEndFile() {
     metaDataTree_->SetEntries(-1);
     RootOutputTree::writeTTree(metaDataTree_);
-
+    RootOutputTree::writeTTree(fileIndexTree_);
     RootOutputTree::writeTTree(parentageTree_);
 
     // Write out the tree corresponding to each BranchType

@@ -7,8 +7,7 @@
 
 namespace art {
   template <typename T>
-  void setMetaDataBranchAddress(TTree *tree,
-                                T *&t);
+  void setMetaDataBranchAddress(TTree *tree,T *&t);
 
   template <typename T>
   bool metaDataTreeHasBranchFor(TTree *tree);
@@ -16,8 +15,7 @@ namespace art {
 
 template <typename T>
 inline
-void art::setMetaDataBranchAddress(TTree *tree,
-                                   T *&t) {
+void art::setMetaDataBranchAddress(TTree *tree,T *&t) {
   tree->SetBranchAddress(rootNames::metaBranchRootName<T>(), &t);
 }
 
