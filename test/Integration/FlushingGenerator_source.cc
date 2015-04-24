@@ -93,7 +93,7 @@ readNext(art::RunPrincipal * const & inR,
   }
   else if (ev_num_ == 11 || ev_num_ == 12 || ev_num_ == 16) { // Flush event. current run, next subrun
     outSR = sHelper_.makeSubRunPrincipal(curr_evid_.nextSubRun().subRunID(), runstart);
-    art::EventID const evid(art::EventID::flushEvent(inR->id(), outSR->id()));
+    art::EventID const evid(art::EventID::flushEvent(outSR->id()));
     outE = sHelper_.makeEventPrincipal(evid, runstart);
     curr_evid_ = curr_evid_.nextSubRun();
   }

@@ -3,6 +3,6 @@
 #include <iostream>
 int main(int /*argc*/, char* argv[])
 {
-  assert(art::getFileFormatVersion() == 7);
+  assert(art::getFileFormatVersion() == 8);
   std::cout << "Running " << argv[0] << std::endl;
 }

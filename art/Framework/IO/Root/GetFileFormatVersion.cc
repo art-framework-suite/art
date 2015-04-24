@@ -27,10 +27,11 @@
 //                 ParameterSets written to MetaDataDB.
 // ART_2011a   6   Improvements to ParameterSet information in MetaDataDB.
 // ART_2011a   7   FileIndex moved to separate tree.
+// ART_2011a   8   EventID unnecessary data member removed.
 //
 ////////////////////////////////////////////////////////////////////////
 
 namespace art
 {
-  int getFileFormatVersion() { return 7; }
+  int getFileFormatVersion() { return 8; }
 }

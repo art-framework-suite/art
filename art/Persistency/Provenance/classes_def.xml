@@ -78,7 +78,8 @@
  <class name="art::EventAuxiliary" ClassVersion="10">
   <version ClassVersion="10" checksum="3057204332"/>
  </class>
-   <class name="art::EventID" ClassVersion="11">
+   <class name="art::EventID" ClassVersion="12">
+    <version ClassVersion="12" checksum="784191624"/>
     <version ClassVersion="11" checksum="3432767131"/>
     <version ClassVersion="10" checksum="784191624"/>
    </class>
