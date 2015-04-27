@@ -100,6 +100,7 @@ template <typename ProdA, typename ProdB, typename Data, typename DATACOLL>
 class art::detail::IPRHelper {
 private:
 
+  // We use IPRHelperDef in place of DATACOLL if Data is void.
   typedef typename std::conditional<std::is_void<Data>::value, IPRHelperDef, DATACOLL>::type dataColl_t;
 
 public:
@@ -107,6 +108,11 @@ public:
 
   IPRHelper(Event const & e, InputTag const & tag) : event_(e), assnsTag_(tag) { }
 
+  // template <typename A, typename B> shared_exception_t operator()(A const& a, B const& b) const
+  //  (1) fills in b, and 
+  //  (2) returns a (shared pointer to) an exception. The pointer is
+  //  non-null on failure. Note that the returned 'b' might be empty.
+  //
   // 1. When dColl not wanted.
   template <typename Acoll, typename Bcoll>
   shared_exception_t

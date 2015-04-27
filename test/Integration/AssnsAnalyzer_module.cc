@@ -18,6 +18,7 @@
 #include "art/Persistency/Common/Assns.h"
 #include "art/Persistency/Common/Ptr.h"
 #include "art/Persistency/Common/PtrVector.h"
+#include "art/Utilities/InputTag.h"
 #include "cetlib/maybe_ref.h"
 #include "test/TestObjects/AssnTestData.h"
 
@@ -25,6 +26,8 @@
 #include "boost/type_traits.hpp"
 
 #include <type_traits>
+
+#include <iostream>
 
 namespace arttest {
    class AssnsAnalyzer;
@@ -78,12 +81,15 @@ namespace {
      return wrapper.ref();
   }
 
-  // Test references.
-  char const * const x[] = { "zero", "one", "two" };
-  char const * const a[] = { "A", "B", "C" };
-  size_t const ai[] = { 2, 0, 1 }; // Order in Acoll
-  size_t const bi[] = { 1, 2, 0 }; // Order in Bcoll
+  // These are the expected answers; they are global data used in
+  // check_get_one_impl.
+  char const* const X[] = { "zero", "one", "two" };
+  char const* const A[] = { "A", "B", "C" };
+  size_t const AI[] = { 2, 0, 1 }; // Order in Acoll
+  size_t const BI[] = { 1, 2, 0 }; // Order in Bcoll
 
+  // check_get_one_impl is the common implementation for the check_get
+  // functions.
   template <typename I, typename D, typename F, typename FV>
   void
   check_get_one_impl(F const & fA, FV const & fAV) {
@@ -91,14 +97,24 @@ namespace {
     D data;
     for (size_t i = 0; i < 3; ++i) {
       fA.get(i, item, data);
-      BOOST_CHECK_EQUAL(dereference(item), bi[i]);
-      BOOST_CHECK_EQUAL(dereference(data).d1, ai[i]);
+      BOOST_CHECK_EQUAL(dereference(item), BI[i]);
+      BOOST_CHECK_EQUAL(dereference(data).d1, AI[i]);
       BOOST_CHECK_EQUAL(dereference(data).d2, i);
       fAV.get(i, item);
-      BOOST_CHECK_EQUAL(dereference(item), bi[i]);
+      BOOST_CHECK_EQUAL(dereference(item), BI[i]);
     }
   }
 
+  // check_get tests that both fA and fAV both contain the
+  // expected information, as recorded in the global variables.
+  // Each looks like:
+  //    template <typename T, typename D, template <typename, typename> class F>
+  //    void
+  //    check_get(F<T,D> const&, F<T,void> const&);
+  // with complications using enable_if to control which overload is
+  // called in a given case.
+
+  // check_get specialized for FindOne
   template <typename T, typename D,
             template <typename, typename> class FO>
   typename std::enable_if<std::is_same<FO<T, void>, art::FindOne<T, void> >::value>::type
@@ -109,8 +125,10 @@ namespace {
     check_get_one_impl<item_t, data_t>(fA, fAV);
   }
 
+  // check_get specialized for FindOneP
   template <typename T, typename D,
             template <typename, typename> class FO>
+  //typename std::enable_if<std::is_same<FO<T, void>, art::FindOneP<T, void> >::value>::type
   typename std::enable_if<std::is_same<FO<T, void>, art::FindOneP<T, void> >::value>::type
   check_get(FO<T, D> const & fA,
             FO<T, void> const & fAV) {
@@ -119,6 +137,7 @@ namespace {
     check_get_one_impl<item_t, data_t>(fA, fAV);
   }
 
+  // check_get specialized for FindMany and FindManyP
   template <typename T, typename D,
             template <typename, typename> class FM>
   typename std::enable_if<std::is_same<FM<T, void>, art::FindMany<T, void> >::value || std::is_same<FM<T, void>, art::FindManyP<T, void> >::value>::type
@@ -224,26 +243,26 @@ testOne(art::Event const & e) const
     if (testAB_) {
       BOOST_CHECK_EQUAL(*(*hAB)[i].first, i);
       if (! bCollMissing_) {
-        BOOST_CHECK_EQUAL(*(*hAB)[i].second, std::string(x[i]));
+        BOOST_CHECK_EQUAL(*(*hAB)[i].second, std::string(X[i]));
       }
       BOOST_CHECK_EQUAL((*hAB).data(i).d1, (*hAB)[i].first.key());
       BOOST_CHECK_EQUAL((*hAB).data(i).d2, (*hAB)[i].second.key());
-      BOOST_CHECK_EQUAL((*hAB).data(i).label, std::string(a[i]));
+      BOOST_CHECK_EQUAL((*hAB).data(i).label, std::string(A[i]));
       BOOST_CHECK_EQUAL(*(*hABV)[i].first, i);
       if (! bCollMissing_) {
-        BOOST_CHECK_EQUAL(*(*hABV)[i].second, std::string(x[i]));
+        BOOST_CHECK_EQUAL(*(*hABV)[i].second, std::string(X[i]));
       }
     }
     if (testBA_) {
       if (! bCollMissing_) {
-        BOOST_CHECK_EQUAL(*(*hBA)[i].first, std::string(x[i]));
+        BOOST_CHECK_EQUAL(*(*hBA)[i].first, std::string(X[i]));
       }
       BOOST_CHECK_EQUAL(*(*hBA)[i].second, i);
       BOOST_CHECK_EQUAL((*hBA).data(i).d2, (*hBA)[i].first.key());
       BOOST_CHECK_EQUAL((*hBA).data(i).d1, (*hBA)[i].second.key());
-      BOOST_CHECK_EQUAL((*hBA).data(i).label, std::string(a[i]));
+      BOOST_CHECK_EQUAL((*hBA).data(i).label, std::string(A[i]));
       if (! bCollMissing_) {
-        BOOST_CHECK_EQUAL(*(*hBAV)[i].first, std::string(x[i]));
+        BOOST_CHECK_EQUAL(*(*hBAV)[i].first, std::string(X[i]));
       }
       BOOST_CHECK_EQUAL(*(*hBAV)[i].second, i);
     }
@@ -251,19 +270,19 @@ testOne(art::Event const & e) const
       BOOST_CHECK(!foBV.at(i));
     }
     else {
-      BOOST_CHECK_EQUAL(dereference(foBV.at(i)), std::string(x[ai[i]]));
-      BOOST_CHECK_EQUAL(dereference(foA->at(i)), bi[i]);
-      BOOST_CHECK_EQUAL(dereference(foA->data(i)).d1, ai[i]);
+      BOOST_CHECK_EQUAL(dereference(foBV.at(i)), std::string(X[AI[i]]));
+      BOOST_CHECK_EQUAL(dereference(foA->at(i)), BI[i]);
+      BOOST_CHECK_EQUAL(dereference(foA->data(i)).d1, AI[i]);
       BOOST_CHECK_EQUAL(dereference(foA->data(i)).d2, i);
-      BOOST_CHECK_EQUAL(dereference(foAV->at(i)), bi[i]);
+      BOOST_CHECK_EQUAL(dereference(foAV->at(i)), BI[i]);
       BOOST_CHECK_NO_THROW(check_get(*foA, *foAV));
     }
     for (auto const & f : { foB, foB2 } ) {
       if (!bCollMissing_) {
-        BOOST_CHECK_EQUAL(dereference(f.at(i)), std::string(x[ai[i]]));
+        BOOST_CHECK_EQUAL(dereference(f.at(i)), std::string(X[AI[i]]));
       }
       BOOST_CHECK_EQUAL(dereference(f.data(i)).d1, i);
-      BOOST_CHECK_EQUAL(dereference(f.data(i)).d2, bi[i]);
+      BOOST_CHECK_EQUAL(dereference(f.data(i)).d2, BI[i]);
     }
   }
   // Check alternative accessors and range checking for Assns.
@@ -325,6 +344,19 @@ testOne(art::Event const & e) const
     BOOST_CHECK_EQUAL(foApv.at(1), foA->at(2)); // Knocked out the middle.
     BOOST_CHECK_EQUAL(foApv.data(1), foA->data(2));
   }
+
+  // Check FindOne looking into a map_vector.
+  BOOST_REQUIRE(hAcoll.isValid());
+  art::InputTag tag(inputLabel_, "mapvec");
+  FO<B_t, arttest::AssnTestData> foBmv(hAcoll, e, tag);
+  
+  BOOST_CHECK_EQUAL(foBmv.at(0), foB.at(0));
+  BOOST_CHECK_EQUAL(foBmv.data(0), foB.data(0));
+  BOOST_CHECK_EQUAL(foBmv.at(1), foB.at(1));
+  BOOST_CHECK_EQUAL(foBmv.data(1), foB.data(1));
+  BOOST_CHECK_EQUAL(foBmv.at(2), foB.at(2));
+  BOOST_CHECK_EQUAL(foBmv.data(2), foB.data(2));
+  
   // Check for range errors.
   BOOST_CHECK_THROW(foApv.at(3), std::out_of_range);
   BOOST_CHECK_THROW(foApv.data(3), std::out_of_range);
@@ -360,10 +392,10 @@ testMany(art::Event const & e) const
   // Now do our normal checks.
   // Check FindMany.
   FM<B_t, arttest::AssnTestData>
-    fmB(hAcoll, e, art::InputTag(inputLabel_, "M"));
+    fmB(hAcoll, e, art::InputTag(inputLabel_, "many"));
   art::Ptr<size_t> larry(hAcoll, 0), curly(hAcoll, 1), mo(hAcoll, 2);
   FM<B_t, arttest::AssnTestData>
-    fmB2({larry, curly, mo}, e, art::InputTag(inputLabel_, "M"));
+    fmB2({larry, curly, mo}, e, art::InputTag(inputLabel_, "many"));
   for (auto const & f : { fmB, fmB2 }) {
     BOOST_REQUIRE_EQUAL(f.size(), 3ul);
     if (bCollMissing_) {
@@ -379,7 +411,7 @@ testMany(art::Event const & e) const
     BOOST_CHECK_EQUAL(f.data(1).size(), 2ul);
     BOOST_CHECK_EQUAL(f.data(2).size(), 1ul);
   }
-  FM<B_t, void> fmBV(hAcoll, e, art::InputTag(inputLabel_, "M"));
+  FM<B_t, void> fmBV(hAcoll, e, art::InputTag(inputLabel_, "many"));
   if (bCollMissing_) {
     BOOST_CHECK_EQUAL(fmBV.at(0).size(), 0ul);
     BOOST_CHECK_EQUAL(fmBV.at(1).size(), 0ul);
@@ -393,7 +425,7 @@ testMany(art::Event const & e) const
   // Check FindMany on View.
   art::View<A_t> va;
   BOOST_REQUIRE(e.getView(inputLabel_, va));
-  FM<B_t, void> fmBv(va, e, art::InputTag(inputLabel_, "M"));
+  FM<B_t, void> fmBv(va, e, art::InputTag(inputLabel_, "many"));
   BOOST_REQUIRE(fmBV == fmBv);
   // Check FindMany on shuffled reference collection.
   auto va2 = va.vals(); // Copy.
@@ -403,7 +435,7 @@ testMany(art::Event const & e) const
     swap(*va2.begin(), *(va2.begin()+2));
   }
   BOOST_REQUIRE(va.vals() != va2);
-  FM<B_t, void> fmBv2(va2, e, art::InputTag(inputLabel_, "M"));
+  FM<B_t, void> fmBv2(va2, e, art::InputTag(inputLabel_, "many"));
   for (size_t i = 0, e = fmBv2.size(); i != e; ++i) {
     using std::find;
     auto it = find(va.begin(), va.end(), va2[i]);
