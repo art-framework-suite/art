@@ -85,7 +85,7 @@ namespace art {
            std::vector<Bcoll> & bColls) const;
 
       template <typename Bcoll>
-      typename std::enable_if<std::is_same<typename Bcoll::value_type, Ptr<ProdB> >::value>::type
+      typename std::enable_if<std::is_convertible<typename Bcoll::value_type, Ptr<ProdB> >::value>::type
       fill(size_t index,
            Ptr<ProdB> const & item,
            std::vector<Bcoll> & bColls) const;
@@ -376,7 +376,7 @@ fill(size_t index,
 template <typename ProdB>
 template <typename Bcoll>
 inline
-typename std::enable_if<std::is_same<typename Bcoll::value_type, art::Ptr<ProdB> >::value>::type
+typename std::enable_if<std::is_convertible<typename Bcoll::value_type, art::Ptr<ProdB> >::value>::type
 art::detail::BcollHelper<ProdB>::
 fill(size_t index,
      Ptr<ProdB> const & item,
