@@ -349,14 +349,14 @@ testOne(art::Event const & e) const
   BOOST_REQUIRE(hAcoll.isValid());
   art::InputTag tag(inputLabel_, "mapvec");
   FO<B_t, arttest::AssnTestData> foBmv(hAcoll, e, tag);
-  
-  BOOST_CHECK_EQUAL(foBmv.at(0), foB.at(0));
+
+  BOOST_CHECK_EQUAL(dereference(foBmv.at(0)), dereference(foB.at(0)));
   BOOST_CHECK_EQUAL(foBmv.data(0), foB.data(0));
-  BOOST_CHECK_EQUAL(foBmv.at(1), foB.at(1));
+  BOOST_CHECK_EQUAL(dereference(foBmv.at(1)), dereference(foB.at(1)));
   BOOST_CHECK_EQUAL(foBmv.data(1), foB.data(1));
-  BOOST_CHECK_EQUAL(foBmv.at(2), foB.at(2));
+  BOOST_CHECK_EQUAL(dereference(foBmv.at(2)), dereference(foB.at(2)));
   BOOST_CHECK_EQUAL(foBmv.data(2), foB.data(2));
-  
+
   // Check for range errors.
   BOOST_CHECK_THROW(foApv.at(3), std::out_of_range);
   BOOST_CHECK_THROW(foApv.data(3), std::out_of_range);
