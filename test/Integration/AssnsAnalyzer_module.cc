@@ -349,14 +349,14 @@ testOne(art::Event const & e) const
   BOOST_REQUIRE(hAcoll.isValid());
   art::InputTag tag(inputLabel_, "mapvec");
   FO<B_t, arttest::AssnTestData> foBmv(hAcoll, e, tag);
-
-  BOOST_CHECK_EQUAL(dereference(foBmv.at(0)), dereference(foB.at(0)));
-  BOOST_CHECK_EQUAL(foBmv.data(0), foB.data(0));
-  BOOST_CHECK_EQUAL(dereference(foBmv.at(1)), dereference(foB.at(1)));
-  BOOST_CHECK_EQUAL(foBmv.data(1), foB.data(1));
-  BOOST_CHECK_EQUAL(dereference(foBmv.at(2)), dereference(foB.at(2)));
-  BOOST_CHECK_EQUAL(foBmv.data(2), foB.data(2));
-
+  if (! bCollMissing_) {
+    BOOST_CHECK_EQUAL(dereference(foBmv.at(0)), dereference(foB.at(0)));
+    BOOST_CHECK_EQUAL(foBmv.data(0), foB.data(0));
+    BOOST_CHECK_EQUAL(dereference(foBmv.at(1)), dereference(foB.at(1)));
+    BOOST_CHECK_EQUAL(foBmv.data(1), foB.data(1));
+    BOOST_CHECK_EQUAL(dereference(foBmv.at(2)), dereference(foB.at(2)));
+    BOOST_CHECK_EQUAL(foBmv.data(2), foB.data(2));
+  }
   // Check for range errors.
   BOOST_CHECK_THROW(foApv.at(3), std::out_of_range);
   BOOST_CHECK_THROW(foApv.data(3), std::out_of_range);
@@ -443,6 +443,14 @@ testMany(art::Event const & e) const
     BOOST_REQUIRE(fmBv.at(std::distance(va.begin(), it)) == fmBv2.at(i));
   }
 
+  // Check FindMany on map_vector
+  FM<B_t, void> fmvBV(hAcoll, e, art::InputTag(inputLabel_, "manymapvec"));
+  if (!bCollMissing_) {
+    BOOST_CHECK_EQUAL(fmvBV.at(0).size(), 1ul);
+    BOOST_CHECK_EQUAL(fmvBV.at(1).size(), 2ul);
+    BOOST_CHECK_EQUAL(fmvBV.at(2).size(), 1ul);
+    BOOST_CHECK_NO_THROW(check_get(fmB, fmBV));
+  }
 }
 
 DEFINE_ART_MODULE(arttest::AssnsAnalyzer)
