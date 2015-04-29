@@ -1,0 +1,89 @@
+process_name: MAKET1
+
+services: {
+
+  #floating_point_control: {}
+  message: {
+    destinations: {
+      STDOUT: {
+        type: cout
+        threshold: INFO
+        categories: {
+          default: { limit: -1 }
+        }
+      }
+    }
+  }
+  scheduler: {
+    Rethrow: ['OtherArt','StdException','Unknown','BadAlloc',
+              'BadExceptionType','ProductNotFound','DictionaryNotFound',
+              'InsertFailure','Configuration','LogicError','UnimplementedFeature',
+              'InvalidReference','NullPointerError','NoProductSpecified','EventTimeout',
+              'DataCorruption','ScheduleExecutionFailure','EventProcessorFailure',
+              'FileInPathError','FileOpenError','FileReadError','FatalRootError',
+              'MismatchedInputFiles','ProductDoesNotSupportViews',
+              'ProductDoesNotSupportPtr','NotFound']
+    #IgnoreCompletely: []
+    #wantSummary: true
+    wantTracer: false
+    #fileMode: ""
+    #handleEmptyRuns: true
+    #handleEmptySubRuns: true
+    #enableSigInt: true
+    #unloadRootSigHandler: false
+    #resetRootErrHandler: true
+  }
+  #Timing: {}
+  #SimpleMemoryCheck: {}
+  #TFileService: { fileName: "tfile_output.root" }
+  #user: {}
+
+}
+
+source: {
+  module_type: EmptyEvent
+  #numberEventsInRun: n
+  #numberEventsInSubRun: n
+  #eventCreationDelay: 0u
+  #resetEventOnSubRun: true
+  #timestampPlugin: {}
+  #firstRun: n
+  #firstSubRun: n
+  firstEvent: 10
+  ###
+  maxEvents: 8
+  #maxSubRuns: 2
+}
+
+outputs: {
+  out1: {
+    module_type: RootOutput
+    fileName: "f12.root"
+  }
+}
+
+physics: {
+  producers: {
+    m1a: {
+      module_type: IntProducer
+      ivalue: 1
+    }
+    m2a: {
+      module_type: IntProducer
+      ivalue: 2
+    }
+    m3a: {
+      module_type: IntProducer
+      ivalue: 3
+    }
+  }
+  filters: {
+  }
+  p1: [ m1a, m2a, m3a ]
+  trigger_paths: [ p1 ]
+  analyzers: {
+  }
+  e1: [ out1 ]
+  end_paths: [ e1 ]
+}
+

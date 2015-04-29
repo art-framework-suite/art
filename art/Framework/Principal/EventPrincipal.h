@@ -1,16 +1,15 @@
 #ifndef art_Framework_Principal_EventPrincipal_h
 #define art_Framework_Principal_EventPrincipal_h
+// vim: set sw=2:
 
-/*----------------------------------------------------------------------
-
-EventPrincipal: This is the class responsible for management of
-per event EDProducts. It is not seen by reconstruction code;
-such code sees the Event class, which is a proxy for EventPrincipal.
-
-The major internal component of the EventPrincipal
-is the DataBlock.
-
-----------------------------------------------------------------------*/
+//
+//  EventPrincipal
+//
+//  Manages per-event data products.
+//
+//  This is not visible to modules, instead they use the Event class,
+//  which is a proxy for this class.
+//
 
 #include "art/Framework/Principal/NoDelayedReader.h"
 #include "art/Framework/Principal/Principal.h"
@@ -22,103 +21,172 @@ is the DataBlock.
 #include "art/Persistency/Provenance/History.h"
 #include "cetlib/exempt_ptr.h"
 #include "cpp0x/memory"
-
 #include <map>
 #include <vector>
 
 namespace art {
-  class EventID;
-  bool
-  isSameEvent(EventPrincipal const& a, EventPrincipal const& b);
-}
 
-class art::EventPrincipal : public Principal {
+class EventID;
+
+class EventPrincipal : public Principal {
+
 public:
+
   typedef EventAuxiliary Auxiliary;
   typedef Principal::SharedConstGroupPtr SharedConstGroupPtr;
 
+public:
+
+  virtual ~EventPrincipal();
+
   EventPrincipal(EventAuxiliary const& aux,
                  ProcessConfiguration const& pc,
-                 std::shared_ptr<History> history = std::shared_ptr<History>(new History),
-                 std::unique_ptr<BranchMapper> && mapper = std::unique_ptr<BranchMapper>(new BranchMapper),
-                 std::unique_ptr<DelayedReader> && rtrv = std::unique_ptr<DelayedReader>(new NoDelayedReader));
+                 std::shared_ptr<History> history =
+                   std::shared_ptr<History>(new History),
+                 std::unique_ptr<BranchMapper>&& mapper =
+                   std::unique_ptr<BranchMapper>(new BranchMapper),
+                 std::unique_ptr<DelayedReader>&& rtrv =
+                   std::unique_ptr<DelayedReader>(new NoDelayedReader),
+                 int idx = 0,
+                 EventPrincipal* = nullptr);
 
-  // use compiler-generated copy c'tor, copy assignment, and d'tor
+  // use compiler-generated copy c'tor, copy assignment.
 
   SubRunPrincipal const& subRunPrincipal() const;
 
-  SubRunPrincipal & subRunPrincipal();
+  SubRunPrincipal& subRunPrincipal();
 
-  std::shared_ptr<SubRunPrincipal> subRunPrincipalSharedPtr() { return subRunPrincipal_; }
+  std::shared_ptr<SubRunPrincipal>
+  subRunPrincipalSharedPtr()
+  {
+    return subRunPrincipal_;
+  }
 
-  void setSubRunPrincipal(std::shared_ptr<SubRunPrincipal> srp) { subRunPrincipal_ = srp; }
+  void
+  setSubRunPrincipal(std::shared_ptr<SubRunPrincipal> srp)
+  {
+    subRunPrincipal_ = srp;
+  }
 
-  EventID const& id() const { return aux().id(); }
+  EventID const&
+  id() const
+  {
+    return aux().id();
+  }
 
-  Timestamp const& time() const { return aux().time(); }
+  Timestamp const&
+  time() const
+  {
+    return aux().time();
+  }
 
-  bool isReal() const { return aux().isRealData(); }
+  bool
+  isReal() const
+  {
+    return aux().isRealData();
+  }
 
-  EventAuxiliary::ExperimentType ExperimentType() const { return aux().experimentType(); }
+  EventAuxiliary::ExperimentType
+  ExperimentType() const
+  {
+    return aux().experimentType();
+  }
 
-  EventAuxiliary const& aux() const { return aux_; }
+  EventAuxiliary const&
+  aux() const
+  {
+    return aux_;
+  }
 
-  SubRunNumber_t subRun() const { return aux().subRun(); }
+  SubRunNumber_t
+  subRun() const
+  {
+    return aux().subRun();
+  }
 
-  RunNumber_t run() const { return id().run(); }
+  RunNumber_t
+  run() const
+  {
+    return id().run();
+  }
 
   RunPrincipal const& runPrincipal() const;
 
-  RunPrincipal & runPrincipal();
+  RunPrincipal& runPrincipal();
 
   void addOnDemandGroup(BranchDescription const& desc,
                         cet::exempt_ptr<Worker> worker);
 
   EventSelectionIDVector const& eventSelectionIDs() const;
 
-  History const& history() const {return *history_;}
+  History const&
+  history() const
+  {
+    return *history_;
+  }
 
-  History& history() {return *history_;}
+  History&
+  history()
+  {
+    return *history_;
+  }
 
   using Principal::getGroup;
-  GroupQueryResult getGroup(ProductID const &pid) const;
+
+  GroupQueryResult getGroup(ProductID const& pid) const;
 
   GroupQueryResult getByProductID(ProductID const& pid) const;
 
-  void put(std::unique_ptr<EDProduct> && edp, BranchDescription const& bd,
-           std::unique_ptr<ProductProvenance const> && productProvenance);
+  void put(std::unique_ptr<EDProduct>&& edp, BranchDescription const& bd,
+           std::unique_ptr<ProductProvenance const>&& productProvenance);
 
-  void addGroup(BranchDescription const& bd);
+  void addGroup(BranchDescription const&);
 
-  void addGroup(std::unique_ptr<EDProduct> && prod,
-                BranchDescription const& bd);
-
-  ////    virtual EDProduct const* getIt(ProductID const& pid) const;
+  void addGroup(std::unique_ptr<EDProduct>&&, BranchDescription const&);
 
   ProductID branchIDToProductID(BranchID const& bid) const;
 
-  BranchType branchType() const { return InEvent; }
+  BranchType
+  branchType() const
+  {
+    return InEvent;
+  }
 
-  EDProductGetter const *
-  productGetter(ProductID const & pid) const;
+  EDProductGetter const* productGetter(ProductID const& pid) const;
 
 private:
 
   BranchID productIDToBranchID(ProductID const& pid) const;
 
-  virtual void addOrReplaceGroup(std::unique_ptr<Group> && g);
+  virtual void addOrReplaceGroup(std::unique_ptr<Group>&& g);
 
-  virtual ProcessHistoryID const& processHistoryID() const {return history().processHistoryID();}
+  virtual
+  ProcessHistoryID const&
+  processHistoryID() const
+  {
+    return history().processHistoryID();
+  }
 
-  virtual void setProcessHistoryID(ProcessHistoryID const& phid) const {return history().setProcessHistoryID(phid);}
+  virtual
+  void
+  setProcessHistoryID(ProcessHistoryID const& phid) const
+  {
+    return history().setProcessHistoryID(phid);
+  }
 
   // This function and its associated member datum are required to
   // handle the lifetime of a deferred getter, which in turn is required
   // because a group does not exist until it is placed in the event.
-  EDProductGetter const * deferredGetter_(ProductID const & pid) const;
-  mutable std::map<ProductID, std::shared_ptr<DeferredProductGetter const> > deferredGetters_;
+  EDProductGetter const* deferredGetter_(ProductID const& pid) const;
+
+private:
+
+  mutable
+  std::map<ProductID, std::shared_ptr<DeferredProductGetter const>>
+      deferredGetters_;
 
   EventAuxiliary aux_;
+
   std::shared_ptr<SubRunPrincipal> subRunPrincipal_;
 
   std::shared_ptr<History> history_;
@@ -129,12 +197,14 @@ private:
 
 inline
 bool
-art::isSameEvent(EventPrincipal const& a, EventPrincipal const& b) {
+isSameEvent(EventPrincipal const& a, EventPrincipal const& b)
+{
   return a.aux() == b.aux();
 }
 
-#endif /* art_Framework_Principal_EventPrincipal_h */
+} // namespace art
 
 // Local Variables:
 // mode: c++
 // End:
+#endif // art_Framework_Principal_EventPrincipal_h

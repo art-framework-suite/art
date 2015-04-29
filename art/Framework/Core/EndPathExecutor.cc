@@ -1,11 +1,38 @@
 #include "art/Framework/Core/EndPathExecutor.h"
 
+#include "art/Persistency/Provenance/MasterProductRegistry.h"
+#include "art/Persistency/Provenance/ProductMetaData.h"
 #include "art/Utilities/OutputFileInfo.h"
+#include <memory>
+#include <type_traits>
+#include <utility>
+
+
+namespace art {
+
+template<typename... Args, typename Lambda>
+std::pair<void(*)(void*, Args...), std::shared_ptr<void>>
+voidify(Lambda&& lambda)
+{
+  using Func = typename std::decay<Lambda>::type;
+  std::shared_ptr<void> data =
+    std::make_shared<Func>(std::forward<Lambda>(lambda));
+  return std::make_pair(
+    [](void* v, Args... args)->void {
+      auto f = static_cast<Func*>(v);
+      (*f)(std::forward<Args>(args)...);
+    },
+    std::move(data)
+  );
+}
+
+} // namespace art
 
 art::EndPathExecutor::
 EndPathExecutor(PathManager & pm,
                 ActionTable & actions,
-                ActivityRegistry & areg)
+                ActivityRegistry & areg,
+                MasterProductRegistry& mpr)
   :
   endPathInfo_(pm.endPathInfo()),
   act_table_(&actions),
@@ -15,16 +42,19 @@ EndPathExecutor(PathManager & pm,
   outputWorkersEnabled_()
 {
   // For clarity, don't used doForAllEnabledWorkers_(), here.
+  size_t index = 0;
   for (auto const & val : endPathInfo_.workers()) {
     auto w = val.second.get();
-    OutputWorker * ow = dynamic_cast<OutputWorker *>(w);
-    size_t index = 0;
+    auto ow = dynamic_cast<OutputWorker*>(w);
     if (ow) {
       outputWorkers_.emplace_back(ow);
       outputWorkersEnabled_.emplace_back(workersEnabled_[index]);
     }
     ++index;
   }
+  auto cb = [this](FileBlock const& fb) { this->selectProducts(fb); };
+  auto void_cb = voidify<art::FileBlock const&>(cb);
+  mpr.registerProductListUpdateCallback(void_cb);
 }
 
 bool art::EndPathExecutor::terminate() const
@@ -104,6 +134,11 @@ void art::EndPathExecutor::writeSubRun(SubRunPrincipal const & srp)
   doForAllEnabledOutputWorkers_([&srp](auto w){ w->writeSubRun(srp); });
 }
 
+void art::EndPathExecutor::selectProducts(FileBlock const& fb)
+{
+  doForAllEnabledOutputWorkers_([&fb](auto w) { w->selectProducts(fb); });
+}
+
 bool art::EndPathExecutor::shouldWeCloseOutput() const
 {
   return std::any_of(outputWorkers_.cbegin(),
@@ -135,6 +170,14 @@ void art::EndPathExecutor::beginJob()
 {
   doForAllEnabledWorkers_([](auto w){ w->beginJob(); });
 }
+
+// FIXME: We do not need this anymore!
+#if 0
+void art::EndPathExecutor::doSelectProducts()
+{
+  doForAllEnabledOutputWorkers_([](auto w) { w->selectProducts(); });
+}
+#endif // 0
 
 bool
 art::EndPathExecutor::

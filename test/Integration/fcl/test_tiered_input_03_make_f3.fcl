@@ -1,0 +1,67 @@
+services: {
+
+  #floating_point_control: {}
+  message: {
+    destinations: {
+      STDOUT: {
+        type: cout
+        threshold: INFO
+        categories: {
+          default: { limit: -1 }
+        }
+      }
+    }
+  }
+  scheduler: {
+    Rethrow: ['OtherArt','StdException','Unknown','BadAlloc',
+              'BadExceptionType','ProductNotFound','DictionaryNotFound',
+              'InsertFailure','Configuration','LogicError','UnimplementedFeature',
+              'InvalidReference','NullPointerError','NoProductSpecified','EventTimeout',
+              'DataCorruption','ScheduleExecutionFailure','EventProcessorFailure',
+              'FileInPathError','FileOpenError','FileReadError','FatalRootError',
+              'MismatchedInputFiles','ProductDoesNotSupportViews',
+              'ProductDoesNotSupportPtr','NotFound']
+    #IgnoreCompletely: []
+    #wantSummary: true
+    wantTracer: false
+    #fileMode: ""
+    #handleEmptyRuns: true
+    #handleEmptySubRuns: true
+    #enableSigInt: true
+    #unloadRootSigHandler: false
+    #resetRootErrHandler: true
+  }
+  #Timing: {}
+  #SimpleMemoryCheck: {}
+  #TFileService: { fileName: "tfile_output.root" }
+  #user: {}
+
+}
+
+source: {
+  module_type: RootInput
+  fileNames: [ "f2.root" ]
+}
+
+outputs: {
+  out1: {
+    module_type: RootOutput
+    fileName: "f3.root"
+    outputCommands: [ "keep *", "drop arttest::IntProduct_m2a__MAKET1" ]
+  }
+}
+
+physics: {
+  producers: {
+  }
+  filters: {
+  }
+  p1: [ ]
+  trigger_paths: [ p1 ]
+  analyzers: {
+  }
+  e1: [ out1 ]
+  end_paths: [ e1 ]
+}
+
+process_name: DROPM2A

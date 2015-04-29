@@ -45,6 +45,12 @@ namespace art {
       sortState() = kNotSorted;
    }
 
+   void
+   FileIndex::addEntryOnLoad(EventID const &eID, EntryNumber_t entry) {
+      entries_.push_back(FileIndex::Element(eID, entry));
+      resultCached() = false;
+   }
+
    void FileIndex::sortBy_Run_SubRun_Event() {
       stable_sort_all(entries_);
       resultCached() = false;

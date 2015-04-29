@@ -173,6 +173,14 @@ cet_test(test_ptrvector_01b_t HANDBUILT
   TEST_PROPERTIES DEPENDS test_ptrvector_01a_t
 )
 
+cet_test(test_ptrvector_01c_t.sh PREBUILT
+  DATAFILES
+  fcl/test_ptrvector_01c.fcl
+  fcl/test_ptrvector_01d.fcl
+  fcl/test_ptrvector_01e.fcl
+  fcl/messageDefaults.fcl
+)
+
 cet_test(SimpleDerived_01_w HANDBUILT
   TEST_EXEC art
   TEST_ARGS --rethrow-all -c test_simplederived_01a.fcl
@@ -1159,6 +1167,58 @@ cet_test(TestEmptyEventTimestampNoRSRTS_t HANDBUILT
 
 simple_plugin(FindManySpeedTestProducer "module" NO_INSTALL)
 simple_plugin(FindManySpeedTestAnalyzer "module" NO_INSTALL)
+
+cet_test(test_tiered_input_01_t.sh PREBUILT
+  DATAFILES
+  fcl/test_tiered_input_01_make_m1.fcl
+  fcl/test_tiered_input_01_read_m1.fcl
+  fcl/test_tiered_input_01_make_m2.fcl
+  fcl/test_tiered_input_01_read_m2.fcl
+  fcl/test_tiered_input_01_make_m3.fcl
+  fcl/test_tiered_input_01_read_both.fcl
+  fcl/test_tiered_input_01_copy_both.fcl
+  fcl/test_tiered_input_01_copy_both_no_fastclone.fcl
+)
+
+cet_test(test_tiered_input_02_t.sh PREBUILT
+  DATAFILES
+  fcl/test_tiered_input_02_make_f1.fcl
+  fcl/test_tiered_input_02_make_f2.fcl
+  fcl/test_tiered_input_02_make_f3.fcl
+  fcl/test_tiered_input_02_make_f4.fcl
+  fcl/test_tiered_input_02_read.fcl
+)
+
+cet_test(test_tiered_input_03_t.sh PREBUILT
+  DATAFILES
+  fcl/test_tiered_input_03_make_f11.fcl
+  fcl/test_tiered_input_03_make_f12.fcl
+  fcl/test_tiered_input_03_make_f13.fcl
+  fcl/test_tiered_input_03_make_f2.fcl
+  fcl/test_tiered_input_03_make_f3.fcl
+  fcl/test_tiered_input_03_make_f4.fcl
+  fcl/test_tiered_input_03_read.fcl
+)
+
+cet_test(test_tiered_input_04_t.sh PREBUILT
+  DATAFILES
+  fcl/test_tiered_input_04_copy.fcl
+  fcl/test_tiered_input_04_copy_nofastcloning.fcl
+  fcl/test_tiered_input_04_make_f11.fcl
+  fcl/test_tiered_input_04_make_f12.fcl
+  fcl/test_tiered_input_04_make_f13.fcl
+  fcl/test_tiered_input_04_make_f21.fcl
+  fcl/test_tiered_input_04_make_f22.fcl
+  fcl/test_tiered_input_04_make_f23.fcl
+  fcl/test_tiered_input_04_make_f31.fcl
+  fcl/test_tiered_input_04_make_f32.fcl
+  fcl/test_tiered_input_04_make_f33.fcl
+  fcl/test_tiered_input_04_make_f41.fcl
+  fcl/test_tiered_input_04_make_f42.fcl
+  fcl/test_tiered_input_04_make_f43.fcl
+  fcl/test_tiered_input_04_read.fcl
+  fcl/test_tiered_input_04_read_out1_nofastcloning.fcl
+)
 
 add_subdirectory(event-shape)
 add_subdirectory(high-memory)

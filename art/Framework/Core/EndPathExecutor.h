@@ -24,19 +24,24 @@
 
 namespace art {
   class EndPathExecutor;
+  class MasterProductRegistry;
 }
 
 class art::EndPathExecutor {
 public:
   EndPathExecutor(PathManager & pm,
                   ActionTable & actions,
-                  ActivityRegistry & areg);
+                  ActivityRegistry & areg,
+                  MasterProductRegistry& mpr);
 
   template <typename T>
   void processOneOccurrence(typename T::MyPrincipal & principal);
 
   void beginJob();
   void endJob();
+
+  // FIXME: We do not need this anymore!
+  //void doSelectProducts();
 
   // Write the subRun
   void writeSubRun(SubRunPrincipal const & srp);
@@ -70,6 +75,9 @@ public:
 
   // Temporarily enable or disable a configured end path module.
   bool setEndPathModuleEnabled(std::string const & label, bool enable);
+
+  // Call selectProducts() on all OutputModules.
+  virtual void selectProducts(FileBlock const&);
 
 private:
   typedef std::vector<OutputWorker *> OutputWorkers;

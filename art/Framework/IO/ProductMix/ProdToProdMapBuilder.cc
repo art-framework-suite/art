@@ -1,7 +1,6 @@
 #include "art/Framework/IO/ProductMix/ProdToProdMapBuilder.h"
 
 #include "art/Framework/IO/Root/rootNames.h"
-#include "art/Framework/IO/Root/setMetaDataBranchAddress.h"
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Persistency/Provenance/BranchIDList.h"
@@ -109,7 +108,8 @@ art::ProdToProdMapBuilder::buildSecondaryProductMap(TTree * ehTree)
 {
   History h;
   History * h_p = &h;
-  setMetaDataBranchAddress(ehTree, h_p);
+  ehTree->SetBranchAddress(
+    art::rootNames::metaBranchRootName<History>(), &h_p);
   Long64_t nEvt = -1;
   BtoPTransMap tmpProdMap;
   while (Int_t n = ehTree->GetEntry(++nEvt)) {
