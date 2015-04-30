@@ -47,13 +47,6 @@ using namespace std;
 namespace art {
 
 RootInputFile::
-~RootInputFile()
-{
-  delete productListHolder_;
-  productListHolder_ = nullptr;
-}
-
-RootInputFile::
 RootInputFile(string const& fileName,
               string const& catalogName,
               ProcessConfiguration const& processConfiguration,
@@ -144,8 +137,17 @@ RootInputFile(string const& fileName,
                                  &fftPtr);
   auto findexPtr = &fileIndex_;
   setFileIndexPointer(filePtr_.get(), metaDataTree, findexPtr);
+  auto plhPtr = productListHolder_.get();
+  assert(plhPtr != nullptr &&
+         "INTERNAL ERROR: productListHolder_ not initialized prior to use!.");
   metaDataTree->SetBranchAddress(metaBranchRootName<ProductRegistry>(),
-                                  &productListHolder_);
+                                 &plhPtr);
+  if (plhPtr != productListHolder_.get()) {
+    // Should never happen, but just in case ROOT's behavior changes.
+    throw Exception(errors::LogicError)
+      << "ROOT has changed behavior and caused a memory leak while setting "
+      << "a branch address.";
+  }
   ParameterSetMap psetMap;
   auto psetMapPtr = &psetMap;
   if (metaDataTree->GetBranch(metaBranchRootName<ParameterSetMap>())) {

@@ -45,8 +45,6 @@ public: // TYPES
 
 public: // MEMBER FUNCTIONS
 
-  ~RootInputFile();
-
   RootInputFile(RootInputFile const&) = delete;
 
   RootInputFile&
@@ -378,7 +376,7 @@ private:
   RootTree subRunTree_;
   RootTree runTree_;
   RootTreePtrArray treePointers_;
-  ProductRegistry* productListHolder_;
+  std::unique_ptr<ProductRegistry> productListHolder_;
   std::shared_ptr<BranchIDListRegistry::collection_type const> branchIDLists_;
   InputSource::ProcessingMode processingMode_;
   int forcedRunOffset_;
