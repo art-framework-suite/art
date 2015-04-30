@@ -8,26 +8,6 @@
 #include <utility>
 
 
-namespace art {
-
-template<typename... Args, typename Lambda>
-std::pair<void(*)(void*, Args...), std::shared_ptr<void>>
-voidify(Lambda&& lambda)
-{
-  using Func = typename std::decay<Lambda>::type;
-  std::shared_ptr<void> data =
-    std::make_shared<Func>(std::forward<Lambda>(lambda));
-  return std::make_pair(
-    [](void* v, Args... args)->void {
-      auto f = static_cast<Func*>(v);
-      (*f)(std::forward<Args>(args)...);
-    },
-    std::move(data)
-  );
-}
-
-} // namespace art
-
 art::EndPathExecutor::
 EndPathExecutor(PathManager & pm,
                 ActionTable & actions,
@@ -52,9 +32,7 @@ EndPathExecutor(PathManager & pm,
     }
     ++index;
   }
-  auto cb = [this](FileBlock const& fb) { this->selectProducts(fb); };
-  auto void_cb = voidify<art::FileBlock const&>(cb);
-  mpr.registerProductListUpdateCallback(void_cb);
+  mpr.registerProductListUpdateCallback(std::bind(&art::EndPathExecutor::selectProducts, this, std::placeholders::_1));
 }
 
 bool art::EndPathExecutor::terminate() const

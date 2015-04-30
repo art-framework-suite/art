@@ -132,7 +132,7 @@ initFromFirstPrimaryFile(ProductList const& pl, FileBlock const& fb)
     J->second.merge(bd);
   }
   for (auto const& val : productListUpdatedCallbacks_) {
-    (*val.first)(val.second.get(), fb);
+    val(fb);
   }
 }
 
@@ -174,7 +174,7 @@ updateFromSecondaryFile(ProductList const& pl, FileBlock const& fb)
   recreateLookups(perFileProds_.back(), productLookup_.back(),
                   elementLookup_.back());
   for (auto const& val : productListUpdatedCallbacks_) {
-    (*val.first)(val.second.get(), fb);
+    val(fb);
   }
 }
 
@@ -252,7 +252,7 @@ updateFromNewPrimaryFile(ProductList const& other, std::string const& fileName,
   elementLookup_.resize(1);
   recreateLookups(productList_, productLookup_[0], elementLookup_[0]);
   for (auto const& val : productListUpdatedCallbacks_) {
-    (*val.first)(val.second.get(), fb);
+    val(fb);
   }
   return msg.str();
 }

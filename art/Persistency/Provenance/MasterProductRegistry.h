@@ -43,8 +43,7 @@ public:
   typedef std::map<std::string const, std::vector<BranchID>> ProcessLookup;
   // The key is the friendly class name.
   typedef std::map<std::string const, ProcessLookup> TypeLookup;
-  using PLUFunc = void(*)(void*, FileBlock const&);
-  using ProductListUpdatedCallback = std::pair<PLUFunc, std::shared_ptr<void>>;
+  using ProductListUpdatedCallback = std::function<void (FileBlock const &)>;
 public:
   MasterProductRegistry(MasterProductRegistry const&) = delete;
   MasterProductRegistry& operator=(MasterProductRegistry const&) = delete;
