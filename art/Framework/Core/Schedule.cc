@@ -32,9 +32,7 @@
 
 using fhicl::ParameterSet;
 
-namespace art {
-
-Schedule::
+art::Schedule::
 Schedule(ScheduleID sID, PathManager& pm, ParameterSet const& proc_pset,
          TriggerNamesService const& tns, MasterProductRegistry& mpr,
          ActionTable& actions, ActivityRegistry& areg)
@@ -45,42 +43,11 @@ Schedule(ScheduleID sID, PathManager& pm, ParameterSet const& proc_pset,
   , triggerPathsInfo_(pm.triggerPathsInfo(sID_))
   , pathsEnabled_(triggerPathsInfo_.pathPtrs().size(), true)
   , results_inserter_()
-  , demand_branches_()
+  , demand_branches_(catalogOnDemandBranches_(pm.onDemandWorkers(),
+                                              mpr.productList()))
 {
-  // Note: This adds producers to the mpr, so call it first.
-  std::vector<Worker*> onDemandWorkers = pm.onDemandWorkers();
-  std::multimap<std::string, BranchDescription const*> branchLookup;
-  for (auto I = mpr.productList().cbegin(),
-       E = mpr.productList().cend(); I != E; ++I) {
-    branchLookup.emplace(I->second.moduleLabel(), &I->second);
-  }
-  for (auto w : onDemandWorkers) {
-    auto const& label = w->description().moduleLabel();
-    for (auto I = branchLookup.lower_bound(label),
-         E = branchLookup.upper_bound(label); I != E; ++I) {
-      demand_branches_.emplace(w, I->second);
-    }
-  }
   if (!triggerPathsInfo_.pathPtrs().empty()) {
-    auto const& trigPSet = tns.getTriggerPSet();
-    WorkerParams work_args(process_pset_, trigPSet, mpr, *act_table_,
-                           processName_);
-    ModuleDescription md(trigPSet.id(),
-                         "TriggerResultInserter",
-                         "TriggerResults",
-                         ProcessConfiguration(processName_,
-                             process_pset_.id(),
-                             getReleaseVersion(),
-                             getPassID()));
-    areg.sPreModuleConstruction.invoke(md);
-    std::unique_ptr<EDProducer>
-    producer(new TriggerResultInserter(trigPSet,
-                                       triggerPathsInfo_.pathResults()));
-    results_inserter_.reset(new WorkerT<EDProducer>(std::move(producer), md,
-                            work_args));
-    areg.sPostModuleConstruction.invoke(md);
-    results_inserter_->setActivityRegistry(cet::exempt_ptr<ActivityRegistry>
-                                           (&areg));
+    makeTriggerResultsInserter_(tns.getTriggerPSet(), mpr, areg);
   }
   mpr.setFrozen();
   if (sID == ScheduleID::first()) {
@@ -89,7 +56,7 @@ Schedule(ScheduleID sID, PathManager& pm, ParameterSet const& proc_pset,
 }
 
 void
-Schedule::
+art::Schedule::
 endJob()
 {
   bool failure = false;
@@ -120,7 +87,7 @@ endJob()
 }
 
 void
-Schedule::
+art::Schedule::
 respondToOpenInputFile(FileBlock const& fb)
 {
   doForAllWorkers_([&fb](auto w) {
@@ -129,7 +96,7 @@ respondToOpenInputFile(FileBlock const& fb)
 }
 
 void
-Schedule::
+art::Schedule::
 respondToCloseInputFile(FileBlock const& fb)
 {
   doForAllWorkers_([&fb](auto w) {
@@ -138,7 +105,7 @@ respondToCloseInputFile(FileBlock const& fb)
 }
 
 void
-Schedule::
+art::Schedule::
 respondToOpenOutputFiles(FileBlock const& fb)
 {
   doForAllWorkers_([&fb](auto w) {
@@ -147,7 +114,7 @@ respondToOpenOutputFiles(FileBlock const& fb)
 }
 
 void
-Schedule::
+art::Schedule::
 respondToCloseOutputFiles(FileBlock const& fb)
 {
   doForAllWorkers_([&fb](auto w) {
@@ -156,7 +123,7 @@ respondToCloseOutputFiles(FileBlock const& fb)
 }
 
 bool
-Schedule::
+art::Schedule::
 setTriggerPathEnabled(std::string const& name, bool enable)
 {
   auto& pp = triggerPathsInfo_.pathPtrs();
@@ -185,13 +152,59 @@ setTriggerPathEnabled(std::string const& name, bool enable)
 }
 
 void
-Schedule::
+art::Schedule::
 beginJob()
 {
   doForAllWorkers_([](auto w) {
-    w->beginJob();
-  });
+      w->beginJob();
+    });
 }
 
-} // namespace art
+art::Schedule::OnDemandBranches
+art::Schedule::
+catalogOnDemandBranches_(PathManager::Workers onDemandWorkers,
+                         ProductList const & plist)
+{
+  OnDemandBranches result;
+  std::multimap<std::string, BranchDescription const *>
+    branchLookup;
+  for (auto I = plist.cbegin(),
+            E = plist.cend(); I != E; ++I) {
+    branchLookup.emplace(I->second.moduleLabel(), &I->second);
+  }
+  for (auto w : onDemandWorkers) {
+    auto const& label = w->description().moduleLabel();
+    for (auto I = branchLookup.lower_bound(label),
+              E = branchLookup.upper_bound(label); I != E; ++I) {
+      result.emplace(w, I->second);
+    }
+  }
+  return result;
+}
+
+void
+art::Schedule::
+makeTriggerResultsInserter_(fhicl::ParameterSet const & trig_pset,
+                            MasterProductRegistry & mpr,
+                            ActivityRegistry & areg)
+{
+  WorkerParams work_args(process_pset_, trig_pset, mpr, *act_table_,
+                         processName_);
+  ModuleDescription md(trig_pset.id(),
+                       "TriggerResultInserter",
+                       "TriggerResults",
+                       ProcessConfiguration(processName_,
+                                            process_pset_.id(),
+                                            getReleaseVersion(),
+                                            getPassID()));
+  areg.sPreModuleConstruction.invoke(md);
+  std::unique_ptr<EDProducer>
+    producer(new TriggerResultInserter(trig_pset,
+                                       triggerPathsInfo_.pathResults()));
+  results_inserter_.reset(new WorkerT<EDProducer>(std::move(producer), md,
+                                                  work_args));
+  areg.sPostModuleConstruction.invoke(md);
+  results_inserter_->setActivityRegistry(cet::exempt_ptr<ActivityRegistry>
+                                         (&areg));
+}
 

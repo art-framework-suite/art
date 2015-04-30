@@ -88,6 +88,18 @@ public:
   bool setTriggerPathEnabled(std::string const& name, bool enable);
 
 private:
+  typedef
+  std::multimap<Worker *, BranchDescription const *> OnDemandBranches;
+
+  // Private initialization helpers.
+  OnDemandBranches
+  catalogOnDemandBranches_(PathManager::Workers onDemandWorkers,
+                           ProductList const & plist);
+
+  void
+  makeTriggerResultsInserter_(fhicl::ParameterSet const & trig_pset,
+                              MasterProductRegistry & mpr,
+                              ActivityRegistry & areg);
 
   template<typename T>
   bool runTriggerPaths_(typename T::MyPrincipal&);
@@ -96,8 +108,7 @@ private:
 
   template<class F> void doForAllEnabledPaths_(F functor);
 
-private:
-
+  // Data members.
   ScheduleID const sID_;
   fhicl::ParameterSet process_pset_;
   ActionTable* act_table_;
@@ -105,8 +116,7 @@ private:
   PathsInfo& triggerPathsInfo_;
   std::vector<unsigned char> pathsEnabled_;
   std::shared_ptr<Worker> results_inserter_;
-  std::multimap<Worker*, BranchDescription const*> demand_branches_;
-
+  OnDemandBranches demand_branches_;
 };
 
 template<typename T>
