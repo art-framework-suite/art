@@ -285,7 +285,7 @@ public: // MEMBER FUNCTIONS
     return secondaryFileNames_;
   }
 
-  std::vector<RootInputFile*> const&
+  std::vector<std::unique_ptr<RootInputFile> > const &
   secondaryFiles() const
   {
     return secondaryFiles_;
@@ -294,11 +294,8 @@ public: // MEMBER FUNCTIONS
   void
   openSecondaryFile(int const idx);
 
-private: // MEMBER FUNCTIONS
-
-  //void
-  //updateSecondaryIter();
-
+private:
+  // Member functions,
   bool
   setIfFastClonable(FastCloningInfoProvider const& fcip) const;
 
@@ -354,8 +351,8 @@ private: // MEMBER FUNCTIONS
   //void
   //readCurrentSubRunFromSecondaryFile(std::shared_ptr<RunPrincipal>);
 
-private: // MEMBER DATA
 
+  // Private member data.
   std::string const file_;
   std::string const logicalFile_;
   std::string const catalog_;
@@ -392,8 +389,7 @@ private: // MEMBER DATA
   cet::exempt_ptr<RootInputFile> primaryFile_;
   int secondaryFileNameIdx_;
   std::vector<std::string> secondaryFileNames_;
-  // FIXME: Use a smart pointer here!
-  std::vector<RootInputFile*> secondaryFiles_;
+  std::vector<std::unique_ptr<RootInputFile> > secondaryFiles_;
   cet::exempt_ptr<RootInputFileSequence> rifSequence_;
   // We need to add the secondary principals to the primary
   // principal when they are delay read, so we need to keep

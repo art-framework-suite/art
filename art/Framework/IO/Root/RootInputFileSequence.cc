@@ -400,8 +400,7 @@ initFile(bool skipBadFiles, bool initMPR/*=false*/)
   //}
 }
 
-// FIXME: Use a smart pointer here!
-RootInputFile*
+  std::unique_ptr<RootInputFile>
 RootInputFileSequence::
 openSecondaryFile(int idx, string const& name,
                   exempt_ptr<RootInputFile> primaryFile)
@@ -426,39 +425,40 @@ openSecondaryFile(int idx, string const& name,
   }
   logFileAction("  Successfully opened secondary file ", name);
   vector<string> empty_vs;
-  RootInputFile* rif = new RootInputFile(
-    name,
-    /*url*/"",
-    processConfiguration(),
-    /*logicalFileName*/"",
-    filePtr,
-    origEventID_,
-    eventsToSkip_,
-    whichSubRunsToSkip_,
-    fastCloningInfo_,
-    treeCacheSize_,
-    treeMaxVirtualSize_,
-    saveMemoryObjectThreshold_,
-    delayedReadSubRunProducts_,
-    delayedReadRunProducts_,
-    processingMode_,
-    forcedRunOffset_,
-    noEventSort_,
-    groupSelectorRules_,
-    /*dropMergeable*/false,
-    /*duplicateChecker_*/0,
-    dropDescendants_,
-    /*primaryFile*/primaryFile,
-    /*secondaryFileNameIdx*/idx,
-    /*secondaryFileNames*/empty_vs,
-    /*rifSequence*/this);
+  auto rif =
+    std::make_unique<RootInputFile>
+    (name,
+     /*url*/"",
+     processConfiguration(),
+     /*logicalFileName*/"",
+     filePtr,
+     origEventID_,
+     eventsToSkip_,
+     whichSubRunsToSkip_,
+     fastCloningInfo_,
+     treeCacheSize_,
+     treeMaxVirtualSize_,
+     saveMemoryObjectThreshold_,
+     delayedReadSubRunProducts_,
+     delayedReadRunProducts_,
+     processingMode_,
+     forcedRunOffset_,
+     noEventSort_,
+     groupSelectorRules_,
+     /*dropMergeable*/false,
+     /*duplicateChecker_*/nullptr,
+     dropDescendants_,
+     /*primaryFile*/primaryFile,
+     /*secondaryFileNameIdx*/idx,
+     /*secondaryFileNames*/empty_vs,
+     /*rifSequence*/this);
   mpr_.updateFromSecondaryFile(rif->productList(),
                                *rif->createFileBlock().get());
   // Perform checks on branch id lists from the secondary to make
   // sure they match the primary.  If they did not then product id's
   // would not be stable.
   BranchIDListHelper::updateFromInput(rif->branchIDLists(), name);
-  return rif;
+  return std::move(rif);
 }
 
 bool

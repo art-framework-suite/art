@@ -51,13 +51,6 @@ RootInputFile::
 {
   delete productListHolder_;
   productListHolder_ = nullptr;
-  for (auto& sf : secondaryFiles_) {
-    if (sf == nullptr) {
-      continue;
-    }
-    delete sf;
-    sf = nullptr;
-  }
 }
 
 RootInputFile::
@@ -519,7 +512,7 @@ close(bool reallyClose)
     return;
   }
   filePtr_->Close();
-  for (auto sf : secondaryFiles_) {
+  for (auto const & sf : secondaryFiles_) {
     if (!sf) {
       continue;
     }

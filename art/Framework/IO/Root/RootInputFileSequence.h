@@ -52,8 +52,7 @@ public: // MEMBER FUNCTIONS
   std::shared_ptr<FileBlock>
   readFile_();
 
-  // FIXME: Use a smart pointer here!
-  RootInputFile*
+  std::unique_ptr<RootInputFile>
   openSecondaryFile(int idx, std::string const& name,
                     cet::exempt_ptr<RootInputFile> primaryFile);
 
