@@ -140,11 +140,14 @@ std::unique_ptr<DelayedReader>
 RootTree::
 makeDelayedReader(BranchType branchType, EventID eID) const
 {
-  std::unique_ptr<DelayedReader> store(
-    new RootDelayedReader(entryNumber_, branches_, filePtr_,
-                          saveMemoryObjectThreshold_, primaryFile_,
-                          branchType, eID));
-  return std::move(store);
+  return
+    std::make_unique<RootDelayedReader>(entryNumber_,
+                                        branches_,
+                                        filePtr_,
+                                        saveMemoryObjectThreshold_,
+                                        primaryFile_,
+                                        branchType,
+                                        eID);
 }
 
 void

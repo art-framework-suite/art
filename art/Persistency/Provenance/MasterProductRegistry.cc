@@ -13,10 +13,10 @@
 
 namespace art {
 
-// FIXME: The results are only printed out when freezing, and 
+// FIXME: The results are only printed out when freezing, and
 // FIXME: so we do not notice problems with the second and
 // FIXME: following primary files, nor with secondary files.
-static 
+static
 void
 checkDicts(art::BranchDescription const& productDesc)
 {
@@ -88,7 +88,7 @@ addProduct(std::unique_ptr<BranchDescription>&& bdp)
         << "Cannot modify the MasterProductRegistry because it is frozen.\n";
   }
   checkDicts(*bdp);
-  auto I = productList_.insert({BranchKey(*bdp), BranchDescription()});
+  auto I = productList_.emplace(BranchKey(*bdp), BranchDescription());
   if (!I.second) {
     throw Exception(errors::Configuration)
         << "The process name "

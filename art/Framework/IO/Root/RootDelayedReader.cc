@@ -90,58 +90,56 @@ getProduct_(BranchKey const& bk, TypeID const& ty) const
   return p;
 }
 
+// FIXME: This should be a member of RootInputFileSequence.
 int
 RootDelayedReader::
 openNextSecondaryFile_(int idx)
 {
+  // idx being a number we can actually use is a precondition of this
+  // function.
+  assert(!(idx < 0));
+  assert(!(static_cast<decltype(sfnm.size())>(idx) > sfnm.size()));
+
   // Note:
   //
   // Return code of -2 means stop, -1 means event-not-found,
   // otherwise 0 for success.
   //
   auto const& sfnm = primaryFile_->secondaryFileNames();
-  if (sfnm.empty()) {
+  if (sfnm.empty()) { // No configured secondary files.
     return -2;
   }
   auto const& sf = primaryFile_->secondaryFiles();
-  if (idx < 0) {
-    // FIXME: Throw an impossible error here!
-    return -2;
-  }
   if (static_cast<decltype(sfnm.size())>(idx) == sfnm.size()) {
-    return -2;
-  }
-  if (static_cast<decltype(sfnm.size())>(idx) > sfnm.size()) {
-    // FIXME: Thow an impossible error here!
+    // We're done.
     return -2;
   }
   if (!sf[idx]) {
     primaryFile_->openSecondaryFile(idx);
   }
   switch (branchType_) {
-    case InEvent: {
-        if (!sf[idx]->readEventForSecondaryFile(eventID_)) {
-          return -1;
-        }
-      }
-      break;
-    case InSubRun: {
-        if (!sf[idx]->readSubRunForSecondaryFile(eventID_.subRunID())) {
-          return -1;
-        }
-      }
-      break;
-    case InRun: {
-        if (!sf[idx]->readRunForSecondaryFile(eventID_.runID())) {
-          return -1;
-        }
-      }
-      break;
-    default: {
-        // FIXME: Throw unknown branch type error here!
-        return -2;
-      }
-      break;
+  case InEvent: {
+    if (!sf[idx]->readEventForSecondaryFile(eventID_)) {
+      return -1;
+    }
+  }
+    break;
+  case InSubRun: {
+    if (!sf[idx]->readSubRunForSecondaryFile(eventID_.subRunID())) {
+      return -1;
+    }
+  }
+    break;
+  case InRun: {
+    if (!sf[idx]->readRunForSecondaryFile(eventID_.runID())) {
+      return -1;
+    }
+  }
+    break;
+  default: {
+    assert(false && "RootDelayedReader encountered an unknown BranchType!");
+    return -2;
+  }
   }
   return 0;
 }

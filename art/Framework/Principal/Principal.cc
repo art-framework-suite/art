@@ -261,9 +261,11 @@ findGroupsForProduct(TypeID const& wanted_product,
     return 0;
   }
   Reflex::Type rt;
+  ////////////////////////////////////
   // Cannot do this here because some tests expect to be able to
   // call here requesting a wanted_product that does not have
   // a dictionary and be ok because the productLookup fails.
+  // See issue #8532.
   //rt = Reflex::Type::ByName(wrappedClassName(wanted_product.className()));
   //if (!rt) {
   //  throw Exception(errors::DictionaryNotFound)
@@ -271,6 +273,7 @@ findGroupsForProduct(TypeID const& wanted_product,
   //      << wrappedClassName(wanted_product.className())
   //      << ".\n";
   //}
+  ////////////////////////////////////
   size_t ret = 0;
   for (auto const& pl : ProductMetaData::instance().productLookup()) {
     auto I = pl.find(wanted_product.friendlyClassName());
@@ -280,9 +283,9 @@ findGroupsForProduct(TypeID const& wanted_product,
     rt = Reflex::Type::ByName(wrappedClassName(wanted_product.className()));
     if (!rt) {
       throw Exception(errors::DictionaryNotFound)
-	  << "Dictionary not found for "
-	  << wrappedClassName(wanted_product.className())
-	  << ".\n";
+    << "Dictionary not found for "
+    << wrappedClassName(wanted_product.className())
+    << ".\n";
     }
     ret = findGroups(I->second, selector, results, stopIfProcessHasMatch,
                      TypeID(rt.TypeInfo()));
@@ -314,9 +317,9 @@ findGroupsForProduct(TypeID const& wanted_product,
     rt = Reflex::Type::ByName(wrappedClassName(wanted_product.className()));
     if (!rt) {
       throw Exception(errors::DictionaryNotFound)
-	  << "Dictionary not found for "
-	  << wrappedClassName(wanted_product.className())
-	  << ".\n";
+    << "Dictionary not found for "
+    << wrappedClassName(wanted_product.className())
+    << ".\n";
     }
     ret = findGroups(I->second, selector, results, stopIfProcessHasMatch,
                      TypeID(rt.TypeInfo()));

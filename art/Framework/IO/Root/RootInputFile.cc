@@ -297,7 +297,7 @@ setIfFastClonable(FastCloningInfoProvider const& fcip) const
   }
   if (!fileFormatVersion_.fastCopyPossible()) {
     return false;
-  } 
+  }
   if (secondaryFileNames_.size() != 0) {
     return false;
   }
@@ -643,6 +643,10 @@ readCurrentEvent()
       eventTree_.makeBranchMapper(),
       eventTree_.makeDelayedReader(InEvent, eventAux_.id()), 0, nullptr));
   eventTree_.fillGroups(*ep);
+  ////////////////////////////////////
+  // This code would be activated if one decided to open all secondary
+  // files at the beginning of the job, instead of on demand as
+  // currently.
   //vector<unique_ptr<Principal>> sp;
   //for (auto sf : secondaryFiles_) {
   //  if (!sf) {
@@ -654,10 +658,15 @@ readCurrentEvent()
   //  }
   //}
   //ep->setSecondaryPrincipals(sp);
+  ////////////////////////////////////
   primaryEP_ = make_exempt_ptr(ep.get());
   return ep;
 }
 
+////////////////////////////////////
+// This code would be activated (at the expense of the implementation
+// below) if one decided to open all secondary files at the beginning of
+// the job, instead of on demand as currently.
 //vector<unique_ptr<Principal>>
 //RootInputFile::
 //readCurrentEventFromSecondaryFile()
@@ -689,6 +698,7 @@ readCurrentEvent()
 //  }
 //  return sp;
 //}
+////////////////////////////////////
 
 bool
 RootInputFile::
@@ -898,7 +908,7 @@ readSubRunFromSecondaryFiles(shared_ptr<RunPrincipal>)
 
 unique_ptr<SubRunPrincipal>
 RootInputFile::
-readCurrentSubRun(shared_ptr<RunPrincipal> rp)
+readCurrentSubRun(shared_ptr<RunPrincipal> rp [[gnu::unused]])
 {
   unique_ptr<SubRunPrincipal> srp;
   if (!subRunTree_.current()) {
