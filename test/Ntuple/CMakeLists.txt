@@ -8,7 +8,7 @@ cet_test(sqlite_stringstream_t
 
 cet_test( messagefacility_destination_sqlite_t HANDBUILT
   TEST_EXEC ELdestinationTester
-  TEST_ARGS sqlite_mfplugin_t.fcl
+  TEST_ARGS -c sqlite_mfplugin_t.fcl
   DATAFILES
   sqlite_mfplugin_t.fcl
   )
