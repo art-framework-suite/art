@@ -352,7 +352,7 @@ namespace art {
   struct fillView< std::deque<E>, false > {
     void operator()(std::deque<E> const & product,
                     std::vector<void const *> & view) {
-    for (auto const & p : product) {
+      for (auto const & p : product) {
         view.push_back(&p);
       }
     }
@@ -362,11 +362,22 @@ namespace art {
   struct fillView< std::set<E>, false > {
     void operator()(std::set<E> const & product,
                     std::vector<void const *> & view) {
-    for (auto const & p : product) {
+      for (auto const & p : product) {
         view.push_back(&p);
       }
     }
   };  // fillView<set<E>>
+
+  template <class E>
+  struct fillView<cet::map_vector<E>, false> {
+    void operator() (cet::map_vector<E> const & product,
+                     std::vector<void const *> & view)
+      {
+        for (auto const & p : product) {
+          view.push_back(&p.second);
+        }
+      }
+  }; // fillView<cet::map_vector<E>>
 
   template <typename T >
   struct productSize<T, true> {
@@ -406,6 +417,11 @@ namespace art {
   template <class E >
   struct productSize<PtrVector<E>, false>
       : public productSize<PtrVector<E>, true>
+  { };
+
+  template <class E >
+  struct productSize<cet::map_vector<E>, false>
+    : public productSize<cet::map_vector<E>, true>
   { };
 
   template <typename T>

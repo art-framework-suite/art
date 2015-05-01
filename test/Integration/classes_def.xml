@@ -37,4 +37,6 @@
   <ioread sourceClass="art::Assns<std::string, size_t, arttest::AssnTestData>" version="[1-]" targetClass="art::Assns<size_t, std::string, arttest::AssnTestData>"/>
   <class name="art::Wrapper<art::Assns<std::string, size_t, arttest::AssnTestData> >"/>
   <ioread sourceClass="art::Wrapper<art::Assns<std::string, size_t, arttest::AssnTestData> >" version="[1-]" targetClass="art::Wrapper<art::Assns<size_t, std::string, arttest::AssnTestData> >"/>
+
+  <class name="art::Assns<std::pair<cet::map_vector_key, std::string>, std::string, arttest::AssnTestData>"/>
 </lcgdict>

@@ -28,6 +28,9 @@ namespace art
   bool
   value_type_of(Reflex::Type const& t, Reflex::Type& found_type);
 
+  bool
+  mapped_type_of(Reflex::Type const& t, Reflex::Type& found_type);
+
   void checkDictionaries(std::string const& name, bool noComponents = false);
   void reportFailedDictionaryChecks();
 
