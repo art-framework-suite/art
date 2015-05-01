@@ -53,7 +53,7 @@ arttest::AssnsProducer::AssnsProducer(fhicl::ParameterSet const &)
 {
   produces<uintvec>();
   produces<stringvec>();
-  produces<mapvec>();
+  produces<mapvec>("mv");
   produces<AssnsAB_t>();
   produces<AssnsAB_t>("mapvec");
   produces<AssnsVoid_t>();
@@ -84,7 +84,7 @@ void arttest::AssnsProducer::produce(art::Event &e) {
   // We will need the product IDs of the data products.
   ProductID vui_pid = getProductID<uintvec>(e);
   ProductID vs_pid = getProductID<stringvec>(e);
-  ProductID mvs_pid = getProductID<mapvec>(e);
+  ProductID mvs_pid = getProductID<mapvec>(e, "mv");
 
   // Create the association objects.
   // Assns into vectors.
@@ -98,16 +98,16 @@ void arttest::AssnsProducer::produce(art::Event &e) {
   // productID1 and slot2 of productID2. The reference in x will have
   // associated data td.
   auto addS = [&e](auto& x,
-		   auto& xv,
-		   ProductID id1, int slot1,
-		   ProductID id2, int slot2,
-		   auto td)
+       auto& xv,
+       ProductID id1, int slot1,
+       ProductID id2, int slot2,
+       auto td)
     {
       x->addSingle(Ptr<size_t>(id1, slot1, e.productGetter(id1)),
-		   Ptr<string>(id2, slot2, e.productGetter(id2)),
-		   td);
+       Ptr<string>(id2, slot2, e.productGetter(id2)),
+       td);
       xv->addSingle(Ptr<size_t>(id1, slot1, e.productGetter(id1)),
-		    Ptr<string>(id2, slot2, e.productGetter(id2)));
+        Ptr<string>(id2, slot2, e.productGetter(id2)));
     };
 
   // We add associations in an order such that the associated data are
@@ -131,7 +131,7 @@ void arttest::AssnsProducer::produce(art::Event &e) {
 
   e.put(std::move(vui));
   e.put(std::move(vs));
-  e.put(std::move(mvs));
+  e.put(std::move(mvs), "mv");
   e.put(std::move(a));
   e.put(std::move(av));
   e.put(std::move(am), "many");

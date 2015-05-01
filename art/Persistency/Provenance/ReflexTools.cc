@@ -107,8 +107,13 @@ namespace art
   bool
   value_type_of(Reflex::Type const& t, Reflex::Type& found_type)
   {
-
     return find_nested_type_named("value_type", t, found_type);
+  }
+
+  bool
+  mapped_type_of(Reflex::Type const& t, Reflex::Type& found_type)
+  {
+    return find_nested_type_named("mapped_type", t, found_type);
   }
 
   namespace

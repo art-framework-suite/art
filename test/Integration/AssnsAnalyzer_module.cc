@@ -357,6 +357,16 @@ testOne(art::Event const & e) const
     BOOST_CHECK_EQUAL(dereference(foBmv.at(2)), dereference(foB.at(2)));
     BOOST_CHECK_EQUAL(foBmv.data(2), foB.data(2));
   }
+  // ... and a View into a map_vector.
+  art::View<B_t> vmvb;
+  if (!bCollMissing_) {
+    BOOST_REQUIRE(e.getView(inputLabel_, "mv", vmvb));
+    FO<A_t, arttest::AssnTestData> foAmvv(vmvb, e, tag);
+    for (std::size_t i = 0ul, sz = foAmvv.size(); i != sz; ++i) {
+      BOOST_REQUIRE_EQUAL(dereference(foAmvv.at(i)), i);
+    }
+  }
+
   // Check for range errors.
   BOOST_CHECK_THROW(foApv.at(3), std::out_of_range);
   BOOST_CHECK_THROW(foApv.data(3), std::out_of_range);

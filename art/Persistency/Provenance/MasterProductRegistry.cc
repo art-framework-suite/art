@@ -48,15 +48,16 @@ recreateLookups(ProductList const& prods,
       // We do not have a dictionary for the class of the product.
       continue;
     }
-    Reflex::Type VT;
-    if (value_type_of(TY, VT) && VT) {
-      // The class of the product does have a member type named "value_type",
-      // so allow lookups by that type and all of its base types too.
-      auto vtFCN = TypeID(VT.TypeInfo()).friendlyClassName();
+    Reflex::Type ET;
+    if ((mapped_type_of(TY, ET) || value_type_of(TY, ET)) && ET) {
+      // The class of the product has a nested type, "mapped_type," or,
+      // "value_type," so allow lookups by that type and all of its base
+      // types too.
+      auto vtFCN = TypeID(ET.TypeInfo()).friendlyClassName();
       el[vtFCN][procName].push_back(bid);
       // Repeat this for all public base classes of the value_type.
       std::vector<Reflex::Type> bases;
-      public_base_classes(VT, bases);
+      public_base_classes(ET, bases);
       for (auto const& BT: bases) {
         auto btFCN = TypeID(BT.TypeInfo()).friendlyClassName();
         el[btFCN][procName].push_back(bid);
