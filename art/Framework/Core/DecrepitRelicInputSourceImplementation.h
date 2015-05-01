@@ -94,8 +94,12 @@ namespace art
     /// Read next subRun
     std::shared_ptr<SubRunPrincipal> readSubRun(std::shared_ptr<RunPrincipal> rp);
 
+    std::vector<std::shared_ptr<SubRunPrincipal>> readSubRunFromSecondaryFiles(std::shared_ptr<RunPrincipal>);
+
     /// Read next run.
     std::shared_ptr<RunPrincipal> readRun();
+
+    std::vector<std::shared_ptr<RunPrincipal>> readRunFromSecondaryFiles();
 
     /// Read next file
     std::shared_ptr<FileBlock> readFile(MasterProductRegistry&);
@@ -202,11 +206,11 @@ namespace art
     virtual input::ItemType getNextItemType() = 0;
     input::ItemType nextItemType_();
     virtual std::shared_ptr<RunPrincipal> readRun_() = 0;
+    virtual std::vector<std::shared_ptr<RunPrincipal>> readRunFromSecondaryFiles_() = 0;
     virtual std::shared_ptr<SubRunPrincipal> readSubRun_() = 0;
+    virtual std::vector<std::shared_ptr<SubRunPrincipal>> readSubRunFromSecondaryFiles_() = 0;
     virtual std::unique_ptr<EventPrincipal> readEvent_() = 0;
-    // Only subclasses that actually read a file will need to use the
-    // MasterProductRegistry.
-    virtual std::shared_ptr<FileBlock> readFile_(MasterProductRegistry&);
+    virtual std::shared_ptr<FileBlock> readFile_();
     virtual void closeFile_() {}
     virtual void skip(int);
     virtual void rewind_();
@@ -232,6 +236,8 @@ namespace art
     input::ItemType state_;
     std::shared_ptr<RunPrincipal>  runPrincipal_;
     std::shared_ptr<SubRunPrincipal>  subRunPrincipal_;
+    std::vector<std::shared_ptr<RunPrincipal>> secondaryRunPrincipals_;
+    std::vector<std::shared_ptr<SubRunPrincipal>> secondarySubRunPrincipals_;
   };  // DecrepitRelicInputSourceImplementation
 
 }  // art

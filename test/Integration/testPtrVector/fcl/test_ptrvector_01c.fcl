@@ -1,0 +1,41 @@
+physics: {
+  producers: {
+    m1a: {
+      module_type: IntVectorProducer
+      ivalue: 11
+      nvalues: 16
+    }
+    m1b: {
+      module_type: PtrVectorProducer
+      input_label: m1a
+    }
+  }
+
+  analyzers: {
+    a1: {
+      module_type: PtrVectorAnalyzer
+      input_label: m1b
+      nvalues: 8
+    }
+  }
+
+   p1: [ m1a, m1b ]
+   e1: [ a1, out1 ]
+
+   trigger_paths: [ p1 ]
+   end_paths: [ e1 ]
+}
+
+outputs: {
+  out1: {
+    module_type: RootOutput
+    fileName: "out1.root"
+  }
+}
+
+source: {
+  module_type: EmptyEvent
+  maxEvents: 5
+}
+
+process_name: MAKE

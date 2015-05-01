@@ -63,12 +63,12 @@ public:
   // not appropriate).
   virtual std::string const & lastClosedFileName() const;
 
-  bool selected(BranchDescription const & desc) const;
-
   SelectionsArray const & keptProducts() const;
   std::array<bool, NumBranchTypes> const & hasNewlyDroppedBranch() const;
 
   BranchChildren const & branchChildren() const;
+
+  virtual void selectProducts(FileBlock const&);
 
 protected:
   // The returned pointer will be null unless the this is currently
@@ -76,6 +76,13 @@ protected:
   CurrentProcessingContext const * currentContext() const;
 
   ModuleDescription const & description() const;
+
+protected:
+
+  SelectionsArray keptProducts_;
+  std::array<bool, NumBranchTypes> hasNewlyDroppedBranch_;
+  GroupSelectorRules groupSelectorRules_;
+  GroupSelector groupSelector_;
 
 private:
   int maxEvents_;
@@ -96,12 +103,8 @@ private:
   // the branches we are to write.
   //
   // We do not own the BranchDescriptions to which we point.
-  SelectionsArray keptProducts_;
 
-  std::array<bool, NumBranchTypes> hasNewlyDroppedBranch_;
 
-  GroupSelectorRules groupSelectorRules_;
-  GroupSelector groupSelector_;
   ModuleDescription moduleDescription_;
 
   // We do not own the pointed-to CurrentProcessingContext.
@@ -128,7 +131,6 @@ private:
   // private member functions
   //------------------------------------------------------------------
   void configure(OutputModuleDescription const & desc);
-  void selectProducts();
   void doBeginJob();
   void doEndJob();
   bool doEvent(EventPrincipal const & ep,

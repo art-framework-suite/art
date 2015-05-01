@@ -1,110 +1,169 @@
 #ifndef art_Framework_IO_Root_RootTree_h
 #define art_Framework_IO_Root_RootTree_h
+// vim: set sw=2:
 
-// ======================================================================
 //
-// RootTree - used by ROOT input sources
+//  RootTree
 //
-// ======================================================================
+//  Used by ROOT input sources.
+//
 
-#include "TBranch.h"
-#include "TTree.h"
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/IO/Root/BranchMapperWithReader.h"
 #include "art/Framework/IO/Root/Inputfwd.h"
+#include "art/Framework/Principal/Principal.h"
 #include "art/Persistency/Provenance/BranchKey.h"
 #include "art/Persistency/Provenance/BranchType.h"
 #include "art/Persistency/Provenance/ProductProvenance.h"
 #include "art/Persistency/Provenance/ProvenanceFwd.h"
+#include "TBranch.h"
+#include "TTree.h"
 #include "cpp0x/memory"
 #include <string>
 #include <vector>
 
-// ----------------------------------------------------------------------
-
 class TFile;
 
 namespace art {
-  class DelayedReader;
 
-  class RootTree {
-  public:
-    RootTree(RootTree const&) = delete;
-    RootTree& operator=(RootTree const&) = delete;
+class DelayedReader;
+class Principal;
 
-    typedef input::BranchMap BranchMap;
-    typedef input::EntryNumber EntryNumber;
-    RootTree(std::shared_ptr<TFile> filePtr,
-             BranchType const& branchType,
-             int64_t saveMemoryObjectThreshold);
+class RootTree {
+public:
+  typedef input::BranchMap BranchMap;
+  typedef input::EntryNumber EntryNumber;
+public:
+  RootTree(std::shared_ptr<TFile>, BranchType const&,
+           int64_t saveMemoryObjectThreshold, cet::exempt_ptr<RootInputFile>);
+  RootTree(RootTree const&) = delete;
+  RootTree& operator=(RootTree const&) = delete;
 
-    // use compiler-generated copy c'tor, copy assignment, and d'tor
+  bool isValid() const;
+  bool hasBranch(std::string const& branchName) const;
+  void addBranch(BranchKey const&, BranchDescription const&,
+                 std::string const& branchName);
+  void dropBranch(std::string const& branchName);
 
-    bool isValid() const;
-    bool hasBranch(std::string const & branchName) const;
-    void addBranch(BranchKey const& key,
-                   BranchDescription const& prod,
-                   std::string const& branchName);
-    void dropBranch(std::string const& branchName);
-    bool next() {return ++entryNumber_ < entries_;}
-    bool previous() {return --entryNumber_ >= 0;}
-    bool current() {return entryNumber_ < entries_ && entryNumber_ >= 0;}
-    void rewind() {entryNumber_ = 0;}
-    EntryNumber const& entryNumber() const {return entryNumber_;}
-    EntryNumber const& entries() const {return entries_;}
-    void setEntryNumber(EntryNumber theEntryNumber);
-    std::vector<std::string> const& branchNames() const {return branchNames_;}
-    template <typename T>
-    void fillGroups(T& item);
-    std::unique_ptr<DelayedReader> makeDelayedReader() const;
-    std::unique_ptr<BranchMapper> makeBranchMapper() const;
-    //TBranch *auxBranch() {return auxBranch_;}
-    template <typename T>
-    void fillAux(T *& pAux) const {
-      auxBranch_->SetAddress(&pAux);
-      input::getEntry(auxBranch_, entryNumber_);
-    }
-    TTree const* tree() const {return tree_;}
-    TTree const* metaTree() const {return metaTree_;}
-    void setCacheSize(unsigned int cacheSize) const;
-    void setTreeMaxVirtualSize(int treeMaxVirtualSize);
-    BranchMap const& branches() const {return *branches_;}
+  bool
+  next()
+  {
+    return ++entryNumber_ < entries_;
+  }
 
-    TBranch *productProvenanceBranch() const {return productProvenanceBranch_;}
+  bool
+  previous()
+  {
+    return --entryNumber_ >= 0;
+  }
 
-  private:
-    std::shared_ptr<TFile> filePtr_;
-// We use bare pointers for pointers to some ROOT entities.
-// Root owns them and uses bare pointers internally.
-// Therefore,using smart pointers here will do no good.
-    TTree *const tree_;
-    TTree *const metaTree_;
-    BranchType branchType_;
-    int64_t const saveMemoryObjectThreshold_;
-    TBranch *const auxBranch_;
-    TBranch *const productProvenanceBranch_;
-    EntryNumber entries_;
-    EntryNumber entryNumber_;
-    std::vector<std::string> branchNames_;
-    std::shared_ptr<BranchMap> branches_;
-  };  // RootTree
+  bool
+  current()
+  {
+    return (entryNumber_ < entries_) && (entryNumber_ >= 0);
+  }
 
-  template <typename T>
   void
-  RootTree::fillGroups(T& item) {
-    if (metaTree_ == 0 || metaTree_->GetNbranches() == 0) return;
+  rewind()
+  {
+    entryNumber_ = 0;
+  }
+
+  EntryNumber const&
+  entryNumber() const
+  {
+    return entryNumber_;
+  }
+
+  EntryNumber const&
+  entries() const
+  {
+    return entries_;
+  }
+
+  void setEntryNumber(EntryNumber theEntryNumber);
+
+  std::vector<std::string> const&
+  branchNames() const
+  {
+    return branchNames_;
+  }
+
+  void
+  fillGroups(Principal& item)
+  {
+    if ((metaTree_ == 0) || (metaTree_->GetNbranches() == 0)) {
+      return;
+    }
     // Loop over provenance
-    for (BranchMap::const_iterator pit = branches_->begin(), pitEnd = branches_->end(); pit != pitEnd; ++pit) {
-      item.addGroup(pit->second.branchDescription_);
+    for (auto I = branches_->cbegin(), E = branches_->cend(); I != E; ++I) {
+      item.addGroup(I->second.branchDescription_);
     }
   }
 
-}  // art
+  std::unique_ptr<DelayedReader>
+  makeDelayedReader(BranchType, EventID) const;
 
-// ======================================================================
+  std::unique_ptr<BranchMapper>
+  makeBranchMapper() const;
 
-#endif /* art_Framework_IO_Root_RootTree_h */
+  template<typename T>
+  void
+  fillAux(T*& pAux) const
+  {
+    auxBranch_->SetAddress(&pAux);
+    input::getEntry(auxBranch_, entryNumber_);
+  }
+
+  TTree const*
+  tree() const
+  {
+    return tree_;
+  }
+
+  TTree const*
+  metaTree() const
+  {
+    return metaTree_;
+  }
+
+  void setCacheSize(unsigned int cacheSize) const;
+
+  void setTreeMaxVirtualSize(int treeMaxVirtualSize);
+
+  BranchMap const&
+  branches() const
+  {
+    return *branches_;
+  }
+
+  TBranch*
+  productProvenanceBranch() const
+  {
+    return productProvenanceBranch_;
+  }
+
+private:
+  std::shared_ptr<TFile> filePtr_;
+  // We use bare pointers for pointers to some ROOT entities.
+  // Root owns them and uses bare pointers internally,
+  // therefore, using smart pointers here will do no good.
+  TTree* tree_;
+  TTree* metaTree_;
+  BranchType branchType_;
+  int64_t const saveMemoryObjectThreshold_;
+  TBranch* auxBranch_;
+  TBranch* productProvenanceBranch_;
+  EntryNumber entries_;
+  EntryNumber entryNumber_;
+  std::vector<std::string> branchNames_;
+  std::shared_ptr<BranchMap> branches_;
+  cet::exempt_ptr<RootInputFile> primaryFile_;
+};
+
+} // namespace art
 
 // Local Variables:
 // mode: c++
 // End:
+#endif // art_Framework_IO_Root_RootTree_h

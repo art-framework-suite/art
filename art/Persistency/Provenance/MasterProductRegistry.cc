@@ -1,4 +1,6 @@
 #include "art/Persistency/Provenance/MasterProductRegistry.h"
+// vim: set sw=2:
+
 #include "Reflex/Type.h"
 #include "art/Persistency/Provenance/BranchKey.h"
 #include "art/Persistency/Provenance/ReflexTools.h"
@@ -9,239 +11,284 @@
 #include <ostream>
 #include <sstream>
 
-namespace {
-  void checkDicts(art::BranchDescription const &productDesc) {
-    if (productDesc.transient()) {
-      art::checkDictionaries(productDesc.producedClassName(), true);
-    } else {
-      art::checkDictionaries(art::wrappedClassName(productDesc.producedClassName()), false);
+namespace art {
+
+// FIXME: The results are only printed out when freezing, and
+// FIXME: so we do not notice problems with the second and
+// FIXME: following primary files, nor with secondary files.
+static
+void
+checkDicts(art::BranchDescription const& productDesc)
+{
+  if (productDesc.transient()) {
+    art::checkDictionaries(productDesc.producedClassName(), true);
+  }
+  else {
+    art::checkDictionaries(
+      art::wrappedClassName(productDesc.producedClassName()), false);
+  }
+}
+
+static
+void
+recreateLookups(ProductList const& prods,
+                MasterProductRegistry::TypeLookup& pl,
+                MasterProductRegistry::TypeLookup& el)
+{
+  for (auto const& val: prods) {
+    auto const& procName = val.first.processName_;
+    auto const& bid = val.second.branchID();
+    auto const& prodFCN = val.first.friendlyClassName_;
+    pl[prodFCN][procName].push_back(bid);
+    // Look in the class of the product for a typedef named "value_type",
+    // if there is one allow lookups by that type name too (and by all
+    // of its base class names as well).
+    Reflex::Type TY(Reflex::Type::ByName(val.second.producedClassName()));
+    if (!TY) {
+      // We do not have a dictionary for the class of the product.
+      continue;
+    }
+    Reflex::Type VT;
+    if (value_type_of(TY, VT) && VT) {
+      // The class of the product does have a member type named "value_type",
+      // so allow lookups by that type and all of its base types too.
+      auto vtFCN = TypeID(VT.TypeInfo()).friendlyClassName();
+      el[vtFCN][procName].push_back(bid);
+      // Repeat this for all public base classes of the value_type.
+      std::vector<Reflex::Type> bases;
+      public_base_classes(VT, bases);
+      for (auto const& BT: bases) {
+        auto btFCN = TypeID(BT.TypeInfo()).friendlyClassName();
+        el[btFCN][procName].push_back(bid);
+      }
     }
   }
 }
 
-std::ostream &
-operator<<(std::ostream &os, art::MasterProductRegistry const &mpr) {
-  mpr.print(os);
-  return os;
-}
-
-art::MasterProductRegistry::MasterProductRegistry()
-  :
-  productList_(),
-  frozen_(false),
-  productProduced_(),
-  productLookup_(),
-  elementLookup_()
+MasterProductRegistry::
+MasterProductRegistry()
+  : productList_()
+  , frozen_(false)
+  , productProduced_()
+  , perFileProds_()
+  , productLookup_()
+  , elementLookup_()
 {
   productProduced_.fill(false);
-}
-
-std::vector<std::string>
-art::MasterProductRegistry::allBranchNames() const {
-  std::vector<std::string> result;
-  result.reserve(productList_.size());
-  for (ProductList::const_iterator
-         i = productList_.begin(),
-         e = productList_.end();
-       i != e; ++i) {
-    result.push_back(i->second.branchName());
-  }
-  return result;
-}
-
-bool
-art::MasterProductRegistry::anyProducts(BranchType branchType) const {
-  throwIfNotFrozen();
-  for (ProductList::const_iterator
-         it = productList_.begin(),
-         itEnd = productList_.end();
-       it != itEnd;
-       ++it) {
-    if (it->second.branchType() == branchType) {
-      return true;
-    }
-  }
-  return false;
+  perFileProds_.resize(1);
 }
 
 void
-art::MasterProductRegistry::print(std::ostream &os) const {
-  for (ProductList::const_iterator
-         i = productList_.begin(),
-         e = productList_.end();
-       i != e;
-       ++i) {
-    os << i->second << "\n-----\n";
-  }
-}
-
-void
-art::MasterProductRegistry::addProduct(std::unique_ptr<BranchDescription> && bdp) {
+MasterProductRegistry::
+addProduct(std::unique_ptr<BranchDescription>&& bdp)
+{
   assert(bdp->produced());
-  throwIfFrozen();
+  if (frozen_) {
+    throw cet::exception("ProductRegistry", "addProduct")
+        << "Cannot modify the MasterProductRegistry because it is frozen.\n";
+  }
   checkDicts(*bdp);
-  std::pair<ProductList::iterator, bool> result =
-    productList_.insert(std::make_pair(BranchKey(*bdp), BranchDescription()));
-  if (result.second) {
-    result.first->second.swap(*bdp);
-  } else { // Error.
-    throw art::Exception(errors::Configuration)
-      << "The process name "
-      << bdp->processName()
-      << " was previously used on these products.\n"
-      << "Please modify the configuration file to use a "
-      << "distinct process name.\n";
+  auto I = productList_.emplace(BranchKey(*bdp), BranchDescription());
+  if (!I.second) {
+    throw Exception(errors::Configuration)
+        << "The process name "
+        << bdp->processName()
+        << " was previously used on these products.\n"
+        << "Please modify the configuration file to use a "
+        << "distinct process name.\n";
+  }
+  I.first->second.swap(*bdp);
+  perFileProds_[0].insert(*I.first);
+  productProduced_[I.first->second.branchType()] = true;
+}
+
+void
+MasterProductRegistry::
+initFromFirstPrimaryFile(ProductList const& pl, FileBlock const& fb)
+{
+  for (auto const& val: pl) {
+    auto const& bd = val.second;
+    assert(!bd.produced());
+    if (frozen_) {
+      throw cet::exception("ProductRegistry", "initFromFirstPrimaryFile")
+          << "Cannot modify the MasterProductRegistry because it is frozen.\n";
+    }
+    checkDicts(bd);
+    auto bk = BranchKey(bd);
+    auto I = productList_.find(bk);
+    if (I == productList_.end()) {
+      // New product.
+      productList_.emplace(bk, bd);
+      perFileProds_[0].emplace(bk, bd);
+      continue;
+    }
+    // Already had this product, combine in the additional parameter
+    // sets and process descriptions.
+    assert(combinable(I->second, bd));
+    I->second.merge(bd);
+    auto J = perFileProds_[0].find(bk);
+    assert(J != perFileProds_[0].end());
+    assert(combinable(J->second, bd));
+    J->second.merge(bd);
+  }
+  for (auto const& val : productListUpdatedCallbacks_) {
+    val(fb);
   }
 }
 
 void
-art::MasterProductRegistry::updateFromInput(ProductList const &other) {
-  for (ProductList::const_iterator
-         it = other.begin(),
-         itEnd = other.end();
-       it != itEnd;
-       ++it) {
-    copyProduct(it->second);
+MasterProductRegistry::
+updateFromSecondaryFile(ProductList const& pl, FileBlock const& fb)
+{
+  perFileProds_.resize(perFileProds_.size()+1);
+  for (auto const& val: pl) {
+    auto const& bd = val.second;
+    assert(!bd.produced());
+    checkDicts(bd);
+    auto bk = BranchKey(bd);
+    auto I = productList_.find(bk);
+    if (I == productList_.end()) {
+      // New product.
+      productList_.emplace(bk, bd);
+      perFileProds_.back().emplace(bk, bd);
+      continue;
+    }
+    // Already had this product, combine in the additional parameter
+    // sets and process descriptions.
+    assert(combinable(I->second, bd));
+    I->second.merge(bd);
+    // Now repeat for the per-file prods list.
+    auto J = perFileProds_.back().find(bk);
+    if (J == perFileProds_.back().end()) {
+      // New product.
+      perFileProds_.back().emplace(bk, bd);
+      continue;
+    }
+    // Already had this product, combine in the additional parameter
+    // sets and process descriptions.
+    assert(combinable(J->second, bd));
+    J->second.merge(bd);
+  }
+  productLookup_.resize(productLookup_.size()+1);
+  elementLookup_.resize(elementLookup_.size()+1);
+  recreateLookups(perFileProds_.back(), productLookup_.back(),
+                  elementLookup_.back());
+  for (auto const& val : productListUpdatedCallbacks_) {
+    val(fb);
   }
 }
 
 std::string
-art::MasterProductRegistry::merge(ProductList const &other,
-                                          std::string const &fileName,
-                                          BranchDescription::MatchMode m) {
-  std::ostringstream differences;
-
-  ProductList::iterator pli = productList_.begin();
-  ProductList::iterator ple = productList_.end();
-  ProductList::const_iterator oi = other.begin();
-  ProductList::const_iterator oe = other.end();
-
+MasterProductRegistry::
+updateFromNewPrimaryFile(ProductList const& other, std::string const& fileName,
+                         BranchDescription::MatchMode m, FileBlock const& fb)
+{
+  perFileProds_.resize(1);
+  std::ostringstream msg;
+  auto I = productList_.begin();
+  auto E = productList_.end();
+  auto J = other.cbegin();
+  auto JE = other.cend();
   // Loop over entries in the main product registry.
-  while (pli != ple || oi != oe) {
-    if (pli != ple && pli->second.produced()) {
-      // Ignore branches pliust produced (oi.oe. not in input file).
-      ++pli;
-    } else if (pli == ple || (oi != oe && oi->first < pli->first)) {
-      if (oi->second.present()) {
-        differences << "Branch '"
-                    << oi->second.branchName()
-                    << "' is in file '"
-                    << fileName
-                    << "'\n";
-        differences << "    but not in previous files.\n";
-      } else {
-        productList_.insert(*oi);
-      }
-      ++oi;
-    } else if (oi == oe || (pli != ple && pli->first < oi->first)) {
-      // Allow branch to be missing in new file.
-      ++pli;
-    } else {
-      std::string diffs = match(pli->second, oi->second, fileName, m);
-      if (diffs.empty()) {
-        if (m == BranchDescription::Permissive) pli->second.merge(oi->second);
-      } else {
-        differences << diffs;
-      }
-      ++oi;
-      ++pli;
+  while ((I != E) || (J != JE)) {
+    if ((I != E) && I->second.produced()) {
+      // Skip branches produced by the current process.
+      ++I;
+      continue;
     }
+    if ((I == E) || ((J != JE) && (J->first < I->first))) {
+      // We have found a product listed in the new input file
+      // product list which was not in the product list of any
+      // previous input file.
+      assert(!J->second.produced());
+      if (!J->second.present()) {
+        // FIXME: This probably cannot happen because of
+        // FIXME: the way dropping is done by the output!
+        // Allow it if it was dropped from the new input file.
+        productList_.insert(*J);
+        perFileProds_[0].insert(*J);
+      }
+      else {
+        // Complain, the new input file is trying to introduce
+        // a product that none of the previous input files know
+        // anything about.
+        msg << "Branch '"
+            << J->second.branchName()
+            << "' is in file '"
+            << fileName
+            << "'\n"
+            << "    but not in previous files.\n";
+      }
+      ++J;
+      continue;
+    }
+    if ((J == JE) || ((I != E) && (I->first < J->first))) {
+      // We have found a product which was listed in at least
+      // one of the previous input files product lists but
+      // is not listed in the product list of the new file.
+      // This is ok, products are allowed to be dropped.
+      ++I;
+      continue;
+    }
+    assert(!J->second.produced());
+    // Check if the product listed in the new file matches the
+    // product at the current position in our product list.
+    std::string err = match(I->second, J->second, fileName, m);
+    if (!err.empty()) {
+      // Did not match, complain, and skip it.
+      msg << err;
+    }
+    else if (m == BranchDescription::Permissive) {
+      // We had a match and we are permitting a branch description merge.
+      auto const& bd = J->second;
+      I->second.merge(bd);
+    }
+    ++I;
+    ++J;
   }
-  processFrozenProductList();
-  return differences.str();
-}
-
-void
-art::MasterProductRegistry::setFrozen() {
-    reportFailedDictionaryChecks();
-    if (frozen_) return;
-    frozen_ = true;
-    processFrozenProductList();
-}
-
-void
-art::MasterProductRegistry::copyProduct(BranchDescription const &productDesc) {
-  assert(!productDesc.produced());
-  throwIfFrozen();
-  checkDicts(productDesc);
-  BranchKey k = BranchKey(productDesc);
-  ProductList::iterator iter = productList_.find(k);
-  if (iter == productList_.end()) {
-    productList_.insert(std::make_pair(k, productDesc));
-  } else {
-    assert(combinable(iter->second, productDesc));
-    iter->second.merge(productDesc);
-  }
-}
-
-void
-art::MasterProductRegistry::fillElementLookup(Reflex::Type const &type,
-                                                      BranchID const &id,
-                                                      BranchKey const &bk) {
-  TypeID typeID(type.TypeInfo());
-  std::string friendlyClassName = typeID.friendlyClassName();
-  ProcessLookup& processLookup = elementLookup_[friendlyClassName];
-  std::vector<BranchID>& vint = processLookup[bk.processName_];
-  vint.push_back(id);
-}
-
-void
-art::MasterProductRegistry::throwIfNotFrozen() const {
-  if (!frozen_) {
-    throw cet::exception("ProductRegistry", "throwIfNotFrozen")
-      << "Cannot read the ProductRegistry because it is not yet frozen.\n";
-  }
-}
-
-void
-art::MasterProductRegistry::throwIfFrozen() const {
-  if (frozen_) {
-    throw cet::exception("ProductRegistry", "throwIfFrozen")
-      << "Cannot modify the ProductRegistry because it is frozen.\n";
-  }
-}
-
-void
-art::MasterProductRegistry::processFrozenProductList() {
   productLookup_.clear();
+  productLookup_.resize(1);
   elementLookup_.clear();
-  for (ProductList::const_iterator
-         i = productList_.begin(),
-         e = productList_.end();
-       i != e;
-       ++i) {
-    if (i->second.produced()) {
-      productProduced_[i->second.branchType()] = true;
-    }
+  elementLookup_.resize(1);
+  recreateLookups(productList_, productLookup_[0], elementLookup_[0]);
+  for (auto const& val : productListUpdatedCallbacks_) {
+    val(fb);
+  }
+  return msg.str();
+}
 
-    ProcessLookup &processLookup = productLookup_[i->first.friendlyClassName_];
-    std::vector<BranchID> &vint = processLookup[i->first.processName_];
-    vint.push_back(i->second.branchID());
+void
+MasterProductRegistry::
+setFrozen()
+{
+  reportFailedDictionaryChecks();
+  if (frozen_) {
+    return;
+  }
+  frozen_ = true;
+  productLookup_.clear();
+  productLookup_.resize(1);
+  elementLookup_.clear();
+  elementLookup_.resize(1);
+  recreateLookups(productList_, productLookup_[0], elementLookup_[0]);
+}
 
-    Reflex::Type type(Reflex::Type::ByName(i->second.producedClassName()));
-    if (type) {
-      // Here we look in the object named "type" for a typedef named
-      // "value_type" and get the Reflex::Type for it.  Then check to
-      // ensure the Reflex dictionary is defined for this value_type.  I
-      // do not throw an exception here if the check fails because there
-      // are known cases where the dictionary does not exist and we do
-      // not need to support those cases.
-      Reflex::Type valueType;
-      if (value_type_of(type, valueType) && valueType) {
-        fillElementLookup(valueType, i->second.branchID(), i->first);
-
-        // Repeat this for all public base classes of the value_type
-        std::vector<Reflex::Type> baseTypes;
-        public_base_classes(valueType, baseTypes);
-
-        for (std::vector<Reflex::Type>::iterator
-               iter = baseTypes.begin(),
-               iend = baseTypes.end();
-             iter != iend;
-             ++iter) {
-          fillElementLookup(*iter, i->second.branchID(), i->first);
-        }
-      }
-    }
+void
+MasterProductRegistry::
+print(std::ostream& os) const
+{
+  // TODO: Shouldn't we print the BranchKey too?
+  for (auto const& val: productList_) {
+    os << val.second << "\n-----\n";
   }
 }
+
+std::ostream&
+operator<<(std::ostream& os, MasterProductRegistry const& mpr)
+{
+  mpr.print(os);
+  return os;
+}
+
+} // namespace art
+

@@ -4,7 +4,6 @@
 #include "art/Framework/IO/Root/Inputfwd.h"
 #include "art/Framework/IO/Root/rootNames.h"
 #include "art/Framework/IO/Root/rootErrMsgs.h"
-#include "art/Framework/IO/Root/setMetaDataBranchAddress.h"
 #include "art/Persistency/Provenance/FileIndex.h"
 
 #include "TFile.h"
@@ -18,8 +17,8 @@ namespace art {
   inline
   void setFileIndexPointer(TFile* file, TTree* metaDataTree, FileIndex *& findexPtr) {
 
-    if (metaDataTreeHasBranchFor<FileIndex>(metaDataTree)) {
-      setMetaDataBranchAddress(metaDataTree, findexPtr);
+    if (metaDataTree->GetBranch(rootNames::metaBranchRootName<FileIndex>())) {
+      metaDataTree->SetBranchAddress(rootNames::metaBranchRootName<FileIndex>(), &findexPtr);
     }
     else {
       TTree* fileIndexTree = dynamic_cast<TTree*>(file->Get(rootNames::fileIndexTreeName().c_str()));
@@ -27,11 +26,11 @@ namespace art {
         throw art::Exception(errors::FileReadError) << couldNotFindTree(rootNames::fileIndexTreeName());
 
       FileIndex::Element* elemPtr = nullptr;
-      setMetaDataBranchAddress(fileIndexTree, elemPtr);
+      fileIndexTree->SetBranchAddress(rootNames::metaBranchRootName<FileIndex::Element>(), &elemPtr);
 
       for (size_t i(0), sz = fileIndexTree->GetEntries(); i != sz ; ++i) {
         input::getEntry(fileIndexTree,i);
-        findexPtr->addEntry(elemPtr->eventID_, elemPtr->entry_);
+        findexPtr->addEntryOnLoad(elemPtr->eventID_, elemPtr->entry_);
       }
     }
   }

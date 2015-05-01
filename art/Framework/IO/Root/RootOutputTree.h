@@ -1,140 +1,171 @@
 #ifndef art_Framework_IO_Root_RootOutputTree_h
 #define art_Framework_IO_Root_RootOutputTree_h
+// vim: set sw=2:
 
-/*----------------------------------------------------------------------
-
-RootOutputTree.h // used by ROOT output modules
-
-----------------------------------------------------------------------*/
+// Used by ROOT output modules.
 
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Persistency/Provenance/BranchType.h"
 #include "art/Persistency/Provenance/ProductProvenance.h"
 #include "cpp0x/memory"
-
+#include "TTree.h"
 #include <set>
 #include <string>
 #include <vector>
 
-#include "TTree.h"
 
 class TFile;
 class TBranch;
 
 namespace art {
 
-  class RootOutputTree {
-  public:
-    RootOutputTree(RootOutputTree const&) = delete;
-    RootOutputTree& operator=(RootOutputTree const&) = delete;
+class RootOutputTree {
 
-    // Constructor for trees with no fast cloning
-    template <typename T>
-    RootOutputTree(T* , // first argument is a dummy so that the compiler can resolve the match.
-                   std::shared_ptr<TFile> filePtr,
-                   BranchType const& branchType,
-                   typename T::Auxiliary const*& pAux,
-                   ProductProvenances *& pProductProvenanceVector,
-                   int bufSize,
-                   int splitLevel,
-                   int64_t treeMaxVirtualSize,
-                   int64_t saveMemoryObjectThreshold
-                  ) :
-      filePtr_(filePtr),
-      tree_(makeTTree(filePtr.get(), BranchTypeToProductTreeName(branchType), splitLevel)),
-      metaTree_(makeTTree(filePtr.get(), BranchTypeToMetaDataTreeName(branchType), 0)),
-      auxBranch_(0),
-      producedBranches_(),
-      metaBranches_(),
-      readBranches_(),
-      unclonedReadBranches_(),
-      unclonedReadBranchNames_(),
-      currentlyFastCloning_(),
-      basketSize_(bufSize),
-      splitLevel_(splitLevel),
-      saveMemoryObjectThreshold_(saveMemoryObjectThreshold) {
+public: // STATIC MEMBER FUNCTIONS
 
-      if (treeMaxVirtualSize >= 0) tree_->SetMaxVirtualSize(treeMaxVirtualSize);
-      auxBranch_ = tree_->Branch(BranchTypeToAuxiliaryBranchName(branchType).c_str(), &pAux, bufSize, 0);
-      readBranches_.push_back(auxBranch_);
+  static
+  TTree*
+  makeTTree(TFile*, std::string const& name, int splitLevel);
 
-      productProvenanceBranch_ = metaTree_->Branch(productProvenanceBranchName(branchType).c_str(),
-                                                 &pProductProvenanceVector, bufSize, 0);
-      metaBranches_.push_back(productProvenanceBranch_);
+  static
+  void
+  writeTTree(TTree*);
+
+public: // MEMBER FUNCTIONS
+
+  // Constructor for trees with no fast cloning
+  template<typename T>
+  RootOutputTree(/*dummy*/T*, std::shared_ptr<TFile> filePtr,
+                 BranchType const& branchType,
+		 typename T::Auxiliary const*& pAux,
+		 ProductProvenances*& pProductProvenanceVector,
+		 int bufSize, int splitLevel, int64_t treeMaxVirtualSize,
+		 int64_t saveMemoryObjectThreshold)
+    : filePtr_(filePtr)
+    , tree_(makeTTree(filePtr.get(), BranchTypeToProductTreeName(branchType),
+                      splitLevel))
+    , metaTree_(makeTTree(filePtr.get(),
+                          BranchTypeToMetaDataTreeName(branchType),
+                          0))
+    , auxBranch_(0)
+    , producedBranches_()
+    , metaBranches_()
+    , readBranches_()
+    , unclonedReadBranches_()
+    , unclonedReadBranchNames_()
+    , currentlyFastCloning_()
+    , basketSize_(bufSize)
+    , splitLevel_(splitLevel)
+    , saveMemoryObjectThreshold_(saveMemoryObjectThreshold)
+    , nEntries_(0)
+  {
+    if (treeMaxVirtualSize >= 0) {
+      tree_->SetMaxVirtualSize(treeMaxVirtualSize);
+    }
+    auxBranch_ =
+      tree_->Branch(BranchTypeToAuxiliaryBranchName(branchType).c_str(),
+                    &pAux, bufSize, 0);
+    delete pAux;
+    pAux = nullptr;
+    readBranches_.push_back(auxBranch_);
+    productProvenanceBranch_ =
+      metaTree_->Branch(productProvenanceBranchName(branchType).c_str(),
+                        &pProductProvenanceVector, bufSize, 0);
+    metaBranches_.push_back(productProvenanceBranch_);
   }
 
-    // use compiler-generated copy c'tor, copy assignment, and d'tor
+  RootOutputTree(RootOutputTree const&) = delete;
+  RootOutputTree& operator=(RootOutputTree const&) = delete;
 
-    static void fastCloneTTree(TTree *in, TTree *out);
+  bool
+  isValid() const;
 
-    static TTree * makeTTree(TFile *filePtr, std::string const& name, int splitLevel);
+  void
+  setOutputBranchAddress(BranchDescription const& bd, void const*& pProd);
 
-    static TTree * assignTTree(TFile *file, TTree * tree);
+  void
+  resetOutputBranchAddress(BranchDescription const&);
 
-    static void writeTTree(TTree *tree);
+  void
+  addOutputBranch(BranchDescription const&, void const*& pProd);
 
-    bool isValid() const;
+  bool
+  checkSplitLevelAndBasketSize(TTree*) const;
 
-    void addBranch(BranchDescription const& prod,
-                   void const*& pProd);
+  void
+  fastCloneTree(TTree*);
 
-    bool checkSplitLevelAndBasketSize(TTree *inputTree) const;
+  void
+  fillTree();
 
-    void fastCloneTree(TTree *tree);
+  void
+  writeTree() const;
 
-    void fillTree() const;
+  TTree*
+  tree() const
+  {
+    return tree_;
+  }
 
-    void writeTree() const;
+  TTree*
+  metaTree() const
+  {
+    return metaTree_;
+  }
 
-    TTree * tree() const {
-      return tree_;
+  void
+  setEntries()
+  {
+    // The member trees are filled by filling their
+    // branches individually, which ends up not setting
+    // the tree entry count.  Tell the trees to set their
+    // entry count based on their branches (all branches
+    // must have the same number of entries).
+    if (tree_->GetNbranches() != 0) {
+      tree_->SetEntries(-1);
     }
-
-    TTree * metaTree() const {
-      return metaTree_;
+    if (metaTree_->GetNbranches() != 0) {
+      metaTree_->SetEntries(-1);
     }
+  }
 
-    void setEntries() {
-      if (tree_->GetNbranches() != 0) tree_->SetEntries(-1);
-      if (metaTree_->GetNbranches() != 0) metaTree_->SetEntries(-1);
-    }
+  void
+  beginInputFile(bool fastCloning)
+  {
+    currentlyFastCloning_ = fastCloning;
+  }
 
-    void beginInputFile(bool fastCloning) {
-      currentlyFastCloning_ = fastCloning;
-    }
+  bool
+  uncloned(std::string const& branchName) const
+  {
+    return unclonedReadBranchNames_.find(branchName) !=
+           unclonedReadBranchNames_.end();
+  }
 
-    bool
-    uncloned(std::string const& branchName) const {
-        return unclonedReadBranchNames_.find(branchName) != unclonedReadBranchNames_.end();
-    }
+private: // MEMBER DATA
 
-  private:
-    void fillTTree(TTree *tree,
-                   std::vector<TBranch *> const& branches,
-                   bool saveMemory = false) const;
-// We use bare pointers for pointers to some ROOT entities.
-// Root owns them and uses bare pointers internally.
-// Therefore,using smart pointers here will do no good.
-    std::shared_ptr<TFile> filePtr_;
-    TTree *const tree_;
-    TTree *const metaTree_;
-    TBranch * auxBranch_;
-    TBranch * productProvenanceBranch_;
-    std::vector<TBranch *> producedBranches_; // does not include cloned branches
-    std::vector<TBranch *> metaBranches_;
-    std::vector<TBranch *> readBranches_;
-    std::vector<TBranch *> unclonedReadBranches_;
-    std::set<std::string> unclonedReadBranchNames_;
-    bool currentlyFastCloning_;
-    int basketSize_;
-    int splitLevel_;
-    int64_t saveMemoryObjectThreshold_;
-  };  // RootOutputTree
+  std::shared_ptr<TFile> filePtr_;
+  TTree* const tree_;
+  TTree* const metaTree_;
+  TBranch* auxBranch_;
+  TBranch* productProvenanceBranch_;
+  // does not include cloned branches
+  std::vector<TBranch*> producedBranches_;
+  std::vector<TBranch*> metaBranches_;
+  std::vector<TBranch*> readBranches_;
+  std::vector<TBranch*> unclonedReadBranches_;
+  std::set<std::string> unclonedReadBranchNames_;
+  bool currentlyFastCloning_;
+  int basketSize_;
+  int splitLevel_;
+  int64_t saveMemoryObjectThreshold_;
+  int nEntries_;
 
-}  // art
+};
 
-#endif /* art_Framework_IO_Root_RootOutputTree_h */
+} // namespace art
 
 // Local Variables:
 // mode: c++
 // End:
+#endif // art_Framework_IO_Root_RootOutputTree_h

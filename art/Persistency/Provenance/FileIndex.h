@@ -51,6 +51,8 @@ public:
 
    void addEntry(EventID const &eID, EntryNumber_t entry);
 
+   void addEntryOnLoad(EventID const &eID, EntryNumber_t entry);
+
    enum EntryType {kRun, kSubRun, kEvent, kEnd};
 
    class Element {

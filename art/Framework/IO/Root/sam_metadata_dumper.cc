@@ -2,7 +2,6 @@
 
 #include "art/Framework/IO/Root/GetFileFormatEra.h"
 #include "art/Framework/IO/Root/rootNames.h"
-#include "art/Framework/IO/Root/setMetaDataBranchAddress.h"
 #include "art/Persistency/Provenance/FileFormatVersion.h"
 #include "art/Persistency/Provenance/ParameterSetBlob.h"
 #include "art/Persistency/Provenance/ParameterSetMap.h"

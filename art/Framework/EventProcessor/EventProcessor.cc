@@ -1,6 +1,7 @@
 #include "art/Framework/EventProcessor/EventProcessor.h"
 
 #include "art/Framework/Core/Breakpoints.h"
+#include "art/Framework/Core/DecrepitRelicInputSourceImplementation.h"
 #include "art/Framework/Core/FileBlock.h"
 #include "art/Framework/Core/InputSource.h"
 #include "art/Framework/Core/InputSourceDescription.h"
@@ -162,13 +163,11 @@ art::EventProcessor::EventProcessor(ParameterSet const & pset)
   ServiceHandle<art::FileCatalogMetadata>()->addMetadataString("process_name", processName);
 
   input_ = makeInput(pset, processName, preg_, actReg_);
-  // Old input sources may need this for now.
-  input_->storeMPRforBrokenRandomAccess(preg_);
-
   initSchedules_(pset);
   endPathExecutor_.reset(new EndPathExecutor(pathManager_,
                                              act_table_,
-                                             actReg_));
+                                             actReg_,
+                                             preg_));
   FDEBUG(2) << pset.to_string() << std::endl;
   BranchIDListHelper::updateRegistries(preg_);
 }
@@ -747,6 +746,14 @@ art::EventProcessor::readAndCacheRun()
   SignalSentry runSourceSentry(actReg_.sPreSourceRun,
                                actReg_.sPostSourceRun);
   principalCache_.insert(input_->readRun());
+  art::DecrepitRelicInputSourceImplementation* DRSI =
+    dynamic_cast<art::DecrepitRelicInputSourceImplementation*>(input_.get());
+  if (DRSI) {
+    auto rps = DRSI->readRunFromSecondaryFiles();
+    for (auto rp : rps) {
+      principalCache_.insert(rp);
+    }
+  }
   FDEBUG(1) << "\treadAndCacheRun " << "\n";
   return principalCache_.runPrincipal().id();
 }
@@ -757,6 +764,15 @@ art::EventProcessor::readAndCacheSubRun()
   SignalSentry subRunSourceSentry(actReg_.sPreSourceSubRun,
                                   actReg_.sPostSourceSubRun);
   principalCache_.insert(input_->readSubRun(principalCache_.runPrincipalPtr()));
+  art::DecrepitRelicInputSourceImplementation* DRSI =
+    dynamic_cast<art::DecrepitRelicInputSourceImplementation*>(input_.get());
+  if (DRSI) {
+    auto srps = DRSI->readSubRunFromSecondaryFiles(
+                  principalCache_.runPrincipalPtr());
+    for (auto srp : srps) {
+      principalCache_.insert(srp);
+    }
+  }
   FDEBUG(1) << "\treadAndCacheSubRun " << "\n";
   return principalCache_.subRunPrincipal().id();
 }

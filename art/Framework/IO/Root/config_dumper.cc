@@ -11,7 +11,6 @@
 #include "art/Framework/Core/RootDictionaryManager.h"
 #include "art/Framework/IO/Root/GetFileFormatEra.h"
 #include "art/Framework/IO/Root/rootNames.h"
-#include "art/Framework/IO/Root/setMetaDataBranchAddress.h"
 #include "art/Persistency/Provenance/FileFormatVersion.h"
 #include "art/Persistency/RootDB/SQLite3Wrapper.h"
 #include "art/Persistency/RootDB/tkeyvfs.h"
@@ -152,12 +151,16 @@ bool read_all_parameter_sets(TFile & file,
            << "';\nthis may not be an ART event data file.\n";
     return false;
   }
-  if (art::metaDataTreeHasBranchFor<ParameterSetMap>(metadata_tree)) {
-    art::setMetaDataBranchAddress(metadata_tree, psm_address);
+  if (metadata_tree->GetBranch(
+      art::rootNames::metaBranchRootName<ParameterSetMap>())) {
+    metadata_tree->SetBranchAddress(
+      art::rootNames::metaBranchRootName<ParameterSetMap>(), &psm_address);
   }
   art::FileFormatVersion ffv;
   art::FileFormatVersion * ffv_address = &ffv;
-  art::setMetaDataBranchAddress(metadata_tree, ffv_address);
+  metadata_tree->SetBranchAddress(
+    art::rootNames::metaBranchRootName<art::FileFormatVersion>(),
+    &ffv_address);
   long bytes_read =  metadata_tree->GetEntry(0);
   if (bytes_read < 0) {
     errors << "Unable to read the metadata tree in file '" << file.GetName()

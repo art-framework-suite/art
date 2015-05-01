@@ -68,8 +68,6 @@ simple_plugin(PausingAnalyzer             "module"  NO_INSTALL )
 simple_plugin(ProductIDGetter             "module"  NO_INSTALL USE_BOOST_UNIT )
 simple_plugin(ProductIDGetterAnalyzer     "module"  NO_INSTALL USE_BOOST_UNIT )
 simple_plugin(PtrListAnalyzer             "module"  NO_INSTALL )
-simple_plugin(PtrVectorAnalyzer           "module"  NO_INSTALL )
-simple_plugin(PtrVectorProducer           "module"  NO_INSTALL )
 simple_plugin(PtrVectorSimpleAnalyzer     "module"  NO_INSTALL )
 simple_plugin(PtrmvAnalyzer               "module"  NO_INSTALL USE_BOOST_UNIT )
 simple_plugin(PtrmvProducer               "module"  NO_INSTALL )
@@ -154,23 +152,6 @@ cet_test(test_view_01_t.sh PREBUILT
   fcl/test_view_01b.fcl
   fcl/test_simple_01r.fcl
   fcl/messageDefaults.fcl
-)
-
-cet_test(test_ptrvector_01a_t HANDBUILT
-  TEST_EXEC art
-  TEST_ARGS --config test_ptrvector_01a.fcl --rethrow-all
-  DATAFILES
-  fcl/test_ptrvector_01a.fcl
-  fcl/messageDefaults.fcl
-)
-
-cet_test(test_ptrvector_01b_t HANDBUILT
-  TEST_EXEC art
-  TEST_ARGS --config test_ptrvector_01b.fcl --rethrow-all
-  DATAFILES
-  fcl/test_ptrvector_01b.fcl
-  fcl/messageDefaults.fcl
-  TEST_PROPERTIES DEPENDS test_ptrvector_01a_t
 )
 
 cet_test(SimpleDerived_01_w HANDBUILT
@@ -279,7 +260,7 @@ cet_test(FileDumperOutput_w HANDBUILT
   TEST_EXEC art
   TEST_ARGS --rethrow-all -c FileDumperOutputTest_w.fcl
   TEST_PROPERTIES
-  PASS_REGULAR_EXPRESSION "Total products \\(present, not present\\): 3 \\(3, 0\\)\\."
+  PASS_REGULAR_EXPRESSION "Total products \\(present, not present\\): 4 \\(4, 0\\)\\."
   DATAFILES
   fcl/FileDumperOutputTest_w.fcl
 )
@@ -290,7 +271,7 @@ cet_test(FileDumperOutput_r HANDBUILT
   DATAFILES
   fcl/FileDumperOutputTest_r.fcl
   TEST_PROPERTIES
-  PASS_REGULAR_EXPRESSION "Total products \\(present, not present\\): 3 \\(2, 1\\)\\."
+  PASS_REGULAR_EXPRESSION "Total products \\(present, not present\\): 4 \\(3, 1\\)\\."
   DEPENDS FileDumperOutput_w
 )
 
@@ -1159,6 +1140,12 @@ cet_test(TestEmptyEventTimestampNoRSRTS_t HANDBUILT
 
 simple_plugin(FindManySpeedTestProducer "module" NO_INSTALL)
 simple_plugin(FindManySpeedTestAnalyzer "module" NO_INSTALL)
+
+add_subdirectory(testPtrVector)
+add_subdirectory(test_tiered_input_01)
+add_subdirectory(test_tiered_input_02)
+add_subdirectory(test_tiered_input_03)
+add_subdirectory(test_tiered_input_04)
 
 add_subdirectory(event-shape)
 add_subdirectory(high-memory)
