@@ -11,6 +11,7 @@ art_make_library(SOURCE
   LIBRARIES art_Framework_IO_Sources
   art_Framework_Core
   fhiclcpp
+  NO_INSTALL
   )
 
 set_source_files_properties(MixFilterTestETS_module.cc

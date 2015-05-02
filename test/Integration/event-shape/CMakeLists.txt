@@ -1,5 +1,5 @@
 # Tests of event shape consistency checking.
-art_dictionary()
+art_dictionary(NO_INSTALL)
 
 simple_plugin(ESPrimaryProducer "module" NO_INSTALL)
 simple_plugin(ESSecondaryProducer "module" NO_INSTALL)
