@@ -6,9 +6,9 @@ use CetSkel::FilterProducerCommon qw(:DEFAULT pluginSuffix macrosInclude defineM
 
 use vars qw(@ISA);
 
-eval "use CetSkel::art::PluginVersionInfo";
+eval "use CetSkelPlugins::art::PluginVersionInfo";
 unless ($@) {
-  push @ISA, "CetSkel::art::PluginVersionInfo";
+  push @ISA, "CetSkelPlugins::art::PluginVersionInfo";
 }
 
 sub new {

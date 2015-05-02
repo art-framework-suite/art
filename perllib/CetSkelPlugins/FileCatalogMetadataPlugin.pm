@@ -6,9 +6,9 @@ use CetSkel::BasicPluginCommon qw(:DEFAULT &pluginSuffix);
 
 use vars qw(@ISA);
 
-eval "use CetSkel::art::PluginVersionInfo";
+eval "use CetSkelPlugins::art::PluginVersionInfo";
 unless ($@) {
-  push @ISA, "CetSkel::art::PluginVersionInfo";
+  push @ISA, "CetSkelPlugins::art::PluginVersionInfo";
 }
 
 sub new {
@@ -46,9 +46,7 @@ DEFINE_ART_FILECATALOGMETADATA_PLUGIN(${qual_name})
 EOF
 }
 
-sub implHeaders {
-  return $bp_headers; # From BasicPluginCommon.pm
-}
+# No sub implHeaders necessary.
 
 # No sub macrosInclude necessary.
 

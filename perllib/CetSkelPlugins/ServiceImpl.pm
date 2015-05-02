@@ -8,9 +8,9 @@ use vars qw(@ISA);
 
 @ISA = qw(CetSkel::ServiceCommon);
 
-eval "use CetSkel::art::PluginVersionInfo";
+eval "use CetSkelPlugins::art::PluginVersionInfo";
 unless ($@) {
-  push @ISA, "CetSkel::art::PluginVersionInfo";
+  push @ISA, "CetSkelPlugins::art::PluginVersionInfo";
 }
 
 sub new {
@@ -51,7 +51,7 @@ EOF
 sub defineMacro {
   my ($self, $qual_name) = @_;
   return <<EOF;
-DEFINE_ART_SERVICE($qual_name, $self->{interface})
+DEFINE_ART_SERVICE_INTERFACE_IMPL($qual_name, $self->{interface})
 EOF
 }
 

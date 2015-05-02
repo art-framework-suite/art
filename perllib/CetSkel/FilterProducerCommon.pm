@@ -10,7 +10,7 @@ use vars qw($fp_headers $fp_constructor_comment);
 @EXPORT = qw($fp_headers $fp_constructor_comment);
 @EXPORT_OK = qw(&pluginSuffix &macrosInclude &defineMacro); # From AnalyzerCommon, below.
 
-use CetSkel::AnalyzerCommon qw(:DEFAULT pluginSuffix macrosInclude defineMacro);
+use CetSkel::AnalyzerCommon qw(:DEFAULT &pluginSuffix &macrosInclude &defineMacro);
 
 $fp_headers = [ @$analyzer_headers, '<memory>' ];
 

@@ -25,7 +25,7 @@ sub declHeaders {
 }
 
 sub macrosInclude {
-  return "art/Framework/Servies/Registry/ServiceMacros.h";
+  return "art/Framework/Services/Registry/ServiceMacros.h";
 }
 
 sub pluginSuffix {

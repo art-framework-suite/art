@@ -8,9 +8,9 @@ use vars qw(@ISA);
 
 @ISA = qw(CetSkel::ServiceCommon);
 
-eval "use CetSkel::art::PluginVersionInfo";
+eval "use CetSkelPlugins::art::PluginVersionInfo";
 unless ($@) {
-  push @ISA, "CetSkel::art::PluginVersionInfo";
+  push @ISA, "CetSkelPlugins::art::PluginVersionInfo";
 }
 
 sub new {
@@ -55,4 +55,7 @@ sub processOptions {
 
 # sub requiredEntries not necessary.
 
+sub virtualDestructor {
+  return 1;
+}
 1;
