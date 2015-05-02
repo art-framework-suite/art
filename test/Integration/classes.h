@@ -51,6 +51,10 @@ namespace {
     art::Assns<std::string, size_t, arttest::AssnTestData> atd2;
     art::Assns<std::string, size_t, void> av2;
     art::Wrapper<art::Assns<std::string, size_t, arttest::AssnTestData> > atd_w2;
+
+    art::Assns<std::pair<cet::map_vector_key, std::string>, std::string, arttest::AssnTestData> xx1;
+    art::Assns<std::pair<cet::map_vector_key, std::string>, std::string, void> xx2;
+    art::Wrapper<art::Assns<std::pair<cet::map_vector_key, std::string>, std::string, arttest::AssnTestData> > xx3;
   };
 }
 

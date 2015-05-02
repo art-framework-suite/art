@@ -46,6 +46,11 @@ namespace art {
 
   // ----------------------------------------------------------------------
 
+DecrepitRelicInputSourceImplementation::
+~DecrepitRelicInputSourceImplementation()
+{
+}
+ 
   DecrepitRelicInputSourceImplementation::
   DecrepitRelicInputSourceImplementation(ParameterSet const & pset,
                                          InputSourceDescription & desc)
@@ -63,6 +68,8 @@ namespace art {
     , state_               ( input::IsInvalid )
     , runPrincipal_        ( )
     , subRunPrincipal_     ( )
+    , secondaryRunPrincipals_()
+    , secondarySubRunPrincipals_()
   {
     if (reportFrequency_ < 0) {
       throw art::Exception(art::errors::Configuration)
@@ -113,9 +120,6 @@ namespace art {
   {
     sr.commit_();
   }
-
-
-  DecrepitRelicInputSourceImplementation::~DecrepitRelicInputSourceImplementation() { }
 
   // This next function is to guarantee that "runs only" mode does not
   // return events or subRuns, and that "runs and subRuns only" mode
@@ -181,12 +185,14 @@ namespace art {
         state_ = input::IsFile;
       }
       else if (newState == input::IsRun || oldState == input::IsFile) {
-        setRunPrincipal(readRun_());
+        runPrincipal_ = readRun_();
+        secondaryRunPrincipals_ = readRunFromSecondaryFiles_();
         state_ = input::IsRun;
       }
       else if (newState == input::IsSubRun || oldState == input::IsRun) {
         assert(processingMode() != Runs);
-        setSubRunPrincipal(readSubRun_());
+        subRunPrincipal_ = readSubRun_();
+        secondarySubRunPrincipals_ = readSubRunFromSecondaryFiles_();
         state_ = input::IsSubRun;
       }
       else {
@@ -197,6 +203,16 @@ namespace art {
     if (state_ == input::IsStop) {
       subRunPrincipal_.reset();
       runPrincipal_.reset();
+      for (auto rp: secondaryRunPrincipals_) {
+        rp.reset();
+      }
+      // FIXME: Use the swap trick here to really release the memory!
+      secondaryRunPrincipals_.clear();
+      for (auto srp: secondarySubRunPrincipals_) {
+        srp.reset();
+      }
+      // FIXME: Use the swap trick here to really release the memory!
+      secondarySubRunPrincipals_.clear();
     }
     return state_;
   }
@@ -213,13 +229,13 @@ namespace art {
 
   // Return a dummy file block.
   std::shared_ptr<FileBlock>
-  DecrepitRelicInputSourceImplementation::readFile(MasterProductRegistry& mpr)
+  DecrepitRelicInputSourceImplementation::readFile(MasterProductRegistry& /*mpr*/)
   {
     assert(doneReadAhead_);
     assert(state_ == input::IsFile);
     assert(!limitReached());
     doneReadAhead_ = false;
-    std::shared_ptr<FileBlock> fb = readFile_(mpr);
+    std::shared_ptr<FileBlock> fb = readFile_();
     return fb;
   }
 
@@ -233,7 +249,7 @@ namespace art {
   // containing Products. Such a function should update the MasterProductRegistry
   // to reflect the products found in this new file.
   std::shared_ptr<FileBlock>
-  DecrepitRelicInputSourceImplementation::readFile_(MasterProductRegistry&) {
+  DecrepitRelicInputSourceImplementation::readFile_() {
     return std::shared_ptr<FileBlock>(new FileBlock);
   }
 
@@ -249,6 +265,19 @@ namespace art {
     return runPrincipal_;
   }
 
+  std::vector<std::shared_ptr<RunPrincipal>>
+  DecrepitRelicInputSourceImplementation::
+  readRunFromSecondaryFiles()
+  {
+    // Note: For the moment, we do not support saving and restoring
+    // the state of the random number generator if random numbers are
+    // generated during processing of runs (e.g. beginRun(), endRun()).
+    //assert(doneReadAhead_);
+    assert(state_ == input::IsRun);
+    //assert(!limitReached());
+    return std::move(secondaryRunPrincipals_);
+  }
+
   std::shared_ptr<SubRunPrincipal>
   DecrepitRelicInputSourceImplementation::readSubRun(std::shared_ptr<RunPrincipal> rp) {
     // Note: For the moment, we do not support saving and restoring the state of the
@@ -262,6 +291,23 @@ namespace art {
     assert(subRunPrincipal_->run() == rp->run());
     subRunPrincipal_->setRunPrincipal(rp);
     return subRunPrincipal_;
+  }
+
+  std::vector<std::shared_ptr<SubRunPrincipal>>
+  DecrepitRelicInputSourceImplementation::
+  readSubRunFromSecondaryFiles(std::shared_ptr<RunPrincipal> rp)
+  {
+    // Note: For the moment, we do not support saving and restoring
+    // the state of the random number generator if random numbers are
+    // generated during processing of subRuns (e.g. beginSubRun(), endSubRun()).
+    //assert(doneReadAhead_);
+    assert(state_ == input::IsSubRun);
+    //assert(!limitReached());
+    for (auto srp: secondarySubRunPrincipals_) {
+      assert(srp->run() == rp->run());
+      srp->setRunPrincipal(rp);
+    }
+    return std::move(secondarySubRunPrincipals_);
   }
 
   std::unique_ptr<EventPrincipal>

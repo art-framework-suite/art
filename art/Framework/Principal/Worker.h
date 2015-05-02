@@ -121,7 +121,7 @@ private:
   virtual void implRespondToCloseOutputFiles(FileBlock const& fb) = 0;
 
   //RunStopwatch::StopwatchPointer stopwatch_;
-  art::CPUTimer timer_;
+  cet::cpu_timer timer_;
 
   int timesRun_;
   int timesVisited_;

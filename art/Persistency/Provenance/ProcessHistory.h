@@ -69,11 +69,18 @@ public:
   const_iterator begin() const {return data_.begin();}
   const_iterator end() const {return data_.end();}
 
-  const_iterator cbegin() const {return begin();}
-  const_iterator cend() const {return end();}
+#ifndef __GCCXML__
+  const_iterator cbegin() const {return data_.cbegin();}
+  const_iterator cend() const {return data_.cend();}
+#endif // #ifndef __GCCXML__
 
   const_reverse_iterator rbegin() const {return data_.rbegin();}
   const_reverse_iterator rend() const {return data_.rend();}
+
+#ifndef __GCCXML__
+  const_reverse_iterator crbegin() const {return data_.crbegin();}
+  const_reverse_iterator crend() const {return data_.crend();}
+#endif // #ifndef __GCCXML__
 
   collection_type const& data() const {return data_;}
   ProcessHistoryID id() const;

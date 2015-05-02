@@ -19,6 +19,7 @@
 #include "art/Framework/Core/WorkerT.h"
 #include "art/Framework/Core/detail/ModuleTypeDeducer.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
+#include "art/Utilities/BasicHelperMacros.h"
 #include "cpp0x/memory"
 #include "fhiclcpp/ParameterSet.h"
 
@@ -38,6 +39,7 @@ namespace art {
 // Produce the injected functions
 #define DEFINE_ART_MODULE(klass)                                        \
   extern "C" {                                                          \
+    PROVIDE_FILE_PATH()                                                 \
     art::Worker*                                                        \
     make_worker(art::WorkerParams const& wp,                            \
                 art::ModuleDescription const& md)                       \

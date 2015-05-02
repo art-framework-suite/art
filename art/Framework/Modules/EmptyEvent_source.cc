@@ -41,6 +41,8 @@ private:
    std::unique_ptr<EventPrincipal> readEvent_() override;
    std::shared_ptr<SubRunPrincipal> readSubRun_() override;
    std::shared_ptr<RunPrincipal> readRun_() override;
+   std::vector<std::shared_ptr<SubRunPrincipal>> readSubRunFromSecondaryFiles_() override;
+   std::vector<std::shared_ptr<RunPrincipal>> readRunFromSecondaryFiles_() override;
    void skip(int offset) override;
    void rewind_() override;
 
@@ -132,6 +134,13 @@ art::EmptyEvent::readRun_() {
   return rp_ptr;
 }
 
+std::vector<std::shared_ptr<RunPrincipal>>
+EmptyEvent::readRunFromSecondaryFiles_()
+{
+  std::vector<std::shared_ptr<RunPrincipal>> ret;
+  return ret;
+}
+
 std::shared_ptr<SubRunPrincipal>
 EmptyEvent::readSubRun_() {
    if (processingMode() == Runs) return std::shared_ptr<SubRunPrincipal>();
@@ -150,6 +159,13 @@ EmptyEvent::readSubRun_() {
    }
    newSubRun_ = false;
    return srp_ptr;
+}
+
+std::vector<std::shared_ptr<SubRunPrincipal>>
+EmptyEvent::readSubRunFromSecondaryFiles_()
+{
+  std::vector<std::shared_ptr<SubRunPrincipal>> ret;
+  return ret;
 }
 
 std::unique_ptr<EventPrincipal>

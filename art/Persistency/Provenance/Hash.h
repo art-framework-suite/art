@@ -14,9 +14,9 @@
 //
 // ======================================================================
 
-#include "art/Utilities/Digest.h"
 #include "art/Utilities/Exception.h"
 #include "cetlib/container_algorithms.h"
+#include "cetlib/MD5Digest.h"
 #include <ostream>
 #include <string>
 
@@ -176,7 +176,7 @@ namespace art {
   Hash<I>::print(std::ostream& os) const
   {
     Hash<I> tMe(*this);
-    art::MD5Result temp;
+    cet::MD5Result temp;
     cet::copy_all(tMe.hash_, temp.bytes);
     os << temp.toString();
     return os;
@@ -235,7 +235,7 @@ namespace art {
       }
       case 32:
       {
-        art::MD5Result temp;
+        cet::MD5Result temp;
         temp.fromHexifiedString(hash_);
         hash_ = temp.compactForm();
         break;

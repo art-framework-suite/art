@@ -22,12 +22,12 @@
 
 #include "boost/filesystem.hpp"
 #include "boost/program_options.hpp"
-#include "boost/regex.hpp"
 #include "TError.h"
 
 #include <exception>
 #include <fstream>
 #include <iostream>
+#include <regex>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -232,10 +232,9 @@ int art::run_art_common_(fhicl::ParameterSet main_pset)
   if (debug_config != nullptr) {
     bool isFilename(false);
     try {
-      // GCC 4.7.1 cannot handle complex character classes -- use boost::regex instead.
-      isFilename = boost::regex_match(debug_config, boost::regex("[[:alpha:]/\\.].*"));
+      isFilename = std::regex_match(debug_config, std::regex("[[:alpha:]/\\.].*"));
     }
-    catch(boost::regex_error e) {
+    catch(std::regex_error const & e) {
       std::cerr << "REGEX ERROR: " << e.code() << ".\n";
     }
     if (isFilename) {

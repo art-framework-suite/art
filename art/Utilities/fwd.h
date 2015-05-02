@@ -4,17 +4,14 @@
 // Fowrard declarations for art/Utilities.
 ////////////////////////////////////////////////////////////////////////
 
-// These headers are required to forward-declare adequately types and contain *only* what is required so to do.
+// These headers are required to forward-declare adequately types and
+// contain *only* what is required so to do.
 #include "art/Utilities/Exception.h"
 #include "art/Utilities/JobMode.h"
 #include "art/Utilities/Verbosity.h"
 
 namespace art {
-  class CPUTimer;
-  class CRC32Calculator;
   class debugavlue; // DebugMacros.h
-  class MD5Result; // Digest.h
-  class Digest;
   class FirstAbsoluteOrLookupWithDotPolicy;
   typedef long long int HRTimeDiffType; // HRRealTime.h
   typedef unsigned long long int HRTimeType; // HRRealTime.h

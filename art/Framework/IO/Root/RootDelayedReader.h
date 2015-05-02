@@ -1,69 +1,76 @@
 #ifndef art_Framework_IO_Root_RootDelayedReader_h
 #define art_Framework_IO_Root_RootDelayedReader_h
-
-// ======================================================================
-//
-// RootDelayedReader - used by ROOT input sources;
-//                     pretends to support file reading.
-//
-// ======================================================================
+// vim: set sw=2:
 
 #include "art/Framework/IO/Root/Inputfwd.h"
+#include "art/Framework/IO/Root/RootInputFile.h"
 #include "art/Persistency/Common/DelayedReader.h"
 #include "art/Persistency/Provenance/BranchKey.h"
+#include "art/Persistency/Provenance/BranchType.h"
 #include "cpp0x/memory"
 #include <map>
 #include <string>
 
-// ----------------------------------------------------------------------
-
 class TFile;
 
 namespace art {
-  class RootDelayedReader;
-}
-class art::RootDelayedReader :
-  public art::DelayedReader {
-public:
+
+class RootDelayedReader final : public DelayedReader {
+
+public: // MEMBER FUNCTIONS
+
+  virtual
+  ~RootDelayedReader();
+
   RootDelayedReader(RootDelayedReader const&) = delete;
-  RootDelayedReader& operator=(RootDelayedReader const&) = delete;
 
-  typedef input::BranchMap BranchMap;
-  typedef input::EntryNumber EntryNumber;
-  typedef input::BranchInfo BranchInfo;
-  typedef input::BranchMap::const_iterator iterator;
+  RootDelayedReader&
+  operator=(RootDelayedReader const&) = delete;
 
-  RootDelayedReader(EntryNumber const& entry,
-                    std::shared_ptr<BranchMap const> bMap,
-                    std::shared_ptr<TFile const> filePtr,
-                    int64_t saveMemoryObjectThreshold);
+  RootDelayedReader(input::EntryNumber const&,
+                    std::shared_ptr<input::BranchMap const>,
+                    std::shared_ptr<TFile const>,
+                    int64_t saveMemoryObjectThreshold,
+                    cet::exempt_ptr<RootInputFile> primaryFile,
+                    BranchType branchType, EventID);
 
-  virtual ~RootDelayedReader();
+private: // MEMBER FUNCTIONS
 
-private:
-  virtual std::unique_ptr<EDProduct> getProduct_(BranchKey const& k, art::TypeID const &wrapper_type) const;
-  virtual void setGroupFinder_(cet::exempt_ptr<EventPrincipal const>);
-  virtual void mergeReaders_(std::shared_ptr<DelayedReader> other) {nextReader_ = other;}
-  BranchMap const& branches() const {return *branches_;}
-  iterator branchIter(BranchKey const& k) const {return branches().find(k);}
-  bool found(iterator const& iter) const {return iter != branches().end();}
-  BranchInfo const& getBranchInfo(iterator const& iter) const {return iter->second; }
+  virtual
+  std::unique_ptr<EDProduct>
+  getProduct_(BranchKey const&, TypeID const&) const override;
 
-  EntryNumber const entryNumber_;
-  std::shared_ptr<BranchMap const> branches_;
+  virtual
+  void
+  setGroupFinder_(cet::exempt_ptr<EventPrincipal const>) override;
+
+  virtual
+  void
+  mergeReaders_(std::shared_ptr<DelayedReader>) override; 
+
+  virtual
+  int
+  openNextSecondaryFile_(int idx) override;
+
+private: // MEMBER DATA
+
+  input::EntryNumber const entryNumber_;
+  std::shared_ptr<input::BranchMap const> branches_;
   // NOTE: filePtr_ appears to be unused, but is needed to prevent
   // the TFile containing the branch from being reclaimed.
   std::shared_ptr<TFile const> filePtr_;
   int64_t saveMemoryObjectThreshold_;
   std::shared_ptr<DelayedReader> nextReader_;
-  bool customStreamers_;
-
   cet::exempt_ptr<EventPrincipal const> groupFinder_;
+  cet::exempt_ptr<RootInputFile> primaryFile_;
+  BranchType branchType_;
+  EventID eventID_;
 
-}; // RootDelayedReader
+};
 
-#endif /* art_Framework_IO_Root_RootDelayedReader_h */
+} // namespace art
 
 // Local Variables:
 // mode: c++
 // End:
+#endif // art_Framework_IO_Root_RootDelayedReader_h

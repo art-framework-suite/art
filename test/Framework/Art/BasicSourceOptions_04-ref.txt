@@ -1,5 +1,11 @@
-process_name: "TEST"
-services: { message: { destinations: { STDOUT: { categories: { ArtReport: { limit: 100
+process_name: "TEST"  # ./BasicSourceOptions_04.fcl:1
+services: { CatalogInterface: { service_provider: "TrivialFileDelivery"
+                                service_type: "CatalogInterface"
+                              }
+            FileTransfer: { service_provider: "TrivialFileTransfer"
+                            service_type: "FileTransfer"
+                          }
+            message: { destinations: { STDOUT: { categories: { ArtReport: { limit: 100
                                                                           }
                                                                default: { limit: -1
                                                                         }
@@ -9,19 +15,12 @@ services: { message: { destinations: { STDOUT: { categories: { ArtReport: { limi
                                                }
                                      }
                      }
-            user: { CatalogInterface: { service_provider: "TrivialFileDelivery"
-                                        service_type: "CatalogInterface"
-                                      }
-                    FileTransfer: { service_provider: "TrivialFileTransfer"
-                                    service_type: "FileTransfer"
-                                  }
-                  }
           }
 source: { fileNames: []
           firstEvent: 5
           maxEvents: 4
           module_label: "source"
-          module_type: "RootInput"
+          module_type: "RootInput"  # ./BasicSourceOptions_04.fcl:4
           skipEvents: 2
-        }
+        }  # ./BasicSourceOptions_04.fcl:3
 

@@ -75,6 +75,7 @@
 ////////////////////////////////////////////////////////////////////////
 
 #include "art/Framework/Services/Registry/detail/helper_macros.h"
+#include "art/Utilities/BasicHelperMacros.h"
 
 ////////////////////////////////////////////////////////////////////////
 // User service macros, Service must provide a constructor with the
@@ -88,7 +89,8 @@
   DECLARE_ART_SERVICE_DETAIL(svc,scope)
 
 #define DEFINE_ART_SERVICE(svc) \
-  DEFINE_ART_SH_CREATE(svc)
+  DEFINE_ART_SH_CREATE(svc) \
+  PROVIDE_FILE_PATH()
 
 // Declare an interface.
 #define DECLARE_ART_SERVICE_INTERFACE(svc,scope) \

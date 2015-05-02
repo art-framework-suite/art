@@ -1,13 +1,32 @@
 #include "art/Persistency/Common/DelayedReader.h"
 
-art::DelayedReader::~DelayedReader() {}
+using namespace std;
 
-void
-art::DelayedReader::
-mergeReaders_(std::shared_ptr<DelayedReader>) {
+namespace art {
+
+DelayedReader::
+~DelayedReader()
+{
 }
 
 void
-art::DelayedReader::
-setGroupFinder_(cet::exempt_ptr<EventPrincipal const>) {
+DelayedReader::
+setGroupFinder_(cet::exempt_ptr<EventPrincipal const>)
+{
 }
+
+void
+DelayedReader::
+mergeReaders_(shared_ptr<DelayedReader>)
+{
+}
+
+int
+DelayedReader::
+openNextSecondaryFile_(int /*idx*/)
+{
+  return -2;
+}
+
+} // namespace art
+

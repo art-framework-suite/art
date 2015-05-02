@@ -1,6 +1,6 @@
 #include "art/Persistency/Provenance/ModuleDescription.h"
 
-#include "art/Utilities/Digest.h"
+#include "cetlib/MD5Digest.h"
 #include <ostream>
 #include <sstream>
 
@@ -82,7 +82,7 @@ namespace art {
         << processName() << ' '
         << passID();
     std::string stringrep = oss.str();
-    art::Digest md5alg(stringrep);
+    cet::MD5Digest md5alg(stringrep);
     return ModuleDescriptionID(md5alg.digest().toString());
   }
 

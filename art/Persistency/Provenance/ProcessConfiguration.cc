@@ -1,7 +1,7 @@
 #include <sstream>
 
-#include "art/Utilities/Digest.h"
 #include "art/Persistency/Provenance/ProcessConfiguration.h"
+#include "cetlib/MD5Digest.h"
 #include <ostream>
 
 /*----------------------------------------------------------------------
@@ -21,7 +21,7 @@ namespace art {
     std::ostringstream oss;
     oss << *this;
     std::string stringrep = oss.str();
-    art::Digest md5alg(stringrep);
+    cet::MD5Digest md5alg(stringrep);
     return ProcessConfigurationID(md5alg.digest().toString());
   }
 

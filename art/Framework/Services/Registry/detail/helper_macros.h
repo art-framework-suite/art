@@ -106,7 +106,7 @@
            std::unique_ptr<ServiceWrapperBase> \
            (new ServiceWrapper<svc, ServiceScope::scopeArg>(cfg, reg)); \
   } \
-   
+
 // Legacy services.
 #define DEFINE_ART_LEGACY_SERVICE_MAKER(svc) \
   DEFINE_ART_L_G_SERVICE_MAKER(svc,LEGACY)
@@ -233,12 +233,13 @@
 #define DEFINE_ART_SIH_CREATE(svc) \
   DEFINE_ART_SH_CREATE_DETAIL(svc,iface)
 
-#define DEFINE_ART_SH_CREATE_DETAIL(svc,type) \
-  extern "C" \
-  std::unique_ptr<art::detail::ServiceHelperBase> \
-  create_##type##_helper() { \
-    return \
-           std::unique_ptr<art::detail::ServiceHelperBase>(new art::detail::ServiceHelper<svc>); \
+#define DEFINE_ART_SH_CREATE_DETAIL(svc,type)                           \
+  extern "C" {                                                          \
+    std::unique_ptr<art::detail::ServiceHelperBase>                     \
+    create_##type##_helper() {                                          \
+      return                                                            \
+        std::unique_ptr<art::detail::ServiceHelperBase>(new art::detail::ServiceHelper<svc>); \
+    }                                                                   \
   }
 
 #endif /* art_Framework_Services_Registry_detail_helper_macros_h */

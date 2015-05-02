@@ -51,7 +51,10 @@ public:
   static EventID invalidEvent(SubRunID const & srID);
   static EventID flushEvent();
   static EventID flushEvent(RunID rID);
-  static EventID flushEvent(RunID rID, SubRunID srID);
+  static EventID flushEvent(SubRunID srID);
+#ifndef __GCCXML__
+  static EventID flushEvent [[deprecated]] (RunID rID, SubRunID srID);
+#endif
 
   // Comparison operators.
   bool operator==(EventID const & other) const;
@@ -69,7 +72,7 @@ private:
 
   explicit EventID(FlushFlag);
   EventID(RunID rID, FlushFlag);
-  EventID(RunID rID, SubRunID srID, FlushFlag);
+  EventID(SubRunID srID, FlushFlag);
 
   EventNumber_t inRangeOrInvalid(EventNumber_t e);
 
@@ -79,7 +82,6 @@ private:
   static constexpr EventNumber_t MAX_NATURAL_EVENT_NUMBER();
   static constexpr EventNumber_t FIRST_EVENT_NUMBER();
 
-  RunID run_;
   SubRunID subRun_;
   EventNumber_t event_;
 };
@@ -300,9 +302,9 @@ flushEvent(RunID rID)
 inline
 art::EventID
 art::EventID::
-flushEvent(RunID rID, SubRunID srID)
+flushEvent(SubRunID srID)
 {
-  return EventID(rID, srID, FlushFlag());
+  return EventID(srID, FlushFlag());
 }
 
 // Comparison operators.
@@ -382,9 +384,8 @@ EventID(RunID rID, FlushFlag)
 
 inline
 art::EventID::
-EventID(RunID rID, SubRunID srID, FlushFlag)
+EventID(SubRunID srID, FlushFlag)
   :
-  run_(std::move(rID)),
   subRun_(std::move(srID)),
   event_(FLUSH_EVENT_NUMBER())
 {
@@ -404,8 +405,8 @@ inRangeOrInvalid(EventNumber_t e)
   }
   else {
     throw Exception(errors::InvalidNumber)
-      << "Attempt to construct SubRunID with an invalid number.\n"
-      << "Maybe you want EventID::flushSubRun()?\n";
+      << "Attempt to construct an EventID with an invalid number.\n"
+      << "Maybe you want EventID::flushEvent()?\n";
   }
 }
 

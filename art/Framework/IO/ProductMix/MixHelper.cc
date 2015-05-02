@@ -1,7 +1,8 @@
 #include "art/Framework/IO/ProductMix/MixHelper.h"
 
 #include "art/Framework/IO/Root/GetFileFormatEra.h"
-#include "art/Framework/IO/Root/setMetaDataBranchAddress.h"
+#include "art/Framework/IO/Root/setFileIndexPointer.h"
+#include "art/Framework/IO/Root/rootNames.h"
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Services/Optional/RandomNumberGenerator.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
@@ -9,7 +10,6 @@
 #include "art/Persistency/Provenance/FileIndex.h"
 #include "art/Persistency/Provenance/History.h"
 #include "cetlib/container_algorithms.h"
-//#include "cpp0x/regex"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include <algorithm>
@@ -234,7 +234,7 @@ art::MixHelper::mixAndPut(EntryNumberSequence const & enSeq,
   ptpBuilder_.populateRemapper(ptrRemapper_, e);
   // Do the branch-wise read, mix and put.
   cet::for_all(mixOps_,
-	       [&,this](auto const& op){ this->mixAndPutOne_(op, enSeq, e); });
+               [&,this](auto const& op){ this->mixAndPutOne_(op, enSeq, e); });
   nEventsReadThisFile_ += enSeq.size();
   totalEventsRead_ += enSeq.size();
 }
@@ -298,9 +298,9 @@ openAndReadMetaData_(std::string filename)
         << ".\n";
   }
   // Obtain meta data tree.
-  currentMetaDataTree_.reset(dynamic_cast<TTree *>
-                             (currentFile_->
-                              Get(rootNames::metaDataTreeName().c_str())));
+  currentMetaDataTree_.reset(
+    dynamic_cast<TTree*>(currentFile_->Get(
+      art::rootNames::metaDataTreeName().c_str())));
   if (currentMetaDataTree_.get() == 0) {
     throw Exception(errors::FileReadError)
         << "Unable to read meta data tree from secondary event stream file "
@@ -308,25 +308,27 @@ openAndReadMetaData_(std::string filename)
         << ".\n";
   }
   // Obtain event tree.
-  currentEventTree_.reset(dynamic_cast<TTree *>
-                          (currentFile_->
-                           Get(rootNames::eventTreeName().c_str())));
+  currentEventTree_.reset(dynamic_cast<TTree*>(
+    currentFile_->Get(art::rootNames::eventTreeName().c_str())));
   if (currentEventTree_.get() == 0) {
     throw Exception(errors::FileReadError)
-        << "Unable to read event tree from secondary event stream file "
-        << filename
-        << ".\n";
+      << "Unable to read event tree from secondary event stream file "
+      << filename
+      << ".\n";
   }
   nEventsInFile_ = currentEventTree_->GetEntries();
   // Read meta data
   FileFormatVersion * ffVersion_p = &ffVersion_;
-  setMetaDataBranchAddress(currentMetaDataTree_.get(), ffVersion_p);
+  currentMetaDataTree_.get()->SetBranchAddress(
+    art::rootNames::metaBranchRootName<FileFormatVersion>(), &ffVersion_p);
   FileIndex fileIndex;
-  FileIndex * fileIndex_p = &fileIndex;
-  setMetaDataBranchAddress(currentMetaDataTree_.get(), fileIndex_p);
+  FileIndex* fileIndexPtr = &fileIndex;
+  setFileIndexPointer(currentFile_.get(), currentMetaDataTree_.get(),
+                      fileIndexPtr);
   BranchIDLists branchIDLists;
   BranchIDLists * branchIDLists_p = &branchIDLists;
-  setMetaDataBranchAddress(currentMetaDataTree_.get(), branchIDLists_p);
+  currentMetaDataTree_.get()->SetBranchAddress(
+    art::rootNames::metaBranchRootName<BranchIDLists>(), &branchIDLists_p);
   Int_t n = currentMetaDataTree_->GetEntry(0);
   switch (n) {
     case -1:

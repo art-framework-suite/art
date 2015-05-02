@@ -1,0 +1,142 @@
+Running 2 test cases...
+<separator (=)>
+
+   module_type                         Type        Source location
+<separator (-)>
+   AddIntsProducer                     producer    <path>/AddIntsProducer_module.cc
+   AssnsAnalyzer                       analyzer    <path>/AssnsAnalyzer_module.cc
+   AssnsProducer                       producer    <path>/AssnsProducer_module.cc
+   BareStringAnalyzer                  analyzer    <path>/BareStringAnalyzer_module.cc
+   BareStringProducer                  producer    <path>/BareStringProducer_module.cc
+   BlockingPrescaler                   filter      <path>/BlockingPrescaler_module.cc
+   CompressedIntProducer               producer    <path>/CompressedIntProducer_module.cc
+   CompressedIntTestAnalyzer           analyzer    <path>/CompressedIntTestAnalyzer_module.cc
+   DeferredIsReadyWithAssnsAnalyzer    analyzer    <path>/DeferredIsReadyWithAssnsAnalyzer_module.cc
+   DeferredIsReadyWithAssnsProducer    producer    <path>/DeferredIsReadyWithAssnsProducer_module.cc
+   DerivedPtrVectorProducer            producer    <path>/DerivedPtrVectorProducer_module.cc
+   DoubleProducer                      producer    <path>/DoubleProducer_module.cc
+   DoubleTestAnalyzer                  analyzer    <path>/DoubleTestAnalyzer_module.cc
+   DropTestAnalyzer                    analyzer    <path>/DropTestAnalyzer_module.cc
+   DropTestParentageFaker              producer    <path>/DropTestParentageFaker_module.cc
+   ESPrimaryProducer                   producer    <path>/ESPrimaryProducer_module.cc
+   ESSecondaryProducer                 producer    <path>/ESSecondaryProducer_module.cc
+   EmptyEvent                          source      <path>/EmptyEvent_source.cc
+   FailingAnalyzer                     analyzer    <path>/FailingAnalyzer_module.cc
+   FailingProducer                     producer    <path>/FailingProducer_module.cc
+   FileDumperOutput                    output      <path>/FileDumperOutput_module.cc
+   FindManySpeedTestAnalyzer           analyzer    <path>/FindManySpeedTestAnalyzer_module.cc
+   FindManySpeedTestProducer           producer    <path>/FindManySpeedTestProducer_module.cc
+   FlushingGenerator                   source      <path>/FlushingGenerator_source.cc
+   FlushingGeneratorTest               output      <path>/FlushingGeneratorTest_module.cc
+   FlushingGeneratorTestFilter         filter      <path>/FlushingGeneratorTestFilter_module.cc
+   GeneratorTest                       source      <path>/GeneratorTest_source.cc
+   HMRunProdProducer                   producer    <path>/HMRunProdProducer_module.cc
+   HMSubRunProdProducer                producer    <path>/HMSubRunProdProducer_module.cc
+   IntProducer                         producer    <path>/IntProducer_module.cc
+   IntTestAnalyzer                     analyzer    <path>/IntTestAnalyzer_module.cc
+   IntVectorAnalyzer                   analyzer    <path>/IntVectorAnalyzer_module.cc
+   IntVectorProducer                   producer    <path>/IntVectorProducer_module.cc
+   MixAnalyzer                         analyzer    <path>/MixAnalyzer_module.cc
+   MixFilterTest                       filter      <path>/MixFilterTest_module.cc
+   MixFilterTestETS                    filter      <path>/MixFilterTestETS_module.cc
+   MixFilterTestETSc                   filter      <path>/MixFilterTestETSc_module.cc
+   MixFilterTestNoStartEvent           filter      <path>/MixFilterTestNoStartEvent_module.cc
+   MixFilterTestOldStartEvent          filter      <path>/MixFilterTestOldStartEvent_module.cc
+   MixProducer                         producer    <path>/MixProducer_module.cc
+   MockClusterListAnalyzer             analyzer    <path>/MockClusterListAnalyzer_module.cc
+   MockClusterListProducer             producer    <path>/MockClusterListProducer_module.cc
+   MyServiceUser                       analyzer    <path>/MyServiceUser_module.cc
+   PMTestAnalyzer                      analyzer    <path>/PMTestAnalyzer_module.cc
+   PMTestFilter                        filter      <path>/PMTestFilter_module.cc
+   PMTestOutput                        output      <path>/PMTestOutput_module.cc
+   PMTestProducer                      producer    <path>/PMTestProducer_module.cc
+   PSTestAnalyzer                      analyzer    <path>/PSTestAnalyzer_module.cc
+   PausingAnalyzer                     analyzer    <path>/PausingAnalyzer_module.cc
+   Prescaler                           filter      <path>/Prescaler_module.cc
+   ProductIDGetter                     producer    <path>/ProductIDGetter_module.cc
+   ProductIDGetterAnalyzer             analyzer    <path>/ProductIDGetterAnalyzer_module.cc
+   ProvenanceCheckerOutput             output      <path>/ProvenanceCheckerOutput_module.cc
+   PtrListAnalyzer                     analyzer    <path>/PtrListAnalyzer_module.cc
+   PtrVectorAnalyzer                   analyzer    <path>/PtrVectorAnalyzer_module.cc
+   PtrVectorProducer                   producer    <path>/PtrVectorProducer_module.cc
+   PtrVectorSimpleAnalyzer             analyzer    <path>/PtrVectorSimpleAnalyzer_module.cc
+   PtrmvAnalyzer                       analyzer    <path>/PtrmvAnalyzer_module.cc
+   PtrmvProducer                       producer    <path>/PtrmvProducer_module.cc
+   RandomNumberSaveTest                filter      <path>/RandomNumberSaveTest_module.cc
+   RandomNumberSaver                   producer    <path>/RandomNumberSaver_module.cc
+   Reconfiguring                       analyzer    <path>/Reconfiguring_module.cc
+   RootInput                           source      <path>/RootInput_source.cc
+   RootOutput                          output      <path>/RootOutput_module.cc
+   S                                   producer    <path>/U_S_module.cc
+   SAMMetadataTest                     analyzer    <path>/SAMMetadataTest_module.cc
+   SimpleDerivedAnalyzer               analyzer    <path>/SimpleDerivedAnalyzer_module.cc
+   SimpleDerivedProducer               producer    <path>/SimpleDerivedProducer_module.cc
+   TH1DataProducer                     producer    <path>/TH1DataProducer_module.cc
+   TestAnalyzerSelect                  analyzer    <path>/TestAnalyzerSelect_module.cc
+   TestBitsOutput                      output      <path>/TestBitsOutput_module.cc
+   TestFilter                          filter      <path>/TestFilter_module.cc
+   TestMod                             producer    <path>/TestMod_module.cc
+   TestOutput                          output      <path>/TestOutput_module.cc
+   TestProvenanceDumper                output      <path>/TestProvenanceDumper_module.cc
+   TestRemoveCachedProduct             analyzer    <path>/TestRemoveCachedProduct_module.cc
+   TestResultAnalyzer                  analyzer    <path>/TestResultAnalyzer_module.cc
+   TestServiceUsingService             analyzer    <path>/TestServiceUsingService_module.cc
+   TestSimpleMemoryCheckProducer       producer    <path>/TestSimpleMemoryCheckProducer_module.cc
+   TestTFileServiceAnalyzer            analyzer    <path>/TestTFileServiceAnalyzer_module.cc
+   TestTimeTrackerAnalyzer             analyzer    <path>/TestTimeTrackerAnalyzer_module.cc
+   TestTimeTrackerFilter               filter      <path>/TestTimeTrackerFilter_module.cc
+   TestTimeTrackerProducer             producer    <path>/TestTimeTrackerProducer_module.cc
+   ToolsTestAnalyzer                   analyzer    <path>/ToolsTestAnalyzer_module.cc
+   ToolsTestFilter                     filter      <path>/ToolsTestFilter_module.cc
+   ToolsTestProducer                   producer    <path>/ToolsTestProducer_module.cc
+   ToyProductProducer                  producer    <path>/ToyProductProducer_module.cc
+   ToyRawFileInput                     source      <path>/ToyRawFileInput_source.cc
+   ToyRawInput                         source      <path>/ToyRawInput_source.cc
+   ToyRawInputTester                   analyzer    <path>/ToyRawInputTester_module.cc
+   ToyRawProductAnalyzer               analyzer    <path>/ToyRawProductAnalyzer_module.cc
+   UnitTestClient                      analyzer    <path>/UnitTestClient_module.cc
+   UnputtingProducer                   producer    <path>/UnputtingProducer_module.cc
+   ValidHandleTester                   analyzer    <path>/ValidHandleTester_module.cc
+
+<separator (=)>
+
+<separator (=)>
+
+   The following types of services are included in the printout below:
+
+        system    =  System services automatically loaded by art
+        optional  =  Optional services provided by art
+        user      =  Service provided by user/experiment
+
+   Services                 Type        Source location
+<separator (=)>
+   CurrentModule            system      <path>/CurrentModule_service.cc
+   FileCatalogMetadata      system      <path>/FileCatalogMetadata_service.cc
+   FloatingPointControl     system      <path>/FloatingPointControl_service.cc
+   InFlightConfiguration    user        <path>/InFlightConfiguration_service.cc
+   MemoryAdjuster           optional    <path>/MemoryAdjuster_service.cc
+   MemoryTracker            optional    <path>/MemoryTracker_service.cc
+   MyService                optional    <path>/MyService_service.cc
+   MyServiceUsingIface      optional    <path>/MyServiceUsingIface_service.cc
+   PSTest                   optional    <path>/PSTest_service.cc
+   PSTestInterfaceImpl      optional    <path>/PSTestInterfaceImpl_service.cc
+   PathSelection            system      <path>/PathSelection_service.cc
+   RandomNumberGenerator    optional    <path>/RandomNumberGenerator_service.cc
+   Reconfigurable           user        <path>/Reconfigurable_service.cc
+   ScheduleContext          system      <path>/ScheduleContext_service.cc
+   ServiceUsing             user        <path>/ServiceUsing_service.cc
+   SimpleInteraction        optional    <path>/SimpleInteraction_service.cc
+   SimpleMemoryCheck        optional    <path>/SimpleMemoryCheck_service.cc
+   TFileService             optional    <path>/TFileService_service.cc
+   Throwing                 user        <path>/Throwing_service.cc
+   TimeTracker              optional    <path>/TimeTracker_service.cc
+   Timing                   optional    <path>/Timing_service.cc
+   Tracer                   optional    <path>/Tracer_service.cc
+   TriggerNamesService      system      <path>/TriggerNamesService_service.cc
+   TrivialFileDelivery      optional    <path>/TrivialFileDelivery_service.cc
+   TrivialFileTransfer      optional    <path>/TrivialFileTransfer_service.cc
+   Wanted                   user        <path>/Wanted_service.cc
+   message                  system      [ See https://cdcvs.fnal.gov/redmine/projects/art/wiki/Messagefacility ]
+
+<separator (=)>
+

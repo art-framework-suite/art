@@ -1,0 +1,39 @@
+physics: {
+
+  producers: {
+  }
+
+  analyzers: {
+    a1:
+    {
+      module_type: PtrVectorAnalyzer
+      input_label: m1b
+      nvalues: 8
+    }
+  }
+
+   p1: []
+   e1: [ a1, out1 ]
+
+   trigger_paths: [ p1 ]
+   end_paths: [ e1 ]
+}
+
+outputs: {
+  out1: {
+    module_type: RootOutput
+    fileName: "out3.root"
+  }
+}
+
+source: {
+  module_type: RootInput
+  fileNames: [ "../test_ptrvector_01d_t.d/out2.root" ]
+  secondaryFileNames: [
+    { a: "../test_ptrvector_01d_t.d/out2.root"
+      b: [ "../test_ptrvector_01c_t.d/out1.root" ]
+    }
+  ]
+}
+
+process_name: ANAL

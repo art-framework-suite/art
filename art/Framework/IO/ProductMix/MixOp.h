@@ -201,13 +201,13 @@ outgoingBranchID() const
                   moduleLabel_,
                   outputInstanceLabel_,
                   processName_);
-    ProductList const & products = ProductMetaData::instance().productList();
-    ProductList::const_iterator i = products.find(key);
-    if (i == products.end()) {
+    auto I = ProductMetaData::instance().productList().find(key);
+    if (I == ProductMetaData::instance().productList().end()) {
       throw Exception(errors::LogicError)
-        << "MixOp unable to find branch id for a product that should have been registered!\n";
+          << "MixOp unable to find branch id for a product that "
+             "should have been registered!\n";
     }
-    result = i->second.branchID();
+    result = I->second.branchID();
   }
   return result;
 }

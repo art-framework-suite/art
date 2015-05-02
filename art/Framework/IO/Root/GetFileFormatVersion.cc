@@ -22,14 +22,16 @@
 // ART_2011a   3   Bunch crossing, orbit number and store number removed
 //                 from EventAuxiliary.
 // ART_2011a   4   PtrVector member indicies_-> indices_.
-// ART_2011a   5   ProdctRegistry changes.
+// ART_2011a   5   ProductRegistry changes.
 //                 BranchDescription improvements.
 //                 ParameterSets written to MetaDataDB.
 // ART_2011a   6   Improvements to ParameterSet information in MetaDataDB.
+// ART_2011a   7   FileIndex moved to separate tree.
+// ART_2011a   8   EventID unnecessary data member removed.
 //
 ////////////////////////////////////////////////////////////////////////
 
 namespace art
 {
-  int getFileFormatVersion() { return 6; }
+  int getFileFormatVersion() { return 8; }
 }

@@ -11,9 +11,9 @@ link_libraries(
   ${ROOT_MATHCORE}
   ${ROOT_THREAD}
   ${ROOT_RIO}
-	${ROOT_CORE}
+  ${ROOT_CORE}
   ${ROOT_CINT}
-	${ROOT_REFLEX}
+  ${ROOT_REFLEX}
   ${CPPUNIT}
   -ldl
  )
@@ -76,6 +76,12 @@ cet_test(BasicOptions_02_t HANDBUILT
   TEST_PROPERTIES
   PASS_REGULAR_EXPRESSION "\nAllowed options:\n"
 )
+
+cet_test(artapp_basicOptions_print_t USE_BOOST_UNIT
+  LIBRARIES
+  art_Framework_Art
+  REF "${CMAKE_CURRENT_SOURCE_DIR}/BasicOptions_printModulesServices-ref.txt"
+  )
 
 ####################################
 # BasicOutputOptionsHandler.
@@ -346,7 +352,7 @@ cet_test(FileCatalogOptions_01 HANDBUILT
   -c opt-empty.fcl
   TEST_PROPERTIES ENVIRONMENT ART_DEBUG_CONFIG=1
   PASS_REGULAR_EXPRESSION
-  "  configurations services\\.user\\.CatalogInterface\\.webURI \\(--sam-web-uri\\) and
+  "  configurations services\\.CatalogInterface\\.webURI \\(--sam-web-uri\\) and
   services\\.FileCatalogMetadata\\.processID \\(--sam-process-id\\) must be specified
   together or not at all\\."
   DATAFILES fcl/opt-empty.fcl

@@ -1,16 +1,15 @@
 #ifndef art_Framework_Principal_RunPrincipal_h
 #define art_Framework_Principal_RunPrincipal_h
+// vim: set sw=2:
 
-/*----------------------------------------------------------------------
-
-RunPrincipal: This is the class responsible for management of
-per run EDProducts. It is not seen by reconstruction code;
-such code sees the Run class, which is a proxy for RunPrincipal.
-
-The major internal component of the RunPrincipal
-is the DataBlock.
-
-----------------------------------------------------------------------*/
+//
+//  RunPrincipal
+//
+//  Manages per-run data products.
+//
+//  This is not visible to modules, instead they use the Run class,
+//  which is a proxy for this class.
+//
 
 #include "art/Framework/Principal/NoDelayedReader.h"
 #include "art/Framework/Principal/Principal.h"
@@ -20,57 +19,92 @@ is the DataBlock.
 #include "art/Persistency/Provenance/RunAuxiliary.h"
 #include "cetlib/exempt_ptr.h"
 #include "cpp0x/memory"
-
 #include <vector>
 
-class art::RunPrincipal : public art::Principal {
+namespace art {
+
+class RunPrincipal : public Principal {
+
 public:
+
   typedef RunAuxiliary Auxiliary;
 
-  RunPrincipal(RunAuxiliary const& aux,
-               ProcessConfiguration const& pc,
-               std::unique_ptr<BranchMapper> && mapper = std::unique_ptr<BranchMapper>(new BranchMapper),
-               std::unique_ptr<DelayedReader> && rtrv = std::unique_ptr<DelayedReader>(new NoDelayedReader));
-  ~RunPrincipal() {}
+public:
 
-  RunAuxiliary const& aux() const { return aux_; }
+  virtual ~RunPrincipal();
 
-  RunNumber_t run() const { return aux().run(); }
+  RunPrincipal(RunAuxiliary const&,
+               ProcessConfiguration const&,
+               std::unique_ptr<BranchMapper>&& mapper =
+                 std::unique_ptr<BranchMapper>(new BranchMapper),
+               std::unique_ptr<DelayedReader>&& rtrv =
+                 std::unique_ptr<DelayedReader>(new NoDelayedReader),
+               int idx = 0, RunPrincipal* = nullptr);
 
-  RunID const& id() const { return aux().id(); }
+  RunAuxiliary const&
+  aux() const
+  {
+    return aux_;
+  }
 
-  Timestamp const& beginTime() const { return aux().beginTime(); }
+  RunNumber_t
+  run() const
+  {
+    return aux().run();
+  }
 
-  Timestamp const& endTime() const { return aux().endTime(); }
+  RunID const&
+  id() const
+  {
+    return aux().id();
+  }
 
-  void setEndTime(Timestamp const& time) { aux_.setEndTime(time); }
+  Timestamp const&
+  beginTime() const
+  {
+    return aux().beginTime();
+  }
 
-  void mergeRun(std::shared_ptr<RunPrincipal> rp);
+  Timestamp const&
+  endTime() const
+  {
+    return aux().endTime();
+  }
 
-  void put(std::unique_ptr<EDProduct> && edp,
-           BranchDescription const& bd,
-           std::unique_ptr<ProductProvenance const> && productProvenance);
+  void
+  setEndTime(Timestamp const& time)
+  {
+    aux_.setEndTime(time);
+  }
 
-  void addGroup(BranchDescription const& bd);
+  virtual BranchType branchType() const;
 
-  void addGroup(std::unique_ptr<EDProduct> && prod,
-                BranchDescription const& bd);
+  void addGroup(BranchDescription const&);
 
-  BranchType branchType() const { return InRun; }
+  void addGroup(std::unique_ptr<EDProduct>&&, BranchDescription const&);
+
+  void mergeRun(std::shared_ptr<RunPrincipal>);
+
+  void put(std::unique_ptr<EDProduct>&&, BranchDescription const&,
+           std::unique_ptr<ProductProvenance const>&&);
 
 private:
 
-  virtual void addOrReplaceGroup(std::unique_ptr<Group> && g);
+  virtual void addOrReplaceGroup(std::unique_ptr<Group>&&);
 
-  virtual ProcessHistoryID const& processHistoryID() const {return aux().processHistoryID_;}
+  virtual ProcessHistoryID const& processHistoryID() const;
 
-  virtual void setProcessHistoryID(ProcessHistoryID const& phid) const {return aux().setProcessHistoryID(phid);}
+  virtual void setProcessHistoryID(ProcessHistoryID const&) const;
+
+private:
 
   RunAuxiliary aux_;
+
 };
 
-#endif /* art_Framework_Principal_RunPrincipal_h */
+} // namespace art
 
 // Local Variables:
 // mode: c++
 // End:
+#endif // art_Framework_Principal_RunPrincipal_h

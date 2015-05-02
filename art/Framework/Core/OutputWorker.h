@@ -48,6 +48,8 @@ namespace art {
 
     void configure(OutputModuleDescription const& desc);
 
+    virtual void selectProducts(FileBlock const&);
+
 private:
     ServiceHandle<CatalogInterface> ci_;
   };

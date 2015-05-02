@@ -1,0 +1,29 @@
+physics: {
+
+  producers: {
+  }
+
+  analyzers: {
+  }
+
+   p1: []
+   e1: [ out1 ]
+
+   trigger_paths: [ p1 ]
+   end_paths: [ e1 ]
+}
+
+outputs: {
+  out1: {
+    module_type: RootOutput
+    fileName: "out2.root"
+    outputCommands: [ "keep *", "drop ints_m1a__MAKE" ]
+  }
+}
+
+source: {
+  module_type: RootInput
+  fileNames: [ "../test_ptrvector_01c_t.d/out1.root" ]
+}
+
+process_name: DROP

@@ -84,7 +84,7 @@ EOF
   }
   for my $version (all_versions_since($package, $vnum)) {
     printf "h2. %%(#%s)$package%% %s, %s%s.\n",
-      dot_version($version),
+      nosep_version($version),
         vpage($version),
           tag_date($package, prod_version($version)),
             suite_reference_string(suite_references($package, $version));
@@ -240,7 +240,7 @@ sub rpage {
   my $dot_version = dot_version(${version});
   return ($lpkg eq "art"?
           "[[art:Release Notes ${dot_version}|Art Suite ${dot_version}]]":
-          "[[$lpkg:Release Notes#${dot_version}|$package ${dot_version}]]");
+          "[[$lpkg:Release Notes#${rversion}|$package ${dot_version}]]");
 }
 
 sub product_name {

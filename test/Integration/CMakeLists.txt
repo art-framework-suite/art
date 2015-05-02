@@ -1,15 +1,17 @@
 set(CMAKE_MODULE_PATH
-	${CMAKE_MODULE_PATH}
+  ${CMAKE_MODULE_PATH}
   ${CMAKE_CURRENT_SOURCE_DIR}
   )
 
 include(ReflexTools_t)
 
 # project name
-art_make_library(SOURCE ToySource.cc
+art_make_library(SOURCE 
+  ToySource.cc
   LIBRARIES art_Framework_IO_Sources
   art_Framework_Core
   fhiclcpp
+  NO_INSTALL
   )
 
 set_source_files_properties(MixFilterTestETS_module.cc
@@ -44,6 +46,7 @@ simple_plugin(DropTestAnalyzer            "module"  NO_INSTALL USE_BOOST_UNIT )
 simple_plugin(DropTestParentageFaker      "module"  NO_INSTALL )
 simple_plugin(FailingAnalyzer             "module"  NO_INSTALL )
 simple_plugin(FailingProducer             "module"  NO_INSTALL )
+simple_plugin(UnputtingProducer           "module"  NO_INSTALL )
 simple_plugin(FlushingGenerator           "source"  NO_INSTALL )
 simple_plugin(FlushingGeneratorTest       "module"  NO_INSTALL )
 simple_plugin(FlushingGeneratorTestFilter "module"  NO_INSTALL )
@@ -66,8 +69,6 @@ simple_plugin(PausingAnalyzer             "module"  NO_INSTALL )
 simple_plugin(ProductIDGetter             "module"  NO_INSTALL USE_BOOST_UNIT )
 simple_plugin(ProductIDGetterAnalyzer     "module"  NO_INSTALL USE_BOOST_UNIT )
 simple_plugin(PtrListAnalyzer             "module"  NO_INSTALL )
-simple_plugin(PtrVectorAnalyzer           "module"  NO_INSTALL )
-simple_plugin(PtrVectorProducer           "module"  NO_INSTALL )
 simple_plugin(PtrVectorSimpleAnalyzer     "module"  NO_INSTALL )
 simple_plugin(PtrmvAnalyzer               "module"  NO_INSTALL USE_BOOST_UNIT )
 simple_plugin(PtrmvProducer               "module"  NO_INSTALL )
@@ -91,6 +92,7 @@ simple_plugin(TestTimeTrackerProducer     "module"  NO_INSTALL )
 simple_plugin(TestTimeTrackerFilter       "module"  NO_INSTALL )
 simple_plugin(TestTimeTrackerAnalyzer     "module"  NO_INSTALL )
 simple_plugin(Throwing                    "service" NO_INSTALL )
+simple_plugin(ToyProductProducer          "module"  NO_INSTALL )
 simple_plugin(ToyRawFileInput             "source"  NO_INSTALL USE_BOOST_UNIT test_Integration )
 simple_plugin(ToyRawInput                 "source"  NO_INSTALL USE_BOOST_UNIT test_Integration )
 simple_plugin(ToyRawInputTester           "module"  NO_INSTALL )
@@ -126,6 +128,17 @@ cet_test(EventSelectorFromFile_r2 HANDBUILT
   TEST_PROPERTIES DEPENDS EventSelectorFromFile_w
 )
 
+cet_test(test_dropAllEventsSubruns_t.sh PREBUILT
+  DATAFILES
+  fcl/dropAllEvents_t.fcl
+  fcl/dropAllEventsSubruns_t1.fcl
+  fcl/dropAllEventsSubruns_t2.fcl
+  fcl/dropAllEvents_r_t.fcl
+  fcl/dropAllEventsSubruns_r_t1.fcl
+  fcl/dropAllEventsSubruns_r_t2.fcl
+  test_dropAllEventsSubruns_verify.cxx
+)
+
 cet_test(test_simple_01_t.sh PREBUILT
   DATAFILES
   fcl/test_simple_01.fcl
@@ -140,23 +153,6 @@ cet_test(test_view_01_t.sh PREBUILT
   fcl/test_view_01b.fcl
   fcl/test_simple_01r.fcl
   fcl/messageDefaults.fcl
-)
-
-cet_test(test_ptrvector_01a_t HANDBUILT
-  TEST_EXEC art
-  TEST_ARGS --config test_ptrvector_01a.fcl --rethrow-all
-  DATAFILES
-  fcl/test_ptrvector_01a.fcl
-  fcl/messageDefaults.fcl
-)
-
-cet_test(test_ptrvector_01b_t HANDBUILT
-  TEST_EXEC art
-  TEST_ARGS --config test_ptrvector_01b.fcl --rethrow-all
-  DATAFILES
-  fcl/test_ptrvector_01b.fcl
-  fcl/messageDefaults.fcl
-  TEST_PROPERTIES DEPENDS test_ptrvector_01a_t
 )
 
 cet_test(SimpleDerived_01_w HANDBUILT
@@ -204,12 +200,29 @@ cet_test(test_failingProducer_t.sh PREBUILT
   fcl/messageDefaults.fcl
 )
 
-cet_test(issue_0923_t.sh PREBUILT
+cet_test(test_unputtingProducer_t HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --rethrow-all -c test_unputtingProducer.fcl
+  #TEST_EXEC valgrind
+  #TEST_ARGS --suppressions=${ROOTSYS}/etc/valgrind-root.supp --leak-check=no --track-origins=yes --log-file=val.log art --rethrow-all -c test_unputtingProducer.fcl
+  DATAFILES
+  fcl/test_unputtingProducer.fcl
+  fcl/messageDefaults.fcl
+)
+
+cet_test(issue_0923_w HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS -c issue_0923b.fcl --debug-config config.out
   DATAFILES
   fcl/issue_0923a.fcl
   fcl/issue_0923b.fcl
-  fcl/messageDefaults.fcl
-  issue_0923_ref.txt
+  TEST_PROPERTIES WILL_FAIL TRUE
+)
+
+cet_test(issue_0923_r HANDBUILT
+  TEST_EXEC diff
+  TEST_ARGS -u ${CMAKE_CURRENT_SOURCE_DIR}/issue_0923_ref.txt ../issue_0923_w.d/config.out
+  TEST_PROPERTIES DEPENDS issue_0923_w
 )
 
 cet_test(issue_0926_t.sh PREBUILT
@@ -248,7 +261,7 @@ cet_test(FileDumperOutput_w HANDBUILT
   TEST_EXEC art
   TEST_ARGS --rethrow-all -c FileDumperOutputTest_w.fcl
   TEST_PROPERTIES
-  PASS_REGULAR_EXPRESSION "Total products \\(present, not present\\): 3 \\(3, 0\\)\\."
+  PASS_REGULAR_EXPRESSION "Total products \\(present, not present\\): 4 \\(4, 0\\)\\."
   DATAFILES
   fcl/FileDumperOutputTest_w.fcl
 )
@@ -259,7 +272,7 @@ cet_test(FileDumperOutput_r HANDBUILT
   DATAFILES
   fcl/FileDumperOutputTest_r.fcl
   TEST_PROPERTIES
-  PASS_REGULAR_EXPRESSION "Total products \\(present, not present\\): 3 \\(2, 1\\)\\."
+  PASS_REGULAR_EXPRESSION "Total products \\(present, not present\\): 4 \\(3, 1\\)\\."
   DEPENDS FileDumperOutput_w
 )
 
@@ -297,6 +310,7 @@ foreach(num 05 06 07 08 09 10 11 12)
     fcl/ToyRawInput_common.fcl
   )
 endforeach()
+
 
 SET_TESTS_PROPERTIES(ToyRawInput_t_05 PROPERTIES
   PASS_REGULAR_EXPRESSION
@@ -921,7 +935,7 @@ cet_test(SAM_metadata_verify_hr HANDBUILT
   TEST_ARGS -H -s ../SAM_metadata.d/out.root
   TEST_PROPERTIES DEPENDS SAM_metadata
   PASS_REGULAR_EXPRESSION
-  "^\nFile catalog metadata from file \\.\\./SAM_metadata\\.d/out\\.root:\n\n 1: applicationFamily   \"Ethel\"\n 2: applicationVersion  \"v0\\.00\\.01a\"\n 3: fileType            \"MC\"\n 4: run_type            \"MCChallenge\"\n 5: group               \"MyGang\"\n 6: process_name        \"SAMMetadataW\"\n 7: testMetadata        \"success!\"\n 8: dataTier            \"The one with the thickest frosting\"\n 9: streamName          \"o1\"\n10: file_format         \"artroot\"\n11: file_format_era     \"ART_2011a\"\n12: file_format_version 6\n13: start_time          \"${date_regex}\"\n14: end_time            \"${date_regex}\"\n15: runs                \\[ \\[ 1, 0, \"MCChallenge\" \\] \\]\n16: event_count         1\n17: first_event         \\[ 1, 0, 1 \\]\n18: last_event          \\[ 1, 0, 1 \\]\n-------------------------------\n$"
+  "^\nFile catalog metadata from file \\.\\./SAM_metadata\\.d/out\\.root:\n\n 1: applicationFamily   \"Ethel\"\n 2: applicationVersion  \"v0\\.00\\.01a\"\n 3: fileType            \"MC\"\n 4: run_type            \"MCChallenge\"\n 5: group               \"MyGang\"\n 6: process_name        \"SAMMetadataW\"\n 7: testMetadata        \"success!\"\n 8: dataTier            \"The one with the thickest frosting\"\n 9: streamName          \"o1\"\n10: file_format         \"artroot\"\n11: file_format_era     \"ART_2011a\"\n12: file_format_version 8\n13: start_time          \"${date_regex}\"\n14: end_time            \"${date_regex}\"\n15: runs                \\[ \\[ 1, 0, \"MCChallenge\" \\] \\]\n16: event_count         1\n17: first_event         \\[ 1, 0, 1 \\]\n18: last_event          \\[ 1, 0, 1 \\]\n-------------------------------\n$"
   )
 
 cet_test(SAM_metadata_verify_JSON HANDBUILT
@@ -929,7 +943,7 @@ cet_test(SAM_metadata_verify_JSON HANDBUILT
   TEST_ARGS -s ../SAM_metadata.d/out.root
   TEST_PROPERTIES DEPENDS SAM_metadata
   PASS_REGULAR_EXPRESSION
-  "^{\n  \"\\.\\./SAM_metadata\\.d/out\\.root\": {\n    \"applicationFamily\": \"Ethel\",\n    \"applicationVersion\": \"v0\\.00\\.01a\",\n    \"file_type\": \"MC\",\n    \"run_type\": \"MCChallenge\",\n    \"group\": \"MyGang\",\n    \"process_name\": \"SAMMetadataW\",\n    \"testMetadata\": \"success!\",\n    \"data_tier\": \"The one with the thickest frosting\",\n    \"data_stream\": \"o1\",\n    \"file_format\": \"artroot\",\n    \"file_format_era\": \"ART_2011a\",\n    \"file_format_version\": 6,\n    \"start_time\": \"${date_regex}\",\n    \"end_time\": \"${date_regex}\",\n    \"runs\": \\[ \\[ 1, 0, \"MCChallenge\" \\] \\],\n    \"event_count\": 1,\n    \"first_event\": \\[ 1, 0, 1 \\],\n    \"last_event\": \\[ 1, 0, 1 \\]\n  }\n}\n$"
+  "^{\n  \"\\.\\./SAM_metadata\\.d/out\\.root\": {\n    \"applicationFamily\": \"Ethel\",\n    \"applicationVersion\": \"v0\\.00\\.01a\",\n    \"file_type\": \"MC\",\n    \"run_type\": \"MCChallenge\",\n    \"group\": \"MyGang\",\n    \"process_name\": \"SAMMetadataW\",\n    \"testMetadata\": \"success!\",\n    \"data_tier\": \"The one with the thickest frosting\",\n    \"data_stream\": \"o1\",\n    \"file_format\": \"artroot\",\n    \"file_format_era\": \"ART_2011a\",\n    \"file_format_version\": 8,\n    \"start_time\": \"${date_regex}\",\n    \"end_time\": \"${date_regex}\",\n    \"runs\": \\[ \\[ 1, 0, \"MCChallenge\" \\] \\],\n    \"event_count\": 1,\n    \"first_event\": \\[ 1, 0, 1 \\],\n    \"last_event\": \\[ 1, 0, 1 \\]\n  }\n}\n$"
   )
 
 cet_test(GeneratorSource_t HANDBUILT
@@ -1092,7 +1106,7 @@ cet_test(TestMetadata_verify_hr HANDBUILT
   TEST_ARGS -H -s ../TestMetadata_plugin_t.d/out.root
   TEST_PROPERTIES DEPENDS TestMetadata_plugin_t
   PASS_REGULAR_EXPRESSION
-  "^\nFile catalog metadata from file \\.\\./TestMetadata_plugin_t\\.d/out\\.root:\n\n 1: fileType            \"unknown\"\n 2: process_name        \"DEVEL\"\n 3: file_format         \"artroot\"\n 4: file_format_era     \"ART_2011a\"\n 5: file_format_version 6\n 6: start_time          \"${date_regex}\"\n 7: end_time            \"${date_regex}\"\n 8: event_count         1\n 9: first_event         \\[ 1, 0, 1 \\]\n10: last_event          \\[ 1, 0, 1 \\]\n11: key1                \"value1\"\n12: key2                \"value2\"\n-------------------------------\n$"
+  "^\nFile catalog metadata from file \\.\\./TestMetadata_plugin_t\\.d/out\\.root:\n\n 1: fileType            \"unknown\"\n 2: process_name        \"DEVEL\"\n 3: file_format         \"artroot\"\n 4: file_format_era     \"ART_2011a\"\n 5: file_format_version 8\n 6: start_time          \"${date_regex}\"\n 7: end_time            \"${date_regex}\"\n 8: event_count         1\n 9: first_event         \\[ 1, 0, 1 \\]\n10: last_event          \\[ 1, 0, 1 \\]\n11: key1                \"value1\"\n12: key2                \"value2\"\n-------------------------------\n$"
   )
 
 cet_test(TestMetadata_verify_JSON HANDBUILT
@@ -1100,7 +1114,7 @@ cet_test(TestMetadata_verify_JSON HANDBUILT
   TEST_ARGS -s ../TestMetadata_plugin_t.d/out.root
   TEST_PROPERTIES DEPENDS TestMetadata_plugin_t
   PASS_REGULAR_EXPRESSION
-  "^{\n  \"\\.\\./TestMetadata_plugin_t\\.d/out\\.root\": {\n    \"file_type\": \"unknown\",\n    \"process_name\": \"DEVEL\",\n    \"file_format\": \"artroot\",\n    \"file_format_era\": \"ART_2011a\",\n    \"file_format_version\": 6,\n    \"start_time\": \"${date_regex}\",\n    \"end_time\": \"${date_regex}\",\n    \"event_count\": 1,\n    \"first_event\": \\[ 1, 0, 1 \\],\n    \"last_event\": \\[ 1, 0, 1 \\],\n    \"key1\": \"value1\",\n    \"key2\": \"value2\"\n  }\n}\n$"
+  "^{\n  \"\\.\\./TestMetadata_plugin_t\\.d/out\\.root\": {\n    \"file_type\": \"unknown\",\n    \"process_name\": \"DEVEL\",\n    \"file_format\": \"artroot\",\n    \"file_format_era\": \"ART_2011a\",\n    \"file_format_version\": 8,\n    \"start_time\": \"${date_regex}\",\n    \"end_time\": \"${date_regex}\",\n    \"event_count\": 1,\n    \"first_event\": \\[ 1, 0, 1 \\],\n    \"last_event\": \\[ 1, 0, 1 \\],\n    \"key1\": \"value1\",\n    \"key2\": \"value2\"\n  }\n}\n$"
   )
 
 set_source_files_properties(TestEmptyEventTimestampNoRSRTS_plugin.cc
@@ -1128,7 +1142,53 @@ cet_test(TestEmptyEventTimestampNoRSRTS_t HANDBUILT
 simple_plugin(FindManySpeedTestProducer "module" NO_INSTALL)
 simple_plugin(FindManySpeedTestAnalyzer "module" NO_INSTALL)
 
+add_subdirectory(testPtrVector)
+add_subdirectory(test_tiered_input_01)
+add_subdirectory(test_tiered_input_02)
+add_subdirectory(test_tiered_input_03)
+add_subdirectory(test_tiered_input_04)
+
 add_subdirectory(event-shape)
 add_subdirectory(high-memory)
+
+cet_test(FastCloningInitMessage_01_t HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --rethrow-all -c FastCloningInitMessage_01.fcl
+  DATAFILES
+  fcl/FastCloningInitMessage_01.fcl
+  TEST_PROPERTIES PASS_REGULAR_EXPRESSION "\nInitial fast cloning configuration \\(from default\\): true\n"
+)
+
+cet_test(FastCloningInitMessage_02_t HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --rethrow-all -c FastCloningInitMessage_02.fcl
+  DATAFILES
+  fcl/FastCloningInitMessage_01.fcl
+  fcl/FastCloningInitMessage_02.fcl
+  TEST_PROPERTIES PASS_REGULAR_EXPRESSION "\nInitial fast cloning configuration \\(user-set\\): true\n"
+)
+
+cet_test(FastCloningInitMessage_03_t HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --rethrow-all -c FastCloningInitMessage_03.fcl
+  DATAFILES
+  fcl/FastCloningInitMessage_01.fcl
+  fcl/FastCloningInitMessage_03.fcl
+  TEST_PROPERTIES PASS_REGULAR_EXPRESSION "\nInitial fast cloning configuration \\(user-set\\): false\n"
+)
+
+cet_test(NonexistentPathCheck_01_t HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --rethrow-all -c NonexistentPathCheck_01.fcl
+  DATAFILES fcl/NonexistentPathCheck_01.fcl
+  TEST_PROPERTIES PASS_REGULAR_EXPRESSION "\n  ERROR: Unknown path x1 specified by user in trigger_paths.\n"
+)
+
+cet_test(NonexistentPathCheck_02_t HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --rethrow-all -c NonexistentPathCheck_02.fcl
+  DATAFILES fcl/NonexistentPathCheck_02.fcl
+  TEST_PROPERTIES PASS_REGULAR_EXPRESSION "\n  ERROR: Unknown path d6 specified by user in end_paths.\n  ERROR: Unknown path x1 specified by user in end_paths.\n"
+)
 
 include(legacy-tests)

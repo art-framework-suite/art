@@ -63,4 +63,7 @@ namespace art {
   bool OutputWorker::limitReached() const {return module().limitReached();}
 
   void OutputWorker::configure(OutputModuleDescription const& desc) {module().configure(desc);}
+
+  void OutputWorker::selectProducts(FileBlock const& fb) { module().selectProducts(fb); }
+
 }

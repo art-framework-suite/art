@@ -32,12 +32,12 @@ art::OutputModule::
 OutputModule(ParameterSet const & pset)
   :
   EventObserver(pset),
-  maxEvents_(-1),
-  remainingEvents_(maxEvents_),
   keptProducts_(),
   hasNewlyDroppedBranch_(),
   groupSelectorRules_(pset, "outputCommands", "OutputModule"),
   groupSelector_(),
+  maxEvents_(-1),
+  remainingEvents_(maxEvents_),
   moduleDescription_(),
   current_context_(0),
   branchParents_(),
@@ -69,36 +69,31 @@ configure(OutputModuleDescription const & desc)
 
 void
 art::OutputModule::
-selectProducts()
+selectProducts(FileBlock const& /*fb*/)
 {
-  if (groupSelector_.initialized()) { return; }
-  ProductList const & pList = ProductMetaData::instance().productList();
-  groupSelector_.initialize(groupSelectorRules_, pList);
+  groupSelector_.initialize(groupSelectorRules_,
+                            ProductMetaData::instance().productList());
   // TODO: See if we can collapse keptProducts_ and groupSelector_ into a
   // single object. See the notes in the header for GroupSelector
   // for more information.
-  for (ProductList::const_iterator
-       it = pList.begin(),
-       end = pList.end();
-       it != end;
-       ++it) {
-    BranchDescription const & desc = it->second;
-    if (desc.transient()) {
-      // if the class of the branch is marked transient, output nothing
+
+  for (auto const& val : ProductMetaData::instance().productList()) {
+    BranchDescription const& bd = val.second;
+    if (bd.transient()) {
+      // Transient, skip it.
+      continue;
     }
-    else if (!desc.present() && !desc.produced()) {
-      // else if the branch containing the product has been previously dropped,
-      // output nothing
+    if (!bd.present() && !bd.produced()) {
+      // Previously dropped, skip it.
+      continue;
     }
-    else if (selected(desc)) {
-      // else if the branch has been selected, put it in the list of selected branches
-      keptProducts_[desc.branchType()].push_back(&desc);
+    if (groupSelector_.selected(bd)) {
+      // Selected, keep it.
+      keptProducts_[bd.branchType()].push_back(&bd);
+      continue;
     }
-    else {
-      // otherwise, output nothing,
-      // and mark the fact that there is a newly dropped branch of this type.
-      hasNewlyDroppedBranch_[desc.branchType()] = true;
-    }
+    // Newly dropped, skip it.
+    hasNewlyDroppedBranch_[bd.branchType()] = true;
   }
 }
 
@@ -116,7 +111,28 @@ void
 art::OutputModule::
 doBeginJob()
 {
-  selectProducts();
+  // FIXME: Should this be here anymore?
+  //selectProducts();
+  groupSelector_.initialize(groupSelectorRules_,
+                            ProductMetaData::instance().productList());
+  for (auto const& val : ProductMetaData::instance().productList()) {
+    BranchDescription const& bd = val.second;
+    if (bd.transient()) {
+      // Transient, skip it.
+      continue;
+    }
+    if (!bd.present() && !bd.produced()) {
+      // Previously dropped, skip it.
+      continue;
+    }
+    if (groupSelector_.selected(bd)) {
+      // Selected, keep it.
+      keptProducts_[bd.branchType()].push_back(&bd);
+      continue;
+    }
+    // Newly dropped, skip it.
+    hasNewlyDroppedBranch_[bd.branchType()] = true;
+  }
   beginJob();
   cet::for_all(plugins_, [](auto& p){ p->doBeginJob(); });
 }
@@ -307,13 +323,6 @@ art::OutputModule::
 description() const
 {
   return moduleDescription_;
-}
-
-bool
-art::OutputModule::
-selected(BranchDescription const & desc) const
-{
-  return groupSelector_.selected(desc);
 }
 
 void

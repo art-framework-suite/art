@@ -1,13 +1,19 @@
 #include "art/Persistency/Provenance/BranchID.h"
-#include "art/Utilities/CRC32Calculator.h"
+#include "cetlib/crc32.h"
+#include "messagefacility/MessageLogger/MessageLogger.h"
 #include <ostream>
 
 namespace art {
 
   BranchID::value_type
   BranchID::toID(std::string const& branchName) {
-    art::CRC32Calculator crc32(branchName);
-    return crc32.checksum();
+    cet::crc32 c(branchName);
+    const auto & check = c.digest();
+    mf::LogDebug("BranchID") << "Product created with branch id: "
+                             << "[" << check << "] "
+                             << "from branch name: "
+                             << "\"" << branchName << "\"";
+    return check;
   }
 
   std::ostream&

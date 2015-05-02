@@ -1,19 +1,20 @@
 # The parent line must be the first non-comment line in the file
 # This line defines the product name and version
-parent art	v1_13_01
+parent art	v1_14_00
 defaultqual	e7
 #
 fcldir -
+perllib  product_dir
 #
 product		version
 clhep		v2_2_0_5
 cppunit		v1_12_1b
 gccxml		v0_9_20140718a
 python		v2_7_9
-root		v5_34_25
-messagefacility	v1_14_00
-tbb		v4_3_3a
-cetbuildtools	v4_07_03	-	only_for_build
+root		v5_34_30
+messagefacility	v1_14_04
+tbb		v4_3_5
+cetbuildtools	v4_10_02	-	only_for_build
 end_product_list
 
 qualifier	messagefacility	root		clhep		cppunit		gccxml	python	tbb		compiler	notes
@@ -28,6 +29,11 @@ e7:prof:sse2	e7:prof		e7:prof		e7:prof		e7:prof		-nq-	-nq-	e7:prof		gcc		-msse2 
 nu:e7:debug	e7:debug	e7:nu:debug	e7:debug	e7:debug	-nq-	-nq-	e7:debug	gcc
 nu:e7:prof	e7:prof		e7:nu:prof	e7:prof		e7:prof		-nq-	-nq-	e7:prof		gcc
 end_qualifier_list
+
+##table_fragment_begin
+ ##   # For cetskel modules.
+ ##   envPrepend(PERL5LIB, ${${UPS_PROD_NAME_UC}_DIR}/perllib)
+##table_fragment_end
 
 # Local Variables:
 # tab-width: 8

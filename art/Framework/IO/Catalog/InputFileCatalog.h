@@ -46,6 +46,8 @@ namespace art {
     bool   isSearchable()       {return searchable_;}
     bool   empty() const        {return fileCatalogItems_.empty();}
 
+    std::vector<std::string> const& fileSources() const { return fileSources_; }
+
     static const size_t indexEnd;
 
   private:

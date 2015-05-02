@@ -165,8 +165,7 @@ EventPrincipalTestFixture::EventPrincipalTestFixture()
   BKmap_t::const_iterator i(gf().branchKeys_.find(tag));
   BOOST_REQUIRE( i != gf().branchKeys_.end());
 
-  art::ProductList const& pl = art::ProductMetaData::instance().productList();
-  art::ProductList::const_iterator it = pl.find(i->second);
+  auto it = art::ProductMetaData::instance().productList().find(i->second);
 
   art::BranchDescription const& branchFromRegistry(it->second);
 

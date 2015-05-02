@@ -2,13 +2,13 @@ process_name: FileDumperOutputTestw
 
 physics: {
   producers: {
-    m1a: {
-      module_type: IntVectorProducer
-      ivalue: 11
-      nvalues: 16
-    }
+    m1a:    
+    {       
+      module_type: SimpleDerivedProducer
+      nvalues: 16                       
+    }                                   
     m1b: {
-      module_type: PtrVectorProducer
+      module_type: DerivedPtrVectorProducer
       input_label: m1a
     }
     m2: {

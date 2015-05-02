@@ -2,12 +2,12 @@
 #define art_Framework_Services_Registry_detail_ServiceCache_h
 
 #include "art/Utilities/TypeID.h"
+#include "art/Framework/Services/Registry/detail/ServiceCacheEntry.h"
 
 #include <map>
 
 namespace art {
   namespace detail {
-    class ServiceCacheEntry;
 
     typedef  std::map< TypeID, detail::ServiceCacheEntry >  ServiceCache;
 

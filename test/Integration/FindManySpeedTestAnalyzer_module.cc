@@ -15,8 +15,8 @@
 #include "art/Framework/Principal/Run.h"
 #include "art/Framework/Principal/SubRun.h"
 #include "art/Framework/Principal/View.h"
-#include "art/Utilities/CPUTimer.h"
 #include "art/Utilities/InputTag.h"
+#include "cetlib/cpu_timer.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 #include "test/TestObjects/ToyProducts.h"
@@ -75,7 +75,7 @@ void arttest::FindManySpeedTestAnalyzer::analyze(art::Event const & e)
   assert(tPtrs.size() == hT->size());
 
   // Time the activity under test.
-  art::CPUTimer timer;
+  cet::cpu_timer timer;
   timer.start();
   art::FindManyP<Hit> fmp(tPtrs, e, producerLabel_);
   timer.stop();

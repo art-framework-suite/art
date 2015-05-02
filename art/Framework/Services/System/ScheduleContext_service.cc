@@ -25,3 +25,7 @@ currentScheduleID()
   }
   return (st ? st->scheduleID() : ScheduleID());
 }
+
+// ===============================
+PROVIDE_FILE_PATH()
+// ===============================

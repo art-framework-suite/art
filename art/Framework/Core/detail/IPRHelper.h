@@ -56,6 +56,9 @@ namespace art {
       InputTag const & assnsTag_;
     };
 
+    // Note that the template parameter Bcoll is determined by the
+    // IPRHelper's use by the FindOne and FindMany classes, and is not
+    // as free-ranging as one might naively imagine.
     template <typename ProdB>
     class BcollHelper {
     public:
@@ -63,12 +66,14 @@ namespace art {
       template <typename Bcoll>
       void init(size_t size, Bcoll & bColl) const;
 
+      // 1. When Bcoll is a collection of pointer to const B -- one to one.
       template <typename Bcoll>
       typename std::enable_if<std::is_same<typename Bcoll::value_type, ProdB const *>::value>::type
       fill(size_t index,
            Ptr<ProdB> const & item,
            Bcoll & bColl) const;
 
+      // 2. When Bcoll is a collection of Ptr<B> -- one to one.
       template <typename Bcoll>
       typename std::enable_if<std::is_convertible<typename Bcoll::value_type, Ptr<ProdB> >::value>::type
       fill(size_t index,
@@ -78,14 +83,16 @@ namespace art {
       template <typename Bcoll>
       void init(size_t size, std::vector<Bcoll> & bColls) const;
 
+      // 3. When Bcoll is a collection of pointer to const B -- one to many.
       template <typename Bcoll>
       typename std::enable_if<std::is_same<typename Bcoll::value_type, ProdB const *>::value>::type
       fill(size_t index,
            Ptr<ProdB> const & item,
            std::vector<Bcoll> & bColls) const;
 
+      // 4. When Bcoll is a collection of Ptr<B> -- one to many.
       template <typename Bcoll>
-      typename std::enable_if<std::is_same<typename Bcoll::value_type, Ptr<ProdB> >::value>::type
+      typename std::enable_if<std::is_convertible<typename Bcoll::value_type, Ptr<ProdB> >::value>::type
       fill(size_t index,
            Ptr<ProdB> const & item,
            std::vector<Bcoll> & bColls) const;
@@ -100,6 +107,7 @@ template <typename ProdA, typename ProdB, typename Data, typename DATACOLL>
 class art::detail::IPRHelper {
 private:
 
+  // We use IPRHelperDef in place of DATACOLL if Data is void.
   typedef typename std::conditional<std::is_void<Data>::value, IPRHelperDef, DATACOLL>::type dataColl_t;
 
 public:
@@ -107,6 +115,11 @@ public:
 
   IPRHelper(Event const & e, InputTag const & tag) : event_(e), assnsTag_(tag) { }
 
+  // template <typename A, typename B> shared_exception_t operator()(A const& a, B const& b) const
+  //  (1) fills in b, and 
+  //  (2) returns a (shared pointer to) an exception. The pointer is
+  //  non-null on failure. Note that the returned 'b' might be empty.
+  //
   // 1. When dColl not wanted.
   template <typename Acoll, typename Bcoll>
   shared_exception_t
@@ -308,9 +321,11 @@ void
 art::detail::BcollHelper<ProdB>::
 init(size_t size, Bcoll & bColl) const
 {
+  // This works if BColl is a collection of pointers or Ptrs.
   bColl.assign(size, 0);
 }
 
+// 1.
 template <typename ProdB>
 template <typename Bcoll>
 inline
@@ -320,6 +335,7 @@ fill(size_t index,
      Ptr<ProdB> const & item,
      Bcoll & bColl) const
 {
+  // This works if BColl is a collection of pointers or Ptrs.
   if (bColl[index]) {
     throw Exception(errors::LogicError)
         << "Attempted to create a FindOne object for a one-many or many-many"
@@ -330,6 +346,7 @@ fill(size_t index,
   bColl[index] =  item.isAvailable() ? item.get() : nullptr;
 }
 
+// 2.
 template <typename ProdB>
 template <typename Bcoll>
 inline
@@ -339,6 +356,7 @@ fill(size_t index,
      Ptr<ProdB> const & item,
      Bcoll & bColl) const
 {
+  // This works if BColl is a collection of pointers or Ptrs.
   if (bColl[index]) {
     throw Exception(errors::LogicError)
         << "Attempted to create a FindOne object for a one-many or many-many"
@@ -359,6 +377,7 @@ init(size_t size, std::vector<Bcoll> & bColls) const
   bColls.resize(size);
 }
 
+// 3.
 template <typename ProdB>
 template <typename Bcoll>
 inline
@@ -373,10 +392,11 @@ fill(size_t index,
   }
 }
 
+// 4.
 template <typename ProdB>
 template <typename Bcoll>
 inline
-typename std::enable_if<std::is_same<typename Bcoll::value_type, art::Ptr<ProdB> >::value>::type
+typename std::enable_if<std::is_convertible<typename Bcoll::value_type, art::Ptr<ProdB> >::value>::type
 art::detail::BcollHelper<ProdB>::
 fill(size_t index,
      Ptr<ProdB> const & item,
