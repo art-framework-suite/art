@@ -86,9 +86,6 @@ Running 2 test cases...
    TestTimeTrackerAnalyzer             analyzer    <path>/TestTimeTrackerAnalyzer_module.cc
    TestTimeTrackerFilter               filter      <path>/TestTimeTrackerFilter_module.cc
    TestTimeTrackerProducer             producer    <path>/TestTimeTrackerProducer_module.cc
-   ToolsTestAnalyzer                   analyzer    <path>/ToolsTestAnalyzer_module.cc
-   ToolsTestFilter                     filter      <path>/ToolsTestFilter_module.cc
-   ToolsTestProducer                   producer    <path>/ToolsTestProducer_module.cc
    ToyProductProducer                  producer    <path>/ToyProductProducer_module.cc
    ToyRawFileInput                     source      <path>/ToyRawFileInput_source.cc
    ToyRawInput                         source      <path>/ToyRawInput_source.cc
