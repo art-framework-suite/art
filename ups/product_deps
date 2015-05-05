@@ -31,7 +31,7 @@ nu:e7:prof	e7:prof		e7:nu:prof	e7:prof		e7:prof		-nq-	-nq-	e7:prof		gcc
 end_qualifier_list
 
 ##table_fragment_begin
- ##   # For cetskel modules.
+ ##   # For cetskelgen modules.
  ##   envPrepend(PERL5LIB, ${${UPS_PROD_NAME_UC}_DIR}/perllib)
 ##table_fragment_end
 

@@ -67,7 +67,7 @@ cet_find_library( CPPUNIT NAMES cppunit   PATHS ENV CPPUNIT_LIB   NO_DEFAULT_PAT
 include(ArtDictionary)
 include(BuildPlugins)
 
-# Plugin skeleton generators for cetskel.
+# Plugin skeleton generators for cetskelgen.
 add_subdirectory(perllib)
 
 # tools

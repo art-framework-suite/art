@@ -14,7 +14,7 @@ function(genskel TYPE SUFFIX)
     string(SUBSTRING "${TYPE}" 0 ${split_loc} TYPE)
   endif()
   ADD_CUSTOM_COMMAND(OUTPUT ToolsTest${TYPE}_${SUFFIX}.cc
-    COMMAND cetskel
+    COMMAND cetskelgen
     ARGS --force ${GS_EXTRA_ARGS} -A ${TYPE}${TYPEARGS} arttest::ToolsTest${TYPE}
     COMMENT "Generating ToolsTest${TYPE}_${SUFFIX}.cc with args ${GS_EXTRA_ARGS}"
     VERBATIM
@@ -49,7 +49,7 @@ if (CETSKEL)
   # Service interface.
   ADD_CUSTOM_COMMAND(OUTPUT ToolsTestServiceInterface.cc
     ToolsTestServiceInterface.h
-    COMMAND cetskel
+    COMMAND cetskelgen
     ARGS --force -e "void doStuff()" -A ServiceInterface arttest::ToolsTestServiceInterface
     COMMENT "Generating ToolsTest${TYPE}_${SUFFIX}.cc with args ${GS_EXTRA_ARGS}"
     VERBATIM
