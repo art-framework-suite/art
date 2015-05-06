@@ -98,7 +98,6 @@ openNextSecondaryFile_(int idx)
   // idx being a number we can actually use is a precondition of this
   // function.
   assert(!(idx < 0));
-  assert(!(static_cast<decltype(sfnm.size())>(idx) > sfnm.size()));
 
   // Note:
   //
@@ -106,6 +105,7 @@ openNextSecondaryFile_(int idx)
   // otherwise 0 for success.
   //
   auto const& sfnm = primaryFile_->secondaryFileNames();
+  assert(!(static_cast<decltype(sfnm.size())>(idx) > sfnm.size()));
   if (sfnm.empty()) { // No configured secondary files.
     return -2;
   }
