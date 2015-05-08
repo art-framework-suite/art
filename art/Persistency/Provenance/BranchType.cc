@@ -12,6 +12,8 @@ namespace art {
 
   namespace {
 
+    std::string const undefinedType            = "UNDEFINED";
+
     // Suffixes
     std::string const auxiliary                = "Auxiliary";
     std::string const productProvenance        = "BranchEntryInfo";
@@ -58,10 +60,10 @@ namespace art {
                               )
     {
       switch( bt ) {
-        case InEvent :  return event_str;
-        case InRun   :  return run_str;
-        case InSubRun:  return subRun_str;
-        default      :  return subRun_str;  // TODO: report "none of the above"?
+      case InEvent :  return event_str;
+      case InRun   :  return run_str;
+      case InSubRun:  return subRun_str;
+      default      :  return undefinedType;
       }
     }
 

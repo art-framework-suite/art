@@ -16,8 +16,8 @@ using namespace std;
 namespace art {
 
   DataViewImpl::DataViewImpl(Principal & pcpl,
-        ModuleDescription const& md,
-        BranchType const& branchType)  :
+                             ModuleDescription const& md,
+                             BranchType const& branchType)  :
     putProducts_(),
     principal_(pcpl),
     md_(md),
@@ -55,16 +55,16 @@ namespace art {
 
   GroupQueryResult
   DataViewImpl::getByLabel_(TypeID const& tid,
-                     string const& label,
-                     string const& productInstanceName,
-                     string const& processName) const
+                            string const& label,
+                            string const& productInstanceName,
+                            string const& processName) const
   {
     return principal_.getByLabel(tid, label, productInstanceName, processName);
   }
 
   void
   DataViewImpl::getManyByType_(TypeID const& tid,
-                  GroupQueryResultVec& results) const
+                               GroupQueryResultVec& results) const
   {
     principal_.getManyByType(tid, results);
   }
@@ -76,9 +76,9 @@ namespace art {
                                      bool stopIfProcessHasMatch) const
   {
     return principal_.getMatchingSequence(elementType,
-                                    selector,
-                                    results,
-                                    stopIfProcessHasMatch);
+                                          selector,
+                                          results,
+                                          stopIfProcessHasMatch);
   }
 
   int
@@ -92,9 +92,9 @@ namespace art {
                       art::ProductInstanceNameSelector(productInstanceName));
 
     int n = principal_.getMatchingSequence(elementType,
-                                     sel,
-                                     results,
-                                     stopIfProcessHasMatch);
+                                           sel,
+                                           results,
+                                           stopIfProcessHasMatch);
     return n;
   }
 
@@ -111,9 +111,9 @@ namespace art {
                       art::ProcessNameSelector(processName) );
 
     int n = principal_.getMatchingSequence(elementType,
-                                   sel,
-                                   results,
-                                   stopIfProcessHasMatch);
+                                           sel,
+                                           results,
+                                           stopIfProcessHasMatch);
     return n;
   }
 
@@ -127,34 +127,26 @@ namespace art {
   DataViewImpl::getBranchDescription(TypeID const& type,
                                      string const& productInstanceName) const {
     string friendlyClassName = type.friendlyClassName();
-        BranchKey bk(friendlyClassName, md_.moduleLabel(), productInstanceName, md_.processName());
+    BranchKey bk(friendlyClassName,
+                 md_.moduleLabel(),
+                 productInstanceName,
+                 md_.processName(),
+                 branchType_);
     ProductList const& pl = ProductMetaData::instance().productList();
     ProductList::const_iterator it = pl.find(bk);
+
     if (it == pl.end()) {
       throw art::Exception(art::errors::InsertFailure)
-        << "Illegal attempt to 'put' an unregistered product.\n"
+        << "Illegal attempt to retrieve an unregistered product.\n"
         << "No product is registered for\n"
         << "  process name:                '" << bk.processName_ << "'\n"
         << "  module label:                '" << bk.moduleLabel_ << "'\n"
         << "  product friendly class name: '" << bk.friendlyClassName_ << "'\n"
         << "  product instance name:       '" << bk.productInstanceName_ << "'\n"
-
+        << "  branch type:                 '" << branchType_ << "'\n"
         << "Registered products currently:\n"
         << ProductMetaData::instance()
         << '\n';
-    }
-    if(it->second.branchType() != branchType_) {
-        throw art::Exception(art::errors::InsertFailure,"Not Registered")
-          << "put: Problem found while adding product. "
-          << "The product for ("
-          << bk.friendlyClassName_ << ","
-          << bk.moduleLabel_ << ","
-          << bk.productInstanceName_ << ","
-          << bk.processName_
-          << ")\n"
-          << "is registered for a(n) " << it->second.branchType()
-          << " instead of for a(n) " << branchType_
-          << ".\n";
     }
     return it->second;
   }

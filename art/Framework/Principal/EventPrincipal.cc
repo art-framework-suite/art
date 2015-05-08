@@ -115,6 +115,8 @@ addOrReplaceGroup(std::unique_ptr<Group>&& g)
       << bd.productInstanceName()
       << ","
       << bd.processName()
+      << ","
+      << bd.branchType()
       << ")\n";
 }
 

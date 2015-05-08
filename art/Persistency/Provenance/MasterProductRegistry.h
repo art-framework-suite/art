@@ -32,7 +32,7 @@ std::ostream& operator<<(std::ostream& os, MasterProductRegistry const& mpr);
 
 class MasterProductRegistry {
 public:
-  // Used for indices to find branch IDs by type and process.
+  // Used for indices to find branch IDs by branchType, class type and process.
   // TODO: Consider moving this typedef outside of the class.
   // ProductMetaData needs to share this typedef with its users,
   // and so has to include this header to get the typedef.
@@ -43,6 +43,7 @@ public:
   typedef std::map<std::string const, std::vector<BranchID>> ProcessLookup;
   // The key is the friendly class name.
   typedef std::map<std::string const, ProcessLookup> TypeLookup;
+  typedef std::array<TypeLookup, NumBranchTypes> BranchTypeLookup;
   using ProductListUpdatedCallback = std::function<void (FileBlock const &)>;
 public:
   MasterProductRegistry(MasterProductRegistry const&) = delete;
@@ -58,12 +59,12 @@ public:
     return productProduced_[branchType];
   }
   // Obtain lookup map to find a group by type of product.
-  std::vector<TypeLookup> const& productLookup() const {
+  std::vector<BranchTypeLookup> const& productLookup() const {
     return productLookup_;
   }
   // Obtain lookup map to find a group by type of element
   // in a product which is a collection.
-  std::vector<TypeLookup> const& elementLookup() const {
+  std::vector<BranchTypeLookup> const& elementLookup() const {
     return elementLookup_;
   }
   void print(std::ostream&) const;
@@ -92,10 +93,10 @@ private:
   std::array<bool, NumBranchTypes> productProduced_;
   std::vector<ProductList> perFileProds_;
   // Support finding a BranchID by <product friendly class name, process name>.
-  std::vector<TypeLookup> productLookup_;
+  std::vector<BranchTypeLookup> productLookup_;
   // Support finding a BranchID by
   // <product::value_type friendly class name, process name>.
-  std::vector<TypeLookup> elementLookup_;
+  std::vector<BranchTypeLookup> elementLookup_;
   std::vector<ProductListUpdatedCallback> productListUpdatedCallbacks_;
 };
 

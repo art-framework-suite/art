@@ -359,20 +359,20 @@ art::Event::getManyByType(std::vector<Handle<PROD> >& results) const
 
 template< class ELEMENT >
 std::size_t
-art::Event::getView(std::string const &            moduleLabel,
-        std::string const &            productInstanceName,
-        std::vector<ELEMENT const *> & result) const
+art::Event::getView(std::string const & moduleLabel,
+                    std::string const & productInstanceName,
+                    std::vector<ELEMENT const *> & result) const
 {
   TypeID typeID( typeid(ELEMENT) );
   GroupQueryResultVec bhv;
-  int nFound = getMatchingSequenceByLabel_( typeID
-                                            , moduleLabel
-                                            , productInstanceName
-                                            , bhv
-                                            , true
+  int nFound = getMatchingSequenceByLabel_( typeID,
+                                            moduleLabel,
+                                            productInstanceName,
+                                            bhv,
+                                            true
                                             );
-  ensure_unique_product( nFound, typeID
-                         , moduleLabel, productInstanceName, std::string()
+  ensure_unique_product( nFound, typeID,
+                         moduleLabel, productInstanceName, std::string()
                          );
 
   std::size_t orig_size = result.size();
@@ -382,9 +382,9 @@ art::Event::getView(std::string const &            moduleLabel,
 
 template< class ELEMENT >
 std::size_t
-art::Event::getView( InputTag const &               tag
-                , std::vector<ELEMENT const *> & result
-                ) const
+art::Event::getView( InputTag const & tag,
+                     std::vector<ELEMENT const *> & result
+                     ) const
 {
   if (tag.process().empty()) {
     return getView(tag.label(), tag.instance(), result);

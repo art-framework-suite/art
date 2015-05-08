@@ -283,6 +283,7 @@ private: // TYPES
   // FIXME: Is this to break a circular reference with mpr?
   using ProcessLookup = std::map<std::string const, std::vector<BranchID>>;
   using TypeLookup = std::map<std::string const, ProcessLookup>;
+  using BranchTypeLookup =  std::array<TypeLookup,art::NumBranchTypes>;
 
 private: // MEMBER FUNCTIONS
 

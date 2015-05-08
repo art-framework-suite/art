@@ -32,14 +32,15 @@ checkDicts(art::BranchDescription const& productDesc)
 static
 void
 recreateLookups(ProductList const& prods,
-                MasterProductRegistry::TypeLookup& pl,
-                MasterProductRegistry::TypeLookup& el)
+                MasterProductRegistry::BranchTypeLookup& pl,
+                MasterProductRegistry::BranchTypeLookup& el)
 {
   for (auto const& val: prods) {
     auto const& procName = val.first.processName_;
     auto const& bid = val.second.branchID();
     auto const& prodFCN = val.first.friendlyClassName_;
-    pl[prodFCN][procName].push_back(bid);
+    auto const bt = val.first.branchType_;
+    pl[bt][prodFCN][procName].push_back(bid);
     // Look in the class of the product for a typedef named "value_type",
     // if there is one allow lookups by that type name too (and by all
     // of its base class names as well).
@@ -54,13 +55,13 @@ recreateLookups(ProductList const& prods,
       // "value_type," so allow lookups by that type and all of its base
       // types too.
       auto vtFCN = TypeID(ET.TypeInfo()).friendlyClassName();
-      el[vtFCN][procName].push_back(bid);
+      el[bt][vtFCN][procName].push_back(bid);
       // Repeat this for all public base classes of the value_type.
       std::vector<Reflex::Type> bases;
       public_base_classes(ET, bases);
       for (auto const& BT: bases) {
         auto btFCN = TypeID(BT.TypeInfo()).friendlyClassName();
-        el[btFCN][procName].push_back(bid);
+        el[bt][btFCN][procName].push_back(bid);
       }
     }
   }

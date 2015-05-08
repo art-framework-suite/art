@@ -13,6 +13,7 @@
 #include "art/Framework/IO/Root/RefCoreStreamer.h"
 #include "art/Persistency/Provenance/BranchID.h"
 #include "art/Persistency/Provenance/BranchKey.h"
+#include "art/Persistency/Provenance/BranchType.h"
 #include "art/Persistency/Provenance/ProductList.h"
 #include "art/Persistency/Provenance/ProductMetaData.h"
 #include "art/Utilities/Exception.h"
@@ -200,7 +201,8 @@ outgoingBranchID() const
     BranchKey key(inputType_.friendlyClassName(),
                   moduleLabel_,
                   outputInstanceLabel_,
-                  processName_);
+                  processName_,
+                  art::InEvent); // mixing ops. supported only at event-level
     auto I = ProductMetaData::instance().productList().find(key);
     if (I == ProductMetaData::instance().productList().end()) {
       throw Exception(errors::LogicError)

@@ -23,7 +23,8 @@ namespace {
     return art::BranchKey(b.friendlyClassName(),
                           b.moduleLabel(),
                           b.productInstanceName(),
-                          b.processName());
+                          b.processName(),
+                          b.branchType());
   }
 
   art::BranchDescription

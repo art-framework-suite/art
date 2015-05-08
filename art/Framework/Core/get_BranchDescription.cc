@@ -50,31 +50,17 @@ art::get_BranchDescription(TypeID type_id,
   BranchKey bk(type_id.friendlyClassName(),
                module_label,
                instance_name,
-               process_name);
+               process_name,
+               branch_type);
   ProductList::const_iterator it = product_list.find(bk);
   if (it == product_list.end()) {
     throw art::Exception(art::errors::InsertFailure)
       << "No product is registered for\n"
-      << "  process name:                '"
-      << bk.processName_ << "'\n"
-      << "  module label:                '"
-      << bk.moduleLabel_ << "'\n"
-      << "  product friendly class name: '"
-      << bk.friendlyClassName_ << "'\n"
-      << "  product instance name:       '"
-      << bk.productInstanceName_ << "'\n";
-  }
-  if(it->second.branchType() != branch_type) {
-    throw art::Exception(art::errors::InsertFailure,"Not Registered")
-      << "The product for ("
-      << bk.friendlyClassName_ << ","
-      << bk.moduleLabel_ << ","
-      << bk.productInstanceName_ << ","
-      << bk.processName_
-      << ")\n"
-      << "is registered for a(n) " << it->second.branchType()
-      << " instead of for a(n) " << branch_type
-      << ".\n";
+      << "  process name:                '" << bk.processName_ << "'\n"
+      << "  module label:                '" << bk.moduleLabel_ << "'\n"
+      << "  product friendly class name: '" << bk.friendlyClassName_ << "'\n"
+      << "  product instance name:       '" << bk.productInstanceName_ << "'\n"
+      << "  branch type:                 '" << branch_type << "'\n";
   }
   return it->second;
 }

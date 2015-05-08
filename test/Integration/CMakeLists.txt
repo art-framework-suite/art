@@ -92,6 +92,7 @@ simple_plugin(TestTimeTrackerProducer     "module"  NO_INSTALL )
 simple_plugin(TestTimeTrackerFilter       "module"  NO_INSTALL )
 simple_plugin(TestTimeTrackerAnalyzer     "module"  NO_INSTALL )
 simple_plugin(Throwing                    "service" NO_INSTALL )
+simple_plugin(ToyProductAnalyzer          "module"  NO_INSTALL )
 simple_plugin(ToyProductProducer          "module"  NO_INSTALL )
 simple_plugin(ToyRawFileInput             "source"  NO_INSTALL USE_BOOST_UNIT test_Integration )
 simple_plugin(ToyRawInput                 "source"  NO_INSTALL USE_BOOST_UNIT test_Integration )
@@ -275,6 +276,13 @@ cet_test(FileDumperOutput_r HANDBUILT
   PASS_REGULAR_EXPRESSION "Total products \\(present, not present\\): 4 \\(3, 1\\)\\."
   DEPENDS FileDumperOutput_w
 )
+
+cet_test(ToyProductProducerAnalyzer_t HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --rethrow-all -c toyProductProducerAnalyzer_t.fcl
+  DATAFILES
+  fcl/toyProductProducerAnalyzer_t.fcl
+  )
 
 cet_test(ToyRawInput_t_01 HANDBUILT
   TEST_EXEC art
