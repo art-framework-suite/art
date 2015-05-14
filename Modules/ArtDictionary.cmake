@@ -9,8 +9,8 @@
 ####################################
 # Options and Arguments
 #
-# UPDATE_IN_PLACE
-#   Passed through to check_class_version.
+# COMPILE_FLAGS
+#   Passed through to build_dictionary.
 #
 # DICT_FUNCTIONS
 #   Passed through to build_dictionary.
@@ -21,8 +21,15 @@
 # DICTIONARY_LIBRARIES
 #   Passed through to build_dictionary with additions.
 #
-# COMPILE_FLAGS
-#   Passed through to build_dictionary.
+# NO_CHECK_CLASS_VERSION
+#   Do not invoked the checkClassVersion script for this dictionary.
+#
+# NO_DEFAULT_LIBRARIES
+#   Do not add the usual set of default libraries to the
+#   DICTIONARY_LIBRARIES list.
+#
+# UPDATE_IN_PLACE
+#   Passed through to check_class_version.
 #
 # USE_PRODUCT_NAME
 #   Passed through to build_dictionary.
@@ -34,14 +41,16 @@ include(CheckClassVersion)
 
 function(art_dictionary)
   cmake_parse_arguments(AD
-    "UPDATE_IN_PLACE;DICT_FUNCTIONS;USE_PRODUCT_NAME"
+    "UPDATE_IN_PLACE;DICT_FUNCTIONS;USE_PRODUCT_NAME;NO_CHECK_CLASS_VERSION;NO_DEFAULT_LIBRARIES"
     "DICT_NAME_VAR"
     "DICTIONARY_LIBRARIES;COMPILE_FLAGS"
     ${ARGN}
     )
-  set(AD_DICTIONARY_LIBRARIES
-    art_Persistency_Common art_Utilities cetlib ${AD_DICTIONARY_LIBRARIES}
-    )
+  if (NOT AD_NO_DEFAULT_LIBRARIES)
+    set(AD_DICTIONARY_LIBRARIES
+      art_Persistency_Common art_Utilities cetlib ${AD_DICTIONARY_LIBRARIES}
+      )
+  endif()
   if (AD_DICT_FUNCTIONS)
     set(want_build_dictionary_version v3_13_00)
     if (COMMAND check_ups_version)
@@ -85,5 +94,7 @@ function(art_dictionary)
     set(AD_CCV_ARGS ${AD_CCV_ARGS} "UPDATE_IN_PLACE" ${AD_UPDATE_IN_PLACE})
   endif()
   #message(STATUS "Calling check_class_version with args ${AD_ARGS}")
-  check_class_version(${AD_LIBRARIES} UPDATE_IN_PLACE ${AD_CCV_ARGS})
+  if (NOT AD_NO_CHECK_CLASS_VERSION)
+    check_class_version(${AD_LIBRARIES} UPDATE_IN_PLACE ${AD_CCV_ARGS})
+  endif()
 endfunction()
