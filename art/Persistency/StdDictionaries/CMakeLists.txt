@@ -1,6 +1,3 @@
-# project name
-project(art_Persistency_StdDictionaries)
-
-art_dictionary()
+art_dictionary(NO_DEFAULT_LIBRARIES NO_CHECK_CLASS_VERSION)
 
 install_source()
