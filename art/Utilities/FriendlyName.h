@@ -1,13 +1,11 @@
 #ifndef art_Utilities_FriendlyName_h
 #define art_Utilities_FriendlyName_h
-/*
- *  friendlyName.h
- *  CMSSW
- *
- *  Created by Chris Jones on 2/24/06.
- *  Copyright 2006 __MyCompanyName__. All rights reserved.
- *
- */
+////////////////////////////////////////////////////////////////////////
+// friendlyName(): a free function to generate a friendly name for a
+// type.
+//
+////////////////////////////////////////////////////////////////////////
+
 #include <string>
 
 namespace art {

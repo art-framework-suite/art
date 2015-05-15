@@ -1,10 +1,10 @@
 #include "art/Utilities/FriendlyName.h"
-#include "cpp0x/regex"
 
-#include "boost/thread/tss.hpp"
+#include "art/Utilities/Exception.h"
 
-#include <iostream>
-#include <map>
+#include "tbb/concurrent_unordered_map.h"
+
+#include <regex>
 #include <string>
 
 // NOTE: This should probably be rewritten so that we break the class
@@ -17,40 +17,47 @@
 // the node transformations).
 
 namespace {
-  static std::regex const reBeginSpace("^ +");
-  static std::regex const reEndSpace(" +$");
-  static std::string const emptyString("");
+  std::regex const reAllSpaces(" +");
+  std::regex const reAssns("art::Assns");
+  std::regex const reBeginSpace("^ +");
+  std::regex const reComma(",");
+  std::regex const reEndSpace(" +$");
+  std::regex const reFirstTwoArgs("^([^,]+),([^,]+)");
+  std::regex const reLong("long ");
+  std::regex const reLongLong("Long64_t");
+  std::regex const reMapVector("cet::map_vector");
+  std::regex const reMapVectorKey("cet::map_vector_key");
+  std::regex const reString("(?:std::basic_string<char>|std::string)");
+  std::regex const reTemplateArgs("([^<]*)<(.*)>$");
+  std::regex const reTemplateClass("([^<>,]+<[^<>]*>)");
+  std::regex const reULongLong("ULong64_t");
+  std::regex const reUnsigned("unsigned ");
+  std::regex const reVector("std::vector");
+  std::regex const reWrapper("art::Wrapper<(.*)>");
+
+  std::string const emptyString("");
 
   std::string removeExtraSpaces(std::string const& iIn) {
     return std::regex_replace(std::regex_replace(iIn,reBeginSpace,emptyString),
                               reEndSpace, emptyString);
   }
 
-  static std::regex const reAllSpaces(" +");
   std::string removeAllSpaces(std::string const& iIn) {
     return std::regex_replace(iIn, reAllSpaces,emptyString);
   }
-
-  static std::regex const reWrapper("art::Wrapper<(.*)>");
-  static std::regex const reString("std::basic_string<char>");
-  static std::regex const reUnsigned("unsigned ");
-  static std::regex const reLong("long ");
-  static std::regex const reVector("std::vector");
-  static std::regex const reMapVectorKey("cet::map_vector_key");
-  static std::regex const reMapVector("cet::map_vector");
 
   std::string standardRenames(std::string const& iIn) {
     std::string name = std::regex_replace(iIn, reWrapper, "$1");
     name = std::regex_replace(name,reString,"String");
     name = std::regex_replace(name,reUnsigned,"u");
     name = std::regex_replace(name,reLong,"l");
+    name = std::regex_replace(name,reULongLong,"ull");
+    name = std::regex_replace(name,reLongLong,"ll");
     name = std::regex_replace(name,reVector,"s");
     name = std::regex_replace(name,reMapVectorKey,"mvk");
     name = std::regex_replace(name,reMapVector,"mv");
     return name;
   }
-
-  static std::regex const reTemplateArgs("([^<]*)<(.*)>$");
 
   // Declaration required here because handleTemplateArguments and
   // subFriendlyName call each other.
@@ -69,8 +76,6 @@ namespace {
     return result;
   }
 
-  static std::regex const reFirstTwoArgs("^([^,]+),([^,]+)");
-
   void maybeSwapFirstTwoArgs(std::string &result) {
     std::smatch theMatch;
     if (std::regex_search(result, theMatch, reFirstTwoArgs) &&
@@ -78,10 +83,6 @@ namespace {
       result = std::regex_replace(result, reFirstTwoArgs, "$2,$1");
     }
   }
-
-  static std::regex const reComma(",");
-  static std::regex const reTemplateClass("([^<>,]+<[^<>]*>)");
-  static std::regex const reAssns("art::Assns");
 
   std::string handleTemplateArguments(std::string const &cName, std::string const& tArgs) {
     std::string result = removeExtraSpaces(tArgs);
@@ -94,8 +95,10 @@ namespace {
           std::string friendlierName = removeAllSpaces(subFriendlyName(templateClass));
           result = std::regex_replace(result, std::regex(templateClass), friendlierName);
         } else {
-          std::cout <<" no template match for \""<<result<<"\""<<std::endl;
-          assert(0 =="failed to find a match for template class");
+          throw art::Exception(art::errors::LogicError)
+            << "No template match for \""
+            << result
+            << "\"";
         }
       } else {
         shouldStop=true;
@@ -105,19 +108,15 @@ namespace {
     result = std::regex_replace(result,reComma,"");
     return result;
   }
-
 }
 
+// FIXME: This could be rewritten to use unordered_map as the cache, at
+// the slight risk of a hash collision.
 std::string art::friendlyname::friendlyName(std::string const& iFullName) {
-  typedef std::map<std::string, std::string> Map;
-  static boost::thread_specific_ptr<Map> s_fillToFriendlyName;
-  if(0 == s_fillToFriendlyName.get()){
-    s_fillToFriendlyName.reset(new Map);
+  static tbb::concurrent_unordered_map<std::string, std::string> s_nameMap;
+  auto entry = s_nameMap.find(iFullName);
+  if(s_nameMap.end() == entry) {
+    entry = s_nameMap.emplace(iFullName, subFriendlyName(standardRenames(iFullName))).first;
   }
-  Map::const_iterator itFound = s_fillToFriendlyName->find(iFullName);
-  if(s_fillToFriendlyName->end()==itFound) {
-    itFound = s_fillToFriendlyName->insert(Map::value_type(iFullName, subFriendlyName(standardRenames(iFullName)))).first;
-  }
-  return itFound->second;
+  return entry->second;
 }
-

@@ -1,6 +1,6 @@
 # cet_test macro
 
-art_dictionary(NO_INSTALL)
+art_dictionary(NO_DEFAULT_LIBRARIES NO_INSTALL NO_CHECK_CLASS_VERSION)
 
 set(default_test_libraries
   art_Utilities
@@ -63,12 +63,8 @@ cet_test(parent_path_t USE_BOOST_UNIT
 
 cet_test(TypeNameBranchName_t
   LIBRARIES
-  test_Utilities_dict
-  art_Persistency_CetlibDictionaries_dict
-  art_Persistency_StdDictionaries_dict
   art_Utilities
   cetlib
   ${ROOT_REFLEX}
   REF "${CMAKE_CURRENT_SOURCE_DIR}/TypeNameBranchName_t-ref.txt"
 )
-

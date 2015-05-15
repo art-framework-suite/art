@@ -4,7 +4,7 @@
   <class name="arttest::MyString"/>
   <class name="arttest::MyStrings"/>
   <class name="arttest::MyBigPOD" ClassVersion="10">
-    <version ClassVersion="10" checksum="1187013485"/>
+   <version ClassVersion="10" checksum="1187013485"/>
   </class>
   <class name="cet::map_vector<std::string>"/>
 </lcgdict>

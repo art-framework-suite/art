@@ -137,19 +137,8 @@ def main():
 
     (options,args)=oparser.parse_args()
 
-    if options.library is None:
-        if 0 != ROOT.gSystem.Load("libart_Framework_Core"):
-            raise RuntimeError("failed to load libart_Framework_Core")
-        ROOT.AutoLibraryLoader.enable()
-    else:
-        if 0 != ROOT.gSystem.Load("libCintex"):
-            raise RuntimeError("failed to load libCintex")
-        ROOT.Cintex.Enable()
-        if 0 != ROOT.gSystem.Load("libart_Framework_Core"):
-            raise RuntimeError("failed to load libart_Framework_Core")
-        if 0 != ROOT.gSystem.Load(options.library):
-            raise RuntimeError("failed to load library '"+options.library+"'")
-
+    if (options.library is not None) and (0 != ROOT.gSystem.Load(options.library)):
+        raise RuntimeError("failed to load library '"+options.library+"'")
 
     p = XmlParser(options.xmlfile)
     #print p.classes

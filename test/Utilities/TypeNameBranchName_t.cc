@@ -5,7 +5,7 @@
 #include "cetlib/demangle.h"
 #include "cetlib/map_vector.h"
 
-#include "Reflex/Type.h"
+#include "TClass.h"
 
 #include <algorithm>
 #include <iostream>
@@ -17,15 +17,16 @@
 #include <typeinfo>
 
 namespace {
-  std::string reflexName(std::type_info const * const tid) {
-    auto t = Reflex::Type::ByTypeInfo(*tid);
+  std::string className(std::type_info const * const tid) {
+    auto t = TClass::GetClass(*tid);
     if (!t) {
-      throw art::Exception(art::errors::DictionaryNotFound,"NoMatch")
-        << "No dictionary for class " << cet::demangle_symbol(tid->name()) << '\n';
+      return  std::string("WARNING: No dictionary for class ") + cet::demangle_symbol(tid->name());
+      // throw art::Exception(art::errors::DictionaryNotFound,"NoMatch")
+      //   << "No dictionary for class " << cet::demangle_symbol(tid->name()) << '\n';
     }
-    auto cn = t.Name(Reflex::SCOPED);
+    auto cn = t->GetName();
     auto fn = art::friendlyname::friendlyName(cn);
-    return cn + " -> " + fn;
+    return std::string(cn) + " -> " + fn;
   }
 }
 
@@ -52,5 +53,5 @@ int main()
                                     };
   transform(types.cbegin(), types.cend(),
             ostream_iterator<std::string>(std::cout, "\n"),
-            &reflexName);
+            &className);
 }
