@@ -60,3 +60,15 @@ cet_test(ScheduleID_t USE_BOOST_UNIT)
 
 cet_test(parent_path_t USE_BOOST_UNIT
   LIBRARIES art_Utilities)
+
+cet_test(TypeNameBranchName_t
+  LIBRARIES
+  test_Utilities_dict
+  art_Persistency_CetlibDictionaries_dict
+  art_Persistency_StdDictionaries_dict
+  art_Utilities
+  cetlib
+  ${ROOT_REFLEX}
+  REF "${CMAKE_CURRENT_SOURCE_DIR}/TypeNameBranchName_t-ref.txt"
+)
+
