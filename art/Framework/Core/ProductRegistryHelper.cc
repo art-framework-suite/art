@@ -13,3 +13,23 @@
 
 #include <string>
 
+void
+art::ProductRegistryHelper::
+registerProducts(MasterProductRegistry& mpr,
+                 ModuleDescription const& md)
+{
+  auto pl = std::move(productList_);
+  if (pl) {
+    FileBlock fb({}, "ProductRegistryHelper");
+    mpr.initFromFirstPrimaryFile(*productList_.get(), fb);
+    BranchIDList bil;
+    for (auto const& val : productList_) {
+        bil.push_back(val.second.branchID().id());
+    }
+    BranchIDListHelper::updateFromInput({bil}, fb.fileName());
+  }
+  for (auto const& val : typeLabelList_) {
+    mpr.addProduct(make_unique<art::BranchDescription>(val, md));
+  }
+}
+
