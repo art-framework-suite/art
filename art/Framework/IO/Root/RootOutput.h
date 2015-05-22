@@ -35,9 +35,8 @@ public: // MEMBER FUNCTIONS
   explicit
   RootOutput(fhicl::ParameterSet const&);
 
-  virtual
   void
-  selectProducts(FileBlock const&) override;
+  postSelectProducts(FileBlock const&) override;
 
 private: // TYPES
 
