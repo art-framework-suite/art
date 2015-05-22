@@ -27,6 +27,7 @@ registerProducts(MasterProductRegistry& mpr,
         bil.push_back(val.second.branchID().id());
     }
     BranchIDListHelper::updateFromInput({bil}, fb.fileName());
+    productList_.reset(); // No longer needed.
   }
   for (auto const& val : typeLabelList_) {
     mpr.addProduct(std::make_unique<art::BranchDescription>(val, md));
