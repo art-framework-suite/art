@@ -1,6 +1,6 @@
 # The parent line must be the first non-comment line in the file
 # This line defines the product name and version
-parent art	v1_14_01
+parent art	v1_14_02
 defaultqual	e7
 #
 fcldir -
@@ -29,11 +29,6 @@ e7:prof:sse2	e7:prof		e7:prof		e7:prof		e7:prof		-nq-	-nq-	e7:prof		gcc		-msse2 
 nu:e7:debug	e7:debug	e7:nu:debug	e7:debug	e7:debug	-nq-	-nq-	e7:debug	gcc
 nu:e7:prof	e7:prof		e7:nu:prof	e7:prof		e7:prof		-nq-	-nq-	e7:prof		gcc
 end_qualifier_list
-
-##table_fragment_begin
- ##   # For cetskelgen modules.
- ##   envPrepend(PERL5LIB, ${${UPS_PROD_NAME_UC}_DIR}/perllib)
-##table_fragment_end
 
 # Local Variables:
 # tab-width: 8
