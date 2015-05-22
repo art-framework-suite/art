@@ -135,31 +135,8 @@ openFile(FileBlock const& fb)
 
 void
 RootOutput::
-selectProducts(FileBlock const& fb)
+postSelectProducts(FileBlock const& fb)
 {
-  groupSelector_.initialize(groupSelectorRules_,
-                            ProductMetaData::instance().productList());
-  // TODO: See if we can collapse keptProducts_ and groupSelector_ into a
-  // single object. See the notes in the header for GroupSelector
-  // for more information.
-  for (auto const& val : ProductMetaData::instance().productList()) {
-    BranchDescription const& bd = val.second;
-    if (bd.transient()) {
-      // Transient, skip it.
-      continue;
-    }
-    if (!bd.present() && !bd.produced()) {
-      // Previously dropped, skip it.
-      continue;
-    }
-    if (groupSelector_.selected(bd)) {
-      // Selected, keep it.
-      keptProducts_[bd.branchType()].push_back(&bd);
-      continue;
-    }
-    // Newly dropped, skip it.
-    hasNewlyDroppedBranch_[bd.branchType()] = true;
-  }
   if (isFileOpen()) {
     rootOutputFile_->selectProducts(fb);
   }

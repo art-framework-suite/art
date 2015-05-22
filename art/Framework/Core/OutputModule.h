@@ -63,12 +63,13 @@ public:
   // not appropriate).
   virtual std::string const & lastClosedFileName() const;
 
+  bool selected(BranchDescription const & desc) const;
   SelectionsArray const & keptProducts() const;
   std::array<bool, NumBranchTypes> const & hasNewlyDroppedBranch() const;
 
   BranchChildren const & branchChildren() const;
 
-  virtual void selectProducts(FileBlock const&);
+  void selectProducts(FileBlock const&);
 
 protected:
   // The returned pointer will be null unless the this is currently
@@ -77,14 +78,18 @@ protected:
 
   ModuleDescription const & description() const;
 
-protected:
+  // Called before selectProducts() has done its work.
+  virtual void preSelectProducts(FileBlock const &);
+
+  // Called after selectProducts() has done its work.
+  virtual void postSelectProducts(FileBlock const &);
+
+private:
 
   SelectionsArray keptProducts_;
   std::array<bool, NumBranchTypes> hasNewlyDroppedBranch_;
   GroupSelectorRules groupSelectorRules_;
   GroupSelector groupSelector_;
-
-private:
   int maxEvents_;
   int remainingEvents_;
 
@@ -229,6 +234,14 @@ art::OutputModule::
 remainingEvents() const
 {
   return remainingEvents_;
+}
+
+inline
+bool
+art::OutputModule::
+selected(BranchDescription const & desc) const
+{
+  return groupSelector_.selected(desc);
 }
 
 inline

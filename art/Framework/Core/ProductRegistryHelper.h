@@ -71,14 +71,13 @@ class ModuleDescription;
 class ProductRegistryHelper {
 public:
 
+  // Used by an input source to provide a product list
+  // to be merged into the master product registry
+  // later by registerProducts().
+  void productList(ProductList* p) { productList_.reset(p); }
+
   void registerProducts(MasterProductRegistry& mpr,
-                        ModuleDescription const& md)
-  {
-    for (auto const& tl : typeLabelList_) {
-      mpr.addProduct(std::unique_ptr<art::BranchDescription>(
-                       new art::BranchDescription(tl, md)));
-    }
-  }
+                        ModuleDescription const& md);
 
   // Record the production of an object of type P, with optional
   // instance name, in the Event (by default), Run, or SubRun.
@@ -117,6 +116,10 @@ private:
 private:
 
   std::set<TypeLabel> typeLabelList_;
+
+  // Set by an input source for merging into the
+  // master product registry by registerProducts().
+  std::unique_ptr<ProductList> productList_;
 
 };
 
