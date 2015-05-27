@@ -46,7 +46,7 @@ private: // MEMBER FUNCTIONS
 
   virtual
   void
-  mergeReaders_(std::shared_ptr<DelayedReader>) override; 
+  mergeReaders_(std::shared_ptr<DelayedReader>) override;
 
   virtual
   int

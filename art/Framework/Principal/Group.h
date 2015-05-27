@@ -147,7 +147,7 @@ public:
   virtual bool resolveProduct(bool fillOnDemand, TypeID const&) const;
 
   virtual bool resolveProductIfAvailable(bool fillOnDemand,
-                                         TypeID const&) const; 
+                                         TypeID const&) const;
   // Write the group to the stream.
   void write(std::ostream& os) const;
 

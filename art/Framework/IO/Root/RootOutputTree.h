@@ -37,10 +37,10 @@ public: // MEMBER FUNCTIONS
   template<typename T>
   RootOutputTree(/*dummy*/T*, std::shared_ptr<TFile> filePtr,
                  BranchType const& branchType,
-		 typename T::Auxiliary const*& pAux,
-		 ProductProvenances*& pProductProvenanceVector,
-		 int bufSize, int splitLevel, int64_t treeMaxVirtualSize,
-		 int64_t saveMemoryObjectThreshold)
+     typename T::Auxiliary const*& pAux,
+     ProductProvenances*& pProductProvenanceVector,
+     int bufSize, int splitLevel, int64_t treeMaxVirtualSize,
+     int64_t saveMemoryObjectThreshold)
     : filePtr_(filePtr)
     , tree_(makeTTree(filePtr.get(), BranchTypeToProductTreeName(branchType),
                       splitLevel))

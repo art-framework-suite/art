@@ -678,18 +678,18 @@ fillBranches(BranchType const& bt, Principal const& principal,
     }
     if (keepProvenance) {
       if (oh.productProvenance()) {
-	  keptProv.insert(*oh.productProvenance());
-	  insertAncestors(*oh.productProvenance(), principal, keptProv);
+    keptProv.insert(*oh.productProvenance());
+    insertAncestors(*oh.productProvenance(), principal, keptProv);
       }
       else {
-	// No provenance, product was either not produced,
-	// or was dropped, create provenance to remember that.
-	if (produced) {
-	  keptProv.emplace(bd->branchID(), productstatus::neverCreated());
-	}
-	else {
-	  keptProv.emplace(bd->branchID(), productstatus::dropped());
-	}
+  // No provenance, product was either not produced,
+  // or was dropped, create provenance to remember that.
+  if (produced) {
+    keptProv.emplace(bd->branchID(), productstatus::neverCreated());
+  }
+  else {
+    keptProv.emplace(bd->branchID(), productstatus::dropped());
+  }
       }
     }
     if (resolveProd) {
