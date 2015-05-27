@@ -10,7 +10,8 @@
 #include "art/Persistency/Common/RefCore.h"
 #include "art/Persistency/Common/TriggerResults.h"
 #include "art/Persistency/Common/Wrapper.h"
-#include "cpp0x/utility"
+
+#include <utility>
 #include <vector>
 
 namespace {

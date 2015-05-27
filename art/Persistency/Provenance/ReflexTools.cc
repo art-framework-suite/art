@@ -1,10 +1,5 @@
 #include "art/Persistency/Provenance/ReflexTools.h"
 
-#include "Api.h"
-#include "Reflex/Base.h"
-#include "Reflex/Member.h"
-#include "Reflex/TypeTemplate.h"
-#include "TClass.h"
 #include "art/Utilities/DebugMacros.h"
 #include "art/Utilities/Exception.h"
 #include "boost/algorithm/string.hpp"
@@ -18,6 +13,12 @@
 #include <regex>
 #include <set>
 #include <sstream>
+
+#include "Api.h"
+#include "Reflex/Base.h"
+#include "Reflex/Member.h"
+#include "Reflex/TypeTemplate.h"
+#include "TClass.h"
 
 using Reflex::Base;
 using Reflex::FINAL;

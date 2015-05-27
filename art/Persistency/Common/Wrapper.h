@@ -129,8 +129,8 @@ private:
 #include "art/Utilities/Exception.h"
 #include "art/Utilities/detail/metaprogramming.h"
 #include "boost/lexical_cast.hpp"
-#include "cpp0x/memory"
-#include "cpp0x/type_traits"
+#include <memory>
+#include <type_traits>
 
 #include <deque>
 #include <list>

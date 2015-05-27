@@ -208,10 +208,10 @@
 #include "art/Utilities/fwd.h"
 #include "cetlib/exempt_ptr.h"
 #include "cetlib/value_ptr.h"
-#include "cpp0x/functional"
-#include "cpp0x/memory"
+#include <functional>
 #include "fhiclcpp/ParameterSet.h"
 
+#include <memory>
 #include <string>
 #include <vector>
 

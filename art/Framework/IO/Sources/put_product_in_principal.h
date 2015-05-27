@@ -19,7 +19,8 @@
 #include "art/Persistency/Provenance/ProductStatus.h"
 #include "art/Utilities/Exception.h"
 #include "art/Utilities/TypeID.h"
-#include "cpp0x/memory"
+
+#include <memory>
 #include <string>
 
 namespace art {

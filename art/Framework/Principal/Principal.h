@@ -31,11 +31,12 @@
 #include "art/Utilities/InputTag.h"
 #include "art/Utilities/TypeID.h"
 #include "cetlib/exempt_ptr.h"
-#include "cpp0x/memory"
+
+#include <cstdio>
 #include <map>
+#include <memory>
 #include <string>
 #include <vector>
-#include <cstdio>
 
 namespace art {
 

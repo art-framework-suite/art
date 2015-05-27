@@ -22,7 +22,9 @@
 #include "rapidjson/document.h"
 #include "rapidjson/error/en.h"
 
+#include <string>
 #include <utility>
+#include <vector>
 
 using fhicl::ParameterSet;
 using std::vector;

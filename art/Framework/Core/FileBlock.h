@@ -12,8 +12,9 @@ FileBlock: Properties of an input file.
 #include "art/Persistency/Provenance/FileFormatVersion.h"
 #include "art/Persistency/Provenance/BranchChildren.h"
 class TTree;
-#include "cpp0x/memory"
+
 #include <map>
+#include <memory>
 #include <string>
 #include <vector>
 

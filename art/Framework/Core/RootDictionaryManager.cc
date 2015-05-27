@@ -2,10 +2,10 @@
 
 #include "art/Utilities/Exception.h"
 #include "cetlib/shlib_utils.h"
-#include "cpp0x/regex"
 
 #include <iostream>
 #include <iterator>
+#include <regex>
 #include <sstream>
 
 #include "Cintex/Cintex.h"

@@ -60,11 +60,11 @@
 #include "art/Persistency/Provenance/ProvenanceFwd.h"
 #include "art/Utilities/InputTag.h"
 #include "art/Utilities/TypeID.h"
-#include "cpp0x/memory"
-#include "cpp0x/utility"
 
+#include <memory>
 #include <ostream>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace art {

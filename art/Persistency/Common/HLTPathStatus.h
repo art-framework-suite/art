@@ -24,8 +24,9 @@
  */
 
 #include "art/Persistency/Common/HLTenums.h"
-#include "cpp0x/cstdint"
+
 #include <cassert>
+#include <cstdint>
 
 namespace art
 {

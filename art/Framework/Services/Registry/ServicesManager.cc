@@ -7,13 +7,12 @@
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/ServicesManager.h"
 #include "cetlib/LibraryManager.h"
-
-#include "cpp0x/memory"
-#include "cpp0x/utility"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/types/detail/validationException.h"
 
 #include <cassert>
+#include <memory>
+#include <utility>
 
 art::ServicesManager::
 ServicesManager(ParameterSets const & psets,

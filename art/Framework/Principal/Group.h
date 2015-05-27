@@ -17,7 +17,8 @@
 #include "art/Persistency/Provenance/ProductProvenance.h"
 #include "art/Utilities/fwd.h"
 #include "cetlib/exempt_ptr.h"
-#include "cpp0x/memory"
+
+#include <memory>
 
 namespace art {
 

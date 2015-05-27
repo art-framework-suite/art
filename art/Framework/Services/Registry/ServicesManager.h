@@ -15,11 +15,11 @@
 #include "art/Utilities/Exception.h"
 #include "art/Utilities/TypeID.h"
 #include "cetlib/demangle.h"
-#include "cpp0x/memory"
-#include "cpp0x/utility"
 
 #include <map>
+#include <memory>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace cet {

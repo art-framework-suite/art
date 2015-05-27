@@ -5,16 +5,16 @@
 #include "art/Persistency/Provenance/BranchDescription.h"
 #include "art/Persistency/Provenance/BranchType.h"
 #include "art/Persistency/Provenance/ProductList.h"
-#include "cpp0x/array"
-#include "cpp0x/memory"
+
+#include <array>
 #include <iosfwd>
 #include <limits>
 #include <map>
 #include <memory>
 #include <set>
 #include <string>
-#include <vector>
 #include <unordered_set>
+#include <vector>
 
 namespace Reflex {
 class Type;

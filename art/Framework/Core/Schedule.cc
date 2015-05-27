@@ -23,12 +23,13 @@
 #include "art/Utilities/GetPassID.h"
 #include "art/Version/GetReleaseVersion.h"
 #include "cetlib/exempt_ptr.h"
-#include "cpp0x/algorithm"
-#include "cpp0x/numeric"
+
+#include <algorithm>
 #include <algorithm>
 #include <cassert>
 #include <cstdlib>
 #include <iomanip>
+#include <numeric>
 
 using fhicl::ParameterSet;
 

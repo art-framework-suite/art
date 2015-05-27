@@ -16,8 +16,9 @@
 #include "art/Persistency/Provenance/SubRunAuxiliary.h"
 #include "art/Persistency/Provenance/SubRunID.h"
 #include "art/Utilities/TypeID.h"
-#include "cpp0x/memory"
-#include "cpp0x/utility"
+
+#include <memory>
+#include <utility>
 
 class art::SubRun : private art::DataViewImpl {
 public:

@@ -23,10 +23,10 @@
 #include "art/Persistency/Provenance/RunID.h"
 #include "art/Persistency/Provenance/SubRunID.h"
 #include "art/Persistency/Provenance/Timestamp.h"
-
-#include "cpp0x/memory"
 #include "fhiclcpp/ParameterSet.h"
+
 #include <cstdlib>
+#include <memory>
 #include <set>
 #include <vector>
 

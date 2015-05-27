@@ -1,10 +1,10 @@
 #ifndef art_Persistency_Provenance_Selections_h
 #define art_Persistency_Provenance_Selections_h
 
-#include "cpp0x/array"
-#include <vector>
-
 #include "art/Persistency/Provenance/BranchType.h"
+
+#include <array>
+#include <vector>
 
 namespace art {
   class BranchDescription;

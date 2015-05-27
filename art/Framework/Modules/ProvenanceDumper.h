@@ -130,11 +130,11 @@
 #include "art/Utilities/Exception.h"
 #include "art/Utilities/detail/metaprogramming.h"
 #include "cetlib/exempt_ptr.h"
-#include "cpp0x/algorithm"
-
-#include "fhiclcpp/types/Atom.h"
 #include "fhiclcpp/ParameterSet.h"
+#include "fhiclcpp/types/Atom.h"
 #include "fhiclcpp/types/Sequence.h"
+
+#include <algorithm>
 
 namespace art {
   template <typename DETAIL> class ProvenanceDumper;

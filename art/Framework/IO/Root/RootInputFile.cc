@@ -25,17 +25,19 @@
 #include "art/Utilities/Exception.h"
 #include "art/Utilities/FriendlyName.h"
 #include "cetlib/container_algorithms.h"
-#include "cpp0x/algorithm"
-#include "cpp0x/utility"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/ParameterSetID.h"
 #include "fhiclcpp/ParameterSetRegistry.h"
 #include "fhiclcpp/make_ParameterSet.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
+
 #include "Rtypes.h"
 #include "TClass.h"
 #include "TFile.h"
 #include "TTree.h"
+
+#include <algorithm>
+#include <utility>
 
 extern "C" {
 #include "sqlite3.h"

@@ -36,18 +36,20 @@
 #include "cetlib/canonical_string.h"
 #include "cetlib/container_algorithms.h"
 #include "cetlib/exempt_ptr.h"
-#include "cpp0x/algorithm"
-#include "cpp0x/utility"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/ParameterSetID.h"
 #include "fhiclcpp/ParameterSetRegistry.h"
+
 #include "Rtypes.h"
 #include "TClass.h"
 #include "TFile.h"
 #include "TTree.h"
 #include "TBranchElement.h"
+
+#include <algorithm>
 #include <iomanip>
 #include <sstream>
+#include <utility>
 #include <utility>
 #include <vector>
 

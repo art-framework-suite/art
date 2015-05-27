@@ -13,9 +13,9 @@
 #include "art/Framework/Services/Registry/detail/ServiceHelper.h"
 #include "cetlib/LibraryManager.h"
 #include "art/Utilities/ScheduleID.h"
-
-#include "cpp0x/memory"
 #include "fhiclcpp/ParameterSet.h"
+
+#include <memory>
 
 // ----------------------------------------------------------------------
 

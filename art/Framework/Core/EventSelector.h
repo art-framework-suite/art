@@ -9,9 +9,10 @@
 
 #include "art/Persistency/Common/HLTPathStatus.h"
 #include "art/Persistency/Common/TriggerResults.h"
-#include "cpp0x/memory"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/ParameterSetID.h"
+
+#include <memory>
 #include <string>
 #include <vector>
 

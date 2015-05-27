@@ -24,14 +24,16 @@
 #include "art/Persistency/Provenance/ProductProvenance.h"
 #include "art/Persistency/Provenance/Selections.h"
 #include "art/Persistency/RootDB/SQLite3Wrapper.h"
-#include "TROOT.h"
 #include "boost/filesystem.hpp"
-#include "cpp0x/array"
-#include "cpp0x/memory"
+
+#include <array>
 #include <array>
 #include <map>
+#include <memory>
 #include <string>
 #include <vector>
+
+#include "TROOT.h"
 
 class TFile;
 class TTree;

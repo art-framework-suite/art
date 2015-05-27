@@ -36,9 +36,9 @@ for every event.
 #include "art/Framework/Principal/fwd.h"
 #include "art/Persistency/Provenance/BranchDescription.h"
 #include "cetlib/value_ptr.h"
-#include "cpp0x/type_traits"
 
 #include <string>
+#include <type_traits>
 
 namespace art {
 

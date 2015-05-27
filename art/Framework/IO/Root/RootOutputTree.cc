@@ -5,13 +5,15 @@
 #include "art/Persistency/Provenance/BranchDescription.h"
 #include "art/Utilities/Exception.h"
 #include "cetlib/container_algorithms.h"
-#include "cpp0x/functional"
 #include "messagefacility/MessageLogger/MessageLogger.h"
+
 #include "Rtypes.h"
 #include "TClass.h"
 #include "TBranch.h"
 #include "TFile.h"
 #include "TTreeCloner.h"
+
+#include <functional>
 #include <iostream>
 #include <limits>
 

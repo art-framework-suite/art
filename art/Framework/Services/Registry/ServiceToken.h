@@ -14,7 +14,8 @@
 
 #include "art/Framework/Services/Registry/ServicesManager.h"
 #include "art/Framework/Services/Registry/detail/ServiceHelper.h"
-#include "cpp0x/memory"
+
+#include <memory>
 
 namespace art {
   class ServiceRegistry;

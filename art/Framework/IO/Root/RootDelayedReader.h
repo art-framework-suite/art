@@ -7,8 +7,9 @@
 #include "art/Persistency/Common/DelayedReader.h"
 #include "art/Persistency/Provenance/BranchKey.h"
 #include "art/Persistency/Provenance/BranchType.h"
-#include "cpp0x/memory"
+
 #include <map>
+#include <memory>
 #include <string>
 
 class TFile;

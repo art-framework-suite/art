@@ -8,7 +8,8 @@
 #include "art/Persistency/Provenance/ProductProvenance.h"
 #include "art/Persistency/Provenance/ProductStatus.h"
 #include "cetlib/container_algorithms.h"
-#include "cpp0x/algorithm"
+
+#include <algorithm>
 
 using namespace cet;
 using namespace std;

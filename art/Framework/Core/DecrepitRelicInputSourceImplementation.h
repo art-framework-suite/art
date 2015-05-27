@@ -52,9 +52,9 @@ Some examples of InputSource subclasses may be:
 #include "art/Persistency/Provenance/SubRunID.h"
 #include "art/Persistency/Provenance/Timestamp.h"
 #include "cetlib/exempt_ptr.h"
-#include "cpp0x/memory"
 #include "fhiclcpp/ParameterSet.h"
 
+#include <memory>
 #include <string>
 
 // ----------------------------------------------------------------------

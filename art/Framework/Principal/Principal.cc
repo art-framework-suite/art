@@ -15,10 +15,11 @@
 #include "art/Utilities/TypeID.h"
 #include "art/Utilities/WrappedClassName.h"
 #include "cetlib/container_algorithms.h"
-#include "cpp0x/algorithm"
-#include "cpp0x/utility"
+
+#include <algorithm>
 #include <sstream>
 #include <stdexcept>
+#include <utility>
 
 using namespace cet;
 using namespace std;

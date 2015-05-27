@@ -25,9 +25,10 @@
 #include "art/Persistency/Provenance/SubRunAuxiliary.h"
 #include "art/Persistency/Provenance/SubRunID.h"
 #include "cetlib/exempt_ptr.h"
-#include "cpp0x/array"
-#include "cpp0x/memory"
+
+#include <array>
 #include <map>
+#include <memory>
 #include <string>
 #include <vector>
 

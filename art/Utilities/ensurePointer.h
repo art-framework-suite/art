@@ -9,13 +9,12 @@
 // test/Utilities/ensurePointer.h for testing coverage illustration.
 
 #include "art/Utilities/Exception.h"
-#include "cetlib/demangle.h"
-#include "cpp0x/type_traits"
-
 #include "boost/mpl/assert.hpp"
 #include "boost/type_traits.hpp"
+#include "cetlib/demangle.h"
 
 #include <iterator>
+#include <type_traits>
 
 namespace art {
   template <typename WANTED_POINTER, typename InputIterator>
