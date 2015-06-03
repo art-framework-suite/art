@@ -74,7 +74,7 @@ cet_make_exec(TypeNameBranchName_t
 )
 
 set(tnum 1)
-foreach(types_file art_test_types.txt microboone_MC6.txt)
+foreach(types_file art_test_types.txt microboone_MC6.txt mu2e.txt)
   if (tnum LESS 10)
     set(tnum_text "0${tnum}")
   else()
