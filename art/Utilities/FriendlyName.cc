@@ -110,8 +110,6 @@ namespace {
   }
 }
 
-// FIXME: This could be rewritten to use unordered_map as the cache, at
-// the slight risk of a hash collision.
 std::string art::friendlyname::friendlyName(std::string const& iFullName) {
   static tbb::concurrent_unordered_map<std::string, std::string> s_nameMap;
   auto entry = s_nameMap.find(iFullName);

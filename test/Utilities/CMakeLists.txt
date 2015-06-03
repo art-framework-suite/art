@@ -61,10 +61,28 @@ cet_test(ScheduleID_t USE_BOOST_UNIT)
 cet_test(parent_path_t USE_BOOST_UNIT
   LIBRARIES art_Utilities)
 
-cet_test(TypeNameBranchName_t
+cet_test(uniform_type_name_test USE_BOOST_UNIT
+  LIBRARIES
+  art_Utilities
+  )
+
+cet_make_exec(TypeNameBranchName_t
+  NO_INSTALL
   LIBRARIES
   art_Utilities
   cetlib
-  ${ROOT_REFLEX}
-  REF "${CMAKE_CURRENT_SOURCE_DIR}/TypeNameBranchName_t-ref.txt"
 )
+
+set(tnum 1)
+foreach(types_file art_test_types.txt microboone_MC6.txt)
+  if (tnum LESS 10)
+    set(tnum_text "0${tnum}")
+  else()
+    set(tnum_text "${tnum}")
+  endif()
+  cet_test(TypeNameBranchName_test_${tnum_text} HANDBUILT
+    TEST_EXEC TypeNameBranchName_t
+    TEST_ARGS ${CMAKE_CURRENT_SOURCE_DIR}/TypeNameBranchName_t/${types_file}
+    )
+  math(EXPR tnum "${tnum} + 1")
+endforeach()
