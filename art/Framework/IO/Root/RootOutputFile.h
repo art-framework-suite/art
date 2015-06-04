@@ -11,7 +11,9 @@
 // and RootOutput. This has been entered as issue #2885.
 
 #include "art/Framework/Core/Frameworkfwd.h"
-#include "art/Framework/IO/Root/RootOutput.h"
+#include "art/Framework/Core/OutputModule.h"
+#include "art/Framework/IO/FileStatsCollector.h"
+#include "art/Framework/IO/Root/DropMetaData.h"
 #include "art/Framework/IO/Root/RootOutputTree.h"
 #include "art/Persistency/Provenance/BranchDescription.h"
 #include "art/Persistency/Provenance/BranchID.h"
@@ -112,7 +114,15 @@ public: // TYPES
 
 public: // MEMBER FUNCTIONS
 
-  explicit RootOutputFile(RootOutput*, std::string const& fileName);
+  explicit RootOutputFile(OutputModule*, std::string const& fileName,
+                          unsigned int const maxFileSize,
+                          int const compressionLevel,
+                          int64_t const saveMemoryObjectThreshold,
+                          int64_t const treeMaxVirtualSize,
+                          int const splitLevel, int const basketSize,
+                          DropMetaData dropMetaData,
+                          bool dropMetaDataForDroppedData,
+                          bool fastCloning);
   // use compiler-generated copy c'tor, copy assignment, and d'tor
   void writeOne(EventPrincipal const&);
   //void endFile();
@@ -157,7 +167,16 @@ private: // MEMBER FUNCTIONS
 private: // MEMBER DATA
 
   std::string file_;
-  RootOutput const* om_;
+  OutputModule const* om_;
+  unsigned int const maxFileSize_;
+  int const compressionLevel_;
+  int64_t const saveMemoryObjectThreshold_;
+  int64_t const treeMaxVirtualSize_;
+  int const splitLevel_;
+  int const basketSize_;
+  DropMetaData dropMetaData_;
+  bool dropMetaDataForDroppedData_;
+  bool fastCloning_;
   bool currentlyFastCloning_;
   std::shared_ptr<TFile> filePtr_;
   FileIndex fileIndex_;

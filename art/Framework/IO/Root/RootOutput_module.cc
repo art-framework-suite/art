@@ -4,6 +4,7 @@
 #include "art/Framework/Core/FileBlock.h"
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/IO/PostCloseFileRenamer.h"
+#include "art/Framework/IO/Root/DropMetaData.h"
 #include "art/Framework/IO/Root/RootOutputFile.h"
 #include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Principal/RunPrincipal.h"
@@ -18,31 +19,7 @@
 #include <iomanip>
 #include <sstream>
 
-using art::RootOutput;
-using fhicl::ParameterSet;
 using std::string;
-
-namespace {
-
-bool fastCloningDefault = true;
-
-bool setAndReportFastCloning(fhicl::ParameterSet const& ps)
-{
-  bool result = fastCloningDefault;
-  mf::LogInfo msg("FastCloning");
-  msg << "Initial fast cloning configuration ";
-  if (ps.get_if_present("fastCloning", result)) {
-    msg << "(user-set): ";
-  }
-  else {
-    msg << "(from default): ";
-  }
-  msg << std::boolalpha
-      << result;
-  return result;
-}
-
-} // unnamed namespace
 
 namespace art {
 
@@ -52,22 +29,11 @@ RootOutput::
 }
 
 RootOutput::
-RootOutput(ParameterSet const& ps)
+RootOutput(fhicl::ParameterSet const& ps)
   : OutputModule(ps)
   , catalog_(ps.get<string>("catalog", string()))
-  , maxFileSize_(ps.get<int>("maxSize", 0x7f000000))
-  , compressionLevel_(ps.get<int>("compressionLevel", 7))
-  , basketSize_(ps.get<int>("basketSize", 16384))
-  , splitLevel_(ps.get<int>("splitLevel", 99))
-  , treeMaxVirtualSize_(ps.get<int64_t>("treeMaxVirtualSize", -1))
-  , saveMemoryObjectThreshold_(ps.get<int64_t>(
-                                 "saveMemoryObjectThreshold", -1l))
-  , fastCloning_(setAndReportFastCloning(ps))
   , dropAllEvents_(false)
   , dropAllSubRuns_(ps.get<bool>("dropAllSubRuns", false))
-  , dropMetaData_(DropNone)
-  , dropMetaDataForDroppedData_(ps.get<bool>(
-                                  "dropMetaDataForDroppedData", false))
   , moduleLabel_(ps.get<string>("module_label"))
   , inputFileCount_(0)
   , rootOutputFile_()
@@ -75,7 +41,29 @@ RootOutput(ParameterSet const& ps)
   , filePattern_(ps.get<string>("fileName"))
   , tmpDir_(ps.get<string>("tmpDir", parent_path(filePattern_)))
   , lastClosedFileName_()
+
+  , maxFileSize_(ps.get<int>("maxSize", 0x7f000000))
+  , compressionLevel_(ps.get<int>("compressionLevel", 7))
+  , saveMemoryObjectThreshold_(ps.get<int64_t>(
+                                 "saveMemoryObjectThreshold", -1l))
+  , treeMaxVirtualSize_(ps.get<int64_t>("treeMaxVirtualSize", -1))
+  , splitLevel_(ps.get<int>("splitLevel", 99))
+  , basketSize_(ps.get<int>("basketSize", 16384))
+  , dropMetaData_(DropMetaData::DropNone)
+  , dropMetaDataForDroppedData_(ps.get<bool>(
+                                  "dropMetaDataForDroppedData", false))
+  , fastCloning_(true)
 {
+  mf::LogInfo msg("FastCloning");
+  msg << "Initial fast cloning configuration ";
+  if (ps.get_if_present("fastCloning", fastCloning_)) {
+    msg << "(user-set): ";
+  }
+  else {
+    msg << "(from default): ";
+  }
+  msg << std::boolalpha
+      << fastCloning_;
   if (fastCloning_ && !wantAllEvents()) {
     fastCloning_ = false;
     mf::LogWarning("FastCloning")
@@ -86,7 +74,7 @@ RootOutput(ParameterSet const& ps)
                                 dropAllEvents_);
   if (dropAllSubRuns_) {
     if (dropAllEventsSet && !dropAllEvents_) {
-      std::string const errmsg =
+      string const errmsg =
         "\nThe following FHiCL specification is illegal\n\n"
         "   dropAllEvents  : false \n"
         "   dropAllSubRuns : true  \n\n"
@@ -100,16 +88,16 @@ RootOutput(ParameterSet const& ps)
   }
   string dropMetaData(ps.get<string>("dropMetaData", string()));
   if (dropMetaData.empty()) {
-    dropMetaData_ = DropNone;
+    dropMetaData_ = DropMetaData::DropNone;
   }
   else if (dropMetaData == string("NONE")) {
-    dropMetaData_ = DropNone;
+    dropMetaData_ = DropMetaData::DropNone;
   }
   else if (dropMetaData == string("PRIOR")) {
-    dropMetaData_ = DropPrior;
+    dropMetaData_ = DropMetaData::DropPrior;
   }
   else if (dropMetaData == string("ALL")) {
-    dropMetaData_ = DropAll;
+    dropMetaData_ = DropMetaData::DropAll;
   }
   else {
     throw art::Exception(errors::Configuration,
@@ -333,12 +321,16 @@ doOpenFile()
         << "Attempt to open output file before input file. "
         << "Please report this to the core framework developers.\n";
   }
-  rootOutputFile_.reset(new RootOutputFile(this,
-                        unique_filename(tmpDir_ + "/RootOutput")));
+  rootOutputFile_.reset(
+    new RootOutputFile(this, unique_filename(tmpDir_ + "/RootOutput"),
+                       maxFileSize_, compressionLevel_,
+                       saveMemoryObjectThreshold_, treeMaxVirtualSize_,
+                       splitLevel_, basketSize_, dropMetaData_,
+                       dropMetaDataForDroppedData_, fastCloning_));
   fstats_.recordFileOpen();
 }
 
-std::string const&
+string const&
 RootOutput::
 lastClosedFileName() const
 {
@@ -352,5 +344,5 @@ lastClosedFileName() const
 } // namespace art
 
 
-DEFINE_ART_MODULE(RootOutput)
+DEFINE_ART_MODULE(art::RootOutput)
 
