@@ -1,0 +1,20 @@
+art_typetester v0_00_03
+Platform info: "Scientific Linux Fermi release 6.6 (Ramsey)"
+Compiler: /products/gcc/v4_9_1/Linux64bit+2.6-2.12/bin/g++
+Compiler version information: 
+
+INFO: Examining file lbne_r001161_sr01_20150526T220054.root ...
+Mangled name : ABI-demangled name : Cint name : Reflex name : branchNameType : friendlyName
+
+N3art14EventAuxiliaryE : art::EventAuxiliary : art::EventAuxiliary : art::EventAuxiliary : EventAuxiliary : art::EventAuxiliary
+N3art7WrapperISt6vectorIN6artdaq8FragmentESaIS3_EEEE : art::Wrapper<std::vector<artdaq::Fragment, std::allocator<artdaq::Fragment> > > : art::Wrapper<vector<artdaq::Fragment> > : art::Wrapper<std::vector<artdaq::Fragment> > : artdaq::Fragments : artdaq::Fragments
+N3art7WrapperISt6vectorIN6artdaq8FragmentESaIS3_EEEE : art::Wrapper<std::vector<artdaq::Fragment, std::allocator<artdaq::Fragment> > > : art::Wrapper<vector<artdaq::Fragment> > : art::Wrapper<std::vector<artdaq::Fragment> > : artdaq::Fragments : artdaq::Fragments
+N3art7WrapperISt6vectorIN6artdaq8FragmentESaIS3_EEEE : art::Wrapper<std::vector<artdaq::Fragment, std::allocator<artdaq::Fragment> > > : art::Wrapper<vector<artdaq::Fragment> > : art::Wrapper<std::vector<artdaq::Fragment> > : artdaq::Fragments : artdaq::Fragments
+N3art7WrapperISt6vectorIN6artdaq8FragmentESaIS3_EEEE : art::Wrapper<std::vector<artdaq::Fragment, std::allocator<artdaq::Fragment> > > : art::Wrapper<vector<artdaq::Fragment> > : art::Wrapper<std::vector<artdaq::Fragment> > : artdaq::Fragments : artdaq::Fragments
+N3art7WrapperISt6vectorIN6artdaq8FragmentESaIS3_EEEE : art::Wrapper<std::vector<artdaq::Fragment, std::allocator<artdaq::Fragment> > > : art::Wrapper<vector<artdaq::Fragment> > : art::Wrapper<std::vector<artdaq::Fragment> > : artdaq::Fragments : artdaq::Fragments
+N3art7WrapperISt6vectorIN6artdaq8FragmentESaIS3_EEEE : art::Wrapper<std::vector<artdaq::Fragment, std::allocator<artdaq::Fragment> > > : art::Wrapper<vector<artdaq::Fragment> > : art::Wrapper<std::vector<artdaq::Fragment> > : artdaq::Fragments : artdaq::Fragments
+N3art7WrapperISt6vectorIN6artdaq8FragmentESaIS3_EEEE : art::Wrapper<std::vector<artdaq::Fragment, std::allocator<artdaq::Fragment> > > : art::Wrapper<vector<artdaq::Fragment> > : art::Wrapper<std::vector<artdaq::Fragment> > : artdaq::Fragments : artdaq::Fragments
+N3art7WrapperINS_14TriggerResultsEEE : art::Wrapper<art::TriggerResults> : art::Wrapper<art::TriggerResults> : art::Wrapper<art::TriggerResults> : art::TriggerResults : art::TriggerResults
+N3art15SubRunAuxiliaryE : art::SubRunAuxiliary : art::SubRunAuxiliary : art::SubRunAuxiliary : SubRunAuxiliary : art::SubRunAuxiliary
+N3art12RunAuxiliaryE : art::RunAuxiliary : art::RunAuxiliary : art::RunAuxiliary : RunAuxiliary : art::RunAuxiliary
+N3art7WrapperISt6vectorIN6artdaq16PackageBuildInfoESaIS3_EEEE : art::Wrapper<std::vector<artdaq::PackageBuildInfo, std::allocator<artdaq::PackageBuildInfo> > > : art::Wrapper<vector<artdaq::PackageBuildInfo> > : art::Wrapper<std::vector<artdaq::PackageBuildInfo> > : artdaq::PackageBuildInfos : artdaq::PackageBuildInfos

@@ -79,6 +79,7 @@ foreach(types_file
     microboone_MC6.txt
     mu2e.txt
     lariat_r006037_sr0080.typetester.txt    
+    lbne_r001161_sr01_20150526T220054.art_typetester.txt
     )
   if (tnum LESS 10)
     set(tnum_text "0${tnum}")
