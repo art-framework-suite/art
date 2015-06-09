@@ -2,7 +2,6 @@
 
 #include "art/Utilities/RegexMatch.h"
 #include "boost/algorithm/string.hpp"
-#include "cpp0x/regex"
 #include <string>
 #include <vector>
 

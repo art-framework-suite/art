@@ -4,11 +4,13 @@
 #include "art/Utilities/Exception.h"
 #include "boost/algorithm/string.hpp"
 #include "cetlib/container_algorithms.h"
-#include "cpp0x/algorithm"
 #include "fhiclcpp/ParameterSet.h"
+
+#include <algorithm>
 #include <cctype>
 #include <iterator>
 #include <ostream>
+#include <regex>
 
 using namespace art;
 using namespace cet;
@@ -24,12 +26,12 @@ namespace {
   // matching of strings, and knows about wildcarding rules.
   inline
   bool
-  partial_match(const std::regex& regularExpression,
+  partial_match(const string& regularExpression,
                 const string& branchstring)
   {
     return regularExpression.empty()
-         ? branchstring == ""
-         : std::regex_match(branchstring, regularExpression);
+      ? branchstring == ""
+      : std::regex_match(branchstring, std::regex(regularExpression) );
   }
 
 }  // namespace
