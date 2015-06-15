@@ -107,7 +107,7 @@ namespace art {
     inline
     LinuxProcData::proc_array operator- (LinuxProcData::proc_array const & left,
                                          LinuxProcData::proc_array const & right) {
-      LinuxProcData::proc_array tmp;
+      LinuxProcData::proc_array tmp = {0.};
       for ( unsigned i(0) ; i < LinuxProcData::ntypes ; ++i ) {
         tmp.at(i) = left.at(i) - right.at(i);
       }

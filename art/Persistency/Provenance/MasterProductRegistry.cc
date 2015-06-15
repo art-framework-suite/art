@@ -68,12 +68,11 @@ MasterProductRegistry::
 MasterProductRegistry()
   : productList_()
   , frozen_(false)
-  , productProduced_()
+  , productProduced_{false}
   , perFileProds_()
   , productLookup_()
   , elementLookup_()
 {
-  productProduced_.fill(false);
   perFileProds_.resize(1);
 }
 
