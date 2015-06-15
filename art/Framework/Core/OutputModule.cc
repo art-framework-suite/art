@@ -74,6 +74,9 @@ selectProducts(FileBlock const& fb)
   preSelectProducts(fb);
   groupSelector_.initialize(groupSelectorRules_,
                             ProductMetaData::instance().productList());
+  for (auto& val : keptProducts_) {
+    val.clear();
+  }
   // TODO: See if we can collapse keptProducts_ and groupSelector_ into a
   // single object. See the notes in the header for GroupSelector
   // for more information.
@@ -129,6 +132,9 @@ doBeginJob()
   //selectProducts();
   groupSelector_.initialize(groupSelectorRules_,
                             ProductMetaData::instance().productList());
+  for (auto& val : keptProducts_) {
+    val.clear();
+  }
   for (auto const& val : ProductMetaData::instance().productList()) {
     BranchDescription const& bd = val.second;
     if (bd.transient()) {
