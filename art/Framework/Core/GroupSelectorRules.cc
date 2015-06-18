@@ -4,6 +4,8 @@
 #include "art/Utilities/Exception.h"
 #include "boost/algorithm/string.hpp"
 #include "cetlib/container_algorithms.h"
+#include "cetlib/replace_all.h"
+#include "cetlib/trim.h"
 
 #include <algorithm>
 #include <cctype>
@@ -114,7 +116,7 @@ GroupSelectorRules::Rule::Rule(string const& s,
   string spec(s.begin()+5, s.end());
 
   // Trim any leading and trailing whitespace from spec
-  boost::trim(spec);
+  cet::trim(spec);
 
   if (spec == "*") { // special case for wildcard
     productType_  = ".*";
@@ -152,8 +154,8 @@ GroupSelectorRules::Rule::Rule(string const& s,
          // The configuration file uses a syntax that accepts "*" and "?"
          // as wildcards so we need to convert these to the syntax used in
          // regular expressions.
-         boost::replace_all(parts[i], "*", ".*");
-         boost::replace_all(parts[i], "?", ".");
+         cet::replace_all(parts[i], "*", ".*");
+         cet::replace_all(parts[i], "?", ".");
       }
     }
 
