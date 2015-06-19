@@ -315,10 +315,11 @@ cet_test(ToyProductMerger_t HANDBUILT
   TEST_ARGS --rethrow-all -c ToyProductMerger_t.fcl 
   DATAFILES
   fcl/ToyProductMerger_t.fcl
-  TEST_PROPERTIES 
-  DEPENDS ToyProductProducer_t_01 
-  DEPENDS ToyProductProducer_t_02 
 )
+
+SET_TESTS_PROPERTIES(ToyProductMerger_t PROPERTIES
+  DEPENDS "ToyProductProducer_t_01;ToyProductProducer_t_02"
+  )
 
 foreach(num 05 06 07 08 09 10 11 12)
   cet_test(ToyRawInput_t_${num} HANDBUILT

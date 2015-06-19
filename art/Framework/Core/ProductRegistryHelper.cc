@@ -14,6 +14,10 @@
 
 #include <string>
 
+namespace {
+  using PerBranchTypePresence = art::MasterProductRegistry::PerBranchTypePresence;
+}
+
 void
 art::ProductRegistryHelper::
 registerProducts(MasterProductRegistry& mpr,
@@ -21,7 +25,9 @@ registerProducts(MasterProductRegistry& mpr,
 {
   if (productList_) {
     FileBlock fb({}, "ProductRegistryHelper");
-    mpr.initFromFirstPrimaryFile(*productList_.get(), fb);
+    mpr.initFromFirstPrimaryFile(*productList_.get(),
+                                 perBranchTypePresence_(md),
+                                 fb);
     BranchIDList bil;
     for (auto const& val : *productList_.get()) {
         bil.push_back(val.second.branchID().id());
@@ -34,3 +40,22 @@ registerProducts(MasterProductRegistry& mpr,
   }
 }
 
+PerBranchTypePresence
+art::ProductRegistryHelper::
+perBranchTypePresence_(ModuleDescription const &md)
+{
+  PerBranchTypePresence result;
+  for (auto const& tl : typeLabelList_) {
+    std::string branchName;
+    branchName += tl.friendlyClassName();
+    branchName += "_";
+    branchName += md.moduleLabel();
+    branchName += "_";
+    branchName += tl.productInstanceName;
+    branchName += "_";
+    branchName += md.processName();
+    branchName += ".";
+    result[tl.branchType].emplace( BranchID( branchName ) );
+  }
+  return result;
+}

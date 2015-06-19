@@ -92,15 +92,17 @@ hasBranch(std::string const& branchName) const
 
 void
 RootTree::
-addBranch(BranchKey const& key, BranchDescription const& prod,
-          std::string const& branchName)
+addBranch(BranchKey const& key,
+          BranchDescription const& prod,
+          std::string const& branchName,
+          bool const present)
 {
   assert(isValid());
   TBranch* branch = tree_->GetBranch(branchName.c_str());
-  assert(prod.present() == (branch != 0));
+  assert(present == (branch != 0));
   input::BranchInfo info(prod);
   info.productBranch_ = 0;
-  if (prod.present()) {
+  if ( present ) {
     info.productBranch_ = branch;
     branchNames_.emplace_back(prod.branchName());
   }

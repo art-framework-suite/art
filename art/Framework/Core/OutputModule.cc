@@ -72,8 +72,8 @@ art::OutputModule::
 selectProducts(FileBlock const& fb)
 {
   preSelectProducts(fb);
-  groupSelector_.initialize(groupSelectorRules_,
-                            ProductMetaData::instance().productList());
+  auto const& pmd = ProductMetaData::instance();
+  groupSelector_.initialize(groupSelectorRules_,pmd.productList());
   for (auto& val : keptProducts_) {
     val.clear();
   }
@@ -81,14 +81,15 @@ selectProducts(FileBlock const& fb)
   // single object. See the notes in the header for GroupSelector
   // for more information.
 
-  for (auto const& val : ProductMetaData::instance().productList()) {
+  for (auto const& val : pmd.productList()) {
     BranchDescription const& bd = val.second;
     if (bd.transient()) {
       // Transient, skip it.
       continue;
     }
-    if (!bd.present() && !bd.produced()) {
-      // Previously dropped, skip it.
+    if ( !pmd.produced(bd.branchType(),bd.branchID()) &&
+         pmd.presentWithFileIdx(bd.branchType(),bd.branchID()) == MasterProductRegistry::DROPPED ) {
+      // Not produced in this process, and previously dropped, skip it.
       continue;
     }
     if (groupSelector_.selected(bd)) {
@@ -130,19 +131,20 @@ doBeginJob()
 {
   // FIXME: Should this be here anymore?
   //selectProducts();
-  groupSelector_.initialize(groupSelectorRules_,
-                            ProductMetaData::instance().productList());
+  auto const & pmd = ProductMetaData::instance();
+  groupSelector_.initialize(groupSelectorRules_, pmd.productList());
   for (auto& val : keptProducts_) {
     val.clear();
   }
-  for (auto const& val : ProductMetaData::instance().productList()) {
+  for (auto const& val : pmd.productList()) {
     BranchDescription const& bd = val.second;
     if (bd.transient()) {
       // Transient, skip it.
       continue;
     }
-    if (!bd.present() && !bd.produced()) {
-      // Previously dropped, skip it.
+    if ( !pmd.produced(bd.branchType(),bd.branchID()) &&
+         pmd.presentWithFileIdx(bd.branchType(),bd.branchID()) == MasterProductRegistry::DROPPED ) {
+      // Not produced in this process, and previously dropped, skip it.
       continue;
     }
     if (groupSelector_.selected(bd)) {

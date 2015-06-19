@@ -115,6 +115,11 @@ private:
 
 private:
 
+  using PerBranchTypePresence = MasterProductRegistry::PerBranchTypePresence;
+
+  PerBranchTypePresence
+  perBranchTypePresence_( ModuleDescription const& md );
+
   std::set<TypeLabel> typeLabelList_;
 
   // Set by an input source for merging into the
