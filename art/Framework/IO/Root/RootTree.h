@@ -42,7 +42,8 @@ public:
   bool isValid() const;
   bool hasBranch(std::string const& branchName) const;
   void addBranch(BranchKey const&, BranchDescription const&,
-                 std::string const& branchName);
+                 std::string const& branchName,
+                 bool const presentInSomeFile);
   void dropBranch(std::string const& branchName);
 
   bool

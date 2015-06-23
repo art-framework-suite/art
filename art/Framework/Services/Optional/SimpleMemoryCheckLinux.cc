@@ -90,9 +90,12 @@ namespace art {
     , showMallocInfo_  (iPS.get<bool>("showMallocInfo"  , false))
     , oncePerEventMode_(iPS.get<bool>("oncePerEventMode", false))
     , moduleSummaryRequested_(iPS.get<bool>("moduleMemorySummary", false))
+    , currData_{0.}
+    , deltaData_{0.}
+    , maxData_{0.}
     , maxUpdated_(false)
     , evtCount_()
-
+    , evtData_{0.}
   {
 
     // Check if MemoryTracker is also enabled

@@ -5,6 +5,7 @@
 #include "art/Framework/Principal/OccurrenceTraits.h"
 #include "art/Framework/Principal/Worker.h"
 #include "art/Persistency/Provenance/BranchKey.h"
+#include "art/Persistency/Provenance/ProductMetaData.h"
 #include "art/Persistency/Provenance/ProductStatus.h"
 #include "art/Persistency/Provenance/ReflexTools.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
@@ -200,7 +201,13 @@ bool
 Group::
 dropped() const
 {
-  return branchDescription_ && !branchDescription_->present();
+  if ( !branchDescription_ ) return false;
+  if (  ProductMetaData::instance().produced( branchDescription_->branchType(),
+                                              branchDescription_->branchID() ) ) return false;
+
+  std::size_t const index = ProductMetaData::instance().presentWithFileIdx( branchDescription_->branchType(),
+                                                                            branchDescription_->branchID() );
+  return index == MasterProductRegistry::DROPPED;
 }
 
 void

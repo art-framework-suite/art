@@ -14,6 +14,7 @@
 #include "art/Persistency/Provenance/FileFormatVersion.h"
 #include "art/Persistency/Provenance/FileIndex.h"
 #include "art/Persistency/Provenance/History.h"
+#include "art/Persistency/Provenance/MasterProductRegistry.h"
 #include "art/Persistency/Provenance/Parentage.h"
 #include "art/Persistency/Provenance/ProductID.h"
 #include "art/Persistency/Provenance/ProductProvenance.h"
@@ -241,6 +242,14 @@ public: // MEMBER FUNCTIONS
     //updateSecondaryIter();
   }
 
+  using PerBranchTypePresence = MasterProductRegistry::PerBranchTypePresence;
+
+  PerBranchTypePresence
+  perBranchTypePresence()
+  {
+    return perBranchTypeProdPresence_;
+  }
+
   unsigned int
   eventsToSkip() const
   {
@@ -293,64 +302,34 @@ public: // MEMBER FUNCTIONS
   openSecondaryFile(int const idx);
 
 private:
-  // Member functions,
-  bool
-  setIfFastClonable(FastCloningInfoProvider const& fcip) const;
 
-  void
-  validateFile();
+  bool setIfFastClonable(FastCloningInfoProvider const& fcip) const;
 
-  void
-  fillEventAuxiliary();
+  void validateFile();
 
-  void
-  fillHistory();
+  void fillHistory();
+  void fillPerBranchTypePresenceFlags(ProductList const&);
+  void fillEventAuxiliary();
+  void fillSubRunAuxiliary();
+  void fillRunAuxiliary();
 
-  void
-  fillSubRunAuxiliary();
+  void overrideRunNumber(RunID& id);
+  void overrideRunNumber(SubRunID& id);
+  void overrideRunNumber(EventID& id, bool isRealData);
 
-  void
-  fillRunAuxiliary();
+  void dropOnInput(GroupSelectorRules const& rules,
+                   bool dropDescendants,
+                   bool dropMergeable,
+                   ProductList& branchDescriptions);
 
-  void
-  overrideRunNumber(RunID& id);
+  void readParentageTree();
+  void readEventHistoryTree();
 
-  void
-  overrideRunNumber(SubRunID& id);
+  void initializeDuplicateChecker();
 
-  void
-  overrideRunNumber(EventID& id, bool isRealData);
+  std::unique_ptr<RunPrincipal   > readCurrentRun();
+  std::unique_ptr<SubRunPrincipal> readCurrentSubRun(std::shared_ptr<RunPrincipal>);
 
-  void
-  dropOnInput(GroupSelectorRules const& rules, bool dropDescendants,
-                   bool dropMergeable, ProductList& branchDescriptions);
-
-  void
-  readParentageTree();
-
-  void
-  readEventHistoryTree();
-
-  void
-  initializeDuplicateChecker();
-
-  //std::vector<std::unique_ptr<Principal>>
-  //readCurrentEventFromSecondaryFile();
-
-  std::unique_ptr<RunPrincipal>
-  readCurrentRun();
-
-  //void
-  //readCurrentRunFromSecondaryFile();
-
-  std::unique_ptr<SubRunPrincipal>
-  readCurrentSubRun(std::shared_ptr<RunPrincipal>);
-
-  //void
-  //readCurrentSubRunFromSecondaryFile(std::shared_ptr<RunPrincipal>);
-
-
-  // Private member data.
   std::string const file_;
   std::string const logicalFile_;
   std::string const catalog_;
@@ -378,6 +357,8 @@ private:
   RootTreePtrArray treePointers_;
   std::unique_ptr<ProductRegistry> productListHolder_;
   std::shared_ptr<BranchIDListRegistry::collection_type const> branchIDLists_;
+
+  PerBranchTypePresence perBranchTypeProdPresence_;
   InputSource::ProcessingMode processingMode_;
   int forcedRunOffset_;
   TTree* eventHistoryTree_;
