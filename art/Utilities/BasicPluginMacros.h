@@ -14,7 +14,6 @@
 //////////////////////////////////////////////////////////////////////////
 
 #include "cetlib/PluginTypeDeducer.h"
-#include "cetlib/make_unique.h"
 #include "fhiclcpp/ParameterSet.h"
 
 #include <memory>
@@ -25,7 +24,7 @@
     std::unique_ptr<base>                         \
     makePlugin(fhicl::ParameterSet const & pset)  \
     {                                             \
-      return cet::make_unique<klass>(pset);       \
+      return std::make_unique<klass>(pset);       \
     }                                             \
   }
 

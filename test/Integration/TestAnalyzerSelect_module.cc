@@ -5,6 +5,15 @@
 
 using namespace art;
 
+namespace {
+
+  using namespace fhicl;
+  struct Config {
+    Atom<int> shouldPass { Key("shouldPass") };
+  };
+
+}
+
 namespace arttest {
 
 class TestAnalyzerSelect : public EDAnalyzer {
@@ -12,8 +21,14 @@ private:
   int num_pass_;
   int total_;
 public:
-  explicit TestAnalyzerSelect(fhicl::ParameterSet const& ps)
-    : EDAnalyzer(ps), num_pass_(ps.get<int>("shouldPass")), total_(0) {}
+
+  using Parameters = Table<Config>;
+  explicit TestAnalyzerSelect( Table<Config> const& ps)
+    : EDAnalyzer(ps)
+    , num_pass_( ps().shouldPass() )
+    , total_(0)
+  {}
+
   ~TestAnalyzerSelect() {}
   void analyze(const Event&) { ++total_; }
   void endJob();

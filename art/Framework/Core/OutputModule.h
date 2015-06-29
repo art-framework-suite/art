@@ -26,8 +26,8 @@
 #include "art/Persistency/Provenance/ParentageID.h"
 #include "art/Persistency/Provenance/Selections.h"
 
-#include "cpp0x/array"
-#include "cpp0x/memory"
+#include <array>
+#include <memory>
 #include <string>
 #include <vector>
 

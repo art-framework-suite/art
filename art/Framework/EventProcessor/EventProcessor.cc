@@ -301,13 +301,12 @@ initServices_(ParameterSet const & top_pset,
   ServiceDirector director(std::move(services), areg, token);
 
   // Services requiring special construction.
-  director.addSystemService(std::make_unique<CurrentModule>(areg));
-  director.addSystemService(std::make_unique<TriggerNamesService>
-                            (top_pset, pathManager_.triggerPathNames()));
-  director.addSystemService(std::make_unique<FloatingPointControl>(fpc_pset, areg));
-  director.addSystemService(std::make_unique<ScheduleContext>());
+  director.addSystemService<CurrentModule>(areg);
+  director.addSystemService<TriggerNamesService>(top_pset, pathManager_.triggerPathNames());
+  director.addSystemService<FloatingPointControl>(fpc_pset, areg);
+  director.addSystemService<ScheduleContext>();
   if (!pathSelection.is_empty()) {
-    director.addSystemService(std::make_unique<PathSelection>(*this));
+    director.addSystemService<PathSelection>(*this);
   }
   return std::move(director);
 }

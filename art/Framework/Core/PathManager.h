@@ -99,6 +99,7 @@ private:
   vstring triggerPathNames_;
   PathsInfo endPathInfo_;
   std::map<ScheduleID, PathsInfo> triggerPathsInfo_; // Per-schedule.
+  std::vector<std::string> configErrMsgs_;
 };
 
 inline

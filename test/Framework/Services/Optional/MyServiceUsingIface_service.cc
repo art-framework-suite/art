@@ -16,7 +16,7 @@ public:
 arttest::ServiceUsingIface::
 ServiceUsingIface(fhicl::ParameterSet const &,
                     art::ActivityRegistry &) {
-  art::ServiceHandle<art::TrivialFileDelivery> h __attribute__((unused));
+  art::ServiceHandle<art::TrivialFileDelivery> h [[ gnu::unused ]];
 }
 
 // The DECLARE macro call should be moved to the header file, should you

@@ -11,12 +11,23 @@
 #include "art/Framework/Principal/SubRun.h"
 #include "art/Framework/Principal/Handle.h"
 #include "art/Persistency/Provenance/BranchType.h"
-#include "fhiclcpp/ParameterSet.h"
+
+#include "fhiclcpp/Atom.h"
 
 #include "test/TestObjects/ToyProducts.h"
 
 #include <iostream>
 #include <memory>
+
+namespace {
+
+  using namespace fhicl;
+  struct Config {
+    Atom<int> ivalue { Key("ivalue") };
+    Atom<unsigned long> branchType { Key("branchType"), art::InEvent };
+  };
+
+}
 
 namespace arttest {
   class IntProducer;
@@ -24,14 +35,15 @@ namespace arttest {
 
 using arttest::IntProducer;
 
-class arttest::IntProducer
-  : public art::EDProducer
+class arttest::IntProducer : public art::EDProducer
 {
 public:
-  explicit IntProducer( fhicl::ParameterSet const& p )
-    : value_( p.get<int>("ivalue") ),
+
+  using Parameters = EDProducer::Table<Config>;
+  explicit IntProducer( EDProducer::Table<Config> const& p )
+    : value_( p().ivalue() )
       // enums don't usually have a conversion from string
-      branchType_( art::BranchType(p.get<unsigned long>("branchType", art::InEvent)) )
+    , branchType_( art::BranchType( p().branchType() ) )
   {
     switch (branchType_) {
     case art::InEvent:

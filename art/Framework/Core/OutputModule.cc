@@ -19,9 +19,10 @@
 #include "art/Utilities/Exception.h"
 #include "cetlib/canonical_string.h"
 #include "cetlib/demangle.h"
-#include "cpp0x/utility"
 #include "rapidjson/document.h"
 #include "rapidjson/error/en.h"
+
+#include <utility>
 
 using fhicl::ParameterSet;
 using std::vector;

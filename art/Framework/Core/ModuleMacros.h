@@ -20,19 +20,23 @@
 #include "art/Framework/Core/detail/ModuleTypeDeducer.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Utilities/BasicHelperMacros.h"
-#include "cpp0x/memory"
+#include "art/Utilities/detail/metaprogramming.h"
 #include "fhiclcpp/ParameterSet.h"
 
 #include "art/Framework/Core/EventObserver.h"
 
-#include <type_traits>
+#include <memory>
+#include <ostream>
+#include <string>
 
 // Function typedefs (used in art).
 namespace art {
   namespace detail {
+
     typedef art::Worker* (WorkerMaker_t) (art::WorkerParams const&,
                                           art::ModuleDescription const&);
     typedef art::ModuleType (ModuleTypeFunc_t) ();
+
   }
 }
 
@@ -40,6 +44,7 @@ namespace art {
 #define DEFINE_ART_MODULE(klass)                                        \
   extern "C" {                                                          \
     PROVIDE_FILE_PATH()                                                 \
+    PROVIDE_DESCRIPTION(klass)                                          \
     art::Worker*                                                        \
     make_worker(art::WorkerParams const& wp,                            \
                 art::ModuleDescription const& md)                       \

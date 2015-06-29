@@ -33,6 +33,7 @@
 #include "art/Persistency/Provenance/ProductID.h"
 #include "art/Framework/Principal/Provenance.h"
 #include "art/Utilities/Exception.h"
+#include "art/Utilities/detail/metaprogramming.h"
 #include "cetlib/demangle.h"
 #include "cetlib/exception.h"
 #include "cpp0x/memory"
@@ -51,10 +52,6 @@ namespace art {
   template <typename T>  class Wrapper;
 
   namespace detail {
-    // SFINAE magic.
-    template <class T, class R = void>
-    struct enable_if_type { typedef R type; };
-
     template <class T, class Enable = void>
     struct is_handle : std::false_type {};
 
