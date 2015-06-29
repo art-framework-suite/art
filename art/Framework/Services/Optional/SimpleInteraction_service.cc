@@ -9,7 +9,7 @@ using namespace std;
 
 namespace ui {
 
-  SimpleInteraction::SimpleInteraction(fhicl::ParameterSet const &,
+  SimpleInteraction::SimpleInteraction(SimpleInteraction::Parameters const &,
                                        ActivityRegistry & iReg):
     UserInteraction(iReg)
   {
@@ -30,7 +30,6 @@ namespace ui {
       std::vector<ModuleInfo>::iterator ib(infos_.begin()),
           ie(infos_.end());
       for (which = 0; ib != ie; ++ib, ++which) {
-        // std::cout << ib->pset << "\n\n";
         std::cout << which << ". " << ib->label << " "
                   << ib->class_name << "\n";
       }
@@ -45,7 +44,7 @@ namespace ui {
       if (which >= 0 && size_t(which) < infos_.size())
       { callReconfigure(which, infos_[which].pset); }
       else
-      { cerr << "bad, bad, bad.  Not valid module number. Try again.\n"; }
+      { cerr << "Not valid module number. Try again.\n"; }
     }
   }
 

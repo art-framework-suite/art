@@ -2,9 +2,10 @@
 #define art_Framework_Services_System_FileCatalogMetadata_h
 
 #include "art/Framework/Services/Registry/ServiceMacros.h"
+#include "art/Framework/Services/Registry/ServiceTable.h"
 #include "cetlib/canonical_string.h"
 #include "cetlib/container_algorithms.h"
-#include "fhiclcpp/fwd.h"
+#include "fhiclcpp/Atom.h"
 
 #include <iterator>
 #include <string>
@@ -18,10 +19,22 @@ namespace art {
 
 class art::FileCatalogMetadata {
 public:
-  typedef std::vector<std::pair<std::string, std::string>> collection_type;
-  typedef typename collection_type::value_type value_type;
+  using collection_type = std::vector<std::pair<std::string, std::string>>;
+  using value_type = typename collection_type::value_type;
 
-  FileCatalogMetadata(fhicl::ParameterSet const & ps, ActivityRegistry &);
+  static constexpr char const* notPresent = "--optional-parameter--";
+  struct Config {
+    fhicl::Atom<bool> checkSyntax { fhicl::Key("checkSyntax"), false };
+    fhicl::Atom<std::string> applicationFamily  { fhicl::Key("applicationFamily" ), notPresent };
+    fhicl::Atom<std::string> applicationVersion { fhicl::Key("applicationVersion"), notPresent };
+    fhicl::Atom<std::string> fileType  { fhicl::Key("fileType") , "unknown" };
+    fhicl::Atom<std::string> runType   { fhicl::Key("runType")  , notPresent };
+    fhicl::Atom<std::string> group     { fhicl::Key("group")    , notPresent };
+    fhicl::Atom<std::string> processID { fhicl::Key("processID"), notPresent };
+  };
+
+  using Parameters = ServiceTable<Config>;
+  FileCatalogMetadata(Parameters const & config, ActivityRegistry &);
 
   // Add a new value to the metadata store.
   void addMetadata(std::string const & key, std::string const & value);

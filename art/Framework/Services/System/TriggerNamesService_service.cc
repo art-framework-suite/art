@@ -69,7 +69,3 @@ TriggerNamesService::getTrigPaths(TriggerResults const & triggerResults,
   }
   return true;
 }  // getTrigPaths()
-
-// ======================================================================
-PROVIDE_FILE_PATH()
-// ======================================================================

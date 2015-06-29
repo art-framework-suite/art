@@ -244,7 +244,7 @@ void
 void
   FloatingPointControl::controlFpe( )
 {
-  unsigned short int FE_PRECISION __attribute__((unused)) = 1<<5;
+  unsigned short int FE_PRECISION [[ gnu::unused ]] = 1<<5;
 /*
  * NB: We do not let users control signaling inexact (FE_INEXACT).
  */
@@ -320,5 +320,6 @@ void
 // ======================================================================
 
 PROVIDE_FILE_PATH()
+PROVIDE_DESCRIPTION(art::FloatingPointControl)
 
 // ======================================================================

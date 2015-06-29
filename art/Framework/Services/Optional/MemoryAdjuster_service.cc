@@ -5,11 +5,24 @@
 // ======================================================================
 
 #include "art/Framework/Services/Registry/ServiceMacros.h"
+#include "art/Framework/Services/Registry/ServiceTable.h"
 #include "art/Utilities/MallocOpts.h"
-#include "fhiclcpp/ParameterSet.h"
+#include "fhiclcpp/Atom.h"
+#include "fhiclcpp/Key.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 //====================================================================================
+
+namespace {
+  using namespace fhicl;
+  struct Config {
+    Atom<int>  m_mmap_max { Key("M_MMAP_MAX"), -1};
+    Atom<int>  m_trim_thr { Key("M_TRIM_THRESHOLD"), -1};
+    Atom<int>  m_top_pad  { Key("M_TOP_PAD"), -1};
+    Atom<int>  m_mmap_thr { Key("M_MMAP_THRESHOLD"), -1};
+    Atom<bool> dump       { Key("dump"), false };
+  };
+}
 
 namespace art {
 
@@ -18,7 +31,8 @@ namespace art {
   class MemoryAdjuster {
   public:
 
-    MemoryAdjuster(fhicl::ParameterSet const & iPS [[gnu::unused]], ActivityRegistry &) {
+    using Parameters = ServiceTable<Config>;
+    MemoryAdjuster(ServiceTable<Config> const & config [[gnu::unused]], ActivityRegistry &) {
 #ifndef __linux__
       mf::LogAbsolute("MemoryAdjuster") << "\n"
                                         << "Service not supported for this operating system.\n"
@@ -27,14 +41,14 @@ namespace art {
 #else
       typedef art::MallocOpts::opt_type opt_type;
       art::MallocOptionSetter & mopts = art::getGlobalOptionSetter();
-      opt_type
-        p_mmap_max = iPS.get<int>("M_MMAP_MAX", -1),
-        p_trim_thr = iPS.get<int>("M_TRIM_THRESHOLD", -1),
-        p_top_pad  = iPS.get<int>("M_TOP_PAD", -1),
-        p_mmap_thr = iPS.get<int>("M_MMAP_THRESHOLD", -1);
+      opt_type const
+        p_mmap_max = config().m_mmap_max(),
+        p_trim_thr = config().m_trim_thr(),
+        p_top_pad  = config().m_top_pad(),
+        p_mmap_thr = config().m_mmap_thr();
       if (p_mmap_max >= 0) { mopts.set_mmap_max(p_mmap_max); }
       if (p_trim_thr >= 0) { mopts.set_trim_thr(p_trim_thr); }
-      if (p_top_pad  >= 0) { mopts.set_top_pad(p_top_pad);   }
+      if (p_top_pad  >= 0) { mopts.set_top_pad (p_top_pad ); }
       if (p_mmap_thr >= 0) { mopts.set_mmap_thr(p_mmap_thr); }
       mopts.adjustMallocParams();
       if ( mopts.hasErrors() ) {
@@ -42,7 +56,7 @@ namespace art {
           << "ERROR: Problem with setting malloc options\n"
           << mopts.error_message();
       }
-      if (iPS.get<bool>("dump", false) == true) {
+      if ( config().dump() ) {
         art::MallocOpts mo = mopts.get();
         mf::LogWarning("MemoryCheck") << "Malloc options: " << mo << "\n";
       }

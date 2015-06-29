@@ -15,7 +15,7 @@ using cet::LibraryManager;
 
 namespace {
 
-  std::string const empty_description = "[ provided in future release ]";
+  std::string const empty_description = "\n"s + indent__2() + "[ provided in future release ]"s;
 
   typedef art::ModuleType (ModuleTypeFunc_t) ();
   typedef std::string     (GetSourceLoc_t  ) ();
@@ -131,7 +131,7 @@ art::detail::getSourceLibraries( LibraryInfoContainer& map,
     auto const libspecs = lm.getSpecsByPath( lib );
     std::string const source = getFilePath( lm, libspecs.second, "source" );
     map.emplace( libspecs.first, LibraryInfo(libspecs.second,lib,source,"source",
-                                             indent__2()+empty_description ) );
+                                             empty_description ) );
 
   }
 
@@ -181,7 +181,7 @@ art::detail::getServiceLibraries( LibraryInfoContainer& map,
   map.emplace( "message", LibraryInfo("[ none ]","[ none ]",
                                       "[ See https://cdcvs.fnal.gov/redmine/projects/art/wiki/Messagefacility ]",
                                       "system",
-                                      indent__2()+empty_description
+                                      empty_description
                                       ) );
 
 }

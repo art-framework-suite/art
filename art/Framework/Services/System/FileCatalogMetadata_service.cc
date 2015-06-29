@@ -1,39 +1,30 @@
 #include "art/Framework/Services/System/FileCatalogMetadata.h"
 
 #include "art/Utilities/Exception.h"
-#include "fhiclcpp/ParameterSet.h"
 #include "rapidjson/document.h"
 #include "rapidjson/error/en.h"
 
-art::FileCatalogMetadata::FileCatalogMetadata(fhicl::ParameterSet const & ps,
-    ActivityRegistry &)
-  :
-  checkSyntax_(ps.get<bool>("checkSyntax", false)),
-  md_()
+art::FileCatalogMetadata::FileCatalogMetadata(art::FileCatalogMetadata::Parameters const & config,
+                                              ActivityRegistry &)
+  : checkSyntax_( config().checkSyntax() )
+  , md_()
 {
-  std::string applicationFamily,
-    applicationVersion,
-    fileType(ps.get<std::string>("fileType", "unknown")),
-    runType,
-    group,
-    processID;
-  if (ps.get_if_present("applicationFamily", applicationFamily)) {
-    addMetadataString("applicationFamily", applicationFamily);
-  }
-  if (ps.get_if_present("applicationVersion", applicationVersion)) {
-    addMetadataString("applicationVersion", applicationVersion);
-  }
+  std::string const applicationFamily  = config().applicationFamily();
+  std::string const applicationVersion = config().applicationVersion();
+  std::string const fileType  = config().fileType();
+  std::string const runType   = config().runType();
+  std::string const group     = config().group();
+  std::string const processID = config().processID();
+
+  if (applicationFamily  != notPresent) addMetadataString("applicationFamily" , applicationFamily );
+  if (applicationVersion != notPresent) addMetadataString("applicationVersion", applicationVersion);
+
   // Always write out fileType -- may be overridden.
   addMetadataString("file_type", fileType);
-  if (ps.get_if_present("runType", runType)) {
-    addMetadataString("run_type", runType);
-  }
-  if (ps.get_if_present("group", group)) {
-    addMetadataString("group", group);
-  }
-  if (ps.get_if_present("processID", processID)) {
-    addMetadataString("process_id", processID);
-  }
+
+  if (runType   != notPresent) addMetadataString("run_type"  , runType  );
+  if (group     != notPresent) addMetadataString("group"     , group    );
+  if (processID != notPresent) addMetadataString("process_id", processID);
 }
 
 void

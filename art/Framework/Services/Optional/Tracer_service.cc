@@ -11,12 +11,14 @@
 #include "art/Framework/Principal/SubRun.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/ServiceMacros.h"
+#include "art/Framework/Services/Registry/ServiceTable.h"
 #include "art/Persistency/Provenance/EventID.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Persistency/Provenance/RunID.h"
 #include "art/Persistency/Provenance/SubRunID.h"
 #include "art/Persistency/Provenance/Timestamp.h"
-#include "fhiclcpp/ParameterSet.h"
+#include "fhiclcpp/Atom.h"
+#include "fhiclcpp/Key.h"
 #include <iostream>
 
 namespace art {
@@ -25,12 +27,19 @@ namespace art {
 
 using art::Tracer;
 
-// ======================================================================
+namespace {
+  struct Config {
+    fhicl::Atom<std::string> indentation { fhicl::Key("indentation"), "++" };
+  };
+}
 
+// ======================================================================
 class Tracer
 {
 public:
-  Tracer(fhicl::ParameterSet const&, ActivityRegistry&);
+
+  using Parameters = ServiceTable<Config>;
+  Tracer(ServiceTable<Config> const&, ActivityRegistry&);
 
   void postBeginJob();
   void postEndJob();
@@ -124,9 +133,9 @@ private:
 // ======================================================================
 // constructors and destructor
 
-Tracer::Tracer(fhicl::ParameterSet const& iPS, ActivityRegistry&iRegistry)
-: indentation_( iPS.get<std::string>("indentation", "++") )
-, depth_      ( 0 )
+Tracer::Tracer(ServiceTable<Config> const& config, ActivityRegistry&iRegistry)
+  : indentation_( config().indentation() )
+  , depth_      ( 0 )
 {
   iRegistry.sPostBeginJob.watch(this, &Tracer::postBeginJob);
   iRegistry.sPostEndJob.watch(this, &Tracer::postEndJob);

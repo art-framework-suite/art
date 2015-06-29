@@ -23,7 +23,7 @@ namespace {
 }
 
 art::TrivialFileDelivery::TrivialFileDelivery
-(ParameterSet const &, ActivityRegistry &)
+(TrivialFileDelivery::Parameters const &, ActivityRegistry &)
   : fileList()
   , nextFile(fileList.begin())
   , endOfFiles(fileList.end())

@@ -20,13 +20,18 @@
 #include "fhiclcpp/ParameterSet.h"
 #include "art/Framework/Services/UserInteraction/UserInteraction.h"
 #include "art/Framework/Services/Registry/ServiceMacros.h"
+#include "art/Framework/Services/Registry/ServiceTable.h"
 #include <vector>
 
 namespace ui {
 
   class SimpleInteraction : public UserInteraction {
   public:
-    SimpleInteraction(const fhicl::ParameterSet &, art::ActivityRegistry &);
+
+    struct Config {};
+
+    using Parameters = art::ServiceTable<Config>;
+    SimpleInteraction(Parameters const &, art::ActivityRegistry &);
 
     void moduleList(std::vector<ModuleInfo> const &);
     void pickModule();

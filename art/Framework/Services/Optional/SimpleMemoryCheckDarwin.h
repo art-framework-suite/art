@@ -7,21 +7,23 @@
 //
 // ======================================================================
 
+#include "art/Framework/Services/Registry/ServiceTable.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
-namespace art   { class ActivityRegistry; }
-namespace fhicl { class ParameterSet;     }
-
 namespace art {
+
+  class ActivityRegistry;
 
   class SimpleMemoryCheck {
   public:
 
-    SimpleMemoryCheck(fhicl::ParameterSet const &, ActivityRegistry &) {
+    struct Config{};
+    using Parameters = ServiceTable<Config>;
+    SimpleMemoryCheck(Parameters const &, ActivityRegistry &) {
       mf::LogAbsolute("SimpleMemoryCheck") << "\n"
-                                       << "Service currently not supported for this operating system.\n"
-                                       << "If desired, please log an issue with:\n\n"
-                                       << "https://cdcvs.fnal.gov/redmine/projects/cet-is/issues/new\n\n";
+                                           << "Service currently not supported for this operating system.\n"
+                                           << "If desired, please log an issue with:\n\n"
+                                           << "https://cdcvs.fnal.gov/redmine/projects/cet-is/issues/new\n\n";
     }
 
   };
