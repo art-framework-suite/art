@@ -109,7 +109,7 @@ namespace {
   bool have_outputs(fhicl::intermediate_table & table) {
     bool result { false };
     if (table.exists("outputs")) {
-      auto const & ev = table.find("outputs");
+      auto const & ev = table["outputs"];
       if (ev.is_a(fhicl::TABLE) &&
           ! table.get<fhicl::extended_value::table_t const &>("outputs").empty()) {
         result = true;

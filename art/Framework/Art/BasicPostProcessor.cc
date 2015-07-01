@@ -82,7 +82,7 @@ namespace {
                      std::string const & table_spec)
   {
     if (!int_table.exists(table_spec)) { return; }
-    auto & top_table_val = int_table.update(table_spec);
+    auto & top_table_val = int_table[table_spec];
     if (!top_table_val.is_a(fhicl::TABLE)) {
       throw art::Exception(art::errors::Configuration)
         << "Unexpected non-table "
@@ -98,7 +98,7 @@ namespace {
           << "\" is illegal: "
           << "underscores are not permitted in module names.";
       }
-      auto & table_val = int_table.update(table_spec + '.' + tval.first);
+      auto & table_val = int_table[table_spec + '.' + tval.first];
       if (!table_val.is_a(fhicl::TABLE)) {
         throw art::Exception(art::errors::Configuration)
           << "Unexpected non-table "
@@ -129,7 +129,7 @@ namespace {
                          std::vector<std::string> const & excluded = { })
   {
     if (!raw_config.exists(table_spec)) { return; }
-    auto & top_table_val = raw_config.update(table_spec);
+    auto & top_table_val = raw_config[table_spec];
     if (!top_table_val.is_a(fhicl::TABLE)) {
       throw art::Exception(art::errors::Configuration)
         << "Unexpected non-table "
@@ -138,7 +138,7 @@ namespace {
     }
     auto & table = raw_config.get<table_t &>(table_spec);
     for (auto const & tval : table) {
-      auto & table_val = raw_config.update(table_spec + '.' + tval.first);
+      auto & table_val = raw_config[table_spec + '.' + tval.first];
       if (!table_val.is_a(fhicl::TABLE)) {
         throw art::Exception(art::errors::Configuration)
           << "Unexpected non-table "
@@ -181,8 +181,8 @@ doProcessOptions(bpo::variables_map const &,
   verifySourceConfig(raw_config);
   // trigger_paths
   if (raw_config.exists("physics.trigger_paths")) {
-    raw_config.update("trigger_paths.trigger_paths") =
-      raw_config.find("physics.trigger_paths");
+    raw_config["trigger_paths.trigger_paths"] =
+      raw_config["physics.trigger_paths"];
   }
   // messagefacility configuration.
   if (!raw_config.exists("services.message")) {
