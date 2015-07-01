@@ -28,32 +28,6 @@ using fhicl::ParameterSet;
 using std::vector;
 using std::string;
 
-
-art::OutputModule::
-OutputModule(ParameterSet const & pset)
-  :
-  EventObserver(pset),
-  keptProducts_(),
-  hasNewlyDroppedBranch_(),
-  groupSelectorRules_(pset, "outputCommands", "OutputModule"),
-  groupSelector_(),
-  maxEvents_(-1),
-  remainingEvents_(maxEvents_),
-  moduleDescription_(),
-  current_context_(0),
-  branchParents_(),
-  branchChildren_(),
-  configuredFileName_(pset.get<std::string>("fileName", "")),
-  dataTier_(pset.get<std::string>("dataTier", "")),
-  streamName_(pset.get<std::string>("streamName", "")),
-  ci_(),
-  pluginFactory_(),
-  pluginNames_(),
-  plugins_(makePlugins_(pset.get<std::vector<fhicl::ParameterSet> >("FCMDPlugins", { })))
-{
-  hasNewlyDroppedBranch_.fill(false);
-}
-
 std::string const &
 art::OutputModule::
 lastClosedFileName() const
@@ -614,40 +588,3 @@ finishEndFile()
 {
 }
 
-auto
-art::OutputModule::
-makePlugins_(std::vector<fhicl::ParameterSet> const psets)
--> PluginCollection_t
-{
-  PluginCollection_t result;
-  result.reserve(psets.size());
-  size_t count = 0;
-  try {
-    for (auto const & pset : psets) {
-      pluginNames_.emplace_back(pset.get<std::string>("plugin_type"));
-      auto const & libspec = pluginNames_.back();
-      auto const pluginType = pluginFactory_.pluginType(libspec);
-      if (pluginType ==
-          cet::PluginTypeDeducer<FileCatalogMetadataPlugin>::value) {
-        result.emplace_back(pluginFactory_.
-                            makePlugin<std::unique_ptr<FileCatalogMetadataPlugin>,
-                            fhicl::ParameterSet const &>(libspec, pset));
-      } else {
-        throw Exception(errors::Configuration, "OutputModule: ")
-          << "unrecognized plugin type "
-          << pluginType
-          << ".\n";
-      }
-      ++count;
-    }
-  }
-  catch (cet::exception & e) {
-    throw Exception(errors::Configuration, "OutputModule: ", e)
-      << "Exception caught while processing FCMDPlugins["
-      << count
-      << "] in module "
-      << description().moduleLabel()
-      << ".\n";
-  }
-  return result;
-}

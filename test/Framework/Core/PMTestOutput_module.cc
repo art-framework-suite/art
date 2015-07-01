@@ -23,7 +23,9 @@ namespace arttest {
 
 class arttest::PMTestOutput : public art::OutputModule {
 public:
-  explicit PMTestOutput(fhicl::ParameterSet const & p);
+  struct Config {};
+  using Parameters = art::OutputModule::Table<Config>;
+  explicit PMTestOutput(Parameters const & p);
   virtual ~PMTestOutput();
 
   void write(art::EventPrincipal const & e) override;
@@ -38,7 +40,7 @@ private:
 };
 
 
-arttest::PMTestOutput::PMTestOutput(fhicl::ParameterSet const & p)
+arttest::PMTestOutput::PMTestOutput(arttest::PMTestOutput::Parameters const & p)
  :
   OutputModule(p) // ,
  // More initializers here.

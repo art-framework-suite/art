@@ -5,7 +5,7 @@
 // stepSize (n) = 7 and offset = 4, the filter will accept events 5-9
 // inclusive, 12-16 inclusive, 19-23 inclusive, etc.
 //
-// Note that BlockingPrescaler prescales based on the numebr of events
+// Note that BlockingPrescaler prescales based on the number of events
 // seen by this module, *not* the event number as recorded by EventID.
 //
 ////////////////////////////////////////////////////////////////////////
@@ -13,7 +13,9 @@
 #include "art/Framework/Core/EDFilter.h"
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/ModuleMacros.h"
-#include "fhiclcpp/ParameterSet.h"
+#include "fhiclcpp/Atom.h"
+
+using namespace fhicl;
 
 namespace art {
   class BlockingPrescaler;
@@ -23,7 +25,15 @@ namespace art {
 
 class art::BlockingPrescaler : public EDFilter {
 public:
-  explicit BlockingPrescaler(fhicl::ParameterSet const &);
+
+  struct Config {
+    Atom<size_t> blockSize { Key("blockSize"), 1 };
+    Atom<size_t> stepSize  { Key("stepSize") };
+    Atom<size_t> offset    { Key("offset"), 0 };
+  };
+
+  using Parameters = EDFilter::Table<Config>;
+  explicit BlockingPrescaler(Parameters const & );
 
   virtual bool filter(Event &) override;
 
@@ -38,13 +48,13 @@ private:
 // ======================================================================
 
 art::BlockingPrescaler::
-BlockingPrescaler(fhicl::ParameterSet const & ps)
+BlockingPrescaler(Parameters const & config)
   :
   EDFilter(),
   count_(0),
-  m_(ps.get<size_t>("blockSize", 1)),
-  n_(ps.get<size_t>("stepSize")),
-  offset_(ps.get<size_t>("offset", 0))
+  m_(config().blockSize()),
+  n_(config().stepSize()),
+  offset_(config().offset())
 {
 }
 

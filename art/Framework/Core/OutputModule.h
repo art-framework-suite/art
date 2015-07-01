@@ -26,6 +26,10 @@
 #include "art/Persistency/Provenance/ParentageID.h"
 #include "art/Persistency/Provenance/Selections.h"
 
+#include "fhiclcpp/Atom.h"
+#include "fhiclcpp/Sequence.h"
+#include "fhiclcpp/ParameterSet.h"
+
 #include <array>
 #include <memory>
 #include <string>
@@ -47,7 +51,43 @@ public:
   typedef OutputModule ModuleType;
   typedef OutputWorker WorkerType;
 
-  explicit OutputModule(fhicl::ParameterSet const & pset);
+  // Configuration
+  struct baseConfig {
+    fhicl::Atom<std::string> moduleType { fhicl::Key("module_type") };
+    fhicl::Table<EventObserver::EOConfig> eoConfig {
+      fhicl::Key("SelectEvents"),
+        fhicl::Comment("The 'SelectEvents' table below is optional")
+        };
+    fhicl::Sequence<std::string> outputCommands { fhicl::Key("outputCommands"), fhicl::Sequence<std::string>{ "keep *" } };
+    fhicl::Atom<std::string> fileName   { fhicl::Key("fileName"), "" };
+    fhicl::Atom<std::string> dataTier   { fhicl::Key("dataTier"), "" };
+    fhicl::Atom<std::string> streamName { fhicl::Key("streamName"), "" };
+  };
+
+  template <typename T>
+  struct fullConfig : baseConfig, T {};
+
+  template < typename userConfig >
+  class Table : public fhicl::Table<fullConfig<userConfig>> {
+  public:
+
+    Table(){}
+
+    Table( fhicl::ParameterSet const& pset ) : Table()
+      {
+        std::set<std::string> const keys_to_ignore = { "module_label",
+                                                       "streamName",
+                                                       "FCMDPlugins",
+                                                       "fastCloning" }; // From RootOuput (shouldn't be here")
+        this->validate_ParameterSet( pset, keys_to_ignore );
+        this->set_PSet( pset );
+      }
+
+  };
+
+  template <typename Config>
+  explicit OutputModule( Table<Config> const & pset);
+
   virtual ~OutputModule() = default;
   virtual void reconfigure(fhicl::ParameterSet const &);
 
@@ -216,10 +256,88 @@ private:
   virtual void writeBranchMapper();
   virtual void finishEndFile();
 
-  PluginCollection_t makePlugins_(std::vector<fhicl::ParameterSet> const psets);
+  template <typename Config>
+  PluginCollection_t makePlugins_(Table<Config> const& config);
 };  // OutputModule
 
 #ifndef __GCCXML__
+
+template <typename Config>
+auto
+art::OutputModule::
+makePlugins_(art::OutputModule::Table<Config> const & config)
+  -> PluginCollection_t
+{
+  fhicl::ParameterSet const& top_pset = config.get_PSet();
+  auto const psets = top_pset.get<std::vector<fhicl::ParameterSet>>("FCMDPlugins", {} );
+  PluginCollection_t result;
+  result.reserve(psets.size());
+  size_t count = 0;
+  try {
+    for (auto const & pset : psets) {
+      pluginNames_.emplace_back(pset.get<std::string>("plugin_type"));
+      auto const & libspec = pluginNames_.back();
+      auto const pluginType = pluginFactory_.pluginType(libspec);
+      if (pluginType == cet::PluginTypeDeducer<FileCatalogMetadataPlugin>::value) {
+        result.emplace_back(pluginFactory_.
+                            makePlugin<std::unique_ptr<FileCatalogMetadataPlugin>,
+                            fhicl::ParameterSet const &>(libspec, pset));
+      } else {
+        throw Exception(errors::Configuration, "OutputModule: ")
+          << "unrecognized plugin type "
+          << pluginType
+          << ".\n";
+      }
+      ++count;
+    }
+  }
+  catch (cet::exception & e) {
+    throw Exception(errors::Configuration, "OutputModule: ", e)
+      << "Exception caught while processing FCMDPlugins["
+      << count
+      << "] in module "
+      << description().moduleLabel()
+      << ".\n";
+  }
+  return result;
+}
+
+
+template <typename Config>
+art::OutputModule::
+OutputModule(art::OutputModule::Table<Config> const & config)
+  :
+  EventObserver(config.get_PSet()),
+  keptProducts_(),
+  hasNewlyDroppedBranch_(),
+  groupSelectorRules_(config().outputCommands(), "outputCommands", "OutputModule"),
+  groupSelector_(),
+  maxEvents_(-1),
+  remainingEvents_(maxEvents_),
+  moduleDescription_(),
+  current_context_(0),
+  branchParents_(),
+  branchChildren_(),
+  // FIXME:
+  //   For the next data member, qualifying 'fileName' is a necessity
+  //   since some user-provided structs inlude 'fileName'
+  //
+  //     struct Config : OutputModuleConfig, UserConfig {};
+  //
+  //   Both OutputModuleConfig and RootOutputConfig include 'fileName'
+  //   members, creating a lookup ambiguity.  Since only one entity
+  //   exists in the ParameterSet, both with reference the same value.
+  configuredFileName_(config().OutputModule::baseConfig::fileName()),
+  dataTier_(config().dataTier()),
+  streamName_(config().streamName()),
+  ci_(),
+  pluginFactory_(),
+  pluginNames_(),
+  plugins_(makePlugins_(config))
+{
+  hasNewlyDroppedBranch_.fill(false);
+}
+
 inline
 int
 art::OutputModule::

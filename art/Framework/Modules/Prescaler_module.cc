@@ -8,11 +8,12 @@
 #include "art/Framework/Core/EDFilter.h"
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/ModuleMacros.h"
-#include "fhiclcpp/ParameterSet.h"
+#include "fhiclcpp/Atom.h"
 
 namespace art {
   class Prescaler;
 }
+using namespace fhicl;
 using art::Prescaler;
 
 // ======================================================================
@@ -21,7 +22,14 @@ class art::Prescaler
   : public EDFilter
 {
 public:
-  explicit Prescaler( fhicl::ParameterSet const & );
+
+  struct Config {
+    Atom<int> prescaleFactor { Key("prescaleFactor") };
+    Atom<int> prescaleOffset { Key("prescaleOffset") };
+  };
+
+  using Parameters = EDFilter::Table<Config>;
+  explicit Prescaler( Parameters const & );
   virtual ~Prescaler();
 
   virtual bool filter( Event & );
@@ -37,11 +45,11 @@ private:
 
 // ======================================================================
 
-Prescaler::Prescaler( fhicl::ParameterSet const & ps )
+Prescaler::Prescaler( Parameters const & config )
   : EDFilter( )
   , count_ ( 0 )
-  , n_     ( ps.get<int>("prescaleFactor") )
-  , offset_( ps.get<int>("prescaleOffset") )
+  , n_     ( config().prescaleFactor() )
+  , offset_( config().prescaleOffset() )
 { }
 
 Prescaler::~Prescaler()

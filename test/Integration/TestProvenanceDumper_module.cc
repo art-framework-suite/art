@@ -10,16 +10,23 @@
 namespace arttest {
   class PDDetail;
 
-  typedef art::ProvenanceDumper<PDDetail> TestProvenanceDumper;
+  using TestProvenanceDumper = art::ProvenanceDumper<PDDetail>;
 }
 
 class arttest::PDDetail {
 public:
-  explicit PDDetail(fhicl::ParameterSet const & pset)
+
+  // The configuration here MUST be called Config'
+  struct Config : art::ProvenanceDumperConfig {
+    fhicl::Atom<bool> expectSubRunProducts { fhicl::Key("expectSubRunProducts"), false };
+    fhicl::Atom<bool> expectRunProducts    { fhicl::Key("expectRunProducts"), false };
+  };
+
+  explicit PDDetail(art::OutputModule::Table<Config> const & ps)
     :
     nExpected_(9u +
-               pset.get<bool>("expectSubRunProducts", false) +
-               pset.get<bool>("expectRunProducts", false)),
+               ps().expectSubRunProducts() +
+               ps().expectRunProducts() ),
     functionsCalled_()
   { }
 

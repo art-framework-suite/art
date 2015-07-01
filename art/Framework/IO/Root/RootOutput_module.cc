@@ -29,34 +29,40 @@ RootOutput::
 }
 
 RootOutput::
-RootOutput(fhicl::ParameterSet const& ps)
-  : OutputModule(ps)
-  , catalog_(ps.get<string>("catalog", string()))
+RootOutput(Parameters const & config)
+  : OutputModule(config)
+  , catalog_(config().catalog())
   , dropAllEvents_(false)
-  , dropAllSubRuns_(ps.get<bool>("dropAllSubRuns", false))
-  , moduleLabel_(ps.get<string>("module_label"))
+  , dropAllSubRuns_(config().dropAllSubRuns())
+  , moduleLabel_(config.get_PSet().get<string>("module_label"))
   , inputFileCount_(0)
   , rootOutputFile_()
   , fstats_(moduleLabel_, processName())
-  , filePattern_(ps.get<string>("fileName"))
-  , tmpDir_(ps.get<string>("tmpDir", parent_path(filePattern_)))
+    // For the next data member, qualifying 'fileName' is a necessity
+    // because the full configuration for RootOutput looks like:
+    //
+    //   struct Config : OutputModuleConfig, RootOutputConfig {};
+    //
+    // Both OutputModuleConfig and RootOutputConfig include 'fileName'
+    // members, creating a lookup ambiguity.
+  , filePattern_(config().RootOutput::Config::fileName() )
+  , tmpDir_( config().tmpDir() == default_tmpDir ?
+             parent_path(filePattern_) :
+             config().tmpDir() )
   , lastClosedFileName_()
-
-  , maxFileSize_(ps.get<int>("maxSize", 0x7f000000))
-  , compressionLevel_(ps.get<int>("compressionLevel", 7))
-  , saveMemoryObjectThreshold_(ps.get<int64_t>(
-                                 "saveMemoryObjectThreshold", -1l))
-  , treeMaxVirtualSize_(ps.get<int64_t>("treeMaxVirtualSize", -1))
-  , splitLevel_(ps.get<int>("splitLevel", 99))
-  , basketSize_(ps.get<int>("basketSize", 16384))
+  , maxFileSize_(config().maxSize())
+  , compressionLevel_(config().compressionLevel())
+  , saveMemoryObjectThreshold_(config().saveMemoryObjectThreshold())
+  , treeMaxVirtualSize_(config().treeMaxVirtualSize())
+  , splitLevel_(config().splitLevel())
+  , basketSize_(config().basketSize())
   , dropMetaData_(DropMetaData::DropNone)
-  , dropMetaDataForDroppedData_(ps.get<bool>(
-                                  "dropMetaDataForDroppedData", false))
+  , dropMetaDataForDroppedData_(config().dropMetaDataForDroppedData())
   , fastCloning_(true)
 {
   mf::LogInfo msg("FastCloning");
   msg << "Initial fast cloning configuration ";
-  if (ps.get_if_present("fastCloning", fastCloning_)) {
+  if (config.get_PSet().get_if_present("fastCloning", fastCloning_)) {
     msg << "(user-set): ";
   }
   else {
@@ -70,8 +76,9 @@ RootOutput(fhicl::ParameterSet const& ps)
         << "Fast cloning deactivated due to presence of "
         "event selection configuration.";
   }
-  bool const dropAllEventsSet = ps.get_if_present<bool>("dropAllEvents",
-                                dropAllEvents_);
+
+  bool const dropAllEventsSet = config.get_PSet().get_if_present<bool>("dropAllEvents",
+                                                        dropAllEvents_);
   if (dropAllSubRuns_) {
     if (dropAllEventsSet && !dropAllEvents_) {
       string const errmsg =
@@ -86,7 +93,8 @@ RootOutput(fhicl::ParameterSet const& ps)
     }
     dropAllEvents_ = true;
   }
-  string dropMetaData(ps.get<string>("dropMetaData", string()));
+
+  string dropMetaData( config().dropMetaData() );
   if (dropMetaData.empty()) {
     dropMetaData_ = DropMetaData::DropNone;
   }
@@ -102,15 +110,15 @@ RootOutput(fhicl::ParameterSet const& ps)
   else {
     throw art::Exception(errors::Configuration,
                          "Illegal dropMetaData parameter value: ")
-        << dropMetaData << ".\n"
-        << "Legal values are 'NONE', 'PRIOR', and 'ALL'.\n";
+      << dropMetaData << ".\n"
+      << "Legal values are 'NONE', 'PRIOR', and 'ALL'.\n";
   }
 }
 
-void
-RootOutput::
-openFile(FileBlock const& fb)
-{
+  void
+  RootOutput::
+  openFile(FileBlock const& fb)
+  {
   // Note: The file block here refers to the currently open
   //       input file, so we can find out about the available
   //       products by looping over the branches of the input

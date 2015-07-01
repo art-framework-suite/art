@@ -7,8 +7,6 @@
 //
 // ======================================================================
 
-#include "fhiclcpp/ParameterSet.h"
-
 #include <string>
 #include <vector>
 
@@ -26,7 +24,7 @@ namespace art {
 class art::GroupSelectorRules
 {
 public:
-  GroupSelectorRules(fhicl::ParameterSet const& pset,
+  GroupSelectorRules(std::vector<std::string> const& commands,
                      std::string const& parameterName,
                      std::string const& parameterOwnerName);
 
@@ -83,8 +81,6 @@ private:
 
 private:
   std::vector<Rule> rules_;
-  std::string       parameterName_;
-  std::string       parameterOwnerName_;
   bool              keepAll_;
 };  // GroupSelectorRules
 

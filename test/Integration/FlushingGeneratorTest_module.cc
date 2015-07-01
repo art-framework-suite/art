@@ -23,7 +23,11 @@ namespace arttest {
 
 class arttest::FlushingGeneratorTest : public art::OutputModule {
 public:
-  explicit FlushingGeneratorTest(fhicl::ParameterSet const & p);
+
+  struct Config {};
+
+  using Parameters = art::OutputModule::Table<Config>;
+  explicit FlushingGeneratorTest(Parameters const & p);
 
   void write(art::EventPrincipal const & e) override;
   void writeSubRun(art::SubRunPrincipal const & sr) override;
@@ -38,7 +42,7 @@ private:
 };
 
 
-arttest::FlushingGeneratorTest::FlushingGeneratorTest(fhicl::ParameterSet const & p)
+arttest::FlushingGeneratorTest::FlushingGeneratorTest(arttest::FlushingGeneratorTest::Parameters const & p)
   :
   OutputModule(p)
 {

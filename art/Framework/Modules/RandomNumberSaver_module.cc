@@ -17,28 +17,33 @@ namespace art {
   class RandomNumberSaver;
 }
 
+using namespace fhicl;
 using art::RandomNumberSaver;
-using fhicl::ParameterSet;
 
 // ======================================================================
 
 class art::RandomNumberSaver
   : public EDProducer
 {
-  typedef  RandomNumberGenerator  RNGservice;
+  using RNGservice = RandomNumberGenerator;
 
 public:
   // --- Characteristics:
-  typedef  RNGservice::label_t     label_t;
-  typedef  RNGservice::snapshot_t  snapshot_t;
+  using label_t    = RNGservice::label_t;
+  using snapshot_t = RNGservice::snapshot_t;
+
+  // --- Configuration
+  struct Config {
+    Atom<bool> debug { Key("debug"), false };
+  };
 
   // --- C'tor/d'tor:
-  explicit  RandomNumberSaver( ParameterSet const & );
+  using Parameters = EDProducer::Table<Config>;
+  explicit  RandomNumberSaver( Parameters const & );
   virtual  ~RandomNumberSaver()  { }
 
   // --- Production:
-  virtual void
-    produce( Event & );
+  virtual void produce( Event & );
 
 private:
   bool  debug_;
@@ -48,9 +53,9 @@ private:
 // ======================================================================
 
 RandomNumberSaver::
-RandomNumberSaver( ParameterSet const & pset )
+RandomNumberSaver( Parameters const & config )
   : EDProducer( )
-  , debug_    ( pset.get<bool>("debug", false) )
+  , debug_    ( config().debug() )
 {
   produces<snapshot_t>();
 }

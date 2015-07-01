@@ -50,7 +50,7 @@ namespace art
                                           // description.
 
     template < typename userConfig >
-    class Table : public fhicl::Table<fullConfig<userConfig> > {
+    class Table : public fhicl::Table<fullConfig<userConfig>> {
     public:
 
       Table(){}

@@ -31,7 +31,16 @@ using fhicl::ParameterSet;
 
 class art::FileDumperOutput : public OutputModule {
 public:
-  explicit FileDumperOutput(ParameterSet const &);
+
+  struct Config {
+    fhicl::Atom<bool> onDemandProduction           { fhicl::Key("onDemandProduction")      , false };
+    fhicl::Atom<bool> wantProductFullClassName     { fhicl::Key("wantProductFullClassName"), false };
+    fhicl::Atom<bool> wantProductFriendlyClassName { fhicl::Key("wantProductFriendlyClassName"), wantProductFullClassName() };
+    fhicl::Atom<bool> resolveProducts { fhicl::Key("resolveProducts"), true };
+    fhicl::Atom<bool> onlyIfPresent   { fhicl::Key("onlyIfPresent"), false };
+  };
+  using Parameters = art::OutputModule::Table<Config>;
+  explicit FileDumperOutput(Parameters const &);
 
 private:
   void write(EventPrincipal const & e) override;
@@ -49,15 +58,14 @@ private:
 };  // FileDumperOutput
 
 art::FileDumperOutput::
-FileDumperOutput(fhicl::ParameterSet const & ps)
+FileDumperOutput(art::FileDumperOutput::Parameters const & ps)
   :
   OutputModule(ps),
-  wantOnDemandProduction_(ps.get<bool>("onDemandProduction", false)),
-  wantProductFullClassName_(ps.get<bool>("wantProductFullClassName", true)),
-  wantProductFriendlyClassName_(ps.get<bool>("wantProductFriendlyClassName",
-                                ! wantProductFullClassName_)),
-  wantResolveProducts_(ps.get<bool>("resolveProducts", true)),
-  wantPresentOnly_(ps.get<bool>("onlyIfPresent", false))
+  wantOnDemandProduction_(ps().onDemandProduction()),
+  wantProductFullClassName_(ps().wantProductFullClassName()),
+  wantProductFriendlyClassName_(ps().wantProductFriendlyClassName()),
+  wantResolveProducts_(ps().resolveProducts()),
+  wantPresentOnly_(ps().onlyIfPresent())
 {
 }
 

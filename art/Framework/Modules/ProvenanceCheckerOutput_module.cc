@@ -18,29 +18,29 @@
 
 namespace art {
 
-   class ProvenanceCheckerOutput
-     : public OutputModule
-   {
-   public:
-      // We do not take ownership of passed stream.  (Huh? -- WEB)
-      explicit ProvenanceCheckerOutput(fhicl::ParameterSet const&);
-      virtual ~ProvenanceCheckerOutput();
+  class ProvenanceCheckerOutput : public OutputModule {
+  public:
 
-   private:
-      virtual void write(EventPrincipal const& e);
-      virtual void writeSubRun(SubRunPrincipal const&){}
-      virtual void writeRun(RunPrincipal const&){}
-   };  // ProvenanceCheckerOutput
+    struct Config{};
+    using Parameters = Table<Config>;
+    explicit ProvenanceCheckerOutput(Parameters const&);
+    virtual ~ProvenanceCheckerOutput();
+
+  private:
+    virtual void write(EventPrincipal const& e);
+    virtual void writeSubRun(SubRunPrincipal const&){}
+    virtual void writeRun(RunPrincipal const&){}
+  };  // ProvenanceCheckerOutput
 
 //
 // constructors and destructor
 //
-   ProvenanceCheckerOutput::ProvenanceCheckerOutput(fhicl::ParameterSet const& pset) :
-   OutputModule(pset)
-   { }
+  ProvenanceCheckerOutput::ProvenanceCheckerOutput(ProvenanceCheckerOutput::Parameters const& ps) :
+    OutputModule(ps)
+  { }
 
-   ProvenanceCheckerOutput::~ProvenanceCheckerOutput()
-   { }
+  ProvenanceCheckerOutput::~ProvenanceCheckerOutput()
+  { }
 
 //
 // member functions
