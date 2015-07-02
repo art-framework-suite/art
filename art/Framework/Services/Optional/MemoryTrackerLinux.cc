@@ -141,17 +141,14 @@ using namespace ::banners;
 using namespace ::memdata;
 using namespace ::aliases;
 
-art::MemoryTracker::MemoryTracker(const fhicl::ParameterSet & pset,
+art::MemoryTracker::MemoryTracker(ServiceTable<Config> const& config,
                                   ActivityRegistry & iReg)
-  : numToSkip_     (pset.get<unsigned>("ignoreTotal", 1))
-  , printSummary_  (setbits_( pset.get<std::vector<std::string> >
-                              ("printSummaries",
-                               std::vector<std::string>{"general","event","module"} )
-                              )
-                    )
-  , dbMgr_ ( pset.get<std::string>("filename","" ) )
-  , includeMallocInfo_( checkMallocConfig_(pset.get<std::string>("filename",""),
-                                           pset.get<bool> ("includeMallocInfo", false) )
+  : numToSkip_     ( config().ignoreTotal() )
+  , printSummary_  ( setbits_( config().printSummaries() ) )
+  , dbMgr_         ( config().filename() )
+  , includeMallocInfo_( checkMallocConfig_( config().filename(),
+                                            config().includeMallocInfo()
+                                            )
                         )
   , evtCount_()
     // column headings

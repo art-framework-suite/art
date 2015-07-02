@@ -65,7 +65,9 @@ int doTest(fhicl::ParameterSet const& params,
            art::ProductList const &pList,
            std::vector<bool>& expected)
 {
-  art::GroupSelectorRules gsr(params, "outputCommands", testname);
+  std::string const parameterName = "outputCommands";
+  art::GroupSelectorRules gsr(params.get<std::vector<std::string>>(parameterName,{"keep *"}),
+                              parameterName, testname);
   art::GroupSelector gs;
   gs.initialize(gsr, pList);
   std::cout << "GroupSelector from "
@@ -320,8 +322,10 @@ int work()
         std::string const bad_rule = "beep *_*_i2_*";
         std::vector<std::string> cmds;
         cmds.push_back(bad_rule);
-        bad.put<std::vector<std::string> >("outputCommands", cmds);
-        art::GroupSelectorRules gsr(bad, "outputCommands", "GroupSelectorTest");
+        std::string const parameterName = "outputCommands";
+        bad.put<std::vector<std::string> >(parameterName, cmds);
+        art::GroupSelectorRules gsr(bad.get<std::vector<std::string>>(parameterName),
+                                    parameterName, "GroupSelectorTest");
         art::GroupSelector gs;
         gs.initialize(gsr, pList);
         std::cerr << "Failed to throw required exception\n";

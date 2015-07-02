@@ -9,7 +9,7 @@
 #include "art/Framework/Principal/View.h"
 #include "art/Framework/Core/ModuleMacros.h"
 #include "cetlib/exception.h"
-#include "fhiclcpp/Atom.h"
+#include "fhiclcpp/types/Atom.h"
 #include <iostream>
 #include <string>
 #include <vector>

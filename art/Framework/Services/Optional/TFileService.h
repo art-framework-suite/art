@@ -10,6 +10,8 @@
 #include "art/Framework/IO/FileStatsCollector.h"
 #include "art/Framework/Services/Optional/TFileDirectory.h"
 #include "art/Framework/Services/Registry/ServiceMacros.h"
+#include "fhiclcpp/types/Atom.h"
+#include "fhiclcpp/types/Key.h"
 
 namespace art {
   class ActivityRegistry;   // declaration only
@@ -30,17 +32,25 @@ class art::TFileService
   TFileService operator = ( TFileService const & ) = delete;
 
 public:
+
+  static constexpr const char* default_tmpDir = "<filename>/TFileService";
+
+  struct Config {
+    fhicl::Atom<bool> closeFileFast   { fhicl::Key("closeFileFast"), false };
+    fhicl::Atom<std::string> fileName { fhicl::Key("fileName") };
+    fhicl::Atom<std::string> tmpDir   { fhicl::Key("tmpDir"), default_tmpDir };
+  };
+
   // c'tor:
-  TFileService( fhicl::ParameterSet const & cfg
-              , art::ActivityRegistry     & r
-              );
+  using Parameters = ServiceTable<Config>;
+  TFileService( ServiceTable<Config> const & config,
+                art::ActivityRegistry      & r);
 
   // d'tor:
   ~TFileService();
 
   // accessor:
-  TFile &
-    file( ) const { return * file_; }
+  TFile & file() const { return * file_; }
 
 private:
   bool const closeFileFast_;

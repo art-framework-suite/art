@@ -106,35 +106,31 @@ Running 2 test cases...
         optional  =  Optional services provided by art
         user      =  Service provided by user/experiment
 
-   Services                 Type        Source location
+   Services                  Type        Source location
 <separator (=)>
-   CurrentModule            system      <path>/CurrentModule_service.cc
-   FileCatalogMetadata      system      <path>/FileCatalogMetadata_service.cc
-   FloatingPointControl     system      <path>/FloatingPointControl_service.cc
-   InFlightConfiguration    user        <path>/InFlightConfiguration_service.cc
-   MemoryAdjuster           optional    <path>/MemoryAdjuster_service.cc
-   MemoryTracker            optional    <path>/MemoryTracker_service.cc
-   MyService                optional    <path>/MyService_service.cc
-   MyServiceUsingIface      optional    <path>/MyServiceUsingIface_service.cc
-   PSTest                   optional    <path>/PSTest_service.cc
-   PSTestInterfaceImpl      optional    <path>/PSTestInterfaceImpl_service.cc
-   PathSelection            system      <path>/PathSelection_service.cc
-   RandomNumberGenerator    optional    <path>/RandomNumberGenerator_service.cc
-   Reconfigurable           user        <path>/Reconfigurable_service.cc
-   ScheduleContext          system      <path>/ScheduleContext_service.cc
-   ServiceUsing             user        <path>/ServiceUsing_service.cc
-   SimpleInteraction        optional    <path>/SimpleInteraction_service.cc
-   SimpleMemoryCheck        optional    <path>/SimpleMemoryCheck_service.cc
-   TFileService             optional    <path>/TFileService_service.cc
-   Throwing                 user        <path>/Throwing_service.cc
-   TimeTracker              optional    <path>/TimeTracker_service.cc
-   Timing                   optional    <path>/Timing_service.cc
-   Tracer                   optional    <path>/Tracer_service.cc
-   TriggerNamesService      system      <path>/TriggerNamesService_service.cc
-   TrivialFileDelivery      optional    <path>/TrivialFileDelivery_service.cc
-   TrivialFileTransfer      optional    <path>/TrivialFileTransfer_service.cc
-   Wanted                   user        <path>/Wanted_service.cc
-   message                  system      [ See https://cdcvs.fnal.gov/redmine/projects/art/wiki/Messagefacility ]
+   FileCatalogMetadata       system      <path>/FileCatalogMetadata_service.cc
+   InFlightConfiguration     user        <path>/InFlightConfiguration_service.cc
+   MemoryAdjuster            optional    <path>/MemoryAdjuster_service.cc
+   MemoryTracker             optional    <path>/MemoryTracker_service.cc
+   MyService                 optional    <path>/MyService_service.cc
+   MyServiceUsingIface       optional    <path>/MyServiceUsingIface_service.cc
+   PSTest                    optional    <path>/PSTest_service.cc
+   PSTestInterfaceImpl       optional    <path>/PSTestInterfaceImpl_service.cc
+   RandomNumberGenerator     optional    <path>/RandomNumberGenerator_service.cc
+   Reconfigurable            user        <path>/Reconfigurable_service.cc
+   ServiceUsing              user        <path>/ServiceUsing_service.cc
+   SimpleInteraction         optional    <path>/SimpleInteraction_service.cc
+   SimpleMemoryCheck         optional    <path>/SimpleMemoryCheck_service.cc
+   TFileService              optional    <path>/TFileService_service.cc
+   Throwing                  user        <path>/Throwing_service.cc
+   TimeTracker               optional    <path>/TimeTracker_service.cc
+   Timing                    optional    <path>/Timing_service.cc
+   Tracer                    optional    <path>/Tracer_service.cc
+   TrivialFileDelivery       optional    <path>/TrivialFileDelivery_service.cc
+   TrivialFileTransfer       optional    <path>/TrivialFileTransfer_service.cc
+   Wanted                    user        <path>/Wanted_service.cc
+   floating_point_control    system      <path>/FloatingPointControl_service.cc
+   message                   system      [ See https://cdcvs.fnal.gov/redmine/projects/art/wiki/Messagefacility ]
 
 <separator (=)>
 

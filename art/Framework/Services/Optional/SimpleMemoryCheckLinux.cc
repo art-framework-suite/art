@@ -11,7 +11,6 @@
 #include "art/Framework/Services/Registry/ServiceMacros.h"
 #include "art/Framework/Services/Registry/ServiceRegistry.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
-#include "fhiclcpp/ParameterSet.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 extern "C" {
@@ -82,17 +81,16 @@ namespace {
 
 namespace art {
 
-  SimpleMemoryCheck::SimpleMemoryCheck(const fhicl::ParameterSet & iPS,
+  SimpleMemoryCheck::SimpleMemoryCheck(SimpleMemoryCheck::Parameters const & config,
                                        ActivityRegistry & iReg)
     : procInfo_        ( std::make_unique<LinuxProcMgr>() )
-    , numToSkip_       (iPS.get<unsigned>("ignoreTotal" , 1    ))
-    , truncateSummary_ (iPS.get<bool>("truncateSummary" , true ))
-    , showMallocInfo_  (iPS.get<bool>("showMallocInfo"  , false))
-    , oncePerEventMode_(iPS.get<bool>("oncePerEventMode", false))
-    , moduleSummaryRequested_(iPS.get<bool>("moduleMemorySummary", false))
+    , numToSkip_       (config().ignoreTotal())
+    , truncateSummary_ (config().truncateSummary())
+    , showMallocInfo_  (config().showMallocInfo())
+    , oncePerEventMode_(config().oncePerEventMode())
+    , moduleSummaryRequested_(config().moduleMemorySummary())
     , maxUpdated_(false)
     , evtCount_()
-
   {
 
     // Check if MemoryTracker is also enabled

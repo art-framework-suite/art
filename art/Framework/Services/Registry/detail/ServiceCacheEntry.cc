@@ -12,7 +12,7 @@
 #include "art/Utilities/Exception.h"
 #include "cetlib/demangle.h"
 #include "fhiclcpp/ParameterSet.h"
-#include "fhiclcpp/detail/validationException.h"
+#include "fhiclcpp/types/detail/validationException.h"
 
 #include <cassert>
 #include <memory>

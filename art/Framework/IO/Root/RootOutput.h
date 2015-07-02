@@ -7,7 +7,7 @@
 #include "art/Framework/IO/FileStatsCollector.h"
 #include "art/Framework/IO/Root/DropMetaData.h"
 #include "boost/scoped_ptr.hpp"
-#include "fhiclcpp/ParameterSet.h"
+#include "fhiclcpp/types/Atom.h"
 #include <string>
 
 class TTree;
@@ -20,11 +20,28 @@ class RootOutput : public OutputModule {
 
 public: // MEMBER FUNCTIONS
 
-  virtual
-  ~RootOutput();
+  virtual ~RootOutput();
 
-  explicit
-  RootOutput(fhicl::ParameterSet const&);
+  static constexpr const char* default_tmpDir = "<some-tmp-dir>";
+
+  struct Config {
+    fhicl::Atom<std::string> catalog { fhicl::Key("catalog"), "" };
+    fhicl::Atom<bool> dropAllEvents  { fhicl::Key("dropAllEvents"), false };
+    fhicl::Atom<bool> dropAllSubRuns { fhicl::Key("dropAllSubRuns"), false };
+    fhicl::Atom<std::string> fileName { fhicl::Key("fileName") };
+    fhicl::Atom<std::string> tmpDir { fhicl::Key("tmpDir"), default_tmpDir };
+    fhicl::Atom<int> maxSize { fhicl::Key("maxSize"), 0x7f000000 };
+    fhicl::Atom<int> compressionLevel { fhicl::Key("compressionLevel"), 7 };
+    fhicl::Atom<int64_t> saveMemoryObjectThreshold { fhicl::Key("saveMemoryObjectThreshold"), -1l };
+    fhicl::Atom<int64_t> treeMaxVirtualSize { fhicl::Key("treeMaxVirtualSize"), -1 };
+    fhicl::Atom<int> splitLevel { fhicl::Key("splitLevel"), 99 };
+    fhicl::Atom<int> basketSize { fhicl::Key("basketSize"), 16384 };
+    fhicl::Atom<bool> dropMetaDataForDroppedData { fhicl::Key("dropMetaDataForDroppedData"), false };
+    fhicl::Atom<std::string> dropMetaData { fhicl::Key("dropMetaData"), "" };
+  };
+
+  using Parameters = OutputModule::Table<Config>;
+  explicit RootOutput(Parameters const&);
 
   void
   postSelectProducts(FileBlock const&) override;

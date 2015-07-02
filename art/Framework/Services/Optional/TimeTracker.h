@@ -9,12 +9,15 @@
 
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
+#include "art/Framework/Services/Registry/ServiceTable.h"
 #include "art/Ntuple/Ntuple.h"
 #include "art/Ntuple/sqlite_DBmanager.h"
 #include "art/Persistency/Provenance/EventID.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Persistency/Provenance/ProvenanceFwd.h"
-#include "fhiclcpp/ParameterSet.h"
+#include "fhiclcpp/types/Atom.h"
+#include "fhiclcpp/types/Key.h"
+#include "fhiclcpp/types/Table.h"
 #include "tbb/tick_count.h"
 
 #include <string>
@@ -22,9 +25,20 @@
 namespace art {
 
   class TimeTracker {
-
   public:
-    TimeTracker(fhicl::ParameterSet const&, ActivityRegistry&);
+
+    struct Config {
+      fhicl::Atom<bool> printSummary { fhicl::Key("printSummary"), true };
+
+      struct DBoutput {
+        fhicl::Atom<std::string> filename { fhicl::Key("filename"), "" };
+        fhicl::Atom<bool> overwrite { fhicl::Key("overwrite"), false };
+      };
+      fhicl::Table<DBoutput> dbOutput { fhicl::Key("dbOutput") };
+    };
+
+    using Parameters = ServiceTable<Config>;
+    TimeTracker(ServiceTable<Config> const &, ActivityRegistry&);
 
   private:
 

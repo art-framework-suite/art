@@ -11,7 +11,7 @@
 // for cases where one wishes to iterate over many Provenances without
 // necesarily loading each product.
 //
-// There are two parameters  that control the behavior of this module
+// There are two parameters that control the behavior of this module
 // template:
 //
 //    1. wantPresentOnly (bool, default true)
@@ -28,10 +28,10 @@
 // as its template paramenter; this type DETAIL must supply the
 // following non-static member functions:
 //
-//    DETAIL(fhicl::ParameterSet const &p);
+//    DETAIL(art::OutputModule::Table<Config> const &p);
 //
-//    // Construct an object of type DETAIL. The ParameterSet provided
-//    // will be the configuration of the module constructing the
+//    // Construct an object of type DETAIL. The 'Config' struct
+//    // will be that provided corresponding to the module constructing the
 //    // DETAIL. It is recommended (but not enforced) that detail
 //    // parameters be placed in their own (eg "detail") ParameterSet to
 //    // reduce the potential for clashes with parameters used by the
@@ -131,10 +131,19 @@
 #include "art/Utilities/detail/metaprogramming.h"
 #include "cetlib/exempt_ptr.h"
 #include "cpp0x/algorithm"
+
+#include "fhiclcpp/types/Atom.h"
 #include "fhiclcpp/ParameterSet.h"
+#include "fhiclcpp/types/Sequence.h"
 
 namespace art {
   template <typename DETAIL> class ProvenanceDumper;
+
+  struct ProvenanceDumperConfig {
+    fhicl::Atom<bool> wantPresentOnly { fhicl::Key("wantPresentOnly"), true };
+    fhicl::Atom<bool> resolveProducts { fhicl::Key("resolveProducts"), true };
+  };
+
   namespace detail {
     template <typename DETAIL>
     class PrincipalProcessor;
@@ -144,7 +153,9 @@ namespace art {
 template <typename DETAIL>
 class art::ProvenanceDumper : public OutputModule {
 public:
-  explicit ProvenanceDumper(fhicl::ParameterSet const & pset);
+
+  using Parameters = art::OutputModule::Table<typename DETAIL::Config>;
+  explicit ProvenanceDumper(fhicl::ParameterSet const & ps);
   virtual ~ProvenanceDumper();
 
 private:
@@ -161,17 +172,20 @@ private:
   bool wantPresentOnly_;
   bool resolveProducts_;
   detail::PrincipalProcessor<DETAIL> pp_;
+
 };
+
+
 
 template <typename DETAIL>
 inline
 art::ProvenanceDumper<DETAIL>::
-ProvenanceDumper(fhicl::ParameterSet const & pset)
+ProvenanceDumper(fhicl::ParameterSet const & ps)
   :
-  OutputModule(pset),
-  detail_(pset),
-  wantPresentOnly_(pset.get<bool>("wantPresentOnly", true)),
-  resolveProducts_(pset.get<bool>("resolveProducts", true)),
+  OutputModule(art::OutputModule::Table<typename DETAIL::Config>(ps)),
+  detail_(ps),
+  wantPresentOnly_(ps.get<bool>("wantPresentOnly", true)),
+  resolveProducts_(ps.get<bool>("resolveProducts", true)),
   pp_(detail_, wantPresentOnly_, resolveProducts_)
 {
 }

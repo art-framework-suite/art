@@ -27,6 +27,7 @@
 #include "art/Framework/Services/FileServiceInterfaces/CatalogInterface.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/ServiceMacros.h"
+#include "art/Framework/Services/Registry/ServiceTable.h"
 #include "art/Persistency/Common/HLTGlobalStatus.h"
 #include "fhiclcpp/ParameterSet.h"
 #include <string>
@@ -38,8 +39,12 @@ namespace art {
 namespace art {
   class TrivialFileDelivery : public CatalogInterface {
   public:
+    // configuration
+    struct Config {};
+    using Parameters = ServiceTable<Config>;
+
     // ctor -- the services factory will expect this signature
-    TrivialFileDelivery(fhicl::ParameterSet const & ps,
+    TrivialFileDelivery(Parameters const & config,
                         ActivityRegistry & acReg);
 
   private:

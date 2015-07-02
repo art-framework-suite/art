@@ -4,7 +4,6 @@
 #include "art/Utilities/Exception.h"
 #include "boost/algorithm/string.hpp"
 #include "cetlib/container_algorithms.h"
-#include "fhiclcpp/ParameterSet.h"
 
 #include <algorithm>
 #include <cctype>
@@ -218,26 +217,16 @@ GroupSelectorRules::Rule::appliesTo(BranchDescription const* branch) const
     partial_match(processName_ , branch->processName());
 }
 
-GroupSelectorRules::GroupSelectorRules(ParameterSet const& pset,
-                             string const& parameterName,
-                             string const& parameterOwnerName) :
-rules_(),
-parameterName_(parameterName),
-parameterOwnerName_(parameterOwnerName)
+GroupSelectorRules::GroupSelectorRules(vector<string> const & commands,
+                                       string const& parameterName,
+                                       string const& parameterOwnerName) :
+  rules_()
 {
-  // Fill the rules.
-  // If there is no parameter whose name is parameterName_ in the
-  // ParameterSet we are given, we use the following default.
-  vector<string> defaultCommands(1U, string("keep *"));
-  vector<string> commands =
-    pset.get<vector<string> >(parameterName, defaultCommands);
-
   rules_.reserve(commands.size());
-  for(vector<string>::const_iterator it = commands.begin(), end = commands.end();
-      it != end; ++it) {
-    rules_.push_back(Rule(*it, parameterName, parameterOwnerName));
+  for(auto const& cmd : commands) {
+    rules_.push_back(Rule(cmd, parameterName, parameterOwnerName));
   }
-  keepAll_ = commands.size() == 1 && commands[0] == defaultCommands[0];
+  keepAll_ = commands.size() == 1 && commands[0] == "keep *";
 }
 
 // ======================================================================

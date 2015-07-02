@@ -55,7 +55,14 @@ class TestBitsOutput;
 
 class arttest::TestBitsOutput : public art::OutputModule {
 public:
-  explicit TestBitsOutput(fhicl::ParameterSet const&);
+
+  struct Config {
+    fhicl::Atom<int>  bitMask { fhicl::Key("bitMask") };
+    fhicl::Atom<bool> expectTriggerResults { fhicl::Key("expectTriggerResults"), true };
+  };
+
+  using Parameters = art::OutputModule::Table<Config>;
+  explicit TestBitsOutput(Parameters const&);
   virtual ~TestBitsOutput();
 
 private:
@@ -72,9 +79,11 @@ private:
 
 // -----------------------------------------------------------------
 
-arttest::TestBitsOutput::TestBitsOutput(fhicl::ParameterSet const& ps)
-  : art::OutputModule(ps), bitMask_(ps.get<int>("bitMask")), hltbits_(0),
-    expectTriggerResults_(ps.get<bool>("expectTriggerResults", true))
+arttest::TestBitsOutput::TestBitsOutput(arttest::TestBitsOutput::Parameters const& ps)
+  : art::OutputModule(ps),
+    bitMask_(ps().bitMask()),
+    hltbits_(0),
+    expectTriggerResults_(ps().expectTriggerResults())
 {
 }
 

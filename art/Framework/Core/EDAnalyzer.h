@@ -13,7 +13,7 @@
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/WorkerT.h"
 #include "fhiclcpp/ParameterSet.h"
-#include "fhiclcpp/Table.h"
+#include "fhiclcpp/types/Table.h"
 
 #include <memory>
 #include <ostream>
@@ -50,7 +50,7 @@ namespace art
                                           // description.
 
     template < typename userConfig >
-    class Table : public fhicl::Table<fullConfig<userConfig> > {
+    class Table : public fhicl::Table<fullConfig<userConfig>> {
     public:
 
       Table(){}
