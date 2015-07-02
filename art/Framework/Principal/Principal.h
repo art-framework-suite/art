@@ -269,7 +269,7 @@ protected: // MEMBER FUNCTIONS
   getExistingGroup(BranchID const& bid) const;
 
   std::shared_ptr<const Group> const
-  getGroupForPtr(BranchID const bid) const;
+  getGroupForPtr(BranchType const btype, BranchID const bid) const;
 
   std::shared_ptr<const Group> const
   getGroup(BranchID const& bid) const;

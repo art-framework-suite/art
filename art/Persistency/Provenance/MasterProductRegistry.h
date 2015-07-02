@@ -8,10 +8,13 @@
 #include "cpp0x/array"
 #include "cpp0x/memory"
 #include <iosfwd>
+#include <limits>
 #include <map>
 #include <memory>
+#include <set>
 #include <string>
 #include <vector>
+#include <unordered_set>
 
 namespace Reflex {
 class Type;
@@ -69,9 +72,21 @@ public:
   }
   void print(std::ostream&) const;
   void addProduct(std::unique_ptr<BranchDescription>&&);
-  void initFromFirstPrimaryFile(ProductList const&, FileBlock const&);
-  void updateFromSecondaryFile(ProductList const&, FileBlock const&);
+
+  using PresenceSet           = std::set<art::BranchID>;
+  using PerBranchTypePresence = std::array<PresenceSet,NumBranchTypes>;
+  using PerFilePresence       = std::vector<PerBranchTypePresence>;
+
+  void initFromFirstPrimaryFile(ProductList const&, PerBranchTypePresence const&, FileBlock const&);
+  void updateFromSecondaryFile (ProductList const&, PerBranchTypePresence const&, FileBlock const&);
+
+  bool produced(BranchType const, BranchID const) const;
+
+  static constexpr std::size_t DROPPED = std::numeric_limits<std::size_t>::max();
+
+  std::size_t presentWithFileIdx(BranchType const, BranchID const) const;
   std::string updateFromNewPrimaryFile(ProductList const&,
+                                       PerBranchTypePresence const&,
                                        std::string const& fileName,
                                        BranchDescription::MatchMode,
                                        FileBlock const&);
@@ -92,6 +107,9 @@ private:
   bool frozen_;
   std::array<bool, NumBranchTypes> productProduced_;
   std::vector<ProductList> perFileProds_;
+
+  PerBranchTypePresence producedPresenceLookup_;
+  PerFilePresence perFilePresenceLookups_;
   // Support finding a BranchID by <product friendly class name, process name>.
   std::vector<BranchTypeLookup> productLookup_;
   // Support finding a BranchID by

@@ -9,14 +9,14 @@
 namespace CLHEP {
 
   inline void decode( boost::any const & a, Hep2Vector & result ) {
-    std::array<double,2> tmp;
+    std::array<double,2> tmp = {0.};
     fhicl::detail::decode(a,tmp);
     result.setX( tmp.at(0) );
     result.setY( tmp.at(1) );
   }
 
   inline void decode( boost::any const & a, Hep3Vector & result ) {
-    std::array<double,3> tmp;
+    std::array<double,3> tmp = {0.};
     fhicl::detail::decode(a,tmp);
     result.setX( tmp.at(0) );
     result.setY( tmp.at(1) );
@@ -24,7 +24,7 @@ namespace CLHEP {
   }
 
   inline void decode( boost::any const & a, HepLorentzVector & result ) {
-    std::array<double,4> tmp;
+    std::array<double,4> tmp = {0.};
     fhicl::detail::decode(a,tmp);
     result.setX( tmp.at(0) );
     result.setY( tmp.at(1) );

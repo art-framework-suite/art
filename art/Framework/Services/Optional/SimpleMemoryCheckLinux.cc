@@ -89,8 +89,13 @@ namespace art {
     , showMallocInfo_  (config().showMallocInfo())
     , oncePerEventMode_(config().oncePerEventMode())
     , moduleSummaryRequested_(config().moduleMemorySummary())
+    , currData_{0.}
+    , deltaData_{0.}
+    , maxData_{0.}
     , maxUpdated_(false)
-    , evtCount_()
+    , currentEventID_()
+    , evtCount_(0u)
+    , evtData_{0.}
   {
 
     // Check if MemoryTracker is also enabled

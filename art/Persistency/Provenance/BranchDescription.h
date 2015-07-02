@@ -74,7 +74,6 @@ public:
   std::string const& productInstanceName() const {return productInstanceName_;}
 
   bool const & produced() const {return guts().produced_;}
-  bool const & present() const {return guts().present_;}
   bool const & transient() const {return guts().transient_;}
 
   int const & splitLevel() const {return guts().splitLevel_;}
@@ -87,7 +86,6 @@ public:
   std::string const &wrappedCintName() const {return guts().wrappedCintName_;}
 
   void merge(BranchDescription const& other);
-  void setPresent(bool isPresent) {guts().present_ = isPresent;}
   void swap(BranchDescription &other);
 
   friend bool combinable(BranchDescription const &, BranchDescription const &);
@@ -114,10 +112,6 @@ public:
     // Was this branch produced in this process
     // rather than in a previous process
     bool produced_;
-
-    // Is the branch present in the product tree
-    // in the input file (or any of the input files)
-    bool present_;
 
     // Is the class of the branch marked as transient
     // in the data dictionary

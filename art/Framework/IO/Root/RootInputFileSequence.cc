@@ -377,31 +377,47 @@ initFile(bool skipBadFiles, bool initMPR/*=false*/)
   fileIndexes_[catalog_.currentIndex()] = rootFile_->fileIndexSharedPtr();
   if (initMPR) {
     mpr_.initFromFirstPrimaryFile(rootFile_->productList(),
+                                  rootFile_->perBranchTypePresence(),
                                   *rootFile_->createFileBlock().get());
   }
   else {
     // make sure the new product list is compatible with the main one
     string mergeInfo =
       mpr_.updateFromNewPrimaryFile(rootFile_->productList(),
+                                    rootFile_->perBranchTypePresence(),
                                     catalog_.currentFile().fileName(),
                                     matchMode_,
                                     *rootFile_->createFileBlock().get());
     if (!mergeInfo.empty()) {
       throw art::Exception(errors::MismatchedInputFiles,
                            "RootInputFileSequence::initFile()")
-          << mergeInfo;
+        << mergeInfo;
     }
   }
-  BranchIDListHelper::updateFromInput(rootFile_->branchIDLists(),
-                                      catalog_.currentFile().fileName());
-  // FIXME: Eliminate, we are going to delay load these!
-  //if (!secondaryFileNames_.empty()) {
-  //  int idx = 0;
-  //  for (auto name: secondaryFileNames_.at(catalog_.currentIndex())) {
-  //    rootFile_->openSecondaryFile(idx);
-  //    ++idx;
-  //  }
-  //}
+
+
+  // Create branches to read the products from the input file.
+  for ( auto const& prod : rootFile_->productList() ) {
+    auto const& input_bd = prod.second;
+    auto const& mpr_list = mpr_.productList();
+    auto bd_it = mpr_list.find( art::BranchKey( input_bd ) );
+    if ( bd_it == mpr_list.end() ) {
+      throw art::Exception(errors::LogicError, "RootInputFileSequence::initFile()" )
+        << "Unable to find product listed in input file in MasterProductRegistry.\n"
+        << "Please report this to artists@fnal.gov";
+    }
+    auto & bd = bd_it->second;
+
+    bool const present = mpr_.presentWithFileIdx( bd.branchType(),
+                                                  bd.branchID() ) != MasterProductRegistry::DROPPED;
+
+    rootFile_->treePointers()[bd.branchType()]->addBranch(prod.first,
+                                                          bd,
+                                                          bd.branchName(),
+                                                          present );
+  }
+
+  BranchIDListHelper::updateFromInput(rootFile_->branchIDLists(), catalog_.currentFile().fileName());
 }
 
   std::unique_ptr<RootInputFile>
@@ -457,7 +473,30 @@ openSecondaryFile(int idx, string const& name,
      /*secondaryFileNames*/empty_vs,
      /*rifSequence*/this);
   mpr_.updateFromSecondaryFile(rif->productList(),
+                               rif->perBranchTypePresence(),
                                *rif->createFileBlock().get());
+
+  for ( auto const& prod : rif->productList() ) {
+    auto const& input_bd = prod.second;
+    auto const& mpr_list = mpr_.productList();
+    auto bd_it = mpr_list.find( art::BranchKey( input_bd ) );
+    if ( bd_it == mpr_list.end() ) {
+      throw art::Exception(errors::LogicError, "RootInputFileSequence::openSecondaryFile()")
+        << "Unable to find product listed in input file in MasterProductRegistry.\n"
+        << "Please report this to artists@fnal.gov";
+    }
+    auto & bd = bd_it->second;
+
+    bool const present = mpr_.presentWithFileIdx( bd.branchType(),
+                                                  bd.branchID() ) != MasterProductRegistry::DROPPED;
+
+    rif->treePointers()[bd.branchType()]->addBranch(prod.first,
+                                                    bd,
+                                                    bd.branchName(),
+                                                    present );
+
+  }
+
   // Perform checks on branch id lists from the secondary to make
   // sure they match the primary.  If they did not then product id's
   // would not be stable.

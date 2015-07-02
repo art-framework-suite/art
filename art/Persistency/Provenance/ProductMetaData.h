@@ -9,6 +9,7 @@
 //  MasterProductRegistry.
 //
 
+#include "art/Persistency/Provenance/BranchID.h"
 #include "art/Persistency/Provenance/BranchType.h"
 #include "art/Persistency/Provenance/MasterProductRegistry.h"
 #include "art/Persistency/Provenance/ProductList.h"
@@ -88,6 +89,16 @@ public:
   void printBranchDescriptions(std::ostream& os) const
   {
     mpr_->print(os);
+  }
+
+  bool produced(BranchType const btype, BranchID const bid) const
+  {
+    return mpr_->produced(btype, bid);
+  }
+
+  std::size_t presentWithFileIdx(BranchType const btype, BranchID const bid) const
+  {
+    return mpr_->presentWithFileIdx(btype, bid);
   }
 
   // Obtain lookup map to find a group by type of product.
