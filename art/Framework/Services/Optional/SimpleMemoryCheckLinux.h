@@ -12,8 +12,8 @@
 #include "art/Framework/Services/Optional/detail/LinuxProcMgr.h"
 #include "art/Framework/Services/Registry/ServiceTable.h"
 #include "art/Persistency/Provenance/EventID.h"
-#include "fhiclcpp/Atom.h"
-#include "fhiclcpp/Key.h"
+#include "fhiclcpp/types/Atom.h"
+#include "fhiclcpp/types/Key.h"
 
 #include <memory>
 

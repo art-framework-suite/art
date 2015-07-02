@@ -15,9 +15,9 @@
 #include "art/Persistency/Provenance/EventID.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Persistency/Provenance/ProvenanceFwd.h"
-#include "fhiclcpp/Atom.h"
-#include "fhiclcpp/Key.h"
-#include "fhiclcpp/Table.h"
+#include "fhiclcpp/types/Atom.h"
+#include "fhiclcpp/types/Key.h"
+#include "fhiclcpp/types/Table.h"
 #include "tbb/tick_count.h"
 
 #include <string>

@@ -5,7 +5,7 @@
 #include "art/Framework/Services/Registry/ServiceTable.h"
 #include "cetlib/canonical_string.h"
 #include "cetlib/container_algorithms.h"
-#include "fhiclcpp/Atom.h"
+#include "fhiclcpp/types/Atom.h"
 
 #include <iterator>
 #include <string>

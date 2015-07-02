@@ -12,7 +12,7 @@
 #include "art/Framework/Principal/Handle.h"
 #include "art/Persistency/Provenance/BranchType.h"
 
-#include "fhiclcpp/Atom.h"
+#include "fhiclcpp/types/Atom.h"
 
 #include "test/TestObjects/ToyProducts.h"
 

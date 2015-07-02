@@ -1,8 +1,8 @@
 #ifndef art_Framework_Services_Registry_ServiceTable_h
 #define art_Framework_Services_Registry_ServiceTable_h
 
-#include "fhiclcpp/Table.h"
-#include "fhiclcpp/detail/validationException.h"
+#include "fhiclcpp/types/Table.h"
+#include "fhiclcpp/types/detail/validationException.h"
 
 #include <set>
 #include <string>

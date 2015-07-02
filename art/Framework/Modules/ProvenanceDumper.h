@@ -132,9 +132,9 @@
 #include "cetlib/exempt_ptr.h"
 #include "cpp0x/algorithm"
 
-#include "fhiclcpp/Atom.h"
+#include "fhiclcpp/types/Atom.h"
 #include "fhiclcpp/ParameterSet.h"
-#include "fhiclcpp/Sequence.h"
+#include "fhiclcpp/types/Sequence.h"
 
 namespace art {
   template <typename DETAIL> class ProvenanceDumper;

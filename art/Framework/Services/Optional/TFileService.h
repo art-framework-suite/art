@@ -10,8 +10,8 @@
 #include "art/Framework/IO/FileStatsCollector.h"
 #include "art/Framework/Services/Optional/TFileDirectory.h"
 #include "art/Framework/Services/Registry/ServiceMacros.h"
-#include "fhiclcpp/Atom.h"
-#include "fhiclcpp/Key.h"
+#include "fhiclcpp/types/Atom.h"
+#include "fhiclcpp/types/Key.h"
 
 namespace art {
   class ActivityRegistry;   // declaration only

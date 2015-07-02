@@ -17,8 +17,8 @@
 #include "art/Persistency/Provenance/RunID.h"
 #include "art/Persistency/Provenance/SubRunID.h"
 #include "art/Persistency/Provenance/Timestamp.h"
-#include "fhiclcpp/Atom.h"
-#include "fhiclcpp/Key.h"
+#include "fhiclcpp/types/Atom.h"
+#include "fhiclcpp/types/Key.h"
 #include <iostream>
 
 namespace art {

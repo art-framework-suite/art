@@ -7,7 +7,7 @@
 #include "art/Framework/IO/FileStatsCollector.h"
 #include "art/Framework/IO/Root/DropMetaData.h"
 #include "boost/scoped_ptr.hpp"
-#include "fhiclcpp/Atom.h"
+#include "fhiclcpp/types/Atom.h"
 #include <string>
 
 class TTree;

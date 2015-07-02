@@ -3,7 +3,7 @@
 #include "cetlib/exception.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
-#include "fhiclcpp/Atom.h"
+#include "fhiclcpp/types/Atom.h"
 #include <cassert>
 
 namespace arttest {

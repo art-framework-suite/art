@@ -18,8 +18,8 @@
 #include "art/Persistency/Provenance/EventID.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "cetlib/exempt_ptr.h"
-#include "fhiclcpp/Atom.h"
-#include "fhiclcpp/Sequence.h"
+#include "fhiclcpp/types/Atom.h"
+#include "fhiclcpp/types/Sequence.h"
 
 #include <bitset>
 #include <memory>

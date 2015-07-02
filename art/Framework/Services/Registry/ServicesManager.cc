@@ -11,7 +11,7 @@
 #include "cpp0x/memory"
 #include "cpp0x/utility"
 #include "fhiclcpp/ParameterSet.h"
-#include "fhiclcpp/detail/validationException.h"
+#include "fhiclcpp/types/detail/validationException.h"
 
 #include <cassert>
 

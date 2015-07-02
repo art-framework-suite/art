@@ -162,8 +162,8 @@
 #include "art/Framework/Services/Registry/ServiceMacros.h"
 #include "art/Framework/Services/Registry/ServiceTable.h"
 #include "art/Persistency/Common/RNGsnapshot.h"
-#include "fhiclcpp/Atom.h"
-#include "fhiclcpp/Key.h"
+#include "fhiclcpp/types/Atom.h"
+#include "fhiclcpp/types/Key.h"
 #include <map>
 #include <memory>
 #include <string>

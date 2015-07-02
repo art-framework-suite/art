@@ -26,8 +26,8 @@
 #include "art/Persistency/Provenance/ParentageID.h"
 #include "art/Persistency/Provenance/Selections.h"
 
-#include "fhiclcpp/Atom.h"
-#include "fhiclcpp/Sequence.h"
+#include "fhiclcpp/types/Atom.h"
+#include "fhiclcpp/types/Sequence.h"
 #include "fhiclcpp/ParameterSet.h"
 
 #include <array>

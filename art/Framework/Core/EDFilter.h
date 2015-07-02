@@ -17,9 +17,9 @@
 #include "art/Framework/Core/ProducerBase.h"
 #include "art/Framework/Core/WorkerT.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
-#include "fhiclcpp/Atom.h"
+#include "fhiclcpp/types/Atom.h"
 #include "fhiclcpp/ParameterSet.h"
-#include "fhiclcpp/Table.h"
+#include "fhiclcpp/types/Table.h"
 
 #include <memory>
 #include <string>

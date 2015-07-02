@@ -14,8 +14,8 @@
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Persistency/Provenance/ProvenanceFwd.h"
 #include "cetlib/exception.h"
-#include "fhiclcpp/Atom.h"
-#include "fhiclcpp/Key.h"
+#include "fhiclcpp/types/Atom.h"
+#include "fhiclcpp/types/Key.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include <algorithm>

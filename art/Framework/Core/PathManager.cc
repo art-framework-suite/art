@@ -5,7 +5,7 @@
 #include "art/Utilities/Exception.h"
 #include "art/Utilities/GetPassID.h"
 #include "cetlib/container_algorithms.h"
-#include "fhiclcpp/detail/validationException.h"
+#include "fhiclcpp/types/detail/validationException.h"
 
 using fhicl::ParameterSet;
 

@@ -6,8 +6,8 @@
 #include "art/Framework/Core/CachedProducts.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/ParameterSetID.h"
-#include "fhiclcpp/Sequence.h"
-#include "fhiclcpp/Table.h"
+#include "fhiclcpp/types/Sequence.h"
+#include "fhiclcpp/types/Table.h"
 
 #include <string>
 

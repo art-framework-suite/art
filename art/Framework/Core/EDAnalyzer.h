@@ -13,7 +13,7 @@
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/WorkerT.h"
 #include "fhiclcpp/ParameterSet.h"
-#include "fhiclcpp/Table.h"
+#include "fhiclcpp/types/Table.h"
 
 #include <memory>
 #include <ostream>
