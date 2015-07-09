@@ -20,7 +20,8 @@ std::string
   using namespace errors;
 
   switch( code ) {
-  default                        : return "Unknown code";
+    // Let the compiler tell us we missed one.
+    // default                        : return "Unknown code";
 
   case OtherArt                  : return "OtherArt";
   case StdException              : return "StdException";
@@ -35,6 +36,7 @@ std::string
   case LogicError                : return "LogicError";
   case UnimplementedFeature      : return "UnimplementedFeature";
   case InvalidReference          : return "InvalidReference";
+  case TypeConversion            : return "TypeConversion";
   case NullPointerError          : return "NullPointerError";
   case EventTimeout              : return "EventTimeout";
   case DataCorruption            : return "DataCorruption";
@@ -57,7 +59,13 @@ std::string
   case InvalidNumber             : return "InvalidNumber";
 
   case NotFound                  : return "NotFound";
+
+  case ServiceNotFound           : return "ServiceNotFound";
   }
+  throw Exception(errors::LogicError)
+    << "Internal error: missing string translation for error "
+    << code
+    << " which was not caught at compile time!\n";
 }
 
 // ======================================================================

@@ -123,7 +123,7 @@ art::ServicesManager::get() {
   // Find the correct ServiceCacheEntry object.
   detail::ServiceCache::iterator it = factory_.find(TypeID(typeid(T)));
   if (it == factory_.end())
-    throw art::Exception(art::errors::NotFound, "Service")
+    throw art::Exception(art::errors::ServiceNotFound, "Service")
         << " unable to find requested service with compiler type name '"
         << cet::demangle_symbol(typeid(T).name()) << "'.\n";
   return it->second.get<T>(registry_, actualCreationOrder_);
@@ -136,7 +136,7 @@ art::ServicesManager::get(ScheduleID sID) {
   // Find the correct ServiceCacheEntry object.
   detail::ServiceCache::iterator it = factory_.find(TypeID(typeid(T)));
   if (it == factory_.end())
-    throw art::Exception(art::errors::NotFound, "Service")
+    throw art::Exception(art::errors::ServiceNotFound, "Service")
         << " unable to find requested service with compiler type name '"
         << cet::demangle_symbol(typeid(T).name()) << "'.\n";
   return it->second.get<T>(registry_, actualCreationOrder_, sID);
