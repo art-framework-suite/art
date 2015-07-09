@@ -269,12 +269,11 @@ DecrepitRelicInputSourceImplementation::
   DecrepitRelicInputSourceImplementation::
   readRunFromSecondaryFiles()
   {
-    // Note: For the moment, we do not support saving and restoring
-    // the state of the random number generator if random numbers are
-    // generated during processing of runs (e.g. beginRun(), endRun()).
-    //assert(doneReadAhead_);
-    assert(state_ == input::IsRun);
-    //assert(!limitReached());
+    // It is not appropriate to check the state variable here, as it
+    // might already have been changed in preparation for the next state
+    // change (in the case of random access for e.g. an event
+    // display. The appropriate place for checking this preconditions is
+    // in readRun().
     return std::move(secondaryRunPrincipals_);
   }
 
@@ -297,12 +296,11 @@ DecrepitRelicInputSourceImplementation::
   DecrepitRelicInputSourceImplementation::
   readSubRunFromSecondaryFiles(std::shared_ptr<RunPrincipal> rp)
   {
-    // Note: For the moment, we do not support saving and restoring
-    // the state of the random number generator if random numbers are
-    // generated during processing of subRuns (e.g. beginSubRun(), endSubRun()).
-    //assert(doneReadAhead_);
-    assert(state_ == input::IsSubRun);
-    //assert(!limitReached());
+    // It is not appropriate to check the state variable here, as it
+    // might already have been changed in preparation for the next state
+    // change (in the case of random access for e.g. an event
+    // display. The appropriate place for checking this preconditions is
+    // in readSubRun().
     for (auto srp: secondarySubRunPrincipals_) {
       assert(srp->run() == rp->run());
       srp->setRunPrincipal(rp);
