@@ -123,7 +123,7 @@ int art::run_art(int argc,
   catch (bpo::error const & e) {
     std::cerr << "Exception from command line processing in " << argv[0]
               << ": " << e.what() << "\n";
-    return 7000;
+    return 88;
   }
   // Preliminary argument checking.
   for (auto & handler : handlers) {
@@ -162,7 +162,7 @@ int art::run_art(int argc,
         << "------------------------------------"
         << "------------------------------------"
         << "\n";
-    return 7003;
+    return 91;
   }
   // Main parameter set must be placed in registry manually.
   try {
@@ -207,7 +207,7 @@ int art::run_art_string_config(const std::string& config_string)
         << "------------------------------------"
         << "------------------------------------"
         << "\n";
-    return 7003;
+    return 91;
   }
   // Main parameter set must be placed in registry manually.
   try {
@@ -272,8 +272,8 @@ int art::run_art_common_(fhicl::ParameterSet main_pset)
     if (dc) {
       dc << main_pset.to_indented_string() << "\n";
       mf::LogInfo("ConfigOut") << "Post-processed configuration written to "
-                           << configOut
-                           << ".\n";
+                               << configOut
+                               << ".\n";
     } else { // Error!
       throw Exception(errors::Configuration)
         << "Unable to write post-processed configuration to specified file "
@@ -308,8 +308,8 @@ int art::run_art_common_(fhicl::ParameterSet main_pset)
   int rc = -1;
   try {
     std::unique_ptr<art::EventProcessor>
-    procP(new
-          art::EventProcessor(main_pset));
+      procP(new
+            art::EventProcessor(main_pset));
     EventProcessorWithSentry procTmp(std::move(procP));
     proc = std::move(procTmp);
     proc->beginJob();
@@ -328,19 +328,19 @@ int art::run_art_common_(fhicl::ParameterSet main_pset)
     art::printArtException(e, "art"); // , "Thing1", rc);
   }
   catch (cet::exception & e) {
-    rc = 8001;
+    rc = 65;
     art::printArtException(e, "art"); // , "Thing2", rc);
   }
   catch (std::bad_alloc & bda) {
-    rc = 8004;
+    rc = 68;
     art::printBadAllocException("art"); // , "Thing3", rc);
   }
   catch (std::exception & e) {
-    rc = 8002;
+    rc = 66;
     art::printStdException(e, "art"); // , "Thing4", rc);
   }
   catch (...) {
-    rc = 8003;
+    rc = 67;
     art::printUnknownException("art"); // , "Thing5", rc);
   }
   return rc;

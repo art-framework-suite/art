@@ -62,7 +62,7 @@ checkOptions(bpo::variables_map const & vm)
   std::string const thisClass(cet::demangle(typeid(*this).name()));
   return exceptionCatcher([&vm,this](){ return this->doCheckOptions(vm); },
                           thisClass + "::doCheckOptions()",
-                          7001);
+                          89);
 }
 
 int
@@ -75,5 +75,5 @@ processOptions(bpo::variables_map const & vm,
       return this->doProcessOptions(vm, raw_config);
     },
     thisClass + "::doProcessOptions()",
-    7002);
+    90);
 }

@@ -88,7 +88,7 @@ doProcessOptions(bpo::variables_map const & vm,
               << vm["config"].as<std::string>()
               << "' with exception\n" << e.what()
               << "\n";
-    return 7002;
+    return 90;
   }
   if (raw_config.empty()) {
     std::cerr << "INFO: provided configuration file '"
