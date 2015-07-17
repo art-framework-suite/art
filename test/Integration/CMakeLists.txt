@@ -1012,7 +1012,7 @@ cet_test(signal_handling_01_t HANDBUILT
   TEST_ARGS -c signal_sigint.fcl SIGINT 
   TEST_PROPERTIES
   PASS_REGULAR_EXPRESSION
-  "Art caught and handled signal 2\\."
+  "Art has handled signal 2\\."
   DATAFILES
   fcl/signal_sigint.fcl
   )
@@ -1022,7 +1022,7 @@ cet_test(signal_handling_02_t HANDBUILT
   TEST_ARGS -c signal_sigint.fcl SIGQUIT
   TEST_PROPERTIES
   PASS_REGULAR_EXPRESSION
-  "Art caught and handled signal 3\\."
+  "Art has handled signal 3\\."
   DATAFILES
   fcl/signal_sigint.fcl
   )
@@ -1032,7 +1032,7 @@ cet_test(signal_handling_03_t HANDBUILT
   TEST_ARGS -c signal_sigint.fcl SIGTERM
   TEST_PROPERTIES
   PASS_REGULAR_EXPRESSION
-  "Art caught and handled signal 15\\."
+  "Art has handled signal 15\\."
   DATAFILES
   fcl/signal_sigint.fcl
   )
@@ -1048,7 +1048,7 @@ cet_test(signal_handling_04_t HANDBUILT
   TEST_ARGS -c signal_sigint.fcl SIGUSR2
   TEST_PROPERTIES
   PASS_REGULAR_EXPRESSION
-  "Art caught and handled signal ${sigusr_two_signal}\\."
+  "Art has handled signal ${sigusr_two_signal}\\."
   DATAFILES
   fcl/signal_sigint.fcl
   )

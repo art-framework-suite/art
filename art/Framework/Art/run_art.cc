@@ -305,7 +305,7 @@ int art::run_art_common_(fhicl::ParameterSet main_pset)
   // Now create the EventProcessor
   //
   EventProcessorWithSentry proc;
-  int rc = -1;
+  int rc = 0;
   try {
     std::unique_ptr<art::EventProcessor>
       procP(new
@@ -315,13 +315,15 @@ int art::run_art_common_(fhicl::ParameterSet main_pset)
     proc->beginJob();
     proc.on();
     if (proc->runToCompletion() == EventProcessor::epSignal) {
-      std::cerr << "Art caught and handled signal "
+      std::cerr << "Art has handled signal "
                 << art::shutdown_flag
                 << ".\n";
+      bool const sigint_not_error = scheduler_pset.get<bool>("SIGINTisNotError",false);
+      if ( !sigint_not_error )
+        rc = 128 + art::shutdown_flag;
     }
     proc.off();
     proc->endJob();
-    rc = 0;
   }
   catch (art::Exception & e) {
     rc = e.returnCode();

@@ -25,6 +25,7 @@ DebugOptionsHandler(bpo::options_description & desc,
     ("default-exceptions", "Some exceptions may be handled differently by default (e.g. ProductNotFound).")
     ("rethrow-default", "All exceptions default to rethrow.")
     ("rethrow-all", "All exceptions overridden to rethrow (cf rethrow-default).")
+    ("SIGINT-is-not-error", "A signal received from the user yields an art return code of 0.")
     ("debug-config", bpo::value<std::string>(),
      (std::string("Output post-processed configuration to <file> and exit. Equivalent to env ART_DEBUG_CONFIG=<file> ") +
       basename + " ...").c_str())
@@ -91,6 +92,9 @@ doProcessOptions(bpo::variables_map const & vm,
       raw_config.putEmptySequence("services.scheduler.FaileModule");
       raw_config.putEmptySequence("services.scheduler.FailPath");
     }
+  }
+  if (vm.count("SIGINT-is-not-error") == 1) {
+    raw_config.put("services.scheduler.SIGINTisNotError", true );
   }
   return 0;
 }
