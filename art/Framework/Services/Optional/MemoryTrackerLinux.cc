@@ -95,6 +95,7 @@ namespace {
   //========================================================================
   // Other helpers
 
+  enum sql_constants { ROWID };
   auto convertToEvtIdData( sqlite::stringstream & entry )
   {
     std::size_t        rowid{};
@@ -208,7 +209,7 @@ art::MemoryTracker::prePathProcessing(std::string const& pathname)
 
 //======================================================================
 void
-art::MemoryTracker::preEventProcessing(const Event & e)
+art::MemoryTracker::preEventProcessing(Event const & e)
 {
   ++evtCount_;
   eventId_ = e.id();
@@ -216,13 +217,11 @@ art::MemoryTracker::preEventProcessing(const Event & e)
 }
 
 void
-art::MemoryTracker::postEventProcessing(const Event &)
+art::MemoryTracker::postEventProcessing(Event const &)
 {
 
   auto const data   = procInfo_.getCurrentData();
   auto const deltas = data-evtData_;
-
-  if (evtCount_ <= numToSkip_) { return; }
 
   eventTable_.insert( eventId_.run(),
                       eventId_.subRun(),
@@ -258,8 +257,6 @@ art::MemoryTracker::postModule(ModuleDescription const & md)
 {
   auto const data   = procInfo_.getCurrentData();
   auto const deltas = data-modData_;
-
-  if (evtCount_ <= numToSkip_) { return; }
 
   moduleTable_.insert( eventId_.run(),
                        eventId_.subRun(),
@@ -376,15 +373,15 @@ art::MemoryTracker::generalSummary_( std::ostringstream& oss )
 {
   summaryTable_.flush();
 
-  const std::vector<std::string> steps = sqlite::getUniqueEntries<std::string>( dbMgr_.get(), "Summary", "ProcessStep" );
-  const std::vector<std::string> mods  = sqlite::getUniqueEntries<std::string>( dbMgr_.get(), "Summary", "ModuleId"    );
+  std::vector<std::string> const steps = sqlite::getUniqueEntries<std::string>( dbMgr_.get(), "Summary", "ProcessStep" );
+  std::vector<std::string> const mods  = sqlite::getUniqueEntries<std::string>( dbMgr_.get(), "Summary", "ModuleId"    );
 
   // Calculate column widths
   std::size_t sWidth(0), mWidth(0);
   std::for_each( steps.cbegin(), steps.cend(), [&sWidth](auto const& s) { sWidth = std::max( sWidth, s.size() ); } );
   std::for_each( mods .cbegin(), mods .cend(), [&mWidth](auto const& s) { mWidth = std::max( mWidth, s.size() ); } );
 
-  const std::string rule = std::string(sWidth+2+mWidth+2+2*12,'=');
+  std::string const rule = std::string(sWidth+2+mWidth+2+2*12,'=');
 
   oss << "  Peak virtual memory usage (VmPeak): " << procInfo_.getVmPeak() << " Mbytes"
       << "\n\n"
@@ -432,18 +429,19 @@ art::MemoryTracker::eventSummary_( std::ostringstream& oss,
   eventTable_.flush();
 
   eventDataList_t evtList;
+  std::size_t i{};
   for ( auto & entry : sqlite::query_db( dbMgr_.get(),
                                          "SELECT rowid,* FROM EventInfo "s+
                                          "WHERE "s+column+" > 0 ORDER BY "s+column+" DESC LIMIT 5"s,
                                          false ) ) {
+    if ( i++ < numToSkip_ ) continue;
     auto evtData = convertToEvtIdData( entry );
-    std::get<std::size_t>( evtData ) += numToSkip_;
     evtList.push_back( evtData );
   }
 
   std::size_t noWidth(0), evtWidth(0);
   for ( auto const & data : evtList ) {
-    auto const evtCount = std::get<std::size_t>( data );
+    auto const evtCount = std::get<ROWID>( data );
 
     // If general summary requested, need to account for mapping of
     // anonymous event nos. to event ids.
@@ -459,8 +457,7 @@ art::MemoryTracker::eventSummary_( std::ostringstream& oss,
   }
 
   std::size_t const width = std::max( header.size(), noWidth+evtWidth );
-
-  const std::string rule = std::string(width+4+4*12,'=');
+  std::string const rule  = std::string(width+4+4*12,'=');
 
   oss << banners::vsize_rss( header, width+4, 10) << "\n"
       << rule << "\n";
@@ -472,7 +469,7 @@ art::MemoryTracker::eventSummary_( std::ostringstream& oss,
   for ( auto const & data : evtList ) {
     std::ostringstream preamble;
     if ( printSummary_.test(GENERAL) ) {
-      preamble << " [" << setw(noWidth-3) << std::left << std::get<std::size_t>( data ) << "]  ";
+      preamble << " [" << setw(noWidth-3) << std::left << std::get<ROWID>( data ) << "]  ";
     }
     else {
       preamble << "  ";
@@ -491,7 +488,7 @@ art::MemoryTracker::moduleSummary_( std::ostringstream& oss,
 {
   moduleTable_.flush();
 
-  const std::vector<std::string> mods = sqlite::getUniqueEntries<std::string>( dbMgr_.get(), "ModuleInfo", "PathModuleId" );
+  std::vector<std::string> const mods = sqlite::getUniqueEntries<std::string>( dbMgr_.get(), "ModuleInfo", "PathModuleId" );
 
   // Fill map, which will have form
   //
@@ -514,12 +511,13 @@ art::MemoryTracker::moduleSummary_( std::ostringstream& oss,
     std::string const columns = "rowid,Run,Subrun,Event,Vsize,DeltaVsize,RSS,DeltaRSS";
 
     eventDataList_t evtList;
+    std::size_t i{};
     for ( auto & entry : sqlite::query_db( dbMgr_.get(),
                                            "SELECT "s+columns+" FROM temp.tmpModTable "s+
                                            "WHERE "+column+" > 0 ORDER BY "s+column+" DESC LIMIT 5"s,
                                            false ) ) {
+      if ( i++ < numToSkip_ ) continue;
       auto evtData = convertToEvtIdData( entry );
-      std::get<std::size_t>( evtData ) += numToSkip_;
       evtList.emplace_back( evtData );
     }
     modMap.emplace_back( mod, evtList );
@@ -533,7 +531,7 @@ art::MemoryTracker::moduleSummary_( std::ostringstream& oss,
   for ( auto const & mod : modMap ) {
     modWidth = std::max( modWidth, mod.first.size() );
     for ( auto const & evtInfo : mod.second ) {
-      auto const & evtCount = std::get<std::size_t>( evtInfo );
+      auto const & evtCount = std::get<ROWID>( evtInfo );
 
       // If general summary requested, need to account for mapping of
       // anonymous event nos. to event ids.
@@ -565,7 +563,7 @@ art::MemoryTracker::moduleSummary_( std::ostringstream& oss,
     for ( auto const & evtInfo : itMod->second ) {
       std::ostringstream preamble;
       if ( printSummary_.test(GENERAL) ) {
-        preamble << " [" << setw(noWidth-3) << std::left << std::get<std::size_t>( evtInfo ) << "]  ";
+        preamble << " [" << setw(noWidth-3) << std::left << std::get<ROWID>( evtInfo ) << "]  ";
       }
       else {
         preamble << "  ";
