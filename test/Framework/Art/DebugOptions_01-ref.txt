@@ -5,8 +5,8 @@ services: { CatalogInterface: { service_provider: "TrivialFileDelivery"
             FileTransfer: { service_provider: "TrivialFileTransfer"
                             service_type: "FileTransfer"
                           }
-            SimpleMemoryCheck: { service_type: "SimpleMemoryCheck"
-                               }
+            MemoryTracker: { service_type: "MemoryTracker"
+                           }
             message: { destinations: { STDOUT: { categories: { ArtReport: { limit: 100
                                                                           }
                                                                default: { limit: -1
