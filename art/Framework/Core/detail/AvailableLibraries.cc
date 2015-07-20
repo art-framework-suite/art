@@ -22,18 +22,17 @@ namespace {
   typedef std::ostream&   (GetDescription_t) (std::ostream&, std::string const&);
 
   std::string getFilePath( LibraryManager const& lm,
-                           std::string const& spec,
+                           std::string const& fullspec,
                            std::string const& pluginType )
   {
     std::string source = "[ not found ]";
     try{
       GetSourceLoc_t* symbolLoc  = nullptr;
-      lm.getSymbolByLibspec(spec, "get_source_location",symbolLoc );
+      lm.getSymbolByLibspec(fullspec, "get_source_location",symbolLoc );
       source = (*symbolLoc)();
       bfs::path const p ( source );
       if ( !bfs::exists(p) ) {
-        std::regex const format( "/.*/(\\w*_"s+pluginType+".cc)"s );
-        source = std::regex_replace(source, format, "/ [ external source ] /$1");
+        source = "/ [ external source ] /"s+fullspec+"_"s+pluginType+".cc";
       }
     }
     catch( cet::exception const & e ){
