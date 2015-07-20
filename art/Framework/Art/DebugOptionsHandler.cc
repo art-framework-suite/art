@@ -10,6 +10,8 @@
 #include <iostream>
 #include <string>
 
+using namespace std::string_literals;
+
 art::DebugOptionsHandler::
 DebugOptionsHandler(bpo::options_description & desc,
                     std::string const & basename,
@@ -21,14 +23,14 @@ DebugOptionsHandler(bpo::options_description & desc,
     ("trace", "Activate tracing.")
     ("notrace", "Deactivate tracing.")
     ("memcheck", "Activate monitoring of memory use.")
+    ("memcheck-db", bpo::value<std::string>(), "Output memory use data to SQLite3 database with name <db-file>.")
     ("nomemcheck", "Deactivate monitoring of memory use.")
     ("default-exceptions", "Some exceptions may be handled differently by default (e.g. ProductNotFound).")
     ("rethrow-default", "All exceptions default to rethrow.")
     ("rethrow-all", "All exceptions overridden to rethrow (cf rethrow-default).")
     ("SIGINT-is-not-error", "A signal received from the user yields an art return code of 0.")
     ("debug-config", bpo::value<std::string>(),
-     (std::string("Output post-processed configuration to <file> and exit. Equivalent to env ART_DEBUG_CONFIG=<file> ") +
-      basename + " ...").c_str())
+     ("Output post-processed configuration to <file> and exit. Equivalent to env ART_DEBUG_CONFIG=<file> "s + basename + " ..."s).c_str())
     ("config-out", bpo::value<std::string>(),
      "Output post-processed configuration to <file> and continue with job.");
 }
@@ -54,6 +56,11 @@ doCheckOptions(bpo::variables_map const & vm)
     throw Exception(errors::Configuration)
         << "Options --memcheck and --nomemcheck are incompatible.\n";
   }
+  if (vm.count("memcheck-db") == 1 &&
+      vm.count("nomemcheck") == 1) {
+    throw Exception(errors::Configuration)
+      << "Options --memcheck-db and --nomemcheck are incompatible.\n";
+  }
   return 0;
 }
 
@@ -76,11 +83,16 @@ doProcessOptions(bpo::variables_map const & vm,
   else if (vm.count("notrace")) {
     raw_config.put("services.scheduler.wantTracer", false);
   }
-  if (vm.count("memcheck")) {
-    raw_config.putEmptyTable("services.SimpleMemoryCheck");
+  auto const memdb = vm.count("memcheck-db");
+  if (vm.count("memcheck") || memdb) {
+    raw_config.putEmptyTable("services.MemoryTracker");
+    if ( memdb )
+      raw_config.put("services.MemoryTracker.filename",
+                     vm["memcheck-db"].as<std::string>().data());
   }
   else if (vm.count("nomemcheck")) {
     raw_config.erase("services.SimpleMemoryCheck");
+    raw_config.erase("services.MemoryTracker");
   }
   if (vm.count("rethrow-all") == 1 ||
       vm.count("rethrow-default") == 1 ||
