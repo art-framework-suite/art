@@ -4,8 +4,7 @@ outputs: { out: { fileName: "out.root"
                   tmpDir: "/tmp"
                 }
          }
-physics: { end_paths: [ "injected_end_path_1" ]
-           injected_end_path_1: [ "out" ]
+physics: { injected_end_path_1: [ "out" ]
          }
 process_name: "DUMMY"
 services: { CatalogInterface: { service_provider: "TrivialFileDelivery"

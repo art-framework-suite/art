@@ -5,8 +5,7 @@ outputs: { out: { dataTier: "The one with the thickest frosting"
                   streamName: "out"
                 }
          }
-physics: { end_paths: [ "injected_end_path_1" ]
-           injected_end_path_1: [ "out" ]
+physics: { injected_end_path_1: [ "out" ]
          }
 process_name: "SAMTEST"
 services: { CatalogInterface: { service_provider: "IFCatalogInterface"

@@ -10,6 +10,8 @@
 #include <iostream>
 #include <string>
 
+using namespace std::string_literals;
+
 namespace {
   using table_t = fhicl::extended_value::table_t;
   using sequence_t = fhicl::extended_value::sequence_t;
@@ -161,15 +163,12 @@ namespace {
         }
       }
       // Make our end_path with the output module label in it.
-      raw_config.put(std::string("physics.") + end_path + "[0]",
-                     out_table_name);
+      raw_config.put("physics."s + end_path + "[0]", out_table_name);
       // Add it to the end_paths list.
-      size_t index =
-        raw_config.exists("physics.end_paths") ?
-        raw_config.get<sequence_t &>("physics.end_paths").size() :
-        0;
-      raw_config.put(std::string("physics.end_paths[") +
-                     std::to_string(index) + "]", end_path);
+      if ( raw_config.exists("physics.end_paths") ) {
+        size_t const index = raw_config.get<sequence_t &>("physics.end_paths").size();
+        raw_config.put("physics.end_paths["s + std::to_string(index) + "]", end_path);
+      }
     }
   }
 
