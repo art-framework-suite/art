@@ -84,10 +84,11 @@ processSourceListArg_(bpo::variables_map const & vm,
     while (flist) {
       std::string tmp;
       std::getline(flist, tmp);
-      if (tmp.find('#') != std::string::npos) {
-        // FIXME: do stuff.
-      }
-      if (!tmp.empty()) { source_list.push_back(tmp); }
+      auto const comment_start = tmp.find('#');
+      if (comment_start != std::string::npos)
+        tmp.erase(comment_start);
+      if (!tmp.empty())
+        source_list.push_back(tmp);
     }
   }
   return result;
