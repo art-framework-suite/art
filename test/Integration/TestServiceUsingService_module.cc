@@ -22,6 +22,7 @@ namespace arttest {
 class arttest::TestServiceUsingService : public art::EDAnalyzer {
 public:
   explicit TestServiceUsingService(fhicl::ParameterSet const &);
+  ~TestServiceUsingService();
 
   virtual void analyze(art::Event const &);
 
@@ -42,6 +43,13 @@ arttest::TestServiceUsingService::TestServiceUsingService(fhicl::ParameterSet co
 {
 }
 
+arttest::TestServiceUsingService::~TestServiceUsingService()
+{
+  // Test that art::ServiceHandle can be dereferenced in a module destructor
+  art::ServiceHandle<ServiceUsing>()->getCachedValue();
+}
+
+
 void arttest::TestServiceUsingService::analyze(art::Event const &)
 {
   // NOP.
@@ -50,9 +58,9 @@ void arttest::TestServiceUsingService::analyze(art::Event const &)
 void arttest::TestServiceUsingService::beginJob()
 {
   BOOST_CHECK_EQUAL(debug_level_,
-                      art::ServiceHandle<ServiceUsing>()->getCachedValue());
+                    art::ServiceHandle<ServiceUsing>()->getCachedValue());
   BOOST_CHECK_EQUAL(art::ServiceHandle<Reconfigurable>()->get_debug_level(),
-                      art::ServiceHandle<ServiceUsing>()->getCachedValue());
+                    art::ServiceHandle<ServiceUsing>()->getCachedValue());
 }
 
 void arttest::TestServiceUsingService::endJob()

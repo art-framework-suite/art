@@ -168,10 +168,10 @@ private:
   MasterProductRegistry preg_;
   ServiceToken serviceToken_;
   tbb::task_scheduler_init tbbManager_;
-  PathManager pathManager_; // Must outlive schedules.
-  ServiceDirector serviceDirector_;
   // destructorOperate_ should be populated in destructor only!
   std::unique_ptr<ServiceRegistry::Operate> destructorOperate_;
+  PathManager pathManager_; // Must outlive schedules.
+  ServiceDirector serviceDirector_;
   std::unique_ptr<InputSource> input_;
   std::unique_ptr<Schedule> schedule_;
   std::unique_ptr<EndPathExecutor> endPathExecutor_;
