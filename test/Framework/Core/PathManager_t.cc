@@ -126,6 +126,32 @@ BOOST_AUTO_TEST_CASE ( Construct )
      "---- UnimplementedFeature BEGIN\n"
      "  Multi-schedule operation is not possible with on-demand module execution.\n"
      "---- UnimplementedFeature END\n"); // On-demand with multi-schedule.
+  test_sets.emplace_back
+    ("process_name: pathMisspecification "
+     "physics: { "
+     "  producers : {} "
+     "  filters   : {} "
+     "  analyzers : {} "
+     "test : atom "
+     "check : { "
+     "  cannot : put "
+     "  random : table } }",
+     art::errors::Configuration,
+     "---- Configuration BEGIN\n"
+     "  \n"
+     "  You have specified the following unsupported parameters in the\n"
+     "  \"physics\" block of your configuration:\n"
+     "  \n"
+     "     \"physics.check\"   (table)\n"
+     "     \"physics.test\"   (atom)\n"
+     "  \n"
+     "  Supported parameters include the following tables:\n"
+     "     \"physics.producers\"\n"
+     "     \"physics.filters\"\n"
+     "     \"physics.analyzers\"\n"
+     "  and sequences.  Atomic configuration parameters are not allowed.\n"
+     "  \n"
+     "---- Configuration END\n"); // Incorrectly included parameter in "physics" block
   for (auto const & test : test_sets) {
     fhicl::ParameterSet ps;
     make_ParameterSet(std::get<0>(test), ps);
