@@ -26,6 +26,12 @@ cet_test(artapp_t USE_BOOST_UNIT
   fcl/opt-empty.fcl
 )
 
+cet_test(artapp_basicSourceOptions_t 
+  USE_BOOST_UNIT
+  LIBRARIES
+  art_Framework_Art
+  )
+
 ########################################################################
 # OptionsHandler tests.
 
@@ -279,42 +285,6 @@ config_test_pass(BasicSourceOptions_05_w)
 
 # Compare output from BasicSourceOptions_05_w against reference.
 config_ref_test(BasicSourceOptions_05)
-
-cet_test(BasicSourceOptions_06_01 HANDBUILT
-  TEST_EXEC art
-  TEST_ARGS
-  -c opt-empty.fcl
-  -S BasicSourceOptions-srclist-comments1.txt
-  DATAFILES fcl/opt-empty.fcl
-  BasicSourceOptions-srclist-comments1.txt
-  TEST_PROPERTIES
-  PASS_REGULAR_EXPRESSION
-  "Input file not found: f3\\.root\\."
-  )
-
-cet_test(BasicSourceOptions_06_02 HANDBUILT
-  TEST_EXEC art
-  TEST_ARGS
-  -c opt-empty.fcl
-  -S BasicSourceOptions-srclist-comments2.txt
-  DATAFILES fcl/opt-empty.fcl
-  BasicSourceOptions-srclist-comments2.txt
-  TEST_PROPERTIES
-  PASS_REGULAR_EXPRESSION
-  "Input file not found: f3\\."
-  )
-
-cet_test(BasicSourceOptions_06_03 HANDBUILT
-  TEST_EXEC art
-  TEST_ARGS
-  -c opt-empty.fcl
-  -S BasicSourceOptions-srclist-comments3.txt
-  DATAFILES fcl/opt-empty.fcl
-  BasicSourceOptions-srclist-comments3.txt
-  TEST_PROPERTIES
-  PASS_REGULAR_EXPRESSION
-  "Input file not found: f3\\.root\\."
-  )
 
 ####################################
 # BasicPostProcessor.
