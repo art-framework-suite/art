@@ -33,13 +33,13 @@
 #include "boost/thread/xtime.hpp"
 #include "cetlib/exception_collector.h"
 #include "cetlib/container_algorithms.h"
-#include "cpp0x/utility"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include <exception>
 #include <iomanip>
 #include <iostream>
 #include <string>
+#include <utility>
 #include <vector>
 
 using fhicl::ParameterSet;
@@ -134,9 +134,9 @@ art::EventProcessor::EventProcessor(ParameterSet const & pset)
   preg_(),
   serviceToken_(),
   tbbManager_(tbb::task_scheduler_init::deferred),
+  destructorOperate_(),
   pathManager_(pset, preg_, act_table_, actReg_),
   serviceDirector_(initServices_(pset, actReg_, serviceToken_)),
-  destructorOperate_(),
   input_(),
   schedule_(),
   endPathExecutor_(),
