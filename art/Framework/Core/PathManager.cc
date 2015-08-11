@@ -9,6 +9,7 @@
 
 using fhicl::ParameterSet;
 
+#include <algorithm>
 #include <iostream>
 #include <map>
 #include <set>
@@ -76,6 +77,43 @@ namespace {
     }
   }
 
+  void
+  check_misspecified_paths(fhicl::ParameterSet const & pset,
+                           std::vector<std::string> const & path_names)
+  {
+    using name_t  = std::string;
+    using fhicl_t = std::string;
+
+    std::map<name_t,fhicl_t> bad_names;
+    for ( auto const& name : path_names ){
+      if ( pset.is_key_to_sequence(name) ) continue;
+      std::string const type = pset.is_key_to_table(name) ? "table" : "atom";
+      bad_names.emplace(name,type);
+    }
+
+    if ( bad_names.empty() ) return;
+
+    std::string err_msg = "\n"
+      "You have specified the following unsupported parameters in the\n"
+      "\"physics\" block of your configuration:\n\n";
+
+    cet::for_all(bad_names,
+                 [&err_msg](auto const& name)
+                 {
+                   err_msg.append("   \"physics." +name.first+ "\"   ("+name.second+")\n");
+                 } );
+
+    err_msg
+      .append("\n")
+      .append("Supported parameters include the following tables:\n")
+      .append("   \"physics.producers\"\n")
+      .append("   \"physics.filters\"\n")
+      .append("   \"physics.analyzers\"\n")
+      .append("and sequences.  Atomic configuration parameters are not allowed.\n\n");
+
+    throw art::Exception(art::errors::Configuration) << err_msg;
+  }
+
 }
 
 art::PathManager::
@@ -124,28 +162,26 @@ art::PathsInfo &
 art::PathManager::
 triggerPathsInfo(ScheduleID sID)
 {
-  if (triggerPathNames_.empty()) {
+  if (triggerPathNames_.empty())
     return triggerPathsInfo_[sID]; // Empty.
-  } else {
-    auto it =
-      triggerPathsInfo_.find(sID);
-    if (it == triggerPathsInfo_.end()) {
-      it = triggerPathsInfo_.emplace(sID, PathsInfo()).first;
-      it->second.pathResults() = HLTGlobalStatus(triggerPathNames_.size());
-      int bitpos { 0 };
-      cet::for_all(protoTrigPathMap_,
-                   [this, sID, it, &bitpos](typename decltype(protoTrigPathMap_)::value_type const & val)
-                   {
-                     it->second.pathPtrs().emplace_back(fillWorkers_(bitpos,
-                                                                     val.first,
-                                                                     val.second,
-                                                                     Path::TrigResPtr(&it->second.pathResults()),
-                                                                     it->second.workers()));
-                     ++bitpos;
-                   });
-    }
-    return it->second;
+
+  auto it = triggerPathsInfo_.find(sID);
+  if (it == triggerPathsInfo_.end()) {
+    it = triggerPathsInfo_.emplace(sID, PathsInfo()).first;
+    it->second.pathResults() = HLTGlobalStatus(triggerPathNames_.size());
+    int bitpos { 0 };
+    cet::for_all(protoTrigPathMap_,
+                 [this, sID, it, &bitpos](auto const & val)
+                 {
+                   it->second.pathPtrs().emplace_back(this->fillWorkers_(bitpos,
+                                                                         val.first,
+                                                                         val.second,
+                                                                         Path::TrigResPtr(&it->second.pathResults()),
+                                                                         it->second.workers()));
+                   ++bitpos;
+                 });
   }
+  return it->second;
 }
 
 art::PathManager::Workers
@@ -176,10 +212,9 @@ fillAllModules_()
   detail::ModuleConfigInfoMap all_modules;
   std::ostringstream error_stream;
   for (auto const & pathRootName :
-       detail::ModuleConfigInfo::allModulePathRoots()) {
+         detail::ModuleConfigInfo::allModulePathRoots()) {
     auto const pathRoot = procPS_.get<ParameterSet>(pathRootName, empty);
-    auto const names = pathRoot.get_keys();
-    for (auto const & name : names) {
+    for (auto const & name : pathRoot.get_keys()) {
       try {
         detail::ModuleConfigInfo mci(procPS_, name, pathRootName);
         auto actualModType = fact_.moduleType(mci.libSpec());
@@ -195,9 +230,7 @@ fillAllModules_()
             << to_string(actualModType)
             << ".\n";
         }
-        auto result =
-          all_modules.insert(typename decltype(all_modules)::
-                             value_type(mci.label(), mci));
+        auto result = all_modules.emplace(mci.label(), mci);
         if (!result.second) {
           error_stream
             << "  ERROR: Module label "
@@ -263,7 +296,7 @@ processPathConfigs_()
   std::set<std::string> specified_modules;
   std::ostringstream error_stream;
 
-  // Chcek for missing specified paths.
+  // Check for missing specified paths.
   if (trigger_paths_config_) {
     check_missing_paths(*trigger_paths_config_,
                         path_names,
@@ -276,6 +309,9 @@ processPathConfigs_()
                         "end_paths",
                         error_stream);
   }
+
+  check_misspecified_paths(physics, path_names);
+
   // Process each path.
   size_t num_end_paths { 0 };
   for (auto const & path_name : path_names) {
