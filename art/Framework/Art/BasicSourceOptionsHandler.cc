@@ -1,4 +1,5 @@
 #include "art/Framework/Art/BasicSourceOptionsHandler.h"
+#include "art/Framework/Art/detail/fillSourceList.h"
 
 #include "art/Utilities/Exception.h"
 #include "cetlib/container_algorithms.h"
@@ -77,19 +78,11 @@ processSourceListArg_(bpo::variables_map const & vm,
     std::ifstream flist(vm["source-list"].as<std::string>().c_str());
     if (!flist) {
       throw Exception(errors::Configuration)
-          << "Specified source-list file \""
-          << vm["source-list"].as<std::string>()
-          << "\" cannot be read.\n";
+        << "Specified source-list file \""
+        << vm["source-list"].as<std::string>()
+        << "\" cannot be read.\n";
     }
-    while (flist) {
-      std::string tmp;
-      std::getline(flist, tmp);
-      auto const comment_start = tmp.find('#');
-      if (comment_start != std::string::npos)
-        tmp.erase(comment_start);
-      if (!tmp.empty())
-        source_list.push_back(tmp);
-    }
+    art::detail::fillSourceList(flist, source_list);
   }
   return result;
 }

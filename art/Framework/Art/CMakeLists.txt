@@ -1,4 +1,4 @@
-# Confgure file to handle differences for Mac.
+# Configure file to handle differences for Mac.
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/check_libs.cc.in
   ${CMAKE_CURRENT_BINARY_DIR}/check_libs.cc @ONLY
   )
@@ -25,6 +25,8 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/artapp.cc.in
   )
 ####################################
 
+add_subdirectory(detail)
+
 set(art_Framework_Art_sources
   BasicOptionsHandler.cc
   BasicPostProcessor.cc
@@ -38,6 +40,7 @@ set(art_Framework_Art_sources
   ${CMAKE_CURRENT_BINARY_DIR}/mu2eapp.cc
   find_config.cc
   run_art.cc
+  detail/fillSourceList.cc
   )
 
 art_make_library( LIBRARY_NAME art_Framework_Art
