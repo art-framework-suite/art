@@ -36,9 +36,7 @@
   <class name="art::ProcessHistory" ClassVersion="10">
     <version ClassVersion="10" checksum="2473205264"/>
   </class>
-  <class name="art::ProcessHistory::collection_type" ClassVersion="10">
-    <version ClassVersion="10" checksum="724046865"/>
-  </class>
+  <class name="art::ProcessHistory::collection_type"/>
   <class name="art::ProcessHistory::value_type" ClassVersion="10">
     <version ClassVersion="10" checksum="877610178"/>
   </class>
@@ -73,7 +71,8 @@
     <version ClassVersion="11" checksum="363573437"/>
     <version ClassVersion="10" checksum="2938245437"/>
   </class>
-  <class name="art::BranchDescription" ClassVersion="12">
+  <class name="art::BranchDescription" ClassVersion="13">
+   <version ClassVersion="13" checksum="2315032926"/>
     <version ClassVersion="12" checksum="544968977"/>
     <version ClassVersion="11" checksum="1740239918"/>
     <version ClassVersion="10" checksum="3580977508"/>
@@ -92,7 +91,8 @@
     <version ClassVersion="10" checksum="3473129795"/>
   </class>
   <class name="std::vector<art::BranchID>"/>
-  <class name="art::EventAuxiliary" ClassVersion="10">
+  <class name="art::EventAuxiliary" ClassVersion="11">
+   <version ClassVersion="11" checksum="731591074"/>
     <version ClassVersion="10" checksum="3057204332"/>
   </class>
    <class name="art::EventID" ClassVersion="12">

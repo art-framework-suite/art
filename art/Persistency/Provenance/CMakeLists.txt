@@ -24,21 +24,22 @@ set(art_Persistency_Provenance_sources
   ProductID.cc
   ProductMetaData.cc
   ProductProvenance.cc
-  ReflexTools.cc
   RunAuxiliary.cc
   RunID.cc
   SubRunAuxiliary.cc
   SubRunID.cc
   TransientStreamer.cc
+  TypeTools.cc
+  TypeWithDict.cc
  )
 
 
 set( art_Persistency_Provenance_libraries
   art_Persistency_RootDB
   art_Utilities
-  ${Boost_THREAD_LIBRARY}
-  ${ROOT_CINTEX}
   MF_MessageLogger
+  ${ROOT_CORE}
+  ${Boost_THREAD_LIBRARY}
   )
 
 art_make_library( LIBRARY_NAME art_Persistency_Provenance
@@ -46,7 +47,7 @@ art_make_library( LIBRARY_NAME art_Persistency_Provenance
                   LIBRARIES ${art_Persistency_Provenance_libraries}
 		 )
 
-art_dictionary(DICTIONARY_LIBRARIES art_Persistency_Provenance)
+art_dictionary(DICTIONARY_LIBRARIES art_Persistency_Provenance REQUIRED_DICTIONARIES art_Persistency_FhiclCppDictionaries_dict)
 
-install_headers()
-install_source()
+install_headers(SUBDIRS detail)
+install_source(SUBDIRS detail)

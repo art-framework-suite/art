@@ -30,7 +30,7 @@ namespace art {
 
 }  // art
 
-#endif // art_Framework_Services_Optional_SimpleMemoryCheckDarwin_h
+#endif /* art_Framework_Services_Optional_SimpleMemoryCheckDarwin_h */
 
 // Local variables:
 // mode: c++

@@ -208,4 +208,4 @@ isSameEvent(EventPrincipal const& a, EventPrincipal const& b)
 // Local Variables:
 // mode: c++
 // End:
-#endif // art_Framework_Principal_EventPrincipal_h
+#endif /* art_Framework_Principal_EventPrincipal_h */

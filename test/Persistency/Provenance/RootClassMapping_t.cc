@@ -10,7 +10,6 @@ using boost::test_tools::output_test_stream;
 #include <memory>
 #include <string>
 
-#include "Cintex/Cintex.h"
 #include "TClass.h"
 #include "TBranch.h"
 #include "TFile.h"
@@ -26,7 +25,6 @@ adoptStreamerWithOS(std::ostream & os = std::cerr)
 
 struct Initializer {
   Initializer() {
-    ROOT::Cintex::Cintex::Enable();
     TClass::GetClass(typeid(TestProd<size_t, std::string>))->SetCanSplit(0);
     TClass::GetClass(typeid(TestProd<std::string, size_t>))->SetCanSplit(0);
     adoptStreamerWithOS<std::string, size_t>();

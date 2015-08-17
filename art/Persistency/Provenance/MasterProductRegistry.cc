@@ -1,71 +1,73 @@
 #include "art/Persistency/Provenance/MasterProductRegistry.h"
 // vim: set sw=2:
 
-#include "Reflex/Type.h"
 #include "art/Persistency/Provenance/BranchKey.h"
-#include "art/Persistency/Provenance/ReflexTools.h"
+#include "art/Persistency/Provenance/TypeTools.h"
+#include "art/Persistency/Provenance/TypeWithDict.h"
 #include "art/Utilities/TypeID.h"
 #include "art/Utilities/WrappedClassName.h"
 #include "cetlib/exception.h"
+
 #include <cassert>
 #include <ostream>
 #include <sstream>
 
-namespace art {
+namespace {
 
-static
-void
-checkDicts(art::BranchDescription const& productDesc)
-{
-  if (productDesc.transient()) {
-    art::checkDictionaries(productDesc.wrappedName(), true);
-    art::checkDictionaries(productDesc.producedClassName(), true);
-  }
-  else {
-    art::checkDictionaries(productDesc.wrappedName(), false);
-  }
-  reportFailedDictionaryChecks();
-}
-
-static
-void
-recreateLookups(ProductList const& prods,
-                MasterProductRegistry::BranchTypeLookup& pl,
-                MasterProductRegistry::BranchTypeLookup& el)
-{
-  for (auto const& val: prods) {
-    auto const& procName = val.first.processName_;
-    auto const& bid = val.second.branchID();
-    auto const& prodFCN = val.first.friendlyClassName_;
-    auto const bt = val.first.branchType_;
-    pl[bt][prodFCN][procName].push_back(bid);
-    // Look in the class of the product for a typedef named "value_type",
-    // if there is one allow lookups by that type name too (and by all
-    // of its base class names as well).
-    Reflex::Type TY(Reflex::Type::ByName(val.second.producedClassName()));
-    if (!TY) {
-      // We do not have a dictionary for the class of the product.
-      continue;
+  void
+  checkDicts(art::BranchDescription const& productDesc)
+  {
+    if (productDesc.transient()) {
+      art::checkDictionaries(productDesc.wrappedName(), false);
+      art::checkDictionaries(productDesc.producedClassName(), false);
     }
-    Reflex::Type ET;
-    if ((mapped_type_of(TY, ET) || value_type_of(TY, ET)) && ET) {
-      // The class of the product has a nested type, "mapped_type," or,
-      // "value_type," so allow lookups by that type and all of its base
-      // types too.
-      auto vtFCN = TypeID(ET.TypeInfo()).friendlyClassName();
-      el[bt][vtFCN][procName].push_back(bid);
-      // Repeat this for all public base classes of the value_type.
-      std::vector<Reflex::Type> bases;
-      public_base_classes(ET, bases);
-      for (auto const& BT: bases) {
-        auto btFCN = TypeID(BT.TypeInfo()).friendlyClassName();
-        el[bt][btFCN][procName].push_back(bid);
+    else {
+      art::checkDictionaries(productDesc.wrappedName(), true);
+    }
+    art::reportFailedDictionaryChecks();
+  }
+
+  void
+  recreateLookups(art::ProductList const& prods,
+                  art::MasterProductRegistry::BranchTypeLookup& pl,
+                  art::MasterProductRegistry::BranchTypeLookup& el)
+  {
+    for (auto const& val: prods) {
+      auto const& procName = val.first.processName_;
+      auto const& bid = val.second.branchID();
+      auto const& prodFCN = val.first.friendlyClassName_;
+      auto const bt = val.first.branchType_;
+      pl[bt][prodFCN][procName].push_back(bid);
+      // Look in the class of the product for a typedef named "value_type",
+      // if there is one allow lookups by that type name too (and by all
+      // of its base class names as well).
+      art::TypeWithDict const TY(val.second.producedClassName());
+      if (TY.category() != art::TypeWithDict::Category::CLASSTYPE) {
+        continue;
+      }
+      TClass * TYc = TY.tClass();
+      art::TypeWithDict ET;
+      if ((art::mapped_type_of(TYc, ET) || art::value_type_of(TYc, ET)) && ET) {
+        // The class of the product has a nested type, "mapped_type," or,
+        // "value_type," so allow lookups by that type and all of its base
+        // types too.
+        auto vtFCN = ET.friendlyClassName();
+        el[bt][vtFCN][procName].push_back(bid);
+        if (ET.category() == art::TypeWithDict::Category::CLASSTYPE) {
+          // Repeat this for all public base classes of the value_type.
+          std::vector<TClass *> bases;
+          art::public_base_classes(ET.tClass(), bases);
+          for (auto BT: bases) {
+            auto btFCN = art::TypeID(BT->GetTypeInfo()).friendlyClassName();
+            el[bt][btFCN][procName].push_back(bid);
+          }
+        }
       }
     }
   }
 }
 
-MasterProductRegistry::
+art::MasterProductRegistry::
 MasterProductRegistry()
   : productList_()
   , frozen_(false)
@@ -79,23 +81,23 @@ MasterProductRegistry()
 }
 
 void
-MasterProductRegistry::
+art::MasterProductRegistry::
 addProduct(std::unique_ptr<BranchDescription>&& bdp)
 {
   assert(bdp->produced());
   if (frozen_) {
     throw cet::exception("ProductRegistry", "addProduct")
-        << "Cannot modify the MasterProductRegistry because it is frozen.\n";
+      << "Cannot modify the MasterProductRegistry because it is frozen.\n";
   }
   checkDicts(*bdp);
   auto I = productList_.emplace(BranchKey(*bdp), BranchDescription());
   if (!I.second) {
     throw Exception(errors::Configuration)
-        << "The process name "
-        << bdp->processName()
-        << " was previously used on these products.\n"
-        << "Please modify the configuration file to use a "
-        << "distinct process name.\n";
+      << "The process name "
+      << bdp->processName()
+      << " was previously used on these products.\n"
+      << "Please modify the configuration file to use a "
+      << "distinct process name.\n";
   }
   auto & productListEntry = *I.first;
   auto & bd = productListEntry.second;
@@ -106,7 +108,7 @@ addProduct(std::unique_ptr<BranchDescription>&& bdp)
 }
 
 void
-MasterProductRegistry::
+art::MasterProductRegistry::
 initFromFirstPrimaryFile(ProductList const& pl,
                          PerBranchTypePresence const& presList,
                          FileBlock const& fb)
@@ -128,7 +130,7 @@ initFromFirstPrimaryFile(ProductList const& pl,
     assert(!bd.produced());
     if (frozen_) {
       throw cet::exception("ProductRegistry", "initFromFirstPrimaryFile")
-          << "Cannot modify the MasterProductRegistry because it is frozen.\n";
+        << "Cannot modify the MasterProductRegistry because it is frozen.\n";
     }
     checkDicts(bd);
     auto bk = BranchKey(bd);
@@ -155,7 +157,7 @@ initFromFirstPrimaryFile(ProductList const& pl,
 }
 
 void
-MasterProductRegistry::
+art::MasterProductRegistry::
 updateFromSecondaryFile(ProductList const& pl,
                         PerBranchTypePresence const& presList,
                         FileBlock const& fb)
@@ -210,11 +212,12 @@ updateFromSecondaryFile(ProductList const& pl,
 }
 
 std::string
-MasterProductRegistry::
+art::MasterProductRegistry::
 updateFromNewPrimaryFile(ProductList const& other,
                          PerBranchTypePresence const& presList,
                          std::string const& fileName,
-                         BranchDescription::MatchMode m, FileBlock const& fb)
+                         BranchDescription::MatchMode m,
+                         FileBlock const& fb)
 {
   perFileProds_.resize(1);
 
@@ -325,7 +328,7 @@ presentWithFileIdx(BranchType const branchType, BranchID const bid) const
 }
 
 void
-MasterProductRegistry::
+art::MasterProductRegistry::
 setFrozen()
 {
   if (frozen_) {
@@ -341,7 +344,7 @@ setFrozen()
 }
 
 void
-MasterProductRegistry::
+art::MasterProductRegistry::
 print(std::ostream& os) const
 {
   // TODO: Shouldn't we print the BranchKey too?
@@ -351,11 +354,8 @@ print(std::ostream& os) const
 }
 
 std::ostream&
-operator<<(std::ostream& os, MasterProductRegistry const& mpr)
+art::operator<<(std::ostream& os, MasterProductRegistry const& mpr)
 {
   mpr.print(os);
   return os;
 }
-
-} // namespace art
-

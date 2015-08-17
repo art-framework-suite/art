@@ -2,7 +2,6 @@
 
 #include "art/Framework/Core/GroupSelector.h"
 #include "art/Framework/Core/GroupSelectorRules.h"
-#include "art/Framework/Core/RootDictionaryManager.h"
 #include "art/Persistency/Common/Ptr.h"
 #include "art/Persistency/Provenance/BranchDescription.h"
 #include "art/Persistency/Provenance/BranchKey.h"
@@ -346,7 +345,6 @@ int work()
 
 int main()
 {
-  art::RootDictionaryManager rdm;
   int rc = 0;
   try
     {

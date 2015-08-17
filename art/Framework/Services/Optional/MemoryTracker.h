@@ -7,4 +7,4 @@
 #  include "art/Framework/Services/Optional/MemoryTrackerDarwin.h"
 #endif
 
-#endif // art_Framework_Services_Optional_MemoryTracker_h
+#endif /* art_Framework_Services_Optional_MemoryTracker_h */

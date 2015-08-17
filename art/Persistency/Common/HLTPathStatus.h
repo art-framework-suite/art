@@ -42,7 +42,7 @@ namespace art
     // constructor
     HLTPathStatus(const hlt::HLTState state = hlt::Ready, const unsigned int index = 0)
     : status_(index*4+state) {
-      assert (state<4);
+      assert (state<hlt::UNKNOWN);
       assert (index<16384);
     }
 

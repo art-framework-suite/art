@@ -699,7 +699,7 @@ fillBranches(BranchType const& bt, Principal const& principal,
         // No such product in the event, so use a dummy product.
         // FIXME: Can we cache these dummy products so that we do not
         // FIXME: create them for every event?
-        auto name = bd->wrappedCintName().c_str();
+        auto name = bd->wrappedName().c_str();
         TClass* cp = TClass::GetClass(name);
         if (cp == nullptr) {
           throw art::Exception(art::errors::DictionaryNotFound)

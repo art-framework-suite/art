@@ -213,4 +213,4 @@ operator<<(std::ostream& os, Group const& g)
 // Local Variables:
 // mode: c++
 // End:
-#endif // art_Framework_Principal_Group_h
+#endif /* art_Framework_Principal_Group_h */

@@ -4,7 +4,6 @@
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Persistency/Provenance/ProductMetaData.h"
-#include "art/Framework/Core/RootDictionaryManager.h"
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/Selector.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
@@ -74,15 +73,13 @@ public:
   using iterator_t = modCache_t::iterator;
 
   modCache_t moduleDescriptions_;
-  art::RootDictionaryManager rdm_;
 };
 
 MPRGlobalTestFixture::MPRGlobalTestFixture()
   :
   availableProducts_(new MasterProductRegistry()),
   currentModuleDescription_(new ModuleDescription),
-  moduleDescriptions_(),
-  rdm_()
+  moduleDescriptions_()
 {
   using prod_t = arttest::IntProduct;
 

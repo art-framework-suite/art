@@ -7,24 +7,17 @@
 #include "fhiclcpp/ParameterSetID.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
-#include "Cintex/Cintex.h"
 #include "Compression.h"
+#include "TDictAttributeMap.h"
+
 #include "TBuffer.h"
+#include "TClass.h"
 #include "TClassStreamer.h" // Temporary
 
 #include <cassert>
 #include <cstdlib>
 #include <ostream>
 #include <sstream>
-
-// FIXME: This should go away as soon as ROOT makes this function
-// public. In the meantime, we have to verify that this signature does
-// not change in new versions of ROOT.
-namespace ROOT {
-  namespace Cintex {
-    std::string CintName(const std::string&);
-  }
-}
 
 using fhicl::ParameterSetID;
 
@@ -115,10 +108,9 @@ void art::BranchDescription::fluffTransients_() const {
   // name, as this gives instruction to ROOT to split this branch in the
   // modern (v4+) way vs the old way (v3-).
 
-  Reflex::Type t = Reflex::Type::ByName(producedClassName());
-  Reflex::PropertyList p = t.Properties();
-  if (p.HasProperty("persistent") &&
-      p.PropertyAsString("persistent") == std::string("false")) {
+  TDictAttributeMap & pp = *TClass::GetClass(producedClassName().c_str())->GetAttributeMap();
+  if (pp.HasKey("persistent") &&
+      pp.GetPropertyAsString("persistent") == std::string("false")) {
     mf::LogWarning("TransientBranch")
       << "BranchDescription::fluffTransients() called for the non-persistable\n"
       << "entity: "
@@ -129,13 +121,10 @@ void art::BranchDescription::fluffTransients_() const {
   }
 
   transients_.get().wrappedName_ = wrappedClassName(producedClassName());
-  transients_.get().wrappedCintName_ =
-    wrappedClassName(ROOT::Cintex::CintName(producedClassName()));
-  Reflex::Type rt(Reflex::Type::ByName(transients_.get().wrappedName_));
-  Reflex::PropertyList wp = rt.Properties();
-  if (wp.HasProperty("splitLevel")) {
+  TDictAttributeMap & wp = *TClass::GetClass(transients_.get().wrappedName_.c_str())->GetAttributeMap();
+  if (wp.HasKey("splitLevel")) {
     transients_.get().splitLevel_ =
-      strtol(wp.PropertyAsString("splitLevel").c_str(), 0, 0);
+      strtol(wp.GetPropertyAsString("splitLevel"), 0, 0);
     if (transients_.get().splitLevel_ < 0) {
       throw Exception(errors::Configuration, "IllegalSplitLevel")
         << "' An illegal ROOT split level of "
@@ -148,9 +137,9 @@ void art::BranchDescription::fluffTransients_() const {
   } else {
     transients_.get().splitLevel_ = invalidSplitLevel;
   }
-  if (wp.HasProperty("basketSize")) {
+  if (wp.HasKey("basketSize")) {
     transients_.get().basketSize_ =
-      strtol(wp.PropertyAsString("basketSize").c_str(), 0, 0);
+      strtol(wp.GetPropertyAsString("basketSize"), 0, 0);
     if (transients_.get().basketSize_ <= 0) {
       throw Exception(errors::Configuration, "IllegalBasketSize")
         << "' An illegal ROOT basket size of "
@@ -162,9 +151,9 @@ void art::BranchDescription::fluffTransients_() const {
   } else {
     transients_.get().basketSize_ = invalidBasketSize;
   }
-  if (wp.HasProperty("compression")) {
+  if (wp.HasKey("compression")) {
     // FIXME: We need to check for a parsing error from the strtol() here!
-    int compression = strtol(wp.PropertyAsString("compression").c_str(), 0, 0);
+    int compression = strtol(wp.GetPropertyAsString("compression"), 0, 0);
     if (compression < 0) {
       throw Exception(errors::Configuration, "IllegalCompression")
         << "' An illegal ROOT compression of "

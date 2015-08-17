@@ -158,4 +158,4 @@ reconstitutes(std::string const& emulatedModule,
 // Local Variables:
 // mode: c++
 // End:
-#endif // art_Framework_Core_ProductRegistryHelper_h
+#endif /* art_Framework_Core_ProductRegistryHelper_h */

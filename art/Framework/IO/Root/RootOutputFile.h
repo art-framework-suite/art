@@ -215,4 +215,4 @@ private: // MEMBER DATA
 // Local Variables:
 // mode: c++
 // End:
-#endif // art_Framework_IO_Root_RootOutputFile_h
+#endif /* art_Framework_IO_Root_RootOutputFile_h */

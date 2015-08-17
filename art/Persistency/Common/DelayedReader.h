@@ -77,4 +77,4 @@ private:
 // Local Variables:
 // mode: c++
 // End:
-#endif // art_Persistency_Common_DelayedReader_h
+#endif /* art_Persistency_Common_DelayedReader_h */

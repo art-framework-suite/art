@@ -21,6 +21,9 @@
 # DICTIONARY_LIBRARIES
 #   Passed through to build_dictionary with additions.
 #
+# REQUIRED_DICTIONARIES
+#   Passed through to check_class_version.
+#
 # NO_CHECK_CLASS_VERSION
 #   Do not invoked the checkClassVersion script for this dictionary.
 #
@@ -43,7 +46,7 @@ function(art_dictionary)
   cmake_parse_arguments(AD
     "UPDATE_IN_PLACE;DICT_FUNCTIONS;USE_PRODUCT_NAME;NO_CHECK_CLASS_VERSION;NO_DEFAULT_LIBRARIES"
     "DICT_NAME_VAR"
-    "DICTIONARY_LIBRARIES;COMPILE_FLAGS"
+    "DICTIONARY_LIBRARIES;COMPILE_FLAGS;REQUIRED_DICTIONARIES"
     ${ARGN}
     )
   if (NOT AD_NO_DEFAULT_LIBRARIES)
@@ -95,6 +98,9 @@ function(art_dictionary)
   endif()
   #message(STATUS "Calling check_class_version with args ${AD_ARGS}")
   if (NOT AD_NO_CHECK_CLASS_VERSION)
+    if (AD_REQUIRED_DICTIONARIES)
+      set(AD_CCV_ARGS ${AD_CCV_ARGS} REQUIRED_DICTIONARIES ${AD_REQUIRED_DICTIONARIES})
+    endif()
     check_class_version(${AD_LIBRARIES} UPDATE_IN_PLACE ${AD_CCV_ARGS})
   endif()
 endfunction()

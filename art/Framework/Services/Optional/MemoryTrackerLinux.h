@@ -119,7 +119,7 @@ namespace art {
 
 }  // art
 
-#endif // art_Framework_Services_Optional_MemoryTracker_h
+#endif /* art_Framework_Services_Optional_MemoryTrackerLinux_h */
 
 // Local variables:
 // mode: c++

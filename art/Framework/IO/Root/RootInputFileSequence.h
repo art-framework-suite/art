@@ -243,4 +243,4 @@ private: // MEMBER DATA
 // Local Variables:
 // mode: c++
 // End:
-#endif // art_Framework_IO_Root_RootInputFileSequence_h
+#endif /* art_Framework_IO_Root_RootInputFileSequence_h */

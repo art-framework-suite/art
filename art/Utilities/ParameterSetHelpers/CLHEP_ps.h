@@ -38,4 +38,4 @@ namespace CLHEP {
 // mode: c++
 // End:
 
-#endif // art_Utilities_ParameterSetHelpers_CLHEP_ps_h
+#endif /* art_Utilities_ParameterSetHelpers_CLHEP_ps_h */

@@ -7,6 +7,7 @@
 //
 // ======================================================================
 
+#include <regex>
 #include <string>
 #include <vector>
 
@@ -73,10 +74,10 @@ private:
     // selectflag_ carries the value to which we should set the 'select
     // bit' if this rule matches.
     bool        selectflag_;
-    std::string productType_;
-    std::string moduleLabel_;
-    std::string instanceName_;
-    std::string processName_;
+    std::regex productType_;
+    std::regex moduleLabel_;
+    std::regex instanceName_;
+    std::regex processName_;
   };  // Rule
 
 private:

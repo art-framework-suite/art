@@ -395,4 +395,4 @@ private:
 // Local Variables:
 // mode: c++
 // End:
-#endif // art_Framework_IO_Root_RootInputFile_h
+#endif /* art_Framework_IO_Root_RootInputFile_h */

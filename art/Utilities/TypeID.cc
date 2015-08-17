@@ -4,7 +4,7 @@
 #include "art/Utilities/Exception.h"
 #include "art/Utilities/FriendlyName.h"
 #include "art/Utilities/TypeID.h"
-#include "cetlib/demangle.h"
+#include "art/Utilities/uniform_type_name.h"
 
 #include "tbb/concurrent_unordered_map.h"
 
@@ -23,7 +23,7 @@ art::TypeID::className() const {
   auto hash_code = typeInfo().hash_code();
   auto entry = s_nameMap.find(hash_code);
   if(s_nameMap.end() == entry) {
-    entry = s_nameMap.emplace(hash_code, cet::demangle_symbol(typeInfo().name())).first;
+    entry = s_nameMap.emplace(hash_code, uniform_type_name(typeInfo())).first;
   }
   return entry->second;
 }

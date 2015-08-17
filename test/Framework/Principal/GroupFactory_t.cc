@@ -7,9 +7,6 @@
 #include <typeinfo>
 #include <vector>
 
-#include "Reflex/Type.h"
-
-#include "art/Framework/Core/RootDictionaryManager.h"
 #include "art/Framework/Principal/AssnsGroup.h"
 #include "art/Framework/Principal/Group.h"
 #include "art/Framework/Principal/GroupFactory.h"
@@ -28,7 +25,7 @@
 namespace {
   void checkTypeAndWrapper(art::TypeID const &producedType) {
     BOOST_REQUIRE(producedType.hasDictionary());
-    BOOST_REQUIRE(Reflex::Type::ByName(art::wrappedClassName(producedType.className())));
+//    BOOST_REQUIRE(Reflex::Type::ByName(art::wrappedClassName(producedType.className())));
   }
   art::BranchDescription
   makeBranchDescription(art::BranchType bt,
@@ -53,7 +50,7 @@ namespace {
 
 struct TestFixture {
   TestFixture() {
-    static art::RootDictionaryManager rdm_s;
+//    static art::RootDictionaryManager rdm_s;
   }
 };
 

@@ -1,3 +1,7 @@
+set(CMAKE_MODULE_PATH
+  ${CMAKE_MODULE_PATH}
+  ${CMAKE_CURRENT_SOURCE_DIR}
+  )
 
 art_dictionary(NO_INSTALL)
 
@@ -47,3 +51,31 @@ cet_test(RootClassMapping_t USE_BOOST_UNIT
   # (and associated ioread rules) should be fixed accordingly.
   TEST_PROPERTIES WILL_FAIL true
 )
+
+cet_test(TypeTools_t USE_BOOST_UNIT
+  LIBRARIES
+  art_Persistency_Provenance
+  art_Utilities
+  ${Boost_FILESYSTEM_LIBRARY}
+  ${Boost_PROGRAM_OPTIONS_LIBRARY}
+  ${ROOT_TREE}
+  ${ROOT_HIST}
+  ${ROOT_MATRIX}
+  ${ROOT_NET}
+  ${ROOT_MATHCORE}
+  ${ROOT_THREAD}
+  ${ROOT_RIO}
+  ${ROOT_CORE}
+  ${ROOT_CINT}
+  ${ROOT_REFLEX}
+  ${CPPUNIT}
+  -ldl
+  )
+
+cet_test(TypeWithDict_t USE_BOOST_UNIT
+  LIBRARIES
+  art_Persistency_Provenance
+  art_Utilities
+  ${ROOT_CORE}
+  )
+

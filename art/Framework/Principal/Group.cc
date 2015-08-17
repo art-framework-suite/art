@@ -7,13 +7,10 @@
 #include "art/Persistency/Provenance/BranchKey.h"
 #include "art/Persistency/Provenance/ProductMetaData.h"
 #include "art/Persistency/Provenance/ProductStatus.h"
-#include "art/Persistency/Provenance/ReflexTools.h"
+#include "art/Persistency/Provenance/TypeTools.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include <string>
-
-using Reflex::Type;
-using Reflex::TypeTemplate;
 
 namespace art {
 

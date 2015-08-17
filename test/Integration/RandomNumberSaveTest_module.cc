@@ -50,8 +50,8 @@ private:
   bool genUnsaved_;
 };
 
-ostream & operator << (ostream & os,
-                       arttest::RandomNumberSaveTest::prod_t const & v) {
+std::ostream & operator << (std::ostream & os,
+                            arttest::RandomNumberSaveTest::prod_t const & v) {
   cet::copy_all(v,
                 std::ostream_iterator<arttest::RandomNumberSaveTest::prod_t::value_type>
                 (os, ", "));

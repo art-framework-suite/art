@@ -27,12 +27,10 @@ namespace {
   // matching of strings, and knows about wildcarding rules.
   inline
   bool
-  partial_match(const string& regularExpression,
-                const string& branchstring)
+  partial_match(std::regex const & regularExpression,
+                string const & branchstring)
   {
-    return regularExpression.empty()
-      ? branchstring == ""
-      : std::regex_match(branchstring, std::regex(regularExpression) );
+    return std::regex_match(branchstring, regularExpression);
   }
 
 }  // namespace
@@ -179,10 +177,10 @@ GroupSelectorRules::Rule::Rule(string const& s,
     // If the string is empty we skip the assignment and leave
     // the regular expression also empty.
 
-    if (parts[0] != "") productType_  = parts[0];
-    if (parts[1] != "") moduleLabel_  = parts[1];
-    if (parts[2] != "") instanceName_ = parts[2];
-    if (parts[3] != "") processName_  = parts[3];
+    if (!parts[0].empty()) productType_  = parts[0];
+    if (!parts[1].empty()) moduleLabel_  = parts[1];
+    if (!parts[2].empty()) instanceName_ = parts[2];
+    if (!parts[3].empty()) processName_  = parts[3];
   }
 }
 

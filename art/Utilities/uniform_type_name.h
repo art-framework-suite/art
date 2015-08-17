@@ -1,5 +1,5 @@
-#ifndef CETLIB_UNIFORM_TYPE_NAME_H
-#define CETLIB_UNIFORM_TYPE_NAME_H
+#ifndef art_Utilities_uniform_type_name_h
+#define art_Utilities_uniform_type_name_h
 
 #include "cetlib/demangle.h"
 
@@ -19,6 +19,9 @@ namespace art {
   ///
   /// This has been verified to produce good output with GCC 4.9.2.
   ///
+  /// Adapted from CMSSW's TypeDemangler (authors Bill Tannenbaum and
+  /// Paul Russo).
+  ///
   /// \returns the uniform type name.
   ///
   /// \param[in] tid A reference to the std::type_info for the type in
@@ -36,7 +39,7 @@ art::uniform_type_name(std::type_info const & tid)
   return uniform_type_name(cet::demangle_symbol(tid.name()));
 }
 
-#endif /* CETLIB_UNIFORM_TYPE_NAME_H */
+#endif /* art_Utilities_uniform_type_name_h */
 
 // Local variables:
 // mode:c++

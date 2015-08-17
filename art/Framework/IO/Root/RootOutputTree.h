@@ -169,4 +169,4 @@ private: // MEMBER DATA
 // Local Variables:
 // mode: c++
 // End:
-#endif // art_Framework_IO_Root_RootOutputTree_h
+#endif /* art_Framework_IO_Root_RootOutputTree_h */

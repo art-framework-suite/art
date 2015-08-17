@@ -8,7 +8,6 @@
 
 #include "boost/program_options.hpp"
 
-#include "art/Framework/Core/RootDictionaryManager.h"
 #include "art/Framework/IO/Root/GetFileFormatEra.h"
 #include "art/Framework/IO/Root/rootNames.h"
 #include "art/Persistency/Provenance/FileFormatVersion.h"
@@ -363,10 +362,6 @@ int main(int argc, char * argv[])
   file_names.reserve(file_count);
   cet::copy_all(vm["source"].as<stringvec>(),
                 std::back_inserter(file_names));
-
-  // Prepare for dealing with Root. We use the RootDictionaryManager to
-  // load all necessary dictionaries.
-  art::RootDictionaryManager dictionary_loader;
 
   // Register the tkey VFS with sqlite:
   tkeyvfs_init();
