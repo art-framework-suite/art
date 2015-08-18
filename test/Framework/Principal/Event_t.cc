@@ -84,7 +84,7 @@ MPRGlobalTestFixture::MPRGlobalTestFixture()
   moduleDescriptions_(),
   rdm_()
 {
-  typedef arttest::IntProduct prod_t;
+  using prod_t = arttest::IntProduct;
 
   registerProduct<prod_t>("nolabel_tag",   "modOne",   "IntProducer",   "EARLY");
   registerProduct<prod_t>("int1_tag",      "modMulti", "IntProducer",   "EARLY", "int1");
@@ -324,6 +324,13 @@ BOOST_AUTO_TEST_CASE(getBySelectorFromEmpty)
                       cet::exception);
 }
 
+BOOST_AUTO_TEST_CASE(dereferenceDfltHandle)
+{
+  Handle<int> nonesuch;
+  BOOST_REQUIRE_THROW(*nonesuch, cet::exception);
+  BOOST_REQUIRE_THROW( nonesuch.product(), cet::exception);
+}
+
 BOOST_AUTO_TEST_CASE(putAnIntProduct)
 {
   std::unique_ptr<arttest::IntProduct> three(new arttest::IntProduct(3));
@@ -344,6 +351,8 @@ BOOST_AUTO_TEST_CASE(putAndGetAnIntProduct)
   Handle<arttest::IntProduct> h;
   currentEvent_->get(should_match, h);
   BOOST_REQUIRE(h.isValid());
+  h.clear();
+  BOOST_REQUIRE_THROW(*h, cet::exception);
   BOOST_REQUIRE(!currentEvent_->get(should_not_match, h));
   BOOST_REQUIRE(!h.isValid());
   BOOST_REQUIRE_THROW(*h, cet::exception);
@@ -395,10 +404,7 @@ BOOST_AUTO_TEST_CASE(transaction)
   // commit, there is no product in the EventPrincipal afterwards.
   BOOST_REQUIRE_EQUAL(principal_->size(), 0u);
   {
-    typedef arttest::IntProduct product_t;
-    typedef std::unique_ptr<product_t> ap_t;
-
-    ap_t three(new product_t(3));
+    auto three = std::make_unique<arttest::IntProduct>(3);
     currentEvent_->put(std::move(three), "int1");
     BOOST_REQUIRE_EQUAL(principal_->size(), 0u);
     BOOST_REQUIRE_EQUAL(currentEvent_->size(), 1u);
@@ -412,15 +418,14 @@ BOOST_AUTO_TEST_CASE(transaction)
 
 BOOST_AUTO_TEST_CASE(getByInstanceName)
 {
-  typedef arttest::IntProduct product_t;
-  typedef std::unique_ptr<product_t> ap_t;
-  typedef Handle<product_t> handle_t;
-  typedef std::vector<handle_t> handle_vec;
+  using product_t  = arttest::IntProduct;
+  using handle_t   = Handle<product_t>;
+  using handle_vec = std::vector<handle_t>;
 
-  ap_t one(new product_t(1));
-  ap_t two(new product_t(2));
-  ap_t three(new product_t(3));
-  ap_t four(new product_t(4));
+  auto one   = std::make_unique<product_t>(1);
+  auto two   = std::make_unique<product_t>(2);
+  auto three = std::make_unique<product_t>(3);
+  auto four  = std::make_unique<product_t>(4);
   addProduct(std::move(one),   "int1_tag", "int1");
   addProduct(std::move(two),   "int2_tag", "int2");
   addProduct(std::move(three), "int3_tag");
