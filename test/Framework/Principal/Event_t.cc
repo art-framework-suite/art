@@ -70,8 +70,8 @@ public:
 
   std::unique_ptr<MasterProductRegistry> availableProducts_;
   std::unique_ptr<ModuleDescription> currentModuleDescription_;
-  typedef std::map<std::string, ModuleDescription> modCache_t;
-  typedef modCache_t::iterator iterator_t;
+  using modCache_t = std::map<std::string, ModuleDescription>;
+  using iterator_t = modCache_t::iterator;
 
   modCache_t moduleDescriptions_;
   art::RootDictionaryManager rdm_;
@@ -113,19 +113,18 @@ MPRGlobalTestFixture::MPRGlobalTestFixture()
 
   TypeID product_type(typeid(prod_t));
 
-  currentModuleDescription_.reset(new ModuleDescription(moduleParams.id(),
-                                                        moduleClassName,
-                                                        moduleLabel,
-                                                        process));
+  currentModuleDescription_ = std::make_unique<ModuleDescription>(moduleParams.id(),
+                                                                  moduleClassName,
+                                                                  moduleLabel,
+                                                                  process);
 
   std::string productInstanceName("int1");
 
-  availableProducts_->addProduct(std::unique_ptr<BranchDescription>
-                                 (new BranchDescription(art::TypeLabel(InEvent,
-                                                                       product_type,
-                                                                       productInstanceName),
-                                                        *currentModuleDescription_)
-                                 ));
+  availableProducts_->addProduct(std::make_unique<BranchDescription>
+                                 (art::TypeLabel(InEvent,
+                                                 product_type,
+                                                 productInstanceName),
+                                  *currentModuleDescription_));
 
   // Freeze the product registry before we make the Event.
   availableProducts_->setFrozen();
@@ -164,12 +163,11 @@ registerProduct(std::string const& tag,
   TypeID product_type(typeid(T));
 
   moduleDescriptions_[tag] = localModuleDescription;
-  availableProducts_->addProduct(std::unique_ptr<BranchDescription>
-                                 (new BranchDescription(art::TypeLabel(InEvent,
-                                                                       product_type,
-                                                                       productInstanceName),
-                                                        localModuleDescription)
-                                 ));
+  availableProducts_->addProduct(std::make_unique<BranchDescription>
+                                 (art::TypeLabel(InEvent,
+                                                 product_type,
+                                                 productInstanceName),
+                                  localModuleDescription));
 }
 
 struct EventTestFixture {
@@ -181,8 +179,8 @@ struct EventTestFixture {
                        std::string const& productLabel = std::string());
 
   MPRGlobalTestFixture &gf();
-  typedef MPRGlobalTestFixture::modCache_t modCache_t;
-  typedef MPRGlobalTestFixture::iterator_t iterator_t;
+  using modCache_t = MPRGlobalTestFixture::modCache_t;
+  using iterator_t = MPRGlobalTestFixture::iterator_t;
 
 
   std::unique_ptr<EventPrincipal> principal_;
@@ -260,17 +258,17 @@ EventTestFixture::EventTestFixture()
   EventID id = make_id();
   ProcessConfiguration const& pc = gf().currentModuleDescription_->processConfiguration();
   RunAuxiliary runAux(id.run(), time, time);
-  std::shared_ptr<RunPrincipal> rp(new RunPrincipal(runAux, pc));
+  auto rp = std::make_shared<RunPrincipal>(runAux, pc);
   SubRunAuxiliary subRunAux(rp->run(), 1u, time, time);
-  std::shared_ptr<SubRunPrincipal>srp(new SubRunPrincipal(subRunAux, pc));
+  auto srp = std::make_shared<SubRunPrincipal>(subRunAux, pc);
   srp->setRunPrincipal(rp);
   EventAuxiliary eventAux(id, time, true);
-  std::shared_ptr<History> history(new History);
+  auto history = std::make_shared<History>();
   const_cast<ProcessHistoryID &>(history->processHistoryID()) = processHistoryID;
-  principal_.reset(new EventPrincipal(eventAux, pc, history));
+  principal_ = std::make_unique<EventPrincipal>(eventAux, pc, history);
 
   principal_->setSubRunPrincipal(srp);
-  currentEvent_.reset(new Event(*principal_, *gf().currentModuleDescription_));
+  currentEvent_ = std::make_unique<Event>(*principal_, *gf().currentModuleDescription_);
 
   delete processHistory;
 }
@@ -333,7 +331,7 @@ BOOST_AUTO_TEST_CASE(dereferenceDfltHandle)
 
 BOOST_AUTO_TEST_CASE(putAnIntProduct)
 {
-  std::unique_ptr<arttest::IntProduct> three(new arttest::IntProduct(3));
+  auto three = std::make_unique<arttest::IntProduct>(3);
   currentEvent_->put(std::move(three), "int1");
   BOOST_REQUIRE_EQUAL(currentEvent_->size(), 1u);
   EDProducer::commitEvent(*currentEvent_);
@@ -342,7 +340,7 @@ BOOST_AUTO_TEST_CASE(putAnIntProduct)
 
 BOOST_AUTO_TEST_CASE(putAndGetAnIntProduct)
 {
-  std::unique_ptr<arttest::IntProduct> four(new arttest::IntProduct(4));
+  auto four = std::make_unique<arttest::IntProduct>(4);
   currentEvent_->put(std::move(four), "int1");
   EDProducer::commitEvent(*currentEvent_);
 
@@ -361,19 +359,18 @@ BOOST_AUTO_TEST_CASE(putAndGetAnIntProduct)
 BOOST_AUTO_TEST_CASE(getByProductID)
 {
 
-  typedef arttest::IntProduct product_t;
-  typedef std::unique_ptr<product_t> ap_t;
-  typedef Handle<product_t>  handle_t;
+  using product_t = arttest::IntProduct;
+  using handle_t  = Handle<product_t>;
 
   ProductID wanted;
 
   {
-    ap_t one(new product_t(1));
+    auto one = std::make_unique<product_t>(1);
     ProductID id1 = addProduct(std::move(one), "int1_tag", "int1");
     BOOST_REQUIRE(id1 != ProductID());
     wanted = id1;
 
-    ap_t two(new product_t(2));
+    auto two = std::make_unique<product_t>(2);
     ProductID id2 = addProduct(std::move(two), "int2_tag", "int2");
     BOOST_REQUIRE(id2 != ProductID());
     BOOST_REQUIRE(id2 != id1);
@@ -434,7 +431,7 @@ BOOST_AUTO_TEST_CASE(getByInstanceName)
   BOOST_REQUIRE_EQUAL(currentEvent_->size(), 4u);
 
   Selector sel(ProductInstanceNameSelector("int2") &&
-               ModuleLabelSelector("modMulti"));;
+               ModuleLabelSelector("modMulti"));
   handle_t h;
   BOOST_REQUIRE(currentEvent_->get(sel, h));
   BOOST_REQUIRE_EQUAL(h->value, 2);
@@ -447,7 +444,7 @@ BOOST_AUTO_TEST_CASE(getByInstanceName)
 
   std::string instance;
   Selector sel1(ProductInstanceNameSelector(instance) &&
-                ModuleLabelSelector("modMulti"));;
+                ModuleLabelSelector("modMulti"));
 
   BOOST_REQUIRE(currentEvent_->get(sel1, h));
   BOOST_REQUIRE_EQUAL(h->value, 3);
@@ -465,15 +462,14 @@ BOOST_AUTO_TEST_CASE(getByInstanceName)
 
 BOOST_AUTO_TEST_CASE(getBySelector)
 {
-  typedef arttest::IntProduct product_t;
-  typedef std::unique_ptr<product_t> ap_t;
-  typedef Handle<product_t> handle_t;
-  typedef std::vector<handle_t> handle_vec;
+  using product_t  = arttest::IntProduct;
+  using handle_t   = Handle<product_t>;
+  using handle_vec = std::vector<handle_t>;
 
-  ap_t one(new product_t(1));
-  ap_t two(new product_t(2));
-  ap_t three(new product_t(3));
-  ap_t four(new product_t(4));
+  auto one   = std::make_unique<product_t>(1);
+  auto two   = std::make_unique<product_t>(2);
+  auto three = std::make_unique<product_t>(3);
+  auto four  = std::make_unique<product_t>(4);
   addProduct(std::move(one),   "int1_tag", "int1");
   addProduct(std::move(two),   "int2_tag", "int2");
   addProduct(std::move(three), "int3_tag");
@@ -482,10 +478,10 @@ BOOST_AUTO_TEST_CASE(getBySelector)
   //  std::unique_ptr<std::vector<arttest::Thing> > ap_vthing(new std::vector<arttest::Thing>);
   //  addProduct(ap_vthing, "thing", "");
 
-  ap_t oneHundred(new product_t(100));
+  auto oneHundred = std::make_unique<product_t>(100);
   addProduct(std::move(oneHundred), "int1_tag_late", "int1");
 
-  std::unique_ptr<arttest::IntProduct> twoHundred(new arttest::IntProduct(200));
+  auto twoHundred = std::make_unique<product_t>(200);
   currentEvent_->put(std::move(twoHundred), "int1");
   EDProducer::commitEvent(*currentEvent_);
 
@@ -493,7 +489,7 @@ BOOST_AUTO_TEST_CASE(getBySelector)
 
   Selector sel(ProductInstanceNameSelector("int2") &&
                ModuleLabelSelector("modMulti") &&
-               ProcessNameSelector("EARLY"));;
+               ProcessNameSelector("EARLY"));
   handle_t h;
   BOOST_REQUIRE(currentEvent_->get(sel, h));
   BOOST_REQUIRE_EQUAL(h->value, 2);
@@ -525,16 +521,16 @@ BOOST_AUTO_TEST_CASE(getBySelector)
   BOOST_REQUIRE_THROW(currentEvent_->get(sel4, h), cet::exception);
 
   Selector sel5(ModuleLabelSelector("modMulti") &&
-                ProcessNameSelector("LATE"));;
+                ProcessNameSelector("LATE"));
   currentEvent_->get(sel5, h);
   BOOST_REQUIRE_EQUAL(h->value, 100);
 
   Selector sel6(ModuleLabelSelector("modMulti") &&
-                ProcessNameSelector("CURRENT"));;
+                ProcessNameSelector("CURRENT"));
   currentEvent_->get(sel6, h);
   BOOST_REQUIRE_EQUAL(h->value, 200);
 
-  Selector sel7(ModuleLabelSelector("modMulti"));;
+  Selector sel7(ModuleLabelSelector("modMulti"));
   currentEvent_->get(sel7, h);
   BOOST_REQUIRE_EQUAL(h->value, 200);
 
@@ -548,27 +544,23 @@ BOOST_AUTO_TEST_CASE(getBySelector)
 
 BOOST_AUTO_TEST_CASE(getByLabel)
 {
-  typedef arttest::IntProduct product_t;
-  typedef std::unique_ptr<product_t> ap_t;
-  typedef Handle<product_t> handle_t;
-  typedef std::vector<handle_t> handle_vec;
+  using product_t  = arttest::IntProduct;
+  using handle_t   = Handle<product_t>;
+  using handle_vec = std::vector<handle_t>;
 
-  ap_t one(new product_t(1));
-  ap_t two(new product_t(2));
-  ap_t three(new product_t(3));
-  ap_t four(new product_t(4));
+  auto one   = std::make_unique<product_t>(1);
+  auto two   = std::make_unique<product_t>(2);
+  auto three = std::make_unique<product_t>(3);
+  auto four  = std::make_unique<product_t>(4);
   addProduct(std::move(one),   "int1_tag", "int1");
   addProduct(std::move(two),   "int2_tag", "int2");
   addProduct(std::move(three), "int3_tag");
   addProduct(std::move(four),  "nolabel_tag");
 
-  //  std::unique_ptr<std::vector<arttest::Thing> > ap_vthing(new std::vector<arttest::Thing>);
-  //  addProduct(ap_vthing, "thing", "");
-
-  ap_t oneHundred(new product_t(100));
+  auto oneHundred = std::make_unique<product_t>(100);
   addProduct(std::move(oneHundred), "int1_tag_late", "int1");
 
-  std::unique_ptr<arttest::IntProduct> twoHundred(new arttest::IntProduct(200));
+  auto twoHundred = std::make_unique<product_t>(200);
   currentEvent_->put(std::move(twoHundred), "int1");
   EDProducer::commitEvent(*currentEvent_);
 
@@ -599,30 +591,23 @@ BOOST_AUTO_TEST_CASE(getByLabel)
 
 BOOST_AUTO_TEST_CASE(getManyByType)
 {
-  typedef arttest::IntProduct product_t;
-  typedef std::unique_ptr<product_t> ap_t;
-  typedef Handle<product_t> handle_t;
-  typedef std::vector<handle_t> handle_vec;
+  using product_t  = arttest::IntProduct;
+  using handle_t   = Handle<product_t>;
+  using handle_vec = std::vector<handle_t>;
 
-  ap_t one(new product_t(1));
-  ap_t two(new product_t(2));
-  ap_t three(new product_t(3));
-  ap_t four(new product_t(4));
+  auto one   = std::make_unique<product_t>(1);
+  auto two   = std::make_unique<product_t>(2);
+  auto three = std::make_unique<product_t>(3);
+  auto four  = std::make_unique<product_t>(4);
   addProduct(std::move(one),   "int1_tag", "int1");
   addProduct(std::move(two),   "int2_tag", "int2");
   addProduct(std::move(three), "int3_tag");
   addProduct(std::move(four),  "nolabel_tag");
 
-  //  std::unique_ptr<std::vector<arttest::Thing> > ap_vthing(new std::vector<arttest::Thing>);
-  //  addProduct(ap_vthing, "thing", "");
-
-  //  std::unique_ptr<std::vector<arttest::Thing> > ap_vthing2(new std::vector<arttest::Thing>);
-  //  addProduct(ap_vthing2, "thing2", "inst2");
-
-  ap_t oneHundred(new product_t(100));
+  auto oneHundred = std::make_unique<product_t>(100);
   addProduct(std::move(oneHundred), "int1_tag_late", "int1");
 
-  std::unique_ptr<arttest::IntProduct> twoHundred(new arttest::IntProduct(200));
+  auto twoHundred = std::make_unique<product_t>(200);
   currentEvent_->put(std::move(twoHundred), "int1");
   EDProducer::commitEvent(*currentEvent_);
 
