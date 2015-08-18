@@ -308,7 +308,7 @@ updateFromNewPrimaryFile(ProductList const& other,
 }
 
 bool
-MasterProductRegistry::
+art::MasterProductRegistry::
 produced(BranchType const branchType, BranchID const bid) const
 {
   auto const& pLookup = producedPresenceLookup_[branchType];
@@ -316,7 +316,7 @@ produced(BranchType const branchType, BranchID const bid) const
 }
 
 std::size_t
-MasterProductRegistry::
+art::MasterProductRegistry::
 presentWithFileIdx(BranchType const branchType, BranchID const bid) const
 {
   for ( std::size_t i = 0; i != perFilePresenceLookups_.size() ; ++i) {
