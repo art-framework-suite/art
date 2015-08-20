@@ -1,7 +1,4 @@
 <lcgdict>
- <class pattern="art::Transient<*>">
-   <field name="value_" transient="true"/>
- </class>
  <class name="art::EDProduct" ClassVersion="10">
   <version ClassVersion="10" checksum="241049717"/>
  </class>
