@@ -273,7 +273,7 @@ initServices_(ParameterSet const & top_pset,
       << "Use of services.user parameter set is deprecated.\n"
       << "Define all services in services parameter set.";
   }
-  for (auto const & key : user.get_keys()) {
+  for (auto const & key : user.get_names()) {
     if (user.is_key_to_table(key)) {
       if (!services.has_key(key)) {
         services.put(key, user.get<ParameterSet>(key));

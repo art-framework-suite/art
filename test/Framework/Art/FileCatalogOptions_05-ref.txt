@@ -1,41 +1,60 @@
-outputs: { out: { dataTier: "The one with the thickest frosting"
-                  fileName: "out.root"
-                  module_label: "out"
-                  module_type: "RootOutput"
-                  streamName: "out"
-                }
-         }
-physics: { injected_end_path_1: [ "out" ]
-         }
+outputs: {
+   out: {
+      dataTier: "The one with the thickest frosting"
+      fileName: "out.root"
+      module_label: "out"
+      module_type: "RootOutput"
+      streamName: "out"
+   }
+}
+physics: {
+   injected_end_path_1: [
+      "out"
+   ]
+}
 process_name: "SAMTEST"
-services: { CatalogInterface: { service_provider: "IFCatalogInterface"
-                                service_type: "CatalogInterface"
-                                webURI: "http://example.com"
-                              }
-            FileCatalogMetadata: { applicationFamily: "Ethel"
-                                   applicationVersion: "v0.00.01a"
-                                   fileType: "MC"
-                                   processID: "778213"
-                                   service_type: "FileCatalogMetadata"
-                                 }
-            FileTransfer: { service_provider: "IFFileTransfer"
-                            service_type: "FileTransfer"
-                          }
-            IFDH: { service_type: "IFDH"
-                  }
-            message: { destinations: { STDOUT: { categories: { ArtReport: { limit: 100
-                                                                          }
-                                                               default: { limit: -1
-                                                                        }
-                                                             }
-                                                 threshold: "INFO"
-                                                 type: "cout"
-                                               }
-                                     }
-                     }
-          }
-source: { fileNames: [ "778213" ]
-          module_label: "source"
-          module_type: "RootInput"
-        }
+services: {
+   CatalogInterface: {
+      service_provider: "IFCatalogInterface"
+      service_type: "CatalogInterface"
+      webURI: "http://example.com"
+   }
+   FileCatalogMetadata: {
+      applicationFamily: "Ethel"
+      applicationVersion: "v0.00.01a"
+      fileType: "MC"
+      processID: "778213"
+      service_type: "FileCatalogMetadata"
+   }
+   FileTransfer: {
+      service_provider: "IFFileTransfer"
+      service_type: "FileTransfer"
+   }
+   IFDH: {
+      service_type: "IFDH"
+   }
+   message: {
+      destinations: {
+         STDOUT: {
+            categories: {
+               ArtReport: {
+                  limit: 100
+               }
+               default: {
+                  limit: -1
+               }
+            }
+            threshold: "INFO"
+            type: "cout"
+         }
+      }
+   }
+}
+source: {
+   fileNames: [
+      "778213"
+   ]
+   module_label: "source"
+   module_type: "RootInput"
+}
 

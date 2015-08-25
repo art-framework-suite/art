@@ -214,7 +214,7 @@ fillAllModules_()
   for (auto const & pathRootName :
          detail::ModuleConfigInfo::allModulePathRoots()) {
     auto const pathRoot = procPS_.get<ParameterSet>(pathRootName, empty);
-    for (auto const & name : pathRoot.get_keys()) {
+    for (auto const & name : pathRoot.get_names()) {
       try {
         detail::ModuleConfigInfo mci(procPS_, name, pathRootName);
         auto actualModType = fact_.moduleType(mci.libSpec());
@@ -286,7 +286,7 @@ processPathConfigs_()
   };
   ParameterSet empty;
   auto const physics = procPS_.get<ParameterSet>("physics", empty);
-  auto const keys = physics.get_keys();
+  auto const keys = physics.get_names();
   vstring path_names;
   std::set_difference(keys.cbegin(),
                       keys.cend(),

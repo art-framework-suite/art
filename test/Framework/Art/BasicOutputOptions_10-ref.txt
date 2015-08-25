@@ -1,38 +1,55 @@
-physics: { analyzers: { a1: { module_label: "a1"
-                              module_type: "dummy"  # ./opt-multiout.fcl:7
-                            }  # ./opt-multiout.fcl:7
-                        a2: { module_label: "a2"
-                              module_type: "dummy"  # ./opt-multiout.fcl:8
-                            }  # ./opt-multiout.fcl:8
-                      }  # ./opt-multiout.fcl:6
-           end_paths: [ "ep1"  # ./opt-multiout.fcl:14
-                      , "ep3"  # ""
-                      ]
-           ep1: [ "a1"  # ./opt-multiout.fcl:11
-                ]
-           ep3: [ "a2"  # ./opt-multiout.fcl:13
-                ]
-         }  # ./opt-multiout.fcl:4
-process_name: "OptMultiOut"  # ./opt-multiout.fcl:1
-services: { CatalogInterface: { service_provider: "TrivialFileDelivery"
-                                service_type: "CatalogInterface"
-                              }
-            FileTransfer: { service_provider: "TrivialFileTransfer"
-                            service_type: "FileTransfer"
-                          }
-            message: { destinations: { STDOUT: { categories: { ArtReport: { limit: 100
-                                                                          }
-                                                               default: { limit: -1
-                                                                        }
-                                                             }
-                                                 threshold: "INFO"
-                                                 type: "cout"
-                                               }
-                                     }
-                     }
-          }
-source: { maxEvents: 1
-          module_label: "source"
-          module_type: "EmptyEvent"
-        }
+physics: {
+   analyzers: {
+      a1: {
+         module_label: "a1"
+         module_type: "dummy"
+      }
+      a2: {
+         module_label: "a2"
+         module_type: "dummy"
+      }
+   }
+   end_paths: [
+      "ep1",
+      "ep3"
+   ]
+   ep1: [
+      "a1"
+   ]
+   ep3: [
+      "a2"
+   ]
+}
+process_name: "OptMultiOut"
+services: {
+   CatalogInterface: {
+      service_provider: "TrivialFileDelivery"
+      service_type: "CatalogInterface"
+   }
+   FileTransfer: {
+      service_provider: "TrivialFileTransfer"
+      service_type: "FileTransfer"
+   }
+   message: {
+      destinations: {
+         STDOUT: {
+            categories: {
+               ArtReport: {
+                  limit: 100
+               }
+               default: {
+                  limit: -1
+               }
+            }
+            threshold: "INFO"
+            type: "cout"
+         }
+      }
+   }
+}
+source: {
+   maxEvents: 1
+   module_label: "source"
+   module_type: "EmptyEvent"
+}
 

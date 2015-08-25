@@ -1,49 +1,74 @@
-outputs: { o1: { module_label: "o1"
-               }  # ./BasicPostProcessor_01_w.fcl:16
-         }  # ./BasicPostProcessor_01_w.fcl:15
-physics: { analyzers: { a1: { module_label: "a1"
-                            }  # ./BasicPostProcessor_01_w.fcl:5
-                      }  # ./BasicPostProcessor_01_w.fcl:5
-           end_paths: [ "epath1"  # ./BasicPostProcessor_01_w.fcl:11
-                      ]
-           epath1: [ "a1"  # ./BasicPostProcessor_01_w.fcl:8
-                   , "p1"  # ""
-                   ]
-           filters: { f1: { module_label: "f1"
-                          }  # ./BasicPostProcessor_01_w.fcl:3
-                    }  # ./BasicPostProcessor_01_w.fcl:3
-           path1: [ "p1"  # ./BasicPostProcessor_01_w.fcl:7
-                  , "f1"  # ""
-                  ]
-           producers: { p1: { module_label: "p1"
-                            }  # ./BasicPostProcessor_01_w.fcl:4
-                      }  # ./BasicPostProcessor_01_w.fcl:4
-           trigger_paths: [ "path1"  # ./BasicPostProcessor_01_w.fcl:10
-                          ]
-         }  # ./BasicPostProcessor_01_w.fcl:2
+outputs: {
+   o1: {
+      module_label: "o1"
+   }
+}
+physics: {
+   analyzers: {
+      a1: {
+         module_label: "a1"
+      }
+   }
+   end_paths: [
+      "epath1"
+   ]
+   epath1: [
+      "a1",
+      "p1"
+   ]
+   filters: {
+      f1: {
+         module_label: "f1"
+      }
+   }
+   path1: [
+      "p1",
+      "f1"
+   ]
+   producers: {
+      p1: {
+         module_label: "p1"
+      }
+   }
+   trigger_paths: [
+      "path1"
+   ]
+}
 process_name: "DUMMY"
-services: { CatalogInterface: { service_provider: "TrivialFileDelivery"
-                                service_type: "CatalogInterface"
-                              }
-            FileTransfer: { service_provider: "TrivialFileTransfer"
-                            service_type: "FileTransfer"
-                          }
-            message: { destinations: { STDOUT: { categories: { ArtReport: { limit: 100
-                                                                          }
-                                                               default: { limit: -1
-                                                                        }
-                                                             }
-                                                 threshold: "INFO"
-                                                 type: "cout"
-                                               }
-                                     }
-                     }
-          }
-source: { maxEvents: 1
-          module_label: "source"
-          module_type: "EmptyEvent"
-        }
-trigger_paths: { trigger_paths: [ "path1"  # ./BasicPostProcessor_01_w.fcl:10
-                                ]
+services: {
+   CatalogInterface: {
+      service_provider: "TrivialFileDelivery"
+      service_type: "CatalogInterface"
+   }
+   FileTransfer: {
+      service_provider: "TrivialFileTransfer"
+      service_type: "FileTransfer"
+   }
+   message: {
+      destinations: {
+         STDOUT: {
+            categories: {
+               ArtReport: {
+                  limit: 100
                }
+               default: {
+                  limit: -1
+               }
+            }
+            threshold: "INFO"
+            type: "cout"
+         }
+      }
+   }
+}
+source: {
+   maxEvents: 1
+   module_label: "source"
+   module_type: "EmptyEvent"
+}
+trigger_paths: {
+   trigger_paths: [
+      "path1"
+   ]
+}
 
