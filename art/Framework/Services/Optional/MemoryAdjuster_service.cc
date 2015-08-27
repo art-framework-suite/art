@@ -8,7 +8,7 @@
 #include "art/Framework/Services/Registry/ServiceTable.h"
 #include "art/Utilities/MallocOpts.h"
 #include "fhiclcpp/types/Atom.h"
-#include "fhiclcpp/types/Key.h"
+#include "fhiclcpp/types/Name.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 //====================================================================================
@@ -16,11 +16,11 @@
 namespace {
   using namespace fhicl;
   struct Config {
-    Atom<int>  m_mmap_max { Key("M_MMAP_MAX"), -1};
-    Atom<int>  m_trim_thr { Key("M_TRIM_THRESHOLD"), -1};
-    Atom<int>  m_top_pad  { Key("M_TOP_PAD"), -1};
-    Atom<int>  m_mmap_thr { Key("M_MMAP_THRESHOLD"), -1};
-    Atom<bool> dump       { Key("dump"), false };
+    Atom<int>  m_mmap_max { Name("M_MMAP_MAX"), -1};
+    Atom<int>  m_trim_thr { Name("M_TRIM_THRESHOLD"), -1};
+    Atom<int>  m_top_pad  { Name("M_TOP_PAD"), -1};
+    Atom<int>  m_mmap_thr { Name("M_MMAP_THRESHOLD"), -1};
+    Atom<bool> dump       { Name("dump"), false };
   };
 }
 

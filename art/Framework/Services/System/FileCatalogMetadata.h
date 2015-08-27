@@ -24,13 +24,13 @@ public:
 
   static constexpr char const* notPresent = "--optional-parameter--";
   struct Config {
-    fhicl::Atom<bool> checkSyntax { fhicl::Key("checkSyntax"), false };
-    fhicl::Atom<std::string> applicationFamily  { fhicl::Key("applicationFamily" ), notPresent };
-    fhicl::Atom<std::string> applicationVersion { fhicl::Key("applicationVersion"), notPresent };
-    fhicl::Atom<std::string> fileType  { fhicl::Key("fileType") , "unknown" };
-    fhicl::Atom<std::string> runType   { fhicl::Key("runType")  , notPresent };
-    fhicl::Atom<std::string> group     { fhicl::Key("group")    , notPresent };
-    fhicl::Atom<std::string> processID { fhicl::Key("processID"), notPresent };
+    fhicl::Atom<bool> checkSyntax { fhicl::Name("checkSyntax"), false };
+    fhicl::Atom<std::string> applicationFamily  { fhicl::Name("applicationFamily" ), notPresent };
+    fhicl::Atom<std::string> applicationVersion { fhicl::Name("applicationVersion"), notPresent };
+    fhicl::Atom<std::string> fileType  { fhicl::Name("fileType") , "unknown" };
+    fhicl::Atom<std::string> runType   { fhicl::Name("runType")  , notPresent };
+    fhicl::Atom<std::string> group     { fhicl::Name("group")    , notPresent };
+    fhicl::Atom<std::string> processID { fhicl::Name("processID"), notPresent };
   };
 
   using Parameters = ServiceTable<Config>;

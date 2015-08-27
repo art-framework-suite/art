@@ -16,7 +16,7 @@
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Persistency/Provenance/ProvenanceFwd.h"
 #include "fhiclcpp/types/Atom.h"
-#include "fhiclcpp/types/Key.h"
+#include "fhiclcpp/types/Name.h"
 #include "fhiclcpp/types/Table.h"
 #include "tbb/tick_count.h"
 
@@ -28,13 +28,13 @@ namespace art {
   public:
 
     struct Config {
-      fhicl::Atom<bool> printSummary { fhicl::Key("printSummary"), true };
+      fhicl::Atom<bool> printSummary { fhicl::Name("printSummary"), true };
 
       struct DBoutput {
-        fhicl::Atom<std::string> filename { fhicl::Key("filename"), "" };
-        fhicl::Atom<bool> overwrite { fhicl::Key("overwrite"), false };
+        fhicl::Atom<std::string> filename { fhicl::Name("filename"), "" };
+        fhicl::Atom<bool> overwrite { fhicl::Name("overwrite"), false };
       };
-      fhicl::Table<DBoutput> dbOutput { fhicl::Key("dbOutput") };
+      fhicl::Table<DBoutput> dbOutput { fhicl::Name("dbOutput") };
     };
 
     using Parameters = ServiceTable<Config>;

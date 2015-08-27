@@ -18,7 +18,7 @@
 #include "art/Persistency/Provenance/SubRunID.h"
 #include "art/Persistency/Provenance/Timestamp.h"
 #include "fhiclcpp/types/Atom.h"
-#include "fhiclcpp/types/Key.h"
+#include "fhiclcpp/types/Name.h"
 #include <iostream>
 
 namespace art {
@@ -29,7 +29,7 @@ using art::Tracer;
 
 namespace {
   struct Config {
-    fhicl::Atom<std::string> indentation { fhicl::Key("indentation"), "++" };
+    fhicl::Atom<std::string> indentation { fhicl::Name("indentation"), "++" };
   };
 }
 

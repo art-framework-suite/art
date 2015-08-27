@@ -9,7 +9,7 @@ namespace {
 
   using namespace fhicl;
   struct Config {
-    Atom<int> shouldPass { Key("shouldPass") };
+    Atom<int> shouldPass { Name("shouldPass") };
   };
 
 }

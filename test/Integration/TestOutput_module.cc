@@ -14,7 +14,7 @@ class arttest::TestOutput : public art::OutputModule {
 public:
 
   struct Config{
-    fhicl::Atom<int> shouldPass { fhicl::Key("shouldPass") };
+    fhicl::Atom<int> shouldPass { fhicl::Name("shouldPass") };
   };
 
   using Parameters = art::OutputModule::Table<Config>;

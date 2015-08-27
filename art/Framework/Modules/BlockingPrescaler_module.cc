@@ -27,9 +27,9 @@ class art::BlockingPrescaler : public EDFilter {
 public:
 
   struct Config {
-    Atom<size_t> blockSize { Key("blockSize"), 1 };
-    Atom<size_t> stepSize  { Key("stepSize") };
-    Atom<size_t> offset    { Key("offset"), 0 };
+    Atom<size_t> blockSize { Name("blockSize"), 1 };
+    Atom<size_t> stepSize  { Name("stepSize") };
+    Atom<size_t> offset    { Name("offset"), 0 };
   };
 
   using Parameters = EDFilter::Table<Config>;

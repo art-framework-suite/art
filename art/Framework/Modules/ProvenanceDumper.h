@@ -140,8 +140,8 @@ namespace art {
   template <typename DETAIL> class ProvenanceDumper;
 
   struct ProvenanceDumperConfig {
-    fhicl::Atom<bool> wantPresentOnly { fhicl::Key("wantPresentOnly"), true };
-    fhicl::Atom<bool> resolveProducts { fhicl::Key("resolveProducts"), true };
+    fhicl::Atom<bool> wantPresentOnly { fhicl::Name("wantPresentOnly"), true };
+    fhicl::Atom<bool> resolveProducts { fhicl::Name("resolveProducts"), true };
   };
 
   namespace detail {

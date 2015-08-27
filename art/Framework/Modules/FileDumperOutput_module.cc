@@ -33,11 +33,11 @@ class art::FileDumperOutput : public OutputModule {
 public:
 
   struct Config {
-    fhicl::Atom<bool> onDemandProduction           { fhicl::Key("onDemandProduction")      , false };
-    fhicl::Atom<bool> wantProductFullClassName     { fhicl::Key("wantProductFullClassName"), false };
-    fhicl::Atom<bool> wantProductFriendlyClassName { fhicl::Key("wantProductFriendlyClassName"), wantProductFullClassName() };
-    fhicl::Atom<bool> resolveProducts { fhicl::Key("resolveProducts"), true };
-    fhicl::Atom<bool> onlyIfPresent   { fhicl::Key("onlyIfPresent"), false };
+    fhicl::Atom<bool> onDemandProduction           { fhicl::Name("onDemandProduction")      , false };
+    fhicl::Atom<bool> wantProductFullClassName     { fhicl::Name("wantProductFullClassName"), false };
+    fhicl::Atom<bool> wantProductFriendlyClassName { fhicl::Name("wantProductFriendlyClassName"), wantProductFullClassName() };
+    fhicl::Atom<bool> resolveProducts { fhicl::Name("resolveProducts"), true };
+    fhicl::Atom<bool> onlyIfPresent   { fhicl::Name("onlyIfPresent"), false };
   };
   using Parameters = art::OutputModule::Table<Config>;
   explicit FileDumperOutput(Parameters const &);

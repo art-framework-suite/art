@@ -23,8 +23,8 @@ namespace {
 
   using namespace fhicl;
   struct Config {
-    Atom<int> ivalue { Key("ivalue") };
-    Atom<unsigned long> branchType { Key("branchType"), art::InEvent };
+    Atom<int> ivalue { Name("ivalue") };
+    Atom<unsigned long> branchType { Name("branchType"), art::InEvent };
   };
 
 }

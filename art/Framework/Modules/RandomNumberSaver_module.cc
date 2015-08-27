@@ -34,7 +34,7 @@ public:
 
   // --- Configuration
   struct Config {
-    Atom<bool> debug { Key("debug"), false };
+    Atom<bool> debug { Name("debug"), false };
   };
 
   // --- C'tor/d'tor:

@@ -53,15 +53,15 @@ public:
 
   // Configuration
   struct baseConfig {
-    fhicl::Atom<std::string> moduleType { fhicl::Key("module_type") };
+    fhicl::Atom<std::string> moduleType { fhicl::Name("module_type") };
     fhicl::Table<EventObserver::EOConfig> eoConfig {
-      fhicl::Key("SelectEvents"),
+      fhicl::Name("SelectEvents"),
         fhicl::Comment("The 'SelectEvents' table below is optional")
         };
-    fhicl::Sequence<std::string> outputCommands { fhicl::Key("outputCommands"), fhicl::Sequence<std::string>{ "keep *" } };
-    fhicl::Atom<std::string> fileName   { fhicl::Key("fileName"), "" };
-    fhicl::Atom<std::string> dataTier   { fhicl::Key("dataTier"), "" };
-    fhicl::Atom<std::string> streamName { fhicl::Key("streamName"), "" };
+    fhicl::Sequence<std::string> outputCommands { fhicl::Name("outputCommands"), fhicl::Sequence<std::string>{ "keep *" } };
+    fhicl::Atom<std::string> fileName   { fhicl::Name("fileName"), "" };
+    fhicl::Atom<std::string> dataTier   { fhicl::Name("dataTier"), "" };
+    fhicl::Atom<std::string> streamName { fhicl::Name("streamName"), "" };
   };
 
   template <typename T>

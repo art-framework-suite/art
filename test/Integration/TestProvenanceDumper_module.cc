@@ -18,8 +18,8 @@ public:
 
   // The configuration here MUST be called Config'
   struct Config : art::ProvenanceDumperConfig {
-    fhicl::Atom<bool> expectSubRunProducts { fhicl::Key("expectSubRunProducts"), false };
-    fhicl::Atom<bool> expectRunProducts    { fhicl::Key("expectRunProducts"), false };
+    fhicl::Atom<bool> expectSubRunProducts { fhicl::Name("expectSubRunProducts"), false };
+    fhicl::Atom<bool> expectRunProducts    { fhicl::Name("expectRunProducts"), false };
   };
 
   explicit PDDetail(art::OutputModule::Table<Config> const & ps)

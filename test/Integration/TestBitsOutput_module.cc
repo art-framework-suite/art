@@ -57,8 +57,8 @@ class arttest::TestBitsOutput : public art::OutputModule {
 public:
 
   struct Config {
-    fhicl::Atom<int>  bitMask { fhicl::Key("bitMask") };
-    fhicl::Atom<bool> expectTriggerResults { fhicl::Key("expectTriggerResults"), true };
+    fhicl::Atom<int>  bitMask { fhicl::Name("bitMask") };
+    fhicl::Atom<bool> expectTriggerResults { fhicl::Name("expectTriggerResults"), true };
   };
 
   using Parameters = art::OutputModule::Table<Config>;

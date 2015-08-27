@@ -13,7 +13,7 @@
 #include "art/Framework/Services/Registry/ServiceTable.h"
 #include "art/Persistency/Provenance/EventID.h"
 #include "fhiclcpp/types/Atom.h"
-#include "fhiclcpp/types/Key.h"
+#include "fhiclcpp/types/Name.h"
 
 #include <memory>
 
@@ -29,11 +29,11 @@ namespace art {
   public:
 
     struct Config {
-      fhicl::Atom<unsigned> ignoreTotal { fhicl::Key("ignoreTotal"), 1 };
-      fhicl::Atom<bool> truncateSummary { fhicl::Key("truncateSummary"), true };
-      fhicl::Atom<bool> showMallocInfo  { fhicl::Key("showMallocInfo"), false };
-      fhicl::Atom<bool> oncePerEventMode { fhicl::Key("oncePerEventMode"), false };
-      fhicl::Atom<bool> moduleMemorySummary { fhicl::Key("moduleMemorySummary"), false };
+      fhicl::Atom<unsigned> ignoreTotal { fhicl::Name("ignoreTotal"), 1 };
+      fhicl::Atom<bool> truncateSummary { fhicl::Name("truncateSummary"), true };
+      fhicl::Atom<bool> showMallocInfo  { fhicl::Name("showMallocInfo"), false };
+      fhicl::Atom<bool> oncePerEventMode { fhicl::Name("oncePerEventMode"), false };
+      fhicl::Atom<bool> moduleMemorySummary { fhicl::Name("moduleMemorySummary"), false };
     };
 
     using Parameters = ServiceTable<Config>;

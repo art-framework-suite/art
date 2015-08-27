@@ -18,8 +18,8 @@ namespace {
 
   using namespace fhicl;
   struct Config {
-    Atom<std::string> input_label { Key("input_label") };
-    Atom<size_t>      nvalues     { Key("nvalues")     };
+    Atom<std::string> input_label { Name("input_label") };
+    Atom<size_t>      nvalues     { Name("nvalues")     };
   };
 
 }
