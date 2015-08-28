@@ -142,12 +142,12 @@ registerProduct(std::string const& tag,
                 std::string const& productInstanceName)
 {
   ParameterSet moduleParams;
-  moduleParams.template put<std::string>("module_type", moduleClassName);
-  moduleParams.template put<std::string>("module_label", moduleLabel);
+  moduleParams.put<std::string>("module_type", moduleClassName);
+  moduleParams.put<std::string>("module_label", moduleLabel);
 
   ParameterSet processParams;
-  processParams.template put<std::string>("process_name", processName);
-  processParams.template put<ParameterSet>(moduleLabel, moduleParams);
+  processParams.put<std::string>("process_name", processName);
+  processParams.put<ParameterSet>(moduleLabel, moduleParams);
 
   ProcessConfiguration process;
   process.processName_    = processName;

@@ -6,8 +6,6 @@
 #include "fhiclcpp/intermediate_table.h"
 #include "fhiclcpp/parse.h"
 
-#include <cstdlib>
-#include <iostream>
 #include <string>
 
 using namespace std::string_literals;
@@ -15,9 +13,10 @@ using namespace std::string_literals;
 art::DebugOptionsHandler::
 DebugOptionsHandler(bpo::options_description & desc,
                     std::string const & basename,
+                    detail::DebugOutput& dbg,
                     bool rethrowDefault)
-:
-  rethrowDefault_(rethrowDefault)
+  : dbg_(dbg)
+  , rethrowDefault_(rethrowDefault)
 {
   desc.add_options()
     ("trace", "Activate tracing.")
@@ -32,7 +31,9 @@ DebugOptionsHandler(bpo::options_description & desc,
     ("debug-config", bpo::value<std::string>(),
      ("Output post-processed configuration to <file> and exit. Equivalent to env ART_DEBUG_CONFIG=<file> "s + basename + " ..."s).c_str())
     ("config-out", bpo::value<std::string>(),
-     "Output post-processed configuration to <file> and continue with job.");
+     "Output post-processed configuration to <file> and continue with job.")
+    ("annotate","Include configuration parameter source information.")
+    ("prefix-annotate","Include configuration parameter source information on line preceding parameter declaration.");
 }
 
 int
@@ -43,24 +44,37 @@ doCheckOptions(bpo::variables_map const & vm)
        vm.count("rethrow-default") +
        vm.count("no-rethrow-default")) > 1) {
     throw Exception(errors::Configuration)
-        << "Options --default-exceptions, --rethrow-all and --rethrow-default \n"
-        << "are mutually incompatible.\n";
+      << "Options --default-exceptions, --rethrow-all and --rethrow-default \n"
+      << "are mutually incompatible.\n";
   }
-  if (vm.count("trace") == 1 &&
-      vm.count("notrace") == 1) {
+  if (vm.count("trace") + vm.count("notrace") > 1) {
     throw Exception(errors::Configuration)
-        << "Options --trace and --notrace are incompatible.\n";
+      << "Options --trace and --notrace are incompatible.\n";
   }
-  if (vm.count("memcheck") == 1 &&
-      vm.count("nomemcheck") == 1) {
+  if (vm.count("memcheck") + vm.count("nomemcheck") > 1) {
     throw Exception(errors::Configuration)
-        << "Options --memcheck and --nomemcheck are incompatible.\n";
+      << "Options --memcheck and --nomemcheck are incompatible.\n";
   }
-  if (vm.count("memcheck-db") == 1 &&
-      vm.count("nomemcheck") == 1) {
+  if (vm.count("memcheck-db") + vm.count("nomemcheck") > 1) {
     throw Exception(errors::Configuration)
       << "Options --memcheck-db and --nomemcheck are incompatible.\n";
   }
+  if (vm.count("debug-config") + vm.count("config-out") > 1 ) {
+    throw Exception(errors::Configuration)
+      << "Options --debug-config and --config-out are incompatible.\n";
+  }
+  if (vm.count("annotate") + vm.count("prefix-annotate") > 1){
+    throw Exception(errors::Configuration)
+      << "Options --annotate and --prefix-annotate are incompatible.\n";
+  }
+
+  if (vm.count("annotate") + vm.count("prefix-annotate") == 1 &&
+      vm.count("debug-config") + vm.count("config-out") == 0 ){
+    throw Exception(errors::Configuration) <<
+      "Options --annotate and --prefix-annotate must be specified with "
+      "either --debug-config or --config-out.\n";
+  }
+
   return 0;
 }
 
@@ -69,13 +83,31 @@ art::DebugOptionsHandler::
 doProcessOptions(bpo::variables_map const & vm,
                  fhicl::intermediate_table & raw_config)
 {
+
+  using detail::DebugOutput;
+  using dest_t = DebugOutput::destination;
+
+  std::string fn;
+  switch( DebugOutput::destination_via_env(fn) ) {
+  case dest_t::cerr: dbg_.to_cerr()       ; break;
+  case dest_t::file: dbg_.set_filename(fn); break;
+  case dest_t::none: {}
+  }
+
+  // "debug-config" wins over ART_DEBUG_CONFIG
   if (vm.count("debug-config")) {
-    setenv("ART_DEBUG_CONFIG",
-           vm["debug-config"].as<std::string>().c_str(),
-           true /* overwrite */);
-  } else if (vm.count("config-out")) {
+    dbg_.set_filename( vm["debug-config"].as<std::string>() );
+  }
+  else if (vm.count("config-out")) {
     raw_config.put("services.scheduler.configOut",
                    vm["config-out"].as<std::string>().c_str());
+  }
+  using namespace fhicl::detail;
+  if (vm.count("annotate")){
+    dbg_.set_mode( print_mode::annotated );
+  }
+  if (vm.count("prefix-annotate")){
+    dbg_.set_mode( print_mode::parsable );
   }
   if (vm.count("trace")) {
     raw_config.put("services.scheduler.wantTracer", true);

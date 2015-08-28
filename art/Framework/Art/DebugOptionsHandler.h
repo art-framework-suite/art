@@ -3,6 +3,8 @@
 
 // Handle the file input options: source, source-list, etc.
 
+#include "art/Framework/Art/detail/DebugOutput.h"
+
 namespace art {
   class DebugOptionsHandler;
 }
@@ -13,6 +15,7 @@ class art::DebugOptionsHandler : public art::OptionsHandler {
 public:
   explicit DebugOptionsHandler(bpo::options_description & desc,
                                std::string const & basename,
+                               detail::DebugOutput& dbg,
                                bool rethrowDefault = false);
 private:
   // Check selected options for consistency.
@@ -21,6 +24,7 @@ private:
   int doProcessOptions(bpo::variables_map const & vm,
                        fhicl::intermediate_table & raw_config);
 
+  detail::DebugOutput& dbg_;
   bool rethrowDefault_;
 };
 #endif /* art_Framework_Art_DebugOptionsHandler_h */

@@ -25,9 +25,7 @@
 #include "TError.h"
 
 #include <exception>
-#include <fstream>
 #include <iostream>
-#include <regex>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -95,7 +93,8 @@ int art::run_art(int argc,
                  char ** argv,
                  bpo::options_description & in_desc,
                  cet::filepath_maker & lookupPolicy,
-                 art::OptionsHandlers && handlers)
+                 art::OptionsHandlers && handlers,
+                 art::detail::DebugOutput && dbg)
 {
   std::ostringstream descstr;
   descstr << "Usage: "
@@ -172,7 +171,7 @@ int art::run_art(int argc,
     std::cerr << "Uncaught exception while inserting main parameter set into registry.\n";
     throw;
   }
-  return run_art_common_(main_pset);
+  return run_art_common_(main_pset, std::move(dbg));
 }
 
 int art::run_art_string_config(const std::string& config_string)
@@ -217,41 +216,16 @@ int art::run_art_string_config(const std::string& config_string)
     std::cerr << "Uncaught exception while inserting main parameter set into registry.\n";
     throw;
   }
-  return run_art_common_(main_pset);
+  return run_art_common_(main_pset, art::detail::DebugOutput{});
 }
 
-int art::run_art_common_(fhicl::ParameterSet main_pset)
+int art::run_art_common_(fhicl::ParameterSet main_pset, art::detail::DebugOutput debug_output)
 {
-  fhicl::ParameterSet
-    services_pset(main_pset.get<fhicl::ParameterSet>("services",
-                                                     fhicl::ParameterSet()));
-  fhicl::ParameterSet
-    scheduler_pset(services_pset.get<fhicl::ParameterSet>("scheduler",
-                                                          fhicl::ParameterSet()));
-  char const * debug_config (getenv("ART_DEBUG_CONFIG"));
-  if (debug_config != nullptr) {
-    bool isFilename(false);
-    try {
-      isFilename = std::regex_match(debug_config, std::regex("[[:alpha:]/\\.].*"));
-    }
-    catch(std::regex_error const & e) {
-      std::cerr << "REGEX ERROR: " << e.code() << ".\n";
-    }
-    if (isFilename) {
-      std::cerr << "** ART_DEBUG_CONFIG is defined: config debug output to file "
-                << debug_config
-                << " **\n";
-      std::ofstream dc(debug_config);
-      if (dc) {
-        dc << main_pset.to_indented_string() << "\n";
-        return 1;
-      } else {
-        std::cerr << "Output of config to " << debug_config << " failed: fallback to stderr.\n";
-      }
-    } else {
-      std::cerr << "** ART_DEBUG_CONFIG is defined: config debug output follows **\n";
-    }
-    std::cerr << main_pset.to_indented_string() << "\n";
+  auto const & services_pset  = main_pset.get<fhicl::ParameterSet>("services",{});
+  auto const & scheduler_pset = services_pset.get<fhicl::ParameterSet>("scheduler",{});
+
+  if ( debug_output ) {
+    debug_output.stream() << main_pset.to_indented_string(0, debug_output.mode()) << "\n";
     return 1;
   }
   //
@@ -260,8 +234,7 @@ int art::run_art_common_(fhicl::ParameterSet main_pset)
   mf::MessageDrop::instance()->jobMode = std::string("analysis");
   mf::MessageDrop::instance()->runEvent = std::string("JobSetup");
   mf::StartMessageFacility(mf::MessageFacilityService::MultiThread,
-                           services_pset.get<fhicl::ParameterSet>("message",
-                               fhicl::ParameterSet()));
+                           services_pset.get<fhicl::ParameterSet>("message",{}));
   mf::LogInfo("MF_INIT_OK") << "Messagelogger initialization complete.";
   //
   // Configuration output (non-preempting)
@@ -307,9 +280,7 @@ int art::run_art_common_(fhicl::ParameterSet main_pset)
   EventProcessorWithSentry proc;
   int rc = 0;
   try {
-    std::unique_ptr<art::EventProcessor>
-      procP(new
-            art::EventProcessor(main_pset));
+    auto procP = std::make_unique<art::EventProcessor>(main_pset);
     EventProcessorWithSentry procTmp(std::move(procP));
     proc = std::move(procTmp);
     proc->beginJob();
