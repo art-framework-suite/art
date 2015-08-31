@@ -36,4 +36,3 @@ source: {
    module_label: "source"
    module_type: "EmptyEvent"
 }
-

@@ -219,13 +219,14 @@ int art::run_art_string_config(const std::string& config_string)
   return run_art_common_(main_pset, art::detail::DebugOutput{});
 }
 
-int art::run_art_common_(fhicl::ParameterSet main_pset, art::detail::DebugOutput debug_output)
+int art::run_art_common_(fhicl::ParameterSet main_pset, art::detail::DebugOutput debug)
 {
   auto const & services_pset  = main_pset.get<fhicl::ParameterSet>("services",{});
   auto const & scheduler_pset = services_pset.get<fhicl::ParameterSet>("scheduler",{});
 
-  if ( debug_output ) {
-    debug_output.stream() << main_pset.to_indented_string(0, debug_output.mode()) << "\n";
+  if (debug && debug.preempting()) {
+    std::cerr << debug.banner();
+    debug.stream() << main_pset.to_indented_string(0, debug.mode());
     return 1;
   }
   //
@@ -239,18 +240,17 @@ int art::run_art_common_(fhicl::ParameterSet main_pset, art::detail::DebugOutput
   //
   // Configuration output (non-preempting)
   //
-  std::string configOut;
-  if (scheduler_pset.get_if_present("configOut", configOut)) {
-    std::ofstream dc(configOut);
-    if (dc) {
-      dc << main_pset.to_indented_string() << "\n";
+  if (debug && !debug.preempting()) {
+    if (debug.stream_is_valid()) {
+      debug.stream() << main_pset.to_indented_string(0, debug.mode());
       mf::LogInfo("ConfigOut") << "Post-processed configuration written to "
-                               << configOut
+                               << debug.filename()
                                << ".\n";
-    } else { // Error!
+    }
+    else { // Error!
       throw Exception(errors::Configuration)
         << "Unable to write post-processed configuration to specified file "
-        << configOut
+        << debug.filename()
         << ".\n";
     }
   }

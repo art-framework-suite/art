@@ -71,4 +71,3 @@ trigger_paths: {
       "path1"
    ]
 }
-

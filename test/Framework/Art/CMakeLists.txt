@@ -59,7 +59,17 @@ macro(config_test_pass TNAME)
   SET_TESTS_PROPERTIES(${TNAME}
     PROPERTIES
     PASS_REGULAR_EXPRESSION
-    "ART_DEBUG_CONFIG is defined: config debug output to file"
+    "ART_DEBUG_CONFIG is defined"
+    PASS_REGULAR_EXPRESSION
+    "Config output to file"
+    )
+endmacro()
+
+macro(config_test_debug_pass TNAME)
+  SET_TESTS_PROPERTIES(${TNAME}
+    PROPERTIES
+    PASS_REGULAR_EXPRESSION
+    "Config output to file"
     )
 endmacro()
 
@@ -71,8 +81,8 @@ cet_test(BasicOptions_01_t HANDBUILT
   TEST_ARGS -c opt-empty.fcl
   --process-name TEST
   TEST_PROPERTIES ENVIRONMENT ART_DEBUG_CONFIG=1
-  PASS_REGULAR_EXPRESSION
-  "ART_DEBUG_CONFIG is defined: config debug output follows"
+  PASS_REGULAR_EXPRESSION "ART_DEBUG_CONFIG is defined"
+  PASS_REGULAR_EXPRESSION "Config output follows"
   DATAFILES fcl/opt-empty.fcl
   )
 
@@ -316,7 +326,7 @@ cet_test(DebugOptions_01_w HANDBUILT
   DATAFILES fcl/opt-empty.fcl
   )
 
-config_test_pass(DebugOptions_01_w)
+config_test_debug_pass(DebugOptions_01_w)
 
 # Compare output from DebugOptions_01_w against reference.
 config_ref_test(DebugOptions_01)
@@ -370,8 +380,8 @@ cet_test(FileCatalogOptions_02 HANDBUILT
   --sam-process-id=778213
   -c opt-empty.fcl
   TEST_PROPERTIES ENVIRONMENT ART_DEBUG_CONFIG=1
-  PASS_REGULAR_EXPRESSION
-  "ART_DEBUG_CONFIG is defined: config debug output follows"
+  PASS_REGULAR_EXPRESSION "ART_DEBUG_CONFIG is defined"
+  PASS_REGULAR_EXPRESSION "Config output follows"
   DATAFILES fcl/opt-empty.fcl
 )
 

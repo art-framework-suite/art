@@ -99,8 +99,10 @@ doProcessOptions(bpo::variables_map const & vm,
     dbg_.set_filename( vm["debug-config"].as<std::string>() );
   }
   else if (vm.count("config-out")) {
-    raw_config.put("services.scheduler.configOut",
-                   vm["config-out"].as<std::string>().c_str());
+    auto fn = vm["config-out"].as<std::string>().c_str();
+    raw_config.put("services.scheduler.configOut",fn);
+    dbg_.set_filename(fn);
+    dbg_.set_preempting(false);
   }
   using namespace fhicl::detail;
   if (vm.count("annotate")){

@@ -24,16 +24,32 @@ public:
 
   DebugOutput()
     : dest_{destination::none}
+    , preempting_{true}
     , mode_{fhicl::detail::print_mode::raw}
     , osp_{}
   {}
 
 
+  std::string const& filename() { return filename_; }
+
   fhicl::detail::print_mode mode() const { return mode_; }
 
-  art::ostream_handle& stream() { return *osp_; }
+  std::string banner() const {
+    std::string result = "** Config output ";
+    result += filename_.empty() ? "follows" : std::string("to file '"+filename_+"'");
+    result += " **\n";
+    return result;
+  }
+
+  art::ostream_handle& stream() {
+    return *osp_;
+  }
+
+  bool stream_is_valid(){ return osp_->stream(); }
 
   void to_cerr() { dest_ = destination::cerr; }
+
+  void set_preempting(bool const p){ preempting_ = p; }
 
   void set_filename(std::string const& fn)
   {
@@ -42,6 +58,8 @@ public:
   }
 
   void set_mode(fhicl::detail::print_mode const pm){ mode_ = pm; }
+
+  bool preempting() const { return preempting_; }
 
   explicit operator bool() { return maybe_initialize_(); }
 
@@ -53,7 +71,15 @@ public:
     bool isFilename{false};
     try {
       isFilename = std::regex_match(debug_config, std::regex("[[:alpha:]/\\.].*"));
-      fn = debug_config;
+
+      std::string suffix = "follows";
+      if ( isFilename ) {
+        fn     = debug_config;
+        suffix = "to file "+fn;
+      }
+
+      std::cerr << "** ART_DEBUG_CONFIG is defined **\n";
+
     }
     catch(std::regex_error const & e) {
       std::cerr << "REGEX ERROR: " << e.code() << ".\n";
@@ -66,6 +92,7 @@ public:
 private:
 
   destination dest_;
+  bool preempting_;
   fhicl::detail::print_mode mode_;
   std::string filename_;
   std::unique_ptr<art::ostream_handle> osp_;
@@ -74,15 +101,11 @@ private:
     switch(dest_) {
     case destination::none : return false;
     case destination::file : {
-      std::cerr << "** ART_DEBUG_CONFIG is defined: config debug output to file "
-                << filename_
-                << " **\n";
       osp_ = std::make_unique<art::ostream_owner>(filename_);
       if ( osp_->stream() ) break;
       std::cerr << "Output of config to " << filename_ << " failed: fallback to stderr.\n";
     }
     case destination::cerr : {
-      std::cerr << "** ART_DEBUG_CONFIG is defined: config debug output follows **\n";
       osp_ = std::make_unique<art::ostream_observer>(std::cerr);
       break;
     }
