@@ -1,7 +1,7 @@
 #ifndef art_Framework_Art_detail_DebugOutput_h
 #define art_Framework_Art_detail_DebugOutput_h
 
-#include "art/Utilities/ostream_handle.h"
+#include "cetlib/ostream_handle.h"
 #include "fhiclcpp/detail/print_mode.h"
 
 #include <cstdlib>
@@ -41,7 +41,7 @@ public:
     return result;
   }
 
-  art::ostream_handle& stream() {
+  cet::ostream_handle& stream() {
     return *osp_;
   }
 
@@ -95,18 +95,18 @@ private:
   bool preempting_;
   fhicl::detail::print_mode mode_;
   std::string filename_;
-  std::unique_ptr<art::ostream_handle> osp_;
+  std::unique_ptr<cet::ostream_handle> osp_;
 
   bool maybe_initialize_() {
     switch(dest_) {
     case destination::none : return false;
     case destination::file : {
-      osp_ = std::make_unique<art::ostream_owner>(filename_);
+      osp_ = std::make_unique<cet::ostream_owner>(filename_);
       if ( osp_->stream() ) break;
       std::cerr << "Output of config to " << filename_ << " failed: fallback to stderr.\n";
     }
     case destination::cerr : {
-      osp_ = std::make_unique<art::ostream_observer>(std::cerr);
+      osp_ = std::make_unique<cet::ostream_observer>(std::cerr);
       break;
     }
     }
