@@ -10,7 +10,7 @@
 
 #include "art/Persistency/Common/Ptr.h"
 #include "art/Persistency/Common/PtrVectorBase.h"
-#include "cetlib/cetlib/compiler_macros.h"
+#include "cetlib/compiler_macros.h"
 
 #ifndef __GCCXML__
 #include <initializer_list>
