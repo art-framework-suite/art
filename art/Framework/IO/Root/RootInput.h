@@ -10,13 +10,13 @@
 #include "art/Persistency/Provenance/BranchDescription.h"
 #include "art/Persistency/Provenance/BranchID.h"
 #include "art/Persistency/Provenance/BranchType.h"
-#include "cpp0x/array"
-#include "cpp0x/memory"
-#include "cpp0x/type_traits"
 #include "messagefacility/MessageLogger/MessageLogger.h"
+
+#include <array>
 #include <memory>
 #include <string>
 #include <vector>
+#include <type_traits>
 
 namespace art {
 

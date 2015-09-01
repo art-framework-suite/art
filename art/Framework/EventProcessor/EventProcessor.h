@@ -201,7 +201,7 @@ public:
   PrincipalSignalSentry(PrincipalSignalSentry<T> const &) = delete;
   PrincipalSignalSentry<T> operator=(PrincipalSignalSentry<T> const &) = delete;
 
-  typedef typename T::MyPrincipal principal_t;
+  using principal_t = typename T::MyPrincipal;
   PrincipalSignalSentry(art::ActivityRegistry & a, principal_t & ep);
   ~PrincipalSignalSentry();
 
