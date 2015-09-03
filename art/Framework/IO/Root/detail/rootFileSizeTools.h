@@ -1,5 +1,5 @@
-#ifndef art_Framework_IO_Root_rootFileSizeTools_h
-#define art_Framework_IO_Root_rootFileSizeTools_h
+#ifndef art_Framework_IO_Root_detail_rootFileSizeTools_h
+#define art_Framework_IO_Root_detail_rootFileSizeTools_h
 //
 // Utilties for finding the size on disk of TTrees and TBranches
 // Adapted from code given by Philippe Canal, pcanal@fnal.gov.
@@ -26,4 +26,8 @@ namespace art {
   }
 } // namespace art
 
-#endif /* art_Framework_IO_Root_rootFileSizeTools_h */
+#endif /* art_Framework_IO_Root_detail_rootFileSizeTools_h */
+
+// Local Variables:
+// mode: c++
+// End:

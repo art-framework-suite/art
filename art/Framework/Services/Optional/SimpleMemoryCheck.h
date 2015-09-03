@@ -7,4 +7,4 @@
 #  include "art/Framework/Services/Optional/SimpleMemoryCheckDarwin.h"
 #endif
 
-#endif // art_Framework_Services_Optional_SimpleMemoryCheck_h
+#endif /* art_Framework_Services_Optional_SimpleMemoryCheck_h */

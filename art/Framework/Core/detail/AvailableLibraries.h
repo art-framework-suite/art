@@ -53,7 +53,7 @@ namespace art {
   } // detail
 } // art
 
-#endif //art_Framework_Core_detail_AvailableLibraries_h
+#endif /* art_Framework_Core_detail_AvailableLibraries_h */
 
 // Local variables:
 // mode: c++

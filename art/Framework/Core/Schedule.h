@@ -211,4 +211,4 @@ doForAllEnabledPaths_(F functor)
 // Local Variables:
 // mode: c++
 // End:
-#endif // art_Framework_Core_Schedule_h
+#endif /* art_Framework_Core_Schedule_h */

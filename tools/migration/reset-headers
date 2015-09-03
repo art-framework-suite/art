@@ -138,6 +138,7 @@ FILE: foreach my $file (@ARGV) {
     }
     if ((!$seen_guard_close) and $line =~ m&^\s*#\s*endif&) {
       chomp $line;
+      # C-style comments on C preprocessor directives.
       $line =~ s&^.*$&#endif /* $new_guard */\n&;
       $seen_guard_close = 1;
     }
@@ -182,7 +183,7 @@ chmod +x "${TMP}"
 for F in \
   `${find} "$TOP" \( -type d \( -name .git -o -name .svn -o -name CVS -o -name doc -o \
                              -name ups -o -path '*/tools/migration' -o \
-                             -path '*/art/ParameterSet' \) \
+                             -name ParameterSet -o -name rapidjson \) \
                   -prune \) -o \
                -type f \! \( -name '*~' -o -name '*.bak' -o -name '*.new' \) \
                \( -name '*.[Hh]' -o -name '*.hpp' -o -name '*.hxx' -o \

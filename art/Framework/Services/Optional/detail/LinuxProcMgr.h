@@ -29,7 +29,7 @@ namespace art {
 
   }
 }
-#endif // art_Framework_Services_Optional_detail_LinuxProcMgr_h
+#endif /* art_Framework_Services_Optional_detail_LinuxProcMgr_h */
 
 // Local variables:
 // mode:c++

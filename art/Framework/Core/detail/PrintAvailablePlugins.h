@@ -16,7 +16,7 @@ namespace art {
   }
 }
 
-#endif // art_Framework_Core_detail_PrintAvailablePlugins_h
+#endif /* art_Framework_Core_detail_PrintAvailablePlugins_h */
 
 // Local variables:
 // mode: c++

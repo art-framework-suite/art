@@ -114,7 +114,7 @@ private:
   }
 };
 
-#endif
+#endif /* art_Framework_Art_detail_DebugOutput_h */
 
 // Local variables:
 // mode: c++

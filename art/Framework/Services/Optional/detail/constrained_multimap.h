@@ -1,5 +1,5 @@
-#ifndef art_Framework_Services_Optional_detail_constrained_map_h
-#define art_Framework_Services_Optional_detail_constrained_map_h
+#ifndef art_Framework_Services_Optional_detail_constrained_multimap_h
+#define art_Framework_Services_Optional_detail_constrained_multimap_h
 
 // ====================================================
 //
@@ -91,7 +91,7 @@ namespace art {
   }
 }
 
-#endif // art_Framework_Services_Optional_detail_constrained_multimap_h
+#endif /* art_Framework_Services_Optional_detail_constrained_multimap_h */
 
 // Local variables:
 // mode: c++

@@ -1,5 +1,5 @@
-#ifndef JJSHDJFHF
-#define JJSHDJFHF
+#ifndef art_Utilities_detail_serviceConfigLocation_h
+#define art_Utilities_detail_serviceConfigLocation_h
 #include <string>
 
 namespace fhicl {
@@ -12,7 +12,7 @@ namespace art {
                                       std::string const & service);
   }
 }
-#endif
+#endif /* art_Utilities_detail_serviceConfigLocation_h */
 
 // Local Variables:
 // mode: c++

@@ -124,4 +124,4 @@ private:
 // Local Variables:
 // mode: c++
 // End:
-#endif // art_Framework_Principal_SubRunPrincipal_h
+#endif /* art_Framework_Principal_SubRunPrincipal_h */

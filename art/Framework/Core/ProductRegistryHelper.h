@@ -155,7 +155,8 @@ reconstitutes(std::string const& emulatedModule,
 
 } // namespace art
 
+#endif // art_Framework_Core_ProductRegistryHelper_h
+
 // Local Variables:
 // mode: c++
 // End:
-#endif // art_Framework_Core_ProductRegistryHelper_h

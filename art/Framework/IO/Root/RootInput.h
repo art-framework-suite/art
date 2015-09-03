@@ -177,4 +177,4 @@ postSeekChecks(EventID const& foundID, T,
 // Local Variables:
 // mode: c++
 // End:
-#endif // art_Framework_IO_Root_RootInput_h
+#endif /* art_Framework_IO_Root_RootInput_h */

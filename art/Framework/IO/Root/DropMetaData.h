@@ -11,4 +11,8 @@ enum class DropMetaData {
 
 }
 
-#endif // art_Framework_IO_Root_DropMetaData_h
+#endif /* art_Framework_IO_Root_DropMetaData_h */
+
+// Local Variables:
+// mode: c++
+// End:
