@@ -1221,3 +1221,5 @@ cet_test(NonexistentPathCheck_02_t HANDBUILT
 )
 
 include(legacy-tests)
+
+simple_plugin(RPTest "plugin" NO_INSTALL art_Framework_Core)

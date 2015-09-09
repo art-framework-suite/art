@@ -111,6 +111,9 @@ public:
 
   void selectProducts(FileBlock const&);
 
+  void registerProducts(MasterProductRegistry &,
+                        ModuleDescription const &);
+
 protected:
   // The returned pointer will be null unless the this is currently
   // executing its event loop function ('write').
@@ -123,6 +126,10 @@ protected:
 
   // Called after selectProducts() has done its work.
   virtual void postSelectProducts(FileBlock const &);
+
+  // Called to register products if necessary.
+  virtual void doRegisterProducts(MasterProductRegistry &,
+                                  ModuleDescription const &);
 
 private:
 

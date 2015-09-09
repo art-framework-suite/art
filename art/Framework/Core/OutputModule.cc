@@ -80,6 +80,14 @@ selectProducts(FileBlock const& fb)
 
 void
 art::OutputModule::
+registerProducts(MasterProductRegistry & mpr,
+                 ModuleDescription const & md)
+{
+  doRegisterProducts(mpr, md);
+}
+
+void
+art::OutputModule::
 preSelectProducts(FileBlock const &)
 {
 }
@@ -87,6 +95,13 @@ preSelectProducts(FileBlock const &)
 void
 art::OutputModule::
 postSelectProducts(FileBlock const &)
+{
+}
+
+void
+art::OutputModule::
+doRegisterProducts(MasterProductRegistry &,
+                   ModuleDescription const &)
 {
 }
 

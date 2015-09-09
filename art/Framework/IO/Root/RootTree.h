@@ -39,6 +39,8 @@ public:
   RootTree(RootTree const&) = delete;
   RootTree& operator=(RootTree const&) = delete;
 
+  explicit operator bool () const { return isValid(); }
+
   bool isValid() const;
   bool hasBranch(std::string const& branchName) const;
   void addBranch(BranchKey const&, BranchDescription const&,

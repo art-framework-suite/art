@@ -25,6 +25,7 @@ set(art_Persistency_Provenance_sources
   ProductMetaData.cc
   ProductProvenance.cc
   ReflexTools.cc
+  ResultsAuxiliary.cc
   RunAuxiliary.cc
   RunID.cc
   SubRunAuxiliary.cc
