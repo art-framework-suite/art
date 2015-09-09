@@ -198,7 +198,7 @@ private:
   void
   commit_();
   void
-  commit_aux(Base::ProductPtrVec& products, bool record_parents);
+  commit_aux(Base::ProductPtrMap& products, bool record_parents);
 
   GroupQueryResult
   getByProductID_(ProductID const& oid) const;
@@ -235,29 +235,26 @@ art::Event::get(ProductID const& oid, Handle<PROD>& result) const
 
 template <typename PROD>
 art::ProductID
-art::Event::put(std::unique_ptr<PROD> && product, std::string const& productInstanceName)
+art::Event::put(std::unique_ptr<PROD> && product,
+                std::string const& productInstanceName)
 {
-  if (product.get() == 0) {                // null pointer is illegal
-    TypeID typeID(typeid(PROD));
+  if (product.get() == nullptr) {
     throw art::Exception(art::errors::NullPointerError)
       << "Event::put: A null unique_ptr was passed to 'put'.\n"
-      << "The pointer is of type " << typeID << ".\n"
+      << "The pointer is of type " << TypeID(typeid(PROD)) << ".\n"
       << "The specified productInstanceName was '" << productInstanceName << "'.\n";
   }
 
   BranchDescription const& desc =
     getBranchDescription(TypeID(*product), productInstanceName);
 
-  Wrapper<PROD>* wp(new Wrapper<PROD>(std::move(product)));
+  auto wp = std::make_unique<Wrapper<PROD>>(std::move(product));
 
   detail::maybe_record_parents(putProducts(),
                                putProductsWithoutParents(),
-                               wp,
+                               std::move(wp),
                                &desc);
   //    putProducts().push_back(std::make_pair(wp, &desc));
-
-  // product.release(); // The object has been copied into the Wrapper.
-  // The old copy must be deleted, so we cannot release ownership.
 
   return makeProductID(desc);
 }  // put<>()
@@ -267,7 +264,7 @@ art::Event::put(std::unique_ptr<PROD> && product, std::string const& productInst
 template <typename PROD>
 bool
 art::Event::get(SelectorBase const& sel,
-           Handle<PROD>& result) const
+                Handle<PROD>& result) const
 {
   bool ok = this->Base::get(sel, result);
   if (ok) {

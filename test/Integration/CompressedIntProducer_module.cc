@@ -97,8 +97,7 @@ CompressedIntProducer::endRun( art::Run& r )
 template <typename PUTTER>
 void
 CompressedIntProducer::put(PUTTER & p) {
-  p.put(std::unique_ptr<CompressedIntProduct>(
-    new CompressedIntProduct(value_)));
+  p.put(std::make_unique<CompressedIntProduct>(value_));
 }
 
 DEFINE_ART_MODULE(CompressedIntProducer)

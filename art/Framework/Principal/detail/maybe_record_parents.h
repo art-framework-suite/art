@@ -8,47 +8,46 @@
 
 namespace art {
    namespace detail {
-      template <typename T>
-         struct has_donotrecordparents
-         {
-            static bool const value =
-               std::is_base_of<art::DoNotRecordParents,T>::value;
-         };
 
-      template <typename T>
-         struct RecordInParentless {
-            void operator()(DataViewImpl::ProductPtrVec & used,
-                            DataViewImpl::ProductPtrVec & /*ignored*/,
-                            Wrapper<T>* wp,
-                            BranchDescription const* desc) const {
-               used.push_back(std::make_pair(wp, desc));
-            }
-         };  // RecordInParentless<>
+     template <typename T>
+     struct has_donotrecordparents
+     {
+       static bool const value =
+         std::is_base_of<art::DoNotRecordParents,T>::value;
+     };
 
-      template <typename T>
-         struct RecordInParentfull {
-            void operator()(DataViewImpl::ProductPtrVec & used,
-                            DataViewImpl::ProductPtrVec & /*ignored*/,
-                            Wrapper<T>* wp,
-                            BranchDescription const* desc) const {
-               used.push_back(std::make_pair(wp, desc));
-            }
-         };  // RecordInParentfull<>
+     struct RecordInParentless {
+       void operator()(DataViewImpl::ProductPtrMap & used,
+                       DataViewImpl::ProductPtrMap & /*ignored*/,
+                       std::unique_ptr<EDProduct>&& wp,
+                       BranchDescription const* desc) const {
+         used.emplace(desc->branchID().id(), DataViewImpl::PMValue{std::move(wp), desc});
+       }
+     };  // RecordInParentless<>
 
-      template <typename T>
-         void maybe_record_parents(DataViewImpl::ProductPtrVec & used,
-                                   DataViewImpl::ProductPtrVec & ignored,
-                                   Wrapper<T> *wp,
-                                   BranchDescription const *desc) {
-         typename std::conditional<
-            has_donotrecordparents<T>::value,
-            RecordInParentless<T>,
-            RecordInParentfull<T>
-            >::type parentage_recorder;
-      parentage_recorder(used,
-                         ignored,
-                         wp,
-                         desc);
+     struct RecordInParentfull {
+       void operator()(DataViewImpl::ProductPtrMap & used,
+                       DataViewImpl::ProductPtrMap & /*ignored*/,
+                       std::unique_ptr<EDProduct>&& wp,
+                       BranchDescription const* desc) const {
+         used.emplace(desc->branchID().id(), DataViewImpl::PMValue{std::move(wp), desc});
+       }
+     };  // RecordInParentfull<>
+
+     template <typename T>
+     void maybe_record_parents(DataViewImpl::ProductPtrMap & used,
+                               DataViewImpl::ProductPtrMap & ignored,
+                               std::unique_ptr<Wrapper<T>>&& wp,
+                               BranchDescription const *desc) {
+       typename std::conditional<
+       has_donotrecordparents<T>::value,
+         RecordInParentless,
+         RecordInParentfull
+         >::type parentage_recorder;
+       parentage_recorder(used,
+                          ignored,
+                          std::move(wp),
+                          desc);
    }
 
       // ----------------------------------------------------------------------

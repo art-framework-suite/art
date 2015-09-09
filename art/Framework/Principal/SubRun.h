@@ -85,21 +85,22 @@ private:
 #ifndef __GCCXML__
 template <typename PROD>
 void
-art::SubRun::put(std::unique_ptr<PROD> && product, std::string const& productInstanceName) {
-  if (product.get() == 0) {                // null pointer is illegal
-    TypeID typeID(typeid(PROD));
+art::SubRun::put(std::unique_ptr<PROD> && product,
+                 std::string const& productInstanceName)
+{
+  if (product.get() == nullptr) {
     throw art::Exception(art::errors::NullPointerError)
       << "SubRun::put: A null unique_ptr was passed to 'put'.\n"
-      << "The pointer is of type " << typeID << ".\n"
+      << "The pointer is of type " << TypeID(typeid(PROD)) << ".\n"
       << "The specified productInstanceName was '" << productInstanceName << "'.\n";
   }
 
   BranchDescription const& desc =
     getBranchDescription(TypeID(*product), productInstanceName);
 
-  Wrapper<PROD> *wp(new Wrapper<PROD>(std::move(product)));
+  auto wp = std::make_unique<Wrapper<PROD>>(std::move(product));
 
-  putProducts().push_back(std::make_pair(wp, &desc));
+  putProducts().emplace( desc.branchID().id(), PMValue{std::move(wp), &desc} );
 }
 
 #endif

@@ -22,20 +22,11 @@ namespace art {
     principal_(pcpl),
     md_(md),
     branchType_(branchType)
-  {  }
-
-  struct deleter {
-    void operator()(pair<EDProduct*, BranchDescription const*> const p) const { delete p.first; }
-  };
-
-  DataViewImpl::~DataViewImpl() {
-    // anything left here must be the result of a failure
-    // let's record them as failed attempts in the event principal
-    for_all(putProducts_, deleter());
-  }
+  {}
 
   size_t
-  DataViewImpl::size() const {
+  DataViewImpl::size() const
+  {
     return putProducts_.size() + principal_.size();
   }
 

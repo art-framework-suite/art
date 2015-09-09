@@ -39,25 +39,19 @@ namespace art {
 
   void
   SubRun::commit_() {
-    // fill in guts of provenance here
-    SubRunPrincipal & srp = subRunPrincipal();
-    ProductPtrVec::iterator pit(putProducts().begin());
-    ProductPtrVec::iterator pie(putProducts().end());
 
-    while(pit!=pie) {
-        std::unique_ptr<EDProduct> pr(pit->first);
-        // note: ownership has been passed - so clear the pointer!
-        pit->first = 0;
+    auto put_in_principal = [&srp=subRunPrincipal()](auto& elem) {
 
-        // set provenance
-        std::unique_ptr<ProductProvenance const> subRunProductProvenancePtr(
-                new ProductProvenance(pit->second->branchID(),
-                                      productstatus::present()));
-        srp.put(std::move(pr),
-                *pit->second,
-                std::move(subRunProductProvenancePtr));
-        ++pit;
-    }
+      // set provenance
+      auto subRunProductProvenancePtr = std::make_unique<ProductProvenance const>(elem.second.bd->branchID(),
+                                                                                  productstatus::present());
+
+      srp.put( std::move(elem.second.prod),
+               *elem.second.bd,
+               std::move(subRunProductProvenancePtr) );
+    };
+
+    cet::for_all( putProducts(), put_in_principal );
 
     // the cleanup is all or none
     putProducts().clear();

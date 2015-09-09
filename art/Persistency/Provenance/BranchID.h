@@ -33,7 +33,6 @@ namespace art {
     value_type id_;
   };
 
-
   std::ostream&
   operator<<(std::ostream& os, BranchID const& id);
 }

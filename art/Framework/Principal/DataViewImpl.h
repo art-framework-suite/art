@@ -48,18 +48,20 @@
 // ======================================================================
 
 #include "art/Framework/Principal/fwd.h"
+#include "art/Framework/Principal/Handle.h"
 #include "art/Persistency/Common/EDProduct.h"
 #include "art/Persistency/Common/GroupQueryResult.h"
-#include "art/Framework/Principal/Handle.h"
 #include "art/Persistency/Common/Wrapper.h"
 #include "art/Persistency/Common/fwd.h"
 #include "art/Persistency/Common/traits.h"
 #include "art/Persistency/Provenance/BranchDescription.h"
+#include "art/Persistency/Provenance/BranchID.h"
 #include "art/Persistency/Provenance/BranchType.h"
 #include "art/Persistency/Provenance/ProductProvenance.h"
 #include "art/Persistency/Provenance/ProvenanceFwd.h"
 #include "art/Utilities/InputTag.h"
 #include "art/Utilities/TypeID.h"
+#include "cetlib/exempt_ptr.h"
 #include "cpp0x/memory"
 #include "cpp0x/utility"
 
@@ -82,8 +84,6 @@ public:
   DataViewImpl(Principal & pcpl,
                ModuleDescription const& md,
                BranchType const& branchType);
-
-  ~DataViewImpl();
 
   size_t size() const;
 
@@ -119,17 +119,28 @@ public:
   DataViewImpl const&
   me() const {return *this;}
 
-  typedef std::vector<std::pair<EDProduct*, BranchDescription const *> >  ProductPtrVec;
+  struct PMValue {
+
+    PMValue( std::unique_ptr<EDProduct>&& p, BranchDescription const* b )
+      : prod(std::move(p)), bd(b)
+    {}
+
+    std::unique_ptr<EDProduct> prod;
+    cet::exempt_ptr<BranchDescription const> bd;
+  };
+
+  using ProductPtrMap = std::unordered_map<BranchID::value_type, PMValue>;
+
 protected:
 
-  Principal & principal() {return principal_;}
+  Principal      & principal()       {return principal_;}
   Principal const& principal() const {return principal_;}
 
-  ProductPtrVec & putProducts() {return putProducts_;}
-  ProductPtrVec const& putProducts() const {return putProducts_;}
+  ProductPtrMap      & putProducts()       {return putProducts_;}
+  ProductPtrMap const& putProducts() const {return putProducts_;}
 
-  ProductPtrVec & putProductsWithoutParents() {return putProductsWithoutParents_;}
-  ProductPtrVec const& putProductsWithoutParents() const {return putProductsWithoutParents_;}
+  ProductPtrMap      & putProductsWithoutParents()       {return putProductsWithoutParents_;}
+  ProductPtrMap const& putProductsWithoutParents() const {return putProductsWithoutParents_;}
 
   BranchDescription const&
   getBranchDescription(TypeID const& type, std::string const& productInstanceName) const;
@@ -198,8 +209,8 @@ private:
   // pens for EDProducts inserted into this DataViewImpl. Pointers
   // in these collections own the products to which they point.
   //
-  ProductPtrVec putProducts_;               // keep parentage info for these
-  ProductPtrVec putProductsWithoutParents_; // ... but not for these
+  ProductPtrMap putProducts_;               // keep parentage info for these
+  ProductPtrMap putProductsWithoutParents_; // ... but not for these
 
   // Each DataViewImpl must have an associated Principal, used as the
   // source of all 'gets' and the target of 'puts'.
