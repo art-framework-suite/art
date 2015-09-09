@@ -256,52 +256,10 @@ private:
   virtual void writeBranchMapper();
   virtual void finishEndFile();
 
-  template <typename Config>
-  PluginCollection_t makePlugins_(Table<Config> const& config);
+  PluginCollection_t makePlugins_(fhicl::ParameterSet const & top_pset);
 };  // OutputModule
 
 #ifndef __GCCXML__
-
-template <typename Config>
-auto
-art::OutputModule::
-makePlugins_(art::OutputModule::Table<Config> const & config)
-  -> PluginCollection_t
-{
-  fhicl::ParameterSet const& top_pset = config.get_PSet();
-  auto const psets = top_pset.get<std::vector<fhicl::ParameterSet>>("FCMDPlugins", {} );
-  PluginCollection_t result;
-  result.reserve(psets.size());
-  size_t count = 0;
-  try {
-    for (auto const & pset : psets) {
-      pluginNames_.emplace_back(pset.get<std::string>("plugin_type"));
-      auto const & libspec = pluginNames_.back();
-      auto const pluginType = pluginFactory_.pluginType(libspec);
-      if (pluginType == cet::PluginTypeDeducer<FileCatalogMetadataPlugin>::value) {
-        result.emplace_back(pluginFactory_.
-                            makePlugin<std::unique_ptr<FileCatalogMetadataPlugin>,
-                            fhicl::ParameterSet const &>(libspec, pset));
-      } else {
-        throw Exception(errors::Configuration, "OutputModule: ")
-          << "unrecognized plugin type "
-          << pluginType
-          << ".\n";
-      }
-      ++count;
-    }
-  }
-  catch (cet::exception & e) {
-    throw Exception(errors::Configuration, "OutputModule: ", e)
-      << "Exception caught while processing FCMDPlugins["
-      << count
-      << "] in module "
-      << description().moduleLabel()
-      << ".\n";
-  }
-  return result;
-}
-
 
 template <typename Config>
 art::OutputModule::
@@ -333,7 +291,7 @@ OutputModule(art::OutputModule::Table<Config> const & config)
   ci_(),
   pluginFactory_(),
   pluginNames_(),
-  plugins_(makePlugins_(config))
+  plugins_(makePlugins_(config.get_PSet()))
 {
   hasNewlyDroppedBranch_.fill(false);
 }
