@@ -52,9 +52,9 @@ Some examples of InputSource subclasses may be:
 #include "art/Persistency/Provenance/SubRunID.h"
 #include "art/Persistency/Provenance/Timestamp.h"
 #include "cetlib/exempt_ptr.h"
-#include "cpp0x/memory"
 #include "fhiclcpp/ParameterSet.h"
 
+#include <memory>
 #include <string>
 
 // ----------------------------------------------------------------------
@@ -177,6 +177,7 @@ namespace art
     ProcessingMode processingMode() const {return processingMode_;}
 
     using ProductRegistryHelper::reconstitutes;
+    using ProductRegistryHelper::expectedProducts;
 
   protected:
     /// To set the current time, as seen by the input source
@@ -231,6 +232,7 @@ namespace art
     int const reportFrequency_;
     ProcessingMode processingMode_;
     ModuleDescription const moduleDescription_;
+    bool checkPutProducts_;
     Timestamp time_;
     bool doneReadAhead_;
     input::ItemType state_;

@@ -59,14 +59,14 @@
 #include "art/Persistency/Provenance/BranchType.h"
 #include "art/Persistency/Provenance/ProductProvenance.h"
 #include "art/Persistency/Provenance/ProvenanceFwd.h"
+#include "art/Persistency/Provenance/detail/type_aliases.h"
 #include "art/Utilities/InputTag.h"
 #include "art/Utilities/TypeID.h"
-#include "cetlib/exempt_ptr.h"
-#include "cpp0x/memory"
-#include "cpp0x/utility"
 
 #include <ostream>
+#include <memory>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace art {
@@ -121,26 +121,31 @@ public:
 
   struct PMValue {
 
-    PMValue( std::unique_ptr<EDProduct>&& p, BranchDescription const* b )
+    PMValue( std::unique_ptr<EDProduct>&& p, BranchDescription const& b )
       : prod(std::move(p)), bd(b)
     {}
 
     std::unique_ptr<EDProduct> prod;
-    cet::exempt_ptr<BranchDescription const> bd;
+    BranchDescription const& bd;
   };
 
-  using ProductPtrMap = std::unordered_map<BranchID::value_type, PMValue>;
+  using BranchIDsMap = std::unordered_map<BranchID, PMValue, BranchID::Hash>;
 
 protected:
 
   Principal      & principal()       {return principal_;}
   Principal const& principal() const {return principal_;}
 
-  ProductPtrMap      & putProducts()       {return putProducts_;}
-  ProductPtrMap const& putProducts() const {return putProducts_;}
+  BranchIDsMap      & putProducts()       {return putProducts_;}
+  BranchIDsMap const& putProducts() const {return putProducts_;}
 
-  ProductPtrMap      & putProductsWithoutParents()       {return putProductsWithoutParents_;}
-  ProductPtrMap const& putProductsWithoutParents() const {return putProductsWithoutParents_;}
+  BranchIDsMap      & putProductsWithoutParents()       {return putProductsWithoutParents_;}
+  BranchIDsMap const& putProductsWithoutParents() const {return putProductsWithoutParents_;}
+
+  void
+  checkPutProducts(bool checkProducts,
+                   ProducedMap const& expectedBids,
+                   BranchIDsMap const& products );
 
   BranchDescription const&
   getBranchDescription(TypeID const& type, std::string const& productInstanceName) const;
@@ -209,8 +214,8 @@ private:
   // pens for EDProducts inserted into this DataViewImpl. Pointers
   // in these collections own the products to which they point.
   //
-  ProductPtrMap putProducts_;               // keep parentage info for these
-  ProductPtrMap putProductsWithoutParents_; // ... but not for these
+  BranchIDsMap putProducts_;               // keep parentage info for these
+  BranchIDsMap putProductsWithoutParents_; // ... but not for these
 
   // Each DataViewImpl must have an associated Principal, used as the
   // source of all 'gets' and the target of 'puts'.

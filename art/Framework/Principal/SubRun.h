@@ -95,12 +95,19 @@ art::SubRun::put(std::unique_ptr<PROD> && product,
       << "The specified productInstanceName was '" << productInstanceName << "'.\n";
   }
 
-  BranchDescription const& desc =
-    getBranchDescription(TypeID(*product), productInstanceName);
+  auto const& bd = getBranchDescription(TypeID(*product), productInstanceName);
+  auto        wp = std::make_unique<Wrapper<PROD>>(std::move(product));
 
-  auto wp = std::make_unique<Wrapper<PROD>>(std::move(product));
-
-  putProducts().emplace( desc.branchID().id(), PMValue{std::move(wp), &desc} );
+  auto result = putProducts().emplace( bd.branchID(), PMValue{std::move(wp), bd} );
+  if ( !result.second ) {
+    throw art::Exception(art::errors::InsertFailure)
+      << "SubRun::put: Attempt to put multiple products with the\n"
+      << "             following description onto the SubRun.\n"
+      << "             Products must be unique per SubRun.\n"
+      << "=================================\n"
+      << bd
+      << "=================================\n";
+  }
 }
 
 #endif

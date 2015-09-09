@@ -30,6 +30,8 @@ services: {
       IgnoreCompletely: []
       SkipEvent: []
       defaultExceptions: false
+      errorOnFailureToPut: true
+      errorOnSIGINT: true
       wantTracer: false
    }
 }

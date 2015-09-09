@@ -67,6 +67,7 @@ simple_plugin(MockClusterListAnalyzer     "module"  NO_INSTALL )
 simple_plugin(MockClusterListProducer     "module"  NO_INSTALL )
 simple_plugin(PausingAnalyzer             "module"  NO_INSTALL )
 simple_plugin(ProductIDGetter             "module"  NO_INSTALL USE_BOOST_UNIT )
+simple_plugin(ProductIDGetterNoPut        "module"  NO_INSTALL USE_BOOST_UNIT )
 simple_plugin(ProductIDGetterAnalyzer     "module"  NO_INSTALL USE_BOOST_UNIT )
 simple_plugin(PtrListAnalyzer             "module"  NO_INSTALL )
 simple_plugin(PtrVectorSimpleAnalyzer     "module"  NO_INSTALL )
@@ -94,6 +95,7 @@ simple_plugin(TestTimeTrackerAnalyzer     "module"  NO_INSTALL )
 simple_plugin(Throwing                    "service" NO_INSTALL )
 simple_plugin(ToyProductAnalyzer          "module"  NO_INSTALL )
 simple_plugin(ToyProductProducer          "module"  NO_INSTALL )
+simple_plugin(ToyProductProducerMultiput  "module"  NO_INSTALL )
 simple_plugin(ToyRawFileInput             "source"  NO_INSTALL USE_BOOST_UNIT test_Integration )
 simple_plugin(ToyRawInput                 "source"  NO_INSTALL USE_BOOST_UNIT test_Integration )
 simple_plugin(ToyRawInputTester           "module"  NO_INSTALL )
@@ -204,11 +206,10 @@ cet_test(test_failingProducer_t.sh PREBUILT
 cet_test(test_unputtingProducer_t HANDBUILT
   TEST_EXEC art
   TEST_ARGS --rethrow-all -c test_unputtingProducer.fcl
-  #TEST_EXEC valgrind
-  #TEST_ARGS --suppressions=${ROOTSYS}/etc/valgrind-root.supp --leak-check=no --track-origins=yes --log-file=val.log art --rethrow-all -c test_unputtingProducer.fcl
   DATAFILES
   fcl/test_unputtingProducer.fcl
   fcl/messageDefaults.fcl
+  TEST_PROPERTIES WILL_FAIL TRUE
 )
 
 cet_test(issue_0923_w HANDBUILT
@@ -315,6 +316,18 @@ foreach(num 01 02)
     TEST_ARGS --rethrow-all -c ToyProductProducer_t_${num}.fcl
     DATAFILES
     fcl/ToyProductProducer_t_${num}.fcl
+    )
+endforeach()
+
+foreach(num 01 02 03)
+  cet_test(ToyProductProducerMultiput_t_${num} HANDBUILT
+    TEST_EXEC art
+    TEST_ARGS --rethrow-all -c ToyProductProducerMultiput_t_${num}.fcl
+    DATAFILES
+    fcl/ToyProductProducerMultiput_t_${num}.fcl
+    TEST_PROPERTIES
+    PASS_REGULAR_EXPRESSION "Attempt to put multiple products with the"
+    PASS_REGULAR_EXPRESSION "following description onto the"
     )
 endforeach()
 
@@ -660,6 +673,47 @@ cet_test(ProductIDGetter_t HANDBUILT
   TEST_ARGS --rethrow-all -c "ProductIDGetter_t.fcl"
   DATAFILES
   fcl/ProductIDGetter_t.fcl
+  )
+
+cet_test(ProductIDGetterNoPut_t HANDBUILT
+  TEST_EXEC art_ut
+  TEST_ARGS --rethrow-all -c "ProductIDGetterNoPut_t.fcl"
+  DATAFILES
+  fcl/ProductIDGetterNoPut_t.fcl
+  TEST_PROPERTIES
+  PASS_REGULAR_EXPRESSION "The following products have been declared with 'produced'"       
+  )
+
+cet_test(ProductIDGetterNoPut_t_01a HANDBUILT
+  TEST_EXEC art_ut
+  TEST_ARGS --rethrow-all -c "ProductIDGetterNoPut_t_01.fcl"
+  DATAFILES
+  fcl/ProductIDGetterNoPut_t_01.fcl
+  TEST_PROPERTIES
+  PASS_REGULAR_EXPRESSION "The following products have been declared with 'produced'"       
+  )
+
+cet_test(ProductIDGetterNoPut_t_01b HANDBUILT
+  TEST_EXEC art_ut
+  TEST_ARGS --rethrow-all --errorOnFailureToPut=false -c "ProductIDGetterNoPut_t_01.fcl"
+  DATAFILES
+  fcl/ProductIDGetterNoPut_t_01.fcl
+  )
+
+cet_test(ProductIDGetterNoPut_t_02a HANDBUILT
+  TEST_EXEC art_ut
+  TEST_ARGS --rethrow-all -c "ProductIDGetterNoPut_t_02.fcl"
+  DATAFILES
+  fcl/ProductIDGetterNoPut_t_02.fcl
+  )
+
+cet_test(ProductIDGetterNoPut_t_02b HANDBUILT
+  TEST_EXEC art_ut
+  TEST_ARGS --rethrow-all --errorOnFailureToPut=true -c "ProductIDGetterNoPut_t_02.fcl"
+  DATAFILES
+  fcl/ProductIDGetterNoPut_t_02.fcl
+  TEST_PROPERTIES
+  PASS_REGULAR_EXPRESSION "The following products have been declared with 'produced'"       
   )
 
 cet_test(Assns_w HANDBUILT

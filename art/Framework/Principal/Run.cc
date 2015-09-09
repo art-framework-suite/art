@@ -58,15 +58,16 @@ namespace art {
   }
 
   void
-  Run::commit_() {
+  Run::commit_()
+  {
 
     auto put_in_principal = [&rp=runPrincipal()](auto& elem) {
 
-      auto runProductProvenancePtr = std::make_unique<ProductProvenance const>(elem.second.bd->branchID(),
+      auto runProductProvenancePtr = std::make_unique<ProductProvenance const>(elem.first,
                                                                                productstatus::present());
 
       rp.put( std::move(elem.second.prod),
-              *elem.second.bd,
+              elem.second.bd,
               std::move(runProductProvenancePtr) );
     };
 

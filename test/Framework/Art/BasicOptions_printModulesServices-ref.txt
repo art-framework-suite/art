@@ -55,6 +55,7 @@ Running 2 test cases...
    Prescaler                           filter      <path>/Prescaler_module.cc
    ProductIDGetter                     producer    <path>/ProductIDGetter_module.cc
    ProductIDGetterAnalyzer             analyzer    <path>/ProductIDGetterAnalyzer_module.cc
+   ProductIDGetterNoPut                producer    <path>/ProductIDGetterNoPut_module.cc
    ProvenanceCheckerOutput             output      <path>/ProvenanceCheckerOutput_module.cc
    PtrListAnalyzer                     analyzer    <path>/PtrListAnalyzer_module.cc
    PtrVectorAnalyzer                   analyzer    <path>/PtrVectorAnalyzer_module.cc
@@ -88,6 +89,7 @@ Running 2 test cases...
    TestTimeTrackerProducer             producer    <path>/TestTimeTrackerProducer_module.cc
    ToyProductAnalyzer                  analyzer    <path>/ToyProductAnalyzer_module.cc
    ToyProductProducer                  producer    <path>/ToyProductProducer_module.cc
+   ToyProductProducerMultiput          producer    <path>/ToyProductProducerMultiput_module.cc
    ToyRawFileInput                     source      <path>/ToyRawFileInput_source.cc
    ToyRawInput                         source      <path>/ToyRawInput_source.cc
    ToyRawInputTester                   analyzer    <path>/ToyRawInputTester_module.cc

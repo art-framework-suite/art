@@ -49,6 +49,10 @@ services: {
          }
       }
    }
+   scheduler: {
+      errorOnFailureToPut: true
+      errorOnSIGINT: true
+   }
 }
 source: {
    fileNames: [

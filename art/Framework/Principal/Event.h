@@ -14,6 +14,7 @@
 #include "art/Framework/Principal/detail/maybe_record_parents.h"
 #include "art/Framework/Principal/fwd.h"
 #include "art/Persistency/Common/GroupQueryResult.h"
+#include "art/Persistency/Provenance/detail/type_aliases.h"
 #include "art/Framework/Principal/Handle.h"
 #include "art/Persistency/Common/Wrapper.h"
 #include "art/Persistency/Provenance/EventAuxiliary.h"
@@ -23,10 +24,10 @@
 #include "art/Persistency/Provenance/RunID.h"
 #include "art/Persistency/Provenance/SubRunID.h"
 #include "art/Persistency/Provenance/Timestamp.h"
-
-#include "cpp0x/memory"
 #include "fhiclcpp/ParameterSet.h"
+
 #include <cstdlib>
+#include <memory>
 #include <set>
 #include <vector>
 
@@ -43,21 +44,15 @@ public:
   // use compiler-generated copy c'tor, copy assignment, and d'tor
 
   // AUX functions.
-  EventID
-  id() const {return aux_.id();}
-  Timestamp
-  time() const {return aux_.time();}
-  EventNumber_t
-  event() const {return aux_.event();}
-  SubRunNumber_t
-  subRun() const {return aux_.subRun();}
-  RunNumber_t
-  run() const {return id().run();}
+  EventID   id() const {return aux_.id();}
+  Timestamp time() const {return aux_.time();}
 
-  bool
-  isRealData() const {return aux_.isRealData();}
-  EventAuxiliary::ExperimentType
-  experimentType() const {return aux_.experimentType();}
+  EventNumber_t  event()  const {return aux_.event(); }
+  SubRunNumber_t subRun() const {return aux_.subRun();}
+  RunNumber_t    run()    const {return id().run();   }
+
+  bool isRealData() const {return aux_.isRealData();}
+  EventAuxiliary::ExperimentType experimentType() const {return aux_.experimentType();}
 
   using Base::get;
   using Base::getByLabel;
@@ -70,87 +65,68 @@ public:
 
   SubRun const& getSubRun() const;
 
-  Run const&
-  getRun() const;
+  Run const& getRun() const;
 
   template <typename PROD>
-  bool
-  get(ProductID const& oid, Handle<PROD>& result) const;
+  bool get(ProductID const& oid, Handle<PROD>& result) const;
 
-  History const&
-  history() const;
-  ProcessHistoryID const&
-  processHistoryID() const;
+  History const& history() const;
+  ProcessHistoryID const& processHistoryID() const;
 
 #ifndef __GCCXML__
   ///Put a new product.
   template <typename PROD>
-  ProductID
-  put(std::unique_ptr<PROD> && product) {return put<PROD>(std::move(product), std::string());}
+  ProductID put(std::unique_ptr<PROD> && product) {return put<PROD>(std::move(product), std::string());}
 
   ///Put a new product with a 'product instance name'
   template <typename PROD>
-  ProductID
-  put(std::unique_ptr<PROD> && product, std::string const& productInstanceName);
+  ProductID put(std::unique_ptr<PROD> && product, std::string const& productInstanceName);
 #endif
 
   template <typename PROD>
-  bool
-  get(SelectorBase const& sel,
-      Handle<PROD>& result) const;
+  bool get(SelectorBase const& sel, Handle<PROD>& result) const;
 
   template <typename PROD>
-  PROD const&
-  getByLabel(InputTag const& tag) const;
+  PROD const& getByLabel(InputTag const& tag) const;
 
   template <typename PROD>
-  art::ValidHandle<PROD>
-  getValidHandle(InputTag const& tag) const;
+  art::ValidHandle<PROD> getValidHandle(InputTag const& tag) const;
 
   template <typename PROD>
-  PROD const*
-  getPointerByLabel(InputTag const& tag) const;
+  PROD const* getPointerByLabel(InputTag const& tag) const;
 
   template <typename PROD>
-  bool
-  getByLabel(InputTag const& tag, Handle<PROD>& result) const;
+  bool getByLabel(InputTag const& tag, Handle<PROD>& result) const;
 
   template <typename PROD>
-  bool
-  getByLabel(std::string const& label,
-             std::string const& productInstanceName,
-             Handle<PROD>& result) const;
+  bool getByLabel(std::string const& label,
+                  std::string const& productInstanceName,
+                  Handle<PROD>& result) const;
 
   template <typename PROD>
-  void
-  getMany(SelectorBase const& sel,
-          std::vector<Handle<PROD> >& results) const;
+  void getMany(SelectorBase const& sel,
+               std::vector<Handle<PROD> >& results) const;
 
   template <typename PROD>
-  void
-  getManyByType(std::vector<Handle<PROD> >& results) const;
+  void getManyByType(std::vector<Handle<PROD> >& results) const;
 
   // If getView returns true, then result.isValid() is certain to be
   // true -- but the View may still be empty.
   template< class ELEMENT >
-  std::size_t
-  getView( std::string const &            moduleLabel,
-     std::string const &            productInstanceName,
-     std::vector<ELEMENT const *> & result) const;
+  std::size_t getView( std::string const &            moduleLabel,
+                       std::string const &            productInstanceName,
+                       std::vector<ELEMENT const *> & result) const;
 
   template< class ELEMENT >
-  std::size_t
-  getView( InputTag const &               tag,
-     std::vector<ELEMENT const *> & result) const;
+  std::size_t getView( InputTag const &               tag,
+                       std::vector<ELEMENT const *> & result) const;
 
   template <class ELEMENT>
-  bool
-  getView(std::string const& moduleLabel, std::string const& instanceName,
-          View<ELEMENT>& result) const;
+  bool getView(std::string const& moduleLabel, std::string const& instanceName,
+               View<ELEMENT>& result) const;
 
   template <class ELEMENT>
-  bool
-  getView(InputTag const& tag, View<ELEMENT>& result) const;
+  bool getView(InputTag const& tag, View<ELEMENT>& result) const;
 
   // Return true if this Event has been subjected to a process with
   // the given processName, and false otherwise.
@@ -170,20 +146,16 @@ private:
   EventPrincipal      & eventPrincipal();
 
   template< typename ELEMENT >
-  void
-  fillView_( GroupQueryResult & bh,
-       std::vector<ELEMENT const *> & result) const;
+  void fillView_( GroupQueryResult & bh,
+                  std::vector<ELEMENT const *> & result) const;
 
-  ProductID
-  makeProductID(BranchDescription const& desc) const;
+  ProductID makeProductID(BranchDescription const& desc) const;
 
-  void
-  ensure_unique_product( std::size_t         nFound
-                         , TypeID      const & typeID
-                         , std::string const & moduleLabel
-                         , std::string const & productInstanceName
-                         , std::string const & processName
-                         ) const;
+  void ensure_unique_product( std::size_t         nFound,
+                              TypeID      const & typeID,
+                              std::string const & moduleLabel,
+                              std::string const & productInstanceName,
+                              std::string const & processName ) const;
 
   // commit_() is called to complete the transaction represented by
   // this DataViewImpl. The friendships required are gross, but any
@@ -195,13 +167,12 @@ private:
   friend class EDProducer;
   friend class ProdToProdMapBuilder;
 
-  void
-  commit_();
-  void
-  commit_aux(Base::ProductPtrMap& products, bool record_parents);
+  void commit_(bool checkPutProducts,
+               ProducedMap const& expectedProducts);
+  void commit_aux(Base::BranchIDsMap& products,
+                  bool record_parents);
 
-  GroupQueryResult
-  getByProductID_(ProductID const& oid) const;
+  GroupQueryResult getByProductID_(ProductID const& oid) const;
 
   EventAuxiliary const& aux_;
   std::shared_ptr<SubRun const> const subRun_;
@@ -212,8 +183,7 @@ private:
   // Principal class.
   typedef std::set<BranchID> BranchIDSet;
   mutable BranchIDSet gotBranchIDs_;
-  void
-  addToGotBranchIDs(Provenance const& prov) const;
+  void addToGotBranchIDs(Provenance const& prov) const;
 
 };  // Event
 
@@ -245,18 +215,24 @@ art::Event::put(std::unique_ptr<PROD> && product,
       << "The specified productInstanceName was '" << productInstanceName << "'.\n";
   }
 
-  BranchDescription const& desc =
-    getBranchDescription(TypeID(*product), productInstanceName);
+  auto const& bd = getBranchDescription(TypeID(*product), productInstanceName);
+  auto        wp = std::make_unique<Wrapper<PROD>>(std::move(product));
 
-  auto wp = std::make_unique<Wrapper<PROD>>(std::move(product));
+  auto result = detail::maybe_record_parents(putProducts(),
+                                             putProductsWithoutParents(),
+                                             std::move(wp),
+                                             bd);
+  if ( !result.second ) {
+    throw art::Exception(art::errors::InsertFailure)
+      << "Event::put: Attempt to put multiple products with the\n"
+      << "            following description onto the Event.\n"
+      << "            Products must be unique per Event.\n"
+      << "=================================\n"
+      << bd
+      << "=================================\n";
+  }
 
-  detail::maybe_record_parents(putProducts(),
-                               putProductsWithoutParents(),
-                               std::move(wp),
-                               &desc);
-  //    putProducts().push_back(std::make_pair(wp, &desc));
-
-  return makeProductID(desc);
+  return makeProductID(bd);
 }  // put<>()
 
 // ----------------------------------------------------------------------

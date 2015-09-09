@@ -1,0 +1,20 @@
+process_name: PIDGNoPut
+
+physics:
+{
+  producers:
+  {
+    p1:
+    {
+      module_type: ProductIDGetterNoPut
+    }
+  }
+
+  t1: [ p1 ]
+}
+
+source:
+{
+  module_type: EmptyEvent
+  maxEvents: 1
+}

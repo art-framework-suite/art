@@ -109,7 +109,7 @@ IntProducer::endRun( art::Run& r )
 template <typename PUTTER>
 void
 IntProducer::put(PUTTER & p) {
-  p.put(std::unique_ptr<IntProduct>(new IntProduct(value_)));
+  p.put(std::make_unique<IntProduct>(value_));
 }
 
 DEFINE_ART_MODULE(IntProducer)

@@ -120,14 +120,17 @@ namespace art {
 
 
   void
-  Event::commit_() {
+  Event::commit_(bool const checkProducts, ProducedMap const& expectedProducts)
+  {
+    checkPutProducts(checkProducts, expectedProducts, putProducts());
     commit_aux(putProducts(), true);
     commit_aux(putProductsWithoutParents(), false);
   }
 
   void
-  Event::commit_aux(Base::ProductPtrMap& products, bool record_parents) {
-
+  Event::commit_aux(Base::BranchIDsMap& products,
+                    bool const record_parents)
+  {
     vector<BranchID> gotBranchIDVector;
 
     // Note that gotBranchIDVector will remain empty if
@@ -142,12 +145,12 @@ namespace art {
     auto put_in_principal = [&gotBranchIDVector, &ep=eventPrincipal()](auto& elem) {
 
       // set provenance
-      auto productProvenancePtr = make_unique<ProductProvenance const>(elem.second.bd->branchID(),
+      auto productProvenancePtr = make_unique<ProductProvenance const>(elem.first,
                                                                        productstatus::present(),
                                                                        gotBranchIDVector);
 
       ep.put( std::move(elem.second.prod),
-              *elem.second.bd,
+              elem.second.bd,
               std::move(productProvenancePtr) );
     };
 

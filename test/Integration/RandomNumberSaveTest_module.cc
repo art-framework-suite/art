@@ -34,7 +34,7 @@ namespace arttest {
 
 class arttest::RandomNumberSaveTest : public art::EDFilter {
 public:
-  typedef std::vector<size_t> prod_t;
+  using prod_t = std::vector<size_t>;
 
   explicit RandomNumberSaveTest(fhicl::ParameterSet const & p);
   virtual ~RandomNumberSaveTest();
@@ -90,8 +90,8 @@ bool arttest::RandomNumberSaveTest::filter(art::Event & e)
   static size_t const random_range = 1000;
   nums.reserve(nums_size);
   generate_n(std::back_inserter(nums),
-       nums_size,
-       [this](){ return dist_.fireInt(random_range);});
+             nums_size,
+             [this](){ return dist_.fireInt(random_range);});
   std::cerr << "nums: " << nums << "\n";
   if (e.getByLabel(myLabel_, hp)) {
     std::cerr << "(*hp): " << *hp << "\n";
@@ -103,7 +103,7 @@ bool arttest::RandomNumberSaveTest::filter(art::Event & e)
     }
   } else {
     // Writing.
-    e.put(std::unique_ptr<prod_t>(new prod_t(nums)));
+    e.put(std::make_unique<prod_t>(nums));
   }
   return true;
 }

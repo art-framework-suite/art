@@ -24,10 +24,12 @@
 #include "art/Persistency/Provenance/RunAuxiliary.h"
 #include "art/Persistency/Provenance/SubRunAuxiliary.h"
 #include "art/Persistency/Provenance/SubRunID.h"
+#include "art/Persistency/Provenance/detail/type_aliases.h"
 #include "cetlib/exempt_ptr.h"
-#include "cpp0x/array"
-#include "cpp0x/memory"
+
+#include <array>
 #include <map>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -241,8 +243,6 @@ public: // MEMBER FUNCTIONS
     --fiIter_;
     //updateSecondaryIter();
   }
-
-  using PerBranchTypePresence = MasterProductRegistry::PerBranchTypePresence;
 
   PerBranchTypePresence
   perBranchTypePresence()

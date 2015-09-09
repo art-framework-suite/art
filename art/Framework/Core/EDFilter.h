@@ -13,12 +13,11 @@
 #include "art/Framework/Core/EngineCreator.h"
 #include "art/Framework/Principal/fwd.h"
 #include "art/Framework/Core/Frameworkfwd.h"
-#include "art/Persistency/Provenance/MasterProductRegistry.h"
 #include "art/Framework/Core/ProducerBase.h"
 #include "art/Framework/Core/WorkerT.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
-#include "fhiclcpp/types/Atom.h"
 #include "fhiclcpp/ParameterSet.h"
+#include "fhiclcpp/types/Atom.h"
 #include "fhiclcpp/types/Table.h"
 
 #include <memory>
@@ -41,13 +40,8 @@ namespace art
     typedef EDFilter ModuleType;
     typedef WorkerT<EDFilter> WorkerType;
 
-    EDFilter()
-      : ProducerBase()
-      , EngineCreator()
-      , moduleDescription_()
-      , current_context_(0)
-    { }
-    virtual ~EDFilter();
+    EDFilter();
+    virtual ~EDFilter() = default;
 
     template <typename PROD, BranchType B, typename TRANS>
     ProductID
@@ -61,7 +55,8 @@ namespace art
 
     // Configuration
     struct baseConfig {
-      fhicl::Atom<std::string> module_type { fhicl::Name("module_type") };
+      fhicl::Atom<std::string>  module_type { fhicl::Name("module_type") };
+      fhicl::Atom<bool> errorOnFailureToPut { fhicl::Name("errorOnFailureToPut"), true };
     };
 
     template <typename T>
@@ -126,8 +121,10 @@ namespace art
     void setModuleDescription(ModuleDescription const& md) {
       moduleDescription_ = md;
     }
+
     ModuleDescription moduleDescription_;
     CurrentProcessingContext const* current_context_;
+    bool checkPutProducts_;
   };  // EDFilter
 
   template <typename PROD, BranchType B, typename TRANS>

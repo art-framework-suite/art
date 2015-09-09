@@ -3,8 +3,9 @@
 
 #include "art/Framework/Principal/DataViewImpl.h"
 #include "art/Framework/Principal/fwd.h"
-#include "cpp0x/type_traits"
-#include "cpp0x/utility"
+
+#include <type_traits>
+#include <utility>
 
 namespace art {
    namespace detail {
@@ -12,46 +13,37 @@ namespace art {
      template <typename T>
      struct has_donotrecordparents
      {
-       static bool const value =
+       static bool constexpr value =
          std::is_base_of<art::DoNotRecordParents,T>::value;
      };
 
      struct RecordInParentless {
-       void operator()(DataViewImpl::ProductPtrMap & used,
-                       DataViewImpl::ProductPtrMap & /*ignored*/,
+       auto operator()(DataViewImpl::BranchIDsMap & used,
+                       DataViewImpl::BranchIDsMap & /*ignored*/,
                        std::unique_ptr<EDProduct>&& wp,
-                       BranchDescription const* desc) const {
-         used.emplace(desc->branchID().id(), DataViewImpl::PMValue{std::move(wp), desc});
+                       BranchDescription const& bd) const {
+         return used.emplace(bd.branchID(), DataViewImpl::PMValue{std::move(wp), bd});
        }
-     };  // RecordInParentless<>
+     };
 
-     struct RecordInParentfull {
-       void operator()(DataViewImpl::ProductPtrMap & used,
-                       DataViewImpl::ProductPtrMap & /*ignored*/,
-                       std::unique_ptr<EDProduct>&& wp,
-                       BranchDescription const* desc) const {
-         used.emplace(desc->branchID().id(), DataViewImpl::PMValue{std::move(wp), desc});
-       }
-     };  // RecordInParentfull<>
+     using RecordInParentfull = RecordInParentless; // Not currently different than above.
 
      template <typename T>
-     void maybe_record_parents(DataViewImpl::ProductPtrMap & used,
-                               DataViewImpl::ProductPtrMap & ignored,
+     auto maybe_record_parents(DataViewImpl::BranchIDsMap & used,
+                               DataViewImpl::BranchIDsMap & ignored,
                                std::unique_ptr<Wrapper<T>>&& wp,
-                               BranchDescription const *desc) {
-       typename std::conditional<
+                               BranchDescription const& bd) {
+       std::conditional_t<
        has_donotrecordparents<T>::value,
          RecordInParentless,
          RecordInParentfull
-         >::type parentage_recorder;
-       parentage_recorder(used,
-                          ignored,
-                          std::move(wp),
-                          desc);
-   }
+         > parentage_recorder;
 
-      // ----------------------------------------------------------------------
-
+       return parentage_recorder(used,
+                                 ignored,
+                                 std::move(wp),
+                                 bd);
+     }
 
    }
 }

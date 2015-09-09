@@ -67,6 +67,8 @@ ASSNS: {
          IgnoreCompletely: []
          SkipEvent: []
          defaultExceptions: false
+         errorOnFailureToPut: true
+         errorOnSIGINT: true
       }
    }
    source: {

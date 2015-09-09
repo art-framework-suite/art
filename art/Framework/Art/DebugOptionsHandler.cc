@@ -10,6 +10,35 @@
 
 using namespace std::string_literals;
 
+namespace {
+
+  // For 'fillTable' the behavior is as follows:
+  //
+  // (1) If the program option is specified at the command line, the
+  //     corresponding FHiCL parameter is added to the intermediate
+  //     table (if it doesn't already exist), or the corresponding
+  //     value is overwritten (if the parameter does already exist).
+  //
+  // (2) If the program option is not specified AND the FHiCL file
+  //     does not have the corresponding parameter, then a default
+  //     value of 'true' is added to the FHiCL configuration.
+  //
+  // This function could be made more general, but there is currently
+  // no need.
+
+  void fillTable( std::string const& bpo_key,
+                  std::string const& fhicl_key,
+                  bpo::variables_map const& vm,
+                  fhicl::intermediate_table& config )
+  {
+    if ( vm.count( bpo_key ) )
+      config.put( fhicl_key, vm[bpo_key].as<bool>() );
+    else if ( !config.exists( fhicl_key ) )
+      config.put( fhicl_key, true );
+  }
+
+}
+
 art::DebugOptionsHandler::
 DebugOptionsHandler(bpo::options_description & desc,
                     std::string const & basename,
@@ -27,7 +56,13 @@ DebugOptionsHandler(bpo::options_description & desc,
     ("default-exceptions", "Some exceptions may be handled differently by default (e.g. ProductNotFound).")
     ("rethrow-default", "All exceptions default to rethrow.")
     ("rethrow-all", "All exceptions overridden to rethrow (cf rethrow-default).")
-    ("SIGINT-is-not-error", "A signal received from the user yields an art return code of 0.")
+    ("errorOnFailureToPut", bpo::value<bool>()->implicit_value(true,"true"),
+     "Global flag that controls the behavior upon failure to 'put' a product "
+     "(declared by 'produces') onto the Event.  If 'true', per-module flags "
+     "can override the value of the global flag.")
+    ("errorOnSIGINT", bpo::value<bool>()->implicit_value(true,"true"),
+     "If 'true', a signal received from the user yields an art return code "
+     "corresponding to an error; otherwise return 0.")
     ("debug-config", bpo::value<std::string>(),
      ("Output post-processed configuration to <file> and exit. Equivalent to env ART_DEBUG_CONFIG=<file> "s + basename + " ..."s).c_str())
     ("config-out", bpo::value<std::string>(),
@@ -139,8 +174,10 @@ doProcessOptions(bpo::variables_map const & vm,
       raw_config.putEmptySequence("services.scheduler.FailPath");
     }
   }
-  if (vm.count("SIGINT-is-not-error") == 1) {
-    raw_config.put("services.scheduler.SIGINTisNotError", true );
-  }
+
+  std::string const fhicl_base = "services.scheduler."s;
+  fillTable("errorOnFailureToPut", fhicl_base+"errorOnFailureToPut", vm, raw_config );
+  fillTable("errorOnSIGINT"      , fhicl_base+"errorOnSIGINT"      , vm, raw_config );
+
   return 0;
 }

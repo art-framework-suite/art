@@ -11,7 +11,6 @@
 #include "art/Framework/Core/EngineCreator.h"
 #include "art/Framework/Principal/fwd.h"
 #include "art/Framework/Core/Frameworkfwd.h"
-#include "art/Persistency/Provenance/MasterProductRegistry.h"
 #include "art/Framework/Core/ProducerBase.h"
 #include "art/Framework/Core/WorkerT.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
@@ -20,7 +19,6 @@
 #include "fhiclcpp/types/Table.h"
 
 #include <memory>
-#include <ostream>
 #include <string>
 
 // ----------------------------------------------------------------------
@@ -38,7 +36,7 @@ namespace art
     typedef WorkerT<EDProducer> WorkerType;
 
     EDProducer ();
-    virtual ~EDProducer();
+    virtual ~EDProducer() = default;
 
     template <typename PROD, BranchType B, typename TRANS>
     ProductID
@@ -52,7 +50,8 @@ namespace art
 
     // Configuration
     struct baseConfig {
-      fhicl::Atom<std::string> module_type { fhicl::Name("module_type") };
+      fhicl::Atom<std::string>  module_type { fhicl::Name("module_type") };
+      fhicl::Atom<bool> errorOnFailureToPut { fhicl::Name("errorOnFailureToPut"), true };
     };
 
     template <typename T>
@@ -118,8 +117,10 @@ namespace art
     void setModuleDescription(ModuleDescription const& md) {
       moduleDescription_ = md;
     }
+
     ModuleDescription moduleDescription_;
     CurrentProcessingContext const* current_context_;
+    bool checkPutProducts_;
   };  // EDProducer
 
   template <typename PROD, BranchType B, typename TRANS>

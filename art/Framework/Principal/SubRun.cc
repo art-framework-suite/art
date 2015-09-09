@@ -38,16 +38,17 @@ namespace art {
   }
 
   void
-  SubRun::commit_() {
+  SubRun::commit_()
+  {
 
     auto put_in_principal = [&srp=subRunPrincipal()](auto& elem) {
 
       // set provenance
-      auto subRunProductProvenancePtr = std::make_unique<ProductProvenance const>(elem.second.bd->branchID(),
+      auto subRunProductProvenancePtr = std::make_unique<ProductProvenance const>(elem.first,
                                                                                   productstatus::present());
 
       srp.put( std::move(elem.second.prod),
-               *elem.second.bd,
+               elem.second.bd,
                std::move(subRunProductProvenancePtr) );
     };
 

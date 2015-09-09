@@ -13,6 +13,7 @@
 #include "art/Persistency/Provenance/BranchType.h"
 #include "art/Persistency/Provenance/MasterProductRegistry.h"
 #include "art/Persistency/Provenance/ProductList.h"
+#include "art/Persistency/Provenance/detail/type_aliases.h"
 #include "cetlib/exempt_ptr.h"
 #include <ostream>
 #include <vector>
@@ -30,13 +31,6 @@ class ProductMetaData {
 
   // Used for testing.
   friend class ::MPRGlobalTestFixture;
-
-public:
-
-  typedef MasterProductRegistry::ProcessLookup ProcessLookup;
-  typedef MasterProductRegistry::TypeLookup TypeLookup;
-  typedef MasterProductRegistry::BranchTypeLookup BranchTypeLookup;
-  typedef MasterProductRegistry::ProductListUpdatedCallback ProductListUpdatedCallback;
 
 public:
 
