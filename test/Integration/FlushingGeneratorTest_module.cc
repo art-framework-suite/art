@@ -29,9 +29,9 @@ public:
   using Parameters = art::OutputModule::Table<Config>;
   explicit FlushingGeneratorTest(Parameters const & p);
 
-  void write(art::EventPrincipal const & e) override;
-  void writeSubRun(art::SubRunPrincipal const & sr) override;
-  void writeRun(art::RunPrincipal const & r) override;
+  void write(art::EventPrincipal & e) override;
+  void writeSubRun(art::SubRunPrincipal & sr) override;
+  void writeRun(art::RunPrincipal & r) override;
 
   void beginRun(art::RunPrincipal const & r) override;
   void beginSubRun(art::SubRunPrincipal const & sr) override;
@@ -48,17 +48,17 @@ arttest::FlushingGeneratorTest::FlushingGeneratorTest(arttest::FlushingGenerator
 {
 }
 
-void arttest::FlushingGeneratorTest::write(art::EventPrincipal const & e)
+void arttest::FlushingGeneratorTest::write(art::EventPrincipal & e)
 {
   assert(!e.id().isFlush());
 }
 
-void arttest::FlushingGeneratorTest::writeSubRun(art::SubRunPrincipal const & sr)
+void arttest::FlushingGeneratorTest::writeSubRun(art::SubRunPrincipal & sr)
 {
   assert(!sr.id().isFlush());
 }
 
-void arttest::FlushingGeneratorTest::writeRun(art::RunPrincipal const & r)
+void arttest::FlushingGeneratorTest::writeRun(art::RunPrincipal & r)
 {
   assert(!r.id().isFlush());
 }

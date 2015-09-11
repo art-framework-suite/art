@@ -110,7 +110,7 @@ private:
 
   virtual ProcessHistoryID const& processHistoryID() const;
 
-  virtual void setProcessHistoryID(ProcessHistoryID const& phid) const;
+  void setProcessHistoryID(ProcessHistoryID const& phid) override;
 
 private:
 

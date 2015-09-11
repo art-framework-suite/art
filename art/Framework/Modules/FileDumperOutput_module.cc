@@ -43,9 +43,9 @@ public:
   explicit FileDumperOutput(Parameters const &);
 
 private:
-  void write(EventPrincipal const & e) override;
-  void writeRun(RunPrincipal const & r) override;
-  void writeSubRun(SubRunPrincipal const & sr) override;
+  void write(EventPrincipal & e) override;
+  void writeRun(RunPrincipal & r) override;
+  void writeSubRun(SubRunPrincipal & sr) override;
 
   template <typename P>
   void printPrincipal(P const & p);
@@ -71,21 +71,21 @@ FileDumperOutput(art::FileDumperOutput::Parameters const & ps)
 
 void
 art::FileDumperOutput::
-write(EventPrincipal const & e)
+write(EventPrincipal & e)
 {
   printPrincipal(e);
 }
 
 void
 art::FileDumperOutput::
-writeRun(RunPrincipal const & r)
+writeRun(RunPrincipal & r)
 {
   printPrincipal(r);
 }
 
 void
 art::FileDumperOutput::
-writeSubRun(SubRunPrincipal const & sr)
+writeSubRun(SubRunPrincipal & sr)
 {
   printPrincipal(sr);
 }

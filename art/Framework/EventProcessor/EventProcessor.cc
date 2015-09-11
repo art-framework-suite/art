@@ -646,7 +646,7 @@ void
 art::EventProcessor::writeSubRunCache()
 {
   while (!principalCache_.noMoreSubRuns()) {
-    auto const & lowestSubRun = principalCache_.lowestSubRun();
+    auto & lowestSubRun = principalCache_.lowestSubRun();
     if (!lowestSubRun.id().isFlush()) {
       endPathExecutor_->writeSubRun(lowestSubRun);
     }
@@ -659,7 +659,7 @@ void
 art::EventProcessor::writeRunCache()
 {
   while (!principalCache_.noMoreRuns()) {
-    auto const & lowestRun = principalCache_.lowestRun();
+    auto & lowestRun = principalCache_.lowestRun();
     if (!lowestRun.id().isFlush()) {
       endPathExecutor_->writeRun(lowestRun);
     }

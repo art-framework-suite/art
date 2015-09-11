@@ -61,13 +61,13 @@ private: // MEMBER FUNCTIONS
   respondToCloseInputFile(FileBlock const&) override;
 
   void
-  write(EventPrincipal const&) override;
+  write(EventPrincipal &) override;
 
   void
-  writeSubRun(SubRunPrincipal const&) override;
+  writeSubRun(SubRunPrincipal &) override;
 
   void
-  writeRun(RunPrincipal const&) override;
+  writeRun(RunPrincipal &) override;
 
   bool
   isFileOpen() const override;

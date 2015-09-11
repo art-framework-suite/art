@@ -58,7 +58,7 @@ Principal(ProcessConfiguration const& pc, ProcessHistoryID const& hist,
 
 void
 Principal::
-addToProcessHistory() const
+addToProcessHistory()
 {
   if (processHistoryModified_) {
     return;

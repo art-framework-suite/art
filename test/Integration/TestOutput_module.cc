@@ -22,10 +22,10 @@ public:
   virtual ~TestOutput();
 
 private:
-   virtual void write(art::EventPrincipal const& e);
-   virtual void writeSubRun(art::SubRunPrincipal const&){}
-   virtual void writeRun(art::RunPrincipal const&){}
-   virtual void endJob();
+   void write(art::EventPrincipal & e) override;
+   void writeSubRun(art::SubRunPrincipal &) override {}
+   void writeRun(art::RunPrincipal &) override {}
+   void endJob() override;
 
    int num_pass_;
    int total_;
@@ -42,7 +42,7 @@ arttest::TestOutput::~TestOutput()
 {
 }
 
-void arttest::TestOutput::write(art::EventPrincipal const&)
+void arttest::TestOutput::write(art::EventPrincipal &)
 {
    ++total_;
    assert(currentContext() != 0);

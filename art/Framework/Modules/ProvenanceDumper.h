@@ -160,13 +160,10 @@ public:
 
 private:
   virtual void beginJob();
-  virtual void
-  write(EventPrincipal const & e);
-  virtual void
-  writeRun(RunPrincipal const & r);
-  virtual void
-  writeSubRun(SubRunPrincipal const & sr);
-  virtual void endJob();
+  void write(EventPrincipal & e) override;
+  void writeRun(RunPrincipal & r) override;
+  void writeSubRun(SubRunPrincipal & sr) override;
+  void endJob() override;
 
   DETAIL detail_;
   bool wantPresentOnly_;
@@ -463,7 +460,7 @@ beginJob()
 template <typename DETAIL>
 void
 art::ProvenanceDumper<DETAIL>::
-write(EventPrincipal const & e)
+write(EventPrincipal & e)
 {
   typename std::conditional < detail::has_detail_preEvent_function<DETAIL>::value,
            detail::call_detail_preEvent_function<DETAIL>,
@@ -480,7 +477,7 @@ write(EventPrincipal const & e)
 template <typename DETAIL>
 void
 art::ProvenanceDumper<DETAIL>::
-writeSubRun(SubRunPrincipal const & sr)
+writeSubRun(SubRunPrincipal & sr)
 {
   typename std::conditional < detail::has_detail_preSubRun_function<DETAIL>::value,
            detail::call_detail_preSubRun_function<DETAIL>,
@@ -497,7 +494,7 @@ writeSubRun(SubRunPrincipal const & sr)
 template <typename DETAIL>
 void
 art::ProvenanceDumper<DETAIL>::
-writeRun(RunPrincipal const & r)
+writeRun(RunPrincipal & r)
 {
   typename std::conditional < detail::has_detail_preRun_function<DETAIL>::value,
            detail::call_detail_preRun_function<DETAIL>,

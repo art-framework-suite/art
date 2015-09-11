@@ -145,7 +145,7 @@ doEndJob()
 
 bool
 art::OutputModule::
-doEvent(EventPrincipal const & ep,
+doEvent(EventPrincipal & ep,
         CurrentProcessingContext const * cpc)
 {
   detail::CPCSentry sentry(current_context_, cpc);
@@ -203,7 +203,7 @@ doEndRun(RunPrincipal const & rp,
 
 void
 art::OutputModule::
-doWriteRun(RunPrincipal const & rp)
+doWriteRun(RunPrincipal & rp)
 {
   FDEBUG(2) << "writeRun called\n";
   writeRun(rp);
@@ -237,7 +237,7 @@ doEndSubRun(SubRunPrincipal const & srp,
 
 void
 art::OutputModule::
-doWriteSubRun(SubRunPrincipal const & srp)
+doWriteSubRun(SubRunPrincipal & srp)
 {
   FDEBUG(2) << "writeSubRun called\n";
   writeSubRun(srp);

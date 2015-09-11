@@ -167,9 +167,8 @@ private:
     return history().processHistoryID();
   }
 
-  virtual
   void
-  setProcessHistoryID(ProcessHistoryID const& phid) const
+  setProcessHistoryID(ProcessHistoryID const& phid) override
   {
     return history().setProcessHistoryID(phid);
   }

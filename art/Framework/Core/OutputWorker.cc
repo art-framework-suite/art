@@ -49,12 +49,12 @@ namespace art {
   }
 
   void
-  OutputWorker::writeRun(RunPrincipal const& rp) {
+  OutputWorker::writeRun(RunPrincipal & rp) {
     module().doWriteRun(rp);
   }
 
   void
-  OutputWorker::writeSubRun(SubRunPrincipal const& srp) {
+  OutputWorker::writeSubRun(SubRunPrincipal & srp) {
     module().doWriteSubRun(srp);
   }
 

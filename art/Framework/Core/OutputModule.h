@@ -178,7 +178,7 @@ private:
   void configure(OutputModuleDescription const & desc);
   void doBeginJob();
   void doEndJob();
-  bool doEvent(EventPrincipal const & ep,
+  bool doEvent(EventPrincipal & ep,
                CurrentProcessingContext const * cpc);
   bool doBeginRun(RunPrincipal const & rp,
                   CurrentProcessingContext const * cpc);
@@ -188,8 +188,8 @@ private:
                      CurrentProcessingContext const * cpc);
   bool doEndSubRun(SubRunPrincipal const & srp,
                    CurrentProcessingContext const * cpc);
-  void doWriteRun(RunPrincipal const & rp);
-  void doWriteSubRun(SubRunPrincipal const & srp);
+  void doWriteRun(RunPrincipal & rp);
+  void doWriteSubRun(SubRunPrincipal & srp);
   void doOpenFile(FileBlock const & fb);
   void doRespondToOpenInputFile(FileBlock const & fb);
   void doRespondToCloseInputFile(FileBlock const & fb);
@@ -209,16 +209,16 @@ private:
   virtual bool shouldWeCloseFile() const {return false;}
 
   // Write the event.
-  virtual void write(EventPrincipal const & e) = 0;
+  virtual void write(EventPrincipal & e) = 0;
 
   virtual void beginJob();
   virtual void endJob();
   virtual void beginRun(RunPrincipal const &);
   virtual void endRun(RunPrincipal const &);
-  virtual void writeRun(RunPrincipal const & r) = 0;
+  virtual void writeRun(RunPrincipal & r) = 0;
   virtual void beginSubRun(SubRunPrincipal const &);
   virtual void endSubRun(SubRunPrincipal const &);
-  virtual void writeSubRun(SubRunPrincipal const & sr) = 0;
+  virtual void writeSubRun(SubRunPrincipal & sr) = 0;
   virtual void openFile(FileBlock const &);
   virtual void respondToOpenInputFile(FileBlock const &);
   virtual void respondToCloseInputFile(FileBlock const &);

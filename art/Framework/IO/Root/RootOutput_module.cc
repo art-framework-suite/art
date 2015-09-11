@@ -174,7 +174,7 @@ respondToCloseInputFile(FileBlock const& fb)
 
 void
 RootOutput::
-write(EventPrincipal const& e)
+write(EventPrincipal & e)
 {
   if (dropAllEvents_) {
     return;
@@ -188,7 +188,7 @@ write(EventPrincipal const& e)
 
 void
 RootOutput::
-writeSubRun(SubRunPrincipal const& sr)
+writeSubRun(SubRunPrincipal & sr)
 {
   if (dropAllSubRuns_) {
     return;
@@ -202,7 +202,7 @@ writeSubRun(SubRunPrincipal const& sr)
 
 void
 RootOutput::
-writeRun(RunPrincipal const& r)
+writeRun(RunPrincipal & r)
 {
   if (hasNewlyDroppedBranch()[InRun]) {
     r.addToProcessHistory();
