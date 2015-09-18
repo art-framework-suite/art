@@ -107,10 +107,10 @@ RootOutputFile(OutputModule* om, string const& fileName,
   , fileIndexTree_(nullptr)
   , parentageTree_(nullptr)
   , eventHistoryTree_(nullptr)
-  , pEventAux_(new EventAuxiliary)
-  , pSubRunAux_(new SubRunAuxiliary)
-  , pRunAux_(new RunAuxiliary)
-  , pResultsAux_(new ResultsAuxiliary)
+  , pEventAux_(nullptr)
+  , pSubRunAux_(nullptr)
+  , pRunAux_(nullptr)
+  , pResultsAux_(nullptr)
   , eventProductProvenanceVector_()
   , subRunProductProvenanceVector_()
   , runProductProvenanceVector_()
@@ -452,9 +452,12 @@ writeProcessHistoryRegistry()
   ProcessHistoryMap* p = &const_cast<ProcessHistoryMap&>(r);
   TBranch* b = metaDataTree_->Branch(metaBranchRootName<ProcessHistoryMap>(),
                                      &p, basketSize_, 0);
-  // FIXME: Turn this into a throw!
-  assert(b);
-  b->Fill();
+  if (b != nullptr) {
+    b->Fill();
+  } else {
+    throw Exception(errors::LogicError)
+      << "Unable to locate required ProcessHistoryMap branch in output metadata tree.\n";
+  }
 }
 
 void
@@ -626,10 +629,16 @@ writeProductDependencies()
 
 void
 RootOutputFile::
-finishEndFile(ResultsPrincipal & resp)
+writeResults(ResultsPrincipal & resp)
 {
   pResultsAux_ = &resp.aux();
   fillBranches(InResults, resp, pResultsProductProvenanceVector_);
+}
+
+void
+RootOutputFile::
+finishEndFile()
+{
   metaDataTree_->SetEntries(-1);
   RootOutputTree::writeTTree(metaDataTree_);
   RootOutputTree::writeTTree(fileIndexTree_);

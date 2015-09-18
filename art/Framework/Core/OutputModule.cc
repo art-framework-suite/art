@@ -613,8 +613,7 @@ makePlugins_(fhicl::ParameterSet const & top_pset)
       auto const pluginType = pluginFactory_.pluginType(libspec);
       if (pluginType == cet::PluginTypeDeducer<FileCatalogMetadataPlugin>::value) {
         result.emplace_back(pluginFactory_.
-                            makePlugin<std::unique_ptr<FileCatalogMetadataPlugin>,
-                            fhicl::ParameterSet const &>(libspec, pset));
+                            makePlugin<std::unique_ptr<FileCatalogMetadataPlugin> >(libspec, pset));
       } else {
         throw Exception(errors::Configuration, "OutputModule: ")
           << "unrecognized plugin type "

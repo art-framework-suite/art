@@ -32,6 +32,7 @@
 #include "fhiclcpp/ParameterSetRegistry.h"
 #include "fhiclcpp/make_ParameterSet.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
+
 #include "Rtypes.h"
 #include "TClass.h"
 #include "TFile.h"
@@ -1217,6 +1218,7 @@ namespace art {
   {
     std::unique_ptr<art::ResultsPrincipal> resp;
     if (resultsTree()) {
+      resultsTree().rewind();
       auto pResultsAux = &resultsAux_;
       resultsTree().fillAux<ResultsAuxiliary>(pResultsAux);
       resp.reset(new ResultsPrincipal(resultsAux_, processConfiguration_,

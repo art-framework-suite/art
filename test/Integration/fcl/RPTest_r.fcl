@@ -1,0 +1,26 @@
+process_name: DEVELr
+
+source: {
+  module_type: RootInput
+  fileNames: [ "../RPTest_w.d/out_1.root", "../RPTest_w2.d/out_2.root" ]
+}
+
+physics: {
+  e2: [ o2 ]
+}
+
+outputs: {
+  o2: {
+    module_type: RootOutput
+    fileName: "out.root"
+    results: {
+      producers: {
+        rp2: {
+          plugin_type: RPTestReader
+          intResultsLabel: "o1#rp1"
+        }
+      }
+      rpath: [ rp2 ]
+    }
+  }
+}

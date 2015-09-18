@@ -60,10 +60,11 @@ namespace {
   {
     std::unique_ptr<art::RPWrapperBase> result;
     auto const & pconfig = producers.get<fhicl::ParameterSet>(pkey);
-    auto const & libspec = pconfig.get<std::string>("plugin_type");
+    auto libspec = pconfig.get<std::string>("plugin_type");
     auto const & ptype = pf.pluginType(libspec);
     if (ptype == cet::PluginTypeDeducer<art::ResultsProducer>::value) {
-      result = pf.makePlugin<std::unique_ptr<art::RPWrapperBase> >(libspec, std::cref(pconfig));
+      result = pf.makePlugin<std::unique_ptr<art::RPWrapperBase>, art::RPParams const &, fhicl::ParameterSet const & >
+               (libspec, { pconfig.id(), libspec, pkey }, pconfig);
     } else {
       // FIXME: Throw informative exception.
       throw art::Exception(art::errors::Configuration);

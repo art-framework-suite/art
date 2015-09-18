@@ -146,7 +146,8 @@ public: // MEMBER FUNCTIONS
   void writeFileCatalogMetadata(FileStatsCollector const& stats,
                                 FileCatalogMetadata::collection_type const&,
                                 FileCatalogMetadata::collection_type const&);
-  void finishEndFile(ResultsPrincipal & resp);
+  void writeResults(ResultsPrincipal & resp);
+  void finishEndFile();
   void beginInputFile(FileBlock const&, bool fastClone);
   void respondToCloseInputFile(FileBlock const&);
   bool shouldWeCloseFile() const;

@@ -56,8 +56,7 @@ private:
   // public interface is asking for trouble
   friend class InputSource;
   friend class DecrepitRelicInputSourceImplementation;
-  friend class EDFilter;
-  friend class EDProducer;
+  friend class ResultsProducer;
 
   void commit_();
 };

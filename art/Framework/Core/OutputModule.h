@@ -78,7 +78,8 @@ public:
         std::set<std::string> const keys_to_ignore = { "module_label",
                                                        "streamName",
                                                        "FCMDPlugins",
-                                                       "fastCloning" }; // From RootOuput (shouldn't be here")
+                                                       "fastCloning", // From RootOuput (shouldn't be here")
+                                                       "results" }; // Ditto.
         this->validate_ParameterSet( pset, keys_to_ignore );
         this->set_PSet( pset );
       }

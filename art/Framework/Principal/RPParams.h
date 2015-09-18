@@ -1,11 +1,18 @@
 #ifndef art_Framework_Principal_RPParams_h
 #define art_Framework_Principal_RPParams_h
 
+#include "fhiclcpp/ParameterSetID.h"
+
+#include <string>
+
 namespace art {
   class RPParams;
 }
 
-class art::RPParams {
+struct art::RPParams {
+  fhicl::ParameterSetID psetID;
+  std::string rpPluginType;
+  std::string rpLabel;
 };
 
 #endif /* art_Framework_Principal_RPParams_h */

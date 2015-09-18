@@ -136,32 +136,23 @@ doReadResults(Results const & res)
 inline
 void
 art::ResultsProducer::
-doWriteResults(Results & res)
-{
-  writeResults(res);
-}
-
-inline
-void
-art::ResultsProducer::
 doClear()
 {
   clear();
 }
 
-#define DEFINE_ART_RESULTS_PLUGIN(klass)                                    \
-  PROVIDE_FILE_PATH()                                                   \
-  PROVIDE_DESCRIPTION(klass)                                            \
-  DEFINE_BASIC_PLUGINTYPE_FUNC(art::ResultsProducer)                    \
-  extern "C" {                                                          \
-    std::unique_ptr<art::RPWrapperBase>                                 \
-    makeRP(art::RPParams const & rpParams,                              \
-           art::ModuleDescription const & md,                           \
-           fhicl::ParameterSet const & ps)                              \
-    {                                                                   \
-      return                                                            \
-        std::make_unique<art::RPWrapper<klass>>(rpParams, md, ps);      \
-    }                                                                   \
+#define DEFINE_ART_RESULTS_PLUGIN(klass)                           \
+  PROVIDE_FILE_PATH()                                              \
+  PROVIDE_DESCRIPTION(klass)                                       \
+  DEFINE_BASIC_PLUGINTYPE_FUNC(art::ResultsProducer)               \
+  extern "C" {                                                     \
+    std::unique_ptr<art::RPWrapperBase>                            \
+    makeRP(art::RPParams const & rpParams,                         \
+           fhicl::ParameterSet const & ps)                         \
+    {                                                              \
+      return                                                       \
+        std::make_unique<art::RPWrapper<klass>>(rpParams, ps);     \
+    }                                                              \
   }
 
 

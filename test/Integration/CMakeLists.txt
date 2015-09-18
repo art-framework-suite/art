@@ -1223,3 +1223,24 @@ cet_test(NonexistentPathCheck_02_t HANDBUILT
 include(legacy-tests)
 
 simple_plugin(RPTest "plugin" NO_INSTALL art_Framework_Core)
+simple_plugin(RPTestReader "plugin" NO_INSTALL art_Framework_Core)
+
+cet_test(RPTest_w HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --rethrow-all -c RPTest_w.fcl
+  DATAFILES fcl/RPTest_w.fcl
+)
+
+cet_test(RPTest_w2 HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --rethrow-all -c RPTest_w2.fcl
+  DATAFILES fcl/RPTest_w2.fcl fcl/RPTest_w.fcl
+)
+
+cet_test(RPTest_r HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --rethrow-all -c RPTest_r.fcl
+  DATAFILES fcl/RPTest_r.fcl
+)
+
+set_tests_properties(RPTest_r PROPERTIES DEPENDS "RPTest_w;RPTest_w2")

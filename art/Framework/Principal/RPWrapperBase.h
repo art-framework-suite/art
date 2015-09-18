@@ -12,11 +12,17 @@ namespace art {
 
 class art::RPWrapperBase {
 public:
-  RPWrapperBase(RPParams const & p, ModuleDescription const & md);
+  RPWrapperBase(RPParams const & p);
   virtual ~RPWrapperBase() = default;
 
   ResultsProducer & rp();
   ResultsProducer const & rp() const;
+
+  RPParams const & params() const;
+  ModuleDescription const & moduleDescription() const;
+
+  void setModuleDescription(ModuleDescription const &);
+  void setModuleDescription(ModuleDescription &&);
 
 private:
   virtual ResultsProducer & rp_() = 0;
@@ -28,10 +34,10 @@ private:
 
 inline
 art::RPWrapperBase::
-RPWrapperBase(RPParams const & p, ModuleDescription const & md)
+RPWrapperBase(RPParams const & p)
 :
   p_(p),
-  md_(md)
+  md_()
 {
 }
 
@@ -49,6 +55,38 @@ art::RPWrapperBase::
 rp() const
 {
   return rp_();
+}
+
+inline
+art::RPParams const &
+art::RPWrapperBase::
+params() const
+{
+  return p_;
+}
+
+inline
+art::ModuleDescription const &
+art::RPWrapperBase::
+moduleDescription() const
+{
+  return md_;
+}
+
+inline
+void
+art::RPWrapperBase::
+setModuleDescription(art::ModuleDescription const & md)
+{
+  md_ = md;
+}
+
+inline
+void
+art::RPWrapperBase::
+setModuleDescription(art::ModuleDescription && md)
+{
+  md_ = std::move(md);
 }
 
 #endif /* art_Framework_Principal_RPWrapperBase_h */

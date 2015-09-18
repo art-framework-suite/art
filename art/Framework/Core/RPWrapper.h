@@ -15,14 +15,7 @@ class art::RPWrapper : public art::RPWrapperBase {
 public:
   using RPType = RP;
 
-  template <typename ...ARGS>
-  RPWrapper(RPParams const & p,
-            ModuleDescription const & md,
-            ARGS&&... args);
-
-  RPParams const & params() const;
-  ModuleDescription const & moduleDescription() const;
-
+  RPWrapper(RPParams const & p, fhicl::ParameterSet const & ps);
 
 private:
   RP & rp_() override;
@@ -32,14 +25,11 @@ private:
 };
 
 template <typename RP>
-template <typename ...ARGS>
 art::RPWrapper<RP>::
-RPWrapper(RPParams const & p,
-          ModuleDescription const & md,
-          ARGS&&... args)
+RPWrapper(RPParams const & p, fhicl::ParameterSet const & ps)
 :
-  RPWrapperBase(p, md),
-  rpPlugin_(std::forward<ARGS>(args)...)
+  RPWrapperBase(p),
+  rpPlugin_(ps)
 {
 }
 

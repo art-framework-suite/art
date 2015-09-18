@@ -1,8 +1,18 @@
 #include "art/Framework/Core/ResultsProducer.h"
 
+#include "art/Framework/Principal/Results.h"
+
 std::string const
 cet::PluginTypeDeducer<art::ResultsProducer>::
 value = "ResultsProducer";
+
+void
+art::ResultsProducer::
+doWriteResults(Results & res)
+{
+  writeResults(res);
+  res.commit_();
+}
 
 void
 art::ResultsProducer::

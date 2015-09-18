@@ -1,6 +1,6 @@
 use strict;
 
-package CetSkelPlugins::EmptyEventTimestampPlugin;
+package CetSkelPlugins::ResultsProducer;
 
 use CetSkel::BasicPluginCommon qw(:DEFAULT &pluginSuffix);
 
@@ -62,7 +62,7 @@ sub optionalEntries {
      beginJob => 'void beginJob() override',
      endJob => 'void endJob() override',
      beginSubRun => 'void beginSubRun(art::SubRun const & sr) override',
-     endSubRun => 'void endSubRun(art::SubRun const &) override'
+     endSubRun => 'void endSubRun(art::SubRun const &) override',
      beginRun => 'void beginRun(art::Run const & r) override',
      endRun => 'void endRun(art::Run const & r) override',
      event => 'void event(art::Event const & e) override',

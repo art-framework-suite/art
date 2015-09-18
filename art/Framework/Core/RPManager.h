@@ -5,6 +5,7 @@
 #include "cetlib/BasicPluginFactory.h"
 #include "fhiclcpp/ParameterSet.h"
 
+#include <functional>
 #include <map>
 #include <string>
 #include <vector>
@@ -24,7 +25,9 @@ public:
   template <typename RET, typename... ARGS>
   using invoke_function_t = RET (art::ResultsProducer::*) (ARGS...);
 
-  explicit RPManager(fhicl::ParameterSet const & ps);
+  using on_wrapper_t = std::function<void (art::RPWrapperBase &)>;
+
+  RPManager(fhicl::ParameterSet const & ps);
 
   std::size_t size() const;
   bool empty() const;
@@ -34,11 +37,14 @@ public:
   invoke(invoke_function_t<void, ARGS...> mfunc,
          ARGS && ... args);
 
-  template <typename RET, typename ... ARGS>
+  // template <typename RET, typename ... ARGS>
+  // void
+  // invoke(invoke_results_t<RET> & ret,
+  //        invoke_function_t<RET, ARGS...> mfunc,
+  //        ARGS && ... args);
+
   void
-  invoke(invoke_results_t<RET> & ret,
-         invoke_function_t<RET, ARGS...> mfunc,
-         ARGS && ... args);
+  for_each_RPWrapper(on_wrapper_t wfunc);
 
   // No use case for these yet.
   // RPMap_t & allPaths();
@@ -77,23 +83,34 @@ art::RPManager::
 invoke(invoke_function_t<void, ARGS...> mfunc,
        ARGS &&... args)
 {
-  for (auto const & path : rpmap_) {
-    for (auto const & w : path.second) {
+  for (auto & path : rpmap_) {
+    for (auto & w : path.second) {
       (w->rp().*mfunc)(std::forward<ARGS>(args)...);
     }
   }
 }
 
-template <typename RET, typename... ARGS>
+// template <typename RET, typename... ARGS>
+// void
+// art::RPManager::
+// invoke(invoke_results_t<RET> & ret,
+//        invoke_function_t<RET, ARGS...> mfunc,
+//        ARGS &&... args)
+// {
+//   for (auto & path : rpmap_) {
+//     for (auto & w : path.second) {
+//       ret.push_back((w->rp().*mfunc)(std::forward<ARGS>(args)...));
+//     }
+//   }
+// }
+
 void
 art::RPManager::
-invoke(invoke_results_t<RET> & ret,
-       invoke_function_t<RET, ARGS...> mfunc,
-       ARGS &&... args)
+for_each_RPWrapper(on_wrapper_t wfunc)
 {
-  for (auto const & path : rpmap_) {
-    for (auto const & w : path.second) {
-      (w->rp().*mfunc)(std::forward<ARGS>(args)...);
+  for (auto & path : rpmap_) {
+    for (auto & w : path.second) {
+      wfunc(*w);
     }
   }
 }

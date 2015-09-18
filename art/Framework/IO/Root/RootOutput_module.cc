@@ -80,6 +80,7 @@ private: // MEMBER FUNCTIONS
   void openFile(FileBlock const&) override;
   void respondToOpenInputFile(FileBlock const&) override;
   void respondToCloseInputFile(FileBlock const&) override;
+  void respondToCloseOutputFiles(FileBlock const&) override;
   void write(EventPrincipal &) override;
   void writeSubRun(SubRunPrincipal &) override;
   void writeRun(RunPrincipal &) override;
@@ -270,10 +271,10 @@ respondToOpenInputFile(FileBlock const& fb)
       fastCloneThisOne = false;
     }
     rootOutputFile_->beginInputFile(fb, fastCloneThisOne && fastCloning_);
-    {
-      Results const res(const_cast<ResultsPrincipal&>(fb.resultsPrincipal()), description());
-      rpm_.invoke(&ResultsProducer::doReadResults, res);
-    }
+    rpm_.for_each_RPWrapper([&fb](RPWrapperBase & w) {
+        Results const res(const_cast<ResultsPrincipal&>(fb.resultsPrincipal()), w.moduleDescription());
+        w.rp().doReadResults(res);
+      } );
     fstats_.recordInputFile(fb.fileName());
   }
 }
@@ -289,12 +290,30 @@ respondToCloseInputFile(FileBlock const& fb)
 
 void
 art::RootOutput::
+respondToCloseOutputFiles(FileBlock const&)
+{
+  auto resp =
+    std::make_unique<ResultsPrincipal>(ResultsAuxiliary { },
+                                       description().processConfiguration());
+  if (ProductMetaData::instance().productProduced(InResults) ||
+      hasNewlyDroppedBranch()[InResults]) {
+    resp->addToProcessHistory();
+  }
+  rpm_.for_each_RPWrapper([&resp](RPWrapperBase & w) {
+      Results res(*resp, w.moduleDescription());
+      w.rp().doWriteResults(res);
+    } );
+  rootOutputFile_->writeResults(*resp);
+}
+
+void
+art::RootOutput::
 write(EventPrincipal & ep)
 {
-  {
-    Event const e(const_cast<EventPrincipal &>(ep), description());
-    rpm_.invoke(&ResultsProducer::doEvent, e);
-  }
+  rpm_.for_each_RPWrapper([&ep](RPWrapperBase & w) {
+      Event const e(const_cast<EventPrincipal &>(ep), w.moduleDescription());
+      w.rp().doEvent(e);
+    });
   if (dropAllEvents_) {
     return;
   }
@@ -418,14 +437,7 @@ void
 art::RootOutput::
 finishEndFile()
 {
-  auto resp =
-    std::make_unique<ResultsPrincipal>(ResultsAuxiliary { },
-                                       description().processConfiguration());
-  {
-    Results res(*resp, description());
-    rpm_.invoke(&ResultsProducer::doWriteResults, res);
-  }
-  rootOutputFile_->finishEndFile(*resp);
+  rootOutputFile_->finishEndFile();
   fstats_.recordFileClose();
   lastClosedFileName_ = PostCloseFileRenamer(fstats_).maybeRenameFile(
                           rootOutputFile_->currentFileName(), filePattern_);
@@ -439,7 +451,14 @@ doRegisterProducts(MasterProductRegistry & mpr,
                    ModuleDescription const & md)
 {
   // Register Results products from ResultsProducers.
-  rpm_.invoke(&ResultsProducer::registerProducts, mpr, md);
+  rpm_.for_each_RPWrapper([&mpr, &md](RPWrapperBase & w) {
+      auto const & params = w.params();
+      w.setModuleDescription(ModuleDescription(params.psetID,
+                                               params.rpPluginType,
+                                               md.moduleLabel() + '#' + params.rpLabel,
+                                               md.processConfiguration()));
+      w.rp().registerProducts(mpr, w.moduleDescription());
+    });
 }
 
 bool
@@ -503,32 +522,40 @@ void
 art::RootOutput::
 beginSubRun(art::SubRunPrincipal const & srp)
 {
-  SubRun const sr(const_cast<SubRunPrincipal &>(srp), description());
-  rpm_.invoke(&ResultsProducer::doBeginSubRun, sr);
+  rpm_.for_each_RPWrapper([&srp](RPWrapperBase & w) {
+      SubRun const sr(const_cast<SubRunPrincipal &>(srp), w.moduleDescription());
+      w.rp().doBeginSubRun(sr);
+    });
 }
 
 void
 art::RootOutput::
 endSubRun(art::SubRunPrincipal const & srp)
 {
-  SubRun const sr(const_cast<SubRunPrincipal &>(srp), description());
-  rpm_.invoke(&ResultsProducer::doEndSubRun, sr);
+  rpm_.for_each_RPWrapper([&srp](RPWrapperBase & w) {
+      SubRun const sr(const_cast<SubRunPrincipal &>(srp), w.moduleDescription());
+      w.rp().doEndSubRun(sr);
+    });
 }
 
 void
 art::RootOutput::
 beginRun(art::RunPrincipal const & rp)
 {
-  Run const r(const_cast<RunPrincipal &>(rp), description());
-  rpm_.invoke(&ResultsProducer::doBeginRun, r);
+  rpm_.for_each_RPWrapper([&rp](RPWrapperBase & w) {
+      Run const r(const_cast<RunPrincipal &>(rp), w.moduleDescription());
+      w.rp().doBeginRun(r);
+    });
 }
 
 void
 art::RootOutput::
 endRun(art::RunPrincipal const & rp)
 {
-  Run const r(const_cast<RunPrincipal &>(rp), description());
-  rpm_.invoke(&ResultsProducer::doEndRun, r);
+  rpm_.for_each_RPWrapper([&rp](RPWrapperBase & w) {
+      Run const r(const_cast<RunPrincipal &>(rp), w.moduleDescription());
+      w.rp().doEndRun(r);
+    });
 }
 
 DEFINE_ART_MODULE(art::RootOutput)
