@@ -1,6 +1,6 @@
 #include "art/Framework/Art/BasicOptionsHandler.h"
-#include "art/Framework/Core/detail/PrintAvailablePlugins.h"
 
+#include "art/Framework/Core/detail/PrintAvailablePlugins.h"
 #include "art/Utilities/Exception.h"
 #include "cetlib/container_algorithms.h"
 #include "cetlib/filepath_maker.h"

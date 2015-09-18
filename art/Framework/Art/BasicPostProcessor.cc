@@ -1,5 +1,6 @@
 #include "art/Framework/Art/BasicPostProcessor.h"
 
+#include "art/Framework/Art/detail/exists_outside_prolog.h"
 #include "art/Utilities/Exception.h"
 #include "art/Utilities/detail/serviceConfigLocation.h"
 #include "cetlib/container_algorithms.h"
@@ -15,11 +16,12 @@
 namespace {
 
   using table_t = fhicl::extended_value::table_t;
+  using art::detail::exists_outside_prolog;
 
   void
   verifyProcessName(fhicl::intermediate_table & raw_config)
   {
-    if (raw_config.exists("process_name")) {
+    if (exists_outside_prolog(raw_config, "process_name")) {
       auto process_name(raw_config.get<std::string>("process_name"));
       if (process_name.empty()) {
         throw cet::exception("BAD_PROCESS_NAME")
@@ -46,10 +48,10 @@ namespace {
   {
     auto ciProvider = art::detail::serviceConfigLocation(raw_config, "CatalogInterface") + ".service_provider";
     auto ftProvider = art::detail::serviceConfigLocation(raw_config, "FileTransfer") + ".service_provider";
-    if (!raw_config.exists(ciProvider)) {
+    if (!exists_outside_prolog(raw_config, ciProvider)) {
       raw_config.put(ciProvider, "TrivialFileDelivery");
     }
-    if (!raw_config.exists(ftProvider)) {
+    if (!exists_outside_prolog(raw_config, ftProvider)) {
       raw_config.put(ftProvider, "TrivialFileTransfer");
     }
   }
@@ -57,8 +59,8 @@ namespace {
   void
   verifySourceConfig(fhicl::intermediate_table & raw_config)
   {
-    if (raw_config.exists("source.fileNames")) {
-      if (raw_config.exists("source.module_type")) {
+    if (exists_outside_prolog(raw_config, "source.fileNames")) {
+      if (exists_outside_prolog(raw_config, "source.module_type")) {
         if (raw_config.get<std::string>("source.module_type") == "EmptyEvent") {
           throw art::Exception(art::errors::Configuration)
             << "Error: source files specified for EmptyEvent source.";
@@ -67,11 +69,11 @@ namespace {
       else {
         raw_config.put("source.module_type", "RootInput");
       }
-    } else if (!raw_config.exists("source.module_type")) {
+    } else if (!exists_outside_prolog(raw_config, "source.module_type")) {
       raw_config.put("source.module_type", "EmptyEvent");
     }
     if (raw_config.get<std::string>("source.module_type") == "EmptyEvent" &&
-        !raw_config.exists("source.maxEvents")) {
+        !exists_outside_prolog(raw_config, "source.maxEvents")) {
       // Default 1 event.
       raw_config.put("source.maxEvents", 1);
     }
@@ -115,7 +117,7 @@ namespace {
   void
   addModuleLabels(fhicl::intermediate_table & raw_config)
   {
-    if (raw_config.exists("source")) {
+    if (exists_outside_prolog(raw_config, "source")) {
       raw_config.put("source.module_label", "source");
     }
     injectModuleLabels(raw_config, "outputs");
@@ -128,7 +130,7 @@ namespace {
                          std::string const & table_spec,
                          std::vector<std::string> const & excluded = { })
   {
-    if (!raw_config.exists(table_spec)) { return; }
+    if (!exists_outside_prolog(raw_config, table_spec)) { return; }
     auto & top_table_val = raw_config.update(table_spec);
     if (!top_table_val.is_a(fhicl::TABLE)) {
       throw art::Exception(art::errors::Configuration)
@@ -180,12 +182,12 @@ doProcessOptions(bpo::variables_map const &,
   verifyInterfaces(raw_config);
   verifySourceConfig(raw_config);
   // trigger_paths
-  if (raw_config.exists("physics.trigger_paths")) {
+  if (exists_outside_prolog(raw_config, "physics.trigger_paths")) {
     raw_config.update("trigger_paths.trigger_paths") =
       raw_config.find("physics.trigger_paths");
   }
   // messagefacility configuration.
-  if (!raw_config.exists("services.message")) {
+  if (!exists_outside_prolog(raw_config, "services.message")) {
     raw_config.put("services.message.destinations.STDOUT.categories.ArtReport.limit", 100);
     raw_config.put("services.message.destinations.STDOUT.categories.default.limit", -1);
     raw_config.put("services.message.destinations.STDOUT.type", "cout");

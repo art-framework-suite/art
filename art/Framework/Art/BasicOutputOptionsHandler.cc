@@ -1,5 +1,6 @@
 #include "art/Framework/Art/BasicOutputOptionsHandler.h"
 
+#include "art/Framework/Art/detail/exists_outside_prolog.h"
 #include "art/Utilities/ensureTable.h"
 #include "cetlib/canonical_string.h"
 #include "fhiclcpp/coding.h"
@@ -15,6 +16,7 @@ using namespace std::string_literals;
 namespace {
   using table_t = fhicl::extended_value::table_t;
   using sequence_t = fhicl::extended_value::sequence_t;
+  using art::detail::exists_outside_prolog;
 }
 
 art::BasicOutputOptionsHandler::
@@ -48,7 +50,7 @@ namespace {
                       std::string const & key)
   {
     bool result = false;
-    if (raw_config.exists(pathName)) {
+    if (exists_outside_prolog(raw_config, pathName)) {
       sequence_t & path = raw_config.get<sequence_t &>(pathName);
       auto path_end =
         std::remove_if(path.begin(),
@@ -70,10 +72,11 @@ namespace {
   removeFromEndPaths(fhicl::intermediate_table & raw_config,
                      std::string const & key)
   {
-    if (!raw_config.exists("physics")) {
+    std::string const& physicsKey { "physics" };
+    if (!exists_outside_prolog(raw_config, physicsKey)) {
       return;
     }
-    auto & physics_table(raw_config.get<table_t &>("physics"));
+    auto & physics_table(raw_config.get<table_t &>(physicsKey));
     std::vector<std::string> const
       ignoredParameters({"analyzers",
             "filters",
@@ -87,9 +90,9 @@ namespace {
                     ignoredParameters.cend(),
                     i->first) == ignoredParameters.end() &&
           i->second.is_a(fhicl::SEQUENCE) &&
-          maybeRemoveFromPath(raw_config, std::string("physics.") + i->first, key)) {
+          maybeRemoveFromPath(raw_config, physicsKey + "."s + i->first, key)) {
         // Remove empty path from end_paths.
-        maybeRemoveFromPath(raw_config, "physics.end_paths", i->first);
+        maybeRemoveFromPath(raw_config, physicsKey + ".end_paths"s, i->first);
         // Remove empty path from table.
         i = physics_table.erase(i);
       } else {
@@ -104,17 +107,18 @@ namespace {
   {
     bool const want_output = (output != "/dev/null");
     bool new_path_entry(false);
+    std::string const& outputsKey {"outputs"};
     if (want_output) {
-      ensureTable(raw_config, "outputs");
-    } else if (!raw_config.exists("outputs")) {
+      ensureTable(raw_config, outputsKey);
+    } else if (!exists_outside_prolog(raw_config, outputsKey)) {
       // Nothing to do.
       return;
     }
-    auto & outputs_table(raw_config.get<table_t &>("outputs"));
+    auto & outputs_table(raw_config.get<table_t &>(outputsKey));
     if (outputs_table.empty()) {
       if (want_output) {
         new_path_entry = true;
-        raw_config.put("outputs.out.module_type", "RootOutput");
+        raw_config.put(outputsKey + ".out.module_type"s, "RootOutput");
       } else {
         // Nothing to do.
         return;
@@ -137,12 +141,12 @@ namespace {
       // Remove this from paths.
       removeFromEndPaths(raw_config, out_table_name);
       // Remove outputs entrirely.
-      raw_config.erase("outputs");
+      raw_config.erase(outputsKey);
       return;
     }
-    std::string out_table_path("outputs");
-    out_table_path += "." + out_table_name;
-    raw_config.put(out_table_path + ".fileName", output);
+    std::string out_table_path(outputsKey);
+    out_table_path += "."s + out_table_name;
+    raw_config.put(out_table_path + ".fileName"s, output);
     if (new_path_entry) {
       // If we created a new output module config, we need to make a
       // path for it and add it to end paths. We will *not* detect the
@@ -163,11 +167,12 @@ namespace {
         }
       }
       // Make our end_path with the output module label in it.
-      raw_config.put("physics."s + end_path + "[0]", out_table_name);
+      raw_config.put("physics."s + end_path + "[0]"s, out_table_name);
       // Add it to the end_paths list.
-      if ( raw_config.exists("physics.end_paths") ) {
+      std::string const key = "physics.end_paths"s;
+      if ( exists_outside_prolog(raw_config, key) ) {
         size_t const index = raw_config.get<sequence_t &>("physics.end_paths").size();
-        raw_config.put("physics.end_paths["s + std::to_string(index) + "]", end_path);
+        raw_config.put("physics.end_paths["s + std::to_string(index) + "]"s, end_path);
       }
     }
   }
@@ -183,13 +188,14 @@ namespace {
           << "Output configuration is ambiguous: command-line specifies"
           << "--output and --no-output simultaneously.";
       }
-      if (raw_config.exists("outputs")) {
-        auto & outputs_table(raw_config.get<table_t &>("outputs"));
+      std::string const& key {"outputs"};
+      if ( exists_outside_prolog(raw_config, key) ) {
+        auto & outputs_table(raw_config.get<table_t &>(key));
         // No outputs.
         for (auto const & p : outputs_table) {
           removeFromEndPaths(raw_config, p.first);
         }
-        raw_config.erase("outputs");
+        raw_config.erase(key);
       }
     }
     else if (vm.count("output") == 1) {
@@ -206,14 +212,14 @@ doProcessOptions(bpo::variables_map const & vm,
   // TFileService output.
   if (vm.count("TFileName") == 1) {
     std::string tFileName(vm["TFileName"].as<std::string>());
+    std::string const& key {"services.TFileService"};
     if (tFileName.empty() &&
-        raw_config.exists("services.TFileService") &&
-        raw_config.get<table_t const &>("services.TFileService").empty()) {
+        detail::exists_outside_prolog(raw_config, key) &&
+        raw_config.get<table_t const &>(key).empty()) {
       tFileName = "hist.root";
     }
     if (!tFileName.empty()) {
-      raw_config.put("services.TFileService.fileName",
-                     tFileName);
+      raw_config.put(key+".fileName"s, tFileName);
     }
   }
   // Output stream options.
@@ -221,16 +227,17 @@ doProcessOptions(bpo::variables_map const & vm,
   // tmpDir option for TFileService and output streams.
   if (vm.count("tmpdir") == 1) {
     auto tmpDir = vm["tmpdir"].as<std::string>();
-    std::string const outputs_stem("outputs.");
-    if (raw_config.exists("services.TFileService")) {
-      raw_config.put("services.TFileService.tmpDir", tmpDir);
+    std::string const& tfile_key {"services.TFileService"};
+    if (detail::exists_outside_prolog(raw_config, tfile_key)) {
+      raw_config.put(tfile_key+".tmpDir"s, tmpDir);
     }
-    if (raw_config.exists("outputs")) {
-      auto const & table = raw_config.get<table_t const &>("outputs");
+    std::string const& outputs_stem {"outputs"};
+    if (detail::exists_outside_prolog(raw_config, outputs_stem)) {
+      auto const & table = raw_config.get<table_t const &>(outputs_stem);
       for (auto const & output : table) {
-        if (raw_config.exists(outputs_stem + output.first + ".module_type")) {
+        if (detail::exists_outside_prolog(raw_config, outputs_stem + "."s + output.first + ".module_type"s)) {
           // Inject tmpDir into the module configuration.
-          raw_config.put(outputs_stem + output.first + ".tmpDir", tmpDir);
+          raw_config.put(outputs_stem + "."s + output.first + ".tmpDir"s, tmpDir);
         }
       }
     }

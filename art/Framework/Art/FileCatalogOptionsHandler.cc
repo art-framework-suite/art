@@ -1,5 +1,6 @@
 #include "art/Framework/Art/FileCatalogOptionsHandler.h"
 
+#include "art/Framework/Art/detail/exists_outside_prolog.h"
 #include "art/Utilities/Exception.h"
 #include "art/Utilities/detail/serviceConfigLocation.h"
 #include "art/Utilities/ensureTable.h"
@@ -17,6 +18,7 @@
 namespace {
 
   using table_t = fhicl::extended_value::table_t;
+  using art::detail::exists_outside_prolog;
 
   typedef std::pair<std::string const, std::string> string_pair_t;
   string_pair_t
@@ -71,7 +73,7 @@ namespace {
                     def_stream_it->second :
                     "");
     for (auto const & output : table) {
-      if (!raw_config.exists(outputs_stem + output.first + ".module_type")) {
+      if (!exists_outside_prolog(raw_config, outputs_stem + output.first + ".module_type")) {
         continue; // Not a module parameter set.
       }
       auto tiers_it(sep_tiers.find(output.first));
@@ -91,8 +93,8 @@ namespace {
                      stream :
                      output.first);
       if (raw_config.get<std::string>(outputs_stem + output.first + ".module_type" ) == "RootOutput") {
-        if (!(raw_config.exists(outputs_stem + output.first + tier_spec_stem)  &&
-              raw_config.exists(outputs_stem + output.first + stream_name_stem))) {
+        if (!(exists_outside_prolog(raw_config, outputs_stem + output.first + tier_spec_stem)  &&
+              exists_outside_prolog(raw_config, outputs_stem + output.first + stream_name_stem))) {
           throw art::Exception(art::errors::Configuration)
           << "Output \""
           << output.first
@@ -108,7 +110,7 @@ namespace {
 
   bool have_outputs(fhicl::intermediate_table & table) {
     bool result { false };
-    if (table.exists("outputs")) {
+    if (exists_outside_prolog(table, "outputs")) {
       auto const & ev = table.find("outputs");
       if (ev.is_a(fhicl::TABLE) &&
           ! table.get<fhicl::extended_value::table_t const &>("outputs").empty()) {
@@ -119,20 +121,21 @@ namespace {
   }
 
   void maybeThrowOnMissingMetadata(fhicl::intermediate_table const & table) {
+    std::string const key_stem { "services.FileCatalogMetadata." };
     std::vector<std::string> missingItems;
-    if (!table.exists("services.FileCatalogMetadata.applicationFamily")) {
-      missingItems.emplace_back("services.FileCatalogMetadata.applicationFamily (--sam-application-family)");
+    if (!exists_outside_prolog(table, key_stem + "applicationFamily")) {
+      missingItems.emplace_back( key_stem + "applicationFamily (--sam-application-family)");
     }
-    if (!table.exists("services.FileCatalogMetadata.applicationVersion")) {
-      missingItems.emplace_back("services.FileCatalogMetadata.applicationVersion (--sam-application-version)");
+    if (!exists_outside_prolog(table, key_stem + "applicationVersion")) {
+      missingItems.emplace_back( key_stem + "applicationVersion (--sam-application-version)");
     }
-    if (!table.exists("services.FileCatalogMetadata.group")) {
-      missingItems.emplace_back("services.FileCatalogMetadata.group (--sam-group)");
+    if (!exists_outside_prolog(table, key_stem + "group")) {
+      missingItems.emplace_back( key_stem + "group (--sam-group)");
     }
     if (!missingItems.empty()) {
       art::Exception e(art::errors::Configuration);
       e << "SAM metadata information is required -- missing metadata:\n";
-      for (auto const s : missingItems) {
+      for (auto const & s : missingItems) {
         e << s << "\n";
       }
     }
@@ -196,8 +199,8 @@ doProcessOptions(bpo::variables_map const & vm,
     raw_config.put(fcmdLocation + ".processID",
                    vm["sam-process-id"].as<std::string>());
   }
-  if (raw_config.exists(ciLocation + ".webURI") !=
-      raw_config.exists(fcmdLocation + ".processID")) { // Inconsistent.
+  if (exists_outside_prolog(raw_config, ciLocation + ".webURI") !=
+      exists_outside_prolog(raw_config, fcmdLocation + ".processID")) { // Inconsistent.
     throw Exception(errors::Configuration)
       << "configurations "
       << ciLocation
@@ -207,8 +210,8 @@ doProcessOptions(bpo::variables_map const & vm,
       << "together or not at all.\n";
   }
   bool wantSAMweb
-  { raw_config.exists(ciLocation + ".webURI") &&
-      raw_config.exists("source.fileNames") };
+  { exists_outside_prolog(raw_config, ciLocation + ".webURI") &&
+      exists_outside_prolog(raw_config, "source.fileNames") };
   // Other metadata items.
   if (!appFamily_.empty()) {
     raw_config.put(fcmdLocation + ".applicationFamily",
@@ -233,10 +236,10 @@ doProcessOptions(bpo::variables_map const & vm,
   bool requireMetadata =
     have_outputs(raw_config) &&
     ( wantSAMweb ||
-      raw_config.exists(fcmdLocation + ".applicationFamily") ||
-      raw_config.exists(fcmdLocation + ".applicationVersion") ||
-      raw_config.exists(fcmdLocation + ".fileType") ||
-      raw_config.exists(fcmdLocation + ".group")
+      exists_outside_prolog(raw_config, fcmdLocation + ".applicationFamily") ||
+      exists_outside_prolog(raw_config, fcmdLocation + ".applicationVersion") ||
+      exists_outside_prolog(raw_config, fcmdLocation + ".fileType") ||
+      exists_outside_prolog(raw_config, fcmdLocation + ".group")
     );
 
   if (requireMetadata) {
@@ -245,7 +248,7 @@ doProcessOptions(bpo::variables_map const & vm,
   }
 
   std::string process_name;
-  if (raw_config.exists("process_name")) {
+  if (exists_outside_prolog(raw_config, "process_name")) {
     process_name = raw_config.get<std::string>("process_name");
   }
   if (requireMetadata &&

@@ -1,5 +1,6 @@
 #include "art/Framework/Art/DebugOptionsHandler.h"
 
+#include "art/Framework/Art/detail/exists_outside_prolog.h"
 #include "art/Utilities/Exception.h"
 #include "fhiclcpp/coding.h"
 #include "fhiclcpp/extended_value.h"
@@ -11,6 +12,8 @@
 using namespace std::string_literals;
 
 namespace {
+
+  using art::detail::exists_outside_prolog;
 
   // For 'fillTable' the behavior is as follows:
   //
@@ -33,7 +36,7 @@ namespace {
   {
     if ( vm.count( bpo_key ) )
       config.put( fhicl_key, vm[bpo_key].as<bool>() );
-    else if ( !config.exists( fhicl_key ) )
+    else if ( !exists_outside_prolog(config, fhicl_key) )
       config.put( fhicl_key, true );
   }
 
