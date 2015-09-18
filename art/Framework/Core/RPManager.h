@@ -1,7 +1,7 @@
 #ifndef art_Framework_Core_RPManager_h
 #define art_Framework_Core_RPManager_h
 
-#include "art/Framework/Core/RPWrapper.h"
+#include "art/Framework/Core/RPWorkerT.h"
 #include "cetlib/BasicPluginFactory.h"
 #include "fhiclcpp/ParameterSet.h"
 
@@ -16,16 +16,16 @@ namespace art {
 
 class art::RPManager {
 public:
-  using RPPath_t = std::vector<std::unique_ptr<art::RPWrapperBase> >;
+  using RPPath_t = std::vector<std::unique_ptr<art::RPWorker> >;
   using RPMap_t = std::map<std::string, RPPath_t>;
 
-  template <typename RET>
-  using invoke_results_t = std::map<std::string, std::vector<RET>>;
+  // template <typename RET>
+  // using invoke_results_t = std::map<std::string, std::vector<RET>>;
 
   template <typename RET, typename... ARGS>
   using invoke_function_t = RET (art::ResultsProducer::*) (ARGS...);
 
-  using on_wrapper_t = std::function<void (art::RPWrapperBase &)>;
+  using on_rpworker_t = std::function<void (art::RPWorker &)>;
 
   RPManager(fhicl::ParameterSet const & ps);
 
@@ -44,7 +44,7 @@ public:
   //        ARGS && ... args);
 
   void
-  for_each_RPWrapper(on_wrapper_t wfunc);
+  for_each_RPWorker(on_rpworker_t wfunc);
 
   // No use case for these yet.
   // RPMap_t & allPaths();
@@ -106,7 +106,7 @@ invoke(invoke_function_t<void, ARGS...> mfunc,
 
 void
 art::RPManager::
-for_each_RPWrapper(on_wrapper_t wfunc)
+for_each_RPWorker(on_rpworker_t wfunc)
 {
   for (auto & path : rpmap_) {
     for (auto & w : path.second) {

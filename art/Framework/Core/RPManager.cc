@@ -53,17 +53,17 @@ RPManager(fhicl::ParameterSet const & ps)
 // }
 
 namespace {
-  std::unique_ptr<art::RPWrapperBase>
+  std::unique_ptr<art::RPWorker>
   pathLoader(cet::BasicPluginFactory & pf,
              fhicl::ParameterSet const & producers,
              std::string const & pkey)
   {
-    std::unique_ptr<art::RPWrapperBase> result;
+    std::unique_ptr<art::RPWorker> result;
     auto const & pconfig = producers.get<fhicl::ParameterSet>(pkey);
     auto libspec = pconfig.get<std::string>("plugin_type");
     auto const & ptype = pf.pluginType(libspec);
     if (ptype == cet::PluginTypeDeducer<art::ResultsProducer>::value) {
-      result = pf.makePlugin<std::unique_ptr<art::RPWrapperBase>, art::RPParams const &, fhicl::ParameterSet const & >
+      result = pf.makePlugin<std::unique_ptr<art::RPWorker>, art::RPParams const &, fhicl::ParameterSet const & >
                (libspec, { pconfig.id(), libspec, pkey }, pconfig);
     } else {
       // FIXME: Throw informative exception.

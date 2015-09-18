@@ -1,21 +1,21 @@
-#ifndef art_Framework_Core_RPWrapper_h
-#define art_Framework_Core_RPWrapper_h
+#ifndef art_Framework_Core_RPWorkerT_h
+#define art_Framework_Core_RPWorkerT_h
 
-#include "art/Framework/Principal/RPWrapperBase.h"
+#include "art/Framework/Principal/RPWorker.h"
 
 #include <memory>
 
 namespace art {
   template <typename RP>
-  class RPWrapper;
+  class RPWorkerT;
 }
 
 template <typename RP>
-class art::RPWrapper : public art::RPWrapperBase {
+class art::RPWorkerT : public art::RPWorker {
 public:
   using RPType = RP;
 
-  RPWrapper(RPParams const & p, fhicl::ParameterSet const & ps);
+  RPWorkerT(RPParams const & p, fhicl::ParameterSet const & ps);
 
 private:
   RP & rp_() override;
@@ -25,10 +25,10 @@ private:
 };
 
 template <typename RP>
-art::RPWrapper<RP>::
-RPWrapper(RPParams const & p, fhicl::ParameterSet const & ps)
+art::RPWorkerT<RP>::
+RPWorkerT(RPParams const & p, fhicl::ParameterSet const & ps)
 :
-  RPWrapperBase(p),
+  RPWorker(p),
   rpPlugin_(ps)
 {
 }
@@ -36,7 +36,7 @@ RPWrapper(RPParams const & p, fhicl::ParameterSet const & ps)
 template <typename RP>
 inline
 auto
-art::RPWrapper<RP>::
+art::RPWorkerT<RP>::
 rp_() ->
 RPType &
 {
@@ -46,14 +46,14 @@ RPType &
 template <typename RP>
 inline
 auto
-art::RPWrapper<RP>::
+art::RPWorkerT<RP>::
 rp_() const ->
 RPType const &
 {
   return rpPlugin_;
 }
 
-#endif /* art_Framework_Core_RPWrapper_h */
+#endif /* art_Framework_Core_RPWorkerT_h */
 
 // Local Variables:
 // mode: c++

@@ -271,7 +271,7 @@ respondToOpenInputFile(FileBlock const& fb)
       fastCloneThisOne = false;
     }
     rootOutputFile_->beginInputFile(fb, fastCloneThisOne && fastCloning_);
-    rpm_.for_each_RPWrapper([&fb](RPWrapperBase & w) {
+    rpm_.for_each_RPWorker([&fb](RPWorker & w) {
         Results const res(const_cast<ResultsPrincipal&>(fb.resultsPrincipal()), w.moduleDescription());
         w.rp().doReadResults(res);
       } );
@@ -299,7 +299,7 @@ respondToCloseOutputFiles(FileBlock const&)
       hasNewlyDroppedBranch()[InResults]) {
     resp->addToProcessHistory();
   }
-  rpm_.for_each_RPWrapper([&resp](RPWrapperBase & w) {
+  rpm_.for_each_RPWorker([&resp](RPWorker & w) {
       Results res(*resp, w.moduleDescription());
       w.rp().doWriteResults(res);
     } );
@@ -310,7 +310,7 @@ void
 art::RootOutput::
 write(EventPrincipal & ep)
 {
-  rpm_.for_each_RPWrapper([&ep](RPWrapperBase & w) {
+  rpm_.for_each_RPWorker([&ep](RPWorker & w) {
       Event const e(const_cast<EventPrincipal &>(ep), w.moduleDescription());
       w.rp().doEvent(e);
     });
@@ -451,7 +451,7 @@ doRegisterProducts(MasterProductRegistry & mpr,
                    ModuleDescription const & md)
 {
   // Register Results products from ResultsProducers.
-  rpm_.for_each_RPWrapper([&mpr, &md](RPWrapperBase & w) {
+  rpm_.for_each_RPWorker([&mpr, &md](RPWorker & w) {
       auto const & params = w.params();
       w.setModuleDescription(ModuleDescription(params.psetID,
                                                params.rpPluginType,
@@ -522,7 +522,7 @@ void
 art::RootOutput::
 beginSubRun(art::SubRunPrincipal const & srp)
 {
-  rpm_.for_each_RPWrapper([&srp](RPWrapperBase & w) {
+  rpm_.for_each_RPWorker([&srp](RPWorker & w) {
       SubRun const sr(const_cast<SubRunPrincipal &>(srp), w.moduleDescription());
       w.rp().doBeginSubRun(sr);
     });
@@ -532,7 +532,7 @@ void
 art::RootOutput::
 endSubRun(art::SubRunPrincipal const & srp)
 {
-  rpm_.for_each_RPWrapper([&srp](RPWrapperBase & w) {
+  rpm_.for_each_RPWorker([&srp](RPWorker & w) {
       SubRun const sr(const_cast<SubRunPrincipal &>(srp), w.moduleDescription());
       w.rp().doEndSubRun(sr);
     });
@@ -542,7 +542,7 @@ void
 art::RootOutput::
 beginRun(art::RunPrincipal const & rp)
 {
-  rpm_.for_each_RPWrapper([&rp](RPWrapperBase & w) {
+  rpm_.for_each_RPWorker([&rp](RPWorker & w) {
       Run const r(const_cast<RunPrincipal &>(rp), w.moduleDescription());
       w.rp().doBeginRun(r);
     });
@@ -552,7 +552,7 @@ void
 art::RootOutput::
 endRun(art::RunPrincipal const & rp)
 {
-  rpm_.for_each_RPWrapper([&rp](RPWrapperBase & w) {
+  rpm_.for_each_RPWorker([&rp](RPWorker & w) {
       Run const r(const_cast<RunPrincipal &>(rp), w.moduleDescription());
       w.rp().doEndRun(r);
     });

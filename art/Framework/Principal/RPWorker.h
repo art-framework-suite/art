@@ -1,19 +1,19 @@
-#ifndef art_Framework_Principal_RPWrapperBase_h
-#define art_Framework_Principal_RPWrapperBase_h
+#ifndef art_Framework_Principal_RPWorker_h
+#define art_Framework_Principal_RPWorker_h
 
 #include "art/Framework/Principal/RPParams.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
 
 namespace art {
-  class RPWrapperBase;
+  class RPWorker;
 
   class ResultsProducer; // Forward declaration.
 }
 
-class art::RPWrapperBase {
+class art::RPWorker {
 public:
-  RPWrapperBase(RPParams const & p);
-  virtual ~RPWrapperBase() = default;
+  RPWorker(RPParams const & p);
+  virtual ~RPWorker() = default;
 
   ResultsProducer & rp();
   ResultsProducer const & rp() const;
@@ -33,8 +33,8 @@ private:
 };
 
 inline
-art::RPWrapperBase::
-RPWrapperBase(RPParams const & p)
+art::RPWorker::
+RPWorker(RPParams const & p)
 :
   p_(p),
   md_()
@@ -43,7 +43,7 @@ RPWrapperBase(RPParams const & p)
 
 inline
 art::ResultsProducer &
-art::RPWrapperBase::
+art::RPWorker::
 rp()
 {
   return rp_();
@@ -51,7 +51,7 @@ rp()
 
 inline
 art::ResultsProducer const &
-art::RPWrapperBase::
+art::RPWorker::
 rp() const
 {
   return rp_();
@@ -59,7 +59,7 @@ rp() const
 
 inline
 art::RPParams const &
-art::RPWrapperBase::
+art::RPWorker::
 params() const
 {
   return p_;
@@ -67,7 +67,7 @@ params() const
 
 inline
 art::ModuleDescription const &
-art::RPWrapperBase::
+art::RPWorker::
 moduleDescription() const
 {
   return md_;
@@ -75,7 +75,7 @@ moduleDescription() const
 
 inline
 void
-art::RPWrapperBase::
+art::RPWorker::
 setModuleDescription(art::ModuleDescription const & md)
 {
   md_ = md;
@@ -83,13 +83,13 @@ setModuleDescription(art::ModuleDescription const & md)
 
 inline
 void
-art::RPWrapperBase::
+art::RPWorker::
 setModuleDescription(art::ModuleDescription && md)
 {
   md_ = std::move(md);
 }
 
-#endif /* art_Framework_Principal_RPWrapperBase_h */
+#endif /* art_Framework_Principal_RPWorker_h */
 
 // Local Variables:
 // mode: c++

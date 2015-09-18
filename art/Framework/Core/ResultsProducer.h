@@ -2,7 +2,7 @@
 #define art_Framework_Core_ResultsProducer_h
 
 #include "art/Framework/Core/ProductRegistryHelper.h"
-#include "art/Framework/Core/RPWrapper.h"
+#include "art/Framework/Core/RPWorkerT.h"
 #include "art/Utilities/BasicHelperMacros.h"
 #include "cetlib/PluginTypeDeducer.h"
 #include "fhiclcpp/ParameterSet.h"
@@ -146,12 +146,12 @@ doClear()
   PROVIDE_DESCRIPTION(klass)                                       \
   DEFINE_BASIC_PLUGINTYPE_FUNC(art::ResultsProducer)               \
   extern "C" {                                                     \
-    std::unique_ptr<art::RPWrapperBase>                            \
+    std::unique_ptr<art::RPWorker>                            \
     makeRP(art::RPParams const & rpParams,                         \
            fhicl::ParameterSet const & ps)                         \
     {                                                              \
       return                                                       \
-        std::make_unique<art::RPWrapper<klass>>(rpParams, ps);     \
+        std::make_unique<art::RPWorkerT<klass>>(rpParams, ps);     \
     }                                                              \
   }
 
