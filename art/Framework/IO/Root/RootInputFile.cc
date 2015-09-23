@@ -1225,6 +1225,8 @@ namespace art {
                                       resultsTree().makeBranchMapper(),
                                       resultsTree().makeDelayedReader(InResults, EventID()), 0, nullptr));
       resultsTree().fillGroups(*resp);
+    } else { // Empty
+      resp.reset(new ResultsPrincipal(ResultsAuxiliary(), processConfiguration_));
     }
     return resp;
   }

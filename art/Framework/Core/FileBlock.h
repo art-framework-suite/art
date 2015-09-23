@@ -68,8 +68,8 @@ namespace art {
 
   private:
     // Friends only.
-    friend class RootOutput;
-    ResultsPrincipal const & resultsPrincipal() const;
+    friend class OutputModule;
+    ResultsPrincipal const * resultsPrincipal() const;
 
     FileFormatVersion fileFormatVersion_;
     // We use bare pointers because ROOT owns these.
@@ -82,11 +82,11 @@ namespace art {
 }
 
 inline
-art::ResultsPrincipal const &
+art::ResultsPrincipal const *
 art::FileBlock::
 resultsPrincipal() const
 {
-  return *resp_;
+  return resp_.get();
 }
 
 #endif /* art_Framework_Core_FileBlock_h */

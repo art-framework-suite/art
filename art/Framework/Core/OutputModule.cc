@@ -1,10 +1,12 @@
 #include "art/Framework/Core/OutputModule.h"
 
 #include "art/Framework/Core/CPCSentry.h"
+#include "art/Framework/Core/FileBlock.h"
 #include "art/Framework/Core/detail/OutputModuleUtils.h"
 #include "art/Framework/Principal/CurrentProcessingContext.h"
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Principal/EventPrincipal.h"
+#include "art/Framework/Principal/ResultsPrincipal.h"
 #include "art/Framework/Principal/Run.h"
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRun.h"
@@ -269,6 +271,14 @@ art::OutputModule::
 doRespondToOpenInputFile(FileBlock const & fb)
 {
   respondToOpenInputFile(fb);
+  std::unique_ptr<ResultsPrincipal> respHolder;
+  art::ResultsPrincipal const * respPtr = fb.resultsPrincipal();
+  if (respPtr == nullptr) {
+    respHolder = std::make_unique<ResultsPrincipal>(ResultsAuxiliary { },
+                                                    description().processConfiguration());
+    respPtr = respHolder.get();
+  }
+  readResults(*respPtr);
 }
 
 void
@@ -410,6 +420,12 @@ openFile(FileBlock const &)
 void
 art::OutputModule::
 respondToOpenInputFile(FileBlock const &)
+{
+}
+
+void
+art::OutputModule::
+readResults(ResultsPrincipal const &)
 {
 }
 

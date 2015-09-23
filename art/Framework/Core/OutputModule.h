@@ -39,6 +39,8 @@
 
 namespace art {
   class OutputModule;
+
+  class ResultsPrincipal;
 }
 
 class art::OutputModule : public EventObserver {
@@ -229,6 +231,7 @@ private:
   virtual void writeSubRun(SubRunPrincipal & sr) = 0;
   virtual void openFile(FileBlock const &);
   virtual void respondToOpenInputFile(FileBlock const &);
+  virtual void readResults(ResultsPrincipal const & resp);
   virtual void respondToCloseInputFile(FileBlock const &);
   virtual void respondToOpenOutputFiles(FileBlock const &);
   virtual void respondToCloseOutputFiles(FileBlock const &);

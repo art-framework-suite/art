@@ -78,7 +78,8 @@ private: // MEMBER FUNCTIONS
 
   std::string const& lastClosedFileName() const override;
   void openFile(FileBlock const&) override;
-  void respondToOpenInputFile(FileBlock const&) override;
+  void respondToOpenInputFile(FileBlock const &) override;
+  void readResults(ResultsPrincipal const & resp) override;
   void respondToCloseInputFile(FileBlock const&) override;
   void respondToCloseOutputFiles(FileBlock const&) override;
   void write(EventPrincipal &) override;
@@ -271,12 +272,18 @@ respondToOpenInputFile(FileBlock const& fb)
       fastCloneThisOne = false;
     }
     rootOutputFile_->beginInputFile(fb, fastCloneThisOne && fastCloning_);
-    rpm_.for_each_RPWorker([&fb](RPWorker & w) {
-        Results const res(const_cast<ResultsPrincipal&>(fb.resultsPrincipal()), w.moduleDescription());
-        w.rp().doReadResults(res);
-      } );
     fstats_.recordInputFile(fb.fileName());
   }
+}
+
+void
+art::RootOutput::
+readResults(ResultsPrincipal const & resp)
+{
+  rpm_.for_each_RPWorker([&resp](RPWorker & w) {
+      Results const res(const_cast<ResultsPrincipal&>(resp), w.moduleDescription());
+      w.rp().doReadResults(res);
+    } );
 }
 
 void

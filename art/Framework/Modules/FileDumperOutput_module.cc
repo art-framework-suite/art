@@ -7,9 +7,11 @@
 //
 // ======================================================================
 
+#include "art/Framework/Core/FileBlock.h"
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Core/OutputModule.h"
 #include "art/Framework/Principal/EventPrincipal.h"
+#include "art/Framework/Principal/ResultsPrincipal.h"
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Utilities/Exception.h"
@@ -46,6 +48,7 @@ private:
   void write(EventPrincipal & e) override;
   void writeRun(RunPrincipal & r) override;
   void writeSubRun(SubRunPrincipal & sr) override;
+  void readResults(ResultsPrincipal const & resp) override;
 
   template <typename P>
   void printPrincipal(P const & p);
@@ -90,12 +93,20 @@ writeSubRun(SubRunPrincipal & sr)
   printPrincipal(sr);
 }
 
+void
+art::FileDumperOutput::
+readResults(ResultsPrincipal const & resp)
+{
+  printPrincipal(resp);
+}
+
 template <typename P>
 void
 art::FileDumperOutput::
 printPrincipal(P const & p)
 {
   if (!p.size()) { return; } // Nothing to do.
+  std::cout << "PRINCIPAL TYPE: " << BranchTypeToString(p.branchType()) << std::endl;
   // prepare the data structure, a sequence of columns:
   typedef  std::vector<std::string>  column;
   unsigned int ncols = 6;
