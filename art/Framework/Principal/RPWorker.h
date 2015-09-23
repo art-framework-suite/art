@@ -1,5 +1,14 @@
 #ifndef art_Framework_Principal_RPWorker_h
 #define art_Framework_Principal_RPWorker_h
+////////////////////////////////////////////////////////////////////////
+// RPWorker
+//
+// "Worker"-style wrapper base class for ResultsProducers.
+//
+// Allows for access to particular parameters and module descriptions
+// without their having to be passed via the ResultsProducer
+// constructor.
+////////////////////////////////////////////////////////////////////////
 
 #include "art/Framework/Principal/RPParams.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"

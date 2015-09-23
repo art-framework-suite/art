@@ -3,6 +3,7 @@
 #include "cetlib/PluginTypeDeducer.h"
 
 #include <memory>
+#include <string>
 
 namespace {
   std::size_t countProducers(art::RPManager::RPMap_t const & rpmap)
@@ -24,39 +25,13 @@ RPManager(fhicl::ParameterSet const & ps)
 {
 }
 
-// auto
-// art::RPManager::
-// path(std::string const & pathName)
-// -> RPPath_t &
-// {
-//   auto i = rpmap_.find(pathName);
-//   if (i != rpmap_.end()) {
-//     return i->second;
-//   } else {
-//     // FIXME: Throw informative exception.
-//     throw Exception(errors::LogicError);
-//   }
-// }
-
-// auto
-// art::RPManager::
-// path(std::string const & pathName) const
-// -> RPPath_t const &
-// {
-//   auto i = rpmap_.find(pathName);
-//   if (i != rpmap_.cend()) {
-//     return i->second;
-//   } else {
-//     // FIXME: Throw informative exception.
-//     throw Exception(errors::LogicError);
-//   }
-// }
-
 namespace {
   std::unique_ptr<art::RPWorker>
   pathLoader(cet::BasicPluginFactory & pf,
              fhicl::ParameterSet const & producers,
-             std::string const & pkey)
+             std::string const & pkey,
+             std::string const & omLabel,
+             std::string & errMsg)
   {
     std::unique_ptr<art::RPWorker> result;
     auto const & pconfig = producers.get<fhicl::ParameterSet>(pkey);
@@ -66,8 +41,14 @@ namespace {
       result = pf.makePlugin<std::unique_ptr<art::RPWorker>, art::RPParams const &, fhicl::ParameterSet const & >
                (libspec, { pconfig.id(), libspec, pkey }, pconfig);
     } else {
-      // FIXME: Throw informative exception.
-      throw art::Exception(art::errors::Configuration);
+      errMsg +=
+        + "Parameter set "
+        + omLabel,
+        + ".results."
+        + pkey
+        + " specifies a plugin "
+        + libspec
+        + "\n  which is not of required type ResultsProducer.\n";
     }
     return result;
   }
@@ -85,12 +66,13 @@ makeRPs_(fhicl::ParameterSet const & ps)
   auto results_keys =  results.get_names();
   auto producer_keys = producers.get_names();
   std::map<std::string, std::vector<std::string> > paths;
-
+  std::string const omLabel(ps.get<std::string>("module_label"));
+  std::string errMsg;
   if (producer_keys.empty()) {
     if (!results.is_empty()) {
       throw Exception(errors::Configuration)
         << "Parameter set "
-        << ps.get<std::string>("module_label")
+        << omLabel
         << ".results is non-empty, but does not contain\n"
         << "a non-empty producers parameter set.\n";
     }
@@ -98,12 +80,12 @@ makeRPs_(fhicl::ParameterSet const & ps)
     auto const path_keys_end = std::remove(results_keys.begin(), results_keys.end(), "producers");
     for (auto path_key = results_keys.begin(); path_key != path_keys_end; ++path_key) {
       if (!results.is_key_to_sequence(*path_key)) {
-        throw Exception(errors::Configuration)
-          << "Parameter"
-          << ps.get<std::string>("module_label")
-          << ".results."
-          << *path_key
-          << " does not describe a sequence (i.e. a path).\n";
+        errMsg +=
+          + "Parameter "
+          + omLabel
+          + ".results."
+          + *path_key
+          + " does not describe a sequence (i.e. a path).\n";
       } else {
         paths.emplace(*path_key, results.get<std::vector<std::string>>(*path_key));
       }
@@ -120,7 +102,14 @@ makeRPs_(fhicl::ParameterSet const & ps)
                    std::bind(&pathLoader,
                              std::ref(pf_),
                              std::cref(producers),
-                             std::placeholders::_1));
+                             std::placeholders::_1,
+                             std::cref(omLabel),
+                             std::ref(errMsg)));
+  }
+  if (!errMsg.empty()) {
+    throw Exception(errors::Configuration)
+      << "Errors encountered while configuring ResultsProducers:\n"
+      << errMsg;
   }
   return result;
 }

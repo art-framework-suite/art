@@ -7,7 +7,7 @@
 //
 //  Manages per-file results data products.
 //
-//  This is not visible to modules, instead they use the SubRun class,
+//  This is not visible to modules, instead they use the Results class,
 //  which is a proxy for this class.
 //
 
@@ -59,7 +59,8 @@ private:
   ResultsAuxiliary aux_;
 };
 
+#endif /* art_Framework_Principal_ResultsPrincipal_h */
+
 // Local Variables:
 // mode: c++
 // End:
-#endif /* art_Framework_Principal_ResultsPrincipal_h */

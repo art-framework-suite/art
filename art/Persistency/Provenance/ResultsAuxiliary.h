@@ -1,5 +1,11 @@
 #ifndef art_Persistency_Provenance_ResultsAuxiliary_h
 #define art_Persistency_Provenance_ResultsAuxiliary_h
+////////////////////////////////////////////////////////////////////////
+// ResultsAuxiliary
+//
+// Auxiliary information stored about results.
+//
+////////////////////////////////////////////////////////////////////////
 
 #include <iosfwd>
 #include <set>

@@ -1,5 +1,12 @@
 #ifndef art_Framework_Core_RPManager_h
 #define art_Framework_Core_RPManager_h
+////////////////////////////////////////////////////////////////////////
+// RPManager
+//
+// Art-internal class to handle the creation and management of
+// ResultsProducers.
+//
+////////////////////////////////////////////////////////////////////////
 
 #include "art/Framework/Core/RPWorkerT.h"
 #include "cetlib/BasicPluginFactory.h"
@@ -19,9 +26,6 @@ public:
   using RPPath_t = std::vector<std::unique_ptr<art::RPWorker> >;
   using RPMap_t = std::map<std::string, RPPath_t>;
 
-  // template <typename RET>
-  // using invoke_results_t = std::map<std::string, std::vector<RET>>;
-
   template <typename RET, typename... ARGS>
   using invoke_function_t = RET (art::ResultsProducer::*) (ARGS...);
 
@@ -37,21 +41,8 @@ public:
   invoke(invoke_function_t<void, ARGS...> mfunc,
          ARGS && ... args);
 
-  // template <typename RET, typename ... ARGS>
-  // void
-  // invoke(invoke_results_t<RET> & ret,
-  //        invoke_function_t<RET, ARGS...> mfunc,
-  //        ARGS && ... args);
-
   void
   for_each_RPWorker(on_rpworker_t wfunc);
-
-  // No use case for these yet.
-  // RPMap_t & allPaths();
-  // RPMap_t const & allPaths() const;
-
-  // RPPath_t & path(std::string const & pathName);
-  // RPPath_t const & path(std::string const & pathName) const;
 
 private:
   cet::BasicPluginFactory pf_;
@@ -90,20 +81,6 @@ invoke(invoke_function_t<void, ARGS...> mfunc,
   }
 }
 
-// template <typename RET, typename... ARGS>
-// void
-// art::RPManager::
-// invoke(invoke_results_t<RET> & ret,
-//        invoke_function_t<RET, ARGS...> mfunc,
-//        ARGS &&... args)
-// {
-//   for (auto & path : rpmap_) {
-//     for (auto & w : path.second) {
-//       ret.push_back((w->rp().*mfunc)(std::forward<ARGS>(args)...));
-//     }
-//   }
-// }
-
 void
 art::RPManager::
 for_each_RPWorker(on_rpworker_t wfunc)
@@ -114,24 +91,6 @@ for_each_RPWorker(on_rpworker_t wfunc)
     }
   }
 }
-
-// inline
-// auto
-// art::RPManager::
-// allPaths()
-// -> RPMap_t &
-// {
-//   return rpmap_;
-// }
-
-// inline
-// auto
-// art::RPManager::
-// allPaths() const
-// -> RPMap_t const &
-// {
-//   return rpmap_;
-// }
 
 #endif /* art_Framework_Core_RPManager_h */
 

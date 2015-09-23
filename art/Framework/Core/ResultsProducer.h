@@ -1,5 +1,75 @@
 #ifndef art_Framework_Core_ResultsProducer_h
 #define art_Framework_Core_ResultsProducer_h
+////////////////////////////////////////////////////////////////////////
+// ResultsProducer
+//
+// Base class for all ResultsProducer plugins.
+//
+// Subclasses shuld not have a separate header, as, in common with other
+// art modules such as EDProducers and EDAnalyzers, communiation between
+// modules is only allowed via defined data products and not via calls
+// to the class' interface.
+//
+// Notes for subclass implementors:
+//
+// * Subclass implementations *must* invoke:
+//
+//   DEFINE_ART_RESULTS_PLUGIN(class)
+//
+// * Subclasses *must* define:
+//
+//   Constructor(fhicl::ParameterSet const &);
+//
+//     Declare data products to be put into the Results (via
+//     art::Results::put() in writeResults() below) using produces<>(),
+//     in a similar fashion to producers and filters.
+//
+//   void writeResults(art::Results &);
+//
+//     Called immediately prior to output file closure. Users should
+//     put() their declared products into the Results object. Using
+//     getLabel() here will access only those results products that were
+//     put() by plugins executed earlier for the same output module. In
+//     order to access results products from input files, use
+//     readResults(), below. Note that for the purposes of product
+//     retrieval, the "module label" of a results product is
+//     <output-module-label>#<results-producer-label> eg for results
+//     producer label rp1 defined for output module o1, any product
+//     produced by rp1 will have the label, o1#rp1.
+//
+//   void clear();
+//
+//     In this function (called after writeResults()), the user should
+//     reset any accumulated information in preparation for (possibly)
+//     accumulating data for the next output file.
+//
+// * Subclasses *may* define:
+//
+//   void beginJob();
+//
+//   void endJob();
+//
+//   void beginSubRun(SubRun const &);
+//
+//   void endSubRun(SubRun const &);
+//
+//   void beginRun(Run const &);
+//
+//   void endRun(Run const &);
+//
+//   void event(Event const &);
+//
+//   void readResults(art::Results const &);
+//
+//     Access any results-level products in input files here. The user
+//     is entirely responsible for combining information from possibly
+//     multiple input files into a possible output product, and for
+//     dealing with the fact that reading a product from an input (here)
+//     is distinctly different from reading a product placed into the
+//     outgoing results object by a ResultsProducer running in the same
+//     job (which must be done in writeResults(), above).
+//
+////////////////////////////////////////////////////////////////////////
 
 #include "art/Framework/Core/ProductRegistryHelper.h"
 #include "art/Framework/Core/RPWorkerT.h"
