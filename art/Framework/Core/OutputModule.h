@@ -297,6 +297,22 @@ OutputModule(art::OutputModule::Table<Config> const & config)
 }
 
 inline
+art::CurrentProcessingContext const *
+art::OutputModule::
+currentContext() const
+{
+  return current_context_;
+}
+
+inline
+art::ModuleDescription const &
+art::OutputModule::
+description() const
+{
+  return moduleDescription_;
+}
+
+inline
 int
 art::OutputModule::
 maxEvents() const

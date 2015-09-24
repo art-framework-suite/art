@@ -308,20 +308,6 @@ reallyCloseFile()
   branchChildren_.clear();
 }
 
-art::CurrentProcessingContext const *
-art::OutputModule::
-currentContext() const
-{
-  return current_context_;
-}
-
-art::ModuleDescription const &
-art::OutputModule::
-description() const
-{
-  return moduleDescription_;
-}
-
 void
 art::OutputModule::
 updateBranchParents(EventPrincipal const & ep)
