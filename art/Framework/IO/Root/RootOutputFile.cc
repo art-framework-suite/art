@@ -57,26 +57,26 @@
 using namespace cet;
 using namespace std;
 using art::rootNames::metaBranchRootName;
+using art::RootOutputFile;
 
 namespace {
 
-void
-insert_md_row(sqlite3_stmt* stmt, pair<string, string> const& kv)
-{
-  string const& theName(kv.first);
-  string const& theValue(kv.second);
-  sqlite3_bind_text(stmt, 1, theName.c_str(),
-                    theName.size() + 1, SQLITE_STATIC);
-  sqlite3_bind_text(stmt, 2, theValue.c_str(),
-                    theValue.size() + 1, SQLITE_STATIC);
-  sqlite3_step(stmt);
-  sqlite3_reset(stmt);
-}
+  void
+  insert_md_row(sqlite3_stmt* stmt, pair<string, string> const& kv)
+  {
+    string const& theName(kv.first);
+    string const& theValue(kv.second);
+    sqlite3_bind_text(stmt, 1, theName.c_str(),
+                      theName.size() + 1, SQLITE_STATIC);
+    sqlite3_bind_text(stmt, 2, theValue.c_str(),
+                      theValue.size() + 1, SQLITE_STATIC);
+    sqlite3_step(stmt);
+    sqlite3_reset(stmt);
+  }
 
 } // unnamed namespace
 
-namespace art {
-
+art::
 RootOutputFile::
 RootOutputFile(OutputModule* om, string const& fileName,
                unsigned int const maxFileSize, int const compressionLevel,
@@ -98,7 +98,7 @@ RootOutputFile(OutputModule* om, string const& fileName,
   , fastCloning_(fastCloning)
   , currentlyFastCloning_(true)
   , filePtr_(TFile::Open(file_.c_str(), "recreate", "",
-             compressionLevel))
+                         compressionLevel))
   , fileIndex_()
   , eventEntryNumber_(0LL)
   , subRunEntryNumber_(0LL)
@@ -148,31 +148,30 @@ RootOutputFile(OutputModule* om, string const& fileName,
 {
   // Don't split metadata tree or event description tree
   metaDataTree_ = RootOutputTree::makeTTree(filePtr_.get(),
-                  rootNames::metaDataTreeName(), 0);
+                                            rootNames::metaDataTreeName(), 0);
   fileIndexTree_ = RootOutputTree::makeTTree(filePtr_.get(),
-                   rootNames::fileIndexTreeName(), 0);
+                                             rootNames::fileIndexTreeName(), 0);
   parentageTree_ = RootOutputTree::makeTTree(filePtr_.get(),
-                   rootNames::parentageTreeName(), 0);
+                                             rootNames::parentageTreeName(), 0);
   // Create the tree that will carry (event) History objects.
   eventHistoryTree_ = RootOutputTree::makeTTree(filePtr_.get(),
-                      rootNames::eventHistoryTreeName(), splitLevel);
+                                                rootNames::eventHistoryTreeName(), splitLevel);
   if (!eventHistoryTree_) {
     throw art::Exception(art::errors::FatalRootError)
-        << "Failed to create the tree for History objects\n";
+      << "Failed to create the tree for History objects\n";
   }
   pHistory_ = new History;
   if (!eventHistoryTree_->Branch(rootNames::eventHistoryBranchName().c_str(),
                                  &pHistory_, basketSize, 0)) {
     throw art::Exception(art::errors::FatalRootError)
-        << "Failed to create a branch for History in the output file\n";
+      << "Failed to create a branch for History in the output file\n";
   }
   delete pHistory_;
   pHistory_ = nullptr;
 }
 
-RootOutputFile::
-OutputItem::
-Sorter::
+art::
+RootOutputFile::OutputItem::Sorter::
 Sorter(TTree* tree)
 {
   // Fill a map mapping branch names to an index specifying
@@ -188,9 +187,8 @@ Sorter(TTree* tree)
 }
 
 bool
-RootOutputFile::
-OutputItem::
-Sorter::
+art::
+RootOutputFile::OutputItem::Sorter::
 operator()(OutputItem const& lh, OutputItem const& rh) const
 {
   // Provides a comparison for sorting branches according
@@ -219,21 +217,7 @@ operator()(OutputItem const& lh, OutputItem const& rh) const
 }
 
 void
-RootOutputFile::
-fillSelectedItemList(BranchType bt, TTree* tree)
-{
-  auto& items = selectedOutputItemList_[bt];
-  items.clear();
-  for (auto const& bd : om_->keptProducts()[bt]) {
-    items.emplace_back(bd);
-  }
-  // Sort items to allow fast copying. The branches in
-  // items must be in the same order as in the input tree,
-  // with all new branches at the end.
-  sort(items.begin(), items.end(), OutputItem::Sorter(tree));
-}
-
-void
+art::
 RootOutputFile::
 selectProducts(FileBlock const& fb)
 {
@@ -261,6 +245,7 @@ selectProducts(FileBlock const& fb)
 }
 
 void
+art::
 RootOutputFile::
 beginInputFile(FileBlock const& fb, bool fastClone)
 {
@@ -270,19 +255,20 @@ beginInputFile(FileBlock const& fb, bool fastClone)
   if (currentlyFastCloning_ &&
       !treePointers_[InEvent]->checkSplitLevelAndBasketSize(fb.tree())) {
     mf::LogWarning("FastCloning")
-        << "Fast cloning deactivated for this input file due to "
-        << "splitting level and/or basket size.";
+      << "Fast cloning deactivated for this input file due to "
+      << "splitting level and/or basket size.";
     currentlyFastCloning_ = false;
   }
   if (currentlyFastCloning_ && !origCurrentlyFastCloning) {
     mf::LogWarning("FastCloning")
-        << "Fast cloning reactivated for this input file.";
+      << "Fast cloning reactivated for this input file.";
   }
   treePointers_[InEvent]->beginInputFile(currentlyFastCloning_);
   treePointers_[InEvent]->fastCloneTree(fb.tree());
 }
 
 void
+art::
 RootOutputFile::
 respondToCloseInputFile(FileBlock const&)
 {
@@ -292,6 +278,7 @@ respondToCloseInputFile(FileBlock const&)
 }
 
 bool
+art::
 RootOutputFile::
 shouldWeCloseFile() const
 {
@@ -301,6 +288,7 @@ shouldWeCloseFile() const
 }
 
 void
+art::
 RootOutputFile::
 writeOne(EventPrincipal const& e)
 {
@@ -319,12 +307,12 @@ writeOne(EventPrincipal const& e)
   int sz = eventHistoryTree_->Fill();
   if (sz <= 0) {
     throw art::Exception(art::errors::FatalRootError)
-        << "Failed to fill the History tree for event: "
-        << e.id()
-        << "\nTTree::Fill() returned "
-        << sz
-        << " bytes written."
-        << endl;
+      << "Failed to fill the History tree for event: "
+      << e.id()
+      << "\nTTree::Fill() returned "
+      << sz
+      << " bytes written."
+      << endl;
   }
   // Add the dataType to the job report if it hasn't already been done
   if (!dataTypeReported_) {
@@ -341,6 +329,7 @@ writeOne(EventPrincipal const& e)
 }
 
 void
+art::
 RootOutputFile::
 writeSubRun(SubRunPrincipal const& sr)
 {
@@ -354,6 +343,7 @@ writeSubRun(SubRunPrincipal const& sr)
 }
 
 void
+art::
 RootOutputFile::
 writeRun(RunPrincipal const& r)
 {
@@ -366,22 +356,23 @@ writeRun(RunPrincipal const& r)
 }
 
 void
+art::
 RootOutputFile::
 writeParentageRegistry()
 {
   ParentageID const* hash = new ParentageID;
   if (!parentageTree_->Branch(rootNames::parentageIDBranchName().c_str(),
-      &hash, basketSize_, 0)) {
+                              &hash, basketSize_, 0)) {
     throw art::Exception(art::errors::FatalRootError)
-        << "Failed to create a branch for ParentageIDs in the output file";
+      << "Failed to create a branch for ParentageIDs in the output file";
   }
   delete hash;
   hash = nullptr;
   Parentage const* desc = new Parentage;
   if (!parentageTree_->Branch(rootNames::parentageBranchName().c_str(), &desc,
-      basketSize_, 0)) {
+                              basketSize_, 0)) {
     throw art::Exception(art::errors::FatalRootError)
-        << "Failed to create a branch for Parentages in the output file";
+      << "Failed to create a branch for Parentages in the output file";
   }
   delete desc;
   desc = nullptr;
@@ -389,7 +380,7 @@ writeParentageRegistry()
   //map<art::Hash<ParentageType> const, art::Parentage>
   //map<art::Hash<5> const, art::Parentage>
   for (auto I = ParentageRegistry::cbegin(), E = ParentageRegistry::cend();
-      I != E; ++I) {
+       I != E; ++I) {
     hash = &I->first;
     desc = &I->second;
     parentageTree_->Fill();
@@ -401,6 +392,7 @@ writeParentageRegistry()
 }
 
 void
+art::
 RootOutputFile::
 writeFileFormatVersion()
 {
@@ -414,6 +406,7 @@ writeFileFormatVersion()
 }
 
 void
+art::
 RootOutputFile::
 writeFileIndex()
 {
@@ -430,6 +423,7 @@ writeFileIndex()
 }
 
 void
+art::
 RootOutputFile::
 writeEventHistory()
 {
@@ -437,6 +431,7 @@ writeEventHistory()
 }
 
 void
+art::
 RootOutputFile::
 writeProcessConfigurationRegistry()
 {
@@ -445,6 +440,7 @@ writeProcessConfigurationRegistry()
 }
 
 void
+art::
 RootOutputFile::
 writeProcessHistoryRegistry()
 {
@@ -461,6 +457,7 @@ writeProcessHistoryRegistry()
 }
 
 void
+art::
 RootOutputFile::
 writeBranchIDListRegistry()
 {
@@ -473,6 +470,7 @@ writeBranchIDListRegistry()
 }
 
 void
+art::
 RootOutputFile::
 writeFileCatalogMetadata(FileStatsCollector const& stats,
                          FileCatalogMetadata::collection_type const& md,
@@ -499,28 +497,27 @@ writeFileCatalogMetadata(FileStatsCollector const& stats,
   // Add our own specific information: File format and friends.
   insert_md_row(stmt, { "file_format", "\"artroot\"" });
   insert_md_row(stmt, { "file_format_era",
-                cet::canonical_string(getFileFormatEra()) });
+        cet::canonical_string(getFileFormatEra()) });
   insert_md_row(stmt, { "file_format_version",
-                        to_string(getFileFormatVersion())
-                      });
+        to_string(getFileFormatVersion())
+        });
   namespace bpt = boost::posix_time;
   // File start time.
   insert_md_row(stmt, { "start_time", cet::canonical_string(
-                         bpt::to_iso_extended_string(
-                         stats.outputFileOpenTime()))
-                      });
+                                                            bpt::to_iso_extended_string(
+                                                                                        stats.outputFileOpenTime()))
+        });
   // File "end" time: now, since file is not actually closed yet.
   insert_md_row(stmt, { "end_time", cet::canonical_string(
-                        bpt::to_iso_extended_string(
-                        boost::posix_time::second_clock::universal_time()))
-                      });
+                                                          bpt::to_iso_extended_string(
+                                                                                      boost::posix_time::second_clock::universal_time()))
+        });
   // Run/subRun information.
   if (!stats.seenSubRuns().empty()) {
-    auto cmp = [](pair<string, string> const& p) {
-      return p.first == "run_type";
-    };
-    decltype(md.crbegin()) I;
-    I = find_if(md.crbegin(), md.crend(), cmp);
+
+    auto I = find_if(md.crbegin(), md.crend(),
+                     [](auto const& p){ return p.first == "run_type"; } );
+
     if (I != md.crend()) {
       ostringstream buf;
       buf << "[ ";
@@ -583,6 +580,7 @@ writeFileCatalogMetadata(FileStatsCollector const& stats,
 }
 
 void
+art::
 RootOutputFile::
 writeParameterSetRegistry()
 {
@@ -590,23 +588,21 @@ writeParameterSetRegistry()
 }
 
 void
+art::
 RootOutputFile::
 writeProductDescriptionRegistry()
 {
   // Make a local copy of the MasterProductRegistry's ProductList,
   // removing any transient or pruned products.
-  ProductRegistry reg(art::ProductMetaData::instance().productList());
   auto end = branchesWithStoredHistory_.end();
-  for (auto I = reg.productList_.begin(), E = reg.productList_.end(); I != E;) {
-    if (branchesWithStoredHistory_.find(I->second.branchID()) != end) {
-      ++I;
-      continue;
-    }
-    auto J = I;
-    ++I;
-    reg.productList_.erase(J);
+
+  ProductRegistry reg;
+  for ( auto const& pr : ProductMetaData::instance().productList() ) {
+    if ( branchesWithStoredHistory_.find(pr.second.branchID()) != end )
+      reg.productList_.insert(pr);
   }
-  auto regp = &reg;
+
+  auto* regp = &reg;
   TBranch* b = metaDataTree_->Branch(metaBranchRootName<ProductRegistry>(),
                                      &regp, basketSize_, 0);
   // FIXME: Turn this into a throw!
@@ -615,6 +611,7 @@ writeProductDescriptionRegistry()
 }
 
 void
+art::
 RootOutputFile::
 writeProductDependencies()
 {
@@ -628,6 +625,7 @@ writeProductDependencies()
 }
 
 void
+art::
 RootOutputFile::
 writeResults(ResultsPrincipal & resp)
 {
@@ -656,6 +654,7 @@ finishEndFile()
 }
 
 void
+art::
 RootOutputFile::
 insertAncestors(ProductProvenance const& iGetParents,
                 Principal const& principal, set<ProductProvenance>& oToFill)
@@ -682,6 +681,7 @@ insertAncestors(ProductProvenance const& iGetParents,
 }
 
 void
+art::
 RootOutputFile::
 fillBranches(BranchType const& bt, Principal const& principal,
              vector<ProductProvenance>* vpp)
@@ -695,10 +695,10 @@ fillBranches(BranchType const& bt, Principal const& principal,
     branchesWithStoredHistory_.insert(bid);
     auto produced = bd->produced();
     bool keepProvenance = dropMetaData_ == DropMetaData::DropNone ||
-                          (dropMetaData_ == DropMetaData::DropPrior &&
-                           produced);
+      (dropMetaData_ == DropMetaData::DropPrior &&
+       produced);
     bool resolveProd = (produced || !fastCloning ||
-                    treePointers_[bt]->uncloned(bd->branchName()));
+                        treePointers_[bt]->uncloned(bd->branchName()));
     auto const oh = principal.getForOutput(bid, resolveProd);
     EDProduct const* product = nullptr;
     if (oh.productProvenance()) {
@@ -706,18 +706,18 @@ fillBranches(BranchType const& bt, Principal const& principal,
     }
     if (keepProvenance) {
       if (oh.productProvenance()) {
-    keptProv.insert(*oh.productProvenance());
-    insertAncestors(*oh.productProvenance(), principal, keptProv);
+        keptProv.insert(*oh.productProvenance());
+        insertAncestors(*oh.productProvenance(), principal, keptProv);
       }
       else {
-  // No provenance, product was either not produced,
-  // or was dropped, create provenance to remember that.
-  if (produced) {
-    keptProv.emplace(bd->branchID(), productstatus::neverCreated());
-  }
-  else {
-    keptProv.emplace(bd->branchID(), productstatus::dropped());
-  }
+        // No provenance, product was either not produced,
+        // or was dropped, create provenance to remember that.
+        if (produced) {
+          keptProv.emplace(bd->branchID(), productstatus::neverCreated());
+        }
+        else {
+          keptProv.emplace(bd->branchID(), productstatus::dropped());
+        }
       }
     }
     if (resolveProd) {
@@ -729,9 +729,9 @@ fillBranches(BranchType const& bt, Principal const& principal,
         TClass* cp = TClass::GetClass(name);
         if (cp == nullptr) {
           throw art::Exception(art::errors::DictionaryNotFound)
-              << "TClass::GetClass() returned null pointer for name: "
-              << name
-              << '\n';
+            << "TClass::GetClass() returned null pointer for name: "
+            << name
+            << '\n';
         }
         unique_ptr<EDProduct> dummy(reinterpret_cast<EDProduct*>(cp->New()));
         product = dummy.get();
@@ -745,6 +745,4 @@ fillBranches(BranchType const& bt, Principal const& principal,
   treePointers_[bt]->fillTree();
   vpp->clear();
 }
-
-} // namespace art
 

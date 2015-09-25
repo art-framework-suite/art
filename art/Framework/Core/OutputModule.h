@@ -205,6 +205,7 @@ private:
   void doRespondToCloseInputFile(FileBlock const & fb);
   void doRespondToOpenOutputFiles(FileBlock const & fb);
   void doRespondToCloseOutputFiles(FileBlock const & fb);
+  void doSelectProducts();
 
   std::string workerType() const {return "OutputWorker";}
 

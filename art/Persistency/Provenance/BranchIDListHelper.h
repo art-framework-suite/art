@@ -22,6 +22,7 @@ public:
                               std::string const& fileName);
   static void updateRegistries(MasterProductRegistry const& reg);
   static void clearRegistries();
+  static void generate_branchIDToIndexMap();
 public:
   BranchIDListHelper()
     : branchIDToIndexMap_()

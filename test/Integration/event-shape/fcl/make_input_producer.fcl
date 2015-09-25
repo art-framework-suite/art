@@ -1,0 +1,2 @@
+physics.producers.prod.module_type: "test/Integration/event-shape/InputProducer"
+physics.p1: [ prod ]

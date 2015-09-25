@@ -139,21 +139,6 @@ namespace arttest
     return a.data < b.data;
   }
 
-#if 0
-  struct Unsortable : public art::DoNotSortUponInsertion
-  {
-    int data;
-    Unsortable() : data(0) { }
-    explicit Unsortable(int i) : data(i) { }
-  };
-
-  inline
-  bool operator< (Unsortable const&, Unsortable const&)
-  {
-    throw std::logic_error("operator< called for Unsortable");
-  }
-#endif
-
   struct Prodigal : public art::DoNotRecordParents
   {
     int data;

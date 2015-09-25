@@ -32,6 +32,10 @@ Running 2 test cases...
    GeneratorTest                       source      <path>/GeneratorTest_source.cc
    HMRunProdProducer                   producer    <path>/HMRunProdProducer_module.cc
    HMSubRunProdProducer                producer    <path>/HMSubRunProdProducer_module.cc
+   InputProducer                       producer    <path>/InputProducer_module.cc
+***InputProducerNoEvents               producer    <path>/InputProducerNoEvents_module.cc
+***InputProducerNoEvents               producer    <path>/InputProducerNoEvents_module.cc
+   InputProducerOnlyEvents             producer    <path>/InputProducerOnlyEvents_module.cc
    IntProducer                         producer    <path>/IntProducer_module.cc
    IntTestAnalyzer                     analyzer    <path>/IntTestAnalyzer_module.cc
    IntVectorAnalyzer                   analyzer    <path>/IntVectorAnalyzer_module.cc

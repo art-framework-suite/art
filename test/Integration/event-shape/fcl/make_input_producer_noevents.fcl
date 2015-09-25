@@ -1,0 +1,2 @@
+physics.producers.prod.module_type: "test/Integration/concatenateInput/InputProducerNoEvents"
+physics.p1: [ prod ]

@@ -1,0 +1,3 @@
+physics.producers.prod1.module_type: InputProducerNoEvents
+physics.producers.prod3.module_type: InputProducerOnlyEvents
+physics.p1: [ prod1, prod3 ]
