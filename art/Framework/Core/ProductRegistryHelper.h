@@ -25,6 +25,7 @@
 #include "art/Persistency/Provenance/ProductList.h"
 #include "art/Persistency/Provenance/MasterProductRegistry.h"
 #include "art/Persistency/Provenance/TypeLabel.h"
+#include "art/Persistency/Provenance/detail/branchNameComponentChecking.h"
 #include "art/Utilities/Exception.h"
 #include "art/Utilities/TypeID.h"
 #include "cetlib/exception.h"
@@ -34,34 +35,43 @@
 
 namespace {
 
-inline
-void
-verifyInstanceName(std::string const& instanceName)
-{
-  if (instanceName.find('_') != std::string::npos) {
-    throw art::Exception(art::errors::Configuration)
-        << "Instance name \""
-        << instanceName
-        << "\" is illegal: underscores are not permitted in instance names."
-        << '\n';
+  inline
+  void
+  verifyFriendlyClassName(std::string const & fcn)
+  {
+    std::string errMsg;
+    if (!art::detail::checkFriendlyName(fcn, errMsg)) {
+      throw art::Exception(art::errors::Configuration)
+        << errMsg
+        << "In particular, underscores are not permissible anywhere in the fully-scoped\n"
+        "class name, including namespaces.\n";
+    }
   }
-}
 
-inline
-void
-verifyFriendlyClassName(std::string const& fcn)
-{
-  if (fcn.find('_') != std::string::npos) {
-    throw art::Exception(art::errors::LogicError)
-        << "Class \""
-        << fcn
-        << "\" is not suitable for use as a product due to the presence of "
-        << "underscores which are not allowed anywhere in the class name "
-        << "(including namespace and enclosing classes).\n";
+  inline
+  void
+  verifyModuleLabel(std::string const & ml)
+  {
+    std::string errMsg;
+    if (!art::detail::checkModuleLabel(ml, errMsg)) {
+      throw art::Exception(art::errors::Configuration)
+        << errMsg;
+    }
   }
-}
+
+  inline
+  void
+  verifyInstanceName(std::string const & instanceName)
+  {
+    std::string errMsg;
+    if (!art::detail::checkInstanceName(instanceName, errMsg)) {
+      throw art::Exception(art::errors::Configuration)
+        << errMsg;
+    }
+  }
 
 } // unnamed namespace
+
 
 
 namespace art {
@@ -141,21 +151,17 @@ ProductRegistryHelper::
 reconstitutes(std::string const& emulatedModule,
     std::string const& instanceName)
 {
+  verifyModuleLabel(emulatedModule);
   verifyInstanceName(instanceName);
   TypeID productType(typeid(P));
   verifyFriendlyClassName(productType.friendlyClassName());
-  if (emulatedModule.empty()) {
-    throw Exception(errors::Configuration)
-        << "Input sources must call reconstitutes with a non-empty "
-        << "module label.\n";
-  }
   return insertOrThrow(TypeLabel(B, productType, instanceName,
                                  emulatedModule));
 }
 
 } // namespace art
 
-#endif // art_Framework_Core_ProductRegistryHelper_h
+#endif /* art_Framework_Core_ProductRegistryHelper_h */
 
 // Local Variables:
 // mode: c++

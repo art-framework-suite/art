@@ -163,11 +163,11 @@ art::EventProcessor::EventProcessor(ParameterSet const & pset)
   ServiceHandle<art::FileCatalogMetadata>()->addMetadataString("process_name", processName);
 
   input_ = makeInput(pset, processName, preg_, actReg_);
-  initSchedules_(pset);
   endPathExecutor_ = std::make_unique<EndPathExecutor>(pathManager_,
                                                        act_table_,
                                                        actReg_,
                                                        preg_);
+  initSchedules_(pset);
   FDEBUG(2) << pset.to_string() << std::endl;
   BranchIDListHelper::updateRegistries(preg_);
 }

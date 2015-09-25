@@ -39,6 +39,8 @@
 
 namespace art {
   class OutputModule;
+
+  class ResultsPrincipal;
 }
 
 class art::OutputModule : public EventObserver {
@@ -78,7 +80,8 @@ public:
         std::set<std::string> const keys_to_ignore = { "module_label",
                                                        "streamName",
                                                        "FCMDPlugins",
-                                                       "fastCloning" }; // From RootOuput (shouldn't be here")
+                                                       "fastCloning", // From RootOuput (shouldn't be here")
+                                                       "results" }; // Ditto.
         this->validate_ParameterSet( pset, keys_to_ignore );
         this->set_PSet( pset );
       }
@@ -111,6 +114,9 @@ public:
 
   void selectProducts(FileBlock const&);
 
+  void registerProducts(MasterProductRegistry &,
+                        ModuleDescription const &);
+
 protected:
   // The returned pointer will be null unless the this is currently
   // executing its event loop function ('write').
@@ -123,6 +129,10 @@ protected:
 
   // Called after selectProducts() has done its work.
   virtual void postSelectProducts(FileBlock const &);
+
+  // Called to register products if necessary.
+  virtual void doRegisterProducts(MasterProductRegistry &,
+                                  ModuleDescription const &);
 
 private:
 
@@ -221,6 +231,7 @@ private:
   virtual void writeSubRun(SubRunPrincipal & sr) = 0;
   virtual void openFile(FileBlock const &);
   virtual void respondToOpenInputFile(FileBlock const &);
+  virtual void readResults(ResultsPrincipal const & resp);
   virtual void respondToCloseInputFile(FileBlock const &);
   virtual void respondToOpenOutputFiles(FileBlock const &);
   virtual void respondToCloseOutputFiles(FileBlock const &);

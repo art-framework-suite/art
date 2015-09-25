@@ -14,6 +14,7 @@
 #include "art/Persistency/Provenance/ProductRegistry.h"
 #include "art/Persistency/Provenance/RunAuxiliary.h"
 #include "art/Persistency/Provenance/SubRunAuxiliary.h"
+#include "art/Persistency/Provenance/ResultsAuxiliary.h"
 
 namespace {
    struct dictionary {

@@ -1,10 +1,12 @@
 #include "art/Framework/Core/OutputModule.h"
 
 #include "art/Framework/Core/CPCSentry.h"
+#include "art/Framework/Core/FileBlock.h"
 #include "art/Framework/Core/detail/OutputModuleUtils.h"
 #include "art/Framework/Principal/CurrentProcessingContext.h"
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Principal/EventPrincipal.h"
+#include "art/Framework/Principal/ResultsPrincipal.h"
 #include "art/Framework/Principal/Run.h"
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRun.h"
@@ -80,6 +82,14 @@ selectProducts(FileBlock const& fb)
 
 void
 art::OutputModule::
+registerProducts(MasterProductRegistry & mpr,
+                 ModuleDescription const & md)
+{
+  doRegisterProducts(mpr, md);
+}
+
+void
+art::OutputModule::
 preSelectProducts(FileBlock const &)
 {
 }
@@ -87,6 +97,13 @@ preSelectProducts(FileBlock const &)
 void
 art::OutputModule::
 postSelectProducts(FileBlock const &)
+{
+}
+
+void
+art::OutputModule::
+doRegisterProducts(MasterProductRegistry &,
+                   ModuleDescription const &)
 {
 }
 
@@ -254,6 +271,14 @@ art::OutputModule::
 doRespondToOpenInputFile(FileBlock const & fb)
 {
   respondToOpenInputFile(fb);
+  std::unique_ptr<ResultsPrincipal> respHolder;
+  art::ResultsPrincipal const * respPtr = fb.resultsPrincipal();
+  if (respPtr == nullptr) {
+    respHolder = std::make_unique<ResultsPrincipal>(ResultsAuxiliary { },
+                                                    description().processConfiguration());
+    respPtr = respHolder.get();
+  }
+  readResults(*respPtr);
 }
 
 void
@@ -395,6 +420,12 @@ openFile(FileBlock const &)
 void
 art::OutputModule::
 respondToOpenInputFile(FileBlock const &)
+{
+}
+
+void
+art::OutputModule::
+readResults(ResultsPrincipal const &)
 {
 }
 
@@ -598,8 +629,7 @@ makePlugins_(fhicl::ParameterSet const & top_pset)
       auto const pluginType = pluginFactory_.pluginType(libspec);
       if (pluginType == cet::PluginTypeDeducer<FileCatalogMetadataPlugin>::value) {
         result.emplace_back(pluginFactory_.
-                            makePlugin<std::unique_ptr<FileCatalogMetadataPlugin>,
-                            fhicl::ParameterSet const &>(libspec, pset));
+                            makePlugin<std::unique_ptr<FileCatalogMetadataPlugin> >(libspec, pset));
       } else {
         throw Exception(errors::Configuration, "OutputModule: ")
           << "unrecognized plugin type "
