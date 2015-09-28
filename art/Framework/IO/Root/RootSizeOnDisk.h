@@ -99,4 +99,8 @@ namespace art {
 
 } // namespace art
 
-#endif /* art_Framework_IO_Root_RootSizeOnDisk_hh */
+#endif /* art_Framework_IO_Root_RootSizeOnDisk_h */
+
+// Local Variables:
+// mode: c++
+// End:

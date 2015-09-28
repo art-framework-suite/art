@@ -101,4 +101,4 @@ private:
 // Local Variables:
 // mode: c++
 // End:
-#endif // art_Persistency_Provenance_MasterProductRegistry_h
+#endif /* art_Persistency_Provenance_MasterProductRegistry_h */

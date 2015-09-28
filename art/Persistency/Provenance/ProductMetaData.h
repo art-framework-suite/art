@@ -139,4 +139,4 @@ operator<<(std::ostream& os, ProductMetaData const& pmd)
 // Local Variables:
 // mode: c++
 // End:
-#endif // art_Persistency_Provenance_ProductMetaData_h
+#endif /* art_Persistency_Provenance_ProductMetaData_h */

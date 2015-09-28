@@ -79,7 +79,7 @@ namespace art {
 
 } // namespace art
 
-#endif // art_Framework_Services_Optional_TimeTracker_h
+#endif /* art_Framework_Services_Optional_TimeTracker_h */
 
 // Local variables:
 // mode: c++

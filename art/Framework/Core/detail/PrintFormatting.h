@@ -23,7 +23,7 @@ namespace art {
   }
 }
 
-#endif
+#endif /* art_Framework_Core_detail_PrintFormatting_h */
 
 // Local variables:
 // mode: c++

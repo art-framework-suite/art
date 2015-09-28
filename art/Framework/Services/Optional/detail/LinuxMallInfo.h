@@ -62,7 +62,7 @@ namespace art {
   }
 
 }
-#endif // art_Framework_Services_Optional_detail_LinuxMallInfo_h
+#endif /* art_Framework_Services_Optional_detail_LinuxMallInfo_h */
 
 // Local variables:
 // mode:c++

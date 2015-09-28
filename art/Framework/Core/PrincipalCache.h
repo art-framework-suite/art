@@ -56,8 +56,8 @@ namespace art {
     bool noMoreRuns();
     bool noMoreSubRuns();
 
-    RunPrincipal const& lowestRun() const;
-    SubRunPrincipal const& lowestSubRun() const;
+    RunPrincipal & lowestRun() const;
+    SubRunPrincipal & lowestSubRun() const;
 
     void deleteLowestRun();
     void deleteLowestSubRun();

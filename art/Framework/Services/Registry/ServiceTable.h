@@ -35,7 +35,7 @@ namespace art {
 
 }
 
-#endif
+#endif /* art_Framework_Services_Registry_ServiceTable_h */
 
 // Local variables:
 // mode: c++

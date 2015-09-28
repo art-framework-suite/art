@@ -7,6 +7,9 @@
 //
 // ======================================================================
 
+#include "art/Persistency/Provenance/BranchType.h"
+#include "art/Persistency/Provenance/BranchKey.h"
+
 #include <string>
 #include <vector>
 
@@ -73,10 +76,7 @@ private:
     // selectflag_ carries the value to which we should set the 'select
     // bit' if this rule matches.
     bool        selectflag_;
-    std::string productType_;
-    std::string moduleLabel_;
-    std::string instanceName_;
-    std::string processName_;
+    BranchKey components_;
   };  // Rule
 
 private:

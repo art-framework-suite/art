@@ -28,9 +28,9 @@ public:
   explicit PMTestOutput(Parameters const & p);
   virtual ~PMTestOutput();
 
-  void write(art::EventPrincipal const & e) override;
-  void writeRun(art::RunPrincipal const & r) override;
-  void writeSubRun(art::SubRunPrincipal const & sr) override;
+  void write(art::EventPrincipal & e) override;
+  void writeRun(art::RunPrincipal & r) override;
+  void writeSubRun(art::SubRunPrincipal & sr) override;
 
 
 private:
@@ -51,17 +51,17 @@ arttest::PMTestOutput::~PMTestOutput()
   // Clean up dynamic memory and other resources here.
 }
 
-void arttest::PMTestOutput::write(art::EventPrincipal const & e)
+void arttest::PMTestOutput::write(art::EventPrincipal & e)
 {
   // Implementation of required member function here.
 }
 
-void arttest::PMTestOutput::writeRun(art::RunPrincipal const & r)
+void arttest::PMTestOutput::writeRun(art::RunPrincipal & r)
 {
   // Implementation of required member function here.
 }
 
-void arttest::PMTestOutput::writeSubRun(art::SubRunPrincipal const & sr)
+void arttest::PMTestOutput::writeSubRun(art::SubRunPrincipal & sr)
 {
   // Implementation of required member function here.
 }

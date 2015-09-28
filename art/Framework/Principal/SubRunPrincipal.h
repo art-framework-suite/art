@@ -110,7 +110,7 @@ private:
 
   virtual ProcessHistoryID const& processHistoryID() const;
 
-  virtual void setProcessHistoryID(ProcessHistoryID const& phid) const;
+  void setProcessHistoryID(ProcessHistoryID const& phid) override;
 
 private:
 
@@ -124,4 +124,4 @@ private:
 // Local Variables:
 // mode: c++
 // End:
-#endif // art_Framework_Principal_SubRunPrincipal_h
+#endif /* art_Framework_Principal_SubRunPrincipal_h */

@@ -80,7 +80,7 @@ namespace art {
   } // detail
 } // art
 
-#endif // art_Framework_Services_Optional_detail_MemoryTrackerLinuxCallbackPair_h
+#endif /* art_Framework_Services_Optional_detail_MemoryTrackerLinuxCallbackPair_h */
 
 // Local variables:
 // mode: c++

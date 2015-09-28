@@ -1,34 +1,146 @@
-#include "art/Framework/IO/Root/RootOutput.h"
-// vim: set sw=2:
-
 #include "art/Framework/Core/FileBlock.h"
 #include "art/Framework/Core/ModuleMacros.h"
+#include "art/Framework/Core/OutputModule.h"
+#include "art/Framework/Core/ResultsProducer.h"
+#include "art/Framework/Core/RPManager.h"
+#include "art/Framework/IO/FileStatsCollector.h"
 #include "art/Framework/IO/PostCloseFileRenamer.h"
+#include "art/Framework/IO/Root/DropMetaData.h"
 #include "art/Framework/IO/Root/DropMetaData.h"
 #include "art/Framework/IO/Root/RootOutputFile.h"
 #include "art/Framework/Principal/EventPrincipal.h"
+#include "art/Framework/Principal/Event.h"
+#include "art/Framework/Principal/ResultsPrincipal.h"
+#include "art/Framework/Principal/Results.h"
 #include "art/Framework/Principal/RunPrincipal.h"
+#include "art/Framework/Principal/Run.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
+#include "art/Framework/Principal/SubRun.h"
 #include "art/Persistency/Provenance/FileFormatVersion.h"
 #include "art/Persistency/Provenance/ProductMetaData.h"
 #include "art/Utilities/Exception.h"
-#include "art/Utilities/unique_filename.h"
 #include "art/Utilities/parent_path.h"
-#include "cpp0x/utility"
+#include "art/Utilities/unique_filename.h"
 #include "fhiclcpp/ParameterSet.h"
+#include "fhiclcpp/types/Atom.h"
+
 #include <iomanip>
+#include <memory>
 #include <sstream>
+#include <string>
+#include <utility>
 
 using std::string;
 
 namespace art {
+  class RootOutput;
 
-RootOutput::
-~RootOutput()
-{
+  class RootOutputFile; // Forward declaration.
 }
 
-RootOutput::
+class art::RootOutput : public OutputModule {
+
+public: // MEMBER FUNCTIONS
+
+  static constexpr const char* default_tmpDir = "<some-tmp-dir>";
+
+  struct Config {
+    fhicl::Atom<std::string> catalog { fhicl::Name("catalog"), "" };
+    fhicl::Atom<bool> dropAllEvents  { fhicl::Name("dropAllEvents"), false };
+    fhicl::Atom<bool> dropAllSubRuns { fhicl::Name("dropAllSubRuns"), false };
+    fhicl::Atom<std::string> fileName { fhicl::Name("fileName") };
+    fhicl::Atom<std::string> tmpDir { fhicl::Name("tmpDir"), default_tmpDir };
+    fhicl::Atom<int> maxSize { fhicl::Name("maxSize"), 0x7f000000 };
+    fhicl::Atom<int> compressionLevel { fhicl::Name("compressionLevel"), 7 };
+    fhicl::Atom<int64_t> saveMemoryObjectThreshold { fhicl::Name("saveMemoryObjectThreshold"), -1l };
+    fhicl::Atom<int64_t> treeMaxVirtualSize { fhicl::Name("treeMaxVirtualSize"), -1 };
+    fhicl::Atom<int> splitLevel { fhicl::Name("splitLevel"), 99 };
+    fhicl::Atom<int> basketSize { fhicl::Name("basketSize"), 16384 };
+    fhicl::Atom<bool> dropMetaDataForDroppedData { fhicl::Name("dropMetaDataForDroppedData"), false };
+    fhicl::Atom<std::string> dropMetaData { fhicl::Name("dropMetaData"), "" };
+  };
+
+  using Parameters = OutputModule::Table<Config>;
+  explicit RootOutput(Parameters const&);
+
+  void postSelectProducts(FileBlock const&) override;
+
+  void beginJob() override;
+  void endJob() override;
+
+  void beginSubRun(SubRunPrincipal const &) override;
+  void endSubRun(SubRunPrincipal const &) override;
+
+  void beginRun(RunPrincipal const &) override;
+  void endRun(RunPrincipal const &) override;
+
+private: // MEMBER FUNCTIONS
+
+  std::string const& lastClosedFileName() const override;
+  void openFile(FileBlock const&) override;
+  void respondToOpenInputFile(FileBlock const &) override;
+  void readResults(ResultsPrincipal const & resp) override;
+  void respondToCloseInputFile(FileBlock const&) override;
+  void respondToCloseOutputFiles(FileBlock const&) override;
+  void write(EventPrincipal &) override;
+  void writeSubRun(SubRunPrincipal &) override;
+  void writeRun(RunPrincipal &) override;
+  bool isFileOpen() const override;
+  bool shouldWeCloseFile() const override;
+  void doOpenFile();
+  void startEndFile() override;
+  void writeFileFormatVersion() override;
+  void writeFileIndex() override;
+  void writeEventHistory() override;
+  void writeProcessConfigurationRegistry() override;
+  void writeProcessHistoryRegistry() override;
+  void writeParameterSetRegistry() override;
+  void writeProductDescriptionRegistry() override;
+  void writeParentageRegistry() override;
+  void writeBranchIDListRegistry() override;
+  void
+  doWriteFileCatalogMetadata(FileCatalogMetadata::collection_type const& md,
+                             FileCatalogMetadata::collection_type const& ssmd)
+                             override;
+  void writeProductDependencies() override;
+  void finishEndFile() override;
+  void doRegisterProducts(MasterProductRegistry & mpr,
+                          ModuleDescription const & md) override;
+
+private:
+
+  std::string const catalog_;
+  bool dropAllEvents_;
+  bool dropAllSubRuns_;
+  std::string const moduleLabel_;
+  int inputFileCount_;
+  std::unique_ptr<RootOutputFile> rootOutputFile_;
+  FileStatsCollector fstats_;
+  std::string const filePattern_;
+  std::string tmpDir_;
+  std::string lastClosedFileName_;
+
+  // We keep this set of data members for the use
+  // of RootOutputFile.
+  unsigned int const maxFileSize_;
+  int const compressionLevel_;
+  int64_t const saveMemoryObjectThreshold_;
+  int64_t const treeMaxVirtualSize_;
+  int const splitLevel_;
+  int const basketSize_;
+  DropMetaData dropMetaData_;
+  bool dropMetaDataForDroppedData_;
+
+  // We keep this for the use of RootOutputFile
+  // and we also use it during file open to
+  // make some choices.
+  bool fastCloning_;
+
+  // ResultsProducer management.
+  RPManager rpm_;
+};
+
+art::RootOutput::
 RootOutput(Parameters const & config)
   : OutputModule(config)
   , catalog_(config().catalog())
@@ -59,6 +171,7 @@ RootOutput(Parameters const & config)
   , dropMetaData_(DropMetaData::DropNone)
   , dropMetaDataForDroppedData_(config().dropMetaDataForDroppedData())
   , fastCloning_(true)
+  , rpm_(config.get_PSet())
 {
   mf::LogInfo msg("FastCloning");
   msg << "Initial fast cloning configuration ";
@@ -115,10 +228,10 @@ RootOutput(Parameters const & config)
   }
 }
 
-  void
-  RootOutput::
-  openFile(FileBlock const& fb)
-  {
+void
+art::RootOutput::
+openFile(FileBlock const& fb)
+{
   // Note: The file block here refers to the currently open
   //       input file, so we can find out about the available
   //       products by looping over the branches of the input
@@ -130,7 +243,7 @@ RootOutput(Parameters const & config)
 }
 
 void
-RootOutput::
+art::RootOutput::
 postSelectProducts(FileBlock const& fb)
 {
   if (isFileOpen()) {
@@ -139,7 +252,7 @@ postSelectProducts(FileBlock const& fb)
 }
 
 void
-RootOutput::
+art::RootOutput::
 respondToOpenInputFile(FileBlock const& fb)
 {
   ++inputFileCount_;
@@ -164,7 +277,17 @@ respondToOpenInputFile(FileBlock const& fb)
 }
 
 void
-RootOutput::
+art::RootOutput::
+readResults(ResultsPrincipal const & resp)
+{
+  rpm_.for_each_RPWorker([&resp](RPWorker & w) {
+      Results const res(const_cast<ResultsPrincipal&>(resp), w.moduleDescription());
+      w.rp().doReadResults(res);
+    } );
+}
+
+void
+art::RootOutput::
 respondToCloseInputFile(FileBlock const& fb)
 {
   if (rootOutputFile_) {
@@ -173,22 +296,44 @@ respondToCloseInputFile(FileBlock const& fb)
 }
 
 void
-RootOutput::
-write(EventPrincipal const& e)
+art::RootOutput::
+respondToCloseOutputFiles(FileBlock const&)
 {
+  auto resp =
+    std::make_unique<ResultsPrincipal>(ResultsAuxiliary { },
+                                       description().processConfiguration());
+  if (ProductMetaData::instance().productProduced(InResults) ||
+      hasNewlyDroppedBranch()[InResults]) {
+    resp->addToProcessHistory();
+  }
+  rpm_.for_each_RPWorker([&resp](RPWorker & w) {
+      Results res(*resp, w.moduleDescription());
+      w.rp().doWriteResults(res);
+    } );
+  rootOutputFile_->writeResults(*resp);
+}
+
+void
+art::RootOutput::
+write(EventPrincipal & ep)
+{
+  rpm_.for_each_RPWorker([&ep](RPWorker & w) {
+      Event const e(const_cast<EventPrincipal &>(ep), w.moduleDescription());
+      w.rp().doEvent(e);
+    });
   if (dropAllEvents_) {
     return;
   }
   if (hasNewlyDroppedBranch()[InEvent]) {
-    e.addToProcessHistory();
+    ep.addToProcessHistory();
   }
-  rootOutputFile_->writeOne(e);
-  fstats_.recordEvent(e.id());
+  rootOutputFile_->writeOne(ep);
+  fstats_.recordEvent(ep.id());
 }
 
 void
-RootOutput::
-writeSubRun(SubRunPrincipal const& sr)
+art::RootOutput::
+writeSubRun(SubRunPrincipal & sr)
 {
   if (dropAllSubRuns_) {
     return;
@@ -201,8 +346,8 @@ writeSubRun(SubRunPrincipal const& sr)
 }
 
 void
-RootOutput::
-writeRun(RunPrincipal const& r)
+art::RootOutput::
+writeRun(RunPrincipal & r)
 {
   if (hasNewlyDroppedBranch()[InRun]) {
     r.addToProcessHistory();
@@ -212,76 +357,76 @@ writeRun(RunPrincipal const& r)
 }
 
 void
-RootOutput::
+art::RootOutput::
 startEndFile()
 {
 }
 
 void
-RootOutput::
+art::RootOutput::
 writeFileFormatVersion()
 {
   rootOutputFile_->writeFileFormatVersion();
 }
 
 void
-RootOutput::
+art::RootOutput::
 writeFileIndex()
 {
   rootOutputFile_->writeFileIndex();
 }
 
 void
-RootOutput::
+art::RootOutput::
 writeEventHistory()
 {
   rootOutputFile_->writeEventHistory();
 }
 
 void
-RootOutput::
+art::RootOutput::
 writeProcessConfigurationRegistry()
 {
   rootOutputFile_->writeProcessConfigurationRegistry();
 }
 
 void
-RootOutput::
+art::RootOutput::
 writeProcessHistoryRegistry()
 {
   rootOutputFile_->writeProcessHistoryRegistry();
 }
 
 void
-RootOutput::
+art::RootOutput::
 writeParameterSetRegistry()
 {
   rootOutputFile_->writeParameterSetRegistry();
 }
 
 void
-RootOutput::
+art::RootOutput::
 writeProductDescriptionRegistry()
 {
   rootOutputFile_->writeProductDescriptionRegistry();
 }
 
 void
-RootOutput::
+art::RootOutput::
 writeParentageRegistry()
 {
   rootOutputFile_->writeParentageRegistry();
 }
 
 void
-RootOutput::
+art::RootOutput::
 writeBranchIDListRegistry()
 {
   rootOutputFile_->writeBranchIDListRegistry();
 }
 
 void
-RootOutput::
+art::RootOutput::
 doWriteFileCatalogMetadata(FileCatalogMetadata::collection_type const& md,
                            FileCatalogMetadata::collection_type const& ssmd)
 {
@@ -289,14 +434,14 @@ doWriteFileCatalogMetadata(FileCatalogMetadata::collection_type const& md,
 }
 
 void
-RootOutput::
+art::RootOutput::
 writeProductDependencies()
 {
   rootOutputFile_->writeProductDependencies();
 }
 
 void
-RootOutput::
+art::RootOutput::
 finishEndFile()
 {
   rootOutputFile_->finishEndFile();
@@ -304,24 +449,41 @@ finishEndFile()
   lastClosedFileName_ = PostCloseFileRenamer(fstats_).maybeRenameFile(
                           rootOutputFile_->currentFileName(), filePattern_);
   rootOutputFile_.reset();
+  rpm_.invoke(&ResultsProducer::doClear);
+}
+
+void
+art::RootOutput::
+doRegisterProducts(MasterProductRegistry & mpr,
+                   ModuleDescription const & md)
+{
+  // Register Results products from ResultsProducers.
+  rpm_.for_each_RPWorker([&mpr, &md](RPWorker & w) {
+      auto const & params = w.params();
+      w.setModuleDescription(ModuleDescription(params.rpPSetID,
+                                               params.rpPluginType,
+                                               md.moduleLabel() + '#' + params.rpLabel,
+                                               md.processConfiguration()));
+      w.rp().registerProducts(mpr, w.moduleDescription());
+    });
 }
 
 bool
-RootOutput::
+art::RootOutput::
 isFileOpen() const
 {
   return rootOutputFile_.get() != 0;
 }
 
 bool
-RootOutput::
+art::RootOutput::
 shouldWeCloseFile() const
 {
   return rootOutputFile_->shouldWeCloseFile();
 }
 
 void
-RootOutput::
+art::RootOutput::
 doOpenFile()
 {
   if (inputFileCount_ == 0) {
@@ -339,7 +501,7 @@ doOpenFile()
 }
 
 string const&
-RootOutput::
+art::RootOutput::
 lastClosedFileName() const
 {
   if (lastClosedFileName_.empty()) {
@@ -349,8 +511,60 @@ lastClosedFileName() const
   return lastClosedFileName_;
 }
 
-} // namespace art
+void
+art::RootOutput::
+beginJob()
+{
+  rpm_.invoke(&ResultsProducer::doBeginJob);
+}
 
+void
+art::RootOutput::
+endJob()
+{
+  rpm_.invoke(&ResultsProducer::doEndJob);
+}
+
+void
+art::RootOutput::
+beginSubRun(art::SubRunPrincipal const & srp)
+{
+  rpm_.for_each_RPWorker([&srp](RPWorker & w) {
+      SubRun const sr(const_cast<SubRunPrincipal &>(srp), w.moduleDescription());
+      w.rp().doBeginSubRun(sr);
+    });
+}
+
+void
+art::RootOutput::
+endSubRun(art::SubRunPrincipal const & srp)
+{
+  rpm_.for_each_RPWorker([&srp](RPWorker & w) {
+      SubRun const sr(const_cast<SubRunPrincipal &>(srp), w.moduleDescription());
+      w.rp().doEndSubRun(sr);
+    });
+}
+
+void
+art::RootOutput::
+beginRun(art::RunPrincipal const & rp)
+{
+  rpm_.for_each_RPWorker([&rp](RPWorker & w) {
+      Run const r(const_cast<RunPrincipal &>(rp), w.moduleDescription());
+      w.rp().doBeginRun(r);
+    });
+}
+
+void
+art::RootOutput::
+endRun(art::RunPrincipal const & rp)
+{
+  rpm_.for_each_RPWorker([&rp](RPWorker & w) {
+      Run const r(const_cast<RunPrincipal &>(rp), w.moduleDescription());
+      w.rp().doEndRun(r);
+    });
+}
 
 DEFINE_ART_MODULE(art::RootOutput)
 
+// vim: set sw=2:

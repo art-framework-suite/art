@@ -1,6 +1,11 @@
 #include "art/Framework/IO/Root/RootOutputFile.h"
 // vim: set sw=2:
 
+#include "Rtypes.h"
+#include "TBranchElement.h"
+#include "TClass.h"
+#include "TFile.h"
+#include "TTree.h"
 #include "art/Framework/Core/FileBlock.h"
 #include "art/Framework/IO/FileStatsCollector.h"
 #include "art/Framework/IO/Root/DropMetaData.h"
@@ -8,6 +13,7 @@
 #include "art/Framework/IO/Root/GetFileFormatVersion.h"
 #include "art/Framework/IO/Root/rootNames.h"
 #include "art/Framework/Principal/EventPrincipal.h"
+#include "art/Framework/Principal/ResultsPrincipal.h"
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
@@ -26,6 +32,7 @@
 #include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
 #include "art/Persistency/Provenance/ProductMetaData.h"
 #include "art/Persistency/Provenance/ProductStatus.h"
+#include "art/Persistency/Provenance/ResultsAuxiliary.h"
 #include "art/Persistency/Provenance/RunAuxiliary.h"
 #include "art/Persistency/Provenance/SubRunAuxiliary.h"
 #include "art/Persistency/RootDB/SQLErrMsg.h"
@@ -41,11 +48,7 @@
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/ParameterSetID.h"
 #include "fhiclcpp/ParameterSetRegistry.h"
-#include "Rtypes.h"
-#include "TClass.h"
-#include "TFile.h"
-#include "TTree.h"
-#include "TBranchElement.h"
+
 #include <iomanip>
 #include <sstream>
 #include <utility>
@@ -104,34 +107,45 @@ RootOutputFile(OutputModule* om, string const& fileName,
   , fileIndexTree_(nullptr)
   , parentageTree_(nullptr)
   , eventHistoryTree_(nullptr)
-  , pEventAux_(new EventAuxiliary)
-  , pSubRunAux_(new SubRunAuxiliary)
-  , pRunAux_(new RunAuxiliary)
+  , pEventAux_(nullptr)
+  , pSubRunAux_(nullptr)
+  , pRunAux_(nullptr)
+  , pResultsAux_(nullptr)
   , eventProductProvenanceVector_()
   , subRunProductProvenanceVector_()
   , runProductProvenanceVector_()
+  , resultsProductProvenanceVector_()
   , pEventProductProvenanceVector_(&eventProductProvenanceVector_)
   , pSubRunProductProvenanceVector_(&subRunProductProvenanceVector_)
   , pRunProductProvenanceVector_(&runProductProvenanceVector_)
+  , pResultsProductProvenanceVector_(&resultsProductProvenanceVector_)
   , pHistory_(nullptr)
-  , eventTree_(static_cast<EventPrincipal*>(nullptr), filePtr_, InEvent,
-               pEventAux_, pEventProductProvenanceVector_, basketSize,
-               splitLevel, treeMaxVirtualSize, saveMemoryObjectThreshold)
-  , subRunTree_(static_cast<SubRunPrincipal*>(nullptr), filePtr_, InSubRun,
-                pSubRunAux_, pSubRunProductProvenanceVector_, basketSize,
-                splitLevel, treeMaxVirtualSize, saveMemoryObjectThreshold)
-  , runTree_(static_cast<RunPrincipal*>(nullptr), filePtr_, InRun, pRunAux_,
-             pRunProductProvenanceVector_, basketSize, splitLevel,
-             treeMaxVirtualSize, saveMemoryObjectThreshold)
-  , treePointers_()
+  , treePointers_ { // Order (and number) must match BranchTypes.h!
+  std::unique_ptr<RootOutputTree>(new
+                                  RootOutputTree(static_cast<EventPrincipal*>(nullptr),
+                                                 filePtr_, InEvent, pEventAux_,
+                                                 pEventProductProvenanceVector_, basketSize, splitLevel,
+                                                 treeMaxVirtualSize, saveMemoryObjectThreshold)),
+    std::unique_ptr<RootOutputTree>(new
+                                    RootOutputTree(static_cast<SubRunPrincipal*>(nullptr),
+                                                   filePtr_, InSubRun, pSubRunAux_,
+                                                   pSubRunProductProvenanceVector_, basketSize, splitLevel,
+                                                   treeMaxVirtualSize, saveMemoryObjectThreshold)),
+    std::unique_ptr<RootOutputTree>(new
+                                    RootOutputTree(static_cast<RunPrincipal*>(nullptr),
+                                                   filePtr_, InRun, pRunAux_,
+                                                   pRunProductProvenanceVector_, basketSize, splitLevel,
+                                                   treeMaxVirtualSize, saveMemoryObjectThreshold)),
+    std::unique_ptr<RootOutputTree>(new
+                                    RootOutputTree(static_cast<ResultsPrincipal*>(nullptr),
+                                                   filePtr_, InResults, pResultsAux_,
+                                                   pResultsProductProvenanceVector_, basketSize, splitLevel,
+                                                   treeMaxVirtualSize, saveMemoryObjectThreshold)) }
   , dataTypeReported_(false)
   , metaDataHandle_(filePtr_.get(), "RootFileDB",
                     SQLITE_OPEN_CREATE | SQLITE_OPEN_READWRITE)
   , selectedOutputItemList_()
 {
-  treePointers_[InEvent] = &eventTree_;
-  treePointers_[InSubRun] = &subRunTree_;
-  treePointers_[InRun] = &runTree_;
   // Don't split metadata tree or event description tree
   metaDataTree_ = RootOutputTree::makeTTree(filePtr_.get(),
                   rootNames::metaDataTreeName(), 0);
@@ -231,12 +245,15 @@ selectProducts(FileBlock const& fb)
     }
     items.clear();
     for (auto const& bd : om_->keptProducts()[bt]) {
-      items.emplace_back(bd);
+      if ((bt < InResults) || bd->produced()) {
+        items.emplace_back(bd);
+      }
     }
-    TTree* tree = (bt == InEvent) ? fb.tree() :
-                  (bt == InSubRun) ? fb.subRunTree() :
-                  fb.runTree();
-    sort(items.begin(), items.end(), OutputItem::Sorter(tree));
+    if ((bt == InEvent) && (fb.tree() != nullptr)) {
+      // Only care about sorting event tree because that's the only one
+      // we might fast clone.
+      sort(items.begin(), items.end(), OutputItem::Sorter(fb.tree()));
+    }
     for (auto const& val : items) {
       treePointers_[bt]->addOutputBranch(*val.branchDescription_, val.product_);
     }
@@ -251,7 +268,7 @@ beginInputFile(FileBlock const& fb, bool fastClone)
   auto const origCurrentlyFastCloning = currentlyFastCloning_;
   currentlyFastCloning_ = fastCloning_ && fastClone;
   if (currentlyFastCloning_ &&
-      !eventTree_.checkSplitLevelAndBasketSize(fb.tree())) {
+      !treePointers_[InEvent]->checkSplitLevelAndBasketSize(fb.tree())) {
     mf::LogWarning("FastCloning")
         << "Fast cloning deactivated for this input file due to "
         << "splitting level and/or basket size.";
@@ -261,17 +278,17 @@ beginInputFile(FileBlock const& fb, bool fastClone)
     mf::LogWarning("FastCloning")
         << "Fast cloning reactivated for this input file.";
   }
-  eventTree_.beginInputFile(currentlyFastCloning_);
-  eventTree_.fastCloneTree(fb.tree());
+  treePointers_[InEvent]->beginInputFile(currentlyFastCloning_);
+  treePointers_[InEvent]->fastCloneTree(fb.tree());
 }
 
 void
 RootOutputFile::
 respondToCloseInputFile(FileBlock const&)
 {
-  eventTree_.setEntries();
-  subRunTree_.setEntries();
-  runTree_.setEntries();
+  for (auto const & treePtr : treePointers_) {
+    treePtr->setEntries();
+  }
 }
 
 bool
@@ -435,9 +452,12 @@ writeProcessHistoryRegistry()
   ProcessHistoryMap* p = &const_cast<ProcessHistoryMap&>(r);
   TBranch* b = metaDataTree_->Branch(metaBranchRootName<ProcessHistoryMap>(),
                                      &p, basketSize_, 0);
-  // FIXME: Turn this into a throw!
-  assert(b);
-  b->Fill();
+  if (b != nullptr) {
+    b->Fill();
+  } else {
+    throw Exception(errors::LogicError)
+      << "Unable to locate required ProcessHistoryMap branch in output metadata tree.\n";
+  }
 }
 
 void
@@ -609,6 +629,14 @@ writeProductDependencies()
 
 void
 RootOutputFile::
+writeResults(ResultsPrincipal & resp)
+{
+  pResultsAux_ = &resp.aux();
+  fillBranches(InResults, resp, pResultsProductProvenanceVector_);
+}
+
+void
+RootOutputFile::
 finishEndFile()
 {
   metaDataTree_->SetEntries(-1);
@@ -678,18 +706,18 @@ fillBranches(BranchType const& bt, Principal const& principal,
     }
     if (keepProvenance) {
       if (oh.productProvenance()) {
-	  keptProv.insert(*oh.productProvenance());
-	  insertAncestors(*oh.productProvenance(), principal, keptProv);
+    keptProv.insert(*oh.productProvenance());
+    insertAncestors(*oh.productProvenance(), principal, keptProv);
       }
       else {
-	// No provenance, product was either not produced,
-	// or was dropped, create provenance to remember that.
-	if (produced) {
-	  keptProv.emplace(bd->branchID(), productstatus::neverCreated());
-	}
-	else {
-	  keptProv.emplace(bd->branchID(), productstatus::dropped());
-	}
+  // No provenance, product was either not produced,
+  // or was dropped, create provenance to remember that.
+  if (produced) {
+    keptProv.emplace(bd->branchID(), productstatus::neverCreated());
+  }
+  else {
+    keptProv.emplace(bd->branchID(), productstatus::dropped());
+  }
       }
     }
     if (resolveProd) {

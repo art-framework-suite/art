@@ -112,6 +112,9 @@
   <class name="art::RunAuxiliary" ClassVersion="10">
     <version ClassVersion="10" checksum="156856400"/>
   </class>
+  <class name="art::ResultsAuxiliary" ClassVersion="10">
+   <version ClassVersion="10" checksum="1769416444"/>
+  </class>
   <class name="art::RunID" ClassVersion="10">
     <version ClassVersion="10" checksum="1627543759"/>
   </class>

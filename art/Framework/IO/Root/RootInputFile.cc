@@ -32,6 +32,7 @@
 #include "fhiclcpp/ParameterSetRegistry.h"
 #include "fhiclcpp/make_ParameterSet.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
+
 #include "Rtypes.h"
 #include "TClass.h"
 #include "TFile.h"
@@ -93,10 +94,12 @@ namespace art {
     , eventAux_()
     , subRunAux_()
     , runAux_()
-    , eventTree_(filePtr_, InEvent, saveMemoryObjectThreshold, this)
-    , subRunTree_(filePtr_, InSubRun, saveMemoryObjectThreshold, this)
-    , runTree_(filePtr_, InRun, saveMemoryObjectThreshold, this)
-    , treePointers_()
+    , resultsAux_()
+    , treePointers_ { // Order (and number) must match BranchTypes.h!
+    std::make_unique<RootTree>(filePtr_, InEvent, saveMemoryObjectThreshold, this),
+      std::make_unique<RootTree>(filePtr_, InSubRun, saveMemoryObjectThreshold, this),
+      std::make_unique<RootTree>(filePtr_, InRun, saveMemoryObjectThreshold, this),
+      std::make_unique<RootTree>(filePtr_, InResults, saveMemoryObjectThreshold, this) }
     , productListHolder_(new ProductRegistry)
     , branchIDLists_()
     , perBranchTypeProdPresence_()
@@ -118,13 +121,13 @@ namespace art {
     , secondarySRPs_()
   {
     secondaryFiles_.resize(secondaryFileNames_.size());
-    eventTree_.setCacheSize(treeCacheSize);
-    eventTree_.setTreeMaxVirtualSize(treeMaxVirtualSize);
-    subRunTree_.setTreeMaxVirtualSize(treeMaxVirtualSize);
-    runTree_.setTreeMaxVirtualSize(treeMaxVirtualSize);
-    treePointers_[InEvent] = &eventTree_;
-    treePointers_[InSubRun] = &subRunTree_;
-    treePointers_[InRun] = &runTree_;
+    eventTree().setCacheSize(treeCacheSize);
+    eventTree().setTreeMaxVirtualSize(treeMaxVirtualSize);
+    subRunTree().setTreeMaxVirtualSize(treeMaxVirtualSize);
+    runTree().setTreeMaxVirtualSize(treeMaxVirtualSize);
+    if (resultsTree()) {
+      resultsTree().setTreeMaxVirtualSize(treeMaxVirtualSize);
+    }
     // Read the metadata tree.
     auto metaDataTree = dynamic_cast<TTree*>(
                                              filePtr_->Get(rootNames::metaDataTreeName().c_str()));
@@ -295,11 +298,11 @@ namespace art {
       return false;
     }
     if ((fcip.remainingEvents() >= 0) &&
-        (eventTree_.entries() > fcip.remainingEvents())) {
+        (eventTree().entries() > fcip.remainingEvents())) {
       return false;
     }
     if ((fcip.remainingSubRuns() >= 0) &&
-        (subRunTree_.entries() > fcip.remainingSubRuns())) {
+        (subRunTree().entries() > fcip.remainingSubRuns())) {
       return false;
     }
     if (processingMode_ != InputSource::RunsSubRunsAndEvents) {
@@ -351,20 +354,16 @@ namespace art {
 
   shared_ptr<FileBlock>
   RootInputFile::
-  createFileBlock() const
+  createFileBlock()
   {
     return shared_ptr<FileBlock>(
                                  new FileBlock(
                                                fileFormatVersion_
-                                               , eventTree_.tree()
-                                               , eventTree_.metaTree()
-                                               , subRunTree_.tree()
-                                               , subRunTree_.metaTree()
-                                               , runTree_.tree()
-                                               , runTree_.metaTree()
+                                               , eventTree().tree()
                                                , fastClonable()
                                                , file_
                                                , branchChildren_
+                                               , readResults()
                                                )
                                  );
   }
@@ -481,7 +480,7 @@ namespace art {
     if (!fileFormatVersion_.isValid()) {
       fileFormatVersion_.value_ = 0;
     }
-    if (!eventTree_.isValid()) {
+    if (!eventTree().isValid()) {
       throw art::Exception(errors::DataCorruption)
         << "'Events' tree is corrupted or not present\n"
         << "in the input file.\n";
@@ -519,7 +518,7 @@ namespace art {
   fillEventAuxiliary()
   {
     auto pEvAux = &eventAux_;
-    eventTree_.fillAux<EventAuxiliary>(pEvAux);
+    eventTree().fillAux<EventAuxiliary>(pEvAux);
   }
 
   void
@@ -537,7 +536,7 @@ namespace art {
         << "Failed to find history branch in event history tree.\n";
     }
     eventHistoryBranch->SetAddress(&pHistory);
-    input::getEntry(eventHistoryTree_, eventTree_.entryNumber());
+    input::getEntry(eventHistoryTree_, eventTree().entryNumber());
   }
 
   void
@@ -545,7 +544,7 @@ namespace art {
   fillSubRunAuxiliary()
   {
     SubRunAuxiliary* pSubRunAux = &subRunAux_;
-    subRunTree_.fillAux<SubRunAuxiliary>(pSubRunAux);
+    subRunTree().fillAux<SubRunAuxiliary>(pSubRunAux);
   }
 
   void
@@ -553,7 +552,7 @@ namespace art {
   fillRunAuxiliary()
   {
     auto pRunAux = &runAux_;
-    runTree_.fillAux<RunAuxiliary>(pRunAux);
+    runTree().fillAux<RunAuxiliary>(pRunAux);
   }
 
   int
@@ -615,7 +614,7 @@ namespace art {
   readCurrentEvent()
   {
     unique_ptr<EventPrincipal> ep;
-    if (!eventTree_.current()) {
+    if (!eventTree().current()) {
       // Error, the event tree does not have a valid current entry number.
       return ep;
     }
@@ -627,9 +626,9 @@ namespace art {
     ep.reset(
              new EventPrincipal(
                                 eventAux_, processConfiguration_, history_,
-                                eventTree_.makeBranchMapper(),
-                                eventTree_.makeDelayedReader(InEvent, eventAux_.id()), 0, nullptr));
-    eventTree_.fillGroups(*ep);
+                                eventTree().makeBranchMapper(),
+                                eventTree().makeDelayedReader(InEvent, eventAux_.id()), 0, nullptr));
+    eventTree().fillGroups(*ep);
     ////////////////////////////////////
     // This code would be activated if one decided to open all secondary
     // files at the beginning of the job, instead of on demand as
@@ -659,7 +658,7 @@ namespace art {
   //readCurrentEventFromSecondaryFile()
   //{
   //  vector<unique_ptr<Principal>> sp;
-  //  if (!eventTree_.current()) {
+  //  if (!eventTree().current()) {
   //    // Error, the event tree does not have a valid current entry number.
   //    return sp;
   //  }
@@ -669,10 +668,10 @@ namespace art {
   //                    eventAux_.isRealData());
   //  unique_ptr<EventPrincipal> ep(
   //    new EventPrincipal(
-  //      eventAux_, processConfiguration_, history_, eventTree_.makeBranchMapper(),
-  //      eventTree_.makeDelayedReader(InEvent, eventAux_.id()), 0,
+  //      eventAux_, processConfiguration_, history_, eventTree().makeBranchMapper(),
+  //      eventTree().makeDelayedReader(InEvent, eventAux_.id()), 0,
   //      primaryFile_->primaryEP_.get()));
-  //  eventTree_.fillGroups(*ep);
+  //  eventTree().fillGroups(*ep);
   //  sp.emplace_back(unique_ptr<Principal>(ep.release()));
   //  for (auto sf : secondaryFiles_) {
   //    if (!sf) {
@@ -705,10 +704,10 @@ namespace art {
     unique_ptr<EventPrincipal> sep(
                                    new EventPrincipal(
                                                       eventAux_, processConfiguration_, history_,
-                                                      eventTree_.makeBranchMapper(),
-                                                      eventTree_.makeDelayedReader(InEvent, eventAux_.id()),
+                                                      eventTree().makeBranchMapper(),
+                                                      eventTree().makeDelayedReader(InEvent, eventAux_.id()),
                                                       secondaryFileNameIdx_ + 1, primaryFile_->primaryEP_.get()));
-    eventTree_.fillGroups(*sep);
+    eventTree().fillGroups(*sep);
     primaryFile_->primaryEP_->addSecondaryPrincipal(
                                                     unique_ptr<Principal>(move(sep)));
     return true;
@@ -743,7 +742,7 @@ namespace art {
   readCurrentRun()
   {
     unique_ptr<RunPrincipal> rp;
-    if (!runTree_.current()) {
+    if (!runTree().current()) {
       // Error, the run tree does not have a valid current entry number.
       return rp;
     }
@@ -754,19 +753,19 @@ namespace art {
     if (runAux_.beginTime() == Timestamp::invalidTimestamp()) {
       // RunAuxiliary did not contain a valid timestamp.
       // Take it from the next event.
-      if (eventTree_.next()) {
+      if (eventTree().next()) {
         fillEventAuxiliary();
         // back up, so event will not be skipped.
-        eventTree_.previous();
+        eventTree().previous();
       }
       runAux_.beginTime_ = eventAux_.time();
       runAux_.endTime_ = Timestamp::invalidTimestamp();
     }
     rp.reset(
              new RunPrincipal(
-                              runAux_, processConfiguration_, runTree_.makeBranchMapper(),
-                              runTree_.makeDelayedReader(InRun, fiIter_->eventID_), 0, nullptr));
-    runTree_.fillGroups(*rp);
+                              runAux_, processConfiguration_, runTree().makeBranchMapper(),
+                              runTree().makeDelayedReader(InRun, fiIter_->eventID_), 0, nullptr));
+    runTree().fillGroups(*rp);
     if (!delayedReadRunProducts_) {
       rp->readImmediate();
     }
@@ -785,7 +784,7 @@ namespace art {
   //RootInputFile::
   //readCurrentRunFromSecondaryFile()
   //{
-  //  if (!runTree_.current()) {
+  //  if (!runTree().current()) {
   //    // Error, the event tree does not have a valid current entry number.
   //    return;
   //  }
@@ -798,20 +797,20 @@ namespace art {
   //  if (runAux_.beginTime() == Timestamp::invalidTimestamp()) {
   //    // RunAuxiliary did not contain a valid timestamp.
   //    // Take it from the next event.
-  //    if (eventTree_.next()) {
+  //    if (eventTree().next()) {
   //      fillEventAuxiliary();
   //      // back up, so event will not be skipped.
-  //      eventTree_.previous();
+  //      eventTree().previous();
   //    }
   //    runAux_.beginTime_ = eventAux_.time();
   //    runAux_.endTime_ = Timestamp::invalidTimestamp();
   //  }
   //  unique_ptr<RunPrincipal> rp(
   //    new RunPrincipal(
-  //      runAux_, processConfiguration_, runTree_.makeBranchMapper(),
-  //      runTree_.makeDelayedReader(InRun, fiIter_->eventID_),
+  //      runAux_, processConfiguration_, runTree().makeBranchMapper(),
+  //      runTree().makeDelayedReader(InRun, fiIter_->eventID_),
   //      primaryFile_->primaryRP_.get()));
-  //  runTree_.fillGroups(*rp);
+  //  runTree().fillGroups(*rp);
   //  if (!delayedReadRunProducts_) {
   //    rp->readImmediate();
   //  }
@@ -844,20 +843,20 @@ namespace art {
     if (runAux_.beginTime() == Timestamp::invalidTimestamp()) {
       // RunAuxiliary did not contain a valid timestamp.
       // Take it from the next event.
-      if (eventTree_.next()) {
+      if (eventTree().next()) {
         fillEventAuxiliary();
         // back up, so event will not be skipped.
-        eventTree_.previous();
+        eventTree().previous();
       }
       runAux_.beginTime_ = eventAux_.time();
       runAux_.endTime_ = Timestamp::invalidTimestamp();
     }
     shared_ptr<RunPrincipal> rp(
                                 new RunPrincipal(
-                                                 runAux_, processConfiguration_, runTree_.makeBranchMapper(),
-                                                 runTree_.makeDelayedReader(InRun, fiIter_->eventID_),
+                                                 runAux_, processConfiguration_, runTree().makeBranchMapper(),
+                                                 runTree().makeDelayedReader(InRun, fiIter_->eventID_),
                                                  secondaryFileNameIdx_ + 1, primaryFile_->primaryRP_.get()));
-    runTree_.fillGroups(*rp);
+    runTree().fillGroups(*rp);
     if (!delayedReadRunProducts_) {
       rp->readImmediate();
     }
@@ -898,7 +897,7 @@ namespace art {
   readCurrentSubRun(shared_ptr<RunPrincipal> rp [[gnu::unused]])
   {
     unique_ptr<SubRunPrincipal> srp;
-    if (!subRunTree_.current()) {
+    if (!subRunTree().current()) {
       // Error, the subRun tree does not have a valid current entry number.
       return srp;
     }
@@ -910,19 +909,19 @@ namespace art {
     if (subRunAux_.beginTime() == Timestamp::invalidTimestamp()) {
       // SubRunAuxiliary did not contain a timestamp.
       // Take it from the next event.
-      if (eventTree_.next()) {
+      if (eventTree().next()) {
         fillEventAuxiliary();
         // back up, so event will not be skipped.
-        eventTree_.previous();
+        eventTree().previous();
       }
       subRunAux_.beginTime_ = eventAux_.time();
       subRunAux_.endTime_ = Timestamp::invalidTimestamp();
     }
     srp.reset(
               new SubRunPrincipal(
-                                  subRunAux_, processConfiguration_, subRunTree_.makeBranchMapper(),
-                                  subRunTree_.makeDelayedReader(InSubRun, fiIter_->eventID_), 0, nullptr));
-    subRunTree_.fillGroups(*srp);
+                                  subRunAux_, processConfiguration_, subRunTree().makeBranchMapper(),
+                                  subRunTree().makeDelayedReader(InSubRun, fiIter_->eventID_), 0, nullptr));
+    subRunTree().fillGroups(*srp);
     if (!delayedReadSubRunProducts_) {
       srp->readImmediate();
     }
@@ -941,7 +940,7 @@ namespace art {
   //RootInputFile::
   //readCurrentSubRunFromSecondaryFile(shared_ptr<RunPrincipal> rp)
   //{
-  //  if (!subRunTree_.current()) {
+  //  if (!subRunTree().current()) {
   //    // Error, the subRun tree does not have a valid current entry number.
   //    return;
   //  }
@@ -954,20 +953,20 @@ namespace art {
   //  if (subRunAux_.beginTime() == Timestamp::invalidTimestamp()) {
   //    // SubRunAuxiliary did not contain a timestamp.
   //    // Take it from the next event.
-  //    if (eventTree_.next()) {
+  //    if (eventTree().next()) {
   //      fillEventAuxiliary();
   //      // back up, so event will not be skipped.
-  //      eventTree_.previous();
+  //      eventTree().previous();
   //    }
   //    subRunAux_.beginTime_ = eventAux_.time();
   //    subRunAux_.endTime_ = Timestamp::invalidTimestamp();
   //  }
   //  unique_ptr<SubRunPrincipal> srp(
   //    new SubRunPrincipal(
-  //      subRunAux_, processConfiguration_, subRunTree_.makeBranchMapper(),
-  //      subRunTree_.makeDelayedReader(InSubRun, fiIter_->eventID_),
+  //      subRunAux_, processConfiguration_, subRunTree().makeBranchMapper(),
+  //      subRunTree().makeDelayedReader(InSubRun, fiIter_->eventID_),
   //      primaryFile_->primarySRP_.get()));
-  //  subRunTree_.fillGroups(*srp);
+  //  subRunTree().fillGroups(*srp);
   //  if (!delayedReadSubRunProducts_) {
   //    srp->readImmediate();
   //  }
@@ -999,20 +998,20 @@ namespace art {
     if (subRunAux_.beginTime() == Timestamp::invalidTimestamp()) {
       // SubRunAuxiliary did not contain a timestamp.
       // Take it from the next event.
-      if (eventTree_.next()) {
+      if (eventTree().next()) {
         fillEventAuxiliary();
         // back up, so event will not be skipped.
-        eventTree_.previous();
+        eventTree().previous();
       }
       subRunAux_.beginTime_ = eventAux_.time();
       subRunAux_.endTime_ = Timestamp::invalidTimestamp();
     }
     shared_ptr<SubRunPrincipal> srp(
                                     new SubRunPrincipal(
-                                                        subRunAux_, processConfiguration_, subRunTree_.makeBranchMapper(),
-                                                        subRunTree_.makeDelayedReader(InSubRun, fiIter_->eventID_),
+                                                        subRunAux_, processConfiguration_, subRunTree().makeBranchMapper(),
+                                                        subRunTree().makeDelayedReader(InSubRun, fiIter_->eventID_),
                                                         secondaryFileNameIdx_ + 1, primaryFile_->primarySRP_.get()));
-    subRunTree_.fillGroups(*srp);
+    subRunTree().fillGroups(*srp);
     if (!delayedReadSubRunProducts_) {
       srp->readImmediate();
     }
@@ -1028,21 +1027,21 @@ namespace art {
   RootInputFile::
   setAtEventEntry(FileIndex::EntryNumber_t entry)
   {
-    eventTree_.setEntryNumber(entry);
+    eventTree().setEntryNumber(entry);
   }
 
   void
   RootInputFile::
   setAtRunEntry(FileIndex::EntryNumber_t entry)
   {
-    runTree_.setEntryNumber(entry);
+    runTree().setEntryNumber(entry);
   }
 
   void
   RootInputFile::
   setAtSubRunEntry(FileIndex::EntryNumber_t entry)
   {
-    subRunTree_.setEntryNumber(entry);
+    subRunTree().setEntryNumber(entry);
   }
 
   bool
@@ -1053,7 +1052,7 @@ namespace art {
     if (fiIter_ == fiEnd_) {
       return false;
     }
-    eventTree_.setEntryNumber(fiIter_->entry_);
+    eventTree().setEntryNumber(fiIter_->entry_);
     return true;
   }
 
@@ -1065,7 +1064,7 @@ namespace art {
     if (fiIter_ == fiEnd_) {
       return false;
     }
-    subRunTree_.setEntryNumber(fiIter_->entry_);
+    subRunTree().setEntryNumber(fiIter_->entry_);
     return true;
   }
 
@@ -1077,7 +1076,7 @@ namespace art {
     if (fiIter_ == fiEnd_) {
       return false;
     }
-    runTree_.setEntryNumber(fiIter_->entry_);
+    runTree().setEntryNumber(fiIter_->entry_);
     return true;
   }
 
@@ -1138,11 +1137,11 @@ namespace art {
     if (duplicateChecker_.get() == nullptr) {
       return;
     }
-    if (eventTree_.next()) {
+    if (eventTree().next()) {
       fillEventAuxiliary();
       duplicateChecker_->init(eventAux_.isRealData(), fileIndex_);
     }
-    eventTree_.setEntryNumber(-1);
+    eventTree().setEntryNumber(-1);
   }
 
   void
@@ -1211,6 +1210,25 @@ namespace art {
   {
     secondaryFiles_[idx] =
       rifSequence_->openSecondaryFile(idx, secondaryFileNames_[idx], this);
+  }
+
+  std::unique_ptr<art::ResultsPrincipal>
+  RootInputFile::
+  readResults()
+  {
+    std::unique_ptr<art::ResultsPrincipal> resp;
+    if (resultsTree()) {
+      resultsTree().rewind();
+      auto pResultsAux = &resultsAux_;
+      resultsTree().fillAux<ResultsAuxiliary>(pResultsAux);
+      resp.reset(new ResultsPrincipal(resultsAux_, processConfiguration_,
+                                      resultsTree().makeBranchMapper(),
+                                      resultsTree().makeDelayedReader(InResults, EventID()), 0, nullptr));
+      resultsTree().fillGroups(*resp);
+    } else { // Empty
+      resp.reset(new ResultsPrincipal(ResultsAuxiliary(), processConfiguration_));
+    }
+    return resp;
   }
 
 } // namespace art

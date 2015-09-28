@@ -15,10 +15,11 @@ namespace art {
 
   // Note: These enum values are used as subscripts for a fixed size array,
   // so they must not change.
-  enum BranchType { InEvent = 0
-                  , InSubRun  = 1
-                  , InRun   = 2
-                  , NumBranchTypes
+  enum BranchType { InEvent,
+                    InSubRun,
+                    InRun,
+                    InResults,
+                    NumBranchTypes
                   };
 
   std::string const & BranchTypeToString( BranchType );

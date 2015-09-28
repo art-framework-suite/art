@@ -39,6 +39,8 @@
 
 namespace art {
   class OutputModule;
+
+  class ResultsPrincipal;
 }
 
 class art::OutputModule : public EventObserver {
@@ -78,7 +80,8 @@ public:
         std::set<std::string> const keys_to_ignore = { "module_label",
                                                        "streamName",
                                                        "FCMDPlugins",
-                                                       "fastCloning" }; // From RootOuput (shouldn't be here")
+                                                       "fastCloning", // From RootOuput (shouldn't be here")
+                                                       "results" }; // Ditto.
         this->validate_ParameterSet( pset, keys_to_ignore );
         this->set_PSet( pset );
       }
@@ -111,6 +114,9 @@ public:
 
   void selectProducts(FileBlock const&);
 
+  void registerProducts(MasterProductRegistry &,
+                        ModuleDescription const &);
+
 protected:
   // The returned pointer will be null unless the this is currently
   // executing its event loop function ('write').
@@ -123,6 +129,10 @@ protected:
 
   // Called after selectProducts() has done its work.
   virtual void postSelectProducts(FileBlock const &);
+
+  // Called to register products if necessary.
+  virtual void doRegisterProducts(MasterProductRegistry &,
+                                  ModuleDescription const &);
 
 private:
 
@@ -178,7 +188,7 @@ private:
   void configure(OutputModuleDescription const & desc);
   void doBeginJob();
   void doEndJob();
-  bool doEvent(EventPrincipal const & ep,
+  bool doEvent(EventPrincipal & ep,
                CurrentProcessingContext const * cpc);
   bool doBeginRun(RunPrincipal const & rp,
                   CurrentProcessingContext const * cpc);
@@ -188,8 +198,8 @@ private:
                      CurrentProcessingContext const * cpc);
   bool doEndSubRun(SubRunPrincipal const & srp,
                    CurrentProcessingContext const * cpc);
-  void doWriteRun(RunPrincipal const & rp);
-  void doWriteSubRun(SubRunPrincipal const & srp);
+  void doWriteRun(RunPrincipal & rp);
+  void doWriteSubRun(SubRunPrincipal & srp);
   void doOpenFile(FileBlock const & fb);
   void doRespondToOpenInputFile(FileBlock const & fb);
   void doRespondToCloseInputFile(FileBlock const & fb);
@@ -209,18 +219,19 @@ private:
   virtual bool shouldWeCloseFile() const {return false;}
 
   // Write the event.
-  virtual void write(EventPrincipal const & e) = 0;
+  virtual void write(EventPrincipal & e) = 0;
 
   virtual void beginJob();
   virtual void endJob();
   virtual void beginRun(RunPrincipal const &);
   virtual void endRun(RunPrincipal const &);
-  virtual void writeRun(RunPrincipal const & r) = 0;
+  virtual void writeRun(RunPrincipal & r) = 0;
   virtual void beginSubRun(SubRunPrincipal const &);
   virtual void endSubRun(SubRunPrincipal const &);
-  virtual void writeSubRun(SubRunPrincipal const & sr) = 0;
+  virtual void writeSubRun(SubRunPrincipal & sr) = 0;
   virtual void openFile(FileBlock const &);
   virtual void respondToOpenInputFile(FileBlock const &);
+  virtual void readResults(ResultsPrincipal const & resp);
   virtual void respondToCloseInputFile(FileBlock const &);
   virtual void respondToOpenOutputFiles(FileBlock const &);
   virtual void respondToCloseOutputFiles(FileBlock const &);
@@ -256,52 +267,10 @@ private:
   virtual void writeBranchMapper();
   virtual void finishEndFile();
 
-  template <typename Config>
-  PluginCollection_t makePlugins_(Table<Config> const& config);
+  PluginCollection_t makePlugins_(fhicl::ParameterSet const & top_pset);
 };  // OutputModule
 
 #ifndef __GCCXML__
-
-template <typename Config>
-auto
-art::OutputModule::
-makePlugins_(art::OutputModule::Table<Config> const & config)
-  -> PluginCollection_t
-{
-  fhicl::ParameterSet const& top_pset = config.get_PSet();
-  auto const psets = top_pset.get<std::vector<fhicl::ParameterSet>>("FCMDPlugins", {} );
-  PluginCollection_t result;
-  result.reserve(psets.size());
-  size_t count = 0;
-  try {
-    for (auto const & pset : psets) {
-      pluginNames_.emplace_back(pset.get<std::string>("plugin_type"));
-      auto const & libspec = pluginNames_.back();
-      auto const pluginType = pluginFactory_.pluginType(libspec);
-      if (pluginType == cet::PluginTypeDeducer<FileCatalogMetadataPlugin>::value) {
-        result.emplace_back(pluginFactory_.
-                            makePlugin<std::unique_ptr<FileCatalogMetadataPlugin>,
-                            fhicl::ParameterSet const &>(libspec, pset));
-      } else {
-        throw Exception(errors::Configuration, "OutputModule: ")
-          << "unrecognized plugin type "
-          << pluginType
-          << ".\n";
-      }
-      ++count;
-    }
-  }
-  catch (cet::exception & e) {
-    throw Exception(errors::Configuration, "OutputModule: ", e)
-      << "Exception caught while processing FCMDPlugins["
-      << count
-      << "] in module "
-      << description().moduleLabel()
-      << ".\n";
-  }
-  return result;
-}
-
 
 template <typename Config>
 art::OutputModule::
@@ -333,9 +302,25 @@ OutputModule(art::OutputModule::Table<Config> const & config)
   ci_(),
   pluginFactory_(),
   pluginNames_(),
-  plugins_(makePlugins_(config))
+  plugins_(makePlugins_(config.get_PSet()))
 {
   hasNewlyDroppedBranch_.fill(false);
+}
+
+inline
+art::CurrentProcessingContext const *
+art::OutputModule::
+currentContext() const
+{
+  return current_context_;
+}
+
+inline
+art::ModuleDescription const &
+art::OutputModule::
+description() const
+{
+  return moduleDescription_;
 }
 
 inline
