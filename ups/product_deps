@@ -12,7 +12,7 @@ cppunit		v1_12_1b
 gccxml		v0_9_20150423
 python		v2_7_10
 root		v5_34_32
-messagefacility	v1_16_03
+messagefacility	v1_16_04
 tbb		v4_4_0
 cetbuildtools	v4_14_00	-	only_for_build
 end_product_list
@@ -28,6 +28,11 @@ e7:prof		e7:prof		e7:prof		e7:prof		e7:prof		-nq-	-nq-	e7:prof		gcc
 e7:prof:sse2	e7:prof		e7:prof		e7:prof		e7:prof		-nq-	-nq-	e7:prof		gcc		-msse2 -ftree-vectorizer-verbose
 nu:e7:debug	e7:debug	e7:nu:debug	e7:debug	e7:debug	-nq-	-nq-	e7:debug	gcc
 nu:e7:prof	e7:prof		e7:nu:prof	e7:prof		e7:prof		-nq-	-nq-	e7:prof		gcc
+e9:debug	e9:debug	e9:debug	e9:debug	e9:debug	-nq-	-nq-	e9:debug	gcc
+e9:prof		e9:prof		e9:prof		e9:prof		e9:prof		-nq-	-nq-	e9:prof		gcc
+e9:prof:sse2	e9:prof		e9:prof		e9:prof		e9:prof		-nq-	-nq-	e9:prof		gcc		-msse2 -ftree-vectorizer-verbose
+nu:e9:debug	e9:debug	e9:nu:debug	e9:debug	e9:debug	-nq-	-nq-	e9:debug	gcc
+nu:e9:prof	e9:prof		e9:nu:prof	e9:prof		e9:prof		-nq-	-nq-	e9:prof		gcc
 end_qualifier_list
 
 # Local Variables:
