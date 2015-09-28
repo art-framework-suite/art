@@ -11,11 +11,6 @@
 namespace art {
 
 SubRunPrincipal::
-~SubRunPrincipal()
-{
-}
-
-SubRunPrincipal::
 SubRunPrincipal(SubRunAuxiliary const& aux, ProcessConfiguration const& pc,
                 std::unique_ptr<BranchMapper>&& mapper,
                 std::unique_ptr<DelayedReader>&& rtrv, int idx,

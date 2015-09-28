@@ -176,6 +176,7 @@ private:
 
   EventAuxiliary const& aux_;
   std::shared_ptr<SubRun const> const subRun_;
+  EventPrincipal & eventPrincipal_;
 
   // gotBranchIDs_ must be mutable because it records all 'gets',
   // which do not logically modify the DataViewImpl. gotBranchIDs_ is
@@ -449,7 +450,21 @@ art::Event::fillView_( GroupQueryResult & bh
   }
 
 }  // fillView_<>()
-#endif
+
+inline
+art::EventPrincipal &
+art::Event::eventPrincipal() {
+  return eventPrincipal_;
+}
+
+inline
+art::EventPrincipal const &
+art::Event::eventPrincipal() const {
+  return eventPrincipal_;
+}
+
+#endif /* __GCCXML__ */
+
 #endif /* art_Framework_Principal_Event_h */
 
 // Local Variables:

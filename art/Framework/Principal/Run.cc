@@ -21,16 +21,6 @@ namespace art {
         aux_(rp.aux()) {
   }
 
-  RunPrincipal &
-  Run::runPrincipal() {
-    return dynamic_cast<RunPrincipal &>(principal());
-  }
-
-  RunPrincipal const &
-  Run::runPrincipal() const {
-    return dynamic_cast<RunPrincipal const&>(principal());
-  }
-
   bool
   Run::getProcessParameterSet(std::string const& /*processName*/,
                               std::vector<ParameterSet>& psets) const
@@ -60,8 +50,8 @@ namespace art {
   void
   Run::commit_()
   {
-
-    auto put_in_principal = [&rp=runPrincipal()](auto& elem) {
+    auto & rp = dynamic_cast<RunPrincipal &>(principal());
+    auto put_in_principal = [&rp](auto& elem) {
 
       auto runProductProvenancePtr = std::make_unique<ProductProvenance const>(elem.first,
                                                                                productstatus::present());

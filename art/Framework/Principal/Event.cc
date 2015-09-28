@@ -29,6 +29,7 @@ namespace art {
   : DataViewImpl ( ep, md, InEvent )
   , aux_         ( ep.aux() )
   , subRun_      ( newSubRun(ep, md) )
+  , eventPrincipal_(ep)
   , gotBranchIDs_()
   { }
 
@@ -40,16 +41,6 @@ namespace art {
   ProductID
   Event::branchIDToProductID(BranchID const &bid) const {
     return eventPrincipal().branchIDToProductID(bid);
-  }
-
-  EventPrincipal &
-  Event::eventPrincipal() {
-    return dynamic_cast<EventPrincipal &>(principal());
-  }
-
-  EventPrincipal const &
-  Event::eventPrincipal() const {
-    return dynamic_cast<EventPrincipal const&>(principal());
   }
 
   ProductID

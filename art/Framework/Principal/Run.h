@@ -47,7 +47,7 @@ public:
   template <typename PROD>
   void
   put(std::unique_ptr<PROD> && product, std::string const& productInstanceName);
-#endif
+#endif /* __GCCXML__ */
 
   // Return true if this Run has been subjected to a process with
   // the given processName, and false otherwise.
@@ -60,12 +60,6 @@ public:
                          std::vector<fhicl::ParameterSet>& ps) const;
 
 private:
-  RunPrincipal const&
-  runPrincipal() const;
-
-  RunPrincipal &
-  runPrincipal();
-
   // commit_() is called to complete the transaction represented by
   // this DataViewImpl. The friendships required are gross, but any
   // alternative is not great either.  Putting it into the
@@ -109,7 +103,7 @@ art::Run::put(std::unique_ptr<PROD> && product,
 
 }
 
-#endif
+#endif /* __GCCXML__ */
 #endif /* art_Framework_Principal_Run_h */
 
 // Local Variables:

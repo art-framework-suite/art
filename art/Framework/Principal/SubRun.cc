@@ -18,16 +18,6 @@ namespace art {
                  run_(newRun(srp, md)) {
   }
 
-  SubRunPrincipal &
-  SubRun::subRunPrincipal() {
-    return dynamic_cast<SubRunPrincipal &>(principal());
-  }
-
-  SubRunPrincipal const &
-  SubRun::subRunPrincipal() const {
-    return dynamic_cast<SubRunPrincipal const&>(principal());
-  }
-
   Run const&
   SubRun::getRun() const {
     if (!run_) {
@@ -40,8 +30,8 @@ namespace art {
   void
   SubRun::commit_()
   {
-
-    auto put_in_principal = [&srp=subRunPrincipal()](auto& elem) {
+    auto & srp = dynamic_cast<SubRunPrincipal &>(principal());
+    auto put_in_principal = [&srp](auto& elem) {
 
       // set provenance
       auto subRunProductProvenancePtr = std::make_unique<ProductProvenance const>(elem.first,

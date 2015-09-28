@@ -21,11 +21,6 @@ using namespace std;
 namespace art {
 
 EventPrincipal::
-~EventPrincipal()
-{
-}
-
-EventPrincipal::
 EventPrincipal(EventAuxiliary const& aux, ProcessConfiguration const& pc,
                std::shared_ptr<History> history,
                std::unique_ptr<BranchMapper>&& mapper,

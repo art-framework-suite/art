@@ -58,7 +58,7 @@ public:
   template <typename PROD>
   void
   put(std::unique_ptr<PROD> && product, std::string const& productInstanceName);
-#endif
+#endif /* __GCCXML__ */
 
 private:
   SubRunPrincipal const&
@@ -110,7 +110,7 @@ art::SubRun::put(std::unique_ptr<PROD> && product,
   }
 }
 
-#endif
+#endif /* __GCCXML__ */
 
 #endif /* art_Framework_Principal_SubRun_h */
 

@@ -32,8 +32,6 @@ public:
 
 public:
 
-  virtual ~SubRunPrincipal();
-
   SubRunPrincipal(SubRunAuxiliary const&,
                   ProcessConfiguration const&,
                   std::unique_ptr<BranchMapper>&& mapper =

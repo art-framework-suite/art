@@ -31,8 +31,6 @@ public:
 
 public:
 
-  virtual ~RunPrincipal();
-
   RunPrincipal(RunAuxiliary const&,
                ProcessConfiguration const&,
                std::unique_ptr<BranchMapper>&& mapper =
