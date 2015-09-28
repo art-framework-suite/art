@@ -8,7 +8,7 @@ perllib  product_dir
 #
 product		version
 clhep		v2_2_0_8
-cppunit		v1_12_1b
+cppunit		v1_12_1c
 gccxml		v0_9_20150423
 python		v2_7_10
 root		v5_34_32
