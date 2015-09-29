@@ -10,6 +10,8 @@
 #include "art/Framework/Services/Registry/ServiceTable.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
+namespace fhicl { class ParameterSet; }
+
 namespace art {
 
   class ActivityRegistry;
@@ -17,9 +19,7 @@ namespace art {
   class MemoryTracker {
   public:
 
-    struct Config{};
-    using Parameters = ServiceTable<Config>;
-    MemoryTracker(Parameters const &, ActivityRegistry &) {
+    MemoryTracker(fhicl::ParameterSet const &, ActivityRegistry &) {
       mf::LogAbsolute("MemoryTracker") << "\n"
                                        << "Service currently not supported for this operating system.\n"
                                        << "If desired, please log an issue with:\n\n"

@@ -10,6 +10,8 @@
 #include "art/Framework/Services/Registry/ServiceTable.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
+namespace fhicl { class ParameterSet; }
+
 namespace art {
 
   class ActivityRegistry;
@@ -17,9 +19,10 @@ namespace art {
   class SimpleMemoryCheck {
   public:
 
-    struct Config{};
-    using Parameters = ServiceTable<Config>;
-    SimpleMemoryCheck(Parameters const &, ActivityRegistry &) {
+    // Do not do any ParameterSet validation for the Darwin version as
+    // the memory-check service is not supported.
+
+    SimpleMemoryCheck(fhicl::ParameterSet const &, ActivityRegistry &) {
       mf::LogAbsolute("SimpleMemoryCheck") << "\n"
                                            << "Service currently not supported for this operating system.\n"
                                            << "If desired, please log an issue with:\n\n"

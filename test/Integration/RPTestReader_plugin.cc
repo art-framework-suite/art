@@ -42,24 +42,37 @@ public:
   void readResults(art::Results const & res) override;
 
 private:
-  std::string intResultsLabel_;
-};
+  bool maybeAccumulateData_(art::Results const & res);
 
+  std::string intResultsLabel_;
+  std::size_t expectedResultsSeen_;
+  std::size_t resultsSeen_;
+  int total_;
+};
 
 arttest::RPTestReader::RPTestReader(fhicl::ParameterSet const & p)
 :
-  intResultsLabel_(p.get<std::string>("intResultsLabel"))
+  intResultsLabel_(p.get<std::string>("intResultsLabel")),
+  expectedResultsSeen_(p.get<std::size_t>("nResultsExpected", 1ul)),
+  resultsSeen_(0ul),
+  total_(0)
 {
 }
 
 void arttest::RPTestReader::clear()
 {
-  // NOP.
+  resultsSeen_ = 0;
+  total_ = 0;
 }
 
-void arttest::RPTestReader::writeResults(art::Results & res [[gnu::unused]] )
+void arttest::RPTestReader::writeResults(art::Results & res)
 {
-  // NOP.
+  maybeAccumulateData_(res);
+  if (resultsSeen_ != expectedResultsSeen_) {
+    throw art::Exception(art::errors::LogicError)
+      << "Expected to see " << expectedResultsSeen_
+      << ", saw " << resultsSeen_ << ".\n";
+  }
 }
 
 void arttest::RPTestReader::event(art::Event const & e [[gnu::unused]])
@@ -69,14 +82,25 @@ void arttest::RPTestReader::event(art::Event const & e [[gnu::unused]])
 
 void arttest::RPTestReader::readResults(art::Results const & res)
 {
+  maybeAccumulateData_(res);
+}
+
+bool
+arttest::RPTestReader::
+maybeAccumulateData_(art::Results const & res) {
   art::Handle<IntProduct> hi;
-  res.getByLabel(intResultsLabel_, hi);
-  if (hi->value != 5.0) {
-    throw art::Exception(art::errors::LogicError)
-      << "Unexcepted value in results int product: "
-      << hi->value
-      << ".\n";
+  bool result = res.getByLabel(intResultsLabel_, hi);
+  if (result) {
+    ++resultsSeen_;
+    if (hi->value != 5.0) {
+      throw art::Exception(art::errors::LogicError)
+        << "Unexcepted value in results int product: "
+        << hi->value
+        << ".\n";
+    }
+    total_ += hi->value;
   }
+  return result;
 }
 
 DEFINE_ART_RESULTS_PLUGIN(arttest::RPTestReader)
