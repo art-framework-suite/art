@@ -17,11 +17,16 @@ outputs: {
     fileName: "out_%r.root"
     results: {
       producers: {
-        rp1: {
+        rpw: {
           plugin_type: RPTest
         }
+        rpr: {
+          plugin_type: RPTestReader
+          intResultsLabel: "o1#rpw"
+          nResultsExpected: 1
+        }
       }
-      rpath: [ rp1 ]
+      rpath: [ rpw, rpr ]
     }
   }
 }
