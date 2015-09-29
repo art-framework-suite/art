@@ -11,15 +11,15 @@
 // * Unlike modules, services require macro invocations in their
 // headers *and* their compile units.
 //
-// * In order to declare your service, you must define your service as
-// either a LEGACY, GLOBAL or PER_SCHEDULE service, as follows:
+// * In order to declare your service, you must specify your service
+// with a scope value of LEGACY, GLOBAL or PER_SCHEDULE, as follows:
 //
 //   * LEGACY services are unaware of multi-schedule operation, and
 //     configuration of such a service precludes multi-schedule
 //     operation. Such services must have a constructor:
 //
-//       MyServer(fhicl::ParameterSet const &,
-//                art::ActivityRegistry &);
+//       MyService(fhicl::ParameterSet const &,
+//                 art::ActivityRegistry &);
 //
 //   * GLOBAL services are expected to have the same signature as LEGACY
 //     services, but warrant additionally that it is safe to call their
@@ -75,6 +75,7 @@
 ////////////////////////////////////////////////////////////////////////
 
 #include "art/Framework/Services/Registry/detail/helper_macros.h"
+#include "art/Framework/Services/Registry/ServiceTable.h"
 #include "art/Utilities/BasicHelperMacros.h"
 
 ////////////////////////////////////////////////////////////////////////
@@ -89,8 +90,9 @@
   DECLARE_ART_SERVICE_DETAIL(svc,scope)
 
 #define DEFINE_ART_SERVICE(svc) \
-  DEFINE_ART_SH_CREATE(svc) \
-  PROVIDE_FILE_PATH()
+  DEFINE_ART_SH_CREATE(svc)     \
+  PROVIDE_FILE_PATH()           \
+  PROVIDE_DESCRIPTION(svc)
 
 // Declare an interface.
 #define DECLARE_ART_SERVICE_INTERFACE(svc,scope) \

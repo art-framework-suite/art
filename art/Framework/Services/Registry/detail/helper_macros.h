@@ -121,14 +121,14 @@
   make(fhicl::ParameterSet const & cfg, \
        ActivityRegistry & reg, \
        size_t nSchedules) const final override \
-  { return \
-           std::unique_ptr<art::detail::ServiceWrapperBase> \
-           (new ServiceWrapper<svc, \
-            ServiceScope::PER_SCHEDULE>(cfg, reg, nSchedules)); \
+  { return                                                      \
+      std::unique_ptr<art::detail::ServiceWrapperBase>          \
+      (new ServiceWrapper<svc,                                  \
+       ServiceScope::PER_SCHEDULE>(cfg, reg, nSchedules));      \
   }
 
 // CreateHelper.
-#define DEFINE_ART_SERVICE_HELPER_CREATE(svc) \
+#define DEFINE_ART_SERVICE_HELPER_CREATE(svc)   \
   static \
   std::unique_ptr<art::detail::ServiceHelperBase> \
   createHelper() \

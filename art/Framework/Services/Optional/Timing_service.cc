@@ -9,11 +9,13 @@
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/ServiceMacros.h"
 #include "art/Framework/Services/Registry/ServiceRegistry.h"
+#include "art/Framework/Services/Registry/ServiceTable.h"
 #include "art/Persistency/Provenance/EventID.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Persistency/Provenance/ProvenanceFwd.h"
 #include "cetlib/exception.h"
-#include "fhiclcpp/ParameterSet.h"
+#include "fhiclcpp/types/Atom.h"
+#include "fhiclcpp/types/Name.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include <algorithm>
@@ -28,11 +30,19 @@ using art::Timing;
 using fhicl::ParameterSet;
 
 // ======================================================================
+namespace {
+  using namespace fhicl;
+  struct Config {
+    Atom<bool> summaryOnly { Name("summaryOnly"), false };
+  };
+}
 
 class art::Timing
 {
 public:
-  Timing(ParameterSet const&, ActivityRegistry&);
+
+  using Parameters = ServiceTable<Config>;
+  Timing(ServiceTable<Config> const&, ActivityRegistry&);
 
 private:
   void postBeginJob();
@@ -71,8 +81,8 @@ static double getTime()
 
 // ----------------------------------------------------------------------
 
-Timing::Timing(ParameterSet const& iPS, ActivityRegistry& iRegistry)
-  : summary_only_(iPS.get<bool>("summaryOnly", false))
+Timing::Timing(ServiceTable<Config> const & config, ActivityRegistry& iRegistry)
+  : summary_only_(config().summaryOnly())
   , max_event_time_( std::numeric_limits<double>::lowest() )
   , min_event_time_( std::numeric_limits<double>::max()    )
   , avg_event_time_( 0. )

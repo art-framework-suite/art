@@ -24,8 +24,8 @@
 
 #include "art/Framework/Services/Registry/GlobalSignal.h"
 #include "art/Framework/Services/Registry/detail/SignalResponseType.h"
-#include "cpp0x/functional"
 
+#include <functional>
 #include <string>
 #include <vector>
 

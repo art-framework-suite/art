@@ -125,7 +125,7 @@ namespace art {
 
   }
 }
-#endif // art_Framework_Services_Optional_detail_LinuxProcData_h
+#endif /* art_Framework_Services_Optional_detail_LinuxProcData_h */
 
 // Local variables:
 // mode:c++

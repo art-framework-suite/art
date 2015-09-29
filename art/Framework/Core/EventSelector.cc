@@ -39,11 +39,11 @@
 #include "art/Utilities/RegexMatch.h"
 #include "boost/algorithm/string.hpp"
 #include "cetlib/container_algorithms.h"
-#include "cpp0x/algorithm"
-#include "cpp0x/regex"
 #include "messagefacility/MessageLogger/MessageLogger.h"
-#include <cassert>
 
+#include <algorithm>
+#include <cassert>
+#include <regex>
 
 using namespace cet;
 using namespace std;

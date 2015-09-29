@@ -33,9 +33,11 @@
 #include "art/Persistency/Provenance/ProductID.h"
 #include "art/Framework/Principal/Provenance.h"
 #include "art/Utilities/Exception.h"
+#include "art/Utilities/detail/metaprogramming.h"
 #include "cetlib/demangle.h"
 #include "cetlib/exception.h"
-#include "cpp0x/memory"
+
+#include <memory>
 #include <typeinfo>
 
 namespace art {
@@ -51,10 +53,6 @@ namespace art {
   template <typename T>  class Wrapper;
 
   namespace detail {
-    // SFINAE magic.
-    template <class T, class R = void>
-    struct enable_if_type { typedef R type; };
-
     template <class T, class Enable = void>
     struct is_handle : std::false_type {};
 
@@ -92,7 +90,7 @@ public:
 
   // mutators:
   void swap( Handle<T> & other );
-  void clear( );
+  void clear();
 
 private:
   T const *                              prod_;
@@ -105,29 +103,25 @@ private:
 // c'tors:
 
 template <class T>
-art::Handle<T>::Handle( ) :
-  prod_     ( 0 ),
-  prov_     ( ),
-  whyFailed_( )
-{ }
+art::Handle<T>::Handle() :
+  prod_     (nullptr),
+  prov_     (),
+  whyFailed_()
+{}
 
 template <class T>
 art::Handle<T>::Handle(GroupQueryResult const & gqr) :
-  prod_     ( 0 ),
+  prod_     ( nullptr ),
   prov_     ( gqr.result() ),
   whyFailed_( gqr.whyFailed() )
 {
   if( gqr.succeeded() )
     try {
       prod_ = dynamic_cast< Wrapper<T> const &>(*gqr.result()->uniqueProduct(TypeID(typeid(Wrapper<T>)))
-                                               ).product();
+                                                ).product();
     }
-    catch( std::bad_cast const & ) {
-      typedef  cet::exception const  exc_t;
-      whyFailed_ = std::shared_ptr<exc_t>(new art::Exception(errors::LogicError,
-                                                             "Handle<T> c'tor"
-                                                            )
-                                         );
+    catch(std::bad_cast const &) {
+      whyFailed_ = std::make_shared<art::Exception const>(errors::LogicError, "Handle<T> c'tor");
     }
 }
 
@@ -137,26 +131,29 @@ art::Handle<T>::Handle(GroupQueryResult const & gqr) :
 template <class T>
 inline
 T const &
-art::Handle<T>::operator *( ) const
+art::Handle<T>::operator *() const
 {
   return *product();
 }
 
 template <class T>
 T const *
-art::Handle<T>::product( ) const
+art::Handle<T>::product() const
 {
-  if( failedToGet() ) {
+  if( failedToGet() )
     throw *whyFailed_;
-  }
-  // Should we throw if the pointer is null?
+
+  if( prod_ == nullptr )
+    throw Exception(art::errors::NullPointerError)
+      << "Attempt to de-reference product that points to 'nullptr'";
+
   return prod_;
 }
 
 template <class T>
 inline
 T const *
-art::Handle<T>::operator->( ) const
+art::Handle<T>::operator->() const
 {
   return product();
 }
@@ -166,7 +163,7 @@ art::Handle<T>::operator->( ) const
 
 template <class T>
 bool
-art::Handle<T>::isValid( ) const
+art::Handle<T>::isValid() const
 {
   return prod_ && prov_.isValid();
 }
@@ -217,9 +214,9 @@ art::Handle<T>::swap(Handle<T> & other)
 
 template <class T>
 void
-  art::Handle<T>::clear( )
+art::Handle<T>::clear()
 {
-  prod_ = 0;
+  prod_ = nullptr;
   prov_ = Provenance();
   whyFailed_.reset();
 }
@@ -230,7 +227,7 @@ void
 template <class T>
 inline
 void
-  art::swap(Handle<T> & a, Handle<T> & b)
+art::swap(Handle<T> & a, Handle<T> & b)
 {
   a.swap(b);
 }
@@ -238,7 +235,7 @@ void
 // Convert from handle-to-EDProduct to handle-to-T
 template <class T>
 void
-  art::convert_handle(GroupQueryResult const & orig, Handle<T> & result)
+art::convert_handle(GroupQueryResult const & orig, Handle<T> & result)
 {
   Handle<T> h(orig);
   swap(result, h);

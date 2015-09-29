@@ -111,6 +111,7 @@ private:
 
   TypeIDs requestedCreationOrder_;
   detail::ServiceStack actualCreationOrder_;
+  std::vector<std::string> configErrMsgs_;
 
 };  // ServicesManager
 

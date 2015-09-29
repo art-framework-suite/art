@@ -23,11 +23,15 @@ namespace arttest {
 
 class arttest::FlushingGeneratorTest : public art::OutputModule {
 public:
-  explicit FlushingGeneratorTest(fhicl::ParameterSet const & p);
 
-  void write(art::EventPrincipal const & e) override;
-  void writeSubRun(art::SubRunPrincipal const & sr) override;
-  void writeRun(art::RunPrincipal const & r) override;
+  struct Config {};
+
+  using Parameters = art::OutputModule::Table<Config>;
+  explicit FlushingGeneratorTest(Parameters const & p);
+
+  void write(art::EventPrincipal & e) override;
+  void writeSubRun(art::SubRunPrincipal & sr) override;
+  void writeRun(art::RunPrincipal & r) override;
 
   void beginRun(art::RunPrincipal const & r) override;
   void beginSubRun(art::SubRunPrincipal const & sr) override;
@@ -38,23 +42,23 @@ private:
 };
 
 
-arttest::FlushingGeneratorTest::FlushingGeneratorTest(fhicl::ParameterSet const & p)
+arttest::FlushingGeneratorTest::FlushingGeneratorTest(arttest::FlushingGeneratorTest::Parameters const & p)
   :
   OutputModule(p)
 {
 }
 
-void arttest::FlushingGeneratorTest::write(art::EventPrincipal const & e)
+void arttest::FlushingGeneratorTest::write(art::EventPrincipal & e)
 {
   assert(!e.id().isFlush());
 }
 
-void arttest::FlushingGeneratorTest::writeSubRun(art::SubRunPrincipal const & sr)
+void arttest::FlushingGeneratorTest::writeSubRun(art::SubRunPrincipal & sr)
 {
   assert(!sr.id().isFlush());
 }
 
-void arttest::FlushingGeneratorTest::writeRun(art::RunPrincipal const & r)
+void arttest::FlushingGeneratorTest::writeRun(art::RunPrincipal & r)
 {
   assert(!r.id().isFlush());
 }

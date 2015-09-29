@@ -26,8 +26,12 @@
 #include "art/Persistency/Provenance/ParentageID.h"
 #include "art/Persistency/Provenance/Selections.h"
 
-#include "cpp0x/array"
-#include "cpp0x/memory"
+#include "fhiclcpp/types/Atom.h"
+#include "fhiclcpp/types/Sequence.h"
+#include "fhiclcpp/ParameterSet.h"
+
+#include <array>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -35,6 +39,8 @@
 
 namespace art {
   class OutputModule;
+
+  class ResultsPrincipal;
 }
 
 class art::OutputModule : public EventObserver {
@@ -47,7 +53,44 @@ public:
   typedef OutputModule ModuleType;
   typedef OutputWorker WorkerType;
 
-  explicit OutputModule(fhicl::ParameterSet const & pset);
+  // Configuration
+  struct baseConfig {
+    fhicl::Atom<std::string> moduleType { fhicl::Name("module_type") };
+    fhicl::Table<EventObserver::EOConfig> eoConfig {
+      fhicl::Name("SelectEvents"),
+        fhicl::Comment("The 'SelectEvents' table below is optional")
+        };
+    fhicl::Sequence<std::string> outputCommands { fhicl::Name("outputCommands"), fhicl::Sequence<std::string>{ "keep *" } };
+    fhicl::Atom<std::string> fileName   { fhicl::Name("fileName"), "" };
+    fhicl::Atom<std::string> dataTier   { fhicl::Name("dataTier"), "" };
+    fhicl::Atom<std::string> streamName { fhicl::Name("streamName"), "" };
+  };
+
+  template <typename T>
+  struct fullConfig : baseConfig, T {};
+
+  template < typename userConfig >
+  class Table : public fhicl::Table<fullConfig<userConfig>> {
+  public:
+
+    Table(){}
+
+    Table( fhicl::ParameterSet const& pset ) : Table()
+      {
+        std::set<std::string> const keys_to_ignore = { "module_label",
+                                                       "streamName",
+                                                       "FCMDPlugins",
+                                                       "fastCloning", // From RootOuput (shouldn't be here")
+                                                       "results" }; // Ditto.
+        this->validate_ParameterSet( pset, keys_to_ignore );
+        this->set_PSet( pset );
+      }
+
+  };
+
+  template <typename Config>
+  explicit OutputModule( Table<Config> const & pset);
+
   virtual ~OutputModule() = default;
   virtual void reconfigure(fhicl::ParameterSet const &);
 
@@ -71,6 +114,9 @@ public:
 
   void selectProducts(FileBlock const&);
 
+  void registerProducts(MasterProductRegistry &,
+                        ModuleDescription const &);
+
 protected:
   // The returned pointer will be null unless the this is currently
   // executing its event loop function ('write').
@@ -83,6 +129,10 @@ protected:
 
   // Called after selectProducts() has done its work.
   virtual void postSelectProducts(FileBlock const &);
+
+  // Called to register products if necessary.
+  virtual void doRegisterProducts(MasterProductRegistry &,
+                                  ModuleDescription const &);
 
 private:
 
@@ -138,7 +188,7 @@ private:
   void configure(OutputModuleDescription const & desc);
   void doBeginJob();
   void doEndJob();
-  bool doEvent(EventPrincipal const & ep,
+  bool doEvent(EventPrincipal & ep,
                CurrentProcessingContext const * cpc);
   bool doBeginRun(RunPrincipal const & rp,
                   CurrentProcessingContext const * cpc);
@@ -148,8 +198,8 @@ private:
                      CurrentProcessingContext const * cpc);
   bool doEndSubRun(SubRunPrincipal const & srp,
                    CurrentProcessingContext const * cpc);
-  void doWriteRun(RunPrincipal const & rp);
-  void doWriteSubRun(SubRunPrincipal const & srp);
+  void doWriteRun(RunPrincipal & rp);
+  void doWriteSubRun(SubRunPrincipal & srp);
   void doOpenFile(FileBlock const & fb);
   void doRespondToOpenInputFile(FileBlock const & fb);
   void doRespondToCloseInputFile(FileBlock const & fb);
@@ -169,18 +219,19 @@ private:
   virtual bool shouldWeCloseFile() const {return false;}
 
   // Write the event.
-  virtual void write(EventPrincipal const & e) = 0;
+  virtual void write(EventPrincipal & e) = 0;
 
   virtual void beginJob();
   virtual void endJob();
   virtual void beginRun(RunPrincipal const &);
   virtual void endRun(RunPrincipal const &);
-  virtual void writeRun(RunPrincipal const & r) = 0;
+  virtual void writeRun(RunPrincipal & r) = 0;
   virtual void beginSubRun(SubRunPrincipal const &);
   virtual void endSubRun(SubRunPrincipal const &);
-  virtual void writeSubRun(SubRunPrincipal const & sr) = 0;
+  virtual void writeSubRun(SubRunPrincipal & sr) = 0;
   virtual void openFile(FileBlock const &);
   virtual void respondToOpenInputFile(FileBlock const &);
+  virtual void readResults(ResultsPrincipal const & resp);
   virtual void respondToCloseInputFile(FileBlock const &);
   virtual void respondToOpenOutputFiles(FileBlock const &);
   virtual void respondToCloseOutputFiles(FileBlock const &);
@@ -216,10 +267,62 @@ private:
   virtual void writeBranchMapper();
   virtual void finishEndFile();
 
-  PluginCollection_t makePlugins_(std::vector<fhicl::ParameterSet> const psets);
+  PluginCollection_t makePlugins_(fhicl::ParameterSet const & top_pset);
 };  // OutputModule
 
 #ifndef __GCCXML__
+
+template <typename Config>
+art::OutputModule::
+OutputModule(art::OutputModule::Table<Config> const & config)
+  :
+  EventObserver(config.get_PSet()),
+  keptProducts_(),
+  hasNewlyDroppedBranch_(),
+  groupSelectorRules_(config().outputCommands(), "outputCommands", "OutputModule"),
+  groupSelector_(),
+  maxEvents_(-1),
+  remainingEvents_(maxEvents_),
+  moduleDescription_(),
+  current_context_(0),
+  branchParents_(),
+  branchChildren_(),
+  // FIXME:
+  //   For the next data member, qualifying 'fileName' is a necessity
+  //   since some user-provided structs inlude 'fileName'
+  //
+  //     struct Config : OutputModuleConfig, UserConfig {};
+  //
+  //   Both OutputModuleConfig and RootOutputConfig include 'fileName'
+  //   members, creating a lookup ambiguity.  Since only one entity
+  //   exists in the ParameterSet, both with reference the same value.
+  configuredFileName_(config().OutputModule::baseConfig::fileName()),
+  dataTier_(config().dataTier()),
+  streamName_(config().streamName()),
+  ci_(),
+  pluginFactory_(),
+  pluginNames_(),
+  plugins_(makePlugins_(config.get_PSet()))
+{
+  hasNewlyDroppedBranch_.fill(false);
+}
+
+inline
+art::CurrentProcessingContext const *
+art::OutputModule::
+currentContext() const
+{
+  return current_context_;
+}
+
+inline
+art::ModuleDescription const &
+art::OutputModule::
+description() const
+{
+  return moduleDescription_;
+}
+
 inline
 int
 art::OutputModule::

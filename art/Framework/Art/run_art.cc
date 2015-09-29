@@ -25,9 +25,7 @@
 #include "TError.h"
 
 #include <exception>
-#include <fstream>
 #include <iostream>
-#include <regex>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -95,7 +93,8 @@ int art::run_art(int argc,
                  char ** argv,
                  bpo::options_description & in_desc,
                  cet::filepath_maker & lookupPolicy,
-                 art::OptionsHandlers && handlers)
+                 art::OptionsHandlers && handlers,
+                 art::detail::DebugOutput && dbg)
 {
   std::ostringstream descstr;
   descstr << "Usage: "
@@ -123,7 +122,7 @@ int art::run_art(int argc,
   catch (bpo::error const & e) {
     std::cerr << "Exception from command line processing in " << argv[0]
               << ": " << e.what() << "\n";
-    return 7000;
+    return 88;
   }
   // Preliminary argument checking.
   for (auto & handler : handlers) {
@@ -162,7 +161,7 @@ int art::run_art(int argc,
         << "------------------------------------"
         << "------------------------------------"
         << "\n";
-    return 7003;
+    return 91;
   }
   // Main parameter set must be placed in registry manually.
   try {
@@ -172,7 +171,7 @@ int art::run_art(int argc,
     std::cerr << "Uncaught exception while inserting main parameter set into registry.\n";
     throw;
   }
-  return run_art_common_(main_pset);
+  return run_art_common_(main_pset, std::move(dbg));
 }
 
 int art::run_art_string_config(const std::string& config_string)
@@ -207,7 +206,7 @@ int art::run_art_string_config(const std::string& config_string)
         << "------------------------------------"
         << "------------------------------------"
         << "\n";
-    return 7003;
+    return 91;
   }
   // Main parameter set must be placed in registry manually.
   try {
@@ -217,41 +216,17 @@ int art::run_art_string_config(const std::string& config_string)
     std::cerr << "Uncaught exception while inserting main parameter set into registry.\n";
     throw;
   }
-  return run_art_common_(main_pset);
+  return run_art_common_(main_pset, art::detail::DebugOutput{});
 }
 
-int art::run_art_common_(fhicl::ParameterSet main_pset)
+int art::run_art_common_(fhicl::ParameterSet main_pset, art::detail::DebugOutput debug)
 {
-  fhicl::ParameterSet
-    services_pset(main_pset.get<fhicl::ParameterSet>("services",
-                                                     fhicl::ParameterSet()));
-  fhicl::ParameterSet
-    scheduler_pset(services_pset.get<fhicl::ParameterSet>("scheduler",
-                                                          fhicl::ParameterSet()));
-  char const * debug_config (getenv("ART_DEBUG_CONFIG"));
-  if (debug_config != nullptr) {
-    bool isFilename(false);
-    try {
-      isFilename = std::regex_match(debug_config, std::regex("[[:alpha:]/\\.].*"));
-    }
-    catch(std::regex_error const & e) {
-      std::cerr << "REGEX ERROR: " << e.code() << ".\n";
-    }
-    if (isFilename) {
-      std::cerr << "** ART_DEBUG_CONFIG is defined: config debug output to file "
-                << debug_config
-                << " **\n";
-      std::ofstream dc(debug_config);
-      if (dc) {
-        dc << main_pset.to_indented_string() << "\n";
-        return 1;
-      } else {
-        std::cerr << "Output of config to " << debug_config << " failed: fallback to stderr.\n";
-      }
-    } else {
-      std::cerr << "** ART_DEBUG_CONFIG is defined: config debug output follows **\n";
-    }
-    std::cerr << main_pset.to_indented_string() << "\n";
+  auto const & services_pset  = main_pset.get<fhicl::ParameterSet>("services",{});
+  auto const & scheduler_pset = services_pset.get<fhicl::ParameterSet>("scheduler",{});
+
+  if (debug && debug.preempting()) {
+    std::cerr << debug.banner();
+    debug.stream() << main_pset.to_indented_string(0, debug.mode());
     return 1;
   }
   //
@@ -260,24 +235,22 @@ int art::run_art_common_(fhicl::ParameterSet main_pset)
   mf::MessageDrop::instance()->jobMode = std::string("analysis");
   mf::MessageDrop::instance()->runEvent = std::string("JobSetup");
   mf::StartMessageFacility(mf::MessageFacilityService::MultiThread,
-                           services_pset.get<fhicl::ParameterSet>("message",
-                               fhicl::ParameterSet()));
+                           services_pset.get<fhicl::ParameterSet>("message",{}));
   mf::LogInfo("MF_INIT_OK") << "Messagelogger initialization complete.";
   //
   // Configuration output (non-preempting)
   //
-  std::string configOut;
-  if (scheduler_pset.get_if_present("configOut", configOut)) {
-    std::ofstream dc(configOut);
-    if (dc) {
-      dc << main_pset.to_indented_string() << "\n";
+  if (debug && !debug.preempting()) {
+    if (debug.stream_is_valid()) {
+      debug.stream() << main_pset.to_indented_string(0, debug.mode());
       mf::LogInfo("ConfigOut") << "Post-processed configuration written to "
-                           << configOut
-                           << ".\n";
-    } else { // Error!
+                               << debug.filename()
+                               << ".\n";
+    }
+    else { // Error!
       throw Exception(errors::Configuration)
         << "Unable to write post-processed configuration to specified file "
-        << configOut
+        << debug.filename()
         << ".\n";
     }
   }
@@ -305,42 +278,42 @@ int art::run_art_common_(fhicl::ParameterSet main_pset)
   // Now create the EventProcessor
   //
   EventProcessorWithSentry proc;
-  int rc = -1;
+  int rc = 0;
   try {
-    std::unique_ptr<art::EventProcessor>
-    procP(new
-          art::EventProcessor(main_pset));
+    auto procP = std::make_unique<art::EventProcessor>(main_pset);
     EventProcessorWithSentry procTmp(std::move(procP));
     proc = std::move(procTmp);
     proc->beginJob();
     proc.on();
     if (proc->runToCompletion() == EventProcessor::epSignal) {
-      std::cerr << "Art caught and handled signal "
+      std::cerr << "Art has handled signal "
                 << art::shutdown_flag
                 << ".\n";
+      bool const sigint_not_error = scheduler_pset.get<bool>("SIGINTisNotError",false);
+      if ( !sigint_not_error )
+        rc = 128 + art::shutdown_flag;
     }
     proc.off();
     proc->endJob();
-    rc = 0;
   }
   catch (art::Exception & e) {
     rc = e.returnCode();
     art::printArtException(e, "art"); // , "Thing1", rc);
   }
   catch (cet::exception & e) {
-    rc = 8001;
+    rc = 65;
     art::printArtException(e, "art"); // , "Thing2", rc);
   }
   catch (std::bad_alloc & bda) {
-    rc = 8004;
+    rc = 68;
     art::printBadAllocException("art"); // , "Thing3", rc);
   }
   catch (std::exception & e) {
-    rc = 8002;
+    rc = 66;
     art::printStdException(e, "art"); // , "Thing4", rc);
   }
   catch (...) {
-    rc = 8003;
+    rc = 67;
     art::printUnknownException("art"); // , "Thing5", rc);
   }
   return rc;

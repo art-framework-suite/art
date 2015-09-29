@@ -92,6 +92,7 @@ simple_plugin(TestTimeTrackerProducer     "module"  NO_INSTALL )
 simple_plugin(TestTimeTrackerFilter       "module"  NO_INSTALL )
 simple_plugin(TestTimeTrackerAnalyzer     "module"  NO_INSTALL )
 simple_plugin(Throwing                    "service" NO_INSTALL )
+simple_plugin(ToyProductAnalyzer          "module"  NO_INSTALL )
 simple_plugin(ToyProductProducer          "module"  NO_INSTALL )
 simple_plugin(ToyRawFileInput             "source"  NO_INSTALL USE_BOOST_UNIT test_Integration )
 simple_plugin(ToyRawInput                 "source"  NO_INSTALL USE_BOOST_UNIT test_Integration )
@@ -275,6 +276,13 @@ cet_test(FileDumperOutput_r HANDBUILT
   PASS_REGULAR_EXPRESSION "Total products \\(present, not present\\): 4 \\(3, 1\\)\\."
   DEPENDS FileDumperOutput_w
 )
+
+cet_test(ToyProductProducerAnalyzer_t HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --rethrow-all -c toyProductProducerAnalyzer_t.fcl
+  DATAFILES
+  fcl/toyProductProducerAnalyzer_t.fcl
+  )
 
 cet_test(ToyRawInput_t_01 HANDBUILT
   TEST_EXEC art
@@ -1004,7 +1012,7 @@ cet_test(signal_handling_01_t HANDBUILT
   TEST_ARGS -c signal_sigint.fcl SIGINT 
   TEST_PROPERTIES
   PASS_REGULAR_EXPRESSION
-  "Art caught and handled signal 2\\."
+  "Art has handled signal 2\\."
   DATAFILES
   fcl/signal_sigint.fcl
   )
@@ -1014,7 +1022,7 @@ cet_test(signal_handling_02_t HANDBUILT
   TEST_ARGS -c signal_sigint.fcl SIGQUIT
   TEST_PROPERTIES
   PASS_REGULAR_EXPRESSION
-  "Art caught and handled signal 3\\."
+  "Art has handled signal 3\\."
   DATAFILES
   fcl/signal_sigint.fcl
   )
@@ -1024,7 +1032,7 @@ cet_test(signal_handling_03_t HANDBUILT
   TEST_ARGS -c signal_sigint.fcl SIGTERM
   TEST_PROPERTIES
   PASS_REGULAR_EXPRESSION
-  "Art caught and handled signal 15\\."
+  "Art has handled signal 15\\."
   DATAFILES
   fcl/signal_sigint.fcl
   )
@@ -1040,7 +1048,7 @@ cet_test(signal_handling_04_t HANDBUILT
   TEST_ARGS -c signal_sigint.fcl SIGUSR2
   TEST_PROPERTIES
   PASS_REGULAR_EXPRESSION
-  "Art caught and handled signal ${sigusr_two_signal}\\."
+  "Art has handled signal ${sigusr_two_signal}\\."
   DATAFILES
   fcl/signal_sigint.fcl
   )
@@ -1213,3 +1221,26 @@ cet_test(NonexistentPathCheck_02_t HANDBUILT
 )
 
 include(legacy-tests)
+
+simple_plugin(RPTest "plugin" NO_INSTALL art_Framework_Core)
+simple_plugin(RPTestReader "plugin" NO_INSTALL art_Framework_Core)
+
+cet_test(RPTest_w HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --rethrow-all -c RPTest_w.fcl
+  DATAFILES fcl/RPTest_w.fcl
+)
+
+cet_test(RPTest_w2 HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --rethrow-all -c RPTest_w2.fcl
+  DATAFILES fcl/RPTest_w2.fcl fcl/RPTest_w.fcl
+)
+
+cet_test(RPTest_r HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --rethrow-all -c RPTest_r.fcl
+  DATAFILES fcl/RPTest_r.fcl
+)
+
+set_tests_properties(RPTest_r PROPERTIES DEPENDS "RPTest_w;RPTest_w2")

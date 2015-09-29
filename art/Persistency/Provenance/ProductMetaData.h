@@ -35,8 +35,8 @@ public:
 
   typedef MasterProductRegistry::ProcessLookup ProcessLookup;
   typedef MasterProductRegistry::TypeLookup TypeLookup;
-  using ProductListUpdatedCallback =
-    MasterProductRegistry::ProductListUpdatedCallback;
+  typedef MasterProductRegistry::BranchTypeLookup BranchTypeLookup;
+  typedef MasterProductRegistry::ProductListUpdatedCallback ProductListUpdatedCallback;
 
 public:
 
@@ -102,14 +102,14 @@ public:
   }
 
   // Obtain lookup map to find a group by type of product.
-  std::vector<TypeLookup> const& productLookup() const
+  std::vector<BranchTypeLookup> const& productLookup() const
   {
     return mpr_->productLookup();
   }
 
   // Obtain lookup map to find a group by type of element in a product
   // which is a collection.
-  std::vector<TypeLookup> const& elementLookup() const
+  std::vector<BranchTypeLookup> const& elementLookup() const
   {
     return mpr_->elementLookup();
   }
@@ -145,4 +145,4 @@ operator<<(std::ostream& os, ProductMetaData const& pmd)
 // Local Variables:
 // mode: c++
 // End:
-#endif // art_Persistency_Provenance_ProductMetaData_h
+#endif /* art_Persistency_Provenance_ProductMetaData_h */

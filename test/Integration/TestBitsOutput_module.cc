@@ -55,14 +55,21 @@ class TestBitsOutput;
 
 class arttest::TestBitsOutput : public art::OutputModule {
 public:
-  explicit TestBitsOutput(fhicl::ParameterSet const&);
+
+  struct Config {
+    fhicl::Atom<int>  bitMask { fhicl::Name("bitMask") };
+    fhicl::Atom<bool> expectTriggerResults { fhicl::Name("expectTriggerResults"), true };
+  };
+
+  using Parameters = art::OutputModule::Table<Config>;
+  explicit TestBitsOutput(Parameters const&);
   virtual ~TestBitsOutput();
 
 private:
-  virtual void write(art::EventPrincipal const& e);
-  virtual void writeSubRun(art::SubRunPrincipal const&) {}
-  virtual void writeRun(art::RunPrincipal const&) {}
-  virtual void endJob();
+  void write(art::EventPrincipal & e) override;
+  void writeSubRun(art::SubRunPrincipal &) override {}
+  void writeRun(art::RunPrincipal &) override {}
+  void endJob() override;
 
   std::string name_;
   int bitMask_;
@@ -72,9 +79,11 @@ private:
 
 // -----------------------------------------------------------------
 
-arttest::TestBitsOutput::TestBitsOutput(fhicl::ParameterSet const& ps)
-  : art::OutputModule(ps), bitMask_(ps.get<int>("bitMask")), hltbits_(0),
-    expectTriggerResults_(ps.get<bool>("expectTriggerResults", true))
+arttest::TestBitsOutput::TestBitsOutput(arttest::TestBitsOutput::Parameters const& ps)
+  : art::OutputModule(ps),
+    bitMask_(ps().bitMask()),
+    hltbits_(0),
+    expectTriggerResults_(ps().expectTriggerResults())
 {
 }
 
@@ -82,11 +91,10 @@ arttest::TestBitsOutput::~TestBitsOutput()
 {
 }
 
-void arttest::TestBitsOutput::write(art::EventPrincipal const& ep)
+void arttest::TestBitsOutput::write(art::EventPrincipal & ep)
 {
   assert(currentContext() != 0);
-  Event ev(const_cast<EventPrincipal&>(ep),
-           *currentContext()->moduleDescription());
+  Event ev(ep, *currentContext()->moduleDescription());
   // There should not be a TriggerResults object in the event
   // if all three of the following requirements are met:
   //

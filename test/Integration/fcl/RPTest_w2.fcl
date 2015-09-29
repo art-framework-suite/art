@@ -1,0 +1,3 @@
+#include "RPTest_w.fcl"
+
+source.firstRun: 2

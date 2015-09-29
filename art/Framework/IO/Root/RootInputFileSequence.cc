@@ -59,7 +59,7 @@ RootInputFileSequence(fhicl::ParameterSet const& pset,
   , delayedReadRunProducts_(pset.get<bool>("delayedReadRunProducts", false))
   , forcedRunOffset_(0)
   , setRun_(0U)
-  , groupSelectorRules_(pset, "inputCommands", "InputSource")
+  , groupSelectorRules_(pset.get<std::vector<std::string>>("inputCommands",{"keep *"}), "inputCommands", "InputSource")
   , duplicateChecker_()
   , dropDescendants_(pset.get<bool>("dropDescendantsOfDroppedBranches", true))
   , fastCloningInfo_(fcip)

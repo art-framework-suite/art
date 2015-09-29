@@ -304,11 +304,6 @@ art::BranchDescription::throwIfInvalid_() const
   }
 }
 
-void
-art::BranchDescription::updateFriendlyClassName() {
-  friendlyClassName_ = friendlyname::friendlyName(producedClassName());
-}
-
 bool
 art::operator<(BranchDescription const& a, BranchDescription const& b) {
   if (a.processName() < b.processName()) return true;

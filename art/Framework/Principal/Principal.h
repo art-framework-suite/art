@@ -205,7 +205,7 @@ public: // MEMBER FUNCTIONS
 
   // Flag that we have been updated in the current process.
   void
-  addToProcessHistory() const;
+  addToProcessHistory();
 
   // Obtain the branch type suitable for products inserted into the principal.
   virtual
@@ -283,6 +283,7 @@ private: // TYPES
   // FIXME: Is this to break a circular reference with mpr?
   using ProcessLookup = std::map<std::string const, std::vector<BranchID>>;
   using TypeLookup = std::map<std::string const, ProcessLookup>;
+  using BranchTypeLookup =  std::array<TypeLookup,art::NumBranchTypes>;
 
 private: // MEMBER FUNCTIONS
 
@@ -296,7 +297,7 @@ private: // MEMBER FUNCTIONS
 
   virtual
   void
-  setProcessHistoryID(ProcessHistoryID const&) const = 0;
+  setProcessHistoryID(ProcessHistoryID const&) = 0;
 
   size_t
   findGroupsForProduct(TypeID const& wanted_product, SelectorBase const&,
@@ -360,4 +361,4 @@ private: // MEMBER DATA
 // Local Variables:
 // mode: c++
 // End:
-#endif // art_Framework_Principal_Principal_h
+#endif /* art_Framework_Principal_Principal_h */

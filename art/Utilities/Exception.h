@@ -30,7 +30,7 @@ namespace art {
       DictionaryNotFound,
       InsertFailure,
       Configuration,
-      LogicError,
+      LogicError,    // = 10
       UnimplementedFeature,
       InvalidReference,
       TypeConversion,
@@ -40,7 +40,7 @@ namespace art {
       ScheduleExecutionFailure,
       EventProcessorFailure,
       EndJobFailure,
-      FileOpenError,
+      FileOpenError, // = 20
       FileReadError,
       FatalRootError,
       MismatchedInputFiles,
@@ -50,7 +50,7 @@ namespace art {
       SQLExecutionError,
       InvalidNumber,
       NotFound,
-      ServiceNotFound
+      ServiceNotFound // = 30
     };
 
   }  // errors

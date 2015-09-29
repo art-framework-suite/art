@@ -11,12 +11,13 @@
 #include "art/Framework/Services/Registry/detail/ServiceHelper.h"
 #include "art/Utilities/Exception.h"
 #include "cetlib/demangle.h"
-#include "cpp0x/memory"
-#include "cpp0x/utility"
 #include "fhiclcpp/ParameterSet.h"
+#include "fhiclcpp/types/detail/validationException.h"
 
 #include <cassert>
+#include <memory>
 #include <string>
+#include <utility>
 
 art::detail::ServiceCacheEntry::
 ServiceCacheEntry(fhicl::ParameterSet const & pset,
@@ -106,6 +107,23 @@ makeAndCacheService(ActivityRegistry & reg) const
       service_ = dynamic_cast<detail::ServiceLGMHelper &>(*helper_).make(config_, reg);
     }
   }
+  catch (fhicl::detail::validationException const & e)
+    {
+      std::ostringstream err_stream;
+      std::size_t const width (100);
+      err_stream << "\n"
+                 << std::string(width,'=')
+                 << "\n\n"
+                 << "!! The following service has been misconfigured: !!"
+                 << "\n\n"
+                 << std::string(width,'-')
+                 << "\n\nservice_type: \033[1m" << config_.get<std::string>("service_type") << "\033[0m"
+                 << "\n\n" << e.what()
+                 << "\n"
+                 << std::string(width,'=')
+                 << "\n\n";
+      throw art::Exception(art::errors::Configuration) << err_stream.str();
+    }
   catch (cet::exception & e) {
     throw Exception(errors::OtherArt, "ServiceCreation", e)
         << "cet::exception caught during construction of service type "

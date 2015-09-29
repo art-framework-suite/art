@@ -46,7 +46,7 @@ processHistoryID() const
 
 void
 SubRunPrincipal::
-setProcessHistoryID(ProcessHistoryID const& phid) const
+setProcessHistoryID(ProcessHistoryID const& phid)
 {
   return aux().setProcessHistoryID(phid);
 }

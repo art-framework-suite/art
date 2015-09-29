@@ -160,10 +160,12 @@
 // ======================================================================
 
 #include "art/Framework/Services/Registry/ServiceMacros.h"
+#include "art/Framework/Services/Registry/ServiceTable.h"
 #include "art/Persistency/Common/RNGsnapshot.h"
-#include "cpp0x/memory"
-#include "fhiclcpp/ParameterSet.h"
+#include "fhiclcpp/types/Atom.h"
+#include "fhiclcpp/types/Name.h"
 #include <map>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -211,10 +213,19 @@ public:
   typedef  std::map<label_t,std::string>     kind_t;
   typedef  std::vector<RNGsnapshot>          snapshot_t;
 
+  // --- Allowed configuration
+  struct Config {
+    fhicl::Atom<std::string> restoreStateLabel { fhicl::Name("restoreStateLabel"), "" };
+    fhicl::Atom<std::string> saveTo            { fhicl::Name("saveTo"), "" };
+    fhicl::Atom<std::string> restoreFrom       { fhicl::Name("restoreFrom"), "" };
+    fhicl::Atom<int> nPrint { fhicl::Name("nPrint"), 10 };
+    fhicl::Atom<bool> debug { fhicl::Name("debug"), false };
+  };
+
   // --- C'tor/d'tor:
-  RandomNumberGenerator( fhicl::ParameterSet const &
-                       , art::ActivityRegistry     &
-                       );
+  using Parameters = ServiceTable<Config>;
+  RandomNumberGenerator( Parameters const &,
+                         art::ActivityRegistry & );
 
   // use compiler-generated d'tor
 

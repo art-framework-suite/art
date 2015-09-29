@@ -1,10 +1,12 @@
 #include "art/Framework/Core/OutputModule.h"
 
 #include "art/Framework/Core/CPCSentry.h"
+#include "art/Framework/Core/FileBlock.h"
 #include "art/Framework/Core/detail/OutputModuleUtils.h"
 #include "art/Framework/Principal/CurrentProcessingContext.h"
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Principal/EventPrincipal.h"
+#include "art/Framework/Principal/ResultsPrincipal.h"
 #include "art/Framework/Principal/Run.h"
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRun.h"
@@ -19,39 +21,14 @@
 #include "art/Utilities/Exception.h"
 #include "cetlib/canonical_string.h"
 #include "cetlib/demangle.h"
-#include "cpp0x/utility"
 #include "rapidjson/document.h"
 #include "rapidjson/error/en.h"
+
+#include <utility>
 
 using fhicl::ParameterSet;
 using std::vector;
 using std::string;
-
-
-art::OutputModule::
-OutputModule(ParameterSet const & pset)
-  :
-  EventObserver(pset),
-  keptProducts_(),
-  hasNewlyDroppedBranch_(),
-  groupSelectorRules_(pset, "outputCommands", "OutputModule"),
-  groupSelector_(),
-  maxEvents_(-1),
-  remainingEvents_(maxEvents_),
-  moduleDescription_(),
-  current_context_(0),
-  branchParents_(),
-  branchChildren_(),
-  configuredFileName_(pset.get<std::string>("fileName", "")),
-  dataTier_(pset.get<std::string>("dataTier", "")),
-  streamName_(pset.get<std::string>("streamName", "")),
-  ci_(),
-  pluginFactory_(),
-  pluginNames_(),
-  plugins_(makePlugins_(pset.get<std::vector<fhicl::ParameterSet> >("FCMDPlugins", { })))
-{
-  hasNewlyDroppedBranch_.fill(false);
-}
 
 std::string const &
 art::OutputModule::
@@ -105,6 +82,14 @@ selectProducts(FileBlock const& fb)
 
 void
 art::OutputModule::
+registerProducts(MasterProductRegistry & mpr,
+                 ModuleDescription const & md)
+{
+  doRegisterProducts(mpr, md);
+}
+
+void
+art::OutputModule::
 preSelectProducts(FileBlock const &)
 {
 }
@@ -112,6 +97,13 @@ preSelectProducts(FileBlock const &)
 void
 art::OutputModule::
 postSelectProducts(FileBlock const &)
+{
+}
+
+void
+art::OutputModule::
+doRegisterProducts(MasterProductRegistry &,
+                   ModuleDescription const &)
 {
 }
 
@@ -170,7 +162,7 @@ doEndJob()
 
 bool
 art::OutputModule::
-doEvent(EventPrincipal const & ep,
+doEvent(EventPrincipal & ep,
         CurrentProcessingContext const * cpc)
 {
   detail::CPCSentry sentry(current_context_, cpc);
@@ -228,7 +220,7 @@ doEndRun(RunPrincipal const & rp,
 
 void
 art::OutputModule::
-doWriteRun(RunPrincipal const & rp)
+doWriteRun(RunPrincipal & rp)
 {
   FDEBUG(2) << "writeRun called\n";
   writeRun(rp);
@@ -262,7 +254,7 @@ doEndSubRun(SubRunPrincipal const & srp,
 
 void
 art::OutputModule::
-doWriteSubRun(SubRunPrincipal const & srp)
+doWriteSubRun(SubRunPrincipal & srp)
 {
   FDEBUG(2) << "writeSubRun called\n";
   writeSubRun(srp);
@@ -279,6 +271,14 @@ art::OutputModule::
 doRespondToOpenInputFile(FileBlock const & fb)
 {
   respondToOpenInputFile(fb);
+  std::unique_ptr<ResultsPrincipal> respHolder;
+  art::ResultsPrincipal const * respPtr = fb.resultsPrincipal();
+  if (respPtr == nullptr) {
+    respHolder = std::make_unique<ResultsPrincipal>(ResultsAuxiliary { },
+                                                    description().processConfiguration());
+    respPtr = respHolder.get();
+  }
+  readResults(*respPtr);
 }
 
 void
@@ -331,20 +331,6 @@ reallyCloseFile()
   finishEndFile();
   branchParents_.clear();
   branchChildren_.clear();
-}
-
-art::CurrentProcessingContext const *
-art::OutputModule::
-currentContext() const
-{
-  return current_context_;
-}
-
-art::ModuleDescription const &
-art::OutputModule::
-description() const
-{
-  return moduleDescription_;
 }
 
 void
@@ -434,6 +420,12 @@ openFile(FileBlock const &)
 void
 art::OutputModule::
 respondToOpenInputFile(FileBlock const &)
+{
+}
+
+void
+art::OutputModule::
+readResults(ResultsPrincipal const &)
 {
 }
 
@@ -623,9 +615,10 @@ finishEndFile()
 
 auto
 art::OutputModule::
-makePlugins_(std::vector<fhicl::ParameterSet> const psets)
--> PluginCollection_t
+makePlugins_(fhicl::ParameterSet const & top_pset)
+  -> PluginCollection_t
 {
+  auto const psets = top_pset.get<std::vector<fhicl::ParameterSet>>("FCMDPlugins", {} );
   PluginCollection_t result;
   result.reserve(psets.size());
   size_t count = 0;
@@ -634,11 +627,9 @@ makePlugins_(std::vector<fhicl::ParameterSet> const psets)
       pluginNames_.emplace_back(pset.get<std::string>("plugin_type"));
       auto const & libspec = pluginNames_.back();
       auto const pluginType = pluginFactory_.pluginType(libspec);
-      if (pluginType ==
-          cet::PluginTypeDeducer<FileCatalogMetadataPlugin>::value) {
+      if (pluginType == cet::PluginTypeDeducer<FileCatalogMetadataPlugin>::value) {
         result.emplace_back(pluginFactory_.
-                            makePlugin<std::unique_ptr<FileCatalogMetadataPlugin>,
-                            fhicl::ParameterSet const &>(libspec, pset));
+                            makePlugin<std::unique_ptr<FileCatalogMetadataPlugin> >(libspec, pset));
       } else {
         throw Exception(errors::Configuration, "OutputModule: ")
           << "unrecognized plugin type "
@@ -658,3 +649,4 @@ makePlugins_(std::vector<fhicl::ParameterSet> const psets)
   }
   return result;
 }
+

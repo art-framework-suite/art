@@ -9,10 +9,20 @@
 #include "art/Framework/Principal/View.h"
 #include "art/Framework/Core/ModuleMacros.h"
 #include "cetlib/exception.h"
-#include "fhiclcpp/ParameterSet.h"
+#include "fhiclcpp/types/Atom.h"
 #include <iostream>
 #include <string>
 #include <vector>
+
+namespace {
+
+  using namespace fhicl;
+  struct Config {
+    Atom<std::string> input_label { Name("input_label") };
+    Atom<size_t>      nvalues     { Name("nvalues")     };
+  };
+
+}
 
 namespace arttest {
   class IntTestAnalyzer;
@@ -26,10 +36,11 @@ class arttest::IntTestAnalyzer
 public:
   typedef  std::vector<int>  intvector_t;
 
-  explicit IntTestAnalyzer( fhicl::ParameterSet const & p )
-  : art::EDAnalyzer(p)
-  , moduleLabel_( p.get<std::string>("input_label") )
-  , nvalues_    ( p.get<size_t>("nvalues") )
+  using Parameters = art::EDAnalyzer::Table<Config>;
+  explicit IntTestAnalyzer( art::EDAnalyzer::Table<Config> const & p )
+    : art::EDAnalyzer(p)
+    , moduleLabel_( p().input_label() )
+    , nvalues_    ( p().nvalues() )
   { }
 
   void analyze(art::Event const& e)

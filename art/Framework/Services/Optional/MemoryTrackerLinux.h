@@ -12,12 +12,14 @@
 #include "art/Framework/Services/Optional/detail/LinuxProcMgr.h"
 #include "art/Framework/Services/Optional/detail/MemoryTrackerLinuxCallbackPair.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
+#include "art/Framework/Services/Registry/ServiceTable.h"
 #include "art/Ntuple/Ntuple.h"
 #include "art/Ntuple/sqlite_DBmanager.h"
 #include "art/Persistency/Provenance/EventID.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "cetlib/exempt_ptr.h"
-#include "fhiclcpp/ParameterSet.h"
+#include "fhiclcpp/types/Atom.h"
+#include "fhiclcpp/types/Sequence.h"
 
 #include <bitset>
 #include <memory>
@@ -28,7 +30,16 @@ namespace art {
   class MemoryTracker{
   public:
 
-    MemoryTracker(fhicl::ParameterSet const &, ActivityRegistry &);
+    struct Config {
+      using Name = fhicl::Name;
+      fhicl::Atom<unsigned> ignoreTotal { Name("ignoreTotal"), 1 };
+      fhicl::Sequence<std::string> printSummaries { Name("printSummaries"), { "general", "event", "module" } };
+      fhicl::Atom<std::string> filename { Name("filename"), "" };
+      fhicl::Atom<bool> includeMallocInfo { Name("includeMallocInfo"), false };
+    };
+
+    using Parameters = ServiceTable<Config>;
+    MemoryTracker(ServiceTable<Config> const &, ActivityRegistry &);
 
     // Path level
     void prePathProcessing(std::string const&);
@@ -108,7 +119,7 @@ namespace art {
 
 }  // art
 
-#endif // art_Framework_Services_Optional_MemoryTracker_h
+#endif /* art_Framework_Services_Optional_MemoryTrackerLinux_h */
 
 // Local variables:
 // mode: c++

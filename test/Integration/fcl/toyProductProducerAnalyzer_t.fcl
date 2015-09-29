@@ -1,0 +1,44 @@
+source:
+{
+   module_type: EmptyEvent
+   maxEvents : 100
+}
+
+physics:
+{
+
+   producers:
+   {
+      prod:
+      {
+         module_type: ToyProductProducer
+      }
+   }
+
+   analyzers:
+   {
+      analyzer:
+      {
+         module_type: ToyProductAnalyzer
+         inputLabel: "prod"
+      }
+   }
+
+   p1: [ prod ]
+   e1: [ analyzer ]
+#   e1: [ out1 ]
+
+   trigger_paths: [ p1 ]
+   end_paths: [ e1 ]
+}
+
+outputs: {
+
+   out1 : {
+      module_type: RootOutput
+      fileName: "out1.root"
+   }
+
+}
+
+process_name: ProductAnalyzerTest

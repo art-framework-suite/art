@@ -12,9 +12,10 @@
 #include "art/Framework/Principal/fwd.h"
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/WorkerT.h"
-#include "cpp0x/memory"
 #include "fhiclcpp/ParameterSet.h"
+#include "fhiclcpp/types/Table.h"
 
+#include <memory>
 #include <ostream>
 #include <string>
 
@@ -33,12 +34,51 @@ namespace art
     typedef EDAnalyzer ModuleType;
     typedef WorkerT<EDAnalyzer> WorkerType;
 
-    explicit EDAnalyzer(fhicl::ParameterSet const& pset)
-      : EventObserver(pset)
+    // Configuration
+    struct baseConfig {
+      fhicl::Atom<std::string> module_type { fhicl::Name("module_type") };
+      fhicl::Table<EventObserver::EOConfig> eoConfig {
+        fhicl::Name("SelectEvents"),
+          fhicl::Comment("The 'SelectEvents' table below is optional")
+          };
+    };
+
+    template <typename T>
+    struct fullConfig : baseConfig, T {}; // Multiple inheritance
+                                          // allows 'module-type' key
+                                          // to be listed first in
+                                          // description.
+
+    template < typename userConfig >
+    class Table : public fhicl::Table<fullConfig<userConfig>> {
+    public:
+
+      Table(){}
+
+      Table( fhicl::ParameterSet const& pset ) : Table()
+      {
+        std::set<std::string> const keys_to_ignore = { "module_label" };
+        this->validate_ParameterSet( pset, keys_to_ignore );
+        this->set_PSet( pset );
+      }
+
+    };
+
+    template <typename Config>
+    explicit EDAnalyzer( Table<Config> const& config )
+      : EventObserver( config.get_PSet() )
       , EngineCreator()
       , moduleDescription_()
       , current_context_(0)
-    { }
+    {}
+
+    explicit EDAnalyzer( fhicl::ParameterSet const& pset )
+      : EventObserver( pset )
+      , EngineCreator()
+      , moduleDescription_()
+      , current_context_(0)
+    {}
+
     virtual ~EDAnalyzer();
 
     std::string workerType() const {return "WorkerT<EDAnalyzer>";}

@@ -11,10 +11,11 @@
 #include "boost/thread/tss.hpp"
 #include "cetlib/container_algorithms.h"
 #include "cetlib/demangle.h"
-#include "cpp0x/algorithm"
-#include "cpp0x/memory"
-#include "cpp0x/regex"
 #include "messagefacility/MessageLogger/MessageLogger.h"
+
+#include <algorithm>
+#include <memory>
+#include <regex>
 #include <set>
 #include <sstream>
 

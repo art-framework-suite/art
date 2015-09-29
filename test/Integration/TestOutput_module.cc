@@ -3,6 +3,7 @@
 #include "cetlib/exception.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
+#include "fhiclcpp/types/Atom.h"
 #include <cassert>
 
 namespace arttest {
@@ -11,23 +12,29 @@ namespace arttest {
 
 class arttest::TestOutput : public art::OutputModule {
 public:
-   explicit TestOutput(fhicl::ParameterSet const&);
-   virtual ~TestOutput();
+
+  struct Config{
+    fhicl::Atom<int> shouldPass { fhicl::Name("shouldPass") };
+  };
+
+  using Parameters = art::OutputModule::Table<Config>;
+  explicit TestOutput(Parameters const&);
+  virtual ~TestOutput();
 
 private:
-   virtual void write(art::EventPrincipal const& e);
-   virtual void writeSubRun(art::SubRunPrincipal const&){}
-   virtual void writeRun(art::RunPrincipal const&){}
-   virtual void endJob();
+   void write(art::EventPrincipal & e) override;
+   void writeSubRun(art::SubRunPrincipal &) override {}
+   void writeRun(art::RunPrincipal &) override {}
+   void endJob() override;
 
    int num_pass_;
    int total_;
 };
 
-arttest::TestOutput::TestOutput(fhicl::ParameterSet const& ps):
-   art::OutputModule(ps),
-   num_pass_(ps.get<int>("shouldPass")),
-   total_(0)
+arttest::TestOutput::TestOutput(arttest::TestOutput::Parameters const& ps):
+  art::OutputModule(ps),
+  num_pass_(ps().shouldPass()),
+  total_(0)
 {
 }
 
@@ -35,7 +42,7 @@ arttest::TestOutput::~TestOutput()
 {
 }
 
-void arttest::TestOutput::write(art::EventPrincipal const&)
+void arttest::TestOutput::write(art::EventPrincipal &)
 {
    ++total_;
    assert(currentContext() != 0);

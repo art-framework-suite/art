@@ -45,11 +45,12 @@
 using fhicl::ParameterSet;
 
 namespace {
+
   // Most signals.
   class SignalSentry {
-public:
-    typedef art::GlobalSignal<art::detail::SignalResponseType::FIFO, void> PreSig_t;
-    typedef art::GlobalSignal<art::detail::SignalResponseType::LIFO, void> PostSig_t;
+  public:
+    using PreSig_t  = art::GlobalSignal<art::detail::SignalResponseType::FIFO, void>;
+    using PostSig_t = art::GlobalSignal<art::detail::SignalResponseType::LIFO, void>;
     SignalSentry(SignalSentry const &) = delete;
     SignalSentry & operator=(SignalSentry const &) = delete;
     SignalSentry(PreSig_t & pre, PostSig_t & post)
@@ -60,7 +61,7 @@ public:
     ~SignalSentry() {
       post_.invoke();
     }
-private:
+  private:
     PostSig_t & post_;
   };
 
@@ -101,8 +102,7 @@ private:
                                                           art::getPassID()));
       sourceSpecified = true;
       art::InputSourceDescription isd(md, preg, areg);
-      return std::unique_ptr<art::InputSource>
-        (art::InputSourceFactory::make(main_input, isd).release());
+      return std::unique_ptr<art::InputSource>(art::InputSourceFactory::make(main_input, isd));
     }
     catch (art::Exception const & x) {
       if (sourceSpecified == false &&
@@ -163,11 +163,11 @@ art::EventProcessor::EventProcessor(ParameterSet const & pset)
   ServiceHandle<art::FileCatalogMetadata>()->addMetadataString("process_name", processName);
 
   input_ = makeInput(pset, processName, preg_, actReg_);
+  endPathExecutor_ = std::make_unique<EndPathExecutor>(pathManager_,
+                                                       act_table_,
+                                                       actReg_,
+                                                       preg_);
   initSchedules_(pset);
-  endPathExecutor_.reset(new EndPathExecutor(pathManager_,
-                                             act_table_,
-                                             actReg_,
-                                             preg_));
   FDEBUG(2) << pset.to_string() << std::endl;
   BranchIDListHelper::updateRegistries(preg_);
 }
@@ -177,7 +177,7 @@ art::EventProcessor::~EventProcessor()
   // Populating the destructOperate_ data member will ensure that
   // services stay usable until it goes out of scope, meaning that
   // modules may (say) use services in their destructors.
-  destructorOperate_.reset(new ServiceRegistry::Operate(serviceToken_));
+  destructorOperate_ = std::make_unique<ServiceRegistry::Operate>(serviceToken_);
   // The state machine should have already been cleaned up
   // and destroyed at this point by a call to EndJob or
   // earlier when it completed processing events, but if it
@@ -273,7 +273,7 @@ initServices_(ParameterSet const & top_pset,
       << "Use of services.user parameter set is deprecated.\n"
       << "Define all services in services parameter set.";
   }
-  for (auto const & key : user.get_keys()) {
+  for (auto const & key : user.get_names()) {
     if (user.is_key_to_table(key)) {
       if (!services.has_key(key)) {
         services.put(key, user.get<ParameterSet>(key));
@@ -301,13 +301,12 @@ initServices_(ParameterSet const & top_pset,
   ServiceDirector director(std::move(services), areg, token);
 
   // Services requiring special construction.
-  director.addSystemService(std::make_unique<CurrentModule>(areg));
-  director.addSystemService(std::make_unique<TriggerNamesService>
-                            (top_pset, pathManager_.triggerPathNames()));
-  director.addSystemService(std::make_unique<FloatingPointControl>(fpc_pset, areg));
-  director.addSystemService(std::make_unique<ScheduleContext>());
+  director.addSystemService<CurrentModule>(areg);
+  director.addSystemService<TriggerNamesService>(top_pset, pathManager_.triggerPathNames());
+  director.addSystemService<FloatingPointControl>(fpc_pset, areg);
+  director.addSystemService<ScheduleContext>();
   if (!pathSelection.is_empty()) {
-    director.addSystemService(std::make_unique<PathSelection>(*this));
+    director.addSystemService<PathSelection>(*this);
   }
   return std::move(director);
 }
@@ -323,15 +322,13 @@ initSchedules_(ParameterSet const & pset)
                                   tbb::task_scheduler_init::default_num_threads());
   tbbManager_.initialize(num_threads);
 
-  schedule_ =
-    std::unique_ptr<Schedule>
-    (new Schedule(ScheduleID::first(),
-                  pathManager_,
-                  pset,
-                  ServiceRegistry::instance().get<TriggerNamesService>(),
-                  preg_,
-                  act_table_,
-                  actReg_));
+  schedule_ = std::make_unique<Schedule>(ScheduleID::first(),
+                                         pathManager_,
+                                         pset,
+                                         ServiceRegistry::instance().get<TriggerNamesService>(),
+                                         preg_,
+                                         act_table_,
+                                         actReg_);
 }
 
 void
@@ -390,10 +387,10 @@ art::EventProcessor::runCommon_()
           << fileMode_ << ".\n"
           << "Legal values are 'MERGE', 'NOMERGE', 'FULLMERGE', and 'FULLLUMIMERGE'.\n";
     }
-    machine_.reset(new statemachine::Machine(this,
-                   fileMode,
-                   handleEmptyRuns_,
-                   handleEmptySubRuns_));
+    machine_ = std::make_unique<statemachine::Machine>( this,
+                                                        fileMode,
+                                                        handleEmptyRuns_,
+                                                        handleEmptySubRuns_ );
     machine_->initiate();
   }
   try {
@@ -649,7 +646,7 @@ void
 art::EventProcessor::writeSubRunCache()
 {
   while (!principalCache_.noMoreSubRuns()) {
-    auto const & lowestSubRun = principalCache_.lowestSubRun();
+    auto & lowestSubRun = principalCache_.lowestSubRun();
     if (!lowestSubRun.id().isFlush()) {
       endPathExecutor_->writeSubRun(lowestSubRun);
     }
@@ -662,7 +659,7 @@ void
 art::EventProcessor::writeRunCache()
 {
   while (!principalCache_.noMoreRuns()) {
-    auto const & lowestRun = principalCache_.lowestRun();
+    auto & lowestRun = principalCache_.lowestRun();
     if (!lowestRun.id().isFlush()) {
       endPathExecutor_->writeRun(lowestRun);
     }

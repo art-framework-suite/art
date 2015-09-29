@@ -11,6 +11,7 @@
 #include "cpp0x/memory"
 #include "cpp0x/utility"
 #include "fhiclcpp/ParameterSet.h"
+#include "fhiclcpp/types/detail/validationException.h"
 
 #include <cassert>
 
@@ -22,7 +23,8 @@ ServicesManager(ParameterSets const & psets,
   factory_(),
   index_(),
   requestedCreationOrder_(),
-  actualCreationOrder_()
+  actualCreationOrder_(),
+  configErrMsgs_()
 {
   fillCache_(psets, lm);
 }
@@ -92,8 +94,7 @@ fillCache_(ParameterSets  const & psets, cet::LibraryManager const & lm)
     std::string service_provider(ps.get<std::string>("service_provider", service_name));
     // Get the helper from the library.
     std::unique_ptr<detail::ServiceHelperBase> service_helper {
-      lm.getSymbolByLibspec<SHBCREATOR_t>(service_provider,
-      "create_service_helper")()
+      lm.getSymbolByLibspec<SHBCREATOR_t>(service_provider,"create_service_helper")()
     };
     if (service_helper->is_interface()) {
       throw Exception(errors::LogicError)
@@ -161,10 +162,9 @@ insertImpl_(fhicl::ParameterSet const & pset,
   // Need temporary because we can't guarantee the order of evaluation
   // of the arguments to std::make_pair() below.
   TypeID sType(helper->get_typeid());
-  return
-    factory_.insert(std::make_pair(sType,
-                                   detail::ServiceCacheEntry(pset,
-                                       std::move(helper))));
+  return factory_.insert(std::make_pair(sType,
+                                        detail::ServiceCacheEntry(pset,
+                                                                  std::move(helper))));
 }
 
 void
@@ -178,7 +178,8 @@ insertInterface_(fhicl::ParameterSet const & pset,
   TypeID iType(helper->get_typeid());
   factory_.insert(std::make_pair(iType,
                                  detail::ServiceCacheEntry(pset,
-                                     std::move(helper),
-                                     implEntry->second)));
+                                                           std::move(helper),
+                                                           implEntry->second)));
+
 }
 // ======================================================================

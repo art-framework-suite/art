@@ -7,8 +7,9 @@
 //
 // ======================================================================
 
-#include "cpp0x/regex"
-#include "fhiclcpp/ParameterSet.h"
+#include "art/Persistency/Provenance/BranchType.h"
+#include "art/Persistency/Provenance/BranchKey.h"
+
 #include <string>
 #include <vector>
 
@@ -26,7 +27,7 @@ namespace art {
 class art::GroupSelectorRules
 {
 public:
-  GroupSelectorRules(fhicl::ParameterSet const& pset,
+  GroupSelectorRules(std::vector<std::string> const& commands,
                      std::string const& parameterName,
                      std::string const& parameterOwnerName);
 
@@ -74,17 +75,12 @@ private:
   private:
     // selectflag_ carries the value to which we should set the 'select
     // bit' if this rule matches.
-    bool       selectflag_;
-    std::regex productType_;
-    std::regex moduleLabel_;
-    std::regex instanceName_;
-    std::regex processName_;
+    bool        selectflag_;
+    BranchKey components_;
   };  // Rule
 
 private:
   std::vector<Rule> rules_;
-  std::string       parameterName_;
-  std::string       parameterOwnerName_;
   bool              keepAll_;
 };  // GroupSelectorRules
 

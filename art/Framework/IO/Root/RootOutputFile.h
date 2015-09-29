@@ -11,7 +11,9 @@
 // and RootOutput. This has been entered as issue #2885.
 
 #include "art/Framework/Core/Frameworkfwd.h"
-#include "art/Framework/IO/Root/RootOutput.h"
+#include "art/Framework/Core/OutputModule.h"
+#include "art/Framework/IO/FileStatsCollector.h"
+#include "art/Framework/IO/Root/DropMetaData.h"
 #include "art/Framework/IO/Root/RootOutputTree.h"
 #include "art/Persistency/Provenance/BranchDescription.h"
 #include "art/Persistency/Provenance/BranchID.h"
@@ -35,17 +37,22 @@ class TFile;
 class TTree;
 
 namespace art {
+  class RootOutputFile;
 
-class RootOutput;
-class History;
-class FileBlock;
+  class ResultsPrincipal;
+  class RootOutput;
+  class History;
+  class FileBlock;
+  class EventAuxiliary;
+  class SubRunAuxiliary;
+  class RunAuxiliary;
+  class ResultsAuxiliary;
+}
 
-class RootOutputFile {
-
-
+class art::RootOutputFile {
 public: // TYPES
 
-  using  RootOutputTreePtrArray = std::array<RootOutputTree*, NumBranchTypes>;
+  using  RootOutputTreePtrArray = std::array<std::unique_ptr<RootOutputTree>, NumBranchTypes>;
 
   struct OutputItem {
 
@@ -54,7 +61,7 @@ public: // TYPES
 
     class Sorter {
 
-    public:
+  public:
 
       explicit
       Sorter(TTree* tree);
@@ -62,7 +69,7 @@ public: // TYPES
       bool
       operator()(OutputItem const& lh, OutputItem const& rh) const;
 
-    private:
+  private:
 
       // Maps branch name to branch list index.
       std::map<std::string, int> treeMap_;
@@ -70,39 +77,39 @@ public: // TYPES
     };
 
     ~OutputItem()
-    {
-    }
+      {
+      }
 
     OutputItem()
       : branchDescription_(0)
       , product_(0)
-    {
-    }
+      {
+      }
 
     explicit
     OutputItem(BranchDescription const* bd)
       : branchDescription_(bd)
       , product_(0)
-    {
-    }
+      {
+      }
 
     BranchID
     branchID() const
-    {
-      return branchDescription_->branchID();
-    }
+      {
+        return branchDescription_->branchID();
+      }
 
     std::string const&
     branchName() const
-    {
-      return branchDescription_->branchName();
-    }
+      {
+        return branchDescription_->branchName();
+      }
 
     bool
     operator<(OutputItem const& rh) const
-    {
-      return *branchDescription_ < *rh.branchDescription_;
-    }
+      {
+        return *branchDescription_ < *rh.branchDescription_;
+      }
 
   };
 
@@ -112,7 +119,15 @@ public: // TYPES
 
 public: // MEMBER FUNCTIONS
 
-  explicit RootOutputFile(RootOutput*, std::string const& fileName);
+  explicit RootOutputFile(OutputModule*, std::string const& fileName,
+                          unsigned int const maxFileSize,
+                          int const compressionLevel,
+                          int64_t const saveMemoryObjectThreshold,
+                          int64_t const treeMaxVirtualSize,
+                          int const splitLevel, int const basketSize,
+                          DropMetaData dropMetaData,
+                          bool dropMetaDataForDroppedData,
+                          bool fastCloning);
   // use compiler-generated copy c'tor, copy assignment, and d'tor
   void writeOne(EventPrincipal const&);
   //void endFile();
@@ -131,6 +146,7 @@ public: // MEMBER FUNCTIONS
   void writeFileCatalogMetadata(FileStatsCollector const& stats,
                                 FileCatalogMetadata::collection_type const&,
                                 FileCatalogMetadata::collection_type const&);
+  void writeResults(ResultsPrincipal & resp);
   void finishEndFile();
   void beginInputFile(FileBlock const&, bool fastClone);
   void respondToCloseInputFile(FileBlock const&);
@@ -140,9 +156,9 @@ public: // MEMBER FUNCTIONS
   selectProducts(FileBlock const&);
 
   std::string const& currentFileName() const
-  {
-    return file_;
-  }
+    {
+      return file_;
+    }
 
 private: // MEMBER FUNCTIONS
 
@@ -157,7 +173,16 @@ private: // MEMBER FUNCTIONS
 private: // MEMBER DATA
 
   std::string file_;
-  RootOutput const* om_;
+  OutputModule const* om_;
+  unsigned int const maxFileSize_;
+  int const compressionLevel_;
+  int64_t const saveMemoryObjectThreshold_;
+  int64_t const treeMaxVirtualSize_;
+  int const splitLevel_;
+  int const basketSize_;
+  DropMetaData dropMetaData_;
+  bool dropMetaDataForDroppedData_;
+  bool fastCloning_;
   bool currentlyFastCloning_;
   std::shared_ptr<TFile> filePtr_;
   FileIndex fileIndex_;
@@ -171,16 +196,16 @@ private: // MEMBER DATA
   EventAuxiliary const* pEventAux_;
   SubRunAuxiliary const* pSubRunAux_;
   RunAuxiliary const* pRunAux_;
+  ResultsAuxiliary const *pResultsAux_;
   ProductProvenances eventProductProvenanceVector_;
   ProductProvenances subRunProductProvenanceVector_;
   ProductProvenances runProductProvenanceVector_;
+  ProductProvenances resultsProductProvenanceVector_;
   ProductProvenances* pEventProductProvenanceVector_;
   ProductProvenances* pSubRunProductProvenanceVector_;
   ProductProvenances* pRunProductProvenanceVector_;
+  ProductProvenances* pResultsProductProvenanceVector_;
   History const* pHistory_;
-  RootOutputTree eventTree_;
-  RootOutputTree subRunTree_;
-  RootOutputTree runTree_;
   RootOutputTreePtrArray treePointers_;
   bool dataTypeReported_;
   std::set<BranchID> branchesWithStoredHistory_;
@@ -189,9 +214,7 @@ private: // MEMBER DATA
 
 };
 
-} // namespace art
-
 // Local Variables:
 // mode: c++
 // End:
-#endif // art_Framework_IO_Root_RootOutputFile_h
+#endif /* art_Framework_IO_Root_RootOutputFile_h */

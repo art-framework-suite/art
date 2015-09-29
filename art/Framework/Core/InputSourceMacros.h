@@ -10,7 +10,7 @@
     std::unique_ptr<art::InputSource>                                   \
     make(fhicl::ParameterSet const &ps,                                 \
          art::InputSourceDescription &desc)                             \
-    { return std::unique_ptr<art::InputSource>(new klass(ps, desc)); }  \
+    { return std::make_unique< klass >(ps, desc); }                     \
   }
 
 #endif /* art_Framework_Core_InputSourceMacros_h */

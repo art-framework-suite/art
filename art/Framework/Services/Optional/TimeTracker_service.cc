@@ -28,10 +28,10 @@ namespace {
 // ======================================================================
 
 art::
-TimeTracker::TimeTracker(fhicl::ParameterSet const& iPS, ActivityRegistry& iRegistry)
-  : printSummary_(iPS.get<bool>("printSummary", true))
-  , dbMgr_            ( iPS.get<std::string>("dbOutput.filename","") )
-  , overwriteContents_( iPS.get<bool>("dbOutput.overwrite",false) )
+TimeTracker::TimeTracker(ServiceTable<Config> const & config, ActivityRegistry& iRegistry)
+  : printSummary_( config().printSummary() )
+  , dbMgr_            ( config().dbOutput().filename() )
+  , overwriteContents_( config().dbOutput().overwrite() )
     // table headers
   , timeReportTuple_( {"ReportType","Min","Mean","Max","Median","RMS","nEvts" } )
   , timeEventTuple_ ( {"Run","Subrun","Event","Time" } )

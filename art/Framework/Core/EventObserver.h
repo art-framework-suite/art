@@ -6,6 +6,8 @@
 #include "art/Framework/Core/CachedProducts.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/ParameterSetID.h"
+#include "fhiclcpp/types/Sequence.h"
+#include "fhiclcpp/types/Table.h"
 
 #include <string>
 
@@ -37,7 +39,16 @@ protected:
   // The process and event selectors, as specified by
   // the SelectEvents configuration parameter.
   detail::CachedProducts selectors_;
-  explicit EventObserver(fhicl::ParameterSet const& pset);
+
+  struct EOConfig {
+    fhicl::Sequence<std::string> selectEvents {
+      fhicl::Name("SelectEvents"),
+      fhicl::Comment("The following parameter is a user-provided list\n"
+                     "of filter paths. The default list is empty."),
+      fhicl::Sequence<std::string>::make_empty() };
+  };
+
+  explicit EventObserver(fhicl::ParameterSet const& config);
   virtual ~EventObserver();
 
 private:

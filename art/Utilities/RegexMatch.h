@@ -3,7 +3,7 @@
 #ifndef art_Utilities_RegexMatch_h
 #define art_Utilities_RegexMatch_h
 
-#include "cpp0x/regex"
+#include <regex>
 #include <string>
 #include <vector>
 

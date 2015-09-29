@@ -3,7 +3,7 @@
 #include "art/Utilities/Exception.h"
 #include "art/Utilities/InputTag.h"
 
-#include "cpp0x/regex"
+#include <regex>
 
 #include "TIterator.h"
 #include "TObjArray.h"

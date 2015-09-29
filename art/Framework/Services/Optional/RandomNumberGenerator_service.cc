@@ -55,7 +55,6 @@
 #include "art/Framework/Principal/Handle.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "cetlib/exception.h"
-#include "fhiclcpp/ParameterSet.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 #include <cassert>
 #include <fstream>
@@ -81,16 +80,6 @@ namespace {
   typedef  RNGservice::seed_t            seed_t;
   typedef  RNGservice::base_engine_t     base_engine_t;
 
-  bool         const  DEFAULT_DEBUG_VALUE( false );
-  int          const  DEFAULT_NPRINT_VALUE( 10 );
-  ParameterSet const  DEFAULT_PSET
-#if (__GNUC__ == 4 && __GNUC_MINOR__ == 6) || defined __ICC && __INTEL_COMPILER_BUILD_DATE <= 20140120
- // Required by C++03 & C++2011; GCC v4.6 became more strict. ISO agreed
- // to relax.
-  = ParameterSet()
-#endif
-;
-  string       const  EMPTY_STRING( "" );
   string       const  DEFAULT_ENGINE_KIND( "HepJamesRandom" );
   seed_t       const  MAXIMUM_CLHEP_SEED( 900000000 );
   seed_t       const  USE_DEFAULT_SEED( -1 );
@@ -204,19 +193,18 @@ namespace {
 // ======================================================================
 
 RNGservice::
-RandomNumberGenerator( ParameterSet const    & pset
-                     , art::ActivityRegistry & reg
-                     )
+RandomNumberGenerator(Parameters const & config,
+                      art::ActivityRegistry & reg)
 : engine_creation_is_okay_( true )
 , dict_                   ( )
 , tracker_                ( )
 , kind_                   ( )
 , snapshot_               ( )
-, restoreStateLabel_      ( pset.get<string>("restoreStateLabel", EMPTY_STRING) )
-, saveToFilename_         ( pset.get<string>("saveTo", EMPTY_STRING) )
-, restoreFromFilename_    ( pset.get<string>("restoreFrom", EMPTY_STRING) )
-, nPrint_                 ( pset.get<int>( "nPrint", DEFAULT_NPRINT_VALUE) )
-, debug_                  ( pset.get<bool>( "debug", DEFAULT_DEBUG_VALUE) )
+, restoreStateLabel_      ( config().restoreStateLabel() )
+, saveToFilename_         ( config().saveTo() )
+, restoreFromFilename_    ( config().restoreFrom() )
+, nPrint_                 ( config().nPrint() )
+, debug_                  ( config().debug() )
 {
   // Register for callbacks:
   reg.sPostBeginJob.watch   (this, & RNGservice::postBeginJob   );

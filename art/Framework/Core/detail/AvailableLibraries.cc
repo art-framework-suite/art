@@ -1,4 +1,5 @@
 #include "art/Framework/Core/detail/AvailableLibraries.h"
+#include "art/Framework/Core/detail/PrintFormatting.h"
 #include "boost/filesystem.hpp"
 #include "cetlib/LibraryManager.h"
 #include "cetlib/search_path.h"
@@ -8,14 +9,17 @@
 #include <regex>
 
 namespace bfs = boost::filesystem;
+using namespace art::detail;
 using namespace std::string_literals;
 using cet::LibraryManager;
-using art::detail::LibraryInfo;
 
 namespace {
 
+  std::string const empty_description = "\n"s + indent__2() + "[ provided in future release ]"s;
+
   typedef art::ModuleType (ModuleTypeFunc_t) ();
   typedef std::string     (GetSourceLoc_t  ) ();
+  typedef std::ostream&   (GetDescription_t) (std::ostream&, std::string const&);
 
   std::string getFilePath( LibraryManager const& lm,
                            std::string const& fullspec,
@@ -54,6 +58,25 @@ namespace {
     return type;
   }
 
+  std::string getDescription( LibraryManager const& lm,
+                              std::string const& fullSpec,
+                              std::string const& tab)
+  {
+    std::string description;
+    try {
+      GetDescription_t * symbolType = nullptr;
+      lm.getSymbolByLibspec(fullSpec, "print_description", symbolType);
+      std::ostringstream oss;
+      (*symbolType)(oss,tab);
+      description = oss.str();
+    }
+    catch ( cet::exception const & e ) {
+      std::cout << "In: " << __func__ << std::endl;
+      std::cout << e.what() << std::endl;
+    }
+    return description;
+  }
+
   std::string getServiceType( std::string const& fullSpec )
 
   {
@@ -72,7 +95,8 @@ namespace {
 
 void
 art::detail::getModuleLibraries( LibraryInfoContainer& map,
-                                 std::string const & pattern)
+                                 std::string const & pattern,
+                                 std::string const & tab)
 {
   LibraryManager lm("module",pattern);
 
@@ -81,11 +105,12 @@ art::detail::getModuleLibraries( LibraryInfoContainer& map,
 
   for ( const auto & lib : liblist ) {
 
-    auto const libspecs = lm.getSpecsByPath( lib );
+    auto const & libspecs = lm.getSpecsByPath( lib );
 
-    std::string const type   = getModuleType( lm, libspecs.second );
-    std::string const source = getFilePath( lm, libspecs.second, "module" );
-    map.push_back( libspecs.first, LibraryInfo(libspecs.second,lib,source,type) );
+    std::string const type   = getModuleType ( lm, libspecs.second );
+    std::string const source = getFilePath   ( lm, libspecs.second, "module" );
+    std::string const desc   = getDescription( lm, libspecs.second, tab );
+    map.emplace( libspecs.first, LibraryInfo(libspecs.second,lib,source,type,desc) );
 
   }
 
@@ -104,16 +129,30 @@ art::detail::getSourceLibraries( LibraryInfoContainer& map,
 
     auto const libspecs = lm.getSpecsByPath( lib );
     std::string const source = getFilePath( lm, libspecs.second, "source" );
-    map.push_back( libspecs.first, LibraryInfo(libspecs.second,lib,source,"source") );
+    map.emplace( libspecs.first, LibraryInfo(libspecs.second,lib,source,"source",
+                                             empty_description ) );
 
   }
 
 }
 
+namespace {
+
+  // These services are not configurable by users.
+  std::set<std::string> const systemServicesToIgnore {
+    "CurrentModule",
+    "PathSelection",
+    "ScheduleContext",
+    "TriggerNamesService"
+  };
+
+
+}
 
 void
 art::detail::getServiceLibraries( LibraryInfoContainer& map,
-                                  std::string const & pattern )
+                                  std::string const & pattern,
+                                  std::string const & tab)
 {
   LibraryManager lm( "service", pattern);
 
@@ -122,19 +161,26 @@ art::detail::getServiceLibraries( LibraryInfoContainer& map,
 
   for ( const auto & lib : liblist ) {
 
-    auto const libspecs = lm.getSpecsByPath( lib );
+    auto const & libspecs = lm.getSpecsByPath( lib );
+
+    // Skip non-configurable system services
+    if ( systemServicesToIgnore.find( libspecs.first ) !=
+         systemServicesToIgnore.cend() ) continue;
 
     std::string const fullSpec = libspecs.second;
     std::string const type     = getServiceType( fullSpec );
     std::string const source   = getFilePath( lm, fullSpec, "service" );
+    std::string const desc     = getDescription( lm, fullSpec, tab );
 
-    map.push_back( libspecs.first, LibraryInfo("[ none ]",lib,source,type) );
+    map.emplace( libspecs.first, LibraryInfo("[ none ]",lib,source,type,desc) );
 
   }
 
-  // Add by some libraries by hand
-  map.push_back( "message", LibraryInfo("[ none ]","[ none ]",
-                                        "[ See https://cdcvs.fnal.gov/redmine/projects/art/wiki/Messagefacility ]",
-                                        "system"
-                                        ) );
+  // Message facility
+  map.emplace( "message", LibraryInfo("[ none ]","[ none ]",
+                                      "[ See https://cdcvs.fnal.gov/redmine/projects/art/wiki/Messagefacility ]",
+                                      "system",
+                                      empty_description
+                                      ) );
+
 }

@@ -6,7 +6,7 @@ value = "EmptyEventTimestampPlugin";
 
 art::EmptyEventTimestampPlugin::
 EmptyEventTimestampPlugin(fhicl::ParameterSet const &)
-:
+  :
   lastEventTimestamp_(Timestamp::invalidTimestamp())
 {
 }

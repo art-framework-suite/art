@@ -5,6 +5,7 @@
 #include "art/Utilities/Exception.h"
 #include "art/Utilities/GetPassID.h"
 #include "cetlib/container_algorithms.h"
+#include "fhiclcpp/types/detail/validationException.h"
 
 using fhicl::ParameterSet;
 
@@ -135,7 +136,8 @@ PathManager(ParameterSet const & procPS,
   protoEndPathInfo_(),
   triggerPathNames_(processPathConfigs_()),
   endPathInfo_(),
-  triggerPathsInfo_()
+  triggerPathsInfo_(),
+  configErrMsgs_()
 {
 }
 
@@ -212,7 +214,7 @@ fillAllModules_()
   for (auto const & pathRootName :
          detail::ModuleConfigInfo::allModulePathRoots()) {
     auto const pathRoot = procPS_.get<ParameterSet>(pathRootName, empty);
-    for (auto const & name : pathRoot.get_keys()) {
+    for (auto const & name : pathRoot.get_names()) {
       try {
         detail::ModuleConfigInfo mci(procPS_, name, pathRootName);
         auto actualModType = fact_.moduleType(mci.libSpec());
@@ -284,7 +286,7 @@ processPathConfigs_()
   };
   ParameterSet empty;
   auto const physics = procPS_.get<ParameterSet>("physics", empty);
-  auto const keys = physics.get_keys();
+  auto const keys = physics.get_names();
   vstring path_names;
   std::set_difference(keys.cbegin(),
                       keys.cend(),
@@ -491,12 +493,21 @@ makeWorker_(detail::ModuleConfigInfo const & mci,
                                               getReleaseVersion(),
                                               getPassID()));
     areg_.sPreModuleConstruction.invoke(md);
-    auto worker = fact_.makeWorker(p, md);
-    areg_.sPostModuleConstruction.invoke(md);
-    it = workers.
-         emplace(mci.label(),
-                 std::move(worker)).first;
-    it->second->setActivityRegistry(&areg_);
+    try {
+      auto worker = fact_.makeWorker(p, md);
+      areg_.sPostModuleConstruction.invoke(md);
+      it = workers.
+        emplace(mci.label(),
+                std::move(worker)).first;
+      it->second->setActivityRegistry(&areg_);
+    }
+    catch ( fhicl::detail::validationException const & e ) {
+      std::ostringstream err_stream;
+      err_stream << "\n\nModule label: \033[1m" << md.moduleLabel() << "\033[0m"
+                 <<   "\nmodule_type : \033[1m" << md.moduleName() <<  "\033[0m"
+                 << "\n\n" << e.what();
+      configErrMsgs_.push_back( err_stream.str() );
+    }
   }
   return it->second.get();
 }
@@ -512,9 +523,33 @@ fillWorkers_(int bitpos,
 {
   assert(!modInfos.empty());
   std::vector<WorkerInPath> pathWorkers;
+  std::ostringstream config_error_stream;
   for (auto const & mci : modInfos) {
     makeWorker_(mci, workers, pathWorkers);
   }
+
+  if ( configErrMsgs_.size() ) {
+    std::size_t const width (100);
+    std::ostringstream err_msg;
+    err_msg << "\n"
+            << std::string(width,'=')
+            << "\n\n"
+            << "!! The following modules have been misconfigured: !!"
+            << "\n";
+    for ( auto const& err : configErrMsgs_ ) {
+      err_msg << "\n"
+              << std::string(width,'-')
+              << "\n"
+              << err;
+    }
+    err_msg << "\n"
+            << std::string(width,'=')
+            << "\n\n";
+
+    throw art::Exception(art::errors::Configuration) << err_msg.str();
+
+  }
+
   return std::unique_ptr<art::Path>
     (new art::Path(bitpos,
                    pathName,

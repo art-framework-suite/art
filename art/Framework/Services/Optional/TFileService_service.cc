@@ -27,15 +27,16 @@ using fhicl::ParameterSet;
 
 // ----------------------------------------------------------------------
 
-TFileService::TFileService(ParameterSet const & cfg,
+TFileService::TFileService(ServiceTable<Config> const & config,
                            ActivityRegistry & r)
-  :
-  TFileDirectory("", "", nullptr, ""),
-  closeFileFast_(cfg.get<bool>("closeFileFast", false)),
-  fstats_(cfg.get<std::string>("service_type"),
-          ServiceHandle<TriggerNamesService>()->getProcessName()),
-  filePattern_(cfg.get<string>("fileName")),
-  uniqueFilename_(unique_filename(cfg.get<string>("tmpDir", parent_path(filePattern_)) + "/TFileService"))
+  : TFileDirectory("", "", nullptr, "")
+  , closeFileFast_( config().closeFileFast() )
+  , fstats_( config.get_PSet().get<std::string>("service_type"),
+             ServiceHandle<TriggerNamesService>()->getProcessName() )
+  , filePattern_( config().fileName() )
+  , uniqueFilename_(unique_filename( (config().tmpDir() == default_tmpDir ?
+                                      parent_path(filePattern_) :
+                                      config().tmpDir() ) + "/TFileService" ) )
 {
   assert(file_ == nullptr && "TFile pointer should always be zero here!");
   file_ = new TFile(uniqueFilename_.c_str(), "RECREATE");

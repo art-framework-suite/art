@@ -10,7 +10,10 @@
 #include "art/Framework/Services/Optional/detail/constrained_multimap.h"
 #include "art/Framework/Services/Optional/detail/LinuxProcData.h"
 #include "art/Framework/Services/Optional/detail/LinuxProcMgr.h"
+#include "art/Framework/Services/Registry/ServiceTable.h"
 #include "art/Persistency/Provenance/EventID.h"
+#include "fhiclcpp/types/Atom.h"
+#include "fhiclcpp/types/Name.h"
 
 #include <memory>
 
@@ -19,16 +22,22 @@ namespace art   {
   class Event;
   class ModuleDescription;
 }
-namespace fhicl {
-  class ParameterSet;
-}
 
 namespace art {
 
   class SimpleMemoryCheck {
   public:
 
-    SimpleMemoryCheck(fhicl::ParameterSet const &, ActivityRegistry &);
+    struct Config {
+      fhicl::Atom<unsigned> ignoreTotal { fhicl::Name("ignoreTotal"), 1 };
+      fhicl::Atom<bool> truncateSummary { fhicl::Name("truncateSummary"), true };
+      fhicl::Atom<bool> showMallocInfo  { fhicl::Name("showMallocInfo"), false };
+      fhicl::Atom<bool> oncePerEventMode { fhicl::Name("oncePerEventMode"), false };
+      fhicl::Atom<bool> moduleMemorySummary { fhicl::Name("moduleMemorySummary"), false };
+    };
+
+    using Parameters = ServiceTable<Config>;
+    SimpleMemoryCheck(Parameters const &, ActivityRegistry &);
 
     void postSource();
 
@@ -110,7 +119,7 @@ namespace art {
 
 }  // art
 
-#endif // art_Framework_Services_Optional_SimpleMemoryCheckLinux_h
+#endif /* art_Framework_Services_Optional_SimpleMemoryCheckLinux_h */
 
 // Local variables:
 // mode: c++

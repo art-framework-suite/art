@@ -58,7 +58,7 @@ Principal(ProcessConfiguration const& pc, ProcessHistoryID const& hist,
 
 void
 Principal::
-addToProcessHistory() const
+addToProcessHistory()
 {
   if (processHistoryModified_) {
     return;
@@ -212,8 +212,8 @@ getMatchingSequence(TypeID const& elementType, SelectorBase const& selector,
   }
   size_t ret = 0;
   for (auto const& el : ProductMetaData::instance().elementLookup()) {
-    auto I = el.find(elementType.friendlyClassName());
-    if (I == el.end()) {
+    auto I = el[branchType()].find(elementType.friendlyClassName());
+    if (I == el[branchType()].end()) {
       continue;
     }
     ret = findGroups(I->second, selector, results, stopIfProcessHasMatch);
@@ -238,8 +238,8 @@ getMatchingSequence(TypeID const& elementType, SelectorBase const& selector,
     // elementLookup vector for this secondary file.
     auto const& el =
       ProductMetaData::instance().elementLookup()[nextSecondaryFileIdx_];
-    auto I = el.find(elementType.friendlyClassName());
-    if (I == el.end()) {
+    auto I = el[branchType()].find(elementType.friendlyClassName());
+    if (I == el[branchType()].end()) {
       continue;
     }
     ret = findGroups(I->second, selector, results, stopIfProcessHasMatch);
@@ -277,16 +277,16 @@ findGroupsForProduct(TypeID const& wanted_product,
   ////////////////////////////////////
   size_t ret = 0;
   for (auto const& pl : ProductMetaData::instance().productLookup()) {
-    auto I = pl.find(wanted_product.friendlyClassName());
-    if (I == pl.end()) {
+    auto I = pl[branchType()].find(wanted_product.friendlyClassName());
+    if (I == pl[branchType()].end()) {
       continue;
     }
     rt = Reflex::Type::ByName(wrappedClassName(wanted_product.className()));
     if (!rt) {
       throw Exception(errors::DictionaryNotFound)
-    << "Dictionary not found for "
-    << wrappedClassName(wanted_product.className())
-    << ".\n";
+        << "Dictionary not found for "
+        << wrappedClassName(wanted_product.className())
+        << ".\n";
     }
     ret = findGroups(I->second, selector, results, stopIfProcessHasMatch,
                      TypeID(rt.TypeInfo()));
@@ -311,8 +311,8 @@ findGroupsForProduct(TypeID const& wanted_product,
     // productLookup vector for this secondary file.
     auto const& pl =
       ProductMetaData::instance().productLookup()[nextSecondaryFileIdx_];
-    auto I = pl.find(wanted_product.friendlyClassName());
-    if (I == pl.end()) {
+    auto I = pl[branchType()].find(wanted_product.friendlyClassName());
+    if (I == pl[branchType()].end()) {
       continue;
     }
     rt = Reflex::Type::ByName(wrappedClassName(wanted_product.className()));
@@ -369,8 +369,9 @@ findGroupsForProcess(std::vector<BranchID> const& vbid,
                      GroupQueryResultVec& res,
                      TypeID wanted_wrapper) const
 {
-  for (auto I = vbid.cbegin(), E = vbid.cend(); I != E; ++I) {
-    auto group = getGroup(*I);
+
+  for (auto const bid : vbid) {
+    auto group = getGroup(bid);
     if (!group) {
       continue;
     }

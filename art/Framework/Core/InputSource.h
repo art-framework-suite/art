@@ -13,7 +13,8 @@
 #include "art/Persistency/Provenance/EventID.h"
 #include "art/Persistency/Provenance/RunID.h"
 #include "art/Persistency/Provenance/SubRunID.h"
-#include "cpp0x/memory"
+
+#include <memory>
 
 namespace art
 {

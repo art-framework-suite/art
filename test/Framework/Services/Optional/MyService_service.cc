@@ -39,7 +39,7 @@ MyService::MyService(ParameterSet const & pset, art::ActivityRegistry&)
   mf::LogVerbatim("DEBUG") << "Contents of parameter set:";
   mf::LogVerbatim("DEBUG") << "";
   mf::LogVerbatim("DEBUG") << val;
-  vector<string> keys = pset.get_pset_keys();
+  vector<string> keys = pset.get_pset_names();
   for (vector<string>::iterator I = keys.begin(), E = keys.end();
       I != E; ++I) {
     mf::LogVerbatim("DEBUG") << "key: " << *I;

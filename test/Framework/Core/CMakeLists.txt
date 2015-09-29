@@ -74,7 +74,6 @@ foreach(cppunit_source ${cppunit_files})
 endforeach()
 
 foreach(cpp_test
-    GroupSelector_t
     EventSelector_t
     EventSelWildcard_t
     EventSelExc_t
@@ -86,3 +85,7 @@ foreach(cpp_test
     LIBRARIES ${default_test_libraries}
     )
 endforeach()
+
+cet_test(GroupSelector_t USE_BOOST_UNIT
+  LIBRARIES ${default_test_libraries}
+)

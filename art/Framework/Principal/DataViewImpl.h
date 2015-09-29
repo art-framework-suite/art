@@ -253,8 +253,8 @@ template <typename PROD>
 inline
 bool
 art::DataViewImpl::getByLabel(std::string const& label,
-                         std::string const& productInstanceName,
-                         Handle<PROD>& result) const
+                              std::string const& productInstanceName,
+                              Handle<PROD>& result) const
 {
   result.clear();
   GroupQueryResult bh = this->getByLabel_(TypeID(typeid(PROD)), label, productInstanceName, std::string());
