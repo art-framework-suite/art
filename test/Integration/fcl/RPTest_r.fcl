@@ -6,21 +6,30 @@ source: {
 }
 
 physics: {
-  e2: [ o2 ]
+  e2: [ o1 ]
 }
 
 outputs: {
-  o2: {
+  o1: {
     module_type: RootOutput
     fileName: "out.root"
     results: {
       producers: {
-        rp2: {
+        rpr1: {
           plugin_type: RPTestReader
-          intResultsLabel: "o1#rp1"
+          intResultsLabel: "o1#rpw"
+          nResultsExpected: 2
+        }
+        rpr2: {
+          plugin_type: RPTestReader
+          intResultsLabel: "o1#rpw"
+          nResultsExpected: 3
+        }
+        rpw: {
+          plugin_type: RPTest
         }
       }
-      rpath: [ rp2 ]
+      rpath: [ rpr1, rpw, rpr2 ]
     }
   }
 }
