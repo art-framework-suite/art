@@ -26,6 +26,12 @@ cet_test(artapp_t USE_BOOST_UNIT
   fcl/opt-empty.fcl
 )
 
+cet_test(artapp_basicSourceOptions_t 
+  USE_BOOST_UNIT
+  LIBRARIES
+  art_Framework_Art
+  )
+
 ########################################################################
 # OptionsHandler tests.
 
@@ -279,7 +285,6 @@ config_test_pass(BasicSourceOptions_05_w)
 
 # Compare output from BasicSourceOptions_05_w against reference.
 config_ref_test(BasicSourceOptions_05)
-
 
 ####################################
 # BasicPostProcessor.

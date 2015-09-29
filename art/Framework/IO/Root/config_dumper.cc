@@ -273,6 +273,8 @@ int print_psets_from_files(stringvec const & file_names,
              << "\nSkipping to next file.\n";
     }
     else {
+      std::cout << "=============================================\n";
+      std::cout << "Processing file: " << *i << std::endl;
       rc += print_pset_from_file(*current_file,
                                  filters,
                                  mode,
