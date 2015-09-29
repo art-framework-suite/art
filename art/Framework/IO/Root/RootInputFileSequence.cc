@@ -109,6 +109,10 @@ RootInputFileSequence(fhicl::ParameterSet const& pset,
     while (stk.size()) {
       auto val = stk.back();
       stk.pop_back();
+      if (val.first == val.second) {
+        // Reached end of this filename list.
+        continue;
+      }
       auto const& fn = *val.first;
       ++val.first;
       secondaries.push_back(fn);

@@ -53,10 +53,23 @@ simple_plugin(TestMod module NO_INSTALL ${CPPUNIT})
 
 # cppunit tests en masse.
 file(GLOB cppunit_files *.cppunit.cc)
+
+########################################################################
+# If any cppunit tests require more libraries than the default, specify
+# them in a ${target}_libs variable.
+
+# We invoke MasterProductRegistry so we need some dictionaries.
+set(maker2_t_libs
+  art_Persistency_WrappedStdDictionaries_dict
+  art_Persistency_StdDictionaries_dict
+  art_Persistency_Common_dict
+  )
+########################################################################
+
 foreach(cppunit_source ${cppunit_files})
   get_filename_component(test_name ${cppunit_source} NAME_WE )
   cet_test(${test_name} SOURCES testRunner.cpp ${cppunit_source}
-    LIBRARIES ${default_test_libraries} ${CPPUNIT}
+    LIBRARIES ${${test_name}_libs} ${default_test_libraries} ${CPPUNIT}
     )
 endforeach()
 

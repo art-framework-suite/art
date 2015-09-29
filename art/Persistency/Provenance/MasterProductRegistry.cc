@@ -13,20 +13,18 @@
 
 namespace art {
 
-// FIXME: The results are only printed out when freezing, and
-// FIXME: so we do not notice problems with the second and
-// FIXME: following primary files, nor with secondary files.
 static
 void
 checkDicts(art::BranchDescription const& productDesc)
 {
   if (productDesc.transient()) {
+    art::checkDictionaries(productDesc.wrappedName(), true);
     art::checkDictionaries(productDesc.producedClassName(), true);
   }
   else {
-    art::checkDictionaries(
-      art::wrappedClassName(productDesc.producedClassName()), false);
+    art::checkDictionaries(productDesc.wrappedName(), false);
   }
+  reportFailedDictionaryChecks();
 }
 
 static
@@ -206,6 +204,7 @@ updateFromNewPrimaryFile(ProductList const& other, std::string const& fileName,
         // FIXME: This probably cannot happen because of
         // FIXME: the way dropping is done by the output!
         // Allow it if it was dropped from the new input file.
+        checkDicts(J->second);
         productList_.insert(*J);
         perFileProds_[0].insert(*J);
       }
@@ -262,10 +261,10 @@ void
 MasterProductRegistry::
 setFrozen()
 {
-  reportFailedDictionaryChecks();
   if (frozen_) {
     return;
   }
+  reportFailedDictionaryChecks();
   frozen_ = true;
   productLookup_.clear();
   productLookup_.resize(1);

@@ -37,7 +37,13 @@ function(simple_plugin name type)
     set(simple_plugin_liblist)
   endif()
   if("${type}" STREQUAL "service")
-    list(INSERT simple_plugin_liblist 0 art_Framework_Services_Registry fhiclcpp cetlib)
+    list(INSERT simple_plugin_liblist 0
+      art_Framework_Services_Registry
+      fhiclcpp
+      cetlib
+      ${Boost_FILESYSTEM_LIBRARY}
+      ${Boost_SYSTEM_LIBRARY}
+      )
   elseif("${type}" STREQUAL "module" OR "${type}" STREQUAL "source")
     list(INSERT simple_plugin_liblist 0
       art_Framework_Core
@@ -48,11 +54,15 @@ function(simple_plugin name type)
       fhiclcpp
       cetlib
       ${ROOT_CORE}
+      ${Boost_FILESYSTEM_LIBRARY}
+      ${Boost_SYSTEM_LIBRARY}
       )
   endif()
   if ("${type}" STREQUAL "source")
     list(INSERT simple_plugin_liblist 0
       art_Framework_IO_Sources
+      ${Boost_FILESYSTEM_LIBRARY}
+      ${Boost_SYSTEM_LIBRARY}
       )
   endif()
   check_ups_version(cetbuildtools ${CETBUILDTOOLS_VERSION} v4_05_00 PRODUCT_MATCHES_VAR BP_HAS_SOURCE)

@@ -1147,6 +1147,7 @@ add_subdirectory(test_tiered_input_01)
 add_subdirectory(test_tiered_input_02)
 add_subdirectory(test_tiered_input_03)
 add_subdirectory(test_tiered_input_04)
+add_subdirectory(test_tiered_input_05)
 
 add_subdirectory(event-shape)
 add_subdirectory(high-memory)

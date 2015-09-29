@@ -69,8 +69,9 @@ configure(OutputModuleDescription const & desc)
 
 void
 art::OutputModule::
-selectProducts(FileBlock const& /*fb*/)
+selectProducts(FileBlock const& fb)
 {
+  preSelectProducts(fb);
   groupSelector_.initialize(groupSelectorRules_,
                             ProductMetaData::instance().productList());
   // TODO: See if we can collapse keptProducts_ and groupSelector_ into a
@@ -95,6 +96,19 @@ selectProducts(FileBlock const& /*fb*/)
     // Newly dropped, skip it.
     hasNewlyDroppedBranch_[bd.branchType()] = true;
   }
+  postSelectProducts(fb);
+}
+
+void
+art::OutputModule::
+preSelectProducts(FileBlock const &)
+{
+}
+
+void
+art::OutputModule::
+postSelectProducts(FileBlock const &)
+{
 }
 
 void
