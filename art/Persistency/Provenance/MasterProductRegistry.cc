@@ -68,12 +68,12 @@ MasterProductRegistry::
 MasterProductRegistry()
   : productList_()
   , frozen_(false)
-  , productProduced_()
+  , productProduced_{false}
   , perFileProds_()
+  , perFilePresenceLookups_()
   , productLookup_()
   , elementLookup_()
 {
-  productProduced_.fill(false);
   perFileProds_.resize(1);
 }
 
@@ -96,15 +96,32 @@ addProduct(std::unique_ptr<BranchDescription>&& bdp)
         << "Please modify the configuration file to use a "
         << "distinct process name.\n";
   }
-  I.first->second.swap(*bdp);
-  perFileProds_[0].insert(*I.first);
-  productProduced_[I.first->second.branchType()] = true;
+  auto & productListEntry = *I.first;
+  auto & bd = productListEntry.second;
+  bd.swap(*bdp);
+  perFileProds_[0].insert( productListEntry );
+  productProduced_[bd.branchType()] = true;
+  producedPresenceLookup_[bd.branchType()].emplace(bd.branchID());
 }
 
 void
 MasterProductRegistry::
-initFromFirstPrimaryFile(ProductList const& pl, FileBlock const& fb)
+initFromFirstPrimaryFile(ProductList const& pl,
+                         PerBranchTypePresence const& presList,
+                         FileBlock const& fb)
 {
+  perFilePresenceLookups_.resize(1);
+
+  // Set presence flags
+  for (auto const& p : pl ) {
+    auto const & bd = p.second;
+    auto const & presListForBT = presList[bd.branchType()];
+    if ( presListForBT.find( bd.branchID() ) != presListForBT.cend() ) {
+      perFilePresenceLookups_[0][bd.branchType()].emplace(bd.branchID());
+    }
+  }
+
+  // Set product lists and handle merging
   for (auto const& val: pl) {
     auto const& bd = val.second;
     assert(!bd.produced());
@@ -121,6 +138,7 @@ initFromFirstPrimaryFile(ProductList const& pl, FileBlock const& fb)
       perFileProds_[0].emplace(bk, bd);
       continue;
     }
+    //    assert(false);
     // Already had this product, combine in the additional parameter
     // sets and process descriptions.
     assert(combinable(I->second, bd));
@@ -137,9 +155,22 @@ initFromFirstPrimaryFile(ProductList const& pl, FileBlock const& fb)
 
 void
 MasterProductRegistry::
-updateFromSecondaryFile(ProductList const& pl, FileBlock const& fb)
+updateFromSecondaryFile(ProductList const& pl,
+                        PerBranchTypePresence const& presList,
+                        FileBlock const& fb)
 {
   perFileProds_.resize(perFileProds_.size()+1);
+  perFilePresenceLookups_.resize(perFilePresenceLookups_.size()+1);
+
+  // Set presence flags
+  for (auto const& p : pl ) {
+    auto const & bd = p.second;
+    auto const & presListForBT = presList[bd.branchType()];
+    if ( presListForBT.find( bd.branchID() ) != presListForBT.cend() ) {
+      perFilePresenceLookups_.back()[bd.branchType()].emplace(bd.branchID());
+    }
+  }
+
   for (auto const& val: pl) {
     auto const& bd = val.second;
     assert(!bd.produced());
@@ -179,10 +210,25 @@ updateFromSecondaryFile(ProductList const& pl, FileBlock const& fb)
 
 std::string
 MasterProductRegistry::
-updateFromNewPrimaryFile(ProductList const& other, std::string const& fileName,
+updateFromNewPrimaryFile(ProductList const& other,
+                         PerBranchTypePresence const& presList,
+                         std::string const& fileName,
                          BranchDescription::MatchMode m, FileBlock const& fb)
 {
   perFileProds_.resize(1);
+
+  perFilePresenceLookups_.clear();
+  perFilePresenceLookups_.resize(1);
+
+  // Set presence flags
+  for (auto const& p : other ) {
+    auto const & bd = p.second;
+    auto const & presListForBT = presList[bd.branchType()];
+    if ( presListForBT.find( bd.branchID() ) != presListForBT.cend() ) {
+      perFilePresenceLookups_[0][bd.branchType()].emplace(bd.branchID());
+    }
+  }
+
   std::ostringstream msg;
   auto I = productList_.begin();
   auto E = productList_.end();
@@ -200,7 +246,7 @@ updateFromNewPrimaryFile(ProductList const& other, std::string const& fileName,
       // product list which was not in the product list of any
       // previous input file.
       assert(!J->second.produced());
-      if (!J->second.present()) {
+      if ( presentWithFileIdx(J->second.branchType(), J->second.branchID()) == MasterProductRegistry::DROPPED ) {
         // FIXME: This probably cannot happen because of
         // FIXME: the way dropping is done by the output!
         // Allow it if it was dropped from the new input file.
@@ -255,6 +301,26 @@ updateFromNewPrimaryFile(ProductList const& other, std::string const& fileName,
     val(fb);
   }
   return msg.str();
+}
+
+bool
+MasterProductRegistry::
+produced(BranchType const branchType, BranchID const bid) const
+{
+  auto const& pLookup = producedPresenceLookup_[branchType];
+  return pLookup.find(bid) != pLookup.cend();
+}
+
+std::size_t
+MasterProductRegistry::
+presentWithFileIdx(BranchType const branchType, BranchID const bid) const
+{
+  for ( std::size_t i = 0; i != perFilePresenceLookups_.size() ; ++i) {
+    auto & pLookup = perFilePresenceLookups_[i][branchType];
+    if ( pLookup.find(bid) != pLookup.cend() )
+      return i;
+  }
+  return DROPPED;
 }
 
 void

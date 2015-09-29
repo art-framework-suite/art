@@ -223,7 +223,7 @@ EventPrincipal::
 getGroup(ProductID const& pid) const
 {
   BranchID bid = productIDToBranchID(pid);
-  SharedConstGroupPtr const& g = getGroupForPtr(bid);
+  SharedConstGroupPtr const& g = getGroupForPtr(art::InEvent,bid);
   if (g.get()) {
     return GroupQueryResult(g.get());
   }

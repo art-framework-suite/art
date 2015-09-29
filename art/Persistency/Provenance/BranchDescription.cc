@@ -46,7 +46,6 @@ art::BranchDescription::Transients::Transients() :
   branchName_(),
   wrappedName_(),
   produced_(false),
-  present_(true),
   transient_(false),
   splitLevel_(),
   basketSize_(),
@@ -82,7 +81,6 @@ BranchDescription(TypeLabel const &tl,
   processConfigurationIDs_(),
   transients_()
 {
-  guts().present_ = true;
   guts().produced_ = true;
   psetIDs_.insert(md.parameterSetID());
   processConfigurationIDs_.insert(md.processConfigurationID());
@@ -215,7 +213,6 @@ art::BranchDescription::merge(BranchDescription const& other) {
   psetIDs_.insert(other.psetIDs().begin(), other.psetIDs().end());
   processConfigurationIDs_.insert(other.processConfigurationIDs().begin(),
                                   other.processConfigurationIDs().end());
-  guts().present_ = guts().present_ || other.guts().present_;
   if (guts().splitLevel_ == invalidSplitLevel) {
     guts().splitLevel_ = other.guts().splitLevel_;
   }
@@ -332,8 +329,6 @@ art::operator<(BranchDescription const& a, BranchDescription const& b) {
   if (b.psetIDs() < a.psetIDs()) return false;
   if (a.processConfigurationIDs() < b.processConfigurationIDs()) return true;
   if (b.processConfigurationIDs() < a.processConfigurationIDs()) return false;
-  if (a.present() < b.present()) return true;
-  if (b.present() < a.present()) return false;
   return false;
 }
 
@@ -352,7 +347,6 @@ art::  combinable(BranchDescription const& a, BranchDescription const& b) {
 bool
 art::operator==(BranchDescription const& a, BranchDescription const& b) {
   return combinable(a, b) &&
-    (a.present() == b.present()) &&
     (a.psetIDs() == b.psetIDs()) &&
     (a.processConfigurationIDs() == b.processConfigurationIDs());
 }
@@ -407,9 +401,6 @@ art::match(BranchDescription const& a,
   if (a.producedClassName() != b.producedClassName()) {
     differences << "Products on branch '" << b.branchName() << "' have type '" << b.producedClassName() << "'\n";
     differences << "    in file '" << fileName << "', but '" << a.producedClassName() << "' in previous files.\n";
-  }
-  if (b.present() && !a.present()) {
-    differences << "Branch '" << a.branchName() << "' was dropped in previous files but is present in '" << fileName << "'.\n";
   }
   if (m == BranchDescription::Strict) {
     if (b.psetIDs().size() > 1) {

@@ -5,6 +5,7 @@
 #include "art/Persistency/Common/DelayedReader.h"
 #include "art/Persistency/Common/GroupQueryResult.h"
 #include "art/Persistency/Provenance/BranchMapper.h"
+#include "art/Persistency/Provenance/MasterProductRegistry.h"
 #include "art/Persistency/Provenance/ProcessHistory.h"
 #include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
 #include "art/Persistency/Provenance/ProductMetaData.h"
@@ -402,10 +403,19 @@ getForOutput(BranchID const& bid, bool resolveProd) const
   if (!g) {
     return OutputHandle();
   }
-  if (resolveProd &&
-      ((g->anyProduct() == 0) || !g->anyProduct()->isPresent()) &&
-      g->productDescription().present() &&
-      (g->productDescription().branchType() == InEvent) &&
+  auto const & pmd = ProductMetaData::instance();
+  if (resolveProd
+      &&
+      ((g->anyProduct() == 0) || !g->anyProduct()->isPresent())
+      &&
+      ( pmd.presentWithFileIdx( g->productDescription().branchType(),
+                                g->productDescription().branchID() ) != MasterProductRegistry::DROPPED ||
+        pmd.produced( g->productDescription().branchType(),
+                      g->productDescription().branchID() )
+        )
+      &&
+      (g->productDescription().branchType() == InEvent)
+      &&
       productstatus::present(g->productProvenancePtr()->productStatus())) {
     throw Exception(errors::LogicError, "Principal::getForOutput\n")
         << "A product with a status of 'present' is not actually present.\n"
@@ -428,12 +438,12 @@ getResolvedGroup(BranchID const& bid, bool resolveProd,
   // FIXME: This reproduces the behavior of the original getGroup with
   // resolveProv == false but I am not sure this is correct in the case
   // of an unavailable product.
-  std::shared_ptr<const Group> const& g(getGroupForPtr(bid));
+  std::shared_ptr<const Group> const& g(getGroupForPtr(branchType(),bid));
   if (!g.get() || !resolveProd) {
     return g;
   }
   bool gotIt = g->resolveProductIfAvailable(fillOnDemand,
-               g->producedWrapperType());
+                                            g->producedWrapperType());
   if (!gotIt && g->onDemand()) {
     // Behavior is the same as if the group wasn't there.
     return 0;
@@ -460,47 +470,56 @@ getExistingGroup(BranchID const& bid) const
 
 std::shared_ptr<const Group> const
 Principal::
-getGroupForPtr(BranchID const bid) const
+getGroupForPtr(BranchType const btype, BranchID const bid) const
 {
   const Principal* pp = this;
   if (primaryPrincipal_ != nullptr) {
     pp = primaryPrincipal_.get();
   }
-  {
+
+  std::size_t const index    = ProductMetaData::instance().presentWithFileIdx(btype, bid);
+  bool        const produced = ProductMetaData::instance().produced(btype, bid);
+  if ( produced || index == 0 ) {
     auto I = pp->groups_.find(bid);
     // Note: There will be groups for dropped products, so we
     //       must check for that.  We want the group where the
     //       product can actually be retrieved from.
-    if ((I != pp->groups_.end()) && !I->second->productUnavailable()) {
+    if ((I != pp->groups_.end()) ) {
       return I->second;
     }
+    return nullptr;
   }
-  for (auto p : secondaryPrincipals_) {
-    auto I = p->groups_.find(bid);
-    if (I != p->groups_.end()) {
+  else if ( index > 0 && ( index-1 < secondaryPrincipals_.size() ) ) {
+    auto const& groups = secondaryPrincipals_[index-1]->groups_;
+    auto I = groups.find(bid);
+    if (I != groups.end()) {
       return I->second;
     }
+    return nullptr;
   }
   while (1) {
     int err = tryNextSecondaryFile();
     if (err == -2) {
       // No more files.
-      break;
+      return nullptr;
     }
     if (err == -1) {
       // Run, SubRun, or Event not found.
       continue;
     }
-    auto p = secondaryPrincipals_[nextSecondaryFileIdx_-1];
+    std::size_t const index = ProductMetaData::instance().presentWithFileIdx(btype, bid);
+    if ( index == MasterProductRegistry::DROPPED ) continue;
+    auto p = secondaryPrincipals_[index-1];
     auto I = p->groups_.find(bid);
     // Note: There will be groups for dropped products, so we
     //       must check for that.  We want the group where the
     //       product can actually be retrieved from.
-    if ((I != p->groups_.end()) && !I->second->productUnavailable()) {
+    if ((I != p->groups_.end())) {
       return I->second;
     }
+    return nullptr;
   }
-  return nullptr;
+  //  return nullptr; // should not be necessary
 }
 
 std::shared_ptr<const Group> const
