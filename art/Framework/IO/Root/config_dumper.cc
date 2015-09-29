@@ -295,7 +295,7 @@ int main(int argc, char * argv[])
   desc.add_options()
     ("filter,f",  bpo::value<stringvec>()->composing(),
      "Only entities whose identifier (label (M), service type (S) "
-     "or process name (T)) match (multiple OK).")
+     "or process name (P)) match (multiple OK).")
     ("help,h", "this help message.")
     ("label,l", bpo::value<stringvec>(),
      "module label (deprecated), use --filter instead.")

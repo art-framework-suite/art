@@ -60,7 +60,7 @@ namespace art {
     T & get() const
       {
         if( ! manager_.get() )
-          throw art::Exception(art::errors::NotFound, "Service")
+          throw art::Exception(art::errors::ServiceNotFound, "Service")
             <<" no ServiceRegistry has been set for this thread";
         return manager_-> template get<T>();
       }
@@ -69,7 +69,7 @@ namespace art {
     T & get(ScheduleID sID) const
       {
         if( ! manager_.get() )
-          throw art::Exception(art::errors::NotFound, "Service")
+          throw art::Exception(art::errors::ServiceNotFound, "Service")
             <<" no ServiceRegistry has been set for this thread";
         return manager_-> template get<T>(sID);
       }
@@ -77,7 +77,7 @@ namespace art {
     template<class T> bool isAvailable() const
     {
       if( ! manager_.get() )
-        throw art::Exception(art::errors::NotFound, "Service")
+        throw art::Exception(art::errors::ServiceNotFound, "Service")
           <<" no ServiceRegistry has been set for this thread";
       return manager_-> template isAvailable<T>();
     }

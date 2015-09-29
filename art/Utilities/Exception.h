@@ -49,7 +49,8 @@ namespace art {
       ProductDoesNotSupportPtr,
       SQLExecutionError,
       InvalidNumber,
-      NotFound
+      NotFound,
+      ServiceNotFound
     };
 
   }  // errors
