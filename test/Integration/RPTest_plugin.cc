@@ -58,7 +58,6 @@ private:
 
 };
 
-
 arttest::RPTest::RPTest(fhicl::ParameterSet const &)
 :
   seenEntryPoints_( {
@@ -67,7 +66,7 @@ arttest::RPTest::RPTest(fhicl::ParameterSet const &)
         "readResults" } )
 {
   seenEntryPoints_.erase("Constructor");
-  produces<IntProduct, art::InResults>();
+  produces<IntProduct>();
 }
 
 void arttest::RPTest::clear()
