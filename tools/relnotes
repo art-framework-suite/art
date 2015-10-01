@@ -321,7 +321,7 @@ B<relnotes> B<--help-packages>
 
 B<relnotes> [I<options>] -- I<package> I<version>
 
-I<Options>: B<--suite-version|-s>
+I<Options>: B<--suite-version|-s> B<--since>
 
 =head1 DESCRIPTION
 
@@ -372,6 +372,11 @@ contains the desired version of I<package>.
 Interpret I<version> as the version of art whose suite comprises the
 desired version of I<package>.
 
+=item B<--since>
+
+Release note headers are produced for every release from the specified
+one forward. Ignored when the specified package is art.
+
 =back
 
 =head2 Redmine Version Pages
@@ -389,27 +394,38 @@ their Target Version.
 
 =over
 
-=item relnotes art v0.7.13
+=item $ relnotes art 1.15.02
 
-h1. Art Suite Release Notes v0.07.13.
+ h1. Art Suite Release Notes 1.15.02 (2015/08/14).
 
-h2. Art version:"v0.07.13".
+ * "Download page":https://scisoft.fnal.gov/scisoft/bundles/art/v1_15_02/art-v1_15_02.html.
+ * Previous version's [[Release Notes 1.15.01|release notes]].
 
-h2. [[cpp0x:Release_Notes#v1.01.14|cpp0x v1.01.14]].
+ h2. External package changes.
 
-h2. [[cetlib:Release_Notes#v1.01.00|cetlib v1.01.00]].
 
-h2. [[fhicl-cpp:Release_Notes#v2.12.10|fhicl-cpp v2.12.10]].
+ h2. Art version:"1.15.02".
 
-h2. [[messagefacility:Release_Notes#v1.08.24|messagefacility v1.08.24]].
+ h3. New features:
 
-=item relnotes -s cetlib v0.7.13
 
-h2. %(#v1.01.00)cetlib% version:"v1.01.00" ([[art:Release_Notes_v00712|art v0_07_12]], [[art:Release_Notes_v00713|art v0_07_13]]).
+ h3. Bug fixes:
 
-=item relnotes cetlib v1.01.00
 
-h2. %(#v1.01.00)cetlib% version:"v1.01.00" ([[art:Release_Notes_v00712|art v0_07_12]], [[art:Release_Notes_v00713|art v0_07_13]]).
+ h3. Known issues:
+
+
+ h2. [[messagefacility:Release Notes#11407|messagefacility 1.14.07]] (in since art version:"1.15.00").
+
+ h2. [[fhicl-cpp:Release Notes#30601|fhicl-cpp 3.06.01]] (in since art version:"1.15.00").
+
+ h2. [[cetlib:Release Notes#11202|cetlib 1.12.02]] (in since art version:"1.15.00").
+
+ h2. [[cpp0x:Release Notes#10410|cpp0x 1.04.10]] (in since art version:"1.14.00").
+
+=item $ relnotes -s cetlib 1.15.02
+
+ h2. %(#11202)cetlib% version:"1.12.02", 2015/06/30 ([[art:Release Notes 1.15.00|Art Suite 1.15.00]], [[art:Release Notes 1.15.01|Art Suite 1.15.01]], [[art:Release Notes 1.15.02|Art Suite 1.15.02]]).
 
 =back
 
