@@ -78,6 +78,9 @@ makeRPs_(fhicl::ParameterSet const & ps)
     }
   } else {
     auto const path_keys_end = std::remove(results_keys.begin(), results_keys.end(), "producers");
+    auto const & all_labels = producers.get_names();
+    std::set<std::string> all_labels_set(all_labels.cbegin(), all_labels.cend());
+    std::map<std::string, std::string> used_labels;
     for (auto path_key = results_keys.begin(); path_key != path_keys_end; ++path_key) {
       if (!results.is_key_to_sequence(*path_key)) {
         errMsg +=
@@ -87,12 +90,37 @@ makeRPs_(fhicl::ParameterSet const & ps)
           + *path_key
           + " does not describe a sequence (i.e. a path).\n";
       } else {
-        paths.emplace(*path_key, results.get<std::vector<std::string>>(*path_key));
+        auto path = results.get<std::vector<std::string>>(*path_key);
+        std::size_t path_index = 0ull;
+        for (auto const & l : path) {
+          if (all_labels_set.find(l) == all_labels_set.end()) { // Bad label
+            errMsg += omLabel + ".results." + *path_key + '[' + path_index +
+                      "] (" + l + ')' +
+                      " is not defined in " + omLabel + ".results.producers.\n";
+          } else {
+            auto const ans = used_labels.emplace(l, *path_key);
+            if (!ans.second) { // Duplicate
+              errMsg += omLabel + ".results." + *path_key + '[' + path_index +
+                        "] (" + l + ')' +
+                        " is a duplicate: previously used in path " +
+                        ans.first->second + ".\n";
+            }
+          }
+          ++path_index;
+        }
+        if (errMsg.empty()) {
+          paths.emplace(*path_key, std::move(path));
+        }
       }
     }
-    if (paths.empty()) {
-      paths.emplace("default_path", producers.get_names());
+    if (paths.empty() && (errMsg.empty())) {
+      paths.emplace("default_path", all_labels);
     }
+  }
+  if (!errMsg.empty()) {
+    throw Exception(errors::Configuration)
+      << "Errors encountered while configuring ResultsProducers:\n"
+      << errMsg;
   }
   for (auto const & path : paths) {
     auto ins_res = rpmap_.emplace(path.first, decltype(rpmap_)::mapped_type {});
@@ -108,7 +136,7 @@ makeRPs_(fhicl::ParameterSet const & ps)
   }
   if (!errMsg.empty()) {
     throw Exception(errors::Configuration)
-      << "Errors encountered while configuring ResultsProducers:\n"
+      << "Errors encountered while instantiating ResultsProducers:\n"
       << errMsg;
   }
   return result;
