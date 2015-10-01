@@ -97,8 +97,14 @@ namespace cet {
 
 class art::ResultsProducer : ProductRegistryHelper {
 protected:
-  // This is the only base class function that subclasses should call.
-  using ProductRegistryHelper::produces;
+  template <class P>
+  void
+  produces(std::string const & instanceName = std::string());
+
+  template<class P, BranchType B>
+  [[deprecated("Remove the second (art::BranchType) argument.")]]
+  void
+  produces(std::string const & instanceName = std::string());
 
 public:
   virtual ~ResultsProducer() = default;
@@ -138,6 +144,27 @@ private:
 
   virtual void clear() = 0;
 };
+
+template<class P>
+inline
+void
+art::ResultsProducer::
+produces(std::string const & instanceName)
+{
+  ProductRegistryHelper::produces<P, InResults>(instanceName);
+}
+
+template<class P, art::BranchType B>
+inline
+void
+art::ResultsProducer::
+produces(std::string const & instanceName)
+{
+  static_assert(B == InResults,
+                "Specifying a BranchType != InResults to "
+                "art::ResultsProducer::produces is not permitted.");
+  produces<P>(instanceName);
+}
 
 inline
 void
