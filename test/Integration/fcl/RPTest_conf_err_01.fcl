@@ -1,0 +1,32 @@
+process_name: DEVEL
+
+source: {
+  module_type: EmptyEvent
+  maxEvents: 20
+  numberEventsInSubRun: 5
+  resetEventOnSubRun: false
+}
+
+physics: {
+  e1: [ o1 ]
+}
+
+outputs: {
+  o1: {
+    module_type: RootOutput
+    fileName: "out_%r.root"
+    results: {
+      producers: {
+        rpw: {
+          plugin_type: RPTest
+        }
+        rpr: {
+          plugin_type: RPTestReader
+          intResultsLabel: "o1#rpw"
+          nResultsExpected: 1
+        }
+      }
+      rpath: [ rpw, rpr, rpx ]
+    }
+  }
+}
