@@ -25,7 +25,7 @@ BasicOutputOptionsHandler(bpo::options_description & desc)
   desc.add_options()
     ("TFileName,T", bpo::value<std::string>(), "File name for TFileService.")
     ("tmpdir", bpo::value<std::string>(), "Temporary directory for in-progress output files (defaults to directory of specified output file names).")
-    ("output,o", bpo::value<std::string>(), "Event output stream file.")
+    ("output,o", bpo::value<std::string>(), "Event output stream file (optionally specify stream with stream-label:fileName).")
     ("no-output", "Disable all output streams.")
   ;
 }
@@ -90,9 +90,9 @@ namespace {
                     ignoredParameters.cend(),
                     i->first) == ignoredParameters.end() &&
           i->second.is_a(fhicl::SEQUENCE) &&
-          maybeRemoveFromPath(raw_config, physicsKey + "."s + i->first, key)) {
+          maybeRemoveFromPath(raw_config, physicsKey + '.' + i->first, key)) {
         // Remove empty path from end_paths.
-        maybeRemoveFromPath(raw_config, physicsKey + ".end_paths"s, i->first);
+        maybeRemoveFromPath(raw_config, physicsKey + ".end_paths", i->first);
         // Remove empty path from table.
         i = physics_table.erase(i);
       } else {
@@ -103,50 +103,62 @@ namespace {
 
   void
   processOutputOption(fhicl::intermediate_table & raw_config,
-                      std::string const & output)
+                      std::string output)
   {
     bool const want_output = (output != "/dev/null");
+    auto const splitPoint = output.find_first_of(':');
     bool new_path_entry(false);
-    std::string const& outputsKey {"outputs"};
+    auto const outputsKey = "outputs"s;
     if (want_output) {
       ensureTable(raw_config, outputsKey);
     } else if (!exists_outside_prolog(raw_config, outputsKey)) {
       // Nothing to do.
       return;
     }
+
     auto & outputs_table(raw_config.get<table_t &>(outputsKey));
-    if (outputs_table.empty()) {
-      if (want_output) {
-        new_path_entry = true;
-        raw_config.put(outputsKey + ".out.module_type"s, "RootOutput");
-      } else {
-        // Nothing to do.
-        return;
-      }
+    std::string streamName;
+    if (splitPoint != std::string::npos) {
+      streamName = output.substr(0ull, splitPoint);
+      output.erase(0ull, splitPoint + 1ull);
+    } else if (outputs_table.size() == 1ull) {
+      streamName = outputs_table.cbegin()->first;
+    } else {
+      streamName = "out"s;
     }
-    else if (outputs_table.size() > 1) {
+
+    if (outputs_table.empty() && ! want_output) {
+      // Nothing to do.
+    }
+    else if (outputs_table.size() > 1ull &&
+             splitPoint == std::string::npos) {
       throw cet::exception("BAD_OUTPUT_CONFIG")
         << "Output configuration is ambiguous: configuration has "
         << "multiple output modules. Cannot decide where to add "
         << "specified output filename "
         << output
-        << ".";
+        << ". Use stream-specification: -o label:fileName to resolve the ambiguity.";
     }
     else {
       // Empty.
     }
-    std::string out_table_name(outputs_table.begin()->first);
-    assert(!out_table_name.empty());
+
+    if (outputs_table.find(streamName) == outputs_table.cend()) {
+      new_path_entry = true;
+      raw_config.put(outputsKey + '.' + streamName + '.' +
+                     "module_type",
+                     "RootOutput");
+    }
     if (!want_output) {
       // Remove this from paths.
-      removeFromEndPaths(raw_config, out_table_name);
+      removeFromEndPaths(raw_config, streamName);
       // Remove outputs entrirely.
       raw_config.erase(outputsKey);
       return;
     }
     std::string out_table_path(outputsKey);
-    out_table_path += "."s + out_table_name;
-    raw_config.put(out_table_path + ".fileName"s, output);
+    out_table_path += '.' + streamName;
+    raw_config.put(out_table_path + ".fileName", output);
     if (new_path_entry) {
       // If we created a new output module config, we need to make a
       // path for it and add it to end paths. We will *not* detect the
@@ -167,12 +179,12 @@ namespace {
         }
       }
       // Make our end_path with the output module label in it.
-      raw_config.put("physics."s + end_path + "[0]"s, out_table_name);
+      raw_config.put("physics."s + end_path + "[0]", streamName);
       // Add it to the end_paths list.
-      std::string const key = "physics.end_paths"s;
+      auto const key = "physics.end_paths"s;
       if ( exists_outside_prolog(raw_config, key) ) {
         size_t const index = raw_config.get<sequence_t &>("physics.end_paths").size();
-        raw_config.put("physics.end_paths["s + std::to_string(index) + "]"s, end_path);
+        raw_config.put("physics.end_paths["s + std::to_string(index) + ']', end_path);
       }
     }
   }
@@ -185,7 +197,7 @@ namespace {
     if (vm.count("no-output") == 1) {
       if (vm.count("output")) {
         throw cet::exception("BAD_OUTPUT_CONFIG")
-          << "Output configuration is ambiguous: command-line specifies"
+          << "Output configuration is ambiguous: command-line specifies "
           << "--output and --no-output simultaneously.";
       }
       std::string const& key {"outputs"};
@@ -219,7 +231,7 @@ doProcessOptions(bpo::variables_map const & vm,
       tFileName = "hist.root";
     }
     if (!tFileName.empty()) {
-      raw_config.put(key+".fileName"s, tFileName);
+      raw_config.put(key + ".fileName", tFileName);
     }
   }
   // Output stream options.
@@ -229,15 +241,15 @@ doProcessOptions(bpo::variables_map const & vm,
     auto tmpDir = vm["tmpdir"].as<std::string>();
     std::string const& tfile_key {"services.TFileService"};
     if (detail::exists_outside_prolog(raw_config, tfile_key)) {
-      raw_config.put(tfile_key+".tmpDir"s, tmpDir);
+      raw_config.put(tfile_key + ".tmpDir", tmpDir);
     }
     std::string const& outputs_stem {"outputs"};
     if (detail::exists_outside_prolog(raw_config, outputs_stem)) {
       auto const & table = raw_config.get<table_t const &>(outputs_stem);
       for (auto const & output : table) {
-        if (detail::exists_outside_prolog(raw_config, outputs_stem + "."s + output.first + ".module_type"s)) {
+        if (detail::exists_outside_prolog(raw_config, outputs_stem + '.' + output.first + ".module_type")) {
           // Inject tmpDir into the module configuration.
-          raw_config.put(outputs_stem + "."s + output.first + ".tmpDir"s, tmpDir);
+          raw_config.put(outputs_stem + '.' + output.first + ".tmpDir", tmpDir);
         }
       }
     }

@@ -122,7 +122,7 @@ cet_test(BasicOutputOptions_02_w HANDBUILT
   TEST_ARGS --no-output -o f.root
   -c opt-empty.fcl
   TEST_PROPERTIES ENVIRONMENT ART_DEBUG_CONFIG=config.out
-  PASS_REGULAR_EXPRESSION "\n  Output configuration is ambiguous: command-line specifies--output and --no-output simultaneously\\."
+  PASS_REGULAR_EXPRESSION "\n  Output configuration is ambiguous: command-line specifies --output and --no-output simultaneously\\."
   DATAFILES fcl/opt-empty.fcl
 )
 
@@ -223,6 +223,31 @@ cet_test(BasicOutputOptions_11_w HANDBUILT
 )
 config_test_pass(BasicOutputOptions_11_w)
 config_ref_test(BasicOutputOptions_11)
+
+# Specified stream name with empty outputs.
+cet_test(BasicOutputOptions_12_w HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS
+  -o myOut:out.root
+  --tmpdir /tmp
+  -c opt-empty.fcl
+  TEST_PROPERTIES ENVIRONMENT ART_DEBUG_CONFIG=config.out
+  DATAFILES fcl/opt-empty.fcl
+  )
+config_test_pass(BasicOutputOptions_12_w)
+config_ref_test(BasicOutputOptions_12)
+
+# Should pass -- multi-out.
+cet_test(BasicOutputOptions_13_w HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS -o o2:junk9.out
+  -c opt-multiout.fcl
+  TEST_PROPERTIES ENVIRONMENT ART_DEBUG_CONFIG=config.out
+  DATAFILES fcl/opt-multiout.fcl
+)
+config_test_pass(BasicOutputOptions_13_w)
+config_ref_test(BasicOutputOptions_13)
+
 
 ####################################
 # BasicSourceOptionsHandler.
