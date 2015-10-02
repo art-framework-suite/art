@@ -6,6 +6,7 @@
 
 #include "art/Persistency/Provenance/RunID.h"
 #include "art/Persistency/Provenance/SubRunID.h"
+#include "art/Utilities/Exception.h"
 #include "cpp0x/cstdint"
 
 #include <iosfwd>
@@ -52,9 +53,6 @@ public:
   static EventID flushEvent();
   static EventID flushEvent(RunID rID);
   static EventID flushEvent(SubRunID srID);
-#ifndef __GCCXML__
-  static EventID flushEvent [[deprecated]] (RunID rID, SubRunID srID);
-#endif
 
   // Comparison operators.
   bool operator==(EventID const & other) const;
@@ -182,7 +180,7 @@ art::EventID::next() const
     return nextSubRun();
   }
   else {
-    return EventID(subRun_, event_ + 1);
+    return EventID(subRun_, event_ + 1u);
   }
 }
 
@@ -215,7 +213,7 @@ previous() const
     return previousSubRun();
   }
   else {
-    return EventID(subRun_, event_ - 1);
+    return EventID(subRun_, event_ - 1u);
   }
 }
 
@@ -391,16 +389,13 @@ EventID(SubRunID srID, FlushFlag)
 {
 }
 
-#include "art/Utilities/Exception.h"
-
 inline
 art::EventNumber_t
 art::EventID::
 inRangeOrInvalid(EventNumber_t e)
 {
   if (e == INVALID_EVENT_NUMBER() ||
-      (e >= FIRST_EVENT_NUMBER() &&
-       e <= MAX_NATURAL_EVENT_NUMBER())) {
+      e <= MAX_NATURAL_EVENT_NUMBER()) {
     return e;
   }
   else {
@@ -423,7 +418,7 @@ art::EventNumber_t
 art::EventID::
 MAX_VALID_EVENT_NUMBER()
 {
-  return INVALID_EVENT_NUMBER() - 1;
+  return INVALID_EVENT_NUMBER() - 1u;
 }
 
 constexpr
@@ -439,7 +434,7 @@ art::EventNumber_t
 art::EventID::
 MAX_NATURAL_EVENT_NUMBER()
 {
-  return FLUSH_EVENT_NUMBER() - 1;
+  return FLUSH_EVENT_NUMBER() - 1u;
 }
 
 constexpr
@@ -447,7 +442,7 @@ art::EventNumber_t
 art::EventID::
 FIRST_EVENT_NUMBER()
 {
-  return 1;
+  return 1u;
 }
 #endif /* __GCCXML__ */
 

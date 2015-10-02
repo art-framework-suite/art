@@ -96,4 +96,13 @@ BOOST_AUTO_TEST_CASE(Iteration)
   BOOST_REQUIRE(!next.isFlush());
 }
 
+BOOST_AUTO_TEST_CASE(AllowConstructedZeroEvent)
+{
+  EventID e1(3u, 0u, 0u);
+  BOOST_CHECK_EQUAL(e1.event(), 0u);
+  EventID e2(SubRunID(3u, 0u), 0u);
+  BOOST_CHECK_EQUAL(e2.event(), 0u);
+  BOOST_CHECK_EQUAL(e2.nextSubRun(0u).event(), 0u);
+}
+
 BOOST_AUTO_TEST_SUITE_END()
