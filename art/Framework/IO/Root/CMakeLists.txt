@@ -16,6 +16,7 @@ art_make(EXCLUDE
   GetFileFormatEra.cc
   GetFileFormatVersion.cc
   config_dumper.cc
+  count_events.cc
   product_sizes_dumper.cc
   sam_metadata_dumper.cc
   NO_PLUGINS
@@ -29,6 +30,7 @@ art_make(EXCLUDE
   art_Persistency_Provenance
   art_Framework_IO_RootVersion
   art_Framework_IO_Root_detail_sources
+  ${ROOT_CINTEX}
   ${ROOT_TREE}
   ${ROOT_NET}
   ${ROOT_MATHCORE}
@@ -58,6 +60,16 @@ art_make_exec( NAME sam_metadata_dumper
   art_Utilities
   art_Framework_Core
   ${Boost_PROGRAM_OPTIONS_LIBRARY}
+  ${ROOT_RIO}
+  )
+
+art_make_exec( NAME count_events
+  LIBRARIES
+  art_Framework_IO_Root
+  art_Framework_Core
+  art_Utilities
+  ${Boost_PROGRAM_OPTIONS_LIBRARY}
+  ${ROOT_TREE}
   ${ROOT_RIO}
   )
 
