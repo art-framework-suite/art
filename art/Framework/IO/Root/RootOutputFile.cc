@@ -121,26 +121,22 @@ RootOutputFile(OutputModule* om, string const& fileName,
   , pResultsProductProvenanceVector_(&resultsProductProvenanceVector_)
   , pHistory_(nullptr)
   , treePointers_ { // Order (and number) must match BranchTypes.h!
-  std::unique_ptr<RootOutputTree>(new
-                                  RootOutputTree(static_cast<EventPrincipal*>(nullptr),
-                                                 filePtr_, InEvent, pEventAux_,
-                                                 pEventProductProvenanceVector_, basketSize, splitLevel,
-                                                 treeMaxVirtualSize, saveMemoryObjectThreshold)),
-    std::unique_ptr<RootOutputTree>(new
-                                    RootOutputTree(static_cast<SubRunPrincipal*>(nullptr),
-                                                   filePtr_, InSubRun, pSubRunAux_,
-                                                   pSubRunProductProvenanceVector_, basketSize, splitLevel,
-                                                   treeMaxVirtualSize, saveMemoryObjectThreshold)),
-    std::unique_ptr<RootOutputTree>(new
-                                    RootOutputTree(static_cast<RunPrincipal*>(nullptr),
-                                                   filePtr_, InRun, pRunAux_,
-                                                   pRunProductProvenanceVector_, basketSize, splitLevel,
-                                                   treeMaxVirtualSize, saveMemoryObjectThreshold)),
-    std::unique_ptr<RootOutputTree>(new
-                                    RootOutputTree(static_cast<ResultsPrincipal*>(nullptr),
-                                                   filePtr_, InResults, pResultsAux_,
-                                                   pResultsProductProvenanceVector_, basketSize, splitLevel,
-                                                   treeMaxVirtualSize, saveMemoryObjectThreshold)) }
+  std::make_unique<RootOutputTree>(static_cast<EventPrincipal*>(nullptr),
+                                   filePtr_, InEvent, pEventAux_,
+                                   pEventProductProvenanceVector_, basketSize, splitLevel,
+                                   treeMaxVirtualSize, saveMemoryObjectThreshold),
+    std::make_unique<RootOutputTree>(static_cast<SubRunPrincipal*>(nullptr),
+                                     filePtr_, InSubRun, pSubRunAux_,
+                                     pSubRunProductProvenanceVector_, basketSize, splitLevel,
+                                     treeMaxVirtualSize, saveMemoryObjectThreshold),
+    std::make_unique<RootOutputTree>(static_cast<RunPrincipal*>(nullptr),
+                                     filePtr_, InRun, pRunAux_,
+                                     pRunProductProvenanceVector_, basketSize, splitLevel,
+                                     treeMaxVirtualSize, saveMemoryObjectThreshold),
+    std::make_unique<RootOutputTree>(static_cast<ResultsPrincipal*>(nullptr),
+                                     filePtr_, InResults, pResultsAux_,
+                                     pResultsProductProvenanceVector_, basketSize, splitLevel,
+                                     treeMaxVirtualSize, saveMemoryObjectThreshold) }
   , dataTypeReported_(false)
   , metaDataHandle_(filePtr_.get(), "RootFileDB",
                     SQLITE_OPEN_CREATE | SQLITE_OPEN_READWRITE)

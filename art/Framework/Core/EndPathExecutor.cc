@@ -149,14 +149,6 @@ void art::EndPathExecutor::beginJob()
   doForAllEnabledWorkers_([](auto w){ w->beginJob(); });
 }
 
-// FIXME: We do not need this anymore!
-#if 0
-void art::EndPathExecutor::doSelectProducts()
-{
-  doForAllEnabledOutputWorkers_([](auto w) { w->selectProducts(); });
-}
-#endif // 0
-
 bool
 art::EndPathExecutor::
 setEndPathModuleEnabled(std::string const & label, bool enable)

@@ -491,12 +491,11 @@ doOpenFile()
         << "Attempt to open output file before input file. "
         << "Please report this to the core framework developers.\n";
   }
-  rootOutputFile_.reset(
-    new RootOutputFile(this, unique_filename(tmpDir_ + "/RootOutput"),
-                       maxFileSize_, compressionLevel_,
-                       saveMemoryObjectThreshold_, treeMaxVirtualSize_,
-                       splitLevel_, basketSize_, dropMetaData_,
-                       dropMetaDataForDroppedData_, fastCloning_));
+  rootOutputFile_ = std::make_unique<RootOutputFile>(this, unique_filename(tmpDir_ + "/RootOutput"),
+                                                     maxFileSize_, compressionLevel_,
+                                                     saveMemoryObjectThreshold_, treeMaxVirtualSize_,
+                                                     splitLevel_, basketSize_, dropMetaData_,
+                                                     dropMetaDataForDroppedData_, fastCloning_);
   fstats_.recordFileOpen();
 }
 

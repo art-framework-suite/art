@@ -96,7 +96,7 @@ namespace art {
     , runAux_()
     , resultsAux_()
     , treePointers_ { // Order (and number) must match BranchTypes.h!
-    std::make_unique<RootTree>(filePtr_, InEvent, saveMemoryObjectThreshold, this),
+      std::make_unique<RootTree>(filePtr_, InEvent, saveMemoryObjectThreshold, this),
       std::make_unique<RootTree>(filePtr_, InSubRun, saveMemoryObjectThreshold, this),
       std::make_unique<RootTree>(filePtr_, InRun, saveMemoryObjectThreshold, this),
       std::make_unique<RootTree>(filePtr_, InResults, saveMemoryObjectThreshold, this) }
