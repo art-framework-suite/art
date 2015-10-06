@@ -1,0 +1,23 @@
+Modules:
+   BlockingPrescaler                   filter      <path>/BlockingPrescaler_module.cc
+   EmptyEvent                          source      <path>/EmptyEvent_source.cc
+   FileDumperOutput                    output      <path>/FileDumperOutput_module.cc
+   Prescaler                           filter      <path>/Prescaler_module.cc
+   ProvenanceCheckerOutput             output      <path>/ProvenanceCheckerOutput_module.cc
+   RandomNumberSaver                   producer    <path>/RandomNumberSaver_module.cc
+   RootInput                           source      <path>/RootInput_source.cc
+   RootOutput                          output      <path>/RootOutput_module.cc
+Services:
+   FileCatalogMetadata       system      <path>/FileCatalogMetadata_service.cc
+   MemoryAdjuster            optional    <path>/MemoryAdjuster_service.cc
+   MemoryTracker             optional    <path>/MemoryTracker_service.cc
+   RandomNumberGenerator     optional    <path>/RandomNumberGenerator_service.cc
+   SimpleInteraction         optional    <path>/SimpleInteraction_service.cc
+   SimpleMemoryCheck         optional    <path>/SimpleMemoryCheck_service.cc
+   TFileService              optional    <path>/TFileService_service.cc
+   TimeTracker               optional    <path>/TimeTracker_service.cc
+   Timing                    optional    <path>/Timing_service.cc
+   Tracer                    optional    <path>/Tracer_service.cc
+   TrivialFileDelivery       optional    <path>/TrivialFileDelivery_service.cc
+   TrivialFileTransfer       optional    <path>/TrivialFileTransfer_service.cc
+   floating_point_control    system      <path>/FloatingPointControl_service.cc
