@@ -251,25 +251,9 @@ namespace art {
         // product list which was not in the product list of any
         // previous input file.
         assert(!J->second.produced());
-        if ( presentWithFileIdx(J->second.branchType(), J->second.branchID()) == MasterProductRegistry::DROPPED ) {
-          // FIXME: This probably cannot happen because of
-          // FIXME: the way dropping is done by the output!
-          // Allow it if it was dropped from the new input file.
-          checkDicts(J->second);
-          productList_.insert(*J);
-          perFileProds_[0].insert(*J);
-        }
-        else {
-          // Complain, the new input file is trying to introduce
-          // a product that none of the previous input files know
-          // anything about.
-          msg << "Branch '"
-              << J->second.branchName()
-              << "' is in file '"
-              << fileName
-              << "'\n"
-              << "    but not in previous files.\n";
-        }
+        checkDicts(J->second);
+        productList_.insert(*J);
+        perFileProds_[0].insert(*J);
         ++J;
         continue;
       }

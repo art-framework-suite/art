@@ -60,7 +60,7 @@ cet_test( DifferentRunSubrunShapes_r HANDBUILT
   empty.fcl
   TEST_PROPERTIES
   DEPENDS DifferentRunSubrunShapes_w
-  WILL_FAIL true
+  PASS_REGULAR_EXPRESSION "MismatchedInputFiles"
   )
 
 # (2)      a.root  b.root  ----> PASS
@@ -122,7 +122,7 @@ cet_test( OppositeRunSubrunShapes_r HANDBUILT
   empty.fcl
   TEST_PROPERTIES
   DEPENDS OppositeRunSubrunShapes_w
-  WILL_FAIL true
+  PASS_REGULAR_EXPRESSION "MismatchedInputFiles"
   )
 
 # (4)      a.root  b.root
@@ -155,7 +155,7 @@ cet_test( SubsetRunSubrunShapes_00_r HANDBUILT
   empty.fcl
   TEST_PROPERTIES
   DEPENDS SubsetRunSubrunShapes_w
-  WILL_FAIL true
+  PASS_REGULAR_EXPRESSION "FatalRootError"
   )
 
 # (4-01) ----> PASS
@@ -175,7 +175,7 @@ cet_test( SubsetRunSubrunShapes_01_r HANDBUILT
   )
 
 # (4-02) ----> FAIL
-# Input file order: 'a.root' -> 'b.root'
+# Input file order: 'b.root' -> 'a.root'
 # Extra : NO
 # Output: NO
 
@@ -189,5 +189,5 @@ cet_test( SubsetRunSubrunShapes_02_r HANDBUILT
   empty.fcl
   TEST_PROPERTIES
   DEPENDS SubsetRunSubrunShapes_w
-  WILL_FAIL true
+  PASS_REGULAR_EXPRESSION "MismatchedInputFiles"
   )

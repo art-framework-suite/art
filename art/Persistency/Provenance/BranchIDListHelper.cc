@@ -45,6 +45,25 @@ mismatch_msg(BranchIDList const& i, BranchIDList const& j)
   return msg.str();
 }
 
+std::string check_BranchIDLists(art::BranchIDLists const& ref, art::BranchIDLists& test)
+{
+  if ( test.empty() ) return {};
+
+  std::string result;
+  std::size_t i{};
+  for (auto const& rlist : ref) {
+    if ( rlist != test.front() ) {
+      result += "Process " + std::to_string(++i) + ":\n\n";
+      result += mismatch_msg(rlist, test.front());
+      result += "\n\n";
+    }
+    auto pos = test.erase( test.begin() );
+    if ( pos == test.end() )
+      return result;
+  }
+  return result;
+}
+
 } // unnamed namespace
 
 // Called on primary file open.  Verify that the new file produced the
@@ -54,33 +73,19 @@ mismatch_msg(BranchIDList const& i, BranchIDList const& j)
 void
 art::
 BranchIDListHelper::
-updateFromInput(BranchIDLists const& file_bidlists, std::string const& fileName)
+updateFromInput(BranchIDLists file_bidlists, std::string const& fileName)
 {
   auto& breg = *BranchIDListRegistry::instance();
   auto& reg_bidlists = breg.data();
 
-  std::size_t i{};
-  std::ostringstream err_msg;
+  std::string err_msg = check_BranchIDLists(reg_bidlists, file_bidlists);
 
-  for ( ; i != std::min(reg_bidlists.size(), file_bidlists.size()) ; ++i ) {
-
-    auto const& rlist = reg_bidlists[i];
-    auto const& flist = file_bidlists[i];
-
-    if ( rlist != flist ) {
-      err_msg << "Process " << i+1 << ":\n\n"
-              << mismatch_msg(rlist, flist)
-              << "\n\n";
-    }
-
-  }
-
-  if (err_msg.str().size())
+  if (err_msg.size())
     throw art::Exception(errors::MismatchedInputFiles)
       << "Cannot merge file '"
       << fileName
       << "' due to inconsistent process histories:\n\n"
-      << err_msg.str()
+      << err_msg
       << "The BranchIDs above correspond to products that were\n"
       << "created whenever the current input files were produced.\n"
       << "\nThe lists above must be identical per process.\n\n"
@@ -91,13 +96,14 @@ updateFromInput(BranchIDLists const& file_bidlists, std::string const& fileName)
       << "\n\n"
       << "Contact the framework group for assistance.\n";
 
-  // I suspect the following loop is not even called
-  for (; i != file_bidlists.size(); ++i) {
-    breg.insertMapped( file_bidlists[i] );
+  if ( file_bidlists.empty() )
+    return;
+
+  for (auto const& new_bidlist : file_bidlists) {
+    breg.insertMapped( new_bidlist );
   }
 
   generate_branchIDToIndexMap();
-
 }
 
 // Last thing done by the EventProcessor constructor:
@@ -125,8 +131,23 @@ updateRegistries(MasterProductRegistry const& mpr)
   // concatenated on input with the ones before it.
   //
   // This restriction can be lifted in the future by simply placing an
-  // 'if ( !bidlist.size() )' condition in front of the following
-  // statement.
+  // 'if ( !bidlist.empty() )' condition in front of the following
+  // statement.  Doing so, however, could cause a breaking change in
+  // the following scenario:
+  //
+  // Suppose somebody has the following workflow that produce the
+  // following series of BranchIDLists:
+  //
+  //    BranchIDLists from    |  Old art    |  New art (with 'if' condition)
+  //    ====================================================================
+  //    From input file       | [b11, b12]  | [b11, b12]
+  //    Drop products         | []          | — no entry -
+  //    Add new product       | [b31]       | [b31]
+  //    Output file #BIDLists | 3           | 2
+  //
+  // Then files produced from old art will be incompatible with files
+  // produced with new art even though the configuration for each are
+  // the same.
   BranchIDListRegistry::instance()->insertMapped(bidlist);
 
   generate_branchIDToIndexMap();
@@ -152,8 +173,7 @@ generate_branchIDToIndexMap()
   auto& bidlists = breg.data();
   for(std::size_t n=0, n_max = bidlists.size(); n != n_max; ++n ) {
     for (std::size_t m=0, m_max = bidlists[n].size(); m != m_max; ++m ) {
-      branchIDToIndexMap.emplace( BranchID{bidlists[n][m]},
-                                  std::pair<BranchListIndex,ProductIndex>(n,m));
+      branchIDToIndexMap.emplace( BranchID{bidlists[n][m]}, IndexPair{n,m});
     }
   }
 }

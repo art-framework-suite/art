@@ -35,6 +35,7 @@ simple_plugin(FailEverything          "module" NO_INSTALL)
 simple_plugin(InputProducer           "module" NO_INSTALL)
 simple_plugin(InputProducerNoEvents   "module" NO_INSTALL)
 simple_plugin(InputProducerOnlyEvents "module" NO_INSTALL)
+simple_plugin(PassEverything          "module" NO_INSTALL)
 
 # (4)      a.root   b.root
 #          ======   ======
@@ -66,7 +67,7 @@ cet_test( SubsetRunSubrunEventShapes_00_r HANDBUILT
   fcl/empty.fcl
   TEST_PROPERTIES
   DEPENDS SubsetRunSubrunEventShapes_w
-  WILL_FAIL true
+  PASS_REGULAR_EXPRESSION "MismatchedInputFiles"
   )
 
 # (4-01) ----> FAIL
@@ -84,7 +85,7 @@ cet_test( SubsetRunSubrunEventShapes_01_r HANDBUILT
   fcl/make_input_producer.fcl
   TEST_PROPERTIES
   DEPENDS SubsetRunSubrunEventShapes_w
-  WILL_FAIL true
+  PASS_REGULAR_EXPRESSION "MismatchedInputFiles"
   )
 
 # (4-02) ----> PASS
@@ -138,7 +139,7 @@ cet_test( SubsetRunSubrunEventShapes_04_r HANDBUILT
   fcl/empty.fcl
   TEST_PROPERTIES
   DEPENDS SubsetRunSubrunEventShapes_w
-  WILL_FAIL true
+  PASS_REGULAR_EXPRESSION "FatalRootError"
   )
 
 # (5)      b.root   c.root  ----> FAIL
@@ -170,7 +171,7 @@ cet_test( DifferentRunSubrunEventShapes_05_r HANDBUILT
   fcl/empty.fcl
   TEST_PROPERTIES
   DEPENDS DifferentRunSubrunEventShapes_05_w
-  WILL_FAIL true
+  PASS_REGULAR_EXPRESSION "MismatchedInputFiles"
   )
 
 # (6)      b.root   d.root  ----> FAIL
@@ -204,7 +205,7 @@ cet_test( DifferentRunSubrunEventShapes_06_r HANDBUILT
   fcl/empty.fcl
   TEST_PROPERTIES
   DEPENDS DifferentRunSubrunEventShapes_06_w
-  WILL_FAIL true
+  PASS_REGULAR_EXPRESSION "MismatchedInputFiles"
   )
 
 # (7)      a.root   b.root
@@ -283,7 +284,7 @@ cet_test( SameRunSubrunEventShapes_02_r HANDBUILT
 # Extra : NO
 # Output: NO
 
-cet_test( SameRunSubrunEventShapes_filter_w HANDBUILT
+cet_test( SameRunSubrunEventShapes_filter_01_w HANDBUILT
   TEST_EXEC art
   TEST_ARGS
   -c filter_out_all_events.fcl
@@ -296,24 +297,72 @@ cet_test( SameRunSubrunEventShapes_filter_w HANDBUILT
   DEPENDS SameRunSubrunEventShapes_w
   )
 
+cet_test( SameRunSubrunEventShapes_filter_02_w HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS
+  -c accept_all_events.fcl
+  -s ../SameRunSubrunEventShapes_w.d/b.root
+  -o b_filtered.root
+  -n 10
+  DATAFILES
+  fcl/accept_all_events.fcl
+  TEST_PROPERTIES
+  DEPENDS SameRunSubrunEventShapes_w
+  )
+
 cet_test( SameRunSubrunEventShapes_03_r HANDBUILT
   TEST_EXEC art
   TEST_ARGS
   -c empty.fcl
-  -s ../SameRunSubrunEventShapes_filter_w.d/a_filtered.root
-  -s ../SameRunSubrunEventShapes_w.d/b.root
+  -s ../SameRunSubrunEventShapes_filter_01_w.d/a_filtered.root
+  -s ../SameRunSubrunEventShapes_filter_02_w.d/b_filtered.root
   -n 20
   DATAFILES
   fcl/empty.fcl
-  TEST_PROPERTIES
-  DEPENDS SameRunSubrunEventShapes_filter_w
-  WILL_FAIL true
+  )
+
+cet_test( SameRunSubrunEventShapes_04_r HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS
+  -c empty.fcl
+  -s ../SameRunSubrunEventShapes_filter_01_w.d/a_filtered.root
+  -s ../SameRunSubrunEventShapes_filter_02_w.d/b_filtered.root
+  -o out.root
+  -n 20
+  DATAFILES
+  fcl/empty.fcl
+  )
+
+cet_test( SameRunSubrunEventShapes_05_r HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS
+  --process-name=extraProducts
+  -c make_input_producer.fcl
+  -s ../SameRunSubrunEventShapes_filter_01_w.d/a_filtered.root
+  -s ../SameRunSubrunEventShapes_filter_02_w.d/b_filtered.root
+  -o out.root
+  -n 20
+  DATAFILES
+  fcl/make_input_producer.fcl
+  )
+
+cet_test( SameRunSubrunEventShapes_06_r HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS
+  --process-name=extraProducts
+  -c make_input_producer.fcl
+  -s ../SameRunSubrunEventShapes_filter_01_w.d/a_filtered.root
+  -s ../SameRunSubrunEventShapes_filter_02_w.d/b_filtered.root
+  -o out.root
+  -n 20
+  DATAFILES
+  fcl/make_input_producer.fcl
   )
 
 #============================================================================
 # More consistency checks, just for Event-level products, also testing
-# dropping on input.  
-# 
+# dropping on input.
+#
 #  FIXME: Should be more explicit about what kinds of shapes we're
 #         testing here.
 
@@ -370,3 +419,18 @@ set_tests_properties(ES_r02 PROPERTIES
   DEPENDS "ES_ws01;ES_ws02"
   PASS_REGULAR_EXPRESSION "---- MismatchedInputFiles BEGIN\n"
 )
+
+set_tests_properties( SameRunSubrunEventShapes_03_r PROPERTIES
+  DEPENDS "SameRunSubrunEventShapes_filter_01_w;SameRunSubrunEventShapes_filter_02_w"
+  )
+
+set_tests_properties( SameRunSubrunEventShapes_04_r PROPERTIES
+  DEPENDS "SameRunSubrunEventShapes_filter_01_w;SameRunSubrunEventShapes_filter_02_w"
+  )
+
+set_tests_properties( SameRunSubrunEventShapes_05_r PROPERTIES
+  DEPENDS "SameRunSubrunEventShapes_filter_01_w;SameRunSubrunEventShapes_filter_02_w"
+  )
+set_tests_properties( SameRunSubrunEventShapes_06_r PROPERTIES
+  DEPENDS "SameRunSubrunEventShapes_filter_01_w;SameRunSubrunEventShapes_filter_02_w"
+  )

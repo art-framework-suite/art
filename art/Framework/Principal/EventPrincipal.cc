@@ -39,7 +39,7 @@ EventPrincipal(EventAuxiliary const& aux, ProcessConfiguration const& pc,
     addToProcessHistory();
     // Add index into BranchIDListRegistry for products produced this process
     history_->addBranchListIndexEntry(
-      BranchIDListRegistry::instance()->size() - 1);
+                                      BranchIDListRegistry::instance()->size() - 1);
   }
   // Fill in helper map for Branch to ProductID mapping
   for (auto IB = history->branchListIndexes().cbegin(),

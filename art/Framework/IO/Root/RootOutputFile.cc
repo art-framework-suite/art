@@ -594,8 +594,10 @@ writeProductDescriptionRegistry()
 
   ProductRegistry reg;
   for ( auto const& pr : ProductMetaData::instance().productList() ) {
-    if ( branchesWithStoredHistory_.find(pr.second.branchID()) != end )
-      reg.productList_.insert(pr);
+    if ( branchesWithStoredHistory_.find(pr.second.branchID()) == end ){
+      continue;
+    }
+    reg.productList_.emplace_hint(reg.productList_.end(),pr);
   }
 
   auto* regp = &reg;
