@@ -12,21 +12,26 @@ art_dictionary(NO_INSTALL)
 # the same input process.  The consistency criteria are as follows:
 #
 # 1. The set of products in the first input file defines the set of
-#    allowed products in ALL input files.
+#    allowed products in ALL input files (as determined by the
+#    persisted ProductList objects)
 #
 # 2. For art processes that stream to output, each input file must
 #    contain the SAME set of products.  Namely, a second input file
 #    with fewer products in it will result in an exception thrown.
 #
-# 3. In addition, each Event-level data product must have been
+# 3. Each Event-level data product must have been
 #    produced in the same process for each input file.  In other
 #    words, when comparing the BranchIDList objects from one input
 #    file to the previous, each BranchIDList entry must be identical
 #    to the corresponding entry in the previous file.
 #
+# 4. The number of processes from the first file defines the maximum
+#    number of processes for ANY input file.
+#
 # In what follows, "Extra" means that extra products are produced/put
 # in the same process that reads the input files.
 
+simple_plugin(FailEverything          "module" NO_INSTALL)
 simple_plugin(InputProducer           "module" NO_INSTALL)
 simple_plugin(InputProducerNoEvents   "module" NO_INSTALL)
 simple_plugin(InputProducerOnlyEvents "module" NO_INSTALL)
@@ -257,7 +262,8 @@ cet_test( SameRunSubrunEventShapes_01_r HANDBUILT
 
 cet_test( SameRunSubrunEventShapes_02_r HANDBUILT
   TEST_EXEC art
-  TEST_ARGS -c make_input_producer.fcl
+  TEST_ARGS
+  -c make_input_producer.fcl
   --process-name=extraProducts
   -s ../SameRunSubrunEventShapes_w.d/a.root
   -s ../SameRunSubrunEventShapes_w.d/b.root
@@ -267,6 +273,41 @@ cet_test( SameRunSubrunEventShapes_02_r HANDBUILT
   fcl/make_input_producer.fcl
   TEST_PROPERTIES
   DEPENDS SameRunSubrunEventShapes_w
+  )
+
+# (7-03)  ----> FAIL
+#
+# Same event shape as before, but testing the case where 'a.root' has
+# no events due to a SelectEvents clause.
+#
+# Extra : NO
+# Output: NO
+
+cet_test( SameRunSubrunEventShapes_filter_w HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS
+  -c filter_out_all_events.fcl
+  -s ../SameRunSubrunEventShapes_w.d/a.root
+  -o a_filtered.root
+  -n 10
+  DATAFILES
+  fcl/filter_out_all_events.fcl
+  TEST_PROPERTIES
+  DEPENDS SameRunSubrunEventShapes_w
+  )
+
+cet_test( SameRunSubrunEventShapes_03_r HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS
+  -c empty.fcl
+  -s ../SameRunSubrunEventShapes_filter_w.d/a_filtered.root
+  -s ../SameRunSubrunEventShapes_w.d/b.root
+  -n 20
+  DATAFILES
+  fcl/empty.fcl
+  TEST_PROPERTIES
+  DEPENDS SameRunSubrunEventShapes_filter_w
+  WILL_FAIL true
   )
 
 #============================================================================

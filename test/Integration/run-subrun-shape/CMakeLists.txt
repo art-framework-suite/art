@@ -10,17 +10,21 @@
 # the same input process.  The consistency criteria are as follows:
 #
 # 1. The set of products in the first input file defines the set of
-#    allowed products in ALL input files.
+#    allowed products in ALL input files (as determined by the
+#    persisted ProductList objects)
 #
 # 2. For art processes that stream to output, each input file must
 #    contain the SAME set of products.  Namely, a second input file
 #    with fewer products in it will result in an exception thrown.
 #
-# 3. In addition, each Event-level data product must have been
+# 3. Each Event-level data product must have been
 #    produced in the same process for each input file.  In other
 #    words, when comparing the BranchIDList objects from one input
 #    file to the previous, each BranchIDList entry must be identical
 #    to the corresponding entry in the previous file.
+#
+# 4. The number of processes from the first file defines the maximum
+#    number of processes for ANY input file.
 #
 # In what follows, "Extra" means that extra products are produced/put
 # in the same process that reads the input files.
