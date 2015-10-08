@@ -16,6 +16,8 @@ use FileHandle;
 use Getopt::Long;
 use Pod::Usage;
 
+use artRedmine::PackageUtils;
+
 sub previous_version($\@);
 
 my $options = {};
@@ -24,8 +26,6 @@ Getopt::Long::Configure(qw(no_ignore_case bundling require_order));
 
 # Subsidiary packages to be recognized.
 my @known_packages = qw(messagefacility fhicl-cpp cetlib cpp0x);
-my %product_name = ( "fhicl-cpp" => "fhiclcpp" );
-
 GetOptions($options,
            "help|h|?",
            "help-packages",
@@ -104,54 +104,6 @@ sub all_versions_since {
           for_package($pkg, "cd /cvs/projects/$pkg; git tag");
 }
 
-sub by_version {
-  # Requires dot versions.
-  my @a = split /\./, $a, 3;
-  my @b = split /\./, $b, 3;
-  my ($a_extra, $b_extra);
-  ($a[2], $a_extra) = ($a[2] =~ m&^(\d+)(.*)$&);
-  ($b[2], $b_extra) = ($b[2] =~ m&^(\d+)(.*)$&);
-  return
-    $a[0] <=> $b[0] ||
-      $a[1] <=> $b[1] ||
-        $a[2] <=> $b[2] ||
-          compare_extra($a_extra, $b_extra);
-}
-
-# aNN sorts before bNN sorts before rcNN sorts before the empty string,
-# pNN sorts after, anything else sorts after that in lexical order.
-sub compare_extra {
-  my ($a, $b) = @_;
-  my @a = ($a =~ m&^([abp]|rc)(\d+)$&);
-  @a = ('x', $a) unless (scalar @a or not $a);
-  my @b = ($b =~ m&^([abp]|rc)(\d+)$&);
-  @b = ('x', $b) unless (scalar @b or not $b);
-  my $enA = extra_num($a[0]);
-  my $enB = extra_num($b[0]);
-  return
-    $enA <=> $enB ||
-      (($enA == 0 || $enA == 2) ? ($a[1] cmp $b[1]) : ($a[1] <=> $b[1]));
-}
-
-sub extra_num {
-  my ($in) = @_;
-  return 0 unless $in;
-  if ($in eq "x") {
-    return 2;
-  } elsif ($in eq "p") {
-    return 1;
-  } elsif ($in eq "rc") {
-    return -1;
-  } elsif ($in eq "b") {
-    return -2;
-  } elsif ($in eq "a") {
-    return -3;
-  } else {
-    print STDERR "INTERNAL ERROR: unrecognized extra version letter: $in\n";
-    exit(1);
-  }
-}
-
 sub new_first {
   my ($package, $pv, $dot_version) = @_;
   my @versions = suite_references($package, $pv);
@@ -170,82 +122,8 @@ sub help_packages {
   exit(2);
 }
 
-sub for_package {
-  my $package = shift;
-  my $command = join(" ", @_);
-  return "" unless $command =~ m&\S&;
-  my $result = `ssh p-$package\@cdcvs.fnal.gov \"$command\" 2>/dev/null`;
-  chomp $result;
-  return $result;
-}
-
-sub ensure_gitconfig {
-  my $package = shift;
-  for_package($package,
-              "git config --global user.name '$package admin'; git config --global user.email 'artists\@fnal.gov'");
-}
-
-sub vpage {
-  my $version = dot_version(shift);
-  return "version:\"$version\"";
-}
-
-sub dot_version {
-  my $dot_version = shift;
-  $dot_version =~ s&.*(?:ART_SUITE_)?v?([^_\.]+)[\._]([^_\.]+)[\._]([^_\.]+)(.*)$&$1.$2.$3$4&;
-  return $dot_version;
-}
-
-sub prod_version {
-  my $version = dot_version(shift);
-  $version =~ s/\./_/g;
-  return "v$version";
-}
-
-sub nosep_version {
-  my $version = dot_version(shift);
-  $version =~ s/\.//g;
-  return $version;
-}
-
 sub suite_version {
   return sprintf("ART_SUITE_%s", prod_version(shift));
-}
-
-sub tag_date {
-  my ($package, $tag) = @_;
-  my $tag_date = for_package("$package", "cd /cvs/projects/$package; git log -1 --simplify-by-decoration --pretty=\"format:\%cd\" --date=short \"$tag\"");
-  $tag_date =~ s&-&/&g;
-  return $tag_date;
-}
-
-sub previous_version($\@) {
-  my $current = dot_version(shift);
-  my $vref = shift;
-  @$vref = map { dot_version($_); } @$vref;
-  my $index = 0;
-  foreach my $test_version (@$vref) {
-    if ($test_version eq $current) {
-      return $index ? $$vref[$index - 1] : 'none';
-    }
-    ++$index;
-  }
-  return "not found";
-}
-
-sub rpage {
-  my ($package, $version) = @_;
-  my $lpkg = lc $package;
-  my $rversion = nosep_version(${version});
-  my $dot_version = dot_version(${version});
-  return ($lpkg eq "art"?
-          "[[art:Release Notes ${dot_version}|Art Suite ${dot_version}]]":
-          "[[$lpkg:Release Notes#${rversion}|$package ${dot_version}]]");
-}
-
-sub product_name {
-  my $package = shift;
-  return $product_name{$package} || $package;
 }
 
 sub pkg_version {
@@ -303,6 +181,16 @@ sub suite_reference_string {
     sprintf(' (%s)',
             join(", ", map { if (!$_) { (); } else { rpage("art", $_); } } sort by_version map { dot_version($_); } @_)) :
               '';
+}
+
+sub rpage {
+  my ($package, $version) = @_;
+  my $lpkg = lc $package;
+  my $rversion = nosep_version(${version});
+  my $dot_version = dot_version(${version});
+  return ($lpkg eq "art"?
+          "[[art:Release Notes ${dot_version}|Art Suite ${dot_version}]]":
+          "[[$lpkg:Release Notes#${rversion}|$package ${dot_version}]]");
 }
 
 __END__
