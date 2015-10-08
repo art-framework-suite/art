@@ -1,6 +1,7 @@
 #include "art/Framework/Art/BasicOutputOptionsHandler.h"
 
 #include "art/Framework/Art/detail/exists_outside_prolog.h"
+#include "art/Utilities/Exception.h"
 #include "art/Utilities/ensureTable.h"
 #include "cetlib/canonical_string.h"
 #include "fhiclcpp/coding.h"
@@ -9,7 +10,9 @@
 #include "fhiclcpp/parse.h"
 
 #include <iostream>
+#include <regex>
 #include <string>
+#include <vector>
 
 using namespace std::string_literals;
 
@@ -17,15 +20,22 @@ namespace {
   using table_t = fhicl::extended_value::table_t;
   using sequence_t = fhicl::extended_value::sequence_t;
   using art::detail::exists_outside_prolog;
+
+  using stringvec = std::vector<std::string>;
 }
 
 art::BasicOutputOptionsHandler::
 BasicOutputOptionsHandler(bpo::options_description & desc)
 {
   desc.add_options()
-    ("TFileName,T", bpo::value<std::string>(), "File name for TFileService.")
-    ("tmpdir", bpo::value<std::string>(), "Temporary directory for in-progress output files (defaults to directory of specified output file names).")
-    ("output,o", bpo::value<std::string>(), "Event output stream file (optionally specify stream with stream-label:fileName).")
+    ("TFileName,T", bpo::value<std::string>(),
+     "File name for TFileService.")
+    ("tmpdir", bpo::value<std::string>(),
+     "Temporary directory for in-progress output files (defaults to directory "
+     "of specified output file names).")
+    ("output,o", bpo::value<stringvec>()->composing(),
+     "Event output stream file (optionally specify stream with "
+     "stream-label:fileName in which case multiples are OK).")
     ("no-output", "Disable all output streams.")
   ;
 }
@@ -102,89 +112,99 @@ namespace {
   }
 
   void
-  processOutputOption(fhicl::intermediate_table & raw_config,
-                      std::string output)
+  processSpecifiedOutputs(fhicl::intermediate_table & raw_config,
+                          stringvec outputs)
   {
-    bool const want_output = (output != "/dev/null");
-    auto const splitPoint = output.find_first_of(':');
-    bool new_path_entry(false);
-    auto const outputsKey = "outputs"s;
-    if (want_output) {
-      ensureTable(raw_config, outputsKey);
-    } else if (!exists_outside_prolog(raw_config, outputsKey)) {
-      // Nothing to do.
-      return;
-    }
-
-    auto & outputs_table(raw_config.get<table_t &>(outputsKey));
-    std::string streamName;
-    if (splitPoint != std::string::npos) {
-      streamName = output.substr(0ull, splitPoint);
-      output.erase(0ull, splitPoint + 1ull);
-    } else if (outputs_table.size() == 1ull) {
-      streamName = outputs_table.cbegin()->first;
-    } else {
-      streamName = "out"s;
-    }
-
-    if (outputs_table.empty() && ! want_output) {
-      // Nothing to do.
-    }
-    else if (outputs_table.size() > 1ull &&
-             splitPoint == std::string::npos) {
-      throw cet::exception("BAD_OUTPUT_CONFIG")
-        << "Output configuration is ambiguous: configuration has "
-        << "multiple output modules. Cannot decide where to add "
-        << "specified output filename "
-        << output
-        << ". Use stream-specification: -o label:fileName to resolve the ambiguity.";
-    }
-    else {
-      // Empty.
-    }
-
-    if (outputs_table.find(streamName) == outputs_table.cend()) {
-      new_path_entry = true;
-      raw_config.put(outputsKey + '.' + streamName + '.' +
-                     "module_type",
-                     "RootOutput");
-    }
-    if (!want_output) {
-      // Remove this from paths.
-      removeFromEndPaths(raw_config, streamName);
-      // Remove outputs entrirely.
-      raw_config.erase(outputsKey);
-      return;
-    }
-    std::string out_table_path(outputsKey);
-    out_table_path += '.' + streamName;
-    raw_config.put(out_table_path + ".fileName", output);
-    if (new_path_entry) {
-      // If we created a new output module config, we need to make a
-      // path for it and add it to end paths. We will *not* detect the
-      // case where an *existing* output module config is not
-      // referenced in a path.
-      ensureTable(raw_config, "physics");
-      auto & physics_table = raw_config.get<table_t &>("physics");
-      // Find an unique name for the end_path into which we'll insert
-      // our new module.
-      std::string end_path = "injected_end_path_";
-      size_t n = physics_table.size() + 2;
-      for (size_t i = 1; i < n; ++i) {
-        std::ostringstream os;
-        os << end_path << i;
-        if (physics_table.find(os.str()) == physics_table.end()) {
-          end_path = os.str();
-          break;
-        }
+    auto const b = outputs.begin(), e = outputs.end();
+    for (auto i = b; i != e; ++i) {
+      auto & output = *i;
+      bool const want_output = (output != "/dev/null");
+      bool new_path_entry(false);
+      auto const outputsKey = "outputs"s;
+      if (want_output) {
+        ensureTable(raw_config, outputsKey);
+      } else if (!exists_outside_prolog(raw_config, outputsKey)) {
+        // Nothing to do.
+        return;
       }
-      // Make our end_path with the output module label in it.
-      raw_config.put("physics."s + end_path + "[0]", streamName);
-      // Add it to the end_paths list.
-      auto const key = "physics.end_paths"s;
-      if ( exists_outside_prolog(raw_config, key) ) {
-        size_t const index = raw_config.get<sequence_t &>("physics.end_paths").size();
-        raw_config.put("physics.end_paths["s + std::to_string(index) + ']', end_path);
+
+      auto & outputs_table(raw_config.get<table_t &>(outputsKey));
+      std::smatch splitResult;
+      static std::regex const streamSplitter("([[:alnum:]]+):(?:/[^/]|[^/]).*");
+      std::string streamName;
+      if (std::regex_match(output, splitResult, streamSplitter)) {
+        streamName = splitResult[1];
+        output.erase(0ull, streamName.size() + 1ull);
+      } else if (b != i) {
+        throw art::Exception(art::errors::Configuration)
+          << "While processing specified output " << output
+          << ": only the first specified output may omit the stream specification\n"
+          "(\"label:fileName\").\n";
+      } else if (outputs_table.size() == 1ull) {
+        streamName = outputs_table.cbegin()->first;
+      } else {
+        streamName = "out"s;
+      }
+
+      if (outputs_table.empty() && ! want_output) {
+        // Nothing to do.
+      }
+      else if (outputs_table.size() > 1ull &&
+               splitResult.size() == 0) {
+        throw art::Exception(art::errors::Configuration)
+          << "Output configuration is ambiguous: configuration has "
+          << "multiple output modules. Cannot decide where to add "
+          << "specified output filename "
+          << output
+          << ".\nUse stream-specification (\"label:fileName\") to resolve the ambiguity.";
+      }
+      else {
+        // Empty.
+      }
+
+      if (outputs_table.find(streamName) == outputs_table.cend()) {
+        new_path_entry = true;
+        raw_config.put(outputsKey + '.' + streamName + '.' +
+                       "module_type",
+                       "RootOutput");
+      }
+      if (!want_output) {
+        // Remove this from paths.
+        removeFromEndPaths(raw_config, streamName);
+        // Remove outputs entrirely.
+        raw_config.erase(outputsKey);
+        return;
+      }
+      std::string out_table_path(outputsKey);
+      out_table_path += '.' + streamName;
+      raw_config.put(out_table_path + ".fileName", output);
+      if (new_path_entry) {
+        // If we created a new output module config, we need to make a
+        // path for it and add it to end paths. We will *not* detect the
+        // case where an *existing* output module config is not
+        // referenced in a path.
+        ensureTable(raw_config, "physics");
+        auto & physics_table = raw_config.get<table_t &>("physics");
+        // Find an unique name for the end_path into which we'll insert
+        // our new module.
+        std::string end_path = "injected_end_path_";
+        size_t n = physics_table.size() + 2;
+        for (size_t i = 1; i < n; ++i) {
+          std::ostringstream os;
+          os << end_path << i;
+          if (physics_table.find(os.str()) == physics_table.end()) {
+            end_path = os.str();
+            break;
+          }
+        }
+        // Make our end_path with the output module label in it.
+        raw_config.put("physics."s + end_path + "[0]", streamName);
+        // Add it to the end_paths list.
+        auto const key = "physics.end_paths"s;
+        if ( exists_outside_prolog(raw_config, key) ) {
+          size_t const index = raw_config.get<sequence_t &>("physics.end_paths").size();
+          raw_config.put("physics.end_paths["s + std::to_string(index) + ']', end_path);
+        }
       }
     }
   }
@@ -196,7 +216,7 @@ namespace {
     // File output.
     if (vm.count("no-output") == 1) {
       if (vm.count("output")) {
-        throw cet::exception("BAD_OUTPUT_CONFIG")
+        throw art::Exception(art::errors::Configuration)
           << "Output configuration is ambiguous: command-line specifies "
           << "--output and --no-output simultaneously.";
       }
@@ -211,7 +231,7 @@ namespace {
       }
     }
     else if (vm.count("output") == 1) {
-      processOutputOption(raw_config, vm["output"].as<std::string>());
+      processSpecifiedOutputs(raw_config, vm["output"].as<stringvec>());
     }
   }
 }

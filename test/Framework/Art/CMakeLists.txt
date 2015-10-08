@@ -59,9 +59,7 @@ macro(config_test_pass TNAME)
   SET_TESTS_PROPERTIES(${TNAME}
     PROPERTIES
     PASS_REGULAR_EXPRESSION
-    "ART_DEBUG_CONFIG is defined"
-    PASS_REGULAR_EXPRESSION
-    "Config output to file"
+    "\\*\\* ART_DEBUG_CONFIG is defined.*\\*\\* Config output to file"
     )
 endmacro()
 
@@ -249,6 +247,36 @@ cet_test(BasicOutputOptions_13_w HANDBUILT
 config_test_pass(BasicOutputOptions_13_w)
 config_ref_test(BasicOutputOptions_13)
 
+# Should fail -- command-line multi-out without stream spec.
+cet_test(BasicOutputOptions_14_w HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS -o junk9.out -o junk8.out
+  -c opt-empty.fcl
+  TEST_PROPERTIES
+  PASS_REGULAR_EXPRESSION "only the first specified output may omit the stream specification"
+  DATAFILES fcl/opt-empty.fcl
+)
+
+# Should pass -- command-line and file multi-out with stream specs.
+cet_test(BasicOutputOptions_15_w HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS -o o2:junk9.out -o o3:junk21.out
+  -c opt-multiout.fcl
+  TEST_PROPERTIES ENVIRONMENT ART_DEBUG_CONFIG=config.out
+  DATAFILES fcl/opt-multiout.fcl
+)
+config_test_pass(BasicOutputOptions_15_w)
+config_ref_test(BasicOutputOptions_15)
+
+# Should fail -- command-line multi-out with late no-stream spec.
+cet_test(BasicOutputOptions_16_w HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS -o o2:junk9.out -o junk8.out
+  -c opt-empty.fcl
+  TEST_PROPERTIES
+  PASS_REGULAR_EXPRESSION "only the first specified output may omit the stream specification"
+  DATAFILES fcl/opt-empty.fcl
+)
 
 ####################################
 # BasicSourceOptionsHandler.
