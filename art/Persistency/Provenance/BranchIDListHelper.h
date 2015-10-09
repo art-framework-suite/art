@@ -19,7 +19,7 @@ public:
   using IndexPair = std::pair<BranchListIndex, ProductIndex>;
   using BranchIDToIndexMap = std::map<BranchID, IndexPair>;
 
-  static void updateFromInput(BranchIDLists file_bidlists,
+  static void updateFromInput(BranchIDLists const& file_bidlists,
                               std::string const& fileName);
   static void updateRegistries(MasterProductRegistry const& reg);
   static void clearRegistries();

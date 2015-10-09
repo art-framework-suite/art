@@ -13,75 +13,56 @@
 
 namespace {
 
-using BranchIDList = art::BranchIDListRegistry::collection_type::value_type;
+  using BranchIDList = art::BranchIDListRegistry::collection_type::value_type;
 
-std::size_t width(BranchIDList const& v)
-{
-  std::size_t w{};
-  cet::for_all(v, [&w](auto entry){w = std::max(w, std::to_string(entry).size());} );
-  return w;
-}
-
-std::string
-mismatch_msg(BranchIDList const& i, BranchIDList const& j)
-{
-  std::size_t const iW = std::max(width(i), std::string{"Previous File"}.size());
-  std::size_t const jW = std::max(width(j), std::string{"File to merge"}.size());
-
-  std::ostringstream msg;
-  msg << "  Previous File    File to merge\n";
-  msg << "  ==============================\n";
-  for (std::size_t m{}; m != std::max(i.size(), j.size()); ++m) {
-    msg << "  "
-        << std::setw(iW)
-        << std::left
-        << (m < i.size() ? std::to_string(i[m]) : "")
-        << "    "
-        << std::setw(jW)
-        << std::left
-        << (m < j.size() ? std::to_string(j[m]) : "")
-        << '\n';
+  std::size_t width(BranchIDList const& v)
+  {
+    std::size_t w{};
+    cet::for_all(v, [&w](auto entry){w = std::max(w, std::to_string(entry).size());} );
+    return w;
   }
-  return msg.str();
-}
 
-std::string check_BranchIDLists(art::BranchIDLists const& ref, art::BranchIDLists& test)
-{
-  if ( test.empty() ) return {};
+  std::string
+  mismatch_msg(BranchIDList const& i, BranchIDList const& j)
+  {
+    std::size_t const iW = std::max(width(i), std::string{"Previous File"}.size());
+    std::size_t const jW = std::max(width(j), std::string{"File to merge"}.size());
 
-  std::string result;
-  std::size_t i{};
-  for (auto const& rlist : ref) {
-    if ( rlist != test.front() ) {
-      result += "Process " + std::to_string(++i) + ":\n\n";
-      result += mismatch_msg(rlist, test.front());
-      result += "\n\n";
+    std::ostringstream msg;
+    msg << "  Previous File    File to merge\n";
+    msg << "  ==============================\n";
+    for (std::size_t m{}; m != std::max(i.size(), j.size()); ++m) {
+      msg << "  "
+          << std::setw(iW)
+          << std::left
+          << (m < i.size() ? std::to_string(i[m]) : "")
+          << "    "
+          << std::setw(jW)
+          << std::left
+          << (m < j.size() ? std::to_string(j[m]) : "")
+          << '\n';
     }
-    auto pos = test.erase( test.begin() );
-    if ( pos == test.end() )
-      return result;
+    return msg.str();
   }
-  return result;
-}
 
-} // unnamed namespace
+  auto first_new_BranchIDList(art::BranchIDLists const& ref,
+                              art::BranchIDLists const& test,
+                              std::string const& fileName)
+  {
+    std::string err_msg;
+    std::size_t i{};
+    for ( ; i != std::min(ref.size(), test.size()); ++i ) {
+      if ( ref[i] != test[i] ) {
+        err_msg += "Process " + std::to_string(i+1) + ":\n\n";
+        err_msg += mismatch_msg(ref[i], test[i]);
+        err_msg += "\n\n";
+      }
+    }
 
-// Called on primary file open.  Verify that the new file produced the
-// same Event-level products for each process in the process history
-// it has in common with the previous files, and allow it to add more
-// process history onto the end.
-void
-art::
-BranchIDListHelper::
-updateFromInput(BranchIDLists file_bidlists, std::string const& fileName)
-{
-  auto& breg = *BranchIDListRegistry::instance();
-  auto& reg_bidlists = breg.data();
-
-  std::string err_msg = check_BranchIDLists(reg_bidlists, file_bidlists);
-
-  if (err_msg.size())
-    throw art::Exception(errors::MismatchedInputFiles)
+    return
+      err_msg.empty() ?
+      std::next(test.begin(),i) : // will not exceed test.end()
+      throw art::Exception(art::errors::MismatchedInputFiles)
       << "Cannot merge file '"
       << fileName
       << "' due to inconsistent process histories:\n\n"
@@ -95,13 +76,27 @@ updateFromInput(BranchIDLists file_bidlists, std::string const& fileName)
       << "service. Then 'grep' the log file for messages with 'BranchID'."
       << "\n\n"
       << "Contact the framework group for assistance.\n";
-
-  if ( file_bidlists.empty() )
-    return;
-
-  for (auto const& new_bidlist : file_bidlists) {
-    breg.insertMapped( new_bidlist );
   }
+
+} // unnamed namespace
+
+// Called on primary file open.  Verify that the new file produced the
+// same Event-level products for each process in the process history
+// it has in common with the previous files, and allow it to add more
+// process history onto the end.
+void
+art::
+BranchIDListHelper::
+updateFromInput(BranchIDLists const & file_bidlists, std::string const& fileName)
+{
+  auto& breg = *BranchIDListRegistry::instance();
+  auto& reg_bidlists = breg.data();
+
+  std::for_each( first_new_BranchIDList(reg_bidlists, file_bidlists, fileName),
+                 file_bidlists.cend(),
+                 [&breg](auto const& new_list) {
+                   breg.insertMapped( new_list );
+                 } );
 
   generate_branchIDToIndexMap();
 }
