@@ -7,13 +7,12 @@
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/ServicesManager.h"
 #include "cetlib/LibraryManager.h"
-
-#include "cpp0x/memory"
-#include "cpp0x/utility"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/types/detail/validationException.h"
 
 #include <cassert>
+#include <memory>
+#include <utility>
 
 art::ServicesManager::
 ServicesManager(ParameterSets const & psets,
@@ -47,10 +46,8 @@ art::ServicesManager::~ServicesManager()
 void
 art::ServicesManager::forceCreation()
 {
-  TypeIDs::iterator it(requestedCreationOrder_.begin()),
-          end(requestedCreationOrder_.end());
-  for (; it != end; ++it) {
-    detail::ServiceCache::iterator c = factory_.find(*it);
+  for (auto const& val : requestedCreationOrder_) {
+    detail::ServiceCache::iterator c = factory_.find(val);
     if (c != factory_.end()) { c->second.forceCreation(registry_); }
     // JBK - should an exception be thrown if name not found in map?
   }
@@ -61,9 +58,9 @@ art::ServicesManager::
 getParameterSets(ParameterSets & out) const
 {
   ParameterSets tmp;
-  detail::ServiceCache::const_iterator cur = factory_.begin(), end = factory_.end();
-  for (; cur != end; ++cur)
-  { tmp.push_back(cur->second.getParameterSet()); }
+  for (auto const& cur : factory_) {
+    tmp.push_back(cur.second.getParameterSet());
+  }
   tmp.swap(out);
 }
 
@@ -71,12 +68,11 @@ void
 art::ServicesManager::
 putParameterSets(ParameterSets const & n)
 {
-  ParameterSets::const_iterator cur = n.begin(), end = n.end();
-  for (; cur != end; ++cur) {
-    std::string service_name = cur->get<std::string>("service_type", "junk");
+  for (auto const& cur : n) {
+    std::string service_name = cur.get<std::string>("service_type", "junk");
     NameIndex::iterator ii = index_.find(service_name);
     if (ii != index_.end()) {
-      (ii->second)->second.putParameterSet(*cur);
+      (ii->second)->second.putParameterSet(cur);
       registry_.sPostServiceReconfigure.invoke(service_name);
     }
   }
@@ -162,9 +158,9 @@ insertImpl_(fhicl::ParameterSet const & pset,
   // Need temporary because we can't guarantee the order of evaluation
   // of the arguments to std::make_pair() below.
   TypeID sType(helper->get_typeid());
-  return factory_.insert(std::make_pair(sType,
-                                        detail::ServiceCacheEntry(pset,
-                                                                  std::move(helper))));
+  return factory_.emplace(sType,
+                          detail::ServiceCacheEntry(pset,
+                                                    std::move(helper)));
 }
 
 void
@@ -176,10 +172,10 @@ insertInterface_(fhicl::ParameterSet const & pset,
   // Need temporary because we can't guarantee the order of evaluation
   // of the arguments to std::make_pair() below.
   TypeID iType(helper->get_typeid());
-  factory_.insert(std::make_pair(iType,
-                                 detail::ServiceCacheEntry(pset,
-                                                           std::move(helper),
-                                                           implEntry->second)));
+  factory_.emplace(iType,
+                   detail::ServiceCacheEntry(pset,
+                                             std::move(helper),
+                                             implEntry->second));
 
 }
 // ======================================================================
