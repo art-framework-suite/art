@@ -62,6 +62,7 @@ RootInputFileSequence(fhicl::ParameterSet const& pset,
   , groupSelectorRules_(pset.get<std::vector<std::string>>("inputCommands",{"keep *"}), "inputCommands", "InputSource")
   , duplicateChecker_()
   , dropDescendants_(pset.get<bool>("dropDescendantsOfDroppedBranches", true))
+  , readParameterSets_(pset.get<bool>("readParameterSets", true))
   , fastCloningInfo_(fcip)
   , processingMode_(pMode)
   , processConfiguration_(processConfig)
@@ -364,6 +365,7 @@ initFile(bool skipBadFiles, bool initMPR/*=false*/)
                 false,
                 duplicateChecker_,
                 dropDescendants_,
+                readParameterSets_,
                 /*primaryFile*/exempt_ptr<RootInputFile>(),
                 /*secondaryFileNameIdx*/-1,
                 secondaryFileNames_.empty() ?
@@ -468,6 +470,7 @@ openSecondaryFile(int idx, string const& name,
      /*dropMergeable*/false,
      /*duplicateChecker_*/nullptr,
      dropDescendants_,
+     readParameterSets_,
      /*primaryFile*/primaryFile,
      /*secondaryFileNameIdx*/idx,
      /*secondaryFileNames*/empty_vs,

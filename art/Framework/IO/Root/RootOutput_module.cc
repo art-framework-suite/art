@@ -58,6 +58,7 @@ public: // MEMBER FUNCTIONS
     fhicl::Atom<int> basketSize { fhicl::Name("basketSize"), 16384 };
     fhicl::Atom<bool> dropMetaDataForDroppedData { fhicl::Name("dropMetaDataForDroppedData"), false };
     fhicl::Atom<std::string> dropMetaData { fhicl::Name("dropMetaData"), "" };
+    fhicl::Atom<bool> dropParameterSets {fhicl::Name("dropParameterSets"), false };
   };
 
   using Parameters = OutputModule::Table<Config>;
@@ -136,6 +137,11 @@ private:
   // make some choices.
   bool fastCloning_;
 
+  // Used only for cases where we are guaranteed never to need
+  // historical ParameterSet information in the downstream file
+  // (e.g. mixing).
+  bool dropParameterSets_;
+
   // ResultsProducer management.
   RPManager rpm_;
 };
@@ -171,6 +177,7 @@ RootOutput(Parameters const & config)
   , dropMetaData_(DropMetaData::DropNone)
   , dropMetaDataForDroppedData_(config().dropMetaDataForDroppedData())
   , fastCloning_(true)
+  , dropParameterSets_(config().dropParameterSets())
   , rpm_(config.get_PSet())
 {
   mf::LogInfo msg("FastCloning");
@@ -401,7 +408,9 @@ void
 art::RootOutput::
 writeParameterSetRegistry()
 {
-  rootOutputFile_->writeParameterSetRegistry();
+  if (!dropParameterSets_) {
+    rootOutputFile_->writeParameterSetRegistry();
+  }
 }
 
 void

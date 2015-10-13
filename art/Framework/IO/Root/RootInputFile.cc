@@ -42,8 +42,42 @@ extern "C" {
 #include "sqlite3.h"
 }
 
+#include <string>
+
 using namespace cet;
 using namespace std;
+
+namespace {
+  bool have_table(sqlite3 * db, std::string errMsg)
+  {
+    bool result = false;
+    sqlite3_stmt * stmt;
+    auto rc =
+      sqlite3_prepare_v2(db,
+                         "select 1 from sqlite_master where type='table' and name='ParameterSets';",
+                         -1,
+                         &stmt,
+                         nullptr);
+    if (rc == SQLITE_OK) {
+      switch (rc = sqlite3_step(stmt)) {
+      case SQLITE_ROW:
+        result = true; // Found the table.
+      case SQLITE_DONE:
+        rc = SQLITE_OK; // No such table.
+        break;
+      default:
+        break;
+      }
+    }
+    sqlite3_finalize(stmt);
+    if (rc != SQLITE_OK) {
+      throw art::Exception(art::errors::FileReadError)
+        << errMsg
+        << ".\n";
+    }
+    return result;
+  }
+}
 
 namespace art {
 
@@ -69,6 +103,7 @@ namespace art {
                 bool dropMergeable,
                 shared_ptr<DuplicateChecker> duplicateChecker,
                 bool dropDescendants,
+                bool const readIncomingParameterSets,
                 exempt_ptr<RootInputFile> primaryFile,
                 int secondaryFileNameIdx,
                 vector<string> const& secondaryFileNames,
@@ -154,7 +189,8 @@ namespace art {
     }
     ParameterSetMap psetMap;
     auto psetMapPtr = &psetMap;
-    if (metaDataTree->GetBranch(metaBranchRootName<ParameterSetMap>())) {
+    if (readIncomingParameterSets &&
+        metaDataTree->GetBranch(metaBranchRootName<ParameterSetMap>())) {
       // May be in MetaData tree or DB.
       metaDataTree->SetBranchAddress(metaBranchRootName<ParameterSetMap>(),
                                      &psetMapPtr);
@@ -205,10 +241,13 @@ namespace art {
       fhicl::ParameterSetRegistry::put(pset);
     }
     // Also need to check MetaData DB if we have one.
-    if (fileFormatVersion_.value_ >= 5) {
+    if (readIncomingParameterSets &&
+        (fileFormatVersion_.value_ >= 5)) {
       // Open the DB.
       SQLite3Wrapper sqliteDB(filePtr_.get(), "RootFileDB");
-      fhicl::ParameterSetRegistry::importFrom(sqliteDB);
+      if (have_table(sqliteDB, "Error interrogating SQLite3 DB in file "s + file_)) {
+        fhicl::ParameterSetRegistry::importFrom(sqliteDB);
+      }
     }
     ProcessHistoryRegistry::put(pHistMap);
     validateFile();
