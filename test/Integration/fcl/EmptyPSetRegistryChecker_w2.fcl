@@ -3,5 +3,5 @@
 outputs.o1: {
   @table::outputs.o1
   fileName: "out_without_psets.root"
-  dropParameterSets: true
+  writeParameterSets: false
 }
