@@ -490,3 +490,209 @@ config_test_pass(FileCatalogOptions_05_w)
 
 # Compare output from FileCatalogOptions_05_w against reference.
 config_ref_test(FileCatalogOptions_05)
+
+# Should pass and provide config output file for comparison in
+# FileCatalogOptions_06_r.
+cet_test(FileCatalogOptions_06_w HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --sam-web-uri=http://example.com
+  --sam-process-id=778213
+  -o out.root
+  -c opt-empty.fcl
+  --process-name=SAMTEST
+  --sam-application-family "Ethel"
+  --sam-application-version "v0.00.01a"
+  --sam-file-type "MC"
+  --sam-data-tier "The one with the thickest frosting"
+  --sam-stream-name "wannasweetie"
+  TEST_PROPERTIES ENVIRONMENT ART_DEBUG_CONFIG=config.out
+  DATAFILES fcl/opt-empty.fcl
+)
+
+config_test_pass(FileCatalogOptions_06_w)
+
+# Compare output from FileCatalogOptions_07_w against reference.
+config_ref_test(FileCatalogOptions_06)
+
+# Should pass and provide config output file for comparison in
+# FileCatalogOptions_07_r.
+cet_test(FileCatalogOptions_07_w HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --sam-web-uri=http://example.com
+  --sam-process-id=778213
+  -o out.root
+  -c opt-empty.fcl
+  --process-name=SAMTEST
+  --sam-application-family "Ethel"
+  --sam-application-version "v0.00.01a"
+  --sam-file-type "MC"
+  --sam-data-tier "The one with the thickest frosting"
+  --sam-stream-name "out:wannabikkit"
+  --sam-stream-name "wannasweetie"
+  TEST_PROPERTIES ENVIRONMENT ART_DEBUG_CONFIG=config.out
+  DATAFILES fcl/opt-empty.fcl
+)
+
+config_test_pass(FileCatalogOptions_07_w)
+
+# Compare output from FileCatalogOptions_07_w against reference.
+config_ref_test(FileCatalogOptions_07)
+
+# Should pass and provide config output file for comparison in
+# FileCatalogOptions_08_r.
+cet_test(FileCatalogOptions_08_w HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --sam-web-uri=http://example.com
+  --sam-process-id=778213
+  -o out.root
+  -c simple-with-streamName.fcl
+  --process-name=SAMTEST
+  --sam-application-family "Ethel"
+  --sam-application-version "v0.00.01a"
+  --sam-file-type "MC"
+  --sam-data-tier "The one with the thickest frosting"
+  TEST_PROPERTIES ENVIRONMENT ART_DEBUG_CONFIG=config.out
+  DATAFILES fcl/simple-with-streamName.fcl
+)
+
+config_test_pass(FileCatalogOptions_08_w)
+
+# Compare output from FileCatalogOptions_08_w against reference.
+config_ref_test(FileCatalogOptions_08)
+
+# Should pass and provide config output file for comparison in
+# FileCatalogOptions_09_r.
+cet_test(FileCatalogOptions_09_w HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --sam-web-uri=http://example.com
+  --sam-process-id=778213
+  -o out.root
+  -c simple-with-streamName.fcl
+  --process-name=SAMTEST
+  --sam-application-family "Ethel"
+  --sam-application-version "v0.00.01a"
+  --sam-file-type "MC"
+  --sam-data-tier "The one with the thickest frosting"
+  --sam-stream-name "wannasweetie"
+  TEST_PROPERTIES ENVIRONMENT ART_DEBUG_CONFIG=config.out
+  DATAFILES fcl/simple-with-streamName.fcl
+)
+
+config_test_pass(FileCatalogOptions_09_w)
+
+# Compare output from FileCatalogOptions_09_w against reference.
+config_ref_test(FileCatalogOptions_09)
+
+# Should pass and provide config output file for comparison in
+# FileCatalogOptions_10_r.
+cet_test(FileCatalogOptions_10_w HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --sam-web-uri=http://example.com
+  --sam-process-id=778213
+  -o out.root
+  -c simple-with-streamName.fcl
+  --process-name=SAMTEST
+  --sam-application-family "Ethel"
+  --sam-application-version "v0.00.01a"
+  --sam-file-type "MC"
+  --sam-data-tier "The one with the thickest frosting"
+  --sam-stream-name "out:wannabikkit"
+  TEST_PROPERTIES ENVIRONMENT ART_DEBUG_CONFIG=config.out
+  DATAFILES fcl/simple-with-streamName.fcl
+)
+
+config_test_pass(FileCatalogOptions_10_w)
+
+# Compare output from FileCatalogOptions_10_w against reference.
+config_ref_test(FileCatalogOptions_10)
+
+# Should pass and provide config output file for comparison in
+# FileCatalogOptions_11_r.
+cet_test(FileCatalogOptions_11_w HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --sam-web-uri=http://example.com
+  --sam-process-id=778213
+  -o out.root
+  -c simple-with-dataTier.fcl
+  --process-name=SAMTEST
+  --sam-application-family "Ethel"
+  --sam-application-version "v0.00.01a"
+  --sam-file-type "MC"
+  --sam-data-tier "The one with the thickest frosting"
+  --sam-data-tier "out:The one with all the flowers"
+  TEST_PROPERTIES ENVIRONMENT ART_DEBUG_CONFIG=config.out
+  DATAFILES fcl/simple-with-dataTier.fcl
+)
+
+config_test_pass(FileCatalogOptions_11_w)
+
+# Compare output from FileCatalogOptions_11_w against reference.
+config_ref_test(FileCatalogOptions_11)
+
+# Should pass and provide config output file for comparison in
+# FileCatalogOptions_12_r.
+cet_test(FileCatalogOptions_12_w HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --sam-web-uri=http://example.com
+  --sam-process-id=778213
+  -o out.root
+  -c simple-with-dataTier.fcl
+  --process-name=SAMTEST
+  --sam-application-family "Ethel"
+  --sam-application-version "v0.00.01a"
+  --sam-file-type "MC"
+  --sam-data-tier "The one with the thickest frosting"
+  --sam-data-tier "out:The one with all the flowers"
+  TEST_PROPERTIES ENVIRONMENT ART_DEBUG_CONFIG=config.out
+  DATAFILES fcl/simple-with-dataTier.fcl
+)
+
+config_test_pass(FileCatalogOptions_12_w)
+
+# Compare output from FileCatalogOptions_12_w against reference.
+config_ref_test(FileCatalogOptions_12)
+
+# Should pass and provide config output file for comparison in
+# FileCatalogOptions_13_r.
+cet_test(FileCatalogOptions_13_w HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --sam-web-uri=http://example.com
+  --sam-process-id=778213
+  -o out.root
+  -c simple-with-dataTier.fcl
+  --process-name=SAMTEST
+  --sam-application-family "Ethel"
+  --sam-application-version "v0.00.01a"
+  --sam-file-type "MC"
+  --sam-data-tier "The one with the thickest frosting"
+  TEST_PROPERTIES ENVIRONMENT ART_DEBUG_CONFIG=config.out
+  DATAFILES fcl/simple-with-dataTier.fcl
+)
+
+config_test_pass(FileCatalogOptions_13_w)
+
+# Compare output from FileCatalogOptions_13_w against reference.
+config_ref_test(FileCatalogOptions_13)
+
+# Should pass and provide config output file for comparison in
+# FileCatalogOptions_14_r.
+cet_test(FileCatalogOptions_14_w HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --sam-web-uri=http://example.com
+  --sam-process-id=778213
+  -o out.root
+  -c opt-empty.fcl
+  --process-name=SAMTEST
+  --sam-application-family "Ethel"
+  --sam-application-version "v0.00.01a"
+  --sam-file-type "MC"
+  --sam-data-tier "The one with the thickest frosting"
+  TEST_PROPERTIES ENVIRONMENT ART_DEBUG_CONFIG=config.out
+  DATAFILES fcl/opt-empty.fcl
+)
+
+config_test_pass(FileCatalogOptions_14_w)
+
+# Compare output from FileCatalogOptions_14_w against reference.
+config_ref_test(FileCatalogOptions_14)
+

@@ -1,0 +1,11 @@
+outputs: {
+   out: {
+      module_type: "RootOutput"
+      fileName: "out.root"
+      dataTier: "The middle one"
+   }
+}
+
+physics: {
+  o1: [ out ]
+}

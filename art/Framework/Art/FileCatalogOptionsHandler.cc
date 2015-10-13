@@ -64,37 +64,43 @@ namespace {
     for (auto const & stream : stream_names) {
       sep_streams.insert(split_to_pair(stream));
     }
-    auto def_tier_it(sep_tiers.find("_default"));
-    auto def_tier((def_tier_it != sep_tiers.end()) ?
-                  def_tier_it->second :
-                  "");
-    auto def_stream_it(sep_streams.find("_default"));
-    auto def_stream((def_stream_it != sep_streams.end()) ?
-                    def_stream_it->second :
-                    "");
+    auto const def_tier_it(sep_tiers.find("_default"));
+    auto const def_tier((def_tier_it != sep_tiers.end()) ?
+                        def_tier_it->second :
+                        "");
+    auto const def_stream_it(sep_streams.find("_default"));
+    auto const def_stream((def_stream_it != sep_streams.end()) ?
+                          def_stream_it->second :
+                          "");
     for (auto const & output : table) {
       if (!exists_outside_prolog(raw_config, outputs_stem + output.first + ".module_type")) {
         continue; // Not a module parameter set.
       }
+      auto const tier_spec_key = outputs_stem + output.first + tier_spec_stem;
+      auto const stream_name_key = outputs_stem + output.first + stream_name_stem;
       auto tiers_it(sep_tiers.find(output.first));
-      std::string tier((tiers_it != sep_tiers.end()) ?
-                       tiers_it->second :
-                       def_tier);
+      std::string tier;
+      if (tiers_it != sep_tiers.end()) {
+        tier = tiers_it->second;
+      } else if (!exists_outside_prolog(raw_config, tier_spec_key)) {
+        tier = def_tier;
+      }
       if (!tier.empty()) {
-        raw_config.put(outputs_stem + output.first + tier_spec_stem,
-                       tier);
+        raw_config.put(tier_spec_key, tier);
       }
       auto streams_it(sep_streams.find(output.first));
-      std::string stream((streams_it != sep_streams.end()) ?
-                         streams_it->second :
-                         def_stream);
-      raw_config.put(outputs_stem + output.first + stream_name_stem,
-                     (!stream.empty()) ?
-                     stream :
-                     output.first);
+      std::string stream;
+      if (streams_it != sep_streams.end()) {
+        stream = streams_it->second;
+      } else if (!exists_outside_prolog(raw_config, stream_name_key)) {
+        stream = (!def_stream.empty()) ? def_stream : output.first;
+      }
+      if (!stream.empty()) {
+        raw_config.put(stream_name_key, stream);
+      }
       if (raw_config.get<std::string>(outputs_stem + output.first + ".module_type" ) == "RootOutput") {
-        if (!(exists_outside_prolog(raw_config, outputs_stem + output.first + tier_spec_stem)  &&
-              exists_outside_prolog(raw_config, outputs_stem + output.first + stream_name_stem))) {
+        if (!(exists_outside_prolog(raw_config, tier_spec_key) &&
+              exists_outside_prolog(raw_config, stream_name_key))) {
           throw art::Exception(art::errors::Configuration)
           << "Output \""
           << output.first
