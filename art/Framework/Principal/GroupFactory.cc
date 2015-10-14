@@ -1,104 +1,150 @@
 #include "art/Framework/Principal/GroupFactory.h"
+// vim: set sw=2:
 
 #include "art/Framework/Principal/AssnsGroup.h"
 #include "art/Framework/Principal/Group.h"
 #include "art/Persistency/Common/Assns.h"
 #include "art/Persistency/Provenance/TypeTools.h"
 #include "art/Utilities/WrappedClassName.h"
-
+#include "cetlib/demangle.h"
 #include "TClass.h"
 
-namespace {
-  TClass *  type_of_wrapper(TClass *  wrapped_item_type) {
-    return
-      TClass::GetClass(art::wrappedClassName(wrapped_item_type->GetName()).c_str());
-  }
+#include <iostream>
 
-  TClass *  type_of_wrapper(art::BranchDescription const &bd) {
-    return TClass::GetClass(bd.wrappedName().c_str());
-  }
+using namespace std;
 
-  TClass *  type_of_wrapped_item(art::BranchDescription const &bd) {
-    return art::type_of_template_arg(type_of_wrapper(bd), 0);
-  }
+namespace art {
+namespace gfactory {
 
-  TClass *  is_assns(TClass *  wrapped_item_type) {
-    return art::is_instantiation_of(wrapped_item_type, "art::Assns") ?
-      wrapped_item_type :
-      nullptr;
-  }
-
-  TClass *  is_assns(art::BranchDescription const &bd) {
-    return is_assns(type_of_wrapped_item(bd));
-  }
-
-  TClass *  type_of_wrapper_of_other_assns(TClass *  const & assns_type) {
-    assert(is_assns(assns_type));
-    TClass *  partner(TClass::GetClass((std::string(assns_type->GetName()) + "::partner_t").c_str()));
-    assert(partner);
-    return TClass::GetClass(art::wrappedClassName(partner->GetName()).c_str());
-  }
-}
-
-std::unique_ptr<art::Group>
-art::gfactory::
-make_group(BranchDescription const &bd,
-           ProductID const &pid)
+unique_ptr<Group>
+make_group(BranchDescription const& bd, ProductID const& pid)
 {
-  TClass *  atype(is_assns(bd));
-  return
-    std::unique_ptr<Group>
-    (atype ?
-     new AssnsGroup(bd,
-                    pid,
-                    art::TypeID(type_of_wrapper(atype)->GetTypeInfo()),
-                    art::TypeID(type_of_wrapper_of_other_assns(atype)->GetTypeInfo())) :
-     new Group(bd,
-               pid,
-               art::TypeID(type_of_wrapper(bd)->GetTypeInfo())));
+  //cout
+  //    << "\n-----> Begin gfactory::make_group(bd,pid)"
+  //    << endl;
+  auto wn = TClass::GetClass(bd.wrappedName().c_str());
+  auto ta = type_of_template_arg(wn, 0);
+  //cout
+  //    << "wn: "
+  //    << wn->GetName()
+  //    << endl;
+  //if (ta == nullptr) {
+  //  cout
+  //      << "ta: nullptr"
+  //      << endl;
+  //}
+  //else {
+  //  cout
+  //      << "ta:              "
+  //      << ta->GetName()
+  //      << endl;
+  //}
+  TClass* atype = nullptr;
+  if (ta != nullptr) {
+    if (string(ta->GetName()).find("art::Assns<") == 0ul) {
+      atype = ta;
+    }
+  }
+  if (atype != nullptr) {
+    auto tw = TClass::GetClass(wrappedClassName(atype->GetName()).c_str());
+    auto twid = TypeID(tw->GetTypeInfo());
+    string pn = atype->GetName();
+    pn += "::partner_t";
+    TClass* p = TClass::GetClass(pn.c_str());
+    auto pwn = wrappedClassName(p->GetName());
+    auto twp = TClass::GetClass(pwn.c_str());
+    auto twpid = TypeID(twp->GetTypeInfo());
+    //cout
+    //    << "tw:    "
+    //    << tw->GetName()
+    //    << endl
+    //    << "twid:  "
+    //    << cet::demangle_symbol(twid.name())
+    //    << endl
+    //    << "twp:   "
+    //    << twp->GetName()
+    //    << endl
+    //    << "twpid: "
+    //    << cet::demangle_symbol(twpid.name())
+    //    << endl;
+    //cout
+    //    << "making AssnsGroup(bd,pid,twid,twpid)"
+    //    << endl;
+    //cout
+    //    << "-----> End   gfactory::make_group(bd,pid)"
+    //    << endl;
+    return unique_ptr<Group>(new AssnsGroup(bd, pid, twid, twpid));
+  }
+  auto tw = TClass::GetClass(bd.wrappedName().c_str());
+  auto twid = TypeID(tw->GetTypeInfo());
+  //cout
+  //    << "making Group(bd,pid,twid)"
+  //    << endl;
+  //cout
+  //    << "-----> End   gfactory::make_group(bd,pid)"
+  //    << endl;
+  return unique_ptr<Group>(new Group(bd, pid, twid));
 }
 
-std::unique_ptr<art::Group>
-art::gfactory::
-make_group(BranchDescription const &bd,
-           ProductID const &pid,
+unique_ptr<Group>
+make_group(BranchDescription const& bd, ProductID const& pid,
            cet::exempt_ptr<Worker> productProducer,
            cet::exempt_ptr<EventPrincipal> onDemandPrincipal)
 {
-  TClass *  atype(is_assns(bd));
-  return
-    std::unique_ptr<Group>
-    (atype ?
-     new AssnsGroup(bd,
-                    pid,
-                    art::TypeID(type_of_wrapper(atype)->GetTypeInfo()),
-                    art::TypeID(type_of_wrapper_of_other_assns(atype)->GetTypeInfo()),
-                    productProducer,
-                    onDemandPrincipal) :
-     new Group(bd,
-               pid,
-               art::TypeID(type_of_wrapper(bd)->GetTypeInfo()),
-               productProducer,
-               onDemandPrincipal));
+  auto wn = TClass::GetClass(bd.wrappedName().c_str());
+  auto ta = type_of_template_arg(wn, 0);
+  TClass* atype = nullptr;
+  if (ta != nullptr) {
+    if (string(ta->GetName()).find("art::Assns<") == 0ul) {
+      atype = ta;
+    }
+  }
+  if (atype != nullptr) {
+    auto tw = TClass::GetClass(wrappedClassName(atype->GetName()).c_str());
+    auto twid = TypeID(tw->GetTypeInfo());
+    string pn = atype->GetName();
+    pn += "::partner_t";
+    TClass* p = TClass::GetClass(pn.c_str());
+    auto pwn = wrappedClassName(p->GetName());
+    auto twp = TClass::GetClass(pwn.c_str());
+    auto twpid = TypeID(twp->GetTypeInfo());
+    return unique_ptr<Group>(new AssnsGroup(bd, pid, twid, twpid, productProducer,
+                                            onDemandPrincipal));
+  }
+  auto tw = TClass::GetClass(bd.wrappedName().c_str());
+  auto twid = TypeID(tw->GetTypeInfo());
+  return unique_ptr<Group>(new Group(bd, pid, twid, productProducer,
+                                     onDemandPrincipal));
 }
 
-std::unique_ptr<art::Group>
-art::gfactory::
-make_group(std::unique_ptr<EDProduct> && edp,
-           BranchDescription const &bd,
-           ProductID const &pid)
+unique_ptr<Group>
+make_group(unique_ptr<EDProduct>&& edp, BranchDescription const& bd,
+           ProductID const& pid)
 {
-  TClass *  atype(is_assns(bd));
-  return
-    std::unique_ptr<Group>
-    (atype ?
-     new AssnsGroup(std::move(edp),
-                    bd,
-                    pid,
-                    art::TypeID(type_of_wrapper(atype)->GetTypeInfo()),
-                    art::TypeID(type_of_wrapper_of_other_assns(atype)->GetTypeInfo())) :
-     new Group(std::move(edp),
-               bd,
-               pid,
-               art::TypeID(type_of_wrapper(bd)->GetTypeInfo())));
+  auto wn = TClass::GetClass(bd.wrappedName().c_str());
+  auto ta = type_of_template_arg(wn, 0);
+  TClass* atype = nullptr;
+  if (ta != nullptr) {
+    if (string(ta->GetName()).find("art::Assns<") == 0ul) {
+      atype = ta;
+    }
+  }
+  if (atype != nullptr) {
+    auto tw = TClass::GetClass(wrappedClassName(atype->GetName()).c_str());
+    auto twid = TypeID(tw->GetTypeInfo());
+    string pn = atype->GetName();
+    pn += "::partner_t";
+    TClass* p = TClass::GetClass(pn.c_str());
+    auto pwn = wrappedClassName(p->GetName());
+    auto twp = TClass::GetClass(pwn.c_str());
+    auto twpid = TypeID(twp->GetTypeInfo());
+    return unique_ptr<Group>(new AssnsGroup(move(edp), bd, pid, twid, twpid));
+  }
+  auto tw = TClass::GetClass(bd.wrappedName().c_str());
+  auto twid = TypeID(tw->GetTypeInfo());
+  return unique_ptr<Group>(new Group(move(edp), bd, pid, twid));
 }
+
+} // namespace gfactory
+} // namespace art
+

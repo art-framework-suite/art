@@ -66,6 +66,10 @@ cet_find_library( CPPUNIT NAMES cppunit   PATHS ENV CPPUNIT_LIB   NO_DEFAULT_PAT
 include(ArtDictionary)
 include(BuildPlugins)
 
+if (NOT APPLE)
+  set(RT -lrt)
+endif()
+
 # Plugin skeleton generators for cetskelgen.
 add_subdirectory(perllib)
 

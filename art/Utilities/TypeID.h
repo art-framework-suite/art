@@ -1,131 +1,122 @@
 #ifndef art_Utilities_TypeID_h
 #define art_Utilities_TypeID_h
+// vim: set sw=2:
 
-////////////////////////////////////////////////////////////////////////
+//
 // TypeID: A unique identifier for a C++ type.
 //
 // The identifier is unique within an entire program, but cannot be
 // persisted across invocations of the program.
-////////////////////////////////////////////////////////////////////////
-#include "art/Utilities/fwd.h"
+//
 
+#include "art/Utilities/fwd.h"
 #include <iosfwd>
 #include <string>
 #include <typeinfo>
 
 namespace art {
 
-  bool operator > ( TypeID const & a, TypeID const & b );
-  bool operator != ( TypeID const & a, TypeID const & b );
+class TypeID {
 
-  std::ostream& operator<<(std::ostream& os, const TypeID& id);
-}
-
-class art::TypeID {
 public:
 
-  // Constructors.
-  TypeID() : t_(&typeid(Def)) {}
-  explicit TypeID(std::type_info const &t);
-  template <typename T> explicit TypeID(const T& t);
+  TypeID();
+
+  explicit
+  TypeID(std::type_info const&);
+
+  explicit
+  TypeID(std::type_info const*);
+
+  template<typename T>
+  explicit
+  TypeID(T const& val)
+    : ti_(&typeid(val))
+  {
+  }
 
   // Print out the name of the type, using the reflection class name.
-  void print(std::ostream& os) const;
+  void
+  print(std::ostream&) const;
 
   // Returned C-style string owned by system; do not delete[] it.
   // This is the (horrible, mangled, platform-dependent) name of the type.
-  char const * name() const;
-  std::string className() const;
-  std::string friendlyClassName() const;
+  char const*
+  name() const
+  {
+    return ti_->name();
+  }
+
+  std::string
+  className() const;
+
+  std::string
+  friendlyClassName() const;
 
   // Does ROOT have access to dictionary information for this type?
-  bool hasDictionary() const;
+  bool
+  hasDictionary() const;
 
-  // Comparators:
-  bool operator < ( const TypeID & other ) const;
-  bool operator == ( const TypeID & other ) const;
+  bool
+  operator<(TypeID const& rhs) const
+  {
+    return ti_->before(*rhs.ti_);
+  }
+
+  bool
+  operator==(TypeID const& rhs) const
+  {
+    return *ti_ == *rhs.ti_;
+  }
 
   // Are we valid?
-  explicit operator bool() const;
+  explicit
+  operator bool() const
+  {
+    return ti_ != &typeid(Def);
+  }
 
   // Access the typeinfo.
-  std::type_info const &typeInfo() const;
+  std::type_info const&
+  typeInfo() const
+  {
+    return *ti_;
+  }
 
 private:
+
   struct Def {};
+
+private:
 
   // NOTE: since (a) the compiler generates the type_infos, and
   // (b) they have a lifetime good for the entire application,
   // we do not have to delete it.
   // We use a pointer rather than a reference so that assignment will work
-  const std::type_info * t_;
+  std::type_info const* ti_;
+
 };
 
 inline
 bool
-art::operator > ( TypeID const & a, TypeID const & b )
+operator>(TypeID const& a, TypeID const& b)
 {
   return b < a;
 }
 
 inline
 bool
-art::operator != ( TypeID const & a, TypeID const & b )
+operator!=(TypeID const& a, TypeID const& b)
 {
-  return ! (a==b);
+  return !(a == b);
 }
 
-inline
-art::TypeID::TypeID(std::type_info const & t)
-:
-  t_(&t)
-{
-}
+std::ostream&
+operator<<(std::ostream&, const TypeID&);
 
-template <typename T>
-inline
-art::TypeID::TypeID(T const & t)
-:
-  t_(&typeid(t))
-{
-}
-
-inline
-char const *
-art::TypeID::name() const
-{
-  return t_->name();
-}
-
-inline
-bool
-art::TypeID::operator < (TypeID const & other) const
-{
-  return t_->before(*other.t_);
-}
-
-inline
-bool
-art::TypeID::operator == (TypeID const & other) const
-{
-  return *t_ == *other.t_;
-}
-
-inline
-art::TypeID::operator bool() const
-{
-  return t_ != &typeid(Def);
-}
-
-inline
-std::type_info const &
-art::TypeID::typeInfo() const
-{
-  return *t_;
-}
-
-#endif /* art_Utilities_TypeID_h */
+} // namespace art
 
 // Local Variables:
 // mode: c++
 // End:
+#endif // art_Utilities_TypeID_h

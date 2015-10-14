@@ -43,7 +43,6 @@
  <class name="arttest::TH1Data" ClassVersion="10">
   <version ClassVersion="10" checksum="3907138095"/>
  </class>
- <class name="TH1D"/>
  <class name="art::Wrapper<arttest::DummyProduct>"/>
  <class name="art::Wrapper<arttest::IntProduct>"/>
  <class name="art::Wrapper<arttest::CompressedIntProduct>" compression="9"/>
@@ -57,14 +56,18 @@
  <class name="art::Wrapper<std::vector<arttest::SimpleDerived> >"/>
 
  <class name="art::Ptr<arttest::SimpleDerived>"/>
+ <class name="std::vector<art::Ptr<arttest::SimpleDerived> >"/>
  <class name="art::PtrVector<arttest::SimpleDerived>"/>
  <class name="art::Wrapper<art::PtrVector<arttest::SimpleDerived> >"/>
+ <class name="std::vector<art::Ptr<arttest::Simple> >"/>
  <class name="art::PtrVector<arttest::Simple>"/><!-- For view<Simple> -->
  <class name="art::Wrapper<art::PtrVector<arttest::Simple> >"/>
 
  <class name="arttest::ProductWithPtrs"/>
  <class name="std::vector<art::Ptr<double> >"/>
  <class name="art::Ptr<double>"/>
+ <class name="art::Wrapper<art::Ptr<double> >"/>
+ <class name="std::vector<art::Ptr<double> >"/>
  <class name="art::PtrVector<double>"/>
  <class name="art::Wrapper<arttest::ProductWithPtrs>"/>
  <class name="art::Wrapper<std::vector<art::Ptr<double> > >"/>

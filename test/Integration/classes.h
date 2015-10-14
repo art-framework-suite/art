@@ -5,58 +5,67 @@
 #include "cetlib/map_vector.h"
 #include "test/TestObjects/AssnTestData.h"
 
+#include <cstddef>
 #include <string>
 #include <utility>
 #include <vector>
 
-template class art::Ptr<double>;
+template class std::vector<std::pair<art::RefCore, std::size_t>>;
+template class std::pair<art::RefCore, std::size_t>;
+
+template class art::Wrapper<art::Assns<std::string, size_t, arttest::AssnTestData>>;
+template class art::Assns<std::string, std::size_t, arttest::AssnTestData>;
+template class art::Assns<std::string, std::size_t, void>;
+template class std::vector<arttest::AssnTestData>;
+
+template class art::Wrapper<art::Assns<std::size_t, std::string, arttest::AssnTestData>>;
+template class art::Assns<std::size_t, std::string, arttest::AssnTestData>;
+template class art::Assns<std::size_t, std::string, void>;
+
+template class art::Wrapper<art::Assns<std::pair<cet::map_vector_key, std::string>, std::string, arttest::AssnTestData>>;
+template class art::Assns<std::pair<cet::map_vector_key, std::string>, std::string, arttest::AssnTestData>;
+template class art::Assns<std::pair<cet::map_vector_key, std::string>, std::string, void>;
+
+template class art::Wrapper<art::Ptr<cet::map_vector<std::string>::value_type>>;
+template class art::Ptr<cet::map_vector<std::string>::value_type>;
+
+template class art::Wrapper<art::Ptr<int>>;
+template class art::Ptr<int>;
+
 template class art::Wrapper<art::Ptr<double> >;
-namespace {
-  struct dictionary {
-    cet::map_vector<std::string> mvs;
-    cet::map_vector<std::string>::value_type mvs_v;
-    cet::map_vector<std::string>::impl_type mvs_i;
-    art::Wrapper<cet::map_vector<std::string> > mvs_w;
-    cet::map_vector<unsigned int> mvui;
-    cet::map_vector<unsigned int>::value_type mvui_v;
-    cet::map_vector<unsigned int>::impl_type mvui_i;
-    art::Wrapper<cet::map_vector<unsigned int> > mvui_w;
+template class art::Ptr<double>;
 
-    art::Ptr<std::string> ps;
-    art::Wrapper<art::Ptr<std::string> > ps_w;
+template class art::Wrapper<art::Ptr<std::string>>;
+template class art::Ptr<std::string>;
 
-    art::Ptr<int> pi;
-    art::Wrapper<art::Ptr<int> > pi_w;
+template class art::Wrapper<art::PtrVector<cet::map_vector<std::string>::value_type>>;
+template class art::PtrVector<cet::map_vector<std::string>::value_type>;
+template class std::vector<art::Ptr<cet::map_vector<std::string>::value_type>>;
+template class std::vector<art::Ptr<std::string>>;
 
-    art::PtrVector<std::string> pvs;
-    art::Wrapper<art::PtrVector<std::string> > pvs_w;
+template class art::Wrapper<art::PtrVector<std::string>>;
+template class art::PtrVector<std::string>;
 
-    art::Ptr<cet::map_vector<std::string>::value_type> pp;
-    art::Wrapper<art::Ptr<cet::map_vector<std::string>::value_type> > pp_w;
+template class art::Wrapper<cet::map_vector<std::string>>;
+template class cet::map_vector<std::string>;
+//template class cet::map_vector<std::string>::value_type;
+template class std::pair<cet::map_vector_key, std::string>;
+//template class cet::map_vector<std::string>::impl_type;
+template class std::vector<std::string>;
 
-    art::PtrVector<cet::map_vector<std::string>::value_type> pvp;
-    art::Wrapper<art::PtrVector<cet::map_vector<std::string>::value_type> > pvp_w;
+template class art::Wrapper<cet::map_vector<unsigned int>>;
+template class cet::map_vector<unsigned int>;
+//template class cet::map_vector<unsigned int>::value_type;
+template class std::pair<cet::map_vector_key, unsigned int>;
+//template class cet::map_vector<unsigned int>::impl_type;
+template class std::vector<unsigned int>;
 
-    std::vector<art::Ptr<cet::map_vector<unsigned int>::value_type> > mvvp;
-    art::Ptr<cet::map_vector<unsigned int>::value_type> mvvp_p;
-    art::Wrapper<std::vector<art::Ptr<cet::map_vector<unsigned int>::value_type> > > mvvp_w;
+template class art::Wrapper<std::vector<art::Ptr<cet::map_vector<unsigned int>::value_type>>>;
+template class std::vector<art::Ptr<cet::map_vector<unsigned int>::value_type>>;
+template class art::Ptr<cet::map_vector<unsigned int>::value_type>;
 
-    art::Wrapper<std::vector<size_t> > vst_w;
-
-    std::vector<arttest::AssnTestData> vat;
-    art::Assns<size_t, std::string, arttest::AssnTestData> atd;
-    art::Assns<size_t, std::string, void> av;
-    art::Wrapper<art::Assns<size_t, std::string, arttest::AssnTestData> > atd_w;
-
-    art::Assns<std::string, size_t, arttest::AssnTestData> atd2;
-    art::Assns<std::string, size_t, void> av2;
-    art::Wrapper<art::Assns<std::string, size_t, arttest::AssnTestData> > atd_w2;
-
-    art::Assns<std::pair<cet::map_vector_key, std::string>, std::string, arttest::AssnTestData> xx1;
-    art::Assns<std::pair<cet::map_vector_key, std::string>, std::string, void> xx2;
-    art::Wrapper<art::Assns<std::pair<cet::map_vector_key, std::string>, std::string, arttest::AssnTestData> > xx3;
-  };
-}
+template class art::Wrapper<std::vector<std::size_t>>;
+template class std::vector<std::size_t>;
 
 // Local Variables:
 // mode: c++

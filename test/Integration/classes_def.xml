@@ -1,42 +1,76 @@
 <lcgdict>
-  <class name="cet::map_vector<std::string>::value_type"/>
-  <class name="cet::map_vector<std::string>::impl_type"/>
-  <class name="cet::map_vector<std::string>"/>
-  <class name="art::Wrapper<cet::map_vector<std::string> >"/>
-  <class name="cet::map_vector<unsigned int>::value_type"/>
-  <class name="cet::map_vector<unsigned int>::impl_type"/>
-  <class name="cet::map_vector<unsigned int>"/>
-  <class name="art::Wrapper<cet::map_vector<unsigned int> >"/>
-  <class name="art::Ptr<std::string>"/>
-  <class name="art::Wrapper<art::Ptr<std::string> >"/>
-  <class name="art::Ptr<int>"/>
-  <class name="art::Wrapper<art::Ptr<int> >"/>
-  <class name="art::Ptr<double>"/>
-  <class name="art::Wrapper<art::Ptr<double> >"/>
-  <class name="art::PtrVector<std::string>"/>
-  <class name="art::Wrapper<art::PtrVector<std::string> >"/>
-  <class name="art::Ptr<cet::map_vector<std::string>::value_type>"/>
-  <class name="art::Wrapper<art::Ptr<cet::map_vector<std::string>::value_type> >"/>
-  <class name="art::PtrVector<cet::map_vector<std::string>::value_type>"/>
-  <class name="art::Wrapper<art::PtrVector<cet::map_vector<std::string>::value_type> >"/>
-  <class name="art::Ptr<cet::map_vector<unsigned int>::value_type>"/>
-  <class name="std::vector<art::Ptr<cet::map_vector<unsigned int>::value_type> >"/>
-  <class name="art::Wrapper<std::vector<art::Ptr<cet::map_vector<unsigned int>::value_type> > >"/>
-  <class name="art::Wrapper<std::vector<size_t> >"/>
-  <class name="art::Assns<size_t, std::string, void>"/>
-  <!-- FIXME: These ioread rules are currently (ROOT 5.30.00) ignored  due to problems dealing with the typedefd template arguments. -->
-  <ioread sourceClass="art::Assns<size_t, std::string, void>" version="[1-]" targetClass="art::Assns<std::string, size_t, void>"/>
-  <class name="art::Assns<size_t, std::string, arttest::AssnTestData>"/>
-  <ioread sourceClass="art::Assns<size_t, std::string, arttest::AssnTestData>" version="[1-]" targetClass="art::Assns<std::string, size_t, arttest::AssnTestData>"/>
-  <class name="std::vector<arttest::AssnTestData>"/>
-  <class name="art::Wrapper<art::Assns<size_t, std::string,  arttest::AssnTestData> >"/>
-  <ioread sourceClass="art::Wrapper<art::Assns<size_t, std::string, arttest::AssnTestData> >" version="[1-]" targetClass="art::Wrapper<art::Assns<std::string, size_t, arttest::AssnTestData> >"/>
-  <class name="art::Assns<std::string, size_t, void>"/>
-  <ioread sourceClass="art::Assns<std::string, size_t, void>" version="[1-]" targetClass="art::Assns<size_t, std::string, void>"/>
-  <class name="art::Assns<std::string, size_t, arttest::AssnTestData>"/>
-  <ioread sourceClass="art::Assns<std::string, size_t, arttest::AssnTestData>" version="[1-]" targetClass="art::Assns<size_t, std::string, arttest::AssnTestData>"/>
-  <class name="art::Wrapper<art::Assns<std::string, size_t, arttest::AssnTestData> >"/>
-  <ioread sourceClass="art::Wrapper<art::Assns<std::string, size_t, arttest::AssnTestData> >" version="[1-]" targetClass="art::Wrapper<art::Assns<size_t, std::string, arttest::AssnTestData> >"/>
 
-  <class name="art::Assns<std::pair<cet::map_vector_key, std::string>, std::string, arttest::AssnTestData>"/>
+  <class name="art::Wrapper<art::Assns<std::string, size_t, arttest::AssnTestData> >"/>
+  <class name="art::Assns<std::string, size_t, arttest::AssnTestData>"/>
+  <class name="art::Assns<std::string, size_t, void>"/>
+  <class name="std::vector<arttest::AssnTestData>"/>
+  <!-- class name="arttest::AssnTestData>" -->
+
+  <class name="art::Wrapper<art::Assns<size_t, std::string, arttest::AssnTestData>>"/>
+  <class name="art::Assns<size_t, std::string, arttest::AssnTestData>"/>
+  <class name="art::Assns<size_t, std::string, void>"/>
+  <!-- class name="std::vector<arttest::AssnTestData>" -->
+  <!-- class name="arttest::AssnTestData>" -->
+
+  <!-- class name="art::Wrapper<art::Assns<std::pair<cet::map_vector_key, std::string>, std::string, arttest::AssnTestData>>" -->
+  <!-- class name="art::Assns<std::pair<cet::map_vector_key, std::string>, std::string, arttest::AssnTestData>" -->
+  <!-- class name="art::Assns<std::pair<cet::map_vector_key, std::string>, std::string, void" -->
+  <!-- class name="std::vector<arttest::AssnTestData>" -->
+  <!-- class name="arttest::AssnTestData>" -->
+
+  <!-- art::Wrapper<art::Ptr<std::pair<cet::map_vector_key, std::string>>> -->
+  <class name="art::Wrapper<art::Ptr<cet::map_vector<std::string>::value_type>>"/>
+  <!-- art::Ptr<std::pair<cet::map_vector_key, std::string>> -->
+  <class name="art::Ptr<cet::map_vector<std::string>::value_type>"/>
+  <!-- std::pair<cet::map_vector_key, std::string> -->
+  <class name="cet::map_vector<std::string>::value_type"/>
+  <!-- std::vector<std::string> -->
+  <class name="cet::map_vector<std::string>::impl_type"/>
+
+  <class name="art::Wrapper<art::Ptr<int>>"/>
+  <class name="art::Ptr<int>"/>
+  <!-- class name="art::Refcore" -->
+
+  <!-- class name="art::Wrapper<art::Ptr<double>>" -->
+  <!-- class name="art::Ptr<double>" -->
+  <!-- class name="art::Refcore" -->
+
+  <class name="art::Wrapper<art::Ptr<std::string>>"/>
+  <class name="art::Ptr<std::string>"/>
+  <!-- class name="art::Refcore" -->
+
+  <class name="art::Wrapper<art::PtrVector<cet::map_vector<std::string>::value_type>>"/>
+  <class name="art::PtrVector<cet::map_vector<std::string>::value_type>"/>
+  <class name="std::vector<art::Ptr<cet::map_vector<std::string>::value_type>>"/>
+
+  <class name="art::Wrapper<art::PtrVector<std::string> >"/>
+  <class name="art::PtrVector<std::string>"/>
+  <class name="std::vector<art::Ptr<std::string> >"/>
+  <!-- class name="art::Ptr<std::string>" -->
+
+  <class name="art::Wrapper<cet::map_vector<std::string>>"/>
+  <!-- class name="cet::map_vector<std::string>>" -->
+  <!-- std::pair<cet::map_vector_key, std::string> -->
+  <!-- class name="cet::map_vector<std::string>::value_type" -->
+  <!-- std::vector<std::string int> -->
+  <!-- class name="cet::map_vector<std::string>::impl_type" -->
+
+  <class name="art::Wrapper<cet::map_vector<unsigned int> >"/>
+  <class name="cet::map_vector<unsigned int>"/>
+  <!-- std::pair<cet::map_vector_key, unsigned int> -->
+  <class name="cet::map_vector<unsigned int>::value_type"/>
+  <!-- std::vector<unsigned int> -->
+  <class name="cet::map_vector<unsigned int>::impl_type"/>
+
+  <class name="art::Wrapper<std::vector<art::Ptr<cet::map_vector<unsigned int>::value_type>>>"/>
+  <class name="std::vector<art::Ptr<cet::map_vector<unsigned int>::value_type> >"/>
+  <class name="art::Ptr<cet::map_vector<unsigned int>::value_type>"/>
+
+  <class name="art::Wrapper<std::vector<size_t>>"/>
+  <!-- class name="std::vector<size_t>>" -->
+
+  <class name="std::vector<std::pair<art::Ptr<unsigned long>, art::Ptr<std::string>>>"/>
+  <class name="std::pair<art::Ptr<unsigned long>, art::Ptr<std::string>>"/>
+  <class name="art::Ptr<unsigned long>"/>
+
 </lcgdict>

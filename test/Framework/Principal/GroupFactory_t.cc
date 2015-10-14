@@ -23,10 +23,6 @@
 #include <string>
 
 namespace {
-  void checkTypeAndWrapper(art::TypeID const &producedType) {
-    BOOST_REQUIRE(producedType.hasDictionary());
-//    BOOST_REQUIRE(Reflex::Type::ByName(art::wrappedClassName(producedType.className())));
-  }
   art::BranchDescription
   makeBranchDescription(art::BranchType bt,
                         std::string const &moduleLabel,
@@ -34,7 +30,6 @@ namespace {
                         std::string const &instanceName,
                         fhicl::ParameterSet const &pset,
                         art::TypeID const &producedType) {
-    checkTypeAndWrapper(producedType);
     return
       art::BranchDescription(art::TypeLabel(bt, producedType, instanceName),
                              art::ModuleDescription(pset.id(),

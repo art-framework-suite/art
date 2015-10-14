@@ -1,45 +1,76 @@
-/*----------------------------------------------------------------------
+#include "art/Utilities/TypeID.h"
 
-----------------------------------------------------------------------*/
 #include "art/Utilities/Exception.h"
 #include "art/Utilities/FriendlyName.h"
-#include "art/Utilities/TypeID.h"
 #include "art/Utilities/uniform_type_name.h"
-
 #include "tbb/concurrent_unordered_map.h"
-
 #include "TClass.h"
-
+#include <cstddef>
 #include <ostream>
+#include <string>
+
+using namespace std;
+
+namespace art {
+
+TypeID::
+TypeID()
+  : ti_(&typeid(Def))
+{
+}
+
+TypeID::
+TypeID(std::type_info const& ti)
+  : ti_(&ti)
+{
+}
+
+TypeID::
+TypeID(std::type_info const* ti)
+  : ti_(ti)
+{
+}
 
 void
-art::TypeID::print(std::ostream& os) const {
+TypeID::
+print(ostream& os) const
+{
   os << className();
 }
 
-std::string
-art::TypeID::className() const {
-  static tbb::concurrent_unordered_map<std::size_t, std::string> s_nameMap;
+string
+TypeID::
+className() const
+{
+  static tbb::concurrent_unordered_map<size_t, string> s_nameMap;
   auto hash_code = typeInfo().hash_code();
   auto entry = s_nameMap.find(hash_code);
-  if(s_nameMap.end() == entry) {
+  if (entry == s_nameMap.end()) {
     entry = s_nameMap.emplace(hash_code, uniform_type_name(typeInfo())).first;
   }
   return entry->second;
 }
 
-std::string
-art::TypeID::friendlyClassName() const {
+string
+TypeID::
+friendlyClassName() const
+{
   return friendlyname::friendlyName(className());
 }
 
 bool
-art::TypeID::hasDictionary() const {
+TypeID::
+hasDictionary() const
+{
   return TClass::HasDictionarySelection(className().c_str());
 }
 
-std::ostream&
-art::operator<<(std::ostream& os, const TypeID& id) {
-  id.print(os);
+ostream&
+operator<<(ostream& os, const TypeID& tid)
+{
+  tid.print(os);
   return os;
 }
+
+} // namespace art
+

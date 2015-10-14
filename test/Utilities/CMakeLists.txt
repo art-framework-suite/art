@@ -1,10 +1,11 @@
 # cet_test macro
 
-art_dictionary(NO_DEFAULT_LIBRARIES NO_INSTALL NO_CHECK_CLASS_VERSION)
+art_dictionary(NO_DEFAULT_LIBRARIES DICTIONARY_LIBRARIES cetlib NO_INSTALL NO_CHECK_CLASS_VERSION)
 
 set(default_test_libraries
   art_Utilities
   test_Utilities_dict
+  cetlib
   MF_MessageLogger
   ${ROOT_CINT}
   ${ROOT_REFLEX}

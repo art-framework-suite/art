@@ -1,5 +1,6 @@
 #ifndef art_Persistency_Common_Wrapper_h
 #define art_Persistency_Common_Wrapper_h
+// vim: set sw=2:
 
 ////////////////////////////////////////////////////////////////////////
 // Wrapper: A template wrapper around EDProducts to hold the product ID.
@@ -7,8 +8,10 @@
 ////////////////////////////////////////////////////////////////////////
 
 #include "art/Persistency/Common/EDProduct.h"
+#include "art/Utilities/DebugMacros.h"
 #include "cetlib/demangle.h"
 
+#include <iostream>
 #include <memory>
 
 #ifndef __GCCXML__
@@ -203,8 +206,34 @@ std::unique_ptr<art::EDProduct>
 art::Wrapper<T>::
 do_makePartner(std::type_info const & wanted_wrapper) const
 {
-  typename std::conditional <detail::has_makePartner_member<T>::value, DoMakePartner<T>, DoNotMakePartner<T> >::type maybe_maker;
-  return maybe_maker(obj, wanted_wrapper);
+  //std::cout
+  //    << "-----> Begin Wrapper<"
+  //    << cet::demangle_symbol(typeid(T).name())
+  //    << ">::do_makePartner(std::type_info const&)"
+  //    << std::endl;
+  std::unique_ptr<art::EDProduct> retval;
+  typename std::conditional<detail::has_makePartner_member<T>::value,
+                            DoMakePartner<T>,
+                            DoNotMakePartner<T>>::type maybe_maker;
+  //std::cout
+  //    << "calling "
+  //    << cet::demangle_symbol(typeid(maybe_maker).name())
+  //    << "("
+  //    << &obj
+  //    << ", "
+  //    << cet::demangle_symbol(wanted_wrapper.name())
+  //    << std::endl;
+  retval = maybe_maker(obj, wanted_wrapper);
+  //std::cout
+  //    << "returning "
+  //    << retval.get()
+  //    << std::endl;
+  //std::cout
+  //    << "-----> End   Wrapper<"
+  //    << cet::demangle_symbol(typeid(T).name())
+  //    << ">::do_makePartner(std::type_info const&)"
+  //    << std::endl;
+  return retval;
 }
 
 template <typename T>
@@ -253,18 +282,18 @@ refOrThrow(T * ptr)
 
 namespace art {
   namespace detail {
-    typedef  std::vector<void const *>  vv_t;
-    template <typename T, void (T:: *)(vv_t &)>  struct fillView_function;
+    typedef  std::vector<void const*>  vv_t;
+    template <typename T, void (T::*)(vv_t&)>  struct fillView_function;
     template <typename T> no_tag  has_fillView_helper(...);
-    template <typename T> yes_tag has_fillView_helper(fillView_function<T, &T::fillView> * dummy);
+    template <typename T> yes_tag has_fillView_helper(fillView_function<T, &T::fillView>* dummy);
 
-    template <typename T, size_t (T:: *)() const>  struct size_function;
+    template <typename T, size_t (T::*)() const>  struct size_function;
     template <typename T> no_tag  has_size_helper(...);
-    template <typename T> yes_tag has_size_helper(size_function<T, &T::size> * dummy);
+    template <typename T> yes_tag has_size_helper(size_function<T, &T::size>* dummy);
 
-    template <typename T, std::unique_ptr<EDProduct> (T:: *)() const> struct makePartner_function;
+    template <typename T, std::unique_ptr<EDProduct> (T::*)() const> struct makePartner_function;
     template <typename T> no_tag  has_makePartner_helper(...);
-    template <typename T> yes_tag has_makePartner_helper(makePartner_function<T, &T::makePartner> * dummy);
+    template <typename T> yes_tag has_makePartner_helper(makePartner_function<T, &T::makePartner>* dummy);
   }
 }
 
@@ -429,14 +458,22 @@ namespace art {
     std::unique_ptr<EDProduct>
     operator()(T const & obj,
                std::type_info const & wanted_wrapper_type) const {
+      //std::cout
+      //    << "-----> Begin DoMakePartner::operator()("
+      //    << cet::demangle_symbol(typeid(T).name())
+      //    << " const&, std::type_info const&)"
+      //    << std::endl;
       if (typeid(Wrapper<typename T::partner_t>) == wanted_wrapper_type) {
+        //std::cout
+        //    << "-----> End   DoMakePartner::operator()("
+        //    << cet::demangle_symbol(typeid(T).name())
+        //    << " const&, std::type_info const&)"
+        //    << std::endl;
         return obj.makePartner();
       }
-      else {
-        throw Exception(errors::LogicError, "makePartner")
-            << "Attempted to make partner with inconsistent type information:\n"
-            << "Please report to the ART framework developers.\n";
-      }
+      throw Exception(errors::LogicError, "makePartner")
+          << "Attempted to make partner with inconsistent type information:\n"
+          << "Please report to the ART framework developers.\n";
     }
   };
 
@@ -445,6 +482,11 @@ namespace art {
     std::unique_ptr<EDProduct>
     operator()(T const &,
                std::type_info const &) const {
+      //std::cout
+      //    << "-----> Begin DoNotMakePartner::operator()("
+      //    << cet::demangle_symbol(typeid(T).name())
+      //    << " const&, std::type_info const&)"
+      //    << std::endl;
       throw Exception(errors::LogicError, "makePartner")
           << "Attempted to make partner of a product that does not know how!\n"
           << "Please report to the ART framework developers.\n";
