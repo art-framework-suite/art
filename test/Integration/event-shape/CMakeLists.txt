@@ -11,22 +11,19 @@ art_dictionary(NO_INSTALL)
 # what determines if two input files can be concatenated together in
 # the same input process.  The consistency criteria are as follows:
 #
-# 1. The set of products in the first input file defines the set of
-#    allowed products in ALL input files (as determined by the
-#    persisted ProductList objects)
+# 1. For a process that creates more products or filters events, the
+#    number of processes used to create the first input file defines
+#    the maximum number of processes used to create any input file.
 #
-# 2. For art processes that stream to output, each input file must
-#    contain the SAME set of products.  Namely, a second input file
-#    with fewer products in it will result in an exception thrown.
-#
-# 3. Each Event-level data product must have been
+# 2. Each Event-level data product must have been
 #    produced in the same process for each input file.  In other
 #    words, when comparing the BranchIDList objects from one input
 #    file to the previous, each BranchIDList entry must be identical
 #    to the corresponding entry in the previous file.
 #
-# 4. The number of processes from the first file defines the maximum
-#    number of processes for ANY input file.
+# 3. For art processes that write output files, each input file must
+#    contain the SAME set of products.  Namely, a second input file
+#    with fewer products in it will result in an exception thrown.
 #
 # In what follows, "Extra" means that extra products are produced/put
 # in the same process that reads the input files.
@@ -276,13 +273,10 @@ cet_test( SameRunSubrunEventShapes_02_r HANDBUILT
   DEPENDS SameRunSubrunEventShapes_w
   )
 
-# (7-03)  ----> FAIL
+# (7-03 to 7-06)
 #
 # Same event shape as before, but testing the case where 'a.root' has
 # no events due to a SelectEvents clause.
-#
-# Extra : NO
-# Output: NO
 
 cet_test( SameRunSubrunEventShapes_filter_01_w HANDBUILT
   TEST_EXEC art
@@ -310,6 +304,14 @@ cet_test( SameRunSubrunEventShapes_filter_02_w HANDBUILT
   DEPENDS SameRunSubrunEventShapes_w
   )
 
+# (7-03)  ----> PASS
+#
+# Same event shape as before, but testing the case where 'a.root' has
+# no events due to a SelectEvents clause.
+#
+# Extra : NO
+# Output: NO
+
 cet_test( SameRunSubrunEventShapes_03_r HANDBUILT
   TEST_EXEC art
   TEST_ARGS
@@ -320,6 +322,14 @@ cet_test( SameRunSubrunEventShapes_03_r HANDBUILT
   DATAFILES
   fcl/empty.fcl
   )
+
+# (7-04)  ----> PASS
+#
+# Same event shape as before, but testing the case where 'a.root' has
+# no events due to a SelectEvents clause.
+#
+# Extra : YES
+# Output: NO
 
 cet_test( SameRunSubrunEventShapes_04_r HANDBUILT
   TEST_EXEC art
@@ -332,6 +342,14 @@ cet_test( SameRunSubrunEventShapes_04_r HANDBUILT
   DATAFILES
   fcl/empty.fcl
   )
+
+# (7-05)  ----> PASS
+#
+# Same event shape as before, but testing the case where 'a.root' has
+# no events due to a SelectEvents clause.
+#
+# Extra : NO
+# Output: YES
 
 cet_test( SameRunSubrunEventShapes_05_r HANDBUILT
   TEST_EXEC art
@@ -346,6 +364,14 @@ cet_test( SameRunSubrunEventShapes_05_r HANDBUILT
   fcl/make_input_producer.fcl
   )
 
+# (7-06)  ----> PASS
+#
+# Same event shape as before, but testing the case where 'a.root' has
+# no events due to a SelectEvents clause.
+#
+# Extra : YES
+# Output: YES
+
 cet_test( SameRunSubrunEventShapes_06_r HANDBUILT
   TEST_EXEC art
   TEST_ARGS
@@ -357,6 +383,113 @@ cet_test( SameRunSubrunEventShapes_06_r HANDBUILT
   -n 20
   DATAFILES
   fcl/make_input_producer.fcl
+  )
+
+# (8)      a.root   b.root
+#          ======   ======
+# Runs   : p1: r1   p1: r1
+#          p2: r2   p2: r2
+# SubRuns: p1: s1   p1: s1
+#          p2: s2   p2: s2
+# Events : p1: b1   p1: b1
+#          p2: b2   p2: b2
+#                   p3: [empty] - drop some products
+#                   p4: [empty] - simple pass through
+
+cet_test( ExpandedRunSubrunEventShapes_01_w HANDBUILT
+  TEST_EXEC ./make_input_expanded_shapes_08.sh
+  DATAFILES
+  fcl/empty.fcl
+  fcl/drop_products.fcl
+  fcl/make_input_producer.fcl
+  make_input_expanded_shapes_08.sh
+  )
+
+# (8-00)  ----> PASS
+# Extra : NO
+# Output: NO
+
+cet_test( ExpandedRunSubrunEventShapes_01_r HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS
+  -c empty.fcl
+  -s ../ExpandedRunSubrunEventShapes_01_w.d/a.root
+  -s ../ExpandedRunSubrunEventShapes_01_w.d/b.root
+  -n 20
+  DATAFILES
+  fcl/empty.fcl
+  TEST_PROPERTIES DEPENDS ExpandedRunSubrunEventShapes_01_w
+  )
+
+# (8-01)  ----> FAIL ('b.root' is missing (Sub)Run products)
+# Extra : NO
+# Output: YES
+
+cet_test( ExpandedRunSubrunEventShapes_02_r HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS
+  -c empty.fcl
+  -s ../ExpandedRunSubrunEventShapes_01_w.d/a.root
+  -s ../ExpandedRunSubrunEventShapes_01_w.d/b.root
+  -n 20
+  -o out.root
+  DATAFILES
+  fcl/empty.fcl
+  TEST_PROPERTIES
+  DEPENDS ExpandedRunSubrunEventShapes_01_w
+  PASS_REGULAR_EXPRESSION "FatalRootError"
+  )
+
+# (9)      a.root   b.root
+#          ======   ======
+# Runs   : p1: r1   p1: r1
+#          p2: r2   p2: r2
+# SubRuns: p1: s1   p1: s1
+#          p2: s2   p2: s2
+# Events : p1: b1   p1: b1
+#          p2: b2   p2: b2
+#                   p3: [empty] - simple pass through
+#                   p4: b4
+
+cet_test( ExpandedRunSubrunEventShapes_02_w HANDBUILT
+  TEST_EXEC ./make_input_expanded_shapes_09.sh
+  DATAFILES
+  fcl/empty.fcl
+  fcl/make_input_producer.fcl
+  make_input_expanded_shapes_09.sh
+  )
+
+# (9-00)  ----> PASS
+# Extra : NO
+# Output: NO
+
+cet_test( ExpandedRunSubrunEventShapes_03_r HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS
+  -c empty.fcl
+  -s ../ExpandedRunSubrunEventShapes_02_w.d/a.root
+  -s ../ExpandedRunSubrunEventShapes_02_w.d/b.root
+  -n 20
+  DATAFILES
+  fcl/empty.fcl
+  TEST_PROPERTIES DEPENDS ExpandedRunSubrunEventShapes_02_w
+  )
+
+# (9-01)  ----> PASS
+# Extra : NO
+# Output: YES
+
+cet_test( ExpandedRunSubrunEventShapes_04_r HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS
+  -c empty.fcl
+  -s ../ExpandedRunSubrunEventShapes_02_w.d/a.root
+  -s ../ExpandedRunSubrunEventShapes_02_w.d/b.root
+  -n 20
+  -o out.root
+  DATAFILES
+  fcl/empty.fcl
+  TEST_PROPERTIES DEPENDS ExpandedRunSubrunEventShapes_02_w
   )
 
 #============================================================================
