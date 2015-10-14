@@ -23,6 +23,7 @@
 #include "art/Utilities/unique_filename.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/types/Atom.h"
+#include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include <iomanip>
 #include <memory>
@@ -232,6 +233,14 @@ RootOutput(Parameters const & config)
                          "Illegal dropMetaData parameter value: ")
       << dropMetaData << ".\n"
       << "Legal values are 'NONE', 'PRIOR', and 'ALL'.\n";
+  }
+
+  if (!writeParameterSets_) {
+    mf::LogWarning("PROVENANCE")
+      << "Output module " << moduleLabel_ << " has parameter writeParameterSets set to false.\n"
+      << "Parameter set provenance will not be available in subsequent jobs.\n"
+      << "Check your experiment's policy on this issue to avoid future problems\n"
+      << "with analysis reproducibility.\n";
   }
 }
 

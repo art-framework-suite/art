@@ -205,6 +205,13 @@ RootInputFileSequence(fhicl::ParameterSet const& pset,
           << setRun_ - forcedRunOffset_ << ".\n";
     }
   }
+  if (!readParameterSets_) {
+    mf::LogWarning("PROVENANCE")
+      << "Source parameter readParameterSets was set to false: parameter set provenance\n"
+      << "will NOT be available in this or subsequent jobs using output from this job.\n"
+      << "Check your experiment's policy on this issue  to avoid future problems\n"
+      << "with analysis reproducibility.\n";
+  }
 }
 
 EventID
