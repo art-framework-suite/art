@@ -1265,3 +1265,33 @@ cet_test(RPTest_r HANDBUILT
 )
 
 set_tests_properties(RPTest_r PROPERTIES DEPENDS "RPTest_w;RPTest_w2")
+
+simple_plugin(EmptyPSetRegistryChecker "module" NO_INSTALL USE_BOOST_UNIT)
+
+cet_test(EmptyPSetRegistryChecker_w1 HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --rethrow-all -c EmptyPSetRegistryChecker_w1.fcl
+  DATAFILES fcl/EmptyPSetRegistryChecker_w1.fcl
+)
+
+cet_test(EmptyPSetRegistryChecker_r1 HANDBUILT
+  TEST_EXEC art_ut
+  TEST_ARGS --rethrow-all -c EmptyPSetRegistryChecker_r1.fcl
+  DATAFILES fcl/EmptyPSetRegistryChecker_r1.fcl
+  TEST_PROPERTIES DEPENDS EmptyPSetRegistryChecker_w1
+)
+
+cet_test(EmptyPSetRegistryChecker_w2 HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --rethrow-all -c EmptyPSetRegistryChecker_w2.fcl
+  DATAFILES fcl/EmptyPSetRegistryChecker_w1.fcl
+  fcl/EmptyPSetRegistryChecker_w2.fcl
+)
+
+cet_test(EmptyPSetRegistryChecker_r2 HANDBUILT
+  TEST_EXEC art_ut
+  TEST_ARGS --rethrow-all -c EmptyPSetRegistryChecker_r2.fcl
+  DATAFILES fcl/EmptyPSetRegistryChecker_r1.fcl
+  fcl/EmptyPSetRegistryChecker_r2.fcl
+  TEST_PROPERTIES DEPENDS EmptyPSetRegistryChecker_w2
+)
