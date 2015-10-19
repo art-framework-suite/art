@@ -1231,6 +1231,7 @@ add_subdirectory(test_tiered_input_03)
 add_subdirectory(test_tiered_input_04)
 add_subdirectory(test_tiered_input_05)
 
+add_subdirectory(event-processor)
 add_subdirectory(event-shape)
 add_subdirectory(high-memory)
 add_subdirectory(run-subrun-shape)

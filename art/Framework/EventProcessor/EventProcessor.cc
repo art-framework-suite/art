@@ -874,8 +874,7 @@ setEndPathModuleEnabled(std::string const & label, bool enable)
 void
 art::EventProcessor::servicesActivate_(ServiceToken const st)
 {
-  if ( !servicesSentry_ )
-    servicesSentry_ = std::make_unique<ServiceRegistry::Operate>(st);
+  servicesSentry_ = std::make_unique<ServiceRegistry::Operate>(st);
 }
 
 void
