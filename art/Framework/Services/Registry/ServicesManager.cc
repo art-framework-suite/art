@@ -30,14 +30,16 @@ ServicesManager(ParameterSets const & psets,
 
 art::ServicesManager::~ServicesManager()
 {
-  // Force the Service destructors to execute in the reverse order of construction.
-  // Note that services passed in by a token are not included in this loop and
-  // do not get destroyed until the ServicesManager object that created them is destroyed
-  // which occurs after the body of this destructor is executed (the correct order).
-  // Services directly passed in by a put and not created in the constructor
-  // may or not be detroyed in the desired order because this class does not control
-  // their creation (as I'm writing this comment everything in a standard fw
-  // executable is destroyed in the desired order).
+  // Force the Service destructors to execute in the reverse order of
+  // construction.  Note that services passed in by a token are not
+  // included in this loop and do not get destroyed until the
+  // ServicesManager object that created them is destroyed which
+  // occurs after the body of this destructor is executed (the correct
+  // order).  Services directly passed in by a put and not created in
+  // the constructor may or may not be detroyed in the desired order
+  // because this class does not control their creation (as I'm
+  // writing this comment everything in a standard fw executable is
+  // destroyed in the desired order).
   index_.clear();
   factory_.clear();
   while (!actualCreationOrder_.empty()) { actualCreationOrder_.pop(); }
@@ -47,7 +49,7 @@ void
 art::ServicesManager::forceCreation()
 {
   for (auto const& val : requestedCreationOrder_) {
-    detail::ServiceCache::iterator c = factory_.find(val);
+    auto c = factory_.find(val);
     if (c != factory_.end()) { c->second.forceCreation(registry_); }
     // JBK - should an exception be thrown if name not found in map?
   }
