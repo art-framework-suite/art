@@ -45,7 +45,6 @@ namespace {
 
 struct TestFixture {
   TestFixture() {
-//    static art::RootDictionaryManager rdm_s;
   }
 };
 
