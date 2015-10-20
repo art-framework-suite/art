@@ -16,7 +16,7 @@ art_make_library( LIBRARY_NAME art_Framework_IO_ProductMix
   cetlib
   )
 
-art_dictionary(DICTIONARY_LIBRARIES art_Persistency_Provenance)
+art_dictionary(DICTIONARY_LIBRARIES art_Persistency_Provenance NO_CHECK_CLASS_VERSION)
 
 install_headers()
 install_source()

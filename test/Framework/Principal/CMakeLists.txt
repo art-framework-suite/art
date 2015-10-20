@@ -1,6 +1,6 @@
 # cet_test macro
 
-art_dictionary(NO_INSTALL)
+art_dictionary(NO_INSTALL NO_CHECK_CLASS_VERSION)
 
 link_libraries(
   art_Framework_Core

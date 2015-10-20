@@ -1,4 +1,4 @@
-art_dictionary(NO_INSTALL)
+art_dictionary(NO_INSTALL NO_CHECK_CLASS_VERSION)
 
 # Library link requirements for tests here
 set(default_test_libraries
