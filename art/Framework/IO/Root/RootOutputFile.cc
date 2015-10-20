@@ -1,6 +1,11 @@
 #include "art/Framework/IO/Root/RootOutputFile.h"
 // vim: set sw=2:
 
+#include "Rtypes.h"
+#include "TBranchElement.h"
+#include "TClass.h"
+#include "TFile.h"
+#include "TTree.h"
 #include "art/Framework/Core/FileBlock.h"
 #include "art/Framework/IO/FileStatsCollector.h"
 #include "art/Framework/IO/Root/DropMetaData.h"
@@ -41,12 +46,6 @@
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/ParameterSetID.h"
 #include "fhiclcpp/ParameterSetRegistry.h"
-
-#include "Rtypes.h"
-#include "TBranchElement.h"
-#include "TClass.h"
-#include "TFile.h"
-#include "TTree.h"
 
 #include <algorithm>
 #include <iomanip>
