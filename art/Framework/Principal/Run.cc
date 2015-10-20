@@ -5,6 +5,7 @@
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/ParameterSetID.h"
 #include "fhiclcpp/ParameterSetRegistry.h"
+
 #include <vector>
 
 
@@ -20,67 +21,47 @@ namespace art {
         aux_(rp.aux()) {
   }
 
-  RunPrincipal &
-  Run::runPrincipal() {
-    return dynamic_cast<RunPrincipal &>(principal());
-  }
-
-  RunPrincipal const &
-  Run::runPrincipal() const {
-    return dynamic_cast<RunPrincipal const&>(principal());
-  }
-
   bool
   Run::getProcessParameterSet(std::string const& /*processName*/,
                               std::vector<ParameterSet>& psets) const
   {
     // Get the relevant ProcessHistoryIDs
+    auto get_history = [](ProcessHistoryID const& id) {
+      ProcessHistory temp;
+      ProcessHistoryRegistry::get(id, temp);
+    };
+
     std::vector<ProcessHistoryID> historyIDs;
+    cet::for_all( historyIDs, get_history );
 
     // Get the relevant ParameterSetIDs.
-    std::vector<ParameterSetID> psetIdsUsed;
-    for (std::vector<ProcessHistoryID>::const_iterator
-           i = historyIDs.begin(), e = historyIDs.end();
-         i != e;
-         ++i)
-      {
-        ProcessHistory temp;
-        ProcessHistoryRegistry::get(*i, temp);
-      }
+    auto fill_psets = [&psets](ParameterSetID const& id){
+      ParameterSet temp;
+      ParameterSetRegistry::get(id, temp);
+      psets.push_back(temp);
+    };
 
-    // Look up the ParameterSets for these IDs.
-    for (std::vector<ParameterSetID>::const_iterator
-           i = psetIdsUsed.begin(), e = psetIdsUsed.end();
-         i != e;
-         ++i)
-      {
-        ParameterSet temp;
-        ParameterSetRegistry::get(*i, temp);
-        psets.push_back(temp);
-      }
+    std::vector<ParameterSetID> psetIdsUsed;
+    cet::for_all( psetIdsUsed, fill_psets );
 
     return false;
   }
 
   void
-  Run::commit_() {
-    // fill in guts of provenance here
-    RunPrincipal & rp = runPrincipal();
-    ProductPtrVec::iterator pit(putProducts().begin());
-    ProductPtrVec::iterator pie(putProducts().end());
+  Run::commit_()
+  {
+    auto & rp = dynamic_cast<RunPrincipal &>(principal());
+    auto put_in_principal = [&rp](auto& elem) {
 
-    while(pit!=pie) {
-        std::unique_ptr<EDProduct> pr(pit->first);
-        // note: ownership has been passed - so clear the pointer!
-        pit->first = 0;
+      auto runProductProvenancePtr = std::make_unique<ProductProvenance const>(elem.first,
+                                                                               productstatus::present());
 
-        // set provenance
-        std::unique_ptr<ProductProvenance const> runProductProvenancePtr(
-                new ProductProvenance(pit->second->branchID(),
-                                      productstatus::present()));
-        rp.put(std::move(pr), *pit->second, std::move(runProductProvenancePtr));
-        ++pit;
-    }
+      rp.put( std::move(elem.second.prod),
+              elem.second.bd,
+              std::move(runProductProvenancePtr) );
+    };
+
+    cet::for_all( putProducts(), put_in_principal );
 
     // the cleanup is all or none
     putProducts().clear();

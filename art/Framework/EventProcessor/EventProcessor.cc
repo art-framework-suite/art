@@ -37,7 +37,6 @@
 
 #include <exception>
 #include <iomanip>
-#include <iostream>
 #include <string>
 #include <utility>
 #include <vector>
@@ -45,11 +44,12 @@
 using fhicl::ParameterSet;
 
 namespace {
+
   // Most signals.
   class SignalSentry {
-public:
-    typedef art::GlobalSignal<art::detail::SignalResponseType::FIFO, void> PreSig_t;
-    typedef art::GlobalSignal<art::detail::SignalResponseType::LIFO, void> PostSig_t;
+  public:
+    using PreSig_t  = art::GlobalSignal<art::detail::SignalResponseType::FIFO, void>;
+    using PostSig_t = art::GlobalSignal<art::detail::SignalResponseType::LIFO, void>;
     SignalSentry(SignalSentry const &) = delete;
     SignalSentry & operator=(SignalSentry const &) = delete;
     SignalSentry(PreSig_t & pre, PostSig_t & post)
@@ -60,7 +60,7 @@ public:
     ~SignalSentry() {
       post_.invoke();
     }
-private:
+  private:
     PostSig_t & post_;
   };
 
@@ -101,8 +101,7 @@ private:
                                                           art::getPassID()));
       sourceSpecified = true;
       art::InputSourceDescription isd(md, preg, areg);
-      return std::unique_ptr<art::InputSource>
-        (art::InputSourceFactory::make(main_input, isd).release());
+      return std::unique_ptr<art::InputSource>(art::InputSourceFactory::make(main_input, isd));
     }
     catch (art::Exception const & x) {
       if (sourceSpecified == false &&
@@ -134,7 +133,7 @@ art::EventProcessor::EventProcessor(ParameterSet const & pset)
   preg_(),
   serviceToken_(),
   tbbManager_(tbb::task_scheduler_init::deferred),
-  destructorOperate_(),
+  servicesSentry_(),
   pathManager_(pset, preg_, act_table_, actReg_),
   serviceDirector_(initServices_(pset, actReg_, serviceToken_)),
   input_(),
@@ -154,39 +153,40 @@ art::EventProcessor::EventProcessor(ParameterSet const & pset)
   exceptionMessageSubRuns_(),
   alreadyHandlingException_(false)
 {
+  servicesActivate_(serviceToken_);
+  serviceToken_.forceCreation();
+
   std::string const processName = pset.get<std::string>("process_name");
 
   // Services
-  ServiceRegistry::Operate operate(serviceToken_); // Make usable.
-  serviceToken_.forceCreation();
   // System service FileCatalogMetadata needs to know about the process name.
   ServiceHandle<art::FileCatalogMetadata>()->addMetadataString("process_name", processName);
 
   input_ = makeInput(pset, processName, preg_, actReg_);
+  endPathExecutor_ = std::make_unique<EndPathExecutor>(pathManager_,
+                                                       act_table_,
+                                                       actReg_,
+                                                       preg_);
   initSchedules_(pset);
-  endPathExecutor_.reset(new EndPathExecutor(pathManager_,
-                                             act_table_,
-                                             actReg_,
-                                             preg_));
   FDEBUG(2) << pset.to_string() << std::endl;
   BranchIDListHelper::updateRegistries(preg_);
+  servicesDeactivate_();
 }
 
 art::EventProcessor::~EventProcessor()
 {
-  // Populating the destructOperate_ data member will ensure that
-  // services stay usable until it goes out of scope, meaning that
-  // modules may (say) use services in their destructors.
-  destructorOperate_.reset(new ServiceRegistry::Operate(serviceToken_));
-  // The state machine should have already been cleaned up
-  // and destroyed at this point by a call to EndJob or
-  // earlier when it completed processing events, but if it
-  // has not been we'll take care of it here at the last moment.
-  // This could cause problems if we are already handling an
-  // exception and another one is thrown here ..  For a critical
-  // executable the solution to this problem is for the code using
-  // the EventProcessor to explicitly call EndJob or use runToCompletion,
-  // then the next line of code is never executed.
+  // Services must stay usable until they go out of scope, meaning
+  // that modules may (say) use services in their destructors.
+  servicesActivate_(serviceToken_);
+  // The state machine should have already been cleaned up and
+  // destroyed at this point by a call to EndJob or earlier when it
+  // completed processing events, but if it has not been we'll take
+  // care of it here at the last moment.  This could cause problems if
+  // we are already handling an exception and another one is thrown
+  // here ..  For a critical executable the solution to this problem
+  // is for the code using the EventProcessor to explicitly call
+  // EndJob or use runToCompletion, then the next line of code is
+  // never executed.
   terminateMachine_();
 }
 
@@ -195,15 +195,13 @@ art::EventProcessor::beginJob()
 {
   breakpoints::beginJob();
   // make the services available
-  ServiceRegistry::Operate operate(serviceToken_);
-  // NOTE:  This implementation assumes 'Job' means one call
-  // the EventProcessor::run
-  // If it really means once per 'application' then this code will
-  // have to be changed.
-  // Also have to deal with case where have 'run' then new Module
-  // added and do 'run'
-  // again.  In that case the newly added Module needs its 'beginJob'
-  // to be called.
+  servicesActivate_(serviceToken_);
+  // NOTE: This implementation assumes 'Job' means one call the
+  // EventProcessor::run. If it really means once per 'application'
+  // then this code will have to be changed.  Also have to deal with
+  // case where have 'run' then new Module added and do 'run' again.
+  // In that case the newly added Module needs its 'beginJob' to be
+  // called.
   try {
     input_->doBeginJob();
   }
@@ -229,6 +227,7 @@ art::EventProcessor::beginJob()
   actReg_.sPostBeginJob.invoke();
 
   invokePostBeginJobWorkers_();
+  servicesDeactivate_();
 }
 
 void
@@ -237,7 +236,7 @@ art::EventProcessor::endJob()
   // Collects exceptions, so we don't throw before all operations are performed.
   cet::exception_collector c;
   // Make the services available
-  ServiceRegistry::Operate operate(serviceToken_);
+  servicesActivate_(serviceToken_);
   c.call([this](){ this->terminateMachine_(); });
   c.call([this](){ schedule_.get()->endJob(); });
   c.call([this](){ endPathExecutor_.get()->endJob(); });
@@ -245,6 +244,7 @@ art::EventProcessor::endJob()
   c.call([this,summarize](){ detail::writeSummary(pathManager_, summarize); });
   c.call([this](){ input_.get()->doEndJob(); });
   c.call([this](){ actReg_.sPostEndJob.invoke(); });
+  servicesDeactivate_();
 }
 
 art::ServiceDirector
@@ -273,7 +273,7 @@ initServices_(ParameterSet const & top_pset,
       << "Use of services.user parameter set is deprecated.\n"
       << "Define all services in services parameter set.";
   }
-  for (auto const & key : user.get_keys()) {
+  for (auto const & key : user.get_names()) {
     if (user.is_key_to_table(key)) {
       if (!services.has_key(key)) {
         services.put(key, user.get<ParameterSet>(key));
@@ -322,15 +322,13 @@ initSchedules_(ParameterSet const & pset)
                                   tbb::task_scheduler_init::default_num_threads());
   tbbManager_.initialize(num_threads);
 
-  schedule_ =
-    std::unique_ptr<Schedule>
-    (new Schedule(ScheduleID::first(),
-                  pathManager_,
-                  pset,
-                  ServiceRegistry::instance().get<TriggerNamesService>(),
-                  preg_,
-                  act_table_,
-                  actReg_));
+  schedule_ = std::make_unique<Schedule>(ScheduleID::first(),
+                                         pathManager_,
+                                         pset,
+                                         ServiceRegistry::instance().get<TriggerNamesService>(),
+                                         preg_,
+                                         act_table_,
+                                         actReg_);
 }
 
 void
@@ -376,7 +374,7 @@ art::EventProcessor::runCommon_()
   StatusCode returnCode = epSuccess;
   stateMachineWasInErrorState_ = false;
   // Make the services available
-  ServiceRegistry::Operate operate(serviceToken_);
+  servicesActivate_(serviceToken_);
   if (machine_.get() == 0) {
     statemachine::FileMode fileMode;
     if (fileMode_.empty()) { fileMode = statemachine::FULLMERGE; }
@@ -389,10 +387,10 @@ art::EventProcessor::runCommon_()
           << fileMode_ << ".\n"
           << "Legal values are 'MERGE', 'NOMERGE', 'FULLMERGE', and 'FULLLUMIMERGE'.\n";
     }
-    machine_.reset(new statemachine::Machine(this,
-                   fileMode,
-                   handleEmptyRuns_,
-                   handleEmptySubRuns_));
+    machine_ = std::make_unique<statemachine::Machine>( this,
+                                                        fileMode,
+                                                        handleEmptyRuns_,
+                                                        handleEmptySubRuns_ );
     machine_->initiate();
   }
   try {
@@ -545,6 +543,7 @@ art::EventProcessor::runCommon_()
         << "The boost state machine in the EventProcessor exited after\n"
         << "entering the Error state.\n";
   }
+  servicesDeactivate_();
   return returnCode;
 }
 
@@ -648,7 +647,7 @@ void
 art::EventProcessor::writeSubRunCache()
 {
   while (!principalCache_.noMoreSubRuns()) {
-    auto const & lowestSubRun = principalCache_.lowestSubRun();
+    auto & lowestSubRun = principalCache_.lowestSubRun();
     if (!lowestSubRun.id().isFlush()) {
       endPathExecutor_->writeSubRun(lowestSubRun);
     }
@@ -661,7 +660,7 @@ void
 art::EventProcessor::writeRunCache()
 {
   while (!principalCache_.noMoreRuns()) {
-    auto const & lowestRun = principalCache_.lowestRun();
+    auto & lowestRun = principalCache_.lowestRun();
     if (!lowestRun.id().isFlush()) {
       endPathExecutor_->writeRun(lowestRun);
     }
@@ -870,6 +869,18 @@ art::EventProcessor::
 setEndPathModuleEnabled(std::string const & label, bool enable)
 {
   return endPathExecutor_->setEndPathModuleEnabled(label, enable);
+}
+
+void
+art::EventProcessor::servicesActivate_(ServiceToken const st)
+{
+  servicesSentry_ = std::make_unique<ServiceRegistry::Operate>(st);
+}
+
+void
+art::EventProcessor::servicesDeactivate_()
+{
+  servicesSentry_.reset();
 }
 
 void

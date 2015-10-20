@@ -102,12 +102,12 @@ void art::EndPathExecutor::openOutputFiles(FileBlock & fb)
     );
 }
 
-void art::EndPathExecutor::writeRun(RunPrincipal const & rp)
+void art::EndPathExecutor::writeRun(RunPrincipal & rp)
 {
   doForAllEnabledOutputWorkers_([&rp](auto w){ w->writeRun(rp); });
 }
 
-void art::EndPathExecutor::writeSubRun(SubRunPrincipal const & srp)
+void art::EndPathExecutor::writeSubRun(SubRunPrincipal & srp)
 {
   doForAllEnabledOutputWorkers_([&srp](auto w){ w->writeSubRun(srp); });
 }
@@ -148,14 +148,6 @@ void art::EndPathExecutor::beginJob()
 {
   doForAllEnabledWorkers_([](auto w){ w->beginJob(); });
 }
-
-// FIXME: We do not need this anymore!
-#if 0
-void art::EndPathExecutor::doSelectProducts()
-{
-  doForAllEnabledOutputWorkers_([](auto w) { w->selectProducts(); });
-}
-#endif // 0
 
 bool
 art::EndPathExecutor::

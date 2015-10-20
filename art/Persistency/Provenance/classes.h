@@ -14,6 +14,7 @@
 #include "art/Persistency/Provenance/ProductRegistry.h"
 #include "art/Persistency/Provenance/RunAuxiliary.h"
 #include "art/Persistency/Provenance/SubRunAuxiliary.h"
+#include "art/Persistency/Provenance/ResultsAuxiliary.h"
 
 template class std::vector<art::ProductProvenance>;
 //template class art::ProcessHistory::collection_type;

@@ -24,8 +24,8 @@ class art::Prescaler
 public:
 
   struct Config {
-    Atom<int> prescaleFactor { Key("prescaleFactor") };
-    Atom<int> prescaleOffset { Key("prescaleOffset") };
+    Atom<int> prescaleFactor { Name("prescaleFactor") };
+    Atom<int> prescaleOffset { Name("prescaleOffset") };
   };
 
   using Parameters = EDFilter::Table<Config>;

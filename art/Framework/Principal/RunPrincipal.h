@@ -32,8 +32,6 @@ public:
 
 public:
 
-  virtual ~RunPrincipal();
-
   RunPrincipal(RunAuxiliary const&,
                ProcessConfiguration const&,
                std::unique_ptr<BranchMapper>&& mapper =
@@ -95,7 +93,7 @@ private:
 
   virtual ProcessHistoryID const& processHistoryID() const;
 
-  virtual void setProcessHistoryID(ProcessHistoryID const&) const;
+  void setProcessHistoryID(ProcessHistoryID const&) override;
 
 private:
 

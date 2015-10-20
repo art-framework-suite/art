@@ -57,8 +57,8 @@ class arttest::TestBitsOutput : public art::OutputModule {
 public:
 
   struct Config {
-    fhicl::Atom<int>  bitMask { fhicl::Key("bitMask") };
-    fhicl::Atom<bool> expectTriggerResults { fhicl::Key("expectTriggerResults"), true };
+    fhicl::Atom<int>  bitMask { fhicl::Name("bitMask") };
+    fhicl::Atom<bool> expectTriggerResults { fhicl::Name("expectTriggerResults"), true };
   };
 
   using Parameters = art::OutputModule::Table<Config>;
@@ -66,10 +66,10 @@ public:
   virtual ~TestBitsOutput();
 
 private:
-  virtual void write(art::EventPrincipal const& e);
-  virtual void writeSubRun(art::SubRunPrincipal const&) {}
-  virtual void writeRun(art::RunPrincipal const&) {}
-  virtual void endJob();
+  void write(art::EventPrincipal & e) override;
+  void writeSubRun(art::SubRunPrincipal &) override {}
+  void writeRun(art::RunPrincipal &) override {}
+  void endJob() override;
 
   std::string name_;
   int bitMask_;
@@ -91,11 +91,10 @@ arttest::TestBitsOutput::~TestBitsOutput()
 {
 }
 
-void arttest::TestBitsOutput::write(art::EventPrincipal const& ep)
+void arttest::TestBitsOutput::write(art::EventPrincipal & ep)
 {
   assert(currentContext() != 0);
-  Event ev(const_cast<EventPrincipal&>(ep),
-           *currentContext()->moduleDescription());
+  Event ev(ep, *currentContext()->moduleDescription());
   // There should not be a TriggerResults object in the event
   // if all three of the following requirements are met:
   //

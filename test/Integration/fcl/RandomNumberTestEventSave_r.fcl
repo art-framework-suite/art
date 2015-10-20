@@ -12,6 +12,7 @@ physics:
     randomTester:
     {
       module_type: RandomNumberSaveTest
+      errorOnFailureToPut: false
     }
   }
 

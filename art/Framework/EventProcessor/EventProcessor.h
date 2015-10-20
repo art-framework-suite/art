@@ -151,6 +151,8 @@ private:
   ServiceToken getToken_();
 
   StatusCode runCommon_();
+  void servicesActivate_(ServiceToken st);
+  void servicesDeactivate_();
   void terminateMachine_();
   void terminateAbnormally_();
 
@@ -168,8 +170,7 @@ private:
   MasterProductRegistry preg_;
   ServiceToken serviceToken_;
   tbb::task_scheduler_init tbbManager_;
-  // destructorOperate_ should be populated in destructor only!
-  std::unique_ptr<ServiceRegistry::Operate> destructorOperate_;
+  std::unique_ptr<ServiceRegistry::Operate> servicesSentry_;
   PathManager pathManager_; // Must outlive schedules.
   ServiceDirector serviceDirector_;
   std::unique_ptr<InputSource> input_;
@@ -190,6 +191,7 @@ private:
   std::string exceptionMessageRuns_;
   std::string exceptionMessageSubRuns_;
   bool alreadyHandlingException_;
+
 };  // EventProcessor
 
 ////////////////////////////////////
@@ -201,7 +203,7 @@ public:
   PrincipalSignalSentry(PrincipalSignalSentry<T> const &) = delete;
   PrincipalSignalSentry<T> operator=(PrincipalSignalSentry<T> const &) = delete;
 
-  typedef typename T::MyPrincipal principal_t;
+  using principal_t = typename T::MyPrincipal;
   PrincipalSignalSentry(art::ActivityRegistry & a, principal_t & ep);
   ~PrincipalSignalSentry();
 

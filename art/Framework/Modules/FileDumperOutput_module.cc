@@ -7,9 +7,11 @@
 //
 // ======================================================================
 
+#include "art/Framework/Core/FileBlock.h"
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Core/OutputModule.h"
 #include "art/Framework/Principal/EventPrincipal.h"
+#include "art/Framework/Principal/ResultsPrincipal.h"
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Utilities/Exception.h"
@@ -34,19 +36,20 @@ class art::FileDumperOutput : public OutputModule {
 public:
 
   struct Config {
-    fhicl::Atom<bool> onDemandProduction           { fhicl::Key("onDemandProduction")      , false };
-    fhicl::Atom<bool> wantProductFullClassName     { fhicl::Key("wantProductFullClassName"), false };
-    fhicl::Atom<bool> wantProductFriendlyClassName { fhicl::Key("wantProductFriendlyClassName"), wantProductFullClassName() };
-    fhicl::Atom<bool> resolveProducts { fhicl::Key("resolveProducts"), true };
-    fhicl::Atom<bool> onlyIfPresent   { fhicl::Key("onlyIfPresent"), false };
+    fhicl::Atom<bool> onDemandProduction           { fhicl::Name("onDemandProduction")      , false };
+    fhicl::Atom<bool> wantProductFullClassName     { fhicl::Name("wantProductFullClassName"), false };
+    fhicl::Atom<bool> wantProductFriendlyClassName { fhicl::Name("wantProductFriendlyClassName"), wantProductFullClassName() };
+    fhicl::Atom<bool> resolveProducts { fhicl::Name("resolveProducts"), true };
+    fhicl::Atom<bool> onlyIfPresent   { fhicl::Name("onlyIfPresent"), false };
   };
   using Parameters = art::OutputModule::Table<Config>;
   explicit FileDumperOutput(Parameters const &);
 
 private:
-  void write(EventPrincipal const & e) override;
-  void writeRun(RunPrincipal const & r) override;
-  void writeSubRun(SubRunPrincipal const & sr) override;
+  void write(EventPrincipal & e) override;
+  void writeRun(RunPrincipal & r) override;
+  void writeSubRun(SubRunPrincipal & sr) override;
+  void readResults(ResultsPrincipal const & resp) override;
 
   template <typename P>
   void printPrincipal(P const & p);
@@ -72,23 +75,30 @@ FileDumperOutput(art::FileDumperOutput::Parameters const & ps)
 
 void
 art::FileDumperOutput::
-write(EventPrincipal const & e)
+write(EventPrincipal & e)
 {
   printPrincipal(e);
 }
 
 void
 art::FileDumperOutput::
-writeRun(RunPrincipal const & r)
+writeRun(RunPrincipal & r)
 {
   printPrincipal(r);
 }
 
 void
 art::FileDumperOutput::
-writeSubRun(SubRunPrincipal const & sr)
+writeSubRun(SubRunPrincipal & sr)
 {
   printPrincipal(sr);
+}
+
+void
+art::FileDumperOutput::
+readResults(ResultsPrincipal const & resp)
+{
+  printPrincipal(resp);
 }
 
 template <typename P>
@@ -97,6 +107,7 @@ art::FileDumperOutput::
 printPrincipal(P const & p)
 {
   if (!p.size()) { return; } // Nothing to do.
+  std::cout << "PRINCIPAL TYPE: " << BranchTypeToString(p.branchType()) << std::endl;
   // prepare the data structure, a sequence of columns:
   typedef  std::vector<std::string>  column;
   unsigned int ncols = 6;

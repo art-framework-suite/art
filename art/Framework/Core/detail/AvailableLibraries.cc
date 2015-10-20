@@ -167,12 +167,13 @@ art::detail::getServiceLibraries( LibraryInfoContainer& map,
     if ( systemServicesToIgnore.find( libspecs.first ) !=
          systemServicesToIgnore.cend() ) continue;
 
-    std::string const fullSpec = libspecs.second;
-    std::string const type     = getServiceType( fullSpec );
-    std::string const source   = getFilePath( lm, fullSpec, "service" );
-    std::string const desc     = getDescription( lm, fullSpec, tab );
+    std::string const spec     = libspecs.first;
+    std::string const fullspec = libspecs.second;
+    std::string const type     = getServiceType( fullspec );
+    std::string const source   = getFilePath( lm, spec, "service" ); // full specs may be empty
+    std::string const desc     = getDescription( lm, spec, tab );    // for user-defined services
 
-    map.emplace( libspecs.first, LibraryInfo("[ none ]",lib,source,type,desc) );
+    map.emplace( spec, LibraryInfo("[ none ]",lib,source,type,desc) );
 
   }
 

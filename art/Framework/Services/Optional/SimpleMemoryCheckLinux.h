@@ -10,10 +10,11 @@
 #include "art/Framework/Services/Optional/detail/constrained_multimap.h"
 #include "art/Framework/Services/Optional/detail/LinuxProcData.h"
 #include "art/Framework/Services/Optional/detail/LinuxProcMgr.h"
+#include "art/Framework/Services/Optional/detail/SimpleMemoryCheckConfig.h"
 #include "art/Framework/Services/Registry/ServiceTable.h"
 #include "art/Persistency/Provenance/EventID.h"
 #include "fhiclcpp/types/Atom.h"
-#include "fhiclcpp/types/Key.h"
+#include "fhiclcpp/types/Name.h"
 
 #include <memory>
 
@@ -28,15 +29,7 @@ namespace art {
   class SimpleMemoryCheck {
   public:
 
-    struct Config {
-      fhicl::Atom<unsigned> ignoreTotal { fhicl::Key("ignoreTotal"), 1 };
-      fhicl::Atom<bool> truncateSummary { fhicl::Key("truncateSummary"), true };
-      fhicl::Atom<bool> showMallocInfo  { fhicl::Key("showMallocInfo"), false };
-      fhicl::Atom<bool> oncePerEventMode { fhicl::Key("oncePerEventMode"), false };
-      fhicl::Atom<bool> moduleMemorySummary { fhicl::Key("moduleMemorySummary"), false };
-    };
-
-    using Parameters = ServiceTable<Config>;
+    using Parameters = ServiceTable<detail::SMCheckConfig>;
     SimpleMemoryCheck(Parameters const &, ActivityRegistry &);
 
     void postSource();

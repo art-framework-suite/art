@@ -135,7 +135,6 @@ private:
   fhicl::ParameterSetID const& psetID() const;
   bool isPsetIDUnique() const {return psetIDs().size() == 1;}
   std::set<ProcessConfigurationID> const& processConfigurationIDs() const {return processConfigurationIDs_;}
-  void updateFriendlyClassName();
 
   Transients &guts() {return transients_.get(); }
   Transients const &guts() const {return transients_.get(); }

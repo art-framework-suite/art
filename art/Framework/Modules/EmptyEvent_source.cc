@@ -214,8 +214,7 @@ makePlugin_(fhicl::ParameterSet const & pset)
       auto const libspec = pset.get<std::string>("plugin_type");
       auto const pluginType = pluginFactory_.pluginType(libspec);
       if (pluginType == cet::PluginTypeDeducer<EmptyEventTimestampPlugin>::value) {
-        result = pluginFactory_.makePlugin<std::unique_ptr<EmptyEventTimestampPlugin>,
-          fhicl::ParameterSet const &>(libspec, pset);
+        result = pluginFactory_.makePlugin<std::unique_ptr<EmptyEventTimestampPlugin> >(libspec, pset);
     } else {
         throw Exception(errors::Configuration, "EmptyEvent: ")
           << "unrecognized plugin type "

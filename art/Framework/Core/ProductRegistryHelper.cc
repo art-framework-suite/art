@@ -11,6 +11,8 @@
 #include "art/Utilities/DebugMacros.h"
 #include "art/Utilities/Exception.h"
 #include "cetlib/container_algorithms.h"
+#include "fhiclcpp/ParameterSet.h"
+#include "fhiclcpp/ParameterSetRegistry.h"
 
 #include <cassert>
 #include <string>
@@ -22,7 +24,7 @@ registerProducts(MasterProductRegistry& mpr,
 {
   if (productList_) {
     BranchIDList bil;
-    MasterProductRegistry::PerBranchTypePresence tp;
+    PerBranchTypePresence tp;
     for (auto const& val : *productList_) {
       auto const& bd = val.second;
       auto bid = bd.branchID().id();
@@ -35,6 +37,11 @@ registerProducts(MasterProductRegistry& mpr,
     productList_.reset(); // Reset, since we no longer need it.
   }
   for (auto const& val : typeLabelList_) {
-    mpr.addProduct(std::make_unique<art::BranchDescription>(val, md));
+    auto bd = std::make_unique<art::BranchDescription>(val, md);
+    auto & expProducts = expectedProducts_[bd->branchType()];
+    std::ostringstream oss;
+    oss << *bd;
+    expProducts.emplace(bd->branchID(), oss.str());
+    mpr.addProduct(std::move(bd));
   }
 }

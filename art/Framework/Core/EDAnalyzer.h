@@ -36,9 +36,9 @@ namespace art
 
     // Configuration
     struct baseConfig {
-      fhicl::Atom<std::string> module_type { fhicl::Key("module_type") };
+      fhicl::Atom<std::string> module_type { fhicl::Name("module_type") };
       fhicl::Table<EventObserver::EOConfig> eoConfig {
-        fhicl::Key("SelectEvents"),
+        fhicl::Name("SelectEvents"),
           fhicl::Comment("The 'SelectEvents' table below is optional")
           };
     };

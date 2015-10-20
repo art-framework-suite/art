@@ -14,106 +14,102 @@
 
 namespace {
 
-using BranchIDList = art::BranchIDListRegistry::collection_type::value_type;
+  using BranchIDList = art::BranchIDListRegistry::collection_type::value_type;
 
-std::size_t width(BranchIDList const& v)
-{
-  std::size_t w(0);
-  cet::for_all(v, [&w](auto entry) {
-    w = std::max(w, std::to_string(entry).size());
-  });
-  return w;
-}
-
-std::string
-mismatch_msg(BranchIDList const& i, BranchIDList const& j)
-{
-  auto iIter = i.cbegin();
-  auto jIter = j.cbegin();
-  const auto iEnd = i.cend();
-  const auto jEnd = j.cend();
-  std::size_t const iW = std::max(width(i),
-                                  std::string("Previous File").size());
-  std::size_t const jW = std::max(width(j),
-                                  std::string("File to merge").size());
-  std::ostringstream msg;
-  msg << " Previous File    File to merge\n";
-  msg << " ==============================\n";
-  while ((iIter != iEnd) || (jIter != jEnd)) {
-    std::string imsg;
-    std::string jmsg;
-    if (iIter != iEnd) {
-      imsg = std::to_string(*iIter++);
-    }
-    if (jIter != jEnd) {
-      jmsg = std::to_string(*jIter++);
-    }
-    msg << " "
-        << std::setw(iW)
-        << std::left
-        << imsg
-        << "    "
-        << std::setw(jW)
-        << std::left
-        << jmsg
-        << '\n';
+  std::size_t width(BranchIDList const& v)
+  {
+    std::size_t w{};
+    cet::for_all(v, [&w](auto entry){w = std::max(w, std::to_string(entry).size());} );
+    return w;
   }
-  return msg.str();
-}
+
+  std::string
+  mismatch_msg(BranchIDList const& i, BranchIDList const& j)
+  {
+    std::size_t const iW = std::max(width(i), std::string{"Previous File"}.size());
+    std::size_t const jW = std::max(width(j), std::string{"File to merge"}.size());
+
+    std::ostringstream msg;
+    msg << "  Previous File    File to merge\n";
+    msg << "  ==============================\n";
+    for (std::size_t m{}; m != std::max(i.size(), j.size()); ++m) {
+      msg << "  "
+          << std::setw(iW)
+          << std::left
+          << (m < i.size() ? std::to_string(i[m]) : "")
+          << "    "
+          << std::setw(jW)
+          << std::left
+          << (m < j.size() ? std::to_string(j[m]) : "")
+          << '\n';
+    }
+    return msg.str();
+  }
+
+  auto first_new_BranchIDList(art::BranchIDLists const& ref,
+                              art::BranchIDLists const& test,
+                              std::string const& fileName)
+  {
+    std::string err_msg;
+    std::size_t i{};
+    for ( ; i != std::min(ref.size(), test.size()); ++i ) {
+      if ( ref[i] != test[i] ) {
+        err_msg += "Process " + std::to_string(i+1) + ":\n\n";
+        err_msg += mismatch_msg(ref[i], test[i]);
+        err_msg += "\n\n";
+      }
+    }
+
+    return
+      err_msg.empty() ?
+      std::next(test.begin(),i) : // will not exceed test.end()
+      throw art::Exception(art::errors::MismatchedInputFiles)
+      << "Cannot merge file '"
+      << fileName
+      << "' due to inconsistent process histories:\n\n"
+      << err_msg
+      << "The BranchIDs above correspond to products that were\n"
+      << "created whenever the current input files were produced.\n"
+      << "\nThe lists above must be identical per process.\n\n"
+      << "To determine which products these BranchIDs correspond to,\n"
+      << "rerun the corresponding processes that produced the\n"
+      << "input files, enabling full debug output for the message\n"
+      << "service. Then 'grep' the log file for messages with 'BranchID'."
+      << "\n\n"
+      << "Contact the framework group for assistance.\n";
+  }
 
 } // unnamed namespace
 
-namespace art {
-
-// Called on primary file open.
-// Verify that the new file produced the same products for each process
-// in the process history it has in common with the previous files, and
-// allow it to add more process history onto the end.
+// Called on primary file open.  Verify that the new file produced the
+// same Event-level products for each process in the process history
+// it has in common with the previous files, and allow it to add more
+// process history onto the end.
 void
+art::
 BranchIDListHelper::
-updateFromInput(BranchIDLists const& bidlists, std::string const& fileName)
+updateFromInput(BranchIDLists const & file_bidlists, std::string const& fileName)
 {
   auto& breg = *BranchIDListRegistry::instance();
-  auto& bdata = breg.data();
-  auto J = bidlists.cbegin();
-  auto JE = bidlists.cend();
-  for (auto I = bdata.cbegin(), IE = bdata.cend(); (J != JE) && (I != IE);
-      ++J, ++I) {
-    // FIXME: Note that this check only compares lists of products
-    // FIXME: produced in processes, it does not compare the process
-    // FIXME: names.  This possibly allows files containing data from
-    // FIXME: two incompatible processes to be mixed!
-    if (*I != *J) {
-      std::string const errmsg = mismatch_msg(*I, *J);
-      throw art::Exception(errors::UnimplementedFeature)
-          << "Cannot merge file '"
-          << fileName
-          << "' due to a branch mismatch.\n\n"
-          << errmsg
-          << "\n\n"
-          << "The BranchIDs above correspond to products\n"
-          << "that were created whenever the current input files\n"
-          << "were produced.  The lists above must be identical.\n"
-          << "To determine which products these BranchIDs correspond to,\n"
-          << "rerun the process that produced the input files,\n"
-          << "enabling full debug output for the message service.\n"
-          << "Then 'grep' the log file for messages with 'BranchID'."
-          << "\n\n"
-          << "Contact the framework group for assistance.\n";
+  auto& reg_bidlists = breg.data();
 
-    }
-  }
-  for (; J != JE; ++J) {
-    breg.insertMapped(*J);
-  }
-  // FIXME: We need to generate the reverse mappings here!
+  std::for_each( first_new_BranchIDList(reg_bidlists, file_bidlists, fileName),
+                 file_bidlists.cend(),
+                 [&breg](auto const& new_list) {
+                   breg.insertMapped( new_list );
+                 } );
+
+  generate_branchIDToIndexMap();
 }
 
-// Last thing done by the EventProcessor constructor.
-// Insert an entry into the BranchIDListRegistry (either empty or read
-// from the first input file) for the products produced by the current
-// process.  Also generate a full reverse mapping.
+// Last thing done by the EventProcessor constructor:
+//
+//   Insert an entry into the BranchIDListRegistry (which is either
+//   empty or read from the first input file) for the products
+//   produced by the current process.
+//
 void
+art::
 BranchIDListHelper::
 updateRegistries(MasterProductRegistry const& mpr)
 {
@@ -122,24 +118,39 @@ updateRegistries(MasterProductRegistry const& mpr)
   BranchIDList bidlist;
   for (auto const& val : mpr.productList()) {
     if (val.second.produced() && (val.second.branchType() == InEvent)) {
-        bidlist.push_back(val.second.branchID().id());
+      bidlist.push_back(val.second.branchID().id());
     }
   }
-  auto& breg = *BranchIDListRegistry::instance();
-  // Put accumulated list into registry.
-  breg.insertMapped(bidlist);
-  // Now generate the reverse mapping.
-  auto& branchIDToIndexMap = breg.extra().branchIDToIndexMap_;
-  for (auto I = breg.data().cbegin(), E = breg.data().cend(); I != E; ++I) {
-    BranchListIndex blix = I - breg.data().begin();
-    for (auto J = I->cbegin(), JE = I->cend(); J != JE; ++J) {
-      ProductIndex pix = J - I->begin();
-      branchIDToIndexMap.emplace(BranchID(*J), std::make_pair(blix, pix));
-    }
-  }
+  // In what follows, if mpr.productList() is empty, and empty bidlist
+  // is inserted onto the BranchIDListRegistry.  This ensures that no
+  // input files with *additional* BranchIDList elements can be
+  // concatenated on input with the ones before it.
+  //
+  // This restriction can be lifted in the future by simply placing an
+  // 'if ( !bidlist.empty() )' condition in front of the following
+  // statement.  Doing so, however, could cause a breaking change in
+  // the following scenario:
+  //
+  // Suppose somebody has the following workflow that produce the
+  // following series of BranchIDLists:
+  //
+  //    BranchIDLists from    |  Old art    |  New art (with 'if' condition)
+  //    ====================================================================
+  //    From input file       | [b11, b12]  | [b11, b12]
+  //    Drop products         | []          | — no entry -
+  //    Add new product       | [b31]       | [b31]
+  //    Output file #BIDLists | 3           | 2
+  //
+  // Then files produced from old art will be incompatible with files
+  // produced with new art even though the configuration for each are
+  // the same.
+  BranchIDListRegistry::instance()->insertMapped(bidlist);
+
+  generate_branchIDToIndexMap();
 }
 
 void
+art::
 BranchIDListHelper::
 clearRegistries()
 {
@@ -148,5 +159,17 @@ clearRegistries()
   breg.extra().branchIDToIndexMap_.clear();
 }
 
-} // namespace art
-
+void
+art::
+BranchIDListHelper::
+generate_branchIDToIndexMap()
+{
+  auto& breg = *BranchIDListRegistry::instance();
+  auto& branchIDToIndexMap = breg.extra().branchIDToIndexMap_;
+  auto& bidlists = breg.data();
+  for(std::size_t n=0, n_max = bidlists.size(); n != n_max; ++n ) {
+    for (std::size_t m=0, m_max = bidlists[n].size(); m != m_max; ++m ) {
+      branchIDToIndexMap.emplace( BranchID{bidlists[n][m]}, IndexPair{n,m});
+    }
+  }
+}

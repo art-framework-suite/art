@@ -206,7 +206,7 @@ public: // MEMBER FUNCTIONS
 
   // Flag that we have been updated in the current process.
   void
-  addToProcessHistory() const;
+  addToProcessHistory();
 
   // Obtain the branch type suitable for products inserted into the principal.
   virtual
@@ -298,7 +298,7 @@ private: // MEMBER FUNCTIONS
 
   virtual
   void
-  setProcessHistoryID(ProcessHistoryID const&) const = 0;
+  setProcessHistoryID(ProcessHistoryID const&) = 0;
 
   size_t
   findGroupsForProduct(TypeID const& wanted_product, SelectorBase const&,

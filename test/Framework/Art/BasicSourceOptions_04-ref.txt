@@ -1,26 +1,39 @@
-process_name: "TEST"  # ./BasicSourceOptions_04.fcl:1
-services: { CatalogInterface: { service_provider: "TrivialFileDelivery"
-                                service_type: "CatalogInterface"
-                              }
-            FileTransfer: { service_provider: "TrivialFileTransfer"
-                            service_type: "FileTransfer"
-                          }
-            message: { destinations: { STDOUT: { categories: { ArtReport: { limit: 100
-                                                                          }
-                                                               default: { limit: -1
-                                                                        }
-                                                             }
-                                                 threshold: "INFO"
-                                                 type: "cout"
-                                               }
-                                     }
-                     }
-          }
-source: { fileNames: []
-          firstEvent: 5
-          maxEvents: 4
-          module_label: "source"
-          module_type: "RootInput"  # ./BasicSourceOptions_04.fcl:4
-          skipEvents: 2
-        }  # ./BasicSourceOptions_04.fcl:3
-
+process_name: "TEST"
+services: {
+   CatalogInterface: {
+      service_provider: "TrivialFileDelivery"
+      service_type: "CatalogInterface"
+   }
+   FileTransfer: {
+      service_provider: "TrivialFileTransfer"
+      service_type: "FileTransfer"
+   }
+   message: {
+      destinations: {
+         STDOUT: {
+            categories: {
+               ArtReport: {
+                  limit: 100
+               }
+               default: {
+                  limit: -1
+               }
+            }
+            threshold: "INFO"
+            type: "cout"
+         }
+      }
+   }
+   scheduler: {
+      errorOnFailureToPut: true
+      errorOnSIGINT: true
+   }
+}
+source: {
+   fileNames: []
+   firstEvent: 5
+   maxEvents: 4
+   module_label: "source"
+   module_type: "RootInput"
+   skipEvents: 2
+}

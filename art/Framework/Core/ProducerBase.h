@@ -21,7 +21,6 @@ EDProducts into an Event.
 namespace art {
   class BranchDescription;
   class ModuleDescription;
-  class MasterProductRegistry;
   class ProducerBase : private ProductRegistryHelper
   {
   public:
@@ -29,6 +28,7 @@ namespace art {
 
     using ProductRegistryHelper::registerProducts;
     using ProductRegistryHelper::produces;
+    using ProductRegistryHelper::expectedProducts;
 
     bool modifiesEvent() const { return true; }
 

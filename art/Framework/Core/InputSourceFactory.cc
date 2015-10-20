@@ -32,9 +32,7 @@ InputSourceFactory::make(ParameterSet const& conf,
 
    FDEBUG(1) << "InputSourceFactory: module_type = " << libspec << std::endl;
 
-   typedef std::unique_ptr<InputSource>
-      (make_t)(fhicl::ParameterSet const&,
-               InputSourceDescription &);
+   using make_t = std::unique_ptr<InputSource>(fhicl::ParameterSet const&, InputSourceDescription &);
 
    make_t *symbol = nullptr;
 

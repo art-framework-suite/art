@@ -8,8 +8,8 @@
 namespace {
   using namespace fhicl;
   struct Config {
-    Atom<int>  acceptValue { Key("acceptValue"), 1 };
-    Atom<bool> onlyOne { Key("onlyOne"), false };
+    Atom<int>  acceptValue { Name("acceptValue"), 1 };
+    Atom<bool> onlyOne { Name("onlyOne"), false };
   };
 }
 

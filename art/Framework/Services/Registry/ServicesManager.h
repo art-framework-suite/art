@@ -40,9 +40,9 @@ class art::ServicesManager {
 public:
   // non-copyable:
   ServicesManager(ServicesManager const &) = delete;
-  void operator = (ServicesManager const &) = delete;
+  ServicesManager& operator= (ServicesManager const &) = delete;
 
-  typedef std::vector<fhicl::ParameterSet> ParameterSets;
+  using ParameterSets = std::vector<fhicl::ParameterSet>;
 
 public:
   ServicesManager(ParameterSets const &,

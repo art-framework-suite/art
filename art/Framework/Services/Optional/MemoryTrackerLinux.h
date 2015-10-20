@@ -31,11 +31,11 @@ namespace art {
   public:
 
     struct Config {
-      using Key = fhicl::Key;
-      fhicl::Atom<unsigned> ignoreTotal { Key("ignoreTotal"), 1 };
-      fhicl::Sequence<std::string> printSummaries { Key("printSummaries"), { "general", "event", "module" } };
-      fhicl::Atom<std::string> filename { Key("filename"), "" };
-      fhicl::Atom<bool> includeMallocInfo { Key("includeMallocInfo"), false };
+      using Name = fhicl::Name;
+      fhicl::Atom<unsigned> ignoreTotal { Name("ignoreTotal"), 1 };
+      fhicl::Sequence<std::string> printSummaries { Name("printSummaries"), { "general", "event", "module" } };
+      fhicl::Atom<std::string> filename { Name("filename"), "" };
+      fhicl::Atom<bool> includeMallocInfo { Name("includeMallocInfo"), false };
     };
 
     using Parameters = ServiceTable<Config>;

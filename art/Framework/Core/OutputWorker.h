@@ -41,9 +41,9 @@ namespace art {
 
     void openFile(FileBlock const& fb);
 
-    void writeRun(RunPrincipal const& rp);
+    void writeRun(RunPrincipal & rp);
 
-    void writeSubRun(SubRunPrincipal const& srp);
+    void writeSubRun(SubRunPrincipal & srp);
 
     bool limitReached() const;
 

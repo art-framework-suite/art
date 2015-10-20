@@ -52,7 +52,10 @@ namespace {
 namespace art {
   class EDProducer {
   public:
-    static void commitEvent(Event& e) { e.commit_(); }
+    static void commitEvent(Event& e, ProducedMap const& expectedProducts)
+    {
+      e.commit_(false, expectedProducts);
+    }
   };
 }
 
@@ -139,12 +142,12 @@ registerProduct(std::string const& tag,
                 std::string const& productInstanceName)
 {
   ParameterSet moduleParams;
-  moduleParams.template put<std::string>("module_type", moduleClassName);
-  moduleParams.template put<std::string>("module_label", moduleLabel);
+  moduleParams.put<std::string>("module_type", moduleClassName);
+  moduleParams.put<std::string>("module_label", moduleLabel);
 
   ParameterSet processParams;
-  processParams.template put<std::string>("process_name", processName);
-  processParams.template put<ParameterSet>(moduleLabel, moduleParams);
+  processParams.put<std::string>("process_name", processName);
+  processParams.put<ParameterSet>(moduleLabel, moduleParams);
 
   ProcessConfiguration process;
   process.processName_    = processName;
@@ -287,7 +290,7 @@ addProduct(std::unique_ptr<T> && product,
 
   Event temporaryEvent(*principal_, description->second);
   ProductID id = temporaryEvent.put(std::move(product), productLabel);
-  EDProducer::commitEvent(temporaryEvent);
+  EDProducer::commitEvent(temporaryEvent, ProducedMap{});
   return id;
 }
 
@@ -331,7 +334,7 @@ BOOST_AUTO_TEST_CASE(putAnIntProduct)
   auto three = std::make_unique<arttest::IntProduct>(3);
   currentEvent_->put(std::move(three), "int1");
   BOOST_REQUIRE_EQUAL(currentEvent_->size(), 1u);
-  EDProducer::commitEvent(*currentEvent_);
+  EDProducer::commitEvent(*currentEvent_, ProducedMap{});
   BOOST_REQUIRE_EQUAL(currentEvent_->size(), 1u);
 }
 
@@ -339,7 +342,7 @@ BOOST_AUTO_TEST_CASE(putAndGetAnIntProduct)
 {
   auto four = std::make_unique<arttest::IntProduct>(4);
   currentEvent_->put(std::move(four), "int1");
-  EDProducer::commitEvent(*currentEvent_);
+  EDProducer::commitEvent(*currentEvent_, ProducedMap{});
 
   ProcessNameSelector should_match("CURRENT");
   ProcessNameSelector should_not_match("NONESUCH");
@@ -372,7 +375,7 @@ BOOST_AUTO_TEST_CASE(getByProductID)
     BOOST_REQUIRE(id2 != ProductID());
     BOOST_REQUIRE(id2 != id1);
 
-    EDProducer::commitEvent(*currentEvent_);
+    EDProducer::commitEvent(*currentEvent_, ProducedMap{});
     BOOST_REQUIRE_EQUAL(currentEvent_->size(), 2u);
   }
 
@@ -480,7 +483,7 @@ BOOST_AUTO_TEST_CASE(getBySelector)
 
   auto twoHundred = std::make_unique<product_t>(200);
   currentEvent_->put(std::move(twoHundred), "int1");
-  EDProducer::commitEvent(*currentEvent_);
+  EDProducer::commitEvent(*currentEvent_, ProducedMap{});
 
   BOOST_REQUIRE_EQUAL(currentEvent_->size(), 6u);
 
@@ -559,7 +562,7 @@ BOOST_AUTO_TEST_CASE(getByLabel)
 
   auto twoHundred = std::make_unique<product_t>(200);
   currentEvent_->put(std::move(twoHundred), "int1");
-  EDProducer::commitEvent(*currentEvent_);
+  EDProducer::commitEvent(*currentEvent_, ProducedMap{});
 
   BOOST_REQUIRE_EQUAL(currentEvent_->size(), 6u);
 
@@ -606,7 +609,7 @@ BOOST_AUTO_TEST_CASE(getManyByType)
 
   auto twoHundred = std::make_unique<product_t>(200);
   currentEvent_->put(std::move(twoHundred), "int1");
-  EDProducer::commitEvent(*currentEvent_);
+  EDProducer::commitEvent(*currentEvent_, ProducedMap{});
 
   BOOST_REQUIRE_EQUAL(currentEvent_->size(), 6u);
 

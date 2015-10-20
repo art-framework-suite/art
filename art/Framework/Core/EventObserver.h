@@ -42,7 +42,7 @@ protected:
 
   struct EOConfig {
     fhicl::Sequence<std::string> selectEvents {
-      fhicl::Key("SelectEvents"),
+      fhicl::Name("SelectEvents"),
       fhicl::Comment("The following parameter is a user-provided list\n"
                      "of filter paths. The default list is empty."),
       fhicl::Sequence<std::string>::make_empty() };

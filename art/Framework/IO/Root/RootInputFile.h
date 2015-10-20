@@ -7,6 +7,7 @@
 #include "art/Framework/IO/Root/FastCloningInfoProvider.h"
 #include "art/Framework/IO/Root/RootInputFileSequence.h"
 #include "art/Framework/IO/Root/RootTree.h"
+#include "art/Framework/Principal/ResultsPrincipal.h"
 #include "art/Persistency/Provenance/BranchChildren.h"
 #include "art/Persistency/Provenance/BranchIDListRegistry.h"
 #include "art/Persistency/Provenance/BranchMapper.h"
@@ -21,9 +22,11 @@
 #include "art/Persistency/Provenance/ProductRegistry.h"
 #include "art/Persistency/Provenance/ProductStatus.h"
 #include "art/Persistency/Provenance/ProvenanceFwd.h"
+#include "art/Persistency/Provenance/ResultsAuxiliary.h"
 #include "art/Persistency/Provenance/RunAuxiliary.h"
 #include "art/Persistency/Provenance/SubRunAuxiliary.h"
 #include "art/Persistency/Provenance/SubRunID.h"
+#include "art/Persistency/Provenance/detail/type_aliases.h"
 #include "cetlib/exempt_ptr.h"
 
 #include <array>
@@ -43,7 +46,7 @@ class RootInputFile {
 
 public: // TYPES
 
-  typedef std::array<RootTree*, NumBranchTypes> RootTreePtrArray;
+  typedef std::array<std::unique_ptr<RootTree>, NumBranchTypes> RootTreePtrArray;
 
 public: // MEMBER FUNCTIONS
 
@@ -73,6 +76,7 @@ public: // MEMBER FUNCTIONS
                 bool dropMergeable,
                 std::shared_ptr<DuplicateChecker> duplicateChecker,
                 bool dropDescendantsOfDroppedProducts,
+                bool readIncomingParameterSets,
                 cet::exempt_ptr<RootInputFile> primaryFile,
                 int secondaryFileNameIdx,
                 std::vector<std::string> const& secondaryFileNames,
@@ -110,6 +114,9 @@ public: // MEMBER FUNCTIONS
 
   bool
   readSubRunForSecondaryFile(SubRunID);
+
+  std::unique_ptr<art::ResultsPrincipal>
+  readResults();
 
   std::string const&
   file() const
@@ -159,24 +166,6 @@ public: // MEMBER FUNCTIONS
     return treePointers_;
   }
 
-  RootTree const&
-  eventTree() const
-  {
-    return eventTree_;
-  }
-
-  RootTree const&
-  subRunTree() const
-  {
-    return subRunTree_;
-  }
-
-  RootTree const&
-  runTree() const
-  {
-    return runTree_;
-  }
-
   FileFormatVersion
   fileFormatVersion() const
   {
@@ -190,7 +179,7 @@ public: // MEMBER FUNCTIONS
   }
 
   std::shared_ptr<FileBlock>
-  createFileBlock() const;
+  createFileBlock();
 
   bool
   setEntryAtEvent(EventID const& eID, bool exact);
@@ -216,9 +205,9 @@ public: // MEMBER FUNCTIONS
     fiIter_ = fiBegin_;
     // FIXME: Rewinding the trees is suspicious!
     // FIXME: They should be positioned based on the new iter pos.
-    eventTree_.rewind();
-    subRunTree_.rewind();
-    runTree_.rewind();
+    eventTree().rewind();
+    subRunTree().rewind();
+    runTree().rewind();
     //updateSecondaryIter();
   }
 
@@ -243,8 +232,6 @@ public: // MEMBER FUNCTIONS
     //updateSecondaryIter();
   }
 
-  using PerBranchTypePresence = MasterProductRegistry::PerBranchTypePresence;
-
   PerBranchTypePresence
   perBranchTypePresence()
   {
@@ -266,7 +253,7 @@ public: // MEMBER FUNCTIONS
   bool
   nextEventEntry()
   {
-    return eventTree_.next();
+    return eventTree().next();
   }
 
   FileIndex::EntryType
@@ -303,6 +290,54 @@ public: // MEMBER FUNCTIONS
   openSecondaryFile(int const idx);
 
 private:
+
+  RootTree const &
+  eventTree() const
+  {
+    return *treePointers_[InEvent];
+  }
+
+  RootTree &
+  eventTree()
+  {
+    return *treePointers_[InEvent];
+  }
+
+  RootTree const &
+  subRunTree() const
+  {
+    return *treePointers_[InSubRun];
+  }
+
+  RootTree &
+  subRunTree()
+  {
+    return *treePointers_[InSubRun];
+  }
+
+  RootTree const &
+  runTree() const
+  {
+    return *treePointers_[InRun];
+  }
+
+  RootTree &
+  runTree()
+  {
+    return *treePointers_[InRun];
+  }
+
+  RootTree const &
+  resultsTree() const
+  {
+    return *treePointers_[InResults];
+  }
+
+  RootTree &
+  resultsTree()
+  {
+    return *treePointers_[InResults];
+  }
 
   bool setIfFastClonable(FastCloningInfoProvider const& fcip) const;
 
@@ -352,9 +387,7 @@ private:
   EventAuxiliary eventAux_;
   SubRunAuxiliary subRunAux_;
   RunAuxiliary runAux_;
-  RootTree eventTree_;
-  RootTree subRunTree_;
-  RootTree runTree_;
+  ResultsAuxiliary resultsAux_;
   RootTreePtrArray treePointers_;
   std::unique_ptr<ProductRegistry> productListHolder_;
   std::shared_ptr<BranchIDListRegistry::collection_type const> branchIDLists_;

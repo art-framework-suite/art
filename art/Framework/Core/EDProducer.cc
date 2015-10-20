@@ -1,11 +1,13 @@
 #include "art/Framework/Core/EDProducer.h"
 
 #include "art/Framework/Core/CPCSentry.h"
+#include "art/Framework/Core/detail/get_failureToPut_flag.h"
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Principal/Run.h"
 #include "art/Framework/Principal/SubRun.h"
 #include "art/Utilities/Exception.h"
 #include "cetlib/demangle.h"
+#include "fhiclcpp/ParameterSetRegistry.h"
 
 namespace art
 {
@@ -14,23 +16,25 @@ namespace art
     : ProducerBase()
     , EngineCreator()
     , moduleDescription_()
-    , current_context_(0)
-  { }
-
-  EDProducer::~EDProducer() { }
+    , current_context_{nullptr}
+    , checkPutProducts_{true}
+  {}
 
   bool
   EDProducer::doEvent(EventPrincipal& ep,
-                             CurrentProcessingContext const* cpc) {
+                      CurrentProcessingContext const* cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
     Event e(ep, moduleDescription_);
     this->produce(e);
-    e.commit_();
+    e.commit_(checkPutProducts_, expectedProducts());
     return true;
   }
 
   void
   EDProducer::doBeginJob() {
+    // 'checkPutProducts_' cannot be set during the c'tor
+    // initialization list since 'moduleDescription_' is empty there.
+    checkPutProducts_ = detail::get_failureToPut_flag( moduleDescription_ );
     this->beginJob();
   }
 
@@ -49,7 +53,7 @@ namespace art
 
   bool
   EDProducer::doBeginRun(RunPrincipal & rp,
-                        CurrentProcessingContext const* cpc) {
+                         CurrentProcessingContext const* cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
     Run r(rp, moduleDescription_);
     this->beginRun(r);
@@ -59,7 +63,7 @@ namespace art
 
   bool
   EDProducer::doEndRun(RunPrincipal & rp,
-                        CurrentProcessingContext const* cpc) {
+                       CurrentProcessingContext const* cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
     Run r(rp, moduleDescription_);
     this->endRun(r);
@@ -69,7 +73,7 @@ namespace art
 
   bool
   EDProducer::doBeginSubRun(SubRunPrincipal & srp,
-                        CurrentProcessingContext const* cpc) {
+                            CurrentProcessingContext const* cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
     SubRun sr(srp, moduleDescription_);
     this->beginSubRun(sr);
@@ -79,7 +83,7 @@ namespace art
 
   bool
   EDProducer::doEndSubRun(SubRunPrincipal & srp,
-                        CurrentProcessingContext const* cpc) {
+                          CurrentProcessingContext const* cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
     SubRun sr(srp, moduleDescription_);
     this->endSubRun(sr);

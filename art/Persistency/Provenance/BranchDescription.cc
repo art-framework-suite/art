@@ -339,13 +339,6 @@ throwIfInvalid_() const
   }
 }
 
-void
-BranchDescription::
-updateFriendlyClassName()
-{
-  friendlyClassName_ = friendlyname::friendlyName(producedClassName());
-}
-
 bool
 operator<(BranchDescription const& a, BranchDescription const& b)
 {

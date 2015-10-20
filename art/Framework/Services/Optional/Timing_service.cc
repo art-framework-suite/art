@@ -15,7 +15,7 @@
 #include "art/Persistency/Provenance/ProvenanceFwd.h"
 #include "cetlib/exception.h"
 #include "fhiclcpp/types/Atom.h"
-#include "fhiclcpp/types/Key.h"
+#include "fhiclcpp/types/Name.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include <algorithm>
@@ -33,7 +33,7 @@ using fhicl::ParameterSet;
 namespace {
   using namespace fhicl;
   struct Config {
-    Atom<bool> summaryOnly { Key("summaryOnly"), false };
+    Atom<bool> summaryOnly { Name("summaryOnly"), false };
   };
 }
 

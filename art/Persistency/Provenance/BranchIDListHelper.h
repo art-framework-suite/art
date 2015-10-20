@@ -16,18 +16,15 @@ class MasterProductRegistry;
 
 class BranchIDListHelper {
 public:
-  typedef std::pair<BranchListIndex, ProductIndex> IndexPair;
-  typedef std::map<BranchID, IndexPair> BranchIDToIndexMap;
-public:
-  static void updateFromInput(BranchIDLists const& bidlists,
+
+  using IndexPair = std::pair<BranchListIndex, ProductIndex>;
+  using BranchIDToIndexMap = std::map<BranchID, IndexPair>;
+
+  static void updateFromInput(BranchIDLists const& file_bidlists,
                               std::string const& fileName);
   static void updateRegistries(MasterProductRegistry const& reg);
   static void clearRegistries();
-public:
-  BranchIDListHelper()
-    : branchIDToIndexMap_()
-  {
-  }
+  static void generate_branchIDToIndexMap();
 
   BranchIDToIndexMap const& branchIDToIndexMap() const
   {

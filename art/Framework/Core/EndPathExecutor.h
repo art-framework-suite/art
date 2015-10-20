@@ -44,10 +44,10 @@ public:
   //void doSelectProducts();
 
   // Write the subRun
-  void writeSubRun(SubRunPrincipal const & srp);
+  void writeSubRun(SubRunPrincipal & srp);
 
   // Write the run
-  void writeRun(RunPrincipal const & rp);
+  void writeRun(RunPrincipal & rp);
 
   // Call closeFile() on all OutputModules.
   void closeOutputFiles();

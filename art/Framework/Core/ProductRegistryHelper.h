@@ -22,53 +22,65 @@
 #include "art/Framework/Principal/fwd.h"
 #include "art/Persistency/Common/Assns.h"
 #include "art/Persistency/Provenance/BranchType.h"
-#include "art/Persistency/Provenance/ProductList.h"
 #include "art/Persistency/Provenance/MasterProductRegistry.h"
+#include "art/Persistency/Provenance/ProductList.h"
 #include "art/Persistency/Provenance/TypeLabel.h"
+#include "art/Persistency/Provenance/detail/branchNameComponentChecking.h"
+#include "art/Persistency/Provenance/detail/type_aliases.h"
 #include "art/Utilities/Exception.h"
 #include "art/Utilities/TypeID.h"
 #include "cetlib/exception.h"
+
 #include <memory>
 #include <set>
 #include <string>
 
+namespace art {
+  class ProductRegistryHelper;
+
+  class ModuleDescription;
+}
+
 namespace {
 
-inline
-void
-verifyInstanceName(std::string const& instanceName)
-{
-  if (instanceName.find('_') != std::string::npos) {
-    throw art::Exception(art::errors::Configuration)
-        << "Instance name \""
-        << instanceName
-        << "\" is illegal: underscores are not permitted in instance names."
-        << '\n';
+  inline
+  void
+  verifyFriendlyClassName(std::string const & fcn)
+  {
+    std::string errMsg;
+    if (!art::detail::checkFriendlyName(fcn, errMsg)) {
+      throw art::Exception(art::errors::Configuration)
+        << errMsg
+        << "In particular, underscores are not permissible anywhere in the fully-scoped\n"
+        "class name, including namespaces.\n";
+    }
   }
-}
 
-inline
-void
-verifyFriendlyClassName(std::string const& fcn)
-{
-  if (fcn.find('_') != std::string::npos) {
-    throw art::Exception(art::errors::LogicError)
-        << "Class \""
-        << fcn
-        << "\" is not suitable for use as a product due to the presence of "
-        << "underscores which are not allowed anywhere in the class name "
-        << "(including namespace and enclosing classes).\n";
+  inline
+  void
+  verifyModuleLabel(std::string const & ml)
+  {
+    std::string errMsg;
+    if (!art::detail::checkModuleLabel(ml, errMsg)) {
+      throw art::Exception(art::errors::Configuration)
+        << errMsg;
+    }
   }
-}
+
+  inline
+  void
+  verifyInstanceName(std::string const & instanceName)
+  {
+    std::string errMsg;
+    if (!art::detail::checkInstanceName(instanceName, errMsg)) {
+      throw art::Exception(art::errors::Configuration)
+        << errMsg;
+    }
+  }
 
 } // unnamed namespace
 
-
-namespace art {
-
-class ModuleDescription;
-
-class ProductRegistryHelper {
+class art::ProductRegistryHelper {
 public:
 
   // Used by an input source to provide a product list
@@ -78,7 +90,6 @@ public:
 
   void registerProducts(MasterProductRegistry& mpr,
                         ModuleDescription const& md);
-
   // Record the production of an object of type P, with optional
   // instance name, in the Event (by default), Run, or SubRun.
   template<class P, BranchType B = InEvent>
@@ -93,6 +104,12 @@ public:
   reconstitutes(std::string const& modLabel,
                 std::string const& instanceName = std::string());
 
+  template<BranchType B = InEvent>
+  ProducedMap const&
+  expectedProducts() const
+  {
+    return expectedProducts_[B];
+  }
 
 private:
 
@@ -102,13 +119,13 @@ private:
     auto result = typeLabelList_.insert(tl);
     if (!result.second) {
       throw Exception(errors::LogicError, "RegistrationFailure")
-          << "The module being constructed attempted to "
-          << "register conflicting products with:\n"
-          << "friendlyClassName: "
-          << tl.friendlyClassName()
-          << " and instanceName: "
-          << tl.productInstanceName
-          << ".\n";
+        << "The module being constructed attempted to "
+        << "register conflicting products with:\n"
+        << "friendlyClassName: "
+        << tl.friendlyClassName()
+        << " and instanceName: "
+        << tl.productInstanceName
+        << ".\n";
     }
     return *result.first;
   }
@@ -116,6 +133,7 @@ private:
 private:
 
   std::set<TypeLabel> typeLabelList_;
+  PerBranchTypeProduced expectedProducts_;
 
   // Set by an input source for merging into the
   // master product registry by registerProducts().
@@ -123,10 +141,10 @@ private:
 
 };
 
-template<typename P, BranchType B>
+template<typename P, art::BranchType B>
 inline
 void
-ProductRegistryHelper::
+art::ProductRegistryHelper::
 produces(std::string const& instanceName)
 {
   verifyInstanceName(instanceName);
@@ -135,27 +153,22 @@ produces(std::string const& instanceName)
   insertOrThrow(TypeLabel(B, productType, instanceName));
 }
 
-template<typename P, BranchType B>
-TypeLabel const&
-ProductRegistryHelper::
+template<typename P, art::BranchType B>
+art::TypeLabel const&
+art::ProductRegistryHelper::
 reconstitutes(std::string const& emulatedModule,
-    std::string const& instanceName)
+              std::string const& instanceName)
 {
+  verifyModuleLabel(emulatedModule);
   verifyInstanceName(instanceName);
   TypeID productType(typeid(P));
   verifyFriendlyClassName(productType.friendlyClassName());
-  if (emulatedModule.empty()) {
-    throw Exception(errors::Configuration)
-        << "Input sources must call reconstitutes with a non-empty "
-        << "module label.\n";
-  }
   return insertOrThrow(TypeLabel(B, productType, instanceName,
                                  emulatedModule));
 }
 
-} // namespace art
+#endif /* art_Framework_Core_ProductRegistryHelper_h */
 
 // Local Variables:
 // mode: c++
 // End:
-#endif /* art_Framework_Core_ProductRegistryHelper_h */

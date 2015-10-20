@@ -23,8 +23,8 @@ namespace {
 
   using namespace fhicl;
   struct Config {
-    Atom<int> ivalue { Key("ivalue") };
-    Atom<unsigned long> branchType { Key("branchType"), art::InEvent };
+    Atom<int> ivalue { Name("ivalue") };
+    Atom<unsigned long> branchType { Name("branchType"), art::InEvent };
   };
 
 }
@@ -109,7 +109,7 @@ IntProducer::endRun( art::Run& r )
 template <typename PUTTER>
 void
 IntProducer::put(PUTTER & p) {
-  p.put(std::unique_ptr<IntProduct>(new IntProduct(value_)));
+  p.put(std::make_unique<IntProduct>(value_));
 }
 
 DEFINE_ART_MODULE(IntProducer)

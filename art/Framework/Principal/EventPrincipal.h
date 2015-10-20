@@ -38,8 +38,6 @@ public:
 
 public:
 
-  virtual ~EventPrincipal();
-
   EventPrincipal(EventAuxiliary const& aux,
                  ProcessConfiguration const& pc,
                  std::shared_ptr<History> history =
@@ -168,9 +166,8 @@ private:
     return history().processHistoryID();
   }
 
-  virtual
   void
-  setProcessHistoryID(ProcessHistoryID const& phid) const
+  setProcessHistoryID(ProcessHistoryID const& phid) override
   {
     return history().setProcessHistoryID(phid);
   }

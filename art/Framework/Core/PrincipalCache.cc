@@ -182,12 +182,12 @@ namespace art {
     return subRunPrincipals_.empty();
   }
 
-  RunPrincipal const& PrincipalCache::lowestRun() const {
+  RunPrincipal & PrincipalCache::lowestRun() const {
     auto iter = runPrincipals_.begin();
     return *iter->second.get();
   }
 
-  SubRunPrincipal const& PrincipalCache::lowestSubRun() const {
+  SubRunPrincipal & PrincipalCache::lowestSubRun() const {
     auto iter = subRunPrincipals_.begin();
     return *iter->second.get();
   }

@@ -22,11 +22,6 @@ using namespace std;
 namespace art {
 
 EventPrincipal::
-~EventPrincipal()
-{
-}
-
-EventPrincipal::
 EventPrincipal(EventAuxiliary const& aux, ProcessConfiguration const& pc,
                std::shared_ptr<History> history,
                std::unique_ptr<BranchMapper>&& mapper,
@@ -45,7 +40,7 @@ EventPrincipal(EventAuxiliary const& aux, ProcessConfiguration const& pc,
     addToProcessHistory();
     // Add index into BranchIDListRegistry for products produced this process
     history_->addBranchListIndexEntry(
-      BranchIDListRegistry::instance()->size() - 1);
+                                      BranchIDListRegistry::instance()->size() - 1);
   }
   // Fill in helper map for Branch to ProductID mapping
   for (auto IB = history->branchListIndexes().cbegin(),

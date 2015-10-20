@@ -7,13 +7,12 @@ physics:
     mixProducer:
     {
       module_type: MixProducer
+      errorOnFailureToPut: false
     }
   }
 
   p1: [ mixProducer ]
-  trigger_paths: [ p1 ]
   e1: [ out ]
-  end_paths: [ e1 ]
 }
 
 outputs:

@@ -1,0 +1,11 @@
+outputs: {
+   out: {
+      module_type: "RootOutput"
+      fileName: "out.root"
+      streamName: "wannacookie"
+   }
+}
+
+physics: {
+  o1: [ out ]
+}

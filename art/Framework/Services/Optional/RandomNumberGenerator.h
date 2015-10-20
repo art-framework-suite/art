@@ -164,8 +164,7 @@
 #include "art/Persistency/Common/RNGsnapshot.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/types/Atom.h"
-#include "fhiclcpp/types/Key.h"
-
+#include "fhiclcpp/types/Name.h"
 #include <map>
 #include <memory>
 #include <string>
@@ -217,11 +216,11 @@ public:
 
   // --- Allowed configuration
   struct Config {
-    fhicl::Atom<std::string> restoreStateLabel { fhicl::Key("restoreStateLabel"), "" };
-    fhicl::Atom<std::string> saveTo            { fhicl::Key("saveTo"), "" };
-    fhicl::Atom<std::string> restoreFrom       { fhicl::Key("restoreFrom"), "" };
-    fhicl::Atom<int> nPrint { fhicl::Key("nPrint"), 10 };
-    fhicl::Atom<bool> debug { fhicl::Key("debug"), false };
+    fhicl::Atom<std::string> restoreStateLabel { fhicl::Name("restoreStateLabel"), "" };
+    fhicl::Atom<std::string> saveTo            { fhicl::Name("saveTo"), "" };
+    fhicl::Atom<std::string> restoreFrom       { fhicl::Name("restoreFrom"), "" };
+    fhicl::Atom<int> nPrint { fhicl::Name("nPrint"), 10 };
+    fhicl::Atom<bool> debug { fhicl::Name("debug"), false };
   };
 
   // --- C'tor/d'tor:

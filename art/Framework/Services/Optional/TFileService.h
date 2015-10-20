@@ -11,7 +11,7 @@
 #include "art/Framework/Services/Optional/TFileDirectory.h"
 #include "art/Framework/Services/Registry/ServiceMacros.h"
 #include "fhiclcpp/types/Atom.h"
-#include "fhiclcpp/types/Key.h"
+#include "fhiclcpp/types/Name.h"
 
 namespace art {
   class ActivityRegistry;   // declaration only
@@ -36,9 +36,9 @@ public:
   static constexpr const char* default_tmpDir = "<filename>/TFileService";
 
   struct Config {
-    fhicl::Atom<bool> closeFileFast   { fhicl::Key("closeFileFast"), false };
-    fhicl::Atom<std::string> fileName { fhicl::Key("fileName") };
-    fhicl::Atom<std::string> tmpDir   { fhicl::Key("tmpDir"), default_tmpDir };
+    fhicl::Atom<bool> closeFileFast   { fhicl::Name("closeFileFast"), false };
+    fhicl::Atom<std::string> fileName { fhicl::Name("fileName") };
+    fhicl::Atom<std::string> tmpDir   { fhicl::Name("tmpDir"), default_tmpDir };
   };
 
   // c'tor:

@@ -33,8 +33,6 @@ public:
 
 public:
 
-  virtual ~SubRunPrincipal();
-
   SubRunPrincipal(SubRunAuxiliary const&,
                   ProcessConfiguration const&,
                   std::unique_ptr<BranchMapper>&& mapper =
@@ -111,7 +109,7 @@ private:
 
   virtual ProcessHistoryID const& processHistoryID() const;
 
-  virtual void setProcessHistoryID(ProcessHistoryID const& phid) const;
+  void setProcessHistoryID(ProcessHistoryID const& phid) override;
 
 private:
 

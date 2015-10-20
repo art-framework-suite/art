@@ -29,7 +29,8 @@ namespace art {
   : DataViewImpl ( ep, md, InEvent )
   , aux_         ( ep.aux() )
   , subRun_      ( newSubRun(ep, md) )
-  , gotBranchIDs_( )
+  , eventPrincipal_(ep)
+  , gotBranchIDs_()
   { }
 
   EDProductGetter const *
@@ -40,16 +41,6 @@ namespace art {
   ProductID
   Event::branchIDToProductID(BranchID const &bid) const {
     return eventPrincipal().branchIDToProductID(bid);
-  }
-
-  EventPrincipal &
-  Event::eventPrincipal() {
-    return dynamic_cast<EventPrincipal &>(principal());
-  }
-
-  EventPrincipal const &
-  Event::eventPrincipal() const {
-    return dynamic_cast<EventPrincipal const&>(principal());
   }
 
   ProductID
@@ -120,19 +111,17 @@ namespace art {
 
 
   void
-  Event::commit_() {
+  Event::commit_(bool const checkProducts, ProducedMap const& expectedProducts)
+  {
+    checkPutProducts(checkProducts, expectedProducts, putProducts());
     commit_aux(putProducts(), true);
     commit_aux(putProductsWithoutParents(), false);
   }
 
   void
-  Event::commit_aux(Base::ProductPtrVec& products, bool record_parents) {
-    // fill in guts of provenance here
-    EventPrincipal & ep = eventPrincipal();
-
-    ProductPtrVec::iterator pit(products.begin());
-    ProductPtrVec::iterator pie(products.end());
-
+  Event::commit_aux(Base::BranchIDsMap& products,
+                    bool const record_parents)
+  {
     vector<BranchID> gotBranchIDVector;
 
     // Note that gotBranchIDVector will remain empty if
@@ -141,27 +130,22 @@ namespace art {
 
     if (record_parents && !gotBranchIDs_.empty()) {
       gotBranchIDVector.reserve(gotBranchIDs_.size());
-      for (BranchIDSet::const_iterator it = gotBranchIDs_.begin(), itEnd = gotBranchIDs_.end();
-          it != itEnd; ++it) {
-        gotBranchIDVector.push_back(*it);
-      }
+      gotBranchIDVector.assign(gotBranchIDs_.begin(), gotBranchIDs_.end());
     }
 
-    while(pit!=pie) {
-        unique_ptr<EDProduct> pr(pit->first);
-        // note: ownership has been passed - so clear the pointer!
-        pit->first = 0;
+    auto put_in_principal = [&gotBranchIDVector, &ep=eventPrincipal()](auto& elem) {
 
-        // set provenance
-        unique_ptr<ProductProvenance const> productProvenancePtr(
-                new ProductProvenance(pit->second->branchID(),
-                                      productstatus::present(),
-                                      gotBranchIDVector));
-        ep.put(std::move(pr),
-               *pit->second,
-               std::move(productProvenancePtr));
-        ++pit;
-    }
+      // set provenance
+      auto productProvenancePtr = make_unique<ProductProvenance const>(elem.first,
+                                                                       productstatus::present(),
+                                                                       gotBranchIDVector);
+
+      ep.put( std::move(elem.second.prod),
+              elem.second.bd,
+              std::move(productProvenancePtr) );
+    };
+
+    cet::for_all( products, put_in_principal );
 
     // the cleanup is all or none
     products.clear();
@@ -173,9 +157,7 @@ namespace art {
       // If the product retrieved is transient, don't use its branch ID.
       // use the branch ID's of its parents.
       vector<BranchID> const& bids = prov.parents();
-      for (vector<BranchID>::const_iterator it = bids.begin(), itEnd = bids.end(); it != itEnd; ++it) {
-        gotBranchIDs_.insert(*it);
-      }
+      gotBranchIDs_.insert( bids.begin(), bids.end() );
     } else {
       gotBranchIDs_.insert(prov.branchID());
     }
@@ -184,15 +166,13 @@ namespace art {
 // ----------------------------------------------------------------------
 
   void
-    Event::ensure_unique_product( std::size_t         nFound
-                                , TypeID      const & typeID
-                                , std::string const & moduleLabel
-                                , std::string const & productInstanceName
-                                , std::string const & processName
-                                ) const
+  Event::ensure_unique_product( std::size_t         nFound,
+                                TypeID      const & typeID,
+                                std::string const & moduleLabel,
+                                std::string const & productInstanceName,
+                                std::string const & processName ) const
   {
-    if( nFound == 1 )
-      return;
+    if( nFound == 1 ) return;
 
     art::Exception e(art::errors::ProductNotFound);
     e << "getView: Found "
@@ -206,7 +186,7 @@ namespace art {
     if( ! processName.empty() )
       e << "Looking for processName: "<< processName <<"\n";
     throw e;
-  }  // ensure_unique_product()
+  }
 
 }  // art
 

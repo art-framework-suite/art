@@ -48,7 +48,7 @@ public:
   template <typename PROD>
   void
   put(std::unique_ptr<PROD> && product, std::string const& productInstanceName);
-#endif
+#endif /* __GCCXML__ */
 
   // Return true if this Run has been subjected to a process with
   // the given processName, and false otherwise.
@@ -61,12 +61,6 @@ public:
                          std::vector<fhicl::ParameterSet>& ps) const;
 
 private:
-  RunPrincipal const&
-  runPrincipal() const;
-
-  RunPrincipal &
-  runPrincipal();
-
   // commit_() is called to complete the transaction represented by
   // this DataViewImpl. The friendships required are gross, but any
   // alternative is not great either.  Putting it into the
@@ -84,28 +78,33 @@ private:
 #ifndef __GCCXML__
 template <typename PROD>
 void
-art::Run::put(std::unique_ptr<PROD> && product, std::string const& productInstanceName)
+art::Run::put(std::unique_ptr<PROD> && product,
+              std::string const& productInstanceName)
 {
-  if (product.get() == 0) {                // null pointer is illegal
-    TypeID typeID(typeid(PROD));
+  if (product.get() == nullptr) {
     throw art::Exception(art::errors::NullPointerError)
       << "Run::put: A null unique_ptr was passed to 'put'.\n"
-      << "The pointer is of type " << typeID << ".\n"
+      << "The pointer is of type " << TypeID(typeid(PROD)) << ".\n"
       << "The specified productInstanceName was '" << productInstanceName << "'.\n";
   }
 
-  BranchDescription const& desc =
-    getBranchDescription(TypeID(*product), productInstanceName);
+  auto const& bd = getBranchDescription(TypeID(*product), productInstanceName);
+  auto        wp = std::make_unique<Wrapper<PROD>>( std::move(product) );
 
-  Wrapper<PROD> *wp(new Wrapper<PROD>(std::move(product)));
+  auto result = putProducts().emplace( bd.branchID(), PMValue{std::move(wp), bd} );
+  if ( !result.second ) {
+    throw art::Exception(art::errors::InsertFailure)
+      << "Run::put: Attempt to put multiple products with the\n"
+      << "          following description onto the Run.\n"
+      << "          Products must be unique per Run.\n"
+      << "=================================\n"
+      << bd
+      << "=================================\n";
+  }
 
-  putProducts().push_back(std::make_pair(wp, &desc));
-
-  // product.release(); // The object has been copied into the Wrapper.
-  // The old copy must be deleted, so we cannot release ownership.
 }
 
-#endif
+#endif /* __GCCXML__ */
 #endif /* art_Framework_Principal_Run_h */
 
 // Local Variables:

@@ -21,7 +21,6 @@
 
 #include <cassert>
 #include <ctime>
-#include <iostream>
 
 using fhicl::ParameterSet;
 
@@ -46,11 +45,10 @@ namespace art {
 
   // ----------------------------------------------------------------------
 
-DecrepitRelicInputSourceImplementation::
-~DecrepitRelicInputSourceImplementation()
-{
-}
- 
+  DecrepitRelicInputSourceImplementation::
+  ~DecrepitRelicInputSourceImplementation()
+  {}
+
   DecrepitRelicInputSourceImplementation::
   DecrepitRelicInputSourceImplementation(ParameterSet const & pset,
                                          InputSourceDescription & desc)
@@ -63,6 +61,7 @@ DecrepitRelicInputSourceImplementation::
     , reportFrequency_     ( pset.get<int>("reportFrequency", 1) )
     , processingMode_      ( RunsSubRunsAndEvents )
     , moduleDescription_   ( desc.moduleDescription )
+    , checkPutProducts_    ( pset.get<bool>("errorOnFailureToPut",false) )
     , time_                ( Timestamp::invalidTimestamp() )
     , doneReadAhead_       ( false )
     , state_               ( input::IsInvalid )
@@ -104,7 +103,7 @@ DecrepitRelicInputSourceImplementation::
   void
   DecrepitRelicInputSourceImplementation::commitEvent(art::Event &e)
   {
-    e.commit_();
+    e.commit_(checkPutProducts_, expectedProducts());
   }
 
 

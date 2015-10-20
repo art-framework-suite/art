@@ -10,11 +10,6 @@
 namespace art {
 
 RunPrincipal::
-~RunPrincipal()
-{
-}
-
-RunPrincipal::
 RunPrincipal(RunAuxiliary const& aux,
              ProcessConfiguration const& pc,
              std::unique_ptr<BranchMapper>&& mapper,
@@ -45,7 +40,7 @@ processHistoryID() const
 
 void
 RunPrincipal::
-setProcessHistoryID(ProcessHistoryID const& phid) const
+setProcessHistoryID(ProcessHistoryID const& phid)
 {
   return aux().setProcessHistoryID(phid);
 }
