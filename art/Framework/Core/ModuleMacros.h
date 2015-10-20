@@ -15,7 +15,6 @@
 ////////////////////////////////////////////////////////////////////////
 
 #include "art/Framework/Principal/WorkerParams.h"
-#include "art/Framework/Core/EventObserver.h"
 #include "art/Framework/Core/ModuleType.h"
 #include "art/Framework/Core/WorkerT.h"
 #include "art/Framework/Core/detail/ModuleTypeDeducer.h"
@@ -29,7 +28,6 @@
 #include <memory>
 #include <ostream>
 #include <string>
-#include <type_traits>
 
 // Function typedefs (used in art).
 namespace art {

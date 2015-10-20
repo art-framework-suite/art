@@ -2,19 +2,12 @@
 // vim: set sw=2:
 
 #include "art/Framework/IO/Root/RootDelayedReader.h"
-//#include "art/Framework/Principal/Principal.h"
-//#include "art/Framework/Principal/Provenance.h"
 #include "art/Persistency/Provenance/BranchDescription.h"
 #include "art/Persistency/Provenance/BranchType.h"
-//#include "art/Utilities/WrappedClassName.h"
-//#include "Rtypes.h"
 #include "TBranch.h"
 #include "TFile.h"
 #include "TLeaf.h"
 #include "TTree.h"
-//#include "TTreeCache.h"
-//#include "TTreeIndex.h"
-//#include "TVirtualIndex.h"
 #include <cstdint>
 #include <iostream>
 #include <string>

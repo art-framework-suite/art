@@ -16,8 +16,6 @@
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/ParameterSetID.h"
 
-#include <memory>
-
 // ----------------------------------------------------------------------
 
 namespace art {

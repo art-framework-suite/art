@@ -15,8 +15,8 @@ FileBlock: Properties of an input file.
 
 class TTree;
 
-#include <map>
 #include <memory>
+#include <map>
 #include <string>
 #include <vector>
 

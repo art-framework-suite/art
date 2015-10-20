@@ -28,8 +28,8 @@ make_group(std::unique_ptr<EDProduct>&&, BranchDescription const&,
 
 } // namespace gfactory
 } // namespace art
+#endif /* art_Framework_Principal_GroupFactory_h */
 
 // Local Variables:
 // mode: c++
 // End:
-#endif // art_Framework_Principal_GroupFactory_h

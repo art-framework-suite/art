@@ -15,7 +15,6 @@
 #include <array>
 #include <memory>
 #include <string>
-#include <type_traits>
 #include <vector>
 #include <type_traits>
 

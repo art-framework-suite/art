@@ -4,4 +4,3 @@
 template class art::Wrapper<art::EventIDSequence>;
 //template class art::EventIDSequence;
 template class std::vector<art::EventID>;
-

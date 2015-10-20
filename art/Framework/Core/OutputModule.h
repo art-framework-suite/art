@@ -25,9 +25,10 @@
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Persistency/Provenance/ParentageID.h"
 #include "art/Persistency/Provenance/Selections.h"
-#include "fhiclcpp/ParameterSet.h"
+
 #include "fhiclcpp/types/Atom.h"
 #include "fhiclcpp/types/Sequence.h"
+#include "fhiclcpp/ParameterSet.h"
 
 #include <array>
 #include <memory>

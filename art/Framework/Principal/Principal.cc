@@ -207,11 +207,6 @@ getMatchingSequence(TypeID const& elementType, SelectorBase const& selector,
                     GroupQueryResultVec& results,
                     bool stopIfProcessHasMatch) const
 {
-  //FIXME: friendlyClassName() no longer requires a dictionary!
-  // Can we call elementType.friendlyClassName()?
-  //if (!elementType.hasDictionary()) {
-  //  return 0;
-  //}
   size_t ret = 0;
   for (auto const& el : ProductMetaData::instance().elementLookup()) {
     auto I = el[branchType()].find(elementType.friendlyClassName());
@@ -259,11 +254,6 @@ findGroupsForProduct(TypeID const& wanted_product,
                      GroupQueryResultVec& results,
                      bool stopIfProcessHasMatch) const
 {
-  //FIXME: friendlyClassName() no longer requires a dictionary!
-  // Can we call friendlyClassName()?
-  //if (!wanted_product.hasDictionary()) {
-  //  return 0;
-  //}
   TClass * cl = nullptr;
   ////////////////////////////////////
   // Cannot do this here because some tests expect to be able to

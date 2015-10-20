@@ -27,7 +27,6 @@
 #include "boost/filesystem.hpp"
 
 #include <array>
-#include <array>
 #include <map>
 #include <memory>
 #include <string>
