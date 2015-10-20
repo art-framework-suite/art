@@ -32,9 +32,6 @@ template class art::Ptr<cet::map_vector<std::string>::value_type>;
 template class art::Wrapper<art::Ptr<int>>;
 template class art::Ptr<int>;
 
-template class art::Wrapper<art::Ptr<double> >;
-template class art::Ptr<double>;
-
 template class art::Wrapper<art::Ptr<std::string>>;
 template class art::Ptr<std::string>;
 
