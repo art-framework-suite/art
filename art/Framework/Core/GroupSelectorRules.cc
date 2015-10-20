@@ -1,17 +1,17 @@
 #include "art/Framework/Core/GroupSelectorRules.h"
 
 #include "art/Persistency/Provenance/BranchDescription.h"
+#include "art/Persistency/Provenance/detail/branchNameComponentChecking.h"
 #include "art/Utilities/Exception.h"
 #include "boost/algorithm/string.hpp"
 #include "cetlib/container_algorithms.h"
-#include "cetlib/replace_all.h"
-#include "cetlib/trim.h"
 
 #include <algorithm>
 #include <cctype>
 #include <iterator>
 #include <ostream>
 #include <regex>
+#include <string>
 
 using namespace art;
 using namespace cet;
@@ -22,166 +22,133 @@ typedef vector<BranchDescription const*> VCBDP;
 
 namespace {
 
-  //--------------------------------------------------
-  // function partial_match is a helper for Rule. It encodes the
-  // matching of strings, and knows about wildcarding rules.
+  // The partial_match() functions are helpers for Rule().  They
+  // ascertain matches between criterion and candidate value for
+  // components of the branch description, with appropriate wildcard
+  // rules.
   inline
   bool
-  partial_match(std::regex const & regularExpression,
-                string const & branchstring)
+  partial_match(const string& regularExpression,
+                const string& branchstring)
   {
-    return std::regex_match(branchstring, regularExpression);
+    return regularExpression.empty()
+      ? branchstring == ""
+      : std::regex_match(branchstring, std::regex(regularExpression) );
   }
 
-}  // namespace
+  inline
+  bool
+  partial_match(art::BranchType wanted,
+                art::BranchType candidate)
+  {
+    bool result = (wanted == art::NumBranchTypes) || (wanted == candidate);
+    return result;
+  }
 
-//--------------------------------------------------
-// Class Rule is used to determine whether or not a given branch
-// (really a Group, as described by the BranchDescription object
-// that specifies that Group) matches a 'rule' specified by the
-// configuration. Each Rule is configured with a single string from
-// the configuration file.
-//
-// The configuration string is of the form:
-//
-//   'keep <spec>'            ** or **
-//   'drop <spec>'
-//
-// where '<spec>' is of the form:
-//
-//   <product type>_<module label>_<instance name>_<process name>
-//
-// The 3 underscores must always be present.  The four fields can
-// be empty or composed of alphanumeric characters.  "*" is an
-// allowed wildcard that will match 0 or more of any characters.
-// "?" is the other allowed wilcard that will match exactly one
-// character.  There is one exception to this, the entire '<spec>'
-// can be one single "*" without any underscores and this is
-// interpreted as "*_*_*_*".  Anything else will lead to an exception
-// being thrown.
-//
-// This class has much room for optimization. This should be
-// revisited as soon as profiling data are available.
+  using namespace std::string_literals;
+  static auto const branchTypeString = "[Ii]n(?:(Event)|(SubRun)|(Run)|(Results))"s;
+  static std::regex const branchTypeRE(branchTypeString);
+
+  static std::string const rulesMsg =
+    "Syntax: keep|drop <spec> [<branchtype]>\n"
+    "where <spec> is EITHER \"*\" OR:\n"
+    "<friendly-type>_<module-label>_<instance-name>_<process-name>\n"
+    "Wildcards are permissible within each field: * (any number of characters), or\n"
+    "? (any single permissible character).\n"
+    "Permissible non-wildcard characters in all fields: [A-Za-z0-9].\n"
+    "Additionally, \"::\" is permissible in friendly type names, and\n"
+    "\"#\" is permissible in module labels.\n";
+
+  art::BranchKey parseComponents(std::string s,
+                                 std::string const & parameterName,
+                                 std::string const & owner,
+                                 bool & selectflag)
+  {
+    BranchKey components;
+    std::smatch ruleMatch;
+    static std::regex const
+      re("(keep|drop)\\s+(\\*|(?:[^_]*)_(?:[^_]*)_(?:[^_]*)_(?:[^_\\s]*))(?:\\s+(.*))?");
+    boost::trim(s); // Removing leading / trailing whitespace.
+    if (!std::regex_match(s, ruleMatch, re)) { // Failed preliminary check.
+      throw Exception(errors::Configuration)
+        << "Illegal product selection rule \""
+        << s << "\" failed initial checks in "
+        << owner << '.' << parameterName << ".\n"
+        << rulesMsg;
+    }
+    selectflag = (ruleMatch[1].str() == "keep");
+    if (ruleMatch[2].str() == "*") { // special case for wildcard
+      components.friendlyClassName_  = ".*";
+      components.moduleLabel_  = ".*";
+      components.productInstanceName_ = ".*";
+      components.processName_  = ".*";
+    } else {
+      std::string errMsg;
+
+      components = art::detail::splitToComponents(ruleMatch[2], errMsg);
+
+      if (!errMsg.empty()) {
+        throw Exception(errors::Configuration)
+          << errMsg
+          << "Error occurred in "
+          << owner << '.' << parameterName
+          << " (exactly four components required if not \"*\").\n"
+          << rulesMsg;
+      }
+
+      bool good = art::detail::checkBranchNameSelector(components, errMsg);
+
+      if (!good) {
+        throw Exception(errors::Configuration)
+          << errMsg
+          << "Error occurred in "
+          << owner << '.' << parameterName << ".\n"
+          << rulesMsg;
+      }
+      boost::replace_all(components.friendlyClassName_, "*", ".*");
+      boost::replace_all(components.friendlyClassName_, "?", ".");
+      boost::replace_all(components.moduleLabel_, "*", ".*");
+      boost::replace_all(components.moduleLabel_, "?", ".");
+      boost::replace_all(components.productInstanceName_, "*", ".*");
+      boost::replace_all(components.productInstanceName_, "?", ".");
+      boost::replace_all(components.processName_, "*", ".*");
+      boost::replace_all(components.processName_, "?", ".");
+    }
+    if ((ruleMatch[3].length() > 0) && // Have a BranchType specification.
+        (ruleMatch[3] != "*")) { // Wildcard is NOP, here.
+      std::smatch btMatch;
+      if (std::regex_match(ruleMatch[3].str(),
+                           btMatch,
+                           branchTypeRE)) {
+        // Should be true by construction.
+        assert(btMatch.size() == static_cast<size_t>(art::NumBranchTypes) + 1ul);
+        auto itFirstMatch = btMatch.begin();
+        ++itFirstMatch;
+        auto it = std::find_if(itFirstMatch, btMatch.end(), [](auto & s){ return (s.length() > 0); });
+        assert(it != btMatch.end()); // Should be true by construction.
+        components.branchType_ = std::distance(itFirstMatch, it);
+      } else {
+        throw art::Exception(art::errors::Configuration)
+          << "Invalid branch type specification \""
+          << ruleMatch[3]
+          << "\" in " << owner << " parameter named '" << parameterName << "'\n"
+          "If the optional branch type is specified, it must satisfy the following regex: \"^"
+          << branchTypeString
+          << "$\".\n"
+          << rulesMsg;
+      }
+    }
+    return components;
+  }
+
+}
 
 GroupSelectorRules::Rule::Rule(string const& s,
                                string const& parameterName,
                                string const& owner) :
   selectflag_(),
-  productType_(),
-  moduleLabel_(),
-  instanceName_(),
-  processName_()
+  components_(parseComponents(s, parameterName, owner, selectflag_))
 {
-  if (s.size() < 6)
-    throw art::Exception(art::errors::Configuration)
-      << "Invalid statement in configuration file\n"
-         "In " << owner << " parameter named '" << parameterName << "'\n"
-         "Rule must have at least 6 characters because it must\n"
-         "specify 'keep ' or 'drop ' and also supply a pattern.\n"
-         "This is the invalid output configuration rule:\n"
-         "    " << s << "\n"
-         "Exception thrown from GroupSelectorRules::Rule\n";
-
-  if (s.substr(0,4) == "keep")
-    selectflag_ = true;
-  else if (s.substr(0,4) == "drop")
-    selectflag_ = false;
-  else
-    throw art::Exception(art::errors::Configuration)
-      << "Invalid statement in configuration file\n"
-         "In " << owner << " parameter named '" << parameterName << "'\n"
-         "Rule must specify 'keep ' or 'drop ' and also supply a pattern.\n"
-         "This is the invalid output configuration rule:\n"
-         "    " << s << "\n"
-         "Exception thrown from GroupSelectorRules::Rule\n";
-
-  if ( !isspace(s[4]) ) {
-
-    throw art::Exception(art::errors::Configuration)
-      << "Invalid statement in configuration file\n"
-         "In " << owner << " parameter named '" << parameterName << "'\n"
-         "In each rule, 'keep' or 'drop' must be followed by a space\n"
-         "This is the invalid output configuration rule:\n"
-         "    " << s << "\n"
-         "Exception thrown from GroupSelectorRules::Rule\n";
-  }
-
-  // Now pull apart the string to get at the bits and pieces of the
-  // specification...
-
-  // Grab from after 'keep/drop ' (note the space!) to the end of
-  // the string...
-  string spec(s.begin()+5, s.end());
-
-  // Trim any leading and trailing whitespace from spec
-  cet::trim(spec);
-
-  if (spec == "*") { // special case for wildcard
-    productType_  = ".*";
-    moduleLabel_  = ".*";
-    instanceName_ = ".*";
-    processName_  = ".*";
-    return;
-  }
-  else {
-    vector<string> parts;
-    boost::split(parts, spec, boost::is_any_of("_"));
-
-    // The vector must contain at least 4 parts
-    // and none may be empty.
-    bool good = (parts.size() == 4);
-
-    // Require all the strings to contain only alphanumberic
-    // characters or "*" or "?"
-    if (good) {
-      for (int i = 0; i < 4; ++i) {
-         string& field = parts[i];
-         int size = field.size();
-         for (int j = 0; j < size; ++j) {
-            if ( !(isalnum(field[j]) || field[j] == '*' || field[j] == '?') ) {
-               if (i == 0 && (j-1) < size && field[j] == ':' && field[j+1] == ':') {
-                  // Colons allowed as namespace delimiters in type field only
-                  ++j;
-                  continue;
-               }
-               good = false;
-            }
-         }
-
-         // We are using the regex library to deal with the wildcards.
-         // The configuration file uses a syntax that accepts "*" and "?"
-         // as wildcards so we need to convert these to the syntax used in
-         // regular expressions.
-         cet::replace_all(parts[i], "*", ".*");
-         cet::replace_all(parts[i], "?", ".");
-      }
-    }
-
-    if (!good) {
-      throw art::Exception(art::errors::Configuration)
-        << "Invalid statement in configuration file\n"
-           "In " << owner << " parameter named '" << parameterName << "'\n"
-           "In each rule, after 'keep ' or 'drop ' there must\n"
-           "be a branch specification of the form 'type_label_instance_process'\n"
-           "There must be 4 fields separated by underscores\n"
-           "The fields can only contain alphanumeric characters and the wildcards * or ?\n"
-           "The first field *only* can contain additionally \"::\" as part of\n"
-           "namespace specification.\n"
-           "Alternately, a single * is also allowed for the branch specification\n"
-           "This is the invalid output configuration rule:\n"
-           "    " << s << "\n"
-           "Exception thrown from GroupSelectorRules::Rule\n";
-    }
-
-    // Assign the strings to the regex (regular expression) objects
-    // If the string is empty we skip the assignment and leave
-    // the regular expression also empty.
-
-    if (!parts[0].empty()) productType_  = parts[0];
-    if (!parts[1].empty()) moduleLabel_  = parts[1];
-    if (!parts[2].empty()) instanceName_ = parts[2];
-    if (!parts[3].empty()) processName_  = parts[3];
-  }
 }
 
 void
@@ -211,10 +178,11 @@ bool
 GroupSelectorRules::Rule::appliesTo(BranchDescription const* branch) const
 {
   return
-    partial_match(productType_ , branch->friendlyClassName()) &&
-    partial_match(moduleLabel_ , branch->moduleLabel()) &&
-    partial_match(instanceName_, branch->productInstanceName()) &&
-    partial_match(processName_ , branch->processName());
+    partial_match(components_.friendlyClassName_ , branch->friendlyClassName()) &&
+    partial_match(components_.moduleLabel_ , branch->moduleLabel()) &&
+    partial_match(components_.productInstanceName_, branch->productInstanceName()) &&
+    partial_match(components_.processName_ , branch->processName()) &&
+    partial_match(static_cast<BranchType>(components_.branchType_), branch->branchType());
 }
 
 GroupSelectorRules::GroupSelectorRules(vector<string> const & commands,
