@@ -26,7 +26,7 @@ cet_test(artapp_t USE_BOOST_UNIT
   fcl/opt-empty.fcl
 )
 
-cet_test(artapp_basicSourceOptions_t 
+cet_test(artapp_basicSourceOptions_t
   USE_BOOST_UNIT
   LIBRARIES
   art_Framework_Art
@@ -91,12 +91,11 @@ cet_test(BasicOptions_02_t HANDBUILT
   PASS_REGULAR_EXPRESSION "\nAllowed options:\n"
 )
 
-# cet_test(BasicOptions_03_t HANDBUILT
-#   TEST_EXEC ./check_available_modules_services.sh
-#   DATAFILES
-#   check_available_modules_services.sh
-#   REF "${CMAKE_CURRENT_SOURCE_DIR}/BasicOptions_03-ref.txt"
-#   )
+cet_test(BasicOptions_03_t
+  LIBRARIES
+  art_Framework_Art
+  REF "${CMAKE_CURRENT_SOURCE_DIR}/BasicOptions_03-ref.txt"
+  )
 
 ####################################
 # BasicOutputOptionsHandler.
@@ -695,4 +694,3 @@ config_test_pass(FileCatalogOptions_14_w)
 
 # Compare output from FileCatalogOptions_14_w against reference.
 config_ref_test(FileCatalogOptions_14)
-

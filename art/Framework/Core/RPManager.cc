@@ -1,5 +1,6 @@
 #include "art/Framework/Core/RPManager.h"
 #include "art/Framework/Core/ResultsProducer.h"
+#include "art/Utilities/PluginSuffixes.h"
 #include "cetlib/PluginTypeDeducer.h"
 
 #include <memory>
@@ -18,8 +19,8 @@ namespace {
 
 art::RPManager::
 RPManager(fhicl::ParameterSet const & ps)
-:
-  pf_("plugin", "makeRP"),
+  :
+  pf_(Suffixes::plugin(), "makeRP"),
   rpmap_(makeRPs_(ps)),
   size_(countProducers(rpmap_))
 {

@@ -34,7 +34,7 @@ namespace art {
     struct MaybePrintDescription{
       std::ostream & operator()(std::ostream & os, std::string const& prefix)
       {
-        return os << "\n" << prefix << "[ None provided ]";
+        return os << "\n" << prefix << "[ None provided ]\n";
       }
     };
 

@@ -1,7 +1,8 @@
 #include "art/Framework/Art/BasicOptionsHandler.h"
 
-#include "art/Framework/Core/detail/PrintAvailablePlugins.h"
+#include "art/Framework/Art/detail/PrintPluginMetadata.h"
 #include "art/Utilities/Exception.h"
+#include "art/Utilities/PluginSuffixes.h"
 #include "cetlib/container_algorithms.h"
 #include "cetlib/filepath_maker.h"
 #include "fhiclcpp/coding.h"
@@ -11,6 +12,8 @@
 
 #include <iostream>
 #include <string>
+
+using namespace std::string_literals;
 
 namespace {
 
@@ -29,16 +32,14 @@ BasicOptionsHandler(bpo::options_description & desc,
     ("config,c", bpo::value<std::string>(), "Configuration file.")
     ("help,h", "produce help message")
     ("process-name", bpo::value<std::string>(), "art process name.")
+    ("print-available", bpo::value<std::string>(),
+     ("List all available plugins with the provided suffix.  Choose from:"s + Suffixes::print()).c_str())
     ("print-available-modules",
-     "List all available modules that can be invoked in a FHiCL file")
+     "List all available modules that can be invoked in a FHiCL file.")
     ("print-available-services",
-     "List all available services that can be invoked in a FHiCL file")
-    ("module-description",bpo::value<std::vector<std::string>>()->multitoken(),
-     "Print description of a module, specified by the 'module_type' value "
-     "(can accept multiple module specs).")
-    ("service-description",bpo::value<std::vector<std::string>>()->multitoken(),
-     "Print description of a services, as specified in the 'services' block of a user's FHiCL file "
-     "(can accept multiple service names).")
+     "List all available services that can be invoked in a FHiCL file.")
+    ("print-description",bpo::value<std::vector<std::string>>()->multitoken(),
+     "Print description of specified module, service, source, or other plugin (multiple OK).")
     ;
 }
 
@@ -46,25 +47,26 @@ int
 art::BasicOptionsHandler::
 doCheckOptions(bpo::variables_map const & vm)
 {
+  // Technically the "help" and "print*" options are processing steps,
+  // but we want to short-circuit.
   if (vm.count("help")) {
-    // Technically a processing step, but we want to short-circuit.
     std::cout << help_desc_ << std::endl; // Note NOT our own desc_.
     return 1;
   }
-  if ( vm.count("print-available-modules") ){
-    detail::print_available_modules();
+  if ( vm.count("print-available") ) {
+    detail::print_available_plugins(Suffixes::get(vm["print-available"].as<std::string>()));
+    return 1;
+  }
+  if ( vm.count("print-available-modules") ) {
+    detail::print_available_plugins(suffix_type::module);
     return 1;
   }
   if ( vm.count("print-available-services") ) {
-    detail::print_available_services();
+    detail::print_available_plugins(suffix_type::service);
     return 1;
   }
-  if ( vm.count("module-description") ) {
-    detail::print_module_description( vm["module-description"].as<std::vector<std::string>>() );
-    return 1;
-  }
-  if ( vm.count("service-description") ) {
-    detail::print_service_description( vm["service-description"].as<std::vector<std::string>>() );
+  if ( vm.count("print-description") ) {
+    detail::print_descriptions( vm["print-description"].as<std::vector<std::string>>());
     return 1;
   }
 
