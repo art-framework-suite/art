@@ -33,12 +33,15 @@
 //
 ////////////////////////////////////////////////////////////////////////
 
+#include "art/Utilities/BasicHelperMacros.h"
 #include "art/Utilities/BasicPluginMacros.h"
 #include "cetlib/PluginTypeDeducer.h"
 #include "art/Framework/Services/System/FileCatalogMetadata.h"
 #include "fhiclcpp/ParameterSet.h"
 
 #define DEFINE_ART_FILECATALOGMETADATA_PLUGIN(klass)  \
+  PROVIDE_FILE_PATH()                                 \
+  PROVIDE_DESCRIPTION(klass)                          \
   DEFINE_BASIC_PLUGIN(klass,                          \
                       art::FileCatalogMetadataPlugin)
 

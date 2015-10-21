@@ -1,5 +1,5 @@
-#ifndef art_Framework_Core_detail_ServiceNames_h
-#define art_Framework_Core_detail_ServiceNames_h
+#ifndef art_Framework_Art_detail_ServiceNames_h
+#define art_Framework_Art_detail_ServiceNames_h
 
 /*
   The existence of this class is unfortunate.  It stems from having to
@@ -28,39 +28,29 @@ namespace art {
 
     class ServiceNames {
     public:
-      ServiceNames()
-      {
-        using position = typename decltype(lookup_)::value_type;
 
-        // These services have invocations in FHiCL that are different than
-        // the .so base name
-        lookup_.insert( position("floating_point_control","FloatingPointControl") );
-      }
+      using ServiceNames_bimap_t = boost::bimap<bimaps::set_of<std::string>,bimaps::set_of<std::string>>;
 
-      inline std::string libname( std::string const & fclname ) const
+      static std::string const & libname(std::string const & fclname)
       {
         auto it = lookup_.left.find( fclname );
         return it == lookup_.left.end() ? fclname : it->second;
       }
 
-      inline std::string fclname( std::string const & libname ) const
+      static std::string const & fclname(std::string const & libname)
       {
         auto it = lookup_.right.find( libname );
         return it == lookup_.right.end() ? libname : it->second;
       }
 
-      // iterators for printed names
-      auto begin() const { return lookup_.right.begin(); }
-      auto end()   const { return lookup_.right.end(); }
-
     private:
-      boost::bimap<bimaps::set_of<std::string>,bimaps::set_of<std::string> > lookup_;
+      static ServiceNames_bimap_t lookup_;
     };
 
   }
 }
 
-#endif /* art_Framework_Core_detail_ServiceNames_h */
+#endif /* art_Framework_Art_detail_ServiceNames_h */
 
 // Local variables:
 // mode: c++

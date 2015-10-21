@@ -67,7 +67,7 @@ DebugOptionsHandler(bpo::options_description & desc,
      "If 'true', a signal received from the user yields an art return code "
      "corresponding to an error; otherwise return 0.")
     ("debug-config", bpo::value<std::string>(),
-     ("Output post-processed configuration to <file> and exit. Equivalent to env ART_DEBUG_CONFIG=<file> "s + basename + " ..."s).c_str())
+     ("Output post-processed configuration to <file> and exit. Equivalent to env ART_DEBUG_CONFIG=<file> "s + basename + " ...").c_str())
     ("config-out", bpo::value<std::string>(),
      "Output post-processed configuration to <file> and continue with job.")
     ("annotate","Include configuration parameter source information.")
