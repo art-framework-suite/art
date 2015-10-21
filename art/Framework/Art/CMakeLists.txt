@@ -26,6 +26,8 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/artapp.cc.in
 ####################################
 
 add_subdirectory(detail)
+add_subdirectory(detail/md-collector)
+add_subdirectory(detail/md-summary)
 
 set(art_Framework_Art_sources
   BasicOptionsHandler.cc
@@ -40,7 +42,13 @@ set(art_Framework_Art_sources
   ${CMAKE_CURRENT_BINARY_DIR}/mu2eapp.cc
   find_config.cc
   run_art.cc
+  detail/MetadataRegexHelpers.cc
+  detail/PrintPluginMetadata.cc
+  detail/ServiceNames.cc
   detail/fillSourceList.cc
+  detail/get_LibraryInfoCollection.cc
+  detail/get_MetadataCollector.cc
+  detail/get_MetadataSummary.cc
   )
 
 art_make_library( LIBRARY_NAME art_Framework_Art

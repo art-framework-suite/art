@@ -3,11 +3,12 @@
 #include "cetlib/detail/wrapLibraryManagerException.h"
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Utilities/Exception.h"
+#include "art/Utilities/PluginSuffixes.h"
 #include "art/Version/GetReleaseVersion.h"
 
 art::detail::ModuleFactory::ModuleFactory()
   :
-  lm_("module")
+  lm_{Suffixes::module()}
 {
 }
 
@@ -24,11 +25,11 @@ moduleType(std::string const & libspec)
   }
   if (symbol == nullptr) {
     throw art::Exception(errors::Configuration, "BadPluginLibrary")
-        << "Module " << libspec
-        << " with version " << getReleaseVersion()
-        << " has internal symbol definition problems: consult an expert.";
+      << "Module " << libspec
+      << " with version " << getReleaseVersion()
+      << " has internal symbol definition problems: consult an expert.";
   }
-  return (*symbol)();
+  return symbol();
 }
 
 std::unique_ptr<art::Worker>
@@ -45,11 +46,11 @@ makeWorker(WorkerParams const & p, ModuleDescription const & md)
   }
   if (symbol == nullptr) {
     throw art::Exception(errors::Configuration, "BadPluginLibrary: ")
-        << "Module " << libspec
-        << " with version " << getReleaseVersion()
-        << " has internal symbol definition problems: consult an expert.";
+      << "Module " << libspec
+      << " with version " << getReleaseVersion()
+      << " has internal symbol definition problems: consult an expert.";
   }
-  return std::unique_ptr<Worker>((*symbol)(p, md));
+  return std::unique_ptr<Worker>(symbol(p, md));
 }  // makeWorker()
 
 // ======================================================================
