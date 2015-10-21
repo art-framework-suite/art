@@ -1,6 +1,6 @@
 #include "art/Framework/Art/BasicSourceOptionsHandler.h"
-#include "art/Framework/Art/detail/fillSourceList.h"
 
+#include "art/Framework/Art/detail/fillSourceList.h"
 #include "art/Utilities/Exception.h"
 #include "cetlib/container_algorithms.h"
 #include "fhiclcpp/coding.h"
@@ -16,11 +16,15 @@ art::BasicSourceOptionsHandler::
 BasicSourceOptionsHandler(bpo::options_description & desc)
 {
   desc.add_options()
-  ("source,s", bpo::value<std::vector<std::string> >(), "Source data file (multiple OK); precludes -S.")
-  ("source-list,S", bpo::value<std::string>(), "file containing a list of source files to read, one per line; precludes -s.")
-  ("estart,e", bpo::value<unsigned long>(), "Event # of first event to process.")
-  ("nevts,n", bpo::value<int>(), "Number of events to process.")
-  ("nskip", bpo::value<unsigned long>(), "Number of events to skip.")
+    ("source,s", bpo::value<std::vector<std::string> >()->composing(),
+     "Source data file (multiple OK); precludes -S.")
+    ("source-list,S", bpo::value<std::string>(),
+     "file containing a list of source files to read, one per line; "
+     "precludes -s.")
+    ("estart,e", bpo::value<unsigned long>(),
+     "Event # of first event to process.")
+    ("nevts,n", bpo::value<int>(), "Number of events to process.")
+    ("nskip", bpo::value<unsigned long>(), "Number of events to skip.")
   ;
 }
 

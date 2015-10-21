@@ -168,9 +168,8 @@ catalogOnDemandBranches_(PathManager::Workers onDemandWorkers,
   OnDemandBranches result;
   std::multimap<std::string, BranchDescription const *>
     branchLookup;
-  for (auto I = plist.cbegin(),
-            E = plist.cend(); I != E; ++I) {
-    branchLookup.emplace(I->second.moduleLabel(), &I->second);
+  for (auto const& pr : plist) {
+    branchLookup.emplace(pr.second.moduleLabel(), &pr.second);
   }
   for (auto w : onDemandWorkers) {
     auto const& label = w->description().moduleLabel();
@@ -198,11 +197,9 @@ makeTriggerResultsInserter_(fhicl::ParameterSet const & trig_pset,
                                             getReleaseVersion(),
                                             getPassID()));
   areg.sPreModuleConstruction.invoke(md);
-  std::unique_ptr<EDProducer>
-    producer(new TriggerResultInserter(trig_pset,
-                                       triggerPathsInfo_.pathResults()));
-  results_inserter_.reset(new WorkerT<EDProducer>(std::move(producer), md,
-                                                  work_args));
+  auto producer = std::make_unique<TriggerResultInserter>(trig_pset,
+                                                          triggerPathsInfo_.pathResults());
+  results_inserter_ = std::make_unique<WorkerT<EDProducer>>(std::move(producer), md, work_args);
   areg.sPostModuleConstruction.invoke(md);
   results_inserter_->setActivityRegistry(cet::exempt_ptr<ActivityRegistry>
                                          (&areg));

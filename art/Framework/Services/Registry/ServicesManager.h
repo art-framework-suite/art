@@ -15,11 +15,11 @@
 #include "art/Utilities/Exception.h"
 #include "art/Utilities/TypeID.h"
 #include "cetlib/demangle.h"
-#include "cpp0x/memory"
-#include "cpp0x/utility"
 
 #include <map>
+#include <memory>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace cet {
@@ -40,9 +40,9 @@ class art::ServicesManager {
 public:
   // non-copyable:
   ServicesManager(ServicesManager const &) = delete;
-  void operator = (ServicesManager const &) = delete;
+  ServicesManager& operator= (ServicesManager const &) = delete;
 
-  typedef std::vector<fhicl::ParameterSet> ParameterSets;
+  using ParameterSets = std::vector<fhicl::ParameterSet>;
 
 public:
   ServicesManager(ParameterSets const &,

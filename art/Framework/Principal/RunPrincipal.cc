@@ -10,11 +10,6 @@
 namespace art {
 
 RunPrincipal::
-~RunPrincipal()
-{
-}
-
-RunPrincipal::
 RunPrincipal(RunAuxiliary const& aux,
              ProcessConfiguration const& pc,
              std::unique_ptr<BranchMapper>&& mapper,

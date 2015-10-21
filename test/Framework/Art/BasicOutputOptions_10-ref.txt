@@ -46,6 +46,10 @@ services: {
          }
       }
    }
+   scheduler: {
+      errorOnFailureToPut: true
+      errorOnSIGINT: true
+   }
 }
 source: {
    maxEvents: 1

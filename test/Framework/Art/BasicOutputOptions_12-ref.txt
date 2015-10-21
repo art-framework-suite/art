@@ -1,0 +1,49 @@
+outputs: {
+   myOut: {
+      fileName: "out.root"
+      module_label: "myOut"
+      module_type: "RootOutput"
+      tmpDir: "/tmp"
+   }
+}
+physics: {
+   injected_end_path_1: [
+      "myOut"
+   ]
+}
+process_name: "DUMMY"
+services: {
+   CatalogInterface: {
+      service_provider: "TrivialFileDelivery"
+      service_type: "CatalogInterface"
+   }
+   FileTransfer: {
+      service_provider: "TrivialFileTransfer"
+      service_type: "FileTransfer"
+   }
+   message: {
+      destinations: {
+         STDOUT: {
+            categories: {
+               ArtReport: {
+                  limit: 100
+               }
+               default: {
+                  limit: -1
+               }
+            }
+            threshold: "INFO"
+            type: "cout"
+         }
+      }
+   }
+   scheduler: {
+      errorOnFailureToPut: true
+      errorOnSIGINT: true
+   }
+}
+source: {
+   maxEvents: 1
+   module_label: "source"
+   module_type: "EmptyEvent"
+}

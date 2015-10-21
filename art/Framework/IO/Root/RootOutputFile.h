@@ -156,14 +156,11 @@ public: // MEMBER FUNCTIONS
   selectProducts(FileBlock const&);
 
   std::string const& currentFileName() const
-    {
-      return file_;
-    }
+  {
+    return file_;
+  }
 
 private: // MEMBER FUNCTIONS
-
-  void
-  fillSelectedItemList(BranchType, TTree*);
 
   void fillBranches(BranchType const&, Principal const&,
                     std::vector<ProductProvenance>*);

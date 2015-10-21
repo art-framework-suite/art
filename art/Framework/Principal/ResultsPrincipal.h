@@ -47,7 +47,7 @@ public:
 
   void addGroup(std::unique_ptr<EDProduct>&&, BranchDescription const&);
 
-  virtual BranchType branchType() const;
+  BranchType branchType() const override;
 
 private:
   void addOrReplaceGroup(std::unique_ptr<Group>&& g) override;

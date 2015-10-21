@@ -55,8 +55,8 @@ void arttest::ESSecondaryProducer::produce(art::Event & e)
       << index_
       << "is invalid for loaded product.";
   }
-  e.put(std::unique_ptr<arttest::ESPtrSimple>(new arttest::ESPtrSimple { art::Ptr<arttest::Simple>(h, index_) }));
-  e.put(std::unique_ptr<arttest::IntProduct>(new IntProduct { int(h->size()) }));
+  e.put(std::make_unique<arttest::ESPtrSimple>( arttest::ESPtrSimple{art::Ptr<arttest::Simple>(h, index_)} ));
+  e.put(std::make_unique<arttest::IntProduct>( static_cast<int>(h->size()) ));
 }
 
 DEFINE_ART_MODULE(arttest::ESSecondaryProducer)

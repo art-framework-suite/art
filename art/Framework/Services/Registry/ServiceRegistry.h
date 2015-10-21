@@ -11,41 +11,40 @@
 #include "art/Framework/Services/Registry/ServiceToken.h"
 #include "art/Framework/Services/Registry/ServicesManager.h"
 #include "art/Framework/Services/Registry/detail/ServiceHelper.h"
-#include "cetlib/LibraryManager.h"
 #include "art/Utilities/ScheduleID.h"
-
-#include "cpp0x/memory"
+#include "cetlib/LibraryManager.h"
 #include "fhiclcpp/ParameterSet.h"
+
+#include <memory>
 
 // ----------------------------------------------------------------------
 
 namespace art {
   class ActivityRegistry;
 
-  class ServiceRegistry
-  {
+  class ServiceRegistry {
     // non-copyable:
     ServiceRegistry( ServiceRegistry const & ) = delete;
     ServiceRegistry& operator=( ServiceRegistry const & ) = delete;
 
   public:
-    class Operate
-    {
-      // non-copyable:
-      Operate( Operate const & );
-      void  operator = ( Operate const & );
 
+    class Operate {
+      // non-copyable:
+      Operate( Operate const & ) = delete;
+      Operate& operator= ( Operate const & ) = delete;
       // override operator new to stop use on heap?
 
     public:
-      // c'tor:
-      Operate(const ServiceToken & iToken)
-      : oldToken_( ServiceRegistry::instance().setContext(iToken) )
-      { }
 
-      // d'tor:
+      Operate(ServiceToken const & iToken)
+        : oldToken_{ ServiceRegistry::instance().setContext(iToken) }
+      {}
+
       ~Operate()
-      { ServiceRegistry::instance().unsetContext(oldToken_); }
+      {
+        ServiceRegistry::instance().unsetContext(oldToken_);
+      }
 
     private:
       ServiceToken oldToken_;
@@ -59,7 +58,7 @@ namespace art {
     template< class T, typename = typename std::enable_if<detail::ServiceHelper<T>::scope_val != ServiceScope::PER_SCHEDULE>::type>
     T & get() const
       {
-        if( ! manager_.get() )
+        if( !manager_ )
           throw art::Exception(art::errors::ServiceNotFound, "Service")
             <<" no ServiceRegistry has been set for this thread";
         return manager_-> template get<T>();
@@ -68,7 +67,7 @@ namespace art {
     template< class T, typename = typename std::enable_if<detail::ServiceHelper<T>::scope_val == ServiceScope::PER_SCHEDULE>::type>
     T & get(ScheduleID sID) const
       {
-        if( ! manager_.get() )
+        if( !manager_ )
           throw art::Exception(art::errors::ServiceNotFound, "Service")
             <<" no ServiceRegistry has been set for this thread";
         return manager_-> template get<T>(sID);
@@ -76,7 +75,7 @@ namespace art {
 
     template<class T> bool isAvailable() const
     {
-      if( ! manager_.get() )
+      if( !manager_ )
         throw art::Exception(art::errors::ServiceNotFound, "Service")
           <<" no ServiceRegistry has been set for this thread";
       return manager_-> template isAvailable<T>();

@@ -65,23 +65,30 @@ private:
 template <typename PROD>
 void
 art::Results::put(std::unique_ptr<PROD> && product, std::string const& productInstanceName) {
-  if (product.get() == 0) {                // null pointer is illegal
+  if (!product) { // Null pointer is illegal.
     TypeID typeID(typeid(PROD));
     throw art::Exception(art::errors::NullPointerError)
       << "Results::put: A null unique_ptr was passed to 'put'.\n"
-      << "The pointer is of type " << typeID << ".\n"
+      << "The pointer is of type " << TypeID(typeid(PROD)) << ".\n"
       << "The specified productInstanceName was '" << productInstanceName << "'.\n";
   }
 
-  BranchDescription const& desc =
-    getBranchDescription(TypeID(*product), productInstanceName);
+  auto const & bd = getBranchDescription(TypeID(*product), productInstanceName);
+  auto  wp = std::make_unique<Wrapper<PROD> >(std::move(product));
 
-  Wrapper<PROD> *wp(new Wrapper<PROD>(std::move(product)));
-
-  putProducts().push_back(std::make_pair(wp, &desc));
+  auto result = putProducts().emplace(bd.branchID(), PMValue { std::move(wp), bd });
+  if (!result.second) {
+    throw art::Exception(art::errors::InsertFailure)
+      << "Run::put: Attempt to put multiple products with the\n"
+      << "          following description onto the Run.\n"
+      << "          Products must be unique per Run.\n"
+      << "=================================\n"
+      << bd
+      << "=================================\n";
+  }
 }
 
-#endif
+#endif /* __GCCXML__ */
 
 #endif /* art_Framework_Principal_Results_h */
 

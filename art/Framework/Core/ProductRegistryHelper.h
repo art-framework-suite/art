@@ -22,16 +22,24 @@
 #include "art/Framework/Principal/fwd.h"
 #include "art/Persistency/Common/Assns.h"
 #include "art/Persistency/Provenance/BranchType.h"
-#include "art/Persistency/Provenance/ProductList.h"
 #include "art/Persistency/Provenance/MasterProductRegistry.h"
+#include "art/Persistency/Provenance/ProductList.h"
 #include "art/Persistency/Provenance/TypeLabel.h"
 #include "art/Persistency/Provenance/detail/branchNameComponentChecking.h"
+#include "art/Persistency/Provenance/detail/type_aliases.h"
 #include "art/Utilities/Exception.h"
 #include "art/Utilities/TypeID.h"
 #include "cetlib/exception.h"
+
 #include <memory>
 #include <set>
 #include <string>
+
+namespace art {
+  class ProductRegistryHelper;
+
+  class ModuleDescription;
+}
 
 namespace {
 
@@ -72,13 +80,7 @@ namespace {
 
 } // unnamed namespace
 
-
-
-namespace art {
-
-class ModuleDescription;
-
-class ProductRegistryHelper {
+class art::ProductRegistryHelper {
 public:
 
   // Used by an input source to provide a product list
@@ -88,7 +90,6 @@ public:
 
   void registerProducts(MasterProductRegistry& mpr,
                         ModuleDescription const& md);
-
   // Record the production of an object of type P, with optional
   // instance name, in the Event (by default), Run, or SubRun.
   template<class P, BranchType B = InEvent>
@@ -103,6 +104,12 @@ public:
   reconstitutes(std::string const& modLabel,
                 std::string const& instanceName = std::string());
 
+  template<BranchType B = InEvent>
+  ProducedMap const&
+  expectedProducts() const
+  {
+    return expectedProducts_[B];
+  }
 
 private:
 
@@ -112,13 +119,13 @@ private:
     auto result = typeLabelList_.insert(tl);
     if (!result.second) {
       throw Exception(errors::LogicError, "RegistrationFailure")
-          << "The module being constructed attempted to "
-          << "register conflicting products with:\n"
-          << "friendlyClassName: "
-          << tl.friendlyClassName()
-          << " and instanceName: "
-          << tl.productInstanceName
-          << ".\n";
+        << "The module being constructed attempted to "
+        << "register conflicting products with:\n"
+        << "friendlyClassName: "
+        << tl.friendlyClassName()
+        << " and instanceName: "
+        << tl.productInstanceName
+        << ".\n";
     }
     return *result.first;
   }
@@ -126,6 +133,7 @@ private:
 private:
 
   std::set<TypeLabel> typeLabelList_;
+  PerBranchTypeProduced expectedProducts_;
 
   // Set by an input source for merging into the
   // master product registry by registerProducts().
@@ -133,10 +141,10 @@ private:
 
 };
 
-template<typename P, BranchType B>
+template<typename P, art::BranchType B>
 inline
 void
-ProductRegistryHelper::
+art::ProductRegistryHelper::
 produces(std::string const& instanceName)
 {
   verifyInstanceName(instanceName);
@@ -145,11 +153,11 @@ produces(std::string const& instanceName)
   insertOrThrow(TypeLabel(B, productType, instanceName));
 }
 
-template<typename P, BranchType B>
-TypeLabel const&
-ProductRegistryHelper::
+template<typename P, art::BranchType B>
+art::TypeLabel const&
+art::ProductRegistryHelper::
 reconstitutes(std::string const& emulatedModule,
-    std::string const& instanceName)
+              std::string const& instanceName)
 {
   verifyModuleLabel(emulatedModule);
   verifyInstanceName(instanceName);
@@ -158,8 +166,6 @@ reconstitutes(std::string const& emulatedModule,
   return insertOrThrow(TypeLabel(B, productType, instanceName,
                                  emulatedModule));
 }
-
-} // namespace art
 
 #endif /* art_Framework_Core_ProductRegistryHelper_h */
 

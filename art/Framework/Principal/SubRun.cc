@@ -18,16 +18,6 @@ namespace art {
                  run_(newRun(srp, md)) {
   }
 
-  SubRunPrincipal &
-  SubRun::subRunPrincipal() {
-    return dynamic_cast<SubRunPrincipal &>(principal());
-  }
-
-  SubRunPrincipal const &
-  SubRun::subRunPrincipal() const {
-    return dynamic_cast<SubRunPrincipal const&>(principal());
-  }
-
   Run const&
   SubRun::getRun() const {
     if (!run_) {
@@ -38,26 +28,21 @@ namespace art {
   }
 
   void
-  SubRun::commit_() {
-    // fill in guts of provenance here
-    SubRunPrincipal & srp = subRunPrincipal();
-    ProductPtrVec::iterator pit(putProducts().begin());
-    ProductPtrVec::iterator pie(putProducts().end());
+  SubRun::commit_()
+  {
+    auto & srp = dynamic_cast<SubRunPrincipal &>(principal());
+    auto put_in_principal = [&srp](auto& elem) {
 
-    while(pit!=pie) {
-        std::unique_ptr<EDProduct> pr(pit->first);
-        // note: ownership has been passed - so clear the pointer!
-        pit->first = 0;
+      // set provenance
+      auto subRunProductProvenancePtr = std::make_unique<ProductProvenance const>(elem.first,
+                                                                                  productstatus::present());
 
-        // set provenance
-        std::unique_ptr<ProductProvenance const> subRunProductProvenancePtr(
-                new ProductProvenance(pit->second->branchID(),
-                                      productstatus::present()));
-        srp.put(std::move(pr),
-                *pit->second,
-                std::move(subRunProductProvenancePtr));
-        ++pit;
-    }
+      srp.put( std::move(elem.second.prod),
+               elem.second.bd,
+               std::move(subRunProductProvenancePtr) );
+    };
+
+    cet::for_all( putProducts(), put_in_principal );
 
     // the cleanup is all or none
     putProducts().clear();

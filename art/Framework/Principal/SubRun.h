@@ -58,7 +58,7 @@ public:
   template <typename PROD>
   void
   put(std::unique_ptr<PROD> && product, std::string const& productInstanceName);
-#endif
+#endif /* __GCCXML__ */
 
 private:
   SubRunPrincipal const&
@@ -85,24 +85,32 @@ private:
 #ifndef __GCCXML__
 template <typename PROD>
 void
-art::SubRun::put(std::unique_ptr<PROD> && product, std::string const& productInstanceName) {
-  if (product.get() == 0) {                // null pointer is illegal
-    TypeID typeID(typeid(PROD));
+art::SubRun::put(std::unique_ptr<PROD> && product,
+                 std::string const& productInstanceName)
+{
+  if (product.get() == nullptr) {
     throw art::Exception(art::errors::NullPointerError)
       << "SubRun::put: A null unique_ptr was passed to 'put'.\n"
-      << "The pointer is of type " << typeID << ".\n"
+      << "The pointer is of type " << TypeID(typeid(PROD)) << ".\n"
       << "The specified productInstanceName was '" << productInstanceName << "'.\n";
   }
 
-  BranchDescription const& desc =
-    getBranchDescription(TypeID(*product), productInstanceName);
+  auto const& bd = getBranchDescription(TypeID(*product), productInstanceName);
+  auto        wp = std::make_unique<Wrapper<PROD>>(std::move(product));
 
-  Wrapper<PROD> *wp(new Wrapper<PROD>(std::move(product)));
-
-  putProducts().push_back(std::make_pair(wp, &desc));
+  auto result = putProducts().emplace( bd.branchID(), PMValue{std::move(wp), bd} );
+  if ( !result.second ) {
+    throw art::Exception(art::errors::InsertFailure)
+      << "SubRun::put: Attempt to put multiple products with the\n"
+      << "             following description onto the SubRun.\n"
+      << "             Products must be unique per SubRun.\n"
+      << "=================================\n"
+      << bd
+      << "=================================\n";
+  }
 }
 
-#endif
+#endif /* __GCCXML__ */
 
 #endif /* art_Framework_Principal_SubRun_h */
 

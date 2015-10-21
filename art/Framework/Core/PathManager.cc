@@ -550,13 +550,12 @@ fillWorkers_(int bitpos,
 
   }
 
-  return std::unique_ptr<art::Path>
-    (new art::Path(bitpos,
-                   pathName,
-                   std::move(pathWorkers),
-                   std::move(pathResults),
-                   procPS_,
-                   exceptActions_,
-                   areg_,
-                   is_observer(modInfos.front().moduleConfigInfo().moduleType())));
+  return std::make_unique<art::Path>(bitpos,
+                                     pathName,
+                                     std::move(pathWorkers),
+                                     std::move(pathResults),
+                                     procPS_,
+                                     exceptActions_,
+                                     areg_,
+                                     is_observer(modInfos.front().moduleConfigInfo().moduleType()));
 }

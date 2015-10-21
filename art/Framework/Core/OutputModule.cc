@@ -46,9 +46,8 @@ configure(OutputModuleDescription const & desc)
 
 void
 art::OutputModule::
-selectProducts(FileBlock const& fb)
+doSelectProducts()
 {
-  preSelectProducts(fb);
   auto const& pmd = ProductMetaData::instance();
   groupSelector_.initialize(groupSelectorRules_,pmd.productList());
   for (auto& val : keptProducts_) {
@@ -77,6 +76,14 @@ selectProducts(FileBlock const& fb)
     // Newly dropped, skip it.
     hasNewlyDroppedBranch_[bd.branchType()] = true;
   }
+}
+
+void
+art::OutputModule::
+selectProducts(FileBlock const& fb)
+{
+  preSelectProducts(fb);
+  doSelectProducts();
   postSelectProducts(fb);
 }
 
@@ -121,32 +128,7 @@ void
 art::OutputModule::
 doBeginJob()
 {
-  // FIXME: Should this be here anymore?
-  //selectProducts();
-  auto const & pmd = ProductMetaData::instance();
-  groupSelector_.initialize(groupSelectorRules_, pmd.productList());
-  for (auto& val : keptProducts_) {
-    val.clear();
-  }
-  for (auto const& val : pmd.productList()) {
-    BranchDescription const& bd = val.second;
-    if (bd.transient()) {
-      // Transient, skip it.
-      continue;
-    }
-    if ( !pmd.produced(bd.branchType(),bd.branchID()) &&
-         pmd.presentWithFileIdx(bd.branchType(),bd.branchID()) == MasterProductRegistry::DROPPED ) {
-      // Not produced in this process, and previously dropped, skip it.
-      continue;
-    }
-    if (groupSelector_.selected(bd)) {
-      // Selected, keep it.
-      keptProducts_[bd.branchType()].push_back(&bd);
-      continue;
-    }
-    // Newly dropped, skip it.
-    hasNewlyDroppedBranch_[bd.branchType()] = true;
-  }
+  doSelectProducts();
   beginJob();
   cet::for_all(plugins_, [](auto& p){ p->doBeginJob(); });
 }

@@ -52,7 +52,7 @@ void arttest::DropTestParentageFaker::produce(art::Event & e)
   art::Handle<art::Ptr<std::string> > sh;
   // Force this product to be a parent of our child.
   e.getByLabel(inputLabel_, sh);
-  e.put(std::unique_ptr<std::string>(new std::string("Child")));
+  e.put(std::make_unique<std::string>("Child"));
 }
 
 DEFINE_ART_MODULE(arttest::DropTestParentageFaker)

@@ -196,11 +196,10 @@ art::detail::print_module_description( std::vector<std::string> const& mods )
       replace_label( "module_label", printedConfig );
 
       std::cout << printedConfig << std::endl;
+      std::cout << std::endl << std::string(100,'=') << std::endl << std::endl;
     }
 
   }
-
-  std::cout << std::endl << std::string(100,'=') << std::endl << std::endl;
 
 }
 

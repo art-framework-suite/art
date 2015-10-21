@@ -43,16 +43,14 @@ ServiceToken
 ServiceToken
 ServiceRegistry::createSet(ParameterSets const & iPS, ActivityRegistry & reg)
 {
-  std::shared_ptr<ServicesManager>
-    result(new ServicesManager(iPS,
-                               ServiceRegistry::instance().lm_,
-                               reg)
-          );
+  auto result = std::make_shared<ServicesManager>( iPS,
+                                                   ServiceRegistry::instance().lm_,
+                                                   reg);
   return ServiceToken(result);
 }
 
 ServiceRegistry &
-  ServiceRegistry::instance()
+ServiceRegistry::instance()
 {
   static boost::thread_specific_ptr<ServiceRegistry> s_registry;
   if( 0 == s_registry.get() ) {

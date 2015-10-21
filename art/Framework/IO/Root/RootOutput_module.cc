@@ -23,6 +23,7 @@
 #include "art/Utilities/unique_filename.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/types/Atom.h"
+#include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include <iomanip>
 #include <memory>
@@ -58,6 +59,7 @@ public: // MEMBER FUNCTIONS
     fhicl::Atom<int> basketSize { fhicl::Name("basketSize"), 16384 };
     fhicl::Atom<bool> dropMetaDataForDroppedData { fhicl::Name("dropMetaDataForDroppedData"), false };
     fhicl::Atom<std::string> dropMetaData { fhicl::Name("dropMetaData"), "" };
+    fhicl::Atom<bool> writeParameterSets {fhicl::Name("writeParameterSets"), true };
   };
 
   using Parameters = OutputModule::Table<Config>;
@@ -136,6 +138,11 @@ private:
   // make some choices.
   bool fastCloning_;
 
+  // Set false only for cases where we are guaranteed never to need
+  // historical ParameterSet information in the downstream file
+  // (e.g. mixing).
+  bool writeParameterSets_;
+
   // ResultsProducer management.
   RPManager rpm_;
 };
@@ -171,6 +178,7 @@ RootOutput(Parameters const & config)
   , dropMetaData_(DropMetaData::DropNone)
   , dropMetaDataForDroppedData_(config().dropMetaDataForDroppedData())
   , fastCloning_(true)
+  , writeParameterSets_(config().writeParameterSets())
   , rpm_(config.get_PSet())
 {
   mf::LogInfo msg("FastCloning");
@@ -225,6 +233,14 @@ RootOutput(Parameters const & config)
                          "Illegal dropMetaData parameter value: ")
       << dropMetaData << ".\n"
       << "Legal values are 'NONE', 'PRIOR', and 'ALL'.\n";
+  }
+
+  if (!writeParameterSets_) {
+    mf::LogWarning("PROVENANCE")
+      << "Output module " << moduleLabel_ << " has parameter writeParameterSets set to false.\n"
+      << "Parameter set provenance will not be available in subsequent jobs.\n"
+      << "Check your experiment's policy on this issue to avoid future problems\n"
+      << "with analysis reproducibility.\n";
   }
 }
 
@@ -401,7 +417,9 @@ void
 art::RootOutput::
 writeParameterSetRegistry()
 {
-  rootOutputFile_->writeParameterSetRegistry();
+  if (writeParameterSets_) {
+    rootOutputFile_->writeParameterSetRegistry();
+  }
 }
 
 void
@@ -491,12 +509,11 @@ doOpenFile()
         << "Attempt to open output file before input file. "
         << "Please report this to the core framework developers.\n";
   }
-  rootOutputFile_.reset(
-    new RootOutputFile(this, unique_filename(tmpDir_ + "/RootOutput"),
-                       maxFileSize_, compressionLevel_,
-                       saveMemoryObjectThreshold_, treeMaxVirtualSize_,
-                       splitLevel_, basketSize_, dropMetaData_,
-                       dropMetaDataForDroppedData_, fastCloning_));
+  rootOutputFile_ = std::make_unique<RootOutputFile>(this, unique_filename(tmpDir_ + "/RootOutput"),
+                                                     maxFileSize_, compressionLevel_,
+                                                     saveMemoryObjectThreshold_, treeMaxVirtualSize_,
+                                                     splitLevel_, basketSize_, dropMetaData_,
+                                                     dropMetaDataForDroppedData_, fastCloning_);
   fstats_.recordFileOpen();
 }
 

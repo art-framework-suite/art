@@ -37,8 +37,6 @@ public:
 
 public:
 
-  virtual ~EventPrincipal();
-
   EventPrincipal(EventAuxiliary const& aux,
                  ProcessConfiguration const& pc,
                  std::shared_ptr<History> history =

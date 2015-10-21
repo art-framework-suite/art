@@ -13,7 +13,6 @@
 #include "art/Framework/Core/EDProducer.h"
 #include "art/Framework/Principal/fwd.h"
 #include "cetlib/exempt_ptr.h"
-#include "cpp0x/memory"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/ParameterSetID.h"
 

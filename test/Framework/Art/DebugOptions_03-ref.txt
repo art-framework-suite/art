@@ -31,6 +31,8 @@ services: {
       SkipEvent: []
       configOut: "config.out"
       defaultExceptions: false
+      errorOnFailureToPut: true
+      errorOnSIGINT: true
       wantTracer: false
    }
 }

@@ -22,20 +22,11 @@ namespace art {
     principal_(pcpl),
     md_(md),
     branchType_(branchType)
-  {  }
-
-  struct deleter {
-    void operator()(pair<EDProduct*, BranchDescription const*> const p) const { delete p.first; }
-  };
-
-  DataViewImpl::~DataViewImpl() {
-    // anything left here must be the result of a failure
-    // let's record them as failed attempts in the event principal
-    for_all(putProducts_, deleter());
-  }
+  {}
 
   size_t
-  DataViewImpl::size() const {
+  DataViewImpl::size() const
+  {
     return putProducts_.size() + principal_.size();
   }
 
@@ -121,6 +112,33 @@ namespace art {
   DataViewImpl::processHistory() const
   {
     return principal_.processHistory();
+  }
+
+  void
+  DataViewImpl::checkPutProducts(bool const checkProducts,
+                                 ProducedMap const& expectedBids,
+                                 BranchIDsMap const& products)
+  {
+    if ( !checkProducts ) return;
+
+    std::vector<std::string> missing;
+    for ( auto const& bid : expectedBids ) {
+      auto const& putBids = products;
+      if ( putBids.find(bid.first) == putBids.cend() )
+        missing.emplace_back(bid.second);
+    }
+
+    if ( missing.size() ) {
+      std::ostringstream errmsg;
+      errmsg << "The following products have been declared with 'produced',\n"
+             << "but they have not been placed onto the event:\n"
+             << "=========================\n";
+      for ( auto const& bd : missing ) {
+        errmsg << bd
+               << "=========================\n";
+      }
+      throw Exception(errors::LogicError) << errmsg.str();
+    }
   }
 
   BranchDescription const&

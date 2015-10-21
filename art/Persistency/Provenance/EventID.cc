@@ -3,18 +3,6 @@
 
 #include <ostream>
 
-inline
-art::EventID
-art::EventID::
-flushEvent(RunID rID, SubRunID srID)
-{
-  if (rID != srID.runID()) {
-    throw Exception(errors::LogicError)
-      << "Inconsistency between provided rID and srID.runID().";
-  }
-  return EventID(srID, FlushFlag());
-}
-
 std::ostream &
 art::operator<<(std::ostream & os, EventID const & iID)
 {
