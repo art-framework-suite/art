@@ -35,9 +35,11 @@ TBranch* getProductProvenanceBranch(TTree* tree, BranchType const& branchType)
 } // unnamed namespace
 
 RootTree::
-RootTree(std::shared_ptr<TFile> filePtr, BranchType const& branchType,
+RootTree(std::shared_ptr<TFile> filePtr,
+         BranchType const& branchType,
          int64_t saveMemoryObjectThreshold,
-         cet::exempt_ptr<RootInputFile> primaryFile)
+         cet::exempt_ptr<RootInputFile> primaryFile,
+         bool const missingOK)
   : filePtr_(filePtr)
   , tree_(0)
   , metaTree_(0)
@@ -65,11 +67,11 @@ RootTree(std::shared_ptr<TFile> filePtr, BranchType const& branchType,
     productProvenanceBranch_ =
       getProductProvenanceBranch(metaTree_, branchType_);
   }
-  if (!isValid()) {
+  if (!(missingOK || isValid())) {
     throw Exception(errors::FileReadError)
         << "RootTree for branch type "
         << BranchTypeToString(branchType)
-        << "Could not be initialized correctly from input file.\n";
+        << " could not be initialized correctly from input file.\n";
   }
 }
 
