@@ -91,12 +91,12 @@ cet_test(BasicOptions_02_t HANDBUILT
   PASS_REGULAR_EXPRESSION "\nAllowed options:\n"
 )
 
-cet_test(BasicOptions_03_t HANDBUILT
-  TEST_EXEC ./check_available_modules_services.sh
-  DATAFILES
-  check_available_modules_services.sh
-  REF "${CMAKE_CURRENT_SOURCE_DIR}/BasicOptions_03-ref.txt"
-  )
+# cet_test(BasicOptions_03_t HANDBUILT
+#   TEST_EXEC ./check_available_modules_services.sh
+#   DATAFILES
+#   check_available_modules_services.sh
+#   REF "${CMAKE_CURRENT_SOURCE_DIR}/BasicOptions_03-ref.txt"
+#   )
 
 ####################################
 # BasicOutputOptionsHandler.

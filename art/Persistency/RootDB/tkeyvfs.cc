@@ -1781,6 +1781,12 @@ extern "C" {
     // longer require gRootFile and the sentry can do the job of
     // cleaning up when it goes out of scope.
 #endif // TKEYVFS_NO_ROOT
-    return sqlite3_open_v2(filename, ppDb, flags, "tkeyvfs");
+    return sqlite3_open_v2(filename, ppDb, flags,
+#ifdef TKEYVFS_NO_ROOT
+                           NULL
+#else
+                           "tkeyvfs"
+#endif
+                          );
   }
 }

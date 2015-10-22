@@ -44,8 +44,11 @@ int main(int argc, char ** argv)
   if (!strcmp(argv[1], "r")) {
 #ifndef TKEYVFS_NO_ROOT
     rootFile = new TFile(argv[2]);
+    err = tkeyvfs_open_v2(argv[3],
+#else
+    err = tkeyvfs_open_v2(argv[2],
 #endif
-    err = tkeyvfs_open_v2(argv[3], &db, SQLITE_OPEN_READONLY
+                          &db, SQLITE_OPEN_READONLY
 #ifndef TKEYVFS_NO_ROOT
                           , rootFile
 #endif
@@ -54,8 +57,11 @@ int main(int argc, char ** argv)
   else if (!strcmp(argv[1], "u")) {
 #ifndef TKEYVFS_NO_ROOT
     rootFile = new TFile(argv[2], "UPDATE");
+    err = tkeyvfs_open_v2(argv[3],
+#else
+    err = tkeyvfs_open_v2(argv[2],
 #endif
-    err = tkeyvfs_open_v2(argv[3], &db, SQLITE_OPEN_READWRITE
+                          &db, SQLITE_OPEN_READWRITE
 #ifndef TKEYVFS_NO_ROOT
                           , rootFile
 #endif
@@ -64,8 +70,11 @@ int main(int argc, char ** argv)
   else if (!strcmp(argv[1], "w")) {
 #ifndef TKEYVFS_NO_ROOT
     rootFile = new TFile(argv[2], "RECREATE");
+    err = tkeyvfs_open_v2(argv[3],
+#else
+    err = tkeyvfs_open_v2(argv[2],
 #endif
-    err = tkeyvfs_open_v2(argv[3], &db, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE
+                          &db, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE
 #ifndef TKEYVFS_NO_ROOT
                           , rootFile
 #endif
