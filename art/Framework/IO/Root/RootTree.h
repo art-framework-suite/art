@@ -34,8 +34,11 @@ public:
   typedef input::BranchMap BranchMap;
   typedef input::EntryNumber EntryNumber;
 public:
-  RootTree(std::shared_ptr<TFile>, BranchType const&,
-           int64_t saveMemoryObjectThreshold, cet::exempt_ptr<RootInputFile>);
+  RootTree(std::shared_ptr<TFile>,
+           BranchType const&,
+           int64_t saveMemoryObjectThreshold,
+           cet::exempt_ptr<RootInputFile>,
+           bool missingOK = false);
   RootTree(RootTree const&) = delete;
   RootTree& operator=(RootTree const&) = delete;
 
