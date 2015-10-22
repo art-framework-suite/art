@@ -74,7 +74,6 @@ public: // MEMBER FUNCTIONS
                 bool dropMergeable,
                 std::shared_ptr<DuplicateChecker> duplicateChecker,
                 bool dropDescendantsOfDroppedProducts,
-                bool readIncomingParameterSets,
                 cet::exempt_ptr<RootInputFile> primaryFile,
                 int secondaryFileNameIdx,
                 std::vector<std::string> const& secondaryFileNames,

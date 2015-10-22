@@ -228,7 +228,6 @@ private: // MEMBER DATA
   GroupSelectorRules groupSelectorRules_;
   std::shared_ptr<DuplicateChecker> duplicateChecker_;
   bool const dropDescendants_;
-  bool const readParameterSets_;
   RootInputFileSharedPtr rootFileForLastReadEvent_;
   FastCloningInfoProvider fastCloningInfo_;
   InputSource::ProcessingMode processingMode_;
