@@ -134,7 +134,7 @@ namespace art {
       std::make_unique<RootTree>(filePtr_, InEvent, saveMemoryObjectThreshold, this),
       std::make_unique<RootTree>(filePtr_, InSubRun, saveMemoryObjectThreshold, this),
       std::make_unique<RootTree>(filePtr_, InRun, saveMemoryObjectThreshold, this),
-      std::make_unique<RootTree>(filePtr_, InResults, saveMemoryObjectThreshold, this) }
+      std::make_unique<RootTree>(filePtr_, InResults, saveMemoryObjectThreshold, this, true /* missingOK */) }
     , productListHolder_(new ProductRegistry)
     , branchIDLists_()
     , perBranchTypeProdPresence_()
