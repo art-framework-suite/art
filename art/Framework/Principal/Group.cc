@@ -118,6 +118,12 @@ resolveProductIfAvailable(bool fillOnDemand,
     // Already resolved.
     return true;
   }
+  if (productUnavailable()) {
+    // It is possible for a product to be on the product list but the
+    // run product is not present.
+    return false;
+  }
+
   if (wanted_wrapper_type != wrapper_type_) {
     throw Exception(errors::LogicError)
         << "Attempted to obtain a product of different type ("
@@ -131,10 +137,6 @@ resolveProductIfAvailable(bool fillOnDemand,
   if (edp.get()) {
     setProduct(std::move(edp));
   }
-  //if (productUnavailable()) {
-  //  // Nothing we *can* do.
-  //  return false;
-  //}
   return product_.get();
 }
 
