@@ -130,7 +130,7 @@ namespace art {
 
     if ( missing.size() ) {
       std::ostringstream errmsg;
-      errmsg << "The following products have been declared with 'produced',\n"
+      errmsg << "The following products have been declared with 'produces',\n"
              << "but they have not been placed onto the event:\n"
              << "=========================\n";
       for ( auto const& bd : missing ) {

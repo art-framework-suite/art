@@ -687,7 +687,7 @@ cet_test(ProductIDGetterNoPut_t HANDBUILT
   DATAFILES
   fcl/ProductIDGetterNoPut_t.fcl
   TEST_PROPERTIES
-  PASS_REGULAR_EXPRESSION "The following products have been declared with 'produced'"
+  PASS_REGULAR_EXPRESSION "The following products have been declared with 'produces'"
   )
 
 cet_test(ProductIDGetterNoPut_t_01a HANDBUILT
@@ -696,7 +696,7 @@ cet_test(ProductIDGetterNoPut_t_01a HANDBUILT
   DATAFILES
   fcl/ProductIDGetterNoPut_t_01.fcl
   TEST_PROPERTIES
-  PASS_REGULAR_EXPRESSION "The following products have been declared with 'produced'"
+  PASS_REGULAR_EXPRESSION "The following products have been declared with 'produces'"
   )
 
 cet_test(ProductIDGetterNoPut_t_01b HANDBUILT
@@ -719,7 +719,7 @@ cet_test(ProductIDGetterNoPut_t_02b HANDBUILT
   DATAFILES
   fcl/ProductIDGetterNoPut_t_02.fcl
   TEST_PROPERTIES
-  PASS_REGULAR_EXPRESSION "The following products have been declared with 'produced'"
+  PASS_REGULAR_EXPRESSION "The following products have been declared with 'produces'"
   )
 
 cet_test(Assns_w HANDBUILT

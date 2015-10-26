@@ -301,14 +301,10 @@ art::DataViewImpl::getMany(SelectorBase const& sel,
   // for this function, since it is *not* to be used by EDProducers?
   std::vector<Handle<PROD> > products;
 
-  typename GroupQueryResultVec::const_iterator it = bhv.begin();
-  typename GroupQueryResultVec::const_iterator end = bhv.end();
-
-  while (it != end) {
+  for (auto const& qr : bhv) {
     Handle<PROD> result;
-    convert_handle(*it, result);  // throws on conversion error
+    convert_handle(qr, result);  // throws on conversion error
     products.push_back(result);
-    ++it;
   }
   results.swap(products);
 }
@@ -335,14 +331,10 @@ art::DataViewImpl::getManyByType(std::vector<Handle<PROD> >& results) const
   // for this function, since it is *not* to be used by EDProducers?
   std::vector<Handle<PROD> > products;
 
-  typename GroupQueryResultVec::const_iterator it = bhv.begin();
-  typename GroupQueryResultVec::const_iterator end = bhv.end();
-
-  while (it != end) {
+  for (auto const& qr : bhv) {
     Handle<PROD> result;
-    convert_handle(*it, result);  // throws on conversion error
+    convert_handle(qr, result);  // throws on conversion error
     products.push_back(result);
-    ++it;
   }
   results.swap(products);
 }
