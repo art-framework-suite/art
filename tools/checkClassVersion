@@ -3,23 +3,17 @@
 ########################################################################
 # checkClassVersion
 #
-#
 # A script originally by Chris Jones to reduce the potential for
 # inconsistencies in versioning of data products by maintaining a list
 # of version-checksum pairs in classes_def.xml (ignored by genreflex).
-#
-#
-# This is a very-preliminary ART version! It requires a ROOT that has
-# been built against python and its ability to automatically load
-# required libraries is unknown at this time.
 #
 # Problems, comments and requests for help to artists@fnal.gov.
 #
 # Chris Green
 ########################################################################
 
-import ROOT
 from optparse import OptionParser
+import ROOT
 import os
 import string
 import sys
@@ -132,13 +126,16 @@ def checkClass(name, version, versionsToChecksums):
     return (noError, classChecksum, classVersion)
 
 def main():
-    ROOT.gROOT.SetBatch()
     oparser = OptionParser()
     oparser.add_option("-l", "--lib", dest="library", help="specify the library to load. If not set classes are found using the PluginManager")
     oparser.add_option("-x", "--xml_file", dest="xmlfile", default="./classes_def.xml", help="the classes_def.xml file to read")
     oparser.add_option("-g", "--generate_new", dest="generate", action="store_true", default=False, help="instead of issuing errors, generate a new classes_def.xml file.")
     oparser.add_option("-G", "--generate-in-place", dest="generate_in_place", action="store_true", default=False, help="Update the classes_def.xml file in place.")
+    oparser.add_option("-t", "--timestamp", dest="timestamp", help="Touch specified file on success.")
     (options, args) = oparser.parse_args()
+    # Reset argv to avoid ROOT's TApplication getting confused.
+    sys.argv = []
+    ROOT.gROOT.SetBatch()
     if (options.library is not None) and (ROOT.gSystem.Load(options.library) != 0):
         raise RuntimeError("failed to load library '" + options.library + "'")
     p = XmlParser(options.xmlfile)
@@ -263,6 +260,8 @@ def main():
     if (len(foundErrors)>0 and options.generate_in_place):
         print "WARNING: classes_def.xml files have been updated: rebuild dictionaries."
         sys.exit(2)
+    if (options.timestamp is not None):
+        os.system("touch \"%s\"" % (options.timestamp))
 
 if __name__ == '__main__':
     main()
