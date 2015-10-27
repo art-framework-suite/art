@@ -1,4 +1,4 @@
-art_dictionary(NO_INSTALL NO_CHECK_CLASS_VERSION)
+art_dictionary(NO_INSTALL)
 
 #================================================================
 #

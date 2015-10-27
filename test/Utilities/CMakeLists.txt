@@ -1,6 +1,6 @@
 # cet_test macro
 
-art_dictionary(NO_DEFAULT_LIBRARIES DICTIONARY_LIBRARIES cetlib NO_INSTALL NO_CHECK_CLASS_VERSION)
+art_dictionary(NO_DEFAULT_LIBRARIES DICTIONARY_LIBRARIES cetlib NO_INSTALL)
 
 set(default_test_libraries
   art_Utilities

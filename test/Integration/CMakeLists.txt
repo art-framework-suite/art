@@ -102,7 +102,7 @@ simple_plugin(U_S                         "module"  NO_INSTALL ALLOW_UNDERSCORES
 simple_plugin(ValidHandleTester           "module"  NO_INSTALL )
 simple_plugin(Wanted                      "service" NO_INSTALL )
 
-art_dictionary(DICTIONARY_LIBRARIES cetlib NO_INSTALL NO_CHECK_CLASS_VERSION)
+art_dictionary(DICTIONARY_LIBRARIES cetlib NO_INSTALL)
 
 # cet_test macro
 

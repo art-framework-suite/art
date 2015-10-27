@@ -3,7 +3,7 @@ set(CMAKE_MODULE_PATH
   ${CMAKE_CURRENT_SOURCE_DIR}
   )
 
-art_dictionary(NO_INSTALL NO_CHECK_CLASS_VERSION)
+art_dictionary(NO_INSTALL)
 
 set(standard_libraries
   art_Persistency_Provenance
