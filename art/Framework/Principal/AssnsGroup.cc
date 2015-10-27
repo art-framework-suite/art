@@ -116,124 +116,124 @@ bool
 AssnsGroup::
 resolveProductIfAvailable(bool fillOnDemand, TypeID const& wanted_wrapper_type) const
 {
-  /**/cout
-  /**/    << "-----> Begin AssnsGroup::resolveProductIfAvailable(...)"
-  /**/    << endl
-  /**/    << "wanted_wrapper_type:     "
-  /**/    << cet::demangle_symbol(wanted_wrapper_type.name())
-  /**/    << endl
-  /**/    << "secondary_wrapper_type_: "
-  /**/    << cet::demangle_symbol(secondary_wrapper_type_.name())
-  /**/    << endl;
+  //cout
+  //    << "-----> Begin AssnsGroup::resolveProductIfAvailable(...)"
+  //    << endl
+  //    << "wanted_wrapper_type:     "
+  //    << cet::demangle_symbol(wanted_wrapper_type.name())
+  //    << endl
+  //    << "secondary_wrapper_type_: "
+  //    << cet::demangle_symbol(secondary_wrapper_type_.name())
+  //    << endl;
   if (uniqueProduct(wanted_wrapper_type) != nullptr) {
     // Nothing to do.
-    /**/cout
-    /**/    << "already have it"
-    /**/    << endl
-    /**/    << "returning: true"
-    /**/    << endl
-    /**/    << "-----> End   AssnsGroup::resolveProductIfAvailable(...)"
-    /**/    << endl;
+    //cout
+    //    << "already have it"
+    //    << endl
+    //    << "returning: true"
+    //    << endl
+    //    << "-----> End   AssnsGroup::resolveProductIfAvailable(...)"
+    //    << endl;
     return true;
   }
   if (productUnavailable()) {
     // Nothing we *can* do.
-    /**/cout
-    /**/    << "product is not available"
-    /**/    << endl
-    /**/    << "returning: false"
-    /**/    << endl
-    /**/    << "-----> End   AssnsGroup::resolveProductIfAvailable(...)"
-    /**/    << endl;
+    //cout
+    //    << "product is not available"
+    //    << endl
+    //    << "returning: false"
+    //    << endl
+    //    << "-----> End   AssnsGroup::resolveProductIfAvailable(...)"
+    //    << endl;
     return false;
   }
   // We know at this point that our wanted object has not
   // been read or created yet.
   unique_ptr<EDProduct> edp;
   if (wanted_wrapper_type == secondary_wrapper_type_) {
-    /**/cout
-    /**/    << "we want the secondary wrapper type"
-    /**/    << endl;
+    //cout
+    //    << "we want the secondary wrapper type"
+    //    << endl;
     if (Group::uniqueProduct() == nullptr) {
       // Our partner needs to be read or
       // demand produced first.
-      /**/cout
-      /**/    << "produced object not read yet, trying to obtain it"
-      /**/    << endl;
+      //cout
+      //    << "produced object not read yet, trying to obtain it"
+      //    << endl;
       edp = obtainDesiredProduct(fillOnDemand, producedWrapperType());
       if (edp.get()) {
-        /**/cout
-        /**/    << "produced object read"
-        /**/    << endl
-        /**/    << "calling setProduct to set product_ to: "
-        /**/    << edp.get()
-        /**/    << endl;
+        //cout
+        //    << "produced object read"
+        //    << endl
+        //    << "calling setProduct to set product_ to: "
+        //    << edp.get()
+        //    << endl;
         setProduct(move(edp));
       }
       else {
-        /**/cout
-        /**/    << "failed to get the produced object"
-        /**/    << endl;
+        //cout
+        //    << "failed to get the produced object"
+        //    << endl;
       }
     }
     if (Group::uniqueProduct() != nullptr) {
       // Our partner has already been read, so call its
       // makePartner function to get what we want.
-      /**/cout
-      /**/    << "we have the produced product, now calling"
-      /**/    << endl
-      /**/    << "its makeParner to get what we want"
-      /**/    << endl;
+      //cout
+      //    << "we have the produced product, now calling"
+      //    << endl
+      //    << "its makeParner to get what we want"
+      //    << endl;
       edp = Group::uniqueProduct()->makePartner(wanted_wrapper_type.typeInfo());
       if (edp.get() != nullptr) {
-        /**/cout
-        /**/    << "setting secondaryProduct_ to: "
-        /**/    << edp.get()
-        /**/    << endl;
+        //cout
+        //    << "setting secondaryProduct_ to: "
+        //    << edp.get()
+        //    << endl;
         secondaryProduct_ = move(edp);
       }
       else {
-        /**/cout
-        /**/    << "makePartner failed to make what we want"
-        /**/    << endl;
+        //cout
+        //    << "makePartner failed to make what we want"
+        //    << endl;
       }
     }
   }
   else {
     // We want the produced type.
-    /**/cout
-    /**/    << "we want the produced wrapper type"
-    /**/    << endl;
-    /**/cout
-    /**/    << "produced object not read yet, trying to obtain it"
-    /**/    << endl;
+    //cout
+    //    << "we want the produced wrapper type"
+    //    << endl;
+    //cout
+    //    << "produced object not read yet, trying to obtain it"
+    //    << endl;
     edp = obtainDesiredProduct(fillOnDemand, producedWrapperType());
     if (edp.get()) {
-      /**/cout
-      /**/    << "produced wrapper type product found"
-      /**/    << endl
-      /**/    << "calling setProduct to set product_ to: "
-      /**/    << edp.get()
-      /**/    << endl;
+      //cout
+      //    << "produced wrapper type product found"
+      //    << endl
+      //    << "calling setProduct to set product_ to: "
+      //    << edp.get()
+      //    << endl;
       setProduct(move(edp));
     }
     else {
-      /**/cout
-      /**/    << "failed to get the produced object"
-      /**/    << endl;
+      //cout
+      //    << "failed to get the produced object"
+      //    << endl;
     }
   }
   bool retval = false;
   if (uniqueProduct(wanted_wrapper_type) != nullptr) {
     retval = true;
   }
-  /**/cout
-  /**/    << "returning: "
-  /**/    << retval
-  /**/    << endl;
-  /**/cout
-  /**/    << "-----> End   AssnsGroup::resolveProductIfAvailable(...)"
-  /**/    << endl;
+  //cout
+  //    << "returning: "
+  //    << retval
+  //    << endl;
+  //cout
+  //    << "-----> End   AssnsGroup::resolveProductIfAvailable(...)"
+  //    << endl;
   return retval;
 }
 
@@ -271,7 +271,7 @@ maybeObtainProductFromPartner(TypeID const& wanted_wrapper_type) const
     //    << retval.get()
     //    << endl;
   }
-  //cout 
+  //cout
   //    << "returning: "
   //    << retval.get()
   //    << endl;
