@@ -242,4 +242,3 @@ write(std::ostream& os) const
 }
 
 } // namespace art
-

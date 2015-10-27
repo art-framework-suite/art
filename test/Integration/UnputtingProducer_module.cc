@@ -4,8 +4,6 @@
 #include <string>
 #include <vector>
 
-//#include "cetlib/map_vector.h"
-
 namespace arttest {
    class UnputtingProducer;
 }
@@ -30,7 +28,7 @@ arttest::UnputtingProducer::UnputtingProducer(fhicl::ParameterSet const& ) :
 }
 
 void
-arttest::UnputtingProducer::produce(art::Event&) 
+arttest::UnputtingProducer::produce(art::Event&)
 {
   // We don't put anything.
 }
