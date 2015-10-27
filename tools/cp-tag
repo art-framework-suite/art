@@ -89,7 +89,11 @@ done
 while [[ -n "$1" ]]; do
   art_version=$1
   shift
-
+  art_version_bits=($(echo "$art_version" | sed -e 's&^v\([0-9]\{1,\}\)_\([0-9]\{1,\}\)_\([0-9]\{1,\}\)\(.*\)$&\1 \2 \3 \4&'))
+  if (( ${art_version_bits[0]} > 1 )) || { (( ${art_version_bits[0]} == 1 )) && (( ${art_version_bits[1]} >= 18 )); }; then
+    # cpp0x was dropped from v1_18_00+
+    unset packages[3]
+  fi
   ensure_gitconfig art
 
   ssh p-art@cdcvs.fnal.gov "cd /cvs/projects/art && { git tag | grep -q $art_version || { echo 'Unable to find ART tag ${art_version}' 1>&2; exit 1; }; } && `maybe_tag \"ART_SUITE_${art_version}\" \"${art_version}\"`"
