@@ -10,15 +10,16 @@
 #include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
 #include "art/Persistency/Provenance/ProductMetaData.h"
 #include "art/Persistency/Provenance/ProductStatus.h"
-#include "art/Persistency/Provenance/ReflexTools.h"
+#include "art/Persistency/Provenance/TypeTools.h"
 #include "art/Utilities/Exception.h"
 #include "art/Utilities/TypeID.h"
 #include "art/Utilities/WrappedClassName.h"
 #include "cetlib/container_algorithms.h"
-#include "cpp0x/algorithm"
-#include "cpp0x/utility"
+
+#include <algorithm>
 #include <sstream>
 #include <stdexcept>
+#include <utility>
 
 using namespace cet;
 using namespace std;
@@ -206,10 +207,6 @@ getMatchingSequence(TypeID const& elementType, SelectorBase const& selector,
                     GroupQueryResultVec& results,
                     bool stopIfProcessHasMatch) const
 {
-  // Can we call elementType.friendlyClassName()?
-  if (!elementType.hasDictionary()) {
-    return 0;
-  }
   size_t ret = 0;
   for (auto const& el : ProductMetaData::instance().elementLookup()) {
     auto I = el[branchType()].find(elementType.friendlyClassName());
@@ -257,18 +254,14 @@ findGroupsForProduct(TypeID const& wanted_product,
                      GroupQueryResultVec& results,
                      bool stopIfProcessHasMatch) const
 {
-  // Can we call friendlyClassName()?
-  if (!wanted_product.hasDictionary()) {
-    return 0;
-  }
-  Reflex::Type rt;
+  TClass * cl = nullptr;
   ////////////////////////////////////
   // Cannot do this here because some tests expect to be able to
   // call here requesting a wanted_product that does not have
   // a dictionary and be ok because the productLookup fails.
   // See issue #8532.
-  //rt = Reflex::Type::ByName(wrappedClassName(wanted_product.className()));
-  //if (!rt) {
+  //cl = TClass::GetClass(wrappedClassName(wanted_product.className()).c_str());
+  //if (!cl) {
   //  throw Exception(errors::DictionaryNotFound)
   //      << "Dictionary not found for "
   //      << wrappedClassName(wanted_product.className())
@@ -281,15 +274,15 @@ findGroupsForProduct(TypeID const& wanted_product,
     if (I == pl[branchType()].end()) {
       continue;
     }
-    rt = Reflex::Type::ByName(wrappedClassName(wanted_product.className()));
-    if (!rt) {
+    cl = TClass::GetClass(wrappedClassName(wanted_product.className()).c_str());
+    if (!cl) {
       throw Exception(errors::DictionaryNotFound)
         << "Dictionary not found for "
         << wrappedClassName(wanted_product.className())
         << ".\n";
     }
     ret = findGroups(I->second, selector, results, stopIfProcessHasMatch,
-                     TypeID(rt.TypeInfo()));
+                     TypeID(cl->GetTypeInfo()));
     if (ret) {
       return ret;
     }
@@ -315,15 +308,15 @@ findGroupsForProduct(TypeID const& wanted_product,
     if (I == pl[branchType()].end()) {
       continue;
     }
-    rt = Reflex::Type::ByName(wrappedClassName(wanted_product.className()));
-    if (!rt) {
+    cl = TClass::GetClass(wrappedClassName(wanted_product.className()).c_str());
+    if (!cl) {
       throw Exception(errors::DictionaryNotFound)
     << "Dictionary not found for "
     << wrappedClassName(wanted_product.className())
     << ".\n";
     }
     ret = findGroups(I->second, selector, results, stopIfProcessHasMatch,
-                     TypeID(rt.TypeInfo()));
+                     TypeID(cl->GetTypeInfo()));
     if (ret) {
       return ret;
     }

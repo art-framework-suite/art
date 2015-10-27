@@ -5,7 +5,6 @@
 
 #include "art/Framework/Core/GroupSelector.h"
 #include "art/Framework/Core/GroupSelectorRules.h"
-#include "art/Framework/Core/RootDictionaryManager.h"
 #include "art/Persistency/Common/Ptr.h"
 #include "art/Persistency/Provenance/BranchDescription.h"
 #include "art/Persistency/Provenance/BranchKey.h"
@@ -94,14 +93,12 @@ public:
 private:
     GlobalSetup()
       :
-      rdm_(),
       pList_(initProductList())
       {
       }
 
     ~GlobalSetup() = default;
 
-    art::RootDictionaryManager rdm_;
     art::ProductList pList_;
 
     art::ProductList

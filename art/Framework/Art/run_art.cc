@@ -4,10 +4,10 @@
 #include "art/Framework/Art/BasicPostProcessor.h"
 #include "art/Framework/Art/InitRootHandlers.h"
 #include "art/Framework/EventProcessor/EventProcessor.h"
-#include "art/Framework/Core/RootDictionaryManager.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/Registry/ServiceRegistry.h"
 #include "art/Framework/Services/Registry/ServiceToken.h"
+#include "art/Utilities/Exception.h"
 #include "art/Utilities/ExceptionMessages.h"
 #include "art/Utilities/RootHandlers.h"
 #include "art/Utilities/UnixSignalHandlers.h"
@@ -264,9 +264,9 @@ int art::run_art_common_(fhicl::ParameterSet main_pset, art::detail::DebugOutput
   }
   RootErrorHandlerSentry re_sentry(scheduler_pset.get<bool>("resetRootErrHandler", true));
   // Load all dictionaries.
-  art::RootDictionaryManager rdm;
   if (scheduler_pset.get<bool>("debugDictionaries", false)) {
-    rdm.dumpReflexDictionaryInfo(std::cerr);
+    throw Exception(errors::UnimplementedFeature)
+      << "debugDictionaries not yet implemented for ROOT 6.\n";
   }
   art::completeRootHandlers();
   art::ServiceToken dummyToken;

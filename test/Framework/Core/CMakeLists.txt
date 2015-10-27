@@ -27,10 +27,6 @@ set(default_test_libraries
 ####################################
 # cet_test macro
 
-cet_test(RootDictionaryManager_t USE_BOOST_UNIT
-  LIBRARIES ${default_test_libraries}
-  )
-
 foreach (type Analyzer Filter Output Producer)
   SET_SOURCE_FILES_PROPERTIES(PMTest${type}_module.cc
     PROPERTIES

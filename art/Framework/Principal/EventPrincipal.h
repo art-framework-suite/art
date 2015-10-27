@@ -20,8 +20,9 @@
 #include "art/Persistency/Provenance/EventAuxiliary.h"
 #include "art/Persistency/Provenance/History.h"
 #include "cetlib/exempt_ptr.h"
-#include "cpp0x/memory"
+
 #include <map>
+#include <memory>
 #include <vector>
 
 namespace art {

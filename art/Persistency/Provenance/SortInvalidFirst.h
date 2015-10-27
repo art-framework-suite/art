@@ -1,7 +1,7 @@
 #ifndef art_Persistency_Provenance_SortInvalidFirst_h
 #define art_Persistency_Provenance_SortInvalidFirst_h
 
-#include "cpp0x/functional"
+#include <functional>
 
 namespace art {
    template <typename T> class SortInvalidFirst;

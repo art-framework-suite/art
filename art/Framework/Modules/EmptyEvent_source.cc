@@ -20,9 +20,10 @@ namespace art {
 #include "art/Persistency/Provenance/SubRunID.h"
 #include "art/Persistency/Provenance/Timestamp.h"
 #include "cetlib/BasicPluginFactory.h"
-#include "cpp0x/cstdint"
-#include "cpp0x/memory"
 #include "fhiclcpp/ParameterSet.h"
+
+#include <cstdint>
+#include <memory>
 
 class art::EmptyEvent : public art::DecrepitRelicInputSourceImplementation {
 public:

@@ -7,16 +7,16 @@ ProductProvenance: The event dependent portion of the description of a product
 and how it came into existence, plus the status.
 
 ----------------------------------------------------------------------*/
-#include <iosfwd>
-#include <vector>
-
-#include "cpp0x/memory"
 
 #include "art/Persistency/Provenance/BranchID.h"
 #include "art/Persistency/Provenance/ParentageID.h"
 #include "art/Persistency/Provenance/ProductStatus.h"
 #include "art/Persistency/Provenance/ProvenanceFwd.h"
 #include "art/Persistency/Provenance/Transient.h"
+
+#include <iosfwd>
+#include <memory>
+#include <vector>
 
 /*
   ProductProvenance

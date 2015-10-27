@@ -2,37 +2,18 @@
 // vim: set sw=2:
 
 #include "art/Framework/IO/Root/RootDelayedReader.h"
-#include "art/Framework/Principal/Principal.h"
-#include "art/Framework/Principal/Provenance.h"
 #include "art/Persistency/Provenance/BranchDescription.h"
-#include "art/Utilities/WrappedClassName.h"
-#include "Rtypes.h"
+#include "art/Persistency/Provenance/BranchType.h"
+#include "TBranch.h"
 #include "TFile.h"
-#include "TTreeCache.h"
-#include "TTreeIndex.h"
-#include "TVirtualIndex.h"
+#include "TLeaf.h"
+#include "TTree.h"
+#include <cstdint>
 #include <iostream>
+#include <string>
 #include <utility>
 
 namespace art {
-
-namespace {
-
-TBranch* getAuxiliaryBranch(TTree* tree, BranchType const& branchType)
-{
-  TBranch* branch = tree->GetBranch(BranchTypeToAuxiliaryBranchName(
-                                      branchType).c_str());
-  return branch;
-}
-
-TBranch* getProductProvenanceBranch(TTree* tree, BranchType const& branchType)
-{
-  TBranch* branch = tree->GetBranch(productProvenanceBranchName(
-                                      branchType).c_str());
-  return branch;
-}
-
-} // unnamed namespace
 
 RootTree::
 RootTree(std::shared_ptr<TFile> filePtr,
@@ -54,18 +35,19 @@ RootTree(std::shared_ptr<TFile> filePtr,
   , primaryFile_(primaryFile)
 {
   if (filePtr_) {
-    tree_ = static_cast<TTree*>(filePtr->Get(
-      BranchTypeToProductTreeName(branchType).c_str()));
-    metaTree_ = static_cast<TTree*>(filePtr->Get(
-      BranchTypeToMetaDataTreeName(branchType).c_str()));
+    tree_ = static_cast<TTree*>(
+      filePtr->Get(BranchTypeToProductTreeName(branchType).c_str()));
+    metaTree_ = static_cast<TTree*>(
+      filePtr->Get(BranchTypeToMetaDataTreeName(branchType).c_str()));
   }
   if (tree_) {
-    auxBranch_ = getAuxiliaryBranch(tree_, branchType_);
+    auxBranch_ = tree_->GetBranch(BranchTypeToAuxiliaryBranchName(
+                                    branchType_).c_str());
     entries_ = tree_->GetEntries();
   }
   if (metaTree_) {
-    productProvenanceBranch_ =
-      getProductProvenanceBranch(metaTree_, branchType_);
+    productProvenanceBranch_ = metaTree_->GetBranch(productProvenanceBranchName(
+                                 branchType_).c_str());
   }
   if (!(missingOK || isValid())) {
     throw Exception(errors::FileReadError)
@@ -95,18 +77,18 @@ hasBranch(std::string const& branchName) const
 void
 RootTree::
 addBranch(BranchKey const& key,
-          BranchDescription const& prod,
+          BranchDescription const& bd,
           std::string const& branchName,
           bool const present)
 {
   assert(isValid());
   TBranch* branch = tree_->GetBranch(branchName.c_str());
   assert(present == (branch != 0));
-  input::BranchInfo info(prod);
+  input::BranchInfo info(bd);
   info.productBranch_ = 0;
-  if ( present ) {
+  if (present) {
     info.productBranch_ = branch;
-    branchNames_.emplace_back(prod.branchName());
+    branchNames_.emplace_back(bd.branchName());
   }
   branches_->emplace(key, info);
 }
@@ -176,20 +158,6 @@ setEntryNumber(EntryNumber theEntryNumber)
 {
   // Note: An entry number of -1 is ok, this can be used
   //       to put the tree an an invalid entry.
-  if (TTreeCache* tc = dynamic_cast<TTreeCache*>(
-                         filePtr_->GetCacheRead(tree_))) {
-    assert(tree_ == tc->GetTree());
-    if ((theEntryNumber >= 0) && tc->IsLearning()) {
-      tc->SetLearnEntries(1);
-      tc->SetEntryRange(0, tree_->GetEntries());
-      for (auto i = branches_->cbegin(), e = branches_->cend(); i != e; ++i) {
-        if (i->second.productBranch_) {
-          tc->AddBranch(i->second.productBranch_, kTRUE);
-        }
-      }
-      tc->StopLearningPhase();
-    }
-  }
   entryNumber_ = theEntryNumber;
   auto err = tree_->LoadTree(theEntryNumber);
   if (err == -2) {

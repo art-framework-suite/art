@@ -94,10 +94,11 @@
 #include "art/Persistency/Provenance/SubRunID.h"
 #include "art/Utilities/detail/metaprogramming.h"
 #include "cetlib/exempt_ptr.h"
-#include "cpp0x/algorithm"
-#include "cpp0x/memory"
-#include "cpp0x/type_traits"
 #include "fhiclcpp/ParameterSet.h"
+
+#include <algorithm>
+#include <memory>
+#include <type_traits>
 
 // ----------------------------------------------------------------------
 

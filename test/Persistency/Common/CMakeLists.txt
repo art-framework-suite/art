@@ -19,7 +19,7 @@ link_libraries( art_Persistency_Common
 
 foreach(file ${cpp_files} )
   if( ${file} MATCHES testRunner.cpp )
-  elseif( ${file} MATCHES ReflexTools_t.cpp )
+  elseif( ${file} MATCHES TypeTools_t.cpp )
   else()
     get_filename_component(ename ${file} NAME_WE )
     add_executable( ${ename}  ${file} )
@@ -30,7 +30,7 @@ endforeach(file ${cpp_files} )
 add_executable( testDataFormatsCommon testRunner.cpp ${cc_files} )
 add_test( testDataFormatsCommon ${EXECUTABLE_OUTPUT_PATH}/testDataFormatsCommon )
 
-add_executable( ReflexTools_t ReflexTools_t.cpp )
-target_link_libraries( ReflexTools_t DataFormatsWrappedStdDictionaries_dict
+add_executable( TypeTools_t TypeTools_t.cpp )
+target_link_libraries( TypeTools_t DataFormatsWrappedStdDictionaries_dict
                                      DataFormatsWrappedStdDictionaries_map  )
-add_test( ReflexTools_t ${EXECUTABLE_OUTPUT_PATH}/ReflexTools_t )
+add_test( TypeTools_t ${EXECUTABLE_OUTPUT_PATH}/TypeTools_t )

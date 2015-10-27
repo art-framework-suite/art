@@ -1,4 +1,10 @@
 <lcgdict>
   <class name="arttest::empty"/>
   <class name="arttest::also_empty"/>
+  <class name="arttest::MyString"/>
+  <class name="std::vector<arttest::MyString>"/>
+  <class name="arttest::MyBigPOD" ClassVersion="10">
+   <version ClassVersion="10" checksum="1187013485"/>
+  </class>
+  <class name="cet::map_vector<std::string>"/>
 </lcgdict>

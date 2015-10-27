@@ -8,7 +8,7 @@
 // Each RunID contains a fixed-size unsigned integer, the run number.
 //
 
-#include "cpp0x/cstdint"
+#include <cstdint>
 #include <iosfwd>
 
 namespace art {

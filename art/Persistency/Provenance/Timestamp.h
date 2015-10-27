@@ -1,7 +1,7 @@
 #ifndef art_Persistency_Provenance_Timestamp_h
 #define art_Persistency_Provenance_Timestamp_h
 
-#include "cpp0x/cstdint"
+#include <cstdint>
 
 namespace art {
    typedef std::uint64_t TimeValue_t;

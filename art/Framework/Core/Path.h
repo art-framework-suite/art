@@ -16,10 +16,11 @@
 #include "art/Framework/Core/WorkerInPath.h"
 #include "art/Persistency/Common/HLTenums.h"
 #include "art/Persistency/Common/TriggerResults.h"
-#include "cpp0x/memory"
-#include "cpp0x/utility"
 #include "fhiclcpp/ParameterSet.h"
+
+#include <memory>
 #include <string>
+#include <utility>
 #include <vector>
 
 // ----------------------------------------------------------------------

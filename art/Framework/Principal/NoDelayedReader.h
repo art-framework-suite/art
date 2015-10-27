@@ -4,7 +4,8 @@
 #include "art/Persistency/Common/DelayedReader.h"
 #include "art/Framework/Principal/fwd.h"
 #include "art/Persistency/Provenance/ProvenanceFwd.h"
-#include "cpp0x/memory"
+
+#include <memory>
 
 class art::NoDelayedReader : public art::DelayedReader {
 public:

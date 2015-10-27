@@ -7,8 +7,8 @@
 #include "art/Persistency/Provenance/RunID.h"
 #include "art/Persistency/Provenance/SubRunID.h"
 #include "art/Utilities/Exception.h"
-#include "cpp0x/cstdint"
 
+#include <cstdint>
 #include <iosfwd>
 
 namespace art {

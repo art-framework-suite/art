@@ -16,9 +16,11 @@
 #include "art/Persistency/Provenance/BranchType.h"
 #include "art/Persistency/Provenance/ProductProvenance.h"
 #include "art/Persistency/Provenance/ProvenanceFwd.h"
+
 #include "TBranch.h"
 #include "TTree.h"
-#include "cpp0x/memory"
+
+#include <memory>
 #include <string>
 #include <vector>
 

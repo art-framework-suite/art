@@ -63,6 +63,7 @@
 #include "art/Utilities/InputTag.h"
 #include "art/Utilities/TypeID.h"
 
+#include <memory>
 #include <ostream>
 #include <memory>
 #include <string>

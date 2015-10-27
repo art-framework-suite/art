@@ -5,7 +5,7 @@
 <class name="TestProd<std::string, size_t>"/>
 <ioread sourceClass="TestProd<string,unsigned long>"
 version="[1-]" targetClass="TestProd<unsigned long,std::basic_string<char> >"/>
-<ioread sourceClass="TestProd<unsigned long.string>"
+<ioread sourceClass="TestProd<unsigned long,string>"
 version="[1-]" targetClass="TestProd<std::basic_string<char>,unsigned long>"/>
 <class name="std::vector<unsigned long>"/>
 </lcgdict>

@@ -12,10 +12,10 @@
 #include "cetlib/container_algorithms.h"
 #include "cetlib/exempt_ptr.h"
 #include "cetlib/value_ptr.h"
-#include "cpp0x/memory"
 
 #include <iosfwd>
 #include <map>
+#include <memory>
 #include <set>
 
 namespace art {

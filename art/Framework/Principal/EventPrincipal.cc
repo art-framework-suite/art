@@ -12,8 +12,9 @@
 #include "art/Persistency/Provenance/BranchListIndex.h"
 #include "art/Persistency/Provenance/ProductMetaData.h"
 #include "cetlib/container_algorithms.h"
-#include "cpp0x/algorithm"
-#include "cpp0x/utility"
+
+#include <algorithm>
+#include <utility>
 
 using namespace cet;
 using namespace std;

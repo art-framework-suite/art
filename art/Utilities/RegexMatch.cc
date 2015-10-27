@@ -1,7 +1,9 @@
 // functions used to assist with regular expression matching of strings
 
 #include "art/Utilities/RegexMatch.h"
-#include "boost/algorithm/string.hpp"
+#include "cetlib/replace_all.h"
+
+#include <regex>
 #include <string>
 #include <vector>
 
@@ -13,8 +15,8 @@ namespace art {
 
   std::string glob2reg(std::string const& pattern) {
     std::string regexp = pattern;
-    boost::replace_all(regexp, "*", ".*");
-    boost::replace_all(regexp, "?", ".");
+    cet::replace_all(regexp, "*", ".*");
+    cet::replace_all(regexp, "?", ".");
     return regexp;
   }
 

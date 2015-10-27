@@ -10,7 +10,6 @@ using boost::test_tools::output_test_stream;
 #include <memory>
 #include <string>
 
-#include "Cintex/Cintex.h"
 #include "TClass.h"
 #include "TBranch.h"
 #include "TFile.h"
@@ -26,7 +25,6 @@ adoptStreamerWithOS(std::ostream & os = std::cerr)
 
 struct Initializer {
   Initializer() {
-    ROOT::Cintex::Cintex::Enable();
     TClass::GetClass(typeid(TestProd<size_t, std::string>))->SetCanSplit(0);
     TClass::GetClass(typeid(TestProd<std::string, size_t>))->SetCanSplit(0);
     adoptStreamerWithOS<std::string, size_t>();
@@ -63,13 +61,13 @@ BOOST_AUTO_TEST_CASE(read)
   TFile tfIn("out.root");
   TTree * treeIn = (TTree *)tfIn.Get("T");
   treeIn->SetBranchAddress("b1", &ptpIn);
-  treeIn->GetEntry(0);
+  // ROOT6 is smarter than ROOT5.  Since the requested branch type no
+  // longer agrees with the type of the branch corresponding to "T",
+  // ROOT6 logs an error message and **DOES NOT** set the branch
+  // address, and the "data" data member of tpIn should be empty.
+  BOOST_CHECK(tpIn.data.empty());
   std::cerr << os.str();
   BOOST_CHECK(os.is_equal("Attempting to read stored object as a TestProd<unsigned long,string>.\n"));
-  std::cerr
-      << "Read data: "
-      << tpIn.data.front()
-      << ".\n";
 }
 
 BOOST_AUTO_TEST_SUITE_END()

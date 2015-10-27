@@ -20,7 +20,7 @@
 #include "art/Persistency/Provenance/ProductID.h"
 #include "art/Persistency/Provenance/ProductProvenance.h"
 #include "cetlib/exempt_ptr.h"
-#include "cpp0x/memory"
+#include <memory>
 #include "fhiclcpp/ParameterSetID.h"
 #include <iosfwd>
 

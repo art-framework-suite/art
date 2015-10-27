@@ -9,7 +9,7 @@
 #include <string>
 #include <vector>
 
-#include "cpp0x/regex"
+#include <regex>
 
 #include "cetlib/LibraryManager.h"
 #include "cetlib/exception.h"

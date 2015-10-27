@@ -1,9 +1,9 @@
 #include "art/Persistency/Provenance/MasterProductRegistry.h"
 // vim: set sw=2:
 
-#include "Reflex/Type.h"
 #include "art/Persistency/Provenance/BranchKey.h"
-#include "art/Persistency/Provenance/ReflexTools.h"
+#include "art/Persistency/Provenance/TypeTools.h"
+#include "art/Persistency/Provenance/TypeWithDict.h"
 #include "art/Utilities/TypeID.h"
 #include "art/Utilities/WrappedClassName.h"
 #include "cetlib/exception.h"
@@ -20,11 +20,11 @@ namespace {
   checkDicts(BranchDescription const& productDesc)
   {
     if (productDesc.transient()) {
-      checkDictionaries(productDesc.wrappedName(), true);
-      checkDictionaries(productDesc.producedClassName(), true);
+      checkDictionaries(productDesc.wrappedName(), false);
+      checkDictionaries(productDesc.producedClassName(), false);
     }
     else {
-      checkDictionaries(productDesc.wrappedName(), false);
+      checkDictionaries(productDesc.wrappedName(), true);
     }
     reportFailedDictionaryChecks();
   }
@@ -43,24 +43,26 @@ namespace {
       // Look in the class of the product for a typedef named "value_type",
       // if there is one allow lookups by that type name too (and by all
       // of its base class names as well).
-      Reflex::Type TY(Reflex::Type::ByName(val.second.producedClassName()));
-      if (!TY) {
-        // We do not have a dictionary for the class of the product.
+      art::TypeWithDict const TY(val.second.producedClassName());
+      if (TY.category() != art::TypeWithDict::Category::CLASSTYPE) {
         continue;
       }
-      Reflex::Type ET;
-      if ((mapped_type_of(TY, ET) || value_type_of(TY, ET)) && ET) {
+      TClass * TYc = TY.tClass();
+      art::TypeWithDict ET;
+      if ((art::mapped_type_of(TYc, ET) || art::value_type_of(TYc, ET)) && ET) {
         // The class of the product has a nested type, "mapped_type," or,
         // "value_type," so allow lookups by that type and all of its base
         // types too.
-        auto vtFCN = TypeID(ET.TypeInfo()).friendlyClassName();
+        auto vtFCN = ET.friendlyClassName();
         el[bt][vtFCN][procName].push_back(bid);
-        // Repeat this for all public base classes of the value_type.
-        std::vector<Reflex::Type> bases;
-        public_base_classes(ET, bases);
-        for (auto const& BT: bases) {
-          auto btFCN = TypeID(BT.TypeInfo()).friendlyClassName();
-          el[bt][btFCN][procName].push_back(bid);
+        if (ET.category() == art::TypeWithDict::Category::CLASSTYPE) {
+          // Repeat this for all public base classes of the value_type.
+          std::vector<TClass*> bases;
+          art::public_base_classes(ET.tClass(), bases);
+          for (auto BT: bases) {
+            auto btFCN = art::TypeID(BT->GetTypeInfo()).friendlyClassName();
+            el[bt][btFCN][procName].push_back(bid);
+          }
         }
       }
     }

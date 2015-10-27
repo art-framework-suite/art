@@ -18,7 +18,8 @@
 #include "art/Persistency/Provenance/ProductMetaData.h"
 #include "art/Utilities/Exception.h"
 #include "art/Utilities/InputTag.h"
-#include "cpp0x/functional"
+
+#include <functional>
 
 #include "TBranch.h"
 

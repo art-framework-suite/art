@@ -4,7 +4,8 @@
 // A SubRunID represents a unique period within a run.
 
 #include "art/Persistency/Provenance/RunID.h"
-#include "cpp0x/cstdint"
+
+#include <cstdint>
 #include <ostream>
 
 namespace art {

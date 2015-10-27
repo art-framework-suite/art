@@ -5,7 +5,8 @@
 #include "art/Utilities/Exception.h"
 #include "boost/algorithm/string.hpp"
 #include "cetlib/container_algorithms.h"
-#include "cpp0x/algorithm"
+
+#include <algorithm>
 #include <cctype>
 #include <iterator>
 #include <ostream>

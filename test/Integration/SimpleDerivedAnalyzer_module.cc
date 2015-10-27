@@ -180,7 +180,7 @@ SimpleDerivedAnalyzer::test_getViewThrowing(art::Event const & e) const
     assert("Failed to throw required exception" == 0);
   }
   catch (art::Exception & e) {
-    assert(e.categoryCode() == art::errors::DictionaryNotFound);
+    assert(e.categoryCode() == art::errors::ProductNotFound);
   }
   catch (...) {
     assert("Wrong exception thrown" == 0);

@@ -10,7 +10,6 @@ Test of the EventPrincipal class.
 #include "art/Framework/Principal/EventPrincipal.h"
 
 #include "art/Persistency/Provenance/ProductMetaData.h"
-#include "art/Framework/Core/RootDictionaryManager.h"
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/Selector.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
@@ -68,7 +67,6 @@ private:
                              std::string const& productInstanceName = std::string() );
 
   art::MasterProductRegistry  productRegistry_;
-  art::RootDictionaryManager rdm_;
 };
 
 
@@ -76,8 +74,7 @@ MPRGlobalTestFixture::MPRGlobalTestFixture()
   :
   branchKeys_(),
   processConfigurations_(),
-  productRegistry_(),
-  rdm_()
+  productRegistry_()
 {
   // We can only insert products registered in the MasterProductRegistry.
   productRegistry_.addProduct(fake_single_process_branch("hlt",  "HLT"));

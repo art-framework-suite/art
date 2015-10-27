@@ -30,7 +30,8 @@ If failedToGet() returns false but isValid() is also false then no attempt
 #include "art/Persistency/Provenance/ProductProvenance.h"
 #include "cetlib/exception.h"
 #include "cetlib/exempt_ptr.h"
-#include "cpp0x/memory"
+
+#include <memory>
 
 namespace art {
   class EDProduct;
