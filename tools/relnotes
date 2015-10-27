@@ -52,6 +52,9 @@ if (lc $package eq "art") { # Want Art Suite release notes.
   my $suite_version = suite_version($vnum);
   my $dot_version = dot_version($vnum);
   my $prod_version = prod_version($vnum);
+  if (not by_version($dot_version, "1.18.00")) {
+    pop @known_packages;
+  }
   my $version_date = tag_date("art", $suite_version);
   print "h1. Art Suite Release Notes $dot_version ($version_date).\n\n";
   print "* \"Download page\":https://scisoft.fnal.gov/scisoft/bundles/art/${prod_version}/art-${prod_version}.html.\n";
@@ -106,8 +109,8 @@ sub all_versions_since {
 
 sub by_version {
   # Requires dot versions.
-  my @a = split /\./, $a, 3;
-  my @b = split /\./, $b, 3;
+  my @a = split /\./, ($a || shift), 3;
+  my @b = split /\./, ($b || shift), 3;
   my ($a_extra, $b_extra);
   ($a[2], $a_extra) = ($a[2] =~ m&^(\d+)(.*)$&);
   ($b[2], $b_extra) = ($b[2] =~ m&^(\d+)(.*)$&);
@@ -123,9 +126,9 @@ sub by_version {
 sub compare_extra {
   my ($a, $b) = @_;
   my @a = ($a =~ m&^([abp]|rc)(\d+)$&);
-  @a = ('x', $a) unless (scalar @a or not $a);
+  @a = (($a ? '^' : '-'), $a) unless (scalar @a);
   my @b = ($b =~ m&^([abp]|rc)(\d+)$&);
-  @b = ('x', $b) unless (scalar @b or not $b);
+  @b = (($b ? '^' : '-'), $b) unless (scalar @b);
   my $enA = extra_num($a[0]);
   my $enB = extra_num($b[0]);
   return
@@ -135,8 +138,9 @@ sub compare_extra {
 
 sub extra_num {
   my ($in) = @_;
-  return 0 unless $in;
-  if ($in eq "x") {
+  if ($in eq '-') {
+    return 0;
+  } elsif ($in eq "^") {
     return 2;
   } elsif ($in eq "p") {
     return 1;
