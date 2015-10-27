@@ -6,7 +6,7 @@ set(CMAKE_MODULE_PATH
 include(ReflexTools_t)
 
 # project name
-art_make_library(SOURCE 
+art_make_library(SOURCE
   ToySource.cc
   LIBRARIES art_Framework_IO_Sources
   art_Framework_Core
@@ -76,6 +76,7 @@ simple_plugin(PtrmvProducer               "module"  NO_INSTALL )
 simple_plugin(RandomNumberSaveTest        "module"  NO_INSTALL USE_BOOST_UNIT )
 simple_plugin(Reconfigurable              "service" NO_INSTALL )
 simple_plugin(Reconfiguring               "module"  NO_INSTALL )
+simple_plugin(RunSubRunProductProducerNoPut "module"  NO_INSTALL )
 simple_plugin(SAMMetadataTest             "module"  NO_INSTALL art_Framework_Services_System_FileCatalogMetadata_service )
 simple_plugin(ServiceUsing                "service" NO_INSTALL )
 simple_plugin(SimpleDerivedAnalyzer       "module"  NO_INSTALL )
@@ -141,6 +142,11 @@ cet_test(test_dropAllEventsSubruns_t.sh PREBUILT
   fcl/dropAllEventsSubruns_r_t2.fcl
   test_dropAllEventsSubruns_verify.cxx
 )
+
+cet_test(test_runSubRunNoPut_t.sh PREBUILT
+  DATAFILES
+  fcl/runSubRunNoPut_t.fcl
+  )
 
 cet_test(test_simple_01_t.sh PREBUILT
   DATAFILES
@@ -333,7 +339,7 @@ endforeach()
 
 cet_test(ToyProductMerger_t HANDBUILT
   TEST_EXEC art
-  TEST_ARGS --rethrow-all -c ToyProductMerger_t.fcl 
+  TEST_ARGS --rethrow-all -c ToyProductMerger_t.fcl
   DATAFILES
   fcl/ToyProductMerger_t.fcl
 )
@@ -681,7 +687,7 @@ cet_test(ProductIDGetterNoPut_t HANDBUILT
   DATAFILES
   fcl/ProductIDGetterNoPut_t.fcl
   TEST_PROPERTIES
-  PASS_REGULAR_EXPRESSION "The following products have been declared with 'produced'"       
+  PASS_REGULAR_EXPRESSION "The following products have been declared with 'produces'"
   )
 
 cet_test(ProductIDGetterNoPut_t_01a HANDBUILT
@@ -690,7 +696,7 @@ cet_test(ProductIDGetterNoPut_t_01a HANDBUILT
   DATAFILES
   fcl/ProductIDGetterNoPut_t_01.fcl
   TEST_PROPERTIES
-  PASS_REGULAR_EXPRESSION "The following products have been declared with 'produced'"       
+  PASS_REGULAR_EXPRESSION "The following products have been declared with 'produces'"
   )
 
 cet_test(ProductIDGetterNoPut_t_01b HANDBUILT
@@ -713,7 +719,7 @@ cet_test(ProductIDGetterNoPut_t_02b HANDBUILT
   DATAFILES
   fcl/ProductIDGetterNoPut_t_02.fcl
   TEST_PROPERTIES
-  PASS_REGULAR_EXPRESSION "The following products have been declared with 'produced'"       
+  PASS_REGULAR_EXPRESSION "The following products have been declared with 'produces'"
   )
 
 cet_test(Assns_w HANDBUILT
@@ -1063,7 +1069,7 @@ cet_script(signal_handling_t.sh NO_INSTALL)
 
 cet_test(signal_handling_01_t HANDBUILT
   TEST_EXEC signal_handling_t.sh
-  TEST_ARGS -c signal_sigint.fcl SIGINT 
+  TEST_ARGS -c signal_sigint.fcl SIGINT
   TEST_PROPERTIES
   PASS_REGULAR_EXPRESSION
   "Art has handled signal 2\\."

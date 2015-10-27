@@ -195,7 +195,7 @@ art::EventProcessor::beginJob()
 {
   breakpoints::beginJob();
   // make the services available
-  servicesActivate_(serviceToken_);
+  ServiceRegistry::Operate op {serviceToken_};
   // NOTE: This implementation assumes 'Job' means one call the
   // EventProcessor::run. If it really means once per 'application'
   // then this code will have to be changed.  Also have to deal with
@@ -227,7 +227,6 @@ art::EventProcessor::beginJob()
   actReg_.sPostBeginJob.invoke();
 
   invokePostBeginJobWorkers_();
-  servicesDeactivate_();
 }
 
 void
@@ -236,7 +235,7 @@ art::EventProcessor::endJob()
   // Collects exceptions, so we don't throw before all operations are performed.
   cet::exception_collector c;
   // Make the services available
-  servicesActivate_(serviceToken_);
+  ServiceRegistry::Operate op {serviceToken_};
   c.call([this](){ this->terminateMachine_(); });
   c.call([this](){ schedule_.get()->endJob(); });
   c.call([this](){ endPathExecutor_.get()->endJob(); });
@@ -244,7 +243,6 @@ art::EventProcessor::endJob()
   c.call([this,summarize](){ detail::writeSummary(pathManager_, summarize); });
   c.call([this](){ input_.get()->doEndJob(); });
   c.call([this](){ actReg_.sPostEndJob.invoke(); });
-  servicesDeactivate_();
 }
 
 art::ServiceDirector
@@ -374,7 +372,7 @@ art::EventProcessor::runCommon_()
   StatusCode returnCode = epSuccess;
   stateMachineWasInErrorState_ = false;
   // Make the services available
-  servicesActivate_(serviceToken_);
+  ServiceRegistry::Operate op {serviceToken_};
   if (machine_.get() == 0) {
     statemachine::FileMode fileMode;
     if (fileMode_.empty()) { fileMode = statemachine::FULLMERGE; }
@@ -543,7 +541,6 @@ art::EventProcessor::runCommon_()
         << "The boost state machine in the EventProcessor exited after\n"
         << "entering the Error state.\n";
   }
-  servicesDeactivate_();
   return returnCode;
 }
 

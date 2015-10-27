@@ -1,0 +1,2 @@
+physics.producers.prod1.module_type: RunSubRunProductProducerNoPut
+physics.p1: [prod1]
