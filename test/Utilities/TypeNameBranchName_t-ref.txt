@@ -1,0 +1,16 @@
+std::basic_string<char> -> String
+std::basic_string<char> -> String
+std::vector<std::basic_string<char> > -> Strings
+std::vector<std::basic_string<char> > -> Strings
+std::vector<std::basic_string<char> > -> Strings
+std::map<std::basic_string<char>,int> -> Stringintstd::map
+std::map<std::basic_string<char>,int> -> Stringintstd::map
+arttest::MyBigPOD -> arttest::MyBigPOD
+short int -> short int
+int -> int
+unsigned int -> uint
+long int -> lint
+unsigned long int -> ulint
+cet::map_vector<std::basic_string<char> > -> Stringmv
+char -> char
+unsigned char -> uchar

@@ -6,16 +6,15 @@
     <version ClassVersion="10" checksum="1835436919"/>
   </class>
   <class name="art::EventSelectionIDVector"/>
-  <class name="art::BranchListIndex"/>
   <class name="art::ProcessHistoryID"/>
   <class name="std::vector<art::ProductProvenance>"/>
   <class name="art::ProductProvenance" ClassVersion="10">
     <version ClassVersion="10" checksum="1364826586"/>
   </class>
+  <class name="art::ProductProvenance::Transients"/>
   <class name="art::BranchID" ClassVersion="10">
     <version ClassVersion="10" checksum="2476990556"/>
   </class>
-  <class name="art::ProductStatus"/>
   <class name="art::ParentageID"/>
   <class name="art::FileFormatVersion" ClassVersion="10">
     <version ClassVersion="10" checksum="2316305675"/>
@@ -28,6 +27,7 @@
     <version ClassVersion="10" checksum="2106446510"/>
   </class>
   <class name="std::vector<art::FileIndex::Element>"/>
+  <class name="art::FileIndex::Transients"/>
   <class name="std::vector<art::ProcessConfiguration>"/>
   <class name="art::ProcessConfiguration" ClassVersion="10">
     <version ClassVersion="10" checksum="877610178"/>
@@ -36,13 +36,7 @@
   <class name="art::ProcessHistory" ClassVersion="10">
     <version ClassVersion="10" checksum="2473205264"/>
   </class>
-  <class name="art::ProcessHistory::collection_type" ClassVersion="10">
-    <version ClassVersion="10" checksum="724046865"/>
-  </class>
-  <class name="art::ProcessHistory::value_type" ClassVersion="10">
-    <version ClassVersion="10" checksum="877610178"/>
-  </class>
-  
+  <class name="art::ProcessHistory::Transients"/>
   <class name="art::BranchChildren" ClassVersion="10">
     <version ClassVersion="10" checksum="1681313459"/>
   </class>
@@ -73,7 +67,8 @@
     <version ClassVersion="11" checksum="363573437"/>
     <version ClassVersion="10" checksum="2938245437"/>
   </class>
-  <class name="art::BranchDescription" ClassVersion="12">
+  <class name="art::BranchDescription" ClassVersion="13">
+   <version ClassVersion="13" checksum="2315032926"/>
     <version ClassVersion="12" checksum="544968977"/>
     <version ClassVersion="11" checksum="1740239918"/>
     <version ClassVersion="10" checksum="3580977508"/>
@@ -83,6 +78,7 @@
           source="std::string fullClassName_;" target="producedClassName_">
     <![CDATA[producedClassName_ = onfile.fullClassName_; ]]>
   </ioread>
+  <class name="art::BranchDescription::Transients"/>
   <class name="std::set<fhicl::ParameterSetID>"/>
   <class name="art::ProcessConfigurationID"/>
   <class name="std::set<art::ProcessConfigurationID>"/>
@@ -92,7 +88,8 @@
     <version ClassVersion="10" checksum="3473129795"/>
   </class>
   <class name="std::vector<art::BranchID>"/>
-  <class name="art::EventAuxiliary" ClassVersion="10">
+  <class name="art::EventAuxiliary" ClassVersion="11">
+   <version ClassVersion="11" checksum="731591074"/>
     <version ClassVersion="10" checksum="3057204332"/>
   </class>
    <class name="art::EventID" ClassVersion="12">
@@ -127,5 +124,4 @@
   <class name="art::ParameterSetMap"/>
   <class name="std::pair<fhicl::ParameterSetID, art::ParameterSetBlob>"/>
   <class name="art::ProductID"/>
-  
 </lcgdict>

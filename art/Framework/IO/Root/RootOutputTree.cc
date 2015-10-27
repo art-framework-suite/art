@@ -5,13 +5,16 @@
 #include "art/Persistency/Provenance/BranchDescription.h"
 #include "art/Utilities/Exception.h"
 #include "cetlib/container_algorithms.h"
-#include "cpp0x/functional"
 #include "messagefacility/MessageLogger/MessageLogger.h"
+
 #include "Rtypes.h"
 #include "TClass.h"
+#include "TClassRef.h"
 #include "TBranch.h"
 #include "TFile.h"
 #include "TTreeCloner.h"
+
+#include <functional>
 #include <iostream>
 #include <limits>
 
@@ -187,6 +190,7 @@ void
 RootOutputTree::
 addOutputBranch(BranchDescription const& bd, void const*& pProd)
 {
+  TClassRef cls = TClass::GetClass(bd.wrappedName().c_str());
   if (TBranch* br = tree_->GetBranch(bd.branchName().c_str())) {
     // Already have this branch, possibly update the branch address.
     if (pProd == nullptr) {
@@ -197,7 +201,6 @@ addOutputBranch(BranchDescription const& bd, void const*& pProd)
       // deleted with a ResetBranchAddress() to prepare
       // for the OutputItem being replaced, and the
       // OutputItem has just been recreated.
-      TClass* cls = TClass::GetClass(bd.wrappedCintName().c_str());
       EDProduct* prod = reinterpret_cast<EDProduct*>(cls->New());
       pProd = prod;
       br->SetAddress(&pProd);
@@ -218,14 +221,13 @@ addOutputBranch(BranchDescription const& bd, void const*& pProd)
     throw art::Exception(art::errors::FatalRootError)
         << "OutputItem product pointer is not nullptr!\n";
   }
-  TClass* cls = TClass::GetClass(bd.wrappedCintName().c_str());
   EDProduct* prod = reinterpret_cast<EDProduct*>(cls->New());
   pProd = prod;
   TBranch* branch = tree_->Branch(bd.branchName().c_str(),
-                                  bd.wrappedCintName().c_str(),
+                                  bd.wrappedName().c_str(),
                                   &pProd, bsize, splitlvl);
   //TBranch* branch = tree_->Branch(bd.branchName().c_str(),
-  //                                bd.wrappedCintName().c_str(),
+  //                                bd.wrappedName().c_str(),
   //                                nullptr, bsize, splitlvl);
   // Note that root will have just allocated a dummy product
   // as the I/O buffer for the branch we have created.  We will
@@ -246,8 +248,7 @@ addOutputBranch(BranchDescription const& bd, void const*& pProd)
   if (nEntries_ > 0) {
     // Backfill the branch with dummy entries to match the number
     // of entries already written to the data tree.
-    TClass* c = TClass::GetClass(bd.wrappedCintName().c_str());
-    std::unique_ptr<EDProduct> dummy(static_cast<EDProduct*>(c->New()));
+    std::unique_ptr<EDProduct> dummy(static_cast<EDProduct*>(cls->New()));
     pProd = dummy.get();
     int bytesWritten = 0;
     for (auto i = nEntries_; i > 0; --i) {

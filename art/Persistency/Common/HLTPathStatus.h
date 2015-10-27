@@ -24,8 +24,9 @@
  */
 
 #include "art/Persistency/Common/HLTenums.h"
-#include "cpp0x/cstdint"
+
 #include <cassert>
+#include <cstdint>
 
 namespace art
 {
@@ -41,7 +42,7 @@ namespace art
     // constructor
     HLTPathStatus(const hlt::HLTState state = hlt::Ready, const unsigned int index = 0)
     : status_(index*4+state) {
-      assert (state<4);
+      assert (state<hlt::UNKNOWN);
       assert (index<16384);
     }
 

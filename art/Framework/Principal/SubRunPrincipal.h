@@ -19,7 +19,8 @@
 #include "art/Persistency/Provenance/RunID.h"
 #include "art/Persistency/Provenance/SubRunAuxiliary.h"
 #include "cetlib/exempt_ptr.h"
-#include "cpp0x/memory"
+
+#include <memory>
 #include <vector>
 
 namespace art {

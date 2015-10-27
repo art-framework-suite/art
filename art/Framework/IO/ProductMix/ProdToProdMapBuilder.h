@@ -8,8 +8,8 @@
 #include "art/Persistency/Provenance/History.h"
 #include "art/Persistency/Provenance/ProductID.h"
 #include "cetlib/exempt_ptr.h"
-#include "cpp0x/functional"
 
+#include <functional>
 #include <map>
 
 #include "Rtypes.h"

@@ -3,8 +3,9 @@
 
 #include "art/Persistency/Common/Ptr.h"
 #include "art/Persistency/Common/RefCore.h"
-#include "cpp0x/utility"
+
 #include <typeinfo>
+#include <utility>
 #include <vector>
 
 class TBuffer;
@@ -20,7 +21,9 @@ namespace art {
 class art::PtrVectorBase {
 public:
   typedef unsigned long key_type;
+#if 0
 protected:
+#endif
   typedef std::vector<key_type> indices_t;
 public:
   typedef indices_t::size_type size_type;

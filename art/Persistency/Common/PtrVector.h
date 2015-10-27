@@ -10,6 +10,7 @@
 
 #include "art/Persistency/Common/Ptr.h"
 #include "art/Persistency/Common/PtrVectorBase.h"
+#include "cetlib/compiler_macros.h"
 
 #ifndef __GCCXML__
 #include <initializer_list>
@@ -17,7 +18,7 @@
 #endif
 #include <vector>
 
-#if GCC_IS_AT_LEAST(4,9,0)
+#if GCC_IS_AT_LEAST(4,9,0) || CLANG_IS_AT_LEAST(3,5,0)
 #define PV_INSERT_POSITION_TYPE const_iterator
 #else
 #define PV_INSERT_POSITION_TYPE iterator

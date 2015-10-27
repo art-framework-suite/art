@@ -1,9 +1,9 @@
 set( art_Persistency_Provenance_libraries
   art_Persistency_RootDB
   art_Utilities
-  ${Boost_THREAD_LIBRARY}
-  ${ROOT_CINTEX}
   MF_MessageLogger
+  ${ROOT_CORE}
+  ${Boost_THREAD_LIBRARY}
   )
 
 art_make(SUBDIRS detail
@@ -11,7 +11,6 @@ art_make(SUBDIRS detail
   art_Persistency_RootDB
   art_Utilities
   ${Boost_THREAD_LIBRARY}
-  ${ROOT_CINTEX}
   MF_MessageLogger
 	)
 

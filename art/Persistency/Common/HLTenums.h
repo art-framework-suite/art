@@ -16,7 +16,8 @@ namespace art
       enum HLTState {Ready=0,     ///< not [yet] run
                      Pass =1,     ///< accept
                      Fail =2,     ///< reject
-                     Exception=3  ///< error
+                     Exception=3,  ///< error
+                     UNKNOWN
       };
 
     }

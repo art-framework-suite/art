@@ -9,8 +9,8 @@
 // ======================================================================
 
 #include "art/Persistency/Common/fwd.h"
-#include "cpp0x/memory"
 
+#include <memory>
 #include <string>
 #include <vector>
 

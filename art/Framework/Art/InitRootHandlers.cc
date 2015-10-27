@@ -11,8 +11,6 @@
 
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
-#include "Cintex/Cintex.h"
-#include "G__ci.h"
 #include "TError.h"
 #include "TH1.h"
 #include "TSystem.h"
@@ -181,7 +179,6 @@ namespace art {
       // Set ROOT parameters.
       TTree::SetMaxTreeSize(kMaxLong64);
       TH1::AddDirectory(kFALSE);
-      G__SetCatchException(0);
 
       // Initialize tkeyvfs sqlite3 extension for ROOT..
       tkeyvfs_init();

@@ -17,7 +17,8 @@
 #include "art/Persistency/Provenance/ProductProvenance.h"
 #include "art/Utilities/fwd.h"
 #include "cetlib/exempt_ptr.h"
-#include "cpp0x/memory"
+
+#include <memory>
 
 namespace art {
 
@@ -147,7 +148,7 @@ public:
   virtual bool resolveProduct(bool fillOnDemand, TypeID const&) const;
 
   virtual bool resolveProductIfAvailable(bool fillOnDemand,
-                                         TypeID const&) const; 
+                                         TypeID const&) const;
   // Write the group to the stream.
   void write(std::ostream& os) const;
 

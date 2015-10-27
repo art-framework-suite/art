@@ -44,9 +44,8 @@ cet_report_compiler_flags()
 
 # these are minimum required versions, not the actual product versions
 find_ups_product( cppunit v1_12_1a )
-find_ups_product( gccxml v0_9_20140718a )
 find_ups_product( clhep v2_2_0_3 )
-find_ups_product (cetbuildtools v4_14_01)
+find_ups_product (cetbuildtools v4_17_00)
 find_ups_product( cetpkgsupport v1_08_03 )
 find_ups_product( cetlib v1_08_00 )
 find_ups_product( fhiclcpp v3_09_00 )
@@ -66,6 +65,10 @@ cet_find_library( CPPUNIT NAMES cppunit   PATHS ENV CPPUNIT_LIB   NO_DEFAULT_PAT
 # macros for art_dictionary and simple_plugin
 include(ArtDictionary)
 include(BuildPlugins)
+
+if (NOT APPLE)
+  set(RT -lrt)
+endif()
 
 # Plugin skeleton generators for cetskelgen.
 add_subdirectory(perllib)

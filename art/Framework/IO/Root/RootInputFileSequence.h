@@ -12,7 +12,8 @@
 #include "art/Persistency/Provenance/RunID.h"
 #include "art/Persistency/Provenance/SubRunID.h"
 #include "cetlib/exempt_ptr.h"
-#include "cpp0x/memory"
+
+#include <memory>
 #include <string>
 #include <vector>
 

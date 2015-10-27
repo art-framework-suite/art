@@ -13,8 +13,9 @@ EDProducts into an Event.
 #include "art/Framework/Core/get_BranchDescription.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Persistency/Provenance/ProductID.h"
-#include "cpp0x/functional"
-#include "cpp0x/memory"
+
+#include <functional>
+#include <memory>
 #include <string>
 
 namespace art {

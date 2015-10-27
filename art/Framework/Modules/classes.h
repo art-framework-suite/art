@@ -3,9 +3,6 @@
 
 #include <vector>
 
-namespace {
-  struct dictionary {
-    std::vector<art::RNGsnapshot> snap;
-    art::Wrapper<std::vector<art::RNGsnapshot> > snap_w;
-  };
-}
+template class art::Wrapper<std::vector<art::RNGsnapshot>>;
+template class std::vector<art::RNGsnapshot>;
+

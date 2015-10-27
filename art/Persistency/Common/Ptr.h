@@ -47,12 +47,12 @@
 #include "art/Utilities/Exception.h"
 #include "art/Utilities/ensurePointer.h"
 #include "cetlib/demangle.h"
-#include "cpp0x/cstddef"
-#include "cpp0x/type_traits"
 
 #include <cassert>
+#include <cstddef>
 #include <list>
 #include <ostream>
+#include <type_traits>
 #include <vector>
 
 namespace art {

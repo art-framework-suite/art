@@ -12,7 +12,8 @@
 #include "art/Persistency/Common/EDProduct.h"
 #include "art/Utilities/fwd.h"
 #include "cetlib/exempt_ptr.h"
-#include "cpp0x/memory"
+
+#include <memory>
 
 namespace art {
 

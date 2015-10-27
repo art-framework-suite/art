@@ -18,7 +18,7 @@
 #include "art/Persistency/Provenance/BranchType.h"
 #include "art/Persistency/Provenance/ResultsAuxiliary.h"
 #include "cetlib/exempt_ptr.h"
-#include "cpp0x/memory"
+#include <memory>
 #include <vector>
 
 namespace art {

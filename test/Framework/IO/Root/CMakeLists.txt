@@ -1,5 +1,5 @@
-link_libraries (art_Framework_IO_RootVersion)
-cet_test(GetFileFormatVersion SOURCES test_GetFileFormatVersion.cpp)
+cet_test(GetFileFormatVersion SOURCES test_GetFileFormatVersion.cpp
+  LIBRARIES art_Framework_IO_RootVersion)
 
 foreach (mode M S P)
   cet_test(config_dumper_${mode}_t HANDBUILT

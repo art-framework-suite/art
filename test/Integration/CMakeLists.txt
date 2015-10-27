@@ -3,8 +3,6 @@ set(CMAKE_MODULE_PATH
   ${CMAKE_CURRENT_SOURCE_DIR}
   )
 
-include(ReflexTools_t)
-
 # project name
 art_make_library(SOURCE
   ToySource.cc

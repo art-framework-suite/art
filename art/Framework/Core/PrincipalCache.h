@@ -16,9 +16,8 @@ Original Author: W. David Dagenhart
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Persistency/Provenance/SubRunID.h"
 
-#include "cpp0x/memory"
-
 #include <map>
+#include <memory>
 
 namespace art {
 

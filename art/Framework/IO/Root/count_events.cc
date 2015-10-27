@@ -16,7 +16,6 @@
 #include <string>
 #include <vector>
 
-#include "Cintex/Cintex.h"
 #include "TBranch.h"
 #include "TError.h"
 #include "TFile.h"
@@ -40,7 +39,7 @@ namespace {
     std::string msg;
   };
 
-  std::ostream & operator << (ostream & os, pluralize p)
+  std::ostream & operator << (std::ostream & os, pluralize p)
   {
     os << p.msg;
     return os;
@@ -93,7 +92,6 @@ namespace {
 
 int main(int argc, char ** argv) {
   using stringvec = std::vector<std::string>;
-  ROOT::Cintex::Cintex::Enable();
   int result = 1;
   std::ostringstream descstr;
   descstr << argv[0]

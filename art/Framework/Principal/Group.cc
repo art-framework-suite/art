@@ -7,13 +7,12 @@
 #include "art/Persistency/Provenance/BranchKey.h"
 #include "art/Persistency/Provenance/ProductMetaData.h"
 #include "art/Persistency/Provenance/ProductStatus.h"
-#include "art/Persistency/Provenance/ReflexTools.h"
+#include "art/Persistency/Provenance/TypeTools.h"
+#include "cetlib/demangle.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
+#include <iostream>
 #include <string>
-
-using Reflex::Type;
-using Reflex::TypeTemplate;
 
 namespace art {
 
@@ -144,14 +143,35 @@ std::unique_ptr<art::EDProduct>
 Group::
 obtainDesiredProduct(bool fillOnDemand, TypeID const& wanted_wrapper_type) const
 {
+  //std::cout
+  //    << "-----> Begin Group::obtainDesiredProduct(bool, TypeID const&)"
+  //    << std::endl;
+  //std::cout
+  //    << "wt: "
+  //    << cet::demangle_symbol(wanted_wrapper_type.name())
+  //    << std::endl;
+  std::unique_ptr<art::EDProduct> retval;
   // Try unscheduled production.
   if (fillOnDemand && onDemand()) {
     productProducer_->doWork<OccurrenceTraits<EventPrincipal,
       BranchActionBegin>>(*onDemandPrincipal_, 0);
-    return 0;
+    return retval;
   }
   BranchKey const bk(productDescription());
-  return productResolver_->getProduct(bk, wanted_wrapper_type);
+  //std::cout
+  //    << "calling productResolver_->getProduct(bk, "
+  //    << cet::demangle_symbol(wanted_wrapper_type.name())
+  //    << ')'
+  //    << std::endl;
+  retval = productResolver_->getProduct(bk, wanted_wrapper_type);
+  //std::cout
+  //    << "returning: "
+  //    << retval.get()
+  //    << std::endl;
+  //std::cout
+  //    << "-----> End   Group::obtainDesiredProduct(bool, TypeID const&)"
+  //    << std::endl;
+  return retval;
 }
 
 bool

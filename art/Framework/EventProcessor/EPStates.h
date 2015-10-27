@@ -15,12 +15,13 @@
 #include "art/Persistency/Provenance/SubRunID.h"
 #include "boost/statechart/event.hpp"
 #include "boost/statechart/state_machine.hpp"
-#include "cpp0x/utility"
 #include "boost/mpl/list.hpp"
 #include "boost/statechart/custom_reaction.hpp"
 #include "boost/statechart/state.hpp"
 #include "boost/statechart/transition.hpp"
+
 #include <set>
+#include <utility>
 #include <vector>
 
 namespace sc = boost::statechart;

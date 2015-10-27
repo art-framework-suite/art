@@ -22,7 +22,7 @@
 #include "art/Utilities/ScheduleID.h"
 #include "art/Utilities/TypeID.h"
 
-#include "cpp0x/memory"
+#include <memory>
 
 namespace art {
   namespace detail {
