@@ -59,7 +59,7 @@ int test_simple_01_verify() {
   rc = gDirectory->cd("../b");
   if (!rc) return 3;
 
-  h2 == nullptr;
+  h2 = nullptr;
   gDirectory->GetObject("test2", h2);
   if (h2 == nullptr)
     {
@@ -72,7 +72,7 @@ int test_simple_01_verify() {
   rc = gDirectory->cd("../respondToOpenInputFile");
   if (!rc) return 4;
 
-  h3 == nullptr;
+  h3 = nullptr;
   gDirectory->GetObject("test3", h3);
   if (h3 == nullptr)
     {
@@ -118,4 +118,3 @@ int test_simple_01_verify() {
 
   return 0;
 }
-
