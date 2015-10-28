@@ -36,7 +36,7 @@ public:
   static constexpr const char* default_tmpDir = "<filename>/TFileService";
 
   struct Config {
-    fhicl::Atom<bool> closeFileFast   { fhicl::Name("closeFileFast"), false };
+    fhicl::Atom<bool> closeFileFast   { fhicl::Name("closeFileFast"), true };
     fhicl::Atom<std::string> fileName { fhicl::Name("fileName") };
     fhicl::Atom<std::string> tmpDir   { fhicl::Name("tmpDir"), default_tmpDir };
   };
