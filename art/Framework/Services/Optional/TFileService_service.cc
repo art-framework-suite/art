@@ -77,7 +77,10 @@ void
   TFileService::setDirectoryName( ModuleDescription const & desc )
 {
   dir_ = desc.moduleLabel();
-  descr_ = (dir_ + " (" + desc.moduleName() + ") folder").c_str();
+  descr_ = dir_ ;
+  descr_ += " (";
+  descr_ += desc.moduleName();
+  descr_ += ") folder";
 }
 
 // ======================================================================

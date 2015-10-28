@@ -36,7 +36,7 @@ public:
 
   struct Config {
     fhicl::Atom<bool> onDemandProduction           { fhicl::Name("onDemandProduction")      , false };
-    fhicl::Atom<bool> wantProductFullClassName     { fhicl::Name("wantProductFullClassName"), false };
+    fhicl::Atom<bool> wantProductFullClassName     { fhicl::Name("wantProductFullClassName"), true };
     fhicl::Atom<bool> wantProductFriendlyClassName { fhicl::Name("wantProductFriendlyClassName"), wantProductFullClassName() };
     fhicl::Atom<bool> resolveProducts { fhicl::Name("resolveProducts"), true };
     fhicl::Atom<bool> onlyIfPresent   { fhicl::Name("onlyIfPresent"), false };
