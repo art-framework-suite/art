@@ -5,38 +5,40 @@
 // ======================================================================
 
 #include "art/Persistency/Common/RNGsnapshot.h"
-
-#include "art/Utilities/vectorTransform.h"
+#include "cetlib/container_algorithms.h"
 
 using art::RNGsnapshot;
 
 // ======================================================================
 
-// --- C'tor:
-RNGsnapshot::
-RNGsnapshot( )
-  : label_( )
-  , state_( )
-{ }
+namespace {
+
+  template< class From, class To >
+  inline To
+  cast_one( From value )
+  {
+    return static_cast<To>( value );
+  }
+
+}
 
 // --- Save/restore:
 void
-  RNGsnapshot::
-  saveFrom( std::string    const & ekind
-          , label_t        const & lbl
-          , engine_state_t const & est
-          )
+RNGsnapshot::
+saveFrom( std::string    const & ekind,
+          label_t        const & lbl,
+          engine_state_t const & est )
 {
   engine_kind_ = ekind;
   label_ = lbl;
-  vectorTransform<CLHEP_t,saved_t>( est, state_ );
+  cet::transform_all( est, std::back_inserter(state_), cast_one<CLHEP_t,saved_t> );
 }
 
 void
-  RNGsnapshot::
-  restoreTo( engine_state_t & est ) const
+RNGsnapshot::
+restoreTo( engine_state_t & est ) const
 {
-  vectorTransform<saved_t,CLHEP_t>( state_, est );
+  cet::transform_all( state_, std::back_inserter(est), cast_one<saved_t,CLHEP_t> );
 }
 
 // ======================================================================
