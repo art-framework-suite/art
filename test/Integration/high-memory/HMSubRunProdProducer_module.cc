@@ -14,7 +14,6 @@
 #include "art/Framework/Principal/Run.h"
 #include "art/Framework/Principal/SubRun.h"
 #include "art/Utilities/InputTag.h"
-#include "cetlib/make_unique.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "test/Integration/high-memory/HMLargeData.h"
 
@@ -41,11 +40,11 @@ arttest::HMSubRunProdProducer::HMSubRunProdProducer(fhicl::ParameterSet const &)
 
 void arttest::HMSubRunProdProducer::endSubRun(art::SubRun & sr)
 {
-  auto stencil = cet::make_unique<HMLargeData>();
+  auto stencil = std::make_unique<HMLargeData>();
   std::iota(stencil->data(), stencil->data() + stencil->size(), 0);
 
   for (unsigned short i = 0; i < N_BLOCKS; ++i) {
-    auto prod = cet::make_unique<HMLargeData>(*stencil);
+    auto prod = std::make_unique<HMLargeData>(*stencil);
     sr.put(std::move(prod), std::string("block") + std::to_string(i));
   }
 }
