@@ -1,37 +1,3 @@
-// Change Log
-//
-// 1 - M Fischler 2/8/08 Enable partial wildcards, as in HLT* or !CAL*
-//                       A version of this code with cerr debugging traces has
-//                       been placed in the doc area.
-//                       See ../doc/EventSelector-behavior.doc for details of
-//                       reactions to Ready or Exception states.
-// 1a M Fischler 2/13/08 Clear the all_must_fail_ array at the start of init.
-//                       This is needed in the case of paths with wildcards,
-//                       on explicit processes other than a current process
-//                       (in which case init() is called whenever the trigger
-//                       PSetID changes, and we don't want the old array
-//                       contents to stick around.
-//
-// 2 - M Fischler 2/21/08 (In preparation for "exception-awareness" features):
-//                       Factored out the decision making logic from the
-//                       two forms of acceptEvent, into the single routine
-//                       selectionDecision().
-//
-// 3 - M Fischler 2/25/08 (Toward commit of "exception-awareness" features):
-//                       @exception and noexception& features
-//
-// 4- M Fischler 2/28/08 Repair ommision in selectionIsValid when pathspecs
-//                      is just "!*"
-//
-// 5- M Fischler 3/3/08 testSelectionOverlap and maskTriggerResults appropriate
-//                      for the new forms of pathspecs
-//
-// 6 - K Biery 03/24/08 modified maskTriggerResults (no longer static) to
-//                      avoid performance penalty of creating a new
-//                      EventSelector instance for each call (in static case)
-//
-
-
 #include "art/Framework/Core/EventSelector.h"
 
 #include "art/Framework/Services/Registry/ServiceHandle.h"
@@ -533,37 +499,11 @@ namespace art {
   }  // maskTriggerResults
 
 
-  /**
-   * Returns the list of strings that correspond to the trigger
-   * selection request in the specified parameter set (the list
-   * of strings contained in the "SelectEvents" parameter).
-   *
-   * @param pset The ParameterSet that contains the trigger selection.
-   * @return the trigger selection list (vector of string).
-   */
-  vector<string>
+  inline vector<string>
   EventSelector::getEventSelectionVString(fhicl::ParameterSet const& pset)
   {
-    // default the selection to everything (wildcard)
-    Strings selection;
-    selection.push_back("*");
-    selection.push_back("!*");
-    selection.push_back("exception@*");
-
-    // the SelectEvents parameter is a ParameterSet within
-    // a ParameterSet, so we have to pull it out twice
-    fhicl::ParameterSet selectEventsParamSet =
-      pset.get<fhicl::ParameterSet>("SelectEvents", fhicl::ParameterSet());
-    if (!selectEventsParamSet.is_empty()) {
-      Strings path_specs =
-        selectEventsParamSet.get<vector<string> >("SelectEvents");
-      if (!path_specs.empty()) {
-        selection = path_specs;
-      }
-    }
-
-    // return the result
-    return selection;
+    Strings const& default_selection { "*", "!*", "exception@*"};
+    return pset.get<Strings>("SelectEvents.SelectEvents", default_selection );
   }
 
   bool EventSelector::containsExceptions(HLTGlobalStatus const& tr) const
