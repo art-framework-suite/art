@@ -33,7 +33,7 @@ class art::TFileService
 
 public:
 
-  static constexpr const char* default_tmpDir = "<filename>/TFileService";
+  static constexpr const char* default_tmpDir = "<parent-path-of-filename>";
 
   struct Config {
     fhicl::Atom<bool> closeFileFast   { fhicl::Name("closeFileFast"), true };
