@@ -49,9 +49,10 @@ namespace art {
     bool acceptEvent(unsigned char const*, int) const;
 
     std::shared_ptr<TriggerResults>
-      maskTriggerResults(TriggerResults const& inputResults);
+    maskTriggerResults(TriggerResults const& inputResults);
+
     static std::vector<std::string>
-      getEventSelectionVString(fhicl::ParameterSet const& pset);
+    getEventSelectionVString(fhicl::ParameterSet const& pset);
 
   private:
 
