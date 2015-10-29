@@ -14,7 +14,6 @@
 #include "art/Framework/Principal/Run.h"
 #include "art/Framework/Principal/SubRun.h"
 #include "art/Utilities/InputTag.h"
-#include "cetlib/make_unique.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "test/Integration/high-memory/HMLargeData.h"
 
@@ -57,7 +56,7 @@ void arttest::HMRunProdProducer::endSubRun(art::SubRun & sr)
     if (data_[i]) {
       *data_[i] += *h;
     } else {
-      data_[i] = cet::make_unique<HMLargeData>(*h);
+      data_[i] = std::make_unique<HMLargeData>(*h);
     }
     assert(sr.removeCachedProduct(h)); // Save the space.
   }
