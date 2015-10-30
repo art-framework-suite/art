@@ -147,7 +147,7 @@ doProcessOptions(bpo::variables_map const & vm,
     dbg_.set_mode( print_mode::annotated );
   }
   if (vm.count("prefix-annotate")){
-    dbg_.set_mode( print_mode::parsable );
+    dbg_.set_mode( print_mode::prefix_annotated );
   }
   if (vm.count("trace")) {
     raw_config.put("services.scheduler.wantTracer", true);
