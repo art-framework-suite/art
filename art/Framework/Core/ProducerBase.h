@@ -13,6 +13,9 @@ EDProducts into an Event.
 #include "art/Framework/Core/get_BranchDescription.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Persistency/Provenance/ProductID.h"
+#include "fhiclcpp/types/Atom.h"
+#include "fhiclcpp/types/Table.h"
+#include "fhiclcpp/types/TableFragment.h"
 
 #include <functional>
 #include <memory>
@@ -36,6 +39,40 @@ namespace art {
     ProductID getProductID(TRANS const &translator,
                            ModuleDescription const &moduleDescription,
                            std::string const& instanceName) const;
+
+    // Configuration
+    template <typename T>
+    struct FullConfig {
+      fhicl::Atom<std::string>  module_type { fhicl::Name("module_type") };
+      fhicl::Atom<bool> errorOnFailureToPut { fhicl::Name("errorOnFailureToPut"), true };
+      fhicl::TableFragment<T> user;
+    };
+
+    template < typename UserConfig >
+    class Table {
+    public:
+
+      Table() = default;
+
+      Table(fhicl::ParameterSet const& pset) : Table()
+      {
+        std::set<std::string> const keys_to_ignore = { "module_label" };
+        fullConfig_.validate_ParameterSet( pset, keys_to_ignore );
+        fullConfig_.set_PSet( pset );
+      }
+
+      auto const& operator()() const { return fullConfig_().user(); }
+
+      fhicl::ParameterSet const & get_PSet() const { return fullConfig_.get_PSet(); }
+
+      void print_allowed_configuration (std::ostream& os, std::string const& prefix) const {
+        fullConfig_.print_allowed_configuration(os, prefix);
+      }
+
+    private:
+      fhicl::Table<FullConfig<UserConfig>> fullConfig_;
+    };
+
   };
 
   template <typename PROD, BranchType B, typename TRANS>
