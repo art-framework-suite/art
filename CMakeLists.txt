@@ -45,7 +45,7 @@ cet_report_compiler_flags()
 # these are minimum required versions, not the actual product versions
 find_ups_product( cppunit v1_12_1a )
 find_ups_product( clhep v2_2_0_3 )
-find_ups_product (cetbuildtools v4_17_00)
+find_ups_product (cetbuildtools v4_17_01)
 find_ups_product( cetpkgsupport v1_08_03 )
 find_ups_product( cetlib v1_08_00 )
 find_ups_product( fhiclcpp v3_09_00 )

@@ -48,16 +48,16 @@ MACRO(check_class_version)
   IF(ART_CCV_ENABLED)
     _check_prereqs(HAVE_BD_ALLDICTS)
     # Add the check to the end of the dictionary building step.
-    add_custom_command(OUTPUT ${dictname}_checked
+    add_custom_command(OUTPUT ${dictname}_dict_checked
       COMMAND checkClassVersion ${ART_CCV_EXTRA_ARGS}
       -l ${LIBRARY_OUTPUT_PATH}/lib${dictname}_dict
       -x ${CMAKE_CURRENT_SOURCE_DIR}/classes_def.xml
-      -t ${dictname}_checked
+      -t ${dictname}_dict_checked
       COMMENT "Checking class versions for ROOT dictionary ${dictname}"
-      DEPENDS ${LIBRARY_OUTPUT_PATH}/lib${dictname}_dict.so
+      DEPENDS ${LIBRARY_OUTPUT_PATH}/${CMAKE_SHARED_LIBRARY_PREFIX}${dictname}_dict${CMAKE_SHARED_LIBRARY_SUFFIX}
       )
     add_custom_target(checkClassVersion_${dictname} ALL
-      DEPENDS ${dictname}_checked)
+      DEPENDS ${dictname}_dict_checked)
     IF (HAVE_BD_ALLDICTS)
       # All checkClassVersion invocations must wait until after *all*
       # dictionaries have been built.
