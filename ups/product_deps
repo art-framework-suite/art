@@ -11,7 +11,7 @@ clhep		v2_2_0_8
 cppunit		v1_12_1c
 python		v2_7_10
 root		v6_04_06
-messagefacility	v1_16_08
+messagefacility	v1_16_09
 tbb		v4_4_0
 cetbuildtools	v4_17_00	-	only_for_build
 end_product_list
