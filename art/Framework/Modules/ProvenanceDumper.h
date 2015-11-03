@@ -122,11 +122,13 @@
 //
 ////////////////////////////////////////////////////////////////////////
 #include "art/Framework/Core/OutputModule.h"
+#include "art/Framework/Modules/detail/ProvenanceDumperImpl.h"
 #include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Principal/Group.h"
 #include "art/Framework/Principal/Provenance.h"
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
+#include "art/Utilities/ConfigTable.h"
 #include "art/Utilities/Exception.h"
 #include "art/Utilities/detail/metaprogramming.h"
 #include "cetlib/exempt_ptr.h"
@@ -137,11 +139,21 @@
 #include <algorithm>
 
 namespace art {
-  template <typename DETAIL> class ProvenanceDumper;
+  template <typename DETAIL, typename Enable = void> class ProvenanceDumper;
 
+  template <typename DETAIL, typename Enable = void>
   struct ProvenanceDumperConfig {
+    fhicl::TableFragment<art::OutputModule::Config> omConfig;
     fhicl::Atom<bool> wantPresentOnly { fhicl::Name("wantPresentOnly"), true };
     fhicl::Atom<bool> resolveProducts { fhicl::Name("resolveProducts"), true };
+  };
+
+  template <typename DETAIL>
+  struct ProvenanceDumperConfig<DETAIL, typename detail::enable_if_type<typename DETAIL::Config>::type> {
+    fhicl::TableFragment<art::OutputModule::Config> omConfig;
+    fhicl::Atom<bool> wantPresentOnly { fhicl::Name("wantPresentOnly"), true };
+    fhicl::Atom<bool> resolveProducts { fhicl::Name("resolveProducts"), true };
+    fhicl::TableFragment<typename DETAIL::Config> user;
   };
 
   namespace detail {
@@ -150,372 +162,78 @@ namespace art {
   }
 }
 
-template <typename DETAIL>
+template <typename DETAIL, typename Enable>
 class art::ProvenanceDumper : public OutputModule {
 public:
 
-  using Parameters = art::OutputModule::Table<typename DETAIL::Config>;
-  explicit ProvenanceDumper(fhicl::ParameterSet const & ps);
-  virtual ~ProvenanceDumper();
+  explicit ProvenanceDumper(fhicl::ParameterSet const & ps)
+    :
+    OutputModule{ps},
+    detail_{ps},
+    wantPresentOnly_{ps.get<bool>("wantPresentOnly", true)},
+    resolveProducts_{ps.get<bool>("resolveProducts", true)},
+    pp_{detail_, wantPresentOnly_, resolveProducts_},
+    impl_{detail_, pp_}
+  {}
+
+  virtual ~ProvenanceDumper() = default;
 
 private:
-  virtual void beginJob();
-  void write(EventPrincipal & e) override;
-  void writeRun(RunPrincipal & r) override;
-  void writeSubRun(SubRunPrincipal & sr) override;
-  void endJob() override;
+
+  virtual void beginJob() { impl_.beginJob(); }
+  void endJob()  override { impl_.endJob(); }
+
+  void write      (EventPrincipal  & e ) override { impl_.write(e); }
+  void writeSubRun(SubRunPrincipal & sr) override { impl_.writeSubRun(sr); }
+  void writeRun   (RunPrincipal    & r ) override { impl_.writeRun(r); }
 
   DETAIL detail_;
   bool wantPresentOnly_;
   bool resolveProducts_;
   detail::PrincipalProcessor<DETAIL> pp_;
+  detail::ProvenanceDumperImpl<DETAIL> impl_;
 
 };
 
 
-
-template <typename DETAIL>
-inline
-art::ProvenanceDumper<DETAIL>::
-ProvenanceDumper(fhicl::ParameterSet const & ps)
-  :
-  OutputModule(art::OutputModule::Table<typename DETAIL::Config>(ps)),
-  detail_(ps),
-  wantPresentOnly_(ps.get<bool>("wantPresentOnly", true)),
-  resolveProducts_(ps.get<bool>("resolveProducts", true)),
-  pp_(detail_, wantPresentOnly_, resolveProducts_)
-{
-}
-
-template <typename DETAIL>
-art::ProvenanceDumper<DETAIL>::
-~ProvenanceDumper()
-{
-}
-
 namespace art {
-  namespace detail {
-    template <typename DETAIL>
-    class PrincipalProcessor {
-    public:
-      PrincipalProcessor(DETAIL & detail,
-                         bool wantPresentOnly,
-                         bool resolveProducts)
-        :
-        detail_(detail),
-        wantPresentOnly_(wantPresentOnly),
-        resolveProducts_(resolveProducts)
-      { }
-      template <typename PRINCIPAL>
-      void
-      operator()(PRINCIPAL const & p,
-                 void (DETAIL:: *func)(art::Provenance const &)) const;
-    private:
-      DETAIL & detail_;
-      bool wantPresentOnly_;
-      bool resolveProducts_;
-    };
-  }
-}
 
-// The function that does all the work: everything else is fluff.
-template <typename DETAIL>
-template <typename PRINCIPAL>
-void
-art::detail::PrincipalProcessor<DETAIL>::
-operator()(PRINCIPAL const & p,
-           void (DETAIL:: *func)(art::Provenance const &)) const
-{
-  if (!p.size()) { return; } // Nothing to do.
-  for (typename PRINCIPAL::const_iterator
-       it  = p.begin(),
-       end = p.end();
-       it != end;
-       ++it) {
-    Group const & g = *(it->second);
-    if (wantPresentOnly_ && resolveProducts_) {
-      try {
-        if (!g.resolveProduct(false, g.producedWrapperType()))
-        { throw Exception(errors::DataCorruption, "data corruption"); }
-      }
-      catch (art::Exception const & e) {
-        if (e.category() != "ProductNotFound")
-        { throw; }
-        if (g.anyProduct())
-          throw art::Exception(errors::LogicError, "ProvenanceDumper", e)
-              << "Product reported as not present, but is pointed to nonetheless!";
-      }
-    }
-    if ((!wantPresentOnly_) || g.anyProduct()) {
-      (detail_.*func)(Provenance(cet::exempt_ptr<Group const>(&g)));
-    }
-  }
-}
+  template <typename DETAIL>
+  class ProvenanceDumper<DETAIL, typename art::detail::enable_if_type<typename DETAIL::Config>::type> :
+    public OutputModule {
+  public:
 
-namespace art {
-  namespace detail {
-    ////////////////////////////////////////////////////////////////////////
-    // Metaprogramming to deal with optional pre/post and begin/end job functions.
-    template <typename DETAIL, void (DETAIL:: *)()> struct detail_void_function;
+    using Parameters = art::ConfigTable<ProvenanceDumperConfig<DETAIL>,
+                                        art::OutputModule::Config::KeysToIgnore>;
 
-    template <typename DETAIL>
-    struct do_not_call_detail_void_function {
-      do_not_call_detail_void_function(DETAIL &) { }
-    };
+    explicit ProvenanceDumper(Parameters const & ps)
+      :
+      OutputModule{ps().omConfig, ps.get_PSet()},
+      detail_{ps().user},
+      wantPresentOnly_{ps().wantPresentOnly()},
+      resolveProducts_{ps().resolveProducts()},
+      pp_{detail_, wantPresentOnly_, resolveProducts_},
+      impl_{detail_, pp_}
+    {}
 
-    // void DETAIL::beginJob();
-    template <typename DETAIL> no_tag has_detail_beginJob_function_helper(...);
-    template <typename DETAIL> yes_tag
-    has_detail_beginJob_function_helper(detail_void_function<DETAIL, &DETAIL::beginJob> *);
-    template <typename DETAIL> struct has_detail_beginJob_function {
-      static bool const value =
-        sizeof(has_detail_beginJob_function_helper<DETAIL>(0)) == sizeof(yes_tag);
-    };
-    template <typename DETAIL>
-    struct call_detail_beginJob_function {
-      call_detail_beginJob_function(DETAIL & detail) { detail.beginJob(); }
-    };
-    // void DETAIL::preProcessEvent();
-    template <typename DETAIL> no_tag has_detail_preEvent_function_helper(...);
-    template <typename DETAIL> yes_tag
-    has_detail_preEvent_function_helper(detail_void_function<DETAIL, &DETAIL::preProcessEvent> *);
-    template <typename DETAIL> struct has_detail_preEvent_function {
-      static bool const value =
-        sizeof(has_detail_preEvent_function_helper<DETAIL>(0)) == sizeof(yes_tag);
-    };
-    template <typename DETAIL>
-    struct call_detail_preEvent_function {
-      call_detail_preEvent_function(DETAIL & detail) { detail.preProcessEvent(); }
-    };
-    // void DETAIL::postProcessEvent();
-    template <typename DETAIL> no_tag has_detail_postEvent_function_helper(...);
-    template <typename DETAIL> yes_tag
-    has_detail_postEvent_function_helper(detail_void_function<DETAIL, &DETAIL::postProcessEvent> *);
-    template <typename DETAIL> struct has_detail_postEvent_function {
-      static bool const value =
-        sizeof(has_detail_postEvent_function_helper<DETAIL>(0)) == sizeof(yes_tag);
-    };
-    template <typename DETAIL>
-    struct call_detail_postEvent_function {
-      call_detail_postEvent_function(DETAIL & detail) { detail.postProcessEvent(); }
-    };
-    // void DETAIL::preProcessSubRun();
-    template <typename DETAIL> no_tag has_detail_preSubRun_function_helper(...);
-    template <typename DETAIL> yes_tag
-    has_detail_preSubRun_function_helper(detail_void_function<DETAIL, &DETAIL::preProcessSubRun> *);
-    template <typename DETAIL> struct has_detail_preSubRun_function {
-      static bool const value =
-        sizeof(has_detail_preSubRun_function_helper<DETAIL>(0)) == sizeof(yes_tag);
-    };
-    template <typename DETAIL>
-    struct call_detail_preSubRun_function {
-      call_detail_preSubRun_function(DETAIL & detail) { detail.preProcessSubRun(); }
-    };
-    // void DETAIL::postProcessSubRun();
-    template <typename DETAIL> no_tag has_detail_postSubRun_function_helper(...);
-    template <typename DETAIL> yes_tag
-    has_detail_postSubRun_function_helper(detail_void_function<DETAIL, &DETAIL::postProcessSubRun> *);
-    template <typename DETAIL> struct has_detail_postSubRun_function {
-      static bool const value =
-        sizeof(has_detail_postSubRun_function_helper<DETAIL>(0)) == sizeof(yes_tag);
-    };
-    template <typename DETAIL>
-    struct call_detail_postSubRun_function {
-      call_detail_postSubRun_function(DETAIL & detail) { detail.postProcessSubRun(); }
-    };
-    // void DETAIL::preProcessRun();
-    template <typename DETAIL> no_tag has_detail_preRun_function_helper(...);
-    template <typename DETAIL> yes_tag
-    has_detail_preRun_function_helper(detail_void_function<DETAIL, &DETAIL::preProcessRun> *);
-    template <typename DETAIL> struct has_detail_preRun_function {
-      static bool const value =
-        sizeof(has_detail_preRun_function_helper<DETAIL>(0)) == sizeof(yes_tag);
-    };
-    template <typename DETAIL>
-    struct call_detail_preRun_function {
-      call_detail_preRun_function(DETAIL & detail) { detail.preProcessRun(); }
-    };
-    // void DETAIL::postProcessRun();
-    template <typename DETAIL> no_tag has_detail_postRun_function_helper(...);
-    template <typename DETAIL> yes_tag
-    has_detail_postRun_function_helper(detail_void_function<DETAIL, &DETAIL::postProcessRun> *);
-    template <typename DETAIL> struct has_detail_postRun_function {
-      static bool const value =
-        sizeof(has_detail_postRun_function_helper<DETAIL>(0)) == sizeof(yes_tag);
-    };
-    template <typename DETAIL>
-    struct call_detail_postRun_function {
-      call_detail_postRun_function(DETAIL & detail) { detail.postProcessRun(); }
-    };
-    // void DETAIL::endJob();
-    template <typename DETAIL> no_tag has_detail_endJob_function_helper(...);
-    template <typename DETAIL> yes_tag
-    has_detail_endJob_function_helper(detail_void_function<DETAIL, &DETAIL::endJob> *);
-    template <typename DETAIL> struct has_detail_endJob_function {
-      static bool const value =
-        sizeof(has_detail_endJob_function_helper<DETAIL>(0)) == sizeof(yes_tag);
-    };
-    template <typename DETAIL>
-    struct call_detail_endJob_function {
-      call_detail_endJob_function(DETAIL & detail) { detail.endJob(); }
-    };
-    ////////////////////////////////////////////////////////////////////////
+    virtual ~ProvenanceDumper() = default;
 
-    ////////////////////////////////////////////////////////////////////////
-    // Metaprogramming to deal with optional per-provenance functions.
-    template <typename DETAIL, void (DETAIL:: *)(Provenance const &)> struct detail_provenance_function;
+  private:
 
-    template <typename DETAIL>
-    struct do_not_call_detail_provenance_function {
-      do_not_call_detail_provenance_function(PrincipalProcessor<DETAIL> const &) { }
-      template <typename PRINCIPAL>
-      void
-      operator()(PRINCIPAL const &) { }
-    };
+    virtual void beginJob() { impl_.beginJob(); }
+    void endJob()  override { impl_.endJob(); }
 
-    // void DETAIL::processEventProvenance(art:Provenance const &);
-    template <typename DETAIL> no_tag has_detail_event_function_helper(...);
-    template <typename DETAIL> yes_tag
-    has_detail_event_function_helper(detail_provenance_function<DETAIL, &DETAIL::processEventProvenance> *);
-    template <typename DETAIL> struct has_detail_event_function {
-      static bool const value =
-        sizeof(has_detail_event_function_helper<DETAIL>(0)) == sizeof(yes_tag);
-    };
-    template <typename DETAIL>
-    class call_detail_event_function {
-    public:
-      call_detail_event_function(PrincipalProcessor<DETAIL> const & pp)
-        :
-        pp_(pp)
-      { }
-      template <typename PRINCIPAL>
-      void
-      operator()(PRINCIPAL const & p) {
-        pp_(p, &DETAIL::processEventProvenance);
-      }
-    private:
-      PrincipalProcessor<DETAIL> const & pp_;
-    };
-    // void DETAIL::processSubRunProvenance(art:Provenance const &);
-    template <typename DETAIL> no_tag has_detail_subRun_function_helper(...);
-    template <typename DETAIL> yes_tag
-    has_detail_subRun_function_helper(detail_provenance_function<DETAIL, &DETAIL::processSubRunProvenance> *);
-    template <typename DETAIL> struct has_detail_subRun_function {
-      static bool const value =
-        sizeof(has_detail_subRun_function_helper<DETAIL>(0)) == sizeof(yes_tag);
-    };
-    template <typename DETAIL>
-    class call_detail_subRun_function {
-    public:
-      call_detail_subRun_function(PrincipalProcessor<DETAIL> const & pp)
-        :
-        pp_(pp)
-      { }
-      template <typename PRINCIPAL>
-      void
-      operator()(PRINCIPAL const & p) {
-        pp_(p, &DETAIL::processSubRunProvenance);
-      }
-    private:
-      PrincipalProcessor<DETAIL> const & pp_;
+    void write      (EventPrincipal  & e ) override { impl_.write(e); }
+    void writeSubRun(SubRunPrincipal & sr) override { impl_.writeSubRun(sr); }
+    void writeRun   (RunPrincipal    & r ) override { impl_.writeRun(r); }
 
-    };
-    // void DETAIL::processRunProvenance(art:Provenance const &);
-    template <typename DETAIL> no_tag has_detail_run_function_helper(...);
-    template <typename DETAIL> yes_tag
-    has_detail_run_function_helper(detail_provenance_function<DETAIL, &DETAIL::processRunProvenance> *);
-    template <typename DETAIL> struct has_detail_run_function {
-      static bool const value =
-        sizeof(has_detail_run_function_helper<DETAIL>(0)) == sizeof(yes_tag);
-    };
-    template <typename DETAIL>
-    class call_detail_run_function {
-    public:
-      call_detail_run_function(PrincipalProcessor<DETAIL> const & pp)
-        :
-        pp_(pp)
-      { }
-      template <typename PRINCIPAL>
-      void
-      operator()(PRINCIPAL const & p) {
-        pp_(p, &DETAIL::processRunProvenance);
-      }
-    private:
-      PrincipalProcessor<DETAIL> const & pp_;
-    };
-    ////////////////////////////////////////////////////////////////////////
-  }
-}
+    DETAIL detail_;
+    bool wantPresentOnly_;
+    bool resolveProducts_;
+    detail::PrincipalProcessor<DETAIL> pp_;
+    detail::ProvenanceDumperImpl<DETAIL> impl_;
 
-template <typename DETAIL>
-void
-art::ProvenanceDumper<DETAIL>::
-beginJob()
-{
-  typename std::conditional < detail::has_detail_beginJob_function<DETAIL>::value,
-           detail::call_detail_beginJob_function<DETAIL>,
-           detail::do_not_call_detail_void_function<DETAIL> >::type maybe_callBeginJob(detail_);
-}
-
-template <typename DETAIL>
-void
-art::ProvenanceDumper<DETAIL>::
-write(EventPrincipal & e)
-{
-  typename std::conditional < detail::has_detail_preEvent_function<DETAIL>::value,
-           detail::call_detail_preEvent_function<DETAIL>,
-           detail::do_not_call_detail_void_function<DETAIL> >::type maybe_callPre(detail_);
-  typename std::conditional < detail::has_detail_event_function<DETAIL>::value,
-           detail::call_detail_event_function<DETAIL>,
-           detail::do_not_call_detail_provenance_function<DETAIL> >::type maybe_processPrincipal(pp_);
-  maybe_processPrincipal(e);
-  typename std::conditional < detail::has_detail_postEvent_function<DETAIL>::value,
-           detail::call_detail_postEvent_function<DETAIL>,
-           detail::do_not_call_detail_void_function<DETAIL> >::type maybe_callPost(detail_);
-}
-
-template <typename DETAIL>
-void
-art::ProvenanceDumper<DETAIL>::
-writeSubRun(SubRunPrincipal & sr)
-{
-  typename std::conditional < detail::has_detail_preSubRun_function<DETAIL>::value,
-           detail::call_detail_preSubRun_function<DETAIL>,
-           detail::do_not_call_detail_void_function<DETAIL> >::type maybe_callPre(detail_);
-  typename std::conditional < detail::has_detail_subRun_function<DETAIL>::value,
-           detail::call_detail_subRun_function<DETAIL>,
-           detail::do_not_call_detail_provenance_function<DETAIL> >::type maybe_processPrincipal(pp_);
-  maybe_processPrincipal(sr);
-  typename std::conditional < detail::has_detail_postSubRun_function<DETAIL>::value,
-           detail::call_detail_postSubRun_function<DETAIL>,
-           detail::do_not_call_detail_void_function<DETAIL> >::type maybe_callPost(detail_);
-}
-
-template <typename DETAIL>
-void
-art::ProvenanceDumper<DETAIL>::
-writeRun(RunPrincipal & r)
-{
-  typename std::conditional < detail::has_detail_preRun_function<DETAIL>::value,
-           detail::call_detail_preRun_function<DETAIL>,
-           detail::do_not_call_detail_void_function<DETAIL> >::type maybe_callPre(detail_);
-  typename std::conditional < detail::has_detail_run_function<DETAIL>::value,
-           detail::call_detail_run_function<DETAIL>,
-           detail::do_not_call_detail_provenance_function<DETAIL> >::type maybe_processPrincipal(pp_);
-  maybe_processPrincipal(r);
-  typename std::conditional < detail::has_detail_postRun_function<DETAIL>::value,
-           detail::call_detail_postRun_function<DETAIL>,
-           detail::do_not_call_detail_void_function<DETAIL> >::type maybe_callPost(detail_);
-}
-
-template <typename DETAIL>
-void
-art::ProvenanceDumper<DETAIL>::
-endJob()
-{
-  typename std::conditional < detail::has_detail_endJob_function<DETAIL>::value,
-           detail::call_detail_endJob_function<DETAIL>,
-           detail::do_not_call_detail_void_function<DETAIL> >::type maybe_callEndJob(detail_);
+  };
 }
 
 #endif /* art_Framework_Modules_ProvenanceDumper_h */

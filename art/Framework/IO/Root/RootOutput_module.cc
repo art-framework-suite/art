@@ -18,6 +18,7 @@
 #include "art/Framework/Principal/SubRun.h"
 #include "art/Persistency/Provenance/FileFormatVersion.h"
 #include "art/Persistency/Provenance/ProductMetaData.h"
+#include "art/Utilities/ConfigTable.h"
 #include "art/Utilities/Exception.h"
 #include "art/Utilities/parent_path.h"
 #include "art/Utilities/unique_filename.h"
@@ -46,10 +47,11 @@ public: // MEMBER FUNCTIONS
   static constexpr const char* default_tmpDir = "<some-tmp-dir>";
 
   struct Config {
+
+    fhicl::TableFragment<art::OutputModule::Config> omConfig;
     fhicl::Atom<std::string> catalog { fhicl::Name("catalog"), "" };
     fhicl::Atom<bool> dropAllEvents  { fhicl::Name("dropAllEvents"), false };
     fhicl::Atom<bool> dropAllSubRuns { fhicl::Name("dropAllSubRuns"), false };
-    fhicl::Atom<std::string> fileName { fhicl::Name("fileName") };
     fhicl::Atom<std::string> tmpDir { fhicl::Name("tmpDir"), default_tmpDir };
     fhicl::Atom<int> maxSize { fhicl::Name("maxSize"), 0x7f000000 };
     fhicl::Atom<int> compressionLevel { fhicl::Name("compressionLevel"), 7 };
@@ -60,9 +62,33 @@ public: // MEMBER FUNCTIONS
     fhicl::Atom<bool> dropMetaDataForDroppedData { fhicl::Name("dropMetaDataForDroppedData"), false };
     fhicl::Atom<std::string> dropMetaData { fhicl::Name("dropMetaData"), "" };
     fhicl::Atom<bool> writeParameterSets {fhicl::Name("writeParameterSets"), true };
+
+    Config()
+    {
+      // Both RootOutput module and OutputModule use the "fileName"
+      // FHiCL parameter.  However, whereas in OutputModule the
+      // parameter has a default, for RootOutput the parameter should
+      // not.  We therefore have to change the default flag setting
+      // for 'OutputModule::Config::fileName'.
+
+      using namespace fhicl::detail;
+      ParameterBase* adjustFilename = const_cast<fhicl::Atom<std::string>*>(&omConfig().fileName);
+      adjustFilename->set_default_flag(false);
+    }
+
+    struct KeysToIgnore {
+      std::set<std::string> operator()()
+      {
+        std::set<std::string> result { art::OutputModule::Config::KeysToIgnore::get() };
+        result.insert({"fastCloning", "results"});
+        return result;
+      }
+    };
+
   };
 
-  using Parameters = OutputModule::Table<Config>;
+  using Parameters = art::ConfigTable<Config,Config::KeysToIgnore>;
+
   explicit RootOutput(Parameters const&);
 
   void postSelectProducts(FileBlock const&) override;
@@ -149,7 +175,7 @@ private:
 
 art::RootOutput::
 RootOutput(Parameters const & config)
-  : OutputModule(config)
+  : OutputModule{config().omConfig, config.get_PSet()}
   , catalog_(config().catalog())
   , dropAllEvents_(false)
   , dropAllSubRuns_(config().dropAllSubRuns())
@@ -157,14 +183,7 @@ RootOutput(Parameters const & config)
   , inputFileCount_(0)
   , rootOutputFile_()
   , fstats_(moduleLabel_, processName())
-    // For the next data member, qualifying 'fileName' is a necessity
-    // because the full configuration for RootOutput looks like:
-    //
-    //   struct Config : OutputModuleConfig, RootOutputConfig {};
-    //
-    // Both OutputModuleConfig and RootOutputConfig include 'fileName'
-    // members, creating a lookup ambiguity.
-  , filePattern_(config().RootOutput::Config::fileName() )
+  , filePattern_(config().omConfig().fileName() )
   , tmpDir_( config().tmpDir() == default_tmpDir ?
              parent_path(filePattern_) :
              config().tmpDir() )
@@ -199,7 +218,7 @@ RootOutput(Parameters const & config)
   }
 
   bool const dropAllEventsSet = config.get_PSet().get_if_present<bool>("dropAllEvents",
-                                                        dropAllEvents_);
+                                                                                    dropAllEvents_);
   if (dropAllSubRuns_) {
     if (dropAllEventsSet && !dropAllEvents_) {
       string const errmsg =

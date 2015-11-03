@@ -10,5 +10,7 @@ simple_plugin(RandomNumberSaver       "module")
 
 art_dictionary(DICTIONARY_LIBRARIES art_Persistency_Common)
 
+add_subdirectory(detail)
+
 install_headers()
 install_source()

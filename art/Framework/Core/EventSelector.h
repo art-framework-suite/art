@@ -52,9 +52,6 @@ namespace art {
     std::shared_ptr<TriggerResults>
     maskTriggerResults(TriggerResults const& inputResults);
 
-    static std::vector<std::string>
-    getEventSelectionVString(fhicl::ParameterSet const& pset);
-
   private:
 
     void init(Strings const& paths,
@@ -69,23 +66,23 @@ namespace art {
       bool accept_state_;
     };
 
-    typedef std::vector<BitInfo> Bits;
+    using Bits = std::vector<BitInfo>;
 
-    bool accept_all_;
-    Bits absolute_acceptors_;
-    Bits conditional_acceptors_;
-    Bits exception_acceptors_;
-    std::vector<Bits> all_must_fail_;
-    std::vector<Bits> all_must_fail_noex_;
+    bool accept_all_ {false};
+    Bits absolute_acceptors_ {};
+    Bits conditional_acceptors_ {};
+    Bits exception_acceptors_ {};
+    std::vector<Bits> all_must_fail_ {};
+    std::vector<Bits> all_must_fail_noex_ {};
 
-    bool results_from_current_process_;
-    bool psetID_initialized_;
-    fhicl::ParameterSetID psetID_;
+    bool results_from_current_process_ {true};
+    bool psetID_initialized_ {false};
+    fhicl::ParameterSetID psetID_ {};
 
-    Strings paths_;
+    Strings paths_ {};
 
-    int nTriggerNames_;
-    bool notStarPresent_;
+    int nTriggerNames_ {0};
+    bool notStarPresent_ {false};
 
     bool acceptTriggerPath(HLTPathStatus const&, BitInfo const&) const;
 
@@ -100,7 +97,7 @@ namespace art {
     bool selectionDecision(HLTGlobalStatus const & tr) const;
 
     static std::vector< Strings::const_iterator >
-      matching_triggers(Strings const& trigs, std::string const& s);
+    matching_triggers(Strings const& trigs, std::string const& s);
 
     static bool identical (std::vector<bool> const & a,
                            std::vector<bool> const & b);

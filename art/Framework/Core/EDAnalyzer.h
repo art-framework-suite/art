@@ -31,8 +31,9 @@ namespace art
   {
   public:
     template <typename T> friend class WorkerT;
-    typedef EDAnalyzer ModuleType;
-    typedef WorkerT<EDAnalyzer> WorkerType;
+
+    using WorkerType = WorkerT<EDAnalyzer>;
+    using ModuleType = EDAnalyzer;
 
     // Configuration
     struct baseConfig {
@@ -59,7 +60,6 @@ namespace art
       {
         std::set<std::string> const keys_to_ignore = { "module_label" };
         this->validate_ParameterSet( pset, keys_to_ignore );
-        this->set_PSet( pset );
       }
 
     };
