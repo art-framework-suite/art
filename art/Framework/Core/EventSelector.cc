@@ -18,53 +18,19 @@ using namespace std;
 namespace art {
 
   EventSelector::EventSelector(Strings const& pathspecs,
-                               Strings const& names):
-    accept_all_(false),
-    absolute_acceptors_(),
-    conditional_acceptors_(),
-    exception_acceptors_(),
-    all_must_fail_(),
-    all_must_fail_noex_(),
-    results_from_current_process_(true),
-    psetID_initialized_(false),
-    psetID_(),
-    paths_(),
-    nTriggerNames_(0),
-    notStarPresent_(false)
+                               Strings const& names)
   {
     init(pathspecs, names);
   }
 
-  EventSelector::EventSelector(Strings const& pathspecs):
-    accept_all_(false),
-    absolute_acceptors_(),
-    conditional_acceptors_(),
-    exception_acceptors_(),
-    all_must_fail_(),
-    all_must_fail_noex_(),
+  EventSelector::EventSelector(Strings const& pathspecs)
+    :
     results_from_current_process_(false),
-    psetID_initialized_(false),
-    psetID_(),
-    paths_(pathspecs),
-    nTriggerNames_(0),
-    notStarPresent_(false)
-  {
-  }
+    paths_(pathspecs)
+  {}
 
   EventSelector::EventSelector(fhicl::ParameterSet const& config,
-                               Strings const& triggernames):
-    accept_all_(false),
-    absolute_acceptors_(),
-    conditional_acceptors_(),
-    exception_acceptors_(),
-    all_must_fail_(),
-    all_must_fail_noex_(),
-    results_from_current_process_(true),
-    psetID_initialized_(false),
-    psetID_(),
-    paths_(),
-    nTriggerNames_(0),
-    notStarPresent_(false)
+                               Strings const& triggernames)
   {
     Strings paths; // default is empty...
 
@@ -88,11 +54,10 @@ namespace art {
     nTriggerNames_ = triggernames.size();
     notStarPresent_ = false;
 
-    if (paths.empty())
-      {
-        accept_all_ = true;
-        return;
-      }
+    if (paths.empty()) {
+      accept_all_ = true;
+      return;
+    }
 
     // The following are for the purpose of establishing accept_all_ by
     // virtue of an inclusive set of paths:
@@ -477,16 +442,12 @@ namespace art {
     } // factoring opportunity - work done for fail_noex_ is same as for fail_
 
     // Deal with normal acceptors that would cause selection
-    vector<bool>
-      aPassAbs = expandDecisionList(this->absolute_acceptors_,true,N);
-    vector<bool>
-      aPassCon = expandDecisionList(this->conditional_acceptors_,true,N);
-    vector<bool>
-      aFailAbs = expandDecisionList(this->absolute_acceptors_,false,N);
-    vector<bool>
-      aFailCon = expandDecisionList(this->conditional_acceptors_,false,N);
-    vector<bool>
-      aExc = expandDecisionList(this->exception_acceptors_,true,N);
+    vector<bool> aPassAbs = expandDecisionList(this->absolute_acceptors_   ,true ,N);
+    vector<bool> aPassCon = expandDecisionList(this->conditional_acceptors_,true ,N);
+    vector<bool> aFailAbs = expandDecisionList(this->absolute_acceptors_   ,false,N);
+    vector<bool> aFailCon = expandDecisionList(this->conditional_acceptors_,false,N);
+    vector<bool> aExc     = expandDecisionList(this->exception_acceptors_  ,true ,N);
+
     for (unsigned int ipath = 0; ipath < N; ++ipath) {
       hlt::HLTState s = inputResults [ipath].state();
       if (((aPassAbs[ipath]) && (s == hlt::Pass))
@@ -509,14 +470,6 @@ namespace art {
       maskedResults(new TriggerResults(mask, inputResults.parameterSetID()));
     return maskedResults;
   }  // maskTriggerResults
-
-
-  inline vector<string>
-  EventSelector::getEventSelectionVString(fhicl::ParameterSet const& pset)
-  {
-    Strings const& default_selection { "*", "!*", "exception@*"};
-    return pset.get<Strings>("SelectEvents.SelectEvents", default_selection );
-  }
 
   bool EventSelector::containsExceptions(HLTGlobalStatus const& tr) const
   {

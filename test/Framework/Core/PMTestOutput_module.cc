@@ -14,6 +14,7 @@
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Framework/Services/System/FileCatalogMetadata.h"
+#include "art/Utilities/ConfigTable.h"
 #include "fhiclcpp/ParameterSet.h"
 
 
@@ -23,8 +24,12 @@ namespace arttest {
 
 class arttest::PMTestOutput : public art::OutputModule {
 public:
-  struct Config {};
-  using Parameters = art::OutputModule::Table<Config>;
+
+  struct Config {
+    fhicl::TableFragment<art::OutputModule::Config> omConfig;
+  };
+
+  using Parameters = art::ConfigTable<Config, art::OutputModule::Config::KeysToIgnore>;
   explicit PMTestOutput(Parameters const & p);
   virtual ~PMTestOutput();
 
@@ -42,7 +47,7 @@ private:
 
 arttest::PMTestOutput::PMTestOutput(arttest::PMTestOutput::Parameters const & p)
  :
-  OutputModule(p) // ,
+  OutputModule(p().omConfig, p.get_PSet()) // ,
  // More initializers here.
 {}
 

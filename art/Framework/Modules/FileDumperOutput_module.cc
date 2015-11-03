@@ -14,6 +14,7 @@
 #include "art/Framework/Principal/ResultsPrincipal.h"
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
+#include "art/Utilities/ConfigTable.h"
 #include "art/Utilities/Exception.h"
 #include "cetlib/column_width.h"
 #include "cetlib/lpad.h"
@@ -35,14 +36,18 @@ class art::FileDumperOutput : public OutputModule {
 public:
 
   struct Config {
+    fhicl::TableFragment<OutputModule::Config> omConfig;
     fhicl::Atom<bool> onDemandProduction           { fhicl::Name("onDemandProduction")      , false };
     fhicl::Atom<bool> wantProductFullClassName     { fhicl::Name("wantProductFullClassName"), true };
     fhicl::Atom<bool> wantProductFriendlyClassName { fhicl::Name("wantProductFriendlyClassName"), wantProductFullClassName() };
     fhicl::Atom<bool> resolveProducts { fhicl::Name("resolveProducts"), true };
     fhicl::Atom<bool> onlyIfPresent   { fhicl::Name("onlyIfPresent"), false };
   };
-  using Parameters = art::OutputModule::Table<Config>;
+
+  using Parameters = ConfigTable<Config, OutputModule::Config::KeysToIgnore>;
+
   explicit FileDumperOutput(Parameters const &);
+
 
 private:
   void write(EventPrincipal & e) override;
@@ -63,7 +68,7 @@ private:
 art::FileDumperOutput::
 FileDumperOutput(art::FileDumperOutput::Parameters const & ps)
   :
-  OutputModule(ps),
+  OutputModule(ps().omConfig, ps.get_PSet()),
   wantOnDemandProduction_(ps().onDemandProduction()),
   wantProductFullClassName_(ps().wantProductFullClassName()),
   wantProductFriendlyClassName_(ps().wantProductFriendlyClassName()),

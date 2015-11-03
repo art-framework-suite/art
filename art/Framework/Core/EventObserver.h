@@ -48,14 +48,17 @@ protected:
       fhicl::Sequence<std::string>::make_empty() };
   };
 
-  explicit EventObserver(fhicl::ParameterSet const& config);
-  virtual ~EventObserver();
+  explicit EventObserver(fhicl::Table<EOConfig> const& config);
+  explicit EventObserver(fhicl::ParameterSet    const& config);
 
 private:
   std::string process_name_;
   // ID of the ParameterSet that configured
   // the event selector subsystem.
   fhicl::ParameterSetID selector_config_id_;
+
+  void init_(fhicl::ParameterSet const& pset);
+
 };
 
 #endif /* art_Framework_Core_EventObserver_h */

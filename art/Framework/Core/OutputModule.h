@@ -28,6 +28,7 @@
 
 #include "fhiclcpp/types/Atom.h"
 #include "fhiclcpp/types/Sequence.h"
+#include "fhiclcpp/types/TableFragment.h"
 #include "fhiclcpp/ParameterSet.h"
 
 #include <array>
@@ -54,42 +55,30 @@ public:
   typedef OutputWorker WorkerType;
 
   // Configuration
-  struct baseConfig {
+  struct Config {
+
+    struct KeysToIgnore {
+      std::set<std::string> operator()()
+      {
+        return {"module_label", "streamName", "FCMDPlugins"};
+      }
+      static auto get(){ return KeysToIgnore{}(); }
+    };
+
     fhicl::Atom<std::string> moduleType { fhicl::Name("module_type") };
     fhicl::Table<EventObserver::EOConfig> eoConfig {
       fhicl::Name("SelectEvents"),
-        fhicl::Comment("The 'SelectEvents' table below is optional")
-        };
+      fhicl::Comment("The 'SelectEvents' table below is optional")
+    };
     fhicl::Sequence<std::string> outputCommands { fhicl::Name("outputCommands"), fhicl::Sequence<std::string>{ "keep *" } };
     fhicl::Atom<std::string> fileName   { fhicl::Name("fileName"), "" };
     fhicl::Atom<std::string> dataTier   { fhicl::Name("dataTier"), "" };
     fhicl::Atom<std::string> streamName { fhicl::Name("streamName"), "" };
   };
 
-  template <typename T>
-  struct fullConfig : baseConfig, T {};
-
-  template < typename userConfig >
-  class Table : public fhicl::Table<fullConfig<userConfig>> {
-  public:
-
-    Table(){}
-
-    Table( fhicl::ParameterSet const& pset ) : Table()
-      {
-        std::set<std::string> const keys_to_ignore = { "module_label",
-                                                       "streamName",
-                                                       "FCMDPlugins",
-                                                       "fastCloning", // From RootOuput (shouldn't be here")
-                                                       "results" }; // Ditto.
-        this->validate_ParameterSet( pset, keys_to_ignore );
-        this->set_PSet( pset );
-      }
-
-  };
-
-  template <typename Config>
-  explicit OutputModule( Table<Config> const & pset);
+  explicit OutputModule(fhicl::TableFragment<Config> const & pset,
+                        fhicl::ParameterSet const & containing_pset);
+  explicit OutputModule(fhicl::ParameterSet const & pset);
 
   virtual ~OutputModule() = default;
   virtual void reconfigure(fhicl::ParameterSet const &);
@@ -272,41 +261,6 @@ private:
 };  // OutputModule
 
 #ifndef __GCCXML__
-
-template <typename Config>
-art::OutputModule::
-OutputModule(art::OutputModule::Table<Config> const & config)
-  :
-  EventObserver(config.get_PSet()),
-  keptProducts_(),
-  hasNewlyDroppedBranch_(),
-  groupSelectorRules_(config().outputCommands(), "outputCommands", "OutputModule"),
-  groupSelector_(),
-  maxEvents_(-1),
-  remainingEvents_(maxEvents_),
-  moduleDescription_(),
-  current_context_(0),
-  branchParents_(),
-  branchChildren_(),
-  // FIXME:
-  //   For the next data member, qualifying 'fileName' is a necessity
-  //   since some user-provided structs inlude 'fileName'
-  //
-  //     struct Config : OutputModuleConfig, UserConfig {};
-  //
-  //   Both OutputModuleConfig and RootOutputConfig include 'fileName'
-  //   members, creating a lookup ambiguity.  Since only one entity
-  //   exists in the ParameterSet, both with reference the same value.
-  configuredFileName_(config().OutputModule::baseConfig::fileName()),
-  dataTier_(config().dataTier()),
-  streamName_(config().streamName()),
-  ci_(),
-  pluginFactory_(),
-  pluginNames_(),
-  plugins_(makePlugins_(config.get_PSet()))
-{
-  hasNewlyDroppedBranch_.fill(false);
-}
 
 inline
 art::CurrentProcessingContext const *

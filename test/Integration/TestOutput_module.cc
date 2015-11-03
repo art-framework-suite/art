@@ -1,5 +1,6 @@
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Core/OutputModule.h"
+#include "art/Utilities/ConfigTable.h"
 #include "cetlib/exception.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
@@ -14,10 +15,11 @@ class arttest::TestOutput : public art::OutputModule {
 public:
 
   struct Config{
+    fhicl::TableFragment<art::OutputModule::Config> omConfig;
     fhicl::Atom<int> shouldPass { fhicl::Name("shouldPass") };
   };
 
-  using Parameters = art::OutputModule::Table<Config>;
+  using Parameters = art::ConfigTable<Config, art::OutputModule::Config::KeysToIgnore>;
   explicit TestOutput(Parameters const&);
   virtual ~TestOutput();
 
@@ -32,7 +34,7 @@ private:
 };
 
 arttest::TestOutput::TestOutput(arttest::TestOutput::Parameters const& ps):
-  art::OutputModule(ps),
+  art::OutputModule(ps().omConfig, ps.get_PSet()),
   num_pass_(ps().shouldPass()),
   total_(0)
 {

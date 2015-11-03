@@ -58,14 +58,14 @@ namespace art {
       {
         std::set<std::string> const keys_to_ignore = { "module_label" };
         fullConfig_.validate_ParameterSet( pset, keys_to_ignore );
-        fullConfig_.set_PSet( pset );
       }
 
       auto const& operator()() const { return fullConfig_().user(); }
 
       fhicl::ParameterSet const & get_PSet() const { return fullConfig_.get_PSet(); }
 
-      void print_allowed_configuration (std::ostream& os, std::string const& prefix) const {
+      void print_allowed_configuration (std::ostream& os, std::string const& prefix) const
+      {
         fullConfig_.print_allowed_configuration(os, prefix);
       }
 
