@@ -335,16 +335,6 @@ foreach(num 01 02 03)
     )
 endforeach()
 
-cet_test(ToyProductMerger_t HANDBUILT
-  TEST_EXEC art
-  TEST_ARGS --rethrow-all -c ToyProductMerger_t.fcl
-  DATAFILES
-  fcl/ToyProductMerger_t.fcl
-)
-
-SET_TESTS_PROPERTIES(ToyProductMerger_t PROPERTIES
-  DEPENDS "ToyProductProducer_t_01;ToyProductProducer_t_02"
-  )
 
 foreach(num 05 06 07 08 09 10 11 12)
   cet_test(ToyRawInput_t_${num} HANDBUILT
@@ -1237,6 +1227,7 @@ add_subdirectory(test_tiered_input_05)
 
 add_subdirectory(event-processor)
 add_subdirectory(event-shape)
+add_subdirectory(file-merging)
 add_subdirectory(high-memory)
 add_subdirectory(run-subrun-shape)
 

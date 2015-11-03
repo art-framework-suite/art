@@ -41,7 +41,7 @@ private:
   art::ModuleDescription  desc_;
 
   void
-    track_module( art::ModuleDescription const & desc );
+  track_module( art::ModuleDescription const & desc );
 
 };  // CurrentModule
 
