@@ -19,11 +19,6 @@ using namespace std;
 
 // ----------------------------------------------------------------------
 
-static  ParameterSet   empty_pset;
-static  vector<string> empty_svec;
-
-// ----------------------------------------------------------------------
-
 TriggerNamesService::TriggerNamesService(ParameterSet const & procPS,
                                          std::vector<std::string> const & trigger_path_names)
   :
@@ -40,14 +35,15 @@ TriggerNamesService::TriggerNamesService(ParameterSet const & procPS,
   trigger_pset_.put("trigger_paths",  trignames_);
   ParameterSetRegistry::put(trigger_pset_);
 
-  ParameterSet physics = procPS.get<ParameterSet>("physics", empty_pset);
-  end_names_ = physics.get<vector<string> >("end_paths", empty_svec);
+  auto const& physics = procPS.get<ParameterSet>("physics", {});
+  end_names_ = physics.get<vector<string> >("end_paths", {});
   loadPosMap(trigpos_, trignames_);
   loadPosMap(end_pos_, end_names_);
-  unsigned int const n(trignames_.size());
-  for (unsigned int i = 0; i != n; ++i) {
-    modulenames_.push_back(physics.get<vector<string> >(trignames_[i]));
-  }
+  std::transform(trignames_.cbegin(), trignames_.cend(),
+                 std::back_inserter(modulenames_),
+                 [&physics](std::string const& par){
+                   return physics.get<Strings>(par);
+                 } );
 }  // c'tor
 
 // ----------------------------------------------------------------------
@@ -58,8 +54,8 @@ TriggerNamesService::getTrigPaths(TriggerResults const & triggerResults,
 {
   ParameterSet pset;
   if (! ParameterSetRegistry::get(triggerResults.parameterSetID(), pset))
-  { return false; }
-  trigPaths = pset.get<vector<string> >("trigger_paths", Strings());
+    { return false; }
+  trigPaths = pset.get<vector<string> >("trigger_paths", {});
   if (trigPaths.size() != triggerResults.size()) {
     throw art::Exception(art::errors::Unknown)
         << "TriggerNamesService::getTrigPaths, Trigger names vector and\n"
