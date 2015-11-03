@@ -16,7 +16,7 @@ namespace arttest {
 class arttest::PDDetail {
 public:
 
-  // The configuration here MUST be called Config'
+  // The configuration here MUST be called 'Config'
   struct Config {
     fhicl::Atom<bool> expectSubRunProducts { fhicl::Name("expectSubRunProducts"), false };
     fhicl::Atom<bool> expectRunProducts    { fhicl::Name("expectRunProducts"), false };

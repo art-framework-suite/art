@@ -10,9 +10,6 @@
 namespace art
 {
 
-  EDAnalyzer::~EDAnalyzer()
-  { }
-
   bool
   EDAnalyzer::doEvent(EventPrincipal const& ep,
                         CurrentProcessingContext const* cpc) {
