@@ -39,7 +39,7 @@ namespace art {
     };
 
     template<class T>
-    struct MaybePrintDescription<T, typename enable_if_type<typename T::Parameters>::type >
+    struct MaybePrintDescription<T, typename enable_if_type<typename T::Parameters>::type>
     {
       std::ostream & operator()(std::ostream & os, std::string const& prefix)
       {

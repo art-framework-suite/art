@@ -13,6 +13,7 @@
 #include "art/Framework/Principal/Handle.h"
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
+#include "art/Utilities/ConfigTable.h"
 #include "fhiclcpp/ParameterSet.h"
 
 #include <cassert>
@@ -24,9 +25,11 @@ namespace arttest {
 class arttest::FlushingGeneratorTest : public art::OutputModule {
 public:
 
-  struct Config {};
+  struct Config {
+    fhicl::TableFragment<art::OutputModule::Config> omConfig;
+  };
 
-  using Parameters = art::OutputModule::Table<Config>;
+  using Parameters = art::ConfigTable<Config, art::OutputModule::Config::KeysToIgnore>;
   explicit FlushingGeneratorTest(Parameters const & p);
 
   void write(art::EventPrincipal & e) override;
@@ -44,7 +47,7 @@ private:
 
 arttest::FlushingGeneratorTest::FlushingGeneratorTest(arttest::FlushingGeneratorTest::Parameters const & p)
   :
-  OutputModule(p)
+  OutputModule(p().omConfig, p.get_PSet())
 {
 }
 

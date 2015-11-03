@@ -17,12 +17,12 @@ class arttest::PDDetail {
 public:
 
   // The configuration here MUST be called Config'
-  struct Config : art::ProvenanceDumperConfig {
+  struct Config {
     fhicl::Atom<bool> expectSubRunProducts { fhicl::Name("expectSubRunProducts"), false };
     fhicl::Atom<bool> expectRunProducts    { fhicl::Name("expectRunProducts"), false };
   };
 
-  explicit PDDetail(art::OutputModule::Table<Config> const & ps)
+  explicit PDDetail(fhicl::TableFragment<Config> const & ps)
     :
     nExpected_(9u +
                ps().expectSubRunProducts() +

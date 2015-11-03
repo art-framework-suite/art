@@ -9,7 +9,7 @@ namespace art {
 
     // SFINAE magic for determining if type exists
     template <class T, class R = void>
-    struct enable_if_type { typedef R type; };
+    struct enable_if_type { using type = R; };
   }
 }
 #endif /* art_Utilities_detail_metaprogramming_h */
