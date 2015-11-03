@@ -39,6 +39,7 @@ TriggerNamesService::TriggerNamesService(ParameterSet const & procPS,
   end_names_ = physics.get<vector<string> >("end_paths", {});
   loadPosMap(trigpos_, trignames_);
   loadPosMap(end_pos_, end_names_);
+
   std::transform(trignames_.cbegin(), trignames_.cend(),
                  std::back_inserter(modulenames_),
                  [&physics](std::string const& par){
