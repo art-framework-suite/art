@@ -15,73 +15,51 @@
 #include <typeinfo>
 
 namespace art {
+  class TypeID;
 
-class TypeID {
+  bool operator > (TypeID const &, TypeID const &);
+  bool operator != (TypeID const &, TypeID const &);
+  std::ostream & operator << (std::ostream &, TypeID const &);
+}
 
+class art::TypeID {
 public:
-
   TypeID();
 
   explicit
-  TypeID(std::type_info const&);
+  TypeID(std::type_info const &);
 
   explicit
-  TypeID(std::type_info const*);
+  TypeID(std::type_info const *);
 
   template<typename T>
   explicit
-  TypeID(T const& val)
-    : ti_(&typeid(val))
-  {
-  }
+  TypeID(T const & val);
 
   // Print out the name of the type, using the reflection class name.
-  void
-  print(std::ostream&) const;
+  void print(std::ostream &) const;
 
   // Returned C-style string owned by system; do not delete[] it.
   // This is the (horrible, mangled, platform-dependent) name of the type.
-  char const*
-  name() const
-  {
-    return ti_->name();
-  }
+  char const * name() const;
 
-  std::string
-  className() const;
+  std::string className() const;
 
-  std::string
-  friendlyClassName() const;
+  std::string friendlyClassName() const;
 
   // Does ROOT have access to dictionary information for this type?
-  bool
-  hasDictionary() const;
+  bool hasDictionary() const;
 
-  bool
-  operator<(TypeID const& rhs) const
-  {
-    return ti_->before(*rhs.ti_);
-  }
+  bool operator < (TypeID const & rhs) const;
 
-  bool
-  operator==(TypeID const& rhs) const
-  {
-    return *ti_ == *rhs.ti_;
-  }
+  bool operator==(TypeID const& rhs) const;
 
   // Are we valid?
   explicit
-  operator bool() const
-  {
-    return ti_ != &typeid(Def);
-  }
+  operator bool() const;
 
   // Access the typeinfo.
-  std::type_info const&
-  typeInfo() const
-  {
-    return *ti_;
-  }
+  std::type_info const & typeInfo() const;
 
 private:
 
@@ -98,23 +76,77 @@ private:
 };
 
 inline
+art::TypeID::TypeID()
+  : ti_(&typeid(Def))
+{
+}
+
+inline
+art::TypeID::TypeID(std::type_info const & ti)
+  : ti_(&ti)
+{
+}
+
+inline
+art::TypeID::TypeID(std::type_info const * ti)
+  : ti_(ti)
+{
+}
+
+template <typename T>
+inline
+art::TypeID::TypeID(T const& val)
+    : ti_(&typeid(val))
+{
+}
+
+inline
+char const *
+art::TypeID::name() const
+{
+  return ti_->name();
+}
+
+inline
 bool
-operator>(TypeID const& a, TypeID const& b)
+art::TypeID::operator < (TypeID const & rhs) const
+{
+  return ti_->before(*rhs.ti_);
+}
+
+inline
+bool
+art::TypeID::operator == (TypeID const & rhs) const
+{
+  return *ti_ == *rhs.ti_;
+}
+
+inline
+art::TypeID::operator bool() const
+{
+  return ti_ != &typeid(Def);
+}
+
+inline
+std::type_info const &
+art::TypeID::typeInfo() const
+{
+  return *ti_;
+}
+
+inline
+bool
+art::operator > (TypeID const & a, TypeID const & b)
 {
   return b < a;
 }
 
 inline
 bool
-operator!=(TypeID const& a, TypeID const& b)
+art::operator != (TypeID const & a, TypeID const & b)
 {
   return !(a == b);
 }
-
-std::ostream&
-operator<<(std::ostream&, const TypeID&);
-
-} // namespace art
 
 // Local Variables:
 // mode: c++
