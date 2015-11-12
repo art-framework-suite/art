@@ -73,7 +73,7 @@ public: // MEMBER FUNCTIONS
 
       using namespace fhicl::detail;
       ParameterBase* adjustFilename = const_cast<fhicl::Atom<std::string>*>(&omConfig().fileName);
-      adjustFilename->set_default_flag(false);
+      adjustFilename->set_value_type(fhicl::value_type::REQUIRED);
     }
 
     struct KeysToIgnore {
