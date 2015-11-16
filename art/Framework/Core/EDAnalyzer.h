@@ -13,6 +13,7 @@
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/WorkerT.h"
 #include "fhiclcpp/ParameterSet.h"
+#include "fhiclcpp/types/OptionalTable.h"
 #include "fhiclcpp/types/Table.h"
 #include "fhiclcpp/types/TableFragment.h"
 
@@ -40,10 +41,7 @@ namespace art
     template <typename T>
     struct FullConfig {
       fhicl::Atom<std::string> module_type { fhicl::Name("module_type") };
-      fhicl::Table<EventObserver::EOConfig> eoConfig {
-        fhicl::Name("SelectEvents"),
-        fhicl::Comment("The 'SelectEvents' table below is optional")
-      };
+      fhicl::OptionalTable<EventObserver::EOConfig> eoConfig { fhicl::Name("SelectEvents") };
       fhicl::TableFragment<T> user;
     };
 

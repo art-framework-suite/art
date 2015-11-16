@@ -27,6 +27,7 @@
 #include "art/Persistency/Provenance/Selections.h"
 
 #include "fhiclcpp/types/Atom.h"
+#include "fhiclcpp/types/OptionalTable.h"
 #include "fhiclcpp/types/Sequence.h"
 #include "fhiclcpp/types/TableFragment.h"
 #include "fhiclcpp/ParameterSet.h"
@@ -66,10 +67,7 @@ public:
     };
 
     fhicl::Atom<std::string> moduleType { fhicl::Name("module_type") };
-    fhicl::Table<EventObserver::EOConfig> eoConfig {
-      fhicl::Name("SelectEvents"),
-      fhicl::Comment("The 'SelectEvents' table below is optional")
-    };
+    fhicl::OptionalTable<EventObserver::EOConfig> eoConfig { fhicl::Name("SelectEvents") };
     fhicl::Sequence<std::string> outputCommands { fhicl::Name("outputCommands"), fhicl::Sequence<std::string>{ "keep *" } };
     fhicl::Atom<std::string> fileName   { fhicl::Name("fileName"), "" };
     fhicl::Atom<std::string> dataTier   { fhicl::Name("dataTier"), "" };

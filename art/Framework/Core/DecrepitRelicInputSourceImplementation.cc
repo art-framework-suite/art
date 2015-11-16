@@ -49,19 +49,21 @@ namespace art {
   ~DecrepitRelicInputSourceImplementation()
   {}
 
+  using DRISI = DecrepitRelicInputSourceImplementation;
+
   DecrepitRelicInputSourceImplementation::
-  DecrepitRelicInputSourceImplementation(ParameterSet const & pset,
+  DecrepitRelicInputSourceImplementation(fhicl::TableFragment<DRISI::Config> const & config,
                                          InputSourceDescription & desc)
     : ProductRegistryHelper( )
-    , maxEvents_           ( pset.get<int>("maxEvents", -1) )
+    , maxEvents_           ( config().maxEvents() )
     , remainingEvents_     ( maxEvents_ )
-    , maxSubRuns_          ( pset.get<int>("maxSubRuns", -1) )
+    , maxSubRuns_          ( config().maxSubRuns() )
     , remainingSubRuns_    ( maxSubRuns_ )
     , readCount_           ( 0 )
-    , reportFrequency_     ( pset.get<int>("reportFrequency", 1) )
+    , reportFrequency_     ( config().reportFrequency() )
     , processingMode_      ( RunsSubRunsAndEvents )
     , moduleDescription_   ( desc.moduleDescription )
-    , checkPutProducts_    ( pset.get<bool>("errorOnFailureToPut",false) )
+    , checkPutProducts_    ( config().errorOnFailureToPut() )
     , time_                ( Timestamp::invalidTimestamp() )
     , doneReadAhead_       ( false )
     , state_               ( input::IsInvalid )
@@ -74,23 +76,21 @@ namespace art {
       throw art::Exception(art::errors::Configuration)
         << "reportFrequency has a negative value, which is not meaningful.";
     }
-    std::string const defaultMode("RunsSubRunsAndEvents");
     std::string const runMode("Runs");
     std::string const runSubRunMode("RunsAndSubRuns");
-    std::string processingMode
-      = pset.get<std::string>("processingMode", defaultMode);
+    std::string const processingMode = config().processingMode();
     if (processingMode == runMode) {
       processingMode_ = Runs;
     }
     else if (processingMode == runSubRunMode) {
       processingMode_ = RunsAndSubRuns;
     }
-    else if (processingMode != defaultMode) {
+    else if (processingMode != Config::defaultMode()) {
       throw art::Exception(art::errors::Configuration)
         << "DecrepitRelicInputSourceImplementation::DecrepitRelicInputSourceImplementation()\n"
         << "The 'processingMode' parameter for sources has an illegal value '"
         << processingMode << "'\n"
-        << "Legal values are '" << defaultMode
+        << "Legal values are '" << Config::defaultMode()
         << "', '" << runSubRunMode
         << "', or '" << runMode << "'.\n";
     }
