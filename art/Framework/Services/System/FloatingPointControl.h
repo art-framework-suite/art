@@ -15,13 +15,15 @@
 // trapped anywhere (FP exceptions will not cause a crash).  To enable the
 // exceptions, add something like the following to the configuration file:
 //
+// !!! FIXME: Adjust to reflect accurate FHiCL !!!
+//
 // service = FloatingPointControl
 //     {
 //     untracked bool reportSettings = false
 //
-//     untracked vstring moduleNames = {  "default"
-//                                       ,"sendMessages1"
-//                                       ,"sendMessages2"  }
+//     untracked vstring moduleNames = {  "default",
+//                                        "sendMessages1",
+//                                        "sendMessages2"  }
 //
 //     untracked PSet default = {
 //                       untracked bool enableDivByZeroEx = false
@@ -116,9 +118,8 @@ class art::FloatingPointControl
 
 public:
   // c'tor:
-  FloatingPointControl( ParameterSet const &
-                               , ActivityRegistry   &
-                               );
+  FloatingPointControl( ParameterSet const &,
+                        ActivityRegistry   &);
 
   // use compiler-generated d'tor
 
@@ -128,8 +129,8 @@ public:
   void postModule(const ModuleDescription&);
 
 private:
-  void controlFpe( );
-  void echoState( );
+  void controlFpe();
+  void echoState();
 
   bool enableDivByZeroEx_;
   bool enableInvalidEx_;
@@ -139,9 +140,9 @@ private:
   bool setPrecisionDouble_;
   bool reportSettings_;
 
-  typedef  std::string          String;
-  typedef  std::vector<String>  VString;
-  typedef  fhicl::ParameterSet  PSet;
+  using String  = std::string;
+  using VString = std::vector<String>;
+  using PSet    = fhicl::ParameterSet;
 
   fenv_t                    fpuState_;
   fenv_t                    OSdefault_; // OS's fpu state on job startup

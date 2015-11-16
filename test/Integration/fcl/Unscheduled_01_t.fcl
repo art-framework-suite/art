@@ -57,6 +57,6 @@ source:
 {
   module_type: EmptyEvent
   maxEvents: 3
-  timeBetweenEvents: 10
-  firstTime: 1000000
+#  timeBetweenEvents: 10
+#  firstTime: 1000000
 }

@@ -1,10 +1,7 @@
 #include "art/Framework/IO/Root/DuplicateChecker.h"
-
 #include "art/Persistency/Provenance/FileIndex.h"
 #include "cetlib/exception.h"
-
 #include "messagefacility/MessageLogger/MessageLogger.h"
-#include "fhiclcpp/ParameterSet.h"
 
 #include <cassert>
 
@@ -12,15 +9,14 @@ using mf::LogWarning;
 
 namespace art {
 
-  DuplicateChecker::DuplicateChecker(fhicl::ParameterSet const& pset) :
+  DuplicateChecker::DuplicateChecker(fhicl::TableFragment<DuplicateChecker::Config> const& config) :
 
     duplicateCheckMode_(checkEachRealDataFile),
     dataType_(unknown),
     eventIDs_(),
     itIsKnownTheFileHasNoDuplicates_(false)
   {
-    std::string duplicateCheckMode =
-      pset.get<std::string>("duplicateCheckMode", std::string("checkEachRealDataFile"));
+    std::string const& duplicateCheckMode = config().duplicateCheckMode();
 
     if (duplicateCheckMode == std::string("noDuplicateCheck")) duplicateCheckMode_ = noDuplicateCheck;
     else if (duplicateCheckMode == std::string("checkEachFile")) duplicateCheckMode_ = checkEachFile;
@@ -34,8 +30,7 @@ namespace art {
     }
   }
 
-  void DuplicateChecker::init(bool realData,
-                              FileIndex const& fileIndex)
+  void DuplicateChecker::init(bool realData, FileIndex const& fileIndex)
   {
     if (duplicateCheckMode_ == noDuplicateCheck) return;
     if (duplicateCheckMode_ == checkAllFilesOpened) return;

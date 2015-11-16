@@ -5,6 +5,7 @@
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/GroupSelectorRules.h"
 #include "art/Framework/Core/InputSource.h"
+#include "art/Framework/IO/Root/DuplicateChecker.h"
 #include "art/Framework/IO/Root/FastCloningInfoProvider.h"
 #include "art/Framework/IO/Root/Inputfwd.h"
 #include "art/Persistency/Provenance/BranchDescription.h"
@@ -12,6 +13,12 @@
 #include "art/Persistency/Provenance/RunID.h"
 #include "art/Persistency/Provenance/SubRunID.h"
 #include "cetlib/exempt_ptr.h"
+#include "fhiclcpp/types/Atom.h"
+#include "fhiclcpp/types/OptionalAtom.h"
+#include "fhiclcpp/types/OptionalSequence.h"
+#include "fhiclcpp/types/Sequence.h"
+#include "fhiclcpp/types/Table.h"
+#include "fhiclcpp/types/TableFragment.h"
 
 #include <memory>
 #include <string>
@@ -43,7 +50,44 @@ public: // MEMBER FUNCTIONS
   RootInputFileSequence&
   operator=(RootInputFileSequence const&) = delete;
 
-  RootInputFileSequence(fhicl::ParameterSet const&, InputFileCatalog&,
+  struct Config {
+
+    using Name = fhicl::Name;
+    template <typename T> using Atom = fhicl::Atom<T>;
+    template <typename T> using OptionalAtom     = fhicl::OptionalAtom<T>;
+    template <typename T> using OptionalSequence = fhicl::OptionalSequence<T>;
+    template <typename T> using Sequence         = fhicl::Sequence<T>;
+    template <typename T> using Table = fhicl::Table<T>;
+    template <typename T> using TableFragment    = fhicl::TableFragment<T>;
+
+    TableFragment<DuplicateChecker::Config> dc;
+    Atom<EventNumber_t> skipEvents { Name("skipEvents"), 0 };
+    Atom<bool> noEventSort { Name("noEventSort"), false };
+    Atom<bool> skipBadFiles { Name("skipBadFiles"), false };
+    Atom<unsigned> cacheSize { Name("cacheSize"), 0u };
+    Atom<std::int64_t> treeMaxVirtualSize { Name("treeMaxVirtualSize"), -1 };
+    Atom<std::int64_t> saveMemoryObjectThreshold { Name("saveMemoryObjectThreshold"), -1 };
+    Atom<bool> delayedReadSubRunProducts { Name("delayedReadSubRunProducts"), false };
+    Atom<bool> delayedReadRunProducts { Name("delayedReadRunProducts"), false };
+    Sequence<std::string> inputCommands { Name("inputCommands"), Sequence<std::string>{"keep *"} };
+    Atom<bool> dropDescendantsOfDroppedBranches { Name("dropDescendantsOfDroppedBranches"), true };
+    Atom<bool> readParameterSets { Name("readParameterSets"), true };
+
+    struct SecondaryFile {
+      Atom<std::string> a { Name("a"), "" };
+      Sequence<std::string> b { Name("b"), Sequence<std::string>::make_empty() };
+    };
+
+    OptionalSequence< Table<SecondaryFile> > secondaryFileNames { Name("secondaryFileNames") };
+    OptionalAtom<RunNumber_t>    hasFirstRun { Name("firstRun") };
+    OptionalAtom<SubRunNumber_t> hasFirstSubRun { Name("firstSubRun") };
+    OptionalAtom<EventNumber_t>  hasFirstEvent { Name("firstEvent") };
+    Atom<std::string> fileMatchMode { Name("fileMatchMode"), "permissive" };
+    OptionalAtom<RunNumber_t> setRunNumber { Name("setRunNumber") };
+
+  };
+
+  RootInputFileSequence(fhicl::TableFragment<Config> const&, InputFileCatalog&,
                         FastCloningInfoProvider const&,
                         InputSource::ProcessingMode,
                         MasterProductRegistry&, ProcessConfiguration const&);

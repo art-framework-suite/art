@@ -16,7 +16,7 @@ using fhicl::ParameterSet;
 namespace art {
 
   EventObserver::
-  EventObserver(fhicl::Table<EOConfig> const& config)
+  EventObserver(fhicl::OptionalTable<EOConfig> const& config)
     : wantAllEvents_(false)
     , selectors_()
     , process_name_()

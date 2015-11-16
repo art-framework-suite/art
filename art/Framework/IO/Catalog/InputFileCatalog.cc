@@ -18,13 +18,12 @@ const size_t art::InputFileCatalog::indexEnd = std::numeric_limits<size_t>::max(
 
 namespace art {
 
-  InputFileCatalog::InputFileCatalog(fhicl::ParameterSet const& pset,
-                                     std::string const& namesParameter,
-                                     bool canBeEmpty, bool /*noThrow*/) :
+  InputFileCatalog::InputFileCatalog(fhicl::TableFragment<InputFileCatalog::Config> const& config,
+                                     std::string const& /*namesParameter*/,
+                                     bool /*canBeEmpty*/,
+                                     bool /*noThrow*/) :
     FileCatalog(),
-    fileSources_(canBeEmpty ?
-        pset.get<std::vector<std::string> >(namesParameter, std::vector<std::string>()) :
-        pset.get<std::vector<std::string> >(namesParameter)),
+    fileSources_{config().namesParameter()},
     fileCatalogItems_(1),
     fileIdx_(indexEnd),
     maxIdx_(0),
@@ -32,9 +31,9 @@ namespace art {
     nextFileProbed_(false),
     hasNextFile_(false) {
 
-    if (fileSources_.empty() && !canBeEmpty) {
+    if (fileSources_.empty()/* && !canBeEmpty*/) {
       throw art::Exception(art::errors::CatalogServiceError, "InputFileCatalog::InputFileCatalog()\n")
-          << "Empty '" << namesParameter << "' parameter specified for input source.\n";
+        << "Empty '" << config().namesParameter.name() << "' parameter specified for input source.\n";
     }
 
     // Configure FileDelivery service

@@ -15,7 +15,8 @@
 
 #include "art/Persistency/Provenance/EventID.h"
 #include "art/Persistency/Provenance/SubRunID.h"
-#include "fhiclcpp/ParameterSet.h"
+#include "fhiclcpp/types/Atom.h"
+#include "fhiclcpp/types/TableFragment.h"
 #include <set>
 #include <string>
 
@@ -28,10 +29,16 @@ namespace art {
   class DuplicateChecker {
   public:
 
-    DuplicateChecker(fhicl::ParameterSet const& pset);
+    struct Config {
+      fhicl::Atom<std::string> duplicateCheckMode {
+        fhicl::Name("duplicateCheckMode"),
+        "checkEachRealDataFile"
+      };
+    };
 
-    void init(bool realData,
-              FileIndex const& fileIndex);
+    DuplicateChecker(fhicl::TableFragment<Config> const& config);
+
+    void init(bool realData, FileIndex const& fileIndex);
 
     void inputFileClosed();
 

@@ -13,7 +13,8 @@
 #include "art/Framework/Services/FileServiceInterfaces/FileTransfer.h"
 #include "art/Framework/Services/FileServiceInterfaces/FileTransferStatus.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
-#include "fhiclcpp/ParameterSet.h"
+#include "fhiclcpp/types/Sequence.h"
+#include "fhiclcpp/types/TableFragment.h"
 
 #include <string>
 #include <vector>
@@ -31,7 +32,13 @@ namespace art {
 
   class InputFileCatalog : public FileCatalog {
   public:
-    explicit InputFileCatalog(fhicl::ParameterSet const& pset,
+
+    struct Config {
+      static constexpr char const* names_param() { return "fileNames"; }
+      fhicl::Sequence<std::string> namesParameter { fhicl::Name(names_param()) };
+    };
+
+    explicit InputFileCatalog(fhicl::TableFragment<Config> const& config,
                               std::string const& namesParameter = std::string("fileNames"),
                               bool canBeEmpty = false,
                               bool noThrow = false);

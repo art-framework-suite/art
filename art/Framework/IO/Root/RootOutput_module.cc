@@ -24,6 +24,7 @@
 #include "art/Utilities/unique_filename.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/types/Atom.h"
+#include "fhiclcpp/types/OptionalAtom.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include <iomanip>
@@ -44,24 +45,25 @@ class art::RootOutput : public OutputModule {
 
 public: // MEMBER FUNCTIONS
 
-  static constexpr const char* default_tmpDir = "<some-tmp-dir>";
-
   struct Config {
 
+    using Name = fhicl::Name;
+
     fhicl::TableFragment<art::OutputModule::Config> omConfig;
-    fhicl::Atom<std::string> catalog { fhicl::Name("catalog"), "" };
-    fhicl::Atom<bool> dropAllEvents  { fhicl::Name("dropAllEvents"), false };
-    fhicl::Atom<bool> dropAllSubRuns { fhicl::Name("dropAllSubRuns"), false };
-    fhicl::Atom<std::string> tmpDir { fhicl::Name("tmpDir"), default_tmpDir };
-    fhicl::Atom<int> maxSize { fhicl::Name("maxSize"), 0x7f000000 };
-    fhicl::Atom<int> compressionLevel { fhicl::Name("compressionLevel"), 7 };
-    fhicl::Atom<int64_t> saveMemoryObjectThreshold { fhicl::Name("saveMemoryObjectThreshold"), -1l };
-    fhicl::Atom<int64_t> treeMaxVirtualSize { fhicl::Name("treeMaxVirtualSize"), -1 };
-    fhicl::Atom<int> splitLevel { fhicl::Name("splitLevel"), 99 };
-    fhicl::Atom<int> basketSize { fhicl::Name("basketSize"), 16384 };
-    fhicl::Atom<bool> dropMetaDataForDroppedData { fhicl::Name("dropMetaDataForDroppedData"), false };
-    fhicl::Atom<std::string> dropMetaData { fhicl::Name("dropMetaData"), "" };
-    fhicl::Atom<bool> writeParameterSets {fhicl::Name("writeParameterSets"), true };
+    fhicl::Atom<std::string> catalog { Name("catalog"), "" };
+    fhicl::OptionalAtom<bool> dropAllEvents  { Name("dropAllEvents") };
+    fhicl::Atom<bool> dropAllSubRuns { Name("dropAllSubRuns"), false };
+    fhicl::OptionalAtom<bool> fastCloning { Name("fastCloning") };
+    fhicl::Atom<std::string> tmpDir { Name("tmpDir"), parent_path(omConfig().fileName()) };
+    fhicl::Atom<int> maxSize { Name("maxSize"), 0x7f000000 };
+    fhicl::Atom<int> compressionLevel { Name("compressionLevel"), 7 };
+    fhicl::Atom<int64_t> saveMemoryObjectThreshold { Name("saveMemoryObjectThreshold"), -1l };
+    fhicl::Atom<int64_t> treeMaxVirtualSize { Name("treeMaxVirtualSize"), -1 };
+    fhicl::Atom<int> splitLevel { Name("splitLevel"), 99 };
+    fhicl::Atom<int> basketSize { Name("basketSize"), 16384 };
+    fhicl::Atom<bool> dropMetaDataForDroppedData { Name("dropMetaDataForDroppedData"), false };
+    fhicl::Atom<std::string> dropMetaData { Name("dropMetaData"), "" };
+    fhicl::Atom<bool> writeParameterSets {Name("writeParameterSets"), true };
 
     Config()
     {
@@ -77,11 +79,11 @@ public: // MEMBER FUNCTIONS
     }
 
     struct KeysToIgnore {
-      std::set<std::string> operator()()
+      std::set<std::string> operator()() const
       {
-        std::set<std::string> result { art::OutputModule::Config::KeysToIgnore::get() };
-        result.insert({"fastCloning", "results"});
-        return result;
+        std::set<std::string> keys { art::OutputModule::Config::KeysToIgnore::get() };
+        keys.insert("results");
+        return keys;
       }
     };
 
@@ -184,9 +186,7 @@ RootOutput(Parameters const & config)
   , rootOutputFile_()
   , fstats_(moduleLabel_, processName())
   , filePattern_(config().omConfig().fileName() )
-  , tmpDir_( config().tmpDir() == default_tmpDir ?
-             parent_path(filePattern_) :
-             config().tmpDir() )
+  , tmpDir_(config().tmpDir())
   , lastClosedFileName_()
   , maxFileSize_(config().maxSize())
   , compressionLevel_(config().compressionLevel())
@@ -202,7 +202,7 @@ RootOutput(Parameters const & config)
 {
   mf::LogInfo msg("FastCloning");
   msg << "Initial fast cloning configuration ";
-  if (config.get_PSet().get_if_present("fastCloning", fastCloning_)) {
+  if (config().fastCloning(fastCloning_)) {
     msg << "(user-set): ";
   }
   else {
@@ -217,8 +217,8 @@ RootOutput(Parameters const & config)
         "event selection configuration.";
   }
 
-  bool const dropAllEventsSet = config.get_PSet().get_if_present<bool>("dropAllEvents",
-                                                                                    dropAllEvents_);
+  bool const dropAllEventsSet = config().dropAllEvents(dropAllEvents_);
+
   if (dropAllSubRuns_) {
     if (dropAllEventsSet && !dropAllEvents_) {
       string const errmsg =

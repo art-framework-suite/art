@@ -52,7 +52,8 @@ Some examples of InputSource subclasses may be:
 #include "art/Persistency/Provenance/SubRunID.h"
 #include "art/Persistency/Provenance/Timestamp.h"
 #include "cetlib/exempt_ptr.h"
-#include "fhiclcpp/ParameterSet.h"
+#include "fhiclcpp/types/Atom.h"
+#include "fhiclcpp/types/TableFragment.h"
 
 #include <memory>
 #include <string>
@@ -74,7 +75,18 @@ namespace art
     DecrepitRelicInputSourceImplementation(DecrepitRelicInputSourceImplementation const&) = delete;
     DecrepitRelicInputSourceImplementation& operator=(DecrepitRelicInputSourceImplementation const&) = delete;
 
-    DecrepitRelicInputSourceImplementation(fhicl::ParameterSet const&,
+    struct Config {
+
+      static constexpr char const* defaultMode() { return "RunsSubRunsAndEvents"; }
+
+      fhicl::Atom<int> maxEvents  { fhicl::Name("maxEvents"), -1 };
+      fhicl::Atom<int> maxSubRuns { fhicl::Name("maxSubRuns"), -1 };
+      fhicl::Atom<int> reportFrequency { fhicl::Name("reportFrequency"), 1 };
+      fhicl::Atom<bool> errorOnFailureToPut { fhicl::Name("errorOnFailureToPut"), false };
+      fhicl::Atom<std::string> processingMode { fhicl::Name("processingMode"), defaultMode() };
+    };
+
+    DecrepitRelicInputSourceImplementation(fhicl::TableFragment<Config> const&,
                                            InputSourceDescription &);
 
     virtual ~DecrepitRelicInputSourceImplementation() = 0;
