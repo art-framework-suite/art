@@ -9,12 +9,12 @@ namespace {
   std::regex const r_module_label { R"((.*)(<\d+>)(.*))" };
 }
 
-void 
+void
 art::detail::replace_module_type( std::string & str, std::string const& spec) {
   str = std::regex_replace( str, r_module_type, "$1"s + spec );
 }
 
-void 
+void
 art::detail::replace_label( std::string const & label, std::string & str ) {
   std::string const tmp ( str );
   std::size_t const pos = tmp.find_first_of(":");

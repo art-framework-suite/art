@@ -104,15 +104,6 @@ namespace art {
       return resolve_if_present(description, __func__, "");
     }
 
-    template<>
-    inline std::string getDescription<suffix_type::source>( cet::LibraryManager const&,
-                                                            std::string const&,
-                                                            std::string const&)
-    {
-      return "\n" + indent__2() + "[ provided in future release ]\n";
-    }
-
-
   }
 }
 

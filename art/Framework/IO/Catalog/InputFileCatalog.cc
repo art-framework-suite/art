@@ -18,10 +18,8 @@ const size_t art::InputFileCatalog::indexEnd = std::numeric_limits<size_t>::max(
 
 namespace art {
 
-  InputFileCatalog::InputFileCatalog(fhicl::TableFragment<InputFileCatalog::Config> const& config,
-                                     std::string const& /*namesParameter*/,
-                                     bool /*canBeEmpty*/,
-                                     bool /*noThrow*/) :
+  InputFileCatalog::InputFileCatalog(fhicl::TableFragment<InputFileCatalog::Config> const& config)
+    :
     FileCatalog(),
     fileSources_{config().namesParameter()},
     fileCatalogItems_(1),
@@ -29,30 +27,25 @@ namespace art {
     maxIdx_(0),
     searchable_(false /*update the value after the service gets configured*/),
     nextFileProbed_(false),
-    hasNextFile_(false) {
+    hasNextFile_(false)
+    {
 
-    if (fileSources_.empty()/* && !canBeEmpty*/) {
-      throw art::Exception(art::errors::CatalogServiceError, "InputFileCatalog::InputFileCatalog()\n")
-        << "Empty '" << config().namesParameter.name() << "' parameter specified for input source.\n";
+      if (fileSources_.empty()) {
+        throw art::Exception(art::errors::CatalogServiceError, "InputFileCatalog::InputFileCatalog()\n")
+          << "Empty '" << config().namesParameter.name() << "' parameter specified for input source.\n";
+      }
+
+      // Configure FileDelivery service
+      ci_->configure(fileSources_);
+      searchable_ = ci_->isSearchable();
+
+      if( searchable_ ) fileCatalogItems_.resize(fileSources_.size());
     }
-
-    // Configure FileDelivery service
-    ci_->configure(fileSources_);
-    searchable_ = ci_->isSearchable();
-
-    if( searchable_ ) fileCatalogItems_.resize(fileSources_.size());
-  }
-
-  InputFileCatalog::~InputFileCatalog() {}
-
-  void InputFileCatalog::findFile(std::string & /*pfn*/, std::string const& /*lfn*/, bool /*noThrow*/) {
-    cet::exception("You cannot do a logical file lookup! (InputFileCatalog::findFile");
-  }
 
   FileCatalogItem const & InputFileCatalog::currentFile() const {
     if( fileIdx_==indexEnd ) {
       throw art::Exception(art::errors::LogicError,
-        "Cannot access the current file while the file catalog is empty!");
+                           "Cannot access the current file while the file catalog is empty!");
     }
     assert( fileIdx_ <= maxIdx_ );
     return fileCatalogItems_[fileIdx_];

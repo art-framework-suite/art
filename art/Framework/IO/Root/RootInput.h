@@ -38,7 +38,6 @@ public:
     struct KeysToIgnore {
       std::set<std::string> operator()() const { return {"module_label"}; }
     };
-
   };
 
   using Parameters = ConfigTable<Config, Config::KeysToIgnore>;
