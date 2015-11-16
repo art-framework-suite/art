@@ -266,8 +266,7 @@ art::PathManager::
 processPathConfigs_()
 {
   vstring trigger_path_names;
-  auto services = procPS_.get<ParameterSet>("services",
-                                            ParameterSet());
+  auto services = procPS_.get<ParameterSet>("services",{});
   auto opts(services.get<ParameterSet>("scheduler", ParameterSet()));
   auto nSchedules = opts.get<size_t>("num_schedules", 1);
   // Check we're not being asked to do something we can't.

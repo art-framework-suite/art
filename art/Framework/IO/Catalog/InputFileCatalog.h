@@ -34,15 +34,11 @@ namespace art {
   public:
 
     struct Config {
-      static constexpr char const* names_param() { return "fileNames"; }
-      fhicl::Sequence<std::string> namesParameter { fhicl::Name(names_param()) };
+      fhicl::Sequence<std::string> namesParameter { fhicl::Name("fileNames") };
     };
 
-    explicit InputFileCatalog(fhicl::TableFragment<Config> const& config,
-                              std::string const& namesParameter = std::string("fileNames"),
-                              bool canBeEmpty = false,
-                              bool noThrow = false);
-    virtual ~InputFileCatalog();
+    explicit InputFileCatalog(fhicl::TableFragment<Config> const& config);
+    virtual ~InputFileCatalog() = default;
     std::vector<FileCatalogItem> const& fileCatalogItems() const {return fileCatalogItems_;}
     FileCatalogItem const& currentFile() const;
     size_t currentIndex() const;
@@ -58,7 +54,6 @@ namespace art {
     static const size_t indexEnd;
 
   private:
-    void findFile(std::string & pfn, std::string const& lfn, bool noThrow);
     bool retrieveNextFile(FileCatalogItem & item, int attempts, bool transferOnly = false);
     FileCatalogStatus retrieveNextFileFromCacheOrService(FileCatalogItem & item);
     FileCatalogStatus transferNextFile(FileCatalogItem & item);

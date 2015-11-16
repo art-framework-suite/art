@@ -45,8 +45,13 @@ namespace art {
       {
         std::ostringstream result;
         result << indent_1()  << "Allowed configuration\n"
-               << indent_1()  << "---------------------\n"
-               << li.description();
+               << indent_1()  << "---------------------\n";
+
+        std::string printedConfig = li.description();
+        replace_module_type( printedConfig, li.short_spec() );
+        replace_label( "source", printedConfig );
+
+        result << printedConfig;
         return result.str();
       }
     };
