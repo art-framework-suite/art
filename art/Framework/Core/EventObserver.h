@@ -7,7 +7,7 @@
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/ParameterSetID.h"
 #include "fhiclcpp/types/Sequence.h"
-#include "fhiclcpp/types/Table.h"
+#include "fhiclcpp/types/OptionalTable.h"
 
 #include <string>
 
@@ -48,8 +48,8 @@ protected:
       fhicl::Sequence<std::string>::make_empty() };
   };
 
-  explicit EventObserver(fhicl::Table<EOConfig> const& config);
-  explicit EventObserver(fhicl::ParameterSet    const& config);
+  explicit EventObserver(fhicl::OptionalTable<EOConfig> const& config);
+  explicit EventObserver(fhicl::ParameterSet            const& config);
 
 private:
   std::string process_name_;

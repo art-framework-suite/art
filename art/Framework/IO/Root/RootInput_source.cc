@@ -61,17 +61,16 @@ setRootFileForLastReadEvent(std::shared_ptr<RootInputFile> const& ptr)
   rootFileForLastReadEvent_ = ptr;
 }
 
-RootInput::~RootInput()
-{
-}
-
 RootInput::
-RootInput(fhicl::ParameterSet const& pset, InputSourceDescription& desc)
-  : DecrepitRelicInputSourceImplementation(pset, desc)
-  , catalog_(pset)
-  , primaryFileSequence_(std::make_unique<RootInputFileSequence>(pset,
-    catalog_, FastCloningInfoProvider(cet::exempt_ptr<RootInput>(this)),
-    processingMode(), desc.productRegistry, processConfiguration()))
+RootInput(RootInput::Parameters const& config, InputSourceDescription& desc)
+  : DecrepitRelicInputSourceImplementation(config().drisi_config, desc)
+  , catalog_(config().ifc_config)
+  , primaryFileSequence_(std::make_unique<RootInputFileSequence>(config().rifs_config,
+                                                                 catalog_,
+                                                                 FastCloningInfoProvider(cet::exempt_ptr<RootInput>(this)),
+                                                                 processingMode(),
+                                                                 desc.productRegistry,
+                                                                 processConfiguration()))
   , branchIDsToReplace_()
   , accessState_()
   , mpr_(desc.productRegistry)
@@ -295,4 +294,3 @@ readEvent_()
 //}
 
 DEFINE_ART_INPUT_SOURCE(RootInput)
-
