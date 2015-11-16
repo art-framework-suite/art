@@ -35,14 +35,10 @@ public:
 
     using Name = fhicl::Name;
 
-    fhicl::Atom<std::string> module_type { fhicl::Name("module_type") };
+    fhicl::Atom<std::string> module_type { Name("module_type") };
     fhicl::TableFragment<DRISI::Config> drisi_config;
-    fhicl::Atom<uint32_t> numberEventsInRun    {
-      Name("numberEventsInRun"), static_cast<uint32_t>(drisi_config().maxEvents())
-    };
-    fhicl::Atom<uint32_t> numberEventsInSubRun {
-      Name("numberEventsInSubRun"), static_cast<uint32_t>(drisi_config().maxSubRuns())
-    };
+    fhicl::Atom<int> numberEventsInRun    { Name("numberEventsInRun"), drisi_config().maxEvents() };
+    fhicl::Atom<int> numberEventsInSubRun { Name("numberEventsInSubRun"), drisi_config().maxSubRuns() };
     fhicl::Atom<uint32_t> eventCreationDelay   { Name("eventCreationDelay"), 0u };
     fhicl::Atom<bool> resetEventOnSubRun       { Name("resetEventOnSubRun"), true };
     fhicl::OptionalAtom<RunNumber_t>    firstRun    { Name("firstRun") };
@@ -116,8 +112,8 @@ using namespace art;
 art::EmptyEvent::EmptyEvent(art::EmptyEvent::Parameters const& config, InputSourceDescription & desc)
   :
   DecrepitRelicInputSourceImplementation(config().drisi_config, desc ),
-  numberEventsInRun_       {config().numberEventsInRun()},
-  numberEventsInSubRun_    {config().numberEventsInSubRun()},
+  numberEventsInRun_       {static_cast<uint32_t>(config().numberEventsInRun())},
+  numberEventsInSubRun_    {static_cast<uint32_t>(config().numberEventsInSubRun())},
   eventCreationDelay_      {config().eventCreationDelay()},
   numberEventsInThisRun_   {},
   numberEventsInThisSubRun_{},

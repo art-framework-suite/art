@@ -2,7 +2,7 @@
 
 services:
 {
-   MemoryTracker: { 
+   MemoryTracker: {
       includeMallocInfo : true
       printSummaries : ["*"]
       filename : "memoryTracker.db"
@@ -19,9 +19,9 @@ physics:
       a2: { module_type: TestSimpleMemoryCheckProducer }
       a3: { module_type: TestSimpleMemoryCheckProducer }
    }
-   
+
    p1: [ a1,a2,a3 ]
-   
+
    trigger_paths: [ p1 ]
 }
 
