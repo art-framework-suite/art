@@ -20,7 +20,7 @@
 class art::Run : private art::DataViewImpl {
 public:
   Run(RunPrincipal& rp, const ModuleDescription& md);
-  ~Run(){}
+  ~Run() = default;
 
   typedef DataViewImpl Base;
   // AUX functions.
@@ -36,6 +36,14 @@ public:
   using Base::removeCachedProduct;
   using Base::me;
   using Base::processHistory;
+
+  template <typename PROD>
+  art::ValidHandle<PROD> getValidHandle(InputTag const& tag) const
+  {
+    art::Handle<PROD> h;
+    getByLabel(tag, h);
+    return art::ValidHandle<PROD>(&(*h), *h.provenance());
+  }
 
 #ifndef __GCCXML__
   ///Put a new product.

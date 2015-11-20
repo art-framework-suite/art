@@ -30,37 +30,28 @@ namespace arttest {
       inputLabel_( pset.get<std::string>("inputLabel") )
     {}
 
-    virtual ~ToyProductAnalyzer(){}
+    virtual ~ToyProductAnalyzer() = default;
 
     virtual void beginRun   ( const art::Run   & r  ) override {
-      art::Handle<StringProduct> rh1;
-      assert(r.getByLabel( inputLabel_, "bgnRun", rh1));
-
-      art::Handle<StringProduct> rh2;
-      assert(r.getByLabel( inputLabel_, "", rh2));
+      r.getValidHandle<StringProduct>(art::InputTag{inputLabel_, "bgnRun"});
+      r.getValidHandle<StringProduct>(art::InputTag{inputLabel_});
     }
 
     virtual void beginSubRun( const art::SubRun& sr ) override {
-      art::Handle<StringProduct> srh1;
-      assert(sr.getByLabel( inputLabel_, "bgnSubRun", srh1));
-
-      art::Handle<StringProduct> srh2;
-      assert(sr.getByLabel( inputLabel_, "", srh2));
+      sr.getValidHandle<StringProduct>(art::InputTag{inputLabel_, "bgnSubRun"});
+      sr.getValidHandle<StringProduct>(art::InputTag{inputLabel_});
     }
 
     virtual void analyze    ( const art::Event & e  ) override {
-      art::InputTag const tag(inputLabel_, "" );
-      e.getValidHandle<StringProduct>(tag);
+      e.getValidHandle<StringProduct>(inputLabel_);
     }
 
     virtual void endSubRun  ( const art::SubRun& sr ) override {
-      art::Handle<StringProduct> srh;
-      assert(sr.getByLabel( inputLabel_, "endSubRun", srh));
+      sr.getValidHandle<StringProduct>(art::InputTag{inputLabel_,"endSubRun"});
     }
 
     virtual void endRun     ( const art::Run   & r  ) override {
-      art::Handle<StringProduct> rh;
-      assert(r.getByLabel( inputLabel_, "endRun", rh));
+      r.getValidHandle<StringProduct>(art::InputTag{inputLabel_,"endRun"});
     }
 
   };  // ToyProductAnalyzer

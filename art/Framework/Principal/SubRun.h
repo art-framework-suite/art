@@ -22,7 +22,7 @@
 class art::SubRun : private art::DataViewImpl {
 public:
   SubRun(SubRunPrincipal& srp, const ModuleDescription& md);
-  ~SubRun() {}
+  ~SubRun() = default;
 
   typedef DataViewImpl Base;
   // AUX functions.
@@ -44,6 +44,14 @@ public:
   using Base::removeCachedProduct;
   using Base::me;
   using Base::processHistory;
+
+  template <typename PROD>
+  art::ValidHandle<PROD> getValidHandle(InputTag const& tag) const
+  {
+    art::Handle<PROD> h;
+    getByLabel(tag, h);
+    return art::ValidHandle<PROD>(&(*h), *h.provenance());
+  }
 
   Run const&
   getRun() const;
