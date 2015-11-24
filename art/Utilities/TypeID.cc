@@ -13,24 +13,6 @@ using namespace std;
 
 namespace art {
 
-TypeID::
-TypeID()
-  : ti_(&typeid(Def))
-{
-}
-
-TypeID::
-TypeID(std::type_info const& ti)
-  : ti_(&ti)
-{
-}
-
-TypeID::
-TypeID(std::type_info const* ti)
-  : ti_(ti)
-{
-}
-
 void
 TypeID::
 print(ostream& os) const
