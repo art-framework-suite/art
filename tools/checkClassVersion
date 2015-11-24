@@ -1,26 +1,23 @@
 #!/usr/bin/env python
+# vim: set sw=4:
 ########################################################################
 # checkClassVersion
-#
 #
 # A script originally by Chris Jones to reduce the potential for
 # inconsistencies in versioning of data products by maintaining a list
 # of version-checksum pairs in classes_def.xml (ignored by genreflex).
-#
-#
-# This is a very-preliminary ART version! It requires a ROOT that has
-# been built against python and its ability to automatically load
-# required libraries is unknown at this time.
 #
 # Problems, comments and requests for help to artists@fnal.gov.
 #
 # Chris Green
 ########################################################################
 
-import string
-import os
-import os.path
 from optparse import OptionParser
+import ROOT
+import os
+import string
+import sys
+import xml.parsers.expat
 
 class XmlParser(object):
     """Parses a classes_def.xml file looking for class declarations that contain
@@ -28,155 +25,148 @@ class XmlParser(object):
     which contain the ClassVersion to checksum mappings.
     """
 
-    #The following are constants used to describe what data is kept
-    # in which index in the 'classes' member data
-    originalNameIndex=0
-    classVersionIndex=1
+    # The following are constants used to describe what data is kept
+    # in which index in the 'classes' member data.
+    originalNameIndex = 0
+    classVersionIndex = 1
     versionsToChecksumIndex = 2
 
-    def __init__(self,filename):
+    def __init__(self, filename):
         self._file = filename
         self.classes = dict()
         self._presentClass = None
         self.readClassesDefXML()
+
     def readClassesDefXML(self):
-        import xml.parsers.expat
         p = xml.parsers.expat.ParserCreate()
         p.StartElementHandler = self.start_element
         p.EndElementHandler = self.end_element
         f = open(self._file)
-        # Replace any occurence of <>& in the attribute values by the xml parameter
-        rxml, nxml = f.read(), ''
-        q1,q2 = 0,0
-        for c in rxml :
-            if   (q1 or q2) and c == '<' : nxml += '&lt;'
-            elif (q1 or q2) and c == '>' : nxml += '&gt;'
-            # elif (q1 or q2) and c == '&' : nxml += '&amp;'
-            else                         : nxml += c
-            if c == '"' : q1 = not q1
-            if c == "'" : q2 = not q2
-        try : p.Parse(nxml)
-        except xml.parsers.expat.ExpatError, e :
-            print '--->> edmCheckClassVersion: ERROR: parsing selection file ',self._file
+        # Replace any occurence of <>& in the attribute values by the xml parameter.
+        rxml = f.read()
+        nxml = ''
+        q1 = 0
+        q2 = 0
+        for c in rxml:
+            if   (q1 or q2) and (c == '<'):
+                nxml += '&lt;'
+            elif (q1 or q2) and (c == '>'):
+                nxml += '&gt;'
+            #elif (q1 or q2) and (c == '&'):
+            #    nxml += '&amp;'
+            else:
+                nxml += c
+            if c == '"':
+                q1 = not q1
+            if c == "'":
+                q2 = not q2
+        try:
+            p.Parse(nxml)
+        except xml.parsers.expat.ExpatError, e:
+            print '--->> edmCheckClassVersion: ERROR: parsing selection file ', self._file
             print '--->> edmCheckClassVersion: ERROR: Error is:', e
             raise
         f.close()
-    def start_element(self,name,attrs):
-        if name in ('class','struct'):
+
+    def start_element(self, name, attrs):
+        if name in ('class', 'struct'):
             if 'name' in attrs:
                 if 'ClassVersion' in attrs:
                     normalizedName = self.genNName(attrs['name'])
-                    self.classes[normalizedName]=[attrs['name'],string.atol(attrs['ClassVersion']),[]]
-                    self._presentClass=normalizedName
+                    self.classes[normalizedName] = [attrs['name'], string.atol(attrs['ClassVersion']), []]
+                    self._presentClass = normalizedName
         if name == 'version':
-            self.classes[self._presentClass][XmlParser.versionsToChecksumIndex].append([string.atol(attrs['ClassVersion']),
-                                                                                    string.atol(attrs['checksum'])])
-        pass
-    def end_element(self,name):
-        if name in ('class','struct'):
+            self.classes[self._presentClass][XmlParser.versionsToChecksumIndex].append([string.atol(attrs['ClassVersion']), string.atol(attrs['checksum'])])
+
+    def end_element(self, name):
+        if name in ('class', 'struct'):
             self._presentClass = None
+
     def genNName(self, name ):
         n_name = string.join(name.split())
-        for e in [ ['long long unsigned int', 'unsigned long long'],
-                   ['long long int',          'long long'],
-                   ['unsigned short int',     'unsigned short'],
-                   ['short unsigned int',     'unsigned short'],
-                   ['short int',              'short'],
-                   ['long unsigned int',      'unsigned long'],
-                   ['unsigned long int',      'unsigned long'],
-                   ['long int',               'long'],
-                   ['std::string',            'std::basic_string<char>']] :
-            n_name = n_name.replace(e[0],e[1])
-        n_name = n_name.replace(' ','')
+        for e in [
+            ['long long unsigned int', 'unsigned long long'],
+            ['long long int', 'long long'],
+            ['unsigned short int', 'unsigned short'],
+            ['short unsigned int', 'unsigned short'],
+            ['short int', 'short'],
+            ['long unsigned int', 'unsigned long'],
+            ['unsigned long int', 'unsigned long'],
+            ['long int', 'long'],
+            ['std::string', 'std::basic_string<char>']]:
+            n_name = n_name.replace(e[0], e[1])
+        n_name = n_name.replace(' ', '')
         return n_name
 
-#The following are error codes returned from checkClass
+# The following are error codes returned from checkClass.
 noError = 0
-errorRootDoesNotMatchClassDef =1
-errorMustUpdateClassVersion=2
-errorMustAddChecksum=3
-def checkClass(name,version,versionsToChecksums):
+errorRootDoesNotMatchClassDef = 1
+errorMustUpdateClassVersion = 2
+errorMustAddChecksum = 3
+
+def checkClass(name, version, versionsToChecksums):
     c = ROOT.TClass.GetClass(name)
     if not c:
-        raise RuntimeError("failed to load dictionary for class '"+name+"'")
+        raise RuntimeError("failed to load dictionary for class '" + name + "'")
     classChecksum = c.GetCheckSum()
     classVersion = c.GetClassVersion()
-
-    #does this version match what is in the file?
+    # Does this version match what is in the file?
     if version != classVersion:
-        return (errorRootDoesNotMatchClassDef,classChecksum,classVersion)
-
-
-    #is the version already in our list?
+        return (errorRootDoesNotMatchClassDef, classChecksum, classVersion)
+    # Is the version already in our list?
     found = False
-
-    for v,cs in versionsToChecksums:
+    for v, cs in versionsToChecksums:
         if v == version:
             found = True
             if classChecksum != cs:
-                return (errorMustUpdateClassVersion,classChecksum,classVersion)
+                return (errorMustUpdateClassVersion, classChecksum, classVersion)
             break
     if not found:
-        return (errorMustAddChecksum,classChecksum,classVersion)
-    return (noError,classChecksum,classVersion)
+        return (errorMustAddChecksum, classChecksum, classVersion)
+    return (noError, classChecksum, classVersion)
 
-import ROOT
 def main():
-    ROOT.gROOT.SetBatch()
-    #Setup the options
-    from optparse import OptionParser
     oparser = OptionParser()
-    oparser.add_option("-l","--lib", dest="library",
-                       help="specify the library to load. If not set classes are found using the PluginManager")
-    oparser.add_option("-x","--xml_file", dest="xmlfile",default="./classes_def.xml",
-                       help="the classes_def.xml file to read")
-    oparser.add_option("-g","--generate_new",dest="generate", action="store_true",default=False,
-                       help="instead of issuing errors, generate a new classes_def.xml file.")
-    oparser.add_option("-G","--generate-in-place",dest="generate_in_place", action="store_true",default=False,
-                       help="Update the classes_def.xml file in place.")
-
-    (options,args)=oparser.parse_args()
-
-    if options.library is None:
-        if 0 != ROOT.gSystem.Load("libart_Framework_Core"):
-            raise RuntimeError("failed to load libart_Framework_Core")
-        ROOT.AutoLibraryLoader.enable()
-    else:
-        if 0 != ROOT.gSystem.Load("libCintex"):
-            raise RuntimeError("failed to load libCintex")
+    oparser.add_option("-l", "--lib", dest="library", help="specify the library to load. If not set classes are found using the PluginManager")
+    oparser.add_option("-x", "--xml_file", dest="xmlfile", default="./classes_def.xml", help="the classes_def.xml file to read")
+    oparser.add_option("-g", "--generate_new", dest="generate", action="store_true", default=False, help="instead of issuing errors, generate a new classes_def.xml file.")
+    oparser.add_option("-G", "--generate-in-place", dest="generate_in_place", action="store_true", default=False, help="Update the classes_def.xml file in place.")
+    oparser.add_option("-t", "--timestamp", dest="timestamp", help="Touch specified file on success.")
+    (options, args) = oparser.parse_args()
+    # Reset argv to avoid ROOT's TApplication getting confused.
+    sys.argv = []
+    ROOT.gROOT.SetBatch()
+    # ROOT 5 only.
+    if ((0 == string.find(os.environ['ROOT_VERSION'], "v5", 0, 2)) and
+        (0 == ROOT.gSystem.Load("libCintex"))):
         ROOT.Cintex.Enable()
-        if 0 != ROOT.gSystem.Load("libart_Framework_Core"):
-            raise RuntimeError("failed to load libart_Framework_Core")
-        if 0 != ROOT.gSystem.Load(options.library):
-            raise RuntimeError("failed to load library '"+options.library+"'")
-
-
+    if (options.library is not None) and (ROOT.gSystem.Load(options.library) != 0):
+        raise RuntimeError("failed to load library '" + options.library + "'")
     p = XmlParser(options.xmlfile)
     #print p.classes
     foundErrors = dict()
-    for name,info in p.classes.iteritems():
-    #    print name
-        errorCode,classChecksum,rootClassVersion = checkClass(name,info[XmlParser.classVersionIndex],info[XmlParser.versionsToChecksumIndex])
+    for name, info in p.classes.iteritems():
+        #print name
+        errorCode, classChecksum, rootClassVersion = checkClass(name, info[XmlParser.classVersionIndex], info[XmlParser.versionsToChecksumIndex])
         if errorCode != noError:
-            foundErrors[name]=(errorCode,classChecksum,rootClassVersion)
-
+            foundErrors[name] = (errorCode, classChecksum, rootClassVersion)
     foundRootDoesNotMatchError = False
     originalToNormalizedNames = dict()
-    for name,retValues in foundErrors.iteritems():
+    for name, retValues in foundErrors.iteritems():
         origName = p.classes[name][XmlParser.originalNameIndex]
-        originalToNormalizedNames[origName]=name
+        originalToNormalizedNames[origName] = name
         code = retValues[0]
         classVersion = p.classes[name][XmlParser.classVersionIndex]
         classChecksum = retValues[1]
         if code == errorRootDoesNotMatchClassDef:
-            foundRootDoesNotMatchError=True
+            foundRootDoesNotMatchError = True
             print "ERROR: for class '" + \
                   name + \
                   "' ROOT says the ClassVersion is " + \
                   str(rootClassVersion) + \
                   " but classes_def.xml says it is " + \
                   str(classVersion) + \
-                  ". Are you sure everything compiled correctly?"
+                  ".  Are you sure everything compiled correctly?"
         elif code == errorMustUpdateClassVersion:
             if options.generate:
                 pass
@@ -218,11 +208,7 @@ def main():
                       '" checksum="' + \
                       str(classChecksum) + \
                       '"/>'
-
-
-    if ((len(foundErrors)>0) and
-        (options.generate or options.generate_in_place) and
-        not foundRootDoesNotMatchError):
+    if (len(foundErrors) > 0) and (options.generate or options.generate_in_place) and not foundRootDoesNotMatchError:
         f = open(options.xmlfile)
         mktemp_pipe = os.popen('mktemp -q "classes_def.xml_XXXXXXXXXX"')
         if mktemp_pipe == None:
@@ -230,41 +216,40 @@ def main():
         filename = mktemp_pipe.readline()
         mktemp_pipe.close()
         filename = string.strip(filename)
-        if filename == r'':
+        if filename == '':
             raise IOError("Cannot obtain temporary filename for write")
-        outFile = open(filename,'w')
+        outFile = open(filename, 'w')
         out = ''
         for l in f.readlines():
             newLine = l
-            if -1 != l.find('<class') and -1 != l.find('ClassVersion'):
+            if (l.find('<class') != -1) and (l.find('ClassVersion') != -1):
                 splitArgs = l.split('"')
                 name = splitArgs[1]
-                normName = originalToNormalizedNames.get(name,None)
+                normName = originalToNormalizedNames.get(name, None)
                 if normName is not None:
                     indent = l.find('<')
-                    #this is a class with a problem
+                    # This is a class with a problem.
                     classVersion = p.classes[normName][XmlParser.classVersionIndex]
-                    code,checksum,rootClassVersion = foundErrors[normName]
-                    hasNoSubElements = (-1 != l.find('/>'))
+                    code, checksum, rootClassVersion = foundErrors[normName]
+                    hasNoSubElements = (l.find('/>') != -1)
                     if code == errorMustUpdateClassVersion:
                         classVersion += 1
                         parts = splitArgs[:]
                         indexToClassVersion = 0
                         for pt in parts:
-                            indexToClassVersion +=1
-                            if -1 != pt.find('ClassVersion'):
+                            indexToClassVersion += 1
+                            if pt.find('ClassVersion') != -1:
                                 break
-                        parts[indexToClassVersion]=str(classVersion)
+                        parts[indexToClassVersion] = str(classVersion)
                         newLine = '"'.join(parts)
-
                     if hasNoSubElements:
-                        newLine = newLine.replace('/','')
-                    out +=newLine
-                    newLine =' '*indent+' <version ClassVersion="'+str(classVersion)+'" checksum="'+str(checksum)+'"/>\n'
+                        newLine = newLine.replace('/', '')
+                    out += newLine
+                    newLine = ' ' * indent + ' <version ClassVersion="' + str(classVersion) + '" checksum="' + str(checksum) + '"/>\n'
                     if hasNoSubElements:
                         out += newLine
-                        newLine=' '*indent+'</class>\n'
-            out +=newLine
+                        newLine = ' ' * indent + '</class>\n'
+            out += newLine
         outFile.writelines(out)
         outFile.close()
         if (options.generate_in_place):
@@ -272,18 +257,15 @@ def main():
         else:
             final_dest = 'classes_def.xml.generated'
         if os.path.exists(final_dest):
-            os.system("cp \"%s\" \"%s\"" % (final_dest, final_dest + '~') )
-        os.system("mv \"%s\" \"%s\"" % (filename, final_dest) )
-    import sys
-    if (foundRootDoesNotMatchError or
-        (len(foundErrors)>0 and
-         not (options.generate or options.generate_in_place))):
+            os.system("cp \"%s\" \"%s\"" % (final_dest, final_dest + '~'))
+        os.system("mv \"%s\" \"%s\"" % (filename, final_dest))
+    if (foundRootDoesNotMatchError or (len(foundErrors) > 0 and not (options.generate or options.generate_in_place))):
         sys.exit(1)
-    elif (len(foundErrors)>0 and options.generate_in_place):
+    if (len(foundErrors)>0 and options.generate_in_place):
         print "WARNING: classes_def.xml files have been updated: rebuild dictionaries."
         sys.exit(2)
-    else:
-        pass
+    if (options.timestamp is not None):
+        os.system("touch \"%s\"" % (options.timestamp))
 
 if __name__ == '__main__':
     main()
