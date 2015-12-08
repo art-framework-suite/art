@@ -43,7 +43,7 @@ namespace art {
     {
       std::ostream & operator()(std::ostream & os, std::string const& prefix)
       {
-        typename T::Parameters().print_allowed_configuration(os, prefix);
+        typename T::Parameters{}.print_allowed_configuration(os, prefix);
         return os;
       }
     };

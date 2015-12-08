@@ -45,7 +45,7 @@ protected:
       fhicl::Name("SelectEvents"),
       fhicl::Comment("The following parameter is a user-provided list\n"
                      "of filter paths. The default list is empty."),
-      fhicl::Sequence<std::string>::make_empty() };
+      {} };
   };
 
   explicit EventObserver(fhicl::OptionalTable<EOConfig> const& config);

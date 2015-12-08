@@ -1,13 +1,5 @@
 #include "art/Framework/Art/detail/PluginSymbolResolvers.h"
 
-
-
-namespace {
-  // Function type aliases
-
-
-}
-
 namespace bfs = boost::filesystem;
 using cet::LibraryManager;
 

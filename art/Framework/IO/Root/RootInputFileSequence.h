@@ -69,13 +69,13 @@ public: // MEMBER FUNCTIONS
     Atom<std::int64_t> saveMemoryObjectThreshold { Name("saveMemoryObjectThreshold"), -1 };
     Atom<bool> delayedReadSubRunProducts { Name("delayedReadSubRunProducts"), false };
     Atom<bool> delayedReadRunProducts { Name("delayedReadRunProducts"), false };
-    Sequence<std::string> inputCommands { Name("inputCommands"), Sequence<std::string>{"keep *"} };
+    Sequence<std::string> inputCommands { Name("inputCommands"), std::vector<std::string>{"keep *"} };
     Atom<bool> dropDescendantsOfDroppedBranches { Name("dropDescendantsOfDroppedBranches"), true };
     Atom<bool> readParameterSets { Name("readParameterSets"), true };
 
     struct SecondaryFile {
       Atom<std::string> a { Name("a"), "" };
-      Sequence<std::string> b { Name("b"), Sequence<std::string>::make_empty() };
+      Sequence<std::string> b { Name("b"), std::vector<std::string>{} };
     };
 
     OptionalSequence< Table<SecondaryFile> > secondaryFileNames { Name("secondaryFileNames") };
