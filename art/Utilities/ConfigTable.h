@@ -29,7 +29,7 @@ namespace art {
     }
 
   private:
-    fhicl::Table<DETAIL> config_;
+    fhicl::Table<DETAIL> config_ { fhicl::Name("<config>") };
 
   };
 
