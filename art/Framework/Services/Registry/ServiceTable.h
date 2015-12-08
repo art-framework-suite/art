@@ -41,7 +41,7 @@ namespace art {
     auto const& operator()() const { return config_(); }
 
   private:
-    fhicl::Table<T> config_;
+    fhicl::Table<T> config_ { fhicl::Name("<service>") };
   };
 
 }

@@ -68,7 +68,7 @@ namespace art
       }
 
     private:
-      fhicl::Table<FullConfig<UserConfig>> fullConfig_;
+      fhicl::Table<FullConfig<UserConfig>> fullConfig_ { fhicl::Name{"<module_label>"} };
     };
 
     template <typename Config>
