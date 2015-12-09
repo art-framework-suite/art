@@ -63,11 +63,12 @@ namespace {
     for ( auto const & lib : getLibraries(lm) ) {
 
       auto const & libspecs = lm.getSpecsByPath( lib );
+      std::string const& spec = libspecs.second.empty() ? libspecs.first : libspecs.second;
 
-      std::string const type     = getType<st>( lm, libspecs.second );
-      std::string const path     = getFilePath<st>( lm, libspecs.second );
-      std::string const provider = getProvider( libspecs.second );
-      std::string const desc     = getDescription<st>( lm, libspecs.second, tab );
+      std::string const type     = getType<st>(lm, spec);
+      std::string const path     = getFilePath<st>(lm, spec);
+      std::string const provider = getProvider(spec);
+      std::string const desc     = getDescription<st>(lm, spec, tab);
 
       result.emplace( lib, libspecs, path, desc, provider, type );
     }
