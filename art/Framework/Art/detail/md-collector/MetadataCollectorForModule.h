@@ -25,9 +25,10 @@ namespace art {
       std::string header_(LibraryInfo const& li) const
       {
         std::ostringstream result;
+        std::string const long_spec = li.long_spec().empty() ? " [ No alternate specification available ] " : li.long_spec();
         result << indent_1()
                << "module_type : " << font_bold(li.short_spec())
-               << " (or \"" << li.long_spec() << "\")"
+               << " (or \"" << long_spec << "\")"
                << "\n\n";
         return result.str();
       }
