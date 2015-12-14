@@ -62,8 +62,7 @@ int main(int argc, char* argv[]) {
   // r for run, l for subRun, e for event, f for file, s for stop
   // The second item is the run number or subRun number
   // for the run and subRun cases.  For the other cases the number
-  // is not not used.  This series of fake data items is terminated
-  // by a period (blank space and newlines are ignored).
+  // is not not used.
   string mockData;
   ifstream input {inputFile.c_str()};
   for (string line; getline(input, line); )
