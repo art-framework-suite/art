@@ -1,4 +1,4 @@
-The input files use the following characters:
+# The input files use the following characters:
 
 r  Run
 l  SubRun
@@ -14,10 +14,6 @@ x  Restart - if 0 ==> shouldWeEndLoop_     = false, otherwise true
 #   handleEmptySubRuns : { true, false }
 #
 # ======> 16 processes per test
-
-Ask stakeholders:
-
-Does anybody use the FULLLUMIMERGE or FULLMERGE mode?
 
 # statemachine_01.txt
 
