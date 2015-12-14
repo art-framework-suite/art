@@ -28,7 +28,9 @@ namespace art {
 #include "fhiclcpp/types/OptionalAtom.h"
 #include "fhiclcpp/types/TableFragment.h"
 
-class art::EmptyEvent : public art::DecrepitRelicInputSourceImplementation {
+using DRISI = art::DecrepitRelicInputSourceImplementation;
+
+class art::EmptyEvent : public DRISI {
 public:
 
   struct Config {
