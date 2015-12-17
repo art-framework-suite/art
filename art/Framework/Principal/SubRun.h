@@ -49,7 +49,6 @@ public:
   Run const&
   getRun() const;
 
-#ifndef __GCCXML__
   ///Put a new product.
   template <typename PROD>
   void
@@ -59,7 +58,6 @@ public:
   template <typename PROD>
   void
   put(std::unique_ptr<PROD> && product, std::string const& productInstanceName);
-#endif /* __GCCXML__ */
 
 private:
   SubRunPrincipal const&
@@ -83,7 +81,6 @@ private:
   std::shared_ptr<Run const> const run_;
 };
 
-#ifndef __GCCXML__
 template <typename PROD>
 void
 art::SubRun::put(std::unique_ptr<PROD> && product,
@@ -110,8 +107,6 @@ art::SubRun::put(std::unique_ptr<PROD> && product,
       << "=================================\n";
   }
 }
-
-#endif /* __GCCXML__ */
 
 #endif /* art_Framework_Principal_SubRun_h */
 
