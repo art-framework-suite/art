@@ -78,10 +78,9 @@ namespace art {
 
 class art::DataViewImpl {
 public:
-#ifndef __GCCXML__
+
   DataViewImpl(DataViewImpl const&) = delete;
   DataViewImpl& operator=(DataViewImpl const&) = delete;
-#endif
   DataViewImpl(Principal & pcpl,
                ModuleDescription const& md,
                BranchType const& branchType);
@@ -283,7 +282,7 @@ template <typename PROD>
 inline
 void
 art::DataViewImpl::getMany(SelectorBase const& sel,
-                           std::vector<Handle<PROD> >& results) const
+                           std::vector<Handle<PROD>>& results) const
 {
   GroupQueryResultVec bhv;
   this->getMany_(TypeID(typeid(PROD)), sel, bhv);
@@ -313,7 +312,7 @@ art::DataViewImpl::getMany(SelectorBase const& sel,
 template <typename PROD>
 inline
 void
-art::DataViewImpl::getManyByType(std::vector<Handle<PROD> >& results) const
+art::DataViewImpl::getManyByType(std::vector<Handle<PROD>>& results) const
 {
   GroupQueryResultVec bhv;
   this->getManyByType_(TypeID(typeid(PROD)), bhv);

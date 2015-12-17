@@ -24,6 +24,7 @@
 #include "art/Persistency/Provenance/RunID.h"
 #include "art/Persistency/Provenance/SubRunID.h"
 #include "art/Persistency/Provenance/Timestamp.h"
+#include "cetlib/container_algorithms.h"
 #include "fhiclcpp/ParameterSet.h"
 
 #include <cstdlib>
@@ -38,7 +39,7 @@ namespace art {
 
 class art::Event : private art::DataViewImpl {
 public:
-  typedef DataViewImpl Base;
+  using Base = DataViewImpl;
   Event(EventPrincipal& ep, const ModuleDescription& md);
 
   // use compiler-generated copy c'tor, copy assignment, and d'tor
@@ -73,7 +74,6 @@ public:
   History const& history() const;
   ProcessHistoryID const& processHistoryID() const;
 
-#ifndef __GCCXML__
   ///Put a new product.
   template <typename PROD>
   ProductID put(std::unique_ptr<PROD> && product) {return put<PROD>(std::move(product), std::string());}
@@ -81,7 +81,6 @@ public:
   ///Put a new product with a 'product instance name'
   template <typename PROD>
   ProductID put(std::unique_ptr<PROD> && product, std::string const& productInstanceName);
-#endif
 
   template <typename PROD>
   bool get(SelectorBase const& sel, Handle<PROD>& result) const;
@@ -142,8 +141,8 @@ public:
   ProductID branchIDToProductID(BranchID const &bid) const;
 
 private:
-  EventPrincipal const& eventPrincipal() const;
-  EventPrincipal      & eventPrincipal();
+  EventPrincipal const& eventPrincipal() const { return eventPrincipal_; }
+  EventPrincipal      & eventPrincipal()       { return eventPrincipal_; }
 
   template< typename ELEMENT >
   void fillView_( GroupQueryResult & bh,
@@ -182,14 +181,12 @@ private:
   // which do not logically modify the DataViewImpl. gotBranchIDs_ is
   // merely a cache reflecting what has been retreived from the
   // Principal class.
-  typedef std::set<BranchID> BranchIDSet;
-  mutable BranchIDSet gotBranchIDs_;
+  mutable std::set<BranchID> gotBranchIDs_;
   void addToGotBranchIDs(Provenance const& prov) const;
 
 };  // Event
 
 // ----------------------------------------------------------------------
-#ifndef __GCCXML__
 template <typename PROD>
 bool
 art::Event::get(ProductID const& oid, Handle<PROD>& result) const
@@ -311,10 +308,8 @@ art::Event::getMany(SelectorBase const& sel,
                std::vector<Handle<PROD> >& results) const
 {
   this->Base::getMany(sel, results);
-  for (typename std::vector<Handle<PROD> >::const_iterator it = results.begin(), itEnd = results.end();
-       it != itEnd; ++it) {
-    addToGotBranchIDs(*it->provenance());
-  }
+  for (auto const& h : results)
+    addToGotBranchIDs(*h.provenance());
 }  // getMany<>()
 
 // ----------------------------------------------------------------------
@@ -324,10 +319,8 @@ void
 art::Event::getManyByType(std::vector<Handle<PROD> >& results) const
 {
   this->Base::getManyByType(results);
-  for (typename std::vector<Handle<PROD> >::const_iterator it = results.begin(), itEnd = results.end();
-       it != itEnd; ++it) {
-    addToGotBranchIDs(*it->provenance());
-  }
+  for (auto const& h : results)
+    addToGotBranchIDs(*h.provenance());
 }  // getManyByType<>()
 
 
@@ -343,13 +336,11 @@ art::Event::getView(std::string const & moduleLabel,
                                             moduleLabel,
                                             productInstanceName,
                                             bhv,
-                                            true
-                                            );
+                                            true );
   ensure_unique_product( nFound, typeID,
-                         moduleLabel, productInstanceName, std::string()
-                         );
+                         moduleLabel, productInstanceName, std::string() );
 
-  std::size_t orig_size = result.size();
+  std::size_t const orig_size = result.size();
   fillView_(bhv[0], result);
   return result.size() - orig_size;
 }  // getView<>()
@@ -357,8 +348,7 @@ art::Event::getView(std::string const & moduleLabel,
 template< class ELEMENT >
 std::size_t
 art::Event::getView( InputTag const & tag,
-                     std::vector<ELEMENT const *> & result
-                     ) const
+                     std::vector<ELEMENT const *> & result ) const
 {
   if (tag.process().empty()) {
     return getView(tag.label(), tag.instance(), result);
@@ -366,19 +356,16 @@ art::Event::getView( InputTag const & tag,
 
   TypeID typeID( typeid(ELEMENT) );
   GroupQueryResultVec bhv;
-  int nFound = getMatchingSequenceByLabel_( typeID
-                                            , tag.label()
-                                            , tag.instance()
-                                            , tag.process()
-                                            , bhv
-                                            , true
-                                            );
-  ensure_unique_product( nFound, typeID
-                         , tag.label(), tag.instance(), tag.process()
-                         );
+  int nFound = getMatchingSequenceByLabel_( typeID,
+                                            tag.label(),
+                                            tag.instance(),
+                                            tag.process(),
+                                            bhv,
+                                            true );
+  ensure_unique_product( nFound, typeID,
+                         tag.label(), tag.instance(), tag.process() );
 
-
-  std::size_t orig_size = result.size();
+  std::size_t const orig_size = result.size();
   fillView_(bhv[0], result);
   return result.size() - orig_size;
 }  // getView<>()
@@ -391,15 +378,13 @@ art::Event::getView(std::string const& moduleLabel,
 {
   TypeID typeID( typeid(ELEMENT) );
   GroupQueryResultVec bhv;
-  int nFound = getMatchingSequenceByLabel_( typeID
-                                            , moduleLabel
-                                            , productInstanceName
-                                            , bhv
-                                            , true
-                                            );
-  ensure_unique_product( nFound, typeID
-                         , moduleLabel, productInstanceName, std::string()
-                         );
+  int nFound = getMatchingSequenceByLabel_( typeID,
+                                            moduleLabel,
+                                            productInstanceName,
+                                            bhv,
+                                            true );
+  ensure_unique_product( nFound, typeID,
+                         moduleLabel, productInstanceName, std::string() );
 
   fillView_(bhv[0], result.vals());
   result.set_innards(bhv[0].result()->productID(), bhv[0].result()->uniqueProduct());
@@ -433,37 +418,22 @@ art::Event::getView(InputTag const& tag, View<ELEMENT>& result) const
 
 template< typename ELEMENT >
 void
-art::Event::fillView_( GroupQueryResult & bh
-                  , std::vector<ELEMENT const *> & result
-                  ) const
+art::Event::fillView_( GroupQueryResult & bh,
+                       std::vector<ELEMENT const*> & result ) const
 {
-  typedef  std::vector<void const *>::const_iterator
-    iter_t;
-
   std::vector<void const *> erased_ptrs;
   bh.result()->uniqueProduct()->fillView(erased_ptrs);
   addToGotBranchIDs(Provenance(bh.result()));
 
-  for( iter_t b = erased_ptrs.begin()
-         , e = erased_ptrs.end();  b != e;  ++b ) {
-    result.push_back( static_cast<ELEMENT const *>(*b) );
-  }
+  std::vector<ELEMENT const*> vals;
+  cet::transform_all( erased_ptrs,
+                      std::back_inserter(vals),
+                      [](auto p) {
+                        return static_cast<ELEMENT const*>(p);
+                      } );
 
-}  // fillView_<>()
-
-inline
-art::EventPrincipal &
-art::Event::eventPrincipal() {
-  return eventPrincipal_;
+  result.swap(vals);
 }
-
-inline
-art::EventPrincipal const &
-art::Event::eventPrincipal() const {
-  return eventPrincipal_;
-}
-
-#endif /* __GCCXML__ */
 
 #endif /* art_Framework_Principal_Event_h */
 
