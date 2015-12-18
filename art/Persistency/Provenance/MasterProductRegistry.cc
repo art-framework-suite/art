@@ -348,4 +348,3 @@ namespace art {
   }
 
 } // namespace art
-
