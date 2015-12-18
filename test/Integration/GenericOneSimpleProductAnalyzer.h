@@ -63,7 +63,7 @@ public:
     e.getByLabel(input_label_, handle);
     assert (handle.isValid() == require_presence_);
     if (require_presence_) {
-      typename std::conditional<detail::has_value_member<V, P>::value, detail::GetValue<V, P>, detail::DereferenceHandle<V, P> >::type get_value;
+      std::conditional_t<detail::has_value_member<V, P>::value, detail::GetValue<V, P>, detail::DereferenceHandle<V, P> > get_value;
       if (get_value(handle) != value_) {
         throw cet::exception("ValueMismatch")
           << "The value for \"" << input_label_
