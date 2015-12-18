@@ -51,8 +51,7 @@ Principal(ProcessConfiguration const& pc, ProcessHistoryID const& hist,
     return;
   }
   assert(!ProcessHistoryRegistry::empty());
-  bool found __attribute__((unused)) =
-    ProcessHistoryRegistry::get(hist, *processHistoryPtr_);
+  bool found [[gnu::unused]] = ProcessHistoryRegistry::get(hist, *processHistoryPtr_);
   assert(found);
 }
 
@@ -97,8 +96,7 @@ getBySelector(TypeID const& productType, SelectorBase const& sel) const
   GroupQueryResultVec results;
   int nFound = findGroupsForProduct(productType, sel, results, true);
   if (nFound == 0) {
-    std::shared_ptr<cet::exception> whyFailed(new art::Exception(
-          art::errors::ProductNotFound));
+    auto whyFailed = std::make_shared<art::Exception>(art::errors::ProductNotFound);
     *whyFailed << "getBySelector: Found zero products matching all criteria\n"
                << "Looking for type: "
                << productType
@@ -128,8 +126,7 @@ getByLabel(TypeID const& productType, string const& label,
                ProcessNameSelector(processName));
   int nFound = findGroupsForProduct(productType, sel, results, true);
   if (nFound == 0) {
-    std::shared_ptr<cet::exception> whyFailed(new art::Exception(
-          art::errors::ProductNotFound));
+    auto whyFailed = std::make_shared<art::Exception>(art::errors::ProductNotFound);
     *whyFailed << "getByLabel: Found zero products matching all criteria\n"
                << "Looking for type: "
                << productType
@@ -186,18 +183,12 @@ int
 Principal::
 tryNextSecondaryFile() const
 {
-    int err = store_->openNextSecondaryFile(nextSecondaryFileIdx_);
-    if (err == -2) {
-      // No more files.
-      return err;
-    }
-    if (err == -1) {
-      // Run, SubRun, or Event not found.
-      ++nextSecondaryFileIdx_;
-      return err;
-    }
+  int err = store_->openNextSecondaryFile(nextSecondaryFileIdx_);
+  if (err != -2) {
+    // there are more files to try
     ++nextSecondaryFileIdx_;
-    return err;
+  }
+  return err;
 }
 
 size_t
@@ -206,18 +197,12 @@ getMatchingSequence(TypeID const& elementType, SelectorBase const& selector,
                     GroupQueryResultVec& results,
                     bool stopIfProcessHasMatch) const
 {
-  // Can we call elementType.friendlyClassName()?
-  if (!elementType.hasDictionary()) {
-    return 0;
-  }
-  size_t ret = 0;
   for (auto const& el : ProductMetaData::instance().elementLookup()) {
     auto I = el[branchType()].find(elementType.friendlyClassName());
     if (I == el[branchType()].end()) {
       continue;
     }
-    ret = findGroups(I->second, selector, results, stopIfProcessHasMatch);
-    if (ret) {
+    if (auto ret = findGroups(I->second, selector, results, stopIfProcessHasMatch)) {
       return ret;
     }
   }
@@ -236,14 +221,12 @@ getMatchingSequence(TypeID const& elementType, SelectorBase const& selector,
     // we use the incremented value of nextSecondaryFileIdx_ here
     // because it is the correctly biased-up by one index into the
     // elementLookup vector for this secondary file.
-    auto const& el =
-      ProductMetaData::instance().elementLookup()[nextSecondaryFileIdx_];
+    auto const& el = ProductMetaData::instance().elementLookup()[nextSecondaryFileIdx_];
     auto I = el[branchType()].find(elementType.friendlyClassName());
     if (I == el[branchType()].end()) {
       continue;
     }
-    ret = findGroups(I->second, selector, results, stopIfProcessHasMatch);
-    if (ret) {
+    if (auto ret = findGroups(I->second, selector, results, stopIfProcessHasMatch) ) {
       return ret;
     }
   }
@@ -547,4 +530,3 @@ getGroup(BranchID const& bid) const
 }
 
 } // namespace art
-

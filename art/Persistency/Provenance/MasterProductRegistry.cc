@@ -346,4 +346,3 @@ namespace art {
   }
 
 } // namespace art
-
