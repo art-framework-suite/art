@@ -6,6 +6,7 @@
 #include "cetlib/canonical_string.h"
 #include "cetlib/container_algorithms.h"
 #include "fhiclcpp/types/Atom.h"
+#include "fhiclcpp/types/OptionalAtom.h"
 
 #include <iterator>
 #include <string>
@@ -22,15 +23,14 @@ public:
   using collection_type = std::vector<std::pair<std::string, std::string>>;
   using value_type = typename collection_type::value_type;
 
-  static constexpr char const* notPresent = "--optional-parameter--";
   struct Config {
     fhicl::Atom<bool> checkSyntax { fhicl::Name("checkSyntax"), false };
-    fhicl::Atom<std::string> applicationFamily  { fhicl::Name("applicationFamily" ), notPresent };
-    fhicl::Atom<std::string> applicationVersion { fhicl::Name("applicationVersion"), notPresent };
+    fhicl::OptionalAtom<std::string> applicationFamily  { fhicl::Name("applicationFamily" ) };
+    fhicl::OptionalAtom<std::string> applicationVersion { fhicl::Name("applicationVersion") };
     fhicl::Atom<std::string> fileType  { fhicl::Name("fileType") , "unknown" };
-    fhicl::Atom<std::string> runType   { fhicl::Name("runType")  , notPresent };
-    fhicl::Atom<std::string> group     { fhicl::Name("group")    , notPresent };
-    fhicl::Atom<std::string> processID { fhicl::Name("processID"), notPresent };
+    fhicl::OptionalAtom<std::string> runType   { fhicl::Name("runType") };
+    fhicl::OptionalAtom<std::string> group     { fhicl::Name("group") };
+    fhicl::OptionalAtom<std::string> processID { fhicl::Name("processID") };
   };
 
   using Parameters = ServiceTable<Config>;
