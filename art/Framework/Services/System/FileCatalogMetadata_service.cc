@@ -6,25 +6,26 @@
 
 art::FileCatalogMetadata::FileCatalogMetadata(art::FileCatalogMetadata::Parameters const & config,
                                               ActivityRegistry &)
-  : checkSyntax_( config().checkSyntax() )
-  , md_()
+  : checkSyntax_{config().checkSyntax()}
+  , md_{}
 {
-  std::string const applicationFamily  = config().applicationFamily();
-  std::string const applicationVersion = config().applicationVersion();
-  std::string const fileType  = config().fileType();
-  std::string const runType   = config().runType();
-  std::string const group     = config().group();
-  std::string const processID = config().processID();
+  std::string appFam;
+  if ( config().applicationFamily(appFam) ) addMetadataString("applicationFamily" , appFam);
 
-  if (applicationFamily  != notPresent) addMetadataString("applicationFamily" , applicationFamily );
-  if (applicationVersion != notPresent) addMetadataString("applicationVersion", applicationVersion);
+  std::string appVer;
+  if ( config().applicationVersion(appVer) ) addMetadataString("applicationVersion", appVer);
 
   // Always write out fileType -- may be overridden.
-  addMetadataString("file_type", fileType);
+  addMetadataString("file_type", config().fileType());
 
-  if (runType   != notPresent) addMetadataString("run_type"  , runType  );
-  if (group     != notPresent) addMetadataString("group"     , group    );
-  if (processID != notPresent) addMetadataString("process_id", processID);
+  std::string rt;
+  if ( config().runType(rt) ) addMetadataString("run_type", rt);
+
+  std::string g;
+  if ( config().group(g) ) addMetadataString("group", g);
+
+  std::string pid;
+  if ( config().processID(pid) ) addMetadataString("process_id", pid);
 }
 
 void
