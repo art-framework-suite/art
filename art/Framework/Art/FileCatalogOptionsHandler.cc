@@ -40,6 +40,27 @@ namespace {
     }
   }
 
+  void check_metadata_options(bpo::variables_map const& vm)
+  {
+    // Mutually exclusive:
+    //   --sam-inherit-metadata  --sam-file-type arg
+    //   --sam-inherit-file-type --sam-file-type arg
+    for( auto const& opt : {"sam-inherit-metadata","sam-inherit-file-type"} ) {
+      if (vm.count(opt)+vm.count("sam-file-type") > 1)
+        throw art::Exception(art::errors::Configuration)
+          << "The options '--" << opt << "' and '--sam-file-type' are mutually exclusive.";
+    }
+
+    // Mutually exclusive:
+    //   --sam-inherit-metadata --sam-run-type arg
+    //   --sam-inherit-run-type --sam-run-type arg
+    for( auto const& opt : {"sam-inherit-metadata","sam-inherit-run-type"} ) {
+      if (vm.count(opt)+vm.count("sam-run-type") > 1)
+        throw art::Exception(art::errors::Configuration)
+          << "The options '--" << opt << "' and '--sam-run-type' are mutually exclusive.";
+    }
+  }
+
   void fill_tiers_streams(bpo::variables_map const & vm,
                           fhicl::intermediate_table & raw_config)
   {
@@ -102,13 +123,13 @@ namespace {
         if (!(exists_outside_prolog(raw_config, tier_spec_key) &&
               exists_outside_prolog(raw_config, stream_name_key))) {
           throw art::Exception(art::errors::Configuration)
-          << "Output \""
-          << output.first
-          << "\" must be configured with "
-          << tier_spec_stem.substr(1)
-          << " (--sam-data-tier=" << output.first << ":<tier>) and "
-          << stream_name_stem.substr(1)
-          << " (--sam-stream-name=" << output.first << ":<stream>).\n";
+            << "Output \""
+            << output.first
+            << "\" must be configured with "
+            << tier_spec_stem.substr(1)
+            << " (--sam-data-tier=" << output.first << ":<tier>) and "
+            << stream_name_stem.substr(1)
+            << " (--sam-stream-name=" << output.first << ":<stream>).\n";
         }
       }
     }
@@ -168,6 +189,9 @@ FileCatalogOptionsHandler(bpo::options_description & desc)
     ("sam-data-tier", bpo::value<std::vector<std::string> >(), "SAM data tier spec-label>:<tier-spec>).")
     ("sam-run-type", bpo::value<std::string>(), "Global run-type for SAM metadata.")
     ("sam-stream-name", bpo::value<std::vector<std::string> >(), "SAM stream name (<module-label>:<stream-name>).")
+    ("sam-inherit-metadata","Input file provides the file type and run type.")
+    ("sam-inherit-file-type","Input file provides the file type.")
+    ("sam-inherit-run-type","Input file provides the run type.")
   ;
 }
 
@@ -227,13 +251,38 @@ doProcessOptions(bpo::variables_map const & vm,
     raw_config.put(fcmdLocation + ".group",
                    vm["sam-group"].as<std::string>());
   }
-  if (vm.count("sam-run-type") > 0) {
-    raw_config.put(fcmdLocation + ".runType",
-                   vm["sam-run-type"].as<std::string>());
-  }
   if (!appVersion_.empty()) {
     raw_config.put(fcmdLocation + ".applicationVersion",
                    appVersion_);
+  }
+
+  check_metadata_options(vm);
+
+  std::string const mdFromInput {".metadataFromInput"};
+  if (vm.count("sam-inherit-metadata") > 0) {
+    raw_config.put(fcmdLocation + mdFromInput,
+                   std::vector<std::string>{"fileType","runType"});
+    raw_config.erase(fcmdLocation + ".fileType");
+    raw_config.erase(fcmdLocation + ".runType");
+  }
+  else {
+    std::vector<std::string> md;
+    if (vm.count("sam-inherit-file-type") > 0) {
+      md.emplace_back("fileType");
+      raw_config.erase(fcmdLocation + ".fileType");
+    }
+    if (vm.count("sam-inherit-run-type") > 0) {
+      md.emplace_back("runType");
+      raw_config.erase(fcmdLocation + ".runType");
+    }
+    if (!md.empty()) {
+      raw_config.put(fcmdLocation + mdFromInput, md);
+    }
+  }
+
+  if (vm.count("sam-run-type") > 0) {
+    raw_config.put(fcmdLocation + ".runType",
+                   vm["sam-run-type"].as<std::string>());
   }
   if (vm.count("sam-file-type") > 0) {
     raw_config.put(fcmdLocation + ".fileType",
