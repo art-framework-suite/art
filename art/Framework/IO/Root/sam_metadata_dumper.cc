@@ -227,7 +227,7 @@ bool read_all_fc_metadata_entries(TFile & file,
            << sqlite_status
            <<").\n";
   }
-  int finalize_status __attribute__((unused)) = sqlite3_finalize(stmt);
+  int const finalize_status = sqlite3_finalize(stmt);
   if (finalize_status != SQLITE_OK) {
     errors << "Unexpected status from DB status cleanup: "
            << sqlite3_errmsg(sqliteDB)
@@ -298,16 +298,12 @@ int print_fc_metadata_from_files(stringvec const & file_names,
   }
   int rc = 0;
   bool first = true;
-  for (stringvec::const_iterator
-       i = file_names.begin(),
-       e = file_names.end();
-       i != e;
-       ++i) {
-    std::unique_ptr<TFile> current_file(TFile::Open(i->c_str(), "READ"));
+  for (auto const& fn : file_names) {
+    std::unique_ptr<TFile> current_file(TFile::Open(fn.c_str(), "READ"));
     if (!current_file || current_file->IsZombie()) {
       ++rc;
       errors << "Unable to open file '"
-             << *i
+             << fn
              << "' for reading."
              << "\nSkipping to next file.\n";
     } else {
