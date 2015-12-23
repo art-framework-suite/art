@@ -27,11 +27,6 @@ using namespace std;
 namespace art {
 
 RootInputFileSequence::
-~RootInputFileSequence()
-{
-}
-
-RootInputFileSequence::
 RootInputFileSequence(fhicl::TableFragment<RootInputFileSequence::Config> const& config,
                       InputFileCatalog& catalog,
                       FastCloningInfoProvider const& fcip,

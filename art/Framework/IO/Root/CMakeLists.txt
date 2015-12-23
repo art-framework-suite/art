@@ -20,12 +20,13 @@ art_make(EXCLUDE
   product_sizes_dumper.cc
   sam_metadata_dumper.cc
   NO_PLUGINS
-  LIB_LIBRARIES 
+  LIB_LIBRARIES
   art_Framework_Core
   art_Framework_IO
   art_Framework_IO_Catalog
   art_Framework_Principal
   art_Framework_Services_Registry
+  art_Framework_Services_System_FileCatalogMetadata_service
   art_Persistency_Common
   art_Persistency_Provenance
   art_Framework_IO_RootVersion
@@ -36,7 +37,7 @@ art_make(EXCLUDE
   ${ROOT_MATHCORE}
 )
 
-simple_plugin(RootInput "source" art_Framework_IO_Root art_Framework_IO_Catalog )
+simple_plugin(RootInput "source" art_Framework_IO_Root art_Framework_IO_Catalog)
 simple_plugin(RootOutput "module" art_Framework_IO_Root)
 
 art_make_exec( NAME product_sizes_dumper

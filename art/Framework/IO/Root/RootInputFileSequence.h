@@ -42,8 +42,7 @@ public: // TYPES
 
 public: // MEMBER FUNCTIONS
 
-  virtual
-  ~RootInputFileSequence();
+  virtual ~RootInputFileSequence() = default;
 
   RootInputFileSequence(RootInputFileSequence const&) = delete;
 
@@ -87,10 +86,12 @@ public: // MEMBER FUNCTIONS
 
   };
 
-  RootInputFileSequence(fhicl::TableFragment<Config> const&, InputFileCatalog&,
+  RootInputFileSequence(fhicl::TableFragment<Config> const&,
+                        InputFileCatalog&,
                         FastCloningInfoProvider const&,
                         InputSource::ProcessingMode,
-                        MasterProductRegistry&, ProcessConfiguration const&);
+                        MasterProductRegistry&,
+                        ProcessConfiguration const&);
   void
   endJob();
 

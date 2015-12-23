@@ -8,6 +8,7 @@ art::FileCatalogMetadata::FileCatalogMetadata(art::FileCatalogMetadata::Paramete
                                               ActivityRegistry &)
   : checkSyntax_{config().checkSyntax()}
   , md_{}
+  , mdFromInput_{config().metadataFromInput()}
 {
   std::string appFam;
   if ( config().applicationFamily(appFam) ) addMetadataString("applicationFamily" , appFam);
@@ -16,16 +17,21 @@ art::FileCatalogMetadata::FileCatalogMetadata(art::FileCatalogMetadata::Paramete
   if ( config().applicationVersion(appVer) ) addMetadataString("applicationVersion", appVer);
 
   // Always write out fileType -- may be overridden.
-  addMetadataString("file_type", config().fileType());
+  std::string fileType {"unknown"};
+  config().fileType(fileType);
+  addMetadataString("file_type", fileType);
 
   std::string rt;
-  if ( config().runType(rt) ) addMetadataString("run_type", rt);
+  if ( config().runType(rt) ) {
+    addMetadataString("run_type", rt);
+  }
 
   std::string g;
   if ( config().group(g) ) addMetadataString("group", g);
 
   std::string pid;
   if ( config().processID(pid) ) addMetadataString("process_id", pid);
+
 }
 
 void
