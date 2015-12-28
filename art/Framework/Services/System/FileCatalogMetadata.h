@@ -3,20 +3,30 @@
 
 #include "art/Framework/Services/Registry/ServiceMacros.h"
 #include "art/Framework/Services/Registry/ServiceTable.h"
+#include "art/Utilities/SAMMetadata.h"
 #include "cetlib/canonical_string.h"
 #include "cetlib/container_algorithms.h"
 #include "fhiclcpp/types/Atom.h"
 #include "fhiclcpp/types/OptionalAtom.h"
 #include "fhiclcpp/types/Sequence.h"
 
+#include <iostream>
 #include <iterator>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 namespace art {
   class FileCatalogMetadata;
 
   class ActivityRegistry;
+
+  struct NewToOld {
+    std::string operator()(std::string const& name) const
+    {
+      return art::is_new_md_name(name) ? art::old_md_name(name) : name;
+    }
+  };
 }
 
 class art::FileCatalogMetadata {
@@ -39,21 +49,22 @@ public:
       std::vector<std::string>{}
     };
 
-    bool notInMetadataList(std::string const& name) const
+    bool inMetadataList(std::string const& name) const
     {
-      return !cet::search_all(metadataFromInput(), name);
+      return cet::search_all(metadataFromInput(), name);
     }
 
-    fhicl::OptionalAtom<std::string> fileType  { fhicl::Name("fileType"),
+    fhicl::Atom<std::string> fileType  { fhicl::Name("fileType"),
         fhicl::Comment("Can specify 'fileType' only if it is not specified\n"
                        "in the 'metadataFromInput' list."),
-        [this](){ return notInMetadataList("fileType"); }
+        [this](){ return !inMetadataList("fileType"); },
+        "unknown"
     };
 
     fhicl::OptionalAtom<std::string> runType   { fhicl::Name("runType"),
         fhicl::Comment("Can specify 'runType' only if it is not specified\n"
                        "in the 'metadataFromInput' list."),
-        [this](){ return notInMetadataList("runType"); }
+        [this](){ return !inMetadataList("runType"); }
     };
   };
 
@@ -69,6 +80,7 @@ public:
 
   // RootInput can set the run-type and file-type parameters
   void setMetadataFromInput(collection_type const& coll);
+  bool inheritedFromInput(std::string const& name);
 
   // Ascertain whether JSON syntax checking is desired.
   bool wantCheckSyntax() const { return checkSyntax_; }
@@ -76,7 +88,50 @@ public:
 private:
   bool const checkSyntax_;
   collection_type md_;
-  std::vector<std::string> mdFromInput_;
+
+  class InheritedMetadata {
+  public:
+
+    InheritedMetadata(std::vector<std::string> const& sortedMdToInherit,
+                      collection_type const& coll)
+    {
+      art::NewToOld const nameTranslator;
+      for(auto const& pr : coll) {
+        if (cet::search_all(sortedMdToInherit, nameTranslator(pr.first))) {
+          inputmd_.insert(pr);
+          orderedmd_.emplace_back(pr);
+        }
+      }
+    }
+
+    auto const& entries() const { return orderedmd_; }
+
+    void check_values(collection_type const& fromInput) const
+    {
+      for (auto const& pr : fromInput) {
+        auto it = inputmd_.find(pr.first);
+        if ( it == cet::cend(inputmd_) ) {
+          throw Exception(errors::LogicError)
+            << "Metadata key " << pr.first
+            << " missing from list of metadata to inherit from input files.\n";
+        }
+        else if (it->second != pr.second) {
+          throw Exception(errors::MismatchedInputFiles)
+            << "The value for '" << pr.first << "' for the current file is: " << pr.second
+            << ", which conflicts with the value from the first input file (\""
+            << it->second << "\").\n";
+        }
+      }
+    }
+
+  private:
+
+    collection_type orderedmd_;
+    std::unordered_map<std::string, std::string> inputmd_;
+  };
+
+  std::unique_ptr<InheritedMetadata> imd_;
+  std::vector<std::string> mdToInherit_;
 };
 
 inline
@@ -90,13 +145,20 @@ addMetadataString(std::string const & key, std::string const & value)
 inline
 void
 art::FileCatalogMetadata::
-setMetadataFromInput(collection_type const& coll)
+setMetadataFromInput(collection_type const& mdFromInput)
 {
-  cet::sort_all(mdFromInput_);
-  cet::for_all(coll, [this](auto const& pr) {
-      if ( cet::search_all(mdFromInput_, pr.first) )
-        this->addMetadataString(pr.first, pr.second);
-    } );
+  if (mdToInherit_.empty()) return;
+
+  if (!imd_)
+    imd_ = std::make_unique<InheritedMetadata>(mdToInherit_, mdFromInput);
+  else
+    imd_->check_values(mdFromInput);
+
+  for (auto const& pr : imd_->entries()) {
+    std::string const& newName =
+      is_old_md_name(pr.first) ? new_md_name(pr.first) : pr.first;
+    addMetadataString(newName, pr.second);
+  }
 }
 
 inline
