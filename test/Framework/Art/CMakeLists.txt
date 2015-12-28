@@ -694,3 +694,52 @@ config_test_pass(FileCatalogOptions_14_w)
 
 # Compare output from FileCatalogOptions_14_w against reference.
 config_ref_test(FileCatalogOptions_14)
+
+# Should all fail due to conflicting options
+cet_test(FileCatalogOptions_15 HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --sam-inherit-file-type
+  --sam-file-type "Chicken"
+  -c opt-empty.fcl
+  TEST_PROPERTIES
+  PASS_REGULAR_EXPRESSION
+  "  The options '--sam-inherit-file-type' and '--sam-file-type' are mutually exclusive\\."
+  DATAFILES
+  fcl/opt-empty.fcl
+  )
+
+cet_test(FileCatalogOptions_16 HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --sam-inherit-run-type
+  --sam-run-type "Turkey"
+  -c opt-empty.fcl
+  TEST_PROPERTIES
+  PASS_REGULAR_EXPRESSION
+  "  The options '--sam-inherit-run-type' and '--sam-run-type' are mutually exclusive\\."
+  DATAFILES
+  fcl/opt-empty.fcl
+  )
+
+cet_test(FileCatalogOptions_17 HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --sam-inherit-metadata
+  --sam-file-type "Duck"
+  -c opt-empty.fcl
+  TEST_PROPERTIES
+  PASS_REGULAR_EXPRESSION
+  "  The options '--sam-inherit-metadata' and '--sam-file-type' are mutually exclusive\\."
+  DATAFILES
+  fcl/opt-empty.fcl
+)
+
+cet_test(FileCatalogOptions_18 HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --sam-inherit-metadata
+  --sam-run-type "Turducken"
+  -c opt-empty.fcl
+  TEST_PROPERTIES
+  PASS_REGULAR_EXPRESSION
+  "  The options '--sam-inherit-metadata' and '--sam-run-type' are mutually exclusive\\."
+  DATAFILES
+  fcl/opt-empty.fcl
+  )
