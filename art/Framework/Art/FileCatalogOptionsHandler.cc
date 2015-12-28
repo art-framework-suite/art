@@ -259,9 +259,14 @@ doProcessOptions(bpo::variables_map const & vm,
   check_metadata_options(vm);
 
   std::string const mdFromInput {".metadataFromInput"};
+  bool specifyDataTier { false }; // The output module needs a
+                                  // 'dataTier' if "fileType" is
+                                  // provided either by the input file
+                                  // or as a configuration parameter.
   if (vm.count("sam-inherit-metadata") > 0) {
     raw_config.put(fcmdLocation + mdFromInput,
                    std::vector<std::string>{"fileType","runType"});
+    specifyDataTier = true;
     raw_config.erase(fcmdLocation + ".fileType");
     raw_config.erase(fcmdLocation + ".runType");
   }
@@ -269,6 +274,7 @@ doProcessOptions(bpo::variables_map const & vm,
     std::vector<std::string> md;
     if (vm.count("sam-inherit-file-type") > 0) {
       md.emplace_back("fileType");
+      specifyDataTier = true;
       raw_config.erase(fcmdLocation + ".fileType");
     }
     if (vm.count("sam-inherit-run-type") > 0) {
@@ -293,8 +299,9 @@ doProcessOptions(bpo::variables_map const & vm,
     ( wantSAMweb ||
       exists_outside_prolog(raw_config, fcmdLocation + ".applicationFamily") ||
       exists_outside_prolog(raw_config, fcmdLocation + ".applicationVersion") ||
+      exists_outside_prolog(raw_config, fcmdLocation + ".group") ||
       exists_outside_prolog(raw_config, fcmdLocation + ".fileType") ||
-      exists_outside_prolog(raw_config, fcmdLocation + ".group")
+      specifyDataTier
     );
 
   if (requireMetadata) {

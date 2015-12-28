@@ -1011,7 +1011,7 @@ cet_test(SAM_metadata_verify_hr HANDBUILT
   TEST_ARGS -H -s ../SAM_metadata.d/out.root
   TEST_PROPERTIES DEPENDS SAM_metadata
   PASS_REGULAR_EXPRESSION
-  "^\nFile catalog metadata from file \\.\\./SAM_metadata\\.d/out\\.root:\n\n 1: applicationFamily   \"Ethel\"\n 2: applicationVersion  \"v0\\.00\\.01a\"\n 3: fileType            \"MC\"\n 4: run_type            \"MCChallenge\"\n 5: group               \"MyGang\"\n 6: process_name        \"SAMMetadataW\"\n 7: testMetadata        \"success!\"\n 8: dataTier            \"The one with the thickest frosting\"\n 9: streamName          \"o1\"\n10: file_format         \"artroot\"\n11: file_format_era     \"ART_2011a\"\n12: file_format_version 8\n13: start_time          \"${date_regex}\"\n14: end_time            \"${date_regex}\"\n15: runs                \\[ \\[ 1, 0, \"MCChallenge\" \\] \\]\n16: event_count         1\n17: first_event         \\[ 1, 0, 1 \\]\n18: last_event          \\[ 1, 0, 1 \\]\n-------------------------------\n$"
+  "^\nFile catalog metadata from file \\.\\./SAM_metadata\\.d/out\\.root:\n\n 1: applicationFamily   \"Ethel\"\n 2: applicationVersion  \"v0\\.00\\.01a\"\n 3: file_type           \"MC\"\n 4: run_type            \"MCChallenge\"\n 5: group               \"MyGang\"\n 6: process_name        \"SAMMetadataW\"\n 7: testMetadata        \"success!\"\n 8: data_tier           \"The one with the thickest frosting\"\n 9: data_stream         \"o1\"\n10: file_format         \"artroot\"\n11: file_format_era     \"ART_2011a\"\n12: file_format_version 8\n13: start_time          \"${date_regex}\"\n14: end_time            \"${date_regex}\"\n15: runs                \\[ \\[ 1, 0, \"MCChallenge\" \\] \\]\n16: event_count         1\n17: first_event         \\[ 1, 0, 1 \\]\n18: last_event          \\[ 1, 0, 1 \\]\n-------------------------------\n$"
   )
 
 cet_test(SAM_metadata_verify_JSON HANDBUILT
@@ -1021,6 +1021,87 @@ cet_test(SAM_metadata_verify_JSON HANDBUILT
   PASS_REGULAR_EXPRESSION
   "^{\n  \"\\.\\./SAM_metadata\\.d/out\\.root\": {\n    \"applicationFamily\": \"Ethel\",\n    \"applicationVersion\": \"v0\\.00\\.01a\",\n    \"file_type\": \"MC\",\n    \"run_type\": \"MCChallenge\",\n    \"group\": \"MyGang\",\n    \"process_name\": \"SAMMetadataW\",\n    \"testMetadata\": \"success!\",\n    \"data_tier\": \"The one with the thickest frosting\",\n    \"data_stream\": \"o1\",\n    \"file_format\": \"artroot\",\n    \"file_format_era\": \"ART_2011a\",\n    \"file_format_version\": 8,\n    \"start_time\": \"${date_regex}\",\n    \"end_time\": \"${date_regex}\",\n    \"runs\": \\[ \\[ 1, 0, \"MCChallenge\" \\] \\],\n    \"event_count\": 1,\n    \"first_event\": \\[ 1, 0, 1 \\],\n    \"last_event\": \\[ 1, 0, 1 \\]\n  }\n}\n$"
   )
+
+cet_test(SAM_metadataFromInput_01 HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS -c SAMMetadata_r_passthrough1.fcl
+  --sam-inherit-metadata
+  --sam-data-tier "Chummy"
+  -s ../SAM_metadata.d/out.root
+  -o out.root
+  TEST_PROPERTIES DEPENDS SAM_metadata
+  DATAFILES
+  fcl/SAMMetadata_r_passthrough1.fcl
+  )
+
+cet_test(SAM_metadataFromInput_01_verify HANDBUILT
+  TEST_EXEC sam_metadata_dumper
+  TEST_ARGS -H -s ../SAM_metadataFromInput_01.d/out.root
+  TEST_PROPERTIES DEPENDS SAM_metadataFromInput_01
+  PASS_REGULAR_EXPRESSION
+  "^\nFile catalog metadata from file \\.\\./SAM_metadataFromInput_01\\.d/out\\.root:\n\n 1: process_name        \"SAMMetadataPassthrough1\"\n 2: file_type           \"MC\"\n 3: run_type            \"MCChallenge\"\n 4: data_tier           \"Chummy\"\n 5: data_stream         \"o1\"\n 6: file_format         \"artroot\"\n 7: file_format_era     \"ART_2011a\"\n 8: file_format_version 8\n 9: start_time          \"${date_regex}\"\n10: end_time            \"${date_regex}\"\n11: runs                \\[ \\[ 1, 0, \"MCChallenge\" \\] \\]\n12: event_count         1\n13: first_event         \\[ 1, 0, 1 \\]\n14: last_event          \\[ 1, 0, 1 \\]\n15: parents             \\[ \"out\\.root\" \\]\n-------------------------------\n$"
+  )
+
+cet_test(SAM_metadataFromInput_02 HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS -c SAMMetadata_r_passthrough2.fcl
+  --sam-inherit-run-type
+  --sam-data-tier "Peachy"
+  -s ../SAM_metadata.d/out.root
+  -o out.root
+  TEST_PROPERTIES DEPENDS SAM_metadata
+  DATAFILES
+  fcl/SAMMetadata_r_passthrough2.fcl
+  )
+
+cet_test(SAM_metadataFromInput_02_verify HANDBUILT
+  TEST_EXEC sam_metadata_dumper
+  TEST_ARGS -H -s ../SAM_metadataFromInput_02.d/out.root
+  TEST_PROPERTIES DEPENDS SAM_metadataFromInput_02
+  PASS_REGULAR_EXPRESSION
+  "^\nFile catalog metadata from file \\.\\./SAM_metadataFromInput_02\\.d/out\\.root:\n\n 1: file_type           \"Pescadero\"\n 2: process_name        \"SAMMetadataPassthrough2\"\n 3: run_type            \"MCChallenge\"\n 4: data_tier           \"Peachy\"\n 5: data_stream         \"o1\"\n 6: file_format         \"artroot\"\n 7: file_format_era     \"ART_2011a\"\n 8: file_format_version 8\n 9: start_time          \"${date_regex}\"\n10: end_time            \"${date_regex}\"\n11: runs                \\[ \\[ 1, 0, \"MCChallenge\" \\] \\]\n12: event_count         1\n13: first_event         \\[ 1, 0, 1 \\]\n14: last_event          \\[ 1, 0, 1 \\]\n15: parents             \\[ \"out\\.root\" \\]\n-------------------------------\n$"
+  )
+
+cet_test(SAM_metadataFromInput_03 HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS -c SAMMetadata_r_passthrough3.fcl
+  --sam-inherit-file-type
+  --sam-run-type "Trot"
+  --sam-data-tier "Grapey"
+  -s ../SAM_metadata.d/out.root
+  -o out.root
+  TEST_PROPERTIES DEPENDS SAM_metadata
+  DATAFILES
+  fcl/SAMMetadata_r_passthrough3.fcl
+  )
+
+cet_test(SAM_metadataFromInput_03_verify HANDBUILT
+  TEST_EXEC sam_metadata_dumper
+  TEST_ARGS -H -s ../SAM_metadataFromInput_03.d/out.root
+  TEST_PROPERTIES DEPENDS SAM_metadataFromInput_03
+  PASS_REGULAR_EXPRESSION
+  "^\nFile catalog metadata from file \\.\\./SAM_metadataFromInput_03\\.d/out\\.root:\n\n 1: run_type            \"Trot\"\n 2: process_name        \"SAMMetadataPassthrough3\"\n 3: file_type           \"MC\"\n 4: data_tier           \"Grapey\"\n 5: data_stream         \"o1\"\n 6: file_format         \"artroot\"\n 7: file_format_era     \"ART_2011a\"\n 8: file_format_version 8\n 9: start_time          \"${date_regex}\"\n10: end_time            \"${date_regex}\"\n11: runs                \\[ \\[ 1, 0, \"Trot\" \\] \\]\n12: event_count         1\n13: first_event         \\[ 1, 0, 1 \\]\n14: last_event          \\[ 1, 0, 1 \\]\n15: parents             \\[ \"out\\.root\" \\]\n-------------------------------\n$"
+  )
+
+cet_test(SAM_metadataFromInput_conflictingFields HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS -c empty.fcl
+  --process-name "ShouldFail"
+  --sam-inherit-file-type
+  --sam-run-type "Canter"
+  --sam-data-tier "Perky"
+  -s ../SAM_metadataFromInput_01.d/out.root
+  -s ../SAM_metadataFromInput_02.d/out.root
+  -o out.root
+  DATAFILES
+  fcl/empty.fcl
+  TEST_PROPERTIES
+  PASS_REGULAR_EXPRESSION
+  "  The value for 'file_type' for the current file is: \"Pescadero\", which conflicts with the value from the first input file \\(\"\"MC\"\"\\)."
+  )
+
+set_tests_properties(SAM_metadataFromInput_conflictingFields
+  PROPERTIES DEPENDS "SAM_metadataFromInput_01;SAM_metadataFromInput_02")
 
 cet_test(GeneratorSource_t HANDBUILT
   TEST_EXEC art
@@ -1182,7 +1263,7 @@ cet_test(TestMetadata_verify_hr HANDBUILT
   TEST_ARGS -H -s ../TestMetadata_plugin_t.d/out.root
   TEST_PROPERTIES DEPENDS TestMetadata_plugin_t
   PASS_REGULAR_EXPRESSION
-  "^\nFile catalog metadata from file \\.\\./TestMetadata_plugin_t\\.d/out\\.root:\n\n 1: fileType            \"unknown\"\n 2: process_name        \"DEVEL\"\n 3: file_format         \"artroot\"\n 4: file_format_era     \"ART_2011a\"\n 5: file_format_version 8\n 6: start_time          \"${date_regex}\"\n 7: end_time            \"${date_regex}\"\n 8: event_count         1\n 9: first_event         \\[ 1, 0, 1 \\]\n10: last_event          \\[ 1, 0, 1 \\]\n11: key1                \"value1\"\n12: key2                \"value2\"\n-------------------------------\n$"
+  "^\nFile catalog metadata from file \\.\\./TestMetadata_plugin_t\\.d/out\\.root:\n\n 1: file_type           \"unknown\"\n 2: process_name        \"DEVEL\"\n 3: file_format         \"artroot\"\n 4: file_format_era     \"ART_2011a\"\n 5: file_format_version 8\n 6: start_time          \"${date_regex}\"\n 7: end_time            \"${date_regex}\"\n 8: event_count         1\n 9: first_event         \\[ 1, 0, 1 \\]\n10: last_event          \\[ 1, 0, 1 \\]\n11: key1                \"value1\"\n12: key2                \"value2\"\n-------------------------------\n$"
   )
 
 cet_test(TestMetadata_verify_JSON HANDBUILT

@@ -1,0 +1,26 @@
+process_name: SAMMetadataPassthrough3
+
+source:
+{
+  module_type: RootInput
+  maxEvents: 1
+}
+
+services.FileCatalogMetadata: {
+   checkSyntax: true
+   runType: "Leisurely"
+}
+
+physics:
+{
+   e1: [o1 ]
+}
+
+outputs:
+{
+  o1:
+  {
+    module_type: RootOutput
+    fileName: "out.root"
+  }
+}
