@@ -3,14 +3,13 @@
 
 #include "art/Framework/Services/Registry/ServiceMacros.h"
 #include "art/Framework/Services/Registry/ServiceTable.h"
-#include "art/Utilities/SAMMetadata.h"
+#include "art/Utilities/SAMMetadataTranslators.h"
 #include "cetlib/canonical_string.h"
 #include "cetlib/container_algorithms.h"
 #include "fhiclcpp/types/Atom.h"
 #include "fhiclcpp/types/OptionalAtom.h"
 #include "fhiclcpp/types/Sequence.h"
 
-#include <iostream>
 #include <iterator>
 #include <string>
 #include <unordered_map>
@@ -18,15 +17,7 @@
 
 namespace art {
   class FileCatalogMetadata;
-
   class ActivityRegistry;
-
-  struct NewToOld {
-    std::string operator()(std::string const& name) const
-    {
-      return art::is_new_md_name(name) ? art::old_md_name(name) : name;
-    }
-  };
 }
 
 class art::FileCatalogMetadata {
@@ -95,9 +86,9 @@ private:
     InheritedMetadata(std::vector<std::string> const& sortedMdToInherit,
                       collection_type const& coll)
     {
-      art::NewToOld const nameTranslator;
+      NewToOld const translator;
       for(auto const& pr : coll) {
-        if (cet::search_all(sortedMdToInherit, nameTranslator(pr.first))) {
+        if (cet::search_all(sortedMdToInherit, translator(pr.first))) {
           inputmd_.insert(pr);
           orderedmd_.emplace_back(pr);
         }
@@ -125,7 +116,6 @@ private:
     }
 
   private:
-
     collection_type orderedmd_;
     std::unordered_map<std::string, std::string> inputmd_;
   };
@@ -154,10 +144,9 @@ setMetadataFromInput(collection_type const& mdFromInput)
   else
     imd_->check_values(mdFromInput);
 
+  OldToNew const translator;
   for (auto const& pr : imd_->entries()) {
-    std::string const& newName =
-      is_old_md_name(pr.first) ? new_md_name(pr.first) : pr.first;
-    addMetadataString(newName, pr.second);
+    addMetadataString(translator(pr.first), pr.second);
   }
 }
 
