@@ -30,8 +30,9 @@ art::FileCatalogMetadata::FileCatalogMetadata(art::FileCatalogMetadata::Paramete
 
   // Always write out fileType -- either by inheriting from the input
   // file or by overriding via the FHiCL parameter "fileType".
-  if ( !inheritedFromInput("file_type") )
+  if ( !inheritedFromInput("file_type") ) {
     addMetadataString("file_type", config().fileType());
+  }
 
   std::string rt;
   if ( !inheritedFromInput("run_type") && config().runType(rt) ) {

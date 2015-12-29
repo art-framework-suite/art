@@ -7,7 +7,6 @@
 #include "art/Persistency/Provenance/ParameterSetMap.h"
 #include "art/Persistency/RootDB/SQLite3Wrapper.h"
 #include "art/Persistency/RootDB/tkeyvfs.h"
-//#include "art/Utilities/SAMMetadata.h"
 #include "boost/program_options.hpp"
 #include "cetlib/container_algorithms.h"
 #include "cetlib/canonical_string.h"
