@@ -11,12 +11,6 @@
 
 using art::EDProduct;
 
-EDProduct::EDProduct()
-{ }
-
-EDProduct::~EDProduct()
-{ }
-
 void
 EDProduct::setPtr(std::type_info const &toType,
                   unsigned long index,

@@ -16,7 +16,7 @@ namespace art {
 
   class BranchChildren {
   private:
-    typedef std::set<BranchID> BranchIDSet;
+    using BranchIDSet = std::set<BranchID>;
   public:
 
     // Clear all information.
@@ -34,7 +34,7 @@ namespace art {
     void appendToDescendants(BranchID parent, BranchIDSet& descendants) const;
 
   private:
-    typedef std::map<BranchID, BranchIDSet> map_t;
+    using map_t = std::map<BranchID, BranchIDSet>;
     map_t childLookup_;
 
     void append_(map_t const& lookup, BranchID item, BranchIDSet& itemSet) const;

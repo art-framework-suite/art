@@ -31,26 +31,24 @@ namespace art {
 
 class art::BranchMapper {
 public:
-#ifndef __GCCXML__
+
   BranchMapper(BranchMapper const&) = delete;
   BranchMapper& operator=(BranchMapper const&) = delete;
-#endif
+
   typedef  cet::exempt_ptr<ProductProvenance const>  result_t;
 
   explicit BranchMapper(bool delayedRead = false);
-  virtual ~BranchMapper() { }
+  virtual ~BranchMapper() = default;
 
   void write(std::ostream &) const;
 
   result_t branchToProductProvenance(BranchID const &) const;
-
-#ifndef __GCCXML__
   result_t insert(std::unique_ptr<ProductProvenance const>&& );
-#endif
+
   void setDelayedRead(bool value) {delayedRead_ = value;}
 
 private:
-  typedef std::map <BranchID, cet::value_ptr<ProductProvenance const> >  eiSet;
+  using eiSet = std::map <BranchID, cet::value_ptr<ProductProvenance const> >;
 
   eiSet         entryInfoSet_;
   mutable bool  delayedRead_;

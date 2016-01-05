@@ -1239,8 +1239,8 @@ namespace art {
     // Do drop on input. On the first pass, just fill
     // in a set of branches to be dropped.
     set<BranchID> branchesToDrop;
-    for (auto I = prodList.cbegin(), E = prodList.cend(); I != E; ++I) {
-      auto const& bd = I->second;
+    for (auto const& prod : prodList) {
+      auto const& bd = prod.second;
       if (!groupSelector.selected(bd)) {
         if (dropDescendants) {
           branchChildren_->appendToDescendants(bd.branchID(), branchesToDrop);

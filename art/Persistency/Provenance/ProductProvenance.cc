@@ -24,51 +24,53 @@ namespace art {
     transients_()
   {}
 
-   ProductProvenance::ProductProvenance(BranchID const& bid,
-                                        ProductStatus status) :
+  ProductProvenance::ProductProvenance(BranchID const& bid,
+                                       ProductStatus status) :
     branchID_(bid),
     productStatus_(status),
     parentageID_(),
     transients_()
   {}
 
-   ProductProvenance::ProductProvenance(BranchID const& bid,
-                                        ProductStatus status,
-                                        ParentageID const& edid) :
+  ProductProvenance::ProductProvenance(BranchID const& bid,
+                                       ProductStatus status,
+                                       ParentageID const& edid) :
     branchID_(bid),
     productStatus_(status),
     parentageID_(edid),
     transients_()
   {}
 
-   ProductProvenance::ProductProvenance(BranchID const& bid,
-                                    ProductStatus status,
-                                    std::shared_ptr<Parentage> pPtr) :
+  ProductProvenance::ProductProvenance(BranchID const& bid,
+                                       ProductStatus status,
+                                       std::shared_ptr<Parentage> pPtr) :
     branchID_(bid),
     productStatus_(status),
     parentageID_(pPtr->id()),
-    transients_() {
-       parentagePtr() = pPtr;
-       ParentageRegistry::put(*pPtr);
+    transients_()
+  {
+    parentagePtr() = pPtr;
+    ParentageRegistry::put(*pPtr);
   }
 
   ProductProvenance::ProductProvenance(BranchID const& bid,
-                   ProductStatus status,
-                   std::vector<BranchID> const& parents) :
+                                       ProductStatus status,
+                                       std::vector<BranchID> const& parents) :
     branchID_(bid),
     productStatus_(status),
     parentageID_(),
-    transients_() {
-      parentagePtr() = std::shared_ptr<Parentage>(new Parentage);
-      parentagePtr()->parents() = parents;
-      parentageID_ = parentagePtr()->id();
-      ParentageRegistry::put(*parentagePtr());
+    transients_()
+  {
+    parentagePtr() = std::make_shared<Parentage>();
+    parentagePtr()->parents() = parents;
+    parentageID_ = parentagePtr()->id();
+    ParentageRegistry::put(*parentagePtr());
   }
 
   Parentage const &
   ProductProvenance::parentage() const {
     if (!parentagePtr()) {
-      parentagePtr().reset(new Parentage);
+      parentagePtr() = std::make_shared<Parentage>();
       ParentageRegistry::get(parentageID_, *parentagePtr());
     }
     return *parentagePtr();

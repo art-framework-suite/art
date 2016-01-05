@@ -371,15 +371,15 @@ void
 art::OutputModule::
 updateBranchParents(EventPrincipal const & ep)
 {
-  for (EventPrincipal::const_iterator i = ep.begin(), iEnd = ep.end(); i != iEnd;
-       ++i) {
-    if (i->second->productProvenancePtr()) {
-      BranchID const & bid = i->first;
-      BranchParents::iterator it = branchParents_.find(bid);
+  for (auto const& groupPr : ep) {
+    auto const& group = *groupPr.second;
+    if (group.productProvenancePtr()) {
+      BranchID const& bid = groupPr.first;
+      auto it = branchParents_.find(bid);
       if (it == branchParents_.end()) {
-        it = branchParents_.insert(std::make_pair(bid, std::set<ParentageID>())).first;
+        it = branchParents_.emplace(bid, std::set<ParentageID>()).first;
       }
-      it->second.insert(i->second->productProvenancePtr()->parentageID());
+      it->second.insert(group.productProvenancePtr()->parentageID());
       branchChildren_.insertEmpty(bid);
     }
   }
@@ -389,22 +389,14 @@ void
 art::OutputModule::
 fillDependencyGraph()
 {
-  for (BranchParents::const_iterator i = branchParents_.begin(),
-       iEnd = branchParents_.end();
-       i != iEnd; ++i) {
-    BranchID const & child = i->first;
-    std::set<ParentageID> const & eIds = i->second;
-    for (std::set<ParentageID>::const_iterator it = eIds.begin(),
-         itEnd = eIds.end();
-         it != itEnd; ++it) {
+  for (auto const& bp : branchParents_) {
+    BranchID const & child = bp.first;
+    std::set<ParentageID> const & eIds = bp.second;
+    for (auto const& eId : eIds) {
       Parentage entryDesc;
-      ParentageRegistry::get(*it, entryDesc);
-      std::vector<BranchID> const & parents = entryDesc.parents();
-      for (std::vector<BranchID>::const_iterator j = parents.begin(),
-           jEnd = parents.end();
-           j != jEnd; ++j) {
-        branchChildren_.insertChild(*j, child);
-      }
+      ParentageRegistry::get(eId, entryDesc);
+      for (auto const& p : entryDesc.parents())
+        branchChildren_.insertChild(p, child);
     }
   }
 }

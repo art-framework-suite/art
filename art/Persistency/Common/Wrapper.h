@@ -14,7 +14,6 @@
 #include <iostream>
 #include <memory>
 
-#ifndef __GCCXML__
 // Required for specializations of has_size_member<T>, below.
 namespace CLHEP {
   class HepMatrix;
@@ -23,12 +22,10 @@ namespace CLHEP {
 
 #include <string>
 #include <vector>
-#endif
 
 namespace art {
   template <typename T> class Wrapper;
 
-#ifndef __GCCXML__
   // Implementation detail declarations.
   namespace detail {
     template< typename T >
@@ -65,7 +62,6 @@ namespace art {
   template <typename T>
   struct DoNotSetPtr;
 
-#endif
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -75,42 +71,35 @@ class art::Wrapper : public art::EDProduct {
 public:
   Wrapper();
 
-#ifndef __GCCXML__
   explicit Wrapper(std::unique_ptr<T> ptr);
-#endif
+  virtual ~Wrapper() = default;
 
-  virtual ~Wrapper();
-
-#ifndef __GCCXML__
   T const * product() const;
   T const * operator->() const;
 
-  virtual void fillView(std::vector<void const *> & view) const;
+  void fillView(std::vector<void const *> & view) const override;
 
-  virtual std::string productSize() const;
-#endif
+  std::string productSize() const override;
 
   // MUST UPDATE WHEN CLASS IS CHANGED!
   static short Class_Version() { return 10; }
 
 private:
-  virtual
+
   std::unique_ptr<EDProduct>
-  do_makePartner(std::type_info const & wanted_type) const;
+  do_makePartner(std::type_info const & wanted_type) const override;
 
-  virtual bool isPresent_() const {return present;}
+  bool isPresent_() const override {return present;}
 
-  virtual void do_setPtr(std::type_info const & toType,
-                         unsigned long index,
-                         void const * &ptr) const;
+  void do_setPtr(std::type_info const & toType,
+                 unsigned long index,
+                 void const * &ptr) const override;
 
-  virtual void do_getElementAddresses(std::type_info const & toType,
-                                      std::vector<unsigned long> const & indices,
-                                      std::vector<void const *> &ptr) const;
+  void do_getElementAddresses(std::type_info const & toType,
+                              std::vector<unsigned long> const & indices,
+                              std::vector<void const *> &ptr) const override;
 
-#ifndef __GCCXML__
   T && refOrThrow(T * ptr);
-#endif
 
   bool present;
   //   T const obj;
@@ -120,8 +109,6 @@ private:
 
 ////////////////////////////////////////////////////////////////////////
 // Implementation details.
-
-#ifndef __GCCXML__
 
 #include "art/Persistency/Common/GetProduct.h"
 #include "art/Persistency/Common/PtrVector.h"
@@ -160,12 +147,6 @@ Wrapper(std::unique_ptr<T> ptr) :
   EDProduct(),
   present(ptr.get() != 0),
   obj(refOrThrow(ptr.get()))
-{
-}
-
-template <typename T>
-art::Wrapper<T>::
-~Wrapper()
 {
 }
 
@@ -553,7 +534,6 @@ namespace art {
   }
 
 }
-#endif /* __GCCXML__ */
 
 #endif /* art_Persistency_Common_Wrapper_h */
 
