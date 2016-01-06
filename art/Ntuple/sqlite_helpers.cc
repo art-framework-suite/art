@@ -62,18 +62,29 @@ namespace sqlite
                            "Existing database table name does not match description");
     }
 
+    inline std::string assembleURI(std::string const& filename)
+    {
+      return
+        filename.substr(0,5) == "file:" ?
+        filename : // if prefaced with 'file:', then it's a URI and just use it
+        "file:"+filename+"?nolock=1"; // otherwise append/prepend the necessary bits.
+    }
+
   } // namespace detail
 
   //=======================================================================
   sqlite3* openDatabaseFile(std::string const& filename)
   {
     sqlite3* db = nullptr;
-    int const rc = sqlite3_open_v2(filename.c_str(),
+    std::string const uri = detail::assembleURI(filename);
+    int const rc = sqlite3_open_v2(uri.c_str(),
                                    &db,
-                                   SQLITE_OPEN_READWRITE|SQLITE_OPEN_CREATE,
+                                   SQLITE_OPEN_READWRITE|SQLITE_OPEN_CREATE|SQLITE_OPEN_URI,
                                    nullptr);
     if (rc != SQLITE_OK) {
-      throw art::Exception(art::errors::SQLExecutionError,"Failed to open SQLite database");
+      throw art::Exception(art::errors::SQLExecutionError)
+        << "Failed to open SQLite database\n"
+        << "Return code of: " << rc;
     }
 
     return db;
@@ -132,4 +143,3 @@ namespace sqlite
   }
 
 } // namespace sqlite
-
