@@ -1,8 +1,7 @@
 #ifndef art_Utilities_SAMMetadata_h
 #define art_Utilities_SAMMetadata_h
 
-#include "cetlib/container_algorithms.h"
-
+#include <algorithm>
 #include <iostream>
 #include <map>
 #include <string>
@@ -26,9 +25,9 @@ namespace art {
   {
     auto const newToOld = newToOldName();
     std::map<old_t,new_t> oldToNew;
-    cet::transform_all(newToOld,
-                       std::inserter(oldToNew, oldToNew.begin()),
-                       [](auto const& pr){ return std::make_pair(pr.second, pr.first); } );
+    std::transform(newToOld.cbegin(), newToOld.cend(),
+                   std::inserter(oldToNew, oldToNew.begin()),
+                   [](auto const& pr){ return std::make_pair(pr.second, pr.first); } );
 
     return oldToNew;
   }

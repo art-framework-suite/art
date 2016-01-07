@@ -8,7 +8,8 @@ namespace {
 
   std::vector<std::string> maybeTranslate(std::vector<std::string> names)
   {
-    cet::transform_all(names, names.begin(), art::NewToOld{});
+    std::transform(names.begin(), names.end(),
+                   names.begin(), art::NewToOld{});
     cet::sort_all(names);
     return names;
   }
