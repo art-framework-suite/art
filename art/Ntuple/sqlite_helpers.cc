@@ -33,7 +33,7 @@ namespace sqlite {
       query_result res;
       char* errmsg {nullptr};
       if ( sqlite3_exec(db, ddl.c_str(), detail::getResult, &res, &errmsg) != SQLITE_OK ) {
-        std::string msg(errmsg);
+        std::string msg{errmsg};
         sqlite3_free(errmsg);
         throw art::Exception(art::errors::SQLExecutionError, msg);
       }
