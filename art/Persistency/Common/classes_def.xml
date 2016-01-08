@@ -28,15 +28,9 @@
   <version ClassVersion="11" checksum="3900270648"/>
   <version ClassVersion="10" checksum="202379499"/>
  </class>
- <!--
- <ioread sourceClass="art::PtrVectorBase" version="[-10]"
-  targetClass="art::PtrVectorBase" source="std::vector<unsigned long> indicies_;" target="indices_">
-  <![CDATA[indices_ = onfile.indicies_; ]]>
- </ioread>
- -->
- <ioread sourceClass="art::PtrVectorBase" version="[11]"
-  targetClass="art::PtrVectorBase" source="std::vector<unsigned long> indices_;" target="indicies_">
-  <![CDATA[indicies_ = onfile.indices_; ]]>
+ <ioread sourceClass="art::PtrVectorBase" version="[-10,13-]"
+         targetClass="art::PtrVectorBase" source="std::vector<unsigned long> indicies_;" target="indices_">
+   <![CDATA[indices_ = onfile.indicies_; ]]>
  </ioread>
  <class name="std::vector<art::Ptr<int> >"/>
  <class name="art::PtrVector<int>"/>
