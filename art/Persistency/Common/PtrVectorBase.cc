@@ -4,10 +4,10 @@
 
 void
 art::PtrVectorBase::fillPtrs() const {
-  if (indices_.size() ==  0) return; // Empty or already done.
-  fill_from_offsets(indices_);
+  if (indicies_.size() ==  0) return; // Empty or already done.
+  fill_from_offsets(indicies_);
 
   using std::swap;
   indices_t tmp;
-  swap(indices_, tmp); // Zero -- finished with these.
+  swap(indicies_, tmp); // Zero -- finished with these.
 }

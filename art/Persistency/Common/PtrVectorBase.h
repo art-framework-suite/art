@@ -20,12 +20,19 @@ namespace art {
 
 class art::PtrVectorBase {
 public:
+  typedef unsigned long key_type;
+#if 0
+protected:
+#endif
+  typedef std::vector<key_type> indices_t;
+public:
+  typedef indices_t::size_type size_type;
 
-  using key_type  = unsigned long;
-  using indices_t = std::vector<key_type>;
-  using size_type = indices_t::size_type;
-
-  virtual ~PtrVectorBase() = default;
+  virtual ~PtrVectorBase()
+#ifndef __GCCXML__
+  = default
+#endif
+    ;
 
   // Observers
   bool isNonnull() const;
@@ -38,8 +45,11 @@ public:
   void setProductGetter(EDProductGetter *g) const;
 
 protected:
-
-  PtrVectorBase() = default;
+  PtrVectorBase()
+#ifndef __GCCXML__
+  = default
+#endif
+    ;
 
   void clear();
   void reserve(size_type n);
@@ -54,7 +64,7 @@ protected:
 
 private:
   RefCore core_;
-  mutable indices_t indices_; // Will be zeroed-out by fillPtrs();
+  mutable indices_t indicies_; // Will be zeroed-out by fillPtrs();
 
   virtual void fill_offsets(indices_t &indices) = 0;
   virtual void fill_from_offsets(indices_t const &indices) const = 0;
@@ -63,6 +73,7 @@ private:
   friend class art::detail::PtrVectorBaseStreamer;
 }; // PtrVectorBase
 
+#ifndef __GCCXML__
 inline bool
 art::PtrVectorBase::isNonnull() const {
   return core_.isNonnull();
@@ -97,12 +108,12 @@ inline void
 art::PtrVectorBase::clear() {
   core_ = RefCore();
   indices_t tmp;
-  indices_.swap(tmp); // Free up memory
+  indicies_.swap(tmp); // Free up memory
 }
 
 inline void
 art::PtrVectorBase::reserve(size_type n) {
-  indices_.reserve(n);
+  indicies_.reserve(n);
 }
 
 inline void
@@ -129,6 +140,7 @@ operator==(PtrVectorBase const &other) const {
   return core_ == other.core_;
 }
 
+#endif /* __GCCXML__ */
 #endif /* art_Persistency_Common_PtrVectorBase_h */
 
 // Local Variables:
