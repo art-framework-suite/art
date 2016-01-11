@@ -12,8 +12,10 @@
 #include "art/Persistency/Common/PtrVectorBase.h"
 #include "cetlib/compiler_macros.h"
 
+#ifndef __GCCXML__
 #include <initializer_list>
 #include <iterator>
+#endif
 #include <vector>
 
 #if GCC_IS_AT_LEAST(4,9,0) || CLANG_IS_AT_LEAST(3,5,0)
@@ -45,29 +47,34 @@ namespace art {
 template <typename T>
 class art::PtrVector : public PtrVectorBase {
 private:
-  using data_t = std::vector<Ptr<T>>;
+  typedef std::vector<Ptr<T> > data_t;
 public:
-
-  using value_type             = typename data_t::value_type;
-  using allocator_type         = typename data_t::allocator_type;
-  using reference              = typename data_t::reference;
-  using const_reference        = typename data_t::const_reference;
-  using pointer                = typename data_t::pointer;
-  using const_pointer          = typename data_t::const_pointer;
-  using iterator               = typename data_t::iterator;
-  using const_iterator         = typename data_t::const_iterator;
-  using reverse_iterator       = typename data_t::reverse_iterator;
-  using const_reverse_iterator = typename data_t::const_reverse_iterator;
-  using difference_type        = typename data_t::difference_type;
-  using size_type              = typename data_t::size_type;
+  typedef typename data_t::value_type value_type;
+  typedef typename data_t::allocator_type allocator_type;
+  typedef typename data_t::reference reference;
+  typedef typename data_t::const_reference const_reference;
+  typedef typename data_t::pointer pointer;
+  typedef typename data_t::const_pointer const_pointer;
+  typedef typename data_t::iterator iterator;
+  typedef typename data_t::const_iterator const_iterator;
+  typedef typename data_t::reverse_iterator reverse_iterator;
+  typedef typename data_t::const_reverse_iterator const_reverse_iterator;
+  typedef typename data_t::difference_type difference_type;
+  typedef typename data_t::size_type size_type;
 
   PtrVector();
   template <typename U> PtrVector(PtrVector<U> const & other);
+#ifndef __GCCXML__
   template <typename U>
   PtrVector(std::initializer_list<Ptr<U> > il);
   template <typename U>
   PtrVector<T> & operator=(std::initializer_list<Ptr<U> > il);
-  template <typename U> PtrVector<T> & operator=(PtrVector<U> const & other) &;
+#endif
+  template <typename U> PtrVector<T> & operator=(PtrVector<U> const & other)
+#ifndef __GCCXML__
+ &
+#endif
+;
 
   // Iterators.
   iterator begin();
@@ -78,11 +85,12 @@ public:
   const_reverse_iterator rbegin() const;
   reverse_iterator rend();
   const_reverse_iterator rend() const;
-
-  const_iterator cbegin() const;
-  const_iterator cend() const;
-  const_reverse_iterator crbegin() const;
-  const_reverse_iterator crend() const;
+#ifndef __GCCXML__
+  const_iterator cbegin() const; // C+2011.
+  const_iterator cend() const; // C+2011.
+  const_reverse_iterator crbegin() const; // C+2011.
+  const_reverse_iterator crend() const; // C+2011.
+#endif
 
   // Capacity.
   size_type size() const;
@@ -91,7 +99,9 @@ public:
   size_type capacity() const;
   bool empty() const;
   void reserve(size_type n);
-  void shrink_to_fit();
+#ifndef __GCCXML__
+  void shrink_to_fit(); // C+2011.
+#endif
 
   // Element access.
   Ptr<T> const & operator[](unsigned long const idx) const;
@@ -108,8 +118,10 @@ public:
   void assign(size_type n, Ptr<U> const & p);
   template <class InputIterator>
   void assign(InputIterator first, InputIterator last);
+#ifndef __GCCXML__
   template <typename U>
   void assign(std::initializer_list<Ptr<U> > il);
+#endif
   template <typename U> void push_back(Ptr<U> const & p);
   void pop_back();
   template <typename U> iterator insert(iterator position, Ptr<U> const & p);
@@ -126,25 +138,41 @@ public:
   // compatible ProductID.
 
   bool operator==(PtrVector const & other) const;
+#ifndef __GCCXML__
   // Hide from ROOT to avoid enforced requirement of operator< on T.
   void sort();
   template <class COMP> void sort(COMP comp);
+#endif
   static short Class_Version() { return 11; }
 
 private:
 
-  void fill_offsets(indices_t & indices) override;
-  void fill_from_offsets(indices_t const & indices) const override;
-  void zeroTransients() override;
+  void fill_offsets(indices_t & indices)
+#ifndef __GCCXML__
+ override
+#endif
+;
+  void fill_from_offsets(indices_t const & indices) const
+#ifndef __GCCXML__
+ override
+#endif
+;
+  void zeroTransients()
+#ifndef __GCCXML__
+ override
+#endif
+;
 
   // Need to explicitly zero this from custom streamer for base class.
   mutable data_t ptrs_; //! transient
 }; // PtrVector<T>
 
+#ifndef __GCCXML__
 #include <algorithm>
 #include <functional>
 #include <type_traits>
 #include <iterator>
+// #include "boost/iterator.hpp"
 
 // Constructors.
 template <typename T>
@@ -725,6 +753,8 @@ art::swap(PtrVector<T> & lhs, PtrVector<T> & rhs)
 {
   lhs.swap(rhs);
 }
+
+#endif // __GCCXML__
 
 #undef PV_INSERT_POSITION_TYPE
 #endif /* art_Persistency_Common_PtrVector_h */
