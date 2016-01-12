@@ -17,6 +17,12 @@
 
 // ----------------------------------------------------------------------
 
+#define ACCEPT_EVENT_MSG                                                \
+  "\n\n"                                                                \
+  "art warning: This function has been deprecated.\n"                   \
+  "             Please contact artists@fnal.gov for assistance.\n"      \
+  "\n"
+
 namespace art {
 
   // possible return codes for the testSelectionOverlap
@@ -29,11 +35,10 @@ namespace art {
                         ExactMatch = 3};
   }  // evtSel
 
-  class EventSelector
-  {
+  class EventSelector {
   public:
 
-    typedef std::vector<std::string> Strings;
+    using Strings = std::vector<std::string>;
 
     EventSelector(Strings const& pathspecs,
                   Strings const& names);
@@ -46,7 +51,7 @@ namespace art {
 
     bool wantAll() const { return accept_all_; }
     bool acceptEvent(TriggerResults const&);
-    bool acceptEvent(unsigned char const*, int) const;
+    [[deprecated(ACCEPT_EVENT_MSG)]] bool acceptEvent(unsigned char const*, int) const;
 
     std::shared_ptr<TriggerResults>
     maskTriggerResults(TriggerResults const& inputResults);
@@ -82,8 +87,6 @@ namespace art {
 
     int nTriggerNames_ {0};
     bool notStarPresent_ {false};
-
-    bool acceptTriggerPath(HLTPathStatus const&, BitInfo const&) const;
 
     bool acceptOneBit (Bits const & b,
                        HLTGlobalStatus const & tr,
