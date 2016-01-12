@@ -14,7 +14,6 @@
 using namespace cet;
 using namespace std;
 
-
 namespace art {
 
   EventSelector::EventSelector(Strings const& pathspecs,
@@ -42,9 +41,9 @@ namespace art {
   {
     accept_all_ = false;
     absolute_acceptors_.clear(),
-    conditional_acceptors_.clear(),
-    exception_acceptors_.clear(),
-    all_must_fail_.clear();
+      conditional_acceptors_.clear(),
+      exception_acceptors_.clear(),
+      all_must_fail_.clear();
     all_must_fail_noex_.clear();
     nTriggerNames_ = triggernames.size();
     notStarPresent_ = false;
@@ -60,79 +59,86 @@ namespace art {
     bool negated_star      = false;
     bool exception_star    = false;
 
-    for (std::string pathSpecifier : paths) {
+    for (std::string const& pathSpecifier : paths) {
 
-      boost::erase_all(pathSpecifier, " \t"); // whitespace eliminated
-      if (pathSpecifier == "*")           unrestricted_star = true;
-      if (pathSpecifier == "!*")          negated_star = true;
-      if (pathSpecifier == "exception@*") exception_star = true;
+      string specifier {pathSpecifier};
 
-      string basePathSpec(pathSpecifier);
-      bool noex_demanded = false;
-      string::size_type
-              and_noexception = pathSpecifier.find("&noexception");
-      if (and_noexception != string::npos) {
-        basePathSpec = pathSpecifier.substr(0,and_noexception);
-        noex_demanded = true;
-      }
-      string::size_type and_noex = pathSpecifier.find("&noex");
-      if (and_noex != string::npos) {
-        basePathSpec = pathSpecifier.substr(0,and_noexception);
-        noex_demanded = true;
-      }
-      and_noexception = basePathSpec.find("&noexception");
-      and_noex = basePathSpec.find("&noex");
-      if (and_noexception != string::npos ||
-           and_noex != string::npos)
+      boost::erase_all(specifier, " \t"); // whitespace eliminated
+      if (specifier == "*")           unrestricted_star = true;
+      if (specifier == "!*")          negated_star = true;
+      if (specifier == "exception@*") exception_star = true;
+
+      // Remove "@noexception" from specifier
+      bool noex_demanded {false};
+      std::string const& noexLiteral {"&noexception"};
+      auto const noexception_pos = specifier.find(noexLiteral);
+      if (noexception_pos != string::npos) {
+        if (noexception_pos+noexLiteral.length() < specifier.length()) {
           throw art::Exception(errors::Configuration)
             << "EventSelector::init, An OutputModule is using SelectEvents\n"
-               "to request a trigger name, but specifying &noexceptions twice\n"
+               "to request a trigger name that has extra characters after '&noexception'.\n"
             << "The improper trigger name is: " << pathSpecifier << "\n";
+        }
+        specifier.erase(noexception_pos);
+        noex_demanded = true;
+      }
 
-      string realname(basePathSpec);
-      bool negative_criterion = false;
-      if (basePathSpec[0] == '!') {
+      // Remove '!' and "exception@"
+      bool negative_criterion {false};
+      if (specifier[0] == '!') {
         negative_criterion = true;
-        realname = basePathSpec.substr(1,string::npos);
+        specifier.erase(0,1);
       }
-      bool exception_spec = false;
-      if (realname.find("exception@") == 0) {
+      bool exception_spec {false};
+      std::string const& exLiteral {"exception@"};
+      auto const pos = specifier.find(exLiteral);
+      if (pos == 0) {
         exception_spec = true;
-        realname = realname.substr(10, string::npos);
-        // strip off 10 chars, which is length of "exception@"
+        specifier.erase(0,exLiteral.length());
       }
-      if (negative_criterion &&  exception_spec)
-          throw art::Exception(errors::Configuration)
-            << "EventSelector::init, An OutputModule is using SelectEvents\n"
-               "to request a trigger name starting with !exception@.\n"
-               "This is not supported.\n"
-            << "The improper trigger name is: " << pathSpecifier << "\n";
-      if (noex_demanded &&  exception_spec)
-          throw art::Exception(errors::Configuration)
-            << "EventSelector::init, An OutputModule is using SelectEvents\n"
-               "to request a trigger name starting with exception@ "
-               "and also demanding no &exceptions.\n"
-            << "The improper trigger name is: " << pathSpecifier << "\n";
-
-
-      // instead of "see if the name can be found in the full list of paths"
-      // we want to find all paths that match this name.
-      vector<Strings::const_iterator> matches =
-              regexMatch(triggernames, realname);
-
-      if (matches.empty() && !is_glob(realname))
-      {
-          throw art::Exception(errors::Configuration)
-            << "EventSelector::init, An OutputModule is using SelectEvents\n"
-               "to request a trigger name that does not exist\n"
-            << "The unknown trigger name is: " << realname << "\n";
+      else if (pos != std::string::npos) {
+        throw art::Exception(errors::Configuration)
+          << "EventSelector::init, An OutputModule is using SelectEvents\n"
+             "to request a trigger name that has disallowed characters before 'exception@'.\n"
+          << "The improper trigger name is: " << pathSpecifier << "\n";
       }
-      if (matches.empty() && is_glob(realname))
-      {
+
+      if (negative_criterion && exception_spec)
+        throw art::Exception(errors::Configuration)
+          << "EventSelector::init, An OutputModule is using SelectEvents\n"
+             "to request a trigger name starting with !exception@.\n"
+             "This is not supported.\n"
+          << "The improper trigger name is: " << pathSpecifier << "\n";
+
+      if (noex_demanded && exception_spec)
+        throw art::Exception(errors::Configuration)
+          << "EventSelector::init, An OutputModule is using SelectEvents\n"
+             "to request a trigger name starting with exception@ "
+             "and also demanding no &exceptions.\n"
+          << "The improper trigger name is: " << pathSpecifier << "\n";
+
+
+      // instead of "see if the name can be found in the full list of
+      // paths" we want to find all paths that match this name.
+      //
+      // 'specifier' now corresponds to the real trigger-path name,
+      // free of any decorations
+      std::string const& realname {specifier};
+      vector<Strings::const_iterator> matches = regexMatch(triggernames, realname);
+
+      if (matches.empty()) {
+        if (is_glob(realname)) {
           mf::LogWarning("Configuration")
             << "EventSelector::init, An OutputModule is using SelectEvents\n"
                "to request a wildcarded trigger name that does not match any trigger \n"
-            << "The wildcarded trigger name is: " << realname << "\n";
+            << "The wildcarded trigger name is: " << realname << " (from trigger-path specification: " << pathSpecifier << ") \n";
+        }
+        else {
+          throw art::Exception(errors::Configuration)
+            << "EventSelector::init, An OutputModule is using SelectEvents\n"
+               "to request a trigger name that does not exist\n"
+            << "The unknown trigger name is: " << realname << " (from trigger-path specification: " << pathSpecifier << ") \n";
+        }
       }
 
       auto makeBitInfoPass = [&triggernames](auto m){
@@ -184,7 +190,6 @@ namespace art {
             << "EventSelector::init, An OutputModule is using SelectEvents\n"
                "to request all fails on a set of trigger names that do not exist\n"
             << "The problematic name is: " << pathSpecifier << "\n";
-
         }
         else if (matches.size() == 1) {
           BitInfo bi(distance(triggernames.begin(),matches[0]), false);
@@ -233,7 +238,7 @@ namespace art {
                "a process for which the configuration has requested that the\n"
                "OutputModule use TriggerResults to select events from.  This should\n"
                "be impossible, please send information to reproduce this problem to\n"
-               "the ART developers.\n";
+               "the art developers at artists@fnal.gov.\n";
         }
       }
     }
@@ -267,17 +272,17 @@ namespace art {
     int byteIndex = 0;
     int subIndex  = 0;
     for (int pathIndex = 0; pathIndex < number_of_trigger_paths; ++pathIndex)
-    {
-      int state = array_of_trigger_results[byteIndex] >> (subIndex * 2);
-      state &= 0x3;
-      HLTPathStatus pathStatus(static_cast<hlt::HLTState>(state));
-      tr[pathIndex] = pathStatus;
-      ++subIndex;
-      if (subIndex == 4)
-      { ++byteIndex;
-        subIndex = 0;
+      {
+        int state = array_of_trigger_results[byteIndex] >> (subIndex * 2);
+        state &= 0x3;
+        HLTPathStatus pathStatus(static_cast<hlt::HLTState>(state));
+        tr[pathIndex] = pathStatus;
+        ++subIndex;
+        if (subIndex == 4)
+          { ++byteIndex;
+            subIndex = 0;
+          }
       }
-    }
 
     // Now make the decision, based on the HLTGlobalStatus tr,
     // which we have created from the supplied array of results
@@ -322,15 +327,6 @@ namespace art {
 
   }  // selectionDecision()
 
-// Obsolete...
-  bool EventSelector::acceptTriggerPath(HLTPathStatus const& pathStatus,
-                                        BitInfo const& pathInfo) const
-  {
-    return (((pathStatus.state()==hlt::Pass) && (pathInfo.accept_state_)) ||
-            ((pathStatus.state()==hlt::Fail) && !(pathInfo.accept_state_)) ||
-            ((pathStatus.state()==hlt::Exception)));
-  }
-
   // Indicate if any bit in the trigger results matches the desired value
   // at that position, based on the Bits array.  If s is Exception, this
   // looks for a Exceptionmatch; otherwise, true-->Pass, false-->Fail.
@@ -342,9 +338,9 @@ namespace art {
     bool lookForException = (s == hlt::Exception);
     for(auto const& b : bits) {
       hlt::HLTState const bstate =
-          lookForException ? hlt::Exception
-                           : b.accept_state_ ? hlt::Pass
-                                             : hlt::Fail;
+        lookForException ? hlt::Exception
+                         : b.accept_state_ ? hlt::Pass
+                                           : hlt::Fail;
       if (tr[b.pos_].state() == bstate) return true;
     }
     return false;
@@ -383,24 +379,22 @@ namespace art {
   EventSelector::maskTriggerResults(TriggerResults const& inputResults)
   {
     // fetch and validate the total number of paths
-    unsigned int fullTriggerCount = nTriggerNames_;
-    unsigned int N = fullTriggerCount;
-    if (fullTriggerCount != inputResults.size())
-    {
-      throw art::Exception(errors::DataCorruption)
+    unsigned int const N = nTriggerNames_;
+    if (N != inputResults.size())
+      {
+        throw art::Exception(errors::DataCorruption)
         << "EventSelector::maskTriggerResults, the TriggerResults\n"
         << "size (" << inputResults.size()
         << ") does not match the number of paths in the\n"
-        << "full trigger list (" << fullTriggerCount << ").\n";
+        << "full trigger list (" << N << ").\n";
     }
 
     // create a suitable global status object to work with, all in Ready state
-    HLTGlobalStatus mask(fullTriggerCount);
+    HLTGlobalStatus mask{N};
 
     // Deal with must_fail acceptors that would cause selection
-    for (unsigned int m = 0; m < this->all_must_fail_.size(); ++m) {
-      vector<bool>
-        f = expandDecisionList(this->all_must_fail_[m],false,N);
+    for (auto const & mf : all_must_fail_) {
+      vector<bool> const f = expandDecisionList(mf,false,N);
       bool all_fail = true;
       for (unsigned int ipath = 0; ipath < N; ++ipath) {
         if  ((f[ipath]) && (inputResults [ipath].state() != hlt::Fail)) {
@@ -416,9 +410,8 @@ namespace art {
         }
       }
     }
-    for (unsigned int m = 0; m < this->all_must_fail_noex_.size(); ++m) {
-      vector<bool>
-        f = expandDecisionList(this->all_must_fail_noex_[m],false,N);
+    for (auto const& mf_noex : all_must_fail_noex_) {
+      vector<bool> const f = expandDecisionList(mf_noex,false,N);
       bool all_fail = true;
       for (unsigned int ipath = 0; ipath < N; ++ipath) {
         if ((f[ipath]) && (inputResults [ipath].state() != hlt::Fail)) {
@@ -436,22 +429,18 @@ namespace art {
     } // factoring opportunity - work done for fail_noex_ is same as for fail_
 
     // Deal with normal acceptors that would cause selection
-    vector<bool> aPassAbs = expandDecisionList(this->absolute_acceptors_   ,true ,N);
-    vector<bool> aPassCon = expandDecisionList(this->conditional_acceptors_,true ,N);
-    vector<bool> aFailAbs = expandDecisionList(this->absolute_acceptors_   ,false,N);
-    vector<bool> aFailCon = expandDecisionList(this->conditional_acceptors_,false,N);
-    vector<bool> aExc     = expandDecisionList(this->exception_acceptors_  ,true ,N);
+    vector<bool> aPassAbs = expandDecisionList(absolute_acceptors_   ,true ,N);
+    vector<bool> aPassCon = expandDecisionList(conditional_acceptors_,true ,N);
+    vector<bool> aFailAbs = expandDecisionList(absolute_acceptors_   ,false,N);
+    vector<bool> aFailCon = expandDecisionList(conditional_acceptors_,false,N);
+    vector<bool> aExc     = expandDecisionList(exception_acceptors_  ,true ,N);
 
     for (unsigned int ipath = 0; ipath < N; ++ipath) {
       hlt::HLTState s = inputResults [ipath].state();
-      if (((aPassAbs[ipath]) && (s == hlt::Pass))
-                ||
-          ((aPassCon[ipath]) && (s == hlt::Pass))
-                ||
-          ((aFailAbs[ipath]) && (s == hlt::Fail))
-                ||
-          ((aFailCon[ipath]) && (s == hlt::Fail))
-                ||
+      if (((aPassAbs[ipath]) && (s == hlt::Pass))  ||
+          ((aPassCon[ipath]) && (s == hlt::Pass))  ||
+          ((aFailAbs[ipath]) && (s == hlt::Fail))  ||
+          ((aFailCon[ipath]) && (s == hlt::Fail))  ||
           ((aExc[ipath]) && (s == hlt::Exception)))
       {
         mask[ipath] = s;
