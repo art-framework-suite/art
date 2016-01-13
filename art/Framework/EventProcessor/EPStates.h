@@ -33,7 +33,7 @@ namespace art {
 
 namespace statemachine {
 
-  enum FileMode { NOMERGE, MERGE, FULLLUMIMERGE, FULLMERGE };
+  enum FileMode { NOMERGE, MERGE };
 
   // Define the classes representing the "boost statechart events".
   // There are six of them.

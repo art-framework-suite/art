@@ -384,15 +384,13 @@ art::EventProcessor::runCommon_()
   ServiceRegistry::Operate op {serviceToken_};
   if (machine_.get() == 0) {
     statemachine::FileMode fileMode;
-    if (fileMode_.empty()) { fileMode = statemachine::FULLMERGE; }
+    if (fileMode_.empty()) { fileMode = statemachine::MERGE; }
     else if (fileMode_ == std::string("MERGE")) { fileMode = statemachine::MERGE; }
     else if (fileMode_ == std::string("NOMERGE")) { fileMode = statemachine::NOMERGE; }
-    else if (fileMode_ == std::string("FULLMERGE")) { fileMode = statemachine::FULLMERGE; }
-    else if (fileMode_ == std::string("FULLLUMIMERGE")) { fileMode = statemachine::FULLLUMIMERGE; }
     else {
       throw art::Exception(errors::Configuration, "Illegal fileMode parameter value: ")
           << fileMode_ << ".\n"
-          << "Legal values are 'MERGE', 'NOMERGE', 'FULLMERGE', and 'FULLLUMIMERGE'.\n";
+          << "Legal values are 'MERGE', 'NOMERGE'.\n";
     }
     machine_ = std::make_unique<statemachine::Machine>( this,
                                                         fileMode,

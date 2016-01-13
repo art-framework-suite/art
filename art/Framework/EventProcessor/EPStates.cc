@@ -320,15 +320,14 @@ namespace statemachine {
   {
     runException_ = true;
     currentRun_ = ep_.readAndCacheRun();
-    if (context<Machine>().fileMode() == FULLLUMIMERGE || context<Machine>().fileMode() == MERGE) {
+    if (context<Machine>().fileMode() == MERGE) {
       if (previousRuns_.find(currentRun_) != previousRuns_.end()) {
         throw cet::exception("Merge failure:")
           << "Run " << currentRun_ << " is discontinuous, and cannot be merged in this mode.\n"
           "The run is split across two or more input files,\n"
           "and either the run is not the last run in the previous input file,\n"
           "or it is not the first run in the current input file.\n"
-          "To handle this case, either sort the input files, if not sorted,\n"
-          "or use 'fileMode = \"FULLMERGE\"' in the parameter set options block.\n";
+          "To handle this case, either sort the input files, if not sorted.\n";
       }
     }
     runException_ = false;
@@ -364,8 +363,7 @@ namespace statemachine {
     runException_ = true;
     if (beginRunCalled_) { endRun(currentRun()); }
     if (context<Machine>().fileMode() == NOMERGE ||
-        context<Machine>().fileMode() == MERGE ||
-        context<Machine>().fileMode() == FULLLUMIMERGE) {
+        context<Machine>().fileMode() == MERGE) {
       ep_.writeRun(currentRun_);
       ep_.deleteRunFromCache(currentRun_);
       previousRuns_.insert(currentRun_);
@@ -569,9 +567,7 @@ namespace statemachine {
             "The subRun is split across two or more input files,\n"
             "and either the subRun is not the last run in the previous input file,\n"
             "or it is not the first subRun in the current input file.\n"
-            "To handle this case, either sort the input files, if not sorted,\n"
-            "or use 'fileMode = \"FULLMERGE\"' or 'fileMode = \"FULLLUMIMERGE\"'\n"
-            "in the parameter set options block.\n";
+            "To handle this case, either sort the input files, if not sorted.\n";
       }
     }
     subRunException_ = false;

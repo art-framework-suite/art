@@ -28,9 +28,7 @@ namespace {
   ostream& operator<<(ostream& os, FileMode const fileMode)
   {
     if (fileMode == NOMERGE) os << "NOMERGE";
-    else if (fileMode == MERGE) os << "MERGE";
-    else if (fileMode == FULLLUMIMERGE) os << "FULLLUMIMERGE";
-    else os << "FULLMERGE";
+    else os << "MERGE";
     return os;
   }
 }
@@ -46,8 +44,7 @@ int main(int argc, char* argv[]) {
     ("help,h", "produce help message")
     ("inputFile,i", boost::program_options::value<string>(&inputFile))
     ("outputFile,o", boost::program_options::value<string>(&outputFile))
-    ("skipmode,m", "NOMERGE, FULLLUMIMERGE and FULLMERGE only")
-    ("skipmodes,s", "NOMERGE and FULLMERGE only");
+    ("skipmode,m", "NOMERGE only");
   boost::program_options::variables_map vm;
   boost::program_options::store(boost::program_options::parse_command_line(argc, argv, desc), vm);
   boost::program_options::notify(vm);
@@ -73,14 +70,9 @@ int main(int argc, char* argv[]) {
   vector<FileMode> fileModes;
   fileModes.reserve(4);
   fileModes.push_back(NOMERGE);
-  if (!vm.count("skipmode") && !vm.count("skipmodes")) {
+  if (!vm.count("skipmode")) {
     fileModes.push_back(MERGE);
   }
-  if (!vm.count("skipmodes")) {
-    fileModes.push_back(FULLLUMIMERGE);
-  }
-  fileModes.push_back(FULLMERGE);
-
                                                      // Runs   Subruns
   vector<HandleEmpty> const handleEmptyRunsSubruns = { {false, false   },
                                                        {false, true    },
