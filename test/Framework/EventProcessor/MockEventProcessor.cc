@@ -1,4 +1,3 @@
-
 /*
 
 */
@@ -83,7 +82,7 @@ namespace art {
         // a special value for test purposes only
         if (t.value == 0) shouldWeCloseOutput_ = false;
         else shouldWeCloseOutput_ = true;
-        myMachine.process_event( statemachine::File() );
+        myMachine.process_event( statemachine::InputFile() );
       }
       else if (ch == 's') {
         output_ << "    *** nextItemType: Stop " << t.value << " ***\n";
@@ -91,11 +90,6 @@ namespace art {
         if (t.value == 0) shouldWeEndLoop_ = false;
         else shouldWeEndLoop_ = true;
         myMachine.process_event( statemachine::Stop() );
-      }
-      else if (ch == 'x') {
-        output_ << "    *** nextItemType: Restart " << t.value << " ***\n";
-        shouldWeEndLoop_ = t.value;
-        myMachine.process_event( statemachine::Restart() );
       }
 
       if (myMachine.terminated()) {
@@ -139,21 +133,8 @@ namespace art {
     output_ << "\trespondToCloseOutputFiles\n";
   }
 
-  void MockEventProcessor::startingNewLoop() {
-    output_ << "\tstartingNewLoop\n";
-  }
-
-  bool MockEventProcessor::endOfLoop() {
-    output_ << "\tendOfLoop\n";
-    return shouldWeEndLoop_;
-  }
-
   void MockEventProcessor::rewindInput() {
     output_ << "\trewind\n";
-  }
-
-  void MockEventProcessor::prepareForNextLoop() {
-    output_ << "\tprepareForNextLoop\n";
   }
 
   void MockEventProcessor::writeSubRunCache() {
@@ -228,9 +209,9 @@ namespace art {
     return shouldWeStop_;
   }
 
-  void MockEventProcessor::setExceptionMessageFiles(std::string& /*message*/) { }
-  void MockEventProcessor::setExceptionMessageRuns(std::string& /*message*/) { }
-  void MockEventProcessor::setExceptionMessageSubRuns(std::string& /*message*/) { }
+  void MockEventProcessor::setExceptionMessageFiles(std::string const& /*message*/) { }
+  void MockEventProcessor::setExceptionMessageRuns(std::string const& /*message*/) { }
+  void MockEventProcessor::setExceptionMessageSubRuns(std::string const& /*message*/) { }
 
   bool MockEventProcessor::alreadyHandlingException() const { return false; }
 

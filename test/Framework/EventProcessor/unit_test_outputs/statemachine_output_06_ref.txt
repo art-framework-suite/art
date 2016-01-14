@@ -1,7 +1,6 @@
 
 Machine parameters:  mode = NOMERGE  handleEmptyRuns = 0  handleEmptySubRuns = 0
     *** nextItemType: File 1 ***
-	startingNewLoop
  	readFile
 	respondToOpenInputFile
 	openOutputFiles
@@ -66,12 +65,10 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 0  handleEmptySubRuns = 0
 	closeOutputFiles
 	respondToCloseInputFile
 	closeInputFile
-	endOfLoop
 The state machine reports it has been terminated
 
 Machine parameters:  mode = NOMERGE  handleEmptyRuns = 0  handleEmptySubRuns = 1
     *** nextItemType: File 1 ***
-	startingNewLoop
  	readFile
 	respondToOpenInputFile
 	openOutputFiles
@@ -136,12 +133,10 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 0  handleEmptySubRuns = 1
 	closeOutputFiles
 	respondToCloseInputFile
 	closeInputFile
-	endOfLoop
 The state machine reports it has been terminated
 
 Machine parameters:  mode = NOMERGE  handleEmptyRuns = 1  handleEmptySubRuns = 0
     *** nextItemType: File 1 ***
-	startingNewLoop
  	readFile
 	respondToOpenInputFile
 	openOutputFiles
@@ -206,12 +201,10 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 1  handleEmptySubRuns = 0
 	closeOutputFiles
 	respondToCloseInputFile
 	closeInputFile
-	endOfLoop
 The state machine reports it has been terminated
 
 Machine parameters:  mode = NOMERGE  handleEmptyRuns = 1  handleEmptySubRuns = 1
     *** nextItemType: File 1 ***
-	startingNewLoop
  	readFile
 	respondToOpenInputFile
 	openOutputFiles
@@ -276,12 +269,10 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 1  handleEmptySubRuns = 1
 	closeOutputFiles
 	respondToCloseInputFile
 	closeInputFile
-	endOfLoop
 The state machine reports it has been terminated
 
 Machine parameters:  mode = MERGE  handleEmptyRuns = 0  handleEmptySubRuns = 0
     *** nextItemType: File 1 ***
-	startingNewLoop
  	readFile
 	respondToOpenInputFile
 	openOutputFiles
@@ -308,6 +299,12 @@ Machine parameters:  mode = MERGE  handleEmptyRuns = 0  handleEmptySubRuns = 0
 	shouldWeStop
     *** nextItemType: File 0 ***
 	shouldWeCloseOutput
+	endSubRun 1/2
+	writeSubRun 1/2
+	deleteSubRunFromCache 1/2
+	endRun 1
+	writeRun 1
+	deleteRunFromCache 1
 	respondToCloseInputFile
 	closeInputFile
  	readFile
@@ -317,6 +314,8 @@ Machine parameters:  mode = MERGE  handleEmptyRuns = 0  handleEmptySubRuns = 0
     *** nextItemType: SubRun 2 ***
 	readAndCacheSubRun 2
     *** nextItemType: Event ***
+	beginRun 1
+	beginSubRun 1/2
 	readEvent
 	processEvent
 	shouldWeStop
@@ -333,12 +332,10 @@ Machine parameters:  mode = MERGE  handleEmptyRuns = 0  handleEmptySubRuns = 0
 	closeOutputFiles
 	respondToCloseInputFile
 	closeInputFile
-	endOfLoop
 The state machine reports it has been terminated
 
 Machine parameters:  mode = MERGE  handleEmptyRuns = 0  handleEmptySubRuns = 1
     *** nextItemType: File 1 ***
-	startingNewLoop
  	readFile
 	respondToOpenInputFile
 	openOutputFiles
@@ -365,6 +362,12 @@ Machine parameters:  mode = MERGE  handleEmptyRuns = 0  handleEmptySubRuns = 1
 	shouldWeStop
     *** nextItemType: File 0 ***
 	shouldWeCloseOutput
+	endSubRun 1/2
+	writeSubRun 1/2
+	deleteSubRunFromCache 1/2
+	endRun 1
+	writeRun 1
+	deleteRunFromCache 1
 	respondToCloseInputFile
 	closeInputFile
  	readFile
@@ -374,6 +377,8 @@ Machine parameters:  mode = MERGE  handleEmptyRuns = 0  handleEmptySubRuns = 1
     *** nextItemType: SubRun 2 ***
 	readAndCacheSubRun 2
     *** nextItemType: Event ***
+	beginRun 1
+	beginSubRun 1/2
 	readEvent
 	processEvent
 	shouldWeStop
@@ -390,12 +395,10 @@ Machine parameters:  mode = MERGE  handleEmptyRuns = 0  handleEmptySubRuns = 1
 	closeOutputFiles
 	respondToCloseInputFile
 	closeInputFile
-	endOfLoop
 The state machine reports it has been terminated
 
 Machine parameters:  mode = MERGE  handleEmptyRuns = 1  handleEmptySubRuns = 0
     *** nextItemType: File 1 ***
-	startingNewLoop
  	readFile
 	respondToOpenInputFile
 	openOutputFiles
@@ -422,15 +425,23 @@ Machine parameters:  mode = MERGE  handleEmptyRuns = 1  handleEmptySubRuns = 0
 	shouldWeStop
     *** nextItemType: File 0 ***
 	shouldWeCloseOutput
+	endSubRun 1/2
+	writeSubRun 1/2
+	deleteSubRunFromCache 1/2
+	endRun 1
+	writeRun 1
+	deleteRunFromCache 1
 	respondToCloseInputFile
 	closeInputFile
  	readFile
 	respondToOpenInputFile
     *** nextItemType: Run 1 ***
 	readAndCacheRun 1
+	beginRun 1
     *** nextItemType: SubRun 2 ***
 	readAndCacheSubRun 2
     *** nextItemType: Event ***
+	beginSubRun 1/2
 	readEvent
 	processEvent
 	shouldWeStop
@@ -447,12 +458,10 @@ Machine parameters:  mode = MERGE  handleEmptyRuns = 1  handleEmptySubRuns = 0
 	closeOutputFiles
 	respondToCloseInputFile
 	closeInputFile
-	endOfLoop
 The state machine reports it has been terminated
 
 Machine parameters:  mode = MERGE  handleEmptyRuns = 1  handleEmptySubRuns = 1
     *** nextItemType: File 1 ***
-	startingNewLoop
  	readFile
 	respondToOpenInputFile
 	openOutputFiles
@@ -479,15 +488,23 @@ Machine parameters:  mode = MERGE  handleEmptyRuns = 1  handleEmptySubRuns = 1
 	shouldWeStop
     *** nextItemType: File 0 ***
 	shouldWeCloseOutput
+	endSubRun 1/2
+	writeSubRun 1/2
+	deleteSubRunFromCache 1/2
+	endRun 1
+	writeRun 1
+	deleteRunFromCache 1
 	respondToCloseInputFile
 	closeInputFile
  	readFile
 	respondToOpenInputFile
     *** nextItemType: Run 1 ***
 	readAndCacheRun 1
+	beginRun 1
     *** nextItemType: SubRun 2 ***
 	readAndCacheSubRun 2
     *** nextItemType: Event ***
+	beginSubRun 1/2
 	readEvent
 	processEvent
 	shouldWeStop
@@ -504,5 +521,4 @@ Machine parameters:  mode = MERGE  handleEmptyRuns = 1  handleEmptySubRuns = 1
 	closeOutputFiles
 	respondToCloseInputFile
 	closeInputFile
-	endOfLoop
 The state machine reports it has been terminated

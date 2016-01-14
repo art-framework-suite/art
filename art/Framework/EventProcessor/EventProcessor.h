@@ -103,10 +103,7 @@ public:
   void respondToOpenOutputFiles() override;
   void respondToCloseOutputFiles() override;
 
-  void startingNewLoop() override;
-  bool endOfLoop() override;
   void rewindInput() override;
-  void prepareForNextLoop() override;
   void writeSubRunCache() override;
   void writeRunCache() override;
   bool shouldWeCloseOutput() const override;
@@ -130,9 +127,9 @@ public:
   void processEvent() override;
   bool shouldWeStop() const override;
 
-  void setExceptionMessageFiles(std::string & message) override;
-  void setExceptionMessageRuns(std::string & message) override;
-  void setExceptionMessageSubRuns(std::string & message) override;
+  void setExceptionMessageFiles(std::string const& message) override;
+  void setExceptionMessageRuns(std::string const& message) override;
+  void setExceptionMessageSubRuns(std::string const& message) override;
   bool alreadyHandlingException() const override;
 
   bool setTriggerPathEnabled(std::string const & name, bool enable) override;

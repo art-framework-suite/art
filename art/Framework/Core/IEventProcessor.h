@@ -51,10 +51,7 @@ namespace art
     virtual void respondToOpenOutputFiles() = 0;
     virtual void respondToCloseOutputFiles() = 0;
 
-    virtual void startingNewLoop() = 0;
-    virtual bool endOfLoop() = 0;
     virtual void rewindInput() = 0;
-    virtual void prepareForNextLoop() = 0;
     virtual void writeSubRunCache() = 0;
     virtual void writeRunCache() = 0;
     virtual bool shouldWeCloseOutput() const = 0;
@@ -78,9 +75,9 @@ namespace art
     virtual void processEvent() = 0;
     virtual bool shouldWeStop() const = 0;
 
-    virtual void setExceptionMessageFiles(std::string& message) = 0;
-    virtual void setExceptionMessageRuns(std::string& message) = 0;
-    virtual void setExceptionMessageSubRuns(std::string& message) = 0;
+    virtual void setExceptionMessageFiles(std::string const& message) = 0;
+    virtual void setExceptionMessageRuns(std::string const& message) = 0;
+    virtual void setExceptionMessageSubRuns(std::string const& message) = 0;
 
     virtual bool alreadyHandlingException() const = 0;
 

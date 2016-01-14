@@ -152,7 +152,7 @@ art::EventProcessor::EventProcessor(ParameterSet const & pset)
   machine_(),
   principalCache_(),
   sm_evp_(),
-  shouldWeStop_(false),
+  shouldWeStop_{false},
   stateMachineWasInErrorState_(false),
   fileMode_(helper_.schedulerPS().get<std::string>("fileMode", "")),
   handleEmptyRuns_(helper_.schedulerPS().get<bool>("handleEmptyRuns", true)),
@@ -366,19 +366,7 @@ art::EventProcessor::getToken_()
 art::EventProcessor::StatusCode
 art::EventProcessor::runToCompletion()
 {
-  StatusCode returnCode = runCommon_();
-  if (machine_.get() != 0) {
-    throw art::Exception(errors::LogicError)
-        << "State machine not destroyed on exit from EventProcessor::runToCompletion\n"
-        << "Please report this error to the Framework group\n";
-  }
-  return returnCode;
-}
-
-art::EventProcessor::StatusCode
-art::EventProcessor::runCommon_()
-{
-  StatusCode returnCode = epSuccess;
+  StatusCode returnCode {epSuccess};
   stateMachineWasInErrorState_ = false;
   // Make the services available
   ServiceRegistry::Operate op {serviceToken_};
@@ -400,7 +388,6 @@ art::EventProcessor::runCommon_()
   }
   try {
     input::ItemType itemType;
-    int iEvents = 0;
     while (true) {
       itemType = input_->nextItemType();
       FDEBUG(1) << "itemType = " << itemType << "\n";
@@ -418,7 +405,7 @@ art::EventProcessor::runCommon_()
         machine_->process_event(statemachine::Stop());
       }
       else if (itemType == input::IsFile) {
-        machine_->process_event(statemachine::File());
+        machine_->process_event(statemachine::InputFile());
       }
       else if (itemType == input::IsRun) {
         machine_->process_event(statemachine::Run(input_->run()));
@@ -428,7 +415,6 @@ art::EventProcessor::runCommon_()
       }
       else if (itemType == input::IsEvent) {
         machine_->process_event(statemachine::Event());
-        ++iEvents;
       }
       // This should be impossible
       else {
@@ -441,42 +427,42 @@ art::EventProcessor::runCommon_()
       }
     }  // End of loop over state machine events
   } // Try block
-  // Some comments on exception handling related to the boost state machine:
+
+  // Some comments on exception handling related to the boost state
+  // machine:
   //
-  // Some states used in the machine are special because they
-  // perform actions while the machine is being terminated, actions
-  // such as close files, call endRun, call endSubRun etc ..  Each of these
-  // states has two functions that perform these actions.  The functions
-  // are almost identical.  The major difference is that one version
-  // catches all exceptions and the other lets exceptions pass through.
-  // The destructor catches them and the other function named "exit" lets
-  // them pass through.  On a normal termination, boost will always call
-  // "exit" and then the state destructor.  In our state classes, the
-  // the destructors do nothing if the exit function already took
-  // care of things.  Here's the interesting part.  When boost is
-  // handling an exception the "exit" function is not called (a boost
-  // feature).
+  // Some states used in the machine are special because they perform
+  // actions while the machine is being terminated, actions such as
+  // close files, call endRun, call endSubRun etc ..  Each of these
+  // states has two functions that perform these actions.  The
+  // functions are almost identical.  The major difference is that one
+  // version catches all exceptions and the other lets exceptions pass
+  // through.  The destructor catches them and the other function
+  // named "exit" lets them pass through.  On a normal termination,
+  // boost will always call "exit" and then the state destructor.  In
+  // our state classes, the the destructors do nothing if the exit
+  // function already took care of things.  Here's the interesting
+  // part.  When boost is handling an exception the "exit" function is
+  // not called (a boost feature).
   //
   // If an exception occurs while the boost machine is in control
-  // (which usually means inside a process_event call), then
-  // the boost state machine destroys its states and "terminates" itself.
-  // This already done before we hit the catch blocks below. In this case
-  // the call to terminateMachine below only destroys an already
-  // terminated state machine.  Because exit is not called, the state destructors
-  // handle cleaning up subRuns, runs, and files.  The destructors swallow
-  // all exceptions and only pass through the exceptions messages which
-  // are tacked onto the original exception below.
+  // (which usually means inside a process_event call), then the boost
+  // state machine destroys its states and "terminates" itself.  This
+  // is already done before we hit the catch blocks below. In this
+  // case the call to terminateMachine below only destroys an already
+  // terminated state machine.  Because exit is not called, the state
+  // destructors handle cleaning up subRuns, runs, and files.  The
+  // destructors swallow all exceptions and only pass through the
+  // exceptions messages which are tacked onto the original exception
+  // below.
   //
-  // If an exception occurs when the boost state machine is not
-  // in control (outside the process_event functions), then boost
-  // cannot destroy its own states.  The terminateMachine function
-  // below takes care of that.  The flag "alreadyHandlingException"
-  // is set true so that the state exit functions do nothing (and
-  // cannot throw more exceptions while handling the first).  Then the
-  // state destructors take care of this because exit did nothing.
-  //
-  // In both cases above, the EventProcessor::endOfLoop function is
-  // not called because it can throw exceptions.
+  // If an exception occurs when the boost state machine is not in
+  // control (outside the process_event functions), then boost cannot
+  // destroy its own states.  The terminateMachine function below
+  // takes care of that.  The flag "alreadyHandlingException" is set
+  // true so that the state exit functions do nothing (and cannot
+  // throw more exceptions while handling the first).  Then the state
+  // destructors take care of this because exit did nothing.
   //
   // One tricky aspect of the state machine is that things which can
   // throw should not be invoked by the state machine while another
@@ -493,7 +479,7 @@ art::EventProcessor::runCommon_()
     e << exceptionMessageFiles_;
     throw e;
   }
-  catch (std::bad_alloc & e) {
+  catch (std::bad_alloc const& e) {
     terminateAbnormally_();
     throw cet::exception("std::bad_alloc")
         << "The EventProcessor caught a std::bad_alloc exception and converted it to a cet::exception\n"
@@ -502,7 +488,7 @@ art::EventProcessor::runCommon_()
         << exceptionMessageRuns_
         << exceptionMessageFiles_;
   }
-  catch (std::exception & e) {
+  catch (std::exception const& e) {
     terminateAbnormally_();
     throw cet::exception("StdException")
         << "The EventProcessor caught a std::exception and converted it to a cet::exception\n"
@@ -568,8 +554,7 @@ art::EventProcessor::readFile()
 void
 art::EventProcessor::closeInputFile()
 {
-  SignalSentry fileCloseSentry(actReg_.sPreCloseFile,
-                               actReg_.sPostCloseFile);
+  SignalSentry fileCloseSentry{actReg_.sPreCloseFile, actReg_.sPostCloseFile};
   input_->closeFile();
   FDEBUG(1) << "\tcloseInputFile\n";
 }
@@ -621,30 +606,10 @@ art::EventProcessor::respondToCloseOutputFiles()
 }
 
 void
-art::EventProcessor::startingNewLoop()
-{
-  shouldWeStop_ = false;
-  FDEBUG(1) << "\tstartingNewLoop\n";
-}
-
-bool
-art::EventProcessor::endOfLoop()
-{
-  FDEBUG(1) << "\tendOfLoop\n";
-  return true;
-}
-
-void
 art::EventProcessor::rewindInput()
 {
   input_->rewind();
   FDEBUG(1) << "\trewind\n";
-}
-
-void
-art::EventProcessor::prepareForNextLoop()
-{
-  FDEBUG(1) << "\tprepareForNextLoop\n";
 }
 
 void
@@ -742,17 +707,17 @@ art::EventProcessor::endSubRun(SubRunID const & sr)
   }
 }
 
+namespace art {
+  using DRISI = DecrepitRelicInputSourceImplementation;
+}
+
 art::RunID
 art::EventProcessor::readAndCacheRun()
 {
-  SignalSentry runSourceSentry(actReg_.sPreSourceRun,
-                               actReg_.sPostSourceRun);
+  SignalSentry runSourceSentry{actReg_.sPreSourceRun, actReg_.sPostSourceRun};
   principalCache_.insert(input_->readRun());
-  art::DecrepitRelicInputSourceImplementation* DRSI =
-    dynamic_cast<art::DecrepitRelicInputSourceImplementation*>(input_.get());
-  if (DRSI) {
-    auto rps = DRSI->readRunFromSecondaryFiles();
-    for (auto rp : rps) {
+  if (auto drisi = dynamic_cast<art::DRISI*>(input_.get())) {
+    for (auto rp : drisi->readRunFromSecondaryFiles()) {
       principalCache_.insert(rp);
     }
   }
@@ -763,14 +728,10 @@ art::EventProcessor::readAndCacheRun()
 art::SubRunID
 art::EventProcessor::readAndCacheSubRun()
 {
-  SignalSentry subRunSourceSentry(actReg_.sPreSourceSubRun,
-                                  actReg_.sPostSourceSubRun);
+  SignalSentry subRunSourceSentry{actReg_.sPreSourceSubRun, actReg_.sPostSourceSubRun};
   principalCache_.insert(input_->readSubRun(principalCache_.runPrincipalPtr()));
-  art::DecrepitRelicInputSourceImplementation* DRSI =
-    dynamic_cast<art::DecrepitRelicInputSourceImplementation*>(input_.get());
-  if (DRSI) {
-    auto srps = DRSI->readSubRunFromSecondaryFiles(
-                  principalCache_.runPrincipalPtr());
+  if (auto drisi = dynamic_cast<art::DRISI*>(input_.get())) {
+    auto srps = drisi->readSubRunFromSecondaryFiles(principalCache_.runPrincipalPtr());
     for (auto srp : srps) {
       principalCache_.insert(srp);
     }
@@ -838,19 +799,19 @@ art::EventProcessor::shouldWeStop() const
 }
 
 void
-art::EventProcessor::setExceptionMessageFiles(std::string & message)
+art::EventProcessor::setExceptionMessageFiles(std::string const & message)
 {
   exceptionMessageFiles_ = message;
 }
 
 void
-art::EventProcessor::setExceptionMessageRuns(std::string & message)
+art::EventProcessor::setExceptionMessageRuns(std::string const & message)
 {
   exceptionMessageRuns_ = message;
 }
 
 void
-art::EventProcessor::setExceptionMessageSubRuns(std::string & message)
+art::EventProcessor::setExceptionMessageSubRuns(std::string const & message)
 {
   exceptionMessageSubRuns_ = message;
 }

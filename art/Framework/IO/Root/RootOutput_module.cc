@@ -51,11 +51,11 @@ public: // MEMBER FUNCTIONS
 
     fhicl::TableFragment<art::OutputModule::Config> omConfig;
     fhicl::Atom<std::string> catalog { Name("catalog"), "" };
-    fhicl::OptionalAtom<bool> dropAllEvents  { Name("dropAllEvents") };
+    fhicl::OptionalAtom<bool> dropAllEvents { Name("dropAllEvents") };
     fhicl::Atom<bool> dropAllSubRuns { Name("dropAllSubRuns"), false };
     fhicl::OptionalAtom<bool> fastCloning { Name("fastCloning") };
     fhicl::Atom<std::string> tmpDir { Name("tmpDir"), parent_path(omConfig().fileName()) };
-    fhicl::Atom<int> maxSize { Name("maxSize"), 0x7f000000 };
+    fhicl::Atom<unsigned> maxSize { Name("maxSize"), 0x7f000000 };
     fhicl::Atom<int> compressionLevel { Name("compressionLevel"), 7 };
     fhicl::Atom<int64_t> saveMemoryObjectThreshold { Name("saveMemoryObjectThreshold"), -1l };
     fhicl::Atom<int64_t> treeMaxVirtualSize { Name("treeMaxVirtualSize"), -1 };
@@ -63,7 +63,7 @@ public: // MEMBER FUNCTIONS
     fhicl::Atom<int> basketSize { Name("basketSize"), 16384 };
     fhicl::Atom<bool> dropMetaDataForDroppedData { Name("dropMetaDataForDroppedData"), false };
     fhicl::Atom<std::string> dropMetaData { Name("dropMetaData"), "" };
-    fhicl::Atom<bool> writeParameterSets {Name("writeParameterSets"), true };
+    fhicl::Atom<bool> writeParameterSets { Name("writeParameterSets"), true };
 
     Config()
     {
@@ -152,7 +152,7 @@ private:
 
   // We keep this set of data members for the use
   // of RootOutputFile.
-  unsigned int const maxFileSize_;
+  unsigned const maxFileSize_;
   int const compressionLevel_;
   int64_t const saveMemoryObjectThreshold_;
   int64_t const treeMaxVirtualSize_;
@@ -178,27 +178,27 @@ private:
 art::RootOutput::
 RootOutput(Parameters const & config)
   : OutputModule{config().omConfig, config.get_PSet()}
-  , catalog_(config().catalog())
-  , dropAllEvents_(false)
-  , dropAllSubRuns_(config().dropAllSubRuns())
-  , moduleLabel_(config.get_PSet().get<string>("module_label"))
-  , inputFileCount_(0)
-  , rootOutputFile_()
-  , fstats_(moduleLabel_, processName())
-  , filePattern_(config().omConfig().fileName() )
-  , tmpDir_(config().tmpDir())
-  , lastClosedFileName_()
-  , maxFileSize_(config().maxSize())
-  , compressionLevel_(config().compressionLevel())
-  , saveMemoryObjectThreshold_(config().saveMemoryObjectThreshold())
-  , treeMaxVirtualSize_(config().treeMaxVirtualSize())
-  , splitLevel_(config().splitLevel())
-  , basketSize_(config().basketSize())
-  , dropMetaData_(DropMetaData::DropNone)
-  , dropMetaDataForDroppedData_(config().dropMetaDataForDroppedData())
-  , fastCloning_(true)
-  , writeParameterSets_(config().writeParameterSets())
-  , rpm_(config.get_PSet())
+  , catalog_{config().catalog()}
+  , dropAllEvents_{false}
+  , dropAllSubRuns_{config().dropAllSubRuns()}
+  , moduleLabel_{config.get_PSet().get<string>("module_label")}
+  , inputFileCount_{0}
+  , rootOutputFile_{}
+  , fstats_{moduleLabel_, processName()}
+  , filePattern_{config().omConfig().fileName()}
+  , tmpDir_{config().tmpDir()}
+  , lastClosedFileName_{}
+  , maxFileSize_{config().maxSize()}
+  , compressionLevel_{config().compressionLevel()}
+  , saveMemoryObjectThreshold_{config().saveMemoryObjectThreshold()}
+  , treeMaxVirtualSize_{config().treeMaxVirtualSize()}
+  , splitLevel_{config().splitLevel()}
+  , basketSize_{config().basketSize()}
+  , dropMetaData_{DropMetaData::DropNone}
+  , dropMetaDataForDroppedData_{config().dropMetaDataForDroppedData()}
+  , fastCloning_{true}
+  , writeParameterSets_{config().writeParameterSets()}
+  , rpm_{config.get_PSet()}
 {
   mf::LogInfo msg("FastCloning");
   msg << "Initial fast cloning configuration ";

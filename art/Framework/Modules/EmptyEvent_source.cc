@@ -1,7 +1,3 @@
-namespace art {
-  class EmptyEvent;
-}
-
 #include "art/Framework/Core/DecrepitRelicInputSourceImplementation.h"
 #include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Core/EmptyEventTimestampPlugin.h"
@@ -28,6 +24,10 @@ namespace art {
 
 #include <cstdint>
 #include <memory>
+
+namespace art {
+  class EmptyEvent;
+}
 
 using DRISI = art::DecrepitRelicInputSourceImplementation;
 using std::uint32_t;
@@ -156,12 +156,11 @@ art::EmptyEvent::readRun_() {
   auto ts = plugin_ ?
     plugin_->doBeginRunTimestamp(eventID_.runID()) :
     Timestamp::invalidTimestamp();
-  RunAuxiliary runAux(eventID_.runID(), ts, Timestamp::invalidTimestamp());
+  RunAuxiliary const runAux{eventID_.runID(), ts, Timestamp::invalidTimestamp()};
   newRun_ = false;
-  auto rp_ptr =
-    std::make_shared<RunPrincipal>(runAux, processConfiguration());
+  auto rp_ptr = std::make_shared<RunPrincipal>(runAux, processConfiguration());
   if (plugin_) {
-    Run r(*rp_ptr, moduleDescription());
+    Run const r{*rp_ptr, moduleDescription()};
     plugin_->doBeginRun(r);
   }
   return rp_ptr;
@@ -180,14 +179,10 @@ EmptyEvent::readSubRun_() {
   auto ts = plugin_ ?
     plugin_->doBeginSubRunTimestamp(eventID_.subRunID()) :
     Timestamp::invalidTimestamp();
-  SubRunAuxiliary subRunAux(eventID_.subRunID(),
-                            ts,
-                            Timestamp::invalidTimestamp());
-  auto srp_ptr =
-    std::make_shared<SubRunPrincipal>(subRunAux,
-                                      processConfiguration());
+  SubRunAuxiliary const subRunAux{eventID_.subRunID(), ts, Timestamp::invalidTimestamp()};
+  auto srp_ptr = std::make_shared<SubRunPrincipal>(subRunAux, processConfiguration());
   if (plugin_) {
-    SubRun sr(*srp_ptr, moduleDescription());
+    SubRun const sr{*srp_ptr, moduleDescription()};
     plugin_->doBeginSubRun(sr);
   }
   newSubRun_ = false;
@@ -230,10 +225,8 @@ void art::EmptyEvent::reallyReadEvent() {
   auto timestamp = plugin_ ?
     plugin_->doEventTimestamp(eventID_) :
     Timestamp::invalidTimestamp();
-  EventAuxiliary eventAux(eventID_,
-                          timestamp,
-                          eType_);
-  ep_.reset(new EventPrincipal(eventAux, processConfiguration()));
+  EventAuxiliary const eventAux{eventID_, timestamp, eType_};
+  ep_ = std::make_unique<EventPrincipal>(eventAux, processConfiguration());
 }
 
 std::unique_ptr<art::EmptyEventTimestampPlugin>

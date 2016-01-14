@@ -158,17 +158,16 @@ RootInput::
 readRun()
 {
   switch (accessState_.state()) {
-    case AccessState::SEQUENTIAL:
-      return DecrepitRelicInputSourceImplementation::readRun();
-    case AccessState::SEEKING_RUN:
-      accessState_.setState(AccessState::SEEKING_SUBRUN);
-      setRunPrincipal(primaryFileSequence_->readIt(
-        accessState_.wantedEventID().runID()));
-      return runPrincipal();
-    default:
-      throw Exception(errors::LogicError)
-          << "RootInputSource::readRun encountered an "
-             "unknown or inappropriate AccessState.\n";
+  case AccessState::SEQUENTIAL:
+    return DecrepitRelicInputSourceImplementation::readRun();
+  case AccessState::SEEKING_RUN:
+    accessState_.setState(AccessState::SEEKING_SUBRUN);
+    setRunPrincipal(primaryFileSequence_->readIt(accessState_.wantedEventID().runID()));
+    return runPrincipal();
+  default:
+    throw Exception(errors::LogicError)
+      << "RootInputSource::readRun encountered an "
+         "unknown or inappropriate AccessState.\n";
   }
 }
 
@@ -191,21 +190,16 @@ RootInput::
 readSubRun(std::shared_ptr<RunPrincipal> rp)
 {
   switch (accessState_.state()) {
-    case AccessState::SEQUENTIAL:
-      return DecrepitRelicInputSourceImplementation::readSubRun(rp);
-    case AccessState::SEEKING_SUBRUN:
-      accessState_.setState(AccessState::SEEKING_EVENT);
-      {
-        std::shared_ptr<SubRunPrincipal> srp(primaryFileSequence_->readIt(
-          accessState_.wantedEventID().subRunID(), rp));
-        srp->setRunPrincipal(rp);
-        setSubRunPrincipal(srp);
-        return std::move(srp);
-      }
-    default:
-      throw Exception(errors::LogicError)
-          << "RootInputSource::readSubRun encountered an "
-             "unknown or inappropriate AccessState.\n";
+  case AccessState::SEQUENTIAL:
+    return DecrepitRelicInputSourceImplementation::readSubRun(rp);
+  case AccessState::SEEKING_SUBRUN:
+    accessState_.setState(AccessState::SEEKING_EVENT);
+    setSubRunPrincipal(primaryFileSequence_->readIt(accessState_.wantedEventID().subRunID(), rp));
+    return subRunPrincipal();
+  default:
+    throw Exception(errors::LogicError)
+      << "RootInputSource::readSubRun encountered an "
+         "unknown or inappropriate AccessState.\n";
   }
 }
 

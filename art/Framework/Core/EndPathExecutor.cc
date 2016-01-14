@@ -25,8 +25,7 @@ EndPathExecutor(PathManager & pm,
   size_t index = 0;
   for (auto const & val : endPathInfo_.workers()) {
     auto w = val.second.get();
-    auto ow = dynamic_cast<OutputWorker*>(w);
-    if (ow) {
+    if (auto ow = dynamic_cast<OutputWorker*>(w)) {
       outputWorkers_.emplace_back(ow);
       outputWorkersEnabled_.emplace_back(workersEnabled_[index]);
     }
