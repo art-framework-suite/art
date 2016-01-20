@@ -39,8 +39,6 @@ namespace art
     void respondToCloseOutputFiles() override;
 
     void rewindInput() override;
-    void writeSubRunCache() override;
-    void writeRunCache() override;
     bool shouldWeCloseOutput() const override;
 
     void doErrorStuff() override;

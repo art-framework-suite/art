@@ -137,14 +137,6 @@ namespace art {
     output_ << "\trewind\n";
   }
 
-  void MockEventProcessor::writeSubRunCache() {
-    output_ << "\twriteSubRunCache\n";
-  }
-
-  void MockEventProcessor::writeRunCache() {
-    output_ << "\twriteRunCache\n";
-  }
-
   bool MockEventProcessor::shouldWeCloseOutput() const {
     output_ << "\tshouldWeCloseOutput\n";
     return shouldWeCloseOutput_;

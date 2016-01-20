@@ -612,32 +612,6 @@ art::EventProcessor::rewindInput()
   FDEBUG(1) << "\trewind\n";
 }
 
-void
-art::EventProcessor::writeSubRunCache()
-{
-  while (!principalCache_.noMoreSubRuns()) {
-    auto & lowestSubRun = principalCache_.lowestSubRun();
-    if (!lowestSubRun.id().isFlush()) {
-      endPathExecutor_->writeSubRun(lowestSubRun);
-    }
-    principalCache_.deleteLowestSubRun();
-  }
-  FDEBUG(1) << "\twriteSubRunCache\n";
-}
-
-void
-art::EventProcessor::writeRunCache()
-{
-  while (!principalCache_.noMoreRuns()) {
-    auto & lowestRun = principalCache_.lowestRun();
-    if (!lowestRun.id().isFlush()) {
-      endPathExecutor_->writeRun(lowestRun);
-    }
-    principalCache_.deleteLowestRun();
-  }
-  FDEBUG(1) << "\twriteRunCache\n";
-}
-
 bool
 art::EventProcessor::shouldWeCloseOutput() const
 {
@@ -716,11 +690,6 @@ art::EventProcessor::readAndCacheRun()
 {
   SignalSentry runSourceSentry{actReg_.sPreSourceRun, actReg_.sPostSourceRun};
   principalCache_.insert(input_->readRun());
-  if (auto drisi = dynamic_cast<art::DRISI*>(input_.get())) {
-    for (auto rp : drisi->readRunFromSecondaryFiles()) {
-      principalCache_.insert(rp);
-    }
-  }
   FDEBUG(1) << "\treadAndCacheRun " << "\n";
   return principalCache_.runPrincipal().id();
 }
@@ -730,12 +699,6 @@ art::EventProcessor::readAndCacheSubRun()
 {
   SignalSentry subRunSourceSentry{actReg_.sPreSourceSubRun, actReg_.sPostSourceSubRun};
   principalCache_.insert(input_->readSubRun(principalCache_.runPrincipalPtr()));
-  if (auto drisi = dynamic_cast<art::DRISI*>(input_.get())) {
-    auto srps = drisi->readSubRunFromSecondaryFiles(principalCache_.runPrincipalPtr());
-    for (auto srp : srps) {
-      principalCache_.insert(srp);
-    }
-  }
   FDEBUG(1) << "\treadAndCacheSubRun " << "\n";
   return principalCache_.subRunPrincipal().id();
 }

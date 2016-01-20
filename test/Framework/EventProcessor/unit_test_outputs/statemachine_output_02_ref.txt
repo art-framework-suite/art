@@ -6,8 +6,6 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 0  handleEmptySubRuns = 0
 	openOutputFiles
 	respondToOpenOutputFiles
     *** nextItemType: File 1 ***
-	writeSubRunCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	respondToCloseInputFile
@@ -17,8 +15,6 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 0  handleEmptySubRuns = 0
 	openOutputFiles
 	respondToOpenOutputFiles
     *** nextItemType: File 1 ***
-	writeSubRunCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	respondToCloseInputFile
@@ -28,8 +24,6 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 0  handleEmptySubRuns = 0
 	openOutputFiles
 	respondToOpenOutputFiles
     *** nextItemType: File 0 ***
-	writeSubRunCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	respondToCloseInputFile
@@ -39,8 +33,6 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 0  handleEmptySubRuns = 0
 	openOutputFiles
 	respondToOpenOutputFiles
     *** nextItemType: File 0 ***
-	writeSubRunCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	respondToCloseInputFile
@@ -50,8 +42,6 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 0  handleEmptySubRuns = 0
 	openOutputFiles
 	respondToOpenOutputFiles
     *** nextItemType: File 1 ***
-	writeSubRunCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	respondToCloseInputFile
@@ -65,8 +55,6 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 0  handleEmptySubRuns = 0
     *** nextItemType: File 0 ***
 	writeRun 1
 	deleteRunFromCache 1
-	writeSubRunCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	respondToCloseInputFile
@@ -76,8 +64,6 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 0  handleEmptySubRuns = 0
 	openOutputFiles
 	respondToOpenOutputFiles
     *** nextItemType: File 0 ***
-	writeSubRunCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	respondToCloseInputFile
@@ -87,8 +73,6 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 0  handleEmptySubRuns = 0
 	openOutputFiles
 	respondToOpenOutputFiles
     *** nextItemType: File 1 ***
-	writeSubRunCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	respondToCloseInputFile
@@ -106,8 +90,6 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 0  handleEmptySubRuns = 0
 	deleteSubRunFromCache 2/1
 	writeRun 2
 	deleteRunFromCache 2
-	writeSubRunCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	respondToCloseInputFile
@@ -117,8 +99,6 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 0  handleEmptySubRuns = 0
 	openOutputFiles
 	respondToOpenOutputFiles
     *** nextItemType: File 0 ***
-	writeSubRunCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	respondToCloseInputFile
@@ -128,8 +108,6 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 0  handleEmptySubRuns = 0
 	openOutputFiles
 	respondToOpenOutputFiles
     *** nextItemType: File 1 ***
-	writeSubRunCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	respondToCloseInputFile
@@ -139,8 +117,6 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 0  handleEmptySubRuns = 0
 	openOutputFiles
 	respondToOpenOutputFiles
     *** nextItemType: Stop 1 ***
-	writeSubRunCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	respondToCloseInputFile
@@ -154,8 +130,6 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 0  handleEmptySubRuns = 1
 	openOutputFiles
 	respondToOpenOutputFiles
     *** nextItemType: File 1 ***
-	writeSubRunCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	respondToCloseInputFile
@@ -165,8 +139,6 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 0  handleEmptySubRuns = 1
 	openOutputFiles
 	respondToOpenOutputFiles
     *** nextItemType: File 1 ***
-	writeSubRunCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	respondToCloseInputFile
@@ -176,8 +148,6 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 0  handleEmptySubRuns = 1
 	openOutputFiles
 	respondToOpenOutputFiles
     *** nextItemType: File 0 ***
-	writeSubRunCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	respondToCloseInputFile
@@ -187,8 +157,6 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 0  handleEmptySubRuns = 1
 	openOutputFiles
 	respondToOpenOutputFiles
     *** nextItemType: File 0 ***
-	writeSubRunCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	respondToCloseInputFile
@@ -198,8 +166,6 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 0  handleEmptySubRuns = 1
 	openOutputFiles
 	respondToOpenOutputFiles
     *** nextItemType: File 1 ***
-	writeSubRunCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	respondToCloseInputFile
@@ -213,8 +179,6 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 0  handleEmptySubRuns = 1
     *** nextItemType: File 0 ***
 	writeRun 1
 	deleteRunFromCache 1
-	writeSubRunCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	respondToCloseInputFile
@@ -224,8 +188,6 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 0  handleEmptySubRuns = 1
 	openOutputFiles
 	respondToOpenOutputFiles
     *** nextItemType: File 0 ***
-	writeSubRunCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	respondToCloseInputFile
@@ -235,8 +197,6 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 0  handleEmptySubRuns = 1
 	openOutputFiles
 	respondToOpenOutputFiles
     *** nextItemType: File 1 ***
-	writeSubRunCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	respondToCloseInputFile
@@ -256,8 +216,6 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 0  handleEmptySubRuns = 1
 	deleteSubRunFromCache 2/1
 	writeRun 2
 	deleteRunFromCache 2
-	writeSubRunCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	respondToCloseInputFile
@@ -267,8 +225,6 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 0  handleEmptySubRuns = 1
 	openOutputFiles
 	respondToOpenOutputFiles
     *** nextItemType: File 0 ***
-	writeSubRunCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	respondToCloseInputFile
@@ -278,8 +234,6 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 0  handleEmptySubRuns = 1
 	openOutputFiles
 	respondToOpenOutputFiles
     *** nextItemType: File 1 ***
-	writeSubRunCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	respondToCloseInputFile
@@ -289,8 +243,6 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 0  handleEmptySubRuns = 1
 	openOutputFiles
 	respondToOpenOutputFiles
     *** nextItemType: Stop 1 ***
-	writeSubRunCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	respondToCloseInputFile
@@ -304,8 +256,6 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 1  handleEmptySubRuns = 0
 	openOutputFiles
 	respondToOpenOutputFiles
     *** nextItemType: File 1 ***
-	writeSubRunCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	respondToCloseInputFile
@@ -315,8 +265,6 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 1  handleEmptySubRuns = 0
 	openOutputFiles
 	respondToOpenOutputFiles
     *** nextItemType: File 1 ***
-	writeSubRunCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	respondToCloseInputFile
@@ -326,8 +274,6 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 1  handleEmptySubRuns = 0
 	openOutputFiles
 	respondToOpenOutputFiles
     *** nextItemType: File 0 ***
-	writeSubRunCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	respondToCloseInputFile
@@ -337,8 +283,6 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 1  handleEmptySubRuns = 0
 	openOutputFiles
 	respondToOpenOutputFiles
     *** nextItemType: File 0 ***
-	writeSubRunCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	respondToCloseInputFile
@@ -348,8 +292,6 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 1  handleEmptySubRuns = 0
 	openOutputFiles
 	respondToOpenOutputFiles
     *** nextItemType: File 1 ***
-	writeSubRunCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	respondToCloseInputFile
@@ -365,8 +307,6 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 1  handleEmptySubRuns = 0
 	endRun 1
 	writeRun 1
 	deleteRunFromCache 1
-	writeSubRunCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	respondToCloseInputFile
@@ -376,8 +316,6 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 1  handleEmptySubRuns = 0
 	openOutputFiles
 	respondToOpenOutputFiles
     *** nextItemType: File 0 ***
-	writeSubRunCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	respondToCloseInputFile
@@ -387,8 +325,6 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 1  handleEmptySubRuns = 0
 	openOutputFiles
 	respondToOpenOutputFiles
     *** nextItemType: File 1 ***
-	writeSubRunCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	respondToCloseInputFile
@@ -408,8 +344,6 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 1  handleEmptySubRuns = 0
 	endRun 2
 	writeRun 2
 	deleteRunFromCache 2
-	writeSubRunCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	respondToCloseInputFile
@@ -419,8 +353,6 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 1  handleEmptySubRuns = 0
 	openOutputFiles
 	respondToOpenOutputFiles
     *** nextItemType: File 0 ***
-	writeSubRunCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	respondToCloseInputFile
@@ -430,8 +362,6 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 1  handleEmptySubRuns = 0
 	openOutputFiles
 	respondToOpenOutputFiles
     *** nextItemType: File 1 ***
-	writeSubRunCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	respondToCloseInputFile
@@ -441,8 +371,6 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 1  handleEmptySubRuns = 0
 	openOutputFiles
 	respondToOpenOutputFiles
     *** nextItemType: Stop 1 ***
-	writeSubRunCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	respondToCloseInputFile
@@ -456,8 +384,6 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 1  handleEmptySubRuns = 1
 	openOutputFiles
 	respondToOpenOutputFiles
     *** nextItemType: File 1 ***
-	writeSubRunCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	respondToCloseInputFile
@@ -467,8 +393,6 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 1  handleEmptySubRuns = 1
 	openOutputFiles
 	respondToOpenOutputFiles
     *** nextItemType: File 1 ***
-	writeSubRunCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	respondToCloseInputFile
@@ -478,8 +402,6 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 1  handleEmptySubRuns = 1
 	openOutputFiles
 	respondToOpenOutputFiles
     *** nextItemType: File 0 ***
-	writeSubRunCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	respondToCloseInputFile
@@ -489,8 +411,6 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 1  handleEmptySubRuns = 1
 	openOutputFiles
 	respondToOpenOutputFiles
     *** nextItemType: File 0 ***
-	writeSubRunCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	respondToCloseInputFile
@@ -500,8 +420,6 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 1  handleEmptySubRuns = 1
 	openOutputFiles
 	respondToOpenOutputFiles
     *** nextItemType: File 1 ***
-	writeSubRunCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	respondToCloseInputFile
@@ -517,8 +435,6 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 1  handleEmptySubRuns = 1
 	endRun 1
 	writeRun 1
 	deleteRunFromCache 1
-	writeSubRunCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	respondToCloseInputFile
@@ -528,8 +444,6 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 1  handleEmptySubRuns = 1
 	openOutputFiles
 	respondToOpenOutputFiles
     *** nextItemType: File 0 ***
-	writeSubRunCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	respondToCloseInputFile
@@ -539,8 +453,6 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 1  handleEmptySubRuns = 1
 	openOutputFiles
 	respondToOpenOutputFiles
     *** nextItemType: File 1 ***
-	writeSubRunCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	respondToCloseInputFile
@@ -562,8 +474,6 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 1  handleEmptySubRuns = 1
 	endRun 2
 	writeRun 2
 	deleteRunFromCache 2
-	writeSubRunCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	respondToCloseInputFile
@@ -573,8 +483,6 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 1  handleEmptySubRuns = 1
 	openOutputFiles
 	respondToOpenOutputFiles
     *** nextItemType: File 0 ***
-	writeSubRunCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	respondToCloseInputFile
@@ -584,8 +492,6 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 1  handleEmptySubRuns = 1
 	openOutputFiles
 	respondToOpenOutputFiles
     *** nextItemType: File 1 ***
-	writeSubRunCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	respondToCloseInputFile
@@ -595,8 +501,6 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 1  handleEmptySubRuns = 1
 	openOutputFiles
 	respondToOpenOutputFiles
     *** nextItemType: Stop 1 ***
-	writeSubRunCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	respondToCloseInputFile
@@ -611,8 +515,6 @@ Machine parameters:  mode = MERGE  handleEmptyRuns = 0  handleEmptySubRuns = 0
 	respondToOpenOutputFiles
     *** nextItemType: File 1 ***
 	shouldWeCloseOutput
-	writeSubRunCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	respondToCloseInputFile
@@ -623,8 +525,6 @@ Machine parameters:  mode = MERGE  handleEmptyRuns = 0  handleEmptySubRuns = 0
 	respondToOpenOutputFiles
     *** nextItemType: File 1 ***
 	shouldWeCloseOutput
-	writeSubRunCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	respondToCloseInputFile
@@ -647,8 +547,6 @@ Machine parameters:  mode = MERGE  handleEmptyRuns = 0  handleEmptySubRuns = 0
 	respondToOpenInputFile
     *** nextItemType: File 1 ***
 	shouldWeCloseOutput
-	writeSubRunCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	respondToCloseInputFile
@@ -675,8 +573,6 @@ Machine parameters:  mode = MERGE  handleEmptyRuns = 0  handleEmptySubRuns = 0
 	respondToOpenInputFile
     *** nextItemType: File 1 ***
 	shouldWeCloseOutput
-	writeSubRunCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	respondToCloseInputFile
@@ -707,8 +603,6 @@ Machine parameters:  mode = MERGE  handleEmptyRuns = 0  handleEmptySubRuns = 0
 	respondToOpenInputFile
     *** nextItemType: File 1 ***
 	shouldWeCloseOutput
-	writeSubRunCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	respondToCloseInputFile
@@ -718,8 +612,6 @@ Machine parameters:  mode = MERGE  handleEmptyRuns = 0  handleEmptySubRuns = 0
 	openOutputFiles
 	respondToOpenOutputFiles
     *** nextItemType: Stop 1 ***
-	writeSubRunCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	respondToCloseInputFile
@@ -734,8 +626,6 @@ Machine parameters:  mode = MERGE  handleEmptyRuns = 0  handleEmptySubRuns = 1
 	respondToOpenOutputFiles
     *** nextItemType: File 1 ***
 	shouldWeCloseOutput
-	writeSubRunCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	respondToCloseInputFile
@@ -746,8 +636,6 @@ Machine parameters:  mode = MERGE  handleEmptyRuns = 0  handleEmptySubRuns = 1
 	respondToOpenOutputFiles
     *** nextItemType: File 1 ***
 	shouldWeCloseOutput
-	writeSubRunCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	respondToCloseInputFile
@@ -770,8 +658,6 @@ Machine parameters:  mode = MERGE  handleEmptyRuns = 0  handleEmptySubRuns = 1
 	respondToOpenInputFile
     *** nextItemType: File 1 ***
 	shouldWeCloseOutput
-	writeSubRunCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	respondToCloseInputFile
@@ -798,8 +684,6 @@ Machine parameters:  mode = MERGE  handleEmptyRuns = 0  handleEmptySubRuns = 1
 	respondToOpenInputFile
     *** nextItemType: File 1 ***
 	shouldWeCloseOutput
-	writeSubRunCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	respondToCloseInputFile
@@ -832,8 +716,6 @@ Machine parameters:  mode = MERGE  handleEmptyRuns = 0  handleEmptySubRuns = 1
 	respondToOpenInputFile
     *** nextItemType: File 1 ***
 	shouldWeCloseOutput
-	writeSubRunCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	respondToCloseInputFile
@@ -843,8 +725,6 @@ Machine parameters:  mode = MERGE  handleEmptyRuns = 0  handleEmptySubRuns = 1
 	openOutputFiles
 	respondToOpenOutputFiles
     *** nextItemType: Stop 1 ***
-	writeSubRunCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	respondToCloseInputFile
@@ -859,8 +739,6 @@ Machine parameters:  mode = MERGE  handleEmptyRuns = 1  handleEmptySubRuns = 0
 	respondToOpenOutputFiles
     *** nextItemType: File 1 ***
 	shouldWeCloseOutput
-	writeSubRunCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	respondToCloseInputFile
@@ -871,8 +749,6 @@ Machine parameters:  mode = MERGE  handleEmptyRuns = 1  handleEmptySubRuns = 0
 	respondToOpenOutputFiles
     *** nextItemType: File 1 ***
 	shouldWeCloseOutput
-	writeSubRunCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	respondToCloseInputFile
@@ -895,8 +771,6 @@ Machine parameters:  mode = MERGE  handleEmptyRuns = 1  handleEmptySubRuns = 0
 	respondToOpenInputFile
     *** nextItemType: File 1 ***
 	shouldWeCloseOutput
-	writeSubRunCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	respondToCloseInputFile
@@ -925,8 +799,6 @@ Machine parameters:  mode = MERGE  handleEmptyRuns = 1  handleEmptySubRuns = 0
 	respondToOpenInputFile
     *** nextItemType: File 1 ***
 	shouldWeCloseOutput
-	writeSubRunCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	respondToCloseInputFile
@@ -959,8 +831,6 @@ Machine parameters:  mode = MERGE  handleEmptyRuns = 1  handleEmptySubRuns = 0
 	respondToOpenInputFile
     *** nextItemType: File 1 ***
 	shouldWeCloseOutput
-	writeSubRunCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	respondToCloseInputFile
@@ -970,8 +840,6 @@ Machine parameters:  mode = MERGE  handleEmptyRuns = 1  handleEmptySubRuns = 0
 	openOutputFiles
 	respondToOpenOutputFiles
     *** nextItemType: Stop 1 ***
-	writeSubRunCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	respondToCloseInputFile
@@ -986,8 +854,6 @@ Machine parameters:  mode = MERGE  handleEmptyRuns = 1  handleEmptySubRuns = 1
 	respondToOpenOutputFiles
     *** nextItemType: File 1 ***
 	shouldWeCloseOutput
-	writeSubRunCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	respondToCloseInputFile
@@ -998,8 +864,6 @@ Machine parameters:  mode = MERGE  handleEmptyRuns = 1  handleEmptySubRuns = 1
 	respondToOpenOutputFiles
     *** nextItemType: File 1 ***
 	shouldWeCloseOutput
-	writeSubRunCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	respondToCloseInputFile
@@ -1022,8 +886,6 @@ Machine parameters:  mode = MERGE  handleEmptyRuns = 1  handleEmptySubRuns = 1
 	respondToOpenInputFile
     *** nextItemType: File 1 ***
 	shouldWeCloseOutput
-	writeSubRunCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	respondToCloseInputFile
@@ -1052,8 +914,6 @@ Machine parameters:  mode = MERGE  handleEmptyRuns = 1  handleEmptySubRuns = 1
 	respondToOpenInputFile
     *** nextItemType: File 1 ***
 	shouldWeCloseOutput
-	writeSubRunCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	respondToCloseInputFile
@@ -1088,8 +948,6 @@ Machine parameters:  mode = MERGE  handleEmptyRuns = 1  handleEmptySubRuns = 1
 	respondToOpenInputFile
     *** nextItemType: File 1 ***
 	shouldWeCloseOutput
-	writeSubRunCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	respondToCloseInputFile
@@ -1099,8 +957,6 @@ Machine parameters:  mode = MERGE  handleEmptyRuns = 1  handleEmptySubRuns = 1
 	openOutputFiles
 	respondToOpenOutputFiles
     *** nextItemType: Stop 1 ***
-	writeSubRunCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	respondToCloseInputFile

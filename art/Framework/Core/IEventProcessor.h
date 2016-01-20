@@ -52,8 +52,6 @@ namespace art
     virtual void respondToCloseOutputFiles() = 0;
 
     virtual void rewindInput() = 0;
-    virtual void writeSubRunCache() = 0;
-    virtual void writeRunCache() = 0;
     virtual bool shouldWeCloseOutput() const = 0;
 
     virtual void doErrorStuff() = 0;

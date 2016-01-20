@@ -22,8 +22,6 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 0  handleEmptySubRuns = 0
 	endRun 1
 	writeRun 1
 	deleteRunFromCache 1
-	writeSubRunCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	respondToCloseInputFile
@@ -49,8 +47,6 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 0  handleEmptySubRuns = 0
 	endRun 2
 	writeRun 2
 	deleteRunFromCache 2
-	writeSubRunCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	respondToCloseInputFile
@@ -76,8 +72,6 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 0  handleEmptySubRuns = 0
 	endRun 1
 	writeRun 1
 	deleteRunFromCache 1
-	writeSubRunCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	respondToCloseInputFile
@@ -107,8 +101,6 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 0  handleEmptySubRuns = 1
 	endRun 1
 	writeRun 1
 	deleteRunFromCache 1
-	writeSubRunCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	respondToCloseInputFile
@@ -134,8 +126,6 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 0  handleEmptySubRuns = 1
 	endRun 2
 	writeRun 2
 	deleteRunFromCache 2
-	writeSubRunCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	respondToCloseInputFile
@@ -161,8 +151,6 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 0  handleEmptySubRuns = 1
 	endRun 1
 	writeRun 1
 	deleteRunFromCache 1
-	writeSubRunCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	respondToCloseInputFile
@@ -192,8 +180,6 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 1  handleEmptySubRuns = 0
 	endRun 1
 	writeRun 1
 	deleteRunFromCache 1
-	writeSubRunCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	respondToCloseInputFile
@@ -219,8 +205,6 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 1  handleEmptySubRuns = 0
 	endRun 2
 	writeRun 2
 	deleteRunFromCache 2
-	writeSubRunCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	respondToCloseInputFile
@@ -246,8 +230,6 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 1  handleEmptySubRuns = 0
 	endRun 1
 	writeRun 1
 	deleteRunFromCache 1
-	writeSubRunCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	respondToCloseInputFile
@@ -277,8 +259,6 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 1  handleEmptySubRuns = 1
 	endRun 1
 	writeRun 1
 	deleteRunFromCache 1
-	writeSubRunCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	respondToCloseInputFile
@@ -304,8 +284,6 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 1  handleEmptySubRuns = 1
 	endRun 2
 	writeRun 2
 	deleteRunFromCache 2
-	writeSubRunCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	respondToCloseInputFile
@@ -331,8 +309,6 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 1  handleEmptySubRuns = 1
 	endRun 1
 	writeRun 1
 	deleteRunFromCache 1
-	writeSubRunCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	respondToCloseInputFile

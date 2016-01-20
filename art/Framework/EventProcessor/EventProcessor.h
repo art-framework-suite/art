@@ -104,8 +104,6 @@ public:
   void respondToCloseOutputFiles() override;
 
   void rewindInput() override;
-  void writeSubRunCache() override;
-  void writeRunCache() override;
   bool shouldWeCloseOutput() const override;
 
   void doErrorStuff() override;
@@ -177,7 +175,7 @@ private:
   std::shared_ptr<FileBlock> fb_;
 
   std::unique_ptr<statemachine::Machine> machine_;
-  PrincipalCache principalCache_;
+  PrincipalCache principalCache_; // Cache is necessary for handling empty runs/subruns
   std::unique_ptr<EventPrincipal> sm_evp_;
   bool shouldWeStop_;
   bool stateMachineWasInErrorState_;

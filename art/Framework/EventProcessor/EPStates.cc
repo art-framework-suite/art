@@ -105,8 +105,6 @@ namespace statemachine {
 
   void HandleFiles::closeFiles()
   {
-    ep_.writeSubRunCache();
-    ep_.writeRunCache();
     ep_.respondToCloseOutputFiles();
     ep_.closeOutputFiles();
     ep_.respondToCloseInputFile();
@@ -123,8 +121,6 @@ namespace statemachine {
 
   void HandleFiles::goToNewInputAndOutputFiles()
   {
-    ep_.writeSubRunCache();
-    ep_.writeRunCache();
     ep_.respondToCloseOutputFiles();
     ep_.closeOutputFiles();
     ep_.respondToCloseInputFile();
@@ -137,8 +133,6 @@ namespace statemachine {
 
   void HandleFiles::goToNewOutputFiles()
   {
-    ep_.writeSubRunCache();
-    ep_.writeRunCache();
     ep_.respondToCloseOutputFiles();
     ep_.closeOutputFiles();
     ep_.openOutputFiles();
