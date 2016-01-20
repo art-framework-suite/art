@@ -105,6 +105,13 @@ simple_plugin(Wanted                      "service" NO_INSTALL )
 
 art_dictionary(DICTIONARY_LIBRARIES cetlib NO_INSTALL)
 
+cet_make_exec(dump_file_index
+  SOURCE dump_file_index.cc
+  NO_INSTALL
+  LIBRARIES
+  art_Framework_IO_Root
+  )
+
 # cet_test macro
 
 cet_test(EventSelectorFromFile_w HANDBUILT
