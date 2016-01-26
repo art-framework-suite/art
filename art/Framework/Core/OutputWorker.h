@@ -13,6 +13,7 @@ appear in one worker.
 
 #include "art/Framework/Principal/fwd.h"
 #include "art/Framework/Core/Frameworkfwd.h"
+#include "art/Framework/Core/OutputFileSwitchBoundary.h"
 #include "art/Framework/Core/WorkerT.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/FileServiceInterfaces/CatalogInterface.h"
@@ -34,25 +35,30 @@ namespace art {
     // Call closeFile() on the controlled OutputModule.
     void closeFile();
 
-    // Call shouldWeCloseFile() on the controlled OutputModule.
-    bool shouldWeCloseFile() const;
+    bool requestsToCloseFile() const;
 
     bool wantAllEvents() const;
 
     void openFile(FileBlock const& fb);
 
-    void writeRun(RunPrincipal & rp);
-
-    void writeSubRun(SubRunPrincipal & srp);
+    void writeRun(RunPrincipal& rp);
+    void writeSubRun(SubRunPrincipal& srp);
+    void writeEvent(EventPrincipal& ep);
 
     bool limitReached() const;
 
     void configure(OutputModuleDescription const& desc);
 
+    Boundary fileSwitchBoundary() const;
+    bool stagedToCloseFile() const;
+    void flagToCloseFile(bool flag);
+
     virtual void selectProducts(FileBlock const&);
 
 private:
     ServiceHandle<CatalogInterface> ci_;
+    bool stagedToCloseFile_ {false};
+    Boundary fileSwitchBoundary_ {Boundary::Unset};
   };
 }
 

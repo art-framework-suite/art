@@ -71,6 +71,8 @@ namespace art
     void doRespondToCloseInputFile(FileBlock const& fb);
     void doRespondToOpenOutputFiles(FileBlock const& fb);
     void doRespondToCloseOutputFiles(FileBlock const& fb);
+    void doRespondToOpenOutputFile();
+    void doRespondToCloseOutputFile();
 
     std::string workerType() const {return "WorkerT<EDProducer>";}
 
@@ -87,6 +89,8 @@ namespace art
     virtual void respondToCloseInputFile(FileBlock const&) {}
     virtual void respondToOpenOutputFiles(FileBlock const&) {}
     virtual void respondToCloseOutputFiles(FileBlock const&) {}
+    virtual void respondToOpenOutputFile() {}
+    virtual void respondToCloseOutputFile() {}
 
     void setModuleDescription(ModuleDescription const& md) {
       moduleDescription_ = md;

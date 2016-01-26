@@ -10,8 +10,8 @@
 # files.
 
 # Dump info from first file
-art -c eventIDPrinter.fcl -s ../../ToyProductProducer_t_01.d/ToyProductProducer_t_01.root > primary_01.txt || exit 1
-art -c eventIDPrinter.fcl -s ../../ToyProductProducer_t_02.d/ToyProductProducer_t_02.root > primary_02.txt || exit 2
+art -c eventIDPrinter.fcl -s ../ToyProductProducer_t_01.d/ToyProductProducer_t_01.root > primary_01.txt || exit 1
+art -c eventIDPrinter.fcl -s ../ToyProductProducer_t_02.d/ToyProductProducer_t_02.root > primary_02.txt || exit 2
 
 # Run no-merging process
 art -c ToyProductNoMerger_t.fcl --rethrow-all || exit 3

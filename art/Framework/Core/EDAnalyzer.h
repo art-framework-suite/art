@@ -112,6 +112,8 @@ namespace art
     void doRespondToCloseInputFile(FileBlock const& fb);
     void doRespondToOpenOutputFiles(FileBlock const& fb);
     void doRespondToCloseOutputFiles(FileBlock const& fb);
+    void doRespondToOpenOutputFile();
+    void doRespondToCloseOutputFile();
 
     virtual void analyze(Event const&) = 0;
     virtual void beginJob(){}
@@ -125,6 +127,8 @@ namespace art
     virtual void respondToCloseInputFile(FileBlock const&) {}
     virtual void respondToOpenOutputFiles(FileBlock const&) {}
     virtual void respondToCloseOutputFiles(FileBlock const&) {}
+    virtual void respondToOpenOutputFile() {}
+    virtual void respondToCloseOutputFile() {}
 
     void setModuleDescription(ModuleDescription const& md) {
       moduleDescription_ = md;

@@ -174,11 +174,11 @@ namespace art {
     return true;
   }
 
-  bool PrincipalCache::noMoreRuns() {
+  bool PrincipalCache::noMoreRuns() const {
     return runPrincipals_.empty();
   }
 
-  bool PrincipalCache::noMoreSubRuns() {
+  bool PrincipalCache::noMoreSubRuns() const {
     return subRunPrincipals_.empty();
   }
 
@@ -192,19 +192,17 @@ namespace art {
     return *iter->second.get();
   }
 
-  void PrincipalCache::deleteLowestRun() {
-    runPrincipals_.erase(runPrincipals_.begin());
-  }
-
-  void PrincipalCache::deleteLowestSubRun() {
-    subRunPrincipals_.erase(subRunPrincipals_.begin());
-  }
-
   void PrincipalCache::deleteRun(RunID run) {
     runPrincipals_.erase(runPrincipals_.find(run));
   }
 
   void PrincipalCache::deleteSubRun(SubRunID const & sr) {
     subRunPrincipals_.erase(subRunPrincipals_.find(sr));
+  }
+
+  void PrincipalCache::deleteAllPrincipals()
+  {
+    runPrincipals_.clear();
+    subRunPrincipals_.clear();
   }
 }

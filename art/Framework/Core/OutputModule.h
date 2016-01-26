@@ -52,8 +52,8 @@ public:
 
   template <typename T> friend class WorkerT;
   friend class OutputWorker;
-  typedef OutputModule ModuleType;
-  typedef OutputWorker WorkerType;
+  using ModuleType = OutputModule;
+  using WorkerType = OutputWorker;
 
   // Configuration
   struct Config {
@@ -152,7 +152,7 @@ private:
   // We do not own the pointed-to CurrentProcessingContext.
   CurrentProcessingContext const * current_context_;
 
-  typedef std::map<BranchID, std::set<ParentageID> > BranchParents;
+  using BranchParents = std::map<BranchID, std::set<ParentageID> >;
   BranchParents branchParents_;
 
   BranchChildren branchChildren_;
@@ -165,8 +165,7 @@ private:
   cet::BasicPluginFactory pluginFactory_;
   std::vector<std::string> pluginNames_; // For diagnostics.
 
-  typedef std::vector<std::unique_ptr<FileCatalogMetadataPlugin> >
-  PluginCollection_t;
+  using PluginCollection_t = std::vector<std::unique_ptr<FileCatalogMetadataPlugin> >;
   PluginCollection_t plugins_;
 
   //------------------------------------------------------------------
@@ -187,16 +186,19 @@ private:
                    CurrentProcessingContext const * cpc);
   void doWriteRun(RunPrincipal & rp);
   void doWriteSubRun(SubRunPrincipal & srp);
+  void doWriteEvent(EventPrincipal& ep);
   void doOpenFile(FileBlock const & fb);
   void doRespondToOpenInputFile(FileBlock const & fb);
   void doRespondToCloseInputFile(FileBlock const & fb);
   void doRespondToOpenOutputFiles(FileBlock const & fb);
   void doRespondToCloseOutputFiles(FileBlock const & fb);
+  void doRespondToOpenOutputFile();
+  void doRespondToCloseOutputFile();
   void doSelectProducts();
 
   std::string workerType() const {return "OutputWorker";}
 
-  // Tell the OutputModule that is must end the current file.
+  // Tell the OutputModule that it must end the current file.
   void doCloseFile();
 
   // Do the end-of-file tasks; this is only called internally, after
@@ -204,11 +206,12 @@ private:
   void reallyCloseFile();
 
   // Ask the OutputModule if we should end the current file.
-  virtual bool shouldWeCloseFile() const {return false;}
+  virtual bool requestsToCloseFile() const {return false;}
+  virtual bool stagedToCloseFile() const { return true; }
+  virtual void flagToCloseFile(bool const) {}
+  virtual Boundary fileSwitchBoundary() const { return Boundary::Unset; }
 
   // Write the event.
-  virtual void write(EventPrincipal & e) = 0;
-
   virtual void beginJob();
   virtual void endJob();
   virtual void beginRun(RunPrincipal const &);
@@ -217,12 +220,17 @@ private:
   virtual void beginSubRun(SubRunPrincipal const &);
   virtual void endSubRun(SubRunPrincipal const &);
   virtual void writeSubRun(SubRunPrincipal & sr) = 0;
+  virtual void event(EventPrincipal const&);
+  virtual void write(EventPrincipal& e) = 0;
+
   virtual void openFile(FileBlock const &);
   virtual void respondToOpenInputFile(FileBlock const &);
   virtual void readResults(ResultsPrincipal const & resp);
   virtual void respondToCloseInputFile(FileBlock const &);
   virtual void respondToOpenOutputFiles(FileBlock const &);
   virtual void respondToCloseOutputFiles(FileBlock const &);
+  virtual void respondToOpenOutputFile();
+  virtual void respondToCloseOutputFile();
 
   virtual bool isFileOpen() const;
 
@@ -257,8 +265,6 @@ private:
 
   PluginCollection_t makePlugins_(fhicl::ParameterSet const & top_pset);
 };  // OutputModule
-
-#ifndef __GCCXML__
 
 inline
 art::CurrentProcessingContext const *
@@ -342,8 +348,6 @@ limitReached() const
   return remainingEvents_ == 0;
 }
 
-
-#endif /* _GCCXML__ */
 
 #endif /* art_Framework_Core_OutputModule_h */
 

@@ -321,15 +321,6 @@ cet_test_assertion("outSR \\\\|\\\\| inSR"
   ToyRawInput_t_04
   )
 
-foreach(num 01 02)
-  cet_test(ToyProductProducer_t_${num} HANDBUILT
-    TEST_EXEC art
-    TEST_ARGS --rethrow-all -c ToyProductProducer_t_${num}.fcl
-    DATAFILES
-    fcl/ToyProductProducer_t_${num}.fcl
-    )
-endforeach()
-
 foreach(num 01 02 03)
   cet_test(ToyProductProducerMultiput_t_${num} HANDBUILT
     TEST_EXEC art
@@ -1313,8 +1304,8 @@ add_subdirectory(test_tiered_input_05)
 
 add_subdirectory(event-processor)
 add_subdirectory(event-shape)
-add_subdirectory(file-merging)
 add_subdirectory(high-memory)
+add_subdirectory(output-file-handling)
 add_subdirectory(run-subrun-shape)
 
 cet_test(FastCloningInitMessage_01_t HANDBUILT

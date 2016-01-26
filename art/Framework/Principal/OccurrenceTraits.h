@@ -27,9 +27,9 @@ namespace art {
   template <>
   class OccurrenceTraits<EventPrincipal, BranchActionBegin> {
   public:
-    typedef EventPrincipal MyPrincipal;
-    static bool const begin_ = true;
-    static bool const isEvent_ = true;
+    using MyPrincipal = EventPrincipal;
+    constexpr static bool begin_ {true};
+    constexpr static bool isEvent_ {true};
     static void preScheduleSignal(ActivityRegistry *a, EventPrincipal * ep) {
       Event ev(*ep, ModuleDescription());
       a->sPreProcessEvent.invoke(ev);
@@ -55,9 +55,9 @@ namespace art {
   template <>
   class OccurrenceTraits<RunPrincipal, BranchActionBegin> {
   public:
-    typedef RunPrincipal MyPrincipal;
-    static bool const begin_ = true;
-    static bool const isEvent_ = false;
+    using MyPrincipal = RunPrincipal;
+    constexpr static bool begin_ {true};
+    constexpr static bool isEvent_ {false};
     static void preScheduleSignal(ActivityRegistry *a, RunPrincipal* ep) {
       Run run(*ep, ModuleDescription());
       a->sPreBeginRun.invoke(run);
@@ -83,9 +83,9 @@ namespace art {
   template <>
   class OccurrenceTraits<RunPrincipal, BranchActionEnd> {
   public:
-    typedef RunPrincipal MyPrincipal;
-    static bool const begin_ = false;
-    static bool const isEvent_ = false;
+    using MyPrincipal = RunPrincipal;
+    constexpr static bool begin_ {false};
+    constexpr static bool isEvent_ {false};
     static void preScheduleSignal(ActivityRegistry *a, RunPrincipal const* ep) {
       a->sPreEndRun.invoke(ep->id(), ep->endTime());
     }
@@ -110,9 +110,9 @@ namespace art {
   template <>
   class OccurrenceTraits<SubRunPrincipal, BranchActionBegin> {
   public:
-    typedef SubRunPrincipal MyPrincipal;
-    static bool const begin_ = true;
-    static bool const isEvent_ = false;
+    using MyPrincipal = SubRunPrincipal;
+    constexpr static bool begin_ {true};
+    constexpr static bool isEvent_ {false};
     static void preScheduleSignal(ActivityRegistry *a, SubRunPrincipal * ep) {
       SubRun subRun(*ep, ModuleDescription());
       a->sPreBeginSubRun.invoke(subRun);
@@ -138,9 +138,9 @@ namespace art {
   template <>
   class OccurrenceTraits<SubRunPrincipal, BranchActionEnd> {
   public:
-    typedef SubRunPrincipal MyPrincipal;
-    static bool const begin_ = false;
-    static bool const isEvent_ = false;
+    using MyPrincipal = SubRunPrincipal;
+    constexpr static bool begin_ {false};
+    constexpr static bool isEvent_ {false};
     static void preScheduleSignal(ActivityRegistry *a, SubRunPrincipal const* ep) {
       a->sPreEndSubRun.invoke(ep->id(), ep->beginTime());
     }

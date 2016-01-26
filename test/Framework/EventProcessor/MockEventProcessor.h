@@ -2,12 +2,8 @@
 #define test_Framework_EventProcessor_MockEventProcessor_h
 
 /*
-
-
-Version of the Event Processor used for tests of
-the state machine and other tests.
-
-Original Authors: W. David Dagenhart, Marc Paterno
+  Version of the Event Processor used for tests of
+  the state machine and other tests.
 */
 
 #include "art/Framework/Core/IEventProcessor.h"
@@ -30,16 +26,23 @@ namespace art
 
     void readFile() override;
     void closeInputFile() override;
-    void openOutputFiles() override;
-    void closeOutputFiles() override;
+    void openAllOutputFiles() override;
+    void closeAllOutputFiles() override;
+    void openSomeOutputFiles(std::size_t const) override;
+    void closeSomeOutputFiles(std::size_t const) override;
 
     void respondToOpenInputFile() override;
     void respondToCloseInputFile() override;
     void respondToOpenOutputFiles() override;
     void respondToCloseOutputFiles() override;
+    // The below response functions are different!
+    void respondToOpenOutputFile() override {}
+    void respondToCloseOutputFile() override {}
 
     void rewindInput() override;
-    bool shouldWeCloseOutput() const override;
+    void recordOutputClosureRequests() override {};
+    bool outputToCloseAtBoundary(Boundary const) const override { return false; }
+    void switchOutputs(std::size_t const) override {}
 
     void doErrorStuff() override;
 
@@ -51,10 +54,15 @@ namespace art
 
     RunID readAndCacheRun() override;
     SubRunID readAndCacheSubRun() override;
+    RunID runPrincipalID() const override;
+    SubRunID subRunPrincipalID() const override;
+    EventID eventPrincipalID() const override;
     void writeRun(RunID run) override;
     void deleteRunFromCache(RunID run) override;
     void writeSubRun(SubRunID const & sr) override;
     void deleteSubRunFromCache(SubRunID const & sr) override;
+    void clearPrincipalCache() override;
+    void writeEvent() override;
 
     void readEvent() override;
     void processEvent() override;
@@ -78,7 +86,6 @@ namespace art
 
     SubRunID subRun_;
 
-    bool shouldWeCloseOutput_;
     bool shouldWeEndLoop_;
     bool shouldWeStop_;
   };

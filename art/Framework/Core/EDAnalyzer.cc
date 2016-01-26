@@ -96,6 +96,18 @@ namespace art
     respondToCloseOutputFiles(fb);
   }
 
+  void
+  EDAnalyzer::doRespondToOpenOutputFile()
+  {
+    respondToOpenOutputFile();
+  }
+
+  void
+  EDAnalyzer::doRespondToCloseOutputFile()
+  {
+    respondToCloseOutputFile();
+  }
+
   CurrentProcessingContext const*
   EDAnalyzer::currentContext() const {
     return current_context_;

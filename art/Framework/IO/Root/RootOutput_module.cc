@@ -28,6 +28,7 @@
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include <iomanip>
+#include <iostream>
 #include <memory>
 #include <sstream>
 #include <string>
@@ -48,6 +49,7 @@ public: // MEMBER FUNCTIONS
   struct Config {
 
     using Name = fhicl::Name;
+    using Comment = fhicl::Comment;
 
     fhicl::TableFragment<art::OutputModule::Config> omConfig;
     fhicl::Atom<std::string> catalog { Name("catalog"), "" };
@@ -64,6 +66,16 @@ public: // MEMBER FUNCTIONS
     fhicl::Atom<bool> dropMetaDataForDroppedData { Name("dropMetaDataForDroppedData"), false };
     fhicl::Atom<std::string> dropMetaData { Name("dropMetaData"), "" };
     fhicl::Atom<bool> writeParameterSets { Name("writeParameterSets"), true };
+    struct SwitchConfig {
+      fhicl::Atom<bool> force { Name("force"), false };
+      fhicl::Atom<std::string> boundary {
+        Name("boundary"),
+        Comment("A specification for 'boundary' is required if\n"
+                "'force: true'"),
+          [this](){ return force(); },
+          "InputFile" };
+    };
+    fhicl::Table<SwitchConfig> switchConfig { Name("fileSwitch") };
 
     Config()
     {
@@ -111,12 +123,15 @@ private: // MEMBER FUNCTIONS
   void respondToOpenInputFile(FileBlock const &) override;
   void readResults(ResultsPrincipal const & resp) override;
   void respondToCloseInputFile(FileBlock const&) override;
-  void respondToCloseOutputFiles(FileBlock const&) override;
+  void respondToCloseOutputFile() override; // per-file closure
+  bool stagedToCloseFile() const override;
+  void flagToCloseFile(bool) override;
+  Boundary fileSwitchBoundary() const override;
   void write(EventPrincipal &) override;
   void writeSubRun(SubRunPrincipal &) override;
   void writeRun(RunPrincipal &) override;
   bool isFileOpen() const override;
-  bool shouldWeCloseFile() const override;
+  bool requestsToCloseFile() const override;
   void doOpenFile();
   void startEndFile() override;
   void writeFileFormatVersion() override;
@@ -145,6 +160,7 @@ private:
   std::string const moduleLabel_;
   int inputFileCount_;
   std::unique_ptr<RootOutputFile> rootOutputFile_;
+  bool stagedToCloseFile_;
   FileStatsCollector fstats_;
   std::string const filePattern_;
   std::string tmpDir_;
@@ -170,6 +186,8 @@ private:
   // historical ParameterSet information in the downstream file
   // (e.g. mixing).
   bool writeParameterSets_;
+  bool forceSwitch_;
+  Boundary fileSwitchBoundary_;
 
   // ResultsProducer management.
   RPManager rpm_;
@@ -184,6 +202,7 @@ RootOutput(Parameters const & config)
   , moduleLabel_{config.get_PSet().get<string>("module_label")}
   , inputFileCount_{0}
   , rootOutputFile_{}
+  , stagedToCloseFile_{false}
   , fstats_{moduleLabel_, processName()}
   , filePattern_{config().omConfig().fileName()}
   , tmpDir_{config().tmpDir()}
@@ -198,6 +217,8 @@ RootOutput(Parameters const & config)
   , dropMetaDataForDroppedData_{config().dropMetaDataForDroppedData()}
   , fastCloning_{true}
   , writeParameterSets_{config().writeParameterSets()}
+  , forceSwitch_{config().switchConfig().force()}
+  , fileSwitchBoundary_{Boundary::value(config().switchConfig().boundary())}
   , rpm_{config.get_PSet()}
 {
   mf::LogInfo msg("FastCloning");
@@ -332,11 +353,10 @@ respondToCloseInputFile(FileBlock const& fb)
 
 void
 art::RootOutput::
-respondToCloseOutputFiles(FileBlock const&)
+respondToCloseOutputFile()
 {
-  auto resp =
-    std::make_unique<ResultsPrincipal>(ResultsAuxiliary { },
-                                       description().processConfiguration());
+  auto resp = std::make_unique<ResultsPrincipal>(ResultsAuxiliary { },
+                                                 description().processConfiguration());
   if (ProductMetaData::instance().productProduced(InResults) ||
       hasNewlyDroppedBranch()[InResults]) {
     resp->addToProcessHistory();
@@ -514,9 +534,32 @@ isFileOpen() const
 
 bool
 art::RootOutput::
-shouldWeCloseFile() const
+requestsToCloseFile() const
 {
-  return rootOutputFile_->shouldWeCloseFile();
+  if (forceSwitch_)
+    return true;
+  else
+    return rootOutputFile_->requestsToCloseFile();
+}
+
+bool
+art::RootOutput::stagedToCloseFile() const
+{
+  return stagedToCloseFile_;
+}
+
+void
+art::RootOutput::
+flagToCloseFile(bool const staged)
+{
+  stagedToCloseFile_ = staged;
+}
+
+art::Boundary
+art::RootOutput::
+fileSwitchBoundary() const
+{
+  return fileSwitchBoundary_;
 }
 
 void

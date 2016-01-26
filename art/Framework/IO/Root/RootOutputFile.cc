@@ -276,7 +276,7 @@ respondToCloseInputFile(FileBlock const&)
 bool
 art::
 RootOutputFile::
-shouldWeCloseFile() const
+requestsToCloseFile() const
 {
   unsigned int const oneK = 1024;
   Long64_t size = filePtr_->GetSize() / oneK;
@@ -736,4 +736,3 @@ fillBranches(BranchType const& bt, Principal const& principal,
   treePointers_[bt]->fillTree();
   vpp->clear();
 }
-

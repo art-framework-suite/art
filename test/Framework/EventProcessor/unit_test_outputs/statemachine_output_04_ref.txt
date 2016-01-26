@@ -3,9 +3,9 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 0  handleEmptySubRuns = 0
     *** nextItemType: File 1 ***
  	readFile
 	respondToOpenInputFile
+    *** nextItemType: Run 1 ***
 	openOutputFiles
 	respondToOpenOutputFiles
-    *** nextItemType: Run 1 ***
 	readAndCacheRun 1
     *** nextItemType: SubRun 1 ***
 	readAndCacheSubRun 1
@@ -44,9 +44,9 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 0  handleEmptySubRuns = 0
 	closeInputFile
  	readFile
 	respondToOpenInputFile
+    *** nextItemType: Run 1 ***
 	openOutputFiles
 	respondToOpenOutputFiles
-    *** nextItemType: Run 1 ***
 	readAndCacheRun 1
     *** nextItemType: SubRun 2 ***
 	readAndCacheSubRun 2
@@ -73,9 +73,9 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 0  handleEmptySubRuns = 1
     *** nextItemType: File 1 ***
  	readFile
 	respondToOpenInputFile
+    *** nextItemType: Run 1 ***
 	openOutputFiles
 	respondToOpenOutputFiles
-    *** nextItemType: Run 1 ***
 	readAndCacheRun 1
     *** nextItemType: SubRun 1 ***
 	readAndCacheSubRun 1
@@ -114,9 +114,9 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 0  handleEmptySubRuns = 1
 	closeInputFile
  	readFile
 	respondToOpenInputFile
+    *** nextItemType: Run 1 ***
 	openOutputFiles
 	respondToOpenOutputFiles
-    *** nextItemType: Run 1 ***
 	readAndCacheRun 1
     *** nextItemType: SubRun 2 ***
 	readAndCacheSubRun 2
@@ -143,9 +143,9 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 1  handleEmptySubRuns = 0
     *** nextItemType: File 1 ***
  	readFile
 	respondToOpenInputFile
+    *** nextItemType: Run 1 ***
 	openOutputFiles
 	respondToOpenOutputFiles
-    *** nextItemType: Run 1 ***
 	readAndCacheRun 1
 	beginRun 1
     *** nextItemType: SubRun 1 ***
@@ -184,9 +184,9 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 1  handleEmptySubRuns = 0
 	closeInputFile
  	readFile
 	respondToOpenInputFile
+    *** nextItemType: Run 1 ***
 	openOutputFiles
 	respondToOpenOutputFiles
-    *** nextItemType: Run 1 ***
 	readAndCacheRun 1
 	beginRun 1
     *** nextItemType: SubRun 2 ***
@@ -213,9 +213,9 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 1  handleEmptySubRuns = 1
     *** nextItemType: File 1 ***
  	readFile
 	respondToOpenInputFile
+    *** nextItemType: Run 1 ***
 	openOutputFiles
 	respondToOpenOutputFiles
-    *** nextItemType: Run 1 ***
 	readAndCacheRun 1
 	beginRun 1
     *** nextItemType: SubRun 1 ***
@@ -254,9 +254,9 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 1  handleEmptySubRuns = 1
 	closeInputFile
  	readFile
 	respondToOpenInputFile
+    *** nextItemType: Run 1 ***
 	openOutputFiles
 	respondToOpenOutputFiles
-    *** nextItemType: Run 1 ***
 	readAndCacheRun 1
 	beginRun 1
     *** nextItemType: SubRun 2 ***

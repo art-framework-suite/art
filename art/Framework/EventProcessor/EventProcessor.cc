@@ -38,6 +38,7 @@
 
 #include <exception>
 #include <iomanip>
+#include <iostream>
 #include <string>
 #include <utility>
 #include <vector>
@@ -260,21 +261,18 @@ initServices_(ParameterSet const & top_pset,
               ActivityRegistry & areg,
               ServiceToken & token)
 {
-  auto services =
-    top_pset.get<ParameterSet>("services", ParameterSet());
+  auto services = top_pset.get<ParameterSet>("services", {});
 
   // Save and non-standard service config, "floating_point_control" to
   // prevent ServiceDirector trying to make one itself.
-  ParameterSet const fpc_pset =
-    services.get<ParameterSet>("floating_point_control", ParameterSet());
+  auto const fpc_pset = services.get<ParameterSet>("floating_point_control", {});
   services.erase("floating_point_control");
 
   // Remove non-standard non-service config, "message."
   services.erase("message");
 
   // Move all services from user into main services block.
-  auto const user =
-    services.get<ParameterSet>("user", ParameterSet());
+  auto const user = services.get<ParameterSet>("user", {});
   if (!user.is_empty()) {
     mf::LogWarning("CONFIG")
       << "Use of services.user parameter set is deprecated.\n"
@@ -371,7 +369,7 @@ art::EventProcessor::runToCompletion()
   // Make the services available
   ServiceRegistry::Operate op {serviceToken_};
   if (machine_.get() == 0) {
-    statemachine::FileMode fileMode;
+    statemachine::FileMode fileMode [[gnu::unused]];
     if (fileMode_.empty()) { fileMode = statemachine::MERGE; }
     else if (fileMode_ == std::string("MERGE")) { fileMode = statemachine::MERGE; }
     else if (fileMode_ == std::string("NOMERGE")) { fileMode = statemachine::NOMERGE; }
@@ -381,7 +379,6 @@ art::EventProcessor::runToCompletion()
           << "Legal values are 'MERGE', 'NOMERGE'.\n";
     }
     machine_ = std::make_unique<statemachine::Machine>( this,
-                                                        fileMode,
                                                         handleEmptyRuns_,
                                                         handleEmptySubRuns_ );
     machine_->initiate();
@@ -560,17 +557,31 @@ art::EventProcessor::closeInputFile()
 }
 
 void
-art::EventProcessor::openOutputFiles()
+art::EventProcessor::openAllOutputFiles()
 {
-  endPathExecutor_->openOutputFiles(*fb_);
-  FDEBUG(1) << "\topenOutputFiles\n";
+  endPathExecutor_->openAllOutputFiles(*fb_);
+  FDEBUG(1) << "\topenAllOutputFiles\n";
 }
 
 void
-art::EventProcessor::closeOutputFiles()
+art::EventProcessor::closeAllOutputFiles()
 {
-  endPathExecutor_->closeOutputFiles();
-  FDEBUG(1) << "\tcloseOutputFiles\n";
+  endPathExecutor_->closeAllOutputFiles();
+  FDEBUG(1) << "\tcloseAllOutputFiles\n";
+}
+
+void
+art::EventProcessor::openSomeOutputFiles(std::size_t const b)
+{
+  endPathExecutor_->openSomeOutputFiles(b,*fb_);
+  FDEBUG(1) << "\topenSomeOutputFiles\n";
+}
+
+void
+art::EventProcessor::closeSomeOutputFiles(std::size_t const b)
+{
+  endPathExecutor_->closeSomeOutputFiles(b);
+  FDEBUG(1) << "\tcloseSomeOutputFiles\n";
 }
 
 void
@@ -598,6 +609,13 @@ art::EventProcessor::respondToOpenOutputFiles()
 }
 
 void
+art::EventProcessor::respondToOpenOutputFile()
+{
+  endPathExecutor_->respondToOpenOutputFile();
+  FDEBUG(1) << "\trespondToOpenOutputFile\n";
+}
+
+void
 art::EventProcessor::respondToCloseOutputFiles()
 {
   schedule_->respondToCloseOutputFiles(*fb_);
@@ -606,17 +624,17 @@ art::EventProcessor::respondToCloseOutputFiles()
 }
 
 void
+art::EventProcessor::respondToCloseOutputFile()
+{
+  endPathExecutor_->respondToCloseOutputFile();
+  FDEBUG(1) << "\trespondToCloseOutputFile\n";
+}
+
+void
 art::EventProcessor::rewindInput()
 {
   input_->rewind();
   FDEBUG(1) << "\trewind\n";
-}
-
-bool
-art::EventProcessor::shouldWeCloseOutput() const
-{
-  FDEBUG(1) << "\tshouldWeCloseOutput\n";
-  return endPathExecutor_->shouldWeCloseOutput();
 }
 
 void
@@ -636,8 +654,7 @@ art::EventProcessor::beginRun(RunID run)
 {
   if (!run.isFlush()) {
     RunPrincipal & runPrincipal = principalCache_.runPrincipal(run);
-    processOneOccurrence_<OccurrenceTraits<RunPrincipal, BranchActionBegin> >
-      (runPrincipal);
+    processOneOccurrence_<OccurrenceTraits<RunPrincipal, BranchActionBegin>>(runPrincipal);
     FDEBUG(1) << "\tbeginRun " << run.run() << "\n";
   }
 }
@@ -647,8 +664,7 @@ art::EventProcessor::endRun(RunID run)
 {
   if (!run.isFlush()) {
     RunPrincipal & runPrincipal = principalCache_.runPrincipal(run);
-    processOneOccurrence_<OccurrenceTraits<RunPrincipal, BranchActionEnd> >
-      (runPrincipal);
+    processOneOccurrence_<OccurrenceTraits<RunPrincipal, BranchActionEnd>>(runPrincipal);
     FDEBUG(1) << "\tendRun " << run.run() << "\n";
   }
 }
@@ -661,8 +677,7 @@ art::EventProcessor::beginSubRun(SubRunID const & sr)
     // is a bad idea subRun blocks know their start and end times why
     // not also start and end events?
     SubRunPrincipal & subRunPrincipal = principalCache_.subRunPrincipal(sr);
-    processOneOccurrence_<OccurrenceTraits<SubRunPrincipal, BranchActionBegin> >
-      (subRunPrincipal);
+    processOneOccurrence_<OccurrenceTraits<SubRunPrincipal, BranchActionBegin>>(subRunPrincipal);
     FDEBUG(1) << "\tbeginSubRun " << sr << "\n";
   }
 }
@@ -675,14 +690,27 @@ art::EventProcessor::endSubRun(SubRunID const & sr)
     // a bad idea subRun blocks know their start and end times why not
     // also start and end events?
     SubRunPrincipal & subRunPrincipal = principalCache_.subRunPrincipal(sr);
-    processOneOccurrence_<OccurrenceTraits<SubRunPrincipal, BranchActionEnd> >
-      (subRunPrincipal);
+    processOneOccurrence_<OccurrenceTraits<SubRunPrincipal, BranchActionEnd>>(subRunPrincipal);
     FDEBUG(1) << "\tendSubRun " << sr << "\n";
   }
 }
 
-namespace art {
-  using DRISI = DecrepitRelicInputSourceImplementation;
+art::RunID
+art::EventProcessor::runPrincipalID() const
+{
+  return principalCache_.noMoreRuns() ? art::RunID{} : principalCache_.runPrincipal().id();
+}
+
+art::SubRunID
+art::EventProcessor::subRunPrincipalID() const
+{
+  return principalCache_.noMoreSubRuns() ? art::SubRunID{} : principalCache_.subRunPrincipal().id();
+}
+
+art::EventID
+art::EventProcessor::eventPrincipalID() const
+{
+  return sm_evp_.get() == nullptr ? art::EventID{} : sm_evp_->id();
 }
 
 art::RunID
@@ -691,7 +719,7 @@ art::EventProcessor::readAndCacheRun()
   SignalSentry runSourceSentry{actReg_.sPreSourceRun, actReg_.sPostSourceRun};
   principalCache_.insert(input_->readRun());
   FDEBUG(1) << "\treadAndCacheRun " << "\n";
-  return principalCache_.runPrincipal().id();
+  return runPrincipalID();
 }
 
 art::SubRunID
@@ -700,7 +728,7 @@ art::EventProcessor::readAndCacheSubRun()
   SignalSentry subRunSourceSentry{actReg_.sPreSourceSubRun, actReg_.sPostSourceSubRun};
   principalCache_.insert(input_->readSubRun(principalCache_.runPrincipalPtr()));
   FDEBUG(1) << "\treadAndCacheSubRun " << "\n";
-  return principalCache_.subRunPrincipal().id();
+  return subRunPrincipalID();
 }
 
 void
@@ -729,6 +757,13 @@ art::EventProcessor::writeSubRun(SubRunID const & sr)
 }
 
 void
+art::EventProcessor::clearPrincipalCache()
+{
+  principalCache_.deleteAllPrincipals();
+  FDEBUG(1) << "\tclearPrincipalCache\n";
+}
+
+void
 art::EventProcessor::deleteSubRunFromCache(SubRunID const & sr)
 {
   principalCache_.deleteSubRun(sr);
@@ -747,10 +782,37 @@ void
 art::EventProcessor::processEvent()
 {
   if (!sm_evp_->id().isFlush()) {
-    processOneOccurrence_<OccurrenceTraits<EventPrincipal, BranchActionBegin> >
-      (*sm_evp_);
+    processOneOccurrence_<OccurrenceTraits<EventPrincipal, BranchActionBegin>>(*sm_evp_);
     FDEBUG(1) << "\tprocessEvent\n";
   }
+}
+
+void
+art::EventProcessor::writeEvent()
+{
+  EventID const id {sm_evp_->id()};
+  if (!id.isFlush()) {
+    endPathExecutor_->writeEvent(*sm_evp_);
+    FDEBUG(1) << "\twriteEvent " << id.run() << "/" << id.subRun() << "/" << id.event() << "\n";
+  }
+}
+
+void
+art::EventProcessor::recordOutputClosureRequests()
+{
+  endPathExecutor_->recordOutputClosureRequests();
+}
+
+void
+art::EventProcessor::switchOutputs(std::size_t const b)
+{
+  endPathExecutor_->switchOutputFiles(b,*fb_);
+}
+
+bool
+art::EventProcessor::outputToCloseAtBoundary(Boundary const b) const
+{
+  return endPathExecutor_->outputToCloseAtBoundary(b);
 }
 
 bool

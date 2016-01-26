@@ -69,6 +69,8 @@ public:
   void respondToCloseInputFile(FileBlock const& fb);
   void respondToOpenOutputFiles(FileBlock const& fb);
   void respondToCloseOutputFiles(FileBlock const& fb);
+  void respondToOpenOutputFile();
+  void respondToCloseOutputFile();
 
   void reset() { state_ = Ready; }
 
@@ -119,6 +121,8 @@ private:
   virtual void implRespondToCloseInputFile(FileBlock const& fb) = 0;
   virtual void implRespondToOpenOutputFiles(FileBlock const& fb) = 0;
   virtual void implRespondToCloseOutputFiles(FileBlock const& fb) = 0;
+  virtual void implRespondToOpenOutputFile() = 0;
+  virtual void implRespondToCloseOutputFile() = 0;
 
   //RunStopwatch::StopwatchPointer stopwatch_;
   cet::cpu_timer timer_;
@@ -215,7 +219,7 @@ bool art::Worker::doWork(typename T::MyPrincipal& ep,
 
     if (T::isEvent_) ++timesRun_;
 
-    detail::ModuleSignalSentry<T> cpp(actReg_.get(), md_);
+    detail::ModuleSignalSentry<T> cpp{actReg_.get(), md_};
     state_ = Working;
     if (T::begin_) {
       rc = implDoBegin(ep, cpc);

@@ -3,8 +3,8 @@ process_name: mergerTest
 source: {
    maxEvents: 10
    module_type: RootInput
-   fileNames : [ "../../ToyProductProducer_t_01.d/ToyProductProducer_t_01.root",
-                 "../../ToyProductProducer_t_02.d/ToyProductProducer_t_02.root" ]
+   fileNames : [ "../ToyProductProducer_t_01.d/ToyProductProducer_t_01.root",
+                 "../ToyProductProducer_t_02.d/ToyProductProducer_t_02.root" ]
 }
 
 physics: {

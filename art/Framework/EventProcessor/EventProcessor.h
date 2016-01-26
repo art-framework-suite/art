@@ -95,16 +95,22 @@ public:
 
   void readFile() override;
   void closeInputFile() override;
-  void openOutputFiles() override;
-  void closeOutputFiles() override;
+  void openAllOutputFiles() override;
+  void closeAllOutputFiles() override;
+  void openSomeOutputFiles(std::size_t const) override;
+  void closeSomeOutputFiles(std::size_t const) override;
 
   void respondToOpenInputFile() override;
   void respondToCloseInputFile() override;
   void respondToOpenOutputFiles() override;
   void respondToCloseOutputFiles() override;
+  // The below response functions are different!
+  void respondToOpenOutputFile() override;
+  void respondToCloseOutputFile() override;
 
   void rewindInput() override;
-  bool shouldWeCloseOutput() const override;
+  void recordOutputClosureRequests() override;
+  void switchOutputs(std::size_t const) override;
 
   void doErrorStuff() override;
 
@@ -114,12 +120,20 @@ public:
   void beginSubRun(SubRunID const & sr) override;
   void endSubRun(SubRunID const & sr) override;
 
-  RunID readAndCacheRun() override;
+  RunID    readAndCacheRun() override;
   SubRunID readAndCacheSubRun() override;
+  void     deleteRunFromCache(RunID run) override;
+  void     deleteSubRunFromCache(SubRunID const & sr) override;
+  void     clearPrincipalCache() override;
+
   void writeRun(RunID run) override;
-  void deleteRunFromCache(RunID run) override;
   void writeSubRun(SubRunID const & sr) override;
-  void deleteSubRunFromCache(SubRunID const & sr) override;
+  void writeEvent() override;
+
+  // Run/SubRun IDs from most recently added principals
+  RunID runPrincipalID() const override;
+  SubRunID subRunPrincipalID() const override;
+  EventID eventPrincipalID() const override;
 
   void readEvent() override;
   void processEvent() override;
@@ -129,6 +143,8 @@ public:
   void setExceptionMessageRuns(std::string const& message) override;
   void setExceptionMessageSubRuns(std::string const& message) override;
   bool alreadyHandlingException() const override;
+
+  bool outputToCloseAtBoundary(Boundary const) const override;
 
   bool setTriggerPathEnabled(std::string const & name, bool enable) override;
   bool setEndPathModuleEnabled(std::string const & label, bool enable) override;
@@ -234,8 +250,9 @@ try {
   endPathExecutor_->processOneOccurrence<T>(p);
 }
 catch (cet::exception & ex) {
-  actions::ActionCodes action = (T::isEvent_ ? act_table_.find(
-                                   ex.root_cause()) : actions::Rethrow);
+  actions::ActionCodes const action {
+    T::isEvent_ ? act_table_.find(ex.root_cause()) : actions::Rethrow
+  };
   switch (action) {
   case actions::IgnoreCompletely: {
     mf::LogWarning(ex.category())

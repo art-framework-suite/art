@@ -28,7 +28,7 @@ namespace art {
             ModuleDescription const&,
             WorkerParams const&);
 
-    virtual ~WorkerT();
+    virtual ~WorkerT() = default;
 
     virtual void reconfigure(fhicl::ParameterSet const &pset) {
       module_->reconfigure(pset); }
@@ -37,8 +37,8 @@ namespace art {
 
   template <typename ModType>
   static std::unique_ptr<T> makeModule(ModuleDescription const& md,
-                                     fhicl::ParameterSet const& pset) {
-    std::unique_ptr<ModType> module = std::unique_ptr<ModType>(new ModType(pset));
+                                       fhicl::ParameterSet const& pset) {
+    auto module = std::make_unique<ModType>(pset);
     return std::unique_ptr<T>(module.release());
   }
 
@@ -49,23 +49,25 @@ namespace art {
 
   private:
     virtual bool implDoBegin(EventPrincipal& ep,
-                            CurrentProcessingContext const* cpc);
+                             CurrentProcessingContext const* cpc);
     virtual bool implDoEnd(EventPrincipal& ep,
-                            CurrentProcessingContext const* cpc);
+                           CurrentProcessingContext const* cpc);
     virtual bool implDoBegin(RunPrincipal& rp,
-                            CurrentProcessingContext const* cpc);
+                             CurrentProcessingContext const* cpc);
     virtual bool implDoEnd(RunPrincipal& rp,
-                            CurrentProcessingContext const* cpc);
+                           CurrentProcessingContext const* cpc);
     virtual bool implDoBegin(SubRunPrincipal& srp,
-                            CurrentProcessingContext const* cpc);
+                             CurrentProcessingContext const* cpc);
     virtual bool implDoEnd(SubRunPrincipal& srp,
-                            CurrentProcessingContext const* cpc);
+                           CurrentProcessingContext const* cpc);
     virtual void implBeginJob() ;
     virtual void implEndJob() ;
     virtual void implRespondToOpenInputFile(FileBlock const& fb);
     virtual void implRespondToCloseInputFile(FileBlock const& fb);
     virtual void implRespondToOpenOutputFiles(FileBlock const& fb);
     virtual void implRespondToCloseOutputFiles(FileBlock const& fb);
+    virtual void implRespondToOpenOutputFile();
+    virtual void implRespondToCloseOutputFile();
     virtual std::string workerType() const;
 
     std::shared_ptr<T> module_;
@@ -74,58 +76,54 @@ namespace art {
   template <typename T>
   inline
   WorkerT<T>::WorkerT(std::unique_ptr<T> && ed,
-                 ModuleDescription const& md,
-                 WorkerParams const& wp) :
-    Worker(md, wp),
-    module_(ed.release()) {
+                      ModuleDescription const& md,
+                      WorkerParams const& wp) :
+    Worker{md, wp},
+    module_{ed.release()}
+  {
     module_->setModuleDescription(md);
     module_->registerProducts(wp.reg_, md);
   }
 
   template <typename T>
-  WorkerT<T>::~WorkerT() {
-  }
-
-
-  template <typename T>
   bool
   WorkerT<T>::implDoBegin(EventPrincipal& ep,
-                           CurrentProcessingContext const* cpc) {
+                          CurrentProcessingContext const* cpc) {
     return module_->doEvent(ep, cpc);
   }
 
   template <typename T>
   bool
   WorkerT<T>::implDoEnd(EventPrincipal& ,
-                           CurrentProcessingContext const*) {
+                        CurrentProcessingContext const*) {
     return false;
   }
 
   template <typename T>
   bool
   WorkerT<T>::implDoBegin(RunPrincipal& rp,
-                           CurrentProcessingContext const* cpc) {
+                          CurrentProcessingContext const* cpc) {
     return module_->doBeginRun(rp, cpc);
   }
 
   template <typename T>
   bool
   WorkerT<T>::implDoEnd(RunPrincipal& rp,
-                           CurrentProcessingContext const* cpc) {
+                        CurrentProcessingContext const* cpc) {
     return module_->doEndRun(rp, cpc);
   }
 
   template <typename T>
   bool
   WorkerT<T>::implDoBegin(SubRunPrincipal& srp,
-                           CurrentProcessingContext const* cpc) {
+                          CurrentProcessingContext const* cpc) {
     return module_->doBeginSubRun(srp, cpc);
   }
 
   template <typename T>
   bool
   WorkerT<T>::implDoEnd(SubRunPrincipal& srp,
-                           CurrentProcessingContext const* cpc) {
+                        CurrentProcessingContext const* cpc) {
     return module_->doEndSubRun(srp, cpc);
   }
 
@@ -169,6 +167,18 @@ namespace art {
   void
   WorkerT<T>::implRespondToCloseOutputFiles(FileBlock const& fb) {
     module_->doRespondToCloseOutputFiles(fb);
+  }
+
+  template <typename T>
+  void
+  WorkerT<T>::implRespondToOpenOutputFile() {
+    module_->doRespondToOpenOutputFile();
+  }
+
+  template <typename T>
+  void
+  WorkerT<T>::implRespondToCloseOutputFile() {
+    module_->doRespondToCloseOutputFile();
   }
 }
 

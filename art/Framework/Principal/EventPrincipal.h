@@ -40,12 +40,9 @@ public:
 
   EventPrincipal(EventAuxiliary const& aux,
                  ProcessConfiguration const& pc,
-                 std::shared_ptr<History> history =
-                   std::shared_ptr<History>(new History),
-                 std::unique_ptr<BranchMapper>&& mapper =
-                   std::unique_ptr<BranchMapper>(new BranchMapper),
-                 std::unique_ptr<DelayedReader>&& rtrv =
-                   std::unique_ptr<DelayedReader>(new NoDelayedReader),
+                 std::shared_ptr<History> history = std::make_shared<History>(),
+                 std::unique_ptr<BranchMapper>&& mapper = std::make_unique<BranchMapper>(),
+                 std::unique_ptr<DelayedReader>&& rtrv = std::make_unique<NoDelayedReader>(),
                  int idx = 0,
                  EventPrincipal* = nullptr);
 

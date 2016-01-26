@@ -1,56 +1,58 @@
 #include "art/Framework/EventProcessor/EPStates.h"
-#include "art/Framework/Core/IEventProcessor.h"
 #include "cetlib/exception.h"
 
 #include <exception>
+#include <iostream>
 #include <sstream>
 #include <string>
 
+using art::Boundary;
+
 namespace statemachine {
-  Run::Run(art::RunID id) : id_(id) {}
+  Run::Run(art::RunID id) : id_{id} {}
   art::RunID Run::id() const { return id_; }
 
-  SubRun::SubRun(art::SubRunID id) : id_(id) {}
+  SubRun::SubRun(art::SubRunID id) : id_{id} {}
   art::SubRunID const & SubRun::id() const { return id_; }
 
   Machine::Machine(art::IEventProcessor * ep,
-                   FileMode fileMode,
                    bool handleEmptyRuns,
                    bool handleEmptySubRuns) :
-    ep_(ep),
-    fileMode_(fileMode),
-    handleEmptyRuns_(handleEmptyRuns),
-    handleEmptySubRuns_(handleEmptySubRuns) { }
+    ep_{ep},
+    handleEmptyRuns_{handleEmptyRuns},
+    handleEmptySubRuns_{handleEmptySubRuns} { }
 
   art::IEventProcessor & Machine::ep() const { return *ep_; }
-  FileMode Machine::fileMode() const { return fileMode_; }
   bool Machine::handleEmptyRuns() const { return handleEmptyRuns_; }
   bool Machine::handleEmptySubRuns() const { return handleEmptySubRuns_; }
 
-  Starting::Starting(my_context ctx) : my_base(ctx) { }
+  Starting::Starting(my_context ctx) : my_base{ctx} { }
 
   Starting::~Starting(){}
 
+  //===================================================================
+
   HandleFiles::HandleFiles(my_context ctx) :
-    my_base(ctx),
-    ep_(context<Machine>().ep()),
-    exitCalled_(false)
+    my_base{ctx},
+    ep_{context<Machine>().ep()}
   {
-    openFiles();
+    // std::cout << " HandleFiles()\n";
+    openAllFiles();
   }
 
   void HandleFiles::exit()
   {
     if (ep_.alreadyHandlingException()) { return; }
     exitCalled_ = true;
-    closeFiles();
+    closeAllFiles();
   }
 
   HandleFiles::~HandleFiles()
   {
+    // std::cout << "~HandleFiles()\n";
     if (!exitCalled_) {
       try {
-        closeFiles();
+        closeAllFiles();
       }
       catch (cet::exception const& e) {
         std::ostringstream message;
@@ -95,59 +97,51 @@ namespace statemachine {
     }
   }
 
-  void HandleFiles::openFiles()
+  void HandleFiles::openAllFiles()
   {
     ep_.readFile();
     ep_.respondToOpenInputFile();
-    ep_.openOutputFiles();
+    ep_.openAllOutputFiles();
     ep_.respondToOpenOutputFiles();
   }
 
-  void HandleFiles::closeFiles()
+  void HandleFiles::closeAllFiles()
   {
     ep_.respondToCloseOutputFiles();
-    ep_.closeOutputFiles();
+    ep_.closeAllOutputFiles();
     ep_.respondToCloseInputFile();
+    ep_.clearPrincipalCache();
     ep_.closeInputFile();
+  }
+
+  void HandleFiles::maybeCloseOutputFiles()
+  {
+    if (ep_.outputToCloseAtBoundary(Boundary::InputFile)) {
+      ep_.respondToCloseOutputFile();
+      ep_.closeSomeOutputFiles(Boundary::InputFile);
+    }
+  }
+
+  void HandleFiles::maybeOpenOutputFiles()
+  {
+    if (ep_.outputToCloseAtBoundary(Boundary::InputFile)) {
+      ep_.openSomeOutputFiles(Boundary::InputFile);
+      ep_.respondToOpenOutputFile();
+    }
   }
 
   void HandleFiles::goToNewInputFile()
   {
     ep_.respondToCloseInputFile();
+    ep_.clearPrincipalCache();
     ep_.closeInputFile();
     ep_.readFile();
     ep_.respondToOpenInputFile();
-  }
-
-  void HandleFiles::goToNewInputAndOutputFiles()
-  {
-    ep_.respondToCloseOutputFiles();
-    ep_.closeOutputFiles();
-    ep_.respondToCloseInputFile();
-    ep_.closeInputFile();
-    ep_.readFile();
-    ep_.respondToOpenInputFile();
-    ep_.openOutputFiles();
-    ep_.respondToOpenOutputFiles();
-  }
-
-  void HandleFiles::goToNewOutputFiles()
-  {
-    ep_.respondToCloseOutputFiles();
-    ep_.closeOutputFiles();
-    ep_.openOutputFiles();
-    ep_.respondToOpenOutputFiles();
-  }
-
-  bool HandleFiles::shouldWeCloseOutput()
-  {
-    if (context<Machine>().fileMode() == NOMERGE) { return true; }
-    return ep_.shouldWeCloseOutput();
   }
 
   Stopping::Stopping(my_context ctx) :
-    my_base(ctx),
-    ep_(context<Machine>().ep())
+    my_base{ctx},
+    ep_{context<Machine>().ep()}
   {
     post_event(Stop());
   }
@@ -158,79 +152,57 @@ namespace statemachine {
   }
 
   Error::Error(my_context ctx) :
-    my_base(ctx),
-    ep_(context<Machine>().ep())
+    my_base{ctx},
+    ep_{context<Machine>().ep()}
   {
     post_event(Stop());
     ep_.doErrorStuff();
   }
 
   class NewInputFile;
-  class NewInputAndOutputFiles;
 
   FirstFile::FirstFile(my_context ctx) :
-    my_base(ctx)
-  { }
-
-  sc::result FirstFile::react(InputFile const &)
-  {
-    if (context<HandleFiles>().shouldWeCloseOutput()) {
-      return transit<NewInputAndOutputFiles>();
-    }
-    else {
-      return transit<NewInputFile>();
-    }
-  }
+    my_base{ctx}
+  {}
 
   NewInputFile::NewInputFile(my_context ctx) :
-    my_base(ctx)
+    my_base{ctx}
   {
-    context<HandleFiles>().goToNewInputFile();
+    auto& hf = context<HandleFiles>();
+    hf.maybeCloseOutputFiles();
+    hf.goToNewInputFile();
   }
 
-  sc::result NewInputFile::react(InputFile const &)
+  NewInputFile::~NewInputFile()
   {
-    if (context<HandleFiles>().shouldWeCloseOutput()) {
-      return transit<NewInputAndOutputFiles>();
-    }
-    else {
-      return transit<NewInputFile>();
-    }
+    context<HandleFiles>().maybeOpenOutputFiles();
   }
 
-  NewInputAndOutputFiles::NewInputAndOutputFiles(my_context ctx) :
-    my_base(ctx)
+  sc::result NewInputFile::react(SwitchOutputFiles const&)
   {
-    context<HandleFiles>().goToNewInputAndOutputFiles();
+    return discard_event();
   }
 
-  sc::result NewInputAndOutputFiles::react(InputFile const &)
-  {
-    if (context<HandleFiles>().shouldWeCloseOutput()) {
-      return transit<NewInputAndOutputFiles>();
-    }
-    else {
-      return transit<NewInputFile>();
-    }
-  }
+  //===================================================================
 
   HandleRuns::HandleRuns(my_context ctx) :
-    my_base(ctx),
-    ep_(context<Machine>().ep()),
-    exitCalled_(false),
-    beginRunCalled_(false),
-    currentRun_(),
-    runException_(false) { }
+    my_base{ctx},
+    ep_{context<Machine>().ep()},
+    currentRun_{ep_.runPrincipalID()}
+  {
+    // std::cout << " HandleRuns()\n";
+  }
 
   void HandleRuns::exit()
   {
-    if (ep_.alreadyHandlingException()) { return; }
+    if (ep_.alreadyHandlingException()) return;
     exitCalled_ = true;
     finalizeRun();
   }
 
   HandleRuns::~HandleRuns()
   {
+    // std::cout << "~HandleRuns()\n";
     if (!exitCalled_) {
       try {
         finalizeRun();
@@ -292,6 +264,22 @@ namespace statemachine {
     }
   }
 
+  void HandleRuns::resumeAndFinalizeRun(Run const&)
+  {
+    resetFormerState();
+    finalizeRun();
+  }
+
+  void HandleRuns::resume(SubRun const&)
+  {
+    resetFormerState();
+  }
+
+  void HandleRuns::resetFormerState()
+  {
+    finalizeEnabled_ = true;
+  }
+
   void HandleRuns::beginRun(art::RunID run)
   {
     beginRunCalled_ = true;
@@ -315,25 +303,28 @@ namespace statemachine {
 
   void HandleRuns::finalizeRun()
   {
-    if (runException_) { return; }
+    if (!finalizeEnabled_) return;
+    if (runException_) return;
+
     runException_ = true;
-    if (beginRunCalled_) { endRun(currentRun()); }
+    if (beginRunCalled_) endRun(currentRun());
     ep_.writeRun(currentRun_);
-    ep_.deleteRunFromCache(currentRun_);
-    previousRuns_.insert(currentRun_);
+    ep_.recordOutputClosureRequests();
+    context<HandleFiles>().maybeTriggerOutputFileSwitch<Boundary::Run>();
     currentRun_ = art::RunID(); // Invalid.
     runException_ = false;
   }
 
   void HandleRuns::beginRunIfNotDoneAlready()
   {
-    if (!beginRunCalled_) { beginRun(currentRun()); }
+    if (!beginRunCalled_) beginRun(currentRun());
   }
 
   NewRun::NewRun(my_context ctx) :
-    my_base(ctx)
+    my_base{ctx}
   {
-    assert(!context<HandleRuns>().currentRun().isValid());
+    // std::cout << " NewRun()\n";
+    context<HandleFiles>().setCurrentBoundary(Boundary::Run);
     context<HandleRuns>().setupCurrentRun();
     // Here we assume that the input source or event processor
     // will throw if we fail to get a valid run.  Therefore
@@ -341,33 +332,35 @@ namespace statemachine {
     assert(context<HandleRuns>().currentRun().isValid());
   }
 
-  NewRun::~NewRun() { }
-
-  sc::result NewRun::react(InputFile const &)
-  {
-    if (context<HandleFiles>().shouldWeCloseOutput()) {
-      return transit<NewInputAndOutputFiles>();
-    }
-    else {
-      return transit<NewInputFile>();
-    }
+  NewRun::~NewRun() {
+    // std::cout << "~NewRun()\n";
   }
 
-  HandleSubRuns::HandleSubRuns(my_context ctx) :
-    my_base(ctx),
-    ep_(context<Machine>().ep()),
-    exitCalled_(false),
-    currentSubRunEmpty_(true),
-    currentSubRun_(),
-    previousSubRuns_(),
-    subRunException_(false)
+  PauseRun::PauseRun(my_context ctx)
+    : my_base{ctx}
   {
+    // std::cout << " PauseRun()\n";
+  }
+
+  PauseRun::~PauseRun()
+  {
+    // std::cout << "~PauseRun()\n";
+  }
+
+  //===================================================================
+
+  HandleSubRuns::HandleSubRuns(my_context ctx) :
+    my_base{ctx},
+    ep_{context<Machine>().ep()},
+    currentSubRun_{ep_.subRunPrincipalID()}
+  {
+    // std::cout << " HandleSubRuns()\n";
     checkInvariant();
   }
 
   void HandleSubRuns::exit()
   {
-    if (ep_.alreadyHandlingException()) { return; }
+    if (ep_.alreadyHandlingException()) return;
     exitCalled_ = true;
     checkInvariant();
     finalizeAllSubRuns();
@@ -375,6 +368,7 @@ namespace statemachine {
 
   HandleSubRuns::~HandleSubRuns()
   {
+    // std::cout << "~HandleSubRuns()\n";
     if (!exitCalled_) {
       try {
         checkInvariant();
@@ -430,6 +424,22 @@ namespace statemachine {
 
   art::SubRunID const & HandleSubRuns::currentSubRun() const { return currentSubRun_; }
 
+  void HandleSubRuns::resumeAndFinalizeSubRun(SubRun const&)
+  {
+    resetFormerState();
+    finalizeSubRun();
+  }
+
+  void HandleSubRuns::resume(Event const&) { resetFormerState(); }
+
+  void HandleSubRuns::resetFormerState()
+  {
+    finalizeEnabled_ = true;
+    if (context<Machine>().handleEmptyRuns()) {
+      ep_.beginRun(currentSubRun_.runID());
+    }
+  }
+
   bool HandleSubRuns::currentSubRunEmpty() const { return currentSubRunEmpty_; }
 
   std::vector<art::SubRunID> const & HandleSubRuns::unhandledSubRuns() const
@@ -448,9 +458,11 @@ namespace statemachine {
 
   void HandleSubRuns::finalizeAllSubRuns()
   {
-    if (subRunException_ || context<HandleRuns>().runException()) { return; }
-    finalizeSubRun();
-    finalizeOutstandingSubRuns();
+    if (subRunException_ || context<HandleRuns>().runException()) return;
+    if (finalizeEnabled_) {
+      finalizeSubRun();
+    }
+    finalizeOutstandingSubRuns(); // always finalize unhandled subruns
   }
 
   void HandleSubRuns::finalizeSubRun(SubRun const&)
@@ -460,30 +472,25 @@ namespace statemachine {
 
   void HandleSubRuns::finalizeSubRun()
   {
+    auto const& machine = context<Machine>();
+    auto const& handleRuns = context<HandleRuns>();
     subRunException_ = true;
-    if (currentSubRunEmpty_) {
-      if (context<Machine>().handleEmptySubRuns()) {
-        if (context<HandleRuns>().beginRunCalled()) {
-          ep_.beginSubRun(currentSubRun_);
-          ep_.endSubRun(currentSubRun_);
-          ep_.writeSubRun(currentSubRun_);
-          ep_.deleteSubRunFromCache(currentSubRun_);
-        }
-        else {
-          unhandledSubRuns_.push_back(currentSubRun_);
-        }
-      }
-      else {
-        ep_.writeSubRun(currentSubRun_);
-        ep_.deleteSubRunFromCache(currentSubRun_);
-      }
+
+    if (currentSubRunEmpty_ &&  machine.handleEmptyRuns() && !handleRuns.beginRunCalled() ) {
+      unhandledSubRuns_.push_back(currentSubRun_);
     }
     else {
-      ep_.endSubRun(currentSubRun_);
+      if (currentSubRunEmpty_ && machine.handleEmptyRuns() &&  handleRuns.beginRunCalled() ) {
+        ep_.beginSubRun(currentSubRun_);
+        ep_.endSubRun(currentSubRun_);
+      }
+      if (!currentSubRunEmpty_) {
+        ep_.endSubRun(currentSubRun_);
+      }
       ep_.writeSubRun(currentSubRun_);
-      ep_.deleteSubRunFromCache(currentSubRun_);
+      ep_.recordOutputClosureRequests();
+      context<HandleFiles>().maybeTriggerOutputFileSwitch<Boundary::SubRun>();
     }
-    previousSubRuns_.insert(currentSubRun_);
     currentSubRun_ = art::SubRunID(); // Invalid.
     subRunException_ = false;
   }
@@ -495,8 +502,8 @@ namespace statemachine {
       ep_.beginSubRun(sr);
       ep_.endSubRun(sr);
       ep_.writeSubRun(sr);
-      ep_.deleteSubRunFromCache(sr);
-      previousSubRuns_.insert(sr);
+      ep_.recordOutputClosureRequests();
+      context<HandleFiles>().maybeTriggerOutputFileSwitch<Boundary::SubRun>();
     }
     unhandledSubRuns_.clear();
     subRunException_ = false;
@@ -514,14 +521,17 @@ namespace statemachine {
   }
 
   NewSubRun::NewSubRun(my_context ctx) :
-    my_base(ctx)
+    my_base{ctx}
   {
+    // std::cout << " NewSubRun()\n";
+    context<HandleFiles>().setCurrentBoundary(Boundary::SubRun);
     context<HandleSubRuns>().setupCurrentSubRun();
     checkInvariant();
   }
 
   NewSubRun::~NewSubRun()
   {
+    // std::cout << "~NewSubRun()\n";
     checkInvariant();
   }
 
@@ -531,24 +541,120 @@ namespace statemachine {
     assert(context<HandleSubRuns>().currentSubRun().runID() == context<HandleRuns>().currentRun());
     assert(context<HandleSubRuns>().currentSubRun().isValid());
     assert(context<HandleSubRuns>().unhandledSubRuns().empty());
-    assert(context<HandleSubRuns>().currentSubRunEmpty() == true);
+    assert(context<HandleSubRuns>().currentSubRunEmpty());
   }
 
-  sc::result NewSubRun::react(InputFile const &)
+  PauseSubRun::PauseSubRun(my_context ctx)
+    : my_base{ctx}
   {
+    // std::cout << " PauseSubRun()\n";
+  }
+
+  PauseSubRun::~PauseSubRun()
+  {
+    // std::cout << "~PauseSubRun()\n";
+  }
+
+  //===================================================================
+
+  HandleEvents::HandleEvents(my_context ctx) :
+    my_base{ctx},
+    ep_{context<Machine>().ep()},
+    currentEvent_{ep_.eventPrincipalID()}
+  {
+    // std::cout << " HandleEvents()\n";
+  }
+
+  void HandleEvents::checkInvariant()
+  {
+    assert(true);
+  }
+
+  void HandleEvents::exit()
+  {
+    if (ep_.alreadyHandlingException()) return;
+    exitCalled_ = true;
     checkInvariant();
-    if (context<HandleFiles>().shouldWeCloseOutput()) {
-      return transit<NewInputAndOutputFiles>();
+    finalizeEvent();
+  }
+
+  HandleEvents::~HandleEvents()
+  {
+    // std::cout << "~HandleEvents()\n";
+    if (!exitCalled_) {
+      try {
+        checkInvariant();
+        finalizeEvent();
+      }
+      catch (cet::exception const& e) {
+        std::ostringstream message;
+        message << "------------------------------------------------------------\n"
+                << "Another exception was caught while trying to clean up an event after\n"
+                << "the primary exception.  We give up trying to clean up an event at\n"
+                << "this point.  The description of this additional exception follows:\n"
+                << "cet::exception\n"
+                << e.explain_self();
+        ep_.setExceptionMessageSubRuns(message.str());
+      }
+      catch (std::bad_alloc const& e) {
+        std::ostringstream message;
+        message << "------------------------------------------------------------\n"
+                << "Another exception was caught while trying to clean up an event after\n"
+                << "the primary exception.  We give up trying to clean up an event at\n"
+                << "this point.  This additional exception was a\n"
+                << "std::bad_alloc exception thrown inside HandleEvents::finalizeEvent.\n"
+                << "The job has probably exhausted the virtual memory available\n"
+                << "to the process.\n";
+        ep_.setExceptionMessageSubRuns(message.str());
+      }
+      catch (std::exception const& e) {
+        std::ostringstream message;
+        message << "------------------------------------------------------------\n"
+                << "Another exception was caught while trying to clean up an event after\n"
+                << "the primary exception.  We give up trying to clean up an event at\n"
+                << "this point.  This additional exception was a\n"
+                << "standard library exception thrown inside HandleEvents::finalizeEvent\n"
+                << e.what() << "\n";
+        ep_.setExceptionMessageSubRuns(message.str());
+      }
+      catch (...) {
+        std::ostringstream message;
+        message << "------------------------------------------------------------\n"
+                << "Another exception was caught while trying to clean up an event after\n"
+                << "the primary exception.  We give up trying to clean up an event at\n"
+                << "this point.  This additional exception was of unknown type and\n"
+                << "thrown inside HandleEvents::finalizeEvent\n";
+        ep_.setExceptionMessageSubRuns(message.str());
+      }
     }
-    else {
-      return transit<NewInputFile>();
+  }
+
+  void HandleEvents::finalizeEvent()
+  {
+    if (!finalizeEnabled_) return;
+    // std::cout << " finalizeEvent()\n";
+    ep_.writeEvent();
+    ep_.recordOutputClosureRequests();
+    context<HandleFiles>().maybeTriggerOutputFileSwitch<Boundary::Event>();
+  }
+
+  void HandleEvents::resumeAndFinalizeEvent(Event const&)
+  {
+    finalizeEnabled_ = true;
+    if (context<Machine>().handleEmptyRuns()) {
+      ep_.beginRun(currentEvent_.runID());
     }
+    // 'ep_.beginSubRun' is called upon entry to 'NewEvent' if
+    // necessary.  Do not call it here.
+    finalizeEvent();
   }
 
   NewEvent::NewEvent(my_context ctx) :
-    my_base(ctx),
-    ep_(context<Machine>().ep())
+    my_base{ctx},
+    ep_{context<Machine>().ep()}
   {
+    // std::cout << " NewEvent()\n";
+    context<HandleFiles>().setCurrentBoundary(Boundary::Event);
     readAndProcessEvent();
     checkInvariant();
   }
@@ -565,18 +671,7 @@ namespace statemachine {
     assert(context<HandleSubRuns>().currentSubRun().runID() == context<HandleRuns>().currentRun());
     assert(context<HandleSubRuns>().currentSubRun().isValid());
     assert(context<HandleSubRuns>().unhandledSubRuns().empty());
-    assert(context<HandleSubRuns>().currentSubRunEmpty() == false);
-  }
-
-  sc::result NewEvent::react(InputFile const &)
-  {
-    checkInvariant();
-    if (context<HandleFiles>().shouldWeCloseOutput()) {
-      return transit<NewInputAndOutputFiles>();
-    }
-    else {
-      return transit<NewInputFile>();
-    }
+    assert(!context<HandleSubRuns>().currentSubRunEmpty());
   }
 
   void NewEvent::readAndProcessEvent()
@@ -591,6 +686,17 @@ namespace statemachine {
   {
     context<HandleRuns>().beginRunIfNotDoneAlready();
     context<HandleSubRuns>().markSubRunNonEmpty();
+  }
+
+  PauseEvent::PauseEvent(my_context ctx)
+    : my_base(ctx)
+  {
+    // std::cout << " PauseEvent()\n";
+  }
+
+  PauseEvent::~PauseEvent()
+  {
+    // std::cout << "~PauseEvent()\n";
   }
 
 }

@@ -13,9 +13,13 @@ Original Authors: W. David Dagenhart, Marc Paterno
 
 #include "art/Framework/Core/OutputFileSwitchBoundary.h"
 #include "art/Framework/Principal/fwd.h"
-#include "canvas/Persistency/Provenance/EventID.h"
 #include "canvas/Persistency/Provenance/RunID.h"
 #include "canvas/Persistency/Provenance/SubRunID.h"
+=======
+#include "art/Persistency/Provenance/EventID.h"
+#include "art/Persistency/Provenance/RunID.h"
+#include "art/Persistency/Provenance/SubRunID.h"
+>>>>>>> 59ba596... Add implementation to support per-OutputModule file closing.
 
 #include <string>
 
@@ -46,8 +50,8 @@ namespace art
     virtual void closeInputFile() = 0;
     virtual void openAllOutputFiles() = 0;
     virtual void closeAllOutputFiles() = 0;
-    virtual void openSomeOutputFiles(std::size_t const) = 0;
-    virtual void closeSomeOutputFiles(std::size_t const) = 0;
+    virtual void openSomeOutputFiles(Boundary const) = 0;
+    virtual void closeSomeOutputFiles(Boundary const) = 0;
 
     virtual void respondToOpenInputFile() = 0;
     virtual void respondToCloseInputFile() = 0;
@@ -60,7 +64,7 @@ namespace art
     virtual void rewindInput() = 0;
     virtual void recordOutputClosureRequests() = 0;
     virtual bool outputToCloseAtBoundary(Boundary const) const = 0;
-    virtual void switchOutputs(std::size_t const) = 0;
+    virtual void switchOutputs(Boundary const) = 0;
 
     virtual void doErrorStuff() = 0;
 
@@ -83,7 +87,6 @@ namespace art
 
     virtual void readEvent() = 0;
     virtual void processEvent() = 0;
-    virtual void writeEvent() = 0;
     virtual bool shouldWeStop() const = 0;
 
     virtual void setExceptionMessageFiles(std::string const& message) = 0;

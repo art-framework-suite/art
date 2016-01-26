@@ -139,22 +139,23 @@ void art::Path::processOneOccurrence(typename T::MyPrincipal& ep)
 {
   //Create the PathSignalSentry before the RunStopwatch so that
   // we only record the time spent in the path not from the signal
-  int nwrwue = -1;
-  std::unique_ptr<PathSignalSentry<T> > signaler(new PathSignalSentry<T>(actReg_, name_, nwrwue, state_));
+
+  int nwrwue {-1}; // numWorkersRunWithoutUnhandledException
+  auto signaler = std::make_unique<PathSignalSentry<T>>(actReg_, name_, nwrwue, state_);
 
   // A RunStopwatch, but only if we are processing an event.
-  std::unique_ptr<RunStopwatch> stopwatch(T::isEvent_ ? new RunStopwatch(stopwatch_) : 0);
+  std::unique_ptr<RunStopwatch> stopwatch(T::isEvent_ ? new RunStopwatch(stopwatch_) : nullptr);
 
   if (T::isEvent_) {
     ++timesRun_;
   }
   state_ = hlt::Ready;
 
-  // nwrue =  numWorkersRunWithoutUnhandledException
-  bool should_continue = true;
-  CurrentProcessingContext cpc(&name_, bitPosition(), isEndPath_);
 
-  WorkersInPath::size_type idx = 0;
+  bool should_continue {true};
+  CurrentProcessingContext cpc{&name_, bitPosition(), isEndPath_};
+
+  WorkersInPath::size_type idx {0};
   // It seems likely that 'nwrwue' and 'idx' can never differ ---
   // if so, we should remove one of them!.
   for (WorkersInPath::iterator i = workers_.begin(), end = workers_.end();

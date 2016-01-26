@@ -351,7 +351,7 @@ art::EmptyEvent::setRunAndEventInfo() {
       eventID_ = eventID_.next();
     }
   } else {
-    // new run
+    // new run                          
     eventID_ = EventID(eventID_.nextRun().run(), origEventID_.subRun(), origEventID_.event());
   }
   if (eventCreationDelay_ > 0) {usleep(eventCreationDelay_);}

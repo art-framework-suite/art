@@ -1,4 +1,3 @@
-
 /*----------------------------------------------------------------------
 
 ----------------------------------------------------------------------*/
@@ -9,6 +8,8 @@
 #include "art/Framework/Core/OutputModule.h"
 #include "art/Framework/Principal/WorkerParams.h"
 #include "fhiclcpp/ParameterSetRegistry.h"
+
+#include <iostream>
 
 namespace art {
   OutputWorker::OutputWorker(std::unique_ptr<OutputModule> && mod,
@@ -38,8 +39,8 @@ namespace art {
   }
 
   bool
-  OutputWorker::shouldWeCloseFile() const {
-    return module().shouldWeCloseFile();
+  OutputWorker::requestsToCloseFile() const {
+    return module().requestsToCloseFile();
   }
 
   void
@@ -58,6 +59,11 @@ namespace art {
     module().doWriteSubRun(srp);
   }
 
+  void
+  OutputWorker::writeEvent(EventPrincipal& srp) {
+    module().doWriteEvent(srp);
+  }
+
   bool OutputWorker::wantAllEvents() const {return module().wantAllEvents();}
 
   bool OutputWorker::limitReached() const {return module().limitReached();}
@@ -65,5 +71,11 @@ namespace art {
   void OutputWorker::configure(OutputModuleDescription const& desc) {module().configure(desc);}
 
   void OutputWorker::selectProducts(FileBlock const& fb) { module().selectProducts(fb); }
+
+  Boundary OutputWorker::fileSwitchBoundary() const { return module().fileSwitchBoundary(); }
+
+  bool OutputWorker::stagedToCloseFile() const { return module().stagedToCloseFile(); }
+
+  void OutputWorker::flagToCloseFile(bool const b) { module().flagToCloseFile(b); }
 
 }

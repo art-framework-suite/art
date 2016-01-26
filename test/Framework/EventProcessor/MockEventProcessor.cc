@@ -33,7 +33,6 @@ namespace art {
     handleEmptyRuns_(handleEmptyRuns),
     handleEmptySubRuns_(handleEmptySubRuns),
     subRun_(SubRunID::firstSubRun()),
-    shouldWeCloseOutput_(true),
     shouldWeEndLoop_(true),
     shouldWeStop_(false)  {
   }
@@ -41,7 +40,6 @@ namespace art {
   art::MockEventProcessor::StatusCode
   MockEventProcessor::runToCompletion() {
     statemachine::Machine myMachine(this,
-                                    fileMode_,
                                     handleEmptyRuns_,
                                     handleEmptySubRuns_);
 
@@ -80,8 +78,6 @@ namespace art {
       else if (ch == 'f') {
         output_ << "    *** nextItemType: File " << t.value << " ***\n";
         // a special value for test purposes only
-        if (t.value == 0) shouldWeCloseOutput_ = false;
-        else shouldWeCloseOutput_ = true;
         myMachine.process_event( statemachine::InputFile() );
       }
       else if (ch == 's') {
@@ -109,12 +105,20 @@ namespace art {
     output_ << "\tcloseInputFile\n";
   }
 
-  void MockEventProcessor::openOutputFiles() {
-    output_ << "\topenOutputFiles\n";
+  void MockEventProcessor::openAllOutputFiles() {
+    output_ << "\topenAllOutputFiles\n";
   }
 
-  void MockEventProcessor::closeOutputFiles() {
-    output_ << "\tcloseOutputFiles\n";
+  void MockEventProcessor::closeAllOutputFiles() {
+    output_ << "\tcloseAllOutputFiles\n";
+  }
+
+  void MockEventProcessor::openSomeOutputFiles(std::size_t const) {
+    output_ << "\topenSomeOutputFiles\n";
+  }
+
+  void MockEventProcessor::closeSomeOutputFiles(std::size_t const) {
+    output_ << "\tcloseSomeOutputFiles\n";
   }
 
   void MockEventProcessor::respondToOpenInputFile() {
@@ -137,11 +141,6 @@ namespace art {
     output_ << "\trewind\n";
   }
 
-  bool MockEventProcessor::shouldWeCloseOutput() const {
-    output_ << "\tshouldWeCloseOutput\n";
-    return shouldWeCloseOutput_;
-  }
-
   void MockEventProcessor::doErrorStuff() {
     output_ << "\tdoErrorStuff\n";
   }
@@ -162,14 +161,26 @@ namespace art {
     output_ << "\tendSubRun " << sr.run() << "/" << sr.subRun() << "\n";
   }
 
+  RunID MockEventProcessor::runPrincipalID() const {
+    return subRun_.runID();
+  }
+
+  SubRunID MockEventProcessor::subRunPrincipalID() const {
+    return subRun_;
+  }
+
+  EventID MockEventProcessor::eventPrincipalID() const {
+    return EventID{};
+  }
+
   RunID MockEventProcessor::readAndCacheRun() {
     output_ << "\treadAndCacheRun " << subRun_.run() << "\n";
-    return subRun_.runID();
+    return runPrincipalID();
   }
 
   SubRunID MockEventProcessor::readAndCacheSubRun() {
     output_ << "\treadAndCacheSubRun " << subRun_.subRun() << "\n";
-    return subRun_;
+    return subRunPrincipalID();
   }
 
   void MockEventProcessor::writeRun(RunID run) {
@@ -188,12 +199,20 @@ namespace art {
     output_ << "\tdeleteSubRunFromCache " << sr.run() << "/" << sr.subRun() << "\n";
   }
 
+  void MockEventProcessor::clearPrincipalCache() {
+    output_ << "\tclearPrincipalCache\n";
+  }
+
   void MockEventProcessor::readEvent() {
     output_ << "\treadEvent\n";
   }
 
   void MockEventProcessor::processEvent() {
     output_ << "\tprocessEvent\n";
+  }
+
+  void MockEventProcessor::writeEvent() {
+    output_ << "\twriteEvent\n";
   }
 
   bool MockEventProcessor::shouldWeStop() const {

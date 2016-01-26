@@ -459,8 +459,9 @@ namespace art {
       if (fiIter_ == fiEnd_) {
         return FileIndex::kEnd;
       }
-      if (fiIter_->eventID_.isValid() || (fiIter_ == fiBegin_) ||
-          ((fiIter_ - 1)->eventID_.subRun() != fiIter_->eventID_.subRun())) {
+      if (fiIter_->eventID_.isValid() ||  // will not skip duplicate events
+          (fiIter_ == fiBegin_) || // guarding next condition
+          ((fiIter_ - 1)->eventID_.subRun() != fiIter_->eventID_.subRun())) { // do not skip unique subruns
         return fiIter_->getEntryType();
       }
       nextEntry();

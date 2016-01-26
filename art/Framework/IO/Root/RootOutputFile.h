@@ -151,7 +151,7 @@ public: // MEMBER FUNCTIONS
   void finishEndFile();
   void beginInputFile(FileBlock const&, bool fastClone);
   void respondToCloseInputFile(FileBlock const&);
-  bool shouldWeCloseFile() const;
+  bool requestsToCloseFile() const;
 
   void
   selectProducts(FileBlock const&);

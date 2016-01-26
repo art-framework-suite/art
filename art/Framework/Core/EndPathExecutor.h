@@ -7,6 +7,7 @@
 // right places by the event processor.
 //
 ////////////////////////////////////////////////////////////////////////
+#include "art/Framework/Core/OutputFileSwitchBoundary.h"
 #include "art/Framework/Core/OutputWorker.h"
 #include "art/Framework/Core/PathManager.h"
 #include "art/Framework/Core/PathsInfo.h"
@@ -19,6 +20,7 @@
 #include "cetlib/trim.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
+#include <array>
 #include <memory>
 #include <vector>
 
@@ -43,17 +45,21 @@ public:
   // FIXME: We do not need this anymore!
   //void doSelectProducts();
 
-  // Write the subRun
-  void writeSubRun(SubRunPrincipal & srp);
-
-  // Write the run
-  void writeRun(RunPrincipal & rp);
+  void writeEvent(EventPrincipal& ep);
+  void writeSubRun(SubRunPrincipal& srp);
+  void writeRun(RunPrincipal& rp);
 
   // Call closeFile() on all OutputModules.
-  void closeOutputFiles();
+  void closeAllOutputFiles();
 
   // Call openFiles() on all OutputModules
-  void openOutputFiles(FileBlock & fb);
+  void openAllOutputFiles(FileBlock & fb);
+
+  // Call closeFile() on some OutputModules.
+  void closeSomeOutputFiles(std::size_t const);
+
+  // Call openFiles() on some OutputModules
+  void openSomeOutputFiles(std::size_t const, FileBlock const& fb);
 
   // Call respondToOpenInputFile() on all Modules
   void respondToOpenInputFile(FileBlock const & fb);
@@ -67,8 +73,18 @@ public:
   // Call respondToCloseOutputFiles() on all Modules
   void respondToCloseOutputFiles(FileBlock const & fb);
 
-  // Call shouldWeCloseFile() on all OutputModules.
-  bool shouldWeCloseOutput() const;
+  // Call respondToOpenOutputFile() on some Modules
+  void respondToOpenOutputFile();
+
+  // Call respondToCloseOutputFile() on some Modules
+  void respondToCloseOutputFile();
+
+  // Allow output files to close that need to
+  void recordOutputClosureRequests();
+
+  void switchOutputFiles(std::size_t const b, FileBlock const& fb);
+
+  bool outputToCloseAtBoundary(Boundary const) const;
 
   // Return whether a module has reached its maximum count.
   bool terminate() const;
@@ -80,7 +96,7 @@ public:
   virtual void selectProducts(FileBlock const&);
 
 private:
-  typedef std::vector<OutputWorker *> OutputWorkers;
+  using OutputWorkers = std::vector<OutputWorker *>;
 
   void resetAll();
 
@@ -94,6 +110,7 @@ private:
   ActionTable * act_table_;
   ActivityRegistry & actReg_;
   OutputWorkers  outputWorkers_;
+  std::array<OutputWorkers, Boundary::NBoundaries()> workersToClose_;
   std::vector<unsigned char> workersEnabled_;
   std::vector<unsigned char> outputWorkersEnabled_;
 };
@@ -105,8 +122,7 @@ processOneOccurrence(typename T::MyPrincipal & ep)
 {
   this->resetAll();
   // A RunStopwatch, but only if we are processing an event.
-  std::unique_ptr<RunStopwatch>
-    stopwatch(endPathInfo_.runStopwatch(T::isEvent_));
+  std::unique_ptr<RunStopwatch> const stopwatch {endPathInfo_.runStopwatch(T::isEvent_)};
   if (T::isEvent_) {
     endPathInfo_.addEvent();
   }
@@ -116,7 +132,7 @@ processOneOccurrence(typename T::MyPrincipal & ep)
     }
   }
   catch (cet::exception & ex) {
-    actions::ActionCodes action = (T::isEvent_ ? act_table_->find(ex.root_cause()) : actions::Rethrow);
+    actions::ActionCodes const action {T::isEvent_ ? act_table_->find(ex.root_cause()) : actions::Rethrow};
     switch (action) {
     case actions::IgnoreCompletely: {
       mf::LogWarning(ex.category())
@@ -143,7 +159,7 @@ template <class F>
 void
 art::EndPathExecutor::doForAllEnabledWorkers_(F fcn)
 {
-  size_t index = 0;
+  size_t index {0};
   for (auto const& val : endPathInfo_.workers()) {
     if (workersEnabled_[index++]) { fcn(val.second.get()); }
   }
@@ -153,7 +169,7 @@ template <class F>
 void
 art::EndPathExecutor::doForAllEnabledOutputWorkers_(F fcn)
 {
-  size_t index = 0;
+  size_t index {0};
   for (auto ow : outputWorkers_ ) {
     if (outputWorkersEnabled_[index++]) { fcn(ow); }
   }

@@ -39,8 +39,7 @@ EventPrincipal(EventAuxiliary const& aux, ProcessConfiguration const& pc,
   if (ProductMetaData::instance().productProduced(InEvent)) {
     addToProcessHistory();
     // Add index into BranchIDListRegistry for products produced this process
-    history_->addBranchListIndexEntry(
-                                      BranchIDListRegistry::instance()->size() - 1);
+    history_->addBranchListIndexEntry(BranchIDListRegistry::instance()->size() - 1);
   }
   // Fill in helper map for Branch to ProductID mapping
   for (auto IB = history->branchListIndexes().cbegin(),
@@ -266,10 +265,8 @@ deferredGetter_(ProductID const& pid) const
   if (it != deferredGetters_.end()) {
     return it->second.get();
   }
-  deferredGetters_[pid].reset(new DeferredProductGetter(
-    cet::exempt_ptr<EventPrincipal const>(this), pid));
+  deferredGetters_[pid] = std::make_shared<DeferredProductGetter>(cet::exempt_ptr<EventPrincipal const>(this), pid);
   return deferredGetters_[pid].get();
 }
 
 } // namespace art
-

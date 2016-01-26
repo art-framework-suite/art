@@ -71,7 +71,7 @@ namespace art {
     if (T::isEvent_) {
       ++timesVisited_;
     }
-    bool rc = true;
+    bool rc {true};
 
     try {
         // may want to change the return value from the worker to be

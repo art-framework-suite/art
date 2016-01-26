@@ -42,7 +42,7 @@ OutputModule(fhicl::TableFragment<Config> const & config,
   maxEvents_{-1},
   remainingEvents_{maxEvents_},
   moduleDescription_{},
-  current_context_{0},
+  current_context_{nullptr},
   branchParents_{},
   branchChildren_{},
   configuredFileName_{config().fileName()},
@@ -66,7 +66,7 @@ OutputModule(fhicl::ParameterSet const& pset)
   maxEvents_{-1},
   remainingEvents_{maxEvents_},
   moduleDescription_{},
-  current_context_{0},
+  current_context_{nullptr},
   branchParents_{},
   branchChildren_{},
   configuredFileName_{pset.get<std::string>("fileName","")},
@@ -192,22 +192,27 @@ doEndJob()
 
 bool
 art::OutputModule::
-doEvent(EventPrincipal & ep,
-        CurrentProcessingContext const * cpc)
+doEvent(EventPrincipal& ep, CurrentProcessingContext const *cpc)
 {
   detail::CPCSentry sentry(current_context_, cpc);
+  FDEBUG(2) << "doEvent called\n";
+  event(ep);
+  return true;
+}
+
+void
+art::OutputModule::
+doWriteEvent(EventPrincipal& ep)
+{
   detail::PVSentry pvSentry(selectors_);
   FDEBUG(2) << "writeEvent called\n";
-  Event const e(const_cast<EventPrincipal &>(ep), moduleDescription_);
+  Event const e {const_cast<EventPrincipal &>(ep), moduleDescription_};
   if (wantAllEvents_ || selectors_.wantEvent(e)) {
     write(ep); // Write the event.
     // Declare that the event was selected for write to the catalog
     // interface
-    art::Handle<art::TriggerResults> trHandle(getTriggerResults(e));
-    HLTGlobalStatus const &
-    trRef(trHandle.isValid() ?
-          static_cast<HLTGlobalStatus>(*trHandle) :
-          HLTGlobalStatus());
+    art::Handle<art::TriggerResults> trHandle{getTriggerResults(e)};
+    auto const & trRef ( trHandle.isValid() ? static_cast<HLTGlobalStatus>(*trHandle) : HLTGlobalStatus{} );
     ci_->eventSelected(moduleDescription_.moduleLabel(),
                        ep.id(),
                        trRef);
@@ -219,7 +224,6 @@ doEvent(EventPrincipal & ep,
       --remainingEvents_;
     }
   }
-  return true;
 }
 
 bool
@@ -227,7 +231,7 @@ art::OutputModule::
 doBeginRun(RunPrincipal const & rp,
            CurrentProcessingContext const * cpc)
 {
-  detail::CPCSentry sentry(current_context_, cpc);
+  detail::CPCSentry sentry{current_context_, cpc};
   FDEBUG(2) << "beginRun called\n";
   beginRun(rp);
   Run const r(const_cast<RunPrincipal &>(rp), moduleDescription_);
@@ -240,7 +244,7 @@ art::OutputModule::
 doEndRun(RunPrincipal const & rp,
          CurrentProcessingContext const * cpc)
 {
-  detail::CPCSentry sentry(current_context_, cpc);
+  detail::CPCSentry sentry{current_context_, cpc};
   FDEBUG(2) << "endRun called\n";
   endRun(rp);
   Run const r(const_cast<RunPrincipal &>(rp), moduleDescription_);
@@ -261,7 +265,7 @@ art::OutputModule::
 doBeginSubRun(SubRunPrincipal const & srp,
               CurrentProcessingContext const * cpc)
 {
-  detail::CPCSentry sentry(current_context_, cpc);
+  detail::CPCSentry sentry{current_context_, cpc};
   FDEBUG(2) << "beginSubRun called\n";
   beginSubRun(srp);
   SubRun const sr(const_cast<SubRunPrincipal &>(srp), moduleDescription_);
@@ -274,7 +278,7 @@ art::OutputModule::
 doEndSubRun(SubRunPrincipal const & srp,
             CurrentProcessingContext const * cpc)
 {
-  detail::CPCSentry sentry(current_context_, cpc);
+  detail::CPCSentry sentry{current_context_, cpc};
   FDEBUG(2) << "endSubRun called\n";
   endSubRun(srp);
   SubRun const sr(const_cast<SubRunPrincipal &>(srp), moduleDescription_);
@@ -330,6 +334,20 @@ art::OutputModule::
 doRespondToCloseOutputFiles(FileBlock const & fb)
 {
   respondToCloseOutputFiles(fb);
+}
+
+void
+art::OutputModule::
+doRespondToOpenOutputFile()
+{
+  respondToOpenOutputFile();
+}
+
+void
+art::OutputModule::
+doRespondToCloseOutputFile()
+{
+  respondToCloseOutputFile();
 }
 
 void
@@ -411,6 +429,12 @@ endJob()
 
 void
 art::OutputModule::
+event(EventPrincipal const&)
+{
+}
+
+void
+art::OutputModule::
 beginRun(RunPrincipal const &)
 {
 }
@@ -466,6 +490,18 @@ respondToOpenOutputFiles(FileBlock const &)
 void
 art::OutputModule::
 respondToCloseOutputFiles(FileBlock const &)
+{
+}
+
+void
+art::OutputModule::
+respondToOpenOutputFile()
+{
+}
+
+void
+art::OutputModule::
+respondToCloseOutputFile()
 {
 }
 
