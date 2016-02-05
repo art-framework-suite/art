@@ -2,21 +2,16 @@
 project(art_Persistency_Common)
 
 set(art_Persistency_Common_sources
-  CacheStreamers.cc
   DelayedReader.cc
-  EDProduct.cc
   GroupQueryResult.cc
-  PtrVectorBase.cc
-  RNGsnapshot.cc
-  RefCore.cc
-  detail/maybeCastObj.cc
-  detail/setPtrVectorBaseStreamer.cc
-  traits.cc
 )
 
 set( art_Persistency_Common_libraries 
-	art_Persistency_Provenance canvas_Persistency_Provenance
-	art_Utilities canvas_Utilities
+	canvas_Persistency_Common
+	art_Persistency_Provenance 
+	canvas_Persistency_Provenance
+	art_Utilities 
+	canvas_Utilities
 	${ROOT_CORE}
 	${Boost_THREAD_LIBRARY}
 	)
