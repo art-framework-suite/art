@@ -1,4 +1,4 @@
-#include "art/Persistency/Provenance/RunAuxiliary.h"
+#include "canvas/Persistency/Provenance/RunAuxiliary.h"
 #include <ostream>
 
 void

@@ -1,6 +1,6 @@
-#include "art/Persistency/Provenance/detail/branchNameComponentChecking.h"
+#include "canvas/Persistency/Provenance/detail/branchNameComponentChecking.h"
 
-#include "art/Persistency/Provenance/BranchKey.h"
+#include "canvas/Persistency/Provenance/BranchKey.h"
 
 #include "boost/algorithm/string.hpp"
 

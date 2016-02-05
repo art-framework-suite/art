@@ -1,4 +1,4 @@
-#include "art/Persistency/Provenance/Hash.h"
+#include "canvas/Persistency/Provenance/Hash.h"
 
 namespace art
 {

@@ -9,7 +9,7 @@
 //
 // ======================================================================
 
-#include "art/Utilities/Exception.h"
+#include "canvas/Utilities/Exception.h"
 
 using namespace art;
 

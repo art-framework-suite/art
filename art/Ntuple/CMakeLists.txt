@@ -3,7 +3,7 @@ include(BuildPlugins)
 art_make(
   art_Ntuple
   LIB_LIBRARIES
-  art_Utilities
+  art_Utilities canvas_Utilities
   ${SQLITE3}
   EXCLUDE sqlite_mfPlugin.cc
   )

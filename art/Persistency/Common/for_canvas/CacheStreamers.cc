@@ -1,6 +1,6 @@
-#include "art/Persistency/Common/CacheStreamers.h"
-#include "art/Persistency/Common/ConstPtrCache.h"
-#include "art/Persistency/Common/BoolCache.h"
+#include "canvas/Persistency/Common/CacheStreamers.h"
+#include "canvas/Persistency/Common/ConstPtrCache.h"
+#include "canvas/Persistency/Common/BoolCache.h"
 #include "cetlib/exception.h"
 
 // For nullptr:

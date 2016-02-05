@@ -1,8 +1,8 @@
 #define BOOST_TEST_MODULE (TypeWithDict_t)
 #include "boost/test/auto_unit_test.hpp"
 
-#include "art/Persistency/Provenance/TypeWithDict.h"
-#include "art/Utilities/uniform_type_name.h"
+#include "canvas/Persistency/Provenance/TypeWithDict.h"
+#include "canvas/Utilities/uniform_type_name.h"
 
 #include "RtypesCore.h"
 

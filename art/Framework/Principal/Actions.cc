@@ -1,7 +1,7 @@
 #include "art/Framework/Principal/Actions.h"
 
-#include "art/Utilities/DebugMacros.h"
-#include "art/Utilities/Exception.h"
+#include "canvas/Utilities/DebugMacros.h"
+#include "canvas/Utilities/Exception.h"
 #include "boost/lambda/lambda.hpp"
 #include "cetlib/container_algorithms.h"
 #include "fhiclcpp/ParameterSet.h"

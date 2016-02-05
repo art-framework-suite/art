@@ -5,8 +5,8 @@
 ----------------------------------------------------------------------*/
 #include <ostream>
 
-#include "art/Persistency/Provenance/BranchKey.h"
-#include "art/Persistency/Provenance/BranchDescription.h"
+#include "canvas/Persistency/Provenance/BranchKey.h"
+#include "canvas/Persistency/Provenance/BranchDescription.h"
 
 namespace art
 {

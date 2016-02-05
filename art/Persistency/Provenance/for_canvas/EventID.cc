@@ -1,5 +1,5 @@
-#include "art/Persistency/Provenance/EventID.h"
-#include "art/Utilities/Exception.h"
+#include "canvas/Persistency/Provenance/EventID.h"
+#include "canvas/Utilities/Exception.h"
 
 #include <ostream>
 

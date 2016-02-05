@@ -3,7 +3,7 @@
 art_dictionary(NO_DEFAULT_LIBRARIES DICTIONARY_LIBRARIES cetlib NO_INSTALL)
 
 set(default_test_libraries
-  art_Utilities
+  art_Utilities canvas_Utilities
   test_Utilities_dict
   cetlib
   MF_MessageLogger
@@ -60,17 +60,17 @@ endforeach()
 cet_test(ScheduleID_t USE_BOOST_UNIT)
 
 cet_test(parent_path_t USE_BOOST_UNIT
-  LIBRARIES art_Utilities)
+  LIBRARIES art_Utilities canvas_Utilities)
 
 cet_test(uniform_type_name_test USE_BOOST_UNIT
   LIBRARIES
-  art_Utilities
+  art_Utilities canvas_Utilities
   )
 
 cet_make_exec(TypeNameBranchName_t
   NO_INSTALL
   LIBRARIES
-  art_Utilities
+  art_Utilities canvas_Utilities
   cetlib
 )
 

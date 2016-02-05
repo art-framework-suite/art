@@ -1,7 +1,7 @@
 #ifndef art_Persistency_Provenance_Selections_h
 #define art_Persistency_Provenance_Selections_h
 
-#include "art/Persistency/Provenance/BranchType.h"
+#include "canvas/Persistency/Provenance/BranchType.h"
 
 #include <array>
 #include <vector>

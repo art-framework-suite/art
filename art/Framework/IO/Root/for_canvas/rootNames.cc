@@ -1,6 +1,6 @@
-#include "art/Framework/IO/Root/rootNames.h"
+#include "canvas/Persistency/Provenance/rootNames.h"
 
-#include "art/Persistency/Provenance/BranchType.h"
+#include "canvas/Persistency/Provenance/BranchType.h"
 
 namespace {
   std::string const parentageTree     = "Parentage";

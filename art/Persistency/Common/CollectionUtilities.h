@@ -68,10 +68,10 @@
 //
 ////////////////////////////////////////////////////////////////////////
 
-#include "art/Persistency/Common/Ptr.h"
-#include "art/Persistency/Common/PtrVector.h"
-#include "art/Persistency/Provenance/ProductID.h"
-#include "art/Utilities/detail/metaprogramming.h"
+#include "canvas/Persistency/Common/Ptr.h"
+#include "canvas/Persistency/Common/PtrVector.h"
+#include "canvas/Persistency/Provenance/ProductID.h"
+#include "canvas/Utilities/detail/metaprogramming.h"
 #include "cetlib/map_vector.h"
 
 #include <cstddef>

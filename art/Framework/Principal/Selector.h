@@ -34,7 +34,7 @@ for every event.
 
 #include "art/Framework/Principal/SelectorBase.h"
 #include "art/Framework/Principal/fwd.h"
-#include "art/Persistency/Provenance/BranchDescription.h"
+#include "canvas/Persistency/Provenance/BranchDescription.h"
 #include "cetlib/value_ptr.h"
 
 #include <string>

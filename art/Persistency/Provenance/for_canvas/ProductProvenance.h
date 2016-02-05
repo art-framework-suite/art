@@ -8,11 +8,11 @@ and how it came into existence, plus the status.
 
 ----------------------------------------------------------------------*/
 
-#include "art/Persistency/Provenance/BranchID.h"
-#include "art/Persistency/Provenance/ParentageID.h"
-#include "art/Persistency/Provenance/ProductStatus.h"
-#include "art/Persistency/Provenance/ProvenanceFwd.h"
-#include "art/Persistency/Provenance/Transient.h"
+#include "canvas/Persistency/Provenance/BranchID.h"
+#include "canvas/Persistency/Provenance/ParentageID.h"
+#include "canvas/Persistency/Provenance/ProductStatus.h"
+#include "canvas/Persistency/Provenance/ProvenanceFwd.h"
+#include "canvas/Persistency/Provenance/Transient.h"
 
 #include <iosfwd>
 #include <memory>

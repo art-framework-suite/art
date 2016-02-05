@@ -1,6 +1,6 @@
-#include "art/Persistency/Common/detail/maybeCastObj.h"
+#include "canvas/Persistency/Common/detail/maybeCastObj.h"
 
-#include "art/Utilities/Exception.h"
+#include "canvas/Utilities/Exception.h"
 #include "cetlib/demangle.h"
 
 #include "TClass.h"

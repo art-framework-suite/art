@@ -1,7 +1,7 @@
-#include "art/Persistency/Common/detail/setPtrVectorBaseStreamer.h"
+#include "canvas/Persistency/Common/detail/setPtrVectorBaseStreamer.h"
 
-#include "art/Persistency/Common/PtrVectorBase.h"
-#include "art/Utilities/TypeID.h"
+#include "canvas/Persistency/Common/PtrVectorBase.h"
+#include "canvas/Utilities/TypeID.h"
 
 #include "TClass.h"
 

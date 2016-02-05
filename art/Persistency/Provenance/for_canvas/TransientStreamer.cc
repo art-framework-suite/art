@@ -1,10 +1,10 @@
-#include "art/Persistency/Provenance/TransientStreamer.h"
+#include "canvas/Persistency/Provenance/TransientStreamer.h"
 
-#include "art/Persistency/Provenance/BranchDescription.h"
-#include "art/Persistency/Provenance/FileIndex.h"
-#include "art/Persistency/Provenance/ProcessHistory.h"
-#include "art/Persistency/Provenance/ProductProvenance.h"
-#include "art/Persistency/Provenance/Transient.h"
+#include "canvas/Persistency/Provenance/BranchDescription.h"
+#include "canvas/Persistency/Provenance/FileIndex.h"
+#include "canvas/Persistency/Provenance/ProcessHistory.h"
+#include "canvas/Persistency/Provenance/ProductProvenance.h"
+#include "canvas/Persistency/Provenance/Transient.h"
 
 void art::setProvenanceTransientStreamers()
 {

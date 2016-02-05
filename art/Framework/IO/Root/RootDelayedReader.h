@@ -5,8 +5,8 @@
 #include "art/Framework/IO/Root/Inputfwd.h"
 #include "art/Framework/IO/Root/RootInputFile.h"
 #include "art/Persistency/Common/DelayedReader.h"
-#include "art/Persistency/Provenance/BranchKey.h"
-#include "art/Persistency/Provenance/BranchType.h"
+#include "canvas/Persistency/Provenance/BranchKey.h"
+#include "canvas/Persistency/Provenance/BranchType.h"
 
 #include <map>
 #include <memory>

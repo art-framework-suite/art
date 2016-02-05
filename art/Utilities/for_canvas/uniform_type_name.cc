@@ -1,4 +1,4 @@
-#include "art/Utilities/uniform_type_name.h"
+#include "canvas/Utilities/uniform_type_name.h"
 
 #include "cetlib/replace_all.h"
 

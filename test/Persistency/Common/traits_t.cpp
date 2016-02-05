@@ -5,7 +5,7 @@
 #include "test/CppUnit_testdriver.icpp"
 #include <cppunit/extensions/HelperMacros.h>
 
-#include "art/Persistency/Common/traits.h"
+#include "canvas/Persistency/Common/traits.h"
 
 class TestTraits: public CppUnit::TestFixture
 {

@@ -7,8 +7,8 @@
 //  the CMS event model.
 //
 
-#include "art/Persistency/Provenance/TypeWithDict.h"
-#include "art/Utilities/WrappedClassName.h"
+#include "canvas/Persistency/Provenance/TypeWithDict.h"
+#include "canvas/Utilities/WrappedClassName.h"
 #include "TClass.h"
 #include <ostream>
 #include <string>

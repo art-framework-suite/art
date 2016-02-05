@@ -11,7 +11,7 @@
 ////////////////////////////////////////////////////////////////////////
 
 #include "art/Framework/Principal/RPParams.h"
-#include "art/Persistency/Provenance/ModuleDescription.h"
+#include "canvas/Persistency/Provenance/ModuleDescription.h"
 
 namespace art {
   class RPWorker;

@@ -7,8 +7,8 @@
 //
 // ======================================================================
 
-#include "art/Persistency/Common/HLTPathStatus.h"
-#include "art/Persistency/Common/TriggerResults.h"
+#include "canvas/Persistency/Common/HLTPathStatus.h"
+#include "canvas/Persistency/Common/TriggerResults.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/ParameterSetID.h"
 

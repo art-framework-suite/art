@@ -6,11 +6,11 @@
 
 #include "art/Framework/Core/detail/getAssnsHandle.h"
 #include "art/Framework/Principal/Handle.h"
-#include "art/Persistency/Common/Assns.h"
-#include "art/Persistency/Common/Ptr.h"
-#include "art/Utilities/Exception.h"
+#include "canvas/Persistency/Common/Assns.h"
+#include "canvas/Persistency/Common/Ptr.h"
+#include "canvas/Utilities/Exception.h"
 #include "art/Utilities/InputTag.h"
-#include "art/Utilities/ensurePointer.h"
+#include "canvas/Utilities/ensurePointer.h"
 #include "art/Utilities/pointersEqual.h"
 
 #include <type_traits>

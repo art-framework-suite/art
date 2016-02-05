@@ -3,7 +3,7 @@
 
 // A SubRunID represents a unique period within a run.
 
-#include "art/Persistency/Provenance/RunID.h"
+#include "canvas/Persistency/Provenance/RunID.h"
 
 #include <cstdint>
 #include <ostream>
@@ -135,7 +135,7 @@ isFlush() const
   return (subRun_ == FLUSH_SUBRUN_NUMBER());
 }
 
-#include "art/Utilities/Exception.h"
+#include "canvas/Utilities/Exception.h"
 
 inline
 art::SubRunID
@@ -248,7 +248,7 @@ operator!=(SubRunID const & other) const
   return !(*this == other);
 }
 
-#include "art/Persistency/Provenance/SortInvalidFirst.h"
+#include "canvas/Persistency/Provenance/SortInvalidFirst.h"
 
 inline
 bool

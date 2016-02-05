@@ -1,9 +1,9 @@
 #ifndef test_Persistency_Common_SimpleEDProductGetter_h
 #define test_Persistency_Common_SimpleEDProductGetter_h
 
-#include "art/Persistency/Common/EDProduct.h"
-#include "art/Persistency/Common/EDProductGetter.h"
-#include "art/Persistency/Common/Wrapper.h"
+#include "canvas/Persistency/Common/EDProduct.h"
+#include "canvas/Persistency/Common/EDProductGetter.h"
+#include "canvas/Persistency/Common/Wrapper.h"
 
 #include <map>
 #include <memory>

@@ -15,7 +15,7 @@
 #include "art/Framework/Principal/OccurrenceTraits.h"
 #include "art/Framework/Principal/RunStopwatch.h"
 #include "art/Framework/Principal/Worker.h"
-#include "art/Persistency/Provenance/BranchType.h"
+#include "canvas/Persistency/Provenance/BranchType.h"
 #include "cetlib/trim.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 

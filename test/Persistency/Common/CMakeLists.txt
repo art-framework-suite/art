@@ -6,8 +6,8 @@ set( cc_files ptr_t.cppunit.cc
               IntValues_reflex.cc )
 
 link_libraries( art_Persistency_Common
-                art_Persistency_Provenance
-                art_Utilities
+                art_Persistency_Provenance canvas_Persistency_Provenance
+                art_Utilities canvas_Utilities
                 art_Framework_Services_Registry
 		${Boost_THREAD_LIBRARY}
 		${Boost_PYTHON_LIBRARY}

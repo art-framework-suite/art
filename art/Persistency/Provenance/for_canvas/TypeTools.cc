@@ -1,9 +1,9 @@
-#include "art/Persistency/Provenance/TypeTools.h"
+#include "canvas/Persistency/Provenance/TypeTools.h"
 // vim: set sw=2:
 
-#include "art/Persistency/Provenance/TypeWithDict.h"
-#include "art/Utilities/DebugMacros.h"
-#include "art/Utilities/Exception.h"
+#include "canvas/Persistency/Provenance/TypeWithDict.h"
+#include "canvas/Utilities/DebugMacros.h"
+#include "canvas/Utilities/Exception.h"
 #include "boost/algorithm/string.hpp"
 #include "boost/thread/tss.hpp"
 #include "cetlib/container_algorithms.h"

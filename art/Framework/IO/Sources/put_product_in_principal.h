@@ -12,13 +12,13 @@
 ////////////////////////////////////////////////////////////////////////
 
 #include "art/Framework/Core/get_BranchDescription.h"
-#include "art/Persistency/Common/EDProduct.h"
-#include "art/Persistency/Provenance/BranchDescription.h"
-#include "art/Persistency/Provenance/BranchKey.h"
-#include "art/Persistency/Provenance/ProductProvenance.h"
-#include "art/Persistency/Provenance/ProductStatus.h"
-#include "art/Utilities/Exception.h"
-#include "art/Utilities/TypeID.h"
+#include "canvas/Persistency/Common/EDProduct.h"
+#include "canvas/Persistency/Provenance/BranchDescription.h"
+#include "canvas/Persistency/Provenance/BranchKey.h"
+#include "canvas/Persistency/Provenance/ProductProvenance.h"
+#include "canvas/Persistency/Provenance/ProductStatus.h"
+#include "canvas/Utilities/Exception.h"
+#include "canvas/Utilities/TypeID.h"
 
 #include <memory>
 #include <string>

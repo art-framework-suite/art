@@ -1,9 +1,9 @@
 #include "art/Framework/IO/Root/RootDelayedReader.h"
 // vim: sw=2:
 
-#include "art/Framework/IO/Root/RefCoreStreamer.h"
-#include "art/Persistency/Provenance/BranchDescription.h"
-#include "art/Utilities/TypeID.h"
+#include "canvas/Persistency/Common/RefCoreStreamer.h"
+#include "canvas/Persistency/Provenance/BranchDescription.h"
+#include "canvas/Utilities/TypeID.h"
 #include "TBranch.h"
 #include "TBranchElement.h"
 #include "TClass.h"

@@ -1,8 +1,8 @@
 #ifndef art_Persistency_Common_PtrVectorBase_h
 #define art_Persistency_Common_PtrVectorBase_h
 
-#include "art/Persistency/Common/Ptr.h"
-#include "art/Persistency/Common/RefCore.h"
+#include "canvas/Persistency/Common/Ptr.h"
+#include "canvas/Persistency/Common/RefCore.h"
 
 #include <typeinfo>
 #include <utility>

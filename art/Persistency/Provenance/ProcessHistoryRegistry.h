@@ -7,8 +7,8 @@
 //
 // ======================================================================
 
-#include "art/Persistency/Provenance/ProcessHistory.h"
-#include "art/Persistency/Provenance/ProcessHistoryID.h"
+#include "canvas/Persistency/Provenance/ProcessHistory.h"
+#include "canvas/Persistency/Provenance/ProcessHistoryID.h"
 #include "cetlib/registry_via_id.h"
 
 // ----------------------------------------------------------------------

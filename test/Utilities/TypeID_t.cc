@@ -2,7 +2,7 @@
 #include "boost/test/auto_unit_test.hpp"
 #include "boost/test/output_test_stream.hpp"
 
-#include "art/Utilities/TypeID.h"
+#include "canvas/Utilities/TypeID.h"
 
 // For empty and also_empty
 #include "classes.h"

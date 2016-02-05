@@ -1,6 +1,6 @@
-#include "art/Utilities/FriendlyName.h"
+#include "canvas/Utilities/FriendlyName.h"
 
-#include "art/Utilities/Exception.h"
+#include "canvas/Utilities/Exception.h"
 
 #include "tbb/concurrent_unordered_map.h"
 

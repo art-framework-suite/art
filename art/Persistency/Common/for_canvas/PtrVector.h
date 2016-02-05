@@ -8,8 +8,8 @@
 //
 // ======================================================================
 
-#include "art/Persistency/Common/Ptr.h"
-#include "art/Persistency/Common/PtrVectorBase.h"
+#include "canvas/Persistency/Common/Ptr.h"
+#include "canvas/Persistency/Common/PtrVectorBase.h"
 #include "cetlib/compiler_macros.h"
 
 #ifndef __GCCXML__

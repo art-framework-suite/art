@@ -7,8 +7,8 @@
 //
 // ======================================================================
 
-#include "art/Persistency/Provenance/BranchID.h"
-#include "art/Persistency/Provenance/ProductProvenance.h"
+#include "canvas/Persistency/Provenance/BranchID.h"
+#include "canvas/Persistency/Provenance/ProductProvenance.h"
 #include "cetlib/container_algorithms.h"
 #include "cetlib/exempt_ptr.h"
 #include "cetlib/value_ptr.h"

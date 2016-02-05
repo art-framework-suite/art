@@ -9,8 +9,8 @@
 //
 // ======================================================================
 
-#include "art/Persistency/Common/EDProductGetter.h"
-#include "art/Persistency/Provenance/ProductID.h"
+#include "canvas/Persistency/Common/EDProductGetter.h"
+#include "canvas/Persistency/Provenance/ProductID.h"
 
 #include <algorithm>
 

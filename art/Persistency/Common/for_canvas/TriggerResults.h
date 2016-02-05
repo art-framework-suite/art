@@ -17,8 +17,8 @@
 //
 // ======================================================================
 
-#include "art/Persistency/Common/HLTGlobalStatus.h"
-#include "art/Persistency/Common/traits.h"
+#include "canvas/Persistency/Common/HLTGlobalStatus.h"
+#include "canvas/Persistency/Common/traits.h"
 #include "fhiclcpp/ParameterSetID.h"
 
 // ----------------------------------------------------------------------

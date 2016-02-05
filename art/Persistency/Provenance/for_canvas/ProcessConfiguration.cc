@@ -1,6 +1,6 @@
 #include <sstream>
 
-#include "art/Persistency/Provenance/ProcessConfiguration.h"
+#include "canvas/Persistency/Provenance/ProcessConfiguration.h"
 #include "cetlib/MD5Digest.h"
 #include <ostream>
 

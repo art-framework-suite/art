@@ -1,4 +1,4 @@
-#include "art/Utilities/WrappedClassName.h"
+#include "canvas/Utilities/WrappedClassName.h"
 
 namespace art {
   std::string

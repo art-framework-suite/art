@@ -4,7 +4,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-#include "art/Persistency/Provenance/FileIndex.h"
+#include "canvas/Persistency/Provenance/FileIndex.h"
 
 class testFileIndex: public CppUnit::TestFixture {
    CPPUNIT_TEST_SUITE(testFileIndex);

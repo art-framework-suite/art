@@ -1,7 +1,7 @@
 #ifndef art_Persistency_Common_setPtr_h
 #define art_Persistency_Common_setPtr_h
 
-#include "art/Persistency/Common/detail/maybeCastObj.h"
+#include "canvas/Persistency/Common/detail/maybeCastObj.h"
 #include "cetlib/map_vector.h"
 #include "cetlib/demangle.h"
 

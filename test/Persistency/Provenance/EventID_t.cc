@@ -1,7 +1,7 @@
 #define BOOST_TEST_MODULE(EventID_t)
 #include "boost/test/auto_unit_test.hpp"
 
-#include "art/Persistency/Provenance/EventID.h"
+#include "canvas/Persistency/Provenance/EventID.h"
 
 using namespace art;
 

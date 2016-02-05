@@ -23,7 +23,7 @@
  *
  */
 
-#include "art/Persistency/Common/HLTenums.h"
+#include "canvas/Persistency/Common/HLTenums.h"
 
 #include <cassert>
 #include <cstdint>

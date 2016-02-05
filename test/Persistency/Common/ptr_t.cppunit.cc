@@ -11,10 +11,10 @@
 #include <set>
 #include <list>
 #include <deque>
-#include "art/Persistency/Common/Ptr.h"
+#include "canvas/Persistency/Common/Ptr.h"
 
-#include "art/Persistency/Common/EDProductGetter.h"
-#include "art/Persistency/Common/Wrapper.h"
+#include "canvas/Persistency/Common/EDProductGetter.h"
+#include "canvas/Persistency/Common/Wrapper.h"
 
 #include <iostream>
 

@@ -7,8 +7,8 @@
 //
 ////////////////////////////////////////////////////////////////////////
 
-#include "art/Persistency/Common/EDProduct.h"
-#include "art/Utilities/DebugMacros.h"
+#include "canvas/Persistency/Common/EDProduct.h"
+#include "canvas/Utilities/DebugMacros.h"
 #include "cetlib/demangle.h"
 
 #include <iostream>
@@ -110,14 +110,14 @@ private:
 ////////////////////////////////////////////////////////////////////////
 // Implementation details.
 
-#include "art/Persistency/Common/GetProduct.h"
-#include "art/Persistency/Common/PtrVector.h"
-#include "art/Persistency/Common/getElementAddresses.h"
-#include "art/Persistency/Common/setPtr.h"
+#include "canvas/Persistency/Common/GetProduct.h"
+#include "canvas/Persistency/Common/PtrVector.h"
+#include "canvas/Persistency/Common/getElementAddresses.h"
+#include "canvas/Persistency/Common/setPtr.h"
 
-#include "art/Persistency/Common/traits.h"
-#include "art/Utilities/Exception.h"
-#include "art/Utilities/detail/metaprogramming.h"
+#include "canvas/Persistency/Common/traits.h"
+#include "canvas/Utilities/Exception.h"
+#include "canvas/Utilities/detail/metaprogramming.h"
 #include "boost/lexical_cast.hpp"
 #include <memory>
 #include <type_traits>

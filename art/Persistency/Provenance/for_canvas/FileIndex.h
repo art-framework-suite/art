@@ -26,10 +26,10 @@
 //
 ////////////////////////////////////////////////////////////////////////
 
-#include "art/Persistency/Provenance/EventID.h"
-#include "art/Persistency/Provenance/RunID.h"
-#include "art/Persistency/Provenance/SubRunID.h"
-#include "art/Persistency/Provenance/Transient.h"
+#include "canvas/Persistency/Provenance/EventID.h"
+#include "canvas/Persistency/Provenance/RunID.h"
+#include "canvas/Persistency/Provenance/SubRunID.h"
+#include "canvas/Persistency/Provenance/Transient.h"
 #include <cassert>
 #include <iosfwd>
 #include <vector>

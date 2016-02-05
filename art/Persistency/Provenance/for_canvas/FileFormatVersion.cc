@@ -1,4 +1,4 @@
-#include "art/Persistency/Provenance/FileFormatVersion.h"
+#include "canvas/Persistency/Provenance/FileFormatVersion.h"
 #include <ostream>
 
 std::ostream&

@@ -1,4 +1,4 @@
-#include "art/Persistency/Provenance/ProcessHistory.h"
+#include "canvas/Persistency/Provenance/ProcessHistory.h"
 
 #include "cetlib/container_algorithms.h"
 #include "cetlib/MD5Digest.h"

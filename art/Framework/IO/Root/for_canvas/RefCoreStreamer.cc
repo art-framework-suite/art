@@ -1,8 +1,8 @@
-#include "art/Framework/IO/Root/RefCoreStreamer.h"
+#include "canvas/Persistency/Common/RefCoreStreamer.h"
 
 #include "art/Framework/Principal/EventPrincipal.h"
-#include "art/Persistency/Common/RefCore.h"
-#include "art/Utilities/Exception.h"
+#include "canvas/Persistency/Common/RefCore.h"
+#include "canvas/Utilities/Exception.h"
 
 #include "TROOT.h"
 

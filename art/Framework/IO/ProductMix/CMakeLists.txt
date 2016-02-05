@@ -9,14 +9,14 @@ art_make_library( LIBRARY_NAME art_Framework_IO_ProductMix
   art_Framework_Principal
   art_Framework_Services_Registry
   art_Persistency_Common
-  art_Persistency_Provenance
-  art_Utilities
+  art_Persistency_Provenance canvas_Persistency_Provenance
+  art_Utilities canvas_Utilities
   MF_MessageLogger
   fhiclcpp
   cetlib
   )
 
-art_dictionary(DICTIONARY_LIBRARIES art_Persistency_Provenance)
+art_dictionary(DICTIONARY_LIBRARIES art_Persistency_Provenance canvas_Persistency_Provenance)
 
 install_headers()
 install_source()

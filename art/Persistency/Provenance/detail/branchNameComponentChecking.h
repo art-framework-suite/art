@@ -1,7 +1,7 @@
 #ifndef art_Persistency_Provenance_detail_branchNameComponentChecking_h
 #define art_Persistency_Provenance_detail_branchNameComponentChecking_h
 
-#include "art/Persistency/Provenance/BranchKey.h"
+#include "canvas/Persistency/Provenance/BranchKey.h"
 
 #include <string>
 

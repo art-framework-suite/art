@@ -1,8 +1,8 @@
 #include "test/CppUnit_testdriver.icpp"
 #include <cppunit/extensions/HelperMacros.h>
 
-#include "art/Persistency/Common/RefCore.h"
-#include "art/Persistency/Common/EDProductGetter.h"
+#include "canvas/Persistency/Common/RefCore.h"
+#include "canvas/Persistency/Common/EDProductGetter.h"
 
 #include "SimpleEDProductGetter.h"
 

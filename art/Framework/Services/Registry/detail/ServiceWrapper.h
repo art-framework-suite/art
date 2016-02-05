@@ -12,7 +12,7 @@
 
 #include "art/Framework/Services/Registry/ServiceScope.h"
 #include "art/Utilities/ScheduleID.h"
-#include "art/Utilities/detail/metaprogramming.h"
+#include "canvas/Utilities/detail/metaprogramming.h"
 #include <memory>
 #include <type_traits>
 

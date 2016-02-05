@@ -1,10 +1,10 @@
-#include "art/Persistency/Provenance/BranchDescription.h"
+#include "canvas/Persistency/Provenance/BranchDescription.h"
 // vim: set sw=2:
 
-#include "art/Persistency/Provenance/ModuleDescription.h"
-#include "art/Utilities/Exception.h"
-#include "art/Utilities/FriendlyName.h"
-#include "art/Utilities/WrappedClassName.h"
+#include "canvas/Persistency/Provenance/ModuleDescription.h"
+#include "canvas/Utilities/Exception.h"
+#include "canvas/Utilities/FriendlyName.h"
+#include "canvas/Utilities/WrappedClassName.h"
 #include "fhiclcpp/ParameterSetID.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 #include "Compression.h"

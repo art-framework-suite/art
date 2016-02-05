@@ -2,7 +2,7 @@
 #define ART_PERSISTENCY_PROVENANCE_TYPEWITHDICT_H
 // vim: set sw=2:
 
-#include "art/Utilities/TypeID.h"
+#include "canvas/Utilities/TypeID.h"
 #include <ostream>
 #include <string>
 #include <typeinfo>

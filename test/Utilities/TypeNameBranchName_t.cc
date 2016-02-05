@@ -1,8 +1,8 @@
 #include "test/Utilities/TypeNameBranchName_t.h"
 
-#include "art/Utilities/Exception.h"
-#include "art/Utilities/FriendlyName.h"
-#include "art/Utilities/uniform_type_name.h"
+#include "canvas/Utilities/Exception.h"
+#include "canvas/Utilities/FriendlyName.h"
+#include "canvas/Utilities/uniform_type_name.h"
 #include "cetlib/demangle.h"
 #include "cetlib/map_vector.h"
 #include "cetlib/replace_all.h"

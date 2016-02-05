@@ -1,4 +1,4 @@
-#include "art/Persistency/Provenance/ParameterSetBlob.h"
+#include "canvas/Persistency/Provenance/ParameterSetBlob.h"
 
 namespace art {
 

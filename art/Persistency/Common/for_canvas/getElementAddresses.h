@@ -1,7 +1,7 @@
 #ifndef art_Persistency_Common_getElementAddresses_h
 #define art_Persistency_Common_getElementAddresses_h
 
-#include "art/Persistency/Common/detail/maybeCastObj.h"
+#include "canvas/Persistency/Common/detail/maybeCastObj.h"
 
 #include <string>
 #include <typeinfo>

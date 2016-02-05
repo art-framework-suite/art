@@ -3,7 +3,7 @@
 
 #include "TClassRef.h"
 #include "TClassStreamer.h"
-#include "art/Utilities/TypeID.h"
+#include "canvas/Utilities/TypeID.h"
 #include <string>
 
 class TBuffer;

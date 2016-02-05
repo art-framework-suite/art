@@ -1,4 +1,4 @@
-#include "art/Persistency/Provenance/ProcessConfiguration.h"
+#include "canvas/Persistency/Provenance/ProcessConfiguration.h"
 #include <assert.h>
 
 int main()

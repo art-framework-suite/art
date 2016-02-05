@@ -14,8 +14,8 @@
 #include "art/Framework/Principal/RunStopwatch.h"
 #include "art/Framework/Principal/Worker.h"
 #include "art/Framework/Core/WorkerInPath.h"
-#include "art/Persistency/Common/HLTenums.h"
-#include "art/Persistency/Common/TriggerResults.h"
+#include "canvas/Persistency/Common/HLTenums.h"
+#include "canvas/Persistency/Common/TriggerResults.h"
 #include "fhiclcpp/ParameterSet.h"
 
 #include <memory>

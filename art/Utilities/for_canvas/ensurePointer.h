@@ -8,7 +8,7 @@
 // art/Persistency/Common/Ptr.h for an example of this. Also see
 // test/Utilities/ensurePointer.h for testing coverage illustration.
 
-#include "art/Utilities/Exception.h"
+#include "canvas/Utilities/Exception.h"
 #include "boost/mpl/assert.hpp"
 #include "boost/type_traits.hpp"
 #include "cetlib/demangle.h"

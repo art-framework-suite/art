@@ -1,8 +1,8 @@
 #include <cassert>
 #include <string>
-#include "art/Persistency/Provenance/ProcessHistory.h"
+#include "canvas/Persistency/Provenance/ProcessHistory.h"
 #include "fhiclcpp/ParameterSetID.h"
-#include "art/Utilities/GetPassID.h"
+#include "canvas/Utilities/GetPassID.h"
 #include "art/Version/GetReleaseVersion.h"
 
 int main()

@@ -5,7 +5,7 @@ art_dictionary(NO_INSTALL)
 link_libraries(
   art_Framework_Core
   art_Framework_Principal
-  art_Utilities
+  art_Utilities canvas_Utilities
   ${Boost_FILESYSTEM_LIBRARY}
   ${ROOT_CINTEX}
   ${ROOT_TREE}

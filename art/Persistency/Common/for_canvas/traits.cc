@@ -1,5 +1,5 @@
 
-#include "art/Persistency/Common/traits.h"
+#include "canvas/Persistency/Common/traits.h"
 
 
 const art::key_traits<std::string>::key_type

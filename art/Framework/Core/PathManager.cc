@@ -2,8 +2,8 @@
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/System/TriggerNamesService.h"
 #include "art/Version/GetReleaseVersion.h"
-#include "art/Utilities/Exception.h"
-#include "art/Utilities/GetPassID.h"
+#include "canvas/Utilities/Exception.h"
+#include "canvas/Utilities/GetPassID.h"
 #include "cetlib/container_algorithms.h"
 #include "fhiclcpp/types/detail/validationException.h"
 

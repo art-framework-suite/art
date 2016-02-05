@@ -7,8 +7,8 @@
 ////////////////////////////////////////////////////////////////////////
 
 #include <map>
-#include "art/Persistency/Provenance/BranchDescription.h"
-#include "art/Persistency/Provenance/BranchKey.h"
+#include "canvas/Persistency/Provenance/BranchDescription.h"
+#include "canvas/Persistency/Provenance/BranchKey.h"
 
 namespace art
 {

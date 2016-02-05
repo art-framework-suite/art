@@ -3,10 +3,10 @@
 
 #include <iosfwd>
 
-#include "art/Persistency/Provenance/ProcessHistoryID.h"
-#include "art/Persistency/Provenance/SubRunID.h"
-#include "art/Persistency/Provenance/RunID.h"
-#include "art/Persistency/Provenance/Timestamp.h"
+#include "canvas/Persistency/Provenance/ProcessHistoryID.h"
+#include "canvas/Persistency/Provenance/SubRunID.h"
+#include "canvas/Persistency/Provenance/RunID.h"
+#include "canvas/Persistency/Provenance/Timestamp.h"
 
 // Auxiliary subRun data that is persistent
 

@@ -2,8 +2,8 @@
 #define test_TestObjects_MockCluster_h
 
 #include "test/TestObjects/ToyProducts.h"
-#include "art/Persistency/Common/PtrVector.h"
-#include "art/Persistency/Provenance/EventID.h"
+#include "canvas/Persistency/Common/PtrVector.h"
+#include "canvas/Persistency/Provenance/EventID.h"
 
 #include <vector>
 

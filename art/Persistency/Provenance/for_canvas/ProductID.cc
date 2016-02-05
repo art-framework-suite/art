@@ -1,4 +1,4 @@
-#include "art/Persistency/Provenance/ProductID.h"
+#include "canvas/Persistency/Provenance/ProductID.h"
 #include <ostream>
 
 namespace art {

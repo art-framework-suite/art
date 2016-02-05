@@ -7,9 +7,9 @@
 #include <typeinfo>
 #include <vector>
 
-#include "art/Persistency/Provenance/TypeTools.h"
-#include "art/Persistency/Provenance/TypeWithDict.h"
-#include "art/Persistency/Common/Wrapper.h"
+#include "canvas/Persistency/Provenance/TypeTools.h"
+#include "canvas/Persistency/Provenance/TypeWithDict.h"
+#include "canvas/Persistency/Common/Wrapper.h"
 
 BOOST_AUTO_TEST_SUITE(TypeTools_t)
 

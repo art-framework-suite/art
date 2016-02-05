@@ -2,8 +2,8 @@
 //
 //------------------------------------------------------------
 
-#include "art/Utilities/Exception.h"
-#include "art/Utilities/TestHelper.h"
+#include "canvas/Utilities/Exception.h"
+#include "canvas/Utilities/TestHelper.h"
 #include "boost/filesystem/convenience.hpp"
 #include "boost/filesystem/path.hpp"
 #include "cetlib/exception.h"

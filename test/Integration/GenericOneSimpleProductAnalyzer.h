@@ -4,7 +4,7 @@
 #include "art/Framework/Core/EDAnalyzer.h"
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Principal/Handle.h"
-#include "art/Utilities/detail/metaprogramming.h"
+#include "canvas/Utilities/detail/metaprogramming.h"
 #include "cetlib/exception.h"
 #include "fhiclcpp/ParameterSet.h"
 

@@ -1,9 +1,9 @@
-#include "art/Persistency/Provenance/TypeWithDict.h"
+#include "canvas/Persistency/Provenance/TypeWithDict.h"
 // vim: set sw=2:
 
-#include "art/Utilities/Exception.h"
-#include "art/Utilities/FriendlyName.h"
-#include "art/Utilities/uniform_type_name.h"
+#include "canvas/Utilities/Exception.h"
+#include "canvas/Utilities/FriendlyName.h"
+#include "canvas/Utilities/uniform_type_name.h"
 #include "tbb/concurrent_unordered_map.h"
 #include "TClass.h"
 #include "TDataType.h"

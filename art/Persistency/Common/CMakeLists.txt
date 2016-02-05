@@ -15,8 +15,8 @@ set(art_Persistency_Common_sources
 )
 
 set( art_Persistency_Common_libraries 
-	art_Persistency_Provenance
-	art_Utilities
+	art_Persistency_Provenance canvas_Persistency_Provenance
+	art_Utilities canvas_Utilities
 	${ROOT_CORE}
 	${Boost_THREAD_LIBRARY}
 	)

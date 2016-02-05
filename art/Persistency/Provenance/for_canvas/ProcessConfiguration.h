@@ -7,9 +7,9 @@
 //
 // ======================================================================
 
-#include "art/Persistency/Provenance/PassID.h"
-#include "art/Persistency/Provenance/ProcessConfigurationID.h"
-#include "art/Persistency/Provenance/ReleaseVersion.h"
+#include "canvas/Persistency/Provenance/PassID.h"
+#include "canvas/Persistency/Provenance/ProcessConfigurationID.h"
+#include "canvas/Persistency/Provenance/ReleaseVersion.h"
 #include "fhiclcpp/ParameterSetID.h"
 #include <iosfwd>
 #include <string>

@@ -8,7 +8,7 @@
 #include <cmath>
 
 #include "art/Ntuple/sqlite_helpers.h"
-#include "art/Utilities/Exception.h"
+#include "canvas/Utilities/Exception.h"
 
 namespace sqlite {
 

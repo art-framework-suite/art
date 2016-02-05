@@ -7,9 +7,9 @@ ModuleDescription: The description of a producer module.
 
 ----------------------------------------------------------------------*/
 
-#include "art/Persistency/Provenance/ModuleDescriptionID.h"
-#include "art/Persistency/Provenance/ProcessConfiguration.h"
-#include "art/Persistency/Provenance/ProcessConfigurationID.h"
+#include "canvas/Persistency/Provenance/ModuleDescriptionID.h"
+#include "canvas/Persistency/Provenance/ProcessConfiguration.h"
+#include "canvas/Persistency/Provenance/ProcessConfigurationID.h"
 #include "fhiclcpp/ParameterSetID.h"
 #include <iosfwd>
 #include <string>

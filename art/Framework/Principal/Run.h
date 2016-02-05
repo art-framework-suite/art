@@ -11,9 +11,9 @@
 
 #include "art/Framework/Principal/DataViewImpl.h"
 #include "art/Framework/Principal/fwd.h"
-#include "art/Persistency/Provenance/RunAuxiliary.h"
-#include "art/Persistency/Provenance/RunID.h"
-#include "art/Utilities/TypeID.h"
+#include "canvas/Persistency/Provenance/RunAuxiliary.h"
+#include "canvas/Persistency/Provenance/RunID.h"
+#include "canvas/Utilities/TypeID.h"
 
 #include <memory>
 #include <utility>

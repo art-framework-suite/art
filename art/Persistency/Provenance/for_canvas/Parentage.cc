@@ -1,4 +1,4 @@
-#include "art/Persistency/Provenance/Parentage.h"
+#include "canvas/Persistency/Provenance/Parentage.h"
 
 #include <ostream>
 #include <sstream>

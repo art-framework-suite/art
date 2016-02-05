@@ -1,8 +1,8 @@
-#include "art/Utilities/TypeID.h"
+#include "canvas/Utilities/TypeID.h"
 
-#include "art/Utilities/Exception.h"
-#include "art/Utilities/FriendlyName.h"
-#include "art/Utilities/uniform_type_name.h"
+#include "canvas/Utilities/Exception.h"
+#include "canvas/Utilities/FriendlyName.h"
+#include "canvas/Utilities/uniform_type_name.h"
 #include "tbb/concurrent_unordered_map.h"
 #include "TClass.h"
 #include <cstddef>

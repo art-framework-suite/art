@@ -1,4 +1,4 @@
-#include "art/Persistency/Provenance/FileIndex.h"
+#include "canvas/Persistency/Provenance/FileIndex.h"
 
 #include "cetlib/container_algorithms.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"

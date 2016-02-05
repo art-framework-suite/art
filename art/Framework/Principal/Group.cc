@@ -4,10 +4,10 @@
 #include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Principal/OccurrenceTraits.h"
 #include "art/Framework/Principal/Worker.h"
-#include "art/Persistency/Provenance/BranchKey.h"
+#include "canvas/Persistency/Provenance/BranchKey.h"
 #include "art/Persistency/Provenance/ProductMetaData.h"
-#include "art/Persistency/Provenance/ProductStatus.h"
-#include "art/Persistency/Provenance/TypeTools.h"
+#include "canvas/Persistency/Provenance/ProductStatus.h"
+#include "canvas/Persistency/Provenance/TypeTools.h"
 #include "cetlib/demangle.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 

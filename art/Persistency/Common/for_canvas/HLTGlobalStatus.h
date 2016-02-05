@@ -17,8 +17,8 @@
  *
  */
 
-#include "art/Persistency/Common/HLTenums.h"
-#include "art/Persistency/Common/HLTPathStatus.h"
+#include "canvas/Persistency/Common/HLTenums.h"
+#include "canvas/Persistency/Common/HLTPathStatus.h"
 #include <vector>
 #include <ostream>
 

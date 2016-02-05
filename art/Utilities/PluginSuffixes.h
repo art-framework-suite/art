@@ -51,7 +51,7 @@
   KK, October 2015
 */
 
-#include "art/Utilities/Exception.h"
+#include "canvas/Utilities/Exception.h"
 
 #include <map>
 #include <ostream>

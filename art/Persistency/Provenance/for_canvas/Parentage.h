@@ -11,8 +11,8 @@ Parents: The EDProducts used as input by the creator.
 
 ----------------------------------------------------------------------*/
 
-#include "art/Persistency/Provenance/BranchID.h"
-#include "art/Persistency/Provenance/ParentageID.h"
+#include "canvas/Persistency/Provenance/BranchID.h"
+#include "canvas/Persistency/Provenance/ParentageID.h"
 #include <iosfwd>
 #include <vector>
 

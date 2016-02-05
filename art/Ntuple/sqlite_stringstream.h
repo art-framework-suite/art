@@ -35,7 +35,7 @@
 #include <string>
 #include <type_traits>
 
-#include "art/Utilities/Exception.h"
+#include "canvas/Utilities/Exception.h"
 
 namespace sqlite {
 

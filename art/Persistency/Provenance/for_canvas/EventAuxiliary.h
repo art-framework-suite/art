@@ -3,9 +3,9 @@
 
 #include <iosfwd>
 
-#include "art/Persistency/Provenance/ProcessHistoryID.h"
-#include "art/Persistency/Provenance/EventID.h"
-#include "art/Persistency/Provenance/Timestamp.h"
+#include "canvas/Persistency/Provenance/ProcessHistoryID.h"
+#include "canvas/Persistency/Provenance/EventID.h"
+#include "canvas/Persistency/Provenance/Timestamp.h"
 
 // Auxiliary event data that is persistent
 

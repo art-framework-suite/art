@@ -5,7 +5,7 @@
 #include "art/Persistency/Common/MapOfVectors.h"
 #undef private
 
-#include "art/Utilities/Exception.h"
+#include "canvas/Utilities/Exception.h"
 
 #include <algorithm>
 #include <vector>

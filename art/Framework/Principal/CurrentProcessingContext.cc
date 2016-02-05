@@ -1,6 +1,6 @@
 #include "art/Framework/Principal/CurrentProcessingContext.h"
 
-#include "art/Persistency/Provenance/ModuleDescription.h"
+#include "canvas/Persistency/Provenance/ModuleDescription.h"
 #include <cassert>
 
 namespace art {

@@ -9,12 +9,12 @@ This description also applies to every product instance on the branch.
 
 ----------------------------------------------------------------------*/
 
-#include "art/Persistency/Provenance/BranchID.h"
-#include "art/Persistency/Provenance/BranchType.h"
-#include "art/Persistency/Provenance/ProcessConfigurationID.h"
-#include "art/Persistency/Provenance/ProvenanceFwd.h"
-#include "art/Persistency/Provenance/Transient.h"
-#include "art/Persistency/Provenance/TypeLabel.h"
+#include "canvas/Persistency/Provenance/BranchID.h"
+#include "canvas/Persistency/Provenance/BranchType.h"
+#include "canvas/Persistency/Provenance/ProcessConfigurationID.h"
+#include "canvas/Persistency/Provenance/ProvenanceFwd.h"
+#include "canvas/Persistency/Provenance/Transient.h"
+#include "canvas/Persistency/Provenance/TypeLabel.h"
 #include "fhiclcpp/ParameterSetID.h"
 
 #include <iosfwd>

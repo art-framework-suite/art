@@ -79,10 +79,10 @@
 //
 ////////////////////////////////////////////////////////////////////////
 
-#include "art/Persistency/Common/Ptr.h"
-#include "art/Persistency/Common/Wrapper.h"
-#include "art/Utilities/Exception.h"
-#include "art/Utilities/TypeID.h"
+#include "canvas/Persistency/Common/Ptr.h"
+#include "canvas/Persistency/Common/Wrapper.h"
+#include "canvas/Utilities/Exception.h"
+#include "canvas/Utilities/TypeID.h"
 #include "cetlib/demangle.h"
 
 #include "TBuffer.h"

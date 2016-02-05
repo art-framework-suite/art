@@ -6,7 +6,7 @@
 
 
 // framework support:
-#include "art/Persistency/Provenance/BranchType.h"
+#include "canvas/Persistency/Provenance/BranchType.h"
 
 #include <vector>
 

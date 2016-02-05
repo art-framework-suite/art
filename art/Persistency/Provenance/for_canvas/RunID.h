@@ -107,7 +107,7 @@ isFlush() const
   return (run_ == FLUSH_RUN_NUMBER());
 }
 
-#include "art/Utilities/Exception.h"
+#include "canvas/Utilities/Exception.h"
 
 inline
 art::RunID
@@ -182,7 +182,7 @@ operator!=(RunID const & other) const
   return !(*this == other);
 }
 
-#include "art/Persistency/Provenance/SortInvalidFirst.h"
+#include "canvas/Persistency/Provenance/SortInvalidFirst.h"
 
 inline
 bool

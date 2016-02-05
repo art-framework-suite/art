@@ -4,7 +4,7 @@
  *
  */
 
-#include "art/Persistency/Common/Wrapper.h"
+#include "canvas/Persistency/Common/Wrapper.h"
 
 #include <cassert>
 #include <iostream>

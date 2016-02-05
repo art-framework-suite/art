@@ -1,9 +1,9 @@
 #ifndef art_Persistency_Provenance_ProcessHistory_h
 #define art_Persistency_Provenance_ProcessHistory_h
 
-#include "art/Persistency/Provenance/ProcessConfiguration.h"
-#include "art/Persistency/Provenance/ProcessHistoryID.h"
-#include "art/Persistency/Provenance/Transient.h"
+#include "canvas/Persistency/Provenance/ProcessConfiguration.h"
+#include "canvas/Persistency/Provenance/ProcessHistoryID.h"
+#include "canvas/Persistency/Provenance/Transient.h"
 
 #include <iosfwd>
 #include <map>

@@ -3,9 +3,9 @@
 
 #include "art/Framework/Principal/AssnsGroup.h"
 #include "art/Framework/Principal/Group.h"
-#include "art/Persistency/Common/Assns.h"
-#include "art/Persistency/Provenance/TypeTools.h"
-#include "art/Utilities/WrappedClassName.h"
+#include "canvas/Persistency/Common/Assns.h"
+#include "canvas/Persistency/Provenance/TypeTools.h"
+#include "canvas/Utilities/WrappedClassName.h"
 #include "cetlib/demangle.h"
 #include "TClass.h"
 

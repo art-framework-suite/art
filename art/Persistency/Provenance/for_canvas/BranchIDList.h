@@ -12,7 +12,7 @@ BranchIDLists:
 ----------------------------------------------------------------------*/
 
 #include <vector>
-#include "art/Persistency/Provenance/BranchID.h"
+#include "canvas/Persistency/Provenance/BranchID.h"
 
 namespace art {
   typedef std::vector<BranchID::value_type> BranchIDList;

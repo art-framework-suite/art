@@ -1,4 +1,4 @@
-#include "art/Persistency/Provenance/ModuleDescription.h"
+#include "canvas/Persistency/Provenance/ModuleDescription.h"
 #include "fhiclcpp/ParameterSet.h"
 
 #include <cassert>

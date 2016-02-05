@@ -39,7 +39,7 @@
 
 #include "art/Utilities/BasicHelperMacros.h"
 #include "art/Utilities/BasicPluginMacros.h"
-#include "art/Persistency/Provenance/Timestamp.h"
+#include "canvas/Persistency/Provenance/Timestamp.h"
 #include "cetlib/PluginTypeDeducer.h"
 #include "fhiclcpp/ParameterSet.h"
 

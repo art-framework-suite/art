@@ -2,8 +2,8 @@
 #define art_Persistency_Provenance_TypeLabel_h
 
 #include <string>
-#include "art/Utilities/TypeID.h"
-#include "art/Persistency/Provenance/BranchType.h"
+#include "canvas/Utilities/TypeID.h"
+#include "canvas/Persistency/Provenance/BranchType.h"
 
 namespace art
 {

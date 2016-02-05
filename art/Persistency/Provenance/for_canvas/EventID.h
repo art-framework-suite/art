@@ -4,9 +4,9 @@
 // An EventID labels an unique readout of the data acquisition system,
 // which we call an "event".
 
-#include "art/Persistency/Provenance/RunID.h"
-#include "art/Persistency/Provenance/SubRunID.h"
-#include "art/Utilities/Exception.h"
+#include "canvas/Persistency/Provenance/RunID.h"
+#include "canvas/Persistency/Provenance/SubRunID.h"
+#include "canvas/Utilities/Exception.h"
 
 #include <cstdint>
 #include <iosfwd>
@@ -322,7 +322,7 @@ operator!=(EventID const & other) const
   return !(*this == other);
 }
 
-#include "art/Persistency/Provenance/SortInvalidFirst.h"
+#include "canvas/Persistency/Provenance/SortInvalidFirst.h"
 
 inline
 bool

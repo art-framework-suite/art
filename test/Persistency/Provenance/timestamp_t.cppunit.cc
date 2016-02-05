@@ -9,7 +9,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-#include "art/Persistency/Provenance/Timestamp.h"
+#include "canvas/Persistency/Provenance/Timestamp.h"
 
 using namespace art;
 

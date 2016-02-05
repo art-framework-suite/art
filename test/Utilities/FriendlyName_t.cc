@@ -1,7 +1,7 @@
 #define BOOST_TEST_MODULE ( FriendlyName_t )
 #include "boost/test/auto_unit_test.hpp"
 
-#include "art/Utilities/FriendlyName.h"
+#include "canvas/Utilities/FriendlyName.h"
 
 #include <map>
 #include <string>

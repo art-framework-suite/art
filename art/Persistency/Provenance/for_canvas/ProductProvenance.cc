@@ -1,6 +1,6 @@
-#include "art/Persistency/Provenance/ProductProvenance.h"
+#include "canvas/Persistency/Provenance/ProductProvenance.h"
 
-#include "art/Persistency/Provenance/ParentageRegistry.h"
+#include "canvas/Persistency/Provenance/ParentageRegistry.h"
 #include <cassert>
 #include <ostream>
 

@@ -4,9 +4,9 @@
 #include <iosfwd>
 #include <set>
 
-#include "art/Persistency/Provenance/ProcessHistoryID.h"
-#include "art/Persistency/Provenance/RunID.h"
-#include "art/Persistency/Provenance/Timestamp.h"
+#include "canvas/Persistency/Provenance/ProcessHistoryID.h"
+#include "canvas/Persistency/Provenance/RunID.h"
+#include "canvas/Persistency/Provenance/Timestamp.h"
 
 // Auxiliary run data that is persistent
 

@@ -1,6 +1,6 @@
 link_libraries(
   art_Framework_Services_Registry
-  art_Utilities
+  art_Utilities canvas_Utilities
   art_Framework_Core
   ${Boost_FILESYSTEM_LIBRARY}
   ${ROOT_CINTEX}

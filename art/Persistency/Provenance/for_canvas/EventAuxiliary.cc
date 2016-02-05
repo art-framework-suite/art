@@ -1,4 +1,4 @@
-#include "art/Persistency/Provenance/EventAuxiliary.h"
+#include "canvas/Persistency/Provenance/EventAuxiliary.h"
 #include <ostream>
 
 void

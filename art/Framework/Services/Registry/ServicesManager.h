@@ -12,8 +12,8 @@
 #include "art/Framework/Services/Registry/detail/ServiceHelper.h"
 #include "art/Framework/Services/Registry/detail/ServiceStack.h"
 #include "art/Framework/Services/Registry/detail/ServiceWrapper.h"
-#include "art/Utilities/Exception.h"
-#include "art/Utilities/TypeID.h"
+#include "canvas/Utilities/Exception.h"
+#include "canvas/Utilities/TypeID.h"
 #include "cetlib/demangle.h"
 
 #include <map>

@@ -1,7 +1,7 @@
 #define BOOST_TEST_MODULE (uniform_type_name_test)
 #include "boost/test/auto_unit_test.hpp"
 
-#include "art/Utilities/uniform_type_name.h"
+#include "canvas/Utilities/uniform_type_name.h"
 
 #include <map>
 #include <string>

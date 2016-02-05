@@ -1,4 +1,4 @@
-#include "art/Persistency/Provenance/SubRunAuxiliary.h"
+#include "canvas/Persistency/Provenance/SubRunAuxiliary.h"
 #include <ostream>
 
 void

@@ -39,13 +39,13 @@
 //    detected.
 //
 ////////////////////////////////////////////////////////////////////////
-#include "art/Persistency/Common/EDProduct.h"
-#include "art/Persistency/Common/EDProductGetter.h"
-#include "art/Persistency/Common/GetProduct.h"
-#include "art/Persistency/Common/RefCore.h"
-#include "art/Persistency/Common/traits.h"
-#include "art/Utilities/Exception.h"
-#include "art/Utilities/ensurePointer.h"
+#include "canvas/Persistency/Common/EDProduct.h"
+#include "canvas/Persistency/Common/EDProductGetter.h"
+#include "canvas/Persistency/Common/GetProduct.h"
+#include "canvas/Persistency/Common/RefCore.h"
+#include "canvas/Persistency/Common/traits.h"
+#include "canvas/Utilities/Exception.h"
+#include "canvas/Utilities/ensurePointer.h"
 #include "cetlib/demangle.h"
 
 #include <cassert>

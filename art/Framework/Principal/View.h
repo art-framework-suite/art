@@ -18,7 +18,7 @@
 
 
 #include "art/Framework/Principal/fwd.h"
-#include "art/Persistency/Common/PtrVector.h"
+#include "canvas/Persistency/Common/PtrVector.h"
 #include "cetlib/container_algorithms.h"
 
 template <class T>

@@ -1,6 +1,6 @@
 #ifndef art_Persistency_Provenance_ParameterSetMap_h
 #define art_Persistency_Provenance_ParameterSetMap_h
-#include "art/Persistency/Provenance/ParameterSetBlob.h"
+#include "canvas/Persistency/Provenance/ParameterSetBlob.h"
 #include "fhiclcpp/ParameterSetID.h"
 #include <map>
 

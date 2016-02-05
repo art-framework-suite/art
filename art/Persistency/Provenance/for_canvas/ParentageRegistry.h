@@ -7,8 +7,8 @@
 //
 // ======================================================================
 
-#include "art/Persistency/Provenance/Parentage.h"
-#include "art/Persistency/Provenance/ParentageID.h"
+#include "canvas/Persistency/Provenance/Parentage.h"
+#include "canvas/Persistency/Provenance/ParentageID.h"
 #include "cetlib/registry_via_id.h"
 
 // ----------------------------------------------------------------------

@@ -6,9 +6,9 @@
 //
 // ======================================================================
 
-#include "art/Persistency/Common/RefCore.h"
+#include "canvas/Persistency/Common/RefCore.h"
 
-#include "art/Utilities/Exception.h"
+#include "canvas/Utilities/Exception.h"
 #include <cassert>
 
 bool

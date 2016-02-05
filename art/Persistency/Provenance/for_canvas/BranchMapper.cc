@@ -4,7 +4,7 @@
 //
 // ======================================================================
 
-#include "art/Persistency/Provenance/BranchMapper.h"
+#include "canvas/Persistency/Provenance/BranchMapper.h"
 
 using art::BranchMapper;
 

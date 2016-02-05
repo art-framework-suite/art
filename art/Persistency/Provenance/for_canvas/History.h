@@ -11,9 +11,9 @@
 //
 //----------------------------------------------------------------------
 
-#include "art/Persistency/Provenance/BranchListIndex.h"
-#include "art/Persistency/Provenance/EventSelectionID.h"
-#include "art/Persistency/Provenance/ProcessHistoryID.h"
+#include "canvas/Persistency/Provenance/BranchListIndex.h"
+#include "canvas/Persistency/Provenance/EventSelectionID.h"
+#include "canvas/Persistency/Provenance/ProcessHistoryID.h"
 
 namespace art {
   class History {

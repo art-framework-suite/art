@@ -1,8 +1,8 @@
 #include "art/Framework/Core/InputSourceFactory.h"
 
 #include "cetlib/detail/wrapLibraryManagerException.h"
-#include "art/Utilities/DebugMacros.h"
-#include "art/Utilities/Exception.h"
+#include "canvas/Utilities/DebugMacros.h"
+#include "canvas/Utilities/Exception.h"
 #include "art/Utilities/PluginSuffixes.h"
 #include "art/Version/GetReleaseVersion.h"
 #include "fhiclcpp/ParameterSet.h"

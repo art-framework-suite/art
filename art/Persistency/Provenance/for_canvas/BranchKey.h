@@ -9,7 +9,7 @@ is determined entirely from the BranchKey.
 
 ----------------------------------------------------------------------*/
 
-#include "art/Persistency/Provenance/BranchType.h"
+#include "canvas/Persistency/Provenance/BranchType.h"
 
 #include <iosfwd>
 #include <string>

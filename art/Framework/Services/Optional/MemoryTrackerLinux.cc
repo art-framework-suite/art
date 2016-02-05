@@ -8,7 +8,7 @@
 #include "art/Framework/Services/Optional/detail/LinuxMallInfo.h"
 #include "art/Ntuple/Ntuple.h"
 #include "art/Ntuple/sqlite_helpers.h"
-#include "art/Utilities/Exception.h"
+#include "canvas/Utilities/Exception.h"
 #include "boost/format.hpp"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 

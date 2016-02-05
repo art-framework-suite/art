@@ -1,6 +1,6 @@
-#include "art/Persistency/Common/PtrVector.h"
+#include "canvas/Persistency/Common/PtrVector.h"
 #include "art/Persistency/Common/TestHandle.h"
-#include "art/Persistency/Common/Wrapper.h"
+#include "canvas/Persistency/Common/Wrapper.h"
 
 #include "test/Persistency/Common/IntValues.h"
 #include <cppunit/extensions/HelperMacros.h>

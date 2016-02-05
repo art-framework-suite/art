@@ -4,7 +4,7 @@
 //
 // ======================================================================
 
-#include "art/Persistency/Common/RNGsnapshot.h"
+#include "canvas/Persistency/Common/RNGsnapshot.h"
 #include "cetlib/container_algorithms.h"
 
 using art::RNGsnapshot;

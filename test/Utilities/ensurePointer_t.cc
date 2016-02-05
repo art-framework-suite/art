@@ -1,7 +1,7 @@
 #define BOOST_TEST_MODULE(ensurePointer_t)
 #include "boost/test/auto_unit_test.hpp"
 
-#include "art/Utilities/ensurePointer.h"
+#include "canvas/Utilities/ensurePointer.h"
 
 #include <vector>
 

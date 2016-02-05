@@ -7,7 +7,7 @@ BranchChildren: Dependency information between branches.
 
 ----------------------------------------------------------------------*/
 
-#include "art/Persistency/Provenance/BranchID.h"
+#include "canvas/Persistency/Provenance/BranchID.h"
 
 #include <map>
 #include <set>

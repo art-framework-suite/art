@@ -29,7 +29,7 @@ the worker is reset().
 #include "art/Framework/Principal/CurrentProcessingContext.h"
 #include "art/Framework/Principal/RunStopwatch.h"
 #include "art/Framework/Principal/fwd.h"
-#include "art/Persistency/Provenance/ModuleDescription.h"
+#include "canvas/Persistency/Provenance/ModuleDescription.h"
 #include "cetlib/exception.h"
 #include "cetlib/exempt_ptr.h"
 #include "fhiclcpp/ParameterSet.h"

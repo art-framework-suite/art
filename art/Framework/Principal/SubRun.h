@@ -12,10 +12,10 @@
 
 #include "art/Framework/Principal/DataViewImpl.h"
 #include "art/Framework/Principal/fwd.h"
-#include "art/Persistency/Provenance/RunID.h"
-#include "art/Persistency/Provenance/SubRunAuxiliary.h"
-#include "art/Persistency/Provenance/SubRunID.h"
-#include "art/Utilities/TypeID.h"
+#include "canvas/Persistency/Provenance/RunID.h"
+#include "canvas/Persistency/Provenance/SubRunAuxiliary.h"
+#include "canvas/Persistency/Provenance/SubRunID.h"
+#include "canvas/Utilities/TypeID.h"
 
 #include <memory>
 #include <utility>

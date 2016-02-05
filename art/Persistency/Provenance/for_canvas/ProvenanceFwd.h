@@ -34,14 +34,14 @@ namespace art {
 
 // ----------------------------------------------------------------------
 
-#include "art/Persistency/Provenance/BranchIDList.h"
-#include "art/Persistency/Provenance/BranchListIndex.h"
-#include "art/Persistency/Provenance/ParentageID.h"
-#include "art/Persistency/Provenance/PassID.h"
-#include "art/Persistency/Provenance/ProcessConfigurationID.h"
-#include "art/Persistency/Provenance/ProcessHistoryID.h"
-#include "art/Persistency/Provenance/ProductStatus.h"
-#include "art/Persistency/Provenance/ReleaseVersion.h"
+#include "canvas/Persistency/Provenance/BranchIDList.h"
+#include "canvas/Persistency/Provenance/BranchListIndex.h"
+#include "canvas/Persistency/Provenance/ParentageID.h"
+#include "canvas/Persistency/Provenance/PassID.h"
+#include "canvas/Persistency/Provenance/ProcessConfigurationID.h"
+#include "canvas/Persistency/Provenance/ProcessHistoryID.h"
+#include "canvas/Persistency/Provenance/ProductStatus.h"
+#include "canvas/Persistency/Provenance/ReleaseVersion.h"
 
 // ======================================================================
 

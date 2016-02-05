@@ -1,4 +1,4 @@
-#include "art/Persistency/Common/Wrapper.h"
+#include "canvas/Persistency/Common/Wrapper.h"
 
 #include "CLHEP/Matrix/GenMatrix.h"
 #include "CLHEP/Matrix/Matrix.h"

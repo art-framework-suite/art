@@ -5,9 +5,9 @@
 //
 // ======================================================================
 
-#include "art/Persistency/Common/EDProduct.h"
+#include "canvas/Persistency/Common/EDProduct.h"
 
-#include "art/Persistency/Provenance/ProductID.h"
+#include "canvas/Persistency/Provenance/ProductID.h"
 
 using art::EDProduct;
 

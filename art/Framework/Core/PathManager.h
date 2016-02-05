@@ -19,7 +19,7 @@
 #include "art/Framework/Core/detail/ModuleInPathInfo.h"
 #include "art/Framework/Principal/Actions.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
-#include "art/Persistency/Common/HLTGlobalStatus.h"
+#include "canvas/Persistency/Common/HLTGlobalStatus.h"
 #include "art/Persistency/Provenance/MasterProductRegistry.h"
 #include "art/Utilities/ScheduleID.h"
 #include "fhiclcpp/ParameterSet.h"
