@@ -35,7 +35,7 @@ EventPrincipal(EventAuxiliary const& aux, ProcessConfiguration const& pc,
   , history_(history)
   , branchToProductIDHelper_()
 {
-  productReader().setGroupFinder(cet::exempt_ptr<EventPrincipal const>(this));
+  productReader().setGroupFinder(cet::exempt_ptr<EDProductGetterFinder const>(this));
   if (ProductMetaData::instance().productProduced(InEvent)) {
     addToProcessHistory();
     // Add index into BranchIDListRegistry for products produced this process

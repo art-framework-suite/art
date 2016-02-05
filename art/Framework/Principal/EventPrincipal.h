@@ -177,6 +177,10 @@ private:
   // because a group does not exist until it is placed in the event.
   EDProductGetter const* deferredGetter_(ProductID const& pid) const;
 
+  virtual EDProductGetter const* getEDProductGetterImpl(ProductID const& pid) const override {
+    return getGroup(pid).result().get();
+  }
+
 private:
 
   mutable

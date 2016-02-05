@@ -40,7 +40,7 @@
 
 namespace art {
 
-class Principal {
+class Principal : public EDProductGetterFinder {
 
 public: // TYPES
 
@@ -316,6 +316,10 @@ private: // MEMBER FUNCTIONS
                        SelectorBase const& selector,
                        std::vector<GroupQueryResult>& results,
                        TypeID wanted_wrapper) const;
+
+  virtual EDProductGetter const* getEDProductGetterImpl(ProductID const&) const override {
+    return nullptr;
+  }
 
 private: // MEMBER DATA
 
