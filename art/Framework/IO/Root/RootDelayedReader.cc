@@ -38,7 +38,7 @@ RootDelayedReader(input::EntryNumber const& entryNumber,
 
 void
 RootDelayedReader::
-setGroupFinder_(cet::exempt_ptr<EventPrincipal const> groupFinder)
+setGroupFinder_(cet::exempt_ptr<EDProductGetterFinder const> groupFinder)
 {
   groupFinder_ = groupFinder;
 }
