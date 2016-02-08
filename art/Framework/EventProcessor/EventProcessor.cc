@@ -36,6 +36,7 @@
 #include "fhiclcpp/types/detail/validationException.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
+#include <cassert>
 #include <exception>
 #include <iomanip>
 #include <iostream>
@@ -83,8 +84,8 @@ namespace {
     ParameterSet defaultEmptySource;
     setupAsDefaultEmptySource(defaultEmptySource);
     // find single source
-    bool sourceSpecified = false;
-    ParameterSet main_input = defaultEmptySource;
+    bool sourceSpecified {false};
+    ParameterSet main_input {defaultEmptySource};
     try {
       if (!params.get_if_present("source", main_input)) {
         mf::LogInfo("EventProcessorSourceConfig")
@@ -102,7 +103,7 @@ namespace {
                                                           art::getReleaseVersion(),
                                                           art::getPassID()));
       sourceSpecified = true;
-      art::InputSourceDescription isd(md, preg, areg);
+      art::InputSourceDescription isd{md, preg, areg};
       try {
         return std::unique_ptr<art::InputSource>(art::InputSourceFactory::make(main_input, isd));
       }
@@ -113,7 +114,7 @@ namespace {
           << "\n\n" << e.what();
       }
     }
-    catch (art::Exception const & x) {
+    catch (art::Exception const& x) {
       if (sourceSpecified == false &&
           art::errors::Configuration == x.categoryCode()) {
         throw art::Exception(art::errors::Configuration, "FailedInputSource")
@@ -124,7 +125,7 @@ namespace {
         throw;
       }
     }
-    catch (cet::exception const & x) {
+    catch (cet::exception const& x) {
       throw art::Exception(art::errors::Configuration, "FailedInputSource")
         << "Configuration of main input source has failed\n"
         << x;
@@ -136,8 +137,7 @@ namespace {
 
 art::EventProcessor::EventProcessor(ParameterSet const & pset)
   :
-  helper_(pset),
-  act_table_(helper_.schedulerPS()),
+  act_table_{pset.get<ParameterSet>("services.scheduler")},
   actReg_(),
   mfStatusUpdater_(actReg_),
   preg_(),
@@ -155,9 +155,9 @@ art::EventProcessor::EventProcessor(ParameterSet const & pset)
   sm_evp_(),
   shouldWeStop_{false},
   stateMachineWasInErrorState_(false),
-  fileMode_(helper_.schedulerPS().get<std::string>("fileMode", "")),
-  handleEmptyRuns_(helper_.schedulerPS().get<bool>("handleEmptyRuns", true)),
-  handleEmptySubRuns_(helper_.schedulerPS().get<bool>("handleEmptySubRuns", true)),
+  // need to handle fileMode
+  handleEmptyRuns_{pset.get<bool>("services.scheduler.handleEmptyRuns", true)},
+  handleEmptySubRuns_{pset.get<bool>("services.scheduler.handleEmptySubRuns", true)},
   exceptionMessageFiles_(),
   exceptionMessageRuns_(),
   exceptionMessageSubRuns_(),
@@ -166,7 +166,7 @@ art::EventProcessor::EventProcessor(ParameterSet const & pset)
   servicesActivate_(serviceToken_);
   serviceToken_.forceCreation();
 
-  std::string const processName = pset.get<std::string>("process_name");
+  std::string const processName {pset.get<std::string>("process_name")};
 
   // Services
   // System service FileCatalogMetadata needs to know about the process name.
@@ -222,7 +222,7 @@ art::EventProcessor::beginJob()
       " the beginJob of the 'source'\n";
     throw;
   }
-  catch (std::exception & e) {
+  catch (std::exception const& e) {
     mf::LogError("BeginJob") << "A std::exception happened while processing"
                              " the beginJob of the 'source'\n";
     throw;
@@ -246,12 +246,12 @@ art::EventProcessor::endJob()
   cet::exception_collector c;
   // Make the services available
   ServiceRegistry::Operate op {serviceToken_};
-  c.call([this](){ this->terminateMachine_(); });
-  c.call([this](){ schedule_.get()->endJob(); });
-  c.call([this](){ endPathExecutor_.get()->endJob(); });
+  c.call([this](){ terminateMachine_(); });
+  c.call([this](){ schedule_->endJob(); });
+  c.call([this](){ endPathExecutor_->endJob(); });
   bool summarize = ServiceHandle<TriggerNamesService>()->wantSummary();
   c.call([this,summarize](){ detail::writeSummary(pathManager_, summarize); });
-  c.call([this](){ input_.get()->doEndJob(); });
+  c.call([this](){ input_->doEndJob(); });
   c.call([this](){ actReg_.sPostEndJob.invoke(); });
 }
 
@@ -299,11 +299,11 @@ initServices_(ParameterSet const & top_pset,
 
   // Deal with possible configuration for system service requiring
   // special construction:
-  auto pathSelection = services.get<ParameterSet>("PathSelection", {});
+  auto const pathSelection = services.get<ParameterSet>("PathSelection", {});
   services.erase("PathSelection");
 
   // Create the service director and all user-configured services.
-  ServiceDirector director(std::move(services), areg, token);
+  ServiceDirector director{std::move(services), areg, token};
 
   // Services requiring special construction.
   director.addSystemService<CurrentModule>(areg);
@@ -320,11 +320,9 @@ void
 art::EventProcessor::
 initSchedules_(ParameterSet const & pset)
 {
-
   // Initialize TBB with desired number of threads.
-  int num_threads =
-    helper_.servicesPS().get<int>("num_threads",
-                                  tbb::task_scheduler_init::default_num_threads());
+  int const num_threads = pset.get<int>("services.num_threads",
+                                        tbb::task_scheduler_init::default_num_threads());
   tbbManager_.initialize(num_threads);
 
   schedule_ = std::make_unique<Schedule>(ScheduleID::first(),
@@ -368,25 +366,14 @@ art::EventProcessor::runToCompletion()
   stateMachineWasInErrorState_ = false;
   // Make the services available
   ServiceRegistry::Operate op {serviceToken_};
-  if (machine_.get() == 0) {
-    statemachine::FileMode fileMode [[gnu::unused]];
-    if (fileMode_.empty()) { fileMode = statemachine::MERGE; }
-    else if (fileMode_ == std::string("MERGE")) { fileMode = statemachine::MERGE; }
-    else if (fileMode_ == std::string("NOMERGE")) { fileMode = statemachine::NOMERGE; }
-    else {
-      throw art::Exception(errors::Configuration, "Illegal fileMode parameter value: ")
-          << fileMode_ << ".\n"
-          << "Legal values are 'MERGE', 'NOMERGE'.\n";
-    }
-    machine_ = std::make_unique<statemachine::Machine>( this,
-                                                        handleEmptyRuns_,
-                                                        handleEmptySubRuns_ );
-    machine_->initiate();
-  }
+  machine_ = std::make_unique<statemachine::Machine>( this,
+                                                      handleEmptyRuns_,
+                                                      handleEmptySubRuns_ );
+  machine_->initiate();
+
   try {
-    input::ItemType itemType;
     while (true) {
-      itemType = input_->nextItemType();
+      auto const itemType = input_->nextItemType();
       FDEBUG(1) << "itemType = " << itemType << "\n";
       // Look for a shutdown signal
       {
@@ -524,7 +511,6 @@ art::EventProcessor::runToCompletion()
   }
   if (machine_->terminated()) {
     FDEBUG(1) << "The state machine reports it has been terminated\n";
-    machine_.reset();
   }
   if (stateMachineWasInErrorState_) {
     throw cet::exception("BadState")
@@ -876,17 +862,12 @@ art::EventProcessor::servicesDeactivate_()
 void
 art::EventProcessor::terminateMachine_()
 {
-  if (machine_.get() != 0) {
-    if (!machine_->terminated()) {
-      machine_->process_event(statemachine::Stop());
-    }
-    else {
-      FDEBUG(1) << "EventProcess::terminateMachine_: The state machine was already terminated \n";
-    }
-    if (machine_->terminated()) {
-      FDEBUG(1) << "The state machine reports it has been terminated (3)\n";
-    }
-    machine_.reset();
+  assert(machine_);
+  if (!machine_->terminated()) {
+    machine_->process_event(statemachine::Stop());
+  }
+  else {
+    FDEBUG(1) << "EventProcessor::terminateMachine_: The state machine was already terminated \n";
   }
 }
 

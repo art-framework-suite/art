@@ -14,6 +14,7 @@
 #include "canvas/Utilities/Exception.h"
 
 #include <cassert>
+#include <iostream>
 #include <memory>
 #include <set>
 

@@ -1,0 +1,18 @@
+physics: {
+   e1: [o1]
+}
+
+outputs: {
+
+   o1: {
+      module_type: RootOutput
+      fileName: "out_%#.root"
+      fileSwitch: {
+         force: true
+         boundary: InputFile
+      }
+   }
+
+}
+
+process_name: switchOutputOnNewInput

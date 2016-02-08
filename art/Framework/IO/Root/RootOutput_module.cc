@@ -221,24 +221,21 @@ RootOutput(Parameters const & config)
   , fileSwitchBoundary_{Boundary::value(config().switchConfig().boundary())}
   , rpm_{config.get_PSet()}
 {
-  mf::LogInfo msg("FastCloning");
-  msg << "Initial fast cloning configuration ";
-  if (config().fastCloning(fastCloning_)) {
-    msg << "(user-set): ";
-  }
-  else {
-    msg << "(from default): ";
-  }
-  msg << std::boolalpha
-      << fastCloning_;
+  mf::LogInfo("FastCloning") << "Initial fast cloning configuration "
+                             << (config().fastCloning(fastCloning_) ? "(user-set): " : "(from default): ")
+                             << std::boolalpha << fastCloning_;
   if (fastCloning_ && !wantAllEvents()) {
     fastCloning_ = false;
-    mf::LogWarning("FastCloning")
-        << "Fast cloning deactivated due to presence of "
-        "event selection configuration.";
+    mf::LogWarning("FastCloning") << "Fast cloning deactivated due to presence of\n"
+                                     "event selection configuration.";
+  }
+  if (fastCloning_ && fileSwitchBoundary_ == Boundary::Event) {
+    fastCloning_ = false;
+    mf::LogWarning("FastCloning") << "Fast cloning deactivated due to request to allow\n"
+                                     "output file switching at an Event boundary.";
   }
 
-  bool const dropAllEventsSet = config().dropAllEvents(dropAllEvents_);
+  bool const dropAllEventsSet { config().dropAllEvents(dropAllEvents_) };
 
   if (dropAllSubRuns_) {
     if (dropAllEventsSet && !dropAllEvents_) {

@@ -110,6 +110,9 @@ namespace statemachine {
       sc::transition<InputFile, HandleFiles>,
       sc::transition<SwitchOutputFiles, Error>,
       sc::transition<Stop, Stopping> >;
+
+  private:
+    art::IEventProcessor& ep_;
   };
 
   class FirstFile;

@@ -43,50 +43,6 @@ namespace {
     }
   };
 
-  class EventProcessorWithSentry {
-  public:
-    explicit EventProcessorWithSentry() : ep_(), callEndJob_(false) { }
-    explicit EventProcessorWithSentry(std::unique_ptr<art::EventProcessor> && ep) :
-      ep_(std::move(ep)),
-      callEndJob_(false) { }
-    EventProcessorWithSentry(EventProcessorWithSentry &&) = default;
-    EventProcessorWithSentry &
-    operator =(EventProcessorWithSentry &&) & = default;
-
-    ~EventProcessorWithSentry() {
-      if (callEndJob_ && ep_.get()) {
-        try {
-          ep_->endJob();
-        }
-        catch (cet::exception & e) {
-          //art::printArtException(e, kProgramName);
-        }
-        catch (std::bad_alloc & e) {
-          //art::printBadAllocException(kProgramName);
-        }
-        catch (std::exception & e) {
-          //art::printStdException(e, kProgramName);
-        }
-        catch (...) {
-          //art::printUnknownException(kProgramName);
-        }
-      }
-    }
-    void on() {
-      callEndJob_ = true;
-    }
-    void off() {
-      callEndJob_ = false;
-    }
-
-    art::EventProcessor * operator->() {
-      return ep_.get();
-    }
-  private:
-    std::unique_ptr<art::EventProcessor> ep_;
-    bool callEndJob_;
-  }; // EventProcessorWithSentry
-
 } // namespace
 
 int art::run_art(int argc,
@@ -274,26 +230,16 @@ int art::run_art_common_(fhicl::ParameterSet main_pset, art::detail::DebugOutput
   // most of them. Have to see how the module factory interacts
   // with the current module facility.
   // processDesc->addServices(defaultServices, forcedServices);
-  //
-  // Now create the EventProcessor
-  //
-  EventProcessorWithSentry proc;
-  int rc = 0;
+  int rc {0};
   try {
-    auto procP = std::make_unique<art::EventProcessor>(main_pset);
-    EventProcessorWithSentry procTmp(std::move(procP));
-    proc = std::move(procTmp);
-    proc->beginJob();
-    proc.on();
-    if (proc->runToCompletion() == EventProcessor::epSignal) {
+    EventProcessor ep {main_pset};
+    if (ep.runToCompletion() == EventProcessor::epSignal) {
       std::cerr << "Art has handled signal "
                 << art::shutdown_flag
                 << ".\n";
       if ( scheduler_pset.get<bool>("errorOnSIGINT") )
         rc = 128 + art::shutdown_flag;
     }
-    proc.off();
-    proc->endJob();
   }
   catch (art::Exception & e) {
     rc = e.returnCode();

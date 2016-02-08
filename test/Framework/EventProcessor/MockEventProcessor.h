@@ -46,6 +46,9 @@ namespace art
 
     void doErrorStuff() override;
 
+    void beginJob() override;
+    void endJob() override;
+
     void beginRun(RunID run) override;
     void endRun(RunID run) override;
 

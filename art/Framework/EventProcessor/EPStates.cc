@@ -26,7 +26,12 @@ namespace statemachine {
   bool Machine::handleEmptyRuns() const { return handleEmptyRuns_; }
   bool Machine::handleEmptySubRuns() const { return handleEmptySubRuns_; }
 
-  Starting::Starting(my_context ctx) : my_base{ctx} { }
+  Starting::Starting(my_context ctx) :
+    my_base{ctx},
+    ep_{context<Machine>().ep()}
+  {
+    ep_.beginJob();
+  }
 
   Starting::~Starting(){}
 
@@ -144,6 +149,7 @@ namespace statemachine {
     ep_{context<Machine>().ep()}
   {
     post_event(Stop());
+    ep_.endJob();
   }
 
   sc::result Stopping::react(Stop const &)

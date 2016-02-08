@@ -64,6 +64,9 @@ namespace art
 
     virtual void doErrorStuff() = 0;
 
+    virtual void beginJob() = 0;
+    virtual void endJob() = 0;
+
     virtual void beginRun(RunID) = 0;
     virtual void endRun(RunID) = 0;
 

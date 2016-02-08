@@ -145,6 +145,14 @@ namespace art {
     output_ << "\tdoErrorStuff\n";
   }
 
+  void MockEventProcessor::beginJob() {
+    output_ << "\tbeginJob\n";
+  }
+
+  void MockEventProcessor::endJob() {
+    output_ << "\tendJob\n";
+  }
+
   void MockEventProcessor::beginRun(RunID run) {
     output_ << "\tbeginRun " << run.run() << "\n";
   }

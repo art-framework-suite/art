@@ -54,17 +54,6 @@ and Events stored in the root file.
               1              0              5              0
 
 <separator (=)>
-File: out_r1_sr1_e10.root
-
-Printing FileIndex contents.  This includes a list of all Runs, SubRuns
-and Events stored in the root file.
-
-            Run         SubRun          Event    TTree Entry
-              1                                            0  (Run)
-              1              1                             0  (SubRun)
-              1              1              5              0
-
-<separator (=)>
 File: out_r1_sr1_e6.root
 
 Printing FileIndex contents.  This includes a list of all Runs, SubRuns
@@ -107,6 +96,17 @@ and Events stored in the root file.
               1                                            0  (Run)
               1              1                             0  (SubRun)
               1              1              4              0
+
+<separator (=)>
+File: out_r1_sr1_e10.root
+
+Printing FileIndex contents.  This includes a list of all Runs, SubRuns
+and Events stored in the root file.
+
+            Run         SubRun          Event    TTree Entry
+              1                                            0  (Run)
+              1              1                             0  (SubRun)
+              1              1              5              0
 
 <separator (=)>
 File: out_r2_sr0_e11.root

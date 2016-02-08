@@ -16,7 +16,6 @@
 #include "art/Framework/Core/PathManager.h"
 #include "art/Framework/Core/PrincipalCache.h"
 #include "art/Framework/Core/Schedule.h"
-#include "art/Framework/EventProcessor/EvProcInitHelper.h"
 #include "art/Framework/EventProcessor/ServiceDirector.h"
 #include "art/Framework/Principal/Actions.h"
 #include "art/Framework/Principal/fwd.h"
@@ -67,14 +66,12 @@ public:
   EventProcessor(fhicl::ParameterSet const & pset);
   ~EventProcessor();
 
-  /**This should be called before the first call to 'run'.
-       */
-  void beginJob();
+  // This should be called before the first call to 'run'.
+  void beginJob() override;
 
-  /**This should be called before the EventProcessor is destroyed
-       throws if any module's endJob throws an exception.
-       */
-  void endJob();
+  // This should be called before the EventProcessor is destroyed
+  // throws if any module's endJob throws an exception.
+  void endJob() override;
 
   //------------------------------------------------------------------
   // The function "runToCompletion" will run until the job is "complete",
@@ -174,7 +171,6 @@ private:
   // only during construction, and never again. If they aren't
   // really needed, we should remove them.
 
-  EvProcInitHelper helper_;
   ActionTable act_table_;
   ActivityRegistry actReg_;
   MFStatusUpdater mfStatusUpdater_;
@@ -195,7 +191,6 @@ private:
   std::unique_ptr<EventPrincipal> sm_evp_;
   bool shouldWeStop_;
   bool stateMachineWasInErrorState_;
-  std::string fileMode_;
   bool handleEmptyRuns_;
   bool handleEmptySubRuns_;
   std::string exceptionMessageFiles_;
