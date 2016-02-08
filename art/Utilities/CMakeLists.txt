@@ -1,4 +1,5 @@
 art_make(LIB_LIBRARIES
+  canvas_Utilities
   MF_MessageLogger
   MF_Utilities
   fhiclcpp
