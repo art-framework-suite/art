@@ -34,7 +34,7 @@
 #include "art/Framework/Principal/Provenance.h"
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
-#include "art/Utilities/detail/metaprogramming.h"
+#include "canvas/Utilities/detail/metaprogramming.h"
 #include "fhiclcpp/ParameterSet.h"
 
 namespace art {

@@ -29,6 +29,7 @@
 #include "canvas/Persistency/Provenance/ProductStatus.h"
 #include "canvas/Persistency/Provenance/ProvenanceFwd.h"
 #include "art/Utilities/InputTag.h"
+#include "canvas/Persistency/Common/EDProductGetterFinder.h"
 #include "canvas/Utilities/TypeID.h"
 #include "cetlib/exempt_ptr.h"
 

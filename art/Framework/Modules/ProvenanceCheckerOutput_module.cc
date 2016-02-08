@@ -10,7 +10,7 @@
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Core/OutputModule.h"
 #include "art/Persistency/Provenance/ProductMetaData.h"
-#include "art/Persistency/Provenance/ProductList.h"
+#include "canvas/Persistency/Provenance/ProductList.h"
 #include "art/Utilities/ConfigTable.h"
 #include "cetlib/exception.h"
 #include "cetlib/exempt_ptr.h"
