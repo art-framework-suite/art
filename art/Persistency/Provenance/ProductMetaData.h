@@ -13,7 +13,7 @@
 #include "canvas/Persistency/Provenance/BranchType.h"
 #include "art/Persistency/Provenance/MasterProductRegistry.h"
 #include "canvas/Persistency/Provenance/ProductList.h"
-#include "canvas/Persistency/Provenance/detail/type_aliases.h"
+#include "art/Persistency/Provenance/detail/type_aliases.h"
 #include "cetlib/exempt_ptr.h"
 #include <ostream>
 #include <vector>

@@ -1,4 +1,4 @@
-#include "canvas/Persistency/Provenance/detail/branchNameComponentChecking.h"
+#include "art/Persistency/Provenance/detail/branchNameComponentChecking.h"
 
 #include "canvas/Persistency/Provenance/BranchKey.h"
 

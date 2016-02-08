@@ -26,7 +26,7 @@
 #include "canvas/Persistency/Provenance/RunAuxiliary.h"
 #include "canvas/Persistency/Provenance/SubRunAuxiliary.h"
 #include "canvas/Persistency/Provenance/SubRunID.h"
-#include "canvas/Persistency/Provenance/detail/type_aliases.h"
+#include "art/Persistency/Provenance/detail/type_aliases.h"
 #include "cetlib/exempt_ptr.h"
 
 #include <array>

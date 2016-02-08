@@ -59,7 +59,7 @@
 #include "canvas/Persistency/Provenance/BranchType.h"
 #include "canvas/Persistency/Provenance/ProductProvenance.h"
 #include "canvas/Persistency/Provenance/ProvenanceFwd.h"
-#include "canvas/Persistency/Provenance/detail/type_aliases.h"
+#include "art/Persistency/Provenance/detail/type_aliases.h"
 #include "art/Utilities/InputTag.h"
 #include "canvas/Utilities/TypeID.h"
 

@@ -14,7 +14,7 @@
 #include "art/Framework/Principal/detail/maybe_record_parents.h"
 #include "art/Framework/Principal/fwd.h"
 #include "art/Persistency/Common/GroupQueryResult.h"
-#include "canvas/Persistency/Provenance/detail/type_aliases.h"
+#include "art/Persistency/Provenance/detail/type_aliases.h"
 #include "art/Framework/Principal/Handle.h"
 #include "canvas/Persistency/Common/Wrapper.h"
 #include "canvas/Persistency/Provenance/EventAuxiliary.h"
