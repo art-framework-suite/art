@@ -44,8 +44,10 @@ cet_report_compiler_flags()
 
 # these are minimum required versions, not the actual product versions
 find_ups_product( canvas )
+find_ups_product( clhep )
 find_ups_root()
 find_ups_boost()
+find_ups_product( sqlite )
 find_ups_product (cetbuildtools)
 
 # define CLHEP
