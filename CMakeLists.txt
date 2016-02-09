@@ -47,6 +47,7 @@ find_ups_product( canvas )
 find_ups_product( clhep )
 find_ups_root()
 find_ups_boost()
+find_ups_product( cppunit )
 find_ups_product( sqlite )
 find_ups_product (cetbuildtools)
 
