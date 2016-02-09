@@ -18,7 +18,7 @@
 namespace art {
 
 class BranchKey;
-class EventPrincipal;
+class EDProductGetterFinder;
 class DelayedReader;
 
 class DelayedReader {
@@ -35,7 +35,7 @@ public:
   }
 
   void
-  setGroupFinder(cet::exempt_ptr<EventPrincipal const> ep)
+  setGroupFinder(cet::exempt_ptr<EDProductGetterFinder const> ep)
   {
     setGroupFinder_(ep);
   }
@@ -60,7 +60,7 @@ private:
 
   virtual
   void
-  setGroupFinder_(cet::exempt_ptr<EventPrincipal const>);
+  setGroupFinder_(cet::exempt_ptr<EDProductGetterFinder const>);
 
   virtual
   void
