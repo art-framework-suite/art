@@ -21,7 +21,5 @@ art_make_library( LIBRARY_NAME art_Persistency_Common
 		  LIBRARIES ${art_Persistency_Common_libraries}
 		 )
 
-art_dictionary(DICTIONARY_LIBRARIES art_Persistency_Common)
-
 install_headers(SUBDIRS detail)
 install_source(SUBDIRS detail)
