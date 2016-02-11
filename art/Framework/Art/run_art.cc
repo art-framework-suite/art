@@ -251,25 +251,25 @@ int art::run_art_common_(fhicl::ParameterSet const& main_pset, art::detail::Debu
         rc = 128 + art::shutdown_flag;
     }
   }
-  catch (art::Exception & e) {
+  catch (art::Exception const& e) {
     rc = e.returnCode();
-    art::printArtException(e, "art"); // , "Thing1", rc);
+    art::printArtException(e, "art");
   }
-  catch (cet::exception & e) {
+  catch (cet::exception const& e) {
     rc = 65;
-    art::printArtException(e, "art"); // , "Thing2", rc);
+    art::printArtException(e, "art");
   }
-  catch (std::bad_alloc & bda) {
+  catch (std::bad_alloc const& bda) {
     rc = 68;
-    art::printBadAllocException("art"); // , "Thing3", rc);
+    art::printBadAllocException("art");
   }
-  catch (std::exception & e) {
+  catch (std::exception const& e) {
     rc = 66;
-    art::printStdException(e, "art"); // , "Thing4", rc);
+    art::printStdException(e, "art");
   }
   catch (...) {
     rc = 67;
-    art::printUnknownException("art"); // , "Thing5", rc);
+    art::printUnknownException("art");
   }
   return rc;
 }
