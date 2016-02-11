@@ -2,7 +2,7 @@
 
 art_dictionary(NO_INSTALL)
 
-link_libraries(
+set( test_Framework_Principal_libraries 
   art_Framework_Core
   art_Framework_Principal
   art_Utilities canvas_Utilities
@@ -22,6 +22,6 @@ link_libraries(
   -ldl
  )
 
-cet_test(eventprincipal_t USE_BOOST_UNIT)
-cet_test(Event_t USE_BOOST_UNIT)
-cet_test(GroupFactory_t USE_BOOST_UNIT)
+cet_test(eventprincipal_t USE_BOOST_UNIT LIBRARIES ${test_Framework_Principal_libraries})
+cet_test(Event_t USE_BOOST_UNIT LIBRARIES ${test_Framework_Principal_libraries})
+cet_test(GroupFactory_t USE_BOOST_UNIT LIBRARIES ${test_Framework_Principal_libraries})
