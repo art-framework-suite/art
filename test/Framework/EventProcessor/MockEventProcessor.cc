@@ -1,7 +1,3 @@
-/*
-
-*/
-
 #include "test/Framework/EventProcessor/MockEventProcessor.h"
 
 #include <sstream>
@@ -24,12 +20,10 @@ namespace art {
 
   MockEventProcessor::MockEventProcessor(const std::string& mockData,
                                          std::ostream& output,
-                                         const statemachine::FileMode& fileMode,
                                          bool handleEmptyRuns,
                                          bool handleEmptySubRuns) :
     mockData_(mockData),
     output_(output),
-    fileMode_(fileMode),
     handleEmptyRuns_(handleEmptyRuns),
     handleEmptySubRuns_(handleEmptySubRuns),
     subRun_(SubRunID::firstSubRun()),
@@ -39,15 +33,12 @@ namespace art {
 
   art::MockEventProcessor::StatusCode
   MockEventProcessor::runToCompletion() {
-    statemachine::Machine myMachine(this,
-                                    handleEmptyRuns_,
-                                    handleEmptySubRuns_);
 
-
-    myMachine.initiate();
+    statemachine::Machine machine{this, handleEmptyRuns_, handleEmptySubRuns_};
+    machine.initiate();
 
     // Loop over the mock data items
-    std::istringstream input(mockData_);
+    std::istringstream input{mockData_};
     token t;
     while (input >> t) {
 
@@ -56,12 +47,12 @@ namespace art {
       if (ch == 'r') {
         output_ << "    *** nextItemType: Run " << t.value << " ***\n";
         subRun_ = SubRunID::firstSubRun(RunID(t.value));
-        myMachine.process_event( statemachine::Run(subRun_.runID()) );
+        machine.process_event( statemachine::Run(subRun_.runID()) );
       }
       else if (ch == 'l') {
         output_ << "    *** nextItemType: SubRun " << t.value << " ***\n";
         subRun_ = SubRunID(subRun_.run(), t.value);
-        myMachine.process_event( statemachine::SubRun(subRun_) );
+        machine.process_event( statemachine::SubRun(subRun_) );
       }
       else if (ch == 'e') {
         output_ << "    *** nextItemType: Event ***\n";
@@ -73,22 +64,21 @@ namespace art {
         else {
           shouldWeStop_ = false;
         }
-        myMachine.process_event( statemachine::Event() );
+        machine.process_event( statemachine::Event() );
       }
       else if (ch == 'f') {
         output_ << "    *** nextItemType: File " << t.value << " ***\n";
-        // a special value for test purposes only
-        myMachine.process_event( statemachine::InputFile() );
+        machine.process_event( statemachine::InputFile() );
       }
       else if (ch == 's') {
         output_ << "    *** nextItemType: Stop " << t.value << " ***\n";
         // a special value for test purposes only
         if (t.value == 0) shouldWeEndLoop_ = false;
         else shouldWeEndLoop_ = true;
-        myMachine.process_event( statemachine::Stop() );
+        machine.process_event( statemachine::Stop() );
       }
 
-      if (myMachine.terminated()) {
+      if (machine.terminated()) {
         output_ << "The state machine reports it has been terminated\n";
       }
     }

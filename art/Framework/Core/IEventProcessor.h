@@ -53,9 +53,6 @@ namespace art
     virtual void respondToCloseInputFile() = 0;
     virtual void respondToOpenOutputFiles() = 0;
     virtual void respondToCloseOutputFiles() = 0;
-    // The below response functions are different!
-    virtual void respondToOpenOutputFile() = 0;
-    virtual void respondToCloseOutputFile() = 0;
 
     virtual void rewindInput() = 0;
     virtual void recordOutputClosureRequests() = 0;

@@ -147,7 +147,6 @@ void art::EndPathExecutor::switchOutputFiles(std::size_t const b, FileBlock cons
 
 void art::EndPathExecutor::closeSomeOutputFiles(std::size_t const b)
 {
-  auto respondToCloseOutputFile    = [    ](auto ow){ow->respondToCloseOutputFile();};
   auto closeFile                   = [    ](auto ow){ow->closeFile();};
   auto invoke_sPreCloseOutputFile  = [this](auto ow){actReg_.sPreCloseOutputFile.invoke(ow->label());};
   auto invoke_sPostCloseOutputFile = [this](auto ow){actReg_.sPostCloseOutputFile.invoke(OutputFileInfo{ow->label(), ow->lastClosedFileName()});};
@@ -155,7 +154,6 @@ void art::EndPathExecutor::closeSomeOutputFiles(std::size_t const b)
   auto& workers = workersToClose_[b];
   if (workers.empty()) return;
 
-  cet::for_all(workers, respondToCloseOutputFile);
   cet::for_all(workers, invoke_sPreCloseOutputFile);
   cet::for_all(workers, closeFile);
   cet::for_all(workers, invoke_sPostCloseOutputFile);
@@ -164,7 +162,6 @@ void art::EndPathExecutor::closeSomeOutputFiles(std::size_t const b)
 void art::EndPathExecutor::openSomeOutputFiles(std::size_t const b, FileBlock const& fb)
 {
 
-  auto respondToOpenOutputFile     = [    ](auto ow){ow->respondToOpenOutputFile();};
   auto openFile                    = [ &fb](auto ow){ow->openFile(fb);};
   auto resetFlagToClose            = [    ](auto ow){ow->flagToCloseFile(false);};
   auto invoke_sPostOpenOutputFile  = [this](auto ow){actReg_.sPostOpenOutputFile.invoke(ow->label());};
@@ -175,7 +172,6 @@ void art::EndPathExecutor::openSomeOutputFiles(std::size_t const b, FileBlock co
   cet::for_all(workers, resetFlagToClose);
   cet::for_all(workers, openFile);
   cet::for_all(workers, invoke_sPostOpenOutputFile);
-  cet::for_all(workers, respondToOpenOutputFile);
 
   workers.clear();
 }
@@ -193,30 +189,12 @@ void art::EndPathExecutor::respondToCloseInputFile(FileBlock const& fb)
 
 void art::EndPathExecutor::respondToOpenOutputFiles(FileBlock const& fb)
 {
-  doForAllEnabledWorkers_([   ](auto w){ w->respondToOpenOutputFile(); });
   doForAllEnabledWorkers_([&fb](auto w){ w->respondToOpenOutputFiles(fb); });
 }
 
 void art::EndPathExecutor::respondToCloseOutputFiles(FileBlock const& fb)
 {
   doForAllEnabledWorkers_([&fb](auto w){ w->respondToCloseOutputFiles(fb); });
-  doForAllEnabledWorkers_([   ](auto w){ w->respondToCloseOutputFile(); });
-}
-
-void art::EndPathExecutor::respondToOpenOutputFile()
-{
-  for (std::size_t i = Boundary::Event; i!=Boundary::InputFile; ++i) {
-    auto& workers = workersToClose_[i];
-    cet::for_all(workers, [](auto w){ w->respondToOpenOutputFile(); });
-  }
-}
-
-void art::EndPathExecutor::respondToCloseOutputFile()
-{
-  for (std::size_t i = Boundary::Event; i!=Boundary::InputFile; ++i) {
-    auto& workers = workersToClose_[i];
-    cet::for_all(workers, [](auto w){ w->respondToCloseOutputFile(); });
-  }
 }
 
 void art::EndPathExecutor::beginJob()

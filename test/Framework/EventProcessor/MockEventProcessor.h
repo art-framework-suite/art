@@ -18,7 +18,6 @@ namespace art
 
     MockEventProcessor(const std::string& mockData,
                        std::ostream& output,
-                       const statemachine::FileMode& fileMode,
                        bool handleEmptyRuns,
                        bool handleEmptySubRuns);
 
@@ -35,9 +34,6 @@ namespace art
     void respondToCloseInputFile() override;
     void respondToOpenOutputFiles() override;
     void respondToCloseOutputFiles() override;
-    // The below response functions are different!
-    void respondToOpenOutputFile() override {}
-    void respondToCloseOutputFile() override {}
 
     void rewindInput() override;
     void recordOutputClosureRequests() override {};
@@ -83,7 +79,6 @@ namespace art
   private:
     std::string mockData_;
     std::ostream & output_;
-    statemachine::FileMode fileMode_;
     bool handleEmptyRuns_;
     bool handleEmptySubRuns_;
 

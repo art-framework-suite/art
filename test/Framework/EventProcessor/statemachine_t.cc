@@ -24,13 +24,6 @@ namespace {
     bool runs;
     bool subruns;
   };
-
-  ostream& operator<<(ostream& os, FileMode const fileMode)
-  {
-    if (fileMode == NOMERGE) os << "NOMERGE";
-    else os << "MERGE";
-    return os;
-  }
 }
 
 int main(int argc, char* argv[]) {
@@ -67,32 +60,21 @@ int main(int argc, char* argv[]) {
 
   ofstream output{outputFile.c_str()};
 
-  vector<FileMode> fileModes;
-  fileModes.reserve(4);
-  fileModes.push_back(NOMERGE);
-  if (!vm.count("skipmode")) {
-    fileModes.push_back(MERGE);
-  }
-                                                     // Runs   Subruns
-  vector<HandleEmpty> const handleEmptyRunsSubruns = { {false, false   },
-                                                       {false, true    },
-                                                       {true,  false   },
-                                                       {true,  true    } };
+  vector<HandleEmpty> const handleEmptyRunsSubruns = { {false, false},
+                                                       {false, true },
+                                                       {true,  false},
+                                                       {true,  true } };
 
-  for (auto fileMode : fileModes) {
-    for (auto handleEmpty : handleEmptyRunsSubruns ) {
-      output << "\nMachine parameters:"
-             << "  mode = " << fileMode
-             << "  handleEmptyRuns = " << handleEmpty.runs
-             << "  handleEmptySubRuns = " << handleEmpty.subruns << '\n';
+  for (auto handleEmpty : handleEmptyRunsSubruns) {
+    output << "\nMachine parameters:"
+           << "  handleEmptyRuns = " << handleEmpty.runs
+           << "  handleEmptySubRuns = " << handleEmpty.subruns << '\n';
 
-      art::MockEventProcessor mockEventProcessor(mockData,
-                                                 output,
-                                                 fileMode,
-                                                 handleEmpty.runs,
-                                                 handleEmpty.subruns);
-      mockEventProcessor.runToCompletion();
-    }
+    art::MockEventProcessor mockEventProcessor{mockData,
+                                               output,
+                                               handleEmpty.runs,
+                                               handleEmpty.subruns};
+    mockEventProcessor.runToCompletion();
   }
 
 

@@ -123,7 +123,6 @@ private: // MEMBER FUNCTIONS
   void respondToOpenInputFile(FileBlock const &) override;
   void readResults(ResultsPrincipal const & resp) override;
   void respondToCloseInputFile(FileBlock const&) override;
-  void respondToCloseOutputFile() override; // per-file closure
   bool stagedToCloseFile() const override;
   void flagToCloseFile(bool) override;
   Boundary fileSwitchBoundary() const override;
@@ -350,23 +349,6 @@ respondToCloseInputFile(FileBlock const& fb)
 
 void
 art::RootOutput::
-respondToCloseOutputFile()
-{
-  auto resp = std::make_unique<ResultsPrincipal>(ResultsAuxiliary { },
-                                                 description().processConfiguration());
-  if (ProductMetaData::instance().productProduced(InResults) ||
-      hasNewlyDroppedBranch()[InResults]) {
-    resp->addToProcessHistory();
-  }
-  rpm_.for_each_RPWorker([&resp](RPWorker & w) {
-      Results res(*resp, w.moduleDescription());
-      w.rp().doWriteResults(res);
-    } );
-  rootOutputFile_->writeResults(*resp);
-}
-
-void
-art::RootOutput::
 write(EventPrincipal & ep)
 {
   rpm_.for_each_RPWorker([&ep](RPWorker & w) {
@@ -412,6 +394,17 @@ void
 art::RootOutput::
 startEndFile()
 {
+  auto resp = std::make_unique<ResultsPrincipal>(ResultsAuxiliary{},
+                                                 description().processConfiguration());
+  if (ProductMetaData::instance().productProduced(InResults) ||
+      hasNewlyDroppedBranch()[InResults]) {
+    resp->addToProcessHistory();
+  }
+  rpm_.for_each_RPWorker([&resp](RPWorker & w) {
+      Results res{*resp, w.moduleDescription()};
+      w.rp().doWriteResults(res);
+    } );
+  rootOutputFile_->writeResults(*resp);
 }
 
 void

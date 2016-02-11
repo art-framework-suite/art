@@ -282,13 +282,15 @@ initServices_(ParameterSet const & top_pset,
     if (user.is_key_to_table(key)) {
       if (!services.has_key(key)) {
         services.put(key, user.get<ParameterSet>(key));
-      } else {
+      }
+      else {
         throw Exception(errors::Configuration)
           << "Detected a name clash: key "
           << key
           << " is defined in services and services.user.";
       }
-    } else {
+    }
+    else {
       throw Exception(errors::Configuration)
         << "Detected a non-table parameter "
         << key
@@ -595,25 +597,11 @@ art::EventProcessor::respondToOpenOutputFiles()
 }
 
 void
-art::EventProcessor::respondToOpenOutputFile()
-{
-  endPathExecutor_->respondToOpenOutputFile();
-  FDEBUG(1) << "\trespondToOpenOutputFile\n";
-}
-
-void
 art::EventProcessor::respondToCloseOutputFiles()
 {
   schedule_->respondToCloseOutputFiles(*fb_);
   endPathExecutor_->respondToCloseOutputFiles(*fb_);
   FDEBUG(1) << "\trespondToCloseOutputFiles\n";
-}
-
-void
-art::EventProcessor::respondToCloseOutputFile()
-{
-  endPathExecutor_->respondToCloseOutputFile();
-  FDEBUG(1) << "\trespondToCloseOutputFile\n";
 }
 
 void

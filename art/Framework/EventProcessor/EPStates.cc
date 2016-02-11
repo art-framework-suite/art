@@ -119,22 +119,6 @@ namespace statemachine {
     ep_.closeInputFile();
   }
 
-  void HandleFiles::maybeCloseOutputFiles()
-  {
-    if (ep_.outputToCloseAtBoundary(Boundary::InputFile)) {
-      ep_.respondToCloseOutputFile();
-      ep_.closeSomeOutputFiles(Boundary::InputFile);
-    }
-  }
-
-  void HandleFiles::maybeOpenOutputFiles()
-  {
-    if (ep_.outputToCloseAtBoundary(Boundary::InputFile)) {
-      ep_.openSomeOutputFiles(Boundary::InputFile);
-      ep_.respondToOpenOutputFile();
-    }
-  }
-
   void HandleFiles::goToNewInputFile()
   {
     ep_.respondToCloseInputFile();
@@ -142,6 +126,39 @@ namespace statemachine {
     ep_.closeInputFile();
     ep_.readFile();
     ep_.respondToOpenInputFile();
+  }
+
+  void HandleFiles::maybeOpenOutputFiles()
+  {
+    if (ep_.outputToCloseAtBoundary(Boundary::InputFile)) {
+      ep_.openSomeOutputFiles(Boundary::InputFile);
+      ep_.respondToOpenOutputFiles();
+    }
+  }
+
+  void HandleFiles::maybeCloseOutputFiles()
+  {
+    if (ep_.outputToCloseAtBoundary(Boundary::InputFile)) {
+      ep_.respondToCloseOutputFiles();
+      ep_.closeSomeOutputFiles(Boundary::InputFile);
+    }
+  }
+
+  void HandleFiles::switchOutputFiles(SwitchOutputFiles const&)
+  {
+    ep_.respondToCloseOutputFiles();
+    // If the previous state was (e.g.) NewSubRun, and the current
+    // state is NewEvent, and an output file needs to close, then it
+    // should be allowed to.  Setting 'start' equal to
+    // 'previousBoundary_' would result in the for-loop below not
+    // being executed.  We therefore take the minimum of the
+    // boundaries as the starting point, although the end point is
+    // always the current boundary.
+    auto const start = std::min(previousBoundary_, currentBoundary_);
+    for(std::size_t b = start; b<=currentBoundary_; ++b)
+      ep_.switchOutputs(b);
+    ep_.respondToOpenOutputFiles();
+    switchInProgress_ = false;
   }
 
   Stopping::Stopping(my_context ctx) :

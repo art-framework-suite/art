@@ -101,9 +101,6 @@ public:
   void respondToCloseInputFile() override;
   void respondToOpenOutputFiles() override;
   void respondToCloseOutputFiles() override;
-  // The below response functions are different!
-  void respondToOpenOutputFile() override;
-  void respondToCloseOutputFile() override;
 
   void rewindInput() override;
   void recordOutputClosureRequests() override;

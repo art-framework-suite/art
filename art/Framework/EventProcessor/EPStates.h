@@ -36,10 +36,8 @@ namespace mpl = boost::mpl;
 
 namespace statemachine {
 
-  enum FileMode { NOMERGE, MERGE };
-
   // Define the classes representing the "boost statechart events".
-  // There are six of them.
+  // There are seven of them.
 
   class Run : public sc::event<Run> {
   public:
@@ -135,23 +133,10 @@ namespace statemachine {
     void openAllFiles();
     void closeAllFiles();
     void goToNewInputFile();
+
     void maybeOpenOutputFiles();
     void maybeCloseOutputFiles();
-
-    void switchOutputFiles(SwitchOutputFiles const&)
-    {
-      // If the previous state was (e.g.) NewSubRun, and the current
-      // state is NewEvent, and an output file needs to close, then it
-      // should be allowed to.  Setting 'start' equal to
-      // 'previousBoundary_' would result in the for-loop below not
-      // being executed.  We therefore take the minimum of the
-      // boundaries as the starting point, although the end point is
-      // always the current boundary.
-      auto const start = std::min(previousBoundary_, currentBoundary_);
-      for(std::size_t b = start; b<=currentBoundary_; ++b)
-        ep_.switchOutputs(b);
-      switchInProgress_ = false;
-    }
+    void switchOutputFiles(SwitchOutputFiles const&);
 
     template<art::Boundary::BT>
     void maybeTriggerOutputFileSwitch();
