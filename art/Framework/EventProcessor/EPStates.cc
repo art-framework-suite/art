@@ -128,6 +128,24 @@ namespace statemachine {
     ep_.respondToOpenInputFile();
   }
 
+  void HandleFiles::setCurrentBoundary(Boundary::BT const b)
+  {
+    previousBoundary_ = currentBoundary_;
+    currentBoundary_ = b;
+  }
+
+  void HandleFiles::maybeTriggerOutputFileSwitch(Boundary::BT const b)
+  {
+    if (!ep_.outputToCloseAtBoundary(b)) return;
+
+    // Don't trigger if a switch is already in progress!
+    if (switchInProgress_) return;
+
+    post_event(Pause());
+    post_event(SwitchOutputFiles());
+    switchInProgress_ = true;
+  }
+
   void HandleFiles::maybeOpenOutputFiles()
   {
     if (ep_.outputToCloseAtBoundary(Boundary::InputFile)) {
@@ -333,7 +351,7 @@ namespace statemachine {
     if (beginRunCalled_) endRun(currentRun());
     ep_.writeRun(currentRun_);
     ep_.recordOutputClosureRequests();
-    context<HandleFiles>().maybeTriggerOutputFileSwitch<Boundary::Run>();
+    context<HandleFiles>().maybeTriggerOutputFileSwitch(Boundary::Run);
     currentRun_ = art::RunID(); // Invalid.
     runException_ = false;
   }
@@ -499,11 +517,11 @@ namespace statemachine {
     auto const& handleRuns = context<HandleRuns>();
     subRunException_ = true;
 
-    if (currentSubRunEmpty_ &&  machine.handleEmptyRuns() && !handleRuns.beginRunCalled() ) {
+    if (currentSubRunEmpty_ && machine.handleEmptySubRuns() && !handleRuns.beginRunCalled() ) {
       unhandledSubRuns_.push_back(currentSubRun_);
     }
     else {
-      if (currentSubRunEmpty_ && machine.handleEmptyRuns() &&  handleRuns.beginRunCalled() ) {
+      if (currentSubRunEmpty_ && machine.handleEmptySubRuns() &&  handleRuns.beginRunCalled() ) {
         ep_.beginSubRun(currentSubRun_);
         ep_.endSubRun(currentSubRun_);
       }
@@ -512,7 +530,7 @@ namespace statemachine {
       }
       ep_.writeSubRun(currentSubRun_);
       ep_.recordOutputClosureRequests();
-      context<HandleFiles>().maybeTriggerOutputFileSwitch<Boundary::SubRun>();
+      context<HandleFiles>().maybeTriggerOutputFileSwitch(Boundary::SubRun);
     }
     currentSubRun_ = art::SubRunID(); // Invalid.
     subRunException_ = false;
@@ -526,7 +544,7 @@ namespace statemachine {
       ep_.endSubRun(sr);
       ep_.writeSubRun(sr);
       ep_.recordOutputClosureRequests();
-      context<HandleFiles>().maybeTriggerOutputFileSwitch<Boundary::SubRun>();
+      context<HandleFiles>().maybeTriggerOutputFileSwitch(Boundary::SubRun);
     }
     unhandledSubRuns_.clear();
     subRunException_ = false;
@@ -658,7 +676,7 @@ namespace statemachine {
     // std::cout << " finalizeEvent()\n";
     ep_.writeEvent();
     ep_.recordOutputClosureRequests();
-    context<HandleFiles>().maybeTriggerOutputFileSwitch<Boundary::Event>();
+    context<HandleFiles>().maybeTriggerOutputFileSwitch(Boundary::Event);
   }
 
   void HandleEvents::resumeAndFinalizeEvent(Event const&)

@@ -49,7 +49,7 @@ namespace art {
         subRun_ = SubRunID::firstSubRun(RunID(t.value));
         machine.process_event( statemachine::Run(subRun_.runID()) );
       }
-      else if (ch == 'l') {
+      else if (ch == 's') {
         output_ << "    *** nextItemType: SubRun " << t.value << " ***\n";
         subRun_ = SubRunID(subRun_.run(), t.value);
         machine.process_event( statemachine::SubRun(subRun_) );
@@ -70,7 +70,7 @@ namespace art {
         output_ << "    *** nextItemType: File " << t.value << " ***\n";
         machine.process_event( statemachine::InputFile() );
       }
-      else if (ch == 's') {
+      else if (ch == 'x') {
         output_ << "    *** nextItemType: Stop " << t.value << " ***\n";
         // a special value for test purposes only
         if (t.value == 0) shouldWeEndLoop_ = false;

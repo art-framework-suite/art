@@ -73,8 +73,7 @@ namespace statemachine {
 
   class Starting;
 
-  class Machine : public sc::state_machine<Machine, Starting>
-  {
+  class Machine : public sc::state_machine<Machine, Starting> {
   public:
     Machine(art::IEventProcessor* ep,
             bool handleEmptyRuns,
@@ -95,8 +94,7 @@ namespace statemachine {
   class HandleFiles;
   class Stopping;
 
-  class Starting : public sc::state<Starting, Machine>
-  {
+  class Starting : public sc::state<Starting, Machine> {
   public:
     Starting(my_context ctx);
     ~Starting();
@@ -115,8 +113,7 @@ namespace statemachine {
 
   class FirstFile;
 
-  class HandleFiles : public sc::state<HandleFiles, Machine, FirstFile, sc::has_deep_history>
-  {
+  class HandleFiles : public sc::state<HandleFiles, Machine, FirstFile, sc::has_deep_history> {
   public:
     HandleFiles(my_context ctx);
     void exit();
@@ -138,14 +135,8 @@ namespace statemachine {
     void maybeCloseOutputFiles();
     void switchOutputFiles(SwitchOutputFiles const&);
 
-    template<art::Boundary::BT>
-    void maybeTriggerOutputFileSwitch();
-
-    void setCurrentBoundary(art::Boundary::BT const b)
-    {
-      previousBoundary_ = currentBoundary_;
-      currentBoundary_ = b;
-    }
+    void setCurrentBoundary(art::Boundary::BT const);
+    void maybeTriggerOutputFileSwitch(art::Boundary::BT const);
 
   private:
     art::IEventProcessor & ep_;
@@ -156,8 +147,7 @@ namespace statemachine {
 
   };
 
-  class Stopping : public sc::state<Stopping, Machine>
-  {
+  class Stopping : public sc::state<Stopping, Machine> {
   public:
     Stopping(my_context ctx);
     ~Stopping() = default;
@@ -169,8 +159,7 @@ namespace statemachine {
     art::IEventProcessor & ep_;
   };
 
-  class Error : public sc::state<Error, Machine>
-  {
+  class Error : public sc::state<Error, Machine> {
   public:
     Error(my_context ctx);
     ~Error() = default;
@@ -182,8 +171,7 @@ namespace statemachine {
   class HandleRuns;
   class NewInputFile;
 
-  class FirstFile : public sc::state<FirstFile, HandleFiles>
-  {
+  class FirstFile : public sc::state<FirstFile, HandleFiles> {
   public:
     FirstFile(my_context ctx);
     ~FirstFile() = default;
@@ -193,8 +181,7 @@ namespace statemachine {
       sc::transition<InputFile, NewInputFile> >;
   };
 
-  class NewInputFile : public sc::state<NewInputFile, HandleFiles>
-  {
+  class NewInputFile : public sc::state<NewInputFile, HandleFiles> {
   public:
     NewInputFile(my_context ctx);
     ~NewInputFile();
@@ -209,8 +196,7 @@ namespace statemachine {
 
   class NewRun;
 
-  class HandleRuns : public sc::state<HandleRuns, HandleFiles, NewRun>
-  {
+  class HandleRuns : public sc::state<HandleRuns, HandleFiles, NewRun> {
   public:
     HandleRuns(my_context ctx);
     void exit();
@@ -250,8 +236,7 @@ namespace statemachine {
   class HandleSubRuns;
   class PauseRun;
 
-  class NewRun : public sc::state<NewRun, HandleRuns>
-  {
+  class NewRun : public sc::state<NewRun, HandleRuns> {
   public:
     NewRun(my_context ctx);
     ~NewRun();
@@ -261,8 +246,7 @@ namespace statemachine {
       sc::transition<Pause, PauseRun, HandleRuns, &HandleRuns::disableFinalizeRun> >;
   };
 
-  class PauseRun : public sc::state<PauseRun, HandleRuns>
-  {
+  class PauseRun : public sc::state<PauseRun, HandleRuns> {
   public:
     PauseRun(my_context ctx);
     ~PauseRun();
@@ -275,8 +259,7 @@ namespace statemachine {
 
   class NewSubRun;
 
-  class HandleSubRuns : public sc::state<HandleSubRuns, HandleRuns, NewSubRun>
-  {
+  class HandleSubRuns : public sc::state<HandleSubRuns, HandleRuns, NewSubRun> {
   public:
     HandleSubRuns(my_context ctx);
     void exit();
@@ -315,8 +298,7 @@ namespace statemachine {
   class HandleEvents;
   class PauseSubRun;
 
-  class NewSubRun : public sc::state<NewSubRun, HandleSubRuns>
-  {
+  class NewSubRun : public sc::state<NewSubRun, HandleSubRuns> {
   public:
     NewSubRun(my_context ctx);
     ~NewSubRun();
@@ -328,8 +310,7 @@ namespace statemachine {
       sc::transition<Pause, PauseSubRun, HandleSubRuns, &HandleSubRuns::disableFinalizeSubRun> >;
   };
 
-  class PauseSubRun : public sc::state<PauseSubRun, HandleSubRuns>
-  {
+  class PauseSubRun : public sc::state<PauseSubRun, HandleSubRuns> {
   public:
     PauseSubRun(my_context ctx);
     ~PauseSubRun();
@@ -338,12 +319,11 @@ namespace statemachine {
       sc::transition<SwitchOutputFiles,sc::deep_history<HandleRuns>, HandleFiles, &HandleFiles::switchOutputFiles>,
       sc::transition<SubRun, NewSubRun, HandleSubRuns, &HandleSubRuns::resumeAndFinalizeSubRun>,
       sc::transition<Event, HandleEvents, HandleSubRuns, &HandleSubRuns::resume> >;
-};
+  };
 
   class NewEvent;
 
-  class HandleEvents: public sc::state<HandleEvents, HandleSubRuns, NewEvent>
-  {
+  class HandleEvents: public sc::state<HandleEvents, HandleSubRuns, NewEvent> {
   public:
     HandleEvents(my_context ctx);
     ~HandleEvents();
@@ -383,8 +363,7 @@ namespace statemachine {
     art::IEventProcessor & ep_;
   };
 
-  class PauseEvent : public sc::state<PauseEvent, HandleEvents>
-  {
+  class PauseEvent : public sc::state<PauseEvent, HandleEvents> {
   public:
     PauseEvent(my_context ctx);
     ~PauseEvent();
@@ -392,28 +371,7 @@ namespace statemachine {
     using reactions = mpl::list<
       sc::transition<SwitchOutputFiles,sc::deep_history<HandleRuns>, HandleFiles, &HandleFiles::switchOutputFiles>,
       sc::transition<Event, NewEvent, HandleEvents, &HandleEvents::resumeAndFinalizeEvent> >;
-};
-
-
-}
-
-// ======================================================================
-
-namespace statemachine {
-
-  template<art::Boundary::BT B>
-  void
-  HandleFiles::maybeTriggerOutputFileSwitch()
-  {
-    if (!ep_.outputToCloseAtBoundary(B)) return;
-
-    // Don't trigger if a switch is already in progress!
-    if (switchInProgress_) return;
-
-    post_event(Pause());
-    post_event(SwitchOutputFiles());
-    switchInProgress_ = true;
-  }
+  };
 
 }
 
