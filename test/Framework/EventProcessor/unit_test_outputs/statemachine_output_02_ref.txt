@@ -1,1024 +1,456 @@
-
-Machine parameters:  mode = NOMERGE  handleEmptyRuns = 0  handleEmptySubRuns = 0
-    *** nextItemType: File 0 ***
+Machine parameters:  handleEmptyRuns = 0  handleEmptySubRuns = 0
+	beginJob
+    *** nextItemType: InputFile ***
  	readFile
 	respondToOpenInputFile
-    *** nextItemType: File 1 ***
-	openOutputFiles
+	openAllOutputFiles
 	respondToOpenOutputFiles
+    *** nextItemType: InputFile+SwitchOutputFiles ***
 	respondToCloseOutputFiles
-	closeOutputFiles
+	closeSomeOutputFiles
 	respondToCloseInputFile
+	clearPrincipalCache
 	closeInputFile
  	readFile
 	respondToOpenInputFile
-    *** nextItemType: File 1 ***
-	openOutputFiles
+	openSomeOutputFiles
 	respondToOpenOutputFiles
+    *** nextItemType: InputFile+SwitchOutputFiles ***
 	respondToCloseOutputFiles
-	closeOutputFiles
+	closeSomeOutputFiles
 	respondToCloseInputFile
+	clearPrincipalCache
 	closeInputFile
  	readFile
 	respondToOpenInputFile
-    *** nextItemType: File 0 ***
-	openOutputFiles
+	openSomeOutputFiles
 	respondToOpenOutputFiles
-	respondToCloseOutputFiles
-	closeOutputFiles
+    *** nextItemType: InputFile ***
 	respondToCloseInputFile
+	clearPrincipalCache
 	closeInputFile
  	readFile
 	respondToOpenInputFile
-    *** nextItemType: File 0 ***
-	openOutputFiles
-	respondToOpenOutputFiles
-	respondToCloseOutputFiles
-	closeOutputFiles
+    *** nextItemType: InputFile ***
 	respondToCloseInputFile
+	clearPrincipalCache
 	closeInputFile
  	readFile
 	respondToOpenInputFile
-    *** nextItemType: File 1 ***
-	openOutputFiles
-	respondToOpenOutputFiles
+    *** nextItemType: InputFile+SwitchOutputFiles ***
 	respondToCloseOutputFiles
-	closeOutputFiles
+	closeSomeOutputFiles
 	respondToCloseInputFile
+	clearPrincipalCache
 	closeInputFile
  	readFile
 	respondToOpenInputFile
-    *** nextItemType: Run 1 ***
-	openOutputFiles
+	openSomeOutputFiles
 	respondToOpenOutputFiles
-	readAndCacheRun 1
-    *** nextItemType: File 0 ***
-	writeRun 1
-	deleteRunFromCache 1
-	respondToCloseOutputFiles
-	closeOutputFiles
+    *** nextItemType: Run ***
+	readAndCacheRun...(run: 1)
+    *** nextItemType: InputFile ***
+	writeRun..........(run: 1)
 	respondToCloseInputFile
+	clearPrincipalCache
 	closeInputFile
  	readFile
 	respondToOpenInputFile
-    *** nextItemType: File 0 ***
-	openOutputFiles
-	respondToOpenOutputFiles
-	respondToCloseOutputFiles
-	closeOutputFiles
+    *** nextItemType: InputFile ***
 	respondToCloseInputFile
+	clearPrincipalCache
 	closeInputFile
  	readFile
 	respondToOpenInputFile
-    *** nextItemType: File 1 ***
-	openOutputFiles
-	respondToOpenOutputFiles
+    *** nextItemType: InputFile+SwitchOutputFiles ***
 	respondToCloseOutputFiles
-	closeOutputFiles
+	closeSomeOutputFiles
 	respondToCloseInputFile
+	clearPrincipalCache
 	closeInputFile
  	readFile
 	respondToOpenInputFile
-    *** nextItemType: Run 2 ***
-	openOutputFiles
+	openSomeOutputFiles
 	respondToOpenOutputFiles
-	readAndCacheRun 2
-    *** nextItemType: SubRun 1 ***
-	readAndCacheSubRun 1
-    *** nextItemType: File 0 ***
-	writeSubRun 2/1
-	deleteSubRunFromCache 2/1
-	writeRun 2
-	deleteRunFromCache 2
-	respondToCloseOutputFiles
-	closeOutputFiles
+    *** nextItemType: Run ***
+	readAndCacheRun...(run: 2)
+    *** nextItemType: SubRun ***
+	readAndCacheSubRun(run: 2 subRun: 1)
+    *** nextItemType: InputFile ***
+	writeSubRun.......(run: 2 subRun: 1)
+	writeRun..........(run: 2)
 	respondToCloseInputFile
+	clearPrincipalCache
 	closeInputFile
  	readFile
 	respondToOpenInputFile
-    *** nextItemType: File 0 ***
-	openOutputFiles
-	respondToOpenOutputFiles
-	respondToCloseOutputFiles
-	closeOutputFiles
+    *** nextItemType: InputFile ***
 	respondToCloseInputFile
+	clearPrincipalCache
 	closeInputFile
  	readFile
 	respondToOpenInputFile
-    *** nextItemType: File 1 ***
-	openOutputFiles
-	respondToOpenOutputFiles
+    *** nextItemType: InputFile+SwitchOutputFiles ***
 	respondToCloseOutputFiles
-	closeOutputFiles
+	closeSomeOutputFiles
 	respondToCloseInputFile
+	clearPrincipalCache
 	closeInputFile
  	readFile
 	respondToOpenInputFile
-    *** nextItemType: Stop 1 ***
-	openOutputFiles
+	openSomeOutputFiles
 	respondToOpenOutputFiles
+    *** nextItemType: Stop ***
 	respondToCloseOutputFiles
-	closeOutputFiles
+	closeAllOutputFiles
 	respondToCloseInputFile
+	clearPrincipalCache
 	closeInputFile
+	endJob
 The state machine reports it has been terminated
 
-Machine parameters:  mode = NOMERGE  handleEmptyRuns = 0  handleEmptySubRuns = 1
-    *** nextItemType: File 0 ***
+Machine parameters:  handleEmptyRuns = 0  handleEmptySubRuns = 1
+	beginJob
+    *** nextItemType: InputFile ***
  	readFile
 	respondToOpenInputFile
-    *** nextItemType: File 1 ***
-	openOutputFiles
+	openAllOutputFiles
 	respondToOpenOutputFiles
+    *** nextItemType: InputFile+SwitchOutputFiles ***
 	respondToCloseOutputFiles
-	closeOutputFiles
+	closeSomeOutputFiles
 	respondToCloseInputFile
+	clearPrincipalCache
 	closeInputFile
  	readFile
 	respondToOpenInputFile
-    *** nextItemType: File 1 ***
-	openOutputFiles
+	openSomeOutputFiles
 	respondToOpenOutputFiles
+    *** nextItemType: InputFile+SwitchOutputFiles ***
 	respondToCloseOutputFiles
-	closeOutputFiles
+	closeSomeOutputFiles
 	respondToCloseInputFile
+	clearPrincipalCache
 	closeInputFile
  	readFile
 	respondToOpenInputFile
-    *** nextItemType: File 0 ***
-	openOutputFiles
+	openSomeOutputFiles
 	respondToOpenOutputFiles
-	respondToCloseOutputFiles
-	closeOutputFiles
+    *** nextItemType: InputFile ***
 	respondToCloseInputFile
+	clearPrincipalCache
 	closeInputFile
  	readFile
 	respondToOpenInputFile
-    *** nextItemType: File 0 ***
-	openOutputFiles
-	respondToOpenOutputFiles
-	respondToCloseOutputFiles
-	closeOutputFiles
+    *** nextItemType: InputFile ***
 	respondToCloseInputFile
+	clearPrincipalCache
 	closeInputFile
  	readFile
 	respondToOpenInputFile
-    *** nextItemType: File 1 ***
-	openOutputFiles
-	respondToOpenOutputFiles
+    *** nextItemType: InputFile+SwitchOutputFiles ***
 	respondToCloseOutputFiles
-	closeOutputFiles
+	closeSomeOutputFiles
 	respondToCloseInputFile
+	clearPrincipalCache
 	closeInputFile
  	readFile
 	respondToOpenInputFile
-    *** nextItemType: Run 1 ***
-	openOutputFiles
+	openSomeOutputFiles
 	respondToOpenOutputFiles
-	readAndCacheRun 1
-    *** nextItemType: File 0 ***
-	writeRun 1
-	deleteRunFromCache 1
-	respondToCloseOutputFiles
-	closeOutputFiles
+    *** nextItemType: Run ***
+	readAndCacheRun...(run: 1)
+    *** nextItemType: InputFile ***
+	writeRun..........(run: 1)
 	respondToCloseInputFile
+	clearPrincipalCache
 	closeInputFile
  	readFile
 	respondToOpenInputFile
-    *** nextItemType: File 0 ***
-	openOutputFiles
-	respondToOpenOutputFiles
-	respondToCloseOutputFiles
-	closeOutputFiles
+    *** nextItemType: InputFile ***
 	respondToCloseInputFile
+	clearPrincipalCache
 	closeInputFile
  	readFile
 	respondToOpenInputFile
-    *** nextItemType: File 1 ***
-	openOutputFiles
-	respondToOpenOutputFiles
+    *** nextItemType: InputFile+SwitchOutputFiles ***
 	respondToCloseOutputFiles
-	closeOutputFiles
+	closeSomeOutputFiles
 	respondToCloseInputFile
+	clearPrincipalCache
 	closeInputFile
  	readFile
 	respondToOpenInputFile
-    *** nextItemType: Run 2 ***
-	openOutputFiles
+	openSomeOutputFiles
 	respondToOpenOutputFiles
-	readAndCacheRun 2
-    *** nextItemType: SubRun 1 ***
-	readAndCacheSubRun 1
-    *** nextItemType: File 0 ***
-	beginSubRun 2/1
-	endSubRun 2/1
-	writeSubRun 2/1
-	deleteSubRunFromCache 2/1
-	writeRun 2
-	deleteRunFromCache 2
-	respondToCloseOutputFiles
-	closeOutputFiles
+    *** nextItemType: Run ***
+	readAndCacheRun...(run: 2)
+    *** nextItemType: SubRun ***
+	readAndCacheSubRun(run: 2 subRun: 1)
+    *** nextItemType: InputFile ***
+	beginSubRun.......(run: 2 subRun: 1)
+	endSubRun.........(run: 2 subRun: 1)
+	writeSubRun.......(run: 2 subRun: 1)
+	writeRun..........(run: 2)
 	respondToCloseInputFile
+	clearPrincipalCache
 	closeInputFile
  	readFile
 	respondToOpenInputFile
-    *** nextItemType: File 0 ***
-	openOutputFiles
-	respondToOpenOutputFiles
-	respondToCloseOutputFiles
-	closeOutputFiles
+    *** nextItemType: InputFile ***
 	respondToCloseInputFile
+	clearPrincipalCache
 	closeInputFile
  	readFile
 	respondToOpenInputFile
-    *** nextItemType: File 1 ***
-	openOutputFiles
-	respondToOpenOutputFiles
+    *** nextItemType: InputFile+SwitchOutputFiles ***
 	respondToCloseOutputFiles
-	closeOutputFiles
+	closeSomeOutputFiles
 	respondToCloseInputFile
+	clearPrincipalCache
 	closeInputFile
  	readFile
 	respondToOpenInputFile
-    *** nextItemType: Stop 1 ***
-	openOutputFiles
+	openSomeOutputFiles
 	respondToOpenOutputFiles
+    *** nextItemType: Stop ***
 	respondToCloseOutputFiles
-	closeOutputFiles
+	closeAllOutputFiles
 	respondToCloseInputFile
+	clearPrincipalCache
 	closeInputFile
+	endJob
 The state machine reports it has been terminated
 
-Machine parameters:  mode = NOMERGE  handleEmptyRuns = 1  handleEmptySubRuns = 0
-    *** nextItemType: File 0 ***
+Machine parameters:  handleEmptyRuns = 1  handleEmptySubRuns = 0
+	beginJob
+    *** nextItemType: InputFile ***
  	readFile
 	respondToOpenInputFile
-    *** nextItemType: File 1 ***
-	openOutputFiles
+	openAllOutputFiles
 	respondToOpenOutputFiles
+    *** nextItemType: InputFile+SwitchOutputFiles ***
 	respondToCloseOutputFiles
-	closeOutputFiles
+	closeSomeOutputFiles
 	respondToCloseInputFile
+	clearPrincipalCache
 	closeInputFile
  	readFile
 	respondToOpenInputFile
-    *** nextItemType: File 1 ***
-	openOutputFiles
+	openSomeOutputFiles
 	respondToOpenOutputFiles
+    *** nextItemType: InputFile+SwitchOutputFiles ***
 	respondToCloseOutputFiles
-	closeOutputFiles
+	closeSomeOutputFiles
 	respondToCloseInputFile
+	clearPrincipalCache
 	closeInputFile
  	readFile
 	respondToOpenInputFile
-    *** nextItemType: File 0 ***
-	openOutputFiles
+	openSomeOutputFiles
 	respondToOpenOutputFiles
-	respondToCloseOutputFiles
-	closeOutputFiles
+    *** nextItemType: InputFile ***
 	respondToCloseInputFile
+	clearPrincipalCache
 	closeInputFile
  	readFile
 	respondToOpenInputFile
-    *** nextItemType: File 0 ***
-	openOutputFiles
-	respondToOpenOutputFiles
-	respondToCloseOutputFiles
-	closeOutputFiles
+    *** nextItemType: InputFile ***
 	respondToCloseInputFile
+	clearPrincipalCache
 	closeInputFile
  	readFile
 	respondToOpenInputFile
-    *** nextItemType: File 1 ***
-	openOutputFiles
-	respondToOpenOutputFiles
+    *** nextItemType: InputFile+SwitchOutputFiles ***
 	respondToCloseOutputFiles
-	closeOutputFiles
+	closeSomeOutputFiles
 	respondToCloseInputFile
+	clearPrincipalCache
 	closeInputFile
  	readFile
 	respondToOpenInputFile
-    *** nextItemType: Run 1 ***
-	openOutputFiles
+	openSomeOutputFiles
 	respondToOpenOutputFiles
-	readAndCacheRun 1
-	beginRun 1
-    *** nextItemType: File 0 ***
-	endRun 1
-	writeRun 1
-	deleteRunFromCache 1
-	respondToCloseOutputFiles
-	closeOutputFiles
+    *** nextItemType: Run ***
+	readAndCacheRun...(run: 1)
+	beginRun..........(run: 1)
+    *** nextItemType: InputFile ***
+	endRun............(run: 1)
+	writeRun..........(run: 1)
 	respondToCloseInputFile
+	clearPrincipalCache
 	closeInputFile
  	readFile
 	respondToOpenInputFile
-    *** nextItemType: File 0 ***
-	openOutputFiles
-	respondToOpenOutputFiles
-	respondToCloseOutputFiles
-	closeOutputFiles
+    *** nextItemType: InputFile ***
 	respondToCloseInputFile
+	clearPrincipalCache
 	closeInputFile
  	readFile
 	respondToOpenInputFile
-    *** nextItemType: File 1 ***
-	openOutputFiles
-	respondToOpenOutputFiles
+    *** nextItemType: InputFile+SwitchOutputFiles ***
 	respondToCloseOutputFiles
-	closeOutputFiles
+	closeSomeOutputFiles
 	respondToCloseInputFile
+	clearPrincipalCache
 	closeInputFile
  	readFile
 	respondToOpenInputFile
-    *** nextItemType: Run 2 ***
-	openOutputFiles
+	openSomeOutputFiles
 	respondToOpenOutputFiles
-	readAndCacheRun 2
-	beginRun 2
-    *** nextItemType: SubRun 1 ***
-	readAndCacheSubRun 1
-    *** nextItemType: File 0 ***
-	writeSubRun 2/1
-	deleteSubRunFromCache 2/1
-	endRun 2
-	writeRun 2
-	deleteRunFromCache 2
-	respondToCloseOutputFiles
-	closeOutputFiles
+    *** nextItemType: Run ***
+	readAndCacheRun...(run: 2)
+	beginRun..........(run: 2)
+    *** nextItemType: SubRun ***
+	readAndCacheSubRun(run: 2 subRun: 1)
+    *** nextItemType: InputFile ***
+	writeSubRun.......(run: 2 subRun: 1)
+	endRun............(run: 2)
+	writeRun..........(run: 2)
 	respondToCloseInputFile
+	clearPrincipalCache
 	closeInputFile
  	readFile
 	respondToOpenInputFile
-    *** nextItemType: File 0 ***
-	openOutputFiles
-	respondToOpenOutputFiles
-	respondToCloseOutputFiles
-	closeOutputFiles
+    *** nextItemType: InputFile ***
 	respondToCloseInputFile
+	clearPrincipalCache
 	closeInputFile
  	readFile
 	respondToOpenInputFile
-    *** nextItemType: File 1 ***
-	openOutputFiles
-	respondToOpenOutputFiles
+    *** nextItemType: InputFile+SwitchOutputFiles ***
 	respondToCloseOutputFiles
-	closeOutputFiles
+	closeSomeOutputFiles
 	respondToCloseInputFile
+	clearPrincipalCache
 	closeInputFile
  	readFile
 	respondToOpenInputFile
-    *** nextItemType: Stop 1 ***
-	openOutputFiles
+	openSomeOutputFiles
 	respondToOpenOutputFiles
+    *** nextItemType: Stop ***
 	respondToCloseOutputFiles
-	closeOutputFiles
+	closeAllOutputFiles
 	respondToCloseInputFile
+	clearPrincipalCache
 	closeInputFile
+	endJob
 The state machine reports it has been terminated
 
-Machine parameters:  mode = NOMERGE  handleEmptyRuns = 1  handleEmptySubRuns = 1
-    *** nextItemType: File 0 ***
+Machine parameters:  handleEmptyRuns = 1  handleEmptySubRuns = 1
+	beginJob
+    *** nextItemType: InputFile ***
  	readFile
 	respondToOpenInputFile
-    *** nextItemType: File 1 ***
-	openOutputFiles
+	openAllOutputFiles
 	respondToOpenOutputFiles
+    *** nextItemType: InputFile+SwitchOutputFiles ***
 	respondToCloseOutputFiles
-	closeOutputFiles
+	closeSomeOutputFiles
 	respondToCloseInputFile
+	clearPrincipalCache
 	closeInputFile
  	readFile
 	respondToOpenInputFile
-    *** nextItemType: File 1 ***
-	openOutputFiles
+	openSomeOutputFiles
 	respondToOpenOutputFiles
+    *** nextItemType: InputFile+SwitchOutputFiles ***
 	respondToCloseOutputFiles
-	closeOutputFiles
+	closeSomeOutputFiles
 	respondToCloseInputFile
+	clearPrincipalCache
 	closeInputFile
  	readFile
 	respondToOpenInputFile
-    *** nextItemType: File 0 ***
-	openOutputFiles
+	openSomeOutputFiles
 	respondToOpenOutputFiles
-	respondToCloseOutputFiles
-	closeOutputFiles
+    *** nextItemType: InputFile ***
 	respondToCloseInputFile
+	clearPrincipalCache
 	closeInputFile
  	readFile
 	respondToOpenInputFile
-    *** nextItemType: File 0 ***
-	openOutputFiles
-	respondToOpenOutputFiles
-	respondToCloseOutputFiles
-	closeOutputFiles
+    *** nextItemType: InputFile ***
 	respondToCloseInputFile
+	clearPrincipalCache
 	closeInputFile
  	readFile
 	respondToOpenInputFile
-    *** nextItemType: File 1 ***
-	openOutputFiles
-	respondToOpenOutputFiles
+    *** nextItemType: InputFile+SwitchOutputFiles ***
 	respondToCloseOutputFiles
-	closeOutputFiles
+	closeSomeOutputFiles
 	respondToCloseInputFile
+	clearPrincipalCache
 	closeInputFile
  	readFile
 	respondToOpenInputFile
-    *** nextItemType: Run 1 ***
-	openOutputFiles
+	openSomeOutputFiles
 	respondToOpenOutputFiles
-	readAndCacheRun 1
-	beginRun 1
-    *** nextItemType: File 0 ***
-	endRun 1
-	writeRun 1
-	deleteRunFromCache 1
-	respondToCloseOutputFiles
-	closeOutputFiles
+    *** nextItemType: Run ***
+	readAndCacheRun...(run: 1)
+	beginRun..........(run: 1)
+    *** nextItemType: InputFile ***
+	endRun............(run: 1)
+	writeRun..........(run: 1)
 	respondToCloseInputFile
+	clearPrincipalCache
 	closeInputFile
  	readFile
 	respondToOpenInputFile
-    *** nextItemType: File 0 ***
-	openOutputFiles
-	respondToOpenOutputFiles
-	respondToCloseOutputFiles
-	closeOutputFiles
+    *** nextItemType: InputFile ***
 	respondToCloseInputFile
+	clearPrincipalCache
 	closeInputFile
  	readFile
 	respondToOpenInputFile
-    *** nextItemType: File 1 ***
-	openOutputFiles
-	respondToOpenOutputFiles
+    *** nextItemType: InputFile+SwitchOutputFiles ***
 	respondToCloseOutputFiles
-	closeOutputFiles
+	closeSomeOutputFiles
 	respondToCloseInputFile
+	clearPrincipalCache
 	closeInputFile
  	readFile
 	respondToOpenInputFile
-    *** nextItemType: Run 2 ***
-	openOutputFiles
+	openSomeOutputFiles
 	respondToOpenOutputFiles
-	readAndCacheRun 2
-	beginRun 2
-    *** nextItemType: SubRun 1 ***
-	readAndCacheSubRun 1
-    *** nextItemType: File 0 ***
-	beginSubRun 2/1
-	endSubRun 2/1
-	writeSubRun 2/1
-	deleteSubRunFromCache 2/1
-	endRun 2
-	writeRun 2
-	deleteRunFromCache 2
-	respondToCloseOutputFiles
-	closeOutputFiles
+    *** nextItemType: Run ***
+	readAndCacheRun...(run: 2)
+	beginRun..........(run: 2)
+    *** nextItemType: SubRun ***
+	readAndCacheSubRun(run: 2 subRun: 1)
+    *** nextItemType: InputFile ***
+	beginSubRun.......(run: 2 subRun: 1)
+	endSubRun.........(run: 2 subRun: 1)
+	writeSubRun.......(run: 2 subRun: 1)
+	endRun............(run: 2)
+	writeRun..........(run: 2)
 	respondToCloseInputFile
+	clearPrincipalCache
 	closeInputFile
  	readFile
 	respondToOpenInputFile
-    *** nextItemType: File 0 ***
-	openOutputFiles
-	respondToOpenOutputFiles
-	respondToCloseOutputFiles
-	closeOutputFiles
+    *** nextItemType: InputFile ***
 	respondToCloseInputFile
+	clearPrincipalCache
 	closeInputFile
  	readFile
 	respondToOpenInputFile
-    *** nextItemType: File 1 ***
-	openOutputFiles
-	respondToOpenOutputFiles
+    *** nextItemType: InputFile+SwitchOutputFiles ***
 	respondToCloseOutputFiles
-	closeOutputFiles
+	closeSomeOutputFiles
 	respondToCloseInputFile
+	clearPrincipalCache
 	closeInputFile
  	readFile
 	respondToOpenInputFile
-    *** nextItemType: Stop 1 ***
-	openOutputFiles
+	openSomeOutputFiles
 	respondToOpenOutputFiles
+    *** nextItemType: Stop ***
 	respondToCloseOutputFiles
-	closeOutputFiles
+	closeAllOutputFiles
 	respondToCloseInputFile
+	clearPrincipalCache
 	closeInputFile
+	endJob
 The state machine reports it has been terminated
 
-Machine parameters:  mode = MERGE  handleEmptyRuns = 0  handleEmptySubRuns = 0
-    *** nextItemType: File 0 ***
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: File 1 ***
-	openOutputFiles
-	respondToOpenOutputFiles
-	shouldWeCloseOutput
-	respondToCloseOutputFiles
-	closeOutputFiles
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: File 1 ***
-	shouldWeCloseOutput
-	openOutputFiles
-	respondToOpenOutputFiles
-	shouldWeCloseOutput
-	respondToCloseOutputFiles
-	closeOutputFiles
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: File 1 ***
-	shouldWeCloseOutput
-	openOutputFiles
-	respondToOpenOutputFiles
-	shouldWeCloseOutput
-	respondToCloseOutputFiles
-	closeOutputFiles
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: Run 1 ***
-	shouldWeCloseOutput
-	openOutputFiles
-	respondToOpenOutputFiles
-	readAndCacheRun 1
-    *** nextItemType: File 0 ***
-	writeRun 1
-	deleteRunFromCache 1
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: File 1 ***
-	shouldWeCloseOutput
-	openOutputFiles
-	respondToOpenOutputFiles
-	shouldWeCloseOutput
-	respondToCloseOutputFiles
-	closeOutputFiles
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: Run 2 ***
-	shouldWeCloseOutput
-	openOutputFiles
-	respondToOpenOutputFiles
-	readAndCacheRun 2
-    *** nextItemType: SubRun 1 ***
-	readAndCacheSubRun 1
-    *** nextItemType: File 0 ***
-	writeSubRun 2/1
-	deleteSubRunFromCache 2/1
-	writeRun 2
-	deleteRunFromCache 2
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: File 1 ***
-	shouldWeCloseOutput
-	openOutputFiles
-	respondToOpenOutputFiles
-	shouldWeCloseOutput
-	respondToCloseOutputFiles
-	closeOutputFiles
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: Stop 1 ***
-	shouldWeCloseOutput
-	openOutputFiles
-	respondToOpenOutputFiles
-	respondToCloseOutputFiles
-	closeOutputFiles
-	respondToCloseInputFile
-	closeInputFile
-The state machine reports it has been terminated
-
-Machine parameters:  mode = MERGE  handleEmptyRuns = 0  handleEmptySubRuns = 1
-    *** nextItemType: File 0 ***
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: File 1 ***
-	openOutputFiles
-	respondToOpenOutputFiles
-	shouldWeCloseOutput
-	respondToCloseOutputFiles
-	closeOutputFiles
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: File 1 ***
-	shouldWeCloseOutput
-	openOutputFiles
-	respondToOpenOutputFiles
-	shouldWeCloseOutput
-	respondToCloseOutputFiles
-	closeOutputFiles
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: File 1 ***
-	shouldWeCloseOutput
-	openOutputFiles
-	respondToOpenOutputFiles
-	shouldWeCloseOutput
-	respondToCloseOutputFiles
-	closeOutputFiles
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: Run 1 ***
-	shouldWeCloseOutput
-	openOutputFiles
-	respondToOpenOutputFiles
-	readAndCacheRun 1
-    *** nextItemType: File 0 ***
-	writeRun 1
-	deleteRunFromCache 1
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: File 1 ***
-	shouldWeCloseOutput
-	openOutputFiles
-	respondToOpenOutputFiles
-	shouldWeCloseOutput
-	respondToCloseOutputFiles
-	closeOutputFiles
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: Run 2 ***
-	shouldWeCloseOutput
-	openOutputFiles
-	respondToOpenOutputFiles
-	readAndCacheRun 2
-    *** nextItemType: SubRun 1 ***
-	readAndCacheSubRun 1
-    *** nextItemType: File 0 ***
-	beginSubRun 2/1
-	endSubRun 2/1
-	writeSubRun 2/1
-	deleteSubRunFromCache 2/1
-	writeRun 2
-	deleteRunFromCache 2
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: File 1 ***
-	shouldWeCloseOutput
-	openOutputFiles
-	respondToOpenOutputFiles
-	shouldWeCloseOutput
-	respondToCloseOutputFiles
-	closeOutputFiles
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: Stop 1 ***
-	shouldWeCloseOutput
-	openOutputFiles
-	respondToOpenOutputFiles
-	respondToCloseOutputFiles
-	closeOutputFiles
-	respondToCloseInputFile
-	closeInputFile
-The state machine reports it has been terminated
-
-Machine parameters:  mode = MERGE  handleEmptyRuns = 1  handleEmptySubRuns = 0
-    *** nextItemType: File 0 ***
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: File 1 ***
-	openOutputFiles
-	respondToOpenOutputFiles
-	shouldWeCloseOutput
-	respondToCloseOutputFiles
-	closeOutputFiles
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: File 1 ***
-	shouldWeCloseOutput
-	openOutputFiles
-	respondToOpenOutputFiles
-	shouldWeCloseOutput
-	respondToCloseOutputFiles
-	closeOutputFiles
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: File 1 ***
-	shouldWeCloseOutput
-	openOutputFiles
-	respondToOpenOutputFiles
-	shouldWeCloseOutput
-	respondToCloseOutputFiles
-	closeOutputFiles
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: Run 1 ***
-	shouldWeCloseOutput
-	openOutputFiles
-	respondToOpenOutputFiles
-	readAndCacheRun 1
-	beginRun 1
-    *** nextItemType: File 0 ***
-	endRun 1
-	writeRun 1
-	deleteRunFromCache 1
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: File 1 ***
-	shouldWeCloseOutput
-	openOutputFiles
-	respondToOpenOutputFiles
-	shouldWeCloseOutput
-	respondToCloseOutputFiles
-	closeOutputFiles
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: Run 2 ***
-	shouldWeCloseOutput
-	openOutputFiles
-	respondToOpenOutputFiles
-	readAndCacheRun 2
-	beginRun 2
-    *** nextItemType: SubRun 1 ***
-	readAndCacheSubRun 1
-    *** nextItemType: File 0 ***
-	writeSubRun 2/1
-	deleteSubRunFromCache 2/1
-	endRun 2
-	writeRun 2
-	deleteRunFromCache 2
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: File 1 ***
-	shouldWeCloseOutput
-	openOutputFiles
-	respondToOpenOutputFiles
-	shouldWeCloseOutput
-	respondToCloseOutputFiles
-	closeOutputFiles
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: Stop 1 ***
-	shouldWeCloseOutput
-	openOutputFiles
-	respondToOpenOutputFiles
-	respondToCloseOutputFiles
-	closeOutputFiles
-	respondToCloseInputFile
-	closeInputFile
-The state machine reports it has been terminated
-
-Machine parameters:  mode = MERGE  handleEmptyRuns = 1  handleEmptySubRuns = 1
-    *** nextItemType: File 0 ***
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: File 1 ***
-	openOutputFiles
-	respondToOpenOutputFiles
-	shouldWeCloseOutput
-	respondToCloseOutputFiles
-	closeOutputFiles
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: File 1 ***
-	shouldWeCloseOutput
-	openOutputFiles
-	respondToOpenOutputFiles
-	shouldWeCloseOutput
-	respondToCloseOutputFiles
-	closeOutputFiles
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: File 1 ***
-	shouldWeCloseOutput
-	openOutputFiles
-	respondToOpenOutputFiles
-	shouldWeCloseOutput
-	respondToCloseOutputFiles
-	closeOutputFiles
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: Run 1 ***
-	shouldWeCloseOutput
-	openOutputFiles
-	respondToOpenOutputFiles
-	readAndCacheRun 1
-	beginRun 1
-    *** nextItemType: File 0 ***
-	endRun 1
-	writeRun 1
-	deleteRunFromCache 1
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: File 1 ***
-	shouldWeCloseOutput
-	openOutputFiles
-	respondToOpenOutputFiles
-	shouldWeCloseOutput
-	respondToCloseOutputFiles
-	closeOutputFiles
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: Run 2 ***
-	shouldWeCloseOutput
-	openOutputFiles
-	respondToOpenOutputFiles
-	readAndCacheRun 2
-	beginRun 2
-    *** nextItemType: SubRun 1 ***
-	readAndCacheSubRun 1
-    *** nextItemType: File 0 ***
-	beginSubRun 2/1
-	endSubRun 2/1
-	writeSubRun 2/1
-	deleteSubRunFromCache 2/1
-	endRun 2
-	writeRun 2
-	deleteRunFromCache 2
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: File 1 ***
-	shouldWeCloseOutput
-	openOutputFiles
-	respondToOpenOutputFiles
-	shouldWeCloseOutput
-	respondToCloseOutputFiles
-	closeOutputFiles
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: Stop 1 ***
-	shouldWeCloseOutput
-	openOutputFiles
-	respondToOpenOutputFiles
-	respondToCloseOutputFiles
-	closeOutputFiles
-	respondToCloseInputFile
-	closeInputFile
-The state machine reports it has been terminated

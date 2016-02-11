@@ -1,316 +1,308 @@
-
-Machine parameters:  mode = NOMERGE  handleEmptyRuns = 0  handleEmptySubRuns = 0
-    *** nextItemType: File 1 ***
+Machine parameters:  handleEmptyRuns = 0  handleEmptySubRuns = 0
+	beginJob
+    *** nextItemType: InputFile ***
  	readFile
 	respondToOpenInputFile
-    *** nextItemType: Run 1 ***
-	openOutputFiles
+	openAllOutputFiles
 	respondToOpenOutputFiles
-	readAndCacheRun 1
-    *** nextItemType: SubRun 1 ***
-	readAndCacheSubRun 1
+    *** nextItemType: Run ***
+	readAndCacheRun...(run: 1)
+    *** nextItemType: SubRun ***
+	readAndCacheSubRun(run: 1 subRun: 1)
     *** nextItemType: Event ***
-	beginRun 1
-	beginSubRun 1/1
-	readEvent
-	processEvent
+	beginRun..........(run: 1)
+	beginSubRun.......(run: 1 subRun: 1)
+	readEvent.........(run: 1 subRun: 1 event: 1)
+	processEvent......(run: 1 subRun: 1 event: 1)
 	shouldWeStop
-    *** nextItemType: File 0 ***
-	endSubRun 1/1
-	writeSubRun 1/1
-	deleteSubRunFromCache 1/1
-	endRun 1
-	writeRun 1
-	deleteRunFromCache 1
+    *** nextItemType: InputFile+SwitchOutputFiles ***
+	writeEvent........(run: 1 subRun: 1 event: 1)
+	endSubRun.........(run: 1 subRun: 1)
+	writeSubRun.......(run: 1 subRun: 1)
+	endRun............(run: 1)
+	writeRun..........(run: 1)
 	respondToCloseOutputFiles
-	closeOutputFiles
+	closeSomeOutputFiles
 	respondToCloseInputFile
+	clearPrincipalCache
 	closeInputFile
  	readFile
 	respondToOpenInputFile
-    *** nextItemType: Run 1 ***
-	openOutputFiles
+	openSomeOutputFiles
 	respondToOpenOutputFiles
-	readAndCacheRun 1
-    *** nextItemType: SubRun 2 ***
-	readAndCacheSubRun 2
+    *** nextItemType: Run ***
+	readAndCacheRun...(run: 1)
+    *** nextItemType: SubRun ***
+	readAndCacheSubRun(run: 1 subRun: 2)
     *** nextItemType: Event ***
-	beginRun 1
-	beginSubRun 1/2
-	readEvent
-	processEvent
+	beginRun..........(run: 1)
+	beginSubRun.......(run: 1 subRun: 2)
+	readEvent.........(run: 1 subRun: 2 event: 1)
+	processEvent......(run: 1 subRun: 2 event: 1)
 	shouldWeStop
-    *** nextItemType: File 0 ***
-	endSubRun 1/2
-	writeSubRun 1/2
-	deleteSubRunFromCache 1/2
-	endRun 1
-	writeRun 1
-	deleteRunFromCache 1
-	respondToCloseOutputFiles
-	closeOutputFiles
+    *** nextItemType: InputFile ***
+	writeEvent........(run: 1 subRun: 2 event: 1)
+	endSubRun.........(run: 1 subRun: 2)
+	writeSubRun.......(run: 1 subRun: 2)
+	endRun............(run: 1)
+	writeRun..........(run: 1)
 	respondToCloseInputFile
+	clearPrincipalCache
 	closeInputFile
  	readFile
 	respondToOpenInputFile
-    *** nextItemType: Run 1 ***
-	openOutputFiles
-	respondToOpenOutputFiles
-	readAndCacheRun 1
-    *** nextItemType: SubRun 1 ***
-	readAndCacheSubRun 1
+    *** nextItemType: Run ***
+	readAndCacheRun...(run: 1)
+    *** nextItemType: SubRun ***
+	readAndCacheSubRun(run: 1 subRun: 1)
     *** nextItemType: Event ***
-	beginRun 1
-	beginSubRun 1/1
-	readEvent
-	processEvent
+	beginRun..........(run: 1)
+	beginSubRun.......(run: 1 subRun: 1)
+	readEvent.........(run: 1 subRun: 1 event: 2)
+	processEvent......(run: 1 subRun: 1 event: 2)
 	shouldWeStop
-    *** nextItemType: Stop 1 ***
-	endSubRun 1/1
-	writeSubRun 1/1
-	deleteSubRunFromCache 1/1
-	endRun 1
-	writeRun 1
-	deleteRunFromCache 1
+    *** nextItemType: Stop ***
+	writeEvent........(run: 1 subRun: 1 event: 2)
+	endSubRun.........(run: 1 subRun: 1)
+	writeSubRun.......(run: 1 subRun: 1)
+	endRun............(run: 1)
+	writeRun..........(run: 1)
 	respondToCloseOutputFiles
-	closeOutputFiles
+	closeAllOutputFiles
 	respondToCloseInputFile
+	clearPrincipalCache
 	closeInputFile
+	endJob
 The state machine reports it has been terminated
 
-Machine parameters:  mode = NOMERGE  handleEmptyRuns = 0  handleEmptySubRuns = 1
-    *** nextItemType: File 1 ***
+Machine parameters:  handleEmptyRuns = 0  handleEmptySubRuns = 1
+	beginJob
+    *** nextItemType: InputFile ***
  	readFile
 	respondToOpenInputFile
-    *** nextItemType: Run 1 ***
-	openOutputFiles
+	openAllOutputFiles
 	respondToOpenOutputFiles
-	readAndCacheRun 1
-    *** nextItemType: SubRun 1 ***
-	readAndCacheSubRun 1
+    *** nextItemType: Run ***
+	readAndCacheRun...(run: 1)
+    *** nextItemType: SubRun ***
+	readAndCacheSubRun(run: 1 subRun: 1)
     *** nextItemType: Event ***
-	beginRun 1
-	beginSubRun 1/1
-	readEvent
-	processEvent
+	beginRun..........(run: 1)
+	beginSubRun.......(run: 1 subRun: 1)
+	readEvent.........(run: 1 subRun: 1 event: 1)
+	processEvent......(run: 1 subRun: 1 event: 1)
 	shouldWeStop
-    *** nextItemType: File 0 ***
-	endSubRun 1/1
-	writeSubRun 1/1
-	deleteSubRunFromCache 1/1
-	endRun 1
-	writeRun 1
-	deleteRunFromCache 1
+    *** nextItemType: InputFile+SwitchOutputFiles ***
+	writeEvent........(run: 1 subRun: 1 event: 1)
+	endSubRun.........(run: 1 subRun: 1)
+	writeSubRun.......(run: 1 subRun: 1)
+	endRun............(run: 1)
+	writeRun..........(run: 1)
 	respondToCloseOutputFiles
-	closeOutputFiles
+	closeSomeOutputFiles
 	respondToCloseInputFile
+	clearPrincipalCache
 	closeInputFile
  	readFile
 	respondToOpenInputFile
-    *** nextItemType: Run 1 ***
-	openOutputFiles
+	openSomeOutputFiles
 	respondToOpenOutputFiles
-	readAndCacheRun 1
-    *** nextItemType: SubRun 2 ***
-	readAndCacheSubRun 2
+    *** nextItemType: Run ***
+	readAndCacheRun...(run: 1)
+    *** nextItemType: SubRun ***
+	readAndCacheSubRun(run: 1 subRun: 2)
     *** nextItemType: Event ***
-	beginRun 1
-	beginSubRun 1/2
-	readEvent
-	processEvent
+	beginRun..........(run: 1)
+	beginSubRun.......(run: 1 subRun: 2)
+	readEvent.........(run: 1 subRun: 2 event: 1)
+	processEvent......(run: 1 subRun: 2 event: 1)
 	shouldWeStop
-    *** nextItemType: File 0 ***
-	endSubRun 1/2
-	writeSubRun 1/2
-	deleteSubRunFromCache 1/2
-	endRun 1
-	writeRun 1
-	deleteRunFromCache 1
-	respondToCloseOutputFiles
-	closeOutputFiles
+    *** nextItemType: InputFile ***
+	writeEvent........(run: 1 subRun: 2 event: 1)
+	endSubRun.........(run: 1 subRun: 2)
+	writeSubRun.......(run: 1 subRun: 2)
+	endRun............(run: 1)
+	writeRun..........(run: 1)
 	respondToCloseInputFile
+	clearPrincipalCache
 	closeInputFile
  	readFile
 	respondToOpenInputFile
-    *** nextItemType: Run 1 ***
-	openOutputFiles
-	respondToOpenOutputFiles
-	readAndCacheRun 1
-    *** nextItemType: SubRun 1 ***
-	readAndCacheSubRun 1
+    *** nextItemType: Run ***
+	readAndCacheRun...(run: 1)
+    *** nextItemType: SubRun ***
+	readAndCacheSubRun(run: 1 subRun: 1)
     *** nextItemType: Event ***
-	beginRun 1
-	beginSubRun 1/1
-	readEvent
-	processEvent
+	beginRun..........(run: 1)
+	beginSubRun.......(run: 1 subRun: 1)
+	readEvent.........(run: 1 subRun: 1 event: 2)
+	processEvent......(run: 1 subRun: 1 event: 2)
 	shouldWeStop
-    *** nextItemType: Stop 1 ***
-	endSubRun 1/1
-	writeSubRun 1/1
-	deleteSubRunFromCache 1/1
-	endRun 1
-	writeRun 1
-	deleteRunFromCache 1
+    *** nextItemType: Stop ***
+	writeEvent........(run: 1 subRun: 1 event: 2)
+	endSubRun.........(run: 1 subRun: 1)
+	writeSubRun.......(run: 1 subRun: 1)
+	endRun............(run: 1)
+	writeRun..........(run: 1)
 	respondToCloseOutputFiles
-	closeOutputFiles
+	closeAllOutputFiles
 	respondToCloseInputFile
+	clearPrincipalCache
 	closeInputFile
+	endJob
 The state machine reports it has been terminated
 
-Machine parameters:  mode = NOMERGE  handleEmptyRuns = 1  handleEmptySubRuns = 0
-    *** nextItemType: File 1 ***
+Machine parameters:  handleEmptyRuns = 1  handleEmptySubRuns = 0
+	beginJob
+    *** nextItemType: InputFile ***
  	readFile
 	respondToOpenInputFile
-    *** nextItemType: Run 1 ***
-	openOutputFiles
+	openAllOutputFiles
 	respondToOpenOutputFiles
-	readAndCacheRun 1
-	beginRun 1
-    *** nextItemType: SubRun 1 ***
-	readAndCacheSubRun 1
+    *** nextItemType: Run ***
+	readAndCacheRun...(run: 1)
+	beginRun..........(run: 1)
+    *** nextItemType: SubRun ***
+	readAndCacheSubRun(run: 1 subRun: 1)
     *** nextItemType: Event ***
-	beginSubRun 1/1
-	readEvent
-	processEvent
+	beginSubRun.......(run: 1 subRun: 1)
+	readEvent.........(run: 1 subRun: 1 event: 1)
+	processEvent......(run: 1 subRun: 1 event: 1)
 	shouldWeStop
-    *** nextItemType: File 0 ***
-	endSubRun 1/1
-	writeSubRun 1/1
-	deleteSubRunFromCache 1/1
-	endRun 1
-	writeRun 1
-	deleteRunFromCache 1
+    *** nextItemType: InputFile+SwitchOutputFiles ***
+	writeEvent........(run: 1 subRun: 1 event: 1)
+	endSubRun.........(run: 1 subRun: 1)
+	writeSubRun.......(run: 1 subRun: 1)
+	endRun............(run: 1)
+	writeRun..........(run: 1)
 	respondToCloseOutputFiles
-	closeOutputFiles
+	closeSomeOutputFiles
 	respondToCloseInputFile
+	clearPrincipalCache
 	closeInputFile
  	readFile
 	respondToOpenInputFile
-    *** nextItemType: Run 1 ***
-	openOutputFiles
+	openSomeOutputFiles
 	respondToOpenOutputFiles
-	readAndCacheRun 1
-	beginRun 1
-    *** nextItemType: SubRun 2 ***
-	readAndCacheSubRun 2
+    *** nextItemType: Run ***
+	readAndCacheRun...(run: 1)
+	beginRun..........(run: 1)
+    *** nextItemType: SubRun ***
+	readAndCacheSubRun(run: 1 subRun: 2)
     *** nextItemType: Event ***
-	beginSubRun 1/2
-	readEvent
-	processEvent
+	beginSubRun.......(run: 1 subRun: 2)
+	readEvent.........(run: 1 subRun: 2 event: 1)
+	processEvent......(run: 1 subRun: 2 event: 1)
 	shouldWeStop
-    *** nextItemType: File 0 ***
-	endSubRun 1/2
-	writeSubRun 1/2
-	deleteSubRunFromCache 1/2
-	endRun 1
-	writeRun 1
-	deleteRunFromCache 1
-	respondToCloseOutputFiles
-	closeOutputFiles
+    *** nextItemType: InputFile ***
+	writeEvent........(run: 1 subRun: 2 event: 1)
+	endSubRun.........(run: 1 subRun: 2)
+	writeSubRun.......(run: 1 subRun: 2)
+	endRun............(run: 1)
+	writeRun..........(run: 1)
 	respondToCloseInputFile
+	clearPrincipalCache
 	closeInputFile
  	readFile
 	respondToOpenInputFile
-    *** nextItemType: Run 1 ***
-	openOutputFiles
-	respondToOpenOutputFiles
-	readAndCacheRun 1
-	beginRun 1
-    *** nextItemType: SubRun 1 ***
-	readAndCacheSubRun 1
+    *** nextItemType: Run ***
+	readAndCacheRun...(run: 1)
+	beginRun..........(run: 1)
+    *** nextItemType: SubRun ***
+	readAndCacheSubRun(run: 1 subRun: 1)
     *** nextItemType: Event ***
-	beginSubRun 1/1
-	readEvent
-	processEvent
+	beginSubRun.......(run: 1 subRun: 1)
+	readEvent.........(run: 1 subRun: 1 event: 2)
+	processEvent......(run: 1 subRun: 1 event: 2)
 	shouldWeStop
-    *** nextItemType: Stop 1 ***
-	endSubRun 1/1
-	writeSubRun 1/1
-	deleteSubRunFromCache 1/1
-	endRun 1
-	writeRun 1
-	deleteRunFromCache 1
+    *** nextItemType: Stop ***
+	writeEvent........(run: 1 subRun: 1 event: 2)
+	endSubRun.........(run: 1 subRun: 1)
+	writeSubRun.......(run: 1 subRun: 1)
+	endRun............(run: 1)
+	writeRun..........(run: 1)
 	respondToCloseOutputFiles
-	closeOutputFiles
+	closeAllOutputFiles
 	respondToCloseInputFile
+	clearPrincipalCache
 	closeInputFile
+	endJob
 The state machine reports it has been terminated
 
-Machine parameters:  mode = NOMERGE  handleEmptyRuns = 1  handleEmptySubRuns = 1
-    *** nextItemType: File 1 ***
+Machine parameters:  handleEmptyRuns = 1  handleEmptySubRuns = 1
+	beginJob
+    *** nextItemType: InputFile ***
  	readFile
 	respondToOpenInputFile
-    *** nextItemType: Run 1 ***
-	openOutputFiles
+	openAllOutputFiles
 	respondToOpenOutputFiles
-	readAndCacheRun 1
-	beginRun 1
-    *** nextItemType: SubRun 1 ***
-	readAndCacheSubRun 1
+    *** nextItemType: Run ***
+	readAndCacheRun...(run: 1)
+	beginRun..........(run: 1)
+    *** nextItemType: SubRun ***
+	readAndCacheSubRun(run: 1 subRun: 1)
     *** nextItemType: Event ***
-	beginSubRun 1/1
-	readEvent
-	processEvent
+	beginSubRun.......(run: 1 subRun: 1)
+	readEvent.........(run: 1 subRun: 1 event: 1)
+	processEvent......(run: 1 subRun: 1 event: 1)
 	shouldWeStop
-    *** nextItemType: File 0 ***
-	endSubRun 1/1
-	writeSubRun 1/1
-	deleteSubRunFromCache 1/1
-	endRun 1
-	writeRun 1
-	deleteRunFromCache 1
+    *** nextItemType: InputFile+SwitchOutputFiles ***
+	writeEvent........(run: 1 subRun: 1 event: 1)
+	endSubRun.........(run: 1 subRun: 1)
+	writeSubRun.......(run: 1 subRun: 1)
+	endRun............(run: 1)
+	writeRun..........(run: 1)
 	respondToCloseOutputFiles
-	closeOutputFiles
+	closeSomeOutputFiles
 	respondToCloseInputFile
+	clearPrincipalCache
 	closeInputFile
  	readFile
 	respondToOpenInputFile
-    *** nextItemType: Run 1 ***
-	openOutputFiles
+	openSomeOutputFiles
 	respondToOpenOutputFiles
-	readAndCacheRun 1
-	beginRun 1
-    *** nextItemType: SubRun 2 ***
-	readAndCacheSubRun 2
+    *** nextItemType: Run ***
+	readAndCacheRun...(run: 1)
+	beginRun..........(run: 1)
+    *** nextItemType: SubRun ***
+	readAndCacheSubRun(run: 1 subRun: 2)
     *** nextItemType: Event ***
-	beginSubRun 1/2
-	readEvent
-	processEvent
+	beginSubRun.......(run: 1 subRun: 2)
+	readEvent.........(run: 1 subRun: 2 event: 1)
+	processEvent......(run: 1 subRun: 2 event: 1)
 	shouldWeStop
-    *** nextItemType: File 0 ***
-	endSubRun 1/2
-	writeSubRun 1/2
-	deleteSubRunFromCache 1/2
-	endRun 1
-	writeRun 1
-	deleteRunFromCache 1
-	respondToCloseOutputFiles
-	closeOutputFiles
+    *** nextItemType: InputFile ***
+	writeEvent........(run: 1 subRun: 2 event: 1)
+	endSubRun.........(run: 1 subRun: 2)
+	writeSubRun.......(run: 1 subRun: 2)
+	endRun............(run: 1)
+	writeRun..........(run: 1)
 	respondToCloseInputFile
+	clearPrincipalCache
 	closeInputFile
  	readFile
 	respondToOpenInputFile
-    *** nextItemType: Run 1 ***
-	openOutputFiles
-	respondToOpenOutputFiles
-	readAndCacheRun 1
-	beginRun 1
-    *** nextItemType: SubRun 1 ***
-	readAndCacheSubRun 1
+    *** nextItemType: Run ***
+	readAndCacheRun...(run: 1)
+	beginRun..........(run: 1)
+    *** nextItemType: SubRun ***
+	readAndCacheSubRun(run: 1 subRun: 1)
     *** nextItemType: Event ***
-	beginSubRun 1/1
-	readEvent
-	processEvent
+	beginSubRun.......(run: 1 subRun: 1)
+	readEvent.........(run: 1 subRun: 1 event: 2)
+	processEvent......(run: 1 subRun: 1 event: 2)
 	shouldWeStop
-    *** nextItemType: Stop 1 ***
-	endSubRun 1/1
-	writeSubRun 1/1
-	deleteSubRunFromCache 1/1
-	endRun 1
-	writeRun 1
-	deleteRunFromCache 1
+    *** nextItemType: Stop ***
+	writeEvent........(run: 1 subRun: 1 event: 2)
+	endSubRun.........(run: 1 subRun: 1)
+	writeSubRun.......(run: 1 subRun: 1)
+	endRun............(run: 1)
+	writeRun..........(run: 1)
 	respondToCloseOutputFiles
-	closeOutputFiles
+	closeAllOutputFiles
 	respondToCloseInputFile
+	clearPrincipalCache
 	closeInputFile
+	endJob
 The state machine reports it has been terminated
+

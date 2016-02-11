@@ -183,8 +183,8 @@ namespace statemachine {
     my_base{ctx},
     ep_{context<Machine>().ep()}
   {
-    post_event(Stop());
     ep_.endJob();
+    post_event(Stop());
   }
 
   sc::result Stopping::react(Stop const &)
@@ -212,11 +212,7 @@ namespace statemachine {
     auto& hf = context<HandleFiles>();
     hf.maybeCloseOutputFiles();
     hf.goToNewInputFile();
-  }
-
-  NewInputFile::~NewInputFile()
-  {
-    context<HandleFiles>().maybeOpenOutputFiles();
+    hf.maybeOpenOutputFiles();
   }
 
   sc::result NewInputFile::react(SwitchOutputFiles const&)

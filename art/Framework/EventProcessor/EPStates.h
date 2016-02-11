@@ -184,7 +184,7 @@ namespace statemachine {
   class NewInputFile : public sc::state<NewInputFile, HandleFiles> {
   public:
     NewInputFile(my_context ctx);
-    ~NewInputFile();
+    ~NewInputFile() = default;
 
     using reactions = mpl::list<
       sc::transition<Run, HandleRuns>,

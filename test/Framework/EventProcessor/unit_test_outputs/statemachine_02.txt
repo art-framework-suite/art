@@ -1,16 +1,16 @@
-f 0
-f 1
-f 1
-f 0
-f 0
-f 1
-r 1
-f 0
-f 0
-f 1
-r 2
-s 1
-f 0
-f 0
-f 1
-x 1
+InputFile
+InputFile+SwitchOutputFiles
+InputFile+SwitchOutputFiles
+InputFile
+InputFile
+InputFile+SwitchOutputFiles
+r:1
+InputFile
+InputFile
+InputFile+SwitchOutputFiles
+r:2
+s:1
+InputFile
+InputFile
+InputFile+SwitchOutputFiles
+Stop

@@ -64,7 +64,7 @@ int main(int argc, char* argv[]) {
                                                        {true,  true } };
 
   for (auto handleEmpty : handleEmptyRunsSubruns) {
-    output << "\nMachine parameters:"
+    output << "Machine parameters:"
            << "  handleEmptyRuns = " << handleEmpty.runs
            << "  handleEmptySubRuns = " << handleEmpty.subruns << '\n';
 
@@ -73,6 +73,7 @@ int main(int argc, char* argv[]) {
                                                handleEmpty.runs,
                                                handleEmpty.subruns};
     mockEventProcessor.runToCompletion();
+    output << '\n';
   }
 
 

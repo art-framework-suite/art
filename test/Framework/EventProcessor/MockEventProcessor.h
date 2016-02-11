@@ -16,7 +16,7 @@ namespace art
   class MockEventProcessor : public IEventProcessor {
   public:
 
-    MockEventProcessor(const std::string& mockData,
+    MockEventProcessor(std::string const& mockData,
                        std::ostream& output,
                        bool handleEmptyRuns,
                        bool handleEmptySubRuns);
@@ -37,8 +37,8 @@ namespace art
 
     void rewindInput() override;
     void recordOutputClosureRequests() override {};
-    bool outputToCloseAtBoundary(Boundary const) const override { return false; }
-    void switchOutputs(std::size_t const) override {}
+    void switchOutputs(std::size_t const) override;
+    bool outputToCloseAtBoundary(Boundary const) const override { return closeAtBoundary_; }
 
     void doErrorStuff() override;
 
@@ -83,6 +83,7 @@ namespace art
     RunID run_ {RunID::firstRun()};
     SubRunID subRun_ {SubRunID::firstSubRun()};
     EventID event_ {EventID::firstEvent()};
+    bool closeAtBoundary_ {false};
     bool shouldWeStop_ {false};
   };
 }
