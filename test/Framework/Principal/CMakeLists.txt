@@ -19,7 +19,7 @@ set( test_Framework_Principal_libraries
   ${ROOT_CINT}
 	${ROOT_REFLEX}
   ${CPPUNIT}
-  -ldl
+  ${CMAKE_DL_LIBS}
  )
 
 cet_test(eventprincipal_t USE_BOOST_UNIT LIBRARIES ${test_Framework_Principal_libraries})
