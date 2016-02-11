@@ -57,9 +57,7 @@ namespace art
     SubRunID subRunPrincipalID() const override;
     EventID eventPrincipalID() const override;
     void writeRun(RunID run) override;
-    void deleteRunFromCache(RunID run) override;
     void writeSubRun(SubRunID const & sr) override;
-    void deleteSubRunFromCache(SubRunID const & sr) override;
     void clearPrincipalCache() override;
     void writeEvent() override;
 
@@ -82,10 +80,10 @@ namespace art
     bool handleEmptyRuns_;
     bool handleEmptySubRuns_;
 
-    SubRunID subRun_;
-
-    bool shouldWeEndLoop_;
-    bool shouldWeStop_;
+    RunID run_ {RunID::firstRun()};
+    SubRunID subRun_ {SubRunID::firstSubRun()};
+    EventID event_ {EventID::firstEvent()};
+    bool shouldWeStop_ {false};
   };
 }
 

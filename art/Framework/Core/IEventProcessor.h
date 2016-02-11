@@ -76,9 +76,7 @@ namespace art
     virtual SubRunID subRunPrincipalID() const = 0;
     virtual EventID eventPrincipalID() const = 0;
     virtual void writeRun(RunID) = 0;
-    virtual void deleteRunFromCache(RunID) = 0;
     virtual void writeSubRun(SubRunID const &) = 0;
-    virtual void deleteSubRunFromCache(SubRunID const &) = 0;
     virtual void clearPrincipalCache() = 0;
 
     virtual void readEvent() = 0;

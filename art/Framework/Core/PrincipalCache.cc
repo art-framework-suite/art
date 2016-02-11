@@ -192,14 +192,6 @@ namespace art {
     return *iter->second.get();
   }
 
-  void PrincipalCache::deleteRun(RunID run) {
-    runPrincipals_.erase(runPrincipals_.find(run));
-  }
-
-  void PrincipalCache::deleteSubRun(SubRunID const & sr) {
-    subRunPrincipals_.erase(subRunPrincipals_.find(sr));
-  }
-
   void PrincipalCache::deleteAllPrincipals()
   {
     runPrincipals_.clear();

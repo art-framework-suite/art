@@ -116,8 +116,6 @@ public:
 
   RunID    readAndCacheRun() override;
   SubRunID readAndCacheSubRun() override;
-  void     deleteRunFromCache(RunID run) override;
-  void     deleteSubRunFromCache(SubRunID const & sr) override;
   void     clearPrincipalCache() override;
 
   void writeRun(RunID run) override;

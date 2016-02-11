@@ -1,16 +1,17 @@
 #include "test/Framework/EventProcessor/MockEventProcessor.h"
 
 #include <sstream>
+#include <string>
 
 namespace {
   // As each data item is read from the mock data it is
   // stored in one of these:
-  struct token {
+  struct Token {
+    std::string id;
     int value;
-    char id;
   };
 
-  std::istream & operator>>(std::istream & is, token & t) {
+  std::istream & operator>>(std::istream & is, Token & t) {
     if(is >> t.id) is >> t.value;
     return is;
   }
@@ -18,18 +19,15 @@ namespace {
 
 namespace art {
 
-  MockEventProcessor::MockEventProcessor(const std::string& mockData,
+  MockEventProcessor::MockEventProcessor(std::string const& mockData,
                                          std::ostream& output,
                                          bool handleEmptyRuns,
                                          bool handleEmptySubRuns) :
-    mockData_(mockData),
-    output_(output),
-    handleEmptyRuns_(handleEmptyRuns),
-    handleEmptySubRuns_(handleEmptySubRuns),
-    subRun_(SubRunID::firstSubRun()),
-    shouldWeEndLoop_(true),
-    shouldWeStop_(false)  {
-  }
+    mockData_{mockData},
+    output_{output},
+    handleEmptyRuns_{handleEmptyRuns},
+    handleEmptySubRuns_{handleEmptySubRuns}
+  {}
 
   art::MockEventProcessor::StatusCode
   MockEventProcessor::runToCompletion() {
@@ -39,23 +37,24 @@ namespace art {
 
     // Loop over the mock data items
     std::istringstream input{mockData_};
-    token t;
+    Token t;
     while (input >> t) {
 
-      char ch = t.id;
+      auto const ch = t.id;
 
-      if (ch == 'r') {
+      if (ch == "r") {
+        run_ = subRun_.runID();
         output_ << "    *** nextItemType: Run " << t.value << " ***\n";
-        subRun_ = SubRunID::firstSubRun(RunID(t.value));
-        machine.process_event( statemachine::Run(subRun_.runID()) );
+        machine.process_event( statemachine::Run(run_) );
       }
-      else if (ch == 's') {
+      else if (ch == "s") {
+        subRun_ = SubRunID(run_, t.value);
         output_ << "    *** nextItemType: SubRun " << t.value << " ***\n";
-        subRun_ = SubRunID(subRun_.run(), t.value);
         machine.process_event( statemachine::SubRun(subRun_) );
       }
-      else if (ch == 'e') {
-        output_ << "    *** nextItemType: Event ***\n";
+      else if (ch == "e") {
+        event_ = EventID(subRun_, t.value);
+        output_ << "    *** nextItemType: Event " << t.value << " ***\n";
         // a special value for test purposes only
         if (t.value == 7) {
           shouldWeStop_ = true;
@@ -66,15 +65,16 @@ namespace art {
         }
         machine.process_event( statemachine::Event() );
       }
-      else if (ch == 'f') {
+      else if (ch == "o") {
+        output_ << "    *** nextItemType: SwitchOutputFiles ***\n";
+        machine.process_event( statemachine::SwitchOutputFiles() );
+      }
+      else if (ch == "f") {
         output_ << "    *** nextItemType: File " << t.value << " ***\n";
         machine.process_event( statemachine::InputFile() );
       }
-      else if (ch == 'x') {
+      else if (ch == "x") {
         output_ << "    *** nextItemType: Stop " << t.value << " ***\n";
-        // a special value for test purposes only
-        if (t.value == 0) shouldWeEndLoop_ = false;
-        else shouldWeEndLoop_ = true;
         machine.process_event( statemachine::Stop() );
       }
 
@@ -185,16 +185,8 @@ namespace art {
     output_ << "\twriteRun " << run.run() << "\n";
   }
 
-  void MockEventProcessor::deleteRunFromCache(RunID run) {
-    output_ << "\tdeleteRunFromCache " << run.run() << "\n";
-  }
-
   void MockEventProcessor::writeSubRun(SubRunID const & sr) {
     output_ << "\twriteSubRun " << sr.run() << "/" << sr.subRun() << "\n";
-  }
-
-  void MockEventProcessor::deleteSubRunFromCache(SubRunID const & sr) {
-    output_ << "\tdeleteSubRunFromCache " << sr.run() << "/" << sr.subRun() << "\n";
   }
 
   void MockEventProcessor::clearPrincipalCache() {

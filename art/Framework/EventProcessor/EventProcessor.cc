@@ -715,13 +715,6 @@ art::EventProcessor::writeRun(RunID run)
 }
 
 void
-art::EventProcessor::deleteRunFromCache(RunID run)
-{
-  principalCache_.deleteRun(run);
-  FDEBUG(1) << "\tdeleteRunFromCache " << run.run() << "\n";
-}
-
-void
 art::EventProcessor::writeSubRun(SubRunID const & sr)
 {
   if (!sr.isFlush()) {
@@ -735,13 +728,6 @@ art::EventProcessor::clearPrincipalCache()
 {
   principalCache_.deleteAllPrincipals();
   FDEBUG(1) << "\tclearPrincipalCache\n";
-}
-
-void
-art::EventProcessor::deleteSubRunFromCache(SubRunID const & sr)
-{
-  principalCache_.deleteSubRun(sr);
-  FDEBUG(1) << "\tdeleteSubRunFromCache " << sr.run() << "/" << sr.subRun() << "\n";
 }
 
 void

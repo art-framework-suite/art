@@ -47,4 +47,4 @@ done
 shift $[ OPTIND - 1 ]
 
 check_exit Statemachine_t "${args[@]}"
-check_exit cmp -s "$reference" "$output"
+check_exit diff -s "$reference" "$output"
