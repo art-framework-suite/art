@@ -28,7 +28,6 @@
   <class name="cet::map_vector<std::string>::impl_type"/>
 
   <class name="art::Wrapper<art::Ptr<int>>"/>
-  <class name="art::Ptr<int>"/>
   <!-- class name="art::Refcore" -->
 
   <!-- class name="art::Wrapper<art::Ptr<double>>" -->
