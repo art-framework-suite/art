@@ -9,7 +9,7 @@ cet_script(dbtest_wrap_sql NO_INSTALL)
 
 cet_test(tkeyvfs_t_01 NO_AUTO
   SOURCES test1.c myvfs.c
-  LIBRARIES ${SQLITE3} -ldl
+  LIBRARIES ${SQLITE3} ${CMAKE_DL_LIBS}
   )
 
 cet_test(tkeyvfs_t_01w HANDBUILT
@@ -49,7 +49,7 @@ SET_TESTS_PROPERTIES(tkeyvfs_t_02r PROPERTIES DEPENDS tkeyvfs_t_02w)
 
 cet_test(tkeyvfs_t_03 NO_AUTO
   SOURCES test3.cc tkeyvfs_noroot.cc
-  LIBRARIES ${SQLITE3} -ldl
+  LIBRARIES ${SQLITE3} ${CMAKE_DL_LIBS}
   )
 
 cet_test(tkeyvfs_t_03w HANDBUILT

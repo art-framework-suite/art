@@ -40,7 +40,7 @@ link_libraries( IORootInput
 	${ROOT_NET}
 	${ROOT_TREE}
 	${CPPUNIT}
-	-ldl )
+	${CMAKE_DL_LIBS} )
 
 add_executable( TestRootInput TestRootInput.cpp )
 add_test( TestRootInput ${EXECUTABLE_OUTPUT_PATH}/TestRootInput )
@@ -68,7 +68,7 @@ link_libraries( IORootOutput
 	${ROOT_NET}
 	${ROOT_TREE}
 	${CPPUNIT}
-	-ldl )
+	${CMAKE_DL_LIBS} )
 
 add_executable( TestRootOutput TestRootOutput.cpp )
 add_test( TestRootOutput ${EXECUTABLE_OUTPUT_PATH}/TestRootOutput )

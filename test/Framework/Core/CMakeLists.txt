@@ -19,7 +19,7 @@ set(default_test_libraries
   ${ROOT_CINT}
 	${ROOT_REFLEX}
   ${CPPUNIT}
-  -ldl
+  ${CMAKE_DL_LIBS}
  )
 
 #########################################################################

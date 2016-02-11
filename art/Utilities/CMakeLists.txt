@@ -11,7 +11,7 @@ art_make(LIB_LIBRARIES
   ${ROOT_CORE}
   ${TBB}
   -lpthread
-  -ldl
+  ${CMAKE_DL_LIBS}
   SUBDIRS detail
   )
 

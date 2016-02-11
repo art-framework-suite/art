@@ -16,7 +16,7 @@ set( test_Framework_Art_libraries
   ${ROOT_CINT}
   ${ROOT_REFLEX}
   ${CPPUNIT}
-  -ldl
+  ${CMAKE_DL_LIBS}
  )
  
 
