@@ -523,7 +523,7 @@ art::EventProcessor::runToCompletion()
 }
 
 void
-art::EventProcessor::readFile()
+art::EventProcessor::openInputFile()
 {
   actReg_.sPreOpenFile.invoke();
   FDEBUG(1) << " \treadFile\n";

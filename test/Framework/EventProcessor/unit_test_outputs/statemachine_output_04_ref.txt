@@ -1,7 +1,7 @@
 Machine parameters:  handleEmptyRuns = 0  handleEmptySubRuns = 0
 	beginJob
     *** nextItemType: InputFile ***
- 	readFile
+ 	openInputFile
 	respondToOpenInputFile
 	openAllOutputFiles
 	respondToOpenOutputFiles
@@ -41,7 +41,7 @@ Machine parameters:  handleEmptyRuns = 0  handleEmptySubRuns = 0
 	respondToCloseInputFile
 	clearPrincipalCache
 	closeInputFile
- 	readFile
+ 	openInputFile
 	respondToOpenInputFile
 	openSomeOutputFiles
 	respondToOpenOutputFiles
@@ -72,7 +72,7 @@ The state machine reports it has been terminated
 Machine parameters:  handleEmptyRuns = 0  handleEmptySubRuns = 1
 	beginJob
     *** nextItemType: InputFile ***
- 	readFile
+ 	openInputFile
 	respondToOpenInputFile
 	openAllOutputFiles
 	respondToOpenOutputFiles
@@ -112,7 +112,7 @@ Machine parameters:  handleEmptyRuns = 0  handleEmptySubRuns = 1
 	respondToCloseInputFile
 	clearPrincipalCache
 	closeInputFile
- 	readFile
+ 	openInputFile
 	respondToOpenInputFile
 	openSomeOutputFiles
 	respondToOpenOutputFiles
@@ -143,7 +143,7 @@ The state machine reports it has been terminated
 Machine parameters:  handleEmptyRuns = 1  handleEmptySubRuns = 0
 	beginJob
     *** nextItemType: InputFile ***
- 	readFile
+ 	openInputFile
 	respondToOpenInputFile
 	openAllOutputFiles
 	respondToOpenOutputFiles
@@ -183,7 +183,7 @@ Machine parameters:  handleEmptyRuns = 1  handleEmptySubRuns = 0
 	respondToCloseInputFile
 	clearPrincipalCache
 	closeInputFile
- 	readFile
+ 	openInputFile
 	respondToOpenInputFile
 	openSomeOutputFiles
 	respondToOpenOutputFiles
@@ -214,7 +214,7 @@ The state machine reports it has been terminated
 Machine parameters:  handleEmptyRuns = 1  handleEmptySubRuns = 1
 	beginJob
     *** nextItemType: InputFile ***
- 	readFile
+ 	openInputFile
 	respondToOpenInputFile
 	openAllOutputFiles
 	respondToOpenOutputFiles
@@ -254,7 +254,7 @@ Machine parameters:  handleEmptyRuns = 1  handleEmptySubRuns = 1
 	respondToCloseInputFile
 	clearPrincipalCache
 	closeInputFile
- 	readFile
+ 	openInputFile
 	respondToOpenInputFile
 	openSomeOutputFiles
 	respondToOpenOutputFiles

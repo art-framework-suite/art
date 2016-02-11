@@ -1,7 +1,6 @@
 #include "art/Utilities/Exception.h"
 #include "test/Framework/EventProcessor/MockEventProcessor.h"
 
-#include <iostream>
 #include <sstream>
 #include <string>
 
@@ -70,7 +69,6 @@ namespace art {
       else if (action == "InputFile+SwitchOutputFiles") {
         CloseAtBoundarySentry b {closeAtBoundary_};
         output_ << nextItemType("InputFile+SwitchOutputFiles");
-        std::cout << closeAtBoundary_ << '\n';
         machine.process_event( statemachine::InputFile() );
       }
       else if (action == "SwitchOutputFiles") {
@@ -117,8 +115,8 @@ namespace art {
 
   // Not used, this one does nothing
 
-  void MockEventProcessor::readFile() {
-    output_ << " \treadFile\n";
+  void MockEventProcessor::openInputFile() {
+    output_ << " \topenInputFile\n";
   }
 
   void MockEventProcessor::closeInputFile() {

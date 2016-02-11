@@ -90,7 +90,7 @@ public:
   // The following functions are used by the code implementing our
   // boost statemachine
 
-  void readFile() override;
+  void openInputFile() override;
   void closeInputFile() override;
   void openAllOutputFiles() override;
   void closeAllOutputFiles() override;

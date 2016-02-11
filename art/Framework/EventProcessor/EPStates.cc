@@ -104,7 +104,7 @@ namespace statemachine {
 
   void HandleFiles::openAllFiles()
   {
-    ep_.readFile();
+    ep_.openInputFile();
     ep_.respondToOpenInputFile();
     ep_.openAllOutputFiles();
     ep_.respondToOpenOutputFiles();
@@ -124,7 +124,7 @@ namespace statemachine {
     ep_.respondToCloseInputFile();
     ep_.clearPrincipalCache();
     ep_.closeInputFile();
-    ep_.readFile();
+    ep_.openInputFile();
     ep_.respondToOpenInputFile();
   }
 

@@ -2,13 +2,10 @@
 #define art_Framework_Core_IEventProcessor_h
 
 /*
-
-Abstract base class for Event Processors. This defines the interface
-expected by the EventProcessor's state machine. It can be used for
-testing that state machine without creating a real EventProcessor object.
-See also MockEventProcessor.
-
-Original Authors: W. David Dagenhart, Marc Paterno
+  Abstract base class for Event Processors. This defines the interface
+  expected by the EventProcessor's state machine. It can be used for
+  testing that state machine without creating a real EventProcessor object.
+  See also MockEventProcessor.
 */
 
 #include "art/Framework/Core/OutputFileSwitchBoundary.h"
@@ -42,7 +39,7 @@ namespace art
 
     virtual StatusCode runToCompletion() = 0;
 
-    virtual void readFile() = 0;
+    virtual void openInputFile() = 0;
     virtual void closeInputFile() = 0;
     virtual void openAllOutputFiles() = 0;
     virtual void closeAllOutputFiles() = 0;

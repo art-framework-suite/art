@@ -23,7 +23,7 @@ namespace art
 
     StatusCode runToCompletion() override;
 
-    void readFile() override;
+    void openInputFile() override;
     void closeInputFile() override;
     void openAllOutputFiles() override;
     void closeAllOutputFiles() override;
