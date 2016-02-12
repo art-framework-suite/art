@@ -34,8 +34,7 @@ int main(int argc, char* argv[]) {
   desc.add_options()
     ("help,h", "produce help message")
     ("inputFile,i", boost::program_options::value<string>(&inputFile))
-    ("outputFile,o", boost::program_options::value<string>(&outputFile))
-    ("skipmode,m", "NOMERGE only");
+    ("outputFile,o", boost::program_options::value<string>(&outputFile));
   boost::program_options::variables_map vm;
   boost::program_options::store(boost::program_options::parse_command_line(argc, argv, desc), vm);
   boost::program_options::notify(vm);

@@ -290,7 +290,7 @@ namespace statemachine {
     art::SubRunID currentSubRun_;
     std::vector<art::SubRunID> unhandledSubRuns_;
     bool exitCalled_ {false};
-    bool currentSubRunEmpty_ {false};
+    bool currentSubRunEmpty_ {true};
     bool subRunException_ {false};
     bool finalizeEnabled_ {true};
   };

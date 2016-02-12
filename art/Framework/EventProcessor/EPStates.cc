@@ -148,18 +148,19 @@ namespace statemachine {
 
   void HandleFiles::maybeOpenOutputFiles()
   {
-    if (ep_.outputToCloseAtBoundary(Boundary::InputFile)) {
-      ep_.openSomeOutputFiles(Boundary::InputFile);
-      ep_.respondToOpenOutputFiles();
-    }
+    if (!ep_.outputToCloseAtBoundary(Boundary::InputFile)) return;
+
+    ep_.openSomeOutputFiles(Boundary::InputFile);
+    ep_.respondToOpenOutputFiles();
+    switchInProgress_ = false;
   }
 
   void HandleFiles::maybeCloseOutputFiles()
   {
-    if (ep_.outputToCloseAtBoundary(Boundary::InputFile)) {
-      ep_.respondToCloseOutputFiles();
-      ep_.closeSomeOutputFiles(Boundary::InputFile);
-    }
+    if (!ep_.outputToCloseAtBoundary(Boundary::InputFile)) return;
+
+    ep_.respondToCloseOutputFiles();
+    ep_.closeSomeOutputFiles(Boundary::InputFile);
   }
 
   void HandleFiles::switchOutputFiles(SwitchOutputFiles const&)
@@ -472,9 +473,6 @@ namespace statemachine {
   void HandleSubRuns::resetFormerState()
   {
     finalizeEnabled_ = true;
-    if (context<Machine>().handleEmptyRuns()) {
-      ep_.beginRun(currentSubRun_.runID());
-    }
   }
 
   bool HandleSubRuns::currentSubRunEmpty() const { return currentSubRunEmpty_; }
@@ -669,7 +667,6 @@ namespace statemachine {
   void HandleEvents::finalizeEvent()
   {
     if (!finalizeEnabled_) return;
-    // std::cout << " finalizeEvent()\n";
     ep_.writeEvent();
     ep_.recordOutputClosureRequests();
     context<HandleFiles>().maybeTriggerOutputFileSwitch(Boundary::Event);
@@ -678,11 +675,6 @@ namespace statemachine {
   void HandleEvents::resumeAndFinalizeEvent(Event const&)
   {
     finalizeEnabled_ = true;
-    if (context<Machine>().handleEmptyRuns()) {
-      ep_.beginRun(currentEvent_.runID());
-    }
-    // 'ep_.beginSubRun' is called upon entry to 'NewEvent' if
-    // necessary.  Do not call it here.
     finalizeEvent();
   }
 
@@ -698,6 +690,7 @@ namespace statemachine {
 
   NewEvent::~NewEvent()
   {
+    // std::cout << "~NewEvent()\n";
     checkInvariant();
   }
 

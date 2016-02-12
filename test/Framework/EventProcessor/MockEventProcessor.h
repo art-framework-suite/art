@@ -36,9 +36,9 @@ namespace art
     void respondToCloseOutputFiles() override;
 
     void rewindInput() override;
-    void recordOutputClosureRequests() override {};
+    void recordOutputClosureRequests() override {}
     void switchOutputs(std::size_t const) override;
-    bool outputToCloseAtBoundary(Boundary const) const override { return closeAtBoundary_; }
+    bool outputToCloseAtBoundary(Boundary const) const override;
 
     void doErrorStuff() override;
 
@@ -80,9 +80,12 @@ namespace art
     bool handleEmptyRuns_;
     bool handleEmptySubRuns_;
 
-    RunID run_ {RunID::firstRun()};
-    SubRunID subRun_ {SubRunID::firstSubRun()};
-    EventID event_ {EventID::firstEvent()};
+    RunID run_ {};
+    RunID readRun_ {};
+    SubRunID subRun_ {};
+    SubRunID readSubRun_ {};
+    EventID event_ {};
+    EventID readEvent_ {};
     bool closeAtBoundary_ {false};
     bool shouldWeStop_ {false};
   };
