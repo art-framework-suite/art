@@ -19,9 +19,9 @@
   <!-- class name="arttest::AssnTestData>" -->
 
   <!-- art::Wrapper<art::Ptr<std::pair<cet::map_vector_key, std::string>>> -->
-  <class name="art::Wrapper<art::Ptr<cet::map_vector<std::string>::value_type>>"/>
+  <!-- art::Wrapper<art::Ptr<cet::map_vector<std::string>::value_type>>-->
   <!-- art::Ptr<std::pair<cet::map_vector_key, std::string>> -->
-  <class name="art::Ptr<cet::map_vector<std::string>::value_type>"/>
+  <!-- art::Ptr<cet::map_vector<std::string>::value_type> -->
   <!-- std::pair<cet::map_vector_key, std::string> -->
   <class name="cet::map_vector<std::string>::value_type"/>
   <!-- std::vector<std::string> -->

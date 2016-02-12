@@ -26,7 +26,6 @@ template class art::Wrapper<art::Assns<std::pair<cet::map_vector_key, std::strin
 template class art::Assns<std::pair<cet::map_vector_key, std::string>, std::string, arttest::AssnTestData>;
 template class art::Assns<std::pair<cet::map_vector_key, std::string>, std::string, void>;
 
-template class art::Wrapper<art::Ptr<cet::map_vector<std::string>::value_type>>;
 template class art::Ptr<cet::map_vector<std::string>::value_type>;
 
 template class art::Wrapper<art::Ptr<int>>;
