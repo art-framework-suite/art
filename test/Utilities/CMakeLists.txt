@@ -1,4 +1,5 @@
 # cet_test macro
+art_dictionary(NO_DEFAULT_LIBRARIES DICTIONARY_LIBRARIES cetlib NO_INSTALL)
 
 set(default_art_test_libraries
   art_Utilities
