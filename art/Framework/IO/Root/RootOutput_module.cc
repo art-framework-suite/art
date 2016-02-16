@@ -42,6 +42,23 @@ namespace art {
   class RootOutputFile; // Forward declaration.
 }
 
+#define BOUNDARY_COMMENT                                                \
+  "The 'boundary' parameter specifies the level at which\n"             \
+  "an output file may be closed.  The following values are possible:\n\n" \
+  "    Boundary     Meaning\n"                                          \
+  "   =======================================================\n"        \
+  "   \"Event\"       Allow file switch at next Event\n"                \
+  "   \"SubRun\"      Allow file switch at next SubRun\n"               \
+  "   \"Run\"         Allow file switch at next Run\n"                  \
+  "   \"InputFile\"   Allow file switch at next InputFile\n"            \
+  "   \"Unset\"       Never switch files\n\n"                           \
+  "The output module switches to a new output file whenever a switch\n" \
+  "is triggered.  A switch can be triggered by setting the 'force'\n"   \
+  "parameter to 'true'.  Or a switch is triggered whenever a certain\n" \
+  "criterion is met -- file size, number of events, etc.\n"             \
+  "\n"                                                                  \
+  "It is an error to force a file switch for a boundary value of \"Unset\"."
+
 class art::RootOutput : public OutputModule {
 
 public: // MEMBER FUNCTIONS
@@ -67,13 +84,8 @@ public: // MEMBER FUNCTIONS
     fhicl::Atom<std::string> dropMetaData { Name("dropMetaData"), "" };
     fhicl::Atom<bool> writeParameterSets { Name("writeParameterSets"), true };
     struct SwitchConfig {
+      fhicl::Atom<std::string> boundary { Name("boundary"), Comment(BOUNDARY_COMMENT), "Unset" };
       fhicl::Atom<bool> force { Name("force"), false };
-      fhicl::Atom<std::string> boundary {
-        Name("boundary"),
-        Comment("A specification for 'boundary' is required if\n"
-                "'force: true'"),
-          [this](){ return force(); },
-          "InputFile" };
     };
     fhicl::Table<SwitchConfig> switchConfig { Name("fileSwitch") };
 
@@ -185,8 +197,8 @@ private:
   // historical ParameterSet information in the downstream file
   // (e.g. mixing).
   bool writeParameterSets_;
-  bool forceSwitch_;
   Boundary fileSwitchBoundary_;
+  bool forceSwitch_;
 
   // ResultsProducer management.
   RPManager rpm_;
@@ -216,22 +228,33 @@ RootOutput(Parameters const & config)
   , dropMetaDataForDroppedData_{config().dropMetaDataForDroppedData()}
   , fastCloning_{true}
   , writeParameterSets_{config().writeParameterSets()}
-  , forceSwitch_{config().switchConfig().force()}
   , fileSwitchBoundary_{Boundary::value(config().switchConfig().boundary())}
+  , forceSwitch_{config().switchConfig().force()}
   , rpm_{config.get_PSet()}
 {
   mf::LogInfo("FastCloning") << "Initial fast cloning configuration "
                              << (config().fastCloning(fastCloning_) ? "(user-set): " : "(from default): ")
                              << std::boolalpha << fastCloning_;
+
+  if (fileSwitchBoundary_ == Boundary::Unset && forceSwitch_ == true ) {
+    throw art::Exception(art::errors::Configuration)
+      << "The following configuration is invalid\n"
+      << "   fileSwitch: {\n"
+      << "     boundary: \"Unset\"\n"
+      << "     force: true\n"
+      << "   }\n"
+      << "For output-file switching to be forced on a boundary, the boundary must be set.";
+  }
+
   if (fastCloning_ && !wantAllEvents()) {
     fastCloning_ = false;
     mf::LogWarning("FastCloning") << "Fast cloning deactivated due to presence of\n"
-                                     "event selection configuration.";
+                                  << "event selection configuration.";
   }
-  if (fastCloning_ && fileSwitchBoundary_ == Boundary::Event) {
+  if (fastCloning_ && fileSwitchBoundary_ < Boundary::InputFile) {
     fastCloning_ = false;
     mf::LogWarning("FastCloning") << "Fast cloning deactivated due to request to allow\n"
-                                     "output file switching at an Event boundary.";
+                                  << "output file switching at an Event, SubRun, or Run boundary.";
   }
 
   bool const dropAllEventsSet { config().dropAllEvents(dropAllEvents_) };

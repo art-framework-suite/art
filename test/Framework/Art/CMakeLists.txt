@@ -1,6 +1,6 @@
-set( test_Framework_Art_libraries 
+set( test_Framework_Art_libraries
   art_Framework_Services_Registry
-  art_Utilities 
+  art_Utilities
   canvas_Utilities
   art_Framework_Core
   ${Boost_FILESYSTEM_LIBRARY}
@@ -18,7 +18,7 @@ set( test_Framework_Art_libraries
   ${CPPUNIT}
   ${CMAKE_DL_LIBS}
  )
- 
+
 
 cet_test(artapp_t USE_BOOST_UNIT
   LIBRARIES
@@ -745,3 +745,27 @@ cet_test(FileCatalogOptions_18 HANDBUILT
   DATAFILES
   fcl/opt-empty.fcl
   )
+
+####################################
+# Handling deprecated configurations
+#  Tests 3-5 trigger exceptions that do not result in config.out
+#  statements--i.e., they cannot be used in comparing configurations
+#  since the exception is thrown before the configuration is written
+#  out.
+foreach(i RANGE 1 5)
+  cet_test(DeprecatedFileModeParameter_t_0${i} HANDBUILT
+    TEST_EXEC art
+    TEST_ARGS -c deprecated_fileMode_0${i}.fcl --debug-config=config.out
+    DATAFILES fcl/deprecated_fileMode_0${i}.fcl
+    TEST_PROPERTIES WILL_FAIL TRUE
+    )
+endforeach()
+
+foreach(i RANGE 1 2)
+  cet_test(DeprecatedFileModeParameter_r_0${i} HANDBUILT
+    TEST_EXEC diff
+    TEST_ARGS ../DeprecatedFileModeParameter_t_0${i}.d/config.out DeprecatedFileMode_0${i}-ref.txt
+    DATAFILES DeprecatedFileMode_0${i}-ref.txt
+    TEST_PROPERTIES DEPENDS DeprecatedFileModeParameter_t_0${i}
+    )
+endforeach()

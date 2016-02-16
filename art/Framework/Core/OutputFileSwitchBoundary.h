@@ -19,18 +19,21 @@ namespace art {
 
     static BT value(std::string const& spec)
     {
-      if ( spec == "InputFile" ) return InputFile;
-      else if ( spec == "Run" ) return Run;
-      else if ( spec == "SubRun" ) return SubRun;
-      else if ( spec == "Event" ) return Event;
+      if (spec == "Event") return Event;
+      else if (spec == "SubRun") return SubRun;
+      else if (spec == "Run") return Run;
+      else if (spec == "InputFile") return InputFile;
+      else if (spec == "Unset") return Unset;
       else
         throw art::Exception(art::errors::Configuration)
           << "Specified output-file switching boundary (\"" << spec << "\") not supported.\n"
           "Please choose from:\n"
-          "   \"InputFile\"\n"
-          "   \"Run\"\n"
+          "   \"Event\"\n"
           "   \"SubRun\"\n"
-          "   \"Event\"\n";
+          "   \"Run\"\n"
+          "   \"InputFile\"\n"
+          "   \"Unset\"";
+
     }
 
   private:

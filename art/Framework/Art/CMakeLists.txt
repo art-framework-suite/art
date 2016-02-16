@@ -49,10 +49,11 @@ set(art_Framework_Art_sources
   detail/get_LibraryInfoCollection.cc
   detail/get_MetadataCollector.cc
   detail/get_MetadataSummary.cc
+  detail/handle_deprecated_configs.cc
   )
 
 art_make_library( LIBRARY_NAME art_Framework_Art
-                  SOURCE ${art_Framework_Art_sources} 
+                  SOURCE ${art_Framework_Art_sources}
                   LIBRARIES ${Boost_PROGRAM_OPTIONS_LIBRARY}
   art_Framework_IO_Root
   art_Framework_EventProcessor

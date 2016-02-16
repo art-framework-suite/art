@@ -3,6 +3,7 @@
 #include "art/Framework/Art/BasicOptionsHandler.h"
 #include "art/Framework/Art/BasicPostProcessor.h"
 #include "art/Framework/Art/InitRootHandlers.h"
+#include "art/Framework/Art/detail/handle_deprecated_configs.h"
 #include "art/Framework/EventProcessor/EventProcessor.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/Registry/ServiceRegistry.h"
@@ -95,6 +96,15 @@ int art::run_art(int argc,
       return result;
     }
   }
+  // Handle deprecated configurations
+  try {
+    detail::handle_deprecated_configs(raw_config);
+  }
+  catch(art::Exception const& e) {
+    std::cerr << e.what();
+    return 89;
+  }
+
   //
   // Make the parameter set from the intermediate table:
   //
@@ -130,7 +140,7 @@ int art::run_art(int argc,
   return run_art_common_(main_pset, std::move(dbg));
 }
 
-int art::run_art_string_config(const std::string& config_string)
+int art::run_art_string_config(std::string const& config_string)
 {
   //
   // Make the parameter set from the configuration string:
@@ -175,7 +185,7 @@ int art::run_art_string_config(const std::string& config_string)
   return run_art_common_(main_pset, art::detail::DebugOutput{});
 }
 
-int art::run_art_common_(fhicl::ParameterSet main_pset, art::detail::DebugOutput debug)
+int art::run_art_common_(fhicl::ParameterSet const& main_pset, art::detail::DebugOutput debug)
 {
   auto const & services_pset  = main_pset.get<fhicl::ParameterSet>("services",{});
   auto const & scheduler_pset = services_pset.get<fhicl::ParameterSet>("scheduler",{});
