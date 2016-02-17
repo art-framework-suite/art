@@ -4,7 +4,6 @@
    -------------------------------------------------------------------
 */
 
-#include "art/Framework/EventProcessor/EPStates.h"
 #include "art/Framework/Core/IEventProcessor.h"
 #include "test/Framework/EventProcessor/MockEventProcessor.h"
 

@@ -1,21 +1,20 @@
-#ifndef art_Framework_EventProcessor_EPStates_h
-#define art_Framework_EventProcessor_EPStates_h
+#ifndef art_Framework_EventProcessor_StateMachine_Machine_h
+#define art_Framework_EventProcessor_StateMachine_Machine_h
 
 // ======================================================================
 //
-// The state machine that controls the processing of runs, subRun blocks,
-// events, and loops is implemented using the boost statechart library
-// and the states and events defined here.  This machine is used by the
+// The state machine that controls the processing of runs, subruns,
+// and events is implemented using the boost statechart library and
+// the states defined here.  This machine is used by the
 // EventProcessor.
 //
 // ======================================================================
 
 #include "art/Framework/Core/IEventProcessor.h"
 #include "art/Framework/Core/OutputFileSwitchBoundary.h"
+#include "art/Framework/EventProcessor/StateMachine/Events.h"
 #include "art/Framework/Principal/fwd.h"
 #include "canvas/Persistency/Provenance/EventID.h"
-#include "canvas/Persistency/Provenance/RunID.h"
-#include "canvas/Persistency/Provenance/SubRunID.h"
 #include "art/Utilities/Exception.h"
 #include "boost/statechart/deep_history.hpp"
 #include "boost/statechart/event.hpp"
@@ -36,40 +35,11 @@ namespace mpl = boost::mpl;
 
 namespace statemachine {
 
-  // Define the classes representing the "boost statechart events".
-  // There are seven of them.
-
-  class Run : public sc::event<Run> {
-  public:
-    Run(art::RunID id);
-    art::RunID id() const;
-  private:
-    art::RunID id_;
-  };
-
-  class SubRun : public sc::event<SubRun> {
-  public:
-    SubRun(art::SubRunID id);
-    art::SubRunID const & id() const;
-  private:
-    art::SubRunID id_;
-  };
-
-  // It is slightly confusing that this one refers to both physics
-  // event and a boost statechart event ...
-  class Event : public sc::event<Event> { };
-
-  class InputFile : public sc::event<InputFile> {};
-  class SwitchOutputFiles : public sc::event<SwitchOutputFiles> {};
-
-  class Stop : public sc::event<Stop> {};
-  class Pause : public sc::event<Pause> {};
-
-  // Now define the machine and the states.  For all these classes,
-  // the first template argument to the base class is the derived
-  // class.  The second argument is the parent state or if it is a top
-  // level state the Machine.  If there is a third template argument
-  // it is the substate that is entered by default on entry.
+  // For all these classes, the first template argument to the base
+  // class is the derived class.  The second argument is the parent
+  // state or if it is a top level state the Machine.  If there is a
+  // third template argument it is the substate that is entered by
+  // default on entry.
 
   class Starting;
 
@@ -208,7 +178,6 @@ namespace statemachine {
 
     bool beginRunCalled() const;
     art::RunID currentRun() const;
-    bool runException() const;
     void setupCurrentRun();
     void beginRun(art::RunID run);
     void endRun(art::RunID run);
@@ -267,21 +236,21 @@ namespace statemachine {
     void checkInvariant();
 
     art::SubRunID const & currentSubRun() const;
-    bool currentSubRunEmpty() const;
-    std::vector<art::SubRunID> const& unhandledSubRuns() const;
+    bool beginSubRunCalled() const;
 
     void disableFinalizeSubRun(Pause const&) { finalizeEnabled_ = false; }
     void resumeAndFinalizeSubRun(SubRun const&);
     void resume(Event const&);
+    void beginSubRun(art::SubRunID run);
+    void endSubRun(art::SubRunID run);
 
     void setupCurrentSubRun();
-    void finalizeAllSubRuns();
     void finalizeSubRun(SubRun const&);
     void finalizeSubRun();
-    void finalizeOutstandingSubRuns();
     void markSubRunNonEmpty();
+    void beginSubRunIfNotDoneAlready();
 
-    using reactions = mpl::list< sc::transition<SubRun,HandleSubRuns> >;
+    using reactions = sc::transition<SubRun, HandleSubRuns>;
 
   private:
     void resetFormerState();
@@ -290,7 +259,7 @@ namespace statemachine {
     art::SubRunID currentSubRun_;
     std::vector<art::SubRunID> unhandledSubRuns_;
     bool exitCalled_ {false};
-    bool currentSubRunEmpty_ {true};
+    bool beginSubRunCalled_ {false};
     bool subRunException_ {false};
     bool finalizeEnabled_ {true};
   };
@@ -306,7 +275,6 @@ namespace statemachine {
 
     using reactions = mpl::list<
       sc::transition<Event, HandleEvents>,
-      sc::transition<SubRun, NewSubRun, HandleSubRuns, &HandleSubRuns::finalizeSubRun>,
       sc::transition<Pause, PauseSubRun, HandleSubRuns, &HandleSubRuns::disableFinalizeSubRun> >;
   };
 
@@ -334,7 +302,7 @@ namespace statemachine {
     void checkInvariant();
     void resumeAndFinalizeEvent(Event const&);
 
-    using reactions = sc::transition<SubRun, NewSubRun, HandleSubRuns, &HandleSubRuns::finalizeSubRun>;
+    using reactions = sc::transition<Event, HandleEvents>;
 
   private:
     art::IEventProcessor & ep_;
@@ -355,9 +323,7 @@ namespace statemachine {
     void markNonEmpty();
     void readAndProcessEvent();
 
-    using reactions = mpl::list<
-      sc::transition<Event, HandleEvents>,
-      sc::transition<Pause, PauseEvent, HandleEvents, &HandleEvents::disableFinalizeEvent> >;
+    using reactions = sc::transition<Pause, PauseEvent, HandleEvents, &HandleEvents::disableFinalizeEvent>;
 
   private:
     art::IEventProcessor & ep_;
@@ -377,7 +343,7 @@ namespace statemachine {
 
 // ======================================================================
 
-#endif /* art_Framework_EventProcessor_EPStates_h */
+#endif /* art_Framework_EventProcessor_StateMachine_Machine_h */
 
 // Local Variables:
 // mode: c++

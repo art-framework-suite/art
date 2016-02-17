@@ -122,6 +122,8 @@ public: // MEMBER FUNCTIONS
   void beginJob() override;
   void endJob() override;
 
+  void event(EventPrincipal const&) override;
+
   void beginSubRun(SubRunPrincipal const &) override;
   void endSubRun(SubRunPrincipal const &) override;
 
@@ -372,12 +374,18 @@ respondToCloseInputFile(FileBlock const& fb)
 
 void
 art::RootOutput::
-write(EventPrincipal & ep)
+event(EventPrincipal const& ep)
 {
   rpm_.for_each_RPWorker([&ep](RPWorker & w) {
-      Event const e(const_cast<EventPrincipal &>(ep), w.moduleDescription());
+      Event const e{const_cast<EventPrincipal &>(ep), w.moduleDescription()};
       w.rp().doEvent(e);
     });
+}
+
+void
+art::RootOutput::
+write(EventPrincipal & ep)
+{
   if (dropAllEvents_) {
     return;
   }

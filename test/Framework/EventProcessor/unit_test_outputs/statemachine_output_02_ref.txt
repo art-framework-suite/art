@@ -188,9 +188,11 @@ Machine parameters:  handleEmptyRuns = 0  handleEmptySubRuns = 1
     *** nextItemType: SubRun ***
 	readAndCacheSubRun(run: 2 subRun: 1)
     *** nextItemType: InputFile ***
+	beginRun..........(run: 2)
 	beginSubRun.......(run: 2 subRun: 1)
 	endSubRun.........(run: 2 subRun: 1)
 	writeSubRun.......(run: 2 subRun: 1)
+	endRun............(run: 2)
 	writeRun..........(run: 2)
 	respondToCloseInputFile
 	clearPrincipalCache

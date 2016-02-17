@@ -205,29 +205,28 @@ Machine parameters:  handleEmptyRuns = 0  handleEmptySubRuns = 1
 	readAndCacheSubRun(run: 2 subRun: 0)
     *** internalPost w/in nextItemType: SwitchOutputFiles ***
     *** nextItemType: SubRun ***
-	readAndCacheSubRun(run: 2 subRun: 1)
-    *** nextItemType: Event ***
 	beginRun..........(run: 2)
 	beginSubRun.......(run: 2 subRun: 0)
 	endSubRun.........(run: 2 subRun: 0)
 	writeSubRun.......(run: 2 subRun: 0)
-	beginSubRun.......(run: 2 subRun: 1)
-	readEvent.........(run: 2 subRun: 1 event: 1)
-	processEvent......(run: 2 subRun: 1 event: 1)
-	shouldWeStop
-	endSubRun.........(run: 2 subRun: 1)
-	writeSubRun.......(run: 2 subRun: 1)
+	readAndCacheSubRun(run: 2 subRun: 1)
 	endRun............(run: 2)
 	writeRun..........(run: 2)
 	respondToCloseOutputFiles
 	closeSomeOutputFiles
 	openSomeOutputFiles
 	respondToOpenOutputFiles
+    *** nextItemType: Event ***
+	beginRun..........(run: 2)
+	beginSubRun.......(run: 2 subRun: 1)
+	readEvent.........(run: 2 subRun: 1 event: 1)
+	processEvent......(run: 2 subRun: 1 event: 1)
+	shouldWeStop
     *** nextItemType: Stop ***
 	writeEvent........(run: 2 subRun: 1 event: 1)
-	beginSubRun.......(run: 2 subRun: 1)
 	endSubRun.........(run: 2 subRun: 1)
 	writeSubRun.......(run: 2 subRun: 1)
+	endRun............(run: 2)
 	writeRun..........(run: 2)
 	respondToCloseOutputFiles
 	closeAllOutputFiles

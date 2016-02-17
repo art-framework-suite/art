@@ -7,7 +7,7 @@
 */
 
 #include "art/Framework/Core/IEventProcessor.h"
-#include "art/Framework/EventProcessor/EPStates.h"
+#include "art/Framework/EventProcessor/StateMachine/Machine.h"
 #include <iostream>
 #include <string>
 

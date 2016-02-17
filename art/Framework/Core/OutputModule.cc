@@ -194,9 +194,12 @@ bool
 art::OutputModule::
 doEvent(EventPrincipal& ep, CurrentProcessingContext const *cpc)
 {
-  detail::CPCSentry sentry(current_context_, cpc);
+  detail::CPCSentry sentry{current_context_, cpc};
   FDEBUG(2) << "doEvent called\n";
-  event(ep);
+  Event const e {const_cast<EventPrincipal &>(ep), moduleDescription_};
+  if (wantAllEvents_ || selectors_.wantEvent(e)) {
+    event(ep);
+  }
   return true;
 }
 
@@ -204,7 +207,7 @@ void
 art::OutputModule::
 doWriteEvent(EventPrincipal& ep)
 {
-  detail::PVSentry pvSentry(selectors_);
+  detail::PVSentry clearTriggerResults {selectors_};
   FDEBUG(2) << "writeEvent called\n";
   Event const e {const_cast<EventPrincipal &>(ep), moduleDescription_};
   if (wantAllEvents_ || selectors_.wantEvent(e)) {

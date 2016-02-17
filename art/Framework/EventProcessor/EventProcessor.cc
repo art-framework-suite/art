@@ -6,7 +6,7 @@
 #include "art/Framework/Core/InputSource.h"
 #include "art/Framework/Core/InputSourceDescription.h"
 #include "art/Framework/Core/InputSourceFactory.h"
-#include "art/Framework/EventProcessor/EPStates.h"
+#include "art/Framework/EventProcessor/StateMachine/Machine.h"
 #include "art/Framework/EventProcessor/detail/writeSummary.h"
 #include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Principal/OccurrenceTraits.h"
