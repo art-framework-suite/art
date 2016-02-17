@@ -36,7 +36,6 @@ public:
   using Base::me;
   using Base::processHistory;
 
-#ifndef __GCCXML__
   ///Put a new product.
   template <typename PROD>
   void
@@ -46,7 +45,6 @@ public:
   template <typename PROD>
   void
   put(std::unique_ptr<PROD> && product, std::string const& productInstanceName);
-#endif
 
 private:
 
@@ -61,15 +59,14 @@ private:
   void commit_();
 };
 
-#ifndef __GCCXML__
 template <typename PROD>
 void
 art::Results::put(std::unique_ptr<PROD> && product, std::string const& productInstanceName) {
+
   if (!product) { // Null pointer is illegal.
-    TypeID typeID(typeid(PROD));
     throw art::Exception(art::errors::NullPointerError)
       << "Results::put: A null unique_ptr was passed to 'put'.\n"
-      << "The pointer is of type " << TypeID(typeid(PROD)) << ".\n"
+      << "The pointer is of type " << TypeID{typeid(PROD)} << ".\n"
       << "The specified productInstanceName was '" << productInstanceName << "'.\n";
   }
 
@@ -79,16 +76,14 @@ art::Results::put(std::unique_ptr<PROD> && product, std::string const& productIn
   auto result = putProducts().emplace(bd.branchID(), PMValue { std::move(wp), bd });
   if (!result.second) {
     throw art::Exception(art::errors::InsertFailure)
-      << "Run::put: Attempt to put multiple products with the\n"
-      << "          following description onto the Run.\n"
-      << "          Products must be unique per Run.\n"
+      << "Results::put: Attempt to put multiple products with the\n"
+      << "              following description onto the Results.\n"
+      << "              Products must be unique per Results.\n"
       << "=================================\n"
       << bd
       << "=================================\n";
   }
 }
-
-#endif /* __GCCXML__ */
 
 #endif /* art_Framework_Principal_Results_h */
 

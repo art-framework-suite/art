@@ -1,31 +1,36 @@
-process_name: DEVELr
+process_name: DEVELr2
 
 source: {
   module_type: RootInput
-  fileNames: [ "../RPTest_w.d/out_r1.root", "../RPTest_w2.d/out_r2.root" ]
+  fileNames: [
+      "../RPTest_w.d/out_r1_1.root",
+      "../RPTest_w.d/out_r1_2.root",
+      "../RPTest_w2.d/out_r2_1.root",
+      "../RPTest_w2.d/out_r2_2.root"
+   ]
 }
 
 physics: {
-  e2: [ o1 ]
+  e2: [ o2 ]
 }
 
 outputs: {
-  o1: {
+  o2: {
     module_type: RootOutput
     fileName: "out.root"
     results: {
       producers: {
         rpr1: {
           plugin_type: RPTestReader
-          intResultsLabel: "o1#rpw"
-          nResultsExpected: 2 # from input files
+          intResultsLabel: "o2#rpw"
+          nResultsExpected: 4
         }
         rpr2: {
           plugin_type: RPTestReader
-          intResultsLabel: "o1#rpw"
-          # 2 from reading from input files + 1 successful getByLabel
+          intResultsLabel: "o2#rpw"
+          # 4 from reading from input files + 1 successful getByLabel
           # in writeResults for a product created in 'rpw'.
-          nResultsExpected: 3
+          nResultsExpected: 5
         }
         rpw: {
           plugin_type: RPTest

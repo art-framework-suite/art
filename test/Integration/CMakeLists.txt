@@ -1392,7 +1392,14 @@ cet_test(RPTest_r HANDBUILT
   DATAFILES fcl/RPTest_r.fcl
 )
 
+cet_test(RPTest_r2 HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --rethrow-all -c RPTest_r2.fcl
+  DATAFILES fcl/RPTest_r2.fcl
+)
+
 set_tests_properties(RPTest_r PROPERTIES DEPENDS "RPTest_w;RPTest_w2")
+set_tests_properties(RPTest_r2 PROPERTIES DEPENDS "RPTest_w;RPTest_w2")
 
 simple_plugin(EmptyPSetRegistryChecker "module" NO_INSTALL USE_BOOST_UNIT)
 

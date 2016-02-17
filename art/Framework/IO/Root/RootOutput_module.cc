@@ -6,8 +6,9 @@
 #include "art/Framework/IO/FileStatsCollector.h"
 #include "art/Framework/IO/PostCloseFileRenamer.h"
 #include "art/Framework/IO/Root/DropMetaData.h"
-#include "art/Framework/IO/Root/DropMetaData.h"
 #include "art/Framework/IO/Root/RootOutputFile.h"
+#include "art/Framework/IO/Root/RootOutputClosingCriteria.h"
+#include "art/Framework/IO/Root/detail/rootOutputConfigurationTools.h"
 #include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Principal/ResultsPrincipal.h"
@@ -28,7 +29,6 @@
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include <iomanip>
-#include <iostream>
 #include <memory>
 #include <sstream>
 #include <string>
@@ -38,8 +38,7 @@ using std::string;
 
 namespace art {
   class RootOutput;
-
-  class RootOutputFile; // Forward declaration.
+  class RootOutputFile;
 }
 
 #define BOUNDARY_COMMENT                                                \
@@ -60,8 +59,7 @@ namespace art {
   "It is an error to force a file switch for a boundary value of \"Unset\"."
 
 class art::RootOutput : public OutputModule {
-
-public: // MEMBER FUNCTIONS
+public:
 
   struct Config {
 
@@ -74,17 +72,18 @@ public: // MEMBER FUNCTIONS
     fhicl::Atom<bool> dropAllSubRuns { Name("dropAllSubRuns"), false };
     fhicl::OptionalAtom<bool> fastCloning { Name("fastCloning") };
     fhicl::Atom<std::string> tmpDir { Name("tmpDir"), parent_path(omConfig().fileName()) };
-    fhicl::Atom<unsigned> maxSize { Name("maxSize"), 0x7f000000 };
+    fhicl::OptionalAtom<unsigned> maxSize { Name("maxSize") };
+    fhicl::OptionalAtom<FileIndex::EntryNumber_t> maxEventsPerFile { Name("maxEventsPerFile") };
     fhicl::Atom<int> compressionLevel { Name("compressionLevel"), 7 };
     fhicl::Atom<int64_t> saveMemoryObjectThreshold { Name("saveMemoryObjectThreshold"), -1l };
     fhicl::Atom<int64_t> treeMaxVirtualSize { Name("treeMaxVirtualSize"), -1 };
     fhicl::Atom<int> splitLevel { Name("splitLevel"), 99 };
     fhicl::Atom<int> basketSize { Name("basketSize"), 16384 };
     fhicl::Atom<bool> dropMetaDataForDroppedData { Name("dropMetaDataForDroppedData"), false };
-    fhicl::Atom<std::string> dropMetaData { Name("dropMetaData"), "" };
+    fhicl::Atom<std::string> dropMetaData { Name("dropMetaData"), "NONE" };
     fhicl::Atom<bool> writeParameterSets { Name("writeParameterSets"), true };
     struct SwitchConfig {
-      fhicl::Atom<std::string> boundary { Name("boundary"), Comment(BOUNDARY_COMMENT), "Unset" };
+      fhicl::OptionalAtom<std::string> boundary { Name("boundary"), Comment(BOUNDARY_COMMENT) };
       fhicl::Atom<bool> force { Name("force"), false };
     };
     fhicl::Table<SwitchConfig> switchConfig { Name("fileSwitch") };
@@ -96,9 +95,8 @@ public: // MEMBER FUNCTIONS
       // parameter has a default, for RootOutput the parameter should
       // not.  We therefore have to change the default flag setting
       // for 'OutputModule::Config::fileName'.
-
       using namespace fhicl::detail;
-      ParameterBase* adjustFilename = const_cast<fhicl::Atom<std::string>*>(&omConfig().fileName);
+      ParameterBase* adjustFilename {const_cast<fhicl::Atom<std::string>*>(&omConfig().fileName)};
       adjustFilename->set_value_type(fhicl::value_type::REQUIRED);
     }
 
@@ -130,7 +128,7 @@ public: // MEMBER FUNCTIONS
   void beginRun(RunPrincipal const &) override;
   void endRun(RunPrincipal const &) override;
 
-private: // MEMBER FUNCTIONS
+private:
 
   std::string const& lastClosedFileName() const override;
   void openFile(FileBlock const&) override;
@@ -168,20 +166,18 @@ private: // MEMBER FUNCTIONS
 private:
 
   std::string const catalog_;
-  bool dropAllEvents_;
+  bool dropAllEvents_ {false};
   bool dropAllSubRuns_;
   std::string const moduleLabel_;
-  int inputFileCount_;
-  std::unique_ptr<RootOutputFile> rootOutputFile_;
-  bool stagedToCloseFile_;
+  int inputFileCount_ {0};
+  std::unique_ptr<RootOutputFile> rootOutputFile_ {nullptr};
+  bool stagedToCloseFile_ {false};
   FileStatsCollector fstats_;
   std::string const filePattern_;
   std::string tmpDir_;
-  std::string lastClosedFileName_;
+  std::string lastClosedFileName_ {};
 
-  // We keep this set of data members for the use
-  // of RootOutputFile.
-  unsigned const maxFileSize_;
+  // We keep this set of data members for the use of RootOutputFile.
   int const compressionLevel_;
   int64_t const saveMemoryObjectThreshold_;
   int64_t const treeMaxVirtualSize_;
@@ -190,16 +186,16 @@ private:
   DropMetaData dropMetaData_;
   bool dropMetaDataForDroppedData_;
 
-  // We keep this for the use of RootOutputFile
-  // and we also use it during file open to
-  // make some choices.
-  bool fastCloning_;
+  // We keep this for the use of RootOutputFile and we also use it
+  // during file open to make some choices.
+  bool fastCloning_ {true};
 
   // Set false only for cases where we are guaranteed never to need
   // historical ParameterSet information in the downstream file
   // (e.g. mixing).
   bool writeParameterSets_;
-  Boundary fileSwitchBoundary_;
+  ClosingCriteria fileSwitchCriteria_;
+  Boundary fileSwitchBoundary_ {Boundary::Unset};
   bool forceSwitch_;
 
   // ResultsProducer management.
@@ -210,91 +206,43 @@ art::RootOutput::
 RootOutput(Parameters const & config)
   : OutputModule{config().omConfig, config.get_PSet()}
   , catalog_{config().catalog()}
-  , dropAllEvents_{false}
   , dropAllSubRuns_{config().dropAllSubRuns()}
   , moduleLabel_{config.get_PSet().get<string>("module_label")}
-  , inputFileCount_{0}
-  , rootOutputFile_{}
-  , stagedToCloseFile_{false}
   , fstats_{moduleLabel_, processName()}
   , filePattern_{config().omConfig().fileName()}
   , tmpDir_{config().tmpDir()}
-  , lastClosedFileName_{}
-  , maxFileSize_{config().maxSize()}
   , compressionLevel_{config().compressionLevel()}
   , saveMemoryObjectThreshold_{config().saveMemoryObjectThreshold()}
   , treeMaxVirtualSize_{config().treeMaxVirtualSize()}
   , splitLevel_{config().splitLevel()}
   , basketSize_{config().basketSize()}
-  , dropMetaData_{DropMetaData::DropNone}
+  , dropMetaData_{config().dropMetaData()}
   , dropMetaDataForDroppedData_{config().dropMetaDataForDroppedData()}
-  , fastCloning_{true}
   , writeParameterSets_{config().writeParameterSets()}
-  , fileSwitchBoundary_{Boundary::value(config().switchConfig().boundary())}
   , forceSwitch_{config().switchConfig().force()}
   , rpm_{config.get_PSet()}
 {
-  mf::LogInfo("FastCloning") << "Initial fast cloning configuration "
-                             << (config().fastCloning(fastCloning_) ? "(user-set): " : "(from default): ")
-                             << std::boolalpha << fastCloning_;
+  // File-switch boundary
+  std::string b {"Unset"};
+  bool const switchBoundarySet {config().switchConfig().boundary(b)};
+  fileSwitchBoundary_ = Boundary::value(b);
+  detail::checkFileSwitchConfig(fileSwitchBoundary_, forceSwitch_);
 
-  if (fileSwitchBoundary_ == Boundary::Unset && forceSwitch_ == true ) {
-    throw art::Exception(art::errors::Configuration)
-      << "The following configuration is invalid\n"
-      << "   fileSwitch: {\n"
-      << "     boundary: \"Unset\"\n"
-      << "     force: true\n"
-      << "   }\n"
-      << "For output-file switching to be forced on a boundary, the boundary must be set.";
+  // Max file size
+  if (config().maxSize(fileSwitchCriteria_.maxFileSize)) {
+    fileSwitchBoundary_ = detail::checkMaxSizeConfig(switchBoundarySet, fileSwitchBoundary_, forceSwitch_);
   }
 
-  if (fastCloning_ && !wantAllEvents()) {
-    fastCloning_ = false;
-    mf::LogWarning("FastCloning") << "Fast cloning deactivated due to presence of\n"
-                                  << "event selection configuration.";
-  }
-  if (fastCloning_ && fileSwitchBoundary_ < Boundary::InputFile) {
-    fastCloning_ = false;
-    mf::LogWarning("FastCloning") << "Fast cloning deactivated due to request to allow\n"
-                                  << "output file switching at an Event, SubRun, or Run boundary.";
+  // Max events per file
+  if (config().maxEventsPerFile(fileSwitchCriteria_.maxEventsPerFile)) {
+    fileSwitchBoundary_ = detail::checkMaxEventsPerFileConfig(switchBoundarySet, fileSwitchBoundary_, forceSwitch_);
   }
 
-  bool const dropAllEventsSet { config().dropAllEvents(dropAllEvents_) };
+  bool const fastCloningSet {config().fastCloning(fastCloning_)};
+  fastCloning_ = detail::shouldFastClone(fastCloningSet, fastCloning_, wantAllEvents(), fileSwitchBoundary_);
 
-  if (dropAllSubRuns_) {
-    if (dropAllEventsSet && !dropAllEvents_) {
-      string const errmsg =
-        "\nThe following FHiCL specification is illegal\n\n"
-        "   dropAllEvents  : false \n"
-        "   dropAllSubRuns : true  \n\n"
-        "[1] Both can be 'true', "
-        "[2] both can be 'false', or "
-        "[3] 'dropAllEvents : true' and 'dropAllSubRuns : false' "
-        "is allowed.\n\n";
-      throw art::Exception(errors::Configuration, errmsg);
-    }
-    dropAllEvents_ = true;
-  }
-
-  string dropMetaData( config().dropMetaData() );
-  if (dropMetaData.empty()) {
-    dropMetaData_ = DropMetaData::DropNone;
-  }
-  else if (dropMetaData == string("NONE")) {
-    dropMetaData_ = DropMetaData::DropNone;
-  }
-  else if (dropMetaData == string("PRIOR")) {
-    dropMetaData_ = DropMetaData::DropPrior;
-  }
-  else if (dropMetaData == string("ALL")) {
-    dropMetaData_ = DropMetaData::DropAll;
-  }
-  else {
-    throw art::Exception(errors::Configuration,
-                         "Illegal dropMetaData parameter value: ")
-      << dropMetaData << ".\n"
-      << "Legal values are 'NONE', 'PRIOR', and 'ALL'.\n";
-  }
+  bool const dropAllEventsSet {config().dropAllEvents(dropAllEvents_)};
+  dropAllEvents_ = detail::shouldDropEvents(dropAllEventsSet, dropAllEvents_, dropAllSubRuns_);
 
   if (!writeParameterSets_) {
     mf::LogWarning("PROVENANCE")
@@ -358,7 +306,7 @@ art::RootOutput::
 readResults(ResultsPrincipal const & resp)
 {
   rpm_.for_each_RPWorker([&resp](RPWorker & w) {
-      Results const res(const_cast<ResultsPrincipal&>(resp), w.moduleDescription());
+      Results const res {const_cast<ResultsPrincipal&>(resp), w.moduleDescription()};
       w.rp().doReadResults(res);
     } );
 }
@@ -370,16 +318,6 @@ respondToCloseInputFile(FileBlock const& fb)
   if (rootOutputFile_) {
     rootOutputFile_->respondToCloseInputFile(fb);
   }
-}
-
-void
-art::RootOutput::
-event(EventPrincipal const& ep)
-{
-  rpm_.for_each_RPWorker([&ep](RPWorker & w) {
-      Event const e{const_cast<EventPrincipal &>(ep), w.moduleDescription()};
-      w.rp().doEvent(e);
-    });
 }
 
 void
@@ -592,11 +530,17 @@ doOpenFile()
         << "Attempt to open output file before input file. "
         << "Please report this to the core framework developers.\n";
   }
-  rootOutputFile_ = std::make_unique<RootOutputFile>(this, unique_filename(tmpDir_ + "/RootOutput"),
-                                                     maxFileSize_, compressionLevel_,
-                                                     saveMemoryObjectThreshold_, treeMaxVirtualSize_,
-                                                     splitLevel_, basketSize_, dropMetaData_,
-                                                     dropMetaDataForDroppedData_, fastCloning_);
+  rootOutputFile_ = std::make_unique<RootOutputFile>(this,
+                                                     unique_filename(tmpDir_ + "/RootOutput"),
+                                                     fileSwitchCriteria_,
+                                                     compressionLevel_,
+                                                     saveMemoryObjectThreshold_,
+                                                     treeMaxVirtualSize_,
+                                                     splitLevel_,
+                                                     basketSize_,
+                                                     dropMetaData_,
+                                                     dropMetaDataForDroppedData_,
+                                                     fastCloning_);
   fstats_.recordFileOpen();
 }
 
@@ -623,6 +567,16 @@ art::RootOutput::
 endJob()
 {
   rpm_.invoke(&ResultsProducer::doEndJob);
+}
+
+void
+art::RootOutput::
+event(EventPrincipal const& ep)
+{
+  rpm_.for_each_RPWorker([&ep](RPWorker & w) {
+      Event const e{const_cast<EventPrincipal &>(ep), w.moduleDescription()};
+      w.rp().doEvent(e);
+    });
 }
 
 void

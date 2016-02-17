@@ -1,7 +1,11 @@
 art_make_library(
   LIBRARY_NAME art_Framework_IO_Root_detail_sources
-  SOURCE detail/rootFileSizeTools.cc
+  SOURCE
+  detail/rootFileSizeTools.cc
+  detail/rootOutputConfigurationTools.cc
   LIBRARIES
+  art_Utilities
+  MF_MessageLogger
   ${ROOT_CORE}
   ${ROOT_RIO}
   ${ROOT_TREE}

@@ -78,53 +78,34 @@ namespace {
 
 art::
 RootOutputFile::
-RootOutputFile(OutputModule* om, string const& fileName,
-               unsigned int const maxFileSize, int const compressionLevel,
+RootOutputFile(OutputModule* om,
+               string const& fileName,
+               ClosingCriteria const& fileSwitchCriteria,
+               int const compressionLevel,
                int64_t const saveMemoryObjectThreshold,
                int64_t const treeMaxVirtualSize,
-               int const splitLevel, int const basketSize,
-               DropMetaData dropMetaData, bool dropMetaDataForDroppedData,
-               bool fastCloning)
-  : file_(fileName)
-  , om_(om)
-  , maxFileSize_(maxFileSize)
-  , compressionLevel_(compressionLevel)
-  , saveMemoryObjectThreshold_(saveMemoryObjectThreshold)
-  , treeMaxVirtualSize_(treeMaxVirtualSize)
-  , splitLevel_(splitLevel)
-  , basketSize_(basketSize)
-  , dropMetaData_(dropMetaData)
-  , dropMetaDataForDroppedData_(dropMetaDataForDroppedData)
-  , fastCloning_(fastCloning)
-  , currentlyFastCloning_(true)
-  , filePtr_(TFile::Open(file_.c_str(), "recreate", "",
-                         compressionLevel))
-  , fileIndex_()
-  , eventEntryNumber_(0LL)
-  , subRunEntryNumber_(0LL)
-  , runEntryNumber_(0LL)
-  , metaDataTree_(nullptr)
-  , fileIndexTree_(nullptr)
-  , parentageTree_(nullptr)
-  , eventHistoryTree_(nullptr)
-  , pEventAux_(nullptr)
-  , pSubRunAux_(nullptr)
-  , pRunAux_(nullptr)
-  , pResultsAux_(nullptr)
-  , eventProductProvenanceVector_()
-  , subRunProductProvenanceVector_()
-  , runProductProvenanceVector_()
-  , resultsProductProvenanceVector_()
-  , pEventProductProvenanceVector_(&eventProductProvenanceVector_)
-  , pSubRunProductProvenanceVector_(&subRunProductProvenanceVector_)
-  , pRunProductProvenanceVector_(&runProductProvenanceVector_)
-  , pResultsProductProvenanceVector_(&resultsProductProvenanceVector_)
-  , pHistory_(nullptr)
+               int const splitLevel,
+               int const basketSize,
+               DropMetaData dropMetaData,
+               bool const dropMetaDataForDroppedData,
+               bool const fastCloning)
+  : om_{om}
+  , file_{fileName}
+  , fileSwitchCriteria_{fileSwitchCriteria}
+  , compressionLevel_{compressionLevel}
+  , saveMemoryObjectThreshold_{saveMemoryObjectThreshold}
+  , treeMaxVirtualSize_{treeMaxVirtualSize}
+  , splitLevel_{splitLevel}
+  , basketSize_{basketSize}
+  , dropMetaData_{dropMetaData}
+  , dropMetaDataForDroppedData_{dropMetaDataForDroppedData}
+  , fastCloning_{fastCloning}
+  , filePtr_{TFile::Open(file_.c_str(), "recreate", "", compressionLevel)}
   , treePointers_ { // Order (and number) must match BranchTypes.h!
-  std::make_unique<RootOutputTree>(static_cast<EventPrincipal*>(nullptr),
-                                   filePtr_, InEvent, pEventAux_,
-                                   pEventProductProvenanceVector_, basketSize, splitLevel,
-                                   treeMaxVirtualSize, saveMemoryObjectThreshold),
+    std::make_unique<RootOutputTree>(static_cast<EventPrincipal*>(nullptr),
+                                     filePtr_, InEvent, pEventAux_,
+                                     pEventProductProvenanceVector_, basketSize, splitLevel,
+                                     treeMaxVirtualSize, saveMemoryObjectThreshold),
     std::make_unique<RootOutputTree>(static_cast<SubRunPrincipal*>(nullptr),
                                      filePtr_, InSubRun, pSubRunAux_,
                                      pSubRunProductProvenanceVector_, basketSize, splitLevel,
@@ -137,10 +118,7 @@ RootOutputFile(OutputModule* om, string const& fileName,
                                      filePtr_, InResults, pResultsAux_,
                                      pResultsProductProvenanceVector_, basketSize, splitLevel,
                                      treeMaxVirtualSize, saveMemoryObjectThreshold) }
-  , dataTypeReported_(false)
-  , metaDataHandle_(filePtr_.get(), "RootFileDB",
-                    SQLITE_OPEN_CREATE | SQLITE_OPEN_READWRITE)
-  , selectedOutputItemList_()
+  , metaDataHandle_{filePtr_.get(), "RootFileDB", SQLITE_OPEN_CREATE | SQLITE_OPEN_READWRITE}
 {
   // Don't split metadata tree or event description tree
   metaDataTree_ = RootOutputTree::makeTTree(filePtr_.get(),
@@ -278,9 +256,9 @@ art::
 RootOutputFile::
 requestsToCloseFile() const
 {
-  unsigned int const oneK = 1024;
-  Long64_t size = filePtr_->GetSize() / oneK;
-  return size >= maxFileSize_;
+  unsigned int constexpr oneK {1024u};
+  Long64_t const size {filePtr_->GetSize() / oneK};
+  return criteriaMet(fileSwitchCriteria_, size, eventEntryNumber_);
 }
 
 void
@@ -297,7 +275,7 @@ writeOne(EventPrincipal const& e)
   // to the file about this event.
   fillBranches(InEvent, e, pEventProductProvenanceVector_);
   // History branch.
-  History historyForOutput(e.history());
+  History historyForOutput{e.history()};
   historyForOutput.addEventSelectionEntry(om_->selectorConfig());
   pHistory_ = &historyForOutput;
   int sz = eventHistoryTree_->Fill();
@@ -312,7 +290,7 @@ writeOne(EventPrincipal const& e)
   }
   // Add the dataType to the job report if it hasn't already been done
   if (!dataTypeReported_) {
-    string dataType("MC");
+    string dataType {"MC"};
     if (pEventAux_->isRealData()) {
       dataType = "Data";
     }
