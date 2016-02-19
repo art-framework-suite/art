@@ -20,7 +20,7 @@
 
 #include "art/Framework/Services/Registry/ServiceScope.h"
 #include "art/Utilities/ScheduleID.h"
-#include "art/Utilities/TypeID.h"
+#include "canvas/Utilities/TypeID.h"
 
 #include <memory>
 

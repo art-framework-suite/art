@@ -13,7 +13,7 @@
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/System/TriggerNamesService.h"
-#include "art/Persistency/Provenance/ModuleDescription.h"
+#include "canvas/Persistency/Provenance/ModuleDescription.h"
 #include "art/Utilities/parent_path.h"
 #include "art/Utilities/unique_filename.h"
 #include "fhiclcpp/ParameterSet.h"
@@ -77,7 +77,10 @@ void
   TFileService::setDirectoryName( ModuleDescription const & desc )
 {
   dir_ = desc.moduleLabel();
-  descr_ = (dir_ + " (" + desc.moduleName() + ") folder").c_str();
+  descr_ = dir_ ;
+  descr_ += " (";
+  descr_ += desc.moduleName();
+  descr_ += ") folder";
 }
 
 // ======================================================================

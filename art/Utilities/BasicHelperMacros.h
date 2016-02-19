@@ -9,7 +9,7 @@
 
 #include <ostream>
 #include <string>
-#include "art/Utilities/detail/metaprogramming.h"
+#include "canvas/Utilities/detail/metaprogramming.h"
 #include "boost/filesystem.hpp"
 
 namespace bfs = boost::filesystem;
@@ -34,16 +34,16 @@ namespace art {
     struct MaybePrintDescription{
       std::ostream & operator()(std::ostream & os, std::string const& prefix)
       {
-        return os << "\n" << prefix << "[ None provided ]";
+        return os << "\n" << prefix << "[ None provided ]\n";
       }
     };
 
     template<class T>
-    struct MaybePrintDescription<T, typename enable_if_type<typename T::Parameters>::type >
+    struct MaybePrintDescription<T, typename enable_if_type<typename T::Parameters>::type>
     {
       std::ostream & operator()(std::ostream & os, std::string const& prefix)
       {
-        typename T::Parameters().print_allowed_configuration(os, prefix);
+        typename T::Parameters{}.print_allowed_configuration(os, prefix);
         return os;
       }
     };

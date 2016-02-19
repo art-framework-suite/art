@@ -1,0 +1,26 @@
+process_name: noMergerTest
+
+source: {
+   maxEvents: 10
+   module_type: RootInput
+   fileNames : [ "../../ToyProductProducer_t_01.d/ToyProductProducer_t_01.root",
+                 "../../ToyProductProducer_t_02.d/ToyProductProducer_t_02.root" ]
+}
+
+services.scheduler.fileMode: NOMERGE
+
+physics: {
+
+   stream1  : [ out1 ]
+   end_paths: [ stream1 ]
+
+}
+
+outputs: {
+
+   out1: {
+      fileName: "ToyProductNoMerger_t_0%#.root"
+      module_type: "RootOutput"
+   }
+
+}

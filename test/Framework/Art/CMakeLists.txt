@@ -1,6 +1,7 @@
-link_libraries(
+set( test_Framework_Art_libraries 
   art_Framework_Services_Registry
-  art_Utilities
+  art_Utilities 
+  canvas_Utilities
   art_Framework_Core
   ${Boost_FILESYSTEM_LIBRARY}
   ${ROOT_CINTEX}
@@ -15,8 +16,9 @@ link_libraries(
   ${ROOT_CINT}
   ${ROOT_REFLEX}
   ${CPPUNIT}
-  -ldl
+  ${CMAKE_DL_LIBS}
  )
+ 
 
 cet_test(artapp_t USE_BOOST_UNIT
   LIBRARIES
@@ -26,7 +28,7 @@ cet_test(artapp_t USE_BOOST_UNIT
   fcl/opt-empty.fcl
 )
 
-cet_test(artapp_basicSourceOptions_t 
+cet_test(artapp_basicSourceOptions_t
   USE_BOOST_UNIT
   LIBRARIES
   art_Framework_Art
@@ -91,12 +93,11 @@ cet_test(BasicOptions_02_t HANDBUILT
   PASS_REGULAR_EXPRESSION "\nAllowed options:\n"
 )
 
-# cet_test(BasicOptions_03_t HANDBUILT
-#   TEST_EXEC ./check_available_modules_services.sh
-#   DATAFILES
-#   check_available_modules_services.sh
-#   REF "${CMAKE_CURRENT_SOURCE_DIR}/BasicOptions_03-ref.txt"
-#   )
+cet_test(BasicOptions_03_t
+  LIBRARIES
+  art_Framework_Art
+  REF "${CMAKE_CURRENT_SOURCE_DIR}/BasicOptions_03-ref.txt"
+  )
 
 ####################################
 # BasicOutputOptionsHandler.
@@ -696,3 +697,51 @@ config_test_pass(FileCatalogOptions_14_w)
 # Compare output from FileCatalogOptions_14_w against reference.
 config_ref_test(FileCatalogOptions_14)
 
+# Should all fail due to conflicting options
+cet_test(FileCatalogOptions_15 HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --sam-inherit-file-type
+  --sam-file-type "Chicken"
+  -c opt-empty.fcl
+  TEST_PROPERTIES
+  PASS_REGULAR_EXPRESSION
+  "  The options '--sam-inherit-file-type' and '--sam-file-type' are mutually exclusive\\."
+  DATAFILES
+  fcl/opt-empty.fcl
+  )
+
+cet_test(FileCatalogOptions_16 HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --sam-inherit-run-type
+  --sam-run-type "Turkey"
+  -c opt-empty.fcl
+  TEST_PROPERTIES
+  PASS_REGULAR_EXPRESSION
+  "  The options '--sam-inherit-run-type' and '--sam-run-type' are mutually exclusive\\."
+  DATAFILES
+  fcl/opt-empty.fcl
+  )
+
+cet_test(FileCatalogOptions_17 HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --sam-inherit-metadata
+  --sam-file-type "Duck"
+  -c opt-empty.fcl
+  TEST_PROPERTIES
+  PASS_REGULAR_EXPRESSION
+  "  The options '--sam-inherit-metadata' and '--sam-file-type' are mutually exclusive\\."
+  DATAFILES
+  fcl/opt-empty.fcl
+)
+
+cet_test(FileCatalogOptions_18 HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --sam-inherit-metadata
+  --sam-run-type "Turducken"
+  -c opt-empty.fcl
+  TEST_PROPERTIES
+  PASS_REGULAR_EXPRESSION
+  "  The options '--sam-inherit-metadata' and '--sam-run-type' are mutually exclusive\\."
+  DATAFILES
+  fcl/opt-empty.fcl
+  )

@@ -1,0 +1,71 @@
+# The input files use the following characters:
+
+r  Run
+l  SubRun
+e  Event
+f  File    - if 0 ==> shouldWeCloseOutput_ = false, otherwise true
+s  Stop    - if 0 ==> shouldWeEndLoop_     = false, otherwise true
+x  Restart - if 0 ==> shouldWeEndLoop_     = false, otherwise true
+
+# Each output contains the results of the following combinations:
+#
+#   fileMode           : { NOMERGE, MERGE, FULLLUMIMERGE, FULLMERGE }
+#   handleEmptyRuns    : { true, false }
+#   handleEmptySubRuns : { true, false }
+#
+# ======> 16 processes per test
+
+# statemachine_01.txt
+
+--> Make sure we can deal with runs and
+    subruns that contain nothing.
+
+# statemachine_02.txt
+
+--> Empty files, some of which trigger closing output files.
+    File with an empty run.
+    File with empty subrun.
+
+# statemachine_03.txt
+
+--> Test of continuing runs (3 files).
+
+# statemachine_04.txt
+
+--> Another test of continuing runs (2 files).
+
+# statemachine_05.txt
+
+--> Testing of continuing run and subrun across file boundary.
+    Going from empty subrun to a non-empty subrun in the second file.
+
+# statemachine_06.txt
+
+--> Testing switching files while continuing run and subrun and adding
+    an event to the continuation.
+
+# statemachine_07.txt
+
+--> Continue subrun with no additional event, then a new non-empty
+    subrun.
+
+# statemachine_08.txt
+
+--> Same as 07, but with empty subrun 2 in the first file.
+
+# statemachine_09.txt
+
+--> Continuing run and subrun across three files while continually
+    adding events.
+
+# statemachine_10.txt
+
+--> Tests restart.
+
+# statemachine_11.txt
+
+--> Tests restart and a bunch of file transitions.
+
+# statemachine_12.txt
+
+--> Tests non-contiguous continuation of subruns.

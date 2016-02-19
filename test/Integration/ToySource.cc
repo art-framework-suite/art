@@ -6,8 +6,7 @@
 #include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
-#include "art/Utilities/Exception.h"
-#include "cetlib/make_unique.h"
+#include "canvas/Utilities/Exception.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "test/TestObjects/ToyProducts.h"
 
@@ -53,7 +52,7 @@ arttest::ToySource::readNext(art::RunPrincipal* const& inR,
                            art::EventPrincipal*& outE)
 {
   using art::put_product_in_principal;
-  using cet::make_unique;
+  using std::make_unique;
 
   if (throw_on_readNext_) throw_exception_from("readNext");
   // Have we any more to read?
@@ -147,4 +146,3 @@ arttest::ToySource::throw_exception_from(const char* funcname)
     << funcname
     << '\n';
 }
-

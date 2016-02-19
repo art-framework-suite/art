@@ -11,9 +11,9 @@
 
 #include "art/Framework/Principal/DataViewImpl.h"
 #include "art/Framework/Principal/fwd.h"
-#include "art/Persistency/Provenance/RunAuxiliary.h"
-#include "art/Persistency/Provenance/RunID.h"
-#include "art/Utilities/TypeID.h"
+#include "canvas/Persistency/Provenance/RunAuxiliary.h"
+#include "canvas/Persistency/Provenance/RunID.h"
+#include "canvas/Utilities/TypeID.h"
 
 #include <memory>
 #include <utility>
@@ -21,7 +21,7 @@
 class art::Run : private art::DataViewImpl {
 public:
   Run(RunPrincipal& rp, const ModuleDescription& md);
-  ~Run(){}
+  ~Run() = default;
 
   typedef DataViewImpl Base;
   // AUX functions.
@@ -38,7 +38,14 @@ public:
   using Base::me;
   using Base::processHistory;
 
-#ifndef __GCCXML__
+  template <typename PROD>
+  art::ValidHandle<PROD> getValidHandle(InputTag const& tag) const
+  {
+    art::Handle<PROD> h;
+    getByLabel(tag, h);
+    return art::ValidHandle<PROD>(&(*h), *h.provenance());
+  }
+
   ///Put a new product.
   template <typename PROD>
   void
@@ -48,7 +55,6 @@ public:
   template <typename PROD>
   void
   put(std::unique_ptr<PROD> && product, std::string const& productInstanceName);
-#endif /* __GCCXML__ */
 
   // Return true if this Run has been subjected to a process with
   // the given processName, and false otherwise.
@@ -75,7 +81,6 @@ private:
   RunAuxiliary const& aux_;
 };
 
-#ifndef __GCCXML__
 template <typename PROD>
 void
 art::Run::put(std::unique_ptr<PROD> && product,
@@ -104,7 +109,6 @@ art::Run::put(std::unique_ptr<PROD> && product,
 
 }
 
-#endif /* __GCCXML__ */
 #endif /* art_Framework_Principal_Run_h */
 
 // Local Variables:

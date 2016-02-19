@@ -11,8 +11,8 @@
 // ======================================================================
 
 #include "art/Framework/Principal/fwd.h"
-#include "art/Persistency/Provenance/RunID.h"
-#include "art/Persistency/Provenance/SubRunID.h"
+#include "canvas/Persistency/Provenance/RunID.h"
+#include "canvas/Persistency/Provenance/SubRunID.h"
 #include "boost/statechart/event.hpp"
 #include "boost/statechart/state_machine.hpp"
 #include "boost/mpl/list.hpp"

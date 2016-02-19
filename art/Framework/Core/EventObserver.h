@@ -7,7 +7,7 @@
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/ParameterSetID.h"
 #include "fhiclcpp/types/Sequence.h"
-#include "fhiclcpp/types/Table.h"
+#include "fhiclcpp/types/OptionalTable.h"
 
 #include <string>
 
@@ -45,17 +45,20 @@ protected:
       fhicl::Name("SelectEvents"),
       fhicl::Comment("The following parameter is a user-provided list\n"
                      "of filter paths. The default list is empty."),
-      fhicl::Sequence<std::string>::make_empty() };
+      std::vector<std::string>{} };
   };
 
-  explicit EventObserver(fhicl::ParameterSet const& config);
-  virtual ~EventObserver();
+  explicit EventObserver(fhicl::OptionalTable<EOConfig> const& config);
+  explicit EventObserver(fhicl::ParameterSet            const& config);
 
 private:
   std::string process_name_;
   // ID of the ParameterSet that configured
   // the event selector subsystem.
   fhicl::ParameterSetID selector_config_id_;
+
+  void init_(fhicl::ParameterSet const& pset);
+
 };
 
 #endif /* art_Framework_Core_EventObserver_h */

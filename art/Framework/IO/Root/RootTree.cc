@@ -2,8 +2,8 @@
 // vim: set sw=2:
 
 #include "art/Framework/IO/Root/RootDelayedReader.h"
-#include "art/Persistency/Provenance/BranchDescription.h"
-#include "art/Persistency/Provenance/BranchType.h"
+#include "canvas/Persistency/Provenance/BranchDescription.h"
+#include "canvas/Persistency/Provenance/BranchType.h"
 #include "TBranch.h"
 #include "TFile.h"
 #include "TLeaf.h"

@@ -1,10 +1,10 @@
 // sam_metadata_dumper.cc
 
 #include "art/Framework/IO/Root/GetFileFormatEra.h"
-#include "art/Framework/IO/Root/rootNames.h"
-#include "art/Persistency/Provenance/FileFormatVersion.h"
-#include "art/Persistency/Provenance/ParameterSetBlob.h"
-#include "art/Persistency/Provenance/ParameterSetMap.h"
+#include "canvas/Persistency/Provenance/rootNames.h"
+#include "canvas/Persistency/Provenance/FileFormatVersion.h"
+#include "canvas/Persistency/Provenance/ParameterSetBlob.h"
+#include "canvas/Persistency/Provenance/ParameterSetMap.h"
 #include "art/Persistency/RootDB/SQLite3Wrapper.h"
 #include "art/Persistency/RootDB/tkeyvfs.h"
 #include "boost/program_options.hpp"
@@ -51,29 +51,6 @@ struct FileCatalogMetadataEntry
   std::string value;
 };
 
-namespace {
-  std::map<std::string, std::string> newToOldName
-  { { "file_type", "fileType" },
-    { "data_tier", "dataTier" },
-    { "data_stream", "streamName" } };
-
-  bool is_new_md_name(std::string const & newMD)
-  {
-    return (newToOldName.find(newMD) != newToOldName.cend());
-  }
-
-  std::string old_md_name(std::string const & newMD)
-  {
-    if (!is_new_md_name(newMD)) {
-      throw art::Exception(art::errors::LogicError)
-        << "Asked for nonexistent new -> old MD translation for MD item "
-        << newMD
-        << ".\n";
-    }
-    return newToOldName[newMD];
-  }
-}
-
 std::string
 entryValue(std::string const & value)
 {
@@ -91,7 +68,7 @@ entryValue(std::string const & value)
     // use streams, but we don't care about the result and dealing with
     // streams is awkward.
     char const * entval = value.c_str();
-    char * endptr = const_cast<char *>(entval);
+    char * endptr = const_cast<char*>(entval);
     strtold(entval, &endptr);
     if (endptr == entval + value.size()) {
       // Full conversion: no string canonicalization necessary.
@@ -110,10 +87,7 @@ print_one_fc_metadata_entry_hr(FileCatalogMetadataEntry const & ent,
                                size_t longestName,
                                ostream & output)
 {
-  std::string name = (is_new_md_name(ent.name)) ?
-                     old_md_name(ent.name) :
-                     ent.name;
-
+  const std::string& name = ent.name;
   const size_t maxIDdigits = 5;
   const size_t maxNameSpacing = 20;
 
@@ -227,7 +201,7 @@ bool read_all_fc_metadata_entries(TFile & file,
            << sqlite_status
            <<").\n";
   }
-  int finalize_status __attribute__((unused)) = sqlite3_finalize(stmt);
+  int const finalize_status = sqlite3_finalize(stmt);
   if (finalize_status != SQLITE_OK) {
     errors << "Unexpected status from DB status cleanup: "
            << sqlite3_errmsg(sqliteDB)
@@ -298,16 +272,12 @@ int print_fc_metadata_from_files(stringvec const & file_names,
   }
   int rc = 0;
   bool first = true;
-  for (stringvec::const_iterator
-       i = file_names.begin(),
-       e = file_names.end();
-       i != e;
-       ++i) {
-    std::unique_ptr<TFile> current_file(TFile::Open(i->c_str(), "READ"));
+  for (auto const& fn : file_names) {
+    std::unique_ptr<TFile> current_file(TFile::Open(fn.c_str(), "READ"));
     if (!current_file || current_file->IsZombie()) {
       ++rc;
       errors << "Unable to open file '"
-             << *i
+             << fn
              << "' for reading."
              << "\nSkipping to next file.\n";
     } else {

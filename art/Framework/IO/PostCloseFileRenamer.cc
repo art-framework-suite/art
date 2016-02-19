@@ -1,7 +1,7 @@
 #include "art/Framework/IO/PostCloseFileRenamer.h"
 
 #include "art/Framework/IO/FileStatsCollector.h"
-#include "art/Utilities/Exception.h"
+#include "canvas/Utilities/Exception.h"
 #include "boost/date_time/posix_time/posix_time.hpp"
 #include "boost/filesystem.hpp"
 #include "boost/regex.hpp"

@@ -22,17 +22,18 @@
 #include "art/Framework/Services/System/ScheduleContext.h"
 #include "art/Framework/Services/System/TriggerNamesService.h"
 #include "art/Persistency/Provenance/BranchIDListHelper.h"
-#include "art/Persistency/Provenance/BranchType.h"
-#include "art/Persistency/Provenance/ProcessConfiguration.h"
-#include "art/Utilities/DebugMacros.h"
-#include "art/Utilities/Exception.h"
-#include "art/Utilities/GetPassID.h"
+#include "canvas/Persistency/Provenance/BranchType.h"
+#include "canvas/Persistency/Provenance/ProcessConfiguration.h"
+#include "canvas/Utilities/DebugMacros.h"
+#include "canvas/Utilities/Exception.h"
+#include "canvas/Utilities/GetPassID.h"
 #include "art/Utilities/ScheduleID.h"
 #include "art/Utilities/UnixSignalHandlers.h"
 #include "art/Version/GetReleaseVersion.h"
 #include "boost/thread/xtime.hpp"
 #include "cetlib/exception_collector.h"
 #include "cetlib/container_algorithms.h"
+#include "fhiclcpp/types/detail/validationException.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include <exception>
@@ -101,7 +102,15 @@ namespace {
                                                           art::getPassID()));
       sourceSpecified = true;
       art::InputSourceDescription isd(md, preg, areg);
-      return std::unique_ptr<art::InputSource>(art::InputSourceFactory::make(main_input, isd));
+      try {
+        return std::unique_ptr<art::InputSource>(art::InputSourceFactory::make(main_input, isd));
+      }
+      catch(fhicl::detail::validationException const& e){
+        throw art::Exception(art::errors::Configuration)
+          << "\n\nModule label: \033[1m" << md.moduleLabel() << "\033[0m"
+          <<   "\nmodule_type : \033[1m" << md.moduleName() <<  "\033[0m"
+          << "\n\n" << e.what();
+      }
     }
     catch (art::Exception const & x) {
       if (sourceSpecified == false &&

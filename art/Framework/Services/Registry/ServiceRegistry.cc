@@ -6,6 +6,7 @@
 
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/ServiceRegistry.h"
+#include "art/Utilities/PluginSuffixes.h"
 
 #include "boost/thread/tss.hpp"
 
@@ -14,7 +15,7 @@ using art::ServiceRegistry;
 using art::ServiceToken;
 
 ServiceRegistry::ServiceRegistry()
-: lm_( "service" )
+  : lm_{ Suffixes::service() }
 { }
 
 ServiceRegistry::~ServiceRegistry()

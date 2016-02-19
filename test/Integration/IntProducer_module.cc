@@ -10,7 +10,7 @@
 #include "art/Framework/Principal/Run.h"
 #include "art/Framework/Principal/SubRun.h"
 #include "art/Framework/Principal/Handle.h"
-#include "art/Persistency/Provenance/BranchType.h"
+#include "canvas/Persistency/Provenance/BranchType.h"
 
 #include "fhiclcpp/types/Atom.h"
 

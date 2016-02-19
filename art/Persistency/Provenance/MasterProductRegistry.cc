@@ -1,11 +1,11 @@
 #include "art/Persistency/Provenance/MasterProductRegistry.h"
 // vim: set sw=2:
 
-#include "art/Persistency/Provenance/BranchKey.h"
-#include "art/Persistency/Provenance/TypeTools.h"
-#include "art/Persistency/Provenance/TypeWithDict.h"
-#include "art/Utilities/TypeID.h"
-#include "art/Utilities/WrappedClassName.h"
+#include "canvas/Persistency/Provenance/BranchKey.h"
+#include "canvas/Persistency/Provenance/TypeTools.h"
+#include "canvas/Persistency/Provenance/TypeWithDict.h"
+#include "canvas/Utilities/TypeID.h"
+#include "canvas/Utilities/WrappedClassName.h"
 #include "cetlib/exception.h"
 
 #include <cassert>
@@ -348,4 +348,3 @@ namespace art {
   }
 
 } // namespace art
-

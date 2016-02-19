@@ -1,7 +1,7 @@
 #include "art/Framework/Art/FileCatalogOptionsHandler.h"
 
 #include "art/Framework/Art/detail/exists_outside_prolog.h"
-#include "art/Utilities/Exception.h"
+#include "canvas/Utilities/Exception.h"
 #include "art/Utilities/detail/serviceConfigLocation.h"
 #include "art/Utilities/ensureTable.h"
 #include "cetlib/split.h"
@@ -38,6 +38,21 @@ namespace {
         throw art::Exception(art::errors::Configuration)
             << "Expected \"key:value\", got multiple \":\".\n";
     }
+  }
+
+  void check_metadata_options(bpo::variables_map const& vm)
+  {
+
+    auto check_for_conflicting_options = [&vm](std::string const& firstOpt, std::initializer_list<std::string> opts){
+      for(auto const& opt : opts) {
+        if (vm.count(opt)+vm.count(firstOpt) > 1)
+          throw art::Exception(art::errors::Configuration)
+            << "The options '--" << opt << "' and '--" << firstOpt << "' are mutually exclusive.";
+      }
+    };
+
+    check_for_conflicting_options("sam-file-type", {"sam-inherit-metadata", "sam-inherit-file-type"});
+    check_for_conflicting_options("sam-run-type" , {"sam-inherit-metadata", "sam-inherit-run-type" });
   }
 
   void fill_tiers_streams(bpo::variables_map const & vm,
@@ -102,13 +117,13 @@ namespace {
         if (!(exists_outside_prolog(raw_config, tier_spec_key) &&
               exists_outside_prolog(raw_config, stream_name_key))) {
           throw art::Exception(art::errors::Configuration)
-          << "Output \""
-          << output.first
-          << "\" must be configured with "
-          << tier_spec_stem.substr(1)
-          << " (--sam-data-tier=" << output.first << ":<tier>) and "
-          << stream_name_stem.substr(1)
-          << " (--sam-stream-name=" << output.first << ":<stream>).\n";
+            << "Output \""
+            << output.first
+            << "\" must be configured with "
+            << tier_spec_stem.substr(1)
+            << " (--sam-data-tier=" << output.first << ":<tier>) and "
+            << stream_name_stem.substr(1)
+            << " (--sam-stream-name=" << output.first << ":<stream>).\n";
         }
       }
     }
@@ -168,6 +183,9 @@ FileCatalogOptionsHandler(bpo::options_description & desc)
     ("sam-data-tier", bpo::value<std::vector<std::string> >(), "SAM data tier spec-label>:<tier-spec>).")
     ("sam-run-type", bpo::value<std::string>(), "Global run-type for SAM metadata.")
     ("sam-stream-name", bpo::value<std::vector<std::string> >(), "SAM stream name (<module-label>:<stream-name>).")
+    ("sam-inherit-metadata","Input file provides the file type and run type.")
+    ("sam-inherit-file-type","Input file provides the file type.")
+    ("sam-inherit-run-type","Input file provides the run type.")
   ;
 }
 
@@ -227,13 +245,44 @@ doProcessOptions(bpo::variables_map const & vm,
     raw_config.put(fcmdLocation + ".group",
                    vm["sam-group"].as<std::string>());
   }
-  if (vm.count("sam-run-type") > 0) {
-    raw_config.put(fcmdLocation + ".runType",
-                   vm["sam-run-type"].as<std::string>());
-  }
   if (!appVersion_.empty()) {
     raw_config.put(fcmdLocation + ".applicationVersion",
                    appVersion_);
+  }
+
+  check_metadata_options(vm);
+
+  std::string const mdFromInput {".metadataFromInput"};
+  bool specifyDataTier { false }; // The output module needs a
+                                  // 'dataTier' if "fileType" is
+                                  // provided either by the input file
+                                  // or as a configuration parameter.
+  if (vm.count("sam-inherit-metadata") > 0) {
+    raw_config.put(fcmdLocation + mdFromInput,
+                   std::vector<std::string>{"fileType","runType"});
+    specifyDataTier = true;
+    raw_config.erase(fcmdLocation + ".fileType");
+    raw_config.erase(fcmdLocation + ".runType");
+  }
+  else {
+    std::vector<std::string> md;
+    if (vm.count("sam-inherit-file-type") > 0) {
+      md.emplace_back("fileType");
+      specifyDataTier = true;
+      raw_config.erase(fcmdLocation + ".fileType");
+    }
+    if (vm.count("sam-inherit-run-type") > 0) {
+      md.emplace_back("runType");
+      raw_config.erase(fcmdLocation + ".runType");
+    }
+    if (!md.empty()) {
+      raw_config.put(fcmdLocation + mdFromInput, md);
+    }
+  }
+
+  if (vm.count("sam-run-type") > 0) {
+    raw_config.put(fcmdLocation + ".runType",
+                   vm["sam-run-type"].as<std::string>());
   }
   if (vm.count("sam-file-type") > 0) {
     raw_config.put(fcmdLocation + ".fileType",
@@ -244,8 +293,9 @@ doProcessOptions(bpo::variables_map const & vm,
     ( wantSAMweb ||
       exists_outside_prolog(raw_config, fcmdLocation + ".applicationFamily") ||
       exists_outside_prolog(raw_config, fcmdLocation + ".applicationVersion") ||
+      exists_outside_prolog(raw_config, fcmdLocation + ".group") ||
       exists_outside_prolog(raw_config, fcmdLocation + ".fileType") ||
-      exists_outside_prolog(raw_config, fcmdLocation + ".group")
+      specifyDataTier
     );
 
   if (requireMetadata) {

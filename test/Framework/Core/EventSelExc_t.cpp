@@ -20,7 +20,7 @@
 #include "art/Framework/Services/Registry/ServiceRegistry.h"
 #include "art/Framework/Services/Registry/ServiceToken.h"
 #include "art/Framework/Services/System/TriggerNamesService.h"
-#include "art/Persistency/Common/TriggerResults.h"
+#include "canvas/Persistency/Common/TriggerResults.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/ParameterSetRegistry.h"
 
@@ -45,11 +45,10 @@ typedef std::vector<Bools> VBools;
 // bits.
 
 const size_t num_trig_paths = 8;
-std::array<char const*,num_trig_paths> cpaths =
-      {{
-              "ap1", "ap2", "aq1", "aq2",
-              "bp1", "bp2", "bq1", "bq2",
-      }};
+std::array<char const*,num_trig_paths> cpaths {
+  "ap1", "ap2", "aq1", "aq2",
+  "bp1", "bp2", "bq1", "bq2"
+};
 Strings trigger_path_names(cpaths.begin(),cpaths.end());
 
 

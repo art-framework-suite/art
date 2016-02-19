@@ -13,7 +13,9 @@
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/WorkerT.h"
 #include "fhiclcpp/ParameterSet.h"
+#include "fhiclcpp/types/OptionalTable.h"
 #include "fhiclcpp/types/Table.h"
+#include "fhiclcpp/types/TableFragment.h"
 
 #include <memory>
 #include <ostream>
@@ -31,55 +33,60 @@ namespace art
   {
   public:
     template <typename T> friend class WorkerT;
-    typedef EDAnalyzer ModuleType;
-    typedef WorkerT<EDAnalyzer> WorkerType;
+
+    using WorkerType = WorkerT<EDAnalyzer>;
+    using ModuleType = EDAnalyzer;
 
     // Configuration
-    struct baseConfig {
+    template <typename T>
+    struct FullConfig {
       fhicl::Atom<std::string> module_type { fhicl::Name("module_type") };
-      fhicl::Table<EventObserver::EOConfig> eoConfig {
-        fhicl::Name("SelectEvents"),
-          fhicl::Comment("The 'SelectEvents' table below is optional")
-          };
+      fhicl::OptionalTable<EventObserver::EOConfig> eoConfig { fhicl::Name("SelectEvents") };
+      fhicl::TableFragment<T> user;
     };
 
-    template <typename T>
-    struct fullConfig : baseConfig, T {}; // Multiple inheritance
-                                          // allows 'module-type' key
-                                          // to be listed first in
-                                          // description.
-
-    template < typename userConfig >
-    class Table : public fhicl::Table<fullConfig<userConfig>> {
+    template < typename UserConfig >
+    class Table {
     public:
 
-      Table(){}
+      Table() = default;
 
       Table( fhicl::ParameterSet const& pset ) : Table()
       {
-        std::set<std::string> const keys_to_ignore = { "module_label" };
-        this->validate_ParameterSet( pset, keys_to_ignore );
-        this->set_PSet( pset );
+        std::set<std::string> const keys_to_ignore { "module_label" };
+        fullConfig_.validate_ParameterSet( pset, keys_to_ignore );
       }
 
+      auto const& operator()() const { return fullConfig_().user(); }
+
+      auto const& eoTable()  const { return fullConfig_().eoConfig; }
+      auto const& get_PSet() const { return fullConfig_.get_PSet(); }
+
+      void print_allowed_configuration(std::ostream& os, std::string const& prefix) const
+      {
+        fullConfig_.print_allowed_configuration(os, prefix);
+      }
+
+    private:
+      fhicl::Table<FullConfig<UserConfig>> fullConfig_ { fhicl::Name{"<module_label>"} };
     };
 
     template <typename Config>
-    explicit EDAnalyzer( Table<Config> const& config )
-      : EventObserver( config.get_PSet() )
+    explicit EDAnalyzer(Table<Config> const& config)
+      : EventObserver{config.eoTable()}
+      , EngineCreator{}
+      , moduleDescription_{}
+      , current_context_{0}
+    {}
+
+    explicit EDAnalyzer(fhicl::ParameterSet const& pset)
+      : EventObserver(pset)
       , EngineCreator()
       , moduleDescription_()
       , current_context_(0)
     {}
 
-    explicit EDAnalyzer( fhicl::ParameterSet const& pset )
-      : EventObserver( pset )
-      , EngineCreator()
-      , moduleDescription_()
-      , current_context_(0)
-    {}
-
-    virtual ~EDAnalyzer();
+    virtual ~EDAnalyzer() = default;
 
     std::string workerType() const {return "WorkerT<EDAnalyzer>";}
 

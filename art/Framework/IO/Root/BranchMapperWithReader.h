@@ -9,10 +9,10 @@
 
 #include "TBranch.h"
 #include "art/Framework/IO/Root/Inputfwd.h"
-#include "art/Persistency/Provenance/BranchID.h"
-#include "art/Persistency/Provenance/BranchMapper.h"
-#include "art/Persistency/Provenance/ProductID.h"
-#include "art/Persistency/Provenance/ProductProvenance.h"
+#include "canvas/Persistency/Provenance/BranchID.h"
+#include "canvas/Persistency/Provenance/BranchMapper.h"
+#include "canvas/Persistency/Provenance/ProductID.h"
+#include "canvas/Persistency/Provenance/ProductProvenance.h"
 #include <vector>
 
 class TBranch;

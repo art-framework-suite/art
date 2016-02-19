@@ -43,18 +43,17 @@ endif()
 cet_report_compiler_flags()
 
 # these are minimum required versions, not the actual product versions
-find_ups_product( cppunit v1_12_1a )
-find_ups_product( clhep v2_2_0_3 )
-find_ups_product (cetbuildtools v4_17_00)
-find_ups_product( cetpkgsupport v1_08_03 )
-find_ups_product( cetlib v1_08_00 )
-find_ups_product( fhiclcpp v3_09_00 )
-find_ups_product( messagefacility v1_14_01 )
-find_ups_product( sqlite v3_08_05_00 )
-find_ups_root( v5_34_20 )
-find_ups_product( tbb v4_1 )
-find_ups_boost(v1_53_0)
-
+find_ups_product( canvas )
+find_ups_product( messagefacility )
+find_ups_product( fhiclcpp )
+find_ups_product( cetlib )
+find_ups_product( tbb )
+find_ups_product( clhep )
+find_ups_root()
+find_ups_boost()
+find_ups_product( cppunit )
+find_ups_product( sqlite )
+find_ups_product (cetbuildtools)
 
 # define CLHEP
 cet_find_library( CLHEP  NAMES CLHEP   PATHS ENV CLHEP_LIB_DIR NO_DEFAULT_PATH )
@@ -71,10 +70,10 @@ if (NOT APPLE)
 endif()
 
 # Plugin skeleton generators for cetskelgen.
-add_subdirectory(perllib)
+#add_subdirectory(perllib)
 
 # tools
-add_subdirectory(tools)
+#add_subdirectory(tools)
 
 # source
 add_subdirectory (art)
@@ -86,7 +85,7 @@ add_subdirectory(test)
 add_subdirectory(ups)
 
 # CMake modules
-add_subdirectory(Modules)
+#add_subdirectory(Modules)
 
 # packaging utility
 include(UseCPack)

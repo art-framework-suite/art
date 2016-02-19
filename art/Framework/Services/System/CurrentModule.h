@@ -9,7 +9,7 @@
 // ======================================================================
 
 #include "art/Framework/Services/Registry/ServiceMacros.h"
-#include "art/Persistency/Provenance/ModuleDescription.h"
+#include "canvas/Persistency/Provenance/ModuleDescription.h"
 #include <string>
 
 namespace art {
@@ -41,7 +41,7 @@ private:
   art::ModuleDescription  desc_;
 
   void
-    track_module( art::ModuleDescription const & desc );
+  track_module( art::ModuleDescription const & desc );
 
 };  // CurrentModule
 

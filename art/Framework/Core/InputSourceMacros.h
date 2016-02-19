@@ -7,6 +7,7 @@
 #define DEFINE_ART_INPUT_SOURCE(klass)                                  \
   extern "C" {                                                          \
     PROVIDE_FILE_PATH()                                                 \
+    PROVIDE_DESCRIPTION(klass)                                          \
     std::unique_ptr<art::InputSource>                                   \
     make(fhicl::ParameterSet const &ps,                                 \
          art::InputSourceDescription &desc)                             \

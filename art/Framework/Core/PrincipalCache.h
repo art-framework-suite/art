@@ -14,7 +14,7 @@ Original Author: W. David Dagenhart
 
 #include "art/Framework/Principal/fwd.h"
 #include "art/Framework/Core/Frameworkfwd.h"
-#include "art/Persistency/Provenance/SubRunID.h"
+#include "canvas/Persistency/Provenance/SubRunID.h"
 
 #include <map>
 #include <memory>

@@ -14,7 +14,6 @@
 #include "art/Framework/Principal/Run.h"
 #include "art/Framework/Principal/SubRun.h"
 #include "art/Utilities/InputTag.h"
-#include "cetlib/make_unique.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 #include "test/TestObjects/ToyProducts.h"
@@ -72,17 +71,17 @@ void arttest::FindManySpeedTestProducer::produce(art::Event & e)
   auto vt_pid = getProductID<std::vector<arttest::Track> >(e);
 
   // Hits.
-  auto hits = cet::make_unique<std::vector<arttest::Hit> >(nHits_);
+  auto hits = std::make_unique<std::vector<arttest::Hit> >(nHits_);
   std::iota(hits->begin(), hits->end(), 0ul);
   e.put(std::move(hits));
 
   // Tracks.
-  auto tracks = cet::make_unique<std::vector<arttest::Track> >(nTracks_);
+  auto tracks = std::make_unique<std::vector<arttest::Track> >(nTracks_);
   std::iota(tracks->begin(), tracks->end(), 0ul);
   e.put(std::move(tracks));
 
   // Assns.
-  auto assns = cet::make_unique<art::Assns<arttest::Hit, arttest::Track> >();
+  auto assns = std::make_unique<art::Assns<arttest::Hit, arttest::Track> >();
   std::poisson_distribution<size_t> pdist(pmHitsPerTrack_);
   std::uniform_int_distribution<size_t> udist(0, nHits_);
   auto pdice = std::bind(pdist, gen_);

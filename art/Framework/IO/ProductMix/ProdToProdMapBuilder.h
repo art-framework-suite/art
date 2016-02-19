@@ -3,10 +3,10 @@
 
 #include "art/Framework/Core/PtrRemapper.h"
 #include "art/Framework/Principal/fwd.h"
-#include "art/Persistency/Provenance/BranchID.h"
-#include "art/Persistency/Provenance/BranchListIndex.h"
-#include "art/Persistency/Provenance/History.h"
-#include "art/Persistency/Provenance/ProductID.h"
+#include "canvas/Persistency/Provenance/BranchID.h"
+#include "canvas/Persistency/Provenance/BranchListIndex.h"
+#include "canvas/Persistency/Provenance/History.h"
+#include "canvas/Persistency/Provenance/ProductID.h"
 #include "cetlib/exempt_ptr.h"
 
 #include <functional>

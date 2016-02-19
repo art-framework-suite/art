@@ -5,8 +5,8 @@
 // subruns) in the specified files.
 ////////////////////////////////////////////////////////////////////////
 
-#include "art/Framework/IO/Root/rootNames.h"
-#include "art/Persistency/Provenance/BranchType.h"
+#include "canvas/Persistency/Provenance/rootNames.h"
+#include "canvas/Persistency/Provenance/BranchType.h"
 
 #include "boost/program_options.hpp"
 

@@ -14,10 +14,10 @@
 #include "art/Framework/Principal/NoDelayedReader.h"
 #include "art/Framework/Principal/Principal.h"
 #include "art/Framework/Principal/fwd.h"
-#include "art/Persistency/Provenance/BranchMapper.h"
-#include "art/Persistency/Provenance/BranchType.h"
-#include "art/Persistency/Provenance/RunID.h"
-#include "art/Persistency/Provenance/SubRunAuxiliary.h"
+#include "canvas/Persistency/Provenance/BranchMapper.h"
+#include "canvas/Persistency/Provenance/BranchType.h"
+#include "canvas/Persistency/Provenance/RunID.h"
+#include "canvas/Persistency/Provenance/SubRunAuxiliary.h"
 #include "cetlib/exempt_ptr.h"
 
 #include <memory>

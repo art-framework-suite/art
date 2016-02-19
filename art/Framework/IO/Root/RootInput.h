@@ -7,9 +7,11 @@
 #include "art/Framework/IO/Catalog/InputFileCatalog.h"
 #include "art/Framework/IO/Root/Inputfwd.h"
 #include "art/Framework/IO/Root/RootInputFileSequence.h"
-#include "art/Persistency/Provenance/BranchDescription.h"
-#include "art/Persistency/Provenance/BranchID.h"
-#include "art/Persistency/Provenance/BranchType.h"
+#include "canvas/Persistency/Provenance/BranchDescription.h"
+#include "canvas/Persistency/Provenance/BranchID.h"
+#include "canvas/Persistency/Provenance/BranchType.h"
+#include "art/Utilities/ConfigTable.h"
+#include "fhiclcpp/types/TableFragment.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include <array>
@@ -24,8 +26,23 @@ class MasterProductRegistry;
 
 class RootInput : public DecrepitRelicInputSourceImplementation {
 public:
-  virtual ~RootInput();
-  RootInput(fhicl::ParameterSet const&, InputSourceDescription&);
+
+  virtual ~RootInput() = default;
+
+  struct Config {
+    fhicl::Atom<std::string> module_type { fhicl::Name("module_type") };
+    fhicl::TableFragment<DecrepitRelicInputSourceImplementation::Config> drisi_config;
+    fhicl::TableFragment<InputFileCatalog::Config> ifc_config;
+    fhicl::TableFragment<RootInputFileSequence::Config> rifs_config;
+
+    struct KeysToIgnore {
+      std::set<std::string> operator()() const { return {"module_label"}; }
+    };
+  };
+
+  using Parameters = ConfigTable<Config, Config::KeysToIgnore>;
+
+  RootInput(Parameters const&, InputSourceDescription&);
   using DecrepitRelicInputSourceImplementation::runPrincipal;
   // Find the requested event and set the system up
   // to read run and subRun records where appropriate. Note the

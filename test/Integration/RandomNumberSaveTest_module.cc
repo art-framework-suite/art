@@ -16,7 +16,7 @@
 #include "art/Framework/Principal/Handle.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/Optional/RandomNumberGenerator.h"
-#include "art/Utilities/Exception.h"
+#include "canvas/Utilities/Exception.h"
 #include "cetlib/container_algorithms.h"
 
 #include "CLHEP/Random/RandFlat.h"

@@ -2,8 +2,8 @@
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/System/TriggerNamesService.h"
 #include "art/Version/GetReleaseVersion.h"
-#include "art/Utilities/Exception.h"
-#include "art/Utilities/GetPassID.h"
+#include "canvas/Utilities/Exception.h"
+#include "canvas/Utilities/GetPassID.h"
 #include "cetlib/container_algorithms.h"
 #include "fhiclcpp/types/detail/validationException.h"
 
@@ -266,8 +266,7 @@ art::PathManager::
 processPathConfigs_()
 {
   vstring trigger_path_names;
-  auto services = procPS_.get<ParameterSet>("services",
-                                            ParameterSet());
+  auto services = procPS_.get<ParameterSet>("services",{});
   auto opts(services.get<ParameterSet>("scheduler", ParameterSet()));
   auto nSchedules = opts.get<size_t>("num_schedules", 1);
   // Check we're not being asked to do something we can't.

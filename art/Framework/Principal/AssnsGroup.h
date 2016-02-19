@@ -3,7 +3,7 @@
 
 #include "art/Framework/Principal/Group.h"
 #include "art/Framework/Principal/fwd.h"
-#include "art/Persistency/Common/Assns.h"
+#include "canvas/Persistency/Common/Assns.h"
 #include "art/Utilities/fwd.h"
 #include "cetlib/exempt_ptr.h"
 

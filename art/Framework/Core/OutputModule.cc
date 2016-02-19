@@ -15,10 +15,10 @@
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/System/TriggerNamesService.h"
 #include "art/Framework/Principal/Handle.h"
-#include "art/Persistency/Provenance/BranchDescription.h"
-#include "art/Persistency/Provenance/ParentageRegistry.h"
-#include "art/Utilities/DebugMacros.h"
-#include "art/Utilities/Exception.h"
+#include "canvas/Persistency/Provenance/BranchDescription.h"
+#include "canvas/Persistency/Provenance/ParentageRegistry.h"
+#include "canvas/Utilities/DebugMacros.h"
+#include "canvas/Utilities/Exception.h"
 #include "cetlib/canonical_string.h"
 #include "cetlib/demangle.h"
 #include "rapidjson/document.h"
@@ -29,6 +29,58 @@
 using fhicl::ParameterSet;
 using std::vector;
 using std::string;
+
+art::OutputModule::
+OutputModule(fhicl::TableFragment<Config> const & config,
+             fhicl::ParameterSet const& containing_pset)
+  :
+  EventObserver{config().eoConfig},
+  keptProducts_(),
+  hasNewlyDroppedBranch_(),
+  groupSelectorRules_{config().outputCommands(), "outputCommands", "OutputModule"},
+  groupSelector_(),
+  maxEvents_(-1),
+  remainingEvents_(maxEvents_),
+  moduleDescription_(),
+  current_context_(0),
+  branchParents_(),
+  branchChildren_(),
+  configuredFileName_{config().fileName()},
+  dataTier_{config().dataTier()},
+  streamName_{config().streamName()},
+  ci_(),
+  pluginFactory_(),
+  pluginNames_(),
+  plugins_{makePlugins_(containing_pset)}
+{
+  hasNewlyDroppedBranch_.fill(false);
+}
+
+art::OutputModule::
+OutputModule(fhicl::ParameterSet const& pset)
+  :
+  EventObserver(pset),
+  keptProducts_(),
+  hasNewlyDroppedBranch_(),
+  groupSelectorRules_(pset.get<std::vector<std::string>>("outputCommands", {"keep *"}),
+                      "outputCommands", "OutputModule"),
+  groupSelector_(),
+  maxEvents_(-1),
+  remainingEvents_(maxEvents_),
+  moduleDescription_(),
+  current_context_(0),
+  branchParents_(),
+  branchChildren_(),
+  configuredFileName_(pset.get<std::string>("fileName","")),
+  dataTier_(pset.get<std::string>("dataTier","")),
+  streamName_(pset.get<std::string>("streamName","")),
+  ci_(),
+  pluginFactory_(),
+  pluginNames_(),
+  plugins_(makePlugins_(pset))
+{
+  hasNewlyDroppedBranch_.fill(false);
+}
 
 std::string const &
 art::OutputModule::
@@ -319,15 +371,15 @@ void
 art::OutputModule::
 updateBranchParents(EventPrincipal const & ep)
 {
-  for (EventPrincipal::const_iterator i = ep.begin(), iEnd = ep.end(); i != iEnd;
-       ++i) {
-    if (i->second->productProvenancePtr()) {
-      BranchID const & bid = i->first;
-      BranchParents::iterator it = branchParents_.find(bid);
+  for (auto const& groupPr : ep) {
+    auto const& group = *groupPr.second;
+    if (group.productProvenancePtr()) {
+      BranchID const& bid = groupPr.first;
+      auto it = branchParents_.find(bid);
       if (it == branchParents_.end()) {
-        it = branchParents_.insert(std::make_pair(bid, std::set<ParentageID>())).first;
+        it = branchParents_.emplace(bid, std::set<ParentageID>()).first;
       }
-      it->second.insert(i->second->productProvenancePtr()->parentageID());
+      it->second.insert(group.productProvenancePtr()->parentageID());
       branchChildren_.insertEmpty(bid);
     }
   }
@@ -337,22 +389,14 @@ void
 art::OutputModule::
 fillDependencyGraph()
 {
-  for (BranchParents::const_iterator i = branchParents_.begin(),
-       iEnd = branchParents_.end();
-       i != iEnd; ++i) {
-    BranchID const & child = i->first;
-    std::set<ParentageID> const & eIds = i->second;
-    for (std::set<ParentageID>::const_iterator it = eIds.begin(),
-         itEnd = eIds.end();
-         it != itEnd; ++it) {
+  for (auto const& bp : branchParents_) {
+    BranchID const & child = bp.first;
+    std::set<ParentageID> const & eIds = bp.second;
+    for (auto const& eId : eIds) {
       Parentage entryDesc;
-      ParentageRegistry::get(*it, entryDesc);
-      std::vector<BranchID> const & parents = entryDesc.parents();
-      for (std::vector<BranchID>::const_iterator j = parents.begin(),
-           jEnd = parents.end();
-           j != jEnd; ++j) {
-        branchChildren_.insertChild(*j, child);
-      }
+      ParentageRegistry::get(eId, entryDesc);
+      for (auto const& p : entryDesc.parents())
+        branchChildren_.insertChild(p, child);
     }
   }
 }
@@ -631,4 +675,3 @@ makePlugins_(fhicl::ParameterSet const & top_pset)
   }
   return result;
 }
-

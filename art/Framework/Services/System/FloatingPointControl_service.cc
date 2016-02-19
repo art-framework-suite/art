@@ -1,6 +1,5 @@
-#pragma GCC diagnostic ignored "-Wunused-function"
-
 #include "art/Framework/Services/System/FloatingPointControl.h"
+#include "cetlib/container_algorithms.h"
 
 // for the MMU (SSE), here are the bit definitions
 // Pnemonic Bit Location Description
@@ -48,7 +47,6 @@ extern "C" {
 #if (defined(__i386__) || defined(__x86_64__))
 #ifdef __linux__
 #include <fpu_control.h>
-// #define SET_CONTROL_EX(env,ex) env.__control_word &= ~(ex)
 #define SET_CONTROL_EX(env,ex) env.__control_word = (ex)
 #else
   // works on MAC OS X
@@ -56,7 +54,6 @@ extern "C" {
 #ifndef __GNUC__
 #pragma STDC FENV_ACCESS ON
 #endif
-// #define SET_CONTROL_EX(env,ex) env.__control &= ~(ex)
 #define SET_CONTROL_EX(env,ex) env.__control = (ex)
 #endif
 #else
@@ -64,30 +61,30 @@ extern "C" {
 #endif
 }
 
-static  char const *
-on_or_off [[gnu::unused]] ( bool b )
-{
-  static char const * on  = " on";
-  static char const * off = " off";
+namespace {
+  char const * on_or_off [[gnu::unused]] ( bool b )
+  {
+    constexpr char const * on  = " on";
+    constexpr char const * off = " off";
 
-  return b ? on : off;
+    return b ? on : off;
+  }
 }
 
 // ======================================================================
 
-FloatingPointControl::FloatingPointControl( ParameterSet const & cfg
-                                          , ActivityRegistry   & reg
-                                          )
-: enableDivByZeroEx_ ( false )
-, enableInvalidEx_   ( false )
-, enableOverFlowEx_  ( false )
-, enableUnderFlowEx_ ( false )
-, setPrecisionDouble_( cfg.get<bool>("setPrecisionDouble",true) )
-, reportSettings_    ( cfg.get<bool>("reportSettings",false) )
-, fpuState_          ( )
-, OSdefault_         ( )
-, stateMap_          ( )
-, stateStack_        ( )
+FloatingPointControl::FloatingPointControl( ParameterSet const & cfg,
+                                            ActivityRegistry   & reg )
+  : enableDivByZeroEx_ ( false )
+  , enableInvalidEx_   ( false )
+  , enableOverFlowEx_  ( false )
+  , enableUnderFlowEx_ ( false )
+  , setPrecisionDouble_( cfg.get<bool>("setPrecisionDouble",true) )
+  , reportSettings_    ( cfg.get<bool>("reportSettings",false) )
+  , fpuState_          ( )
+  , OSdefault_         ( )
+  , stateMap_          ( )
+  , stateStack_        ( )
 {
   reg.sPostEndJob.watch(this, & FloatingPointControl::postEndJob);
   reg.sPreModule.watch (this, & FloatingPointControl::preModule);
@@ -141,11 +138,8 @@ FloatingPointControl::FloatingPointControl( ParameterSet const & cfg
     // is one, use it to override our default.  Then remove it from the
     // list so we don't see it again while handling everything else.
 
-    //VString::iterator pos = find_in_all(moduleNames, "default");
-    VString::iterator pos = find( moduleNames.begin(), moduleNames.end()
-                                , "default"
-                                );
-    if( pos != moduleNames.end() ) {
+    auto pos = cet::find_in_all(moduleNames, "default");
+    if ( pos != moduleNames.end() ) {
       PSet secondary = cfg.get<fhicl::ParameterSet>(*pos, empty_PSet);
       enableDivByZeroEx_ = secondary.get<bool>("enableDivByZeroEx", false);
       enableInvalidEx_   = secondary.get<bool>("enableInvalidEx"  , false);
@@ -161,34 +155,33 @@ FloatingPointControl::FloatingPointControl( ParameterSet const & cfg
       moduleNames.erase(pos);
     }
 
-  // Then handle the rest.
+    // Then handle the rest.
 
-    for( VString::const_iterator it(moduleNames.begin())
-                               , itEnd = moduleNames.end(); it != itEnd; ++it) {
-      PSet secondary = cfg.get<fhicl::ParameterSet>(*it, empty_PSet);
+    for (auto const& name : moduleNames) {
+      PSet secondary = cfg.get<fhicl::ParameterSet>(name, empty_PSet);
       enableDivByZeroEx_  = secondary.get<bool>("enableDivByZeroEx", false);
       enableInvalidEx_    = secondary.get<bool>("enableInvalidEx",   false);
       enableOverFlowEx_   = secondary.get<bool>("enableOverFlowEx",  false);
       enableUnderFlowEx_  = secondary.get<bool>("enableUnderFlowEx", false);
       controlFpe();
       if( reportSettings_ ) {
-        mf::LogVerbatim("FPE_Enable") << "\nSettings for module " << *it;
+        mf::LogVerbatim("FPE_Enable") << "\nSettings for module " << name;
         echoState();
       }
       fegetenv( &fpuState_ );
-      stateMap_[*it] =  fpuState_;
+      stateMap_[name] =  fpuState_;
     }
   }
 
   // And finally, restore the state back to the way we found it originally
 
-    fesetenv( &OSdefault_ );
+  fesetenv( &OSdefault_ );
 }  // c'tor
 
 // ----------------------------------------------------------------------
 
 void
-  FloatingPointControl::postEndJob( )
+FloatingPointControl::postEndJob( )
 {
   // At EndJob, put the state of the fpu back to "OSdefault"
   fpuState_ = stateMap_[String("OSdefault")];
@@ -202,7 +195,7 @@ void
 // ----------------------------------------------------------------------
 
 void
-  FloatingPointControl::preModule(const ModuleDescription& iDescription)
+FloatingPointControl::preModule(const ModuleDescription& iDescription)
 {
   // On entry to a module, find the desired state of the fpu and set it
   // accordingly.  Note that any module whose label does not appear in our
@@ -225,10 +218,10 @@ void
 // ----------------------------------------------------------------------
 
 void
-  FloatingPointControl::postModule(const ModuleDescription&)
+FloatingPointControl::postModule(const ModuleDescription&)
 {
 
-// On exit from a module, set the state of the fpu back to what it was before entry
+  // On exit from a module, set the state of the fpu back to what it was before entry
 
   stateStack_.pop();
   fpuState_ = stateStack_.top();
@@ -242,12 +235,12 @@ void
 // ----------------------------------------------------------------------
 
 void
-  FloatingPointControl::controlFpe( )
+FloatingPointControl::controlFpe( )
 {
-  unsigned short int FE_PRECISION [[ gnu::unused ]] = 1<<5;
-/*
- * NB: We do not let users control signaling inexact (FE_INEXACT).
- */
+  unsigned short int FE_PRECISION  = 1<<5;
+  /*
+   * NB: We do not let users control signaling inexact (FE_INEXACT).
+   */
 
   unsigned short int suppress = FE_PRECISION;
   unsigned short int enable_sse = 0;
@@ -276,10 +269,6 @@ void
   SET_CONTROL_EX(fpuState_, suppress);
   // also set the bits in the SSE unit
   fpuState_.__mxcsr &= ~enable_sse;
-  // fpuState_.__mxcsr = ~supp_sse;
-
-  // old way of directly setting it
-  // fpuState_.__control_word = suppress;
 
   fesetenv( &fpuState_ );
 
@@ -300,7 +289,7 @@ void
 // ----------------------------------------------------------------------
 
 void
-  FloatingPointControl::echoState( )
+FloatingPointControl::echoState()
 {
 #ifdef __linux__
   if( reportSettings_ ) {

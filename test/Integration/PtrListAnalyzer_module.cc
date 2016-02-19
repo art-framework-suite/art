@@ -2,8 +2,8 @@
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Principal/Handle.h"
-#include "art/Persistency/Common/Ptr.h"
-#include "art/Utilities/ensurePointer.h"
+#include "canvas/Persistency/Common/Ptr.h"
+#include "canvas/Utilities/ensurePointer.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "test/TestObjects/ToyProducts.h"
 

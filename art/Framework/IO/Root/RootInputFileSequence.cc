@@ -4,7 +4,6 @@
 #include "art/Framework/Core/FileBlock.h"
 #include "art/Framework/IO/Catalog/FileCatalog.h"
 #include "art/Framework/IO/Catalog/InputFileCatalog.h"
-#include "art/Framework/IO/Root/DuplicateChecker.h"
 #include "art/Framework/IO/Root/RootInputFile.h"
 #include "art/Framework/IO/Root/RootTree.h"
 #include "art/Framework/Principal/EventPrincipal.h"
@@ -28,12 +27,7 @@ using namespace std;
 namespace art {
 
 RootInputFileSequence::
-~RootInputFileSequence()
-{
-}
-
-RootInputFileSequence::
-RootInputFileSequence(fhicl::ParameterSet const& pset,
+RootInputFileSequence(fhicl::TableFragment<RootInputFileSequence::Config> const& config,
                       InputFileCatalog& catalog,
                       FastCloningInfoProvider const& fcip,
                       InputSource::ProcessingMode pMode,
@@ -46,50 +40,50 @@ RootInputFileSequence(fhicl::ParameterSet const& pset,
   , fileIndexes_(fileCatalogItems().size())
   , eventsRemainingInFile_(0)
   , origEventID_()
-  , eventsToSkip_(pset.get<EventNumber_t>("skipEvents", (EventNumber_t)0))
+  , eventsToSkip_{config().skipEvents()}
   , whichSubRunsToSkip_()
-  , noEventSort_(pset.get<bool>("noEventSort", false))
-  , skipBadFiles_(pset.get<bool>("skipBadFiles", false))
-  , treeCacheSize_(pset.get<unsigned int>("cacheSize", 0U))
-  , treeMaxVirtualSize_(pset.get<int64_t>("treeMaxVirtualSize", -1))
-  , saveMemoryObjectThreshold_(pset.get<int64_t>("saveMemoryObjectThreshold",
-                               -1))
-  , delayedReadSubRunProducts_(pset.get<bool>("delayedReadSubRunProducts",
-                               false))
-  , delayedReadRunProducts_(pset.get<bool>("delayedReadRunProducts", false))
+  , noEventSort_{config().noEventSort()}
+  , skipBadFiles_{config().skipBadFiles()}
+  , treeCacheSize_{config().cacheSize()}
+  , treeMaxVirtualSize_{config().treeMaxVirtualSize()}
+  , saveMemoryObjectThreshold_{config().saveMemoryObjectThreshold()}
+  , delayedReadSubRunProducts_{config().delayedReadSubRunProducts()}
+  , delayedReadRunProducts_{config().delayedReadRunProducts()}
   , forcedRunOffset_(0)
   , setRun_(0U)
-  , groupSelectorRules_(pset.get<std::vector<std::string>>("inputCommands",{"keep *"}), "inputCommands", "InputSource")
+  , groupSelectorRules_{config().inputCommands(), "inputCommands", "InputSource"}
   , duplicateChecker_()
-  , dropDescendants_(pset.get<bool>("dropDescendantsOfDroppedBranches", true))
-  , readParameterSets_(pset.get<bool>("readParameterSets", true))
+  , dropDescendants_{config().dropDescendantsOfDroppedBranches()}
+  , readParameterSets_{config().readParameterSets()}
   , fastCloningInfo_(fcip)
   , processingMode_(pMode)
   , processConfiguration_(processConfig)
-  //, secondaryFileNames_(pset.get<vector<vector<string>>>("secondaryFileNames",
-  //                      vector<vector<string>>()))
   , secondaryFileNames_()
   , mpr_(mpr)
 {
   auto const& primaryFileNames = catalog_.fileSources();
-  auto items = pset.get<vector<fhicl::ParameterSet>>("secondaryFileNames",
-                                              vector<fhicl::ParameterSet>());
+
   map<string const, vector<string> const> secondaryFilesMap;
-  for (auto const& val: items) {
-    auto const a = val.get<string>("a", "");
-    auto const b = val.get<vector<string>>("b", vector<string>());
-    if (a.empty()) {
-      throw art::Exception(errors::Configuration)
-        << "Empty filename found as value of an \"a\" parameter!\n";
-    }
-    for (auto const& name: b) {
-      if (name.empty()) {
+
+  std::vector<Config::SecondaryFile> secondaryFiles;
+  if ( config().secondaryFileNames( secondaryFiles ) ) {
+    for (auto const& val: secondaryFiles) {
+      auto const a = val.a();
+      auto const b = val.b();
+      if (a.empty()) {
         throw art::Exception(errors::Configuration)
-          << "Empty secondary filename found as value of an \"b\" parameter!\n";
+          << "Empty filename found as value of an \"a\" parameter!\n";
       }
+      for (auto const& name: b) {
+        if (name.empty()) {
+          throw art::Exception(errors::Configuration)
+            << "Empty secondary filename found as value of an \"b\" parameter!\n";
+        }
+      }
+      secondaryFilesMap.emplace(a, b);
     }
-    secondaryFilesMap.emplace(a, b);
   }
+
   vector<pair<vector<string>::const_iterator,
          vector<string>::const_iterator>> stk;
   for (auto PNI = primaryFileNames.cbegin(), PNE = primaryFileNames.end();
@@ -141,29 +135,31 @@ RootInputFileSequence(fhicl::ParameterSet const& pset,
     }
     secondaryFileNames_.push_back(std::move(secondaries));
   }
-  RunNumber_t firstRun;
-  bool haveFirstRun = pset.get_if_present("firstRun", firstRun);
-  SubRunNumber_t firstSubRun;
-  bool haveFirstSubRun = pset.get_if_present("firstSubRun", firstSubRun);
-  EventNumber_t firstEvent;
-  bool haveFirstEvent = pset.get_if_present("firstEvent", firstEvent);
+  RunNumber_t firstRun{};
+  bool haveFirstRun = config().hasFirstRun(firstRun);
+  SubRunNumber_t firstSubRun{};
+  bool haveFirstSubRun = config().hasFirstSubRun(firstSubRun);
+  EventNumber_t firstEvent{};
+  bool haveFirstEvent = config().hasFirstEvent(firstEvent);
+
   RunID firstRunID = haveFirstRun ? RunID(firstRun) : RunID::firstRun();
-  SubRunID firstSubRunID = haveFirstSubRun ? SubRunID(firstRunID.run(),
-                           firstSubRun) :
-                           SubRunID::firstSubRun(firstRunID);
-  origEventID_ = haveFirstEvent ? EventID(firstSubRunID.run(),
-                                          firstSubRunID.subRun(),
-                                          firstEvent) :
-                 EventID::firstEvent(firstSubRunID);
+
+  SubRunID firstSubRunID =
+    haveFirstSubRun ? SubRunID(firstRunID.run(), firstSubRun) : SubRunID::firstSubRun(firstRunID);
+
+  origEventID_ = haveFirstEvent ?
+    EventID(firstSubRunID.run(), firstSubRunID.subRun(), firstEvent) :
+    EventID::firstEvent(firstSubRunID);
+
   if (noEventSort_ && haveFirstEvent) {
     throw art::Exception(errors::Configuration)
         << "Illegal configuration options passed to RootInput\n"
         << "You cannot request \"noEventSort\" and also set \"firstEvent\".\n";
   }
   if (primary()) {
-    duplicateChecker_.reset(new DuplicateChecker(pset));
+    duplicateChecker_.reset(new DuplicateChecker(config().dc));
   }
-  string matchMode = pset.get<string>("fileMatchMode", string("permissive"));
+  string const & matchMode = config().fileMatchMode();
   if (matchMode == string("strict")) {
     matchMode_ = BranchDescription::Strict;
   }
@@ -178,7 +174,7 @@ RootInputFileSequence(fhicl::ParameterSet const& pset,
     // We could not open any input files, stop.
     return;
   }
-  if (pset.get_if_present("setRunNumber", setRun_)) {
+  if (config().setRunNumber(setRun_)) {
     try {
       forcedRunOffset_ = rootFile_->setForcedRunOffset(setRun_);
     }
@@ -833,4 +829,3 @@ logFileAction(const char* msg, string const& file)
 }
 
 } // namespace art
-

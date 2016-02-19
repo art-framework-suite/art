@@ -136,6 +136,10 @@ def main():
     # Reset argv to avoid ROOT's TApplication getting confused.
     sys.argv = []
     ROOT.gROOT.SetBatch()
+    # ROOT 5 only.
+    if ((0 == string.find(os.environ['ROOT_VERSION'], "v5", 0, 2)) and
+        (0 == ROOT.gSystem.Load("libCintex"))):
+        ROOT.Cintex.Enable()
     if (options.library is not None) and (ROOT.gSystem.Load(options.library) != 0):
         raise RuntimeError("failed to load library '" + options.library + "'")
     p = XmlParser(options.xmlfile)

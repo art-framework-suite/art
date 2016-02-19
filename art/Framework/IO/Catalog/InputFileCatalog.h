@@ -13,7 +13,8 @@
 #include "art/Framework/Services/FileServiceInterfaces/FileTransfer.h"
 #include "art/Framework/Services/FileServiceInterfaces/FileTransferStatus.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
-#include "fhiclcpp/ParameterSet.h"
+#include "fhiclcpp/types/Sequence.h"
+#include "fhiclcpp/types/TableFragment.h"
 
 #include <string>
 #include <vector>
@@ -31,11 +32,13 @@ namespace art {
 
   class InputFileCatalog : public FileCatalog {
   public:
-    explicit InputFileCatalog(fhicl::ParameterSet const& pset,
-                              std::string const& namesParameter = std::string("fileNames"),
-                              bool canBeEmpty = false,
-                              bool noThrow = false);
-    virtual ~InputFileCatalog();
+
+    struct Config {
+      fhicl::Sequence<std::string> namesParameter { fhicl::Name("fileNames") };
+    };
+
+    explicit InputFileCatalog(fhicl::TableFragment<Config> const& config);
+    virtual ~InputFileCatalog() = default;
     std::vector<FileCatalogItem> const& fileCatalogItems() const {return fileCatalogItems_;}
     FileCatalogItem const& currentFile() const;
     size_t currentIndex() const;
@@ -51,7 +54,6 @@ namespace art {
     static const size_t indexEnd;
 
   private:
-    void findFile(std::string & pfn, std::string const& lfn, bool noThrow);
     bool retrieveNextFile(FileCatalogItem & item, int attempts, bool transferOnly = false);
     FileCatalogStatus retrieveNextFileFromCacheOrService(FileCatalogItem & item);
     FileCatalogStatus transferNextFile(FileCatalogItem & item);

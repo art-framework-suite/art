@@ -1,7 +1,7 @@
 #include "art/Framework/Art/BasicOutputOptionsHandler.h"
 
 #include "art/Framework/Art/detail/exists_outside_prolog.h"
-#include "art/Utilities/Exception.h"
+#include "canvas/Utilities/Exception.h"
 #include "art/Utilities/ensureTable.h"
 #include "cetlib/canonical_string.h"
 #include "fhiclcpp/coding.h"

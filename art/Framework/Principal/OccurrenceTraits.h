@@ -16,8 +16,8 @@
 #include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Framework/Principal/fwd.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
-#include "art/Persistency/Common/HLTPathStatus.h"
-#include "art/Persistency/Provenance/ModuleDescription.h"
+#include "canvas/Persistency/Common/HLTPathStatus.h"
+#include "canvas/Persistency/Provenance/ModuleDescription.h"
 
 // ----------------------------------------------------------------------
 

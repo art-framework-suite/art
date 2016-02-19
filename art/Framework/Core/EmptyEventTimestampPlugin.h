@@ -37,12 +37,15 @@
 //
 ////////////////////////////////////////////////////////////////////////
 
+#include "art/Utilities/BasicHelperMacros.h"
 #include "art/Utilities/BasicPluginMacros.h"
-#include "art/Persistency/Provenance/Timestamp.h"
+#include "canvas/Persistency/Provenance/Timestamp.h"
 #include "cetlib/PluginTypeDeducer.h"
 #include "fhiclcpp/ParameterSet.h"
 
 #define DEFINE_ART_EMPTYEVENTTIMESTAMP_PLUGIN(klass)  \
+  PROVIDE_FILE_PATH()                                 \
+  PROVIDE_DESCRIPTION(klass)                          \
   DEFINE_BASIC_PLUGIN(klass,                          \
                       art::EmptyEventTimestampPlugin)
 

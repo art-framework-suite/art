@@ -1,7 +1,7 @@
-#include "art/Persistency/Common/Assns.h"
-#include "art/Persistency/Common/Ptr.h"
-#include "art/Persistency/Common/PtrVector.h"
-#include "art/Persistency/Common/Wrapper.h"
+#include "canvas/Persistency/Common/Assns.h"
+#include "canvas/Persistency/Common/Ptr.h"
+#include "canvas/Persistency/Common/PtrVector.h"
+#include "canvas/Persistency/Common/Wrapper.h"
 #include "cetlib/map_vector.h"
 #include "test/TestObjects/AssnTestData.h"
 
@@ -26,11 +26,9 @@ template class art::Wrapper<art::Assns<std::pair<cet::map_vector_key, std::strin
 template class art::Assns<std::pair<cet::map_vector_key, std::string>, std::string, arttest::AssnTestData>;
 template class art::Assns<std::pair<cet::map_vector_key, std::string>, std::string, void>;
 
-template class art::Wrapper<art::Ptr<cet::map_vector<std::string>::value_type>>;
 template class art::Ptr<cet::map_vector<std::string>::value_type>;
 
 template class art::Wrapper<art::Ptr<int>>;
-template class art::Ptr<int>;
 
 template class art::Wrapper<art::Ptr<std::string>>;
 template class art::Ptr<std::string>;

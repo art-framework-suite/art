@@ -3,7 +3,7 @@
 #include <iostream>
 
 #include "art/Ntuple/Ntuple.h"
-#include "art/Utilities/Exception.h"
+#include "canvas/Utilities/Exception.h"
 
 #include "sqlite3.h"
 

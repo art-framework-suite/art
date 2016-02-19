@@ -5,7 +5,7 @@
 
 #include "art/Framework/IO/ProductMix/MixContainerTypes.h"
 #include "art/Framework/IO/Root/RootBranchInfoList.h"
-#include "art/Persistency/Provenance/FileIndex.h"
+#include "canvas/Persistency/Provenance/FileIndex.h"
 #include "art/Utilities/fwd.h"
 
 namespace art {

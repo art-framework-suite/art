@@ -2,7 +2,7 @@
 #define art_Utilities_pointersEqual_h
 // Compare two pointers taking into account possible multiple inheritance
 
-#include "art/Utilities/Exception.h"
+#include "canvas/Utilities/Exception.h"
 
 #include <type_traits>
 

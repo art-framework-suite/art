@@ -1,8 +1,8 @@
 #include "art/Framework/Principal/DeferredProductGetter.h"
 
 #include "art/Framework/Principal/EventPrincipal.h"
-#include "art/Utilities/Exception.h"
-#include "art/Utilities/TypeID.h"
+#include "canvas/Utilities/Exception.h"
+#include "canvas/Utilities/TypeID.h"
 
 art::DeferredProductGetter::
 DeferredProductGetter(cet::exempt_ptr<EventPrincipal const> groupFinder,

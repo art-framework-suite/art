@@ -3,7 +3,8 @@
 #include "art/Framework/Principal/Handle.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/System/TriggerNamesService.h"
-#include "art/Persistency/Common/TriggerResults.h"
+#include "canvas/Persistency/Common/TriggerResults.h"
+#include "art/Utilities/ConfigTable.h"
 
 #include <algorithm>
 #include <cassert>
@@ -57,11 +58,12 @@ class arttest::TestBitsOutput : public art::OutputModule {
 public:
 
   struct Config {
+    fhicl::TableFragment<art::OutputModule::Config> omConfig;
     fhicl::Atom<int>  bitMask { fhicl::Name("bitMask") };
     fhicl::Atom<bool> expectTriggerResults { fhicl::Name("expectTriggerResults"), true };
   };
 
-  using Parameters = art::OutputModule::Table<Config>;
+  using Parameters = art::ConfigTable<Config, art::OutputModule::Config::KeysToIgnore>;
   explicit TestBitsOutput(Parameters const&);
   virtual ~TestBitsOutput();
 
@@ -80,7 +82,7 @@ private:
 // -----------------------------------------------------------------
 
 arttest::TestBitsOutput::TestBitsOutput(arttest::TestBitsOutput::Parameters const& ps)
-  : art::OutputModule(ps),
+  : art::OutputModule(ps().omConfig, ps.get_PSet()),
     bitMask_(ps().bitMask()),
     hltbits_(0),
     expectTriggerResults_(ps().expectTriggerResults())

@@ -10,7 +10,8 @@
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Core/OutputModule.h"
 #include "art/Persistency/Provenance/ProductMetaData.h"
-#include "art/Persistency/Provenance/ProductList.h"
+#include "canvas/Persistency/Provenance/ProductList.h"
+#include "art/Utilities/ConfigTable.h"
 #include "cetlib/exception.h"
 #include "cetlib/exempt_ptr.h"
 #include "fhiclcpp/ParameterSet.h"
@@ -21,8 +22,11 @@ namespace art {
   class ProvenanceCheckerOutput : public OutputModule {
   public:
 
-    struct Config{};
-    using Parameters = Table<Config>;
+    struct Config {
+      fhicl::TableFragment<OutputModule::Config> omConfig;
+    };
+
+    using Parameters = ConfigTable<Config, OutputModule::Config::KeysToIgnore>;
     explicit ProvenanceCheckerOutput(Parameters const&);
     virtual ~ProvenanceCheckerOutput();
 
@@ -36,7 +40,7 @@ namespace art {
 // constructors and destructor
 //
   ProvenanceCheckerOutput::ProvenanceCheckerOutput(ProvenanceCheckerOutput::Parameters const& ps) :
-    OutputModule(ps)
+    OutputModule{ps().omConfig, ps.get_PSet()}
   { }
 
   ProvenanceCheckerOutput::~ProvenanceCheckerOutput()

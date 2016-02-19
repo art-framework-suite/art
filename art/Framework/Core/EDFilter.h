@@ -15,10 +15,8 @@
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/ProducerBase.h"
 #include "art/Framework/Core/WorkerT.h"
-#include "art/Persistency/Provenance/ModuleDescription.h"
+#include "canvas/Persistency/Provenance/ModuleDescription.h"
 #include "fhiclcpp/ParameterSet.h"
-#include "fhiclcpp/types/Atom.h"
-#include "fhiclcpp/types/Table.h"
 
 #include <memory>
 #include <string>
@@ -53,32 +51,8 @@ namespace art
     getProductID(TRANS const &translator,
                  std::string const& instanceName=std::string()) const;
 
-    // Configuration
-    struct baseConfig {
-      fhicl::Atom<std::string>  module_type { fhicl::Name("module_type") };
-      fhicl::Atom<bool> errorOnFailureToPut { fhicl::Name("errorOnFailureToPut"), true };
-    };
-
-    template <typename T>
-    struct fullConfig : baseConfig, T {}; // Multiple inheritance
-                                          // allows 'module-type' key
-                                          // to be listed first in
-                                          // description.
-
-    template < typename userConfig >
-    class Table : public fhicl::Table<fullConfig<userConfig>> {
-    public:
-
-      Table(){}
-
-      Table( fhicl::ParameterSet const& pset ) : Table()
-      {
-        std::set<std::string> const keys_to_ignore = { "module_label" };
-        this->validate_ParameterSet( pset, keys_to_ignore );
-        this->set_PSet( pset );
-      }
-
-    };
+    template <typename UserConfig>
+    using Table = ProducerBase::Table<UserConfig>;
 
   protected:
     // The returned pointer will be null unless the this is currently

@@ -16,8 +16,13 @@ using fhicl::ParameterSet;
 namespace art {
 
   EventObserver::
-  ~EventObserver()
+  EventObserver(fhicl::OptionalTable<EOConfig> const& config)
+    : wantAllEvents_(false)
+    , selectors_()
+    , process_name_()
+    , selector_config_id_()
   {
+    init_( config.get_PSet() );
   }
 
   EventObserver::
@@ -27,10 +32,14 @@ namespace art {
     , process_name_()
     , selector_config_id_()
   {
+    init_( pset.get<ParameterSet>("SelectEvents", {}) );
+  }
+
+  void EventObserver::init_(fhicl::ParameterSet const& SE)
+  {
     ServiceHandle<TriggerNamesService> TNS;
     process_name_ = TNS->getProcessName();
     vector<string> const& trigPaths = TNS->getTrigPaths();
-    ParameterSet SE = pset.get<ParameterSet>("SelectEvents", ParameterSet());
     selector_config_id_ = SE.id();
     if (SE.is_empty()) {
       // No event selection criteria given, we want all events.

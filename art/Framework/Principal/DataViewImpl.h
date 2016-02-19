@@ -49,19 +49,19 @@
 
 #include "art/Framework/Principal/fwd.h"
 #include "art/Framework/Principal/Handle.h"
-#include "art/Persistency/Common/EDProduct.h"
+#include "canvas/Persistency/Common/EDProduct.h"
 #include "art/Persistency/Common/GroupQueryResult.h"
-#include "art/Persistency/Common/Wrapper.h"
+#include "canvas/Persistency/Common/Wrapper.h"
 #include "art/Persistency/Common/fwd.h"
-#include "art/Persistency/Common/traits.h"
-#include "art/Persistency/Provenance/BranchDescription.h"
-#include "art/Persistency/Provenance/BranchID.h"
-#include "art/Persistency/Provenance/BranchType.h"
-#include "art/Persistency/Provenance/ProductProvenance.h"
-#include "art/Persistency/Provenance/ProvenanceFwd.h"
+#include "canvas/Persistency/Common/traits.h"
+#include "canvas/Persistency/Provenance/BranchDescription.h"
+#include "canvas/Persistency/Provenance/BranchID.h"
+#include "canvas/Persistency/Provenance/BranchType.h"
+#include "canvas/Persistency/Provenance/ProductProvenance.h"
+#include "canvas/Persistency/Provenance/ProvenanceFwd.h"
 #include "art/Persistency/Provenance/detail/type_aliases.h"
 #include "art/Utilities/InputTag.h"
-#include "art/Utilities/TypeID.h"
+#include "canvas/Utilities/TypeID.h"
 
 #include <memory>
 #include <ostream>
@@ -78,10 +78,9 @@ namespace art {
 
 class art::DataViewImpl {
 public:
-#ifndef __GCCXML__
+
   DataViewImpl(DataViewImpl const&) = delete;
   DataViewImpl& operator=(DataViewImpl const&) = delete;
-#endif
   DataViewImpl(Principal & pcpl,
                ModuleDescription const& md,
                BranchType const& branchType);
@@ -283,7 +282,7 @@ template <typename PROD>
 inline
 void
 art::DataViewImpl::getMany(SelectorBase const& sel,
-                           std::vector<Handle<PROD> >& results) const
+                           std::vector<Handle<PROD>>& results) const
 {
   GroupQueryResultVec bhv;
   this->getMany_(TypeID(typeid(PROD)), sel, bhv);
@@ -313,7 +312,7 @@ art::DataViewImpl::getMany(SelectorBase const& sel,
 template <typename PROD>
 inline
 void
-art::DataViewImpl::getManyByType(std::vector<Handle<PROD> >& results) const
+art::DataViewImpl::getManyByType(std::vector<Handle<PROD>>& results) const
 {
   GroupQueryResultVec bhv;
   this->getManyByType_(TypeID(typeid(PROD)), bhv);

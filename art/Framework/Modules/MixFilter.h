@@ -70,7 +70,7 @@
 #include "art/Framework/IO/ProductMix/MixHelper.h"
 #include "art/Framework/IO/ProductMix/MixOpBase.h"
 #include "art/Framework/Services/Registry/ServiceRegistry.h"
-#include "art/Utilities/detail/metaprogramming.h"
+#include "canvas/Utilities/detail/metaprogramming.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include <functional>

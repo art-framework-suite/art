@@ -5,8 +5,8 @@
 #include "art/Framework/IO/Root/Inputfwd.h"
 #include "art/Framework/IO/Root/RootInputFile.h"
 #include "art/Persistency/Common/DelayedReader.h"
-#include "art/Persistency/Provenance/BranchKey.h"
-#include "art/Persistency/Provenance/BranchType.h"
+#include "canvas/Persistency/Provenance/BranchKey.h"
+#include "canvas/Persistency/Provenance/BranchType.h"
 
 #include <map>
 #include <memory>
@@ -43,7 +43,7 @@ private: // MEMBER FUNCTIONS
 
   virtual
   void
-  setGroupFinder_(cet::exempt_ptr<EventPrincipal const>) override;
+  setGroupFinder_(cet::exempt_ptr<EDProductGetterFinder const>) override;
 
   virtual
   void
@@ -62,7 +62,7 @@ private: // MEMBER DATA
   std::shared_ptr<TFile const> filePtr_;
   int64_t saveMemoryObjectThreshold_;
   std::shared_ptr<DelayedReader> nextReader_;
-  cet::exempt_ptr<EventPrincipal const> groupFinder_;
+  cet::exempt_ptr<EDProductGetterFinder const> groupFinder_;
   cet::exempt_ptr<RootInputFile> primaryFile_;
   BranchType branchType_;
   EventID eventID_;

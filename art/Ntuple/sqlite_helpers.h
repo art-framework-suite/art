@@ -9,12 +9,13 @@
 
 #include <array>
 #include <string>
+#include <tuple>
 #include <type_traits>
 #include <vector>
 
 #include "sqlite3.h"
 #include "art/Ntuple/sqlite_stringstream.h"
-#include "art/Utilities/Exception.h"
+#include "canvas/Utilities/Exception.h"
 
 using namespace std::string_literals;
 
@@ -63,11 +64,10 @@ namespace sqlite
     struct BuildSQL
     {
       static constexpr std::size_t SIZE = std::tuple_size<TUP>::value;
-      using result_t = typename std::tuple_element<I, TUP>::type;
+      using result_t = std::tuple_element_t<I, TUP>;
 
       template <class IT>
-      static void addMore(std::string& cmd,
-                          IT beginCol, IT endCol)
+      static void addMore(std::string& cmd, IT beginCol, IT endCol)
       {
         BuildSQL<TUP,I-1>::addMore(cmd, beginCol, endCol);
         cmd += ", ";
@@ -81,11 +81,10 @@ namespace sqlite
     struct BuildSQL<TUP,0>
     {
       static constexpr std::size_t SIZE = std::tuple_size<TUP>::value;
-      using result_t = typename std::tuple_element<0, TUP>::type;
+      using result_t = std::tuple_element_t<0, TUP>;
 
       template <class IT>
-      static void addMore(std::string& cmd,
-                          IT beginCol, IT /* unused */)
+      static void addMore(std::string& cmd, IT beginCol, IT /* unused */)
       {
         cmd += *beginCol;
         cmd += " ";
@@ -99,15 +98,14 @@ namespace sqlite
                                 IT beginCol,
                                 IT endCol)
     {
-      std::string ddl("CREATE TABLE "s + tname + " ( "s);
+      std::string ddl {"CREATE TABLE "s + tname + " ( "};
       BuildSQL<TUP, std::tuple_size<TUP>::value-1>::addMore(ddl, beginCol, endCol);
       ddl += " )";
       return ddl;
     }
 
     //=======================================================================
-    struct query_result
-    {
+    struct query_result {
       std::vector<sqlite::stringstream> data;
     };
 
@@ -130,22 +128,25 @@ namespace sqlite
   // Conversion functions for querying results
 
   template < typename T >
-  inline T convertTo( std::vector<sqlite::stringstream>& ) {
+  inline T convertTo( std::vector<sqlite::stringstream>& )
+  {
     return T();
   }
 
   template <>
-  inline double convertTo<double>( std::vector<sqlite::stringstream>& data ) {
+  inline double convertTo<double>( std::vector<sqlite::stringstream>& data )
+  {
     if ( data.size() != 1 || data[0].size() != 1 ) {
-      throw art::Exception( art::errors::LogicError,"sqlite results are not unique");
+      throw art::Exception(art::errors::LogicError) << "SQLite results are not unique";
     }
     return std::stod( data[0][0] );
   }
 
   template<>
-  inline uint32_t convertTo<uint32_t>( std::vector<sqlite::stringstream>& data ) {
+  inline uint32_t convertTo<uint32_t>( std::vector<sqlite::stringstream>& data )
+  {
     if ( data.size() != 1 || data[0].size() != 1 ) {
-      throw art::Exception( art::errors::LogicError,"sqlite results are not unique");
+      throw art::Exception(art::errors::LogicError) << "SQLite results are not unique";
     }
     return std::stoul( data[0][0] );
   }
@@ -153,7 +154,8 @@ namespace sqlite
   template<>
   inline
   std::vector<std::string>
-  convertTo<std::vector<std::string> >( std::vector<sqlite::stringstream> & data ) {
+  convertTo<std::vector<std::string> >( std::vector<sqlite::stringstream> & data )
+  {
     std::vector<std::string> strList;
     for ( auto & entry : data ) {
       std::string tmpstr;
@@ -173,7 +175,7 @@ namespace sqlite
   inline std::vector<sqlite::stringstream> query_db(sqlite3* db, std::string const& ddl, bool const do_throw = true)
   {
     detail::query_result res = detail::query( db, ddl );
-    if ( res.data.empty() && do_throw ) throw art::Exception(art::errors::SQLExecutionError,"sqlite query_db unsuccessful");
+    if ( res.data.empty() && do_throw ) throw art::Exception(art::errors::SQLExecutionError) << "SQLite query_db unsuccessful";
     return std::move(res.data);
   }
 
@@ -181,13 +183,14 @@ namespace sqlite
   decltype(auto) query_db(sqlite3* db, std::string const& ddl, bool const do_throw = true)
   {
     detail::query_result res = detail::query( db, ddl );
-    if ( res.data.empty() && do_throw ) throw art::Exception(art::errors::SQLExecutionError,"sqlite query_db unsuccessful");
+    if ( res.data.empty() && do_throw ) throw art::Exception(art::errors::SQLExecutionError) << "SQLite query_db unsuccessful";
     return convertTo<T>( res.data );
   }
 
   template<typename T>
-  auto getUniqueEntries( sqlite3* db, const std::string& tname, const std::string& colname ) {
-    return query_db<std::vector<T>>( db, "select distinct "s+colname+" from "s+tname );
+  auto getUniqueEntries( sqlite3* db, const std::string& tname, const std::string& colname )
+  {
+    return query_db<std::vector<T>>( db, "select distinct "s+colname+" from "+tname );
   }
 
   //=====================================================================
@@ -218,13 +221,15 @@ namespace sqlite
   // Statistics helpers
 
   template<typename T = double>
-  T min( sqlite3* db, const std::string& tname, const std::string& colname ) {
-    return query_db<T>( db, "select min("s+colname+") from "s + tname );
+  T min( sqlite3* db, const std::string& tname, const std::string& colname )
+  {
+    return query_db<T>( db, "select min("s+colname+") from " + tname );
   }
 
   template<typename T = double>
-  T max( sqlite3* db, const std::string& tname, const std::string& colname ) {
-    return query_db<T>( db, "select max("s+colname+") from "s + tname );
+  T max( sqlite3* db, const std::string& tname, const std::string& colname )
+  {
+    return query_db<T>( db, "select max("s+colname+") from " + tname );
   }
 
   double mean  ( sqlite3* db, std::string const& tname, std::string const& colname );

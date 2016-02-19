@@ -1,5 +1,5 @@
 #include "art/Ntuple/sqlite_stringstream.h"
-#include "art/Utilities/Exception.h"
+#include "canvas/Utilities/Exception.h"
 
 #include <string>
 

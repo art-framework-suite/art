@@ -16,13 +16,15 @@
 #include "art/Framework/Principal/Run.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Framework/Principal/SubRun.h"
-#include "art/Persistency/Provenance/FileFormatVersion.h"
+#include "canvas/Persistency/Provenance/FileFormatVersion.h"
 #include "art/Persistency/Provenance/ProductMetaData.h"
-#include "art/Utilities/Exception.h"
+#include "art/Utilities/ConfigTable.h"
+#include "canvas/Utilities/Exception.h"
 #include "art/Utilities/parent_path.h"
 #include "art/Utilities/unique_filename.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/types/Atom.h"
+#include "fhiclcpp/types/OptionalAtom.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include <iomanip>
@@ -43,26 +45,52 @@ class art::RootOutput : public OutputModule {
 
 public: // MEMBER FUNCTIONS
 
-  static constexpr const char* default_tmpDir = "<some-tmp-dir>";
-
   struct Config {
-    fhicl::Atom<std::string> catalog { fhicl::Name("catalog"), "" };
-    fhicl::Atom<bool> dropAllEvents  { fhicl::Name("dropAllEvents"), false };
-    fhicl::Atom<bool> dropAllSubRuns { fhicl::Name("dropAllSubRuns"), false };
-    fhicl::Atom<std::string> fileName { fhicl::Name("fileName") };
-    fhicl::Atom<std::string> tmpDir { fhicl::Name("tmpDir"), default_tmpDir };
-    fhicl::Atom<int> maxSize { fhicl::Name("maxSize"), 0x7f000000 };
-    fhicl::Atom<int> compressionLevel { fhicl::Name("compressionLevel"), 7 };
-    fhicl::Atom<int64_t> saveMemoryObjectThreshold { fhicl::Name("saveMemoryObjectThreshold"), -1l };
-    fhicl::Atom<int64_t> treeMaxVirtualSize { fhicl::Name("treeMaxVirtualSize"), -1 };
-    fhicl::Atom<int> splitLevel { fhicl::Name("splitLevel"), 99 };
-    fhicl::Atom<int> basketSize { fhicl::Name("basketSize"), 16384 };
-    fhicl::Atom<bool> dropMetaDataForDroppedData { fhicl::Name("dropMetaDataForDroppedData"), false };
-    fhicl::Atom<std::string> dropMetaData { fhicl::Name("dropMetaData"), "" };
-    fhicl::Atom<bool> writeParameterSets {fhicl::Name("writeParameterSets"), true };
+
+    using Name = fhicl::Name;
+
+    fhicl::TableFragment<art::OutputModule::Config> omConfig;
+    fhicl::Atom<std::string> catalog { Name("catalog"), "" };
+    fhicl::OptionalAtom<bool> dropAllEvents  { Name("dropAllEvents") };
+    fhicl::Atom<bool> dropAllSubRuns { Name("dropAllSubRuns"), false };
+    fhicl::OptionalAtom<bool> fastCloning { Name("fastCloning") };
+    fhicl::Atom<std::string> tmpDir { Name("tmpDir"), parent_path(omConfig().fileName()) };
+    fhicl::Atom<int> maxSize { Name("maxSize"), 0x7f000000 };
+    fhicl::Atom<int> compressionLevel { Name("compressionLevel"), 7 };
+    fhicl::Atom<int64_t> saveMemoryObjectThreshold { Name("saveMemoryObjectThreshold"), -1l };
+    fhicl::Atom<int64_t> treeMaxVirtualSize { Name("treeMaxVirtualSize"), -1 };
+    fhicl::Atom<int> splitLevel { Name("splitLevel"), 99 };
+    fhicl::Atom<int> basketSize { Name("basketSize"), 16384 };
+    fhicl::Atom<bool> dropMetaDataForDroppedData { Name("dropMetaDataForDroppedData"), false };
+    fhicl::Atom<std::string> dropMetaData { Name("dropMetaData"), "" };
+    fhicl::Atom<bool> writeParameterSets {Name("writeParameterSets"), true };
+
+    Config()
+    {
+      // Both RootOutput module and OutputModule use the "fileName"
+      // FHiCL parameter.  However, whereas in OutputModule the
+      // parameter has a default, for RootOutput the parameter should
+      // not.  We therefore have to change the default flag setting
+      // for 'OutputModule::Config::fileName'.
+
+      using namespace fhicl::detail;
+      ParameterBase* adjustFilename = const_cast<fhicl::Atom<std::string>*>(&omConfig().fileName);
+      adjustFilename->set_value_type(fhicl::value_type::REQUIRED);
+    }
+
+    struct KeysToIgnore {
+      std::set<std::string> operator()() const
+      {
+        std::set<std::string> keys { art::OutputModule::Config::KeysToIgnore::get() };
+        keys.insert("results");
+        return keys;
+      }
+    };
+
   };
 
-  using Parameters = OutputModule::Table<Config>;
+  using Parameters = art::ConfigTable<Config,Config::KeysToIgnore>;
+
   explicit RootOutput(Parameters const&);
 
   void postSelectProducts(FileBlock const&) override;
@@ -149,7 +177,7 @@ private:
 
 art::RootOutput::
 RootOutput(Parameters const & config)
-  : OutputModule(config)
+  : OutputModule{config().omConfig, config.get_PSet()}
   , catalog_(config().catalog())
   , dropAllEvents_(false)
   , dropAllSubRuns_(config().dropAllSubRuns())
@@ -157,17 +185,8 @@ RootOutput(Parameters const & config)
   , inputFileCount_(0)
   , rootOutputFile_()
   , fstats_(moduleLabel_, processName())
-    // For the next data member, qualifying 'fileName' is a necessity
-    // because the full configuration for RootOutput looks like:
-    //
-    //   struct Config : OutputModuleConfig, RootOutputConfig {};
-    //
-    // Both OutputModuleConfig and RootOutputConfig include 'fileName'
-    // members, creating a lookup ambiguity.
-  , filePattern_(config().RootOutput::Config::fileName() )
-  , tmpDir_( config().tmpDir() == default_tmpDir ?
-             parent_path(filePattern_) :
-             config().tmpDir() )
+  , filePattern_(config().omConfig().fileName() )
+  , tmpDir_(config().tmpDir())
   , lastClosedFileName_()
   , maxFileSize_(config().maxSize())
   , compressionLevel_(config().compressionLevel())
@@ -183,7 +202,7 @@ RootOutput(Parameters const & config)
 {
   mf::LogInfo msg("FastCloning");
   msg << "Initial fast cloning configuration ";
-  if (config.get_PSet().get_if_present("fastCloning", fastCloning_)) {
+  if (config().fastCloning(fastCloning_)) {
     msg << "(user-set): ";
   }
   else {
@@ -198,8 +217,8 @@ RootOutput(Parameters const & config)
         "event selection configuration.";
   }
 
-  bool const dropAllEventsSet = config.get_PSet().get_if_present<bool>("dropAllEvents",
-                                                        dropAllEvents_);
+  bool const dropAllEventsSet = config().dropAllEvents(dropAllEvents_);
+
   if (dropAllSubRuns_) {
     if (dropAllEventsSet && !dropAllEvents_) {
       string const errmsg =

@@ -4,14 +4,11 @@
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Principal/Run.h"
 #include "art/Framework/Principal/SubRun.h"
-#include "art/Utilities/Exception.h"
+#include "canvas/Utilities/Exception.h"
 #include "cetlib/demangle.h"
 
 namespace art
 {
-
-  EDAnalyzer::~EDAnalyzer()
-  { }
 
   bool
   EDAnalyzer::doEvent(EventPrincipal const& ep,

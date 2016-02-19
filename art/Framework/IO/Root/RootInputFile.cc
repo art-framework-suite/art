@@ -10,20 +10,22 @@
 #include "art/Framework/IO/Root/FastCloningInfoProvider.h"
 #include "art/Framework/IO/Root/GetFileFormatEra.h"
 #include "art/Framework/IO/Root/setFileIndexPointer.h"
-#include "art/Framework/IO/Root/rootNames.h"
-#include "art/Persistency/Common/EDProduct.h"
-#include "art/Persistency/Provenance/BranchChildren.h"
-#include "art/Persistency/Provenance/BranchDescription.h"
-#include "art/Persistency/Provenance/BranchType.h"
-#include "art/Persistency/Provenance/ParameterSetBlob.h"
-#include "art/Persistency/Provenance/ParameterSetMap.h"
-#include "art/Persistency/Provenance/ParentageRegistry.h"
+#include "canvas/Persistency/Provenance/rootNames.h"
+#include "art/Framework/Services/Registry/ServiceHandle.h"
+#include "art/Framework/Services/System/FileCatalogMetadata.h"
+#include "canvas/Persistency/Common/EDProduct.h"
+#include "canvas/Persistency/Provenance/BranchChildren.h"
+#include "canvas/Persistency/Provenance/BranchDescription.h"
+#include "canvas/Persistency/Provenance/BranchType.h"
+#include "canvas/Persistency/Provenance/ParameterSetBlob.h"
+#include "canvas/Persistency/Provenance/ParameterSetMap.h"
+#include "canvas/Persistency/Provenance/ParentageRegistry.h"
 #include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
-#include "art/Persistency/Provenance/ProductList.h"
-#include "art/Persistency/Provenance/RunID.h"
+#include "canvas/Persistency/Provenance/ProductList.h"
+#include "canvas/Persistency/Provenance/RunID.h"
 #include "art/Persistency/RootDB/SQLite3Wrapper.h"
-#include "art/Utilities/Exception.h"
-#include "art/Utilities/FriendlyName.h"
+#include "canvas/Utilities/Exception.h"
+#include "canvas/Utilities/FriendlyName.h"
 #include "cetlib/container_algorithms.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/ParameterSetID.h"
@@ -49,13 +51,15 @@ using namespace cet;
 using namespace std;
 
 namespace {
-  bool have_table(sqlite3 * db, std::string errMsg)
+
+  bool have_table(sqlite3 * db, std::string const& table, std::string errMsg)
   {
     bool result = false;
     sqlite3_stmt * stmt;
+    std::string const ddl {"select 1 from sqlite_master where type='table' and name='"+table+"';"};
     auto rc =
       sqlite3_prepare_v2(db,
-                         "select 1 from sqlite_master where type='table' and name='ParameterSets';",
+                         ddl.c_str(),
                          -1,
                          &stmt,
                          nullptr);
@@ -78,6 +82,7 @@ namespace {
     }
     return result;
   }
+
 }
 
 namespace art {
@@ -233,21 +238,47 @@ namespace art {
     }
     // Merge into the hashed registries.
     // Parameter Set
-    for (auto I = psetMap.cbegin(), E = psetMap.cend(); I != E; ++I) {
+    for (auto const& psEntry : psetMap) {
       fhicl::ParameterSet pset;
-      fhicl::make_ParameterSet(I->second.pset_, pset);
+      fhicl::make_ParameterSet(psEntry.second.pset_, pset);
       // Note ParameterSet::id() has the side effect of
       // making sure the parameter set *has* an ID.
       pset.id();
       fhicl::ParameterSetRegistry::put(pset);
     }
     // Also need to check MetaData DB if we have one.
-    if (readIncomingParameterSets &&
-        (fileFormatVersion_.value_ >= 5)) {
+    if (fileFormatVersion_.value_ >= 5) {
       // Open the DB.
       SQLite3Wrapper sqliteDB(filePtr_.get(), "RootFileDB");
-      if (have_table(sqliteDB, "Error interrogating SQLite3 DB in file "s + file_)) {
+      if (readIncomingParameterSets &&
+          have_table(sqliteDB, "ParameterSets", "Error interrogating SQLite3 DB in file "s + file_)) {
         fhicl::ParameterSetRegistry::importFrom(sqliteDB);
+      }
+      if ( art::ServiceRegistry::instance().isAvailable<art::FileCatalogMetadata>() &&
+           have_table(sqliteDB, "FileCatalog_metadata", "Error interrogating SQLite3 DB in file "s + file_)) {
+        sqlite3_stmt* stmt {nullptr};
+        sqlite3_prepare_v2(sqliteDB,
+                           "SELECT Name, Value from FileCatalog_metadata;",
+                           -1,
+                           &stmt,
+                           nullptr);
+
+        std::vector<std::pair<std::string,std::string>> md;
+        while (sqlite3_step(stmt) == SQLITE_ROW) {
+          std::string const name  = reinterpret_cast<char const*>(sqlite3_column_text(stmt, 0));
+          std::string const value = reinterpret_cast<char const*>(sqlite3_column_text(stmt, 1));
+          md.emplace_back(name, value);
+        }
+        int const finalize_status = sqlite3_finalize(stmt);
+        if(finalize_status != SQLITE_OK) {
+          throw art::Exception(art::errors::SQLExecutionError)
+            << "Unexpected status from DB status cleanup: "
+            << sqlite3_errmsg(sqliteDB)
+            << " (0x"
+            << finalize_status
+            <<").\n";
+        }
+        art::ServiceHandle<art::FileCatalogMetadata>{}->setMetadataFromInput(md);
       }
     }
     ProcessHistoryRegistry::put(pHistMap);
@@ -1208,8 +1239,8 @@ namespace art {
     // Do drop on input. On the first pass, just fill
     // in a set of branches to be dropped.
     set<BranchID> branchesToDrop;
-    for (auto I = prodList.cbegin(), E = prodList.cend(); I != E; ++I) {
-      auto const& bd = I->second;
+    for (auto const& prod : prodList) {
+      auto const& bd = prod.second;
       if (!groupSelector.selected(bd)) {
         if (dropDescendants) {
           branchChildren_->appendToDescendants(bd.branchID(), branchesToDrop);
@@ -1272,4 +1303,3 @@ namespace art {
   }
 
 } // namespace art
-

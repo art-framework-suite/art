@@ -32,10 +32,10 @@
 // =================================================================
 
 #include <deque>
-#include <iostream>
 #include <string>
+#include <type_traits>
 
-#include "art/Utilities/Exception.h"
+#include "canvas/Utilities/Exception.h"
 
 namespace sqlite {
 
@@ -83,19 +83,28 @@ namespace sqlite {
       return *this;
     }
 
-    // Disable copy c'tor/assignment
     stringstream() = default;
-    stringstream( stringstream&& ) = default;
+    stringstream(stringstream&&) = default; // Cannot be 'noexcept' since
+                                            // 'std::deque<std::string>'
+                                            // is not nothrow move-constructible
+    stringstream& operator=(stringstream&&) noexcept = default;
+
+    // Disable copy c'tor/assignment
     stringstream( const stringstream& ) = delete;
     stringstream& operator=( const stringstream& ) = delete;
 
   private:
 
-    std::deque<std::string> data_;
+    using data_container_t = std::deque<std::string>;
+    static_assert(std::is_nothrow_move_assignable<data_container_t>::value,
+                  "Chosen container for sqlite::stringstream is not nothrow move assignable.");
+
+    data_container_t data_;
 
     void check_size_() {
       if ( data_.empty() ) {
-        throw art::Exception(art::errors::LogicError,"sqlite::stringstream is empty.  Cannot pop front.");
+        throw art::Exception(art::errors::LogicError)
+          << "sqlite::stringstream is empty.  Cannot pop front.";
       }
     }
 

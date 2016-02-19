@@ -12,10 +12,10 @@
 
 #include "art/Framework/Principal/DataViewImpl.h"
 #include "art/Framework/Principal/fwd.h"
-#include "art/Persistency/Provenance/RunID.h"
-#include "art/Persistency/Provenance/SubRunAuxiliary.h"
-#include "art/Persistency/Provenance/SubRunID.h"
-#include "art/Utilities/TypeID.h"
+#include "canvas/Persistency/Provenance/RunID.h"
+#include "canvas/Persistency/Provenance/SubRunAuxiliary.h"
+#include "canvas/Persistency/Provenance/SubRunID.h"
+#include "canvas/Utilities/TypeID.h"
 
 #include <memory>
 #include <utility>
@@ -23,7 +23,7 @@
 class art::SubRun : private art::DataViewImpl {
 public:
   SubRun(SubRunPrincipal& srp, const ModuleDescription& md);
-  ~SubRun() {}
+  ~SubRun() = default;
 
   typedef DataViewImpl Base;
   // AUX functions.
@@ -46,10 +46,17 @@ public:
   using Base::me;
   using Base::processHistory;
 
+  template <typename PROD>
+  art::ValidHandle<PROD> getValidHandle(InputTag const& tag) const
+  {
+    art::Handle<PROD> h;
+    getByLabel(tag, h);
+    return art::ValidHandle<PROD>(&(*h), *h.provenance());
+  }
+
   Run const&
   getRun() const;
 
-#ifndef __GCCXML__
   ///Put a new product.
   template <typename PROD>
   void
@@ -59,7 +66,6 @@ public:
   template <typename PROD>
   void
   put(std::unique_ptr<PROD> && product, std::string const& productInstanceName);
-#endif /* __GCCXML__ */
 
 private:
   SubRunPrincipal const&
@@ -83,7 +89,6 @@ private:
   std::shared_ptr<Run const> const run_;
 };
 
-#ifndef __GCCXML__
 template <typename PROD>
 void
 art::SubRun::put(std::unique_ptr<PROD> && product,
@@ -110,8 +115,6 @@ art::SubRun::put(std::unique_ptr<PROD> && product,
       << "=================================\n";
   }
 }
-
-#endif /* __GCCXML__ */
 
 #endif /* art_Framework_Principal_SubRun_h */
 

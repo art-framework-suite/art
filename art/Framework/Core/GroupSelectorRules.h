@@ -7,8 +7,8 @@
 //
 // ======================================================================
 
-#include "art/Persistency/Provenance/BranchType.h"
-#include "art/Persistency/Provenance/BranchKey.h"
+#include "canvas/Persistency/Provenance/BranchType.h"
+#include "canvas/Persistency/Provenance/BranchKey.h"
 
 #include <string>
 #include <vector>

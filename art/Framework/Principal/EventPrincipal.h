@@ -15,10 +15,10 @@
 #include "art/Framework/Principal/Principal.h"
 #include "art/Framework/Principal/fwd.h"
 #include "art/Persistency/Common/GroupQueryResult.h"
-#include "art/Persistency/Provenance/BranchMapper.h"
-#include "art/Persistency/Provenance/BranchType.h"
-#include "art/Persistency/Provenance/EventAuxiliary.h"
-#include "art/Persistency/Provenance/History.h"
+#include "canvas/Persistency/Provenance/BranchMapper.h"
+#include "canvas/Persistency/Provenance/BranchType.h"
+#include "canvas/Persistency/Provenance/EventAuxiliary.h"
+#include "canvas/Persistency/Provenance/History.h"
 #include "cetlib/exempt_ptr.h"
 
 #include <map>
@@ -176,6 +176,10 @@ private:
   // handle the lifetime of a deferred getter, which in turn is required
   // because a group does not exist until it is placed in the event.
   EDProductGetter const* deferredGetter_(ProductID const& pid) const;
+
+  virtual EDProductGetter const* getEDProductGetterImpl(ProductID const& pid) const override {
+    return getGroup(pid).result().get();
+  }
 
 private:
 

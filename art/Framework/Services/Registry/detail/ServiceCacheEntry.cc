@@ -9,7 +9,7 @@
 #include "art/Framework/Services/Registry/detail/ServiceStack.h"
 #include "art/Framework/Services/Registry/detail/ServiceWrapper.h"
 #include "art/Framework/Services/Registry/detail/ServiceHelper.h"
-#include "art/Utilities/Exception.h"
+#include "canvas/Utilities/Exception.h"
 #include "cetlib/demangle.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/types/detail/validationException.h"

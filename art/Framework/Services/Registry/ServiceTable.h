@@ -4,6 +4,7 @@
 #include "fhiclcpp/types/Table.h"
 #include "fhiclcpp/types/detail/validationException.h"
 
+#include <ostream>
 #include <set>
 #include <string>
 
@@ -14,23 +15,33 @@ namespace fhicl {
 namespace art {
 
   template <typename T>
-  class ServiceTable : public fhicl::Table<T> {
+  class ServiceTable {
   public:
 
-    ServiceTable() {}
+    ServiceTable() = default;
 
-    ServiceTable( fhicl::ParameterSet const & pset ) : ServiceTable()
+    ServiceTable(fhicl::ParameterSet const & pset) : ServiceTable()
     {
-      std::set<std::string> const keys_to_ignore = { "service_type", "service_provider"};
+      std::set<std::string> const keys_to_ignore = {"service_type", "service_provider"};
       try {
-        this->validate_ParameterSet( pset, keys_to_ignore );
+        config_.validate_ParameterSet(pset, keys_to_ignore);
       }
-      catch ( fhicl::detail::validationException const& e ) {
-        throw fhicl::detail::validationException( e.what() );
+      catch (fhicl::detail::validationException const&) {
+        throw;
       }
-      this->set_PSet( pset );
     }
 
+    fhicl::ParameterSet const& get_PSet() const { return config_.get_PSet(); }
+
+    void print_allowed_configuration(std::ostream& os, std::string const& prefix) const
+    {
+      config_.print_allowed_configuration(os, prefix);
+    }
+
+    auto const& operator()() const { return config_(); }
+
+  private:
+    fhicl::Table<T> config_ { fhicl::Name("<service>") };
   };
 
 }

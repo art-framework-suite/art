@@ -7,8 +7,8 @@
 //
 // ======================================================================
 
-#include "art/Persistency/Common/HLTPathStatus.h"
-#include "art/Persistency/Common/TriggerResults.h"
+#include "canvas/Persistency/Common/HLTPathStatus.h"
+#include "canvas/Persistency/Common/TriggerResults.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/ParameterSetID.h"
 
@@ -17,6 +17,12 @@
 #include <vector>
 
 // ----------------------------------------------------------------------
+
+#define ACCEPT_EVENT_MSG                                                \
+  "\n\n"                                                                \
+  "art warning: This function has been deprecated.\n"                   \
+  "             Please contact artists@fnal.gov for assistance.\n"      \
+  "\n"
 
 namespace art {
 
@@ -30,11 +36,10 @@ namespace art {
                         ExactMatch = 3};
   }  // evtSel
 
-  class EventSelector
-  {
+  class EventSelector {
   public:
 
-    typedef std::vector<std::string> Strings;
+    using Strings = std::vector<std::string>;
 
     EventSelector(Strings const& pathspecs,
                   Strings const& names);
@@ -47,12 +52,10 @@ namespace art {
 
     bool wantAll() const { return accept_all_; }
     bool acceptEvent(TriggerResults const&);
-    bool acceptEvent(unsigned char const*, int) const;
+    [[deprecated(ACCEPT_EVENT_MSG)]] bool acceptEvent(unsigned char const*, int) const;
 
     std::shared_ptr<TriggerResults>
-      maskTriggerResults(TriggerResults const& inputResults);
-    static std::vector<std::string>
-      getEventSelectionVString(fhicl::ParameterSet const& pset);
+    maskTriggerResults(TriggerResults const& inputResults);
 
   private:
 
@@ -68,25 +71,23 @@ namespace art {
       bool accept_state_;
     };
 
-    typedef std::vector<BitInfo> Bits;
+    using Bits = std::vector<BitInfo>;
 
-    bool accept_all_;
-    Bits absolute_acceptors_;
-    Bits conditional_acceptors_;
-    Bits exception_acceptors_;
-    std::vector<Bits> all_must_fail_;
-    std::vector<Bits> all_must_fail_noex_;
+    bool accept_all_ {false};
+    Bits absolute_acceptors_ {};
+    Bits conditional_acceptors_ {};
+    Bits exception_acceptors_ {};
+    std::vector<Bits> all_must_fail_ {};
+    std::vector<Bits> all_must_fail_noex_ {};
 
-    bool results_from_current_process_;
-    bool psetID_initialized_;
-    fhicl::ParameterSetID psetID_;
+    bool results_from_current_process_ {true};
+    bool psetID_initialized_ {false};
+    fhicl::ParameterSetID psetID_ {};
 
-    Strings paths_;
+    Strings paths_ {};
 
-    int nTriggerNames_;
-    bool notStarPresent_;
-
-    bool acceptTriggerPath(HLTPathStatus const&, BitInfo const&) const;
+    int nTriggerNames_ {0};
+    bool notStarPresent_ {false};
 
     bool acceptOneBit (Bits const & b,
                        HLTGlobalStatus const & tr,
@@ -99,7 +100,7 @@ namespace art {
     bool selectionDecision(HLTGlobalStatus const & tr) const;
 
     static std::vector< Strings::const_iterator >
-      matching_triggers(Strings const& trigs, std::string const& s);
+    matching_triggers(Strings const& trigs, std::string const& s);
 
     static bool identical (std::vector<bool> const & a,
                            std::vector<bool> const & b);

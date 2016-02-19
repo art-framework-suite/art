@@ -19,10 +19,6 @@ physics:
     }
   }
    
-  filters:
-  {
-  }
-
   analyzers:
   {
    a: { module_type: SAMMetadataTest }

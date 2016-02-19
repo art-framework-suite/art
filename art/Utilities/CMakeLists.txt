@@ -1,4 +1,5 @@
 art_make(LIB_LIBRARIES
+  canvas_Utilities
   MF_MessageLogger
   MF_Utilities
   fhiclcpp
@@ -10,7 +11,7 @@ art_make(LIB_LIBRARIES
   ${ROOT_CORE}
   ${TBB}
   -lpthread
-  -ldl
+  ${CMAKE_DL_LIBS}
   SUBDIRS detail
   )
 
