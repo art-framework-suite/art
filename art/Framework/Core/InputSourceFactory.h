@@ -9,8 +9,9 @@
 
 #include "art/Framework/Core/InputSource.h"
 #include "cetlib/LibraryManager.h"
-#include "cpp0x/memory"
 #include "fhiclcpp/ParameterSet.h"
+
+#include <memory>
 #include <string>
 
 namespace art {

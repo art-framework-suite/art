@@ -23,7 +23,7 @@ my $options = {};
 Getopt::Long::Configure(qw(no_ignore_case bundling require_order));
 
 # Subsidiary packages to be recognized.
-my @known_packages = qw(messagefacility fhicl-cpp cetlib cpp0x);
+my @known_packages = qw(messagefacility fhicl-cpp cetlib);
 my %product_name = ( "fhicl-cpp" => "fhiclcpp" );
 
 GetOptions($options,

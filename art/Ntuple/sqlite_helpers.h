@@ -15,7 +15,7 @@
 
 #include "sqlite3.h"
 #include "art/Ntuple/sqlite_stringstream.h"
-#include "art/Utilities/Exception.h"
+#include "canvas/Utilities/Exception.h"
 
 using namespace std::string_literals;
 

@@ -11,7 +11,7 @@ DelayedReader::
 
 void
 DelayedReader::
-setGroupFinder_(cet::exempt_ptr<EventPrincipal const>)
+setGroupFinder_(cet::exempt_ptr<EDProductGetterFinder const>)
 {
 }
 

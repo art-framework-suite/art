@@ -7,13 +7,14 @@
 #include "art/Framework/Principal/Provenance.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Persistency/Common/GroupQueryResult.h"
-#include "art/Persistency/Provenance/BranchIDList.h"
+#include "canvas/Persistency/Provenance/BranchIDList.h"
 #include "art/Persistency/Provenance/BranchIDListRegistry.h"
-#include "art/Persistency/Provenance/BranchListIndex.h"
+#include "canvas/Persistency/Provenance/BranchListIndex.h"
 #include "art/Persistency/Provenance/ProductMetaData.h"
 #include "cetlib/container_algorithms.h"
-#include "cpp0x/algorithm"
-#include "cpp0x/utility"
+
+#include <algorithm>
+#include <utility>
 
 using namespace cet;
 using namespace std;
@@ -34,7 +35,7 @@ EventPrincipal(EventAuxiliary const& aux, ProcessConfiguration const& pc,
   , history_(history)
   , branchToProductIDHelper_()
 {
-  productReader().setGroupFinder(cet::exempt_ptr<EventPrincipal const>(this));
+  productReader().setGroupFinder(cet::exempt_ptr<EDProductGetterFinder const>(this));
   if (ProductMetaData::instance().productProduced(InEvent)) {
     addToProcessHistory();
     // Add index into BranchIDListRegistry for products produced this process

@@ -1,6 +1,6 @@
 #include "art/Persistency/RootDB/SQLErrMsg.h"
 
-#include "art/Utilities/Exception.h"
+#include "canvas/Utilities/Exception.h"
 
 extern "C" {
 #include "sqlite3.h"

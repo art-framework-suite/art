@@ -1,7 +1,7 @@
-#include "art/Persistency/Common/Assns.h"
-#include "art/Persistency/Common/Ptr.h"
-#include "art/Persistency/Common/PtrVector.h"
-#include "art/Persistency/Common/Wrapper.h"
+#include "canvas/Persistency/Common/Assns.h"
+#include "canvas/Persistency/Common/Ptr.h"
+#include "canvas/Persistency/Common/PtrVector.h"
+#include "canvas/Persistency/Common/Wrapper.h"
 
 #include "test/TestObjects/AssnTestData.h"
 #include "test/TestObjects/MockCluster.h"
@@ -9,6 +9,8 @@
 #include "test/TestObjects/ToyProducts.h"
 
 #include "test/TestObjects/TH1Data.h"
+
+#include <vector>
 
 template class art::Wrapper<arttest::TH1Data>;
 template class art::Wrapper<arttest::DummyProduct>;
@@ -21,8 +23,10 @@ template class art::Wrapper<arttest::Prodigal>;
 template class std::vector<arttest::SimpleDerived>;
 template class art::Wrapper<std::vector<arttest::SimpleDerived> >;
 template class art::Ptr<arttest::SimpleDerived>;
+template class std::vector<art::Ptr<arttest::SimpleDerived> >;
 template class art::PtrVector<arttest::SimpleDerived>;
 template class art::Wrapper<art::PtrVector<arttest::SimpleDerived> >;
+template class std::vector<art::Ptr<arttest::Simple> >;
 template class art::Wrapper<art::PtrVector<arttest::Simple> >;
 template class art::Wrapper<arttest::MockClusterList>;
 template class art::Wrapper<arttest::ProductWithPtrs>;

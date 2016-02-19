@@ -3,8 +3,8 @@
 #include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
-#include "art/Persistency/Provenance/RunAuxiliary.h"
-#include "art/Persistency/Provenance/SubRunAuxiliary.h"
+#include "canvas/Persistency/Provenance/RunAuxiliary.h"
+#include "canvas/Persistency/Provenance/SubRunAuxiliary.h"
 
 #include <cassert>
 #include <memory>

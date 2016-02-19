@@ -3,7 +3,7 @@
 
 #include "art/Framework/IO/Root/RootBranchInfo.h"
 #include "art/Utilities/fwd.h"
-#include "art/Utilities/TypeID.h"
+#include "canvas/Utilities/TypeID.h"
 
 #include <vector>
 

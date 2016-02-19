@@ -11,14 +11,14 @@ EDProducts into an Event.
 #include "art/Framework/Principal/fwd.h"
 #include "art/Framework/Core/ProductRegistryHelper.h"
 #include "art/Framework/Core/get_BranchDescription.h"
-#include "art/Persistency/Provenance/ModuleDescription.h"
-#include "art/Persistency/Provenance/ProductID.h"
-#include "cpp0x/functional"
-#include "cpp0x/memory"
+#include "canvas/Persistency/Provenance/ModuleDescription.h"
+#include "canvas/Persistency/Provenance/ProductID.h"
 #include "fhiclcpp/types/Atom.h"
 #include "fhiclcpp/types/Table.h"
 #include "fhiclcpp/types/TableFragment.h"
 
+#include <functional>
+#include <memory>
 #include <string>
 
 namespace art {

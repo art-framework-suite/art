@@ -10,15 +10,16 @@
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/System/CurrentModule.h"
 #include "art/Framework/Services/System/TriggerNamesService.h"
-#include "art/Framework/IO/Root/RefCoreStreamer.h"
-#include "art/Persistency/Provenance/BranchID.h"
-#include "art/Persistency/Provenance/BranchKey.h"
-#include "art/Persistency/Provenance/BranchType.h"
-#include "art/Persistency/Provenance/ProductList.h"
+#include "canvas/Persistency/Common/RefCoreStreamer.h"
+#include "canvas/Persistency/Provenance/BranchID.h"
+#include "canvas/Persistency/Provenance/BranchKey.h"
+#include "canvas/Persistency/Provenance/BranchType.h"
+#include "canvas/Persistency/Provenance/ProductList.h"
 #include "art/Persistency/Provenance/ProductMetaData.h"
-#include "art/Utilities/Exception.h"
+#include "canvas/Utilities/Exception.h"
 #include "art/Utilities/InputTag.h"
-#include "cpp0x/functional"
+
+#include <functional>
 
 #include "TBranch.h"
 

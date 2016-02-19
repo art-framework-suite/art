@@ -7,8 +7,8 @@
 //
 // ======================================================================
 
-#include "art/Persistency/Provenance/ProcessConfiguration.h"
-#include "art/Persistency/Provenance/ProcessConfigurationID.h"
+#include "canvas/Persistency/Provenance/ProcessConfiguration.h"
+#include "canvas/Persistency/Provenance/ProcessConfigurationID.h"
 #include "cetlib/registry_via_id.h"
 
 namespace art {

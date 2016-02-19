@@ -1,6 +1,6 @@
 #include "art/Utilities/UnixSignalHandlers.h"
 
-#include "art/Utilities/DebugMacros.h"
+#include "canvas/Utilities/DebugMacros.h"
 
 #include <cstdlib>
 #include <exception>

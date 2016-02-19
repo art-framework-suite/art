@@ -8,10 +8,10 @@
 #include "art/Framework/Services/Registry/ServiceScope.h"
 #include "art/Framework/Services/Registry/detail/ServiceStack.h"
 #include "art/Framework/Services/Registry/detail/ServiceHelper.h"
-#include "cpp0x/memory"
 #include "fhiclcpp/ParameterSet.h"
 
 #include <cassert>
+#include <memory>
 
 namespace art {
   namespace detail {

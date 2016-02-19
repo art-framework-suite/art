@@ -3,9 +3,9 @@ set( art_Framework_Services_Optional_sources
   detail/TH1AddDirectorySentry.cc
 )
 
-if ( ${CMAKE_SYSTEM_NAME} MATCHES "Linux" ) 
-  list( APPEND 
-    art_Framework_Services_Optional_sources 
+if ( ${CMAKE_SYSTEM_NAME} MATCHES "Linux" )
+  list( APPEND
+    art_Framework_Services_Optional_sources
     MemoryTrackerLinux.cc
     SimpleMemoryCheckLinux.cc
     detail/LinuxProcMgr.cc
@@ -23,8 +23,8 @@ art_make_library( SOURCE ${art_Framework_Services_Optional_sources}
   ${Boost_REGEX_LIBRARY}
   ${Boost_SYSTEM_LIBRARY}
   art_Framework_Services_Registry
-  art_Persistency_Provenance
-  art_Utilities
+  art_Persistency_Provenance canvas_Persistency_Provenance
+  art_Utilities canvas_Utilities
   art_Ntuple
 )
 
@@ -40,7 +40,7 @@ simple_plugin(RandomNumberGenerator "service"
 simple_plugin(SimpleInteraction "service" art_Framework_Services_UserInteraction)
 
 simple_plugin(SimpleMemoryCheck "service"
-  art_Persistency_Provenance
+  art_Persistency_Provenance canvas_Persistency_Provenance
   art_Framework_Services_Optional
   )
 
@@ -51,7 +51,7 @@ simple_plugin(MemoryAdjuster "service"
 simple_plugin(MemoryTracker "service"
   art_Framework_Services_Optional
   art_Ntuple
-  art_Persistency_Provenance
+  art_Persistency_Provenance canvas_Persistency_Provenance
   )
 
 simple_plugin(TFileService "service"
@@ -62,7 +62,7 @@ simple_plugin(TFileService "service"
   ${ROOT_RIO}
   ${ROOT_THREAD})
 
-simple_plugin(Timing "service" art_Persistency_Provenance)
+simple_plugin(Timing "service" art_Persistency_Provenance canvas_Persistency_Provenance)
 
 if (NOT APPLE)
   set(RT -lrt)
@@ -70,12 +70,12 @@ endif()
 
 simple_plugin(TimeTracker "service"
   art_Ntuple
-  art_Persistency_Provenance
+  art_Persistency_Provenance canvas_Persistency_Provenance
   ${TBB}
   ${RT}
   )
 
-simple_plugin(Tracer "service" art_Persistency_Provenance)
+simple_plugin(Tracer "service" art_Persistency_Provenance canvas_Persistency_Provenance)
 
 simple_plugin(TrivialFileDelivery "service")
 

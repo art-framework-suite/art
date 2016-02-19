@@ -1,7 +1,7 @@
 #include "art/Framework/IO/Root/FastCloningInfoProvider.h"
 
 #include "art/Framework/Core/DecrepitRelicInputSourceImplementation.h"
-#include "art/Utilities/Exception.h"
+#include "canvas/Utilities/Exception.h"
 
 art::FastCloningInfoProvider::
 FastCloningInfoProvider(cet::exempt_ptr<DecrepitRelicInputSourceImplementation> input) :

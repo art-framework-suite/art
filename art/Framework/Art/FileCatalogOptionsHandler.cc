@@ -1,7 +1,7 @@
 #include "art/Framework/Art/FileCatalogOptionsHandler.h"
 
 #include "art/Framework/Art/detail/exists_outside_prolog.h"
-#include "art/Utilities/Exception.h"
+#include "canvas/Utilities/Exception.h"
 #include "art/Utilities/detail/serviceConfigLocation.h"
 #include "art/Utilities/ensureTable.h"
 #include "cetlib/split.h"
@@ -42,23 +42,17 @@ namespace {
 
   void check_metadata_options(bpo::variables_map const& vm)
   {
-    // Mutually exclusive:
-    //   --sam-inherit-metadata  --sam-file-type arg
-    //   --sam-inherit-file-type --sam-file-type arg
-    for( auto const& opt : {"sam-inherit-metadata","sam-inherit-file-type"} ) {
-      if (vm.count(opt)+vm.count("sam-file-type") > 1)
-        throw art::Exception(art::errors::Configuration)
-          << "The options '--" << opt << "' and '--sam-file-type' are mutually exclusive.";
-    }
 
-    // Mutually exclusive:
-    //   --sam-inherit-metadata --sam-run-type arg
-    //   --sam-inherit-run-type --sam-run-type arg
-    for( auto const& opt : {"sam-inherit-metadata","sam-inherit-run-type"} ) {
-      if (vm.count(opt)+vm.count("sam-run-type") > 1)
-        throw art::Exception(art::errors::Configuration)
-          << "The options '--" << opt << "' and '--sam-run-type' are mutually exclusive.";
-    }
+    auto check_for_conflicting_options = [&vm](std::string const& firstOpt, std::initializer_list<std::string> opts){
+      for(auto const& opt : opts) {
+        if (vm.count(opt)+vm.count(firstOpt) > 1)
+          throw art::Exception(art::errors::Configuration)
+            << "The options '--" << opt << "' and '--" << firstOpt << "' are mutually exclusive.";
+      }
+    };
+
+    check_for_conflicting_options("sam-file-type", {"sam-inherit-metadata", "sam-inherit-file-type"});
+    check_for_conflicting_options("sam-run-type" , {"sam-inherit-metadata", "sam-inherit-run-type" });
   }
 
   void fill_tiers_streams(bpo::variables_map const & vm,

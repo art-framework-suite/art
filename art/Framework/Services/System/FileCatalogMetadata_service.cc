@@ -1,6 +1,6 @@
 #include "art/Framework/Services/System/FileCatalogMetadata.h"
 
-#include "art/Utilities/Exception.h"
+#include "canvas/Utilities/Exception.h"
 #include "rapidjson/document.h"
 #include "rapidjson/error/en.h"
 

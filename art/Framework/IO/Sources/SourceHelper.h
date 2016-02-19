@@ -10,15 +10,15 @@
 
 #include "art/Framework/Principal/fwd.h"
 #include "art/Framework/Principal/EventPrincipal.h"
-#include "art/Persistency/Common/Ptr.h"
-#include "art/Persistency/Provenance/BranchDescription.h"
-#include "art/Persistency/Provenance/EventAuxiliary.h"
-#include "art/Persistency/Provenance/EventID.h"
-#include "art/Persistency/Provenance/History.h"
-#include "art/Persistency/Provenance/ModuleDescription.h"
-#include "art/Persistency/Provenance/RunID.h"
-#include "art/Persistency/Provenance/SubRunID.h"
-#include "art/Persistency/Provenance/TypeLabel.h"
+#include "canvas/Persistency/Common/Ptr.h"
+#include "canvas/Persistency/Provenance/BranchDescription.h"
+#include "canvas/Persistency/Provenance/EventAuxiliary.h"
+#include "canvas/Persistency/Provenance/EventID.h"
+#include "canvas/Persistency/Provenance/History.h"
+#include "canvas/Persistency/Provenance/ModuleDescription.h"
+#include "canvas/Persistency/Provenance/RunID.h"
+#include "canvas/Persistency/Provenance/SubRunID.h"
+#include "canvas/Persistency/Provenance/TypeLabel.h"
 
 #include <memory>
 

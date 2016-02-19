@@ -2,10 +2,10 @@
 // vim: set sw=2:
 
 #include "Reflex/Type.h"
-#include "art/Persistency/Provenance/BranchKey.h"
+#include "canvas/Persistency/Provenance/BranchKey.h"
 #include "art/Persistency/Provenance/ReflexTools.h"
-#include "art/Utilities/TypeID.h"
-#include "art/Utilities/WrappedClassName.h"
+#include "canvas/Utilities/TypeID.h"
+#include "canvas/Utilities/WrappedClassName.h"
 #include "cetlib/exception.h"
 
 #include <cassert>

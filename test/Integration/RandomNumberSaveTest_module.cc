@@ -16,7 +16,7 @@
 #include "art/Framework/Principal/Handle.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/Optional/RandomNumberGenerator.h"
-#include "art/Utilities/Exception.h"
+#include "canvas/Utilities/Exception.h"
 #include "cetlib/container_algorithms.h"
 
 #include "CLHEP/Random/RandFlat.h"
@@ -50,8 +50,8 @@ private:
   bool genUnsaved_;
 };
 
-ostream & operator << (ostream & os,
-                       arttest::RandomNumberSaveTest::prod_t const & v) {
+std::ostream & operator << (std::ostream & os,
+                            arttest::RandomNumberSaveTest::prod_t const & v) {
   cet::copy_all(v,
                 std::ostream_iterator<arttest::RandomNumberSaveTest::prod_t::value_type>
                 (os, ", "));

@@ -3,14 +3,14 @@
 #include "fhiclcpp/ParameterSet.h"
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Principal/Handle.h"
-#include "art/Persistency/Common/TriggerResults.h"
+#include "canvas/Persistency/Common/TriggerResults.h"
 
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/System/TriggerNamesService.h"
 #include "art/Framework/Core/TriggerNames.h"
 #include "fhiclcpp/ParameterSetRegistry.h"
 
-#include "art/Persistency/Provenance/ParameterSetID.h"
+#include "canvas/Persistency/Provenance/ParameterSetID.h"
 #include "art/Framework/Principal/Provenance.h"
 
 #include "art/Framework/Core/ModuleMacros.h"

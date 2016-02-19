@@ -1,7 +1,7 @@
 #include "art/Framework/Art/BasicOptionsHandler.h"
 
 #include "art/Framework/Art/detail/PrintPluginMetadata.h"
-#include "art/Utilities/Exception.h"
+#include "canvas/Utilities/Exception.h"
 #include "art/Utilities/PluginSuffixes.h"
 #include "cetlib/container_algorithms.h"
 #include "cetlib/filepath_maker.h"

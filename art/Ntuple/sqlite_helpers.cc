@@ -8,7 +8,7 @@
 #include <cmath>
 
 #include "art/Ntuple/sqlite_helpers.h"
-#include "art/Utilities/Exception.h"
+#include "canvas/Utilities/Exception.h"
 
 namespace sqlite {
 
@@ -31,11 +31,11 @@ namespace sqlite {
     query_result query(sqlite3* db,std::string const& ddl)
     {
       query_result res;
-      char* errmsg = nullptr;
+      char* errmsg {nullptr};
       if ( sqlite3_exec(db, ddl.c_str(), detail::getResult, &res, &errmsg) != SQLITE_OK ) {
         std::string msg{errmsg};
         sqlite3_free(errmsg);
-        throw art::Exception(art::errors::SQLExecutionError) << msg;
+        throw art::Exception(art::errors::SQLExecutionError, msg);
       }
       return res;
     }

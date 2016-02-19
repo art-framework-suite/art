@@ -9,7 +9,7 @@
 
 #include <ostream>
 #include <string>
-#include "art/Utilities/detail/metaprogramming.h"
+#include "canvas/Utilities/detail/metaprogramming.h"
 #include "boost/filesystem.hpp"
 
 namespace bfs = boost::filesystem;

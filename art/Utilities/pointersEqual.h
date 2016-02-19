@@ -2,9 +2,9 @@
 #define art_Utilities_pointersEqual_h
 // Compare two pointers taking into account possible multiple inheritance
 
-#include "art/Utilities/Exception.h"
+#include "canvas/Utilities/Exception.h"
 
-#include "cpp0x/type_traits"
+#include <type_traits>
 
 namespace art {
   template <typename T1, typename T2>

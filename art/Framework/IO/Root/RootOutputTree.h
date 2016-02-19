@@ -5,10 +5,12 @@
 // Used by ROOT output modules.
 
 #include "art/Framework/Core/Frameworkfwd.h"
-#include "art/Persistency/Provenance/BranchType.h"
-#include "art/Persistency/Provenance/ProductProvenance.h"
-#include "cpp0x/memory"
+#include "canvas/Persistency/Provenance/BranchType.h"
+#include "canvas/Persistency/Provenance/ProductProvenance.h"
+
 #include "TTree.h"
+
+#include <memory>
 #include <set>
 #include <string>
 #include <vector>

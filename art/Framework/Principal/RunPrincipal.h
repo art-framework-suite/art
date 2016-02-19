@@ -14,11 +14,12 @@
 #include "art/Framework/Principal/NoDelayedReader.h"
 #include "art/Framework/Principal/Principal.h"
 #include "art/Framework/Principal/fwd.h"
-#include "art/Persistency/Provenance/BranchMapper.h"
-#include "art/Persistency/Provenance/BranchType.h"
-#include "art/Persistency/Provenance/RunAuxiliary.h"
+#include "canvas/Persistency/Provenance/BranchMapper.h"
+#include "canvas/Persistency/Provenance/BranchType.h"
+#include "canvas/Persistency/Provenance/RunAuxiliary.h"
 #include "cetlib/exempt_ptr.h"
-#include "cpp0x/memory"
+
+#include <memory>
 #include <vector>
 
 namespace art {

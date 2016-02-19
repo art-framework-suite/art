@@ -29,15 +29,15 @@ the worker is reset().
 #include "art/Framework/Principal/CurrentProcessingContext.h"
 #include "art/Framework/Principal/RunStopwatch.h"
 #include "art/Framework/Principal/fwd.h"
-#include "art/Persistency/Provenance/ModuleDescription.h"
+#include "canvas/Persistency/Provenance/ModuleDescription.h"
 #include "cetlib/exception.h"
 #include "cetlib/exempt_ptr.h"
-#include "cpp0x/memory"
-#include "cpp0x/utility"
 #include "fhiclcpp/ParameterSet.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include <iosfwd>
+#include <memory>
+#include <utility>
 
 // ----------------------------------------------------------------------
 

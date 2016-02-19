@@ -1,7 +1,7 @@
 #ifndef art_Framework_IO_ProductMix_MixContainerTypes_h
 #define art_Framework_IO_ProductMix_MixContainerTypes_h
 
-#include "art/Persistency/Provenance/FileIndex.h"
+#include "canvas/Persistency/Provenance/FileIndex.h"
 
 #include <map>
 #include <vector>

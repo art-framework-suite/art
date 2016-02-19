@@ -1,6 +1,6 @@
 #include "art/Framework/Core/detail/ModuleConfigInfo.h"
 
-#include "art/Utilities/Exception.h"
+#include "canvas/Utilities/Exception.h"
 
 #include <algorithm>
 #include <string>

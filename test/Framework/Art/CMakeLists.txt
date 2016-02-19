@@ -1,6 +1,7 @@
-link_libraries(
+set( test_Framework_Art_libraries
   art_Framework_Services_Registry
   art_Utilities
+  canvas_Utilities
   art_Framework_Core
   ${Boost_FILESYSTEM_LIBRARY}
   ${ROOT_CINTEX}
@@ -15,8 +16,9 @@ link_libraries(
   ${ROOT_CINT}
   ${ROOT_REFLEX}
   ${CPPUNIT}
-  -ldl
+  ${CMAKE_DL_LIBS}
  )
+
 
 cet_test(artapp_t USE_BOOST_UNIT
   LIBRARIES

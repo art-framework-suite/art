@@ -2,10 +2,10 @@
 
 art_dictionary(NO_INSTALL)
 
-link_libraries(
+set( test_Framework_Principal_libraries 
   art_Framework_Core
   art_Framework_Principal
-  art_Utilities
+  art_Utilities canvas_Utilities
   ${Boost_FILESYSTEM_LIBRARY}
   ${ROOT_CINTEX}
   ${ROOT_TREE}
@@ -19,9 +19,9 @@ link_libraries(
   ${ROOT_CINT}
 	${ROOT_REFLEX}
   ${CPPUNIT}
-  -ldl
+  ${CMAKE_DL_LIBS}
  )
 
-cet_test(eventprincipal_t USE_BOOST_UNIT)
-cet_test(Event_t USE_BOOST_UNIT)
-cet_test(GroupFactory_t USE_BOOST_UNIT)
+cet_test(eventprincipal_t USE_BOOST_UNIT LIBRARIES ${test_Framework_Principal_libraries})
+cet_test(Event_t USE_BOOST_UNIT LIBRARIES ${test_Framework_Principal_libraries})
+cet_test(GroupFactory_t USE_BOOST_UNIT LIBRARIES ${test_Framework_Principal_libraries})

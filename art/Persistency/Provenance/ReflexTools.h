@@ -8,7 +8,7 @@ the CMS event model.
 
 ----------------------------------------------------------------------*/
 
-#include "art/Utilities/WrappedClassName.h"
+#include "canvas/Utilities/WrappedClassName.h"
 
 #include "Reflex/Object.h"
 #include "Reflex/Type.h"

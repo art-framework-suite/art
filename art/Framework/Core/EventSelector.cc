@@ -31,11 +31,7 @@ namespace art {
   EventSelector::EventSelector(fhicl::ParameterSet const& config,
                                Strings const& triggernames)
   {
-    Strings paths; // default is empty...
-
-    if (!config.is_empty())
-      paths = config.get<vector<string> >("SelectEvents");
-
+    auto paths = config.get<Strings>("SelectEvents",{});
     init(paths, triggernames);
   }
 
@@ -43,7 +39,6 @@ namespace art {
   EventSelector::init(Strings const& paths,
                       Strings const& triggernames)
   {
-    // cerr << "### init entered\n";
     accept_all_ = false;
     absolute_acceptors_.clear(),
       conditional_acceptors_.clear(),
@@ -190,7 +185,8 @@ namespace art {
         else if (matches.size() == 1) {
           BitInfo bi(distance(triggernames.begin(),matches[0]), false);
           conditional_acceptors_.push_back(bi);
-        } else {
+        }
+        else {
           Bits mustfail;
           for (unsigned int t = 0; t != matches.size(); ++t) {
             BitInfo bi(distance(triggernames.begin(),matches[t]), false);
@@ -202,8 +198,6 @@ namespace art {
     } // end of the for loop on i(paths.begin()), end(paths.end())
 
     if (unrestricted_star && negated_star && exception_star) accept_all_ = true;
-
-    // cerr << "### init exited\n";
 
   } // EventSelector::init
 
@@ -307,17 +301,16 @@ namespace art {
     }
     if (acceptOneBit(exception_acceptors_, tr, hlt::Exception)) return true;
 
-    for (vector<Bits>::const_iterator f =  all_must_fail_.begin();
-                                           f != all_must_fail_.end(); ++f)
-    {
-      if (acceptAllBits(*f, tr)) return true;
+    for (auto const& f : all_must_fail_) {
+      if (acceptAllBits(f, tr)) return true;
     }
-    for (vector<Bits>::const_iterator fn =  all_must_fail_noex_.begin();
-                                           fn != all_must_fail_noex_.end(); ++fn)
-    {
-      if (acceptAllBits(*fn, tr)) {
-        if (!exceptionsLookedFor) exceptionPresent = containsExceptions(tr);
-        return (!exceptionPresent);
+
+    for (auto const& fn : all_must_fail_noex_ ) {
+      if (acceptAllBits(fn, tr)) {
+        if (!exceptionsLookedFor) {
+          exceptionPresent = containsExceptions(tr);
+        }
+        return !exceptionPresent;
       }
     }
 
@@ -350,14 +343,12 @@ namespace art {
   // Indicate if *every* bit in the trigger results matches the desired value
   // at that position, based on the Bits array: true-->Pass, false-->Fail.
   bool
-  EventSelector::acceptAllBits(Bits const& b,
-                                HLTGlobalStatus const& tr) const
+  EventSelector::acceptAllBits(Bits const& bits,
+                               HLTGlobalStatus const& tr) const
   {
-    Bits::const_iterator i(b.begin());
-    Bits::const_iterator e(b.end());
-    for(;i!=e;++i) {
-      hlt::HLTState bstate = i->accept_state_ ? hlt::Pass : hlt::Fail;
-      if (tr[i->pos_].state() != bstate) return false;
+    for(auto const& b : bits) {
+      hlt::HLTState const bstate = b.accept_state_ ? hlt::Pass : hlt::Fail;
+      if (tr[b.pos_].state() != bstate) return false;
     }
     return true;
   } // acceptAllBits
@@ -452,9 +443,7 @@ namespace art {
 
     // Based on the global status for the mask, create and return a
     // TriggerResults
-    std::shared_ptr<TriggerResults>
-      maskedResults(new TriggerResults(mask, inputResults.parameterSetID()));
-    return maskedResults;
+    return std::make_shared<TriggerResults>(mask, inputResults.parameterSetID());
   }  // maskTriggerResults
 
   bool EventSelector::containsExceptions(HLTGlobalStatus const& tr) const
@@ -572,7 +561,7 @@ namespace art {
   // determines whether the true bits of a are a non-empty subset of those of b,
   // or vice-versa.  The subset need not be proper.
   bool EventSelector::subset(vector<bool> const& a,
-                               vector<bool> const& b)
+                             vector<bool> const& b)
   {
     if (a.size() != b.size()) return false;
     // First test whether a is a non-empty subset of b
@@ -611,7 +600,7 @@ namespace art {
   // Creates a vector of bits which is the OR of a and b
   vector<bool>
   EventSelector::combine(vector<bool> const& a,
-                          vector<bool> const& b)
+                         vector<bool> const& b)
   {
     assert(a.size() == b.size());
     vector<bool> x(a.size());

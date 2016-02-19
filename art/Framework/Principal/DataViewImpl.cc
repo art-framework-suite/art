@@ -3,12 +3,13 @@
 #include "art/Framework/Principal/Principal.h"
 #include "art/Persistency/Provenance/ProductMetaData.h"
 #include "art/Framework/Principal/Selector.h"
-#include "art/Persistency/Provenance/ModuleDescription.h"
-#include "art/Persistency/Provenance/ProductList.h"
-#include "art/Persistency/Provenance/ProductProvenance.h"
-#include "art/Persistency/Provenance/ProductStatus.h"
+#include "canvas/Persistency/Provenance/ModuleDescription.h"
+#include "canvas/Persistency/Provenance/ProductList.h"
+#include "canvas/Persistency/Provenance/ProductProvenance.h"
+#include "canvas/Persistency/Provenance/ProductStatus.h"
 #include "cetlib/container_algorithms.h"
-#include "cpp0x/algorithm"
+
+#include <algorithm>
 
 using namespace cet;
 using namespace std;

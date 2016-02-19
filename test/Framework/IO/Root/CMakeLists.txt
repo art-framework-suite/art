@@ -1,5 +1,5 @@
-link_libraries (art_Framework_IO_RootVersion)
-cet_test(GetFileFormatVersion SOURCES test_GetFileFormatVersion.cpp)
+cet_test(GetFileFormatVersion SOURCES test_GetFileFormatVersion.cpp
+  LIBRARIES art_Framework_IO_RootVersion)
 
 foreach (mode M S P)
   cet_test(config_dumper_${mode}_t HANDBUILT
@@ -40,7 +40,7 @@ link_libraries( IORootInput
 	${ROOT_NET}
 	${ROOT_TREE}
 	${CPPUNIT}
-	-ldl )
+	${CMAKE_DL_LIBS} )
 
 add_executable( TestRootInput TestRootInput.cpp )
 add_test( TestRootInput ${EXECUTABLE_OUTPUT_PATH}/TestRootInput )
@@ -68,7 +68,7 @@ link_libraries( IORootOutput
 	${ROOT_NET}
 	${ROOT_TREE}
 	${CPPUNIT}
-	-ldl )
+	${CMAKE_DL_LIBS} )
 
 add_executable( TestRootOutput TestRootOutput.cpp )
 add_test( TestRootOutput ${EXECUTABLE_OUTPUT_PATH}/TestRootOutput )

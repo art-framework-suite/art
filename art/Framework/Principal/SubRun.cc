@@ -1,5 +1,5 @@
 #include "art/Framework/Principal/SubRun.h"
-#include "art/Persistency/Provenance/BranchType.h"
+#include "canvas/Persistency/Provenance/BranchType.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Framework/Principal/Run.h"
 

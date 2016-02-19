@@ -21,25 +21,27 @@
 #include "art/Framework/Principal/fwd.h"
 #include "art/Persistency/Common/DelayedReader.h"
 #include "art/Persistency/Common/GroupQueryResult.h"
-#include "art/Persistency/Common/Wrapper.h"
-#include "art/Persistency/Provenance/BranchID.h"
-#include "art/Persistency/Provenance/BranchMapper.h"
-#include "art/Persistency/Provenance/ProcessHistory.h"
-#include "art/Persistency/Provenance/ProductProvenance.h"
-#include "art/Persistency/Provenance/ProductStatus.h"
-#include "art/Persistency/Provenance/ProvenanceFwd.h"
+#include "canvas/Persistency/Common/Wrapper.h"
+#include "canvas/Persistency/Provenance/BranchID.h"
+#include "canvas/Persistency/Provenance/BranchMapper.h"
+#include "canvas/Persistency/Provenance/ProcessHistory.h"
+#include "canvas/Persistency/Provenance/ProductProvenance.h"
+#include "canvas/Persistency/Provenance/ProductStatus.h"
+#include "canvas/Persistency/Provenance/ProvenanceFwd.h"
 #include "art/Utilities/InputTag.h"
-#include "art/Utilities/TypeID.h"
+#include "canvas/Persistency/Common/EDProductGetterFinder.h"
+#include "canvas/Utilities/TypeID.h"
 #include "cetlib/exempt_ptr.h"
-#include "cpp0x/memory"
+
+#include <cstdio>
 #include <map>
+#include <memory>
 #include <string>
 #include <vector>
-#include <cstdio>
 
 namespace art {
 
-class Principal {
+class Principal : public EDProductGetterFinder {
 
 public: // TYPES
 
@@ -315,6 +317,10 @@ private: // MEMBER FUNCTIONS
                        SelectorBase const& selector,
                        std::vector<GroupQueryResult>& results,
                        TypeID wanted_wrapper) const;
+
+  virtual EDProductGetter const* getEDProductGetterImpl(ProductID const&) const override {
+    return nullptr;
+  }
 
 private: // MEMBER DATA
 

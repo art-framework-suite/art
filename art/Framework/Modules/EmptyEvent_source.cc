@@ -12,23 +12,25 @@ namespace art {
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRun.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
-#include "art/Persistency/Provenance/EventAuxiliary.h"
-#include "art/Persistency/Provenance/EventID.h"
-#include "art/Persistency/Provenance/RunAuxiliary.h"
-#include "art/Persistency/Provenance/RunID.h"
-#include "art/Persistency/Provenance/SubRunAuxiliary.h"
-#include "art/Persistency/Provenance/SubRunID.h"
-#include "art/Persistency/Provenance/Timestamp.h"
+#include "canvas/Persistency/Provenance/EventAuxiliary.h"
+#include "canvas/Persistency/Provenance/EventID.h"
+#include "canvas/Persistency/Provenance/RunAuxiliary.h"
+#include "canvas/Persistency/Provenance/RunID.h"
+#include "canvas/Persistency/Provenance/SubRunAuxiliary.h"
+#include "canvas/Persistency/Provenance/SubRunID.h"
+#include "canvas/Persistency/Provenance/Timestamp.h"
 #include "art/Utilities/ConfigTable.h"
 #include "cetlib/BasicPluginFactory.h"
-#include "cpp0x/cstdint"
-#include "cpp0x/memory"
-#include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/types/Atom.h"
 #include "fhiclcpp/types/OptionalAtom.h"
 #include "fhiclcpp/types/TableFragment.h"
+#include "fhiclcpp/ParameterSet.h"
+
+#include <cstdint>
+#include <memory>
 
 using DRISI = art::DecrepitRelicInputSourceImplementation;
+using std::uint32_t;
 
 class art::EmptyEvent : public DRISI {
 public:

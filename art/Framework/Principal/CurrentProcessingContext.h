@@ -15,8 +15,8 @@
 // it is not active in processing.
 
 #include "art/Framework/Principal/fwd.h"
-#include "cpp0x/cstddef"
 
+#include <cstddef>
 #include <string>
 
 // ----------------------------------------------------------------------

@@ -5,7 +5,7 @@ set(default_test_libraries
   art_Framework_Services_Registry
   art_Framework_Core
   art_Framework_Principal
-  art_Utilities
+  art_Utilities canvas_Utilities
   ${Boost_FILESYSTEM_LIBRARY}
   ${ROOT_CINTEX}
   ${ROOT_TREE}
@@ -19,7 +19,7 @@ set(default_test_libraries
   ${ROOT_CINT}
 	${ROOT_REFLEX}
   ${CPPUNIT}
-  -ldl
+  ${CMAKE_DL_LIBS}
  )
 
 #########################################################################
@@ -60,9 +60,9 @@ file(GLOB cppunit_files *.cppunit.cc)
 
 # We invoke MasterProductRegistry so we need some dictionaries.
 set(maker2_t_libs
-  art_Persistency_WrappedStdDictionaries_dict
-  art_Persistency_StdDictionaries_dict
-  art_Persistency_Common_dict
+  canvas_Persistency_WrappedStdDictionaries_dict
+  canvas_Persistency_StdDictionaries_dict
+  canvas_Persistency_Common_dict
   )
 ########################################################################
 

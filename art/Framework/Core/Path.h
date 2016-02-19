@@ -14,12 +14,13 @@
 #include "art/Framework/Principal/RunStopwatch.h"
 #include "art/Framework/Principal/Worker.h"
 #include "art/Framework/Core/WorkerInPath.h"
-#include "art/Persistency/Common/HLTenums.h"
-#include "art/Persistency/Common/TriggerResults.h"
-#include "cpp0x/memory"
-#include "cpp0x/utility"
+#include "canvas/Persistency/Common/HLTenums.h"
+#include "canvas/Persistency/Common/TriggerResults.h"
 #include "fhiclcpp/ParameterSet.h"
+
+#include <memory>
 #include <string>
+#include <utility>
 #include <vector>
 
 // ----------------------------------------------------------------------
