@@ -10,7 +10,7 @@
 #include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
 #include "art/Persistency/Provenance/ProductMetaData.h"
 #include "canvas/Persistency/Provenance/ProductStatus.h"
-#include "art/Persistency/Provenance/ReflexTools.h"
+#include "canvas/Persistency/Provenance/ReflexTools.h"
 #include "canvas/Utilities/Exception.h"
 #include "canvas/Utilities/TypeID.h"
 #include "canvas/Utilities/WrappedClassName.h"

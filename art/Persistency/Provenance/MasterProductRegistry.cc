@@ -3,7 +3,7 @@
 
 #include "Reflex/Type.h"
 #include "canvas/Persistency/Provenance/BranchKey.h"
-#include "art/Persistency/Provenance/ReflexTools.h"
+#include "canvas/Persistency/Provenance/ReflexTools.h"
 #include "canvas/Utilities/TypeID.h"
 #include "canvas/Utilities/WrappedClassName.h"
 #include "cetlib/exception.h"

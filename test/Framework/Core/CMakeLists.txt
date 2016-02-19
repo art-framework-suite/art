@@ -5,9 +5,10 @@ set(default_test_libraries
   art_Framework_Services_Registry
   art_Framework_Core
   art_Framework_Principal
-  art_Utilities canvas_Utilities
+  art_Utilities
+  canvas_DictionaryManager
+  canvas_Utilities
   ${Boost_FILESYSTEM_LIBRARY}
-  ${ROOT_CINTEX}
   ${ROOT_TREE}
   ${ROOT_HIST}
   ${ROOT_MATRIX}
@@ -15,9 +16,9 @@ set(default_test_libraries
   ${ROOT_MATHCORE}
   ${ROOT_RIO}
   ${ROOT_THREAD}
-	${ROOT_CORE}
+  ${ROOT_CORE}
   ${ROOT_CINT}
-	${ROOT_REFLEX}
+  ${ROOT_REFLEX}
   ${CPPUNIT}
   ${CMAKE_DL_LIBS}
  )
@@ -25,12 +26,6 @@ set(default_test_libraries
 #########################################################################
 # New tests (post-ART fork).
 ####################################
-# cet_test macro
-
-cet_test(RootDictionaryManager_t USE_BOOST_UNIT
-  LIBRARIES ${default_test_libraries}
-  )
-
 foreach (type Analyzer Filter Output Producer)
   SET_SOURCE_FILES_PROPERTIES(PMTest${type}_module.cc
     PROPERTIES

@@ -4,7 +4,7 @@
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Persistency/Provenance/ProductMetaData.h"
-#include "art/Framework/Core/RootDictionaryManager.h"
+#include "canvas/DictionaryManager/RootDictionaryManager.h"
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/Selector.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"

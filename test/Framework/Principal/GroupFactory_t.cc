@@ -9,7 +9,7 @@
 
 #include "Reflex/Type.h"
 
-#include "art/Framework/Core/RootDictionaryManager.h"
+#include "canvas/DictionaryManager/RootDictionaryManager.h"
 #include "art/Framework/Principal/AssnsGroup.h"
 #include "art/Framework/Principal/Group.h"
 #include "art/Framework/Principal/GroupFactory.h"
