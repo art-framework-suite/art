@@ -363,63 +363,68 @@ private:
 
   void initializeDuplicateChecker();
 
+  void determineEntryNumbers(BranchType);
+  void clearEntryNumbers(BranchType);
+
   std::unique_ptr<RunPrincipal   > readCurrentRun();
   std::unique_ptr<SubRunPrincipal> readCurrentSubRun(std::shared_ptr<RunPrincipal>);
 
   std::string const file_;
-  std::string const logicalFile_;
   std::string const catalog_;
-  bool delayedReadSubRunProducts_;
-  bool delayedReadRunProducts_;
   ProcessConfiguration const& processConfiguration_;
+  std::string const logicalFile_;
   std::shared_ptr<TFile> filePtr_;
-  FileFormatVersion fileFormatVersion_;
-  std::shared_ptr<FileIndex> fileIndexSharedPtr_;
-  FileIndex& fileIndex_;
-  FileIndex::const_iterator fiBegin_;
-  FileIndex::const_iterator fiEnd_;
-  FileIndex::const_iterator fiIter_;
   EventID origEventID_;
   EventNumber_t eventsToSkip_;
   std::vector<SubRunID> whichSubRunsToSkip_;
-  bool noEventSort_;
-  bool fastClonable_;
-  EventAuxiliary eventAux_;
-  SubRunAuxiliary subRunAux_;
-  RunAuxiliary runAux_;
-  ResultsAuxiliary resultsAux_;
   RootTreePtrArray treePointers_;
-  std::unique_ptr<ProductRegistry> productListHolder_;
-  std::shared_ptr<BranchIDListRegistry::collection_type const> branchIDLists_;
-
-  PerBranchTypePresence perBranchTypeProdPresence_;
+  bool delayedReadSubRunProducts_;
+  bool delayedReadRunProducts_;
   InputSource::ProcessingMode processingMode_;
   int forcedRunOffset_;
-  TTree* eventHistoryTree_;
-  std::shared_ptr<History> history_;
-  std::shared_ptr<BranchChildren> branchChildren_;
+  bool noEventSort_;
   std::shared_ptr<DuplicateChecker> duplicateChecker_;
   cet::exempt_ptr<RootInputFile> primaryFile_;
   int secondaryFileNameIdx_;
   std::vector<std::string> secondaryFileNames_;
-  std::vector<std::unique_ptr<RootInputFile> > secondaryFiles_;
   cet::exempt_ptr<RootInputFileSequence> rifSequence_;
+
+  FileFormatVersion fileFormatVersion_ {};
+  std::shared_ptr<FileIndex> fileIndexSharedPtr_ {std::make_shared<FileIndex>()};
+  FileIndex& fileIndex_ { *fileIndexSharedPtr_ };
+  FileIndex::const_iterator fiBegin_ {fileIndex_.begin()};
+  FileIndex::const_iterator fiEnd_ {fiBegin_};
+  FileIndex::const_iterator fiIter_ {fiBegin_};
+  std::array<std::vector<input::EntryNumber>, NumBranchTypes> entryNumbers_ {{}}; // filled by aggregation
+  bool fastClonable_ {false};
+  EventAuxiliary eventAux_ {};
+  SubRunAuxiliary subRunAux_ {};
+  RunAuxiliary runAux_ {};
+  ResultsAuxiliary resultsAux_ {};
+  std::unique_ptr<ProductRegistry> productListHolder_ {std::make_unique<ProductRegistry>()};
+  std::shared_ptr<BranchIDListRegistry::collection_type const> branchIDLists_ {nullptr};
+
+  PerBranchTypePresence perBranchTypeProdPresence_ {{}}; // filled by aggregation
+  TTree* eventHistoryTree_ {nullptr};
+  std::shared_ptr<History> history_ {std::make_shared<History>()};
+  std::shared_ptr<BranchChildren> branchChildren_ {std::make_shared<BranchChildren>()};
+  std::vector<std::unique_ptr<RootInputFile> > secondaryFiles_ {};
   // We need to add the secondary principals to the primary
   // principal when they are delay read, so we need to keep
   // around a pointer to the primary.  Note that these are
   // always used in a situation where we are guaranteed that
   // primary exists.
-  cet::exempt_ptr<EventPrincipal> primaryEP_;
-  cet::exempt_ptr<RunPrincipal> primaryRP_;
-  cet::exempt_ptr<SubRunPrincipal> primarySRP_;
+  cet::exempt_ptr<EventPrincipal> primaryEP_ {};
+  cet::exempt_ptr<RunPrincipal> primaryRP_ {};
+  cet::exempt_ptr<SubRunPrincipal> primarySRP_ {};
   // The event processor reads run and subRun principals through
   // and interface that can return only the primary one.  These
   // data members cache the secondary ones so that the event
   // processor can collect them with a second call.  The secondary
   // event principals do not need to be collected since they are
   // never subjected to merging of their data products.
-  std::vector<std::shared_ptr<Principal>> secondaryRPs_;
-  std::vector<std::shared_ptr<Principal>> secondarySRPs_;
+  std::vector<std::shared_ptr<Principal>> secondaryRPs_ {};
+  std::vector<std::shared_ptr<Principal>> secondarySRPs_ {};
 
 };
 

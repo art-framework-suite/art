@@ -19,17 +19,16 @@ RootDelayedReader::
 }
 
 RootDelayedReader::
-RootDelayedReader(input::EntryNumber const& entryNumber,
+RootDelayedReader(std::vector<input::EntryNumber> const& entrySet,
                   shared_ptr<input::BranchMap const> branches,
                   shared_ptr<TFile const> filePtr,
                   int64_t saveMemoryObjectThreshold,
                   cet::exempt_ptr<RootInputFile> primaryFile,
                   BranchType branchType, EventID eID)
-  : entryNumber_(entryNumber)
+  : entrySet_{entrySet}
   , branches_(branches)
   , filePtr_(filePtr)
   , saveMemoryObjectThreshold_(saveMemoryObjectThreshold)
-  , nextReader_()
   , primaryFile_(primaryFile)
   , branchType_(branchType)
   , eventID_(eID)
@@ -43,50 +42,58 @@ setGroupFinder_(cet::exempt_ptr<EDProductGetterFinder const> groupFinder)
   groupFinder_ = groupFinder;
 }
 
-void
-RootDelayedReader::
-mergeReaders_(shared_ptr<DelayedReader> other)
-{
-  nextReader_ = other;
-}
-
 unique_ptr<EDProduct>
 RootDelayedReader::
 getProduct_(BranchKey const& bk, TypeID const& ty) const
 {
   auto iter = branches_->find(bk);
   if (iter == branches_->end()) {
-    assert(nextReader_);
-    return nextReader_->getProduct(bk, ty);
+    throw Exception(errors::ProductNotFound)
+      << "Product corresponding to BranchKey "
+      << bk
+      << " and TypeID: "
+      << ty
+      << " not found.\n"
+      << "Please contact artists@fnal.gov.";
   }
   input::BranchInfo const& branchInfo = iter->second;
   TBranch* br = branchInfo.productBranch_;
   if (br == nullptr) {
-    assert(nextReader_);
-    return nextReader_->getProduct(bk, ty);
+    throw Exception(errors::ProductNotFound)
+      << "The branch address corresponding to the following product has not been set:"
+      << branchInfo.branchDescription_
+      << '\n'
+      <<  "Please contact artists@fnal.gov.";
   }
   configureRefCoreStreamer(groupFinder_);
-  TClass* cl(TClass::GetClass(ty.typeInfo()));
-  // FIXME: This code should be resurrected when ROOT is capable of
-  // registering ioread rules for instantiations of class templates
-  // using typdefs.
-#ifdef ROOT_CAN_REGISTER_IOREADS_PROPERLY
-  TBranchElement* be(dynamic_cast<TBranchElement*>(br));
-  if (be->GetClass() != cl) {
-    // Need to make sure we're calling the correct streamer.
-    be->SetTargetClass(cl->GetName());
+  TClass* cl {TClass::GetClass(ty.typeInfo())};
+  unique_ptr<EDProduct> p {nullptr};
+
+  // Aggregate the products
+
+  auto fill_product = [this, cl, br](auto entry){
+    decltype(p) tmp {static_cast<EDProduct*>(cl->New())};
+    EDProduct* pp {tmp.get()};
+    br->SetAddress(&pp);
+    auto const bytesRead = input::getEntry(br, entry);
+    if ((saveMemoryObjectThreshold_ > -1) &&
+        (bytesRead > saveMemoryObjectThreshold_)) {
+      br->DropBaskets("all");
+    }
+    return tmp;
+  };
+
+  if (entrySet_.size() == 1ul) {
+    p = fill_product(entrySet_[0]);
   }
-#endif
-  unique_ptr<EDProduct> p(static_cast<EDProduct*>(cl->New()));
-  EDProduct* pp = p.get();
-  br->SetAddress(&pp);
-  auto const bytesRead = input::getEntry(br, entryNumber_);
-  if ((saveMemoryObjectThreshold_ > -1) &&
-      (bytesRead > saveMemoryObjectThreshold_)) {
-    br->DropBaskets("all");
+  else {
+    for(auto const entry : entrySet_) {
+      auto tmp = fill_product(entry);
+      p->combine(tmp.get());
+    }
   }
+
   configureRefCoreStreamer();
-  //br->SetAddress(0);
   return p;
 }
 
@@ -145,4 +152,3 @@ openNextSecondaryFile_(int idx)
 }
 
 } // namespace art
-

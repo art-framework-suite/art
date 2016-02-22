@@ -28,7 +28,7 @@ public: // MEMBER FUNCTIONS
   RootDelayedReader&
   operator=(RootDelayedReader const&) = delete;
 
-  RootDelayedReader(input::EntryNumber const&,
+  RootDelayedReader(std::vector<input::EntryNumber> const& entrySet,
                     std::shared_ptr<input::BranchMap const>,
                     std::shared_ptr<TFile const>,
                     int64_t saveMemoryObjectThreshold,
@@ -46,22 +46,17 @@ private: // MEMBER FUNCTIONS
   setGroupFinder_(cet::exempt_ptr<EDProductGetterFinder const>) override;
 
   virtual
-  void
-  mergeReaders_(std::shared_ptr<DelayedReader>) override;
-
-  virtual
   int
   openNextSecondaryFile_(int idx) override;
 
 private: // MEMBER DATA
 
-  input::EntryNumber const entryNumber_;
+  std::vector<input::EntryNumber> const entrySet_;
   std::shared_ptr<input::BranchMap const> branches_;
   // NOTE: filePtr_ appears to be unused, but is needed to prevent
   // the TFile containing the branch from being reclaimed.
   std::shared_ptr<TFile const> filePtr_;
   int64_t saveMemoryObjectThreshold_;
-  std::shared_ptr<DelayedReader> nextReader_;
   cet::exempt_ptr<EDProductGetterFinder const> groupFinder_;
   cet::exempt_ptr<RootInputFile> primaryFile_;
   BranchType branchType_;

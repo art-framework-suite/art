@@ -15,12 +15,6 @@ setGroupFinder_(cet::exempt_ptr<EDProductGetterFinder const>)
 {
 }
 
-void
-DelayedReader::
-mergeReaders_(shared_ptr<DelayedReader>)
-{
-}
-
 int
 DelayedReader::
 openNextSecondaryFile_(int /*idx*/)
@@ -29,4 +23,3 @@ openNextSecondaryFile_(int /*idx*/)
 }
 
 } // namespace art
-

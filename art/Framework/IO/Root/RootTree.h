@@ -110,7 +110,9 @@ public:
   }
 
   std::unique_ptr<DelayedReader>
-  makeDelayedReader(BranchType, EventID) const;
+  makeDelayedReader(BranchType,
+                    std::vector<input::EntryNumber> const& entrySet,
+                    EventID) const;
 
   std::unique_ptr<BranchMapper>
   makeBranchMapper() const;

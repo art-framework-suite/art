@@ -40,12 +40,6 @@ public:
     setGroupFinder_(ep);
   }
 
-  void
-  mergeReaders(std::shared_ptr<DelayedReader> other)
-  {
-    mergeReaders_(other);
-  }
-
   int
   openNextSecondaryFile(int idx)
   {
@@ -61,10 +55,6 @@ private:
   virtual
   void
   setGroupFinder_(cet::exempt_ptr<EDProductGetterFinder const>);
-
-  virtual
-  void
-  mergeReaders_(std::shared_ptr<DelayedReader>);
 
   virtual
   int

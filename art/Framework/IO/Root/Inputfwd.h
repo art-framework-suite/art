@@ -40,8 +40,9 @@ namespace art {
       TBranch * productBranch_;
     };  // BranchInfo
 
-    typedef std::map<BranchKey const, BranchInfo> BranchMap;
-    typedef Long64_t EntryNumber;
+    using BranchMap   = std::map<BranchKey const, BranchInfo>;
+    using EntryNumber = Long64_t;
+    using EntryRange  = std::pair<EntryNumber, EntryNumber>;
     Int_t getEntry(TBranch * branch, EntryNumber entryNumber);
     Int_t getEntry(TTree * tree, EntryNumber entryNumber);
 

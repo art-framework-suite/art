@@ -124,16 +124,17 @@ dropBranch(std::string const& branchName)
 
 std::unique_ptr<DelayedReader>
 RootTree::
-makeDelayedReader(BranchType branchType, EventID eID) const
+makeDelayedReader(BranchType const branchType,
+                  std::vector<input::EntryNumber> const& entrySet,
+                  EventID const eID) const
 {
-  return
-    std::make_unique<RootDelayedReader>(entryNumber_,
-                                        branches_,
-                                        filePtr_,
-                                        saveMemoryObjectThreshold_,
-                                        primaryFile_,
-                                        branchType,
-                                        eID);
+  return std::make_unique<RootDelayedReader>(entrySet,
+                                             branches_,
+                                             filePtr_,
+                                             saveMemoryObjectThreshold_,
+                                             primaryFile_,
+                                             branchType,
+                                             eID);
 }
 
 void
@@ -170,9 +171,7 @@ std::unique_ptr<BranchMapper>
 RootTree::
 makeBranchMapper() const
 {
-  std::unique_ptr<BranchMapper> bm(
-    new BranchMapperWithReader(productProvenanceBranch_, entryNumber_));
-  return bm;
+  return std::make_unique<BranchMapperWithReader>(productProvenanceBranch_, entryNumber_);
 }
 
 namespace input {
@@ -199,4 +198,3 @@ catch (cet::exception& e)
 
 } // namespace input
 } // namespace art
-
