@@ -38,6 +38,9 @@ public:
   art::PtrVector<double> pvd_;
 #endif
   std::vector<art::Ptr<double> > vpd_;
+
+  void aggregate(ProductWithPtrs const&);
+
 };
 
 inline
@@ -94,6 +97,16 @@ std::vector<art::Ptr<double> > &
 arttest::ProductWithPtrs::
 vectorPtrDouble() {
   return vpd_;
+}
+
+inline
+void
+arttest::ProductWithPtrs::aggregate(ProductWithPtrs const& other)
+{
+#ifndef ART_NO_MIX_PTRVECTOR
+  pvd_.insert(pvd_.cend(), other.pvd_.cbegin(), other.pvd_.cend());
+#endif
+  vpd_.insert(vpd_.cend(), other.vpd_.cbegin(), other.vpd_.cend());
 }
 
 #endif /* test_TestObjects_ProductWithPtrs_h */

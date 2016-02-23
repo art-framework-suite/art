@@ -236,9 +236,6 @@ private: // MEMBER FUNCTIONS
   void
   rewindFile();
 
-  std::unique_ptr<EventPrincipal>
-  readCurrentEvent();
-
   std::vector<FileCatalogItem> const&
   fileCatalogItems() const;
 

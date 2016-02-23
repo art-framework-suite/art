@@ -616,7 +616,16 @@ namespace art {
     assert(fiIter_ != fiEnd_);
     assert(fiIter_->getEntryType() == FileIndex::kEvent);
     assert(fiIter_->eventID_.runID().isValid());
-    auto ep = readCurrentEvent();
+
+    auto const& entryNumbers = getEntryNumbers(InEvent);
+    // Do not support multiple events with the same EventID
+    assert(entryNumbers.size() == 1u);
+    if (!eventTree().current(entryNumbers)) {
+      // The supplied entry numbers are not valid.
+      return nullptr;
+    }
+
+    auto ep = readCurrentEvent(entryNumbers);
     assert(ep);
     assert(eventAux().run() == fiIter_->eventID_.run() + forcedRunOffset_);
     assert(eventAux().subRunID() == fiIter_->eventID_.subRunID());
@@ -628,19 +637,12 @@ namespace art {
   // Note: This function neither uses nor sets fiIter_.
   unique_ptr<EventPrincipal>
   RootInputFile::
-  readCurrentEvent()
+  readCurrentEvent(EntryNumbers const& entryNumbers)
   {
-    auto const& entryNumbers = getEntryNumbers(InEvent);
-    if (!eventTree().current(entryNumbers)) {
-      // The supplied entry numbers are not valid.
-      return nullptr;
-    }
-
     fillAuxiliary<InEvent>(entryNumbers);
     assert(eventAux().id() == fiIter_->eventID_);
     fillHistory();
-    overrideRunNumber(const_cast<EventID&>(eventAux().id()),
-                      eventAux().isRealData());
+    overrideRunNumber(const_cast<EventID&>(eventAux().id()), eventAux().isRealData());
     auto ep = std::make_unique<EventPrincipal>(eventAux(),
                                                processConfiguration_,
                                                history_,
@@ -693,7 +695,14 @@ namespace art {
     assert(fiIter_->getEntryType() == FileIndex::kRun);
     assert(fiIter_->eventID_.runID().isValid());
     secondaryRPs_.clear();
-    auto rp = readCurrentRun();
+
+    auto const& entryNumbers = getEntryNumbers(InRun);
+    if (!runTree().current(entryNumbers)) {
+      // The supplied entry numbers are not valid.
+      return nullptr;
+    }
+
+    auto rp = readCurrentRun(entryNumbers);
     nextEntry();
     return move(rp);
   }
@@ -711,14 +720,8 @@ namespace art {
 
   unique_ptr<RunPrincipal>
   RootInputFile::
-  readCurrentRun()
+  readCurrentRun(EntryNumbers const& entryNumbers)
   {
-    auto const& entryNumbers = getEntryNumbers(InRun);
-    if (!runTree().current(entryNumbers)) {
-      // The supplied entry numbers are not valid.
-      return nullptr;
-    }
-
     fillAuxiliary<InRun>(entryNumbers);
     assert(runAux().id() == fiIter_->eventID_.runID());
     overrideRunNumber(runAux().id_);
@@ -726,7 +729,7 @@ namespace art {
       // RunAuxiliary did not contain a valid timestamp.
       // Take it from the next event.
       if (eventTree().next()) {
-        fillAuxiliary<InEvent>(fiIter_->entry_);
+        fillAuxiliary<InEvent>(eventTree().entryNumber());
         // back up, so event will not be skipped.
         eventTree().previous();
       }
@@ -771,7 +774,7 @@ namespace art {
       // RunAuxiliary did not contain a valid timestamp.
       // Take it from the next event.
       if (eventTree().next()) {
-        fillAuxiliary<InEvent>(fiIter_->entry_);
+        fillAuxiliary<InEvent>(eventTree().entryNumber());
         // back up, so event will not be skipped.
         eventTree().previous();
       }
@@ -805,7 +808,14 @@ namespace art {
     assert(fiIter_ != fiEnd_);
     assert(fiIter_->getEntryType() == FileIndex::kSubRun);
     secondarySRPs_.clear();
-    auto srp = readCurrentSubRun(rp);
+
+    auto const& entryNumbers = getEntryNumbers(InSubRun);
+    if (!subRunTree().current(entryNumbers)) {
+      // The supplied entry numbers are not valid.
+      return nullptr;
+    }
+
+    auto srp = readCurrentSubRun(entryNumbers, rp);
     nextEntry();
     return move(srp);
   }
@@ -823,14 +833,9 @@ namespace art {
 
   unique_ptr<SubRunPrincipal>
   RootInputFile::
-  readCurrentSubRun(shared_ptr<RunPrincipal> rp [[gnu::unused]])
+  readCurrentSubRun(EntryNumbers const& entryNumbers,
+                    shared_ptr<RunPrincipal> rp [[gnu::unused]])
   {
-    auto const& entryNumbers = getEntryNumbers(InSubRun);
-    if (!subRunTree().current(entryNumbers)) {
-      // The supplied entry numbers are not valid.
-      return nullptr;
-    }
-
     fillAuxiliary<InSubRun>(entryNumbers);
     assert(subRunAux().id() == fiIter_->eventID_.subRunID());
     overrideRunNumber(subRunAux().id_);
@@ -839,7 +844,7 @@ namespace art {
       // SubRunAuxiliary did not contain a timestamp.
       // Take it from the next event.
       if (eventTree().next()) {
-        fillAuxiliary<InEvent>(fiIter_->entry_);
+        fillAuxiliary<InEvent>(eventTree().entryNumber());
         // back up, so event will not be skipped.
         eventTree().previous();
       }
@@ -883,7 +888,7 @@ namespace art {
       // SubRunAuxiliary did not contain a timestamp.
       // Take it from the next event.
       if (eventTree().next()) {
-        fillAuxiliary<InEvent>(fiIter_->entry_);
+        fillAuxiliary<InEvent>(eventTree().entryNumber());
         // back up, so event will not be skipped.
         eventTree().previous();
       }
@@ -978,7 +983,10 @@ namespace art {
   getEntryNumbers(BranchType const t [[gnu::unused]])
   {
     EntryNumbers entries;
-    entries.push_back(fiIter_->entry_);
+    auto it = fiIter_;
+    for (auto const eid = it->eventID_; eid == it->eventID_ ; ++it) {
+      entries.push_back(it->entry_);
+    }
     return entries;
   }
 
@@ -1054,10 +1062,10 @@ namespace art {
   RootInputFile::
   readResults()
   {
-    auto const& entryNumbers = getEntryNumbers(InResults);
     std::unique_ptr<art::ResultsPrincipal> resp;
     if (resultsTree()) {
       resultsTree().rewind();
+      EntryNumbers const& entryNumbers {resultsTree().entryNumber()};
       fillAuxiliary<InResults>(entryNumbers);
       resp = std::make_unique<ResultsPrincipal>(resultsAux(),
                                                 processConfiguration_,

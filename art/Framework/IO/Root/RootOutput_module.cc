@@ -281,24 +281,24 @@ art::RootOutput::
 respondToOpenInputFile(FileBlock const& fb)
 {
   ++inputFileCount_;
-  if (isFileOpen()) {
-    bool fastCloneThisOne = fastCloning_ && (fb.tree() != 0) &&
-                            ((remainingEvents() < 0) ||
-                             (remainingEvents() >= fb.tree()->GetEntries()));
-    if (fastCloning_ && !fastCloneThisOne) {
-      mf::LogWarning("FastCloning")
-          << "Fast cloning deactivated for this input file due to "
-          << "empty event tree and/or event limits.";
-    }
-    if (fastCloneThisOne && !fb.fastClonable()) {
-      mf::LogWarning("FastCloning")
-          << "Fast cloning deactivated for this input file due to "
-          << "information in FileBlock.";
-      fastCloneThisOne = false;
-    }
-    rootOutputFile_->beginInputFile(fb, fastCloneThisOne && fastCloning_);
-    fstats_.recordInputFile(fb.fileName());
+  if (!isFileOpen()) return;
+
+  bool fastCloneThisOne = fastCloning_ && (fb.tree() != nullptr) &&
+                          ((remainingEvents() < 0) ||
+                           (remainingEvents() >= fb.tree()->GetEntries()));
+  if (fastCloning_ && !fastCloneThisOne) {
+    mf::LogWarning("FastCloning")
+      << "Fast cloning deactivated for this input file due to "
+      << "empty event tree and/or event limits.";
   }
+  if (fastCloneThisOne && !fb.fastClonable()) {
+    mf::LogWarning("FastCloning")
+      << "Fast cloning deactivated for this input file due to "
+      << "information in FileBlock.";
+    fastCloneThisOne = false;
+  }
+  rootOutputFile_->beginInputFile(fb, fastCloneThisOne && fastCloning_);
+  fstats_.recordInputFile(fb.fileName());
 }
 
 void
@@ -476,10 +476,10 @@ doRegisterProducts(MasterProductRegistry & mpr,
   // Register Results products from ResultsProducers.
   rpm_.for_each_RPWorker([&mpr, &md](RPWorker & w) {
       auto const & params = w.params();
-      w.setModuleDescription(ModuleDescription(params.rpPSetID,
+      w.setModuleDescription(ModuleDescription{params.rpPSetID,
                                                params.rpPluginType,
                                                md.moduleLabel() + '#' + params.rpLabel,
-                                               md.processConfiguration()));
+                                               md.processConfiguration()});
       w.rp().registerProducts(mpr, w.moduleDescription());
     });
 }
@@ -488,7 +488,7 @@ bool
 art::RootOutput::
 isFileOpen() const
 {
-  return rootOutputFile_.get() != 0;
+  return rootOutputFile_.get() != nullptr;
 }
 
 bool
@@ -584,7 +584,7 @@ art::RootOutput::
 beginSubRun(art::SubRunPrincipal const & srp)
 {
   rpm_.for_each_RPWorker([&srp](RPWorker & w) {
-      SubRun const sr(const_cast<SubRunPrincipal &>(srp), w.moduleDescription());
+      SubRun const sr{const_cast<SubRunPrincipal &>(srp), w.moduleDescription()};
       w.rp().doBeginSubRun(sr);
     });
 }
@@ -594,7 +594,7 @@ art::RootOutput::
 endSubRun(art::SubRunPrincipal const & srp)
 {
   rpm_.for_each_RPWorker([&srp](RPWorker & w) {
-      SubRun const sr(const_cast<SubRunPrincipal &>(srp), w.moduleDescription());
+      SubRun const sr{const_cast<SubRunPrincipal &>(srp), w.moduleDescription()};
       w.rp().doEndSubRun(sr);
     });
 }
@@ -604,7 +604,7 @@ art::RootOutput::
 beginRun(art::RunPrincipal const & rp)
 {
   rpm_.for_each_RPWorker([&rp](RPWorker & w) {
-      Run const r(const_cast<RunPrincipal &>(rp), w.moduleDescription());
+      Run const r{const_cast<RunPrincipal &>(rp), w.moduleDescription()};
       w.rp().doBeginRun(r);
     });
 }
@@ -614,7 +614,7 @@ art::RootOutput::
 endRun(art::RunPrincipal const & rp)
 {
   rpm_.for_each_RPWorker([&rp](RPWorker & w) {
-      Run const r(const_cast<RunPrincipal &>(rp), w.moduleDescription());
+      Run const r{const_cast<RunPrincipal &>(rp), w.moduleDescription()};
       w.rp().doEndRun(r);
     });
 }

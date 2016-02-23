@@ -15,133 +15,123 @@ using namespace std;
 
 namespace art {
 
-RootDelayedReader::
-~RootDelayedReader()
-{
-}
+  RootDelayedReader::
+  RootDelayedReader(std::vector<input::EntryNumber> const& entrySet,
+                    shared_ptr<input::BranchMap const> branches,
+                    cet::exempt_ptr<RootTree> tree,
+                    int64_t saveMemoryObjectThreshold,
+                    cet::exempt_ptr<RootInputFile> primaryFile,
+                    BranchType branchType, EventID eID)
+    : entrySet_{entrySet}
+    , branches_{branches}
+    , tree_{tree}
+    , saveMemoryObjectThreshold_{saveMemoryObjectThreshold}
+    , primaryFile_{primaryFile}
+    , branchType_{branchType}
+    , eventID_{eID}
+  {}
 
-RootDelayedReader::
-RootDelayedReader(std::vector<input::EntryNumber> const& entrySet,
-                  shared_ptr<input::BranchMap const> branches,
-                  shared_ptr<TFile const> filePtr [[gnu::unused]],
-                  cet::exempt_ptr<RootTree> tree,
-                  int64_t saveMemoryObjectThreshold,
-                  cet::exempt_ptr<RootInputFile> primaryFile,
-                  BranchType branchType, EventID eID)
-  : entrySet_{entrySet}
-  , branches_{branches}
-  //  , filePtr_{filePtr}
-  , tree_{tree}
-  , saveMemoryObjectThreshold_{saveMemoryObjectThreshold}
-  , primaryFile_{primaryFile}
-  , branchType_{branchType}
-  , eventID_{eID}
-{
-}
+  RootDelayedReader::
+  ~RootDelayedReader()
+  {}
 
-void
-RootDelayedReader::
-setGroupFinder_(cet::exempt_ptr<EDProductGetterFinder const> groupFinder)
-{
-  groupFinder_ = groupFinder;
-}
+  void
+  RootDelayedReader::
+  setGroupFinder_(cet::exempt_ptr<EventPrincipal const> groupFinder)
+  {
+    groupFinder_ = groupFinder;
+  }
 
-unique_ptr<EDProduct>
-RootDelayedReader::
-getProduct_(BranchKey const& bk, TypeID const& ty) const
-{
-  auto iter = branches_->find(bk);
-  assert(iter != branches_->end());
+  unique_ptr<EDProduct>
+  RootDelayedReader::
+  getProduct_(BranchKey const& bk, TypeID const& ty) const
+  {
+    auto iter = branches_->find(bk);
+    assert(iter != branches_->end());
 
-  input::BranchInfo const& branchInfo = iter->second;
-  TBranch* br {branchInfo.productBranch_};
-  assert(br != nullptr);
+    input::BranchInfo const& branchInfo = iter->second;
+    TBranch* br {branchInfo.productBranch_};
+    assert(br != nullptr);
 
-  configureRefCoreStreamer(groupFinder_);
-  TClass* cl {TClass::GetClass(ty.typeInfo())};
-  unique_ptr<EDProduct> p {nullptr};
+    configureRefCoreStreamer(groupFinder_);
+    TClass* cl {TClass::GetClass(ty.typeInfo())};
 
-  // Aggregate the products
+    auto get_product = [this, cl, br](auto entry){
+      tree_->setEntryNumber(entry);
+      unique_ptr<EDProduct> p {static_cast<EDProduct*>(cl->New())};
+      EDProduct* pp {p.get()};
+      br->SetAddress(&pp);
+      auto const bytesRead = input::getEntry(br, entry);
+      if ((saveMemoryObjectThreshold_ > -1) &&
+          (bytesRead > saveMemoryObjectThreshold_)) {
+        br->DropBaskets("all");
+      }
+      return p;
+    };
 
-  auto fill_product = [this, cl, br](auto entry){
-    tree_->setEntryNumber(entry);
-    decltype(p) tmp {static_cast<EDProduct*>(cl->New())};
-    EDProduct* pp {tmp.get()};
-    br->SetAddress(&pp);
-    auto const bytesRead = input::getEntry(br, entry);
-    if ((saveMemoryObjectThreshold_ > -1) &&
-        (bytesRead > saveMemoryObjectThreshold_)) {
-      br->DropBaskets("all");
+    // Retrieve and aggregate the products
+    auto result = get_product(entrySet_[0]);
+    for(auto it = entrySet_.cbegin()+1, e = entrySet_.cend(); it!= e; ++it) {
+      auto p = get_product(*it);
+      result->combine(p.get());
     }
-    return tmp;
-  };
 
-  if (entrySet_.size() == 1ul) {
-    p = fill_product(entrySet_[0]);
-  }
-  else {
-    for(auto const entry : entrySet_) {
-      auto tmp = fill_product(entry);
-      p->combine(tmp.get());
-    }
+    configureRefCoreStreamer();
+    return result;
   }
 
-  configureRefCoreStreamer();
-  return p;
-}
+  // FIXME: This should be a member of RootInputFileSequence.
+  int
+  RootDelayedReader::
+  openNextSecondaryFile_(int idx)
+  {
+    // idx being a number we can actually use is a precondition of this
+    // function.
+    assert(!(idx < 0));
 
-// FIXME: This should be a member of RootInputFileSequence.
-int
-RootDelayedReader::
-openNextSecondaryFile_(int idx)
-{
-  // idx being a number we can actually use is a precondition of this
-  // function.
-  assert(!(idx < 0));
-
-  // Note:
-  //
-  // Return code of -2 means stop, -1 means event-not-found,
-  // otherwise 0 for success.
-  //
-  auto const& sfnm = primaryFile_->secondaryFileNames();
-  assert(!(static_cast<decltype(sfnm.size())>(idx) > sfnm.size()));
-  if (sfnm.empty()) { // No configured secondary files.
-    return -2;
-  }
-  auto const& sf = primaryFile_->secondaryFiles();
-  if (static_cast<decltype(sfnm.size())>(idx) == sfnm.size()) {
-    // We're done.
-    return -2;
-  }
-  if (!sf[idx]) {
-    primaryFile_->openSecondaryFile(idx);
-  }
-  switch (branchType_) {
-  case InEvent: {
-    if (!sf[idx]->readEventForSecondaryFile(eventID_)) {
-      return -1;
+    // Note:
+    //
+    // Return code of -2 means stop, -1 means event-not-found,
+    // otherwise 0 for success.
+    //
+    auto const& sfnm = primaryFile_->secondaryFileNames();
+    assert(!(static_cast<decltype(sfnm.size())>(idx) > sfnm.size()));
+    if (sfnm.empty()) { // No configured secondary files.
+      return -2;
     }
-  }
-    break;
-  case InSubRun: {
-    if (!sf[idx]->readSubRunForSecondaryFile(eventID_.subRunID())) {
-      return -1;
+    auto const& sf = primaryFile_->secondaryFiles();
+    if (static_cast<decltype(sfnm.size())>(idx) == sfnm.size()) {
+      // We're done.
+      return -2;
     }
-  }
-    break;
-  case InRun: {
-    if (!sf[idx]->readRunForSecondaryFile(eventID_.runID())) {
-      return -1;
+    if (!sf[idx]) {
+      primaryFile_->openSecondaryFile(idx);
     }
+    switch (branchType_) {
+    case InEvent: {
+      if (!sf[idx]->readEventForSecondaryFile(eventID_)) {
+        return -1;
+      }
+    }
+      break;
+    case InSubRun: {
+      if (!sf[idx]->readSubRunForSecondaryFile(eventID_.subRunID())) {
+        return -1;
+      }
+    }
+      break;
+    case InRun: {
+      if (!sf[idx]->readRunForSecondaryFile(eventID_.runID())) {
+        return -1;
+      }
+    }
+      break;
+    default: {
+      assert(false && "RootDelayedReader encountered an unknown BranchType!");
+      return -2;
+    }
+    }
+    return 0;
   }
-    break;
-  default: {
-    assert(false && "RootDelayedReader encountered an unknown BranchType!");
-    return -2;
-  }
-  }
-  return 0;
-}
 
 } // namespace art

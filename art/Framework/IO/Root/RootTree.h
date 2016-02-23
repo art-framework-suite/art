@@ -28,158 +28,179 @@ class TFile;
 
 namespace art {
 
-class DelayedReader;
-class Principal;
+  namespace detail {
 
-class RootTree {
-public:
-  using BranchMap = input::BranchMap;
-  using EntryNumber = input::EntryNumber;
-  using EntryNumbers = input::EntryNumbers;
-public:
-  RootTree(std::shared_ptr<TFile>,
-           BranchType const&,
-           int64_t saveMemoryObjectThreshold,
-           cet::exempt_ptr<RootInputFile>,
-           bool missingOK = false);
-  RootTree(RootTree const&) = delete;
-  RootTree& operator=(RootTree const&) = delete;
-
-  explicit operator bool () const { return isValid(); }
-
-  bool isValid() const;
-  bool hasBranch(std::string const& branchName) const;
-  void addBranch(BranchKey const&, BranchDescription const&,
-                 std::string const& branchName,
-                 bool const presentInSomeFile);
-  void dropBranch(std::string const& branchName);
-
-  bool
-  next()
-  {
-    return ++entryNumber_ < entries_;
-  }
-
-  bool
-  previous()
-  {
-    return --entryNumber_ >= 0;
-  }
-
-  bool
-  current(EntryNumbers const& numbers)
-  {
-    assert(!numbers.size());
-    return std::all_of(numbers.cbegin(),
-                       numbers.cend(),
-                       [this](auto entry){
-                         return (entry < entries_) && (entry >= 0);
-                       });
-  }
-
-  void
-  rewind()
-  {
-    entryNumber_ = 0;
-  }
-
-  EntryNumber
-  entryNumber() const
-  {
-    return entryNumber_;
-  }
-
-  EntryNumber
-  entries() const
-  {
-    return entries_;
-  }
-
-  void setEntryNumber(EntryNumber theEntryNumber);
-
-  std::vector<std::string> const&
-  branchNames() const
-  {
-    return branchNames_;
-  }
-
-  void
-  fillGroups(Principal& item)
-  {
-    if ((metaTree_ == 0) || (metaTree_->GetNbranches() == 0)) {
-      return;
+    template <typename AUX>
+    void mergeAuxiliary(AUX& left, AUX const& right)
+    {
+      left.mergeAuxiliary(right);
     }
-    // Loop over provenance
-    for (auto I = branches_->cbegin(), E = branches_->cend(); I != E; ++I) {
-      item.addGroup(I->second.branchDescription_);
+
+    template <>
+    inline void mergeAuxiliary(EventAuxiliary&,
+                               EventAuxiliary const&)
+    {}
+  }
+
+  class DelayedReader;
+  class Principal;
+
+  class RootTree {
+  public:
+    using BranchMap = input::BranchMap;
+    using EntryNumber = input::EntryNumber;
+    using EntryNumbers = input::EntryNumbers;
+  public:
+    RootTree(std::shared_ptr<TFile>,
+             BranchType const&,
+             int64_t saveMemoryObjectThreshold,
+             cet::exempt_ptr<RootInputFile>,
+             bool missingOK = false);
+    RootTree(RootTree const&) = delete;
+    RootTree& operator=(RootTree const&) = delete;
+
+    explicit operator bool () const { return isValid(); }
+
+    bool isValid() const;
+    bool hasBranch(std::string const& branchName) const;
+    void addBranch(BranchKey const&, BranchDescription const&,
+                   std::string const& branchName,
+                   bool const presentInSomeFile);
+    void dropBranch(std::string const& branchName);
+
+    bool
+    next()
+    {
+      return ++entryNumber_ < entries_;
     }
-  }
 
-  std::unique_ptr<DelayedReader>
-  makeDelayedReader(BranchType,
-                    std::vector<EntryNumber> const& entrySet,
-                    EventID);
-
-  std::unique_ptr<BranchMapper>
-  makeBranchMapper() const;
-
-  template<typename T>
-  void
-  fillAux(T*& pAux, EntryNumbers const& entries)
-  {
-    assert(entries.size() == 1u);
-    auxBranch_->SetAddress(&pAux);
-    for(auto const entry : entries) {
-      setEntryNumber(entry);
-      input::getEntry(auxBranch_, entry);
+    bool
+    previous()
+    {
+      return --entryNumber_ >= 0;
     }
-  }
 
-  TTree const*
-  tree() const
-  {
-    return tree_;
-  }
+    bool
+    current(EntryNumbers const& numbers)
+    {
+      assert(!numbers.empty());
+      return std::all_of(numbers.cbegin(),
+                         numbers.cend(),
+                         [this](auto entry){
+                           return (entry < entries_) && (entry >= 0);
+                         });
+    }
 
-  TTree const*
-  metaTree() const
-  {
-    return metaTree_;
-  }
+    void
+    rewind()
+    {
+      entryNumber_ = 0;
+    }
 
-  void setCacheSize(unsigned int cacheSize) const;
+    EntryNumber
+    entryNumber() const
+    {
+      return entryNumber_;
+    }
 
-  void setTreeMaxVirtualSize(int treeMaxVirtualSize);
+    EntryNumber
+    entries() const
+    {
+      return entries_;
+    }
 
-  BranchMap const&
-  branches() const
-  {
-    return *branches_;
-  }
+    void setEntryNumber(EntryNumber theEntryNumber);
 
-  TBranch*
-  productProvenanceBranch() const
-  {
-    return productProvenanceBranch_;
-  }
+    std::vector<std::string> const&
+    branchNames() const
+    {
+      return branchNames_;
+    }
 
-private:
-  std::shared_ptr<TFile> filePtr_;
-  // We use bare pointers for pointers to some ROOT entities.
-  // Root owns them and uses bare pointers internally,
-  // therefore, using smart pointers here will do no good.
-  TTree* tree_ {nullptr};
-  TTree* metaTree_ {nullptr};
-  BranchType branchType_;
-  int64_t const saveMemoryObjectThreshold_;
-  TBranch* auxBranch_ {nullptr};
-  TBranch* productProvenanceBranch_ {nullptr};
-  EntryNumber entries_ {0};
-  EntryNumber entryNumber_ {-1};
-  std::vector<std::string> branchNames_ {};
-  std::shared_ptr<BranchMap> branches_ {std::make_shared<BranchMap>()};
-  cet::exempt_ptr<RootInputFile> primaryFile_;
-};
+    void
+    fillGroups(Principal& item)
+    {
+      if ((metaTree_ == 0) || (metaTree_->GetNbranches() == 0)) {
+        return;
+      }
+      // Loop over provenance
+      for (auto const& b : *branches_) {
+        item.addGroup(b.second.branchDescription_);
+      }
+    }
+
+    std::unique_ptr<DelayedReader>
+    makeDelayedReader(BranchType,
+                      std::vector<EntryNumber> const& entrySet,
+                      EventID);
+
+    std::unique_ptr<BranchMapper>
+    makeBranchMapper() const;
+
+    template<typename T>
+    T getAux(EntryNumbers const& entries)
+    {
+      auto get_auxiliary = [this](auto entry){
+        auto aux  = std::make_unique<T>();
+        auto pAux = aux.get();
+        auxBranch_->SetAddress(&pAux);
+        setEntryNumber(entry);
+        input::getEntry(auxBranch_, entry);
+        return *aux;
+      };
+
+      T auxResult {get_auxiliary(entries[0])};
+      for(auto i = entries.cbegin()+1, e = entries.cend(); i!=e; ++i) {
+        detail::mergeAuxiliary(auxResult, get_auxiliary(*i));
+      }
+      return auxResult;
+    }
+
+    TTree const*
+    tree() const
+    {
+      return tree_;
+    }
+
+    TTree const*
+    metaTree() const
+    {
+      return metaTree_;
+    }
+
+    void setCacheSize(unsigned int cacheSize) const;
+
+    void setTreeMaxVirtualSize(int treeMaxVirtualSize);
+
+    BranchMap const&
+    branches() const
+    {
+      return *branches_;
+    }
+
+    TBranch*
+    productProvenanceBranch() const
+    {
+      return productProvenanceBranch_;
+    }
+
+  private:
+    std::shared_ptr<TFile> filePtr_;
+    // We use bare pointers for pointers to some ROOT entities.
+    // Root owns them and uses bare pointers internally,
+    // therefore, using smart pointers here will do no good.
+    TTree* tree_ {nullptr};
+    TTree* metaTree_ {nullptr};
+    BranchType branchType_;
+    int64_t const saveMemoryObjectThreshold_;
+    TBranch* auxBranch_ {nullptr};
+    TBranch* productProvenanceBranch_ {nullptr};
+    EntryNumber entries_ {0};
+    EntryNumber entryNumber_ {-1};
+    std::vector<std::string> branchNames_ {};
+    std::shared_ptr<BranchMap> branches_ {std::make_shared<BranchMap>()};
+    cet::exempt_ptr<RootInputFile> primaryFile_;
+  };
 
 } // namespace art
 

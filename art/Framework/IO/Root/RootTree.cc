@@ -122,7 +122,6 @@ makeDelayedReader(BranchType const branchType,
 {
   return std::make_unique<RootDelayedReader>(entrySet,
                                              branches_,
-                                             filePtr_,
                                              this,
                                              saveMemoryObjectThreshold_,
                                              primaryFile_,

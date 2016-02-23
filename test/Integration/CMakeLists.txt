@@ -74,6 +74,8 @@ simple_plugin(PtrmvProducer               "module"  NO_INSTALL )
 simple_plugin(RandomNumberSaveTest        "module"  NO_INSTALL USE_BOOST_UNIT )
 simple_plugin(Reconfigurable              "service" NO_INSTALL )
 simple_plugin(Reconfiguring               "module"  NO_INSTALL )
+simple_plugin(RunProductAnalyzer          "module" NO_INSTALL USE_BOOST_UNIT)
+simple_plugin(RunProductProducer          "module" NO_INSTALL)
 simple_plugin(RunSubRunProductProducerNoPut "module"  NO_INSTALL )
 simple_plugin(SAMMetadataTest             "module"  NO_INSTALL art_Framework_Services_System_FileCatalogMetadata_service )
 simple_plugin(ServiceUsing                "service" NO_INSTALL )
@@ -294,6 +296,23 @@ cet_test(ToyProductProducerAnalyzer_t HANDBUILT
   TEST_ARGS --rethrow-all -c toyProductProducerAnalyzer_t.fcl
   DATAFILES
   fcl/toyProductProducerAnalyzer_t.fcl
+  )
+
+cet_test(RunProductAggregation_w HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --rethrow-all -c runProductAggregation_w.fcl
+  DATAFILES
+  fcl/runProductAggregation_w.fcl
+  )
+
+cet_test(RunProductAggregation_r HANDBUILT
+  TEST_EXEC art_ut
+  TEST_ARGS
+   -c runProductAggregation_r.fcl
+  -s "../RunProductAggregation_w.d/out.root"
+  DATAFILES
+  fcl/runProductAggregation_r.fcl
+  TEST_PROPERTIES DEPENDS RunProductAggregation_w
   )
 
 cet_test(ToyRawInput_t_01 HANDBUILT

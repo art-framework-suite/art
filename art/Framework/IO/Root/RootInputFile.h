@@ -93,9 +93,6 @@ public: // MEMBER FUNCTIONS
   std::unique_ptr<EventPrincipal>
   readEvent();
 
-  std::unique_ptr<EventPrincipal>
-  readCurrentEvent();
-
   bool
   readEventForSecondaryFile(EventID eID);
 
@@ -223,8 +220,7 @@ public: // MEMBER FUNCTIONS
     //updateSecondaryIter();
   }
 
-  void
-  nextEntry()
+  void nextEntry()
   {
     ++fiIter_;
     //updateSecondaryIter();
@@ -354,15 +350,17 @@ private:
   template <BranchType BT>
   void fillAuxiliary(EntryNumber const entry)
   {
-    auto pAux = &std::get<BT>(auxiliaries_);
-    treePointers_[BT]->fillAux(pAux, {entry});
+    using AUX = std::tuple_element_t<BT,decltype(auxiliaries_)>;
+    auto& aux = std::get<BT>(auxiliaries_);
+    aux = treePointers_[BT]->getAux<AUX>({entry});
   }
 
   template <BranchType BT>
   void fillAuxiliary(EntryNumbers const entries)
   {
-    auto pAux = &std::get<BT>(auxiliaries_);
-    treePointers_[BT]->fillAux(pAux, entries);
+    using AUX = std::tuple_element_t<BT,decltype(auxiliaries_)>;
+    auto& aux = std::get<BT>(auxiliaries_);
+    aux = treePointers_[BT]->getAux<AUX>(entries);
   }
 
   void overrideRunNumber(RunID& id);
@@ -381,8 +379,11 @@ private:
 
   EntryNumbers getEntryNumbers(BranchType);
 
-  std::unique_ptr<RunPrincipal   > readCurrentRun();
-  std::unique_ptr<SubRunPrincipal> readCurrentSubRun(std::shared_ptr<RunPrincipal>);
+  std::unique_ptr<RunPrincipal   > readCurrentRun(EntryNumbers const&);
+  std::unique_ptr<SubRunPrincipal> readCurrentSubRun(EntryNumbers const&,
+                                                     std::shared_ptr<RunPrincipal>);
+  std::unique_ptr<EventPrincipal > readCurrentEvent(EntryNumbers const&);
+
 
   std::string const file_;
   std::string const catalog_;

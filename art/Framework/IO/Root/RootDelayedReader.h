@@ -15,58 +15,45 @@
 class TFile;
 
 namespace art {
+
   class RootInputFile;
   class RootTree;
 
-class RootDelayedReader final : public DelayedReader {
+  class RootDelayedReader final : public DelayedReader {
 
-public: // MEMBER FUNCTIONS
+  public: // MEMBER FUNCTIONS
 
-  virtual
-  ~RootDelayedReader();
+    virtual ~RootDelayedReader();
 
-  RootDelayedReader(RootDelayedReader const&) = delete;
+    RootDelayedReader(RootDelayedReader const&) = delete;
 
-  RootDelayedReader&
-  operator=(RootDelayedReader const&) = delete;
+    RootDelayedReader& operator=(RootDelayedReader const&) = delete;
 
-  RootDelayedReader(std::vector<input::EntryNumber> const& entrySet,
-                    std::shared_ptr<input::BranchMap const>,
-                    std::shared_ptr<TFile const>,
-                    cet::exempt_ptr<RootTree> tree,
-                    int64_t saveMemoryObjectThreshold,
-                    cet::exempt_ptr<RootInputFile> primaryFile,
-                    BranchType branchType, EventID);
+    RootDelayedReader(std::vector<input::EntryNumber> const& entrySet,
+                      std::shared_ptr<input::BranchMap const>,
+                      cet::exempt_ptr<RootTree> tree,
+                      int64_t saveMemoryObjectThreshold,
+                      cet::exempt_ptr<RootInputFile> primaryFile,
+                      BranchType branchType, EventID);
 
-private: // MEMBER FUNCTIONS
+  private: // MEMBER FUNCTIONS
 
-  virtual
-  std::unique_ptr<EDProduct>
-  getProduct_(BranchKey const&, TypeID const&) const override;
+    std::unique_ptr<EDProduct> getProduct_(BranchKey const&, TypeID const&) const override;
+    void setGroupFinder_(cet::exempt_ptr<EDProductGetterFinder const>) override;
+    int openNextSecondaryFile_(int idx) override;
 
-  virtual
-  void
-  setGroupFinder_(cet::exempt_ptr<EDProductGetterFinder const>) override;
+  private: // MEMBER DATA
 
-  virtual
-  int
-  openNextSecondaryFile_(int idx) override;
+    std::vector<input::EntryNumber> const entrySet_;
+    std::shared_ptr<input::BranchMap const> branches_;
+    cet::exempt_ptr<RootTree> tree_;
+    int64_t saveMemoryObjectThreshold_;
+    cet::exempt_ptr<EDProductGetterFinder const> groupFinder_;
+    cet::exempt_ptr<RootInputFile> primaryFile_;
+    BranchType branchType_;
+    EventID eventID_;
 
-private: // MEMBER DATA
-
-  std::vector<input::EntryNumber> const entrySet_;
-  std::shared_ptr<input::BranchMap const> branches_;
-  // NOTE: filePtr_ appears to be unused, but is needed to prevent
-  // the TFile containing the branch from being reclaimed.
-  //  std::shared_ptr<TFile const> filePtr_;
-  cet::exempt_ptr<RootTree> tree_;
-  int64_t saveMemoryObjectThreshold_;
-  cet::exempt_ptr<EDProductGetterFinder const> groupFinder_;
-  cet::exempt_ptr<RootInputFile> primaryFile_;
-  BranchType branchType_;
-  EventID eventID_;
-
-};
+  };
 
 } // namespace art
 

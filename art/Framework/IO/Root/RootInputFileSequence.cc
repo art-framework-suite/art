@@ -550,14 +550,6 @@ previousFile()
 
 unique_ptr<EventPrincipal>
 RootInputFileSequence::
-readCurrentEvent()
-{
-  rootFileForLastReadEvent_ = rootFile_;
-  return rootFile_->readCurrentEvent();
-}
-
-unique_ptr<EventPrincipal>
-RootInputFileSequence::
 readIt(EventID const& id, bool exact)
 {
   // Attempt to find event in currently open input file.
