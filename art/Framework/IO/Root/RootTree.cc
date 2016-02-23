@@ -21,18 +21,10 @@ RootTree(std::shared_ptr<TFile> filePtr,
          int64_t saveMemoryObjectThreshold,
          cet::exempt_ptr<RootInputFile> primaryFile,
          bool const missingOK)
-  : filePtr_(filePtr)
-  , tree_(0)
-  , metaTree_(0)
-  , branchType_(branchType)
-  , saveMemoryObjectThreshold_(saveMemoryObjectThreshold)
-  , auxBranch_(0)
-  , productProvenanceBranch_(0)
-  , entries_(0)
-  , entryNumber_(-1)
-  , branchNames_()
-  , branches_(new BranchMap)
-  , primaryFile_(primaryFile)
+  : filePtr_{filePtr}
+  , branchType_{branchType}
+  , saveMemoryObjectThreshold_{saveMemoryObjectThreshold}
+  , primaryFile_{primaryFile}
 {
   if (filePtr_) {
     tree_ = static_cast<TTree*>(
@@ -104,7 +96,7 @@ dropBranch(std::string const& branchName)
   TObjArray* leaves = tree_->GetListOfLeaves();
   int entries = leaves->GetEntries();
   for (int i = 0; i < entries; ++i) {
-    TLeaf* leaf = (TLeaf*)(*leaves)[i];
+    TLeaf* leaf = reinterpret_cast<TLeaf*>((*leaves)[i]);
     if (leaf == 0) {
       continue;
     }
@@ -125,12 +117,13 @@ dropBranch(std::string const& branchName)
 std::unique_ptr<DelayedReader>
 RootTree::
 makeDelayedReader(BranchType const branchType,
-                  std::vector<input::EntryNumber> const& entrySet,
-                  EventID const eID) const
+                  EntryNumbers const& entrySet,
+                  EventID const eID)
 {
   return std::make_unique<RootDelayedReader>(entrySet,
                                              branches_,
                                              filePtr_,
+                                             this,
                                              saveMemoryObjectThreshold_,
                                              primaryFile_,
                                              branchType,

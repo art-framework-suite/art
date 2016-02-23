@@ -3,10 +3,10 @@
 // vim: set sw=2:
 
 #include "art/Framework/IO/Root/Inputfwd.h"
-#include "art/Framework/IO/Root/RootInputFile.h"
 #include "art/Persistency/Common/DelayedReader.h"
 #include "canvas/Persistency/Provenance/BranchKey.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
+#include "canvas/Persistency/Provenance/EventID.h"
 
 #include <map>
 #include <memory>
@@ -15,6 +15,8 @@
 class TFile;
 
 namespace art {
+  class RootInputFile;
+  class RootTree;
 
 class RootDelayedReader final : public DelayedReader {
 
@@ -31,6 +33,7 @@ public: // MEMBER FUNCTIONS
   RootDelayedReader(std::vector<input::EntryNumber> const& entrySet,
                     std::shared_ptr<input::BranchMap const>,
                     std::shared_ptr<TFile const>,
+                    cet::exempt_ptr<RootTree> tree,
                     int64_t saveMemoryObjectThreshold,
                     cet::exempt_ptr<RootInputFile> primaryFile,
                     BranchType branchType, EventID);
@@ -55,7 +58,8 @@ private: // MEMBER DATA
   std::shared_ptr<input::BranchMap const> branches_;
   // NOTE: filePtr_ appears to be unused, but is needed to prevent
   // the TFile containing the branch from being reclaimed.
-  std::shared_ptr<TFile const> filePtr_;
+  //  std::shared_ptr<TFile const> filePtr_;
+  cet::exempt_ptr<RootTree> tree_;
   int64_t saveMemoryObjectThreshold_;
   cet::exempt_ptr<EDProductGetterFinder const> groupFinder_;
   cet::exempt_ptr<RootInputFile> primaryFile_;

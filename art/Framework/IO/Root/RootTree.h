@@ -33,8 +33,9 @@ class Principal;
 
 class RootTree {
 public:
-  typedef input::BranchMap BranchMap;
-  typedef input::EntryNumber EntryNumber;
+  using BranchMap = input::BranchMap;
+  using EntryNumber = input::EntryNumber;
+  using EntryNumbers = input::EntryNumbers;
 public:
   RootTree(std::shared_ptr<TFile>,
            BranchType const&,
@@ -66,9 +67,14 @@ public:
   }
 
   bool
-  current()
+  current(EntryNumbers const& numbers)
   {
-    return (entryNumber_ < entries_) && (entryNumber_ >= 0);
+    assert(!numbers.size());
+    return std::all_of(numbers.cbegin(),
+                       numbers.cend(),
+                       [this](auto entry){
+                         return (entry < entries_) && (entry >= 0);
+                       });
   }
 
   void
@@ -77,13 +83,13 @@ public:
     entryNumber_ = 0;
   }
 
-  EntryNumber const&
+  EntryNumber
   entryNumber() const
   {
     return entryNumber_;
   }
 
-  EntryNumber const&
+  EntryNumber
   entries() const
   {
     return entries_;
@@ -111,18 +117,22 @@ public:
 
   std::unique_ptr<DelayedReader>
   makeDelayedReader(BranchType,
-                    std::vector<input::EntryNumber> const& entrySet,
-                    EventID) const;
+                    std::vector<EntryNumber> const& entrySet,
+                    EventID);
 
   std::unique_ptr<BranchMapper>
   makeBranchMapper() const;
 
   template<typename T>
   void
-  fillAux(T*& pAux) const
+  fillAux(T*& pAux, EntryNumbers const& entries)
   {
+    assert(entries.size() == 1u);
     auxBranch_->SetAddress(&pAux);
-    input::getEntry(auxBranch_, entryNumber_);
+    for(auto const entry : entries) {
+      setEntryNumber(entry);
+      input::getEntry(auxBranch_, entry);
+    }
   }
 
   TTree const*
@@ -158,16 +168,16 @@ private:
   // We use bare pointers for pointers to some ROOT entities.
   // Root owns them and uses bare pointers internally,
   // therefore, using smart pointers here will do no good.
-  TTree* tree_;
-  TTree* metaTree_;
+  TTree* tree_ {nullptr};
+  TTree* metaTree_ {nullptr};
   BranchType branchType_;
   int64_t const saveMemoryObjectThreshold_;
-  TBranch* auxBranch_;
-  TBranch* productProvenanceBranch_;
-  EntryNumber entries_;
-  EntryNumber entryNumber_;
-  std::vector<std::string> branchNames_;
-  std::shared_ptr<BranchMap> branches_;
+  TBranch* auxBranch_ {nullptr};
+  TBranch* productProvenanceBranch_ {nullptr};
+  EntryNumber entries_ {0};
+  EntryNumber entryNumber_ {-1};
+  std::vector<std::string> branchNames_ {};
+  std::shared_ptr<BranchMap> branches_ {std::make_shared<BranchMap>()};
   cet::exempt_ptr<RootInputFile> primaryFile_;
 };
 

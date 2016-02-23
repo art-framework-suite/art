@@ -46,7 +46,9 @@ class RootInputFile {
 
 public: // TYPES
 
-  typedef std::array<std::unique_ptr<RootTree>, NumBranchTypes> RootTreePtrArray;
+  using RootTreePtrArray = std::array<std::unique_ptr<RootTree>, NumBranchTypes>;
+  using EntryNumber = RootTree::EntryNumber;
+  using EntryNumbers = RootTree::EntryNumbers;
 
 public: // MEMBER FUNCTIONS
 
@@ -136,28 +138,30 @@ public: // MEMBER FUNCTIONS
     return *branchIDLists_;
   }
 
-  EventAuxiliary const&
-  eventAux() const
+  EventAuxiliary&  eventAux()
   {
-    return eventAux_;
+    return std::get<EventAuxiliary>(auxiliaries_);
   }
 
-  SubRunAuxiliary const&
-  subRunAux()
+  SubRunAuxiliary& subRunAux()
   {
-    return subRunAux_;
+    return std::get<SubRunAuxiliary>(auxiliaries_);
   }
 
-  RunAuxiliary const&
-  runAux() const
+  RunAuxiliary& runAux()
   {
-    return runAux_;
+    return std::get<RunAuxiliary>(auxiliaries_);
+  }
+
+  ResultsAuxiliary& resultsAux()
+  {
+    return std::get<ResultsAuxiliary>(auxiliaries_);
   }
 
   EventID const&
   eventID() const
   {
-    return eventAux().id();
+    return std::get<EventAuxiliary>(auxiliaries_).id();
   }
 
   RootTreePtrArray&
@@ -181,23 +185,24 @@ public: // MEMBER FUNCTIONS
   std::shared_ptr<FileBlock>
   createFileBlock();
 
-  bool
-  setEntryAtEvent(EventID const& eID, bool exact);
-
-  bool
-  setEntryAtSubRun(SubRunID const& subRun);
-
-  bool
-  setEntryAtRun(RunID const& run);
-
+  template <BranchType BT>
   void
-  setAtEventEntry(FileIndex::EntryNumber_t entry);
+  setEntry(FileIndex::EntryNumber_t entry)
+  {
+    treePointers_[BT]->setEntryNumber(entry);
+  }
 
-  void
-  setAtRunEntry(FileIndex::EntryNumber_t entry);
-
-  void
-  setAtSubRunEntry(FileIndex::EntryNumber_t entry);
+  template <BranchType BT, typename ID>
+  bool
+  setEntry(ID const& id, bool exact = true)
+  {
+    fiIter_ = fileIndex_.findPosition(id, exact);
+    if (fiIter_ == fiEnd_) {
+      return false;
+    }
+    setEntry<BT>(fiIter_->entry_);
+    return true;
+  }
 
   void
   rewind()
@@ -345,9 +350,20 @@ private:
 
   void fillHistory();
   void fillPerBranchTypePresenceFlags(ProductList const&);
-  void fillEventAuxiliary();
-  void fillSubRunAuxiliary();
-  void fillRunAuxiliary();
+
+  template <BranchType BT>
+  void fillAuxiliary(EntryNumber const entry)
+  {
+    auto pAux = &std::get<BT>(auxiliaries_);
+    treePointers_[BT]->fillAux(pAux, {entry});
+  }
+
+  template <BranchType BT>
+  void fillAuxiliary(EntryNumbers const entries)
+  {
+    auto pAux = &std::get<BT>(auxiliaries_);
+    treePointers_[BT]->fillAux(pAux, entries);
+  }
 
   void overrideRunNumber(RunID& id);
   void overrideRunNumber(SubRunID& id);
@@ -363,8 +379,7 @@ private:
 
   void initializeDuplicateChecker();
 
-  void determineEntryNumbers(BranchType);
-  void clearEntryNumbers(BranchType);
+  EntryNumbers getEntryNumbers(BranchType);
 
   std::unique_ptr<RunPrincipal   > readCurrentRun();
   std::unique_ptr<SubRunPrincipal> readCurrentSubRun(std::shared_ptr<RunPrincipal>);
@@ -395,12 +410,11 @@ private:
   FileIndex::const_iterator fiBegin_ {fileIndex_.begin()};
   FileIndex::const_iterator fiEnd_ {fiBegin_};
   FileIndex::const_iterator fiIter_ {fiBegin_};
-  std::array<std::vector<input::EntryNumber>, NumBranchTypes> entryNumbers_ {{}}; // filled by aggregation
   bool fastClonable_ {false};
-  EventAuxiliary eventAux_ {};
-  SubRunAuxiliary subRunAux_ {};
-  RunAuxiliary runAux_ {};
-  ResultsAuxiliary resultsAux_ {};
+  std::tuple<EventAuxiliary,
+             SubRunAuxiliary,
+             RunAuxiliary,
+             ResultsAuxiliary> auxiliaries_ {};   // Must be in same order as treePointers_ !
   std::unique_ptr<ProductRegistry> productListHolder_ {std::make_unique<ProductRegistry>()};
   std::shared_ptr<BranchIDListRegistry::collection_type const> branchIDLists_ {nullptr};
 

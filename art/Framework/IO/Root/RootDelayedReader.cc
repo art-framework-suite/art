@@ -1,7 +1,9 @@
 #include "art/Framework/IO/Root/RootDelayedReader.h"
 // vim: sw=2:
 
-#include "canvas/Persistency/Common/RefCoreStreamer.h"
+#include "canvas/Framework/IO/Root/RefCoreStreamer.h"
+#include "canvas/Framework/IO/Root/RootInputFile.h"
+#include "canvas/Framework/IO/Root/RootTree.h"
 #include "canvas/Persistency/Provenance/BranchDescription.h"
 #include "canvas/Utilities/TypeID.h"
 #include "TBranch.h"
@@ -21,17 +23,19 @@ RootDelayedReader::
 RootDelayedReader::
 RootDelayedReader(std::vector<input::EntryNumber> const& entrySet,
                   shared_ptr<input::BranchMap const> branches,
-                  shared_ptr<TFile const> filePtr,
+                  shared_ptr<TFile const> filePtr [[gnu::unused]],
+                  cet::exempt_ptr<RootTree> tree,
                   int64_t saveMemoryObjectThreshold,
                   cet::exempt_ptr<RootInputFile> primaryFile,
                   BranchType branchType, EventID eID)
   : entrySet_{entrySet}
-  , branches_(branches)
-  , filePtr_(filePtr)
-  , saveMemoryObjectThreshold_(saveMemoryObjectThreshold)
-  , primaryFile_(primaryFile)
-  , branchType_(branchType)
-  , eventID_(eID)
+  , branches_{branches}
+  //  , filePtr_{filePtr}
+  , tree_{tree}
+  , saveMemoryObjectThreshold_{saveMemoryObjectThreshold}
+  , primaryFile_{primaryFile}
+  , branchType_{branchType}
+  , eventID_{eID}
 {
 }
 
@@ -47,24 +51,12 @@ RootDelayedReader::
 getProduct_(BranchKey const& bk, TypeID const& ty) const
 {
   auto iter = branches_->find(bk);
-  if (iter == branches_->end()) {
-    throw Exception(errors::ProductNotFound)
-      << "Product corresponding to BranchKey "
-      << bk
-      << " and TypeID: "
-      << ty
-      << " not found.\n"
-      << "Please contact artists@fnal.gov.";
-  }
+  assert(iter != branches_->end());
+
   input::BranchInfo const& branchInfo = iter->second;
-  TBranch* br = branchInfo.productBranch_;
-  if (br == nullptr) {
-    throw Exception(errors::ProductNotFound)
-      << "The branch address corresponding to the following product has not been set:"
-      << branchInfo.branchDescription_
-      << '\n'
-      <<  "Please contact artists@fnal.gov.";
-  }
+  TBranch* br {branchInfo.productBranch_};
+  assert(br != nullptr);
+
   configureRefCoreStreamer(groupFinder_);
   TClass* cl {TClass::GetClass(ty.typeInfo())};
   unique_ptr<EDProduct> p {nullptr};
@@ -72,6 +64,7 @@ getProduct_(BranchKey const& bk, TypeID const& ty) const
   // Aggregate the products
 
   auto fill_product = [this, cl, br](auto entry){
+    tree_->setEntryNumber(entry);
     decltype(p) tmp {static_cast<EDProduct*>(cl->New())};
     EDProduct* pp {tmp.get()};
     br->SetAddress(&pp);

@@ -9,6 +9,7 @@
 
 #include "Rtypes.h"
 #include <map>
+#include <vector>
 
 // ----------------------------------------------------------------------
 
@@ -40,9 +41,9 @@ namespace art {
       TBranch * productBranch_;
     };  // BranchInfo
 
-    using BranchMap   = std::map<BranchKey const, BranchInfo>;
+    using BranchMap = std::map<BranchKey const, BranchInfo>;
     using EntryNumber = Long64_t;
-    using EntryRange  = std::pair<EntryNumber, EntryNumber>;
+    using EntryNumbers = std::vector<EntryNumber>;
     Int_t getEntry(TBranch * branch, EntryNumber entryNumber);
     Int_t getEntry(TTree * tree, EntryNumber entryNumber);
 
