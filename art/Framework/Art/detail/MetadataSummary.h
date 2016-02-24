@@ -37,7 +37,7 @@ namespace art {
   }
 }
 
-#endif
+#endif /* art_Framework_Art_detail_MetadataSummary_h */
 
 // Local variables:
 // mode: c++

@@ -55,7 +55,7 @@ namespace art {
 
 }
 
-#endif
+#endif /* art_Utilities_SAMMetadataTranslators_h */
 
 // Local variables:
 // mode: c++

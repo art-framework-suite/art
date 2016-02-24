@@ -10,7 +10,7 @@ namespace art {
   }
 }
 
-#endif
+#endif /* art_Framework_Core_detail_verify_names_h */
 
 // Local variables:
 // mode: c++

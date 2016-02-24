@@ -361,7 +361,7 @@ namespace art {
   } // detail
 } // art
 
-#endif /* art_Framework_Modules_ProvenanceDumperImpl_h */
+#endif /* art_Framework_Modules_detail_ProvenanceDumperImpl_h */
 
 // Local Variables:
 // mode: c++

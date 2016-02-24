@@ -1,5 +1,5 @@
-#ifndef art_Framework_Art_detail_getMetadataCollector_h
-#define art_Framework_Art_detail_getMetadataCollector_h
+#ifndef art_Framework_Art_detail_get_MetadataCollector_h
+#define art_Framework_Art_detail_get_MetadataCollector_h
 
 #include "art/Framework/Art/detail/MetadataCollector.h"
 #include "art/Utilities/PluginSuffixes.h"
@@ -12,7 +12,7 @@ namespace art {
   }
 }
 
-#endif
+#endif /* art_Framework_Art_detail_get_MetadataCollector_h */
 
 // Local variables:
 // mode: c++

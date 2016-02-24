@@ -1,5 +1,5 @@
-#ifndef art_Framework_Art_detail_MetadataSummaryForSource_h
-#define art_Framework_Art_detail_MetadataSummaryForSource_h
+#ifndef art_Framework_Art_detail_md_summary_MetadataSummaryForSource_h
+#define art_Framework_Art_detail_md_summary_MetadataSummaryForSource_h
 
 #include "art/Framework/Art/detail/LibraryInfoCollection.h"
 #include "art/Framework/Art/detail/MetadataSummary.h"
@@ -63,7 +63,7 @@ namespace art {
 }
 
 
-#endif
+#endif /* art_Framework_Art_detail_md_summary_MetadataSummaryForSource_h */
 
 // Local variables:
 // mode: c++

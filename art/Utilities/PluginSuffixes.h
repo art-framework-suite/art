@@ -105,7 +105,7 @@ namespace art {
 
 }
 
-#endif
+#endif /* art_Utilities_PluginSuffixes_h */
 
 // Local variables:
 // mode: c++
