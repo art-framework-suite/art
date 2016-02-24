@@ -1,6 +1,6 @@
 #define BOOST_TEST_MODULE ( artapp basic source options )
 #include "art/Framework/Art/detail/fillSourceList.h"
-#include "boost/test/auto_unit_test.hpp"
+#include "cetlib/quiet_unit_test.hpp"
 #include "boost/test/test_tools.hpp"
 
 #include <iostream>

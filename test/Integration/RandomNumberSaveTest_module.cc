@@ -58,7 +58,7 @@ std::ostream & operator << (std::ostream & os,
   return os;
 }
 
-#include "art/Utilities/quiet_unit_test.hpp"
+#include "cetlib/quiet_unit_test.hpp"
 
 arttest::RandomNumberSaveTest::RandomNumberSaveTest(fhicl::ParameterSet const & p)
   :

@@ -1,5 +1,5 @@
 #define BOOST_TEST_MODULE ( PostCloseFileRenamer_t )
-#include "boost/test/auto_unit_test.hpp"
+#include "cetlib/quiet_unit_test.hpp"
 
 #include "art/Framework/IO/FileStatsCollector.h"
 #include "art/Framework/IO/PostCloseFileRenamer.h"

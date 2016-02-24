@@ -1,7 +1,7 @@
 #define BOOST_TEST_ALTERNATIVE_INIT_API
 #undef BOOST_TEST_MAIN
 #define BOOST_TEST_NO_MAIN
-#include "art/Utilities/quiet_unit_test.hpp"
+#include "cetlib/quiet_unit_test.hpp"
 
 #include "art/Framework/Art/@ART_MAIN_FUNC@.h"
 

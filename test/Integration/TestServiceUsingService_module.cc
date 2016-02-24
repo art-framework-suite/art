@@ -10,7 +10,7 @@
 #include "art/Framework/Core/EDAnalyzer.h"
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
-#include "art/Utilities/quiet_unit_test.hpp"
+#include "cetlib/quiet_unit_test.hpp"
 #include "test/Integration/Reconfigurable.h"
 #include "test/Integration/ServiceUsing.h"
 #include "test/Integration/Wanted.h"

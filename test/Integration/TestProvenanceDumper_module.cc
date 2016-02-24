@@ -2,7 +2,7 @@
 #include "art/Framework/Core/ModuleMacros.h"
 #include "cetlib/container_algorithms.h"
 
-#include "art/Utilities/quiet_unit_test.hpp"
+#include "cetlib/quiet_unit_test.hpp"
 
 #include <iostream>
 #include <set>

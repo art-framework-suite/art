@@ -1,5 +1,5 @@
 #define BOOST_TEST_MODULE ( PathManager Test )
-#include "boost/test/auto_unit_test.hpp"
+#include "cetlib/quiet_unit_test.hpp"
 
 #include "art/Framework/Principal/Actions.h"
 #include "art/Framework/Core/PathManager.h"
