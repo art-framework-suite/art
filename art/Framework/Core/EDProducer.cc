@@ -13,16 +13,13 @@ namespace art
 {
 
   EDProducer::EDProducer()
-    : ProducerBase()
-    , EngineCreator()
-    , moduleDescription_()
-    , current_context_{nullptr}
-    , checkPutProducts_{true}
+    : ProducerBase{}
+    , EngineCreator{}
   {}
 
   bool
   EDProducer::doEvent(EventPrincipal& ep,
-                      CurrentProcessingContext const* cpc) {
+                      CPC_exempt_ptr cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
     Event e(ep, moduleDescription_);
     this->produce(e);
@@ -53,7 +50,7 @@ namespace art
 
   bool
   EDProducer::doBeginRun(RunPrincipal & rp,
-                         CurrentProcessingContext const* cpc) {
+                         CPC_exempt_ptr cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
     Run r(rp, moduleDescription_);
     this->beginRun(r);
@@ -63,7 +60,7 @@ namespace art
 
   bool
   EDProducer::doEndRun(RunPrincipal & rp,
-                       CurrentProcessingContext const* cpc) {
+                       CPC_exempt_ptr cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
     Run r(rp, moduleDescription_);
     this->endRun(r);
@@ -73,7 +70,7 @@ namespace art
 
   bool
   EDProducer::doBeginSubRun(SubRunPrincipal & srp,
-                            CurrentProcessingContext const* cpc) {
+                            CPC_exempt_ptr cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
     SubRun sr(srp, moduleDescription_);
     this->beginSubRun(sr);
@@ -83,7 +80,7 @@ namespace art
 
   bool
   EDProducer::doEndSubRun(SubRunPrincipal & srp,
-                          CurrentProcessingContext const* cpc) {
+                          CPC_exempt_ptr cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
     SubRun sr(srp, moduleDescription_);
     this->endSubRun(sr);
@@ -125,7 +122,7 @@ namespace art
 
   CurrentProcessingContext const*
   EDProducer::currentContext() const {
-    return current_context_;
+    return current_context_.get();
   }
 
 }  // art

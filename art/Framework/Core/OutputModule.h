@@ -123,47 +123,44 @@ protected:
 
 private:
 
-  SelectionsArray keptProducts_;
-  std::array<bool, NumBranchTypes> hasNewlyDroppedBranch_;
-  GroupSelectorRules groupSelectorRules_;
-  GroupSelector groupSelector_;
-  int maxEvents_;
-  int remainingEvents_;
+  // TODO: Give OutputModule an interface (protected?) that supplies
+  // client code with the needed functionality *without* giving away
+  // implementation details ... don't just return a reference to
+  // keptProducts_, because we are looking to have the flexibility to
+  // change the implementation of keptProducts_ without modifying
+  // clients. When this change is made, we'll have a one-time-only
+  // task of modifying clients (classes derived from OutputModule) to
+  // use the newly-introduced interface.  TODO: Consider using shared
+  // pointers here?
 
-  // TODO: Give OutputModule
-  // an interface (protected?) that supplies client code with the
-  // needed functionality *without* giving away implementation
-  // details ... don't just return a reference to keptProducts_, because
-  // we are looking to have the flexibility to change the
-  // implementation of keptProducts_ without modifying clients. When this
-  // change is made, we'll have a one-time-only task of modifying
-  // clients (classes derived from OutputModule) to use the
-  // newly-introduced interface.
-  // TODO: Consider using shared pointers here?
-
-  // keptProducts_ are pointers to the BranchDescription objects describing
-  // the branches we are to write.
+  // keptProducts_ are pointers to the BranchDescription objects
+  // describing the branches we are to write.
   //
   // We do not own the BranchDescriptions to which we point.
 
+  SelectionsArray keptProducts_ {{}}; // filled by aggregation
+  std::array<bool, NumBranchTypes> hasNewlyDroppedBranch_ {{false}}; // filled by aggregation
+  GroupSelectorRules groupSelectorRules_;
+  GroupSelector groupSelector_ {};
+  int maxEvents_ {-1};
+  int remainingEvents_ {maxEvents_};
 
-  ModuleDescription moduleDescription_;
+  ModuleDescription moduleDescription_ {};
 
-  // We do not own the pointed-to CurrentProcessingContext.
-  CurrentProcessingContext const * current_context_;
+  cet::exempt_ptr<CurrentProcessingContext const> current_context_ {nullptr};
 
   using BranchParents = std::map<BranchID, std::set<ParentageID> >;
-  BranchParents branchParents_;
+  BranchParents branchParents_ {};
 
-  BranchChildren branchChildren_;
+  BranchChildren branchChildren_ {};
 
   std::string configuredFileName_;
   std::string dataTier_;
   std::string streamName_;
-  ServiceHandle<CatalogInterface> ci_;
+  ServiceHandle<CatalogInterface> ci_ {};
 
-  cet::BasicPluginFactory pluginFactory_;
-  std::vector<std::string> pluginNames_; // For diagnostics.
+  cet::BasicPluginFactory pluginFactory_ {};
+  std::vector<std::string> pluginNames_ {}; // For diagnostics.
 
   using PluginCollection_t = std::vector<std::unique_ptr<FileCatalogMetadataPlugin> >;
   PluginCollection_t plugins_;
@@ -271,7 +268,7 @@ art::CurrentProcessingContext const *
 art::OutputModule::
 currentContext() const
 {
-  return current_context_;
+  return current_context_.get();
 }
 
 inline

@@ -13,16 +13,13 @@ namespace art
 {
 
   EDFilter::EDFilter()
-    : ProducerBase()
-    , EngineCreator()
-    , moduleDescription_()
-    , current_context_(0)
-    , checkPutProducts_{true}
+    : ProducerBase{}
+    , EngineCreator{}
   {}
 
   bool
   EDFilter::doEvent(EventPrincipal& ep,
-                    CurrentProcessingContext const* cpc) {
+                    CPC_exempt_ptr cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
     bool rc = false;
     Event e(ep, moduleDescription_);
@@ -53,7 +50,7 @@ namespace art
 
   bool
   EDFilter::doBeginRun(RunPrincipal & rp,
-                       CurrentProcessingContext const* cpc) {
+                       CPC_exempt_ptr cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
     bool rc = false;
     Run r(rp, moduleDescription_);
@@ -64,7 +61,7 @@ namespace art
 
   bool
   EDFilter::doEndRun(RunPrincipal & rp,
-                     CurrentProcessingContext const* cpc) {
+                     CPC_exempt_ptr cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
     bool rc = false;
     Run r(rp, moduleDescription_);
@@ -75,7 +72,7 @@ namespace art
 
   bool
   EDFilter::doBeginSubRun(SubRunPrincipal & srp,
-                          CurrentProcessingContext const* cpc) {
+                          CPC_exempt_ptr cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
     bool rc = false;
     SubRun sr(srp, moduleDescription_);
@@ -86,7 +83,7 @@ namespace art
 
   bool
   EDFilter::doEndSubRun(SubRunPrincipal & srp,
-                        CurrentProcessingContext const* cpc) {
+                        CPC_exempt_ptr cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
     bool rc = false;
     SubRun sr(srp, moduleDescription_);
@@ -129,7 +126,7 @@ namespace art
 
   CurrentProcessingContext const*
   EDFilter::currentContext() const {
-    return current_context_;
+    return current_context_.get();
   }
 
 }  // art

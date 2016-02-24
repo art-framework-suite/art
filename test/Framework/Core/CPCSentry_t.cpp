@@ -9,13 +9,13 @@
 int work()
 {
   art::CurrentProcessingContext ctx;
-  art::CurrentProcessingContext const* ptr = 0;
-  assert(ptr == 0);
+  cet::exempt_ptr<art::CurrentProcessingContext const> ptr {nullptr};
+  assert(ptr.get() == nullptr);
   {
-    art::detail::CPCSentry sentry(ptr, &ctx);
-    assert(ptr == &ctx);
+    art::detail::CPCSentry sentry{ptr, &ctx};
+    assert(ptr.get() == &ctx);
   }
-  assert(ptr == 0);
+  assert(ptr.get() == nullptr);
   return 0;
 }
 

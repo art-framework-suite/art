@@ -12,7 +12,7 @@ namespace art
 
   bool
   EDAnalyzer::doEvent(EventPrincipal const& ep,
-                        CurrentProcessingContext const* cpc) {
+                      CPC_exempt_ptr cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
     detail::PVSentry pvSentry(selectors_);
     Event e(const_cast<EventPrincipal &>(ep), moduleDescription_);
@@ -42,7 +42,7 @@ namespace art
 
   bool
   EDAnalyzer::doBeginRun(RunPrincipal const& rp,
-                        CurrentProcessingContext const* cpc) {
+                         CPC_exempt_ptr cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
     Run r(const_cast<RunPrincipal &>(rp), moduleDescription_);
     this->beginRun(r);
@@ -51,7 +51,7 @@ namespace art
 
   bool
   EDAnalyzer::doEndRun(RunPrincipal const& rp,
-                        CurrentProcessingContext const* cpc) {
+                       CPC_exempt_ptr cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
     Run r(const_cast<RunPrincipal &>(rp), moduleDescription_);
     this->endRun(r);
@@ -60,7 +60,7 @@ namespace art
 
   bool
   EDAnalyzer::doBeginSubRun(SubRunPrincipal const& srp,
-                        CurrentProcessingContext const* cpc) {
+                            CPC_exempt_ptr cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
     SubRun sr(const_cast<SubRunPrincipal &>(srp), moduleDescription_);
     this->beginSubRun(sr);
@@ -69,7 +69,7 @@ namespace art
 
   bool
   EDAnalyzer::doEndSubRun(SubRunPrincipal const& srp,
-                        CurrentProcessingContext const* cpc) {
+                          CPC_exempt_ptr cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
     SubRun sr(const_cast<SubRunPrincipal &>(srp), moduleDescription_);
     this->endSubRun(sr);
@@ -110,7 +110,7 @@ namespace art
 
   CurrentProcessingContext const*
   EDAnalyzer::currentContext() const {
-    return current_context_;
+    return current_context_.get();
   }
 
 }  // art

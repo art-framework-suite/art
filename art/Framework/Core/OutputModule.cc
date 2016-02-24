@@ -35,22 +35,10 @@ OutputModule(fhicl::TableFragment<Config> const & config,
              fhicl::ParameterSet const& containing_pset)
   :
   EventObserver{config().eoConfig},
-  keptProducts_{{}},             // filled by aggregation
-  hasNewlyDroppedBranch_{false}, // filled by aggregation
   groupSelectorRules_{config().outputCommands(), "outputCommands", "OutputModule"},
-  groupSelector_{},
-  maxEvents_{-1},
-  remainingEvents_{maxEvents_},
-  moduleDescription_{},
-  current_context_{nullptr},
-  branchParents_{},
-  branchChildren_{},
   configuredFileName_{config().fileName()},
   dataTier_{config().dataTier()},
   streamName_{config().streamName()},
-  ci_{},
-  pluginFactory_{},
-  pluginNames_{},
   plugins_{makePlugins_(containing_pset)}
 {}
 
@@ -58,23 +46,11 @@ art::OutputModule::
 OutputModule(fhicl::ParameterSet const& pset)
   :
   EventObserver{pset},
-  keptProducts_{{}},             // filled by aggregation
-  hasNewlyDroppedBranch_{false}, // filled by aggregation
   groupSelectorRules_{pset.get<std::vector<std::string>>("outputCommands", {"keep *"}),
       "outputCommands", "OutputModule"},
-  groupSelector_{},
-  maxEvents_{-1},
-  remainingEvents_{maxEvents_},
-  moduleDescription_{},
-  current_context_{nullptr},
-  branchParents_{},
-  branchChildren_{},
   configuredFileName_{pset.get<std::string>("fileName","")},
   dataTier_{pset.get<std::string>("dataTier","")},
   streamName_{pset.get<std::string>("streamName","")},
-  ci_{},
-  pluginFactory_{},
-  pluginNames_{},
   plugins_{makePlugins_(pset)}
 {}
 

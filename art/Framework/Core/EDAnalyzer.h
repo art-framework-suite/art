@@ -75,15 +75,11 @@ namespace art
     explicit EDAnalyzer(Table<Config> const& config)
       : EventObserver{config.eoTable()}
       , EngineCreator{}
-      , moduleDescription_{}
-      , current_context_{0}
     {}
 
     explicit EDAnalyzer(fhicl::ParameterSet const& pset)
-      : EventObserver(pset)
-      , EngineCreator()
-      , moduleDescription_()
-      , current_context_(0)
+      : EventObserver{pset}
+      , EngineCreator{}
     {}
 
     virtual ~EDAnalyzer() = default;
@@ -96,18 +92,16 @@ namespace art
     CurrentProcessingContext const* currentContext() const;
 
   private:
-    bool doEvent(EventPrincipal const& ep,
-                   CurrentProcessingContext const* cpc);
+
+    using CPC_exempt_ptr = cet::exempt_ptr<CurrentProcessingContext const>;
+
+    bool doEvent(EventPrincipal const& ep, CPC_exempt_ptr cpc);
     void doBeginJob();
     void doEndJob();
-    bool doBeginRun(RunPrincipal const& rp,
-                   CurrentProcessingContext const* cpc);
-    bool doEndRun(RunPrincipal const& rp,
-                   CurrentProcessingContext const* cpc);
-    bool doBeginSubRun(SubRunPrincipal const& srp,
-                   CurrentProcessingContext const* cpc);
-    bool doEndSubRun(SubRunPrincipal const& srp,
-                   CurrentProcessingContext const* cpc);
+    bool doBeginRun(RunPrincipal const& rp, CPC_exempt_ptr cpc);
+    bool doEndRun(RunPrincipal const& rp, CPC_exempt_ptr cpc);
+    bool doBeginSubRun(SubRunPrincipal const& srp, CPC_exempt_ptr cpc);
+    bool doEndSubRun(SubRunPrincipal const& srp, CPC_exempt_ptr cpc);
     void doRespondToOpenInputFile(FileBlock const& fb);
     void doRespondToCloseInputFile(FileBlock const& fb);
     void doRespondToOpenOutputFiles(FileBlock const& fb);
@@ -134,8 +128,8 @@ namespace art
       moduleDescription_ = md;
     }
 
-    ModuleDescription moduleDescription_;
-    CurrentProcessingContext const* current_context_;
+    ModuleDescription moduleDescription_ {};
+    CPC_exempt_ptr current_context_ {nullptr};
   };  // EDAnalyzer
 
 }  // art
