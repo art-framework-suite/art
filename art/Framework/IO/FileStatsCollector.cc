@@ -6,21 +6,9 @@
 
 art::FileStatsCollector::
 FileStatsCollector(std::string const & moduleLabel,
-                     std::string const & processName)
-  :
-  moduleLabel_(moduleLabel),
-  processName_(processName),
-  lowestSubRun_(),
-  highestSubRun_(),
-  lowestEventIDSeen_(),
-  highestEventIDSeen_(),
-  fo_(),
-  fc_(),
-  seqNo_(0ul),
-  lastOpenedInputFile_(),
-  inputFilesSeen_(),
-  nEvents_(0ul),
-  subRunsSeen_()
+                   std::string const & processName)
+  : moduleLabel_{moduleLabel}
+  , processName_{processName}
 {
 }
 
@@ -100,7 +88,7 @@ void
 art::FileStatsCollector::
 recordFileClose()
 {
-  fc_ =  boost::posix_time::second_clock::universal_time();
+  fc_ = boost::posix_time::second_clock::universal_time();
   ++seqNo_;
 }
 
@@ -112,7 +100,7 @@ parents(bool want_basename) const
   if (want_basename) {
     result.reserve(inputFilesSeen_.size());
     for (auto const & ifile : inputFilesSeen_) {
-      boost::filesystem::path const ifp(ifile);
+      boost::filesystem::path const ifp{ifile};
       result.emplace_back(ifp.filename().native());
     }
   } else {
@@ -121,16 +109,14 @@ parents(bool want_basename) const
   return result;
 }
 
-
-
 void
 art::FileStatsCollector::
 reset_()
 {
   fo_ =
     fc_ = boost::posix_time::ptime();
-  lowestSubRun_ = SubRunID();
-  highestSubRun_ = SubRunID();
+  lowestSubRun_ =
+    highestSubRun_ = SubRunID{};
   inputFilesSeen_.clear();
   nEvents_ = 0ul;
   subRunsSeen_.clear();
