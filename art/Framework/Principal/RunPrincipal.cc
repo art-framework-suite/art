@@ -49,24 +49,10 @@ void
 RunPrincipal::
 addOrReplaceGroup(std::unique_ptr<Group>&& g)
 {
-  cet::exempt_ptr<Group const> group =
-    getExistingGroup(g->productDescription().branchID());
+  cet::exempt_ptr<Group const> group = getExistingGroup(g->productDescription().branchID());
   if (!group) {
     addGroup_(std::move(g));
-    return;
   }
-  BranchDescription const& bd = group->productDescription();
-  mf::LogWarning("RunMerging")
-      << "Problem found while adding product provenance, "
-      << "product already exists for ("
-      << bd.friendlyClassName()
-      << ","
-      << bd.moduleLabel()
-      << ","
-      << bd.productInstanceName()
-      << ","
-      << bd.processName()
-      << ")\n";
 }
 
 void
@@ -98,4 +84,3 @@ put(std::unique_ptr<EDProduct>&& edp, BranchDescription const& bd,
 }
 
 } // namespace art
-

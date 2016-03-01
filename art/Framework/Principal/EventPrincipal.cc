@@ -89,8 +89,7 @@ void
 EventPrincipal::
 addOrReplaceGroup(std::unique_ptr<Group>&& g)
 {
-  cet::exempt_ptr<Group const> group =
-    getExistingGroup(g->productDescription().branchID());
+  cet::exempt_ptr<Group const> group = getExistingGroup(g->productDescription().branchID());
   if (!group) {
     addGroup_(std::move(g));
     return;
