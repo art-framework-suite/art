@@ -28,6 +28,7 @@ art_make(EXCLUDE
   art_Framework_Core
   art_Framework_IO
   art_Framework_IO_Catalog
+  art_Framework_IO_detail
   art_Framework_Principal
   art_Framework_Services_Registry
   art_Framework_Services_System_FileCatalogMetadata_service

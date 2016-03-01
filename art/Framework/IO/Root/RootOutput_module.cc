@@ -9,6 +9,7 @@
 #include "art/Framework/IO/Root/RootOutputFile.h"
 #include "art/Framework/IO/Root/RootOutputClosingCriteria.h"
 #include "art/Framework/IO/Root/detail/rootOutputConfigurationTools.h"
+#include "art/Framework/IO/detail/logFileAction.h"
 #include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Principal/ResultsPrincipal.h"
@@ -450,21 +451,19 @@ doWriteFileCatalogMetadata(FileCatalogMetadata::collection_type const& md,
 }
 
 void
-art::RootOutput::
-writeProductDependencies()
+art::RootOutput::writeProductDependencies()
 {
   rootOutputFile_->writeProductDependencies();
 }
 
 void
-art::RootOutput::
-finishEndFile()
+art::RootOutput::finishEndFile()
 {
   rootOutputFile_->finishEndFile();
   fstats_.recordFileClose();
-  lastClosedFileName_ = PostCloseFileRenamer(fstats_).maybeRenameFile(
-                          rootOutputFile_->currentFileName(), filePattern_);
+  lastClosedFileName_ = PostCloseFileRenamer(fstats_).maybeRenameFile(rootOutputFile_->currentFileName(), filePattern_);
   rootOutputFile_.reset();
+  detail::logFileAction("Closed output file ", lastClosedFileName_);
   rpm_.invoke(&ResultsProducer::doClear);
 }
 
@@ -542,6 +541,7 @@ doOpenFile()
                                                      dropMetaDataForDroppedData_,
                                                      fastCloning_);
   fstats_.recordFileOpen();
+  detail::logFileAction("Opened new output file with pattern ", filePattern_);
 }
 
 string const&

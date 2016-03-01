@@ -17,7 +17,7 @@ namespace {
   {
     boost::system::error_code ec;
     bfs::rename(inPath, toFile, ec);
-    if (ec) { // Fail (different flesystems? Try copy / delete instead).
+    if (ec) { // Fail (different filesystems? Try copy / delete instead).
       // This attempt will throw on failure.
       bfs::copy_file(inPath,
                      toFile,

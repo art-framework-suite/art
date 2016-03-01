@@ -6,6 +6,7 @@
 #include "art/Framework/IO/Catalog/InputFileCatalog.h"
 #include "art/Framework/IO/Root/RootInputFile.h"
 #include "art/Framework/IO/Root/RootTree.h"
+#include "art/Framework/IO/detail/logFileAction.h"
 #include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Persistency/Provenance/BranchIDListHelper.h"
@@ -301,7 +302,7 @@ closeFile_()
     {
       rootFile_->close(primary());
     }
-    logFileAction("  Closed file ", rootFile_->file());
+    detail::logFileAction("Closed input file ", rootFile_->file());
     rootFile_.reset();
     if (duplicateChecker_.get() != 0) {
       duplicateChecker_->inputFileClosed();
@@ -317,8 +318,8 @@ initFile(bool skipBadFiles, bool initMPR/*=false*/)
   closeFile_();
   std::shared_ptr<TFile> filePtr;
   try {
-    logFileAction("  Initiating request to open file ",
-                  catalog_.currentFile().fileName());
+    detail::logFileAction("Initiating request to open input file ",
+                          catalog_.currentFile().fileName());
     filePtr.reset(TFile::Open(catalog_.currentFile().fileName().c_str()));
   }
   catch (cet::exception e) {
@@ -343,8 +344,8 @@ initFile(bool skipBadFiles, bool initMPR/*=false*/)
         << " was not found or could not be opened, and will be skipped.\n";
     return;
   }
-  logFileAction("  Successfully opened file ",
-                catalog_.currentFile().fileName());
+  detail::logFileAction("Opened input file ",
+                        catalog_.currentFile().fileName());
   vector<string> empty_vs;
   rootFile_ = make_shared<RootInputFile>(
                 catalog_.currentFile().fileName(),
@@ -432,7 +433,7 @@ openSecondaryFile(int idx, string const& name,
 {
   std::shared_ptr<TFile> filePtr;
   try {
-    logFileAction("  Attempting  to open secondary file ", name);
+    detail::logFileAction("Attempting  to open secondary input file ", name);
     filePtr.reset(TFile::Open(name.c_str()));
   }
   catch (cet::exception e) {
@@ -448,7 +449,7 @@ openSecondaryFile(int idx, string const& name,
         << name
         << " was not found or could not be opened.\n";
   }
-  logFileAction("  Successfully opened secondary file ", name);
+  detail::logFileAction("Opened secondary input file ", name);
   vector<string> empty_vs;
   auto rif =
     std::make_unique<RootInputFile>
@@ -807,17 +808,6 @@ RootInputFileSequence::
 processConfiguration() const
 {
   return processConfiguration_;
-}
-
-void
-RootInputFileSequence::
-logFileAction(const char* msg, string const& file)
-{
-  time_t t = time(0);
-  char ts[] = "dd-Mon-yyyy hh:mm:ss TZN     ";
-  strftime(ts, strlen(ts) + 1, "%d-%b-%Y %H:%M:%S %Z", localtime(&t));
-  mf::LogAbsolute("fileAction") << ts << msg << file;
-  mf::FlushMessageLog();
 }
 
 } // namespace art

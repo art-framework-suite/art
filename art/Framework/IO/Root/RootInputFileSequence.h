@@ -245,9 +245,6 @@ private: // MEMBER FUNCTIONS
   bool
   primary() const;
 
-  void
-  logFileAction(const char* msg, std::string const& file);
-
 private: // MEMBER DATA
 
   InputFileCatalog& catalog_;
