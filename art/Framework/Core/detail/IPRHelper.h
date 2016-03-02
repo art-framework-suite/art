@@ -9,7 +9,7 @@
 #include "canvas/Persistency/Common/Assns.h"
 #include "canvas/Persistency/Common/Ptr.h"
 #include "canvas/Utilities/Exception.h"
-#include "art/Utilities/InputTag.h"
+#include "canvas/Utilities/InputTag.h"
 #include "canvas/Utilities/ensurePointer.h"
 #include "art/Utilities/pointersEqual.h"
 

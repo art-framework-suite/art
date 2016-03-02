@@ -8,7 +8,7 @@
 #include "art/Framework/Principal/Event.h"
 #include "art/Persistency/Common/CollectionUtilities.h"
 #include "canvas/Persistency/Common/PtrVector.h"
-#include "art/Utilities/InputTag.h"
+#include "canvas/Utilities/InputTag.h"
 #include "cetlib/map_vector.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 #include "test/TestObjects/ProductWithPtrs.h"

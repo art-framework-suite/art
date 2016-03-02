@@ -17,7 +17,7 @@
 #include "canvas/Persistency/Provenance/ProductList.h"
 #include "art/Persistency/Provenance/ProductMetaData.h"
 #include "canvas/Utilities/Exception.h"
-#include "art/Utilities/InputTag.h"
+#include "canvas/Utilities/InputTag.h"
 
 #include <functional>
 

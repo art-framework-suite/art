@@ -7,7 +7,7 @@
 #include "art/Framework/Principal/Event.h"
 #include "canvas/Persistency/Common/Assns.h"
 #include "canvas/Utilities/Exception.h"
-#include "art/Utilities/InputTag.h"
+#include "canvas/Utilities/InputTag.h"
 
 namespace art {
   namespace detail {
