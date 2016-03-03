@@ -82,8 +82,6 @@ public:
 
   void addGroup(std::unique_ptr<EDProduct>&&, BranchDescription const&);
 
-  void mergeRun(std::shared_ptr<RunPrincipal>);
-
   void put(std::unique_ptr<EDProduct>&&, BranchDescription const&,
            std::unique_ptr<ProductProvenance const>&&);
 

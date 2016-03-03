@@ -147,12 +147,7 @@ namespace art {
     currentRunPrincipal_ = rp;
     if (iter == runPrincipals_.end()) {
       runPrincipals_[rp->id()] = rp;
-      return true;
     }
-
-    iter->second->mergeRun(rp);
-    currentRunPrincipal_ = iter->second;
-
     return true;
   }
 
@@ -165,12 +160,7 @@ namespace art {
     currentSubRunPrincipal_ = srp;
     if (iter == subRunPrincipals_.end()) {
       subRunPrincipals_[srid] = srp;
-      return true;
     }
-
-    iter->second->mergeSubRun(srp);
-    currentSubRunPrincipal_ = iter->second;
-
     return true;
   }
 

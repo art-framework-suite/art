@@ -92,8 +92,6 @@ public:
     return aux().run();
   }
 
-  void mergeSubRun(std::shared_ptr<SubRunPrincipal>);
-
   void put(std::unique_ptr<EDProduct>&&, BranchDescription const&,
            std::unique_ptr<ProductProvenance const>&&);
 

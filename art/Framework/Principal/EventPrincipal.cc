@@ -7,10 +7,10 @@
 #include "art/Framework/Principal/Provenance.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Persistency/Common/GroupQueryResult.h"
-#include "canvas/Persistency/Provenance/BranchIDList.h"
 #include "art/Persistency/Provenance/BranchIDListRegistry.h"
-#include "canvas/Persistency/Provenance/BranchListIndex.h"
 #include "art/Persistency/Provenance/ProductMetaData.h"
+#include "canvas/Persistency/Provenance/BranchIDList.h"
+#include "canvas/Persistency/Provenance/BranchListIndex.h"
 #include "cetlib/container_algorithms.h"
 
 #include <algorithm>

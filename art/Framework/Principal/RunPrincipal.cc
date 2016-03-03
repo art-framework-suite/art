@@ -85,22 +85,6 @@ addGroup(std::unique_ptr<EDProduct>&& prod, BranchDescription const& bd)
 
 void
 RunPrincipal::
-mergeRun(std::shared_ptr<RunPrincipal> rp)
-{
-  if (rp.get() == this) {
-    // Nothing to do.
-    return;
-  }
-  aux_.mergeAuxiliary(rp->aux());
-  for (auto I = rp->cbegin(), E = rp->cend(); I != E; ++I) {
-    std::unique_ptr<Group> g(new Group());
-    g->swap(*I->second);
-    addOrReplaceGroup(std::move(g));
-  }
-}
-
-void
-RunPrincipal::
 put(std::unique_ptr<EDProduct>&& edp, BranchDescription const& bd,
     std::unique_ptr<ProductProvenance const>&& productProvenance)
 {

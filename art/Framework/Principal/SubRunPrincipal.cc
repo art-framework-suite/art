@@ -120,21 +120,5 @@ runPrincipal()
   return *runPrincipal_;
 }
 
-void
-SubRunPrincipal::
-mergeSubRun(std::shared_ptr<SubRunPrincipal> srp)
-{
-  if (srp.get() == this) {
-    // Nothing to do.
-    return;
-  }
-  aux_.mergeAuxiliary(srp->aux());
-  for (auto I = srp->cbegin(), E = srp->cend(); I != E; ++I) {
-    std::unique_ptr<Group> g(new Group());
-    g->swap(*I->second);
-    addOrReplaceGroup(std::move(g));
-  }
-}
-
 } // namespace art
 
