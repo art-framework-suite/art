@@ -1,5 +1,5 @@
 #include "art/Framework/IO/Root/DropMetaData.h"
-#include "art/Utilities/Exception.h"
+#include "canvas/Utilities/Exception.h"
 
 using art::DropMetaData;
 

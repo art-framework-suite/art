@@ -308,7 +308,7 @@ cet_test(RunProductAggregation_w HANDBUILT
 cet_test(RunProductAggregation_r HANDBUILT
   TEST_EXEC art_ut
   TEST_ARGS
-   -c runProductAggregation_r.fcl
+  -- -c runProductAggregation_r.fcl
   -s "../RunProductAggregation_w.d/out.root"
   DATAFILES
   fcl/runProductAggregation_r.fcl

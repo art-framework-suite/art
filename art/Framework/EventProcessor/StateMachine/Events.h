@@ -8,8 +8,8 @@
 //
 // ======================================================================
 
-#include "art/Persistency/Provenance/RunID.h"
-#include "art/Persistency/Provenance/SubRunID.h"
+#include "canvas/Persistency/Provenance/RunID.h"
+#include "canvas/Persistency/Provenance/SubRunID.h"
 #include "boost/statechart/event.hpp"
 
 namespace sc = boost::statechart;

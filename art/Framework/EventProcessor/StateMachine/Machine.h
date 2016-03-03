@@ -15,7 +15,7 @@
 #include "art/Framework/EventProcessor/StateMachine/Events.h"
 #include "art/Framework/Principal/fwd.h"
 #include "canvas/Persistency/Provenance/EventID.h"
-#include "art/Utilities/Exception.h"
+#include "canvas/Utilities/Exception.h"
 #include "boost/statechart/deep_history.hpp"
 #include "boost/statechart/event.hpp"
 #include "boost/statechart/state_machine.hpp"

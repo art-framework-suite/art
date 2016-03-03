@@ -1,6 +1,6 @@
-#include "art/Framework/IO/Root/rootNames.h"
 #include "art/Framework/IO/Root/setFileIndexPointer.h"
-#include "art/Utilities/Exception.h"
+#include "canvas/Persistency/Provenance/rootNames.h"
+#include "canvas/Utilities/Exception.h"
 #include "cetlib/container_algorithms.h"
 
 #include "TFile.h"

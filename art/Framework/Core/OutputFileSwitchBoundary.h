@@ -1,7 +1,7 @@
 #ifndef art_Framework_Core_OutputFileSwitchBoundary_h
 #define art_Framework_Core_OutputFileSwitchBoundary_h
 
-#include "art/Utilities/Exception.h"
+#include "canvas/Utilities/Exception.h"
 #include <stdexcept>
 #include <type_traits>
 

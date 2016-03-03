@@ -2,7 +2,7 @@
 #define art_Framework_IO_Root_RootOutputClosingCriteria_h
 // vim: set sw=2:
 
-#include "art/Persistency/Provenance/FileIndex.h"
+#include "canvas/Persistency/Provenance/FileIndex.h"
 #include <limits>
 
 namespace art {

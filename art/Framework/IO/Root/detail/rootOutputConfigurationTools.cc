@@ -1,5 +1,5 @@
 #include "art/Framework/IO/Root/detail/rootOutputConfigurationTools.h"
-#include "art/Utilities/Exception.h"
+#include "canvas/Utilities/Exception.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 void

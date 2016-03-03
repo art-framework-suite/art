@@ -1,5 +1,5 @@
 #include "art/Framework/Art/detail/handle_deprecated_configs.h"
-#include "art/Utilities/Exception.h"
+#include "canvas/Utilities/Exception.h"
 #include "fhiclcpp/intermediate_table.h"
 
 #include <iostream>

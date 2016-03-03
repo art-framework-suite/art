@@ -1,8 +1,8 @@
 #include "art/Framework/Core/EDAnalyzer.h"
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Principal/Run.h"
-#include "art/Utilities/InputTag.h"
-#include "art/Utilities/quiet_unit_test.hpp"
+#include "canvas/Utilities/InputTag.h"
+#include "cetlib/quiet_unit_test.hpp"
 #include "fhiclcpp/types/Atom.h"
 #include "test/TestObjects/ToyProducts.h"
 

@@ -1,4 +1,4 @@
-#include "art/Utilities/Exception.h"
+#include "canvas/Utilities/Exception.h"
 #include "test/Framework/EventProcessor/MockEventProcessor.h"
 
 #include <sstream>
