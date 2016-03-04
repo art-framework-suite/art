@@ -64,7 +64,6 @@
  <class name="art::Wrapper<art::PtrVector<arttest::Simple> >"/>
 
  <class name="arttest::ProductWithPtrs"/>
- <class name="std::vector<art::Ptr<double> >"/>
  <class name="art::Ptr<double>"/>
  <class name="art::Wrapper<art::Ptr<double> >"/>
  <class name="std::vector<art::Ptr<double> >"/>
