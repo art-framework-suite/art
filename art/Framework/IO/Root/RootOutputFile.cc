@@ -11,16 +11,21 @@
 #include "art/Framework/IO/Root/DropMetaData.h"
 #include "art/Framework/IO/Root/GetFileFormatEra.h"
 #include "art/Framework/IO/Root/GetFileFormatVersion.h"
-#include "canvas/Persistency/Provenance/rootNames.h"
 #include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Principal/ResultsPrincipal.h"
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
+#include "art/Persistency/Provenance/BranchIDListRegistry.h"
+#include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
+#include "art/Persistency/Provenance/ProductMetaData.h"
+#include "art/Persistency/RootDB/SQLErrMsg.h"
+#include "art/Persistency/RootDB/SQLite3Wrapper.h"
+#include "art/Version/GetReleaseVersion.h"
+#include "canvas/Persistency/Provenance/rootNames.h"
 #include "canvas/Persistency/Provenance/BranchChildren.h"
 #include "canvas/Persistency/Provenance/BranchID.h"
 #include "canvas/Persistency/Provenance/BranchIDList.h"
-#include "art/Persistency/Provenance/BranchIDListRegistry.h"
 #include "canvas/Persistency/Provenance/EventAuxiliary.h"
 #include "canvas/Persistency/Provenance/EventID.h"
 #include "canvas/Persistency/Provenance/FileFormatVersion.h"
@@ -29,16 +34,11 @@
 #include "canvas/Persistency/Provenance/Parentage.h"
 #include "canvas/Persistency/Provenance/ParentageRegistry.h"
 #include "canvas/Persistency/Provenance/ProcessHistoryID.h"
-#include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
-#include "art/Persistency/Provenance/ProductMetaData.h"
 #include "canvas/Persistency/Provenance/ProductStatus.h"
 #include "canvas/Persistency/Provenance/ResultsAuxiliary.h"
 #include "canvas/Persistency/Provenance/RunAuxiliary.h"
 #include "canvas/Persistency/Provenance/SubRunAuxiliary.h"
-#include "art/Persistency/RootDB/SQLErrMsg.h"
-#include "art/Persistency/RootDB/SQLite3Wrapper.h"
 #include "canvas/Utilities/Exception.h"
-#include "art/Version/GetReleaseVersion.h"
 #include "boost/date_time/posix_time/posix_time.hpp"
 #include "cetlib/canonical_string.h"
 #include "cetlib/container_algorithms.h"
@@ -517,14 +517,7 @@ writeFileCatalogMetadata(FileStatsCollector const& stats,
     if (I != md.crend()) {
       ostringstream buf;
       buf << "[ ";
-      bool first = true;
       for (auto const& srid : stats.seenSubRuns()) {
-        if (first) {
-          first = false;
-        }
-        else {
-          buf << ", ";
-        }
         buf << "[ "
             << srid.run()
             << ", "

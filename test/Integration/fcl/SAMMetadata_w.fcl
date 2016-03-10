@@ -3,7 +3,8 @@ process_name: SAMMetadataW
 source:
 {
   module_type: EmptyEvent
-  maxEvents: 1
+  maxEvents: 10
+  numberEventsInSubRun: 5
 }
 
 services.FileCatalogMetadata.checkSyntax: true

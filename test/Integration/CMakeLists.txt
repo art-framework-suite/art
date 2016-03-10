@@ -1010,16 +1010,14 @@ cet_test(SAM_metadata_verify_hr HANDBUILT
   TEST_EXEC sam_metadata_dumper
   TEST_ARGS -H -s ../SAM_metadata.d/out.root
   TEST_PROPERTIES DEPENDS SAM_metadata
-  PASS_REGULAR_EXPRESSION
-  "^\nFile catalog metadata from file \\.\\./SAM_metadata\\.d/out\\.root:\n\n 1: applicationFamily   \"Ethel\"\n 2: applicationVersion  \"v0\\.00\\.01a\"\n 3: file_type           \"MC\"\n 4: run_type            \"MCChallenge\"\n 5: group               \"MyGang\"\n 6: process_name        \"SAMMetadataW\"\n 7: testMetadata        \"success!\"\n 8: data_tier           \"The one with the thickest frosting\"\n 9: data_stream         \"o1\"\n10: file_format         \"artroot\"\n11: file_format_era     \"ART_2011a\"\n12: file_format_version 8\n13: start_time          \"${date_regex}\"\n14: end_time            \"${date_regex}\"\n15: runs                \\[ \\[ 1, 0, \"MCChallenge\" \\] \\]\n16: event_count         1\n17: first_event         \\[ 1, 0, 1 \\]\n18: last_event          \\[ 1, 0, 1 \\]\n-------------------------------\n$"
+  REF "${CMAKE_CURRENT_SOURCE_DIR}/SAM_metadata_verify_hr-ref.txt"
   )
 
 cet_test(SAM_metadata_verify_JSON HANDBUILT
   TEST_EXEC sam_metadata_dumper
   TEST_ARGS -s ../SAM_metadata.d/out.root
   TEST_PROPERTIES DEPENDS SAM_metadata
-  PASS_REGULAR_EXPRESSION
-  "^{\n  \"\\.\\./SAM_metadata\\.d/out\\.root\": {\n    \"applicationFamily\": \"Ethel\",\n    \"applicationVersion\": \"v0\\.00\\.01a\",\n    \"file_type\": \"MC\",\n    \"run_type\": \"MCChallenge\",\n    \"group\": \"MyGang\",\n    \"process_name\": \"SAMMetadataW\",\n    \"testMetadata\": \"success!\",\n    \"data_tier\": \"The one with the thickest frosting\",\n    \"data_stream\": \"o1\",\n    \"file_format\": \"artroot\",\n    \"file_format_era\": \"ART_2011a\",\n    \"file_format_version\": 8,\n    \"start_time\": \"${date_regex}\",\n    \"end_time\": \"${date_regex}\",\n    \"runs\": \\[ \\[ 1, 0, \"MCChallenge\" \\] \\],\n    \"event_count\": 1,\n    \"first_event\": \\[ 1, 0, 1 \\],\n    \"last_event\": \\[ 1, 0, 1 \\]\n  }\n}\n$"
+  REF "${CMAKE_CURRENT_SOURCE_DIR}/SAM_metadata_verify_JSON-ref.txt"
   )
 
 cet_test(SAM_metadataFromInput_01 HANDBUILT

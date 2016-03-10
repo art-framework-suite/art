@@ -1,0 +1,22 @@
+{
+  "../SAM_metadata.d/out.root": {
+    "applicationFamily": "Ethel",
+    "applicationVersion": "v0.00.01a",
+    "file_type": "MC",
+    "run_type": "MCChallenge",
+    "group": "MyGang",
+    "process_name": "SAMMetadataW",
+    "testMetadata": "success!",
+    "data_tier": "The one with the thickest frosting",
+    "data_stream": "o1",
+    "file_format": "artroot",
+    "file_format_era": "ART_2011a",
+    "file_format_version": 8,
+    "start_time": "<date-time>",
+    "end_time": "<date-time>",
+    "runs": [ [ 1, 0, "MCChallenge" ], [ 1, 1, "MCChallenge" ] ],
+    "event_count": 10,
+    "first_event": [ 1, 0, 1 ],
+    "last_event": [ 1, 1, 5 ]
+  }
+}
