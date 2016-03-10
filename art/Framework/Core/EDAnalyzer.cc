@@ -13,23 +13,23 @@ namespace art
   bool
   EDAnalyzer::doEvent(EventPrincipal const& ep,
                       CPC_exempt_ptr cpc) {
-    detail::CPCSentry sentry(current_context_, cpc);
-    detail::PVSentry pvSentry(selectors_);
-    Event e(const_cast<EventPrincipal &>(ep), moduleDescription_);
+    detail::CPCSentry sentry {current_context_, cpc};
+    detail::PVSentry pvSentry {selectors_};
+    Event e {const_cast<EventPrincipal &>(ep), moduleDescription_};
     if (wantAllEvents_ || selectors_.wantEvent(e)) {
-      this->analyze(e);
+      analyze(e);
     }
     return true;
   }
 
   void
   EDAnalyzer::doBeginJob() {
-    this->beginJob();
+    beginJob();
   }
 
   void
   EDAnalyzer::doEndJob() {
-    this->endJob();
+    endJob();
   }
 
   void
@@ -43,36 +43,36 @@ namespace art
   bool
   EDAnalyzer::doBeginRun(RunPrincipal const& rp,
                          CPC_exempt_ptr cpc) {
-    detail::CPCSentry sentry(current_context_, cpc);
-    Run r(const_cast<RunPrincipal &>(rp), moduleDescription_);
-    this->beginRun(r);
+    detail::CPCSentry sentry {current_context_, cpc};
+    Run r {const_cast<RunPrincipal &>(rp), moduleDescription_};
+    beginRun(r);
     return true;
   }
 
   bool
   EDAnalyzer::doEndRun(RunPrincipal const& rp,
                        CPC_exempt_ptr cpc) {
-    detail::CPCSentry sentry(current_context_, cpc);
-    Run r(const_cast<RunPrincipal &>(rp), moduleDescription_);
-    this->endRun(r);
+    detail::CPCSentry sentry {current_context_, cpc};
+    Run r {const_cast<RunPrincipal &>(rp), moduleDescription_};
+    endRun(r);
     return true;
   }
 
   bool
   EDAnalyzer::doBeginSubRun(SubRunPrincipal const& srp,
                             CPC_exempt_ptr cpc) {
-    detail::CPCSentry sentry(current_context_, cpc);
-    SubRun sr(const_cast<SubRunPrincipal &>(srp), moduleDescription_);
-    this->beginSubRun(sr);
+    detail::CPCSentry sentry {current_context_, cpc};
+    SubRun sr {const_cast<SubRunPrincipal &>(srp), moduleDescription_};
+    beginSubRun(sr);
     return true;
   }
 
   bool
   EDAnalyzer::doEndSubRun(SubRunPrincipal const& srp,
                           CPC_exempt_ptr cpc) {
-    detail::CPCSentry sentry(current_context_, cpc);
-    SubRun sr(const_cast<SubRunPrincipal &>(srp), moduleDescription_);
-    this->endSubRun(sr);
+    detail::CPCSentry sentry {current_context_, cpc};
+    SubRun sr {const_cast<SubRunPrincipal &>(srp), moduleDescription_};
+    endSubRun(sr);
     return true;
   }
 

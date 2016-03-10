@@ -30,8 +30,8 @@ namespace art
   {
   public:
     template <typename T> friend class WorkerT;
-    typedef EDProducer ModuleType;
-    typedef WorkerT<EDProducer> WorkerType;
+    using ModuleType = EDProducer;
+    using WorkerType = WorkerT<EDProducer>;
 
     EDProducer ();
     virtual ~EDProducer() = default;

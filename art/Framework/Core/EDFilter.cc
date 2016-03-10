@@ -20,10 +20,9 @@ namespace art
   bool
   EDFilter::doEvent(EventPrincipal& ep,
                     CPC_exempt_ptr cpc) {
-    detail::CPCSentry sentry(current_context_, cpc);
-    bool rc = false;
-    Event e(ep, moduleDescription_);
-    rc = this->filter(e);
+    detail::CPCSentry sentry {current_context_, cpc};
+    Event e {ep, moduleDescription_};
+    bool const rc = filter(e);
     e.commit_(checkPutProducts_, expectedProducts());
     return rc;
   }
@@ -33,11 +32,11 @@ namespace art
     // 'checkPutProducts_' cannot be set during the c'tor
     // initialization list since 'moduleDescription_' is empty there.
     checkPutProducts_ = detail::get_failureToPut_flag( moduleDescription_ );
-    this->beginJob();
+    beginJob();
   }
 
   void EDFilter::doEndJob() {
-    this->endJob();
+    endJob();
   }
 
   void
@@ -51,10 +50,9 @@ namespace art
   bool
   EDFilter::doBeginRun(RunPrincipal & rp,
                        CPC_exempt_ptr cpc) {
-    detail::CPCSentry sentry(current_context_, cpc);
-    bool rc = false;
-    Run r(rp, moduleDescription_);
-    rc = this->beginRun(r);
+    detail::CPCSentry sentry {current_context_, cpc};
+    Run r {rp, moduleDescription_};
+    bool const rc = beginRun(r);
     r.commit_();
     return rc;
   }
@@ -62,10 +60,9 @@ namespace art
   bool
   EDFilter::doEndRun(RunPrincipal & rp,
                      CPC_exempt_ptr cpc) {
-    detail::CPCSentry sentry(current_context_, cpc);
-    bool rc = false;
-    Run r(rp, moduleDescription_);
-    rc = this->endRun(r);
+    detail::CPCSentry sentry {current_context_, cpc};
+    Run r {rp, moduleDescription_};
+    bool const rc = endRun(r);
     r.commit_();
     return rc;
   }
@@ -73,10 +70,9 @@ namespace art
   bool
   EDFilter::doBeginSubRun(SubRunPrincipal & srp,
                           CPC_exempt_ptr cpc) {
-    detail::CPCSentry sentry(current_context_, cpc);
-    bool rc = false;
-    SubRun sr(srp, moduleDescription_);
-    rc = this->beginSubRun(sr);
+    detail::CPCSentry sentry {current_context_, cpc};
+    SubRun sr {srp, moduleDescription_};
+    bool const rc = beginSubRun(sr);
     sr.commit_();
     return rc;
   }
@@ -84,10 +80,9 @@ namespace art
   bool
   EDFilter::doEndSubRun(SubRunPrincipal & srp,
                         CPC_exempt_ptr cpc) {
-    detail::CPCSentry sentry(current_context_, cpc);
-    bool rc = false;
-    SubRun sr(srp, moduleDescription_);
-    rc = this->endSubRun(sr);
+    detail::CPCSentry sentry {current_context_, cpc};
+    SubRun sr {srp, moduleDescription_};
+    bool const rc = endSubRun(sr);
     sr.commit_();
     return rc;
   }

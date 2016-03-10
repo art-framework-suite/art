@@ -35,8 +35,8 @@ namespace art
     static constexpr bool Fail = false;
 
     template <typename T> friend class WorkerT;
-    typedef EDFilter ModuleType;
-    typedef WorkerT<EDFilter> WorkerType;
+    using ModuleType = EDFilter;
+    using WorkerType = WorkerT<EDFilter>;
 
     EDFilter();
     virtual ~EDFilter() = default;

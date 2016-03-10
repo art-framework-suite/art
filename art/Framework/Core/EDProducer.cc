@@ -20,9 +20,9 @@ namespace art
   bool
   EDProducer::doEvent(EventPrincipal& ep,
                       CPC_exempt_ptr cpc) {
-    detail::CPCSentry sentry(current_context_, cpc);
-    Event e(ep, moduleDescription_);
-    this->produce(e);
+    detail::CPCSentry sentry {current_context_, cpc};
+    Event e {ep, moduleDescription_};
+    produce(e);
     e.commit_(checkPutProducts_, expectedProducts());
     return true;
   }
@@ -32,12 +32,12 @@ namespace art
     // 'checkPutProducts_' cannot be set during the c'tor
     // initialization list since 'moduleDescription_' is empty there.
     checkPutProducts_ = detail::get_failureToPut_flag( moduleDescription_ );
-    this->beginJob();
+    beginJob();
   }
 
   void
   EDProducer::doEndJob() {
-    this->endJob();
+    endJob();
   }
 
   void
@@ -51,9 +51,9 @@ namespace art
   bool
   EDProducer::doBeginRun(RunPrincipal & rp,
                          CPC_exempt_ptr cpc) {
-    detail::CPCSentry sentry(current_context_, cpc);
-    Run r(rp, moduleDescription_);
-    this->beginRun(r);
+    detail::CPCSentry sentry {current_context_, cpc};
+    Run r {rp, moduleDescription_};
+    beginRun(r);
     r.commit_();
     return true;
   }
@@ -61,9 +61,9 @@ namespace art
   bool
   EDProducer::doEndRun(RunPrincipal & rp,
                        CPC_exempt_ptr cpc) {
-    detail::CPCSentry sentry(current_context_, cpc);
-    Run r(rp, moduleDescription_);
-    this->endRun(r);
+    detail::CPCSentry sentry {current_context_, cpc};
+    Run r {rp, moduleDescription_};
+    endRun(r);
     r.commit_();
     return true;
   }
@@ -71,9 +71,9 @@ namespace art
   bool
   EDProducer::doBeginSubRun(SubRunPrincipal & srp,
                             CPC_exempt_ptr cpc) {
-    detail::CPCSentry sentry(current_context_, cpc);
-    SubRun sr(srp, moduleDescription_);
-    this->beginSubRun(sr);
+    detail::CPCSentry sentry {current_context_, cpc};
+    SubRun sr {srp, moduleDescription_};
+    beginSubRun(sr);
     sr.commit_();
     return true;
   }
@@ -81,9 +81,9 @@ namespace art
   bool
   EDProducer::doEndSubRun(SubRunPrincipal & srp,
                           CPC_exempt_ptr cpc) {
-    detail::CPCSentry sentry(current_context_, cpc);
-    SubRun sr(srp, moduleDescription_);
-    this->endSubRun(sr);
+    detail::CPCSentry sentry {current_context_, cpc};
+    SubRun sr {srp, moduleDescription_};
+    endSubRun(sr);
     sr.commit_();
     return true;
   }
