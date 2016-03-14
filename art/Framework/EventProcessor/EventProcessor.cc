@@ -559,9 +559,9 @@ art::EventProcessor::closeAllOutputFiles()
 }
 
 void
-art::EventProcessor::openSomeOutputFiles(std::size_t const b)
+art::EventProcessor::openSomeOutputFiles()
 {
-  endPathExecutor_->openSomeOutputFiles(b,*fb_);
+  endPathExecutor_->openSomeOutputFiles(*fb_);
   FDEBUG(1) << "\topenSomeOutputFiles\n";
 }
 
@@ -763,16 +763,22 @@ art::EventProcessor::recordOutputClosureRequests()
   endPathExecutor_->recordOutputClosureRequests();
 }
 
-void
-art::EventProcessor::switchOutputs(std::size_t const b)
+bool
+art::EventProcessor::outputsToCloseAtBoundary(Boundary const b) const
 {
-  endPathExecutor_->switchOutputFiles(b,*fb_);
+  return endPathExecutor_->outputsToCloseAtBoundary(b);
 }
 
 bool
-art::EventProcessor::outputToCloseAtBoundary(Boundary const b) const
+art::EventProcessor::outputsToOpen() const
 {
-  return endPathExecutor_->outputToCloseAtBoundary(b);
+  return endPathExecutor_->outputsToOpen();
+}
+
+bool
+art::EventProcessor::someOutputsOpen() const
+{
+  return endPathExecutor_->someOutputsOpen();
 }
 
 bool

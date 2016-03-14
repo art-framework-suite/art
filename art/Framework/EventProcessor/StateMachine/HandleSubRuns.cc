@@ -94,17 +94,19 @@ namespace statemachine {
     subRunException_ = false;
   }
 
-  void HandleSubRuns::resumeAndFinalizeSubRun(SubRun const&)
-  {
-    resetFormerState();
-    finalizeSubRun();
+  void HandleSubRuns::resume(Event const&) {
+    resume();
   }
 
-  void HandleSubRuns::resume(Event const&) { resetFormerState(); }
-
-  void HandleSubRuns::resetFormerState()
+  void HandleSubRuns::resume()
   {
     finalizeEnabled_ = true;
+  }
+
+  void HandleSubRuns::resumeAndFinalizeSubRun(SubRun const&)
+  {
+    resume();
+    finalizeSubRun();
   }
 
   void HandleSubRuns::beginSubRun(art::SubRunID sr)
@@ -134,9 +136,10 @@ namespace statemachine {
     if (subRunException_) return;
 
     subRunException_ = true;
+    context<HandleFiles>().openSomeOutputFiles();
     if (context<Machine>().handleEmptySubRuns()) {
       context<HandleRuns>().beginRunIfNotDoneAlready();
-      if (!beginSubRunCalled_) beginSubRun(currentSubRun());
+      beginSubRunIfNotDoneAlready();
     }
     if (beginSubRunCalled_) endSubRun(currentSubRun());
     ep_.writeSubRun(currentSubRun_);

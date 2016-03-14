@@ -97,13 +97,15 @@ namespace statemachine {
       sc::transition<SwitchOutputFiles, Error>,
       sc::transition<Stop, Stopping> >;
 
-    void openAllFiles();
-    void closeAllFiles();
+    void openInputFile();
+    void closeInputFile();
     void goToNewInputFile();
 
     void maybeOpenOutputFiles();
-    void maybeCloseOutputFiles();
-    void switchOutputFiles(SwitchOutputFiles const&);
+    void openSomeOutputFiles();
+    void closeSomeOutputFiles();
+    void closeOpenOutputFiles();
+    void closeSomeOutputFiles(SwitchOutputFiles const&);
 
     void setCurrentBoundary(art::Boundary::BT const);
     void maybeTriggerOutputFileSwitch(art::Boundary::BT const);
@@ -191,7 +193,7 @@ namespace statemachine {
 
   private:
 
-    void resetFormerState();
+    void resume();
 
     art::IEventProcessor & ep_;
     art::RunID currentRun_;
@@ -221,7 +223,7 @@ namespace statemachine {
     ~PauseRun();
 
     using reactions = mpl::list<
-      sc::transition<SwitchOutputFiles,sc::deep_history<HandleRuns>, HandleFiles, &HandleFiles::switchOutputFiles>,
+      sc::transition<SwitchOutputFiles,sc::deep_history<HandleRuns>, HandleFiles, &HandleFiles::closeSomeOutputFiles>,
       sc::transition<Run, NewRun, HandleRuns, &HandleRuns::resumeAndFinalizeRun>,
       sc::transition<SubRun, HandleSubRuns, HandleRuns, &HandleRuns::resume> >;
   };
@@ -253,11 +255,10 @@ namespace statemachine {
     using reactions = sc::transition<SubRun, HandleSubRuns>;
 
   private:
-    void resetFormerState();
+    void resume();
 
     art::IEventProcessor & ep_;
     art::SubRunID currentSubRun_;
-    std::vector<art::SubRunID> unhandledSubRuns_;
     bool exitCalled_ {false};
     bool beginSubRunCalled_ {false};
     bool subRunException_ {false};
@@ -284,7 +285,7 @@ namespace statemachine {
     ~PauseSubRun();
 
     using reactions = mpl::list<
-      sc::transition<SwitchOutputFiles,sc::deep_history<HandleRuns>, HandleFiles, &HandleFiles::switchOutputFiles>,
+      sc::transition<SwitchOutputFiles,sc::deep_history<HandleRuns>, HandleFiles, &HandleFiles::closeSomeOutputFiles>,
       sc::transition<SubRun, NewSubRun, HandleSubRuns, &HandleSubRuns::resumeAndFinalizeSubRun>,
       sc::transition<Event, HandleEvents, HandleSubRuns, &HandleSubRuns::resume> >;
   };
@@ -305,6 +306,8 @@ namespace statemachine {
     using reactions = sc::transition<Event, HandleEvents>;
 
   private:
+    void resume();
+
     art::IEventProcessor & ep_;
     art::EventID currentEvent_;
     bool exitCalled_ {false};
@@ -335,7 +338,7 @@ namespace statemachine {
     ~PauseEvent();
 
     using reactions = mpl::list<
-      sc::transition<SwitchOutputFiles,sc::deep_history<HandleRuns>, HandleFiles, &HandleFiles::switchOutputFiles>,
+      sc::transition<SwitchOutputFiles,sc::deep_history<HandleRuns>, HandleFiles, &HandleFiles::closeSomeOutputFiles>,
       sc::transition<Event, NewEvent, HandleEvents, &HandleEvents::resumeAndFinalizeEvent> >;
   };
 

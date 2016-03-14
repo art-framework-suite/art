@@ -32,9 +32,9 @@ namespace art {
 
     std::string const & lastClosedFileName() const;
 
-    // Call closeFile() on the controlled OutputModule.
     void closeFile();
 
+    bool fileIsOpen() const;
     bool requestsToCloseFile() const;
 
     bool wantAllEvents() const;

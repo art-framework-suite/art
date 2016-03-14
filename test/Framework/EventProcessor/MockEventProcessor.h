@@ -27,7 +27,7 @@ namespace art
     void closeInputFile() override;
     void openAllOutputFiles() override;
     void closeAllOutputFiles() override;
-    void openSomeOutputFiles(std::size_t const) override;
+    void openSomeOutputFiles() override;
     void closeSomeOutputFiles(std::size_t const) override;
 
     void respondToOpenInputFile() override;
@@ -37,8 +37,9 @@ namespace art
 
     void rewindInput() override;
     void recordOutputClosureRequests() override {}
-    void switchOutputs(std::size_t const) override;
-    bool outputToCloseAtBoundary(Boundary const) const override;
+    bool outputsToCloseAtBoundary(Boundary const) const override;
+    bool outputsToOpen() const override;
+    bool someOutputsOpen() const override;
 
     void doErrorStuff() override;
 
@@ -86,7 +87,8 @@ namespace art
     SubRunID readSubRun_ {};
     EventID event_ {};
     EventID readEvent_ {};
-    bool closeAtBoundary_ {false};
+    bool outputsToClose_ {false};
+    bool outputsToOpen_ {false};
     bool shouldWeStop_ {false};
   };
 }

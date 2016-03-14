@@ -64,6 +64,8 @@ namespace art {
     module().doWriteEvent(srp);
   }
 
+  bool OutputWorker::fileIsOpen() const {return module().fileIsOpen();}
+
   bool OutputWorker::wantAllEvents() const {return module().wantAllEvents();}
 
   bool OutputWorker::limitReached() const {return module().limitReached();}

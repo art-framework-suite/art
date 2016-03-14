@@ -406,7 +406,7 @@ private:
   cet::exempt_ptr<RootInputFileSequence> rifSequence_;
 
   FileFormatVersion fileFormatVersion_ {};
-  std::shared_ptr<FileIndex> fileIndexSharedPtr_ {std::make_shared<FileIndex>()};
+  std::shared_ptr<FileIndex> fileIndexSharedPtr_ { new FileIndex };
   FileIndex& fileIndex_ { *fileIndexSharedPtr_ };
   FileIndex::const_iterator fiBegin_ {fileIndex_.begin()};
   FileIndex::const_iterator fiEnd_ {fiBegin_};

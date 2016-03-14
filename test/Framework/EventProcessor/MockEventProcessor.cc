@@ -47,10 +47,24 @@ namespace art {
 
     // Loop over the mock data items
     std::istringstream input {mockData_};
+    bool firstAction {true};
     for (std::string action; input >> action; ) {
 
       if (action == "InputFile") {
         output_ << nextItemType("InputFile");
+        machine.process_event( statemachine::InputFile() );
+      }
+      else if (action == "InputFile+OutputFiles") {
+        if ( !firstAction )
+          throw art::Exception(art::errors::Configuration)
+            << "Statemachine test pattern \"" << action << "\" can only appear as\n"
+            << "first action in the requested action list.\n";
+        // Request output file switch along with InputFile switch.
+        // This action is different than 'InputFile' followed by
+        // 'SwitchOutputFiles' since the input file must be closed in
+        // between output file closures and openings.
+        outputsToOpen_ = true;
+        output_ << nextItemType("InputFile+OutputFiles");
         machine.process_event( statemachine::InputFile() );
       }
       else if (action == "InputFile+SwitchOutputFiles") {
@@ -58,7 +72,7 @@ namespace art {
         // This action is different than 'InputFile' followed by
         // 'SwitchOutputFiles' since the input file must be closed in
         // between output file closures and openings.
-        closeAtBoundary_ = true;
+        outputsToClose_ = true;
         output_ << nextItemType("InputFile+SwitchOutputFiles");
         machine.process_event( statemachine::InputFile() );
       }
@@ -68,7 +82,7 @@ namespace art {
         // request is made to close an output file.  The
         // 'SwitchOutputFiles' action simply makes the request,
         // achieved by setting 'closeAtBoundary_' to 'true'.
-        closeAtBoundary_ = true;
+        outputsToClose_ = true;
         output_ << internalPost("SwitchOutputFiles");
       }
       else if (action == "Stop") {
@@ -100,6 +114,7 @@ namespace art {
       if (machine.terminated()) {
         output_ << "The state machine reports it has been terminated\n";
       }
+      firstAction = false;
     }
     return epSuccess;
   }
@@ -122,18 +137,15 @@ namespace art {
     output_ << "\tcloseAllOutputFiles\n";
   }
 
-  void MockEventProcessor::openSomeOutputFiles(std::size_t const) {
+  void MockEventProcessor::openSomeOutputFiles() {
     output_ << "\topenSomeOutputFiles\n";
-    closeAtBoundary_ = false;
+    outputsToOpen_ = false;
   }
 
-  void MockEventProcessor::closeSomeOutputFiles(std::size_t const) {
-    output_ << "\tcloseSomeOutputFiles\n";
-  }
-
-  void MockEventProcessor::switchOutputs(std::size_t const) {
-    closeSomeOutputFiles({});
-    openSomeOutputFiles({});
+  void MockEventProcessor::closeSomeOutputFiles(std::size_t const b) {
+    output_ << "\tcloseSomeOutputFiles (Level: " << art::Boundary{static_cast<Boundary::BT>(b)} << ")\n";
+    outputsToClose_ = false;
+    outputsToOpen_ = true;
   }
 
   void MockEventProcessor::respondToOpenInputFile() {
@@ -196,8 +208,16 @@ namespace art {
     return event_;
   }
 
-  bool MockEventProcessor::outputToCloseAtBoundary(Boundary const) const {
-    return closeAtBoundary_;
+  bool MockEventProcessor::outputsToCloseAtBoundary(Boundary const) const {
+    return outputsToClose_;
+  }
+
+  bool MockEventProcessor::outputsToOpen() const {
+    return outputsToOpen_;
+  }
+
+  bool MockEventProcessor::someOutputsOpen() const {
+    return true;
   }
 
   RunID MockEventProcessor::readAndCacheRun() {

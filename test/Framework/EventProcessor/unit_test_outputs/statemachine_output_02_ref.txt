@@ -1,37 +1,11 @@
 Machine parameters:  handleEmptyRuns = 0  handleEmptySubRuns = 0
 	beginJob
-    *** nextItemType: InputFile ***
+    *** nextItemType: InputFile+OutputFiles ***
  	openInputFile
 	respondToOpenInputFile
-	openAllOutputFiles
-	respondToOpenOutputFiles
     *** nextItemType: InputFile+SwitchOutputFiles ***
 	respondToCloseOutputFiles
-	closeSomeOutputFiles
-	respondToCloseInputFile
-	clearPrincipalCache
-	closeInputFile
- 	openInputFile
-	respondToOpenInputFile
-	openSomeOutputFiles
-	respondToOpenOutputFiles
-    *** nextItemType: InputFile+SwitchOutputFiles ***
-	respondToCloseOutputFiles
-	closeSomeOutputFiles
-	respondToCloseInputFile
-	clearPrincipalCache
-	closeInputFile
- 	openInputFile
-	respondToOpenInputFile
-	openSomeOutputFiles
-	respondToOpenOutputFiles
-    *** nextItemType: InputFile ***
-	respondToCloseInputFile
-	clearPrincipalCache
-	closeInputFile
- 	openInputFile
-	respondToOpenInputFile
-    *** nextItemType: InputFile ***
+	closeSomeOutputFiles (Level: InputFile)
 	respondToCloseInputFile
 	clearPrincipalCache
 	closeInputFile
@@ -39,24 +13,53 @@ Machine parameters:  handleEmptyRuns = 0  handleEmptySubRuns = 0
 	respondToOpenInputFile
     *** nextItemType: InputFile+SwitchOutputFiles ***
 	respondToCloseOutputFiles
-	closeSomeOutputFiles
+	closeSomeOutputFiles (Level: InputFile)
 	respondToCloseInputFile
 	clearPrincipalCache
 	closeInputFile
  	openInputFile
 	respondToOpenInputFile
-	openSomeOutputFiles
-	respondToOpenOutputFiles
+    *** nextItemType: InputFile ***
+	respondToCloseOutputFiles
+	closeSomeOutputFiles (Level: InputFile)
+	respondToCloseInputFile
+	clearPrincipalCache
+	closeInputFile
+ 	openInputFile
+	respondToOpenInputFile
+    *** nextItemType: InputFile ***
+	respondToCloseOutputFiles
+	closeSomeOutputFiles (Level: InputFile)
+	respondToCloseInputFile
+	clearPrincipalCache
+	closeInputFile
+ 	openInputFile
+	respondToOpenInputFile
+    *** nextItemType: InputFile+SwitchOutputFiles ***
+	respondToCloseOutputFiles
+	closeSomeOutputFiles (Level: InputFile)
+	respondToCloseInputFile
+	clearPrincipalCache
+	closeInputFile
+ 	openInputFile
+	respondToOpenInputFile
     *** nextItemType: Run ***
 	readAndCacheRun...(run: 1)
     *** nextItemType: InputFile ***
+	openSomeOutputFiles
+	respondToOpenOutputFiles
 	writeRun..........(run: 1)
+	respondToCloseOutputFiles
+	closeSomeOutputFiles (Level: Run)
+	closeSomeOutputFiles (Level: InputFile)
 	respondToCloseInputFile
 	clearPrincipalCache
 	closeInputFile
  	openInputFile
 	respondToOpenInputFile
     *** nextItemType: InputFile ***
+	respondToCloseOutputFiles
+	closeSomeOutputFiles (Level: InputFile)
 	respondToCloseInputFile
 	clearPrincipalCache
 	closeInputFile
@@ -64,27 +67,33 @@ Machine parameters:  handleEmptyRuns = 0  handleEmptySubRuns = 0
 	respondToOpenInputFile
     *** nextItemType: InputFile+SwitchOutputFiles ***
 	respondToCloseOutputFiles
-	closeSomeOutputFiles
+	closeSomeOutputFiles (Level: InputFile)
 	respondToCloseInputFile
 	clearPrincipalCache
 	closeInputFile
  	openInputFile
 	respondToOpenInputFile
-	openSomeOutputFiles
-	respondToOpenOutputFiles
     *** nextItemType: Run ***
 	readAndCacheRun...(run: 2)
     *** nextItemType: SubRun ***
 	readAndCacheSubRun(run: 2 subRun: 1)
     *** nextItemType: InputFile ***
+	openSomeOutputFiles
+	respondToOpenOutputFiles
 	writeSubRun.......(run: 2 subRun: 1)
 	writeRun..........(run: 2)
+	respondToCloseOutputFiles
+	closeSomeOutputFiles (Level: SubRun)
+	closeSomeOutputFiles (Level: Run)
+	closeSomeOutputFiles (Level: InputFile)
 	respondToCloseInputFile
 	clearPrincipalCache
 	closeInputFile
  	openInputFile
 	respondToOpenInputFile
     *** nextItemType: InputFile ***
+	respondToCloseOutputFiles
+	closeSomeOutputFiles (Level: InputFile)
 	respondToCloseInputFile
 	clearPrincipalCache
 	closeInputFile
@@ -92,14 +101,12 @@ Machine parameters:  handleEmptyRuns = 0  handleEmptySubRuns = 0
 	respondToOpenInputFile
     *** nextItemType: InputFile+SwitchOutputFiles ***
 	respondToCloseOutputFiles
-	closeSomeOutputFiles
+	closeSomeOutputFiles (Level: InputFile)
 	respondToCloseInputFile
 	clearPrincipalCache
 	closeInputFile
  	openInputFile
 	respondToOpenInputFile
-	openSomeOutputFiles
-	respondToOpenOutputFiles
     *** nextItemType: Stop ***
 	respondToCloseOutputFiles
 	closeAllOutputFiles
@@ -111,38 +118,12 @@ The state machine reports it has been terminated
 
 Machine parameters:  handleEmptyRuns = 0  handleEmptySubRuns = 1
 	beginJob
-    *** nextItemType: InputFile ***
+    *** nextItemType: InputFile+OutputFiles ***
  	openInputFile
 	respondToOpenInputFile
-	openAllOutputFiles
-	respondToOpenOutputFiles
     *** nextItemType: InputFile+SwitchOutputFiles ***
 	respondToCloseOutputFiles
-	closeSomeOutputFiles
-	respondToCloseInputFile
-	clearPrincipalCache
-	closeInputFile
- 	openInputFile
-	respondToOpenInputFile
-	openSomeOutputFiles
-	respondToOpenOutputFiles
-    *** nextItemType: InputFile+SwitchOutputFiles ***
-	respondToCloseOutputFiles
-	closeSomeOutputFiles
-	respondToCloseInputFile
-	clearPrincipalCache
-	closeInputFile
- 	openInputFile
-	respondToOpenInputFile
-	openSomeOutputFiles
-	respondToOpenOutputFiles
-    *** nextItemType: InputFile ***
-	respondToCloseInputFile
-	clearPrincipalCache
-	closeInputFile
- 	openInputFile
-	respondToOpenInputFile
-    *** nextItemType: InputFile ***
+	closeSomeOutputFiles (Level: InputFile)
 	respondToCloseInputFile
 	clearPrincipalCache
 	closeInputFile
@@ -150,24 +131,53 @@ Machine parameters:  handleEmptyRuns = 0  handleEmptySubRuns = 1
 	respondToOpenInputFile
     *** nextItemType: InputFile+SwitchOutputFiles ***
 	respondToCloseOutputFiles
-	closeSomeOutputFiles
+	closeSomeOutputFiles (Level: InputFile)
 	respondToCloseInputFile
 	clearPrincipalCache
 	closeInputFile
  	openInputFile
 	respondToOpenInputFile
-	openSomeOutputFiles
-	respondToOpenOutputFiles
+    *** nextItemType: InputFile ***
+	respondToCloseOutputFiles
+	closeSomeOutputFiles (Level: InputFile)
+	respondToCloseInputFile
+	clearPrincipalCache
+	closeInputFile
+ 	openInputFile
+	respondToOpenInputFile
+    *** nextItemType: InputFile ***
+	respondToCloseOutputFiles
+	closeSomeOutputFiles (Level: InputFile)
+	respondToCloseInputFile
+	clearPrincipalCache
+	closeInputFile
+ 	openInputFile
+	respondToOpenInputFile
+    *** nextItemType: InputFile+SwitchOutputFiles ***
+	respondToCloseOutputFiles
+	closeSomeOutputFiles (Level: InputFile)
+	respondToCloseInputFile
+	clearPrincipalCache
+	closeInputFile
+ 	openInputFile
+	respondToOpenInputFile
     *** nextItemType: Run ***
 	readAndCacheRun...(run: 1)
     *** nextItemType: InputFile ***
+	openSomeOutputFiles
+	respondToOpenOutputFiles
 	writeRun..........(run: 1)
+	respondToCloseOutputFiles
+	closeSomeOutputFiles (Level: Run)
+	closeSomeOutputFiles (Level: InputFile)
 	respondToCloseInputFile
 	clearPrincipalCache
 	closeInputFile
  	openInputFile
 	respondToOpenInputFile
     *** nextItemType: InputFile ***
+	respondToCloseOutputFiles
+	closeSomeOutputFiles (Level: InputFile)
 	respondToCloseInputFile
 	clearPrincipalCache
 	closeInputFile
@@ -175,31 +185,37 @@ Machine parameters:  handleEmptyRuns = 0  handleEmptySubRuns = 1
 	respondToOpenInputFile
     *** nextItemType: InputFile+SwitchOutputFiles ***
 	respondToCloseOutputFiles
-	closeSomeOutputFiles
+	closeSomeOutputFiles (Level: InputFile)
 	respondToCloseInputFile
 	clearPrincipalCache
 	closeInputFile
  	openInputFile
 	respondToOpenInputFile
-	openSomeOutputFiles
-	respondToOpenOutputFiles
     *** nextItemType: Run ***
 	readAndCacheRun...(run: 2)
     *** nextItemType: SubRun ***
 	readAndCacheSubRun(run: 2 subRun: 1)
     *** nextItemType: InputFile ***
+	openSomeOutputFiles
+	respondToOpenOutputFiles
 	beginRun..........(run: 2)
 	beginSubRun.......(run: 2 subRun: 1)
 	endSubRun.........(run: 2 subRun: 1)
 	writeSubRun.......(run: 2 subRun: 1)
 	endRun............(run: 2)
 	writeRun..........(run: 2)
+	respondToCloseOutputFiles
+	closeSomeOutputFiles (Level: SubRun)
+	closeSomeOutputFiles (Level: Run)
+	closeSomeOutputFiles (Level: InputFile)
 	respondToCloseInputFile
 	clearPrincipalCache
 	closeInputFile
  	openInputFile
 	respondToOpenInputFile
     *** nextItemType: InputFile ***
+	respondToCloseOutputFiles
+	closeSomeOutputFiles (Level: InputFile)
 	respondToCloseInputFile
 	clearPrincipalCache
 	closeInputFile
@@ -207,14 +223,12 @@ Machine parameters:  handleEmptyRuns = 0  handleEmptySubRuns = 1
 	respondToOpenInputFile
     *** nextItemType: InputFile+SwitchOutputFiles ***
 	respondToCloseOutputFiles
-	closeSomeOutputFiles
+	closeSomeOutputFiles (Level: InputFile)
 	respondToCloseInputFile
 	clearPrincipalCache
 	closeInputFile
  	openInputFile
 	respondToOpenInputFile
-	openSomeOutputFiles
-	respondToOpenOutputFiles
     *** nextItemType: Stop ***
 	respondToCloseOutputFiles
 	closeAllOutputFiles
@@ -226,38 +240,12 @@ The state machine reports it has been terminated
 
 Machine parameters:  handleEmptyRuns = 1  handleEmptySubRuns = 0
 	beginJob
-    *** nextItemType: InputFile ***
+    *** nextItemType: InputFile+OutputFiles ***
  	openInputFile
 	respondToOpenInputFile
-	openAllOutputFiles
-	respondToOpenOutputFiles
     *** nextItemType: InputFile+SwitchOutputFiles ***
 	respondToCloseOutputFiles
-	closeSomeOutputFiles
-	respondToCloseInputFile
-	clearPrincipalCache
-	closeInputFile
- 	openInputFile
-	respondToOpenInputFile
-	openSomeOutputFiles
-	respondToOpenOutputFiles
-    *** nextItemType: InputFile+SwitchOutputFiles ***
-	respondToCloseOutputFiles
-	closeSomeOutputFiles
-	respondToCloseInputFile
-	clearPrincipalCache
-	closeInputFile
- 	openInputFile
-	respondToOpenInputFile
-	openSomeOutputFiles
-	respondToOpenOutputFiles
-    *** nextItemType: InputFile ***
-	respondToCloseInputFile
-	clearPrincipalCache
-	closeInputFile
- 	openInputFile
-	respondToOpenInputFile
-    *** nextItemType: InputFile ***
+	closeSomeOutputFiles (Level: InputFile)
 	respondToCloseInputFile
 	clearPrincipalCache
 	closeInputFile
@@ -265,26 +253,55 @@ Machine parameters:  handleEmptyRuns = 1  handleEmptySubRuns = 0
 	respondToOpenInputFile
     *** nextItemType: InputFile+SwitchOutputFiles ***
 	respondToCloseOutputFiles
-	closeSomeOutputFiles
+	closeSomeOutputFiles (Level: InputFile)
 	respondToCloseInputFile
 	clearPrincipalCache
 	closeInputFile
  	openInputFile
 	respondToOpenInputFile
-	openSomeOutputFiles
-	respondToOpenOutputFiles
+    *** nextItemType: InputFile ***
+	respondToCloseOutputFiles
+	closeSomeOutputFiles (Level: InputFile)
+	respondToCloseInputFile
+	clearPrincipalCache
+	closeInputFile
+ 	openInputFile
+	respondToOpenInputFile
+    *** nextItemType: InputFile ***
+	respondToCloseOutputFiles
+	closeSomeOutputFiles (Level: InputFile)
+	respondToCloseInputFile
+	clearPrincipalCache
+	closeInputFile
+ 	openInputFile
+	respondToOpenInputFile
+    *** nextItemType: InputFile+SwitchOutputFiles ***
+	respondToCloseOutputFiles
+	closeSomeOutputFiles (Level: InputFile)
+	respondToCloseInputFile
+	clearPrincipalCache
+	closeInputFile
+ 	openInputFile
+	respondToOpenInputFile
     *** nextItemType: Run ***
 	readAndCacheRun...(run: 1)
 	beginRun..........(run: 1)
     *** nextItemType: InputFile ***
+	openSomeOutputFiles
+	respondToOpenOutputFiles
 	endRun............(run: 1)
 	writeRun..........(run: 1)
+	respondToCloseOutputFiles
+	closeSomeOutputFiles (Level: Run)
+	closeSomeOutputFiles (Level: InputFile)
 	respondToCloseInputFile
 	clearPrincipalCache
 	closeInputFile
  	openInputFile
 	respondToOpenInputFile
     *** nextItemType: InputFile ***
+	respondToCloseOutputFiles
+	closeSomeOutputFiles (Level: InputFile)
 	respondToCloseInputFile
 	clearPrincipalCache
 	closeInputFile
@@ -292,29 +309,35 @@ Machine parameters:  handleEmptyRuns = 1  handleEmptySubRuns = 0
 	respondToOpenInputFile
     *** nextItemType: InputFile+SwitchOutputFiles ***
 	respondToCloseOutputFiles
-	closeSomeOutputFiles
+	closeSomeOutputFiles (Level: InputFile)
 	respondToCloseInputFile
 	clearPrincipalCache
 	closeInputFile
  	openInputFile
 	respondToOpenInputFile
-	openSomeOutputFiles
-	respondToOpenOutputFiles
     *** nextItemType: Run ***
 	readAndCacheRun...(run: 2)
 	beginRun..........(run: 2)
     *** nextItemType: SubRun ***
 	readAndCacheSubRun(run: 2 subRun: 1)
     *** nextItemType: InputFile ***
+	openSomeOutputFiles
+	respondToOpenOutputFiles
 	writeSubRun.......(run: 2 subRun: 1)
 	endRun............(run: 2)
 	writeRun..........(run: 2)
+	respondToCloseOutputFiles
+	closeSomeOutputFiles (Level: SubRun)
+	closeSomeOutputFiles (Level: Run)
+	closeSomeOutputFiles (Level: InputFile)
 	respondToCloseInputFile
 	clearPrincipalCache
 	closeInputFile
  	openInputFile
 	respondToOpenInputFile
     *** nextItemType: InputFile ***
+	respondToCloseOutputFiles
+	closeSomeOutputFiles (Level: InputFile)
 	respondToCloseInputFile
 	clearPrincipalCache
 	closeInputFile
@@ -322,14 +345,12 @@ Machine parameters:  handleEmptyRuns = 1  handleEmptySubRuns = 0
 	respondToOpenInputFile
     *** nextItemType: InputFile+SwitchOutputFiles ***
 	respondToCloseOutputFiles
-	closeSomeOutputFiles
+	closeSomeOutputFiles (Level: InputFile)
 	respondToCloseInputFile
 	clearPrincipalCache
 	closeInputFile
  	openInputFile
 	respondToOpenInputFile
-	openSomeOutputFiles
-	respondToOpenOutputFiles
     *** nextItemType: Stop ***
 	respondToCloseOutputFiles
 	closeAllOutputFiles
@@ -341,38 +362,12 @@ The state machine reports it has been terminated
 
 Machine parameters:  handleEmptyRuns = 1  handleEmptySubRuns = 1
 	beginJob
-    *** nextItemType: InputFile ***
+    *** nextItemType: InputFile+OutputFiles ***
  	openInputFile
 	respondToOpenInputFile
-	openAllOutputFiles
-	respondToOpenOutputFiles
     *** nextItemType: InputFile+SwitchOutputFiles ***
 	respondToCloseOutputFiles
-	closeSomeOutputFiles
-	respondToCloseInputFile
-	clearPrincipalCache
-	closeInputFile
- 	openInputFile
-	respondToOpenInputFile
-	openSomeOutputFiles
-	respondToOpenOutputFiles
-    *** nextItemType: InputFile+SwitchOutputFiles ***
-	respondToCloseOutputFiles
-	closeSomeOutputFiles
-	respondToCloseInputFile
-	clearPrincipalCache
-	closeInputFile
- 	openInputFile
-	respondToOpenInputFile
-	openSomeOutputFiles
-	respondToOpenOutputFiles
-    *** nextItemType: InputFile ***
-	respondToCloseInputFile
-	clearPrincipalCache
-	closeInputFile
- 	openInputFile
-	respondToOpenInputFile
-    *** nextItemType: InputFile ***
+	closeSomeOutputFiles (Level: InputFile)
 	respondToCloseInputFile
 	clearPrincipalCache
 	closeInputFile
@@ -380,26 +375,55 @@ Machine parameters:  handleEmptyRuns = 1  handleEmptySubRuns = 1
 	respondToOpenInputFile
     *** nextItemType: InputFile+SwitchOutputFiles ***
 	respondToCloseOutputFiles
-	closeSomeOutputFiles
+	closeSomeOutputFiles (Level: InputFile)
 	respondToCloseInputFile
 	clearPrincipalCache
 	closeInputFile
  	openInputFile
 	respondToOpenInputFile
-	openSomeOutputFiles
-	respondToOpenOutputFiles
+    *** nextItemType: InputFile ***
+	respondToCloseOutputFiles
+	closeSomeOutputFiles (Level: InputFile)
+	respondToCloseInputFile
+	clearPrincipalCache
+	closeInputFile
+ 	openInputFile
+	respondToOpenInputFile
+    *** nextItemType: InputFile ***
+	respondToCloseOutputFiles
+	closeSomeOutputFiles (Level: InputFile)
+	respondToCloseInputFile
+	clearPrincipalCache
+	closeInputFile
+ 	openInputFile
+	respondToOpenInputFile
+    *** nextItemType: InputFile+SwitchOutputFiles ***
+	respondToCloseOutputFiles
+	closeSomeOutputFiles (Level: InputFile)
+	respondToCloseInputFile
+	clearPrincipalCache
+	closeInputFile
+ 	openInputFile
+	respondToOpenInputFile
     *** nextItemType: Run ***
 	readAndCacheRun...(run: 1)
 	beginRun..........(run: 1)
     *** nextItemType: InputFile ***
+	openSomeOutputFiles
+	respondToOpenOutputFiles
 	endRun............(run: 1)
 	writeRun..........(run: 1)
+	respondToCloseOutputFiles
+	closeSomeOutputFiles (Level: Run)
+	closeSomeOutputFiles (Level: InputFile)
 	respondToCloseInputFile
 	clearPrincipalCache
 	closeInputFile
  	openInputFile
 	respondToOpenInputFile
     *** nextItemType: InputFile ***
+	respondToCloseOutputFiles
+	closeSomeOutputFiles (Level: InputFile)
 	respondToCloseInputFile
 	clearPrincipalCache
 	closeInputFile
@@ -407,31 +431,37 @@ Machine parameters:  handleEmptyRuns = 1  handleEmptySubRuns = 1
 	respondToOpenInputFile
     *** nextItemType: InputFile+SwitchOutputFiles ***
 	respondToCloseOutputFiles
-	closeSomeOutputFiles
+	closeSomeOutputFiles (Level: InputFile)
 	respondToCloseInputFile
 	clearPrincipalCache
 	closeInputFile
  	openInputFile
 	respondToOpenInputFile
-	openSomeOutputFiles
-	respondToOpenOutputFiles
     *** nextItemType: Run ***
 	readAndCacheRun...(run: 2)
 	beginRun..........(run: 2)
     *** nextItemType: SubRun ***
 	readAndCacheSubRun(run: 2 subRun: 1)
     *** nextItemType: InputFile ***
+	openSomeOutputFiles
+	respondToOpenOutputFiles
 	beginSubRun.......(run: 2 subRun: 1)
 	endSubRun.........(run: 2 subRun: 1)
 	writeSubRun.......(run: 2 subRun: 1)
 	endRun............(run: 2)
 	writeRun..........(run: 2)
+	respondToCloseOutputFiles
+	closeSomeOutputFiles (Level: SubRun)
+	closeSomeOutputFiles (Level: Run)
+	closeSomeOutputFiles (Level: InputFile)
 	respondToCloseInputFile
 	clearPrincipalCache
 	closeInputFile
  	openInputFile
 	respondToOpenInputFile
     *** nextItemType: InputFile ***
+	respondToCloseOutputFiles
+	closeSomeOutputFiles (Level: InputFile)
 	respondToCloseInputFile
 	clearPrincipalCache
 	closeInputFile
@@ -439,14 +469,12 @@ Machine parameters:  handleEmptyRuns = 1  handleEmptySubRuns = 1
 	respondToOpenInputFile
     *** nextItemType: InputFile+SwitchOutputFiles ***
 	respondToCloseOutputFiles
-	closeSomeOutputFiles
+	closeSomeOutputFiles (Level: InputFile)
 	respondToCloseInputFile
 	clearPrincipalCache
 	closeInputFile
  	openInputFile
 	respondToOpenInputFile
-	openSomeOutputFiles
-	respondToOpenOutputFiles
     *** nextItemType: Stop ***
 	respondToCloseOutputFiles
 	closeAllOutputFiles

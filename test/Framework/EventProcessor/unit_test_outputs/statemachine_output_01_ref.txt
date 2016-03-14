@@ -1,13 +1,13 @@
 Machine parameters:  handleEmptyRuns = 0  handleEmptySubRuns = 0
 	beginJob
-    *** nextItemType: InputFile ***
+    *** nextItemType: InputFile+OutputFiles ***
  	openInputFile
 	respondToOpenInputFile
-	openAllOutputFiles
-	respondToOpenOutputFiles
     *** nextItemType: Run ***
 	readAndCacheRun...(run: 1)
     *** nextItemType: Run ***
+	openSomeOutputFiles
+	respondToOpenOutputFiles
 	writeRun..........(run: 1)
 	readAndCacheRun...(run: 2)
     *** nextItemType: SubRun ***
@@ -46,14 +46,14 @@ The state machine reports it has been terminated
 
 Machine parameters:  handleEmptyRuns = 0  handleEmptySubRuns = 1
 	beginJob
-    *** nextItemType: InputFile ***
+    *** nextItemType: InputFile+OutputFiles ***
  	openInputFile
 	respondToOpenInputFile
-	openAllOutputFiles
-	respondToOpenOutputFiles
     *** nextItemType: Run ***
 	readAndCacheRun...(run: 1)
     *** nextItemType: Run ***
+	openSomeOutputFiles
+	respondToOpenOutputFiles
 	writeRun..........(run: 1)
 	readAndCacheRun...(run: 2)
     *** nextItemType: SubRun ***
@@ -100,15 +100,15 @@ The state machine reports it has been terminated
 
 Machine parameters:  handleEmptyRuns = 1  handleEmptySubRuns = 0
 	beginJob
-    *** nextItemType: InputFile ***
+    *** nextItemType: InputFile+OutputFiles ***
  	openInputFile
 	respondToOpenInputFile
-	openAllOutputFiles
-	respondToOpenOutputFiles
     *** nextItemType: Run ***
 	readAndCacheRun...(run: 1)
 	beginRun..........(run: 1)
     *** nextItemType: Run ***
+	openSomeOutputFiles
+	respondToOpenOutputFiles
 	endRun............(run: 1)
 	writeRun..........(run: 1)
 	readAndCacheRun...(run: 2)
@@ -150,15 +150,15 @@ The state machine reports it has been terminated
 
 Machine parameters:  handleEmptyRuns = 1  handleEmptySubRuns = 1
 	beginJob
-    *** nextItemType: InputFile ***
+    *** nextItemType: InputFile+OutputFiles ***
  	openInputFile
 	respondToOpenInputFile
-	openAllOutputFiles
-	respondToOpenOutputFiles
     *** nextItemType: Run ***
 	readAndCacheRun...(run: 1)
 	beginRun..........(run: 1)
     *** nextItemType: Run ***
+	openSomeOutputFiles
+	respondToOpenOutputFiles
 	endRun............(run: 1)
 	writeRun..........(run: 1)
 	readAndCacheRun...(run: 2)

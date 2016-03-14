@@ -19,6 +19,7 @@ services.message:
 }
 
 physics.filters.mixFilter.wrapFiles: true
+physics.filters.mixFilter.expectedRespondFunctionCalls: 2
 physics.analyzers: {}
 outputs: {}
 physics.e1: []

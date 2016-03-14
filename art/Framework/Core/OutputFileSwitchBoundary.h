@@ -13,6 +13,7 @@ namespace art {
 
     Boundary(BT const b) : b_{b} {}
 
+    BT operator()() const { return b_; }
     operator std::size_t() const { return static_cast<std::size_t>(b_); }
 
     static constexpr std::size_t NBoundaries() { return Unset; }
@@ -39,6 +40,28 @@ namespace art {
   private:
     BT b_;
   };
+
+  inline std::ostream& operator<<(std::ostream& os, Boundary const& b)
+  {
+    std::string token {"Unset"};
+    switch(b()) {
+    case Boundary::Event:
+      token = "Event";
+      break;
+    case Boundary::SubRun:
+      token = "SubRun";
+      break;
+    case Boundary::Run:
+      token = "Run";
+      break;
+    case Boundary::InputFile:
+      token = "InputFile";
+      break;
+    case Boundary::Unset: ;
+    }
+    os << token;
+    return os;
+  }
 
 }
 

@@ -49,42 +49,23 @@ public:
   void writeSubRun(SubRunPrincipal& srp);
   void writeRun(RunPrincipal& rp);
 
-  // Call closeFile() on all OutputModules.
   void closeAllOutputFiles();
-
-  // Call openFiles() on all OutputModules
   void openAllOutputFiles(FileBlock & fb);
 
-  // Call closeFile() on some OutputModules.
   void closeSomeOutputFiles(std::size_t const);
+  void openSomeOutputFiles(FileBlock const& fb);
 
-  // Call openFiles() on some OutputModules
-  void openSomeOutputFiles(std::size_t const, FileBlock const& fb);
-
-  // Call respondToOpenInputFile() on all Modules
   void respondToOpenInputFile(FileBlock const & fb);
-
-  // Call respondToCloseInputFile() on all Modules
   void respondToCloseInputFile(FileBlock const & fb);
-
-  // Call respondToOpenOutputFiles() on all Modules
   void respondToOpenOutputFiles(FileBlock const & fb);
-
-  // Call respondToCloseOutputFiles() on all Modules
   void respondToCloseOutputFiles(FileBlock const & fb);
-
-  // Call respondToOpenOutputFile() on some Modules
-  void respondToOpenOutputFile();
-
-  // Call respondToCloseOutputFile() on some Modules
-  void respondToCloseOutputFile();
 
   // Allow output files to close that need to
   void recordOutputClosureRequests();
 
-  void switchOutputFiles(std::size_t const b, FileBlock const& fb);
-
-  bool outputToCloseAtBoundary(Boundary const) const;
+  bool outputsToCloseAtBoundary(Boundary const) const;
+  bool outputsToOpen() const;
+  bool someOutputsOpen() const;
 
   // Return whether a module has reached its maximum count.
   bool terminate() const;
@@ -110,7 +91,8 @@ private:
   ActionTable * act_table_;
   ActivityRegistry & actReg_;
   OutputWorkers  outputWorkers_;
-  std::array<OutputWorkers, Boundary::NBoundaries()> workersToClose_;
+  std::array<OutputWorkers, Boundary::NBoundaries()> outputWorkersToClose_ {{}}; // filled by aggregation
+  OutputWorkers  outputWorkersToOpen_;
   std::vector<unsigned char> workersEnabled_;
   std::vector<unsigned char> outputWorkersEnabled_;
 };

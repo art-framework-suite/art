@@ -1,4 +1,4 @@
-InputFile
+InputFile+OutputFiles
 r:1
 r:2
 s:1

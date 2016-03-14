@@ -89,6 +89,8 @@ public:
   // -1 is used for unlimited.
   int remainingEvents() const;
 
+  bool fileIsOpen() const { return isFileOpen(); }
+
   // Name of output file (may be overridden if default implementation is
   // not appropriate).
   virtual std::string const & lastClosedFileName() const;
@@ -208,7 +210,6 @@ private:
   virtual void flagToCloseFile(bool const) {}
   virtual Boundary fileSwitchBoundary() const { return Boundary::Unset; }
 
-  // Write the event.
   virtual void beginJob();
   virtual void endJob();
   virtual void beginRun(RunPrincipal const &);

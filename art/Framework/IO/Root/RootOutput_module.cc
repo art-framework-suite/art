@@ -541,7 +541,7 @@ doOpenFile()
                                                      dropMetaDataForDroppedData_,
                                                      fastCloning_);
   fstats_.recordFileOpen();
-  detail::logFileAction("Opened new output file with pattern ", filePattern_);
+  detail::logFileAction("Opened output file with pattern ", filePattern_);
 }
 
 string const&

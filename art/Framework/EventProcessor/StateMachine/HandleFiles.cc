@@ -14,15 +14,14 @@ namespace statemachine {
     my_base{ctx},
     ep_{context<Machine>().ep()}
   {
-    // std::cout << " HandleFiles()\n";
-    openAllFiles();
+    openInputFile();
   }
 
   void HandleFiles::exit()
   {
     if (ep_.alreadyHandlingException()) { return; }
     exitCalled_ = true;
-    closeAllFiles();
+    closeInputFile();
   }
 
   HandleFiles::~HandleFiles()
@@ -30,7 +29,7 @@ namespace statemachine {
     // std::cout << "~HandleFiles()\n";
     if (!exitCalled_) {
       try {
-        closeAllFiles();
+        closeInputFile();
       }
       catch (cet::exception const& e) {
         std::ostringstream message;
@@ -75,18 +74,15 @@ namespace statemachine {
     }
   }
 
-  void HandleFiles::openAllFiles()
+  void HandleFiles::openInputFile()
   {
     ep_.openInputFile();
     ep_.respondToOpenInputFile();
-    ep_.openAllOutputFiles();
-    ep_.respondToOpenOutputFiles();
   }
 
-  void HandleFiles::closeAllFiles()
+  void HandleFiles::closeInputFile()
   {
-    ep_.respondToCloseOutputFiles();
-    ep_.closeAllOutputFiles();
+    closeOpenOutputFiles();
     ep_.respondToCloseInputFile();
     ep_.clearPrincipalCache();
     ep_.closeInputFile();
@@ -109,7 +105,7 @@ namespace statemachine {
 
   void HandleFiles::maybeTriggerOutputFileSwitch(Boundary::BT const b)
   {
-    if (!ep_.outputToCloseAtBoundary(b)) return;
+    if (!ep_.outputsToCloseAtBoundary(b)) return;
 
     // Don't trigger if a switch is already in progress!
     if (switchInProgress_) return;
@@ -121,22 +117,22 @@ namespace statemachine {
 
   void HandleFiles::maybeOpenOutputFiles()
   {
-    if (!ep_.outputToCloseAtBoundary(Boundary::InputFile)) return;
+    if (!ep_.outputsToOpen()) return;
 
-    ep_.openSomeOutputFiles(Boundary::InputFile);
+    ep_.openSomeOutputFiles();
     ep_.respondToOpenOutputFiles();
     switchInProgress_ = false;
   }
 
-  void HandleFiles::maybeCloseOutputFiles()
+  void HandleFiles::closeOpenOutputFiles()
   {
-    if (!ep_.outputToCloseAtBoundary(Boundary::InputFile)) return;
+    if (!ep_.someOutputsOpen()) return;
 
     ep_.respondToCloseOutputFiles();
-    ep_.closeSomeOutputFiles(Boundary::InputFile);
+    ep_.closeAllOutputFiles();
   }
 
-  void HandleFiles::switchOutputFiles(SwitchOutputFiles const&)
+  void HandleFiles::closeSomeOutputFiles()
   {
     ep_.respondToCloseOutputFiles();
     // If the previous state was (e.g.) NewSubRun, and the current
@@ -147,10 +143,24 @@ namespace statemachine {
     // boundaries as the starting point, although the end point is
     // always the current boundary.
     auto const start = std::min(previousBoundary_, currentBoundary_);
-    for(std::size_t b = start; b<=currentBoundary_; ++b)
-      ep_.switchOutputs(b);
+    for(std::size_t b = start; b<=currentBoundary_; ++b) {
+      ep_.closeSomeOutputFiles(b);
+    }
+  }
+
+  void HandleFiles::openSomeOutputFiles()
+  {
+    if ( !ep_.outputsToOpen() ) return;
+
+    ep_.openSomeOutputFiles();
     ep_.respondToOpenOutputFiles();
     switchInProgress_ = false;
+  }
+
+
+  void HandleFiles::closeSomeOutputFiles(SwitchOutputFiles const&)
+  {
+    closeSomeOutputFiles();
   }
 
   Stopping::Stopping(my_context ctx) :
@@ -178,15 +188,17 @@ namespace statemachine {
 
   FirstFile::FirstFile(my_context ctx) :
     my_base{ctx}
-  {}
+  {
+    context<HandleFiles>().setCurrentBoundary(Boundary::InputFile);
+  }
 
   NewInputFile::NewInputFile(my_context ctx) :
     my_base{ctx}
   {
     auto& hf = context<HandleFiles>();
-    hf.maybeCloseOutputFiles();
+    hf.setCurrentBoundary(Boundary::InputFile);
+    hf.closeSomeOutputFiles();
     hf.goToNewInputFile();
-    hf.maybeOpenOutputFiles();
   }
 
   sc::result NewInputFile::react(SwitchOutputFiles const&)

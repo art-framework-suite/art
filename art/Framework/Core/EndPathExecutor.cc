@@ -9,41 +9,43 @@
 #include <type_traits>
 #include <utility>
 
+namespace {
+  auto getOutputWorkers(art::WorkerMap const& workers)
+  {
+    std::vector<art::OutputWorker*> ows;
+    for (auto const & val : workers) {
+      auto w = val.second.get();
+      if (auto ow = dynamic_cast<art::OutputWorker*>(w)) {
+        ows.emplace_back(ow);
+      }
+    }
+    return ows;
+  }
+}
 
 art::EndPathExecutor::
 EndPathExecutor(PathManager & pm,
                 ActionTable & actions,
                 ActivityRegistry & areg,
                 MasterProductRegistry& mpr)
-  :
-  endPathInfo_(pm.endPathInfo()),
-  act_table_(&actions),
-  actReg_(areg),
-  outputWorkers_(),
-  workersToClose_{{}}, // filled by aggregation
-  workersEnabled_(endPathInfo_.workers().size(), true),
-  outputWorkersEnabled_()
+  : endPathInfo_{pm.endPathInfo()}
+  , act_table_{&actions}
+  , actReg_{areg}
+  , outputWorkers_{getOutputWorkers(endPathInfo_.workers())}
+  , outputWorkersToOpen_{outputWorkers_} // seed with all output workers
+  , workersEnabled_(endPathInfo_.workers().size(), true)
+  , outputWorkersEnabled_(outputWorkers_.size(), true)
   {
-    // For clarity, don't used doForAllEnabledWorkers_(), here.
-    size_t index = 0;
-    for (auto const & val : endPathInfo_.workers()) {
-      auto w = val.second.get();
-      if (auto ow = dynamic_cast<OutputWorker*>(w)) {
-        outputWorkers_.emplace_back(ow);
-        outputWorkersEnabled_.emplace_back(workersEnabled_[index]);
-      }
-      ++index;
-    }
     mpr.registerProductListUpdateCallback(std::bind(&art::EndPathExecutor::selectProducts, this, std::placeholders::_1));
   }
 
 bool art::EndPathExecutor::terminate() const
 {
-  bool rc = !outputWorkers_.empty() && // Necessary because std::all_of()
-                                       // returns true if range is empty.
-    std::all_of(outputWorkers_.cbegin(),
-                outputWorkers_.cend(),
-                [](auto& w){ return w->limitReached(); });
+  bool const rc = !outputWorkers_.empty() && // Necessary because std::all_of()
+                                             // returns true if range is empty.
+                  std::all_of(outputWorkers_.cbegin(),
+                              outputWorkers_.cend(),
+                              [](auto& w){ return w->limitReached(); });
   if (rc) {
     mf::LogInfo("SuccessfulTermination")
       << "The job is terminating successfully because each output module\n"
@@ -56,8 +58,8 @@ void
 art::EndPathExecutor::
 endJob()
 {
-  bool failure = false;
-  Exception error(errors::EndJobFailure);
+  bool failure {false};
+  Exception error {errors::EndJobFailure};
   doForAllEnabledWorkers_
     ([&failure, &error](Worker * w)
      {
@@ -128,54 +130,59 @@ void art::EndPathExecutor::recordOutputClosureRequests()
 {
   for(auto ow : outputWorkers_) {
     if (!ow->stagedToCloseFile() && ow->requestsToCloseFile()) {
-      workersToClose_[ow->fileSwitchBoundary()].push_back(ow);
+      outputWorkersToClose_[ow->fileSwitchBoundary()].push_back(ow);
       ow->flagToCloseFile(true);
     }
   }
 }
 
-bool art::EndPathExecutor::outputToCloseAtBoundary(Boundary const b) const
+bool art::EndPathExecutor::outputsToCloseAtBoundary(Boundary const b) const
 {
-  return !workersToClose_[b].empty();
+  return !outputWorkersToClose_[b].empty();
 }
 
-void art::EndPathExecutor::switchOutputFiles(std::size_t const b, FileBlock const& fb)
+bool art::EndPathExecutor::outputsToOpen() const
 {
-  closeSomeOutputFiles(b);
-  openSomeOutputFiles(b,fb);
+  return !outputWorkersToOpen_.empty();
+}
+
+bool art::EndPathExecutor::someOutputsOpen() const
+{
+  return std::any_of(outputWorkers_.cbegin(),
+                     outputWorkers_.cend(),
+                     [](auto ow) {
+                       return ow->fileIsOpen();
+                     } );
 }
 
 void art::EndPathExecutor::closeSomeOutputFiles(std::size_t const b)
 {
   auto closeFile                   = [    ](auto ow){ow->closeFile();};
+  auto resetFlagToClose            = [    ](auto ow){ow->flagToCloseFile(false);};
   auto invoke_sPreCloseOutputFile  = [this](auto ow){actReg_.sPreCloseOutputFile.invoke(ow->label());};
   auto invoke_sPostCloseOutputFile = [this](auto ow){actReg_.sPostCloseOutputFile.invoke(OutputFileInfo{ow->label(), ow->lastClosedFileName()});};
 
-  auto& workers = workersToClose_[b];
-  if (workers.empty()) return;
+  auto& workers = outputWorkersToClose_[b];
 
+  cet::for_all(workers, resetFlagToClose);
   cet::for_all(workers, invoke_sPreCloseOutputFile);
   cet::for_all(workers, closeFile);
   cet::for_all(workers, invoke_sPostCloseOutputFile);
-}
-
-void art::EndPathExecutor::openSomeOutputFiles(std::size_t const b, FileBlock const& fb)
-{
-
-  auto openFile                    = [ &fb](auto ow){ow->openFile(fb);};
-  auto resetFlagToClose            = [    ](auto ow){ow->flagToCloseFile(false);};
-  auto invoke_sPostOpenOutputFile  = [this](auto ow){actReg_.sPostOpenOutputFile.invoke(ow->label());};
-
-  auto& workers = workersToClose_[b];
-  if (workers.empty()) return;
-
-  cet::for_all(workers, resetFlagToClose);
-  cet::for_all(workers, openFile);
-  cet::for_all(workers, invoke_sPostOpenOutputFile);
+  cet::copy_all(workers, std::back_inserter(outputWorkersToOpen_));
 
   workers.clear();
 }
 
+void art::EndPathExecutor::openSomeOutputFiles(FileBlock const& fb)
+{
+  auto openFile                    = [ &fb](auto ow){ow->openFile(fb);};
+  auto invoke_sPostOpenOutputFile  = [this](auto ow){actReg_.sPostOpenOutputFile.invoke(ow->label());};
+
+  cet::for_all(outputWorkersToOpen_, openFile);
+  cet::for_all(outputWorkersToOpen_, invoke_sPostOpenOutputFile);
+
+  outputWorkersToOpen_.clear();
+}
 
 void art::EndPathExecutor::respondToOpenInputFile(FileBlock const & fb)
 {
@@ -210,7 +217,7 @@ setEndPathModuleEnabled(std::string const & label, bool enable)
   auto & workers = endPathInfo_.workers();
   WorkerMap::iterator foundW;
   if ((foundW = workers.find(label)) != workers.end()) {
-    size_t index = std::distance(workers.begin(), foundW);
+    size_t const index = std::distance(workers.begin(), foundW);
     result = workersEnabled_[index];
     workersEnabled_[index] = enable;
   } else {
@@ -221,16 +228,14 @@ setEndPathModuleEnabled(std::string const & label, bool enable)
       << label
       << ".\n";
   }
-  auto owFinder =
-    [&label](OutputWorkers::const_reference ow)
-    {
-      return ow->label() == label;
-    };
+  auto owFinder = [&label](OutputWorkers::const_reference ow) {
+    return ow->label() == label;
+  };
   OutputWorkers::iterator foundOW;
   if ((foundOW = std::find_if(outputWorkers_.begin(),
                               outputWorkers_.end(),
                               owFinder)) != outputWorkers_.end()) {
-    auto index = std::distance(outputWorkers_.begin(), foundOW);
+    auto const index = std::distance(outputWorkers_.begin(), foundOW);
     outputWorkersEnabled_[index] = enable;
   }
   return result;

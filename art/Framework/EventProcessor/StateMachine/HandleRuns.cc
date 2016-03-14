@@ -88,20 +88,20 @@ namespace statemachine {
     }
   }
 
-  void HandleRuns::resumeAndFinalizeRun(Run const&)
-  {
-    resetFormerState();
-    finalizeRun();
-  }
-
   void HandleRuns::resume(SubRun const&)
   {
-    resetFormerState();
+    resume();
   }
 
-  void HandleRuns::resetFormerState()
+  void HandleRuns::resume()
   {
     finalizeEnabled_ = true;
+  }
+
+  void HandleRuns::resumeAndFinalizeRun(Run const&)
+  {
+    resume();
+    finalizeRun();
   }
 
   void HandleRuns::beginRun(art::RunID run)
@@ -131,6 +131,7 @@ namespace statemachine {
     if (runException_) return;
 
     runException_ = true;
+    context<HandleFiles>().openSomeOutputFiles();
     if (beginRunCalled_) endRun(currentRun());
     ep_.writeRun(currentRun_);
     ep_.recordOutputClosureRequests();

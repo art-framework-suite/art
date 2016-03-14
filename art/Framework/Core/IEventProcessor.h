@@ -43,7 +43,7 @@ namespace art
     virtual void closeInputFile() = 0;
     virtual void openAllOutputFiles() = 0;
     virtual void closeAllOutputFiles() = 0;
-    virtual void openSomeOutputFiles(std::size_t const) = 0;
+    virtual void openSomeOutputFiles() = 0;
     virtual void closeSomeOutputFiles(std::size_t const) = 0;
 
     virtual void respondToOpenInputFile() = 0;
@@ -53,8 +53,9 @@ namespace art
 
     virtual void rewindInput() = 0;
     virtual void recordOutputClosureRequests() = 0;
-    virtual bool outputToCloseAtBoundary(Boundary const) const = 0;
-    virtual void switchOutputs(std::size_t const) = 0;
+    virtual bool outputsToCloseAtBoundary(Boundary const) const = 0;
+    virtual bool outputsToOpen() const = 0;
+    virtual bool someOutputsOpen() const = 0;
 
     virtual void doErrorStuff() = 0;
 

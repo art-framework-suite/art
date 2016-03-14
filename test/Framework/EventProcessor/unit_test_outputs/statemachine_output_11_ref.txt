@@ -1,10 +1,8 @@
 Machine parameters:  handleEmptyRuns = 0  handleEmptySubRuns = 0
 	beginJob
-    *** nextItemType: InputFile ***
+    *** nextItemType: InputFile+OutputFiles ***
  	openInputFile
 	respondToOpenInputFile
-	openAllOutputFiles
-	respondToOpenOutputFiles
     *** nextItemType: Run ***
 	readAndCacheRun...(run: 1)
     *** nextItemType: SubRun ***
@@ -17,6 +15,8 @@ Machine parameters:  handleEmptyRuns = 0  handleEmptySubRuns = 0
 	shouldWeStop
     *** internalPost w/in nextItemType: SwitchOutputFiles ***
     *** nextItemType: Event ***
+	openSomeOutputFiles
+	respondToOpenOutputFiles
 	writeEvent........(run: 1 subRun: 1 event: 1)
 	readEvent.........(run: 1 subRun: 1 event: 2)
 	processEvent......(run: 1 subRun: 1 event: 2)
@@ -26,10 +26,10 @@ Machine parameters:  handleEmptyRuns = 0  handleEmptySubRuns = 0
 	endRun............(run: 1)
 	writeRun..........(run: 1)
 	respondToCloseOutputFiles
-	closeSomeOutputFiles
+	closeSomeOutputFiles (Level: Event)
+    *** nextItemType: Event ***
 	openSomeOutputFiles
 	respondToOpenOutputFiles
-    *** nextItemType: Event ***
 	writeEvent........(run: 1 subRun: 1 event: 2)
 	beginRun..........(run: 1)
 	beginSubRun.......(run: 1 subRun: 1)
@@ -43,14 +43,15 @@ Machine parameters:  handleEmptyRuns = 0  handleEmptySubRuns = 0
 	endRun............(run: 1)
 	writeRun..........(run: 1)
 	respondToCloseOutputFiles
-	closeSomeOutputFiles
+	closeSomeOutputFiles (Level: Event)
+	closeSomeOutputFiles (Level: SubRun)
+	closeSomeOutputFiles (Level: Run)
+	closeSomeOutputFiles (Level: InputFile)
 	respondToCloseInputFile
 	clearPrincipalCache
 	closeInputFile
  	openInputFile
 	respondToOpenInputFile
-	openSomeOutputFiles
-	respondToOpenOutputFiles
     *** nextItemType: Run ***
 	readAndCacheRun...(run: 1)
     *** nextItemType: SubRun ***
@@ -62,6 +63,8 @@ Machine parameters:  handleEmptyRuns = 0  handleEmptySubRuns = 0
 	processEvent......(run: 1 subRun: 1 event: 4)
 	shouldWeStop
     *** nextItemType: Event ***
+	openSomeOutputFiles
+	respondToOpenOutputFiles
 	writeEvent........(run: 1 subRun: 1 event: 4)
 	readEvent.........(run: 1 subRun: 1 event: 5)
 	processEvent......(run: 1 subRun: 1 event: 5)
@@ -74,27 +77,28 @@ Machine parameters:  handleEmptyRuns = 0  handleEmptySubRuns = 0
 	endRun............(run: 1)
 	writeRun..........(run: 1)
 	respondToCloseOutputFiles
-	closeSomeOutputFiles
+	closeSomeOutputFiles (Level: Event)
+	closeSomeOutputFiles (Level: SubRun)
+	closeSomeOutputFiles (Level: Run)
+	closeSomeOutputFiles (Level: InputFile)
 	respondToCloseInputFile
 	clearPrincipalCache
 	closeInputFile
  	openInputFile
 	respondToOpenInputFile
-	openSomeOutputFiles
-	respondToOpenOutputFiles
     *** nextItemType: Run ***
 	readAndCacheRun...(run: 2)
     *** nextItemType: SubRun ***
 	readAndCacheSubRun(run: 2 subRun: 0)
     *** internalPost w/in nextItemType: SwitchOutputFiles ***
     *** nextItemType: SubRun ***
+	openSomeOutputFiles
+	respondToOpenOutputFiles
 	writeSubRun.......(run: 2 subRun: 0)
 	readAndCacheSubRun(run: 2 subRun: 1)
 	writeRun..........(run: 2)
 	respondToCloseOutputFiles
-	closeSomeOutputFiles
-	openSomeOutputFiles
-	respondToOpenOutputFiles
+	closeSomeOutputFiles (Level: SubRun)
     *** nextItemType: Event ***
 	beginRun..........(run: 2)
 	beginSubRun.......(run: 2 subRun: 1)
@@ -102,6 +106,8 @@ Machine parameters:  handleEmptyRuns = 0  handleEmptySubRuns = 0
 	processEvent......(run: 2 subRun: 1 event: 1)
 	shouldWeStop
     *** nextItemType: Stop ***
+	openSomeOutputFiles
+	respondToOpenOutputFiles
 	writeEvent........(run: 2 subRun: 1 event: 1)
 	endSubRun.........(run: 2 subRun: 1)
 	writeSubRun.......(run: 2 subRun: 1)
@@ -117,11 +123,9 @@ The state machine reports it has been terminated
 
 Machine parameters:  handleEmptyRuns = 0  handleEmptySubRuns = 1
 	beginJob
-    *** nextItemType: InputFile ***
+    *** nextItemType: InputFile+OutputFiles ***
  	openInputFile
 	respondToOpenInputFile
-	openAllOutputFiles
-	respondToOpenOutputFiles
     *** nextItemType: Run ***
 	readAndCacheRun...(run: 1)
     *** nextItemType: SubRun ***
@@ -134,6 +138,8 @@ Machine parameters:  handleEmptyRuns = 0  handleEmptySubRuns = 1
 	shouldWeStop
     *** internalPost w/in nextItemType: SwitchOutputFiles ***
     *** nextItemType: Event ***
+	openSomeOutputFiles
+	respondToOpenOutputFiles
 	writeEvent........(run: 1 subRun: 1 event: 1)
 	readEvent.........(run: 1 subRun: 1 event: 2)
 	processEvent......(run: 1 subRun: 1 event: 2)
@@ -143,10 +149,10 @@ Machine parameters:  handleEmptyRuns = 0  handleEmptySubRuns = 1
 	endRun............(run: 1)
 	writeRun..........(run: 1)
 	respondToCloseOutputFiles
-	closeSomeOutputFiles
+	closeSomeOutputFiles (Level: Event)
+    *** nextItemType: Event ***
 	openSomeOutputFiles
 	respondToOpenOutputFiles
-    *** nextItemType: Event ***
 	writeEvent........(run: 1 subRun: 1 event: 2)
 	beginRun..........(run: 1)
 	beginSubRun.......(run: 1 subRun: 1)
@@ -160,14 +166,15 @@ Machine parameters:  handleEmptyRuns = 0  handleEmptySubRuns = 1
 	endRun............(run: 1)
 	writeRun..........(run: 1)
 	respondToCloseOutputFiles
-	closeSomeOutputFiles
+	closeSomeOutputFiles (Level: Event)
+	closeSomeOutputFiles (Level: SubRun)
+	closeSomeOutputFiles (Level: Run)
+	closeSomeOutputFiles (Level: InputFile)
 	respondToCloseInputFile
 	clearPrincipalCache
 	closeInputFile
  	openInputFile
 	respondToOpenInputFile
-	openSomeOutputFiles
-	respondToOpenOutputFiles
     *** nextItemType: Run ***
 	readAndCacheRun...(run: 1)
     *** nextItemType: SubRun ***
@@ -179,6 +186,8 @@ Machine parameters:  handleEmptyRuns = 0  handleEmptySubRuns = 1
 	processEvent......(run: 1 subRun: 1 event: 4)
 	shouldWeStop
     *** nextItemType: Event ***
+	openSomeOutputFiles
+	respondToOpenOutputFiles
 	writeEvent........(run: 1 subRun: 1 event: 4)
 	readEvent.........(run: 1 subRun: 1 event: 5)
 	processEvent......(run: 1 subRun: 1 event: 5)
@@ -191,20 +200,23 @@ Machine parameters:  handleEmptyRuns = 0  handleEmptySubRuns = 1
 	endRun............(run: 1)
 	writeRun..........(run: 1)
 	respondToCloseOutputFiles
-	closeSomeOutputFiles
+	closeSomeOutputFiles (Level: Event)
+	closeSomeOutputFiles (Level: SubRun)
+	closeSomeOutputFiles (Level: Run)
+	closeSomeOutputFiles (Level: InputFile)
 	respondToCloseInputFile
 	clearPrincipalCache
 	closeInputFile
  	openInputFile
 	respondToOpenInputFile
-	openSomeOutputFiles
-	respondToOpenOutputFiles
     *** nextItemType: Run ***
 	readAndCacheRun...(run: 2)
     *** nextItemType: SubRun ***
 	readAndCacheSubRun(run: 2 subRun: 0)
     *** internalPost w/in nextItemType: SwitchOutputFiles ***
     *** nextItemType: SubRun ***
+	openSomeOutputFiles
+	respondToOpenOutputFiles
 	beginRun..........(run: 2)
 	beginSubRun.......(run: 2 subRun: 0)
 	endSubRun.........(run: 2 subRun: 0)
@@ -213,9 +225,7 @@ Machine parameters:  handleEmptyRuns = 0  handleEmptySubRuns = 1
 	endRun............(run: 2)
 	writeRun..........(run: 2)
 	respondToCloseOutputFiles
-	closeSomeOutputFiles
-	openSomeOutputFiles
-	respondToOpenOutputFiles
+	closeSomeOutputFiles (Level: SubRun)
     *** nextItemType: Event ***
 	beginRun..........(run: 2)
 	beginSubRun.......(run: 2 subRun: 1)
@@ -223,6 +233,8 @@ Machine parameters:  handleEmptyRuns = 0  handleEmptySubRuns = 1
 	processEvent......(run: 2 subRun: 1 event: 1)
 	shouldWeStop
     *** nextItemType: Stop ***
+	openSomeOutputFiles
+	respondToOpenOutputFiles
 	writeEvent........(run: 2 subRun: 1 event: 1)
 	endSubRun.........(run: 2 subRun: 1)
 	writeSubRun.......(run: 2 subRun: 1)
@@ -238,11 +250,9 @@ The state machine reports it has been terminated
 
 Machine parameters:  handleEmptyRuns = 1  handleEmptySubRuns = 0
 	beginJob
-    *** nextItemType: InputFile ***
+    *** nextItemType: InputFile+OutputFiles ***
  	openInputFile
 	respondToOpenInputFile
-	openAllOutputFiles
-	respondToOpenOutputFiles
     *** nextItemType: Run ***
 	readAndCacheRun...(run: 1)
 	beginRun..........(run: 1)
@@ -255,6 +265,8 @@ Machine parameters:  handleEmptyRuns = 1  handleEmptySubRuns = 0
 	shouldWeStop
     *** internalPost w/in nextItemType: SwitchOutputFiles ***
     *** nextItemType: Event ***
+	openSomeOutputFiles
+	respondToOpenOutputFiles
 	writeEvent........(run: 1 subRun: 1 event: 1)
 	readEvent.........(run: 1 subRun: 1 event: 2)
 	processEvent......(run: 1 subRun: 1 event: 2)
@@ -264,10 +276,10 @@ Machine parameters:  handleEmptyRuns = 1  handleEmptySubRuns = 0
 	endRun............(run: 1)
 	writeRun..........(run: 1)
 	respondToCloseOutputFiles
-	closeSomeOutputFiles
+	closeSomeOutputFiles (Level: Event)
+    *** nextItemType: Event ***
 	openSomeOutputFiles
 	respondToOpenOutputFiles
-    *** nextItemType: Event ***
 	writeEvent........(run: 1 subRun: 1 event: 2)
 	beginRun..........(run: 1)
 	beginSubRun.......(run: 1 subRun: 1)
@@ -281,14 +293,15 @@ Machine parameters:  handleEmptyRuns = 1  handleEmptySubRuns = 0
 	endRun............(run: 1)
 	writeRun..........(run: 1)
 	respondToCloseOutputFiles
-	closeSomeOutputFiles
+	closeSomeOutputFiles (Level: Event)
+	closeSomeOutputFiles (Level: SubRun)
+	closeSomeOutputFiles (Level: Run)
+	closeSomeOutputFiles (Level: InputFile)
 	respondToCloseInputFile
 	clearPrincipalCache
 	closeInputFile
  	openInputFile
 	respondToOpenInputFile
-	openSomeOutputFiles
-	respondToOpenOutputFiles
     *** nextItemType: Run ***
 	readAndCacheRun...(run: 1)
 	beginRun..........(run: 1)
@@ -300,6 +313,8 @@ Machine parameters:  handleEmptyRuns = 1  handleEmptySubRuns = 0
 	processEvent......(run: 1 subRun: 1 event: 4)
 	shouldWeStop
     *** nextItemType: Event ***
+	openSomeOutputFiles
+	respondToOpenOutputFiles
 	writeEvent........(run: 1 subRun: 1 event: 4)
 	readEvent.........(run: 1 subRun: 1 event: 5)
 	processEvent......(run: 1 subRun: 1 event: 5)
@@ -312,14 +327,15 @@ Machine parameters:  handleEmptyRuns = 1  handleEmptySubRuns = 0
 	endRun............(run: 1)
 	writeRun..........(run: 1)
 	respondToCloseOutputFiles
-	closeSomeOutputFiles
+	closeSomeOutputFiles (Level: Event)
+	closeSomeOutputFiles (Level: SubRun)
+	closeSomeOutputFiles (Level: Run)
+	closeSomeOutputFiles (Level: InputFile)
 	respondToCloseInputFile
 	clearPrincipalCache
 	closeInputFile
  	openInputFile
 	respondToOpenInputFile
-	openSomeOutputFiles
-	respondToOpenOutputFiles
     *** nextItemType: Run ***
 	readAndCacheRun...(run: 2)
 	beginRun..........(run: 2)
@@ -327,14 +343,14 @@ Machine parameters:  handleEmptyRuns = 1  handleEmptySubRuns = 0
 	readAndCacheSubRun(run: 2 subRun: 0)
     *** internalPost w/in nextItemType: SwitchOutputFiles ***
     *** nextItemType: SubRun ***
+	openSomeOutputFiles
+	respondToOpenOutputFiles
 	writeSubRun.......(run: 2 subRun: 0)
 	readAndCacheSubRun(run: 2 subRun: 1)
 	endRun............(run: 2)
 	writeRun..........(run: 2)
 	respondToCloseOutputFiles
-	closeSomeOutputFiles
-	openSomeOutputFiles
-	respondToOpenOutputFiles
+	closeSomeOutputFiles (Level: SubRun)
     *** nextItemType: Event ***
 	beginRun..........(run: 2)
 	beginSubRun.......(run: 2 subRun: 1)
@@ -342,6 +358,8 @@ Machine parameters:  handleEmptyRuns = 1  handleEmptySubRuns = 0
 	processEvent......(run: 2 subRun: 1 event: 1)
 	shouldWeStop
     *** nextItemType: Stop ***
+	openSomeOutputFiles
+	respondToOpenOutputFiles
 	writeEvent........(run: 2 subRun: 1 event: 1)
 	endSubRun.........(run: 2 subRun: 1)
 	writeSubRun.......(run: 2 subRun: 1)
@@ -357,11 +375,9 @@ The state machine reports it has been terminated
 
 Machine parameters:  handleEmptyRuns = 1  handleEmptySubRuns = 1
 	beginJob
-    *** nextItemType: InputFile ***
+    *** nextItemType: InputFile+OutputFiles ***
  	openInputFile
 	respondToOpenInputFile
-	openAllOutputFiles
-	respondToOpenOutputFiles
     *** nextItemType: Run ***
 	readAndCacheRun...(run: 1)
 	beginRun..........(run: 1)
@@ -374,6 +390,8 @@ Machine parameters:  handleEmptyRuns = 1  handleEmptySubRuns = 1
 	shouldWeStop
     *** internalPost w/in nextItemType: SwitchOutputFiles ***
     *** nextItemType: Event ***
+	openSomeOutputFiles
+	respondToOpenOutputFiles
 	writeEvent........(run: 1 subRun: 1 event: 1)
 	readEvent.........(run: 1 subRun: 1 event: 2)
 	processEvent......(run: 1 subRun: 1 event: 2)
@@ -383,10 +401,10 @@ Machine parameters:  handleEmptyRuns = 1  handleEmptySubRuns = 1
 	endRun............(run: 1)
 	writeRun..........(run: 1)
 	respondToCloseOutputFiles
-	closeSomeOutputFiles
+	closeSomeOutputFiles (Level: Event)
+    *** nextItemType: Event ***
 	openSomeOutputFiles
 	respondToOpenOutputFiles
-    *** nextItemType: Event ***
 	writeEvent........(run: 1 subRun: 1 event: 2)
 	beginRun..........(run: 1)
 	beginSubRun.......(run: 1 subRun: 1)
@@ -400,14 +418,15 @@ Machine parameters:  handleEmptyRuns = 1  handleEmptySubRuns = 1
 	endRun............(run: 1)
 	writeRun..........(run: 1)
 	respondToCloseOutputFiles
-	closeSomeOutputFiles
+	closeSomeOutputFiles (Level: Event)
+	closeSomeOutputFiles (Level: SubRun)
+	closeSomeOutputFiles (Level: Run)
+	closeSomeOutputFiles (Level: InputFile)
 	respondToCloseInputFile
 	clearPrincipalCache
 	closeInputFile
  	openInputFile
 	respondToOpenInputFile
-	openSomeOutputFiles
-	respondToOpenOutputFiles
     *** nextItemType: Run ***
 	readAndCacheRun...(run: 1)
 	beginRun..........(run: 1)
@@ -419,6 +438,8 @@ Machine parameters:  handleEmptyRuns = 1  handleEmptySubRuns = 1
 	processEvent......(run: 1 subRun: 1 event: 4)
 	shouldWeStop
     *** nextItemType: Event ***
+	openSomeOutputFiles
+	respondToOpenOutputFiles
 	writeEvent........(run: 1 subRun: 1 event: 4)
 	readEvent.........(run: 1 subRun: 1 event: 5)
 	processEvent......(run: 1 subRun: 1 event: 5)
@@ -431,14 +452,15 @@ Machine parameters:  handleEmptyRuns = 1  handleEmptySubRuns = 1
 	endRun............(run: 1)
 	writeRun..........(run: 1)
 	respondToCloseOutputFiles
-	closeSomeOutputFiles
+	closeSomeOutputFiles (Level: Event)
+	closeSomeOutputFiles (Level: SubRun)
+	closeSomeOutputFiles (Level: Run)
+	closeSomeOutputFiles (Level: InputFile)
 	respondToCloseInputFile
 	clearPrincipalCache
 	closeInputFile
  	openInputFile
 	respondToOpenInputFile
-	openSomeOutputFiles
-	respondToOpenOutputFiles
     *** nextItemType: Run ***
 	readAndCacheRun...(run: 2)
 	beginRun..........(run: 2)
@@ -446,6 +468,8 @@ Machine parameters:  handleEmptyRuns = 1  handleEmptySubRuns = 1
 	readAndCacheSubRun(run: 2 subRun: 0)
     *** internalPost w/in nextItemType: SwitchOutputFiles ***
     *** nextItemType: SubRun ***
+	openSomeOutputFiles
+	respondToOpenOutputFiles
 	beginSubRun.......(run: 2 subRun: 0)
 	endSubRun.........(run: 2 subRun: 0)
 	writeSubRun.......(run: 2 subRun: 0)
@@ -453,9 +477,7 @@ Machine parameters:  handleEmptyRuns = 1  handleEmptySubRuns = 1
 	endRun............(run: 2)
 	writeRun..........(run: 2)
 	respondToCloseOutputFiles
-	closeSomeOutputFiles
-	openSomeOutputFiles
-	respondToOpenOutputFiles
+	closeSomeOutputFiles (Level: SubRun)
     *** nextItemType: Event ***
 	beginRun..........(run: 2)
 	beginSubRun.......(run: 2 subRun: 1)
@@ -463,6 +485,8 @@ Machine parameters:  handleEmptyRuns = 1  handleEmptySubRuns = 1
 	processEvent......(run: 2 subRun: 1 event: 1)
 	shouldWeStop
     *** nextItemType: Stop ***
+	openSomeOutputFiles
+	respondToOpenOutputFiles
 	writeEvent........(run: 2 subRun: 1 event: 1)
 	endSubRun.........(run: 2 subRun: 1)
 	writeSubRun.......(run: 2 subRun: 1)

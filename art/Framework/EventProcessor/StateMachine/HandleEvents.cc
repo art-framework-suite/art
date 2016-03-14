@@ -85,14 +85,20 @@ namespace statemachine {
   void HandleEvents::finalizeEvent()
   {
     if (!finalizeEnabled_) return;
+    context<HandleFiles>().openSomeOutputFiles();
     ep_.writeEvent();
     ep_.recordOutputClosureRequests();
     context<HandleFiles>().maybeTriggerOutputFileSwitch(Boundary::Event);
   }
 
-  void HandleEvents::resumeAndFinalizeEvent(Event const&)
+  void HandleEvents::resume()
   {
     finalizeEnabled_ = true;
+  }
+
+  void HandleEvents::resumeAndFinalizeEvent(Event const&)
+  {
+    resume();
     finalizeEvent();
   }
 

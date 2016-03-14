@@ -1,4 +1,4 @@
-InputFile
+InputFile+OutputFiles
 InputFile+SwitchOutputFiles
 InputFile+SwitchOutputFiles
 InputFile
