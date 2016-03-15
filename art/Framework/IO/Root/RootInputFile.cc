@@ -984,7 +984,10 @@ namespace art {
   {
     EntryNumbers entries;
     auto it = fiIter_;
-    for (auto const eid = it->eventID_; eid == it->eventID_ ; ++it) {
+    if ( it == fiEnd_)
+      return entries;
+
+    for (auto const eid = it->eventID_; it != fiEnd_ && eid == it->eventID_; ++it) {
       entries.push_back(it->entry_);
     }
     return entries;

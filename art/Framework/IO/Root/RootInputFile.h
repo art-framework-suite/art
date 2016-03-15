@@ -409,7 +409,7 @@ private:
   std::shared_ptr<FileIndex> fileIndexSharedPtr_ { new FileIndex };
   FileIndex& fileIndex_ { *fileIndexSharedPtr_ };
   FileIndex::const_iterator fiBegin_ {fileIndex_.begin()};
-  FileIndex::const_iterator fiEnd_ {fiBegin_};
+  FileIndex::const_iterator fiEnd_ {fileIndex_.end()};
   FileIndex::const_iterator fiIter_ {fiBegin_};
   bool fastClonable_ {false};
   std::tuple<EventAuxiliary,
