@@ -163,7 +163,7 @@ namespace statemachine {
     my_base{ctx}
   {
     // std::cout << " NewSubRun()\n";
-    context<HandleFiles>().setCurrentBoundary(Boundary::SubRun);
+    context<Machine>().setCurrentBoundary(Boundary::SubRun);
     context<HandleSubRuns>().setupCurrentSubRun();
     checkInvariant();
   }

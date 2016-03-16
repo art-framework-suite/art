@@ -149,7 +149,7 @@ namespace statemachine {
     my_base{ctx}
   {
     // std::cout << " NewRun()\n";
-    context<HandleFiles>().setCurrentBoundary(Boundary::Run);
+    context<Machine>().setCurrentBoundary(Boundary::Run);
     context<HandleRuns>().setupCurrentRun();
     // Here we assume that the input source or event processor
     // will throw if we fail to get a valid run.  Therefore

@@ -107,7 +107,7 @@ namespace statemachine {
     ep_{context<Machine>().ep()}
   {
     // std::cout << " NewEvent()\n";
-    context<HandleFiles>().setCurrentBoundary(Boundary::Event);
+    context<Machine>().setCurrentBoundary(Boundary::Event);
     readAndProcessEvent();
     checkInvariant();
   }
