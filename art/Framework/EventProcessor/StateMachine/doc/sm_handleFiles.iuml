@@ -1,0 +1,50 @@
+state HandleFiles {
+
+  [*] --> NewInputFile
+  NewInputFile --> HandleRuns: Run
+  
+  NewInputFile: entry/openInputFile
+
+  state "H*" as hist
+  hist: (HandleFiles is a history pseudostate)
+  hist --> HandleRuns
+
+  HandleRuns --> HandleRuns: Run
+  HandleRuns --> hist: SwitchOutputFiles/closeSomeOutputFiles
+
+  state HandleRuns {
+    [*] --> NewRun
+    NewRun --> HandleSubRuns: SubRun
+    NewRun: entry/setupCurrentRun
+
+    NewRun --> PauseRun: Pause/disableFinalizeRun
+    PauseRun --> HandleSubRuns: SubRun
+
+
+    HandleSubRuns --> HandleSubRuns: SubRun
+    state HandleSubRuns {
+
+      [*] --> NewSubRun
+      NewSubRun --> HandleEvents: Event
+      NewSubRun: entry/setupCurrentSubRun
+
+      NewSubRun --> PauseSubRun: Pause/disableFinalizeSubRun
+      PauseSubRun --> HandleEvents: Event
+
+      HandleEvents --> HandleEvents: Event
+
+      state HandleEvents {
+        [*] --> NewEvent
+        NewEvent: entry/readAndProcessEvent
+
+	NewEvent --> PauseEvent: Pause/disableFinalizeEvent
+      }
+      HandleEvents: entry/initCurrentEvent
+      HandleEvents: exit/finalizeEvent
+    }
+    HandleSubRuns: entry/initCurrentSubRun
+    HandleSubRuns: exit/finalizeSubRun
+  }
+  HandleRuns: entry/initCurrentRun
+  HandleRuns: exit/finalizeRun
+}

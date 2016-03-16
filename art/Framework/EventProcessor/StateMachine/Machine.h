@@ -8,6 +8,8 @@
 // the states defined here.  This machine is used by the
 // EventProcessor.
 //
+// Please see the "./doc/README" file!
+//
 // ======================================================================
 
 #include "art/Framework/Core/IEventProcessor.h"
@@ -116,6 +118,10 @@ namespace statemachine {
 
   private:
     art::IEventProcessor & ep_;
+    // FIXME: Not sure that switchInProgress_ is necessary.  It is
+    //        awkward in that it must be appropriately set in
+    //        different functions.  Perhaps ep_.outputsToOpen() is a
+    //        sufficient check?
     bool switchInProgress_ {false};
   };
 
@@ -172,20 +178,14 @@ namespace statemachine {
     void beginRunIfNotDoneAlready();
 
     void disableFinalizeRun(Pause const&) { finalizeEnabled_ = false; }
-    void resumeAndFinalizeRun(Run const&);
-    void resume(SubRun const&);
 
   private:
-
-    void resume();
-
     art::IEventProcessor & ep_;
     art::RunID currentRun_;
     bool exitCalled_ {false};
     bool beginRunCalled_ {false};
     bool runException_ {false};
     bool finalizeEnabled_ {true};
-
   };
 
   class HandleSubRuns;
@@ -207,9 +207,8 @@ namespace statemachine {
     ~PauseRun();
 
     using reactions = mpl::list<
-      sc::transition<SwitchOutputFiles,sc::deep_history<HandleRuns>, Machine, &Machine::closeSomeOutputFiles>,
-      sc::transition<Run, NewRun, HandleRuns, &HandleRuns::resumeAndFinalizeRun>,
-      sc::transition<SubRun, HandleSubRuns, HandleRuns, &HandleRuns::resume> >;
+      sc::transition<SwitchOutputFiles, sc::deep_history<HandleRuns>, Machine, &Machine::closeSomeOutputFiles>,
+      sc::transition<SubRun, HandleSubRuns> >;
   };
 
   class NewSubRun;
@@ -225,8 +224,6 @@ namespace statemachine {
     bool beginSubRunCalled() const;
 
     void disableFinalizeSubRun(Pause const&) { finalizeEnabled_ = false; }
-    void resumeAndFinalizeSubRun(SubRun const&);
-    void resume(Event const&);
     void beginSubRun(art::SubRunID run);
     void endSubRun(art::SubRunID run);
 
@@ -239,8 +236,6 @@ namespace statemachine {
     using reactions = sc::transition<SubRun, HandleSubRuns>;
 
   private:
-    void resume();
-
     art::IEventProcessor & ep_;
     art::SubRunID currentSubRun_;
     bool exitCalled_ {false};
@@ -269,9 +264,8 @@ namespace statemachine {
     ~PauseSubRun();
 
     using reactions = mpl::list<
-      sc::transition<SwitchOutputFiles,sc::deep_history<HandleRuns>, Machine, &Machine::closeSomeOutputFiles>,
-      sc::transition<SubRun, NewSubRun, HandleSubRuns, &HandleSubRuns::resumeAndFinalizeSubRun>,
-      sc::transition<Event, HandleEvents, HandleSubRuns, &HandleSubRuns::resume> >;
+      sc::transition<SwitchOutputFiles, sc::deep_history<HandleRuns>, Machine, &Machine::closeSomeOutputFiles>,
+      sc::transition<Event, HandleEvents> >;
   };
 
   class NewEvent;
@@ -285,13 +279,10 @@ namespace statemachine {
     void exit();
     void finalizeEvent();
     void checkInvariant();
-    void resumeAndFinalizeEvent(Event const&);
 
     using reactions = sc::transition<Event, HandleEvents>;
 
   private:
-    void resume();
-
     art::IEventProcessor & ep_;
     art::EventID currentEvent_;
     bool exitCalled_ {false};
@@ -321,9 +312,7 @@ namespace statemachine {
     PauseEvent(my_context ctx);
     ~PauseEvent();
 
-    using reactions = mpl::list<
-      sc::transition<SwitchOutputFiles,sc::deep_history<HandleRuns>, Machine, &Machine::closeSomeOutputFiles>,
-      sc::transition<Event, NewEvent, HandleEvents, &HandleEvents::resumeAndFinalizeEvent> >;
+    using reactions = sc::transition<SwitchOutputFiles, sc::deep_history<HandleRuns>, Machine, &Machine::closeSomeOutputFiles>;
   };
 
 }

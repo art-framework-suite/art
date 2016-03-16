@@ -91,17 +91,6 @@ namespace statemachine {
     context<HandleFiles>().maybeTriggerOutputFileSwitch(Boundary::Event);
   }
 
-  void HandleEvents::resume()
-  {
-    finalizeEnabled_ = true;
-  }
-
-  void HandleEvents::resumeAndFinalizeEvent(Event const&)
-  {
-    resume();
-    finalizeEvent();
-  }
-
   NewEvent::NewEvent(my_context ctx) :
     my_base{ctx},
     ep_{context<Machine>().ep()}

@@ -88,22 +88,6 @@ namespace statemachine {
     }
   }
 
-  void HandleRuns::resume(SubRun const&)
-  {
-    resume();
-  }
-
-  void HandleRuns::resume()
-  {
-    finalizeEnabled_ = true;
-  }
-
-  void HandleRuns::resumeAndFinalizeRun(Run const&)
-  {
-    resume();
-    finalizeRun();
-  }
-
   void HandleRuns::beginRun(art::RunID run)
   {
     beginRunCalled_ = true;

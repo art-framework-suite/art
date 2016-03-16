@@ -94,21 +94,6 @@ namespace statemachine {
     subRunException_ = false;
   }
 
-  void HandleSubRuns::resume(Event const&) {
-    resume();
-  }
-
-  void HandleSubRuns::resume()
-  {
-    finalizeEnabled_ = true;
-  }
-
-  void HandleSubRuns::resumeAndFinalizeSubRun(SubRun const&)
-  {
-    resume();
-    finalizeSubRun();
-  }
-
   void HandleSubRuns::beginSubRun(art::SubRunID sr)
   {
     beginSubRunCalled_ = true;
