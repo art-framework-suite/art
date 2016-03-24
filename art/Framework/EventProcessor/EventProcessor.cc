@@ -6,7 +6,6 @@
 #include "art/Framework/Core/InputSource.h"
 #include "art/Framework/Core/InputSourceDescription.h"
 #include "art/Framework/Core/InputSourceFactory.h"
-#include "art/Framework/EventProcessor/StateMachine/Machine.h"
 #include "art/Framework/EventProcessor/detail/writeSummary.h"
 #include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Principal/OccurrenceTraits.h"
@@ -39,7 +38,6 @@
 #include <cassert>
 #include <exception>
 #include <iomanip>
-#include <iostream>
 #include <string>
 #include <utility>
 #include <vector>
@@ -139,29 +137,11 @@ art::EventProcessor::EventProcessor(ParameterSet const & pset)
   :
   act_table_{pset.get<ParameterSet>("services.scheduler")},
   actReg_(),
-  mfStatusUpdater_(actReg_),
-  preg_(),
-  serviceToken_(),
-  tbbManager_(tbb::task_scheduler_init::deferred),
-  servicesSentry_(),
-  pathManager_(pset, preg_, act_table_, actReg_),
-  serviceDirector_(initServices_(pset, actReg_, serviceToken_)),
-  input_(),
-  schedule_(),
-  endPathExecutor_(),
-  fb_(),
-  machine_(),
-  principalCache_(),
-  sm_evp_(),
-  shouldWeStop_{false},
-  stateMachineWasInErrorState_(false),
-  // need to handle fileMode
+  mfStatusUpdater_{actReg_},
+  pathManager_{pset, preg_, act_table_, actReg_},
+  serviceDirector_{initServices_(pset, actReg_, serviceToken_)},
   handleEmptyRuns_{pset.get<bool>("services.scheduler.handleEmptyRuns", true)},
-  handleEmptySubRuns_{pset.get<bool>("services.scheduler.handleEmptySubRuns", true)},
-  exceptionMessageFiles_(),
-  exceptionMessageRuns_(),
-  exceptionMessageSubRuns_(),
-  alreadyHandlingException_(false)
+  handleEmptySubRuns_{pset.get<bool>("services.scheduler.handleEmptySubRuns", true)}
 {
   servicesActivate_(serviceToken_);
   serviceToken_.forceCreation();

@@ -114,6 +114,15 @@ cet_make_exec(dump_file_index
   art_Framework_IO_Root
   )
 
+cet_make_exec(dump_file_contributors
+  SOURCE dump_file_contributors.cc
+  NO_INSTALL
+  LIBRARIES
+  art_Framework_IO_Root
+  ${Boost_PROGRAM_OPTIONS_LIBRARY}
+  ${ROOT_RIO}
+  )
+
 # cet_test macro
 
 cet_test(EventSelectorFromFile_w HANDBUILT

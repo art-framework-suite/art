@@ -18,12 +18,12 @@
 #include "art/Framework/Principal/Run.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Framework/Principal/SubRun.h"
-#include "canvas/Persistency/Provenance/FileFormatVersion.h"
 #include "art/Persistency/Provenance/ProductMetaData.h"
 #include "art/Utilities/ConfigTable.h"
-#include "canvas/Utilities/Exception.h"
 #include "art/Utilities/parent_path.h"
 #include "art/Utilities/unique_filename.h"
+#include "canvas/Persistency/Provenance/FileFormatVersion.h"
+#include "canvas/Utilities/Exception.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/types/Atom.h"
 #include "fhiclcpp/types/OptionalAtom.h"
@@ -337,7 +337,7 @@ write(EventPrincipal & ep)
 
 void
 art::RootOutput::
-writeSubRun(SubRunPrincipal & sr)
+writeSubRun(SubRunPrincipal& sr)
 {
   if (dropAllSubRuns_) {
     return;

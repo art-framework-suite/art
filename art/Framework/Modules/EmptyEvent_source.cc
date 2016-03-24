@@ -83,7 +83,7 @@ private:
   void beginJob() override;
   void endJob() override;
 
-  void reallyReadEvent();
+  void reallyReadEvent(bool const lastEventInSubRun);
 
   std::unique_ptr<EmptyEventTimestampPlugin>
   makePlugin_(fhicl::ParameterSet const & pset);
@@ -92,20 +92,20 @@ private:
   unsigned int numberEventsInSubRun_;
   unsigned int eventCreationDelay_;  /* microseconds */
 
-  unsigned int numberEventsInThisRun_;
-  unsigned int numberEventsInThisSubRun_;
-  EventID eventID_;
-  EventID origEventID_;
-  bool newRun_;
-  bool newSubRun_;
-  bool subRunSet_;
-  bool eventSet_;
-  bool skipEventIncrement_;
+  unsigned int numberEventsInThisRun_ {};
+  unsigned int numberEventsInThisSubRun_ {};
+  EventID eventID_ {};
+  EventID origEventID_ {};
+  bool newRun_ {true};
+  bool newSubRun_ {true};
+  bool subRunSet_ {false};
+  bool eventSet_ {false};
+  bool skipEventIncrement_ {true};
   bool resetEventOnSubRun_;
-  std::unique_ptr<EventPrincipal> ep_;
-  EventAuxiliary::ExperimentType eType_;
+  std::unique_ptr<EventPrincipal> ep_ {};
+  EventAuxiliary::ExperimentType eType_ {EventAuxiliary::Any};
 
-  cet::BasicPluginFactory pluginFactory_;
+  cet::BasicPluginFactory pluginFactory_ {};
   std::unique_ptr<EmptyEventTimestampPlugin> plugin_;
 };  // EmptyEvent
 
@@ -115,23 +115,11 @@ using namespace art;
 
 art::EmptyEvent::EmptyEvent(art::EmptyEvent::Parameters const& config, InputSourceDescription & desc)
   :
-  DecrepitRelicInputSourceImplementation(config().drisi_config, desc ),
+  DecrepitRelicInputSourceImplementation{config().drisi_config, desc},
   numberEventsInRun_       {static_cast<uint32_t>(config().numberEventsInRun())},
   numberEventsInSubRun_    {static_cast<uint32_t>(config().numberEventsInSubRun())},
   eventCreationDelay_      {config().eventCreationDelay()},
-  numberEventsInThisRun_   {},
-  numberEventsInThisSubRun_{},
-  eventID_                 {},
-  origEventID_             {}, // In body.
-  newRun_                  {true},
-  newSubRun_               {true},
-  subRunSet_               {false},
-  eventSet_                {false},
-  skipEventIncrement_      {true},
   resetEventOnSubRun_      {config().resetEventOnSubRun()},
-  ep_                      {},
-  eType_                   {EventAuxiliary::Any},
-  pluginFactory_           {},
   plugin_                  {makePlugin_(config.get_PSet().get<fhicl::ParameterSet>("timestampPlugin", { }))}
   {
 
@@ -220,13 +208,18 @@ endJob()
   }
 }
 
-void art::EmptyEvent::reallyReadEvent() {
+void art::EmptyEvent::reallyReadEvent(bool const lastEventInSubRun) {
   if (processingMode() != RunsSubRunsAndEvents) return;
   auto timestamp = plugin_ ?
     plugin_->doEventTimestamp(eventID_) :
     Timestamp::invalidTimestamp();
   EventAuxiliary const eventAux{eventID_, timestamp, eType_};
-  ep_ = std::make_unique<EventPrincipal>(eventAux, processConfiguration());
+  ep_ = std::make_unique<EventPrincipal>(eventAux,
+                                         processConfiguration(),
+                                         std::make_shared<History>(),
+                                         std::make_unique<BranchMapper>(),
+                                         std::make_unique<NoDelayedReader>(),
+                                         lastEventInSubRun);
 }
 
 std::unique_ptr<art::EmptyEventTimestampPlugin>
@@ -325,7 +318,8 @@ art::EmptyEvent::getNextItemType() {
   }
   ++numberEventsInThisRun_;
   ++numberEventsInThisSubRun_;
-  reallyReadEvent();
+  bool const lastEventInSubRun = numberEventsInThisSubRun_ == numberEventsInSubRun_;
+  reallyReadEvent(lastEventInSubRun);
   if (ep_.get() == 0) {
     return input::IsStop;
   }
@@ -351,7 +345,7 @@ art::EmptyEvent::setRunAndEventInfo() {
       eventID_ = eventID_.next();
     }
   } else {
-    // new run                          
+    // new run
     eventID_ = EventID(eventID_.nextRun().run(), origEventID_.subRun(), origEventID_.event());
   }
   if (eventCreationDelay_ > 0) {usleep(eventCreationDelay_);}

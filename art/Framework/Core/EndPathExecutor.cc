@@ -131,7 +131,7 @@ void art::EndPathExecutor::recordOutputClosureRequests()
   for(auto ow : outputWorkers_) {
     if (!ow->stagedToCloseFile() && ow->requestsToCloseFile()) {
       outputWorkersToClose_[ow->fileSwitchBoundary()].push_back(ow);
-      ow->flagToCloseFile(true);
+      ow->setFileStatus(OutputFileStatus::StagedToSwitch);
     }
   }
 }
@@ -157,14 +157,14 @@ bool art::EndPathExecutor::someOutputsOpen() const
 
 void art::EndPathExecutor::closeSomeOutputFiles(std::size_t const b)
 {
+  auto setFileStatus               = [    ](auto ow){ow->setFileStatus(OutputFileStatus::Switching);};
   auto closeFile                   = [    ](auto ow){ow->closeFile();};
-  auto resetFlagToClose            = [    ](auto ow){ow->flagToCloseFile(false);};
   auto invoke_sPreCloseOutputFile  = [this](auto ow){actReg_.sPreCloseOutputFile.invoke(ow->label());};
   auto invoke_sPostCloseOutputFile = [this](auto ow){actReg_.sPostCloseOutputFile.invoke(OutputFileInfo{ow->label(), ow->lastClosedFileName()});};
 
   auto& workers = outputWorkersToClose_[b];
 
-  cet::for_all(workers, resetFlagToClose);
+  cet::for_all(workers, setFileStatus);
   cet::for_all(workers, invoke_sPreCloseOutputFile);
   cet::for_all(workers, closeFile);
   cet::for_all(workers, invoke_sPostCloseOutputFile);
@@ -175,10 +175,12 @@ void art::EndPathExecutor::closeSomeOutputFiles(std::size_t const b)
 
 void art::EndPathExecutor::openSomeOutputFiles(FileBlock const& fb)
 {
+  // auto setFileStatus               = [    ](auto ow){ow->setFileStatus(OutputFileStatus::Open);};
   auto openFile                    = [ &fb](auto ow){ow->openFile(fb);};
   auto invoke_sPostOpenOutputFile  = [this](auto ow){actReg_.sPostOpenOutputFile.invoke(ow->label());};
 
   cet::for_all(outputWorkersToOpen_, openFile);
+  //  cet::for_all(outputWorkersToOpen_, setFileStatus);
   cet::for_all(outputWorkersToOpen_, invoke_sPostOpenOutputFile);
 
   outputWorkersToOpen_.clear();

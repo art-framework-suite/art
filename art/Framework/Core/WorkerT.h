@@ -66,8 +66,6 @@ namespace art {
     virtual void implRespondToCloseInputFile(FileBlock const& fb);
     virtual void implRespondToOpenOutputFiles(FileBlock const& fb);
     virtual void implRespondToCloseOutputFiles(FileBlock const& fb);
-    virtual void implRespondToOpenOutputFile();
-    virtual void implRespondToCloseOutputFile();
     virtual std::string workerType() const;
 
     std::shared_ptr<T> module_;
@@ -167,18 +165,6 @@ namespace art {
   void
   WorkerT<T>::implRespondToCloseOutputFiles(FileBlock const& fb) {
     module_->doRespondToCloseOutputFiles(fb);
-  }
-
-  template <typename T>
-  void
-  WorkerT<T>::implRespondToOpenOutputFile() {
-    module_->doRespondToOpenOutputFile();
-  }
-
-  template <typename T>
-  void
-  WorkerT<T>::implRespondToCloseOutputFile() {
-    module_->doRespondToCloseOutputFile();
   }
 }
 

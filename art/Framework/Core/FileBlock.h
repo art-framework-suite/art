@@ -40,7 +40,7 @@ namespace art {
               std::shared_ptr<BranchChildren> branchChildren,
               std::unique_ptr<ResultsPrincipal> && resp = { }) :
       fileFormatVersion_{version},
-      tree_{const_cast<TTree *>(ev)},
+      tree_{const_cast<TTree*>(ev)},
       fastCopyable_{fastCopy},
       fileName_{fileName},
       branchChildren_{branchChildren},

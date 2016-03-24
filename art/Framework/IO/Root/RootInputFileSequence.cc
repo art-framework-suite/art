@@ -451,34 +451,33 @@ openSecondaryFile(int idx, string const& name,
   }
   detail::logFileAction("Opened secondary input file ", name);
   vector<string> empty_vs;
-  auto rif =
-    std::make_unique<RootInputFile>
-    (name,
-     /*url*/"",
-     processConfiguration(),
-     /*logicalFileName*/"",
-     filePtr,
-     origEventID_,
-     eventsToSkip_,
-     whichSubRunsToSkip_,
-     fastCloningInfo_,
-     treeCacheSize_,
-     treeMaxVirtualSize_,
-     saveMemoryObjectThreshold_,
-     delayedReadSubRunProducts_,
-     delayedReadRunProducts_,
-     processingMode_,
-     forcedRunOffset_,
-     noEventSort_,
-     groupSelectorRules_,
-     /*dropMergeable*/false,
-     /*duplicateChecker_*/nullptr,
-     dropDescendants_,
-     readParameterSets_,
-     /*primaryFile*/primaryFile,
-     /*secondaryFileNameIdx*/idx,
-     /*secondaryFileNames*/empty_vs,
-     /*rifSequence*/this);
+  auto rif = std::make_unique<RootInputFile>( name,
+                                              /*url*/"",
+                                              processConfiguration(),
+                                              /*logicalFileName*/"",
+                                              filePtr,
+                                              origEventID_,
+                                              eventsToSkip_,
+                                              whichSubRunsToSkip_,
+                                              fastCloningInfo_,
+                                              treeCacheSize_,
+                                              treeMaxVirtualSize_,
+                                              saveMemoryObjectThreshold_,
+                                              delayedReadSubRunProducts_,
+                                              delayedReadRunProducts_,
+                                              processingMode_,
+                                              forcedRunOffset_,
+                                              noEventSort_,
+                                              groupSelectorRules_,
+                                              /*dropMergeable*/false,
+                                              /*duplicateChecker_*/nullptr,
+                                              dropDescendants_,
+                                              readParameterSets_,
+                                              /*primaryFile*/primaryFile,
+                                              /*secondaryFileNameIdx*/idx,
+                                              /*secondaryFileNames*/empty_vs,
+                                              /*rifSequence*/this);
+
   mpr_.updateFromSecondaryFile(rif->productList(),
                                rif->perBranchTypePresence(),
                                *rif->createFileBlock().get());
@@ -661,8 +660,8 @@ readSubRun_(std::shared_ptr<RunPrincipal> rp)
 }
 
 std::vector<std::shared_ptr<SubRunPrincipal>>
-    RootInputFileSequence::
-    readSubRunFromSecondaryFiles_(std::shared_ptr<RunPrincipal> rp)
+RootInputFileSequence::
+readSubRunFromSecondaryFiles_(std::shared_ptr<RunPrincipal> rp)
 {
   return std::move(rootFile_->readSubRunFromSecondaryFiles(rp));
 }

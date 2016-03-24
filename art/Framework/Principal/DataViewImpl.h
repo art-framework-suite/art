@@ -249,7 +249,7 @@ art::DataViewImpl::get(SelectorBase const& sel,
                        Handle<PROD>& result) const
 {
   result.clear();
-  GroupQueryResult bh = this->get_(TypeID(typeid(PROD)),sel);
+  GroupQueryResult bh = get_(TypeID(typeid(PROD)),sel);
   convert_handle(bh, result);
   return bh.succeeded();
 }
@@ -260,7 +260,7 @@ bool
 art::DataViewImpl::getByLabel(InputTag const& tag, Handle<PROD>& result) const
 {
   result.clear();
-  GroupQueryResult bh = this->getByLabel_(TypeID(typeid(PROD)), tag.label(), tag.instance(), tag.process());
+  GroupQueryResult bh = getByLabel_(TypeID(typeid(PROD)), tag.label(), tag.instance(), tag.process());
   convert_handle(bh, result);
   return bh.succeeded();
 }
@@ -273,7 +273,7 @@ art::DataViewImpl::getByLabel(std::string const& label,
                               Handle<PROD>& result) const
 {
   result.clear();
-  GroupQueryResult bh = this->getByLabel_(TypeID(typeid(PROD)), label, productInstanceName, std::string());
+  GroupQueryResult bh = getByLabel_(TypeID(typeid(PROD)), label, productInstanceName, std::string());
   convert_handle(bh, result);
   return bh.succeeded();
 }
@@ -285,7 +285,7 @@ art::DataViewImpl::getMany(SelectorBase const& sel,
                            std::vector<Handle<PROD>>& results) const
 {
   GroupQueryResultVec bhv;
-  this->getMany_(TypeID(typeid(PROD)), sel, bhv);
+  getMany_(TypeID(typeid(PROD)), sel, bhv);
 
   // Go through the returned handles; for each element,
   //   1. create a Handle<PROD> and
@@ -315,7 +315,7 @@ void
 art::DataViewImpl::getManyByType(std::vector<Handle<PROD>>& results) const
 {
   GroupQueryResultVec bhv;
-  this->getManyByType_(TypeID(typeid(PROD)), bhv);
+  getManyByType_(TypeID(typeid(PROD)), bhv);
 
   // Go through the returned handles; for each element,
   //   1. create a Handle<PROD> and

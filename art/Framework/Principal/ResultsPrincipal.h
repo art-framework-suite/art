@@ -25,16 +25,14 @@ namespace art {
   class ResultsPrincipal;
 }
 
-class art::ResultsPrincipal : public Principal {
+class art::ResultsPrincipal final : public Principal {
 public:
   typedef ResultsAuxiliary Auxiliary;
 
   ResultsPrincipal(ResultsAuxiliary const &,
                    ProcessConfiguration const &,
-                   std::unique_ptr<BranchMapper> && mapper =
-                   std::make_unique<BranchMapper>(),
-                   std::unique_ptr<DelayedReader> && rtrv =
-                   std::make_unique<NoDelayedReader>(),
+                   std::unique_ptr<BranchMapper> && mapper = std::make_unique<BranchMapper>(),
+                   std::unique_ptr<DelayedReader> && rtrv = std::make_unique<NoDelayedReader>(),
                    int idx = 0,
                    ResultsPrincipal* = nullptr);
 

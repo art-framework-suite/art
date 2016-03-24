@@ -208,21 +208,3 @@ art::Worker::respondToCloseOutputFiles(FileBlock const& fb) {
                          md_);
   implRespondToCloseOutputFiles(fb);
 }
-
-void
-art::Worker::respondToOpenOutputFile() {
-  ModuleSignalSentry cpp(actReg_.get(),
-                         actReg_->sPreModuleRespondToOpenOutputFiles,
-                         actReg_->sPostModuleRespondToOpenOutputFiles,
-                         md_);
-  implRespondToOpenOutputFile();
-}
-
-void
-art::Worker::respondToCloseOutputFile() {
-  ModuleSignalSentry cpp(actReg_.get(),
-                         actReg_->sPreModuleRespondToCloseOutputFiles,
-                         actReg_->sPostModuleRespondToCloseOutputFiles,
-                         md_);
-  implRespondToCloseOutputFile();
-}

@@ -17,50 +17,60 @@
 
 namespace art {
 
-class BranchKey;
-class EDProductGetterFinder;
-class DelayedReader;
+  class BranchID;
+  class BranchKey;
+  class EDProductGetterFinder;
+  class RangeSet;
 
-class DelayedReader {
+  class DelayedReader {
 
-public:
+  public:
 
-  virtual
-  ~DelayedReader();
+    virtual ~DelayedReader();
 
-  std::unique_ptr<EDProduct>
-  getProduct(BranchKey const& k, TypeID const& wrapper_type) const
-  {
-    return getProduct_(k, wrapper_type);
-  }
+    std::unique_ptr<EDProduct>
+    getProduct(BranchKey const& k, TypeID const& wrapper_type) const
+    {
+      return getProduct_(k, wrapper_type);
+    }
 
-  void
-  setGroupFinder(cet::exempt_ptr<EDProductGetterFinder const> ep)
-  {
-    setGroupFinder_(ep);
-  }
+    RangeSet const&
+    getRangeSet(BranchID const& bid) const
+    {
+      return getRangeSet_(bid);
+    }
 
-  int
-  openNextSecondaryFile(int idx)
-  {
-    return openNextSecondaryFile_(idx);
-  }
+    void
+    setGroupFinder(cet::exempt_ptr<EDProductGetterFinder const> ep)
+    {
+      setGroupFinder_(ep);
+    }
 
-private:
+    int
+    openNextSecondaryFile(int idx)
+    {
+      return openNextSecondaryFile_(idx);
+    }
 
-  virtual
-  std::unique_ptr<EDProduct>
-  getProduct_(BranchKey const& k, TypeID const& wrapper_type) const = 0;
+  private:
 
-  virtual
-  void
-  setGroupFinder_(cet::exempt_ptr<EDProductGetterFinder const>);
+    virtual
+    std::unique_ptr<EDProduct>
+    getProduct_(BranchKey const& k, TypeID const& wrapper_type) const = 0;
 
-  virtual
-  int
-  openNextSecondaryFile_(int idx);
+    virtual
+    RangeSet const&
+    getRangeSet_(BranchID const&) const = 0;
 
-};
+    virtual
+    void
+    setGroupFinder_(cet::exempt_ptr<EDProductGetterFinder const>);
+
+    virtual
+    int
+    openNextSecondaryFile_(int idx);
+
+  };
 
 } // namespace art
 

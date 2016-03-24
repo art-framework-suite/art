@@ -114,7 +114,7 @@ public: // MEMBER FUNCTIONS
                           DropMetaData dropMetaData,
                           bool dropMetaDataForDroppedData,
                           bool fastCloning);
-  // use compiler-generated copy c'tor, copy assignment, and d'tor
+
   void writeOne(EventPrincipal const&);
   //void endFile();
   void writeSubRun(SubRunPrincipal const&);
@@ -133,27 +133,30 @@ public: // MEMBER FUNCTIONS
                                 FileCatalogMetadata::collection_type const&,
                                 FileCatalogMetadata::collection_type const&);
   void writeResults(ResultsPrincipal & resp);
+  void writeEventRanges(RunPrincipal const&);
+  void writeEventRanges(SubRunPrincipal const&);
   void finishEndFile();
   void beginInputFile(FileBlock const&, bool fastClone);
   void respondToCloseInputFile(FileBlock const&);
   bool requestsToCloseFile() const;
 
-  void
-  selectProducts(FileBlock const&);
+  void selectProducts(FileBlock const&);
 
-  std::string const& currentFileName() const
-  {
-    return file_;
-  }
+  std::string const& currentFileName() const { return file_; }
 
   bool maxEventsPerFileReached(FileIndex::EntryNumber_t const maxEventsPerFile) const;
   bool maxSizeReached(unsigned const maxFileSize) const;
 
 private: // MEMBER FUNCTIONS
 
-  void fillBranches(BranchType const&, Principal const&,
+  void initializeFileContributors();
+  void fillBranches(BranchType const&,
+                    Principal const&,
+                    unsigned rangeSetID,
                     std::vector<ProductProvenance>*);
-  void insertAncestors(ProductProvenance const&, Principal const&,
+  void insertAncestors(ProductProvenance const&,
+                       Principal const&,
+                       unsigned rangeSetID,
                        std::set<ProductProvenance>&);
 
 private: // MEMBER DATA
@@ -195,7 +198,7 @@ private: // MEMBER DATA
   RootOutputTreePtrArray treePointers_;
   bool dataTypeReported_ {false};
   std::set<BranchID> branchesWithStoredHistory_ {};
-  SQLite3Wrapper metaDataHandle_;
+  SQLite3Wrapper rootFileDB_;
   OutputItemListArray selectedOutputItemList_ {{}}; // filled by aggregation
 
 };

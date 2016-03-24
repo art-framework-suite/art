@@ -13,24 +13,26 @@
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/GroupSelector.h"
 #include "art/Framework/Core/GroupSelectorRules.h"
+#include "art/Framework/Core/OutputFileStatus.h"
 #include "art/Framework/Core/OutputModuleDescription.h"
 #include "art/Framework/Core/OutputWorker.h"
-#include "cetlib/BasicPluginFactory.h"
+#include "art/Framework/Principal/EventRangeHandler.h"
 #include "art/Framework/Principal/fwd.h"
 #include "art/Framework/Services/FileServiceInterfaces/CatalogInterface.h"
 #include "art/Framework/Services/System/FileCatalogMetadata.h"
+#include "art/Persistency/Provenance/Selections.h"
 #include "canvas/Persistency/Provenance/BranchChildren.h"
 #include "canvas/Persistency/Provenance/BranchID.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
+#include "canvas/Persistency/Provenance/IDNumber.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
 #include "canvas/Persistency/Provenance/ParentageID.h"
-#include "art/Persistency/Provenance/Selections.h"
-
+#include "cetlib/BasicPluginFactory.h"
+#include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/types/Atom.h"
 #include "fhiclcpp/types/OptionalTable.h"
 #include "fhiclcpp/types/Sequence.h"
 #include "fhiclcpp/types/TableFragment.h"
-#include "fhiclcpp/ParameterSet.h"
 
 #include <array>
 #include <memory>
@@ -78,7 +80,7 @@ public:
                         fhicl::ParameterSet const & containing_pset);
   explicit OutputModule(fhicl::ParameterSet const & pset);
 
-  virtual ~OutputModule() = default;
+  virtual ~OutputModule();
   virtual void reconfigure(fhicl::ParameterSet const &);
 
   // Accessor for maximum number of events to be written.
@@ -102,6 +104,7 @@ public:
   BranchChildren const & branchChildren() const;
 
   void selectProducts(FileBlock const&);
+  void setFileStatus(OutputFileStatus);
 
   void registerProducts(MasterProductRegistry &,
                         ModuleDescription const &);
@@ -146,7 +149,9 @@ private:
   GroupSelector groupSelector_ {};
   int maxEvents_ {-1};
   int remainingEvents_ {maxEvents_};
+  OutputFileStatus fileStatus_ {OutputFileStatus::Closed};
 
+  std::unique_ptr<EventRangeHandler> eventRangeHandler_ {nullptr};
   ModuleDescription moduleDescription_ {};
 
   cet::exempt_ptr<CurrentProcessingContext const> current_context_ {nullptr};
@@ -171,9 +176,10 @@ private:
   // private member functions
   //------------------------------------------------------------------
   void configure(OutputModuleDescription const & desc);
+
   void doBeginJob();
   void doEndJob();
-  bool doEvent(EventPrincipal & ep,
+  bool doEvent(EventPrincipal const& ep,
                CurrentProcessingContext const * cpc);
   bool doBeginRun(RunPrincipal const & rp,
                   CurrentProcessingContext const * cpc);
@@ -191,8 +197,6 @@ private:
   void doRespondToCloseInputFile(FileBlock const & fb);
   void doRespondToOpenOutputFiles(FileBlock const & fb);
   void doRespondToCloseOutputFiles(FileBlock const & fb);
-  void doRespondToOpenOutputFile();
-  void doRespondToCloseOutputFile();
   void doSelectProducts();
 
   std::string workerType() const {return "OutputWorker";}
@@ -206,7 +210,9 @@ private:
 
   // Ask the OutputModule if we should end the current file.
   virtual bool requestsToCloseFile() const {return false;}
-  virtual bool stagedToCloseFile() const { return true; }
+  virtual bool stagedToCloseFile() const {
+    return fileStatus_ == OutputFileStatus::StagedToSwitch;
+  }
   virtual void flagToCloseFile(bool const) {}
   virtual Boundary fileSwitchBoundary() const { return Boundary::Unset; }
 
@@ -227,8 +233,6 @@ private:
   virtual void respondToCloseInputFile(FileBlock const &);
   virtual void respondToOpenOutputFiles(FileBlock const &);
   virtual void respondToCloseOutputFiles(FileBlock const &);
-  virtual void respondToOpenOutputFile();
-  virtual void respondToCloseOutputFile();
 
   virtual bool isFileOpen() const;
 
@@ -254,9 +258,8 @@ private:
   virtual void writeParentageRegistry();
   virtual void writeProductDescriptionRegistry();
   void writeFileCatalogMetadata();
-  virtual void
-  doWriteFileCatalogMetadata(FileCatalogMetadata::collection_type const & md,
-                             FileCatalogMetadata::collection_type const & ssmd);
+  virtual void doWriteFileCatalogMetadata(FileCatalogMetadata::collection_type const & md,
+                                          FileCatalogMetadata::collection_type const & ssmd);
   virtual void writeProductDependencies();
   virtual void writeBranchMapper();
   virtual void finishEndFile();
@@ -308,7 +311,7 @@ inline
 auto
 art::OutputModule::
 keptProducts() const
--> SelectionsArray const &
+->  SelectionsArray const &
 {
   return keptProducts_;
 }

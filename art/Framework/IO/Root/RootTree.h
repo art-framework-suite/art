@@ -25,6 +25,7 @@
 #include <vector>
 
 class TFile;
+class sqlite3;
 
 namespace art {
 
@@ -131,6 +132,12 @@ namespace art {
 
     std::unique_ptr<DelayedReader>
     makeDelayedReader(BranchType,
+                      std::vector<EntryNumber> const& entrySet,
+                      EventID);
+
+    std::unique_ptr<DelayedReader>
+    makeDelayedReader(sqlite3* inputDB,
+                      BranchType,
                       std::vector<EntryNumber> const& entrySet,
                       EventID);
 

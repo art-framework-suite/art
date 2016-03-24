@@ -1,10 +1,14 @@
 art_make_library(
   LIBRARY_NAME art_Framework_IO_Root_detail_sources
   SOURCE
+  detail/getFileContributors.cc
+  detail/orderedProcessNames.cc
   detail/rootFileSizeTools.cc
   detail/rootOutputConfigurationTools.cc
   LIBRARIES
+  art_Persistency_RootDB
   art_Utilities
+  canvas_Persistency_Provenance
   MF_MessageLogger
   ${ROOT_CORE}
   ${ROOT_RIO}

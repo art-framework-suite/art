@@ -17,6 +17,7 @@
 #include "art/Framework/Core/PrincipalCache.h"
 #include "art/Framework/Core/Schedule.h"
 #include "art/Framework/EventProcessor/ServiceDirector.h"
+#include "art/Framework/EventProcessor/StateMachine/Machine.h"
 #include "art/Framework/Principal/Actions.h"
 #include "art/Framework/Principal/fwd.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
@@ -170,29 +171,29 @@ private:
   ActionTable act_table_;
   ActivityRegistry actReg_;
   MFStatusUpdater mfStatusUpdater_;
-  MasterProductRegistry preg_;
-  ServiceToken serviceToken_;
-  tbb::task_scheduler_init tbbManager_;
-  std::unique_ptr<ServiceRegistry::Operate> servicesSentry_;
+  MasterProductRegistry preg_ {};
+  ServiceToken serviceToken_ {};
+  tbb::task_scheduler_init tbbManager_ {tbb::task_scheduler_init::deferred};
+  std::unique_ptr<ServiceRegistry::Operate> servicesSentry_ {};
   PathManager pathManager_; // Must outlive schedules.
   ServiceDirector serviceDirector_;
-  std::unique_ptr<InputSource> input_;
-  std::unique_ptr<Schedule> schedule_;
-  std::unique_ptr<EndPathExecutor> endPathExecutor_;
+  std::unique_ptr<InputSource> input_ {};
+  std::unique_ptr<Schedule> schedule_ {};
+  std::unique_ptr<EndPathExecutor> endPathExecutor_ {};
 
-  std::shared_ptr<FileBlock> fb_;
+  std::shared_ptr<FileBlock> fb_ {};
 
-  std::unique_ptr<statemachine::Machine> machine_;
-  PrincipalCache principalCache_; // Cache is necessary for handling empty runs/subruns
-  std::unique_ptr<EventPrincipal> sm_evp_;
-  bool shouldWeStop_;
-  bool stateMachineWasInErrorState_;
+  std::unique_ptr<statemachine::Machine> machine_ {};
+  PrincipalCache principalCache_ {}; // Cache is necessary for handling empty runs/subruns
+  std::unique_ptr<EventPrincipal> sm_evp_ {};
+  bool shouldWeStop_ {false};
+  bool stateMachineWasInErrorState_ {false};
   bool handleEmptyRuns_;
   bool handleEmptySubRuns_;
-  std::string exceptionMessageFiles_;
-  std::string exceptionMessageRuns_;
-  std::string exceptionMessageSubRuns_;
-  bool alreadyHandlingException_;
+  std::string exceptionMessageFiles_ {};
+  std::string exceptionMessageRuns_ {};
+  std::string exceptionMessageSubRuns_ {};
+  bool alreadyHandlingException_ {false};
 
 };  // EventProcessor
 

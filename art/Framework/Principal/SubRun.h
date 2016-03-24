@@ -95,14 +95,14 @@ art::SubRun::put(std::unique_ptr<PROD> && product,
                  std::string const& productInstanceName)
 {
   if (product.get() == nullptr) {
-    throw art::Exception(art::errors::NullPointerError)
+    throw art::Exception{art::errors::NullPointerError}
       << "SubRun::put: A null unique_ptr was passed to 'put'.\n"
-      << "The pointer is of type " << TypeID(typeid(PROD)) << ".\n"
+      << "The pointer is of type " << TypeID{typeid(PROD)} << ".\n"
       << "The specified productInstanceName was '" << productInstanceName << "'.\n";
   }
 
   auto const& bd = getBranchDescription(TypeID(*product), productInstanceName);
-  auto        wp = std::make_unique<Wrapper<PROD>>(std::move(product));
+  auto        wp = std::make_unique<Wrapper<PROD>>(std::move(product)/*,aux_.rangeSetID()*/);
 
   auto result = putProducts().emplace( bd.branchID(), PMValue{std::move(wp), bd} );
   if ( !result.second ) {

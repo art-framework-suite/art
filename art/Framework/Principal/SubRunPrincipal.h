@@ -11,11 +11,13 @@
 //  which is a proxy for this class.
 //
 
+#include "art/Framework/Principal/EventRangeHandler.h"
 #include "art/Framework/Principal/NoDelayedReader.h"
 #include "art/Framework/Principal/Principal.h"
 #include "art/Framework/Principal/fwd.h"
 #include "canvas/Persistency/Provenance/BranchMapper.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
+#include "canvas/Persistency/Provenance/EventRange.h"
 #include "canvas/Persistency/Provenance/RunID.h"
 #include "canvas/Persistency/Provenance/SubRunAuxiliary.h"
 #include "cetlib/exempt_ptr.h"
@@ -25,100 +27,66 @@
 
 namespace art {
 
-class SubRunPrincipal : public Principal {
+  class SubRunPrincipal final : public Principal {
+  public:
 
-public:
+    using Auxiliary = SubRunAuxiliary;
 
-  typedef SubRunAuxiliary Auxiliary;
+    SubRunPrincipal(SubRunAuxiliary const&,
+                    ProcessConfiguration const&,
+                    EventRangeHandler const& = EventRangeHandler{ IDNumber<Level::Run>::invalid() },
+                    std::unique_ptr<BranchMapper>&& mapper = std::make_unique<BranchMapper>(),
+                    std::unique_ptr<DelayedReader>&& rtrv = std::make_unique<NoDelayedReader>(),
+                    int idx = 0,
+                    SubRunPrincipal* = nullptr);
 
-public:
+    RunPrincipal const& runPrincipal() const;
+    RunPrincipal& runPrincipal();
 
-  SubRunPrincipal(SubRunAuxiliary const&,
-                  ProcessConfiguration const&,
-                  std::unique_ptr<BranchMapper>&& mapper =
-                    std::unique_ptr<BranchMapper>(new BranchMapper),
-                  std::unique_ptr<DelayedReader>&& rtrv =
-                    std::unique_ptr<DelayedReader>(new NoDelayedReader),
-                  int idx = 0, SubRunPrincipal* = nullptr);
+    std::shared_ptr<RunPrincipal> runPrincipalSharedPtr() { return runPrincipal_; }
+    void setRunPrincipal(std::shared_ptr<RunPrincipal> rp) { runPrincipal_ = rp; }
 
+    SubRunAuxiliary const& aux() const { return aux_; }
+    SubRunID id() const { return aux().id(); }
+    RunNumber_t run() const { return aux().run(); }
+    SubRunNumber_t subRun() const { return aux().subRun(); }
+    Timestamp const& beginTime() const { return aux().beginTime(); }
+    Timestamp const& endTime() const { return aux().endTime(); }
 
-  RunPrincipal const& runPrincipal() const;
+    void setEndTime(Timestamp const& time) { aux_.setEndTime(time); }
 
-  RunPrincipal& runPrincipal();
+    void put(std::unique_ptr<EDProduct>&&,
+             BranchDescription const&,
+             std::unique_ptr<ProductProvenance const>&&);
 
-  std::shared_ptr<RunPrincipal>
-  runPrincipalSharedPtr()
-  {
-    return runPrincipal_;
-  }
+    void addGroup(BranchDescription const&);
+    void addGroup(std::unique_ptr<EDProduct>&&, BranchDescription const&);
 
-  void setRunPrincipal(std::shared_ptr<RunPrincipal> rp)
-  {
-    runPrincipal_ = rp;
-  }
+    void setOutputEventRanges(RangeSet const&);
+    RangeSet const& inputEventRanges() const { return eventRangeHandler_.inputRanges(); }
+    RangeSet const& outputEventRanges() const { return eventRangeHandler_.outputRanges(); }
 
-  SubRunID id() const
-  {
-    return aux().id();
-  }
+    BranchType branchType() const override;
 
-  Timestamp const& beginTime() const
-  {
-    return aux().beginTime();
-  }
+  private:
 
-  Timestamp const& endTime() const
-  {
-    return aux().endTime();
-  }
+    void addOrReplaceGroup(std::unique_ptr<Group>&& g) override;
 
-  void setEndTime(Timestamp const& time)
-  {
-    aux_.setEndTime(time);
-  }
+    ProcessHistoryID const& processHistoryID() const override;
+    void setProcessHistoryID(ProcessHistoryID const& phid) override;
 
-  SubRunNumber_t subRun() const
-  {
-    return aux().subRun();
-  }
+  private:
 
-  SubRunAuxiliary const& aux() const
-  {
-    return aux_;
-  }
+    SubRunAuxiliary aux_;
+    std::shared_ptr<RunPrincipal> runPrincipal_ {};
+    EventRangeHandler eventRangeHandler_;
 
-  RunNumber_t run() const
-  {
-    return aux().run();
-  }
-
-  void put(std::unique_ptr<EDProduct>&&, BranchDescription const&,
-           std::unique_ptr<ProductProvenance const>&&);
-
-  void addGroup(BranchDescription const&);
-
-  void addGroup(std::unique_ptr<EDProduct>&&, BranchDescription const&);
-
-  virtual BranchType branchType() const;
-
-private:
-
-  virtual void addOrReplaceGroup(std::unique_ptr<Group>&& g);
-
-  virtual ProcessHistoryID const& processHistoryID() const;
-
-  void setProcessHistoryID(ProcessHistoryID const& phid) override;
-
-private:
-
-  std::shared_ptr<RunPrincipal> runPrincipal_;
-  SubRunAuxiliary aux_;
-
-};
+  };
 
 } // namespace art
+
+#endif /* art_Framework_Principal_SubRunPrincipal_h */
 
 // Local Variables:
 // mode: c++
 // End:
-#endif /* art_Framework_Principal_SubRunPrincipal_h */

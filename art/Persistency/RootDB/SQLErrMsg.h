@@ -1,7 +1,7 @@
 #ifndef art_Persistency_RootDB_SQLErrMsg_h
 #define art_Persistency_RootDB_SQLErrMsg_h
 
-// Little class to handle the management of ann SQLite3 error message.
+// Little class to handle the management of an SQLite3 error message.
 
 // Pass an instance of this class to an SQLite3 function expecting a
 // char** into which to place an error message.
@@ -14,7 +14,7 @@ namespace art {
 
 class art::SQLErrMsg {
 public:
-  SQLErrMsg() : errMsg_(0) { }
+  SQLErrMsg() : errMsg_(nullptr) { }
   ~SQLErrMsg();
 
   // Return the stored message.

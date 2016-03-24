@@ -110,7 +110,8 @@ resolveProduct(bool fillOnDemand, TypeID const& wanted_wrapper_type) const
 
 bool
 Group::
-resolveProductIfAvailable(bool fillOnDemand,
+resolveProductIfAvailable(/*unsigned const rangeSetID [[gnu::unused]],*/
+                          bool const fillOnDemand,
                           TypeID const& wanted_wrapper_type) const
 {
   if (product_.get()) {
@@ -143,13 +144,6 @@ std::unique_ptr<art::EDProduct>
 Group::
 obtainDesiredProduct(bool fillOnDemand, TypeID const& wanted_wrapper_type) const
 {
-  //std::cout
-  //    << "-----> Begin Group::obtainDesiredProduct(bool, TypeID const&)"
-  //    << std::endl;
-  //std::cout
-  //    << "wt: "
-  //    << cet::demangle_symbol(wanted_wrapper_type.name())
-  //    << std::endl;
   std::unique_ptr<art::EDProduct> retval;
   // Try unscheduled production.
   if (fillOnDemand && onDemand()) {
@@ -158,19 +152,7 @@ obtainDesiredProduct(bool fillOnDemand, TypeID const& wanted_wrapper_type) const
     return retval;
   }
   BranchKey const bk(productDescription());
-  //std::cout
-  //    << "calling productResolver_->getProduct(bk, "
-  //    << cet::demangle_symbol(wanted_wrapper_type.name())
-  //    << ')'
-  //    << std::endl;
   retval = productResolver_->getProduct(bk, wanted_wrapper_type);
-  //std::cout
-  //    << "returning: "
-  //    << retval.get()
-  //    << std::endl;
-  //std::cout
-  //    << "-----> End   Group::obtainDesiredProduct(bool, TypeID const&)"
-  //    << std::endl;
   return retval;
 }
 

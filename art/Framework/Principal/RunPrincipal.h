@@ -24,7 +24,7 @@
 
 namespace art {
 
-class RunPrincipal : public Principal {
+class RunPrincipal final : public Principal {
 
 public:
 
@@ -34,11 +34,10 @@ public:
 
   RunPrincipal(RunAuxiliary const&,
                ProcessConfiguration const&,
-               std::unique_ptr<BranchMapper>&& mapper =
-                 std::unique_ptr<BranchMapper>(new BranchMapper),
-               std::unique_ptr<DelayedReader>&& rtrv =
-                 std::unique_ptr<DelayedReader>(new NoDelayedReader),
-               int idx = 0, RunPrincipal* = nullptr);
+               std::unique_ptr<BranchMapper>&& mapper = std::make_unique<BranchMapper>(),
+               std::unique_ptr<DelayedReader>&& rtrv = std::make_unique<NoDelayedReader>(),
+               int idx = 0,
+               RunPrincipal* = nullptr);
 
   RunAuxiliary const&
   aux() const
@@ -76,7 +75,7 @@ public:
     aux_.setEndTime(time);
   }
 
-  virtual BranchType branchType() const;
+  BranchType branchType() const override;
 
   void addGroup(BranchDescription const&);
 
@@ -87,9 +86,9 @@ public:
 
 private:
 
-  virtual void addOrReplaceGroup(std::unique_ptr<Group>&&);
+  void addOrReplaceGroup(std::unique_ptr<Group>&&) override;
 
-  virtual ProcessHistoryID const& processHistoryID() const;
+  ProcessHistoryID const& processHistoryID() const override;
 
   void setProcessHistoryID(ProcessHistoryID const&) override;
 

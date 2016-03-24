@@ -8,14 +8,16 @@
 #include "art/Framework/IO/Root/RootInputFileSequence.h"
 #include "art/Framework/IO/Root/RootTree.h"
 #include "art/Framework/Principal/ResultsPrincipal.h"
-#include "canvas/Persistency/Provenance/BranchChildren.h"
 #include "art/Persistency/Provenance/BranchIDListRegistry.h"
+#include "art/Persistency/RootDB/SQLite3Wrapper.h"
+#include "art/Persistency/Provenance/MasterProductRegistry.h"
+#include "art/Persistency/Provenance/detail/type_aliases.h"
+#include "canvas/Persistency/Provenance/BranchChildren.h"
 #include "canvas/Persistency/Provenance/BranchMapper.h"
 #include "canvas/Persistency/Provenance/EventAuxiliary.h"
 #include "canvas/Persistency/Provenance/FileFormatVersion.h"
 #include "canvas/Persistency/Provenance/FileIndex.h"
 #include "canvas/Persistency/Provenance/History.h"
-#include "art/Persistency/Provenance/MasterProductRegistry.h"
 #include "canvas/Persistency/Provenance/Parentage.h"
 #include "canvas/Persistency/Provenance/ProductID.h"
 #include "canvas/Persistency/Provenance/ProductProvenance.h"
@@ -26,7 +28,6 @@
 #include "canvas/Persistency/Provenance/RunAuxiliary.h"
 #include "canvas/Persistency/Provenance/SubRunAuxiliary.h"
 #include "canvas/Persistency/Provenance/SubRunID.h"
-#include "art/Persistency/Provenance/detail/type_aliases.h"
 #include "cetlib/exempt_ptr.h"
 
 #include <array>
@@ -377,12 +378,12 @@ private:
 
   void initializeDuplicateChecker();
 
-  EntryNumbers getEntryNumbers(BranchType);
+  std::pair<EntryNumbers,bool> getEntryNumbers(BranchType);
 
   std::unique_ptr<RunPrincipal   > readCurrentRun(EntryNumbers const&);
   std::unique_ptr<SubRunPrincipal> readCurrentSubRun(EntryNumbers const&,
                                                      std::shared_ptr<RunPrincipal>);
-  std::unique_ptr<EventPrincipal > readCurrentEvent(EntryNumbers const&);
+  std::unique_ptr<EventPrincipal > readCurrentEvent(std::pair<EntryNumbers,bool> const&);
 
 
   std::string const file_;
@@ -390,6 +391,7 @@ private:
   ProcessConfiguration const& processConfiguration_;
   std::string const logicalFile_;
   std::shared_ptr<TFile> filePtr_;
+  SQLite3Wrapper sqliteDB_ {filePtr_.get(), "RootFileDB"};
   EventID origEventID_;
   EventNumber_t eventsToSkip_;
   std::vector<SubRunID> whichSubRunsToSkip_;

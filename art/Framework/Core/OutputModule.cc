@@ -6,15 +6,15 @@
 #include "art/Framework/Principal/CurrentProcessingContext.h"
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Principal/EventPrincipal.h"
+#include "art/Framework/Principal/Handle.h"
 #include "art/Framework/Principal/ResultsPrincipal.h"
 #include "art/Framework/Principal/Run.h"
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRun.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
-#include "art/Persistency/Provenance/ProductMetaData.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/System/TriggerNamesService.h"
-#include "art/Framework/Principal/Handle.h"
+#include "art/Persistency/Provenance/ProductMetaData.h"
 #include "canvas/Persistency/Provenance/BranchDescription.h"
 #include "canvas/Persistency/Provenance/ParentageRegistry.h"
 #include "canvas/Utilities/DebugMacros.h"
@@ -32,29 +32,30 @@ using std::string;
 
 art::OutputModule::
 OutputModule(fhicl::TableFragment<Config> const & config,
-             fhicl::ParameterSet const& containing_pset)
-  :
-  EventObserver{config().eoConfig},
-  groupSelectorRules_{config().outputCommands(), "outputCommands", "OutputModule"},
-  configuredFileName_{config().fileName()},
-  dataTier_{config().dataTier()},
-  streamName_{config().streamName()},
-  plugins_{makePlugins_(containing_pset)}
+             ParameterSet const& containing_pset)
+  : EventObserver{config().eoConfig}
+  , groupSelectorRules_{config().outputCommands(), "outputCommands", "OutputModule"}
+  , configuredFileName_{config().fileName()}
+  , dataTier_{config().dataTier()}
+  , streamName_{config().streamName()}
+  , plugins_{makePlugins_(containing_pset)}
 {}
 
 art::OutputModule::
-OutputModule(fhicl::ParameterSet const& pset)
-  :
-  EventObserver{pset},
-  groupSelectorRules_{pset.get<std::vector<std::string>>("outputCommands", {"keep *"}),
-      "outputCommands", "OutputModule"},
-  configuredFileName_{pset.get<std::string>("fileName","")},
-  dataTier_{pset.get<std::string>("dataTier","")},
-  streamName_{pset.get<std::string>("streamName","")},
-  plugins_{makePlugins_(pset)}
+OutputModule(ParameterSet const& pset)
+  : EventObserver{pset}
+  , groupSelectorRules_{pset.get<vector<string>>("outputCommands", {"keep *"}),
+        "outputCommands",
+        "OutputModule"}
+  , configuredFileName_{pset.get<string>("fileName","")}
+  , dataTier_{pset.get<string>("dataTier","")}
+  , streamName_{pset.get<string>("streamName","")}
+  , plugins_{makePlugins_(pset)}
 {}
 
-std::string const &
+art::OutputModule::~OutputModule(){}
+
+string const &
 art::OutputModule::
 lastClosedFileName() const
 {
@@ -157,22 +158,43 @@ doBeginJob()
   cet::for_all(plugins_, [](auto& p){ p->doBeginJob(); });
 }
 
-void
+bool
 art::OutputModule::
-doEndJob()
+doBeginRun(RunPrincipal const & rp,
+           CurrentProcessingContext const * cpc)
 {
-  endJob();
-  cet::for_all(plugins_, [](auto& p){ p->doEndJob(); });
+  detail::CPCSentry sentry{current_context_, cpc};
+  FDEBUG(2) << "beginRun called\n";
+  beginRun(rp);
+  Run const r {const_cast<RunPrincipal &>(rp), moduleDescription_};
+  cet::for_all(plugins_, [&r](auto& p){ p->doBeginRun(r); });
+  return true;
 }
-
 
 bool
 art::OutputModule::
-doEvent(EventPrincipal& ep, CurrentProcessingContext const *cpc)
+doBeginSubRun(SubRunPrincipal const& srp,
+              CurrentProcessingContext const* cpc)
 {
-  detail::CPCSentry sentry{current_context_, cpc};
+  detail::CPCSentry sentry {current_context_, cpc};
+  FDEBUG(2) << "beginSubRun called\n";
+  if (fileStatus_ != OutputFileStatus::Switching) {
+    eventRangeHandler_ = std::make_unique<EventRangeHandler>(srp.inputEventRanges());
+  }
+  fileStatus_ = OutputFileStatus::Open;
+  beginSubRun(srp);
+  SubRun const sr {const_cast<SubRunPrincipal&>(srp), moduleDescription_};
+  cet::for_all(plugins_, [&sr](auto& p){ p->doBeginSubRun(sr); });
+  return true;
+}
+
+bool
+art::OutputModule::
+doEvent(EventPrincipal const& ep, CurrentProcessingContext const* cpc)
+{
+  detail::CPCSentry sentry {current_context_, cpc};
   FDEBUG(2) << "doEvent called\n";
-  Event const e {const_cast<EventPrincipal &>(ep), moduleDescription_};
+  Event const e {const_cast<EventPrincipal&>(ep), moduleDescription_};
   if (wantAllEvents_ || selectors_.wantEvent(e)) {
     event(ep);
   }
@@ -185,16 +207,14 @@ doWriteEvent(EventPrincipal& ep)
 {
   detail::PVSentry clearTriggerResults {selectors_};
   FDEBUG(2) << "writeEvent called\n";
-  Event const e {const_cast<EventPrincipal &>(ep), moduleDescription_};
+  Event const e {ep, moduleDescription_};
   if (wantAllEvents_ || selectors_.wantEvent(e)) {
     write(ep); // Write the event.
     // Declare that the event was selected for write to the catalog
     // interface
-    art::Handle<art::TriggerResults> trHandle{getTriggerResults(e)};
+    art::Handle<art::TriggerResults> trHandle {getTriggerResults(e)};
     auto const & trRef ( trHandle.isValid() ? static_cast<HLTGlobalStatus>(*trHandle) : HLTGlobalStatus{} );
-    ci_->eventSelected(moduleDescription_.moduleLabel(),
-                       ep.id(),
-                       trRef);
+    ci_->eventSelected(moduleDescription_.moduleLabel(), ep.id(), trRef);
     // ... and invoke the plugins:
     cet::for_all(plugins_, [&e](auto& p){ p->doCollectMetadata(e); });
     // Finish.
@@ -203,19 +223,32 @@ doWriteEvent(EventPrincipal& ep)
       --remainingEvents_;
     }
   }
+  eventRangeHandler_->update(e.id(), ep.isLastEventInSubRun());
 }
 
 bool
 art::OutputModule::
-doBeginRun(RunPrincipal const & rp,
-           CurrentProcessingContext const * cpc)
+doEndSubRun(SubRunPrincipal const& srp,
+            CurrentProcessingContext const* cpc)
 {
   detail::CPCSentry sentry{current_context_, cpc};
-  FDEBUG(2) << "beginRun called\n";
-  beginRun(rp);
-  Run const r(const_cast<RunPrincipal &>(rp), moduleDescription_);
-  cet::for_all(plugins_, [&r](auto& p){ p->doBeginRun(r); });
+  FDEBUG(2) << "endSubRun called\n";
+  endSubRun(srp);
+  SubRun const sr {const_cast<SubRunPrincipal&>(srp), moduleDescription_};
+  cet::for_all(plugins_, [&sr](auto& p){ p->doEndSubRun(sr); });
   return true;
+}
+
+void
+art::OutputModule::
+doWriteSubRun(SubRunPrincipal& srp)
+{
+  FDEBUG(2) << "writeSubRun called\n";
+  std::cout << eventRangeHandler_->outputRanges() << '\n';
+  srp.setOutputEventRanges(eventRangeHandler_->outputRanges());
+  writeSubRun(srp);
+  if (fileStatus_ == OutputFileStatus::Switching)
+    eventRangeHandler_->rebase();
 }
 
 bool
@@ -223,10 +256,10 @@ art::OutputModule::
 doEndRun(RunPrincipal const & rp,
          CurrentProcessingContext const * cpc)
 {
-  detail::CPCSentry sentry{current_context_, cpc};
+  detail::CPCSentry sentry {current_context_, cpc};
   FDEBUG(2) << "endRun called\n";
   endRun(rp);
-  Run const r(const_cast<RunPrincipal &>(rp), moduleDescription_);
+  Run const r {const_cast<RunPrincipal &>(rp), moduleDescription_};
   cet::for_all(plugins_, [&r](auto& p){ p->doEndRun(r); });
   return true;
 }
@@ -239,39 +272,14 @@ doWriteRun(RunPrincipal & rp)
   writeRun(rp);
 }
 
-bool
-art::OutputModule::
-doBeginSubRun(SubRunPrincipal const & srp,
-              CurrentProcessingContext const * cpc)
-{
-  detail::CPCSentry sentry{current_context_, cpc};
-  FDEBUG(2) << "beginSubRun called\n";
-  beginSubRun(srp);
-  SubRun const sr(const_cast<SubRunPrincipal &>(srp), moduleDescription_);
-  cet::for_all(plugins_, [&sr](auto& p){ p->doBeginSubRun(sr); });
-  return true;
-}
-
-bool
-art::OutputModule::
-doEndSubRun(SubRunPrincipal const & srp,
-            CurrentProcessingContext const * cpc)
-{
-  detail::CPCSentry sentry{current_context_, cpc};
-  FDEBUG(2) << "endSubRun called\n";
-  endSubRun(srp);
-  SubRun const sr(const_cast<SubRunPrincipal &>(srp), moduleDescription_);
-  cet::for_all(plugins_, [&sr](auto& p){ p->doEndSubRun(sr); });
-  return true;
-}
-
 void
 art::OutputModule::
-doWriteSubRun(SubRunPrincipal & srp)
+doEndJob()
 {
-  FDEBUG(2) << "writeSubRun called\n";
-  writeSubRun(srp);
+  endJob();
+  cet::for_all(plugins_, [](auto& p){ p->doEndJob(); });
 }
+
 
 void
 art::OutputModule::doOpenFile(FileBlock const & fb)
@@ -313,20 +321,6 @@ art::OutputModule::
 doRespondToCloseOutputFiles(FileBlock const & fb)
 {
   respondToCloseOutputFiles(fb);
-}
-
-void
-art::OutputModule::
-doRespondToOpenOutputFile()
-{
-  respondToOpenOutputFile();
-}
-
-void
-art::OutputModule::
-doRespondToCloseOutputFile()
-{
-  respondToCloseOutputFile();
 }
 
 void
@@ -472,23 +466,18 @@ respondToCloseOutputFiles(FileBlock const &)
 {
 }
 
-void
-art::OutputModule::
-respondToOpenOutputFile()
-{
-}
-
-void
-art::OutputModule::
-respondToCloseOutputFile()
-{
-}
-
 bool
 art::OutputModule::
 isFileOpen() const
 {
   return true;
+}
+
+void
+art::OutputModule::
+setFileStatus(OutputFileStatus const fs)
+{
+  fileStatus_ = fs;
 }
 
 void
@@ -559,20 +548,19 @@ writeProductDescriptionRegistry()
 
 namespace {
   void
-  collectStreamSpecificMetadata(std::vector<std::unique_ptr<art::FileCatalogMetadataPlugin> > const & plugins,
-                                std::vector<std::string> const & pluginNames,
+  collectStreamSpecificMetadata(vector<std::unique_ptr<art::FileCatalogMetadataPlugin>> const & plugins,
+                                vector<string> const & pluginNames,
                                 art::FileCatalogMetadata::collection_type & ssmd)
   {
-    std::size_t pluginCounter = 0;
+    std::size_t pluginCounter {0};
     std::ostringstream errors;  // Collect errors from all plugins.
     for (auto & plugin : plugins) {
-      art::FileCatalogMetadata::collection_type tmp =
-        plugin->doProduceMetadata();
+      art::FileCatalogMetadata::collection_type tmp = plugin->doProduceMetadata();
       ssmd.reserve(tmp.size() + ssmd.size());
       for (auto && entry : tmp) {
         if (art::ServiceHandle<art::FileCatalogMetadata>()->wantCheckSyntax()) {
           rapidjson::Document d;
-          std::string checkString("{ ");
+          string checkString("{ ");
           checkString += cet::canonical_string(entry.first) +
                          " : " +
                          entry.second +
@@ -588,7 +576,7 @@ namespace {
               << rapidjson::GetParseError_En(d.GetParseError())
               << " Faulty key/value clause:\n"
               << checkString << "\n"
-              << (nSpaces ? std::string(nSpaces, '-') : "")
+              << (nSpaces ? string(nSpaces, '-') : "")
               << "^\n";
           }
         }
@@ -652,16 +640,16 @@ finishEndFile()
 
 auto
 art::OutputModule::
-makePlugins_(fhicl::ParameterSet const & top_pset)
+makePlugins_(ParameterSet const & top_pset)
   -> PluginCollection_t
 {
-  auto const psets = top_pset.get<std::vector<fhicl::ParameterSet>>("FCMDPlugins", {} );
+  auto const psets = top_pset.get<vector<ParameterSet>>("FCMDPlugins", {} );
   PluginCollection_t result;
   result.reserve(psets.size());
-  size_t count = 0;
+  size_t count {0};
   try {
     for (auto const & pset : psets) {
-      pluginNames_.emplace_back(pset.get<std::string>("plugin_type"));
+      pluginNames_.emplace_back(pset.get<string>("plugin_type"));
       auto const & libspec = pluginNames_.back();
       auto const pluginType = pluginFactory_.pluginType(libspec);
       if (pluginType == cet::PluginTypeDeducer<FileCatalogMetadataPlugin>::value) {

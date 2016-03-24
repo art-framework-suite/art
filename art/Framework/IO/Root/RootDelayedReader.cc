@@ -3,9 +3,12 @@
 
 #include "art/Framework/IO/Root/RootInputFile.h"
 #include "art/Framework/IO/Root/RootTree.h"
+#include "art/Framework/IO/Root/detail/getFileContributors.h"
 #include "canvas/Persistency/Common/RefCoreStreamer.h"
 #include "canvas/Persistency/Provenance/BranchDescription.h"
+#include "canvas/Persistency/Provenance/RangeSet.h"
 #include "canvas/Utilities/TypeID.h"
+#include "cetlib/crc32.h"
 #include "TBranch.h"
 #include "TBranchElement.h"
 #include "TClass.h"
@@ -13,26 +16,40 @@
 
 using namespace std;
 
+namespace {
+
+
+  inline unsigned to_id(art::RangeSet const& rs)
+  {
+    cet::crc32 c{rs.to_compact_string()};
+    return c.digest();
+  }
+
+  inline auto to_bid(art::BranchKey const& bk)
+  {
+    return art::BranchID{bk.branchName()};
+  }
+}
+
 namespace art {
 
   RootDelayedReader::
-  RootDelayedReader(std::vector<input::EntryNumber> const& entrySet,
+  RootDelayedReader(sqlite3* db,
+                    std::vector<input::EntryNumber> const& entrySet,
                     shared_ptr<input::BranchMap const> branches,
                     cet::exempt_ptr<RootTree> tree,
-                    int64_t saveMemoryObjectThreshold,
+                    int64_t const saveMemoryObjectThreshold,
                     cet::exempt_ptr<RootInputFile> primaryFile,
-                    BranchType branchType, EventID eID)
-    : entrySet_{entrySet}
+                    BranchType const branchType,
+                    EventID const eID)
+    : db_{db}
+    , entrySet_{entrySet}
     , branches_{branches}
     , tree_{tree}
     , saveMemoryObjectThreshold_{saveMemoryObjectThreshold}
     , primaryFile_{primaryFile}
     , branchType_{branchType}
     , eventID_{eID}
-  {}
-
-  RootDelayedReader::
-  ~RootDelayedReader()
   {}
 
   void
@@ -69,15 +86,52 @@ namespace art {
       return p;
     };
 
-    // Retrieve and aggregate the products
+    // Retrieve first product
     auto result = get_product(entrySet_[0]);
-    for(auto it = entrySet_.cbegin()+1, e = entrySet_.cend(); it!= e; ++it) {
-      auto p = get_product(*it);
-      result->combine(p.get());
+
+    // Retrieve and aggregate subsequent products (if they exist)
+    if (branchType_ == InSubRun) {
+      std::set<unsigned> seenIDs;
+      seenIDs.insert(result->getRangeSetID());
+      RangeSet mergedRangeSet = detail::getSubRunContributors(db_,
+                                                              "SomeInput"s,
+                                                              result->getRangeSetID());
+
+      for(auto it = entrySet_.cbegin()+1, e = entrySet_.cend(); it!= e; ++it) {
+        auto p = get_product(*it);
+        auto const id = p->getRangeSetID();
+
+        if (!seenIDs.insert(id).second) continue; // Skip an already-seen product;
+                                                  // double-counting is bad.
+
+        RangeSet const& rs = detail::getSubRunContributors(db_, "SomeInput"s, id);
+        if (art::is_disjoint(mergedRangeSet, rs)) {
+          result->combine(p.get());
+          mergedRangeSet.merge(rs);
+        }
+      }
+      auto const checksum = mergedRangeSet.checksum();
+      rangeSets_.emplace(checksum, mergedRangeSet);
+      productRangeSetChecksums_.emplace(to_bid(bk), checksum);
     }
 
     configureRefCoreStreamer();
     return result;
+  }
+
+  RangeSet const&
+  RootDelayedReader::getRangeSet_(BranchID const& bid) const
+  {
+    auto it = productRangeSetChecksums_.find(bid);
+    if (it == productRangeSetChecksums_.cend())
+      throw art::Exception(art::errors::LogicError,"RootDelayedReader::getRangeSet_")
+        << "Could not find range set for BranchID: " << bid << '\n';
+
+    auto const checksum = it->second;
+    auto f = rangeSets_.find(checksum);
+    assert(f != rangeSets_.cend()); // Based on construction, this must be true.
+
+    return f->second;
   }
 
   // FIXME: This should be a member of RootInputFileSequence.
