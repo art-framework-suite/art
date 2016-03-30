@@ -23,12 +23,11 @@ namespace arttest {
 class arttest::ToyRawProductAnalyzer : public art::EDAnalyzer {
 public:
   explicit ToyRawProductAnalyzer(fhicl::ParameterSet const &p);
-  virtual ~ToyRawProductAnalyzer();
 
-  virtual void analyze(art::Event const &e);
+  void analyze(art::Event const &e) override;
 
-  virtual void beginRun(art::Run const &r);
-  virtual void beginSubRun(art::SubRun const &sr);
+  void beginRun(art::Run const &r) override;
+  void beginSubRun(art::SubRun const &sr) override;
 
 private:
 
@@ -45,10 +44,6 @@ art::EDAnalyzer(p),
 doBeginRun_(p.get<bool>("beginRun", true)),
 doBeginSubRun_(p.get<bool>("beginSubRun", true))
 {
-}
-
-arttest::ToyRawProductAnalyzer::~ToyRawProductAnalyzer() {
-  // Clean up dynamic memory and other resources here.
 }
 
 void arttest::ToyRawProductAnalyzer::analyze(art::Event const &e) {

@@ -30,10 +30,9 @@ public:
 
   using Parameters = EDFilter::Table<Config>;
   explicit Prescaler( Parameters const & );
-  virtual ~Prescaler();
 
-  virtual bool filter( Event & );
-  void endJob();
+  bool filter( Event & ) override;
+  void endJob() override;
 
 private:
   int count_;
@@ -50,9 +49,6 @@ Prescaler::Prescaler( Parameters const & config )
   , count_ ( 0 )
   , n_     ( config().prescaleFactor() )
   , offset_( config().prescaleOffset() )
-{ }
-
-Prescaler::~Prescaler()
 { }
 
 bool

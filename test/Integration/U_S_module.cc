@@ -12,13 +12,12 @@ public:
    explicit U_S(fhicl::ParameterSet const &) {
       produces<IntProduct>();
    }
-   virtual ~U_S() {}
 
-   virtual void produce(art::Event &e) {
+   void produce(art::Event &e) override {
       std::unique_ptr<IntProduct> p(new IntProduct(1));
       e.put(std::move(p));
    }
-   void endJob() {}
+   void endJob() override {}
 };
 
 DEFINE_ART_MODULE(arttest::U_S)

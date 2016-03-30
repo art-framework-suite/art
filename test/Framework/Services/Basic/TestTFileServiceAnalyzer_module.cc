@@ -23,8 +23,8 @@ public:
 
 private:
 
-  void analyze( const art::Event& e);
-  void respondToOpenInputFile(FileBlock const&);
+  void analyze( const art::Event& e) override;
+  void respondToOpenInputFile(FileBlock const&) override;
 
   // histograms
   TH1F * h_test1 = nullptr;

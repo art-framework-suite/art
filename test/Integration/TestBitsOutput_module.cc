@@ -65,7 +65,6 @@ public:
 
   using Parameters = art::ConfigTable<Config, art::OutputModule::Config::KeysToIgnore>;
   explicit TestBitsOutput(Parameters const&);
-  virtual ~TestBitsOutput();
 
 private:
   void write(art::EventPrincipal & e) override;
@@ -86,10 +85,6 @@ arttest::TestBitsOutput::TestBitsOutput(arttest::TestBitsOutput::Parameters cons
     bitMask_(ps().bitMask()),
     hltbits_(0),
     expectTriggerResults_(ps().expectTriggerResults())
-{
-}
-
-arttest::TestBitsOutput::~TestBitsOutput()
 {
 }
 

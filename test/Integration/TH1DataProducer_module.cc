@@ -26,7 +26,6 @@ namespace arttest {
 class arttest::TH1DataProducer : public art::EDProducer {
 public:
   explicit TH1DataProducer(fhicl::ParameterSet const & p);
-  virtual ~TH1DataProducer();
 
   void produce(art::Event & e) override;
 
@@ -46,11 +45,6 @@ arttest::TH1DataProducer::TH1DataProducer(fhicl::ParameterSet const &)
 {
   data_->data = TH1D("name", "title", 101, -.5, 100.5);
   produces<arttest::TH1Data, art::InRun>();
-}
-
-arttest::TH1DataProducer::~TH1DataProducer()
-{
-  // Clean up dynamic memory and other resources here.
 }
 
 void arttest::TH1DataProducer::produce(art::Event & e)

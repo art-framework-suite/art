@@ -1,7 +1,5 @@
 #include "art/Framework/Core/InputSource.h"
 
-art::InputSource::~InputSource() { }
-
 std::unique_ptr<art::EventPrincipal>
 art::InputSource::readEvent(art::EventID const&)
 {

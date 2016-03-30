@@ -22,7 +22,7 @@ class arttest::ProductIDGetterNoPut : public art::EDProducer {
 public:
   
   explicit ProductIDGetterNoPut(fhicl::ParameterSet const &);
-  virtual void produce(art::Event &);
+  void produce(art::Event &) override;
 
 };
 

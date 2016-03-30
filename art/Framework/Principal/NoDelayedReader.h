@@ -8,10 +8,8 @@
 #include <memory>
 
 class art::NoDelayedReader : public art::DelayedReader {
-public:
-  virtual ~NoDelayedReader();
 private:
-  virtual std::unique_ptr<EDProduct> getProduct_(BranchKey const& k, art::TypeID const &) const;
+  std::unique_ptr<EDProduct> getProduct_(BranchKey const& k, art::TypeID const &) const override;
 };
 
 #endif /* art_Framework_Principal_NoDelayedReader_h */

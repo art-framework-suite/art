@@ -30,8 +30,7 @@ public:
   {
   }
 
-  virtual ~Reconfiguring() { }
-  virtual void analyze( art::Event const & e );
+  void analyze( art::Event const & e ) override;
 
 private:
   typedef std::vector<fhicl::ParameterSet> ParameterSets;

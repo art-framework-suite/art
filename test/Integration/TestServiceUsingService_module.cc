@@ -24,10 +24,10 @@ public:
   explicit TestServiceUsingService(fhicl::ParameterSet const &);
   ~TestServiceUsingService();
 
-  virtual void analyze(art::Event const &);
+  void analyze(art::Event const &) override;
 
-  virtual void beginJob();
-  virtual void endJob();
+  void beginJob() override;
+  void endJob() override;
 
 private:
 

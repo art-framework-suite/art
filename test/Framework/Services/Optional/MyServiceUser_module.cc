@@ -20,9 +20,8 @@ namespace arttest {
 class arttest::MyServiceUser : public art::EDAnalyzer {
 public:
   explicit MyServiceUser(fhicl::ParameterSet const & p);
-  virtual ~MyServiceUser() = default;
 
-  virtual void analyze(art::Event const & e);
+  void analyze(art::Event const & e) override;
 
 };
 

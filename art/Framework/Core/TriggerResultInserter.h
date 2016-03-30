@@ -34,7 +34,7 @@ namespace art {
     // the pset needed here is the one that defines the trigger path names
     TriggerResultInserter(fhicl::ParameterSet const& ps, HLTGlobalStatus & pathResults);
 
-    virtual void produce(art::Event& e);
+    void produce(art::Event& e) override;
 
   private:
     TrigResPtr trptr_;

@@ -58,7 +58,7 @@ public:
     }
   }
 
-  void analyze(const art::Event &e) {
+  void analyze(const art::Event &e) override {
     art::Handle<P> handle;
     e.getByLabel(input_label_, handle);
     assert (handle.isValid() == require_presence_);

@@ -29,10 +29,8 @@ class art::BranchMapperWithReader
 public:
   BranchMapperWithReader(TBranch * branch, input::EntryNumber entryNumber);
 
-  virtual ~BranchMapperWithReader() {}
-
 private:
-  virtual void readProvenance_() const;
+  void readProvenance_() const override;
 
   TBranch * branchPtr_;
   input::EntryNumber entryNumber_;

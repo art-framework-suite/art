@@ -61,10 +61,10 @@ public:
   virtual ~TestOutputModule();
 
 private:
-  virtual void write(art::EventPrincipal const& e);
+  void write(art::EventPrincipal const& e) override;
   virtual void writeSubRun(art::SubRunPrincipal const&) {}
   virtual void writeRun(art::RunPrincipal const&) {}
-  virtual void endJob();
+  void endJob() override;
 
   std::string name_;
   int bitMask_;

@@ -23,9 +23,8 @@ namespace arttest {
 class arttest::DropTestAnalyzer : public art::EDAnalyzer {
 public:
   explicit DropTestAnalyzer(fhicl::ParameterSet const &p);
-  virtual ~DropTestAnalyzer();
 
-  virtual void analyze(art::Event const &e);
+  void analyze(art::Event const &e) override;
 
 
 private:
@@ -41,9 +40,6 @@ arttest::DropTestAnalyzer::DropTestAnalyzer(fhicl::ParameterSet const &p)
    keepString_(p.get<bool>("keepString", false)),
    keepMapVector_(p.get<bool>("keepMapVector", true))
 {
-}
-
-arttest::DropTestAnalyzer::~DropTestAnalyzer() {
 }
 
 void arttest::DropTestAnalyzer::analyze(art::Event const &e) {

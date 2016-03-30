@@ -37,9 +37,8 @@ public:
   using prod_t = std::vector<size_t>;
 
   explicit RandomNumberSaveTest(fhicl::ParameterSet const & p);
-  virtual ~RandomNumberSaveTest();
 
-  virtual bool filter(art::Event & e);
+  bool filter(art::Event & e) override;
 
 private:
 
@@ -70,10 +69,6 @@ arttest::RandomNumberSaveTest::RandomNumberSaveTest(fhicl::ParameterSet const & 
   genUnsaved_(p.get<bool>("genUnsaved", true))
 {
   produces<prod_t>();
-}
-
-arttest::RandomNumberSaveTest::~RandomNumberSaveTest()
-{
 }
 
 bool arttest::RandomNumberSaveTest::filter(art::Event & e)

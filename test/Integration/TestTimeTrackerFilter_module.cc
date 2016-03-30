@@ -17,9 +17,8 @@ namespace arttest {
   {
   public:
     explicit TestTimeTrackerFilter( fhicl::ParameterSet const& ) {}
-    virtual ~TestTimeTrackerFilter() { }
 
-    virtual bool filter( art::Event& ) override {
+    bool filter( art::Event& ) override {
       bool const passesCuts = rand_(dre_) < 0.3;
 
       return

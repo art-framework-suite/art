@@ -23,7 +23,7 @@ public:
 
   ScheduleID scheduleID() const;
 
-  tbb::task * execute();
+  tbb::task * execute() override;
 
 private:
   ScheduleID id_;

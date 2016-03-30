@@ -36,9 +36,7 @@ public:
     produces<std::string>();
   }
 
-  virtual ~BareStringProducer() { }
-
-  virtual void produce( art::Event& e );
+  void produce( art::Event& e ) override;
 
 private:
   std::string value_;

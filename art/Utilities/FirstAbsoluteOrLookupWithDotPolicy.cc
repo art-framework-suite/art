@@ -32,6 +32,3 @@ std::string art::FirstAbsoluteOrLookupWithDotPolicy::operator() (std::string con
 void art::FirstAbsoluteOrLookupWithDotPolicy::reset() {
    first = true;
 }
-
-art::FirstAbsoluteOrLookupWithDotPolicy::~FirstAbsoluteOrLookupWithDotPolicy() noexcept {
-}

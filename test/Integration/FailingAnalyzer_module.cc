@@ -15,8 +15,7 @@ class arttest::FailingAnalyzer : public art::EDAnalyzer
 {
 public:
   explicit FailingAnalyzer(fhicl::ParameterSet const&);
-  virtual ~FailingAnalyzer();
-  virtual void analyze(art::Event const& e);
+  void analyze(art::Event const& e) override;
   void makeTrouble(art::Event const& e);
 };
 
@@ -26,11 +25,6 @@ arttest::FailingAnalyzer::FailingAnalyzer(fhicl::ParameterSet const& pset)
 {
 
 }
-
-arttest::FailingAnalyzer::~FailingAnalyzer()
-{ }
-
-
 
 void
 arttest::FailingAnalyzer::analyze(art::Event const&)

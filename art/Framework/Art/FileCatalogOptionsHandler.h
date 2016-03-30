@@ -16,10 +16,10 @@ public:
   explicit FileCatalogOptionsHandler(bpo::options_description & desc);
 private:
   // Check selected options for consistency.
-  int doCheckOptions(bpo::variables_map const & vm);
+  int doCheckOptions(bpo::variables_map const & vm) override;
   // Act on selected options.
   int doProcessOptions(bpo::variables_map const & vm,
-                       fhicl::intermediate_table & raw_config);
+                       fhicl::intermediate_table & raw_config) override;
 
   // Data.
   bpo::options_description const & desc_;

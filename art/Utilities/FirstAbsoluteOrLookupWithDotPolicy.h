@@ -10,9 +10,8 @@ class art::FirstAbsoluteOrLookupWithDotPolicy :
 public cet::filepath_maker {
  public:
    FirstAbsoluteOrLookupWithDotPolicy(std::string const &paths);
-   virtual std::string operator() (std::string const &filename);
+   std::string operator() (std::string const &filename) override;
    void reset();
-   virtual ~FirstAbsoluteOrLookupWithDotPolicy() noexcept;
 
  private:
    bool first;

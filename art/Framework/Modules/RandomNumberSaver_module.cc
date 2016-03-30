@@ -41,10 +41,9 @@ public:
   // --- C'tor/d'tor:
   using Parameters = EDProducer::Table<Config>;
   explicit  RandomNumberSaver( Parameters const & );
-  virtual  ~RandomNumberSaver()  { }
 
   // --- Production:
-  virtual void produce( Event & );
+  void produce( Event & ) override;
 
 private:
   bool  debug_;

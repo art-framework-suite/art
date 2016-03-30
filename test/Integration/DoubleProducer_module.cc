@@ -34,9 +34,7 @@ public:
     produces<DoubleProduct>();
   }
 
-  virtual ~DoubleProducer() { }
-
-  virtual void produce( art::Event& e );
+  void produce( art::Event& e ) override;
 
 private:
   double value_;

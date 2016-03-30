@@ -38,9 +38,8 @@ namespace arttest {
 class arttest::AssnsProducer : public art::EDProducer {
 public:
   explicit AssnsProducer(fhicl::ParameterSet const &p);
-  virtual ~AssnsProducer();
 
-  virtual void produce(art::Event &e);
+  void produce(art::Event &e) override;
 };
 
 namespace {
@@ -62,9 +61,6 @@ arttest::AssnsProducer::AssnsProducer(fhicl::ParameterSet const &)
   produces<AssnsAB_t>("manymapvec");
   produces<AssnsVoid_t>("many");
   produces<AssnsVoid_t>("manymapvec");
-}
-
-arttest::AssnsProducer::~AssnsProducer() {
 }
 
 void arttest::AssnsProducer::produce(art::Event &e) {

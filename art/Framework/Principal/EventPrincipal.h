@@ -139,14 +139,14 @@ public:
   void put(std::unique_ptr<EDProduct>&& edp, BranchDescription const& bd,
            std::unique_ptr<ProductProvenance const>&& productProvenance);
 
-  void addGroup(BranchDescription const&);
+  void addGroup(BranchDescription const&) override;
 
-  void addGroup(std::unique_ptr<EDProduct>&&, BranchDescription const&);
+  void addGroup(std::unique_ptr<EDProduct>&&, BranchDescription const&) override;
 
   ProductID branchIDToProductID(BranchID const& bid) const;
 
   BranchType
-  branchType() const
+  branchType() const override
   {
     return InEvent;
   }
@@ -157,11 +157,10 @@ private:
 
   BranchID productIDToBranchID(ProductID const& pid) const;
 
-  virtual void addOrReplaceGroup(std::unique_ptr<Group>&& g);
+  void addOrReplaceGroup(std::unique_ptr<Group>&& g) override;
 
-  virtual
   ProcessHistoryID const&
-  processHistoryID() const
+  processHistoryID() const override
   {
     return history().processHistoryID();
   }

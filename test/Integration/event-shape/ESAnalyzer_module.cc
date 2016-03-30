@@ -25,7 +25,6 @@ namespace arttest {
 class arttest::ESAnalyzer : public art::EDProducer {
 public:
   explicit ESAnalyzer(fhicl::ParameterSet const & p);
-  virtual ~ESAnalyzer();
 
   void produce(art::Event & e) override;
 
@@ -42,11 +41,6 @@ arttest::ESAnalyzer::ESAnalyzer(fhicl::ParameterSet const & p)
 // Initialize member data here.
 {
   // Call appropriate Produces<>() functions here.
-}
-
-arttest::ESAnalyzer::~ESAnalyzer()
-{
-  // Clean up dynamic memory and other resources here.
 }
 
 void arttest::ESAnalyzer::produce(art::Event & e)

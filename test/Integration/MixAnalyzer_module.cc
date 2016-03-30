@@ -30,9 +30,8 @@ namespace arttest {
 class arttest::MixAnalyzer : public art::EDAnalyzer {
 public:
   explicit MixAnalyzer(fhicl::ParameterSet const &p);
-  virtual ~MixAnalyzer();
 
-  virtual void analyze(art::Event const &e);
+  void analyze(art::Event const &e) override;
 
 
 private:
@@ -54,10 +53,6 @@ arttest::MixAnalyzer::MixAnalyzer(fhicl::ParameterSet const &p)
   nSecondaries_(p.get<size_t>("numSecondaries", 1)),
   mixFilterLabel_(p.get<std::string>("mixFilterLabel", "mixFilter"))
 {
-}
-
-arttest::MixAnalyzer::~MixAnalyzer() {
-  // Clean up dynamic memory and other resources here.
 }
 
 void arttest::MixAnalyzer::analyze(art::Event const &e) {

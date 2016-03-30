@@ -25,7 +25,7 @@ class arttest::ProductIDGetter : public art::EDProducer {
 public:
 
   explicit ProductIDGetter(fhicl::ParameterSet const &);
-  virtual void produce(art::Event &);
+  void produce(art::Event &) override;
 
 };
 

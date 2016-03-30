@@ -22,10 +22,9 @@ public:
 
   using Parameters = EDFilter::Table<Config>;
   explicit TestFilter(EDFilter::Table<Config> const&);
-  virtual ~TestFilter();
 
-  virtual bool filter(art::Event& e);
-  void endJob();
+  bool filter(art::Event& e) override;
+  void endJob() override;
 
 private:
   int count_;
@@ -41,10 +40,6 @@ arttest::TestFilter::TestFilter(EDFilter::Table<Config> const& ps):
   count_(),
   accept_rate_( ps().acceptValue() ),
   onlyOne_(     ps().onlyOne() )
-{
-}
-
-arttest::TestFilter::~TestFilter()
 {
 }
 

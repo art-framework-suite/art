@@ -17,8 +17,7 @@ class UnitTestClient : public art::EDAnalyzer
 {
 public:
   explicit UnitTestClient( fhicl::ParameterSet const & p);
-  virtual ~UnitTestClient();
-  virtual void analyze( art::Event const & e);
+  void analyze( art::Event const & e) override;
 
 private:
 };

@@ -89,42 +89,42 @@ namespace art
     DecrepitRelicInputSourceImplementation(fhicl::TableFragment<Config> const&,
                                            InputSourceDescription &);
 
-    virtual ~DecrepitRelicInputSourceImplementation() = 0;
+    virtual ~DecrepitRelicInputSourceImplementation() noexcept = 0;
 
     // Note: this virtual function is implemented here. It is overridden
     // in RootInput, but may still be called under normal circumstances
     // by the overriding function.
-    virtual input::ItemType nextItemType();
+    input::ItemType nextItemType() override;
 
     /// Read next event
     /// Indicate inability to get a new event by returning a null unique_ptr.
-    std::unique_ptr<EventPrincipal> readEvent(std::shared_ptr<SubRunPrincipal> srp);
+    std::unique_ptr<EventPrincipal> readEvent(std::shared_ptr<SubRunPrincipal> srp) override;
 
     /// Read a specific event
-    std::unique_ptr<EventPrincipal> readEvent(EventID const&);
+    std::unique_ptr<EventPrincipal> readEvent(EventID const&) override;
 
     /// Read next subRun
-    std::shared_ptr<SubRunPrincipal> readSubRun(std::shared_ptr<RunPrincipal> rp);
+    std::shared_ptr<SubRunPrincipal> readSubRun(std::shared_ptr<RunPrincipal> rp) override;
 
     std::vector<std::shared_ptr<SubRunPrincipal>> readSubRunFromSecondaryFiles(std::shared_ptr<RunPrincipal>);
 
     /// Read next run.
-    std::shared_ptr<RunPrincipal> readRun();
+    std::shared_ptr<RunPrincipal> readRun() override;
 
     std::vector<std::shared_ptr<RunPrincipal>> readRunFromSecondaryFiles();
 
     /// Read next file
-    std::shared_ptr<FileBlock> readFile(MasterProductRegistry&);
+    std::shared_ptr<FileBlock> readFile(MasterProductRegistry&) override;
 
     /// close current file
-    void closeFile();
+    void closeFile() override;
 
     /// Skip the number of events specified.
     /// Offset may be negative.
-    void skipEvents(int offset);
+    void skipEvents(int offset) override;
 
     /// Begin again at the first event
-    void rewind() {
+    void rewind() override {
       repeat_();
       doneReadAhead_ = false;
       state_ = input::IsInvalid;
@@ -167,10 +167,10 @@ namespace art
     ProcessConfiguration const& processConfiguration() const {return moduleDescription().processConfiguration();}
 
     /// Called by framework at beginning of job
-    void doBeginJob();
+    void doBeginJob() override;
 
     /// Called by framework at end of job
-    void doEndJob();
+    void doEndJob() override;
 
     /// Called by framework when events are exhausted.
     void doEndSubRun(SubRunPrincipal& srp);

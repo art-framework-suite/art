@@ -40,9 +40,7 @@ public:
     produces<base_t>();
   }
 
-  virtual ~DerivedPtrVectorProducer() { }
-
-  virtual void produce( art::Event & e );
+  void produce( art::Event & e ) override;
 
 private:
   std::string  input_label_;

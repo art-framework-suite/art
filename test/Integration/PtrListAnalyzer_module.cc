@@ -17,8 +17,7 @@ namespace arttest
   {
   public:
     explicit PtrListAnalyzer(fhicl::ParameterSet const& pset);
-    virtual ~PtrListAnalyzer();
-    virtual void analyze(art::Event const& ev);
+    void analyze(art::Event const& ev) override;
   private:
     // input_t is the type of the product we expect to obtain from the
     // Event
@@ -30,10 +29,6 @@ namespace arttest
     std::string input_label_;
     unsigned num_expected_;
   };
-
-
-  PtrListAnalyzer:: ~PtrListAnalyzer()
-  { }
 
   PtrListAnalyzer::PtrListAnalyzer(fhicl::ParameterSet const& pset) :
     art::EDAnalyzer(pset),

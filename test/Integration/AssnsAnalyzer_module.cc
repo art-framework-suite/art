@@ -38,9 +38,8 @@ namespace arttest {
 class arttest::AssnsAnalyzer : public art::EDAnalyzer {
 public:
   explicit AssnsAnalyzer(fhicl::ParameterSet const & p);
-  virtual ~AssnsAnalyzer();
 
-  virtual void analyze(art::Event const & e);
+  void analyze(art::Event const & e) override;
 
 private:
   template <template <typename, typename> class FO>
@@ -162,11 +161,6 @@ AssnsAnalyzer(fhicl::ParameterSet const & p)
   testAB_(p.get<bool>("test_AB", true)),
   testBA_(p.get<bool>("test_BA", false)),
   bCollMissing_(p.get<bool>("bCollMissing", false))
-{
-}
-
-arttest::AssnsAnalyzer::
-~AssnsAnalyzer()
 {
 }
 

@@ -15,9 +15,8 @@ namespace arttest {
   {
   public:
     explicit TestTimeTrackerAnalyzer( fhicl::ParameterSet const& pset ) : art::EDAnalyzer(pset) {}
-    virtual ~TestTimeTrackerAnalyzer() { }
 
-    virtual void analyze( art::Event const& ) override {}
+    void analyze( art::Event const& ) override {}
   };  // TestTimeTrackerAnalyzer
 
 }

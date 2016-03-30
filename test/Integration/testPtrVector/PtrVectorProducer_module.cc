@@ -37,9 +37,7 @@ public:
     produces<product_t>();
   }
 
-  virtual ~PtrVectorProducer() { }
-
-  virtual void produce( art::Event & e );
+  void produce( art::Event & e ) override;
 
 private:
   std::string  input_label_;

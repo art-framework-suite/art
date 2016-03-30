@@ -95,31 +95,31 @@ public:
     expectedMessage_ = expected.str();
   }
 
-  void respondToOpenInputFile(art::FileBlock const& fb)
+  void respondToOpenInputFile(art::FileBlock const& fb) override
   {
     ++numFilesSeen_;
     messages_ << "open " <<  fb.fileName() << '\n';
   }
 
-  void beginRun(art::Run const& r)
+  void beginRun(art::Run const& r) override
   {
     ++numRunsSeen_;
     messages_ << "begin " << r.id() << '\n';
   }
 
-  void beginSubRun(art::SubRun const& sr)
+  void beginSubRun(art::SubRun const& sr) override
   {
     ++numSubRunsSeen_;
     messages_ << "begin " << sr.id() << '\n';
   }
 
-  void analyze(art::Event const& e)
+  void analyze(art::Event const& e) override
   {
     ++numEventsSeen_;
     messages_ << "event " << e.id() << '\n';
   }
 
-  void endJob()
+  void endJob() override
   {
     std::cerr << "------------------------------------------------------------------------\n"
               << expectedMessage_

@@ -44,7 +44,7 @@ namespace art {
 
   private:
     // Classes inheriting FileTransfer interface must provide the following method:
-    virtual int doTranslateToLocalFilename(std::string const & uri, std::string & fileFQname);
+    int doTranslateToLocalFilename(std::string const & uri, std::string & fileFQname) override;
 
     // helper functions
     int stripURI(std::string const & uri, std::string & inFileName) const;

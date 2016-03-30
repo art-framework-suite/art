@@ -35,8 +35,7 @@ public:
     produces<SimpleDerivedProduct>("derived");
   }
 
-  virtual ~SimpleDerivedProducer() { }
-  virtual void produce( art::Event & e );
+  void produce( art::Event & e ) override;
 
 private:
   int size_;  // number of Simples to put in the collection
