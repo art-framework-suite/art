@@ -30,8 +30,10 @@ Group()
 }
 
 Group::
-Group(BranchDescription const& bd, ProductID const& pid,
-      art::TypeID const& wrapper_type, cet::exempt_ptr<Worker> productProducer,
+Group(BranchDescription const& bd,
+      ProductID const& pid,
+      art::TypeID const& wrapper_type,
+      cet::exempt_ptr<Worker> productProducer,
       cet::exempt_ptr<EventPrincipal> onDemandPrincipal)
   : wrapper_type_(wrapper_type)
   , ppResolver_()
@@ -45,8 +47,10 @@ Group(BranchDescription const& bd, ProductID const& pid,
 }
 
 Group::
-Group(std::unique_ptr<EDProduct>&& edp, BranchDescription const& bd,
-      ProductID const& pid, art::TypeID const& wrapper_type)
+Group(std::unique_ptr<EDProduct>&& edp,
+      BranchDescription const& bd,
+      ProductID const& pid,
+      art::TypeID const& wrapper_type)
   : wrapper_type_(wrapper_type)
   , ppResolver_()
   , productResolver_()
@@ -110,8 +114,7 @@ resolveProduct(bool fillOnDemand, TypeID const& wanted_wrapper_type) const
 
 bool
 Group::
-resolveProductIfAvailable(/*unsigned const rangeSetID [[gnu::unused]],*/
-                          bool const fillOnDemand,
+resolveProductIfAvailable(bool const fillOnDemand,
                           TypeID const& wanted_wrapper_type) const
 {
   if (product_.get()) {

@@ -62,6 +62,9 @@ namespace art {
     if (!group) {
       addGroup_(std::move(g));
     }
+    else {
+      replaceGroup(std::move(g));
+    }
   }
 
   void

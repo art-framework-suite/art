@@ -55,13 +55,16 @@ namespace art {
     // Use GroupFactory to make.
     //
 
-    Group(BranchDescription const& bd, ProductID const& pid,
+    Group(BranchDescription const& bd,
+          ProductID const& pid,
           TypeID const& wrapper_type,
           cet::exempt_ptr<Worker> productProducer = cet::exempt_ptr<Worker>{},
           cet::exempt_ptr<EventPrincipal> onDemandPrincipal = cet::exempt_ptr<EventPrincipal>{});
 
-    Group(std::unique_ptr<EDProduct>&& edp, BranchDescription const& bd,
-          ProductID const& pid, TypeID const& wrapper_type);
+    Group(std::unique_ptr<EDProduct>&& edp,
+          BranchDescription const& bd,
+          ProductID const& pid,
+          TypeID const& wrapper_type);
 
   public:
 
@@ -130,6 +133,11 @@ namespace art {
     {
       ppResolver_.reset(&bm);
       productResolver_.reset(&dr);
+    }
+
+    DelayedReader const* productResolver() const
+    {
+      return productResolver_.get();
     }
 
     virtual bool resolveProduct(bool fillOnDemand, TypeID const&) const;
