@@ -28,7 +28,7 @@ namespace statemachine {
     if (ep_.alreadyHandlingException()) return;
     exitCalled_ = true;
     checkInvariant();
-    finalizeEvent();
+    processAndFinalizeEvent();
   }
 
   HandleEvents::~HandleEvents()
@@ -37,7 +37,7 @@ namespace statemachine {
     if (!exitCalled_) {
       try {
         checkInvariant();
-        finalizeEvent();
+        processAndFinalizeEvent();
       }
       catch (cet::exception const& e) {
         std::ostringstream message;
@@ -55,7 +55,7 @@ namespace statemachine {
                 << "Another exception was caught while trying to clean up an event after\n"
                 << "the primary exception.  We give up trying to clean up an event at\n"
                 << "this point.  This additional exception was a\n"
-                << "std::bad_alloc exception thrown inside HandleEvents::finalizeEvent.\n"
+                << "std::bad_alloc exception thrown inside HandleEvents::processAndFinalizeEvent.\n"
                 << "The job has probably exhausted the virtual memory available\n"
                 << "to the process.\n";
         ep_.setExceptionMessageSubRuns(message.str());
@@ -66,7 +66,7 @@ namespace statemachine {
                 << "Another exception was caught while trying to clean up an event after\n"
                 << "the primary exception.  We give up trying to clean up an event at\n"
                 << "this point.  This additional exception was a\n"
-                << "standard library exception thrown inside HandleEvents::finalizeEvent\n"
+                << "standard library exception thrown inside HandleEvents::processAndFinalizeEvent\n"
                 << e.what() << "\n";
         ep_.setExceptionMessageSubRuns(message.str());
       }
@@ -76,15 +76,17 @@ namespace statemachine {
                 << "Another exception was caught while trying to clean up an event after\n"
                 << "the primary exception.  We give up trying to clean up an event at\n"
                 << "this point.  This additional exception was of unknown type and\n"
-                << "thrown inside HandleEvents::finalizeEvent\n";
+                << "thrown inside HandleEvents::processAndFinalizeEvent\n";
         ep_.setExceptionMessageSubRuns(message.str());
       }
     }
   }
 
-  void HandleEvents::finalizeEvent()
+  void HandleEvents::processAndFinalizeEvent()
   {
-    if (!finalizeEnabled_) return;
+    if (!processAndFinalizeEnabled_) return;
+    ep_.processEvent();
+    if (ep_.shouldWeStop()) { post_event(Stop()); }
     context<HandleFiles>().openSomeOutputFiles();
     ep_.writeEvent();
     ep_.recordOutputClosureRequests();
@@ -97,7 +99,8 @@ namespace statemachine {
   {
     // std::cout << " NewEvent()\n";
     context<Machine>().setCurrentBoundary(Boundary::Event);
-    readAndProcessEvent();
+    markNonEmpty();
+    ep_.readEvent();
     checkInvariant();
   }
 
@@ -113,14 +116,6 @@ namespace statemachine {
     assert(context<HandleRuns>().beginRunCalled());
     assert(context<HandleSubRuns>().currentSubRun().runID() == context<HandleRuns>().currentRun());
     assert(context<HandleSubRuns>().currentSubRun().isValid());
-  }
-
-  void NewEvent::readAndProcessEvent()
-  {
-    markNonEmpty();
-    ep_.readEvent();
-    ep_.processEvent();
-    if (ep_.shouldWeStop()) { post_event(Stop()); }
   }
 
   void NewEvent::markNonEmpty()

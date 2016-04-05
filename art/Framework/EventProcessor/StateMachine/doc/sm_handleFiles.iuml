@@ -2,7 +2,7 @@ state HandleFiles {
 
   [*] --> NewInputFile
   NewInputFile --> HandleRuns: Run
-  
+
   NewInputFile: entry/openInputFile
 
   state "H*" as hist
@@ -35,12 +35,12 @@ state HandleFiles {
 
       state HandleEvents {
         [*] --> NewEvent
-        NewEvent: entry/readAndProcessEvent
+        NewEvent: entry/readEvent
 
-	NewEvent --> PauseEvent: Pause/disableFinalizeEvent
+        NewEvent --> PauseEvent: Pause/disableProcessAndFinalizeEvent
       }
       HandleEvents: entry/initCurrentEvent
-      HandleEvents: exit/finalizeEvent
+      HandleEvents: exit/processAndFinalizeEvent
     }
     HandleSubRuns: entry/initCurrentSubRun
     HandleSubRuns: exit/finalizeSubRun

@@ -1,0 +1,26 @@
+source: {
+   module_type: RootInput
+   fileNames: [
+      "../RunProductAggregationTiered_w.d/out_1.root",
+      "../RunProductAggregationTiered_w.d/out_2.root",
+      "../RunProductAggregationTiered_w.d/out_3.root",
+      "../RunProductAggregationTiered_w.d/out_4.root"
+   ]
+}
+
+physics: {
+
+   analyzers: {
+      a1: {
+         module_type: RunProductAnalyzerTiered
+         products: [
+            # key: product => value: expected product value after aggregation
+            ["prod:counts:tier1", 5]
+         ]
+      }
+   }
+
+   e1: [a1]
+}
+
+process_name: analyze1

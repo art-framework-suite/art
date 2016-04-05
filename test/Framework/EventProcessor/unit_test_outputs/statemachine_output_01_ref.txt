@@ -19,9 +19,9 @@ Machine parameters:  handleEmptyRuns = 0  handleEmptySubRuns = 0
 	beginRun..........(run: 2)
 	beginSubRun.......(run: 2 subRun: 2)
 	readEvent.........(run: 2 subRun: 2 event: 1)
+    *** nextItemType: SubRun ***
 	processEvent......(run: 2 subRun: 2 event: 1)
 	shouldWeStop
-    *** nextItemType: SubRun ***
 	writeEvent........(run: 2 subRun: 2 event: 1)
 	endSubRun.........(run: 2 subRun: 2)
 	writeSubRun.......(run: 2 subRun: 2)
@@ -67,9 +67,9 @@ Machine parameters:  handleEmptyRuns = 0  handleEmptySubRuns = 1
     *** nextItemType: Event ***
 	beginSubRun.......(run: 2 subRun: 2)
 	readEvent.........(run: 2 subRun: 2 event: 1)
+    *** nextItemType: SubRun ***
 	processEvent......(run: 2 subRun: 2 event: 1)
 	shouldWeStop
-    *** nextItemType: SubRun ***
 	writeEvent........(run: 2 subRun: 2 event: 1)
 	endSubRun.........(run: 2 subRun: 2)
 	writeSubRun.......(run: 2 subRun: 2)
@@ -121,9 +121,9 @@ Machine parameters:  handleEmptyRuns = 1  handleEmptySubRuns = 0
     *** nextItemType: Event ***
 	beginSubRun.......(run: 2 subRun: 2)
 	readEvent.........(run: 2 subRun: 2 event: 1)
+    *** nextItemType: SubRun ***
 	processEvent......(run: 2 subRun: 2 event: 1)
 	shouldWeStop
-    *** nextItemType: SubRun ***
 	writeEvent........(run: 2 subRun: 2 event: 1)
 	endSubRun.........(run: 2 subRun: 2)
 	writeSubRun.......(run: 2 subRun: 2)
@@ -173,9 +173,9 @@ Machine parameters:  handleEmptyRuns = 1  handleEmptySubRuns = 1
     *** nextItemType: Event ***
 	beginSubRun.......(run: 2 subRun: 2)
 	readEvent.........(run: 2 subRun: 2 event: 1)
+    *** nextItemType: SubRun ***
 	processEvent......(run: 2 subRun: 2 event: 1)
 	shouldWeStop
-    *** nextItemType: SubRun ***
 	writeEvent........(run: 2 subRun: 2 event: 1)
 	endSubRun.........(run: 2 subRun: 2)
 	writeSubRun.......(run: 2 subRun: 2)

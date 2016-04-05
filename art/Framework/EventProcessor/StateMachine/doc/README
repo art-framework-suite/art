@@ -40,7 +40,7 @@ The creation of principals happens during the entry actions in the
 'New*' states.
 
 The writing of products is done during the exit actions of the
-composite states ("finalizeEvent", "finalizeSubRun", and
+composite states ("processAndFinalizeEvent", "finalizeSubRun", and
 "finalizeRun").
 
 ==================================
@@ -80,8 +80,8 @@ posted to the event queue.
 
 The SubRun event will be acted upon by performing the following steps:
 
-  [1] The machine exits from HandleEvents, calling finalizeEvent
-      (thereby writing the event products).
+  [1] The machine exits from HandleEvents, calling
+      processAndFinalizeEvent (thereby writing the event products).
   [2] The machine exits from HandleSubRuns, calling finalizeSubRun
       (thereby writing the subrun products).
   [3] The machine reenters the HandleSubRuns composite state,

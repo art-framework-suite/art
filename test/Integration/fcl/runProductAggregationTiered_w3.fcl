@@ -1,0 +1,29 @@
+source: {
+   module_type: RootInput
+   fileNames: [
+      "../RunProductAggregationTiered_w2.d/out_1.root",
+      "../RunProductAggregationTiered_w2.d/out_2.root"
+   ]
+}
+
+physics: {
+
+   producers: {
+      prod: {
+         module_type: RunProductProducerTiered
+         increment: 3
+      }
+   }
+
+   p1: [prod]
+   e1: [o1]
+}
+
+outputs: {
+   o1: {
+      module_type: RootOutput
+      fileName: "out.root"
+   }
+}
+
+process_name: tier3

@@ -1,6 +1,6 @@
 #include "art/Framework/Core/EDAnalyzer.h"
 #include "art/Framework/Core/ModuleMacros.h"
-#include "art/Framework/Principal/Run.h"
+#include "art/Framework/Principal/SubRun.h"
 #include "canvas/Utilities/InputTag.h"
 #include "cetlib/quiet_unit_test.hpp"
 #include "fhiclcpp/types/Atom.h"
@@ -30,10 +30,10 @@ namespace {
       , nameTag_{p().nameTag()}
     {}
 
-    void beginRun(art::Run const& r) override
+    void beginSubRun(art::SubRun const& sr) override
     {
-      auto totalEvents  = r.getValidHandle<unsigned>(eventsTag_);
-      auto combinedProd = r.getValidHandle<std::vector<int> >(eventsCollTag_);
+      auto totalEvents  = sr.getValidHandle<unsigned>(eventsTag_);
+      auto combinedProd = sr.getValidHandle<std::vector<int> >(eventsCollTag_);
       BOOST_REQUIRE_EQUAL(*totalEvents, combinedProd->size());
 
       std::cout << "Same ranges    : " << std::boolalpha << same_ranges(totalEvents, combinedProd) << '\n';
@@ -41,7 +41,7 @@ namespace {
 
       // Exception thrown only if an aggregation for 'std::string' is attempted
       try {
-        (void)r.getValidHandle<std::string>(nameTag_);
+        (void)sr.getValidHandle<std::string>(nameTag_);
       }
       catch(art::Exception const& e) {
         BOOST_REQUIRE_EQUAL(e.categoryCode(), art::errors::ProductCannotBeAggregated);

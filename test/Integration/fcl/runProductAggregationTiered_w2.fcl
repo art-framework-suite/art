@@ -1,0 +1,33 @@
+source: {
+   module_type: RootInput
+   fileNames: [
+      "../RunProductAggregationTiered_w.d/out_1.root",
+      "../RunProductAggregationTiered_w.d/out_2.root",
+      "../RunProductAggregationTiered_w.d/out_3.root",
+      "../RunProductAggregationTiered_w.d/out_4.root"
+   ]
+}
+
+physics: {
+
+   producers: {
+      prod: {
+         module_type: RunProductProducerTiered
+         increment: 2
+      }
+   }
+
+   p1: [prod]
+   e1: [o1]
+}
+
+outputs: {
+
+   o1: {
+      module_type: RootOutput
+      fileName: "out_%#.root"
+      maxEventsPerFile: 10
+   }
+}
+
+process_name: tier2

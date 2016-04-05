@@ -1,0 +1,17 @@
+source: {
+   module_type: RootInput
+   fileNames: @nil
+   delayedReadRunProducts: true
+}
+
+physics: {
+   analyzers: {
+      p1: {
+         module_type: SubRunProductAnalyzer
+         eventsTag: "prod:totalEvents"
+         eventsCollTag: "prod:eventNos"
+         nameTag: "prod:subRunName"
+      }
+   }
+   e1: [p1]
+}

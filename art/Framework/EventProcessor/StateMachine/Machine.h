@@ -275,9 +275,9 @@ namespace statemachine {
     HandleEvents(my_context ctx);
     ~HandleEvents();
 
-    void disableFinalizeEvent(Pause const&) { finalizeEnabled_ = false; }
+    void disableProcessAndFinalizeEvent(Pause const&) { processAndFinalizeEnabled_ = false; }
     void exit();
-    void finalizeEvent();
+    void processAndFinalizeEvent();
     void checkInvariant();
 
     using reactions = sc::transition<Event, HandleEvents>;
@@ -286,7 +286,7 @@ namespace statemachine {
     art::IEventProcessor & ep_;
     art::EventID currentEvent_;
     bool exitCalled_ {false};
-    bool finalizeEnabled_ {true};
+    bool processAndFinalizeEnabled_ {true};
   };
 
   class PauseEvent;
@@ -299,9 +299,8 @@ namespace statemachine {
 
     void checkInvariant();
     void markNonEmpty();
-    void readAndProcessEvent();
 
-    using reactions = sc::transition<Pause, PauseEvent, HandleEvents, &HandleEvents::disableFinalizeEvent>;
+    using reactions = sc::transition<Pause, PauseEvent, HandleEvents, &HandleEvents::disableProcessAndFinalizeEvent>;
 
   private:
     art::IEventProcessor & ep_;
