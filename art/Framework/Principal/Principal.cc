@@ -378,9 +378,9 @@ findGroupsForProcess(std::vector<BranchID> const& vbid,
 
 OutputHandle
 Principal::
-getForOutput(BranchID const& bid, bool resolveProd, unsigned const rangeSetID) const
+getForOutput(BranchID const& bid, bool resolveProd) const
 {
-  auto const& g = getResolvedGroup(bid, resolveProd, rangeSetID, false);
+  auto const& g = getResolvedGroup(bid, resolveProd, false);
   if (!g) {
     return OutputHandle{};
   }
@@ -414,7 +414,6 @@ std::shared_ptr<const Group> const
 Principal::
 getResolvedGroup(BranchID const& bid,
                  bool resolveProd,
-                 unsigned const rangeSetID [[gnu::unused]],
                  bool fillOnDemand) const
 {
   // FIXME: This reproduces the behavior of the original getGroup with
@@ -424,8 +423,7 @@ getResolvedGroup(BranchID const& bid,
   if (!g.get() || !resolveProd) {
     return g;
   }
-  bool gotIt = g->resolveProductIfAvailable(/*rangeSetID,*/
-                                            fillOnDemand,
+  bool gotIt = g->resolveProductIfAvailable(fillOnDemand,
                                             g->producedWrapperType());
   if (!gotIt && g->onDemand()) {
     // Behavior is the same as if the group wasn't there.

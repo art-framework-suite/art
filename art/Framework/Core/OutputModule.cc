@@ -178,10 +178,6 @@ doBeginSubRun(SubRunPrincipal const& srp,
 {
   detail::CPCSentry sentry {current_context_, cpc};
   FDEBUG(2) << "beginSubRun called\n";
-  if (fileStatus_ != OutputFileStatus::Switching) {
-    eventRangeHandler_ = std::make_unique<EventRangeHandler>(srp.inputEventRanges());
-  }
-  fileStatus_ = OutputFileStatus::Open;
   beginSubRun(srp);
   SubRun const sr {const_cast<SubRunPrincipal&>(srp), moduleDescription_};
   cet::for_all(plugins_, [&sr](auto& p){ p->doBeginSubRun(sr); });
@@ -223,7 +219,8 @@ doWriteEvent(EventPrincipal& ep)
       --remainingEvents_;
     }
   }
-  eventRangeHandler_->update(e.id(), ep.isLastEventInSubRun());
+  subRunRangeSetHandler_.update(e.id(), ep.isLastEventInSubRun());
+  runRangeSetHandler_.update(e.id(), ep.isLastEventInSubRun());
 }
 
 bool
@@ -244,11 +241,13 @@ art::OutputModule::
 doWriteSubRun(SubRunPrincipal& srp)
 {
   FDEBUG(2) << "writeSubRun called\n";
-  std::cout << eventRangeHandler_->outputRanges() << '\n';
-  srp.setOutputEventRanges(eventRangeHandler_->outputRanges());
+  srp.setOutputEventRanges(subRunRangeSetHandler_.outputRanges());
   writeSubRun(srp);
+  runRangeSetHandler_.update(srp.id());
   if (fileStatus_ == OutputFileStatus::Switching)
-    eventRangeHandler_->rebase();
+    subRunRangeSetHandler_.rebase();
+  else
+    subRunRangeSetHandler_.reset();
 }
 
 bool
@@ -269,7 +268,12 @@ art::OutputModule::
 doWriteRun(RunPrincipal & rp)
 {
   FDEBUG(2) << "writeRun called\n";
+  rp.setOutputEventRanges(runRangeSetHandler_.outputRanges());
   writeRun(rp);
+  if (fileStatus_ == OutputFileStatus::Switching)
+    runRangeSetHandler_.rebase();
+  else
+    runRangeSetHandler_.reset();
 }
 
 void

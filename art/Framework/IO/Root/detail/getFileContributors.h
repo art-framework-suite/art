@@ -2,8 +2,9 @@
 #define art_Framework_IO_Root_detail_getFileContributors_h
 
 #include "TFile.h"
-#include "canvas/Persistency/Provenance/IDNumber.h"
+#include "canvas/Persistency/Provenance/BranchType.h"
 #include "canvas/Persistency/Provenance/EventRange.h"
+#include "canvas/Persistency/Provenance/IDNumber.h"
 #include "canvas/Persistency/Provenance/RangeSet.h"
 
 #include <string>
@@ -19,9 +20,10 @@ namespace art {
     std::vector<EventRange> getSubRunContributors(TFile&, art::RunNumber_t, art::SubRunNumber_t);
     std::vector<EventRange> getSubRunContributors(sqlite3*, std::string const&,
                                                   art::RunNumber_t, art::SubRunNumber_t);
-    RangeSet getSubRunContributors(sqlite3*,
-                                   std::string const&,
-                                   std::size_t rangeSetID);
+    RangeSet getContributors(sqlite3*,
+                             std::string const& filename,
+                             BranchType,
+                             unsigned rangeSetID);
 
   }
 }

@@ -240,7 +240,7 @@ getByProductID(ProductID const& pid) const
   // function, but I'm not sure it does the *right* thing in the face
   // of an unavailable product or other rare failure.
   BranchID bid = productIDToBranchID(pid);
-  SharedConstGroupPtr const& g(getResolvedGroup(bid, true, -1u, true));
+  SharedConstGroupPtr const& g(getResolvedGroup(bid, true, true));
   if (!g) {
     std::shared_ptr<cet::exception>
     whyFailed(new art::Exception(art::errors::ProductNotFound, "InvalidID"));

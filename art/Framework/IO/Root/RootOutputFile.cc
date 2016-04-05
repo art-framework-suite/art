@@ -28,6 +28,7 @@
 #include "canvas/Persistency/Provenance/BranchChildren.h"
 #include "canvas/Persistency/Provenance/BranchID.h"
 #include "canvas/Persistency/Provenance/BranchIDList.h"
+#include "canvas/Persistency/Provenance/BranchType.h"
 #include "canvas/Persistency/Provenance/EventAuxiliary.h"
 #include "canvas/Persistency/Provenance/EventID.h"
 #include "canvas/Persistency/Provenance/FileFormatVersion.h"
@@ -152,7 +153,7 @@ namespace {
 
   void
   insert_rangeSets_row(sqlite3_stmt* stmt,
-                         art::RunNumber_t const r)
+                       art::RunNumber_t const r)
   {
     sqlite3_bind_int64(stmt, 1, r);
     sqlite3_step(stmt);
@@ -181,11 +182,13 @@ namespace {
   }
 
   unsigned
-  getNewRangeSetID(sqlite3* db, art::RunNumber_t const r)
+  getNewRangeSetID(sqlite3* db,
+                   art::BranchType const bt,
+                   art::RunNumber_t const r)
   {
     TransactionSentry s {db};
     sqlite3_stmt* stmt {nullptr};
-    std::string const ddl {"INSERT INTO RangeSets(Run) VALUES(?)"};
+    std::string const ddl {"INSERT INTO " + art::BranchTypeToString(bt) + "RangeSets(Run) VALUES(?);"};
     sqlite3_prepare_v2(db, ddl.c_str(), -1, &stmt, nullptr);
     insert_rangeSets_row(stmt, r);
     unsigned const rsID = sqlite3_last_insert_rowid(db);
@@ -216,7 +219,7 @@ namespace {
     TransactionSentry s {db};
     sqlite3_stmt* stmt {nullptr};
     std::string const ddl {"INSERT INTO EventRanges(SubRun, begin, end) "
-        "VALUES(?, ?, ?)"};
+        "VALUES(?, ?, ?);"};
     sqlite3_prepare_v2(db, ddl.c_str(), -1, &stmt, nullptr);
     for (auto const& r : rs) {
       insert_eventRanges_row(stmt, r.subrun(), r.begin(), r.end());
@@ -225,11 +228,15 @@ namespace {
   }
 
   void
-  insertIntoJoinTable(sqlite3* db, unsigned const rsID, vector<unsigned> const& eventRangesIDs)
+  insertIntoJoinTable(sqlite3* db,
+                      art::BranchType const bt,
+                      unsigned const rsID,
+                      vector<unsigned> const& eventRangesIDs)
   {
     TransactionSentry s {db};
     sqlite3_stmt* stmt {nullptr};
-    std::string const ddl {"INSERT INTO RangeSets_EventRanges(RangeSetsID, EventRangesID) Values(?,?)"};
+    std::string const ddl {"INSERT INTO "+art::BranchTypeToString(bt) +
+        "RangeSets_EventRanges(RangeSetsID, EventRangesID) Values(?,?);"};
     sqlite3_prepare_v2(db, ddl.c_str(), -1, &stmt, nullptr);
     cet::for_all(eventRangesIDs,
                  [stmt,rsID](auto const eventRangeID) {
@@ -359,9 +366,18 @@ art::RootOutputFile::initializeFileContributors()
   TransactionSentry s {rootFileDB_};
   create_table(rootFileDB_, "EventRanges",
                {"SubRun INTEGER", "begin INTEGER", "end INTEGER", "UNIQUE (SubRun,begin,end) ON CONFLICT IGNORE"});
-  create_table(rootFileDB_, "RangeSets",
+
+  // SubRun range sets
+  create_table(rootFileDB_, "SubRunRangeSets",
                {"Run INTEGER"});
-  create_table(rootFileDB_, "RangeSets_EventRanges",
+  create_table(rootFileDB_, "SubRunRangeSets_EventRanges",
+               {"RangeSetsID INTEGER PRIMARY KEY", "EventRangesID INTEGER"},
+               "WITHOUT ROWID");
+
+  // Run range sets
+  create_table(rootFileDB_, "RunRangeSets",
+               {"Run INTEGER"});
+  create_table(rootFileDB_, "RunRangeSets_EventRanges",
                {"RangeSetsID INTEGER PRIMARY KEY", "EventRangesID INTEGER"},
                "WITHOUT ROWID");
 }
@@ -499,7 +515,7 @@ writeRun(RunPrincipal const& r)
   pRunAux_ = &r.aux();
   fileIndex_.addEntry(EventID::invalidEvent(pRunAux_->id()), runEntryNumber_);
   ++runEntryNumber_;
-  fillBranches(InRun, r, -1u, pRunProductProvenanceVector_);
+  fillBranches(InRun, r, pRunAux_->rangeSetID(), pRunProductProvenanceVector_);
 }
 
 void
@@ -792,7 +808,6 @@ art::
 RootOutputFile::
 insertAncestors(ProductProvenance const& iGetParents,
                 Principal const& principal,
-                unsigned const rangeSetID,
                 set<ProductProvenance>& oToFill)
 {
   if (dropMetaData_ == DropMetaData::DropAll) {
@@ -808,10 +823,10 @@ insertAncestors(ProductProvenance const& iGetParents,
     if (!info || dropMetaData_ != DropMetaData::DropNone) {
       continue;
     }
-    auto bd = principal.getForOutput(info->branchID(), false, rangeSetID).desc();
+    auto bd = principal.getForOutput(info->branchID(), false).desc();
     if (bd && bd->produced() && oToFill.insert(*info).second) {
       // FIXME: Remove recursion!
-      insertAncestors(*info, principal, rangeSetID, oToFill);
+      insertAncestors(*info, principal, oToFill);
     }
   }
 }
@@ -838,7 +853,7 @@ fillBranches(BranchType const& bt,
                                   produced));
     bool const resolveProd = (produced || !fastCloning ||
                               treePointers_[bt]->uncloned(bd->branchName()));
-    auto const oh = principal.getForOutput(bid, resolveProd, rangeSetID);
+    auto const oh = principal.getForOutput(bid, resolveProd);
     EDProduct const* product {nullptr};
     if (oh.productProvenance()) {
       product = oh.wrapper();
@@ -846,7 +861,7 @@ fillBranches(BranchType const& bt,
     if (keepProvenance) {
       if (oh.productProvenance()) {
         keptProv.insert(*oh.productProvenance());
-        insertAncestors(*oh.productProvenance(), principal, rangeSetID, keptProv);
+        insertAncestors(*oh.productProvenance(), principal, keptProv);
       }
       else {
         // No provenance, product was either not produced,
@@ -874,7 +889,7 @@ fillBranches(BranchType const& bt,
         dummies.emplace_back(move(dummy));
       }
       // Set ranges for present SubRun products
-      if (bt == InSubRun && product->isPresent()) {
+      if ((bt == InSubRun || bt == InRun) && product->isPresent()) {
         auto nc_product = const_cast<EDProduct*>(product);
         if (produced) {
           nc_product->setRangeSetID(rangeSetID);
@@ -886,12 +901,12 @@ fillBranches(BranchType const& bt,
             nc_product->setRangeSetID(it->second);
           }
           else {
-            unsigned const rsID = getNewRangeSetID(rootFileDB_, rs.run());
+            unsigned const rsID = getNewRangeSetID(rootFileDB_, bt, rs.run());
             nc_product->setRangeSetID(rsID);
             checksumToIndex.emplace(rs.checksum(), rsID);
             insertIntoEventRanges(rootFileDB_, rs);
             auto const& eventRangesIDs = getExistingRangeSetIDs(rootFileDB_, rs);
-            insertIntoJoinTable(rootFileDB_, rsID, eventRangesIDs);
+            insertIntoJoinTable(rootFileDB_, bt, rsID, eventRangesIDs);
           }
         }
       }
@@ -908,21 +923,21 @@ art::
 RootOutputFile::
 writeEventRanges(SubRunPrincipal const& sr)
 {
-  unsigned const rsID = getNewRangeSetID(rootFileDB_, sr.run());
+  unsigned const rsID = getNewRangeSetID(rootFileDB_, InSubRun, sr.run());
   sr.aux().setRangeSetID(rsID);
   insertIntoEventRanges(rootFileDB_, sr.outputEventRanges());
   auto const& eventRangesIDs = getExistingRangeSetIDs(rootFileDB_, sr.outputEventRanges());
-  insertIntoJoinTable(rootFileDB_, rsID, eventRangesIDs);
+  insertIntoJoinTable(rootFileDB_, InSubRun, rsID, eventRangesIDs);
 }
 
 void
 art::
 RootOutputFile::
-writeEventRanges(RunPrincipal const& /*r*/)
+writeEventRanges(RunPrincipal const& r)
 {
-  // unsigned const rsID = getNewRangeSetID(rootFileDB_, sr.run());
-  // sr.aux().setRangeSetID(rsID);
-  // insertIntoEventRanges(rootFileDB_, sr.outputEventRanges());
-  // auto const& eventRangesIDs = getExistingRangeSetIDs(rootFileDB_, sr.outputEventRanges());
-  // insertIntoJoinTable(rootFileDB_, rsID, eventRangesIDs);
+  unsigned const rsID = getNewRangeSetID(rootFileDB_, InRun, r.run());
+  r.aux().setRangeSetID(rsID);
+  insertIntoEventRanges(rootFileDB_, r.outputEventRanges());
+  auto const& eventRangesIDs = getExistingRangeSetIDs(rootFileDB_, r.outputEventRanges());
+  insertIntoJoinTable(rootFileDB_, InRun, rsID, eventRangesIDs);
 }

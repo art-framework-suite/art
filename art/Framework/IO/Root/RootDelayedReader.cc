@@ -1,6 +1,9 @@
 #include "art/Framework/IO/Root/RootDelayedReader.h"
 // vim: sw=2:
 
+#include "TBranch.h"
+#include "TBranchElement.h"
+#include "TClass.h"
 #include "art/Framework/IO/Root/RootInputFile.h"
 #include "art/Framework/IO/Root/RootTree.h"
 #include "art/Framework/IO/Root/detail/getFileContributors.h"
@@ -9,21 +12,12 @@
 #include "canvas/Persistency/Provenance/RangeSet.h"
 #include "canvas/Utilities/TypeID.h"
 #include "cetlib/crc32.h"
-#include "TBranch.h"
-#include "TBranchElement.h"
-#include "TClass.h"
+
 #include <cassert>
 
 using namespace std;
 
 namespace {
-
-
-  inline unsigned to_id(art::RangeSet const& rs)
-  {
-    cet::crc32 c{rs.to_compact_string()};
-    return c.digest();
-  }
 
   inline auto to_bid(art::BranchKey const& bk)
   {
@@ -90,12 +84,13 @@ namespace art {
     auto result = get_product(entrySet_[0]);
 
     // Retrieve and aggregate subsequent products (if they exist)
-    if (branchType_ == InSubRun) {
+    if (branchType_ == InSubRun || branchType_ == InRun) {
       std::set<unsigned> seenIDs;
       seenIDs.insert(result->getRangeSetID());
-      RangeSet mergedRangeSet = detail::getSubRunContributors(db_,
-                                                              "SomeInput"s,
-                                                              result->getRangeSetID());
+      RangeSet mergedRangeSet = detail::getContributors(db_,
+                                                        "SomeInput"s,
+                                                        branchType_,
+                                                        result->getRangeSetID());
 
       for(auto it = entrySet_.cbegin()+1, e = entrySet_.cend(); it!= e; ++it) {
         auto p = get_product(*it);
@@ -104,8 +99,8 @@ namespace art {
         if (!seenIDs.insert(id).second) continue; // Skip an already-seen product;
                                                   // double-counting is bad.
 
-        RangeSet const& rs = detail::getSubRunContributors(db_, "SomeInput"s, id);
-        if (art::is_disjoint(mergedRangeSet, rs)) {
+        RangeSet const& rs = detail::getContributors(db_, "SomeInput"s, branchType_, id);
+        if (art::are_disjoint(mergedRangeSet, rs)) {
           result->combine(p.get());
           mergedRangeSet.merge(rs);
         }

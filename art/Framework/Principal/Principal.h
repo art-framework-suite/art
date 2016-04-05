@@ -69,7 +69,7 @@ namespace art {
               int idx, Principal*);
 
     OutputHandle
-    getForOutput(BranchID const&, bool resolveProd, unsigned rangeSetID) const;
+    getForOutput(BranchID const&, bool resolveProd) const;
 
     GroupQueryResult
     getBySelector(TypeID const&, SelectorBase const&) const;
@@ -285,7 +285,6 @@ namespace art {
     std::shared_ptr<const Group> const
     getResolvedGroup(BranchID const& bid,
                      bool resolveProd,
-                     unsigned rangeSetID,
                      bool fillOnDemand) const;
 
   private: // TYPES

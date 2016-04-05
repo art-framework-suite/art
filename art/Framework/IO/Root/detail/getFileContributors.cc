@@ -146,12 +146,13 @@ art::detail::getSubRunContributors(sqlite3* db,
 
 
 art::RangeSet
-art::detail::getSubRunContributors(sqlite3* db,
-                                   std::string const& filename,
-                                   std::size_t const rangeSetID)
+art::detail::getContributors(sqlite3* db,
+                             std::string const& filename,
+                             BranchType const bt,
+                             unsigned const rangeSetID)
 {
   sqlite3_stmt* stmt {nullptr};
-  std::string const run_ddl {"SELECT Run FROM RangeSets WHERE rowid=="
+  std::string const run_ddl {"SELECT Run FROM "+BranchTypeToString(bt)+"RangeSets WHERE rowid=="
       + std::to_string(rangeSetID) + ";"};
   auto rc = sqlite3_prepare_v2(db, run_ddl.c_str(), -1, &stmt, nullptr);
   successful_prepare(rc, filename, run_ddl);
@@ -162,7 +163,7 @@ art::detail::getSubRunContributors(sqlite3* db,
   successful_finalize(rc, sqlite3_errmsg(db), filename);
 
   std::string const ddl {"SELECT SubRun, begin, end FROM EventRanges WHERE rowid IN"
-      "(SELECT EventRangesID FROM RangeSets_EventRanges WHERE RangeSetsID=="
+      "(SELECT EventRangesID FROM "+BranchTypeToString(bt)+"RangeSets_EventRanges WHERE RangeSetsID=="
       + std::to_string(rangeSetID) + ");"};
   rc = sqlite3_prepare_v2(db, ddl.c_str(), -1, &stmt, nullptr);
   successful_prepare(rc, filename, ddl);

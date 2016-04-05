@@ -20,7 +20,7 @@ namespace art {
                   SubRunPrincipal* primaryPrincipal)
     : Principal{pc, aux.processHistoryID_, std::move(mapper), std::move(rtrv), idx, primaryPrincipal}
     , aux_{aux}
-    , eventRangeHandler_{erh}
+    , rangeSetHandler_{erh}
   {
     if (ProductMetaData::instance().productProduced(InSubRun)) {
       addToProcessHistory();
@@ -52,7 +52,7 @@ namespace art {
   SubRunPrincipal::
   setOutputEventRanges(RangeSet const& outputRanges)
   {
-    eventRangeHandler_.setOutputRanges(outputRanges);
+    rangeSetHandler_.setOutputRanges(outputRanges);
   }
 
   void

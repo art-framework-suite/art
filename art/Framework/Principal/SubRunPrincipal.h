@@ -35,8 +35,8 @@ namespace art {
     SubRunPrincipal(SubRunAuxiliary const&,
                     ProcessConfiguration const&,
                     EventRangeHandler const& = EventRangeHandler{ IDNumber<Level::Run>::invalid() },
-                    std::unique_ptr<BranchMapper>&& mapper = std::make_unique<BranchMapper>(),
-                    std::unique_ptr<DelayedReader>&& rtrv = std::make_unique<NoDelayedReader>(),
+                    std::unique_ptr<BranchMapper>&& = std::make_unique<BranchMapper>(),
+                    std::unique_ptr<DelayedReader>&& = std::make_unique<NoDelayedReader>(),
                     int idx = 0,
                     SubRunPrincipal* = nullptr);
 
@@ -63,8 +63,8 @@ namespace art {
     void addGroup(std::unique_ptr<EDProduct>&&, BranchDescription const&);
 
     void setOutputEventRanges(RangeSet const&);
-    RangeSet const& inputEventRanges() const { return eventRangeHandler_.inputRanges(); }
-    RangeSet const& outputEventRanges() const { return eventRangeHandler_.outputRanges(); }
+    RangeSet const& inputEventRanges() const { return rangeSetHandler_.inputRanges(); }
+    RangeSet const& outputEventRanges() const { return rangeSetHandler_.outputRanges(); }
 
     BranchType branchType() const override;
 
@@ -79,7 +79,7 @@ namespace art {
 
     SubRunAuxiliary aux_;
     std::shared_ptr<RunPrincipal> runPrincipal_ {};
-    EventRangeHandler eventRangeHandler_;
+    EventRangeHandler rangeSetHandler_;
 
   };
 

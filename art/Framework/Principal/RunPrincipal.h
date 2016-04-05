@@ -11,6 +11,7 @@
 //  which is a proxy for this class.
 //
 
+#include "art/Framework/Principal/EventRangeHandler.h"
 #include "art/Framework/Principal/NoDelayedReader.h"
 #include "art/Framework/Principal/Principal.h"
 #include "art/Framework/Principal/fwd.h"
@@ -34,8 +35,9 @@ public:
 
   RunPrincipal(RunAuxiliary const&,
                ProcessConfiguration const&,
-               std::unique_ptr<BranchMapper>&& mapper = std::make_unique<BranchMapper>(),
-               std::unique_ptr<DelayedReader>&& rtrv = std::make_unique<NoDelayedReader>(),
+               EventRangeHandler const& = EventRangeHandler{ IDNumber<Level::Run>::invalid() },
+               std::unique_ptr<BranchMapper>&& = std::make_unique<BranchMapper>(),
+               std::unique_ptr<DelayedReader>&& = std::make_unique<NoDelayedReader>(),
                int idx = 0,
                RunPrincipal* = nullptr);
 
@@ -84,6 +86,10 @@ public:
   void put(std::unique_ptr<EDProduct>&&, BranchDescription const&,
            std::unique_ptr<ProductProvenance const>&&);
 
+  void setOutputEventRanges(RangeSet const&);
+  RangeSet const& inputEventRanges() const { return rangeSetHandler_.inputRanges(); }
+  RangeSet const& outputEventRanges() const { return rangeSetHandler_.outputRanges(); }
+
 private:
 
   void addOrReplaceGroup(std::unique_ptr<Group>&&) override;
@@ -95,6 +101,7 @@ private:
 private:
 
   RunAuxiliary aux_;
+  EventRangeHandler rangeSetHandler_;
 
 };
 

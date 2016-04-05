@@ -151,7 +151,8 @@ private:
   int remainingEvents_ {maxEvents_};
   OutputFileStatus fileStatus_ {OutputFileStatus::Closed};
 
-  std::unique_ptr<EventRangeHandler> eventRangeHandler_ {nullptr};
+  EventRangeHandler runRangeSetHandler_ {};
+  EventRangeHandler subRunRangeSetHandler_ {};
   ModuleDescription moduleDescription_ {};
 
   cet::exempt_ptr<CurrentProcessingContext const> current_context_ {nullptr};

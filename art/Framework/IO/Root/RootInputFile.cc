@@ -104,9 +104,10 @@ namespace {
   using namespace art;
   EventRangeHandler makeEventRangeHandler(sqlite3* db,
                                           std::string const& filename,
+                                          BranchType const bt,
                                           unsigned const rangeSetID)
   {
-    auto const& inputRangeSet = art::detail::getSubRunContributors(db, filename, rangeSetID);
+    auto const& inputRangeSet = art::detail::getContributors(db, filename, bt, rangeSetID);
     EventRangeHandler const result {inputRangeSet};
     return result;
   }
@@ -763,8 +764,13 @@ namespace art {
     }
     auto rp = std::make_unique<RunPrincipal>(runAux(),
                                              processConfiguration_,
+                                             makeEventRangeHandler(sqliteDB_,
+                                                                   file_,
+                                                                   InRun,
+                                                                   runAux().rangeSetID()),
                                              runTree().makeBranchMapper(),
-                                             runTree().makeDelayedReader(InRun,
+                                             runTree().makeDelayedReader(sqliteDB_,
+                                                                         InRun,
                                                                          entryNumbers,
                                                                          fiIter_->eventID_),
                                              0,
@@ -808,8 +814,13 @@ namespace art {
     }
     auto rp = std::make_shared<RunPrincipal>(runAux(),
                                              processConfiguration_,
+                                             makeEventRangeHandler(sqliteDB_,
+                                                                   file_,
+                                                                   InRun,
+                                                                   runAux().rangeSetID()),
                                              runTree().makeBranchMapper(),
-                                             runTree().makeDelayedReader(InRun,
+                                             runTree().makeDelayedReader(sqliteDB_,
+                                                                         InRun,
                                                                          entryNumbers,
                                                                          fiIter_->eventID_),
                                              secondaryFileNameIdx_ + 1,
@@ -881,6 +892,7 @@ namespace art {
                                                  processConfiguration_,
                                                  makeEventRangeHandler(sqliteDB_,
                                                                        file_,
+                                                                       InSubRun,
                                                                        subRunAux().rangeSetID()),
                                                  subRunTree().makeBranchMapper(),
                                                  subRunTree().makeDelayedReader(sqliteDB_,
@@ -929,6 +941,7 @@ namespace art {
                                                  processConfiguration_,
                                                  makeEventRangeHandler(sqliteDB_,
                                                                        file_,
+                                                                       InSubRun,
                                                                        subRunAux().rangeSetID()),
                                                  subRunTree().makeBranchMapper(),
                                                  subRunTree().makeDelayedReader(sqliteDB_,

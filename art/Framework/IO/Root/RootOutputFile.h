@@ -156,7 +156,6 @@ private: // MEMBER FUNCTIONS
                     std::vector<ProductProvenance>*);
   void insertAncestors(ProductProvenance const&,
                        Principal const&,
-                       unsigned rangeSetID,
                        std::set<ProductProvenance>&);
 
 private: // MEMBER DATA

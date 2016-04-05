@@ -7,7 +7,9 @@
 //   - Combine mergeable ranges from the input file.
 //   - Create sliding output ranges
 
+#include "canvas/Persistency/Provenance/EventID.h"
 #include "canvas/Persistency/Provenance/RangeSet.h"
+#include "canvas/Persistency/Provenance/SubRunID.h"
 
 #include <map>
 #include <set>
@@ -21,12 +23,15 @@ namespace art {
   class EventRangeHandler {
   public:
 
+    explicit EventRangeHandler();
     explicit EventRangeHandler(RunNumber_t r);
     explicit EventRangeHandler(RangeSet const& inputRangeSet);
 
     void update(EventID const& id, bool lastEventOfSubRun);
+    void update(SubRunID const& id);
     void setOutputRanges(RangeSet const& outputRangeSet);
     void rebase();
+    void reset();
 
     auto const& inputRanges() const { return inputRanges_; }
     auto const& outputRanges() const { return outputRanges_; }

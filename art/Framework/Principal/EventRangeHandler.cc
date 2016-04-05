@@ -5,7 +5,15 @@
 
 #include <algorithm>
 
+namespace {
+  constexpr auto invalid_eid = art::IDNumber<art::Level::Event>::invalid();
+}
+
 namespace art {
+
+  EventRangeHandler::EventRangeHandler()
+    : EventRangeHandler{IDNumber<Level::Run>::invalid()}
+  {}
 
   EventRangeHandler::EventRangeHandler(RunNumber_t const r)
     : EventRangeHandler{RangeSet{r}}
@@ -22,8 +30,8 @@ namespace art {
     lastEventOfSubRunSeen_ = lastEventOfSubRun;
     auto updateWithEmptyInput = [this](EventID const& id){
       if (outputRanges_.empty()) {
-        outputRanges_.set_and_emplace_range(id.run(),
-                                            id.subRun(), id.event(), id.next().event());
+        outputRanges_.set_run(id.run());
+        outputRanges_.emplace_range(id.subRun(), id.event(), id.next().event());
         return;
       }
       auto& back = outputRanges_.back();
@@ -62,6 +70,18 @@ namespace art {
   }
 
   void
+  EventRangeHandler::update(SubRunID const& id)
+  {
+    if (outputRanges_.empty()) {
+      outputRanges_.set_run(id.run());
+      outputRanges_.emplace_range(id.subRun(), invalid_eid, invalid_eid);
+    }
+    else if (outputRanges_.back().subrun() != id.subRun()) {
+      outputRanges_.emplace_range(id.subRun(), invalid_eid, invalid_eid);
+    }
+  }
+
+  void
   EventRangeHandler::setOutputRanges(RangeSet const& rs)
   {
     outputRanges_ = rs;
@@ -84,6 +104,13 @@ namespace art {
       outputRanges_.emplace_range(back.subrun(), back.end(), IDNumber<Level::Event>::next(back.end()));
     }
 
+  }
+
+  void
+  EventRangeHandler::reset()
+  {
+    EventRangeHandler tmp {IDNumber<Level::Run>::invalid()};
+    std::swap(*this, tmp);
   }
 
 }

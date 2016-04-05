@@ -12,12 +12,14 @@ namespace art {
   RunPrincipal::
   RunPrincipal(RunAuxiliary const& aux,
                ProcessConfiguration const& pc,
+               EventRangeHandler const& erh,
                std::unique_ptr<BranchMapper>&& mapper,
                std::unique_ptr<DelayedReader>&& rtrv,
                int idx,
                RunPrincipal* primaryPrincipal)
     : Principal{pc, aux.processHistoryID_, std::move(mapper), std::move(rtrv), idx, primaryPrincipal}
     , aux_{aux}
+    , rangeSetHandler_{erh}
   {
     if (ProductMetaData::instance().productProduced(InRun)) {
       addToProcessHistory();
@@ -43,6 +45,13 @@ namespace art {
   setProcessHistoryID(ProcessHistoryID const& phid)
   {
     return aux().setProcessHistoryID(phid);
+  }
+
+  void
+  RunPrincipal::
+  setOutputEventRanges(RangeSet const& outputRanges)
+  {
+    rangeSetHandler_.setOutputRanges(outputRanges);
   }
 
   void

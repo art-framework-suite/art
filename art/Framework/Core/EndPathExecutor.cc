@@ -175,12 +175,12 @@ void art::EndPathExecutor::closeSomeOutputFiles(std::size_t const b)
 
 void art::EndPathExecutor::openSomeOutputFiles(FileBlock const& fb)
 {
-  // auto setFileStatus               = [    ](auto ow){ow->setFileStatus(OutputFileStatus::Open);};
+  auto setFileStatus               = [    ](auto ow){ow->setFileStatus(OutputFileStatus::Open);};
   auto openFile                    = [ &fb](auto ow){ow->openFile(fb);};
   auto invoke_sPostOpenOutputFile  = [this](auto ow){actReg_.sPostOpenOutputFile.invoke(ow->label());};
 
   cet::for_all(outputWorkersToOpen_, openFile);
-  //  cet::for_all(outputWorkersToOpen_, setFileStatus);
+  cet::for_all(outputWorkersToOpen_, setFileStatus);
   cet::for_all(outputWorkersToOpen_, invoke_sPostOpenOutputFile);
 
   outputWorkersToOpen_.clear();
