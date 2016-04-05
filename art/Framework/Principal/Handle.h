@@ -59,6 +59,15 @@ namespace art {
     template <class T>
     struct is_handle<T, typename enable_if_type<typename T::HandleTag>::type> : std::true_type { };
   }
+
+  template <class T, class U>
+  std::enable_if_t<detail::is_handle<T>::value && detail::is_handle<U>::value, bool>
+  same_ranges(T const& a, U const& b);
+
+  template <class T, class U>
+  std::enable_if_t<detail::is_handle<T>::value && detail::is_handle<U>::value, bool>
+  disjoint_ranges(T const& a, U const& b);
+
 }
 
 // ======================================================================
@@ -67,12 +76,12 @@ template <typename T>
 class art::Handle
 {
 public:
-  typedef T element_type;
+  using element_type = T;
   class HandleTag { };
 
   // c'tors:
-  Handle( );  // Default-constructed handles are invalid.
-  Handle( GroupQueryResult const  & );
+  Handle() = default;  // Default-constructed handles are invalid.
+  Handle(GroupQueryResult const  &);
 
   // use compiler-generated copy c'tor, copy assignment, and d'tor
 
@@ -93,9 +102,9 @@ public:
   void clear();
 
 private:
-  T const *                              prod_;
-  Provenance                             prov_;
-  std::shared_ptr<cet::exception const>  whyFailed_;
+  T const *                              prod_ {nullptr};
+  Provenance                             prov_ {};
+  std::shared_ptr<cet::exception const>  whyFailed_ {nullptr};
 
 };  // Handle<>
 
@@ -103,17 +112,10 @@ private:
 // c'tors:
 
 template <class T>
-art::Handle<T>::Handle() :
-  prod_     (nullptr),
-  prov_     (),
-  whyFailed_()
-{}
-
-template <class T>
 art::Handle<T>::Handle(GroupQueryResult const & gqr) :
-  prod_     ( nullptr ),
-  prov_     ( gqr.result() ),
-  whyFailed_( gqr.whyFailed() )
+  prod_     {nullptr},
+  prov_     {gqr.result()},
+  whyFailed_{gqr.whyFailed()}
 {
   if( gqr.succeeded() )
     try {
@@ -279,8 +281,8 @@ private:
 
 template <class T>
 art::ValidHandle<T>::ValidHandle(T const* prod, Provenance prov) :
-  prod_(prod),
-  prov_(prov)
+  prod_{prod},
+  prov_{prov}
 {
   if (prod == nullptr)
     throw Exception(art::errors::NullPointerError)
@@ -365,6 +367,31 @@ art::ValidHandle<T>::swap(art::ValidHandle<T>& other)
 {
   std::swap(prod_, other.prod_);
   std::swap(prov_, other.prov_);
+}
+
+// ======================================================================
+// Non-members:
+
+template <class T, class U>
+std::enable_if_t<art::detail::is_handle<T>::value && art::detail::is_handle<U>::value, bool>
+art::same_ranges(T const& a, U const& b)
+{
+  if (!a.isValid() || !b.isValid())
+    throw Exception{art::errors::NullPointerError}
+      << "Attempt to compare ranges where one or both handles are invalid.";
+  return art::are_same(a.provenance()->rangeSet(),
+                       b.provenance()->rangeSet());
+}
+
+template <class T, class U>
+std::enable_if_t<art::detail::is_handle<T>::value && art::detail::is_handle<U>::value, bool>
+art::disjoint_ranges(T const& a, U const& b)
+{
+  if (!a.isValid() || !b.isValid())
+    throw Exception{art::errors::NullPointerError}
+      << "Attempt to compare ranges where one or both handles are invalid.";
+  return art::are_disjoint(a.provenance()->rangeSet(),
+                           b.provenance()->rangeSet());
 }
 
 #endif /* art_Framework_Principal_Handle_h */
