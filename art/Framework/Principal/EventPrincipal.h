@@ -33,10 +33,9 @@ namespace art {
 
   public:
 
-    typedef EventAuxiliary Auxiliary;
-    typedef Principal::SharedConstGroupPtr SharedConstGroupPtr;
-
-  public:
+    using Auxiliary = EventAuxiliary;
+    using SharedConstGroupPtr = Principal::SharedConstGroupPtr;
+    static constexpr BranchType branch_type = InEvent;
 
     EventPrincipal(EventAuxiliary const& aux,
                    ProcessConfiguration const& pc,
@@ -118,11 +117,7 @@ namespace art {
 
     ProductID branchIDToProductID(BranchID const& bid) const;
 
-    BranchType
-    branchType() const
-    {
-      return InEvent;
-    }
+    BranchType branchType() const override { return branch_type; }
 
     bool isLastEventInSubRun() const { return lastEventInSubRun_; }
     EDProductGetter const* productGetter(ProductID const& pid) const;

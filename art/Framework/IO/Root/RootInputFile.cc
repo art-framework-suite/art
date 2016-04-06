@@ -101,17 +101,6 @@ namespace {
     rc = sqlite3_finalize(stmt);
   }
 
-  using namespace art;
-  EventRangeHandler makeEventRangeHandler(sqlite3* db,
-                                          std::string const& filename,
-                                          BranchType const bt,
-                                          unsigned const rangeSetID)
-  {
-    auto const& inputRangeSet = art::detail::getContributors(db, filename, bt, rangeSetID);
-    EventRangeHandler const result {inputRangeSet};
-    return result;
-  }
-
 }
 
 namespace art {
@@ -663,7 +652,8 @@ namespace art {
   RootInputFile::
   readCurrentEvent(std::pair<EntryNumbers,bool> const& entryNumbers)
   {
-    fillAuxiliary<InEvent>(entryNumbers.first);
+    assert(entryNumbers.first.size() == 1ull);
+    fillAuxiliary<InEvent>(entryNumbers.first.front());
     assert(eventAux().id() == fiIter_->eventID_);
     fillHistory();
     overrideRunNumber(const_cast<EventID&>(eventAux().id()), eventAux().isRealData());
@@ -694,7 +684,8 @@ namespace art {
       return false;
     }
     auto const& entryNumbers = getEntryNumbers(InEvent);
-    fillAuxiliary<InEvent>(entryNumbers.first);
+    assert(entryNumbers.first.size() == 1ull);
+    fillAuxiliary<InEvent>(entryNumbers.first.front());
     fillHistory();
     overrideRunNumber(const_cast<EventID&>(eventAux().id()),
                       eventAux().isRealData());
@@ -748,7 +739,8 @@ namespace art {
   RootInputFile::
   readCurrentRun(EntryNumbers const& entryNumbers)
   {
-    fillAuxiliary<InRun>(entryNumbers);
+    EventRangeHandler rangeSetHandler;
+    fillAuxiliary<InRun>(entryNumbers, rangeSetHandler);
     assert(runAux().id() == fiIter_->eventID_.runID());
     overrideRunNumber(runAux().id_);
     if (runAux().beginTime() == Timestamp::invalidTimestamp()) {
@@ -764,10 +756,7 @@ namespace art {
     }
     auto rp = std::make_unique<RunPrincipal>(runAux(),
                                              processConfiguration_,
-                                             makeEventRangeHandler(sqliteDB_,
-                                                                   file_,
-                                                                   InRun,
-                                                                   runAux().rangeSetID()),
+                                             rangeSetHandler,
                                              runTree().makeBranchMapper(),
                                              runTree().makeDelayedReader(sqliteDB_,
                                                                          InRun,
@@ -775,6 +764,7 @@ namespace art {
                                                                          fiIter_->eventID_),
                                              0,
                                              nullptr);
+
     runTree().fillGroups(*rp);
     if (!delayedReadRunProducts_) {
       rp->readImmediate();
@@ -798,7 +788,8 @@ namespace art {
     assert(fiIter_ != fiEnd_);
     assert(fiIter_->getEntryType() == FileIndex::kRun);
     assert(fiIter_->eventID_.runID().isValid());
-    fillAuxiliary<InRun>(entryNumbers);
+    EventRangeHandler rangeSetHandler;
+    fillAuxiliary<InRun>(entryNumbers, rangeSetHandler);
     assert(runAux().id() == fiIter_->eventID_.runID());
     overrideRunNumber(runAux().id_);
     if (runAux().beginTime() == Timestamp::invalidTimestamp()) {
@@ -814,10 +805,7 @@ namespace art {
     }
     auto rp = std::make_shared<RunPrincipal>(runAux(),
                                              processConfiguration_,
-                                             makeEventRangeHandler(sqliteDB_,
-                                                                   file_,
-                                                                   InRun,
-                                                                   runAux().rangeSetID()),
+                                             rangeSetHandler,
                                              runTree().makeBranchMapper(),
                                              runTree().makeDelayedReader(sqliteDB_,
                                                                          InRun,
@@ -825,6 +813,7 @@ namespace art {
                                                                          fiIter_->eventID_),
                                              secondaryFileNameIdx_ + 1,
                                              primaryFile_->primaryRP_.get());
+
     runTree().fillGroups(*rp);
     if (!delayedReadRunProducts_) {
       rp->readImmediate();
@@ -872,7 +861,8 @@ namespace art {
   readCurrentSubRun(EntryNumbers const& entryNumbers,
                     shared_ptr<RunPrincipal> rp [[gnu::unused]])
   {
-    fillAuxiliary<InSubRun>(entryNumbers);
+    EventRangeHandler rangeSetHandler;
+    fillAuxiliary<InSubRun>(entryNumbers, rangeSetHandler);
     assert(subRunAux().id() == fiIter_->eventID_.subRunID());
     overrideRunNumber(subRunAux().id_);
     assert(subRunAux().runID() == rp->id());
@@ -890,10 +880,7 @@ namespace art {
 
     auto srp = std::make_unique<SubRunPrincipal>(subRunAux(),
                                                  processConfiguration_,
-                                                 makeEventRangeHandler(sqliteDB_,
-                                                                       file_,
-                                                                       InSubRun,
-                                                                       subRunAux().rangeSetID()),
+                                                 rangeSetHandler,
                                                  subRunTree().makeBranchMapper(),
                                                  subRunTree().makeDelayedReader(sqliteDB_,
                                                                                 InSubRun,
@@ -901,6 +888,7 @@ namespace art {
                                                                                 fiIter_->eventID_),
                                                  0,
                                                  nullptr);
+
     subRunTree().fillGroups(*srp);
     if (!delayedReadSubRunProducts_) {
       srp->readImmediate();
@@ -923,7 +911,8 @@ namespace art {
     auto const& entryNumbers = getEntryNumbers(InSubRun).first;
     assert(fiIter_ != fiEnd_);
     assert(fiIter_->getEntryType() == FileIndex::kSubRun);
-    fillAuxiliary<InSubRun>(entryNumbers);
+    EventRangeHandler rangeSetHandler;
+    fillAuxiliary<InSubRun>(entryNumbers, rangeSetHandler);
     assert(subRunAux().id() == fiIter_->eventID_.subRunID());
     overrideRunNumber(subRunAux().id_);
     if (subRunAux().beginTime() == Timestamp::invalidTimestamp()) {
@@ -939,10 +928,7 @@ namespace art {
     }
     auto srp = std::make_shared<SubRunPrincipal>(subRunAux(),
                                                  processConfiguration_,
-                                                 makeEventRangeHandler(sqliteDB_,
-                                                                       file_,
-                                                                       InSubRun,
-                                                                       subRunAux().rangeSetID()),
+                                                 rangeSetHandler,
                                                  subRunTree().makeBranchMapper(),
                                                  subRunTree().makeDelayedReader(sqliteDB_,
                                                                                 InSubRun,
@@ -950,6 +936,7 @@ namespace art {
                                                                                 fiIter_->eventID_),
                                                  secondaryFileNameIdx_ + 1,
                                                  primaryFile_->primarySRP_.get());
+
     subRunTree().fillGroups(*srp);
     if (!delayedReadSubRunProducts_) {
       srp->readImmediate();
@@ -1128,7 +1115,8 @@ namespace art {
     if (resultsTree()) {
       resultsTree().rewind();
       EntryNumbers const& entryNumbers {resultsTree().entryNumber()};
-      fillAuxiliary<InResults>(entryNumbers);
+      assert(entryNumbers.size() == 1ull);
+      fillAuxiliary<InResults>(entryNumbers.front());
       resp = std::make_unique<ResultsPrincipal>(resultsAux(),
                                                 processConfiguration_,
                                                 resultsTree().makeBranchMapper(),

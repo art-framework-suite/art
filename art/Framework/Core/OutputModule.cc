@@ -242,6 +242,7 @@ doWriteAuxiliaryRangeSets(SubRunPrincipal& srp)
 {
   FDEBUG(2) << "writeAuxiliaryRangeSets(srp) called\n";
   srp.setOutputEventRanges(subRunRangeSetHandler_.outputRanges());
+  writeSubRunAuxiliaryRangeSets(srp);
 }
 
 void
@@ -276,6 +277,7 @@ doWriteAuxiliaryRangeSets(RunPrincipal& rp)
 {
   FDEBUG(2) << "writeAuxiliaryRangeSets(rp) called\n";
   rp.setOutputEventRanges(runRangeSetHandler_.outputRanges());
+  writeRunAuxiliaryRangeSets(rp);
 }
 
 void
@@ -445,6 +447,18 @@ beginSubRun(SubRunPrincipal const &)
 void
 art::OutputModule::
 endSubRun(SubRunPrincipal const &)
+{
+}
+
+void
+art::OutputModule::
+writeRunAuxiliaryRangeSets(RunPrincipal&)
+{
+}
+
+void
+art::OutputModule::
+writeSubRunAuxiliaryRangeSets(SubRunPrincipal&)
 {
 }
 

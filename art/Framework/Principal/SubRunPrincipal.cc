@@ -27,13 +27,6 @@ namespace art {
     }
   }
 
-  BranchType
-  SubRunPrincipal::
-  branchType() const
-  {
-    return InSubRun;
-  }
-
   ProcessHistoryID const&
   SubRunPrincipal::
   processHistoryID() const

@@ -11,7 +11,6 @@
 #include "art/Framework/IO/Root/DropMetaData.h"
 #include "art/Framework/IO/Root/GetFileFormatEra.h"
 #include "art/Framework/IO/Root/GetFileFormatVersion.h"
-#include "art/Framework/IO/Root/detail/orderedProcessNames.h"
 #include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Principal/ResultsPrincipal.h"
 #include "art/Framework/Principal/RunPrincipal.h"
@@ -499,7 +498,6 @@ art::
 RootOutputFile::
 writeSubRun(SubRunPrincipal const& sr)
 {
-  writeEventRanges(sr);
   pSubRunAux_ = &sr.aux();
   fileIndex_.addEntry(EventID::invalidEvent(pSubRunAux_->id()), subRunEntryNumber_);
   ++subRunEntryNumber_;
@@ -511,7 +509,6 @@ art::
 RootOutputFile::
 writeRun(RunPrincipal const& r)
 {
-  writeEventRanges(r);
   pRunAux_ = &r.aux();
   fileIndex_.addEntry(EventID::invalidEvent(pRunAux_->id()), runEntryNumber_);
   ++runEntryNumber_;
@@ -836,28 +833,28 @@ art::
 RootOutputFile::
 fillBranches(BranchType const& bt,
              Principal const& principal,
-             unsigned const rangeSetID,
+             unsigned const rangeSetID [[gnu::unused]],
              vector<ProductProvenance>* vpp)
 {
   vector<unique_ptr<EDProduct>> dummies;
   bool const fastCloning = (bt == InEvent) && currentlyFastCloning_;
   set<ProductProvenance> keptProv;
   map<unsigned,unsigned> checksumToIndex;
+
   for (auto const& val : selectedOutputItemList_[bt]) {
     auto const* bd = val.branchDescription_;
-    auto const& bid = bd->branchID();
+    auto const bid = bd->branchID();
     branchesWithStoredHistory_.insert(bid);
     bool const produced {bd->produced()};
+    bool const resolveProd = (produced || !fastCloning ||
+                              treePointers_[bt]->uncloned(bd->branchName()));
+
+    auto const& oh = principal.getForOutput(bid, resolveProd);
+
+    // Update the kept provenance
     bool const keepProvenance = (dropMetaData_ == DropMetaData::DropNone ||
                                  (dropMetaData_ == DropMetaData::DropPrior &&
                                   produced));
-    bool const resolveProd = (produced || !fastCloning ||
-                              treePointers_[bt]->uncloned(bd->branchName()));
-    auto const oh = principal.getForOutput(bid, resolveProd);
-    EDProduct const* product {nullptr};
-    if (oh.productProvenance()) {
-      product = oh.wrapper();
-    }
     if (keepProvenance) {
       if (oh.productProvenance()) {
         keptProv.insert(*oh.productProvenance());
@@ -870,7 +867,12 @@ fillBranches(BranchType const& bt,
         keptProv.emplace(bd->branchID(), status);
       }
     }
+
+    // Resolve the product if necessary
     if (resolveProd) {
+
+      EDProduct const* product {oh.productProvenance() ? oh.wrapper() : nullptr};
+
       if (product == nullptr) {
         // No such product in the event, so use a dummy product.
         // FIXME: Can we cache these dummy products so that we do not
@@ -888,28 +890,32 @@ fillBranches(BranchType const& bt,
         // Make sure the dummies outlive the fillTree call.
         dummies.emplace_back(move(dummy));
       }
-      // Set ranges for present SubRun products
-      if ((bt == InSubRun || bt == InRun) && product->isPresent()) {
+
+      // Set range sets for present SubRun products
+      //  - only SubRun and Run products can have range sets
+      //  - the product must be present
+      //  - for products produced in this process, their rangeSetIDs
+      //    were assigned during the principal's commit call.
+      if ((bt == InSubRun || bt == InRun) &&
+          product->isPresent() &&
+          !produced) {
         auto nc_product = const_cast<EDProduct*>(product);
-        if (produced) {
-          nc_product->setRangeSetID(rangeSetID);
+        auto const& rs = principal.getRangeSet(bd->branchID());
+        auto it = checksumToIndex.find(rs.checksum());
+        if (it != checksumToIndex.cend()) {
+          nc_product->setRangeSetID(it->second);
         }
         else {
-          auto const& rs = principal.getRangeSet(bd->branchID());
-          auto it = checksumToIndex.find(rs.checksum());
-          if (it != checksumToIndex.cend()) {
-            nc_product->setRangeSetID(it->second);
-          }
-          else {
-            unsigned const rsID = getNewRangeSetID(rootFileDB_, bt, rs.run());
-            nc_product->setRangeSetID(rsID);
-            checksumToIndex.emplace(rs.checksum(), rsID);
-            insertIntoEventRanges(rootFileDB_, rs);
-            auto const& eventRangesIDs = getExistingRangeSetIDs(rootFileDB_, rs);
-            insertIntoJoinTable(rootFileDB_, bt, rsID, eventRangesIDs);
-          }
+          unsigned const rsID = getNewRangeSetID(rootFileDB_, bt, rs.run());
+          nc_product->setRangeSetID(rsID);
+          checksumToIndex.emplace(rs.checksum(), rsID);
+          insertIntoEventRanges(rootFileDB_, rs);
+          auto const& eventRangesIDs = getExistingRangeSetIDs(rootFileDB_, rs);
+          insertIntoJoinTable(rootFileDB_, bt, rsID, eventRangesIDs);
         }
       }
+
+      // Finally, set the branch pointer
       val.product_ = product;
     }
   }
@@ -921,7 +927,7 @@ fillBranches(BranchType const& bt,
 void
 art::
 RootOutputFile::
-writeEventRanges(SubRunPrincipal const& sr)
+writeAuxiliaryRangeSets(SubRunPrincipal & sr)
 {
   unsigned const rsID = getNewRangeSetID(rootFileDB_, InSubRun, sr.run());
   sr.aux().setRangeSetID(rsID);
@@ -933,7 +939,7 @@ writeEventRanges(SubRunPrincipal const& sr)
 void
 art::
 RootOutputFile::
-writeEventRanges(RunPrincipal const& r)
+writeAuxiliaryRangeSets(RunPrincipal & r)
 {
   unsigned const rsID = getNewRangeSetID(rootFileDB_, InRun, r.run());
   r.aux().setRangeSetID(rsID);

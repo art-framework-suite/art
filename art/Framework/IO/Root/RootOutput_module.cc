@@ -142,6 +142,8 @@ private:
   void write(EventPrincipal &) override;
   void writeSubRun(SubRunPrincipal &) override;
   void writeRun(RunPrincipal &) override;
+  void writeSubRunAuxiliaryRangeSets(SubRunPrincipal &) override;
+  void writeRunAuxiliaryRangeSets(RunPrincipal &) override;
   bool isFileOpen() const override;
   bool requestsToCloseFile() const override;
   void doOpenFile();
@@ -337,6 +339,13 @@ write(EventPrincipal & ep)
 
 void
 art::RootOutput::
+writeSubRunAuxiliaryRangeSets(SubRunPrincipal& sr)
+{
+  rootOutputFile_->writeAuxiliaryRangeSets(sr);
+}
+
+void
+art::RootOutput::
 writeSubRun(SubRunPrincipal& sr)
 {
   if (dropAllSubRuns_) {
@@ -347,6 +356,13 @@ writeSubRun(SubRunPrincipal& sr)
   }
   rootOutputFile_->writeSubRun(sr);
   fstats_.recordSubRun(sr.id());
+}
+
+void
+art::RootOutput::
+writeRunAuxiliaryRangeSets(RunPrincipal& r)
+{
+  rootOutputFile_->writeAuxiliaryRangeSets(r);
 }
 
 void

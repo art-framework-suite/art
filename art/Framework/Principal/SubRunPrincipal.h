@@ -31,6 +31,7 @@ namespace art {
   public:
 
     using Auxiliary = SubRunAuxiliary;
+    static constexpr BranchType branch_type = InSubRun;
 
     SubRunPrincipal(SubRunAuxiliary const&,
                     ProcessConfiguration const&,
@@ -66,7 +67,7 @@ namespace art {
     RangeSet const& inputEventRanges() const { return rangeSetHandler_.inputRanges(); }
     RangeSet const& outputEventRanges() const { return rangeSetHandler_.outputRanges(); }
 
-    BranchType branchType() const override;
+    BranchType branchType() const override { return branch_type; }
 
   private:
 

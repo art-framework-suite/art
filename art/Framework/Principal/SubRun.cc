@@ -37,6 +37,7 @@ namespace art {
       auto subRunProductProvenancePtr = std::make_unique<ProductProvenance const>(elem.first,
                                                                                   productstatus::present());
 
+      elem.second.prod->setRangeSetID(srp.aux().rangeSetID());
       srp.put( std::move(elem.second.prod),
                elem.second.bd,
                std::move(subRunProductProvenancePtr) );

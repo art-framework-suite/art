@@ -55,7 +55,7 @@ namespace art {
 
       auto runProductProvenancePtr = std::make_unique<ProductProvenance const>(elem.first,
                                                                                productstatus::present());
-
+      elem.second.prod->setRangeSetID(rp.aux().rangeSetID());
       rp.put( std::move(elem.second.prod),
               elem.second.bd,
               std::move(runProductProvenancePtr) );

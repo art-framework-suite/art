@@ -29,6 +29,7 @@ namespace art {
   public:
 
     using Auxiliary = RunAuxiliary;
+    static constexpr BranchType branch_type = InRun;
 
   public:
 
@@ -76,7 +77,7 @@ namespace art {
       aux_.setEndTime(time);
     }
 
-    BranchType branchType() const override;
+    BranchType branchType() const override { return branch_type; }
 
     void addGroup(BranchDescription const&);
 

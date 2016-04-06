@@ -26,13 +26,6 @@ namespace art {
     }
   }
 
-  BranchType
-  RunPrincipal::
-  branchType() const
-  {
-    return InRun;
-  }
-
   ProcessHistoryID const&
   RunPrincipal::
   processHistoryID() const

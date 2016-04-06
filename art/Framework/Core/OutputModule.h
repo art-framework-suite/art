@@ -224,9 +224,11 @@ private:
   virtual void beginRun(RunPrincipal const &);
   virtual void endRun(RunPrincipal const &);
   virtual void writeRun(RunPrincipal & r) = 0;
+  virtual void writeRunAuxiliaryRangeSets(RunPrincipal & r);
   virtual void beginSubRun(SubRunPrincipal const &);
   virtual void endSubRun(SubRunPrincipal const &);
   virtual void writeSubRun(SubRunPrincipal & sr) = 0;
+  virtual void writeSubRunAuxiliaryRangeSets(SubRunPrincipal & r);
   virtual void event(EventPrincipal const&);
   virtual void write(EventPrincipal& e) = 0;
 

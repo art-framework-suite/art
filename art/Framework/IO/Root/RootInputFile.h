@@ -40,410 +40,412 @@ class TFile;
 
 namespace art {
 
-class DuplicateChecker;
-class GroupSelectorRules;
+  class DuplicateChecker;
+  class EventRangeHandler;
+  class GroupSelectorRules;
 
-class RootInputFile {
+  class RootInputFile {
 
-public: // TYPES
+  public: // TYPES
 
-  using RootTreePtrArray = std::array<std::unique_ptr<RootTree>, NumBranchTypes>;
-  using EntryNumber = RootTree::EntryNumber;
-  using EntryNumbers = RootTree::EntryNumbers;
+    using RootTreePtrArray = std::array<std::unique_ptr<RootTree>, NumBranchTypes>;
+    using EntryNumber = RootTree::EntryNumber;
+    using EntryNumbers = RootTree::EntryNumbers;
 
-public: // MEMBER FUNCTIONS
+  public: // MEMBER FUNCTIONS
 
-  RootInputFile(RootInputFile const&) = delete;
+    RootInputFile(RootInputFile const&) = delete;
 
-  RootInputFile&
-  operator=(RootInputFile const&) = delete;
+    RootInputFile&
+    operator=(RootInputFile const&) = delete;
 
-  RootInputFile(std::string const& fileName,
-                std::string const& catalogName,
-                ProcessConfiguration const& processConfiguration,
-                std::string const& logicalFileName,
-                std::shared_ptr<TFile> filePtr,
-                EventID const& origEventID,
-                unsigned int eventsToSkip,
-                std::vector<SubRunID> const& whichSubRunsToSkip,
-                FastCloningInfoProvider const& fcip,
-                unsigned int treeCacheSize,
-                int64_t treeMaxVirtualSize,
-                int64_t saveMemoryObjectThreashold,
-                bool delayedReadSubRunProducts,
-                bool delayedReadRunProducts,
-                InputSource::ProcessingMode processingMode,
-                int forcedRunOffset,
-                bool noEventSort,
-                GroupSelectorRules const& groupSelectorRules,
-                bool dropMergeable,
-                std::shared_ptr<DuplicateChecker> duplicateChecker,
-                bool dropDescendantsOfDroppedProducts,
-                bool readIncomingParameterSets,
-                cet::exempt_ptr<RootInputFile> primaryFile,
-                int secondaryFileNameIdx,
-                std::vector<std::string> const& secondaryFileNames,
-                RootInputFileSequence* rifSequence);
+    RootInputFile(std::string const& fileName,
+                  std::string const& catalogName,
+                  ProcessConfiguration const& processConfiguration,
+                  std::string const& logicalFileName,
+                  std::shared_ptr<TFile> filePtr,
+                  EventID const& origEventID,
+                  unsigned int eventsToSkip,
+                  std::vector<SubRunID> const& whichSubRunsToSkip,
+                  FastCloningInfoProvider const& fcip,
+                  unsigned int treeCacheSize,
+                  int64_t treeMaxVirtualSize,
+                  int64_t saveMemoryObjectThreashold,
+                  bool delayedReadSubRunProducts,
+                  bool delayedReadRunProducts,
+                  InputSource::ProcessingMode processingMode,
+                  int forcedRunOffset,
+                  bool noEventSort,
+                  GroupSelectorRules const& groupSelectorRules,
+                  bool dropMergeable,
+                  std::shared_ptr<DuplicateChecker> duplicateChecker,
+                  bool dropDescendantsOfDroppedProducts,
+                  bool readIncomingParameterSets,
+                  cet::exempt_ptr<RootInputFile> primaryFile,
+                  int secondaryFileNameIdx,
+                  std::vector<std::string> const& secondaryFileNames,
+                  RootInputFileSequence* rifSequence);
 
-  void
-  reportOpened();
+    void
+    reportOpened();
 
-  void
-  close(bool reallyClose);
+    void
+    close(bool reallyClose);
 
-  std::unique_ptr<EventPrincipal>
-  readEvent();
+    std::unique_ptr<EventPrincipal>
+    readEvent();
 
-  bool
-  readEventForSecondaryFile(EventID eID);
+    bool
+    readEventForSecondaryFile(EventID eID);
 
-  std::shared_ptr<RunPrincipal>
-  readRun();
+    std::shared_ptr<RunPrincipal>
+    readRun();
 
-  std::vector<std::shared_ptr<RunPrincipal>>
-  readRunFromSecondaryFiles();
+    std::vector<std::shared_ptr<RunPrincipal>>
+    readRunFromSecondaryFiles();
 
-  bool
-  readRunForSecondaryFile(RunID);
+    bool
+    readRunForSecondaryFile(RunID);
 
-  std::shared_ptr<SubRunPrincipal>
-  readSubRun(std::shared_ptr<RunPrincipal>);
+    std::shared_ptr<SubRunPrincipal>
+    readSubRun(std::shared_ptr<RunPrincipal>);
 
-  std::vector<std::shared_ptr<SubRunPrincipal>>
-  readSubRunFromSecondaryFiles(std::shared_ptr<RunPrincipal>);
+    std::vector<std::shared_ptr<SubRunPrincipal>>
+    readSubRunFromSecondaryFiles(std::shared_ptr<RunPrincipal>);
 
-  bool
-  readSubRunForSecondaryFile(SubRunID);
+    bool
+    readSubRunForSecondaryFile(SubRunID);
 
-  std::unique_ptr<art::ResultsPrincipal>
-  readResults();
+    std::unique_ptr<art::ResultsPrincipal>
+    readResults();
 
-  std::string const&
-  file() const
-  {
-    return file_;
-  }
-
-  ProductList const&
-  productList() const
-  {
-    return productListHolder_->productList_;
-  }
-
-  BranchIDListRegistry::collection_type const&
-  branchIDLists()
-  {
-    return *branchIDLists_;
-  }
-
-  EventAuxiliary&  eventAux()
-  {
-    return std::get<EventAuxiliary>(auxiliaries_);
-  }
-
-  SubRunAuxiliary& subRunAux()
-  {
-    return std::get<SubRunAuxiliary>(auxiliaries_);
-  }
-
-  RunAuxiliary& runAux()
-  {
-    return std::get<RunAuxiliary>(auxiliaries_);
-  }
-
-  ResultsAuxiliary& resultsAux()
-  {
-    return std::get<ResultsAuxiliary>(auxiliaries_);
-  }
-
-  EventID const&
-  eventID() const
-  {
-    return std::get<EventAuxiliary>(auxiliaries_).id();
-  }
-
-  RootTreePtrArray&
-  treePointers()
-  {
-    return treePointers_;
-  }
-
-  FileFormatVersion
-  fileFormatVersion() const
-  {
-    return fileFormatVersion_;
-  }
-
-  bool
-  fastClonable() const
-  {
-    return fastClonable_;
-  }
-
-  std::shared_ptr<FileBlock>
-  createFileBlock();
-
-  template <BranchType BT>
-  void
-  setEntry(FileIndex::EntryNumber_t entry)
-  {
-    treePointers_[BT]->setEntryNumber(entry);
-  }
-
-  template <BranchType BT, typename ID>
-  bool
-  setEntry(ID const& id, bool exact = true)
-  {
-    fiIter_ = fileIndex_.findPosition(id, exact);
-    if (fiIter_ == fiEnd_) {
-      return false;
+    std::string const&
+    file() const
+    {
+      return file_;
     }
-    setEntry<BT>(fiIter_->entry_);
-    return true;
-  }
 
-  void
-  rewind()
-  {
-    fiIter_ = fiBegin_;
-    // FIXME: Rewinding the trees is suspicious!
-    // FIXME: They should be positioned based on the new iter pos.
-    eventTree().rewind();
-    subRunTree().rewind();
-    runTree().rewind();
-    //updateSecondaryIter();
-  }
+    ProductList const&
+    productList() const
+    {
+      return productListHolder_->productList_;
+    }
 
-  void
-  setToLastEntry()
-  {
-    fiIter_ = fiEnd_;
-    //updateSecondaryIter();
-  }
+    BranchIDListRegistry::collection_type const&
+    branchIDLists()
+    {
+      return *branchIDLists_;
+    }
 
-  void nextEntry()
-  {
-    ++fiIter_;
-    //updateSecondaryIter();
-  }
+    EventAuxiliary&  eventAux()
+    {
+      return std::get<EventAuxiliary>(auxiliaries_);
+    }
 
-  void
-  previousEntry()
-  {
-    --fiIter_;
-    //updateSecondaryIter();
-  }
+    SubRunAuxiliary& subRunAux()
+    {
+      return std::get<SubRunAuxiliary>(auxiliaries_);
+    }
 
-  PerBranchTypePresence
-  perBranchTypePresence()
-  {
-    return perBranchTypeProdPresence_;
-  }
+    RunAuxiliary& runAux()
+    {
+      return std::get<RunAuxiliary>(auxiliaries_);
+    }
 
-  unsigned int
-  eventsToSkip() const
-  {
-    return eventsToSkip_;
-  }
+    ResultsAuxiliary& resultsAux()
+    {
+      return std::get<ResultsAuxiliary>(auxiliaries_);
+    }
 
-  int
-  skipEvents(int offset);
+    EventID const&
+    eventID() const
+    {
+      return std::get<EventAuxiliary>(auxiliaries_).id();
+    }
 
-  int
-  setForcedRunOffset(RunNumber_t const& forcedRunNumber);
+    RootTreePtrArray&
+    treePointers()
+    {
+      return treePointers_;
+    }
 
-  bool
-  nextEventEntry()
-  {
-    return eventTree().next();
-  }
+    FileFormatVersion
+    fileFormatVersion() const
+    {
+      return fileFormatVersion_;
+    }
 
-  FileIndex::EntryType
-  getEntryType() const;
+    bool
+    fastClonable() const
+    {
+      return fastClonable_;
+    }
 
-  FileIndex::EntryType
-  getEntryTypeSkippingDups();
+    std::shared_ptr<FileBlock>
+    createFileBlock();
 
-  FileIndex::EntryType
-  getNextEntryTypeWanted();
+    template <BranchType BT>
+    void
+    setEntry(FileIndex::EntryNumber_t entry)
+    {
+      treePointers_[BT]->setEntryNumber(entry);
+    }
 
-  std::shared_ptr<FileIndex>
-  fileIndexSharedPtr() const
-  {
-    return fileIndexSharedPtr_;
-  }
+    template <BranchType BT, typename ID>
+    bool
+    setEntry(ID const& id, bool exact = true)
+    {
+      fiIter_ = fileIndex_.findPosition(id, exact);
+      if (fiIter_ == fiEnd_) {
+        return false;
+      }
+      setEntry<BT>(fiIter_->entry_);
+      return true;
+    }
 
-  EventID
-  eventIDForFileIndexPosition() const;
+    void
+    rewind()
+    {
+      fiIter_ = fiBegin_;
+      // FIXME: Rewinding the trees is suspicious!
+      // FIXME: They should be positioned based on the new iter pos.
+      eventTree().rewind();
+      subRunTree().rewind();
+      runTree().rewind();
+      //updateSecondaryIter();
+    }
 
-  std::vector<std::string> const&
-  secondaryFileNames() const
-  {
-    return secondaryFileNames_;
-  }
+    void
+    setToLastEntry()
+    {
+      fiIter_ = fiEnd_;
+      //updateSecondaryIter();
+    }
 
-  std::vector<std::unique_ptr<RootInputFile> > const &
-  secondaryFiles() const
-  {
-    return secondaryFiles_;
-  }
+    void nextEntry()
+    {
+      ++fiIter_;
+      //updateSecondaryIter();
+    }
 
-  void
-  openSecondaryFile(int const idx);
+    void
+    previousEntry()
+    {
+      --fiIter_;
+      //updateSecondaryIter();
+    }
 
-private:
+    PerBranchTypePresence
+    perBranchTypePresence()
+    {
+      return perBranchTypeProdPresence_;
+    }
 
-  RootTree const &
-  eventTree() const
-  {
-    return *treePointers_[InEvent];
-  }
+    unsigned int
+    eventsToSkip() const
+    {
+      return eventsToSkip_;
+    }
 
-  RootTree &
-  eventTree()
-  {
-    return *treePointers_[InEvent];
-  }
+    int
+    skipEvents(int offset);
 
-  RootTree const &
-  subRunTree() const
-  {
-    return *treePointers_[InSubRun];
-  }
+    int
+    setForcedRunOffset(RunNumber_t const& forcedRunNumber);
 
-  RootTree &
-  subRunTree()
-  {
-    return *treePointers_[InSubRun];
-  }
+    bool
+    nextEventEntry()
+    {
+      return eventTree().next();
+    }
 
-  RootTree const &
-  runTree() const
-  {
-    return *treePointers_[InRun];
-  }
+    FileIndex::EntryType
+    getEntryType() const;
 
-  RootTree &
-  runTree()
-  {
-    return *treePointers_[InRun];
-  }
+    FileIndex::EntryType
+    getEntryTypeSkippingDups();
 
-  RootTree const &
-  resultsTree() const
-  {
-    return *treePointers_[InResults];
-  }
+    FileIndex::EntryType
+    getNextEntryTypeWanted();
 
-  RootTree &
-  resultsTree()
-  {
-    return *treePointers_[InResults];
-  }
+    std::shared_ptr<FileIndex>
+    fileIndexSharedPtr() const
+    {
+      return fileIndexSharedPtr_;
+    }
 
-  bool setIfFastClonable(FastCloningInfoProvider const& fcip) const;
+    EventID
+    eventIDForFileIndexPosition() const;
 
-  void validateFile();
+    std::vector<std::string> const&
+    secondaryFileNames() const
+    {
+      return secondaryFileNames_;
+    }
 
-  void fillHistory();
-  void fillPerBranchTypePresenceFlags(ProductList const&);
+    std::vector<std::unique_ptr<RootInputFile> > const &
+    secondaryFiles() const
+    {
+      return secondaryFiles_;
+    }
 
-  template <BranchType BT>
-  void fillAuxiliary(EntryNumber const entry)
-  {
-    using AUX = std::tuple_element_t<BT,decltype(auxiliaries_)>;
-    auto& aux = std::get<BT>(auxiliaries_);
-    aux = treePointers_[BT]->getAux<AUX>({entry});
-  }
+    void
+    openSecondaryFile(int const idx);
 
-  template <BranchType BT>
-  void fillAuxiliary(EntryNumbers const entries)
-  {
-    using AUX = std::tuple_element_t<BT,decltype(auxiliaries_)>;
-    auto& aux = std::get<BT>(auxiliaries_);
-    aux = treePointers_[BT]->getAux<AUX>(entries);
-  }
+  private:
 
-  void overrideRunNumber(RunID& id);
-  void overrideRunNumber(SubRunID& id);
-  void overrideRunNumber(EventID& id, bool isRealData);
+    RootTree const &
+    eventTree() const
+    {
+      return *treePointers_[InEvent];
+    }
 
-  void dropOnInput(GroupSelectorRules const& rules,
-                   bool dropDescendants,
-                   bool dropMergeable,
-                   ProductList& branchDescriptions);
+    RootTree &
+    eventTree()
+    {
+      return *treePointers_[InEvent];
+    }
 
-  void readParentageTree();
-  void readEventHistoryTree();
+    RootTree const &
+    subRunTree() const
+    {
+      return *treePointers_[InSubRun];
+    }
 
-  void initializeDuplicateChecker();
+    RootTree &
+    subRunTree()
+    {
+      return *treePointers_[InSubRun];
+    }
 
-  std::pair<EntryNumbers,bool> getEntryNumbers(BranchType);
+    RootTree const &
+    runTree() const
+    {
+      return *treePointers_[InRun];
+    }
 
-  std::unique_ptr<RunPrincipal   > readCurrentRun(EntryNumbers const&);
-  std::unique_ptr<SubRunPrincipal> readCurrentSubRun(EntryNumbers const&,
-                                                     std::shared_ptr<RunPrincipal>);
-  std::unique_ptr<EventPrincipal > readCurrentEvent(std::pair<EntryNumbers,bool> const&);
+    RootTree &
+    runTree()
+    {
+      return *treePointers_[InRun];
+    }
+
+    RootTree const &
+    resultsTree() const
+    {
+      return *treePointers_[InResults];
+    }
+
+    RootTree &
+    resultsTree()
+    {
+      return *treePointers_[InResults];
+    }
+
+    bool setIfFastClonable(FastCloningInfoProvider const& fcip) const;
+
+    void validateFile();
+
+    void fillHistory();
+    void fillPerBranchTypePresenceFlags(ProductList const&);
+
+    template <BranchType BT>
+    void fillAuxiliary(EntryNumber const entry)
+    {
+      using AUX = std::tuple_element_t<BT,decltype(auxiliaries_)>;
+      auto& aux = std::get<BT>(auxiliaries_);
+      aux = treePointers_[BT]->getAux<AUX>(entry);
+    }
+
+    template <BranchType BT>
+    void fillAuxiliary(EntryNumbers const& entries,
+                       EventRangeHandler& erh)
+    {
+      using AUX = std::tuple_element_t<BT,decltype(auxiliaries_)>;
+      auto& aux = std::get<BT>(auxiliaries_);
+      aux = treePointers_[BT]->getAux<AUX>(entries, sqliteDB_, file_, erh);
+    }
+
+    void overrideRunNumber(RunID& id);
+    void overrideRunNumber(SubRunID& id);
+    void overrideRunNumber(EventID& id, bool isRealData);
+
+    void dropOnInput(GroupSelectorRules const& rules,
+                     bool dropDescendants,
+                     bool dropMergeable,
+                     ProductList& branchDescriptions);
+
+    void readParentageTree();
+    void readEventHistoryTree();
+
+    void initializeDuplicateChecker();
+
+    std::pair<EntryNumbers,bool> getEntryNumbers(BranchType);
+
+    std::unique_ptr<RunPrincipal   > readCurrentRun(EntryNumbers const&);
+    std::unique_ptr<SubRunPrincipal> readCurrentSubRun(EntryNumbers const&,
+                                                       std::shared_ptr<RunPrincipal>);
+    std::unique_ptr<EventPrincipal > readCurrentEvent(std::pair<EntryNumbers,bool> const&);
 
 
-  std::string const file_;
-  std::string const catalog_;
-  ProcessConfiguration const& processConfiguration_;
-  std::string const logicalFile_;
-  std::shared_ptr<TFile> filePtr_;
-  SQLite3Wrapper sqliteDB_ {filePtr_.get(), "RootFileDB"};
-  EventID origEventID_;
-  EventNumber_t eventsToSkip_;
-  std::vector<SubRunID> whichSubRunsToSkip_;
-  RootTreePtrArray treePointers_;
-  bool delayedReadSubRunProducts_;
-  bool delayedReadRunProducts_;
-  InputSource::ProcessingMode processingMode_;
-  int forcedRunOffset_;
-  bool noEventSort_;
-  std::shared_ptr<DuplicateChecker> duplicateChecker_;
-  cet::exempt_ptr<RootInputFile> primaryFile_;
-  int secondaryFileNameIdx_;
-  std::vector<std::string> secondaryFileNames_;
-  cet::exempt_ptr<RootInputFileSequence> rifSequence_;
+    std::string const file_;
+    std::string const catalog_;
+    ProcessConfiguration const& processConfiguration_;
+    std::string const logicalFile_;
+    std::shared_ptr<TFile> filePtr_;
+    SQLite3Wrapper sqliteDB_ {filePtr_.get(), "RootFileDB"};
+    EventID origEventID_;
+    EventNumber_t eventsToSkip_;
+    std::vector<SubRunID> whichSubRunsToSkip_;
+    RootTreePtrArray treePointers_;
+    bool delayedReadSubRunProducts_;
+    bool delayedReadRunProducts_;
+    InputSource::ProcessingMode processingMode_;
+    int forcedRunOffset_;
+    bool noEventSort_;
+    std::shared_ptr<DuplicateChecker> duplicateChecker_;
+    cet::exempt_ptr<RootInputFile> primaryFile_;
+    int secondaryFileNameIdx_;
+    std::vector<std::string> secondaryFileNames_;
+    cet::exempt_ptr<RootInputFileSequence> rifSequence_;
 
-  FileFormatVersion fileFormatVersion_ {};
-  std::shared_ptr<FileIndex> fileIndexSharedPtr_ { new FileIndex };
-  FileIndex& fileIndex_ { *fileIndexSharedPtr_ };
-  FileIndex::const_iterator fiBegin_ {fileIndex_.begin()};
-  FileIndex::const_iterator fiEnd_ {fileIndex_.end()};
-  FileIndex::const_iterator fiIter_ {fiBegin_};
-  bool fastClonable_ {false};
-  std::tuple<EventAuxiliary,
-             SubRunAuxiliary,
-             RunAuxiliary,
-             ResultsAuxiliary> auxiliaries_ {};   // Must be in same order as treePointers_ !
-  std::unique_ptr<ProductRegistry> productListHolder_ {std::make_unique<ProductRegistry>()};
-  std::shared_ptr<BranchIDListRegistry::collection_type const> branchIDLists_ {nullptr};
+    FileFormatVersion fileFormatVersion_ {};
+    std::shared_ptr<FileIndex> fileIndexSharedPtr_ { new FileIndex };
+    FileIndex& fileIndex_ { *fileIndexSharedPtr_ };
+    FileIndex::const_iterator fiBegin_ {fileIndex_.begin()};
+    FileIndex::const_iterator fiEnd_ {fileIndex_.end()};
+    FileIndex::const_iterator fiIter_ {fiBegin_};
+    bool fastClonable_ {false};
+    std::tuple<EventAuxiliary,
+               SubRunAuxiliary,
+               RunAuxiliary,
+               ResultsAuxiliary> auxiliaries_ {};   // Must be in same order as treePointers_ !
+    std::unique_ptr<ProductRegistry> productListHolder_ {std::make_unique<ProductRegistry>()};
+    std::shared_ptr<BranchIDListRegistry::collection_type const> branchIDLists_ {nullptr};
 
-  PerBranchTypePresence perBranchTypeProdPresence_ {{}}; // filled by aggregation
-  TTree* eventHistoryTree_ {nullptr};
-  std::shared_ptr<History> history_ {std::make_shared<History>()};
-  std::shared_ptr<BranchChildren> branchChildren_ {std::make_shared<BranchChildren>()};
-  std::vector<std::unique_ptr<RootInputFile> > secondaryFiles_ {};
-  // We need to add the secondary principals to the primary
-  // principal when they are delay read, so we need to keep
-  // around a pointer to the primary.  Note that these are
-  // always used in a situation where we are guaranteed that
-  // primary exists.
-  cet::exempt_ptr<EventPrincipal> primaryEP_ {};
-  cet::exempt_ptr<RunPrincipal> primaryRP_ {};
-  cet::exempt_ptr<SubRunPrincipal> primarySRP_ {};
-  // The event processor reads run and subRun principals through
-  // and interface that can return only the primary one.  These
-  // data members cache the secondary ones so that the event
-  // processor can collect them with a second call.  The secondary
-  // event principals do not need to be collected since they are
-  // never subjected to merging of their data products.
-  std::vector<std::shared_ptr<Principal>> secondaryRPs_ {};
-  std::vector<std::shared_ptr<Principal>> secondarySRPs_ {};
+    PerBranchTypePresence perBranchTypeProdPresence_ {{}}; // filled by aggregation
+    TTree* eventHistoryTree_ {nullptr};
+    std::shared_ptr<History> history_ {std::make_shared<History>()};
+    std::shared_ptr<BranchChildren> branchChildren_ {std::make_shared<BranchChildren>()};
+    std::vector<std::unique_ptr<RootInputFile> > secondaryFiles_ {};
+    // We need to add the secondary principals to the primary
+    // principal when they are delay read, so we need to keep
+    // around a pointer to the primary.  Note that these are
+    // always used in a situation where we are guaranteed that
+    // primary exists.
+    cet::exempt_ptr<EventPrincipal> primaryEP_ {};
+    cet::exempt_ptr<RunPrincipal> primaryRP_ {};
+    cet::exempt_ptr<SubRunPrincipal> primarySRP_ {};
+    // The event processor reads run and subRun principals through
+    // and interface that can return only the primary one.  These
+    // data members cache the secondary ones so that the event
+    // processor can collect them with a second call.  The secondary
+    // event principals do not need to be collected since they are
+    // never subjected to merging of their data products.
+    std::vector<std::shared_ptr<Principal>> secondaryRPs_ {};
+    std::vector<std::shared_ptr<Principal>> secondarySRPs_ {};
 
-};
+  };
 
 } // namespace art
 

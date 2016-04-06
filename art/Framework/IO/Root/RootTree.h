@@ -11,6 +11,8 @@
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/IO/Root/BranchMapperWithReader.h"
 #include "art/Framework/IO/Root/Inputfwd.h"
+#include "art/Framework/IO/Root/detail/getFileContributors.h"
+#include "art/Framework/Principal/EventRangeHandler.h"
 #include "art/Framework/Principal/Principal.h"
 #include "canvas/Persistency/Provenance/BranchKey.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
@@ -144,22 +146,40 @@ namespace art {
     std::unique_ptr<BranchMapper>
     makeBranchMapper() const;
 
-    template<typename T>
-    T getAux(EntryNumbers const& entries)
+    template<typename AUX>
+    AUX getAux(EntryNumber const entry)
     {
-      auto get_auxiliary = [this](auto entry){
-        auto aux  = std::make_unique<T>();
-        auto pAux = aux.get();
-        auxBranch_->SetAddress(&pAux);
-        setEntryNumber(entry);
-        input::getEntry(auxBranch_, entry);
-        return *aux;
-      };
+      auto aux  = std::make_unique<AUX>();
+      auto pAux = aux.get();
+      auxBranch_->SetAddress(&pAux);
+      setEntryNumber(entry);
+      input::getEntry(auxBranch_, entry);
+      return *aux;
+    }
 
-      T auxResult {get_auxiliary(entries[0])};
+    template<typename AUX>
+    AUX getAux(EntryNumbers const& entries,
+               sqlite3* db [[gnu::unused]],
+               std::string const& filename [[gnu::unused]],
+               EventRangeHandler& erh)
+    {
+      auto auxResult = getAux<AUX>(entries[0]);
+      auto rangeSet = detail::getContributors(db,
+                                              filename,
+                                              AUX::branch_type,
+                                              auxResult.rangeSetID());
       for(auto i = entries.cbegin()+1, e = entries.cend(); i!=e; ++i) {
-        detail::mergeAuxiliary(auxResult, get_auxiliary(*i));
+        auto const& tmpAux = getAux<AUX>(*i);
+        detail::mergeAuxiliary(auxResult, tmpAux);
+        auto const& tmpRangeSet = detail::getContributors(db,
+                                                          filename,
+                                                          AUX::branch_type,
+                                                          tmpAux.rangeSetID());
+        rangeSet.merge(tmpRangeSet);
       }
+      EventRangeHandler merged {rangeSet};
+      std::swap(erh, merged);
+      auxResult.setRangeSetID(-1u); // Range set of new auxiliary is invalid
       return auxResult;
     }
 
