@@ -44,11 +44,12 @@ Machine parameters:  handleEmptyRuns = 0  handleEmptySubRuns = 0
  	openInputFile
 	respondToOpenInputFile
     *** nextItemType: Run ***
-	readAndCacheRun...(run: 1)
+	readAndCacheRun..............(run: 1)
     *** nextItemType: InputFile ***
 	openSomeOutputFiles
 	respondToOpenOutputFiles
-	writeRun..........(run: 1)
+	writeRunAuxiliaryRangeSets...(run: 1)
+	writeRun.....................(run: 1)
 	respondToCloseOutputFiles
 	closeSomeOutputFiles (Level: Run)
 	closeSomeOutputFiles (Level: InputFile)
@@ -74,14 +75,16 @@ Machine parameters:  handleEmptyRuns = 0  handleEmptySubRuns = 0
  	openInputFile
 	respondToOpenInputFile
     *** nextItemType: Run ***
-	readAndCacheRun...(run: 2)
+	readAndCacheRun..............(run: 2)
     *** nextItemType: SubRun ***
-	readAndCacheSubRun(run: 2 subRun: 1)
+	readAndCacheSubRun...........(run: 2 subRun: 1)
     *** nextItemType: InputFile ***
 	openSomeOutputFiles
 	respondToOpenOutputFiles
-	writeSubRun.......(run: 2 subRun: 1)
-	writeRun..........(run: 2)
+	writeSubRunAuxiliaryRangeSets(run: 2 subRun: 1)
+	writeSubRun..................(run: 2 subRun: 1)
+	writeRunAuxiliaryRangeSets...(run: 2)
+	writeRun.....................(run: 2)
 	respondToCloseOutputFiles
 	closeSomeOutputFiles (Level: SubRun)
 	closeSomeOutputFiles (Level: Run)
@@ -162,11 +165,12 @@ Machine parameters:  handleEmptyRuns = 0  handleEmptySubRuns = 1
  	openInputFile
 	respondToOpenInputFile
     *** nextItemType: Run ***
-	readAndCacheRun...(run: 1)
+	readAndCacheRun..............(run: 1)
     *** nextItemType: InputFile ***
 	openSomeOutputFiles
 	respondToOpenOutputFiles
-	writeRun..........(run: 1)
+	writeRunAuxiliaryRangeSets...(run: 1)
+	writeRun.....................(run: 1)
 	respondToCloseOutputFiles
 	closeSomeOutputFiles (Level: Run)
 	closeSomeOutputFiles (Level: InputFile)
@@ -192,18 +196,20 @@ Machine parameters:  handleEmptyRuns = 0  handleEmptySubRuns = 1
  	openInputFile
 	respondToOpenInputFile
     *** nextItemType: Run ***
-	readAndCacheRun...(run: 2)
+	readAndCacheRun..............(run: 2)
     *** nextItemType: SubRun ***
-	readAndCacheSubRun(run: 2 subRun: 1)
+	readAndCacheSubRun...........(run: 2 subRun: 1)
     *** nextItemType: InputFile ***
 	openSomeOutputFiles
 	respondToOpenOutputFiles
-	beginRun..........(run: 2)
-	beginSubRun.......(run: 2 subRun: 1)
-	endSubRun.........(run: 2 subRun: 1)
-	writeSubRun.......(run: 2 subRun: 1)
-	endRun............(run: 2)
-	writeRun..........(run: 2)
+	beginRun.....................(run: 2)
+	beginSubRun..................(run: 2 subRun: 1)
+	writeSubRunAuxiliaryRangeSets(run: 2 subRun: 1)
+	endSubRun....................(run: 2 subRun: 1)
+	writeSubRun..................(run: 2 subRun: 1)
+	writeRunAuxiliaryRangeSets...(run: 2)
+	endRun.......................(run: 2)
+	writeRun.....................(run: 2)
 	respondToCloseOutputFiles
 	closeSomeOutputFiles (Level: SubRun)
 	closeSomeOutputFiles (Level: Run)
@@ -284,13 +290,14 @@ Machine parameters:  handleEmptyRuns = 1  handleEmptySubRuns = 0
  	openInputFile
 	respondToOpenInputFile
     *** nextItemType: Run ***
-	readAndCacheRun...(run: 1)
-	beginRun..........(run: 1)
+	readAndCacheRun..............(run: 1)
+	beginRun.....................(run: 1)
     *** nextItemType: InputFile ***
 	openSomeOutputFiles
 	respondToOpenOutputFiles
-	endRun............(run: 1)
-	writeRun..........(run: 1)
+	writeRunAuxiliaryRangeSets...(run: 1)
+	endRun.......................(run: 1)
+	writeRun.....................(run: 1)
 	respondToCloseOutputFiles
 	closeSomeOutputFiles (Level: Run)
 	closeSomeOutputFiles (Level: InputFile)
@@ -316,16 +323,18 @@ Machine parameters:  handleEmptyRuns = 1  handleEmptySubRuns = 0
  	openInputFile
 	respondToOpenInputFile
     *** nextItemType: Run ***
-	readAndCacheRun...(run: 2)
-	beginRun..........(run: 2)
+	readAndCacheRun..............(run: 2)
+	beginRun.....................(run: 2)
     *** nextItemType: SubRun ***
-	readAndCacheSubRun(run: 2 subRun: 1)
+	readAndCacheSubRun...........(run: 2 subRun: 1)
     *** nextItemType: InputFile ***
 	openSomeOutputFiles
 	respondToOpenOutputFiles
-	writeSubRun.......(run: 2 subRun: 1)
-	endRun............(run: 2)
-	writeRun..........(run: 2)
+	writeSubRunAuxiliaryRangeSets(run: 2 subRun: 1)
+	writeSubRun..................(run: 2 subRun: 1)
+	writeRunAuxiliaryRangeSets...(run: 2)
+	endRun.......................(run: 2)
+	writeRun.....................(run: 2)
 	respondToCloseOutputFiles
 	closeSomeOutputFiles (Level: SubRun)
 	closeSomeOutputFiles (Level: Run)
@@ -406,13 +415,14 @@ Machine parameters:  handleEmptyRuns = 1  handleEmptySubRuns = 1
  	openInputFile
 	respondToOpenInputFile
     *** nextItemType: Run ***
-	readAndCacheRun...(run: 1)
-	beginRun..........(run: 1)
+	readAndCacheRun..............(run: 1)
+	beginRun.....................(run: 1)
     *** nextItemType: InputFile ***
 	openSomeOutputFiles
 	respondToOpenOutputFiles
-	endRun............(run: 1)
-	writeRun..........(run: 1)
+	writeRunAuxiliaryRangeSets...(run: 1)
+	endRun.......................(run: 1)
+	writeRun.....................(run: 1)
 	respondToCloseOutputFiles
 	closeSomeOutputFiles (Level: Run)
 	closeSomeOutputFiles (Level: InputFile)
@@ -438,18 +448,20 @@ Machine parameters:  handleEmptyRuns = 1  handleEmptySubRuns = 1
  	openInputFile
 	respondToOpenInputFile
     *** nextItemType: Run ***
-	readAndCacheRun...(run: 2)
-	beginRun..........(run: 2)
+	readAndCacheRun..............(run: 2)
+	beginRun.....................(run: 2)
     *** nextItemType: SubRun ***
-	readAndCacheSubRun(run: 2 subRun: 1)
+	readAndCacheSubRun...........(run: 2 subRun: 1)
     *** nextItemType: InputFile ***
 	openSomeOutputFiles
 	respondToOpenOutputFiles
-	beginSubRun.......(run: 2 subRun: 1)
-	endSubRun.........(run: 2 subRun: 1)
-	writeSubRun.......(run: 2 subRun: 1)
-	endRun............(run: 2)
-	writeRun..........(run: 2)
+	beginSubRun..................(run: 2 subRun: 1)
+	writeSubRunAuxiliaryRangeSets(run: 2 subRun: 1)
+	endSubRun....................(run: 2 subRun: 1)
+	writeSubRun..................(run: 2 subRun: 1)
+	writeRunAuxiliaryRangeSets...(run: 2)
+	endRun.......................(run: 2)
+	writeRun.....................(run: 2)
 	respondToCloseOutputFiles
 	closeSomeOutputFiles (Level: SubRun)
 	closeSomeOutputFiles (Level: Run)

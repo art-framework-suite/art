@@ -42,12 +42,12 @@ public:
   void beginJob();
   void endJob();
 
-  // FIXME: We do not need this anymore!
-  //void doSelectProducts();
-
   void writeEvent(EventPrincipal& ep);
   void writeSubRun(SubRunPrincipal& srp);
   void writeRun(RunPrincipal& rp);
+
+  void writeAuxiliaryRangeSets(SubRunPrincipal& srp);
+  void writeAuxiliaryRangeSets(RunPrincipal& rp);
 
   void closeAllOutputFiles();
   void openAllOutputFiles(FileBlock & fb);

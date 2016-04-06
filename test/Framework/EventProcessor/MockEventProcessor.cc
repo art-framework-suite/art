@@ -181,19 +181,19 @@ namespace art {
   }
 
   void MockEventProcessor::beginRun(RunID run) {
-    output_ << "\tbeginRun..........(" << run << ")\n";
+    output_ << "\tbeginRun.....................(" << run << ")\n";
   }
 
   void MockEventProcessor::endRun(RunID run) {
-    output_ << "\tendRun............(" << run << ")\n";
+    output_ << "\tendRun.......................(" << run << ")\n";
   }
 
   void MockEventProcessor::beginSubRun(SubRunID const & sr) {
-    output_ << "\tbeginSubRun.......(" << sr <<")\n";
+    output_ << "\tbeginSubRun..................(" << sr <<")\n";
   }
 
   void MockEventProcessor::endSubRun(SubRunID const & sr) {
-    output_ << "\tendSubRun.........(" << sr << ")\n";
+    output_ << "\tendSubRun....................(" << sr << ")\n";
   }
 
   RunID MockEventProcessor::runPrincipalID() const {
@@ -222,23 +222,31 @@ namespace art {
 
   RunID MockEventProcessor::readAndCacheRun() {
     run_ = readRun_;
-    output_ << "\treadAndCacheRun...(" << run_ << ")\n";
+    output_ << "\treadAndCacheRun..............(" << run_ << ")\n";
     return run_;
   }
 
   SubRunID MockEventProcessor::readAndCacheSubRun() {
     subRun_ = readSubRun_;
     run_    = subRun_.runID();
-    output_ << "\treadAndCacheSubRun(" << subRun_ << ")\n";
+    output_ << "\treadAndCacheSubRun...........(" << subRun_ << ")\n";
     return subRun_;
   }
 
   void MockEventProcessor::writeRun(RunID run) {
-    output_ << "\twriteRun..........(" << run << ")\n";
+    output_ << "\twriteRun.....................(" << run << ")\n";
   }
 
   void MockEventProcessor::writeSubRun(SubRunID const & sr) {
-    output_ << "\twriteSubRun.......(" << sr << ")\n";
+    output_ << "\twriteSubRun..................(" << sr << ")\n";
+  }
+
+  void MockEventProcessor::writeRunAuxiliaryRangeSets(RunID run) {
+    output_ << "\twriteRunAuxiliaryRangeSets...(" << run << ")\n";
+  }
+
+  void MockEventProcessor::writeSubRunAuxiliaryRangeSets(SubRunID const & sr) {
+    output_ << "\twriteSubRunAuxiliaryRangeSets(" << sr << ")\n";
   }
 
   void MockEventProcessor::clearPrincipalCache() {
@@ -249,15 +257,15 @@ namespace art {
     event_  = readEvent_;
     subRun_ = event_.subRunID();
     run_    = subRun_.runID();
-    output_ << "\treadEvent.........(" << event_ << ")\n";
+    output_ << "\treadEvent....................(" << event_ << ")\n";
   }
 
   void MockEventProcessor::processEvent() {
-    output_ << "\tprocessEvent......(" << event_ << ")\n";
+    output_ << "\tprocessEvent.................(" << event_ << ")\n";
   }
 
   void MockEventProcessor::writeEvent() {
-    output_ << "\twriteEvent........(" << event_ << ")\n";
+    output_ << "\twriteEvent...................(" << event_ << ")\n";
   }
 
   bool MockEventProcessor::shouldWeStop() const {

@@ -64,6 +64,16 @@ namespace art {
     module().doWriteEvent(srp);
   }
 
+  void
+  OutputWorker::writeAuxiliaryRangeSets(RunPrincipal & rp) {
+    module().doWriteAuxiliaryRangeSets(rp);
+  }
+
+  void
+  OutputWorker::writeAuxiliaryRangeSets(SubRunPrincipal & srp) {
+    module().doWriteAuxiliaryRangeSets(srp);
+  }
+
   bool OutputWorker::fileIsOpen() const {return module().fileIsOpen();}
 
   bool OutputWorker::wantAllEvents() const {return module().wantAllEvents();}

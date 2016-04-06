@@ -59,6 +59,8 @@ namespace art
     EventID eventPrincipalID() const override;
     void writeRun(RunID run) override;
     void writeSubRun(SubRunID const & sr) override;
+    void writeRunAuxiliaryRangeSets(RunID run) override;
+    void writeSubRunAuxiliaryRangeSets(SubRunID const & sr) override;
     void clearPrincipalCache() override;
     void writeEvent() override;
 

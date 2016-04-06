@@ -238,10 +238,17 @@ doEndSubRun(SubRunPrincipal const& srp,
 
 void
 art::OutputModule::
+doWriteAuxiliaryRangeSets(SubRunPrincipal& srp)
+{
+  FDEBUG(2) << "writeAuxiliaryRangeSets(srp) called\n";
+  srp.setOutputEventRanges(subRunRangeSetHandler_.outputRanges());
+}
+
+void
+art::OutputModule::
 doWriteSubRun(SubRunPrincipal& srp)
 {
   FDEBUG(2) << "writeSubRun called\n";
-  srp.setOutputEventRanges(subRunRangeSetHandler_.outputRanges());
   writeSubRun(srp);
   runRangeSetHandler_.update(srp.id());
   if (fileStatus_ == OutputFileStatus::Switching)
@@ -265,10 +272,17 @@ doEndRun(RunPrincipal const & rp,
 
 void
 art::OutputModule::
+doWriteAuxiliaryRangeSets(RunPrincipal& rp)
+{
+  FDEBUG(2) << "writeAuxiliaryRangeSets(rp) called\n";
+  rp.setOutputEventRanges(runRangeSetHandler_.outputRanges());
+}
+
+void
+art::OutputModule::
 doWriteRun(RunPrincipal & rp)
 {
   FDEBUG(2) << "writeRun called\n";
-  rp.setOutputEventRanges(runRangeSetHandler_.outputRanges());
   writeRun(rp);
   if (fileStatus_ == OutputFileStatus::Switching)
     runRangeSetHandler_.rebase();

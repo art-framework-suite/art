@@ -23,7 +23,8 @@ public:
   Run(RunPrincipal& rp, const ModuleDescription& md);
   ~Run() = default;
 
-  typedef DataViewImpl Base;
+  using Base = DataViewImpl;
+
   // AUX functions.
   RunID const& id() const {return aux_.id();}
   RunNumber_t run() const {return aux_.run();}
@@ -54,7 +55,14 @@ public:
   ///Put a new product with a 'product instance name'
   template <typename PROD>
   void
-  put(std::unique_ptr<PROD> && product, std::string const& productInstanceName);
+  put(std::unique_ptr<PROD> && product,
+      std::string const& productInstanceName);
+
+  // ///Put a new product with a 'product instance name' and a 'range set'
+  // template <typename PROD>
+  // void
+  // put(std::unique_ptr<PROD> && product,
+  //     std::string const& productInstanceName);
 
   // Return true if this Run has been subjected to a process with
   // the given processName, and false otherwise.

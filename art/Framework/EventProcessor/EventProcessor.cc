@@ -686,12 +686,26 @@ art::EventProcessor::readAndCacheSubRun()
 }
 
 void
-art::EventProcessor::writeRun(RunID run)
+art::EventProcessor::writeRunAuxiliaryRangeSets(RunID const r)
 {
-  if (!run.isFlush()) {
-    endPathExecutor_->writeRun(principalCache_.runPrincipal(run));
-    FDEBUG(1) << "\twriteRun " << run.run() << "\n";
+  endPathExecutor_->writeAuxiliaryRangeSets(principalCache_.runPrincipal(r));
+  FDEBUG(1) << "\twriteRunAuxiliaryRangeSets " << r.run() << "\n";
+}
+
+void
+art::EventProcessor::writeRun(RunID const r)
+{
+  if (!r.isFlush()) {
+    endPathExecutor_->writeRun(principalCache_.runPrincipal(r));
+    FDEBUG(1) << "\twriteRun " << r.run() << "\n";
   }
+}
+
+void
+art::EventProcessor::writeSubRunAuxiliaryRangeSets(SubRunID const & sr)
+{
+  endPathExecutor_->writeAuxiliaryRangeSets(principalCache_.subRunPrincipal(sr));
+  FDEBUG(1) << "\twriteSubRunAuxiliaryRangeSets " << sr.run() << "/" << sr.subRun() << "\n";
 }
 
 void

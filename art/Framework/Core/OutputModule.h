@@ -193,6 +193,8 @@ private:
   void doWriteRun(RunPrincipal & rp);
   void doWriteSubRun(SubRunPrincipal & srp);
   void doWriteEvent(EventPrincipal& ep);
+  void doWriteAuxiliaryRangeSets(RunPrincipal & rp);
+  void doWriteAuxiliaryRangeSets(SubRunPrincipal & srp);
   void doOpenFile(FileBlock const & fb);
   void doRespondToOpenInputFile(FileBlock const & fb);
   void doRespondToCloseInputFile(FileBlock const & fb);

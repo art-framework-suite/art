@@ -116,6 +116,7 @@ namespace statemachine {
 
     runException_ = true;
     context<HandleFiles>().openSomeOutputFiles();
+    ep_.writeRunAuxiliaryRangeSets(currentRun_);
     if (beginRunCalled_) endRun(currentRun());
     ep_.writeRun(currentRun_);
     ep_.recordOutputClosureRequests();

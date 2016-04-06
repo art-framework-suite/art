@@ -121,6 +121,16 @@ void art::EndPathExecutor::writeEvent(EventPrincipal& ep)
   doForAllEnabledOutputWorkers_([&ep](auto w){ w->writeEvent(ep); });
 }
 
+void art::EndPathExecutor::writeAuxiliaryRangeSets(RunPrincipal& rp)
+{
+  doForAllEnabledOutputWorkers_([&rp](auto w){ w->writeAuxiliaryRangeSets(rp); });
+}
+
+void art::EndPathExecutor::writeAuxiliaryRangeSets(SubRunPrincipal& srp)
+{
+  doForAllEnabledOutputWorkers_([&srp](auto w){ w->writeAuxiliaryRangeSets(srp); });
+}
+
 void art::EndPathExecutor::selectProducts(FileBlock const& fb)
 {
   doForAllEnabledOutputWorkers_([&fb](auto w) { w->selectProducts(fb); });
