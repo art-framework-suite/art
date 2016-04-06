@@ -51,14 +51,6 @@ namespace art {
   // forward declarations:
   class EDProduct;
   template <typename T>  class Wrapper;
-
-  namespace detail {
-    template <class T, class Enable = void>
-    struct is_handle : std::false_type {};
-
-    template <class T>
-    struct is_handle<T, typename enable_if_type<typename T::HandleTag>::type> : std::true_type { };
-  }
 }
 
 // ======================================================================
