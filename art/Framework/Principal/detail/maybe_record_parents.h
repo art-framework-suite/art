@@ -22,7 +22,7 @@ namespace art {
                        DataViewImpl::BranchIDsMap & /*ignored*/,
                        std::unique_ptr<EDProduct>&& wp,
                        BranchDescription const& bd) const {
-         return used.emplace(bd.branchID(), DataViewImpl::PMValue{std::move(wp), bd});
+         return used.emplace(bd.branchID(), DataViewImpl::PMValue{std::move(wp), bd, RangeSet::invalid()});
        }
      };
 

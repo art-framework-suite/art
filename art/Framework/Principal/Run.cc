@@ -55,10 +55,15 @@ namespace art {
 
       auto runProductProvenancePtr = std::make_unique<ProductProvenance const>(elem.first,
                                                                                productstatus::present());
+      auto const& rs = rp.outputEventRanges();
+
+      rp.addRangeSet(elem.first, rs);
       elem.second.prod->setRangeSetID(rp.aux().rangeSetID());
+
       rp.put( std::move(elem.second.prod),
               elem.second.bd,
-              std::move(runProductProvenancePtr) );
+              std::move(runProductProvenancePtr),
+              true);
     };
 
     cet::for_all( putProducts(), put_in_principal );

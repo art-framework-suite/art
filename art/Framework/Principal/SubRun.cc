@@ -8,7 +8,7 @@ namespace art {
   namespace {
     Run *
     newRun(SubRunPrincipal& srp, ModuleDescription const& md) {
-      return (srp.runPrincipalSharedPtr() ? new Run(srp.runPrincipal(), md) : 0);
+      return (srp.runPrincipalSharedPtr() ? new Run(srp.runPrincipal(), md) : nullptr);
     }
   }
 
@@ -40,7 +40,8 @@ namespace art {
       elem.second.prod->setRangeSetID(srp.aux().rangeSetID());
       srp.put( std::move(elem.second.prod),
                elem.second.bd,
-               std::move(subRunProductProvenancePtr) );
+               std::move(subRunProductProvenancePtr),
+               true);
     };
 
     cet::for_all( putProducts(), put_in_principal );

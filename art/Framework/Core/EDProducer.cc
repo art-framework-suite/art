@@ -4,7 +4,9 @@
 #include "art/Framework/Core/detail/get_failureToPut_flag.h"
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Principal/Run.h"
+#include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRun.h"
+#include "art/Framework/Principal/SubRunPrincipal.h"
 #include "canvas/Utilities/Exception.h"
 #include "cetlib/demangle.h"
 #include "fhiclcpp/ParameterSetRegistry.h"
@@ -63,7 +65,7 @@ namespace art
                        CPC_exempt_ptr cpc) {
     detail::CPCSentry sentry {current_context_, cpc};
     Run r {rp, moduleDescription_};
-    endRun(r);
+    endRun(r, rp.outputEventRanges());
     r.commit_();
     return true;
   }
@@ -83,7 +85,7 @@ namespace art
                           CPC_exempt_ptr cpc) {
     detail::CPCSentry sentry {current_context_, cpc};
     SubRun sr {srp, moduleDescription_};
-    endSubRun(sr);
+    endSubRun(sr, srp.outputEventRanges());
     sr.commit_();
     return true;
   }

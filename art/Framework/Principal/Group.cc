@@ -40,6 +40,7 @@ Group(std::unique_ptr<EDProduct>&& edp,
       BranchDescription const& bd,
       ProductID const& pid,
       art::TypeID const& wrapper_type,
+      bool const rangeSetIDIsSet,
       ProductRangeSetLookup& prsl)
   : wrapper_type_(wrapper_type)
   , ppResolver_()
@@ -50,6 +51,7 @@ Group(std::unique_ptr<EDProduct>&& edp,
   , productProducer_()
   , onDemandPrincipal_()
   , rangeSetLookup_{&prsl}
+  , rangeSetIDIsSet_{rangeSetIDIsSet}
 {
 }
 

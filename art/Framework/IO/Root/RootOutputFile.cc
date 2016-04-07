@@ -898,7 +898,6 @@ fillBranches(BranchType const& bt,
       //    were assigned during the principal's commit call.
       if ((bt == InSubRun || bt == InRun) &&
           product->isPresent() &&
-          !produced &&
           !oh.rangeSetIDIsSet()) {
         auto const& rs = *principal.getRangeSet(bid);
         auto nc_product = const_cast<EDProduct*>(product);

@@ -81,6 +81,7 @@ addGroup(std::unique_ptr<EDProduct>&& prod, BranchDescription const& bd)
   addOrReplaceGroup(gfactory::make_group(std::move(prod),
                                          bd,
                                          ProductID(),
+                                         true /*rangeSetIDIsSet*/,
                                          productRangeSetLookup()));
 }
 

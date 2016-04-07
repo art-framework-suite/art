@@ -60,13 +60,13 @@ public:
   virtual ~CompressedIntProducer() { }
 
   virtual void produce( art::Event& e );
-  virtual void endSubRun( art::SubRun & sr );
-  virtual void endRun( art::Run& r );
+  virtual void endSubRun( art::SubRun & sr, art::RangeSet const& );
+  virtual void endRun( art::Run& r, art::RangeSet const& );
 
 private:
 
   template <typename PUTTER>
-  void put(PUTTER & p);
+  void put(PUTTER & p, art::RangeSet const&);
 
   int value_;
   art::BranchType branchType_;
@@ -77,28 +77,28 @@ void
 CompressedIntProducer::produce( art::Event& e )
 {
   std::cerr << "Holy cow, CompressedIntProducer::produce is running!\n";
-  if (branchType_ == art::InEvent) put(e);
+  if (branchType_ == art::InEvent)
+    e.put(std::make_unique<CompressedIntProduct>(value_));
 }
 
 void
-CompressedIntProducer::endSubRun( art::SubRun& sr )
+CompressedIntProducer::endSubRun( art::SubRun& sr, art::RangeSet const& seen )
 {
   std::cerr << "Holy cow, CompressedIntProducer::endSubRun is running!\n";
-  if (branchType_ == art::InSubRun) put(sr);
+  if (branchType_ == art::InSubRun) put(sr, seen);
 }
 
 void
-CompressedIntProducer::endRun( art::Run& r )
+CompressedIntProducer::endRun( art::Run& r, art::RangeSet const& seen )
 {
   std::cerr << "Holy cow, CompressedIntProducer::endRun is running!\n";
-  if (branchType_ == art::InRun) put(r);
+  if (branchType_ == art::InRun) put(r, seen);
 }
 
 template <typename PUTTER>
 void
-CompressedIntProducer::put(PUTTER & p) {
-  p.put(std::make_unique<CompressedIntProduct>(value_));
+CompressedIntProducer::put(PUTTER & p, art::RangeSet const& seen) {
+  p.put(std::make_unique<CompressedIntProduct>(value_), seen);
 }
 
 DEFINE_ART_MODULE(CompressedIntProducer)
-

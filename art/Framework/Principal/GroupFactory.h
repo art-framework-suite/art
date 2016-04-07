@@ -30,6 +30,7 @@ namespace art {
     make_group(std::unique_ptr<EDProduct>&&,
                BranchDescription const&,
                ProductID const&,
+               bool rangeSetIDIsSet,
                ProductRangeSetLookup&);
 
   } // namespace gfactory

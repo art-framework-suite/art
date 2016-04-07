@@ -14,6 +14,8 @@
 
 namespace fhicl { class ParameterSet; }
 
+using art::RangeSet;
+
 namespace arttest {
 
   class ToyProductProducer : public art::EDProducer {
@@ -35,13 +37,13 @@ namespace arttest {
     ~ToyProductProducer() = default;
 
     void beginRun(art::Run& r) override {
-      r.put( std::make_unique<StringProduct>("empty") );
-      r.put( std::make_unique<StringProduct>("beginRun"), "bgnRun");
+      r.put( std::make_unique<StringProduct>("empty"), RangeSet::for_run(r.id()));
+      r.put( std::make_unique<StringProduct>("beginRun"), "bgnRun", RangeSet::for_run(r.id()));
     }
 
     void beginSubRun(art::SubRun& sr) override {
-      sr.put( std::make_unique<StringProduct>("emptyAgain") );
-      sr.put( std::make_unique<StringProduct>("beginSubRun"), "bgnSubRun");
+      sr.put( std::make_unique<StringProduct>("emptyAgain"), RangeSet::for_subrun(sr.id()) );
+      sr.put( std::make_unique<StringProduct>("beginSubRun"), "bgnSubRun", RangeSet::for_subrun(sr.id()));
     }
 
     void produce(art::Event& e) override
@@ -49,14 +51,14 @@ namespace arttest {
       e.put( std::make_unique<StringProduct>("event") );
     }
 
-    void endSubRun(art::SubRun& sr) override
+    void endSubRun(art::SubRun& sr, art::RangeSet const&) override
     {
-      sr.put( std::make_unique<StringProduct>("endSubRun"), "endSubRun");
+      sr.put( std::make_unique<StringProduct>("endSubRun"), "endSubRun", RangeSet::for_subrun(sr.id()));
     }
 
-    void endRun(art::Run& r) override
+    void endRun(art::Run& r, art::RangeSet const&) override
     {
-      r.put( std::make_unique<StringProduct>("endRun"), "endRun");
+      r.put( std::make_unique<StringProduct>("endRun"), "endRun", RangeSet::for_run(r.id()) );
     }
 
   };  // ToyProductProducer

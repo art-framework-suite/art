@@ -12,11 +12,11 @@ namespace {
 namespace art {
 
   EventRangeHandler::EventRangeHandler()
-    : EventRangeHandler{IDNumber<Level::Run>::invalid()}
+    : EventRangeHandler{RangeSet::invalid()}
   {}
 
   EventRangeHandler::EventRangeHandler(RunNumber_t const r)
-    : EventRangeHandler{RangeSet{r}}
+    : EventRangeHandler{RangeSet::for_run(r)}
   {}
 
   EventRangeHandler::EventRangeHandler(RangeSet const& inputRangeSet)

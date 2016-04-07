@@ -50,19 +50,18 @@ public:
   ///Put a new product.
   template <typename PROD>
   void
-  put(std::unique_ptr<PROD> && product) {put<PROD>(std::move(product), std::string());}
+  put(std::unique_ptr<PROD> && product,
+      RangeSet const& rs)
+  {
+    put<PROD>(std::move(product), std::string(), rs);
+  }
 
-  ///Put a new product with a 'product instance name'
+  ///Put a new product with a 'product instance name' and a 'range set'
   template <typename PROD>
   void
   put(std::unique_ptr<PROD> && product,
-      std::string const& productInstanceName);
-
-  // ///Put a new product with a 'product instance name' and a 'range set'
-  // template <typename PROD>
-  // void
-  // put(std::unique_ptr<PROD> && product,
-  //     std::string const& productInstanceName);
+      std::string const& productInstanceName,
+      RangeSet const& rs);
 
   // Return true if this Run has been subjected to a process with
   // the given processName, and false otherwise.
@@ -92,7 +91,8 @@ private:
 template <typename PROD>
 void
 art::Run::put(std::unique_ptr<PROD> && product,
-              std::string const& productInstanceName)
+              std::string const& productInstanceName,
+              RangeSet const& rs)
 {
   if (product.get() == nullptr) {
     throw art::Exception(art::errors::NullPointerError)
@@ -104,7 +104,7 @@ art::Run::put(std::unique_ptr<PROD> && product,
   auto const& bd = getBranchDescription(TypeID(*product), productInstanceName);
   auto        wp = std::make_unique<Wrapper<PROD>>(std::move(product));
 
-  auto result = putProducts().emplace(bd.branchID(), PMValue{std::move(wp), bd});
+  auto result = putProducts().emplace(bd.branchID(), PMValue{std::move(wp), bd, rs});
   if (!result.second) {
     throw art::Exception(art::errors::InsertFailure)
       << "Run::put: Attempt to put multiple products with the\n"

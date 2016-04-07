@@ -51,6 +51,7 @@ namespace art {
     make_group(std::unique_ptr<EDProduct>&&,
                BranchDescription const&,
                ProductID const&,
+               bool rangeSetIDIsSet,
                ProductRangeSetLookup&);
 
   public:
@@ -74,6 +75,7 @@ namespace art {
           BranchDescription const& bd,
           ProductID const& pid,
           TypeID const& wrapper_type,
+          bool rangeSetIDIsSet,
           ProductRangeSetLookup& prsl);
 
   public:

@@ -26,14 +26,14 @@ namespace arttest {
       produces<StringProduct,art::InRun   >("endRun"   );
     }
 
-    virtual void endRun(art::Run& r) override
+    virtual void endRun(art::Run& r, art::RangeSet const& seen) override
     {
-      r.put( std::make_unique<StringProduct>("endRun"), "endRun" );
+      r.put( std::make_unique<StringProduct>("endRun"), "endRun", seen );
     }
 
-    virtual void endSubRun(art::SubRun& sr) override
+    virtual void endSubRun(art::SubRun& sr, art::RangeSet const& seen) override
     {
-      sr.put( std::make_unique<StringProduct>("endSubRun"), "endSubRun" );
+      sr.put( std::make_unique<StringProduct>("endSubRun"), "endSubRun", seen );
     }
 
     virtual void produce(art::Event& e) override

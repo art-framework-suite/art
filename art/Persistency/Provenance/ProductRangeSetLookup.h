@@ -13,6 +13,12 @@ namespace art {
   class ProductRangeSetLookup {
   public:
 
+    void emplace(BranchID const bid, RangeSet const& rs) {
+      auto const checksum = rs.checksum();
+      rangeSets_.emplace(checksum, rs);
+      productRangeSetChecksums_.emplace(bid, checksum);
+    }
+
     void emplace(BranchKey const& bk, RangeSet&& rs) {
       auto to_bid = [](art::BranchKey const& bk) {
         return art::BranchID{bk.branchName()};

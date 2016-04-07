@@ -72,13 +72,13 @@ public:
   virtual ~IntProducer() { }
 
   virtual void produce( art::Event& e );
-  virtual void endSubRun( art::SubRun & sr );
-  virtual void endRun( art::Run& r );
+  virtual void endSubRun( art::SubRun & sr, art::RangeSet const& );
+  virtual void endRun( art::Run& r, art::RangeSet const& );
 
 private:
 
   template <typename PUTTER>
-  void put(PUTTER & p);
+  void put(PUTTER & p, art::RangeSet const&);
 
   int value_;
   art::BranchType branchType_;
@@ -89,27 +89,28 @@ void
 IntProducer::produce( art::Event& e )
 {
   std::cerr << "Holy cow, IntProducer::produce is running!\n";
-  if (branchType_ == art::InEvent) put(e);
+  if (branchType_ == art::InEvent)
+    e.put(std::make_unique<IntProduct>(value_));
 }
 
 void
-IntProducer::endSubRun( art::SubRun& sr )
+IntProducer::endSubRun( art::SubRun& sr, art::RangeSet const& seen )
 {
   std::cerr << "Holy cow, IntProducer::endSubRun is running!\n";
-  if (branchType_ == art::InSubRun) put(sr);
+  if (branchType_ == art::InSubRun) put(sr, seen);
 }
 
 void
-IntProducer::endRun( art::Run& r )
+IntProducer::endRun( art::Run& r, art::RangeSet const& seen )
 {
   std::cerr << "Holy cow, IntProducer::endRun is running!\n";
-  if (branchType_ == art::InRun) put(r);
+  if (branchType_ == art::InRun) put(r, seen);
 }
 
 template <typename PUTTER>
 void
-IntProducer::put(PUTTER & p) {
-  p.put(std::make_unique<IntProduct>(value_));
+IntProducer::put(PUTTER & p, art::RangeSet const& seen) {
+  p.put(std::make_unique<IntProduct>(value_), seen);
 }
 
 DEFINE_ART_MODULE(IntProducer)

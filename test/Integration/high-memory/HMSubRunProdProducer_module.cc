@@ -27,7 +27,7 @@ class arttest::HMSubRunProdProducer : public art::EDProducer {
 public:
   explicit HMSubRunProdProducer(fhicl::ParameterSet const &);
   void produce(art::Event &) override { };
-  void endSubRun(art::SubRun & sr) override;
+  void endSubRun(art::SubRun & sr, art::RangeSet const&) override;
 };
 
 
@@ -38,14 +38,14 @@ arttest::HMSubRunProdProducer::HMSubRunProdProducer(fhicl::ParameterSet const &)
   }
 }
 
-void arttest::HMSubRunProdProducer::endSubRun(art::SubRun & sr)
+void arttest::HMSubRunProdProducer::endSubRun(art::SubRun & sr, art::RangeSet const& seen)
 {
   auto stencil = std::make_unique<HMLargeData>();
   std::iota(stencil->data(), stencil->data() + stencil->size(), 0);
 
   for (unsigned short i = 0; i < N_BLOCKS; ++i) {
     auto prod = std::make_unique<HMLargeData>(*stencil);
-    sr.put(std::move(prod), std::string("block") + std::to_string(i));
+    sr.put(std::move(prod), std::string("block") + std::to_string(i), seen);
   }
 }
 

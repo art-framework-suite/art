@@ -14,6 +14,7 @@
 #include "art/Framework/Core/ProducerBase.h"
 #include "art/Framework/Core/WorkerT.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
+#include "canvas/Persistency/Provenance/RangeSet.h"
 #include "fhiclcpp/ParameterSet.h"
 
 #include <memory>
@@ -80,9 +81,9 @@ namespace art
     virtual void reconfigure(fhicl::ParameterSet const&);
 
     virtual void beginRun(Run &){}
-    virtual void endRun(Run &){}
     virtual void beginSubRun(SubRun &){}
-    virtual void endSubRun(SubRun &){}
+    virtual void endRun(Run &, RangeSet const&){}
+    virtual void endSubRun(SubRun &, RangeSet const&){}
     virtual void respondToOpenInputFile(FileBlock const&) {}
     virtual void respondToCloseInputFile(FileBlock const&) {}
     virtual void respondToOpenOutputFiles(FileBlock const&) {}

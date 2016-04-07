@@ -73,7 +73,7 @@ art::Results::put(std::unique_ptr<PROD> && product, std::string const& productIn
   auto const & bd = getBranchDescription(TypeID(*product), productInstanceName);
   auto  wp = std::make_unique<Wrapper<PROD> >(std::move(product));
 
-  auto result = putProducts().emplace(bd.branchID(), PMValue { std::move(wp), bd });
+  auto result = putProducts().emplace(bd.branchID(), PMValue { std::move(wp), bd, RangeSet::invalid() });
   if (!result.second) {
     throw art::Exception(art::errors::InsertFailure)
       << "Results::put: Attempt to put multiple products with the\n"

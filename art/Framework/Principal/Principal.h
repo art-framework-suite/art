@@ -225,14 +225,22 @@ namespace art {
     void
     addGroup(BranchDescription const&) = 0;
 
-    virtual
-    void
-    addGroup(std::unique_ptr<EDProduct>&&, BranchDescription const&) = 0;
+    // virtual
+    // void
+    // addGroup(std::unique_ptr<EDProduct>&&,
+    //          BranchDescription const&,
+    //          bool rangeSetIDIsSet) = 0;
 
     RangeSet const*
-    getRangeSet(BranchID const& bid) const
+    getRangeSet(BranchID const bid) const
     {
       return productRangeSetLookup_.getRangeSet(bid);
+    }
+
+    void
+    addRangeSet(BranchID const bid, RangeSet const& rs)
+    {
+      productRangeSetLookup_.emplace(bid, rs);
     }
 
   protected: // MEMBER FUNCTIONS
@@ -363,7 +371,6 @@ namespace art {
 
     // FIXME: EXPLAIN THIS SITUATION.
     ProductRangeSetLookup productRangeSetLookup_;
-    ProductRangeSetLookup deferredRangeSetIDs_;
 
     // Back pointer to the primary principal.
     cet::exempt_ptr<Principal> primaryPrincipal_;

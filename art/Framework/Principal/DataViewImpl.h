@@ -121,12 +121,15 @@ public:
 
   struct PMValue {
 
-    PMValue( std::unique_ptr<EDProduct>&& p, BranchDescription const& b )
-      : prod{std::move(p)}, bd{b}
+    PMValue( std::unique_ptr<EDProduct>&& p,
+             BranchDescription const& b,
+             RangeSet const& r)
+      : prod{std::move(p)}, bd{b}, rs{r}
     {}
 
     std::unique_ptr<EDProduct> prod;
     BranchDescription const& bd;
+    RangeSet rs;
   };
 
   using BranchIDsMap = std::unordered_map<BranchID, PMValue, BranchID::Hash>;

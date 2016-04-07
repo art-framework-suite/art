@@ -34,6 +34,7 @@ class AssnsGroup : public Group {
   gfactory::make_group(std::unique_ptr<EDProduct>&&,
                        BranchDescription const&,
                        ProductID const&,
+                       bool rangeSetIDIsSet,
                        ProductRangeSetLookup&);
 
 public:
@@ -55,6 +56,7 @@ private:
              ProductID const& pid,
              TypeID const& primary_type,
              TypeID const& secondary_type,
+             bool rangeSetIDIsSet,
              ProductRangeSetLookup&);
 
 public:

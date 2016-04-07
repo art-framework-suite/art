@@ -29,8 +29,8 @@ class arttest::HMRunProdProducer : public art::EDProducer {
 public:
   explicit HMRunProdProducer(fhicl::ParameterSet const & p);
   void produce(art::Event &) override { };
-  void endSubRun(art::SubRun & sr) override;
-  void endRun(art::Run & r) override;
+  void endSubRun(art::SubRun & sr, art::RangeSet const&) override;
+  void endRun(art::Run & r, art::RangeSet const&) override;
 
 private:
   std::string inputLabel_;
@@ -47,7 +47,7 @@ arttest::HMRunProdProducer::HMRunProdProducer(fhicl::ParameterSet const & p)
   }
 }
 
-void arttest::HMRunProdProducer::endSubRun(art::SubRun & sr)
+void arttest::HMRunProdProducer::endSubRun(art::SubRun & sr, art::RangeSet const&)
 {
   for (unsigned short i = 0; i < N_BLOCKS; ++i) {
     art::Handle<HMLargeData> h;
@@ -62,10 +62,10 @@ void arttest::HMRunProdProducer::endSubRun(art::SubRun & sr)
   }
 }
 
-void arttest::HMRunProdProducer::endRun(art::Run & r)
+void arttest::HMRunProdProducer::endRun(art::Run & r, art::RangeSet const& seen)
 {
   for (unsigned short i = 0; i < N_BLOCKS; ++i) {
-    r.put(std::move(data_[i]), std::string("block") + std::to_string(i));
+    r.put(std::move(data_[i]), std::string("block") + std::to_string(i), seen);
   }
 }
 

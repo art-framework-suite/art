@@ -37,9 +37,9 @@ namespace {
       counter_ += increment_;
     }
 
-    void endRun(art::Run& r) override
+    void endRun(art::Run& r, art::RangeSet const& seen) override
     {
-      r.put(std::make_unique<unsigned>(counter_), "counts");
+      r.put(std::make_unique<unsigned>(counter_), "counts", seen);
       counter_ = 0u;
     }
 

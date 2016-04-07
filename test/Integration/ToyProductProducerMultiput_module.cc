@@ -31,7 +31,7 @@ namespace arttest {
   class ToyProductProducerMultiput : public art::EDProducer {
 
     art::BranchType branchType_;
-    
+
   public:
 
     using Parameters = EDProducer::Table<Config>;
@@ -56,27 +56,27 @@ namespace arttest {
       }
     }
 
-    void produce(art::Event &e) override 
+    void produce(art::Event &e) override
     {
       if ( branchType_ != art::InEvent ) return;
       e.put( std::make_unique<IntProduct>(1) );
       e.put( std::make_unique<IntProduct>(2) );
     }
 
-    void endSubRun(art::SubRun &sr) override 
+    void endSubRun(art::SubRun &sr, art::RangeSet const& seen) override
     {
       if ( branchType_ != art::InSubRun ) return;
-      sr.put( std::make_unique<IntProduct>(3) );
-      sr.put( std::make_unique<IntProduct>(4) );
+      sr.put( std::make_unique<IntProduct>(3), seen );
+      sr.put( std::make_unique<IntProduct>(4), seen );
     }
 
-    void endRun(art::Run &r) override 
+    void endRun(art::Run &r, art::RangeSet const& seen) override
     {
       if ( branchType_ != art::InRun ) return;
-      r.put( std::make_unique<IntProduct>(5) );
-      r.put( std::make_unique<IntProduct>(6) );
+      r.put( std::make_unique<IntProduct>(5), seen );
+      r.put( std::make_unique<IntProduct>(6), seen );
     }
-    
+
   };
 
 }

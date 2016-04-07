@@ -113,8 +113,7 @@ namespace art {
              std::unique_ptr<ProductProvenance const>&& productProvenance);
 
     void addGroup(BranchDescription const&);
-    void addGroup(std::unique_ptr<EDProduct>&&,
-                  BranchDescription const&);
+    void addGroup(std::unique_ptr<EDProduct>&&, BranchDescription const&);
 
     ProductID branchIDToProductID(BranchID const& bid) const;
 

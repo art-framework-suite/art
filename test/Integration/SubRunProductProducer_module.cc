@@ -45,11 +45,11 @@ namespace {
       e.put(std::make_unique<int>(eventNos_.back()), "eventNo");
     }
 
-    void endSubRun(art::SubRun& sr) override
+    void endSubRun(art::SubRun& sr, art::RangeSet const& seen) override
     {
-      sr.put(std::make_unique<unsigned>(events_), "totalEvents");
-      sr.put(std::make_unique<std::vector<int>>(eventNos_), "eventNos");
-      sr.put(std::make_unique<std::string>("SubRun number: "+std::to_string(sr.subRun())), "subRunName");
+      sr.put(std::make_unique<unsigned>(events_), "totalEvents", seen);
+      sr.put(std::make_unique<std::vector<int>>(eventNos_), "eventNos", seen);
+      sr.put(std::make_unique<std::string>("SubRun number: "+std::to_string(sr.subRun())), "subRunName", seen);
       events_ = 0u;
       eventNos_.clear();
     }

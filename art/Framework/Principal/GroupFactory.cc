@@ -82,6 +82,7 @@ unique_ptr<Group>
 make_group(unique_ptr<EDProduct>&& edp,
            BranchDescription const& bd,
            ProductID const& pid,
+           bool const rangeSetIDIsSet,
            ProductRangeSetLookup& prsl)
 {
   auto wn = TClass::GetClass(bd.wrappedName().c_str());
@@ -101,11 +102,11 @@ make_group(unique_ptr<EDProduct>&& edp,
     auto pwn = wrappedClassName(p->GetName());
     auto twp = TClass::GetClass(pwn.c_str());
     auto twpid = TypeID(twp->GetTypeInfo());
-    return std::unique_ptr<Group>(new AssnsGroup(move(edp), bd, pid, twid, twpid, prsl));
+    return std::unique_ptr<Group>(new AssnsGroup(move(edp), bd, pid, twid, twpid, rangeSetIDIsSet, prsl));
   }
   auto tw = TClass::GetClass(bd.wrappedName().c_str());
   auto twid = TypeID(tw->GetTypeInfo());
-  return unique_ptr<Group>(new Group(move(edp), bd, pid, twid, prsl));
+  return unique_ptr<Group>(new Group(move(edp), bd, pid, twid, rangeSetIDIsSet, prsl));
 }
 
 } // namespace gfactory
