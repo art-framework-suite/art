@@ -29,9 +29,8 @@ public:
     , total_(0)
   {}
 
-  ~TestAnalyzerSelect() {}
-  void analyze(const Event&) { ++total_; }
-  void endJob();
+  void analyze(const Event&) override { ++total_; }
+  void endJob() override;
 };
 
 void TestAnalyzerSelect::endJob()

@@ -487,7 +487,7 @@ cet_test(ProductMix_w HANDBUILT
 # writing an output file.
 cet_test(ProductMix_r1 HANDBUILT
   TEST_EXEC art_ut
-  TEST_ARGS --rethrow-all -c "ProductMix_r1.fcl"
+  TEST_ARGS -- --rethrow-all -c "ProductMix_r1.fcl"
   DATAFILES
   fcl/ProductMix_r1.fcl
   TEST_PROPERTIES DEPENDS ProductMix_w
@@ -498,7 +498,7 @@ cet_test(ProductMix_r1 HANDBUILT
 # nor output written.
 cet_test(ProductMix_r1a HANDBUILT
   TEST_EXEC art_ut
-  TEST_ARGS --rethrow-all -c "ProductMix_r1a.fcl"
+  TEST_ARGS -- --rethrow-all -c "ProductMix_r1a.fcl"
   DATAFILES
   fcl/ProductMix_r1.fcl
   fcl/ProductMix_r1a.fcl
@@ -510,7 +510,7 @@ cet_test(ProductMix_r1a HANDBUILT
 # twice).
 cet_test(ProductMix_r1b HANDBUILT
   TEST_EXEC art_ut
-  TEST_ARGS --rethrow-all -c "ProductMix_r1b.fcl"
+  TEST_ARGS -- --rethrow-all -c "ProductMix_r1b.fcl"
   DATAFILES
   fcl/ProductMix_r1.fcl
   fcl/ProductMix_r1b.fcl
@@ -521,7 +521,7 @@ cet_test(ProductMix_r1b HANDBUILT
 # with secondary input file wrapping and no eventsToSkip().
 cet_test(ProductMix_r1c1 HANDBUILT
   TEST_EXEC art_ut
-  TEST_ARGS --rethrow-all -c "ProductMix_r1c.fcl"
+  TEST_ARGS -- --rethrow-all -c "ProductMix_r1c.fcl"
   DATAFILES
   fcl/ProductMix_r1.fcl
   fcl/ProductMix_r1c.fcl
@@ -534,7 +534,7 @@ cet_test(ProductMix_r1c1 HANDBUILT
 # eventsToSkip().
 cet_test(ProductMix_r1c2 HANDBUILT
   TEST_EXEC art_ut
-  TEST_ARGS --rethrow-all -c "ProductMix_r1c2.fcl"
+  TEST_ARGS -- --rethrow-all -c "ProductMix_r1c2.fcl"
   DATAFILES
   fcl/ProductMix_r1.fcl
   fcl/ProductMix_r1c.fcl
@@ -546,7 +546,7 @@ cet_test(ProductMix_r1c2 HANDBUILT
 # with secondary input file wrapping and eventsToSkip() const.
 cet_test(ProductMix_r1c3 HANDBUILT
   TEST_EXEC art_ut
-  TEST_ARGS --rethrow-all -c "ProductMix_r1c3.fcl"
+  TEST_ARGS -- --rethrow-all -c "ProductMix_r1c3.fcl"
   DATAFILES
   fcl/ProductMix_r1.fcl
   fcl/ProductMix_r1c.fcl
@@ -558,7 +558,7 @@ cet_test(ProductMix_r1c3 HANDBUILT
 # with no startEvent function.
 cet_test(ProductMix_r1d1 HANDBUILT
   TEST_EXEC art_ut
-  TEST_ARGS --rethrow-all -c "ProductMix_r1d1.fcl"
+  TEST_ARGS -- --rethrow-all -c "ProductMix_r1d1.fcl"
   DATAFILES
   fcl/ProductMix_r1.fcl
   fcl/ProductMix_r1d1.fcl
@@ -569,7 +569,7 @@ cet_test(ProductMix_r1d1 HANDBUILT
 # with an old-signature startEvent function.
 cet_test(ProductMix_r1d2 HANDBUILT
   TEST_EXEC art_ut
-  TEST_ARGS --rethrow-all -c "ProductMix_r1d2.fcl"
+  TEST_ARGS -- --rethrow-all -c "ProductMix_r1d2.fcl"
   DATAFILES
   fcl/ProductMix_r1.fcl
   fcl/ProductMix_r1d2.fcl
@@ -586,7 +586,7 @@ cet_test(ProductMix_r1d2 HANDBUILT
 foreach(test 1 2 3 4 5)
   cet_test(ProductMix_r1e${test} HANDBUILT
     TEST_EXEC art_ut
-    TEST_ARGS --rethrow-all -c "ProductMix_r1e${test}.fcl"
+    TEST_ARGS -- --rethrow-all -c "ProductMix_r1e${test}.fcl"
     DATAFILES
     fcl/ProductMix_r1.fcl
     fcl/ProductMix_r1e.fcl
@@ -599,7 +599,7 @@ endforeach()
 # detail-object-provided function rather than from fileNames_.
 cet_test(ProductMix_r1f1 HANDBUILT
   TEST_EXEC art_ut
-  TEST_ARGS --rethrow-all -c "ProductMix_r1f1.fcl"
+  TEST_ARGS -- --rethrow-all -c "ProductMix_r1f1.fcl"
   DATAFILES
   fcl/ProductMix_r1.fcl
   fcl/ProductMix_r1c.fcl
@@ -611,7 +611,7 @@ cet_test(ProductMix_r1f1 HANDBUILT
 # with the compactMissingProducts option selected.
 cet_test(ProductMix_r1g HANDBUILT
   TEST_EXEC art_ut
-  TEST_ARGS --rethrow-all -c "ProductMix_r1g.fcl"
+  TEST_ARGS -- --rethrow-all -c "ProductMix_r1g.fcl"
   DATAFILES
   fcl/ProductMix_r1.fcl
   fcl/ProductMix_r1g.fcl
@@ -630,7 +630,7 @@ SET_TESTS_PROPERTIES(
 # inappropriate attempt to dereference a Ptr.
 cet_test(ProductMix_r1d HANDBUILT
   TEST_EXEC art_ut
-  TEST_ARGS --rethrow-all -c "ProductMix_r1d.fcl"
+  TEST_ARGS -- --rethrow-all -c "ProductMix_r1d.fcl"
   DATAFILES
   fcl/ProductMix_r1.fcl
   fcl/ProductMix_r1d.fcl
@@ -641,7 +641,7 @@ cet_test(ProductMix_r1d HANDBUILT
 # everything works as read from an output file written post-mixing.
 cet_test(ProductMix_r2 HANDBUILT
   TEST_EXEC art_ut
-  TEST_ARGS --rethrow-all -c "ProductMix_r2.fcl"
+  TEST_ARGS -- --rethrow-all -c "ProductMix_r2.fcl"
   DATAFILES
   fcl/ProductMix_r2.fcl
   TEST_PROPERTIES DEPENDS ProductMix_r1
@@ -649,14 +649,14 @@ cet_test(ProductMix_r2 HANDBUILT
 
 cet_test(Ptrmv_w HANDBUILT
   TEST_EXEC art_ut
-  TEST_ARGS --rethrow-all -c "Ptrmv_w.fcl"
+  TEST_ARGS -- --rethrow-all -c "Ptrmv_w.fcl"
   DATAFILES
   fcl/Ptrmv_w.fcl
 )
 
 cet_test(Ptrmv_r HANDBUILT
   TEST_EXEC art_ut
-  TEST_ARGS --rethrow-all -c "Ptrmv_r.fcl"
+  TEST_ARGS -- --rethrow-all -c "Ptrmv_r.fcl"
   DATAFILES
   fcl/Ptrmv_r.fcl
   TEST_PROPERTIES DEPENDS Ptrmv_w
@@ -664,14 +664,14 @@ cet_test(Ptrmv_r HANDBUILT
 
 cet_test(ProductIDGetter_t HANDBUILT
   TEST_EXEC art_ut
-  TEST_ARGS --rethrow-all -c "ProductIDGetter_t.fcl"
+  TEST_ARGS -- --rethrow-all -c "ProductIDGetter_t.fcl"
   DATAFILES
   fcl/ProductIDGetter_t.fcl
   )
 
 cet_test(ProductIDGetterNoPut_t HANDBUILT
   TEST_EXEC art_ut
-  TEST_ARGS --rethrow-all -c "ProductIDGetterNoPut_t.fcl"
+  TEST_ARGS -- --rethrow-all -c "ProductIDGetterNoPut_t.fcl"
   DATAFILES
   fcl/ProductIDGetterNoPut_t.fcl
   TEST_PROPERTIES
@@ -680,7 +680,7 @@ cet_test(ProductIDGetterNoPut_t HANDBUILT
 
 cet_test(ProductIDGetterNoPut_t_01a HANDBUILT
   TEST_EXEC art_ut
-  TEST_ARGS --rethrow-all -c "ProductIDGetterNoPut_t_01.fcl"
+  TEST_ARGS -- --rethrow-all -c "ProductIDGetterNoPut_t_01.fcl"
   DATAFILES
   fcl/ProductIDGetterNoPut_t_01.fcl
   TEST_PROPERTIES
@@ -689,21 +689,21 @@ cet_test(ProductIDGetterNoPut_t_01a HANDBUILT
 
 cet_test(ProductIDGetterNoPut_t_01b HANDBUILT
   TEST_EXEC art_ut
-  TEST_ARGS --rethrow-all --errorOnFailureToPut=false -c "ProductIDGetterNoPut_t_01.fcl"
+  TEST_ARGS -- --rethrow-all --errorOnFailureToPut=false -c "ProductIDGetterNoPut_t_01.fcl"
   DATAFILES
   fcl/ProductIDGetterNoPut_t_01.fcl
   )
 
 cet_test(ProductIDGetterNoPut_t_02a HANDBUILT
   TEST_EXEC art_ut
-  TEST_ARGS --rethrow-all -c "ProductIDGetterNoPut_t_02.fcl"
+  TEST_ARGS -- --rethrow-all -c "ProductIDGetterNoPut_t_02.fcl"
   DATAFILES
   fcl/ProductIDGetterNoPut_t_02.fcl
   )
 
 cet_test(ProductIDGetterNoPut_t_02b HANDBUILT
   TEST_EXEC art_ut
-  TEST_ARGS --rethrow-all --errorOnFailureToPut=true -c "ProductIDGetterNoPut_t_02.fcl"
+  TEST_ARGS -- --rethrow-all --errorOnFailureToPut=true -c "ProductIDGetterNoPut_t_02.fcl"
   DATAFILES
   fcl/ProductIDGetterNoPut_t_02.fcl
   TEST_PROPERTIES
@@ -712,7 +712,7 @@ cet_test(ProductIDGetterNoPut_t_02b HANDBUILT
 
 cet_test(Assns_w HANDBUILT
   TEST_EXEC art_ut
-  TEST_ARGS --rethrow-all -c "Assns_w.fcl"
+  TEST_ARGS -- --rethrow-all -c "Assns_w.fcl"
   DATAFILES
   fcl/Assns_w.fcl
 )
@@ -720,7 +720,7 @@ cet_test(Assns_w HANDBUILT
 foreach(num 1 2 3)
   cet_test(Assns_r${num} HANDBUILT
     TEST_EXEC art_ut
-    TEST_ARGS --rethrow-all -c "Assns_r${num}.fcl"
+    TEST_ARGS -- --rethrow-all -c "Assns_r${num}.fcl"
     DATAFILES
     fcl/Assns_r_inc.fcl
     fcl/Assns_r${num}.fcl
@@ -745,7 +745,7 @@ foreach(num RANGE 1 4)
   # Test drop on input.
   cet_test(DropOnInput_t_0${num} HANDBUILT
     TEST_EXEC art_ut
-    TEST_ARGS --rethrow-all
+    TEST_ARGS -- --rethrow-all
     -c "DropOnInput_t_0${num}.fcl"
     -s "../Ptrmv_w.d/out.root"
     --output "out.root"
@@ -757,7 +757,7 @@ foreach(num RANGE 1 4)
 
   cet_test(DropOnInput_r_0${num} HANDBUILT
     TEST_EXEC art_ut
-    TEST_ARGS --rethrow-all
+    TEST_ARGS -- --rethrow-all
     -c "DropOnInput_r_0${num}.fcl"
     -s "../DropOnInput_t_0${num}.d/out.root"
     DATAFILES
@@ -770,7 +770,7 @@ foreach(num RANGE 1 4)
   # Test drop on output with input file.
   cet_test(DropOnOutput_wA_0${num} HANDBUILT
     TEST_EXEC art_ut
-    TEST_ARGS --rethrow-all -c "DropOnOutput_wA_0${num}.fcl"
+    TEST_ARGS -- --rethrow-all -c "DropOnOutput_wA_0${num}.fcl"
     DATAFILES
     fcl/DropOnOutput_wA_01.fcl
     fcl/DropOnOutput_wA_0${num}.fcl
@@ -779,7 +779,7 @@ foreach(num RANGE 1 4)
 
   cet_test(DropOnOutput_rA_0${num} HANDBUILT
     TEST_EXEC art_ut
-    TEST_ARGS --rethrow-all
+    TEST_ARGS -- --rethrow-all
     -c "DropOnOutput_r_0${num}.fcl"
     -s "../DropOnOutput_wA_0${num}.d/out.root"
     DATAFILES
@@ -791,7 +791,7 @@ foreach(num RANGE 1 4)
   # Test drop on output with in-job generated products.
   cet_test(DropOnOutput_wB_0${num} HANDBUILT
     TEST_EXEC art_ut
-    TEST_ARGS --rethrow-all -c "DropOnOutput_wB_0${num}.fcl"
+    TEST_ARGS -- --rethrow-all -c "DropOnOutput_wB_0${num}.fcl"
     DATAFILES
     fcl/Ptrmv_w.fcl
     fcl/DropOnOutput_wB_01.fcl
@@ -800,7 +800,7 @@ foreach(num RANGE 1 4)
 
   cet_test(DropOnOutput_rB_0${num} HANDBUILT
     TEST_EXEC art_ut
-    TEST_ARGS --rethrow-all
+    TEST_ARGS -- --rethrow-all
     -c "DropOnOutput_r_0${num}.fcl"
     -s "../DropOnOutput_wB_0${num}.d/out.root"
     DATAFILES
@@ -814,7 +814,7 @@ endforeach()
 # states for subsequent tests.
 cet_test(RandomNumberTestEventSave_w HANDBUILT
   TEST_EXEC art_ut
-  TEST_ARGS --rethrow-all -c "RandomNumberTestEventSave_w.fcl"
+  TEST_ARGS -- --rethrow-all -c "RandomNumberTestEventSave_w.fcl"
   DATAFILES
   fcl/RandomNumberTestEventSave_w.fcl
 )
@@ -822,7 +822,7 @@ cet_test(RandomNumberTestEventSave_w HANDBUILT
 # Test the ability to restore random number states from data product.
 cet_test(RandomNumberTestEventSave_r1 HANDBUILT
   TEST_EXEC art_ut
-  TEST_ARGS --rethrow-all -c "RandomNumberTestEventSave_r.fcl"
+  TEST_ARGS -- --rethrow-all -c "RandomNumberTestEventSave_r.fcl"
   DATAFILES
   fcl/RandomNumberTestEventSave_r.fcl
   TEST_PROPERTIES DEPENDS RandomNumberTestEventSave_w
@@ -832,7 +832,7 @@ cet_test(RandomNumberTestEventSave_r1 HANDBUILT
 # state from data product
 cet_test(RandomNumberTestEventSave_r2 HANDBUILT
   TEST_EXEC art_ut
-  TEST_ARGS --rethrow-all -c "RandomNumberTestEventSave_r2.fcl"
+  TEST_ARGS -- --rethrow-all -c "RandomNumberTestEventSave_r2.fcl"
   DATAFILES
   fcl/RandomNumberTestEventSave_r.fcl
   fcl/RandomNumberTestEventSave_r2.fcl
@@ -843,7 +843,7 @@ cet_test(RandomNumberTestEventSave_r2 HANDBUILT
 # Write the state file terminating normally after 9 events.
 cet_test(RandomNumberTestFileSave_wA HANDBUILT
   TEST_EXEC art_ut
-  TEST_ARGS --rethrow-all -c "RandomNumberTestFileSave_wA.fcl"
+  TEST_ARGS -- --rethrow-all -c "RandomNumberTestFileSave_wA.fcl"
   DATAFILES
   fcl/RandomNumberTestEventSave_r.fcl
   fcl/RandomNumberTestFileSave_wA.fcl
@@ -853,7 +853,7 @@ cet_test(RandomNumberTestFileSave_wA HANDBUILT
 # Read the normal-termination state file to process the 10th event.
 cet_test(RandomNumberTestFileSave_rA HANDBUILT
   TEST_EXEC art_ut
-  TEST_ARGS --rethrow-all -c "RandomNumberTestFileSave_rA.fcl"
+  TEST_ARGS -- --rethrow-all -c "RandomNumberTestFileSave_rA.fcl"
   DATAFILES
   fcl/RandomNumberTestEventSave_r.fcl
   fcl/RandomNumberTestFileSave_rA.fcl
@@ -863,7 +863,7 @@ cet_test(RandomNumberTestFileSave_rA HANDBUILT
 # Write the state file terminating abnormally in event #10.
 cet_test(RandomNumberTestFileSave_wB HANDBUILT
   TEST_EXEC art_ut
-  TEST_ARGS --rethrow-all -c "RandomNumberTestFileSave_wB.fcl"
+  TEST_ARGS -- --rethrow-all -c "RandomNumberTestFileSave_wB.fcl"
   DATAFILES
   fcl/RandomNumberTestEventSave_r.fcl
   fcl/RandomNumberTestFileSave_wB.fcl
@@ -874,7 +874,7 @@ cet_test(RandomNumberTestFileSave_wB HANDBUILT
 # Read the abnormal-termination state file to process the 10th event.
 cet_test(RandomNumberTestFileSave_rB HANDBUILT
   TEST_EXEC art_ut
-  TEST_ARGS --rethrow-all -c "RandomNumberTestFileSave_rB.fcl"
+  TEST_ARGS -- --rethrow-all -c "RandomNumberTestFileSave_rB.fcl"
   DATAFILES
   fcl/RandomNumberTestEventSave_r.fcl
   fcl/RandomNumberTestFileSave_rB.fcl
@@ -885,7 +885,7 @@ cet_test(RandomNumberTestFileSave_rB HANDBUILT
 # structure.
 cet_test(ProvenanceChecker_t HANDBUILT
   TEST_EXEC art_ut
-  TEST_ARGS --rethrow-all -c "ProvenanceChecker_t.fcl"
+  TEST_ARGS -- --rethrow-all -c "ProvenanceChecker_t.fcl"
   DATAFILES
   fcl/Ptrmv_w.fcl
   fcl/ProvenanceChecker_t.fcl
@@ -894,7 +894,7 @@ cet_test(ProvenanceChecker_t HANDBUILT
 # Test the ProvenanceDumper module template (write and check).
 cet_test(ProvenanceDumper_w HANDBUILT
   TEST_EXEC art_ut
-  TEST_ARGS --rethrow-all -c "ProvenanceDumper_w.fcl"
+  TEST_ARGS -- --rethrow-all -c "ProvenanceDumper_w.fcl"
   DATAFILES
   fcl/FileDumperOutputTest_w.fcl
   fcl/ProvenanceDumper_w.fcl
@@ -904,7 +904,7 @@ cet_test(ProvenanceDumper_w HANDBUILT
 foreach(num 1 2 3 4)
   cet_test(ProvenanceDumper_r${num} HANDBUILT
   TEST_EXEC art_ut
-  TEST_ARGS --rethrow-all -c "ProvenanceDumper_r${num}.fcl"
+  TEST_ARGS -- --rethrow-all -c "ProvenanceDumper_r${num}.fcl"
   DATAFILES
   fcl/FileDumperOutputTest_r.fcl
   fcl/ProvenanceDumper_r1.fcl
@@ -915,7 +915,7 @@ endforeach()
 
 cet_test(PtrVectorFastClone_w HANDBUILT
   TEST_EXEC art_ut
-  TEST_ARGS -c "PtrVectorFastClone_w.fcl"
+  TEST_ARGS -- -c "PtrVectorFastClone_w.fcl"
   DATAFILES
   fcl/PtrVectorFastClone_w.fcl
   TEST_PROPERTIES DEPENDS Ptrmv_w
@@ -923,7 +923,7 @@ cet_test(PtrVectorFastClone_w HANDBUILT
 
 cet_test(AssnsFastClone_w HANDBUILT
   TEST_EXEC art_ut
-  TEST_ARGS -c "AssnsFastClone_w.fcl"
+  TEST_ARGS -- -c "AssnsFastClone_w.fcl"
   DATAFILES
   fcl/AssnsFastClone_w.fcl
   TEST_PROPERTIES DEPENDS Assns_w
@@ -931,14 +931,14 @@ cet_test(AssnsFastClone_w HANDBUILT
 
 cet_test(ServiceUsingService_01_t HANDBUILT
   TEST_EXEC art_ut
-  TEST_ARGS -c "ServiceUsingService_01.fcl"
+  TEST_ARGS -- -c "ServiceUsingService_01.fcl"
   DATAFILES
   fcl/ServiceUsingService_01.fcl
 )
 
 cet_test(ServiceUsingService_02_t HANDBUILT
   TEST_EXEC art_ut
-  TEST_ARGS -c "ServiceUsingService_02.fcl"
+  TEST_ARGS -- -c "ServiceUsingService_02.fcl"
   DATAFILES
   fcl/test_reconfig_01.fcl
   fcl/ServiceUsingService_02.fcl
@@ -1010,16 +1010,14 @@ cet_test(SAM_metadata_verify_hr HANDBUILT
   TEST_EXEC sam_metadata_dumper
   TEST_ARGS -H -s ../SAM_metadata.d/out.root
   TEST_PROPERTIES DEPENDS SAM_metadata
-  PASS_REGULAR_EXPRESSION
-  "^\nFile catalog metadata from file \\.\\./SAM_metadata\\.d/out\\.root:\n\n 1: applicationFamily   \"Ethel\"\n 2: applicationVersion  \"v0\\.00\\.01a\"\n 3: file_type           \"MC\"\n 4: run_type            \"MCChallenge\"\n 5: group               \"MyGang\"\n 6: process_name        \"SAMMetadataW\"\n 7: testMetadata        \"success!\"\n 8: data_tier           \"The one with the thickest frosting\"\n 9: data_stream         \"o1\"\n10: file_format         \"artroot\"\n11: file_format_era     \"ART_2011a\"\n12: file_format_version 8\n13: start_time          \"${date_regex}\"\n14: end_time            \"${date_regex}\"\n15: runs                \\[ \\[ 1, 0, \"MCChallenge\" \\] \\]\n16: event_count         1\n17: first_event         \\[ 1, 0, 1 \\]\n18: last_event          \\[ 1, 0, 1 \\]\n-------------------------------\n$"
+  REF "${CMAKE_CURRENT_SOURCE_DIR}/SAM_metadata_verify_hr-ref.txt"
   )
 
 cet_test(SAM_metadata_verify_JSON HANDBUILT
   TEST_EXEC sam_metadata_dumper
   TEST_ARGS -s ../SAM_metadata.d/out.root
   TEST_PROPERTIES DEPENDS SAM_metadata
-  PASS_REGULAR_EXPRESSION
-  "^{\n  \"\\.\\./SAM_metadata\\.d/out\\.root\": {\n    \"applicationFamily\": \"Ethel\",\n    \"applicationVersion\": \"v0\\.00\\.01a\",\n    \"file_type\": \"MC\",\n    \"run_type\": \"MCChallenge\",\n    \"group\": \"MyGang\",\n    \"process_name\": \"SAMMetadataW\",\n    \"testMetadata\": \"success!\",\n    \"data_tier\": \"The one with the thickest frosting\",\n    \"data_stream\": \"o1\",\n    \"file_format\": \"artroot\",\n    \"file_format_era\": \"ART_2011a\",\n    \"file_format_version\": 8,\n    \"start_time\": \"${date_regex}\",\n    \"end_time\": \"${date_regex}\",\n    \"runs\": \\[ \\[ 1, 0, \"MCChallenge\" \\] \\],\n    \"event_count\": 1,\n    \"first_event\": \\[ 1, 0, 1 \\],\n    \"last_event\": \\[ 1, 0, 1 \\]\n  }\n}\n$"
+  REF "${CMAKE_CURRENT_SOURCE_DIR}/SAM_metadata_verify_JSON-ref.txt"
   )
 
 cet_test(SAM_metadataFromInput_01 HANDBUILT
@@ -1185,7 +1183,7 @@ cet_test(signal_handling_04_t HANDBUILT
 foreach (num 1 2)
   cet_test(InFlightConfiguration_0${num}_t HANDBUILT
     TEST_EXEC art_ut
-    TEST_ARGS --config InFlightConfiguration_0${num}.fcl
+    TEST_ARGS -- --config InFlightConfiguration_0${num}.fcl
     DATAFILES
     fcl/InFlightConfiguration_0${num}.fcl
     )
@@ -1408,7 +1406,7 @@ cet_test(EmptyPSetRegistryChecker_w1 HANDBUILT
 
 cet_test(EmptyPSetRegistryChecker_r1 HANDBUILT
   TEST_EXEC art_ut
-  TEST_ARGS --rethrow-all -c EmptyPSetRegistryChecker_r1.fcl
+  TEST_ARGS -- --rethrow-all -c EmptyPSetRegistryChecker_r1.fcl
   DATAFILES fcl/EmptyPSetRegistryChecker_r1.fcl
   TEST_PROPERTIES DEPENDS EmptyPSetRegistryChecker_w1
 )
@@ -1422,7 +1420,7 @@ cet_test(EmptyPSetRegistryChecker_w2 HANDBUILT
 
 cet_test(EmptyPSetRegistryChecker_r2 HANDBUILT
   TEST_EXEC art_ut
-  TEST_ARGS --rethrow-all -c EmptyPSetRegistryChecker_r2.fcl
+  TEST_ARGS -- --rethrow-all -c EmptyPSetRegistryChecker_r2.fcl
   DATAFILES fcl/EmptyPSetRegistryChecker_r1.fcl
   fcl/EmptyPSetRegistryChecker_r2.fcl
   TEST_PROPERTIES DEPENDS EmptyPSetRegistryChecker_w2

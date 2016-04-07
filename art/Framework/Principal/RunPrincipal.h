@@ -76,11 +76,11 @@ public:
     aux_.setEndTime(time);
   }
 
-  virtual BranchType branchType() const;
+  BranchType branchType() const override;
 
-  void addGroup(BranchDescription const&);
+  void addGroup(BranchDescription const&) override;
 
-  void addGroup(std::unique_ptr<EDProduct>&&, BranchDescription const&);
+  void addGroup(std::unique_ptr<EDProduct>&&, BranchDescription const&) override;
 
   void mergeRun(std::shared_ptr<RunPrincipal>);
 
@@ -89,9 +89,9 @@ public:
 
 private:
 
-  virtual void addOrReplaceGroup(std::unique_ptr<Group>&&);
+  void addOrReplaceGroup(std::unique_ptr<Group>&&) override;
 
-  virtual ProcessHistoryID const& processHistoryID() const;
+  ProcessHistoryID const& processHistoryID() const override;
 
   void setProcessHistoryID(ProcessHistoryID const&) override;
 

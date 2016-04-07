@@ -29,9 +29,8 @@ namespace arttest {
 class arttest::MixProducer : public art::EDProducer {
 public:
   explicit MixProducer(fhicl::ParameterSet const &p);
-  virtual ~MixProducer();
 
-  virtual void produce(art::Event &e);
+  void produce(art::Event &e) override;
 
 private:
   typedef cet::map_vector<unsigned int> mv_t;
@@ -58,10 +57,6 @@ arttest::MixProducer::MixProducer(fhicl::ParameterSet const &)
   produces<ProductWithPtrs>("ProductWithPtrsLabel");
   produces<mv_t>("mapVectorLabel");
   produces<std::vector<art::Ptr<mvv_t> > >("intVectorPtrLabel");
-}
-
-arttest::MixProducer::~MixProducer() {
-  // Clean up dynamic memory and other resources here.
 }
 
 void arttest::MixProducer::produce(art::Event &e) {

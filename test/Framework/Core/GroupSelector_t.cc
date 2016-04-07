@@ -1,5 +1,5 @@
 #define BOOST_TEST_MODULE ( GroupSelector_t )
-#include "boost/test/auto_unit_test.hpp"
+#include "cetlib/quiet_unit_test.hpp"
 
 #include "test/Framework/Core/GroupSelector_t.h"
 

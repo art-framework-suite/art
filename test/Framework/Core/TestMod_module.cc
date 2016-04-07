@@ -7,7 +7,7 @@ class TestMod : public art::EDProducer
 public:
    explicit TestMod(fhicl::ParameterSet const& p);
 
-   void produce(art::Event&);
+   void produce(art::Event&) override;
 };
 
 TestMod::TestMod(fhicl::ParameterSet const&)

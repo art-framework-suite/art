@@ -8,21 +8,21 @@
 ////////////////////////////////////////////////////////////////////////
 
 #include "art/Framework/Core/EDAnalyzer.h"
-#include "art/Framework/Core/FindMany.h"
-#include "art/Framework/Core/FindManyP.h"
-#include "art/Framework/Core/FindOne.h"
-#include "art/Framework/Core/FindOneP.h"
+#include "canvas/Persistency/Common/FindMany.h"
+#include "canvas/Persistency/Common/FindManyP.h"
+#include "canvas/Persistency/Common/FindOne.h"
+#include "canvas/Persistency/Common/FindOneP.h"
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Principal/View.h"
 #include "canvas/Persistency/Common/Assns.h"
 #include "canvas/Persistency/Common/Ptr.h"
 #include "canvas/Persistency/Common/PtrVector.h"
-#include "art/Utilities/InputTag.h"
+#include "canvas/Utilities/InputTag.h"
 #include "cetlib/maybe_ref.h"
 #include "test/TestObjects/AssnTestData.h"
 
-#include "art/Utilities/quiet_unit_test.hpp"
+#include "cetlib/quiet_unit_test.hpp"
 #include "boost/type_traits.hpp"
 
 #include <type_traits>
@@ -38,9 +38,8 @@ namespace arttest {
 class arttest::AssnsAnalyzer : public art::EDAnalyzer {
 public:
   explicit AssnsAnalyzer(fhicl::ParameterSet const & p);
-  virtual ~AssnsAnalyzer();
 
-  virtual void analyze(art::Event const & e);
+  void analyze(art::Event const & e) override;
 
 private:
   template <template <typename, typename> class FO>
@@ -162,11 +161,6 @@ AssnsAnalyzer(fhicl::ParameterSet const & p)
   testAB_(p.get<bool>("test_AB", true)),
   testBA_(p.get<bool>("test_BA", false)),
   bCollMissing_(p.get<bool>("bCollMissing", false))
-{
-}
-
-arttest::AssnsAnalyzer::
-~AssnsAnalyzer()
 {
 }
 

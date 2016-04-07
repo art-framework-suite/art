@@ -26,9 +26,8 @@ namespace arttest {
 class arttest::DropTestParentageFaker : public art::EDProducer {
 public:
   explicit DropTestParentageFaker(fhicl::ParameterSet const & p);
-  virtual ~DropTestParentageFaker();
 
-  virtual void produce(art::Event & e);
+  void produce(art::Event & e) override;
 
 
 private:
@@ -41,10 +40,6 @@ arttest::DropTestParentageFaker::DropTestParentageFaker(fhicl::ParameterSet cons
   inputLabel_(p.get<std::string>("input_label"))
 {
   produces<std::string>();
-}
-
-arttest::DropTestParentageFaker::~DropTestParentageFaker()
-{
 }
 
 void arttest::DropTestParentageFaker::produce(art::Event & e)

@@ -15,7 +15,7 @@ namespace art {
   }
 }
 
-#endif
+#endif /* art_Framework_Art_detail_exists_outside_prolog_h */
 
 // Local variables:
 // mode: c++

@@ -18,18 +18,17 @@ namespace arttest {
   {
   public:
     explicit TestSimpleMemoryCheckProducer( fhicl::ParameterSet const& ) {}
-    virtual ~TestSimpleMemoryCheckProducer() { }
-    
-    virtual void produce( art::Event& );
-    
+
+    void produce( art::Event& ) override;
+
   private:
-    std::vector< std::vector<int> > int_ptr_vec_; 
+    std::vector< std::vector<int> > int_ptr_vec_;
   };  // TestSimpleMemoryCheckProducer
-  
+
   void TestSimpleMemoryCheckProducer::produce( art::Event& ) {
     int_ptr_vec_.emplace_back( 100000,0. );
   }
-  
+
 }
 
 DEFINE_ART_MODULE(arttest::TestSimpleMemoryCheckProducer)

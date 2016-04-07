@@ -43,7 +43,7 @@ public:
     , nvalues_    ( p().nvalues() )
   { }
 
-  void analyze(art::Event const& e)
+  void analyze(art::Event const& e) override
   {
     test_vector(e);
     test_view(e);

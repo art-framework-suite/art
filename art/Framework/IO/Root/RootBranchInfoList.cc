@@ -1,7 +1,7 @@
 #include "art/Framework/IO/Root/RootBranchInfoList.h"
 
 #include "canvas/Utilities/Exception.h"
-#include "art/Utilities/InputTag.h"
+#include "canvas/Utilities/InputTag.h"
 
 #include <regex>
 

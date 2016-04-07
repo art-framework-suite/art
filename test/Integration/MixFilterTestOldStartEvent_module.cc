@@ -1,4 +1,4 @@
-#include "art/Utilities/quiet_unit_test.hpp"
+#include "cetlib/quiet_unit_test.hpp"
 
 #include "art/Framework/Core/FileBlock.h"
 #include "art/Framework/Core/ModuleMacros.h"
@@ -8,7 +8,7 @@
 #include "art/Framework/Principal/Event.h"
 #include "art/Persistency/Common/CollectionUtilities.h"
 #include "canvas/Persistency/Common/PtrVector.h"
-#include "art/Utilities/InputTag.h"
+#include "canvas/Utilities/InputTag.h"
 #include "cetlib/map_vector.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 #include "test/TestObjects/ProductWithPtrs.h"

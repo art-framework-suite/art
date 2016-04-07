@@ -16,8 +16,7 @@ namespace arttest {
 class arttest::UnputtingProducer : public art::EDProducer {
 public:
   explicit UnputtingProducer(fhicl::ParameterSet const&);
-  virtual ~UnputtingProducer() = default;
-  virtual void produce(art::Event& e) override;
+  void produce(art::Event& e) override;
 };
 
 

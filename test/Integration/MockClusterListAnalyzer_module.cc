@@ -39,8 +39,7 @@ public:
       , nvalues_   ( p.get<int>("nvalues") )
    { }
 
-   virtual ~MockClusterListAnalyzer() { }
-   virtual void analyze( art::Event const & e );
+   void analyze( art::Event const & e ) override;
 
 private:
    std::string inputLabel_;

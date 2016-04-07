@@ -24,7 +24,6 @@ namespace arttest
   struct IntProduct
   {
     explicit IntProduct(int i=0) : value(i) { }
-    ~IntProduct() { }
 
     IntProduct &operator+= (IntProduct const &other)
     { value += other.value; return *this; }
@@ -35,7 +34,6 @@ namespace arttest
   struct CompressedIntProduct
   {
     explicit CompressedIntProduct(int i=0) : value(i) { }
-    ~CompressedIntProduct() { }
 
     CompressedIntProduct &operator+= (CompressedIntProduct const &other)
     { value += other.value; return *this; }
@@ -47,7 +45,6 @@ namespace arttest
   struct Int16_tProduct
   {
     explicit Int16_tProduct(int16_t i=0, uint16_t j=1) :value(i), uvalue(j) {}
-    ~Int16_tProduct() {}
 
     int16_t value;
     uint16_t uvalue;
@@ -57,7 +54,6 @@ namespace arttest
   struct DoubleProduct
   {
     explicit DoubleProduct(double d=2.2) : value(d) { }
-    ~DoubleProduct() { }
 
     double value;
   };
@@ -72,7 +68,7 @@ namespace arttest
   struct Simple
   {
     Simple() : key(0), value(0.0) { }
-    virtual ~Simple() { }
+    virtual ~Simple() noexcept = default;
     typedef int key_type;
 
     key_type    key;
@@ -105,8 +101,8 @@ namespace arttest
     { }
 
     double dummy_;
-    double dummy() const { return dummy_; }
-    SimpleDerived* clone() const { return new SimpleDerived(*this); }
+    double dummy() const override { return dummy_; }
+    SimpleDerived* clone() const override { return new SimpleDerived(*this); }
   };
 
   struct Sortable

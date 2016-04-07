@@ -17,8 +17,7 @@ public:
    explicit FailingProducer(fhicl::ParameterSet const&) {
       produces<arttest::IntProduct>();
    }
-   virtual ~FailingProducer() { }
-   virtual void produce(art::Event& e);
+   void produce(art::Event& e) override;
 };
 
 void

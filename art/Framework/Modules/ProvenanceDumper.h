@@ -176,11 +176,9 @@ public:
     impl_{detail_, pp_}
   {}
 
-  virtual ~ProvenanceDumper() = default;
-
 private:
 
-  virtual void beginJob() { impl_.beginJob(); }
+  void beginJob() override { impl_.beginJob(); }
   void endJob()  override { impl_.endJob(); }
 
   void write      (EventPrincipal  & e ) override { impl_.write(e); }
@@ -216,11 +214,9 @@ namespace art {
       impl_{detail_, pp_}
     {}
 
-    virtual ~ProvenanceDumper() = default;
-
   private:
 
-    virtual void beginJob() { impl_.beginJob(); }
+    void beginJob() override { impl_.beginJob(); }
     void endJob()  override { impl_.endJob(); }
 
     void write      (EventPrincipal  & e ) override { impl_.write(e); }

@@ -20,7 +20,6 @@
 class ValidHandleTester : public art::EDAnalyzer {
 public:
   explicit ValidHandleTester(fhicl::ParameterSet const & p);
-  virtual ~ValidHandleTester();
 
   void analyze(art::Event const & e) override;
 
@@ -34,9 +33,6 @@ ValidHandleTester::ValidHandleTester(fhicl::ParameterSet const & ps) :
   art::EDAnalyzer(ps),
   input_tag_(ps.get<std::string>("input_label")),
   expected_value_(ps.get<std::string>("expected_value"))
-{ }
-
-ValidHandleTester::~ValidHandleTester()
 { }
 
 void ValidHandleTester::analyze(art::Event const & e)

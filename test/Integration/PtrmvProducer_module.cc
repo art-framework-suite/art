@@ -29,9 +29,8 @@ namespace {
 class arttest::PtrmvProducer : public art::EDProducer {
 public:
   explicit PtrmvProducer(fhicl::ParameterSet const &p);
-  virtual ~PtrmvProducer();
 
-  virtual void produce(art::Event &e);
+  void produce(art::Event &e) override;
 };
 
 arttest::PtrmvProducer::PtrmvProducer(fhicl::ParameterSet const &)
@@ -41,9 +40,6 @@ arttest::PtrmvProducer::PtrmvProducer(fhicl::ParameterSet const &)
   produces<art::PtrVector<std::string> >();
   produces<art::Ptr<mvp_t> >();
   produces<art::PtrVector<mvp_t> >();
-}
-
-arttest::PtrmvProducer::~PtrmvProducer() {
 }
 
 void arttest::PtrmvProducer::produce(art::Event &e) {

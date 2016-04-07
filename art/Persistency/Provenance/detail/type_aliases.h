@@ -41,7 +41,7 @@ namespace art {
 
 }
 
-#endif
+#endif /* art_Persistency_Provenance_detail_type_aliases_h */
 
 // Local variables:
 // mode: c++

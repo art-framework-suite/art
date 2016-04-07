@@ -13,8 +13,7 @@ public:
       labels_(p.get<std::vector<std::string> >("labels")) {
       produces<IntProduct>();
    }
-   virtual ~AddIntsProducer() { }
-   virtual void produce(art::Event& e);
+   void produce(art::Event& e) override;
 private:
    std::vector<std::string> labels_;
 };

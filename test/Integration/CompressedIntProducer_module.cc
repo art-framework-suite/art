@@ -57,11 +57,9 @@ public:
     produces<CompressedIntProduct>();
   }
 
-  virtual ~CompressedIntProducer() { }
-
-  virtual void produce( art::Event& e );
-  virtual void endSubRun( art::SubRun & sr );
-  virtual void endRun( art::Run& r );
+  void produce( art::Event& e ) override;
+  void endSubRun( art::SubRun & sr ) override;
+  void endRun( art::Run& r ) override;
 
 private:
 

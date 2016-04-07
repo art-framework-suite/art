@@ -1,5 +1,5 @@
 #define BOOST_TEST_MODULE ( Event_t )
-#include "boost/test/auto_unit_test.hpp"
+#include "cetlib/quiet_unit_test.hpp"
 
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Principal/EventPrincipal.h"
@@ -24,7 +24,7 @@
 #include "canvas/Persistency/Provenance/Timestamp.h"
 #include "canvas/Persistency/Provenance/TypeLabel.h"
 #include "canvas/Utilities/GetPassID.h"
-#include "art/Utilities/InputTag.h"
+#include "canvas/Utilities/InputTag.h"
 #include "art/Version/GetReleaseVersion.h"
 #include "cetlib/container_algorithms.h"
 #include "fhiclcpp/ParameterSet.h"

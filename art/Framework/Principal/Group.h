@@ -133,10 +133,10 @@ namespace art {
       productResolver_.reset(&dr);
     }
 
-    virtual bool resolveProduct(bool fillOnDemand, TypeID const&) const;
+    bool resolveProduct(bool fillOnDemand, TypeID const&) const override;
 
-    virtual bool resolveProductIfAvailable(bool fillOnDemand,
-                                           TypeID const&) const;
+    bool resolveProductIfAvailable(bool fillOnDemand,
+                                   TypeID const&) const override;
     // Write the group to the stream.
     void write(std::ostream& os) const;
 

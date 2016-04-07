@@ -1,7 +1,7 @@
 extern "C" { int artapp(int argc, char* argv[]); }
 
 #define BOOST_TEST_MODULE ( artapp test )
-#include "boost/test/auto_unit_test.hpp"
+#include "cetlib/quiet_unit_test.hpp"
 
 BOOST_AUTO_TEST_SUITE ( artappTests )
 

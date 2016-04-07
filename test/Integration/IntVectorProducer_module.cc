@@ -33,9 +33,7 @@ public:
     produces<intvector_t>();
   }
 
-  virtual ~IntVectorProducer() { }
-
-  virtual void produce( art::Event & e )
+  void produce( art::Event & e ) override
   {
     std::cerr << "IntVectorProducer::produce is running!\n";
     int value_ = e.id().event();

@@ -15,7 +15,7 @@ $analyzer_headers =
     '"art/Framework/Principal/Handle.h"',
     '"art/Framework/Principal/Run.h"',
     '"art/Framework/Principal/SubRun.h"',
-    '"art/Utilities/InputTag.h"',
+    '"canvas/Utilities/InputTag.h"',
     '"fhiclcpp/ParameterSet.h"',
     '"messagefacility/MessageLogger/MessageLogger.h"'
   ];

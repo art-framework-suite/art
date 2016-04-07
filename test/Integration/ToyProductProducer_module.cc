@@ -30,19 +30,17 @@ namespace arttest {
       produces<StringProduct,art::InRun   >("endRun"   );
     }
 
-    virtual ~ToyProductProducer(){}
-
-    virtual void beginRun   ( art::Run   & r  ) override {
+    void beginRun   ( art::Run   & r  ) override {
       r.put( std::make_unique<StringProduct>("empty"   ) );
       r.put( std::make_unique<StringProduct>("beginRun"), "bgnRun" );
     }
-    virtual void beginSubRun( art::SubRun& sr ) override {
+    void beginSubRun( art::SubRun& sr ) override {
       sr.put( std::make_unique<StringProduct>("emptyAgain") );
       sr.put( std::make_unique<StringProduct>("beginSubRun"), "bgnSubRun" );
     }
-    virtual void produce    ( art::Event & e  ) override { e .put( std::make_unique<StringProduct>("event"      )              ); }
-    virtual void endSubRun  ( art::SubRun& sr ) override { sr.put( std::make_unique<StringProduct>("endSubRun"  ), "endSubRun" ); }
-    virtual void endRun     ( art::Run   & r  ) override { r .put( std::make_unique<StringProduct>("endRun"     ), "endRun"    ); }
+    void produce    ( art::Event & e  ) override { e .put( std::make_unique<StringProduct>("event"      )              ); }
+    void endSubRun  ( art::SubRun& sr ) override { sr.put( std::make_unique<StringProduct>("endSubRun"  ), "endSubRun" ); }
+    void endRun     ( art::Run   & r  ) override { r .put( std::make_unique<StringProduct>("endRun"     ), "endRun"    ); }
 
   };  // ToyProductProducer
 

@@ -25,7 +25,7 @@ namespace arttest
     explicit TestResultAnalyzer(fhicl::ParameterSet const&);
     virtual ~TestResultAnalyzer();
 
-    virtual void analyze(art::Event const& e, art::EventSetup const& c);
+    void analyze(art::Event const& e, art::EventSetup const& c) override;
     void endJob();
 
   private:

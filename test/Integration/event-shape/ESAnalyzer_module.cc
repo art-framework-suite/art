@@ -13,7 +13,7 @@
 #include "art/Framework/Principal/Handle.h"
 #include "art/Framework/Principal/Run.h"
 #include "art/Framework/Principal/SubRun.h"
-#include "art/Utilities/InputTag.h"
+#include "canvas/Utilities/InputTag.h"
 #include "fhiclcpp/ParameterSet.h"
 
 #include <memory>
@@ -25,7 +25,6 @@ namespace arttest {
 class arttest::ESAnalyzer : public art::EDProducer {
 public:
   explicit ESAnalyzer(fhicl::ParameterSet const & p);
-  virtual ~ESAnalyzer();
 
   void produce(art::Event & e) override;
 
@@ -42,11 +41,6 @@ arttest::ESAnalyzer::ESAnalyzer(fhicl::ParameterSet const & p)
 // Initialize member data here.
 {
   // Call appropriate Produces<>() functions here.
-}
-
-arttest::ESAnalyzer::~ESAnalyzer()
-{
-  // Clean up dynamic memory and other resources here.
 }
 
 void arttest::ESAnalyzer::produce(art::Event & e)

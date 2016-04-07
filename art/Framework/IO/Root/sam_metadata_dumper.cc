@@ -122,7 +122,7 @@ print_all_fc_metadata_entries_hr(vector<FileCatalogMetadataEntry> const & entrie
                                  ostream & output,
                                  ostream & /*errors*/)
 {
-  // For nice formatting, determine maximum id lenght and name size,
+  // For nice formatting, determine maximum id length and name size,
   // so that values can be lined up.
   int maxID = 1;
   size_t longestName = 1;
@@ -175,23 +175,19 @@ bool read_all_fc_metadata_entries(TFile & file,
                                   vector<FileCatalogMetadataEntry>& all_metadata_entries,
                                   ostream & errors)
 {
-//  std::cerr << "---> read_all_fc_metadata_entries \n";
   FileCatalogMetadataEntry ent;
   // Open the DB
-  art::SQLite3Wrapper sqliteDB(&file, "RootFileDB");
+  art::SQLite3Wrapper sqliteDB {&file, "RootFileDB"};
   // Read the entries into memory.
   sqlite3_stmt * stmt = 0;
-  sqlite3_prepare_v2(sqliteDB,
-    "SELECT ID, Name, Value from FileCatalog_metadata;", -1, &stmt, NULL);
+  sqlite3_prepare_v2(sqliteDB,"SELECT ID, Name, Value from FileCatalog_metadata;", -1, &stmt, NULL);
   bool row_found = false;
   int sqlite_status = SQLITE_OK;
   while ((sqlite_status = sqlite3_step(stmt)) == SQLITE_ROW) {
     row_found = true;
     ent.SMDid = sqlite3_column_int (stmt, 0);
-    ent.name  = std::string(
-      reinterpret_cast<char const *>(sqlite3_column_text(stmt, 1)) );
-    ent.value = std::string(
-      reinterpret_cast<char const *>(sqlite3_column_text(stmt, 2)) );
+    ent.name  = std::string{reinterpret_cast<char const *>(sqlite3_column_text(stmt, 1))};
+    ent.value = std::string{reinterpret_cast<char const *>(sqlite3_column_text(stmt, 2))};
     all_metadata_entries.push_back(ent);
   }
   if (sqlite_status != SQLITE_DONE) {
@@ -231,7 +227,6 @@ int print_fc_metadata_from_file(TFile & file,
                                 ostream & errors,
                                 bool want_json)
 {
-//  std::cerr << "---> print_fc_metadata_from_file \n";
   vector<FileCatalogMetadataEntry> all_metadata_entries;
   if (! read_all_fc_metadata_entries(file, all_metadata_entries, errors)) {
     errors << "Unable to to read metadata entries.\n";
@@ -264,14 +259,11 @@ int print_fc_metadata_from_file(TFile & file,
 int print_fc_metadata_from_files(stringvec const & file_names,
                                  ostream & output,
                                  ostream & errors,
-                                 bool want_json)
+                                 bool const want_json)
 {
-//  std::cerr << "---> print_fc_metadata_from_files \n";
-  if (want_json) {
-    output << "{\n  ";
-  }
-  int rc = 0;
-  bool first = true;
+  int rc {0};
+  bool first {true};
+  bool printed_opening {false};
   for (auto const& fn : file_names) {
     std::unique_ptr<TFile> current_file(TFile::Open(fn.c_str(), "READ"));
     if (!current_file || current_file->IsZombie()) {
@@ -279,17 +271,33 @@ int print_fc_metadata_from_files(stringvec const & file_names,
       errors << "Unable to open file '"
              << fn
              << "' for reading."
-             << "\nSkipping to next file.\n";
-    } else {
-      if (first) {
-        first=false;
-      } else if (want_json) {
-        output << ",\n  ";
-      }
-      rc += print_fc_metadata_from_file(*current_file, output, errors, want_json);
+             << "\nSkipping file.\n";
+      continue;
     }
+
+    auto* key_ptr = current_file->GetKey("RootFileDB");
+    if (key_ptr == nullptr) {
+      ++rc;
+      errors  << "\nRequested DB, \"RootFileDB\" of type, \"tkeyvfs\", not present in file: \""
+              << fn
+              << "\"\n"
+              << "Either this is not an art/ROOT file, it is a corrupt art/ROOT file,\n"
+              << "or it is an art/ROOT file produced with a version older than v1_00_12.\n";
+      continue;
+    }
+
+    if (first) {
+      first=false;
+      if (want_json) {
+        output << "{\n  ";
+        printed_opening = true;
+      }
+    } else if (want_json) {
+      output << ",\n  ";
+    }
+    rc += print_fc_metadata_from_file(*current_file, output, errors, want_json);
   }
-  if (want_json) {
+  if (printed_opening) {
     output << "\n}\n";
   }
   return rc;
@@ -351,12 +359,12 @@ int main(int argc, char * argv[])
     std::cout << desc << std::endl;
     return 1;
   }
-  bool want_json = (!vm.count("hr")) &&
-                   (!vm.count("human-readable")) ; // Default is JSON.
+  bool const want_json = (!vm.count("hr")) &&
+                         (!vm.count("human-readable")) ; // Default is JSON.
 
   // Get the names of the files we will process.
   stringvec file_names;
-  size_t file_count = vm.count("source");
+  size_t const file_count = vm.count("source");
   if (file_count < 1) {
     cerr << "One or more input files must be specified;"
          << " supply filenames as program arguments\n"
@@ -378,17 +386,4 @@ int main(int argc, char * argv[])
                                       cout,
                                       cerr,
                                       want_json);
-  // Testing.
-  //   cout << "Specified module labels\n";
-  //   cet::copy_all(module_labels,
-  //                 std::ostream_iterator<string>(cout, ", "));
-  //   cout << endl;
-  //   cout << "Specified process names\n";
-  //   cet::copy_all(process_names,
-  //                 std::ostream_iterator<string>(cout, ", "));
-  //   cout << endl;
-  //   cout << "Specified input files\n";
-  //   cet::copy_all(file_names,
-  //                 std::ostream_iterator<string>(cout, ", "));
-  //   cout << endl;
 }

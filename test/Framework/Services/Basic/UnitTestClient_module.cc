@@ -48,8 +48,6 @@ UnitTestClient::UnitTestClient( fhicl::ParameterSet const & p):
   pthread_sigmask(SIG_UNBLOCK, &newset,0);
 }
 
-UnitTestClient::~UnitTestClient() { }
-
 void UnitTestClient::analyze( art::Event const & e)
 {
 

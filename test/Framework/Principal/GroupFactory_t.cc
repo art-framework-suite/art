@@ -1,7 +1,7 @@
 // Test of GroupFactory functions
 
 #define BOOST_TEST_MODULE (GroupFactory_t)
-#include "boost/test/auto_unit_test.hpp"
+#include "cetlib/quiet_unit_test.hpp"
 
 #include <iostream>
 #include <typeinfo>

@@ -57,7 +57,7 @@ namespace art {
   }
 }
 
-#endif
+#endif /* art_Framework_Core_detail_get_failureToPut_flag_h */
 
 // Local variables:
 // mode: c++

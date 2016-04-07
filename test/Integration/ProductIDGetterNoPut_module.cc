@@ -4,7 +4,7 @@
 // File:        ProductIDGetterNoPut_module.cc
 ////////////////////////////////////////////////////////////////////////
 
-#include "art/Utilities/quiet_unit_test.hpp"
+#include "cetlib/quiet_unit_test.hpp"
 
 #include "art/Framework/Core/EDProducer.h"
 #include "art/Framework/Core/ModuleMacros.h"
@@ -22,7 +22,7 @@ class arttest::ProductIDGetterNoPut : public art::EDProducer {
 public:
   
   explicit ProductIDGetterNoPut(fhicl::ParameterSet const &);
-  virtual void produce(art::Event &);
+  void produce(art::Event &) override;
 
 };
 

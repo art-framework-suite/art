@@ -7,7 +7,7 @@
 // from art v0_07_07.
 ////////////////////////////////////////////////////////////////////////
 
-#include "art/Utilities/quiet_unit_test.hpp"
+#include "cetlib/quiet_unit_test.hpp"
 
 #include "art/Framework/Core/EDAnalyzer.h"
 #include "art/Framework/Core/ModuleMacros.h"
@@ -32,9 +32,8 @@ namespace {
 class arttest::PtrmvAnalyzer : public art::EDAnalyzer {
 public:
   explicit PtrmvAnalyzer(fhicl::ParameterSet const &p);
-  virtual ~PtrmvAnalyzer();
 
-  virtual void analyze(art::Event const &e);
+  void analyze(art::Event const &e) override;
 
 private:
   std::string inputLabel_;
@@ -46,9 +45,6 @@ arttest::PtrmvAnalyzer::PtrmvAnalyzer(fhicl::ParameterSet const &p)
   art::EDAnalyzer(p),
   inputLabel_(p.get<std::string>("input_label"))
 {
-}
-
-arttest::PtrmvAnalyzer::~PtrmvAnalyzer() {
 }
 
 void arttest::PtrmvAnalyzer::analyze(art::Event const &e) {

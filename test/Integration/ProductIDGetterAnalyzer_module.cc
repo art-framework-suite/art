@@ -7,7 +7,7 @@
 // from art v0_07_09.
 ////////////////////////////////////////////////////////////////////////
 
-#include "art/Utilities/quiet_unit_test.hpp"
+#include "cetlib/quiet_unit_test.hpp"
 
 #include "art/Framework/Core/EDAnalyzer.h"
 #include "art/Framework/Core/ModuleMacros.h"
@@ -21,9 +21,8 @@ namespace arttest {
 class arttest::ProductIDGetterAnalyzer : public art::EDAnalyzer {
 public:
   explicit ProductIDGetterAnalyzer(fhicl::ParameterSet const &p);
-  virtual ~ProductIDGetterAnalyzer();
 
-  virtual void analyze(art::Event const &e);
+  void analyze(art::Event const &e) override;
 
 
 private:
@@ -36,9 +35,6 @@ arttest::ProductIDGetterAnalyzer::ProductIDGetterAnalyzer(fhicl::ParameterSet co
   art::EDAnalyzer(p),
   input_label_(p.get<std::string>("input_label"))
 {
-}
-
-arttest::ProductIDGetterAnalyzer::~ProductIDGetterAnalyzer() {
 }
 
 void arttest::ProductIDGetterAnalyzer::analyze(art::Event const &e) {

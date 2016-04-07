@@ -33,7 +33,7 @@ public:
   , nvalues_    ( p.get<unsigned   >("nvalues") )
   { }
 
-  void analyze( art::Event const & e )
+  void analyze( art::Event const & e ) override
   {
     art::Handle<product_t> h;
     e.getByLabel(input_label_, h);

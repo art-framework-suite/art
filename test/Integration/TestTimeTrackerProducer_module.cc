@@ -15,9 +15,8 @@ namespace arttest {
   {
   public:
     explicit TestTimeTrackerProducer( fhicl::ParameterSet const& ) {}
-    virtual ~TestTimeTrackerProducer() { }
 
-    virtual void produce( art::Event& ) override {}
+    void produce( art::Event& ) override {}
   };  // TestTimeTrackerProducer
 
 }

@@ -1,7 +1,7 @@
 #include "art/Framework/Art/artapp.h"
 
 #define BOOST_TEST_MODULE ( artapp test )
-#include "boost/test/auto_unit_test.hpp"
+#include "cetlib/quiet_unit_test.hpp"
 
 #include "cetlib/exception.h"
 

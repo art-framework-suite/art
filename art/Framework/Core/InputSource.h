@@ -46,7 +46,7 @@ namespace art
         RunsSubRunsAndEvents
       };
 
-    virtual ~InputSource();
+    virtual ~InputSource() noexcept = default;
 
     // Interface expected by EventProcessor.
 

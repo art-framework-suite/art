@@ -29,7 +29,7 @@ cet_test(TestRemoveCachedProduct_w HANDBUILT
 
 cet_test(TestRemoveCachedProduct_r HANDBUILT
   TEST_EXEC art_ut
-  TEST_ARGS --rethrow-all --config TestRemoveCachedProduct_r.fcl
+  TEST_ARGS -- --rethrow-all --config TestRemoveCachedProduct_r.fcl
   DATAFILES fcl/TestRemoveCachedProduct_r.fcl
   TEST_PROPERTIES DEPENDS TestRemoveCachedProduct_w
 )

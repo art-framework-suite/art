@@ -21,7 +21,6 @@ public:
 
   using Parameters = art::ConfigTable<Config, art::OutputModule::Config::KeysToIgnore>;
   explicit TestOutput(Parameters const&);
-  virtual ~TestOutput();
 
 private:
    void write(art::EventPrincipal & e) override;
@@ -37,10 +36,6 @@ arttest::TestOutput::TestOutput(arttest::TestOutput::Parameters const& ps):
   art::OutputModule(ps().omConfig, ps.get_PSet()),
   num_pass_(ps().shouldPass()),
   total_(0)
-{
-}
-
-arttest::TestOutput::~TestOutput()
 {
 }
 

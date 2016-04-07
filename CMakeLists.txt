@@ -70,7 +70,7 @@ if (NOT APPLE)
 endif()
 
 # Plugin skeleton generators for cetskelgen.
-#add_subdirectory(perllib)
+add_subdirectory(perllib)
 
 # tools
 #add_subdirectory(tools)

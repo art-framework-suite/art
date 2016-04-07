@@ -83,4 +83,4 @@ private:
 // Local Variables:
 // mode: c++
 // End:
-#endif // art_Framework_Principal_AssnsGroup_h
+#endif /* art_Framework_Principal_AssnsGroup_h */

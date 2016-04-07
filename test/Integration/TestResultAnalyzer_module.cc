@@ -20,10 +20,9 @@ namespace arttest {
 class arttest::TestResultAnalyzer : public art::EDAnalyzer {
 public:
    explicit TestResultAnalyzer(fhicl::ParameterSet const&);
-   virtual ~TestResultAnalyzer();
 
-   virtual void analyze(art::Event const& e);
-   void endJob();
+   void analyze(art::Event const& e) override;
+   void endJob() override;
 
 private:
    int    passed_;
@@ -42,10 +41,6 @@ arttest::TestResultAnalyzer::TestResultAnalyzer(fhicl::ParameterSet const& ps):
    numbits_(ps.get<int>("numbits",-1)),
    expected_pathname_(ps.get<std::string>("pathname", "")),
    expected_modulelabel_(ps.get<std::string>("modlabel", ""))
-{
-}
-
-arttest::TestResultAnalyzer::~TestResultAnalyzer()
 {
 }
 
