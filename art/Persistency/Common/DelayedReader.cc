@@ -4,22 +4,22 @@ using namespace std;
 
 namespace art {
 
-DelayedReader::
-~DelayedReader()
-{
-}
+  DelayedReader::
+  ~DelayedReader()
+  {
+  }
 
-void
-DelayedReader::
-setGroupFinder_(cet::exempt_ptr<EDProductGetterFinder const>)
-{
-}
+  void
+  DelayedReader::
+  setGroupFinder_(cet::exempt_ptr<EDProductGetterFinder const>)
+  {
+  }
 
-int
-DelayedReader::
-openNextSecondaryFile_(int /*idx*/)
-{
-  return -2;
-}
+  int
+  DelayedReader::
+  openNextSecondaryFile_(int /*idx*/)
+  {
+    return -2;
+  }
 
 } // namespace art

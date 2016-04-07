@@ -37,26 +37,23 @@ namespace art {
   class EDProduct;
   class OutputHandle {
   public:
-    OutputHandle() :
-      wrap_(0),
-      desc_(0),
-      productProvenance_(),
-      whyFailed_(){}
+
+    OutputHandle() = default;
 
     OutputHandle(EDProduct const* prod,
                  BranchDescription const* desc,
-                 cet::exempt_ptr<ProductProvenance const> productProvenance) :
-      wrap_(prod),
-      desc_(desc),
-      productProvenance_(productProvenance),
-      whyFailed_(){}
+                 cet::exempt_ptr<ProductProvenance const> productProvenance,
+                 bool const rsIDisSet)
+      : wrap_{prod}
+      , desc_{desc}
+      , productProvenance_{productProvenance}
+      , rangeSetIDIsSet_{rsIDisSet}
+    {}
 
     ///Used when the attempt to get the data failed
-    OutputHandle(std::shared_ptr<cet::exception> const& iWhyFailed):
-      wrap_(0),
-      desc_(0),
-      productProvenance_(),
-      whyFailed_(iWhyFailed) {}
+    OutputHandle(std::shared_ptr<cet::exception> const& iWhyFailed)
+      : whyFailed_(iWhyFailed)
+    {}
 
     // use compiler-generated copy c'tor, copy assignment, and d'tor
 
@@ -69,8 +66,8 @@ namespace art {
     }
 
     bool isValid() const { return wrap_ && desc_ &&productProvenance_; }
-
     bool failedToGet() const { return 0 != whyFailed_.get(); }
+    bool rangeSetIDIsSet() const { return rangeSetIDIsSet_; }
 
     EDProduct const* wrapper() const { return wrap_; }
 
@@ -81,10 +78,11 @@ namespace art {
     BranchDescription const* desc() const { return desc_; }
 
   private:
-    EDProduct const* wrap_;
-    BranchDescription const* desc_;
-    cet::exempt_ptr<ProductProvenance const> productProvenance_;
-    std::shared_ptr<cet::exception> whyFailed_;
+    EDProduct const* wrap_ {nullptr};
+    BranchDescription const* desc_ {nullptr};
+    cet::exempt_ptr<ProductProvenance const> productProvenance_ {nullptr};
+    std::shared_ptr<cet::exception> whyFailed_ {nullptr};
+    bool rangeSetIDIsSet_ {false};
   };
 
   // Free swap function

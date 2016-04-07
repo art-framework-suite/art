@@ -121,7 +121,8 @@ EventPrincipal::
 addGroup(BranchDescription const& bd)
 {
   addOrReplaceGroup(gfactory::make_group(bd,
-                                         branchIDToProductID(bd.branchID())));
+                                         branchIDToProductID(bd.branchID()),
+                                         productRangeSetLookup()));
 }
 
 void
@@ -130,7 +131,8 @@ addGroup(std::unique_ptr<EDProduct>&& prod, BranchDescription const& bd)
 {
   addOrReplaceGroup(gfactory::make_group(std::move(prod),
                                          bd,
-                                         branchIDToProductID(bd.branchID())));
+                                         branchIDToProductID(bd.branchID()),
+                                         productRangeSetLookup()));
 }
 
 void
@@ -139,7 +141,7 @@ addOnDemandGroup(BranchDescription const& desc, cet::exempt_ptr<Worker> worker)
 {
   ProductID pid(branchIDToProductID(desc.branchID()));
   cet::exempt_ptr<EventPrincipal> epp(this);
-  addOrReplaceGroup(gfactory::make_group(desc, pid, worker, epp));
+  addOrReplaceGroup(gfactory::make_group(desc, pid, productRangeSetLookup(), worker, epp));
 }
 
 void

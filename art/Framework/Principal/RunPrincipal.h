@@ -29,7 +29,7 @@ namespace art {
   public:
 
     using Auxiliary = RunAuxiliary;
-    static constexpr BranchType branch_type = InRun;
+    static constexpr BranchType branch_type = RunAuxiliary::branch_type;
 
   public:
 
@@ -41,41 +41,16 @@ namespace art {
                  int idx = 0,
                  RunPrincipal* = nullptr);
 
-    RunAuxiliary const&
-    aux() const
-    {
-      return aux_;
-    }
+    RunAuxiliary const& aux() const { return aux_; }
 
-    RunNumber_t
-    run() const
-    {
-      return aux().run();
-    }
+    RunNumber_t run() const { return aux().run(); }
 
-    RunID const&
-    id() const
-    {
-      return aux().id();
-    }
+    RunID const& id() const { return aux().id(); }
 
-    Timestamp const&
-    beginTime() const
-    {
-      return aux().beginTime();
-    }
+    Timestamp const& beginTime() const { return aux().beginTime(); }
+    Timestamp const& endTime() const { return aux().endTime(); }
 
-    Timestamp const&
-    endTime() const
-    {
-      return aux().endTime();
-    }
-
-    void
-    setEndTime(Timestamp const& time)
-    {
-      aux_.setEndTime(time);
-    }
+    void setEndTime(Timestamp const& time) { aux_.setEndTime(time); }
 
     BranchType branchType() const override { return branch_type; }
 
@@ -83,7 +58,8 @@ namespace art {
 
     void addGroup(std::unique_ptr<EDProduct>&&, BranchDescription const&);
 
-    void put(std::unique_ptr<EDProduct>&&, BranchDescription const&,
+    void put(std::unique_ptr<EDProduct>&&,
+             BranchDescription const&,
              std::unique_ptr<ProductProvenance const>&&);
 
     void setOutputEventRanges(RangeSet const&);

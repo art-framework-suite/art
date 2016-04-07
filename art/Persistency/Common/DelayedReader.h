@@ -10,6 +10,7 @@
 //
 
 #include "canvas/Persistency/Common/EDProduct.h"
+#include "canvas/Persistency/Provenance/BranchID.h"
 #include "art/Utilities/fwd.h"
 #include "cetlib/exempt_ptr.h"
 
@@ -20,6 +21,7 @@ namespace art {
   class BranchID;
   class BranchKey;
   class EDProductGetterFinder;
+  class ProductRangeSetLookup;
   class RangeSet;
 
   class DelayedReader {
@@ -29,15 +31,11 @@ namespace art {
     virtual ~DelayedReader();
 
     std::unique_ptr<EDProduct>
-    getProduct(BranchKey const& k, TypeID const& wrapper_type) const
+    getProduct(BranchKey const& k,
+               TypeID const& wrapper_type,
+               ProductRangeSetLookup& prsl) const
     {
-      return getProduct_(k, wrapper_type);
-    }
-
-    RangeSet const&
-    getRangeSet(BranchID const& bid) const
-    {
-      return getRangeSet_(bid);
+      return getProduct_(k, wrapper_type, prsl);
     }
 
     void
@@ -56,11 +54,9 @@ namespace art {
 
     virtual
     std::unique_ptr<EDProduct>
-    getProduct_(BranchKey const& k, TypeID const& wrapper_type) const = 0;
-
-    virtual
-    RangeSet const&
-    getRangeSet_(BranchID const&) const = 0;
+    getProduct_(BranchKey const&,
+                TypeID const&,
+                ProductRangeSetLookup&) const = 0;
 
     virtual
     void

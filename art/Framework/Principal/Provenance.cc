@@ -20,14 +20,6 @@ art::Provenance::parameterSet() const
   return fhicl::ParameterSetRegistry::get(*psetIDs().begin());
 }
 
-art::RangeSet const &
-art::Provenance::rangeSet() const
-{
-  auto p = group_->productResolver();
-  assert(p != nullptr);
-  return p->getRangeSet(branchID());
-}
-
 std::ostream &
 art::Provenance::write(std::ostream& os) const
 {

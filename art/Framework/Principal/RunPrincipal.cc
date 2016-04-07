@@ -64,14 +64,19 @@ namespace art {
   RunPrincipal::
   addGroup(BranchDescription const& bd)
   {
-    addOrReplaceGroup(gfactory::make_group(bd, ProductID()));
+    addOrReplaceGroup(gfactory::make_group(bd,
+                                           ProductID(),
+                                           productRangeSetLookup()));
   }
 
   void
   RunPrincipal::
   addGroup(std::unique_ptr<EDProduct>&& prod, BranchDescription const& bd)
   {
-    addOrReplaceGroup(gfactory::make_group(std::move(prod), bd, ProductID()));
+    addOrReplaceGroup(gfactory::make_group(std::move(prod),
+                                           bd,
+                                           ProductID(),
+                                           productRangeSetLookup()));
   }
 
   void

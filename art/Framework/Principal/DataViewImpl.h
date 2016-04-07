@@ -122,7 +122,7 @@ public:
   struct PMValue {
 
     PMValue( std::unique_ptr<EDProduct>&& p, BranchDescription const& b )
-      : prod(std::move(p)), bd(b)
+      : prod{std::move(p)}, bd{b}
     {}
 
     std::unique_ptr<EDProduct> prod;

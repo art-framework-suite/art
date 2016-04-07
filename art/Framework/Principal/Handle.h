@@ -379,8 +379,8 @@ art::same_ranges(T const& a, U const& b)
   if (!a.isValid() || !b.isValid())
     throw Exception{art::errors::NullPointerError}
       << "Attempt to compare ranges where one or both handles are invalid.";
-  return art::are_same(a.provenance()->rangeSet(),
-                       b.provenance()->rangeSet());
+  return art::are_same(*a.provenance()->rangeSet(),
+                       *b.provenance()->rangeSet());
 }
 
 template <class T, class U>
@@ -390,8 +390,8 @@ art::disjoint_ranges(T const& a, U const& b)
   if (!a.isValid() || !b.isValid())
     throw Exception{art::errors::NullPointerError}
       << "Attempt to compare ranges where one or both handles are invalid.";
-  return art::are_disjoint(a.provenance()->rangeSet(),
-                           b.provenance()->rangeSet());
+  return art::are_disjoint(*a.provenance()->rangeSet(),
+                           *b.provenance()->rangeSet());
 }
 
 #endif /* art_Framework_Principal_Handle_h */

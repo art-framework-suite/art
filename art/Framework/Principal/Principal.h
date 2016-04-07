@@ -21,6 +21,7 @@
 #include "art/Framework/Principal/fwd.h"
 #include "art/Persistency/Common/DelayedReader.h"
 #include "art/Persistency/Common/GroupQueryResult.h"
+#include "art/Persistency/Provenance/ProductRangeSetLookup.h"
 #include "canvas/Persistency/Common/Wrapper.h"
 #include "canvas/Persistency/Provenance/BranchID.h"
 #include "canvas/Persistency/Provenance/BranchMapper.h"
@@ -64,23 +65,28 @@ namespace art {
     Principal&
     operator=(Principal const&) = delete;
 
-    Principal(ProcessConfiguration const&, ProcessHistoryID const&,
-              std::unique_ptr<BranchMapper>&&, std::unique_ptr<DelayedReader>&&,
-              int idx, Principal*);
+    Principal(ProcessConfiguration const&,
+              ProcessHistoryID const&,
+              std::unique_ptr<BranchMapper>&&,
+              std::unique_ptr<DelayedReader>&&,
+              int idx,
+              Principal*);
 
     OutputHandle
-    getForOutput(BranchID const&, bool resolveProd) const;
+    getForOutput(BranchID const, bool resolveProd) const;
 
     GroupQueryResult
     getBySelector(TypeID const&, SelectorBase const&) const;
 
     GroupQueryResult
-    getByLabel(TypeID const&, std::string const& label,
+    getByLabel(TypeID const&,
+               std::string const& label,
                std::string const& productInstanceName,
                std::string const& processName) const;
 
     void
-    getMany(TypeID const&, SelectorBase const&,
+    getMany(TypeID const&,
+            SelectorBase const&,
             std::vector<GroupQueryResult>& results) const;
 
     void
@@ -94,7 +100,8 @@ namespace art {
     //   4. and which matches the given selector
 
     size_t
-    getMatchingSequence(TypeID const& elementType, SelectorBase const&,
+    getMatchingSequence(TypeID const& elementType,
+                        SelectorBase const&,
                         std::vector<GroupQueryResult>& results,
                         bool stopIfProcessHasMatch) const;
 
@@ -222,10 +229,10 @@ namespace art {
     void
     addGroup(std::unique_ptr<EDProduct>&&, BranchDescription const&) = 0;
 
-    RangeSet const&
+    RangeSet const*
     getRangeSet(BranchID const& bid) const
     {
-      return store_->getRangeSet(bid);
+      return productRangeSetLookup_.getRangeSet(bid);
     }
 
   protected: // MEMBER FUNCTIONS
@@ -240,6 +247,12 @@ namespace art {
     productReader()
     {
       return *store_;
+    }
+
+    ProductRangeSetLookup&
+    productRangeSetLookup()
+    {
+      return productRangeSetLookup_;
     }
 
     // Add a new Group.
@@ -348,6 +361,10 @@ namespace art {
     // EDProducts from the persistent store.
     std::unique_ptr<DelayedReader> store_;
 
+    // FIXME: EXPLAIN THIS SITUATION.
+    ProductRangeSetLookup productRangeSetLookup_;
+    ProductRangeSetLookup deferredRangeSetIDs_;
+
     // Back pointer to the primary principal.
     cet::exempt_ptr<Principal> primaryPrincipal_;
 
@@ -355,8 +372,6 @@ namespace art {
     // and subRun principals is the lifetime of the input file,
     // while the lifetime of event principals ends at the next
     // event read.
-    // FIXME: Is this true, or do run and subRun principals
-    // FIXME: have the lifetime of the job?
     std::vector<std::shared_ptr<Principal>> secondaryPrincipals_;
 
     // Index into the per-file lookup tables.  Each principal is

@@ -17,18 +17,24 @@ class AssnsGroup : public Group {
 
   friend
   std::unique_ptr<Group>
-  gfactory::make_group(BranchDescription const&, ProductID const&);
+  gfactory::make_group(BranchDescription const&,
+                       ProductID const&,
+                       ProductRangeSetLookup&);
 
   friend
   std::unique_ptr<Group>
-  gfactory::make_group(BranchDescription const&, ProductID const&,
+  gfactory::make_group(BranchDescription const&,
+                       ProductID const&,
+                       ProductRangeSetLookup&,
                        cet::exempt_ptr<Worker>,
                        cet::exempt_ptr<EventPrincipal>);
 
   friend
   std::unique_ptr<Group>
-  gfactory::make_group(std::unique_ptr<EDProduct>&&, BranchDescription const&,
-                       ProductID const&);
+  gfactory::make_group(std::unique_ptr<EDProduct>&&,
+                       BranchDescription const&,
+                       ProductID const&,
+                       ProductRangeSetLookup&);
 
 public:
 
@@ -36,17 +42,20 @@ public:
 
 private:
 
-  AssnsGroup(BranchDescription const& bd, ProductID const& pid,
-             TypeID const& prinary_wrapper_type,
+  AssnsGroup(BranchDescription const& bd,
+             ProductID const& pid,
+             TypeID const& primary_wrapper_type,
              TypeID const& secondary_wrapper_type,
-             cet::exempt_ptr<Worker> productProducer =
-               cet::exempt_ptr<Worker>(),
-             cet::exempt_ptr<EventPrincipal> onDemandPrincipal =
-               cet::exempt_ptr<EventPrincipal>());
+             ProductRangeSetLookup&,
+             cet::exempt_ptr<Worker> productProducer = cet::exempt_ptr<Worker>(),
+             cet::exempt_ptr<EventPrincipal> onDemandPrincipal =  cet::exempt_ptr<EventPrincipal>());
 
-  AssnsGroup(std::unique_ptr<EDProduct>&& edp, BranchDescription const& bd,
-             ProductID const& pid, TypeID const& prinary_type,
-             TypeID const& secondary_type);
+  AssnsGroup(std::unique_ptr<EDProduct>&& edp,
+             BranchDescription const& bd,
+             ProductID const& pid,
+             TypeID const& primary_type,
+             TypeID const& secondary_type,
+             ProductRangeSetLookup&);
 
 public:
 

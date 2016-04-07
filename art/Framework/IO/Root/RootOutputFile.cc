@@ -864,7 +864,7 @@ fillBranches(BranchType const& bt,
         // No provenance, product was either not produced,
         // or was dropped, create provenance to remember that.
         auto const status = produced ? productstatus::neverCreated() : productstatus::dropped();
-        keptProv.emplace(bd->branchID(), status);
+        keptProv.emplace(bid, status);
       }
     }
 
@@ -898,9 +898,10 @@ fillBranches(BranchType const& bt,
       //    were assigned during the principal's commit call.
       if ((bt == InSubRun || bt == InRun) &&
           product->isPresent() &&
-          !produced) {
+          !produced &&
+          !oh.rangeSetIDIsSet()) {
+        auto const& rs = *principal.getRangeSet(bid);
         auto nc_product = const_cast<EDProduct*>(product);
-        auto const& rs = principal.getRangeSet(bd->branchID());
         auto it = checksumToIndex.find(rs.checksum());
         if (it != checksumToIndex.cend()) {
           nc_product->setRangeSetID(it->second);

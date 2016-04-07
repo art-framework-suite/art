@@ -102,10 +102,10 @@ art::Run::put(std::unique_ptr<PROD> && product,
   }
 
   auto const& bd = getBranchDescription(TypeID(*product), productInstanceName);
-  auto        wp = std::make_unique<Wrapper<PROD>>( std::move(product) );
+  auto        wp = std::make_unique<Wrapper<PROD>>(std::move(product));
 
-  auto result = putProducts().emplace( bd.branchID(), PMValue{std::move(wp), bd} );
-  if ( !result.second ) {
+  auto result = putProducts().emplace(bd.branchID(), PMValue{std::move(wp), bd});
+  if (!result.second) {
     throw art::Exception(art::errors::InsertFailure)
       << "Run::put: Attempt to put multiple products with the\n"
       << "          following description onto the Run.\n"

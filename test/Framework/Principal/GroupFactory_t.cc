@@ -11,6 +11,7 @@
 #include "art/Framework/Principal/Group.h"
 #include "art/Framework/Principal/GroupFactory.h"
 #include "art/Framework/Principal/fwd.h"
+#include "art/Persistency/Provenance/ProductRangeSetLookup.h"
 #include "canvas/Persistency/Common/Assns.h"
 #include "canvas/Persistency/Provenance/BranchDescription.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
@@ -46,6 +47,7 @@ namespace {
 struct TestFixture {
   TestFixture() {
   }
+  art::ProductRangeSetLookup prsl;
 };
 
 BOOST_FIXTURE_TEST_SUITE(GroupFactory_t, TestFixture)
@@ -59,7 +61,8 @@ BOOST_AUTO_TEST_CASE(Group)
                                                       "G1",
                                                       fhicl::ParameterSet(),
                                                       art::TypeID(typeid(int))),
-                                art::ProductID()));
+                                art::ProductID(),
+                                prsl));
   std::cerr
     << "Group: type of group = "
     << cet::demangle_symbol(typeid(*g.get()).name())
@@ -76,7 +79,8 @@ BOOST_AUTO_TEST_CASE(AssnsGroup)
                                                       "AG1",
                                                       fhicl::ParameterSet(),
                                                       art::TypeID(typeid(art::Assns<size_t, std::string>))),
-                                art::ProductID()));
+                                art::ProductID(),
+                                prsl));
   std::cerr
     << "AssnsGroup: type of group = "
     << cet::demangle_symbol(typeid(*g.get()).name())

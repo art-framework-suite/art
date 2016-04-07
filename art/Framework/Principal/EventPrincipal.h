@@ -35,7 +35,7 @@ namespace art {
 
     using Auxiliary = EventAuxiliary;
     using SharedConstGroupPtr = Principal::SharedConstGroupPtr;
-    static constexpr BranchType branch_type = InEvent;
+    static constexpr BranchType branch_type = Auxiliary::branch_type;
 
     EventPrincipal(EventAuxiliary const& aux,
                    ProcessConfiguration const& pc,
@@ -113,7 +113,8 @@ namespace art {
              std::unique_ptr<ProductProvenance const>&& productProvenance);
 
     void addGroup(BranchDescription const&);
-    void addGroup(std::unique_ptr<EDProduct>&&, BranchDescription const&);
+    void addGroup(std::unique_ptr<EDProduct>&&,
+                  BranchDescription const&);
 
     ProductID branchIDToProductID(BranchID const& bid) const;
 

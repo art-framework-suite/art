@@ -19,10 +19,6 @@ using namespace std;
 
 namespace {
 
-  inline auto to_bid(art::BranchKey const& bk)
-  {
-    return art::BranchID{bk.branchName()};
-  }
 }
 
 namespace art {
@@ -55,7 +51,9 @@ namespace art {
 
   unique_ptr<EDProduct>
   RootDelayedReader::
-  getProduct_(BranchKey const& bk, TypeID const& ty) const
+  getProduct_(BranchKey const& bk,
+              TypeID const& ty,
+              ProductRangeSetLookup& productRangeSetLookup) const
   {
     auto iter = branches_->find(bk);
     assert(iter != branches_->end());
@@ -105,28 +103,11 @@ namespace art {
           mergedRangeSet.merge(rs);
         }
       }
-      auto const checksum = mergedRangeSet.checksum();
-      rangeSets_.emplace(checksum, mergedRangeSet);
-      productRangeSetChecksums_.emplace(to_bid(bk), checksum);
+      productRangeSetLookup.emplace(bk, RangeSet{mergedRangeSet});
     }
 
     configureRefCoreStreamer();
     return result;
-  }
-
-  RangeSet const&
-  RootDelayedReader::getRangeSet_(BranchID const& bid) const
-  {
-    auto it = productRangeSetChecksums_.find(bid);
-    if (it == productRangeSetChecksums_.cend())
-      throw art::Exception(art::errors::LogicError,"RootDelayedReader::getRangeSet_")
-        << "Could not find range set for BranchID: " << bid << '\n';
-
-    auto const checksum = it->second;
-    auto f = rangeSets_.find(checksum);
-    assert(f != rangeSets_.cend()); // Based on construction, this must be true.
-
-    return f->second;
   }
 
   // FIXME: This should be a member of RootInputFileSequence.

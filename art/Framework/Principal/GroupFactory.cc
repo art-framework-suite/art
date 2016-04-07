@@ -17,28 +17,12 @@ namespace art {
 namespace gfactory {
 
 unique_ptr<Group>
-make_group(BranchDescription const& bd, ProductID const& pid)
+make_group(BranchDescription const& bd,
+           ProductID const& pid,
+           ProductRangeSetLookup& prsl)
 {
-  //cout
-  //    << "\n-----> Begin gfactory::make_group(bd,pid)"
-  //    << endl;
   auto wn = TClass::GetClass(bd.wrappedName().c_str());
   auto ta = type_of_template_arg(wn, 0);
-  //cout
-  //    << "wn: "
-  //    << wn->GetName()
-  //    << endl;
-  //if (ta == nullptr) {
-  //  cout
-  //      << "ta: nullptr"
-  //      << endl;
-  //}
-  //else {
-  //  cout
-  //      << "ta:              "
-  //      << ta->GetName()
-  //      << endl;
-  //}
   TClass* atype = nullptr;
   if (ta != nullptr) {
     if (string(ta->GetName()).find("art::Assns<") == 0ul) {
@@ -54,40 +38,17 @@ make_group(BranchDescription const& bd, ProductID const& pid)
     auto pwn = wrappedClassName(p->GetName());
     auto twp = TClass::GetClass(pwn.c_str());
     auto twpid = TypeID(twp->GetTypeInfo());
-    //cout
-    //    << "tw:    "
-    //    << tw->GetName()
-    //    << endl
-    //    << "twid:  "
-    //    << cet::demangle_symbol(twid.name())
-    //    << endl
-    //    << "twp:   "
-    //    << twp->GetName()
-    //    << endl
-    //    << "twpid: "
-    //    << cet::demangle_symbol(twpid.name())
-    //    << endl;
-    //cout
-    //    << "making AssnsGroup(bd,pid,twid,twpid)"
-    //    << endl;
-    //cout
-    //    << "-----> End   gfactory::make_group(bd,pid)"
-    //    << endl;
-    return unique_ptr<Group>(new AssnsGroup(bd, pid, twid, twpid));
+    return unique_ptr<Group>(new AssnsGroup(bd, pid, twid, twpid, prsl));
   }
   auto tw = TClass::GetClass(bd.wrappedName().c_str());
   auto twid = TypeID(tw->GetTypeInfo());
-  //cout
-  //    << "making Group(bd,pid,twid)"
-  //    << endl;
-  //cout
-  //    << "-----> End   gfactory::make_group(bd,pid)"
-  //    << endl;
-  return unique_ptr<Group>(new Group(bd, pid, twid));
+  return unique_ptr<Group>(new Group(bd, pid, twid, prsl));
 }
 
 unique_ptr<Group>
-make_group(BranchDescription const& bd, ProductID const& pid,
+make_group(BranchDescription const& bd,
+           ProductID const& pid,
+           ProductRangeSetLookup& prsl,
            cet::exempt_ptr<Worker> productProducer,
            cet::exempt_ptr<EventPrincipal> onDemandPrincipal)
 {
@@ -108,18 +69,20 @@ make_group(BranchDescription const& bd, ProductID const& pid,
     auto pwn = wrappedClassName(p->GetName());
     auto twp = TClass::GetClass(pwn.c_str());
     auto twpid = TypeID(twp->GetTypeInfo());
-    return unique_ptr<Group>(new AssnsGroup(bd, pid, twid, twpid, productProducer,
+    return unique_ptr<Group>(new AssnsGroup(bd, pid, twid, twpid, prsl, productProducer,
                                             onDemandPrincipal));
   }
   auto tw = TClass::GetClass(bd.wrappedName().c_str());
   auto twid = TypeID(tw->GetTypeInfo());
-  return unique_ptr<Group>(new Group(bd, pid, twid, productProducer,
+  return unique_ptr<Group>(new Group(bd, pid, twid, prsl, productProducer,
                                      onDemandPrincipal));
 }
 
 unique_ptr<Group>
-make_group(unique_ptr<EDProduct>&& edp, BranchDescription const& bd,
-           ProductID const& pid)
+make_group(unique_ptr<EDProduct>&& edp,
+           BranchDescription const& bd,
+           ProductID const& pid,
+           ProductRangeSetLookup& prsl)
 {
   auto wn = TClass::GetClass(bd.wrappedName().c_str());
   auto ta = type_of_template_arg(wn, 0);
@@ -138,13 +101,12 @@ make_group(unique_ptr<EDProduct>&& edp, BranchDescription const& bd,
     auto pwn = wrappedClassName(p->GetName());
     auto twp = TClass::GetClass(pwn.c_str());
     auto twpid = TypeID(twp->GetTypeInfo());
-    return unique_ptr<Group>(new AssnsGroup(move(edp), bd, pid, twid, twpid));
+    return std::unique_ptr<Group>(new AssnsGroup(move(edp), bd, pid, twid, twpid, prsl));
   }
   auto tw = TClass::GetClass(bd.wrappedName().c_str());
   auto twid = TypeID(tw->GetTypeInfo());
-  return unique_ptr<Group>(new Group(move(edp), bd, pid, twid));
+  return unique_ptr<Group>(new Group(move(edp), bd, pid, twid, prsl));
 }
 
 } // namespace gfactory
 } // namespace art
-

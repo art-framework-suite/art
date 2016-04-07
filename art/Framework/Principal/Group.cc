@@ -17,22 +17,10 @@
 namespace art {
 
 Group::
-Group()
-  : wrapper_type_()
-  , ppResolver_()
-  , productResolver_()
-  , product_()
-  , branchDescription_()
-  , pid_()
-  , productProducer_()
-  , onDemandPrincipal_()
-{
-}
-
-Group::
 Group(BranchDescription const& bd,
       ProductID const& pid,
       art::TypeID const& wrapper_type,
+      ProductRangeSetLookup& prsl,
       cet::exempt_ptr<Worker> productProducer,
       cet::exempt_ptr<EventPrincipal> onDemandPrincipal)
   : wrapper_type_(wrapper_type)
@@ -43,6 +31,7 @@ Group(BranchDescription const& bd,
   , pid_(pid)
   , productProducer_(productProducer)
   , onDemandPrincipal_(onDemandPrincipal)
+  , rangeSetLookup_{&prsl}
 {
 }
 
@@ -50,7 +39,8 @@ Group::
 Group(std::unique_ptr<EDProduct>&& edp,
       BranchDescription const& bd,
       ProductID const& pid,
-      art::TypeID const& wrapper_type)
+      art::TypeID const& wrapper_type,
+      ProductRangeSetLookup& prsl)
   : wrapper_type_(wrapper_type)
   , ppResolver_()
   , productResolver_()
@@ -59,6 +49,7 @@ Group(std::unique_ptr<EDProduct>&& edp,
   , pid_(pid)
   , productProducer_()
   , onDemandPrincipal_()
+  , rangeSetLookup_{&prsl}
 {
 }
 
@@ -154,8 +145,10 @@ obtainDesiredProduct(bool fillOnDemand, TypeID const& wanted_wrapper_type) const
       BranchActionBegin>>(*onDemandPrincipal_, 0);
     return retval;
   }
-  BranchKey const bk(productDescription());
-  retval = productResolver_->getProduct(bk, wanted_wrapper_type);
+  BranchKey const bk {productDescription()};
+  retval = productResolver_->getProduct(bk,
+                                        wanted_wrapper_type,
+                                        *rangeSetLookup_);
   return retval;
 }
 
