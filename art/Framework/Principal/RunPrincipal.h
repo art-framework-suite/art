@@ -58,12 +58,12 @@ namespace art {
 
     void addGroup(std::unique_ptr<EDProduct>&&,
                   BranchDescription const&,
-                  bool rangeSetIDIsSet);
+                  RangeSet&&);
 
     void put(std::unique_ptr<EDProduct>&&,
              BranchDescription const&,
              std::unique_ptr<ProductProvenance const>&&,
-             bool rangeSetIDIsSet = true);
+             RangeSet&& = RangeSet::invalid());
 
     void setOutputEventRanges(RangeSet const&);
     RangeSet const& inputEventRanges() const { return rangeSetHandler_.inputRanges(); }
@@ -72,9 +72,7 @@ namespace art {
   private:
 
     void addOrReplaceGroup(std::unique_ptr<Group>&&) override;
-
     ProcessHistoryID const& processHistoryID() const override;
-
     void setProcessHistoryID(ProcessHistoryID const&) override;
 
   private:

@@ -84,6 +84,7 @@ namespace art
     virtual void beginSubRun(SubRun &){}
     virtual void endRun(Run &, RangeSet const&){}
     virtual void endSubRun(SubRun &, RangeSet const&){}
+
     virtual void respondToOpenInputFile(FileBlock const&) {}
     virtual void respondToCloseInputFile(FileBlock const&) {}
     virtual void respondToOpenOutputFiles(FileBlock const&) {}

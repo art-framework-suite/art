@@ -38,7 +38,8 @@ public:
 
   ResultsAuxiliary const & aux() const { return aux_; }
 
-  void put(std::unique_ptr<EDProduct>&&, BranchDescription const&,
+  void put(std::unique_ptr<EDProduct>&&,
+           BranchDescription const&,
            std::unique_ptr<ProductProvenance const>&&);
 
   void addGroup(BranchDescription const&);

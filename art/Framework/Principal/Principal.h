@@ -2,7 +2,6 @@
 #define art_Framework_Principal_Principal_h
 // vim: set sw=2:
 
-//
 //  Principal
 //
 //  Pure abstract base class for Run-, SubRun-, and EventPrincipal,
@@ -14,14 +13,13 @@
 //
 //  The Principal returns GroupQueryResult, rather than a shared
 //  pointer to a Group, when queried.
-//
 
 #include "art/Framework/Principal/Group.h"
 #include "art/Framework/Principal/OutputHandle.h"
 #include "art/Framework/Principal/fwd.h"
 #include "art/Persistency/Common/DelayedReader.h"
 #include "art/Persistency/Common/GroupQueryResult.h"
-#include "art/Persistency/Provenance/ProductRangeSetLookup.h"
+#include "art/Persistency/Provenance/detail/type_aliases.h"
 #include "canvas/Persistency/Common/Wrapper.h"
 #include "canvas/Persistency/Provenance/BranchID.h"
 #include "canvas/Persistency/Provenance/BranchMapper.h"
@@ -225,24 +223,6 @@ namespace art {
     void
     addGroup(BranchDescription const&) = 0;
 
-    // virtual
-    // void
-    // addGroup(std::unique_ptr<EDProduct>&&,
-    //          BranchDescription const&,
-    //          bool rangeSetIDIsSet) = 0;
-
-    RangeSet const*
-    getRangeSet(BranchID const bid) const
-    {
-      return productRangeSetLookup_.getRangeSet(bid);
-    }
-
-    void
-    addRangeSet(BranchID const bid, RangeSet const& rs)
-    {
-      productRangeSetLookup_.emplace(bid, rs);
-    }
-
   protected: // MEMBER FUNCTIONS
 
     BranchMapper&
@@ -255,12 +235,6 @@ namespace art {
     productReader()
     {
       return *store_;
-    }
-
-    ProductRangeSetLookup&
-    productRangeSetLookup()
-    {
-      return productRangeSetLookup_;
     }
 
     // Add a new Group.
@@ -308,13 +282,6 @@ namespace art {
                      bool resolveProd,
                      bool fillOnDemand) const;
 
-  private: // TYPES
-
-    // FIXME: Is this to break a circular reference with mpr?
-    using ProcessLookup = std::map<std::string const, std::vector<BranchID>>;
-    using TypeLookup = std::map<std::string const, ProcessLookup>;
-    using BranchTypeLookup =  std::array<TypeLookup,art::NumBranchTypes>;
-
   private: // MEMBER FUNCTIONS
 
     virtual
@@ -338,7 +305,7 @@ namespace art {
     findGroups(ProcessLookup const&, SelectorBase const&,
                std::vector<GroupQueryResult>& results,
                bool stopIfProcessHasMatch,
-               TypeID wanted_wrapper = TypeID()) const;
+               TypeID wanted_wrapper = TypeID{}) const;
 
     void
     findGroupsForProcess(std::vector<BranchID> const& vbid,
@@ -346,7 +313,7 @@ namespace art {
                          std::vector<GroupQueryResult>& results,
                          TypeID wanted_wrapper) const;
 
-    virtual EDProductGetter const* getEDProductGetterImpl(ProductID const&) const override {
+    EDProductGetter const* getEDProductGetterImpl(ProductID const&) const override {
       return nullptr;
     }
 
@@ -368,9 +335,6 @@ namespace art {
     // Pointer to the reader that will be used to obtain
     // EDProducts from the persistent store.
     std::unique_ptr<DelayedReader> store_;
-
-    // FIXME: EXPLAIN THIS SITUATION.
-    ProductRangeSetLookup productRangeSetLookup_;
 
     // Back pointer to the primary principal.
     cet::exempt_ptr<Principal> primaryPrincipal_;

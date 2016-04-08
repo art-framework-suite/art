@@ -11,18 +11,19 @@ namespace art {
   class BranchDescription;
   class EDProduct;
   class ProductID;
+  class RangeSet;
 
   namespace gfactory {
 
     std::unique_ptr<Group>
     make_group(BranchDescription const&,
                ProductID const&,
-               ProductRangeSetLookup&);
+               RangeSet&&);
 
     std::unique_ptr<Group>
     make_group(BranchDescription const&,
                ProductID const&,
-               ProductRangeSetLookup&,
+               RangeSet&&,
                cet::exempt_ptr<Worker> productProducer,
                cet::exempt_ptr<EventPrincipal> onDemandPrincipal);
 
@@ -30,8 +31,7 @@ namespace art {
     make_group(std::unique_ptr<EDProduct>&&,
                BranchDescription const&,
                ProductID const&,
-               bool rangeSetIDIsSet,
-               ProductRangeSetLookup&);
+               RangeSet&&);
 
   } // namespace gfactory
 } // namespace art

@@ -49,44 +49,16 @@ namespace art {
     // use compiler-generated copy c'tor, copy assignment.
 
     SubRunPrincipal const& subRunPrincipal() const;
-
     SubRunPrincipal& subRunPrincipal();
 
-    std::shared_ptr<SubRunPrincipal>
-    subRunPrincipalSharedPtr()
-    {
-      return subRunPrincipal_;
-    }
+    std::shared_ptr<SubRunPrincipal> subRunPrincipalSharedPtr() { return subRunPrincipal_; }
+    void setSubRunPrincipal(std::shared_ptr<SubRunPrincipal> srp) { subRunPrincipal_ = srp;  }
 
-    void
-    setSubRunPrincipal(std::shared_ptr<SubRunPrincipal> srp)
-    {
-      subRunPrincipal_ = srp;
-    }
+    EventID const& id() const { return aux().id(); }
+    Timestamp const& time() const { return aux().time(); }
+    bool isReal() const { return aux().isRealData(); }
 
-    EventID const&
-    id() const
-    {
-      return aux().id();
-    }
-
-    Timestamp const&
-    time() const
-    {
-      return aux().time();
-    }
-
-    bool
-    isReal() const
-    {
-      return aux().isRealData();
-    }
-
-    EventAuxiliary::ExperimentType
-    ExperimentType() const
-    {
-      return aux().experimentType();
-    }
+    EventAuxiliary::ExperimentType ExperimentType() const { return aux().experimentType(); }
 
     EventAuxiliary const& aux() const { return aux_; }
     SubRunNumber_t subRun() const { return aux().subRun(); }

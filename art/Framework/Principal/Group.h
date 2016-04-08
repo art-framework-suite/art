@@ -34,14 +34,14 @@ namespace art {
     gfactory::
     make_group(BranchDescription const&,
                ProductID const&,
-               ProductRangeSetLookup&);
+               RangeSet&&);
 
     friend
     std::unique_ptr<Group>
     gfactory::
     make_group(BranchDescription const&,
                ProductID const&,
-               ProductRangeSetLookup&,
+               RangeSet&&,
                cet::exempt_ptr<Worker>,
                cet::exempt_ptr<EventPrincipal>);
 
@@ -51,8 +51,7 @@ namespace art {
     make_group(std::unique_ptr<EDProduct>&&,
                BranchDescription const&,
                ProductID const&,
-               bool rangeSetIDIsSet,
-               ProductRangeSetLookup&);
+               RangeSet&&);
 
   public:
 
@@ -67,7 +66,7 @@ namespace art {
     Group(BranchDescription const& bd,
           ProductID const& pid,
           TypeID const& wrapper_type,
-          ProductRangeSetLookup& prsl,
+          RangeSet&& rs,
           cet::exempt_ptr<Worker> productProducer = cet::exempt_ptr<Worker>{},
           cet::exempt_ptr<EventPrincipal> onDemandPrincipal = cet::exempt_ptr<EventPrincipal>{});
 
@@ -75,8 +74,7 @@ namespace art {
           BranchDescription const& bd,
           ProductID const& pid,
           TypeID const& wrapper_type,
-          bool rangeSetIDIsSet,
-          ProductRangeSetLookup& prsl);
+          RangeSet&& rs);
 
   public:
 
@@ -171,12 +169,7 @@ namespace art {
 
     void removeCachedProduct() const;
 
-    RangeSet const* rangeSet() const
-    {
-      return rangeSetLookup_->getRangeSet(branchDescription_->branchID());
-    }
-
-    bool rangeSetIDIsSet() const { return rangeSetIDIsSet_; }
+    RangeSet const& rangeSet() const { return rangeSet_; }
 
   protected:
 
@@ -200,8 +193,7 @@ namespace art {
     cet::exempt_ptr<Worker> productProducer_ {nullptr};
     // FIXME: This will be a generic principal when meta data is fixed.
     cet::exempt_ptr<EventPrincipal> onDemandPrincipal_ {nullptr};
-    cet::exempt_ptr<ProductRangeSetLookup> rangeSetLookup_ {nullptr};
-    bool rangeSetIDIsSet_ {false};
+    mutable RangeSet rangeSet_ {RangeSet::invalid()};
   };  // Group
 
   inline

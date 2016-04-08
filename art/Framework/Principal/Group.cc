@@ -20,40 +20,29 @@ Group::
 Group(BranchDescription const& bd,
       ProductID const& pid,
       art::TypeID const& wrapper_type,
-      ProductRangeSetLookup& prsl,
+      RangeSet&& rs,
       cet::exempt_ptr<Worker> productProducer,
       cet::exempt_ptr<EventPrincipal> onDemandPrincipal)
-  : wrapper_type_(wrapper_type)
-  , ppResolver_()
-  , productResolver_()
-  , product_()
-  , branchDescription_(&bd)
-  , pid_(pid)
-  , productProducer_(productProducer)
-  , onDemandPrincipal_(onDemandPrincipal)
-  , rangeSetLookup_{&prsl}
-{
-}
+  : wrapper_type_{wrapper_type}
+  , branchDescription_{&bd}
+  , pid_{pid}
+  , productProducer_{productProducer}
+  , onDemandPrincipal_{onDemandPrincipal}
+  , rangeSet_{std::move(rs)}
+{}
 
 Group::
 Group(std::unique_ptr<EDProduct>&& edp,
       BranchDescription const& bd,
       ProductID const& pid,
       art::TypeID const& wrapper_type,
-      bool const rangeSetIDIsSet,
-      ProductRangeSetLookup& prsl)
-  : wrapper_type_(wrapper_type)
-  , ppResolver_()
-  , productResolver_()
-  , product_(std::move(edp))
-  , branchDescription_(&bd)
-  , pid_(pid)
-  , productProducer_()
-  , onDemandPrincipal_()
-  , rangeSetLookup_{&prsl}
-  , rangeSetIDIsSet_{rangeSetIDIsSet}
-{
-}
+      RangeSet&& rs)
+  : wrapper_type_{wrapper_type}
+  , product_{std::move(edp)}
+  , branchDescription_{&bd}
+  , pid_{pid}
+  , rangeSet_{std::move(rs)}
+{}
 
 art::ProductStatus
 Group::
@@ -128,8 +117,7 @@ resolveProductIfAvailable(bool const fillOnDemand,
         << wrapper_type_.className()
         << ").\n";
   }
-  std::unique_ptr<EDProduct>
-  edp(obtainDesiredProduct(fillOnDemand, wanted_wrapper_type));
+  std::unique_ptr<EDProduct> edp {obtainDesiredProduct(fillOnDemand, wanted_wrapper_type)};
   if (edp.get()) {
     setProduct(std::move(edp));
   }
@@ -143,14 +131,13 @@ obtainDesiredProduct(bool fillOnDemand, TypeID const& wanted_wrapper_type) const
   std::unique_ptr<art::EDProduct> retval;
   // Try unscheduled production.
   if (fillOnDemand && onDemand()) {
-    productProducer_->doWork<OccurrenceTraits<EventPrincipal,
-      BranchActionBegin>>(*onDemandPrincipal_, 0);
+    productProducer_->doWork<OccurrenceTraits<EventPrincipal,BranchActionBegin>>(*onDemandPrincipal_, 0);
     return retval;
   }
   BranchKey const bk {productDescription()};
   retval = productResolver_->getProduct(bk,
                                         wanted_wrapper_type,
-                                        *rangeSetLookup_);
+                                        rangeSet_);
   return retval;
 }
 
@@ -223,6 +210,7 @@ swap(Group& other)
   swap(pid_, other.pid_);
   swap(productProducer_, other.productProducer_);
   swap(onDemandPrincipal_, other.onDemandPrincipal_);
+  swap(rangeSet_, other.rangeSet_);
 }
 
 void

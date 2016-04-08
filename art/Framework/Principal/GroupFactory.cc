@@ -19,7 +19,7 @@ namespace gfactory {
 unique_ptr<Group>
 make_group(BranchDescription const& bd,
            ProductID const& pid,
-           ProductRangeSetLookup& prsl)
+           RangeSet&& rs)
 {
   auto wn = TClass::GetClass(bd.wrappedName().c_str());
   auto ta = type_of_template_arg(wn, 0);
@@ -38,17 +38,17 @@ make_group(BranchDescription const& bd,
     auto pwn = wrappedClassName(p->GetName());
     auto twp = TClass::GetClass(pwn.c_str());
     auto twpid = TypeID(twp->GetTypeInfo());
-    return unique_ptr<Group>(new AssnsGroup(bd, pid, twid, twpid, prsl));
+    return unique_ptr<Group>(new AssnsGroup(bd, pid, twid, twpid, std::move(rs)));
   }
   auto tw = TClass::GetClass(bd.wrappedName().c_str());
   auto twid = TypeID(tw->GetTypeInfo());
-  return unique_ptr<Group>(new Group(bd, pid, twid, prsl));
+  return unique_ptr<Group>(new Group(bd, pid, twid, std::move(rs)));
 }
 
 unique_ptr<Group>
 make_group(BranchDescription const& bd,
            ProductID const& pid,
-           ProductRangeSetLookup& prsl,
+           RangeSet&& rs,
            cet::exempt_ptr<Worker> productProducer,
            cet::exempt_ptr<EventPrincipal> onDemandPrincipal)
 {
@@ -69,12 +69,12 @@ make_group(BranchDescription const& bd,
     auto pwn = wrappedClassName(p->GetName());
     auto twp = TClass::GetClass(pwn.c_str());
     auto twpid = TypeID(twp->GetTypeInfo());
-    return unique_ptr<Group>(new AssnsGroup(bd, pid, twid, twpid, prsl, productProducer,
+    return unique_ptr<Group>(new AssnsGroup(bd, pid, twid, twpid, std::move(rs), productProducer,
                                             onDemandPrincipal));
   }
   auto tw = TClass::GetClass(bd.wrappedName().c_str());
   auto twid = TypeID(tw->GetTypeInfo());
-  return unique_ptr<Group>(new Group(bd, pid, twid, prsl, productProducer,
+  return unique_ptr<Group>(new Group(bd, pid, twid, std::move(rs), productProducer,
                                      onDemandPrincipal));
 }
 
@@ -82,8 +82,7 @@ unique_ptr<Group>
 make_group(unique_ptr<EDProduct>&& edp,
            BranchDescription const& bd,
            ProductID const& pid,
-           bool const rangeSetIDIsSet,
-           ProductRangeSetLookup& prsl)
+           RangeSet&& rs)
 {
   auto wn = TClass::GetClass(bd.wrappedName().c_str());
   auto ta = type_of_template_arg(wn, 0);
@@ -102,11 +101,11 @@ make_group(unique_ptr<EDProduct>&& edp,
     auto pwn = wrappedClassName(p->GetName());
     auto twp = TClass::GetClass(pwn.c_str());
     auto twpid = TypeID(twp->GetTypeInfo());
-    return std::unique_ptr<Group>(new AssnsGroup(move(edp), bd, pid, twid, twpid, rangeSetIDIsSet, prsl));
+    return std::unique_ptr<Group>(new AssnsGroup(move(edp), bd, pid, twid, twpid, std::move(rs)));
   }
   auto tw = TClass::GetClass(bd.wrappedName().c_str());
   auto twid = TypeID(tw->GetTypeInfo());
-  return unique_ptr<Group>(new Group(move(edp), bd, pid, twid, rangeSetIDIsSet, prsl));
+  return unique_ptr<Group>(new Group(move(edp), bd, pid, twid, std::move(rs)));
 }
 
 } // namespace gfactory

@@ -66,21 +66,20 @@ namespace art {
   addGroup(BranchDescription const& bd)
   {
     addOrReplaceGroup(gfactory::make_group(bd,
-                                           ProductID(),
-                                           productRangeSetLookup()));
+                                           ProductID{},
+                                           RangeSet::invalid()));
   }
 
   void
   SubRunPrincipal::
   addGroup(std::unique_ptr<EDProduct>&& prod,
            BranchDescription const& bd,
-           bool const rangeSetIDIsSet)
+           RangeSet&& rs)
   {
     addOrReplaceGroup(gfactory::make_group(std::move(prod),
                                            bd,
-                                           ProductID(),
-                                           rangeSetIDIsSet,
-                                           productRangeSetLookup()));
+                                           ProductID{},
+                                           std::move(rs)));
   }
 
   void
@@ -88,7 +87,7 @@ namespace art {
   put(std::unique_ptr<EDProduct>&& edp,
       BranchDescription const& bd,
       std::unique_ptr<ProductProvenance const>&& productProvenance,
-      bool const rangeSetIDIsSet)
+      RangeSet&& rs)
   {
     if (!edp) {
       throw art::Exception(art::errors::InsertFailure, "Null Pointer")
@@ -96,7 +95,7 @@ namespace art {
         << "\n";
     }
     branchMapper().insert(std::move(productProvenance));
-    addGroup(std::move(edp), bd, rangeSetIDIsSet);
+    addGroup(std::move(edp), bd, std::move(rs));
   }
 
   RunPrincipal const&

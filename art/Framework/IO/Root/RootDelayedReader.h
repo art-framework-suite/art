@@ -42,14 +42,15 @@ namespace art {
                       cet::exempt_ptr<RootTree> tree,
                       int64_t saveMemoryObjectThreshold,
                       cet::exempt_ptr<RootInputFile> primaryFile,
-                      BranchType branchType, EventID);
+                      BranchType branchType,
+                      EventID);
 
 
   private: // MEMBER FUNCTIONS
 
     std::unique_ptr<EDProduct> getProduct_(BranchKey const&,
                                            TypeID const&,
-                                           ProductRangeSetLookup&) const override;
+                                           RangeSet&) const override;
     void setGroupFinder_(cet::exempt_ptr<EDProductGetterFinder const>) override;
     int openNextSecondaryFile_(int idx) override;
 

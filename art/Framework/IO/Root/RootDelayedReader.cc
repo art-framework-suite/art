@@ -53,7 +53,7 @@ namespace art {
   RootDelayedReader::
   getProduct_(BranchKey const& bk,
               TypeID const& ty,
-              ProductRangeSetLookup& productRangeSetLookup) const
+              RangeSet& rs) const
   {
     auto iter = branches_->find(bk);
     assert(iter != branches_->end());
@@ -103,7 +103,7 @@ namespace art {
           mergedRangeSet.merge(rs);
         }
       }
-      productRangeSetLookup.emplace(bk, RangeSet{mergedRangeSet});
+      std::swap(rs, mergedRangeSet);
     }
 
     configureRefCoreStreamer();

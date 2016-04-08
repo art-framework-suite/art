@@ -18,10 +18,10 @@ AssnsGroup(BranchDescription const& bd,
            ProductID const& pid,
            TypeID const& primary_wrapper_type,
            TypeID const& secondary_wrapper_type,
-           ProductRangeSetLookup& prsl,
+           RangeSet&& rs,
            cet::exempt_ptr<Worker> productProducer,
            cet::exempt_ptr<EventPrincipal> onDemandPrincipal)
-  : Group{bd, pid, primary_wrapper_type, prsl, productProducer, onDemandPrincipal}
+  : Group{bd, pid, primary_wrapper_type, std::move(rs), productProducer, onDemandPrincipal}
   , secondary_wrapper_type_(secondary_wrapper_type)
   , secondaryProduct_()
 {}
@@ -32,9 +32,8 @@ AssnsGroup(std::unique_ptr<EDProduct>&& edp,
            ProductID const& pid,
            TypeID const& primary_wrapper_type,
            TypeID const& secondary_wrapper_type,
-           bool const rangeSetIDIsSet,
-           ProductRangeSetLookup& prsl)
-  : Group{std::move(edp), bd, pid, primary_wrapper_type, rangeSetIDIsSet, prsl}
+           RangeSet&& rs)
+  : Group{std::move(edp), bd, pid, primary_wrapper_type, std::move(rs)}
   , secondary_wrapper_type_(secondary_wrapper_type)
   , secondaryProduct_()
 {

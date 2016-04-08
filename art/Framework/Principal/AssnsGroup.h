@@ -19,13 +19,13 @@ class AssnsGroup : public Group {
   std::unique_ptr<Group>
   gfactory::make_group(BranchDescription const&,
                        ProductID const&,
-                       ProductRangeSetLookup&);
+                       RangeSet&&);
 
   friend
   std::unique_ptr<Group>
   gfactory::make_group(BranchDescription const&,
                        ProductID const&,
-                       ProductRangeSetLookup&,
+                       RangeSet&&,
                        cet::exempt_ptr<Worker>,
                        cet::exempt_ptr<EventPrincipal>);
 
@@ -34,8 +34,7 @@ class AssnsGroup : public Group {
   gfactory::make_group(std::unique_ptr<EDProduct>&&,
                        BranchDescription const&,
                        ProductID const&,
-                       bool rangeSetIDIsSet,
-                       ProductRangeSetLookup&);
+                       RangeSet&&);
 
 public:
 
@@ -47,7 +46,7 @@ private:
              ProductID const& pid,
              TypeID const& primary_wrapper_type,
              TypeID const& secondary_wrapper_type,
-             ProductRangeSetLookup&,
+             RangeSet&&,
              cet::exempt_ptr<Worker> productProducer = cet::exempt_ptr<Worker>(),
              cet::exempt_ptr<EventPrincipal> onDemandPrincipal =  cet::exempt_ptr<EventPrincipal>());
 
@@ -56,8 +55,7 @@ private:
              ProductID const& pid,
              TypeID const& primary_type,
              TypeID const& secondary_type,
-             bool rangeSetIDIsSet,
-             ProductRangeSetLookup&);
+             RangeSet&&);
 
 public:
 

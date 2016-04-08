@@ -41,8 +41,13 @@ namespace art {
       return &f->second;
     }
 
-  private:
     using RS_checksum_t = unsigned;
+    RS_checksum_t auxChecksum() const { return auxChecksum_; }
+    void setAuxChecksum(RS_checksum_t const checksum) { auxChecksum_ = checksum; }
+
+  private:
+
+    RS_checksum_t auxChecksum_ { RangeSet::invalidChecksum() };
     std::map<RS_checksum_t, RangeSet> rangeSets_;
     std::map<BranchID,RS_checksum_t> productRangeSetChecksums_;
   };

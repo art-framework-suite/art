@@ -57,15 +57,24 @@ namespace art {
     struct is_handle : std::false_type {};
 
     template <class T>
-    struct is_handle<T, typename enable_if_type<typename T::HandleTag>::type> : std::true_type { };
+    struct is_handle<T, typename enable_if_type<typename T::HandleTag>::type> : std::true_type {};
+
+    template <class T, class U>
+    struct are_handles {
+      static constexpr bool value = detail::is_handle<T>::value && detail::is_handle<U>::value;
+    };
   }
 
+  template <class T>
+  std::enable_if_t<detail::is_handle<T>::value, RangeSet const&>
+  range_set(T const& h);
+
   template <class T, class U>
-  std::enable_if_t<detail::is_handle<T>::value && detail::is_handle<U>::value, bool>
+  std::enable_if_t<detail::are_handles<T,U>::value, bool>
   same_ranges(T const& a, U const& b);
 
   template <class T, class U>
-  std::enable_if_t<detail::is_handle<T>::value && detail::is_handle<U>::value, bool>
+  std::enable_if_t<detail::are_handles<T,U>::value, bool>
   disjoint_ranges(T const& a, U const& b);
 
 }
@@ -372,26 +381,34 @@ art::ValidHandle<T>::swap(art::ValidHandle<T>& other)
 // ======================================================================
 // Non-members:
 
+template <class T>
+std::enable_if_t<art::detail::is_handle<T>::value, art::RangeSet const&>
+art::range_set(T const& h)
+{
+  if (!h.isValid())
+    throw Exception{art::errors::NullPointerError}
+  << "Attempt to retrieve range set from invalid handle.\n";
+  return h.provenance()->rangeSet();
+}
+
 template <class T, class U>
-std::enable_if_t<art::detail::is_handle<T>::value && art::detail::is_handle<U>::value, bool>
+std::enable_if_t<art::detail::are_handles<T,U>::value, bool>
 art::same_ranges(T const& a, U const& b)
 {
   if (!a.isValid() || !b.isValid())
     throw Exception{art::errors::NullPointerError}
-      << "Attempt to compare ranges where one or both handles are invalid.";
-  return art::are_same(*a.provenance()->rangeSet(),
-                       *b.provenance()->rangeSet());
+      << "Attempt to compare range sets where one or both handles are invalid\n.";
+  return are_same(range_set(a), range_set(b));
 }
 
 template <class T, class U>
-std::enable_if_t<art::detail::is_handle<T>::value && art::detail::is_handle<U>::value, bool>
+std::enable_if_t<art::detail::are_handles<T,U>::value, bool>
 art::disjoint_ranges(T const& a, U const& b)
 {
   if (!a.isValid() || !b.isValid())
     throw Exception{art::errors::NullPointerError}
-      << "Attempt to compare ranges where one or both handles are invalid.";
-  return art::are_disjoint(*a.provenance()->rangeSet(),
-                           *b.provenance()->rangeSet());
+      << "Attempt to compare range sets where one or both handles are invalid\n.";
+  return are_disjoint(range_set(a), range_set(b));
 }
 
 #endif /* art_Framework_Principal_Handle_h */

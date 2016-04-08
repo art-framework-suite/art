@@ -33,9 +33,9 @@ namespace art {
     std::unique_ptr<EDProduct>
     getProduct(BranchKey const& k,
                TypeID const& wrapper_type,
-               ProductRangeSetLookup& prsl) const
+               RangeSet& rs) const
     {
-      return getProduct_(k, wrapper_type, prsl);
+      return getProduct_(k, wrapper_type, rs);
     }
 
     void
@@ -56,7 +56,7 @@ namespace art {
     std::unique_ptr<EDProduct>
     getProduct_(BranchKey const&,
                 TypeID const&,
-                ProductRangeSetLookup&) const = 0;
+                RangeSet&) const = 0;
 
     virtual
     void

@@ -59,12 +59,12 @@ namespace art {
     void put(std::unique_ptr<EDProduct>&&,
              BranchDescription const&,
              std::unique_ptr<ProductProvenance const>&&,
-             bool rangeSetIDIsSet = true);
+             RangeSet&& = RangeSet::invalid());
 
     void addGroup(BranchDescription const&);
     void addGroup(std::unique_ptr<EDProduct>&&,
                   BranchDescription const&,
-                  bool rangeSetIDIsSet);
+                  RangeSet&&);
 
     void setOutputEventRanges(RangeSet const&);
     RangeSet const& inputEventRanges() const { return rangeSetHandler_.inputRanges(); }

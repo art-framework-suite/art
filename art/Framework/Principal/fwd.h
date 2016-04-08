@@ -22,7 +22,6 @@ namespace art {
   class Run;
   class RunPrincipal;
   class ProcessNameSelector; // Selector.h
-  class ProductRangeSetLookup;
   class ProductInstanceNameSelector; // Selector.h
   class ModuleLabelSelector; // Selector.h
   class MatchAllSelector; // Selector.h

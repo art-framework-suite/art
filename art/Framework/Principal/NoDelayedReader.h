@@ -14,7 +14,7 @@ public:
 private:
   [[noreturn]] std::unique_ptr<EDProduct> getProduct_(BranchKey const& ,
                                                       art::TypeID const&,
-                                                      ProductRangeSetLookup&) const;
+                                                      RangeSet&) const;
 };
 
 #endif /* art_Framework_Principal_NoDelayedReader_h */

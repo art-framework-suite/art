@@ -894,12 +894,8 @@ fillBranches(BranchType const& bt,
       // Set range sets for present SubRun products
       //  - only SubRun and Run products can have range sets
       //  - the product must be present
-      //  - for products produced in this process, their rangeSetIDs
-      //    were assigned during the principal's commit call.
-      if ((bt == InSubRun || bt == InRun) &&
-          product->isPresent() &&
-          !oh.rangeSetIDIsSet()) {
-        auto const& rs = *principal.getRangeSet(bid);
+      if ((bt == InSubRun || bt == InRun) && product->isPresent()) {
+        auto const& rs = *oh.rangeSet();
         auto nc_product = const_cast<EDProduct*>(product);
         auto it = checksumToIndex.find(rs.checksum());
         if (it != checksumToIndex.cend()) {
