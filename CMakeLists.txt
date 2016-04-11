@@ -19,13 +19,11 @@ cmake_minimum_required (VERSION 2.8)
 project(art)
 
 # cetbuildtools contains our cmake modules
-SET ( CETBUILDTOOLS_VERSION $ENV{CETBUILDTOOLS_VERSION} )
-IF (NOT CETBUILDTOOLS_VERSION)
-    MESSAGE (FATAL_ERROR "ERROR: setup cetbuildtools to get the cmake modules")
-ENDIF()
-set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/Modules 
-                      $ENV{CETBUILDTOOLS_DIR}/Modules 
-		      ${CMAKE_MODULE_PATH})
+find_package(cetbuildtools REQUIRED)
+
+list(APPEND CMAKE_MODULE_PATH
+  $ENV{CANVAS_DIR}/Modules
+  ${CMAKE_CURRENT_SOURCE_DIR}/Modules)
 
 include(CetCMakeEnv)
 cet_cmake_env()
@@ -85,7 +83,7 @@ add_subdirectory(test)
 add_subdirectory(ups)
 
 # CMake modules
-#add_subdirectory(Modules)
+add_subdirectory(Modules)
 
 # packaging utility
 include(UseCPack)
