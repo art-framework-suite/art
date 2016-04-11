@@ -721,6 +721,7 @@ foreach(num 1 2 3)
   cet_test(Assns_r${num} HANDBUILT
     TEST_EXEC art_ut
     TEST_ARGS -- --rethrow-all -c "Assns_r${num}.fcl"
+    REQUIRED_FILES ../Assns_w.d/out.root
     DATAFILES
     fcl/Assns_r_inc.fcl
     fcl/Assns_r${num}.fcl
@@ -749,6 +750,7 @@ foreach(num RANGE 1 4)
     -c "DropOnInput_t_0${num}.fcl"
     -s "../Ptrmv_w.d/out.root"
     --output "out.root"
+    REQUIRED_FILES "../Ptrmv_w.d/out.root"
     DATAFILES
     fcl/DropOnInput_t_01.fcl
     fcl/DropOnInput_t_0${num}.fcl
@@ -760,6 +762,7 @@ foreach(num RANGE 1 4)
     TEST_ARGS -- --rethrow-all
     -c "DropOnInput_r_0${num}.fcl"
     -s "../DropOnInput_t_0${num}.d/out.root"
+    REQUIRED_FILES  "../DropOnInput_t_0${num}.d/out.root"
     DATAFILES
     fcl/DropOnInput_t_01.fcl
     fcl/DropOnInput_t_0${num}.fcl
@@ -803,6 +806,7 @@ foreach(num RANGE 1 4)
     TEST_ARGS -- --rethrow-all
     -c "DropOnOutput_r_0${num}.fcl"
     -s "../DropOnOutput_wB_0${num}.d/out.root"
+    REQUIRED_FILES "../DropOnOutput_wB_0${num}.d/out.root"
     DATAFILES
     fcl/DropOnOutput_r_01.fcl
     fcl/DropOnOutput_r_0${num}.fcl
