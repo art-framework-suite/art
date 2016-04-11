@@ -686,9 +686,9 @@ art::EventProcessor::readAndCacheSubRun()
 }
 
 void
-art::EventProcessor::writeRunAuxiliaryRangeSets(RunID const r)
+art::EventProcessor::setRunAuxiliaryRangeSetID(RunID const r)
 {
-  endPathExecutor_->writeAuxiliaryRangeSets(principalCache_.runPrincipal(r));
+  endPathExecutor_->setAuxiliaryRangeSetID(principalCache_.runPrincipal(r));
   FDEBUG(1) << "\twriteRunAuxiliaryRangeSets " << r.run() << "\n";
 }
 
@@ -702,9 +702,9 @@ art::EventProcessor::writeRun(RunID const r)
 }
 
 void
-art::EventProcessor::writeSubRunAuxiliaryRangeSets(SubRunID const & sr)
+art::EventProcessor::setSubRunAuxiliaryRangeSetID(SubRunID const & sr)
 {
-  endPathExecutor_->writeAuxiliaryRangeSets(principalCache_.subRunPrincipal(sr));
+  endPathExecutor_->setAuxiliaryRangeSetID(principalCache_.subRunPrincipal(sr));
   FDEBUG(1) << "\twriteSubRunAuxiliaryRangeSets " << sr.run() << "/" << sr.subRun() << "\n";
 }
 

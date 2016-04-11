@@ -193,8 +193,8 @@ private:
   void doWriteRun(RunPrincipal & rp);
   void doWriteSubRun(SubRunPrincipal & srp);
   void doWriteEvent(EventPrincipal& ep);
-  void doWriteAuxiliaryRangeSets(RunPrincipal & rp);
-  void doWriteAuxiliaryRangeSets(SubRunPrincipal & srp);
+  void doSetAuxiliaryRangeSetID(RunPrincipal & rp);
+  void doSetAuxiliaryRangeSetID(SubRunPrincipal & srp);
   void doOpenFile(FileBlock const & fb);
   void doRespondToOpenInputFile(FileBlock const & fb);
   void doRespondToCloseInputFile(FileBlock const & fb);
@@ -224,11 +224,11 @@ private:
   virtual void beginRun(RunPrincipal const &);
   virtual void endRun(RunPrincipal const &);
   virtual void writeRun(RunPrincipal & r) = 0;
-  virtual void writeRunAuxiliaryRangeSets(RunPrincipal & r);
+  virtual void setRunAuxiliaryRangeSetID(RunPrincipal & r);
   virtual void beginSubRun(SubRunPrincipal const &);
   virtual void endSubRun(SubRunPrincipal const &);
   virtual void writeSubRun(SubRunPrincipal & sr) = 0;
-  virtual void writeSubRunAuxiliaryRangeSets(SubRunPrincipal & r);
+  virtual void setSubRunAuxiliaryRangeSetID(SubRunPrincipal & r);
   virtual void event(EventPrincipal const&);
   virtual void write(EventPrincipal& e) = 0;
 

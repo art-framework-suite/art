@@ -46,8 +46,8 @@ namespace art {
     void writeSubRun(SubRunPrincipal& srp);
     void writeEvent(EventPrincipal& ep);
 
-    void writeAuxiliaryRangeSets(RunPrincipal& rp);
-    void writeAuxiliaryRangeSets(SubRunPrincipal& srp);
+    void setAuxiliaryRangeSetID(RunPrincipal& rp);
+    void setAuxiliaryRangeSetID(SubRunPrincipal& srp);
 
     bool limitReached() const;
 

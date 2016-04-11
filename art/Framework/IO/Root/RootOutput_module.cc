@@ -142,8 +142,8 @@ private:
   void write(EventPrincipal &) override;
   void writeSubRun(SubRunPrincipal &) override;
   void writeRun(RunPrincipal &) override;
-  void writeSubRunAuxiliaryRangeSets(SubRunPrincipal &) override;
-  void writeRunAuxiliaryRangeSets(RunPrincipal &) override;
+  void setSubRunAuxiliaryRangeSetID(SubRunPrincipal &) override;
+  void setRunAuxiliaryRangeSetID(RunPrincipal &) override;
   bool isFileOpen() const override;
   bool requestsToCloseFile() const override;
   void doOpenFile();
@@ -339,9 +339,9 @@ write(EventPrincipal & ep)
 
 void
 art::RootOutput::
-writeSubRunAuxiliaryRangeSets(SubRunPrincipal& sr)
+setSubRunAuxiliaryRangeSetID(SubRunPrincipal& sr)
 {
-  rootOutputFile_->writeAuxiliaryRangeSets(sr);
+  rootOutputFile_->setAuxiliaryRangeSetID(sr);
 }
 
 void
@@ -360,9 +360,9 @@ writeSubRun(SubRunPrincipal& sr)
 
 void
 art::RootOutput::
-writeRunAuxiliaryRangeSets(RunPrincipal& r)
+setRunAuxiliaryRangeSetID(RunPrincipal& r)
 {
-  rootOutputFile_->writeAuxiliaryRangeSets(r);
+  rootOutputFile_->setAuxiliaryRangeSetID(r);
 }
 
 void

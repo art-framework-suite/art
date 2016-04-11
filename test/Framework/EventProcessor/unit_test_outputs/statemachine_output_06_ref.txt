@@ -4,12 +4,12 @@ Machine parameters:  handleEmptyRuns = 0  handleEmptySubRuns = 0
  	openInputFile
 	respondToOpenInputFile
     *** nextItemType: Run ***
-	readAndCacheRun..............(run: 1)
+	readAndCacheRun.............(run: 1)
     *** nextItemType: SubRun ***
-	readAndCacheSubRun...........(run: 1 subRun: 1)
+	readAndCacheSubRun..........(run: 1 subRun: 1)
     *** nextItemType: Event ***
-	beginRun.....................(run: 1)
-	beginSubRun..................(run: 1 subRun: 1)
+	beginRun....................(run: 1)
+	beginSubRun.................(run: 1 subRun: 1)
 	readEvent....................(run: 1 subRun: 1 event: 1)
     *** nextItemType: SubRun ***
 	processEvent.................(run: 1 subRun: 1 event: 1)
@@ -17,23 +17,23 @@ Machine parameters:  handleEmptyRuns = 0  handleEmptySubRuns = 0
 	openSomeOutputFiles
 	respondToOpenOutputFiles
 	writeEvent...................(run: 1 subRun: 1 event: 1)
-	writeSubRunAuxiliaryRangeSets(run: 1 subRun: 1)
-	endSubRun....................(run: 1 subRun: 1)
-	writeSubRun..................(run: 1 subRun: 1)
-	readAndCacheSubRun...........(run: 1 subRun: 2)
+	setSubRunAuxiliaryRangeSetID(run: 1 subRun: 1)
+	endSubRun...................(run: 1 subRun: 1)
+	writeSubRun.................(run: 1 subRun: 1)
+	readAndCacheSubRun..........(run: 1 subRun: 2)
     *** nextItemType: Event ***
-	beginSubRun..................(run: 1 subRun: 2)
+	beginSubRun.................(run: 1 subRun: 2)
 	readEvent....................(run: 1 subRun: 2 event: 1)
     *** nextItemType: InputFile+SwitchOutputFiles ***
 	processEvent.................(run: 1 subRun: 2 event: 1)
 	shouldWeStop
 	writeEvent...................(run: 1 subRun: 2 event: 1)
-	writeSubRunAuxiliaryRangeSets(run: 1 subRun: 2)
-	endSubRun....................(run: 1 subRun: 2)
-	writeSubRun..................(run: 1 subRun: 2)
-	writeRunAuxiliaryRangeSets...(run: 1)
-	endRun.......................(run: 1)
-	writeRun.....................(run: 1)
+	setSubRunAuxiliaryRangeSetID(run: 1 subRun: 2)
+	endSubRun...................(run: 1 subRun: 2)
+	writeSubRun.................(run: 1 subRun: 2)
+	setRunAuxiliaryRangeSetID...(run: 1)
+	endRun......................(run: 1)
+	writeRun....................(run: 1)
 	respondToCloseOutputFiles
 	closeSomeOutputFiles (Level: Event)
 	closeSomeOutputFiles (Level: SubRun)
@@ -45,12 +45,12 @@ Machine parameters:  handleEmptyRuns = 0  handleEmptySubRuns = 0
  	openInputFile
 	respondToOpenInputFile
     *** nextItemType: Run ***
-	readAndCacheRun..............(run: 1)
+	readAndCacheRun.............(run: 1)
     *** nextItemType: SubRun ***
-	readAndCacheSubRun...........(run: 1 subRun: 2)
+	readAndCacheSubRun..........(run: 1 subRun: 2)
     *** nextItemType: Event ***
-	beginRun.....................(run: 1)
-	beginSubRun..................(run: 1 subRun: 2)
+	beginRun....................(run: 1)
+	beginSubRun.................(run: 1 subRun: 2)
 	readEvent....................(run: 1 subRun: 2 event: 2)
     *** nextItemType: Stop ***
 	processEvent.................(run: 1 subRun: 2 event: 2)
@@ -58,12 +58,12 @@ Machine parameters:  handleEmptyRuns = 0  handleEmptySubRuns = 0
 	openSomeOutputFiles
 	respondToOpenOutputFiles
 	writeEvent...................(run: 1 subRun: 2 event: 2)
-	writeSubRunAuxiliaryRangeSets(run: 1 subRun: 2)
-	endSubRun....................(run: 1 subRun: 2)
-	writeSubRun..................(run: 1 subRun: 2)
-	writeRunAuxiliaryRangeSets...(run: 1)
-	endRun.......................(run: 1)
-	writeRun.....................(run: 1)
+	setSubRunAuxiliaryRangeSetID(run: 1 subRun: 2)
+	endSubRun...................(run: 1 subRun: 2)
+	writeSubRun.................(run: 1 subRun: 2)
+	setRunAuxiliaryRangeSetID...(run: 1)
+	endRun......................(run: 1)
+	writeRun....................(run: 1)
 	respondToCloseOutputFiles
 	closeAllOutputFiles
 	respondToCloseInputFile
@@ -78,12 +78,12 @@ Machine parameters:  handleEmptyRuns = 0  handleEmptySubRuns = 1
  	openInputFile
 	respondToOpenInputFile
     *** nextItemType: Run ***
-	readAndCacheRun..............(run: 1)
+	readAndCacheRun.............(run: 1)
     *** nextItemType: SubRun ***
-	readAndCacheSubRun...........(run: 1 subRun: 1)
+	readAndCacheSubRun..........(run: 1 subRun: 1)
     *** nextItemType: Event ***
-	beginRun.....................(run: 1)
-	beginSubRun..................(run: 1 subRun: 1)
+	beginRun....................(run: 1)
+	beginSubRun.................(run: 1 subRun: 1)
 	readEvent....................(run: 1 subRun: 1 event: 1)
     *** nextItemType: SubRun ***
 	processEvent.................(run: 1 subRun: 1 event: 1)
@@ -91,23 +91,23 @@ Machine parameters:  handleEmptyRuns = 0  handleEmptySubRuns = 1
 	openSomeOutputFiles
 	respondToOpenOutputFiles
 	writeEvent...................(run: 1 subRun: 1 event: 1)
-	writeSubRunAuxiliaryRangeSets(run: 1 subRun: 1)
-	endSubRun....................(run: 1 subRun: 1)
-	writeSubRun..................(run: 1 subRun: 1)
-	readAndCacheSubRun...........(run: 1 subRun: 2)
+	setSubRunAuxiliaryRangeSetID(run: 1 subRun: 1)
+	endSubRun...................(run: 1 subRun: 1)
+	writeSubRun.................(run: 1 subRun: 1)
+	readAndCacheSubRun..........(run: 1 subRun: 2)
     *** nextItemType: Event ***
-	beginSubRun..................(run: 1 subRun: 2)
+	beginSubRun.................(run: 1 subRun: 2)
 	readEvent....................(run: 1 subRun: 2 event: 1)
     *** nextItemType: InputFile+SwitchOutputFiles ***
 	processEvent.................(run: 1 subRun: 2 event: 1)
 	shouldWeStop
 	writeEvent...................(run: 1 subRun: 2 event: 1)
-	writeSubRunAuxiliaryRangeSets(run: 1 subRun: 2)
-	endSubRun....................(run: 1 subRun: 2)
-	writeSubRun..................(run: 1 subRun: 2)
-	writeRunAuxiliaryRangeSets...(run: 1)
-	endRun.......................(run: 1)
-	writeRun.....................(run: 1)
+	setSubRunAuxiliaryRangeSetID(run: 1 subRun: 2)
+	endSubRun...................(run: 1 subRun: 2)
+	writeSubRun.................(run: 1 subRun: 2)
+	setRunAuxiliaryRangeSetID...(run: 1)
+	endRun......................(run: 1)
+	writeRun....................(run: 1)
 	respondToCloseOutputFiles
 	closeSomeOutputFiles (Level: Event)
 	closeSomeOutputFiles (Level: SubRun)
@@ -119,12 +119,12 @@ Machine parameters:  handleEmptyRuns = 0  handleEmptySubRuns = 1
  	openInputFile
 	respondToOpenInputFile
     *** nextItemType: Run ***
-	readAndCacheRun..............(run: 1)
+	readAndCacheRun.............(run: 1)
     *** nextItemType: SubRun ***
-	readAndCacheSubRun...........(run: 1 subRun: 2)
+	readAndCacheSubRun..........(run: 1 subRun: 2)
     *** nextItemType: Event ***
-	beginRun.....................(run: 1)
-	beginSubRun..................(run: 1 subRun: 2)
+	beginRun....................(run: 1)
+	beginSubRun.................(run: 1 subRun: 2)
 	readEvent....................(run: 1 subRun: 2 event: 2)
     *** nextItemType: Stop ***
 	processEvent.................(run: 1 subRun: 2 event: 2)
@@ -132,12 +132,12 @@ Machine parameters:  handleEmptyRuns = 0  handleEmptySubRuns = 1
 	openSomeOutputFiles
 	respondToOpenOutputFiles
 	writeEvent...................(run: 1 subRun: 2 event: 2)
-	writeSubRunAuxiliaryRangeSets(run: 1 subRun: 2)
-	endSubRun....................(run: 1 subRun: 2)
-	writeSubRun..................(run: 1 subRun: 2)
-	writeRunAuxiliaryRangeSets...(run: 1)
-	endRun.......................(run: 1)
-	writeRun.....................(run: 1)
+	setSubRunAuxiliaryRangeSetID(run: 1 subRun: 2)
+	endSubRun...................(run: 1 subRun: 2)
+	writeSubRun.................(run: 1 subRun: 2)
+	setRunAuxiliaryRangeSetID...(run: 1)
+	endRun......................(run: 1)
+	writeRun....................(run: 1)
 	respondToCloseOutputFiles
 	closeAllOutputFiles
 	respondToCloseInputFile
@@ -152,12 +152,12 @@ Machine parameters:  handleEmptyRuns = 1  handleEmptySubRuns = 0
  	openInputFile
 	respondToOpenInputFile
     *** nextItemType: Run ***
-	readAndCacheRun..............(run: 1)
-	beginRun.....................(run: 1)
+	readAndCacheRun.............(run: 1)
+	beginRun....................(run: 1)
     *** nextItemType: SubRun ***
-	readAndCacheSubRun...........(run: 1 subRun: 1)
+	readAndCacheSubRun..........(run: 1 subRun: 1)
     *** nextItemType: Event ***
-	beginSubRun..................(run: 1 subRun: 1)
+	beginSubRun.................(run: 1 subRun: 1)
 	readEvent....................(run: 1 subRun: 1 event: 1)
     *** nextItemType: SubRun ***
 	processEvent.................(run: 1 subRun: 1 event: 1)
@@ -165,23 +165,23 @@ Machine parameters:  handleEmptyRuns = 1  handleEmptySubRuns = 0
 	openSomeOutputFiles
 	respondToOpenOutputFiles
 	writeEvent...................(run: 1 subRun: 1 event: 1)
-	writeSubRunAuxiliaryRangeSets(run: 1 subRun: 1)
-	endSubRun....................(run: 1 subRun: 1)
-	writeSubRun..................(run: 1 subRun: 1)
-	readAndCacheSubRun...........(run: 1 subRun: 2)
+	setSubRunAuxiliaryRangeSetID(run: 1 subRun: 1)
+	endSubRun...................(run: 1 subRun: 1)
+	writeSubRun.................(run: 1 subRun: 1)
+	readAndCacheSubRun..........(run: 1 subRun: 2)
     *** nextItemType: Event ***
-	beginSubRun..................(run: 1 subRun: 2)
+	beginSubRun.................(run: 1 subRun: 2)
 	readEvent....................(run: 1 subRun: 2 event: 1)
     *** nextItemType: InputFile+SwitchOutputFiles ***
 	processEvent.................(run: 1 subRun: 2 event: 1)
 	shouldWeStop
 	writeEvent...................(run: 1 subRun: 2 event: 1)
-	writeSubRunAuxiliaryRangeSets(run: 1 subRun: 2)
-	endSubRun....................(run: 1 subRun: 2)
-	writeSubRun..................(run: 1 subRun: 2)
-	writeRunAuxiliaryRangeSets...(run: 1)
-	endRun.......................(run: 1)
-	writeRun.....................(run: 1)
+	setSubRunAuxiliaryRangeSetID(run: 1 subRun: 2)
+	endSubRun...................(run: 1 subRun: 2)
+	writeSubRun.................(run: 1 subRun: 2)
+	setRunAuxiliaryRangeSetID...(run: 1)
+	endRun......................(run: 1)
+	writeRun....................(run: 1)
 	respondToCloseOutputFiles
 	closeSomeOutputFiles (Level: Event)
 	closeSomeOutputFiles (Level: SubRun)
@@ -193,12 +193,12 @@ Machine parameters:  handleEmptyRuns = 1  handleEmptySubRuns = 0
  	openInputFile
 	respondToOpenInputFile
     *** nextItemType: Run ***
-	readAndCacheRun..............(run: 1)
-	beginRun.....................(run: 1)
+	readAndCacheRun.............(run: 1)
+	beginRun....................(run: 1)
     *** nextItemType: SubRun ***
-	readAndCacheSubRun...........(run: 1 subRun: 2)
+	readAndCacheSubRun..........(run: 1 subRun: 2)
     *** nextItemType: Event ***
-	beginSubRun..................(run: 1 subRun: 2)
+	beginSubRun.................(run: 1 subRun: 2)
 	readEvent....................(run: 1 subRun: 2 event: 2)
     *** nextItemType: Stop ***
 	processEvent.................(run: 1 subRun: 2 event: 2)
@@ -206,12 +206,12 @@ Machine parameters:  handleEmptyRuns = 1  handleEmptySubRuns = 0
 	openSomeOutputFiles
 	respondToOpenOutputFiles
 	writeEvent...................(run: 1 subRun: 2 event: 2)
-	writeSubRunAuxiliaryRangeSets(run: 1 subRun: 2)
-	endSubRun....................(run: 1 subRun: 2)
-	writeSubRun..................(run: 1 subRun: 2)
-	writeRunAuxiliaryRangeSets...(run: 1)
-	endRun.......................(run: 1)
-	writeRun.....................(run: 1)
+	setSubRunAuxiliaryRangeSetID(run: 1 subRun: 2)
+	endSubRun...................(run: 1 subRun: 2)
+	writeSubRun.................(run: 1 subRun: 2)
+	setRunAuxiliaryRangeSetID...(run: 1)
+	endRun......................(run: 1)
+	writeRun....................(run: 1)
 	respondToCloseOutputFiles
 	closeAllOutputFiles
 	respondToCloseInputFile
@@ -226,12 +226,12 @@ Machine parameters:  handleEmptyRuns = 1  handleEmptySubRuns = 1
  	openInputFile
 	respondToOpenInputFile
     *** nextItemType: Run ***
-	readAndCacheRun..............(run: 1)
-	beginRun.....................(run: 1)
+	readAndCacheRun.............(run: 1)
+	beginRun....................(run: 1)
     *** nextItemType: SubRun ***
-	readAndCacheSubRun...........(run: 1 subRun: 1)
+	readAndCacheSubRun..........(run: 1 subRun: 1)
     *** nextItemType: Event ***
-	beginSubRun..................(run: 1 subRun: 1)
+	beginSubRun.................(run: 1 subRun: 1)
 	readEvent....................(run: 1 subRun: 1 event: 1)
     *** nextItemType: SubRun ***
 	processEvent.................(run: 1 subRun: 1 event: 1)
@@ -239,23 +239,23 @@ Machine parameters:  handleEmptyRuns = 1  handleEmptySubRuns = 1
 	openSomeOutputFiles
 	respondToOpenOutputFiles
 	writeEvent...................(run: 1 subRun: 1 event: 1)
-	writeSubRunAuxiliaryRangeSets(run: 1 subRun: 1)
-	endSubRun....................(run: 1 subRun: 1)
-	writeSubRun..................(run: 1 subRun: 1)
-	readAndCacheSubRun...........(run: 1 subRun: 2)
+	setSubRunAuxiliaryRangeSetID(run: 1 subRun: 1)
+	endSubRun...................(run: 1 subRun: 1)
+	writeSubRun.................(run: 1 subRun: 1)
+	readAndCacheSubRun..........(run: 1 subRun: 2)
     *** nextItemType: Event ***
-	beginSubRun..................(run: 1 subRun: 2)
+	beginSubRun.................(run: 1 subRun: 2)
 	readEvent....................(run: 1 subRun: 2 event: 1)
     *** nextItemType: InputFile+SwitchOutputFiles ***
 	processEvent.................(run: 1 subRun: 2 event: 1)
 	shouldWeStop
 	writeEvent...................(run: 1 subRun: 2 event: 1)
-	writeSubRunAuxiliaryRangeSets(run: 1 subRun: 2)
-	endSubRun....................(run: 1 subRun: 2)
-	writeSubRun..................(run: 1 subRun: 2)
-	writeRunAuxiliaryRangeSets...(run: 1)
-	endRun.......................(run: 1)
-	writeRun.....................(run: 1)
+	setSubRunAuxiliaryRangeSetID(run: 1 subRun: 2)
+	endSubRun...................(run: 1 subRun: 2)
+	writeSubRun.................(run: 1 subRun: 2)
+	setRunAuxiliaryRangeSetID...(run: 1)
+	endRun......................(run: 1)
+	writeRun....................(run: 1)
 	respondToCloseOutputFiles
 	closeSomeOutputFiles (Level: Event)
 	closeSomeOutputFiles (Level: SubRun)
@@ -267,12 +267,12 @@ Machine parameters:  handleEmptyRuns = 1  handleEmptySubRuns = 1
  	openInputFile
 	respondToOpenInputFile
     *** nextItemType: Run ***
-	readAndCacheRun..............(run: 1)
-	beginRun.....................(run: 1)
+	readAndCacheRun.............(run: 1)
+	beginRun....................(run: 1)
     *** nextItemType: SubRun ***
-	readAndCacheSubRun...........(run: 1 subRun: 2)
+	readAndCacheSubRun..........(run: 1 subRun: 2)
     *** nextItemType: Event ***
-	beginSubRun..................(run: 1 subRun: 2)
+	beginSubRun.................(run: 1 subRun: 2)
 	readEvent....................(run: 1 subRun: 2 event: 2)
     *** nextItemType: Stop ***
 	processEvent.................(run: 1 subRun: 2 event: 2)
@@ -280,12 +280,12 @@ Machine parameters:  handleEmptyRuns = 1  handleEmptySubRuns = 1
 	openSomeOutputFiles
 	respondToOpenOutputFiles
 	writeEvent...................(run: 1 subRun: 2 event: 2)
-	writeSubRunAuxiliaryRangeSets(run: 1 subRun: 2)
-	endSubRun....................(run: 1 subRun: 2)
-	writeSubRun..................(run: 1 subRun: 2)
-	writeRunAuxiliaryRangeSets...(run: 1)
-	endRun.......................(run: 1)
-	writeRun.....................(run: 1)
+	setSubRunAuxiliaryRangeSetID(run: 1 subRun: 2)
+	endSubRun...................(run: 1 subRun: 2)
+	writeSubRun.................(run: 1 subRun: 2)
+	setRunAuxiliaryRangeSetID...(run: 1)
+	endRun......................(run: 1)
+	writeRun....................(run: 1)
 	respondToCloseOutputFiles
 	closeAllOutputFiles
 	respondToCloseInputFile

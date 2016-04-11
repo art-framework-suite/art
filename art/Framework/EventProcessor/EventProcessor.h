@@ -122,8 +122,8 @@ public:
   void writeSubRun(SubRunID const & sr) override;
   void writeEvent() override;
 
-  void writeRunAuxiliaryRangeSets(RunID run) override;
-  void writeSubRunAuxiliaryRangeSets(SubRunID const & sr) override;
+  void setRunAuxiliaryRangeSetID(RunID run) override;
+  void setSubRunAuxiliaryRangeSetID(SubRunID const & sr) override;
 
   // Run/SubRun IDs from most recently added principals
   RunID runPrincipalID() const override;

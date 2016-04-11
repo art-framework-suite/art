@@ -126,7 +126,7 @@ namespace statemachine {
       context<HandleRuns>().beginRunIfNotDoneAlready();
       beginSubRunIfNotDoneAlready();
     }
-    ep_.writeSubRunAuxiliaryRangeSets(currentSubRun_);
+    ep_.setSubRunAuxiliaryRangeSetID(currentSubRun_);
     if (beginSubRunCalled_) endSubRun(currentSubRun());
     ep_.writeSubRun(currentSubRun_);
     ep_.recordOutputClosureRequests();

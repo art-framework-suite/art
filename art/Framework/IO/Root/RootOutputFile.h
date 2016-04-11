@@ -116,7 +116,6 @@ public: // MEMBER FUNCTIONS
                           bool fastCloning);
 
   void writeOne(EventPrincipal const&);
-  //void endFile();
   void writeSubRun(SubRunPrincipal const&);
   void writeRun(RunPrincipal const&);
   void writeFileFormatVersion();
@@ -133,8 +132,8 @@ public: // MEMBER FUNCTIONS
                                 FileCatalogMetadata::collection_type const&,
                                 FileCatalogMetadata::collection_type const&);
   void writeResults(ResultsPrincipal & resp);
-  void writeAuxiliaryRangeSets(RunPrincipal&);
-  void writeAuxiliaryRangeSets(SubRunPrincipal&);
+  void setAuxiliaryRangeSetID(RunPrincipal&);
+  void setAuxiliaryRangeSetID(SubRunPrincipal&);
   void finishEndFile();
   void beginInputFile(FileBlock const&, bool fastClone);
   void respondToCloseInputFile(FileBlock const&);
@@ -152,7 +151,6 @@ private: // MEMBER FUNCTIONS
   void initializeFileContributors();
   void fillBranches(BranchType const&,
                     Principal const&,
-                    unsigned rangeSetID,
                     std::vector<ProductProvenance>*);
   void insertAncestors(ProductProvenance const&,
                        Principal const&,
@@ -199,6 +197,8 @@ private: // MEMBER DATA
   std::set<BranchID> branchesWithStoredHistory_ {};
   SQLite3Wrapper rootFileDB_;
   OutputItemListArray selectedOutputItemList_ {{}}; // filled by aggregation
+  unsigned subRunRSID_ {-1u};
+  unsigned runRSID_ {-1u};
 
 };
 

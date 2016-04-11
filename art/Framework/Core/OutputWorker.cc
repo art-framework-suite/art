@@ -65,13 +65,13 @@ namespace art {
   }
 
   void
-  OutputWorker::writeAuxiliaryRangeSets(RunPrincipal & rp) {
-    module().doWriteAuxiliaryRangeSets(rp);
+  OutputWorker::setAuxiliaryRangeSetID(RunPrincipal & rp) {
+    module().doSetAuxiliaryRangeSetID(rp);
   }
 
   void
-  OutputWorker::writeAuxiliaryRangeSets(SubRunPrincipal & srp) {
-    module().doWriteAuxiliaryRangeSets(srp);
+  OutputWorker::setAuxiliaryRangeSetID(SubRunPrincipal & srp) {
+    module().doSetAuxiliaryRangeSetID(srp);
   }
 
   bool OutputWorker::fileIsOpen() const {return module().fileIsOpen();}

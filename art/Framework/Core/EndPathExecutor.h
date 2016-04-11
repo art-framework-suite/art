@@ -46,8 +46,8 @@ public:
   void writeSubRun(SubRunPrincipal& srp);
   void writeRun(RunPrincipal& rp);
 
-  void writeAuxiliaryRangeSets(SubRunPrincipal& srp);
-  void writeAuxiliaryRangeSets(RunPrincipal& rp);
+  void setAuxiliaryRangeSetID(SubRunPrincipal& srp);
+  void setAuxiliaryRangeSetID(RunPrincipal& rp);
 
   void closeAllOutputFiles();
   void openAllOutputFiles(FileBlock & fb);

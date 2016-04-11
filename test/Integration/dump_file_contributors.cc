@@ -123,7 +123,7 @@ namespace {
       ** to pTo is set to SQLITE_OK.
       */
       pBackup = sqlite3_backup_init(pFile, "main", pInMemory, "main");
-      if( pBackup ){
+      if(pBackup != nullptr){
         (void)sqlite3_backup_step(pBackup, -1);
         (void)sqlite3_backup_finish(pBackup);
       }

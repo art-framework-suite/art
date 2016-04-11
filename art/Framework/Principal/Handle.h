@@ -29,9 +29,9 @@
 // ======================================================================
 
 #include "art/Framework/Principal/Group.h"
+#include "art/Framework/Principal/Provenance.h"
 #include "art/Persistency/Common/GroupQueryResult.h"
 #include "canvas/Persistency/Provenance/ProductID.h"
-#include "art/Framework/Principal/Provenance.h"
 #include "canvas/Utilities/Exception.h"
 #include "canvas/Utilities/detail/metaprogramming.h"
 #include "cetlib/demangle.h"
@@ -66,16 +66,13 @@ namespace art {
   }
 
   template <class T>
-  std::enable_if_t<detail::is_handle<T>::value, RangeSet const&>
-  range_set(T const& h);
+  RangeSet const& range_set(T const& h);
 
   template <class T, class U>
-  std::enable_if_t<detail::are_handles<T,U>::value, bool>
-  same_ranges(T const& a, U const& b);
+  bool same_ranges(T const& a, U const& b);
 
   template <class T, class U>
-  std::enable_if_t<detail::are_handles<T,U>::value, bool>
-  disjoint_ranges(T const& a, U const& b);
+  bool disjoint_ranges(T const& a, U const& b);
 
 }
 
@@ -128,8 +125,8 @@ art::Handle<T>::Handle(GroupQueryResult const & gqr) :
 {
   if( gqr.succeeded() )
     try {
-      prod_ = dynamic_cast< Wrapper<T> const &>(*gqr.result()->uniqueProduct(TypeID(typeid(Wrapper<T>)))
-                                                ).product();
+      prod_ = dynamic_cast<Wrapper<T> const&>(*gqr.result()->uniqueProduct(TypeID{typeid(Wrapper<T>)})
+                                              ).product();
     }
     catch(std::bad_cast const &) {
       whyFailed_ = std::make_shared<art::Exception const>(errors::LogicError, "Handle<T> c'tor");
@@ -382,9 +379,11 @@ art::ValidHandle<T>::swap(art::ValidHandle<T>& other)
 // Non-members:
 
 template <class T>
-std::enable_if_t<art::detail::is_handle<T>::value, art::RangeSet const&>
+art::RangeSet const&
 art::range_set(T const& h)
 {
+  static_assert(detail::is_handle<T>::value,
+                "\n\nart error: The argument to 'range_set' must be a handle.\n");
   if (!h.isValid())
     throw Exception{art::errors::NullPointerError}
   << "Attempt to retrieve range set from invalid handle.\n";
@@ -392,9 +391,11 @@ art::range_set(T const& h)
 }
 
 template <class T, class U>
-std::enable_if_t<art::detail::are_handles<T,U>::value, bool>
+bool
 art::same_ranges(T const& a, U const& b)
 {
+  static_assert(detail::are_handles<T,U>::value,
+                "\n\nart error: Both arguments to 'same_ranges' must be handles.\n");
   if (!a.isValid() || !b.isValid())
     throw Exception{art::errors::NullPointerError}
       << "Attempt to compare range sets where one or both handles are invalid\n.";
@@ -402,9 +403,11 @@ art::same_ranges(T const& a, U const& b)
 }
 
 template <class T, class U>
-std::enable_if_t<art::detail::are_handles<T,U>::value, bool>
+bool
 art::disjoint_ranges(T const& a, U const& b)
 {
+  static_assert(detail::are_handles<T,U>::value,
+                "\n\nart error: Both arguments to 'disjoint_ranges' must be handles.\n");
   if (!a.isValid() || !b.isValid())
     throw Exception{art::errors::NullPointerError}
       << "Attempt to compare range sets where one or both handles are invalid\n.";

@@ -238,11 +238,11 @@ doEndSubRun(SubRunPrincipal const& srp,
 
 void
 art::OutputModule::
-doWriteAuxiliaryRangeSets(SubRunPrincipal& srp)
+doSetAuxiliaryRangeSetID(SubRunPrincipal& srp)
 {
   FDEBUG(2) << "writeAuxiliaryRangeSets(srp) called\n";
   srp.setOutputEventRanges(subRunRangeSetHandler_.outputRanges());
-  writeSubRunAuxiliaryRangeSets(srp);
+  setSubRunAuxiliaryRangeSetID(srp);
 }
 
 void
@@ -273,11 +273,11 @@ doEndRun(RunPrincipal const & rp,
 
 void
 art::OutputModule::
-doWriteAuxiliaryRangeSets(RunPrincipal& rp)
+doSetAuxiliaryRangeSetID(RunPrincipal& rp)
 {
   FDEBUG(2) << "writeAuxiliaryRangeSets(rp) called\n";
   rp.setOutputEventRanges(runRangeSetHandler_.outputRanges());
-  writeRunAuxiliaryRangeSets(rp);
+  setRunAuxiliaryRangeSetID(rp);
 }
 
 void
@@ -452,13 +452,13 @@ endSubRun(SubRunPrincipal const &)
 
 void
 art::OutputModule::
-writeRunAuxiliaryRangeSets(RunPrincipal&)
+setRunAuxiliaryRangeSetID(RunPrincipal&)
 {
 }
 
 void
 art::OutputModule::
-writeSubRunAuxiliaryRangeSets(SubRunPrincipal&)
+setSubRunAuxiliaryRangeSetID(SubRunPrincipal&)
 {
 }
 

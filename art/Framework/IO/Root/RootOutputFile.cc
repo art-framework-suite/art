@@ -464,7 +464,7 @@ writeOne(EventPrincipal const& e)
   // Because getting the data may cause an exception to be
   // thrown we want to do that first before writing anything
   // to the file about this event.
-  fillBranches(InEvent, e, -1u, pEventProductProvenanceVector_);
+  fillBranches(InEvent, e, pEventProductProvenanceVector_);
   // History branch.
   History historyForOutput {e.history()};
   historyForOutput.addEventSelectionEntry(om_->selectorConfig());
@@ -499,9 +499,10 @@ RootOutputFile::
 writeSubRun(SubRunPrincipal const& sr)
 {
   pSubRunAux_ = &sr.aux();
+  pSubRunAux_->setRangeSetID(subRunRSID_);
   fileIndex_.addEntry(EventID::invalidEvent(pSubRunAux_->id()), subRunEntryNumber_);
   ++subRunEntryNumber_;
-  fillBranches(InSubRun, sr, pSubRunAux_->rangeSetID(), pSubRunProductProvenanceVector_);
+  fillBranches(InSubRun, sr, pSubRunProductProvenanceVector_);
 }
 
 void
@@ -510,9 +511,10 @@ RootOutputFile::
 writeRun(RunPrincipal const& r)
 {
   pRunAux_ = &r.aux();
+  pRunAux_->setRangeSetID(runRSID_);
   fileIndex_.addEntry(EventID::invalidEvent(pRunAux_->id()), runEntryNumber_);
   ++runEntryNumber_;
-  fillBranches(InRun, r, pRunAux_->rangeSetID(), pRunProductProvenanceVector_);
+  fillBranches(InRun, r, pRunProductProvenanceVector_);
 }
 
 void
@@ -777,7 +779,7 @@ RootOutputFile::
 writeResults(ResultsPrincipal & resp)
 {
   pResultsAux_ = &resp.aux();
-  fillBranches(InResults, resp, -1u, pResultsProductProvenanceVector_);
+  fillBranches(InResults, resp, pResultsProductProvenanceVector_);
 }
 
 void
@@ -833,7 +835,6 @@ art::
 RootOutputFile::
 fillBranches(BranchType const& bt,
              Principal const& principal,
-             unsigned const rangeSetID [[gnu::unused]],
              vector<ProductProvenance>* vpp)
 {
   vector<unique_ptr<EDProduct>> dummies;
@@ -923,23 +924,21 @@ fillBranches(BranchType const& bt,
 void
 art::
 RootOutputFile::
-writeAuxiliaryRangeSets(SubRunPrincipal & sr)
+setAuxiliaryRangeSetID(SubRunPrincipal& sr)
 {
-  unsigned const rsID = getNewRangeSetID(rootFileDB_, InSubRun, sr.run());
-  sr.aux().setRangeSetID(rsID);
+  subRunRSID_ = getNewRangeSetID(rootFileDB_, InSubRun, sr.run());
   insertIntoEventRanges(rootFileDB_, sr.outputEventRanges());
   auto const& eventRangesIDs = getExistingRangeSetIDs(rootFileDB_, sr.outputEventRanges());
-  insertIntoJoinTable(rootFileDB_, InSubRun, rsID, eventRangesIDs);
+  insertIntoJoinTable(rootFileDB_, InSubRun, subRunRSID_, eventRangesIDs);
 }
 
 void
 art::
 RootOutputFile::
-writeAuxiliaryRangeSets(RunPrincipal & r)
+setAuxiliaryRangeSetID(RunPrincipal& r)
 {
-  unsigned const rsID = getNewRangeSetID(rootFileDB_, InRun, r.run());
-  r.aux().setRangeSetID(rsID);
+  runRSID_ = getNewRangeSetID(rootFileDB_, InRun, r.run());
   insertIntoEventRanges(rootFileDB_, r.outputEventRanges());
   auto const& eventRangesIDs = getExistingRangeSetIDs(rootFileDB_, r.outputEventRanges());
-  insertIntoJoinTable(rootFileDB_, InRun, rsID, eventRangesIDs);
+  insertIntoJoinTable(rootFileDB_, InRun, runRSID_, eventRangesIDs);
 }
