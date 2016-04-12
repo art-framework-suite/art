@@ -1,0 +1,7 @@
+services.message.destinations.log: { 
+   type: file
+   filename: "noevents.log"
+   threshold: "Debug"
+}
+physics.producers.prod.module_type: "art/test/Integration/run-subrun-shape/InputProducerNoEvents"
+physics.p1: [ prod ]
