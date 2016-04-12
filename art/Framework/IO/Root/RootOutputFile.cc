@@ -164,6 +164,7 @@ namespace {
                                  unsigned const rsid,
                                  unsigned const esid)
   {
+    //    std::cout << "Inserting into join: " << rsid << " " << esid << '\n';
     sqlite3_bind_int64(stmt, 1, rsid);
     sqlite3_bind_int64(stmt, 2, esid);
     sqlite3_step(stmt);
@@ -221,6 +222,7 @@ namespace {
         "VALUES(?, ?, ?);"};
     sqlite3_prepare_v2(db, ddl.c_str(), -1, &stmt, nullptr);
     for (auto const& r : rs) {
+      //      std::cout << "Inserting: " << r << '\n';
       insert_eventRanges_row(stmt, r.subrun(), r.begin(), r.end());
     }
     sqlite3_finalize(stmt);
@@ -370,14 +372,14 @@ art::RootOutputFile::initializeFileContributors()
   create_table(rootFileDB_, "SubRunRangeSets",
                {"Run INTEGER"});
   create_table(rootFileDB_, "SubRunRangeSets_EventRanges",
-               {"RangeSetsID INTEGER PRIMARY KEY", "EventRangesID INTEGER"},
+               {"RangeSetsID INTEGER", "EventRangesID INTEGER", "PRIMARY KEY(RangeSetsID,EventRangesID)"},
                "WITHOUT ROWID");
 
   // Run range sets
   create_table(rootFileDB_, "RunRangeSets",
                {"Run INTEGER"});
   create_table(rootFileDB_, "RunRangeSets_EventRanges",
-               {"RangeSetsID INTEGER PRIMARY KEY", "EventRangesID INTEGER"},
+               {"RangeSetsID INTEGER", "EventRangesID INTEGER", "PRIMARY KEY(RangeSetsID,EventRangesID)"},
                "WITHOUT ROWID");
 }
 
@@ -926,10 +928,13 @@ art::
 RootOutputFile::
 setAuxiliaryRangeSetID(SubRunPrincipal& sr)
 {
+  // std::cout << "\nSubRun event ranges\n"
+  //           << "===================\n";
   subRunRSID_ = getNewRangeSetID(rootFileDB_, InSubRun, sr.run());
   insertIntoEventRanges(rootFileDB_, sr.outputEventRanges());
   auto const& eventRangesIDs = getExistingRangeSetIDs(rootFileDB_, sr.outputEventRanges());
   insertIntoJoinTable(rootFileDB_, InSubRun, subRunRSID_, eventRangesIDs);
+  //  std::cout << "SubRun RangeSetID : " << subRunRSID_ << "\n\n";
 }
 
 void
@@ -937,8 +942,15 @@ art::
 RootOutputFile::
 setAuxiliaryRangeSetID(RunPrincipal& r)
 {
+  // std::cout << "\nRun event ranges\n"
+  //           << "===================\n";
   runRSID_ = getNewRangeSetID(rootFileDB_, InRun, r.run());
   insertIntoEventRanges(rootFileDB_, r.outputEventRanges());
   auto const& eventRangesIDs = getExistingRangeSetIDs(rootFileDB_, r.outputEventRanges());
+  // std::cout << "    ids: ";
+  // for (auto const& id : eventRangesIDs)
+  //   std::cout << id << ' ';
+  // std::cout << '\n';
   insertIntoJoinTable(rootFileDB_, InRun, runRSID_, eventRangesIDs);
+  //  std::cout << "Run    RangeSetID : " << runRSID_ << "\n\n";
 }

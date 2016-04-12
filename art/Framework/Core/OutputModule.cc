@@ -219,8 +219,16 @@ doWriteEvent(EventPrincipal& ep)
       --remainingEvents_;
     }
   }
-  subRunRangeSetHandler_.update(e.id(), ep.isLastEventInSubRun());
-  runRangeSetHandler_.update(e.id(), ep.isLastEventInSubRun());
+  auto& run_rsh = runRangeSetHandler_;
+  auto& subrun_rsh = subRunRangeSetHandler_;
+  if (!subrun_rsh.inputRanges().is_valid())
+    subrun_rsh.initializeRanges(ep.subRunPrincipal().inputEventRanges());
+
+  if (!run_rsh.inputRanges().is_valid())
+    run_rsh.initializeRanges(ep.runPrincipal().inputEventRanges());
+
+  subrun_rsh.update(e.id(), ep.isLastEventInSubRun());
+  run_rsh.update(e.id(), ep.isLastEventInSubRun());
 }
 
 bool
@@ -241,7 +249,8 @@ art::OutputModule::
 doSetAuxiliaryRangeSetID(SubRunPrincipal& srp)
 {
   FDEBUG(2) << "writeAuxiliaryRangeSets(srp) called\n";
-  srp.setOutputEventRanges(subRunRangeSetHandler_.outputRanges());
+  srp.setOutputEventRanges(subRunRangeSetHandler_.begin(),
+                           subRunRangeSetHandler_.current());
   setSubRunAuxiliaryRangeSetID(srp);
 }
 
@@ -251,7 +260,12 @@ doWriteSubRun(SubRunPrincipal& srp)
 {
   FDEBUG(2) << "writeSubRun called\n";
   writeSubRun(srp);
-  runRangeSetHandler_.update(srp.id());
+
+  auto& run_rsh = runRangeSetHandler_;
+  if (!run_rsh.inputRanges().is_valid())
+    run_rsh.initializeRanges(srp.runPrincipal().inputEventRanges());
+  run_rsh.update(srp.id());
+
   if (fileStatus_ == OutputFileStatus::Switching)
     subRunRangeSetHandler_.rebase();
   else
@@ -276,7 +290,8 @@ art::OutputModule::
 doSetAuxiliaryRangeSetID(RunPrincipal& rp)
 {
   FDEBUG(2) << "writeAuxiliaryRangeSets(rp) called\n";
-  rp.setOutputEventRanges(runRangeSetHandler_.outputRanges());
+  rp.setOutputEventRanges(runRangeSetHandler_.begin(),
+                          runRangeSetHandler_.current());
   setRunAuxiliaryRangeSetID(rp);
 }
 

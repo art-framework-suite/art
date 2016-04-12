@@ -5,10 +5,6 @@ source: {
 
 physics: {
 
-   producers: {
-      prod: { module_type: RunProductProducer }
-   }
-
    filters: {
       filt: {
          module_type: TestFilterSpecificEvents
@@ -16,7 +12,7 @@ physics: {
       }
    }
 
-   p1: [prod, filt]
+   p1: [filt]
    e1: [o1, o2]
 }
 

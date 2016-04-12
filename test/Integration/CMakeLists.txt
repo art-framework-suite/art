@@ -89,6 +89,7 @@ simple_plugin(TH1DataProducer             "module"  NO_INSTALL test_TestObjects)
 simple_plugin(TestAnalyzerSelect          "module"  NO_INSTALL )
 simple_plugin(TestBitsOutput              "module"  NO_INSTALL )
 simple_plugin(TestFilter                  "module"  NO_INSTALL )
+simple_plugin(TestFilterSpecificEvents    "module"  NO_INSTALL )
 simple_plugin(TestOutput                  "module"  NO_INSTALL )
 simple_plugin(TestProvenanceDumper        "module"  NO_INSTALL USE_BOOST_UNIT )
 simple_plugin(TestResultAnalyzer          "module"  NO_INSTALL )
@@ -110,13 +111,6 @@ simple_plugin(ValidHandleTester           "module"  NO_INSTALL )
 simple_plugin(Wanted                      "service" NO_INSTALL )
 
 art_dictionary(DICTIONARY_LIBRARIES cetlib NO_INSTALL)
-
-cet_make_exec(dump_file_index
-  SOURCE dump_file_index.cc
-  NO_INSTALL
-  LIBRARIES
-  art_Framework_IO_Root
-  )
 
 cet_make_exec(dump_file_contributors
   SOURCE dump_file_contributors.cc
@@ -1317,7 +1311,7 @@ add_subdirectory(test_tiered_input_03)
 add_subdirectory(test_tiered_input_04)
 add_subdirectory(test_tiered_input_05)
 
-add_subdirectory(dump-range-sets)
+add_subdirectory(dump-file-info)
 add_subdirectory(event-processor)
 add_subdirectory(event-shape)
 add_subdirectory(high-memory)

@@ -1,5 +1,5 @@
-#ifndef test_Integration_dump_range_sets_InputFile_h
-#define test_Integration_dump_range_sets_InputFile_h
+#ifndef test_Integration_dump_file_info_InputFile_h
+#define test_Integration_dump_file_info_InputFile_h
 
 #include "TBranch.h"
 #include "TFile.h"
@@ -24,6 +24,7 @@ namespace art {
 
       InputFile(std::string const& filename);
       void print_range_sets(std::ostream&) const;
+      void print_file_index(std::ostream&) const;
 
     private:
       RunAuxiliary getAuxiliary(TTree* tree, EntryNumber const entry) const;
@@ -42,6 +43,6 @@ namespace art {
 
 #endif
 
-// Local variable:
+// Local variables:
 // mode: c++
 // End:

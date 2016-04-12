@@ -430,7 +430,7 @@ art::Source<T>::checkForNextFile_()
 {
   state_ = input::IsStop; // Default -- may change below.
   if (Source_generator<T>::value) {
-    typename std::conditional<detail::has_hasMoreData<T>::value, detail::do_call_hasMoreData<T>, detail::do_not_call_hasMoreData<T> >::type
+    std::conditional_t<detail::has_hasMoreData<T>::value, detail::do_call_hasMoreData<T>, detail::do_not_call_hasMoreData<T> >
       generatorHasMoreData;
     if (generatorHasMoreData(detail_)) {
       state_ = input::IsFile;

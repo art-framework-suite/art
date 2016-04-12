@@ -50,6 +50,14 @@ namespace art {
 
   void
   SubRunPrincipal::
+  setOutputEventRanges(RangeSet::const_iterator const b,
+                       RangeSet::const_iterator const e)
+  {
+    rangeSetHandler_.setOutputRanges(b,e);
+  }
+
+  void
+  SubRunPrincipal::
   addOrReplaceGroup(std::unique_ptr<Group>&& g)
   {
     cet::exempt_ptr<Group const> group = getExistingGroup(g->productDescription().branchID());

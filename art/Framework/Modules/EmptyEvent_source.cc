@@ -146,7 +146,9 @@ art::EmptyEvent::readRun_() {
     Timestamp::invalidTimestamp();
   RunAuxiliary const runAux{eventID_.runID(), ts, Timestamp::invalidTimestamp()};
   newRun_ = false;
-  auto rp_ptr = std::make_shared<RunPrincipal>(runAux, processConfiguration());
+  auto rp_ptr = std::make_shared<RunPrincipal>(runAux,
+                                               processConfiguration(),
+                                               EventRangeHandler{runAux.run()});
   if (plugin_) {
     Run const r{*rp_ptr, moduleDescription()};
     plugin_->doBeginRun(r);
@@ -168,7 +170,9 @@ EmptyEvent::readSubRun_() {
     plugin_->doBeginSubRunTimestamp(eventID_.subRunID()) :
     Timestamp::invalidTimestamp();
   SubRunAuxiliary const subRunAux{eventID_.subRunID(), ts, Timestamp::invalidTimestamp()};
-  auto srp_ptr = std::make_shared<SubRunPrincipal>(subRunAux, processConfiguration());
+  auto srp_ptr = std::make_shared<SubRunPrincipal>(subRunAux,
+                                                   processConfiguration(),
+                                                   EventRangeHandler{subRunAux.run()});
   if (plugin_) {
     SubRun const sr{*srp_ptr, moduleDescription()};
     plugin_->doBeginSubRun(sr);

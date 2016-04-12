@@ -39,8 +39,9 @@ foreach(source EmptyEvent RootInput)
   SET(OutputFilePath "${CMAKE_CURRENT_BINARY_DIR}/MultiOutputProducer${source}_w.d/")
 
   cet_test(MultiOutput${source}_FileIndexCheck_Event_t HANDBUILT
-    TEST_EXEC dump_file_index
+    TEST_EXEC dump_file_info
     TEST_ARGS
+    --print-file-index
     ${OutputFilePath}/out_r1_sr0_e1.root
     ${OutputFilePath}/out_r1_sr0_e2.root
     ${OutputFilePath}/out_r1_sr0_e3.root
@@ -66,8 +67,9 @@ foreach(source EmptyEvent RootInput)
   ## SubRun-level output-file rollover
 
   cet_test(MultiOutput${source}_FileIndexCheck_SubRun_t HANDBUILT
-    TEST_EXEC dump_file_index
+    TEST_EXEC dump_file_info
     TEST_ARGS
+    --print-file-index
     ${OutputFilePath}/out_r1_sr0.root
     ${OutputFilePath}/out_r1_sr1.root
     ${OutputFilePath}/out_r2_sr0.root
@@ -82,8 +84,9 @@ foreach(source EmptyEvent RootInput)
   ## Run-level output-file rollover
 
   cet_test(MultiOutput${source}_FileIndexCheck_Run_t HANDBUILT
-    TEST_EXEC dump_file_index
+    TEST_EXEC dump_file_info
     TEST_ARGS
+    --print-file-index
     ${OutputFilePath}/out_r1.root
     ${OutputFilePath}/out_r2.root
     REF "${CMAKE_CURRENT_SOURCE_DIR}/MultiOutput_FileIndexCheck_Run_t-ref.txt"
@@ -97,8 +100,10 @@ foreach(source EmptyEvent RootInput)
   ## No rollover at all
 
   cet_test(MultiOutput${source}_FileIndexCheck_t HANDBUILT
-    TEST_EXEC dump_file_index
-    TEST_ARGS ${OutputFilePath}/out.root
+    TEST_EXEC dump_file_info
+    TEST_ARGS
+    --print-file-index
+    ${OutputFilePath}/out.root
     REF "${CMAKE_CURRENT_SOURCE_DIR}/MultiOutput_FileIndexCheck_t-ref.txt"
     )
 
@@ -130,8 +135,9 @@ SET_TESTS_PROPERTIES(MultiInput_SwitchOutputOnNewInput_w PROPERTIES
 SET(InputFilePath "${CMAKE_CURRENT_BINARY_DIR}/MultiInput_SwitchOutputOnNewInput_w.d")
 
 cet_test(MultiOutput_FileIndexCheck_InputFile_t HANDBUILT
-  TEST_EXEC dump_file_index
+  TEST_EXEC dump_file_info
   TEST_ARGS
+  --print-file-index
   ${InputFilePath}/out_1.root
   ${InputFilePath}/out_2.root
   REF "${CMAKE_CURRENT_SOURCE_DIR}/MultiOutput_FileIndexCheck_InputFile_t-ref.txt"
@@ -176,8 +182,8 @@ SET_TESTS_PROPERTIES(MultiInputConcatenate_t PROPERTIES
   )
 
 cet_test(MultiInputConcatenate_FileIndexCheck_t HANDBUILT
-  TEST_EXEC dump_file_index
-  TEST_ARGS ../MultiInputConcatenate_t.d/out.root
+  TEST_EXEC dump_file_info
+  TEST_ARGS --print-file-index ../MultiInputConcatenate_t.d/out.root
   REF "${CMAKE_CURRENT_SOURCE_DIR}/MultiInputConcatenate_FileIndexCheck_t-ref.txt"
   )
 

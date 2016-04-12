@@ -67,6 +67,8 @@ namespace art {
                   RangeSet&&);
 
     void setOutputEventRanges(RangeSet const&);
+    void setOutputEventRanges(RangeSet::const_iterator b,
+                              RangeSet::const_iterator e);
     RangeSet const& inputEventRanges() const { return rangeSetHandler_.inputRanges(); }
     RangeSet const& outputEventRanges() const { return rangeSetHandler_.outputRanges(); }
 

@@ -1,13 +1,9 @@
 source: {
-   module_type: EmptyEvent
+   module_type: RootInput
    maxEvents: 20
 }
 
 physics: {
-
-   producers: {
-      prod: { module_type: RunProductProducer }
-   }
 
    filters: {
       filt: {

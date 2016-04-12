@@ -4,6 +4,7 @@
 #include "canvas/Utilities/Exception.h"
 
 #include <algorithm>
+#include <iostream>
 
 namespace {
   constexpr auto invalid_eid = art::IDNumber<art::Level::Event>::invalid();
@@ -16,13 +17,23 @@ namespace art {
   {}
 
   EventRangeHandler::EventRangeHandler(RunNumber_t const r)
-    : EventRangeHandler{RangeSet::for_run(r)}
+    : EventRangeHandler{RangeSet::forRun(r)}
   {}
 
   EventRangeHandler::EventRangeHandler(RangeSet const& inputRangeSet)
     : inputRanges_{inputRangeSet}
     , outputRanges_{inputRanges_}
   {}
+
+  void
+  EventRangeHandler::initializeRanges(RangeSet const& rs)
+  {
+    if (!inputRanges_.is_valid()) {
+      inputRanges_ = rs;
+      outputRanges_ = rs;
+      rsIter_ = outputRanges_.ranges().begin();
+    }
+  }
 
   void
   EventRangeHandler::update(EventID const& eid, bool const lastEventOfSubRun)
@@ -32,32 +43,29 @@ namespace art {
       if (outputRanges_.empty()) {
         outputRanges_.set_run(id.run());
         outputRanges_.emplace_range(id.subRun(), id.event(), id.next().event());
+        rsIter_ = outputRanges_.ranges().end();
         return;
       }
       auto& back = outputRanges_.back();
-      if ( back.subrun() == id.subRun() ) {
-        if ( back.end() == id.event() ) {
+      if (back.subrun() == id.subRun()) {
+        if (back.end() == id.event()) {
           back.set_end(id.next().event());
         }
       }
       else {
         outputRanges_.emplace_range(id.subRun(), id.event(), id.next().event());
+        rsIter_ = outputRanges_.ranges().end();
       }
     };
 
     auto updateWithInheritedInput = [this](EventID const& id){
-      while (!inputRanges_.empty() && !inputRanges_.front().contains(id.event())) {
-        inputRanges_.pop_front();
-        auto const& front = inputRanges_.front();
-        outputRanges_.emplace_range(front.subrun(),
-                                    front.begin(),
-                                    front.begin());
-      }
       if (lastEventOfSubRunSeen_) {
-        outputRanges_.back().set_end(inputRanges_.front().end());
+        rsIter_ = end();
+        return;
       }
-      else {
-        outputRanges_.back().set_end(id.next().event());
+
+      while (rsIter_ != end() && !rsIter_->contains(id.subRun(), id.event())) {
+        ++rsIter_;
       }
     };
 
@@ -75,9 +83,11 @@ namespace art {
     if (outputRanges_.empty()) {
       outputRanges_.set_run(id.run());
       outputRanges_.emplace_range(id.subRun(), invalid_eid, invalid_eid);
+      rsIter_ = outputRanges_.ranges().begin();
     }
     else if (outputRanges_.back().subrun() != id.subRun()) {
       outputRanges_.emplace_range(id.subRun(), invalid_eid, invalid_eid);
+      rsIter_ = outputRanges_.ranges().begin();
     }
   }
 
@@ -88,6 +98,13 @@ namespace art {
   }
 
   void
+  EventRangeHandler::setOutputRanges(RangeSet::const_iterator const b,
+                                     RangeSet::const_iterator const e)
+  {
+    outputRanges_.assign_ranges(b, e);
+  }
+
+  void
   EventRangeHandler::rebase()
   {
     if (outputRanges_.empty())
@@ -95,6 +112,7 @@ namespace art {
 
     auto const back = outputRanges_.back();
     outputRanges_.clear();
+    rsIter_ = outputRanges_.ranges().end();
 
     if (lastEventOfSubRunSeen_) return;
 
@@ -102,6 +120,7 @@ namespace art {
         is_valid(back.begin()) &&
         is_valid(back.end())) {
       outputRanges_.emplace_range(back.subrun(), back.end(), IDNumber<Level::Event>::next(back.end()));
+      rsIter_ = outputRanges_.ranges().end();
     }
 
   }

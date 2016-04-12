@@ -1,4 +1,4 @@
-// dump_range_sets.cc
+// dump_file_info.cc
 
 #include "art/Framework/IO/Root/GetFileFormatEra.h"
 #include "art/Framework/IO/Root/detail/getFileContributors.h"
@@ -8,7 +8,7 @@
 #include "canvas/Persistency/Provenance/rootNames.h"
 #include "canvas/Persistency/Provenance/FileFormatVersion.h"
 #include "cetlib/container_algorithms.h"
-#include "test/Integration/dump-range-sets/InputFile.h"
+#include "test/Integration/dump-file-info/InputFile.h"
 
 #include "TError.h"
 #include "TFile.h"
@@ -34,13 +34,14 @@ using stringvec = vector<string>;
 
 
 int print_range_sets(InputFile& file, ostream& output);
+int print_file_index(InputFile& file, ostream& output);
 
 namespace {
 
   void RootErrorHandler(int const level,
                         bool const die,
-                        char const * location,
-                        char const * message)
+                        char const* location,
+                        char const* message)
   {
     // Ignore dictionary errors.
     if (level == kWarning &&
@@ -68,7 +69,8 @@ int main(int argc, char * argv[])
   bpo::options_description desc {descstr.str()};
   desc.add_options()
     ("help,h", "produce help message")
-    ("file-level", "prints event range sets for each input file")
+    ("print-file-index", "prints FileIndex object for each input file")
+    ("print-range-sets", "prints event range sets for each input file")
     ("source,s",  bpo::value<stringvec>(), "source data file (multiple OK)");
 
   bpo::options_description all_opts {"All Options"};
@@ -95,6 +97,9 @@ int main(int argc, char * argv[])
     return 1;
   }
 
+  bool const printRangeSets = vm.count("print-range-sets") > 0;
+  bool const printFileIndex = vm.count("print-file-index") > 0;
+
   // Get the names of the files we will process.
   stringvec file_names;
   size_t const file_count = vm.count("source");
@@ -114,8 +119,12 @@ int main(int argc, char * argv[])
 
   int rc {0};
   for (auto const& fn : file_names) {
+    output << std::string(30,'=') << '\n'
+           << "File: " << fn.substr(fn.find_last_of('/')+1ul) << '\n';
     InputFile file {fn};
-    rc += print_range_sets(file, output);
+    if (printRangeSets) rc += print_range_sets(file, output);
+    if (printFileIndex) rc += print_file_index(file, output);
+    output << '\n';
   }
   return rc;
 }
@@ -126,5 +135,12 @@ int print_range_sets(InputFile& file,
                      ostream& output)
 {
   file.print_range_sets(output);
+  return 0;
+}
+
+int print_file_index(InputFile& file,
+                     ostream& output)
+{
+  file.print_file_index(output);
   return 0;
 }

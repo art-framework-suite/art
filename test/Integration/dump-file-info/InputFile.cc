@@ -3,7 +3,7 @@
 #include "canvas/Persistency/Provenance/BranchType.h"
 #include "canvas/Persistency/Provenance/rootNames.h"
 #include "canvas/Utilities/Exception.h"
-#include "test/Integration/dump-range-sets/InputFile.h"
+#include "test/Integration/dump-file-info/InputFile.h"
 
 #include <iostream>
 
@@ -59,6 +59,12 @@ art::detail::InputFile::InputFile(std::string const& filename)
   : file_{openFile(filename)}
   , fileIndex_{getFileIndex(file_.get())}
 {}
+
+void
+art::detail::InputFile::print_file_index(std::ostream& os) const
+{
+  os << fileIndex_;
+}
 
 void
 art::detail::InputFile::print_range_sets(std::ostream& os) const

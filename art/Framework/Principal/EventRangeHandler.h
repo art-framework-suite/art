@@ -29,16 +29,23 @@ namespace art {
 
     void update(EventID const& id, bool lastEventOfSubRun);
     void update(SubRunID const& id);
+    void initializeRanges(RangeSet const& inputRangeSet);
     void setOutputRanges(RangeSet const& outputRangeSet);
+    void setOutputRanges(RangeSet::const_iterator b,
+                         RangeSet::const_iterator e);
     void rebase();
     void reset();
 
     auto const& inputRanges() const { return inputRanges_; }
     auto const& outputRanges() const { return outputRanges_; }
+    auto begin() const { return outputRanges_.ranges().begin(); }
+    auto current() const { return rsIter_ == end() ? end() : rsIter_+1; }
 
   private:
+    RangeSet::const_iterator end() const { return outputRanges_.ranges().end(); }
     RangeSet inputRanges_;
     RangeSet outputRanges_;
+    RangeSet::const_iterator rsIter_ {outputRanges_.ranges().begin()};
     bool lastEventOfSubRunSeen_ {false};
   };
 
