@@ -65,6 +65,19 @@ namespace arttest
     std::string name_;
   };
 
+  inline
+  bool
+  operator == (StringProduct const & left, StringProduct const & right)
+  {
+    return left.name_ == right.name_;
+  }
+
+  inline
+  std::ostream &
+  operator << (std::ostream & os, StringProduct const & s) {
+    return os << s.name_;
+  }
+
   struct Simple
   {
     Simple() : key(0), value(0.0) { }
