@@ -9,17 +9,19 @@
 
 namespace art {
 
+  using RangeSetHandler = detail::RangeSetHandler;
+
   RunPrincipal::
   RunPrincipal(RunAuxiliary const& aux,
                ProcessConfiguration const& pc,
-               EventRangeHandler const& erh,
+               std::unique_ptr<RangeSetHandler>&& rsh,
                std::unique_ptr<BranchMapper>&& mapper,
                std::unique_ptr<DelayedReader>&& rtrv,
                int idx,
                RunPrincipal* primaryPrincipal)
     : Principal{pc, aux.processHistoryID_, std::move(mapper), std::move(rtrv), idx, primaryPrincipal}
     , aux_{aux}
-    , rangeSetHandler_{erh}
+    , rangeSetHandler_{std::move(rsh)}
   {
     if (ProductMetaData::instance().productProduced(InRun)) {
       addToProcessHistory();
@@ -38,21 +40,6 @@ namespace art {
   setProcessHistoryID(ProcessHistoryID const& phid)
   {
     return aux().setProcessHistoryID(phid);
-  }
-
-  void
-  RunPrincipal::
-  setOutputEventRanges(RangeSet const& outputRanges)
-  {
-    rangeSetHandler_.setOutputRanges(outputRanges);
-  }
-
-  void
-  RunPrincipal::
-  setOutputEventRanges(RangeSet::const_iterator const b,
-                       RangeSet::const_iterator const e)
-  {
-    rangeSetHandler_.setOutputRanges(b,e);
   }
 
   void
@@ -103,6 +90,28 @@ namespace art {
     }
     branchMapper().insert(std::move(productProvenance));
     addGroup(std::move(edp), bd, std::move(rs));
+  }
+
+  RangeSetHandler const&
+  RunPrincipal::
+  rangeSetHandler() const
+  {
+    if (!rangeSetHandler_) {
+      throw Exception(errors::NullPointerError)
+        << "Tried to obtain a NULL rangeSetHandler.\n";
+    }
+    return *rangeSetHandler_;
+  }
+
+  RangeSetHandler&
+  RunPrincipal::
+  rangeSetHandler()
+  {
+    if (!rangeSetHandler_) {
+      throw Exception(errors::NullPointerError)
+        << "Tried to obtain a NULL rangeSetHandler.\n";
+    }
+    return *rangeSetHandler_;
   }
 
 } // namespace art

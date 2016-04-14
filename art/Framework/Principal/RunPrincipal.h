@@ -11,7 +11,7 @@
 //  which is a proxy for this class.
 //
 
-#include "art/Framework/Principal/EventRangeHandler.h"
+#include "art/Framework/Principal/UnboundedRangeSetHandler.h"
 #include "art/Framework/Principal/NoDelayedReader.h"
 #include "art/Framework/Principal/Principal.h"
 #include "art/Framework/Principal/fwd.h"
@@ -29,13 +29,14 @@ namespace art {
   public:
 
     using Auxiliary = RunAuxiliary;
+    using RangeSetHandler = detail::RangeSetHandler;
     static constexpr BranchType branch_type = RunAuxiliary::branch_type;
 
   public:
 
     RunPrincipal(RunAuxiliary const&,
                  ProcessConfiguration const&,
-                 EventRangeHandler const& = EventRangeHandler{ IDNumber<Level::Run>::invalid() },
+                 std::unique_ptr<RangeSetHandler>&& = std::make_unique<UnboundedRangeSetHandler>(IDNumber<Level::Run>::invalid()),
                  std::unique_ptr<BranchMapper>&& = std::make_unique<BranchMapper>(),
                  std::unique_ptr<DelayedReader>&& = std::make_unique<NoDelayedReader>(),
                  int idx = 0,
@@ -65,11 +66,8 @@ namespace art {
              std::unique_ptr<ProductProvenance const>&&,
              RangeSet&& = RangeSet::invalid());
 
-    void setOutputEventRanges(RangeSet const&);
-    void setOutputEventRanges(RangeSet::const_iterator b,
-                              RangeSet::const_iterator e);
-    RangeSet const& inputEventRanges() const { return rangeSetHandler_.inputRanges(); }
-    RangeSet const& outputEventRanges() const { return rangeSetHandler_.outputRanges(); }
+    RangeSetHandler const& rangeSetHandler() const;
+    RangeSetHandler& rangeSetHandler();
 
   private:
 
@@ -80,7 +78,7 @@ namespace art {
   private:
 
     RunAuxiliary aux_;
-    EventRangeHandler rangeSetHandler_;
+    std::unique_ptr<RangeSetHandler> rangeSetHandler_ {nullptr};
 
   };
 

@@ -12,7 +12,7 @@
 #include "art/Framework/IO/Root/BranchMapperWithReader.h"
 #include "art/Framework/IO/Root/Inputfwd.h"
 #include "art/Framework/IO/Root/detail/getFileContributors.h"
-#include "art/Framework/Principal/EventRangeHandler.h"
+#include "art/Framework/Principal/BoundedRangeSetHandler.h"
 #include "art/Framework/Principal/Principal.h"
 #include "canvas/Persistency/Provenance/BranchKey.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
@@ -158,10 +158,10 @@ namespace art {
     }
 
     template<typename AUX>
-    AUX getAux(EntryNumbers const& entries,
-               sqlite3* db [[gnu::unused]],
-               std::string const& filename [[gnu::unused]],
-               EventRangeHandler& erh)
+    std::unique_ptr<BoundedRangeSetHandler> fillAux(EntryNumbers const& entries,
+                                                    sqlite3* db,
+                                                    std::string const& filename,
+                                                    AUX& aux)
     {
       auto auxResult = getAux<AUX>(entries[0]);
       auto rangeSet = detail::getContributors(db,
@@ -177,10 +177,10 @@ namespace art {
                                                           tmpAux.rangeSetID());
         rangeSet.merge(tmpRangeSet);
       }
-      EventRangeHandler merged {rangeSet};
-      std::swap(erh, merged);
+      auto merged = std::make_unique<BoundedRangeSetHandler>(rangeSet);
       auxResult.setRangeSetID(-1u); // Range set of new auxiliary is invalid
-      return auxResult;
+      std::swap(aux, auxResult);
+      return merged;
     }
 
     TTree const*

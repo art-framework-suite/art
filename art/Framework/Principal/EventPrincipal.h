@@ -2,14 +2,12 @@
 #define art_Framework_Principal_EventPrincipal_h
 // vim: set sw=2:
 
-//
 //  EventPrincipal
 //
 //  Manages per-event data products.
 //
 //  This is not visible to modules, instead they use the Event class,
 //  which is a proxy for this class.
-//
 
 #include "art/Framework/Principal/NoDelayedReader.h"
 #include "art/Framework/Principal/Principal.h"
@@ -42,7 +40,7 @@ namespace art {
                    std::shared_ptr<History> history = std::make_shared<History>(),
                    std::unique_ptr<BranchMapper>&& mapper = std::make_unique<BranchMapper>(),
                    std::unique_ptr<DelayedReader>&& rtrv = std::make_unique<NoDelayedReader>(),
-                   bool lastEventInSubRun = false,
+                   bool lastInSubRun = false,
                    int idx = 0,
                    EventPrincipal* = nullptr);
 
@@ -91,7 +89,7 @@ namespace art {
 
     BranchType branchType() const override { return branch_type; }
 
-    bool isLastEventInSubRun() const { return lastEventInSubRun_; }
+    bool isLastInSubRun() const { return lastInSubRun_; }
     EDProductGetter const* productGetter(ProductID const& pid) const;
 
   private:
@@ -125,14 +123,14 @@ namespace art {
 
     mutable
     std::map<ProductID, std::shared_ptr<DeferredProductGetter const>>
-    deferredGetters_;
+    deferredGetters_ {};
 
     EventAuxiliary aux_;
 
-    std::shared_ptr<SubRunPrincipal> subRunPrincipal_;
+    std::shared_ptr<SubRunPrincipal> subRunPrincipal_ {nullptr};
     std::shared_ptr<History> history_;
-    std::map<BranchListIndex, ProcessIndex> branchToProductIDHelper_;
-    bool lastEventInSubRun_ {false};
+    std::map<BranchListIndex, ProcessIndex> branchToProductIDHelper_ {};
+    bool lastInSubRun_ {false};
   };
 
   inline

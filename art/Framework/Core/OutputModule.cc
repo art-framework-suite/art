@@ -219,16 +219,10 @@ doWriteEvent(EventPrincipal& ep)
       --remainingEvents_;
     }
   }
-  auto& run_rsh = runRangeSetHandler_;
-  auto& subrun_rsh = subRunRangeSetHandler_;
-  if (!subrun_rsh.inputRanges().is_valid())
-    subrun_rsh.initializeRanges(ep.subRunPrincipal().inputEventRanges());
-
-  if (!run_rsh.inputRanges().is_valid())
-    run_rsh.initializeRanges(ep.runPrincipal().inputEventRanges());
-
-  subrun_rsh.update(e.id(), ep.isLastEventInSubRun());
-  run_rsh.update(e.id(), ep.isLastEventInSubRun());
+  auto const& eid = ep.id();
+  auto const lastInSubRun = ep.isLastInSubRun();
+  ep.runPrincipal().rangeSetHandler().updateFromEvent(eid, lastInSubRun);
+  ep.subRunPrincipal().rangeSetHandler().updateFromEvent(eid, lastInSubRun);
 }
 
 bool
@@ -249,8 +243,6 @@ art::OutputModule::
 doSetAuxiliaryRangeSetID(SubRunPrincipal& srp)
 {
   FDEBUG(2) << "writeAuxiliaryRangeSets(srp) called\n";
-  srp.setOutputEventRanges(subRunRangeSetHandler_.begin(),
-                           subRunRangeSetHandler_.current());
   setSubRunAuxiliaryRangeSetID(srp);
 }
 
@@ -261,15 +253,12 @@ doWriteSubRun(SubRunPrincipal& srp)
   FDEBUG(2) << "writeSubRun called\n";
   writeSubRun(srp);
 
-  auto& run_rsh = runRangeSetHandler_;
-  if (!run_rsh.inputRanges().is_valid())
-    run_rsh.initializeRanges(srp.runPrincipal().inputEventRanges());
-  run_rsh.update(srp.id());
+  srp.runPrincipal().rangeSetHandler().updateFromSubRun(srp.id());
 
   if (fileStatus_ == OutputFileStatus::Switching)
-    subRunRangeSetHandler_.rebase();
+    srp.rangeSetHandler().rebase();
   else
-    subRunRangeSetHandler_.reset();
+    srp.rangeSetHandler().reset();
 }
 
 bool
@@ -290,8 +279,6 @@ art::OutputModule::
 doSetAuxiliaryRangeSetID(RunPrincipal& rp)
 {
   FDEBUG(2) << "writeAuxiliaryRangeSets(rp) called\n";
-  rp.setOutputEventRanges(runRangeSetHandler_.begin(),
-                          runRangeSetHandler_.current());
   setRunAuxiliaryRangeSetID(rp);
 }
 
@@ -301,10 +288,12 @@ doWriteRun(RunPrincipal & rp)
 {
   FDEBUG(2) << "writeRun called\n";
   writeRun(rp);
-  if (fileStatus_ == OutputFileStatus::Switching)
-    runRangeSetHandler_.rebase();
-  else
-    runRangeSetHandler_.reset();
+  if (fileStatus_ == OutputFileStatus::Switching) {
+    rp.rangeSetHandler().rebase();
+  }
+  else {
+    rp.rangeSetHandler().reset();
+  }
 }
 
 void

@@ -16,7 +16,6 @@
 #include "art/Framework/Core/OutputFileStatus.h"
 #include "art/Framework/Core/OutputModuleDescription.h"
 #include "art/Framework/Core/OutputWorker.h"
-#include "art/Framework/Principal/EventRangeHandler.h"
 #include "art/Framework/Principal/fwd.h"
 #include "art/Framework/Services/FileServiceInterfaces/CatalogInterface.h"
 #include "art/Framework/Services/System/FileCatalogMetadata.h"
@@ -151,8 +150,6 @@ private:
   int remainingEvents_ {maxEvents_};
   OutputFileStatus fileStatus_ {OutputFileStatus::Closed};
 
-  EventRangeHandler runRangeSetHandler_ {};
-  EventRangeHandler subRunRangeSetHandler_ {};
   ModuleDescription moduleDescription_ {};
 
   cet::exempt_ptr<CurrentProcessingContext const> current_context_ {nullptr};

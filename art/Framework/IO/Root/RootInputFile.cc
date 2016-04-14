@@ -39,6 +39,7 @@
 #include "TTree.h"
 
 #include <algorithm>
+#include <iostream>
 #include <utility>
 
 extern "C" {
@@ -739,8 +740,7 @@ namespace art {
   RootInputFile::
   readCurrentRun(EntryNumbers const& entryNumbers)
   {
-    EventRangeHandler rangeSetHandler;
-    fillAuxiliary<InRun>(entryNumbers, rangeSetHandler);
+    auto rangeSetHandler_up = fillAuxiliary<InRun>(entryNumbers);
     assert(runAux().id() == fiIter_->eventID_.runID());
     overrideRunNumber(runAux().id_);
     if (runAux().beginTime() == Timestamp::invalidTimestamp()) {
@@ -756,7 +756,7 @@ namespace art {
     }
     auto rp = std::make_unique<RunPrincipal>(runAux(),
                                              processConfiguration_,
-                                             rangeSetHandler,
+                                             std::move(rangeSetHandler_up),
                                              runTree().makeBranchMapper(),
                                              runTree().makeDelayedReader(sqliteDB_,
                                                                          InRun,
@@ -788,8 +788,7 @@ namespace art {
     assert(fiIter_ != fiEnd_);
     assert(fiIter_->getEntryType() == FileIndex::kRun);
     assert(fiIter_->eventID_.runID().isValid());
-    EventRangeHandler rangeSetHandler;
-    fillAuxiliary<InRun>(entryNumbers, rangeSetHandler);
+    auto rangeSetHandler_up = fillAuxiliary<InRun>(entryNumbers);
     assert(runAux().id() == fiIter_->eventID_.runID());
     overrideRunNumber(runAux().id_);
     if (runAux().beginTime() == Timestamp::invalidTimestamp()) {
@@ -805,7 +804,7 @@ namespace art {
     }
     auto rp = std::make_shared<RunPrincipal>(runAux(),
                                              processConfiguration_,
-                                             rangeSetHandler,
+                                             std::move(rangeSetHandler_up),
                                              runTree().makeBranchMapper(),
                                              runTree().makeDelayedReader(sqliteDB_,
                                                                          InRun,
@@ -861,8 +860,7 @@ namespace art {
   readCurrentSubRun(EntryNumbers const& entryNumbers,
                     shared_ptr<RunPrincipal> rp [[gnu::unused]])
   {
-    EventRangeHandler rangeSetHandler;
-    fillAuxiliary<InSubRun>(entryNumbers, rangeSetHandler);
+    auto rangeSetHandler_up = fillAuxiliary<InSubRun>(entryNumbers);
     assert(subRunAux().id() == fiIter_->eventID_.subRunID());
     overrideRunNumber(subRunAux().id_);
     assert(subRunAux().runID() == rp->id());
@@ -880,7 +878,7 @@ namespace art {
 
     auto srp = std::make_unique<SubRunPrincipal>(subRunAux(),
                                                  processConfiguration_,
-                                                 rangeSetHandler,
+                                                 std::move(rangeSetHandler_up),
                                                  subRunTree().makeBranchMapper(),
                                                  subRunTree().makeDelayedReader(sqliteDB_,
                                                                                 InSubRun,
@@ -911,8 +909,7 @@ namespace art {
     auto const& entryNumbers = getEntryNumbers(InSubRun).first;
     assert(fiIter_ != fiEnd_);
     assert(fiIter_->getEntryType() == FileIndex::kSubRun);
-    EventRangeHandler rangeSetHandler;
-    fillAuxiliary<InSubRun>(entryNumbers, rangeSetHandler);
+    auto rangeSetHandler_up = fillAuxiliary<InSubRun>(entryNumbers);
     assert(subRunAux().id() == fiIter_->eventID_.subRunID());
     overrideRunNumber(subRunAux().id_);
     if (subRunAux().beginTime() == Timestamp::invalidTimestamp()) {
@@ -928,7 +925,7 @@ namespace art {
     }
     auto srp = std::make_shared<SubRunPrincipal>(subRunAux(),
                                                  processConfiguration_,
-                                                 rangeSetHandler,
+                                                 std::move(rangeSetHandler_up),
                                                  subRunTree().makeBranchMapper(),
                                                  subRunTree().makeDelayedReader(sqliteDB_,
                                                                                 InSubRun,
@@ -1032,6 +1029,7 @@ namespace art {
         << eid << '\n';
     }
 
+    std::cout << " SIZE OF entries: " << entries.size() << '\n';
     bool const newSubRun = it->eventID_.subRun() != subrun;
     bool const lastInFile = it == fiEnd_;
     bool const lastInSubRun = newSubRun || lastInFile;

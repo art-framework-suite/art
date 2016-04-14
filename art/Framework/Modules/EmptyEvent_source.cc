@@ -148,7 +148,7 @@ art::EmptyEvent::readRun_() {
   newRun_ = false;
   auto rp_ptr = std::make_shared<RunPrincipal>(runAux,
                                                processConfiguration(),
-                                               EventRangeHandler{runAux.run()});
+                                               std::make_unique<UnboundedRangeSetHandler>(runAux.run()));
   if (plugin_) {
     Run const r{*rp_ptr, moduleDescription()};
     plugin_->doBeginRun(r);
@@ -172,7 +172,7 @@ EmptyEvent::readSubRun_() {
   SubRunAuxiliary const subRunAux{eventID_.subRunID(), ts, Timestamp::invalidTimestamp()};
   auto srp_ptr = std::make_shared<SubRunPrincipal>(subRunAux,
                                                    processConfiguration(),
-                                                   EventRangeHandler{subRunAux.run()});
+                                                   std::make_unique<UnboundedRangeSetHandler>(subRunAux.run()));
   if (plugin_) {
     SubRun const sr{*srp_ptr, moduleDescription()};
     plugin_->doBeginSubRun(sr);

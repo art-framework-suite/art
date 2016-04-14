@@ -22,20 +22,18 @@ using namespace std;
 namespace art {
 
 EventPrincipal::
-EventPrincipal(EventAuxiliary const& aux, ProcessConfiguration const& pc,
+EventPrincipal(EventAuxiliary const& aux,
+               ProcessConfiguration const& pc,
                std::shared_ptr<History> history,
                std::unique_ptr<BranchMapper>&& mapper,
                std::unique_ptr<DelayedReader>&& rtrv,
-               bool const lastEventInSubRun,
+               bool const lastInSubRun,
                int idx,
                EventPrincipal* primaryPrincipal)
-  : Principal(pc, history->processHistoryID(), std::move(mapper), std::move(rtrv), idx, primaryPrincipal)
-  , deferredGetters_()
-  , aux_(aux)
-  , subRunPrincipal_()
-  , history_(history)
-  , branchToProductIDHelper_()
-  , lastEventInSubRun_{lastEventInSubRun}
+  : Principal{pc, history->processHistoryID(), std::move(mapper), std::move(rtrv), idx, primaryPrincipal}
+  , aux_{aux}
+  , history_{history}
+  , lastInSubRun_{lastInSubRun}
 {
   productReader().setGroupFinder(cet::exempt_ptr<EDProductGetterFinder const>(this));
   if (ProductMetaData::instance().productProduced(InEvent)) {

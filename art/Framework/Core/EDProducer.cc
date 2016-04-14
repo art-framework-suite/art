@@ -65,7 +65,7 @@ namespace art
                        CPC_exempt_ptr cpc) {
     detail::CPCSentry sentry {current_context_, cpc};
     Run r {rp, moduleDescription_};
-    endRun(r, rp.outputEventRanges());
+    endRun(r, rp.rangeSetHandler().seenRanges());
     r.commit_();
     return true;
   }
@@ -85,7 +85,7 @@ namespace art
                           CPC_exempt_ptr cpc) {
     detail::CPCSentry sentry {current_context_, cpc};
     SubRun sr {srp, moduleDescription_};
-    endSubRun(sr, srp.outputEventRanges());
+    endSubRun(sr, srp.rangeSetHandler().seenRanges());
     sr.commit_();
     return true;
   }

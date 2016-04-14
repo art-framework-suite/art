@@ -197,7 +197,8 @@ namespace {
   }
 
   vector<unsigned>
-  getExistingRangeSetIDs(sqlite3* db, art::RangeSet const& rs) {
+  getExistingRangeSetIDs(sqlite3* db, art::RangeSet const& rs)
+  {
     vector<unsigned> rangeSetIDs;
     for (auto const& range : rs) {
       TransactionSentry s {db};
@@ -221,9 +222,8 @@ namespace {
     std::string const ddl {"INSERT INTO EventRanges(SubRun, begin, end) "
         "VALUES(?, ?, ?);"};
     sqlite3_prepare_v2(db, ddl.c_str(), -1, &stmt, nullptr);
-    for (auto const& r : rs) {
-      //      std::cout << "Inserting: " << r << '\n';
-      insert_eventRanges_row(stmt, r.subrun(), r.begin(), r.end());
+    for (auto const& range : rs) {
+      insert_eventRanges_row(stmt, range.subrun(), range.begin(), range.end());
     }
     sqlite3_finalize(stmt);
   }
@@ -928,13 +928,11 @@ art::
 RootOutputFile::
 setAuxiliaryRangeSetID(SubRunPrincipal& sr)
 {
-  // std::cout << "\nSubRun event ranges\n"
-  //           << "===================\n";
   subRunRSID_ = getNewRangeSetID(rootFileDB_, InSubRun, sr.run());
-  insertIntoEventRanges(rootFileDB_, sr.outputEventRanges());
-  auto const& eventRangesIDs = getExistingRangeSetIDs(rootFileDB_, sr.outputEventRanges());
+  auto const& ranges = sr.rangeSetHandler().seenRanges();
+  insertIntoEventRanges(rootFileDB_, ranges);
+  auto const& eventRangesIDs = getExistingRangeSetIDs(rootFileDB_, ranges);
   insertIntoJoinTable(rootFileDB_, InSubRun, subRunRSID_, eventRangesIDs);
-  //  std::cout << "SubRun RangeSetID : " << subRunRSID_ << "\n\n";
 }
 
 void
@@ -942,15 +940,9 @@ art::
 RootOutputFile::
 setAuxiliaryRangeSetID(RunPrincipal& r)
 {
-  // std::cout << "\nRun event ranges\n"
-  //           << "===================\n";
   runRSID_ = getNewRangeSetID(rootFileDB_, InRun, r.run());
-  insertIntoEventRanges(rootFileDB_, r.outputEventRanges());
-  auto const& eventRangesIDs = getExistingRangeSetIDs(rootFileDB_, r.outputEventRanges());
-  // std::cout << "    ids: ";
-  // for (auto const& id : eventRangesIDs)
-  //   std::cout << id << ' ';
-  // std::cout << '\n';
+  auto const& ranges = r.rangeSetHandler().seenRanges();
+  insertIntoEventRanges(rootFileDB_, ranges);
+  auto const& eventRangesIDs = getExistingRangeSetIDs(rootFileDB_, ranges);
   insertIntoJoinTable(rootFileDB_, InRun, runRSID_, eventRangesIDs);
-  //  std::cout << "Run    RangeSetID : " << runRSID_ << "\n\n";
 }

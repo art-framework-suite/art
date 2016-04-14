@@ -358,12 +358,11 @@ namespace art {
     }
 
     template <BranchType BT>
-    void fillAuxiliary(EntryNumbers const& entries,
-                       EventRangeHandler& erh)
+    std::unique_ptr<BoundedRangeSetHandler> fillAuxiliary(EntryNumbers const& entries)
     {
       using AUX = std::tuple_element_t<BT,decltype(auxiliaries_)>;
       auto& aux = std::get<BT>(auxiliaries_);
-      aux = treePointers_[BT]->getAux<AUX>(entries, sqliteDB_, file_, erh);
+      return treePointers_[BT]->fillAux<AUX>(entries, sqliteDB_, file_, aux);
     }
 
     void overrideRunNumber(RunID& id);
