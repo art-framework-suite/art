@@ -55,6 +55,7 @@
  <class name="std::vector<arttest::SimpleDerived>"/>
  <class name="art::Wrapper<std::vector<arttest::SimpleDerived> >"/>
 
+ <class name="art::Ptr<arttest::Simple>"/>
  <class name="art::Ptr<arttest::SimpleDerived>"/>
  <class name="std::vector<art::Ptr<arttest::SimpleDerived> >"/>
  <class name="art::PtrVector<arttest::SimpleDerived>"/>

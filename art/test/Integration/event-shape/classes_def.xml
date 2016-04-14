@@ -2,6 +2,5 @@
   <class name="arttest::ESPtrSimple" ClassVersion="10">
    <version ClassVersion="10" checksum="1435378657"/>
   </class>
-  <class name="art::Ptr<arttest::Simple>"/>
   <class name="art::Wrapper<arttest::ESPtrSimple>"/>
 </lcgdict>

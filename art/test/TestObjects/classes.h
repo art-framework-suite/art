@@ -22,6 +22,7 @@ template class art::Wrapper<arttest::StringProduct>;
 template class art::Wrapper<arttest::Prodigal>;
 template class std::vector<arttest::SimpleDerived>;
 template class art::Wrapper<std::vector<arttest::SimpleDerived> >;
+template class art::Ptr<arttest::Simple>;
 template class art::Ptr<arttest::SimpleDerived>;
 template class std::vector<art::Ptr<arttest::SimpleDerived> >;
 template class art::PtrVector<arttest::SimpleDerived>;
