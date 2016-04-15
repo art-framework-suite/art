@@ -245,6 +245,14 @@ art::OutputModule::
 doSetAuxiliaryRangeSetID(SubRunPrincipal& srp)
 {
   FDEBUG(2) << "writeAuxiliaryRangeSets(srp) called\n";
+  if (fileStatus_ == OutputFileStatus::StagedToSwitch) {
+    srp.rangeSetHandler().maybeSplitRange();
+    srp.runPrincipal().rangeSetHandler().maybeSplitRange();
+  }
+  else {
+    srp.rangeSetHandler().flushRanges();
+    srp.runPrincipal().rangeSetHandler().flushRanges();
+  }
   setSubRunAuxiliaryRangeSetID(srp);
 }
 
@@ -257,10 +265,9 @@ doWriteSubRun(SubRunPrincipal& srp)
 
   srp.runPrincipal().rangeSetHandler().updateFromSubRun(srp.id());
 
-  if (fileStatus_ == OutputFileStatus::Switching)
+  if (fileStatus_ == OutputFileStatus::StagedToSwitch) {
     srp.rangeSetHandler().rebase();
-  else
-    srp.rangeSetHandler().reset();
+  }
 }
 
 bool
@@ -290,11 +297,8 @@ doWriteRun(RunPrincipal & rp)
 {
   FDEBUG(2) << "writeRun called\n";
   writeRun(rp);
-  if (fileStatus_ == OutputFileStatus::Switching) {
+  if (fileStatus_ == OutputFileStatus::StagedToSwitch) {
     rp.rangeSetHandler().rebase();
-  }
-  else {
-    rp.rangeSetHandler().reset();
   }
 }
 

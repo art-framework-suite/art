@@ -38,19 +38,14 @@ namespace art {
 
     auto begin() const { return ranges_.begin(); }
     auto end() const { return ranges_.end(); }
-    auto current() const { return rsIter_ == end() ? end() : rsIter_+1; }
+
+    RangeSet do_getSeenRanges() const override;
 
     void do_updateFromEvent(EventID const&, bool lastInSubRun) override;
     void do_updateFromSubRun(SubRunID const&) override;
-
+    void do_flushRanges() override {}
+    void do_maybeSplitRange() override {}
     void do_rebase() override;
-    void do_reset() override;
-
-    RangeSet do_getSeenRanges() const override {
-      auto tmp = RangeSet::forRun(ranges_.run());
-      tmp.assign_ranges(begin(), current());
-      return tmp;
-    }
 
     RangeSet ranges_;
     RangeSet::const_iterator rsIter_ {ranges_.begin()};

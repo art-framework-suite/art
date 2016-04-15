@@ -19,12 +19,20 @@ namespace art {
   {}
 
   UnboundedRangeSetHandler::UnboundedRangeSetHandler(RunNumber_t const r)
-    : UnboundedRangeSetHandler{RangeSet::forRun(r)}
+    : UnboundedRangeSetHandler{RangeSet{r}}
   {}
 
   UnboundedRangeSetHandler::UnboundedRangeSetHandler(RangeSet const& rs)
     : ranges_{rs}
   {}
+
+  RangeSet
+  UnboundedRangeSetHandler::do_getSeenRanges() const
+  {
+    RangeSet tmp {ranges_.run()};
+    tmp.assign_ranges(begin(), rsIter_);
+    return tmp;
+  }
 
   void
   UnboundedRangeSetHandler::do_updateFromEvent(EventID const& id,
@@ -74,6 +82,8 @@ namespace art {
     ranges_.clear();
     rsIter_ = ranges_.end();
 
+    // Not enough to ask 'back.is_valid()' since a range representing
+    // the entire SubRun is valid...but we don't want that here.
     if (is_valid(back.subrun()) &&
         is_valid(back.begin()) &&
         is_valid(back.end())) {
@@ -81,13 +91,6 @@ namespace art {
       rsIter_ = ranges_.end();
     }
 
-  }
-
-  void
-  UnboundedRangeSetHandler::do_reset()
-  {
-    UnboundedRangeSetHandler tmp {IDNumber<Level::Run>::invalid()};
-    std::swap(*this, tmp);
   }
 
 }

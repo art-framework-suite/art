@@ -19,12 +19,19 @@ namespace art {
   {}
 
   BoundedRangeSetHandler::BoundedRangeSetHandler(RunNumber_t const r)
-    : BoundedRangeSetHandler{RangeSet::forRun(r)}
+    : BoundedRangeSetHandler{RangeSet{r}}
   {}
 
   BoundedRangeSetHandler::BoundedRangeSetHandler(RangeSet const& rs)
     : ranges_{rs}
   {}
+
+  RangeSet
+  BoundedRangeSetHandler::do_getSeenRanges() const {
+    RangeSet tmp {ranges_.run()};
+    tmp.assign_ranges(begin(), rsIter_);
+    return tmp;
+  }
 
   void
   BoundedRangeSetHandler::do_updateFromEvent(EventID const& id,
@@ -43,21 +50,26 @@ namespace art {
   }
 
   void
-  BoundedRangeSetHandler::do_rebase()
+  BoundedRangeSetHandler::do_flushRanges()
   {
-    assert(!ranges_.empty());
-    auto const first = ranges_.split_range(lastSeenEvent_.subRun(),
-                                           lastSeenEvent_.event());
-    std::vector<EventRange> rebasedRanges (first, ranges_.end());
-    RangeSet tmpRS {ranges_.run(), rebasedRanges};
-    BoundedRangeSetHandler tmp {tmpRS};
-    std::swap(*this, tmp);
+    rsIter_ = end();
   }
 
   void
-  BoundedRangeSetHandler::do_reset()
+  BoundedRangeSetHandler::do_maybeSplitRange()
   {
-    BoundedRangeSetHandler tmp {IDNumber<Level::Run>::invalid()};
+    if (rsIter_ != end()) {
+      rsIter_ = ranges_.split_range(lastSeenEvent_.subRun(),
+                                    lastSeenEvent_.event());
+    }
+  }
+
+  void
+  BoundedRangeSetHandler::do_rebase()
+  {
+    std::vector<EventRange> rebasedRanges (rsIter_, end());
+    RangeSet tmpRS {ranges_.run(), rebasedRanges};
+    BoundedRangeSetHandler tmp {tmpRS};
     std::swap(*this, tmp);
   }
 

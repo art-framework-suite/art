@@ -17,6 +17,11 @@
 # Process 2b: q_1.root [1,6), [11,16) & [19,21) FileIndex: [2-4,12,14-15]
 #             q_2.root [6,11) & [16,19)         FileIndex: [6,9-10,16-18]
 #
+#      OR
+#
+# Process 2c: q_1.root [19,21), [11,16) & [1,6) FileIndex: [2-4,12,14-15]
+#             q_2.root [6,11) & [16,19)         FileIndex: [6,9-10,16-18]  # Don't create this one
+
 # Process 3: r_1.root [1,21)     FileIndex: [2-4,6,10,12,14-18]
 
 
@@ -139,6 +144,38 @@ foreach(i RANGE 1 2)
     DEPENDS RangeSetAggregation_p2b_w${i}
     )
 endforeach()
+
+# Process 2c
+# -- The purpose of this process is to verify that the range sets
+#    produced by concatenating files p_{1,3,5}.root are the same as
+#    those produced by concatenating the files in reverse order.
+
+cet_test(RangeSetAggregation_p2c_w HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS
+  --rethrow-all
+  -c empty.fcl
+  -s "../RangeSetAggregation_p1_w.d/p_5.root"
+  -s "../RangeSetAggregation_p1_w.d/p_3.root"
+  -s "../RangeSetAggregation_p1_w.d/p_1.root"
+  -o "q.root"
+  DATAFILES
+  fcl/empty.fcl
+  TEST_PROPERTIES
+  DEPENDS RangeSetAggregation_p1_w
+  )
+
+cet_test(RangeSetAggregation_p2c_r HANDBUILT
+  TEST_EXEC dump_file_info
+  TEST_ARGS
+  --print-range-sets
+  --print-file-index
+  -s "../RangeSetAggregation_p2c_w.d/q.root"
+  # Should give the same RangeSet results as in test 'p2b_r1'
+  REF "${CMAKE_CURRENT_SOURCE_DIR}/ref/RangeSetAggregation_p2c_r-ref.txt"
+  TEST_PROPERTIES
+  DEPENDS RangeSetAggregation_p2c_w
+  )
 
 # Process 3
 cet_test(RangeSetAggregation_p3_w1 HANDBUILT

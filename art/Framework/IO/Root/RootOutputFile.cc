@@ -131,7 +131,6 @@ namespace {
                                  unsigned const rsid,
                                  unsigned const esid)
   {
-    //    std::cout << "Inserting into join: " << rsid << " " << esid << '\n';
     sqlite3_bind_int64(stmt, 1, rsid);
     sqlite3_bind_int64(stmt, 2, esid);
     sqlite3_step(stmt);
@@ -427,6 +426,10 @@ requestsToCloseFile() const
 {
   unsigned int constexpr oneK {1024u};
   Long64_t const size {filePtr_->GetSize() / oneK};
+  // std::cout << "Size of file: " << filePtr_->GetSize() << ' ' << size << '\n';
+  // namespace bfs = boost::filesystem;
+  // bfs::path p {filePtr_->GetName()};
+  // std::cout << "     (boost): " << bfs::file_size(p) << '\n';
   return criteriaMet(fileSwitchCriteria_, size, eventEntryNumber_);
 }
 
