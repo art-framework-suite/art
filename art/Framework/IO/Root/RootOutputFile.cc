@@ -16,6 +16,7 @@
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
+#include "art/Ntuple/Transaction.h"
 #include "art/Persistency/Provenance/BranchIDListRegistry.h"
 #include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
 #include "art/Persistency/Provenance/ProductMetaData.h"
@@ -63,42 +64,6 @@ using art::RootOutputFile;
 
 namespace {
 
-  class TransactionSentry {
-  public:
-    TransactionSentry(sqlite3* const db)
-      : db_{db}
-    {
-      begin_();
-    }
-
-    ~TransactionSentry()
-    {
-      end_();
-    }
-
-    void reset()
-    {
-      end_();
-      begin_();
-    }
-
-  private:
-
-    void begin_()
-    {
-      art::SQLErrMsg errMsg;
-      sqlite3_exec(db_, "BEGIN TRANSACTION;", nullptr, nullptr, errMsg);
-      errMsg.throwIfError();
-    }
-
-    void end_()
-    {
-      sqlite3_exec(db_, "END TRANSACTION;", nullptr, nullptr, art::SQLErrMsg());
-    }
-
-    sqlite3* const db_;
-  };
-
   void create_table(sqlite3* const db,
                     std::string const& name,
                     std::vector<std::string> const& columns,
@@ -110,6 +75,7 @@ namespace {
         << name << '\n'
         << "is zero.\n";
 
+    sqlite::Transaction txn {db};
     art::SQLErrMsg errMsg;
     std::string ddl =
       "DROP TABLE IF EXISTS " + name + "; "
@@ -124,6 +90,7 @@ namespace {
     ddl += ";";
     sqlite3_exec(db, ddl.c_str(), nullptr, nullptr, errMsg);
     errMsg.throwIfError();
+    txn.commit();
   }
 
   void
@@ -186,13 +153,14 @@ namespace {
                    art::BranchType const bt,
                    art::RunNumber_t const r)
   {
-    TransactionSentry s {db};
+    sqlite::Transaction txn {db};
     sqlite3_stmt* stmt {nullptr};
     std::string const ddl {"INSERT INTO " + art::BranchTypeToString(bt) + "RangeSets(Run) VALUES(?);"};
     sqlite3_prepare_v2(db, ddl.c_str(), -1, &stmt, nullptr);
     insert_rangeSets_row(stmt, r);
     unsigned const rsID = sqlite3_last_insert_rowid(db);
     sqlite3_finalize(stmt);
+    txn.commit();
     return rsID;
   }
 
@@ -201,7 +169,7 @@ namespace {
   {
     vector<unsigned> rangeSetIDs;
     for (auto const& range : rs) {
-      TransactionSentry s {db};
+      sqlite::Transaction txn {db};
       sqlite3_stmt* stmt {nullptr};
       std::string const ddl {"SELECT ROWID FROM EventRanges WHERE "
           "SubRun=" + std::to_string(range.subrun()) + " AND "
@@ -210,6 +178,7 @@ namespace {
       sqlite3_prepare_v2(db, ddl.c_str(), -1, &stmt, nullptr);
       rangeSetIDs.push_back(found_rowid(stmt));
       sqlite3_finalize(stmt);
+      txn.commit();
     }
     return rangeSetIDs;
   }
@@ -217,7 +186,7 @@ namespace {
   void
   insertIntoEventRanges(sqlite3* db, art::RangeSet const& rs)
   {
-    TransactionSentry s {db};
+    sqlite::Transaction txn {db};
     sqlite3_stmt* stmt {nullptr};
     std::string const ddl {"INSERT INTO EventRanges(SubRun, begin, end) "
         "VALUES(?, ?, ?);"};
@@ -226,6 +195,7 @@ namespace {
       insert_eventRanges_row(stmt, range.subrun(), range.begin(), range.end());
     }
     sqlite3_finalize(stmt);
+    txn.commit();
   }
 
   void
@@ -234,7 +204,7 @@ namespace {
                       unsigned const rsID,
                       vector<unsigned> const& eventRangesIDs)
   {
-    TransactionSentry s {db};
+    sqlite::Transaction txn {db};
     sqlite3_stmt* stmt {nullptr};
     std::string const ddl {"INSERT INTO "+art::BranchTypeToString(bt) +
         "RangeSets_EventRanges(RangeSetsID, EventRangesID) Values(?,?);"};
@@ -244,6 +214,7 @@ namespace {
                    insert_rangeSets_eventSets_row(stmt, rsID, eventRangeID);
                  });
     sqlite3_finalize(stmt);
+    txn.commit();
   }
 
 } // unnamed namespace
@@ -312,7 +283,7 @@ RootOutputFile(OutputModule* om,
   delete pHistory_;
   pHistory_ = nullptr;
 
-  initializeFileContributors();
+  createDatabaseTables();
 }
 
 art::
@@ -362,9 +333,14 @@ operator()(OutputItem const& lh, OutputItem const& rh) const
 }
 
 void
-art::RootOutputFile::initializeFileContributors()
+art::RootOutputFile::createDatabaseTables()
 {
-  TransactionSentry s {rootFileDB_};
+
+  // FileCatalog metadata
+  create_table(rootFileDB_, "FileCatalog_metadata",
+               {"ID INTEGER PRIMARY KEY", "Name", "Value"});
+
+  // Event ranges
   create_table(rootFileDB_, "EventRanges",
                {"SubRun INTEGER", "begin INTEGER", "end INTEGER", "UNIQUE (SubRun,begin,end) ON CONFLICT IGNORE"});
 
@@ -634,16 +610,7 @@ writeFileCatalogMetadata(FileStatsCollector const& stats,
                          FileCatalogMetadata::collection_type const& md,
                          FileCatalogMetadata::collection_type const& ssmd)
 {
-  TransactionSentry trSentry {rootFileDB_};
-  SQLErrMsg errMsg;
-  sqlite3_exec(rootFileDB_,
-               "DROP TABLE IF EXISTS FileCatalog_metadata; "
-               "CREATE TABLE FileCatalog_metadata "
-               "(ID INTEGER PRIMARY KEY, Name, Value);",
-               nullptr, nullptr, errMsg);
-  errMsg.throwIfError();
-
-  trSentry.reset();
+  sqlite::Transaction txn {rootFileDB_};
   sqlite3_stmt* stmt = nullptr;
   sqlite3_prepare_v2(rootFileDB_,
                      "INSERT INTO FileCatalog_metadata(Name, Value) "
@@ -726,6 +693,7 @@ writeFileCatalogMetadata(FileStatsCollector const& stats,
     insert_md_row(stmt, kv);
   }
   sqlite3_finalize(stmt);
+  txn.commit();
 }
 
 void

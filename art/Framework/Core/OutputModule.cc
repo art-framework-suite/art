@@ -84,22 +84,24 @@ doSelectProducts()
 
   for (auto const& val : pmd.productList()) {
     BranchDescription const& bd = val.second;
+    auto const bid = bd.branchID();
+    auto const bt = bd.branchType();
     if (bd.transient()) {
       // Transient, skip it.
       continue;
     }
-    if ( !pmd.produced(bd.branchType(),bd.branchID()) &&
-         pmd.presentWithFileIdx(bd.branchType(),bd.branchID()) == MasterProductRegistry::DROPPED ) {
+    if ( !pmd.produced(bt, bid) &&
+         pmd.presentWithFileIdx(bt, bid) == MasterProductRegistry::DROPPED ) {
       // Not produced in this process, and previously dropped, skip it.
       continue;
     }
     if (groupSelector_.selected(bd)) {
       // Selected, keep it.
-      keptProducts_[bd.branchType()].push_back(&bd);
+      keptProducts_[bt].push_back(&bd);
       continue;
     }
     // Newly dropped, skip it.
-    hasNewlyDroppedBranch_[bd.branchType()] = true;
+    hasNewlyDroppedBranch_[bt] = true;
   }
 }
 
@@ -385,7 +387,7 @@ updateBranchParents(EventPrincipal const & ep)
   for (auto const& groupPr : ep) {
     auto const& group = *groupPr.second;
     if (group.productProvenancePtr()) {
-      BranchID const& bid = groupPr.first;
+      BranchID const bid = groupPr.first;
       auto it = branchParents_.find(bid);
       if (it == branchParents_.end()) {
         it = branchParents_.emplace(bid, std::set<ParentageID>()).first;
@@ -401,7 +403,7 @@ art::OutputModule::
 fillDependencyGraph()
 {
   for (auto const& bp : branchParents_) {
-    BranchID const & child = bp.first;
+    BranchID const child = bp.first;
     std::set<ParentageID> const & eIds = bp.second;
     for (auto const& eId : eIds) {
       Parentage entryDesc;

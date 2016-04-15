@@ -171,7 +171,7 @@ namespace art {
   }
 
   void
-  DataViewImpl::removeCachedProduct_(BranchID const & bid) const
+  DataViewImpl::removeCachedProduct_(BranchID const bid) const
   {
     principal().removeCachedProduct(bid);
   }

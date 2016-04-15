@@ -104,7 +104,7 @@ namespace art {
                         bool stopIfProcessHasMatch) const;
 
     void
-    removeCachedProduct(BranchID const& bid) const
+    removeCachedProduct(BranchID const bid) const
     {
       getExistingGroup(bid)->removeCachedProduct();
     }
@@ -269,16 +269,16 @@ namespace art {
     tryNextSecondaryFile() const;
 
     cet::exempt_ptr<Group const>
-    getExistingGroup(BranchID const& bid) const;
+    getExistingGroup(BranchID const bid) const;
 
     std::shared_ptr<const Group> const
     getGroupForPtr(BranchType const btype, BranchID const bid) const;
 
     std::shared_ptr<const Group> const
-    getGroup(BranchID const& bid) const;
+    getGroup(BranchID const bid) const;
 
     std::shared_ptr<const Group> const
-    getResolvedGroup(BranchID const& bid,
+    getResolvedGroup(BranchID const bid,
                      bool resolveProd,
                      bool fillOnDemand) const;
 

@@ -148,7 +148,7 @@ public: // MEMBER FUNCTIONS
 
 private: // MEMBER FUNCTIONS
 
-  void initializeFileContributors();
+  void createDatabaseTables();
   void fillBranches(BranchType const&,
                     Principal const&,
                     std::vector<ProductProvenance>*);

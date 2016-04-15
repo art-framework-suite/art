@@ -207,7 +207,7 @@ protected:
   EDProductGetter const* prodGetter() const;
 
 private:
-  void removeCachedProduct_(BranchID const & bid) const;
+  void removeCachedProduct_(BranchID const bid) const;
 
   //------------------------------------------------------------
   // Data members

@@ -138,7 +138,7 @@ public:
   ////    EDProductGetter const * productGetter() const;
   EDProductGetter const * productGetter(ProductID const &) const;
 
-  ProductID branchIDToProductID(BranchID const &bid) const;
+  ProductID branchIDToProductID(BranchID const bid) const;
 
 private:
   EventPrincipal const& eventPrincipal() const { return eventPrincipal_; }

@@ -85,7 +85,7 @@ namespace art {
     void addGroup(BranchDescription const&);
     void addGroup(std::unique_ptr<EDProduct>&&, BranchDescription const&);
 
-    ProductID branchIDToProductID(BranchID const& bid) const;
+    ProductID branchIDToProductID(BranchID const bid) const;
 
     BranchType branchType() const override { return branch_type; }
 

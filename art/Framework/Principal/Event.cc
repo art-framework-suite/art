@@ -39,7 +39,7 @@ namespace art {
   }
 
   ProductID
-  Event::branchIDToProductID(BranchID const &bid) const {
+  Event::branchIDToProductID(BranchID const bid) const {
     return eventPrincipal().branchIDToProductID(bid);
   }
 

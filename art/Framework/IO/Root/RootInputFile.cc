@@ -1029,7 +1029,6 @@ namespace art {
         << eid << '\n';
     }
 
-    std::cout << " SIZE OF entries: " << entries.size() << '\n';
     bool const newSubRun = it->eventID_.subRun() != subrun;
     bool const lastInFile = it == fiEnd_;
     bool const lastInSubRun = newSubRun || lastInFile;

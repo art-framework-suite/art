@@ -36,6 +36,7 @@ art_make(EXCLUDE
   art_Framework_Principal
   art_Framework_Services_Registry
   art_Framework_Services_System_FileCatalogMetadata_service
+  art_Ntuple
   art_Persistency_Common
   art_Persistency_Provenance canvas_Persistency_Provenance
   art_Framework_IO_RootVersion

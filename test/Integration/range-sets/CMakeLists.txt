@@ -189,6 +189,20 @@ foreach(i RANGE 1 2)
     )
 endforeach()
 
+# Test switching on
+
+cet_test(RangeSetAggregation_p3_w3 HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS
+  --rethrow-all
+  -c rangeSetAggregation_p3_w3.fcl
+  -s "../RangeSetAggregation_p2b_w1.d/q_1.root"
+  DATAFILES
+  fcl/rangeSetAggregation_p3_w3.fcl
+  TEST_PROPERTIES
+  DEPENDS RangeSetAggregation_p2b_w1
+  )
+
 #cet_test(RunProductAggregation_w1 HANDBUILT
 #  TEST_EXEC art
 #  TEST_ARGS --rethrow-all -c runProductAggregation_w.fcl

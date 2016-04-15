@@ -410,9 +410,9 @@ getForOutput(BranchID const bid, bool resolveProd) const
 
 std::shared_ptr<const Group> const
 Principal::
-getResolvedGroup(BranchID const& bid,
-                 bool resolveProd,
-                 bool fillOnDemand) const
+getResolvedGroup(BranchID const bid,
+                 bool const resolveProd,
+                 bool const fillOnDemand) const
 {
   // FIXME: This reproduces the behavior of the original getGroup with
   // resolveProv == false but I am not sure this is correct in the case
@@ -432,7 +432,7 @@ getResolvedGroup(BranchID const& bid,
 
 cet::exempt_ptr<Group const>
 Principal::
-getExistingGroup(BranchID const& bid) const
+getExistingGroup(BranchID const bid) const
 {
   auto I = groups_.find(bid);
   if (I != groups_.end()) {
@@ -493,7 +493,7 @@ getGroupForPtr(BranchType const btype, BranchID const bid) const
 
 std::shared_ptr<const Group> const
 Principal::
-getGroup(BranchID const& bid) const
+getGroup(BranchID const bid) const
 {
   const Principal* pp = this;
   if (primaryPrincipal_ != nullptr) {

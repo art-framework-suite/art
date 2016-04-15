@@ -137,10 +137,10 @@ namespace {
 
 //======================================================================================
 using namespace art::detail;
-using namespace ::ostream_sanitize;
-using namespace ::banners;
-using namespace ::memdata;
-using namespace ::aliases;
+using namespace ostream_sanitize;
+using namespace banners;
+using namespace memdata;
+using namespace aliases;
 
 art::MemoryTracker::MemoryTracker(ServiceTable<Config> const& config,
                                   ActivityRegistry & iReg)

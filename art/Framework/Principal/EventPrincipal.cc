@@ -191,7 +191,7 @@ productIDToBranchID(ProductID const& pid) const
 
 ProductID
 EventPrincipal::
-branchIDToProductID(BranchID const& bid) const
+branchIDToProductID(BranchID const bid) const
 {
   if (!bid.isValid()) {
     throw art::Exception(art::errors::NotFound, "InvalidID")
