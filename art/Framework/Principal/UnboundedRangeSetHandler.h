@@ -49,6 +49,7 @@ namespace art {
 
     RangeSet ranges_;
     RangeSet::const_iterator rsIter_ {ranges_.begin()};
+    bool lastInSubRun_ {true};
   };
 
 }

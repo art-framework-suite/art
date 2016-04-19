@@ -97,12 +97,15 @@ namespace art {
         if (!seenIDs.insert(id).second) continue; // Skip an already-seen product;
                                                   // double-counting is bad.
 
-        RangeSet const& rs = detail::getContributors(db_, "SomeInput"s, branchType_, id);
-        if (art::are_disjoint(mergedRangeSet, rs)) {
+        RangeSet const& tmpRS = detail::getContributors(db_, "SomeInput"s, branchType_, id);
+        if (art::are_disjoint(mergedRangeSet, tmpRS)) {
           result->combine(p.get());
-          mergedRangeSet.merge(rs);
+          mergedRangeSet.merge(tmpRS);
         }
       }
+      mergedRangeSet.collapse(); // Must collapse the range!  It sets
+                                 // the checksum.  Yeah...I don't like
+                                 // it either. -KJK
       std::swap(rs, mergedRangeSet);
     }
 

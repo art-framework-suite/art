@@ -36,8 +36,10 @@ namespace art {
 
   void
   UnboundedRangeSetHandler::do_updateFromEvent(EventID const& id,
-                                               bool const /*lastInSubRun*/)
+                                               bool const lastInSubRun)
   {
+    lastInSubRun_ = lastInSubRun;
+
     if (ranges_.empty()) {
       ranges_.set_run(id.run());
       ranges_.emplace_range(id.subRun(), id.event(), id.next().event());
@@ -82,6 +84,11 @@ namespace art {
     ranges_.clear();
     rsIter_ = ranges_.end();
 
+    // If last event in SubRun has been seen, do not rebase since a
+    // new RangeSetHandler will be created for the next SubRun.
+    if (lastInSubRun_)
+      return;
+
     // Not enough to ask 'back.is_valid()' since a range representing
     // the entire SubRun is valid...but we don't want that here.
     if (is_valid(back.subrun()) &&
@@ -90,7 +97,6 @@ namespace art {
       ranges_.emplace_range(back.subrun(), back.end(), IDNumber<Level::Event>::next(back.end()));
       rsIter_ = ranges_.end();
     }
-
   }
 
 }
