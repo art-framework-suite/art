@@ -85,12 +85,16 @@ namespace statemachine {
   void HandleEvents::processAndFinalizeEvent()
   {
     if (!processAndFinalizeEnabled_) return;
+    if (eventException_) return;
+
+    eventException_ = true;
     ep_.processEvent();
     if (ep_.shouldWeStop()) { post_event(Stop()); }
     context<HandleFiles>().openSomeOutputFiles();
     ep_.writeEvent();
     ep_.recordOutputClosureRequests();
     context<HandleFiles>().maybeTriggerOutputFileSwitch(Boundary::Event);
+    eventException_ = false;
   }
 
   NewEvent::NewEvent(my_context ctx) :
@@ -99,8 +103,11 @@ namespace statemachine {
   {
     // std::cout << " NewEvent()\n";
     context<Machine>().setCurrentBoundary(Boundary::Event);
+    auto& handleEvents = context<HandleEvents>();
+    handleEvents.setEventException(true);
     markNonEmpty();
     ep_.readEvent();
+    handleEvents.setEventException(false);
     checkInvariant();
   }
 

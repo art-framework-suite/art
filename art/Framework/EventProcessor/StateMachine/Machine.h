@@ -278,6 +278,7 @@ namespace statemachine {
     void disableProcessAndFinalizeEvent(Pause const&) { processAndFinalizeEnabled_ = false; }
     void exit();
     void processAndFinalizeEvent();
+    void setEventException(bool const value) { eventException_ = value; }
     void checkInvariant();
 
     using reactions = sc::transition<Event, HandleEvents>;
@@ -286,6 +287,7 @@ namespace statemachine {
     art::IEventProcessor & ep_;
     art::EventID currentEvent_;
     bool exitCalled_ {false};
+    bool eventException_ {false};
     bool processAndFinalizeEnabled_ {true};
   };
 
