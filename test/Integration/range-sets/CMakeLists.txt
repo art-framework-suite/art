@@ -246,19 +246,6 @@ cet_test(RangeSetAggregation_p3_w3 HANDBUILT
 #  DATAFILES
 #  fcl/runProductAggregation_w1.fcl
 #  )
-#
-# Tiered test 2
-#==================================================================
-# Process 1: p_1.root [1,5)      FileIndex: [2-4]
-#            p_2.root [5,11)     FileIndex: [6,9-10]
-#            p_3.root [11,16)    FileIndex: [12,14-15]
-#            p_4.root [16,19)    FileIndex: [16-18]
-#            p_4.root [19,21)    FileIndex: []
-#
-#
-# Process 3: r_1.root [1,21)  FileIndex: [2-4,6,10,12,14-18]
-
-
 
 # Check file indices from first process
 

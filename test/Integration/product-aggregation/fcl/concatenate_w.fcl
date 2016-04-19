@@ -1,0 +1,29 @@
+source: {
+   module_type: RootInput
+   fileNames: [
+      "../Reconstruction_w.d/reco_1.root",
+      "../Reconstruction_w.d/reco_2.root",
+      "../Reconstruction_w.d/reco_3.root",
+      "../Reconstruction_w.d/reco_4.root",
+      "../Reconstruction_w.d/reco_5.root",
+      "../Reconstruction_w.d/reco_6.root",
+      "../Reconstruction_w.d/reco_7.root",
+      "../Reconstruction_w.d/reco_8.root"
+   ]
+}
+
+physics.e1: [out]
+
+outputs: {
+
+   out: {
+      module_type: RootOutput
+      fileName: "concatenate.root"
+      outputCommands: [
+         "keep *",
+         "drop * InEvent"
+      ]
+   }
+}
+
+process_name: concat

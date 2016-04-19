@@ -1,0 +1,35 @@
+source: {
+   module_type: RootInput
+   fileNames: [
+      "../ParticleSimulation_w.d/sim_1.root",
+      "../ParticleSimulation_w.d/sim_2.root",
+      "../ParticleSimulation_w.d/sim_3.root",
+      "../ParticleSimulation_w.d/sim_4.root"
+   ]
+}
+
+physics: {
+
+   filters: {
+      reco: {
+         module_type: Reconstruction
+         inputTag: ["sim:particleEnergies:particleSim"]
+         energyThreshold: 50
+      }
+   }
+
+   p1: [reco]
+   e1: [out]
+}
+
+outputs: {
+
+   out: {
+      module_type: RootOutput
+      fileName: "reco_%#.root"
+      SelectEvents: { SelectEvents: [p1] }
+      maxEventsPerFile: 20
+   }
+}
+
+process_name: reco

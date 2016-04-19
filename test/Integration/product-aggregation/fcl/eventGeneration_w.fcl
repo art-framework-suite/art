@@ -1,0 +1,30 @@
+source: {
+   module_type: EmptyEvent
+   maxEvents: 200
+   numberEventsInSubRun: 100
+}
+
+physics: {
+
+   producers: {
+      prod: {
+         module_type: EventGenerator
+         lower: -13 # PDG IDs
+         upper: +13
+      }
+   }
+
+   p1: [prod]
+   e1: [out]
+}
+
+outputs: {
+
+   out: {
+      module_type: RootOutput
+      fileName: "evtGen_%#.root"
+      maxEventsPerFile: 50
+   }
+}
+
+process_name: eventGen

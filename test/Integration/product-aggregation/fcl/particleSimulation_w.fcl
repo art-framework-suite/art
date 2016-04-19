@@ -1,0 +1,40 @@
+source: {
+   module_type: RootInput
+   fileNames: [
+      "../EventGeneration_w.d/evtGen_1.root",
+      "../EventGeneration_w.d/evtGen_2.root",
+      "../EventGeneration_w.d/evtGen_3.root",
+      "../EventGeneration_w.d/evtGen_4.root"
+   ]
+}
+
+physics: {
+
+   producers: {
+      sim: {
+         module_type: ParticleSimulator
+         inputTag: ["prod:GenParticles:eventGen"]
+         energyRange: {
+            lower: 0
+            upper: 105
+         }
+      }
+   }
+
+   p1: [sim]
+   e1: [out]
+}
+
+outputs: {
+
+   out: {
+      module_type: RootOutput
+      fileName: "sim_%#.root"
+      fileSwitch: {
+         boundary: InputFile
+         force: true
+      }
+   }
+}
+
+process_name: particleSim

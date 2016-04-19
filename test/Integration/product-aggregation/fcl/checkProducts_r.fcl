@@ -1,0 +1,31 @@
+source: {
+   module_type: RootInput
+   fileNames: [ "../Concatenate_w.d/concatenate.root" ]
+}
+
+physics: {
+
+   analyzers: {
+      a1: {
+         module_type: CheckProducts
+         npotsTag: ["prod:nPOTs:eventGen"]
+         geomTag: ["sim:Geometry:particleSim"]
+         calibTag: ["reco:CalibConstants:reco"]
+         trkEffTag: ["reco:TrackEfficiency:reco"]
+         trkEffs: [
+            [ # SubRun 0
+               [20,20,1,19,17],  # numerators
+               [26,22,2,25,25]   # denominators
+            ],
+            [ # SubRun 1
+               [3,20,18,2,20,14],  # numerators
+               [3,26,21,2,26,22]   # denominators
+            ]
+         ]
+      }
+   }
+
+   e1: [a1]
+}
+
+process_name: checkProducts

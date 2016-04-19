@@ -1316,6 +1316,7 @@ add_subdirectory(event-processor)
 add_subdirectory(event-shape)
 add_subdirectory(high-memory)
 add_subdirectory(output-file-handling)
+add_subdirectory(product-aggregation)
 add_subdirectory(range-sets)
 add_subdirectory(run-subrun-shape)
 
