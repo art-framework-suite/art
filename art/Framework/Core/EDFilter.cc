@@ -4,18 +4,15 @@
 #include "art/Framework/Core/detail/get_failureToPut_flag.h"
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Principal/Run.h"
+#include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRun.h"
+#include "art/Framework/Principal/SubRunPrincipal.h"
 #include "canvas/Utilities/Exception.h"
 #include "cetlib/demangle.h"
 #include "fhiclcpp/ParameterSetRegistry.h"
 
 namespace art
 {
-
-  EDFilter::EDFilter()
-    : ProducerBase{}
-    , EngineCreator{}
-  {}
 
   bool
   EDFilter::doEvent(EventPrincipal& ep,
@@ -62,7 +59,7 @@ namespace art
                      CPC_exempt_ptr cpc) {
     detail::CPCSentry sentry {current_context_, cpc};
     Run r {rp, moduleDescription_};
-    bool const rc = endRun(r);
+    bool const rc = endRun(r, rp.rangeSetHandler().seenRanges());
     r.commit_();
     return rc;
   }
@@ -82,7 +79,7 @@ namespace art
                         CPC_exempt_ptr cpc) {
     detail::CPCSentry sentry {current_context_, cpc};
     SubRun sr {srp, moduleDescription_};
-    bool const rc = endSubRun(sr);
+    bool const rc = endSubRun(sr, srp.rangeSetHandler().seenRanges());
     sr.commit_();
     return rc;
   }

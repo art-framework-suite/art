@@ -14,11 +14,6 @@
 namespace art
 {
 
-  EDProducer::EDProducer()
-    : ProducerBase{}
-    , EngineCreator{}
-  {}
-
   bool
   EDProducer::doEvent(EventPrincipal& ep,
                       CPC_exempt_ptr cpc) {

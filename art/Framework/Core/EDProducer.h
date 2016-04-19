@@ -34,7 +34,6 @@ namespace art
     using ModuleType = EDProducer;
     using WorkerType = WorkerT<EDProducer>;
 
-    EDProducer ();
     virtual ~EDProducer() = default;
 
     template <typename PROD, BranchType B, typename TRANS>

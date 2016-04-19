@@ -16,6 +16,7 @@
 #include "art/Framework/Core/ProducerBase.h"
 #include "art/Framework/Core/WorkerT.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
+#include "canvas/Persistency/Provenance/RangeSet.h"
 #include "fhiclcpp/ParameterSet.h"
 
 #include <memory>
@@ -38,7 +39,6 @@ namespace art
     using ModuleType = EDFilter;
     using WorkerType = WorkerT<EDFilter>;
 
-    EDFilter();
     virtual ~EDFilter() = default;
 
     template <typename PROD, BranchType B, typename TRANS>
@@ -84,9 +84,9 @@ namespace art
     virtual void endJob(){}
     virtual void reconfigure(fhicl::ParameterSet const&);
     virtual bool beginRun(Run &){return true;}
-    virtual bool endRun(Run &){return true;}
+    virtual bool endRun(Run &, art::RangeSet const&){return true;}
     virtual bool beginSubRun(SubRun &){return true;}
-    virtual bool endSubRun(SubRun &){return true;}
+    virtual bool endSubRun(SubRun &, art::RangeSet const&){return true;}
     virtual void respondToOpenInputFile(FileBlock const&) {}
     virtual void respondToCloseInputFile(FileBlock const&) {}
     virtual void respondToOpenOutputFiles(FileBlock const&) {}
