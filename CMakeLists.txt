@@ -67,6 +67,9 @@ if (NOT APPLE)
   set(RT -lrt)
 endif()
 
+# SQLite
+cet_find_library(SQLITE3 NAMES sqlite3_ups PATHS ENV SQLITE_LIB NO_DEFAULT_PATH)
+
 # Plugin skeleton generators for cetskelgen.
 add_subdirectory(perllib)
 
