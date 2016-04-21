@@ -16,8 +16,11 @@
 #include "art/Framework/Principal/Principal.h"
 #include "canvas/Persistency/Provenance/BranchKey.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
+#include "canvas/Persistency/Provenance/FileFormatVersion.h"
 #include "canvas/Persistency/Provenance/ProductProvenance.h"
 #include "canvas/Persistency/Provenance/ProvenanceFwd.h"
+#include "canvas/Persistency/Provenance/RunID.h"
+#include "canvas/Persistency/Provenance/SubRunID.h"
 
 #include "TBranch.h"
 #include "TTree.h"
@@ -43,6 +46,21 @@ namespace art {
     inline void mergeAuxiliary(EventAuxiliary&,
                                EventAuxiliary const&)
     {}
+
+    template <BranchType, typename ID>
+    RangeSet makeFullRangeSet(ID const&);
+
+    template <>
+    inline RangeSet makeFullRangeSet<InSubRun,SubRunID>(SubRunID const& id)
+    {
+      return RangeSet::forSubRun(id);
+    }
+
+    template <>
+    inline RangeSet makeFullRangeSet<InRun,RunID>(RunID const& id)
+    {
+      return RangeSet::forRun(id);
+    }
   }
 
   class DelayedReader;
@@ -133,12 +151,14 @@ namespace art {
     }
 
     std::unique_ptr<DelayedReader>
-    makeDelayedReader(BranchType,
+    makeDelayedReader(FileFormatVersion,
+                      BranchType,
                       std::vector<EntryNumber> const& entrySet,
                       EventID);
 
     std::unique_ptr<DelayedReader>
-    makeDelayedReader(sqlite3* inputDB,
+    makeDelayedReader(FileFormatVersion,
+                      sqlite3* inputDB,
                       BranchType,
                       std::vector<EntryNumber> const& entrySet,
                       EventID);
@@ -158,12 +178,20 @@ namespace art {
     }
 
     template<typename AUX>
-    std::unique_ptr<BoundedRangeSetHandler> fillAux(EntryNumbers const& entries,
+    std::unique_ptr<BoundedRangeSetHandler> fillAux(FileFormatVersion const fileFormatVersion,
+                                                    EntryNumbers const& entries,
                                                     sqlite3* db,
                                                     std::string const& filename,
                                                     AUX& aux)
     {
       auto auxResult = getAux<AUX>(entries[0]);
+      if (fileFormatVersion.value_ < 9) {
+        auto rs = detail::makeFullRangeSet<AUX::branch_type>(auxResult.id());
+        std::swap(aux, auxResult);
+        auto result = std::make_unique<BoundedRangeSetHandler>(rs);
+        return result;
+      }
+
       auto rangeSet = detail::getContributors(db,
                                               filename,
                                               AUX::branch_type,

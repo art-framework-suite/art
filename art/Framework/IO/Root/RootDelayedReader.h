@@ -9,6 +9,7 @@
 #include "canvas/Persistency/Provenance/BranchKey.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
 #include "canvas/Persistency/Provenance/EventID.h"
+#include "canvas/Persistency/Provenance/FileFormatVersion.h"
 #include "canvas/Persistency/Provenance/RangeSet.h"
 
 #include <map>
@@ -33,10 +34,10 @@ namespace art {
     ~RootDelayedReader() = default;
 
     RootDelayedReader(RootDelayedReader const&) = delete;
-
     RootDelayedReader& operator=(RootDelayedReader const&) = delete;
 
-    RootDelayedReader(sqlite3* db,
+    RootDelayedReader(FileFormatVersion,
+                      sqlite3* db,
                       std::vector<input::EntryNumber> const& entrySet,
                       std::shared_ptr<input::BranchMap const>,
                       cet::exempt_ptr<RootTree> tree,
@@ -56,6 +57,7 @@ namespace art {
 
   private: // MEMBER DATA
 
+    FileFormatVersion fileFormatVersion_;
     sqlite3* db_;
     std::vector<input::EntryNumber> const entrySet_;
     std::shared_ptr<input::BranchMap const> branches_;

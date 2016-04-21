@@ -24,7 +24,8 @@ namespace {
 namespace art {
 
   RootDelayedReader::
-  RootDelayedReader(sqlite3* db,
+  RootDelayedReader(FileFormatVersion const version,
+                    sqlite3* db,
                     std::vector<input::EntryNumber> const& entrySet,
                     shared_ptr<input::BranchMap const> branches,
                     cet::exempt_ptr<RootTree> tree,
@@ -32,7 +33,8 @@ namespace art {
                     cet::exempt_ptr<RootInputFile> primaryFile,
                     BranchType const branchType,
                     EventID const eID)
-    : db_{db}
+    : fileFormatVersion_{version}
+    , db_{db}
     , entrySet_{entrySet}
     , branches_{branches}
     , tree_{tree}
@@ -81,8 +83,24 @@ namespace art {
     // Retrieve first product
     auto result = get_product(entrySet_[0]);
 
+
     // Retrieve and aggregate subsequent products (if they exist)
     if (branchType_ == InSubRun || branchType_ == InRun) {
+
+      // Products from files that did not support RangeSets are
+      // assigned RangeSets that correspond to the entire run/subrun.
+      if (fileFormatVersion_.value_ < 9) {
+        if (branchType_ == InRun) {
+          auto fullRS = RangeSet::forRun(eventID_.runID());
+          std::swap(rs, fullRS);
+        }
+        else {
+          auto fullRS = RangeSet::forSubRun(eventID_.subRunID());
+          std::swap(rs, fullRS);
+        }
+        return result;
+      }
+
       std::set<unsigned> seenIDs;
       seenIDs.insert(result->getRangeSetID());
       RangeSet mergedRangeSet = detail::getContributors(db_,

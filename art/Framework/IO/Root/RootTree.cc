@@ -116,21 +116,24 @@ namespace art {
 
   std::unique_ptr<DelayedReader>
   RootTree::
-  makeDelayedReader(BranchType const branchType,
-                    EntryNumbers const& entrySet,
-                    EventID const eID)
-  {
-    return makeDelayedReader(nullptr, branchType, entrySet, eID);
-  }
-
-  std::unique_ptr<DelayedReader>
-  RootTree::
-  makeDelayedReader(sqlite3* inputDB,
+  makeDelayedReader(FileFormatVersion const fileFormatVersion,
                     BranchType const branchType,
                     EntryNumbers const& entrySet,
                     EventID const eID)
   {
-    return std::make_unique<RootDelayedReader>(inputDB,
+    return makeDelayedReader(fileFormatVersion, nullptr, branchType, entrySet, eID);
+  }
+
+  std::unique_ptr<DelayedReader>
+  RootTree::
+  makeDelayedReader(FileFormatVersion const fileFormatVersion,
+                    sqlite3* inputDB,
+                    BranchType const branchType,
+                    EntryNumbers const& entrySet,
+                    EventID const eID)
+  {
+    return std::make_unique<RootDelayedReader>(fileFormatVersion,
+                                               inputDB,
                                                entrySet,
                                                branches_,
                                                this,

@@ -362,7 +362,11 @@ namespace art {
     {
       using AUX = std::tuple_element_t<BT,decltype(auxiliaries_)>;
       auto& aux = std::get<BT>(auxiliaries_);
-      return treePointers_[BT]->fillAux<AUX>(entries, sqliteDB_, file_, aux);
+      return treePointers_[BT]->fillAux<AUX>(fileFormatVersion_,
+                                             entries,
+                                             sqliteDB_,
+                                             file_,
+                                             aux);
     }
 
     void overrideRunNumber(RunID& id);

@@ -401,6 +401,14 @@ beginInputFile(FileBlock const& fb, bool fastClone)
       << "splitting level and/or basket size.";
     currentlyFastCloning_ = false;
   }
+
+  if (currentlyFastCloning_ && fb.fileFormatVersion().value_ < 9) {
+    mf::LogWarning("FastCloning")
+      << "Fast cloning deactivated for this input file due to "
+      << "reading in file that does not support RangeSets.";
+    currentlyFastCloning_ = false;
+  }
+
   if (currentlyFastCloning_ && !origCurrentlyFastCloning) {
     mf::LogWarning("FastCloning")
       << "Fast cloning reactivated for this input file.";

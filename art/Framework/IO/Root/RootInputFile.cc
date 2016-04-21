@@ -53,11 +53,6 @@ using namespace std;
 
 namespace {
 
-  std::string sqlite_error_msg(std::string const& filename)
-  {
-    return "Error interrogating SQLite3 DB in file " + filename;
-  }
-
   bool have_table(sqlite3 * db,
                   std::string const& table,
                   std::string const& filename)
@@ -79,27 +74,11 @@ namespace {
     }
     rc = sqlite3_finalize(stmt);
     if (rc != SQLITE_OK) {
-      throw art::Exception{art::errors::FileReadError}
-        << sqlite_error_msg(filename)
+      throw art::Exception(art::errors::FileReadError)
+        << "Error interrogating SQLite3 DB in file " << filename
         << ".\n";
     }
     return result;
-  }
-
-  void print_table [[gnu::unused]] (sqlite3* db, std::string const& table)
-  {
-    sqlite3_stmt* stmt = nullptr;
-    std::string const ddl {"select * from "+table+";"};
-    auto rc = sqlite3_prepare_v2(db, ddl.c_str(), -1, &stmt, nullptr);
-    if (rc != SQLITE_OK)
-      return;
-    while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
-      std::cout << "Run: " << sqlite3_column_int64(stmt, 1)
-                << " SubRun: " << sqlite3_column_int64(stmt, 2)
-                << " Event range: [" << sqlite3_column_int64(stmt, 3)
-                << "," << sqlite3_column_int64(stmt, 4) << ")\n";
-    }
-    rc = sqlite3_finalize(stmt);
   }
 
 }
@@ -241,7 +220,7 @@ namespace art {
       fhicl::ParameterSetRegistry::put(pset);
     }
 
-    // Also need to check MetaData DB if we have one.
+    // Also need to check RootFileDB if we have one.
     if (fileFormatVersion_.value_ >= 5) {
       if ( readIncomingParameterSets &&
            have_table(sqliteDB_, "ParameterSets", file_)) {
@@ -263,7 +242,7 @@ namespace art {
           md.emplace_back(name, value);
         }
         int const finalize_status = sqlite3_finalize(stmt);
-        if(finalize_status != SQLITE_OK) {
+        if (finalize_status != SQLITE_OK) {
           throw art::Exception{art::errors::SQLExecutionError}
                << "Unexpected status from DB status cleanup: "
                << sqlite3_errmsg(sqliteDB_)
@@ -290,7 +269,7 @@ namespace art {
 
     auto& prodList = productListHolder_->productList_;
 
-    fillPerBranchTypePresenceFlags( prodList );
+    fillPerBranchTypePresenceFlags(prodList);
     dropOnInput(groupSelectorRules, dropDescendants, /*unused*/dropMergeable, prodList);
 
     // Determine if this file is fast clonable.
@@ -662,7 +641,8 @@ namespace art {
                                                processConfiguration_,
                                                history_,
                                                eventTree().makeBranchMapper(),
-                                               eventTree().makeDelayedReader(InEvent,
+                                               eventTree().makeDelayedReader(fileFormatVersion_,
+                                                                             InEvent,
                                                                              entryNumbers.first,
                                                                              eventAux().id()),
                                                entryNumbers.second,
@@ -694,7 +674,8 @@ namespace art {
                                                 processConfiguration_,
                                                 history_,
                                                 eventTree().makeBranchMapper(),
-                                                eventTree().makeDelayedReader(InEvent,
+                                                eventTree().makeDelayedReader(fileFormatVersion_,
+                                                                              InEvent,
                                                                               entryNumbers.first,
                                                                               eventAux().id()),
                                                 entryNumbers.second,
@@ -758,7 +739,8 @@ namespace art {
                                              processConfiguration_,
                                              std::move(rangeSetHandler_up),
                                              runTree().makeBranchMapper(),
-                                             runTree().makeDelayedReader(sqliteDB_,
+                                             runTree().makeDelayedReader(fileFormatVersion_,
+                                                                         sqliteDB_,
                                                                          InRun,
                                                                          entryNumbers,
                                                                          fiIter_->eventID_),
@@ -806,7 +788,8 @@ namespace art {
                                              processConfiguration_,
                                              std::move(rangeSetHandler_up),
                                              runTree().makeBranchMapper(),
-                                             runTree().makeDelayedReader(sqliteDB_,
+                                             runTree().makeDelayedReader(fileFormatVersion_,
+                                                                         sqliteDB_,
                                                                          InRun,
                                                                          entryNumbers,
                                                                          fiIter_->eventID_),
@@ -880,7 +863,8 @@ namespace art {
                                                  processConfiguration_,
                                                  std::move(rangeSetHandler_up),
                                                  subRunTree().makeBranchMapper(),
-                                                 subRunTree().makeDelayedReader(sqliteDB_,
+                                                 subRunTree().makeDelayedReader(fileFormatVersion_,
+                                                                                sqliteDB_,
                                                                                 InSubRun,
                                                                                 entryNumbers,
                                                                                 fiIter_->eventID_),
@@ -927,7 +911,8 @@ namespace art {
                                                  processConfiguration_,
                                                  std::move(rangeSetHandler_up),
                                                  subRunTree().makeBranchMapper(),
-                                                 subRunTree().makeDelayedReader(sqliteDB_,
+                                                 subRunTree().makeDelayedReader(fileFormatVersion_,
+                                                                                sqliteDB_,
                                                                                 InSubRun,
                                                                                 entryNumbers,
                                                                                 fiIter_->eventID_),
@@ -1117,7 +1102,8 @@ namespace art {
       resp = std::make_unique<ResultsPrincipal>(resultsAux(),
                                                 processConfiguration_,
                                                 resultsTree().makeBranchMapper(),
-                                                resultsTree().makeDelayedReader(InResults,
+                                                resultsTree().makeDelayedReader(fileFormatVersion_,
+                                                                                InResults,
                                                                                 entryNumbers,
                                                                                 EventID{}),
                                                 0,
