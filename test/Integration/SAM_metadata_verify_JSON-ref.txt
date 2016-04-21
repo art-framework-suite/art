@@ -11,7 +11,7 @@
     "data_stream": "o1",
     "file_format": "artroot",
     "file_format_era": "ART_2011a",
-    "file_format_version": 8,
+    "file_format_version": 9,
     "start_time": "<date-time>",
     "end_time": "<date-time>",
     "runs": [ [ 1, 0, "MCChallenge" ], [ 1, 1, "MCChallenge" ] ],

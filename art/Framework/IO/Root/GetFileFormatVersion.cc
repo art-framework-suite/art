@@ -8,7 +8,7 @@
 // In general:
 //
 // * A change to the persistent format which is both backward- and
-// forawrd-compatible requires no change to the version or era.
+// forward-compatible requires no change to the version or era.
 //
 // * A backward-compatible change should change the version.
 //
@@ -28,10 +28,11 @@
 // ART_2011a   6   Improvements to ParameterSet information in MetaDataDB.
 // ART_2011a   7   FileIndex moved to separate tree.
 // ART_2011a   8   EventID unnecessary data member removed.
+// ART_2011a   9   RangeSet information stored in RootFileDB.
 //
 ////////////////////////////////////////////////////////////////////////
 
 namespace art
 {
-  int getFileFormatVersion() { return 8; }
+  int getFileFormatVersion() { return 9; }
 }
