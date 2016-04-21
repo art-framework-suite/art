@@ -50,7 +50,7 @@ public:
   RangeSet            const & rangeSet           () const {return group_->rangeSet();}
   Parentage           const & event              () const {return parentage();}
   Parentage           const & parentage          () const {return productProvenance().parentage();}
-  BranchID            const & branchID           () const {return productDescription().branchID();}
+  BranchID                    branchID           () const {return productDescription().branchID();}
   std::string         const & branchName         () const {return productDescription().branchName();}
   std::string         const & producedClassName  () const {return productDescription().producedClassName();}
   std::string         const & moduleLabel        () const {return productDescription().moduleLabel();}
