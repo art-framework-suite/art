@@ -867,9 +867,8 @@ fillBranches(BranchType const& bt,
 
       // Set range sets for present SubRun products
       //  - only SubRun and Run products can have range sets
-      //  - the product must be present
-      if ((bt == InSubRun || bt == InRun) && product->isPresent()) {
-        auto const& rs = *oh.rangeSet();
+      if (bt == InSubRun || bt == InRun) {
+        auto const& rs = product->isPresent() ? *oh.rangeSet() : RangeSet::invalid();
         auto nc_product = const_cast<EDProduct*>(product);
         auto it = checksumToIndex.find(rs.checksum());
         if (it != checksumToIndex.cend()) {

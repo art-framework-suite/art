@@ -98,7 +98,7 @@ namespace art {
                                                   // double-counting is bad.
 
         RangeSet const& tmpRS = detail::getContributors(db_, "SomeInput"s, branchType_, id);
-        if (art::are_disjoint(mergedRangeSet, tmpRS)) {
+        if (art::disjoint_ranges(mergedRangeSet, tmpRS)) {
           result->combine(p.get());
           mergedRangeSet.merge(tmpRS);
         }

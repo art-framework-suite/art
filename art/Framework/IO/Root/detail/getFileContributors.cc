@@ -43,114 +43,16 @@ namespace {
 
 using art::EventRange;
 
-std::vector<EventRange>
-art::detail::getFileContributors()
-{
-  return {};
-}
-
-std::vector<EventRange>
-art::detail::getRunContributors(TFile & file,
-                                RunNumber_t const r)
-{
-  art::SQLite3Wrapper db {&file, "RootFileDB"};
-  auto const& filename = file.GetName();
-
-  sqlite3_stmt* stmt {nullptr};
-  std::string const ddl {"SELECT * FROM EventRanges WHERE ROWID IN "
-      "(SELECT EventRangesID FROM RangeSets_EventRanges WHERE RangeSetsID IN "
-      "(SELECT rowid FROM RangeSets WHERE Run="+std::to_string(r)+"));"};
-  auto rc = sqlite3_prepare_v2(db, ddl.c_str(), -1, &stmt, nullptr);
-  successful_prepare(rc, filename, ddl);
-
-  std::vector<EventRange> ranges;
-  while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
-    ranges.emplace_back(sqlite3_column_int(stmt,0),
-                        sqlite3_column_int(stmt,1),
-                        sqlite3_column_int(stmt,2));
-  }
-  successful_step(rc, sqlite3_errmsg(db), filename);
-
-  rc = sqlite3_finalize(stmt);
-  successful_finalize(rc, sqlite3_errmsg(db), filename);
-
-  return ranges;
-}
-
-
-std::vector<EventRange>
-art::detail::getSubRunContributors(TFile & file,
-                                   RunNumber_t const r,
-                                   SubRunNumber_t const sr)
-{
-  art::SQLite3Wrapper db {&file, "RootFileDB"};
-  return getSubRunContributors(db, file.GetName(), r, sr);
-}
-
-std::vector<EventRange>
-art::detail::getSubRunContributors(sqlite3* db,
-                                   std::string const& filename,
-                                   RunNumber_t const r,
-                                   SubRunNumber_t const sr)
-{
-  sqlite3_stmt* stmt {nullptr};
-  std::string const ddl {"SELECT * FROM EventRanges WHERE ROWID IN "
-      "(SELECT EventRangesID FROM RangeSets_EventRanges WHERE RangeSetsID IN "
-      "(SELECT rowid FROM RangeSets WHERE Run="+std::to_string(r)+")) AND "
-      "SubRun="+std::to_string(sr)+";"};
-  auto rc = sqlite3_prepare_v2(db, ddl.c_str(), -1, &stmt, nullptr);
-  successful_prepare(rc, filename, ddl);
-
-  std::vector<EventRange> ranges;
-  while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
-    ranges.emplace_back(sqlite3_column_int(stmt,0),
-                        sqlite3_column_int(stmt,1),
-                        sqlite3_column_int(stmt,2));
-  }
-  successful_step(rc, sqlite3_errmsg(db), filename);
-
-  rc = sqlite3_finalize(stmt);
-  successful_finalize(rc, sqlite3_errmsg(db), filename);
-
-  return ranges;
-}
-
-// std::vector<EventRange>
-// art::detail::getSubRunContributors(TFile& file,
-//                                    unsigned const rangeSetID)
-// {
-//   art::SQLite3Wrapper db {&file, "RootFileDB"};
-//   return getSubRunContributors(db, file.GetName(), r, sr);
-
-//   sqlite3_stmt* stmt {nullptr};
-//   std::string const ddl {"SELECT * FROM EventRanges WHERE ROWID IN "
-//       "(SELECT EventRangesID FROM RangeSets_EventRanges WHERE RangeSetsID IN "
-//       "(SELECT rowid FROM RangeSets WHERE Run="+std::to_string(r)+")) AND "
-//       "SubRun="+std::to_string(sr)+";"};
-//   auto rc = sqlite3_prepare_v2(db, ddl.c_str(), -1, &stmt, nullptr);
-//   successful_prepare(rc, filename);
-
-//   std::vector<EventRange> ranges;
-//   while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
-//     ranges.emplace_back(sqlite3_column_int(stmt,0),
-//                         sqlite3_column_int(stmt,1),
-//                         sqlite3_column_int(stmt,2));
-//   }
-//   successful_step(rc, sqlite3_errmsg(db), filename);
-
-//   rc = sqlite3_finalize(stmt);
-//   successful_finalize(rc, sqlite3_errmsg(db), filename);
-
-//   return ranges;
-// }
-
-
 art::RangeSet
 art::detail::getContributors(sqlite3* db,
                              std::string const& filename,
                              BranchType const bt,
                              unsigned const rangeSetID)
 {
+  // Invalid rangeSetID check
+  if (rangeSetID == std::numeric_limits<unsigned>::max())
+    return RangeSet::invalid();
+
   sqlite3_stmt* stmt {nullptr};
   std::string const run_ddl {"SELECT Run FROM "+BranchTypeToString(bt)+"RangeSets WHERE rowid=="
       + std::to_string(rangeSetID) + ";"};
