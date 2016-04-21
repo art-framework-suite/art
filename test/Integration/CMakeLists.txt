@@ -112,17 +112,6 @@ simple_plugin(Wanted                      "service" NO_INSTALL )
 
 art_dictionary(DICTIONARY_LIBRARIES cetlib NO_INSTALL)
 
-cet_make_exec(dump_file_contributors
-  SOURCE dump_file_contributors.cc
-  NO_INSTALL
-  LIBRARIES
-  art_Framework_IO_Root
-  ${Boost_PROGRAM_OPTIONS_LIBRARY}
-  ${ROOT_RIO}
-  )
-
-# cet_test macro
-
 cet_test(EventSelectorFromFile_w HANDBUILT
   TEST_EXEC art
   TEST_ARGS --rethrow-all --config EventSelectorFromFile_w.fcl

@@ -13,8 +13,6 @@
 #include "test/Integration/product-aggregation/CalibConstants.h"
 #include "test/Integration/product-aggregation/TrackEfficiency.h"
 
-#include <random>
-
 namespace {
 
   struct Config {
@@ -62,9 +60,9 @@ namespace {
 
     bool endSubRun(art::SubRun& sr, art::RangeSet const& seen) override
     {
-       sr.put(std::make_unique<arttest::TrackEfficiency>(numerator_, denominator_),
-            "TrackEfficiency",
-            seen);
+      sr.put(std::make_unique<arttest::TrackEfficiency>(numerator_, denominator_),
+             "TrackEfficiency",
+             seen);
       denominator_ = numerator_ = 0u;
       return true;
     }

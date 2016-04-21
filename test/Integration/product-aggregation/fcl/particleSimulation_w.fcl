@@ -1,10 +1,10 @@
 source: {
    module_type: RootInput
    fileNames: [
-      "../EventGeneration_w.d/evtGen_1.root",
-      "../EventGeneration_w.d/evtGen_2.root",
-      "../EventGeneration_w.d/evtGen_3.root",
-      "../EventGeneration_w.d/evtGen_4.root"
+      "../Stage1_EventGeneration_w.d/evtGen_1.root",
+      "../Stage1_EventGeneration_w.d/evtGen_2.root",
+      "../Stage1_EventGeneration_w.d/evtGen_3.root",
+      "../Stage1_EventGeneration_w.d/evtGen_4.root"
    ]
 }
 

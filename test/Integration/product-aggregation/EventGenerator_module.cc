@@ -9,6 +9,7 @@
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Principal/Run.h"
+#include "art/Framework/Principal/SubRun.h"
 #include "fhiclcpp/types/Atom.h"
 
 #include <random>
@@ -40,6 +41,7 @@ namespace {
     sizeDist_t sizeDist_ {0, 10};
     pdgDist_t pdgDist_;
     unsigned nPOTs_ {};
+    unsigned nParticles_ {};
   public:
 
     using Parameters = EDProducer::Table<Config>;
@@ -47,13 +49,22 @@ namespace {
       : pdgDist_{config().lower(), config().upper()}
     {
       produces<std::vector<int>>("GenParticles");
+      produces<unsigned,art::InSubRun>("nParticles");
       produces<unsigned,art::InRun>("nPOTs");
     }
 
     void produce(art::Event& e) override
     {
-      e.put(produce_particles(gen_, sizeDist_, pdgDist_), "GenParticles");
+      auto particles = produce_particles(gen_, sizeDist_, pdgDist_);
+      nParticles_ += particles->size();
+      e.put(std::move(particles), "GenParticles");
       ++nPOTs_;
+    }
+
+    void endSubRun(art::SubRun& sr, art::RangeSet const& seen) override
+    {
+      sr.put(std::make_unique<unsigned>(nParticles_), "nParticles", seen);
+      nParticles_ = 0u;
     }
 
     void endRun(art::Run& r, art::RangeSet const& seen) override

@@ -19,6 +19,9 @@ namespace arttest {
       return static_cast<double>(num_)/denom_;
     }
 
+    auto num() const { return num_; }
+    auto denom() const { return denom_; }
+
     void aggregate(TrackEfficiency const& other)
     {
       num_ += other.num_;

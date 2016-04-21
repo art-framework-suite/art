@@ -1,10 +1,10 @@
 source: {
    module_type: RootInput
    fileNames: [
-      "../ParticleSimulation_w.d/sim_1.root",
-      "../ParticleSimulation_w.d/sim_2.root",
-      "../ParticleSimulation_w.d/sim_3.root",
-      "../ParticleSimulation_w.d/sim_4.root"
+      "../Stage2_ParticleSimulation_w.d/sim_1.root",
+      "../Stage2_ParticleSimulation_w.d/sim_2.root",
+      "../Stage2_ParticleSimulation_w.d/sim_3.root",
+      "../Stage2_ParticleSimulation_w.d/sim_4.root"
    ]
 }
 
