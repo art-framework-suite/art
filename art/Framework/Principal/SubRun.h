@@ -100,6 +100,12 @@ art::SubRun::put(std::unique_ptr<PROD> && product,
                  std::string const& productInstanceName,
                  RangeSet const& rs)
 {
+  static_assert(detail::CanBeAggregated<PROD>::value,
+                "\n\n"
+                "art error: A SubRun product must be able to be aggregated.\n"
+                "           Please add the appropriate 'void aggregate(T const&)' function\n"
+                "           to your class, or contact artists@fnal.gov.\n");
+
   if (product.get() == nullptr) {
     throw art::Exception{art::errors::NullPointerError}
       << "SubRun::put: A null unique_ptr was passed to 'put'.\n"

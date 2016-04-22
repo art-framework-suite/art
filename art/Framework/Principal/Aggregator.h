@@ -13,6 +13,11 @@ namespace art {
   class Aggregator {
   public:
 
+    static_assert(detail::CanBeAggregated<T>::value,
+                  "\n\n"
+                  "art error: Aggregator<T>'s support only products that can be aggregated.\n"
+                  "           Please contact artists@fnal.gov.\n");
+
     template <typename U>
     std::enable_if_t<detail::is_handle<U>::value>
     update(U const& h);
@@ -87,7 +92,7 @@ namespace art {
         << "or the RangeSet is empty.  Contact artists@fnal.gov\n";
 
     if (art::disjoint_ranges(rangeSet_, h.provenance()->rangeSet())) {
-      detail::aggregate(product_, t);
+      detail::CanBeAggregated<T>::aggregate(product_, t);
       rangeSet_.merge(h.provenance()->rangeSet());
     }
   }

@@ -87,7 +87,7 @@ namespace arttest
   {
     StringProduct() : name_() {}
     explicit StringProduct(const std::string& s) : name_(s){}
-    void aggregate(StringProduct const&) const {}
+    void aggregate(StringProduct const&) {}
     std::string name_;
   };
 
