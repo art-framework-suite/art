@@ -35,8 +35,6 @@ namespace {
     Sequence<double> particleRatios { Name("particleRatios") };
   };
 
-  struct A {};
-
   class AssembleMoreProducts : public art::EDProducer {
   public:
 
