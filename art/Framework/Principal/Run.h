@@ -20,6 +20,7 @@
 
 class art::Run : private art::DataViewImpl {
 public:
+
   Run(RunPrincipal& rp, const ModuleDescription& md);
   ~Run() = default;
 
@@ -30,6 +31,9 @@ public:
   RunNumber_t run() const {return aux_.run();}
   Timestamp const& beginTime() const {return aux_.beginTime();}
   Timestamp const& endTime() const {return aux_.endTime();}
+
+  RangeSet fullRunRangeSet() const { return RangeSet::forRun(id()); }
+  RangeSet const& seenRangeSet() const { return seenRanges_; }
 
   using Base::get;
   using Base::getByLabel;
@@ -86,6 +90,7 @@ private:
   void commit_();
 
   RunAuxiliary const& aux_;
+  RangeSet seenRanges_;
 };
 
 template <typename PROD>

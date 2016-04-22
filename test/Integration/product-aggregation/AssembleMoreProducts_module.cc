@@ -42,7 +42,7 @@ namespace {
     explicit AssembleMoreProducts(Parameters const& config);
 
     void beginSubRun(art::SubRun& sr) override;
-    void endSubRun(art::SubRun& sr, art::RangeSet const&) override;
+    void endSubRun(art::SubRun& sr) override;
     void produce(art::Event&) override {}
 
   private:
@@ -98,7 +98,7 @@ namespace {
   }
 
   void
-  AssembleMoreProducts::endSubRun(art::SubRun& sr, art::RangeSet const&)
+  AssembleMoreProducts::endSubRun(art::SubRun& sr)
   {
     // nParticles produced at first stage 'eventGen'
     auto const& nParticlesH = sr.getValidHandle<unsigned>(nParticlesTag_);

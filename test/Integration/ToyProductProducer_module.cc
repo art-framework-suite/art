@@ -38,14 +38,14 @@ namespace arttest {
 
     void beginRun(art::Run& r) override
     {
-      r.put(std::make_unique<StringProduct>("empty"), RangeSet::forRun(r.id()));
-      r.put(std::make_unique<StringProduct>("beginRun"), "bgnRun", RangeSet::forRun(r.id()));
+      r.put(std::make_unique<StringProduct>("empty"), r.fullRunRangeSet());
+      r.put(std::make_unique<StringProduct>("beginRun"), "bgnRun", r.fullRunRangeSet());
     }
 
     void beginSubRun(art::SubRun& sr) override
     {
-      sr.put(std::make_unique<StringProduct>("emptyAgain"), RangeSet::forSubRun(sr.id()));
-      sr.put(std::make_unique<StringProduct>("beginSubRun"), "bgnSubRun", RangeSet::forSubRun(sr.id()));
+      sr.put(std::make_unique<StringProduct>("emptyAgain"), sr.fullSubRunRangeSet());
+      sr.put(std::make_unique<StringProduct>("beginSubRun"), "bgnSubRun", sr.fullSubRunRangeSet());
     }
 
     void produce(art::Event& e) override
@@ -53,14 +53,14 @@ namespace arttest {
       e.put(std::make_unique<StringProduct>("event"));
     }
 
-    void endSubRun(art::SubRun& sr, art::RangeSet const&) override
+    void endSubRun(art::SubRun& sr) override
     {
-      sr.put(std::make_unique<StringProduct>("endSubRun"), "endSubRun", RangeSet::forSubRun(sr.id()));
+      sr.put(std::make_unique<StringProduct>("endSubRun"), "endSubRun", sr.fullSubRunRangeSet());
     }
 
-    void endRun(art::Run& r, art::RangeSet const&) override
+    void endRun(art::Run& r) override
     {
-      r.put(std::make_unique<StringProduct>("endRun"), "endRun", RangeSet::forRun(r.id()) );
+      r.put(std::make_unique<StringProduct>("endRun"), "endRun", r.fullRunRangeSet() );
     }
 
   };  // ToyProductProducer

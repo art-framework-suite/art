@@ -31,9 +31,9 @@ namespace {
       seenParticles_ += particles->size();
     }
 
-    void endSubRun(art::SubRun& sr, art::RangeSet const& seenEventsRS) override
+    void endSubRun(art::SubRun& sr) override
     {
-      sr.put(std::make_unique<unsigned>(seenParticles_), "seenParticles", seenEventsRS);
+      sr.put(std::make_unique<unsigned>(seenParticles_), "seenParticles", sr.seenRangeSet());
       seenParticles_ = 0u;
     }
 

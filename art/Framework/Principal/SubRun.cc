@@ -13,10 +13,11 @@ namespace art {
   }
 
   SubRun::SubRun(SubRunPrincipal& srp, ModuleDescription const& md) :
-                 DataViewImpl(srp, md, InSubRun),
-                 aux_(srp.aux()),
-                 run_(newRun(srp, md)) {
-  }
+    DataViewImpl(srp, md, InSubRun),
+    aux_(srp.aux()),
+    run_(newRun(srp, md)),
+    seenRanges_{srp.rangeSetHandler().seenRanges()}
+  {}
 
   Run const&
   SubRun::getRun() const {

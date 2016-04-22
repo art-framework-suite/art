@@ -29,8 +29,8 @@ public:
 
   bool beginRun(art::Run & r) override;
   bool beginSubRun(art::SubRun & sr) override;
-  bool endRun(art::Run & r, art::RangeSet const&) override;
-  bool endSubRun(art::SubRun & sr, art::RangeSet const&) override;
+  bool endRun(art::Run & r) override;
+  bool endSubRun(art::SubRun & sr) override;
 
 private:
 };
@@ -58,13 +58,13 @@ bool arttest::FlushingGeneratorTestFilter::beginSubRun(art::SubRun & sr)
   return true;
 }
 
-bool arttest::FlushingGeneratorTestFilter::endRun(art::Run & r, art::RangeSet const&)
+bool arttest::FlushingGeneratorTestFilter::endRun(art::Run & r)
 {
   assert(!r.id().isFlush());
   return true;
 }
 
-bool arttest::FlushingGeneratorTestFilter::endSubRun(art::SubRun & sr, art::RangeSet const&)
+bool arttest::FlushingGeneratorTestFilter::endSubRun(art::SubRun & sr)
 {
   assert(!sr.id().isFlush());
   return true;

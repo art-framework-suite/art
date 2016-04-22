@@ -40,7 +40,7 @@ namespace {
     {
       sr.put(std::make_unique<arttest::CalibConstants>(sr.subRun()),
              "CalibConstants",
-             art::RangeSet::forSubRun(sr.id()));
+             sr.fullSubRunRangeSet());
       return true;
     }
 
@@ -58,11 +58,11 @@ namespace {
       return pass;
     }
 
-    bool endSubRun(art::SubRun& sr, art::RangeSet const& seen) override
+    bool endSubRun(art::SubRun& sr) override
     {
       sr.put(std::make_unique<arttest::TrackEfficiency>(numerator_, denominator_),
              "TrackEfficiency",
-             seen);
+             sr.seenRangeSet());
       denominator_ = numerator_ = 0u;
       return true;
     }

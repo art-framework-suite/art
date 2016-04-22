@@ -17,8 +17,10 @@ using fhicl::ParameterSetRegistry;
 namespace art {
 
   Run::Run(RunPrincipal& rp, ModuleDescription const& md) :
-        DataViewImpl(rp, md, InRun),
-        aux_(rp.aux()) {
+    DataViewImpl{rp, md, InRun},
+    aux_{rp.aux()},
+    seenRanges_{rp.rangeSetHandler().seenRanges()}
+  {
   }
 
   bool

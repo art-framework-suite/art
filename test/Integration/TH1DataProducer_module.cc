@@ -31,7 +31,7 @@ public:
   void produce(art::Event & e) override;
 
   void beginRun(art::Run & r) override;
-  void endRun(art::Run & r, art::RangeSet const&) override;
+  void endRun(art::Run & r) override;
 
 private:
 
@@ -63,9 +63,9 @@ void arttest::TH1DataProducer::beginRun(art::Run &)
   // Implementation of optional member function here.
 }
 
-void arttest::TH1DataProducer::endRun(art::Run & r, art::RangeSet const& seen)
+void arttest::TH1DataProducer::endRun(art::Run & r)
 {
-  r.put(std::move(data_), seen);
+  r.put(std::move(data_), r.seenRangeSet());
   // Implementation of optional member function here.
 }
 

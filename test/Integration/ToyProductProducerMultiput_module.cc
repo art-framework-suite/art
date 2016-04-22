@@ -63,18 +63,18 @@ namespace arttest {
       e.put( std::make_unique<IntProduct>(2) );
     }
 
-    void endSubRun(art::SubRun &sr, art::RangeSet const& seen) override
+    void endSubRun(art::SubRun &sr) override
     {
       if ( branchType_ != art::InSubRun ) return;
-      sr.put( std::make_unique<IntProduct>(3), seen );
-      sr.put( std::make_unique<IntProduct>(4), seen );
+      sr.put( std::make_unique<IntProduct>(3), sr.seenRangeSet() );
+      sr.put( std::make_unique<IntProduct>(4), sr.seenRangeSet() );
     }
 
-    void endRun(art::Run &r, art::RangeSet const& seen) override
+    void endRun(art::Run &r) override
     {
       if ( branchType_ != art::InRun ) return;
-      r.put( std::make_unique<IntProduct>(5), seen );
-      r.put( std::make_unique<IntProduct>(6), seen );
+      r.put( std::make_unique<IntProduct>(5), r.seenRangeSet() );
+      r.put( std::make_unique<IntProduct>(6), r.seenRangeSet() );
     }
 
   };

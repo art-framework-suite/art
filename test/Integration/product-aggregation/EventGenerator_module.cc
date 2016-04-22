@@ -61,15 +61,15 @@ namespace {
       ++nPOTs_;
     }
 
-    void endSubRun(art::SubRun& sr, art::RangeSet const& seen) override
+    void endSubRun(art::SubRun& sr) override
     {
-      sr.put(std::make_unique<unsigned>(nParticles_), "nParticles", seen);
+      sr.put(std::make_unique<unsigned>(nParticles_), "nParticles", sr.seenRangeSet());
       nParticles_ = 0u;
     }
 
-    void endRun(art::Run& r, art::RangeSet const& seen) override
+    void endRun(art::Run& r) override
     {
-      r.put(std::make_unique<unsigned>(nPOTs_), "nPOTs", seen);
+      r.put(std::make_unique<unsigned>(nPOTs_), "nPOTs", r.seenRangeSet());
       nPOTs_ = 0u;
     }
 

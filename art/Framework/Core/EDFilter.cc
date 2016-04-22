@@ -59,7 +59,7 @@ namespace art
                      CPC_exempt_ptr cpc) {
     detail::CPCSentry sentry {current_context_, cpc};
     Run r {rp, moduleDescription_};
-    bool const rc = endRun(r, rp.rangeSetHandler().seenRanges());
+    bool const rc = endRun(r);
     r.commit_();
     return rc;
   }
@@ -79,7 +79,7 @@ namespace art
                         CPC_exempt_ptr cpc) {
     detail::CPCSentry sentry {current_context_, cpc};
     SubRun sr {srp, moduleDescription_};
-    bool const rc = endSubRun(sr, srp.rangeSetHandler().seenRanges());
+    bool const rc = endSubRun(sr);
     sr.commit_();
     return rc;
   }

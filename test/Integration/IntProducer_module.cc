@@ -71,9 +71,9 @@ public:
 
   virtual ~IntProducer() { }
 
-  virtual void produce( art::Event& e );
-  virtual void endSubRun( art::SubRun & sr, art::RangeSet const& );
-  virtual void endRun( art::Run& r, art::RangeSet const& );
+  void produce( art::Event& e ) override;
+  void endSubRun( art::SubRun & sr ) override;
+  void endRun( art::Run& r) override;
 
 private:
 
@@ -94,17 +94,17 @@ IntProducer::produce( art::Event& e )
 }
 
 void
-IntProducer::endSubRun( art::SubRun& sr, art::RangeSet const& seen )
+IntProducer::endSubRun(art::SubRun& sr)
 {
   std::cerr << "Holy cow, IntProducer::endSubRun is running!\n";
-  if (branchType_ == art::InSubRun) put(sr, seen);
+  if (branchType_ == art::InSubRun) put(sr, sr.seenRangeSet());
 }
 
 void
-IntProducer::endRun( art::Run& r, art::RangeSet const& seen )
+IntProducer::endRun( art::Run& r)
 {
   std::cerr << "Holy cow, IntProducer::endRun is running!\n";
-  if (branchType_ == art::InRun) put(r, seen);
+  if (branchType_ == art::InRun) put(r, r.seenRangeSet());
 }
 
 template <typename PUTTER>

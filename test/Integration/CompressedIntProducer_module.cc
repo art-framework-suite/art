@@ -59,9 +59,9 @@ public:
 
   virtual ~CompressedIntProducer() { }
 
-  virtual void produce( art::Event& e );
-  virtual void endSubRun( art::SubRun & sr, art::RangeSet const& );
-  virtual void endRun( art::Run& r, art::RangeSet const& );
+  void produce( art::Event& e ) override;
+  void endSubRun( art::SubRun & sr ) override;
+  void endRun( art::Run& r ) override;
 
 private:
 
@@ -82,17 +82,17 @@ CompressedIntProducer::produce( art::Event& e )
 }
 
 void
-CompressedIntProducer::endSubRun( art::SubRun& sr, art::RangeSet const& seen )
+CompressedIntProducer::endSubRun(art::SubRun& sr)
 {
   std::cerr << "Holy cow, CompressedIntProducer::endSubRun is running!\n";
-  if (branchType_ == art::InSubRun) put(sr, seen);
+  if (branchType_ == art::InSubRun) put(sr, sr.seenRangeSet());
 }
 
 void
-CompressedIntProducer::endRun( art::Run& r, art::RangeSet const& seen )
+CompressedIntProducer::endRun(art::Run& r)
 {
   std::cerr << "Holy cow, CompressedIntProducer::endRun is running!\n";
-  if (branchType_ == art::InRun) put(r, seen);
+  if (branchType_ == art::InRun) put(r, r.seenRangeSet());
 }
 
 template <typename PUTTER>

@@ -26,17 +26,17 @@ public:
   ~SubRun() = default;
 
   typedef DataViewImpl Base;
+
   // AUX functions.
   SubRunNumber_t subRun() const {return aux_.subRun();}
-
   RunNumber_t run() const {return aux_.run();}
-
-  SubRunID id() const {
-    return aux_.id();
-  }
+  SubRunID id() const { return aux_.id(); }
 
   Timestamp const& beginTime() const {return aux_.beginTime();}
   Timestamp const& endTime() const {return aux_.endTime();}
+
+  RangeSet fullSubRunRangeSet() const { return RangeSet::forSubRun(id()); }
+  RangeSet const& seenRangeSet() const { return seenRanges_; }
 
   using Base::get;
   using Base::getByLabel;
@@ -54,8 +54,7 @@ public:
     return art::ValidHandle<PROD>(&(*h), *h.provenance());
   }
 
-  Run const&
-  getRun() const;
+  Run const& getRun() const;
 
   ///Put a new product.
   template <typename PROD>
@@ -92,6 +91,7 @@ private:
 
   SubRunAuxiliary const& aux_;
   std::shared_ptr<Run const> const run_;
+  RangeSet seenRanges_;
 };
 
 template <typename PROD>
