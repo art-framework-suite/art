@@ -57,10 +57,6 @@ namespace art {
 
     void addGroup(BranchDescription const&);
 
-    void addGroup(std::unique_ptr<EDProduct>&&,
-                  BranchDescription const&,
-                  RangeSet&&);
-
     void put(std::unique_ptr<EDProduct>&&,
              BranchDescription const&,
              std::unique_ptr<ProductProvenance const>&&,
@@ -71,6 +67,9 @@ namespace art {
 
   private:
 
+    void addGroup(std::unique_ptr<EDProduct>&&,
+                  BranchDescription const&,
+                  RangeSet&&);
     void addOrReplaceGroup(std::unique_ptr<Group>&&) override;
     ProcessHistoryID const& processHistoryID() const override;
     void setProcessHistoryID(ProcessHistoryID const&) override;

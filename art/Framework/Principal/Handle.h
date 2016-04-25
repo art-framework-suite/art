@@ -31,6 +31,7 @@
 #include "art/Framework/Principal/Group.h"
 #include "art/Framework/Principal/Provenance.h"
 #include "art/Persistency/Common/GroupQueryResult.h"
+#include "canvas/Persistency/Common/detail/is_handle.h"
 #include "canvas/Persistency/Provenance/ProductID.h"
 #include "canvas/Utilities/Exception.h"
 #include "canvas/Utilities/detail/metaprogramming.h"
@@ -53,12 +54,6 @@ namespace art {
   template <typename T>  class Wrapper;
 
   namespace detail {
-    template <class T, class Enable = void>
-    struct is_handle : std::false_type {};
-
-    template <class T>
-    struct is_handle<T, typename enable_if_type<typename T::HandleTag>::type> : std::true_type {};
-
     template <class T, class U>
     struct are_handles {
       static constexpr bool value = detail::is_handle<T>::value && detail::is_handle<U>::value;

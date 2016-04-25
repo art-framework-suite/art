@@ -8,7 +8,7 @@
 #include "canvas/Persistency/Provenance/rootNames.h"
 #include "canvas/Persistency/Provenance/FileFormatVersion.h"
 #include "cetlib/container_algorithms.h"
-#include "test/Integration/dump-file-info/InputFile.h"
+#include "art/test/Integration/dump-file-info/InputFile.h"
 
 #include "TError.h"
 #include "TFile.h"

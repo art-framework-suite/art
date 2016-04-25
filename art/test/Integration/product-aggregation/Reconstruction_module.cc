@@ -10,8 +10,8 @@
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Principal/SubRun.h"
 #include "fhiclcpp/types/TupleAs.h"
-#include "test/Integration/product-aggregation/CalibConstants.h"
-#include "test/Integration/product-aggregation/TrackEfficiency.h"
+#include "art/test/Integration/product-aggregation/CalibConstants.h"
+#include "art/test/Integration/product-aggregation/TrackEfficiency.h"
 
 namespace {
 

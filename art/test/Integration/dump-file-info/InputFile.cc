@@ -3,7 +3,7 @@
 #include "canvas/Persistency/Provenance/BranchType.h"
 #include "canvas/Persistency/Provenance/rootNames.h"
 #include "canvas/Utilities/Exception.h"
-#include "test/Integration/dump-file-info/InputFile.h"
+#include "art/test/Integration/dump-file-info/InputFile.h"
 
 #include <iostream>
 

@@ -10,7 +10,7 @@
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Principal/Run.h"
 #include "fhiclcpp/types/TupleAs.h"
-#include "test/Integration/product-aggregation/Geometry.h"
+#include "art/test/Integration/product-aggregation/Geometry.h"
 
 #include <random>
 

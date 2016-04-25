@@ -6,10 +6,10 @@
 #include "cetlib/quiet_unit_test.hpp"
 #include "fhiclcpp/types/Sequence.h"
 #include "fhiclcpp/types/TupleAs.h"
-#include "test/Integration/product-aggregation/CalibConstants.h"
-#include "test/Integration/product-aggregation/Fraction.h"
-#include "test/Integration/product-aggregation/Geometry.h"
-#include "test/Integration/product-aggregation/TrackEfficiency.h"
+#include "art/test/Integration/product-aggregation/CalibConstants.h"
+#include "art/test/Integration/product-aggregation/Fraction.h"
+#include "art/test/Integration/product-aggregation/Geometry.h"
+#include "art/test/Integration/product-aggregation/TrackEfficiency.h"
 
 using art::EventRange;
 using art::InputTag;

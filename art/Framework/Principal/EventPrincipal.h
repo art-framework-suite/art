@@ -110,17 +110,16 @@ namespace art {
       return history().setProcessHistoryID(phid);
     }
 
-    void addGroup(BranchDescription const&) override;
+    // This function and its associated member datum are required to
+    // handle the lifetime of a deferred getter, which in turn is required
+    // because a group does not exist until it is placed in the event.
+    EDProductGetter const* deferredGetter_(ProductID const& pid) const;
 
-    void addGroup(std::unique_ptr<EDProduct>&&, BranchDescription const&) override;
-
-    ProductID branchIDToProductID(BranchID const& bid) const;
-
-    BranchType
-    branchType() const override
-    {
-      return InEvent;
+    EDProductGetter const* getEDProductGetterImpl(ProductID const& pid) const override {
+      return getGroup(pid).result().get();
     }
+
+  private:
 
     mutable
     std::map<ProductID, std::shared_ptr<DeferredProductGetter const>>
@@ -133,7 +132,6 @@ namespace art {
     std::map<BranchListIndex, ProcessIndex> branchToProductIDHelper_ {};
     bool lastInSubRun_ {false};
   };
-
 
 } // namespace art
 

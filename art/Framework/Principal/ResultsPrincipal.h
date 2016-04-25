@@ -44,11 +44,11 @@ public:
 
   void addGroup(BranchDescription const&) override;
 
-  void addGroup(std::unique_ptr<EDProduct>&&, BranchDescription const&) override;
-
   BranchType branchType() const override;
 
 private:
+
+  void addGroup(std::unique_ptr<EDProduct>&&, BranchDescription const&);
   void addOrReplaceGroup(std::unique_ptr<Group>&& g) override;
 
   ProcessHistoryID const& processHistoryID() const override;

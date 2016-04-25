@@ -12,6 +12,6 @@ cet_make_exec(dump_file_info
   LIBRARIES
   canvas_Persistency_Provenance
   canvas_Utilities
-  test_Integration_dump-file-info
+  art_test_Integration_dump-file-info
   ${Boost_PROGRAM_OPTIONS_LIBRARY}
   )

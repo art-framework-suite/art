@@ -1,7 +1,7 @@
 #include "canvas/Persistency/Common/Wrapper.h"
-#include "test/Integration/product-aggregation/CalibConstants.h"
-#include "test/Integration/product-aggregation/Geometry.h"
-#include "test/Integration/product-aggregation/TrackEfficiency.h"
+#include "art/test/Integration/product-aggregation/CalibConstants.h"
+#include "art/test/Integration/product-aggregation/Geometry.h"
+#include "art/test/Integration/product-aggregation/TrackEfficiency.h"
 
 namespace blah {
   art::Wrapper<arttest::CalibConstants> dummy1;
