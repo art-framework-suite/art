@@ -9,8 +9,6 @@
 #include <memory>
 
 class art::NoDelayedReader : public art::DelayedReader {
-public:
-  virtual ~NoDelayedReader();
 private:
   [[noreturn]] std::unique_ptr<EDProduct> getProduct_(BranchKey const& ,
                                                       art::TypeID const&,

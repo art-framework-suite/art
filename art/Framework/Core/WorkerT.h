@@ -28,45 +28,43 @@ namespace art {
             ModuleDescription const&,
             WorkerParams const&);
 
-    virtual ~WorkerT() = default;
-
-    virtual void reconfigure(fhicl::ParameterSet const &pset) {
+    void reconfigure(fhicl::ParameterSet const &pset) override {
       module_->reconfigure(pset); }
 
-    virtual bool modifiesEvent() const { return module_->modifiesEvent(); }
+    bool modifiesEvent() const override { return module_->modifiesEvent(); }
 
-  template <typename ModType>
-  static std::unique_ptr<T> makeModule(ModuleDescription const& md,
-                                       fhicl::ParameterSet const& pset) {
-    auto module = std::make_unique<ModType>(pset);
-    return std::unique_ptr<T>(module.release());
-  }
-
+    template <typename ModType>
+    static std::unique_ptr<T> makeModule(ModuleDescription const& md,
+                                         fhicl::ParameterSet const& pset) {
+      std::unique_ptr<ModType> module = std::unique_ptr<ModType>(new ModType(pset));
+      return std::unique_ptr<T>(module.release());
+    }
 
   protected:
     T & module() {return *module_;}
     T const& module() const {return *module_;}
 
   private:
-    virtual bool implDoBegin(EventPrincipal& ep,
-                             CurrentProcessingContext const* cpc);
-    virtual bool implDoEnd(EventPrincipal& ep,
-                           CurrentProcessingContext const* cpc);
-    virtual bool implDoBegin(RunPrincipal& rp,
-                             CurrentProcessingContext const* cpc);
-    virtual bool implDoEnd(RunPrincipal& rp,
-                           CurrentProcessingContext const* cpc);
-    virtual bool implDoBegin(SubRunPrincipal& srp,
-                             CurrentProcessingContext const* cpc);
-    virtual bool implDoEnd(SubRunPrincipal& srp,
-                           CurrentProcessingContext const* cpc);
-    virtual void implBeginJob() ;
-    virtual void implEndJob() ;
-    virtual void implRespondToOpenInputFile(FileBlock const& fb);
-    virtual void implRespondToCloseInputFile(FileBlock const& fb);
-    virtual void implRespondToOpenOutputFiles(FileBlock const& fb);
-    virtual void implRespondToCloseOutputFiles(FileBlock const& fb);
-    virtual std::string workerType() const;
+
+    bool implDoBegin(EventPrincipal& ep,
+                     CurrentProcessingContext const* cpc) override;
+    bool implDoEnd(EventPrincipal& ep,
+                   CurrentProcessingContext const* cpc) override;
+    bool implDoBegin(RunPrincipal& rp,
+                     CurrentProcessingContext const* cpc) override;
+    bool implDoEnd(RunPrincipal& rp,
+                   CurrentProcessingContext const* cpc) override;
+    bool implDoBegin(SubRunPrincipal& srp,
+                     CurrentProcessingContext const* cpc) override;
+    bool implDoEnd(SubRunPrincipal& srp,
+                   CurrentProcessingContext const* cpc) override;
+    void implBeginJob()  override;
+    void implEndJob()  override;
+    void implRespondToOpenInputFile(FileBlock const& fb) override;
+    void implRespondToCloseInputFile(FileBlock const& fb) override;
+    void implRespondToOpenOutputFiles(FileBlock const& fb) override;
+    void implRespondToCloseOutputFiles(FileBlock const& fb) override;
+    std::string workerType() const override;
 
     std::shared_ptr<T> module_;
   };

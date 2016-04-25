@@ -19,13 +19,11 @@ cmake_minimum_required (VERSION 2.8)
 project(art)
 
 # cetbuildtools contains our cmake modules
-SET ( CETBUILDTOOLS_VERSION $ENV{CETBUILDTOOLS_VERSION} )
-IF (NOT CETBUILDTOOLS_VERSION)
-    MESSAGE (FATAL_ERROR "ERROR: setup cetbuildtools to get the cmake modules")
-ENDIF()
-set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/Modules 
-                      $ENV{CETBUILDTOOLS_DIR}/Modules 
-		      ${CMAKE_MODULE_PATH})
+find_package(cetbuildtools REQUIRED)
+
+list(APPEND CMAKE_MODULE_PATH
+  $ENV{CANVAS_DIR}/Modules
+  ${CMAKE_CURRENT_SOURCE_DIR}/Modules)
 
 include(CetCMakeEnv)
 cet_cmake_env()
@@ -69,8 +67,11 @@ if (NOT APPLE)
   set(RT -lrt)
 endif()
 
+# SQLite
+cet_find_library(SQLITE3 NAMES sqlite3_ups PATHS ENV SQLITE_LIB NO_DEFAULT_PATH)
+
 # Plugin skeleton generators for cetskelgen.
-#add_subdirectory(perllib)
+add_subdirectory(perllib)
 
 # tools
 #add_subdirectory(tools)
@@ -78,14 +79,12 @@ endif()
 # source
 add_subdirectory (art)
 
-# testing
-add_subdirectory(test)
 
 # ups - table and config files
 add_subdirectory(ups)
 
 # CMake modules
-#add_subdirectory(Modules)
+add_subdirectory(Modules)
 
 # packaging utility
 include(UseCPack)

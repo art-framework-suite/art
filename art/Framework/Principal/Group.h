@@ -145,15 +145,11 @@ namespace art {
       productResolver_.reset(&dr);
     }
 
-    DelayedReader const* productResolver() const
-    {
-      return productResolver_.get();
-    }
+    bool resolveProduct(bool fillOnDemand, TypeID const&) const override;
 
-    virtual bool resolveProduct(bool fillOnDemand, TypeID const&) const;
+    bool resolveProductIfAvailable(bool fillOnDemand,
+                                   TypeID const&) const override;
 
-    virtual bool resolveProductIfAvailable(bool fillOnDemand,
-                                           TypeID const&) const;
     void write(std::ostream& os) const;
     void replace(Group& g);
 

@@ -49,19 +49,19 @@ namespace art {
 
   private:
     // Classes inheriting this interface must provide the following methods:
-    void doConfigure(std::vector<std::string> const & items);
-    int  doGetNextFileURI(std::string & uri, double & waitTime);
-    void doUpdateStatus(std::string const & uri, FileDisposition status);
-    void doOutputFileOpened(std::string const & module_label);
+    void doConfigure(std::vector<std::string> const & items) override;
+    int  doGetNextFileURI(std::string & uri, double & waitTime) override;
+    void doUpdateStatus(std::string const & uri, FileDisposition status) override;
+    void doOutputFileOpened(std::string const & module_label) override;
     void doOutputModuleInitiated(std::string const & module_label,
-                                 fhicl::ParameterSet const & pset);
+                                 fhicl::ParameterSet const & pset) override;
     void doOutputFileClosed(std::string const & module_label,
-                            std::string const & file);
+                            std::string const & file) override;
     void doEventSelected(std::string const & module_label,
                          EventID const & event_id,
-                         HLTGlobalStatus const & acceptance_info);
-    bool doIsSearchable();
-    void doRewind();
+                         HLTGlobalStatus const & acceptance_info) override;
+    bool doIsSearchable() override;
+    void doRewind() override;
 
     // helper functions
     std::vector<std::string> extractFileListFromPset

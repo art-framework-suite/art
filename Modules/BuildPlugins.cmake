@@ -39,6 +39,10 @@ function(simple_plugin name type)
   if("${type}" STREQUAL "service")
     list(INSERT simple_plugin_liblist 0
       art_Framework_Services_Registry
+      art_Persistency_Common
+      art_Utilities
+      canvas_Persistency_Common
+      canvas_Utilities
       fhiclcpp
       cetlib
       ${Boost_FILESYSTEM_LIBRARY}
@@ -51,6 +55,9 @@ function(simple_plugin name type)
       art_Persistency_Common
       art_Persistency_Provenance
       art_Utilities
+      canvas_Persistency_Common
+      canvas_Persistency_Provenance
+      canvas_Utilities
       fhiclcpp
       cetlib
       ${ROOT_CORE}
@@ -65,7 +72,7 @@ function(simple_plugin name type)
       ${Boost_SYSTEM_LIBRARY}
       )
   endif()
-  check_ups_version(cetbuildtools ${CETBUILDTOOLS_VERSION} v4_05_00 PRODUCT_MATCHES_VAR BP_HAS_SOURCE)
+  check_ups_version(cetbuildtools ${cetbuildtools_UPS_VERSION} v4_05_00 PRODUCT_MATCHES_VAR BP_HAS_SOURCE)
   if(SP_SOURCE)
     if (BP_HAS_SOURCE)
       list(INSERT SP_SOURCE 0 SOURCE)
@@ -73,7 +80,7 @@ function(simple_plugin name type)
       message(FATAL_ERROR "SOURCE option specified, but not supported by cetbuildtools ${CETBUILDTOOLS_VERSION}")
     endif()
   endif()
-  check_ups_version(cetbuildtools ${CETBUILDTOOLS_VERSION} v4_06_00 PRODUCT_MATCHES_VAR BP_HAS_NOP)
+  check_ups_version(cetbuildtools ${cetbuildtools_UPS_VERSION} v4_06_00 PRODUCT_MATCHES_VAR BP_HAS_NOP)
   if (BP_HAS_NOP AND NOT SP_NOP)
     # Set it anyway so we have a good separator.
     set(SP_NOP TRUE)

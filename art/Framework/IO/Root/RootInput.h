@@ -27,8 +27,6 @@ class MasterProductRegistry;
 class RootInput : public DecrepitRelicInputSourceImplementation {
 public:
 
-  virtual ~RootInput() = default;
-
   struct Config {
     fhicl::Atom<std::string> module_type { fhicl::Name("module_type") };
     fhicl::TableFragment<DecrepitRelicInputSourceImplementation::Config> drisi_config;
@@ -87,28 +85,28 @@ private:
   AccessState accessState_;
   MasterProductRegistry& mpr_;
 private:
-  virtual input::ItemType nextItemType();
+  input::ItemType nextItemType() override;
   using DecrepitRelicInputSourceImplementation::readEvent;
-  virtual std::unique_ptr<EventPrincipal>
-    readEvent(std::shared_ptr<SubRunPrincipal>);
-  virtual std::unique_ptr<EventPrincipal> readEvent_();
+  std::unique_ptr<EventPrincipal>
+    readEvent(std::shared_ptr<SubRunPrincipal>) override;
+  std::unique_ptr<EventPrincipal> readEvent_() override;
   std::unique_ptr<EventPrincipal>
     readEvent_(std::shared_ptr<SubRunPrincipal>);
-  virtual std::shared_ptr<SubRunPrincipal>
-    readSubRun(std::shared_ptr<RunPrincipal>);
-  virtual std::shared_ptr<SubRunPrincipal> readSubRun_();
-  virtual std::vector<std::shared_ptr<SubRunPrincipal>>
-    readSubRunFromSecondaryFiles_();
-  virtual std::shared_ptr<RunPrincipal> readRun();
-  virtual std::shared_ptr<RunPrincipal> readRun_();
-  virtual std::vector<std::shared_ptr<RunPrincipal>>
-    readRunFromSecondaryFiles_();
-  virtual std::shared_ptr<FileBlock> readFile(MasterProductRegistry&);
-  virtual std::shared_ptr<FileBlock> readFile_();
-  virtual void closeFile_();
-  virtual void endJob();
-  virtual input::ItemType getNextItemType();
-  virtual void rewind_();
+  std::shared_ptr<SubRunPrincipal>
+    readSubRun(std::shared_ptr<RunPrincipal>) override;
+  std::shared_ptr<SubRunPrincipal> readSubRun_() override;
+  std::vector<std::shared_ptr<SubRunPrincipal>>
+    readSubRunFromSecondaryFiles_() override;
+  std::shared_ptr<RunPrincipal> readRun() override;
+  std::shared_ptr<RunPrincipal> readRun_() override;
+  std::vector<std::shared_ptr<RunPrincipal>>
+    readRunFromSecondaryFiles_() override;
+  std::shared_ptr<FileBlock> readFile(MasterProductRegistry&) override;
+  std::shared_ptr<FileBlock> readFile_() override;
+  void closeFile_() override;
+  void endJob() override;
+  input::ItemType getNextItemType() override;
+  void rewind_() override;
   template<typename T>
     EventID
     postSeekChecks(

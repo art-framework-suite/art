@@ -75,8 +75,6 @@ namespace art {
     ProcessHistoryID const& processHistoryID() const override;
     void setProcessHistoryID(ProcessHistoryID const&) override;
 
-  private:
-
     RunAuxiliary aux_;
     std::unique_ptr<RangeSetHandler> rangeSetHandler_ {nullptr};
 

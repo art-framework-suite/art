@@ -1,7 +1,5 @@
 include(ArtMake)
 
-cet_script(checkClassVersion)
-
 # FIXME: We should add all the perl files that could change (and
 # therefore change the output of the skeleton generator) as dependencies
 # to each target. This is not trivial!

@@ -73,16 +73,12 @@ namespace art {
   private:
 
     void addOrReplaceGroup(std::unique_ptr<Group>&& g) override;
-
     ProcessHistoryID const& processHistoryID() const override;
     void setProcessHistoryID(ProcessHistoryID const& phid) override;
-
-  private:
 
     SubRunAuxiliary aux_;
     std::shared_ptr<RunPrincipal> runPrincipal_ {};
     std::unique_ptr<RangeSetHandler> rangeSetHandler_ {nullptr};
-
   };
 
 } // namespace art

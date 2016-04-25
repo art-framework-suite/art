@@ -42,9 +42,9 @@ public:
            BranchDescription const&,
            std::unique_ptr<ProductProvenance const>&&);
 
-  void addGroup(BranchDescription const&);
+  void addGroup(BranchDescription const&) override;
 
-  void addGroup(std::unique_ptr<EDProduct>&&, BranchDescription const&);
+  void addGroup(std::unique_ptr<EDProduct>&&, BranchDescription const&) override;
 
   BranchType branchType() const override;
 

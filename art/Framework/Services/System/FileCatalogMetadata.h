@@ -99,9 +99,11 @@ private:
 
     void check_values(collection_type const& fromInput) const
     {
+      using namespace std;
+      using namespace cet::container_helpers;
       for (auto const& pr : fromInput) {
         auto it = inputmd_.find(pr.first);
-        if ( it == cet::cend(inputmd_) ) {
+        if ( it == cend(inputmd_) ) {
           throw Exception(errors::LogicError)
             << "Metadata key " << pr.first
             << " missing from list of metadata to inherit from input files.\n";

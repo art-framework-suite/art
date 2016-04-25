@@ -140,6 +140,9 @@ public:
 
   ProductID branchIDToProductID(BranchID const bid) const;
 
+  template <typename T>
+  using HandleT = Handle<T>;
+
 private:
   EventPrincipal const& eventPrincipal() const { return eventPrincipal_; }
   EventPrincipal      & eventPrincipal()       { return eventPrincipal_; }
