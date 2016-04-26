@@ -241,11 +241,16 @@ RootOutput(Parameters const & config)
     fileSwitchBoundary_ = detail::checkMaxEventsPerFileConfig(switchBoundarySet, fileSwitchBoundary_, forceSwitch_);
   }
 
-  bool const fastCloningSet {config().fastCloning(fastCloning_)};
-  fastCloning_ = detail::shouldFastClone(fastCloningSet, fastCloning_, wantAllEvents(), fileSwitchBoundary_);
-
   bool const dropAllEventsSet {config().dropAllEvents(dropAllEvents_)};
   dropAllEvents_ = detail::shouldDropEvents(dropAllEventsSet, dropAllEvents_, dropAllSubRuns_);
+
+  // N.B. Any time file switching is enabled at a boundary other than
+  //      InputFile, fastCloning_ ***MUST*** be deactivated.  This is
+  //      to ensure that the Event tree from the InputFile is not
+  //      accidentally cloned to the output file before the output
+  //      module has seen the events that are going to be processed.
+  bool const fastCloningSet {config().fastCloning(fastCloning_)};
+  fastCloning_ = detail::shouldFastClone(fastCloningSet, fastCloning_, wantAllEvents(), fileSwitchBoundary_);
 
   if (!writeParameterSets_) {
     mf::LogWarning("PROVENANCE")

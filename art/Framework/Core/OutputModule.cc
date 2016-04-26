@@ -12,7 +12,6 @@
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRun.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
-#include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/System/TriggerNamesService.h"
 #include "art/Persistency/Provenance/ProductMetaData.h"
 #include "canvas/Persistency/Provenance/BranchDescription.h"
@@ -21,6 +20,7 @@
 #include "canvas/Utilities/Exception.h"
 #include "cetlib/canonical_string.h"
 #include "cetlib/demangle.h"
+#include "cetlib/exempt_ptr.h"
 #include "rapidjson/document.h"
 #include "rapidjson/error/en.h"
 
@@ -29,6 +29,33 @@
 using fhicl::ParameterSet;
 using std::vector;
 using std::string;
+
+namespace {
+
+  class OMServices {
+    art::ModuleDescription const& md_;
+    cet::exempt_ptr<art::MemoryTracker> mem_;
+    cet::exempt_ptr<art::TimeTracker> time_;
+  public:
+    OMServices(art::ModuleDescription const& md,
+               bool const memTracker,
+               bool const timeTracker)
+      : md_{md}
+      , mem_(memTracker ? &*art::ServiceHandle<art::MemoryTracker>{} : nullptr)
+      , time_(timeTracker ? &*art::ServiceHandle<art::TimeTracker>{} : nullptr)
+    {
+      if ( mem_ ) mem_->preModule(md_);
+      if ( time_ ) time_->preModule(md_);
+    }
+
+    ~OMServices()
+    {
+      if ( mem_ ) mem_->postModule(md_);
+      if ( time_ ) time_->postModule(md_);
+    }
+  };
+
+}
 
 art::OutputModule::
 OutputModule(fhicl::TableFragment<Config> const & config,
@@ -203,6 +230,7 @@ void
 art::OutputModule::
 doWriteEvent(EventPrincipal& ep)
 {
+  OMServices sentry {description(), memTrackerAvailable_, timeTrackerAvailable_ };
   detail::PVSentry clearTriggerResults {selectors_};
   FDEBUG(2) << "writeEvent called\n";
   Event const e {ep, moduleDescription_};

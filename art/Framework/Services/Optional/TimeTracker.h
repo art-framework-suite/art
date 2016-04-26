@@ -10,6 +10,7 @@
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/ServiceTable.h"
+#include "art/Framework/Services/Registry/ServiceMacros.h"
 #include "art/Ntuple/Ntuple.h"
 #include "art/Ntuple/sqlite_DBmanager.h"
 #include "canvas/Persistency/Provenance/EventID.h"
@@ -40,6 +41,9 @@ namespace art {
     using Parameters = ServiceTable<Config>;
     TimeTracker(ServiceTable<Config> const &, ActivityRegistry&);
 
+    void preModule(ModuleDescription const&);
+    void postModule(ModuleDescription const&);
+
   private:
 
     void prePathProcessing(std::string const&);
@@ -48,9 +52,6 @@ namespace art {
 
     void preEventProcessing(Event const&);
     void postEventProcessing(Event const&);
-
-    void preModule(ModuleDescription const&);
-    void postModule(ModuleDescription const&);
 
     std::string pathname_;
     EventID eventId_;
@@ -78,6 +79,8 @@ namespace art {
   };  // TimeTracker
 
 } // namespace art
+
+DECLARE_ART_SERVICE(art::TimeTracker, LEGACY)
 
 #endif /* art_Framework_Services_Optional_TimeTracker_h */
 

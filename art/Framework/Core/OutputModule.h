@@ -18,6 +18,9 @@
 #include "art/Framework/Core/OutputWorker.h"
 #include "art/Framework/Principal/fwd.h"
 #include "art/Framework/Services/FileServiceInterfaces/CatalogInterface.h"
+#include "art/Framework/Services/Optional/MemoryTracker.h"
+#include "art/Framework/Services/Optional/TimeTracker.h"
+#include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/System/FileCatalogMetadata.h"
 #include "art/Persistency/Provenance/Selections.h"
 #include "canvas/Persistency/Provenance/BranchChildren.h"
@@ -151,6 +154,8 @@ private:
   OutputFileStatus fileStatus_ {OutputFileStatus::Closed};
 
   ModuleDescription moduleDescription_ {};
+  bool const memTrackerAvailable_ {ServiceRegistry::instance().isAvailable<MemoryTracker>()};
+  bool const timeTrackerAvailable_ {ServiceRegistry::instance().isAvailable<TimeTracker>()};
 
   cet::exempt_ptr<CurrentProcessingContext const> current_context_ {nullptr};
 
