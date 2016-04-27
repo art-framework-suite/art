@@ -405,7 +405,7 @@ getForOutput(BranchID const bid, bool resolveProd) const
   if (!g->anyProduct() && !g->productProvenancePtr()) {
     return OutputHandle{};
   }
-  return OutputHandle{g->anyProduct(), &g->productDescription(), g->productProvenancePtr(), &g->rangeSet()};
+  return OutputHandle{g->anyProduct(), &g->productDescription(), g->productProvenancePtr(), &g->rangeOfValidity()};
 }
 
 std::shared_ptr<const Group> const

@@ -39,10 +39,10 @@ simple_plugin(AssembleMoreProducts "module" NO_INSTALL USE_BOOST_UNIT)
 #   --- TEST PATH 2 ---
 #
 #   Stage 4: ASSEMBLE PRODUCTS - The purpose of this stage is to test
-#   the Aggregator<T> class.  We do this by taking SubRun products:
+#   the SummedValue<T> class.  We do this by taking SubRun products:
 #       1. From an earlier module of the same process, and
 #       2. From an input file.
-#   We aggregate the products 'by hand' using the Aggregator<T> class,
+#   We aggregate the products 'by hand' using the SummedValue<T> class,
 #   and then 'put' two new products onto the SubRun once the ranges of
 #   the dependent products are consistent.  Since these new products
 #   are not 'put' during each begin/endSubRun call, dummy products

@@ -47,7 +47,7 @@ namespace art {
       : wrap_{prod}
       , desc_{desc}
       , productProvenance_{productProvenance}
-      , rangeSet_{rs}
+      , rangeOfValidity_{rs}
     {}
 
     ///Used when the attempt to get the data failed
@@ -67,7 +67,7 @@ namespace art {
 
     bool isValid() const { return wrap_ && desc_ &&productProvenance_; }
     bool failedToGet() const { return 0 != whyFailed_.get(); }
-    RangeSet const* rangeSet() const { return rangeSet_; }
+    RangeSet const* rangeOfValidity() const { return rangeOfValidity_; }
 
     EDProduct const* wrapper() const { return wrap_; }
 
@@ -82,7 +82,7 @@ namespace art {
     BranchDescription const* desc_ {nullptr};
     cet::exempt_ptr<ProductProvenance const> productProvenance_ {nullptr};
     std::shared_ptr<cet::exception> whyFailed_ {nullptr};
-    RangeSet const* rangeSet_ {nullptr};
+    RangeSet const* rangeOfValidity_ {nullptr};
   };
 
   // Free swap function

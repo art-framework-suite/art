@@ -165,7 +165,7 @@ namespace art {
 
     void removeCachedProduct() const;
 
-    RangeSet const& rangeSet() const { return rangeSet_; }
+    RangeSet const& rangeOfValidity() const { return rangeOfValidity_; }
 
   protected:
 
@@ -189,7 +189,7 @@ namespace art {
     cet::exempt_ptr<Worker> productProducer_ {nullptr};
     // FIXME: This will be a generic principal when meta data is fixed.
     cet::exempt_ptr<EventPrincipal> onDemandPrincipal_ {nullptr};
-    mutable RangeSet rangeSet_ {RangeSet::invalid()};
+    mutable RangeSet rangeOfValidity_ {RangeSet::invalid()};
   };  // Group
 
   inline

@@ -73,7 +73,7 @@ namespace art {
 
   template <class T>
   std::enable_if_t<detail::is_handle<T>::value, RangeSet const&>
-  range_set(T const& h);
+  range_of_validity(T const& h);
 
   template <class T, class U>
   std::enable_if_t<detail::are_handles<T,U>::value, bool>
@@ -389,11 +389,11 @@ art::ValidHandle<T>::swap(art::ValidHandle<T>& other)
 
 template <class T>
 std::enable_if_t<art::detail::is_handle<T>::value, art::RangeSet const&>
-art::range_set(T const& h)
+art::range_of_validity(T const& h)
 {
   std::string const& errMsg = "Attempt to retrieve range set from invalid handle.";
   detail::throw_if_invalid(errMsg, h);
-  return h.provenance()->rangeSet();
+  return h.provenance()->rangeOfValidity();
 }
 
 template <class T, class U>
@@ -402,7 +402,7 @@ art::same_ranges(T const& a, U const& b)
 {
   std::string const& errMsg = "Attempt to compare range sets where one or both handles are invalid.";
   detail::throw_if_invalid(errMsg, a,b);
-  return same_ranges(range_set(a), range_set(b));
+  return same_ranges(range_of_validity(a), range_of_validity(b));
 }
 
 template <class T, class U>
@@ -411,7 +411,7 @@ art::disjoint_ranges(T const& a, U const& b)
 {
   std::string const& errMsg = "Attempt to compare range sets where one or both handles are invalid.";
   detail::throw_if_invalid(errMsg, a,b);
-  return disjoint_ranges(range_set(a), range_set(b));
+  return disjoint_ranges(range_of_validity(a), range_of_validity(b));
 }
 
 #endif /* art_Framework_Principal_Handle_h */

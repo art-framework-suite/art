@@ -28,7 +28,7 @@ Group(BranchDescription const& bd,
   , pid_{pid}
   , productProducer_{productProducer}
   , onDemandPrincipal_{onDemandPrincipal}
-  , rangeSet_{std::move(rs)}
+  , rangeOfValidity_{std::move(rs)}
 {}
 
 Group::
@@ -41,7 +41,7 @@ Group(std::unique_ptr<EDProduct>&& edp,
   , product_{std::move(edp)}
   , branchDescription_{&bd}
   , pid_{pid}
-  , rangeSet_{std::move(rs)}
+  , rangeOfValidity_{std::move(rs)}
 {}
 
 art::ProductStatus
@@ -137,7 +137,7 @@ obtainDesiredProduct(bool fillOnDemand, TypeID const& wanted_wrapper_type) const
   BranchKey const bk {productDescription()};
   retval = productResolver_->getProduct(bk,
                                         wanted_wrapper_type,
-                                        rangeSet_);
+                                        rangeOfValidity_);
   return retval;
 }
 
@@ -210,7 +210,7 @@ swap(Group& other)
   swap(pid_, other.pid_);
   swap(productProducer_, other.productProducer_);
   swap(onDemandPrincipal_, other.onDemandPrincipal_);
-  swap(rangeSet_, other.rangeSet_);
+  swap(rangeOfValidity_, other.rangeOfValidity_);
 }
 
 void

@@ -1,7 +1,7 @@
 #include "art/Framework/Core/EDProducer.h"
 #include "art/Framework/Core/ModuleMacros.h"
-#include "art/Framework/Principal/Aggregator.h"
 #include "art/Framework/Principal/SubRun.h"
+#include "art/Framework/Principal/SummedValue.h"
 #include "canvas/Persistency/Provenance/RangeSet.h"
 #include "cetlib/quiet_unit_test.hpp"
 #include "fhiclcpp/types/Sequence.h"
@@ -13,7 +13,7 @@
 
 using art::EventRange;
 using art::InputTag;
-using art::Aggregator;
+using art::SummedValue;
 using art::RangeSet;
 using arttest::Fraction;
 using arttest::TrackEfficiency;
@@ -49,10 +49,10 @@ namespace {
     art::InputTag trkEffTag_;
     art::InputTag nParticlesTag_;
     art::InputTag seenParticlesTag_;
-    Aggregator<unsigned> trkEffNum_{};
-    Aggregator<unsigned> trkEffDenom_{};
-    Aggregator<unsigned> nParticles_ {};
-    Aggregator<unsigned> seenParticles_ {};
+    SummedValue<unsigned> trkEffNum_{};
+    SummedValue<unsigned> trkEffDenom_{};
+    SummedValue<unsigned> nParticles_ {};
+    SummedValue<unsigned> seenParticles_ {};
     vector<double> seenParticleRatios_;
     vector<Fraction> expectedEffs_;
     vector<double> fullExpTrkEffs_;
@@ -90,8 +90,8 @@ namespace {
     trkEffDenom_.update(h, h->denom());
 
     if (art::same_ranges(trkEffNum_,trkEffDenom_) &&
-        art::same_ranges(trkEffRef, trkEffNum_.rangeSet())) {
-      auto const eff = static_cast<double>(trkEffNum_.product())/trkEffDenom_.product();
+        art::same_ranges(trkEffRef, trkEffNum_.rangeOfValidity())) {
+      auto const eff = static_cast<double>(trkEffNum_.value())/trkEffDenom_.value();
       BOOST_CHECK_CLOSE_FRACTION(fullExpTrkEffs_.at(srn), eff, tolerance);
       sr.put(std::make_unique<double>(eff), "TrkEffValue", trkEffRef);
     }
@@ -109,9 +109,9 @@ namespace {
     seenParticles_.update(seenParticlesH);
 
     if (art::same_ranges(nParticles_, seenParticles_)) {
-      auto const ratio = static_cast<double>(seenParticles_.product())/nParticles_.product();
+      auto const ratio = static_cast<double>(seenParticles_.value())/nParticles_.value();
       BOOST_CHECK_CLOSE_FRACTION(seenParticleRatios_.at(sr.subRun()), ratio, 0.01); // 1% tolerance
-      sr.put(std::make_unique<double>(ratio), "ParticleRatio", art::range_set(nParticles_));
+      sr.put(std::make_unique<double>(ratio), "ParticleRatio", art::range_of_validity(nParticles_));
     }
   }
 

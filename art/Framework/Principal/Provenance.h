@@ -47,7 +47,7 @@ public:
   BranchDescription   const & productDescription () const {return group_->productDescription();}
   BranchDescription   const & branchDescription  () const {return productDescription();}
   ProductID           const & productID          () const {return group_->productID();}
-  RangeSet            const & rangeSet           () const {return group_->rangeSet();}
+  RangeSet            const & rangeOfValidity    () const {return group_->rangeOfValidity();}
   Parentage           const & event              () const {return parentage();}
   Parentage           const & parentage          () const {return productProvenance().parentage();}
   BranchID                    branchID           () const {return productDescription().branchID();}
