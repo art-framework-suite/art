@@ -15,15 +15,17 @@ namespace {
     if (fileMode == "MERGE") {
       allowedLegacyParameter = true;
       boundary = "Unset";
-      msg << "The following configuration will be added to each of the 'RootOutput' modules\n"
-          << "to yield equivalent behavior:\n"
+      msg << "The deprecated configuration will be replaced by the following,\n"
+          << "which will be added to each of the 'RootOutput' modules\n"
+          << "to yield equivalent behavior to the MERGE mode:\n"
           << "  outputs.<module_label>.fileSwitch.boundary: \"Unset\"";
     }
     else if (fileMode == "NOMERGE") {
       allowedLegacyParameter = true;
       boundary = "InputFile";
-      msg << "The following configuration will be added to each of the 'RootOutput' modules\n"
-          << "to yield equivalent behavior:\n"
+      msg << "The deprecated configuration will be replaced by the following,\n"
+          << "which will be added to each of the 'RootOutput' modules\n"
+          << "to yield equivalent behavior to the NOMERGE mode:\n"
           << "  outputs.<module_label>.fileSwitch: {\n"
           << "    boundary: \"InputFile\"\n"
           << "    force: true\n"
