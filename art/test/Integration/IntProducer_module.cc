@@ -75,16 +75,13 @@ public:
 
 private:
 
-  template <typename PUTTER>
-  void put(PUTTER & p, art::RangeSet const&);
-
   int value_;
   art::BranchType branchType_;
 
 };  // IntProducer
 
 void
-IntProducer::produce( art::Event& e )
+IntProducer::produce(art::Event& e)
 {
   std::cerr << "Holy cow, IntProducer::produce is running!\n";
   if (branchType_ == art::InEvent)
@@ -95,20 +92,16 @@ void
 IntProducer::endSubRun(art::SubRun& sr)
 {
   std::cerr << "Holy cow, IntProducer::endSubRun is running!\n";
-  if (branchType_ == art::InSubRun) put(sr, sr.seenRangeSet());
+  if (branchType_ == art::InSubRun)
+    sr.put(std::make_unique<IntProduct>(value_), SubRunFragment);
 }
 
 void
-IntProducer::endRun( art::Run& r)
+IntProducer::endRun(art::Run& r)
 {
   std::cerr << "Holy cow, IntProducer::endRun is running!\n";
-  if (branchType_ == art::InRun) put(r, r.seenRangeSet());
-}
-
-template <typename PUTTER>
-void
-IntProducer::put(PUTTER & p, art::RangeSet const& seen) {
-  p.put(std::make_unique<IntProduct>(value_), seen);
+  if (branchType_ == art::InRun)
+    r.put(std::make_unique<IntProduct>(value_), RunFragment);
 }
 
 DEFINE_ART_MODULE(IntProducer)

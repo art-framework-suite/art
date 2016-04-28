@@ -59,7 +59,7 @@ void arttest::TH1DataProducer::beginRun(art::Run &)
 
 void arttest::TH1DataProducer::endRun(art::Run & r)
 {
-  r.put(std::move(data_), r.seenRangeSet());
+  r.put(std::move(data_), RunFragment);
   // Implementation of optional member function here.
 }
 

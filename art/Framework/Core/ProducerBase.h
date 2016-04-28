@@ -1,16 +1,15 @@
 #ifndef art_Framework_Core_ProducerBase_h
 #define art_Framework_Core_ProducerBase_h
 
-/*----------------------------------------------------------------------
+//----------------------------------------------------------------------
+// ProducerBase: The base class of all "modules" that will insert new
+//               EDProducts into an Event.
+//----------------------------------------------------------------------
 
-EDProducer: The base class of all "modules" that will insert new
-EDProducts into an Event.
-
-----------------------------------------------------------------------*/
-
-#include "art/Framework/Principal/fwd.h"
 #include "art/Framework/Core/ProductRegistryHelper.h"
 #include "art/Framework/Core/get_BranchDescription.h"
+#include "art/Framework/Principal/fwd.h"
+#include "art/Utilities/ProductTokens.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
 #include "canvas/Persistency/Provenance/ProductID.h"
 #include "fhiclcpp/types/Atom.h"
@@ -22,12 +21,12 @@ EDProducts into an Event.
 #include <string>
 
 namespace art {
+
   class BranchDescription;
   class ModuleDescription;
-  class ProducerBase : private ProductRegistryHelper
-  {
+
+  class ProducerBase : private ProductRegistryHelper {
   public:
-    virtual ~ProducerBase();
 
     using ProductRegistryHelper::registerProducts;
     using ProductRegistryHelper::produces;
@@ -39,6 +38,11 @@ namespace art {
     ProductID getProductID(TRANS const &translator,
                            ModuleDescription const &moduleDescription,
                            std::string const& instanceName) const;
+
+    static constexpr detail::FullToken<Level::Run> FullRun {};
+    static constexpr detail::FullToken<Level::SubRun> FullSubRun {};
+    static constexpr detail::FragmentToken<Level::Run> RunFragment {};
+    static constexpr detail::FragmentToken<Level::SubRun> SubRunFragment {};
 
     // Configuration
     template <typename T>

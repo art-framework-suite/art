@@ -45,7 +45,7 @@ void arttest::HMSubRunProdProducer::endSubRun(art::SubRun & sr)
 
   for (unsigned short i = 0; i < N_BLOCKS; ++i) {
     auto prod = std::make_unique<HMLargeData>(*stencil);
-    sr.put(std::move(prod), std::string("block") + std::to_string(i), sr.seenRangeSet());
+    sr.put(std::move(prod), std::string("block") + std::to_string(i), SubRunFragment);
   }
 }
 

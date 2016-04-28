@@ -11,6 +11,7 @@
 
 #include "art/Framework/Principal/DataViewImpl.h"
 #include "art/Framework/Principal/fwd.h"
+#include "art/Utilities/ProductTokens.h"
 #include "canvas/Persistency/Provenance/RunAuxiliary.h"
 #include "canvas/Persistency/Provenance/RunID.h"
 #include "canvas/Utilities/TypeID.h"
@@ -55,17 +56,65 @@ public:
   template <typename PROD>
   void
   put(std::unique_ptr<PROD> && product,
-      RangeSet const& rs)
+      detail::RangedFragmentToken<Level::Run> const& token)
   {
-    put<PROD>(std::move(product), std::string(), rs);
+    put<PROD>(std::move(product), std::string(), token);
   }
 
-  ///Put a new product with a 'product instance name' and a 'range set'
+  ///Put a new product.
   template <typename PROD>
   void
   put(std::unique_ptr<PROD> && product,
       std::string const& productInstanceName,
-      RangeSet const& rs);
+      detail::RangedFragmentToken<Level::Run> const& token)
+  {
+    static_assert(detail::CanBeAggregated<PROD>::value,
+                  "\n\n"
+                  "art error: A Run product put with the token 'RunFragment'\n"
+                  "           must be able to be aggregated. Please add the appropriate\n"
+                  "              void aggregate(T const&)\n"
+                  "           function to your class, or contact artists@fnal.gov.\n");
+    put_<PROD>(std::move(product), productInstanceName, token.rs);
+  }
+
+
+  template <typename PROD>
+  void
+  put(std::unique_ptr<PROD> && product, detail::FullToken<Level::Run> const token)
+  {
+    put<PROD>(std::move(product), std::string(), token);
+  }
+
+  template <typename PROD>
+  void
+  put(std::unique_ptr<PROD> && product, detail::FragmentToken<Level::Run> const token)
+  {
+    put<PROD>(std::move(product), std::string(), token);
+  }
+
+  template <typename PROD>
+  void
+  put(std::unique_ptr<PROD> && product,
+      std::string const& productInstanceName,
+      detail::FullToken<Level::Run>)
+  {
+    put_<PROD>(std::move(product), productInstanceName, fullRunRangeSet());
+  }
+
+  template <typename PROD>
+  void
+  put(std::unique_ptr<PROD> && product,
+      std::string const& productInstanceName,
+      detail::FragmentToken<Level::Run>)
+  {
+    static_assert(detail::CanBeAggregated<PROD>::value,
+                  "\n\n"
+                  "art error: A Run product put with the token 'RunFragment'\n"
+                  "           must be able to be aggregated. Please add the appropriate\n"
+                  "              void aggregate(T const&)\n"
+                  "           function to your class, or contact artists@fnal.gov.\n");
+    put_<PROD>(std::move(product), productInstanceName, seenRangeSet());
+  }
 
   // Return true if this Run has been subjected to a process with
   // the given processName, and false otherwise.
@@ -89,22 +138,23 @@ private:
 
   void commit_();
 
+  ///Put a new product with a 'product instance name' and a 'range set'
+  template <typename PROD>
+  void
+  put_(std::unique_ptr<PROD> && product,
+       std::string const& productInstanceName,
+       RangeSet const& rs);
+
   RunAuxiliary const& aux_;
   RangeSet seenRanges_;
 };
 
 template <typename PROD>
 void
-art::Run::put(std::unique_ptr<PROD> && product,
-              std::string const& productInstanceName,
-              RangeSet const& rs)
+art::Run::put_(std::unique_ptr<PROD> && product,
+               std::string const& productInstanceName,
+               RangeSet const& rs)
 {
-  static_assert(detail::CanBeAggregated<PROD>::value,
-                "\n\n"
-                "art error: A Run product must be able to be aggregated.\n"
-                "           Please add the appropriate 'void aggregate(T const&)' function\n"
-                "           to your class, or contact artists@fnal.gov.\n");
-
   if (product.get() == nullptr) {
     throw art::Exception(art::errors::NullPointerError)
       << "Run::put: A null unique_ptr was passed to 'put'.\n"

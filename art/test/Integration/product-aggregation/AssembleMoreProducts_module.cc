@@ -25,6 +25,8 @@ using std::vector;
 
 namespace {
 
+  struct Junk {};
+
   double constexpr tolerance  = std::numeric_limits<double>::epsilon();
 
   struct Config {
@@ -93,7 +95,7 @@ namespace {
         art::same_ranges(trkEffRef, trkEffNum_.rangeOfValidity())) {
       auto const eff = static_cast<double>(trkEffNum_.value())/trkEffDenom_.value();
       BOOST_CHECK_CLOSE_FRACTION(fullExpTrkEffs_.at(srn), eff, tolerance);
-      sr.put(std::make_unique<double>(eff), "TrkEffValue", trkEffRef);
+      sr.put(std::make_unique<double>(eff), "TrkEffValue", SubRunFragment(trkEffRef));
     }
   }
 
@@ -110,8 +112,8 @@ namespace {
 
     if (art::same_ranges(nParticles_, seenParticles_)) {
       auto const ratio = static_cast<double>(seenParticles_.value())/nParticles_.value();
-      BOOST_CHECK_CLOSE_FRACTION(seenParticleRatios_.at(sr.subRun()), ratio, 0.01); // 1% tolerance
-      sr.put(std::make_unique<double>(ratio), "ParticleRatio", art::range_of_validity(nParticles_));
+      BOOST_CHECK_CLOSE_FRACTION(seenParticleRatios_.at(sr.subRun()), ratio, 0.01); // 1%
+      sr.put(std::make_unique<double>(ratio), "ParticleRatio", SubRunFragment(nParticles_.rangeOfValidity()));
     }
   }
 
