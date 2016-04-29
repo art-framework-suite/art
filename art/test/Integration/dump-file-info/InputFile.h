@@ -5,7 +5,7 @@
 #include "TFile.h"
 #include "TTree.h"
 #include "art/Framework/IO/Root/Inputfwd.h"
-#include "art/Framework/IO/Root/detail/getFileContributors.h"
+#include "art/Framework/IO/Root/detail/resolveRangeSet.h"
 #include "canvas/Persistency/Provenance/FileIndex.h"
 #include "canvas/Persistency/Provenance/RangeSet.h"
 #include "canvas/Persistency/Provenance/RunAuxiliary.h"

@@ -105,14 +105,14 @@ art::detail::InputFile::getRangeSet(TTree* tree,
                                     std::string const& filename) const
 {
   auto auxResult = getAuxiliary(tree, entries[0]);
-  auto rangeSet = detail::getContributors(db,
+  auto rangeSet = detail::resolveRangeSet(db,
                                           filename,
                                           InRun,
                                           auxResult.rangeSetID());
   for(auto i = entries.cbegin()+1, e = entries.cend(); i!=e; ++i) {
     auto const& tmpAux = getAuxiliary(tree, *i);
     auxResult.mergeAuxiliary(tmpAux);
-    auto const& tmpRangeSet = detail::getContributors(db,
+    auto const& tmpRangeSet = detail::resolveRangeSet(db,
                                                       filename,
                                                       InRun,
                                                       tmpAux.rangeSetID());

@@ -1,7 +1,7 @@
 art_make_library(
   LIBRARY_NAME art_Framework_IO_Root_detail_sources
   SOURCE
-  detail/getFileContributors.cc
+  detail/resolveRangeSet.cc
   detail/orderedProcessNames.cc
   detail/rootFileSizeTools.cc
   detail/rootOutputConfigurationTools.cc

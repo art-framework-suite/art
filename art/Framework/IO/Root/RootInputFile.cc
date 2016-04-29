@@ -10,7 +10,7 @@
 #include "art/Framework/IO/Root/FastCloningInfoProvider.h"
 #include "art/Framework/IO/Root/GetFileFormatEra.h"
 #include "art/Framework/IO/Root/setFileIndexPointer.h"
-#include "art/Framework/IO/Root/detail/getFileContributors.h"
+#include "art/Framework/IO/Root/detail/resolveRangeSet.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/System/FileCatalogMetadata.h"
 #include "art/Persistency/Provenance/ProcessHistoryRegistry.h"

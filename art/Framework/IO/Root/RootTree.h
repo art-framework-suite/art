@@ -11,7 +11,7 @@
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/IO/Root/BranchMapperWithReader.h"
 #include "art/Framework/IO/Root/Inputfwd.h"
-#include "art/Framework/IO/Root/detail/getFileContributors.h"
+#include "art/Framework/IO/Root/detail/resolveRangeSet.h"
 #include "art/Framework/Principal/BoundedRangeSetHandler.h"
 #include "art/Framework/Principal/Principal.h"
 #include "canvas/Persistency/Provenance/BranchKey.h"
@@ -192,14 +192,14 @@ namespace art {
         return result;
       }
 
-      auto rangeSet = detail::getContributors(db,
+      auto rangeSet = detail::resolveRangeSet(db,
                                               filename,
                                               AUX::branch_type,
                                               auxResult.rangeSetID());
       for(auto i = entries.cbegin()+1, e = entries.cend(); i!=e; ++i) {
         auto const& tmpAux = getAux<AUX>(*i);
         detail::mergeAuxiliary(auxResult, tmpAux);
-        auto const& tmpRangeSet = detail::getContributors(db,
+        auto const& tmpRangeSet = detail::resolveRangeSet(db,
                                                           filename,
                                                           AUX::branch_type,
                                                           tmpAux.rangeSetID());

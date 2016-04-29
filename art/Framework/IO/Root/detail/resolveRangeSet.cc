@@ -1,4 +1,4 @@
-#include "art/Framework/IO/Root/detail/getFileContributors.h"
+#include "art/Framework/IO/Root/detail/resolveRangeSet.h"
 #include "art/Persistency/RootDB/SQLite3Wrapper.h"
 
 namespace {
@@ -44,7 +44,7 @@ namespace {
 using art::EventRange;
 
 art::RangeSet
-art::detail::getContributors(sqlite3* db,
+art::detail::resolveRangeSet(sqlite3* db,
                              std::string const& filename,
                              BranchType const bt,
                              unsigned const rangeSetID)

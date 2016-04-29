@@ -1,5 +1,5 @@
-#ifndef art_Framework_IO_Root_detail_getFileContributors_h
-#define art_Framework_IO_Root_detail_getFileContributors_h
+#ifndef art_Framework_IO_Root_detail_resolveRangeSet_h
+#define art_Framework_IO_Root_detail_resolveRangeSet_h
 
 #include "TFile.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
@@ -15,7 +15,7 @@ class sqlite3;
 namespace art {
   namespace detail {
 
-    RangeSet getContributors(sqlite3*,
+    RangeSet resolveRangeSet(sqlite3*,
                              std::string const& filename,
                              BranchType,
                              unsigned rangeSetID);

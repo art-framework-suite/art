@@ -6,7 +6,7 @@
 #include "TClass.h"
 #include "art/Framework/IO/Root/RootInputFile.h"
 #include "art/Framework/IO/Root/RootTree.h"
-#include "art/Framework/IO/Root/detail/getFileContributors.h"
+#include "art/Framework/IO/Root/detail/resolveRangeSet.h"
 #include "canvas/Persistency/Common/RefCoreStreamer.h"
 #include "canvas/Persistency/Provenance/BranchDescription.h"
 #include "canvas/Persistency/Provenance/RangeSet.h"
@@ -103,7 +103,7 @@ namespace art {
 
       std::set<unsigned> seenIDs;
       seenIDs.insert(result->getRangeSetID());
-      RangeSet mergedRangeSet = detail::getContributors(db_,
+      RangeSet mergedRangeSet = detail::resolveRangeSet(db_,
                                                         "SomeInput"s,
                                                         branchType_,
                                                         result->getRangeSetID());
@@ -115,7 +115,7 @@ namespace art {
         if (!seenIDs.insert(id).second) continue; // Skip an already-seen product;
                                                   // double-counting is bad.
 
-        RangeSet const& tmpRS = detail::getContributors(db_, "SomeInput"s, branchType_, id);
+        RangeSet const& tmpRS = detail::resolveRangeSet(db_, "SomeInput"s, branchType_, id);
         if (art::disjoint_ranges(mergedRangeSet, tmpRS)) {
           result->combine(p.get());
           mergedRangeSet.merge(tmpRS);
