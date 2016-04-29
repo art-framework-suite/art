@@ -55,7 +55,7 @@
   <!-- class name="cet::map_vector<std::string>::impl_type" -->
 
   <class name="art::Wrapper<cet::map_vector<unsigned int> >"/>
-  <class name="cet::map_vector<unsigned int>"/>
+  <class name="cet::map_vector<unsigned int>" mapped_type="unsigned int"/>
   <!-- std::pair<cet::map_vector_key, unsigned int> -->
   <class name="cet::map_vector<unsigned int>::value_type"/>
   <!-- std::vector<unsigned int> -->
