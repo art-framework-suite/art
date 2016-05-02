@@ -234,7 +234,7 @@ getGroup(ProductID const& pid) const
   if (g.get()) {
     return GroupQueryResult(g.get());
   }
-  std::shared_ptr<cet::exception> whyFailed(
+  std::shared_ptr<art::Exception> whyFailed(
     new art::Exception(art::errors::ProductNotFound, "InvalidID"));
   *whyFailed
       << "getGroup: no product with given product id: " << pid << "\n";
@@ -251,7 +251,7 @@ getByProductID(ProductID const& pid) const
   BranchID bid = productIDToBranchID(pid);
   SharedConstGroupPtr const& g(getResolvedGroup(bid, true, true));
   if (!g) {
-    std::shared_ptr<cet::exception>
+    std::shared_ptr<art::Exception>
     whyFailed(new art::Exception(art::errors::ProductNotFound, "InvalidID"));
     *whyFailed
         << "getGroup: no product with given product id: " << pid << "\n";
