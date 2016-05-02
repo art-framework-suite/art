@@ -19,12 +19,25 @@ namespace {
   void
   checkDicts(BranchDescription const& productDesc)
   {
-    if (productDesc.transient()) {
-      checkDictionaries(productDesc.wrappedName(), false);
+    auto const isTransient = productDesc.transient();
+
+    // Check product dictionaries.
+    checkDictionaries(productDesc.wrappedName(), !isTransient);
+    if (isTransient) {
       checkDictionaries(productDesc.producedClassName(), false);
     }
-    else {
-      checkDictionaries(productDesc.wrappedName(), true);
+
+    // Check dictionaries for assnsPartner, if appropriate. This is only
+    // necessary for top-level checks so appropriate here rather than
+    // checkDictionaries itself.
+    auto const assnsPartner =
+      name_of_assns_partner(productDesc.producedClassName());
+    if (!assnsPartner.empty()) {
+      // Dictionary for wrapped partner is required.
+      checkDictionaries(wrappedClassName(assnsPartner), !isTransient);
+      if (isTransient) {
+        checkDictionaries(assnsPartner, false);
+      }
     }
     reportFailedDictionaryChecks();
   }
@@ -48,8 +61,8 @@ namespace {
         continue;
       }
       TClass * TYc = TY.tClass();
-      art::TypeWithDict ET;
-      if ((art::mapped_type_of(TYc, ET) || art::value_type_of(TYc, ET)) && ET) {
+      auto ET = mapped_type_of(TYc);
+      if (ET || (ET = value_type_of(TYc))) {
         // The class of the product has a nested type, "mapped_type," or,
         // "value_type," so allow lookups by that type and all of its base
         // types too.
