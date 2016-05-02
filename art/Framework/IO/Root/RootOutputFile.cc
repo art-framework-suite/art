@@ -171,7 +171,7 @@ namespace {
       sqlite::Transaction txn {db};
       sqlite3_stmt* stmt {nullptr};
       std::string const ddl {"SELECT ROWID FROM EventRanges WHERE "
-          "SubRun=" + std::to_string(range.subrun()) + " AND "
+          "SubRun=" + std::to_string(range.subRun()) + " AND "
           "begin=" + std::to_string(range.begin()) + " AND "
           "end=" + std::to_string(range.end()) + ";"};
       sqlite3_prepare_v2(db, ddl.c_str(), -1, &stmt, nullptr);
@@ -191,7 +191,7 @@ namespace {
         "VALUES(?, ?, ?);"};
     sqlite3_prepare_v2(db, ddl.c_str(), -1, &stmt, nullptr);
     for (auto const& range : rs) {
-      insert_eventRanges_row(stmt, range.subrun(), range.begin(), range.end());
+      insert_eventRanges_row(stmt, range.subRun(), range.begin(), range.end());
     }
     sqlite3_finalize(stmt);
     txn.commit();

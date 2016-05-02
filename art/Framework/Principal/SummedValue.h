@@ -41,7 +41,7 @@ namespace art {
     void reset(U const& h, T t);
 
     template <typename U>
-    bool need_new_aggregator(U const& h);
+    bool should_reset(U const& h);
 
     T value_ {};
     RangeSet rangeOfValidity_ {RangeSet::invalid()};
@@ -63,13 +63,13 @@ namespace art {
   template <typename T>
   template <typename U>
   bool
-  SummedValue<T>::need_new_aggregator(U const& h)
+  SummedValue<T>::should_reset(U const& h)
   {
     auto const& newRS = h.provenance()->rangeOfValidity();
     switch (h.provenance()->productDescription().branchType()) {
     case InSubRun : {
       if (rangeOfValidity_.empty()) return true;
-      return newRS.ranges().front().subrun() != rangeOfValidity_.ranges().front().subrun();
+      return newRS.ranges().front().subRun() != rangeOfValidity_.ranges().front().subRun();
     }
     case InRun:
       return newRS.run() != rangeOfValidity_.run();
@@ -86,7 +86,7 @@ namespace art {
   std::enable_if_t<detail::is_handle<U>::value>
   SummedValue<T>::update(U const& h, T const& t)
   {
-    if (need_new_aggregator(h))
+    if (should_reset(h))
       reset(h,t);
 
     if (!isValid())

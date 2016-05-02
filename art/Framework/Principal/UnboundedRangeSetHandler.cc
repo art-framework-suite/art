@@ -47,7 +47,7 @@ namespace art {
       return;
     }
     auto& back = ranges_.back();
-    if (back.subrun() == id.subRun()) {
+    if (back.subRun() == id.subRun()) {
       if (back.end() == id.event()) {
         back.set_end(id.next().event());
       }
@@ -68,7 +68,7 @@ namespace art {
       ranges_.emplace_range(sr, invalid_eid, invalid_eid);
       rsIter_ = ranges_.begin();
     }
-    else if (ranges_.back().subrun() != sr) {
+    else if (ranges_.back().subRun() != sr) {
       ranges_.emplace_range(sr, invalid_eid, invalid_eid);
       rsIter_ = ranges_.begin();
     }
@@ -89,12 +89,8 @@ namespace art {
     if (lastInSubRun_)
       return;
 
-    // Not enough to ask 'back.is_valid()' since a range representing
-    // the entire SubRun is valid...but we don't want that here.
-    if (is_valid(back.subrun()) &&
-        is_valid(back.begin()) &&
-        is_valid(back.end())) {
-      ranges_.emplace_range(back.subrun(), back.end(), IDNumber<Level::Event>::next(back.end()));
+    if (back.is_valid() && !back.is_full_SubRun()) {
+      ranges_.emplace_range(back.subRun(), back.end(), IDNumber<Level::Event>::next(back.end()));
       rsIter_ = ranges_.end();
     }
   }
