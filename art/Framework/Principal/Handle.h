@@ -107,14 +107,16 @@ art::Handle<T>::Handle(GroupQueryResult const & gqr) :
   prov_     ( gqr.result() ),
   whyFailed_( gqr.whyFailed() )
 {
-  if( gqr.succeeded() )
-    try {
-      prod_ = dynamic_cast< Wrapper<T> const &>(*gqr.result()->uniqueProduct(TypeID(typeid(Wrapper<T>)))
-                                                ).product();
-    }
-    catch(std::bad_cast const &) {
+  if (gqr.succeeded()) {
+    auto const wrapperPtr =
+      dynamic_cast<Wrapper<T> const *>(gqr.result()->
+                                       uniqueProduct(TypeID(typeid(Wrapper<T>))));
+    if (wrapperPtr == nullptr) {
       whyFailed_ = std::make_shared<art::Exception const>(errors::LogicError, "Handle<T> c'tor");
+    } else {
+      prod_ = wrapperPtr->product();
     }
+  }
 }
 
 // ----------------------------------------------------------------------

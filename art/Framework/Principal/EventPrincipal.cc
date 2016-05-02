@@ -172,20 +172,29 @@ BranchID
 EventPrincipal::
 productIDToBranchID(ProductID const& pid) const
 {
+  BranchID result;
   if (!pid.isValid()) {
     throw art::Exception(art::errors::ProductNotFound, "InvalidID")
         << "get by product ID: invalid ProductID supplied\n";
   }
-  BranchID::value_type bid = 0;
-  try {
-    auto blix = history().branchListIndexes().at(pid.processIndex() - 1);
-    auto const& blist = BranchIDListRegistry::instance()->data().at(blix);
-    bid = blist.at(pid.productIndex() - 1);
+  auto procidx = pid.processIndex();
+  if (procidx > 0) {
+    --procidx;
+    if (procidx < history().branchListIndexes().size()) {
+      auto const blix = history().branchListIndexes()[procidx];
+      if (blix < BranchIDListRegistry::instance()->data().size()) {
+        auto const & blist = BranchIDListRegistry::instance()->data()[blix];
+        auto productidx = pid.productIndex();
+        if (productidx > 0) {
+          --productidx;
+          if (productidx < blist.size()) {
+            result = BranchID(blist[productidx]);
+          }
+        }
+      }
+    }
   }
-  catch (std::exception) {
-    return BranchID();
-  }
-  return BranchID(bid);
+  return result;
 }
 
 ProductID
