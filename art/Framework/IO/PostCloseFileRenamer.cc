@@ -22,7 +22,7 @@ namespace {
       bfs::copy_file(inPath,
                      toFile,
                      bfs::copy_option::overwrite_if_exists);
-      (void) bfs::remove(inPath);
+      bfs::remove(inPath);
     }
     return toFile;
   }
@@ -269,20 +269,24 @@ subFilledNumeric_(boost::smatch const & match) const
 std::string
 art::PostCloseFileRenamer::
 maybeRenameFile(std::string const & inPath, std::string const & toPattern) {
-  std::string const& newFile {applySubstitutions(toPattern)};
-  bfs::path const target {newFile};
-  if ( !bfs::exists(target) ) {
-    return renameFile(inPath, newFile);
+  std::string outPath {applySubstitutions(toPattern)};
+  bfs::path target {outPath};
+
+  while( bfs::exists(target) ) {
+    // Add index to file name if the target file already exists
+    auto const index = std::to_string(stats_.sequenceNum());
+    std::size_t const pos = outPath.find('.');
+    std::string const& base {outPath.substr(0,pos)};
+    std::string newOutPath {base+"_"+index};
+    if (pos != std::string::npos) {
+      std::string const& suffix {outPath.substr(pos+1)};
+      newOutPath += "."+suffix;
+    }
+    bfs::path newOutTarget {newOutPath};
+    using std::swap;
+    swap(target, newOutTarget);
+    swap(outPath, newOutPath);
   }
 
-  // Add index to file name if the target file already exists
-  auto const index = std::to_string(stats_.sequenceNum());
-  std::size_t const pos = newFile.find('.');
-  std::string const& base { newFile.substr(0,pos) };
-  std::string newTargetPath { base+"_"+index };
-  if ( pos != std::string::npos ) {
-    std::string const& suffix { newFile.substr(pos+1) };
-    newTargetPath += "."+suffix;
-  }
-  return renameFile(inPath, newTargetPath);
+  return renameFile(inPath, outPath);
 }
