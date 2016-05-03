@@ -108,6 +108,8 @@ namespace art {
                                                         branchType_,
                                                         result->getRangeSetID());
 
+      // std::cout << bk << '\n';
+      // std::cout << "First RS: " << mergedRangeSet  << '\n';
       for(auto it = entrySet_.cbegin()+1, e = entrySet_.cend(); it!= e; ++it) {
         auto p = get_product(*it);
         auto const id = p->getRangeSetID();
@@ -116,9 +118,33 @@ namespace art {
                                                   // double-counting is bad.
 
         RangeSet const& tmpRS = detail::resolveRangeSet(db_, "SomeInput"s, branchType_, id);
+        // std::cout << "====================\n"
+        //           << bk << '\n'
+        //           << "Entry: " << *it << '\n'
+        //           << tmpRS << '\n';
         if (art::disjoint_ranges(mergedRangeSet, tmpRS)) {
           result->combine(p.get());
           mergedRangeSet.merge(tmpRS);
+        }
+        else if (art::same_ranges(mergedRangeSet, tmpRS)) {
+          // The ranges are the same, so the behavior is a nop.
+          // However, we will probably never get here because of the
+          // seenIDs set, which prevents from duplicate aggregation.
+          // If the stakeholders decide that products with the same
+          // ranges should be checked for equality, then the seenIDs
+          // set needs to go away, and an extra condition will be
+          // added here.
+        }
+        else {
+          assert(art::overlapping_ranges(mergedRangeSet, tmpRS));
+          throw Exception{errors::ProductCannotBeAggregated, "RootDelayedReader::getProduct_"}
+            << "\nThe following ranges corresponding to the product:\n"
+            << "   '" << bk << "'"
+            << "\ncannot be aggregated\n"
+            << mergedRangeSet
+            << " and\n"
+            << tmpRS
+            << "\nPlease contact artists@fnal.gov.\n";
         }
       }
       mergedRangeSet.collapse(); // Must collapse the range!  It sets

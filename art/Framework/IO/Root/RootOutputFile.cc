@@ -818,7 +818,6 @@ fillBranches(BranchType const& bt,
              Principal const& principal,
              vector<ProductProvenance>* vpp)
 {
-  vector<unique_ptr<EDProduct>> dummies;
   bool const fastCloning = (bt == InEvent) && currentlyFastCloning_;
   set<ProductProvenance> keptProv;
   map<unsigned,unsigned> checksumToIndex;
@@ -857,26 +856,26 @@ fillBranches(BranchType const& bt,
 
       if (product == nullptr) {
         // No such product in the event, so use a dummy product.
-        // FIXME: Can we cache these dummy products so that we do not
-        // FIXME: create them for every event?
-        auto name = bd->wrappedName().c_str();
-        TClass* cp = TClass::GetClass(name);
-        if (cp == nullptr) {
-          throw art::Exception(art::errors::DictionaryNotFound)
-            << "TClass::GetClass() returned null pointer for name: "
-            << name
-            << '\n';
+        auto const& name = bd->wrappedName();
+        auto it = dummies_.find(name);
+        if (it == dummies_.cend()) {
+          TClass* cp = TClass::GetClass(name.c_str());
+          if (cp == nullptr) {
+            throw art::Exception{art::errors::DictionaryNotFound}
+              << "TClass::GetClass() returned null pointer for name: "
+              << name
+              << '\n';
+          }
+          unique_ptr<EDProduct> dummy {reinterpret_cast<EDProduct*>(cp->New())};
+          it = dummies_.emplace(name, move(dummy)).first;
         }
-        unique_ptr<EDProduct> dummy {reinterpret_cast<EDProduct*>(cp->New())};
-        product = dummy.get();
-        // Make sure the dummies outlive the fillTree call.
-        dummies.emplace_back(move(dummy));
+        product = it->second.get();
       }
 
-      // Set range sets for present SubRun products
-      //  - only SubRun and Run products can have range sets
+      // Set range sets for SubRun and Run products
       if (bt == InSubRun || bt == InRun) {
         auto const& rs = product->isPresent() ? *oh.rangeOfValidity() : RangeSet::invalid();
+        std::cout << "==========================\n" << *bd << rs << '\n';
         auto nc_product = const_cast<EDProduct*>(product);
         auto it = checksumToIndex.find(rs.checksum());
         if (it != checksumToIndex.cend()) {

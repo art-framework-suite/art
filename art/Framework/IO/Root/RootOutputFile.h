@@ -197,6 +197,7 @@ private: // MEMBER DATA
   std::set<BranchID> branchesWithStoredHistory_ {};
   SQLite3Wrapper rootFileDB_;
   OutputItemListArray selectedOutputItemList_ {{}}; // filled by aggregation
+  std::map<std::string,std::unique_ptr<EDProduct>> dummies_ {};
   unsigned subRunRSID_ {-1u};
   unsigned runRSID_ {-1u};
 
