@@ -1,5 +1,5 @@
-#ifndef test_Framework_Services_Interfaces_MyServiceInterface_h
-#define test_Framework_Services_Interfaces_MyServiceInterface_h
+#ifndef art_test_Framework_Services_Interfaces_MyServiceInterface_h
+#define art_test_Framework_Services_Interfaces_MyServiceInterface_h
 
 // MyServiceInterface: interface from which a test service can inherit.
 
@@ -10,7 +10,7 @@ namespace arttest {
 }
 
 DECLARE_ART_SERVICE_INTERFACE(arttest::MyServiceInterface,LEGACY)
-#endif /* test_Framework_Services_Interfaces_MyServiceInterface_h */
+#endif /* art_test_Framework_Services_Interfaces_MyServiceInterface_h */
 
 // Local Variables:
 // mode: c++

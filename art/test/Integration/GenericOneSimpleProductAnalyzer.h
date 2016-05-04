@@ -1,5 +1,5 @@
-#ifndef test_Integration_GenericOneSimpleProductAnalyzer_h
-#define test_Integration_GenericOneSimpleProductAnalyzer_h
+#ifndef art_test_Integration_GenericOneSimpleProductAnalyzer_h
+#define art_test_Integration_GenericOneSimpleProductAnalyzer_h
 
 #include "art/Framework/Core/EDAnalyzer.h"
 #include "art/Framework/Principal/Event.h"
@@ -91,7 +91,7 @@ private:
   bool require_presence_;
 };
 
-#endif /* test_Integration_GenericOneSimpleProductAnalyzer_h */
+#endif /* art_test_Integration_GenericOneSimpleProductAnalyzer_h */
 
 // Local Variables:
 // mode: c++

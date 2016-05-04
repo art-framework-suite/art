@@ -1,5 +1,5 @@
-#ifndef test_TestObjects_ProductWithPtrs_h
-#define test_TestObjects_ProductWithPtrs_h
+#ifndef art_test_TestObjects_ProductWithPtrs_h
+#define art_test_TestObjects_ProductWithPtrs_h
 
 #include "canvas/Persistency/Common/Ptr.h"
 #include "canvas/Persistency/Common/PtrVector.h"
@@ -96,7 +96,7 @@ vectorPtrDouble() {
   return vpd_;
 }
 
-#endif /* test_TestObjects_ProductWithPtrs_h */
+#endif /* art_test_TestObjects_ProductWithPtrs_h */
 
 // Local Variables:
 // mode: c++

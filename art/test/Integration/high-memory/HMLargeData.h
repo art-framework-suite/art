@@ -1,5 +1,5 @@
-#ifndef test_Integration_high_memory_HMLargeData_h
-#define test_Integration_high_memory_HMLargeData_h
+#ifndef art_test_Integration_high_memory_HMLargeData_h
+#define art_test_Integration_high_memory_HMLargeData_h
 
 #include <vector>
 
@@ -74,7 +74,7 @@ data() const
 
 #endif /* __GCCXML__ */
 
-#endif /* test_Integration_high_memory_HMLargeData_h */
+#endif /* art_test_Integration_high_memory_HMLargeData_h */
 
 
 // Local Variables:

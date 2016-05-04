@@ -1,5 +1,5 @@
-#ifndef test_Framework_Services_Message_UnitTestClient_Q_h
-#define test_Framework_Services_Message_UnitTestClient_Q_h
+#ifndef art_test_Framework_Services_Message_UnitTestClient_Q_h
+#define art_test_Framework_Services_Message_UnitTestClient_Q_h
 
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/EDAnalyzer.h"
@@ -69,7 +69,7 @@ private:
 }  // arttest
 
 
-#endif /* test_Framework_Services_Message_UnitTestClient_Q_h */
+#endif /* art_test_Framework_Services_Message_UnitTestClient_Q_h */
 
 // Local Variables:
 // mode: c++

@@ -1,5 +1,5 @@
-#ifndef test_Framework_Services_Message_UnitTestClient_L_h
-#define test_Framework_Services_Message_UnitTestClient_L_h
+#ifndef art_test_Framework_Services_Message_UnitTestClient_L_h
+#define art_test_Framework_Services_Message_UnitTestClient_L_h
 
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/EDAnalyzer.h"
@@ -56,7 +56,7 @@ private:
 
 
 
-#endif /* test_Framework_Services_Message_UnitTestClient_L_h */
+#endif /* art_test_Framework_Services_Message_UnitTestClient_L_h */
 
 // Local Variables:
 // mode: c++

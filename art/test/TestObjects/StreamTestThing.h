@@ -1,5 +1,5 @@
-#ifndef test_TestObjects_StreamTestThing_h
-#define test_TestObjects_StreamTestThing_h
+#ifndef art_test_TestObjects_StreamTestThing_h
+#define art_test_TestObjects_StreamTestThing_h
 
 #include <vector>
 
@@ -16,7 +16,7 @@ namespace arttestprod {
 
 }
 
-#endif /* test_TestObjects_StreamTestThing_h */
+#endif /* art_test_TestObjects_StreamTestThing_h */
 
 // Local Variables:
 // mode: c++

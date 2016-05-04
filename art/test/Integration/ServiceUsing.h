@@ -1,5 +1,5 @@
-#ifndef test_Integration_ServiceUsing_h
-#define test_Integration_ServiceUsing_h
+#ifndef art_test_Integration_ServiceUsing_h
+#define art_test_Integration_ServiceUsing_h
 
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
@@ -42,7 +42,7 @@ getNewValue()
 }
 
 DECLARE_ART_SERVICE(arttest::ServiceUsing, LEGACY)
-#endif /* test_Integration_ServiceUsing_h */
+#endif /* art_test_Integration_ServiceUsing_h */
 
 // Local Variables:
 // mode: c++

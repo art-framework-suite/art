@@ -1,5 +1,5 @@
-#ifndef test_Framework_Services_Interfaces_PSTestInterface_h
-#define test_Framework_Services_Interfaces_PSTestInterface_h
+#ifndef art_test_Framework_Services_Interfaces_PSTestInterface_h
+#define art_test_Framework_Services_Interfaces_PSTestInterface_h
 
 // PSTestInterface: interface from which a test service can inherit.
 
@@ -15,7 +15,7 @@ public:
 }
 
 DECLARE_ART_SERVICE_INTERFACE(arttest::PSTestInterface,PER_SCHEDULE)
-#endif /* test_Framework_Services_Interfaces_PSTestInterface_h */
+#endif /* art_test_Framework_Services_Interfaces_PSTestInterface_h */
 
 // Local Variables:
 // mode: c++

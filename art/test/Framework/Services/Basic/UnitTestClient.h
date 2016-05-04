@@ -1,5 +1,5 @@
-#ifndef test_Framework_Services_Basic_UnitTestClient_h
-#define test_Framework_Services_Basic_UnitTestClient_h
+#ifndef art_test_Framework_Services_Basic_UnitTestClient_h
+#define art_test_Framework_Services_Basic_UnitTestClient_h
 
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/EDAnalyzer.h"
@@ -26,7 +26,7 @@ private:
 }  // arttest
 
 
-#endif /* test_Framework_Services_Basic_UnitTestClient_h */
+#endif /* art_test_Framework_Services_Basic_UnitTestClient_h */
 
 // Local Variables:
 // mode: c++

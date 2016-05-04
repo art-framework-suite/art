@@ -1,5 +1,5 @@
-#ifndef test_TestObjects_StreamTestTmpl_h
-#define test_TestObjects_StreamTestTmpl_h
+#ifndef art_test_TestObjects_StreamTestTmpl_h
+#define art_test_TestObjects_StreamTestTmpl_h
 
 #include <vector>
 #include "art/test/TestObjects/StreamTestSimple.h"
@@ -23,7 +23,7 @@ namespace arttestprod
   //typedef Simple OSimple;
 }
 
-#endif /* test_TestObjects_StreamTestTmpl_h */
+#endif /* art_test_TestObjects_StreamTestTmpl_h */
 
 // Local Variables:
 // mode: c++

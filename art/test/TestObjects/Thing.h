@@ -1,5 +1,5 @@
-#ifndef test_TestObjects_Thing_h
-#define test_TestObjects_Thing_h
+#ifndef art_test_TestObjects_Thing_h
+#define art_test_TestObjects_Thing_h
 
 namespace arttest {
 
@@ -11,7 +11,7 @@ namespace arttest {
 
 }
 
-#endif /* test_TestObjects_Thing_h */
+#endif /* art_test_TestObjects_Thing_h */
 
 // Local Variables:
 // mode: c++

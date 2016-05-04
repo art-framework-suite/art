@@ -1,5 +1,5 @@
-#ifndef test_Framework_EventProcessor_MockEventProcessor_h
-#define test_Framework_EventProcessor_MockEventProcessor_h
+#ifndef art_test_Framework_EventProcessor_MockEventProcessor_h
+#define art_test_Framework_EventProcessor_MockEventProcessor_h
 
 /*
 
@@ -89,7 +89,7 @@ namespace art
   };
 }
 
-#endif /* test_Framework_EventProcessor_MockEventProcessor_h */
+#endif /* art_test_Framework_EventProcessor_MockEventProcessor_h */
 
 // Local Variables:
 // mode: c++

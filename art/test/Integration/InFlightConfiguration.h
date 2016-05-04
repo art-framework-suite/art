@@ -1,5 +1,5 @@
-#ifndef test_Integration_InFlightConfiguration_h
-#define test_Integration_InFlightConfiguration_h
+#ifndef art_test_Integration_InFlightConfiguration_h
+#define art_test_Integration_InFlightConfiguration_h
 
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/Registry/ServiceMacros.h"
@@ -31,7 +31,7 @@ private:
 };
 
 DECLARE_ART_SERVICE(arttest::InFlightConfiguration, LEGACY)
-#endif /* test_Integration_InFlightConfiguration_h */
+#endif /* art_test_Integration_InFlightConfiguration_h */
 
 // Local Variables:
 // mode: c++

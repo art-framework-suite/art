@@ -1,5 +1,5 @@
-#ifndef test_Framework_Services_Optional_MyService_h
-#define test_Framework_Services_Optional_MyService_h
+#ifndef art_test_Framework_Services_Optional_MyService_h
+#define art_test_Framework_Services_Optional_MyService_h
 
 // MyService: test service inheriting from MyServiceInterface.
 
@@ -34,7 +34,7 @@ private:
 // ======================================================================
 
 DECLARE_ART_SERVICE_INTERFACE_IMPL(arttest::MyService, arttest::MyServiceInterface, LEGACY)
-#endif /* test_Framework_Services_Optional_MyService_h */
+#endif /* art_test_Framework_Services_Optional_MyService_h */
 
 // Local Variables:
 // mode: c++

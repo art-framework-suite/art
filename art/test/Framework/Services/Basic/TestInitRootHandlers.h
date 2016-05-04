@@ -1,5 +1,5 @@
-#ifndef test_Framework_Services_Basic_TestInitRootHandlers_h
-#define test_Framework_Services_Basic_TestInitRootHandlers_h
+#ifndef art_test_Framework_Services_Basic_TestInitRootHandlers_h
+#define art_test_Framework_Services_Basic_TestInitRootHandlers_h
 // -*- C++ -*-
 //
 // Package:     Modules
@@ -49,7 +49,7 @@ private:
 
 
 
-#endif /* test_Framework_Services_Basic_TestInitRootHandlers_h */
+#endif /* art_test_Framework_Services_Basic_TestInitRootHandlers_h */
 
 // Local Variables:
 // mode: c++

@@ -1,5 +1,5 @@
-#ifndef test_TestObjects_StreamTestSimple_h
-#define test_TestObjects_StreamTestSimple_h
+#ifndef art_test_TestObjects_StreamTestSimple_h
+#define art_test_TestObjects_StreamTestSimple_h
 
 
 namespace arttestprod
@@ -24,7 +24,7 @@ namespace arttestprod
   typedef X0123456789012345678901234567890123456789012345678901234567890123456789012345678901 Pig;
 }
 
-#endif /* test_TestObjects_StreamTestSimple_h */
+#endif /* art_test_TestObjects_StreamTestSimple_h */
 
 // Local Variables:
 // mode: c++

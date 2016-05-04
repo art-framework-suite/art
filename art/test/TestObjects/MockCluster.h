@@ -1,5 +1,5 @@
-#ifndef test_TestObjects_MockCluster_h
-#define test_TestObjects_MockCluster_h
+#ifndef art_test_TestObjects_MockCluster_h
+#define art_test_TestObjects_MockCluster_h
 
 #include "art/test/TestObjects/ToyProducts.h"
 #include "canvas/Persistency/Common/PtrVector.h"
@@ -32,7 +32,7 @@ namespace arttest {
    typedef std::vector<arttest::MockCluster> MockClusterList;
 }
 
-#endif /* test_TestObjects_MockCluster_h */
+#endif /* art_test_TestObjects_MockCluster_h */
 
 // Local Variables:
 // mode: c++
