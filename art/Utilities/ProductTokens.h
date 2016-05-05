@@ -4,23 +4,29 @@
 #include "canvas/Persistency/Provenance/RangeSet.h"
 
 namespace art {
-  namespace detail {
 
-    template <Level>
-    struct FullToken {};
+  template <Level>
+  struct FullToken {};
 
-    template <Level>
-    struct RangedFragmentToken {
-      explicit RangedFragmentToken(RangeSet const& r): rs{r} {}
-      RangeSet rs {RangeSet::invalid()};
-    };
+  template <Level L>
+  struct FragmentToken {};
 
-    template <Level L>
-    struct FragmentToken {
-      auto operator()(RangeSet const& r) const { return RangedFragmentToken<L>{r}; }
-    };
+  template <Level>
+  struct RangedFragmentToken {
+    explicit RangedFragmentToken(RangeSet const& r): rs{r} {}
+    RangeSet rs {RangeSet::invalid()};
+  };
 
-  }
+  // constexpr implies inline
+  constexpr auto fullRun() { return FullToken<Level::Run>{}; }
+  constexpr auto fullSubRun() { return FullToken<Level::SubRun>{}; }
+
+  constexpr auto runFragment() { return FragmentToken<Level::Run>{}; }
+  constexpr auto subRunFragment() { return FragmentToken<Level::SubRun>{}; }
+
+  inline auto runFragment(RangeSet const& rs) { return RangedFragmentToken<Level::Run>{rs}; }
+  inline auto subRunFragment(RangeSet const& rs) { return RangedFragmentToken<Level::SubRun>{rs}; }
+
 }
 
 #endif

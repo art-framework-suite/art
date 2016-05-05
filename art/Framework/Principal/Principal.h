@@ -27,6 +27,7 @@
 #include "canvas/Persistency/Provenance/ProductProvenance.h"
 #include "canvas/Persistency/Provenance/ProductStatus.h"
 #include "canvas/Persistency/Provenance/ProvenanceFwd.h"
+#include "canvas/Persistency/Provenance/RangeSet.h"
 #include "canvas/Utilities/InputTag.h"
 #include "canvas/Persistency/Common/EDProductGetterFinder.h"
 #include "canvas/Utilities/TypeID.h"
@@ -222,6 +223,10 @@ namespace art {
     virtual
     void
     addGroup(BranchDescription const&) = 0;
+
+    virtual
+    RangeSet
+    seenRanges() const = 0;
 
   protected: // MEMBER FUNCTIONS
 

@@ -92,6 +92,8 @@ namespace art {
     bool isLastInSubRun() const { return lastInSubRun_; }
     EDProductGetter const* productGetter(ProductID const& pid) const;
 
+    RangeSet seenRanges() const override { return RangeSet::invalid(); }
+
   private:
 
     BranchID productIDToBranchID(ProductID const& pid) const;

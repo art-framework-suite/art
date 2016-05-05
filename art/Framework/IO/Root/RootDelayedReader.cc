@@ -19,6 +19,17 @@ using namespace std;
 
 namespace {
 
+  bool one_valid_range(art::RangeSet const& l,
+                       art::RangeSet const& r)
+  {
+    auto only_left_valid = [](auto const& l, auto const& r) {
+      return l.is_valid() && !r.is_valid();
+    };
+    return only_left_valid(l,r) || only_left_valid(r,l);
+  }
+
+
+
 }
 
 namespace art {
@@ -108,8 +119,6 @@ namespace art {
                                                         branchType_,
                                                         result->getRangeSetID());
 
-      // std::cout << bk << '\n';
-      // std::cout << "First RS: " << mergedRangeSet  << '\n';
       for(auto it = entrySet_.cbegin()+1, e = entrySet_.cend(); it!= e; ++it) {
         auto p = get_product(*it);
         auto const id = p->getRangeSetID();
@@ -117,17 +126,19 @@ namespace art {
         if (!seenIDs.insert(id).second) continue; // Skip an already-seen product;
                                                   // double-counting is bad.
 
-        RangeSet const& tmpRS = detail::resolveRangeSet(db_, "SomeInput"s, branchType_, id);
-        // std::cout << "====================\n"
-        //           << bk << '\n'
-        //           << "Entry: " << *it << '\n'
-        //           << tmpRS << '\n';
-        if (art::disjoint_ranges(mergedRangeSet, tmpRS)) {
+        RangeSet tmpRS = detail::resolveRangeSet(db_, "SomeInput"s, branchType_, id);
+        if (one_valid_range(mergedRangeSet, tmpRS)) {
+          if (tmpRS.is_valid()) {
+            std::swap(tmpRS, mergedRangeSet);
+            std::swap(result, p);
+          }
+        }
+        else if (art::disjoint_ranges(mergedRangeSet, tmpRS)) {
           result->combine(p.get());
           mergedRangeSet.merge(tmpRS);
         }
         else if (art::same_ranges(mergedRangeSet, tmpRS)) {
-          // The ranges are the same, so the behavior is a nop.
+          // The ranges are the same, so the behavior is a NOP.
           // However, we will probably never get here because of the
           // seenIDs set, which prevents from duplicate aggregation.
           // If the stakeholders decide that products with the same
@@ -135,17 +146,18 @@ namespace art {
           // set needs to go away, and an extra condition will be
           // added here.
         }
-        else {
-          assert(art::overlapping_ranges(mergedRangeSet, tmpRS));
+        else if (art::overlapping_ranges(mergedRangeSet, tmpRS)) {
           throw Exception{errors::ProductCannotBeAggregated, "RootDelayedReader::getProduct_"}
-            << "\nThe following ranges corresponding to the product:\n"
-            << "   '" << bk << "'"
-            << "\ncannot be aggregated\n"
-            << mergedRangeSet
-            << " and\n"
-            << tmpRS
-            << "\nPlease contact artists@fnal.gov.\n";
+               << "\nThe following ranges corresponding to the product:\n"
+               << "   '" << bk << "'"
+               << "\ncannot be aggregated\n"
+               << mergedRangeSet
+               << " and\n"
+               << tmpRS
+               << "\nPlease contact artists@fnal.gov.\n";
         }
+        // NOP for when both RangeSets are invalid
+
       }
       mergedRangeSet.collapse(); // Must collapse the range!  It sets
                                  // the checksum.  Yeah...I don't like

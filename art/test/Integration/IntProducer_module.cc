@@ -93,7 +93,7 @@ IntProducer::endSubRun(art::SubRun& sr)
 {
   std::cerr << "Holy cow, IntProducer::endSubRun is running!\n";
   if (branchType_ == art::InSubRun)
-    sr.put(std::make_unique<IntProduct>(value_), SubRunFragment);
+    sr.put(std::make_unique<IntProduct>(value_), art::subRunFragment());
 }
 
 void
@@ -101,7 +101,7 @@ IntProducer::endRun(art::Run& r)
 {
   std::cerr << "Holy cow, IntProducer::endRun is running!\n";
   if (branchType_ == art::InRun)
-    r.put(std::make_unique<IntProduct>(value_), RunFragment);
+    r.put(std::make_unique<IntProduct>(value_), art::runFragment());
 }
 
 DEFINE_ART_MODULE(IntProducer)

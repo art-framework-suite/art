@@ -56,7 +56,7 @@ namespace {
 
     void beginRun(art::Run& r) override
     {
-      r.put(std::make_unique<arttest::Geometry>(r.run()), "Geometry", FullRun);
+      r.put(std::make_unique<arttest::Geometry>(r.run()), "Geometry", art::fullRun());
     }
 
     void produce(art::Event& e) override

@@ -33,7 +33,7 @@ namespace {
 
     void endSubRun(art::SubRun& sr) override
     {
-      sr.put(std::make_unique<unsigned>(seenParticles_), "seenParticles", SubRunFragment);
+      sr.put(std::make_unique<unsigned>(seenParticles_), "seenParticles", art::subRunFragment());
       seenParticles_ = 0u;
     }
 

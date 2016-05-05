@@ -27,7 +27,7 @@ namespace art {
 
 class art::ResultsPrincipal final : public Principal {
 public:
-  typedef ResultsAuxiliary Auxiliary;
+  using Auxiliary = ResultsAuxiliary;
 
   ResultsPrincipal(ResultsAuxiliary const &,
                    ProcessConfiguration const &,
@@ -45,6 +45,7 @@ public:
   void addGroup(BranchDescription const&) override;
 
   BranchType branchType() const override;
+  RangeSet seenRanges() const override { return RangeSet::invalid(); }
 
 private:
 

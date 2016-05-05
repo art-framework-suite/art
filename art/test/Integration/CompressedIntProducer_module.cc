@@ -81,7 +81,7 @@ CompressedIntProducer::endSubRun(art::SubRun& sr)
 {
   std::cerr << "Holy cow, CompressedIntProducer::endSubRun is running!\n";
   if (branchType_ == art::InSubRun)
-    sr.put(std::make_unique<CompressedIntProduct>(value_), SubRunFragment);
+    sr.put(std::make_unique<CompressedIntProduct>(value_), art::subRunFragment());
 }
 
 void
@@ -89,7 +89,7 @@ CompressedIntProducer::endRun(art::Run& r)
 {
   std::cerr << "Holy cow, CompressedIntProducer::endRun is running!\n";
   if (branchType_ == art::InRun)
-    r.put(std::make_unique<CompressedIntProduct>(value_), RunFragment);
+    r.put(std::make_unique<CompressedIntProduct>(value_), art::runFragment());
 }
 
 DEFINE_ART_MODULE(CompressedIntProducer)

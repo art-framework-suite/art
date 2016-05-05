@@ -63,13 +63,13 @@ namespace {
 
     void endSubRun(art::SubRun& sr) override
     {
-      sr.put(std::make_unique<unsigned>(nParticles_), "nParticles", SubRunFragment);
+      sr.put(std::make_unique<unsigned>(nParticles_), "nParticles", art::subRunFragment());
       nParticles_ = 0u;
     }
 
     void endRun(art::Run& r) override
     {
-      r.put(std::make_unique<unsigned>(nPOTs_), "nPOTs", RunFragment);
+      r.put(std::make_unique<unsigned>(nPOTs_), "nPOTs", art::runFragment());
       nPOTs_ = 0u;
     }
 

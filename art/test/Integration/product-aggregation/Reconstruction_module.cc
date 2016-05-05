@@ -40,7 +40,7 @@ namespace {
     {
       sr.put(std::make_unique<arttest::CalibConstants>(sr.subRun()),
              "CalibConstants",
-             FullSubRun);
+             art::fullSubRun());
       return true;
     }
 
@@ -62,7 +62,7 @@ namespace {
     {
       sr.put(std::make_unique<arttest::TrackEfficiency>(numerator_, denominator_),
              "TrackEfficiency",
-             SubRunFragment);
+             art::subRunFragment());
       denominator_ = numerator_ = 0u;
       return true;
     }

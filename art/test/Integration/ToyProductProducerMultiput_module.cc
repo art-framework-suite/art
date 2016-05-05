@@ -66,15 +66,15 @@ namespace arttest {
     void endSubRun(art::SubRun &sr) override
     {
       if ( branchType_ != art::InSubRun ) return;
-      sr.put( std::make_unique<IntProduct>(3), SubRunFragment );
-      sr.put( std::make_unique<IntProduct>(4), SubRunFragment );
+      sr.put( std::make_unique<IntProduct>(3), art::subRunFragment() );
+      sr.put( std::make_unique<IntProduct>(4), art::subRunFragment() );
     }
 
     void endRun(art::Run &r) override
     {
       if ( branchType_ != art::InRun ) return;
-      r.put( std::make_unique<IntProduct>(5), RunFragment );
-      r.put( std::make_unique<IntProduct>(6), RunFragment );
+      r.put( std::make_unique<IntProduct>(5), art::runFragment() );
+      r.put( std::make_unique<IntProduct>(6), art::runFragment() );
     }
 
   };

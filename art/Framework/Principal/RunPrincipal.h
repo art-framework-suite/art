@@ -62,6 +62,7 @@ namespace art {
              std::unique_ptr<ProductProvenance const>&&,
              RangeSet&& = RangeSet::invalid());
 
+    RangeSet seenRanges() const override { return rangeSetHandler_->seenRanges(); }
     RangeSetHandler const& rangeSetHandler() const;
     RangeSetHandler& rangeSetHandler();
 

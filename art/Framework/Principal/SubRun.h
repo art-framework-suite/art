@@ -38,7 +38,6 @@ public:
   Timestamp const& endTime() const {return aux_.endTime();}
 
   RangeSet fullSubRunRangeSet() const { return RangeSet::forSubRun(id()); }
-  RangeSet const& seenRangeSet() const { return seenRanges_; }
 
   using Base::get;
   using Base::getByLabel;
@@ -62,7 +61,7 @@ public:
   template <typename PROD>
   void
   put(std::unique_ptr<PROD> && product,
-      detail::RangedFragmentToken<Level::SubRun> const& token)
+      RangedFragmentToken<Level::SubRun> const& token)
   {
     put<PROD>(std::move(product), std::string(), token);
   }
@@ -72,7 +71,7 @@ public:
   void
   put(std::unique_ptr<PROD> && product,
       std::string const& productInstanceName,
-      detail::RangedFragmentToken<Level::SubRun> const& token)
+      RangedFragmentToken<Level::SubRun> const& token)
   {
     static_assert(detail::CanBeAggregated<PROD>::value,
                   "\n\n"
@@ -80,20 +79,22 @@ public:
                   "           must be able to be aggregated. Please add the appropriate\n"
                   "              void aggregate(T const&)\n"
                   "           function to your class, or contact artists@fnal.gov.\n");
-    put_<PROD>(std::move(product), productInstanceName, token.rs);
+    auto collapsed_rs = token.rs;
+    collapsed_rs.collapse();
+    put_<PROD>(std::move(product), productInstanceName, collapsed_rs);
   }
 
 
   template <typename PROD>
   void
-  put(std::unique_ptr<PROD> && product, detail::FullToken<Level::SubRun> const token)
+  put(std::unique_ptr<PROD> && product, FullToken<Level::SubRun> const token)
   {
     put<PROD>(std::move(product), std::string(), token);
   }
 
   template <typename PROD>
   void
-  put(std::unique_ptr<PROD> && product, detail::FragmentToken<Level::SubRun> const token)
+  put(std::unique_ptr<PROD> && product, FragmentToken<Level::SubRun> const token)
   {
     put<PROD>(std::move(product), std::string(), token);
   }
@@ -102,16 +103,17 @@ public:
   void
   put(std::unique_ptr<PROD> && product,
       std::string const& productInstanceName,
-      detail::FullToken<Level::SubRun>)
+      FullToken<Level::SubRun>)
   {
-    put_<PROD>(std::move(product), productInstanceName, fullSubRunRangeSet());
+    auto const collapsed_rs = RangeSet::forSubRun(id());
+    put_<PROD>(std::move(product), productInstanceName, collapsed_rs);
   }
 
   template <typename PROD>
   void
   put(std::unique_ptr<PROD> && product,
       std::string const& productInstanceName,
-      detail::FragmentToken<Level::SubRun>)
+      FragmentToken<Level::SubRun>)
   {
     static_assert(detail::CanBeAggregated<PROD>::value,
                   "\n\n"
@@ -119,7 +121,8 @@ public:
                   "           must be able to be aggregated. Please add the appropriate\n"
                   "              void aggregate(T const&)\n"
                   "           function to your class, or contact artists@fnal.gov.\n");
-    put_<PROD>(std::move(product), productInstanceName, seenRangeSet());
+    auto const collapsed_rs = seenRanges_.collapse();
+    put_<PROD>(std::move(product), productInstanceName, collapsed_rs);
   }
 
 private:

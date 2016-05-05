@@ -25,8 +25,6 @@ using std::vector;
 
 namespace {
 
-  struct Junk {};
-
   double constexpr tolerance  = std::numeric_limits<double>::epsilon();
 
   struct Config {
@@ -95,16 +93,19 @@ namespace {
         art::same_ranges(trkEffRef, trkEffNum_.rangeOfValidity())) {
       auto const eff = static_cast<double>(trkEffNum_.value())/trkEffDenom_.value();
       BOOST_CHECK_CLOSE_FRACTION(fullExpTrkEffs_.at(srn), eff, tolerance);
-      sr.put(std::make_unique<double>(eff), "TrkEffValue", SubRunFragment(trkEffRef));
+      sr.put(std::make_unique<double>(eff), "TrkEffValue", art::subRunFragment(trkEffRef));
     }
   }
 
   void
   AssembleMoreProducts::endSubRun(art::SubRun& sr)
   {
-    // nParticles produced at first stage 'eventGen'
-    auto const& nParticlesH = sr.getValidHandle<unsigned>(nParticlesTag_);
-    nParticles_.update(nParticlesH);
+    // nParticles produced at first stage 'eventGen'. Use getByLabel
+    // because the product is likely split across multiple files.
+    art::Handle<unsigned> nParticlesH;
+    if(sr.getByLabel(nParticlesTag_, nParticlesH)) {
+      nParticles_.update(nParticlesH);
+    }
 
     // seenParticles produced in this process
     auto const& seenParticlesH = sr.getValidHandle<unsigned>(seenParticlesTag_);
@@ -113,7 +114,7 @@ namespace {
     if (art::same_ranges(nParticles_, seenParticles_)) {
       auto const ratio = static_cast<double>(seenParticles_.value())/nParticles_.value();
       BOOST_CHECK_CLOSE_FRACTION(seenParticleRatios_.at(sr.subRun()), ratio, 0.01); // 1%
-      sr.put(std::make_unique<double>(ratio), "ParticleRatio", SubRunFragment(nParticles_.rangeOfValidity()));
+      sr.put(std::make_unique<double>(ratio), "ParticleRatio", art::subRunFragment(nParticles_.rangeOfValidity()));
     }
   }
 

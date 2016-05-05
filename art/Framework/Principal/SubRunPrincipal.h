@@ -62,6 +62,7 @@ namespace art {
 
     void addGroup(BranchDescription const&);
 
+    RangeSet seenRanges() const override { return rangeSetHandler_->seenRanges(); }
     RangeSetHandler const& rangeSetHandler() const;
     RangeSetHandler& rangeSetHandler();
 
