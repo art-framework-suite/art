@@ -39,11 +39,6 @@ namespace art {
                            ModuleDescription const &moduleDescription,
                            std::string const& instanceName) const;
 
-    static constexpr detail::FullToken<Level::Run> FullRun {};
-    static constexpr detail::FullToken<Level::SubRun> FullSubRun {};
-    static constexpr detail::FragmentToken<Level::Run> RunFragment {};
-    static constexpr detail::FragmentToken<Level::SubRun> SubRunFragment {};
-
     // Configuration
     template <typename T>
     struct FullConfig {

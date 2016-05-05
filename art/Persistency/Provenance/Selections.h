@@ -8,8 +8,8 @@
 
 namespace art {
   class BranchDescription;
-  typedef std::vector<BranchDescription const *> Selections;
-  typedef std::array<Selections, NumBranchTypes> SelectionsArray;
+  using Selections = std::vector<BranchDescription const *>;
+  using SelectionsArray = std::array<Selections, NumBranchTypes>;
 }
 
 #endif /* art_Persistency_Provenance_Selections_h */

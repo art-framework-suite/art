@@ -34,7 +34,7 @@ namespace art {
     template<typename T>
     RootOutputTree(/*dummy*/T*,
                    std::shared_ptr<TFile> filePtr,
-                   BranchType const& branchType,
+                   BranchType const branchType,
                    typename T::Auxiliary const*& pAux,
                    ProductProvenances*& pProductProvenanceVector,
                    int bufSize,

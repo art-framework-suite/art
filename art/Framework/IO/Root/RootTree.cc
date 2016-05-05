@@ -17,7 +17,7 @@ namespace art {
 
   RootTree::
   RootTree(std::shared_ptr<TFile> filePtr,
-           BranchType const& branchType,
+           BranchType const branchType,
            int64_t saveMemoryObjectThreshold,
            cet::exempt_ptr<RootInputFile> primaryFile,
            bool const missingOK)
@@ -27,19 +27,15 @@ namespace art {
     , primaryFile_{primaryFile}
   {
     if (filePtr_) {
-      tree_ = static_cast<TTree*>(
-                                  filePtr->Get(BranchTypeToProductTreeName(branchType).c_str()));
-      metaTree_ = static_cast<TTree*>(
-                                      filePtr->Get(BranchTypeToMetaDataTreeName(branchType).c_str()));
+      tree_ = static_cast<TTree*>(filePtr->Get(BranchTypeToProductTreeName(branchType).c_str()));
+      metaTree_ = static_cast<TTree*>(filePtr->Get(BranchTypeToMetaDataTreeName(branchType).c_str()));
     }
     if (tree_) {
-      auxBranch_ = tree_->GetBranch(BranchTypeToAuxiliaryBranchName(
-                                                                    branchType_).c_str());
+      auxBranch_ = tree_->GetBranch(BranchTypeToAuxiliaryBranchName(branchType_).c_str());
       entries_ = tree_->GetEntries();
     }
     if (metaTree_) {
-      productProvenanceBranch_ = metaTree_->GetBranch(productProvenanceBranchName(
-                                                                                  branchType_).c_str());
+      productProvenanceBranch_ = metaTree_->GetBranch(productProvenanceBranchName(branchType_).c_str());
     }
     if (!(missingOK || isValid())) {
       throw Exception(errors::FileReadError)
@@ -97,11 +93,11 @@ namespace art {
     int entries = leaves->GetEntries();
     for (int i = 0; i < entries; ++i) {
       TLeaf* leaf = reinterpret_cast<TLeaf*>((*leaves)[i]);
-      if (leaf == 0) {
+      if (leaf == nullptr) {
         continue;
       }
       TBranch* br = leaf->GetBranch();
-      if (br == 0) {
+      if (br == nullptr) {
         continue;
       }
       if (br->GetMother() == branch) {

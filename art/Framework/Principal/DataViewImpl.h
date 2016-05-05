@@ -81,9 +81,9 @@ public:
 
   DataViewImpl(DataViewImpl const&) = delete;
   DataViewImpl& operator=(DataViewImpl const&) = delete;
-  DataViewImpl(Principal & pcpl,
-               ModuleDescription const& md,
-               BranchType const& branchType);
+  DataViewImpl(Principal &,
+               ModuleDescription const&,
+               BranchType);
 
   size_t size() const;
 

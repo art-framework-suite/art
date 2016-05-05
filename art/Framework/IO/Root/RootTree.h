@@ -73,7 +73,7 @@ namespace art {
     using EntryNumbers = input::EntryNumbers;
   public:
     RootTree(std::shared_ptr<TFile>,
-             BranchType const&,
+             BranchType,
              int64_t saveMemoryObjectThreshold,
              cet::exempt_ptr<RootInputFile>,
              bool missingOK = false);
