@@ -81,5 +81,5 @@ art::detail::resolveRangeSet(sqlite3* db,
   rc = sqlite3_finalize(stmt);
   successful_finalize(rc, sqlite3_errmsg(db), filename);
 
-  return RangeSet{r, ranges};
+  return ranges.empty() ? RangeSet::forRun(RunID{r}) : RangeSet{r, ranges};
 }
