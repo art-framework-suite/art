@@ -11,6 +11,7 @@
 #include "art/Framework/IO/Root/DropMetaData.h"
 #include "art/Framework/IO/Root/GetFileFormatEra.h"
 #include "art/Framework/IO/Root/GetFileFormatVersion.h"
+#include "art/Framework/IO/Root/detail/KeptProvenance.h"
 #include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Principal/ResultsPrincipal.h"
 #include "art/Framework/Principal/RunPrincipal.h"
@@ -59,8 +60,9 @@
 
 using namespace cet;
 using namespace std;
-using art::rootNames::metaBranchRootName;
+using art::BranchType;
 using art::RootOutputFile;
+using art::rootNames::metaBranchRootName;
 
 namespace {
 
@@ -214,6 +216,62 @@ namespace {
                  });
     sqlite3_finalize(stmt);
     txn.commit();
+  }
+
+  void
+  pruneEventRangesImpl(art::RangeSet const& principalRS,
+                       art::RangeSet& productRS)
+  {
+    auto const& testRanges = productRS.ranges();
+    assert(!testRanges.empty());
+
+    auto const r = productRS.run();
+
+    auto ref_contains_test = [r,&principalRS](auto const& range) {
+      return principalRS.contains(r, range.subRun(), range.begin());
+    };
+
+    auto ref_not_contains_test = [r,&principalRS](auto const& range) {
+      return !principalRS.contains(r, range.subRun(), range.begin());
+    };
+
+    auto const begin = std::find_if(testRanges.cbegin(),
+                                    testRanges.cend(),
+                                    ref_contains_test);
+
+    if (begin == testRanges.cend()) {
+      productRS = art::RangeSet::invalid();
+    }
+    else {
+      auto const end = std::find_if(begin,
+                                    testRanges.cend(),
+                                    ref_not_contains_test);
+      productRS.assign_ranges(begin, end);
+    }
+  }
+
+  void
+  pruneEventRanges(BranchType const bt,
+                   art::RangeSet const& principalRS,
+                   art::RangeSet& productRS)
+  {
+    if (!productRS.is_valid())
+      return;
+
+    assert(principalRS.is_sorted());
+    assert(productRS.is_sorted());
+
+    if (bt == art::InRun) {
+      if (productRS.is_full_run())
+        return;
+      pruneEventRangesImpl(principalRS, productRS);
+    }
+
+    if (bt == art::InSubRun) {
+      if (productRS.ranges().front().is_full_SubRun())
+        return;
+      pruneEventRangesImpl(principalRS, productRS);
+    }
   }
 
 } // unnamed namespace
@@ -434,10 +492,6 @@ requestsToCloseFile() const
 {
   unsigned int constexpr oneK {1024u};
   Long64_t const size {filePtr_->GetSize() / oneK};
-  // std::cout << "Size of file: " << filePtr_->GetSize() << ' ' << size << '\n';
-  // namespace bfs = boost::filesystem;
-  // bfs::path p {filePtr_->GetName()};
-  // std::cout << "     (boost): " << bfs::file_size(p) << '\n';
   return criteriaMet(fileSwitchCriteria_, size, eventEntryNumber_);
 }
 
@@ -489,9 +543,9 @@ writeSubRun(SubRunPrincipal const& sr)
 {
   pSubRunAux_ = &sr.aux();
   pSubRunAux_->setRangeSetID(subRunRSID_);
+  fillBranches(InSubRun, sr, pSubRunProductProvenanceVector_);
   fileIndex_.addEntry(EventID::invalidEvent(pSubRunAux_->id()), subRunEntryNumber_);
   ++subRunEntryNumber_;
-  fillBranches(InSubRun, sr, pSubRunProductProvenanceVector_);
 }
 
 void
@@ -501,9 +555,9 @@ writeRun(RunPrincipal const& r)
 {
   pRunAux_ = &r.aux();
   pRunAux_->setRangeSetID(runRSID_);
+  fillBranches(InRun, r, pRunProductProvenanceVector_);
   fileIndex_.addEntry(EventID::invalidEvent(pRunAux_->id()), runEntryNumber_);
   ++runEntryNumber_;
-  fillBranches(InRun, r, pRunProductProvenanceVector_);
 }
 
 void
@@ -786,41 +840,18 @@ finishEndFile()
 void
 art::
 RootOutputFile::
-insertAncestors(ProductProvenance const& iGetParents,
-                Principal const& principal,
-                set<ProductProvenance>& oToFill)
-{
-  if (dropMetaData_ == DropMetaData::DropAll) {
-    return;
-  }
-  if (dropMetaDataForDroppedData_) {
-    return;
-  }
-  auto parentIDs = iGetParents.parentage().parents();
-  for (auto I = parentIDs.cbegin(), E = parentIDs.cend(); I != E; ++I) {
-    branchesWithStoredHistory_.insert(*I);
-    auto info = principal.branchMapper().branchToProductProvenance(*I);
-    if (!info || dropMetaData_ != DropMetaData::DropNone) {
-      continue;
-    }
-    auto bd = principal.getForOutput(info->branchID(), false).desc();
-    if (bd && bd->produced() && oToFill.insert(*info).second) {
-      // FIXME: Remove recursion!
-      insertAncestors(*info, principal, oToFill);
-    }
-  }
-}
-
-void
-art::
-RootOutputFile::
-fillBranches(BranchType const& bt,
+fillBranches(BranchType const bt,
              Principal const& principal,
              vector<ProductProvenance>* vpp)
 {
   bool const fastCloning = (bt == InEvent) && currentlyFastCloning_;
+  detail::KeptProvenance keptProvenance {dropMetaData_,
+      dropMetaDataForDroppedData_,
+      branchesWithStoredHistory_};
   set<ProductProvenance> keptProv;
   map<unsigned,unsigned> checksumToIndex;
+
+  auto const& principalRS = principal.seenRanges();
 
   for (auto const& val : selectedOutputItemList_[bt]) {
     auto const* bd = val.branchDescription_;
@@ -830,64 +861,69 @@ fillBranches(BranchType const& bt,
     bool const resolveProd = (produced || !fastCloning ||
                               treePointers_[bt]->uncloned(bd->branchName()));
 
-    auto const& oh = principal.getForOutput(bid, resolveProd);
-
     // Update the kept provenance
     bool const keepProvenance = (dropMetaData_ == DropMetaData::DropNone ||
                                  (dropMetaData_ == DropMetaData::DropPrior &&
                                   produced));
+    auto const& oh = principal.getForOutput(bid, resolveProd);
+
+    unique_ptr<ProductProvenance> prov {nullptr};
     if (keepProvenance) {
       if (oh.productProvenance()) {
-        keptProv.insert(*oh.productProvenance());
-        insertAncestors(*oh.productProvenance(), principal, keptProv);
+        prov = std::make_unique<ProductProvenance>(keptProvenance.insert(*oh.productProvenance()));
+        keptProvenance.insertAncestors(*oh.productProvenance(), principal, keptProv);
       }
       else {
         // No provenance, product was either not produced,
         // or was dropped, create provenance to remember that.
         auto const status = produced ? productstatus::neverCreated() : productstatus::dropped();
-        keptProv.emplace(bid, status);
+        prov = std::make_unique<ProductProvenance>(keptProvenance.emplace(bid, status));
       }
     }
 
     // Resolve the product if necessary
     if (resolveProd) {
 
-      EDProduct const* product {oh.productProvenance() ? oh.wrapper() : nullptr};
+      EDProduct const* product {oh.isValid() ? oh.wrapper() : dummyProductCache_.product(bd->wrappedName()) };
 
-      if (product == nullptr) {
-        // No such product in the event, so use a dummy product.
-        auto const& name = bd->wrappedName();
-        auto it = dummies_.find(name);
-        if (it == dummies_.cend()) {
-          TClass* cp = TClass::GetClass(name.c_str());
-          if (cp == nullptr) {
-            throw art::Exception{art::errors::DictionaryNotFound}
-              << "TClass::GetClass() returned null pointer for name: "
-              << name
-              << '\n';
-          }
-          unique_ptr<EDProduct> dummy {reinterpret_cast<EDProduct*>(cp->New())};
-          it = dummies_.emplace(name, move(dummy)).first;
-        }
-        product = it->second.get();
-      }
-
-      // Set range sets for SubRun and Run products
       if (bt == InSubRun || bt == InRun) {
-        auto const& rs = product->isPresent() ? *oh.rangeOfValidity() : RangeSet::invalid();
-        std::cout << "==========================\n" << *bd << rs << '\n';
-        auto nc_product = const_cast<EDProduct*>(product);
-        auto it = checksumToIndex.find(rs.checksum());
-        if (it != checksumToIndex.cend()) {
-          nc_product->setRangeSetID(it->second);
+        auto setRangeSets = [bt](RangeSet const& productRS,
+                                 sqlite3* db,
+                                 EDProduct* product,
+                                 map<unsigned,unsigned>& checksumToIndexLookup) {
+
+          // Set range sets for SubRun and Run products
+          auto it = checksumToIndexLookup.find(productRS.checksum());
+          if (it != checksumToIndexLookup.cend()) {
+            product->setRangeSetID(it->second);
+          }
+          else {
+            unsigned const rsID = getNewRangeSetID(db, bt, productRS.run());
+            product->setRangeSetID(rsID);
+            checksumToIndexLookup.emplace(productRS.checksum(), rsID);
+            insertIntoEventRanges(db, productRS);
+            auto const& eventRangesIDs = getExistingRangeSetIDs(db, productRS);
+            insertIntoJoinTable(db, bt, rsID, eventRangesIDs);
+          }
+
+        };
+
+        auto rs = product->isPresent() ? *oh.rangeOfValidity() : RangeSet::invalid();
+        // We save only the event-ranges that have an product
+        // EventRange::begin value that is contained by the principal
+        // RangeSet (if produced in the current job).  FIXME: WHY?  WHY the produces requirement?
+        if (!produced) {
+          pruneEventRanges(bt, principalRS, rs);
+        }
+        if (!rs.is_valid()) {
+          product = dummyProductCache_.product(bd->wrappedName());
+          keptProvenance.setStatus(*prov, productstatus::unknown());
         }
         else {
-          unsigned const rsID = getNewRangeSetID(rootFileDB_, bt, rs.run());
-          nc_product->setRangeSetID(rsID);
-          checksumToIndex.emplace(rs.checksum(), rsID);
-          insertIntoEventRanges(rootFileDB_, rs);
-          auto const& eventRangesIDs = getExistingRangeSetIDs(rootFileDB_, rs);
-          insertIntoJoinTable(rootFileDB_, bt, rsID, eventRangesIDs);
+          setRangeSets(rs,
+                       rootFileDB_,
+                       const_cast<EDProduct*>(product),
+                       checksumToIndex);
         }
       }
 
@@ -895,7 +931,7 @@ fillBranches(BranchType const& bt,
       val.product_ = product;
     }
   }
-  vpp->assign(keptProv.begin(), keptProv.end());
+  vpp->assign(keptProvenance.begin(), keptProvenance.end());
   treePointers_[bt]->fillTree();
   vpp->clear();
 }

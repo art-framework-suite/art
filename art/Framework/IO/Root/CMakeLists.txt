@@ -1,11 +1,14 @@
 art_make_library(
   LIBRARY_NAME art_Framework_IO_Root_detail_sources
   SOURCE
+  detail/DummyProductCache.cc
+  detail/KeptProvenance.cc
   detail/resolveRangeSet.cc
   detail/orderedProcessNames.cc
   detail/rootFileSizeTools.cc
   detail/rootOutputConfigurationTools.cc
   LIBRARIES
+  art_Framework_Principal
   art_Persistency_RootDB
   art_Utilities
   canvas_Persistency_Provenance
@@ -33,7 +36,6 @@ art_make(EXCLUDE
   art_Framework_IO
   art_Framework_IO_Catalog
   art_Framework_IO_detail
-  art_Framework_Principal
   art_Framework_Services_Registry
   art_Framework_Services_System_FileCatalogMetadata_service
   art_Ntuple

@@ -16,6 +16,7 @@
 #include "art/Framework/IO/Root/DropMetaData.h"
 #include "art/Framework/IO/Root/RootOutputClosingCriteria.h"
 #include "art/Framework/IO/Root/RootOutputTree.h"
+#include "art/Framework/IO/Root/detail/DummyProductCache.h"
 #include "canvas/Persistency/Provenance/BranchDescription.h"
 #include "canvas/Persistency/Provenance/BranchID.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
@@ -149,12 +150,10 @@ public: // MEMBER FUNCTIONS
 private: // MEMBER FUNCTIONS
 
   void createDatabaseTables();
-  void fillBranches(BranchType const&,
+
+  void fillBranches(BranchType,
                     Principal const&,
                     std::vector<ProductProvenance>*);
-  void insertAncestors(ProductProvenance const&,
-                       Principal const&,
-                       std::set<ProductProvenance>&);
 
 private: // MEMBER DATA
 
@@ -197,7 +196,7 @@ private: // MEMBER DATA
   std::set<BranchID> branchesWithStoredHistory_ {};
   SQLite3Wrapper rootFileDB_;
   OutputItemListArray selectedOutputItemList_ {{}}; // filled by aggregation
-  std::map<std::string,std::unique_ptr<EDProduct>> dummies_ {};
+  detail::DummyProductCache dummyProductCache_ {};
   unsigned subRunRSID_ {-1u};
   unsigned runRSID_ {-1u};
 

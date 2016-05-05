@@ -58,7 +58,7 @@ namespace art {
     void put(std::unique_ptr<EDProduct>&&,
              BranchDescription const&,
              std::unique_ptr<ProductProvenance const>&&,
-             RangeSet&& = RangeSet::invalid());
+             RangeSet&&);
 
     void addGroup(BranchDescription const&);
 
