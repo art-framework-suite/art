@@ -34,7 +34,6 @@
 #include "canvas/Persistency/Common/detail/is_handle.h"
 #include "canvas/Persistency/Provenance/ProductID.h"
 #include "canvas/Utilities/Exception.h"
-#include "canvas/Utilities/detail/metaprogramming.h"
 #include "cetlib/demangle.h"
 #include "cetlib/exception.h"
 
@@ -54,11 +53,6 @@ namespace art {
   template <typename T>  class Wrapper;
 
   namespace detail {
-    template <class T, class U>
-    struct are_handles {
-      static constexpr bool value = detail::is_handle<T>::value && detail::is_handle<U>::value;
-    };
-
     inline void throw_if_invalid(std::string const&){}
 
     template <typename H, typename ... T>
