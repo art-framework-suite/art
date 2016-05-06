@@ -213,3 +213,28 @@ cet_test(SwitchOnTwoConditions_FileIndexCheck_t HANDBUILT
 SET_TESTS_PROPERTIES(SwitchOnTwoConditions_FileIndexCheck_t PROPERTIES
   DEPENDS "SwitchOnTwoConditions_w"
   )
+
+## =============================================================
+## Test output-file switching based on file size.
+
+simple_plugin(BigProductProducer "module" NO_INSTALL)
+
+cet_test(SwitchOnFileSizeMax_w HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --rethrow-all -c switchOnFileSizeMax_w.fcl
+  DATAFILES
+  fcl/switchOnFileSizeMax_w.fcl
+  )
+
+cet_test(SwitchOnFileSizeMax_r HANDBUILT
+  TEST_EXEC dump_file_info
+  TEST_ARGS --print-range-sets
+  "../SwitchOnFileSizeMax_w.d/out_1.root"
+  "../SwitchOnFileSizeMax_w.d/out_2.root"
+  "../SwitchOnFileSizeMax_w.d/out_3.root"
+  REF "${CMAKE_CURRENT_SOURCE_DIR}/SwitchOnFileSizeMax-ref.txt"
+  )
+
+SET_TESTS_PROPERTIES(SwitchOnFileSizeMax_r PROPERTIES
+  DEPENDS "SwitchOnFileSizeMax_w"
+  )

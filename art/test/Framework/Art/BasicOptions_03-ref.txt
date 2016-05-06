@@ -10,6 +10,7 @@
    AssnsProducer                       producer    <path>/AssnsProducer_module.cc
    BareStringAnalyzer                  analyzer    <path>/BareStringAnalyzer_module.cc
    BareStringProducer                  producer    <path>/BareStringProducer_module.cc
+   BigProductProducer                  producer    <path>/BigProductProducer_module.cc
    BlockingPrescaler                   filter      <path>/BlockingPrescaler_module.cc
    CheckMoreProducts                   analyzer    <path>/CheckMoreProducts_module.cc
    CheckProducts                       analyzer    <path>/CheckProducts_module.cc
