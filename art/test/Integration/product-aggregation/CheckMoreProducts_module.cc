@@ -74,6 +74,8 @@ namespace {
                                expParticleRatios_.at(sr.subRun()),
                                0.01); // 1% tolerance
     BOOST_CHECK(art::same_ranges(particleRatioH, trkEffValueH));
+    BOOST_CHECK(!art::disjoint_ranges(particleRatioH, trkEffValueH));
+    BOOST_CHECK(!art::overlapping_ranges(particleRatioH, trkEffValueH));
   }
 
 }

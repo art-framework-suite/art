@@ -17,21 +17,6 @@
 
 using namespace std;
 
-namespace {
-
-  bool one_valid_range(art::RangeSet const& l,
-                       art::RangeSet const& r)
-  {
-    auto only_left_valid = [](auto const& l, auto const& r) {
-      return l.is_valid() && !r.is_valid();
-    };
-    return only_left_valid(l,r) || only_left_valid(r,l);
-  }
-
-
-
-}
-
 namespace art {
 
   RootDelayedReader::
@@ -126,18 +111,16 @@ namespace art {
         if (!seenIDs.insert(id).second) continue; // Skip an already-seen product;
                                                   // double-counting is bad.
 
-        RangeSet tmpRS = detail::resolveRangeSet(db_, "SomeInput"s, branchType_, id);
-        if (one_valid_range(mergedRangeSet, tmpRS)) {
-          if (tmpRS.is_valid()) {
-            std::swap(tmpRS, mergedRangeSet);
-            std::swap(result, p);
-          }
+        RangeSet const& newRS = detail::resolveRangeSet(db_, "SomeInput"s, branchType_, id);
+        if (!mergedRangeSet.is_valid() && newRS.is_valid()) {
+          mergedRangeSet = newRS;
+          std::swap(result, p);
         }
-        else if (art::disjoint_ranges(mergedRangeSet, tmpRS)) {
+        else if (art::disjoint_ranges(mergedRangeSet, newRS)) {
           result->combine(p.get());
-          mergedRangeSet.merge(tmpRS);
+          mergedRangeSet.merge(newRS);
         }
-        else if (art::same_ranges(mergedRangeSet, tmpRS)) {
+        else if (art::same_ranges(mergedRangeSet, newRS)) {
           // The ranges are the same, so the behavior is a NOP.
           // However, we will probably never get here because of the
           // seenIDs set, which prevents from duplicate aggregation.
@@ -146,14 +129,14 @@ namespace art {
           // set needs to go away, and an extra condition will be
           // added here.
         }
-        else if (art::overlapping_ranges(mergedRangeSet, tmpRS)) {
+        else if (art::overlapping_ranges(mergedRangeSet, newRS)) {
           throw Exception{errors::ProductCannotBeAggregated, "RootDelayedReader::getProduct_"}
                << "\nThe following ranges corresponding to the product:\n"
                << "   '" << bk << "'"
                << "\ncannot be aggregated\n"
                << mergedRangeSet
                << " and\n"
-               << tmpRS
+               << newRS
                << "\nPlease contact artists@fnal.gov.\n";
         }
         // NOP for when both RangeSets are invalid

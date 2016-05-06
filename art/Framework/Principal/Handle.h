@@ -83,6 +83,9 @@ namespace art {
   std::enable_if_t<detail::are_handles<T,U>::value, bool>
   disjoint_ranges(T const& a, U const& b);
 
+  template <class T, class U>
+  std::enable_if_t<detail::are_handles<T,U>::value, bool>
+  overlapping_ranges(T const& a, U const& b);
 }
 
 // ======================================================================
@@ -412,6 +415,15 @@ art::disjoint_ranges(T const& a, U const& b)
   std::string const& errMsg = "Attempt to compare range sets where one or both handles are invalid.";
   detail::throw_if_invalid(errMsg, a,b);
   return disjoint_ranges(range_of_validity(a), range_of_validity(b));
+}
+
+template <class T, class U>
+std::enable_if_t<art::detail::are_handles<T,U>::value, bool>
+art::overlapping_ranges(T const& a, U const& b)
+{
+  std::string const& errMsg = "Attempt to compare range sets where one or both handles are invalid.";
+  detail::throw_if_invalid(errMsg, a,b);
+  return overlapping_ranges(range_of_validity(a), range_of_validity(b));
 }
 
 #endif /* art_Framework_Principal_Handle_h */

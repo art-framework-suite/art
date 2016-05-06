@@ -39,7 +39,7 @@ namespace art {
     bool uninitialized() const;
 
     template <typename H>
-    void reset(H const& h, T t);
+    void reset(H const& h, T const& t);
 
     template <typename H>
     bool should_reset(H const& h);
@@ -59,10 +59,36 @@ namespace art {
           << cet::demangle(typeid(*this).name()) << '\n'
           << "Please contact artists@fnal.gov\n";
 
-      if (art::disjoint_ranges(rangeOfValidity_, h.provenance()->rangeOfValidity())) {
+      auto const& newRS = h.provenance()->rangeOfValidity();
+
+      if (!rangeOfValidity_.is_valid() && newRS.is_valid()) {
+        rangeOfValidity_ = newRS;
+        value_ = t;
+      }
+      else if (art::disjoint_ranges(rangeOfValidity_, newRS)) {
         detail::CanBeAggregated<T>::aggregate(value_, t);
         rangeOfValidity_.merge(h.provenance()->rangeOfValidity());
       }
+      else if (art::same_ranges(rangeOfValidity_, newRS)) {
+        // The ranges are the same, so the behavior is a NOP.
+        // However, we will probably never get here because of the
+        // seenIDs set, which prevents from duplicate aggregation.
+        // If the stakeholders decide that products with the same
+        // ranges should be checked for equality, then the seenIDs
+        // set needs to go away, and an extra condition will be
+        // added here.
+      }
+      else if (art::overlapping_ranges(rangeOfValidity_, newRS)) {
+        throw Exception{errors::ProductCannotBeAggregated, "SummedValue<T>::update"}
+             << "\nThe following ranges corresponding to the type:\n"
+             << "   '" << cet::demangle(typeid(T).name()) << "'"
+             << "\ncannot be aggregated\n"
+             << rangeOfValidity_
+             << " and\n"
+             << newRS
+             << "\nPlease contact artists@fnal.gov.\n";
+      }
+      // NOP for when both RangeSets are invalid
     }
 
     T value_ {};
@@ -76,11 +102,10 @@ namespace art {
   template <typename T>
   template <typename H>
   void
-  SummedValue<T>::reset(H const& h, T t)
+  SummedValue<T>::reset(H const& h, T const& t)
   {
-    auto newRS = h.provenance()->rangeOfValidity();
-    std::swap(value_, t);
-    std::swap(rangeOfValidity_, newRS);
+    rangeOfValidity_ = h.provenance()->rangeOfValidity();
+    value_ = t;
   }
 
   template <typename T>
@@ -103,32 +128,6 @@ namespace art {
     }
     return true; // Will never get here
   }
-
-  // template <typename H>
-  // template <typename T>
-  // void
-  // SummedValue<T>::update_impl(H const& h, T const& t)
-  // {
-  //   // Precondition: handle must be valid
-  //   assert(h.isValid());
-  //   if (should_reset(h))
-  //     reset(h,t);
-
-  //   if (!isValid())
-  //     throw art::Exception(errors::LogicError, "SummedValue<T>::update")
-  //       << "The range-of-validity is invalid for the object:"
-  //       << cet::demangle(typeid(*this).name()) << '\n'
-  //       << "Please contact artists@fnal.gov\n";
-
-  //   if (art::disjoint_ranges(rangeOfValidity_, h.provenance()->rangeOfValidity())) {
-  //     detail::CanBeAggregated<T>::aggregate(value_, t);
-  //     rangeOfValidity_.merge(h.provenance()->rangeOfValidity());
-  //   }
-  //   // else if (art::same_ranges(...) && value_ != *h)
-  //   // else if (art::overlapping_ranges(...))
-  //   //   throw...;
-
-  // }
 
   template <typename T>
   template <typename H>
@@ -176,15 +175,6 @@ namespace art {
     return rangeOfValidity_;
   }
 
-  template <class T>
-  RangeSet const&
-  range_of_validity(SummedValue<T> const& a)
-  {
-    std::string const& errMsg = "Attempt to retrieve range-of-validity from invalid SummedValue.";
-    detail::throw_if_invalid(errMsg, a);
-    return a.rangeOfValidity();
-  }
-
   template <class T, class U>
   bool
   same_ranges(SummedValue<T> const& a, SummedValue<U> const& b)
@@ -192,6 +182,24 @@ namespace art {
     std::string const& errMsg = "Attempt to compare range sets where one or both SummedValues are invalid.";
     detail::throw_if_invalid(errMsg, a,b);
     return same_ranges(a.rangeOfValidity(), b.rangeOfValidity());
+  }
+
+  template <class T, class U>
+  bool
+  disjoint_ranges(SummedValue<T> const& a, SummedValue<U> const& b)
+  {
+    std::string const& errMsg = "Attempt to compare range sets where one or both SummedValues are invalid.";
+    detail::throw_if_invalid(errMsg, a,b);
+    return disjoint_ranges(a.rangeOfValidity(), b.rangeOfValidity());
+  }
+
+  template <class T, class U>
+  bool
+  overlapping_ranges(SummedValue<T> const& a, SummedValue<U> const& b)
+  {
+    std::string const& errMsg = "Attempt to compare range sets where one or both SummedValues are invalid.";
+    detail::throw_if_invalid(errMsg, a,b);
+    return overlapping_ranges(a.rangeOfValidity(), b.rangeOfValidity());
   }
 
 }
