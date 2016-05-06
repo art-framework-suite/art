@@ -382,7 +382,7 @@ getForOutput(BranchID const bid, bool resolveProd) const
 {
   auto const& g = getResolvedGroup(bid, resolveProd, false);
   if (!g) {
-    return OutputHandle{};
+    return OutputHandle{g->rangeOfValidity()};
   }
   auto const & pmd = ProductMetaData::instance();
   auto const bt = g->productDescription().branchType();
@@ -403,9 +403,9 @@ getForOutput(BranchID const bid, bool resolveProd) const
         << "\nContact a framework developer.\n";
   }
   if (!g->anyProduct() && !g->productProvenancePtr()) {
-    return OutputHandle{};
+    return OutputHandle{g->rangeOfValidity()};
   }
-  return OutputHandle{g->anyProduct(), &g->productDescription(), g->productProvenancePtr(), &g->rangeOfValidity()};
+  return OutputHandle{g->anyProduct(), &g->productDescription(), g->productProvenancePtr(), g->rangeOfValidity()};
 }
 
 std::shared_ptr<const Group> const

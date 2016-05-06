@@ -85,7 +85,7 @@ namespace art {
         ++it) {
       if(it->second && !it->second->productUnavailable()) {
         //This call seems to have a side effect of filling the 'ProductProvenance' in the Group
-        OutputHandle const oh = e.getForOutput(it->first, false);
+        e.getForOutput(it->first, false);
 
         if(not it->second->productProvenancePtr().get() ) {
           missingProductProvenance.insert(it->first);

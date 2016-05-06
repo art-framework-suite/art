@@ -32,8 +32,7 @@ namespace art {
       auto end() const { return provenance_.end(); }
 
       void insertAncestors(ProductProvenance const& iGetParents,
-                           Principal const& principal,
-                           std::set<ProductProvenance>& oToFill);
+                           Principal const& principal);
 
     private:
       bool const keepProvenance_ {true};

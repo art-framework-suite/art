@@ -274,6 +274,68 @@ namespace {
     }
   }
 
+  using art::detail::RangeSetsSupported;
+
+  template <BranchType BT>
+  std::enable_if_t<!RangeSetsSupported<BT>::value, art::RangeSet>
+  getPrunedRangeSet(art::OutputHandle const&,
+                    art::RangeSet const& /*principalRS*/,
+                    bool const /*producedInThisProcess*/)
+  {
+    return art::RangeSet::invalid();
+  }
+
+  template <BranchType BT>
+  std::enable_if_t<RangeSetsSupported<BT>::value, art::RangeSet>
+  getPrunedRangeSet(art::OutputHandle const& oh,
+                    art::RangeSet const& principalRS,
+                    bool const producedInThisProcess)
+  {
+    auto rs = oh.isValid() ? oh.rangeOfValidity() : art::RangeSet::invalid();
+    // We save only the event-ranges that have an product
+    // EventRange::begin value that is contained by the principal
+    // RangeSet (if produced in the current job).  FIXME: WHY?  WHY the produces requirement?
+    if (!producedInThisProcess) {
+      pruneEventRanges(BT, principalRS, rs);
+    }
+
+    return rs;
+  }
+
+
+  template <BranchType BT>
+  std::enable_if_t<!RangeSetsSupported<BT>::value>
+  setProductRangeSetID(art::RangeSet const& /*rs*/,
+                       sqlite3*,
+                       art::EDProduct*,
+                       std::map<unsigned,unsigned>& /*checksumToIndexLookup*/)
+  {}
+
+  template <BranchType BT>
+  std::enable_if_t<RangeSetsSupported<BT>::value>
+  setProductRangeSetID(art::RangeSet const& rs,
+                       sqlite3* db,
+                       art::EDProduct* product,
+                       std::map<unsigned,unsigned>& checksumToIndexLookup)
+  {
+    if (!rs.is_valid()) // Invalid range-sets not written to DB
+      return;
+
+    // Set range sets for SubRun and Run products
+    auto it = checksumToIndexLookup.find(rs.checksum());
+    if (it != checksumToIndexLookup.cend()) {
+      product->setRangeSetID(it->second);
+    }
+    else {
+      unsigned const rsID = getNewRangeSetID(db, BT, rs.run());
+      product->setRangeSetID(rsID);
+      checksumToIndexLookup.emplace(rs.checksum(), rsID);
+      insertIntoEventRanges(db, rs);
+      auto const& eventRangesIDs = getExistingRangeSetIDs(db, rs);
+      insertIntoJoinTable(db, BT, rsID, eventRangesIDs);
+    }
+  }
+
 } // unnamed namespace
 
 art::
@@ -507,7 +569,7 @@ writeOne(EventPrincipal const& e)
   // Because getting the data may cause an exception to be
   // thrown we want to do that first before writing anything
   // to the file about this event.
-  fillBranches(InEvent, e, pEventProductProvenanceVector_);
+  fillBranches<InEvent>(e, pEventProductProvenanceVector_);
   // History branch.
   History historyForOutput {e.history()};
   historyForOutput.addEventSelectionEntry(om_->selectorConfig());
@@ -543,7 +605,7 @@ writeSubRun(SubRunPrincipal const& sr)
 {
   pSubRunAux_ = &sr.aux();
   pSubRunAux_->setRangeSetID(subRunRSID_);
-  fillBranches(InSubRun, sr, pSubRunProductProvenanceVector_);
+  fillBranches<InSubRun>(sr, pSubRunProductProvenanceVector_);
   fileIndex_.addEntry(EventID::invalidEvent(pSubRunAux_->id()), subRunEntryNumber_);
   ++subRunEntryNumber_;
 }
@@ -555,7 +617,7 @@ writeRun(RunPrincipal const& r)
 {
   pRunAux_ = &r.aux();
   pRunAux_->setRangeSetID(runRSID_);
-  fillBranches(InRun, r, pRunProductProvenanceVector_);
+  fillBranches<InRun>(r, pRunProductProvenanceVector_);
   fileIndex_.addEntry(EventID::invalidEvent(pRunAux_->id()), runEntryNumber_);
   ++runEntryNumber_;
 }
@@ -814,7 +876,7 @@ RootOutputFile::
 writeResults(ResultsPrincipal & resp)
 {
   pResultsAux_ = &resp.aux();
-  fillBranches(InResults, resp, pResultsProductProvenanceVector_);
+  fillBranches<InResults>(resp, pResultsProductProvenanceVector_);
 }
 
 void
@@ -837,29 +899,26 @@ finishEndFile()
   filePtr_.reset();
 }
 
+template <art::BranchType BT>
 void
 art::
 RootOutputFile::
-fillBranches(BranchType const bt,
-             Principal const& principal,
+fillBranches(Principal const& principal,
              vector<ProductProvenance>* vpp)
 {
-  bool const fastCloning = (bt == InEvent) && currentlyFastCloning_;
-  detail::KeptProvenance keptProvenance {dropMetaData_,
-      dropMetaDataForDroppedData_,
-      branchesWithStoredHistory_};
-  set<ProductProvenance> keptProv;
+  bool const fastCloning = (BT == InEvent) && currentlyFastCloning_;
+  detail::KeptProvenance keptProvenance {dropMetaData_, dropMetaDataForDroppedData_, branchesWithStoredHistory_};
   map<unsigned,unsigned> checksumToIndex;
 
   auto const& principalRS = principal.seenRanges();
 
-  for (auto const& val : selectedOutputItemList_[bt]) {
+  for (auto const& val : selectedOutputItemList_[BT]) {
     auto const* bd = val.branchDescription_;
     auto const bid = bd->branchID();
     branchesWithStoredHistory_.insert(bid);
     bool const produced {bd->produced()};
     bool const resolveProd = (produced || !fastCloning ||
-                              treePointers_[bt]->uncloned(bd->branchName()));
+                              treePointers_[BT]->uncloned(bd->branchName()));
 
     // Update the kept provenance
     bool const keepProvenance = (dropMetaData_ == DropMetaData::DropNone ||
@@ -871,7 +930,7 @@ fillBranches(BranchType const bt,
     if (keepProvenance) {
       if (oh.productProvenance()) {
         prov = std::make_unique<ProductProvenance>(keptProvenance.insert(*oh.productProvenance()));
-        keptProvenance.insertAncestors(*oh.productProvenance(), principal, keptProv);
+        keptProvenance.insertAncestors(*oh.productProvenance(), principal);
       }
       else {
         // No provenance, product was either not produced,
@@ -884,55 +943,23 @@ fillBranches(BranchType const bt,
     // Resolve the product if necessary
     if (resolveProd) {
 
-      EDProduct const* product {oh.isValid() ? oh.wrapper() : dummyProductCache_.product(bd->wrappedName()) };
+      auto const& rs = getPrunedRangeSet<BT>(oh, principalRS, produced);
 
-      if (bt == InSubRun || bt == InRun) {
-        auto setRangeSets = [bt](RangeSet const& productRS,
-                                 sqlite3* db,
-                                 EDProduct* product,
-                                 map<unsigned,unsigned>& checksumToIndexLookup) {
+      if (RangeSetsSupported<BT>::value && !rs.is_valid())
+        keptProvenance.setStatus(*prov, productstatus::unknown());
 
-          // Set range sets for SubRun and Run products
-          auto it = checksumToIndexLookup.find(productRS.checksum());
-          if (it != checksumToIndexLookup.cend()) {
-            product->setRangeSetID(it->second);
-          }
-          else {
-            unsigned const rsID = getNewRangeSetID(db, bt, productRS.run());
-            product->setRangeSetID(rsID);
-            checksumToIndexLookup.emplace(productRS.checksum(), rsID);
-            insertIntoEventRanges(db, productRS);
-            auto const& eventRangesIDs = getExistingRangeSetIDs(db, productRS);
-            insertIntoJoinTable(db, bt, rsID, eventRangesIDs);
-          }
+      auto const* product = getProduct<BT>(oh, rs, bd->wrappedName());
 
-        };
+      setProductRangeSetID<BT>(rs,
+                               rootFileDB_,
+                               const_cast<EDProduct*>(product),
+                               checksumToIndex);
 
-        auto rs = product->isPresent() ? *oh.rangeOfValidity() : RangeSet::invalid();
-        // We save only the event-ranges that have an product
-        // EventRange::begin value that is contained by the principal
-        // RangeSet (if produced in the current job).  FIXME: WHY?  WHY the produces requirement?
-        if (!produced) {
-          pruneEventRanges(bt, principalRS, rs);
-        }
-        if (!rs.is_valid()) {
-          product = dummyProductCache_.product(bd->wrappedName());
-          keptProvenance.setStatus(*prov, productstatus::unknown());
-        }
-        else {
-          setRangeSets(rs,
-                       rootFileDB_,
-                       const_cast<EDProduct*>(product),
-                       checksumToIndex);
-        }
-      }
-
-      // Finally, set the branch pointer
       val.product_ = product;
     }
   }
   vpp->assign(keptProvenance.begin(), keptProvenance.end());
-  treePointers_[bt]->fillTree();
+  treePointers_[BT]->fillTree();
   vpp->clear();
 }
 
@@ -958,4 +985,28 @@ setAuxiliaryRangeSetID(RunPrincipal& r)
   insertIntoEventRanges(rootFileDB_, ranges);
   auto const& eventRangesIDs = getExistingRangeSetIDs(rootFileDB_, ranges);
   insertIntoJoinTable(rootFileDB_, InRun, runRSID_, eventRangesIDs);
+}
+
+template <BranchType BT>
+std::enable_if_t<!RangeSetsSupported<BT>::value, art::EDProduct const*>
+art::RootOutputFile::getProduct(art::OutputHandle const& oh,
+                                art::RangeSet const& /*prunedProductRS*/,
+                                std::string const& wrappedName)
+{
+  if (oh.isValid())
+    return oh.wrapper();
+  else
+    return dummyProductCache_.product(wrappedName);
+}
+
+template <BranchType BT>
+std::enable_if_t<RangeSetsSupported<BT>::value, art::EDProduct const*>
+art::RootOutputFile::getProduct(art::OutputHandle const& oh,
+                                art::RangeSet const& prunedProductRS,
+                                std::string const& wrappedName)
+{
+  if (oh.isValid() && prunedProductRS.is_valid())
+    return oh.wrapper();
+  else
+    return dummyProductCache_.product(wrappedName);
 }

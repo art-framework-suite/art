@@ -27,8 +27,7 @@ detail::KeptProvenance::emplace(BranchID const bid, ProductStatus const status)
 
 void
 detail::KeptProvenance::insertAncestors(ProductProvenance const& iGetParents,
-                                        Principal const& principal,
-                                        std::set<ProductProvenance>& oToFill)
+                                        Principal const& principal)
 {
   if (dropMetaData_ == DropMetaData::DropAll) {
     return;
@@ -44,9 +43,9 @@ detail::KeptProvenance::insertAncestors(ProductProvenance const& iGetParents,
       continue;
     }
     auto const* bd = principal.getForOutput(info->branchID(), false).desc();
-    if (bd && bd->produced() && oToFill.insert(*info).second) {
+    if (bd && bd->produced() && provenance_.insert(*info).second) {
       // FIXME: Remove recursion!
-      insertAncestors(*info, principal, oToFill);
+      insertAncestors(*info, principal);
     }
   }
 }

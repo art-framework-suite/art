@@ -17,6 +17,7 @@
 #include "art/Framework/IO/Root/RootOutputClosingCriteria.h"
 #include "art/Framework/IO/Root/RootOutputTree.h"
 #include "art/Framework/IO/Root/detail/DummyProductCache.h"
+#include "art/Framework/Principal/RangeSetsSupported.h"
 #include "canvas/Persistency/Provenance/BranchDescription.h"
 #include "canvas/Persistency/Provenance/BranchID.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
@@ -151,9 +152,21 @@ private: // MEMBER FUNCTIONS
 
   void createDatabaseTables();
 
-  void fillBranches(BranchType,
-                    Principal const&,
-                    std::vector<ProductProvenance>*);
+  template <BranchType>
+  void fillBranches(Principal const&,
+                    std::vector<ProductProvenance>*); // Defined in source.
+
+  template <BranchType BT>
+  std::enable_if_t<!detail::RangeSetsSupported<BT>::value, art::EDProduct const*>
+  getProduct(OutputHandle const&,
+             RangeSet const& prunedProductRS,
+             std::string const& wrappedName); // Defined in source.
+
+  template <BranchType BT>
+  std::enable_if_t<detail::RangeSetsSupported<BT>::value, art::EDProduct const*>
+  getProduct(OutputHandle const&,
+             RangeSet const& prunedProductRS,
+             std::string const& wrappedName); // Defined in source.
 
 private: // MEMBER DATA
 

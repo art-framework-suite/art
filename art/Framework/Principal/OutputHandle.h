@@ -38,12 +38,10 @@ namespace art {
   class OutputHandle {
   public:
 
-    OutputHandle() = default;
-
     OutputHandle(EDProduct const* prod,
                  BranchDescription const* desc,
                  cet::exempt_ptr<ProductProvenance const> productProvenance,
-                 RangeSet const* rs)
+                 RangeSet const& rs)
       : wrap_{prod}
       , desc_{desc}
       , productProvenance_{productProvenance}
@@ -51,8 +49,8 @@ namespace art {
     {}
 
     ///Used when the attempt to get the data failed
-    OutputHandle(std::shared_ptr<cet::exception> const& iWhyFailed)
-      : whyFailed_(iWhyFailed)
+    OutputHandle(RangeSet const& rs)
+      : rangeOfValidity_{rs}
     {}
 
     // use compiler-generated copy c'tor, copy assignment, and d'tor
@@ -62,16 +60,13 @@ namespace art {
       swap(wrap_, other.wrap_);
       swap(desc_, other.desc_);
       swap(productProvenance_, other.productProvenance_);
-      swap(whyFailed_,other.whyFailed_);
     }
 
-    bool isValid() const { return wrap_ && desc_ &&productProvenance_; }
-    bool failedToGet() const { return 0 != whyFailed_.get(); }
-    RangeSet const* rangeOfValidity() const { return rangeOfValidity_; }
+    bool isValid() const { return wrap_ && desc_ && productProvenance_; }
+
+    RangeSet const& rangeOfValidity() const { return rangeOfValidity_; }
 
     EDProduct const* wrapper() const { return wrap_; }
-
-    std::shared_ptr<cet::exception> whyFailed() const { return whyFailed_; }
 
     ProductProvenance const* productProvenance() const { return productProvenance_.get(); }
 
@@ -81,8 +76,7 @@ namespace art {
     EDProduct const* wrap_ {nullptr};
     BranchDescription const* desc_ {nullptr};
     cet::exempt_ptr<ProductProvenance const> productProvenance_ {nullptr};
-    std::shared_ptr<cet::exception> whyFailed_ {nullptr};
-    RangeSet const* rangeOfValidity_ {nullptr};
+    RangeSet const& rangeOfValidity_;
   };
 
   // Free swap function
