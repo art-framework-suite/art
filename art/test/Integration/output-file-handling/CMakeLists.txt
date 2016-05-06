@@ -190,3 +190,26 @@ cet_test(MultiInputConcatenate_FileIndexCheck_t HANDBUILT
 SET_TESTS_PROPERTIES(MultiInputConcatenate_FileIndexCheck_t PROPERTIES
   DEPENDS "MultiInputConcatenate_t"
   )
+
+## =============================================================
+## Test that output files are correctly split whenever two
+## file-switching conditions are specified.
+
+cet_test(SwitchOnTwoConditions_w HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --rethrow-all -c switchOnTwoConditions_w.fcl
+  DATAFILES
+  fcl/switchOnTwoConditions_w.fcl
+  )
+
+cet_test(SwitchOnTwoConditions_FileIndexCheck_t HANDBUILT
+  TEST_EXEC dump_file_info
+  TEST_ARGS --print-file-index
+  "../SwitchOnTwoConditions_w.d/out_1.root"
+  "../SwitchOnTwoConditions_w.d/out_2.root"
+  REF "${CMAKE_CURRENT_SOURCE_DIR}/SwitchOnTwoConditions_FileIndexCheck_t-ref.txt"
+  )
+
+SET_TESTS_PROPERTIES(SwitchOnTwoConditions_FileIndexCheck_t PROPERTIES
+  DEPENDS "SwitchOnTwoConditions_w"
+  )

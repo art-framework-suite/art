@@ -1,0 +1,32 @@
+source: {
+   module_type: EmptyEvent
+   maxEvents: 20
+   firstRun: 1
+   firstSubRun: 0
+   numberEventsInSubRun: 5
+}
+
+physics: {
+   e1: [o1]
+}
+
+outputs: {
+
+   o1: {
+      module_type: RootOutput
+      fileName : "out_%#.root"
+
+      // Specifying both a maxEventsPerFile of '7', and a file-switch
+      // boundary of 'SubRun' should result in 'out_1.root' with 10
+      // events and 'out_2.root' with 10 events.
+
+      maxEventsPerFile: 7
+      fileSwitch: {
+         boundary: SubRun
+      }
+
+   }
+
+}
+
+process_name: test1

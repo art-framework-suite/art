@@ -1,0 +1,42 @@
+<separator (=)>
+File: out_1.root
+
+Printing FileIndex contents.  This includes a list of all Runs, SubRuns
+and Events stored in the root file.
+
+            Run         SubRun          Event    TTree Entry
+              1                                            0  (Run)
+              1              0                             0  (SubRun)
+              1              0              1              0
+              1              0              2              1
+              1              0              3              2
+              1              0              4              3
+              1              0              5              4
+              1              1                             1  (SubRun)
+              1              1              1              5
+              1              1              2              6
+              1              1              3              7
+              1              1              4              8
+              1              1              5              9
+
+<separator (=)>
+File: out_2.root
+
+Printing FileIndex contents.  This includes a list of all Runs, SubRuns
+and Events stored in the root file.
+
+            Run         SubRun          Event    TTree Entry
+              1                                            0  (Run)
+              1              2                             0  (SubRun)
+              1              2              1              0
+              1              2              2              1
+              1              2              3              2
+              1              2              4              3
+              1              2              5              4
+              1              3                             1  (SubRun)
+              1              3              1              5
+              1              3              2              6
+              1              3              3              7
+              1              3              4              8
+              1              3              5              9
+
