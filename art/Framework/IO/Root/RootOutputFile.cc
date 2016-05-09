@@ -254,6 +254,12 @@ beginInputFile(FileBlock const& fb, bool fastClone)
       << "Fast cloning deactivated for this input file due to "
       << "splitting level and/or basket size.";
     currentlyFastCloning_ = false;
+  } else if (fb.tree() && fb.tree()->GetCurrentFile()->GetVersion() < 60001) {
+    mf::LogWarning("FastCloning")
+      << "Fast cloning deactivated for this input file due to "
+      << "ROOT version used to write it (< 6.00/01)\n"
+      "having a different splitting policy.";
+    currentlyFastCloning_ = false;
   }
   if (currentlyFastCloning_ && !origCurrentlyFastCloning) {
     mf::LogWarning("FastCloning")
