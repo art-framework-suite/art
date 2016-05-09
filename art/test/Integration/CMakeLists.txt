@@ -1439,3 +1439,12 @@ cet_test(BadAssns_t HANDBUILT
   TEST_PROPERTIES
   PASS_REGULAR_EXPRESSION "No dictionary found for the following classes:\n.*art::Wrapper<art::Assns<arttest::DummyProduct,arttest::StringProduct,void> >\n.*Most likely they were never"
   )
+
+simple_plugin(SimpleServiceTest "service" NO_INSTALL)
+simple_plugin(SimpleServiceTestAnalyzer "module" NO_INSTALL art_test_Integration_SimpleServiceTest_service)
+
+cet_test(SimpleServiceTest_t HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --rethrow-all -c SimpleServiceTest_t.fcl
+  DATAFILES fcl/SimpleServiceTest_t.fcl
+  )
