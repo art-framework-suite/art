@@ -4,6 +4,7 @@
 #include "canvas/Persistency/Common/Wrapper.h"
 #include "cetlib/map_vector.h"
 #include "art/test/TestObjects/AssnTestData.h"
+#include "art/test/TestObjects/ToyProducts.h"
 
 #include <cstddef>
 #include <string>
@@ -61,6 +62,9 @@ template class art::Ptr<cet::map_vector<unsigned int>::value_type>;
 
 template class art::Wrapper<std::vector<std::size_t>>;
 template class std::vector<std::size_t>;
+
+template class art::Wrapper<art::Assns<arttest::StringProduct,arttest::DummyProduct>>;
+template class art::Wrapper<art::Assns<arttest::DummyProduct,arttest::StringProduct>>;
 
 // Local Variables:
 // mode: c++

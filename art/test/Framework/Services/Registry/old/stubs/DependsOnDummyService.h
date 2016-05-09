@@ -1,5 +1,5 @@
-#ifndef test_Framework_Services_Registry_old_stubs_DependsOnDummyService_h
-#define test_Framework_Services_Registry_old_stubs_DependsOnDummyService_h
+#ifndef art_test_Framework_Services_Registry_old_stubs_DependsOnDummyService_h
+#define art_test_Framework_Services_Registry_old_stubs_DependsOnDummyService_h
 // -*- C++ -*-
 //
 // Package:     ServiceRegistry
@@ -49,7 +49,7 @@ namespace testserviceregistry {
    };
 }
 
-#endif /* test_Framework_Services_Registry_old_stubs_DependsOnDummyService_h */
+#endif /* art_test_Framework_Services_Registry_old_stubs_DependsOnDummyService_h */
 
 // Local Variables:
 // mode: c++

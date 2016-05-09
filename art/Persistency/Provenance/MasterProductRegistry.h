@@ -4,6 +4,7 @@
 
 #include "canvas/Persistency/Provenance/BranchDescription.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
+#include "canvas/Persistency/Provenance/DictionaryChecker.h"
 #include "canvas/Persistency/Provenance/ProductList.h"
 #include "art/Persistency/Provenance/detail/type_aliases.h"
 
@@ -83,6 +84,8 @@ public:
   }
 
 private:
+  void checkDicts_(BranchDescription const & productDesc);
+
   ProductList productList_;
   bool frozen_;
   std::array<bool, NumBranchTypes> productProduced_;
@@ -96,6 +99,8 @@ private:
   // <product::value_type friendly class name, process name>.
   std::vector<BranchTypeLookup> elementLookup_;
   std::vector<ProductListUpdatedCallback> productListUpdatedCallbacks_;
+
+  DictionaryChecker dictChecker_;
 };
 
 // Local Variables:

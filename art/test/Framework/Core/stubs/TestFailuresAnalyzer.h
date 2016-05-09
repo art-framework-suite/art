@@ -1,5 +1,5 @@
-#ifndef test_Framework_Core_stubs_TestFailuresAnalyzer_h
-#define test_Framework_Core_stubs_TestFailuresAnalyzer_h
+#ifndef art_test_Framework_Core_stubs_TestFailuresAnalyzer_h
+#define art_test_Framework_Core_stubs_TestFailuresAnalyzer_h
 // -*- C++ -*-
 //
 // Package:     test
@@ -32,7 +32,7 @@ private:
 };
 
 
-#endif /* test_Framework_Core_stubs_TestFailuresAnalyzer_h */
+#endif /* art_test_Framework_Core_stubs_TestFailuresAnalyzer_h */
 
 // Local Variables:
 // mode: c++

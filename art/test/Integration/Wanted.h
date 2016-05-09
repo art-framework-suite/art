@@ -1,5 +1,5 @@
-#ifndef test_Integration_Wanted_h
-#define test_Integration_Wanted_h
+#ifndef art_test_Integration_Wanted_h
+#define art_test_Integration_Wanted_h
 // Service with a name near the end of the alphabet with a hook to make
 // sure it gets called.
 
@@ -23,7 +23,7 @@ private:
   bool postBeginJobCalled_;
 };
 DECLARE_ART_SERVICE(arttest::Wanted, LEGACY)
-#endif /* test_Integration_Wanted_h */
+#endif /* art_test_Integration_Wanted_h */
 
 // Local Variables:
 // mode: c++

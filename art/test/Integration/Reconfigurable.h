@@ -1,5 +1,5 @@
-#ifndef test_Integration_Reconfigurable_h
-#define test_Integration_Reconfigurable_h
+#ifndef art_test_Integration_Reconfigurable_h
+#define art_test_Integration_Reconfigurable_h
 // ======================================================================
 //
 // ======================================================================
@@ -30,7 +30,7 @@ private:
 };
 
 DECLARE_ART_SERVICE(Reconfigurable, LEGACY)
-#endif /* test_Integration_Reconfigurable_h */
+#endif /* art_test_Integration_Reconfigurable_h */
 
 
 

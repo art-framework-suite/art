@@ -1,5 +1,5 @@
-#ifndef test_TestObjects_AssnTestData_h
-#define test_TestObjects_AssnTestData_h
+#ifndef art_test_TestObjects_AssnTestData_h
+#define art_test_TestObjects_AssnTestData_h
 
 #include <cstddef>
 #include <string>
@@ -16,7 +16,7 @@ struct arttest::AssnTestData {
   size_t d2;
   std::string label;
 };
-#endif /* test_TestObjects_AssnTestData_h */
+#endif /* art_test_TestObjects_AssnTestData_h */
 
 // Local Variables:
 // mode: c++

@@ -1,5 +1,5 @@
-#ifndef test_Framework_Core_stubs_TestPRegisterModule1_h
-#define test_Framework_Core_stubs_TestPRegisterModule1_h
+#ifndef art_test_Framework_Core_stubs_TestPRegisterModule1_h
+#define art_test_Framework_Core_stubs_TestPRegisterModule1_h
 // -*- C++ -*-
 //
 // Package:     test
@@ -38,7 +38,7 @@ private:
 };
 
 
-#endif /* test_Framework_Core_stubs_TestPRegisterModule1_h */
+#endif /* art_test_Framework_Core_stubs_TestPRegisterModule1_h */
 
 // Local Variables:
 // mode: c++

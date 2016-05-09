@@ -8,6 +8,7 @@
    AssembleProducts                    producer    <path>/AssembleProducts_module.cc
    AssnsAnalyzer                       analyzer    <path>/AssnsAnalyzer_module.cc
    AssnsProducer                       producer    <path>/AssnsProducer_module.cc
+   BadAssnsProducer                    producer    <path>/BadAssnsProducer_module.cc
    BareStringAnalyzer                  analyzer    <path>/BareStringAnalyzer_module.cc
    BareStringProducer                  producer    <path>/BareStringProducer_module.cc
    BigProductProducer                  producer    <path>/BigProductProducer_module.cc

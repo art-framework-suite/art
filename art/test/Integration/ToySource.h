@@ -1,5 +1,5 @@
-#ifndef test_Integration_ToySource_h
-#define test_Integration_ToySource_h
+#ifndef art_test_Integration_ToySource_h
+#define art_test_Integration_ToySource_h
 
 // Our simulated input file format is:
 // A parameter in a parameter set, which contains a vector of vector of int.
@@ -60,7 +60,7 @@ protected:
 
   art::TypeLabel vtl_;
 };
-#endif /* test_Integration_ToySource_h */
+#endif /* art_test_Integration_ToySource_h */
 
 // Local Variables:
 // mode: c++

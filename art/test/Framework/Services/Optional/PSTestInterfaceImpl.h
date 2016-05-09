@@ -1,5 +1,5 @@
-#ifndef test_Framework_Services_Optional_PSTestInterfaceImpl_h
-#define test_Framework_Services_Optional_PSTestInterfaceImpl_h
+#ifndef art_test_Framework_Services_Optional_PSTestInterfaceImpl_h
+#define art_test_Framework_Services_Optional_PSTestInterfaceImpl_h
 
 #include "art/Framework/Services/Registry/ServiceMacros.h"
 #include "art/Utilities/ScheduleID.h"
@@ -23,7 +23,7 @@ private:
 
 // Service declaration.
 DECLARE_ART_SERVICE_INTERFACE_IMPL(arttest::PSTestInterfaceImpl, arttest::PSTestInterface, PER_SCHEDULE)
-#endif /* test_Framework_Services_Optional_PSTestInterfaceImpl_h */
+#endif /* art_test_Framework_Services_Optional_PSTestInterfaceImpl_h */
 
 // Local Variables:
 // mode: c++

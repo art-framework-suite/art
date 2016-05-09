@@ -1,5 +1,5 @@
-#ifndef test_Integration_event_shape_ESPtrSimple_h
-#define test_Integration_event_shape_ESPtrSimple_h
+#ifndef art_test_Integration_event_shape_ESPtrSimple_h
+#define art_test_Integration_event_shape_ESPtrSimple_h
 
 #include "canvas/Persistency/Common/Ptr.h"
 #include "art/test/TestObjects/ToyProducts.h"
@@ -13,7 +13,7 @@ struct arttest::ESPtrSimple {
   void aggregate(ESPtrSimple const&) const {}
 };
 
-#endif /* test_Integration_event_shape_ESPtrSimple_h */
+#endif /* art_test_Integration_event_shape_ESPtrSimple_h */
 
 // Local Variables:
 // mode: c++
