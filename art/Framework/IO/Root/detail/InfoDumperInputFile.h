@@ -1,5 +1,5 @@
-#ifndef test_Integration_dump_file_info_InputFile_h
-#define test_Integration_dump_file_info_InputFile_h
+#ifndef art_Framework_IO_Root_detail_InfoDumperInputFile_h
+#define art_Framework_IO_Root_detail_InfoDumperInputFile_h
 
 #include "TBranch.h"
 #include "TFile.h"
@@ -16,13 +16,13 @@
 namespace art {
   namespace detail {
 
-    class InputFile {
+    class InfoDumperInputFile {
     public:
 
       using EntryNumber = input::EntryNumber;
       using EntryNumbers = input::EntryNumbers;
 
-      InputFile(std::string const& filename);
+      InfoDumperInputFile(std::string const& filename);
       void print_range_sets(std::ostream&) const;
       void print_file_index(std::ostream&) const;
       TFile* tfile() const { return file_.get(); }

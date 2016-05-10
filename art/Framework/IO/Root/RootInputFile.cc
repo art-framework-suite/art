@@ -9,8 +9,8 @@
 #include "art/Framework/IO/Root/DuplicateChecker.h"
 #include "art/Framework/IO/Root/FastCloningInfoProvider.h"
 #include "art/Framework/IO/Root/GetFileFormatEra.h"
-#include "art/Framework/IO/Root/setFileIndexPointer.h"
 #include "art/Framework/IO/Root/detail/resolveRangeSet.h"
+#include "art/Framework/IO/Root/detail/setFileIndexPointer.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/System/FileCatalogMetadata.h"
 #include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
@@ -155,7 +155,7 @@ namespace art {
     metaDataTree->SetBranchAddress(metaBranchRootName<FileFormatVersion>(), &fftPtr);
 
     auto findexPtr = &fileIndex_;
-    setFileIndexPointer(filePtr_.get(), metaDataTree, findexPtr);
+    detail::setFileIndexPointer(filePtr_.get(), metaDataTree, findexPtr);
     auto plhPtr = productListHolder_.get();
     assert(plhPtr != nullptr &&
            "INTERNAL ERROR: productListHolder_ not initialized prior to use!.");

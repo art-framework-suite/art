@@ -1,7 +1,7 @@
 #include "art/Framework/IO/ProductMix/MixHelper.h"
 
 #include "art/Framework/IO/Root/GetFileFormatEra.h"
-#include "art/Framework/IO/Root/setFileIndexPointer.h"
+#include "art/Framework/IO/Root/detail/setFileIndexPointer.h"
 #include "canvas/Persistency/Provenance/rootNames.h"
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Services/Optional/RandomNumberGenerator.h"
@@ -323,8 +323,8 @@ openAndReadMetaData_(std::string filename)
     art::rootNames::metaBranchRootName<FileFormatVersion>(), &ffVersion_p);
   FileIndex fileIndex;
   FileIndex* fileIndexPtr = &fileIndex;
-  setFileIndexPointer(currentFile_.get(), currentMetaDataTree_.get(),
-                      fileIndexPtr);
+  detail::setFileIndexPointer(currentFile_.get(), currentMetaDataTree_.get(),
+                              fileIndexPtr);
   BranchIDLists branchIDLists;
   BranchIDLists * branchIDLists_p = &branchIDLists;
   currentMetaDataTree_.get()->SetBranchAddress(

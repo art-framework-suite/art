@@ -3,6 +3,7 @@ art_make_library(
   SOURCE
   detail/DummyProductCache.cc
   detail/KeptProvenance.cc
+  detail/getEntry.cc
   detail/resolveRangeSet.cc
   detail/orderedProcessNames.cc
   detail/rootFileSizeTools.cc
@@ -23,11 +24,30 @@ art_make_library(
   SOURCE GetFileFormatEra.cc GetFileFormatVersion.cc
   )
 
+art_make_library(
+  LIBRARY_NAME art_Framework_IO_Root_file_info_dumper
+  SOURCE
+  detail/InfoDumperInputFile.cc
+  LIBRARIES
+  art_Framework_IO_Root_detail_sources
+  art_Persistency_RootDB
+  canvas_Persistency_Provenance
+  cetlib
+#  art_Framework_Principal
+
+#  art_Utilities
+#  MF_MessageLogger
+#  ${ROOT_CORE}
+#  ${ROOT_RIO}
+#  ${ROOT_TREE}
+  )
+
 art_make(EXCLUDE
   GetFileFormatEra.cc
   GetFileFormatVersion.cc
   config_dumper.cc
   count_events.cc
+  file_info_dumper.cc
   product_sizes_dumper.cc
   sam_metadata_dumper.cc
   NO_PLUGINS
@@ -84,6 +104,12 @@ art_make_exec( NAME count_events
   ${Boost_PROGRAM_OPTIONS_LIBRARY}
   ${ROOT_TREE}
   ${ROOT_RIO}
+  )
+
+art_make_exec(NAME file_info_dumper
+  LIBRARIES art_Framework_IO_Root
+  art_Framework_IO_Root_file_info_dumper
+  ${Boost_PROGRAM_OPTIONS_LIBRARY}
   )
 
 install_headers()

@@ -1,6 +1,7 @@
 // dump_file_info.cc
 
 #include "art/Framework/IO/Root/GetFileFormatEra.h"
+#include "art/Framework/IO/Root/detail/InfoDumperInputFile.h"
 #include "art/Framework/IO/Root/detail/resolveRangeSet.h"
 #include "art/Persistency/RootDB/SQLite3Wrapper.h"
 #include "art/Persistency/RootDB/tkeyvfs.h"
@@ -8,7 +9,6 @@
 #include "canvas/Persistency/Provenance/rootNames.h"
 #include "canvas/Persistency/Provenance/FileFormatVersion.h"
 #include "cetlib/container_algorithms.h"
-#include "art/test/Integration/dump-file-info/InputFile.h"
 
 #include "TError.h"
 #include "TFile.h"
@@ -27,16 +27,16 @@ extern "C" {
 namespace bpo = boost::program_options;
 
 using namespace std::string_literals;
-using art::detail::InputFile;
+using art::detail::InfoDumperInputFile;
 using std::ostream;
 using std::string;
 using std::vector;
 using stringvec = vector<string>;
 
 
-int print_range_sets(InputFile& file, ostream& output);
-int print_file_index(InputFile& file, ostream& output);
-int db_to_file(InputFile& file, ostream& output, ostream& errors);
+int print_range_sets(InfoDumperInputFile& file, ostream& output);
+int print_file_index(InfoDumperInputFile& file, ostream& output);
+int db_to_file(InfoDumperInputFile& file, ostream& output, ostream& errors);
 
 namespace {
 
@@ -130,8 +130,8 @@ int main(int argc, char * argv[])
   bpo::options_description desc {descstr.str()};
   desc.add_options()
     ("help,h", "produce help message")
-    ("print-file-index", "prints FileIndex object for each input file")
-    ("print-range-sets", "prints event range sets for each input file")
+    ("file-index", "prints FileIndex object for each input file")
+    ("range-sets", "prints event range sets for each input file")
     ("db-to-file",
      ("Writes RootFileDB to external SQLite database with the same base name as the input file and the suffix '.db'.\n"s +
       "(Writes to directory in which '"s + argv[0] + "' is executed)."s).c_str())
@@ -173,8 +173,8 @@ int main(int argc, char * argv[])
   file_names.reserve(file_count);
   cet::copy_all(vm["source"].as<stringvec>(), std::back_inserter(file_names));
 
-  bool const printRangeSets = vm.count("print-range-sets") > 0;
-  bool const printFileIndex = vm.count("print-file-index") > 0;
+  bool const printRangeSets = vm.count("range-sets") > 0;
+  bool const printFileIndex = vm.count("file-index") > 0;
   bool const saveDbToFile   = vm.count("db-to-file") > 0;
 
   SetErrorHandler(RootErrorHandler);
@@ -187,7 +187,7 @@ int main(int argc, char * argv[])
   for (auto const& fn : file_names) {
     output << std::string(30,'=') << '\n'
            << "File: " << fn.substr(fn.find_last_of('/')+1ul) << '\n';
-    InputFile file {fn};
+    InfoDumperInputFile file {fn};
     if (printRangeSets) rc += print_range_sets(file, output);
     if (printFileIndex) rc += print_file_index(file, output);
     if (saveDbToFile)   rc += db_to_file(file, output, errors);
@@ -198,29 +198,32 @@ int main(int argc, char * argv[])
 
 //============================================================================
 
-int print_range_sets(InputFile& file,
+int print_range_sets(InfoDumperInputFile& file,
                      ostream& output)
 {
   file.print_range_sets(output);
   return 0;
 }
 
-int print_file_index(InputFile& file,
+int print_file_index(InfoDumperInputFile& file,
                      ostream& output)
 {
   file.print_file_index(output);
   return 0;
 }
 
-int db_to_file(InputFile & file,
+int db_to_file(InfoDumperInputFile & file,
                ostream& output,
                ostream& errors)
 {
   TFile* current_file = file.tfile();
   std::string const& rootFileName = current_file->GetName();
+
+  // db file name has the same base as the input art/ROOT file
   std::string::size_type const dist = rootFileName.find(".root")-rootFileName.find_last_of('/');
   std::string const base = rootFileName.substr(rootFileName.find_last_of('/')+1, dist);
   std::string const extFileName = base + "db";
+
   art::SQLite3Wrapper db {current_file, "RootFileDB"};
   int const rc = dbToFile(db, extFileName.c_str());
   if (rc == 0) {

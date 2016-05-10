@@ -1,9 +1,9 @@
-#include "art/Framework/IO/Root/setFileIndexPointer.h"
+#include "art/Framework/IO/Root/detail/setFileIndexPointer.h"
 #include "art/Persistency/RootDB/SQLite3Wrapper.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
 #include "canvas/Persistency/Provenance/rootNames.h"
 #include "canvas/Utilities/Exception.h"
-#include "art/test/Integration/dump-file-info/InputFile.h"
+#include "art/Framework/IO/Root/detail/InfoDumperInputFile.h"
 
 #include <iostream>
 
@@ -33,11 +33,11 @@ namespace {
 
     auto fileIndexUniquePtr = std::make_unique<art::FileIndex>();
     auto findexPtr = &*fileIndexUniquePtr;
-    art::setFileIndexPointer(file, metaDataTree, findexPtr);
+    art::detail::setFileIndexPointer(file, metaDataTree, findexPtr);
     return *fileIndexUniquePtr;
   }
 
-  using EntryNumbers = art::detail::InputFile::EntryNumbers;
+  using EntryNumbers = art::detail::InfoDumperInputFile::EntryNumbers;
 
   EntryNumbers
   getEntryNumbers(art::FileIndex::const_iterator& it,
@@ -55,19 +55,19 @@ namespace {
   }
 }
 
-art::detail::InputFile::InputFile(std::string const& filename)
+art::detail::InfoDumperInputFile::InfoDumperInputFile(std::string const& filename)
   : file_{openFile(filename)}
   , fileIndex_{getFileIndex(file_.get())}
 {}
 
 void
-art::detail::InputFile::print_file_index(std::ostream& os) const
+art::detail::InfoDumperInputFile::print_file_index(std::ostream& os) const
 {
   os << fileIndex_;
 }
 
 void
-art::detail::InputFile::print_range_sets(std::ostream& os) const
+art::detail::InfoDumperInputFile::print_range_sets(std::ostream& os) const
 {
   TTree* tree = static_cast<TTree*>(file_->Get(BranchTypeToProductTreeName(InRun).c_str()));
   SQLite3Wrapper db {file_.get(), "RootFileDB"};
@@ -87,7 +87,7 @@ art::detail::InputFile::print_range_sets(std::ostream& os) const
 }
 
 art::RunAuxiliary
-art::detail::InputFile::getAuxiliary(TTree* tree, EntryNumber const entry) const
+art::detail::InfoDumperInputFile::getAuxiliary(TTree* tree, EntryNumber const entry) const
 {
   auto aux  = std::make_unique<RunAuxiliary>();
   auto pAux = aux.get();
@@ -99,10 +99,10 @@ art::detail::InputFile::getAuxiliary(TTree* tree, EntryNumber const entry) const
 }
 
 art::RangeSet
-art::detail::InputFile::getRangeSet(TTree* tree,
-                                    EntryNumbers const& entries,
-                                    sqlite3* db,
-                                    std::string const& filename) const
+art::detail::InfoDumperInputFile::getRangeSet(TTree* tree,
+                                              EntryNumbers const& entries,
+                                              sqlite3* db,
+                                              std::string const& filename) const
 {
   auto auxResult = getAuxiliary(tree, entries[0]);
   auto rangeSet = detail::resolveRangeSet(db,
