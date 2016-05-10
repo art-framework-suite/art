@@ -212,7 +212,7 @@ private: // MEMBER DATA
   detail::DummyProductCache dummyProductCache_ {};
   unsigned subRunRSID_ {-1u};
   unsigned runRSID_ {-1u};
-
+  std::chrono::steady_clock::time_point beginTime_ {std::chrono::steady_clock::now()};
 };
 
 // Local Variables:

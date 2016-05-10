@@ -552,9 +552,14 @@ art::
 RootOutputFile::
 requestsToCloseFile() const
 {
+  using namespace std::chrono;
   unsigned int constexpr oneK {1024u};
   Long64_t const size {filePtr_->GetSize() / oneK};
-  return criteriaMet(fileSwitchCriteria_, size, eventEntryNumber_);
+  auto const fileAge = steady_clock::now() - beginTime_;\
+  return criteriaMet(fileSwitchCriteria_,
+                     size,
+                     eventEntryNumber_,
+                     duration_cast<seconds>(fileAge));
 }
 
 void

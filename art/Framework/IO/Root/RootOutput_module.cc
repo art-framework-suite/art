@@ -75,6 +75,7 @@ public:
     fhicl::Atom<std::string> tmpDir { Name("tmpDir"), parent_path(omConfig().fileName()) };
     fhicl::OptionalAtom<unsigned> maxSize { Name("maxSize") };
     fhicl::OptionalAtom<FileIndex::EntryNumber_t> maxEventsPerFile { Name("maxEventsPerFile") };
+    fhicl::OptionalAtom<unsigned> maxAge { Name("maxAge"), Comment("Maximum age of output file (in seconds)") };
     fhicl::Atom<int> compressionLevel { Name("compressionLevel"), 7 };
     fhicl::Atom<int64_t> saveMemoryObjectThreshold { Name("saveMemoryObjectThreshold"), -1l };
     fhicl::Atom<int64_t> treeMaxVirtualSize { Name("treeMaxVirtualSize"), -1 };
@@ -239,6 +240,14 @@ RootOutput(Parameters const & config)
   // Max events per file
   if (config().maxEventsPerFile(fileSwitchCriteria_.maxEventsPerFile)) {
     fileSwitchBoundary_ = detail::checkMaxEventsPerFileConfig(switchBoundarySet, fileSwitchBoundary_, forceSwitch_);
+  }
+
+  // Max file age
+  unsigned maxFileAge {-1u};
+  if (config().maxAge(maxFileAge)) {
+    std::chrono::seconds maxDuration {maxFileAge};
+    fileSwitchBoundary_ = detail::checkMaxAgeConfig(switchBoundarySet, fileSwitchBoundary_, forceSwitch_);
+    std::swap(maxDuration, fileSwitchCriteria_.maxFileAge);
   }
 
   bool const dropAllEventsSet {config().dropAllEvents(dropAllEvents_)};

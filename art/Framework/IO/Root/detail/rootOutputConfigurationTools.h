@@ -17,6 +17,10 @@ namespace art {
                                          Boundary switchBoundary,
                                          bool forceSwitch);
 
+    Boundary checkMaxAgeConfig(bool switchBoundarySet,
+                               Boundary switchBoundary,
+                               bool forceSwitch);
+
     bool shouldFastClone(bool fastCloningSet,
                          bool fastCloning,
                          bool wantAllEvents,

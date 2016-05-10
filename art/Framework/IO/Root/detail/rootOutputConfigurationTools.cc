@@ -31,6 +31,19 @@ art::detail::checkMaxSizeConfig(bool const switchBoundarySet,
 }
 
 art::Boundary
+art::detail::checkMaxAgeConfig(bool const switchBoundarySet,
+                               Boundary const switchBoundary,
+                               bool const forceSwitch)
+{
+  if (forceSwitch) {
+    throw art::Exception(art::errors::Configuration)
+      << "The 'fileSwitch.force' parameter cannot be 'true'\n"
+      << "whenever the 'maxEventsPerFile' parameter is specified.";
+  }
+  return switchBoundarySet ? switchBoundary : Boundary::Event;
+}
+
+art::Boundary
 art::detail::checkMaxEventsPerFileConfig(bool const switchBoundarySet,
                                          Boundary const switchBoundary,
                                          bool const forceSwitch)
@@ -38,7 +51,7 @@ art::detail::checkMaxEventsPerFileConfig(bool const switchBoundarySet,
   if (forceSwitch) {
     throw art::Exception(art::errors::Configuration)
       << "The 'fileSwitch.force' parameter cannot be 'true'\n"
-      << "whenever the 'maxEventsPerFile' parameter is specified.";
+      << "whenever the 'maxAge' parameter is specified.";
   }
   return switchBoundarySet ? switchBoundary : Boundary::Event;
 }
