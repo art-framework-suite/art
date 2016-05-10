@@ -33,13 +33,6 @@ art_make_library(
   art_Persistency_RootDB
   canvas_Persistency_Provenance
   cetlib
-#  art_Framework_Principal
-
-#  art_Utilities
-#  MF_MessageLogger
-#  ${ROOT_CORE}
-#  ${ROOT_RIO}
-#  ${ROOT_TREE}
   )
 
 art_make(EXCLUDE
