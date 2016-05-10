@@ -19,7 +19,8 @@ namespace art {
 
     Boundary checkMaxAgeConfig(bool switchBoundarySet,
                                Boundary switchBoundary,
-                               bool forceSwitch);
+                               bool forceSwitch,
+                               unsigned maxAgeInSeconds);
 
     bool shouldFastClone(bool fastCloningSet,
                          bool fastCloning,

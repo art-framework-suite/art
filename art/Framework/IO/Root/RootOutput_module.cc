@@ -73,7 +73,7 @@ public:
     fhicl::Atom<bool> dropAllSubRuns { Name("dropAllSubRuns"), false };
     fhicl::OptionalAtom<bool> fastCloning { Name("fastCloning") };
     fhicl::Atom<std::string> tmpDir { Name("tmpDir"), parent_path(omConfig().fileName()) };
-    fhicl::OptionalAtom<unsigned> maxSize { Name("maxSize") };
+    fhicl::OptionalAtom<unsigned> maxSize { Name("maxSize"), Comment("Maximum size of file (in kB)") };
     fhicl::OptionalAtom<FileIndex::EntryNumber_t> maxEventsPerFile { Name("maxEventsPerFile") };
     fhicl::OptionalAtom<unsigned> maxAge { Name("maxAge"), Comment("Maximum age of output file (in seconds)") };
     fhicl::Atom<int> compressionLevel { Name("compressionLevel"), 7 };
@@ -245,8 +245,11 @@ RootOutput(Parameters const & config)
   // Max file age
   unsigned maxFileAge {-1u};
   if (config().maxAge(maxFileAge)) {
+    fileSwitchBoundary_ = detail::checkMaxAgeConfig(switchBoundarySet,
+                                                    fileSwitchBoundary_,
+                                                    forceSwitch_,
+                                                    maxFileAge);
     std::chrono::seconds maxDuration {maxFileAge};
-    fileSwitchBoundary_ = detail::checkMaxAgeConfig(switchBoundarySet, fileSwitchBoundary_, forceSwitch_);
     std::swap(maxDuration, fileSwitchCriteria_.maxFileAge);
   }
 
