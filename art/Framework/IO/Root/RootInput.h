@@ -22,170 +22,162 @@
 
 namespace art {
 
-class MasterProductRegistry;
+  class MasterProductRegistry;
 
-class RootInput : public DecrepitRelicInputSourceImplementation {
-public:
-
-  struct Config {
-    fhicl::Atom<std::string> module_type { fhicl::Name("module_type") };
-    fhicl::TableFragment<DecrepitRelicInputSourceImplementation::Config> drisi_config;
-    fhicl::TableFragment<InputFileCatalog::Config> ifc_config;
-    fhicl::TableFragment<RootInputFileSequence::Config> rifs_config;
-
-    struct KeysToIgnore {
-      std::set<std::string> operator()() const { return {"module_label"}; }
-    };
-  };
-
-  using Parameters = ConfigTable<Config, Config::KeysToIgnore>;
-
-  RootInput(Parameters const&, InputSourceDescription&);
-  using DecrepitRelicInputSourceImplementation::runPrincipal;
-  // Find the requested event and set the system up
-  // to read run and subRun records where appropriate. Note the
-  // corresponding seekToEvent function must exist in
-  // RootInputFileSequence to avoid a compile error.
-  template<typename T> bool seekToEvent(T eventSpec, bool exact = false);
-private:
-  class AccessState {
+  class RootInput final : public DecrepitRelicInputSourceImplementation {
   public:
-    enum State {
-      SEQUENTIAL = 0,
-      SEEKING_FILE, // 1
-      SEEKING_RUN, // 2
-      SEEKING_SUBRUN, // 3
-      SEEKING_EVENT // 4
+
+    struct Config {
+      fhicl::Atom<std::string> module_type { fhicl::Name("module_type") };
+      fhicl::TableFragment<DecrepitRelicInputSourceImplementation::Config> drisi_config;
+      fhicl::TableFragment<InputFileCatalog::Config> ifc_config;
+      fhicl::TableFragment<RootInputFileSequence::Config> rifs_config;
+
+      struct KeysToIgnore {
+        std::set<std::string> operator()() const { return {"module_label"}; }
+      };
     };
-  public:
-    AccessState();
-    State state() const { return state_; }
-    void setState(State state);
-    void resetState() { state_ = SEQUENTIAL; }
-    EventID const& lastReadEventID() const { return lastReadEventID_; }
-    void setLastReadEventID(EventID const& eid);
-    EventID const& wantedEventID() const { return wantedEventID_; }
-    void setWantedEventID(EventID const& eid);
-    std::shared_ptr<RootInputFile> rootFileForLastReadEvent() const {
-      return rootFileForLastReadEvent_;
-    }
-    void setRootFileForLastReadEvent(std::shared_ptr<RootInputFile> const&);
+
+    using Parameters = ConfigTable<Config, Config::KeysToIgnore>;
+
+    RootInput(Parameters const&, InputSourceDescription&);
+    using DecrepitRelicInputSourceImplementation::runPrincipal;
+    // Find the requested event and set the system up
+    // to read run and subRun records where appropriate. Note the
+    // corresponding seekToEvent function must exist in
+    // RootInputFileSequence to avoid a compile error.
+    template<typename T> bool seekToEvent(T eventSpec, bool exact = false);
   private:
-    State state_;
-    EventID lastReadEventID_;
-    std::shared_ptr<RootInputFile> rootFileForLastReadEvent_;
-    EventID wantedEventID_;
-  }; // class AccessState
-  typedef std::shared_ptr<RootInputFile> RootInputFileSharedPtr;
-  typedef input::EntryNumber EntryNumber;
-private:
-  InputFileCatalog  catalog_;
-  std::unique_ptr<RootInputFileSequence> primaryFileSequence_;
-  std::array<std::vector<BranchID>, NumBranchTypes>  branchIDsToReplace_;
-  AccessState accessState_;
-  MasterProductRegistry& mpr_;
-private:
-  input::ItemType nextItemType() override;
-  using DecrepitRelicInputSourceImplementation::readEvent;
-  std::unique_ptr<EventPrincipal>
-    readEvent(std::shared_ptr<SubRunPrincipal>) override;
-  std::unique_ptr<EventPrincipal> readEvent_() override;
-  std::unique_ptr<EventPrincipal>
-    readEvent_(std::shared_ptr<SubRunPrincipal>);
-  std::shared_ptr<SubRunPrincipal>
-    readSubRun(std::shared_ptr<RunPrincipal>) override;
-  std::shared_ptr<SubRunPrincipal> readSubRun_() override;
-  std::vector<std::shared_ptr<SubRunPrincipal>>
-    readSubRunFromSecondaryFiles_() override;
-  std::shared_ptr<RunPrincipal> readRun() override;
-  std::shared_ptr<RunPrincipal> readRun_() override;
-  std::vector<std::shared_ptr<RunPrincipal>>
-    readRunFromSecondaryFiles_() override;
-  std::shared_ptr<FileBlock> readFile(MasterProductRegistry&) override;
-  std::shared_ptr<FileBlock> readFile_() override;
-  void closeFile_() override;
-  void endJob() override;
-  input::ItemType getNextItemType() override;
-  void rewind_() override;
-  template<typename T>
-    EventID
-    postSeekChecks(
-      EventID const& foundID, T eventSpec,
-      typename
-      std::enable_if<std::is_convertible<T, off_t>::value>::type* = 0);
-  template<typename T>
-    EventID
-    postSeekChecks(
-      EventID const& foundID, T eventSpec,
-      typename
-      std::enable_if<!std::is_convertible<T, off_t>::value >::type* = 0);
-  //virtual void storeMPRforBrokenRandomAccess(MasterProductRegistry&);
-}; // class RootInput
+    class AccessState {
+    public:
+      enum State {
+        SEQUENTIAL = 0,
+          SEEKING_FILE, // 1
+          SEEKING_RUN, // 2
+          SEEKING_SUBRUN, // 3
+          SEEKING_EVENT // 4
+          };
+    public:
+      AccessState();
+      State state() const { return state_; }
+      void setState(State state);
+      void resetState() { state_ = SEQUENTIAL; }
+      EventID const& lastReadEventID() const { return lastReadEventID_; }
+      void setLastReadEventID(EventID const& eid);
+      EventID const& wantedEventID() const { return wantedEventID_; }
+      void setWantedEventID(EventID const& eid);
+      std::shared_ptr<RootInputFile> rootFileForLastReadEvent() const {
+        return rootFileForLastReadEvent_;
+      }
+      void setRootFileForLastReadEvent(std::shared_ptr<RootInputFile> const&);
+    private:
+      State state_;
+      EventID lastReadEventID_;
+      std::shared_ptr<RootInputFile> rootFileForLastReadEvent_;
+      EventID wantedEventID_;
+    }; // class AccessState
+    typedef std::shared_ptr<RootInputFile> RootInputFileSharedPtr;
+    typedef input::EntryNumber EntryNumber;
+  private:
+    InputFileCatalog  catalog_;
+    std::unique_ptr<RootInputFileSequence> primaryFileSequence_;
+    std::array<std::vector<BranchID>, NumBranchTypes>  branchIDsToReplace_;
+    AccessState accessState_;
+    MasterProductRegistry& mpr_;
+  private:
+    input::ItemType nextItemType() override;
+    using DecrepitRelicInputSourceImplementation::readEvent;
+    std::unique_ptr<EventPrincipal> readEvent(std::shared_ptr<SubRunPrincipal>) override;
+    std::unique_ptr<EventPrincipal> readEvent_() override;
+    std::unique_ptr<EventPrincipal> readEvent_(std::shared_ptr<SubRunPrincipal>);
+    std::shared_ptr<SubRunPrincipal> readSubRun(std::shared_ptr<RunPrincipal>) override;
+    std::shared_ptr<SubRunPrincipal> readSubRun_() override;
+    std::vector<std::shared_ptr<SubRunPrincipal>>  readSubRunFromSecondaryFiles_() override;
+    std::shared_ptr<RunPrincipal> readRun() override;
+    std::shared_ptr<RunPrincipal> readRun_() override;
+    std::vector<std::shared_ptr<RunPrincipal>> readRunFromSecondaryFiles_() override;
+    std::shared_ptr<FileBlock> readFile(MasterProductRegistry&) override;
+    std::shared_ptr<FileBlock> readFile_() override;
+    std::unique_ptr<RangeSetHandler> runRangeSetHandler() override;
+    std::unique_ptr<RangeSetHandler> subRunRangeSetHandler() override;
+    void closeFile_() override;
+    void endJob() override;
+    input::ItemType getNextItemType() override;
+    void rewind_() override;
 
-template<typename T>
-bool
-RootInput::
-seekToEvent(T eventSpec, bool exact)
-{
-  if (accessState_.state()) {
-    throw Exception(errors::LogicError)
+    template<typename T>
+    EventID
+    postSeekChecks(EventID const& foundID, T eventSpec,
+                   std::enable_if_t<std::is_convertible<T, off_t>::value>* = nullptr);
+    template<typename T>
+    EventID
+    postSeekChecks(EventID const& foundID, T eventSpec,
+                   std::enable_if_t<!std::is_convertible<T, off_t>::value>* = nullptr);
+    //virtual void storeMPRforBrokenRandomAccess(MasterProductRegistry&);
+  }; // class RootInput
+
+  template<typename T>
+  bool
+  RootInput::
+  seekToEvent(T eventSpec, bool exact)
+  {
+    if (accessState_.state()) {
+      throw Exception(errors::LogicError)
         << "Attempted to initiate a random access seek "
         << "with one already in progress at state = "
         << accessState_.state()
         << ".\n";
+    }
+    EventID foundID = primaryFileSequence_->seekToEvent(eventSpec, exact);
+    if (!foundID.isValid()) {
+      return false;
+    }
+    foundID = postSeekChecks(foundID, eventSpec);
+    accessState_.setWantedEventID(foundID);
+    if (primaryFileSequence_->rootFile() !=
+        accessState_.rootFileForLastReadEvent()) {
+      accessState_.setState(AccessState::SEEKING_FILE);
+    }
+    else if (foundID.runID() != accessState_.lastReadEventID().runID()) {
+      accessState_.setState(AccessState::SEEKING_RUN);
+    }
+    else if (foundID.subRunID() !=
+             accessState_.lastReadEventID().subRunID()) {
+      accessState_.setState(AccessState::SEEKING_SUBRUN);
+    }
+    else {
+      accessState_.setState(AccessState::SEEKING_EVENT);
+    }
+    return true;
   }
-  EventID foundID = primaryFileSequence_->seekToEvent(eventSpec, exact);
-  if (!foundID.isValid()) {
-    return false;
-  }
-  foundID = postSeekChecks(foundID, eventSpec);
-  accessState_.setWantedEventID(foundID);
-  if (primaryFileSequence_->rootFile() !=
-      accessState_.rootFileForLastReadEvent()) {
-    accessState_.setState(AccessState::SEEKING_FILE);
-  }
-  else if (foundID.runID() != accessState_.lastReadEventID().runID()) {
-    accessState_.setState(AccessState::SEEKING_RUN);
-  }
-  else if (foundID.subRunID() !=
-           accessState_.lastReadEventID().subRunID()) {
-    accessState_.setState(AccessState::SEEKING_SUBRUN);
-  }
-  else {
-    accessState_.setState(AccessState::SEEKING_EVENT);
-  }
-  return true;
-}
 
-template<typename T>
-EventID
-RootInput::
-postSeekChecks(EventID const& foundID, T eventspec,
-               typename
-               std::enable_if<std::is_convertible<T, off_t>::value>::type*)
-{
-  if (eventspec == 0 && foundID == accessState_.lastReadEventID()) {
-    // We're supposed to be reading the, "next" event but it's a
-    // duplicate of the current one: skip it.
-    mf::LogWarning("DuplicateEvent")
+  template<typename T>
+  EventID
+  RootInput::
+  postSeekChecks(EventID const& foundID, T eventspec,
+                 std::enable_if_t<std::is_convertible<T, off_t>::value>*)
+  {
+    if (eventspec == 0 && foundID == accessState_.lastReadEventID()) {
+      // We're supposed to be reading the, "next" event but it's a
+      // duplicate of the current one: skip it.
+      mf::LogWarning("DuplicateEvent")
         << "Duplicate Events found: "
         << "both events were " << foundID << ".\n"
         << "The duplicate will be skipped.\n";
-    return primaryFileSequence_->seekToEvent(1, false);
+      return primaryFileSequence_->seekToEvent(1, false);
+    }
+    return foundID;
   }
-  return foundID;
-}
 
-template<typename T>
-EventID
-RootInput::
-postSeekChecks(EventID const& foundID, T,
-               typename
-               std::enable_if<!std::is_convertible<T, off_t>::value >::type*)
-{
-  // Default implementation is NOP.
-  return foundID;
-}
+  template<typename T>
+  EventID
+  RootInput::
+  postSeekChecks(EventID const& foundID, T,
+                 std::enable_if_t<!std::is_convertible<T, off_t>::value >*)
+  {
+    // Default implementation is NOP.
+    return foundID;
+  }
 
 } // namespace art
 
