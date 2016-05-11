@@ -14,6 +14,7 @@
 #include "art/Framework/Principal/Actions.h"
 #include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Principal/OccurrenceTraits.h"
+#include "art/Framework/Principal/RangeSetHandler.h"
 #include "art/Framework/Principal/RunStopwatch.h"
 #include "art/Framework/Principal/Worker.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
@@ -45,6 +46,9 @@ public:
   void writeEvent(EventPrincipal& ep);
   void writeSubRun(SubRunPrincipal& srp);
   void writeRun(RunPrincipal& rp);
+
+  void seedRunRangeSet(RangeSetHandler const&);
+  void seedSubRunRangeSet(RangeSetHandler const&);
 
   void setAuxiliaryRangeSetID(SubRunPrincipal& srp);
   void setAuxiliaryRangeSetID(RunPrincipal& rp);
@@ -95,6 +99,9 @@ private:
   OutputWorkers  outputWorkersToOpen_;
   std::vector<unsigned char> workersEnabled_;
   std::vector<unsigned char> outputWorkersEnabled_;
+  OutputFileStatus fileStatus_ {OutputFileStatus::Closed};
+  std::unique_ptr<RangeSetHandler> runRangeSetHandler_ {nullptr};
+  std::unique_ptr<RangeSetHandler> subRunRangeSetHandler_ {nullptr};
 };
 
 template <typename T>

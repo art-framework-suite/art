@@ -9,6 +9,7 @@
 #include "art/Framework/EventProcessor/detail/writeSummary.h"
 #include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Principal/OccurrenceTraits.h"
+#include "art/Framework/Principal/RangeSetHandler.h"
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Framework/Services/Optional/RandomNumberGenerator.h"
@@ -670,8 +671,10 @@ art::EventProcessor::eventPrincipalID() const
 art::RunID
 art::EventProcessor::readAndCacheRun()
 {
-  SignalSentry runSourceSentry{actReg_.sPreSourceRun, actReg_.sPostSourceRun};
+  SignalSentry runSourceSentry {actReg_.sPreSourceRun, actReg_.sPostSourceRun};
   principalCache_.insert(input_->readRun());
+  auto const rsh = input_->runRangeSetHandler();
+  endPathExecutor_->seedRunRangeSet(*rsh);
   FDEBUG(1) << "\treadAndCacheRun " << "\n";
   return runPrincipalID();
 }
@@ -679,8 +682,10 @@ art::EventProcessor::readAndCacheRun()
 art::SubRunID
 art::EventProcessor::readAndCacheSubRun()
 {
-  SignalSentry subRunSourceSentry{actReg_.sPreSourceSubRun, actReg_.sPostSourceSubRun};
+  SignalSentry subRunSourceSentry {actReg_.sPreSourceSubRun, actReg_.sPostSourceSubRun};
   principalCache_.insert(input_->readSubRun(principalCache_.runPrincipalPtr()));
+  auto const rsh = input_->subRunRangeSetHandler();
+  endPathExecutor_->seedSubRunRangeSet(*rsh);
   FDEBUG(1) << "\treadAndCacheSubRun " << "\n";
   return subRunPrincipalID();
 }

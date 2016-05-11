@@ -11,12 +11,12 @@
 //  which is a proxy for this class.
 //
 
-#include "art/Framework/Principal/UnboundedRangeSetHandler.h"
 #include "art/Framework/Principal/NoDelayedReader.h"
 #include "art/Framework/Principal/Principal.h"
 #include "art/Framework/Principal/fwd.h"
 #include "canvas/Persistency/Provenance/BranchMapper.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
+#include "canvas/Persistency/Provenance/RangeSet.h"
 #include "canvas/Persistency/Provenance/RunAuxiliary.h"
 #include "cetlib/exempt_ptr.h"
 
@@ -29,14 +29,12 @@ namespace art {
   public:
 
     using Auxiliary = RunAuxiliary;
-    using RangeSetHandler = detail::RangeSetHandler;
     static constexpr BranchType branch_type = RunAuxiliary::branch_type;
 
   public:
 
     RunPrincipal(RunAuxiliary const&,
                  ProcessConfiguration const&,
-                 std::unique_ptr<RangeSetHandler>&& = std::make_unique<UnboundedRangeSetHandler>(IDNumber<Level::Run>::invalid()),
                  std::unique_ptr<BranchMapper>&& = std::make_unique<BranchMapper>(),
                  std::unique_ptr<DelayedReader>&& = std::make_unique<NoDelayedReader>(),
                  int idx = 0,
@@ -62,7 +60,8 @@ namespace art {
              std::unique_ptr<ProductProvenance const>&&,
              RangeSet&&);
 
-    RangeSet seenRanges() const override { return rangeSetHandler_->seenRanges(); }
+    RangeSet seenRanges() const override { return seenRangeSet_; }
+    void updateSeenRanges(RangeSet const& rs) { seenRangeSet_ = rs; }
     RangeSetHandler const& rangeSetHandler() const;
     RangeSetHandler& rangeSetHandler();
 
@@ -76,7 +75,7 @@ namespace art {
     void setProcessHistoryID(ProcessHistoryID const&) override;
 
     RunAuxiliary aux_;
-    std::unique_ptr<RangeSetHandler> rangeSetHandler_ {nullptr};
+    RangeSet seenRangeSet_ {RangeSet::invalid()};
 
   };
 

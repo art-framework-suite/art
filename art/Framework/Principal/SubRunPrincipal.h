@@ -9,13 +9,13 @@
 //  This is not visible to modules, instead they use the SubRun class,
 //  which is a proxy for this class.
 
-#include "art/Framework/Principal/UnboundedRangeSetHandler.h"
 #include "art/Framework/Principal/NoDelayedReader.h"
 #include "art/Framework/Principal/Principal.h"
 #include "art/Framework/Principal/fwd.h"
 #include "canvas/Persistency/Provenance/BranchMapper.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
 #include "canvas/Persistency/Provenance/EventRange.h"
+#include "canvas/Persistency/Provenance/RangeSet.h"
 #include "canvas/Persistency/Provenance/RunID.h"
 #include "canvas/Persistency/Provenance/SubRunAuxiliary.h"
 #include "cetlib/exempt_ptr.h"
@@ -29,12 +29,10 @@ namespace art {
   public:
 
     using Auxiliary = SubRunAuxiliary;
-    using RangeSetHandler = detail::RangeSetHandler;
     static constexpr BranchType branch_type = Auxiliary::branch_type;
 
     SubRunPrincipal(SubRunAuxiliary const&,
                     ProcessConfiguration const&,
-                    std::unique_ptr<RangeSetHandler>&& = std::make_unique<UnboundedRangeSetHandler>(IDNumber<Level::Run>::invalid()),
                     std::unique_ptr<BranchMapper>&& = std::make_unique<BranchMapper>(),
                     std::unique_ptr<DelayedReader>&& = std::make_unique<NoDelayedReader>(),
                     int idx = 0,
@@ -62,9 +60,8 @@ namespace art {
 
     void addGroup(BranchDescription const&);
 
-    RangeSet seenRanges() const override { return rangeSetHandler_->seenRanges(); }
-    RangeSetHandler const& rangeSetHandler() const;
-    RangeSetHandler& rangeSetHandler();
+    RangeSet seenRanges() const override { return rangeSet_; }
+    void updateSeenRanges(RangeSet const& rs) { rangeSet_ = rs; }
 
     BranchType branchType() const override { return branch_type; }
 
@@ -78,8 +75,8 @@ namespace art {
     void setProcessHistoryID(ProcessHistoryID const& phid) override;
 
     SubRunAuxiliary aux_;
-    std::shared_ptr<RunPrincipal> runPrincipal_ {};
-    std::unique_ptr<RangeSetHandler> rangeSetHandler_ {nullptr};
+    std::shared_ptr<RunPrincipal> runPrincipal_ {nullptr};
+    RangeSet rangeSet_ {RangeSet::invalid()};
   };
 
 } // namespace art

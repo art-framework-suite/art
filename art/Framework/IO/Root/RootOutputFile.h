@@ -134,8 +134,8 @@ public: // MEMBER FUNCTIONS
                                 FileCatalogMetadata::collection_type const&,
                                 FileCatalogMetadata::collection_type const&);
   void writeResults(ResultsPrincipal & resp);
-  void setAuxiliaryRangeSetID(RunPrincipal&);
-  void setAuxiliaryRangeSetID(SubRunPrincipal&);
+  void setRunAuxiliaryRangeSetID(RangeSet const&);
+  void setSubRunAuxiliaryRangeSetID(RangeSet const&);
   void finishEndFile();
   void beginInputFile(FileBlock const&, bool fastClone);
   void respondToCloseInputFile(FileBlock const&);

@@ -109,26 +109,59 @@ void art::EndPathExecutor::openAllOutputFiles(FileBlock & fb)
 void art::EndPathExecutor::writeRun(RunPrincipal& rp)
 {
   doForAllEnabledOutputWorkers_([&rp](auto w){ w->writeRun(rp); });
+  if (fileStatus_ == OutputFileStatus::StagedToSwitch) {
+    runRangeSetHandler_->rebase();
+  }
 }
 
 void art::EndPathExecutor::writeSubRun(SubRunPrincipal& srp)
 {
   doForAllEnabledOutputWorkers_([&srp](auto w){ w->writeSubRun(srp); });
+  runRangeSetHandler_->updateFromSubRun(srp.id());
+  if (fileStatus_ == OutputFileStatus::StagedToSwitch) {
+    subRunRangeSetHandler_->rebase();
+  }
 }
 
 void art::EndPathExecutor::writeEvent(EventPrincipal& ep)
 {
   doForAllEnabledOutputWorkers_([&ep](auto w){ w->writeEvent(ep); });
+  auto const& eid = ep.id();
+  bool const lastInSubRun = ep.isLastInSubRun();
+  runRangeSetHandler_->updateFromEvent(eid, lastInSubRun);
+  subRunRangeSetHandler_->updateFromEvent(eid, lastInSubRun);
+}
+
+void art::EndPathExecutor::seedRunRangeSet(RangeSetHandler const& rsh)
+{
+  runRangeSetHandler_ = rsh.clone();
+}
+
+void art::EndPathExecutor::seedSubRunRangeSet(RangeSetHandler const& rsh)
+{
+  subRunRangeSetHandler_ = rsh.clone();
 }
 
 void art::EndPathExecutor::setAuxiliaryRangeSetID(RunPrincipal& rp)
 {
-  doForAllEnabledOutputWorkers_([&rp](auto w){ w->setAuxiliaryRangeSetID(rp); });
+  auto const& ranges = runRangeSetHandler_->seenRanges();
+  rp.updateSeenRanges(ranges);
+  doForAllEnabledOutputWorkers_([&ranges](auto w){ w->setRunAuxiliaryRangeSetID(ranges); });
 }
 
 void art::EndPathExecutor::setAuxiliaryRangeSetID(SubRunPrincipal& srp)
 {
-  doForAllEnabledOutputWorkers_([&srp](auto w){ w->setAuxiliaryRangeSetID(srp); });
+  if (fileStatus_ == OutputFileStatus::StagedToSwitch) {
+    subRunRangeSetHandler_->maybeSplitRange();
+    runRangeSetHandler_->maybeSplitRange();
+  }
+  else {
+    subRunRangeSetHandler_->flushRanges();
+    runRangeSetHandler_->flushRanges();
+  }
+  auto const& ranges = subRunRangeSetHandler_->seenRanges();
+  srp.updateSeenRanges(ranges);
+  doForAllEnabledOutputWorkers_([&ranges](auto w){ w->setSubRunAuxiliaryRangeSetID(ranges); });
 }
 
 void art::EndPathExecutor::selectProducts(FileBlock const& fb)
@@ -142,6 +175,7 @@ void art::EndPathExecutor::recordOutputClosureRequests()
     if (!ow->stagedToCloseFile() && ow->requestsToCloseFile()) {
       outputWorkersToClose_[ow->fileSwitchBoundary()].push_back(ow);
       ow->setFileStatus(OutputFileStatus::StagedToSwitch);
+      fileStatus_ = OutputFileStatus::StagedToSwitch;
     }
   }
 }
@@ -174,6 +208,7 @@ void art::EndPathExecutor::closeSomeOutputFiles(std::size_t const b)
 
   auto& workers = outputWorkersToClose_[b];
 
+  fileStatus_ = OutputFileStatus::Switching;
   cet::for_all(workers, setFileStatus);
   cet::for_all(workers, invoke_sPreCloseOutputFile);
   cet::for_all(workers, closeFile);
@@ -189,6 +224,7 @@ void art::EndPathExecutor::openSomeOutputFiles(FileBlock const& fb)
   auto openFile                    = [ &fb](auto ow){ow->openFile(fb);};
   auto invoke_sPostOpenOutputFile  = [this](auto ow){actReg_.sPostOpenOutputFile.invoke(ow->label());};
 
+  fileStatus_ = OutputFileStatus::Open;
   cet::for_all(outputWorkersToOpen_, openFile);
   cet::for_all(outputWorkersToOpen_, setFileStatus);
   cet::for_all(outputWorkersToOpen_, invoke_sPostOpenOutputFile);

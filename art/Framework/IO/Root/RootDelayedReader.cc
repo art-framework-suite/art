@@ -79,7 +79,6 @@ namespace art {
     // Retrieve first product
     auto result = get_product(entrySet_[0]);
 
-
     // Retrieve and aggregate subsequent products (if they exist)
     if (branchType_ == InSubRun || branchType_ == InRun) {
 
@@ -87,18 +86,14 @@ namespace art {
       // assigned RangeSets that correspond to the entire run/subrun.
       if (fileFormatVersion_.value_ < 9) {
         if (branchType_ == InRun) {
-          auto fullRS = RangeSet::forRun(eventID_.runID());
-          std::swap(rs, fullRS);
+          rs = RangeSet::forRun(eventID_.runID());
         }
         else {
-          auto fullRS = RangeSet::forSubRun(eventID_.subRunID());
-          std::swap(rs, fullRS);
+          rs = RangeSet::forSubRun(eventID_.subRunID());
         }
         return result;
       }
 
-      std::set<unsigned> seenIDs;
-      seenIDs.insert(result->getRangeSetID());
       RangeSet mergedRangeSet = detail::resolveRangeSet(db_,
                                                         "SomeInput"s,
                                                         branchType_,
@@ -107,9 +102,6 @@ namespace art {
       for(auto it = entrySet_.cbegin()+1, e = entrySet_.cend(); it!= e; ++it) {
         auto p = get_product(*it);
         auto const id = p->getRangeSetID();
-
-        if (!seenIDs.insert(id).second) continue; // Skip an already-seen product;
-                                                  // double-counting is bad.
 
         RangeSet const& newRS = detail::resolveRangeSet(db_, "SomeInput"s, branchType_, id);
         if (!mergedRangeSet.is_valid() && newRS.is_valid()) {
@@ -121,13 +113,10 @@ namespace art {
           mergedRangeSet.merge(newRS);
         }
         else if (art::same_ranges(mergedRangeSet, newRS)) {
-          // The ranges are the same, so the behavior is a NOP.
-          // However, we will probably never get here because of the
-          // seenIDs set, which prevents from duplicate aggregation.
-          // If the stakeholders decide that products with the same
-          // ranges should be checked for equality, then the seenIDs
-          // set needs to go away, and an extra condition will be
-          // added here.
+          // The ranges are the same, so the behavior is a NOP.  If
+          // the stakeholders decide that products with the same
+          // ranges should be checked for equality, the condition
+          // will be added here.
         }
         else if (art::overlapping_ranges(mergedRangeSet, newRS)) {
           throw Exception{errors::ProductCannotBeAggregated, "RootDelayedReader::getProduct_"}

@@ -8,6 +8,7 @@
 #include "art/Framework/IO/Root/FastCloningInfoProvider.h"
 #include "art/Framework/IO/Root/RootInputFileSequence.h"
 #include "art/Framework/Principal/EventPrincipal.h"
+#include "art/Framework/Principal/RangeSetHandler.h"
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
 #include "canvas/Persistency/Provenance/EventID.h"
@@ -179,6 +180,12 @@ readRun_()
   return primaryFileSequence_->readRun_();
 }
 
+std::unique_ptr<RangeSetHandler>
+RootInput::runRangeSetHandler()
+{
+  return primaryFileSequence_->runRangeSetHandler();
+}
+
 std::vector<std::shared_ptr<RunPrincipal>>
 RootInput::
 readRunFromSecondaryFiles_()
@@ -216,6 +223,12 @@ RootInput::
 readSubRunFromSecondaryFiles_()
 {
   return std::move(primaryFileSequence_->readSubRunFromSecondaryFiles_(runPrincipal()));
+}
+
+std::unique_ptr<RangeSetHandler>
+RootInput::subRunRangeSetHandler()
+{
+  return primaryFileSequence_->subRunRangeSetHandler();
 }
 
 std::unique_ptr<EventPrincipal>

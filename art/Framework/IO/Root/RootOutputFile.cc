@@ -971,10 +971,9 @@ fillBranches(Principal const& principal,
 void
 art::
 RootOutputFile::
-setAuxiliaryRangeSetID(SubRunPrincipal& sr)
+setSubRunAuxiliaryRangeSetID(RangeSet const& ranges)
 {
-  subRunRSID_ = getNewRangeSetID(rootFileDB_, InSubRun, sr.run());
-  auto const& ranges = sr.rangeSetHandler().seenRanges();
+  subRunRSID_ = getNewRangeSetID(rootFileDB_, InSubRun, ranges.run());
   insertIntoEventRanges(rootFileDB_, ranges);
   auto const& eventRangesIDs = getExistingRangeSetIDs(rootFileDB_, ranges);
   insertIntoJoinTable(rootFileDB_, InSubRun, subRunRSID_, eventRangesIDs);
@@ -983,10 +982,9 @@ setAuxiliaryRangeSetID(SubRunPrincipal& sr)
 void
 art::
 RootOutputFile::
-setAuxiliaryRangeSetID(RunPrincipal& r)
+setRunAuxiliaryRangeSetID(RangeSet const& ranges)
 {
-  runRSID_ = getNewRangeSetID(rootFileDB_, InRun, r.run());
-  auto const& ranges = r.rangeSetHandler().seenRanges();
+  runRSID_ = getNewRangeSetID(rootFileDB_, InRun, ranges.run());
   insertIntoEventRanges(rootFileDB_, ranges);
   auto const& eventRangesIDs = getExistingRangeSetIDs(rootFileDB_, ranges);
   insertIntoJoinTable(rootFileDB_, InRun, runRSID_, eventRangesIDs);

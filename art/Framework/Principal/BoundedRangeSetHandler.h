@@ -6,14 +6,12 @@
 #include "canvas/Persistency/Provenance/RangeSet.h"
 #include "canvas/Persistency/Provenance/SubRunID.h"
 
-#include <map>
-#include <set>
 #include <string>
 #include <vector>
 
 namespace art {
 
-  class BoundedRangeSetHandler : public detail::RangeSetHandler {
+  class BoundedRangeSetHandler : public RangeSetHandler {
   public:
 
     explicit BoundedRangeSetHandler();
@@ -34,6 +32,7 @@ namespace art {
     auto end() const { return ranges_.end(); }
 
     RangeSet do_getSeenRanges() const override;
+    RangeSet const& do_getRanges() const override { return ranges_; }
 
     void do_updateFromEvent(EventID const&, bool lastInSubRun) override;
     void do_updateFromSubRun(SubRunID const&) override {}
@@ -41,6 +40,11 @@ namespace art {
     void do_flushRanges() override;
     void do_maybeSplitRange() override;
     void do_rebase() override;
+
+    std::unique_ptr<RangeSetHandler> do_clone() const override
+    {
+      return std::make_unique<BoundedRangeSetHandler>(ranges_);
+    }
 
     RangeSet ranges_;
     RangeSet::const_iterator rsIter_ {ranges_.begin()};

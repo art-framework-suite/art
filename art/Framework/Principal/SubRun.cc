@@ -16,7 +16,7 @@ namespace art {
     DataViewImpl(srp, md, InSubRun),
     aux_(srp.aux()),
     run_(newRun(srp, md)),
-    seenRanges_{srp.rangeSetHandler().seenRanges()}
+    seenRanges_{srp.seenRanges()}
   {}
 
   Run const&

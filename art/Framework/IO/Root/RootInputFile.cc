@@ -686,6 +686,12 @@ namespace art {
     return true;
   }
 
+  unique_ptr<RangeSetHandler>
+  RootInputFile::runRangeSetHandler()
+  {
+    return std::make_unique<BoundedRangeSetHandler>(runRangeSetHandler_->ranges());
+  }
+
   shared_ptr<RunPrincipal>
   RootInputFile::
   readRun()
@@ -721,7 +727,7 @@ namespace art {
   RootInputFile::
   readCurrentRun(EntryNumbers const& entryNumbers)
   {
-    auto rangeSetHandler_up = fillAuxiliary<InRun>(entryNumbers);
+    runRangeSetHandler_ = fillAuxiliary<InRun>(entryNumbers);
     assert(runAux().id() == fiIter_->eventID_.runID());
     overrideRunNumber(runAux().id_);
     if (runAux().beginTime() == Timestamp::invalidTimestamp()) {
@@ -737,7 +743,6 @@ namespace art {
     }
     auto rp = std::make_unique<RunPrincipal>(runAux(),
                                              processConfiguration_,
-                                             std::move(rangeSetHandler_up),
                                              runTree().makeBranchMapper(),
                                              runTree().makeDelayedReader(fileFormatVersion_,
                                                                          sqliteDB_,
@@ -770,7 +775,7 @@ namespace art {
     assert(fiIter_ != fiEnd_);
     assert(fiIter_->getEntryType() == FileIndex::kRun);
     assert(fiIter_->eventID_.runID().isValid());
-    auto rangeSetHandler_up = fillAuxiliary<InRun>(entryNumbers);
+    runRangeSetHandler_ = fillAuxiliary<InRun>(entryNumbers);
     assert(runAux().id() == fiIter_->eventID_.runID());
     overrideRunNumber(runAux().id_);
     if (runAux().beginTime() == Timestamp::invalidTimestamp()) {
@@ -786,7 +791,6 @@ namespace art {
     }
     auto rp = std::make_shared<RunPrincipal>(runAux(),
                                              processConfiguration_,
-                                             std::move(rangeSetHandler_up),
                                              runTree().makeBranchMapper(),
                                              runTree().makeDelayedReader(fileFormatVersion_,
                                                                          sqliteDB_,
@@ -806,6 +810,12 @@ namespace art {
     // FIXME: output run data products from them.
     primaryFile_->secondaryRPs_.emplace_back(move(rp));
     return true;
+  }
+
+  unique_ptr<RangeSetHandler>
+  RootInputFile::subRunRangeSetHandler()
+  {
+    return std::make_unique<BoundedRangeSetHandler>(subRunRangeSetHandler_->ranges());
   }
 
   shared_ptr<SubRunPrincipal>
@@ -843,7 +853,7 @@ namespace art {
   readCurrentSubRun(EntryNumbers const& entryNumbers,
                     shared_ptr<RunPrincipal> rp [[gnu::unused]])
   {
-    auto rangeSetHandler_up = fillAuxiliary<InSubRun>(entryNumbers);
+    subRunRangeSetHandler_ = fillAuxiliary<InSubRun>(entryNumbers);
     assert(subRunAux().id() == fiIter_->eventID_.subRunID());
     overrideRunNumber(subRunAux().id_);
     assert(subRunAux().runID() == rp->id());
@@ -861,7 +871,6 @@ namespace art {
 
     auto srp = std::make_unique<SubRunPrincipal>(subRunAux(),
                                                  processConfiguration_,
-                                                 std::move(rangeSetHandler_up),
                                                  subRunTree().makeBranchMapper(),
                                                  subRunTree().makeDelayedReader(fileFormatVersion_,
                                                                                 sqliteDB_,
@@ -893,7 +902,7 @@ namespace art {
     auto const& entryNumbers = getEntryNumbers(InSubRun).first;
     assert(fiIter_ != fiEnd_);
     assert(fiIter_->getEntryType() == FileIndex::kSubRun);
-    auto rangeSetHandler_up = fillAuxiliary<InSubRun>(entryNumbers);
+    subRunRangeSetHandler_ = fillAuxiliary<InSubRun>(entryNumbers);
     assert(subRunAux().id() == fiIter_->eventID_.subRunID());
     overrideRunNumber(subRunAux().id_);
     if (subRunAux().beginTime() == Timestamp::invalidTimestamp()) {
@@ -909,7 +918,6 @@ namespace art {
     }
     auto srp = std::make_shared<SubRunPrincipal>(subRunAux(),
                                                  processConfiguration_,
-                                                 std::move(rangeSetHandler_up),
                                                  subRunTree().makeBranchMapper(),
                                                  subRunTree().makeDelayedReader(fileFormatVersion_,
                                                                                 sqliteDB_,

@@ -19,7 +19,7 @@ namespace art {
   Run::Run(RunPrincipal& rp, ModuleDescription const& md) :
     DataViewImpl{rp, md, InRun},
     aux_{rp.aux()},
-    seenRanges_{rp.rangeSetHandler().seenRanges()}
+    seenRanges_{rp.seenRanges()}
   {
   }
 

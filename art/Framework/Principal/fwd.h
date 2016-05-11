@@ -19,6 +19,7 @@ namespace art {
   class NoDelayedReader;
   class Principal;
   class Provenance;
+  class RangeSetHandler;
   class Run;
   class RunPrincipal;
   class ProcessNameSelector; // Selector.h

@@ -249,10 +249,13 @@ doWriteEvent(EventPrincipal& ep)
       --remainingEvents_;
     }
   }
-  auto const& eid = ep.id();
-  auto const lastInSubRun = ep.isLastInSubRun();
-  ep.runPrincipal().rangeSetHandler().updateFromEvent(eid, lastInSubRun);
-  ep.subRunPrincipal().rangeSetHandler().updateFromEvent(eid, lastInSubRun);
+}
+
+void
+art::OutputModule::
+doSetSubRunAuxiliaryRangeSetID(RangeSet const& ranges)
+{
+  setSubRunAuxiliaryRangeSetID(ranges);
 }
 
 bool
@@ -270,32 +273,18 @@ doEndSubRun(SubRunPrincipal const& srp,
 
 void
 art::OutputModule::
-doSetAuxiliaryRangeSetID(SubRunPrincipal& srp)
-{
-  FDEBUG(2) << "writeAuxiliaryRangeSets(srp) called\n";
-  if (fileStatus_ == OutputFileStatus::StagedToSwitch) {
-    srp.rangeSetHandler().maybeSplitRange();
-    srp.runPrincipal().rangeSetHandler().maybeSplitRange();
-  }
-  else {
-    srp.rangeSetHandler().flushRanges();
-    srp.runPrincipal().rangeSetHandler().flushRanges();
-  }
-  setSubRunAuxiliaryRangeSetID(srp);
-}
-
-void
-art::OutputModule::
 doWriteSubRun(SubRunPrincipal& srp)
 {
   FDEBUG(2) << "writeSubRun called\n";
   writeSubRun(srp);
+}
 
-  srp.runPrincipal().rangeSetHandler().updateFromSubRun(srp.id());
-
-  if (fileStatus_ == OutputFileStatus::StagedToSwitch) {
-    srp.rangeSetHandler().rebase();
-  }
+void
+art::OutputModule::
+doSetRunAuxiliaryRangeSetID(RangeSet const& ranges)
+{
+  FDEBUG(2) << "writeAuxiliaryRangeSets(rp) called\n";
+  setRunAuxiliaryRangeSetID(ranges);
 }
 
 bool
@@ -313,21 +302,10 @@ doEndRun(RunPrincipal const & rp,
 
 void
 art::OutputModule::
-doSetAuxiliaryRangeSetID(RunPrincipal& rp)
-{
-  FDEBUG(2) << "writeAuxiliaryRangeSets(rp) called\n";
-  setRunAuxiliaryRangeSetID(rp);
-}
-
-void
-art::OutputModule::
 doWriteRun(RunPrincipal & rp)
 {
   FDEBUG(2) << "writeRun called\n";
   writeRun(rp);
-  if (fileStatus_ == OutputFileStatus::StagedToSwitch) {
-    rp.rangeSetHandler().rebase();
-  }
 }
 
 void
@@ -490,13 +468,13 @@ endSubRun(SubRunPrincipal const &)
 
 void
 art::OutputModule::
-setRunAuxiliaryRangeSetID(RunPrincipal&)
+setRunAuxiliaryRangeSetID(RangeSet const&)
 {
 }
 
 void
 art::OutputModule::
-setSubRunAuxiliaryRangeSetID(SubRunPrincipal&)
+setSubRunAuxiliaryRangeSetID(RangeSet const&)
 {
 }
 

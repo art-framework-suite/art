@@ -17,6 +17,7 @@
 #include "art/Framework/Core/OutputModuleDescription.h"
 #include "art/Framework/Core/OutputWorker.h"
 #include "art/Framework/Principal/fwd.h"
+#include "art/Framework/Principal/RangeSetHandler.h"
 #include "art/Framework/Services/FileServiceInterfaces/CatalogInterface.h"
 #include "art/Framework/Services/Optional/MemoryTracker.h"
 #include "art/Framework/Services/Optional/TimeTracker.h"
@@ -196,8 +197,8 @@ private:
   void doWriteRun(RunPrincipal & rp);
   void doWriteSubRun(SubRunPrincipal & srp);
   void doWriteEvent(EventPrincipal& ep);
-  void doSetAuxiliaryRangeSetID(RunPrincipal & rp);
-  void doSetAuxiliaryRangeSetID(SubRunPrincipal & srp);
+  void doSetRunAuxiliaryRangeSetID(RangeSet const&);
+  void doSetSubRunAuxiliaryRangeSetID(RangeSet const&);
   void doOpenFile(FileBlock const & fb);
   void doRespondToOpenInputFile(FileBlock const & fb);
   void doRespondToCloseInputFile(FileBlock const & fb);
@@ -227,11 +228,11 @@ private:
   virtual void beginRun(RunPrincipal const &);
   virtual void endRun(RunPrincipal const &);
   virtual void writeRun(RunPrincipal & r) = 0;
-  virtual void setRunAuxiliaryRangeSetID(RunPrincipal & r);
+  virtual void setRunAuxiliaryRangeSetID(RangeSet const&);
   virtual void beginSubRun(SubRunPrincipal const &);
   virtual void endSubRun(SubRunPrincipal const &);
   virtual void writeSubRun(SubRunPrincipal & sr) = 0;
-  virtual void setSubRunAuxiliaryRangeSetID(SubRunPrincipal & r);
+  virtual void setSubRunAuxiliaryRangeSetID(RangeSet const&);
   virtual void event(EventPrincipal const&);
   virtual void write(EventPrincipal& e) = 0;
 

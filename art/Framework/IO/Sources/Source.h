@@ -87,6 +87,7 @@
 #include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
+#include "art/Framework/Principal/UnboundedRangeSetHandler.h"
 #include "canvas/Persistency/Provenance/EventID.h"
 #include "art/Persistency/Provenance/MasterProductRegistry.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
@@ -170,6 +171,9 @@ public:
 
   std::shared_ptr<SubRunPrincipal>
   readSubRun(std::shared_ptr<RunPrincipal> rp) override;
+
+  std::unique_ptr<art::RangeSetHandler> runRangeSetHandler() override;
+  std::unique_ptr<art::RangeSetHandler> subRunRangeSetHandler() override;
 
   using InputSource::readEvent;
   std::unique_ptr<EventPrincipal>
@@ -552,6 +556,17 @@ art::Source<T>::run() const
 }
 
 template <class T>
+std::unique_ptr<art::RangeSetHandler>
+art::Source<T>::runRangeSetHandler()
+{
+  if (!cachedRP_) throw Exception(errors::LogicError)
+        << "Error in Source<T>\n"
+        << "runRangeSetHandler() called when no RunPrincipal exists\n"
+        << "Please report this to the art developers\n";
+  return std::make_unique<UnboundedRangeSetHandler>(cachedRP_->run());
+}
+
+template <class T>
 art::SubRunID
 art::Source<T>::subRun() const
 {
@@ -561,6 +576,19 @@ art::Source<T>::subRun() const
         << "Please report this to the art developers\n";
   return cachedSRP_->id();
 }
+
+template <class T>
+std::unique_ptr<art::RangeSetHandler>
+art::Source<T>::subRunRangeSetHandler()
+{
+  if (!cachedSRP_) throw Exception(errors::LogicError)
+        << "Error in Source<T>\n"
+        << "subRunRangeSetHandler() called when no RunPrincipal exists\n"
+        << "Please report this to the art developers\n";
+  return std::make_unique<UnboundedRangeSetHandler>(cachedSRP_->run());
+}
+
+
 
 template <class T>
 std::shared_ptr<art::FileBlock>

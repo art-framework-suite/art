@@ -10,19 +10,15 @@
 
 namespace art {
 
-  using RangeSetHandler = detail::RangeSetHandler;
-
   SubRunPrincipal::
   SubRunPrincipal(SubRunAuxiliary const& aux,
                   ProcessConfiguration const& pc,
-                  std::unique_ptr<RangeSetHandler>&& rsh,
                   std::unique_ptr<BranchMapper>&& mapper,
                   std::unique_ptr<DelayedReader>&& rtrv,
                   int idx,
                   SubRunPrincipal* primaryPrincipal)
     : Principal{pc, aux.processHistoryID_, std::move(mapper), std::move(rtrv), idx, primaryPrincipal}
     , aux_{aux}
-    , rangeSetHandler_{std::move(rsh)}
   {
     if (ProductMetaData::instance().productProduced(InSubRun)) {
       addToProcessHistory();
@@ -113,28 +109,6 @@ namespace art {
         << "Tried to obtain a NULL runPrincipal.\n";
     }
     return *runPrincipal_;
-  }
-
-  RangeSetHandler const&
-  SubRunPrincipal::
-  rangeSetHandler() const
-  {
-    if (!rangeSetHandler_) {
-      throw Exception(errors::NullPointerError)
-        << "Tried to obtain a NULL rangeSetHandler.\n";
-    }
-    return *rangeSetHandler_;
-  }
-
-  RangeSetHandler&
-  SubRunPrincipal::
-  rangeSetHandler()
-  {
-    if (!rangeSetHandler_) {
-      throw Exception(errors::NullPointerError)
-        << "Tried to obtain a NULL rangeSetHandler.\n";
-    }
-    return *rangeSetHandler_;
   }
 
 } // namespace art

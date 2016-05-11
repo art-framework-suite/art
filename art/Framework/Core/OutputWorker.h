@@ -23,6 +23,8 @@ appear in one worker.
 
 namespace art {
 
+  class RangeSet;
+
   class OutputWorker : public WorkerT<OutputModule> {
   public:
     OutputWorker(std::unique_ptr<OutputModule> && mod,
@@ -46,8 +48,8 @@ namespace art {
     void writeSubRun(SubRunPrincipal& srp);
     void writeEvent(EventPrincipal& ep);
 
-    void setAuxiliaryRangeSetID(RunPrincipal& rp);
-    void setAuxiliaryRangeSetID(SubRunPrincipal& srp);
+    void setRunAuxiliaryRangeSetID(RangeSet const&);
+    void setSubRunAuxiliaryRangeSetID(RangeSet const&);
 
     bool limitReached() const;
 

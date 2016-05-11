@@ -8,6 +8,7 @@
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRun.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
+#include "art/Framework/Principal/UnboundedRangeSetHandler.h"
 #include "canvas/Persistency/Provenance/EventAuxiliary.h"
 #include "canvas/Persistency/Provenance/EventID.h"
 #include "canvas/Persistency/Provenance/RunAuxiliary.h"
@@ -77,6 +78,10 @@ private:
   std::shared_ptr<RunPrincipal> readRun_() override;
   std::vector<std::shared_ptr<SubRunPrincipal>> readSubRunFromSecondaryFiles_() override;
   std::vector<std::shared_ptr<RunPrincipal>> readRunFromSecondaryFiles_() override;
+
+  std::unique_ptr<RangeSetHandler> runRangeSetHandler() override;
+  std::unique_ptr<RangeSetHandler> subRunRangeSetHandler() override;
+
   void skip(int offset) override;
   void rewind_() override;
 
@@ -147,13 +152,18 @@ art::EmptyEvent::readRun_() {
   RunAuxiliary const runAux{eventID_.runID(), ts, Timestamp::invalidTimestamp()};
   newRun_ = false;
   auto rp_ptr = std::make_shared<RunPrincipal>(runAux,
-                                               processConfiguration(),
-                                               std::make_unique<UnboundedRangeSetHandler>(runAux.run()));
+                                               processConfiguration());
   if (plugin_) {
     Run const r{*rp_ptr, moduleDescription()};
     plugin_->doBeginRun(r);
   }
   return rp_ptr;
+}
+
+std::unique_ptr<RangeSetHandler>
+art::EmptyEvent::runRangeSetHandler()
+{
+  return std::make_unique<UnboundedRangeSetHandler>(eventID_.run());
 }
 
 std::vector<std::shared_ptr<RunPrincipal>>
@@ -171,14 +181,19 @@ EmptyEvent::readSubRun_() {
     Timestamp::invalidTimestamp();
   SubRunAuxiliary const subRunAux{eventID_.subRunID(), ts, Timestamp::invalidTimestamp()};
   auto srp_ptr = std::make_shared<SubRunPrincipal>(subRunAux,
-                                                   processConfiguration(),
-                                                   std::make_unique<UnboundedRangeSetHandler>(subRunAux.run()));
+                                                   processConfiguration());
   if (plugin_) {
     SubRun const sr{*srp_ptr, moduleDescription()};
     plugin_->doBeginSubRun(sr);
   }
   newSubRun_ = false;
   return srp_ptr;
+}
+
+std::unique_ptr<RangeSetHandler>
+art::EmptyEvent::subRunRangeSetHandler()
+{
+  return std::make_unique<UnboundedRangeSetHandler>(eventID_.run());
 }
 
 std::vector<std::shared_ptr<SubRunPrincipal>>

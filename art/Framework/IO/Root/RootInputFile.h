@@ -292,6 +292,9 @@ namespace art {
     void
     openSecondaryFile(int const idx);
 
+    std::unique_ptr<RangeSetHandler> runRangeSetHandler();
+    std::unique_ptr<RangeSetHandler> subRunRangeSetHandler();
+
   private:
 
     RootTree const &
@@ -390,7 +393,6 @@ namespace art {
                                                        std::shared_ptr<RunPrincipal>);
     std::unique_ptr<EventPrincipal > readCurrentEvent(std::pair<EntryNumbers,bool> const&);
 
-
     std::string const file_;
     std::string const catalog_;
     ProcessConfiguration const& processConfiguration_;
@@ -447,6 +449,8 @@ namespace art {
     // never subjected to merging of their data products.
     std::vector<std::shared_ptr<Principal>> secondaryRPs_ {};
     std::vector<std::shared_ptr<Principal>> secondarySRPs_ {};
+    std::shared_ptr<BoundedRangeSetHandler> subRunRangeSetHandler_ {nullptr};
+    std::shared_ptr<BoundedRangeSetHandler> runRangeSetHandler_ {nullptr};
 
   };
 

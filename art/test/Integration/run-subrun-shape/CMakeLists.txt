@@ -79,6 +79,10 @@ cet_test( SameRunSubrunShapes_w HANDBUILT
   )
 
 cet_test( SameRunSubrunShapes_r HANDBUILT
+  # This test will produce an output file with duplicate events.
+  # Since we are just comparing shapes in this test, that is okay.
+  # But reading the output file from this test will result in an
+  # exception throw.
   TEST_EXEC art
   TEST_ARGS -c empty.fcl
   -s ../SameRunSubrunShapes_w.d/a.root

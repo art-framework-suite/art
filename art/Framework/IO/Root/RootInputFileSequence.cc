@@ -612,6 +612,18 @@ readEvent_()
   return rootFile_->readEvent();
 }
 
+std::unique_ptr<RangeSetHandler>
+RootInputFileSequence::runRangeSetHandler()
+{
+  return rootFile_->runRangeSetHandler();
+}
+
+std::unique_ptr<RangeSetHandler>
+RootInputFileSequence::subRunRangeSetHandler()
+{
+  return rootFile_->subRunRangeSetHandler();
+}
+
 std::shared_ptr<SubRunPrincipal>
 RootInputFileSequence::
 readIt(SubRunID const& id, std::shared_ptr<RunPrincipal> rp)

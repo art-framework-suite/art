@@ -143,8 +143,8 @@ private:
   void write(EventPrincipal &) override;
   void writeSubRun(SubRunPrincipal &) override;
   void writeRun(RunPrincipal &) override;
-  void setSubRunAuxiliaryRangeSetID(SubRunPrincipal &) override;
-  void setRunAuxiliaryRangeSetID(RunPrincipal &) override;
+  void setSubRunAuxiliaryRangeSetID(RangeSet const&) override;
+  void setRunAuxiliaryRangeSetID(RangeSet const&) override;
   bool isFileOpen() const override;
   bool requestsToCloseFile() const override;
   void doOpenFile();
@@ -356,9 +356,9 @@ write(EventPrincipal & ep)
 
 void
 art::RootOutput::
-setSubRunAuxiliaryRangeSetID(SubRunPrincipal& sr)
+setSubRunAuxiliaryRangeSetID(RangeSet const& rs)
 {
-  rootOutputFile_->setAuxiliaryRangeSetID(sr);
+  rootOutputFile_->setSubRunAuxiliaryRangeSetID(rs);
 }
 
 void
@@ -377,9 +377,10 @@ writeSubRun(SubRunPrincipal& sr)
 
 void
 art::RootOutput::
-setRunAuxiliaryRangeSetID(RunPrincipal& r)
+setRunAuxiliaryRangeSetID(RangeSet const& rs)
 {
-  rootOutputFile_->setAuxiliaryRangeSetID(r);
+  std::cout << "(setAuxID) File: " << filePattern_ << std::endl;
+  rootOutputFile_->setRunAuxiliaryRangeSetID(rs);
 }
 
 void
@@ -389,6 +390,7 @@ writeRun(RunPrincipal & r)
   if (hasNewlyDroppedBranch()[InRun]) {
     r.addToProcessHistory();
   }
+  std::cout << "(write)   File: " << filePattern_ << std::endl;
   rootOutputFile_->writeRun(r);
   fstats_.recordRun(r.id());
 }
