@@ -41,6 +41,7 @@ foreach(source EmptyEvent RootInput)
   cet_test(MultiOutput${source}_FileIndexCheck_Event_t HANDBUILT
     TEST_EXEC file_info_dumper
     TEST_ARGS
+    --range-sets
     --file-index
     ${OutputFilePath}/out_r1_sr0_e1.root
     ${OutputFilePath}/out_r1_sr0_e2.root
@@ -69,6 +70,7 @@ foreach(source EmptyEvent RootInput)
   cet_test(MultiOutput${source}_FileIndexCheck_SubRun_t HANDBUILT
     TEST_EXEC file_info_dumper
     TEST_ARGS
+    --range-sets
     --file-index
     ${OutputFilePath}/out_r1_sr0.root
     ${OutputFilePath}/out_r1_sr1.root
@@ -86,6 +88,7 @@ foreach(source EmptyEvent RootInput)
   cet_test(MultiOutput${source}_FileIndexCheck_Run_t HANDBUILT
     TEST_EXEC file_info_dumper
     TEST_ARGS
+    --range-sets
     --file-index
     ${OutputFilePath}/out_r1.root
     ${OutputFilePath}/out_r2.root
@@ -102,6 +105,7 @@ foreach(source EmptyEvent RootInput)
   cet_test(MultiOutput${source}_FileIndexCheck_t HANDBUILT
     TEST_EXEC file_info_dumper
     TEST_ARGS
+    --range-sets
     --file-index
     ${OutputFilePath}/out.root
     REF "${CMAKE_CURRENT_SOURCE_DIR}/MultiOutput_FileIndexCheck_t-ref.txt"
@@ -137,6 +141,7 @@ SET(InputFilePath "${CMAKE_CURRENT_BINARY_DIR}/MultiInput_SwitchOutputOnNewInput
 cet_test(MultiOutput_FileIndexCheck_InputFile_t HANDBUILT
   TEST_EXEC file_info_dumper
   TEST_ARGS
+  --range-sets
   --file-index
   ${InputFilePath}/out_1.root
   ${InputFilePath}/out_2.root
@@ -183,7 +188,7 @@ SET_TESTS_PROPERTIES(MultiInputConcatenate_t PROPERTIES
 
 cet_test(MultiInputConcatenate_FileIndexCheck_t HANDBUILT
   TEST_EXEC file_info_dumper
-  TEST_ARGS --file-index ../MultiInputConcatenate_t.d/out.root
+  TEST_ARGS --range-sets --file-index ../MultiInputConcatenate_t.d/out.root
   REF "${CMAKE_CURRENT_SOURCE_DIR}/MultiInputConcatenate_FileIndexCheck_t-ref.txt"
   )
 
@@ -204,7 +209,9 @@ cet_test(SwitchOnTwoConditions_w HANDBUILT
 
 cet_test(SwitchOnTwoConditions_FileIndexCheck_t HANDBUILT
   TEST_EXEC file_info_dumper
-  TEST_ARGS --file-index
+  TEST_ARGS
+  --range-sets
+  --file-index
   "../SwitchOnTwoConditions_w.d/out_1.root"
   "../SwitchOnTwoConditions_w.d/out_2.root"
   REF "${CMAKE_CURRENT_SOURCE_DIR}/SwitchOnTwoConditions_FileIndexCheck_t-ref.txt"

@@ -1,5 +1,7 @@
 <separator (=)>
 File: out_r1_sr0_e1.root
+ Run: 1
+  SubRun: 0 Event range: [1,2)
 
 Printing FileIndex contents.  This includes a list of all Runs, SubRuns
 and Events stored in the root file.
@@ -11,6 +13,8 @@ and Events stored in the root file.
 
 <separator (=)>
 File: out_r1_sr0_e2.root
+ Run: 1
+  SubRun: 0 Event range: [2,3)
 
 Printing FileIndex contents.  This includes a list of all Runs, SubRuns
 and Events stored in the root file.
@@ -22,6 +26,8 @@ and Events stored in the root file.
 
 <separator (=)>
 File: out_r1_sr0_e3.root
+ Run: 1
+  SubRun: 0 Event range: [3,4)
 
 Printing FileIndex contents.  This includes a list of all Runs, SubRuns
 and Events stored in the root file.
@@ -33,6 +39,8 @@ and Events stored in the root file.
 
 <separator (=)>
 File: out_r1_sr0_e4.root
+ Run: 1
+  SubRun: 0 Event range: [4,5)
 
 Printing FileIndex contents.  This includes a list of all Runs, SubRuns
 and Events stored in the root file.
@@ -44,6 +52,8 @@ and Events stored in the root file.
 
 <separator (=)>
 File: out_r1_sr0_e5.root
+ Run: 1
+  SubRun: 0 Event range: [5,6)
 
 Printing FileIndex contents.  This includes a list of all Runs, SubRuns
 and Events stored in the root file.
@@ -55,6 +65,8 @@ and Events stored in the root file.
 
 <separator (=)>
 File: out_r1_sr1_e6.root
+ Run: 1
+  SubRun: 1 Event range: [1,2)
 
 Printing FileIndex contents.  This includes a list of all Runs, SubRuns
 and Events stored in the root file.
@@ -66,6 +78,8 @@ and Events stored in the root file.
 
 <separator (=)>
 File: out_r1_sr1_e7.root
+ Run: 1
+  SubRun: 1 Event range: [2,3)
 
 Printing FileIndex contents.  This includes a list of all Runs, SubRuns
 and Events stored in the root file.
@@ -77,6 +91,8 @@ and Events stored in the root file.
 
 <separator (=)>
 File: out_r1_sr1_e8.root
+ Run: 1
+  SubRun: 1 Event range: [3,4)
 
 Printing FileIndex contents.  This includes a list of all Runs, SubRuns
 and Events stored in the root file.
@@ -88,6 +104,8 @@ and Events stored in the root file.
 
 <separator (=)>
 File: out_r1_sr1_e9.root
+ Run: 1
+  SubRun: 1 Event range: [4,5)
 
 Printing FileIndex contents.  This includes a list of all Runs, SubRuns
 and Events stored in the root file.
@@ -99,6 +117,8 @@ and Events stored in the root file.
 
 <separator (=)>
 File: out_r1_sr1_e10.root
+ Run: 1
+  SubRun: 1 Event range: [5,6)
 
 Printing FileIndex contents.  This includes a list of all Runs, SubRuns
 and Events stored in the root file.
@@ -110,6 +130,8 @@ and Events stored in the root file.
 
 <separator (=)>
 File: out_r2_sr0_e11.root
+ Run: 2
+  SubRun: 0 Event range: [1,2)
 
 Printing FileIndex contents.  This includes a list of all Runs, SubRuns
 and Events stored in the root file.
@@ -121,6 +143,8 @@ and Events stored in the root file.
 
 <separator (=)>
 File: out_r2_sr0_e12.root
+ Run: 2
+  SubRun: 0 Event range: [2,3)
 
 Printing FileIndex contents.  This includes a list of all Runs, SubRuns
 and Events stored in the root file.
@@ -132,6 +156,8 @@ and Events stored in the root file.
 
 <separator (=)>
 File: out_r2_sr0_e13.root
+ Run: 2
+  SubRun: 0 Event range: [3,4)
 
 Printing FileIndex contents.  This includes a list of all Runs, SubRuns
 and Events stored in the root file.
@@ -143,6 +169,8 @@ and Events stored in the root file.
 
 <separator (=)>
 File: out_r2_sr0_e14.root
+ Run: 2
+  SubRun: 0 Event range: [4,5)
 
 Printing FileIndex contents.  This includes a list of all Runs, SubRuns
 and Events stored in the root file.
