@@ -30,6 +30,7 @@ namespace art {
 
     auto begin() const { return ranges_.begin(); }
     auto end() const { return ranges_.end(); }
+    RangeSet::const_iterator next_subrun_or_end() const;
 
     RangeSet do_getSeenRanges() const override;
     RangeSet const& do_getRanges() const override { return ranges_; }

@@ -35,7 +35,7 @@ namespace art {
 
   void
   OpenRangeSetHandler::do_updateFromEvent(EventID const& id,
-                                               bool const lastInSubRun)
+                                          bool const lastInSubRun)
   {
     lastInSubRun_ = lastInSubRun;
 

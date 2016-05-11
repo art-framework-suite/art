@@ -34,12 +34,12 @@ namespace art {
 
   void
   ClosedRangeSetHandler::do_updateFromEvent(EventID const& id,
-                                             bool const lastInSubRun)
+                                            bool const lastInSubRun)
   {
     lastSeenEvent_ = id;
 
     if (lastInSubRun) {
-      rsIter_ = end();
+      rsIter_ = next_subrun_or_end();
       return;
     }
 
@@ -58,8 +58,10 @@ namespace art {
   ClosedRangeSetHandler::do_maybeSplitRange()
   {
     if (rsIter_ != end()) {
-      rsIter_ = ranges_.split_range(lastSeenEvent_.subRun(),
-                                    lastSeenEvent_.event());
+      auto split_range = ranges_.split_range(lastSeenEvent_.subRun(),
+                                             lastSeenEvent_.next().event());
+      if (split_range.second)
+        rsIter_ = split_range.first;
     }
   }
 
@@ -70,6 +72,17 @@ namespace art {
     RangeSet tmpRS {ranges_.run(), rebasedRanges};
     ClosedRangeSetHandler tmp {tmpRS};
     std::swap(*this, tmp);
+  }
+
+  RangeSet::const_iterator
+  ClosedRangeSetHandler::next_subrun_or_end() const
+  {
+    if (rsIter_ == end())
+      return end();
+
+    auto const sr = rsIter_->subRun();
+    auto pos = std::find_if(rsIter_, end(), [sr](auto const& range){ return range.subRun() != sr; } );
+    return pos;
   }
 
 }
