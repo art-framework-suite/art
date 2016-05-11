@@ -12,7 +12,7 @@
 #include "art/Framework/IO/Root/BranchMapperWithReader.h"
 #include "art/Framework/IO/Root/Inputfwd.h"
 #include "art/Framework/IO/Root/detail/resolveRangeSet.h"
-#include "art/Framework/Principal/BoundedRangeSetHandler.h"
+#include "art/Framework/Principal/ClosedRangeSetHandler.h"
 #include "art/Framework/Principal/Principal.h"
 #include "canvas/Persistency/Provenance/BranchKey.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
@@ -178,7 +178,7 @@ namespace art {
     }
 
     template<typename AUX>
-    std::unique_ptr<BoundedRangeSetHandler> fillAux(FileFormatVersion const fileFormatVersion,
+    std::unique_ptr<ClosedRangeSetHandler> fillAux(FileFormatVersion const fileFormatVersion,
                                                     EntryNumbers const& entries,
                                                     sqlite3* db,
                                                     std::string const& filename,
@@ -188,7 +188,7 @@ namespace art {
       if (fileFormatVersion.value_ < 9) {
         auto rs = detail::makeFullRangeSet<AUX::branch_type>(auxResult.id());
         std::swap(aux, auxResult);
-        auto result = std::make_unique<BoundedRangeSetHandler>(rs);
+        auto result = std::make_unique<ClosedRangeSetHandler>(rs);
         return result;
       }
 
@@ -205,7 +205,7 @@ namespace art {
                                                           tmpAux.rangeSetID());
         rangeSet.merge(tmpRangeSet);
       }
-      auto merged = std::make_unique<BoundedRangeSetHandler>(rangeSet);
+      auto merged = std::make_unique<ClosedRangeSetHandler>(rangeSet);
       auxResult.setRangeSetID(-1u); // Range set of new auxiliary is invalid
       std::swap(aux, auxResult);
       return merged;

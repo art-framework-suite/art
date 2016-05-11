@@ -15,7 +15,6 @@
 #include "TTreeCloner.h"
 
 #include <functional>
-#include <iostream>
 #include <limits>
 
 using namespace cet;

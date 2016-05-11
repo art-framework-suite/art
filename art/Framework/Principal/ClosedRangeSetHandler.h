@@ -1,5 +1,5 @@
-#ifndef art_Framework_Principal_BoundedRangeSetHandler_h
-#define art_Framework_Principal_BoundedRangeSetHandler_h
+#ifndef art_Framework_Principal_ClosedRangeSetHandler_h
+#define art_Framework_Principal_ClosedRangeSetHandler_h
 
 #include "art/Framework/Principal/RangeSetHandler.h"
 #include "canvas/Persistency/Provenance/EventID.h"
@@ -11,20 +11,20 @@
 
 namespace art {
 
-  class BoundedRangeSetHandler : public RangeSetHandler {
+  class ClosedRangeSetHandler : public RangeSetHandler {
   public:
 
-    explicit BoundedRangeSetHandler();
-    explicit BoundedRangeSetHandler(RunNumber_t r);
-    explicit BoundedRangeSetHandler(RangeSet const& inputRangeSet);
+    explicit ClosedRangeSetHandler();
+    explicit ClosedRangeSetHandler(RunNumber_t r);
+    explicit ClosedRangeSetHandler(RangeSet const& inputRangeSet);
 
     // This class contains an iterator as a member.
     // It should not be copied!
-    BoundedRangeSetHandler(BoundedRangeSetHandler const&) = delete;
-    BoundedRangeSetHandler& operator=(BoundedRangeSetHandler const&) = delete;
+    ClosedRangeSetHandler(ClosedRangeSetHandler const&) = delete;
+    ClosedRangeSetHandler& operator=(ClosedRangeSetHandler const&) = delete;
 
-    BoundedRangeSetHandler(BoundedRangeSetHandler&&) = default;
-    BoundedRangeSetHandler& operator=(BoundedRangeSetHandler&&) = default;
+    ClosedRangeSetHandler(ClosedRangeSetHandler&&) = default;
+    ClosedRangeSetHandler& operator=(ClosedRangeSetHandler&&) = default;
 
   private:
 
@@ -43,7 +43,7 @@ namespace art {
 
     std::unique_ptr<RangeSetHandler> do_clone() const override
     {
-      return std::make_unique<BoundedRangeSetHandler>(ranges_);
+      return std::make_unique<ClosedRangeSetHandler>(ranges_);
     }
 
     RangeSet ranges_;
@@ -52,7 +52,7 @@ namespace art {
   };
 
 }
-#endif /* art_Utilities_BoundedRangeSetHandler_h */
+#endif /* art_Utilities_ClosedRangeSetHandler_h */
 
 // Local Variables:
 // mode: c++

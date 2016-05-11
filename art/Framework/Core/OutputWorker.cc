@@ -9,8 +9,6 @@
 #include "art/Framework/Principal/WorkerParams.h"
 #include "fhiclcpp/ParameterSetRegistry.h"
 
-#include <iostream>
-
 namespace art {
   OutputWorker::OutputWorker(std::unique_ptr<OutputModule> && mod,
                              ModuleDescription const& md,

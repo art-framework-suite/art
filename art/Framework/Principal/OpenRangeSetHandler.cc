@@ -1,12 +1,11 @@
 #include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
-#include "art/Framework/Principal/UnboundedRangeSetHandler.h"
+#include "art/Framework/Principal/OpenRangeSetHandler.h"
 #include "canvas/Persistency/Provenance/EventID.h"
 #include "canvas/Utilities/Exception.h"
 
 #include <algorithm>
-#include <iostream>
 
 namespace {
   constexpr auto invalid_eid = art::IDNumber<art::Level::Event>::invalid();
@@ -14,20 +13,20 @@ namespace {
 
 namespace art {
 
-  UnboundedRangeSetHandler::UnboundedRangeSetHandler()
-    : UnboundedRangeSetHandler{RangeSet::invalid()}
+  OpenRangeSetHandler::OpenRangeSetHandler()
+    : OpenRangeSetHandler{RangeSet::invalid()}
   {}
 
-  UnboundedRangeSetHandler::UnboundedRangeSetHandler(RunNumber_t const r)
-    : UnboundedRangeSetHandler{RangeSet{r}}
+  OpenRangeSetHandler::OpenRangeSetHandler(RunNumber_t const r)
+    : OpenRangeSetHandler{RangeSet{r}}
   {}
 
-  UnboundedRangeSetHandler::UnboundedRangeSetHandler(RangeSet const& rs)
+  OpenRangeSetHandler::OpenRangeSetHandler(RangeSet const& rs)
     : ranges_{rs}
   {}
 
   RangeSet
-  UnboundedRangeSetHandler::do_getSeenRanges() const
+  OpenRangeSetHandler::do_getSeenRanges() const
   {
     RangeSet tmp {ranges_.run()};
     tmp.assign_ranges(begin(), rsIter_);
@@ -35,7 +34,7 @@ namespace art {
   }
 
   void
-  UnboundedRangeSetHandler::do_updateFromEvent(EventID const& id,
+  OpenRangeSetHandler::do_updateFromEvent(EventID const& id,
                                                bool const lastInSubRun)
   {
     lastInSubRun_ = lastInSubRun;
@@ -59,7 +58,7 @@ namespace art {
   }
 
   void
-  UnboundedRangeSetHandler::do_updateFromSubRun(SubRunID const& id)
+  OpenRangeSetHandler::do_updateFromSubRun(SubRunID const& id)
   {
     auto const r = id.run();
     auto const sr = id.subRun();
@@ -75,7 +74,7 @@ namespace art {
   }
 
   void
-  UnboundedRangeSetHandler::do_rebase()
+  OpenRangeSetHandler::do_rebase()
   {
     if (ranges_.empty())
       return;

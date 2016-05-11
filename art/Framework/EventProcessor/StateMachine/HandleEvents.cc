@@ -2,7 +2,6 @@
 #include "cetlib/exception.h"
 
 #include <exception>
-#include <iostream>
 #include <sstream>
 #include <string>
 
@@ -15,7 +14,6 @@ namespace statemachine {
     ep_{context<Machine>().ep()},
     currentEvent_{ep_.eventPrincipalID()}
   {
-    // std::cout << " HandleEvents()\n";
   }
 
   void HandleEvents::checkInvariant()
@@ -33,7 +31,6 @@ namespace statemachine {
 
   HandleEvents::~HandleEvents()
   {
-    // std::cout << "~HandleEvents()\n";
     if (!exitCalled_) {
       try {
         checkInvariant();
@@ -101,7 +98,6 @@ namespace statemachine {
     my_base{ctx},
     ep_{context<Machine>().ep()}
   {
-    // std::cout << " NewEvent()\n";
     context<Machine>().setCurrentBoundary(Boundary::Event);
     auto& handleEvents = context<HandleEvents>();
     handleEvents.setEventException(true);
@@ -113,7 +109,6 @@ namespace statemachine {
 
   NewEvent::~NewEvent()
   {
-    // std::cout << "~NewEvent()\n";
     checkInvariant();
   }
 
@@ -134,12 +129,6 @@ namespace statemachine {
   PauseEvent::PauseEvent(my_context ctx)
     : my_base(ctx)
   {
-    // std::cout << " PauseEvent()\n";
-  }
-
-  PauseEvent::~PauseEvent()
-  {
-    // std::cout << "~PauseEvent()\n";
   }
 
 }

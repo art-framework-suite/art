@@ -2,7 +2,6 @@
 #include "cetlib/exception.h"
 
 #include <exception>
-#include <iostream>
 #include <sstream>
 #include <string>
 
@@ -15,7 +14,6 @@ namespace statemachine {
     ep_{context<Machine>().ep()},
     currentSubRun_{ep_.subRunPrincipalID()}
   {
-    // std::cout << " HandleSubRuns()\n";
     checkInvariant();
   }
 
@@ -29,7 +27,6 @@ namespace statemachine {
 
   HandleSubRuns::~HandleSubRuns()
   {
-    // std::cout << "~HandleSubRuns()\n";
     if (!exitCalled_) {
       try {
         checkInvariant();
@@ -148,7 +145,6 @@ namespace statemachine {
   NewSubRun::NewSubRun(my_context ctx) :
     my_base{ctx}
   {
-    // std::cout << " NewSubRun()\n";
     context<Machine>().setCurrentBoundary(Boundary::SubRun);
     context<HandleSubRuns>().setupCurrentSubRun();
     checkInvariant();
@@ -156,7 +152,6 @@ namespace statemachine {
 
   NewSubRun::~NewSubRun()
   {
-    // std::cout << "~NewSubRun()\n";
     checkInvariant();
   }
 
@@ -170,12 +165,6 @@ namespace statemachine {
   PauseSubRun::PauseSubRun(my_context ctx)
     : my_base{ctx}
   {
-    // std::cout << " PauseSubRun()\n";
-  }
-
-  PauseSubRun::~PauseSubRun()
-  {
-    // std::cout << "~PauseSubRun()\n";
   }
 
 }

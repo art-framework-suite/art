@@ -1,7 +1,7 @@
-#ifndef art_Framework_Principal_UnboundedRangeSetHandler_h
-#define art_Framework_Principal_UnboundedRangeSetHandler_h
+#ifndef art_Framework_Principal_OpenRangeSetHandler_h
+#define art_Framework_Principal_OpenRangeSetHandler_h
 
-// UnboundedRangeSetHandler is used by the SubRunPrincipal to:
+// OpenRangeSetHandler is used by the SubRunPrincipal to:
 //
 //   - Accept a vector of EventRanges from an input file (if present).
 //   - Combine mergeable ranges from the input file.
@@ -17,20 +17,20 @@
 
 namespace art {
 
-  class UnboundedRangeSetHandler : public RangeSetHandler {
+  class OpenRangeSetHandler : public RangeSetHandler {
   public:
 
-    explicit UnboundedRangeSetHandler();
-    explicit UnboundedRangeSetHandler(RunNumber_t r);
-    explicit UnboundedRangeSetHandler(RangeSet const& inputRangeSet);
+    explicit OpenRangeSetHandler();
+    explicit OpenRangeSetHandler(RunNumber_t r);
+    explicit OpenRangeSetHandler(RangeSet const& inputRangeSet);
 
     // This class contains an iterator as a member.
     // It should not be copied!
-    UnboundedRangeSetHandler(UnboundedRangeSetHandler const&) = delete;
-    UnboundedRangeSetHandler& operator=(UnboundedRangeSetHandler const&) = delete;
+    OpenRangeSetHandler(OpenRangeSetHandler const&) = delete;
+    OpenRangeSetHandler& operator=(OpenRangeSetHandler const&) = delete;
 
-    UnboundedRangeSetHandler(UnboundedRangeSetHandler&&) = default;
-    UnboundedRangeSetHandler& operator=(UnboundedRangeSetHandler&&) = default;
+    OpenRangeSetHandler(OpenRangeSetHandler&&) = default;
+    OpenRangeSetHandler& operator=(OpenRangeSetHandler&&) = default;
 
   private:
 
@@ -48,7 +48,7 @@ namespace art {
 
     std::unique_ptr<RangeSetHandler> do_clone() const override
     {
-      return std::make_unique<UnboundedRangeSetHandler>(ranges_);
+      return std::make_unique<OpenRangeSetHandler>(ranges_);
     }
 
     RangeSet ranges_;
@@ -57,7 +57,7 @@ namespace art {
   };
 
 }
-#endif /* art_Utilities_UnboundedRangeSetHandler_h */
+#endif /* art_Utilities_OpenRangeSetHandler_h */
 
 // Local Variables:
 // mode: c++

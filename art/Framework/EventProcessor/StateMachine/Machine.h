@@ -27,7 +27,6 @@
 #include "boost/statechart/transition.hpp"
 #include "cetlib/container_algorithms.h"
 
-#include <iostream>
 #include <set>
 #include <utility>
 #include <vector>
@@ -204,7 +203,6 @@ namespace statemachine {
   class PauseRun : public sc::state<PauseRun, HandleRuns> {
   public:
     PauseRun(my_context ctx);
-    ~PauseRun();
 
     using reactions = mpl::list<
       sc::transition<SwitchOutputFiles, sc::deep_history<HandleRuns>, Machine, &Machine::closeSomeOutputFiles>,
@@ -261,7 +259,6 @@ namespace statemachine {
   class PauseSubRun : public sc::state<PauseSubRun, HandleSubRuns> {
   public:
     PauseSubRun(my_context ctx);
-    ~PauseSubRun();
 
     using reactions = mpl::list<
       sc::transition<SwitchOutputFiles, sc::deep_history<HandleRuns>, Machine, &Machine::closeSomeOutputFiles>,
@@ -311,7 +308,6 @@ namespace statemachine {
   class PauseEvent : public sc::state<PauseEvent, HandleEvents> {
   public:
     PauseEvent(my_context ctx);
-    ~PauseEvent();
 
     using reactions = sc::transition<SwitchOutputFiles, sc::deep_history<HandleRuns>, Machine, &Machine::closeSomeOutputFiles>;
   };

@@ -2,7 +2,6 @@
 #include "cetlib/exception.h"
 
 #include <exception>
-#include <iostream>
 #include <sstream>
 #include <string>
 
@@ -15,7 +14,6 @@ namespace statemachine {
     ep_{context<Machine>().ep()},
     currentRun_{ep_.runPrincipalID()}
   {
-    // std::cout << " HandleRuns()\n";
   }
 
   void HandleRuns::exit()
@@ -27,7 +25,6 @@ namespace statemachine {
 
   HandleRuns::~HandleRuns()
   {
-    // std::cout << "~HandleRuns()\n";
     if (!exitCalled_) {
       try {
         finalizeRun();
@@ -133,7 +130,6 @@ namespace statemachine {
   NewRun::NewRun(my_context ctx) :
     my_base{ctx}
   {
-    // std::cout << " NewRun()\n";
     context<Machine>().setCurrentBoundary(Boundary::Run);
     context<HandleRuns>().setupCurrentRun();
     // Here we assume that the input source or event processor
@@ -143,18 +139,11 @@ namespace statemachine {
   }
 
   NewRun::~NewRun() {
-    // std::cout << "~NewRun()\n";
   }
 
   PauseRun::PauseRun(my_context ctx)
     : my_base{ctx}
   {
-    // std::cout << " PauseRun()\n";
-  }
-
-  PauseRun::~PauseRun()
-  {
-    // std::cout << "~PauseRun()\n";
   }
 
 }

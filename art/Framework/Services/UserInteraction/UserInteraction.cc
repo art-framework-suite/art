@@ -5,7 +5,6 @@
 //
 
 // system include files
-#include <iostream>
 #include <cerrno>
 #include <cstdlib>
 
@@ -29,8 +28,6 @@ namespace ui {
   UserInteraction::UserInteraction(ActivityRegistry & iReg)
   {
     iReg.sPostBeginJobWorkers.watch(this, &UserInteraction::postBeginJobWorkers);
-    //iReg.sPreModule.watch(this, &Tracer::preModuleEvent);
-    //iReg.sPostModule.watch(this, &UserInteraction::postModuleEvent);
     iReg.sPreProcessEvent.watch(this, &UserInteraction::preEvent);
     iReg.sPostProcessEvent.watch(this, &UserInteraction::postEvent);
   }
@@ -42,7 +39,6 @@ namespace ui {
     for (auto const w : workers) {
       workers_.push_back(w);
       const ModuleDescription & md = w->description();
-      //std::cout << md.moduleName() << " " << md.moduleLabel() << "\n";
       mi.emplace_back(md.moduleLabel(),
                       md.moduleName(),
                       !w->modifiesEvent(),
@@ -56,7 +52,6 @@ namespace ui {
 
   void UserInteraction::preEvent(Event const &)
   {
-    //std::cout << "event:"<< iID<<" time:"<<iTime.value()<< std::endl;
     pickModule();
   }
 
@@ -96,4 +91,3 @@ namespace ui {
 #endif
 
 }
-

@@ -379,7 +379,6 @@ void
 art::RootOutput::
 setRunAuxiliaryRangeSetID(RangeSet const& rs)
 {
-  std::cout << "(setAuxID) File: " << filePattern_ << std::endl;
   rootOutputFile_->setRunAuxiliaryRangeSetID(rs);
 }
 
@@ -390,7 +389,6 @@ writeRun(RunPrincipal & r)
   if (hasNewlyDroppedBranch()[InRun]) {
     r.addToProcessHistory();
   }
-  std::cout << "(write)   File: " << filePattern_ << std::endl;
   rootOutputFile_->writeRun(r);
   fstats_.recordRun(r.id());
 }

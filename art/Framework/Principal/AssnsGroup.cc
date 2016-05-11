@@ -3,8 +3,6 @@
 
 #include "cetlib/demangle.h"
 
-#include <iostream>
-
 art::AssnsGroup::
 AssnsGroup()
   : Group()

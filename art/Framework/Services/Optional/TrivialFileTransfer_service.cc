@@ -2,7 +2,6 @@
 #include "art/Framework/Services/FileServiceInterfaces/FileTransferStatus.h"
 #include <cerrno>
 #include <cstdlib>
-#include <iostream>
 #include <fstream>
 #include <iterator>  // for istream_iterator and ostream_iterator
 #include <algorithm> // for std::copy

@@ -8,7 +8,7 @@
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRun.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
-#include "art/Framework/Principal/UnboundedRangeSetHandler.h"
+#include "art/Framework/Principal/OpenRangeSetHandler.h"
 #include "canvas/Persistency/Provenance/EventAuxiliary.h"
 #include "canvas/Persistency/Provenance/EventID.h"
 #include "canvas/Persistency/Provenance/RunAuxiliary.h"
@@ -163,7 +163,7 @@ art::EmptyEvent::readRun_() {
 std::unique_ptr<RangeSetHandler>
 art::EmptyEvent::runRangeSetHandler()
 {
-  return std::make_unique<UnboundedRangeSetHandler>(eventID_.run());
+  return std::make_unique<OpenRangeSetHandler>(eventID_.run());
 }
 
 std::vector<std::shared_ptr<RunPrincipal>>
@@ -193,7 +193,7 @@ EmptyEvent::readSubRun_() {
 std::unique_ptr<RangeSetHandler>
 art::EmptyEvent::subRunRangeSetHandler()
 {
-  return std::make_unique<UnboundedRangeSetHandler>(eventID_.run());
+  return std::make_unique<OpenRangeSetHandler>(eventID_.run());
 }
 
 std::vector<std::shared_ptr<SubRunPrincipal>>

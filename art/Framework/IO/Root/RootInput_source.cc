@@ -15,7 +15,6 @@
 #include "canvas/Utilities/Exception.h"
 
 #include <cassert>
-#include <iostream>
 #include <memory>
 #include <set>
 
@@ -281,24 +280,5 @@ readEvent_()
   }
   return result;
 }
-
-//void
-//RootInput::
-//storeMPRforBrokenRandomAccess(MasterProductRegistry& mpr)
-//{
-//  mpr_.reset(&mpr);
-//}
-
-//void
-//RootInput::
-//checkMPR(MasterProductRegistry const& mpr) const
-//{
-//  if (&mpr != mpr_.get()) {
-//    throw Exception(errors::LogicError)
-//        << "Consistency error: MasterProductRegistry in current call "
-//           "does not match\n"
-//        << "that stored!\n";
-//  }
-//}
 
 DEFINE_ART_INPUT_SOURCE(RootInput)

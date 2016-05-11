@@ -39,7 +39,6 @@
 #include "TTree.h"
 
 #include <algorithm>
-#include <iostream>
 #include <utility>
 
 extern "C" {
@@ -689,7 +688,7 @@ namespace art {
   unique_ptr<RangeSetHandler>
   RootInputFile::runRangeSetHandler()
   {
-    return std::make_unique<BoundedRangeSetHandler>(runRangeSetHandler_->ranges());
+    return std::make_unique<ClosedRangeSetHandler>(runRangeSetHandler_->ranges());
   }
 
   shared_ptr<RunPrincipal>
@@ -815,7 +814,7 @@ namespace art {
   unique_ptr<RangeSetHandler>
   RootInputFile::subRunRangeSetHandler()
   {
-    return std::make_unique<BoundedRangeSetHandler>(subRunRangeSetHandler_->ranges());
+    return std::make_unique<ClosedRangeSetHandler>(subRunRangeSetHandler_->ranges());
   }
 
   shared_ptr<SubRunPrincipal>

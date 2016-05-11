@@ -361,7 +361,7 @@ namespace art {
     }
 
     template <BranchType BT>
-    std::unique_ptr<BoundedRangeSetHandler> fillAuxiliary(EntryNumbers const& entries)
+    std::unique_ptr<ClosedRangeSetHandler> fillAuxiliary(EntryNumbers const& entries)
     {
       using AUX = std::tuple_element_t<BT,decltype(auxiliaries_)>;
       auto& aux = std::get<BT>(auxiliaries_);
@@ -449,8 +449,8 @@ namespace art {
     // never subjected to merging of their data products.
     std::vector<std::shared_ptr<Principal>> secondaryRPs_ {};
     std::vector<std::shared_ptr<Principal>> secondarySRPs_ {};
-    std::shared_ptr<BoundedRangeSetHandler> subRunRangeSetHandler_ {nullptr};
-    std::shared_ptr<BoundedRangeSetHandler> runRangeSetHandler_ {nullptr};
+    std::shared_ptr<ClosedRangeSetHandler> subRunRangeSetHandler_ {nullptr};
+    std::shared_ptr<ClosedRangeSetHandler> runRangeSetHandler_ {nullptr};
 
   };
 

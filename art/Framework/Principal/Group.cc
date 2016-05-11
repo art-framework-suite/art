@@ -11,7 +11,6 @@
 #include "cetlib/demangle.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
-#include <iostream>
 #include <string>
 
 namespace art {

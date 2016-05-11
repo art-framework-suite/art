@@ -3,7 +3,6 @@
 // tier objects inside an art format root event-data file.
 //
 
-#include <iostream>
 #include <iomanip>
 #include <string>
 #include <vector>

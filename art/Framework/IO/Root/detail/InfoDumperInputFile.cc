@@ -1,11 +1,9 @@
+#include "art/Framework/IO/Root/detail/InfoDumperInputFile.h"
 #include "art/Framework/IO/Root/detail/setFileIndexPointer.h"
 #include "art/Persistency/RootDB/SQLite3Wrapper.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
 #include "canvas/Persistency/Provenance/rootNames.h"
 #include "canvas/Utilities/Exception.h"
-#include "art/Framework/IO/Root/detail/InfoDumperInputFile.h"
-
-#include <iostream>
 
 namespace {
 

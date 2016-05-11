@@ -6,7 +6,6 @@
 #include "art/Utilities/PluginSuffixes.h"
 #include "art/Version/GetReleaseVersion.h"
 #include "fhiclcpp/ParameterSet.h"
-#include <iostream>
 
 using fhicl::ParameterSet;
 using namespace art;

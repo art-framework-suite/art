@@ -8,7 +8,6 @@
 #include "art/Framework/Services/Optional/detail/LinuxProcMgr.h"
 #include "canvas/Utilities/Exception.h"
 
-#include <iostream>
 #include <regex>
 #include <sstream>
 
@@ -124,4 +123,3 @@ namespace art {
 
   } // namespace detail
 } // namespace art
-

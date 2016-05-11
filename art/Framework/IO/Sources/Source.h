@@ -87,7 +87,7 @@
 #include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
-#include "art/Framework/Principal/UnboundedRangeSetHandler.h"
+#include "art/Framework/Principal/OpenRangeSetHandler.h"
 #include "canvas/Persistency/Provenance/EventID.h"
 #include "art/Persistency/Provenance/MasterProductRegistry.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
@@ -563,7 +563,7 @@ art::Source<T>::runRangeSetHandler()
         << "Error in Source<T>\n"
         << "runRangeSetHandler() called when no RunPrincipal exists\n"
         << "Please report this to the art developers\n";
-  return std::make_unique<UnboundedRangeSetHandler>(cachedRP_->run());
+  return std::make_unique<OpenRangeSetHandler>(cachedRP_->run());
 }
 
 template <class T>
@@ -585,7 +585,7 @@ art::Source<T>::subRunRangeSetHandler()
         << "Error in Source<T>\n"
         << "subRunRangeSetHandler() called when no RunPrincipal exists\n"
         << "Please report this to the art developers\n";
-  return std::make_unique<UnboundedRangeSetHandler>(cachedSRP_->run());
+  return std::make_unique<OpenRangeSetHandler>(cachedSRP_->run());
 }
 
 

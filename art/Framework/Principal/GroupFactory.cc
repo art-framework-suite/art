@@ -10,8 +10,6 @@
 #include "cetlib/demangle.h"
 #include "TClass.h"
 
-#include <iostream>
-
 using namespace std;
 
 namespace art {
