@@ -120,81 +120,90 @@ namespace {
 }
 
 int main(int argc, char * argv[])
-{
-  // ------------------
-  // use the boost command line option processing library to help out
-  // with command line options
-  std::ostringstream descstr;
-  descstr << argv[0] << " <options> [<source-file>]+";
+  try
+    {
+      // ------------------
+      // use the boost command line option processing library to help out
+      // with command line options
+      std::ostringstream descstr;
+      descstr << argv[0] << " <options> [<source-file>]+";
 
-  bpo::options_description desc {descstr.str()};
-  desc.add_options()
-    ("help,h", "produce help message")
-    ("file-index", "prints FileIndex object for each input file")
-    ("range-sets", "prints event range sets for each input file")
-    ("db-to-file",
-     ("Writes RootFileDB to external SQLite database with the same base name as the input file and the suffix '.db'.\n"s +
-      "(Writes to directory in which '"s + argv[0] + "' is executed)."s).c_str())
-    ("source,s",  bpo::value<stringvec>(), "source data file (multiple OK)");
+      bpo::options_description desc {descstr.str()};
+      desc.add_options()
+        ("help,h", "produce help message")
+        ("file-index", "prints FileIndex object for each input file")
+        ("range-sets", "prints event range sets for each input file")
+        ("db-to-file",
+         ("Writes RootFileDB to external SQLite database with the same base name as the input file and the suffix '.db'.\n"s +
+          "(Writes to directory in which '"s + argv[0] + "' is executed)."s).c_str())
+        ("source,s",  bpo::value<stringvec>(), "source data file (multiple OK)");
 
-  bpo::options_description all_opts {"All Options"};
-  all_opts.add(desc);
+      bpo::options_description all_opts {"All Options"};
+      all_opts.add(desc);
 
-  // Each non-option argument is interpreted as the name of a files to
-  // be processed. Any number of filenames is allowed.
-  bpo::positional_options_description pd;
-  pd.add("source", -1);
-  // The variables_map contains the actual program options.
-  bpo::variables_map vm;
-  try {
-    bpo::store(bpo::command_line_parser(argc, argv).options(all_opts).positional(pd).run(), vm);
-    bpo::notify(vm);
-  }
-  catch (bpo::error const & e) {
-    std::cerr << "Exception from command line processing in "
-              << argv[0] << ": " << e.what() << "\n";
-    return 2;
-  }
+      // Each non-option argument is interpreted as the name of a files to
+      // be processed. Any number of filenames is allowed.
+      bpo::positional_options_description pd;
+      pd.add("source", -1);
+      // The variables_map contains the actual program options.
+      bpo::variables_map vm;
+      try {
+        bpo::store(bpo::command_line_parser(argc, argv).options(all_opts).positional(pd).run(), vm);
+        bpo::notify(vm);
+      }
+      catch (bpo::error const & e) {
+        std::cerr << "Exception from command line processing in "
+                  << argv[0] << ": " << e.what() << "\n";
+        return 2;
+      }
 
-  if (vm.count("help")) {
-    std::cout << desc << std::endl;
-    return 1;
-  }
+      if (vm.count("help")) {
+        std::cout << desc << std::endl;
+        return 1;
+      }
 
-  // Get the names of the files we will process.
-  stringvec file_names;
-  size_t const file_count = vm.count("source");
-  if (file_count < 1) {
-    std::cerr << "One or more input files must be specified;"
-              << " supply filenames as program arguments\n"
-              << "For usage and options list, please do '"<< argv[0] << " --help'.\n";
-    return 3;
-  }
-  file_names.reserve(file_count);
-  cet::copy_all(vm["source"].as<stringvec>(), std::back_inserter(file_names));
+      // Get the names of the files we will process.
+      stringvec file_names;
+      size_t const file_count = vm.count("source");
+      if (file_count < 1) {
+        std::cerr << "One or more input files must be specified;"
+                  << " supply filenames as program arguments\n"
+                  << "For usage and options list, please do '"<< argv[0] << " --help'.\n";
+        return 3;
+      }
+      file_names.reserve(file_count);
+      cet::copy_all(vm["source"].as<stringvec>(), std::back_inserter(file_names));
 
-  bool const printRangeSets = vm.count("range-sets") > 0;
-  bool const printFileIndex = vm.count("file-index") > 0;
-  bool const saveDbToFile   = vm.count("db-to-file") > 0;
+      bool const printRangeSets = vm.count("range-sets") > 0;
+      bool const printFileIndex = vm.count("file-index") > 0;
+      bool const saveDbToFile   = vm.count("db-to-file") > 0;
 
-  SetErrorHandler(RootErrorHandler);
-  tkeyvfs_init();
+      SetErrorHandler(RootErrorHandler);
+      tkeyvfs_init();
 
-  ostream& output = std::cout;
-  ostream& errors = std::cerr;
+      ostream& output = std::cout;
+      ostream& errors = std::cerr;
 
-  int rc {0};
-  for (auto const& fn : file_names) {
-    output << std::string(30,'=') << '\n'
-           << "File: " << fn.substr(fn.find_last_of('/')+1ul) << '\n';
-    InfoDumperInputFile file {fn};
-    if (printRangeSets) rc += print_range_sets(file, output);
-    if (printFileIndex) rc += print_file_index(file, output);
-    if (saveDbToFile)   rc += db_to_file(file, output, errors);
-    output << '\n';
-  }
-  return rc;
-}
+      int rc {0};
+      for (auto const& fn : file_names) {
+        output << std::string(30,'=') << '\n'
+               << "File: " << fn.substr(fn.find_last_of('/')+1ul) << '\n';
+        InfoDumperInputFile file {fn};
+        if (printRangeSets) rc += print_range_sets(file, output);
+        if (printFileIndex) rc += print_file_index(file, output);
+        if (saveDbToFile)   rc += db_to_file(file, output, errors);
+        output << '\n';
+      }
+      return rc;
+    }
+  catch(cet::exception const& e)
+    {
+      std::cerr << e.what() << '\n';
+    }
+  catch(...)
+    {
+      std::cerr << "Exception thrown for the last processed file.  Please remove it from the file list.\n";
+    }
 
 //============================================================================
 
