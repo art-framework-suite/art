@@ -295,6 +295,17 @@ cet_test(ToyRawInput_t_01 HANDBUILT
   fcl/ToyRawInput_01.fcl
 )
 
+cet_test(ToyRawInput_OutputCheck_t_01 HANDBUILT
+  TEST_EXEC file_info_dumper
+  TEST_ARGS
+  --range-sets
+  --file-index
+  "../ToyRawInput_t_01.d/out.root"
+  REF "${CMAKE_CURRENT_SOURCE_DIR}/ToyRawInput_t_01-ref.txt"
+  TEST_PROPERTIES
+  DEPENDS ToyRawInput_t_01
+  )
+
 foreach(num 02 03 04)
   cet_test(ToyRawInput_t_${num} HANDBUILT
     TEST_EXEC test_must_abort
