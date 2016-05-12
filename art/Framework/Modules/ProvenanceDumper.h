@@ -149,7 +149,7 @@ namespace art {
   };
 
   template <typename DETAIL>
-  struct ProvenanceDumperConfig<DETAIL, typename detail::enable_if_type<typename DETAIL::Config>::type> {
+  struct ProvenanceDumperConfig<DETAIL, detail::enable_if_type_exists_t<typename DETAIL::Config>> {
     fhicl::TableFragment<art::OutputModule::Config> omConfig;
     fhicl::Atom<bool> wantPresentOnly { fhicl::Name("wantPresentOnly"), true };
     fhicl::Atom<bool> resolveProducts { fhicl::Name("resolveProducts"), true };
@@ -197,7 +197,7 @@ private:
 namespace art {
 
   template <typename DETAIL>
-  class ProvenanceDumper<DETAIL, typename art::detail::enable_if_type<typename DETAIL::Config>::type> :
+  class ProvenanceDumper<DETAIL, detail::enable_if_type_exists_t<typename DETAIL::Config>> :
     public OutputModule {
   public:
 
