@@ -28,7 +28,7 @@ namespace art {
   ClosedRangeSetHandler::do_updateFromEvent(EventID const& id,
                                             bool const lastInSubRun)
   {
-    lastSeenEvent_ = id;
+    eventInfo_.set(id, lastInSubRun);
 
     if (lastInSubRun) {
       rsIter_ = next_subrun_or_end();
@@ -49,9 +49,9 @@ namespace art {
   void
   ClosedRangeSetHandler::do_maybeSplitRange()
   {
-    if (rsIter_ != end()) {
-      auto split_range = ranges_.split_range(lastSeenEvent_.subRun(),
-                                             lastSeenEvent_.next().event());
+    if (!eventInfo_.lastInSubRun && rsIter_ != end()) {
+      auto split_range = ranges_.split_range(eventInfo_.id.subRun(),
+                                             eventInfo_.id.next().event());
       if (split_range.second)
         rsIter_ = split_range.first;
     }

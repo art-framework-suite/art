@@ -47,9 +47,19 @@ namespace art {
     void do_maybeSplitRange() override;
     void do_rebase() override;
 
+    struct EventInfo {
+      void set(EventID const& eid, bool const last)
+      {
+        id = eid;
+        lastInSubRun = last;
+      }
+      EventID id {EventID::invalidEvent()};
+      bool lastInSubRun {false};
+    };
+
     RangeSet ranges_ {RangeSet::invalid()};
     RangeSet::const_iterator rsIter_ {ranges_.begin()};
-    EventID lastSeenEvent_ {EventID::invalidEvent()};
+    EventInfo eventInfo_ {};
   };
 
 }
