@@ -131,6 +131,7 @@ int main(int argc, char * argv[])
       bpo::options_description desc {descstr.str()};
       desc.add_options()
         ("help,h", "produce help message")
+        ("full-path", "prints full path of file name")
         ("file-index", "prints FileIndex object for each input file")
         ("range-sets", "prints event range sets for each input file")
         ("db-to-file",
@@ -177,6 +178,7 @@ int main(int argc, char * argv[])
       bool const printRangeSets = vm.count("range-sets") > 0;
       bool const printFileIndex = vm.count("file-index") > 0;
       bool const saveDbToFile   = vm.count("db-to-file") > 0;
+      bool const fullPath       = vm.count("full-path")  > 0;
 
       SetErrorHandler(RootErrorHandler);
       tkeyvfs_init();
@@ -186,8 +188,9 @@ int main(int argc, char * argv[])
 
       int rc {0};
       for (auto const& fn : file_names) {
+        auto const& printed_name = fullPath ? fn : fn.substr(fn.find_last_of('/')+1ul);
         output << std::string(30,'=') << '\n'
-               << "File: " << fn.substr(fn.find_last_of('/')+1ul) << '\n';
+               << "File: " <<  printed_name << '\n';
         InfoDumperInputFile file {fn};
         if (printRangeSets) rc += print_range_sets(file, output);
         if (printFileIndex) rc += print_file_index(file, output);
