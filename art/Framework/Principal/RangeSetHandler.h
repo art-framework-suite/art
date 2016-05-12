@@ -27,11 +27,9 @@ namespace art {
     void flushRanges() { do_flushRanges(); }
     void maybeSplitRange() { do_maybeSplitRange(); }
     void rebase() { do_rebase(); }
-    std::unique_ptr<RangeSetHandler> clone() const { return do_clone(); }
 
   private:
     virtual RangeSet do_getSeenRanges() const = 0;
-    virtual std::unique_ptr<RangeSetHandler> do_clone() const = 0;
 
     virtual void do_updateFromEvent(EventID const&, bool lastInSubRun) = 0;
     virtual void do_updateFromSubRun(SubRunID const&) = 0;

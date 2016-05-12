@@ -13,14 +13,6 @@ namespace {
 
 namespace art {
 
-  ClosedRangeSetHandler::ClosedRangeSetHandler()
-    : ClosedRangeSetHandler{RangeSet::invalid()}
-  {}
-
-  ClosedRangeSetHandler::ClosedRangeSetHandler(RunNumber_t const r)
-    : ClosedRangeSetHandler{RangeSet{r}}
-  {}
-
   ClosedRangeSetHandler::ClosedRangeSetHandler(RangeSet const& rs)
     : ranges_{rs}
   {}

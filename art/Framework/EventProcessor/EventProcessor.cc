@@ -673,8 +673,7 @@ art::EventProcessor::readAndCacheRun()
 {
   SignalSentry runSourceSentry {actReg_.sPreSourceRun, actReg_.sPostSourceRun};
   principalCache_.insert(input_->readRun());
-  auto const rsh = input_->runRangeSetHandler();
-  endPathExecutor_->seedRunRangeSet(*rsh);
+  endPathExecutor_->seedRunRangeSet(input_->runRangeSetHandler());
   FDEBUG(1) << "\treadAndCacheRun " << "\n";
   return runPrincipalID();
 }
@@ -684,8 +683,7 @@ art::EventProcessor::readAndCacheSubRun()
 {
   SignalSentry subRunSourceSentry {actReg_.sPreSourceSubRun, actReg_.sPostSourceSubRun};
   principalCache_.insert(input_->readSubRun(principalCache_.runPrincipalPtr()));
-  auto const rsh = input_->subRunRangeSetHandler();
-  endPathExecutor_->seedSubRunRangeSet(*rsh);
+  endPathExecutor_->seedSubRunRangeSet(input_->subRunRangeSetHandler());
   FDEBUG(1) << "\treadAndCacheSubRun " << "\n";
   return subRunPrincipalID();
 }

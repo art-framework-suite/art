@@ -13,16 +13,8 @@ namespace {
 
 namespace art {
 
-  OpenRangeSetHandler::OpenRangeSetHandler()
-    : OpenRangeSetHandler{RangeSet::invalid()}
-  {}
-
   OpenRangeSetHandler::OpenRangeSetHandler(RunNumber_t const r)
-    : OpenRangeSetHandler{RangeSet{r}}
-  {}
-
-  OpenRangeSetHandler::OpenRangeSetHandler(RangeSet const& rs)
-    : ranges_{rs}
+    : ranges_{r}
   {}
 
   RangeSet

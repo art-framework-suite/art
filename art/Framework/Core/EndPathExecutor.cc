@@ -132,36 +132,56 @@ void art::EndPathExecutor::writeEvent(EventPrincipal& ep)
   subRunRangeSetHandler_->updateFromEvent(eid, lastInSubRun);
 }
 
-void art::EndPathExecutor::seedRunRangeSet(RangeSetHandler const& rsh)
+void art::EndPathExecutor::seedRunRangeSet(std::unique_ptr<RangeSetHandler> rsh)
 {
-  runRangeSetHandler_ = rsh.clone();
+  runRangeSetHandler_ = std::move(rsh);
 }
 
-void art::EndPathExecutor::seedSubRunRangeSet(RangeSetHandler const& rsh)
+void art::EndPathExecutor::seedSubRunRangeSet(std::unique_ptr<RangeSetHandler> rsh)
 {
-  subRunRangeSetHandler_ = rsh.clone();
-}
-
-void art::EndPathExecutor::setAuxiliaryRangeSetID(RunPrincipal& rp)
-{
-  auto const& ranges = runRangeSetHandler_->seenRanges();
-  rp.updateSeenRanges(ranges);
-  doForAllEnabledOutputWorkers_([&ranges](auto w){ w->setRunAuxiliaryRangeSetID(ranges); });
+  subRunRangeSetHandler_ = std::move(rsh);
 }
 
 void art::EndPathExecutor::setAuxiliaryRangeSetID(SubRunPrincipal& srp)
 {
+  // Ranges are split/flushed only for a RangeSetHandler whose dynamic
+  // type is 'ClosedRangeSetHandler'.  The implementations for the
+  // 'OpenRangeSetHandler' are nops.
+  //
+  // Consider the following range-sets
+  //  SubRun RangeSet: { Run 1 : SubRun 1 : Events [1,7) }  <-- Current iterator of handler
+  //  Run    RangeSet: { Run 1 : SubRun 0 : Events [5,11)
+  //                             SubRun 1 : Events [1,7)    <-- Current iterator of handler
+  //                             SubRun 1 : Events [9,15) }
   if (fileStatus_ == OutputFileStatus::StagedToSwitch) {
+    // For a range split just before SubRun 1, Event 6, the range sets
+    // should become:
+    //
+    //  SubRun RangeSet: { Run 1 : SubRun 1 : Events [1,6)
+    //                             SubRun 1 : Events [6,7) } <-- Updated iterator of handler
+    //  Run    RangeSet: { Run 1 : SubRun 0 : Events [5,11)
+    //                             SubRun 1 : Events [1,6)
+    //                             SubRun 1 : Events [6,7)   <-- Updated iterator of handler
+    //                             SubRun 1 : Events [9,15) }
     subRunRangeSetHandler_->maybeSplitRange();
     runRangeSetHandler_->maybeSplitRange();
   }
   else {
     subRunRangeSetHandler_->flushRanges();
-    runRangeSetHandler_->flushRanges();
   }
   auto const& ranges = subRunRangeSetHandler_->seenRanges();
   srp.updateSeenRanges(ranges);
   doForAllEnabledOutputWorkers_([&ranges](auto w){ w->setSubRunAuxiliaryRangeSetID(ranges); });
+}
+
+void art::EndPathExecutor::setAuxiliaryRangeSetID(RunPrincipal& rp)
+{
+  if (fileStatus_ != OutputFileStatus::StagedToSwitch){
+    runRangeSetHandler_->flushRanges();
+  }
+  auto const& ranges = runRangeSetHandler_->seenRanges();
+  rp.updateSeenRanges(ranges);
+  doForAllEnabledOutputWorkers_([&ranges](auto w){ w->setRunAuxiliaryRangeSetID(ranges); });
 }
 
 void art::EndPathExecutor::selectProducts(FileBlock const& fb)

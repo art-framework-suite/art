@@ -1,6 +1,14 @@
 #ifndef art_Framework_Principal_ClosedRangeSetHandler_h
 #define art_Framework_Principal_ClosedRangeSetHandler_h
 
+// FIXME: Expand on specific use case for this class.
+//
+// ClosedRangeSetHandler is used by the SubRunPrincipal to:
+//
+//   - Accept a vector of EventRanges from an input file (if present).
+//   - Combine mergeable ranges from the input file.
+//   - Create sliding output ranges
+
 #include "art/Framework/Principal/RangeSetHandler.h"
 #include "canvas/Persistency/Provenance/EventID.h"
 #include "canvas/Persistency/Provenance/RangeSet.h"
@@ -14,8 +22,6 @@ namespace art {
   class ClosedRangeSetHandler : public RangeSetHandler {
   public:
 
-    explicit ClosedRangeSetHandler();
-    explicit ClosedRangeSetHandler(RunNumber_t r);
     explicit ClosedRangeSetHandler(RangeSet const& inputRangeSet);
 
     // This class contains an iterator as a member.
@@ -41,12 +47,7 @@ namespace art {
     void do_maybeSplitRange() override;
     void do_rebase() override;
 
-    std::unique_ptr<RangeSetHandler> do_clone() const override
-    {
-      return std::make_unique<ClosedRangeSetHandler>(ranges_);
-    }
-
-    RangeSet ranges_;
+    RangeSet ranges_ {RangeSet::invalid()};
     RangeSet::const_iterator rsIter_ {ranges_.begin()};
     EventID lastSeenEvent_ {EventID::invalidEvent()};
   };

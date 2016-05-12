@@ -1,6 +1,8 @@
 #ifndef art_Framework_Principal_OpenRangeSetHandler_h
 #define art_Framework_Principal_OpenRangeSetHandler_h
 
+// FIXME: Expand on specific use case for this class.
+//
 // OpenRangeSetHandler is used by the SubRunPrincipal to:
 //
 //   - Accept a vector of EventRanges from an input file (if present).
@@ -20,9 +22,7 @@ namespace art {
   class OpenRangeSetHandler : public RangeSetHandler {
   public:
 
-    explicit OpenRangeSetHandler();
     explicit OpenRangeSetHandler(RunNumber_t r);
-    explicit OpenRangeSetHandler(RangeSet const& inputRangeSet);
 
     // This class contains an iterator as a member.
     // It should not be copied!
@@ -45,12 +45,7 @@ namespace art {
     void do_maybeSplitRange() override {}
     void do_rebase() override;
 
-    std::unique_ptr<RangeSetHandler> do_clone() const override
-    {
-      return std::make_unique<OpenRangeSetHandler>(ranges_);
-    }
-
-    RangeSet ranges_;
+    RangeSet ranges_ {RangeSet::invalid()};
     RangeSet::const_iterator rsIter_ {ranges_.begin()};
     bool lastInSubRun_ {true};
   };

@@ -49,8 +49,8 @@ public:
   void writeSubRun(SubRunPrincipal& srp);
   void writeRun(RunPrincipal& rp);
 
-  void seedRunRangeSet(RangeSetHandler const&);
-  void seedSubRunRangeSet(RangeSetHandler const&);
+  void seedRunRangeSet(std::unique_ptr<RangeSetHandler>);
+  void seedSubRunRangeSet(std::unique_ptr<RangeSetHandler>);
 
   void setAuxiliaryRangeSetID(SubRunPrincipal& srp);
   void setAuxiliaryRangeSetID(RunPrincipal& rp);
