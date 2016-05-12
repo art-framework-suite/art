@@ -13,7 +13,6 @@ namespace art {
   public:
 
     RangeSet seenRanges() const { return do_getSeenRanges(); }
-    RangeSet const& ranges() const { return do_getRanges(); }
 
     void updateFromEvent(EventID const& id, bool const lastInSubRun)
     {
@@ -32,7 +31,6 @@ namespace art {
 
   private:
     virtual RangeSet do_getSeenRanges() const = 0;
-    virtual RangeSet const& do_getRanges() const = 0;
     virtual std::unique_ptr<RangeSetHandler> do_clone() const = 0;
 
     virtual void do_updateFromEvent(EventID const&, bool lastInSubRun) = 0;

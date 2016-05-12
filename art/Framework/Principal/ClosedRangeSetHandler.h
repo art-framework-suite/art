@@ -33,7 +33,6 @@ namespace art {
     RangeSet::const_iterator next_subrun_or_end() const;
 
     RangeSet do_getSeenRanges() const override;
-    RangeSet const& do_getRanges() const override { return ranges_; }
 
     void do_updateFromEvent(EventID const&, bool lastInSubRun) override;
     void do_updateFromSubRun(SubRunID const&) override {}

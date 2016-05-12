@@ -6,6 +6,8 @@
 // Class to handle the execution of the end path. Invoked in all the
 // right places by the event processor.
 //
+// FIXME: Explanation of RangeSetHandlers
+//
 ////////////////////////////////////////////////////////////////////////
 #include "art/Framework/Core/OutputFileSwitchBoundary.h"
 #include "art/Framework/Core/OutputWorker.h"

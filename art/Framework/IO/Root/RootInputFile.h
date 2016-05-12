@@ -449,8 +449,8 @@ namespace art {
     // never subjected to merging of their data products.
     std::vector<std::shared_ptr<Principal>> secondaryRPs_ {};
     std::vector<std::shared_ptr<Principal>> secondarySRPs_ {};
-    std::shared_ptr<ClosedRangeSetHandler> subRunRangeSetHandler_ {nullptr};
-    std::shared_ptr<ClosedRangeSetHandler> runRangeSetHandler_ {nullptr};
+    std::unique_ptr<ClosedRangeSetHandler> subRunRangeSetHandler_ {nullptr};
+    std::unique_ptr<ClosedRangeSetHandler> runRangeSetHandler_ {nullptr};
 
   };
 
