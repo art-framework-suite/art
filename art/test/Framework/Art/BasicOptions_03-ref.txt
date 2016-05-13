@@ -87,6 +87,7 @@
    SAMMetadataTest                     analyzer    <path>/SAMMetadataTest_module.cc
    SimpleDerivedAnalyzer               analyzer    <path>/SimpleDerivedAnalyzer_module.cc
    SimpleDerivedProducer               producer    <path>/SimpleDerivedProducer_module.cc
+   SimpleServiceTestAnalyzer           analyzer    <path>/SimpleServiceTestAnalyzer_module.cc
    TH1DataProducer                     producer    <path>/TH1DataProducer_module.cc
    TestAnalyzerSelect                  analyzer    <path>/TestAnalyzerSelect_module.cc
    TestBitsOutput                      output      <path>/TestBitsOutput_module.cc
@@ -147,6 +148,7 @@
    ServiceUsing              art         <path>/ServiceUsing_service.cc
    SimpleInteraction         art         <path>/SimpleInteraction_service.cc
    SimpleMemoryCheck         art         <path>/SimpleMemoryCheck_service.cc
+   SimpleServiceTest         art         <path>/SimpleServiceTest_service.cc
    TFileService              art         <path>/TFileService_service.cc
    Throwing                  art         <path>/Throwing_service.cc
    TimeTracker               art         <path>/TimeTracker_service.cc
