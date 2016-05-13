@@ -1,0 +1,68 @@
+<separator (=)>
+File: out_dropAllEvents.root
+ Run: 1
+  SubRun: 0 Event range: [1,101)
+
+Printing FileIndex contents.  This includes a list of all Runs, SubRuns
+and Events stored in the root file.
+
+            Run         SubRun          Event    TTree Entry
+              1                                            0  (Run)
+              1              0                             0  (SubRun)
+
+<separator (=)>
+File: out_dropAllEventsSubruns1.root
+ Run: 1
+  SubRun: 0 Event range: [1,101)
+
+Printing FileIndex contents.  This includes a list of all Runs, SubRuns
+and Events stored in the root file.
+
+            Run         SubRun          Event    TTree Entry
+              1                                            0  (Run)
+
+<separator (=)>
+File: out_dropAllEventsSubruns2.root
+ Run: 1
+  SubRun: 0 Event range: [1,101)
+
+Printing FileIndex contents.  This includes a list of all Runs, SubRuns
+and Events stored in the root file.
+
+            Run         SubRun          Event    TTree Entry
+              1                                            0  (Run)
+
+<separator (=)>
+File: out_dropAllEvents_r.root
+ Run: 1
+  SubRun: 0 Event range: [1,101)
+
+Printing FileIndex contents.  This includes a list of all Runs, SubRuns
+and Events stored in the root file.
+
+            Run         SubRun          Event    TTree Entry
+              1                                            0  (Run)
+              1              0                             0  (SubRun)
+
+<separator (=)>
+File: out_dropAllEventsSubruns1_r.root
+ Run: 1
+  SubRun: 0 Event range: [1,101)
+
+Printing FileIndex contents.  This includes a list of all Runs, SubRuns
+and Events stored in the root file.
+
+            Run         SubRun          Event    TTree Entry
+              1                                            0  (Run)
+
+<separator (=)>
+File: out_dropAllEventsSubruns2_r.root
+ Run: 1
+  SubRun: 0 Event range: [1,101)
+
+Printing FileIndex contents.  This includes a list of all Runs, SubRuns
+and Events stored in the root file.
+
+            Run         SubRun          Event    TTree Entry
+              1                                            0  (Run)
+

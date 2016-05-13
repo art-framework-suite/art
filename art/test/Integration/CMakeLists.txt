@@ -140,6 +140,21 @@ cet_test(test_dropAllEventsSubruns_t.sh PREBUILT
   test_dropAllEventsSubruns_verify.cxx
 )
 
+cet_test(testOutputRanges_dropAllEventsSubRuns HANDBUILT
+  TEST_EXEC file_info_dumper
+  TEST_ARGS
+  --range-sets
+  --file-index
+  "../test_dropAllEventsSubruns_t.sh.d/out_dropAllEvents.root"
+  "../test_dropAllEventsSubruns_t.sh.d/out_dropAllEventsSubruns1.root"
+  "../test_dropAllEventsSubruns_t.sh.d/out_dropAllEventsSubruns2.root"
+  "../test_dropAllEventsSubruns_t.sh.d/out_dropAllEvents_r.root"
+  "../test_dropAllEventsSubruns_t.sh.d/out_dropAllEventsSubruns1_r.root"
+  "../test_dropAllEventsSubruns_t.sh.d/out_dropAllEventsSubruns2_r.root"
+  REF "${CMAKE_CURRENT_SOURCE_DIR}/testOutputRanges_dropAllEventsSubRuns-ref.txt"
+  TEST_PROPERTIES DEPENDS test_dropAllEventsSubRuns_t.sh
+  )
+
 cet_test(test_runSubRunNoPut_t.sh PREBUILT
   DATAFILES
   fcl/runSubRunNoPut_t.fcl
