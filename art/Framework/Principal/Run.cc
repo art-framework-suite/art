@@ -16,12 +16,11 @@ using fhicl::ParameterSetRegistry;
 
 namespace art {
 
-  Run::Run(RunPrincipal& rp, ModuleDescription const& md) :
+  Run::Run(RunPrincipal& rp, ModuleDescription const& md, RangeSet const& rs) :
     DataViewImpl{rp, md, InRun},
     aux_{rp.aux()},
-    seenRanges_{rp.seenRanges()}
-  {
-  }
+    productRangeSet_{rs}
+  {}
 
   bool
   Run::getProcessParameterSet(std::string const& /*processName*/,

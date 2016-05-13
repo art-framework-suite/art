@@ -49,7 +49,7 @@ namespace art
   EDProducer::doBeginRun(RunPrincipal & rp,
                          CPC_exempt_ptr cpc) {
     detail::CPCSentry sentry {current_context_, cpc};
-    Run r {rp, moduleDescription_};
+    Run r {rp, moduleDescription_, RangeSet::forRun(rp.id())};
     beginRun(r);
     r.commit_();
     return true;
@@ -59,7 +59,7 @@ namespace art
   EDProducer::doEndRun(RunPrincipal & rp,
                        CPC_exempt_ptr cpc) {
     detail::CPCSentry sentry {current_context_, cpc};
-    Run r {rp, moduleDescription_};
+    Run r {rp, moduleDescription_, rp.seenRanges()};
     endRun(r);
     r.commit_();
     return true;
@@ -69,7 +69,7 @@ namespace art
   EDProducer::doBeginSubRun(SubRunPrincipal & srp,
                             CPC_exempt_ptr cpc) {
     detail::CPCSentry sentry {current_context_, cpc};
-    SubRun sr {srp, moduleDescription_};
+    SubRun sr {srp, moduleDescription_, RangeSet::forSubRun(srp.id())};
     beginSubRun(sr);
     sr.commit_();
     return true;
@@ -79,7 +79,7 @@ namespace art
   EDProducer::doEndSubRun(SubRunPrincipal & srp,
                           CPC_exempt_ptr cpc) {
     detail::CPCSentry sentry {current_context_, cpc};
-    SubRun sr {srp, moduleDescription_};
+    SubRun sr {srp, moduleDescription_, srp.seenRanges()};
     endSubRun(sr);
     sr.commit_();
     return true;

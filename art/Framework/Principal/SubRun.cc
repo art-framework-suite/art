@@ -8,15 +8,15 @@ namespace art {
   namespace {
     Run *
     newRun(SubRunPrincipal& srp, ModuleDescription const& md) {
-      return (srp.runPrincipalSharedPtr() ? new Run(srp.runPrincipal(), md) : nullptr);
+      return (srp.runPrincipalSharedPtr() ? new Run{srp.runPrincipal(), md} : nullptr);
     }
   }
 
-  SubRun::SubRun(SubRunPrincipal& srp, ModuleDescription const& md) :
-    DataViewImpl(srp, md, InSubRun),
-    aux_(srp.aux()),
-    run_(newRun(srp, md)),
-    seenRanges_{srp.seenRanges()}
+  SubRun::SubRun(SubRunPrincipal& srp, ModuleDescription const& md, RangeSet const& rs) :
+    DataViewImpl{srp, md, InSubRun},
+    aux_{srp.aux()},
+    run_{newRun(srp, md)},
+    productRangeSet_{rs}
   {}
 
   Run const&
