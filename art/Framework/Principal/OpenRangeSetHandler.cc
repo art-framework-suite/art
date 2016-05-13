@@ -80,7 +80,7 @@ namespace art {
     if (lastInSubRun_)
       return;
 
-    if (back.is_valid() && !back.is_full_SubRun()) {
+    if (back.is_valid() && !back.is_full_subRun()) {
       ranges_.emplace_range(back.subRun(), back.end(), IDNumber<Level::Event>::next(back.end()));
       rsIter_ = ranges_.end();
     }

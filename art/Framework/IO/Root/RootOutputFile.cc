@@ -267,7 +267,7 @@ namespace {
     }
 
     if (bt == art::InSubRun) {
-      if (productRS.ranges().front().is_full_SubRun())
+      if (productRS.is_full_subRun())
         return;
       pruneEventRangesImpl(principalRS, productRS);
     }

@@ -21,16 +21,15 @@ namespace art {
 
   namespace {
     SubRun * newSubRun(EventPrincipal& ep, ModuleDescription const& md) {
-      return (ep.subRunPrincipalSharedPtr() ? new SubRun(ep.subRunPrincipal(), md) : 0);
+      return (ep.subRunPrincipalSharedPtr() ? new SubRun{ep.subRunPrincipal(), md} : 0);
     }
   }
 
   Event::Event(EventPrincipal& ep, ModuleDescription const& md)
-  : DataViewImpl ( ep, md, InEvent )
-  , aux_         ( ep.aux() )
-  , subRun_      ( newSubRun(ep, md) )
-  , eventPrincipal_(ep)
-  , gotBranchIDs_()
+    : DataViewImpl {ep, md, InEvent}
+    , aux_         {ep.aux()}
+    , subRun_      {newSubRun(ep, md)}
+    , eventPrincipal_{ep}
   { }
 
   EDProductGetter const *
