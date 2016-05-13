@@ -18,10 +18,7 @@ cet_test(MultiOutputProducerRootInput_w HANDBUILT
   TEST_ARGS --rethrow-all -c multiOutputProducerRootInput_w.fcl -s ../SingleOutputProducerEmptyEvent_w.d/out.root
   DATAFILES
   fcl/multiOutputProducerRootInput_w.fcl
-  )
-
-SET_TESTS_PROPERTIES(MultiOutputProducerRootInput_w PROPERTIES
-  DEPENDS "SingleOutputProducerEmptyEvent_w"
+  TEST_PROPERTIES DEPENDS SingleOutputProducerEmptyEvent_w
   )
 
 # The following tests exercise the state machine in how it handles
@@ -58,10 +55,7 @@ foreach(source EmptyEvent RootInput)
     ${OutputFilePath}/out_r2_sr0_e13.root
     ${OutputFilePath}/out_r2_sr0_e14.root
     REF "${CMAKE_CURRENT_SOURCE_DIR}/MultiOutput_FileIndexCheck_Event_t-ref.txt"
-    )
-
-  SET_TESTS_PROPERTIES(MultiOutput${source}_FileIndexCheck_Event_t PROPERTIES
-    DEPENDS "MultiOutputProducer${source}_w"
+    TEST_PROPERTIES DEPENDS MultiOutputProducer${source}_w
     )
 
   ## =============================================================
@@ -76,10 +70,7 @@ foreach(source EmptyEvent RootInput)
     ${OutputFilePath}/out_r1_sr1.root
     ${OutputFilePath}/out_r2_sr0.root
     REF "${CMAKE_CURRENT_SOURCE_DIR}/MultiOutput_FileIndexCheck_SubRun_t-ref.txt"
-    )
-
-  SET_TESTS_PROPERTIES(MultiOutput${source}_FileIndexCheck_SubRun_t PROPERTIES
-    DEPENDS "MultiOutputProducer${source}_w"
+    TEST_PROPERTIES DEPENDS MultiOutputProducer${source}_w
     )
 
   ## =============================================================
@@ -93,10 +84,7 @@ foreach(source EmptyEvent RootInput)
     ${OutputFilePath}/out_r1.root
     ${OutputFilePath}/out_r2.root
     REF "${CMAKE_CURRENT_SOURCE_DIR}/MultiOutput_FileIndexCheck_Run_t-ref.txt"
-    )
-
-  SET_TESTS_PROPERTIES(MultiOutput${source}_FileIndexCheck_Run_t PROPERTIES
-    DEPENDS "MultiOutputProducer${source}_w"
+    TEST_PROPERTIES DEPENDS MultiOutputProducer${source}_w
     )
 
   ## =============================================================
@@ -109,10 +97,7 @@ foreach(source EmptyEvent RootInput)
     --file-index
     ${OutputFilePath}/out.root
     REF "${CMAKE_CURRENT_SOURCE_DIR}/MultiOutput_FileIndexCheck_t-ref.txt"
-    )
-
-  SET_TESTS_PROPERTIES(MultiOutput${source}_FileIndexCheck_t PROPERTIES
-    DEPENDS "MultiOutputProducer${source}_w"
+    TEST_PROPERTIES DEPENDS MultiOutputProducer${source}_w
     )
 
 endforeach()
@@ -130,10 +115,7 @@ cet_test(MultiInput_SwitchOutputOnNewInput_w HANDBUILT
   -s ${InputFilePath}/out_r2.root
   DATAFILES
   fcl/multiOutputProducer_SwitchOutputOnNewInput_w.fcl
-  )
-
-SET_TESTS_PROPERTIES(MultiInput_SwitchOutputOnNewInput_w PROPERTIES
-  DEPENDS "MultiOutputProducerEmptyEvent_w"
+  TEST_PROPERTIES DEPENDS MultiOutputProducerEmptyEvent_w
   )
 
 SET(InputFilePath "${CMAKE_CURRENT_BINARY_DIR}/MultiInput_SwitchOutputOnNewInput_w.d")
@@ -146,10 +128,7 @@ cet_test(MultiOutput_FileIndexCheck_InputFile_t HANDBUILT
   ${InputFilePath}/out_1.root
   ${InputFilePath}/out_2.root
   REF "${CMAKE_CURRENT_SOURCE_DIR}/MultiOutput_FileIndexCheck_InputFile_t-ref.txt"
-  )
-
-SET_TESTS_PROPERTIES(MultiOutput_FileIndexCheck_InputFile_t PROPERTIES
-  DEPENDS "MultiInput_SwitchOutputOnNewInput_w"
+  TEST_PROPERTIES DEPENDS MultiInput_SwitchOutputOnNewInput_w
   )
 
 ## =============================================================
@@ -180,20 +159,14 @@ cet_test(MultiInputConcatenate_t HANDBUILT
   -s ${InputFilePath}/out_r2_sr0_e14.root
   DATAFILES
   fcl/empty.fcl
-  )
-
-SET_TESTS_PROPERTIES(MultiInputConcatenate_t PROPERTIES
-  DEPENDS "MultiOutputProducerRootInput_w"
+  TEST_PROPERTIES DEPENDS MultiOutputProducerRootInput_w
   )
 
 cet_test(MultiInputConcatenate_FileIndexCheck_t HANDBUILT
   TEST_EXEC file_info_dumper
   TEST_ARGS --range-sets --file-index ../MultiInputConcatenate_t.d/out.root
   REF "${CMAKE_CURRENT_SOURCE_DIR}/MultiInputConcatenate_FileIndexCheck_t-ref.txt"
-  )
-
-SET_TESTS_PROPERTIES(MultiInputConcatenate_FileIndexCheck_t PROPERTIES
-  DEPENDS "MultiInputConcatenate_t"
+  TEST_PROPERTIES DEPENDS MultiInputConcatenate_t
   )
 
 ## =============================================================
@@ -215,10 +188,7 @@ cet_test(SwitchOnTwoConditions_FileIndexCheck_t HANDBUILT
   "../SwitchOnTwoConditions_w.d/out_1.root"
   "../SwitchOnTwoConditions_w.d/out_2.root"
   REF "${CMAKE_CURRENT_SOURCE_DIR}/SwitchOnTwoConditions_FileIndexCheck_t-ref.txt"
-  )
-
-SET_TESTS_PROPERTIES(SwitchOnTwoConditions_FileIndexCheck_t PROPERTIES
-  DEPENDS "SwitchOnTwoConditions_w"
+  TEST_PROPERTIES DEPENDS SwitchOnTwoConditions_w
   )
 
 ## =============================================================
@@ -240,8 +210,5 @@ cet_test(SwitchOnFileSizeMax_r HANDBUILT
   "../SwitchOnFileSizeMax_w.d/out_2.root"
   "../SwitchOnFileSizeMax_w.d/out_3.root"
   REF "${CMAKE_CURRENT_SOURCE_DIR}/SwitchOnFileSizeMax-ref.txt"
-  )
-
-SET_TESTS_PROPERTIES(SwitchOnFileSizeMax_r PROPERTIES
-  DEPENDS "SwitchOnFileSizeMax_w"
+  TEST_PROPERTIES DEPENDS SwitchOnFileSizeMax_w
   )

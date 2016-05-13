@@ -140,7 +140,7 @@ cet_test(test_dropAllEventsSubruns_t.sh PREBUILT
   test_dropAllEventsSubruns_verify.cxx
 )
 
-cet_test(testOutputRanges_dropAllEventsSubRuns HANDBUILT
+cet_test(testOutputRanges_dropAllEventsSubruns HANDBUILT
   TEST_EXEC file_info_dumper
   TEST_ARGS
   --range-sets
@@ -152,7 +152,7 @@ cet_test(testOutputRanges_dropAllEventsSubRuns HANDBUILT
   "../test_dropAllEventsSubruns_t.sh.d/out_dropAllEventsSubruns1_r.root"
   "../test_dropAllEventsSubruns_t.sh.d/out_dropAllEventsSubruns2_r.root"
   REF "${CMAKE_CURRENT_SOURCE_DIR}/testOutputRanges_dropAllEventsSubRuns-ref.txt"
-  TEST_PROPERTIES DEPENDS test_dropAllEventsSubRuns_t.sh
+  TEST_PROPERTIES DEPENDS test_dropAllEventsSubruns_t.sh
   )
 
 cet_test(test_runSubRunNoPut_t.sh PREBUILT
