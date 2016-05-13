@@ -1,0 +1,17 @@
+process_name: rsAssignment
+physics: {
+
+   producers: {
+      prod: {module_type: ImplicitRSAssignmentProducer}
+   }
+
+   analyzers: {
+      check: {
+         module_type: ImplicitRSAssignmentAnalyzer
+         tagInfo: [prod, rsAssignment]
+      }
+   }
+
+   p1: [prod]
+   e1: [check]
+}

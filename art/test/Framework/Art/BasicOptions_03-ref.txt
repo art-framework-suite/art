@@ -38,6 +38,8 @@
    FlushingGeneratorTestFilter         filter      <path>/FlushingGeneratorTestFilter_module.cc
    HMRunProdProducer                   producer    <path>/HMRunProdProducer_module.cc
    HMSubRunProdProducer                producer    <path>/HMSubRunProdProducer_module.cc
+   ImplicitRSAssignmentAnalyzer        analyzer    <path>/ImplicitRSAssignmentAnalyzer_module.cc
+   ImplicitRSAssignmentProducer        producer    <path>/ImplicitRSAssignmentProducer_module.cc
    InputProducer                       producer    <path>/InputProducer_module.cc
 ***InputProducerNoEvents               producer    <path>/InputProducerNoEvents_module.cc
 ***InputProducerNoEvents               producer    <path>/InputProducerNoEvents_module.cc

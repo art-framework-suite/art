@@ -49,6 +49,8 @@ simple_plugin(FlushingGenerator           "source"  NO_INSTALL )
 simple_plugin(FlushingGeneratorTest       "module"  NO_INSTALL )
 simple_plugin(FlushingGeneratorTestFilter "module"  NO_INSTALL )
 simple_plugin(GeneratorTest               "source"  NO_INSTALL )
+simple_plugin(ImplicitRSAssignmentAnalyzer "module" NO_INSTALL USE_BOOST_UNIT)
+simple_plugin(ImplicitRSAssignmentProducer "module" NO_INSTALL USE_BOOST_UNIT)
 simple_plugin(InFlightConfiguration       "service" NO_INSTALL USE_BOOST_UNIT art_Framework_Services_Registry art_Framework_Services_UserInteraction art_Framework_Services_System_PathSelection_service )
 simple_plugin(IntProducer                 "module"  NO_INSTALL )
 simple_plugin(IntTestAnalyzer             "module"  NO_INSTALL )
@@ -1198,6 +1200,13 @@ cet_test(signal_handling_04_t HANDBUILT
   "Art has handled signal ${sigusr_two_signal}\\."
   DATAFILES
   fcl/signal_sigint.fcl
+  )
+
+cet_test(ImplicitRSAssignment_t HANDBUILT
+  TEST_EXEC art_ut
+  TEST_ARGS -- --config implicitRSAssignment_t.fcl
+  DATAFILES
+  fcl/implicitRSAssignment_t.fcl
   )
 
 foreach (num 1 2)

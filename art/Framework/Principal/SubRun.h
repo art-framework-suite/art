@@ -24,13 +24,12 @@
 class art::SubRun : private art::DataViewImpl {
 public:
 
+  using Base = DataViewImpl;
+
   SubRun(SubRunPrincipal& srp,
          ModuleDescription const& md,
          RangeSet const& rsForPuttingProducts = RangeSet::invalid());
 
-  using Base = DataViewImpl;
-
-  // AUX functions.
   SubRunNumber_t subRun() const {return aux_.subRun();}
   RunNumber_t run() const {return aux_.run();}
   SubRunID id() const { return aux_.id(); }
@@ -175,12 +174,12 @@ art::SubRun::put(std::unique_ptr<PROD>&& product,
 
   if (productRangeSet_.collapse().is_full_subRun()) {
     throw art::Exception(art::errors::InsertFailure, "SubRun::put")
-      << "Cannot put a product corresponding to a full SubRun using\n"
+      << "\nCannot put a product corresponding to a full SubRun using\n"
       << "art::subRunFragment().  This can happen if you attempted to\n"
       << "put a product at beginSubRun using art::subRunFragment().\n"
       << "Please use either:\n"
       << "   art::fullSubRun(), or\n"
-      << "   art::subRunFragment(RangeSet const&)\n"
+      << "   art::subRunFragment(art::RangeSet const&)\n"
       << "or contact artists@fnal.gov for assistance.\n";
   }
   put_<PROD>(std::move(product), productInstanceName, productRangeSet_);
@@ -200,9 +199,9 @@ art::SubRun::put(std::unique_ptr<PROD>&& product,
                 "           function to your class, or contact artists@fnal.gov.\n");
   if (token.rs.collapse().is_full_subRun()) {
     throw Exception{errors::InsertFailure, "Run::put"}
-      << "Cannot put a product corresponding to a full SubRun using\n"
-      << "art::subRunFragment(RangeSet&).  Please use:\n"
-      << "   art::fullSubRun()"
+      << "\nCannot put a product corresponding to a full SubRun using\n"
+      << "art::subRunFragment(art::RangeSet&).  Please use:\n"
+      << "   art::fullSubRun()\n"
       << "or contact artists@fnal.gov for assistance.\n";
   }
   put_<PROD>(std::move(product), productInstanceName, token.rs);
@@ -217,14 +216,14 @@ art::SubRun::put_(std::unique_ptr<PROD>&& product,
 {
   if (product.get() == nullptr) {
     throw art::Exception{art::errors::NullPointerError, "SubRun::put"}
-      << "A null unique_ptr was passed to 'put'.\n"
+      << "\nA null unique_ptr was passed to 'put'.\n"
       << "The pointer is of type " << TypeID{typeid(PROD)} << ".\n"
       << "The specified productInstanceName was '" << productInstanceName << "'.\n";
   }
 
   if (!rs.is_valid()) {
     throw art::Exception{art::errors::InsertFailure, "SubRun::put"}
-      << "Cannot put a product with an invalid RangeSet.\n"
+      << "\nCannot put a product with an invalid RangeSet.\n"
       << "Please contact artists@fnal.gov.\n";
   }
 
@@ -234,7 +233,7 @@ art::SubRun::put_(std::unique_ptr<PROD>&& product,
   auto result = putProducts().emplace(bd.branchID(), PMValue{std::move(wp), bd, rs});
   if (!result.second) {
     throw art::Exception{art::errors::InsertFailure, "SubRun::put"}
-      << "Attempt to put multiple products with the\n"
+      << "\nAttempt to put multiple products with the\n"
       << "following description onto the SubRun.\n"
       << "Products must be unique per SubRun.\n"
       << "=================================\n"
