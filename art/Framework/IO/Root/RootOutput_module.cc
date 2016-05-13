@@ -59,7 +59,7 @@ namespace art {
   "\n"                                                                  \
   "It is an error to force a file switch for a boundary value of \"Unset\"."
 
-class art::RootOutput : public OutputModule {
+class art::RootOutput final : public OutputModule {
 public:
 
   struct Config {

@@ -33,7 +33,7 @@ namespace art {
 using DRISI = art::DecrepitRelicInputSourceImplementation;
 using std::uint32_t;
 
-class art::EmptyEvent : public DRISI {
+class art::EmptyEvent final : public DRISI {
 public:
 
   struct Config {
@@ -151,10 +151,9 @@ art::EmptyEvent::readRun_() {
     Timestamp::invalidTimestamp();
   RunAuxiliary const runAux{eventID_.runID(), ts, Timestamp::invalidTimestamp()};
   newRun_ = false;
-  auto rp_ptr = std::make_shared<RunPrincipal>(runAux,
-                                               processConfiguration());
+  auto rp_ptr = std::make_shared<RunPrincipal>(runAux, processConfiguration());
   if (plugin_) {
-    Run const r{*rp_ptr, moduleDescription()};
+    Run const r {*rp_ptr, moduleDescription()};
     plugin_->doBeginRun(r);
   }
   return rp_ptr;
@@ -180,10 +179,9 @@ EmptyEvent::readSubRun_() {
     plugin_->doBeginSubRunTimestamp(eventID_.subRunID()) :
     Timestamp::invalidTimestamp();
   SubRunAuxiliary const subRunAux{eventID_.subRunID(), ts, Timestamp::invalidTimestamp()};
-  auto srp_ptr = std::make_shared<SubRunPrincipal>(subRunAux,
-                                                   processConfiguration());
+  auto srp_ptr = std::make_shared<SubRunPrincipal>(subRunAux, processConfiguration());
   if (plugin_) {
-    SubRun const sr{*srp_ptr, moduleDescription()};
+    SubRun const sr {*srp_ptr, moduleDescription()};
     plugin_->doBeginSubRun(sr);
   }
   newSubRun_ = false;

@@ -113,7 +113,6 @@ namespace art {
     EventID
     postSeekChecks(EventID const& foundID, T eventSpec,
                    std::enable_if_t<!std::is_convertible<T, off_t>::value>* = nullptr);
-    //virtual void storeMPRforBrokenRandomAccess(MasterProductRegistry&);
   }; // class RootInput
 
   template<typename T>
