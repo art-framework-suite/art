@@ -131,9 +131,6 @@ namespace art
       rewind_();
     }
 
-    /// Wake up the input source
-    //void wakeUp() {wakeUp_();}
-
     /// issue an event report
     void issueReports(EventID const& eventID);
 
@@ -160,10 +157,7 @@ namespace art
     /// -1 is used for unlimited.
     int remainingSubRuns() const {return remainingSubRuns_;}
 
-    /// Accessor for 'module' description.
     ModuleDescription const& moduleDescription() const {return moduleDescription_;}
-
-    /// Accessor for Process Configuration
     ProcessConfiguration const& processConfiguration() const {return moduleDescription().processConfiguration();}
 
     /// Called by framework at beginning of job
@@ -171,10 +165,6 @@ namespace art
 
     /// Called by framework at end of job
     void doEndJob() override;
-
-    /// Called by framework when events are exhausted.
-    void doEndSubRun(SubRunPrincipal& srp);
-    void doEndRun(RunPrincipal& rp);
 
     /// Accessor for the current time, as seen by the input source
     Timestamp const& timestamp() const {return time_;}
@@ -207,11 +197,6 @@ namespace art
       state_ = input::IsInvalid;
     }
 
-    // To call the private commit_() functions of classes with which we are friends
-    void commitEvent(Event &e);
-    void commitRun(Run &r);
-    void commitSubRun(SubRun &sr);
-
   private:
     bool eventLimitReached() const {return remainingEvents_ == 0;}
     bool subRunLimitReached() const {return remainingSubRuns_ == 0;}
@@ -227,31 +212,28 @@ namespace art
     virtual void closeFile_() {}
     virtual void skip(int);
     virtual void rewind_();
-    //virtual void wakeUp_();
     void preRead();
     void postRead(Event& event);
-    virtual void endSubRun(SubRun &);
-    virtual void endRun(Run &);
     virtual void beginJob();
     virtual void endJob();
 
   private:
     int maxEvents_;
-    int remainingEvents_;
     int maxSubRuns_;
-    int remainingSubRuns_;
-    int readCount_;
     int const reportFrequency_;
-    ProcessingMode processingMode_;
     ModuleDescription const moduleDescription_;
-    bool checkPutProducts_;
-    Timestamp time_;
-    bool doneReadAhead_;
-    input::ItemType state_;
-    std::shared_ptr<RunPrincipal>  runPrincipal_;
-    std::shared_ptr<SubRunPrincipal>  subRunPrincipal_;
-    std::vector<std::shared_ptr<RunPrincipal>> secondaryRunPrincipals_;
-    std::vector<std::shared_ptr<SubRunPrincipal>> secondarySubRunPrincipals_;
+
+    int remainingEvents_ {maxEvents_};
+    int remainingSubRuns_ {maxSubRuns_};
+    int readCount_ {};
+    ProcessingMode processingMode_ {RunsSubRunsAndEvents};
+    Timestamp time_ {Timestamp::invalidTimestamp()};
+    bool doneReadAhead_ {false};
+    input::ItemType state_ {input::IsInvalid};
+    std::shared_ptr<RunPrincipal>  runPrincipal_ {nullptr};
+    std::shared_ptr<SubRunPrincipal>  subRunPrincipal_ {nullptr};
+    std::vector<std::shared_ptr<RunPrincipal>> secondaryRunPrincipals_ {};
+    std::vector<std::shared_ptr<SubRunPrincipal>> secondarySubRunPrincipals_ {};
   };  // DecrepitRelicInputSourceImplementation
 
 }  // art

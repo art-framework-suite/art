@@ -54,23 +54,10 @@ namespace art {
   DecrepitRelicInputSourceImplementation::
   DecrepitRelicInputSourceImplementation(fhicl::TableFragment<DRISI::Config> const & config,
                                          InputSourceDescription & desc)
-    : ProductRegistryHelper( )
-    , maxEvents_           ( config().maxEvents() )
-    , remainingEvents_     ( maxEvents_ )
-    , maxSubRuns_          ( config().maxSubRuns() )
-    , remainingSubRuns_    ( maxSubRuns_ )
-    , readCount_           ( 0 )
-    , reportFrequency_     ( config().reportFrequency() )
-    , processingMode_      ( RunsSubRunsAndEvents )
-    , moduleDescription_   ( desc.moduleDescription )
-    , checkPutProducts_    ( config().errorOnFailureToPut() )
-    , time_                ( Timestamp::invalidTimestamp() )
-    , doneReadAhead_       ( false )
-    , state_               ( input::IsInvalid )
-    , runPrincipal_        ( )
-    , subRunPrincipal_     ( )
-    , secondaryRunPrincipals_()
-    , secondarySubRunPrincipals_()
+    : maxEvents_{config().maxEvents()}
+    , maxSubRuns_{config().maxSubRuns()}
+    , reportFrequency_{config().reportFrequency()}
+    , moduleDescription_{desc.moduleDescription}
   {
     if (reportFrequency_ < 0) {
       throw art::Exception(art::errors::Configuration)
@@ -97,27 +84,6 @@ namespace art {
 
     // This must come LAST in the constructor.
     registerProducts(desc.productRegistry, moduleDescription_);
-  }
-
-
-  void
-  DecrepitRelicInputSourceImplementation::commitEvent(art::Event &e)
-  {
-    e.commit_(checkPutProducts_, expectedProducts());
-  }
-
-
-  void
-  DecrepitRelicInputSourceImplementation::commitRun(art::Run &r)
-  {
-    r.commit_();
-  }
-
-
-  void
-  DecrepitRelicInputSourceImplementation::commitSubRun(art::SubRun &sr)
-  {
-    sr.commit_();
   }
 
   // This next function is to guarantee that "runs only" mode does not
@@ -382,31 +348,6 @@ namespace art {
   void
   DecrepitRelicInputSourceImplementation::postRead(Event&) {
   }
-
-  void
-  DecrepitRelicInputSourceImplementation::doEndRun(RunPrincipal& rp) {
-    Run run(rp, moduleDescription());
-    endRun(run);
-    run.commit_();
-    rp.setEndTime(time_);
-  }
-
-  void
-  DecrepitRelicInputSourceImplementation::doEndSubRun(SubRunPrincipal & srp) {
-    SubRun sr(srp, moduleDescription());
-    endSubRun(sr);
-    sr.commit_();
-    srp.setEndTime(time_);
-  }
-
-  //   void
-  //   DecrepitRelicInputSourceImplementation::wakeUp_() { }
-
-  void
-  DecrepitRelicInputSourceImplementation::endSubRun(SubRun &) { }
-
-  void
-  DecrepitRelicInputSourceImplementation::endRun(Run &) { }
 
   void
   DecrepitRelicInputSourceImplementation::beginJob() { }
