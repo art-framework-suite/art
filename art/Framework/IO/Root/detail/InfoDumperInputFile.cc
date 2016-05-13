@@ -27,12 +27,23 @@ namespace {
 
   auto getFileIndex(TFile* file)
   {
-    auto metaDataTree = reinterpret_cast<TTree*>(file->Get(art::rootNames::metaDataTreeName().data()));
-
+    auto metaDataTree = static_cast<TTree*>(file->Get(art::rootNames::metaDataTreeName().data()));
     auto fileIndexUniquePtr = std::make_unique<art::FileIndex>();
     auto findexPtr = &*fileIndexUniquePtr;
     art::detail::setFileIndexPointer(file, metaDataTree, findexPtr);
+    art::input::getEntry(metaDataTree, 0);
     return *fileIndexUniquePtr;
+  }
+
+  auto getFileFormatVersion(TFile* file)
+  {
+    using namespace art::rootNames;
+    auto metaDataTree = static_cast<TTree*>(file->Get(metaDataTreeName().data()));
+    art::FileFormatVersion fftVersion {};
+    auto fftPtr = &fftVersion;
+    metaDataTree->SetBranchAddress(metaBranchRootName<art::FileFormatVersion>(), &fftPtr);
+    art::input::getEntry(metaDataTree, 0);
+    return *fftPtr;
   }
 
   using EntryNumbers = art::detail::InfoDumperInputFile::EntryNumbers;
@@ -56,6 +67,7 @@ namespace {
 art::detail::InfoDumperInputFile::InfoDumperInputFile(std::string const& filename)
   : file_{openFile(filename)}
   , fileIndex_{getFileIndex(file_.get())}
+  , fileFormatVersion_{getFileFormatVersion(file_.get())}
 {}
 
 void
@@ -67,7 +79,15 @@ art::detail::InfoDumperInputFile::print_file_index(std::ostream& os) const
 void
 art::detail::InfoDumperInputFile::print_range_sets(std::ostream& os) const
 {
-  TTree* tree = static_cast<TTree*>(file_->Get(BranchTypeToProductTreeName(InRun).c_str()));
+  if (fileFormatVersion_.value_ < 9) {
+    std::ostringstream oss;
+    oss << "Range-set information is not available for art/ROOT files with a format\n"
+        << "version of \"" << fileFormatVersion_ << "\".\n";
+    throw Exception{errors::FileReadError, "InfoDumperInputFile::print_range_sets"}
+    << oss.str();
+  }
+
+  auto* tree = static_cast<TTree*>(file_->Get(BranchTypeToProductTreeName(InRun).c_str()));
   SQLite3Wrapper db {file_.get(), "RootFileDB"};
 
   auto it = fileIndex_.cbegin();
