@@ -26,13 +26,17 @@ namespace {
 
 art::BasicOutputOptionsHandler::
 BasicOutputOptionsHandler(bpo::options_description & desc)
+  :
+  tmpDir_()
 {
   desc.add_options()
     ("TFileName,T", bpo::value<std::string>(),
      "File name for TFileService.")
-    ("tmpdir", bpo::value<std::string>(),
+    ("tmpdir", bpo::value<std::string>(&tmpDir_),
      "Temporary directory for in-progress output files (defaults to directory "
      "of specified output file names).")
+    ("tmpDir", bpo::value<std::string>(&tmpDir_),
+     "Synonym for --tmpdir.")
     ("output,o", bpo::value<stringvec>()->composing(),
      "Event output stream file (optionally specify stream with "
      "stream-label:fileName in which case multiples are OK).")
@@ -257,11 +261,10 @@ doProcessOptions(bpo::variables_map const & vm,
   // Output stream options.
   processFileOutputOptions(vm, raw_config);
   // tmpDir option for TFileService and output streams.
-  if (vm.count("tmpdir") == 1) {
-    auto tmpDir = vm["tmpdir"].as<std::string>();
+  if (!tmpDir_.empty()) {
     std::string const& tfile_key {"services.TFileService"};
     if (detail::exists_outside_prolog(raw_config, tfile_key)) {
-      raw_config.put(tfile_key + ".tmpDir", tmpDir);
+      raw_config.put(tfile_key + ".tmpDir", tmpDir_);
     }
     std::string const& outputs_stem {"outputs"};
     if (detail::exists_outside_prolog(raw_config, outputs_stem)) {
@@ -269,7 +272,7 @@ doProcessOptions(bpo::variables_map const & vm,
       for (auto const & output : table) {
         if (detail::exists_outside_prolog(raw_config, outputs_stem + '.' + output.first + ".module_type")) {
           // Inject tmpDir into the module configuration.
-          raw_config.put(outputs_stem + '.' + output.first + ".tmpDir", tmpDir);
+          raw_config.put(outputs_stem + '.' + output.first + ".tmpDir", tmpDir_);
         }
       }
     }
