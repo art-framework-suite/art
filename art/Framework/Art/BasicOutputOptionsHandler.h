@@ -18,6 +18,8 @@ private:
   // Act on selected options.
   int doProcessOptions(bpo::variables_map const & vm,
                        fhicl::intermediate_table & raw_config) override;
+
+  std::string tmpDir_;
 };
 #endif /* art_Framework_Art_BasicOutputOptionsHandler_h */
 
