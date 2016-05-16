@@ -51,6 +51,31 @@ namespace art {
       void operator()(T &, fhicl::ParameterSet const &) {}
     };
 
+    // If we have a constructor taking fhicl::ParameterSet const & and
+    // ActivityRegistry &, use it. Otherwise, call a one-argument
+    // constructor taking fhicl::ParameterSet const & only.
+    template <typename T>
+    typename
+    std::enable_if<std::is_constructible<T, fhicl::ParameterSet const &,
+                                         ActivityRegistry &>::value,
+                   std::shared_ptr<T> >::type
+    makeServiceFrom(fhicl::ParameterSet const & ps,
+                    ActivityRegistry & areg)
+    {
+      return std::make_shared<T>(ps, areg);
+    }
+
+    template <typename T>
+    typename
+    std::enable_if<!std::is_constructible<T, fhicl::ParameterSet const &,
+                                          ActivityRegistry &>::value,
+                   std::shared_ptr<T> >::type
+    makeServiceFrom(fhicl::ParameterSet const & ps,
+                    ActivityRegistry &)
+    {
+      return std::make_shared<T>(ps);
+    }
+
   } // namespace detail
 
 } // namespace art
@@ -75,7 +100,7 @@ public:
                  ActivityRegistry & areg)
     :
     ServiceWrapperBase(),
-    service_ptr_(new T(ps, areg)) {
+    service_ptr_(makeServiceFrom<T>(ps, areg)) {
   }
 
   // C'tor from shared_ptr.

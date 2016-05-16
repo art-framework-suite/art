@@ -52,7 +52,7 @@ namespace art {
       whyFailed_(){}
 
     ///Used when the attempt to get the data failed
-    OutputHandle(std::shared_ptr<cet::exception> const& iWhyFailed):
+    OutputHandle(std::shared_ptr<art::Exception> const& iWhyFailed):
       wrap_(0),
       desc_(0),
       productProvenance_(),
@@ -74,7 +74,7 @@ namespace art {
 
     EDProduct const* wrapper() const { return wrap_; }
 
-    std::shared_ptr<cet::exception> whyFailed() const { return whyFailed_; }
+    std::shared_ptr<art::Exception> whyFailed() const { return whyFailed_; }
 
     ProductProvenance const* productProvenance() const { return productProvenance_.get(); }
 
@@ -84,7 +84,7 @@ namespace art {
     EDProduct const* wrap_;
     BranchDescription const* desc_;
     cet::exempt_ptr<ProductProvenance const> productProvenance_;
-    std::shared_ptr<cet::exception> whyFailed_;
+    std::shared_ptr<art::Exception> whyFailed_;
   };
 
   // Free swap function

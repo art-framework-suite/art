@@ -1,0 +1,4 @@
+services: { SimpleServiceTest: { } }
+physics: { analyzers: { ssta: { module_type: "SimpleServiceTestAnalyzer" } }  a1: [ ssta ] }
+source: { module_type: EmptyEvent
+          maxEvents: 1 }

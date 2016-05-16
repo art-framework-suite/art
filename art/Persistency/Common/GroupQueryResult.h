@@ -8,6 +8,7 @@
 //
 // ======================================================================
 
+#include "canvas/Utilities/Exception.h"
 #include "cetlib/exception.h"
 #include "cetlib/exempt_ptr.h"
 
@@ -29,7 +30,7 @@ class art::GroupQueryResult
 public:
   // c'tors:
   GroupQueryResult( Group const * );
-  GroupQueryResult( std::shared_ptr<cet::exception const> );
+  GroupQueryResult( std::shared_ptr<art::Exception const> );
 
   // use compiler-generated copy c'tor, copy assignment, and d'tor
 
@@ -39,11 +40,11 @@ public:
 
   // properties:
   cet::exempt_ptr<Group const>           result   ( ) const  { return result_; }
-  std::shared_ptr<cet::exception const>  whyFailed( ) const  { return whyFailed_; }
+  std::shared_ptr<art::Exception const>  whyFailed( ) const  { return whyFailed_; }
 
 private:
   cet::exempt_ptr<Group const>           result_;
-  std::shared_ptr<cet::exception const>  whyFailed_;
+  std::shared_ptr<art::Exception const>  whyFailed_;
 
   bool  invariant( )  const  { return succeeded() != failed(); }
 

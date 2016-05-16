@@ -23,12 +23,7 @@ namespace art {
     ServiceTable(fhicl::ParameterSet const & pset) : ServiceTable()
     {
       std::set<std::string> const keys_to_ignore = {"service_type", "service_provider"};
-      try {
-        config_.validate_ParameterSet(pset, keys_to_ignore);
-      }
-      catch (fhicl::detail::validationException const&) {
-        throw;
-      }
+      config_.validate_ParameterSet(pset, keys_to_ignore);
     }
 
     fhicl::ParameterSet const& get_PSet() const { return config_.get_PSet(); }

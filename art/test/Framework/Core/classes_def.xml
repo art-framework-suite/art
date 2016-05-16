@@ -1,0 +1,6 @@
+<lcgdict>
+  <class name="arttest::ProdTypeA<std::string>"/>
+  <class name="art::Wrapper<arttest::ProdTypeA<std::string> >"/>
+  <class name="arttest::ProdTypeB<std::string>"/>
+  <class name="art::Wrapper<arttest::ProdTypeB<std::string> >"/>
+</lcgdict>

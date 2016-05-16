@@ -17,19 +17,6 @@ namespace {
   using namespace art;
 
   void
-  checkDicts(BranchDescription const& productDesc)
-  {
-    if (productDesc.transient()) {
-      checkDictionaries(productDesc.wrappedName(), false);
-      checkDictionaries(productDesc.producedClassName(), false);
-    }
-    else {
-      checkDictionaries(productDesc.wrappedName(), true);
-    }
-    reportFailedDictionaryChecks();
-  }
-
-  void
   recreateLookups(ProductList const& prods,
                   BranchTypeLookup& pl,
                   BranchTypeLookup& el)
@@ -48,8 +35,8 @@ namespace {
         continue;
       }
       TClass * TYc = TY.tClass();
-      art::TypeWithDict ET;
-      if ((art::mapped_type_of(TYc, ET) || art::value_type_of(TYc, ET)) && ET) {
+      auto ET = mapped_type_of(TYc);
+      if (ET || (ET = value_type_of(TYc))) {
         // The class of the product has a nested type, "mapped_type," or,
         // "value_type," so allow lookups by that type and all of its base
         // types too.
@@ -80,6 +67,7 @@ namespace art {
     , perFilePresenceLookups_()
     , productLookup_()
     , elementLookup_()
+    , dictChecker_()
     {
       perFileProds_.resize(1);
     }
@@ -93,7 +81,7 @@ namespace art {
       throw cet::exception("ProductRegistry", "addProduct")
         << "Cannot modify the MasterProductRegistry because it is frozen.\n";
     }
-    checkDicts(*bdp);
+    checkDicts_(*bdp);
     auto I = productList_.emplace(BranchKey(*bdp), BranchDescription());
     if (!I.second) {
       throw Exception(errors::Configuration)
@@ -136,7 +124,7 @@ namespace art {
         throw cet::exception("ProductRegistry", "initFromFirstPrimaryFile")
           << "Cannot modify the MasterProductRegistry because it is frozen.\n";
       }
-      checkDicts(bd);
+      checkDicts_(bd);
       auto bk = BranchKey(bd);
       auto I = productList_.find(bk);
       if (I == productList_.end()) {
@@ -181,7 +169,7 @@ namespace art {
     for (auto const& val: pl) {
       auto const& bd = val.second;
       assert(!bd.produced());
-      checkDicts(bd);
+      checkDicts_(bd);
       auto bk = BranchKey(bd);
       auto I = productList_.find(bk);
       if (I == productList_.end()) {
@@ -253,7 +241,7 @@ namespace art {
         // product list which was not in the product list of any
         // previous input file.
         assert(!J->second.produced());
-        checkDicts(J->second);
+        checkDicts_(J->second);
         productList_.insert(*J);
         perFileProds_[0].insert(*J);
         ++J;
@@ -321,7 +309,6 @@ namespace art {
     if (frozen_) {
       return;
     }
-    reportFailedDictionaryChecks();
     frozen_ = true;
     productLookup_.clear();
     productLookup_.resize(1);
@@ -338,6 +325,33 @@ namespace art {
     for (auto const& val: productList_) {
       os << val.second << "\n-----\n";
     }
+  }
+
+  void
+  MasterProductRegistry::
+  checkDicts_(BranchDescription const& productDesc)
+  {
+    auto const isTransient = productDesc.transient();
+
+    // Check product dictionaries.
+    dictChecker_.checkDictionaries(productDesc.wrappedName(), !isTransient);
+    if (isTransient) {
+      dictChecker_.checkDictionaries(productDesc.producedClassName(), false);
+    }
+
+    // Check dictionaries for assnsPartner, if appropriate. This is only
+    // necessary for top-level checks so appropriate here rather than
+    // checkDictionaries itself.
+    auto const assnsPartner =
+      name_of_assns_partner(productDesc.producedClassName());
+    if (!assnsPartner.empty()) {
+      // Dictionary for wrapped partner is required.
+      dictChecker_.checkDictionaries(wrappedClassName(assnsPartner), !isTransient);
+      if (isTransient) {
+        dictChecker_.checkDictionaries(assnsPartner, false);
+      }
+    }
+    dictChecker_.reportMissingDictionaries();
   }
 
   std::ostream&

@@ -1,0 +1,85 @@
+<separator (=)>
+Processing file: ../../../../Integration/Assns_w.d/out.root
+# Read SQLiteDB from file, total size: 16.0 KiB.
+
+ASSNS: {
+   outputs: {
+      o1: {
+         fileName: "dummy.root"
+         module_label: "o1"
+         module_type: "RootOutput"
+      }
+      o2: {
+         fileName: "out.root"
+         module_label: "o2"
+         module_type: "RootOutput"
+      }
+   }
+   physics: {
+      e1: [
+         "o1",
+         "o2"
+      ]
+      end_paths: [
+         "e1"
+      ]
+      p1: [
+         "ap1"
+      ]
+      producers: {
+         ap1: {
+            module_label: "ap1"
+            module_type: "AssnsProducer"
+         }
+      }
+      trigger_paths: [
+         "p1"
+      ]
+   }
+   services: {
+      CatalogInterface: {
+         service_provider: "TrivialFileDelivery"
+         service_type: "CatalogInterface"
+      }
+      FileTransfer: {
+         service_provider: "TrivialFileTransfer"
+         service_type: "FileTransfer"
+      }
+      message: {
+         destinations: {
+            STDOUT: {
+               categories: {
+                  ArtReport: {
+                     limit: 100
+                  }
+                  default: {
+                     limit: -1
+                  }
+               }
+               threshold: "INFO"
+               type: "cout"
+            }
+         }
+      }
+      scheduler: {
+         FailPath: []
+         FaileModule: []
+         IgnoreCompletely: []
+         SkipEvent: []
+         defaultExceptions: false
+         errorOnFailureToPut: true
+         errorOnSIGINT: true
+      }
+   }
+   source: {
+      maxEvents: 2
+      module_label: "source"
+      module_type: "EmptyEvent"
+   }
+   trigger_paths: {
+      trigger_paths: [
+         "p1"
+      ]
+   }
+}
+

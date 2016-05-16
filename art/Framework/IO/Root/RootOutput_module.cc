@@ -45,6 +45,8 @@ class art::RootOutput : public OutputModule {
 
 public: // MEMBER FUNCTIONS
 
+  static constexpr const char* default_tmpDir = "<parent-path-of-filename>";
+
   struct Config {
 
     using Name = fhicl::Name;
@@ -54,7 +56,7 @@ public: // MEMBER FUNCTIONS
     fhicl::OptionalAtom<bool> dropAllEvents  { Name("dropAllEvents") };
     fhicl::Atom<bool> dropAllSubRuns { Name("dropAllSubRuns"), false };
     fhicl::OptionalAtom<bool> fastCloning { Name("fastCloning") };
-    fhicl::Atom<std::string> tmpDir { Name("tmpDir"), parent_path(omConfig().fileName()) };
+    fhicl::Atom<std::string> tmpDir { Name("tmpDir"), default_tmpDir };
     fhicl::Atom<int> maxSize { Name("maxSize"), 0x7f000000 };
     fhicl::Atom<int> compressionLevel { Name("compressionLevel"), 7 };
     fhicl::Atom<int64_t> saveMemoryObjectThreshold { Name("saveMemoryObjectThreshold"), -1l };
@@ -186,7 +188,8 @@ RootOutput(Parameters const & config)
   , rootOutputFile_()
   , fstats_(moduleLabel_, processName())
   , filePattern_(config().omConfig().fileName() )
-  , tmpDir_(config().tmpDir())
+  , tmpDir_(config().tmpDir() == default_tmpDir ?
+            parent_path(filePattern_) : config().tmpDir())
   , lastClosedFileName_()
   , maxFileSize_(config().maxSize())
   , compressionLevel_(config().compressionLevel())

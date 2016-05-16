@@ -78,7 +78,7 @@ public:
   bool failedToGet( ) const; // was Handle used in a 'get' call whose data could not be found?
   Provenance const * provenance( ) const;
   ProductID id( ) const;
-  std::shared_ptr<cet::exception const> whyFailed() const;
+  std::shared_ptr<art::Exception const> whyFailed() const;
 
   // mutators:
   void swap( Handle<T> & other );
@@ -87,7 +87,7 @@ public:
 private:
   T const *                              prod_;
   Provenance                             prov_;
-  std::shared_ptr<cet::exception const>  whyFailed_;
+  std::shared_ptr<art::Exception const>  whyFailed_;
 
 };  // Handle<>
 
@@ -107,14 +107,16 @@ art::Handle<T>::Handle(GroupQueryResult const & gqr) :
   prov_     ( gqr.result() ),
   whyFailed_( gqr.whyFailed() )
 {
-  if( gqr.succeeded() )
-    try {
-      prod_ = dynamic_cast< Wrapper<T> const &>(*gqr.result()->uniqueProduct(TypeID(typeid(Wrapper<T>)))
-                                                ).product();
-    }
-    catch(std::bad_cast const &) {
+  if (gqr.succeeded()) {
+    auto const wrapperPtr =
+      dynamic_cast<Wrapper<T> const *>(gqr.result()->
+                                       uniqueProduct(TypeID(typeid(Wrapper<T>))));
+    if (wrapperPtr == nullptr) {
       whyFailed_ = std::make_shared<art::Exception const>(errors::LogicError, "Handle<T> c'tor");
+    } else {
+      prod_ = wrapperPtr->product();
     }
+  }
 }
 
 // ----------------------------------------------------------------------
@@ -185,7 +187,7 @@ art::Handle<T>::id() const
 
 template <class T>
 inline
-std::shared_ptr<cet::exception const>
+std::shared_ptr<art::Exception const>
 art::Handle<T>::whyFailed() const
 {
   return whyFailed_;
@@ -257,7 +259,7 @@ public:
   bool failedToGet() const; // always false
   Provenance const* provenance() const;
   ProductID id() const;
-  std::shared_ptr<cet::exception const> whyFailed() const; // always null
+  std::shared_ptr<art::Exception const> whyFailed() const; // always null
 
   // mutators
   void swap(ValidHandle<T>& other);
@@ -344,10 +346,10 @@ art::ValidHandle<T>::id() const
 
 template <class T>
 inline
-std::shared_ptr<cet::exception const>
+std::shared_ptr<art::Exception const>
 art::ValidHandle<T>::whyFailed() const
 {
-  return std::shared_ptr<cet::exception const>();
+  return std::shared_ptr<art::Exception const>();
 }
 
 template <class T>
