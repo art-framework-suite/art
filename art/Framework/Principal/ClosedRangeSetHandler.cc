@@ -25,8 +25,7 @@ namespace art {
   }
 
   void
-  ClosedRangeSetHandler::do_updateFromEvent(EventID const& id,
-                                            bool const lastInSubRun)
+  ClosedRangeSetHandler::do_update(EventID const& id, bool const lastInSubRun)
   {
     eventInfo_.set(id, lastInSubRun);
 

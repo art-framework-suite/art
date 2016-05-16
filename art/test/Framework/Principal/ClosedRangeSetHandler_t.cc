@@ -136,8 +136,8 @@ BOOST_AUTO_TEST_CASE(SplitOnNonLastSubRunEvent)
   auto const& srHandler = srHandlers[1];
   // Process events
   for (auto const& e : events) {
-    srHandler->updateFromEvent(e.id, e.lastInSubRun);
-    rHandler->updateFromEvent(e.id, e.lastInSubRun);
+    srHandler->update(e.id, e.lastInSubRun);
+    rHandler->update(e.id, e.lastInSubRun);
   }
 
   // Simulate file switch
@@ -166,8 +166,8 @@ BOOST_AUTO_TEST_CASE(SplitOnNonLastSubRunEvent)
 
   // Process last event
   Event const lastEvent {EventID{1,1,10}, true};
-  srHandler->updateFromEvent(lastEvent.id, lastEvent.lastInSubRun);
-  rHandler->updateFromEvent(lastEvent.id, lastEvent.lastInSubRun);
+  srHandler->update(lastEvent.id, lastEvent.lastInSubRun);
+  rHandler->update(lastEvent.id, lastEvent.lastInSubRun);
 
   // Simulate end of subrun and run
   srHandler->flushRanges();
@@ -203,8 +203,8 @@ BOOST_AUTO_TEST_CASE(SplitOnLastSubRunEvent)
   auto const& srHandler = srHandlers[1];
   // Process events
   for (auto const& e : events) {
-    srHandler->updateFromEvent(e.id, e.lastInSubRun);
-    rHandler->updateFromEvent(e.id, e.lastInSubRun);
+    srHandler->update(e.id, e.lastInSubRun);
+    rHandler->update(e.id, e.lastInSubRun);
   }
 
   // Simulate file switch

@@ -40,8 +40,7 @@ namespace art {
 
     RangeSet do_getSeenRanges() const override;
 
-    void do_updateFromEvent(EventID const&, bool lastInSubRun) override;
-    void do_updateFromSubRun(SubRunID const&) override {}
+    void do_update(EventID const&, bool lastInSubRun) override;
 
     void do_flushRanges() override;
     void do_maybeSplitRange() override;

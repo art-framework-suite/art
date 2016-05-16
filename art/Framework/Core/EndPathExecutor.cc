@@ -117,7 +117,7 @@ void art::EndPathExecutor::writeRun(RunPrincipal& rp)
 void art::EndPathExecutor::writeSubRun(SubRunPrincipal& srp)
 {
   doForAllEnabledOutputWorkers_([&srp](auto w){ w->writeSubRun(srp); });
-  runRangeSetHandler_->updateFromSubRun(srp.id());
+  //  runRangeSetHandler_->updateFromSubRun(srp.id());
   if (fileStatus_ == OutputFileStatus::StagedToSwitch) {
     subRunRangeSetHandler_->rebase();
   }
@@ -128,8 +128,8 @@ void art::EndPathExecutor::writeEvent(EventPrincipal& ep)
   doForAllEnabledOutputWorkers_([&ep](auto w){ w->writeEvent(ep); });
   auto const& eid = ep.id();
   bool const lastInSubRun = ep.isLastInSubRun();
-  runRangeSetHandler_->updateFromEvent(eid, lastInSubRun);
-  subRunRangeSetHandler_->updateFromEvent(eid, lastInSubRun);
+  runRangeSetHandler_->update(eid, lastInSubRun);
+  subRunRangeSetHandler_->update(eid, lastInSubRun);
 }
 
 void art::EndPathExecutor::seedRunRangeSet(std::unique_ptr<RangeSetHandler> rsh)

@@ -26,8 +26,7 @@ namespace art {
   }
 
   void
-  OpenRangeSetHandler::do_updateFromEvent(EventID const& id,
-                                          bool const lastInSubRun)
+  OpenRangeSetHandler::do_update(EventID const& id, bool const lastInSubRun)
   {
     lastInSubRun_ = lastInSubRun;
 
@@ -46,22 +45,6 @@ namespace art {
     else {
       ranges_.emplace_range(id.subRun(), id.event(), id.next().event());
       rsIter_ = ranges_.end();
-    }
-  }
-
-  void
-  OpenRangeSetHandler::do_updateFromSubRun(SubRunID const& id)
-  {
-    auto const r = id.run();
-    auto const sr = id.subRun();
-    if (ranges_.empty()) {
-      ranges_.set_run(r);
-      ranges_.emplace_range(sr, invalid_eid, invalid_eid);
-      rsIter_ = ranges_.begin();
-    }
-    else if (ranges_.back().subRun() != sr) {
-      ranges_.emplace_range(sr, invalid_eid, invalid_eid);
-      rsIter_ = ranges_.begin();
     }
   }
 
