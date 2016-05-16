@@ -44,10 +44,12 @@
 #include <vector>
 
 #include "art/Framework/Principal/ClosedRangeSetHandler.h"
+#include "art/test/Framework/Principal/SimpleEvent.h"
 #include "canvas/Persistency/Common/detail/aggregate.h"
 #include "canvas/Persistency/Provenance/RangeSet.h"
 
 using namespace art;
+using arttest::SimpleEvent;
 
 namespace {
 
@@ -89,16 +91,6 @@ namespace {
     std::unique_ptr<RangeSetHandler> rHandler; // 1 RangeSetHandler with all ranges
   };
 
-  struct Event {
-    Event(EventID const& eid, bool const last)
-      : id{eid}
-      , lastInSubRun{last}
-    {}
-
-    EventID id {EventID::invalidEvent()};
-    bool lastInSubRun {false};
-  };
-
 }
 
 BOOST_FIXTURE_TEST_SUITE(ClosedRangeSetHandler_t, RSHandler)
@@ -128,10 +120,10 @@ BOOST_AUTO_TEST_CASE(SplitOnNonLastSubRunEvent)
   // event 5, when we decide to switch to a new input file.  In this
   // case, 5 IS NOT the last processed event in the SubRun.
 
-  std::vector<Event> events;
-  events.emplace_back( EventID{1,1,3}, false );
-  events.emplace_back( EventID{1,1,4}, false );
-  events.emplace_back( EventID{1,1,5}, false );
+  std::vector<SimpleEvent> events;
+  events.emplace_back(EventID{1,1,3}, false);
+  events.emplace_back(EventID{1,1,4}, false);
+  events.emplace_back(EventID{1,1,5}, false);
 
   auto const& srHandler = srHandlers[1];
   // Process events
@@ -165,7 +157,7 @@ BOOST_AUTO_TEST_CASE(SplitOnNonLastSubRunEvent)
   rHandler->rebase();
 
   // Process last event
-  Event const lastEvent {EventID{1,1,10}, true};
+  SimpleEvent const lastEvent {EventID{1,1,10}, true};
   srHandler->update(lastEvent.id, lastEvent.lastInSubRun);
   rHandler->update(lastEvent.id, lastEvent.lastInSubRun);
 
@@ -195,7 +187,7 @@ BOOST_AUTO_TEST_CASE(SplitOnLastSubRunEvent)
   // event 5, when we decide to switch to a new input file.  In this
   // case, 5 IS the last processed event in the SubRun.
 
-  std::vector<Event> events;
+  std::vector<SimpleEvent> events;
   events.emplace_back( EventID{1,1,3}, false );
   events.emplace_back( EventID{1,1,4}, false );
   events.emplace_back( EventID{1,1,5}, true );
@@ -221,6 +213,14 @@ BOOST_AUTO_TEST_CASE(SplitOnLastSubRunEvent)
     RangeSet const runRSRef {1, runRef};
     BOOST_CHECK_EQUAL(rHandler->seenRanges(), runRSRef);
   }
+  srHandler->rebase();
+  rHandler->rebase();
+
+  // Both RangeSets should now be empty (have not yet processed any
+  // events from SubRun 2).
+  RangeSet const emptyRS {1, std::vector<EventRange>{}};
+  BOOST_CHECK_EQUAL(srHandler->seenRanges(), emptyRS);
+  BOOST_CHECK_EQUAL(rHandler->seenRanges(), emptyRS);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
