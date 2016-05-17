@@ -218,89 +218,99 @@ namespace {
   }
 
   void
-  pruneEventRangesImpl(art::RangeSet const& principalRS,
-                       art::RangeSet& productRS)
-  {
-    auto const& testRanges = productRS.ranges();
-    assert(!testRanges.empty());
-
-    auto const r = productRS.run();
-
-    auto ref_contains_test = [r,&principalRS](auto const& range) {
-      return principalRS.contains(r, range.subRun(), range.begin());
-    };
-
-    auto ref_not_contains_test = [r,&principalRS](auto const& range) {
-      return !principalRS.contains(r, range.subRun(), range.begin());
-    };
-
-    auto const begin = std::find_if(testRanges.cbegin(),
-                                    testRanges.cend(),
-                                    ref_contains_test);
-
-    if (begin == testRanges.cend()) {
-      productRS = art::RangeSet::invalid();
-    }
-    else {
-      auto const end = std::find_if(begin,
-                                    testRanges.cend(),
-                                    ref_not_contains_test);
-      productRS.assign_ranges(begin, end);
-    }
-  }
-
-  void
-  pruneEventRanges(BranchType const bt,
-                   art::RangeSet const& principalRS,
-                   art::RangeSet& productRS)
+  maybeInvalidateRangeSet(BranchType const bt,
+                          art::RangeSet const& principalRS,
+                          art::RangeSet& productRS)
   {
     if (!productRS.is_valid())
       return;
 
     assert(principalRS.is_sorted());
     assert(productRS.is_sorted());
+    assert(!principalRS.ranges().empty());
+    assert(!productRS.ranges().empty());
 
-    if (bt == art::InRun) {
-      if (productRS.is_full_run())
-        return;
-      pruneEventRangesImpl(principalRS, productRS);
-    }
+    if (bt == art::InRun && productRS.is_full_run()) return;
+    if (bt == art::InSubRun && productRS.is_full_subRun()) return;
 
-    if (bt == art::InSubRun) {
-      if (productRS.is_full_subRun())
-        return;
-      pruneEventRangesImpl(principalRS, productRS);
-    }
+    auto const r = productRS.run();
+    auto const& productFront = productRS.ranges().front();
+    if (!principalRS.contains(r, productFront.subRun(), productFront.begin()))
+      productRS = art::RangeSet::invalid();
   }
 
   using art::detail::RangeSetsSupported;
 
-  template <BranchType BT>
-  std::enable_if_t<!RangeSetsSupported<BT>::value, art::RangeSet>
-  getPrunedRangeSet(art::OutputHandle const&,
-                    art::RangeSet const& /*principalRS*/,
-                    bool const /*producedInThisProcess*/)
-  {
-    return art::RangeSet::invalid();
-  }
-
+  // The purpose of 'maybeInvalidateRangeSet' is to support the
+  // following situation.  Suppose process 1 creates three files with
+  // one Run product each, all corresponding to the same Run.  Let's
+  // call the individual Run product instances in the three separate
+  // files as A, B, and C.  Now suppose that the three files serve as
+  // inputs to process 2, where a concatenation is being performed AND
+  // ALSO an output file switch.  Process 2 results in two output
+  // files, and now, in process 3, we concatenate the outputs from
+  // process 2.  The situation would look like this:
+  //
+  //  Process 1:   [A]     [B]     [C]
+  //                 \     / \     /
+  //  Process 2:     [A + B] [B + C]
+  //                   \ /     \ /
+  //        D=agg(A,B)  |       |  E=agg(B,C)
+  //                     \     /
+  //  Process 3:         [D + E]
+  //
+  // Notice the complication in process 3: product 'B' will be
+  // aggregated twice: once with A, and once with C.  Whenever the
+  // output from process 3 is read as input to another process, the
+  // fetched product will be equivalent to A+2B+C.
+  //
+  // To avoid this situation, we compare the RangeSet of the product
+  // with the RangeSet of the in-memory RunAuxiliary.  If the
+  // beginning of B's RangeSet is not contained within the auxiliary's
+  // RangeSet, then a dummy product with an invalid RangeSet is
+  // written to disk.  Instead of the diagram above, we have:
+  //
+  //  Process 1:   [A]     [B]     [C]
+  //                 \     / \     /
+  //  Process 2:     [A + B] [x + C]
+  //                   \ /     \ /
+  //        D=agg(A,B)  |       |  E=agg(x,C)=C
+  //                     \     /
+  //  Process 3:         [D + E]
+  //
+  // where 'x' represent a dummy product.  Upon aggregating D and E,
+  // we obtain the correctly formed A+B+C product.
   template <BranchType BT>
   std::enable_if_t<RangeSetsSupported<BT>::value, art::RangeSet>
-  getPrunedRangeSet(art::OutputHandle const& oh,
-                    art::RangeSet const& principalRS,
-                    bool const producedInThisProcess)
+  getRangeSet(art::OutputHandle const& oh,
+              art::RangeSet const& principalRS,
+              bool const producedInThisProcess)
   {
     auto rs = oh.isValid() ? oh.rangeOfValidity() : art::RangeSet::invalid();
-    // We save only the event-ranges that have an product
-    // EventRange::begin value that is contained by the principal
-    // RangeSet (if produced in the current job).  FIXME: WHY?  WHY the produces requirement?
+    // Because a user can specify (e.g.):
+    //   r.put(std::move(myProd), art::runFragment(myRangeSet));
+    // products that are produced in this process can have valid, yet
+    // arbitrary RangeSets.  We therefore never invalidate a RangeSet
+    // that corresponds to a product produced in this process.
+    //
+    // It is possible for a user to specify a RangeSet which does not
+    // correspond AT ALL to the in-memory auxiliary RangeSet.  In that
+    // case, users should not expect to be able to retrieve products
+    // for which no corresponding events or sub-runs were processed.
     if (!producedInThisProcess) {
-      pruneEventRanges(BT, principalRS, rs);
+      maybeInvalidateRangeSet(BT, principalRS, rs);
     }
-
     return rs;
   }
 
+  template <BranchType BT>
+  std::enable_if_t<!RangeSetsSupported<BT>::value, art::RangeSet>
+  getRangeSet(art::OutputHandle const&,
+              art::RangeSet const& /*principalRS*/,
+              bool const /*producedInThisProcess*/)
+  {
+    return art::RangeSet::invalid();
+  }
 
   template <BranchType BT>
   std::enable_if_t<!RangeSetsSupported<BT>::value>
@@ -952,19 +962,15 @@ fillBranches(Principal const& principal,
 
     // Resolve the product if necessary
     if (resolveProd) {
-
-      auto const& rs = getPrunedRangeSet<BT>(oh, principalRS, produced);
-
+      auto const& rs = getRangeSet<BT>(oh, principalRS, produced);
       if (RangeSetsSupported<BT>::value && !rs.is_valid())
         keptProvenance.setStatus(*prov, productstatus::unknown());
 
       auto const* product = getProduct<BT>(oh, rs, bd->wrappedName());
-
       setProductRangeSetID<BT>(rs,
                                rootFileDB_,
                                const_cast<EDProduct*>(product),
                                checksumToIndex);
-
       val.product_ = product;
     }
   }
