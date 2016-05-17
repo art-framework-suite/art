@@ -132,7 +132,7 @@ std::pair<double, double>
 art::PathsInfo::
 timeCpuReal() const
 {
-  return std::pair<double, double>(stopwatch_->realTime(), stopwatch_->cpuTime());
+  return std::pair<double, double>(stopwatch_->cpuTime(), stopwatch_->realTime());
 }
 
 #endif /* art_Framework_Core_PathsInfo_h */
