@@ -1,13 +1,14 @@
 #ifndef art_Framework_Principal_ClosedRangeSetHandler_h
 #define art_Framework_Principal_ClosedRangeSetHandler_h
 
-// FIXME: Expand on specific use case for this class.
-//
-// ClosedRangeSetHandler is used by the SubRunPrincipal to:
-//
-//   - Accept a vector of EventRanges from an input file (if present).
-//   - Combine mergeable ranges from the input file.
-//   - Create sliding output ranges
+// ====================================================================
+// ClosedRangeSetHandler is used to track and manipulate RangeSets as
+// inherited from another source, such as RootInput.  The RangeSets
+// are closed in that the span of events/subruns encapsulated by a
+// given RangeSet can never grow.  The individual ranges can be split
+// if an output-file switch necessitates.  The 'rsIter_' member keeps
+// track of the current EventRange.
+// ====================================================================
 
 #include "art/Framework/Principal/RangeSetHandler.h"
 #include "canvas/Persistency/Provenance/EventID.h"

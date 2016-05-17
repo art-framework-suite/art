@@ -1,14 +1,20 @@
 #ifndef art_Framework_Core_EndPathExecutor_h
 #define art_Framework_Core_EndPathExecutor_h
-////////////////////////////////////////////////////////////////////////
+// ======================================================================
 // EndPathExecutor
 //
 // Class to handle the execution of the end path. Invoked in all the
 // right places by the event processor.
 //
-// FIXME: Explanation of RangeSetHandlers
-//
-////////////////////////////////////////////////////////////////////////
+// The RangeSetHandlers manage the RangeSets that are to be assigned
+// to (a) the (Sub)RunAuxiliaries and (b) the (Sub)Run products
+// produced in the current process.  Since all (Sub)Run
+// products/auxiliaries produced in the current process are written to
+// all output modules during write(Sub)Run, there is only one relevant
+// RangeSet for the (Sub)Run at any given time.  RangeSets
+// corresponding to multiple (Sub)Run fragments are aggregated on
+// input.
+// ======================================================================
 #include "art/Framework/Core/OutputFileSwitchBoundary.h"
 #include "art/Framework/Core/OutputWorker.h"
 #include "art/Framework/Core/PathManager.h"

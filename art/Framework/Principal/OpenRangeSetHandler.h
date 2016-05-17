@@ -1,13 +1,14 @@
 #ifndef art_Framework_Principal_OpenRangeSetHandler_h
 #define art_Framework_Principal_OpenRangeSetHandler_h
 
-// FIXME: Expand on specific use case for this class.
-//
-// OpenRangeSetHandler is used by the SubRunPrincipal to:
-//
-//   - Accept a vector of EventRanges from an input file (if present).
-//   - Combine mergeable ranges from the input file.
-//   - Create sliding output ranges
+// ===================================================================
+// OpenRangeSetHandler is used to track the in-memory RangeSet for
+// processes whose sources are EmptyEvent or similar.  The RangeSet is
+// only seeded with a run number, and the RangeSet grows whenever a
+// new event is processed.  In other words, an OpenRangeSetHandler
+// instance does not inherit any RangeSet from another source; it
+// starts from scratch.
+// ===================================================================
 
 #include "art/Framework/Principal/RangeSetHandler.h"
 #include "canvas/Persistency/Provenance/EventID.h"
