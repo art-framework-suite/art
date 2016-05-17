@@ -88,8 +88,8 @@ print_one_fc_metadata_entry_hr(FileCatalogMetadataEntry const & ent,
                                ostream & output)
 {
   const std::string& name = ent.name;
-  const size_t maxIDdigits = 5;
-  const size_t maxNameSpacing = 20;
+  constexpr size_t maxIDdigits = 5;
+  constexpr size_t maxNameSpacing = 20;
 
   // right-justify SMDid (unless it is more than 5 digits)
   int id = static_cast<int>(ent.SMDid);
@@ -234,7 +234,9 @@ int print_fc_metadata_from_file(TFile & file,
   }
   // Iterate through all the entries, printing each one.
   if (want_json) {
-    output << cet::canonical_string(file.GetName()) << ": ";
+    std::string const& path = file.GetName();
+    std::string const& baseName = path.substr(path.find_last_of("/")+1u);
+    output << cet::canonical_string(baseName) << ": ";
     print_all_fc_metadata_entries_JSON(all_metadata_entries,
                                        output,
                                        errors);

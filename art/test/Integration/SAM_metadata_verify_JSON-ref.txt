@@ -1,5 +1,5 @@
 {
-  "../SAM_metadata.d/out.root": {
+  "out.root": {
     "applicationFamily": "Ethel",
     "applicationVersion": "v0.00.01a",
     "file_type": "MC",

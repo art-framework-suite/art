@@ -1298,7 +1298,7 @@ cet_test(TestMetadata_verify_JSON HANDBUILT
   TEST_ARGS -s ../TestMetadata_plugin_t.d/out.root
   TEST_PROPERTIES DEPENDS TestMetadata_plugin_t
   PASS_REGULAR_EXPRESSION
-  "^{\n  \"\\.\\./TestMetadata_plugin_t\\.d/out\\.root\": {\n    \"file_type\": \"unknown\",\n    \"process_name\": \"DEVEL\",\n    \"file_format\": \"artroot\",\n    \"file_format_era\": \"ART_2011a\",\n    \"file_format_version\": 9,\n    \"start_time\": \"${date_regex}\",\n    \"end_time\": \"${date_regex}\",\n    \"event_count\": 1,\n    \"first_event\": \\[ 1, 0, 1 \\],\n    \"last_event\": \\[ 1, 0, 1 \\],\n    \"key1\": \"value1\",\n    \"key2\": \"value2\"\n  }\n}\n$"
+  "^{\n  \"out\\.root\": {\n    \"file_type\": \"unknown\",\n    \"process_name\": \"DEVEL\",\n    \"file_format\": \"artroot\",\n    \"file_format_era\": \"ART_2011a\",\n    \"file_format_version\": 9,\n    \"start_time\": \"${date_regex}\",\n    \"end_time\": \"${date_regex}\",\n    \"event_count\": 1,\n    \"first_event\": \\[ 1, 0, 1 \\],\n    \"last_event\": \\[ 1, 0, 1 \\],\n    \"key1\": \"value1\",\n    \"key2\": \"value2\"\n  }\n}\n$"
   )
 
 set_source_files_properties(TestEmptyEventTimestampNoRSRTS_plugin.cc
