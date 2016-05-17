@@ -1,0 +1,5 @@
+#include "checkMoreProducts_r.fcl"
+
+source.fileNames: [ "../Stage4_Assemble_reordered_w.d/userAssembled.root" ]
+
+process_name: checkMoreProductsReordered

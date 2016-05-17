@@ -1,6 +1,45 @@
 #ifndef art_Framework_Principal_SummedValue_h
 #define art_Framework_Principal_SummedValue_h
 
+// ======================================================================
+//
+// SummedValue: Class whose instances own two objects:
+//              - object of type specified as the template argument
+//              - RangeSet corresponding to the object
+//
+// The purpose of this auxiliary class is to provide users with a
+// means of tying an object with its associated range.  This can be
+// important whenever a user needs to assemble (e.g.) product 3 from
+// products 1 and 2.  However, even though products 1 and 2 might have
+// the same RangeSets overall, due to output-file switching, the
+// RangeSets as recorded in each input file may be different.  In such
+// a case, product 3 should arguably only be placed on the Run or
+// SubRun whenever the RangeSets from products 1 and 2 are the same.
+//
+// The main function of interest is SummedValue::update(Handle const& h),
+// which updates the owned object (calling its appropriate aggregation
+// function) and its corresponding RangeSet.
+//
+// The type 'T' need not correspond to the type of the data product.
+// For example, the following are allowed uses of SummedValue:
+//
+//   class MyModule : public EDProducer {
+//     SummedValue<POTSummary> pots_;
+//     SummedValue<unsigned> count_;
+//   public:
+//     ...
+//     void produce(Run& r) {
+//       auto const& h = r.getValidHandle<POTSummary>(...);
+//       pots_.update(h);
+//       count_.update(h, h->proton_count()); // Ties 'count_' with RangeSet from 'h'
+//     }
+//   };
+//
+// N.B. It is the responsibility of the user to call 'clear' whenever
+//      the owned object has been fully updated for the Run or SubRun
+//      of interest.
+// ======================================================================
+
 #include "art/Framework/Principal/Handle.h"
 #include "canvas/Persistency/Common/detail/aggregate.h"
 #include "canvas/Persistency/Provenance/RangeSet.h"
@@ -27,8 +66,10 @@ namespace art {
     std::enable_if_t<detail::is_handle<H>::value>
     update(H const& h, T const& t);
 
-    // Default-c'tored object is invalid.  As soon as it is updated,
-    // it becomes valid.  No update can invalidate it.
+    void clear();
+
+    // Default-constructed object is invalid.  As soon as it is
+    // updated, it becomes valid.  No update can invalidate it.
     bool isValid() const;
 
     T const& value() const;
@@ -36,31 +77,14 @@ namespace art {
 
   private:
 
-    bool uninitialized() const;
-
-    template <typename H>
-    void reset(H const& h, T const& t);
-
-    template <typename H>
-    bool should_reset(H const& h);
-
     template <typename H>
     void
     update_impl(H const& h, T const& t)
     {
       // Precondition: handle must be valid
       assert(h.isValid());
-      if (should_reset(h))
-        reset(h,t);
-
-      if (!isValid())
-        throw art::Exception(errors::LogicError, "SummedValue<T>::update")
-          << "The range-of-validity is invalid for the object:"
-          << cet::demangle(typeid(*this).name()) << '\n'
-          << "Please contact artists@fnal.gov\n";
 
       auto const& newRS = h.provenance()->rangeOfValidity();
-
       if (!rangeOfValidity_.is_valid() && newRS.is_valid()) {
         rangeOfValidity_ = newRS;
         value_ = t;
@@ -88,7 +112,7 @@ namespace art {
              << newRS
              << "\nPlease contact artists@fnal.gov.\n";
       }
-      // NOP for when both RangeSets are invalid
+      // NOP when both RangeSets are invalid
     }
 
     T value_ {};
@@ -101,40 +125,10 @@ namespace art {
 
   template <typename T>
   template <typename H>
-  void
-  SummedValue<T>::reset(H const& h, T const& t)
-  {
-    rangeOfValidity_ = h.provenance()->rangeOfValidity();
-    value_ = t;
-  }
-
-  template <typename T>
-  template <typename H>
-  bool
-  SummedValue<T>::should_reset(H const& h)
-  {
-    auto const& newRS = h.provenance()->rangeOfValidity();
-    switch (h.provenance()->productDescription().branchType()) {
-    case InSubRun : {
-      if (rangeOfValidity_.empty()) return true;
-      return newRS.ranges().front().subRun() != rangeOfValidity_.ranges().front().subRun();
-    }
-    case InRun:
-      return newRS.run() != rangeOfValidity_.run();
-    default:
-      throw art::Exception{errors::ProductCannotBeAggregated, "SummedValue<T>::new_aggregator"}
-         << "An attempt to aggregate has been made on a product\n"
-         << "that is not a SubRun or Run product.\n";
-    }
-    return true; // Will never get here
-  }
-
-  template <typename T>
-  template <typename H>
   std::enable_if_t<detail::is_handle<H>::value>
   SummedValue<T>::update(H const& h)
   {
-    std::string const& errMsg { "Attempt to update "+
+    std::string const& errMsg {"Attempt to update "+
         cet::demangle_symbol(typeid(*this).name()) + " from an invalid handle."};
     detail::throw_if_invalid(errMsg, h);
     update_impl(h, *h);
@@ -145,12 +139,20 @@ namespace art {
   std::enable_if_t<detail::is_handle<H>::value>
   SummedValue<T>::update(H const& h, T const& t)
   {
-    std::string const& errMsg { "Attempt to update "+
+    std::string const& errMsg {"Attempt to update "+
         cet::demangle_symbol(typeid(*this).name()) + " from an invalid handle.\n"};
     detail::throw_if_invalid(errMsg, h);
     update_impl(h, t);
   }
 
+  template <typename T>
+  inline
+  void
+  SummedValue<T>::clear()
+  {
+    SummedValue<T> tmp {};
+    std::swap(*this, tmp);
+  }
 
   template <typename T>
   inline
@@ -179,8 +181,6 @@ namespace art {
   bool
   same_ranges(SummedValue<T> const& a, SummedValue<U> const& b)
   {
-    std::string const& errMsg = "Attempt to compare range sets where one or both SummedValues are invalid.";
-    detail::throw_if_invalid(errMsg, a,b);
     return same_ranges(a.rangeOfValidity(), b.rangeOfValidity());
   }
 
@@ -188,8 +188,6 @@ namespace art {
   bool
   disjoint_ranges(SummedValue<T> const& a, SummedValue<U> const& b)
   {
-    std::string const& errMsg = "Attempt to compare range sets where one or both SummedValues are invalid.";
-    detail::throw_if_invalid(errMsg, a,b);
     return disjoint_ranges(a.rangeOfValidity(), b.rangeOfValidity());
   }
 
@@ -197,8 +195,6 @@ namespace art {
   bool
   overlapping_ranges(SummedValue<T> const& a, SummedValue<U> const& b)
   {
-    std::string const& errMsg = "Attempt to compare range sets where one or both SummedValues are invalid.";
-    detail::throw_if_invalid(errMsg, a,b);
     return overlapping_ranges(a.rangeOfValidity(), b.rangeOfValidity());
   }
 

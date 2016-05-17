@@ -7,6 +7,7 @@ simple_plugin(CheckMoreProducts    "module" NO_INSTALL USE_BOOST_UNIT)
 simple_plugin(CheckProducts        "module" NO_INSTALL USE_BOOST_UNIT)
 simple_plugin(AssembleProducts     "module" NO_INSTALL)
 simple_plugin(AssembleMoreProducts "module" NO_INSTALL USE_BOOST_UNIT)
+simple_plugin(AssembleMoreProductsRobust "module" NO_INSTALL USE_BOOST_UNIT)
 
 # For the product aggregation tests, a physics workflow has been
 # simulated, using multiple stages (see below for schematic of when
@@ -173,4 +174,27 @@ cet_test(Stage5_MoreAnalysis_r HANDBUILT
   fcl/trackEfficiency.fcl
   TEST_PROPERTIES
   DEPENDS Stage4_Assemble_w
+  )
+
+cet_test(Stage4_Assemble_reordered_w HANDBUILT
+  TEST_EXEC art_ut
+  TEST_ARGS -- -c assemble_reordered_files_w.fcl
+  DATAFILES
+  fcl/assemble_reordered_files_w.fcl
+  fcl/assemble_w.fcl
+  fcl/trackEfficiency.fcl
+  TEST_PROPERTIES
+  DEPENDS Stage3_Reconstruction_w
+  )
+
+cet_test(Stage5_MoreAnalysis_reordered_r HANDBUILT
+  TEST_EXEC art_ut
+  TEST_ARGS
+  -- -c checkMoreProducts_reordered_files_r.fcl
+  DATAFILES
+  fcl/checkMoreProducts_reordered_files_r.fcl
+  fcl/checkMoreProducts_r.fcl
+  fcl/trackEfficiency.fcl
+  TEST_PROPERTIES
+  DEPENDS Stage4_Assemble_reordered_w
   )
