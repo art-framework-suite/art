@@ -229,7 +229,7 @@ cet_test(BasicOutputOptions_12_w HANDBUILT
   TEST_EXEC art
   TEST_ARGS
   -o myOut:out.root
-  --tmpdir /tmp
+  --tmpDir /tmp
   -c opt-empty.fcl
   TEST_PROPERTIES ENVIRONMENT ART_DEBUG_CONFIG=config.out
   DATAFILES fcl/opt-empty.fcl
