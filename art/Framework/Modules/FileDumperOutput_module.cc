@@ -114,8 +114,8 @@ printPrincipal(P const & p)
   if (!p.size()) { return; } // Nothing to do.
   std::cout << "PRINCIPAL TYPE: " << BranchTypeToString(p.branchType()) << std::endl;
   // prepare the data structure, a sequence of columns:
-  typedef  std::vector<std::string>  column;
-  unsigned int ncols = 6;
+  using column = std::vector<std::string>;
+  constexpr unsigned int ncols {6};
   std::vector<column> col(ncols);
   // provide column headings:
   col[0].push_back("PROCESS NAME");
@@ -127,12 +127,8 @@ printPrincipal(P const & p)
   size_t present = 0;
   size_t not_present = 0;
   // insert the per-product data:
-  for (typename P::const_iterator
-       it  = p.begin(),
-       end = p.end();
-       it != end;
-       ++it) {
-    Group const & g = *(it->second);
+  for (auto const& pr : p) {
+    Group const& g = *pr.second;
     if (wantResolveProducts_) {
       try {
         if (!g.resolveProduct(wantOnDemandProduction_, g.producedWrapperType()))
