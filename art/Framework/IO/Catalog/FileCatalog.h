@@ -14,8 +14,8 @@ namespace art {
   class FileCatalogItem {
   public:
     FileCatalogItem() : pfn_(), lfn_(), uri_(), skipped_(false), consumed_(false) {}
-    FileCatalogItem(std::string const& pfn, std::string const& lfn, std::string const & uri) 
-      : pfn_(pfn), lfn_(lfn), uri_(uri), skipped_(false) {}
+    FileCatalogItem(std::string const& pfn, std::string const& lfn, std::string const & uri)
+      : pfn_(pfn), lfn_(lfn), uri_(uri), skipped_(false), consumed_(false) {}
     std::string const& fileName()        const {return pfn_;}
     std::string const& logicalFileName() const {return lfn_;}
     std::string const& uri()             const {return uri_;}

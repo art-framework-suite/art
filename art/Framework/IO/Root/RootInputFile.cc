@@ -45,6 +45,7 @@ extern "C" {
 #include "sqlite3.h"
 }
 
+#include <iostream>
 #include <string>
 
 using namespace cet;
@@ -1016,15 +1017,12 @@ namespace art {
     }
 
     if (t == InEvent && entries.size() > 1ul) {
-      throw art::Exception(art::errors::FileReadError)
+      throw Exception{errors::FileReadError}
         << "File " << file_ << " has multiple entries for\n"
         << eid << '\n';
     }
 
-    bool const newSubRun = it->eventID_.subRun() != subrun;
-    bool const lastInFile = it == fiEnd_;
-    bool const lastInSubRun = newSubRun || lastInFile;
-
+    bool const lastInSubRun = (it == fiEnd_ || it->eventID_.subRun() != subrun);
     return std::pair<EntryNumbers,bool>{entries, lastInSubRun};
   }
 
