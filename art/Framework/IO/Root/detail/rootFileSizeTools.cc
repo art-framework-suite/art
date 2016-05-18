@@ -11,7 +11,7 @@ Long64_t art::detail::GetBasketSize(TObjArray * branches, bool ondisk, bool incl
    Long64_t result = 0;
    size_t n = branches->GetEntries();
    for( size_t i = 0; i < n; ++ i ) {
-      result += GetBasketSize( dynamic_cast<TBranch*>( branches->At( i ) ), ondisk, inclusive );
+      result += GetBasketSize( static_cast<TBranch*>( branches->At( i ) ), ondisk, inclusive );
    }
    return result;
 }
@@ -51,7 +51,7 @@ Long64_t  art::detail::GetTotalSize( TObjArray * branches, bool ondisk ) {
    Long64_t result = 0;
    size_t n = branches->GetEntries();
    for( size_t i = 0; i < n; ++ i ) {
-      result += GetTotalSize( dynamic_cast<TBranch*>( branches->At( i ) ), ondisk, true );
+      result += GetTotalSize( static_cast<TBranch*>( branches->At( i ) ), ondisk, true );
    }
    return result;
 }
@@ -110,7 +110,7 @@ void  art::detail::printBranchSummary(std::ostream & os, TBranch *br)
    os << "The branch \"" << br->GetName() << "\" takes " << sizeOnDisk(br,true) << " bytes on disk\n";
    size_t n = br->GetListOfBranches()->GetEntries();
    for( size_t i = 0; i < n; ++ i ) {
-      TBranch *subbr = dynamic_cast<TBranch*>(br->GetListOfBranches()->At(i));
+      TBranch *subbr = static_cast<TBranch*>(br->GetListOfBranches()->At(i));
       os << "  It's sub-branch \"" << subbr->GetName() << "\" takes " << sizeOnDisk(subbr,true) << " bytes on disk\n";
    }
 }
@@ -120,7 +120,7 @@ void  art::detail::printTreeSummary(std::ostream & os, TTree *t)
    os << "The TTree \"" << t->GetName() << "\" takes " << sizeOnDisk(t) << " bytes on disk\n";
    size_t n = t->GetListOfBranches()->GetEntries();
    for( size_t i = 0; i < n; ++ i ) {
-      TBranch *br =dynamic_cast<TBranch*>(t->GetListOfBranches()->At(i));
+      TBranch *br =static_cast<TBranch*>(t->GetListOfBranches()->At(i));
       os << "  It's branch \"" << br->GetName() << "\" takes " << sizeOnDisk(br,true) << " bytes on disk\n";
    }
 }

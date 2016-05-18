@@ -159,13 +159,13 @@ private: // MEMBER FUNCTIONS
   template <BranchType BT>
   std::enable_if_t<!detail::RangeSetsSupported<BT>::value, art::EDProduct const*>
   getProduct(OutputHandle const&,
-             RangeSet const& prunedProductRS,
+             RangeSet const& productRS,
              std::string const& wrappedName); // Defined in source.
 
   template <BranchType BT>
   std::enable_if_t<detail::RangeSetsSupported<BT>::value, art::EDProduct const*>
   getProduct(OutputHandle const&,
-             RangeSet const& prunedProductRS,
+             RangeSet const& productRS,
              std::string const& wrappedName); // Defined in source.
 
 private: // MEMBER DATA

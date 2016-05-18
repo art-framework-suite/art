@@ -145,7 +145,7 @@ namespace art {
       resultsTree().setTreeMaxVirtualSize(treeMaxVirtualSize);
     }
     // Read the metadata tree.
-    auto metaDataTree = dynamic_cast<TTree*>(filePtr_->Get(rootNames::metaDataTreeName().c_str()));
+    auto metaDataTree = static_cast<TTree*>(filePtr_->Get(rootNames::metaDataTreeName().c_str()));
     if (!metaDataTree) {
       throw art::Exception{errors::FileReadError}
         << couldNotFindTree(rootNames::metaDataTreeName());
@@ -284,7 +284,7 @@ namespace art {
     //
     //  Auxiliary routine for the constructor.
     //
-    auto parentageTree = dynamic_cast<TTree*>(filePtr_->Get(rootNames::parentageTreeName().c_str()));
+    auto parentageTree = static_cast<TTree*>(filePtr_->Get(rootNames::parentageTreeName().c_str()));
     if (!parentageTree) {
       throw art::Exception{errors::FileReadError}
       << couldNotFindTree(rootNames::parentageTreeName());
@@ -980,7 +980,7 @@ namespace art {
   readEventHistoryTree()
   {
     // Read in the event history tree, if we have one...
-    eventHistoryTree_ = dynamic_cast<TTree*>(filePtr_->Get(rootNames::eventHistoryTreeName().c_str()));
+    eventHistoryTree_ = static_cast<TTree*>(filePtr_->Get(rootNames::eventHistoryTreeName().c_str()));
     if (!eventHistoryTree_) {
       throw art::Exception{errors::DataCorruption}
         << "Failed to find the event history tree.\n";

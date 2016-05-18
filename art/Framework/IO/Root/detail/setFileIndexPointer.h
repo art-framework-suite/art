@@ -23,20 +23,18 @@ namespace art {
         metaDataTree->SetBranchAddress(rootNames::metaBranchRootName<FileIndex>(), &findexPtr);
       }
       else {
-        TTree* fileIndexTree = static_cast<TTree*>(file->Get(rootNames::fileIndexTreeName().c_str()));
+        std::unique_ptr<TTree> fileIndexTree {static_cast<TTree*>(file->Get(rootNames::fileIndexTreeName().c_str()))};
         if (!fileIndexTree)
-          throw art::Exception(errors::FileReadError) << couldNotFindTree(rootNames::fileIndexTreeName());
+          throw Exception{errors::FileReadError} << couldNotFindTree(rootNames::fileIndexTreeName());
 
         FileIndex::Element element;
-        //        auto elemUniquePtr = std::make_unique<FileIndex::Element>();
-        //        auto elemPtr = &*elemUniquePtr;
         auto elemPtr = &element;
         fileIndexTree->SetBranchAddress(rootNames::metaBranchRootName<FileIndex::Element>(), &elemPtr);
-
         for (size_t i{0}, sz = fileIndexTree->GetEntries(); i != sz ; ++i) {
-          input::getEntry(fileIndexTree,i);
+          input::getEntry(fileIndexTree.get(),i);
           findexPtr->addEntryOnLoad(elemPtr->eventID_, elemPtr->entry_);
         }
+        fileIndexTree->SetBranchAddress(rootNames::metaBranchRootName<FileIndex::Element>(), nullptr);
       }
     }
   }

@@ -299,7 +299,7 @@ openAndReadMetaData_(std::string filename)
   }
   // Obtain meta data tree.
   currentMetaDataTree_.reset(
-    dynamic_cast<TTree*>(currentFile_->Get(
+    static_cast<TTree*>(currentFile_->Get(
       art::rootNames::metaDataTreeName().c_str())));
   if (currentMetaDataTree_.get() == 0) {
     throw Exception(errors::FileReadError)
@@ -308,7 +308,7 @@ openAndReadMetaData_(std::string filename)
         << ".\n";
   }
   // Obtain event tree.
-  currentEventTree_.reset(dynamic_cast<TTree*>(
+  currentEventTree_.reset(static_cast<TTree*>(
     currentFile_->Get(art::rootNames::eventTreeName().c_str())));
   if (currentEventTree_.get() == 0) {
     throw Exception(errors::FileReadError)
@@ -359,7 +359,7 @@ openAndReadMetaData_(std::string filename)
   dataBranches_.reset(currentEventTree_.get());
   // Prepare to read EventHistory tree.
   TTree * ehTree =
-    dynamic_cast<TTree *>(currentFile_->
+    static_cast<TTree *>(currentFile_->
                           Get(rootNames::eventHistoryTreeName().c_str()));
   if (ehTree == 0) {
     throw Exception(errors::FileReadError)
