@@ -2,12 +2,36 @@
 #define art_Framework_Principal_ClosedRangeSetHandler_h
 
 // ====================================================================
-// ClosedRangeSetHandler is used to track and manipulate RangeSets as
-// inherited from another source, such as RootInput.  The RangeSets
-// are closed in that the span of events/subruns encapsulated by a
-// given RangeSet can never grow.  The individual ranges can be split
-// if an output-file switch necessitates.  The 'rsIter_' member keeps
+// ClosedRangeSetHandler
+//
+// This class is used to track AND MANIPULATE RangeSets as inherited
+// from another source, such as RootInput.  The RangeSets are closed
+// in that the span of events/subruns encapsulated by a given RangeSet
+// can never grow.  The individual ranges, however, can be split if
+// necessitated by an output-file switch.  The 'rsIter_' member keeps
 // track of the current EventRange.
+//
+// N.B. Event-filtering does not affect the calculation of the
+//      RangeSet since the RangeSet tracks all processed events, even
+//      those that were rejected due to failing a filter criterion.
+//
+//      In the case of an output-file-switch, one of the RangeSet's
+//      EventRanges might be "split" so as to ensure unique RangeSets
+//      per output file for a given output module.  For example,
+//      suppose the inherited RangeSet looks like:
+//
+//         Run: 1 SubRun: 0 Event range: [1,6)
+//
+//      but there are only two events in the file for that RangeSet --
+//      e.g. 2 and 4.  If there is an output file switch after event 2
+//      is processed, the RangeSets for the output files will be:
+//
+//         File A RangeSet = Run: 1 SubRun: 0 Event range: [1,3)
+//         File B RangeSet = Run: 1 SubRun: 0 Event range: [3,6)
+//
+//      even though file A will contain only event 2 and file B will
+//      contain only event 4.  In this way, the inherited RangeSet is
+//      preserved across files.
 // ====================================================================
 
 #include "art/Framework/Principal/RangeSetHandler.h"

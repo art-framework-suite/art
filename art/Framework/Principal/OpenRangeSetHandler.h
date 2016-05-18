@@ -2,12 +2,30 @@
 #define art_Framework_Principal_OpenRangeSetHandler_h
 
 // ===================================================================
-// OpenRangeSetHandler is used to track the in-memory RangeSet for
-// processes whose sources are EmptyEvent or similar.  The RangeSet is
-// only seeded with a run number, and the RangeSet grows whenever a
-// new event is processed.  In other words, an OpenRangeSetHandler
+// OpenRangeSetHandler
+//
+// This class is used to track the in-memory RangeSet for processes
+// whose sources are EmptyEvent or similar.  The RangeSet is only
+// seeded with a run number, and the RangeSet grows whenever a new
+// event is processed.  In other words, an OpenRangeSetHandler
 // instance does not inherit any RangeSet from another source; it
 // starts from scratch.
+//
+// N.B. Event-filtering does not affect the calculation of the
+//      RangeSet since the RangeSet tracks all processed events, even
+//      those that were rejected due to failing a filter criterion.
+//
+//      In the case of an output-file switch, the RangeSet is
+//      "rebased" after the file-write, so that the updated RangeSet
+//      now begins where the non-updated RangeSet finished.  For
+//      example, if EmptyEvent has been configured to produce 20
+//      events for Run 1, SubRun 0, and there is an output-file switch
+//      after event 10, the RangeSets for the two files will be:
+//
+//        File A RangeSet = Run: 1 SubRun: 0 Event range: [1,11)
+//        File B RangeSet = Run: 1 SubRun: 0 Event range: [11,20)
+//
+//      regardless of any events that may have failed a filter.
 // ===================================================================
 
 #include "art/Framework/Principal/RangeSetHandler.h"
