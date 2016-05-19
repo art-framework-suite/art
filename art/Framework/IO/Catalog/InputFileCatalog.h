@@ -59,7 +59,7 @@ namespace art {
     FileCatalogStatus transferNextFile(FileCatalogItem & item);
 
     std::vector<std::string> fileSources_;
-    std::vector<FileCatalogItem> fileCatalogItems_ {1};
+    std::vector<FileCatalogItem> fileCatalogItems_ {{}}; // seed with one item
     FileCatalogItem nextItem_ {};
     size_t fileIdx_ {indexEnd};
     size_t maxIdx_ {};
