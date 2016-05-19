@@ -1,5 +1,4 @@
 set(art_Framework_IO_Catalog_sources
-  FileCatalog.cc
   InputFileCatalog.cc
   )
 

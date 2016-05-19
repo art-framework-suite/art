@@ -14,21 +14,11 @@
 
 #include <limits>
 
-const size_t art::InputFileCatalog::indexEnd = std::numeric_limits<size_t>::max();
-
 namespace art {
 
   InputFileCatalog::InputFileCatalog(fhicl::TableFragment<InputFileCatalog::Config> const& config)
-    :
-    FileCatalog(),
-    fileSources_{config().namesParameter()},
-    fileCatalogItems_(1),
-    fileIdx_(indexEnd),
-    maxIdx_(0),
-    searchable_(false /*update the value after the service gets configured*/),
-    nextFileProbed_(false),
-    hasNextFile_(false)
-    {
+    : fileSources_{config().namesParameter()}
+  {
 
       if (fileSources_.empty()) {
         throw art::Exception(art::errors::CatalogServiceError, "InputFileCatalog::InputFileCatalog()\n")
