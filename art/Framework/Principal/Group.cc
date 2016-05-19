@@ -4,8 +4,8 @@
 #include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Principal/OccurrenceTraits.h"
 #include "art/Framework/Principal/Worker.h"
-#include "canvas/Persistency/Provenance/BranchKey.h"
 #include "art/Persistency/Provenance/ProductMetaData.h"
+#include "canvas/Persistency/Provenance/BranchKey.h"
 #include "canvas/Persistency/Provenance/ProductStatus.h"
 #include "canvas/Persistency/Provenance/TypeTools.h"
 #include "cetlib/demangle.h"
@@ -83,7 +83,7 @@ resolveProduct(bool fillOnDemand, TypeID const& wanted_wrapper_type) const
   if (!productUnavailable()) {
     return resolveProductIfAvailable(fillOnDemand, wanted_wrapper_type);
   }
-  art::Exception e(errors::ProductNotFound, "InaccessibleProduct");
+  art::Exception e {errors::ProductNotFound, "InaccessibleProduct"};
   e << "resolveProduct: product is not accessible\n"
     << productDescription()
     << '\n';
@@ -109,7 +109,7 @@ resolveProductIfAvailable(bool const fillOnDemand,
   }
 
   if (wanted_wrapper_type != wrapper_type_) {
-    throw Exception(errors::LogicError)
+    throw Exception{errors::LogicError}
         << "Attempted to obtain a product of different type ("
         << wanted_wrapper_type.className()
         << ") than produced ("

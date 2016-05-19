@@ -69,12 +69,12 @@ private:
 art::FileDumperOutput::
 FileDumperOutput(art::FileDumperOutput::Parameters const & ps)
   :
-  OutputModule(ps().omConfig, ps.get_PSet()),
-  wantOnDemandProduction_(ps().onDemandProduction()),
-  wantProductFullClassName_(ps().wantProductFullClassName()),
-  wantProductFriendlyClassName_(ps().wantProductFriendlyClassName()),
-  wantResolveProducts_(ps().resolveProducts()),
-  wantPresentOnly_(ps().onlyIfPresent())
+  OutputModule{ps().omConfig, ps.get_PSet()},
+  wantOnDemandProduction_{ps().onDemandProduction()},
+  wantProductFullClassName_{ps().wantProductFullClassName()},
+  wantProductFriendlyClassName_{ps().wantProductFriendlyClassName()},
+  wantResolveProducts_{ps().resolveProducts()},
+  wantPresentOnly_{ps().onlyIfPresent()}
 {
 }
 
@@ -124,38 +124,31 @@ printPrincipal(P const & p)
   col[3].push_back("DATA PRODUCT TYPE");
   col[4].push_back("PRODUCT FRIENDLY TYPE");
   col[5].push_back("SIZE");
-  size_t present = 0;
-  size_t not_present = 0;
+  size_t present {0};
+  size_t not_present {0};
   // insert the per-product data:
   for (auto const& pr : p) {
-    Group const& g = *pr.second;
-    if (wantResolveProducts_) {
-      try {
-        if (!g.resolveProduct(wantOnDemandProduction_, g.producedWrapperType()))
-        { throw Exception(errors::DataCorruption, "data corruption"); }
-      }
-      catch (art::Exception const & e) {
-        if (e.category() != "ProductNotFound")
-        { throw; }
-        if (g.anyProduct())
-          throw art::Exception(errors::LogicError, "FileDumperOutput module", e)
-              << "Product reported as not present, but is pointed to nevertheless!";
-      }
-    }
-    if (g.anyProduct()) {
+    auto const& g = *pr.second;
+    auto const& oh = p.getForOutput(g.productDescription().branchID(), wantResolveProducts_);
+
+    EDProduct const* product = oh.isValid() ? oh.wrapper() : nullptr;
+    bool const productPresent = product != nullptr && product->isPresent();
+
+    if (productPresent) {
       ++present;
     }
     else {
       ++not_present;
     }
-    if ((!wantPresentOnly_) || g.anyProduct()) {
+
+    if ((!wantPresentOnly_) || productPresent) {
       col[0].push_back(g.processName());
       col[1].push_back(g.moduleLabel());
       col[2].push_back(g.productInstanceName());
       col[3].push_back(g.productDescription().producedClassName());
       col[4].push_back(g.productDescription().friendlyClassName());
-      if (g.anyProduct()) {
-        col[5].push_back(g.anyProduct()->productSize());
+      if (productPresent) {
+        col[5].push_back(product->productSize());
       }
       else {
         col[5].push_back(g.onDemand() ? "o/d" : "?");

@@ -128,12 +128,11 @@ namespace art {
                << newRS
                << "\nPlease contact artists@fnal.gov.\n";
         }
-        // NOP for when both RangeSets are invalid
-
+        // NOP when both RangeSets are invalid
       }
-      mergedRangeSet.collapse(); // Must collapse the range!  It sets
-                                 // the checksum.  Yeah...I don't like
-                                 // it either. -KJK
+      // Must collapse the range!  It sets the checksum.  Yeah...I
+      // don't like it either. -KJK
+      mergedRangeSet.collapse();
       std::swap(rs, mergedRangeSet);
     }
 

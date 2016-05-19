@@ -28,6 +28,7 @@ namespace art {
 class art::ResultsPrincipal final : public Principal {
 public:
   using Auxiliary = ResultsAuxiliary;
+  static constexpr BranchType branch_type = ResultsAuxiliary::branch_type;
 
   ResultsPrincipal(ResultsAuxiliary const &,
                    ProcessConfiguration const &,

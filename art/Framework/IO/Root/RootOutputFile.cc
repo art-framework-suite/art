@@ -228,10 +228,10 @@ namespace {
     assert(principalRS.is_sorted());
     assert(productRS.is_sorted());
     assert(!principalRS.ranges().empty());
-    assert(!productRS.ranges().empty());
 
     if (bt == art::InRun && productRS.is_full_run()) return;
     if (bt == art::InSubRun && productRS.is_full_subRun()) return;
+    assert(!productRS.ranges().empty());
 
     auto const r = productRS.run();
     auto const& productFront = productRS.ranges().front();
@@ -963,8 +963,13 @@ fillBranches(Principal const& principal,
     // Resolve the product if necessary
     if (resolveProd) {
       auto const& rs = getRangeSet<BT>(oh, principalRS, produced);
-      if (RangeSetsSupported<BT>::value && !rs.is_valid())
+      if (RangeSetsSupported<BT>::value && !rs.is_valid()) {
+        // Unfortunately, 'unknown' is the only viable product status
+        // when this condition is triggered (due to the assert
+        // statement in ProductStatus::setNotPresent).  Whenever the
+        // metadata revolution comes, this should be revised.
         keptProvenance.setStatus(*prov, productstatus::unknown());
+      }
 
       auto const* product = getProduct<BT>(oh, rs, bd->wrappedName());
       setProductRangeSetID<BT>(rs,
