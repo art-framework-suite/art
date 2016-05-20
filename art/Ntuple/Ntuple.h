@@ -45,9 +45,9 @@ namespace ntuple
   private:
     sqlite3*           db_;
     std::size_t        max_;
-    std::vector<row_t> buffer_;
-    sqlite3_stmt*      insert_statement_;
-    sqlite3_int64      last_rowid_;
+    std::vector<row_t> buffer_ {};
+    sqlite3_stmt*      insert_statement_ {nullptr};
+    sqlite3_int64      last_rowid_ {};
   };
 
 }
@@ -59,13 +59,10 @@ ntuple::Ntuple<ARGS...>::Ntuple(sqlite3* db,
                                 bool const overwriteContents,
                                 std::size_t bufsize) :
   db_(db),
-  max_(bufsize),
-  buffer_(),
-  insert_statement_{nullptr},
-  last_rowid_()
+  max_(bufsize)
 {
   if (!db)
-    { throw art::Exception(art::errors::SQLExecutionError,"Attempt to create Ntuple with null database pointer"); }
+    { throw art::Exception{art::errors::SQLExecutionError,"Attempt to create Ntuple with null database pointer"}; }
   sqlite::createTableIfNeeded<ARGS...>(db, last_rowid_, name, begin(cnames), end(cnames), overwriteContents );
   std::string sql("INSERT INTO ");
   sql += name;
@@ -78,7 +75,7 @@ ntuple::Ntuple<ARGS...>::Ntuple(sqlite3* db,
                               &insert_statement_,
                               nullptr);
   if (rc != SQLITE_OK)
-    { throw art::Exception(art::errors::SQLExecutionError,"Failed to prepare insertion statment"); }
+    { throw art::Exception{art::errors::SQLExecutionError,"Failed to prepare insertion statment"}; }
   buffer_.reserve(bufsize);
 
 }
