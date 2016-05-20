@@ -47,7 +47,6 @@
 
 namespace art {
   class OutputModule;
-
   class ResultsPrincipal;
 }
 
@@ -63,7 +62,6 @@ public:
 
   // Configuration
   struct Config {
-
     struct KeysToIgnore {
       std::set<std::string> operator()()
       {
@@ -156,6 +154,10 @@ private:
   OutputFileStatus fileStatus_ {OutputFileStatus::Closed};
 
   ModuleDescription moduleDescription_ {};
+  // 'dummyModuleDescription_' is used for the memory- and
+  // time-tracking services to distinguish between processing an event
+  // and writing one.
+  ModuleDescription dummyModuleDescription_ {};
   bool const memTrackerAvailable_ {ServiceRegistry::instance().isAvailable<MemoryTracker>()};
   bool const timeTrackerAvailable_ {ServiceRegistry::instance().isAvailable<TimeTracker>()};
 
@@ -348,6 +350,10 @@ art::OutputModule::
 setModuleDescription(ModuleDescription const & md)
 {
   moduleDescription_ = md;
+  dummyModuleDescription_ = ModuleDescription{md.parameterSetID(),
+                                              md.moduleName()+"(write)",
+                                              md.moduleLabel(),
+                                              md.processConfiguration()};
 }
 
 inline

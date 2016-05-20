@@ -44,21 +44,21 @@ namespace {
       , mem_(memTracker ? &*art::ServiceHandle<art::MemoryTracker>{} : nullptr)
       , time_(timeTracker ? &*art::ServiceHandle<art::TimeTracker>{} : nullptr)
     {
-      if ( mem_ ) mem_->preModule(md_);
-      if ( time_ ) time_->preModule(md_);
+      if (mem_) mem_->preModule(md_);
+      if (time_) time_->preModule(md_);
     }
 
     ~OMServices()
     {
-      if ( mem_ ) mem_->postModule(md_);
-      if ( time_ ) time_->postModule(md_);
+      if (mem_) mem_->postModule(md_);
+      if (time_) time_->postModule(md_);
     }
   };
 
 }
 
 art::OutputModule::
-OutputModule(fhicl::TableFragment<Config> const & config,
+OutputModule(fhicl::TableFragment<Config> const& config,
              ParameterSet const& containing_pset)
   : EventObserver{config().eoConfig}
   , groupSelectorRules_{config().outputCommands(), "outputCommands", "OutputModule"}
@@ -230,7 +230,7 @@ void
 art::OutputModule::
 doWriteEvent(EventPrincipal& ep)
 {
-  OMServices sentry {description(), memTrackerAvailable_, timeTrackerAvailable_ };
+  OMServices sentry {dummyModuleDescription_, memTrackerAvailable_, timeTrackerAvailable_ };
   detail::PVSentry clearTriggerResults {selectors_};
   FDEBUG(2) << "writeEvent called\n";
   Event const e {ep, moduleDescription_};

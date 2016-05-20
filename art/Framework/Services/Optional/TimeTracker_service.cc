@@ -18,10 +18,8 @@ using namespace ntuple;
 using std::setw;
 
 namespace {
-
   // 'using' declaration won't work because 'now' is a member function
   auto now = std::bind(&tbb::tick_count::now);
-
 }
 
 // ======================================================================
