@@ -25,6 +25,35 @@
 
 namespace art {
 
+  struct Statistics {
+
+    explicit Statistics() = default;
+
+    explicit Statistics(std::string const& identifier,
+                        sqlite3* db,
+                        std::string const& table,
+                        std::string const& column)
+      : label{identifier}
+      , min{sqlite::min(db, table, column)}
+      , mean{sqlite::mean(db, table, column)}
+      , max{sqlite::max(db, table, column)}
+      , median{sqlite::median(db, table, column)}
+      , rms{sqlite::rms(db, table, column)}
+      , n{sqlite::query_db<uint32_t>(db, "select count(*) from "+table+";")}
+    {}
+
+    std::string label {};
+    double min {-1.};
+    double mean {-1.};
+    double max {-1.};
+    double median {-1.};
+    double rms {-1.};
+    unsigned n {0u};
+  };
+
+  std::ostream& operator<<(std::ostream& os, Statistics const& info);
+
+  // =======================================================================
   class TimeTracker {
   public:
 
@@ -52,6 +81,9 @@ namespace art {
 
     void preEventProcessing(Event const&);
     void postEventProcessing(Event const&);
+
+    void logToDatabase_(Statistics const& evt, std::vector<Statistics> const& modules);
+    void logToDestination_(Statistics const& evt, std::vector<Statistics> const& modules);
 
     std::string pathname_;
     EventID eventId_;
