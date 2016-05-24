@@ -4,6 +4,7 @@
 #include "art/Framework/Principal/SubRun.h"
 #include "canvas/Persistency/Provenance/RangeSet.h"
 #include "cetlib/quiet_unit_test.hpp"
+#include "messagefacility/MessageLogger/MessageLogger.h"
 
 namespace fhicl { class ParameterSet; }
 
@@ -54,6 +55,8 @@ namespace {
                      "  or contact artists@fnal.gov for assistance.\n") != std::string::npos;
   }
 
+  struct Config {};
+
 }
 
 namespace arttest {
@@ -61,7 +64,8 @@ namespace arttest {
   class ImplicitRSAssigmentProducer : public art::EDProducer {
   public:
 
-    explicit ImplicitRSAssigmentProducer( fhicl::ParameterSet const& )
+    using Parameters = art::EDProducer::Table<Config>;
+    explicit ImplicitRSAssigmentProducer(Parameters const&)
     {
       produces<unsigned,art::InRun>("bgnRunNum");
       produces<unsigned,art::InRun>("bgnRunDenom");

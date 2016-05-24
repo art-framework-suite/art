@@ -132,6 +132,14 @@ namespace art
     CPC_exempt_ptr current_context_ {nullptr};
   };  // EDAnalyzer
 
+  template <typename T, typename U>
+  inline decltype(auto) operator<<(T&& t, EDAnalyzer::Table<U> const& u)
+  {
+    std::ostringstream oss;
+    u.print_allowed_configuration(oss, std::string(3,' '));
+    return std::forward<T>(t) << oss.str();
+  }
+
 }  // art
 
 // ======================================================================
