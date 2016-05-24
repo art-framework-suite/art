@@ -21,13 +21,13 @@ namespace {
   // helper to ignore tokens in an istream
 
   struct token_ignore{
-    explicit token_ignore(const unsigned ntokens) : ntokens_(ntokens) {}
+    explicit token_ignore(const unsigned ntokens) : ntokens_{ntokens} {}
     unsigned ntokens_;
   };
 
-  std::istream& operator>>( std::istream& is, const token_ignore&& ig) {
+  std::istream& operator>>(std::istream& is, token_ignore const&& ig) {
     std::string tmp;
-    unsigned i(0);
+    unsigned i{0};
     while ( i++ < ig.ntokens_ ) is >> tmp;
     return is;
   }
@@ -39,9 +39,8 @@ namespace art {
 
     //=======================================================
     LinuxProcMgr::LinuxProcMgr()
-      : pid_( getpid() )
-      , fd_()
-      , pgSize_(sysconf(_SC_PAGESIZE))
+      : pid_{getpid()}
+      , pgSize_{sysconf(_SC_PAGESIZE)}
     {
 
       std::ostringstream ost;
@@ -62,7 +61,6 @@ namespace art {
     //=======================================================
     LinuxProcData::proc_array LinuxProcMgr::getCurrentData() const
     {
-
       lseek(fd_, 0, SEEK_SET);
 
       char buf[400];

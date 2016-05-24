@@ -20,11 +20,9 @@ namespace art {
       double getVmPeak() const;
 
     private:
-
       pid_t pid_;
-      int   fd_;
+      int   fd_ {};
       long  pgSize_;
-
     };
 
   }

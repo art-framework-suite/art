@@ -32,9 +32,13 @@ namespace art {
 
     struct Config {
       using Name = fhicl::Name;
-      fhicl::Atom<unsigned> ignoreTotal { Name("ignoreTotal"), 1 };
+      fhicl::Atom<unsigned> ignoreTotal { Name("ignoreTotal"), 1u };
       fhicl::Sequence<std::string> printSummaries { Name("printSummaries"), { "general", "event", "module" } };
-      fhicl::Atom<std::string> filename { Name("filename"), "" };
+      struct DBoutput {
+        fhicl::Atom<std::string> filename { Name("filename"), "" };
+        fhicl::Atom<bool> overwrite { Name("overwrite"), false };
+      };
+      fhicl::Table<DBoutput> dbOutput { Name("dbOutput") };
       fhicl::Atom<bool> includeMallocInfo { Name("includeMallocInfo"), false };
     };
 
@@ -59,12 +63,12 @@ namespace art {
 
   private:
 
-    std::bitset<ntypes> setbits_( std::vector<std::string> const & );
-    bool checkMallocConfig_( std::string const &, bool );
+    std::bitset<ntypes> setbits_(std::vector<std::string> const&);
+    bool checkMallocConfig_(std::string const &, bool);
 
-    void generalSummary_( std::ostringstream& );
-    void eventSummary_  ( std::ostringstream&, std::string const& col, std::string const& header );
-    void moduleSummary_ ( std::ostringstream&, std::string const& col, std::string const& header );
+    void generalSummary_(std::ostringstream&);
+    void eventSummary_  (std::ostringstream&, std::string const& col, std::string const& header);
+    void moduleSummary_ (std::ostringstream&, std::string const& col, std::string const& header);
 
     detail::LinuxProcMgr procInfo_;
 
@@ -72,14 +76,15 @@ namespace art {
     unsigned numToSkip_;
     std::bitset<ntypes> printSummary_;
     sqlite::DBmanager dbMgr_;
-    bool     includeMallocInfo_;
+    bool overwriteContents_;
+    bool includeMallocInfo_;
 
-    std::string pathname_;
-    detail::LinuxProcData::proc_array evtData_;
-    art::EventID eventId_;
-    std::size_t  evtCount_;
+    std::string pathname_ {};
+    detail::LinuxProcData::proc_array evtData_ {{0.}};
+    art::EventID eventId_ {};
+    std::size_t  evtCount_ {};
 
-    detail::LinuxProcData::proc_array modData_;
+    detail::LinuxProcData::proc_array modData_ {{0.}};
 
     template<unsigned SIZE>
     using name_array = ntuple::name_array<SIZE>;
@@ -101,19 +106,14 @@ namespace art {
     std::unique_ptr<memHeap_t> eventHeapTable_;
     std::unique_ptr<memHeap_t> moduleHeapTable_;
 
-    template<typename T>
-    using CallbackPair      = detail::CallbackPair<T>;
-    using SourceSummaryType = detail::SourceSummaryType;
-    using ModuleSummaryType = detail::ModuleSummaryType;
-
-    CallbackPair<SourceSummaryType> evtSource_;
-    CallbackPair<ModuleSummaryType> modConstruction_;
-    CallbackPair<ModuleSummaryType> modBeginJob_;
-    CallbackPair<ModuleSummaryType> modEndJob_;
-    CallbackPair<ModuleSummaryType> modBeginRun_;
-    CallbackPair<ModuleSummaryType> modEndRun_;
-    CallbackPair<ModuleSummaryType> modBeginSubRun_;
-    CallbackPair<ModuleSummaryType> modEndSubRun_;
+    using CallbackPair = detail::CallbackPair;
+    CallbackPair modConstruction_;
+    CallbackPair modBeginJob_;
+    CallbackPair modEndJob_;
+    CallbackPair modBeginRun_;
+    CallbackPair modEndRun_;
+    CallbackPair modBeginSubRun_;
+    CallbackPair modEndSubRun_;
 
   }; // MemoryTracker
 

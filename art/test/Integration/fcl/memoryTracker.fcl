@@ -5,7 +5,10 @@ services:
    MemoryTracker: {
       includeMallocInfo : true
       printSummaries : ["*"]
-      filename : "memoryTracker.db"
+      dbOutput: {
+         filename : "memoryTracker.db"
+         overwrite: true
+      }
    }
 }
 

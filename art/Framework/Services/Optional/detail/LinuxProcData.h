@@ -77,23 +77,20 @@ namespace art {
       // aliases
       using vsize_t    = unsigned long;
       using rss_t      = long;
-
       using proc_array = std::array<double,ntypes>;
 
       // constants
       static constexpr double kB = 1024.;
       static constexpr double MB = kB*kB;
-
     };
 
     // operator overloads for std::array arithmetic
     // ... must type 'using namespace art::detail' to use
 
-    inline bool operator >
-    ( LinuxProcData::proc_array const & left,
-      LinuxProcData::proc_array const & right ) {
-      for ( unsigned i(0) ; i < LinuxProcData::ntypes ; ++i ) {
-        if ( left.at(i) > right.at(i) ) return true;
+    inline bool operator > ( LinuxProcData::proc_array const & left,
+                             LinuxProcData::proc_array const & right ) {
+      for ( unsigned i{} ; i < LinuxProcData::ntypes ; ++i ) {
+        if ( left[i] > right[i] ) return true;
       }
       return false;
     }
@@ -101,15 +98,15 @@ namespace art {
     inline
     bool operator <= ( LinuxProcData::proc_array const & left,
                        LinuxProcData::proc_array const & right ) {
-      return !( left > right );
+      return !(left > right);
     }
 
     inline
     LinuxProcData::proc_array operator- (LinuxProcData::proc_array const & left,
                                          LinuxProcData::proc_array const & right) {
       LinuxProcData::proc_array tmp = {0.};
-      for ( unsigned i(0) ; i < LinuxProcData::ntypes ; ++i ) {
-        tmp.at(i) = left.at(i) - right.at(i);
+      for (unsigned i{} ; i < LinuxProcData::ntypes ; ++i ) {
+        tmp[i] = left[i] - right[i];
       }
       return tmp;
     }
@@ -117,8 +114,8 @@ namespace art {
     inline
     LinuxProcData::proc_array& operator+= (LinuxProcData::proc_array& left,
                                            LinuxProcData::proc_array const & right) {
-      for ( unsigned i(0) ; i < LinuxProcData::ntypes ; ++i ) {
-        left.at(i) += right.at(i);
+      for ( unsigned i{} ; i < LinuxProcData::ntypes ; ++i ) {
+        left[i] += right[i];
       }
       return left;
     }
