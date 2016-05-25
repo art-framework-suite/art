@@ -3,10 +3,6 @@
 
 #include "art/Framework/Services/Optional/detail/LinuxProcData.h"
 
-extern "C" {
-#include <sys/types.h>
-}
-
 namespace art {
   namespace detail {
 
@@ -17,16 +13,26 @@ namespace art {
       ~LinuxProcMgr();
 
       LinuxProcData::proc_array getCurrentData() const;
-      double getVmPeak() const;
+      double getVmPeak() const { return getStatusData_("VmPeak"); }
+      double getVmHWM() const { return getStatusData_("VmHWM"); }
+
+      // Disable copy/move
+      LinuxProcMgr(LinuxProcMgr const&) = delete;
+      LinuxProcMgr(LinuxProcMgr&&) = delete;
+      LinuxProcMgr& operator=(LinuxProcMgr const&) = delete;
+      LinuxProcMgr& operator=(LinuxProcMgr&&) = delete;
 
     private:
+      double getStatusData_(std::string const& field) const;
+
       pid_t pid_;
-      int   fd_ {};
-      long  pgSize_;
+      long pgSize_;
+      int fd_ {};
     };
 
   }
 }
+
 #endif /* art_Framework_Services_Optional_detail_LinuxProcMgr_h */
 
 // Local variables:

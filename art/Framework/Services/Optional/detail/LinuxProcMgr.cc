@@ -19,16 +19,16 @@ extern "C" {
 namespace {
 
   // helper to ignore tokens in an istream
-
-  struct token_ignore{
+  struct token_ignore {
     explicit token_ignore(const unsigned ntokens) : ntokens_{ntokens} {}
     unsigned ntokens_;
   };
 
-  std::istream& operator>>(std::istream& is, token_ignore const&& ig) {
+  std::istream& operator>>(std::istream& is, token_ignore const&& ig)
+  {
     std::string tmp;
-    unsigned i{0};
-    while ( i++ < ig.ntokens_ ) is >> tmp;
+    unsigned i {};
+    while (i++ < ig.ntokens_) is >> tmp;
     return is;
   }
 
@@ -42,14 +42,12 @@ namespace art {
       : pid_{getpid()}
       , pgSize_{sysconf(_SC_PAGESIZE)}
     {
-
       std::ostringstream ost;
       ost << "/proc/" << pid_ << "/stat";
       if ((fd_ = open(ost.str().c_str(), O_RDONLY)) < 0) {
-        throw art::Exception(errors::Configuration)
+        throw Exception{errors::Configuration}
           << " Failed to open: " << ost.str() << std::endl;
       }
-
     }
 
     //=======================================================
@@ -68,7 +66,7 @@ namespace art {
 
       LinuxProcData::proc_array data;
 
-      if ( cnt < 0 ) {
+      if (cnt < 0) {
         perror("Read of Proc file failed:");
       }
       else if (cnt > 0) {
@@ -77,47 +75,42 @@ namespace art {
         LinuxProcData::vsize_t vsize;
         LinuxProcData::rss_t   rss;
 
-        std::istringstream iss( buf );
+        std::istringstream iss {buf};
         iss >> token_ignore(22) >> vsize >> rss;
 
-        data = { vsize/LinuxProcData::MB,
-                 rss*pgSize_/LinuxProcData::MB };
-
+        data = {vsize/LinuxProcData::MB,
+                rss*pgSize_/LinuxProcData::MB};
       }
       return data;
 
     }
 
     //=======================================================
-    double LinuxProcMgr::getVmPeak() const
+    double LinuxProcMgr::getStatusData_(std::string const& field) const
     {
-
       std::ostringstream ost;
       ost << "cat /proc/" << pid_ << "/status";
 
       FILE* file = popen(ost.str().c_str(), "r");
-      if ( file == nullptr ) {
-        throw art::Exception(errors::Configuration)
+      if (file == nullptr) {
+        throw Exception{errors::Configuration}
           << " Failed to open: " << ost.str() << std::endl;
       }
 
-      double vmpeak(0.);
-      while ( !feof( file ) ) {
+      double value {};
+      std::regex const pattern {"^"+field+R"(:\s*(\d+)\s*kB)"};
+      while (!feof(file)) {
         char buffer[128];
-        if (fgets(buffer, sizeof(buffer), file) != nullptr ) {
+        if (fgets(buffer, sizeof(buffer), file) != nullptr) {
           std::smatch sm;
-          if ( std::regex_search( std::string(buffer), sm,
-                                  std::regex( R"(^VmPeak:\s*(\d+)\s*kB)" ) ) ) {
-            vmpeak = std::stod( sm.str(1) )/ LinuxProcData::kB; // convert to MB
+          if (std::regex_search(std::string{buffer}, sm, pattern)) {
+            value = std::stod(sm.str(1))/LinuxProcData::kB; // convert to MB
             break;
           }
         }
       }
-
-      return vmpeak;
-
+      return value;
     }
-
 
   } // namespace detail
 } // namespace art

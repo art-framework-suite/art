@@ -363,7 +363,8 @@ art::MemoryTracker::generalSummary_(std::ostringstream& oss)
 
   std::string const rule = std::string(sWidth+2+mWidth+2+2*12,'=');
 
-  oss << "  Peak virtual memory usage (VmPeak): " << procInfo_.getVmPeak() << " Mbytes"
+  oss << "  Peak virtual memory usage (VmPeak)  : " << procInfo_.getVmPeak() << " Mbytes\n"
+      << "  Peak resident set size usage (VmHWM): " << procInfo_.getVmHWM() << " Mbytes\n"
       << "\n\n"
       << setw(sWidth+2) << "ProcessStep"
       << setw(mWidth+2) << "Module ID"

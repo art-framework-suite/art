@@ -87,25 +87,28 @@ namespace art {
     // operator overloads for std::array arithmetic
     // ... must type 'using namespace art::detail' to use
 
-    inline bool operator > ( LinuxProcData::proc_array const & left,
-                             LinuxProcData::proc_array const & right ) {
-      for ( unsigned i{} ; i < LinuxProcData::ntypes ; ++i ) {
+    inline bool operator > (LinuxProcData::proc_array const& left,
+                            LinuxProcData::proc_array const& right)
+    {
+      for (unsigned i{} ; i < LinuxProcData::ntypes ; ++i) {
         if ( left[i] > right[i] ) return true;
       }
       return false;
     }
 
     inline
-    bool operator <= ( LinuxProcData::proc_array const & left,
-                       LinuxProcData::proc_array const & right ) {
+    bool operator <= (LinuxProcData::proc_array const& left,
+                      LinuxProcData::proc_array const& right)
+    {
       return !(left > right);
     }
 
     inline
-    LinuxProcData::proc_array operator- (LinuxProcData::proc_array const & left,
-                                         LinuxProcData::proc_array const & right) {
+    LinuxProcData::proc_array operator- (LinuxProcData::proc_array const& left,
+                                         LinuxProcData::proc_array const& right)
+    {
       LinuxProcData::proc_array tmp = {0.};
-      for (unsigned i{} ; i < LinuxProcData::ntypes ; ++i ) {
+      for (unsigned i{} ; i < LinuxProcData::ntypes ; ++i) {
         tmp[i] = left[i] - right[i];
       }
       return tmp;
@@ -113,7 +116,8 @@ namespace art {
 
     inline
     LinuxProcData::proc_array& operator+= (LinuxProcData::proc_array& left,
-                                           LinuxProcData::proc_array const & right) {
+                                           LinuxProcData::proc_array const& right)
+    {
       for ( unsigned i{} ; i < LinuxProcData::ntypes ; ++i ) {
         left[i] += right[i];
       }
