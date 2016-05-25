@@ -33,7 +33,7 @@ namespace art {
     struct Config {
       using Name = fhicl::Name;
       fhicl::Atom<unsigned> ignoreTotal { Name("ignoreTotal"), 1u };
-      fhicl::Sequence<std::string> printSummaries { Name("printSummaries"), { "general", "event", "module" } };
+      fhicl::Sequence<std::string> printSummaries { Name("printSummaries"), {"general", "event", "module"} };
       struct DBoutput {
         fhicl::Atom<std::string> filename { Name("filename"), "" };
         fhicl::Atom<bool> overwrite { Name("overwrite"), false };
@@ -64,7 +64,7 @@ namespace art {
   private:
 
     std::bitset<ntypes> setbits_(std::vector<std::string> const&);
-    bool checkMallocConfig_(std::string const &, bool);
+    bool checkMallocConfig_(std::string const&, bool);
 
     void generalSummary_(std::ostringstream&);
     void eventSummary_  (std::ostringstream&, std::string const& col, std::string const& header);

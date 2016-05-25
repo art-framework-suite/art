@@ -160,7 +160,6 @@ art::MemoryTracker::MemoryTracker(ServiceTable<Config> const& config,
   , eventHeapTable_ {includeMallocInfo_ ? std::make_unique<memHeap_t>(dbMgr_, "EventMallocInfo" , eventHeapTuple_ ) : nullptr}
   , moduleHeapTable_{includeMallocInfo_ ? std::make_unique<memHeap_t>(dbMgr_, "ModuleMallocInfo", moduleHeapTuple_) : nullptr}
     // instantiate the class templates
-    //  , evtSource_      {summaryTable_, procInfo_, evtCount_, "Event source"}
   , modConstruction_{summaryTable_, procInfo_, evtCount_, "Module Construction"}
   , modBeginJob_    {summaryTable_, procInfo_, evtCount_, "Module beginJob"}
   , modEndJob_      {summaryTable_, procInfo_, evtCount_, "Module endJob"}
@@ -216,10 +215,10 @@ art::MemoryTracker::postEventProcessing(Event const&)
   eventTable_.insert(eventId_.run(),
                      eventId_.subRun(),
                      eventId_.event(),
-                     data.at(LinuxProcData::VSIZE),
-                     deltas.at(LinuxProcData::VSIZE),
-                     data.at(LinuxProcData::RSS),
-                     deltas.at(LinuxProcData::RSS));
+                     data[LinuxProcData::VSIZE],
+                     deltas[LinuxProcData::VSIZE],
+                     data[LinuxProcData::RSS],
+                     deltas[LinuxProcData::RSS]);
 
   if (includeMallocInfo_) {
     auto minfo = LinuxMallInfo().get();
@@ -251,10 +250,10 @@ art::MemoryTracker::postModule(ModuleDescription const& md)
                       eventId_.subRun(),
                       eventId_.event(),
                       pathname_+":"s+md.moduleLabel()+":"s+md.moduleName(),
-                      data.at(LinuxProcData::VSIZE),
-                      deltas.at(LinuxProcData::VSIZE),
-                      data.at(LinuxProcData::RSS),
-                      deltas.at(LinuxProcData::RSS));
+                      data[LinuxProcData::VSIZE],
+                      deltas[LinuxProcData::VSIZE],
+                      data[LinuxProcData::RSS],
+                      deltas[LinuxProcData::RSS]);
 
   if (includeMallocInfo_) {
     auto minfo = LinuxMallInfo().get();

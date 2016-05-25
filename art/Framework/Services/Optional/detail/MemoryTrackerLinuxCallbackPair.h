@@ -30,7 +30,7 @@ namespace art {
         : summaryTable_{&summaryTable}
         , procMgr_{&procMgr}
         , counter_{&evtCounter}
-        , processStep_ {processStep}
+        , processStep_{processStep}
       {}
 
       void pre(ModuleDescription const&)
@@ -38,14 +38,13 @@ namespace art {
         baseline_ = procMgr_->getCurrentData();
       }
 
-      template<typename ... ARGS>
       void post(ModuleDescription const& md)
       {
         deltas_ = procMgr_->getCurrentData()-baseline_;
         summaryTable_->insert(processStep_,
                               md.moduleLabel()+":"s+md.moduleName(),
-                              deltas_.at(LinuxProcData::VSIZE),  /// FIXME!!!!
-                              deltas_.at(LinuxProcData::RSS ) );
+                              deltas_[LinuxProcData::VSIZE],
+                              deltas_[LinuxProcData::RSS]);
       }
 
     private:
