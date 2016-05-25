@@ -982,6 +982,7 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     fcl/memoryTracker.fcl
     fcl/messageDefaults.fcl
     REF "${CMAKE_CURRENT_SOURCE_DIR}/MemoryTracker_t-ref.txt"
+    OUTPUT_FILTER "${PACKAGE_TOP_DIRECTORY}/tools/filter-memoryTracker-output"
     )
 endif()
 

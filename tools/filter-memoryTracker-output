@@ -49,7 +49,8 @@ while (<>) {
       undef $mm_format;
       $n_sep = 0;
     } elsif ($mm_format == 1) {
-      s&\s+(Peak virtual memory usage \(VmPeak\):)\s+(.*)$&${1}\t<mem-size>&;
+      s&\s+(Peak virtual memory usage \(VmPeak\)\s*:)\s+(.*)$&${1}\t<mem-size>&;
+      s&\s+(Peak resident set size usage \(VmHWM\)\s*:)\s+(.*)$&${1}\t<mem-size>&;
       s&^(Module \S+)\s+(\S+)\s+.*$&${1}\t${2}\t<mem-size>\t<mem-size>&;
     } else { # $mm_format == 2
       if (m&^\s*run&) {
