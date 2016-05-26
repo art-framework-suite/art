@@ -23,7 +23,7 @@
 #include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Principal/OccurrenceTraits.h"
 #include "art/Framework/Principal/RangeSetHandler.h"
-#include "art/Framework/Principal/RunStopwatch.h"
+#include "art/Framework/Principal/MaybeRunStopwatch.h"
 #include "art/Framework/Principal/Worker.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
 #include "cetlib/trim.h"
@@ -118,8 +118,7 @@ art::EndPathExecutor::
 processOneOccurrence(typename T::MyPrincipal & ep)
 {
   this->resetAll();
-  // A RunStopwatch, but only if we are processing an event.
-  std::unique_ptr<RunStopwatch> const stopwatch {endPathInfo_.runStopwatch(T::isEvent_)};
+  auto sentry (endPathInfo_.maybeRunStopwatch<T::isEvent_>());
   if (T::isEvent_) {
     endPathInfo_.addEvent();
   }

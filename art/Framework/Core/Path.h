@@ -11,7 +11,7 @@
 
 #include "art/Framework/Principal/CurrentProcessingContext.h"
 #include "art/Framework/Principal/OccurrenceTraits.h"
-#include "art/Framework/Principal/RunStopwatch.h"
+#include "art/Framework/Principal/MaybeRunStopwatch.h"
 #include "art/Framework/Principal/Worker.h"
 #include "art/Framework/Core/WorkerInPath.h"
 #include "canvas/Persistency/Common/HLTenums.h"
@@ -27,18 +27,19 @@
 
 namespace art {
   class Path;
-  typedef std::vector<std::unique_ptr<Path> > PathPtrs;
+  using PathPtrs = std::vector<std::unique_ptr<Path>>;
 }
 
 class art::Path {
 public:
-  typedef hlt::HLTState State;
+  using State = hlt::HLTState;
 
-  typedef std::vector<WorkerInPath> WorkersInPath;
-  typedef WorkersInPath::size_type        size_type;
-  typedef cet::exempt_ptr<HLTGlobalStatus> TrigResPtr;
+  using WorkersInPath = std::vector<WorkerInPath>;
+  using size_type = WorkersInPath::size_type;
+  using TrigResPtr = cet::exempt_ptr<HLTGlobalStatus>;
 
-  Path(int bitpos, std::string const& path_name,
+  Path(int bitpos,
+       std::string const& path_name,
        WorkersInPath workers, // Feel free to use move semantics.
        TrigResPtr pathResults,
        fhicl::ParameterSet const& proc_pset,
@@ -53,7 +54,7 @@ public:
   std::string const& name() const { return name_; }
 
   std::pair<double,double> timeCpuReal() const {
-    return std::pair<double,double>(stopwatch_->cpuTime(),stopwatch_->realTime());
+    return std::pair<double,double>(stopwatch_.cpuTime(), stopwatch_.realTime());
   }
 
   std::pair<double,double> timeCpuReal(unsigned int const i) const {
@@ -83,13 +84,12 @@ private:
 
   void findByModifiesEvent(bool modifies, std::vector<std::string> &foundLabels) const;
 
-  RunStopwatch::StopwatchPointer stopwatch_;
-  int timesRun_;
-  int timesPassed_;
-  int timesFailed_;
-  int timesExcept_;
-  //int abortWorker_;
-  State state_;
+  Stopwatch::timer_type stopwatch_ {};
+  int timesRun_ {};
+  int timesPassed_ {};
+  int timesFailed_ {};
+  int timesExcept_ {};
+  State state_ {hlt::Ready};
 
   int bitpos_;
   std::string name_;
@@ -137,14 +137,13 @@ namespace art {
 template <typename T>
 void art::Path::processOneOccurrence(typename T::MyPrincipal& ep)
 {
-  //Create the PathSignalSentry before the RunStopwatch so that
+  //Create the PathSignalSentry before the MaybeRunStopwatch so that
   // we only record the time spent in the path not from the signal
 
   int nwrwue {-1}; // numWorkersRunWithoutUnhandledException
   auto signaler = std::make_unique<PathSignalSentry<T>>(actReg_, name_, nwrwue, state_);
 
-  // A RunStopwatch, but only if we are processing an event.
-  std::unique_ptr<RunStopwatch> stopwatch(T::isEvent_ ? new RunStopwatch(stopwatch_) : nullptr);
+  MaybeMaybeRunStopwatch<T::isEvent_> sentry {stopwatch_};
 
   if (T::isEvent_) {
     ++timesRun_;

@@ -27,7 +27,7 @@ the worker is reset().
 #include "art/Framework/Principal/Actions.h"
 #include "art/Framework/Services/Registry/BranchActionType.h"
 #include "art/Framework/Principal/CurrentProcessingContext.h"
-#include "art/Framework/Principal/RunStopwatch.h"
+#include "art/Framework/Principal/MaybeRunStopwatch.h"
 #include "art/Framework/Principal/fwd.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
 #include "cetlib/exception.h"
@@ -120,7 +120,6 @@ private:
   virtual void implRespondToOpenOutputFiles(FileBlock const& fb) = 0;
   virtual void implRespondToCloseOutputFiles(FileBlock const& fb) = 0;
 
-  //RunStopwatch::StopwatchPointer stopwatch_;
   cet::cpu_timer timer_;
 
   int timesRun_;
@@ -176,9 +175,6 @@ exceptionContext(ModuleDescription const& iMD,
 template <typename T>
 bool art::Worker::doWork(typename T::MyPrincipal& ep,
                          CurrentProcessingContext const* cpc) {
-
-  // A RunStopwatch, but only if we are processing an event.
-  //std::unique_ptr<RunStopwatch> stopwatch(T::isEvent_ ? new RunStopwatch(stopwatch_) : 0);
 
   if (T::isEvent_) {
     ++timesVisited_;

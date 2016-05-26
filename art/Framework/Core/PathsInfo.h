@@ -2,7 +2,7 @@
 #define art_Framework_Core_PathsInfo_h
 #include "art/Framework/Core/Path.h"
 #include "art/Framework/Core/WorkerMap.h"
-#include "art/Framework/Principal/RunStopwatch.h"
+#include "art/Framework/Principal/MaybeRunStopwatch.h"
 #include "canvas/Persistency/Common/HLTGlobalStatus.h"
 
 namespace art {
@@ -11,7 +11,6 @@ namespace art {
 
 class art::PathsInfo {
 public:
-  PathsInfo();
 
   WorkerMap & workers();
   PathPtrs & pathPtrs();
@@ -19,7 +18,9 @@ public:
 
   void addEvent();
   void addPass();
-  std::unique_ptr<RunStopwatch> runStopwatch(bool run = true);
+
+  template <bool isEvent>
+  MaybeMaybeRunStopwatch<isEvent> maybeRunStopwatch() { return {stopwatch_};}
 
   WorkerMap const & workers() const;
   PathPtrs const & pathPtrs() const;
@@ -29,13 +30,13 @@ public:
   std::pair<double, double> timeCpuReal() const;
 
 private:
-  WorkerMap workers_;
-  PathPtrs pathPtrs_;
-  HLTGlobalStatus pathResults_;
+  WorkerMap workers_ {};
+  PathPtrs pathPtrs_ {};
+  HLTGlobalStatus pathResults_ {};
 
-  size_t totalEvents_;
-  size_t passedEvents_;
-  RunStopwatch::StopwatchPointer stopwatch_;
+  size_t totalEvents_ {};
+  size_t passedEvents_ {};
+  Stopwatch::timer_type stopwatch_ {};
 };
 
 inline
@@ -76,15 +77,6 @@ art::PathsInfo::
 addPass()
 {
   ++passedEvents_;
-}
-
-inline
-std::unique_ptr<art::RunStopwatch>
-art::PathsInfo::
-runStopwatch(bool run)
-{
-  // Take advantage of move semantics on unique_ptr.
-  return std::unique_ptr<RunStopwatch>(run ? new RunStopwatch(stopwatch_) : 0);
 }
 
 inline
@@ -132,7 +124,7 @@ std::pair<double, double>
 art::PathsInfo::
 timeCpuReal() const
 {
-  return std::pair<double, double>(stopwatch_->cpuTime(), stopwatch_->realTime());
+  return std::pair<double, double>(stopwatch_.cpuTime(), stopwatch_.realTime());
 }
 
 #endif /* art_Framework_Core_PathsInfo_h */
