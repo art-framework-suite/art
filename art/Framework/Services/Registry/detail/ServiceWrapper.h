@@ -32,14 +32,12 @@ namespace art {
 
     ////////////////////////////////////
     // Support structures.
-    template<typename T, void (T:: *)(fhicl::ParameterSet const &)>  struct reconfig_function;
-    template<typename T> no_tag  has_reconfig_helper(...);
-    template<typename T> yes_tag has_reconfig_helper(reconfig_function<T, &T::reconfigure> * dummy);
+    template <typename T, typename Enable = void>
+    struct has_reconfig_function : std::false_type {};
 
-    template<typename T>
-    struct has_reconfig_function {
-      static bool const value = sizeof(has_reconfig_helper<T>(0)) == sizeof(yes_tag);
-    };
+    template <typename T>
+    struct has_reconfig_function<T, enable_if_function_exists_t<void(T::*)(fhicl::ParameterSet const&), &T::reconfigure>> : std::true_type {};
+
 
     template<typename T>
     struct DoReconfig {
@@ -55,10 +53,9 @@ namespace art {
     // ActivityRegistry &, use it. Otherwise, call a one-argument
     // constructor taking fhicl::ParameterSet const & only.
     template <typename T>
-    typename
-    std::enable_if<std::is_constructible<T, fhicl::ParameterSet const &,
-                                         ActivityRegistry &>::value,
-                   std::shared_ptr<T> >::type
+    std::enable_if_t<std::is_constructible<T, fhicl::ParameterSet const &,
+                                           ActivityRegistry &>::value,
+                     std::shared_ptr<T> >
     makeServiceFrom(fhicl::ParameterSet const & ps,
                     ActivityRegistry & areg)
     {
@@ -66,10 +63,9 @@ namespace art {
     }
 
     template <typename T>
-    typename
-    std::enable_if<!std::is_constructible<T, fhicl::ParameterSet const &,
-                                          ActivityRegistry &>::value,
-                   std::shared_ptr<T> >::type
+    std::enable_if_t<!std::is_constructible<T, fhicl::ParameterSet const &,
+                                            ActivityRegistry &>::value,
+                     std::shared_ptr<T> >
     makeServiceFrom(fhicl::ParameterSet const & ps,
                     ActivityRegistry &)
     {
@@ -110,16 +106,16 @@ public:
 
   T & get() { return *service_ptr_; }
 
-  template<typename U, typename = typename std::enable_if<std::is_base_of<U, T>::value>::type>
+  template<typename U, typename = std::enable_if_t<std::is_base_of<U, T>::value>>
   ServiceWrapper<U, SCOPE> * getAs() const {
     return new ServiceWrapper<U, SCOPE>(std::static_pointer_cast<U>(service_ptr_));
   }
 
 private:
   void reconfigure_service(fhicl::ParameterSet const & n) override {
-    typename std::conditional < detail::has_reconfig_function<T>::value,
-             detail::DoReconfig<T>,
-             detail::DoNothing<T> >::type reconfig_or_nothing;
+    std::conditional_t< detail::has_reconfig_function<T>::value,
+                        detail::DoReconfig<T>,
+                        detail::DoNothing<T> > reconfig_or_nothing;
     reconfig_or_nothing(*service_ptr_, n);
   }
 
@@ -173,7 +169,7 @@ public:
 
   T & get(ScheduleID sID) { return *service_ptrs_.at(sID.id()); }
 
-  template<typename U, typename = typename std::enable_if<std::is_base_of<U, T>::value>::type>
+  template<typename U, typename = std::enable_if_t<std::is_base_of<U, T>::value>>
   ServiceWrapper<U, art::ServiceScope::PER_SCHEDULE> * getAs() const {
     std::vector<std::shared_ptr<U>> converted_ptrs(service_ptrs_.size());
     std::transform(service_ptrs_.begin(),
@@ -187,9 +183,9 @@ public:
 
 private:
   void reconfigure_service(fhicl::ParameterSet const & n) override {
-    typename std::conditional < detail::has_reconfig_function<T>::value,
-             detail::DoReconfig<T>,
-             detail::DoNothing<T> >::type reconfig_or_nothing;
+    std::conditional_t< detail::has_reconfig_function<T>::value,
+                        detail::DoReconfig<T>,
+                        detail::DoNothing<T> > reconfig_or_nothing;
   for (auto & service_ptr : service_ptrs_) {
       reconfig_or_nothing(*service_ptr, n);
     }

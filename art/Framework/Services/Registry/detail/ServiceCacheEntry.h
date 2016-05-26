@@ -51,11 +51,11 @@ public:
   void putParameterSet(fhicl::ParameterSet const & newConfig);
 
   template < typename T,
-           typename = typename std::enable_if < detail::ServiceHelper<T>::scope_val != ServiceScope::PER_SCHEDULE >::type >
+             typename = std::enable_if_t < detail::ServiceHelper<T>::scope_val != ServiceScope::PER_SCHEDULE > >
   T & get(ActivityRegistry & reg, detail::ServiceStack & creationOrder) const;
 
   template < typename T,
-           typename = typename std::enable_if<detail::ServiceHelper<T>::scope_val == ServiceScope::PER_SCHEDULE>::type >
+             typename = std::enable_if_t<detail::ServiceHelper<T>::scope_val == ServiceScope::PER_SCHEDULE> >
   T & get(ActivityRegistry & reg,
           detail::ServiceStack & creationOrder,
           ScheduleID sID) const;

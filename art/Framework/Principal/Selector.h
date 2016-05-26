@@ -43,21 +43,18 @@ for every event.
 namespace art {
 
   template <class A, class B>
-  typename
-  std::enable_if<std::is_base_of<art::SelectorBase, A>::value && std::is_base_of<art::SelectorBase, B>::value,
-                 art::AndHelper<A,B> >::type
+  std::enable_if_t<std::is_base_of<art::SelectorBase, A>::value && std::is_base_of<art::SelectorBase, B>::value,
+                   art::AndHelper<A,B>>
   operator&& (A const& a, B const& b);
 
   template <class A, class B>
-  typename
-  std::enable_if<std::is_base_of<art::SelectorBase, A>::value && std::is_base_of<art::SelectorBase, B>::value,
-                 art::OrHelper<A,B> >::type
+  std::enable_if_t<std::is_base_of<art::SelectorBase, A>::value && std::is_base_of<art::SelectorBase, B>::value,
+                   art::OrHelper<A,B>>
   operator|| (A const& a, B const& b);
 
   template <class A>
-  typename
-  std::enable_if<std::is_base_of<art::SelectorBase, A>::value,
-                 art::NotHelper<A> >::type
+  std::enable_if_t<std::is_base_of<art::SelectorBase, A>::value,
+                   art::NotHelper<A>>
   operator! (A const& a);
 }
 
@@ -195,10 +192,8 @@ private:
 };
 
 template <class A, class B>
-typename
-std::enable_if<std::is_base_of<art::SelectorBase, A>::value &&
-               std::is_base_of<art::SelectorBase, B>::value,
-               art::AndHelper<A,B> >::type
+std::enable_if_t<std::is_base_of<art::SelectorBase, A>::value && std::is_base_of<art::SelectorBase, B>::value,
+                 art::AndHelper<A,B>>
 art::operator&& (A const& a, B const& b) {
   return art::AndHelper<A,B>(a,b);
 }
@@ -223,10 +218,8 @@ private:
 };
 
 template <class A, class B>
-typename
-std::enable_if<std::is_base_of<art::SelectorBase, A>::value &&
-               std::is_base_of<art::SelectorBase, B>::value,
-               art::OrHelper<A,B> >::type
+std::enable_if_t<std::is_base_of<art::SelectorBase, A>::value && std::is_base_of<art::SelectorBase, B>::value,
+                 art::OrHelper<A,B>>
 art::operator|| (A const& a, B const& b) {
   return art::OrHelper<A,B>(a,b);
 }
@@ -250,9 +243,8 @@ private:
 };
 
 template <class A>
-typename
-std::enable_if<std::is_base_of<art::SelectorBase, A>::value,
-               art::NotHelper<A> >::type
+std::enable_if_t<std::is_base_of<art::SelectorBase, A>::value,
+                 art::NotHelper<A>>
 art::operator! (A const& a) {
   return art::NotHelper<A>(a);
 }
