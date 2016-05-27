@@ -220,7 +220,7 @@ doEvent(EventPrincipal const& ep, CurrentProcessingContext const* cpc)
   detail::CPCSentry sentry {current_context_, cpc};
   FDEBUG(2) << "doEvent called\n";
   Event const e {const_cast<EventPrincipal&>(ep), moduleDescription_};
-  if (wantAllEvents_ || selectors_.wantEvent(e)) {
+  if (wantAllEvents() || wantEvent(e)) {
     event(ep);
   }
   return true;
@@ -231,10 +231,10 @@ art::OutputModule::
 doWriteEvent(EventPrincipal& ep)
 {
   OMServices sentry {dummyModuleDescription_, memTrackerAvailable_, timeTrackerAvailable_ };
-  detail::PVSentry clearTriggerResults {selectors_};
+  detail::PVSentry clearTriggerResults {cachedProducts()};
   FDEBUG(2) << "writeEvent called\n";
   Event const e {ep, moduleDescription_};
-  if (wantAllEvents_ || selectors_.wantEvent(e)) {
+  if (wantAllEvents() || wantEvent(e)) {
     write(ep); // Write the event.
     // Declare that the event was selected for write to the catalog
     // interface

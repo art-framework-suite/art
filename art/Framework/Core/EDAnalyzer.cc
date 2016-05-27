@@ -14,9 +14,9 @@ namespace art
   EDAnalyzer::doEvent(EventPrincipal const& ep,
                       CPC_exempt_ptr cpc) {
     detail::CPCSentry sentry {current_context_, cpc};
-    detail::PVSentry pvSentry {selectors_};
+    detail::PVSentry pvSentry {cachedProducts()};
     Event e {const_cast<EventPrincipal &>(ep), moduleDescription_};
-    if (wantAllEvents_ || selectors_.wantEvent(e)) {
+    if (wantAllEvents() || wantEvent(e)) {
       analyze(e);
     }
     return true;
