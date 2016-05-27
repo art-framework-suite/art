@@ -18,28 +18,6 @@ my $n_sep = 0;
 
 while (<>) {
   ########################################################################
-  # Several date-time formats.
-  s&\d{4}-(?:0\d|1[0-2])-(?:[0-2]\d|3[01])T(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:,\d+)?(Z[-+]?\d+)?&<date-time>&g;
-  s&\d{4}-(?:0\d|1[0-2])-(?:[0-2]\d|3[01])(?:\s+(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?(?:\s+(?:[-+]\d+|[A-Z]{3}))?)?)?&<date-time>&g;
-  s&\d+-(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)-\d{4}(?:\s+(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?(?:\s+(?:[-+]\d+|[A-Z]+))?)?)?&<date-time>&g;
-  ########################################################################
-  # Messagefacility messages.
-  s&^(\%MSG.*?:\s+).*?(<date-time>)&${1}${2}&; # OS X does not currently print application.
-  ########################################################################
-  # TimeReport lines.
-  m&^TimeReport& and s&[\d\.]+&<duration>&g;
-  ########################################################################
-  # TimeTracker summary lines
-  if ($in_tt) {
-    if (m&^={20}& and ++$n_sep == 2) {
-      $n_sep = 0;
-      undef $in_tt;
-      next;
-    }
-    s&^((?:Full event|\S+))\s+(?:\S+\s+){5}&${1}\t<duration> <duration> <duration> <duration> <duration> &;
-  }
-  m&^TimeTracker printout& and $in_tt = 1;
-  ########################################################################
   # MemoryTracker summary lines
   if ($in_mm) {
     if ($final_mm_clause and m&^={20}& and ++$n_sep == 2) {
@@ -74,9 +52,6 @@ while (<>) {
   } elsif ($in_mm and m&^Modules with large Vsize&) {
     $final_mm_clause = 1;
   }
-  ########################################################################
-  # Variable-length separators.
-  s&([-=\.*~/]){15,}&<separator (${1})>&g;
   ########################################################################
   print;
 }

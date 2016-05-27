@@ -1,0 +1,32 @@
+#!/usr/bin/perl -w
+########################################################################
+# filter-output.
+#
+# Filter out some things that would affect the utility of a comparison
+# with reference.
+#
+# If this is not sufficient for your needs, write your own and use the
+# OUTPUT_FILTER option of cet_test() to override. See CetTest.cmake
+# documentation for details.
+#
+# 2014/12/16 CHG.
+########################################################################
+use strict;
+
+my ($in_tt, $in_mm, $mm_format, $final_mm_clause, $in_ev_list);
+my $n_sep = 0;
+
+while (<>) {
+  ########################################################################
+  # TimeTracker summary lines
+  if ($in_tt) {
+    if (m&^={20}& and ++$n_sep == 2) {
+      $n_sep = 0;
+      undef $in_tt;
+      next;
+    }
+    s&^((?:Full event|\S+))\s+(?:\S+\s+){5}&${1}\t<duration> <duration> <duration> <duration> <duration> &;
+  }
+  m&^TimeTracker printout& and $in_tt = 1;
+  print;
+}

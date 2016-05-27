@@ -74,7 +74,7 @@ cet_find_library(SQLITE3 NAMES sqlite3_ups PATHS ENV SQLITE_LIB NO_DEFAULT_PATH)
 add_subdirectory(perllib)
 
 # tools
-#add_subdirectory(tools)
+add_subdirectory(tools)
 
 # source
 add_subdirectory (art)
