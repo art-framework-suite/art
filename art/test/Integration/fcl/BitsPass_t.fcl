@@ -116,49 +116,49 @@ outputs:
   {
     module_type: TestOutput
     shouldPass: 3
-    SelectEvents: { SelectEvents: [ p1a ] }
+    SelectEvents: [ p1a ]
   }
 
   outp2a:
   {
     module_type: TestOutput
     shouldPass: 1
-    SelectEvents: { SelectEvents: [ p2a ] }
+    SelectEvents: [ p2a ]
   }
 
   outp3a:
   {
     module_type: TestOutput
     shouldPass: 70
-    SelectEvents: { SelectEvents: [ p4a, p5a ] }
+    SelectEvents: [ p4a, p5a ]
   }
 
   outp8a:
   {
     module_type: TestOutput
     shouldPass: 29
-    SelectEvents: { SelectEvents: [ "!p5a" ] }
+    SelectEvents: [ "!p5a" ]
   }
 
   outp4:
   {
     module_type: TestOutput
     shouldPass: 74
-    SelectEvents: { SelectEvents: [ "*" ] }
+    SelectEvents: [ "*" ]
   }
 
   outp5:
   {
     module_type: TestOutput
     shouldPass: 25
-    SelectEvents: { SelectEvents: [ "!*" ] }
+    SelectEvents: [ "!*" ]
   }
 
   outp6:
   {
     module_type: TestOutput
     shouldPass: 99
-    SelectEvents: { SelectEvents: [ "*", "!*" ] }
+    SelectEvents: [ "*", "!*" ]
   }
 
   outp7:

@@ -114,7 +114,7 @@ outputs:
   {
     module_type: TestOutput
     shouldPass: 4
-    SelectEvents: { SelectEvents: [ p1a, p2a ] }
+    SelectEvents: [ p1a, p2a ]
   }
 
   outp7:

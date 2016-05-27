@@ -5,13 +5,19 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <vector>
+
+using std::string;
+using std::vector;
+using fhicl::intermediate_table;
+using table_t = intermediate_table::table_t;
+using sequence_t = intermediate_table::sequence_t;
 
 namespace {
-  using fhicl::intermediate_table;
-  std::string boundaryFromFileMode(std::string const& fileMode, std::ostringstream& msg)
+  string boundaryFromFileMode(string const& fileMode, std::ostringstream& msg)
   {
     bool allowedLegacyParameter {false};
-    std::string boundary;
+    string boundary;
     if (fileMode == "MERGE") {
       allowedLegacyParameter = true;
       boundary = "Unset";
@@ -49,24 +55,56 @@ namespace {
 void
 art::detail::handle_deprecated_configs(intermediate_table& raw_config)
 {
-  std::string const& param {"services.scheduler.fileMode"};
+  handle_deprecated_fileMode(raw_config);
+  handle_deprecated_SelectEvents(raw_config);
+}
+
+void
+art::detail::handle_deprecated_fileMode(intermediate_table& raw_config)
+{
+  string const& param {"services.scheduler.fileMode"};
   if (!raw_config.exists(param)) return;
 
   std::ostringstream msg;
   msg << "\nThe \"" << param << "\" parameter is deprecated.\n";
 
-  auto const fileMode = raw_config.get<std::string>(param);
+  auto const fileMode = raw_config.get<string>(param);
   raw_config.erase(param);
-  std::string const& boundary = boundaryFromFileMode(fileMode, msg);
+  string const& boundary = boundaryFromFileMode(fileMode, msg);
 
-  for (auto const& o : raw_config.get<intermediate_table::table_t&>("outputs")) {
-    std::string const& module_label = "outputs."+o.first;
-    if (raw_config.get<std::string>(module_label+".module_type") != "RootOutput")
+  for (auto const& o : raw_config.get<table_t&>("outputs")) {
+    string const& module_label = "outputs."+o.first;
+    if (raw_config.get<string>(module_label+".module_type") != "RootOutput")
       continue;
     raw_config.put(module_label+".fileSwitch.boundary", boundary);
     if (boundary == "InputFile") {
       raw_config.put(module_label+".fileSwitch.force", true);
     }
   }
+}
 
+void
+art::detail::handle_deprecated_SelectEvents(intermediate_table& raw_config)
+{
+  auto replace_nested_SelectEvents = [&raw_config](string const& stem) {
+    if (!raw_config.exists(stem)) return;
+
+    for (auto const& mod : raw_config.get<table_t>(stem)) {
+      auto const& label = stem+"."+mod.first;
+      auto const& se = label+".SelectEvents.SelectEvents";
+      if (!raw_config.exists(se)) continue;
+
+      auto const& pathSequence = raw_config.get<sequence_t>(se);
+      std::ostringstream msg;
+      msg << "\nThe nested \"" << se << "\" configuration\n"
+          << "is deprecated.  It will be replaced with:\n"
+          << "   " << label << ".SelectEvents: [...]\n";
+      std::cerr << msg.str() << '\n';
+      raw_config.erase(label+".SelectEvents.SelectEvents");
+      raw_config.put(label+".SelectEvents", pathSequence);
+    }
+  };
+
+  replace_nested_SelectEvents("outputs");
+  replace_nested_SelectEvents("physics.analyzers");
 }

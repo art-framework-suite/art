@@ -21,13 +21,13 @@ outputs: {
    o1: {
       module_type: RootOutput
       fileName: "out.root"
-      SelectEvents: { SelectEvents: [p1] }
+      SelectEvents: [p1]
    }
 
    o2: {
       module_type: RootOutput
       fileName: "p_%#.root"
-      SelectEvents: { SelectEvents: [p1] }
+      SelectEvents: [p1]
       maxEventsPerFile: 3
    }
 }

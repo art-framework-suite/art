@@ -27,7 +27,7 @@ outputs: {
    out: {
       module_type: RootOutput
       fileName: "reco_%#.root"
-      SelectEvents: { SelectEvents: [p1] }
+      SelectEvents: [p1]
       maxEventsPerFile: 20
    }
 }

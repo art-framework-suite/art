@@ -2,6 +2,7 @@ physics.filters.f1.module_type : PassEverything
 physics.p1: [f1]
 physics.e1: [o1]
 
-outputs.o1: { module_type: RootOutput
-   SelectEvents: { SelectEvents: [p1] }
+outputs.o1: {
+   module_type: RootOutput
+   SelectEvents: [p1]
 }

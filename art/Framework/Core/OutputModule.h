@@ -71,7 +71,7 @@ public:
     };
 
     fhicl::Atom<std::string> moduleType { fhicl::Name("module_type") };
-    fhicl::OptionalTable<EventObserver::EOConfig> eoConfig { fhicl::Name("SelectEvents") };
+    fhicl::TableFragment<EventObserver::EOConfig> eoFragment;
     fhicl::Sequence<std::string> outputCommands { fhicl::Name("outputCommands"), std::vector<std::string>{"keep *"} };
     fhicl::Atom<std::string> fileName   { fhicl::Name("fileName"), "" };
     fhicl::Atom<std::string> dataTier   { fhicl::Name("dataTier"), "" };

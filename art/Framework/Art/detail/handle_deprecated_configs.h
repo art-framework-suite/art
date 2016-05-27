@@ -8,6 +8,9 @@ namespace fhicl {
 namespace art {
   namespace detail {
     void handle_deprecated_configs(fhicl::intermediate_table&);
+
+    void handle_deprecated_fileMode(fhicl::intermediate_table&);
+    void handle_deprecated_SelectEvents(fhicl::intermediate_table&);
   }
 }
 

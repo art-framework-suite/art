@@ -60,7 +60,7 @@ namespace {
 art::OutputModule::
 OutputModule(fhicl::TableFragment<Config> const& config,
              ParameterSet const& containing_pset)
-  : EventObserver{config().eoConfig}
+  : EventObserver{config().eoFragment().selectEvents(), containing_pset}
   , groupSelectorRules_{config().outputCommands(), "outputCommands", "OutputModule"}
   , configuredFileName_{config().fileName()}
   , dataTier_{config().dataTier()}

@@ -748,10 +748,12 @@ cet_test(FileCatalogOptions_18 HANDBUILT
 
 ####################################
 # Handling deprecated configurations
-#  Tests 3-5 trigger exceptions that do not result in config.out
-#  statements--i.e., they cannot be used in comparing configurations
-#  since the exception is thrown before the configuration is written
-#  out.
+
+# services.scheduler.fileMode
+#   Tests 3-5 trigger exceptions that do not result in config.out
+#   statements--i.e., they cannot be used in comparing configurations
+#   since the exception is thrown before the configuration is written
+#   out.
 foreach(i RANGE 1 5)
   cet_test(DeprecatedFileModeParameter_t_0${i} HANDBUILT
     TEST_EXEC art
@@ -767,5 +769,24 @@ foreach(i RANGE 1 2)
     TEST_ARGS ../DeprecatedFileModeParameter_t_0${i}.d/config.out DeprecatedFileMode_0${i}-ref.txt
     DATAFILES DeprecatedFileMode_0${i}-ref.txt
     TEST_PROPERTIES DEPENDS DeprecatedFileModeParameter_t_0${i}
+    )
+endforeach()
+
+# outputs.<label>.SelectEvents.SelectEvents
+# physics.analyzers.<label>.SelectEvents.SelectEvents
+#
+foreach(i RANGE 1 2)
+  cet_test(DeprecatedNestedSelectEvents_t_0${i} HANDBUILT
+    TEST_EXEC art
+    TEST_ARGS -c deprecated_SelectEvents_0${i}.fcl --debug-config=config.out
+    DATAFILES fcl/deprecated_SelectEvents_0${i}.fcl
+    TEST_PROPERTIES WILL_FAIL TRUE
+    )
+
+  cet_test(DeprecatedNestedSelectEvents_r_0${i} HANDBUILT
+    TEST_EXEC diff
+    TEST_ARGS ../DeprecatedNestedSelectEvents_t_0${i}.d/config.out DeprecatedNestedSelectEvents_0${i}-ref.txt
+    DATAFILES DeprecatedNestedSelectEvents_0${i}-ref.txt
+    TEST_PROPERTIES DEPENDS DeprecatedNestedSelectEvents_t_0${i}
     )
 endforeach()

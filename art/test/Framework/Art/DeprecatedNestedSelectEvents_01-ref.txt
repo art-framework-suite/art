@@ -1,0 +1,60 @@
+outputs: {
+   o1: {
+      SelectEvents: [
+         "p1"
+      ]
+      module_label: "o1"
+      module_type: "RootOutput"
+   }
+   o2: {
+      SelectEvents: [
+         "p2"
+      ]
+      module_label: "o2"
+      module_type: "RootOutput"
+   }
+}
+physics: {
+   e1: [
+      "o1",
+      "o2"
+   ]
+   p1: []
+   p2: []
+}
+process_name: "SelectEventsOutputs"
+services: {
+   CatalogInterface: {
+      service_provider: "TrivialFileDelivery"
+      service_type: "CatalogInterface"
+   }
+   FileTransfer: {
+      service_provider: "TrivialFileTransfer"
+      service_type: "FileTransfer"
+   }
+   message: {
+      destinations: {
+         STDOUT: {
+            categories: {
+               ArtReport: {
+                  limit: 100
+               }
+               default: {
+                  limit: -1
+               }
+            }
+            threshold: "INFO"
+            type: "cout"
+         }
+      }
+   }
+   scheduler: {
+      errorOnFailureToPut: true
+      errorOnSIGINT: true
+   }
+}
+source: {
+   maxEvents: 1
+   module_label: "source"
+   module_type: "EmptyEvent"
+}

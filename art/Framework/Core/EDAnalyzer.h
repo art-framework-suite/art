@@ -41,7 +41,7 @@ namespace art
     template <typename T>
     struct FullConfig {
       fhicl::Atom<std::string> module_type { fhicl::Name("module_type") };
-      fhicl::OptionalTable<EventObserver::EOConfig> eoConfig { fhicl::Name("SelectEvents") };
+      fhicl::TableFragment<EventObserver::EOConfig> eoConfig;
       fhicl::TableFragment<T> user;
     };
 
@@ -59,7 +59,7 @@ namespace art
 
       auto const& operator()() const { return fullConfig_().user(); }
 
-      auto const& eoTable()  const { return fullConfig_().eoConfig; }
+      auto const& eoFragment()  const { return fullConfig_().eoConfig(); }
       auto const& get_PSet() const { return fullConfig_.get_PSet(); }
 
       void print_allowed_configuration(std::ostream& os, std::string const& prefix) const
@@ -73,7 +73,7 @@ namespace art
 
     template <typename Config>
     explicit EDAnalyzer(Table<Config> const& config)
-      : EventObserver{config.eoTable()}
+      : EventObserver{config.eoFragment().selectEvents(), config.get_PSet()}
       , EngineCreator{}
     {}
 

@@ -29,6 +29,10 @@
 // ART_2011a   7   FileIndex moved to separate tree.
 // ART_2011a   8   EventID unnecessary data member removed.
 // ART_2011a   9   RangeSet information stored in RootFileDB.
+//                 Stored ParameterSetID for SelectEvents now
+//                 corresponds to containing ParameterSet of module
+//                 (i.e. the nested SelectEvents.SelectEvents is
+//                 deprecated).
 //
 ////////////////////////////////////////////////////////////////////////
 

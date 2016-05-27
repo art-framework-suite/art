@@ -50,6 +50,6 @@ outputs:
   {
     module_type: TestBitsOutput
     bitMask: 5
-    SelectEvents: { SelectEvents: [ p2a ] }
+    SelectEvents: [ p2a ]
   }
 }

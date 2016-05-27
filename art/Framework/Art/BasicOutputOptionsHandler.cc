@@ -16,13 +16,11 @@
 
 using namespace std::string_literals;
 
-namespace {
   using table_t = fhicl::extended_value::table_t;
   using sequence_t = fhicl::extended_value::sequence_t;
   using art::detail::exists_outside_prolog;
 
   using stringvec = std::vector<std::string>;
-}
 
 art::BasicOutputOptionsHandler::
 BasicOutputOptionsHandler(bpo::options_description & desc)
