@@ -20,6 +20,7 @@
 # cetbuildtools/Modules/BasicPlugin.cmake
 # (https://cdcvs.fnal.gov/redmine/projects/cetbuildtools/repository/revisions/master/entry/Modules/BasicPlugin.cmake).
 ########################################################################
+cmake_policy(VERSION 3.3.2)
 
 include(BasicPlugin)
 
