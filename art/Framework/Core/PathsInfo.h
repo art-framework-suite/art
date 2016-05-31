@@ -12,18 +12,18 @@ namespace art {
 class art::PathsInfo {
 public:
 
-  WorkerMap & workers();
-  PathPtrs & pathPtrs();
-  HLTGlobalStatus & pathResults();
+  WorkerMap& workers();
+  PathPtrs& pathPtrs();
+  HLTGlobalStatus& pathResults();
 
   void addEvent();
   void addPass();
 
   template <bool isEvent>
-  MaybeMaybeRunStopwatch<isEvent> maybeRunStopwatch() { return {stopwatch_};}
+  MaybeRunStopwatch<isEvent> maybeRunStopwatch() { return {stopwatch_};}
 
-  WorkerMap const & workers() const;
-  PathPtrs const & pathPtrs() const;
+  WorkerMap const& workers() const;
+  PathPtrs const& pathPtrs() const;
   size_t passedEvents() const;
   size_t failedEvents() const;
   size_t totalEvents() const;

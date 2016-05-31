@@ -46,7 +46,7 @@ public:
                   MasterProductRegistry& mpr);
 
   template <typename T>
-  void processOneOccurrence(typename T::MyPrincipal& principal);
+  void process(typename T::MyPrincipal& principal);
 
   void beginJob();
   void endJob();
@@ -117,7 +117,7 @@ private:
 template <typename T>
 void
 art::EndPathExecutor::
-processOneOccurrence(typename T::MyPrincipal & ep)
+process(typename T::MyPrincipal & ep)
 {
   this->resetAll();
   auto sentry (endPathInfo_.maybeRunStopwatch<T::isEvent_>());
@@ -126,7 +126,7 @@ processOneOccurrence(typename T::MyPrincipal & ep)
   }
   try {
     if (!endPathInfo_.pathPtrs().empty()) {
-      endPathInfo_.pathPtrs().front()->processOneOccurrence<T>(ep);
+      endPathInfo_.pathPtrs().front()->process<T>(ep);
     }
   }
   catch (cet::exception & ex) {

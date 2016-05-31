@@ -12,13 +12,52 @@ using std::setw;
 using std::setprecision;
 using std::fixed;
 
+namespace {
+
+  void workersInPathTriggerReport(int const firstBit,
+                                  int const bitPosition,
+                                  art::Path::WorkersInPath const& workersInPath)
+  {
+    for (auto const& workerInPath : workersInPath) {
+      LogAbsolute("ArtSummary") << "TrigReport "
+                                << right << setw(5)  << firstBit
+                                << right << setw(5)  << bitPosition << " "
+                                << right << setw(10) << workerInPath.timesVisited() << " "
+                                << right << setw(10) << workerInPath.timesPassed() << " "
+                                << right << setw(10) << workerInPath.timesFailed() << " "
+                                << right << setw(10) << workerInPath.timesExcept() << " "
+                                << workerInPath.getWorker()->description().moduleLabel() << "";
+    }
+  }
+
+  void workersInPathTimeReport(unsigned long const totalEvents,
+                               art::Path::WorkersInPath const& workersInPath)
+  {
+    for (auto const& workerInPath : workersInPath) {
+      LogAbsolute("ArtSummary") << "TimeReport "
+                                << setprecision(6) << fixed
+                                << right << setw(10) << workerInPath.timeCpuReal().first / std::max(1ul, totalEvents) << " "
+                                << right << setw(10) << workerInPath.timeCpuReal().second / std::max(1ul, totalEvents) << " "
+                                << right << setw(10) << workerInPath.timeCpuReal().first / std::max(1ul, workerInPath.timesVisited()) << " "
+                                << right << setw(10) << workerInPath.timeCpuReal().second / std::max(1ul, workerInPath.timesVisited()) << " "
+                                << workerInPath.getWorker()->description().moduleLabel() << "";
+    }
+  }
+}
+
 void
-art::detail::writeSummary(PathManager & pm, bool wantSummary)
+art::detail::writeSummary(PathManager& pm, bool const wantSummary)
 {
   // Still only assuming one schedule. Will need to loop when we get around to it.
-  auto const & epi = pm.endPathInfo();
-  auto const & tpi = pm.triggerPathsInfo(ScheduleID::first());
+  auto const& epi = pm.endPathInfo();
+  auto const& tpi = pm.triggerPathsInfo(ScheduleID::first());
+  triggerReport(epi, tpi, wantSummary);
+  timeReport(epi, tpi, wantSummary);
+}
 
+void
+art::detail::triggerReport(PathsInfo const& epi, PathsInfo const& tpi, bool const wantSummary)
+{
   // The trigger report (pass/fail etc.):
   // Printed even if summary not requested, per issue #1864.
   LogAbsolute("ArtSummary") << "";
@@ -38,7 +77,7 @@ art::detail::writeSummary(PathManager & pm, bool wantSummary)
                               << right << setw(10) << "Failed" << " "
                               << right << setw(10) << "Error" << " "
                               << "Name" << "";
-    for (auto const & path : tpi.pathPtrs()) {
+    for (auto const& path : tpi.pathPtrs()) {
       LogAbsolute("ArtSummary") << "TrigReport "
                                 << right << setw(5) << 1
                                 << right << setw(5) << path->bitPosition() << " "
@@ -57,7 +96,7 @@ art::detail::writeSummary(PathManager & pm, bool wantSummary)
                               << right << setw(10) << "Failed" << " "
                               << right << setw(10) << "Error" << " "
                               << "Name" << "";
-    for (auto const & path : epi.pathPtrs()) {
+    for (auto const& path : epi.pathPtrs()) {
       LogAbsolute("ArtSummary") << "TrigReport "
                                 << right << setw(5) << 0
                                 << right << setw(5) << path->bitPosition() << " "
@@ -67,7 +106,7 @@ art::detail::writeSummary(PathManager & pm, bool wantSummary)
                                 << right << setw(10) << path->timesExcept() << " "
                                 << path->name() << "";
     }
-    for (auto const & path : tpi.pathPtrs()) {
+    for (auto const& path : tpi.pathPtrs()) {
       LogAbsolute("ArtSummary") << "";
       LogAbsolute("ArtSummary") << "TrigReport " << "---------- Modules in Path: " << path->name() << " ------------";
       LogAbsolute("ArtSummary") << "TrigReport "
@@ -77,20 +116,12 @@ art::detail::writeSummary(PathManager & pm, bool wantSummary)
                                 << right << setw(10) << "Failed" << " "
                                 << right << setw(10) << "Error" << " "
                                 << "Name" << "";
-      for (unsigned int i = 0; i < path->size(); ++i) {
-        LogAbsolute("ArtSummary") << "TrigReport "
-                                  << right << setw(5) << 1
-                                  << right << setw(5) << path->bitPosition() << " "
-                                  << right << setw(10) << path->timesVisited(i) << " "
-                                  << right << setw(10) << path->timesPassed(i) << " "
-                                  << right << setw(10) << path->timesFailed(i) << " "
-                                  << right << setw(10) << path->timesExcept(i) << " "
-                                  << path->getWorker(i)->description().moduleLabel() << "";
-      }
+      workersInPathTriggerReport(1, path->bitPosition(), path->workersInPath());
     }
   }
+
   // Printed even if summary not requested, per issue #1864.
-  for (auto const & path : epi.pathPtrs()) {
+  for (auto const& path : epi.pathPtrs()) {
     LogAbsolute("ArtSummary") << "";
     LogAbsolute("ArtSummary") << "TrigReport " << "------ Modules in End-Path: " << path->name() << " ------------";
     LogAbsolute("ArtSummary") << "TrigReport "
@@ -100,17 +131,9 @@ art::detail::writeSummary(PathManager & pm, bool wantSummary)
                               << right << setw(10) << "Failed" << " "
                               << right << setw(10) << "Error" << " "
                               << "Name" << "";
-    for (unsigned int i = 0; i < path->size(); ++i) {
-      LogAbsolute("ArtSummary") << "TrigReport "
-                                << right << setw(5) << 0
-                                << right << setw(5) << path->bitPosition() << " "
-                                << right << setw(10) << path->timesVisited(i) << " "
-                                << right << setw(10) << path->timesPassed(i) << " "
-                                << right << setw(10) << path->timesFailed(i) << " "
-                                << right << setw(10) << path->timesExcept(i) << " "
-                                << path->getWorker(i)->description().moduleLabel() << "";
-    }
+    workersInPathTriggerReport(0, path->bitPosition(), path->workersInPath());
   }
+
   if (wantSummary) {
     LogAbsolute("ArtSummary") << "";
     LogAbsolute("ArtSummary") << "TrigReport " << "---------- Module Summary ------------";
@@ -121,7 +144,7 @@ art::detail::writeSummary(PathManager & pm, bool wantSummary)
                               << right << setw(10) << "Failed" << " "
                               << right << setw(10) << "Error" << " "
                               << "Name" << "";
-    auto workerstats = [](WorkerMap::value_type const & val) {
+    auto workerstats = [](WorkerMap::value_type const& val) {
       LogAbsolute("ArtSummary") << "TrigReport "
       << right << setw(10) << val.second->timesVisited() << " "
       << right << setw(10) << val.second->timesRun() << " "
@@ -133,6 +156,11 @@ art::detail::writeSummary(PathManager & pm, bool wantSummary)
     cet::for_all(tpi.workers(), workerstats);
     cet::for_all(epi.workers(), workerstats);
   }
+}
+
+void
+art::detail::timeReport(PathsInfo const& epi, PathsInfo const& tpi, bool const wantSummary)
+{
   LogAbsolute("ArtSummary") << "";
   // The timing report (CPU and Real Time):
   LogAbsolute("ArtSummary") << "TimeReport " << "---------- Time  Summary ---[sec]----";
@@ -161,13 +189,13 @@ art::detail::writeSummary(PathManager & pm, bool wantSummary)
                               << right << setw(10) << "CPU" << " "
                               << right << setw(10) << "Real" << " "
                               << "Name" << "";
-    for (auto const & path : tpi.pathPtrs()) {
+    for (auto const& path : tpi.pathPtrs()) {
       LogAbsolute("ArtSummary") << "TimeReport "
                                 << setprecision(6) << fixed
                                 << right << setw(10) << path->timeCpuReal().first / std::max(1ul, tpi.totalEvents()) << " "
                                 << right << setw(10) << path->timeCpuReal().second / std::max(1ul, tpi.totalEvents()) << " "
-                                << right << setw(10) << path->timeCpuReal().first / std::max(1, path->timesRun()) << " "
-                                << right << setw(10) << path->timeCpuReal().second / std::max(1, path->timesRun()) << " "
+                                << right << setw(10) << path->timeCpuReal().first / std::max(1ul, path->timesRun()) << " "
+                                << right << setw(10) << path->timeCpuReal().second / std::max(1ul, path->timesRun()) << " "
                                 << path->name() << "";
     }
     LogAbsolute("ArtSummary") << "TimeReport "
@@ -192,13 +220,13 @@ art::detail::writeSummary(PathManager & pm, bool wantSummary)
                               << right << setw(10) << "CPU" << " "
                               << right << setw(10) << "Real" << " "
                               << "Name" << "";
-    for (auto const & path : epi.pathPtrs()) {
+    for (auto const& path : epi.pathPtrs()) {
       LogAbsolute("ArtSummary") << "TimeReport "
                                 << setprecision(6) << fixed
                                 << right << setw(10) << path->timeCpuReal().first / std::max(1ul, epi.totalEvents()) << " "
                                 << right << setw(10) << path->timeCpuReal().second / std::max(1ul, epi.totalEvents()) << " "
-                                << right << setw(10) << path->timeCpuReal().first / std::max(1, path->timesRun()) << " "
-                                << right << setw(10) << path->timeCpuReal().second / std::max(1, path->timesRun()) << " "
+                                << right << setw(10) << path->timeCpuReal().first / std::max(1ul, path->timesRun()) << " "
+                                << right << setw(10) << path->timeCpuReal().second / std::max(1ul, path->timesRun()) << " "
                                 << path->name() << "";
     }
     LogAbsolute("ArtSummary") << "TimeReport "
@@ -211,7 +239,7 @@ art::detail::writeSummary(PathManager & pm, bool wantSummary)
                               << right << setw(22) << "per event "
                               << right << setw(22) << "per endpath-run "
                               << "";
-    for (auto const & path : tpi.pathPtrs()) {
+    for (auto const& path : tpi.pathPtrs()) {
       LogAbsolute("ArtSummary") << "";
       LogAbsolute("ArtSummary") << "TimeReport " << "---------- Modules in Path: " << path->name() << " ---[sec]----";
       LogAbsolute("ArtSummary") << "TimeReport "
@@ -224,15 +252,7 @@ art::detail::writeSummary(PathManager & pm, bool wantSummary)
                                 << right << setw(10) << "CPU" << " "
                                 << right << setw(10) << "Real" << " "
                                 << "Name" << "";
-      for (unsigned int i = 0; i < path->size(); ++i) {
-        LogAbsolute("ArtSummary") << "TimeReport "
-                                  << setprecision(6) << fixed
-                                  << right << setw(10) << path->timeCpuReal(i).first / std::max(1ul, tpi.totalEvents()) << " "
-                                  << right << setw(10) << path->timeCpuReal(i).second / std::max(1ul, tpi.totalEvents()) << " "
-                                  << right << setw(10) << path->timeCpuReal(i).first / std::max(1, path->timesVisited(i)) << " "
-                                  << right << setw(10) << path->timeCpuReal(i).second / std::max(1, path->timesVisited(i)) << " "
-                                  << path->getWorker(i)->description().moduleLabel() << "";
-      }
+      workersInPathTimeReport(tpi.totalEvents(), path->workersInPath());
     }
     LogAbsolute("ArtSummary") << "TimeReport "
                               << right << setw(10) << "CPU" << " "
@@ -244,7 +264,7 @@ art::detail::writeSummary(PathManager & pm, bool wantSummary)
                               << right << setw(22) << "per event "
                               << right << setw(22) << "per module-visit "
                               << "";
-    for (auto const & path : epi.pathPtrs()) {
+    for (auto const& path : epi.pathPtrs()) {
       LogAbsolute("ArtSummary") << "";
       LogAbsolute("ArtSummary") << "TimeReport " << "------ Modules in End-Path: " << path->name() << " ---[sec]----";
       LogAbsolute("ArtSummary") << "TimeReport "
@@ -257,15 +277,7 @@ art::detail::writeSummary(PathManager & pm, bool wantSummary)
                                 << right << setw(10) << "CPU" << " "
                                 << right << setw(10) << "Real" << " "
                                 << "Name" << "";
-      for (unsigned int i = 0; i < path->size(); ++i) {
-        LogAbsolute("ArtSummary") << "TimeReport "
-                                  << setprecision(6) << fixed
-                                  << right << setw(10) << path->timeCpuReal(i).first / std::max(1ul, epi.totalEvents()) << " "
-                                  << right << setw(10) << path->timeCpuReal(i).second / std::max(1ul, epi.totalEvents()) << " "
-                                  << right << setw(10) << path->timeCpuReal(i).first / std::max(1, path->timesVisited(i)) << " "
-                                  << right << setw(10) << path->timeCpuReal(i).second / std::max(1, path->timesVisited(i)) << " "
-                                  << path->getWorker(i)->description().moduleLabel() << "";
-      }
+      workersInPathTimeReport(tpi.totalEvents(), path->workersInPath());
     }
     LogAbsolute("ArtSummary") << "TimeReport "
                               << right << setw(10) << "CPU" << " "
@@ -292,19 +304,21 @@ art::detail::writeSummary(PathManager & pm, bool wantSummary)
                               << right << setw(10) << "CPU" << " "
                               << right << setw(10) << "Real" << " "
                               << "Name" << "";
-    auto workertimes = [&tpi](WorkerMap::value_type const & val) {
+
+    auto workerTimes = [&tpi](WorkerMap::value_type const& val) {
       LogAbsolute("ArtSummary") << "TimeReport "
       << setprecision(6) << fixed
       << right << setw(10) << val.second->timeCpuReal().first / std::max(1ul, tpi.totalEvents()) << " "
       << right << setw(10) << val.second->timeCpuReal().second / std::max(1ul, tpi.totalEvents()) << " "
-      << right << setw(10) << val.second->timeCpuReal().first / std::max(1, val.second->timesRun()) << " "
-      << right << setw(10) << val.second->timeCpuReal().second / std::max(1, val.second->timesRun()) << " "
-      << right << setw(10) << val.second->timeCpuReal().first / std::max(1, val.second->timesVisited()) << " "
-      << right << setw(10) << val.second->timeCpuReal().second / std::max(1, val.second->timesVisited()) << " "
+      << right << setw(10) << val.second->timeCpuReal().first / std::max(1ul, val.second->timesRun()) << " "
+      << right << setw(10) << val.second->timeCpuReal().second / std::max(1ul, val.second->timesRun()) << " "
+      << right << setw(10) << val.second->timeCpuReal().first / std::max(1ul, val.second->timesVisited()) << " "
+      << right << setw(10) << val.second->timeCpuReal().second / std::max(1ul, val.second->timesVisited()) << " "
       << val.first << "";
     };
-    cet::for_all(tpi.workers(), workertimes);
-    cet::for_all(epi.workers(), workertimes);
+    cet::for_all(tpi.workers(), workerTimes);
+    cet::for_all(epi.workers(), workerTimes);
+
     LogAbsolute("ArtSummary") << "TimeReport "
                               << right << setw(10) << "CPU" << " "
                               << right << setw(10) << "Real" << " "
@@ -323,4 +337,3 @@ art::detail::writeSummary(PathManager & pm, bool wantSummary)
     LogAbsolute("ArtSummary") << "";
   }
 }
-

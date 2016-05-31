@@ -618,7 +618,7 @@ art::EventProcessor::beginRun(RunID run)
   // Precondition: The RunID does not correspond to a flush ID.
   assert(!run.isFlush());
   RunPrincipal& runPrincipal = principalCache_.runPrincipal(run);
-  processOneOccurrence_<OccurrenceTraits<RunPrincipal, BranchActionBegin>>(runPrincipal);
+  process_<Begin<Level::Run>>(runPrincipal);
   FDEBUG(1) << "\tbeginRun " << run.run() << "\n";
 }
 
@@ -628,7 +628,7 @@ art::EventProcessor::endRun(RunID run)
   // Precondition: The RunID does not correspond to a flush ID.
   assert(!run.isFlush());
   RunPrincipal& runPrincipal = principalCache_.runPrincipal(run);
-  processOneOccurrence_<OccurrenceTraits<RunPrincipal, BranchActionEnd>>(runPrincipal);
+  process_<End<Level::Run>>(runPrincipal);
   FDEBUG(1) << "\tendRun " << run.run() << "\n";
 }
 
@@ -638,7 +638,7 @@ art::EventProcessor::beginSubRun(SubRunID const& sr)
   // Precondition: The SubRunID does not correspond to a flush ID.
   assert(!sr.isFlush());
   SubRunPrincipal& subRunPrincipal = principalCache_.subRunPrincipal(sr);
-  processOneOccurrence_<OccurrenceTraits<SubRunPrincipal, BranchActionBegin>>(subRunPrincipal);
+  process_<Begin<Level::SubRun>>(subRunPrincipal);
   FDEBUG(1) << "\tbeginSubRun " << sr << "\n";
 }
 
@@ -648,7 +648,7 @@ art::EventProcessor::endSubRun(SubRunID const& sr)
   // Precondition: The SubRunID does not correspond to a flush ID.
   assert(!sr.isFlush());
   SubRunPrincipal& subRunPrincipal = principalCache_.subRunPrincipal(sr);
-  processOneOccurrence_<OccurrenceTraits<SubRunPrincipal, BranchActionEnd>>(subRunPrincipal);
+  process_<End<Level::SubRun>>(subRunPrincipal);
   FDEBUG(1) << "\tendSubRun " << sr << "\n";
 }
 
@@ -743,7 +743,7 @@ art::EventProcessor::processEvent()
   EventID const& id [[gnu::unused]] {sm_evp_->id()};
   // Precondition: The EventID does not correspond to a flush ID.
   assert(!id.isFlush());
-  processOneOccurrence_<OccurrenceTraits<EventPrincipal, BranchActionBegin>>(*sm_evp_);
+  process_<Do<Level::Event>>(*sm_evp_);
   FDEBUG(1) << "\tprocessEvent\n";
 }
 

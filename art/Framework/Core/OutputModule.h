@@ -185,7 +185,8 @@ private:
   void doBeginJob();
   void doEndJob();
   bool doEvent(EventPrincipal const& ep,
-               CurrentProcessingContext const * cpc);
+               CurrentProcessingContext const * cpc,
+               CountingStatistics&);
   bool doBeginRun(RunPrincipal const & rp,
                   CurrentProcessingContext const * cpc);
   bool doEndRun(RunPrincipal const & rp,

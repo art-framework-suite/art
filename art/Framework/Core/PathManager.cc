@@ -550,7 +550,6 @@ fillWorkers_(int bitpos,
                                      pathName,
                                      std::move(pathWorkers),
                                      std::move(pathResults),
-                                     procPS_,
                                      exceptActions_,
                                      areg_,
                                      is_observer(modInfos.front().moduleConfigInfo().moduleType()));

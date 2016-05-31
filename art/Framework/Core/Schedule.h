@@ -68,7 +68,7 @@ public:
            ActivityRegistry&);
 
   template<typename T>
-  void processOneOccurrence(typename T::MyPrincipal&);
+  void process(typename T::MyPrincipal&);
 
   void beginJob();
   void endJob();
@@ -122,18 +122,18 @@ private:
 
 template<typename T>
 void
-Schedule::processOneOccurrence(typename T::MyPrincipal& principal)
+Schedule::process(typename T::MyPrincipal& principal)
 {
   doForAllWorkers_([](auto w) {
     w->reset();
   });
   triggerPathsInfo_.pathResults().reset();
-  MaybeMaybeRunStopwatch<T::isEvent_> sentry {triggerPathsInfo_.maybeRunStopwatch<T::isEvent_>()};
+  MaybeRunStopwatch<T::isEvent_> sentry {triggerPathsInfo_.maybeRunStopwatch<T::isEvent_>()};
   if (T::isEvent_) {
     triggerPathsInfo_.addEvent();
     EventPrincipal& ep = dynamic_cast<EventPrincipal&>(principal);
-    // FIXME: This can work with generic Principals just as soon as the
-    // metadata can handle (or obviate) a BranchID <-> ProductID
+    // FIXME: This can work with generic Principals just as soon as
+    // the metadata can handle (or obviate) a BranchID <-> ProductID
     // conversion for all principal types.
     for (auto& val : demand_branches_) {
       if (val.second->branchType() == ep.branchType()) {
@@ -172,7 +172,7 @@ bool
 Schedule::runTriggerPaths_(typename T::MyPrincipal& ep)
 {
   doForAllEnabledPaths_([&ep](auto p) {
-    p->processOneOccurrence<T>(ep);
+    p->process<T>(ep);
   });
   return triggerPathsInfo_.pathResults().accept();
 }

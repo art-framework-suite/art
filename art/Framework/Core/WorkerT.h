@@ -42,10 +42,9 @@ namespace art {
 
   private:
 
-    bool implDoBegin(EventPrincipal& ep,
-                     CurrentProcessingContext const* cpc) override;
-    bool implDoEnd(EventPrincipal& ep,
-                   CurrentProcessingContext const* cpc) override;
+    bool implDoProcess(EventPrincipal& ep,
+                       CurrentProcessingContext const* cpc,
+                       CountingStatistics&) override;
     bool implDoBegin(RunPrincipal& rp,
                      CurrentProcessingContext const* cpc) override;
     bool implDoEnd(RunPrincipal& rp,
@@ -79,18 +78,11 @@ namespace art {
 
   template <typename T>
   bool
-  WorkerT<T>::implDoBegin(EventPrincipal& ep,
-                          CurrentProcessingContext const* cpc)
+  WorkerT<T>::implDoProcess(EventPrincipal& ep,
+                            CurrentProcessingContext const* cpc,
+                            CountingStatistics& stats)
   {
-    return module_->doEvent(ep, cpc);
-  }
-
-  template <typename T>
-  bool
-  WorkerT<T>::implDoEnd(EventPrincipal&,
-                        CurrentProcessingContext const*)
-  {
-    return false;
+    return module_->doEvent(ep, cpc, stats);
   }
 
   template <typename T>

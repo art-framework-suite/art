@@ -16,11 +16,14 @@ namespace art
 
   bool
   EDProducer::doEvent(EventPrincipal& ep,
-                      CPC_exempt_ptr cpc) {
+                      CPC_exempt_ptr cpc,
+                      CountingStatistics& counts) {
     detail::CPCSentry sentry {current_context_, cpc};
     Event e {ep, moduleDescription_};
     produce(e);
+    counts.increment<true, stats::Run>();
     e.commit_(checkPutProducts_, expectedProducts());
+    counts.increment<true, stats::Passed>();
     return true;
   }
 

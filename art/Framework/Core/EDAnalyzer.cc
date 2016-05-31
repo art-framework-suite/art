@@ -12,12 +12,15 @@ namespace art
 
   bool
   EDAnalyzer::doEvent(EventPrincipal const& ep,
-                      CPC_exempt_ptr cpc) {
+                      CPC_exempt_ptr cpc,
+                      CountingStatistics& counts)
+  {
     detail::CPCSentry sentry {current_context_, cpc};
     detail::PVSentry pvSentry {cachedProducts()};
-    Event e {const_cast<EventPrincipal &>(ep), moduleDescription_};
+    Event e {const_cast<EventPrincipal&>(ep), moduleDescription_};
     if (wantAllEvents() || wantEvent(e)) {
       analyze(e);
+      counts.increment<true, stats::Run, stats::Passed>();
     }
     return true;
   }

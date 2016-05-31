@@ -40,61 +40,51 @@ public:
 
   Path(int bitpos,
        std::string const& path_name,
-       WorkersInPath workers, // Feel free to use move semantics.
-       TrigResPtr pathResults,
-       fhicl::ParameterSet const& proc_pset,
+       WorkersInPath&& workers,
+       TrigResPtr&& pathResults,
        ActionTable& actions,
-       ActivityRegistry & reg,
+       ActivityRegistry& reg,
        bool isEndPath);
 
   template <typename T>
-  void processOneOccurrence(typename T::MyPrincipal&);
+  void process(typename T::MyPrincipal&);
 
   int bitPosition() const { return bitpos_; }
   std::string const& name() const { return name_; }
 
-  std::pair<double,double> timeCpuReal() const {
+  std::pair<double,double> timeCpuReal() const
+  {
     return std::pair<double,double>(stopwatch_.cpuTime(), stopwatch_.realTime());
-  }
-
-  std::pair<double,double> timeCpuReal(unsigned int const i) const {
-    return workers_.at(i).timeCpuReal();
   }
 
   void clearCounters();
 
-  int timesRun() const { return timesRun_; }
-  int timesPassed() const { return timesPassed_; }
-  int timesFailed() const { return timesFailed_; }
-  int timesExcept() const { return timesExcept_; }
-  //int abortWorker() const { return abortWorker_; }
+  std::size_t timesRun() const { return timesRun_; }
+  std::size_t timesPassed() const { return timesPassed_; }
+  std::size_t timesFailed() const { return timesFailed_; }
+  std::size_t timesExcept() const { return timesExcept_; }
   State state() const { return state_; }
 
-  size_type size() const { return workers_.size(); }
-  int timesVisited(size_type i) const { return workers_.at(i).timesVisited(); }
-  int timesPassed (size_type i) const { return workers_.at(i).timesPassed() ; }
-  int timesFailed (size_type i) const { return workers_.at(i).timesFailed() ; }
-  int timesExcept (size_type i) const { return workers_.at(i).timesExcept() ; }
-  Worker const* getWorker(size_type i) const { return workers_.at(i).getWorker(); }
+  auto const& workersInPath() const { return workers_; }
 
-  void findEventModifiers(std::vector<std::string> &foundLabels) const;
-  void findEventObservers(std::vector<std::string> &foundLabels) const;
+  void findEventModifiers(std::vector<std::string>& foundLabels) const;
+  void findEventObservers(std::vector<std::string>& foundLabels) const;
 
 private:
 
-  void findByModifiesEvent(bool modifies, std::vector<std::string> &foundLabels) const;
+  void findByModifiesEvent(bool modifies, std::vector<std::string>& foundLabels) const;
 
   Stopwatch::timer_type stopwatch_ {};
-  int timesRun_ {};
-  int timesPassed_ {};
-  int timesFailed_ {};
-  int timesExcept_ {};
+  std::size_t timesRun_ {};
+  std::size_t timesPassed_ {};
+  std::size_t timesFailed_ {};
+  std::size_t timesExcept_ {};
   State state_ {hlt::Ready};
 
   int bitpos_;
   std::string name_;
   TrigResPtr trptr_;
-  ActivityRegistry & actReg_;
+  ActivityRegistry& actReg_;
   ActionTable* act_table_;
 
   WorkersInPath workers_;
@@ -126,7 +116,7 @@ namespace art {
         T::postPathSignal(&a_, name_, status);
       }
   private:
-      ActivityRegistry & a_;
+      ActivityRegistry& a_;
       std::string const& name_;
       int const& nwrwue_;
       hlt::HLTState const& state_;
@@ -135,7 +125,7 @@ namespace art {
 }
 
 template <typename T>
-void art::Path::processOneOccurrence(typename T::MyPrincipal& ep)
+void art::Path::process(typename T::MyPrincipal& ep)
 {
   //Create the PathSignalSentry before the MaybeRunStopwatch so that
   // we only record the time spent in the path not from the signal
@@ -143,7 +133,7 @@ void art::Path::processOneOccurrence(typename T::MyPrincipal& ep)
   int nwrwue {-1}; // numWorkersRunWithoutUnhandledException
   auto signaler = std::make_unique<PathSignalSentry<T>>(actReg_, name_, nwrwue, state_);
 
-  MaybeMaybeRunStopwatch<T::isEvent_> sentry {stopwatch_};
+  MaybeRunStopwatch<T::isEvent_> sentry {stopwatch_};
 
   if (T::isEvent_) {
     ++timesRun_;

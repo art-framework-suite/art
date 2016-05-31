@@ -130,7 +130,7 @@ obtainDesiredProduct(bool fillOnDemand, TypeID const& wanted_wrapper_type) const
   std::unique_ptr<art::EDProduct> retval;
   // Try unscheduled production.
   if (fillOnDemand && onDemand()) {
-    productProducer_->doWork<OccurrenceTraits<EventPrincipal,BranchActionBegin>>(*onDemandPrincipal_, 0);
+    productProducer_->doWork<Do<Level::Event>>(*onDemandPrincipal_, nullptr);
     return retval;
   }
   BranchKey const bk {productDescription()};

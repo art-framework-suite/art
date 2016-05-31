@@ -215,13 +215,14 @@ doBeginSubRun(SubRunPrincipal const& srp,
 
 bool
 art::OutputModule::
-doEvent(EventPrincipal const& ep, CurrentProcessingContext const* cpc)
+doEvent(EventPrincipal const& ep, CurrentProcessingContext const* cpc, CountingStatistics& counts)
 {
   detail::CPCSentry sentry {current_context_, cpc};
   FDEBUG(2) << "doEvent called\n";
   Event const e {const_cast<EventPrincipal&>(ep), moduleDescription_};
   if (wantAllEvents() || wantEvent(e)) {
     event(ep);
+    counts.increment<true, stats::Run, stats::Passed>();
   }
   return true;
 }

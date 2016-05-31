@@ -19,14 +19,14 @@ namespace art {
   };
 
   template <bool run>
-  class MaybeMaybeRunStopwatch : Stopwatch {
+  class MaybeRunStopwatch : Stopwatch {
   public:
 
-    MaybeMaybeRunStopwatch(timer_type& timer): stopwatch_{timer} {
+    MaybeRunStopwatch(timer_type& timer): stopwatch_{timer} {
       stopwatch_.start();
     }
 
-    ~MaybeMaybeRunStopwatch() {
+    ~MaybeRunStopwatch() {
       stopwatch_.stop();
     }
 
@@ -35,10 +35,10 @@ namespace art {
   };
 
   template <>
-  class MaybeMaybeRunStopwatch<false> : Stopwatch {
+  class MaybeRunStopwatch<false> : Stopwatch {
   public:
     using timer_type = cet::cpu_timer;
-    MaybeMaybeRunStopwatch(timer_type&){}
+    MaybeRunStopwatch(timer_type&){}
   };
 
 }
