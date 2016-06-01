@@ -207,13 +207,10 @@ namespace sqlite
       exec(db, sqlddl);
     }
     else {
-
       if (delete_contents) {
         deleteTable( db, tname );
       }
-
       rowid = query_db<uint32_t>(db, "select count(*) from "s + tname);
-
     }
   }
 

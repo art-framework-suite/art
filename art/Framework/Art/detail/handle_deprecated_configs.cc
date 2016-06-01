@@ -145,13 +145,13 @@ art::detail::handle_deprecated_MemoryTracker(intermediate_table& raw_config)
   std::ostringstream msg;
   msg << "\nThe \"" << filename_parameter << "\" parameter is deprecated.  It will be replaced\n"
       << "by the following configuration:\n"
-      << "   services.MemoryTracker.db: {\n"
+      << "   services.MemoryTracker.dbOutput: {\n"
       << "      filename: \"" << filename << "\"\n"
       << "      overwrite: " << std::boolalpha << false << '\n'
       << "   }\n";
   std::cerr << msg.str() << '\n';
   raw_config.erase(filename_parameter);
-  string const& db_stem {stem+".db"};
+  string const& db_stem {stem+".dbOutput"};
   raw_config.put(db_stem+".filename", filename);
   raw_config.put(db_stem+".overwrite", false);
 }

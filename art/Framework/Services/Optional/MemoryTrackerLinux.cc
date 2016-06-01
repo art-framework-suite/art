@@ -140,25 +140,20 @@ using namespace memdata;
 using namespace aliases;
 
 art::MemoryTracker::MemoryTracker(ServiceTable<Config> const& config,
-                                  ActivityRegistry & iReg)
+                                  ActivityRegistry& iReg)
   : numToSkip_     {config().ignoreTotal()}
   , printSummary_  {setbits_( config().printSummaries() )}
   , dbMgr_         {config().dbOutput().filename()}
   , overwriteContents_{config().dbOutput().overwrite()}
   , includeMallocInfo_{checkMallocConfig_(config().dbOutput().filename(),
                                           config().includeMallocInfo())}
-    // column headings
-  , summaryTuple_   {"ProcessStep", "ModuleId", "DeltaVsize", "DeltaRSS"}
-  , eventTuple_     {"Run", "Subrun", "Event", "Vsize", "DeltaVsize", "RSS", "DeltaRSS"}
-  , moduleTuple_    {"Run", "Subrun", "Event", "PathModuleId", "Vsize", "DeltaVsize", "RSS", "DeltaRSS"}
-  , eventHeapTuple_ {"EvtRowId","arena", "ordblks", "keepcost", "hblkhd", "hblks", "uordblks", "fordblks"}
-  , moduleHeapTuple_{"ModRowId","arena", "ordblks", "keepcost", "hblkhd", "hblks", "uordblks", "fordblks"}
     // tables
-  , summaryTable_   {dbMgr_, "Summary", summaryTuple_, true} // always recompute the summary
-  , eventTable_     {dbMgr_, "EventInfo" , eventTuple_, overwriteContents_}
-  , moduleTable_    {dbMgr_, "ModuleInfo", moduleTuple_, overwriteContents_}
-  , eventHeapTable_ {includeMallocInfo_ ? std::make_unique<memHeap_t>(dbMgr_, "EventMallocInfo" , eventHeapTuple_ ) : nullptr}
-  , moduleHeapTable_{includeMallocInfo_ ? std::make_unique<memHeap_t>(dbMgr_, "ModuleMallocInfo", moduleHeapTuple_) : nullptr}
+  , peakUsageTable_ {dbMgr_, "PeakUsage", peakUsageColumns_, true} // always recompute the peak usage
+  , summaryTable_   {dbMgr_, "Summary", summaryColumns_, true} // always recompute the summary
+  , eventTable_     {dbMgr_, "EventInfo" , eventColumns_, overwriteContents_}
+  , moduleTable_    {dbMgr_, "ModuleInfo", moduleColumns_, overwriteContents_}
+  , eventHeapTable_ {includeMallocInfo_ ? std::make_unique<memHeap_t>(dbMgr_, "EventMallocInfo" , eventHeapColumns_ ) : nullptr}
+  , moduleHeapTable_{includeMallocInfo_ ? std::make_unique<memHeap_t>(dbMgr_, "ModuleMallocInfo", moduleHeapColumns_) : nullptr}
     // instantiate the class templates
   , modConstruction_{summaryTable_, procInfo_, evtCount_, "Module Construction"}
   , modBeginJob_    {summaryTable_, procInfo_, evtCount_, "Module beginJob"}
@@ -272,6 +267,8 @@ art::MemoryTracker::postModule(ModuleDescription const& md)
 void
 art::MemoryTracker::postEndJob()
 {
+  recordPeakUsages_();
+
   if (printSummary_.none()) return;
 
   std::string const rule(100,'=');
@@ -315,7 +312,7 @@ art::MemoryTracker::setbits_(std::vector<std::string> const& pset)
   if (pset_bits.find("*") != pset_bits.cend()) {
     if (pset_bits.size() == 1ull) bset.set();
     else {
-      throw art::Exception{art::errors::Configuration}
+      throw Exception{errors::Configuration}
       << "The summary option '*' cannot be included with any other options.";
     }
   }
@@ -337,19 +334,35 @@ art::MemoryTracker::checkMallocConfig_(std::string const& dbfilename,
       "\n'includeMallocInfo : true' is valid only if a nonempty db filename is specified:\n\n"s+
       "   MemoryTracker: {\n"
       "      includeMallocInfo: true\n"
-      "      db: {\n"
+      "      dbOutput: {\n"
       "         filename: \"your_filename.db\"\n"
       "      }\n"
       "   }\n\n";
-    throw art::Exception{art::errors::Configuration} << errmsg;
+    throw Exception{errors::Configuration} << errmsg;
   }
   return include;
 }
 
 //======================================================================
 void
+art::MemoryTracker::recordPeakUsages_()
+{
+  peakUsageTable_.insert("VmPeak", procInfo_.getVmPeak(), "Peak virtual memory (MB)");
+  peakUsageTable_.insert("VmHWM", procInfo_.getVmHWM(), "Peak resident set size (MB)");
+}
+
+//======================================================================
+void
 art::MemoryTracker::generalSummary_(std::ostringstream& oss)
 {
+  peakUsageTable_.flush();
+  auto const vmMax = sqlite::query_db<double>(dbMgr_, "select Value from PeakUsage where Name='VmPeak'");
+  auto const rssMax = sqlite::query_db<double>(dbMgr_, "select Value from PeakUsage where Name='VmHWM'");
+
+  oss << "  Peak virtual memory usage (VmPeak)  : " << vmMax << " Mbytes\n"
+      << "  Peak resident set size usage (VmHWM): " << rssMax << " Mbytes\n"
+      << "\n\n";
+
   summaryTable_.flush();
 
   auto const& steps = sqlite::getUniqueEntries<std::string>(dbMgr_, "Summary", "ProcessStep");
@@ -362,10 +375,7 @@ art::MemoryTracker::generalSummary_(std::ostringstream& oss)
 
   std::string const rule = std::string(sWidth+2+mWidth+2+2*12,'=');
 
-  oss << "  Peak virtual memory usage (VmPeak)  : " << procInfo_.getVmPeak() << " Mbytes\n"
-      << "  Peak resident set size usage (VmHWM): " << procInfo_.getVmHWM() << " Mbytes\n"
-      << "\n\n"
-      << setw(sWidth+2) << "ProcessStep"
+  oss << setw(sWidth+2) << "ProcessStep"
       << setw(mWidth+2) << "Module ID"
       << boost::format(" %_=10s ") % "\u0394 Vsize"
       << boost::format(" %_=10s ") % "\u0394 RSS"

@@ -9,7 +9,7 @@ services: {
       service_type: "FileTransfer"
    }
    MemoryTracker: {
-      db: {
+      dbOutput: {
          filename: "test.db"
          overwrite: false
       }
