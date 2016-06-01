@@ -53,6 +53,9 @@ DebugOptionsHandler(bpo::options_description& desc,
   desc.add_options()
     ("trace", "Activate tracing.")
     ("notrace", "Deactivate tracing.")
+    ("timing", "Activate monitoring of time spent per event/module.")
+    ("timing-db", bpo::value<std::string>(), "Output time-tracking data to SQLite3 database with name <db-file>.")
+    ("notiming", "Deactivate time tracking.")
     ("memcheck", "Activate monitoring of memory use.")
     ("memcheck-db", bpo::value<std::string>(), "Output memory use data to SQLite3 database with name <db-file>.")
     ("nomemcheck", "Deactivate monitoring of memory use.")
@@ -88,6 +91,14 @@ doCheckOptions(bpo::variables_map const & vm)
   if (vm.count("trace") + vm.count("notrace") > 1) {
     throw Exception(errors::Configuration)
       << "Options --trace and --notrace are incompatible.\n";
+  }
+  if (vm.count("timing") + vm.count("notiming") > 1) {
+    throw Exception(errors::Configuration)
+      << "Options --timing and --notiming are incompatible.\n";
+  }
+  if (vm.count("timing-db") + vm.count("notiming") > 1) {
+    throw Exception(errors::Configuration)
+      << "Options --timing-db and --notiming are incompatible.\n";
   }
   if (vm.count("memcheck") + vm.count("nomemcheck") > 1) {
     throw Exception(errors::Configuration)
@@ -144,10 +155,10 @@ doProcessOptions(bpo::variables_map const & vm,
   }
   using namespace fhicl::detail;
   if (vm.count("annotate")){
-    dbg_.set_mode( print_mode::annotated );
+    dbg_.set_mode(print_mode::annotated);
   }
   if (vm.count("prefix-annotate")){
-    dbg_.set_mode( print_mode::prefix_annotated );
+    dbg_.set_mode(print_mode::prefix_annotated);
   }
   if (vm.count("trace")) {
     raw_config.put("services.scheduler.wantTracer", true);
@@ -155,11 +166,22 @@ doProcessOptions(bpo::variables_map const & vm,
   else if (vm.count("notrace")) {
     raw_config.put("services.scheduler.wantTracer", false);
   }
+  auto const timingdb = vm.count("timing-db");
+  if (vm.count("timing") || timingdb) {
+    raw_config.putEmptyTable("services.TimeTracker");
+    if (timingdb)
+      raw_config.put("services.TimeTracker.dbOutput.filename",
+                     vm["timing-db"].as<std::string>().data());
+  }
+  else if (vm.count("notiming")) {
+    raw_config.erase("services.Timing");
+    raw_config.erase("services.TimeTracker");
+  }
   auto const memdb = vm.count("memcheck-db");
   if (vm.count("memcheck") || memdb) {
     raw_config.putEmptyTable("services.MemoryTracker");
     if (memdb)
-      raw_config.put("services.MemoryTracker.db.filename",
+      raw_config.put("services.MemoryTracker.dbOutput.filename",
                      vm["memcheck-db"].as<std::string>().data());
   }
   else if (vm.count("nomemcheck")) {

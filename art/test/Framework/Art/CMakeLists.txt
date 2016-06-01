@@ -412,6 +412,26 @@ cet_test(DebugOptions_03_w HANDBUILT
 # Compare with reference.
 config_ref_test(DebugOptions_03)
 
+# TimeTracker enabling
+cet_test(DebugOptionsTimeTracker_01 HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --timing --rethrow-default -c opt-empty.fcl
+  DATAFILES fcl/opt-empty.fcl
+  )
+
+cet_test(DebugOptionsTimeTracker_02 HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --timing-db=timing.db --rethrow-default -c opt-empty.fcl
+  DATAFILES fcl/opt-empty.fcl
+  )
+
+cet_test(DebugOptionsTimeTracker_03 HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --timing-db=timing.db --notiming --rethrow-default -c opt-empty.fcl
+  DATAFILES fcl/opt-empty.fcl
+  TEST_PROPERTIES WILL_FAIL TRUE
+  )
+
 ####################################
 # FileCatalogOptionsHandler.
 
