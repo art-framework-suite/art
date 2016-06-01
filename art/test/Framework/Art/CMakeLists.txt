@@ -772,10 +772,9 @@ foreach(i RANGE 1 2)
     )
 endforeach()
 
-# outputs.<label>.SelectEvents.SelectEvents
-# physics.analyzers.<label>.SelectEvents.SelectEvents
-#
-foreach(i RANGE 1 2)
+# outputs.<label>.SelectEvents: { ... }
+# physics.analyzers.<label>.SelectEvents: { ... }
+foreach(i RANGE 1 3)
   cet_test(DeprecatedNestedSelectEvents_t_0${i} HANDBUILT
     TEST_EXEC art
     TEST_ARGS -c deprecated_SelectEvents_0${i}.fcl --debug-config=config.out
@@ -790,3 +789,18 @@ foreach(i RANGE 1 2)
     TEST_PROPERTIES DEPENDS DeprecatedNestedSelectEvents_t_0${i}
     )
 endforeach()
+
+# services.MemoryTracker.filename
+cet_test(DeprecatedMemoryTracker_t_01 HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS -c deprecated_MemoryTracker_01.fcl --debug-config=config.out
+  DATAFILES fcl/deprecated_MemoryTracker_01.fcl
+  TEST_PROPERTIES WILL_FAIL TRUE
+  )
+
+cet_test(DeprecatedMemoryTracker_r_01 HANDBUILT
+  TEST_EXEC diff
+  TEST_ARGS ../DeprecatedMemoryTracker_t_01.d/config.out DeprecatedMemoryTracker_01-ref.txt
+  DATAFILES DeprecatedMemoryTracker_01-ref.txt
+  TEST_PROPERTIES DEPENDS DeprecatedMemoryTracker_t_01
+  )

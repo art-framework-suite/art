@@ -11,6 +11,7 @@ namespace art {
 
     void handle_deprecated_fileMode(fhicl::intermediate_table&);
     void handle_deprecated_SelectEvents(fhicl::intermediate_table&);
+    void handle_deprecated_MemoryTracker(fhicl::intermediate_table&);
   }
 }
 

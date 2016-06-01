@@ -34,21 +34,21 @@ namespace {
                   bpo::variables_map const& vm,
                   fhicl::intermediate_table& config )
   {
-    if ( vm.count( bpo_key ) )
-      config.put( fhicl_key, vm[bpo_key].as<bool>() );
-    else if ( !exists_outside_prolog(config, fhicl_key) )
-      config.put( fhicl_key, true );
+    if (vm.count(bpo_key))
+      config.put(fhicl_key, vm[bpo_key].as<bool>());
+    else if (!exists_outside_prolog(config, fhicl_key))
+      config.put(fhicl_key, true);
   }
 
 }
 
 art::DebugOptionsHandler::
-DebugOptionsHandler(bpo::options_description & desc,
-                    std::string const & basename,
+DebugOptionsHandler(bpo::options_description& desc,
+                    std::string const& basename,
                     detail::DebugOutput& dbg,
-                    bool rethrowDefault)
-  : dbg_(dbg)
-  , rethrowDefault_(rethrowDefault)
+                    bool const rethrowDefault)
+  : dbg_{dbg}
+  , rethrowDefault_{rethrowDefault}
 {
   desc.add_options()
     ("trace", "Activate tracing.")
@@ -158,8 +158,8 @@ doProcessOptions(bpo::variables_map const & vm,
   auto const memdb = vm.count("memcheck-db");
   if (vm.count("memcheck") || memdb) {
     raw_config.putEmptyTable("services.MemoryTracker");
-    if ( memdb )
-      raw_config.put("services.MemoryTracker.filename",
+    if (memdb)
+      raw_config.put("services.MemoryTracker.db.filename",
                      vm["memcheck-db"].as<std::string>().data());
   }
   else if (vm.count("nomemcheck")) {
@@ -179,8 +179,8 @@ doProcessOptions(bpo::variables_map const & vm,
   }
 
   std::string const fhicl_base = "services.scheduler."s;
-  fillTable("errorOnFailureToPut", fhicl_base+"errorOnFailureToPut", vm, raw_config );
-  fillTable("errorOnSIGINT"      , fhicl_base+"errorOnSIGINT"      , vm, raw_config );
+  fillTable("errorOnFailureToPut", fhicl_base+"errorOnFailureToPut", vm, raw_config);
+  fillTable("errorOnSIGINT"      , fhicl_base+"errorOnSIGINT"      , vm, raw_config);
 
   return 0;
 }
