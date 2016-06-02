@@ -1,5 +1,3 @@
-// dump_file_info.cc
-
 #include "art/Framework/IO/Root/GetFileFormatEra.h"
 #include "art/Framework/IO/Root/detail/InfoDumperInputFile.h"
 #include "art/Framework/IO/Root/detail/resolveRangeSet.h"
@@ -35,6 +33,7 @@ using stringvec = vector<string>;
 
 
 int print_range_sets(InfoDumperInputFile& file, ostream& output);
+int print_event_list(InfoDumperInputFile& file, ostream& output);
 int print_file_index(InfoDumperInputFile& file, ostream& output);
 int db_to_file(InfoDumperInputFile& file, ostream& output, ostream& errors);
 
@@ -132,8 +131,9 @@ int main(int argc, char * argv[])
       desc.add_options()
         ("help,h", "produce help message")
         ("full-path", "prints full path of file name")
+        ("event-list", "prints event-list for each input file")
         ("file-index", "prints FileIndex object for each input file")
-        ("range-sets", "prints event range sets for each input file")
+        ("range-of-validity,R", "prints range of validity for each input file")
         ("db-to-file",
          ("Writes RootFileDB to external SQLite database with the same base name as the input file and the suffix '.db'.\n"s +
           "(Writes to directory in which '"s + argv[0] + "' is executed)."s).c_str())
@@ -175,10 +175,16 @@ int main(int argc, char * argv[])
       file_names.reserve(file_count);
       cet::copy_all(vm["source"].as<stringvec>(), std::back_inserter(file_names));
 
-      bool const printRangeSets = vm.count("range-sets") > 0;
+      bool const printRangeSets = vm.count("range-of-validity") > 0;
+      bool const printEventList = vm.count("event-list") > 0;
       bool const printFileIndex = vm.count("file-index") > 0;
       bool const saveDbToFile   = vm.count("db-to-file") > 0;
       bool const fullPath       = vm.count("full-path")  > 0;
+
+      if (printEventList && printFileIndex) {
+        std::cerr << "The --event-list and --file-index options are mutually exclusive.\n";
+        return 4;
+      }
 
       SetErrorHandler(RootErrorHandler);
       tkeyvfs_init();
@@ -194,6 +200,7 @@ int main(int argc, char * argv[])
         InfoDumperInputFile file {fn};
         if (printRangeSets) rc += print_range_sets(file, output);
         if (printFileIndex) rc += print_file_index(file, output);
+        if (printEventList) rc += print_event_list(file, output);
         if (saveDbToFile)   rc += db_to_file(file, output, errors);
         output << '\n';
       }
@@ -217,6 +224,13 @@ int print_range_sets(InfoDumperInputFile& file,
   return 0;
 }
 
+int print_event_list(InfoDumperInputFile& file,
+                     ostream& output)
+{
+  file.print_event_list(output);
+  return 0;
+}
+
 int print_file_index(InfoDumperInputFile& file,
                      ostream& output)
 {
@@ -224,7 +238,7 @@ int print_file_index(InfoDumperInputFile& file,
   return 0;
 }
 
-int db_to_file(InfoDumperInputFile & file,
+int db_to_file(InfoDumperInputFile& file,
                ostream& output,
                ostream& errors)
 {

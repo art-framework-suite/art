@@ -38,7 +38,7 @@ foreach(source EmptyEvent RootInput)
   cet_test(MultiOutput${source}_FileIndexCheck_Event_t HANDBUILT
     TEST_EXEC file_info_dumper
     TEST_ARGS
-    --range-sets
+    --range-of-validity
     --file-index
     ${OutputFilePath}/out_r1_sr0_e1.root
     ${OutputFilePath}/out_r1_sr0_e2.root
@@ -64,7 +64,7 @@ foreach(source EmptyEvent RootInput)
   cet_test(MultiOutput${source}_FileIndexCheck_SubRun_t HANDBUILT
     TEST_EXEC file_info_dumper
     TEST_ARGS
-    --range-sets
+    --range-of-validity
     --file-index
     ${OutputFilePath}/out_r1_sr0.root
     ${OutputFilePath}/out_r1_sr1.root
@@ -79,7 +79,7 @@ foreach(source EmptyEvent RootInput)
   cet_test(MultiOutput${source}_FileIndexCheck_Run_t HANDBUILT
     TEST_EXEC file_info_dumper
     TEST_ARGS
-    --range-sets
+    --range-of-validity
     --file-index
     ${OutputFilePath}/out_r1.root
     ${OutputFilePath}/out_r2.root
@@ -93,7 +93,7 @@ foreach(source EmptyEvent RootInput)
   cet_test(MultiOutput${source}_FileIndexCheck_t HANDBUILT
     TEST_EXEC file_info_dumper
     TEST_ARGS
-    --range-sets
+    --range-of-validity
     --file-index
     ${OutputFilePath}/out.root
     REF "${CMAKE_CURRENT_SOURCE_DIR}/MultiOutput_FileIndexCheck_t-ref.txt"
@@ -123,7 +123,7 @@ SET(InputFilePath "${CMAKE_CURRENT_BINARY_DIR}/MultiInput_SwitchOutputOnNewInput
 cet_test(MultiOutput_FileIndexCheck_InputFile_t HANDBUILT
   TEST_EXEC file_info_dumper
   TEST_ARGS
-  --range-sets
+  --range-of-validity
   --file-index
   ${InputFilePath}/out_1.root
   ${InputFilePath}/out_2.root
@@ -164,7 +164,7 @@ cet_test(MultiInputConcatenate_t HANDBUILT
 
 cet_test(MultiInputConcatenate_FileIndexCheck_t HANDBUILT
   TEST_EXEC file_info_dumper
-  TEST_ARGS --range-sets --file-index ../MultiInputConcatenate_t.d/out.root
+  TEST_ARGS --range-of-validity --file-index ../MultiInputConcatenate_t.d/out.root
   REF "${CMAKE_CURRENT_SOURCE_DIR}/MultiInputConcatenate_FileIndexCheck_t-ref.txt"
   TEST_PROPERTIES DEPENDS MultiInputConcatenate_t
   )
@@ -183,7 +183,7 @@ cet_test(SwitchOnTwoConditions_w HANDBUILT
 cet_test(SwitchOnTwoConditions_FileIndexCheck_t HANDBUILT
   TEST_EXEC file_info_dumper
   TEST_ARGS
-  --range-sets
+  --range-of-validity
   --file-index
   "../SwitchOnTwoConditions_w.d/out_1.root"
   "../SwitchOnTwoConditions_w.d/out_2.root"
@@ -205,7 +205,7 @@ cet_test(SwitchOnFileSizeMax_w HANDBUILT
 
 cet_test(SwitchOnFileSizeMax_r HANDBUILT
   TEST_EXEC file_info_dumper
-  TEST_ARGS --range-sets
+  TEST_ARGS --range-of-validity
   "../SwitchOnFileSizeMax_w.d/out_1.root"
   "../SwitchOnFileSizeMax_w.d/out_2.root"
   "../SwitchOnFileSizeMax_w.d/out_3.root"

@@ -36,7 +36,7 @@ cet_test(RangeSetAggregation_p1_w HANDBUILT
 cet_test(RangeSetAggregation_p1_r0 HANDBUILT
   TEST_EXEC file_info_dumper
   TEST_ARGS
-  --range-sets
+  --range-of-validity
   --file-index
   -s "../RangeSetAggregation_p1_w.d/out.root"
   REF "${CMAKE_CURRENT_SOURCE_DIR}/ref/RangeSetAggregation_p1_r0-ref.txt"
@@ -48,7 +48,7 @@ foreach(i RANGE 1 5)
   cet_test(RangeSetAggregation_p1_r${i} HANDBUILT
     TEST_EXEC file_info_dumper
     TEST_ARGS
-    --range-sets
+    --range-of-validity
     --file-index
     -s "../RangeSetAggregation_p1_w.d/p_${i}.root"
     REF "${CMAKE_CURRENT_SOURCE_DIR}/ref/RangeSetAggregation_p1_r${i}-ref.txt"
@@ -92,7 +92,7 @@ foreach(i RANGE 1 2)
   cet_test(RangeSetAggregation_p2a_r${i} HANDBUILT
     TEST_EXEC file_info_dumper
     TEST_ARGS
-    --range-sets
+    --range-of-validity
     --file-index
     -s "../RangeSetAggregation_p2a_w${i}.d/q_${i}.root"
     REF "${CMAKE_CURRENT_SOURCE_DIR}/ref/RangeSetAggregation_p2a_r${i}-ref.txt"
@@ -136,7 +136,7 @@ foreach(i RANGE 1 2)
   cet_test(RangeSetAggregation_p2b_r${i} HANDBUILT
     TEST_EXEC file_info_dumper
     TEST_ARGS
-    --range-sets
+    --range-of-validity
     --file-index
     -s "../RangeSetAggregation_p2b_w${i}.d/q_${i}.root"
     REF "${CMAKE_CURRENT_SOURCE_DIR}/ref/RangeSetAggregation_p2b_r${i}-ref.txt"
@@ -168,7 +168,7 @@ cet_test(RangeSetAggregation_p2c_w HANDBUILT
 cet_test(RangeSetAggregation_p2c_r HANDBUILT
   TEST_EXEC file_info_dumper
   TEST_ARGS
-  --range-sets
+  --range-of-validity
   --file-index
   -s "../RangeSetAggregation_p2c_w.d/q.root"
   # Should give the same RangeSet results as in test 'p2b_r1'
@@ -217,7 +217,7 @@ foreach(i RANGE 1 2)
   cet_test(RangeSetAggregation_p3_r${i} HANDBUILT
     TEST_EXEC file_info_dumper
     TEST_ARGS
-    --range-sets
+    --range-of-validity
     --file-index
     -s "../RangeSetAggregation_p3_w${i}.d/r_${i}.root"
     REF "${CMAKE_CURRENT_SOURCE_DIR}/ref/RangeSetAggregation_p3_r${i}-ref.txt"

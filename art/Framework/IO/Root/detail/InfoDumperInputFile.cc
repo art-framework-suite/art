@@ -71,6 +71,12 @@ art::detail::InfoDumperInputFile::InfoDumperInputFile(std::string const& filenam
 {}
 
 void
+art::detail::InfoDumperInputFile::print_event_list(std::ostream& os) const
+{
+  fileIndex_.print_event_list(os);
+}
+
+void
 art::detail::InfoDumperInputFile::print_file_index(std::ostream& os) const
 {
   os << fileIndex_;

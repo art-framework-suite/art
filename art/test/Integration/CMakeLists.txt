@@ -145,7 +145,7 @@ cet_test(test_dropAllEventsSubruns_t.sh PREBUILT
 cet_test(testOutputRanges_dropAllEventsSubruns HANDBUILT
   TEST_EXEC file_info_dumper
   TEST_ARGS
-  --range-sets
+  --range-of-validity
   --file-index
   "../test_dropAllEventsSubruns_t.sh.d/out_dropAllEvents.root"
   "../test_dropAllEventsSubruns_t.sh.d/out_dropAllEventsSubruns1.root"
@@ -315,7 +315,7 @@ cet_test(ToyRawInput_t_01 HANDBUILT
 cet_test(ToyRawInput_OutputCheck_t_01 HANDBUILT
   TEST_EXEC file_info_dumper
   TEST_ARGS
-  --range-sets
+  --range-of-validity
   --file-index
   "../ToyRawInput_t_01.d/out.root"
   REF "${CMAKE_CURRENT_SOURCE_DIR}/ToyRawInput_t_01-ref.txt"

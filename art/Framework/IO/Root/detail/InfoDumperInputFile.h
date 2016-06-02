@@ -25,6 +25,7 @@ namespace art {
 
       InfoDumperInputFile(std::string const& filename);
       void print_range_sets(std::ostream&) const;
+      void print_event_list(std::ostream&) const;
       void print_file_index(std::ostream&) const;
       TFile* tfile() const { return file_.get(); }
 
