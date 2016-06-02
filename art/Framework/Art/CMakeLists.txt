@@ -63,6 +63,7 @@ art_make_library( LIBRARY_NAME art_Framework_Art
   art_Persistency_Common
   art_Persistency_Provenance canvas_Persistency_Provenance
   art_Utilities canvas_Utilities
+  art_Version
   ${ROOT_HIST}
   ${ROOT_MATRIX}
   )

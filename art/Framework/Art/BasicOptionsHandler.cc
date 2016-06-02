@@ -1,8 +1,9 @@
 #include "art/Framework/Art/BasicOptionsHandler.h"
 
 #include "art/Framework/Art/detail/PrintPluginMetadata.h"
-#include "canvas/Utilities/Exception.h"
 #include "art/Utilities/PluginSuffixes.h"
+#include "art/Version/GetReleaseVersion.h"
+#include "canvas/Utilities/Exception.h"
 #include "cetlib/container_algorithms.h"
 #include "cetlib/filepath_maker.h"
 #include "fhiclcpp/coding.h"
@@ -14,10 +15,14 @@
 #include <string>
 
 using namespace std::string_literals;
-
+using table_t = fhicl::extended_value::table_t;
 namespace {
 
-  using table_t = fhicl::extended_value::table_t;
+  std::string pretty_version(std::string s)
+  {
+    std::replace(s.begin(), s.end(), '_', '.');
+    return s.substr(1); // trim off 'v'
+  }
 
 } // namespace
 
@@ -29,6 +34,7 @@ BasicOptionsHandler(bpo::options_description & desc,
 {
   desc.add_options()
     ("help,h", "produce help message")
+    ("version", ("Print art version ("+ pretty_version(art::getReleaseVersion())+")").c_str())
     ("config,c", bpo::value<std::string>(), "Configuration file.")
     ("process-name", bpo::value<std::string>(), "art process name.")
     ("print-available", bpo::value<std::string>(),
@@ -73,6 +79,10 @@ doCheckOptions(bpo::variables_map const & vm)
   }
   if ( vm.count("print-description") ) {
     detail::print_descriptions( vm["print-description"].as<std::vector<std::string>>());
+    return 1;
+  }
+  if (vm.count("version")) {
+    std::cout << "art " << pretty_version(getReleaseVersion()) << '\n';
     return 1;
   }
 
