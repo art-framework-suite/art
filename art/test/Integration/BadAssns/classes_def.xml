@@ -1,0 +1,6 @@
+<lcgdict>
+  <class name="std::vector<art::Ptr<arttest::DummyProduct> >"/>
+  <class name="std::pair<art::Ptr<arttest::StringProduct>,art::Ptr<arttest::DummyProduct> >"/>
+  <class name="art::Assns<arttest::StringProduct,arttest::DummyProduct,void>"/>
+  <class name="art::Wrapper<art::Assns<arttest::StringProduct,arttest::DummyProduct,void> >"/>
+</lcgdict>

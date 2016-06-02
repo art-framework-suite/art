@@ -1343,6 +1343,7 @@ add_subdirectory(output-file-handling)
 add_subdirectory(product-aggregation)
 add_subdirectory(range-sets)
 add_subdirectory(run-subrun-shape)
+add_subdirectory(BadAssns)
 
 cet_test(FastCloningInitMessage_01_t HANDBUILT
   TEST_EXEC art
@@ -1466,16 +1467,6 @@ cet_test(EmptyPSetRegistryChecker_r2 HANDBUILT
   fcl/EmptyPSetRegistryChecker_r2.fcl
   TEST_PROPERTIES DEPENDS EmptyPSetRegistryChecker_w2
 )
-
-simple_plugin(BadAssnsProducer "module" NO_INSTALL)
-
-cet_test(BadAssns_t HANDBUILT
-  TEST_EXEC art
-  TEST_ARGS --rethrow-all -c BadAssns_t.fcl -o out.root -n 4
-  DATAFILES fcl/BadAssns_t.fcl
-  TEST_PROPERTIES
-  PASS_REGULAR_EXPRESSION "No dictionary found for the following classes:\n.*art::Wrapper<art::Assns<arttest::DummyProduct,arttest::StringProduct,void> >\n.*Most likely they were never"
-  )
 
 simple_plugin(SimpleServiceTest "service" NO_INSTALL)
 simple_plugin(SimpleServiceTestAnalyzer "module" NO_INSTALL art_test_Integration_SimpleServiceTest_service)
