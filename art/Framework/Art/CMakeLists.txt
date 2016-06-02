@@ -35,6 +35,7 @@ set(art_Framework_Art_sources
   BasicSourceOptionsHandler.cc
   BasicOutputOptionsHandler.cc
   DebugOptionsHandler.cc
+  EventProcessingOptionsHandler.cc
   FileCatalogOptionsHandler.cc
   InitRootHandlers.cc
   OptionsHandler.cc

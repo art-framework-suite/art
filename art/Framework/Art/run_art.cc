@@ -3,6 +3,7 @@
 #include "art/Framework/Art/BasicOptionsHandler.h"
 #include "art/Framework/Art/BasicPostProcessor.h"
 #include "art/Framework/Art/InitRootHandlers.h"
+#include "art/Framework/Art/detail/bold_fontify.h"
 #include "art/Framework/Art/detail/handle_deprecated_configs.h"
 #include "art/Framework/EventProcessor/EventProcessor.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
@@ -32,6 +33,7 @@
 #include <vector>
 
 namespace bpo = boost::program_options;
+using art::detail::bold_fontify;
 
 // -----------------------------------------------
 namespace {
@@ -54,15 +56,14 @@ int art::run_art(int argc,
                  art::detail::DebugOutput && dbg)
 {
   std::ostringstream descstr;
-  descstr << "Usage: "
+  descstr << '\n' << bold_fontify("Usage") << ": "
           << boost::filesystem::path(argv[0]).filename().native()
           << " <-c <config-file>> <other-options> [<source-file>]+\n\n"
-          << "Allowed options";
-  bpo::options_description all_desc(descstr.str());
+          << bold_fontify("Basic options");
+  bpo::options_description all_desc {descstr.str()};
   all_desc.add(in_desc);
   // BasicOptionsHandler should always be first in the list!
-  handlers.emplace(handlers.begin(),
-                   new BasicOptionsHandler(all_desc, lookupPolicy));
+  handlers.emplace(handlers.begin(), new BasicOptionsHandler(all_desc, lookupPolicy));
   // BasicPostProcessor should be last.
   handlers.emplace_back(new BasicPostProcessor);
   // This must be added separately: how to deal with any non-option arguments.

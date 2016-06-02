@@ -34,6 +34,11 @@ cet_test(artapp_basicSourceOptions_t
   art_Framework_Art
   )
 
+cet_test(fhicl_key_t USE_BOOST_UNIT
+  LIBRARIES
+  art_Framework_Art
+)
+
 ########################################################################
 # OptionsHandler tests.
 
@@ -90,7 +95,7 @@ cet_test(BasicOptions_02_t HANDBUILT
   TEST_EXEC art
   TEST_ARGS -h
   TEST_PROPERTIES
-  PASS_REGULAR_EXPRESSION "\nAllowed options:\n"
+  PASS_REGULAR_EXPRESSION "Basic options"
 )
 
 cet_test(BasicOptions_03_t

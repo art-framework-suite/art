@@ -24,13 +24,12 @@ namespace {
 art::BasicOptionsHandler::
 BasicOptionsHandler(bpo::options_description & desc,
                     cet::filepath_maker & maker)
-  :
-  help_desc_(desc),
-  maker_(maker)
+  : help_desc_{desc}
+  , maker_{maker}
 {
   desc.add_options()
-    ("config,c", bpo::value<std::string>(), "Configuration file.")
     ("help,h", "produce help message")
+    ("config,c", bpo::value<std::string>(), "Configuration file.")
     ("process-name", bpo::value<std::string>(), "art process name.")
     ("print-available", bpo::value<std::string>(),
      ("List all available plugins with the provided suffix.  Choose from:"s + Suffixes::print()).c_str())
@@ -50,7 +49,14 @@ doCheckOptions(bpo::variables_map const & vm)
   // Technically the "help" and "print*" options are processing steps,
   // but we want to short-circuit.
   if (vm.count("help")) {
-    std::cout << help_desc_ << std::endl; // Note NOT our own desc_.
+    // Could simply do cout << help_desc_, but the boost-provided
+    // printout does not add any left-hand padding.  Will add a
+    // 2-space tab by hand.
+    std::stringstream ss;
+    ss << help_desc_; // Note NOT our own desc_.
+    for (std::string s; std::getline(ss, s); )
+      std::cout << std::string(2,' ') << s << '\n';
+    std::cout << '\n';
     return 1;
   }
   if ( vm.count("print-available") ) {
