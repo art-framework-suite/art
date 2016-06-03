@@ -266,7 +266,7 @@ doProcessOptions(bpo::variables_map const & vm,
   if (!tmpDir_.empty()) {
     std::string const& tfile_key = fhicl_key("services","TFileService");
     if (detail::exists_outside_prolog(raw_config, tfile_key)) {
-      raw_config.put(fhicl_key(tfile_key,".tmpDir"), tmpDir_);
+      raw_config.put(fhicl_key(tfile_key,"tmpDir"), tmpDir_);
     }
     std::string const outputs_stem {"outputs"};
     if (detail::exists_outside_prolog(raw_config, outputs_stem)) {
