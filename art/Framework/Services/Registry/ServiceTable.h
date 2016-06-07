@@ -39,6 +39,14 @@ namespace art {
     fhicl::Table<T> config_ { fhicl::Name("<service>") };
   };
 
+  template <typename T, typename U>
+  inline decltype(auto) operator<<(T&& t, ServiceTable<U> const& u)
+  {
+    std::ostringstream oss;
+    u.print_allowed_configuration(oss, std::string(3, ' '));
+    return std::forward<T>(t) << oss.str();
+  }
+
 }
 
 #endif /* art_Framework_Services_Registry_ServiceTable_h */

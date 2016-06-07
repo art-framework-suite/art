@@ -1,18 +1,16 @@
 #include "art/Utilities/ExceptionMessages.h"
-
 #include "cetlib/exception.h"
 #include "cetlib/trim.h"
-
 #include "messagefacility/MessageLogger/MessageLogger.h"
-  using mf::LogSystem;
 
 #include <string>
 #include <sstream>
 
+using mf::LogSystem;
 
 namespace art {
   void
-  printArtException(cet::exception& e, char const* prog)
+  printArtException(cet::exception const& e, char const* prog)
   try {
     std::string programName(prog ? prog : "program");
     std::string shortDesc("ArtException");
@@ -36,7 +34,7 @@ namespace art {
   catch(...) {
   }
 
-  void printStdException(std::exception& e, char const*prog)
+  void printStdException(std::exception const& e, char const*prog)
   try {
     std::string programName(prog ? prog : "program");
     std::string shortDesc("StdLibException");

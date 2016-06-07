@@ -1,0 +1,21 @@
+@startuml
+
+[*] --> Starting
+
+Starting --> Error: Event, SubRun, Run, SwitchOutputs
+Starting --> HandleFiles: InputFile
+Starting --> Stopping: Stop
+Starting: entry/beginJob
+
+HandleFiles --> Error: Event, SubRun, Run/closeAllFiles
+HandleFiles --> HandleFiles: InputFile/goToNewInputFile
+HandleFiles --> Stopping: Stop/closeAllFiles
+
+Error --> Stopping: Stop
+Error: entry/doErrorStuff
+
+Stopping --> [*]: Stop
+Stopping: entry/endJob
+
+!include sm_handleFiles.iuml
+@enduml

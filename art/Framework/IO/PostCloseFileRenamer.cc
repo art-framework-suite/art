@@ -4,11 +4,29 @@
 #include "canvas/Utilities/Exception.h"
 #include "boost/date_time/posix_time/posix_time.hpp"
 #include "boost/filesystem.hpp"
-#include "boost/regex.hpp"
 
 #include <iomanip>
 #include <string>
 #include <sstream>
+
+namespace bfs = boost::filesystem;
+
+namespace {
+  std::string renameFile(std::string const& inPath,
+                         std::string const& toFile)
+  {
+    boost::system::error_code ec;
+    bfs::rename(inPath, toFile, ec);
+    if (ec) { // Fail (different filesystems? Try copy / delete instead).
+      // This attempt will throw on failure.
+      bfs::copy_file(inPath,
+                     toFile,
+                     bfs::copy_option::overwrite_if_exists);
+      bfs::remove(inPath);
+    }
+    return toFile;
+  }
+}
 
 art::PostCloseFileRenamer::
 PostCloseFileRenamer(FileStatsCollector const & stats)
@@ -97,13 +115,13 @@ subInputFileName_(boost::smatch const & match) const
   using namespace boost::regex_constants;
   using boost::regex;
   using boost::regex_replace;
-  using boost::filesystem::path;
-  using boost::filesystem::canonical;
+  using bfs::path;
+  using bfs::canonical;
   std::string result;
   // If the filename is empty, substitute "-". If it is merely the
   // required substitution that is empty, substitute "".
   if (!stats_.lastOpenedInputFile().empty()) {
-    boost::filesystem::path const ifp(stats_.lastOpenedInputFile());
+    bfs::path const ifp(stats_.lastOpenedInputFile());
     if (match[4].matched) { // %if[bdenp]
       switch (*(match[4].first)) {
       case 'b':
@@ -251,16 +269,24 @@ subFilledNumeric_(boost::smatch const & match) const
 std::string
 art::PostCloseFileRenamer::
 maybeRenameFile(std::string const & inPath, std::string const & toPattern) {
-  std::string newFile = applySubstitutions(toPattern);
-  boost::system::error_code ec;
-  boost::filesystem::rename(inPath, newFile, ec);
-  if (ec) { // Fail (different flesystems? Try copy / delete instead).
-    // This attempt will throw on failure.
-    boost::filesystem::
-      copy_file(inPath,
-                newFile,
-                boost::filesystem::copy_option::overwrite_if_exists);
-    (void) boost::filesystem::remove(inPath);
+  std::string outPath {applySubstitutions(toPattern)};
+  bfs::path target {outPath};
+
+  while( bfs::exists(target) ) {
+    // Add index to file name if the target file already exists
+    auto const index = std::to_string(stats_.sequenceNum());
+    std::size_t const pos = outPath.find('.');
+    std::string const& base {outPath.substr(0,pos)};
+    std::string newOutPath {base+"_"+index};
+    if (pos != std::string::npos) {
+      std::string const& suffix {outPath.substr(pos+1)};
+      newOutPath += "."+suffix;
+    }
+    bfs::path newOutTarget {newOutPath};
+    using std::swap;
+    swap(target, newOutTarget);
+    swap(outPath, newOutPath);
   }
-  return newFile;
+
+  return renameFile(inPath, outPath);
 }

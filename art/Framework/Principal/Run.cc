@@ -16,10 +16,11 @@ using fhicl::ParameterSetRegistry;
 
 namespace art {
 
-  Run::Run(RunPrincipal& rp, ModuleDescription const& md) :
-        DataViewImpl(rp, md, InRun),
-        aux_(rp.aux()) {
-  }
+  Run::Run(RunPrincipal& rp, ModuleDescription const& md, RangeSet const& rs) :
+    DataViewImpl{rp, md, InRun},
+    aux_{rp.aux()},
+    productRangeSet_{rs}
+  {}
 
   bool
   Run::getProcessParameterSet(std::string const& /*processName*/,
@@ -55,10 +56,10 @@ namespace art {
 
       auto runProductProvenancePtr = std::make_unique<ProductProvenance const>(elem.first,
                                                                                productstatus::present());
-
       rp.put( std::move(elem.second.prod),
               elem.second.bd,
-              std::move(runProductProvenancePtr) );
+              std::move(runProductProvenancePtr),
+              std::move(elem.second.rs) );
     };
 
     cet::for_all( putProducts(), put_in_principal );

@@ -27,12 +27,12 @@ namespace arttest {
 
     virtual void endRun(art::Run& r) override
     {
-      r.put( std::make_unique<StringProduct>("endRun"), "endRun" );
+      r.put(std::make_unique<StringProduct>("endRun"), "endRun", art::runFragment());
     }
 
     virtual void endSubRun(art::SubRun& sr) override
     {
-      sr.put( std::make_unique<StringProduct>("endSubRun"), "endSubRun" );
+      sr.put(std::make_unique<StringProduct>("endSubRun"), "endSubRun", art::subRunFragment());
     }
 
     virtual void produce(art::Event&) override {}

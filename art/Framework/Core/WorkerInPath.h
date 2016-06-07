@@ -9,7 +9,7 @@
 // ======================================================================
 
 #include "art/Framework/Core/Frameworkfwd.h"
-#include "art/Framework/Principal/RunStopwatch.h"
+#include "art/Framework/Principal/MaybeRunStopwatch.h"
 #include "art/Framework/Principal/Worker.h"
 
 #include <memory>
@@ -31,7 +31,7 @@ namespace art {
                    CurrentProcessingContext const* cpc);
 
     std::pair<double,double> timeCpuReal() const {
-      return std::pair<double,double>(stopwatch_->cpuTime(),stopwatch_->realTime());
+      return std::pair<double,double>(stopwatch_.cpuTime(), stopwatch_.realTime());
     }
 
     void clearCounters() {
@@ -50,14 +50,14 @@ namespace art {
     bool modifiesEvent() const { return worker_->modifiesEvent(); }
 
   private:
-    RunStopwatch::StopwatchPointer stopwatch_;
+    Stopwatch::timer_type stopwatch_ {};
 
-    int timesVisited_;
-    int timesPassed_;
-    int timesFailed_;
-    int timesExcept_;
+    int timesVisited_ {};
+    int timesPassed_ {};
+    int timesFailed_ {};
+    int timesExcept_ {};
 
-    FilterAction filterAction_;
+    FilterAction filterAction_ {Normal};
     Worker* worker_;
   };  // WorkerInPath
 
@@ -65,13 +65,12 @@ namespace art {
   bool WorkerInPath::runWorker(typename T::MyPrincipal & ep,
                                CurrentProcessingContext const* cpc) {
 
-    // A RunStopwatch, but only if we are processing an event.
-    std::unique_ptr<RunStopwatch> stopwatch(T::isEvent_ ? new RunStopwatch(stopwatch_) : 0);
+    MaybeMaybeRunStopwatch<T::isEvent_> sentry {stopwatch_};
 
     if (T::isEvent_) {
       ++timesVisited_;
     }
-    bool rc = true;
+    bool rc {true};
 
     try {
         // may want to change the return value from the worker to be

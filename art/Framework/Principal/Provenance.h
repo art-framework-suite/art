@@ -19,6 +19,7 @@
 #include "canvas/Persistency/Provenance/Parentage.h"
 #include "canvas/Persistency/Provenance/ProductID.h"
 #include "canvas/Persistency/Provenance/ProductProvenance.h"
+#include "canvas/Persistency/Provenance/RangeSet.h"
 #include "cetlib/exempt_ptr.h"
 #include <memory>
 #include "fhiclcpp/ParameterSetID.h"
@@ -33,11 +34,11 @@ namespace art {
 
 // ----------------------------------------------------------------------
 
-class art::Provenance
-{
+class art::Provenance {
 public:
-  Provenance( ) : group_( )  { }
-  Provenance( cet::exempt_ptr<Group const> g ) : group_( g )  { }
+
+  Provenance() = default;
+  Provenance(cet::exempt_ptr<Group const> g) : group_{g}  { }
 
   // use compiler-generated copy c'tor, copy assignment, and d'tor
 
@@ -46,9 +47,10 @@ public:
   BranchDescription   const & productDescription () const {return group_->productDescription();}
   BranchDescription   const & branchDescription  () const {return productDescription();}
   ProductID           const & productID          () const {return group_->productID();}
+  RangeSet            const & rangeOfValidity    () const {return group_->rangeOfValidity();}
   Parentage           const & event              () const {return parentage();}
   Parentage           const & parentage          () const {return productProvenance().parentage();}
-  BranchID            const & branchID           () const {return productDescription().branchID();}
+  BranchID                    branchID           () const {return productDescription().branchID();}
   std::string         const & branchName         () const {return productDescription().branchName();}
   std::string         const & producedClassName  () const {return productDescription().producedClassName();}
   std::string         const & moduleLabel        () const {return productDescription().moduleLabel();}
@@ -59,9 +61,9 @@ public:
   std::string         const & friendlyClassName  () const {return productDescription().friendlyClassName();}
   fhicl::ParameterSet const & parameterSet       () const;
   std::set<fhicl::ParameterSetID> const &
-                            psetIDs            () const {return productDescription().psetIDs();}
+                              psetIDs            () const {return productDescription().psetIDs();}
   std::vector<BranchID> const&
-                            parents            () const {return parentage().parents();}
+                              parents            () const {return parentage().parents();}
 
   bool isPresent()  const {return productstatus::present(productStatus());}
 
@@ -71,7 +73,7 @@ public:
   void swap(Provenance & other) { std::swap(group_, other.group_); }
 
 private:
-  cet::exempt_ptr<Group const> group_;
+  cet::exempt_ptr<Group const> group_ {nullptr};
 
   ProductProvenance const*  productProvenancePtr() const {return group_->productProvenancePtr().get();}
   ProductProvenance const&  productProvenance   () const {return * productProvenancePtr();}
@@ -79,7 +81,7 @@ private:
 };  // Provenance
 
 inline  std::ostream &
-  art::operator << ( std::ostream & os, Provenance const & p )
+art::operator << ( std::ostream & os, Provenance const & p )
 {
   return p.write(os);
 }

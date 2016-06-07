@@ -8,26 +8,34 @@
 
 namespace art {
 
-class BranchDescription;
-class EDProduct;
-class ProductID;
+  class BranchDescription;
+  class EDProduct;
+  class ProductID;
+  class RangeSet;
 
-namespace gfactory {
+  namespace gfactory {
 
-std::unique_ptr<Group>
-make_group(BranchDescription const&, ProductID const&);
+    std::unique_ptr<Group>
+    make_group(BranchDescription const&,
+               ProductID const&,
+               RangeSet&&);
 
-std::unique_ptr<Group>
-make_group(BranchDescription const&, ProductID const&,
-           cet::exempt_ptr<Worker> productProducer,
-           cet::exempt_ptr<EventPrincipal> onDemandPrincipal);
+    std::unique_ptr<Group>
+    make_group(BranchDescription const&,
+               ProductID const&,
+               RangeSet&&,
+               cet::exempt_ptr<Worker> productProducer,
+               cet::exempt_ptr<EventPrincipal> onDemandPrincipal);
 
-std::unique_ptr<Group>
-make_group(std::unique_ptr<EDProduct>&&, BranchDescription const&,
-           ProductID const&);
+    std::unique_ptr<Group>
+    make_group(std::unique_ptr<EDProduct>&&,
+               BranchDescription const&,
+               ProductID const&,
+               RangeSet&&);
 
-} // namespace gfactory
+  } // namespace gfactory
 } // namespace art
+
 #endif /* art_Framework_Principal_GroupFactory_h */
 
 // Local Variables:

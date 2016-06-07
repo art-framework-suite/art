@@ -24,21 +24,13 @@ namespace art {
   class BranchDescription;
   class FileBlock {
   public:
-    FileBlock() :
-      fileFormatVersion_(),
-      tree_(0),
-      fastCopyable_(false),
-      fileName_(),
-      branchChildren_(new BranchChildren)
-    {}
+
+    FileBlock() = default;
 
     FileBlock(FileFormatVersion const& version,
               std::string const& fileName) :
-      fileFormatVersion_(version),
-      tree_(0),
-      fastCopyable_(false),
-      fileName_(fileName),
-      branchChildren_(new BranchChildren)
+      fileFormatVersion_{version},
+      fileName_{fileName}
     {}
 
     FileBlock(FileFormatVersion const& version,
@@ -47,13 +39,13 @@ namespace art {
               std::string const& fileName,
               std::shared_ptr<BranchChildren> branchChildren,
               std::unique_ptr<ResultsPrincipal> && resp = { }) :
-      fileFormatVersion_(version),
-      tree_(const_cast<TTree *>(ev)),
-      fastCopyable_(fastCopy),
-      fileName_(fileName),
-      branchChildren_(branchChildren),
-      resp_(std::move(resp))
-      {}
+      fileFormatVersion_{version},
+      tree_{const_cast<TTree*>(ev)},
+      fastCopyable_{fastCopy},
+      fileName_{fileName},
+      branchChildren_{branchChildren},
+      resp_{std::move(resp)}
+    {}
 
     // use compiler-generated copy c'tor, copy assignment, and d'tor
 
@@ -71,13 +63,13 @@ namespace art {
     friend class OutputModule;
     ResultsPrincipal const * resultsPrincipal() const;
 
-    FileFormatVersion fileFormatVersion_;
+    FileFormatVersion fileFormatVersion_ {};
     // We use bare pointers because ROOT owns these.
-    TTree * tree_;
-    bool fastCopyable_;
-    std::string fileName_;
-    std::shared_ptr<BranchChildren> branchChildren_;
-    std::unique_ptr<ResultsPrincipal> resp_;
+    TTree * tree_ {nullptr};
+    bool fastCopyable_ {false};
+    std::string fileName_ {};
+    std::shared_ptr<BranchChildren> branchChildren_ {std::make_shared<BranchChildren>()};
+    std::unique_ptr<ResultsPrincipal> resp_ {};
   };
 }
 

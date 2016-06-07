@@ -19,7 +19,9 @@ namespace arttest
 {
 
   struct DummyProduct
-  { };
+  {
+    void aggregate(DummyProduct const&) const {}
+  };
 
   struct IntProduct
   {
@@ -27,6 +29,11 @@ namespace arttest
 
     IntProduct &operator+= (IntProduct const &other)
     { value += other.value; return *this; }
+
+    void aggregate(IntProduct const& other)
+    {
+      (void)operator+=(other);
+    }
 
     int value;
   };
@@ -38,6 +45,11 @@ namespace arttest
     CompressedIntProduct &operator+= (CompressedIntProduct const &other)
     { value += other.value; return *this; }
 
+    void aggregate(CompressedIntProduct const& other)
+    {
+      (void)operator+=(other);
+    }
+
     int value;
   };
 
@@ -48,12 +60,21 @@ namespace arttest
 
     int16_t value;
     uint16_t uvalue;
+
+    void aggregate(Int16_tProduct const& other)
+    {
+      value += other.value;
+      uvalue += other.uvalue;
+    }
+
   };
 
 
   struct DoubleProduct
   {
     explicit DoubleProduct(double d=2.2) : value(d) { }
+
+    void aggregate(DoubleProduct const& d) { value += d.value; }
 
     double value;
   };
@@ -62,6 +83,7 @@ namespace arttest
   {
     StringProduct() : name_() {}
     explicit StringProduct(const std::string& s) : name_(s){}
+    void aggregate(StringProduct const&) {}
     std::string name_;
   };
 
@@ -123,6 +145,7 @@ namespace arttest
     int data;
     Sortable() : data(0) { }
     explicit Sortable(int i) : data(i) { }
+    void aggregate(Sortable const&) const {}
   };
 
   inline
@@ -143,20 +166,23 @@ namespace arttest
     int data;
     Prodigal() : data(0) { }
     explicit Prodigal(int i) : data(i) { }
+    void aggregate(Prodigal const&) const {}
   };
 
-  typedef std::vector<Simple>           VSimpleProduct;
+  using VSimpleProduct = std::vector<Simple>;
 
   struct Hit {
     Hit() : id(-1) { }
     Hit(size_t id) : id(id) { }
     size_t id;
+    void aggregate(Hit const&) const {}
   };
 
   struct Track {
     Track() : id(-1) { }
     Track(size_t id) : id(id) { }
     size_t id;
+    void aggregate(Track const&) const {}
   };
 }
 

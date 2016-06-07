@@ -1,0 +1,29 @@
+source: {
+   module_type: EmptyEvent
+   maxEvents: 14
+   firstRun: 1
+   firstSubRun: 0
+   numberEventsInRun: 10
+   numberEventsInSubRun: 5
+}
+
+physics: {
+
+   producers: {
+      prod: { module_type: ToyProductProducer }
+   }
+
+   p1: [prod]
+   e1: [o1]
+}
+
+outputs: {
+
+   o1: {
+      module_type: RootOutput
+      fileName : "out.root"
+   }
+
+}
+
+process_name: test1

@@ -1,0 +1,10 @@
+process_name: SelectEventsOutputs
+
+physics.e1: [o1]
+
+outputs: {
+   o1: {
+      module_type: RootOutput
+      SelectEvents: {}
+   }
+}

@@ -39,10 +39,9 @@ namespace art {
 
 class art::Event : private art::DataViewImpl {
 public:
+
   using Base = DataViewImpl;
   Event(EventPrincipal& ep, const ModuleDescription& md);
-
-  // use compiler-generated copy c'tor, copy assignment, and d'tor
 
   // AUX functions.
   EventID   id() const {return aux_.id();}
@@ -135,10 +134,9 @@ public:
   getProcessParameterSet(std::string const& processName,
                          fhicl::ParameterSet& ps) const;
 
-  ////    EDProductGetter const * productGetter() const;
   EDProductGetter const * productGetter(ProductID const &) const;
 
-  ProductID branchIDToProductID(BranchID const &bid) const;
+  ProductID branchIDToProductID(BranchID const bid) const;
 
   template <typename T>
   using HandleT = Handle<T>;
@@ -153,11 +151,11 @@ private:
 
   ProductID makeProductID(BranchDescription const& desc) const;
 
-  void ensure_unique_product( std::size_t         nFound,
-                              TypeID      const & typeID,
-                              std::string const & moduleLabel,
-                              std::string const & productInstanceName,
-                              std::string const & processName ) const;
+  void ensure_unique_product(std::size_t         nFound,
+                             TypeID      const & typeID,
+                             std::string const & moduleLabel,
+                             std::string const & productInstanceName,
+                             std::string const & processName) const;
 
   // commit_() is called to complete the transaction represented by
   // this DataViewImpl. The friendships required are gross, but any
@@ -184,7 +182,7 @@ private:
   // which do not logically modify the DataViewImpl. gotBranchIDs_ is
   // merely a cache reflecting what has been retreived from the
   // Principal class.
-  mutable std::set<BranchID> gotBranchIDs_;
+  mutable std::set<BranchID> gotBranchIDs_ {};
   void addToGotBranchIDs(Provenance const& prov) const;
 
 };  // Event
@@ -195,7 +193,7 @@ bool
 art::Event::get(ProductID const& oid, Handle<PROD>& result) const
 {
   result.clear();
-  GroupQueryResult bh = this->getByProductID_(oid);
+  GroupQueryResult bh = getByProductID_(oid);
   convert_handle(bh, result);
   if (bh.succeeded())
     addToGotBranchIDs(*result.provenance());
@@ -243,7 +241,7 @@ bool
 art::Event::get(SelectorBase const& sel,
                 Handle<PROD>& result) const
 {
-  bool ok = this->Base::get(sel, result);
+  bool ok = Base::get(sel, result);
   if (ok) {
     addToGotBranchIDs(*result.provenance());
   }
@@ -283,7 +281,7 @@ template <typename PROD>
 bool
 art::Event::getByLabel(InputTag const& tag, Handle<PROD>& result) const
 {
-  bool ok = this->Base::getByLabel(tag, result);
+  bool ok = Base::getByLabel(tag, result);
   if (ok) {
     addToGotBranchIDs(*result.provenance());
   }
@@ -296,7 +294,7 @@ art::Event::getByLabel(std::string const& label,
                   std::string const& productInstanceName,
                   Handle<PROD>& result) const
 {
-  bool ok = this->Base::getByLabel(label, productInstanceName, result);
+  bool ok = Base::getByLabel(label, productInstanceName, result);
   if (ok) {
     addToGotBranchIDs(*result.provenance());
   }
@@ -310,7 +308,7 @@ void
 art::Event::getMany(SelectorBase const& sel,
                std::vector<Handle<PROD> >& results) const
 {
-  this->Base::getMany(sel, results);
+  Base::getMany(sel, results);
   for (auto const& h : results)
     addToGotBranchIDs(*h.provenance());
 }  // getMany<>()
@@ -321,7 +319,7 @@ template <typename PROD>
 void
 art::Event::getManyByType(std::vector<Handle<PROD> >& results) const
 {
-  this->Base::getManyByType(results);
+  Base::getManyByType(results);
   for (auto const& h : results)
     addToGotBranchIDs(*h.provenance());
 }  // getManyByType<>()

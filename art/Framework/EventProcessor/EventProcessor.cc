@@ -6,10 +6,10 @@
 #include "art/Framework/Core/InputSource.h"
 #include "art/Framework/Core/InputSourceDescription.h"
 #include "art/Framework/Core/InputSourceFactory.h"
-#include "art/Framework/EventProcessor/EPStates.h"
 #include "art/Framework/EventProcessor/detail/writeSummary.h"
 #include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Principal/OccurrenceTraits.h"
+#include "art/Framework/Principal/RangeSetHandler.h"
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Framework/Services/Optional/RandomNumberGenerator.h"
@@ -36,6 +36,7 @@
 #include "fhiclcpp/types/detail/validationException.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
+#include <cassert>
 #include <exception>
 #include <iomanip>
 #include <string>
@@ -82,8 +83,8 @@ namespace {
     ParameterSet defaultEmptySource;
     setupAsDefaultEmptySource(defaultEmptySource);
     // find single source
-    bool sourceSpecified = false;
-    ParameterSet main_input = defaultEmptySource;
+    bool sourceSpecified {false};
+    ParameterSet main_input {defaultEmptySource};
     try {
       if (!params.get_if_present("source", main_input)) {
         mf::LogInfo("EventProcessorSourceConfig")
@@ -101,7 +102,7 @@ namespace {
                                                           art::getReleaseVersion(),
                                                           art::getPassID()));
       sourceSpecified = true;
-      art::InputSourceDescription isd(md, preg, areg);
+      art::InputSourceDescription isd{md, preg, areg};
       try {
         return std::unique_ptr<art::InputSource>(art::InputSourceFactory::make(main_input, isd));
       }
@@ -112,7 +113,7 @@ namespace {
           << "\n\n" << e.what();
       }
     }
-    catch (art::Exception const & x) {
+    catch (art::Exception const& x) {
       if (sourceSpecified == false &&
           art::errors::Configuration == x.categoryCode()) {
         throw art::Exception(art::errors::Configuration, "FailedInputSource")
@@ -123,7 +124,7 @@ namespace {
         throw;
       }
     }
-    catch (cet::exception const & x) {
+    catch (cet::exception const& x) {
       throw art::Exception(art::errors::Configuration, "FailedInputSource")
         << "Configuration of main input source has failed\n"
         << x;
@@ -135,37 +136,18 @@ namespace {
 
 art::EventProcessor::EventProcessor(ParameterSet const & pset)
   :
-  helper_(pset),
-  act_table_(helper_.schedulerPS()),
+  act_table_{pset.get<ParameterSet>("services.scheduler")},
   actReg_(),
-  mfStatusUpdater_(actReg_),
-  preg_(),
-  serviceToken_(),
-  tbbManager_(tbb::task_scheduler_init::deferred),
-  servicesSentry_(),
-  pathManager_(pset, preg_, act_table_, actReg_),
-  serviceDirector_(initServices_(pset, actReg_, serviceToken_)),
-  input_(),
-  schedule_(),
-  endPathExecutor_(),
-  fb_(),
-  machine_(),
-  principalCache_(),
-  sm_evp_(),
-  shouldWeStop_(false),
-  stateMachineWasInErrorState_(false),
-  fileMode_(helper_.schedulerPS().get<std::string>("fileMode", "")),
-  handleEmptyRuns_(helper_.schedulerPS().get<bool>("handleEmptyRuns", true)),
-  handleEmptySubRuns_(helper_.schedulerPS().get<bool>("handleEmptySubRuns", true)),
-  exceptionMessageFiles_(),
-  exceptionMessageRuns_(),
-  exceptionMessageSubRuns_(),
-  alreadyHandlingException_(false)
+  mfStatusUpdater_{actReg_},
+  pathManager_{pset, preg_, act_table_, actReg_},
+  serviceDirector_{initServices_(pset, actReg_, serviceToken_)},
+  handleEmptyRuns_{pset.get<bool>("services.scheduler.handleEmptyRuns", true)},
+  handleEmptySubRuns_{pset.get<bool>("services.scheduler.handleEmptySubRuns", true)}
 {
   servicesActivate_(serviceToken_);
   serviceToken_.forceCreation();
 
-  std::string const processName = pset.get<std::string>("process_name");
+  std::string const processName {pset.get<std::string>("process_name")};
 
   // Services
   // System service FileCatalogMetadata needs to know about the process name.
@@ -221,7 +203,7 @@ art::EventProcessor::beginJob()
       " the beginJob of the 'source'\n";
     throw;
   }
-  catch (std::exception & e) {
+  catch (std::exception const& e) {
     mf::LogError("BeginJob") << "A std::exception happened while processing"
                              " the beginJob of the 'source'\n";
     throw;
@@ -245,12 +227,12 @@ art::EventProcessor::endJob()
   cet::exception_collector c;
   // Make the services available
   ServiceRegistry::Operate op {serviceToken_};
-  c.call([this](){ this->terminateMachine_(); });
-  c.call([this](){ schedule_.get()->endJob(); });
-  c.call([this](){ endPathExecutor_.get()->endJob(); });
+  c.call([this](){ terminateMachine_(); });
+  c.call([this](){ schedule_->endJob(); });
+  c.call([this](){ endPathExecutor_->endJob(); });
   bool summarize = ServiceHandle<TriggerNamesService>()->wantSummary();
   c.call([this,summarize](){ detail::writeSummary(pathManager_, summarize); });
-  c.call([this](){ input_.get()->doEndJob(); });
+  c.call([this](){ input_->doEndJob(); });
   c.call([this](){ actReg_.sPostEndJob.invoke(); });
 }
 
@@ -260,21 +242,18 @@ initServices_(ParameterSet const & top_pset,
               ActivityRegistry & areg,
               ServiceToken & token)
 {
-  auto services =
-    top_pset.get<ParameterSet>("services", ParameterSet());
+  auto services = top_pset.get<ParameterSet>("services", {});
 
   // Save and non-standard service config, "floating_point_control" to
   // prevent ServiceDirector trying to make one itself.
-  ParameterSet const fpc_pset =
-    services.get<ParameterSet>("floating_point_control", ParameterSet());
+  auto const fpc_pset = services.get<ParameterSet>("floating_point_control", {});
   services.erase("floating_point_control");
 
   // Remove non-standard non-service config, "message."
   services.erase("message");
 
   // Move all services from user into main services block.
-  auto const user =
-    services.get<ParameterSet>("user", ParameterSet());
+  auto const user = services.get<ParameterSet>("user", {});
   if (!user.is_empty()) {
     mf::LogWarning("CONFIG")
       << "Use of services.user parameter set is deprecated.\n"
@@ -284,13 +263,15 @@ initServices_(ParameterSet const & top_pset,
     if (user.is_key_to_table(key)) {
       if (!services.has_key(key)) {
         services.put(key, user.get<ParameterSet>(key));
-      } else {
+      }
+      else {
         throw Exception(errors::Configuration)
           << "Detected a name clash: key "
           << key
           << " is defined in services and services.user.";
       }
-    } else {
+    }
+    else {
       throw Exception(errors::Configuration)
         << "Detected a non-table parameter "
         << key
@@ -301,11 +282,11 @@ initServices_(ParameterSet const & top_pset,
 
   // Deal with possible configuration for system service requiring
   // special construction:
-  auto pathSelection = services.get<ParameterSet>("PathSelection", {});
+  auto const pathSelection = services.get<ParameterSet>("PathSelection", {});
   services.erase("PathSelection");
 
   // Create the service director and all user-configured services.
-  ServiceDirector director(std::move(services), areg, token);
+  ServiceDirector director{std::move(services), areg, token};
 
   // Services requiring special construction.
   director.addSystemService<CurrentModule>(areg);
@@ -322,11 +303,9 @@ void
 art::EventProcessor::
 initSchedules_(ParameterSet const & pset)
 {
-
   // Initialize TBB with desired number of threads.
-  int num_threads =
-    helper_.servicesPS().get<int>("num_threads",
-                                  tbb::task_scheduler_init::default_num_threads());
+  int const num_threads = pset.get<int>("services.num_threads",
+                                        tbb::task_scheduler_init::default_num_threads());
   tbbManager_.initialize(num_threads);
 
   schedule_ = std::make_unique<Schedule>(ScheduleID::first(),
@@ -366,45 +345,18 @@ art::EventProcessor::getToken_()
 art::EventProcessor::StatusCode
 art::EventProcessor::runToCompletion()
 {
-  StatusCode returnCode = runCommon_();
-  if (machine_.get() != 0) {
-    throw art::Exception(errors::LogicError)
-        << "State machine not destroyed on exit from EventProcessor::runToCompletion\n"
-        << "Please report this error to the Framework group\n";
-  }
-  return returnCode;
-}
-
-art::EventProcessor::StatusCode
-art::EventProcessor::runCommon_()
-{
-  StatusCode returnCode = epSuccess;
+  StatusCode returnCode {epSuccess};
   stateMachineWasInErrorState_ = false;
   // Make the services available
   ServiceRegistry::Operate op {serviceToken_};
-  if (machine_.get() == 0) {
-    statemachine::FileMode fileMode;
-    if (fileMode_.empty()) { fileMode = statemachine::FULLMERGE; }
-    else if (fileMode_ == std::string("MERGE")) { fileMode = statemachine::MERGE; }
-    else if (fileMode_ == std::string("NOMERGE")) { fileMode = statemachine::NOMERGE; }
-    else if (fileMode_ == std::string("FULLMERGE")) { fileMode = statemachine::FULLMERGE; }
-    else if (fileMode_ == std::string("FULLLUMIMERGE")) { fileMode = statemachine::FULLLUMIMERGE; }
-    else {
-      throw art::Exception(errors::Configuration, "Illegal fileMode parameter value: ")
-          << fileMode_ << ".\n"
-          << "Legal values are 'MERGE', 'NOMERGE', 'FULLMERGE', and 'FULLLUMIMERGE'.\n";
-    }
-    machine_ = std::make_unique<statemachine::Machine>( this,
-                                                        fileMode,
-                                                        handleEmptyRuns_,
-                                                        handleEmptySubRuns_ );
-    machine_->initiate();
-  }
+  machine_ = std::make_unique<statemachine::Machine>( this,
+                                                      handleEmptyRuns_,
+                                                      handleEmptySubRuns_ );
+  machine_->initiate();
+
   try {
-    input::ItemType itemType;
-    int iEvents = 0;
     while (true) {
-      itemType = input_->nextItemType();
+      auto const itemType = input_->nextItemType();
       FDEBUG(1) << "itemType = " << itemType << "\n";
       // Look for a shutdown signal
       {
@@ -420,7 +372,7 @@ art::EventProcessor::runCommon_()
         machine_->process_event(statemachine::Stop());
       }
       else if (itemType == input::IsFile) {
-        machine_->process_event(statemachine::File());
+        machine_->process_event(statemachine::InputFile());
       }
       else if (itemType == input::IsRun) {
         machine_->process_event(statemachine::Run(input_->run()));
@@ -430,7 +382,6 @@ art::EventProcessor::runCommon_()
       }
       else if (itemType == input::IsEvent) {
         machine_->process_event(statemachine::Event());
-        ++iEvents;
       }
       // This should be impossible
       else {
@@ -443,42 +394,42 @@ art::EventProcessor::runCommon_()
       }
     }  // End of loop over state machine events
   } // Try block
-  // Some comments on exception handling related to the boost state machine:
+
+  // Some comments on exception handling related to the boost state
+  // machine:
   //
-  // Some states used in the machine are special because they
-  // perform actions while the machine is being terminated, actions
-  // such as close files, call endRun, call endSubRun etc ..  Each of these
-  // states has two functions that perform these actions.  The functions
-  // are almost identical.  The major difference is that one version
-  // catches all exceptions and the other lets exceptions pass through.
-  // The destructor catches them and the other function named "exit" lets
-  // them pass through.  On a normal termination, boost will always call
-  // "exit" and then the state destructor.  In our state classes, the
-  // the destructors do nothing if the exit function already took
-  // care of things.  Here's the interesting part.  When boost is
-  // handling an exception the "exit" function is not called (a boost
-  // feature).
+  // Some states used in the machine are special because they perform
+  // actions while the machine is being terminated, actions such as
+  // close files, call endRun, call endSubRun etc ..  Each of these
+  // states has two functions that perform these actions.  The
+  // functions are almost identical.  The major difference is that one
+  // version catches all exceptions and the other lets exceptions pass
+  // through.  The destructor catches them and the other function
+  // named "exit" lets them pass through.  On a normal termination,
+  // boost will always call "exit" and then the state destructor.  In
+  // our state classes, the the destructors do nothing if the exit
+  // function already took care of things.  Here's the interesting
+  // part.  When boost is handling an exception the "exit" function is
+  // not called (a boost feature).
   //
   // If an exception occurs while the boost machine is in control
-  // (which usually means inside a process_event call), then
-  // the boost state machine destroys its states and "terminates" itself.
-  // This already done before we hit the catch blocks below. In this case
-  // the call to terminateMachine below only destroys an already
-  // terminated state machine.  Because exit is not called, the state destructors
-  // handle cleaning up subRuns, runs, and files.  The destructors swallow
-  // all exceptions and only pass through the exceptions messages which
-  // are tacked onto the original exception below.
+  // (which usually means inside a process_event call), then the boost
+  // state machine destroys its states and "terminates" itself.  This
+  // is already done before we hit the catch blocks below. In this
+  // case the call to terminateMachine below only destroys an already
+  // terminated state machine.  Because exit is not called, the state
+  // destructors handle cleaning up subRuns, runs, and files.  The
+  // destructors swallow all exceptions and only pass through the
+  // exceptions messages which are tacked onto the original exception
+  // below.
   //
-  // If an exception occurs when the boost state machine is not
-  // in control (outside the process_event functions), then boost
-  // cannot destroy its own states.  The terminateMachine function
-  // below takes care of that.  The flag "alreadyHandlingException"
-  // is set true so that the state exit functions do nothing (and
-  // cannot throw more exceptions while handling the first).  Then the
-  // state destructors take care of this because exit did nothing.
-  //
-  // In both cases above, the EventProcessor::endOfLoop function is
-  // not called because it can throw exceptions.
+  // If an exception occurs when the boost state machine is not in
+  // control (outside the process_event functions), then boost cannot
+  // destroy its own states.  The terminateMachine function below
+  // takes care of that.  The flag "alreadyHandlingException" is set
+  // true so that the state exit functions do nothing (and cannot
+  // throw more exceptions while handling the first).  Then the state
+  // destructors take care of this because exit did nothing.
   //
   // One tricky aspect of the state machine is that things which can
   // throw should not be invoked by the state machine while another
@@ -495,7 +446,7 @@ art::EventProcessor::runCommon_()
     e << exceptionMessageFiles_;
     throw e;
   }
-  catch (std::bad_alloc & e) {
+  catch (std::bad_alloc const& e) {
     terminateAbnormally_();
     throw cet::exception("std::bad_alloc")
         << "The EventProcessor caught a std::bad_alloc exception and converted it to a cet::exception\n"
@@ -504,7 +455,7 @@ art::EventProcessor::runCommon_()
         << exceptionMessageRuns_
         << exceptionMessageFiles_;
   }
-  catch (std::exception & e) {
+  catch (std::exception const& e) {
     terminateAbnormally_();
     throw cet::exception("StdException")
         << "The EventProcessor caught a std::exception and converted it to a cet::exception\n"
@@ -543,7 +494,6 @@ art::EventProcessor::runCommon_()
   }
   if (machine_->terminated()) {
     FDEBUG(1) << "The state machine reports it has been terminated\n";
-    machine_.reset();
   }
   if (stateMachineWasInErrorState_) {
     throw cet::exception("BadState")
@@ -554,7 +504,7 @@ art::EventProcessor::runCommon_()
 }
 
 void
-art::EventProcessor::readFile()
+art::EventProcessor::openInputFile()
 {
   actReg_.sPreOpenFile.invoke();
   FDEBUG(1) << " \treadFile\n";
@@ -570,24 +520,37 @@ art::EventProcessor::readFile()
 void
 art::EventProcessor::closeInputFile()
 {
-  SignalSentry fileCloseSentry(actReg_.sPreCloseFile,
-                               actReg_.sPostCloseFile);
+  SignalSentry fileCloseSentry{actReg_.sPreCloseFile, actReg_.sPostCloseFile};
   input_->closeFile();
   FDEBUG(1) << "\tcloseInputFile\n";
 }
 
 void
-art::EventProcessor::openOutputFiles()
+art::EventProcessor::openAllOutputFiles()
 {
-  endPathExecutor_->openOutputFiles(*fb_);
-  FDEBUG(1) << "\topenOutputFiles\n";
+  endPathExecutor_->openAllOutputFiles(*fb_);
+  FDEBUG(1) << "\topenAllOutputFiles\n";
 }
 
 void
-art::EventProcessor::closeOutputFiles()
+art::EventProcessor::closeAllOutputFiles()
 {
-  endPathExecutor_->closeOutputFiles();
-  FDEBUG(1) << "\tcloseOutputFiles\n";
+  endPathExecutor_->closeAllOutputFiles();
+  FDEBUG(1) << "\tcloseAllOutputFiles\n";
+}
+
+void
+art::EventProcessor::openSomeOutputFiles()
+{
+  endPathExecutor_->openSomeOutputFiles(*fb_);
+  FDEBUG(1) << "\topenSomeOutputFiles\n";
+}
+
+void
+art::EventProcessor::closeSomeOutputFiles(std::size_t const b)
+{
+  endPathExecutor_->closeSomeOutputFiles(b);
+  FDEBUG(1) << "\tcloseSomeOutputFiles\n";
 }
 
 void
@@ -623,63 +586,10 @@ art::EventProcessor::respondToCloseOutputFiles()
 }
 
 void
-art::EventProcessor::startingNewLoop()
-{
-  shouldWeStop_ = false;
-  FDEBUG(1) << "\tstartingNewLoop\n";
-}
-
-bool
-art::EventProcessor::endOfLoop()
-{
-  FDEBUG(1) << "\tendOfLoop\n";
-  return true;
-}
-
-void
 art::EventProcessor::rewindInput()
 {
   input_->rewind();
   FDEBUG(1) << "\trewind\n";
-}
-
-void
-art::EventProcessor::prepareForNextLoop()
-{
-  FDEBUG(1) << "\tprepareForNextLoop\n";
-}
-
-void
-art::EventProcessor::writeSubRunCache()
-{
-  while (!principalCache_.noMoreSubRuns()) {
-    auto & lowestSubRun = principalCache_.lowestSubRun();
-    if (!lowestSubRun.id().isFlush()) {
-      endPathExecutor_->writeSubRun(lowestSubRun);
-    }
-    principalCache_.deleteLowestSubRun();
-  }
-  FDEBUG(1) << "\twriteSubRunCache\n";
-}
-
-void
-art::EventProcessor::writeRunCache()
-{
-  while (!principalCache_.noMoreRuns()) {
-    auto & lowestRun = principalCache_.lowestRun();
-    if (!lowestRun.id().isFlush()) {
-      endPathExecutor_->writeRun(lowestRun);
-    }
-    principalCache_.deleteLowestRun();
-  }
-  FDEBUG(1) << "\twriteRunCache\n";
-}
-
-bool
-art::EventProcessor::shouldWeCloseOutput() const
-{
-  FDEBUG(1) << "\tshouldWeCloseOutput\n";
-  return endPathExecutor_->shouldWeCloseOutput();
 }
 
 void
@@ -699,8 +609,7 @@ art::EventProcessor::beginRun(RunID run)
 {
   if (!run.isFlush()) {
     RunPrincipal & runPrincipal = principalCache_.runPrincipal(run);
-    processOneOccurrence_<OccurrenceTraits<RunPrincipal, BranchActionBegin> >
-      (runPrincipal);
+    processOneOccurrence_<OccurrenceTraits<RunPrincipal, BranchActionBegin>>(runPrincipal);
     FDEBUG(1) << "\tbeginRun " << run.run() << "\n";
   }
 }
@@ -710,8 +619,7 @@ art::EventProcessor::endRun(RunID run)
 {
   if (!run.isFlush()) {
     RunPrincipal & runPrincipal = principalCache_.runPrincipal(run);
-    processOneOccurrence_<OccurrenceTraits<RunPrincipal, BranchActionEnd> >
-      (runPrincipal);
+    processOneOccurrence_<OccurrenceTraits<RunPrincipal, BranchActionEnd>>(runPrincipal);
     FDEBUG(1) << "\tendRun " << run.run() << "\n";
   }
 }
@@ -724,8 +632,7 @@ art::EventProcessor::beginSubRun(SubRunID const & sr)
     // is a bad idea subRun blocks know their start and end times why
     // not also start and end events?
     SubRunPrincipal & subRunPrincipal = principalCache_.subRunPrincipal(sr);
-    processOneOccurrence_<OccurrenceTraits<SubRunPrincipal, BranchActionBegin> >
-      (subRunPrincipal);
+    processOneOccurrence_<OccurrenceTraits<SubRunPrincipal, BranchActionBegin>>(subRunPrincipal);
     FDEBUG(1) << "\tbeginSubRun " << sr << "\n";
   }
 }
@@ -738,63 +645,70 @@ art::EventProcessor::endSubRun(SubRunID const & sr)
     // a bad idea subRun blocks know their start and end times why not
     // also start and end events?
     SubRunPrincipal & subRunPrincipal = principalCache_.subRunPrincipal(sr);
-    processOneOccurrence_<OccurrenceTraits<SubRunPrincipal, BranchActionEnd> >
-      (subRunPrincipal);
+    processOneOccurrence_<OccurrenceTraits<SubRunPrincipal, BranchActionEnd>>(subRunPrincipal);
     FDEBUG(1) << "\tendSubRun " << sr << "\n";
   }
 }
 
 art::RunID
+art::EventProcessor::runPrincipalID() const
+{
+  return principalCache_.noMoreRuns() ? art::RunID{} : principalCache_.runPrincipal().id();
+}
+
+art::SubRunID
+art::EventProcessor::subRunPrincipalID() const
+{
+  return principalCache_.noMoreSubRuns() ? art::SubRunID{} : principalCache_.subRunPrincipal().id();
+}
+
+art::EventID
+art::EventProcessor::eventPrincipalID() const
+{
+  return sm_evp_.get() == nullptr ? art::EventID{} : sm_evp_->id();
+}
+
+art::RunID
 art::EventProcessor::readAndCacheRun()
 {
-  SignalSentry runSourceSentry(actReg_.sPreSourceRun,
-                               actReg_.sPostSourceRun);
+  SignalSentry runSourceSentry {actReg_.sPreSourceRun, actReg_.sPostSourceRun};
   principalCache_.insert(input_->readRun());
-  art::DecrepitRelicInputSourceImplementation* DRSI =
-    dynamic_cast<art::DecrepitRelicInputSourceImplementation*>(input_.get());
-  if (DRSI) {
-    auto rps = DRSI->readRunFromSecondaryFiles();
-    for (auto rp : rps) {
-      principalCache_.insert(rp);
-    }
-  }
+  endPathExecutor_->seedRunRangeSet(input_->runRangeSetHandler());
   FDEBUG(1) << "\treadAndCacheRun " << "\n";
-  return principalCache_.runPrincipal().id();
+  return runPrincipalID();
 }
 
 art::SubRunID
 art::EventProcessor::readAndCacheSubRun()
 {
-  SignalSentry subRunSourceSentry(actReg_.sPreSourceSubRun,
-                                  actReg_.sPostSourceSubRun);
+  SignalSentry subRunSourceSentry {actReg_.sPreSourceSubRun, actReg_.sPostSourceSubRun};
   principalCache_.insert(input_->readSubRun(principalCache_.runPrincipalPtr()));
-  art::DecrepitRelicInputSourceImplementation* DRSI =
-    dynamic_cast<art::DecrepitRelicInputSourceImplementation*>(input_.get());
-  if (DRSI) {
-    auto srps = DRSI->readSubRunFromSecondaryFiles(
-                  principalCache_.runPrincipalPtr());
-    for (auto srp : srps) {
-      principalCache_.insert(srp);
-    }
-  }
+  endPathExecutor_->seedSubRunRangeSet(input_->subRunRangeSetHandler());
   FDEBUG(1) << "\treadAndCacheSubRun " << "\n";
-  return principalCache_.subRunPrincipal().id();
+  return subRunPrincipalID();
 }
 
 void
-art::EventProcessor::writeRun(RunID run)
+art::EventProcessor::setRunAuxiliaryRangeSetID(RunID const r)
 {
-  if (!run.isFlush()) {
-    endPathExecutor_->writeRun(principalCache_.runPrincipal(run));
-    FDEBUG(1) << "\twriteRun " << run.run() << "\n";
+  endPathExecutor_->setAuxiliaryRangeSetID(principalCache_.runPrincipal(r));
+  FDEBUG(1) << "\twriteRunAuxiliaryRangeSets " << r.run() << "\n";
+}
+
+void
+art::EventProcessor::writeRun(RunID const r)
+{
+  if (!r.isFlush()) {
+    endPathExecutor_->writeRun(principalCache_.runPrincipal(r));
+    FDEBUG(1) << "\twriteRun " << r.run() << "\n";
   }
 }
 
 void
-art::EventProcessor::deleteRunFromCache(RunID run)
+art::EventProcessor::setSubRunAuxiliaryRangeSetID(SubRunID const & sr)
 {
-  principalCache_.deleteRun(run);
-  FDEBUG(1) << "\tdeleteRunFromCache " << run.run() << "\n";
+  endPathExecutor_->setAuxiliaryRangeSetID(principalCache_.subRunPrincipal(sr));
+  FDEBUG(1) << "\twriteSubRunAuxiliaryRangeSets " << sr.run() << "/" << sr.subRun() << "\n";
 }
 
 void
@@ -807,10 +721,10 @@ art::EventProcessor::writeSubRun(SubRunID const & sr)
 }
 
 void
-art::EventProcessor::deleteSubRunFromCache(SubRunID const & sr)
+art::EventProcessor::clearPrincipalCache()
 {
-  principalCache_.deleteSubRun(sr);
-  FDEBUG(1) << "\tdeleteSubRunFromCache " << sr.run() << "/" << sr.subRun() << "\n";
+  principalCache_.deleteAllPrincipals();
+  FDEBUG(1) << "\tclearPrincipalCache\n";
 }
 
 void
@@ -825,10 +739,43 @@ void
 art::EventProcessor::processEvent()
 {
   if (!sm_evp_->id().isFlush()) {
-    processOneOccurrence_<OccurrenceTraits<EventPrincipal, BranchActionBegin> >
-      (*sm_evp_);
+    processOneOccurrence_<OccurrenceTraits<EventPrincipal, BranchActionBegin>>(*sm_evp_);
     FDEBUG(1) << "\tprocessEvent\n";
   }
+}
+
+void
+art::EventProcessor::writeEvent()
+{
+  EventID const id {sm_evp_->id()};
+  if (!id.isFlush()) {
+    endPathExecutor_->writeEvent(*sm_evp_);
+    FDEBUG(1) << "\twriteEvent " << id.run() << "/" << id.subRun() << "/" << id.event() << "\n";
+  }
+}
+
+void
+art::EventProcessor::recordOutputClosureRequests()
+{
+  endPathExecutor_->recordOutputClosureRequests();
+}
+
+bool
+art::EventProcessor::outputsToCloseAtBoundary(Boundary const b) const
+{
+  return endPathExecutor_->outputsToCloseAtBoundary(b);
+}
+
+bool
+art::EventProcessor::outputsToOpen() const
+{
+  return endPathExecutor_->outputsToOpen();
+}
+
+bool
+art::EventProcessor::someOutputsOpen() const
+{
+  return endPathExecutor_->someOutputsOpen();
 }
 
 bool
@@ -840,19 +787,19 @@ art::EventProcessor::shouldWeStop() const
 }
 
 void
-art::EventProcessor::setExceptionMessageFiles(std::string & message)
+art::EventProcessor::setExceptionMessageFiles(std::string const & message)
 {
   exceptionMessageFiles_ = message;
 }
 
 void
-art::EventProcessor::setExceptionMessageRuns(std::string & message)
+art::EventProcessor::setExceptionMessageRuns(std::string const & message)
 {
   exceptionMessageRuns_ = message;
 }
 
 void
-art::EventProcessor::setExceptionMessageSubRuns(std::string & message)
+art::EventProcessor::setExceptionMessageSubRuns(std::string const & message)
 {
   exceptionMessageSubRuns_ = message;
 }
@@ -892,17 +839,12 @@ art::EventProcessor::servicesDeactivate_()
 void
 art::EventProcessor::terminateMachine_()
 {
-  if (machine_.get() != 0) {
-    if (!machine_->terminated()) {
-      machine_->process_event(statemachine::Stop());
-    }
-    else {
-      FDEBUG(1) << "EventProcess::terminateMachine_: The state machine was already terminated \n";
-    }
-    if (machine_->terminated()) {
-      FDEBUG(1) << "The state machine reports it has been terminated (3)\n";
-    }
-    machine_.reset();
+  assert(machine_);
+  if (!machine_->terminated()) {
+    machine_->process_event(statemachine::Stop());
+  }
+  else {
+    FDEBUG(1) << "EventProcessor::terminateMachine_: The state machine was already terminated \n";
   }
 }
 

@@ -2,16 +2,12 @@
 #define art_test_Framework_EventProcessor_MockEventProcessor_h
 
 /*
-
-
-Version of the Event Processor used for tests of
-the state machine and other tests.
-
-Original Authors: W. David Dagenhart, Marc Paterno
+  Version of the Event Processor used for tests of
+  the state machine and other tests.
 */
 
 #include "art/Framework/Core/IEventProcessor.h"
-#include "art/Framework/EventProcessor/EPStates.h"
+#include "art/Framework/EventProcessor/StateMachine/Machine.h"
 #include <iostream>
 #include <string>
 
@@ -20,33 +16,35 @@ namespace art
   class MockEventProcessor : public IEventProcessor {
   public:
 
-    MockEventProcessor(const std::string& mockData,
+    MockEventProcessor(std::string const& mockData,
                        std::ostream& output,
-                       const statemachine::FileMode& fileMode,
                        bool handleEmptyRuns,
                        bool handleEmptySubRuns);
 
     StatusCode runToCompletion() override;
 
-    void readFile() override;
+    void openInputFile() override;
     void closeInputFile() override;
-    void openOutputFiles() override;
-    void closeOutputFiles() override;
+    void openAllOutputFiles() override;
+    void closeAllOutputFiles() override;
+    void openSomeOutputFiles() override;
+    void closeSomeOutputFiles(std::size_t const) override;
 
     void respondToOpenInputFile() override;
     void respondToCloseInputFile() override;
     void respondToOpenOutputFiles() override;
     void respondToCloseOutputFiles() override;
 
-    void startingNewLoop() override;
-    bool endOfLoop() override;
     void rewindInput() override;
-    void prepareForNextLoop() override;
-    void writeSubRunCache() override;
-    void writeRunCache() override;
-    bool shouldWeCloseOutput() const override;
+    void recordOutputClosureRequests() override {}
+    bool outputsToCloseAtBoundary(Boundary const) const override;
+    bool outputsToOpen() const override;
+    bool someOutputsOpen() const override;
 
     void doErrorStuff() override;
+
+    void beginJob() override;
+    void endJob() override;
 
     void beginRun(RunID run) override;
     void endRun(RunID run) override;
@@ -56,18 +54,23 @@ namespace art
 
     RunID readAndCacheRun() override;
     SubRunID readAndCacheSubRun() override;
+    RunID runPrincipalID() const override;
+    SubRunID subRunPrincipalID() const override;
+    EventID eventPrincipalID() const override;
     void writeRun(RunID run) override;
-    void deleteRunFromCache(RunID run) override;
     void writeSubRun(SubRunID const & sr) override;
-    void deleteSubRunFromCache(SubRunID const & sr) override;
+    void setRunAuxiliaryRangeSetID(RunID run) override;
+    void setSubRunAuxiliaryRangeSetID(SubRunID const & sr) override;
+    void clearPrincipalCache() override;
+    void writeEvent() override;
 
     void readEvent() override;
     void processEvent() override;
     bool shouldWeStop() const override;
 
-    void setExceptionMessageFiles(std::string& message) override;
-    void setExceptionMessageRuns(std::string& message) override;
-    void setExceptionMessageSubRuns(std::string& message) override;
+    void setExceptionMessageFiles(std::string const& message) override;
+    void setExceptionMessageRuns(std::string const& message) override;
+    void setExceptionMessageSubRuns(std::string const& message) override;
 
     bool alreadyHandlingException() const override;
 
@@ -77,15 +80,18 @@ namespace art
   private:
     std::string mockData_;
     std::ostream & output_;
-    statemachine::FileMode fileMode_;
     bool handleEmptyRuns_;
     bool handleEmptySubRuns_;
 
-    SubRunID subRun_;
-
-    bool shouldWeCloseOutput_;
-    bool shouldWeEndLoop_;
-    bool shouldWeStop_;
+    RunID run_ {};
+    RunID readRun_ {};
+    SubRunID subRun_ {};
+    SubRunID readSubRun_ {};
+    EventID event_ {};
+    EventID readEvent_ {};
+    bool outputsToClose_ {false};
+    bool outputsToOpen_ {false};
+    bool shouldWeStop_ {false};
   };
 }
 

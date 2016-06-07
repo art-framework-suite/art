@@ -3,6 +3,8 @@
 #include "art/Framework/Art/BasicOptionsHandler.h"
 #include "art/Framework/Art/BasicPostProcessor.h"
 #include "art/Framework/Art/InitRootHandlers.h"
+#include "art/Framework/Art/detail/bold_fontify.h"
+#include "art/Framework/Art/detail/handle_deprecated_configs.h"
 #include "art/Framework/EventProcessor/EventProcessor.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/Registry/ServiceRegistry.h"
@@ -31,6 +33,7 @@
 #include <vector>
 
 namespace bpo = boost::program_options;
+using art::detail::bold_fontify;
 
 // -----------------------------------------------
 namespace {
@@ -43,50 +46,6 @@ namespace {
     }
   };
 
-  class EventProcessorWithSentry {
-  public:
-    explicit EventProcessorWithSentry() : ep_(), callEndJob_(false) { }
-    explicit EventProcessorWithSentry(std::unique_ptr<art::EventProcessor> && ep) :
-      ep_(std::move(ep)),
-      callEndJob_(false) { }
-    EventProcessorWithSentry(EventProcessorWithSentry &&) = default;
-    EventProcessorWithSentry &
-    operator =(EventProcessorWithSentry &&) & = default;
-
-    ~EventProcessorWithSentry() {
-      if (callEndJob_ && ep_.get()) {
-        try {
-          ep_->endJob();
-        }
-        catch (cet::exception & e) {
-          //art::printArtException(e, kProgramName);
-        }
-        catch (std::bad_alloc & e) {
-          //art::printBadAllocException(kProgramName);
-        }
-        catch (std::exception & e) {
-          //art::printStdException(e, kProgramName);
-        }
-        catch (...) {
-          //art::printUnknownException(kProgramName);
-        }
-      }
-    }
-    void on() {
-      callEndJob_ = true;
-    }
-    void off() {
-      callEndJob_ = false;
-    }
-
-    art::EventProcessor * operator->() {
-      return ep_.get();
-    }
-  private:
-    std::unique_ptr<art::EventProcessor> ep_;
-    bool callEndJob_;
-  }; // EventProcessorWithSentry
-
 } // namespace
 
 int art::run_art(int argc,
@@ -97,15 +56,14 @@ int art::run_art(int argc,
                  art::detail::DebugOutput && dbg)
 {
   std::ostringstream descstr;
-  descstr << "Usage: "
+  descstr << '\n' << bold_fontify("Usage") << ": "
           << boost::filesystem::path(argv[0]).filename().native()
           << " <-c <config-file>> <other-options> [<source-file>]+\n\n"
-          << "Allowed options";
-  bpo::options_description all_desc(descstr.str());
+          << bold_fontify("Basic options");
+  bpo::options_description all_desc {descstr.str()};
   all_desc.add(in_desc);
   // BasicOptionsHandler should always be first in the list!
-  handlers.emplace(handlers.begin(),
-                   new BasicOptionsHandler(all_desc, lookupPolicy));
+  handlers.emplace(handlers.begin(), new BasicOptionsHandler(all_desc, lookupPolicy));
   // BasicPostProcessor should be last.
   handlers.emplace_back(new BasicPostProcessor);
   // This must be added separately: how to deal with any non-option arguments.
@@ -139,6 +97,15 @@ int art::run_art(int argc,
       return result;
     }
   }
+  // Handle deprecated configurations
+  try {
+    detail::handle_deprecated_configs(raw_config);
+  }
+  catch(art::Exception const& e) {
+    std::cerr << e.what();
+    return 89;
+  }
+
   //
   // Make the parameter set from the intermediate table:
   //
@@ -174,7 +141,7 @@ int art::run_art(int argc,
   return run_art_common_(main_pset, std::move(dbg));
 }
 
-int art::run_art_string_config(const std::string& config_string)
+int art::run_art_string_config(std::string const& config_string)
 {
   //
   // Make the parameter set from the configuration string:
@@ -219,7 +186,7 @@ int art::run_art_string_config(const std::string& config_string)
   return run_art_common_(main_pset, art::detail::DebugOutput{});
 }
 
-int art::run_art_common_(fhicl::ParameterSet main_pset, art::detail::DebugOutput debug)
+int art::run_art_common_(fhicl::ParameterSet const& main_pset, art::detail::DebugOutput debug)
 {
   auto const & services_pset  = main_pset.get<fhicl::ParameterSet>("services",{});
   auto const & scheduler_pset = services_pset.get<fhicl::ParameterSet>("scheduler",{});
@@ -274,46 +241,36 @@ int art::run_art_common_(fhicl::ParameterSet main_pset, art::detail::DebugOutput
   // most of them. Have to see how the module factory interacts
   // with the current module facility.
   // processDesc->addServices(defaultServices, forcedServices);
-  //
-  // Now create the EventProcessor
-  //
-  EventProcessorWithSentry proc;
-  int rc = 0;
+  int rc {0};
   try {
-    auto procP = std::make_unique<art::EventProcessor>(main_pset);
-    EventProcessorWithSentry procTmp(std::move(procP));
-    proc = std::move(procTmp);
-    proc->beginJob();
-    proc.on();
-    if (proc->runToCompletion() == EventProcessor::epSignal) {
+    EventProcessor ep {main_pset};
+    if (ep.runToCompletion() == EventProcessor::epSignal) {
       std::cerr << "Art has handled signal "
                 << art::shutdown_flag
                 << ".\n";
       if ( scheduler_pset.get<bool>("errorOnSIGINT") )
         rc = 128 + art::shutdown_flag;
     }
-    proc.off();
-    proc->endJob();
   }
-  catch (art::Exception & e) {
+  catch (art::Exception const& e) {
     rc = e.returnCode();
-    art::printArtException(e, "art"); // , "Thing1", rc);
+    art::printArtException(e, "art");
   }
-  catch (cet::exception & e) {
+  catch (cet::exception const& e) {
     rc = 65;
-    art::printArtException(e, "art"); // , "Thing2", rc);
+    art::printArtException(e, "art");
   }
-  catch (std::bad_alloc & bda) {
+  catch (std::bad_alloc const& bda) {
     rc = 68;
-    art::printBadAllocException("art"); // , "Thing3", rc);
+    art::printBadAllocException("art");
   }
-  catch (std::exception & e) {
+  catch (std::exception const& e) {
     rc = 66;
-    art::printStdException(e, "art"); // , "Thing4", rc);
+    art::printStdException(e, "art");
   }
   catch (...) {
     rc = 67;
-    art::printUnknownException("art"); // , "Thing5", rc);
+    art::printUnknownException("art");
   }
   return rc;
 }

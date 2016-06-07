@@ -6,3 +6,4 @@ services.user.RandomNumberGenerator: {}
 
 physics.end_paths: [ ]
 physics.filters.mixFilter.testEventOrdering: true
+physics.filters.mixFilter.expectedRespondFunctionCalls: 2

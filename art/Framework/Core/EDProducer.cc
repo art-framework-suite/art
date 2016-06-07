@@ -4,7 +4,9 @@
 #include "art/Framework/Core/detail/get_failureToPut_flag.h"
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Principal/Run.h"
+#include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRun.h"
+#include "art/Framework/Principal/SubRunPrincipal.h"
 #include "canvas/Utilities/Exception.h"
 #include "cetlib/demangle.h"
 #include "fhiclcpp/ParameterSetRegistry.h"
@@ -12,20 +14,12 @@
 namespace art
 {
 
-  EDProducer::EDProducer()
-    : ProducerBase()
-    , EngineCreator()
-    , moduleDescription_()
-    , current_context_{nullptr}
-    , checkPutProducts_{true}
-  {}
-
   bool
   EDProducer::doEvent(EventPrincipal& ep,
-                      CurrentProcessingContext const* cpc) {
-    detail::CPCSentry sentry(current_context_, cpc);
-    Event e(ep, moduleDescription_);
-    this->produce(e);
+                      CPC_exempt_ptr cpc) {
+    detail::CPCSentry sentry {current_context_, cpc};
+    Event e {ep, moduleDescription_};
+    produce(e);
     e.commit_(checkPutProducts_, expectedProducts());
     return true;
   }
@@ -35,12 +29,12 @@ namespace art
     // 'checkPutProducts_' cannot be set during the c'tor
     // initialization list since 'moduleDescription_' is empty there.
     checkPutProducts_ = detail::get_failureToPut_flag( moduleDescription_ );
-    this->beginJob();
+    beginJob();
   }
 
   void
   EDProducer::doEndJob() {
-    this->endJob();
+    endJob();
   }
 
   void
@@ -53,40 +47,40 @@ namespace art
 
   bool
   EDProducer::doBeginRun(RunPrincipal & rp,
-                         CurrentProcessingContext const* cpc) {
-    detail::CPCSentry sentry(current_context_, cpc);
-    Run r(rp, moduleDescription_);
-    this->beginRun(r);
+                         CPC_exempt_ptr cpc) {
+    detail::CPCSentry sentry {current_context_, cpc};
+    Run r {rp, moduleDescription_, RangeSet::forRun(rp.id())};
+    beginRun(r);
     r.commit_();
     return true;
   }
 
   bool
   EDProducer::doEndRun(RunPrincipal & rp,
-                       CurrentProcessingContext const* cpc) {
-    detail::CPCSentry sentry(current_context_, cpc);
-    Run r(rp, moduleDescription_);
-    this->endRun(r);
+                       CPC_exempt_ptr cpc) {
+    detail::CPCSentry sentry {current_context_, cpc};
+    Run r {rp, moduleDescription_, rp.seenRanges()};
+    endRun(r);
     r.commit_();
     return true;
   }
 
   bool
   EDProducer::doBeginSubRun(SubRunPrincipal & srp,
-                            CurrentProcessingContext const* cpc) {
-    detail::CPCSentry sentry(current_context_, cpc);
-    SubRun sr(srp, moduleDescription_);
-    this->beginSubRun(sr);
+                            CPC_exempt_ptr cpc) {
+    detail::CPCSentry sentry {current_context_, cpc};
+    SubRun sr {srp, moduleDescription_, RangeSet::forSubRun(srp.id())};
+    beginSubRun(sr);
     sr.commit_();
     return true;
   }
 
   bool
   EDProducer::doEndSubRun(SubRunPrincipal & srp,
-                          CurrentProcessingContext const* cpc) {
-    detail::CPCSentry sentry(current_context_, cpc);
-    SubRun sr(srp, moduleDescription_);
-    this->endSubRun(sr);
+                          CPC_exempt_ptr cpc) {
+    detail::CPCSentry sentry {current_context_, cpc};
+    SubRun sr {srp, moduleDescription_, srp.seenRanges()};
+    endSubRun(sr);
     sr.commit_();
     return true;
   }
@@ -111,9 +105,21 @@ namespace art
     respondToCloseOutputFiles(fb);
   }
 
+  void
+  EDProducer::doRespondToOpenOutputFile()
+  {
+    respondToOpenOutputFile();
+  }
+
+  void
+  EDProducer::doRespondToCloseOutputFile()
+  {
+    respondToCloseOutputFile();
+  }
+
   CurrentProcessingContext const*
   EDProducer::currentContext() const {
-    return current_context_;
+    return current_context_.get();
   }
 
 }  // art

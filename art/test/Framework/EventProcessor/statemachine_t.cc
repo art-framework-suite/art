@@ -1,12 +1,9 @@
-/*----------------------------------------------------------------------
+/*
+   -------------------------------------------------------------------
+   Test of the statemachine classes.
+   -------------------------------------------------------------------
+*/
 
-Test of the statemachine classes.
-
-
-
-----------------------------------------------------------------------*/
-
-#include "art/Framework/EventProcessor/EPStates.h"
 #include "art/Framework/Core/IEventProcessor.h"
 #include "art/test/Framework/EventProcessor/MockEventProcessor.h"
 
@@ -24,15 +21,6 @@ namespace {
     bool runs;
     bool subruns;
   };
-
-  ostream& operator<<(ostream& os, FileMode const fileMode)
-  {
-    if (fileMode == NOMERGE) os << "NOMERGE";
-    else if (fileMode == MERGE) os << "MERGE";
-    else if (fileMode == FULLLUMIMERGE) os << "FULLLUMIMERGE";
-    else os << "FULLMERGE";
-    return os;
-  }
 }
 
 int main(int argc, char* argv[]) {
@@ -45,9 +33,7 @@ int main(int argc, char* argv[]) {
   desc.add_options()
     ("help,h", "produce help message")
     ("inputFile,i", boost::program_options::value<string>(&inputFile))
-    ("outputFile,o", boost::program_options::value<string>(&outputFile))
-    ("skipmode,m", "NOMERGE, FULLLUMIMERGE and FULLMERGE only")
-    ("skipmodes,s", "NOMERGE and FULLMERGE only");
+    ("outputFile,o", boost::program_options::value<string>(&outputFile));
   boost::program_options::variables_map vm;
   boost::program_options::store(boost::program_options::parse_command_line(argc, argv, desc), vm);
   boost::program_options::notify(vm);
@@ -70,37 +56,22 @@ int main(int argc, char* argv[]) {
 
   ofstream output{outputFile.c_str()};
 
-  vector<FileMode> fileModes;
-  fileModes.reserve(4);
-  fileModes.push_back(NOMERGE);
-  if (!vm.count("skipmode") && !vm.count("skipmodes")) {
-    fileModes.push_back(MERGE);
-  }
-  if (!vm.count("skipmodes")) {
-    fileModes.push_back(FULLLUMIMERGE);
-  }
-  fileModes.push_back(FULLMERGE);
+  vector<HandleEmpty> const handleEmptyRunsSubruns = { {false, false},
+                                                       {false, true },
+                                                       {true,  false},
+                                                       {true,  true } };
 
-                                                     // Runs   Subruns
-  vector<HandleEmpty> const handleEmptyRunsSubruns = { {false, false   },
-                                                       {false, true    },
-                                                       {true,  false   },
-                                                       {true,  true    } };
+  for (auto handleEmpty : handleEmptyRunsSubruns) {
+    output << "Machine parameters:"
+           << "  handleEmptyRuns = " << handleEmpty.runs
+           << "  handleEmptySubRuns = " << handleEmpty.subruns << '\n';
 
-  for (auto fileMode : fileModes) {
-    for (auto handleEmpty : handleEmptyRunsSubruns ) {
-      output << "\nMachine parameters:"
-             << "  mode = " << fileMode
-             << "  handleEmptyRuns = " << handleEmpty.runs
-             << "  handleEmptySubRuns = " << handleEmpty.subruns << '\n';
-
-      art::MockEventProcessor mockEventProcessor(mockData,
-                                                 output,
-                                                 fileMode,
-                                                 handleEmpty.runs,
-                                                 handleEmpty.subruns);
-      mockEventProcessor.runToCompletion();
-    }
+    art::MockEventProcessor mockEventProcessor{mockData,
+                                               output,
+                                               handleEmpty.runs,
+                                               handleEmpty.subruns};
+    mockEventProcessor.runToCompletion();
+    output << '\n';
   }
 
 

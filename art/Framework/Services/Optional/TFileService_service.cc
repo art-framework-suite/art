@@ -40,6 +40,7 @@ TFileService::TFileService(ServiceTable<Config> const & config,
 {
   assert(file_ == nullptr && "TFile pointer should always be zero here!");
   file_ = new TFile(uniqueFilename_.c_str(), "RECREATE");
+  fstats_.recordFileOpen();
   // Activities to monitor in order to set the proper directory.
   r.sPreModuleRespondToOpenInputFile.watch   (this, &TFileService::setDirectoryName);
   r.sPreModuleRespondToCloseInputFile.watch  (this, &TFileService::setDirectoryName);
@@ -67,6 +68,7 @@ TFileService::~TFileService()
     gROOT->GetListOfFiles()->Remove(file_);
   file_->Close();
   delete file_;
+  fstats_.recordFileClose();
   PostCloseFileRenamer(fstats_).maybeRenameFile(uniqueFilename_,
                                                 filePattern_);
 }

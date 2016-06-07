@@ -10,6 +10,7 @@
 //
 
 #include "canvas/Persistency/Common/EDProduct.h"
+#include "canvas/Persistency/Provenance/BranchID.h"
 #include "art/Utilities/fwd.h"
 #include "cetlib/exempt_ptr.h"
 
@@ -17,60 +18,55 @@
 
 namespace art {
 
-class BranchKey;
-class EDProductGetterFinder;
-class DelayedReader;
+  class BranchID;
+  class BranchKey;
+  class EDProductGetterFinder;
+  class ProductRangeSetLookup;
+  class RangeSet;
 
-class DelayedReader {
+  class DelayedReader {
 
-public:
+  public:
 
-  virtual
-  ~DelayedReader();
+    virtual ~DelayedReader();
 
-  std::unique_ptr<EDProduct>
-  getProduct(BranchKey const& k, TypeID const& wrapper_type) const
-  {
-    return getProduct_(k, wrapper_type);
-  }
+    std::unique_ptr<EDProduct>
+    getProduct(BranchKey const& k,
+               TypeID const& wrapper_type,
+               RangeSet& rs) const
+    {
+      return getProduct_(k, wrapper_type, rs);
+    }
 
-  void
-  setGroupFinder(cet::exempt_ptr<EDProductGetterFinder const> ep)
-  {
-    setGroupFinder_(ep);
-  }
+    void
+    setGroupFinder(cet::exempt_ptr<EDProductGetterFinder const> ep)
+    {
+      setGroupFinder_(ep);
+    }
 
-  void
-  mergeReaders(std::shared_ptr<DelayedReader> other)
-  {
-    mergeReaders_(other);
-  }
+    int
+    openNextSecondaryFile(int idx)
+    {
+      return openNextSecondaryFile_(idx);
+    }
 
-  int
-  openNextSecondaryFile(int idx)
-  {
-    return openNextSecondaryFile_(idx);
-  }
+  private:
 
-private:
+    virtual
+    std::unique_ptr<EDProduct>
+    getProduct_(BranchKey const&,
+                TypeID const&,
+                RangeSet&) const = 0;
 
-  virtual
-  std::unique_ptr<EDProduct>
-  getProduct_(BranchKey const& k, TypeID const& wrapper_type) const = 0;
+    virtual
+    void
+    setGroupFinder_(cet::exempt_ptr<EDProductGetterFinder const>);
 
-  virtual
-  void
-  setGroupFinder_(cet::exempt_ptr<EDProductGetterFinder const>);
+    virtual
+    int
+    openNextSecondaryFile_(int idx);
 
-  virtual
-  void
-  mergeReaders_(std::shared_ptr<DelayedReader>);
-
-  virtual
-  int
-  openNextSecondaryFile_(int idx);
-
-};
+  };
 
 } // namespace art
 

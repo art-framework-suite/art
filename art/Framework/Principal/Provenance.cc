@@ -15,13 +15,14 @@
 #include "fhiclcpp/ParameterSetRegistry.h"
 
 fhicl::ParameterSet const &
-art::Provenance::parameterSet() const {
-  return
-    fhicl::ParameterSetRegistry::get(*psetIDs().begin());
+art::Provenance::parameterSet() const
+{
+  return fhicl::ParameterSetRegistry::get(*psetIDs().begin());
 }
 
 std::ostream &
-art::Provenance::write(std::ostream& os) const {
+art::Provenance::write(std::ostream& os) const
+{
   // This is grossly inadequate, but it is not critical for the
   // first pass.
   productDescription().write(os);

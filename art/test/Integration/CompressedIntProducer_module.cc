@@ -63,9 +63,6 @@ public:
 
 private:
 
-  template <typename PUTTER>
-  void put(PUTTER & p);
-
   int value_;
   art::BranchType branchType_;
 
@@ -75,28 +72,24 @@ void
 CompressedIntProducer::produce( art::Event& e )
 {
   std::cerr << "Holy cow, CompressedIntProducer::produce is running!\n";
-  if (branchType_ == art::InEvent) put(e);
+  if (branchType_ == art::InEvent)
+    e.put(std::make_unique<CompressedIntProduct>(value_));
 }
 
 void
-CompressedIntProducer::endSubRun( art::SubRun& sr )
+CompressedIntProducer::endSubRun(art::SubRun& sr)
 {
   std::cerr << "Holy cow, CompressedIntProducer::endSubRun is running!\n";
-  if (branchType_ == art::InSubRun) put(sr);
+  if (branchType_ == art::InSubRun)
+    sr.put(std::make_unique<CompressedIntProduct>(value_), art::subRunFragment());
 }
 
 void
-CompressedIntProducer::endRun( art::Run& r )
+CompressedIntProducer::endRun(art::Run& r)
 {
   std::cerr << "Holy cow, CompressedIntProducer::endRun is running!\n";
-  if (branchType_ == art::InRun) put(r);
-}
-
-template <typename PUTTER>
-void
-CompressedIntProducer::put(PUTTER & p) {
-  p.put(std::make_unique<CompressedIntProduct>(value_));
+  if (branchType_ == art::InRun)
+    r.put(std::make_unique<CompressedIntProduct>(value_), art::runFragment());
 }
 
 DEFINE_ART_MODULE(CompressedIntProducer)
-

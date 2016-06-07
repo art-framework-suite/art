@@ -7,21 +7,19 @@ namespace arttest {
   class HMLargeData;
 }
 
-#ifndef __GCCXML__
 #include <cstddef>
 namespace arttest {
   constexpr unsigned short N_BLOCKS = 28;
 }
-#endif
 
 class arttest::HMLargeData {
 public:
   HMLargeData & operator += (HMLargeData const & other);
-#ifndef __GCCXML__
   static constexpr size_t size();
   float * data();
   float const * data() const;
-#endif
+
+  void aggregate(HMLargeData const& other);
 
 private:
   static const int data_size_ = 32 * 12 * 32 * 100 * 3 * 5;
@@ -29,7 +27,6 @@ private:
   // float data_[data_size_];
 };
 
-#ifndef __GCCXML__
 
 #include <iterator>
 
@@ -45,6 +42,12 @@ operator += (HMLargeData const & other)
     *i += *o;
   }
   return *this;
+}
+
+void
+arttest::HMLargeData::aggregate(HMLargeData const& other)
+{
+  (void)operator+=(other);
 }
 
 constexpr size_t
@@ -72,7 +75,6 @@ data() const
   return data_.data();
 }
 
-#endif /* __GCCXML__ */
 
 #endif /* art_test_Integration_high_memory_HMLargeData_h */
 

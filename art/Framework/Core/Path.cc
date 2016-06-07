@@ -12,19 +12,15 @@ using namespace std;
 
 
 namespace art {
-  Path::Path(int bitpos, string const& path_name,
+
+  Path::Path(int const bitpos,
+             string const& path_name,
              WorkersInPath workers,
              TrigResPtr pathResults,
              ParameterSet const&,
              ActionTable& actions,
-             ActivityRegistry & areg,
-             bool isEndPath):
-    stopwatch_(new RunStopwatch::StopwatchPointer::element_type),
-    timesRun_(),
-    timesPassed_(),
-    timesFailed_(),
-    timesExcept_(),
-    state_(art::hlt::Ready),
+             ActivityRegistry& areg,
+             bool const isEndPath):
     bitpos_(bitpos),
     name_(path_name),
     trptr_(std::move(pathResults)),

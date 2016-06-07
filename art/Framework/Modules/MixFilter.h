@@ -103,7 +103,7 @@ namespace art {
     };
 
     template <typename T> struct do_call_old_startEvent {
-  public:
+    public:
       void operator()(T & t) {
         static bool need_warning = true;
         if (need_warning) {
@@ -125,9 +125,9 @@ namespace art {
     public:
       do_not_call_startEvent(Event const &) { }
       void operator()(T & t) {
-        typename std::conditional<has_old_startEvent<T>::value,
-          do_call_old_startEvent<T>,
-          do_not_call_old_startEvent<T> >::type maybe_call_old_startEvent;
+        std::conditional_t<has_old_startEvent<T>::value,
+                           do_call_old_startEvent<T>,
+                           do_not_call_old_startEvent<T> > maybe_call_old_startEvent;
         maybe_call_old_startEvent(t);
       }
     private:
@@ -382,8 +382,8 @@ art::MixFilter<T>::MixFilter(fhicl::ParameterSet const & p)
   // initEngine() function returns a ParameterSet simply so that it may
   // be called in this place without having to resort to comma-separated
   // bundles to do the job.
-  typename std::conditional<detail::has_eventsToSkip<T>::value, detail::setup_eventsToSkip<T>, detail::do_not_setup_eventsToSkip<T> >::type
-  maybe_setup_skipper(helper_, detail_);
+  std::conditional_t<detail::has_eventsToSkip<T>::value, detail::setup_eventsToSkip<T>, detail::do_not_setup_eventsToSkip<T> >
+    maybe_setup_skipper(helper_, detail_);
 }
 
 template <class T>
@@ -396,9 +396,9 @@ template <class T>
 void
 art::MixFilter<T>::respondToOpenInputFile(FileBlock const & fb)
 {
-  typename std::conditional<detail::has_respondToOpenInputFile<T>::value,
-                            detail::call_respondToOpenInputFile<T>,
-                            detail::do_not_call_respondToXXX<T>>::type
+  std::conditional_t<detail::has_respondToOpenInputFile<T>::value,
+                     detail::call_respondToOpenInputFile<T>,
+                     detail::do_not_call_respondToXXX<T>>
     (detail_, fb);
 }
 
@@ -406,9 +406,9 @@ template <class T>
 void
 art::MixFilter<T>::respondToCloseInputFile(FileBlock const & fb)
 {
-  typename std::conditional<detail::has_respondToCloseInputFile<T>::value,
-                            detail::call_respondToCloseInputFile<T>,
-                            detail::do_not_call_respondToXXX<T>>::type
+  std::conditional_t<detail::has_respondToCloseInputFile<T>::value,
+                     detail::call_respondToCloseInputFile<T>,
+                     detail::do_not_call_respondToXXX<T>>
     (detail_, fb);
 }
 
@@ -416,9 +416,9 @@ template <class T>
 void
 art::MixFilter<T>::respondToOpenOutputFiles(FileBlock const & fb)
 {
-  typename std::conditional<detail::has_respondToOpenOutputFiles<T>::value,
-                            detail::call_respondToOpenOutputFiles<T>,
-                            detail::do_not_call_respondToXXX<T>>::type
+  std::conditional_t<detail::has_respondToOpenOutputFiles<T>::value,
+                     detail::call_respondToOpenOutputFiles<T>,
+                     detail::do_not_call_respondToXXX<T>>
     (detail_, fb);
 }
 
@@ -426,9 +426,9 @@ template <class T>
 void
 art::MixFilter<T>::respondToCloseOutputFiles(FileBlock const & fb)
 {
-  typename std::conditional <detail::has_respondToCloseOutputFiles<T>::value,
-                             detail::call_respondToCloseOutputFiles<T>,
-                             detail::do_not_call_respondToXXX<T>>::type
+  std::conditional_t <detail::has_respondToCloseOutputFiles<T>::value,
+                      detail::call_respondToCloseOutputFiles<T>,
+                      detail::do_not_call_respondToXXX<T>>
     (detail_, fb);
 }
 
@@ -437,9 +437,9 @@ bool
 art::MixFilter<T>::filter(art::Event & e)
 {
   // 1. Call detail object's startEvent() if it exists.
-  typename std::conditional < detail::has_startEvent<T>::value,
-           detail::call_startEvent<T>,
-           detail::do_not_call_startEvent<T> >::type maybe_call_startEvent(e);
+  std::conditional_t < detail::has_startEvent<T>::value,
+                       detail::call_startEvent<T>,
+                       detail::do_not_call_startEvent<T> > maybe_call_startEvent(e);
   maybe_call_startEvent(detail_);
   // 2. Ask detail object how many events to read.
   size_t nSecondaries = detail_.nSecondaries();
@@ -450,21 +450,21 @@ art::MixFilter<T>::filter(art::Event & e)
   eIDseq.reserve(nSecondaries);
   if (!helper_.generateEventSequence(nSecondaries, enSeq, eIDseq)) {
     throw Exception(errors::FileReadError)
-        << "Insufficient secondary events available to mix.\n";
+      << "Insufficient secondary events available to mix.\n";
   }
   // 4. Give the event ID sequence to the detail object.
-  typename std::conditional < detail::has_processEventIDs<T>::value,
-           detail::call_processEventIDs<T>,
-           detail::do_not_call_processEventIDs<T> >::type maybe_call_processEventIDs;
+  std::conditional_t < detail::has_processEventIDs<T>::value,
+                       detail::call_processEventIDs<T>,
+                       detail::do_not_call_processEventIDs<T> > maybe_call_processEventIDs;
   maybe_call_processEventIDs(detail_, eIDseq);
   // 5. Make the MixHelper read info into all the products, invoke the
   // mix functions and put the products into the event.
   helper_.mixAndPut(enSeq, e);
   // 6. Call detail object's finalizeEvent() if it exists.
-  typename std::conditional < detail::has_finalizeEvent<T>::value,
-           detail::call_finalizeEvent<T>,
-           detail::do_not_call_finalizeEvent<T> >::type
-           maybe_call_finalizeEvent;
+  std::conditional_t < detail::has_finalizeEvent<T>::value,
+                       detail::call_finalizeEvent<T>,
+                       detail::do_not_call_finalizeEvent<T> >
+    maybe_call_finalizeEvent;
   maybe_call_finalizeEvent(detail_, e);
   return true;
 }

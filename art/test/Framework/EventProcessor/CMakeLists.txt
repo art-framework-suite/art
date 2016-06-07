@@ -27,17 +27,11 @@ macro(statemachine_test i)
     )
 endmacro()
 
-# Multiple invocations of Statemachine_t.sh. We could do a couple of
-# foreach clauses but then the tests would be out of order.
-statemachine_test(01)
-statemachine_test(02)
-statemachine_test(03 -s)
-statemachine_test(04 -s)
-statemachine_test(05)
-statemachine_test(06)
-statemachine_test(07)
-statemachine_test(08)
-statemachine_test(09)
-statemachine_test(10)
-statemachine_test(11)
-statemachine_test(12 -m)
+# Multiple invocations of Statemachine_t.sh.
+foreach(i RANGE 1 12)
+  execute_process(COMMAND printf "%02d" ${i}
+    OUTPUT_VARIABLE j
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
+  statemachine_test(${j})
+endforeach()

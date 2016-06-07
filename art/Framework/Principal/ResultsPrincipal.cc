@@ -69,14 +69,19 @@ void
 art::ResultsPrincipal::
 addGroup(BranchDescription const& bd)
 {
-  addOrReplaceGroup(gfactory::make_group(bd, ProductID()));
+  addOrReplaceGroup(gfactory::make_group(bd,
+                                         ProductID{},
+                                         RangeSet::invalid()));
 }
 
 void
 art::ResultsPrincipal::
 addGroup(std::unique_ptr<EDProduct>&& prod, BranchDescription const& bd)
 {
-  addOrReplaceGroup(gfactory::make_group(std::move(prod), bd, ProductID()));
+  addOrReplaceGroup(gfactory::make_group(std::move(prod),
+                                         bd,
+                                         ProductID{},
+                                         RangeSet::invalid()));
 }
 
 void

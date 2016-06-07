@@ -51,7 +51,7 @@ namespace art {
 
     std::vector<std::string> const& fileSources() const { return fileSources_; }
 
-    static const size_t indexEnd;
+    static constexpr size_t indexEnd {std::numeric_limits<size_t>::max()};
 
   private:
     bool retrieveNextFile(FileCatalogItem & item, int attempts, bool transferOnly = false);
@@ -59,13 +59,13 @@ namespace art {
     FileCatalogStatus transferNextFile(FileCatalogItem & item);
 
     std::vector<std::string> fileSources_;
-    std::vector<FileCatalogItem> fileCatalogItems_;
-    FileCatalogItem nextItem_;
-    size_t fileIdx_;
-    size_t maxIdx_;
-    bool searchable_;
-    bool nextFileProbed_;
-    bool hasNextFile_;
+    std::vector<FileCatalogItem> fileCatalogItems_ {{}}; // seed with one item
+    FileCatalogItem nextItem_ {};
+    size_t fileIdx_ {indexEnd};
+    size_t maxIdx_ {};
+    bool searchable_ {false}; // update value after the service gets configured
+    bool nextFileProbed_ {false};
+    bool hasNextFile_ {false};
 
     ServiceHandle<CatalogInterface> ci_;
     ServiceHandle<FileTransfer> ft_;

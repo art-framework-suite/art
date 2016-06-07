@@ -4,12 +4,18 @@
    module_type                         Type        Source location
 <separator (-)>
    AddIntsProducer                     producer    <path>/AddIntsProducer_module.cc
+   AssembleMoreProducts                producer    <path>/AssembleMoreProducts_module.cc
+   AssembleMoreProductsRobust          producer    <path>/AssembleMoreProductsRobust_module.cc
+   AssembleProducts                    producer    <path>/AssembleProducts_module.cc
    AssnsAnalyzer                       analyzer    <path>/AssnsAnalyzer_module.cc
    AssnsProducer                       producer    <path>/AssnsProducer_module.cc
    BadAssnsProducer                    producer    <path>/BadAssnsProducer_module.cc
    BareStringAnalyzer                  analyzer    <path>/BareStringAnalyzer_module.cc
    BareStringProducer                  producer    <path>/BareStringProducer_module.cc
+   BigProductProducer                  producer    <path>/BigProductProducer_module.cc
    BlockingPrescaler                   filter      <path>/BlockingPrescaler_module.cc
+   CheckMoreProducts                   analyzer    <path>/CheckMoreProducts_module.cc
+   CheckProducts                       analyzer    <path>/CheckProducts_module.cc
    CompressedIntProducer               producer    <path>/CompressedIntProducer_module.cc
    CompressedIntTestAnalyzer           analyzer    <path>/CompressedIntTestAnalyzer_module.cc
    DeferredIsReadyWithAssnsAnalyzer    analyzer    <path>/DeferredIsReadyWithAssnsAnalyzer_module.cc
@@ -22,7 +28,7 @@
    ESPrimaryProducer                   producer    <path>/ESPrimaryProducer_module.cc
    ESSecondaryProducer                 producer    <path>/ESSecondaryProducer_module.cc
    EmptyPSetRegistryChecker            analyzer    <path>/EmptyPSetRegistryChecker_module.cc
-   EventIDPrinter                      analyzer    <path>/EventIDPrinter_module.cc
+   EventGenerator                      producer    <path>/EventGenerator_module.cc
    FailEverything                      filter      <path>/FailEverything_module.cc
    FailingAnalyzer                     analyzer    <path>/FailingAnalyzer_module.cc
    FailingProducer                     producer    <path>/FailingProducer_module.cc
@@ -33,6 +39,8 @@
    FlushingGeneratorTestFilter         filter      <path>/FlushingGeneratorTestFilter_module.cc
    HMRunProdProducer                   producer    <path>/HMRunProdProducer_module.cc
    HMSubRunProdProducer                producer    <path>/HMSubRunProdProducer_module.cc
+   ImplicitRSAssignmentAnalyzer        analyzer    <path>/ImplicitRSAssignmentAnalyzer_module.cc
+   ImplicitRSAssignmentProducer        producer    <path>/ImplicitRSAssignmentProducer_module.cc
    InputProducer                       producer    <path>/InputProducer_module.cc
 ***InputProducerNoEvents               producer    <path>/InputProducerNoEvents_module.cc
 ***InputProducerNoEvents               producer    <path>/InputProducerNoEvents_module.cc
@@ -56,6 +64,7 @@
    PMTestOutput                        output      <path>/PMTestOutput_module.cc
    PMTestProducer                      producer    <path>/PMTestProducer_module.cc
    PSTestAnalyzer                      analyzer    <path>/PSTestAnalyzer_module.cc
+   ParticleSimulator                   producer    <path>/ParticleSimulator_module.cc
    PassEverything                      filter      <path>/PassEverything_module.cc
    PausingAnalyzer                     analyzer    <path>/PausingAnalyzer_module.cc
    Prescaler                           filter      <path>/Prescaler_module.cc
@@ -72,6 +81,7 @@
    RandomNumberSaveTest                filter      <path>/RandomNumberSaveTest_module.cc
    RandomNumberSaver                   producer    <path>/RandomNumberSaver_module.cc
    Reconfiguring                       analyzer    <path>/Reconfiguring_module.cc
+   Reconstruction                      filter      <path>/Reconstruction_module.cc
    RootOutput                          output      <path>/RootOutput_module.cc
    RunSubRunProductProducerNoPut       producer    <path>/RunSubRunProductProducerNoPut_module.cc
    S                                   producer    <path>/U_S_module.cc
@@ -83,6 +93,7 @@
    TestAnalyzerSelect                  analyzer    <path>/TestAnalyzerSelect_module.cc
    TestBitsOutput                      output      <path>/TestBitsOutput_module.cc
    TestFilter                          filter      <path>/TestFilter_module.cc
+   TestFilterSpecificEvents            filter      <path>/TestFilterSpecificEvents_module.cc
    TestMod                             producer    <path>/TestMod_module.cc
    TestOutput                          output      <path>/TestOutput_module.cc
    TestProvenanceDumper                output      <path>/TestProvenanceDumper_module.cc

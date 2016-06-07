@@ -1,6 +1,6 @@
-set( test_Framework_Art_libraries 
+set( test_Framework_Art_libraries
   art_Framework_Services_Registry
-  art_Utilities 
+  art_Utilities
   canvas_Utilities
   art_Framework_Core
   ${Boost_FILESYSTEM_LIBRARY}
@@ -18,7 +18,7 @@ set( test_Framework_Art_libraries
   ${CPPUNIT}
   ${CMAKE_DL_LIBS}
  )
- 
+
 
 cet_test(artapp_t USE_BOOST_UNIT
   LIBRARIES
@@ -33,6 +33,11 @@ cet_test(artapp_basicSourceOptions_t
   LIBRARIES
   art_Framework_Art
   )
+
+cet_test(fhicl_key_t USE_BOOST_UNIT
+  LIBRARIES
+  art_Framework_Art
+)
 
 ########################################################################
 # OptionsHandler tests.
@@ -90,7 +95,7 @@ cet_test(BasicOptions_02_t HANDBUILT
   TEST_EXEC art
   TEST_ARGS -h
   TEST_PROPERTIES
-  PASS_REGULAR_EXPRESSION "\nAllowed options:\n"
+  PASS_REGULAR_EXPRESSION "Basic options"
 )
 
 cet_test(BasicOptions_03_t
@@ -411,6 +416,26 @@ cet_test(DebugOptions_03_w HANDBUILT
 
 # Compare with reference.
 config_ref_test(DebugOptions_03)
+
+# TimeTracker enabling
+cet_test(DebugOptionsTimeTracker_01 HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --timing --rethrow-default -c opt-empty.fcl
+  DATAFILES fcl/opt-empty.fcl
+  )
+
+cet_test(DebugOptionsTimeTracker_02 HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --timing-db=timing.db --rethrow-default -c opt-empty.fcl
+  DATAFILES fcl/opt-empty.fcl
+  )
+
+cet_test(DebugOptionsTimeTracker_03 HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --timing-db=timing.db --notiming --rethrow-default -c opt-empty.fcl
+  DATAFILES fcl/opt-empty.fcl
+  TEST_PROPERTIES WILL_FAIL TRUE
+  )
 
 ####################################
 # FileCatalogOptionsHandler.
@@ -744,4 +769,63 @@ cet_test(FileCatalogOptions_18 HANDBUILT
   "  The options '--sam-inherit-metadata' and '--sam-run-type' are mutually exclusive\\."
   DATAFILES
   fcl/opt-empty.fcl
+  )
+
+####################################
+# Handling deprecated configurations
+
+# services.scheduler.fileMode
+#   Tests 3-5 trigger exceptions that do not result in config.out
+#   statements--i.e., they cannot be used in comparing configurations
+#   since the exception is thrown before the configuration is written
+#   out.
+foreach(i RANGE 1 5)
+  cet_test(DeprecatedFileModeParameter_t_0${i} HANDBUILT
+    TEST_EXEC art
+    TEST_ARGS -c deprecated_fileMode_0${i}.fcl --debug-config=config.out
+    DATAFILES fcl/deprecated_fileMode_0${i}.fcl
+    TEST_PROPERTIES WILL_FAIL TRUE
+    )
+endforeach()
+
+foreach(i RANGE 1 2)
+  cet_test(DeprecatedFileModeParameter_r_0${i} HANDBUILT
+    TEST_EXEC diff
+    TEST_ARGS ../DeprecatedFileModeParameter_t_0${i}.d/config.out DeprecatedFileMode_0${i}-ref.txt
+    DATAFILES DeprecatedFileMode_0${i}-ref.txt
+    TEST_PROPERTIES DEPENDS DeprecatedFileModeParameter_t_0${i}
+    )
+endforeach()
+
+# outputs.<label>.SelectEvents: { ... }
+# physics.analyzers.<label>.SelectEvents: { ... }
+foreach(i RANGE 1 3)
+  cet_test(DeprecatedNestedSelectEvents_t_0${i} HANDBUILT
+    TEST_EXEC art
+    TEST_ARGS -c deprecated_SelectEvents_0${i}.fcl --debug-config=config.out
+    DATAFILES fcl/deprecated_SelectEvents_0${i}.fcl
+    TEST_PROPERTIES WILL_FAIL TRUE
+    )
+
+  cet_test(DeprecatedNestedSelectEvents_r_0${i} HANDBUILT
+    TEST_EXEC diff
+    TEST_ARGS ../DeprecatedNestedSelectEvents_t_0${i}.d/config.out DeprecatedNestedSelectEvents_0${i}-ref.txt
+    DATAFILES DeprecatedNestedSelectEvents_0${i}-ref.txt
+    TEST_PROPERTIES DEPENDS DeprecatedNestedSelectEvents_t_0${i}
+    )
+endforeach()
+
+# services.MemoryTracker.filename
+cet_test(DeprecatedMemoryTracker_t_01 HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS -c deprecated_MemoryTracker_01.fcl --debug-config=config.out
+  DATAFILES fcl/deprecated_MemoryTracker_01.fcl
+  TEST_PROPERTIES WILL_FAIL TRUE
+  )
+
+cet_test(DeprecatedMemoryTracker_r_01 HANDBUILT
+  TEST_EXEC diff
+  TEST_ARGS ../DeprecatedMemoryTracker_t_01.d/config.out DeprecatedMemoryTracker_01-ref.txt
+  DATAFILES DeprecatedMemoryTracker_01-ref.txt
+  TEST_PROPERTIES DEPENDS DeprecatedMemoryTracker_t_01
   )

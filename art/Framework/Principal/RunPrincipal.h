@@ -16,6 +16,7 @@
 #include "art/Framework/Principal/fwd.h"
 #include "canvas/Persistency/Provenance/BranchMapper.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
+#include "canvas/Persistency/Provenance/RangeSet.h"
 #include "canvas/Persistency/Provenance/RunAuxiliary.h"
 #include "cetlib/exempt_ptr.h"
 
@@ -24,82 +25,59 @@
 
 namespace art {
 
-class RunPrincipal : public Principal {
+  class RunPrincipal final : public Principal {
+  public:
 
-public:
+    using Auxiliary = RunAuxiliary;
+    static constexpr BranchType branch_type = RunAuxiliary::branch_type;
 
-  typedef RunAuxiliary Auxiliary;
+  public:
 
-public:
+    RunPrincipal(RunAuxiliary const&,
+                 ProcessConfiguration const&,
+                 std::unique_ptr<BranchMapper>&& = std::make_unique<BranchMapper>(),
+                 std::unique_ptr<DelayedReader>&& = std::make_unique<NoDelayedReader>(),
+                 int idx = 0,
+                 RunPrincipal* = nullptr);
 
-  RunPrincipal(RunAuxiliary const&,
-               ProcessConfiguration const&,
-               std::unique_ptr<BranchMapper>&& mapper =
-                 std::unique_ptr<BranchMapper>(new BranchMapper),
-               std::unique_ptr<DelayedReader>&& rtrv =
-                 std::unique_ptr<DelayedReader>(new NoDelayedReader),
-               int idx = 0, RunPrincipal* = nullptr);
+    RunAuxiliary const& aux() const { return aux_; }
 
-  RunAuxiliary const&
-  aux() const
-  {
-    return aux_;
-  }
+    RunNumber_t run() const { return aux().run(); }
 
-  RunNumber_t
-  run() const
-  {
-    return aux().run();
-  }
+    RunID const& id() const { return aux().id(); }
 
-  RunID const&
-  id() const
-  {
-    return aux().id();
-  }
+    Timestamp const& beginTime() const { return aux().beginTime(); }
+    Timestamp const& endTime() const { return aux().endTime(); }
 
-  Timestamp const&
-  beginTime() const
-  {
-    return aux().beginTime();
-  }
+    void setEndTime(Timestamp const& time) { aux_.setEndTime(time); }
 
-  Timestamp const&
-  endTime() const
-  {
-    return aux().endTime();
-  }
+    BranchType branchType() const override { return branch_type; }
 
-  void
-  setEndTime(Timestamp const& time)
-  {
-    aux_.setEndTime(time);
-  }
+    void addGroup(BranchDescription const&);
 
-  BranchType branchType() const override;
+    void put(std::unique_ptr<EDProduct>&&,
+             BranchDescription const&,
+             std::unique_ptr<ProductProvenance const>&&,
+             RangeSet&&);
 
-  void addGroup(BranchDescription const&) override;
+    RangeSet seenRanges() const override { return seenRangeSet_; }
+    void updateSeenRanges(RangeSet const& rs) { seenRangeSet_ = rs; }
+    RangeSetHandler const& rangeSetHandler() const;
+    RangeSetHandler& rangeSetHandler();
 
-  void addGroup(std::unique_ptr<EDProduct>&&, BranchDescription const&) override;
+  private:
 
-  void mergeRun(std::shared_ptr<RunPrincipal>);
+    void addGroup(std::unique_ptr<EDProduct>&&,
+                  BranchDescription const&,
+                  RangeSet&&);
+    void addOrReplaceGroup(std::unique_ptr<Group>&&) override;
+    ProcessHistoryID const& processHistoryID() const override;
+    void setProcessHistoryID(ProcessHistoryID const&) override;
 
-  void put(std::unique_ptr<EDProduct>&&, BranchDescription const&,
-           std::unique_ptr<ProductProvenance const>&&);
+    RunAuxiliary aux_;
+    RangeSet seenRangeSet_ {RangeSet::invalid()};
 
-private:
-
-  void addOrReplaceGroup(std::unique_ptr<Group>&&) override;
-
-  ProcessHistoryID const& processHistoryID() const override;
-
-  void setProcessHistoryID(ProcessHistoryID const&) override;
-
-private:
-
-  RunAuxiliary aux_;
-
-};
+  };
 
 } // namespace art
 

@@ -27,15 +27,15 @@ namespace art {
   template <>
   class OccurrenceTraits<EventPrincipal, BranchActionBegin> {
   public:
-    typedef EventPrincipal MyPrincipal;
-    static bool const begin_ = true;
-    static bool const isEvent_ = true;
+    using MyPrincipal = EventPrincipal;
+    constexpr static bool begin_ {true};
+    constexpr static bool isEvent_ {true};
     static void preScheduleSignal(ActivityRegistry *a, EventPrincipal * ep) {
-      Event ev(*ep, ModuleDescription());
+      Event ev{*ep, ModuleDescription{}};
       a->sPreProcessEvent.invoke(ev);
     }
     static void postScheduleSignal(ActivityRegistry *a, EventPrincipal* ep) {
-      Event ev(*ep, ModuleDescription());
+      Event ev{*ep, ModuleDescription{}};
       a->sPostProcessEvent.invoke(ev);
     }
     static void prePathSignal(ActivityRegistry *a, std::string const& s) {
@@ -55,15 +55,15 @@ namespace art {
   template <>
   class OccurrenceTraits<RunPrincipal, BranchActionBegin> {
   public:
-    typedef RunPrincipal MyPrincipal;
-    static bool const begin_ = true;
-    static bool const isEvent_ = false;
-    static void preScheduleSignal(ActivityRegistry *a, RunPrincipal* ep) {
-      Run run(*ep, ModuleDescription());
+    using MyPrincipal = RunPrincipal;
+    constexpr static bool begin_ {true};
+    constexpr static bool isEvent_ {false};
+    static void preScheduleSignal(ActivityRegistry *a, RunPrincipal* rp) {
+      Run run{*rp, ModuleDescription{}};
       a->sPreBeginRun.invoke(run);
     }
-    static void postScheduleSignal(ActivityRegistry *a, RunPrincipal* ep) {
-      Run run(*ep, ModuleDescription());
+    static void postScheduleSignal(ActivityRegistry *a, RunPrincipal* rp) {
+      Run run{*rp, ModuleDescription{}};
       a->sPostBeginRun.invoke(run);
     }
     static void prePathSignal(ActivityRegistry *a, std::string const& s) {
@@ -83,14 +83,14 @@ namespace art {
   template <>
   class OccurrenceTraits<RunPrincipal, BranchActionEnd> {
   public:
-    typedef RunPrincipal MyPrincipal;
-    static bool const begin_ = false;
-    static bool const isEvent_ = false;
-    static void preScheduleSignal(ActivityRegistry *a, RunPrincipal const* ep) {
-      a->sPreEndRun.invoke(ep->id(), ep->endTime());
+    using MyPrincipal = RunPrincipal;
+    constexpr static bool begin_ {false};
+    constexpr static bool isEvent_ {false};
+    static void preScheduleSignal(ActivityRegistry *a, RunPrincipal const* rp) {
+      a->sPreEndRun.invoke(rp->id(), rp->endTime());
     }
-    static void postScheduleSignal(ActivityRegistry *a, RunPrincipal* ep) {
-      Run run(*ep, ModuleDescription());
+    static void postScheduleSignal(ActivityRegistry *a, RunPrincipal* rp) {
+      Run run{*rp, ModuleDescription{}};
       a->sPostEndRun.invoke(run);
     }
     static void prePathSignal(ActivityRegistry *a, std::string const& s) {
@@ -110,15 +110,15 @@ namespace art {
   template <>
   class OccurrenceTraits<SubRunPrincipal, BranchActionBegin> {
   public:
-    typedef SubRunPrincipal MyPrincipal;
-    static bool const begin_ = true;
-    static bool const isEvent_ = false;
-    static void preScheduleSignal(ActivityRegistry *a, SubRunPrincipal * ep) {
-      SubRun subRun(*ep, ModuleDescription());
+    using MyPrincipal = SubRunPrincipal;
+    constexpr static bool begin_ {true};
+    constexpr static bool isEvent_ {false};
+    static void preScheduleSignal(ActivityRegistry *a, SubRunPrincipal * srp) {
+      SubRun subRun{*srp, ModuleDescription{}};
       a->sPreBeginSubRun.invoke(subRun);
     }
-    static void postScheduleSignal(ActivityRegistry *a, SubRunPrincipal* ep) {
-      SubRun subRun(*ep, ModuleDescription());
+    static void postScheduleSignal(ActivityRegistry *a, SubRunPrincipal* srp) {
+      SubRun subRun{*srp, ModuleDescription{}};
       a->sPostBeginSubRun.invoke(subRun);
     }
     static void prePathSignal(ActivityRegistry *a, std::string const& s) {
@@ -138,14 +138,14 @@ namespace art {
   template <>
   class OccurrenceTraits<SubRunPrincipal, BranchActionEnd> {
   public:
-    typedef SubRunPrincipal MyPrincipal;
-    static bool const begin_ = false;
-    static bool const isEvent_ = false;
-    static void preScheduleSignal(ActivityRegistry *a, SubRunPrincipal const* ep) {
-      a->sPreEndSubRun.invoke(ep->id(), ep->beginTime());
+    using MyPrincipal = SubRunPrincipal;
+    constexpr static bool begin_ {false};
+    constexpr static bool isEvent_ {false};
+    static void preScheduleSignal(ActivityRegistry *a, SubRunPrincipal const* srp) {
+      a->sPreEndSubRun.invoke(srp->id(), srp->beginTime());
     }
-    static void postScheduleSignal(ActivityRegistry *a, SubRunPrincipal* ep) {
-      SubRun subRun(*ep, ModuleDescription());
+    static void postScheduleSignal(ActivityRegistry *a, SubRunPrincipal* srp) {
+      SubRun subRun{*srp, ModuleDescription{}};
       a->sPostEndSubRun.invoke(subRun);
     }
     static void prePathSignal(ActivityRegistry *a, std::string const& s) {

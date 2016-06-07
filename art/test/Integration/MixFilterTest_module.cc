@@ -9,6 +9,7 @@
 #include "art/Persistency/Common/CollectionUtilities.h"
 #include "canvas/Persistency/Common/PtrVector.h"
 #include "canvas/Utilities/InputTag.h"
+#include "cetlib/container_algorithms.h"
 #include "cetlib/map_vector.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 #include "art/test/TestObjects/ProductWithPtrs.h"
@@ -17,6 +18,7 @@
 #include "boost/noncopyable.hpp"
 
 #include <algorithm>
+#include <iostream>
 #include <iterator>
 #include <memory>
 #include <unordered_set>
@@ -186,23 +188,25 @@ public:
 private:
   size_t const nSecondaries_;
   bool const testRemapper_;
-  std::vector<size_t> doubleVectorOffsets_, map_vectorOffsets_;
-  std::unique_ptr<art::EventIDSequence> eIDs_;
-  bool startEvent_called_;
-  bool processEventIDs_called_;
-  int currentEvent_;
+  std::vector<size_t> doubleVectorOffsets_ {};
+  std::vector<size_t> map_vectorOffsets_ {};
+  std::unique_ptr<art::EventIDSequence> eIDs_ {};
+  bool startEvent_called_ {false};
+  bool processEventIDs_called_ {false};
+  int currentEvent_ {-1};
   bool const testZeroSecondaries_;
   bool const testPtrFailure_;
   bool const testEventOrdering_;
   bool const testNoLimEventDupes_;
   bool const compactMissingProducts_;
+  size_t const expectedRespondFunctionCalls_;
   art::MixHelper::Mode const readMode_;
 
-  size_t respondFunctionsSeen_;
+  size_t respondFunctionsSeen_ {0};
 
   // For testing no_replace mode only:
-  std::vector<int> allEvents_;
-  std::unordered_set<int> uniqueEvents_;
+  std::vector<int> allEvents_ {};
+  std::unordered_set<int> uniqueEvents_ {};
 
 };
 
@@ -222,21 +226,13 @@ MixFilterTestDetail(fhicl::ParameterSet const & p,
   :
   nSecondaries_(p.get<size_t>("numSecondaries", 1)),
   testRemapper_(p.get<bool>("testRemapper", true)),
-  doubleVectorOffsets_(),
-  map_vectorOffsets_(),
-  eIDs_(),
-  startEvent_called_(false),
-  processEventIDs_called_(false),
-  currentEvent_(-1),
   testZeroSecondaries_(p.get<bool>("testZeroSecondaries", false)),
   testPtrFailure_(p.get<bool>("testPtrFailure", false)),
   testEventOrdering_(p.get<bool>("testEventOrdering", false)),
   testNoLimEventDupes_(p.get<bool>("testNoLimEventDupes", false)),
   compactMissingProducts_(p.get<bool>("compactMissingProducts", false)),
-  readMode_(helper.readMode()),
-  respondFunctionsSeen_(0),
-  allEvents_(),
-  uniqueEvents_()
+  expectedRespondFunctionCalls_(p.get<size_t>("expectedRespondFunctionCalls", 4ul)),
+  readMode_(helper.readMode())
 {
   std::vector<std::string> fnToProvide;
   if (p.get_if_present("fileNamesToProvide", fnToProvide))
@@ -324,7 +320,7 @@ arttest::MixFilterTestDetail::
     // Require no dupes across the job.
     BOOST_CHECK_EQUAL(allEvents_.size(), uniqueEvents_.size());
   }
-  BOOST_CHECK_EQUAL(respondFunctionsSeen_, 4ul);
+  BOOST_CHECK_EQUAL(respondFunctionsSeen_, expectedRespondFunctionCalls_);
 }
 
 #ifndef ART_TEST_NO_STARTEVENT
@@ -376,7 +372,7 @@ processEventIDs(art::EventIDSequence const & seq)
   {
     // We should have a duplicate within the secondaries.
     std::unordered_set<int> s;
-    std::transform(seq.cbegin(), seq.cend(), std::inserter(s, s.begin()), [](art::EventID const & eid) { return eid.event(); });
+    cet::transform_all(seq, std::inserter(s, s.begin()), [](art::EventID const & eid) { return eid.event(); });
     BOOST_CHECK_GT(seq.size(), s.size());
   }
   break;
@@ -384,11 +380,11 @@ processEventIDs(art::EventIDSequence const & seq)
     if (testNoLimEventDupes_) {
       // We should have no duplicate within the secondaries.
       std::unordered_set<int> s;
-      std::transform(seq.cbegin(), seq.cend(), std::inserter(s, s.begin()), [](art::EventID const & eid) { return eid.event(); });
+      cet::transform_all(seq, std::inserter(s, s.begin()), [](art::EventID const & eid) { return eid.event(); });
       BOOST_CHECK_EQUAL(seq.size(), s.size());
     } else { // Require dupes over 2 events.
       auto checkpoint(allEvents_.size());
-      std::transform(seq.cbegin(), seq.cend(), std::back_inserter(allEvents_), [](art::EventID const & eid) { return eid.event(); });
+      cet::transform_all(seq, std::back_inserter(allEvents_), [](art::EventID const & eid) { return eid.event(); });
       uniqueEvents_.insert(allEvents_.cbegin() + checkpoint, allEvents_.cend());
       // Test at end job for duplicates.
     }
@@ -396,7 +392,7 @@ processEventIDs(art::EventIDSequence const & seq)
   case art::MixHelper::Mode::RANDOM_NO_REPLACE:
   {
     auto checkpoint(allEvents_.size());
-    std::transform(seq.cbegin(), seq.cend(), std::back_inserter(allEvents_), [](art::EventID const & eid) { return eid.event(); });
+    cet::transform_all(seq, std::back_inserter(allEvents_), [](art::EventID const & eid) { return eid.event(); });
     uniqueEvents_.insert(allEvents_.cbegin() + checkpoint, allEvents_.cend());
     // Test at end job for no duplicates.
   }
@@ -410,7 +406,7 @@ void
 arttest::MixFilterTestDetail::
 finalizeEvent(art::Event & e)
 {
-  e.put(std::unique_ptr<std::string>(new std::string("BlahBlahBlah")));
+  e.put(std::make_unique<std::string>("BlahBlahBlah"));
   e.put(std::move(eIDs_));
 #ifndef ART_TEST_NO_STARTEVENT
   BOOST_REQUIRE(startEvent_called_);
@@ -555,4 +551,3 @@ mixmap_vectorPtrs(std::vector<std::vector<art::Ptr<cet::map_vector<unsigned int>
 namespace arttest {
   DEFINE_ART_MODULE(ART_MFT)
 }
-

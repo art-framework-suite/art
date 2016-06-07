@@ -1,5 +1,5 @@
 art_make(
-  SUBDIRS detail
+  SUBDIRS detail StateMachine
   LIB_LIBRARIES
   art_Framework_Services_System_CurrentModule_service
   art_Framework_Services_System_FileCatalogMetadata_service
@@ -12,5 +12,5 @@ art_make(
   cetlib
   )
 
-install_headers(SUBDIRS detail)
-install_source(SUBDIRS detail)
+install_headers(SUBDIRS detail StateMachine)
+install_source(SUBDIRS detail StateMachine)

@@ -60,7 +60,7 @@ namespace {
     art::FileIndex fi;
     for (int i = art::InEvent; i != art::InResults; ++i) {
       std::string treeName = art::BranchTypeToProductTreeName(static_cast<art::BranchType>(i));
-      TTree * tree = dynamic_cast<TTree *> (tf->Get(treeName.c_str()));
+      TTree * tree = static_cast<TTree*> (tf->Get(treeName.c_str()));
       if (!tree) {
         err << fileName << "\tNot a valid art ROOT-format file: skipped.\n";
         return false;
@@ -68,7 +68,7 @@ namespace {
       counters[i] = tree->GetEntries();
     }
     {
-      auto tree = dynamic_cast<TTree*>(tf->Get(art::BranchTypeToProductTreeName(art::InResults).c_str()));
+      auto tree = static_cast<TTree*>(tf->Get(art::BranchTypeToProductTreeName(art::InResults).c_str()));
       if (tree && (tree->GetNbranches() > 1)) {
         counters[art::InResults] = 1;
       }

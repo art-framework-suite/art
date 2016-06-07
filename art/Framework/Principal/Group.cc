@@ -4,59 +4,44 @@
 #include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Principal/OccurrenceTraits.h"
 #include "art/Framework/Principal/Worker.h"
-#include "canvas/Persistency/Provenance/BranchKey.h"
 #include "art/Persistency/Provenance/ProductMetaData.h"
+#include "canvas/Persistency/Provenance/BranchKey.h"
 #include "canvas/Persistency/Provenance/ProductStatus.h"
 #include "canvas/Persistency/Provenance/TypeTools.h"
 #include "cetlib/demangle.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
-#include <iostream>
 #include <string>
 
 namespace art {
 
 Group::
-Group()
-  : wrapper_type_()
-  , ppResolver_()
-  , productResolver_()
-  , product_()
-  , branchDescription_()
-  , pid_()
-  , productProducer_()
-  , onDemandPrincipal_()
-{
-}
-
-Group::
-Group(BranchDescription const& bd, ProductID const& pid,
-      art::TypeID const& wrapper_type, cet::exempt_ptr<Worker> productProducer,
+Group(BranchDescription const& bd,
+      ProductID const& pid,
+      art::TypeID const& wrapper_type,
+      RangeSet&& rs,
+      cet::exempt_ptr<Worker> productProducer,
       cet::exempt_ptr<EventPrincipal> onDemandPrincipal)
-  : wrapper_type_(wrapper_type)
-  , ppResolver_()
-  , productResolver_()
-  , product_()
-  , branchDescription_(&bd)
-  , pid_(pid)
-  , productProducer_(productProducer)
-  , onDemandPrincipal_(onDemandPrincipal)
-{
-}
+  : wrapper_type_{wrapper_type}
+  , branchDescription_{&bd}
+  , pid_{pid}
+  , productProducer_{productProducer}
+  , onDemandPrincipal_{onDemandPrincipal}
+  , rangeOfValidity_{std::move(rs)}
+{}
 
 Group::
-Group(std::unique_ptr<EDProduct>&& edp, BranchDescription const& bd,
-      ProductID const& pid, art::TypeID const& wrapper_type)
-  : wrapper_type_(wrapper_type)
-  , ppResolver_()
-  , productResolver_()
-  , product_(std::move(edp))
-  , branchDescription_(&bd)
-  , pid_(pid)
-  , productProducer_()
-  , onDemandPrincipal_()
-{
-}
+Group(std::unique_ptr<EDProduct>&& edp,
+      BranchDescription const& bd,
+      ProductID const& pid,
+      art::TypeID const& wrapper_type,
+      RangeSet&& rs)
+  : wrapper_type_{wrapper_type}
+  , product_{std::move(edp)}
+  , branchDescription_{&bd}
+  , pid_{pid}
+  , rangeOfValidity_{std::move(rs)}
+{}
 
 art::ProductStatus
 Group::
@@ -98,7 +83,7 @@ resolveProduct(bool fillOnDemand, TypeID const& wanted_wrapper_type) const
   if (!productUnavailable()) {
     return resolveProductIfAvailable(fillOnDemand, wanted_wrapper_type);
   }
-  art::Exception e(errors::ProductNotFound, "InaccessibleProduct");
+  art::Exception e {errors::ProductNotFound, "InaccessibleProduct"};
   e << "resolveProduct: product is not accessible\n"
     << productDescription()
     << '\n';
@@ -110,7 +95,7 @@ resolveProduct(bool fillOnDemand, TypeID const& wanted_wrapper_type) const
 
 bool
 Group::
-resolveProductIfAvailable(bool fillOnDemand,
+resolveProductIfAvailable(bool const fillOnDemand,
                           TypeID const& wanted_wrapper_type) const
 {
   if (product_.get()) {
@@ -124,15 +109,14 @@ resolveProductIfAvailable(bool fillOnDemand,
   }
 
   if (wanted_wrapper_type != wrapper_type_) {
-    throw Exception(errors::LogicError)
+    throw Exception{errors::LogicError}
         << "Attempted to obtain a product of different type ("
         << wanted_wrapper_type.className()
         << ") than produced ("
         << wrapper_type_.className()
         << ").\n";
   }
-  std::unique_ptr<EDProduct>
-  edp(obtainDesiredProduct(fillOnDemand, wanted_wrapper_type));
+  std::unique_ptr<EDProduct> edp {obtainDesiredProduct(fillOnDemand, wanted_wrapper_type)};
   if (edp.get()) {
     setProduct(std::move(edp));
   }
@@ -143,34 +127,16 @@ std::unique_ptr<art::EDProduct>
 Group::
 obtainDesiredProduct(bool fillOnDemand, TypeID const& wanted_wrapper_type) const
 {
-  //std::cout
-  //    << "-----> Begin Group::obtainDesiredProduct(bool, TypeID const&)"
-  //    << std::endl;
-  //std::cout
-  //    << "wt: "
-  //    << cet::demangle_symbol(wanted_wrapper_type.name())
-  //    << std::endl;
   std::unique_ptr<art::EDProduct> retval;
   // Try unscheduled production.
   if (fillOnDemand && onDemand()) {
-    productProducer_->doWork<OccurrenceTraits<EventPrincipal,
-      BranchActionBegin>>(*onDemandPrincipal_, 0);
+    productProducer_->doWork<OccurrenceTraits<EventPrincipal,BranchActionBegin>>(*onDemandPrincipal_, 0);
     return retval;
   }
-  BranchKey const bk(productDescription());
-  //std::cout
-  //    << "calling productResolver_->getProduct(bk, "
-  //    << cet::demangle_symbol(wanted_wrapper_type.name())
-  //    << ')'
-  //    << std::endl;
-  retval = productResolver_->getProduct(bk, wanted_wrapper_type);
-  //std::cout
-  //    << "returning: "
-  //    << retval.get()
-  //    << std::endl;
-  //std::cout
-  //    << "-----> End   Group::obtainDesiredProduct(bool, TypeID const&)"
-  //    << std::endl;
+  BranchKey const bk {productDescription()};
+  retval = productResolver_->getProduct(bk,
+                                        wanted_wrapper_type,
+                                        rangeOfValidity_);
   return retval;
 }
 
@@ -243,6 +209,7 @@ swap(Group& other)
   swap(pid_, other.pid_);
   swap(productProducer_, other.productProducer_);
   swap(onDemandPrincipal_, other.onDemandPrincipal_);
+  swap(rangeOfValidity_, other.rangeOfValidity_);
 }
 
 void

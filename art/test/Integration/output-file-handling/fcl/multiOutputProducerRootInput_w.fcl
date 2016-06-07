@@ -1,0 +1,46 @@
+source: {
+   module_type: RootInput
+}
+
+physics: {
+
+   e1: [o1, o2, o3, o4]
+}
+
+outputs: {
+
+   o1: {
+      module_type: RootOutput
+      fileName : "out.root"
+   }
+
+   o2: {
+      module_type: RootOutput
+      fileName: "out_r%R.root"
+      fileSwitch: {
+         force: true
+         boundary: Run
+      }
+   }
+
+   o3: {
+      module_type: RootOutput
+      fileName: "out_r%r_sr%S.root"
+      fileSwitch: {
+         force: true
+         boundary: SubRun
+      }
+   }
+
+   o4: {
+      module_type: RootOutput
+      fileName : "out_r%r_sr%S_e%#.root"
+      fileSwitch: {
+         force: true
+         boundary: Event
+      }
+   }
+
+}
+
+process_name: test1

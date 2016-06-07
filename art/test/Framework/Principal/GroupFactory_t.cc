@@ -16,6 +16,7 @@
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
 #include "canvas/Persistency/Provenance/TypeLabel.h"
 #include "canvas/Persistency/Provenance/ProductID.h"
+#include "canvas/Persistency/Provenance/RangeSet.h"
 #include "canvas/Utilities/WrappedClassName.h"
 #include "art/Version/GetReleaseVersion.h"
 #include "fhiclcpp/ParameterSet.h"
@@ -57,9 +58,10 @@ BOOST_AUTO_TEST_CASE(Group)
                                                       "GGen",
                                                       "GEN",
                                                       "G1",
-                                                      fhicl::ParameterSet(),
-                                                      art::TypeID(typeid(int))),
-                                art::ProductID()));
+                                                      fhicl::ParameterSet{},
+                                                      art::TypeID{typeid(int)}),
+                                art::ProductID{},
+                                art::RangeSet::invalid()));
   std::cerr
     << "Group: type of group = "
     << cet::demangle_symbol(typeid(*g.get()).name())
@@ -74,9 +76,10 @@ BOOST_AUTO_TEST_CASE(AssnsGroup)
                                                       "AgGen",
                                                       "GEN",
                                                       "AG1",
-                                                      fhicl::ParameterSet(),
-                                                      art::TypeID(typeid(art::Assns<size_t, std::string>))),
-                                art::ProductID()));
+                                                      fhicl::ParameterSet{},
+                                                      art::TypeID{typeid(art::Assns<size_t, std::string>)}),
+                                art::ProductID{},
+                                art::RangeSet::invalid()));
   std::cerr
     << "AssnsGroup: type of group = "
     << cet::demangle_symbol(typeid(*g.get()).name())

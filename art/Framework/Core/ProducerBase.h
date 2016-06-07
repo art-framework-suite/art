@@ -1,16 +1,15 @@
 #ifndef art_Framework_Core_ProducerBase_h
 #define art_Framework_Core_ProducerBase_h
 
-/*----------------------------------------------------------------------
+//----------------------------------------------------------------------
+// ProducerBase: The base class of all "modules" that will insert new
+//               EDProducts into an Event.
+//----------------------------------------------------------------------
 
-EDProducer: The base class of all "modules" that will insert new
-EDProducts into an Event.
-
-----------------------------------------------------------------------*/
-
-#include "art/Framework/Principal/fwd.h"
 #include "art/Framework/Core/ProductRegistryHelper.h"
 #include "art/Framework/Core/get_BranchDescription.h"
+#include "art/Framework/Principal/fwd.h"
+#include "art/Utilities/ProductTokens.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
 #include "canvas/Persistency/Provenance/ProductID.h"
 #include "fhiclcpp/types/Atom.h"
@@ -20,14 +19,15 @@ EDProducts into an Event.
 #include <functional>
 #include <memory>
 #include <string>
+#include <sstream>
 
 namespace art {
+
   class BranchDescription;
   class ModuleDescription;
-  class ProducerBase : private ProductRegistryHelper
-  {
+
+  class ProducerBase : private ProductRegistryHelper {
   public:
-    virtual ~ProducerBase();
 
     using ProductRegistryHelper::registerProducts;
     using ProductRegistryHelper::produces;
@@ -86,6 +86,14 @@ namespace art {
                                    md.moduleLabel(),
                                    instanceName).branchID());
 
+  }
+
+  template <typename T, typename U>
+  inline decltype(auto) operator<<(T&& t, ProducerBase::Table<U> const& u)
+  {
+    std::ostringstream oss;
+    u.print_allowed_configuration(oss, std::string(3,' '));
+    return std::forward<T>(t) << oss.str();
   }
 
 }  // art

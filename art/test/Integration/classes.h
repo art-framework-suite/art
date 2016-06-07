@@ -63,9 +63,6 @@ template class art::Ptr<cet::map_vector<unsigned int>::value_type>;
 template class art::Wrapper<std::vector<std::size_t>>;
 template class std::vector<std::size_t>;
 
-template class art::Wrapper<art::Assns<arttest::StringProduct,arttest::DummyProduct>>;
-template class art::Wrapper<art::Assns<arttest::DummyProduct,arttest::StringProduct>>;
-
 // Local Variables:
 // mode: c++
 // End:

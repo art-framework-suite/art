@@ -15,7 +15,6 @@
 #include "TTreeCloner.h"
 
 #include <functional>
-#include <iostream>
 #include <limits>
 
 using namespace cet;
@@ -257,7 +256,7 @@ addOutputBranch(BranchDescription const& bd, void const*& pProd)
         // FIXME: Throw a fatal error here!
       }
       bytesWritten += cnt;
-      if ((saveMemoryObjectThreshold_ > -1) && 
+      if ((saveMemoryObjectThreshold_ > -1) &&
           (bytesWritten > saveMemoryObjectThreshold_)) {
         branch->FlushBaskets();
         branch->DropBaskets("all");
@@ -273,4 +272,3 @@ addOutputBranch(BranchDescription const& bd, void const*& pProd)
 }
 
 } // namespace art
-

@@ -334,21 +334,17 @@ namespace art {
     auto const isTransient = productDesc.transient();
 
     // Check product dictionaries.
-    dictChecker_.checkDictionaries(productDesc.wrappedName(), !isTransient);
-    if (isTransient) {
-      dictChecker_.checkDictionaries(productDesc.producedClassName(), false);
-    }
+    dictChecker_.checkDictionaries(productDesc.wrappedName(), false);
+    dictChecker_.checkDictionaries(productDesc.producedClassName(), !isTransient);
 
     // Check dictionaries for assnsPartner, if appropriate. This is only
     // necessary for top-level checks so appropriate here rather than
     // checkDictionaries itself.
-    auto const assnsPartner =
-      name_of_assns_partner(productDesc.producedClassName());
-    if (!assnsPartner.empty()) {
-      // Dictionary for wrapped partner is required.
-      dictChecker_.checkDictionaries(wrappedClassName(assnsPartner), !isTransient);
-      if (isTransient) {
-        dictChecker_.checkDictionaries(assnsPartner, false);
+    if (!isTransient) {
+      auto const assnsPartner =
+        name_of_assns_partner(productDesc.producedClassName());
+      if (!assnsPartner.empty()) {
+        dictChecker_.checkDictionaries(wrappedClassName(assnsPartner), true);
       }
     }
     dictChecker_.reportMissingDictionaries();

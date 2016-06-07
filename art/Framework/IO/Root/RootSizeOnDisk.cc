@@ -3,7 +3,6 @@
 // tier objects inside an art format root event-data file.
 //
 
-#include <iostream>
 #include <iomanip>
 #include <string>
 #include <vector>
@@ -178,7 +177,7 @@ void art::RootSizeOnDisk::fillLevel2( RootSizeOnDisk::Record& key, TTree* tree){
   Records_t branchInfo;
 
   for( size_t i = 0; i < n; ++i ) {
-    TBranch *subbr = dynamic_cast<TBranch*>(branches->At(i));
+    TBranch *subbr = static_cast<TBranch*>(branches->At(i));
     Long64_t size =  detail::sizeOnDisk(subbr,true);
     double f = double(size)/double(key.size());
     branchInfo.emplace_back( subbr->GetName(), "TBranch", size, f );

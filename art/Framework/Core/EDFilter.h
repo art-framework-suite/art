@@ -16,6 +16,7 @@
 #include "art/Framework/Core/ProducerBase.h"
 #include "art/Framework/Core/WorkerT.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
+#include "canvas/Persistency/Provenance/RangeSet.h"
 #include "fhiclcpp/ParameterSet.h"
 
 #include <memory>
@@ -35,10 +36,9 @@ namespace art
     static constexpr bool Fail = false;
 
     template <typename T> friend class WorkerT;
-    typedef EDFilter ModuleType;
-    typedef WorkerT<EDFilter> WorkerType;
+    using ModuleType = EDFilter;
+    using WorkerType = WorkerT<EDFilter>;
 
-    EDFilter();
     virtual ~EDFilter() = default;
 
     template <typename PROD, BranchType B, typename TRANS>
@@ -60,22 +60,22 @@ namespace art
     CurrentProcessingContext const* currentContext() const;
 
   private:
-    bool doEvent(EventPrincipal& ep,
-                  CurrentProcessingContext const* cpc);
+
+    using CPC_exempt_ptr = cet::exempt_ptr<CurrentProcessingContext const>;
+
+    bool doEvent(EventPrincipal& ep, CPC_exempt_ptr cpc);
     void doBeginJob();
     void doEndJob();
-    bool doBeginRun(RunPrincipal & rp,
-                   CurrentProcessingContext const* cpc);
-    bool doEndRun(RunPrincipal & rp,
-                   CurrentProcessingContext const* cpc);
-    bool doBeginSubRun(SubRunPrincipal & srp,
-                   CurrentProcessingContext const* cpc);
-    bool doEndSubRun(SubRunPrincipal & srp,
-                   CurrentProcessingContext const* cpc);
+    bool doBeginRun(RunPrincipal & rp, CPC_exempt_ptr cpc);
+    bool doEndRun(RunPrincipal & rp, CPC_exempt_ptr cpc);
+    bool doBeginSubRun(SubRunPrincipal & srp, CPC_exempt_ptr cpc);
+    bool doEndSubRun(SubRunPrincipal & srp, CPC_exempt_ptr cpc);
     void doRespondToOpenInputFile(FileBlock const& fb);
     void doRespondToCloseInputFile(FileBlock const& fb);
     void doRespondToOpenOutputFiles(FileBlock const& fb);
     void doRespondToCloseOutputFiles(FileBlock const& fb);
+    void doRespondToOpenOutputFile();
+    void doRespondToCloseOutputFile();
 
     std::string workerType() const {return "WorkerT<EDFilter>";}
 
@@ -91,14 +91,16 @@ namespace art
     virtual void respondToCloseInputFile(FileBlock const&) {}
     virtual void respondToOpenOutputFiles(FileBlock const&) {}
     virtual void respondToCloseOutputFiles(FileBlock const&) {}
+    virtual void respondToOpenOutputFile() {}
+    virtual void respondToCloseOutputFile() {}
 
     void setModuleDescription(ModuleDescription const& md) {
       moduleDescription_ = md;
     }
 
-    ModuleDescription moduleDescription_;
-    CurrentProcessingContext const* current_context_;
-    bool checkPutProducts_;
+    ModuleDescription moduleDescription_ {};
+    CPC_exempt_ptr current_context_ {nullptr};
+    bool checkPutProducts_ {true};
   };  // EDFilter
 
   template <typename PROD, BranchType B, typename TRANS>

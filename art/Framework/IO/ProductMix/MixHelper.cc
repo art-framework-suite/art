@@ -1,7 +1,7 @@
 #include "art/Framework/IO/ProductMix/MixHelper.h"
 
 #include "art/Framework/IO/Root/GetFileFormatEra.h"
-#include "art/Framework/IO/Root/setFileIndexPointer.h"
+#include "art/Framework/IO/Root/detail/setFileIndexPointer.h"
 #include "canvas/Persistency/Provenance/rootNames.h"
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Services/Optional/RandomNumberGenerator.h"
@@ -299,7 +299,7 @@ openAndReadMetaData_(std::string filename)
   }
   // Obtain meta data tree.
   currentMetaDataTree_.reset(
-    dynamic_cast<TTree*>(currentFile_->Get(
+    static_cast<TTree*>(currentFile_->Get(
       art::rootNames::metaDataTreeName().c_str())));
   if (currentMetaDataTree_.get() == 0) {
     throw Exception(errors::FileReadError)
@@ -308,7 +308,7 @@ openAndReadMetaData_(std::string filename)
         << ".\n";
   }
   // Obtain event tree.
-  currentEventTree_.reset(dynamic_cast<TTree*>(
+  currentEventTree_.reset(static_cast<TTree*>(
     currentFile_->Get(art::rootNames::eventTreeName().c_str())));
   if (currentEventTree_.get() == 0) {
     throw Exception(errors::FileReadError)
@@ -323,8 +323,8 @@ openAndReadMetaData_(std::string filename)
     art::rootNames::metaBranchRootName<FileFormatVersion>(), &ffVersion_p);
   FileIndex fileIndex;
   FileIndex* fileIndexPtr = &fileIndex;
-  setFileIndexPointer(currentFile_.get(), currentMetaDataTree_.get(),
-                      fileIndexPtr);
+  detail::setFileIndexPointer(currentFile_.get(), currentMetaDataTree_.get(),
+                              fileIndexPtr);
   BranchIDLists branchIDLists;
   BranchIDLists * branchIDLists_p = &branchIDLists;
   currentMetaDataTree_.get()->SetBranchAddress(
@@ -359,7 +359,7 @@ openAndReadMetaData_(std::string filename)
   dataBranches_.reset(currentEventTree_.get());
   // Prepare to read EventHistory tree.
   TTree * ehTree =
-    dynamic_cast<TTree *>(currentFile_->
+    static_cast<TTree *>(currentFile_->
                           Get(rootNames::eventHistoryTreeName().c_str()));
   if (ehTree == 0) {
     throw Exception(errors::FileReadError)

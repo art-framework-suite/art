@@ -6,21 +6,21 @@
 #include "art/Framework/Principal/CurrentProcessingContext.h"
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Principal/EventPrincipal.h"
+#include "art/Framework/Principal/Handle.h"
 #include "art/Framework/Principal/ResultsPrincipal.h"
 #include "art/Framework/Principal/Run.h"
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRun.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
-#include "art/Persistency/Provenance/ProductMetaData.h"
-#include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/System/TriggerNamesService.h"
-#include "art/Framework/Principal/Handle.h"
+#include "art/Persistency/Provenance/ProductMetaData.h"
 #include "canvas/Persistency/Provenance/BranchDescription.h"
 #include "canvas/Persistency/Provenance/ParentageRegistry.h"
 #include "canvas/Utilities/DebugMacros.h"
 #include "canvas/Utilities/Exception.h"
 #include "cetlib/canonical_string.h"
 #include "cetlib/demangle.h"
+#include "cetlib/exempt_ptr.h"
 #include "rapidjson/document.h"
 #include "rapidjson/error/en.h"
 
@@ -30,59 +30,59 @@ using fhicl::ParameterSet;
 using std::vector;
 using std::string;
 
-art::OutputModule::
-OutputModule(fhicl::TableFragment<Config> const & config,
-             fhicl::ParameterSet const& containing_pset)
-  :
-  EventObserver{config().eoConfig},
-  keptProducts_(),
-  hasNewlyDroppedBranch_(),
-  groupSelectorRules_{config().outputCommands(), "outputCommands", "OutputModule"},
-  groupSelector_(),
-  maxEvents_(-1),
-  remainingEvents_(maxEvents_),
-  moduleDescription_(),
-  current_context_(0),
-  branchParents_(),
-  branchChildren_(),
-  configuredFileName_{config().fileName()},
-  dataTier_{config().dataTier()},
-  streamName_{config().streamName()},
-  ci_(),
-  pluginFactory_(),
-  pluginNames_(),
-  plugins_{makePlugins_(containing_pset)}
-{
-  hasNewlyDroppedBranch_.fill(false);
+namespace {
+
+  class OMServices {
+    art::ModuleDescription const& md_;
+    cet::exempt_ptr<art::MemoryTracker> mem_;
+    cet::exempt_ptr<art::TimeTracker> time_;
+  public:
+    OMServices(art::ModuleDescription const& md,
+               bool const memTracker,
+               bool const timeTracker)
+      : md_{md}
+      , mem_(memTracker ? &*art::ServiceHandle<art::MemoryTracker>{} : nullptr)
+      , time_(timeTracker ? &*art::ServiceHandle<art::TimeTracker>{} : nullptr)
+    {
+      if (mem_) mem_->preModule(md_);
+      if (time_) time_->preModule(md_);
+    }
+
+    ~OMServices()
+    {
+      if (mem_) mem_->postModule(md_);
+      if (time_) time_->postModule(md_);
+    }
+  };
+
 }
 
 art::OutputModule::
-OutputModule(fhicl::ParameterSet const& pset)
-  :
-  EventObserver(pset),
-  keptProducts_(),
-  hasNewlyDroppedBranch_(),
-  groupSelectorRules_(pset.get<std::vector<std::string>>("outputCommands", {"keep *"}),
-                      "outputCommands", "OutputModule"),
-  groupSelector_(),
-  maxEvents_(-1),
-  remainingEvents_(maxEvents_),
-  moduleDescription_(),
-  current_context_(0),
-  branchParents_(),
-  branchChildren_(),
-  configuredFileName_(pset.get<std::string>("fileName","")),
-  dataTier_(pset.get<std::string>("dataTier","")),
-  streamName_(pset.get<std::string>("streamName","")),
-  ci_(),
-  pluginFactory_(),
-  pluginNames_(),
-  plugins_(makePlugins_(pset))
-{
-  hasNewlyDroppedBranch_.fill(false);
-}
+OutputModule(fhicl::TableFragment<Config> const& config,
+             ParameterSet const& containing_pset)
+  : EventObserver{config().eoFragment().selectEvents(), containing_pset}
+  , groupSelectorRules_{config().outputCommands(), "outputCommands", "OutputModule"}
+  , configuredFileName_{config().fileName()}
+  , dataTier_{config().dataTier()}
+  , streamName_{config().streamName()}
+  , plugins_{makePlugins_(containing_pset)}
+{}
 
-std::string const &
+art::OutputModule::
+OutputModule(ParameterSet const& pset)
+  : EventObserver{pset}
+  , groupSelectorRules_{pset.get<vector<string>>("outputCommands", {"keep *"}),
+        "outputCommands",
+        "OutputModule"}
+  , configuredFileName_{pset.get<string>("fileName","")}
+  , dataTier_{pset.get<string>("dataTier","")}
+  , streamName_{pset.get<string>("streamName","")}
+  , plugins_{makePlugins_(pset)}
+{}
+
+art::OutputModule::~OutputModule(){}
+
+string const &
 art::OutputModule::
 lastClosedFileName() const
 {
@@ -111,22 +111,24 @@ doSelectProducts()
 
   for (auto const& val : pmd.productList()) {
     BranchDescription const& bd = val.second;
+    auto const bid = bd.branchID();
+    auto const bt = bd.branchType();
     if (bd.transient()) {
       // Transient, skip it.
       continue;
     }
-    if ( !pmd.produced(bd.branchType(),bd.branchID()) &&
-         pmd.presentWithFileIdx(bd.branchType(),bd.branchID()) == MasterProductRegistry::DROPPED ) {
+    if ( !pmd.produced(bt, bid) &&
+         pmd.presentWithFileIdx(bt, bid) == MasterProductRegistry::DROPPED ) {
       // Not produced in this process, and previously dropped, skip it.
       continue;
     }
     if (groupSelector_.selected(bd)) {
       // Selected, keep it.
-      keptProducts_[bd.branchType()].push_back(&bd);
+      keptProducts_[bt].push_back(&bd);
       continue;
     }
     // Newly dropped, skip it.
-    hasNewlyDroppedBranch_[bd.branchType()] = true;
+    hasNewlyDroppedBranch_[bt] = true;
   }
 }
 
@@ -185,36 +187,60 @@ doBeginJob()
   cet::for_all(plugins_, [](auto& p){ p->doBeginJob(); });
 }
 
-void
+bool
 art::OutputModule::
-doEndJob()
+doBeginRun(RunPrincipal const & rp,
+           CurrentProcessingContext const * cpc)
 {
-  endJob();
-  cet::for_all(plugins_, [](auto& p){ p->doEndJob(); });
+  detail::CPCSentry sentry{current_context_, cpc};
+  FDEBUG(2) << "beginRun called\n";
+  beginRun(rp);
+  Run const r {const_cast<RunPrincipal &>(rp), moduleDescription_};
+  cet::for_all(plugins_, [&r](auto& p){ p->doBeginRun(r); });
+  return true;
 }
-
 
 bool
 art::OutputModule::
-doEvent(EventPrincipal & ep,
-        CurrentProcessingContext const * cpc)
+doBeginSubRun(SubRunPrincipal const& srp,
+              CurrentProcessingContext const* cpc)
 {
-  detail::CPCSentry sentry(current_context_, cpc);
-  detail::PVSentry pvSentry(selectors_);
+  detail::CPCSentry sentry {current_context_, cpc};
+  FDEBUG(2) << "beginSubRun called\n";
+  beginSubRun(srp);
+  SubRun const sr {const_cast<SubRunPrincipal&>(srp), moduleDescription_};
+  cet::for_all(plugins_, [&sr](auto& p){ p->doBeginSubRun(sr); });
+  return true;
+}
+
+bool
+art::OutputModule::
+doEvent(EventPrincipal const& ep, CurrentProcessingContext const* cpc)
+{
+  detail::CPCSentry sentry {current_context_, cpc};
+  FDEBUG(2) << "doEvent called\n";
+  Event const e {const_cast<EventPrincipal&>(ep), moduleDescription_};
+  if (wantAllEvents() || wantEvent(e)) {
+    event(ep);
+  }
+  return true;
+}
+
+void
+art::OutputModule::
+doWriteEvent(EventPrincipal& ep)
+{
+  OMServices sentry {dummyModuleDescription_, memTrackerAvailable_, timeTrackerAvailable_ };
+  detail::PVSentry clearTriggerResults {cachedProducts()};
   FDEBUG(2) << "writeEvent called\n";
-  Event const e(const_cast<EventPrincipal &>(ep), moduleDescription_);
-  if (wantAllEvents_ || selectors_.wantEvent(e)) {
+  Event const e {ep, moduleDescription_};
+  if (wantAllEvents() || wantEvent(e)) {
     write(ep); // Write the event.
     // Declare that the event was selected for write to the catalog
     // interface
-    art::Handle<art::TriggerResults> trHandle(getTriggerResults(e));
-    HLTGlobalStatus const &
-    trRef(trHandle.isValid() ?
-          static_cast<HLTGlobalStatus>(*trHandle) :
-          HLTGlobalStatus());
-    ci_->eventSelected(moduleDescription_.moduleLabel(),
-                       ep.id(),
-                       trRef);
+    art::Handle<art::TriggerResults> trHandle {getTriggerResults(e)};
+    auto const & trRef ( trHandle.isValid() ? static_cast<HLTGlobalStatus>(*trHandle) : HLTGlobalStatus{} );
+    ci_->eventSelected(moduleDescription_.moduleLabel(), ep.id(), trRef);
     // ... and invoke the plugins:
     cet::for_all(plugins_, [&e](auto& p){ p->doCollectMetadata(e); });
     // Finish.
@@ -223,20 +249,42 @@ doEvent(EventPrincipal & ep,
       --remainingEvents_;
     }
   }
-  return true;
+}
+
+void
+art::OutputModule::
+doSetSubRunAuxiliaryRangeSetID(RangeSet const& ranges)
+{
+  setSubRunAuxiliaryRangeSetID(ranges);
 }
 
 bool
 art::OutputModule::
-doBeginRun(RunPrincipal const & rp,
-           CurrentProcessingContext const * cpc)
+doEndSubRun(SubRunPrincipal const& srp,
+            CurrentProcessingContext const* cpc)
 {
-  detail::CPCSentry sentry(current_context_, cpc);
-  FDEBUG(2) << "beginRun called\n";
-  beginRun(rp);
-  Run const r(const_cast<RunPrincipal &>(rp), moduleDescription_);
-  cet::for_all(plugins_, [&r](auto& p){ p->doBeginRun(r); });
+  detail::CPCSentry sentry{current_context_, cpc};
+  FDEBUG(2) << "endSubRun called\n";
+  endSubRun(srp);
+  SubRun const sr {const_cast<SubRunPrincipal&>(srp), moduleDescription_};
+  cet::for_all(plugins_, [&sr](auto& p){ p->doEndSubRun(sr); });
   return true;
+}
+
+void
+art::OutputModule::
+doWriteSubRun(SubRunPrincipal& srp)
+{
+  FDEBUG(2) << "writeSubRun called\n";
+  writeSubRun(srp);
+}
+
+void
+art::OutputModule::
+doSetRunAuxiliaryRangeSetID(RangeSet const& ranges)
+{
+  FDEBUG(2) << "writeAuxiliaryRangeSets(rp) called\n";
+  setRunAuxiliaryRangeSetID(ranges);
 }
 
 bool
@@ -244,10 +292,10 @@ art::OutputModule::
 doEndRun(RunPrincipal const & rp,
          CurrentProcessingContext const * cpc)
 {
-  detail::CPCSentry sentry(current_context_, cpc);
+  detail::CPCSentry sentry {current_context_, cpc};
   FDEBUG(2) << "endRun called\n";
   endRun(rp);
-  Run const r(const_cast<RunPrincipal &>(rp), moduleDescription_);
+  Run const r {const_cast<RunPrincipal &>(rp), moduleDescription_};
   cet::for_all(plugins_, [&r](auto& p){ p->doEndRun(r); });
   return true;
 }
@@ -260,39 +308,14 @@ doWriteRun(RunPrincipal & rp)
   writeRun(rp);
 }
 
-bool
-art::OutputModule::
-doBeginSubRun(SubRunPrincipal const & srp,
-              CurrentProcessingContext const * cpc)
-{
-  detail::CPCSentry sentry(current_context_, cpc);
-  FDEBUG(2) << "beginSubRun called\n";
-  beginSubRun(srp);
-  SubRun const sr(const_cast<SubRunPrincipal &>(srp), moduleDescription_);
-  cet::for_all(plugins_, [&sr](auto& p){ p->doBeginSubRun(sr); });
-  return true;
-}
-
-bool
-art::OutputModule::
-doEndSubRun(SubRunPrincipal const & srp,
-            CurrentProcessingContext const * cpc)
-{
-  detail::CPCSentry sentry(current_context_, cpc);
-  FDEBUG(2) << "endSubRun called\n";
-  endSubRun(srp);
-  SubRun const sr(const_cast<SubRunPrincipal &>(srp), moduleDescription_);
-  cet::for_all(plugins_, [&sr](auto& p){ p->doEndSubRun(sr); });
-  return true;
-}
-
 void
 art::OutputModule::
-doWriteSubRun(SubRunPrincipal & srp)
+doEndJob()
 {
-  FDEBUG(2) << "writeSubRun called\n";
-  writeSubRun(srp);
+  endJob();
+  cet::for_all(plugins_, [](auto& p){ p->doEndJob(); });
 }
+
 
 void
 art::OutputModule::doOpenFile(FileBlock const & fb)
@@ -374,7 +397,7 @@ updateBranchParents(EventPrincipal const & ep)
   for (auto const& groupPr : ep) {
     auto const& group = *groupPr.second;
     if (group.productProvenancePtr()) {
-      BranchID const& bid = groupPr.first;
+      BranchID const bid = groupPr.first;
       auto it = branchParents_.find(bid);
       if (it == branchParents_.end()) {
         it = branchParents_.emplace(bid, std::set<ParentageID>()).first;
@@ -390,7 +413,7 @@ art::OutputModule::
 fillDependencyGraph()
 {
   for (auto const& bp : branchParents_) {
-    BranchID const & child = bp.first;
+    BranchID const child = bp.first;
     std::set<ParentageID> const & eIds = bp.second;
     for (auto const& eId : eIds) {
       Parentage entryDesc;
@@ -415,6 +438,12 @@ endJob()
 
 void
 art::OutputModule::
+event(EventPrincipal const&)
+{
+}
+
+void
+art::OutputModule::
 beginRun(RunPrincipal const &)
 {
 }
@@ -434,6 +463,18 @@ beginSubRun(SubRunPrincipal const &)
 void
 art::OutputModule::
 endSubRun(SubRunPrincipal const &)
+{
+}
+
+void
+art::OutputModule::
+setRunAuxiliaryRangeSetID(RangeSet const&)
+{
+}
+
+void
+art::OutputModule::
+setSubRunAuxiliaryRangeSetID(RangeSet const&)
 {
 }
 
@@ -478,6 +519,13 @@ art::OutputModule::
 isFileOpen() const
 {
   return true;
+}
+
+void
+art::OutputModule::
+setFileStatus(OutputFileStatus const fs)
+{
+  fileStatus_ = fs;
 }
 
 void
@@ -548,20 +596,19 @@ writeProductDescriptionRegistry()
 
 namespace {
   void
-  collectStreamSpecificMetadata(std::vector<std::unique_ptr<art::FileCatalogMetadataPlugin> > const & plugins,
-                                std::vector<std::string> const & pluginNames,
+  collectStreamSpecificMetadata(vector<std::unique_ptr<art::FileCatalogMetadataPlugin>> const & plugins,
+                                vector<string> const & pluginNames,
                                 art::FileCatalogMetadata::collection_type & ssmd)
   {
-    std::size_t pluginCounter = 0;
+    std::size_t pluginCounter {0};
     std::ostringstream errors;  // Collect errors from all plugins.
     for (auto & plugin : plugins) {
-      art::FileCatalogMetadata::collection_type tmp =
-        plugin->doProduceMetadata();
+      art::FileCatalogMetadata::collection_type tmp = plugin->doProduceMetadata();
       ssmd.reserve(tmp.size() + ssmd.size());
       for (auto && entry : tmp) {
         if (art::ServiceHandle<art::FileCatalogMetadata>()->wantCheckSyntax()) {
           rapidjson::Document d;
-          std::string checkString("{ ");
+          string checkString("{ ");
           checkString += cet::canonical_string(entry.first) +
                          " : " +
                          entry.second +
@@ -577,7 +624,7 @@ namespace {
               << rapidjson::GetParseError_En(d.GetParseError())
               << " Faulty key/value clause:\n"
               << checkString << "\n"
-              << (nSpaces ? std::string(nSpaces, '-') : "")
+              << (nSpaces ? string(nSpaces, '-') : "")
               << "^\n";
           }
         }
@@ -641,16 +688,16 @@ finishEndFile()
 
 auto
 art::OutputModule::
-makePlugins_(fhicl::ParameterSet const & top_pset)
+makePlugins_(ParameterSet const & top_pset)
   -> PluginCollection_t
 {
-  auto const psets = top_pset.get<std::vector<fhicl::ParameterSet>>("FCMDPlugins", {} );
+  auto const psets = top_pset.get<vector<ParameterSet>>("FCMDPlugins", {} );
   PluginCollection_t result;
   result.reserve(psets.size());
-  size_t count = 0;
+  size_t count {0};
   try {
     for (auto const & pset : psets) {
-      pluginNames_.emplace_back(pset.get<std::string>("plugin_type"));
+      pluginNames_.emplace_back(pset.get<string>("plugin_type"));
       auto const & libspec = pluginNames_.back();
       auto const pluginType = pluginFactory_.pluginType(libspec);
       if (pluginType == cet::PluginTypeDeducer<FileCatalogMetadataPlugin>::value) {

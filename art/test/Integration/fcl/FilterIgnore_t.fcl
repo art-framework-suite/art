@@ -80,34 +80,34 @@ outputs:
   {
     module_type: TestOutput
     shouldPass: 40
-    SelectEvents: { SelectEvents: [ p1a ] }
+    SelectEvents: [ p1a ]
   }
 
   outp2:
   {
     module_type: TestOutput
     shouldPass: 99
-    SelectEvents: { SelectEvents: [ p2a ] }
+    SelectEvents: [ p2a ]
   }
 
   outp3:
   {
     module_type: TestOutput
     shouldPass: 10
-    SelectEvents: { SelectEvents: [ p3a ] }
+    SelectEvents: [ p3a ]
   }
 
   outp4:
   {
     module_type: TestOutput
     shouldPass: 5
-    SelectEvents: { SelectEvents: [ p4a ] }
+    SelectEvents: [ p4a ]
   }
 
   outp5:
   {
     module_type: TestOutput
     shouldPass: 10
-    SelectEvents: { SelectEvents: [ p5a ] }
+    SelectEvents: [ p5a ]
   }
 }

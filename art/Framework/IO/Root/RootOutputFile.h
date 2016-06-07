@@ -14,7 +14,10 @@
 #include "art/Framework/Core/OutputModule.h"
 #include "art/Framework/IO/FileStatsCollector.h"
 #include "art/Framework/IO/Root/DropMetaData.h"
+#include "art/Framework/IO/Root/RootOutputClosingCriteria.h"
 #include "art/Framework/IO/Root/RootOutputTree.h"
+#include "art/Framework/IO/Root/detail/DummyProductCache.h"
+#include "art/Framework/Principal/RangeSetsSupported.h"
 #include "canvas/Persistency/Provenance/BranchDescription.h"
 #include "canvas/Persistency/Provenance/BranchID.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
@@ -53,64 +56,46 @@ namespace art {
 class art::RootOutputFile {
 public: // TYPES
 
+  enum class ClosureRequestMode { MaxEvents, MaxSize, Unset };
   using  RootOutputTreePtrArray = std::array<std::unique_ptr<RootOutputTree>, NumBranchTypes>;
 
   struct OutputItem {
 
-    BranchDescription const* branchDescription_;
-    mutable void const* product_;
+    BranchDescription const* branchDescription_ {nullptr};
+    mutable void const* product_ {nullptr};
 
     class Sorter {
+    public:
 
-  public:
+      explicit Sorter(TTree* tree);
+      bool  operator()(OutputItem const& lh, OutputItem const& rh) const;
 
-      explicit
-      Sorter(TTree* tree);
-
-      bool
-      operator()(OutputItem const& lh, OutputItem const& rh) const;
-
-  private:
+    private:
 
       // Maps branch name to branch list index.
       std::map<std::string, int> treeMap_;
-
     };
 
-    ~OutputItem()
-      {
-      }
+    ~OutputItem() = default;
 
-    OutputItem()
-      : branchDescription_(0)
-      , product_(0)
-      {
-      }
+    explicit OutputItem(BranchDescription const* bd)
+      : branchDescription_{bd}
+    {}
 
-    explicit
-    OutputItem(BranchDescription const* bd)
-      : branchDescription_(bd)
-      , product_(0)
-      {
-      }
+    BranchID branchID() const
+    {
+      return branchDescription_->branchID();
+    }
 
-    BranchID
-    branchID() const
-      {
-        return branchDescription_->branchID();
-      }
+    std::string const& branchName() const
+    {
+      return branchDescription_->branchName();
+    }
 
-    std::string const&
-    branchName() const
-      {
-        return branchDescription_->branchName();
-      }
-
-    bool
-    operator<(OutputItem const& rh) const
-      {
-        return *branchDescription_ < *rh.branchDescription_;
-      }
+    bool operator<(OutputItem const& rh) const
+    {
+      return *branchDescription_ < *rh.branchDescription_;
+    }
 
   };
 
@@ -120,18 +105,19 @@ public: // TYPES
 
 public: // MEMBER FUNCTIONS
 
-  explicit RootOutputFile(OutputModule*, std::string const& fileName,
-                          unsigned int const maxFileSize,
+  explicit RootOutputFile(OutputModule*,
+                          std::string const& fileName,
+                          ClosingCriteria const& fileSwitchCriteria,
                           int const compressionLevel,
                           int64_t const saveMemoryObjectThreshold,
                           int64_t const treeMaxVirtualSize,
-                          int const splitLevel, int const basketSize,
+                          int const splitLevel,
+                          int const basketSize,
                           DropMetaData dropMetaData,
                           bool dropMetaDataForDroppedData,
                           bool fastCloning);
-  // use compiler-generated copy c'tor, copy assignment, and d'tor
+
   void writeOne(EventPrincipal const&);
-  //void endFile();
   void writeSubRun(SubRunPrincipal const&);
   void writeRun(RunPrincipal const&);
   void writeFileFormatVersion();
@@ -148,31 +134,45 @@ public: // MEMBER FUNCTIONS
                                 FileCatalogMetadata::collection_type const&,
                                 FileCatalogMetadata::collection_type const&);
   void writeResults(ResultsPrincipal & resp);
+  void setRunAuxiliaryRangeSetID(RangeSet const&);
+  void setSubRunAuxiliaryRangeSetID(RangeSet const&);
   void finishEndFile();
   void beginInputFile(FileBlock const&, bool fastClone);
   void respondToCloseInputFile(FileBlock const&);
-  bool shouldWeCloseFile() const;
+  bool requestsToCloseFile() const;
 
-  void
-  selectProducts(FileBlock const&);
+  void selectProducts(FileBlock const&);
 
-  std::string const& currentFileName() const
-  {
-    return file_;
-  }
+  std::string const& currentFileName() const { return file_; }
+
+  bool maxEventsPerFileReached(FileIndex::EntryNumber_t const maxEventsPerFile) const;
+  bool maxSizeReached(unsigned const maxFileSize) const;
 
 private: // MEMBER FUNCTIONS
 
-  void fillBranches(BranchType const&, Principal const&,
-                    std::vector<ProductProvenance>*);
-  void insertAncestors(ProductProvenance const&, Principal const&,
-                       std::set<ProductProvenance>&);
+  void createDatabaseTables();
+
+  template <BranchType>
+  void fillBranches(Principal const&,
+                    std::vector<ProductProvenance>*); // Defined in source.
+
+  template <BranchType BT>
+  std::enable_if_t<!detail::RangeSetsSupported<BT>::value, art::EDProduct const*>
+  getProduct(OutputHandle const&,
+             RangeSet const& productRS,
+             std::string const& wrappedName); // Defined in source.
+
+  template <BranchType BT>
+  std::enable_if_t<detail::RangeSetsSupported<BT>::value, art::EDProduct const*>
+  getProduct(OutputHandle const&,
+             RangeSet const& productRS,
+             std::string const& wrappedName); // Defined in source.
 
 private: // MEMBER DATA
 
-  std::string file_;
   OutputModule const* om_;
-  unsigned int const maxFileSize_;
+  std::string file_;
+  ClosingCriteria fileSwitchCriteria_;
   int const compressionLevel_;
   int64_t const saveMemoryObjectThreshold_;
   int64_t const treeMaxVirtualSize_;
@@ -181,35 +181,38 @@ private: // MEMBER DATA
   DropMetaData dropMetaData_;
   bool dropMetaDataForDroppedData_;
   bool fastCloning_;
-  bool currentlyFastCloning_;
+  bool currentlyFastCloning_ {true};
   std::shared_ptr<TFile> filePtr_;
-  FileIndex fileIndex_;
-  FileIndex::EntryNumber_t eventEntryNumber_;
-  FileIndex::EntryNumber_t subRunEntryNumber_;
-  FileIndex::EntryNumber_t runEntryNumber_;
-  TTree* metaDataTree_;
-  TTree* fileIndexTree_;
-  TTree* parentageTree_;
-  TTree* eventHistoryTree_;
-  EventAuxiliary const* pEventAux_;
-  SubRunAuxiliary const* pSubRunAux_;
-  RunAuxiliary const* pRunAux_;
-  ResultsAuxiliary const *pResultsAux_;
-  ProductProvenances eventProductProvenanceVector_;
-  ProductProvenances subRunProductProvenanceVector_;
-  ProductProvenances runProductProvenanceVector_;
-  ProductProvenances resultsProductProvenanceVector_;
-  ProductProvenances* pEventProductProvenanceVector_;
-  ProductProvenances* pSubRunProductProvenanceVector_;
-  ProductProvenances* pRunProductProvenanceVector_;
-  ProductProvenances* pResultsProductProvenanceVector_;
-  History const* pHistory_;
+  FileIndex fileIndex_ {};
+  FileIndex::EntryNumber_t eventEntryNumber_ {0LL};
+  FileIndex::EntryNumber_t subRunEntryNumber_ {0LL};
+  FileIndex::EntryNumber_t runEntryNumber_ {0LL};
+  TTree* metaDataTree_ {nullptr};
+  TTree* fileIndexTree_ {nullptr};
+  TTree* parentageTree_ {nullptr};
+  TTree* eventHistoryTree_ {nullptr};
+  EventAuxiliary const* pEventAux_ {nullptr};
+  SubRunAuxiliary const* pSubRunAux_ {nullptr};
+  RunAuxiliary const* pRunAux_ {nullptr};
+  ResultsAuxiliary const *pResultsAux_ {nullptr};
+  ProductProvenances eventProductProvenanceVector_ {};
+  ProductProvenances subRunProductProvenanceVector_ {};
+  ProductProvenances runProductProvenanceVector_ {};
+  ProductProvenances resultsProductProvenanceVector_ {};
+  ProductProvenances* pEventProductProvenanceVector_ {&eventProductProvenanceVector_};
+  ProductProvenances* pSubRunProductProvenanceVector_ {&subRunProductProvenanceVector_};
+  ProductProvenances* pRunProductProvenanceVector_ {&runProductProvenanceVector_};
+  ProductProvenances* pResultsProductProvenanceVector_ {&resultsProductProvenanceVector_};
+  History const* pHistory_ {nullptr};
   RootOutputTreePtrArray treePointers_;
-  bool dataTypeReported_;
-  std::set<BranchID> branchesWithStoredHistory_;
-  SQLite3Wrapper metaDataHandle_;
-  OutputItemListArray selectedOutputItemList_;
-
+  bool dataTypeReported_ {false};
+  std::set<BranchID> branchesWithStoredHistory_ {};
+  SQLite3Wrapper rootFileDB_;
+  OutputItemListArray selectedOutputItemList_ {{}}; // filled by aggregation
+  detail::DummyProductCache dummyProductCache_ {};
+  unsigned subRunRSID_ {-1u};
+  unsigned runRSID_ {-1u};
+  std::chrono::steady_clock::time_point beginTime_ {std::chrono::steady_clock::now()};
 };
 
 // Local Variables:

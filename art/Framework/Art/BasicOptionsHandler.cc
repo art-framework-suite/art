@@ -1,8 +1,9 @@
 #include "art/Framework/Art/BasicOptionsHandler.h"
 
 #include "art/Framework/Art/detail/PrintPluginMetadata.h"
-#include "canvas/Utilities/Exception.h"
 #include "art/Utilities/PluginSuffixes.h"
+#include "art/Version/GetReleaseVersion.h"
+#include "canvas/Utilities/Exception.h"
 #include "cetlib/container_algorithms.h"
 #include "cetlib/filepath_maker.h"
 #include "fhiclcpp/coding.h"
@@ -14,23 +15,27 @@
 #include <string>
 
 using namespace std::string_literals;
-
+using table_t = fhicl::extended_value::table_t;
 namespace {
 
-  using table_t = fhicl::extended_value::table_t;
+  std::string pretty_version(std::string s)
+  {
+    std::replace(s.begin(), s.end(), '_', '.');
+    return s.substr(1); // trim off 'v'
+  }
 
 } // namespace
 
 art::BasicOptionsHandler::
 BasicOptionsHandler(bpo::options_description & desc,
                     cet::filepath_maker & maker)
-  :
-  help_desc_(desc),
-  maker_(maker)
+  : help_desc_{desc}
+  , maker_{maker}
 {
   desc.add_options()
-    ("config,c", bpo::value<std::string>(), "Configuration file.")
     ("help,h", "produce help message")
+    ("version", ("Print art version ("+ pretty_version(art::getReleaseVersion())+")").c_str())
+    ("config,c", bpo::value<std::string>(), "Configuration file.")
     ("process-name", bpo::value<std::string>(), "art process name.")
     ("print-available", bpo::value<std::string>(),
      ("List all available plugins with the provided suffix.  Choose from:"s + Suffixes::print()).c_str())
@@ -50,7 +55,14 @@ doCheckOptions(bpo::variables_map const & vm)
   // Technically the "help" and "print*" options are processing steps,
   // but we want to short-circuit.
   if (vm.count("help")) {
-    std::cout << help_desc_ << std::endl; // Note NOT our own desc_.
+    // Could simply do cout << help_desc_, but the boost-provided
+    // printout does not add any left-hand padding.  Will add a
+    // 2-space tab by hand.
+    std::stringstream ss;
+    ss << help_desc_; // Note NOT our own desc_.
+    for (std::string s; std::getline(ss, s); )
+      std::cout << std::string(2,' ') << s << '\n';
+    std::cout << '\n';
     return 1;
   }
   if ( vm.count("print-available") ) {
@@ -67,6 +79,10 @@ doCheckOptions(bpo::variables_map const & vm)
   }
   if ( vm.count("print-description") ) {
     detail::print_descriptions( vm["print-description"].as<std::vector<std::string>>());
+    return 1;
+  }
+  if (vm.count("version")) {
+    std::cout << "art " << pretty_version(getReleaseVersion()) << '\n';
     return 1;
   }
 

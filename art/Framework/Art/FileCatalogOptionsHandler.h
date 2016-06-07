@@ -22,7 +22,6 @@ private:
                        fhicl::intermediate_table & raw_config) override;
 
   // Data.
-  bpo::options_description const & desc_;
   std::string appFamily_;
   std::string appVersion_;
 };

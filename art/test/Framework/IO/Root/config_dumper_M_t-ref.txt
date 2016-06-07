@@ -1,6 +1,6 @@
 <separator (=)>
 Processing file: ../../../../Integration/Assns_w.d/out.root
-# Read SQLiteDB from file, total size: 16.0 KiB.
+# Read SQLiteDB from file, total size: 40.0 KiB.
 
 o2: {
    fileName: "out.root"

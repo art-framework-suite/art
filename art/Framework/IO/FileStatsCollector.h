@@ -43,17 +43,17 @@ private:
 
   std::string const moduleLabel_;
   std::string const processName_;
-  SubRunID lowestSubRun_;
-  SubRunID highestSubRun_;
-  EventID lowestEventIDSeen_;
-  EventID highestEventIDSeen_;
-  boost::posix_time::ptime fo_;
-  boost::posix_time::ptime fc_;
-  size_t seqNo_;
-  std::string lastOpenedInputFile_;
-  std::vector<std::string> inputFilesSeen_;
-  size_t nEvents_;
-  std::set<SubRunID> subRunsSeen_;
+  SubRunID lowestSubRun_ {};
+  SubRunID highestSubRun_ {};
+  EventID lowestEventIDSeen_ {};
+  EventID highestEventIDSeen_ {};
+  boost::posix_time::ptime fo_ {};
+  boost::posix_time::ptime fc_ {};
+  size_t seqNo_ {};
+  std::string lastOpenedInputFile_ {};
+  std::vector<std::string> inputFilesSeen_ {};
+  size_t nEvents_ {};
+  std::set<SubRunID> subRunsSeen_ {};
 };
 
 inline

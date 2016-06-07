@@ -4,6 +4,7 @@
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/System/TriggerNamesService.h"
 #include "canvas/Persistency/Common/TriggerResults.h"
+#include "canvas/Persistency/Provenance/ModuleDescription.h"
 #include "art/Utilities/ConfigTable.h"
 
 #include <algorithm>
@@ -30,18 +31,15 @@ void printBits(unsigned char c)
 void packIntoString(std::vector<unsigned char> const& source,
                     std::vector<unsigned char>& package)
 {
-  unsigned int packInOneByte = 4;
+  unsigned int const packInOneByte {4};
   // Two bits per HLT.
-  unsigned int sizeOfPackage = 1 + ((source.size() - 1) / packInOneByte);
-  if (source.size() == 0) {
-    sizeOfPackage = 0;
-  }
+  std::size_t const sizeOfPackage {source.empty() ? 0u : 1u+((source.size()-1)/packInOneByte)};
   package.resize(sizeOfPackage);
   memset(&package[0], 0x00, sizeOfPackage);
   for (unsigned int i = 0; i != source.size() ; ++i) {
     unsigned int whichByte = i / packInOneByte;
-    unsigned int indxWithinByte = i % packInOneByte;
-    package[whichByte] = package[whichByte] | (source[i] << (indxWithinByte * 2));
+    unsigned int indexWithinByte = i % packInOneByte;
+    package[whichByte] = package[whichByte] | (source[i] << (indexWithinByte * 2));
   }
   //for (unsigned int i=0; i !=package.size() ; ++i)
   //   printBits(package[i]);
@@ -67,31 +65,38 @@ public:
   explicit TestBitsOutput(Parameters const&);
 
 private:
-  void write(art::EventPrincipal & e) override;
-  void writeSubRun(art::SubRunPrincipal &) override {}
-  void writeRun(art::RunPrincipal &) override {}
+  void write(art::EventPrincipal& e) override;
+  void writeSubRun(art::SubRunPrincipal&) override {}
+  void writeRun(art::RunPrincipal&) override {}
+
+  void event(art::EventPrincipal const&) override;
   void endJob() override;
 
-  std::string name_;
+  std::string name_ {};
+  std::vector<unsigned char> hltbits_ {};
+  art::ModuleDescription moduleDescription_ {};
   int bitMask_;
-  std::vector<unsigned char> hltbits_;
   bool expectTriggerResults_;
 };
 
 // -----------------------------------------------------------------
 
 arttest::TestBitsOutput::TestBitsOutput(arttest::TestBitsOutput::Parameters const& ps)
-  : art::OutputModule(ps().omConfig, ps.get_PSet()),
-    bitMask_(ps().bitMask()),
-    hltbits_(0),
-    expectTriggerResults_(ps().expectTriggerResults())
+  : art::OutputModule{ps().omConfig, ps.get_PSet()}
+  , bitMask_{ps().bitMask()}
+  , expectTriggerResults_{ps().expectTriggerResults()}
 {
+}
+
+void arttest::TestBitsOutput::event(art::EventPrincipal const&)
+{
+  assert(currentContext() != nullptr);
+  moduleDescription_ = *currentContext()->moduleDescription();
 }
 
 void arttest::TestBitsOutput::write(art::EventPrincipal & ep)
 {
-  assert(currentContext() != 0);
-  Event ev(ep, *currentContext()->moduleDescription());
+  Event ev{ep, moduleDescription_};
   // There should not be a TriggerResults object in the event
   // if all three of the following requirements are met:
   //
@@ -106,8 +111,7 @@ void arttest::TestBitsOutput::write(art::EventPrincipal & ep)
   // if a TriggerResults object is found.
   if (!expectTriggerResults_) {
     try {
-      art::Handle<art::TriggerResults> prod;
-      prod = getTriggerResults(ev);
+      art::Handle<art::TriggerResults> prod {getTriggerResults(ev)};
       //throw doesn't happen until we dereference
       *prod;
     }
@@ -122,7 +126,7 @@ void arttest::TestBitsOutput::write(art::EventPrincipal & ep)
   }
   // Now deal with the other case where we
   // expect the object to be present.
-  art::Handle<art::TriggerResults> prod = getTriggerResults(ev);
+  art::Handle<art::TriggerResults> prod {getTriggerResults(ev)};
   std::vector<unsigned char> vHltState;
   ServiceHandle<TriggerNamesService> tns;
   std::vector<std::string> const& hlts = tns->getTrigPaths();
@@ -133,13 +137,13 @@ void arttest::TestBitsOutput::write(art::EventPrincipal & ep)
   //Pack into member hltbits_
   packIntoString(vHltState, hltbits_);
   std::cout << "Size of hltbits:" << hltbits_.size() << std::endl;
-  char* intp = (char*)&bitMask_;
-  bool matched = false;
+  auto intp = reinterpret_cast<char*>(&bitMask_);
+  bool matched {false};
   for (int i = hltbits_.size() - 1; i != -1 ; --i) {
     std::cout << std::endl
               << "Current Bits Mask byte:";
     printBits(hltbits_[i]);
-    unsigned char tmp = static_cast<unsigned char>(*(intp + i));
+    auto tmp = static_cast<unsigned char>(*(intp + i));
     std::cout << std::endl
               << "Original Byte:";
     printBits(tmp);
@@ -158,7 +162,7 @@ void arttest::TestBitsOutput::write(art::EventPrincipal & ep)
 
 void arttest::TestBitsOutput::endJob()
 {
-  assert(currentContext() == 0);
+  assert(currentContext() == nullptr);
 }
 
 DEFINE_ART_MODULE(arttest::TestBitsOutput)

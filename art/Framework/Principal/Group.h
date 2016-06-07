@@ -9,6 +9,7 @@
 #include "art/Framework/Principal/GroupFactory.h"
 #include "art/Framework/Principal/fwd.h"
 #include "art/Persistency/Common/DelayedReader.h"
+#include "art/Persistency/Provenance/ProductRangeSetLookup.h"
 #include "canvas/Persistency/Common/EDProduct.h"
 #include "canvas/Persistency/Common/EDProductGetter.h"
 #include "canvas/Persistency/Provenance/BranchDescription.h"
@@ -31,23 +32,30 @@ namespace art {
     friend
     std::unique_ptr<Group>
     gfactory::
-    make_group(BranchDescription const&, ProductID const&);
+    make_group(BranchDescription const&,
+               ProductID const&,
+               RangeSet&&);
 
     friend
     std::unique_ptr<Group>
     gfactory::
-    make_group(BranchDescription const&, ProductID const&,
-               cet::exempt_ptr<Worker>, cet::exempt_ptr<EventPrincipal>);
+    make_group(BranchDescription const&,
+               ProductID const&,
+               RangeSet&&,
+               cet::exempt_ptr<Worker>,
+               cet::exempt_ptr<EventPrincipal>);
 
     friend
     std::unique_ptr<Group>
     gfactory::
-    make_group(std::unique_ptr<EDProduct>&&, BranchDescription const&,
-               ProductID const&);
+    make_group(std::unique_ptr<EDProduct>&&,
+               BranchDescription const&,
+               ProductID const&,
+               RangeSet&&);
 
   public:
 
-    Group();
+    Group() = default;
 
   protected:
 
@@ -55,14 +63,18 @@ namespace art {
     // Use GroupFactory to make.
     //
 
-    Group(BranchDescription const& bd, ProductID const& pid,
+    Group(BranchDescription const& bd,
+          ProductID const& pid,
           TypeID const& wrapper_type,
-          cet::exempt_ptr<Worker> productProducer = cet::exempt_ptr<Worker>(),
-          cet::exempt_ptr<EventPrincipal> onDemandPrincipal =
-          cet::exempt_ptr<EventPrincipal>());
+          RangeSet&& rs,
+          cet::exempt_ptr<Worker> productProducer = cet::exempt_ptr<Worker>{},
+          cet::exempt_ptr<EventPrincipal> onDemandPrincipal = cet::exempt_ptr<EventPrincipal>{});
 
-    Group(std::unique_ptr<EDProduct>&& edp, BranchDescription const& bd,
-          ProductID const& pid, TypeID const& wrapper_type);
+    Group(std::unique_ptr<EDProduct>&& edp,
+          BranchDescription const& bd,
+          ProductID const& pid,
+          TypeID const& wrapper_type,
+          RangeSet&& rs);
 
   public:
 
@@ -137,10 +149,8 @@ namespace art {
 
     bool resolveProductIfAvailable(bool fillOnDemand,
                                    TypeID const&) const override;
-    // Write the group to the stream.
-    void write(std::ostream& os) const;
 
-    // Replace the existing group with a new one
+    void write(std::ostream& os) const;
     void replace(Group& g);
 
     ProductID const& productID() const
@@ -153,8 +163,9 @@ namespace art {
       return wrapper_type_;
     }
 
-    // Remove any cached product.
     void removeCachedProduct() const;
+
+    RangeSet const& rangeOfValidity() const { return rangeOfValidity_; }
 
   protected:
 
@@ -169,15 +180,16 @@ namespace art {
 
   private:
 
-    TypeID wrapper_type_;
-    cet::exempt_ptr<BranchMapper const> ppResolver_;
-    cet::exempt_ptr<DelayedReader const> productResolver_;
-    mutable std::unique_ptr<EDProduct> product_;
-    cet::exempt_ptr<BranchDescription const> branchDescription_;
-    mutable ProductID pid_;
-    cet::exempt_ptr<Worker> productProducer_;
+    TypeID wrapper_type_ {};
+    cet::exempt_ptr<BranchMapper const> ppResolver_ {nullptr};
+    cet::exempt_ptr<DelayedReader const> productResolver_ {nullptr};
+    mutable std::unique_ptr<EDProduct> product_ {nullptr};
+    cet::exempt_ptr<BranchDescription const> branchDescription_ {nullptr};
+    mutable ProductID pid_ {};
+    cet::exempt_ptr<Worker> productProducer_ {nullptr};
     // FIXME: This will be a generic principal when meta data is fixed.
-    cet::exempt_ptr<EventPrincipal> onDemandPrincipal_;
+    cet::exempt_ptr<EventPrincipal> onDemandPrincipal_ {nullptr};
+    mutable RangeSet rangeOfValidity_ {RangeSet::invalid()};
   };  // Group
 
   inline

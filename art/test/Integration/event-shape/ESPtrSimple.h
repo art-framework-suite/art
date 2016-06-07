@@ -10,6 +10,7 @@ namespace arttest {
 
 struct arttest::ESPtrSimple {
   art::Ptr<Simple> p;
+  void aggregate(ESPtrSimple const&) const {}
 };
 
 #endif /* art_test_Integration_event_shape_ESPtrSimple_h */

@@ -11,21 +11,25 @@
 #include "art/Framework/IO/Root/DropMetaData.h"
 #include "art/Framework/IO/Root/GetFileFormatEra.h"
 #include "art/Framework/IO/Root/GetFileFormatVersion.h"
+#include "art/Framework/IO/Root/detail/KeptProvenance.h"
 #include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Principal/ResultsPrincipal.h"
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
+#include "art/Ntuple/Transaction.h"
 #include "art/Persistency/Provenance/BranchIDListRegistry.h"
 #include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
 #include "art/Persistency/Provenance/ProductMetaData.h"
 #include "art/Persistency/RootDB/SQLErrMsg.h"
 #include "art/Persistency/RootDB/SQLite3Wrapper.h"
 #include "art/Version/GetReleaseVersion.h"
+#include "boost/date_time/posix_time/posix_time.hpp"
 #include "canvas/Persistency/Provenance/rootNames.h"
 #include "canvas/Persistency/Provenance/BranchChildren.h"
 #include "canvas/Persistency/Provenance/BranchID.h"
 #include "canvas/Persistency/Provenance/BranchIDList.h"
+#include "canvas/Persistency/Provenance/BranchType.h"
 #include "canvas/Persistency/Provenance/EventAuxiliary.h"
 #include "canvas/Persistency/Provenance/EventID.h"
 #include "canvas/Persistency/Provenance/FileFormatVersion.h"
@@ -39,7 +43,6 @@
 #include "canvas/Persistency/Provenance/RunAuxiliary.h"
 #include "canvas/Persistency/Provenance/SubRunAuxiliary.h"
 #include "canvas/Utilities/Exception.h"
-#include "boost/date_time/posix_time/posix_time.hpp"
 #include "cetlib/canonical_string.h"
 #include "cetlib/container_algorithms.h"
 #include "cetlib/exempt_ptr.h"
@@ -56,75 +59,324 @@
 
 using namespace cet;
 using namespace std;
-using art::rootNames::metaBranchRootName;
+using art::BranchType;
 using art::RootOutputFile;
+using art::rootNames::metaBranchRootName;
 
 namespace {
+
+  void create_table(sqlite3* const db,
+                    std::string const& name,
+                    std::vector<std::string> const& columns,
+                    std::string const& suffix = {})
+  {
+    if (columns.empty())
+      throw art::Exception(art::errors::LogicError)
+        << "Number of sqlite columns specified for table: "
+        << name << '\n'
+        << "is zero.\n";
+
+    sqlite::Transaction txn {db};
+    art::SQLErrMsg errMsg;
+    std::string ddl =
+      "DROP TABLE IF EXISTS " + name + "; "
+      "CREATE TABLE " + name +
+      "("+columns.front();
+    std::for_each(columns.begin()+1, columns.end(),
+                  [&ddl](auto const& col) {
+                    ddl += ","+col;
+                  } );
+    ddl += ") ";
+    ddl += suffix;
+    ddl += ";";
+    sqlite3_exec(db, ddl.c_str(), nullptr, nullptr, errMsg);
+    errMsg.throwIfError();
+    txn.commit();
+  }
 
   void
   insert_md_row(sqlite3_stmt* stmt, pair<string, string> const& kv)
   {
     string const& theName(kv.first);
     string const& theValue(kv.second);
-    sqlite3_bind_text(stmt, 1, theName.c_str(),
-                      theName.size() + 1, SQLITE_STATIC);
-    sqlite3_bind_text(stmt, 2, theValue.c_str(),
-                      theValue.size() + 1, SQLITE_STATIC);
+    sqlite3_bind_text(stmt, 1, theName.c_str(), theName.size() + 1, SQLITE_STATIC);
+    sqlite3_bind_text(stmt, 2, theValue.c_str(), theValue.size() + 1, SQLITE_STATIC);
     sqlite3_step(stmt);
     sqlite3_reset(stmt);
+  }
+
+  void
+  insert_eventRanges_row(sqlite3_stmt* stmt,
+                         art::SubRunNumber_t const sr,
+                         art::EventNumber_t const b,
+                         art::EventNumber_t const e)
+  {
+    sqlite3_bind_int64(stmt, 1, sr);
+    sqlite3_bind_int64(stmt, 2, b);
+    sqlite3_bind_int64(stmt, 3, e);
+    sqlite3_step(stmt);
+    sqlite3_reset(stmt);
+  }
+
+  void
+  insert_rangeSets_row(sqlite3_stmt* stmt,
+                       art::RunNumber_t const r)
+  {
+    sqlite3_bind_int64(stmt, 1, r);
+    sqlite3_step(stmt);
+    sqlite3_reset(stmt);
+  }
+
+  void
+  insert_rangeSets_eventSets_row(sqlite3_stmt* stmt,
+                                 unsigned const rsid,
+                                 unsigned const esid)
+  {
+    sqlite3_bind_int64(stmt, 1, rsid);
+    sqlite3_bind_int64(stmt, 2, esid);
+    sqlite3_step(stmt);
+    sqlite3_reset(stmt);
+  }
+
+  int
+  found_rowid(sqlite3_stmt* stmt)
+  {
+    return sqlite3_step(stmt) == SQLITE_ROW ?
+      sqlite3_column_int64(stmt,0) :
+      throw art::Exception(art::errors::SQLExecutionError)
+      << "ROWID not found for EventRanges.\n"
+      << "Contact artists@fnal.gov.\n";
+  }
+
+  unsigned
+  getNewRangeSetID(sqlite3* db,
+                   art::BranchType const bt,
+                   art::RunNumber_t const r)
+  {
+    sqlite::Transaction txn {db};
+    sqlite3_stmt* stmt {nullptr};
+    std::string const ddl {"INSERT INTO " + art::BranchTypeToString(bt) + "RangeSets(Run) VALUES(?);"};
+    sqlite3_prepare_v2(db, ddl.c_str(), -1, &stmt, nullptr);
+    insert_rangeSets_row(stmt, r);
+    unsigned const rsID = sqlite3_last_insert_rowid(db);
+    sqlite3_finalize(stmt);
+    txn.commit();
+    return rsID;
+  }
+
+  vector<unsigned>
+  getExistingRangeSetIDs(sqlite3* db, art::RangeSet const& rs)
+  {
+    vector<unsigned> rangeSetIDs;
+    for (auto const& range : rs) {
+      sqlite::Transaction txn {db};
+      sqlite3_stmt* stmt {nullptr};
+      std::string const ddl {"SELECT ROWID FROM EventRanges WHERE "
+          "SubRun=" + std::to_string(range.subRun()) + " AND "
+          "begin=" + std::to_string(range.begin()) + " AND "
+          "end=" + std::to_string(range.end()) + ";"};
+      sqlite3_prepare_v2(db, ddl.c_str(), -1, &stmt, nullptr);
+      rangeSetIDs.push_back(found_rowid(stmt));
+      sqlite3_finalize(stmt);
+      txn.commit();
+    }
+    return rangeSetIDs;
+  }
+
+  void
+  insertIntoEventRanges(sqlite3* db, art::RangeSet const& rs)
+  {
+    sqlite::Transaction txn {db};
+    sqlite3_stmt* stmt {nullptr};
+    std::string const ddl {"INSERT INTO EventRanges(SubRun, begin, end) "
+        "VALUES(?, ?, ?);"};
+    sqlite3_prepare_v2(db, ddl.c_str(), -1, &stmt, nullptr);
+    for (auto const& range : rs) {
+      insert_eventRanges_row(stmt, range.subRun(), range.begin(), range.end());
+    }
+    sqlite3_finalize(stmt);
+    txn.commit();
+  }
+
+  void
+  insertIntoJoinTable(sqlite3* db,
+                      art::BranchType const bt,
+                      unsigned const rsID,
+                      vector<unsigned> const& eventRangesIDs)
+  {
+    sqlite::Transaction txn {db};
+    sqlite3_stmt* stmt {nullptr};
+    std::string const ddl {"INSERT INTO "+art::BranchTypeToString(bt) +
+        "RangeSets_EventRanges(RangeSetsID, EventRangesID) Values(?,?);"};
+    sqlite3_prepare_v2(db, ddl.c_str(), -1, &stmt, nullptr);
+    cet::for_all(eventRangesIDs,
+                 [stmt,rsID](auto const eventRangeID) {
+                   insert_rangeSets_eventSets_row(stmt, rsID, eventRangeID);
+                 });
+    sqlite3_finalize(stmt);
+    txn.commit();
+  }
+
+  void
+  maybeInvalidateRangeSet(BranchType const bt,
+                          art::RangeSet const& principalRS,
+                          art::RangeSet& productRS)
+  {
+    if (!productRS.is_valid())
+      return;
+
+    assert(principalRS.is_sorted());
+    assert(productRS.is_sorted());
+    assert(!principalRS.ranges().empty());
+
+    if (bt == art::InRun && productRS.is_full_run()) return;
+    if (bt == art::InSubRun && productRS.is_full_subRun()) return;
+    assert(!productRS.ranges().empty());
+
+    auto const r = productRS.run();
+    auto const& productFront = productRS.ranges().front();
+    if (!principalRS.contains(r, productFront.subRun(), productFront.begin()))
+      productRS = art::RangeSet::invalid();
+  }
+
+  using art::detail::RangeSetsSupported;
+
+  // The purpose of 'maybeInvalidateRangeSet' is to support the
+  // following situation.  Suppose process 1 creates three files with
+  // one Run product each, all corresponding to the same Run.  Let's
+  // call the individual Run product instances in the three separate
+  // files as A, B, and C.  Now suppose that the three files serve as
+  // inputs to process 2, where a concatenation is being performed AND
+  // ALSO an output file switch.  Process 2 results in two output
+  // files, and now, in process 3, we concatenate the outputs from
+  // process 2.  The situation would look like this:
+  //
+  //  Process 1:   [A]     [B]     [C]
+  //                 \     / \     /
+  //  Process 2:     [A + B] [B + C]
+  //                   \ /     \ /
+  //        D=agg(A,B)  |       |  E=agg(B,C)
+  //                     \     /
+  //  Process 3:         [D + E]
+  //
+  // Notice the complication in process 3: product 'B' will be
+  // aggregated twice: once with A, and once with C.  Whenever the
+  // output from process 3 is read as input to another process, the
+  // fetched product will be equivalent to A+2B+C.
+  //
+  // To avoid this situation, we compare the RangeSet of the product
+  // with the RangeSet of the in-memory RunAuxiliary.  If the
+  // beginning of B's RangeSet is not contained within the auxiliary's
+  // RangeSet, then a dummy product with an invalid RangeSet is
+  // written to disk.  Instead of the diagram above, we have:
+  //
+  //  Process 1:   [A]     [B]     [C]
+  //                 \     / \     /
+  //  Process 2:     [A + B] [x + C]
+  //                   \ /     \ /
+  //        D=agg(A,B)  |       |  E=agg(x,C)=C
+  //                     \     /
+  //  Process 3:         [D + E]
+  //
+  // where 'x' represent a dummy product.  Upon aggregating D and E,
+  // we obtain the correctly formed A+B+C product.
+  template <BranchType BT>
+  std::enable_if_t<RangeSetsSupported<BT>::value, art::RangeSet>
+  getRangeSet(art::OutputHandle const& oh,
+              art::RangeSet const& principalRS,
+              bool const producedInThisProcess)
+  {
+    auto rs = oh.isValid() ? oh.rangeOfValidity() : art::RangeSet::invalid();
+    // Because a user can specify (e.g.):
+    //   r.put(std::move(myProd), art::runFragment(myRangeSet));
+    // products that are produced in this process can have valid, yet
+    // arbitrary RangeSets.  We therefore never invalidate a RangeSet
+    // that corresponds to a product produced in this process.
+    //
+    // It is possible for a user to specify a RangeSet which does not
+    // correspond AT ALL to the in-memory auxiliary RangeSet.  In that
+    // case, users should not expect to be able to retrieve products
+    // for which no corresponding events or sub-runs were processed.
+    if (!producedInThisProcess) {
+      maybeInvalidateRangeSet(BT, principalRS, rs);
+    }
+    return rs;
+  }
+
+  template <BranchType BT>
+  std::enable_if_t<!RangeSetsSupported<BT>::value, art::RangeSet>
+  getRangeSet(art::OutputHandle const&,
+              art::RangeSet const& /*principalRS*/,
+              bool const /*producedInThisProcess*/)
+  {
+    return art::RangeSet::invalid();
+  }
+
+  template <BranchType BT>
+  std::enable_if_t<!RangeSetsSupported<BT>::value>
+  setProductRangeSetID(art::RangeSet const& /*rs*/,
+                       sqlite3*,
+                       art::EDProduct*,
+                       std::map<unsigned,unsigned>& /*checksumToIndexLookup*/)
+  {}
+
+  template <BranchType BT>
+  std::enable_if_t<RangeSetsSupported<BT>::value>
+  setProductRangeSetID(art::RangeSet const& rs,
+                       sqlite3* db,
+                       art::EDProduct* product,
+                       std::map<unsigned,unsigned>& checksumToIndexLookup)
+  {
+    if (!rs.is_valid()) // Invalid range-sets not written to DB
+      return;
+
+    // Set range sets for SubRun and Run products
+    auto it = checksumToIndexLookup.find(rs.checksum());
+    if (it != checksumToIndexLookup.cend()) {
+      product->setRangeSetID(it->second);
+    }
+    else {
+      unsigned const rsID = getNewRangeSetID(db, BT, rs.run());
+      product->setRangeSetID(rsID);
+      checksumToIndexLookup.emplace(rs.checksum(), rsID);
+      insertIntoEventRanges(db, rs);
+      auto const& eventRangesIDs = getExistingRangeSetIDs(db, rs);
+      insertIntoJoinTable(db, BT, rsID, eventRangesIDs);
+    }
   }
 
 } // unnamed namespace
 
 art::
 RootOutputFile::
-RootOutputFile(OutputModule* om, string const& fileName,
-               unsigned int const maxFileSize, int const compressionLevel,
+RootOutputFile(OutputModule* om,
+               string const& fileName,
+               ClosingCriteria const& fileSwitchCriteria,
+               int const compressionLevel,
                int64_t const saveMemoryObjectThreshold,
                int64_t const treeMaxVirtualSize,
-               int const splitLevel, int const basketSize,
-               DropMetaData dropMetaData, bool dropMetaDataForDroppedData,
-               bool fastCloning)
-  : file_(fileName)
-  , om_(om)
-  , maxFileSize_(maxFileSize)
-  , compressionLevel_(compressionLevel)
-  , saveMemoryObjectThreshold_(saveMemoryObjectThreshold)
-  , treeMaxVirtualSize_(treeMaxVirtualSize)
-  , splitLevel_(splitLevel)
-  , basketSize_(basketSize)
-  , dropMetaData_(dropMetaData)
-  , dropMetaDataForDroppedData_(dropMetaDataForDroppedData)
-  , fastCloning_(fastCloning)
-  , currentlyFastCloning_(true)
-  , filePtr_(TFile::Open(file_.c_str(), "recreate", "",
-                         compressionLevel))
-  , fileIndex_()
-  , eventEntryNumber_(0LL)
-  , subRunEntryNumber_(0LL)
-  , runEntryNumber_(0LL)
-  , metaDataTree_(nullptr)
-  , fileIndexTree_(nullptr)
-  , parentageTree_(nullptr)
-  , eventHistoryTree_(nullptr)
-  , pEventAux_(nullptr)
-  , pSubRunAux_(nullptr)
-  , pRunAux_(nullptr)
-  , pResultsAux_(nullptr)
-  , eventProductProvenanceVector_()
-  , subRunProductProvenanceVector_()
-  , runProductProvenanceVector_()
-  , resultsProductProvenanceVector_()
-  , pEventProductProvenanceVector_(&eventProductProvenanceVector_)
-  , pSubRunProductProvenanceVector_(&subRunProductProvenanceVector_)
-  , pRunProductProvenanceVector_(&runProductProvenanceVector_)
-  , pResultsProductProvenanceVector_(&resultsProductProvenanceVector_)
-  , pHistory_(nullptr)
+               int const splitLevel,
+               int const basketSize,
+               DropMetaData dropMetaData,
+               bool const dropMetaDataForDroppedData,
+               bool const fastCloning)
+  : om_{om}
+  , file_{fileName}
+  , fileSwitchCriteria_{fileSwitchCriteria}
+  , compressionLevel_{compressionLevel}
+  , saveMemoryObjectThreshold_{saveMemoryObjectThreshold}
+  , treeMaxVirtualSize_{treeMaxVirtualSize}
+  , splitLevel_{splitLevel}
+  , basketSize_{basketSize}
+  , dropMetaData_{dropMetaData}
+  , dropMetaDataForDroppedData_{dropMetaDataForDroppedData}
+  , fastCloning_{fastCloning}
+  , filePtr_{TFile::Open(file_.c_str(), "recreate", "", compressionLevel)}
   , treePointers_ { // Order (and number) must match BranchTypes.h!
-  std::make_unique<RootOutputTree>(static_cast<EventPrincipal*>(nullptr),
-                                   filePtr_, InEvent, pEventAux_,
-                                   pEventProductProvenanceVector_, basketSize, splitLevel,
-                                   treeMaxVirtualSize, saveMemoryObjectThreshold),
+    std::make_unique<RootOutputTree>(static_cast<EventPrincipal*>(nullptr),
+                                     filePtr_, InEvent, pEventAux_,
+                                     pEventProductProvenanceVector_, basketSize, splitLevel,
+                                     treeMaxVirtualSize, saveMemoryObjectThreshold),
     std::make_unique<RootOutputTree>(static_cast<SubRunPrincipal*>(nullptr),
                                      filePtr_, InSubRun, pSubRunAux_,
                                      pSubRunProductProvenanceVector_, basketSize, splitLevel,
@@ -137,33 +389,29 @@ RootOutputFile(OutputModule* om, string const& fileName,
                                      filePtr_, InResults, pResultsAux_,
                                      pResultsProductProvenanceVector_, basketSize, splitLevel,
                                      treeMaxVirtualSize, saveMemoryObjectThreshold) }
-  , dataTypeReported_(false)
-  , metaDataHandle_(filePtr_.get(), "RootFileDB",
-                    SQLITE_OPEN_CREATE | SQLITE_OPEN_READWRITE)
-  , selectedOutputItemList_()
+  , rootFileDB_{filePtr_.get(), "RootFileDB", SQLITE_OPEN_CREATE | SQLITE_OPEN_READWRITE}
 {
   // Don't split metadata tree or event description tree
-  metaDataTree_ = RootOutputTree::makeTTree(filePtr_.get(),
-                                            rootNames::metaDataTreeName(), 0);
-  fileIndexTree_ = RootOutputTree::makeTTree(filePtr_.get(),
-                                             rootNames::fileIndexTreeName(), 0);
-  parentageTree_ = RootOutputTree::makeTTree(filePtr_.get(),
-                                             rootNames::parentageTreeName(), 0);
+  metaDataTree_ = RootOutputTree::makeTTree(filePtr_.get(), rootNames::metaDataTreeName(), 0);
+  fileIndexTree_ = RootOutputTree::makeTTree(filePtr_.get(), rootNames::fileIndexTreeName(), 0);
+  parentageTree_ = RootOutputTree::makeTTree(filePtr_.get(), rootNames::parentageTreeName(), 0);
   // Create the tree that will carry (event) History objects.
-  eventHistoryTree_ = RootOutputTree::makeTTree(filePtr_.get(),
-                                                rootNames::eventHistoryTreeName(), splitLevel);
+  eventHistoryTree_ = RootOutputTree::makeTTree(filePtr_.get(), rootNames::eventHistoryTreeName(), splitLevel);
   if (!eventHistoryTree_) {
     throw art::Exception(art::errors::FatalRootError)
       << "Failed to create the tree for History objects\n";
   }
+
+
   pHistory_ = new History;
-  if (!eventHistoryTree_->Branch(rootNames::eventHistoryBranchName().c_str(),
-                                 &pHistory_, basketSize, 0)) {
+  if (!eventHistoryTree_->Branch(rootNames::eventHistoryBranchName().c_str(), &pHistory_, basketSize, 0)) {
     throw art::Exception(art::errors::FatalRootError)
       << "Failed to create a branch for History in the output file\n";
   }
   delete pHistory_;
   pHistory_ = nullptr;
+
+  createDatabaseTables();
 }
 
 art::
@@ -210,6 +458,33 @@ operator()(OutputItem const& lh, OutputItem const& rh) const
     return false;
   }
   return lh < rh;
+}
+
+void
+art::RootOutputFile::createDatabaseTables()
+{
+
+  // FileCatalog metadata
+  create_table(rootFileDB_, "FileCatalog_metadata",
+               {"ID INTEGER PRIMARY KEY", "Name", "Value"});
+
+  // Event ranges
+  create_table(rootFileDB_, "EventRanges",
+               {"SubRun INTEGER", "begin INTEGER", "end INTEGER", "UNIQUE (SubRun,begin,end) ON CONFLICT IGNORE"});
+
+  // SubRun range sets
+  create_table(rootFileDB_, "SubRunRangeSets",
+               {"Run INTEGER"});
+  create_table(rootFileDB_, "SubRunRangeSets_EventRanges",
+               {"RangeSetsID INTEGER", "EventRangesID INTEGER", "PRIMARY KEY(RangeSetsID,EventRangesID)"},
+               "WITHOUT ROWID");
+
+  // Run range sets
+  create_table(rootFileDB_, "RunRangeSets",
+               {"Run INTEGER"});
+  create_table(rootFileDB_, "RunRangeSets_EventRanges",
+               {"RangeSetsID INTEGER", "EventRangesID INTEGER", "PRIMARY KEY(RangeSetsID,EventRangesID)"},
+               "WITHOUT ROWID");
 }
 
 void
@@ -261,6 +536,14 @@ beginInputFile(FileBlock const& fb, bool fastClone)
       "having a different splitting policy.";
     currentlyFastCloning_ = false;
   }
+
+  if (currentlyFastCloning_ && fb.fileFormatVersion().value_ < 9) {
+    mf::LogWarning("FastCloning")
+      << "Fast cloning deactivated for this input file due to "
+      << "reading in file that does not support RangeSets.";
+    currentlyFastCloning_ = false;
+  }
+
   if (currentlyFastCloning_ && !origCurrentlyFastCloning) {
     mf::LogWarning("FastCloning")
       << "Fast cloning reactivated for this input file.";
@@ -282,11 +565,16 @@ respondToCloseInputFile(FileBlock const&)
 bool
 art::
 RootOutputFile::
-shouldWeCloseFile() const
+requestsToCloseFile() const
 {
-  unsigned int const oneK = 1024;
-  Long64_t size = filePtr_->GetSize() / oneK;
-  return size >= maxFileSize_;
+  using namespace std::chrono;
+  unsigned int constexpr oneK {1024u};
+  Long64_t const size {filePtr_->GetSize() / oneK};
+  auto const fileAge = steady_clock::now() - beginTime_;\
+  return criteriaMet(fileSwitchCriteria_,
+                     size,
+                     eventEntryNumber_,
+                     duration_cast<seconds>(fileAge));
 }
 
 void
@@ -301,9 +589,9 @@ writeOne(EventPrincipal const& e)
   // Because getting the data may cause an exception to be
   // thrown we want to do that first before writing anything
   // to the file about this event.
-  fillBranches(InEvent, e, pEventProductProvenanceVector_);
+  fillBranches<InEvent>(e, pEventProductProvenanceVector_);
   // History branch.
-  History historyForOutput(e.history());
+  History historyForOutput {e.history()};
   historyForOutput.addEventSelectionEntry(om_->selectorConfig());
   pHistory_ = &historyForOutput;
   int sz = eventHistoryTree_->Fill();
@@ -318,7 +606,7 @@ writeOne(EventPrincipal const& e)
   }
   // Add the dataType to the job report if it hasn't already been done
   if (!dataTypeReported_) {
-    string dataType("MC");
+    string dataType {"MC"};
     if (pEventAux_->isRealData()) {
       dataType = "Data";
     }
@@ -335,13 +623,11 @@ art::
 RootOutputFile::
 writeSubRun(SubRunPrincipal const& sr)
 {
-  // Auxiliary branch
   pSubRunAux_ = &sr.aux();
-  // Add subRun to index.
-  fileIndex_.addEntry(EventID::invalidEvent(pSubRunAux_->id()),
-                      subRunEntryNumber_);
+  pSubRunAux_->setRangeSetID(subRunRSID_);
+  fillBranches<InSubRun>(sr, pSubRunProductProvenanceVector_);
+  fileIndex_.addEntry(EventID::invalidEvent(pSubRunAux_->id()), subRunEntryNumber_);
   ++subRunEntryNumber_;
-  fillBranches(InSubRun, sr, pSubRunProductProvenanceVector_);
 }
 
 void
@@ -349,12 +635,11 @@ art::
 RootOutputFile::
 writeRun(RunPrincipal const& r)
 {
-  // Auxiliary branch
   pRunAux_ = &r.aux();
-  // Add run to index.
+  pRunAux_->setRangeSetID(runRSID_);
+  fillBranches<InRun>(r, pRunProductProvenanceVector_);
   fileIndex_.addEntry(EventID::invalidEvent(pRunAux_->id()), runEntryNumber_);
   ++runEntryNumber_;
-  fillBranches(InRun, r, pRunProductProvenanceVector_);
 }
 
 void
@@ -378,19 +663,13 @@ writeParentageRegistry()
   }
   delete desc;
   desc = nullptr;
-  //map<art::ParentID const, art::Parentage>
-  //map<art::Hash<ParentageType> const, art::Parentage>
-  //map<art::Hash<5> const, art::Parentage>
-  for (auto I = ParentageRegistry::cbegin(), E = ParentageRegistry::cend();
-       I != E; ++I) {
-    hash = &I->first;
-    desc = &I->second;
+  for (auto const& pr : ParentageRegistry::get()) {
+    hash = &pr.first;
+    desc = &pr.second;
     parentageTree_->Fill();
   }
-  parentageTree_->SetBranchAddress(rootNames::parentageIDBranchName().c_str(),
-                                   0);
-  parentageTree_->SetBranchAddress(rootNames::parentageBranchName().c_str(),
-                                   0);
+  parentageTree_->SetBranchAddress(rootNames::parentageIDBranchName().c_str(), nullptr);
+  parentageTree_->SetBranchAddress(rootNames::parentageBranchName().c_str(), nullptr);
 }
 
 void
@@ -478,21 +757,11 @@ writeFileCatalogMetadata(FileStatsCollector const& stats,
                          FileCatalogMetadata::collection_type const& md,
                          FileCatalogMetadata::collection_type const& ssmd)
 {
-  SQLErrMsg errMsg;
-  // ID is declared auto-increment, so don't specify it when filling a
-  // row.
-  sqlite3_exec(metaDataHandle_,
-               "BEGIN TRANSACTION; "
-               "DROP TABLE IF EXISTS FileCatalog_metadata; "
-               "CREATE TABLE FileCatalog_metadata(ID INTEGER PRIMARY KEY,"
-               "                                  Name, Value); "
-               "COMMIT;", 0, 0, errMsg);
-  errMsg.throwIfError();
-  sqlite3_exec(metaDataHandle_, "BEGIN TRANSACTION;", 0, 0, errMsg);
-  sqlite3_stmt* stmt = 0;
-  sqlite3_prepare_v2(metaDataHandle_,
+  sqlite::Transaction txn {rootFileDB_};
+  sqlite3_stmt* stmt = nullptr;
+  sqlite3_prepare_v2(rootFileDB_,
                      "INSERT INTO FileCatalog_metadata(Name, Value) "
-                     "VALUES(?, ?);", -1, &stmt, NULL);
+                     "VALUES(?, ?);", -1, &stmt, nullptr);
   for (auto const& kv : md) {
     insert_md_row(stmt, kv);
   }
@@ -571,7 +840,7 @@ writeFileCatalogMetadata(FileStatsCollector const& stats,
     insert_md_row(stmt, kv);
   }
   sqlite3_finalize(stmt);
-  sqlite3_exec(metaDataHandle_, "END TRANSACTION;", 0, 0, SQLErrMsg());
+  txn.commit();
 }
 
 void
@@ -579,7 +848,7 @@ art::
 RootOutputFile::
 writeParameterSetRegistry()
 {
-  fhicl::ParameterSetRegistry::exportTo(metaDataHandle_);
+  fhicl::ParameterSetRegistry::exportTo(rootFileDB_);
 }
 
 void
@@ -627,7 +896,7 @@ RootOutputFile::
 writeResults(ResultsPrincipal & resp)
 {
   pResultsAux_ = &resp.aux();
-  fillBranches(InResults, resp, pResultsProductProvenanceVector_);
+  fillBranches<InResults>(resp, pResultsProductProvenanceVector_);
 }
 
 void
@@ -640,106 +909,123 @@ finishEndFile()
   RootOutputTree::writeTTree(parentageTree_);
   // Write out the tree corresponding to each BranchType
   for (int i = InEvent; i < NumBranchTypes; ++i) {
-    BranchType branchType = static_cast<BranchType>(i);
+    auto const branchType = static_cast<BranchType>(i);
     treePointers_[branchType]->writeTree();
   }
-  // Write out the metadata DB
-  metaDataHandle_.reset();
+  // Write out DB
+  rootFileDB_.reset();
   // Close the file.
   filePtr_->Close();
   filePtr_.reset();
 }
 
+template <art::BranchType BT>
 void
 art::
 RootOutputFile::
-insertAncestors(ProductProvenance const& iGetParents,
-                Principal const& principal, set<ProductProvenance>& oToFill)
-{
-  if (dropMetaData_ == DropMetaData::DropAll) {
-    return;
-  }
-  if (dropMetaDataForDroppedData_) {
-    return;
-  }
-  auto parentIDs = iGetParents.parentage().parents();
-  for (auto I = parentIDs.cbegin(), E = parentIDs.cend(); I != E; ++I) {
-    branchesWithStoredHistory_.insert(*I);
-    auto info = principal.branchMapper().branchToProductProvenance(*I);
-    if (!info || dropMetaData_ != DropMetaData::DropNone) {
-      continue;
-    }
-    auto bd = principal.getForOutput(info->branchID(), false).desc();
-    if (bd && bd->produced() && oToFill.insert(*info).second) {
-      // FIXME: Remove recursion!
-      insertAncestors(*info, principal, oToFill);
-    }
-  }
-}
-
-void
-art::
-RootOutputFile::
-fillBranches(BranchType const& bt, Principal const& principal,
+fillBranches(Principal const& principal,
              vector<ProductProvenance>* vpp)
 {
-  vector<unique_ptr<EDProduct>> dummies;
-  bool const fastCloning = (bt == InEvent) && currentlyFastCloning_;
-  set<ProductProvenance> keptProv;
-  for (auto const& val : selectedOutputItemList_[bt]) {
-    auto const& bd = val.branchDescription_;
-    auto const& bid = bd->branchID();
+  bool const fastCloning = (BT == InEvent) && currentlyFastCloning_;
+  detail::KeptProvenance keptProvenance {dropMetaData_, dropMetaDataForDroppedData_, branchesWithStoredHistory_};
+  map<unsigned,unsigned> checksumToIndex;
+
+  auto const& principalRS = principal.seenRanges();
+
+  for (auto const& val : selectedOutputItemList_[BT]) {
+    auto const* bd = val.branchDescription_;
+    auto const bid = bd->branchID();
     branchesWithStoredHistory_.insert(bid);
-    auto produced = bd->produced();
-    bool keepProvenance = dropMetaData_ == DropMetaData::DropNone ||
-      (dropMetaData_ == DropMetaData::DropPrior &&
-       produced);
-    bool resolveProd = (produced || !fastCloning ||
-                        treePointers_[bt]->uncloned(bd->branchName()));
-    auto const oh = principal.getForOutput(bid, resolveProd);
-    EDProduct const* product = nullptr;
-    if (oh.productProvenance()) {
-      product = oh.wrapper();
-    }
+    bool const produced {bd->produced()};
+    bool const resolveProd = (produced || !fastCloning ||
+                              treePointers_[BT]->uncloned(bd->branchName()));
+
+    // Update the kept provenance
+    bool const keepProvenance = (dropMetaData_ == DropMetaData::DropNone ||
+                                 (dropMetaData_ == DropMetaData::DropPrior &&
+                                  produced));
+    auto const& oh = principal.getForOutput(bid, resolveProd);
+
+    unique_ptr<ProductProvenance> prov {nullptr};
     if (keepProvenance) {
       if (oh.productProvenance()) {
-        keptProv.insert(*oh.productProvenance());
-        insertAncestors(*oh.productProvenance(), principal, keptProv);
+        prov = std::make_unique<ProductProvenance>(keptProvenance.insert(*oh.productProvenance()));
+        keptProvenance.insertAncestors(*oh.productProvenance(), principal);
       }
       else {
         // No provenance, product was either not produced,
         // or was dropped, create provenance to remember that.
-        if (produced) {
-          keptProv.emplace(bd->branchID(), productstatus::neverCreated());
-        }
-        else {
-          keptProv.emplace(bd->branchID(), productstatus::dropped());
-        }
+        auto const status = produced ? productstatus::neverCreated() : productstatus::dropped();
+        prov = std::make_unique<ProductProvenance>(keptProvenance.emplace(bid, status));
       }
     }
+
+    // Resolve the product if necessary
     if (resolveProd) {
-      if (product == nullptr) {
-        // No such product in the event, so use a dummy product.
-        // FIXME: Can we cache these dummy products so that we do not
-        // FIXME: create them for every event?
-        auto name = bd->wrappedName().c_str();
-        TClass* cp = TClass::GetClass(name);
-        if (cp == nullptr) {
-          throw art::Exception(art::errors::DictionaryNotFound)
-            << "TClass::GetClass() returned null pointer for name: "
-            << name
-            << '\n';
-        }
-        unique_ptr<EDProduct> dummy(reinterpret_cast<EDProduct*>(cp->New()));
-        product = dummy.get();
-        // Make sure the dummies outlive the fillTree call.
-        dummies.emplace_back(move(dummy));
+      auto const& rs = getRangeSet<BT>(oh, principalRS, produced);
+      if (RangeSetsSupported<BT>::value && !rs.is_valid()) {
+        // Unfortunately, 'unknown' is the only viable product status
+        // when this condition is triggered (due to the assert
+        // statement in ProductStatus::setNotPresent).  Whenever the
+        // metadata revolution comes, this should be revised.
+        keptProvenance.setStatus(*prov, productstatus::unknown());
       }
+
+      auto const* product = getProduct<BT>(oh, rs, bd->wrappedName());
+      setProductRangeSetID<BT>(rs,
+                               rootFileDB_,
+                               const_cast<EDProduct*>(product),
+                               checksumToIndex);
       val.product_ = product;
     }
   }
-  vpp->assign(keptProv.begin(), keptProv.end());
-  treePointers_[bt]->fillTree();
+  vpp->assign(keptProvenance.begin(), keptProvenance.end());
+  treePointers_[BT]->fillTree();
   vpp->clear();
 }
 
+void
+art::
+RootOutputFile::
+setSubRunAuxiliaryRangeSetID(RangeSet const& ranges)
+{
+  subRunRSID_ = getNewRangeSetID(rootFileDB_, InSubRun, ranges.run());
+  insertIntoEventRanges(rootFileDB_, ranges);
+  auto const& eventRangesIDs = getExistingRangeSetIDs(rootFileDB_, ranges);
+  insertIntoJoinTable(rootFileDB_, InSubRun, subRunRSID_, eventRangesIDs);
+}
+
+void
+art::
+RootOutputFile::
+setRunAuxiliaryRangeSetID(RangeSet const& ranges)
+{
+  runRSID_ = getNewRangeSetID(rootFileDB_, InRun, ranges.run());
+  insertIntoEventRanges(rootFileDB_, ranges);
+  auto const& eventRangesIDs = getExistingRangeSetIDs(rootFileDB_, ranges);
+  insertIntoJoinTable(rootFileDB_, InRun, runRSID_, eventRangesIDs);
+}
+
+template <BranchType BT>
+std::enable_if_t<!RangeSetsSupported<BT>::value, art::EDProduct const*>
+art::RootOutputFile::getProduct(art::OutputHandle const& oh,
+                                art::RangeSet const& /*prunedProductRS*/,
+                                std::string const& wrappedName)
+{
+  if (oh.isValid())
+    return oh.wrapper();
+  else
+    return dummyProductCache_.product(wrappedName);
+}
+
+template <BranchType BT>
+std::enable_if_t<RangeSetsSupported<BT>::value, art::EDProduct const*>
+art::RootOutputFile::getProduct(art::OutputHandle const& oh,
+                                art::RangeSet const& prunedProductRS,
+                                std::string const& wrappedName)
+{
+  if (oh.isValid() && prunedProductRS.is_valid())
+    return oh.wrapper();
+  else
+    return dummyProductCache_.product(wrappedName);
+}

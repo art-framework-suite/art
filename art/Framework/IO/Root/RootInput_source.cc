@@ -8,6 +8,7 @@
 #include "art/Framework/IO/Root/FastCloningInfoProvider.h"
 #include "art/Framework/IO/Root/RootInputFileSequence.h"
 #include "art/Framework/Principal/EventPrincipal.h"
+#include "art/Framework/Principal/RangeSetHandler.h"
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
 #include "canvas/Persistency/Provenance/EventID.h"
@@ -158,17 +159,16 @@ RootInput::
 readRun()
 {
   switch (accessState_.state()) {
-    case AccessState::SEQUENTIAL:
-      return DecrepitRelicInputSourceImplementation::readRun();
-    case AccessState::SEEKING_RUN:
-      accessState_.setState(AccessState::SEEKING_SUBRUN);
-      setRunPrincipal(primaryFileSequence_->readIt(
-        accessState_.wantedEventID().runID()));
-      return runPrincipal();
-    default:
-      throw Exception(errors::LogicError)
-          << "RootInputSource::readRun encountered an "
-             "unknown or inappropriate AccessState.\n";
+  case AccessState::SEQUENTIAL:
+    return DecrepitRelicInputSourceImplementation::readRun();
+  case AccessState::SEEKING_RUN:
+    accessState_.setState(AccessState::SEEKING_SUBRUN);
+    setRunPrincipal(primaryFileSequence_->readIt(accessState_.wantedEventID().runID()));
+    return runPrincipal();
+  default:
+    throw Exception(errors::LogicError)
+      << "RootInputSource::readRun encountered an "
+         "unknown or inappropriate AccessState.\n";
   }
 }
 
@@ -177,6 +177,12 @@ RootInput::
 readRun_()
 {
   return primaryFileSequence_->readRun_();
+}
+
+std::unique_ptr<RangeSetHandler>
+RootInput::runRangeSetHandler()
+{
+  return primaryFileSequence_->runRangeSetHandler();
 }
 
 std::vector<std::shared_ptr<RunPrincipal>>
@@ -191,21 +197,16 @@ RootInput::
 readSubRun(std::shared_ptr<RunPrincipal> rp)
 {
   switch (accessState_.state()) {
-    case AccessState::SEQUENTIAL:
-      return DecrepitRelicInputSourceImplementation::readSubRun(rp);
-    case AccessState::SEEKING_SUBRUN:
-      accessState_.setState(AccessState::SEEKING_EVENT);
-      {
-        std::shared_ptr<SubRunPrincipal> srp(primaryFileSequence_->readIt(
-          accessState_.wantedEventID().subRunID(), rp));
-        srp->setRunPrincipal(rp);
-        setSubRunPrincipal(srp);
-        return std::move(srp);
-      }
-    default:
-      throw Exception(errors::LogicError)
-          << "RootInputSource::readSubRun encountered an "
-             "unknown or inappropriate AccessState.\n";
+  case AccessState::SEQUENTIAL:
+    return DecrepitRelicInputSourceImplementation::readSubRun(rp);
+  case AccessState::SEEKING_SUBRUN:
+    accessState_.setState(AccessState::SEEKING_EVENT);
+    setSubRunPrincipal(primaryFileSequence_->readIt(accessState_.wantedEventID().subRunID(), rp));
+    return subRunPrincipal();
+  default:
+    throw Exception(errors::LogicError)
+      << "RootInputSource::readSubRun encountered an "
+         "unknown or inappropriate AccessState.\n";
   }
 }
 
@@ -221,6 +222,12 @@ RootInput::
 readSubRunFromSecondaryFiles_()
 {
   return std::move(primaryFileSequence_->readSubRunFromSecondaryFiles_(runPrincipal()));
+}
+
+std::unique_ptr<RangeSetHandler>
+RootInput::subRunRangeSetHandler()
+{
+  return primaryFileSequence_->subRunRangeSetHandler();
 }
 
 std::unique_ptr<EventPrincipal>
@@ -273,24 +280,5 @@ readEvent_()
   }
   return result;
 }
-
-//void
-//RootInput::
-//storeMPRforBrokenRandomAccess(MasterProductRegistry& mpr)
-//{
-//  mpr_.reset(&mpr);
-//}
-
-//void
-//RootInput::
-//checkMPR(MasterProductRegistry const& mpr) const
-//{
-//  if (&mpr != mpr_.get()) {
-//    throw Exception(errors::LogicError)
-//        << "Consistency error: MasterProductRegistry in current call "
-//           "does not match\n"
-//        << "that stored!\n";
-//  }
-//}
 
 DEFINE_ART_INPUT_SOURCE(RootInput)

@@ -19,6 +19,7 @@ namespace art {
   class NoDelayedReader;
   class Principal;
   class Provenance;
+  class RangeSetHandler;
   class Run;
   class RunPrincipal;
   class ProcessNameSelector; // Selector.h
@@ -29,7 +30,6 @@ namespace art {
   template <class A, class B> class OrHelper; // Selector.h
   template <class A> class NotHelper; // Selector.h
   template <class T> class ComposedSelectorWrapper; // Selector.h
-  class RunStopwatch;
   class Selector;
   class SelectorBase;
   class SubRun;

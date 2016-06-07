@@ -128,11 +128,11 @@ namespace art {
   // Append container in to container out.
   // I.
   template <typename CONTAINER>
-  typename std::enable_if<detail::has_two_arg_insert<CONTAINER>::value>::type
+  std::enable_if_t<detail::has_two_arg_insert<CONTAINER>::value>
   concatContainers(CONTAINER &out, CONTAINER const &in);
   // II.
   template <typename CONTAINER>
-  typename std::enable_if<detail::has_three_arg_insert<CONTAINER>::value>::type
+  std::enable_if_t<detail::has_three_arg_insert<CONTAINER>::value>
   concatContainers(CONTAINER &out, CONTAINER const &in);
 
   // 1.
@@ -218,13 +218,13 @@ art::detail::verifyPtrCollection(iterator beg,
 
 // I.
 template <typename CONTAINER>
-typename std::enable_if<art::detail::has_two_arg_insert<CONTAINER>::value>::type
+std::enable_if_t<art::detail::has_two_arg_insert<CONTAINER>::value>
 art::concatContainers(CONTAINER &out, CONTAINER const &in) {
   (void) out.insert(in.begin(), in.end());
 }
 // II.
 template <typename CONTAINER>
-typename std::enable_if<art::detail::has_three_arg_insert<CONTAINER>::value>::type
+std::enable_if_t<art::detail::has_three_arg_insert<CONTAINER>::value>
 art::concatContainers(CONTAINER &out, CONTAINER const &in) {
   out.insert(out.end(), in.begin(), in.end());
 }

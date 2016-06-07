@@ -41,7 +41,7 @@ namespace art
     template <typename T>
     struct FullConfig {
       fhicl::Atom<std::string> module_type { fhicl::Name("module_type") };
-      fhicl::OptionalTable<EventObserver::EOConfig> eoConfig { fhicl::Name("SelectEvents") };
+      fhicl::TableFragment<EventObserver::EOConfig> eoConfig;
       fhicl::TableFragment<T> user;
     };
 
@@ -59,7 +59,7 @@ namespace art
 
       auto const& operator()() const { return fullConfig_().user(); }
 
-      auto const& eoTable()  const { return fullConfig_().eoConfig; }
+      auto const& eoFragment()  const { return fullConfig_().eoConfig(); }
       auto const& get_PSet() const { return fullConfig_.get_PSet(); }
 
       void print_allowed_configuration(std::ostream& os, std::string const& prefix) const
@@ -73,17 +73,13 @@ namespace art
 
     template <typename Config>
     explicit EDAnalyzer(Table<Config> const& config)
-      : EventObserver{config.eoTable()}
+      : EventObserver{config.eoFragment().selectEvents(), config.get_PSet()}
       , EngineCreator{}
-      , moduleDescription_{}
-      , current_context_{0}
     {}
 
     explicit EDAnalyzer(fhicl::ParameterSet const& pset)
-      : EventObserver(pset)
-      , EngineCreator()
-      , moduleDescription_()
-      , current_context_(0)
+      : EventObserver{pset}
+      , EngineCreator{}
     {}
 
     virtual ~EDAnalyzer() = default;
@@ -96,22 +92,22 @@ namespace art
     CurrentProcessingContext const* currentContext() const;
 
   private:
-    bool doEvent(EventPrincipal const& ep,
-                   CurrentProcessingContext const* cpc);
+
+    using CPC_exempt_ptr = cet::exempt_ptr<CurrentProcessingContext const>;
+
+    bool doEvent(EventPrincipal const& ep, CPC_exempt_ptr cpc);
     void doBeginJob();
     void doEndJob();
-    bool doBeginRun(RunPrincipal const& rp,
-                   CurrentProcessingContext const* cpc);
-    bool doEndRun(RunPrincipal const& rp,
-                   CurrentProcessingContext const* cpc);
-    bool doBeginSubRun(SubRunPrincipal const& srp,
-                   CurrentProcessingContext const* cpc);
-    bool doEndSubRun(SubRunPrincipal const& srp,
-                   CurrentProcessingContext const* cpc);
+    bool doBeginRun(RunPrincipal const& rp, CPC_exempt_ptr cpc);
+    bool doEndRun(RunPrincipal const& rp, CPC_exempt_ptr cpc);
+    bool doBeginSubRun(SubRunPrincipal const& srp, CPC_exempt_ptr cpc);
+    bool doEndSubRun(SubRunPrincipal const& srp, CPC_exempt_ptr cpc);
     void doRespondToOpenInputFile(FileBlock const& fb);
     void doRespondToCloseInputFile(FileBlock const& fb);
     void doRespondToOpenOutputFiles(FileBlock const& fb);
     void doRespondToCloseOutputFiles(FileBlock const& fb);
+    void doRespondToOpenOutputFile();
+    void doRespondToCloseOutputFile();
 
     virtual void analyze(Event const&) = 0;
     virtual void beginJob(){}
@@ -125,14 +121,24 @@ namespace art
     virtual void respondToCloseInputFile(FileBlock const&) {}
     virtual void respondToOpenOutputFiles(FileBlock const&) {}
     virtual void respondToCloseOutputFiles(FileBlock const&) {}
+    virtual void respondToOpenOutputFile() {}
+    virtual void respondToCloseOutputFile() {}
 
     void setModuleDescription(ModuleDescription const& md) {
       moduleDescription_ = md;
     }
 
-    ModuleDescription moduleDescription_;
-    CurrentProcessingContext const* current_context_;
+    ModuleDescription moduleDescription_ {};
+    CPC_exempt_ptr current_context_ {nullptr};
   };  // EDAnalyzer
+
+  template <typename T, typename U>
+  inline decltype(auto) operator<<(T&& t, EDAnalyzer::Table<U> const& u)
+  {
+    std::ostringstream oss;
+    u.print_allowed_configuration(oss, std::string(3,' '));
+    return std::forward<T>(t) << oss.str();
+  }
 
 }  // art
 

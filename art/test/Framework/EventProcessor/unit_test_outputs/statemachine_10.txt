@@ -1,5 +1,24 @@
-x 0
-e 1
-l 1
-r 1
-s 1
+InputFile+OutputFiles
+r:1
+s:1
+e:1
+SwitchOutputFiles
+e:2
+e:3
+InputFile+SwitchOutputFiles
+r:1
+s:1
+e:4
+e:5
+InputFile
+r:1
+s:1
+e:6
+r:2
+s:0
+e:1
+e:2
+SwitchOutputFiles
+s:1
+e:1
+Stop

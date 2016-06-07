@@ -1,6 +1,8 @@
 #include "art/Framework/Art/BasicOutputOptionsHandler.h"
 
+#include "art/Framework/Art/detail/bold_fontify.h"
 #include "art/Framework/Art/detail/exists_outside_prolog.h"
+#include "art/Framework/Art/detail/fhicl_key.h"
 #include "canvas/Utilities/Exception.h"
 #include "art/Utilities/ensureTable.h"
 #include "cetlib/canonical_string.h"
@@ -15,21 +17,20 @@
 #include <vector>
 
 using namespace std::string_literals;
+using art::detail::fhicl_key;
 
-namespace {
-  using table_t = fhicl::extended_value::table_t;
-  using sequence_t = fhicl::extended_value::sequence_t;
-  using art::detail::exists_outside_prolog;
+using table_t = fhicl::extended_value::table_t;
+using sequence_t = fhicl::extended_value::sequence_t;
+using art::detail::exists_outside_prolog;
 
-  using stringvec = std::vector<std::string>;
-}
+using stringvec = std::vector<std::string>;
 
 art::BasicOutputOptionsHandler::
-BasicOutputOptionsHandler(bpo::options_description & desc)
-  :
-  tmpDir_()
+BasicOutputOptionsHandler(bpo::options_description& desc)
+  : tmpDir_{}
 {
-  desc.add_options()
+  bpo::options_description output_options {detail::bold_fontify("Output options")};
+  output_options.add_options()
     ("TFileName,T", bpo::value<std::string>(),
      "File name for TFileService.")
     ("tmpdir", bpo::value<std::string>(&tmpDir_),
@@ -42,6 +43,7 @@ BasicOutputOptionsHandler(bpo::options_description & desc)
      "stream-label:fileName in which case multiples are OK).")
     ("no-output", "Disable all output streams.")
   ;
+  desc.add(output_options);
 }
 
 int
@@ -206,7 +208,7 @@ namespace {
         // Add it to the end_paths list.
         auto const key = "physics.end_paths"s;
         if ( exists_outside_prolog(raw_config, key) ) {
-          size_t const index = raw_config.get<sequence_t &>("physics.end_paths").size();
+          size_t const index = raw_config.get<sequence_t&>("physics.end_paths").size();
           raw_config.put("physics.end_paths["s + std::to_string(index) + ']', end_path);
         }
       }
@@ -262,17 +264,17 @@ doProcessOptions(bpo::variables_map const & vm,
   processFileOutputOptions(vm, raw_config);
   // tmpDir option for TFileService and output streams.
   if (!tmpDir_.empty()) {
-    std::string const& tfile_key {"services.TFileService"};
+    std::string const& tfile_key = fhicl_key("services","TFileService");
     if (detail::exists_outside_prolog(raw_config, tfile_key)) {
-      raw_config.put(tfile_key + ".tmpDir", tmpDir_);
+      raw_config.put(fhicl_key(tfile_key,"tmpDir"), tmpDir_);
     }
-    std::string const& outputs_stem {"outputs"};
+    std::string const outputs_stem {"outputs"};
     if (detail::exists_outside_prolog(raw_config, outputs_stem)) {
       auto const & table = raw_config.get<table_t const &>(outputs_stem);
       for (auto const & output : table) {
-        if (detail::exists_outside_prolog(raw_config, outputs_stem + '.' + output.first + ".module_type")) {
+        if (detail::exists_outside_prolog(raw_config, fhicl_key(outputs_stem, output.first, "module_type"))) {
           // Inject tmpDir into the module configuration.
-          raw_config.put(outputs_stem + '.' + output.first + ".tmpDir", tmpDir_);
+          raw_config.put(fhicl_key(outputs_stem, output.first, "tmpDir"), tmpDir_);
         }
       }
     }

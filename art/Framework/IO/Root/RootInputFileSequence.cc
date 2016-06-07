@@ -6,6 +6,7 @@
 #include "art/Framework/IO/Catalog/InputFileCatalog.h"
 #include "art/Framework/IO/Root/RootInputFile.h"
 #include "art/Framework/IO/Root/RootTree.h"
+#include "art/Framework/IO/detail/logFileAction.h"
 #include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Persistency/Provenance/BranchIDListHelper.h"
@@ -215,7 +216,7 @@ RootInputFileSequence::
 seekToEvent(EventID const& eID, bool exact)
 {
   // Attempt to find event in currently open input file.
-  bool found = rootFile_->setEntryAtEvent(eID, true);
+  bool found = rootFile_->setEntry<InEvent>(eID, true);
   // found in the current file
   if (found) {
     return rootFile_->eventIDForFileIndexPosition();
@@ -230,12 +231,12 @@ seekToEvent(EventID const& eID, bool exact)
        it = itBegin;
        (!found) && it != itEnd;
        ++it) {
-    if (*it && (*it)->containsEvent(eID, exact)) {
+    if (*it && (*it)->contains(eID, exact)) {
       // We found it. Close the currently open file, and open the correct one.
       catalog_.rewindTo(std::distance(itBegin, it));
       initFile(/*skipBadFiles=*/false);
       // Now get the event from the correct file.
-      found = rootFile_->setEntryAtEvent(eID, exact);
+      found = rootFile_->setEntry<InEvent>(eID, exact);
       assert(found);
       return rootFile_->eventIDForFileIndexPosition();
     }
@@ -243,7 +244,7 @@ seekToEvent(EventID const& eID, bool exact)
   // Look for event in files not yet opened.
   while (catalog_.getNextFile()) {
     initFile(/*skipBadFiles=*/false);
-    found = rootFile_->setEntryAtEvent(eID, exact);
+    found = rootFile_->setEntry<InEvent>(eID, exact);
   }
   return (found) ? rootFile_->eventIDForFileIndexPosition() : EventID();
 }
@@ -301,7 +302,7 @@ closeFile_()
     {
       rootFile_->close(primary());
     }
-    logFileAction("  Closed file ", rootFile_->file());
+    detail::logFileAction("Closed input file ", rootFile_->file());
     rootFile_.reset();
     if (duplicateChecker_.get() != 0) {
       duplicateChecker_->inputFileClosed();
@@ -317,8 +318,8 @@ initFile(bool skipBadFiles, bool initMPR/*=false*/)
   closeFile_();
   std::shared_ptr<TFile> filePtr;
   try {
-    logFileAction("  Initiating request to open file ",
-                  catalog_.currentFile().fileName());
+    detail::logFileAction("Initiating request to open input file ",
+                          catalog_.currentFile().fileName());
     filePtr.reset(TFile::Open(catalog_.currentFile().fileName().c_str()));
   }
   catch (cet::exception e) {
@@ -343,8 +344,8 @@ initFile(bool skipBadFiles, bool initMPR/*=false*/)
         << " was not found or could not be opened, and will be skipped.\n";
     return;
   }
-  logFileAction("  Successfully opened file ",
-                catalog_.currentFile().fileName());
+  detail::logFileAction("Opened input file ",
+                        catalog_.currentFile().fileName());
   vector<string> empty_vs;
   rootFile_ = make_shared<RootInputFile>(
                 catalog_.currentFile().fileName(),
@@ -432,7 +433,7 @@ openSecondaryFile(int idx, string const& name,
 {
   std::shared_ptr<TFile> filePtr;
   try {
-    logFileAction("  Attempting  to open secondary file ", name);
+    detail::logFileAction("Attempting  to open secondary input file ", name);
     filePtr.reset(TFile::Open(name.c_str()));
   }
   catch (cet::exception e) {
@@ -448,36 +449,35 @@ openSecondaryFile(int idx, string const& name,
         << name
         << " was not found or could not be opened.\n";
   }
-  logFileAction("  Successfully opened secondary file ", name);
+  detail::logFileAction("Opened secondary input file ", name);
   vector<string> empty_vs;
-  auto rif =
-    std::make_unique<RootInputFile>
-    (name,
-     /*url*/"",
-     processConfiguration(),
-     /*logicalFileName*/"",
-     filePtr,
-     origEventID_,
-     eventsToSkip_,
-     whichSubRunsToSkip_,
-     fastCloningInfo_,
-     treeCacheSize_,
-     treeMaxVirtualSize_,
-     saveMemoryObjectThreshold_,
-     delayedReadSubRunProducts_,
-     delayedReadRunProducts_,
-     processingMode_,
-     forcedRunOffset_,
-     noEventSort_,
-     groupSelectorRules_,
-     /*dropMergeable*/false,
-     /*duplicateChecker_*/nullptr,
-     dropDescendants_,
-     readParameterSets_,
-     /*primaryFile*/primaryFile,
-     /*secondaryFileNameIdx*/idx,
-     /*secondaryFileNames*/empty_vs,
-     /*rifSequence*/this);
+  auto rif = std::make_unique<RootInputFile>( name,
+                                              /*url*/"",
+                                              processConfiguration(),
+                                              /*logicalFileName*/"",
+                                              filePtr,
+                                              origEventID_,
+                                              eventsToSkip_,
+                                              whichSubRunsToSkip_,
+                                              fastCloningInfo_,
+                                              treeCacheSize_,
+                                              treeMaxVirtualSize_,
+                                              saveMemoryObjectThreshold_,
+                                              delayedReadSubRunProducts_,
+                                              delayedReadRunProducts_,
+                                              processingMode_,
+                                              forcedRunOffset_,
+                                              noEventSort_,
+                                              groupSelectorRules_,
+                                              /*dropMergeable*/false,
+                                              /*duplicateChecker_*/nullptr,
+                                              dropDescendants_,
+                                              readParameterSets_,
+                                              /*primaryFile*/primaryFile,
+                                              /*secondaryFileNameIdx*/idx,
+                                              /*secondaryFileNames*/empty_vs,
+                                              /*rifSequence*/this);
+
   mpr_.updateFromSecondaryFile(rif->productList(),
                                rif->perBranchTypePresence(),
                                *rif->createFileBlock().get());
@@ -550,18 +550,10 @@ previousFile()
 
 unique_ptr<EventPrincipal>
 RootInputFileSequence::
-readCurrentEvent()
-{
-  rootFileForLastReadEvent_ = rootFile_;
-  return rootFile_->readCurrentEvent();
-}
-
-unique_ptr<EventPrincipal>
-RootInputFileSequence::
 readIt(EventID const& id, bool exact)
 {
   // Attempt to find event in currently open input file.
-  bool found = rootFile_->setEntryAtEvent(id, exact);
+  bool found = rootFile_->setEntry<InEvent>(id, exact);
   if (found) {
     rootFileForLastReadEvent_ = rootFile_;
     unique_ptr<EventPrincipal> eptr(readEvent_());
@@ -574,12 +566,12 @@ readIt(EventID const& id, bool exact)
   // Look for event in cached files
   for (auto IB = fileIndexes_.cbegin(), IE = fileIndexes_.cend(), I = IB;
        I != IE; ++I) {
-    if (*I && (*I)->containsEvent(id, exact)) {
+    if (*I && (*I)->contains(id, exact)) {
       // We found it. Close the currently open file, and open the correct one.
       catalog_.rewindTo(std::distance(IB, I));
       initFile(/*skipBadFiles=*/false);
       // Now get the event from the correct file.
-      found = rootFile_->setEntryAtEvent(id, exact);
+      found = rootFile_->setEntry<InEvent>(id, exact);
       assert(found);
       rootFileForLastReadEvent_ = rootFile_;
       unique_ptr<EventPrincipal> ep = readEvent_();
@@ -589,7 +581,7 @@ readIt(EventID const& id, bool exact)
   // Look for event in files not yet opened.
   while (catalog_.getNextFile()) {
     initFile(/*skipBadFiles=*/false);
-    found = rootFile_->setEntryAtEvent(id, exact);
+    found = rootFile_->setEntry<InEvent>(id, exact);
     if (found) {
       rootFileForLastReadEvent_ = rootFile_;
       unique_ptr<EventPrincipal> ep(readEvent_());
@@ -620,12 +612,24 @@ readEvent_()
   return rootFile_->readEvent();
 }
 
+std::unique_ptr<RangeSetHandler>
+RootInputFileSequence::runRangeSetHandler()
+{
+  return rootFile_->runRangeSetHandler();
+}
+
+std::unique_ptr<RangeSetHandler>
+RootInputFileSequence::subRunRangeSetHandler()
+{
+  return rootFile_->subRunRangeSetHandler();
+}
+
 std::shared_ptr<SubRunPrincipal>
 RootInputFileSequence::
 readIt(SubRunID const& id, std::shared_ptr<RunPrincipal> rp)
 {
   // Attempt to find subRun in currently open input file.
-  bool found = rootFile_->setEntryAtSubRun(id);
+  bool found = rootFile_->setEntry<InSubRun>(id);
   if (found) {
     return readSubRun_(rp);
   }
@@ -638,12 +642,12 @@ readIt(SubRunID const& id, std::shared_ptr<RunPrincipal> rp)
        it = itBegin;
        it != itEnd;
        ++it) {
-    if (*it && (*it)->containsSubRun(id, true)) {
+    if (*it && (*it)->contains(id, true)) {
       // We found it. Close the currently open file, and open the correct one.
       catalog_.rewindTo(std::distance(itBegin, it));
       initFile(/*skipBadFiles=*/false);
       // Now get the subRun from the correct file.
-      found = rootFile_->setEntryAtSubRun(id);
+      found = rootFile_->setEntry<InSubRun>(id);
       assert(found);
       return readSubRun_(rp);
     }
@@ -651,7 +655,7 @@ readIt(SubRunID const& id, std::shared_ptr<RunPrincipal> rp)
   // Look for subRun in files not yet opened.
   while (catalog_.getNextFile()) {
     initFile(/*skipBadFiles=*/false);
-    found = rootFile_->setEntryAtSubRun(id);
+    found = rootFile_->setEntry<InSubRun>(id);
     if (found) {
       return readSubRun_(rp);
     }
@@ -668,8 +672,8 @@ readSubRun_(std::shared_ptr<RunPrincipal> rp)
 }
 
 std::vector<std::shared_ptr<SubRunPrincipal>>
-    RootInputFileSequence::
-    readSubRunFromSecondaryFiles_(std::shared_ptr<RunPrincipal> rp)
+RootInputFileSequence::
+readSubRunFromSecondaryFiles_(std::shared_ptr<RunPrincipal> rp)
 {
   return std::move(rootFile_->readSubRunFromSecondaryFiles(rp));
 }
@@ -679,7 +683,7 @@ RootInputFileSequence::
 readIt(RunID const& id)
 {
   // Attempt to find run in current file.
-  bool found = rootFile_->setEntryAtRun(id);
+  bool found = rootFile_->setEntry<InRun>(id);
   if (found) {
     // Got it, read the run.
     return readRun_();
@@ -691,12 +695,12 @@ readIt(RunID const& id)
   // Look for the run in the opened files.
   for (auto B = fileIndexes_.cbegin(), E = fileIndexes_.cend(), I = B;
        I != E; ++I) {
-    if (*I && (*I)->containsRun(id, true)) {
+    if (*I && (*I)->contains(id, true)) {
       // We found it, open the file.
       catalog_.rewindTo(std::distance(B, I));
       initFile(/*skipBadFiles=*/false);
       // Now read the run.
-      found = rootFile_->setEntryAtRun(id);
+      found = rootFile_->setEntry<InRun>(id);
       assert(found);
       return readRun_();
     }
@@ -704,7 +708,7 @@ readIt(RunID const& id)
   // Look for run in files not yet opened.
   while (catalog_.getNextFile()) {
     initFile(/*skipBadFiles=*/false);
-    found = rootFile_->setEntryAtRun(id);
+    found = rootFile_->setEntry<InRun>(id);
     if (found) {
       // Got it, read the run.
       return readRun_();
@@ -815,17 +819,6 @@ RootInputFileSequence::
 processConfiguration() const
 {
   return processConfiguration_;
-}
-
-void
-RootInputFileSequence::
-logFileAction(const char* msg, string const& file)
-{
-  time_t t = time(0);
-  char ts[] = "dd-Mon-yyyy hh:mm:ss TZN     ";
-  strftime(ts, strlen(ts) + 1, "%d-%b-%Y %H:%M:%S %Z", localtime(&t));
-  mf::LogAbsolute("fileAction") << ts << msg << file;
-  mf::FlushMessageLog();
 }
 
 } // namespace art

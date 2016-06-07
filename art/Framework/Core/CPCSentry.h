@@ -1,6 +1,8 @@
 #ifndef art_Framework_Core_CPCSentry_h
 #define art_Framework_Core_CPCSentry_h
 
+#include "cetlib/exempt_ptr.h"
+
 // ======================================================================
 //
 // class CPCSentry uses RAII to make sure that the
@@ -18,17 +20,17 @@ namespace art {
     class CPCSentry
     {
     public:
-      CPCSentry(CurrentProcessingContext const*& c,
-                CurrentProcessingContext const* value) :
-        referenced_(&c)
+      CPCSentry(cet::exempt_ptr<CurrentProcessingContext const>& c,
+                cet::exempt_ptr<CurrentProcessingContext const> value) :
+        referenced_{&c}
       {
         c = value;
       }
 
-      ~CPCSentry() { *referenced_ = 0; }
+      ~CPCSentry() { *referenced_ = nullptr; }
 
     private:
-      CurrentProcessingContext const** referenced_;
+      cet::exempt_ptr<CurrentProcessingContext const>* referenced_;
     };  // CPCSentry
 
   }  // detail

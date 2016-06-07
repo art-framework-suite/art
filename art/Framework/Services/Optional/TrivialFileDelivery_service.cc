@@ -2,7 +2,6 @@
 #include "art/Framework/Services/FileServiceInterfaces/FileDeliveryStatus.h"
 #include <cerrno>
 #include <cstdlib>
-#include <iostream>
 #include <fstream>
 using namespace art;
 using namespace std;

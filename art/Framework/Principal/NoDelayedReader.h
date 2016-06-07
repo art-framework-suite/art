@@ -3,13 +3,16 @@
 
 #include "art/Persistency/Common/DelayedReader.h"
 #include "art/Framework/Principal/fwd.h"
+#include "canvas/Persistency/Provenance/BranchID.h"
 #include "canvas/Persistency/Provenance/ProvenanceFwd.h"
 
 #include <memory>
 
 class art::NoDelayedReader : public art::DelayedReader {
 private:
-  std::unique_ptr<EDProduct> getProduct_(BranchKey const& k, art::TypeID const &) const override;
+  [[noreturn]] std::unique_ptr<EDProduct> getProduct_(BranchKey const& ,
+                                                      art::TypeID const&,
+                                                      RangeSet&) const;
 };
 
 #endif /* art_Framework_Principal_NoDelayedReader_h */

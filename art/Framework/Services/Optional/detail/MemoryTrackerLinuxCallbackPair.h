@@ -20,10 +20,6 @@ namespace art {
 
     using memSummary_t = ntuple::Ntuple<std::string,std::string,double,double>;
 
-    class SourceSummaryType;
-    class ModuleSummaryType;
-
-    template <typename T>
     class CallbackPair {
     public:
 
@@ -31,51 +27,35 @@ namespace art {
                    LinuxProcMgr const & procMgr,
                    std::size_t  const & evtCounter,
                    std::string  const & processStep)
-        : summaryTable_( &summaryTable )
-        , procMgr_     ( &procMgr      )
-        , counter_     ( &evtCounter   )
-        , processStep_ (  processStep  )
+        : summaryTable_{&summaryTable}
+        , procMgr_{&procMgr}
+        , counter_{&evtCounter}
+        , processStep_{processStep}
       {}
 
-      template<typename ... ARGS>
-      void pre (ARGS const & ... )
+      void pre(ModuleDescription const&)
       {
         baseline_ = procMgr_->getCurrentData();
       }
 
-      template<typename ... ARGS>
-      void post(ARGS const & ... )
+      void post(ModuleDescription const& md)
       {
         deltas_ = procMgr_->getCurrentData()-baseline_;
-        summaryTable_->insert( processStep_,
-                               // add one to keep easier synchronization with EventID
-                               "[ EVT ] #: "s +std::to_string( *counter_+1 ),
-                               deltas_.at(LinuxProcData::VSIZE),
-                               deltas_.at(LinuxProcData::RSS ) );
+        summaryTable_->insert(processStep_,
+                              md.moduleLabel()+":"s+md.moduleName(),
+                              deltas_[LinuxProcData::VSIZE],
+                              deltas_[LinuxProcData::RSS]);
       }
 
     private:
-
-      cet::exempt_ptr<memSummary_t>       summaryTable_;
-      cet::exempt_ptr<const LinuxProcMgr> procMgr_;
-      cet::exempt_ptr<const std::size_t>  counter_;
+      cet::exempt_ptr<memSummary_t> summaryTable_;
+      cet::exempt_ptr<LinuxProcMgr const> procMgr_;
+      cet::exempt_ptr<std::size_t const>  counter_;
       std::string processStep_;
 
-      LinuxProcData::proc_array baseline_;
-      LinuxProcData::proc_array deltas_;
-
+      LinuxProcData::proc_array baseline_ {{0.}};
+      LinuxProcData::proc_array deltas_ {{0.}};
     };
-
-    template<>
-    template<>
-    inline void
-    CallbackPair<ModuleSummaryType>::post<ModuleDescription const &>( ModuleDescription const & md ) {
-      deltas_ = procMgr_->getCurrentData()-baseline_;
-      summaryTable_->insert( processStep_,
-                             "[ MOD ] "s+md.moduleLabel()+":"s+md.moduleName(),
-                             deltas_.at(LinuxProcData::VSIZE),
-                             deltas_.at(LinuxProcData::RSS ) );
-    }
 
   } // detail
 } // art

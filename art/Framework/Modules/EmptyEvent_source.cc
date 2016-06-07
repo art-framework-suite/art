@@ -1,7 +1,3 @@
-namespace art {
-  class EmptyEvent;
-}
-
 #include "art/Framework/Core/DecrepitRelicInputSourceImplementation.h"
 #include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Core/EmptyEventTimestampPlugin.h"
@@ -12,6 +8,7 @@ namespace art {
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRun.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
+#include "art/Framework/Principal/OpenRangeSetHandler.h"
 #include "canvas/Persistency/Provenance/EventAuxiliary.h"
 #include "canvas/Persistency/Provenance/EventID.h"
 #include "canvas/Persistency/Provenance/RunAuxiliary.h"
@@ -29,10 +26,14 @@ namespace art {
 #include <cstdint>
 #include <memory>
 
+namespace art {
+  class EmptyEvent;
+}
+
 using DRISI = art::DecrepitRelicInputSourceImplementation;
 using std::uint32_t;
 
-class art::EmptyEvent : public DRISI {
+class art::EmptyEvent final : public DRISI {
 public:
 
   struct Config {
@@ -77,13 +78,17 @@ private:
   std::shared_ptr<RunPrincipal> readRun_() override;
   std::vector<std::shared_ptr<SubRunPrincipal>> readSubRunFromSecondaryFiles_() override;
   std::vector<std::shared_ptr<RunPrincipal>> readRunFromSecondaryFiles_() override;
+
+  std::unique_ptr<RangeSetHandler> runRangeSetHandler() override;
+  std::unique_ptr<RangeSetHandler> subRunRangeSetHandler() override;
+
   void skip(int offset) override;
   void rewind_() override;
 
   void beginJob() override;
   void endJob() override;
 
-  void reallyReadEvent();
+  void reallyReadEvent(bool const lastEventInSubRun);
 
   std::unique_ptr<EmptyEventTimestampPlugin>
   makePlugin_(fhicl::ParameterSet const & pset);
@@ -92,20 +97,20 @@ private:
   unsigned int numberEventsInSubRun_;
   unsigned int eventCreationDelay_;  /* microseconds */
 
-  unsigned int numberEventsInThisRun_;
-  unsigned int numberEventsInThisSubRun_;
-  EventID eventID_;
-  EventID origEventID_;
-  bool newRun_;
-  bool newSubRun_;
-  bool subRunSet_;
-  bool eventSet_;
-  bool skipEventIncrement_;
+  unsigned int numberEventsInThisRun_ {};
+  unsigned int numberEventsInThisSubRun_ {};
+  EventID eventID_ {};
+  EventID origEventID_ {};
+  bool newRun_ {true};
+  bool newSubRun_ {true};
+  bool subRunSet_ {false};
+  bool eventSet_ {false};
+  bool skipEventIncrement_ {true};
   bool resetEventOnSubRun_;
-  std::unique_ptr<EventPrincipal> ep_;
-  EventAuxiliary::ExperimentType eType_;
+  std::unique_ptr<EventPrincipal> ep_ {};
+  EventAuxiliary::ExperimentType eType_ {EventAuxiliary::Any};
 
-  cet::BasicPluginFactory pluginFactory_;
+  cet::BasicPluginFactory pluginFactory_ {};
   std::unique_ptr<EmptyEventTimestampPlugin> plugin_;
 };  // EmptyEvent
 
@@ -115,23 +120,11 @@ using namespace art;
 
 art::EmptyEvent::EmptyEvent(art::EmptyEvent::Parameters const& config, InputSourceDescription & desc)
   :
-  DecrepitRelicInputSourceImplementation(config().drisi_config, desc ),
+  DecrepitRelicInputSourceImplementation{config().drisi_config, desc},
   numberEventsInRun_       {static_cast<uint32_t>(config().numberEventsInRun())},
   numberEventsInSubRun_    {static_cast<uint32_t>(config().numberEventsInSubRun())},
   eventCreationDelay_      {config().eventCreationDelay()},
-  numberEventsInThisRun_   {},
-  numberEventsInThisSubRun_{},
-  eventID_                 {},
-  origEventID_             {}, // In body.
-  newRun_                  {true},
-  newSubRun_               {true},
-  subRunSet_               {false},
-  eventSet_                {false},
-  skipEventIncrement_      {true},
   resetEventOnSubRun_      {config().resetEventOnSubRun()},
-  ep_                      {},
-  eType_                   {EventAuxiliary::Any},
-  pluginFactory_           {},
   plugin_                  {makePlugin_(config.get_PSet().get<fhicl::ParameterSet>("timestampPlugin", { }))}
   {
 
@@ -156,15 +149,20 @@ art::EmptyEvent::readRun_() {
   auto ts = plugin_ ?
     plugin_->doBeginRunTimestamp(eventID_.runID()) :
     Timestamp::invalidTimestamp();
-  RunAuxiliary runAux(eventID_.runID(), ts, Timestamp::invalidTimestamp());
+  RunAuxiliary const runAux{eventID_.runID(), ts, Timestamp::invalidTimestamp()};
   newRun_ = false;
-  auto rp_ptr =
-    std::make_shared<RunPrincipal>(runAux, processConfiguration());
+  auto rp_ptr = std::make_shared<RunPrincipal>(runAux, processConfiguration());
   if (plugin_) {
-    Run r(*rp_ptr, moduleDescription());
+    Run const r {*rp_ptr, moduleDescription()};
     plugin_->doBeginRun(r);
   }
   return rp_ptr;
+}
+
+std::unique_ptr<RangeSetHandler>
+art::EmptyEvent::runRangeSetHandler()
+{
+  return std::make_unique<OpenRangeSetHandler>(eventID_.run());
 }
 
 std::vector<std::shared_ptr<RunPrincipal>>
@@ -180,18 +178,20 @@ EmptyEvent::readSubRun_() {
   auto ts = plugin_ ?
     plugin_->doBeginSubRunTimestamp(eventID_.subRunID()) :
     Timestamp::invalidTimestamp();
-  SubRunAuxiliary subRunAux(eventID_.subRunID(),
-                            ts,
-                            Timestamp::invalidTimestamp());
-  auto srp_ptr =
-    std::make_shared<SubRunPrincipal>(subRunAux,
-                                      processConfiguration());
+  SubRunAuxiliary const subRunAux{eventID_.subRunID(), ts, Timestamp::invalidTimestamp()};
+  auto srp_ptr = std::make_shared<SubRunPrincipal>(subRunAux, processConfiguration());
   if (plugin_) {
-    SubRun sr(*srp_ptr, moduleDescription());
+    SubRun const sr {*srp_ptr, moduleDescription()};
     plugin_->doBeginSubRun(sr);
   }
   newSubRun_ = false;
   return srp_ptr;
+}
+
+std::unique_ptr<RangeSetHandler>
+art::EmptyEvent::subRunRangeSetHandler()
+{
+  return std::make_unique<OpenRangeSetHandler>(eventID_.run());
 }
 
 std::vector<std::shared_ptr<SubRunPrincipal>>
@@ -225,15 +225,18 @@ endJob()
   }
 }
 
-void art::EmptyEvent::reallyReadEvent() {
+void art::EmptyEvent::reallyReadEvent(bool const lastEventInSubRun) {
   if (processingMode() != RunsSubRunsAndEvents) return;
   auto timestamp = plugin_ ?
     plugin_->doEventTimestamp(eventID_) :
     Timestamp::invalidTimestamp();
-  EventAuxiliary eventAux(eventID_,
-                          timestamp,
-                          eType_);
-  ep_.reset(new EventPrincipal(eventAux, processConfiguration()));
+  EventAuxiliary const eventAux{eventID_, timestamp, eType_};
+  ep_ = std::make_unique<EventPrincipal>(eventAux,
+                                         processConfiguration(),
+                                         std::make_shared<History>(),
+                                         std::make_unique<BranchMapper>(),
+                                         std::make_unique<NoDelayedReader>(),
+                                         lastEventInSubRun);
 }
 
 std::unique_ptr<art::EmptyEventTimestampPlugin>
@@ -332,7 +335,8 @@ art::EmptyEvent::getNextItemType() {
   }
   ++numberEventsInThisRun_;
   ++numberEventsInThisSubRun_;
-  reallyReadEvent();
+  bool const lastEventInSubRun = numberEventsInThisSubRun_ == numberEventsInSubRun_;
+  reallyReadEvent(lastEventInSubRun);
   if (ep_.get() == 0) {
     return input::IsStop;
   }

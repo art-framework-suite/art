@@ -60,7 +60,6 @@
 #include <fstream>
 #include <string>
 #include <vector>
-//#include <iostream>
 
 using art::RNGsnapshot;
 using art::RandomNumberGenerator;
@@ -68,7 +67,6 @@ using fhicl::ParameterSet;
 using std::ifstream;
 using std::ofstream;
 using std::string;
-//using std::cerr;  // DEBUG
 
 // ======================================================================
 

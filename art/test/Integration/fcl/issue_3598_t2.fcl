@@ -1,6 +1,6 @@
 services:
 {
-   TimeTracker: { 
+   TimeTracker: {
       printSummary : false
    }
 }
@@ -29,7 +29,7 @@ physics:
       mod1:
       {
          module_type: TestTimeTrackerAnalyzer
-         SelectEvents: { SelectEvents: [ p1 ] }
+         SelectEvents: [ p1 ]
       }
 
       mod2:

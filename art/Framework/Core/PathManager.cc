@@ -10,7 +10,6 @@
 using fhicl::ParameterSet;
 
 #include <algorithm>
-#include <iostream>
 #include <map>
 #include <set>
 #include <sstream>

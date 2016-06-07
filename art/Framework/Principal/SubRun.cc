@@ -8,15 +8,16 @@ namespace art {
   namespace {
     Run *
     newRun(SubRunPrincipal& srp, ModuleDescription const& md) {
-      return (srp.runPrincipalSharedPtr() ? new Run(srp.runPrincipal(), md) : 0);
+      return (srp.runPrincipalSharedPtr() ? new Run{srp.runPrincipal(), md} : nullptr);
     }
   }
 
-  SubRun::SubRun(SubRunPrincipal& srp, ModuleDescription const& md) :
-                 DataViewImpl(srp, md, InSubRun),
-                 aux_(srp.aux()),
-                 run_(newRun(srp, md)) {
-  }
+  SubRun::SubRun(SubRunPrincipal& srp, ModuleDescription const& md, RangeSet const& rs) :
+    DataViewImpl{srp, md, InSubRun},
+    aux_{srp.aux()},
+    run_{newRun(srp, md)},
+    productRangeSet_{rs}
+  {}
 
   Run const&
   SubRun::getRun() const {
@@ -39,7 +40,8 @@ namespace art {
 
       srp.put( std::move(elem.second.prod),
                elem.second.bd,
-               std::move(subRunProductProvenancePtr) );
+               std::move(subRunProductProvenancePtr),
+               std::move(elem.second.rs));
     };
 
     cet::for_all( putProducts(), put_in_principal );

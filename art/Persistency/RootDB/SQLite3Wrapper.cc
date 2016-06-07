@@ -8,6 +8,7 @@
 #include <cassert>
 
 namespace {
+
   enum DBTYPE {
     SQLITE3_TKEYDB,
     SQLITE3_MEMDB,
@@ -44,7 +45,7 @@ namespace {
     assert(string_ptr);
     mf::LogAbsolute("SQLTrace")
         << "+ SQLTrace ("
-        << *reinterpret_cast<std::string *>(string_ptr)
+        << *reinterpret_cast<std::string*>(string_ptr)
         << "): "
         << zSQL;
   }
@@ -99,7 +100,7 @@ art::SQLite3Wrapper::
 reset(std::string const & key,
       int flags)
 {
-  SQLite3Wrapper tmp(key, flags);
+  SQLite3Wrapper tmp{key, flags};
   swap(tmp);
 }
 
@@ -109,7 +110,7 @@ reset(TFile * tfile,
       std::string const & key,
       int flags)
 {
-  SQLite3Wrapper tmp(tfile, key, flags);
+  SQLite3Wrapper tmp{tfile, key, flags};
   swap(tmp);
 }
 
@@ -141,7 +142,7 @@ initDB(int flags, TFile * tfile)
   switch (type) {
     case SQLITE3_TKEYDB:
       if (!key_.size()) {
-        throw Exception(errors::FileOpenError)
+        throw Exception{errors::FileOpenError}
             << "Failed to open TKEYVFS DB due to empty key spec.\n";
       }
       err = tkeyvfs_open_v2(key_.c_str(), &db_, flags, tfile);
@@ -157,7 +158,7 @@ initDB(int flags, TFile * tfile)
       break;
   }
   if (err) {
-    throw Exception(errors::FileOpenError)
+    throw Exception{errors::FileOpenError}
         << "Failed to open requested DB, \""
         << key_
         << "\" of type, \""

@@ -1,4 +1,3 @@
-
 /*----------------------------------------------------------------------
 
 ----------------------------------------------------------------------*/
@@ -38,8 +37,8 @@ namespace art {
   }
 
   bool
-  OutputWorker::shouldWeCloseFile() const {
-    return module().shouldWeCloseFile();
+  OutputWorker::requestsToCloseFile() const {
+    return module().requestsToCloseFile();
   }
 
   void
@@ -58,6 +57,23 @@ namespace art {
     module().doWriteSubRun(srp);
   }
 
+  void
+  OutputWorker::writeEvent(EventPrincipal& srp) {
+    module().doWriteEvent(srp);
+  }
+
+  void
+  OutputWorker::setRunAuxiliaryRangeSetID(RangeSet const& rs) {
+    module().doSetRunAuxiliaryRangeSetID(rs);
+  }
+
+  void
+  OutputWorker::setSubRunAuxiliaryRangeSetID(RangeSet const& rs) {
+    module().doSetSubRunAuxiliaryRangeSetID(rs);
+  }
+
+  bool OutputWorker::fileIsOpen() const {return module().fileIsOpen();}
+
   bool OutputWorker::wantAllEvents() const {return module().wantAllEvents();}
 
   bool OutputWorker::limitReached() const {return module().limitReached();}
@@ -65,5 +81,15 @@ namespace art {
   void OutputWorker::configure(OutputModuleDescription const& desc) {module().configure(desc);}
 
   void OutputWorker::selectProducts(FileBlock const& fb) { module().selectProducts(fb); }
+
+  Boundary OutputWorker::fileSwitchBoundary() const { return module().fileSwitchBoundary(); }
+
+  bool OutputWorker::stagedToCloseFile() const {
+    return module().stagedToCloseFile();
+  }
+
+  void OutputWorker::setFileStatus(OutputFileStatus const fs) { module().setFileStatus(fs); }
+
+  void OutputWorker::flagToCloseFile(bool const b) { module().flagToCloseFile(b); }
 
 }

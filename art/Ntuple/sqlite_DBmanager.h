@@ -9,13 +9,13 @@ namespace sqlite
   class DBmanager {
   public:
 
-    DBmanager( const std::string& filename )
-      : db_( openDatabaseFile( filename ) )
-      , log_( !filename.empty() )
+    DBmanager(std::string const& filename)
+      : db_{openDatabaseFile(filename)}
+      , log_{!filename.empty()}
     {}
 
     ~DBmanager() {
-      if ( db_ != nullptr ) sqlite3_close( db_ );
+      if (db_ != nullptr) sqlite3_close(db_);
     }
 
     bool logToDb() const { return log_; }
@@ -23,6 +23,8 @@ namespace sqlite
     sqlite3& operator* (){ return *db_; }
     sqlite3* operator->(){ return  db_; }
     sqlite3* get() const { return  db_; }
+
+    operator sqlite3*() { return db_; }
 
   private:
 

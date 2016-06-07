@@ -2,7 +2,7 @@ process_name: DEVELr
 
 source: {
   module_type: RootInput
-  fileNames: [ "../RPTest_w.d/out_1.root", "../RPTest_w2.d/out_2.root" ]
+  fileNames: [ "../RPTest_w.d/out_r1.root", "../RPTest_w2.d/out_r2.root" ]
 }
 
 physics: {
@@ -18,11 +18,13 @@ outputs: {
         rpr1: {
           plugin_type: RPTestReader
           intResultsLabel: "o1#rpw"
-          nResultsExpected: 2
+          nResultsExpected: 2 # from input files
         }
         rpr2: {
           plugin_type: RPTestReader
           intResultsLabel: "o1#rpw"
+          # 2 from reading from input files + 1 successful getByLabel
+          # in writeResults for a product created in 'rpw'.
           nResultsExpected: 3
         }
         rpw: {

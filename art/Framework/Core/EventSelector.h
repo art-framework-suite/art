@@ -64,11 +64,9 @@ namespace art {
 
     struct BitInfo
     {
-      BitInfo(unsigned int pos, bool state):pos_(pos),accept_state_(state) { }
-      BitInfo():pos_(),accept_state_() { }
-
-      unsigned int pos_;
-      bool accept_state_;
+      BitInfo(unsigned const pos, bool const state): pos_{pos}, accept_state_{state} {}
+      unsigned int pos_ {};
+      bool accept_state_ {false};
     };
 
     using Bits = std::vector<BitInfo>;

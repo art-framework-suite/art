@@ -45,6 +45,7 @@ namespace art {
     T const& module() const {return *module_;}
 
   private:
+
     bool implDoBegin(EventPrincipal& ep,
                      CurrentProcessingContext const* cpc) override;
     bool implDoEnd(EventPrincipal& ep,
@@ -71,10 +72,11 @@ namespace art {
   template <typename T>
   inline
   WorkerT<T>::WorkerT(std::unique_ptr<T> && ed,
-                 ModuleDescription const& md,
-                 WorkerParams const& wp) :
-    Worker(md, wp),
-    module_(ed.release()) {
+                      ModuleDescription const& md,
+                      WorkerParams const& wp) :
+    Worker{md, wp},
+    module_{ed.release()}
+  {
     module_->setModuleDescription(md);
     module_->registerProducts(wp.reg_, md);
   }
@@ -82,42 +84,42 @@ namespace art {
   template <typename T>
   bool
   WorkerT<T>::implDoBegin(EventPrincipal& ep,
-                           CurrentProcessingContext const* cpc) {
+                          CurrentProcessingContext const* cpc) {
     return module_->doEvent(ep, cpc);
   }
 
   template <typename T>
   bool
   WorkerT<T>::implDoEnd(EventPrincipal& ,
-                           CurrentProcessingContext const*) {
+                        CurrentProcessingContext const*) {
     return false;
   }
 
   template <typename T>
   bool
   WorkerT<T>::implDoBegin(RunPrincipal& rp,
-                           CurrentProcessingContext const* cpc) {
+                          CurrentProcessingContext const* cpc) {
     return module_->doBeginRun(rp, cpc);
   }
 
   template <typename T>
   bool
   WorkerT<T>::implDoEnd(RunPrincipal& rp,
-                           CurrentProcessingContext const* cpc) {
+                        CurrentProcessingContext const* cpc) {
     return module_->doEndRun(rp, cpc);
   }
 
   template <typename T>
   bool
   WorkerT<T>::implDoBegin(SubRunPrincipal& srp,
-                           CurrentProcessingContext const* cpc) {
+                          CurrentProcessingContext const* cpc) {
     return module_->doBeginSubRun(srp, cpc);
   }
 
   template <typename T>
   bool
   WorkerT<T>::implDoEnd(SubRunPrincipal& srp,
-                           CurrentProcessingContext const* cpc) {
+                        CurrentProcessingContext const* cpc) {
     return module_->doEndSubRun(srp, cpc);
   }
 

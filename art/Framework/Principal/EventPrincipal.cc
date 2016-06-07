@@ -7,10 +7,10 @@
 #include "art/Framework/Principal/Provenance.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Persistency/Common/GroupQueryResult.h"
-#include "canvas/Persistency/Provenance/BranchIDList.h"
 #include "art/Persistency/Provenance/BranchIDListRegistry.h"
-#include "canvas/Persistency/Provenance/BranchListIndex.h"
 #include "art/Persistency/Provenance/ProductMetaData.h"
+#include "canvas/Persistency/Provenance/BranchIDList.h"
+#include "canvas/Persistency/Provenance/BranchListIndex.h"
 #include "cetlib/container_algorithms.h"
 
 #include <algorithm>
@@ -22,25 +22,24 @@ using namespace std;
 namespace art {
 
 EventPrincipal::
-EventPrincipal(EventAuxiliary const& aux, ProcessConfiguration const& pc,
+EventPrincipal(EventAuxiliary const& aux,
+               ProcessConfiguration const& pc,
                std::shared_ptr<History> history,
                std::unique_ptr<BranchMapper>&& mapper,
-               std::unique_ptr<DelayedReader>&& rtrv, int idx,
+               std::unique_ptr<DelayedReader>&& rtrv,
+               bool const lastInSubRun,
+               int idx,
                EventPrincipal* primaryPrincipal)
-  : Principal(pc, history->processHistoryID(), std::move(mapper),
-              std::move(rtrv), idx, primaryPrincipal)
-  , deferredGetters_()
-  , aux_(aux)
-  , subRunPrincipal_()
-  , history_(history)
-  , branchToProductIDHelper_()
+  : Principal{pc, history->processHistoryID(), std::move(mapper), std::move(rtrv), idx, primaryPrincipal}
+  , aux_{aux}
+  , history_{history}
+  , lastInSubRun_{lastInSubRun}
 {
   productReader().setGroupFinder(cet::exempt_ptr<EDProductGetterFinder const>(this));
   if (ProductMetaData::instance().productProduced(InEvent)) {
     addToProcessHistory();
     // Add index into BranchIDListRegistry for products produced this process
-    history_->addBranchListIndexEntry(
-                                      BranchIDListRegistry::instance()->size() - 1);
+    history_->addBranchListIndexEntry(BranchIDListRegistry::instance()->size() - 1);
   }
   // Fill in helper map for Branch to ProductID mapping
   for (auto IB = history->branchListIndexes().cbegin(),
@@ -90,8 +89,7 @@ void
 EventPrincipal::
 addOrReplaceGroup(std::unique_ptr<Group>&& g)
 {
-  cet::exempt_ptr<Group const> group =
-    getExistingGroup(g->productDescription().branchID());
+  cet::exempt_ptr<Group const> group = getExistingGroup(g->productDescription().branchID());
   if (!group) {
     addGroup_(std::move(g));
     return;
@@ -121,7 +119,8 @@ EventPrincipal::
 addGroup(BranchDescription const& bd)
 {
   addOrReplaceGroup(gfactory::make_group(bd,
-                                         branchIDToProductID(bd.branchID())));
+                                         branchIDToProductID(bd.branchID()),
+                                         RangeSet::invalid()));
 }
 
 void
@@ -130,7 +129,8 @@ addGroup(std::unique_ptr<EDProduct>&& prod, BranchDescription const& bd)
 {
   addOrReplaceGroup(gfactory::make_group(std::move(prod),
                                          bd,
-                                         branchIDToProductID(bd.branchID())));
+                                         branchIDToProductID(bd.branchID()),
+                                         RangeSet::invalid()));
 }
 
 void
@@ -139,12 +139,13 @@ addOnDemandGroup(BranchDescription const& desc, cet::exempt_ptr<Worker> worker)
 {
   ProductID pid(branchIDToProductID(desc.branchID()));
   cet::exempt_ptr<EventPrincipal> epp(this);
-  addOrReplaceGroup(gfactory::make_group(desc, pid, worker, epp));
+  addOrReplaceGroup(gfactory::make_group(desc, pid, RangeSet::invalid(), worker, epp));
 }
 
 void
 EventPrincipal::
-put(std::unique_ptr<EDProduct>&& edp, BranchDescription const& bd,
+put(std::unique_ptr<EDProduct>&& edp,
+    BranchDescription const& bd,
     std::unique_ptr<ProductProvenance const>&& productProvenance)
 {
   if (!edp) {
@@ -157,7 +158,7 @@ put(std::unique_ptr<EDProduct>&& edp, BranchDescription const& bd,
         << "put: Cannot put product with null Product ID.\n";
   }
   branchMapper().insert(std::move(productProvenance));
-  this->addGroup(std::move(edp), bd);
+  addGroup(std::move(edp), bd);
 }
 
 EDProductGetter const*
@@ -199,7 +200,7 @@ productIDToBranchID(ProductID const& pid) const
 
 ProductID
 EventPrincipal::
-branchIDToProductID(BranchID const& bid) const
+branchIDToProductID(BranchID const bid) const
 {
   if (!bid.isValid()) {
     throw art::Exception(art::errors::NotFound, "InvalidID")
@@ -275,10 +276,8 @@ deferredGetter_(ProductID const& pid) const
   if (it != deferredGetters_.end()) {
     return it->second.get();
   }
-  deferredGetters_[pid].reset(new DeferredProductGetter(
-    cet::exempt_ptr<EventPrincipal const>(this), pid));
+  deferredGetters_[pid] = std::make_shared<DeferredProductGetter>(cet::exempt_ptr<EventPrincipal const>(this), pid);
   return deferredGetters_[pid].get();
 }
 
 } // namespace art
-

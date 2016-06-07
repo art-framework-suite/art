@@ -16,8 +16,8 @@ art::Results::commit_() {
     std::make_unique<ProductProvenance const>(elem.first,
                                               productstatus::present());
     resp.put(std::move(elem.second.prod),
-           elem.second.bd,
-           std::move(resultsProductProvenancePtr));
+             elem.second.bd,
+             std::move(resultsProductProvenancePtr));
   };
   cet::for_all(putProducts(), put_in_principal);
 

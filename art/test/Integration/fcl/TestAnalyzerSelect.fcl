@@ -27,17 +27,17 @@ physics: {
     an1: {
       module_type: TestAnalyzerSelect
       shouldPass: 40
-      SelectEvents: { SelectEvents: [ p1a ] }
+      SelectEvents: [ p1a ]
     }
     an2: {
       module_type: TestAnalyzerSelect
       shouldPass: 99
-      SelectEvents: { SelectEvents: [ p2a ] }
+      SelectEvents: [ p2a ]
     }
     an3: {
       module_type: TestAnalyzerSelect
       shouldPass: 59
-      SelectEvents: { SelectEvents: [ p3a ] }
+      SelectEvents: [ p3a ]
     }
   }
 
@@ -52,17 +52,17 @@ outputs: {
   outp1: {
     module_type: TestOutput
     shouldPass: 40
-    SelectEvents: { SelectEvents: [ p1a ] }
+    SelectEvents: [ p1a ]
   }
   outp2: {
     module_type: TestOutput
     shouldPass: 99
-    SelectEvents: { SelectEvents: [ p2a ] }
+    SelectEvents: [ p2a ]
   }
   outp3: {
     module_type: TestOutput
     shouldPass: 59
-    SelectEvents: { SelectEvents: [ p3a ] }
+    SelectEvents: [ p3a ]
   }
 }
 

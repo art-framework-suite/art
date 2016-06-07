@@ -18,7 +18,7 @@ namespace art {
 
   DataViewImpl::DataViewImpl(Principal & pcpl,
                              ModuleDescription const& md,
-                             BranchType const& branchType)  :
+                             BranchType const branchType)  :
     putProducts_(),
     principal_(pcpl),
     md_(md),
@@ -39,8 +39,8 @@ namespace art {
 
   void
   DataViewImpl::getMany_(TypeID const& tid,
-                  SelectorBase const& sel,
-                  GroupQueryResultVec& results) const
+                         SelectorBase const& sel,
+                         GroupQueryResultVec& results) const
   {
     principal_.getMany(tid, sel, results);
   }
@@ -171,7 +171,7 @@ namespace art {
   }
 
   void
-  DataViewImpl::removeCachedProduct_(BranchID const & bid) const
+  DataViewImpl::removeCachedProduct_(BranchID const bid) const
   {
     principal().removeCachedProduct(bid);
   }

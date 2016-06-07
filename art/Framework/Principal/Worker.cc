@@ -208,5 +208,3 @@ art::Worker::respondToCloseOutputFiles(FileBlock const& fb) {
                          md_);
   implRespondToCloseOutputFiles(fb);
 }
-
-

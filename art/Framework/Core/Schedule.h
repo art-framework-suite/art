@@ -30,7 +30,7 @@
 #include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Principal/OccurrenceTraits.h"
 #include "art/Framework/Principal/Provenance.h"
-#include "art/Framework/Principal/RunStopwatch.h"
+#include "art/Framework/Principal/MaybeRunStopwatch.h"
 #include "art/Framework/Principal/Worker.h"
 #include "art/Framework/Principal/fwd.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
@@ -128,9 +128,7 @@ Schedule::processOneOccurrence(typename T::MyPrincipal& principal)
     w->reset();
   });
   triggerPathsInfo_.pathResults().reset();
-  // A RunStopwatch, but only if we are processing an event.
-  std::unique_ptr<RunStopwatch>
-  stopwatch(triggerPathsInfo_.runStopwatch(T::isEvent_));
+  MaybeMaybeRunStopwatch<T::isEvent_> sentry {triggerPathsInfo_.maybeRunStopwatch<T::isEvent_>()};
   if (T::isEvent_) {
     triggerPathsInfo_.addEvent();
     EventPrincipal& ep = dynamic_cast<EventPrincipal&>(principal);
@@ -152,8 +150,7 @@ Schedule::processOneOccurrence(typename T::MyPrincipal& principal)
     }
   }
   catch (cet::exception& e) {
-    actions::ActionCodes action = (T::isEvent_ ? act_table_->find(
-                                     e.root_cause()) : actions::Rethrow);
+    actions::ActionCodes action = (T::isEvent_ ? act_table_->find(e.root_cause()) : actions::Rethrow);
     assert(action != actions::IgnoreCompletely);
     assert(action != actions::FailPath);
     assert(action != actions::FailModule);

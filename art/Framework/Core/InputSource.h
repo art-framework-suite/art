@@ -77,6 +77,8 @@ namespace art
     virtual std::shared_ptr<RunPrincipal> readRun() = 0;
     virtual std::shared_ptr<SubRunPrincipal> readSubRun(std::shared_ptr<RunPrincipal> rp) = 0;
     virtual std::unique_ptr<EventPrincipal> readEvent(std::shared_ptr<SubRunPrincipal> srp) = 0;
+    virtual std::unique_ptr<RangeSetHandler> runRangeSetHandler() = 0;
+    virtual std::unique_ptr<RangeSetHandler> subRunRangeSetHandler() = 0;
 
     // Temporary workaround for broken design.
     virtual void storeMPRforBrokenRandomAccess(MasterProductRegistry&);

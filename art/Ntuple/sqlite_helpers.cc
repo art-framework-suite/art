@@ -18,12 +18,12 @@ namespace sqlite {
     int getResult(void* data, int ncols [[gnu::unused]], char** results, char** /*cnames*/)
     {
       assert(ncols >= 1);
-      query_result* j = static_cast<query_result*>(data);
+      auto j = static_cast<query_result*>(data);
       sqlite::stringstream resultStream;
-      for ( int i(0); i < ncols ; ++i ) {
+      for (int i{0}; i < ncols ; ++i) {
         resultStream << results[i];
       }
-      j->data.emplace_back( std::move(resultStream) );
+      j->data.emplace_back(std::move(resultStream));
       return 0;
     }
 
@@ -32,7 +32,7 @@ namespace sqlite {
     {
       query_result res;
       char* errmsg {nullptr};
-      if ( sqlite3_exec(db, ddl.c_str(), detail::getResult, &res, &errmsg) != SQLITE_OK ) {
+      if (sqlite3_exec(db, ddl.c_str(), detail::getResult, &res, &errmsg) != SQLITE_OK) {
         std::string msg{errmsg};
         sqlite3_free(errmsg);
         throw art::Exception(art::errors::SQLExecutionError, msg);
@@ -55,7 +55,7 @@ namespace sqlite {
 
       detail::query_result const res = query(db, cmd);
 
-      if (res.data.size() == 0) { return false; }
+      if (res.data.empty()) { return false; }
       if (res.data.size() == 1 && res.data[0][0] == sqlddl) { return true; }
       throw art::Exception(art::errors::SQLExecutionError)
         << "Existing database table name does not match description";
@@ -86,14 +86,14 @@ namespace sqlite {
   //=======================================================================
   sqlite3* openDatabaseFile(std::string const& filename)
   {
-    sqlite3* db = nullptr;
+    sqlite3* db {nullptr};
     std::string const uri = detail::assembleURI(filename);
     int const rc = sqlite3_open_v2(uri.c_str(),
                                    &db,
                                    SQLITE_OPEN_READWRITE|SQLITE_OPEN_CREATE|SQLITE_OPEN_URI,
                                    nullptr);
     if (rc != SQLITE_OK) {
-      throw art::Exception(art::errors::SQLExecutionError)
+      throw art::Exception{art::errors::SQLExecutionError}
         << "Failed to open SQLite database\n"
         << "Return code of: " << rc;
     }
@@ -104,52 +104,52 @@ namespace sqlite {
   //=======================================================================
   void exec(sqlite3* db,std::string const& ddl)
   {
-    char* errmsg = nullptr;
-    if ( sqlite3_exec(db, ddl.c_str(), nullptr, nullptr, &errmsg) != SQLITE_OK ) {
-      std::string msg{errmsg};
+    char* errmsg {nullptr};
+    if (sqlite3_exec(db, ddl.c_str(), nullptr, nullptr, &errmsg) != SQLITE_OK) {
+      std::string msg {errmsg};
       sqlite3_free(errmsg);
-      throw art::Exception(art::errors::SQLExecutionError) << msg;
+      throw art::Exception{art::errors::SQLExecutionError} << msg;
     }
   }
 
   //=======================================================================
-  void deleteTable( sqlite3* db, std::string const& tname )
+  void deleteTable(sqlite3* db, std::string const& tname)
   {
-    exec( db, "delete from "s + tname );
+    exec(db, "delete from "s + tname);
   }
 
-  void dropTable( sqlite3* db, std::string const& tname )
+  void dropTable(sqlite3* db, std::string const& tname)
   {
-    exec( db, "drop table "s+ tname );
+    exec(db, "drop table "s+ tname);
   }
 
   //=======================================================================
   // Statistics helpers
 
-  double mean( sqlite3* db, const std::string& tname, const std::string& colname ){
+  double mean(sqlite3* db, std::string const& tname, std::string const& colname){
     return query_db<double>( db, "select avg("s+colname+") from " + tname );
   }
 
-  double median( sqlite3* db, const std::string& tname, const std::string& colname ){
-    return query_db<double>( db,
-                             "select avg("s+colname+")"+
-                             " from (select "+colname+
-                             " from "+tname+
-                             " order by "+colname+
-                             " limit 2 - (select count(*) from " + tname+") % 2"+
-                             " offset (select (count(*) - 1) / 2"+
-                             " from " + tname+"))" );
+  double median(sqlite3* db, std::string const& tname, std::string const& colname){
+    return query_db<double>(db,
+                            "select avg("s+colname+")"+
+                            " from (select "+colname+
+                            " from "+tname+
+                            " order by "+colname+
+                            " limit 2 - (select count(*) from " + tname+") % 2"+
+                            " offset (select (count(*) - 1) / 2"+
+                            " from " + tname+"))");
   }
 
-  double rms( sqlite3* db, const std::string& tname, const std::string& colname ){
-    double const ms = query_db<double>( db,
-                                        "select sum("s+
-                                        "(" + colname + "-(select avg(" + colname + ") from " + tname +"))" +
-                                        "*" +
-                                        "(" + colname + "-(select avg(" + colname + ") from " + tname +"))" +
-                                        " ) /" +
-                                        "(count(" + colname +")) from " + tname );
-    return std::sqrt( ms );
+  double rms(sqlite3* db, std::string const& tname, std::string const& colname){
+    double const ms = query_db<double>(db,
+                                       "select sum("s+
+                                       "(" + colname + "-(select avg(" + colname + ") from " + tname +"))" +
+                                       "*" +
+                                       "(" + colname + "-(select avg(" + colname + ") from " + tname +"))" +
+                                       " ) /" +
+                                       "(count(" + colname +")) from " + tname);
+    return std::sqrt(ms);
   }
 
 } // namespace sqlite

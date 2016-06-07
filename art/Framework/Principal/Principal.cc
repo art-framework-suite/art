@@ -378,24 +378,22 @@ findGroupsForProcess(std::vector<BranchID> const& vbid,
 
 OutputHandle
 Principal::
-getForOutput(BranchID const& bid, bool resolveProd) const
+getForOutput(BranchID const bid, bool resolveProd) const
 {
   auto const& g = getResolvedGroup(bid, resolveProd, false);
   if (!g) {
-    return OutputHandle();
+    return OutputHandle{g->rangeOfValidity()};
   }
   auto const & pmd = ProductMetaData::instance();
+  auto const bt = g->productDescription().branchType();
   if (resolveProd
       &&
-      ((g->anyProduct() == 0) || !g->anyProduct()->isPresent())
+      ((g->anyProduct() == nullptr) || !g->anyProduct()->isPresent())
       &&
-      ( pmd.presentWithFileIdx( g->productDescription().branchType(),
-                                g->productDescription().branchID() ) != MasterProductRegistry::DROPPED ||
-        pmd.produced( g->productDescription().branchType(),
-                      g->productDescription().branchID() )
-        )
+      ( pmd.presentWithFileIdx(bt, bid) != MasterProductRegistry::DROPPED ||
+        pmd.produced(bt, bid) )
       &&
-      (g->productDescription().branchType() == InEvent)
+      (bt == InEvent)
       &&
       productstatus::present(g->productProvenancePtr()->productStatus())) {
     throw Exception(errors::LogicError, "Principal::getForOutput\n")
@@ -405,16 +403,16 @@ getForOutput(BranchID const& bid, bool resolveProd) const
         << "\nContact a framework developer.\n";
   }
   if (!g->anyProduct() && !g->productProvenancePtr()) {
-    return OutputHandle();
+    return OutputHandle{g->rangeOfValidity()};
   }
-  return OutputHandle(g->anyProduct(), &g->productDescription(),
-                      g->productProvenancePtr());
+  return OutputHandle{g->anyProduct(), &g->productDescription(), g->productProvenancePtr(), g->rangeOfValidity()};
 }
 
 std::shared_ptr<const Group> const
 Principal::
-getResolvedGroup(BranchID const& bid, bool resolveProd,
-                 bool fillOnDemand) const
+getResolvedGroup(BranchID const bid,
+                 bool const resolveProd,
+                 bool const fillOnDemand) const
 {
   // FIXME: This reproduces the behavior of the original getGroup with
   // resolveProv == false but I am not sure this is correct in the case
@@ -427,14 +425,14 @@ getResolvedGroup(BranchID const& bid, bool resolveProd,
                                             g->producedWrapperType());
   if (!gotIt && g->onDemand()) {
     // Behavior is the same as if the group wasn't there.
-    return 0;
+    return nullptr;
   }
   return g;
 }
 
 cet::exempt_ptr<Group const>
 Principal::
-getExistingGroup(BranchID const& bid) const
+getExistingGroup(BranchID const bid) const
 {
   auto I = groups_.find(bid);
   if (I != groups_.end()) {
@@ -461,22 +459,16 @@ getGroupForPtr(BranchType const btype, BranchID const bid) const
   std::size_t const index    = ProductMetaData::instance().presentWithFileIdx(btype, bid);
   bool        const produced = ProductMetaData::instance().produced(btype, bid);
   if ( produced || index == 0 ) {
-    auto I = pp->groups_.find(bid);
+    auto it = pp->groups_.find(bid);
     // Note: There will be groups for dropped products, so we
     //       must check for that.  We want the group where the
     //       product can actually be retrieved from.
-    if ((I != pp->groups_.end()) ) {
-      return I->second;
-    }
-    return nullptr;
+    return (it != pp->groups_.end()) ? it->second : nullptr;
   }
   else if ( index > 0 && ( index-1 < secondaryPrincipals_.size() ) ) {
     auto const& groups = secondaryPrincipals_[index-1]->groups_;
-    auto I = groups.find(bid);
-    if (I != groups.end()) {
-      return I->second;
-    }
-    return nullptr;
+    auto it = groups.find(bid);
+    return (it != groups.end()) ? it->second : nullptr;
   }
   while (1) {
     int err = tryNextSecondaryFile();
@@ -491,21 +483,17 @@ getGroupForPtr(BranchType const btype, BranchID const bid) const
     std::size_t const index = ProductMetaData::instance().presentWithFileIdx(btype, bid);
     if ( index == MasterProductRegistry::DROPPED ) continue;
     auto p = secondaryPrincipals_[index-1];
-    auto I = p->groups_.find(bid);
+    auto it = p->groups_.find(bid);
     // Note: There will be groups for dropped products, so we
     //       must check for that.  We want the group where the
     //       product can actually be retrieved from.
-    if ((I != p->groups_.end())) {
-      return I->second;
-    }
-    return nullptr;
+    return (it != p->groups_.end()) ? it->second : nullptr;
   }
-  //  return nullptr; // should not be necessary
 }
 
 std::shared_ptr<const Group> const
 Principal::
-getGroup(BranchID const& bid) const
+getGroup(BranchID const bid) const
 {
   const Principal* pp = this;
   if (primaryPrincipal_ != nullptr) {

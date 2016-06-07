@@ -16,8 +16,8 @@
 #include "art/Framework/Core/PathManager.h"
 #include "art/Framework/Core/PrincipalCache.h"
 #include "art/Framework/Core/Schedule.h"
-#include "art/Framework/EventProcessor/EvProcInitHelper.h"
 #include "art/Framework/EventProcessor/ServiceDirector.h"
+#include "art/Framework/EventProcessor/StateMachine/Machine.h"
 #include "art/Framework/Principal/Actions.h"
 #include "art/Framework/Principal/fwd.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
@@ -67,14 +67,12 @@ public:
   EventProcessor(fhicl::ParameterSet const & pset);
   ~EventProcessor();
 
-  /**This should be called before the first call to 'run'.
-       */
-  void beginJob();
+  // This should be called before the first call to 'run'.
+  void beginJob() override;
 
-  /**This should be called before the EventProcessor is destroyed
-       throws if any module's endJob throws an exception.
-       */
-  void endJob();
+  // This should be called before the EventProcessor is destroyed
+  // throws if any module's endJob throws an exception.
+  void endJob() override;
 
   //------------------------------------------------------------------
   // The function "runToCompletion" will run until the job is "complete",
@@ -93,23 +91,20 @@ public:
   // The following functions are used by the code implementing our
   // boost statemachine
 
-  void readFile() override;
+  void openInputFile() override;
   void closeInputFile() override;
-  void openOutputFiles() override;
-  void closeOutputFiles() override;
+  void openAllOutputFiles() override;
+  void closeAllOutputFiles() override;
+  void openSomeOutputFiles() override;
+  void closeSomeOutputFiles(std::size_t const) override;
 
   void respondToOpenInputFile() override;
   void respondToCloseInputFile() override;
   void respondToOpenOutputFiles() override;
   void respondToCloseOutputFiles() override;
 
-  void startingNewLoop() override;
-  bool endOfLoop() override;
   void rewindInput() override;
-  void prepareForNextLoop() override;
-  void writeSubRunCache() override;
-  void writeRunCache() override;
-  bool shouldWeCloseOutput() const override;
+  void recordOutputClosureRequests() override;
 
   void doErrorStuff() override;
 
@@ -119,21 +114,34 @@ public:
   void beginSubRun(SubRunID const & sr) override;
   void endSubRun(SubRunID const & sr) override;
 
-  RunID readAndCacheRun() override;
+  RunID    readAndCacheRun() override;
   SubRunID readAndCacheSubRun() override;
+  void     clearPrincipalCache() override;
+
   void writeRun(RunID run) override;
-  void deleteRunFromCache(RunID run) override;
   void writeSubRun(SubRunID const & sr) override;
-  void deleteSubRunFromCache(SubRunID const & sr) override;
+  void writeEvent() override;
+
+  void setRunAuxiliaryRangeSetID(RunID run) override;
+  void setSubRunAuxiliaryRangeSetID(SubRunID const & sr) override;
+
+  // Run/SubRun IDs from most recently added principals
+  RunID runPrincipalID() const override;
+  SubRunID subRunPrincipalID() const override;
+  EventID eventPrincipalID() const override;
 
   void readEvent() override;
   void processEvent() override;
   bool shouldWeStop() const override;
 
-  void setExceptionMessageFiles(std::string & message) override;
-  void setExceptionMessageRuns(std::string & message) override;
-  void setExceptionMessageSubRuns(std::string & message) override;
+  void setExceptionMessageFiles(std::string const& message) override;
+  void setExceptionMessageRuns(std::string const& message) override;
+  void setExceptionMessageSubRuns(std::string const& message) override;
   bool alreadyHandlingException() const override;
+
+  bool outputsToCloseAtBoundary(Boundary const) const override;
+  bool outputsToOpen() const override;
+  bool someOutputsOpen() const override;
 
   bool setTriggerPathEnabled(std::string const & name, bool enable) override;
   bool setEndPathModuleEnabled(std::string const & label, bool enable) override;
@@ -163,34 +171,32 @@ private:
   // only during construction, and never again. If they aren't
   // really needed, we should remove them.
 
-  EvProcInitHelper helper_;
   ActionTable act_table_;
   ActivityRegistry actReg_;
   MFStatusUpdater mfStatusUpdater_;
-  MasterProductRegistry preg_;
-  ServiceToken serviceToken_;
-  tbb::task_scheduler_init tbbManager_;
-  std::unique_ptr<ServiceRegistry::Operate> servicesSentry_;
+  MasterProductRegistry preg_ {};
+  ServiceToken serviceToken_ {};
+  tbb::task_scheduler_init tbbManager_ {tbb::task_scheduler_init::deferred};
+  std::unique_ptr<ServiceRegistry::Operate> servicesSentry_ {};
   PathManager pathManager_; // Must outlive schedules.
   ServiceDirector serviceDirector_;
-  std::unique_ptr<InputSource> input_;
-  std::unique_ptr<Schedule> schedule_;
-  std::unique_ptr<EndPathExecutor> endPathExecutor_;
+  std::unique_ptr<InputSource> input_ {};
+  std::unique_ptr<Schedule> schedule_ {};
+  std::unique_ptr<EndPathExecutor> endPathExecutor_ {};
 
-  std::shared_ptr<FileBlock> fb_;
+  std::shared_ptr<FileBlock> fb_ {};
 
-  std::unique_ptr<statemachine::Machine> machine_;
-  PrincipalCache principalCache_;
-  std::unique_ptr<EventPrincipal> sm_evp_;
-  bool shouldWeStop_;
-  bool stateMachineWasInErrorState_;
-  std::string fileMode_;
+  std::unique_ptr<statemachine::Machine> machine_ {};
+  PrincipalCache principalCache_ {}; // Cache is necessary for handling empty runs/subruns
+  std::unique_ptr<EventPrincipal> sm_evp_ {};
+  bool shouldWeStop_ {false};
+  bool stateMachineWasInErrorState_ {false};
   bool handleEmptyRuns_;
   bool handleEmptySubRuns_;
-  std::string exceptionMessageFiles_;
-  std::string exceptionMessageRuns_;
-  std::string exceptionMessageSubRuns_;
-  bool alreadyHandlingException_;
+  std::string exceptionMessageFiles_ {};
+  std::string exceptionMessageRuns_ {};
+  std::string exceptionMessageSubRuns_ {};
+  bool alreadyHandlingException_ {false};
 
 };  // EventProcessor
 
@@ -239,8 +245,9 @@ try {
   endPathExecutor_->processOneOccurrence<T>(p);
 }
 catch (cet::exception & ex) {
-  actions::ActionCodes action = (T::isEvent_ ? act_table_.find(
-                                   ex.root_cause()) : actions::Rethrow);
+  actions::ActionCodes const action {
+    T::isEvent_ ? act_table_.find(ex.root_cause()) : actions::Rethrow
+  };
   switch (action) {
   case actions::IgnoreCompletely: {
     mf::LogWarning(ex.category())

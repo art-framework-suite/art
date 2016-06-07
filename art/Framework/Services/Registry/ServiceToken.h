@@ -34,13 +34,13 @@ class art::ServiceToken
 public:
   ServiceToken( ) { }
 
-  template <typename T, typename = typename std::enable_if<detail::ServiceHelper<T>::scope_val != ServiceScope::PER_SCHEDULE>::type>
+  template <typename T, typename = std::enable_if_t<detail::ServiceHelper<T>::scope_val != ServiceScope::PER_SCHEDULE>>
     void add( std::unique_ptr<T> && serv )
   {
     manager_->put(std::move(serv));
   }
 
-  template <typename T, typename = typename std::enable_if<detail::ServiceHelper<T>::scope_val == ServiceScope::PER_SCHEDULE>::type>
+  template <typename T, typename = std::enable_if_t<detail::ServiceHelper<T>::scope_val == ServiceScope::PER_SCHEDULE>>
   void add( std::vector<std::unique_ptr<T>> && services )
   {
     manager_->put(std::move(services));

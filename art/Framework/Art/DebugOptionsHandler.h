@@ -15,8 +15,7 @@ class art::DebugOptionsHandler : public art::OptionsHandler {
 public:
   explicit DebugOptionsHandler(bpo::options_description & desc,
                                std::string const & basename,
-                               detail::DebugOutput& dbg,
-                               bool rethrowDefault = false);
+                               detail::DebugOutput& dbg);
 private:
   // Check selected options for consistency.
   int doCheckOptions(bpo::variables_map const & vm) override;
@@ -25,7 +24,6 @@ private:
                        fhicl::intermediate_table & raw_config) override;
 
   detail::DebugOutput& dbg_;
-  bool rethrowDefault_;
 };
 #endif /* art_Framework_Art_DebugOptionsHandler_h */
 

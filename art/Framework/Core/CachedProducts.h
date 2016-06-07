@@ -52,12 +52,6 @@ class PVSentry;
 // Handle the SelectEvents configuration parameter of modules on the end path.
 class CachedProducts {
   friend class PVSentry;
-public: // Types
-  //typedef art::Handle<art::TriggerResults> handle_t;
-  //typedef std::vector<ProcessAndEventSelector> selectors_t;
-  //typedef selectors_t::size_type size_type;
-  //typedef std::pair<std::string, std::string> parsed_path_spec_t;
-private: // Data Members
   std::vector<ProcessAndEventSelector> p_and_e_selectors_;
   bool loadDone_;
   unsigned long numberFound_;

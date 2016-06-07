@@ -13,9 +13,9 @@
 // information, here are some notes:
 //
 // This module template contains a lot of template metaprograming to
-// ensure that only those functions relevant to the user's purpose (and
-// therefore defined) are called, and at the right time. If you are
-// interested in how the provenance is obtained, the only function
+// ensure that only those functions relevant to the user's purpose
+// (and therefore defined) are called, and at the right time. If you
+// are interested in how the provenance is obtained, the only function
 // necessary to this understanding below is:
 //
 //    template <typename DETAIL>
@@ -70,12 +70,8 @@ namespace art {
                void (DETAIL:: *func)(art::Provenance const &)) const
     {
       if (!p.size()) { return; } // Nothing to do.
-      for (typename PRINCIPAL::const_iterator
-             it  = p.begin(),
-             end = p.end();
-           it != end;
-           ++it) {
-        Group const & g = *(it->second);
+      for (auto const& pr : p) {
+        Group const & g = *pr.second;
         if (wantPresentOnly_ && resolveProducts_) {
           try {
             if (!g.resolveProduct(false, g.producedWrapperType()))
@@ -90,200 +86,163 @@ namespace art {
           }
         }
         if ((!wantPresentOnly_) || g.anyProduct()) {
-          (detail_.*func)(Provenance(cet::exempt_ptr<Group const>(&g)));
+          (detail_.*func)(Provenance{cet::exempt_ptr<Group const>{&g}});
         }
       }
     }
 
     ////////////////////////////////////////////////////////////////////////
-    // Metaprogramming to deal with optional pre/post and begin/end job functions.
-    template <typename DETAIL, void (DETAIL:: *)()> struct detail_void_function;
+    // Metaprogramming to provide default function if optional
+    // functions do not exist.
 
-    template <typename DETAIL>
-    struct do_not_call_detail_void_function {
-      do_not_call_detail_void_function(DETAIL &) { }
+    template <typename T> struct default_invocation;
+
+    template <typename R, typename ... ARGS>
+    struct default_invocation<R(ARGS...)> {
+      static R invoke(ARGS...){}
     };
+
+
+    ////////////////////////////////////////////////////////////////////////
+    // Metaprogramming to deal with optional pre/post and begin/end
+    // job functions.
 
     // void DETAIL::beginJob();
-    template <typename DETAIL> no_tag has_detail_beginJob_function_helper(...);
-    template <typename DETAIL> yes_tag
-    has_detail_beginJob_function_helper(detail_void_function<DETAIL, &DETAIL::beginJob> *);
-    template <typename DETAIL> struct has_detail_beginJob_function {
-      static bool const value =
-        sizeof(has_detail_beginJob_function_helper<DETAIL>(0)) == sizeof(yes_tag);
-    };
+    template <typename DETAIL, typename Enable = void>
+    struct maybe_beginJob : default_invocation<void(DETAIL&)> {};
+
     template <typename DETAIL>
-    struct call_detail_beginJob_function {
-      call_detail_beginJob_function(DETAIL & detail) { detail.beginJob(); }
+    struct maybe_beginJob<DETAIL, enable_if_function_exists_t<void(DETAIL::*)(), &DETAIL::beginJob>> {
+      static void invoke(DETAIL& detail)
+      {
+        detail.beginJob();
+      }
     };
+
     // void DETAIL::preProcessEvent();
-    template <typename DETAIL> no_tag has_detail_preEvent_function_helper(...);
-    template <typename DETAIL> yes_tag
-    has_detail_preEvent_function_helper(detail_void_function<DETAIL, &DETAIL::preProcessEvent> *);
-    template <typename DETAIL> struct has_detail_preEvent_function {
-      static bool const value =
-        sizeof(has_detail_preEvent_function_helper<DETAIL>(0)) == sizeof(yes_tag);
-    };
+    template <typename DETAIL, typename Enable = void>
+    struct maybe_preProcessEvent : default_invocation<void(DETAIL&)> {};
+
     template <typename DETAIL>
-    struct call_detail_preEvent_function {
-      call_detail_preEvent_function(DETAIL & detail) { detail.preProcessEvent(); }
+    struct maybe_preProcessEvent<DETAIL, enable_if_function_exists_t<void(DETAIL::*)(), &DETAIL::preProcessEvent>> {
+      static void invoke(DETAIL& detail)
+      {
+        detail.preProcessEvent();
+      }
     };
+
     // void DETAIL::postProcessEvent();
-    template <typename DETAIL> no_tag has_detail_postEvent_function_helper(...);
-    template <typename DETAIL> yes_tag
-    has_detail_postEvent_function_helper(detail_void_function<DETAIL, &DETAIL::postProcessEvent> *);
-    template <typename DETAIL> struct has_detail_postEvent_function {
-      static bool const value =
-        sizeof(has_detail_postEvent_function_helper<DETAIL>(0)) == sizeof(yes_tag);
-    };
+    template <typename DETAIL, typename Enable = void>
+    struct maybe_postProcessEvent : default_invocation<void(DETAIL&)> {};
+
     template <typename DETAIL>
-    struct call_detail_postEvent_function {
-      call_detail_postEvent_function(DETAIL & detail) { detail.postProcessEvent(); }
+    struct maybe_postProcessEvent<DETAIL, enable_if_function_exists_t<void(DETAIL::*)(), &DETAIL::postProcessEvent>> {
+      static void invoke(DETAIL& detail)
+      {
+        detail.postProcessEvent();
+      }
     };
+
     // void DETAIL::preProcessSubRun();
-    template <typename DETAIL> no_tag has_detail_preSubRun_function_helper(...);
-    template <typename DETAIL> yes_tag
-    has_detail_preSubRun_function_helper(detail_void_function<DETAIL, &DETAIL::preProcessSubRun> *);
-    template <typename DETAIL> struct has_detail_preSubRun_function {
-      static bool const value =
-        sizeof(has_detail_preSubRun_function_helper<DETAIL>(0)) == sizeof(yes_tag);
-    };
+    template <typename DETAIL, typename Enable = void>
+    struct maybe_preProcessSubRun : default_invocation<void(DETAIL&)> {};
+
     template <typename DETAIL>
-    struct call_detail_preSubRun_function {
-      call_detail_preSubRun_function(DETAIL & detail) { detail.preProcessSubRun(); }
+    struct maybe_preProcessSubRun<DETAIL, enable_if_function_exists_t<void(DETAIL::*)(), &DETAIL::preProcessSubRun>> {
+      static void invoke(DETAIL& detail)
+      {
+        detail.preProcessSubRun();
+      }
     };
+
     // void DETAIL::postProcessSubRun();
-    template <typename DETAIL> no_tag has_detail_postSubRun_function_helper(...);
-    template <typename DETAIL> yes_tag
-    has_detail_postSubRun_function_helper(detail_void_function<DETAIL, &DETAIL::postProcessSubRun> *);
-    template <typename DETAIL> struct has_detail_postSubRun_function {
-      static bool const value =
-        sizeof(has_detail_postSubRun_function_helper<DETAIL>(0)) == sizeof(yes_tag);
-    };
+    template <typename DETAIL, typename Enable = void>
+    struct maybe_postProcessSubRun : default_invocation<void(DETAIL&)> {};
+
     template <typename DETAIL>
-    struct call_detail_postSubRun_function {
-      call_detail_postSubRun_function(DETAIL & detail) { detail.postProcessSubRun(); }
+    struct maybe_postProcessSubRun<DETAIL, enable_if_function_exists_t<void(DETAIL::*)(), &DETAIL::postProcessSubRun>> {
+      static void invoke(DETAIL& detail)
+      {
+        detail.postProcessSubRun();
+      }
     };
+
     // void DETAIL::preProcessRun();
-    template <typename DETAIL> no_tag has_detail_preRun_function_helper(...);
-    template <typename DETAIL> yes_tag
-    has_detail_preRun_function_helper(detail_void_function<DETAIL, &DETAIL::preProcessRun> *);
-    template <typename DETAIL> struct has_detail_preRun_function {
-      static bool const value =
-        sizeof(has_detail_preRun_function_helper<DETAIL>(0)) == sizeof(yes_tag);
-    };
+    template <typename DETAIL, typename Enable = void>
+    struct maybe_preProcessRun : default_invocation<void(DETAIL&)> {};
+
     template <typename DETAIL>
-    struct call_detail_preRun_function {
-      call_detail_preRun_function(DETAIL & detail) { detail.preProcessRun(); }
+    struct maybe_preProcessRun<DETAIL, enable_if_function_exists_t<void(DETAIL::*)(), &DETAIL::preProcessRun>> {
+      static void invoke(DETAIL& detail)
+      {
+        detail.preProcessRun();
+      }
     };
+
     // void DETAIL::postProcessRun();
-    template <typename DETAIL> no_tag has_detail_postRun_function_helper(...);
-    template <typename DETAIL> yes_tag
-    has_detail_postRun_function_helper(detail_void_function<DETAIL, &DETAIL::postProcessRun> *);
-    template <typename DETAIL> struct has_detail_postRun_function {
-      static bool const value =
-        sizeof(has_detail_postRun_function_helper<DETAIL>(0)) == sizeof(yes_tag);
-    };
+    template <typename DETAIL, typename Enable = void>
+    struct maybe_postProcessRun : default_invocation<void(DETAIL&)> {};
+
     template <typename DETAIL>
-    struct call_detail_postRun_function {
-      call_detail_postRun_function(DETAIL & detail) { detail.postProcessRun(); }
+    struct maybe_postProcessRun<DETAIL, enable_if_function_exists_t<void(DETAIL::*)(), &DETAIL::postProcessRun>> {
+      static void invoke(DETAIL& detail)
+      {
+        detail.postProcessRun();
+      }
     };
+
     // void DETAIL::endJob();
-    template <typename DETAIL> no_tag has_detail_endJob_function_helper(...);
-    template <typename DETAIL> yes_tag
-    has_detail_endJob_function_helper(detail_void_function<DETAIL, &DETAIL::endJob> *);
-    template <typename DETAIL> struct has_detail_endJob_function {
-      static bool const value =
-        sizeof(has_detail_endJob_function_helper<DETAIL>(0)) == sizeof(yes_tag);
-    };
+    template <typename DETAIL, typename Enable = void>
+    struct maybe_endJob : default_invocation<void(DETAIL&)> {};
+
     template <typename DETAIL>
-    struct call_detail_endJob_function {
-      call_detail_endJob_function(DETAIL & detail) { detail.endJob(); }
+    struct maybe_endJob<DETAIL, enable_if_function_exists_t<void(DETAIL::*)(), &DETAIL::endJob>> {
+      static void invoke(DETAIL& detail)
+      {
+        detail.endJob();
+      }
     };
     ////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////
     // Metaprogramming to deal with optional per-provenance functions.
-    template <typename DETAIL, void (DETAIL:: *)(Provenance const &)> struct detail_provenance_function;
 
-    template <typename DETAIL>
-    struct do_not_call_detail_provenance_function {
-      do_not_call_detail_provenance_function(PrincipalProcessor<DETAIL> const &) { }
-      template <typename PRINCIPAL>
-      void
-      operator()(PRINCIPAL const &) { }
-    };
-
-    // void DETAIL::processEventProvenance(art:Provenance const &);
-    template <typename DETAIL> no_tag has_detail_event_function_helper(...);
-    template <typename DETAIL> yes_tag
-    has_detail_event_function_helper(detail_provenance_function<DETAIL, &DETAIL::processEventProvenance> *);
-    template <typename DETAIL> struct has_detail_event_function {
-      static bool const value =
-        sizeof(has_detail_event_function_helper<DETAIL>(0)) == sizeof(yes_tag);
-    };
-    template <typename DETAIL>
-    class call_detail_event_function {
-    public:
-      call_detail_event_function(PrincipalProcessor<DETAIL> const & pp)
-        :
-        pp_(pp)
-      { }
-      template <typename PRINCIPAL>
-      void
-      operator()(PRINCIPAL const & p) {
-        pp_(p, &DETAIL::processEventProvenance);
-      }
-    private:
-      PrincipalProcessor<DETAIL> const & pp_;
-    };
     // void DETAIL::processSubRunProvenance(art:Provenance const &);
-    template <typename DETAIL> no_tag has_detail_subRun_function_helper(...);
-    template <typename DETAIL> yes_tag
-    has_detail_subRun_function_helper(detail_provenance_function<DETAIL, &DETAIL::processSubRunProvenance> *);
-    template <typename DETAIL> struct has_detail_subRun_function {
-      static bool const value =
-        sizeof(has_detail_subRun_function_helper<DETAIL>(0)) == sizeof(yes_tag);
-    };
-    template <typename DETAIL>
-    class call_detail_subRun_function {
-    public:
-      call_detail_subRun_function(PrincipalProcessor<DETAIL> const & pp)
-        :
-        pp_(pp)
-      { }
-      template <typename PRINCIPAL>
-      void
-      operator()(PRINCIPAL const & p) {
-        pp_(p, &DETAIL::processSubRunProvenance);
-      }
-    private:
-      PrincipalProcessor<DETAIL> const & pp_;
+    template <typename DETAIL, typename Enable = void>
+    struct maybe_processEventPrincipal : default_invocation<void(PrincipalProcessor<DETAIL> const&, EventPrincipal const&)> {};
 
-    };
-    // void DETAIL::processRunProvenance(art:Provenance const &);
-    template <typename DETAIL> no_tag has_detail_run_function_helper(...);
-    template <typename DETAIL> yes_tag
-    has_detail_run_function_helper(detail_provenance_function<DETAIL, &DETAIL::processRunProvenance> *);
-    template <typename DETAIL> struct has_detail_run_function {
-      static bool const value =
-        sizeof(has_detail_run_function_helper<DETAIL>(0)) == sizeof(yes_tag);
-    };
     template <typename DETAIL>
-    class call_detail_run_function {
-    public:
-      call_detail_run_function(PrincipalProcessor<DETAIL> const & pp)
-        :
-        pp_(pp)
-      { }
-      template <typename PRINCIPAL>
-      void
-      operator()(PRINCIPAL const & p) {
-        pp_(p, &DETAIL::processRunProvenance);
+    struct maybe_processEventPrincipal<DETAIL, enable_if_function_exists_t<void(DETAIL::*)(Provenance const&), &DETAIL::processEventProvenance>> {
+      static void invoke(PrincipalProcessor<DETAIL> const& pp, EventPrincipal const& p)
+      {
+        pp(p, &DETAIL::processEventProvenance);
       }
-    private:
-      PrincipalProcessor<DETAIL> const & pp_;
     };
+
+    // void DETAIL::processSubRunProvenance(art:Provenance const &);
+    template <typename DETAIL, typename Enable = void>
+    struct maybe_processSubRunPrincipal : default_invocation<void(PrincipalProcessor<DETAIL> const&, SubRunPrincipal const&)> {};
+
+    template <typename DETAIL>
+    struct maybe_processSubRunPrincipal<DETAIL, enable_if_function_exists_t<void(DETAIL::*)(Provenance const&), &DETAIL::processSubRunProvenance>> {
+      static void invoke(PrincipalProcessor<DETAIL> const& pp, SubRunPrincipal const& p)
+      {
+        pp(p, &DETAIL::processSubRunProvenance);
+      }
+    };
+
+    // void DETAIL::processRunProvenance(art:Provenance const &);
+    template <typename DETAIL, typename Enable = void>
+    struct maybe_processRunPrincipal : default_invocation<void(PrincipalProcessor<DETAIL> const&, RunPrincipal const&)> {};
+
+    template <typename DETAIL>
+    struct maybe_processRunPrincipal<DETAIL, enable_if_function_exists_t<void(DETAIL::*)(Provenance const&), &DETAIL::processRunProvenance>> {
+      static void invoke(PrincipalProcessor<DETAIL> const& pp, RunPrincipal const& p)
+      {
+        pp(p, &DETAIL::processRunProvenance);
+      }
+    };
+
     ////////////////////////////////////////////////////////////////////////
 
     template <typename DETAIL>
@@ -302,58 +261,33 @@ namespace art {
 
       void beginJob()
       {
-        std::conditional_t< has_detail_beginJob_function<DETAIL>::value,
-          call_detail_beginJob_function<DETAIL>,
-          do_not_call_detail_void_function<DETAIL> > maybe_callBeginJob(detail_);
+        maybe_beginJob<DETAIL>::invoke(detail_);
       }
 
-      void write(EventPrincipal & e)
+      void write(EventPrincipal& e)
       {
-        std::conditional_t< has_detail_preEvent_function<DETAIL>::value,
-          call_detail_preEvent_function<DETAIL>,
-          do_not_call_detail_void_function<DETAIL> > maybe_callPre(detail_);
-        std::conditional_t< has_detail_event_function<DETAIL>::value,
-          call_detail_event_function<DETAIL>,
-          do_not_call_detail_provenance_function<DETAIL> > maybe_processPrincipal(pp_);
-        maybe_processPrincipal(e);
-        std::conditional_t< has_detail_postEvent_function<DETAIL>::value,
-          call_detail_postEvent_function<DETAIL>,
-          do_not_call_detail_void_function<DETAIL> > maybe_callPost(detail_);
+        maybe_preProcessEvent<DETAIL>::invoke(detail_);
+        maybe_processEventPrincipal<DETAIL>::invoke(pp_, e);
+        maybe_postProcessEvent<DETAIL>::invoke(detail_);
       }
 
-      void writeSubRun(SubRunPrincipal & sr)
+      void writeSubRun(SubRunPrincipal& sr)
       {
-        std::conditional_t< has_detail_preSubRun_function<DETAIL>::value,
-          call_detail_preSubRun_function<DETAIL>,
-          do_not_call_detail_void_function<DETAIL> > maybe_callPre(detail_);
-        std::conditional_t< has_detail_subRun_function<DETAIL>::value,
-          call_detail_subRun_function<DETAIL>,
-          do_not_call_detail_provenance_function<DETAIL> > maybe_processPrincipal(pp_);
-        maybe_processPrincipal(sr);
-        std::conditional_t< has_detail_postSubRun_function<DETAIL>::value,
-          call_detail_postSubRun_function<DETAIL>,
-          do_not_call_detail_void_function<DETAIL> > maybe_callPost(detail_);
+        maybe_preProcessSubRun<DETAIL>::invoke(detail_);
+        maybe_processSubRunPrincipal<DETAIL>::invoke(pp_, sr);
+        maybe_postProcessSubRun<DETAIL>::invoke(detail_);
       }
 
       void writeRun(RunPrincipal & r)
       {
-        std::conditional_t< has_detail_preRun_function<DETAIL>::value,
-          call_detail_preRun_function<DETAIL>,
-          do_not_call_detail_void_function<DETAIL> > maybe_callPre(detail_);
-      std::conditional_t< has_detail_run_function<DETAIL>::value,
-          call_detail_run_function<DETAIL>,
-          do_not_call_detail_provenance_function<DETAIL> > maybe_processPrincipal(pp_);
-      maybe_processPrincipal(r);
-      std::conditional_t< has_detail_postRun_function<DETAIL>::value,
-          call_detail_postRun_function<DETAIL>,
-          do_not_call_detail_void_function<DETAIL> > maybe_callPost(detail_);
+        maybe_preProcessRun<DETAIL>::invoke(detail_);
+        maybe_processRunPrincipal<DETAIL>::invoke(pp_, r);
+        maybe_postProcessRun<DETAIL>::invoke(detail_);
       }
 
       void endJob()
       {
-        std::conditional_t< has_detail_endJob_function<DETAIL>::value,
-          call_detail_endJob_function<DETAIL>,
-          do_not_call_detail_void_function<DETAIL> > maybe_callEndJob(detail_);
+        maybe_endJob<DETAIL>::invoke(detail_);
       }
     };
 

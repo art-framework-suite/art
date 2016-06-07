@@ -29,11 +29,11 @@
 // ======================================================================
 
 #include "art/Framework/Principal/Group.h"
-#include "art/Persistency/Common/GroupQueryResult.h"
-#include "canvas/Persistency/Provenance/ProductID.h"
 #include "art/Framework/Principal/Provenance.h"
+#include "art/Persistency/Common/GroupQueryResult.h"
+#include "canvas/Persistency/Common/detail/is_handle.h"
+#include "canvas/Persistency/Provenance/ProductID.h"
 #include "canvas/Utilities/Exception.h"
-#include "canvas/Utilities/detail/metaprogramming.h"
 #include "cetlib/demangle.h"
 #include "cetlib/exception.h"
 
@@ -51,6 +51,35 @@ namespace art {
   // forward declarations:
   class EDProduct;
   template <typename T>  class Wrapper;
+
+  namespace detail {
+    inline void throw_if_invalid(std::string const&){}
+
+    template <typename H, typename ... T>
+    void throw_if_invalid(std::string const& msg,
+                          H const& h, T const& ... t)
+    {
+      if (!h.isValid())
+        throw Exception{art::errors::NullPointerError} << msg << '\n';
+      throw_if_invalid(msg, t...);
+    }
+  }
+
+  template <class T>
+  std::enable_if_t<detail::is_handle<T>::value, RangeSet const&>
+  range_of_validity(T const& h);
+
+  template <class T, class U>
+  std::enable_if_t<detail::are_handles<T,U>::value, bool>
+  same_ranges(T const& a, U const& b);
+
+  template <class T, class U>
+  std::enable_if_t<detail::are_handles<T,U>::value, bool>
+  disjoint_ranges(T const& a, U const& b);
+
+  template <class T, class U>
+  std::enable_if_t<detail::are_handles<T,U>::value, bool>
+  overlapping_ranges(T const& a, U const& b);
 }
 
 // ======================================================================
@@ -59,12 +88,12 @@ template <typename T>
 class art::Handle
 {
 public:
-  typedef T element_type;
+  using element_type = T;
   class HandleTag { };
 
   // c'tors:
-  Handle( );  // Default-constructed handles are invalid.
-  Handle( GroupQueryResult const  & );
+  Handle() = default;  // Default-constructed handles are invalid.
+  Handle(GroupQueryResult const  &);
 
   // use compiler-generated copy c'tor, copy assignment, and d'tor
 
@@ -85,27 +114,19 @@ public:
   void clear();
 
 private:
-  T const *                              prod_;
-  Provenance                             prov_;
-  std::shared_ptr<art::Exception const>  whyFailed_;
-
+  T const *                              prod_ {nullptr};
+  Provenance                             prov_ {};
+  std::shared_ptr<art::Exception const>  whyFailed_ {nullptr};
 };  // Handle<>
 
 // ----------------------------------------------------------------------
 // c'tors:
 
 template <class T>
-art::Handle<T>::Handle() :
-  prod_     (nullptr),
-  prov_     (),
-  whyFailed_()
-{}
-
-template <class T>
 art::Handle<T>::Handle(GroupQueryResult const & gqr) :
-  prod_     ( nullptr ),
-  prov_     ( gqr.result() ),
-  whyFailed_( gqr.whyFailed() )
+  prod_     {nullptr},
+  prov_     {gqr.result()},
+  whyFailed_{gqr.whyFailed()}
 {
   if (gqr.succeeded()) {
     auto const wrapperPtr =
@@ -182,7 +203,7 @@ inline
 art::ProductID
 art::Handle<T>::id() const
 {
-  return prov_.isValid() ? prov_.productID() : ProductID();
+  return prov_.isValid() ? prov_.productID() : ProductID{};
 }
 
 template <class T>
@@ -273,8 +294,8 @@ private:
 
 template <class T>
 art::ValidHandle<T>::ValidHandle(T const* prod, Provenance prov) :
-  prod_(prod),
-  prov_(prov)
+  prod_{prod},
+  prov_{prov}
 {
   if (prod == nullptr)
     throw Exception(art::errors::NullPointerError)
@@ -359,6 +380,45 @@ art::ValidHandle<T>::swap(art::ValidHandle<T>& other)
 {
   std::swap(prod_, other.prod_);
   std::swap(prov_, other.prov_);
+}
+
+// ======================================================================
+// Non-members:
+
+template <class T>
+std::enable_if_t<art::detail::is_handle<T>::value, art::RangeSet const&>
+art::range_of_validity(T const& h)
+{
+  std::string const& errMsg = "Attempt to retrieve range set from invalid handle.";
+  detail::throw_if_invalid(errMsg, h);
+  return h.provenance()->rangeOfValidity();
+}
+
+template <class T, class U>
+std::enable_if_t<art::detail::are_handles<T,U>::value, bool>
+art::same_ranges(T const& a, U const& b)
+{
+  std::string const& errMsg = "Attempt to compare range sets where one or both handles are invalid.";
+  detail::throw_if_invalid(errMsg, a,b);
+  return same_ranges(range_of_validity(a), range_of_validity(b));
+}
+
+template <class T, class U>
+std::enable_if_t<art::detail::are_handles<T,U>::value, bool>
+art::disjoint_ranges(T const& a, U const& b)
+{
+  std::string const& errMsg = "Attempt to compare range sets where one or both handles are invalid.";
+  detail::throw_if_invalid(errMsg, a,b);
+  return disjoint_ranges(range_of_validity(a), range_of_validity(b));
+}
+
+template <class T, class U>
+std::enable_if_t<art::detail::are_handles<T,U>::value, bool>
+art::overlapping_ranges(T const& a, U const& b)
+{
+  std::string const& errMsg = "Attempt to compare range sets where one or both handles are invalid.";
+  detail::throw_if_invalid(errMsg, a,b);
+  return overlapping_ranges(range_of_validity(a), range_of_validity(b));
 }
 
 #endif /* art_Framework_Principal_Handle_h */

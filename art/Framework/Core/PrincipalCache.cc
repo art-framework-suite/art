@@ -147,12 +147,7 @@ namespace art {
     currentRunPrincipal_ = rp;
     if (iter == runPrincipals_.end()) {
       runPrincipals_[rp->id()] = rp;
-      return true;
     }
-
-    iter->second->mergeRun(rp);
-    currentRunPrincipal_ = iter->second;
-
     return true;
   }
 
@@ -165,20 +160,15 @@ namespace art {
     currentSubRunPrincipal_ = srp;
     if (iter == subRunPrincipals_.end()) {
       subRunPrincipals_[srid] = srp;
-      return true;
     }
-
-    iter->second->mergeSubRun(srp);
-    currentSubRunPrincipal_ = iter->second;
-
     return true;
   }
 
-  bool PrincipalCache::noMoreRuns() {
+  bool PrincipalCache::noMoreRuns() const {
     return runPrincipals_.empty();
   }
 
-  bool PrincipalCache::noMoreSubRuns() {
+  bool PrincipalCache::noMoreSubRuns() const {
     return subRunPrincipals_.empty();
   }
 
@@ -192,19 +182,9 @@ namespace art {
     return *iter->second.get();
   }
 
-  void PrincipalCache::deleteLowestRun() {
-    runPrincipals_.erase(runPrincipals_.begin());
-  }
-
-  void PrincipalCache::deleteLowestSubRun() {
-    subRunPrincipals_.erase(subRunPrincipals_.begin());
-  }
-
-  void PrincipalCache::deleteRun(RunID run) {
-    runPrincipals_.erase(runPrincipals_.find(run));
-  }
-
-  void PrincipalCache::deleteSubRun(SubRunID const & sr) {
-    subRunPrincipals_.erase(subRunPrincipals_.find(sr));
+  void PrincipalCache::deleteAllPrincipals()
+  {
+    runPrincipals_.clear();
+    subRunPrincipals_.clear();
   }
 }

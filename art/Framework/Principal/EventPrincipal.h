@@ -2,14 +2,12 @@
 #define art_Framework_Principal_EventPrincipal_h
 // vim: set sw=2:
 
-//
 //  EventPrincipal
 //
 //  Manages per-event data products.
 //
 //  This is not visible to modules, instead they use the Event class,
 //  which is a proxy for this class.
-//
 
 #include "art/Framework/Principal/NoDelayedReader.h"
 #include "art/Framework/Principal/Principal.h"
@@ -27,181 +25,115 @@
 
 namespace art {
 
-class EventID;
+  class EventID;
 
-class EventPrincipal : public Principal {
+  class EventPrincipal final : public Principal {
 
-public:
+  public:
 
-  typedef EventAuxiliary Auxiliary;
-  typedef Principal::SharedConstGroupPtr SharedConstGroupPtr;
+    using Auxiliary = EventAuxiliary;
+    using SharedConstGroupPtr = Principal::SharedConstGroupPtr;
+    static constexpr BranchType branch_type = Auxiliary::branch_type;
 
-public:
+    EventPrincipal(EventAuxiliary const& aux,
+                   ProcessConfiguration const& pc,
+                   std::shared_ptr<History> history = std::make_shared<History>(),
+                   std::unique_ptr<BranchMapper>&& mapper = std::make_unique<BranchMapper>(),
+                   std::unique_ptr<DelayedReader>&& rtrv = std::make_unique<NoDelayedReader>(),
+                   bool lastInSubRun = false,
+                   int idx = 0,
+                   EventPrincipal* = nullptr);
 
-  EventPrincipal(EventAuxiliary const& aux,
-                 ProcessConfiguration const& pc,
-                 std::shared_ptr<History> history =
-                   std::shared_ptr<History>(new History),
-                 std::unique_ptr<BranchMapper>&& mapper =
-                   std::unique_ptr<BranchMapper>(new BranchMapper),
-                 std::unique_ptr<DelayedReader>&& rtrv =
-                   std::unique_ptr<DelayedReader>(new NoDelayedReader),
-                 int idx = 0,
-                 EventPrincipal* = nullptr);
+    // use compiler-generated copy c'tor, copy assignment.
 
-  // use compiler-generated copy c'tor, copy assignment.
+    SubRunPrincipal const& subRunPrincipal() const;
+    SubRunPrincipal& subRunPrincipal();
 
-  SubRunPrincipal const& subRunPrincipal() const;
+    std::shared_ptr<SubRunPrincipal> subRunPrincipalSharedPtr() { return subRunPrincipal_; }
+    void setSubRunPrincipal(std::shared_ptr<SubRunPrincipal> srp) { subRunPrincipal_ = srp;  }
 
-  SubRunPrincipal& subRunPrincipal();
+    EventID const& id() const { return aux().id(); }
+    Timestamp const& time() const { return aux().time(); }
+    bool isReal() const { return aux().isRealData(); }
 
-  std::shared_ptr<SubRunPrincipal>
-  subRunPrincipalSharedPtr()
-  {
-    return subRunPrincipal_;
-  }
+    EventAuxiliary::ExperimentType ExperimentType() const { return aux().experimentType(); }
 
-  void
-  setSubRunPrincipal(std::shared_ptr<SubRunPrincipal> srp)
-  {
-    subRunPrincipal_ = srp;
-  }
+    EventAuxiliary const& aux() const { return aux_; }
+    SubRunNumber_t subRun() const { return aux().subRun(); }
+    RunNumber_t run() const { return id().run(); }
 
-  EventID const&
-  id() const
-  {
-    return aux().id();
-  }
+    RunPrincipal const& runPrincipal() const;
+    RunPrincipal& runPrincipal();
 
-  Timestamp const&
-  time() const
-  {
-    return aux().time();
-  }
+    void addOnDemandGroup(BranchDescription const& desc,
+                          cet::exempt_ptr<Worker> worker);
 
-  bool
-  isReal() const
-  {
-    return aux().isRealData();
-  }
+    EventSelectionIDVector const& eventSelectionIDs() const;
 
-  EventAuxiliary::ExperimentType
-  ExperimentType() const
-  {
-    return aux().experimentType();
-  }
+    History const&  history() const { return *history_; }
+    History& history() { return *history_; }
 
-  EventAuxiliary const&
-  aux() const
-  {
-    return aux_;
-  }
+    using Principal::getGroup;
 
-  SubRunNumber_t
-  subRun() const
-  {
-    return aux().subRun();
-  }
+    GroupQueryResult getGroup(ProductID const& pid) const;
+    GroupQueryResult getByProductID(ProductID const& pid) const;
 
-  RunNumber_t
-  run() const
-  {
-    return id().run();
-  }
+    void put(std::unique_ptr<EDProduct>&& edp,
+             BranchDescription const& bd,
+             std::unique_ptr<ProductProvenance const>&& productProvenance);
 
-  RunPrincipal const& runPrincipal() const;
+    void addGroup(BranchDescription const&);
+    void addGroup(std::unique_ptr<EDProduct>&&, BranchDescription const&);
 
-  RunPrincipal& runPrincipal();
+    ProductID branchIDToProductID(BranchID const bid) const;
 
-  void addOnDemandGroup(BranchDescription const& desc,
-                        cet::exempt_ptr<Worker> worker);
+    BranchType branchType() const override { return branch_type; }
 
-  EventSelectionIDVector const& eventSelectionIDs() const;
+    bool isLastInSubRun() const { return lastInSubRun_; }
+    EDProductGetter const* productGetter(ProductID const& pid) const;
 
-  History const&
-  history() const
-  {
-    return *history_;
-  }
+    RangeSet seenRanges() const override { return RangeSet::invalid(); }
 
-  History&
-  history()
-  {
-    return *history_;
-  }
+  private:
 
-  using Principal::getGroup;
+    BranchID productIDToBranchID(ProductID const& pid) const;
 
-  GroupQueryResult getGroup(ProductID const& pid) const;
+    void addOrReplaceGroup(std::unique_ptr<Group>&& g) override;
 
-  GroupQueryResult getByProductID(ProductID const& pid) const;
+    ProcessHistoryID const&
+    processHistoryID() const override
+    {
+      return history().processHistoryID();
+    }
 
-  void put(std::unique_ptr<EDProduct>&& edp, BranchDescription const& bd,
-           std::unique_ptr<ProductProvenance const>&& productProvenance);
+    void
+    setProcessHistoryID(ProcessHistoryID const& phid) override
+    {
+      return history().setProcessHistoryID(phid);
+    }
 
-  void addGroup(BranchDescription const&) override;
+    // This function and its associated member datum are required to
+    // handle the lifetime of a deferred getter, which in turn is required
+    // because a group does not exist until it is placed in the event.
+    EDProductGetter const* deferredGetter_(ProductID const& pid) const;
 
-  void addGroup(std::unique_ptr<EDProduct>&&, BranchDescription const&) override;
+    EDProductGetter const* getEDProductGetterImpl(ProductID const& pid) const override {
+      return getGroup(pid).result().get();
+    }
 
-  ProductID branchIDToProductID(BranchID const& bid) const;
+  private:
 
-  BranchType
-  branchType() const override
-  {
-    return InEvent;
-  }
+    mutable
+    std::map<ProductID, std::shared_ptr<DeferredProductGetter const>>
+    deferredGetters_ {};
 
-  EDProductGetter const* productGetter(ProductID const& pid) const;
+    EventAuxiliary aux_;
 
-private:
-
-  BranchID productIDToBranchID(ProductID const& pid) const;
-
-  void addOrReplaceGroup(std::unique_ptr<Group>&& g) override;
-
-  ProcessHistoryID const&
-  processHistoryID() const override
-  {
-    return history().processHistoryID();
-  }
-
-  void
-  setProcessHistoryID(ProcessHistoryID const& phid) override
-  {
-    return history().setProcessHistoryID(phid);
-  }
-
-  // This function and its associated member datum are required to
-  // handle the lifetime of a deferred getter, which in turn is required
-  // because a group does not exist until it is placed in the event.
-  EDProductGetter const* deferredGetter_(ProductID const& pid) const;
-
-  virtual EDProductGetter const* getEDProductGetterImpl(ProductID const& pid) const override {
-    return getGroup(pid).result().get();
-  }
-
-private:
-
-  mutable
-  std::map<ProductID, std::shared_ptr<DeferredProductGetter const>>
-      deferredGetters_;
-
-  EventAuxiliary aux_;
-
-  std::shared_ptr<SubRunPrincipal> subRunPrincipal_;
-
-  std::shared_ptr<History> history_;
-
-  std::map<BranchListIndex, ProcessIndex> branchToProductIDHelper_;
-
-};
-
-inline
-bool
-isSameEvent(EventPrincipal const& a, EventPrincipal const& b)
-{
-  return a.aux() == b.aux();
-}
+    std::shared_ptr<SubRunPrincipal> subRunPrincipal_ {nullptr};
+    std::shared_ptr<History> history_;
+    std::map<BranchListIndex, ProcessIndex> branchToProductIDHelper_ {};
+    bool lastInSubRun_ {false};
+  };
 
 } // namespace art
 

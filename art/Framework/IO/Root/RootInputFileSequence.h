@@ -42,8 +42,6 @@ public: // TYPES
 
 public: // MEMBER FUNCTIONS
 
-  virtual ~RootInputFileSequence() = default;
-
   RootInputFileSequence(RootInputFileSequence const&) = delete;
 
   RootInputFileSequence&
@@ -156,6 +154,9 @@ public: // MEMBER FUNCTIONS
     return rootFile_;
   }
 
+  std::unique_ptr<RangeSetHandler> runRangeSetHandler();
+  std::unique_ptr<RangeSetHandler> subRunRangeSetHandler();
+
   std::vector<std::vector<std::string>> const&
   secondaryFileNames() const
   {
@@ -236,9 +237,6 @@ private: // MEMBER FUNCTIONS
   void
   rewindFile();
 
-  std::unique_ptr<EventPrincipal>
-  readCurrentEvent();
-
   std::vector<FileCatalogItem> const&
   fileCatalogItems() const;
 
@@ -247,9 +245,6 @@ private: // MEMBER FUNCTIONS
 
   bool
   primary() const;
-
-  void
-  logFileAction(const char* msg, std::string const& file);
 
 private: // MEMBER DATA
 

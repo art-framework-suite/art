@@ -52,17 +52,16 @@ namespace art {
     bool insert(std::shared_ptr<RunPrincipal> rp);
     bool insert(std::shared_ptr<SubRunPrincipal> srp);
 
-    bool noMoreRuns();
-    bool noMoreSubRuns();
+    bool noMoreRuns() const;
+    bool noMoreSubRuns() const;
 
     RunPrincipal & lowestRun() const;
     SubRunPrincipal & lowestSubRun() const;
 
-    void deleteLowestRun();
-    void deleteLowestSubRun();
-
     void deleteRun(RunID run);
     void deleteSubRun(SubRunID const & sr);
+
+    void deleteAllPrincipals();
 
   private:
 

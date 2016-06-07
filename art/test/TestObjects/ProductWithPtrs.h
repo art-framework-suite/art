@@ -38,6 +38,7 @@ public:
   art::PtrVector<double> pvd_;
 #endif
   std::vector<art::Ptr<double> > vpd_;
+
 };
 
 inline

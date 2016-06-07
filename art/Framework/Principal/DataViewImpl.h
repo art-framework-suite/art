@@ -81,9 +81,9 @@ public:
 
   DataViewImpl(DataViewImpl const&) = delete;
   DataViewImpl& operator=(DataViewImpl const&) = delete;
-  DataViewImpl(Principal & pcpl,
-               ModuleDescription const& md,
-               BranchType const& branchType);
+  DataViewImpl(Principal &,
+               ModuleDescription const&,
+               BranchType);
 
   size_t size() const;
 
@@ -121,12 +121,15 @@ public:
 
   struct PMValue {
 
-    PMValue( std::unique_ptr<EDProduct>&& p, BranchDescription const& b )
-      : prod(std::move(p)), bd(b)
+    PMValue( std::unique_ptr<EDProduct>&& p,
+             BranchDescription const& b,
+             RangeSet const& r)
+      : prod{std::move(p)}, bd{b}, rs{r}
     {}
 
     std::unique_ptr<EDProduct> prod;
     BranchDescription const& bd;
+    RangeSet rs;
   };
 
   using BranchIDsMap = std::unordered_map<BranchID, PMValue, BranchID::Hash>;
@@ -204,7 +207,7 @@ protected:
   EDProductGetter const* prodGetter() const;
 
 private:
-  void removeCachedProduct_(BranchID const & bid) const;
+  void removeCachedProduct_(BranchID const bid) const;
 
   //------------------------------------------------------------
   // Data members
@@ -249,7 +252,7 @@ art::DataViewImpl::get(SelectorBase const& sel,
                        Handle<PROD>& result) const
 {
   result.clear();
-  GroupQueryResult bh = this->get_(TypeID(typeid(PROD)),sel);
+  GroupQueryResult bh = get_(TypeID(typeid(PROD)),sel);
   convert_handle(bh, result);
   return bh.succeeded();
 }
@@ -260,7 +263,7 @@ bool
 art::DataViewImpl::getByLabel(InputTag const& tag, Handle<PROD>& result) const
 {
   result.clear();
-  GroupQueryResult bh = this->getByLabel_(TypeID(typeid(PROD)), tag.label(), tag.instance(), tag.process());
+  GroupQueryResult bh = getByLabel_(TypeID(typeid(PROD)), tag.label(), tag.instance(), tag.process());
   convert_handle(bh, result);
   return bh.succeeded();
 }
@@ -273,7 +276,7 @@ art::DataViewImpl::getByLabel(std::string const& label,
                               Handle<PROD>& result) const
 {
   result.clear();
-  GroupQueryResult bh = this->getByLabel_(TypeID(typeid(PROD)), label, productInstanceName, std::string());
+  GroupQueryResult bh = getByLabel_(TypeID(typeid(PROD)), label, productInstanceName, std::string());
   convert_handle(bh, result);
   return bh.succeeded();
 }
@@ -285,7 +288,7 @@ art::DataViewImpl::getMany(SelectorBase const& sel,
                            std::vector<Handle<PROD>>& results) const
 {
   GroupQueryResultVec bhv;
-  this->getMany_(TypeID(typeid(PROD)), sel, bhv);
+  getMany_(TypeID(typeid(PROD)), sel, bhv);
 
   // Go through the returned handles; for each element,
   //   1. create a Handle<PROD> and
@@ -315,7 +318,7 @@ void
 art::DataViewImpl::getManyByType(std::vector<Handle<PROD>>& results) const
 {
   GroupQueryResultVec bhv;
-  this->getManyByType_(TypeID(typeid(PROD)), bhv);
+  getManyByType_(TypeID(typeid(PROD)), bhv);
 
   // Go through the returned handles; for each element,
   //   1. create a Handle<PROD> and

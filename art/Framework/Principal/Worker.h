@@ -27,7 +27,7 @@ the worker is reset().
 #include "art/Framework/Principal/Actions.h"
 #include "art/Framework/Services/Registry/BranchActionType.h"
 #include "art/Framework/Principal/CurrentProcessingContext.h"
-#include "art/Framework/Principal/RunStopwatch.h"
+#include "art/Framework/Principal/MaybeRunStopwatch.h"
 #include "art/Framework/Principal/fwd.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
 #include "cetlib/exception.h"
@@ -120,7 +120,6 @@ private:
   virtual void implRespondToOpenOutputFiles(FileBlock const& fb) = 0;
   virtual void implRespondToCloseOutputFiles(FileBlock const& fb) = 0;
 
-  //RunStopwatch::StopwatchPointer stopwatch_;
   cet::cpu_timer timer_;
 
   int timesRun_;
@@ -177,9 +176,6 @@ template <typename T>
 bool art::Worker::doWork(typename T::MyPrincipal& ep,
                          CurrentProcessingContext const* cpc) {
 
-  // A RunStopwatch, but only if we are processing an event.
-  //std::unique_ptr<RunStopwatch> stopwatch(T::isEvent_ ? new RunStopwatch(stopwatch_) : 0);
-
   if (T::isEvent_) {
     ++timesVisited_;
   }
@@ -215,7 +211,7 @@ bool art::Worker::doWork(typename T::MyPrincipal& ep,
 
     if (T::isEvent_) ++timesRun_;
 
-    detail::ModuleSignalSentry<T> cpp(actReg_.get(), md_);
+    detail::ModuleSignalSentry<T> cpp{actReg_.get(), md_};
     state_ = Working;
     if (T::begin_) {
       rc = implDoBegin(ep, cpc);
@@ -286,39 +282,39 @@ bool art::Worker::doWork(typename T::MyPrincipal& ep,
       detail::exceptionContext(md_, ep, e);
       art::Exception *edmEx = dynamic_cast<art::Exception *>(&e);
       if (edmEx) {
-        cached_exception_.reset(new art::Exception(*edmEx));
+        cached_exception_ = std::make_shared<art::Exception>(*edmEx);
       } else {
-        cached_exception_.reset(new art::Exception(errors::OtherArt, std::string(), e));
+        cached_exception_ = std::make_shared<art::Exception>(errors::OtherArt, std::string(), e);
       }
       throw;
     }
     }
   }
 
-  catch(std::bad_alloc& bda) {
+  catch(std::bad_alloc const& bda) {
     if (T::isEvent_) ++timesExcept_;
     state_ = Exception;
-    cached_exception_.reset(new art::Exception(errors::BadAlloc));
+    cached_exception_ = std::make_shared<art::Exception>(errors::BadAlloc);
     *cached_exception_
       << "A std::bad_alloc exception occurred during a call to the module ";
     detail::exceptionContext(md_, ep, *cached_exception_)
       << "The job has probably exhausted the virtual memory available to the process.\n";
     throw *cached_exception_;
   }
-  catch(std::exception& e) {
+  catch(std::exception const& e) {
     if (T::isEvent_) ++timesExcept_;
     state_ = Exception;
-    cached_exception_.reset(new art::Exception(errors::StdException));
+    cached_exception_ = std::make_shared<art::Exception>(errors::StdException);
     *cached_exception_
       << "A std::exception occurred during a call to the module ";
     detail::exceptionContext(md_, ep, *cached_exception_) << "and cannot be repropagated.\n"
                                                           << "Previous information:\n" << e.what();
     throw *cached_exception_;
   }
-  catch(std::string& s) {
+  catch(std::string const& s) {
     if (T::isEvent_) ++timesExcept_;
     state_ = Exception;
-    cached_exception_.reset(new art::Exception(errors::BadExceptionType, "std::string"));
+    cached_exception_ = std::make_shared<art::Exception>(errors::BadExceptionType, "std::string");
     *cached_exception_
       << "A std::string thrown as an exception occurred during a call to the module ";
     detail::exceptionContext(md_, ep, *cached_exception_) << "and cannot be repropagated.\n"
@@ -328,7 +324,7 @@ bool art::Worker::doWork(typename T::MyPrincipal& ep,
   catch(char const* c) {
     if (T::isEvent_) ++timesExcept_;
     state_ = Exception;
-    cached_exception_.reset(new art::Exception(errors::BadExceptionType, "const char *"));
+    cached_exception_ = std::make_shared<art::Exception>(errors::BadExceptionType, "const char *");
     *cached_exception_
       << "A const char* thrown as an exception occurred during a call to the module ";
     detail::exceptionContext(md_, ep, *cached_exception_) << "and cannot be repropagated.\n"
@@ -338,7 +334,7 @@ bool art::Worker::doWork(typename T::MyPrincipal& ep,
   catch(...) {
     if (T::isEvent_) ++timesExcept_;
     state_ = Exception;
-    cached_exception_.reset(new art::Exception(errors::Unknown, "repeated"));
+    cached_exception_ = std::make_shared<art::Exception>(errors::Unknown, "repeated");
     *cached_exception_
       << "An unknown occurred during a previous call to the module ";
     detail::exceptionContext(md_, ep, *cached_exception_) << "and cannot be repropagated.\n";

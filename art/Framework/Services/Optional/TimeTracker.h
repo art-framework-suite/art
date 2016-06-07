@@ -10,6 +10,7 @@
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/ServiceTable.h"
+#include "art/Framework/Services/Registry/ServiceMacros.h"
 #include "art/Ntuple/Ntuple.h"
 #include "art/Ntuple/sqlite_DBmanager.h"
 #include "canvas/Persistency/Provenance/EventID.h"
@@ -24,6 +25,35 @@
 
 namespace art {
 
+  struct Statistics {
+
+    explicit Statistics() = default;
+
+    explicit Statistics(std::string const& identifier,
+                        sqlite3* db,
+                        std::string const& table,
+                        std::string const& column)
+      : label{identifier}
+      , min{sqlite::min(db, table, column)}
+      , mean{sqlite::mean(db, table, column)}
+      , max{sqlite::max(db, table, column)}
+      , median{sqlite::median(db, table, column)}
+      , rms{sqlite::rms(db, table, column)}
+      , n{sqlite::query_db<uint32_t>(db, "select count(*) from "+table+";")}
+    {}
+
+    std::string label {};
+    double min {-1.};
+    double mean {-1.};
+    double max {-1.};
+    double median {-1.};
+    double rms {-1.};
+    unsigned n {0u};
+  };
+
+  std::ostream& operator<<(std::ostream& os, Statistics const& info);
+
+  // =======================================================================
   class TimeTracker {
   public:
 
@@ -40,6 +70,9 @@ namespace art {
     using Parameters = ServiceTable<Config>;
     TimeTracker(ServiceTable<Config> const &, ActivityRegistry&);
 
+    void preModule(ModuleDescription const&);
+    void postModule(ModuleDescription const&);
+
   private:
 
     void prePathProcessing(std::string const&);
@@ -49,8 +82,8 @@ namespace art {
     void preEventProcessing(Event const&);
     void postEventProcessing(Event const&);
 
-    void preModule(ModuleDescription const&);
-    void postModule(ModuleDescription const&);
+    void logToDatabase_(Statistics const& evt, std::vector<Statistics> const& modules);
+    void logToDestination_(Statistics const& evt, std::vector<Statistics> const& modules);
 
     std::string pathname_;
     EventID eventId_;
@@ -78,6 +111,8 @@ namespace art {
   };  // TimeTracker
 
 } // namespace art
+
+DECLARE_ART_SERVICE(art::TimeTracker, LEGACY)
 
 #endif /* art_Framework_Services_Optional_TimeTracker_h */
 

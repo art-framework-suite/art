@@ -65,7 +65,7 @@ void arttest::HMRunProdProducer::endSubRun(art::SubRun & sr)
 void arttest::HMRunProdProducer::endRun(art::Run & r)
 {
   for (unsigned short i = 0; i < N_BLOCKS; ++i) {
-    r.put(std::move(data_[i]), std::string("block") + std::to_string(i));
+    r.put(std::move(data_[i]), std::string("block") + std::to_string(i), art::runFragment());
   }
 }
 

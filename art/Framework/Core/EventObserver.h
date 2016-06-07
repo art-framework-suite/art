@@ -30,34 +30,37 @@ public:
   //
   std::string const& processName() const { return process_name_; }
   bool wantAllEvents() const { return wantAllEvents_; }
+  bool wantEvent(Event const& e) { return selectors_.wantEvent(e); }
   fhicl::ParameterSetID selectorConfig() const { return selector_config_id_; }
   art::Handle<art::TriggerResults> getTriggerResults(Event const& e) const { return selectors_.getOneTriggerResults(e); }
 
 protected:
-  // True if no selectors configured.
-  bool wantAllEvents_;
-  // The process and event selectors, as specified by
-  // the SelectEvents configuration parameter.
-  detail::CachedProducts selectors_;
 
   struct EOConfig {
     fhicl::Sequence<std::string> selectEvents {
       fhicl::Name("SelectEvents"),
-      fhicl::Comment("The following parameter is a user-provided list\n"
-                     "of filter paths. The default list is empty."),
-      std::vector<std::string>{} };
+        fhicl::Comment("The following parameter is a user-provided list\n"
+                       "of filter paths. The default list is empty."),
+        std::vector<std::string>{} };
   };
 
-  explicit EventObserver(fhicl::OptionalTable<EOConfig> const& config);
-  explicit EventObserver(fhicl::ParameterSet            const& config);
+  explicit EventObserver(std::vector<std::string> const& paths, fhicl::ParameterSet const& config);
+  explicit EventObserver(fhicl::ParameterSet const& config);
+  detail::CachedProducts& cachedProducts() { return selectors_; }
 
 private:
-  std::string process_name_;
-  // ID of the ParameterSet that configured
-  // the event selector subsystem.
+
+  // True if no selectors configured.
+  bool wantAllEvents_ {false};
+  // The process and event selectors, as specified by the SelectEvents
+  // configuration parameter.
+  detail::CachedProducts selectors_ {};
+  std::string process_name_ {};
+  // ID of the ParameterSet that configured the event selector
+  // subsystem.
   fhicl::ParameterSetID selector_config_id_;
 
-  void init_(fhicl::ParameterSet const& pset);
+  void init_(std::vector<std::string> const& paths);
 
 };
 

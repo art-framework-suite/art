@@ -1,5 +1,6 @@
 #include "art/Framework/Art/BasicSourceOptionsHandler.h"
 
+#include "art/Framework/Art/detail/bold_fontify.h"
 #include "art/Framework/Art/detail/fillSourceList.h"
 #include "canvas/Utilities/Exception.h"
 #include "cetlib/container_algorithms.h"
@@ -15,7 +16,9 @@
 art::BasicSourceOptionsHandler::
 BasicSourceOptionsHandler(bpo::options_description & desc)
 {
-  desc.add_options()
+  std::string const description {detail::bold_fontify("Source options")};
+  bpo::options_description source_options {description};
+  source_options.add_options()
     ("source,s", bpo::value<std::vector<std::string> >()->composing(),
      "Source data file (multiple OK); precludes -S.")
     ("source-list,S", bpo::value<std::string>(),
@@ -26,6 +29,7 @@ BasicSourceOptionsHandler(bpo::options_description & desc)
     ("nevts,n", bpo::value<int>(), "Number of events to process.")
     ("nskip", bpo::value<unsigned long>(), "Number of events to skip.")
   ;
+  desc.add(source_options);
 }
 
 int
