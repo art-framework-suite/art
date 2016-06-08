@@ -15,6 +15,7 @@ namespace fhicl { class ParameterSet; }
 namespace art {
 
   class ActivityRegistry;
+  class ModuleDescription;
 
   class MemoryTracker {
   public:
@@ -25,6 +26,10 @@ namespace art {
                                        << "If desired, please log an issue with:\n\n"
                                        << "https://cdcvs.fnal.gov/redmine/projects/cet-is/issues/new\n\n";
     }
+
+    // Module level
+    void preModule (ModuleDescription const&) {}
+    void postModule(ModuleDescription const&) {}
 
   };
 
