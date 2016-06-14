@@ -1,28 +1,23 @@
 # The parent line must be the first non-comment line in the file
 # This line defines the product name and version
-parent art	v1_17_07
-defaultqual	e9
+parent art	v1_17_08
+defaultqual	e10
 #
 fcldir -
 perllib  product_dir
 #
 product		version
-clhep		v2_2_0_8
-cppunit		v1_12_1c
+clhep		v2_2_0_8a
+cppunit		v1_12_1d
 gccxml		v0_9_20150423
 python		v2_7_10
-root		v5_34_32
-messagefacility	v1_16_22
-tbb		v4_4_0
-cetbuildtools	v4_18_02	-	only_for_build
+root		v5_34_32b
+messagefacility	v1_16_22a
+tbb		v4_4_3a
+cetbuildtools	v5_02_02	-	only_for_build
 end_product_list
 
 qualifier	messagefacility	root		clhep		cppunit		gccxml	python	tbb		compiler	notes
-e6:debug	e6:debug	e6:debug	e6:debug	e6:debug	-nq-	-nq-	e6:debug	gcc
-e6:prof		e6:prof		e6:prof		e6:prof		e6:prof		-nq-	-nq-	e6:prof		gcc
-e6:prof:sse2	e6:prof		e6:prof		e6:prof		e6:prof		-nq-	-nq-	e6:prof		gcc		-msse2 -ftree-vectorizer-verbose
-nu:e6:debug	e6:debug	e6:nu:debug	e6:debug	e6:debug	-nq-	-nq-	e6:debug	gcc
-nu:e6:prof	e6:prof		e6:nu:prof	e6:prof		e6:prof		-nq-	-nq-	e6:prof		gcc
 e7:debug	e7:debug	e7:debug	e7:debug	e7:debug	-nq-	-nq-	e7:debug	gcc
 e7:prof		e7:prof		e7:prof		e7:prof		e7:prof		-nq-	-nq-	e7:prof		gcc
 e7:prof:sse2	e7:prof		e7:prof		e7:prof		e7:prof		-nq-	-nq-	e7:prof		gcc		-msse2 -ftree-vectorizer-verbose
@@ -33,6 +28,11 @@ e9:prof		e9:prof		e9:prof		e9:prof		e9:prof		-nq-	-nq-	e9:prof		gcc
 e9:prof:sse2	e9:prof		e9:prof		e9:prof		e9:prof		-nq-	-nq-	e9:prof		gcc		-msse2 -ftree-vectorizer-verbose
 nu:e9:debug	e9:debug	e9:nu:debug	e9:debug	e9:debug	-nq-	-nq-	e9:debug	gcc
 nu:e9:prof	e9:prof		e9:nu:prof	e9:prof		e9:prof		-nq-	-nq-	e9:prof		gcc
+e10:debug	e10:debug	e10:debug	e10:debug	e10:debug	-nq-	-nq-	e10:debug	gcc
+e10:prof	e10:prof	e10:prof	e10:prof	e10:prof	-nq-	-nq-	e10:prof	gcc
+e10:prof:sse2	e10:prof	e10:prof	e10:prof	e10:prof	-nq-	-nq-	e10:prof	gcc		-msse2 -ftree-vectorizer-verbose
+nu:e10:debug	e10:debug	e10:nu:debug	e10:debug	e10:debug	-nq-	-nq-	e10:debug	gcc
+nu:e10:prof	e10:prof	e10:nu:prof	e10:prof	e10:prof	-nq-	-nq-	e10:prof	gcc
 end_qualifier_list
 
 # Local Variables:
