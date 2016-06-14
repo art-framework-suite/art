@@ -12,8 +12,8 @@ Original Authors: W. David Dagenhart, Marc Paterno
 */
 
 #include "art/Framework/Principal/fwd.h"
-#include "canvas/Persistency/Provenance/RunID.h"
-#include "canvas/Persistency/Provenance/SubRunID.h"
+#include "art/Persistency/Provenance/RunID.h"
+#include "art/Persistency/Provenance/SubRunID.h"
 
 #include <string>
 

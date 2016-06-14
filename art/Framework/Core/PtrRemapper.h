@@ -168,10 +168,10 @@
 
 #include "art/Framework/Principal/Event.h"
 #include "art/Persistency/Common/CollectionUtilities.h"
-#include "canvas/Persistency/Common/EDProductGetter.h"
-#include "canvas/Persistency/Common/Ptr.h"
-#include "canvas/Persistency/Common/PtrVector.h"
-#include "canvas/Persistency/Provenance/ProductID.h"
+#include "art/Persistency/Common/EDProductGetter.h"
+#include "art/Persistency/Common/Ptr.h"
+#include "art/Persistency/Common/PtrVector.h"
+#include "art/Persistency/Provenance/ProductID.h"
 #include "cetlib/exempt_ptr.h"
 #include <map>
 

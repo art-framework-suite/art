@@ -68,7 +68,7 @@ float const *
 arttest::HMLargeData::
 data() const
 {
-  assert(!(data_.size() < data_size_));
+  assert(!data_.size() < data_size_);
   return data_.data();
 }
 

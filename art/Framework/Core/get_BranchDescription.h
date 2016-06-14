@@ -7,9 +7,9 @@
 // 2011/03/15 CG,
 ////////////////////////////////////////////////////////////////////////
 
-#include "canvas/Persistency/Provenance/ProductList.h"
-#include "canvas/Persistency/Provenance/BranchType.h"
-#include "canvas/Utilities/TypeID.h"
+#include "art/Persistency/Provenance/ProductList.h"
+#include "art/Persistency/Provenance/BranchType.h"
+#include "art/Utilities/TypeID.h"
 
 #include <string>
 

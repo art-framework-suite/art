@@ -1,7 +1,7 @@
 #ifndef test_Integration_event_shape_ESPtrSimple_h
 #define test_Integration_event_shape_ESPtrSimple_h
 
-#include "canvas/Persistency/Common/Ptr.h"
+#include "art/Persistency/Common/Ptr.h"
 #include "test/TestObjects/ToyProducts.h"
 
 namespace arttest {

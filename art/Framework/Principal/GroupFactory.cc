@@ -1,11 +1,10 @@
 #include "art/Framework/Principal/GroupFactory.h"
-// vim: set sw=2:
 
 #include "art/Framework/Principal/AssnsGroup.h"
 #include "art/Framework/Principal/Group.h"
-#include "canvas/Persistency/Common/Assns.h"
+#include "art/Persistency/Common/Assns.h"
 #include "art/Persistency/Provenance/ReflexTools.h"
-#include "canvas/Utilities/WrappedClassName.h"
+#include "art/Utilities/WrappedClassName.h"
 
 #include "TClass.h"
 #include "Reflex/Type.h"

@@ -7,7 +7,7 @@
 #include "art/Framework/Core/EDAnalyzer.h"
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Core/ModuleMacros.h"
-#include "canvas/Persistency/Common/PtrVector.h"
+#include "art/Persistency/Common/PtrVector.h"
 #include "cetlib/exception.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "test/TestObjects/MockCluster.h"

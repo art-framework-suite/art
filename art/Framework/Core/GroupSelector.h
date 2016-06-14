@@ -7,7 +7,7 @@
 //
 // ======================================================================
 
-#include "canvas/Persistency/Provenance/ProductList.h"
+#include "art/Persistency/Provenance/ProductList.h"
 #include <iosfwd>
 #include <string>
 #include <vector>

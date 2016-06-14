@@ -1,7 +1,7 @@
 #include "art/Framework/Services/System/ScheduleContext.h"
 
 #include "art/Framework/Core/detail/ScheduleTask.h"
-#include "canvas/Utilities/Exception.h"
+#include "art/Utilities/Exception.h"
 
 #include "tbb/task.h"
 

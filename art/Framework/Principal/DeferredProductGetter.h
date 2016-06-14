@@ -1,8 +1,8 @@
 #ifndef art_Framework_Principal_DeferredProductGetter_h
 #define art_Framework_Principal_DeferredProductGetter_h
 
-#include "canvas/Persistency/Common/EDProductGetter.h"
-#include "canvas/Persistency/Provenance/ProductID.h"
+#include "art/Persistency/Common/EDProductGetter.h"
+#include "art/Persistency/Provenance/ProductID.h"
 #include "art/Framework/Principal/fwd.h"
 #include "art/Utilities/fwd.h"
 #include "cetlib/exempt_ptr.h"

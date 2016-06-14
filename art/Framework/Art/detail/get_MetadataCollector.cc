@@ -3,7 +3,7 @@
 #include "art/Framework/Art/detail/md-collector/MetadataCollectorForService.h"
 #include "art/Framework/Art/detail/md-collector/MetadataCollectorForSource.h"
 #include "art/Framework/Art/detail/get_MetadataCollector.h"
-#include "canvas/Utilities/Exception.h"
+#include "art/Utilities/Exception.h"
 
 using namespace art;
 using namespace art::detail;

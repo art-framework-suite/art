@@ -15,10 +15,10 @@
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/System/TriggerNamesService.h"
 #include "art/Framework/Principal/Handle.h"
-#include "canvas/Persistency/Provenance/BranchDescription.h"
-#include "canvas/Persistency/Provenance/ParentageRegistry.h"
-#include "canvas/Utilities/DebugMacros.h"
-#include "canvas/Utilities/Exception.h"
+#include "art/Persistency/Provenance/BranchDescription.h"
+#include "art/Persistency/Provenance/ParentageRegistry.h"
+#include "art/Utilities/DebugMacros.h"
+#include "art/Utilities/Exception.h"
 #include "cetlib/canonical_string.h"
 #include "cetlib/demangle.h"
 #include "rapidjson/document.h"
@@ -371,15 +371,15 @@ void
 art::OutputModule::
 updateBranchParents(EventPrincipal const & ep)
 {
-  for (auto const& groupPr : ep) {
-    auto const& group = *groupPr.second;
-    if (group.productProvenancePtr()) {
-      BranchID const& bid = groupPr.first;
-      auto it = branchParents_.find(bid);
+  for (EventPrincipal::const_iterator i = ep.begin(), iEnd = ep.end(); i != iEnd;
+       ++i) {
+    if (i->second->productProvenancePtr()) {
+      BranchID const & bid = i->first;
+      BranchParents::iterator it = branchParents_.find(bid);
       if (it == branchParents_.end()) {
-        it = branchParents_.emplace(bid, std::set<ParentageID>()).first;
+        it = branchParents_.insert(std::make_pair(bid, std::set<ParentageID>())).first;
       }
-      it->second.insert(group.productProvenancePtr()->parentageID());
+      it->second.insert(i->second->productProvenancePtr()->parentageID());
       branchChildren_.insertEmpty(bid);
     }
   }
@@ -389,14 +389,22 @@ void
 art::OutputModule::
 fillDependencyGraph()
 {
-  for (auto const& bp : branchParents_) {
-    BranchID const & child = bp.first;
-    std::set<ParentageID> const & eIds = bp.second;
-    for (auto const& eId : eIds) {
+  for (BranchParents::const_iterator i = branchParents_.begin(),
+       iEnd = branchParents_.end();
+       i != iEnd; ++i) {
+    BranchID const & child = i->first;
+    std::set<ParentageID> const & eIds = i->second;
+    for (std::set<ParentageID>::const_iterator it = eIds.begin(),
+         itEnd = eIds.end();
+         it != itEnd; ++it) {
       Parentage entryDesc;
-      ParentageRegistry::get(eId, entryDesc);
-      for (auto const& p : entryDesc.parents())
-        branchChildren_.insertChild(p, child);
+      ParentageRegistry::get(*it, entryDesc);
+      std::vector<BranchID> const & parents = entryDesc.parents();
+      for (std::vector<BranchID>::const_iterator j = parents.begin(),
+           jEnd = parents.end();
+           j != jEnd; ++j) {
+        branchChildren_.insertChild(*j, child);
+      }
     }
   }
 }

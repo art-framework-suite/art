@@ -9,7 +9,7 @@
 // ======================================================================
 
 #include "art/Framework/Services/Registry/ServiceMacros.h"
-#include "canvas/Persistency/Provenance/ModuleDescription.h"
+#include "art/Persistency/Provenance/ModuleDescription.h"
 #include <string>
 
 namespace art {

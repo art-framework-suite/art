@@ -2,7 +2,7 @@
 #include "art/Framework/Core/OutputModule.h"
 #include "art/Framework/Principal/Handle.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
-#include "canvas/Persistency/Common/TriggerResults.h"
+#include "art/Persistency/Common/TriggerResults.h"
 #include "fhiclcpp/ParameterSet.h"
 
 #include <algorithm>

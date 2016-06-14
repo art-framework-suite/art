@@ -2,7 +2,7 @@
 project(art_Framework_IO)
 
 art_make(LIB_LIBRARIES
-  art_Persistency_Provenance canvas_Persistency_Provenance
+  art_Persistency_Provenance
   ${Boost_DATE_TIME_LIBRARY}
   ${Boost_FILESYSTEM_LIBRARY}
   ${Boost_REGEXLIBRARY}

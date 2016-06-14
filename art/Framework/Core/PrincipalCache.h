@@ -14,10 +14,11 @@ Original Author: W. David Dagenhart
 
 #include "art/Framework/Principal/fwd.h"
 #include "art/Framework/Core/Frameworkfwd.h"
-#include "canvas/Persistency/Provenance/SubRunID.h"
+#include "art/Persistency/Provenance/SubRunID.h"
+
+#include "cpp0x/memory"
 
 #include <map>
-#include <memory>
 
 namespace art {
 

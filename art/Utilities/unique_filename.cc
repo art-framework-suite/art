@@ -1,6 +1,6 @@
 #include "art/Utilities/unique_filename.h"
 
-#include "canvas/Utilities/Exception.h"
+#include "art/Utilities/Exception.h"
 
 #include "boost/filesystem.hpp"
 #include "boost/system/error_code.hpp"

@@ -1,8 +1,8 @@
 #ifndef test_TestObjects_ProductWithPtrs_h
 #define test_TestObjects_ProductWithPtrs_h
 
-#include "canvas/Persistency/Common/Ptr.h"
-#include "canvas/Persistency/Common/PtrVector.h"
+#include "art/Persistency/Common/Ptr.h"
+#include "art/Persistency/Common/PtrVector.h"
 
 #include <list>
 #include <vector>

@@ -1,0 +1,38 @@
+<lcgdict>
+<class name="CLHEP::Hep2Vector" ClassVersion="10">
+ <version ClassVersion="10" checksum="1182862603"/>
+</class>
+<class name="CLHEP::Hep3Vector" ClassVersion="10">
+ <version ClassVersion="10" checksum="3040806103"/>
+</class>
+<class name="CLHEP::HepGenMatrix" ClassVersion="10">
+ <version ClassVersion="10" checksum="1734210912"/>
+</class>
+<class name="CLHEP::HepLorentzVector" ClassVersion="10">
+ <version ClassVersion="10" checksum="2698081358"/>
+</class>
+<class name="CLHEP::HepMatrix" ClassVersion="12">
+ <version ClassVersion="12" checksum="1552769590"/>
+ <version ClassVersion="11" checksum="2283727874"/>
+ <version ClassVersion="10" checksum="761242697"/>
+</class>
+<class name="CLHEP::HepSymMatrix" ClassVersion="12">
+ <version ClassVersion="12" checksum="4023811106"/>
+ <version ClassVersion="11" checksum="3670575592"/>
+ <version ClassVersion="10" checksum="2655181035"/>
+</class>
+<class name="CLHEP::HepVector" ClassVersion="11">
+ <version ClassVersion="11" checksum="3994861502"/>
+ <version ClassVersion="10" checksum="3782221270"/>
+</class>
+<class name="std::vector<CLHEP::Hep3Vector>"/>
+<class name="std::vector<CLHEP::HepLorentzVector>"/>
+<class name="art::Wrapper<CLHEP::Hep2Vector>"/>
+<class name="art::Wrapper<CLHEP::Hep3Vector>"/>
+<class name="art::Wrapper<CLHEP::HepLorentzVector>"/>
+<class name="art::Wrapper<CLHEP::HepMatrix>"/>
+<class name="art::Wrapper<CLHEP::HepSymMatrix>"/>
+<class name="art::Wrapper<CLHEP::HepVector>"/>
+<class name="art::Wrapper<std::vector<CLHEP::Hep3Vector> >"/>
+<class name="art::Wrapper<std::vector<CLHEP::HepLorentzVector> >"/>
+</lcgdict>

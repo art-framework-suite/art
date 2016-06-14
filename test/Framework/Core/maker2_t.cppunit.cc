@@ -8,7 +8,7 @@
 #include "art/Framework/Core/detail/ModuleFactory.h"
 #include "art/Framework/Principal/WorkerParams.h"
 #include "art/Framework/Core/WorkerT.h"
-#include "canvas/Utilities/GetPassID.h"
+#include "art/Utilities/GetPassID.h"
 #include "art/Version/GetReleaseVersion.h"
 #include "fhiclcpp/ParameterSet.h"
 

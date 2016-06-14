@@ -8,7 +8,7 @@
 // ======================================================================
 
 #include "art/Persistency/Common/fwd.h"
-#include "canvas/Persistency/Provenance/ProvenanceFwd.h"
+#include "art/Persistency/Provenance/ProvenanceFwd.h"
 #include "fhiclcpp/ParameterSet.h"
 
 // ----------------------------------------------------------------------

@@ -10,23 +10,25 @@
 #include "art/Framework/IO/Root/FastCloningInfoProvider.h"
 #include "art/Framework/IO/Root/GetFileFormatEra.h"
 #include "art/Framework/IO/Root/setFileIndexPointer.h"
-#include "canvas/Persistency/Provenance/rootNames.h"
+#include "art/Framework/IO/Root/rootNames.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/System/FileCatalogMetadata.h"
-#include "canvas/Persistency/Common/EDProduct.h"
-#include "canvas/Persistency/Provenance/BranchChildren.h"
-#include "canvas/Persistency/Provenance/BranchDescription.h"
-#include "canvas/Persistency/Provenance/BranchType.h"
-#include "canvas/Persistency/Provenance/ParameterSetBlob.h"
-#include "canvas/Persistency/Provenance/ParameterSetMap.h"
-#include "canvas/Persistency/Provenance/ParentageRegistry.h"
+#include "art/Persistency/Common/EDProduct.h"
+#include "art/Persistency/Provenance/BranchChildren.h"
+#include "art/Persistency/Provenance/BranchDescription.h"
+#include "art/Persistency/Provenance/BranchType.h"
+#include "art/Persistency/Provenance/ParameterSetBlob.h"
+#include "art/Persistency/Provenance/ParameterSetMap.h"
+#include "art/Persistency/Provenance/ParentageRegistry.h"
 #include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
-#include "canvas/Persistency/Provenance/ProductList.h"
-#include "canvas/Persistency/Provenance/RunID.h"
+#include "art/Persistency/Provenance/ProductList.h"
+#include "art/Persistency/Provenance/RunID.h"
 #include "art/Persistency/RootDB/SQLite3Wrapper.h"
-#include "canvas/Utilities/Exception.h"
-#include "canvas/Utilities/FriendlyName.h"
+#include "art/Utilities/Exception.h"
+#include "art/Utilities/FriendlyName.h"
 #include "cetlib/container_algorithms.h"
+#include "cpp0x/algorithm"
+#include "cpp0x/utility"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/ParameterSetID.h"
 #include "fhiclcpp/ParameterSetRegistry.h"
@@ -37,9 +39,6 @@
 #include "TClass.h"
 #include "TFile.h"
 #include "TTree.h"
-
-#include <algorithm>
-#include <utility>
 
 extern "C" {
 #include "sqlite3.h"
@@ -1239,8 +1238,8 @@ namespace art {
     // Do drop on input. On the first pass, just fill
     // in a set of branches to be dropped.
     set<BranchID> branchesToDrop;
-    for (auto const& prod : prodList) {
-      auto const& bd = prod.second;
+    for (auto I = prodList.cbegin(), E = prodList.cend(); I != E; ++I) {
+      auto const& bd = I->second;
       if (!groupSelector.selected(bd)) {
         if (dropDescendants) {
           branchChildren_->appendToDescendants(bd.branchID(), branchesToDrop);

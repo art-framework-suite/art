@@ -9,10 +9,10 @@
 //  MasterProductRegistry.
 //
 
-#include "canvas/Persistency/Provenance/BranchID.h"
-#include "canvas/Persistency/Provenance/BranchType.h"
+#include "art/Persistency/Provenance/BranchID.h"
+#include "art/Persistency/Provenance/BranchType.h"
 #include "art/Persistency/Provenance/MasterProductRegistry.h"
-#include "canvas/Persistency/Provenance/ProductList.h"
+#include "art/Persistency/Provenance/ProductList.h"
 #include "art/Persistency/Provenance/detail/type_aliases.h"
 #include "cetlib/exempt_ptr.h"
 #include <ostream>

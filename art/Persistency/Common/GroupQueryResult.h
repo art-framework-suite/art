@@ -10,9 +10,8 @@
 
 #include "cetlib/exception.h"
 #include "cetlib/exempt_ptr.h"
-
+#include "cpp0x/memory"
 #include <cassert>
-#include <memory>
 
 namespace art {
   // defined below:

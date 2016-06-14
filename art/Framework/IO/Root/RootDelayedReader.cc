@@ -1,9 +1,9 @@
 #include "art/Framework/IO/Root/RootDelayedReader.h"
 // vim: sw=2:
 
-#include "canvas/Persistency/Common/RefCoreStreamer.h"
-#include "canvas/Persistency/Provenance/BranchDescription.h"
-#include "canvas/Utilities/TypeID.h"
+#include "art/Framework/IO/Root/RefCoreStreamer.h"
+#include "art/Persistency/Provenance/BranchDescription.h"
+#include "art/Utilities/TypeID.h"
 #include "TBranch.h"
 #include "TBranchElement.h"
 #include "TClass.h"
@@ -38,7 +38,7 @@ RootDelayedReader(input::EntryNumber const& entryNumber,
 
 void
 RootDelayedReader::
-setGroupFinder_(cet::exempt_ptr<EDProductGetterFinder const> groupFinder)
+setGroupFinder_(cet::exempt_ptr<EventPrincipal const> groupFinder)
 {
   groupFinder_ = groupFinder;
 }

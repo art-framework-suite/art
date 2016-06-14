@@ -12,7 +12,7 @@
 #include "art/Framework/Principal/Results.h"
 #include "art/Framework/Principal/Run.h"
 #include "art/Framework/Principal/SubRun.h"
-#include "canvas/Utilities/Exception.h"
+#include "art/Utilities/Exception.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 #include "test/TestObjects/ToyProducts.h"

@@ -2,9 +2,9 @@
 #define art_Framework_IO_Root_setFileIndexPointer_h
 
 #include "art/Framework/IO/Root/Inputfwd.h"
-#include "canvas/Persistency/Provenance/rootNames.h"
+#include "art/Framework/IO/Root/rootNames.h"
 #include "art/Framework/IO/Root/rootErrMsgs.h"
-#include "canvas/Persistency/Provenance/FileIndex.h"
+#include "art/Persistency/Provenance/FileIndex.h"
 
 #include "TFile.h"
 #include "TTree.h"

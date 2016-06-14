@@ -7,7 +7,7 @@
 //
 // ======================================================================
 
-#include "canvas/Persistency/Common/traits.h"
+#include "art/Persistency/Common/traits.h"
 #include "cetlib/container_algorithms.h"
 
 #ifndef __GCCXML__

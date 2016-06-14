@@ -3,7 +3,7 @@
 #include "art/Framework/Principal/Handle.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/System/TriggerNamesService.h"
-#include "canvas/Persistency/Common/TriggerResults.h"
+#include "art/Persistency/Common/TriggerResults.h"
 #include "art/Utilities/ConfigTable.h"
 
 #include <algorithm>

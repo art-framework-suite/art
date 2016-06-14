@@ -20,8 +20,8 @@ namespace art {
     Long64_t GetTotalSize(TTree *t, bool ondisk);
     Long64_t sizeOnDisk(TTree *t);
     Long64_t sizeOnDisk(TBranch *branch, bool inclusive);
-    void     printBranchSummary(std::ostream & os, TBranch *br);
-    void     printTreeSummary(std::ostream & os, TTree *t);
+    void     printBranchSummary(TBranch *br);
+    void     printTreeSummary(TTree *t);
 
   }
 } // namespace art

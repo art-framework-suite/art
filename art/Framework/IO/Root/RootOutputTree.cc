@@ -1,13 +1,12 @@
 #include "art/Framework/IO/Root/RootOutputTree.h"
 // vim: set sw=2:
 
-#include "canvas/Persistency/Common/EDProduct.h"
-#include "canvas/Persistency/Provenance/BranchDescription.h"
-#include "canvas/Utilities/Exception.h"
+#include "art/Persistency/Common/EDProduct.h"
+#include "art/Persistency/Provenance/BranchDescription.h"
+#include "art/Utilities/Exception.h"
 #include "cetlib/container_algorithms.h"
 #include "cpp0x/functional"
 #include "messagefacility/MessageLogger/MessageLogger.h"
-
 #include "Rtypes.h"
 #include "TClass.h"
 #include "TBranch.h"

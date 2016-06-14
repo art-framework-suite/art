@@ -25,13 +25,12 @@ If failedToGet() returns false but isValid() is also false then no attempt
 
 ----------------------------------------------------------------------*/
 
-#include "canvas/Persistency/Provenance/BranchDescription.h"
-#include "canvas/Persistency/Provenance/ProductID.h"
-#include "canvas/Persistency/Provenance/ProductProvenance.h"
+#include "art/Persistency/Provenance/BranchDescription.h"
+#include "art/Persistency/Provenance/ProductID.h"
+#include "art/Persistency/Provenance/ProductProvenance.h"
 #include "cetlib/exception.h"
 #include "cetlib/exempt_ptr.h"
-
-#include <memory>
+#include "cpp0x/memory"
 
 namespace art {
   class EDProduct;

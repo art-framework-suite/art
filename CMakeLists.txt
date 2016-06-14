@@ -23,9 +23,9 @@ SET ( CETBUILDTOOLS_VERSION $ENV{CETBUILDTOOLS_VERSION} )
 IF (NOT CETBUILDTOOLS_VERSION)
     MESSAGE (FATAL_ERROR "ERROR: setup cetbuildtools to get the cmake modules")
 ENDIF()
-set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/Modules
-                      $ENV{CETBUILDTOOLS_DIR}/Modules
-                      ${CMAKE_MODULE_PATH})
+set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/Modules 
+                      $ENV{CETBUILDTOOLS_DIR}/Modules 
+		      ${CMAKE_MODULE_PATH})
 
 include(CetCMakeEnv)
 cet_cmake_env()
@@ -43,7 +43,19 @@ endif()
 cet_report_compiler_flags()
 
 # these are minimum required versions, not the actual product versions
-find_ups_product(canvas)
+find_ups_product( cppunit v1_12_1a )
+find_ups_product( gccxml v0_9_20140718a )
+find_ups_product( clhep v2_2_0_3 )
+find_ups_product (cetbuildtools v4_14_01)
+find_ups_product( cetpkgsupport v1_08_03 )
+find_ups_product( cetlib v1_08_00 )
+find_ups_product( fhiclcpp v3_09_00 )
+find_ups_product( messagefacility v1_14_01 )
+find_ups_product( sqlite v3_08_05_00 )
+find_ups_root( v5_34_20 )
+find_ups_product( tbb v4_1 )
+find_ups_boost(v1_53_0)
+
 
 # define CLHEP
 cet_find_library( CLHEP  NAMES CLHEP   PATHS ENV CLHEP_LIB_DIR NO_DEFAULT_PATH )

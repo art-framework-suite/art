@@ -1,3 +1,3 @@
-#include "canvas/Utilities/TestHelper.h"
+#include "art/Utilities/TestHelper.h"
 
 RUNTEST()

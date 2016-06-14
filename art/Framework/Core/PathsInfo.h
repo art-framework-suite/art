@@ -3,7 +3,7 @@
 #include "art/Framework/Core/Path.h"
 #include "art/Framework/Core/WorkerMap.h"
 #include "art/Framework/Principal/RunStopwatch.h"
-#include "canvas/Persistency/Common/HLTGlobalStatus.h"
+#include "art/Persistency/Common/HLTGlobalStatus.h"
 
 namespace art {
   class PathsInfo;

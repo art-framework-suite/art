@@ -3,7 +3,7 @@
 
 #include "art/Utilities/ThreadSafeIndexedRegistry.h"
 #include "art/Persistency/Provenance/BranchIDListHelper.h"
-#include "canvas/Persistency/Provenance/BranchIDList.h"
+#include "art/Persistency/Provenance/BranchIDList.h"
 
 namespace art {
   typedef art::detail::ThreadSafeIndexedRegistry<BranchIDList, BranchIDListHelper> BranchIDListRegistry;

@@ -1,6 +1,6 @@
 #include "art/Persistency/RootDB/MetaDataAccess.h"
 
-#include "canvas/Utilities/Exception.h"
+#include "art/Utilities/Exception.h"
 
 art::MetaDataAccess &
 art::MetaDataAccess::instance()

@@ -20,15 +20,15 @@
 // -----------------------------------------------------------------
 
 #include "art/Framework/Principal/fwd.h"
-#include "canvas/Persistency/Common/Assns.h"
-#include "canvas/Persistency/Provenance/BranchType.h"
+#include "art/Persistency/Common/Assns.h"
+#include "art/Persistency/Provenance/BranchType.h"
 #include "art/Persistency/Provenance/MasterProductRegistry.h"
-#include "canvas/Persistency/Provenance/ProductList.h"
-#include "canvas/Persistency/Provenance/TypeLabel.h"
+#include "art/Persistency/Provenance/ProductList.h"
+#include "art/Persistency/Provenance/TypeLabel.h"
 #include "art/Persistency/Provenance/detail/branchNameComponentChecking.h"
 #include "art/Persistency/Provenance/detail/type_aliases.h"
-#include "canvas/Utilities/Exception.h"
-#include "canvas/Utilities/TypeID.h"
+#include "art/Utilities/Exception.h"
+#include "art/Utilities/TypeID.h"
 #include "cetlib/exception.h"
 
 #include <memory>

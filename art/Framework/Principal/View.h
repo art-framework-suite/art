@@ -18,8 +18,7 @@
 
 
 #include "art/Framework/Principal/fwd.h"
-#include "canvas/Persistency/Common/PtrVector.h"
-#include "cetlib/container_algorithms.h"
+#include "art/Persistency/Common/PtrVector.h"
 
 template <class T>
 class art::View  {
@@ -73,15 +72,19 @@ art::View<T>::fill(PtrVector<T>& pv) const
 {
   std::vector<void const*> addresses;
   prod_->fillView(addresses);
-
-  std::size_t i{};
-  for (auto a : addresses) {
-    if (cet::search_all(vals_,a)) {
-      auto p = reinterpret_cast<T const*>(a);
-      pv.push_back(Ptr<T>(id_, const_cast<T*>(p), i));
-      ++i;
+  // Go through the pointers in vals_, look up each one in
+  // addresses, and create the Ptr for each element.
+  // TODO: optimize this loop
+  typename collection_type::const_iterator vals_begin = vals_.begin();
+  typename collection_type::const_iterator vals_end = vals_.end();
+  for (size_t i = 0, sz = addresses.size(); i != sz; ++i)
+    {
+      if (std::find(vals_begin, vals_end, addresses[i]) != vals_end)
+        {
+          T const* p = reinterpret_cast<T const*>(addresses[i]);
+          pv.push_back(Ptr<T>(id_,  const_cast<T*>(p), i));
+        }
     }
-  }
 }
 
 template <class T>

@@ -16,15 +16,14 @@
 #include "art/Persistency/Common/GroupQueryResult.h"
 #include "art/Persistency/Provenance/detail/type_aliases.h"
 #include "art/Framework/Principal/Handle.h"
-#include "canvas/Persistency/Common/Wrapper.h"
-#include "canvas/Persistency/Provenance/EventAuxiliary.h"
-#include "canvas/Persistency/Provenance/EventID.h"
-#include "canvas/Persistency/Provenance/History.h"
-#include "canvas/Persistency/Provenance/ProductID.h"
-#include "canvas/Persistency/Provenance/RunID.h"
-#include "canvas/Persistency/Provenance/SubRunID.h"
-#include "canvas/Persistency/Provenance/Timestamp.h"
-#include "cetlib/container_algorithms.h"
+#include "art/Persistency/Common/Wrapper.h"
+#include "art/Persistency/Provenance/EventAuxiliary.h"
+#include "art/Persistency/Provenance/EventID.h"
+#include "art/Persistency/Provenance/History.h"
+#include "art/Persistency/Provenance/ProductID.h"
+#include "art/Persistency/Provenance/RunID.h"
+#include "art/Persistency/Provenance/SubRunID.h"
+#include "art/Persistency/Provenance/Timestamp.h"
 #include "fhiclcpp/ParameterSet.h"
 
 #include <cstdlib>
@@ -367,16 +366,19 @@ art::Event::getView( InputTag const & tag,
 
   TypeID typeID( typeid(ELEMENT) );
   GroupQueryResultVec bhv;
-  int nFound = getMatchingSequenceByLabel_( typeID,
-                                            tag.label(),
-                                            tag.instance(),
-                                            tag.process(),
-                                            bhv,
-                                            true );
-  ensure_unique_product( nFound, typeID,
-                         tag.label(), tag.instance(), tag.process() );
+  int nFound = getMatchingSequenceByLabel_( typeID
+                                            , tag.label()
+                                            , tag.instance()
+                                            , tag.process()
+                                            , bhv
+                                            , true
+                                            );
+  ensure_unique_product( nFound, typeID
+                         , tag.label(), tag.instance(), tag.process()
+                         );
 
-  std::size_t const orig_size = result.size();
+
+  std::size_t orig_size = result.size();
   fillView_(bhv[0], result);
   return result.size() - orig_size;
 }  // getView<>()
@@ -389,13 +391,15 @@ art::Event::getView(std::string const& moduleLabel,
 {
   TypeID typeID( typeid(ELEMENT) );
   GroupQueryResultVec bhv;
-  int nFound = getMatchingSequenceByLabel_( typeID,
-                                            moduleLabel,
-                                            productInstanceName,
-                                            bhv,
-                                            true );
-  ensure_unique_product( nFound, typeID,
-                         moduleLabel, productInstanceName, std::string() );
+  int nFound = getMatchingSequenceByLabel_( typeID
+                                            , moduleLabel
+                                            , productInstanceName
+                                            , bhv
+                                            , true
+                                            );
+  ensure_unique_product( nFound, typeID
+                         , moduleLabel, productInstanceName, std::string()
+                         );
 
   fillView_(bhv[0], result.vals());
   result.set_innards(bhv[0].result()->productID(), bhv[0].result()->uniqueProduct());

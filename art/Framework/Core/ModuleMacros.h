@@ -18,9 +18,9 @@
 #include "art/Framework/Core/ModuleType.h"
 #include "art/Framework/Core/WorkerT.h"
 #include "art/Framework/Core/detail/ModuleTypeDeducer.h"
-#include "canvas/Persistency/Provenance/ModuleDescription.h"
+#include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Utilities/BasicHelperMacros.h"
-#include "canvas/Utilities/detail/metaprogramming.h"
+#include "art/Utilities/detail/metaprogramming.h"
 #include "fhiclcpp/ParameterSet.h"
 
 #include "art/Framework/Core/EventObserver.h"

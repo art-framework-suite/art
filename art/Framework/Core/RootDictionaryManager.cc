@@ -1,6 +1,6 @@
 #include "art/Framework/Core/RootDictionaryManager.h"
 
-#include "canvas/Utilities/Exception.h"
+#include "art/Utilities/Exception.h"
 #include "cetlib/shlib_utils.h"
 #include "cpp0x/regex"
 

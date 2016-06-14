@@ -15,24 +15,23 @@
 #include "art/Framework/IO/FileStatsCollector.h"
 #include "art/Framework/IO/Root/DropMetaData.h"
 #include "art/Framework/IO/Root/RootOutputTree.h"
-#include "canvas/Persistency/Provenance/BranchDescription.h"
-#include "canvas/Persistency/Provenance/BranchID.h"
-#include "canvas/Persistency/Provenance/BranchType.h"
-#include "canvas/Persistency/Provenance/FileIndex.h"
-#include "canvas/Persistency/Provenance/ParameterSetBlob.h"
-#include "canvas/Persistency/Provenance/ParameterSetMap.h"
-#include "canvas/Persistency/Provenance/ProductProvenance.h"
+#include "art/Persistency/Provenance/BranchDescription.h"
+#include "art/Persistency/Provenance/BranchID.h"
+#include "art/Persistency/Provenance/BranchType.h"
+#include "art/Persistency/Provenance/FileIndex.h"
+#include "art/Persistency/Provenance/ParameterSetBlob.h"
+#include "art/Persistency/Provenance/ParameterSetMap.h"
+#include "art/Persistency/Provenance/ProductProvenance.h"
 #include "art/Persistency/Provenance/Selections.h"
 #include "art/Persistency/RootDB/SQLite3Wrapper.h"
+#include "TROOT.h"
 #include "boost/filesystem.hpp"
-
+#include "cpp0x/array"
+#include "cpp0x/memory"
 #include <array>
 #include <map>
-#include <memory>
 #include <string>
 #include <vector>
-
-#include "TROOT.h"
 
 class TFile;
 class TTree;

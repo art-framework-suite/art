@@ -1,8 +1,8 @@
 #ifndef art_Persistency_Provenance_EventProcessHistoryID_h
 #define art_Persistency_Provenance_EventProcessHistoryID_h
 
-#include "canvas/Persistency/Provenance/EventID.h"
-#include "canvas/Persistency/Provenance/ProcessHistoryID.h"
+#include "art/Persistency/Provenance/EventID.h"
+#include "art/Persistency/Provenance/ProcessHistoryID.h"
 
 namespace art
 {

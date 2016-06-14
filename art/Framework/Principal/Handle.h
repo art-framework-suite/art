@@ -30,10 +30,10 @@
 
 #include "art/Framework/Principal/Group.h"
 #include "art/Persistency/Common/GroupQueryResult.h"
-#include "canvas/Persistency/Provenance/ProductID.h"
+#include "art/Persistency/Provenance/ProductID.h"
 #include "art/Framework/Principal/Provenance.h"
-#include "canvas/Utilities/Exception.h"
-#include "canvas/Utilities/detail/metaprogramming.h"
+#include "art/Utilities/Exception.h"
+#include "art/Utilities/detail/metaprogramming.h"
 #include "cetlib/demangle.h"
 #include "cetlib/exception.h"
 

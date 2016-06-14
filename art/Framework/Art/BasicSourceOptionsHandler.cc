@@ -1,7 +1,7 @@
 #include "art/Framework/Art/BasicSourceOptionsHandler.h"
 
 #include "art/Framework/Art/detail/fillSourceList.h"
-#include "canvas/Utilities/Exception.h"
+#include "art/Utilities/Exception.h"
 #include "cetlib/container_algorithms.h"
 #include "fhiclcpp/coding.h"
 #include "fhiclcpp/extended_value.h"

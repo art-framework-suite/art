@@ -6,8 +6,8 @@
 
 #include "art/Framework/Services/System/TriggerNamesService.h"
 
-#include "canvas/Persistency/Common/TriggerResults.h"
-#include "canvas/Utilities/Exception.h"
+#include "art/Persistency/Common/TriggerResults.h"
+#include "art/Utilities/Exception.h"
 #include "cetlib/container_algorithms.h"
 #include "cetlib/exception.h"
 #include "fhiclcpp/ParameterSetRegistry.h"

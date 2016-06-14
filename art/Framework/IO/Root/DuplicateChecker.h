@@ -13,8 +13,8 @@
 //
 // ======================================================================
 
-#include "canvas/Persistency/Provenance/EventID.h"
-#include "canvas/Persistency/Provenance/SubRunID.h"
+#include "art/Persistency/Provenance/EventID.h"
+#include "art/Persistency/Provenance/SubRunID.h"
 #include "fhiclcpp/types/Atom.h"
 #include "fhiclcpp/types/TableFragment.h"
 #include <set>

@@ -11,7 +11,7 @@
 
 #include "art/Framework/Core/RootDictionaryManager.h"
 #include "art/Persistency/Provenance/ReflexTools.h"
-#include "canvas/Persistency/Common/Wrapper.h"
+#include "art/Persistency/Common/Wrapper.h"
 
 using Reflex::Type;
 using Reflex::TypeTemplate;

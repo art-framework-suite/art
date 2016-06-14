@@ -13,9 +13,9 @@
 #include "art/Framework/Principal/DataViewImpl.h"
 #include "art/Framework/Principal/ResultsPrincipal.h"
 #include "art/Framework/Principal/fwd.h"
-#include "canvas/Utilities/TypeID.h"
-#include <memory>
-#include <utility>
+#include "art/Utilities/TypeID.h"
+#include "cpp0x/memory"
+#include "cpp0x/utility"
 
 namespace art {
   class Results;

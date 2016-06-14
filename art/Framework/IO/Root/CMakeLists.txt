@@ -27,8 +27,8 @@ art_make(EXCLUDE
   art_Framework_Principal
   art_Framework_Services_Registry
   art_Framework_Services_System_FileCatalogMetadata_service
-  art_Persistency_Common canvas_Persistency_Common
-  art_Persistency_Provenance canvas_Persistency_Provenance
+  art_Persistency_Common
+  art_Persistency_Provenance
   art_Framework_IO_RootVersion
   art_Framework_IO_Root_detail_sources
   ${ROOT_CINTEX}
@@ -49,7 +49,7 @@ art_make_exec( NAME product_sizes_dumper
 
 art_make_exec( NAME config_dumper
   LIBRARIES art_Framework_IO_Root
-  art_Utilities canvas_Utilities
+  art_Utilities
   art_Framework_Core
   ${Boost_PROGRAM_OPTIONS_LIBRARY}
   ${ROOT_TREE}
@@ -58,7 +58,7 @@ art_make_exec( NAME config_dumper
 
 art_make_exec( NAME sam_metadata_dumper
   LIBRARIES art_Framework_IO_Root
-  art_Utilities canvas_Utilities
+  art_Utilities
   art_Framework_Core
   ${Boost_PROGRAM_OPTIONS_LIBRARY}
   ${ROOT_RIO}
@@ -68,7 +68,7 @@ art_make_exec( NAME count_events
   LIBRARIES
   art_Framework_IO_Root
   art_Framework_Core
-  art_Utilities canvas_Utilities
+  art_Utilities
   ${Boost_PROGRAM_OPTIONS_LIBRARY}
   ${ROOT_TREE}
   ${ROOT_RIO}

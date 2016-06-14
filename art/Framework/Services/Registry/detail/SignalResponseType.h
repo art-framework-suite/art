@@ -5,7 +5,7 @@
 // signal response types and a suitable overload set for a function to
 // connect a slot to a signal in the desired way.
 
-#include <type_traits>
+#include "cpp0x/type_traits"
 
 namespace art {
   namespace detail {

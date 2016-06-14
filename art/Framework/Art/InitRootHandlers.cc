@@ -1,13 +1,13 @@
 
 #include "art/Framework/Art/InitRootHandlers.h"
-#include "canvas/Persistency/Common/CacheStreamers.h"
-#include "canvas/Persistency/Common/detail/setPtrVectorBaseStreamer.h"
-#include "canvas/Persistency/Common/RefCoreStreamer.h"
-#include "canvas/Persistency/Provenance/BranchDescription.h"
-#include "canvas/Persistency/Provenance/TransientStreamer.h"
+#include "art/Persistency/Common/CacheStreamers.h"
+#include "art/Persistency/Common/detail/setPtrVectorBaseStreamer.h"
+#include "art/Framework/IO/Root/RefCoreStreamer.h"
+#include "art/Persistency/Provenance/BranchDescription.h"
+#include "art/Persistency/Provenance/TransientStreamer.h"
 #include "art/Persistency/RootDB/tkeyvfs.h"
 
-#include "canvas/Utilities/Exception.h"
+#include "art/Utilities/Exception.h"
 
 #include "messagefacility/MessageLogger/MessageLogger.h"
 

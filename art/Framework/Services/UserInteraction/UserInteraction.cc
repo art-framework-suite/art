@@ -12,11 +12,11 @@
 // user include files
 #include "art/Framework/Services/UserInteraction/UserInteraction.h"
 
-#include "canvas/Persistency/Provenance/ModuleDescription.h"
-#include "canvas/Persistency/Provenance/EventID.h"
-#include "canvas/Persistency/Provenance/Timestamp.h"
-#include "canvas/Persistency/Provenance/SubRunID.h"
-#include "canvas/Persistency/Provenance/RunID.h"
+#include "art/Persistency/Provenance/ModuleDescription.h"
+#include "art/Persistency/Provenance/EventID.h"
+#include "art/Persistency/Provenance/Timestamp.h"
+#include "art/Persistency/Provenance/SubRunID.h"
+#include "art/Persistency/Provenance/RunID.h"
 #include "art/Framework/Principal/Worker.h"
 #include "art/Framework/Core/InputSource.h"
 #include "fhiclcpp/ParameterSetRegistry.h"

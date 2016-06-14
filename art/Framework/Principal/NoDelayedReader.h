@@ -3,9 +3,8 @@
 
 #include "art/Persistency/Common/DelayedReader.h"
 #include "art/Framework/Principal/fwd.h"
-#include "canvas/Persistency/Provenance/ProvenanceFwd.h"
-
-#include <memory>
+#include "art/Persistency/Provenance/ProvenanceFwd.h"
+#include "cpp0x/memory"
 
 class art::NoDelayedReader : public art::DelayedReader {
 public:

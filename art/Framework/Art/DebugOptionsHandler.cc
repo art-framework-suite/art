@@ -1,7 +1,7 @@
 #include "art/Framework/Art/DebugOptionsHandler.h"
 
 #include "art/Framework/Art/detail/exists_outside_prolog.h"
-#include "canvas/Utilities/Exception.h"
+#include "art/Utilities/Exception.h"
 #include "fhiclcpp/coding.h"
 #include "fhiclcpp/extended_value.h"
 #include "fhiclcpp/intermediate_table.h"

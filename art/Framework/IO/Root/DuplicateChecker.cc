@@ -1,5 +1,5 @@
 #include "art/Framework/IO/Root/DuplicateChecker.h"
-#include "canvas/Persistency/Provenance/FileIndex.h"
+#include "art/Persistency/Provenance/FileIndex.h"
 #include "cetlib/exception.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 

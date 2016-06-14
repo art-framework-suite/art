@@ -87,18 +87,17 @@
 #include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
-#include "canvas/Persistency/Provenance/EventID.h"
+#include "art/Persistency/Provenance/EventID.h"
 #include "art/Persistency/Provenance/MasterProductRegistry.h"
-#include "canvas/Persistency/Provenance/ModuleDescription.h"
-#include "canvas/Persistency/Provenance/ProcessConfiguration.h"
-#include "canvas/Persistency/Provenance/SubRunID.h"
-#include "canvas/Utilities/detail/metaprogramming.h"
+#include "art/Persistency/Provenance/ModuleDescription.h"
+#include "art/Persistency/Provenance/ProcessConfiguration.h"
+#include "art/Persistency/Provenance/SubRunID.h"
+#include "art/Utilities/detail/metaprogramming.h"
 #include "cetlib/exempt_ptr.h"
+#include "cpp0x/algorithm"
+#include "cpp0x/memory"
+#include "cpp0x/type_traits"
 #include "fhiclcpp/ParameterSet.h"
-
-#include <algorithm>
-#include <memory>
-#include <type_traits>
 
 // ----------------------------------------------------------------------
 

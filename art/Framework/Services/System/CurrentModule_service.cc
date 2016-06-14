@@ -8,7 +8,7 @@
 #include "art/Framework/Services/System/CurrentModule.h"
 
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
-#include "canvas/Persistency/Provenance/ModuleDescription.h"
+#include "art/Persistency/Provenance/ModuleDescription.h"
 
 using art::ActivityRegistry;
 using art::CurrentModule;

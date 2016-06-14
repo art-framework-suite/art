@@ -10,9 +10,8 @@
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Services/Optional/RandomNumberGenerator.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
+#include "cpp0x/memory"
 #include "fhiclcpp/ParameterSet.h"
-
-#include <memory>
 
 namespace art {
   class RandomNumberSaver;

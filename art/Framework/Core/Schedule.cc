@@ -15,21 +15,20 @@
 #include "art/Framework/Core/WorkerT.h"
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Services/System/TriggerNamesService.h"
-#include "canvas/Persistency/Provenance/ModuleDescription.h"
-#include "canvas/Persistency/Provenance/PassID.h"
-#include "canvas/Persistency/Provenance/ProductList.h"
+#include "art/Persistency/Provenance/ModuleDescription.h"
+#include "art/Persistency/Provenance/PassID.h"
+#include "art/Persistency/Provenance/ProductList.h"
 #include "art/Persistency/Provenance/ProductMetaData.h"
-#include "canvas/Persistency/Provenance/ReleaseVersion.h"
-#include "canvas/Utilities/GetPassID.h"
+#include "art/Persistency/Provenance/ReleaseVersion.h"
+#include "art/Utilities/GetPassID.h"
 #include "art/Version/GetReleaseVersion.h"
 #include "cetlib/exempt_ptr.h"
-
-#include <algorithm>
+#include "cpp0x/algorithm"
+#include "cpp0x/numeric"
 #include <algorithm>
 #include <cassert>
 #include <cstdlib>
 #include <iomanip>
-#include <numeric>
 
 using fhicl::ParameterSet;
 

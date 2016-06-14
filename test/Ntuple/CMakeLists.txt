@@ -1,9 +1,9 @@
 cet_test(ntuple_t
-  LIBRARIES art_Ntuple art_Utilities canvas_Utilities ${SQLITE3}
+  LIBRARIES art_Ntuple art_Utilities ${SQLITE3}
   )
 
 cet_test(sqlite_stringstream_t
-  LIBRARIES art_Ntuple art_Utilities canvas_Utilities
+  LIBRARIES art_Ntuple art_Utilities
   )
 
 cet_test( messagefacility_destination_sqlite_t HANDBUILT

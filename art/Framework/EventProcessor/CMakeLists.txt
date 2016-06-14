@@ -8,7 +8,7 @@ art_make(
   art_Framework_Services_System_ScheduleContext_service
   art_Framework_Services_System_TriggerNamesService_service
   art_Framework_Core
-  art_Utilities canvas_Utilities
+  art_Utilities
   cetlib
   )
 

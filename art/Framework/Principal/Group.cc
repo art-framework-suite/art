@@ -4,13 +4,12 @@
 #include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Principal/OccurrenceTraits.h"
 #include "art/Framework/Principal/Worker.h"
-#include "canvas/Persistency/Provenance/BranchKey.h"
+#include "art/Persistency/Provenance/BranchKey.h"
 #include "art/Persistency/Provenance/ProductMetaData.h"
-#include "canvas/Persistency/Provenance/ProductStatus.h"
+#include "art/Persistency/Provenance/ProductStatus.h"
 #include "art/Persistency/Provenance/ReflexTools.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
-#include <iostream>
 #include <string>
 
 using Reflex::Type;

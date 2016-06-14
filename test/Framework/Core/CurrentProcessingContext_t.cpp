@@ -1,5 +1,5 @@
 #include "art/Framework/Principal/CurrentProcessingContext.h"
-#include "canvas/Persistency/Provenance/ModuleDescription.h"
+#include "art/Persistency/Provenance/ModuleDescription.h"
 #include "cetlib/exception.h"
 #include "fhiclcpp/ParameterSet.h"
 

@@ -11,7 +11,7 @@ art_make_library( LIBRARY_NAME art_Persistency_RootDB
   ${ROOT_THREAD}
   ${ROOT_CORE}
   ${ROOT_CINT}
-  art_Utilities canvas_Utilities
+  art_Utilities
   ${SQLITE3}
   )
 

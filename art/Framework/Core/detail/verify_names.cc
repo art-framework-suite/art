@@ -1,5 +1,5 @@
 #include "art/Framework/Core/detail/verify_names.h"
-#include "canvas/Utilities/Exception.h"
+#include "art/Utilities/Exception.h"
 
 void
 art::detail::verifyInstanceName(std::string const& instanceName)

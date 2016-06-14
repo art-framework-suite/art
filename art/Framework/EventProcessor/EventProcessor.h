@@ -23,18 +23,18 @@
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/ServiceToken.h"
 #include "art/Persistency/Provenance/MasterProductRegistry.h"
-#include "canvas/Persistency/Provenance/PassID.h"
-#include "canvas/Persistency/Provenance/ReleaseVersion.h"
+#include "art/Persistency/Provenance/PassID.h"
+#include "art/Persistency/Provenance/ReleaseVersion.h"
 #include "boost/thread/condition.hpp"
 #include "boost/thread/thread.hpp"
 #include "cetlib/exception.h"
 #include "cetlib/trim.h"
+#include "cpp0x/memory"
 #include "fhiclcpp/ParameterSet.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include "tbb/task_scheduler_init.h"
 
-#include <memory>
 #include <string>
 #include <vector>
 

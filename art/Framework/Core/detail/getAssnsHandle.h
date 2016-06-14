@@ -5,8 +5,8 @@
 
 #include "art/Framework/Principal/Handle.h"
 #include "art/Framework/Principal/Event.h"
-#include "canvas/Persistency/Common/Assns.h"
-#include "canvas/Utilities/Exception.h"
+#include "art/Persistency/Common/Assns.h"
+#include "art/Utilities/Exception.h"
 #include "art/Utilities/InputTag.h"
 
 namespace art {

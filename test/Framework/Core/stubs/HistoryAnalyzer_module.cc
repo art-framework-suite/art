@@ -10,8 +10,8 @@
 #include <string>
 #include <vector>
 
-#include "canvas/Persistency/Provenance/History.h"
-#include "canvas/Persistency/Provenance/ParameterSetID.h"
+#include "art/Persistency/Provenance/History.h"
+#include "art/Persistency/Provenance/ParameterSetID.h"
 #include "art/Framework/Core/EDAnalyzer.h"
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Core/ModuleMacros.h"

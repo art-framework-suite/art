@@ -14,13 +14,13 @@
 // ======================================================================
 
 #include "art/Framework/Principal/Group.h"
-#include "canvas/Persistency/Provenance/BranchDescription.h"
-#include "canvas/Persistency/Provenance/BranchMapper.h"
-#include "canvas/Persistency/Provenance/Parentage.h"
-#include "canvas/Persistency/Provenance/ProductID.h"
-#include "canvas/Persistency/Provenance/ProductProvenance.h"
+#include "art/Persistency/Provenance/BranchDescription.h"
+#include "art/Persistency/Provenance/BranchMapper.h"
+#include "art/Persistency/Provenance/Parentage.h"
+#include "art/Persistency/Provenance/ProductID.h"
+#include "art/Persistency/Provenance/ProductProvenance.h"
 #include "cetlib/exempt_ptr.h"
-#include <memory>
+#include "cpp0x/memory"
 #include "fhiclcpp/ParameterSetID.h"
 #include <iosfwd>
 

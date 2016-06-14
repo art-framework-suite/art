@@ -15,7 +15,7 @@
 #include "art/Framework/Principal/fwd.h"
 #include "art/Framework/Principal/Selector.h"
 #include "art/Framework/Principal/Handle.h"
-#include "canvas/Persistency/Common/TriggerResults.h"
+#include "art/Persistency/Common/TriggerResults.h"
 
 #include <string>
 #include <vector>

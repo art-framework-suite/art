@@ -70,11 +70,10 @@
 #include "art/Framework/IO/ProductMix/MixHelper.h"
 #include "art/Framework/IO/ProductMix/MixOpBase.h"
 #include "art/Framework/Services/Registry/ServiceRegistry.h"
-#include "canvas/Utilities/detail/metaprogramming.h"
+#include "art/Utilities/detail/metaprogramming.h"
+#include "cpp0x/functional"
+#include "cpp0x/type_traits"
 #include "messagefacility/MessageLogger/MessageLogger.h"
-
-#include <functional>
-#include <type_traits>
 
 namespace art {
   template <class T>

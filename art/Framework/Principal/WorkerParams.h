@@ -4,8 +4,8 @@
 // This struct is used to communicate parameters into the worker factory.
 
 #include "art/Persistency/Provenance/MasterProductRegistry.h"
-#include "canvas/Persistency/Provenance/PassID.h"
-#include "canvas/Utilities/GetPassID.h"
+#include "art/Persistency/Provenance/PassID.h"
+#include "art/Utilities/GetPassID.h"
 #include "fhiclcpp/ParameterSet.h"
 #include <string>
 

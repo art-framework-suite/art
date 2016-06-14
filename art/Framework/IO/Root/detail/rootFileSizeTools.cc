@@ -1,11 +1,9 @@
-#include "art/Framework/IO/Root/detail/rootFileSizeTools.h"
-
 #include "Riostream.h"
 #include "TMemFile.h"
 #include "TKey.h"
 #include "TBranchRef.h"
 
-#include <ostream>
+#include "art/Framework/IO/Root/detail/rootFileSizeTools.h"
 
 Long64_t art::detail::GetBasketSize(TObjArray * branches, bool ondisk, bool inclusive) {
    Long64_t result = 0;
@@ -52,6 +50,7 @@ Long64_t  art::detail::GetTotalSize( TObjArray * branches, bool ondisk ) {
    size_t n = branches->GetEntries();
    for( size_t i = 0; i < n; ++ i ) {
       result += GetTotalSize( dynamic_cast<TBranch*>( branches->At( i ) ), ondisk, true );
+      cerr << "After " << branches->At( i )->GetName() << " " << result << endl;
    }
    return result;
 }
@@ -105,22 +104,22 @@ Long64_t  art::detail::sizeOnDisk(TBranch *branch, bool inclusive)
    return GetTotalSize(branch, true, inclusive);
 }
 
-void  art::detail::printBranchSummary(std::ostream & os, TBranch *br)
+void  art::detail::printBranchSummary(TBranch *br)
 {
-   os << "The branch \"" << br->GetName() << "\" takes " << sizeOnDisk(br,true) << " bytes on disk\n";
+   cout << "The branch \"" << br->GetName() << "\" takes " << sizeOnDisk(br,true) << " bytes on disk\n";
    size_t n = br->GetListOfBranches()->GetEntries();
    for( size_t i = 0; i < n; ++ i ) {
       TBranch *subbr = dynamic_cast<TBranch*>(br->GetListOfBranches()->At(i));
-      os << "  It's sub-branch \"" << subbr->GetName() << "\" takes " << sizeOnDisk(subbr,true) << " bytes on disk\n";
+      cout << "  It's sub-branch \"" << subbr->GetName() << "\" takes " << sizeOnDisk(subbr,true) << " bytes on disk\n";
    }
 }
 
-void  art::detail::printTreeSummary(std::ostream & os, TTree *t)
+void  art::detail::printTreeSummary(TTree *t)
 {
-   os << "The TTree \"" << t->GetName() << "\" takes " << sizeOnDisk(t) << " bytes on disk\n";
+   cout << "The TTree \"" << t->GetName() << "\" takes " << sizeOnDisk(t) << " bytes on disk\n";
    size_t n = t->GetListOfBranches()->GetEntries();
    for( size_t i = 0; i < n; ++ i ) {
       TBranch *br =dynamic_cast<TBranch*>(t->GetListOfBranches()->At(i));
-      os << "  It's branch \"" << br->GetName() << "\" takes " << sizeOnDisk(br,true) << " bytes on disk\n";
+      cout << "  It's branch \"" << br->GetName() << "\" takes " << sizeOnDisk(br,true) << " bytes on disk\n";
    }
 }

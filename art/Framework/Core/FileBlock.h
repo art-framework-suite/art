@@ -10,8 +10,8 @@ FileBlock: Properties of an input file.
 ----------------------------------------------------------------------*/
 
 #include "art/Framework/Principal/ResultsPrincipal.h"
-#include "canvas/Persistency/Provenance/FileFormatVersion.h"
-#include "canvas/Persistency/Provenance/BranchChildren.h"
+#include "art/Persistency/Provenance/FileFormatVersion.h"
+#include "art/Persistency/Provenance/BranchChildren.h"
 
 class TTree;
 

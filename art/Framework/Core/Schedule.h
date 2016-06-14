@@ -36,23 +36,22 @@
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/Registry/ServiceRegistry.h"
-#include "canvas/Persistency/Common/HLTGlobalStatus.h"
-#include "canvas/Persistency/Provenance/BranchType.h"
+#include "art/Persistency/Common/HLTGlobalStatus.h"
+#include "art/Persistency/Provenance/BranchType.h"
 #include "art/Persistency/Provenance/MasterProductRegistry.h"
-#include "canvas/Persistency/Provenance/ProvenanceFwd.h"
+#include "art/Persistency/Provenance/ProvenanceFwd.h"
 #include "art/Utilities/ScheduleID.h"
 #include "cetlib/container_algorithms.h"
 #include "cetlib/exempt_ptr.h"
 #include "cetlib/trim.h"
+#include "cpp0x/functional"
+#include "cpp0x/memory"
+#include "cpp0x/utility"
 #include "fhiclcpp/ParameterSet.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
-
-#include <functional>
 #include <map>
-#include <memory>
 #include <set>
 #include <string>
-#include <utility>
 #include <vector>
 
 namespace art {

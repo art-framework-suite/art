@@ -12,10 +12,10 @@ WorkerT: Code common to all workers.
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Principal/Worker.h"
 #include "art/Framework/Principal/WorkerParams.h"
+#include "cpp0x/memory"
 #include "fhiclcpp/ParameterSet.h"
-
 #include <iosfwd>
-#include <memory>
+
 
 namespace art {
 

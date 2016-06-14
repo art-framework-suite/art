@@ -3,7 +3,7 @@
 #include "art/Framework/Art/detail/md-summary/MetadataSummaryForService.h"
 #include "art/Framework/Art/detail/md-summary/MetadataSummaryForSource.h"
 #include "art/Framework/Art/detail/get_MetadataSummary.h"
-#include "canvas/Utilities/Exception.h"
+#include "art/Utilities/Exception.h"
 
 using namespace art;
 using namespace art::detail;

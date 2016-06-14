@@ -11,7 +11,7 @@
 int check_ttree(TFile const* f, char const* name, bool const empty )
 {
   TTree* tree(nullptr);
-  const_cast<TFile*>(f)->GetObject( name, tree );
+  f->GetObject( name, tree );
   assert( tree != nullptr );
   if ( tree->GetEntries() == 0 && !empty ){
     std::cerr << "Tree " << name << " from " << f->GetName() << " not supposed to be empty." << std::endl;

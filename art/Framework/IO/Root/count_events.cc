@@ -5,8 +5,8 @@
 // subruns) in the specified files.
 ////////////////////////////////////////////////////////////////////////
 
-#include "canvas/Persistency/Provenance/rootNames.h"
-#include "canvas/Persistency/Provenance/BranchType.h"
+#include "art/Framework/IO/Root/rootNames.h"
+#include "art/Persistency/Provenance/BranchType.h"
 
 #include "boost/program_options.hpp"
 
@@ -40,7 +40,7 @@ namespace {
     std::string msg;
   };
 
-  std::ostream & operator << (std::ostream & os, pluralize p)
+  std::ostream & operator << (ostream & os, pluralize p)
   {
     os << p.msg;
     return os;

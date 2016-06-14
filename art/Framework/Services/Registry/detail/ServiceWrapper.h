@@ -12,9 +12,9 @@
 
 #include "art/Framework/Services/Registry/ServiceScope.h"
 #include "art/Utilities/ScheduleID.h"
-#include "canvas/Utilities/detail/metaprogramming.h"
-#include <memory>
-#include <type_traits>
+#include "art/Utilities/detail/metaprogramming.h"
+#include "cpp0x/memory"
+#include "cpp0x/type_traits"
 
 namespace art {
   // Forward declaration

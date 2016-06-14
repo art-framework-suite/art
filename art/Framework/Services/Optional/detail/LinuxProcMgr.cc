@@ -6,7 +6,7 @@
 
 #include "art/Framework/Services/Optional/detail/LinuxProcData.h"
 #include "art/Framework/Services/Optional/detail/LinuxProcMgr.h"
-#include "canvas/Utilities/Exception.h"
+#include "art/Utilities/Exception.h"
 
 #include <iostream>
 #include <regex>

@@ -2,7 +2,7 @@
 
 #include "cetlib/detail/wrapLibraryManagerException.h"
 #include "art/Framework/Core/ModuleMacros.h"
-#include "canvas/Utilities/Exception.h"
+#include "art/Utilities/Exception.h"
 #include "art/Utilities/PluginSuffixes.h"
 #include "art/Version/GetReleaseVersion.h"
 

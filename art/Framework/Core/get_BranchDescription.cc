@@ -1,13 +1,13 @@
 #include "art/Framework/Core/get_BranchDescription.h"
 
 #include "art/Framework/Principal/Principal.h"
-#include "canvas/Persistency/Provenance/ProductList.h"
+#include "art/Persistency/Provenance/ProductList.h"
 #include "art/Persistency/Provenance/ProductMetaData.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/System/TriggerNamesService.h"
-#include "canvas/Persistency/Provenance/BranchKey.h"
-#include "canvas/Persistency/Provenance/BranchDescription.h"
-#include "canvas/Utilities/Exception.h"
+#include "art/Persistency/Provenance/BranchKey.h"
+#include "art/Persistency/Provenance/BranchDescription.h"
+#include "art/Utilities/Exception.h"
 
 // 3.
 art::BranchDescription const &

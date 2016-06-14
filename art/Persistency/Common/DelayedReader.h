@@ -9,16 +9,15 @@
 // input sources to retrieve EDProducts from external storage.
 //
 
-#include "canvas/Persistency/Common/EDProduct.h"
+#include "art/Persistency/Common/EDProduct.h"
 #include "art/Utilities/fwd.h"
 #include "cetlib/exempt_ptr.h"
-
-#include <memory>
+#include "cpp0x/memory"
 
 namespace art {
 
 class BranchKey;
-class EDProductGetterFinder;
+class EventPrincipal;
 class DelayedReader;
 
 class DelayedReader {
@@ -35,7 +34,7 @@ public:
   }
 
   void
-  setGroupFinder(cet::exempt_ptr<EDProductGetterFinder const> ep)
+  setGroupFinder(cet::exempt_ptr<EventPrincipal const> ep)
   {
     setGroupFinder_(ep);
   }
@@ -60,7 +59,7 @@ private:
 
   virtual
   void
-  setGroupFinder_(cet::exempt_ptr<EDProductGetterFinder const>);
+  setGroupFinder_(cet::exempt_ptr<EventPrincipal const>);
 
   virtual
   void

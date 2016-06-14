@@ -2,7 +2,7 @@
 
 #include "art/Persistency/RootDB/tkeyvfs.h"
 #include "art/Persistency/RootDB/SQLErrMsg.h"
-#include "canvas/Utilities/Exception.h"
+#include "art/Utilities/Exception.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include <cassert>

@@ -61,7 +61,7 @@ ntuple::Ntuple<ARGS...>::Ntuple(sqlite3* db,
   db_(db),
   max_(bufsize),
   buffer_(),
-  insert_statement_{nullptr},
+  insert_statement_(nullptr),
   last_rowid_()
 {
   if (!db)

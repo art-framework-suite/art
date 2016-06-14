@@ -7,7 +7,7 @@
 #include "test/Framework/Services/Optional/MyService.h"
 
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
-#include "canvas/Utilities/Exception.h"
+#include "art/Utilities/Exception.h"
 #include "cetlib/container_algorithms.h"
 #include "cetlib/exception.h"
 #include "fhiclcpp/ParameterSet.h"

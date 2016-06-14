@@ -1,7 +1,7 @@
-#include "canvas/Persistency/Common/Assns.h"
-#include "canvas/Persistency/Common/Ptr.h"
-#include "canvas/Persistency/Common/PtrVector.h"
-#include "canvas/Persistency/Common/Wrapper.h"
+#include "art/Persistency/Common/Assns.h"
+#include "art/Persistency/Common/Ptr.h"
+#include "art/Persistency/Common/PtrVector.h"
+#include "art/Persistency/Common/Wrapper.h"
 #include "cetlib/map_vector.h"
 #include "test/TestObjects/AssnTestData.h"
 

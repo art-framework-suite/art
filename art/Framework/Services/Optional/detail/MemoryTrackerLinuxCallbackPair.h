@@ -9,7 +9,7 @@
 #include "art/Framework/Services/Optional/detail/LinuxProcData.h"
 #include "art/Framework/Services/Optional/detail/LinuxProcMgr.h"
 #include "art/Ntuple/Ntuple.h"
-#include "canvas/Persistency/Provenance/ModuleDescription.h"
+#include "art/Persistency/Provenance/ModuleDescription.h"
 #include "cetlib/exempt_ptr.h"
 
 #include <string>

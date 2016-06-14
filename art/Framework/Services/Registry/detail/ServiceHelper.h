@@ -20,9 +20,9 @@
 
 #include "art/Framework/Services/Registry/ServiceScope.h"
 #include "art/Utilities/ScheduleID.h"
-#include "canvas/Utilities/TypeID.h"
+#include "art/Utilities/TypeID.h"
 
-#include <memory>
+#include "cpp0x/memory"
 
 namespace art {
   namespace detail {

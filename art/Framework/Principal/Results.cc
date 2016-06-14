@@ -1,5 +1,5 @@
 #include "art/Framework/Principal/Results.h"
-#include "canvas/Persistency/Provenance/BranchType.h"
+#include "art/Persistency/Provenance/BranchType.h"
 #include "art/Framework/Principal/ResultsPrincipal.h"
 #include "cetlib/container_algorithms.h"
 

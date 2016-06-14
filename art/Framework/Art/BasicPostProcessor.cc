@@ -1,7 +1,7 @@
 #include "art/Framework/Art/BasicPostProcessor.h"
 
 #include "art/Framework/Art/detail/exists_outside_prolog.h"
-#include "canvas/Utilities/Exception.h"
+#include "art/Utilities/Exception.h"
 #include "art/Utilities/detail/serviceConfigLocation.h"
 #include "cetlib/container_algorithms.h"
 #include "cetlib/filepath_maker.h"

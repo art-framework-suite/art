@@ -2,9 +2,9 @@
 #define art_Persistency_Provenance_MasterProductRegistry_h
 // vim: set sw=2:
 
-#include "canvas/Persistency/Provenance/BranchDescription.h"
-#include "canvas/Persistency/Provenance/BranchType.h"
-#include "canvas/Persistency/Provenance/ProductList.h"
+#include "art/Persistency/Provenance/BranchDescription.h"
+#include "art/Persistency/Provenance/BranchType.h"
+#include "art/Persistency/Provenance/ProductList.h"
 #include "art/Persistency/Provenance/detail/type_aliases.h"
 
 #include <array>

@@ -197,21 +197,21 @@
 #include "art/Framework/IO/ProductMix/MixOp.h"
 #include "art/Framework/IO/ProductMix/ProdToProdMapBuilder.h"
 #include "art/Framework/Principal/fwd.h"
-#include "canvas/Persistency/Common/EDProduct.h"
-#include "canvas/Persistency/Provenance/BranchID.h"
-#include "canvas/Persistency/Provenance/BranchIDList.h"
-#include "canvas/Persistency/Provenance/BranchListIndex.h"
-#include "canvas/Persistency/Provenance/BranchType.h"
-#include "canvas/Persistency/Provenance/FileFormatVersion.h"
-#include "canvas/Persistency/Provenance/ProductID.h"
-#include "canvas/Utilities/Exception.h"
+#include "art/Persistency/Common/EDProduct.h"
+#include "art/Persistency/Provenance/BranchID.h"
+#include "art/Persistency/Provenance/BranchIDList.h"
+#include "art/Persistency/Provenance/BranchListIndex.h"
+#include "art/Persistency/Provenance/BranchType.h"
+#include "art/Persistency/Provenance/FileFormatVersion.h"
+#include "art/Persistency/Provenance/ProductID.h"
+#include "art/Utilities/Exception.h"
 #include "art/Utilities/fwd.h"
 #include "cetlib/exempt_ptr.h"
 #include "cetlib/value_ptr.h"
+#include "cpp0x/functional"
+#include "cpp0x/memory"
 #include "fhiclcpp/ParameterSet.h"
 
-#include <functional>
-#include <memory>
 #include <string>
 #include <vector>
 
