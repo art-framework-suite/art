@@ -7,7 +7,7 @@ Test of the EventPrincipal class.
 #define BOOST_TEST_MODULE ( eventprincipal_t )
 #include "boost/test/auto_unit_test.hpp"
 
-#include "canvas/DictionaryManager/RootDictionaryManager.h"
+#include "art/Framework/Core/RootDictionaryManager.h"
 #include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Persistency/Provenance/ProductMetaData.h"
 #include "art/Framework/Principal/RunPrincipal.h"

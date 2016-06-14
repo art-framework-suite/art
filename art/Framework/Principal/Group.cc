@@ -7,7 +7,7 @@
 #include "canvas/Persistency/Provenance/BranchKey.h"
 #include "art/Persistency/Provenance/ProductMetaData.h"
 #include "canvas/Persistency/Provenance/ProductStatus.h"
-#include "canvas/Persistency/Provenance/ReflexTools.h"
+#include "art/Persistency/Provenance/ReflexTools.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include <iostream>

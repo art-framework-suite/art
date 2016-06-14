@@ -8,7 +8,7 @@
 
 #include "boost/program_options.hpp"
 
-#include "canvas/DictionaryManager/RootDictionaryManager.h"
+#include "art/Framework/Core/RootDictionaryManager.h"
 #include "art/Framework/IO/Root/GetFileFormatEra.h"
 #include "canvas/Persistency/Provenance/rootNames.h"
 #include "canvas/Persistency/Provenance/FileFormatVersion.h"

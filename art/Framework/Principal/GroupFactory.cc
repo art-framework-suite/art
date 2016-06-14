@@ -4,7 +4,7 @@
 #include "art/Framework/Principal/AssnsGroup.h"
 #include "art/Framework/Principal/Group.h"
 #include "canvas/Persistency/Common/Assns.h"
-#include "canvas/Persistency/Provenance/ReflexTools.h"
+#include "art/Persistency/Provenance/ReflexTools.h"
 #include "canvas/Utilities/WrappedClassName.h"
 
 #include "TClass.h"

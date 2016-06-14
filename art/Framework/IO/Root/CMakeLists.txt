@@ -49,10 +49,8 @@ art_make_exec( NAME product_sizes_dumper
 
 art_make_exec( NAME config_dumper
   LIBRARIES art_Framework_IO_Root
-  art_Utilities
+  art_Utilities canvas_Utilities
   art_Framework_Core
-  canvas_DictionaryManager
-  canvas_Utilities
   ${Boost_PROGRAM_OPTIONS_LIBRARY}
   ${ROOT_TREE}
   ${ROOT_RIO}
