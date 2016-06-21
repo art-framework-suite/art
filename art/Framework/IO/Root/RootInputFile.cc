@@ -140,9 +140,12 @@ namespace art {
     eventTree().setCacheSize(treeCacheSize);
     eventTree().setTreeMaxVirtualSize(treeMaxVirtualSize);
     subRunTree().setTreeMaxVirtualSize(treeMaxVirtualSize);
+    subRunTree().setCacheSize(treeCacheSize);
     runTree().setTreeMaxVirtualSize(treeMaxVirtualSize);
+    runTree().setCacheSize(treeCacheSize);
     if (resultsTree()) {
       resultsTree().setTreeMaxVirtualSize(treeMaxVirtualSize);
+      resultsTree().setCacheSize(treeCacheSize);
     }
     // Read the metadata tree.
     auto metaDataTree = static_cast<TTree*>(filePtr_->Get(rootNames::metaDataTreeName().c_str()));
@@ -150,6 +153,7 @@ namespace art {
       throw art::Exception{errors::FileReadError}
         << couldNotFindTree(rootNames::metaDataTreeName());
     }
+    metaDataTree->SetCacheSize(static_cast<Long64_t>(treeCacheSize));
     auto fftPtr = &fileFormatVersion_;
     using namespace art::rootNames;
     metaDataTree->SetBranchAddress(metaBranchRootName<FileFormatVersion>(), &fftPtr);
@@ -257,7 +261,7 @@ namespace art {
     validateFile();
     // Read the parentage tree.  Old format files are handled
     // internally in readParentageTree().
-    readParentageTree();
+    readParentageTree(treeCacheSize);
     initializeDuplicateChecker();
     if (noEventSort_) {
       fileIndex_.sortBy_Run_SubRun_EventEntry();
@@ -265,7 +269,7 @@ namespace art {
     fiIter_  = fileIndex_.begin();
     fiBegin_ = fileIndex_.begin();
     fiEnd_   = fileIndex_.end();
-    readEventHistoryTree();
+    readEventHistoryTree(treeCacheSize);
 
     auto& prodList = productListHolder_->productList_;
 
@@ -279,7 +283,7 @@ namespace art {
 
   void
   RootInputFile::
-  readParentageTree()
+  readParentageTree(unsigned int treeCacheSize)
   {
     //
     //  Auxiliary routine for the constructor.
@@ -289,6 +293,7 @@ namespace art {
       throw art::Exception{errors::FileReadError}
       << couldNotFindTree(rootNames::parentageTreeName());
     }
+    parentageTree->SetCacheSize(static_cast<Long64_t>(treeCacheSize));
     ParentageID idBuffer;
     auto pidBuffer = &idBuffer;
     parentageTree->SetBranchAddress(rootNames::parentageIDBranchName().c_str(),
@@ -977,7 +982,7 @@ namespace art {
 
   void
   RootInputFile::
-  readEventHistoryTree()
+  readEventHistoryTree(unsigned int treeCacheSize)
   {
     // Read in the event history tree, if we have one...
     eventHistoryTree_ = static_cast<TTree*>(filePtr_->Get(rootNames::eventHistoryTreeName().c_str()));
@@ -985,6 +990,7 @@ namespace art {
       throw art::Exception{errors::DataCorruption}
         << "Failed to find the event history tree.\n";
     }
+    eventHistoryTree_->SetCacheSize(static_cast<Long64_t>(treeCacheSize));
   }
 
   void
