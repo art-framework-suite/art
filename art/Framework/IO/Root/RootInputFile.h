@@ -358,8 +358,8 @@ private:
                    bool dropMergeable,
                    ProductList& branchDescriptions);
 
-  void readParentageTree();
-  void readEventHistoryTree();
+  void readParentageTree(unsigned int treeCacheSize);
+  void readEventHistoryTree(unsigned int treeCacheSize);
 
   void initializeDuplicateChecker();
 
