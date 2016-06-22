@@ -11,10 +11,10 @@ art_make(
 simple_plugin( sqlite mfPlugin
                art_Ntuple
                ${SQLITE3}
-               ${MF_MESSAGELOGGER}
-               ${MF_UTILITIES}
-               ${FHICLCPP}
-               ${CETLIB}
+               MF_MessageService
+               MF_Utilities
+               cetlib
+               fhiclcpp
                )
 
 install_headers()
