@@ -67,6 +67,7 @@ data()
   return data_.data();
 }
 
+#include <cassert>
 float const *
 arttest::HMLargeData::
 data() const
