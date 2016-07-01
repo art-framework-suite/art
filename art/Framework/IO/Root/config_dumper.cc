@@ -216,25 +216,23 @@ bool read_all_parameter_sets(TFile & file,
 // Caution: We pass 'file' by non-const reference because the TFile interface
 // does not declare the functions we use to be const, even though they do not
 // modify the underlying file.
-int print_pset_from_file(TFile & file,
-                         stringvec const & filters,
-                         PsetType mode,
-                         ostream & output,
-                         ostream & errors)
+int print_pset_from_file(TFile& file,
+                         stringvec const& filters,
+                         PsetType const mode,
+                         ostream& output,
+                         ostream& errors)
 {
-  if (! read_all_parameter_sets(file, errors)) {
+  if (!read_all_parameter_sets(file, errors)) {
     errors << "Unable to to read parameter sets.\n";
     return 1;
   }
 
-  for (auto i = fhicl::ParameterSetRegistry::begin(),
-            e = fhicl::ParameterSetRegistry::end();
-       i != e;
-       ++i) {
-    std::string label { want_pset(i->second, filters, mode) };
-    if (! label.empty()) {
+  for (auto const& pr : fhicl::ParameterSetRegistry::get()) {
+    auto const& pset = pr.second;
+    std::string label {want_pset(pset, filters, mode)};
+    if (!label.empty()) {
       output << label << ": {\n";
-      output << strip_pset(i->second, mode).to_indented_string(1);
+      output << strip_pset(pset, mode).to_indented_string(1);
       output << "}\n\n";
     }
   }
@@ -251,29 +249,25 @@ int print_pset_from_file(TFile & file,
 //
 // The return value is the number of files in which errors were
 // encountered, and is thus 0 to indicate success.
-int print_psets_from_files(stringvec const & file_names,
-                           stringvec const & filters,
-                           PsetType mode,
-                           ostream & output,
-                           ostream & errors)
+int print_psets_from_files(stringvec const& file_names,
+                           stringvec const& filters,
+                           PsetType const mode,
+                           ostream& output,
+                           ostream& errors)
 {
-  int rc = 0;
-  for (stringvec::const_iterator
-       i = file_names.begin(),
-       e = file_names.end();
-       i != e;
-       ++i) {
-    std::unique_ptr<TFile> current_file(TFile::Open(i->c_str(), "READ"));
+  int rc {0};
+  for (auto const& file_name : file_names) {
+    std::unique_ptr<TFile> current_file {TFile::Open(file_name.c_str(), "READ")};
     if (!current_file || current_file->IsZombie()) {
       ++rc;
       errors << "Unable to open file '"
-             << *i
+             << file_name
              << "' for reading."
              << "\nSkipping to next file.\n";
     }
     else {
       std::cout << "=============================================\n";
-      std::cout << "Processing file: " << *i << std::endl;
+      std::cout << "Processing file: " << file_name << std::endl;
       rc += print_pset_from_file(*current_file,
                                  filters,
                                  mode,
