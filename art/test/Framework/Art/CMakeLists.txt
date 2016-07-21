@@ -779,7 +779,7 @@ cet_test(FileCatalogOptions_18 HANDBUILT
 #   statements--i.e., they cannot be used in comparing configurations
 #   since the exception is thrown before the configuration is written
 #   out.
-foreach(i RANGE 1 5)
+foreach(i RANGE 1 7)
   cet_test(DeprecatedFileModeParameter_t_0${i} HANDBUILT
     TEST_EXEC art
     TEST_ARGS -c deprecated_fileMode_0${i}.fcl --debug-config=config.out
