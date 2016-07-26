@@ -38,6 +38,7 @@ namespace art {
     void closeFile();
 
     bool fileIsOpen() const;
+    void incrementInputFileNumber();
     bool requestsToCloseFile() const;
 
     bool wantAllEvents() const;

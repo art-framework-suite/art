@@ -2,7 +2,6 @@
 #include "cetlib/exception.h"
 
 #include <exception>
-#include <iostream>
 #include <sstream>
 #include <string>
 
@@ -10,21 +9,25 @@ using art::Boundary;
 
 namespace statemachine {
 
-  Machine::Machine(art::IEventProcessor * ep,
+  Machine::Machine(art::IEventProcessor* ep,
                    bool handleEmptyRuns,
                    bool handleEmptySubRuns) :
     ep_{ep},
     handleEmptyRuns_{handleEmptyRuns},
     handleEmptySubRuns_{handleEmptySubRuns} { }
 
-  art::IEventProcessor & Machine::ep() const { return *ep_; }
+  art::IEventProcessor& Machine::ep() const { return *ep_; }
   bool Machine::handleEmptyRuns() const { return handleEmptyRuns_; }
   bool Machine::handleEmptySubRuns() const { return handleEmptySubRuns_; }
 
   void Machine::goToNewInputFile(InputFile const&)
   {
-    setCurrentBoundary(Boundary::InputFile);
-    closeSomeOutputFiles();
+    ep_->incrementInputFileNumber();
+    ep_->recordOutputClosureRequests(Boundary::InputFile);
+    ep_->stageOutputsToClose(Boundary::InputFile);
+    if (ep_->outputsToClose()) {
+      closeSomeOutputFiles();
+    }
     closeInputFile();
   }
 
@@ -56,28 +59,12 @@ namespace statemachine {
     //               'respondtoCloseOutputFiles' will be needlessly
     //               called.
     ep_->respondToCloseOutputFiles();
-    // If the previous state was (e.g.) NewSubRun, and the current
-    // state is NewEvent, and an output file needs to close, then it
-    // should be allowed to.  Setting 'start' equal to
-    // 'previousBoundary_' would result in the for-loop below not
-    // being executed.  We therefore take the minimum of the
-    // boundaries as the starting point, although the end point is
-    // always the current boundary.
-    auto const start = std::min(previousBoundary_, currentBoundary_);
-    for(std::size_t b = start; b<=currentBoundary_; ++b) {
-      ep_->closeSomeOutputFiles(b);
-    }
+    ep_->closeSomeOutputFiles();
   }
 
   void Machine::closeSomeOutputFiles(SwitchOutputFiles const&)
   {
     closeSomeOutputFiles();
-  }
-
-  void Machine::setCurrentBoundary(Boundary::BT const b)
-  {
-    previousBoundary_ = currentBoundary_;
-    currentBoundary_ = b;
   }
 
   void Machine::closeAllFiles(Event const&) { closeAllFiles(); }

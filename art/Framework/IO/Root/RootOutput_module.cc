@@ -42,23 +42,6 @@ namespace art {
   class RootOutputFile;
 }
 
-#define BOUNDARY_COMMENT                                                \
-  "The 'boundary' parameter specifies the level at which\n"             \
-  "an output file may be closed.  The following values are possible:\n\n" \
-  "    Boundary     Meaning\n"                                          \
-  "   =======================================================\n"        \
-  "   \"Event\"       Allow file switch at next Event\n"                \
-  "   \"SubRun\"      Allow file switch at next SubRun\n"               \
-  "   \"Run\"         Allow file switch at next Run\n"                  \
-  "   \"InputFile\"   Allow file switch at next InputFile\n"            \
-  "   \"Unset\"       Never switch files\n\n"                           \
-  "The output module switches to a new output file whenever a switch\n" \
-  "is triggered.  A switch can be triggered by setting the 'force'\n"   \
-  "parameter to 'true'.  Or a switch is triggered whenever a certain\n" \
-  "criterion is met -- file size, number of events, etc.\n"             \
-  "\n"                                                                  \
-  "It is an error to force a file switch for a boundary value of \"Unset\"."
-
 class art::RootOutput final : public OutputModule {
 public:
 
@@ -68,29 +51,24 @@ public:
 
     using Name = fhicl::Name;
     using Comment = fhicl::Comment;
+    template <typename T> using Atom = fhicl::Atom<T>;
+    template <typename T> using OptionalAtom = fhicl::OptionalAtom<T>;
 
     fhicl::TableFragment<art::OutputModule::Config> omConfig;
-    fhicl::Atom<std::string> catalog { Name("catalog"), "" };
-    fhicl::OptionalAtom<bool> dropAllEvents { Name("dropAllEvents") };
-    fhicl::Atom<bool> dropAllSubRuns { Name("dropAllSubRuns"), false };
-    fhicl::OptionalAtom<bool> fastCloning { Name("fastCloning") };
-    fhicl::Atom<std::string> tmpDir { Name("tmpDir"), default_tmpDir };
-    fhicl::OptionalAtom<unsigned> maxSize { Name("maxSize"), Comment("Maximum size of file (in kB)") };
-    fhicl::OptionalAtom<FileIndex::EntryNumber_t> maxEventsPerFile { Name("maxEventsPerFile") };
-    fhicl::OptionalAtom<unsigned> maxAge { Name("maxAge"), Comment("Maximum age of output file (in seconds)") };
-    fhicl::Atom<int> compressionLevel { Name("compressionLevel"), 7 };
-    fhicl::Atom<int64_t> saveMemoryObjectThreshold { Name("saveMemoryObjectThreshold"), -1l };
-    fhicl::Atom<int64_t> treeMaxVirtualSize { Name("treeMaxVirtualSize"), -1 };
-    fhicl::Atom<int> splitLevel { Name("splitLevel"), 99 };
-    fhicl::Atom<int> basketSize { Name("basketSize"), 16384 };
-    fhicl::Atom<bool> dropMetaDataForDroppedData { Name("dropMetaDataForDroppedData"), false };
-    fhicl::Atom<std::string> dropMetaData { Name("dropMetaData"), "NONE" };
-    fhicl::Atom<bool> writeParameterSets { Name("writeParameterSets"), true };
-    struct SwitchConfig {
-      fhicl::OptionalAtom<std::string> boundary { Name("boundary"), Comment(BOUNDARY_COMMENT) };
-      fhicl::Atom<bool> force { Name("force"), false };
-    };
-    fhicl::Table<SwitchConfig> switchConfig { Name("fileSwitch") };
+    Atom<std::string> catalog { Name("catalog"), "" };
+    OptionalAtom<bool> dropAllEvents { Name("dropAllEvents") };
+    Atom<bool> dropAllSubRuns { Name("dropAllSubRuns"), false };
+    OptionalAtom<bool> fastCloning { Name("fastCloning") };
+    Atom<std::string> tmpDir { Name("tmpDir"), default_tmpDir };
+    Atom<int> compressionLevel { Name("compressionLevel"), 7 };
+    Atom<int64_t> saveMemoryObjectThreshold { Name("saveMemoryObjectThreshold"), -1l };
+    Atom<int64_t> treeMaxVirtualSize { Name("treeMaxVirtualSize"), -1 };
+    Atom<int> splitLevel { Name("splitLevel"), 99 };
+    Atom<int> basketSize { Name("basketSize"), 16384 };
+    Atom<bool> dropMetaDataForDroppedData { Name("dropMetaDataForDroppedData"), false };
+    Atom<std::string> dropMetaData { Name("dropMetaData"), "NONE" };
+    Atom<bool> writeParameterSets { Name("writeParameterSets"), true };
+    fhicl::Table<ClosingCriteria::Config> closingCriteria { Name("fileProperties") };
 
     Config()
     {
@@ -141,6 +119,7 @@ private:
   void respondToCloseInputFile(FileBlock const&) override;
   bool stagedToCloseFile() const override;
   void flagToCloseFile(bool) override;
+  void incrementInputFileNumber() override;
   Boundary fileSwitchBoundary() const override;
   void write(EventPrincipal &) override;
   void writeSubRun(SubRunPrincipal &) override;
@@ -200,9 +179,7 @@ private:
   // historical ParameterSet information in the downstream file
   // (e.g. mixing).
   bool writeParameterSets_;
-  ClosingCriteria fileSwitchCriteria_;
-  Boundary fileSwitchBoundary_ {Boundary::Unset};
-  bool forceSwitch_;
+  ClosingCriteria fileProperties_;
 
   // ResultsProducer management.
   RPManager rpm_;
@@ -225,36 +202,9 @@ RootOutput(Parameters const & config)
   , dropMetaData_{config().dropMetaData()}
   , dropMetaDataForDroppedData_{config().dropMetaDataForDroppedData()}
   , writeParameterSets_{config().writeParameterSets()}
-  , forceSwitch_{config().switchConfig().force()}
+  , fileProperties_{config().closingCriteria()}
   , rpm_{config.get_PSet()}
 {
-  // File-switch boundary
-  std::string b {"Unset"};
-  bool const switchBoundarySet {config().switchConfig().boundary(b)};
-  fileSwitchBoundary_ = Boundary::value(b);
-  detail::checkFileSwitchConfig(fileSwitchBoundary_, forceSwitch_);
-
-  // Max file size
-  if (config().maxSize(fileSwitchCriteria_.maxFileSize)) {
-    fileSwitchBoundary_ = detail::checkMaxSizeConfig(switchBoundarySet, fileSwitchBoundary_, forceSwitch_);
-  }
-
-  // Max events per file
-  if (config().maxEventsPerFile(fileSwitchCriteria_.maxEventsPerFile)) {
-    fileSwitchBoundary_ = detail::checkMaxEventsPerFileConfig(switchBoundarySet, fileSwitchBoundary_, forceSwitch_);
-  }
-
-  // Max file age
-  unsigned maxFileAge {-1u};
-  if (config().maxAge(maxFileAge)) {
-    fileSwitchBoundary_ = detail::checkMaxAgeConfig(switchBoundarySet,
-                                                    fileSwitchBoundary_,
-                                                    forceSwitch_,
-                                                    maxFileAge);
-    std::chrono::seconds maxDuration {maxFileAge};
-    std::swap(maxDuration, fileSwitchCriteria_.maxFileAge);
-  }
-
   bool const dropAllEventsSet {config().dropAllEvents(dropAllEvents_)};
   dropAllEvents_ = detail::shouldDropEvents(dropAllEventsSet, dropAllEvents_, dropAllSubRuns_);
 
@@ -264,7 +214,7 @@ RootOutput(Parameters const & config)
   //      accidentally cloned to the output file before the output
   //      module has seen the events that are going to be processed.
   bool const fastCloningSet {config().fastCloning(fastCloning_)};
-  fastCloning_ = detail::shouldFastClone(fastCloningSet, fastCloning_, wantAllEvents(), fileSwitchBoundary_);
+  fastCloning_ = detail::shouldFastClone(fastCloningSet, fastCloning_, wantAllEvents(), fileProperties_);
 
   if (!writeParameterSets_) {
     mf::LogWarning("PROVENANCE")
@@ -525,14 +475,17 @@ isFileOpen() const
   return rootOutputFile_.get() != nullptr;
 }
 
+void
+art::RootOutput::incrementInputFileNumber()
+{
+  rootOutputFile_->incrementInputFileNumber();
+}
+
 bool
 art::RootOutput::
 requestsToCloseFile() const
 {
-  if (forceSwitch_)
-    return true;
-  else
-    return rootOutputFile_->requestsToCloseFile();
+  return  rootOutputFile_->requestsToCloseFile();
 }
 
 bool
@@ -552,7 +505,7 @@ art::Boundary
 art::RootOutput::
 fileSwitchBoundary() const
 {
-  return fileSwitchBoundary_;
+  return fileProperties_.granularity();
 }
 
 void
@@ -566,7 +519,7 @@ doOpenFile()
   }
   rootOutputFile_ = std::make_unique<RootOutputFile>(this,
                                                      unique_filename(tmpDir_ + "/RootOutput"),
-                                                     fileSwitchCriteria_,
+                                                     fileProperties_,
                                                      compressionLevel_,
                                                      saveMemoryObjectThreshold_,
                                                      treeMaxVirtualSize_,

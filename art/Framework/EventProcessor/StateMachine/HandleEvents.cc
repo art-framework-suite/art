@@ -16,16 +16,16 @@ namespace statemachine {
   {
   }
 
-  void HandleEvents::checkInvariant()
+  void HandleEvents::disableProcessAndFinalizeEvent(Pause const&)
   {
-    assert(true);
+    context<HandleFiles>().disallowStaging();
+    processAndFinalizeEnabled_ = false;
   }
 
   void HandleEvents::exit()
   {
     if (ep_.alreadyHandlingException()) return;
     exitCalled_ = true;
-    checkInvariant();
     processAndFinalizeEvent();
   }
 
@@ -33,7 +33,6 @@ namespace statemachine {
   {
     if (!exitCalled_) {
       try {
-        checkInvariant();
         processAndFinalizeEvent();
       }
       catch (cet::exception const& e) {
@@ -89,8 +88,10 @@ namespace statemachine {
     if (ep_.shouldWeStop()) { post_event(Stop()); }
     context<HandleFiles>().openSomeOutputFiles();
     ep_.writeEvent();
-    ep_.recordOutputClosureRequests();
-    context<HandleFiles>().maybeTriggerOutputFileSwitch(Boundary::Event);
+    if (context<HandleFiles>().stagingAllowed()) {
+      ep_.recordOutputClosureRequests(Boundary::Event);
+      context<HandleFiles>().maybeTriggerOutputFileSwitch(Boundary::Event);
+    }
     eventException_ = false;
   }
 
@@ -98,7 +99,6 @@ namespace statemachine {
     my_base{ctx},
     ep_{context<Machine>().ep()}
   {
-    context<Machine>().setCurrentBoundary(Boundary::Event);
     auto& handleEvents = context<HandleEvents>();
     handleEvents.setEventException(true);
     markNonEmpty();

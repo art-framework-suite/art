@@ -64,7 +64,7 @@ public:
   void closeAllOutputFiles();
   void openAllOutputFiles(FileBlock & fb);
 
-  void closeSomeOutputFiles(std::size_t const);
+  void closeSomeOutputFiles();
   void openSomeOutputFiles(FileBlock const& fb);
 
   void respondToOpenInputFile(FileBlock const & fb);
@@ -73,11 +73,13 @@ public:
   void respondToCloseOutputFiles(FileBlock const & fb);
 
   // Allow output files to close that need to
-  void recordOutputClosureRequests();
-
-  bool outputsToCloseAtBoundary(Boundary const) const;
+  void recordOutputClosureRequests(Boundary);
+  bool outputsToCloseAtBoundary(Boundary) const;
   bool outputsToOpen() const;
+  bool outputsToClose() const;
   bool someOutputsOpen() const;
+  void stageOutputsToClose(Boundary);
+  void incrementInputFileNumber();
 
   // Return whether a module has reached its maximum count.
   bool terminate() const;
@@ -89,7 +91,8 @@ public:
   virtual void selectProducts(FileBlock const&);
 
 private:
-  using OutputWorkers = std::vector<OutputWorker *>;
+  using OutputWorkers = std::vector<OutputWorker*>;
+  using OutputWorkerSet = std::set<OutputWorker*>;
 
   void resetAll();
 
@@ -103,8 +106,9 @@ private:
   ActionTable * act_table_;
   ActivityRegistry & actReg_;
   OutputWorkers  outputWorkers_;
-  std::array<OutputWorkers, Boundary::NBoundaries()> outputWorkersToClose_ {{}}; // filled by aggregation
-  OutputWorkers  outputWorkersToOpen_;
+  std::array<OutputWorkerSet, Boundary::NBoundaries()> outputWorkersRequestingClose_ {{}}; // filled by aggregation
+  OutputWorkerSet outputsStagedToClose_ {};
+  OutputWorkers outputWorkersToOpen_;
   std::vector<unsigned char> workersEnabled_;
   std::vector<unsigned char> outputWorkersEnabled_;
   OutputFileStatus fileStatus_ {OutputFileStatus::Closed};

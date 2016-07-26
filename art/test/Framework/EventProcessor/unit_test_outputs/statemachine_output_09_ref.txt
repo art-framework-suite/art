@@ -34,10 +34,7 @@ Machine parameters:  handleEmptyRuns = 0  handleEmptySubRuns = 0
 	endRun......................(run: 1)
 	writeRun....................(run: 1)
 	respondToCloseOutputFiles
-	closeSomeOutputFiles (Level: Event)
-	closeSomeOutputFiles (Level: SubRun)
-	closeSomeOutputFiles (Level: Run)
-	closeSomeOutputFiles (Level: InputFile)
+	closeSomeOutputFiles
 	respondToCloseInputFile
 	clearPrincipalCache
 	closeInputFile
@@ -68,11 +65,6 @@ Machine parameters:  handleEmptyRuns = 0  handleEmptySubRuns = 0
 	setRunAuxiliaryRangeSetID...(run: 1)
 	endRun......................(run: 1)
 	writeRun....................(run: 1)
-	respondToCloseOutputFiles
-	closeSomeOutputFiles (Level: Event)
-	closeSomeOutputFiles (Level: SubRun)
-	closeSomeOutputFiles (Level: Run)
-	closeSomeOutputFiles (Level: InputFile)
 	respondToCloseInputFile
 	clearPrincipalCache
 	closeInputFile
@@ -89,8 +81,6 @@ Machine parameters:  handleEmptyRuns = 0  handleEmptySubRuns = 0
     *** nextItemType: Event ***
 	processEvent.................(run: 1 subRun: 1 event: 6)
 	shouldWeStop
-	openSomeOutputFiles
-	respondToOpenOutputFiles
 	writeEvent...................(run: 1 subRun: 1 event: 6)
 	readEvent....................(run: 1 subRun: 1 event: 7)
 	processEvent.................(run: 1 subRun: 1 event: 7)
@@ -150,10 +140,7 @@ Machine parameters:  handleEmptyRuns = 0  handleEmptySubRuns = 1
 	endRun......................(run: 1)
 	writeRun....................(run: 1)
 	respondToCloseOutputFiles
-	closeSomeOutputFiles (Level: Event)
-	closeSomeOutputFiles (Level: SubRun)
-	closeSomeOutputFiles (Level: Run)
-	closeSomeOutputFiles (Level: InputFile)
+	closeSomeOutputFiles
 	respondToCloseInputFile
 	clearPrincipalCache
 	closeInputFile
@@ -184,11 +171,6 @@ Machine parameters:  handleEmptyRuns = 0  handleEmptySubRuns = 1
 	setRunAuxiliaryRangeSetID...(run: 1)
 	endRun......................(run: 1)
 	writeRun....................(run: 1)
-	respondToCloseOutputFiles
-	closeSomeOutputFiles (Level: Event)
-	closeSomeOutputFiles (Level: SubRun)
-	closeSomeOutputFiles (Level: Run)
-	closeSomeOutputFiles (Level: InputFile)
 	respondToCloseInputFile
 	clearPrincipalCache
 	closeInputFile
@@ -205,8 +187,6 @@ Machine parameters:  handleEmptyRuns = 0  handleEmptySubRuns = 1
     *** nextItemType: Event ***
 	processEvent.................(run: 1 subRun: 1 event: 6)
 	shouldWeStop
-	openSomeOutputFiles
-	respondToOpenOutputFiles
 	writeEvent...................(run: 1 subRun: 1 event: 6)
 	readEvent....................(run: 1 subRun: 1 event: 7)
 	processEvent.................(run: 1 subRun: 1 event: 7)
@@ -266,10 +246,7 @@ Machine parameters:  handleEmptyRuns = 1  handleEmptySubRuns = 0
 	endRun......................(run: 1)
 	writeRun....................(run: 1)
 	respondToCloseOutputFiles
-	closeSomeOutputFiles (Level: Event)
-	closeSomeOutputFiles (Level: SubRun)
-	closeSomeOutputFiles (Level: Run)
-	closeSomeOutputFiles (Level: InputFile)
+	closeSomeOutputFiles
 	respondToCloseInputFile
 	clearPrincipalCache
 	closeInputFile
@@ -300,11 +277,6 @@ Machine parameters:  handleEmptyRuns = 1  handleEmptySubRuns = 0
 	setRunAuxiliaryRangeSetID...(run: 1)
 	endRun......................(run: 1)
 	writeRun....................(run: 1)
-	respondToCloseOutputFiles
-	closeSomeOutputFiles (Level: Event)
-	closeSomeOutputFiles (Level: SubRun)
-	closeSomeOutputFiles (Level: Run)
-	closeSomeOutputFiles (Level: InputFile)
 	respondToCloseInputFile
 	clearPrincipalCache
 	closeInputFile
@@ -321,8 +293,6 @@ Machine parameters:  handleEmptyRuns = 1  handleEmptySubRuns = 0
     *** nextItemType: Event ***
 	processEvent.................(run: 1 subRun: 1 event: 6)
 	shouldWeStop
-	openSomeOutputFiles
-	respondToOpenOutputFiles
 	writeEvent...................(run: 1 subRun: 1 event: 6)
 	readEvent....................(run: 1 subRun: 1 event: 7)
 	processEvent.................(run: 1 subRun: 1 event: 7)
@@ -382,10 +352,7 @@ Machine parameters:  handleEmptyRuns = 1  handleEmptySubRuns = 1
 	endRun......................(run: 1)
 	writeRun....................(run: 1)
 	respondToCloseOutputFiles
-	closeSomeOutputFiles (Level: Event)
-	closeSomeOutputFiles (Level: SubRun)
-	closeSomeOutputFiles (Level: Run)
-	closeSomeOutputFiles (Level: InputFile)
+	closeSomeOutputFiles
 	respondToCloseInputFile
 	clearPrincipalCache
 	closeInputFile
@@ -416,11 +383,6 @@ Machine parameters:  handleEmptyRuns = 1  handleEmptySubRuns = 1
 	setRunAuxiliaryRangeSetID...(run: 1)
 	endRun......................(run: 1)
 	writeRun....................(run: 1)
-	respondToCloseOutputFiles
-	closeSomeOutputFiles (Level: Event)
-	closeSomeOutputFiles (Level: SubRun)
-	closeSomeOutputFiles (Level: Run)
-	closeSomeOutputFiles (Level: InputFile)
 	respondToCloseInputFile
 	clearPrincipalCache
 	closeInputFile
@@ -437,8 +399,6 @@ Machine parameters:  handleEmptyRuns = 1  handleEmptySubRuns = 1
     *** nextItemType: Event ***
 	processEvent.................(run: 1 subRun: 1 event: 6)
 	shouldWeStop
-	openSomeOutputFiles
-	respondToOpenOutputFiles
 	writeEvent...................(run: 1 subRun: 1 event: 6)
 	readEvent....................(run: 1 subRun: 1 event: 7)
 	processEvent.................(run: 1 subRun: 1 event: 7)

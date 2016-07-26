@@ -5,6 +5,7 @@
 #include "art/Utilities/OutputFileInfo.h"
 #include "cetlib/container_algorithms.h"
 
+#include <iostream>
 #include <memory>
 #include <type_traits>
 #include <utility>
@@ -32,6 +33,7 @@ EndPathExecutor(PathManager & pm,
   , act_table_{&actions}
   , actReg_{areg}
   , outputWorkers_{getOutputWorkers(endPathInfo_.workers())}
+    //  , outputWorkersToOpen_(std::begin(outputWorkers_), std::end(outputWorkers_)) // seed with all output workers
   , outputWorkersToOpen_{outputWorkers_} // seed with all output workers
   , workersEnabled_(endPathInfo_.workers().size(), true)
   , outputWorkersEnabled_(outputWorkers_.size(), true)
@@ -117,7 +119,6 @@ void art::EndPathExecutor::writeRun(RunPrincipal& rp)
 void art::EndPathExecutor::writeSubRun(SubRunPrincipal& srp)
 {
   doForAllEnabledOutputWorkers_([&srp](auto w){ w->writeSubRun(srp); });
-  //  runRangeSetHandler_->updateFromSubRun(srp.id());
   if (fileStatus_ == OutputFileStatus::StagedToSwitch) {
     subRunRangeSetHandler_->rebase();
   }
@@ -176,7 +177,7 @@ void art::EndPathExecutor::setAuxiliaryRangeSetID(SubRunPrincipal& srp)
 
 void art::EndPathExecutor::setAuxiliaryRangeSetID(RunPrincipal& rp)
 {
-  if (fileStatus_ != OutputFileStatus::StagedToSwitch){
+  if (fileStatus_ != OutputFileStatus::StagedToSwitch) {
     runRangeSetHandler_->flushRanges();
   }
   auto const& ranges = runRangeSetHandler_->seenRanges();
@@ -189,25 +190,61 @@ void art::EndPathExecutor::selectProducts(FileBlock const& fb)
   doForAllEnabledOutputWorkers_([&fb](auto w) { w->selectProducts(fb); });
 }
 
-void art::EndPathExecutor::recordOutputClosureRequests()
+void art::EndPathExecutor::recordOutputClosureRequests(Boundary const b)
 {
-  for(auto ow : outputWorkers_) {
-    if (!ow->stagedToCloseFile() && ow->requestsToCloseFile()) {
-      outputWorkersToClose_[ow->fileSwitchBoundary()].push_back(ow);
-      ow->setFileStatus(OutputFileStatus::StagedToSwitch);
-      fileStatus_ = OutputFileStatus::StagedToSwitch;
-    }
+  for (auto ow : outputWorkers_) {
+    auto const granularity = ow->fileSwitchBoundary();
+
+    // We need to support the following case:
+    //
+    //   fileProperties: {
+    //     maxEvents: 10
+    //     maxRuns: 1
+    //     granularity: Event
+    //   }
+    //
+    // If a request to close is made on a run boundary, but the
+    // granularity is still Event, then the file should close.  For
+    // that reason, the comparison is 'granularity > b' instead of
+    // 'granularity != b'.
+
+    if (granularity > b || !ow->requestsToCloseFile()) continue;
+
+    ow->setFileStatus(OutputFileStatus::StagedToSwitch);
+    outputWorkersRequestingClose_[granularity].insert(ow);
+    fileStatus_ = OutputFileStatus::StagedToSwitch;
+  }
+}
+
+void art::EndPathExecutor::incrementInputFileNumber()
+{
+  for (auto ow : outputWorkers_) {
+    ow->incrementInputFileNumber();
+  }
+}
+
+void art::EndPathExecutor::stageOutputsToClose(Boundary const b)
+{
+  for (std::size_t i {Boundary::Event}; i <= b ; ++i) {
+    auto& ows = outputWorkersRequestingClose_[i];
+    outputsStagedToClose_.insert(ows.begin(), ows.end());
+    ows.clear();
   }
 }
 
 bool art::EndPathExecutor::outputsToCloseAtBoundary(Boundary const b) const
 {
-  return !outputWorkersToClose_[b].empty();
+  return !outputWorkersRequestingClose_[b].empty();
 }
 
 bool art::EndPathExecutor::outputsToOpen() const
 {
   return !outputWorkersToOpen_.empty();
+}
+
+bool art::EndPathExecutor::outputsToClose() const
+{
+  return !outputsStagedToClose_.empty();
 }
 
 bool art::EndPathExecutor::someOutputsOpen() const
@@ -219,22 +256,21 @@ bool art::EndPathExecutor::someOutputsOpen() const
                      } );
 }
 
-void art::EndPathExecutor::closeSomeOutputFiles(std::size_t const b)
+void art::EndPathExecutor::closeSomeOutputFiles()
 {
   auto setFileStatus               = [    ](auto ow){ow->setFileStatus(OutputFileStatus::Switching);};
   auto closeFile                   = [    ](auto ow){ow->closeFile();};
   auto invoke_sPreCloseOutputFile  = [this](auto ow){actReg_.sPreCloseOutputFile.invoke(ow->label());};
   auto invoke_sPostCloseOutputFile = [this](auto ow){actReg_.sPostCloseOutputFile.invoke(OutputFileInfo{ow->label(), ow->lastClosedFileName()});};
 
-  auto& workers = outputWorkersToClose_[b];
+  auto& workers = outputsStagedToClose_;
 
   fileStatus_ = OutputFileStatus::Switching;
   cet::for_all(workers, setFileStatus);
   cet::for_all(workers, invoke_sPreCloseOutputFile);
   cet::for_all(workers, closeFile);
   cet::for_all(workers, invoke_sPostCloseOutputFile);
-  cet::copy_all(workers, std::back_inserter(outputWorkersToOpen_));
-
+  outputWorkersToOpen_.assign(std::begin(workers), std::end(workers));
   workers.clear();
 }
 

@@ -1,18 +1,18 @@
 BEGIN_PROLOG
 rp_modules: {
-   results: {
-      producers: {
-         rpw: {
-            plugin_type: RPTest
-         }
-         rpr: {
-            plugin_type: RPTestReader
-            intResultsLabel: @nil
-            nResultsExpected: 1
-         }
+  results: {
+    producers: {
+      rpw: {
+        plugin_type: RPTest
       }
-      rpath: [rpw, rpr]
-   }
+      rpr: {
+        plugin_type: RPTestReader
+        intResultsLabel: @nil
+        nResultsExpected: 1
+      }
+    }
+    rpath: [rpw, rpr]
+  }
 }
 END_PROLOG
 
@@ -30,18 +30,20 @@ physics: {
 }
 
 outputs: {
-    o1: {
-       module_type: RootOutput
-       fileName: "out_r%r.root"
-       @table::rp_modules
-    }
+  o1: {
+    module_type: RootOutput
+    fileName: "out_r%r.root"
+    @table::rp_modules
+  }
 
-   o2: {
-      module_type: RootOutput
-      fileName: "out_r%r_%#.root"
-      maxEventsPerFile: 10
-      @table::rp_modules
-   }
+  o2: {
+    module_type: RootOutput
+    fileName: "out_r%r_%#.root"
+    fileProperties: {
+      maxEvents: 10
+    }
+    @table::rp_modules
+  }
 }
 
 outputs.o1.results.producers.rpr.intResultsLabel: "o1#rpw"

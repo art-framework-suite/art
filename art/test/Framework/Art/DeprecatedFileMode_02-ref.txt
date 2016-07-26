@@ -1,16 +1,16 @@
 outputs: {
    o1: {
-      fileSwitch: {
-         boundary: "InputFile"
-         force: true
+      fileProperties: {
+         granularity: "InputFile"
+         maxInputFiles: 1
       }
       module_label: "o1"
       module_type: "RootOutput"
    }
    o2: {
-      fileSwitch: {
-         boundary: "InputFile"
-         force: true
+      fileProperties: {
+         granularity: "InputFile"
+         maxInputFiles: 1
       }
       module_label: "o2"
       module_type: "RootOutput"

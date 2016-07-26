@@ -96,7 +96,7 @@ public:
   void openAllOutputFiles() override;
   void closeAllOutputFiles() override;
   void openSomeOutputFiles() override;
-  void closeSomeOutputFiles(std::size_t const) override;
+  void closeSomeOutputFiles() override;
 
   void respondToOpenInputFile() override;
   void respondToCloseInputFile() override;
@@ -104,7 +104,8 @@ public:
   void respondToCloseOutputFiles() override;
 
   void rewindInput() override;
-  void recordOutputClosureRequests() override;
+  void incrementInputFileNumber() override;
+  void recordOutputClosureRequests(Boundary) override;
 
   void doErrorStuff() override;
 
@@ -139,8 +140,10 @@ public:
   void setExceptionMessageSubRuns(std::string const& message) override;
   bool alreadyHandlingException() const override;
 
-  bool outputsToCloseAtBoundary(Boundary const) const override;
+  bool outputsToCloseAtBoundary(Boundary) const override;
+  void stageOutputsToClose(Boundary) override;
   bool outputsToOpen() const override;
+  bool outputsToClose() const override;
   bool someOutputsOpen() const override;
 
   bool setTriggerPathEnabled(std::string const & name, bool enable) override;

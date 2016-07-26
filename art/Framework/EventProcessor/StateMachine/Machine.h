@@ -66,15 +66,12 @@ namespace statemachine {
     void closeSomeOutputFiles();
     void closeSomeOutputFiles(SwitchOutputFiles const&);
     void goToNewInputFile(InputFile const&);
-    void setCurrentBoundary(art::Boundary::BT const bt);
 
   private:
 
     art::IEventProcessor* ep_;
     bool handleEmptyRuns_;
     bool handleEmptySubRuns_;
-    art::Boundary::BT currentBoundary_ {art::Boundary::Unset};
-    art::Boundary::BT previousBoundary_ {art::Boundary::Unset};
   };
 
   class Error;
@@ -111,16 +108,16 @@ namespace statemachine {
       sc::transition<SwitchOutputFiles, Error, Machine, &Machine::closeAllFiles>,
       sc::transition<Stop, Stopping, Machine, &Machine::closeAllFiles> >;
 
+    bool stagingAllowed() const { return stagingAllowed_; }
+
+    void disallowStaging();
     void openInputFile();
     void openSomeOutputFiles();
     void maybeTriggerOutputFileSwitch(art::Boundary::BT const);
 
   private:
     art::IEventProcessor & ep_;
-    // FIXME: Not sure that switchInProgress_ is necessary.  It is
-    //        awkward in that it must be appropriately set in
-    //        different functions.  Perhaps ep_.outputsToOpen() is a
-    //        sufficient check?
+    bool stagingAllowed_ {true};
     bool switchInProgress_ {false};
   };
 
@@ -176,7 +173,7 @@ namespace statemachine {
     void finalizeRun();
     void beginRunIfNotDoneAlready();
 
-    void disableFinalizeRun(Pause const&) { finalizeEnabled_ = false; }
+    void disableFinalizeRun(Pause const&);
 
   private:
     art::IEventProcessor & ep_;
@@ -193,7 +190,6 @@ namespace statemachine {
   class NewRun : public sc::state<NewRun, HandleRuns> {
   public:
     NewRun(my_context ctx);
-    ~NewRun();
 
     using reactions = mpl::list<
       sc::transition<SubRun, HandleSubRuns>,
@@ -221,7 +217,7 @@ namespace statemachine {
     art::SubRunID const & currentSubRun() const;
     bool beginSubRunCalled() const;
 
-    void disableFinalizeSubRun(Pause const&) { finalizeEnabled_ = false; }
+    void disableFinalizeSubRun(Pause const&);
     void beginSubRun(art::SubRunID run);
     void endSubRun(art::SubRunID run);
 
@@ -272,11 +268,10 @@ namespace statemachine {
     HandleEvents(my_context ctx);
     ~HandleEvents();
 
-    void disableProcessAndFinalizeEvent(Pause const&) { processAndFinalizeEnabled_ = false; }
+    void disableProcessAndFinalizeEvent(Pause const&);
     void exit();
     void processAndFinalizeEvent();
     void setEventException(bool const value) { eventException_ = value; }
-    void checkInvariant();
 
     using reactions = sc::transition<Event, HandleEvents>;
 

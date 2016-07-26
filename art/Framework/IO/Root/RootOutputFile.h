@@ -138,8 +138,9 @@ public: // MEMBER FUNCTIONS
   void setSubRunAuxiliaryRangeSetID(RangeSet const&);
   void finishEndFile();
   void beginInputFile(FileBlock const&, bool fastClone);
+  void incrementInputFileNumber();
   void respondToCloseInputFile(FileBlock const&);
-  bool requestsToCloseFile() const;
+  bool requestsToCloseFile();
 
   void selectProducts(FileBlock const&);
 
@@ -184,9 +185,7 @@ private: // MEMBER DATA
   bool currentlyFastCloning_ {true};
   std::shared_ptr<TFile> filePtr_;
   FileIndex fileIndex_ {};
-  FileIndex::EntryNumber_t eventEntryNumber_ {0LL};
-  FileIndex::EntryNumber_t subRunEntryNumber_ {0LL};
-  FileIndex::EntryNumber_t runEntryNumber_ {0LL};
+  FileProperties fp_ {};
   TTree* metaDataTree_ {nullptr};
   TTree* fileIndexTree_ {nullptr};
   TTree* parentageTree_ {nullptr};

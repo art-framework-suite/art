@@ -222,6 +222,7 @@ private:
   virtual bool stagedToCloseFile() const {
     return fileStatus_ == OutputFileStatus::StagedToSwitch;
   }
+  virtual void incrementInputFileNumber() {}
   virtual void flagToCloseFile(bool const) {}
   virtual Boundary fileSwitchBoundary() const { return Boundary::Unset; }
 

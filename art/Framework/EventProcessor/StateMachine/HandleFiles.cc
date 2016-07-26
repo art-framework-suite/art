@@ -2,6 +2,7 @@
 #include "cetlib/exception.h"
 
 #include <exception>
+#include <iostream>
 #include <sstream>
 #include <string>
 
@@ -22,7 +23,12 @@ namespace statemachine {
 
   void HandleFiles::maybeTriggerOutputFileSwitch(Boundary::BT const b)
   {
-    if (!ep_.outputsToCloseAtBoundary(b)) return;
+    // Staging is not allowed whenever 'maybeTriggerOutputFileSwitch'
+    // is called due to exiting a 'Pause' state.
+    if (!stagingAllowed_) return;
+
+    ep_.stageOutputsToClose(b);
+    if (!ep_.outputsToClose()) return;
 
     // Don't trigger if a switch is already in progress!
     if (switchInProgress_) return;
@@ -32,13 +38,19 @@ namespace statemachine {
     switchInProgress_ = true;
   }
 
+  void HandleFiles::disallowStaging()
+  {
+    stagingAllowed_ = false;
+  }
+
   void HandleFiles::openSomeOutputFiles()
   {
-    if ( !ep_.outputsToOpen() ) return;
+    if (!ep_.outputsToOpen()) return;
 
     ep_.openSomeOutputFiles();
     ep_.respondToOpenOutputFiles();
     switchInProgress_ = false;
+    stagingAllowed_ = true;
   }
 
 

@@ -2,6 +2,7 @@
 #include "cetlib/exception.h"
 
 #include <exception>
+#include <iostream>
 #include <sstream>
 #include <string>
 
@@ -85,6 +86,12 @@ namespace statemachine {
     }
   }
 
+  void HandleRuns::disableFinalizeRun(Pause const&)
+  {
+    context<HandleFiles>().disallowStaging();
+    finalizeEnabled_ = false;
+  }
+
   void HandleRuns::beginRun(art::RunID run)
   {
     beginRunCalled_ = true;
@@ -116,8 +123,10 @@ namespace statemachine {
     ep_.setRunAuxiliaryRangeSetID(currentRun_);
     if (beginRunCalled_) endRun(currentRun());
     ep_.writeRun(currentRun_);
-    ep_.recordOutputClosureRequests();
-    context<HandleFiles>().maybeTriggerOutputFileSwitch(Boundary::Run);
+    if (context<HandleFiles>().stagingAllowed()) {
+      ep_.recordOutputClosureRequests(Boundary::Run);
+      context<HandleFiles>().maybeTriggerOutputFileSwitch(Boundary::Run);
+    }
     currentRun_ = art::RunID(); // Invalid.
     runException_ = false;
   }
@@ -130,7 +139,6 @@ namespace statemachine {
   NewRun::NewRun(my_context ctx) :
     my_base{ctx}
   {
-    context<Machine>().setCurrentBoundary(Boundary::Run);
     context<HandleRuns>().setupCurrentRun();
     // Here we assume that the input source or event processor
     // will throw if we fail to get a valid run.  Therefore
@@ -138,12 +146,8 @@ namespace statemachine {
     assert(context<HandleRuns>().currentRun().isValid());
   }
 
-  NewRun::~NewRun() {
-  }
-
   PauseRun::PauseRun(my_context ctx)
     : my_base{ctx}
-  {
-  }
+  {}
 
 }

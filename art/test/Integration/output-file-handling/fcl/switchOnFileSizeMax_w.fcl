@@ -4,14 +4,16 @@ physics.p1: [prod]
 physics.e1: [out]
 
 outputs: {
-   out: {
-      module_type: RootOutput
-      fileName : "out_%#.root"
+  out: {
+    module_type: RootOutput
+    fileName : "out_%#.root"
+    fileProperties: {
       maxSize: 500 #kB
-   }
+    }
+  }
 }
 
 source: {
-   module_type: EmptyEvent
-   maxEvents: 4000
+  module_type: EmptyEvent
+  maxEvents: 4000
 }

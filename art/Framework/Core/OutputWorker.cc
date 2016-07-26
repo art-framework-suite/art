@@ -36,6 +36,12 @@ namespace art {
     ci_->outputFileClosed(description().moduleLabel(), module().lastClosedFileName());
   }
 
+  void
+  OutputWorker::incrementInputFileNumber()
+  {
+    return module().incrementInputFileNumber();
+  }
+
   bool
   OutputWorker::requestsToCloseFile() const {
     return module().requestsToCloseFile();

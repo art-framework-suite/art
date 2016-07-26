@@ -1,14 +1,12 @@
-process_name: MultiInputMerge
-
 physics: {
-  stream1: [out1]
+  e1: [o1]
 }
 
 outputs: {
 
-  out1: {
-    fileName: "out_%#.root"
+  o1: {
     module_type: RootOutput
+    fileName: "out_%#.root"
     fileProperties: {
       granularity: InputFile
       maxInputFiles: 1
@@ -16,3 +14,5 @@ outputs: {
   }
 
 }
+
+process_name: switchOutputOnNewInput

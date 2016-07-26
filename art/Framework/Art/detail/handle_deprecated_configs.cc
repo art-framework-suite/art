@@ -22,12 +22,12 @@ namespace {
   {
     std::ostringstream c;
     if (fileMode == "MERGE") {
-      c << fhicl_key("outputs", module_label,"fileSwitch","boundary")+": \"Unset\"";
+      c << fhicl_key("outputs", module_label,"fileProperties","granularity")+": \"Event\"";
     }
     else if (fileMode == "NOMERGE") {
-      c << fhicl_key("outputs", module_label,"fileSwitch") << ": {\n"
-        << "    boundary: \"InputFile\"\n"
-        << "    force: true\n"
+      c << fhicl_key("outputs", module_label,"fileProperties") << ": {\n"
+        << "    maxInputFiles: 1\n"
+        << "    granularity: \"InputFile\"\n"
         << "  }";
     }
     return c.str();
@@ -89,9 +89,9 @@ art::detail::handle_deprecated_fileMode(intermediate_table& raw_config)
     if (exists_outside_prolog(raw_config,module_type) && raw_config.get<string>(module_type) != "RootOutput")
       continue;
 
-    raw_config.put(fhicl_key(module_label,"fileSwitch","boundary"), boundary);
+    raw_config.put(fhicl_key(module_label,"fileProperties","granularity"), boundary);
     if (boundary == "InputFile") {
-      raw_config.put(fhicl_key(module_label,"fileSwitch","force"), true);
+      raw_config.put(fhicl_key(module_label,"fileProperties","maxInputFiles"), 1);
     }
   }
 }
