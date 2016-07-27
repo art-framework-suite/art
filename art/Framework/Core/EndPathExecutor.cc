@@ -204,6 +204,11 @@ void art::EndPathExecutor::recordOutputClosureRequests(Boundary const b)
       auto const granularity = ow->fileSwitchBoundary();
       if (granularity > b || !ow->requestsToCloseFile()) return;
 
+      // Technical note: although the outputWorkersToClose_ container
+      // is "moved from" in closeSomeOutputFiles, it is safe to call
+      // 'insert' vis-a-vis the [lib.types.movedfrom] section of the
+      // standard.  There are no preconditions for std::set::insert,
+      // so no state-checking is required.
       outputWorkersToClose_.insert(ow);
       fileStatus_ = OutputFileStatus::StagedToSwitch;
     });
