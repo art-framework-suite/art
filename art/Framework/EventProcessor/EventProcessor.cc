@@ -767,18 +767,6 @@ art::EventProcessor::recordOutputClosureRequests(Boundary const b)
 }
 
 bool
-art::EventProcessor::outputsToCloseAtBoundary(Boundary const b) const
-{
-  return endPathExecutor_->outputsToCloseAtBoundary(b);
-}
-
-void
-art::EventProcessor::stageOutputsToClose(Boundary const b)
-{
-  return endPathExecutor_->stageOutputsToClose(b);
-}
-
-bool
 art::EventProcessor::outputsToOpen() const
 {
   return endPathExecutor_->outputsToOpen();

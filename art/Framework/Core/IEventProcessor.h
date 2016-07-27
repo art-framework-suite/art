@@ -54,11 +54,9 @@ namespace art
     virtual void rewindInput() = 0;
     virtual void recordOutputClosureRequests(Boundary) = 0;
     virtual void incrementInputFileNumber() = 0;
-    virtual bool outputsToCloseAtBoundary(Boundary) const = 0;
     virtual bool outputsToOpen() const = 0;
     virtual bool outputsToClose() const = 0;
     virtual bool someOutputsOpen() const = 0;
-    virtual void stageOutputsToClose(Boundary) = 0;
 
     virtual void doErrorStuff() = 0;
 

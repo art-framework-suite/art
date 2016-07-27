@@ -21,16 +21,13 @@ namespace statemachine {
     ep_.respondToOpenInputFile();
   }
 
-  void HandleFiles::maybeTriggerOutputFileSwitch(Boundary::BT const b)
+  void HandleFiles::maybeTriggerOutputFileSwitch()
   {
-    // Staging is not allowed whenever 'maybeTriggerOutputFileSwitch'
-    // is called due to exiting a 'Pause' state.
-    if (!stagingAllowed_) return;
+    assert(stagingAllowed_);
 
-    ep_.stageOutputsToClose(b);
     if (!ep_.outputsToClose()) return;
 
-    // Don't trigger if a switch is already in progress!
+    // Don't trigger another switch if one is already in progress!
     if (switchInProgress_) return;
 
     post_event(Pause());

@@ -1,6 +1,7 @@
 #ifndef art_Framework_Core_OutputFileStatus_h
 #define art_Framework_Core_OutputFileStatus_h
 
+#include "canvas/Utilities/Exception.h"
 #include <ostream>
 
 namespace art {

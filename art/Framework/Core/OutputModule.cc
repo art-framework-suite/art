@@ -523,13 +523,6 @@ isFileOpen() const
 
 void
 art::OutputModule::
-setFileStatus(OutputFileStatus const fs)
-{
-  fileStatus_ = fs;
-}
-
-void
-art::OutputModule::
 startEndFile()
 {
 }

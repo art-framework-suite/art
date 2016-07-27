@@ -233,11 +233,6 @@ namespace art {
     return outputsToClose_;
   }
 
-  bool MockEventProcessor::outputsToCloseAtBoundary(Boundary const) const
-  {
-    return outputsToClose_;
-  }
-
   bool MockEventProcessor::outputsToOpen() const
   {
     return outputsToOpen_;

@@ -24,7 +24,6 @@ namespace statemachine {
   {
     ep_->incrementInputFileNumber();
     ep_->recordOutputClosureRequests(Boundary::InputFile);
-    ep_->stageOutputsToClose(Boundary::InputFile);
     if (ep_->outputsToClose()) {
       closeSomeOutputFiles();
     }

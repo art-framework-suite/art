@@ -88,10 +88,14 @@ namespace statemachine {
     if (ep_.shouldWeStop()) { post_event(Stop()); }
     context<HandleFiles>().openSomeOutputFiles();
     ep_.writeEvent();
+
+    // Staging is not allowed whenever 'maybeTriggerOutputFileSwitch'
+    // is called due to exiting a 'Pause' state.
     if (context<HandleFiles>().stagingAllowed()) {
       ep_.recordOutputClosureRequests(Boundary::Event);
-      context<HandleFiles>().maybeTriggerOutputFileSwitch(Boundary::Event);
+      context<HandleFiles>().maybeTriggerOutputFileSwitch();
     }
+
     eventException_ = false;
   }
 

@@ -37,8 +37,6 @@ namespace art
 
     void rewindInput() override;
     void recordOutputClosureRequests(Boundary) override {}
-    void stageOutputsToClose(Boundary) override {};
-    bool outputsToCloseAtBoundary(Boundary) const override;
     void incrementInputFileNumber() override {};
     bool outputsToOpen() const override;
     bool outputsToClose() const override;

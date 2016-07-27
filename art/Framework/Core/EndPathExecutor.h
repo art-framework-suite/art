@@ -15,6 +15,7 @@
 // corresponding to multiple (Sub)Run fragments are aggregated on
 // input.
 // ======================================================================
+#include "art/Framework/Core/OutputFileStatus.h"
 #include "art/Framework/Core/OutputFileSwitchBoundary.h"
 #include "art/Framework/Core/OutputWorker.h"
 #include "art/Framework/Core/PathManager.h"
@@ -29,7 +30,6 @@
 #include "cetlib/trim.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
-#include <array>
 #include <memory>
 #include <vector>
 
@@ -40,13 +40,13 @@ namespace art {
 
 class art::EndPathExecutor {
 public:
-  EndPathExecutor(PathManager & pm,
-                  ActionTable & actions,
-                  ActivityRegistry & areg,
+  EndPathExecutor(PathManager& pm,
+                  ActionTable& actions,
+                  ActivityRegistry& areg,
                   MasterProductRegistry& mpr);
 
   template <typename T>
-  void processOneOccurrence(typename T::MyPrincipal & principal);
+  void processOneOccurrence(typename T::MyPrincipal& principal);
 
   void beginJob();
   void endJob();
@@ -67,18 +67,16 @@ public:
   void closeSomeOutputFiles();
   void openSomeOutputFiles(FileBlock const& fb);
 
-  void respondToOpenInputFile(FileBlock const & fb);
-  void respondToCloseInputFile(FileBlock const & fb);
-  void respondToOpenOutputFiles(FileBlock const & fb);
-  void respondToCloseOutputFiles(FileBlock const & fb);
+  void respondToOpenInputFile(FileBlock const& fb);
+  void respondToCloseInputFile(FileBlock const& fb);
+  void respondToOpenOutputFiles(FileBlock const& fb);
+  void respondToCloseOutputFiles(FileBlock const& fb);
 
   // Allow output files to close that need to
   void recordOutputClosureRequests(Boundary);
-  bool outputsToCloseAtBoundary(Boundary) const;
   bool outputsToOpen() const;
   bool outputsToClose() const;
   bool someOutputsOpen() const;
-  void stageOutputsToClose(Boundary);
   void incrementInputFileNumber();
 
   // Return whether a module has reached its maximum count.
@@ -97,18 +95,17 @@ private:
   void resetAll();
 
   template <typename T>
-  void runEndPaths(typename T::MyPrincipal &);
+  void runEndPaths(typename T::MyPrincipal&);
 
   template <class F> void doForAllEnabledWorkers_(F f);
   template <class F> void doForAllEnabledOutputWorkers_(F f);
 
-  PathsInfo & endPathInfo_;
-  ActionTable * act_table_;
-  ActivityRegistry & actReg_;
+  PathsInfo& endPathInfo_;
+  ActionTable* act_table_;
+  ActivityRegistry& actReg_;
   OutputWorkers  outputWorkers_;
-  std::array<OutputWorkerSet, Boundary::NBoundaries()> outputWorkersRequestingClose_ {{}}; // filled by aggregation
-  OutputWorkerSet outputsStagedToClose_ {};
-  OutputWorkers outputWorkersToOpen_;
+  OutputWorkerSet outputWorkersToOpen_;
+  OutputWorkerSet outputWorkersToClose_ {};
   std::vector<unsigned char> workersEnabled_;
   std::vector<unsigned char> outputWorkersEnabled_;
   OutputFileStatus fileStatus_ {OutputFileStatus::Closed};

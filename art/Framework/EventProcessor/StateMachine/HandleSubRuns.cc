@@ -131,10 +131,14 @@ namespace statemachine {
     ep_.setSubRunAuxiliaryRangeSetID(currentSubRun_);
     if (beginSubRunCalled_) endSubRun(currentSubRun());
     ep_.writeSubRun(currentSubRun_);
+
+    // Staging is not allowed whenever 'maybeTriggerOutputFileSwitch'
+    // is called due to exiting a 'Pause' state.
     if (context<HandleFiles>().stagingAllowed()) {
       ep_.recordOutputClosureRequests(Boundary::SubRun);
-      context<HandleFiles>().maybeTriggerOutputFileSwitch(Boundary::SubRun);
+      context<HandleFiles>().maybeTriggerOutputFileSwitch();
     }
+
     currentSubRun_ = art::SubRunID(); // Invalid.
     subRunException_ = false;
   }

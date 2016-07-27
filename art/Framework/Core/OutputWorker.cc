@@ -90,12 +90,4 @@ namespace art {
 
   Boundary OutputWorker::fileSwitchBoundary() const { return module().fileSwitchBoundary(); }
 
-  bool OutputWorker::stagedToCloseFile() const {
-    return module().stagedToCloseFile();
-  }
-
-  void OutputWorker::setFileStatus(OutputFileStatus const fs) { module().setFileStatus(fs); }
-
-  void OutputWorker::flagToCloseFile(bool const b) { module().flagToCloseFile(b); }
-
 }

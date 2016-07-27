@@ -117,8 +117,6 @@ private:
   void respondToOpenInputFile(FileBlock const &) override;
   void readResults(ResultsPrincipal const & resp) override;
   void respondToCloseInputFile(FileBlock const&) override;
-  bool stagedToCloseFile() const override;
-  void flagToCloseFile(bool) override;
   void incrementInputFileNumber() override;
   Boundary fileSwitchBoundary() const override;
   void write(EventPrincipal &) override;
@@ -156,7 +154,6 @@ private:
   std::string const moduleLabel_;
   int inputFileCount_ {0};
   std::unique_ptr<RootOutputFile> rootOutputFile_ {nullptr};
-  bool stagedToCloseFile_ {false};
   FileStatsCollector fstats_;
   std::string const filePattern_;
   std::string tmpDir_;
@@ -486,19 +483,6 @@ art::RootOutput::
 requestsToCloseFile() const
 {
   return  rootOutputFile_->requestsToCloseFile();
-}
-
-bool
-art::RootOutput::stagedToCloseFile() const
-{
-  return stagedToCloseFile_;
-}
-
-void
-art::RootOutput::
-flagToCloseFile(bool const staged)
-{
-  stagedToCloseFile_ = staged;
 }
 
 art::Boundary

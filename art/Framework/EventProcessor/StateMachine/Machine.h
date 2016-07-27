@@ -113,7 +113,7 @@ namespace statemachine {
     void disallowStaging();
     void openInputFile();
     void openSomeOutputFiles();
-    void maybeTriggerOutputFileSwitch(art::Boundary::BT const);
+    void maybeTriggerOutputFileSwitch();
 
   private:
     art::IEventProcessor & ep_;
