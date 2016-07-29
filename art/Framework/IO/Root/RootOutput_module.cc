@@ -125,6 +125,7 @@ private:
   void setSubRunAuxiliaryRangeSetID(RangeSet const&) override;
   void setRunAuxiliaryRangeSetID(RangeSet const&) override;
   bool isFileOpen() const override;
+  void setFileStatus(OutputFileStatus) override;
   bool requestsToCloseFile() const override;
   void doOpenFile();
   void startEndFile() override;
@@ -463,6 +464,12 @@ doRegisterProducts(MasterProductRegistry & mpr,
                                                md.processConfiguration()});
       w.rp().registerProducts(mpr, w.moduleDescription());
     });
+}
+
+void
+art::RootOutput::setFileStatus(OutputFileStatus const ofs)
+{
+  return rootOutputFile_->setFileStatus(ofs);
 }
 
 bool

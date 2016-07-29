@@ -141,6 +141,7 @@ public: // MEMBER FUNCTIONS
   void incrementInputFileNumber();
   void respondToCloseInputFile(FileBlock const&);
   bool requestsToCloseFile();
+  void setFileStatus(OutputFileStatus const ofs) { status_ = ofs; }
 
   void selectProducts(FileBlock const&);
 
@@ -174,6 +175,7 @@ private: // MEMBER DATA
   OutputModule const* om_;
   std::string file_;
   ClosingCriteria fileSwitchCriteria_;
+  OutputFileStatus status_ {OutputFileStatus::Closed};
   int const compressionLevel_;
   int64_t const saveMemoryObjectThreshold_;
   int64_t const treeMaxVirtualSize_;

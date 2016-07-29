@@ -143,6 +143,7 @@ public:
   bool outputsToOpen() const override;
   bool outputsToClose() const override;
   bool someOutputsOpen() const override;
+  void setOutputFileStatus(OutputFileStatus) override;
 
   bool setTriggerPathEnabled(std::string const& name, bool enable) override;
   bool setEndPathModuleEnabled(std::string const& label, bool enable) override;

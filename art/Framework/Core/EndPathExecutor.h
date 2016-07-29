@@ -66,6 +66,7 @@ public:
 
   void closeSomeOutputFiles();
   void openSomeOutputFiles(FileBlock const& fb);
+  void setOutputFileStatus(OutputFileStatus);
 
   void respondToOpenInputFile(FileBlock const& fb);
   void respondToCloseInputFile(FileBlock const& fb);

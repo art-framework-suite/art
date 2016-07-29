@@ -80,6 +80,8 @@ namespace art {
 
   bool OutputWorker::fileIsOpen() const {return module().fileIsOpen();}
 
+  void OutputWorker::setFileStatus(OutputFileStatus const ofs) { return module().setFileStatus(ofs); }
+
   bool OutputWorker::wantAllEvents() const {return module().wantAllEvents();}
 
   bool OutputWorker::limitReached() const {return module().limitReached();}

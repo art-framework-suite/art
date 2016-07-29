@@ -5,7 +5,7 @@
 #include <ostream>
 
 namespace art {
-  enum class OutputFileStatus { Open, StagedToSwitch, Switching, Closed };
+  enum class OutputFileStatus {Open, StagedToSwitch, Switching, Closed};
 
   inline
   std::ostream& operator<<(std::ostream& os, OutputFileStatus const ofs)

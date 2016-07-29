@@ -29,6 +29,7 @@ namespace art
     void closeAllOutputFiles() override;
     void openSomeOutputFiles() override;
     void closeSomeOutputFiles() override;
+    void setOutputFileStatus(OutputFileStatus) override {}
 
     void respondToOpenInputFile() override;
     void respondToCloseInputFile() override;

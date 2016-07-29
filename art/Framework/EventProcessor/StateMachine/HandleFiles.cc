@@ -1,4 +1,5 @@
 #include "art/Framework/EventProcessor/StateMachine/Machine.h"
+#include "art/Framework/Core/OutputFileStatus.h"
 #include "cetlib/exception.h"
 
 #include <exception>
@@ -7,6 +8,7 @@
 #include <string>
 
 using art::Boundary;
+using art::OutputFileStatus;
 
 namespace statemachine {
 
@@ -37,6 +39,7 @@ namespace statemachine {
 
   void HandleFiles::disallowStaging()
   {
+    ep_.setOutputFileStatus(OutputFileStatus::StagedToSwitch);
     stagingAllowed_ = false;
   }
 

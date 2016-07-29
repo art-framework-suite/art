@@ -2,7 +2,9 @@
 #define art_Framework_IO_Root_RootOutputClosingCriteria_h
 // vim: set sw=2:
 
+#include "art/Framework/Core/OutputFileStatus.h"
 #include "art/Framework/Core/OutputFileSwitchBoundary.h"
+#include "canvas/Persistency/Provenance/EventID.h"
 #include "canvas/Persistency/Provenance/FileIndex.h"
 #include "fhiclcpp/types/Atom.h"
 #include "fhiclcpp/types/OptionalAtom.h"
@@ -28,7 +30,8 @@
 
 namespace art {
 
-  struct FileProperties {
+  class FileProperties {
+  public:
 
     FileProperties() = default;
     FileProperties(unsigned events,
@@ -38,12 +41,43 @@ namespace art {
                    unsigned size,
                    std::chrono::seconds age);
 
-    unsigned nEvents {};
-    unsigned nSubRuns {};
-    unsigned nRuns {};
-    unsigned nInputFiles {};
-    unsigned size {};
-    std::chrono::seconds age {std::chrono::seconds::zero()};
+    auto nEvents() const { return counts_[Boundary::Event]; }
+    auto nSubRuns() const { return counts_[Boundary::SubRun]; }
+    auto nRuns() const { return counts_[Boundary::Run]; }
+    auto nInputFiles() const { return counts_[Boundary::InputFile]; }
+    auto size() const { return size_; }
+    auto age() const { return age_; }
+
+    auto eventEntryNumber() const { return treeEntryNumbers_[Boundary::Event]; }
+    auto subRunEntryNumber() const { return treeEntryNumbers_[Boundary::SubRun]; }
+    auto runEntryNumber() const { return treeEntryNumbers_[Boundary::Run]; }
+
+    template <Boundary::BT B>
+    std::enable_if_t<B != Boundary::InputFile>
+    update(OutputFileStatus const status)
+    {
+      ++treeEntryNumbers_[B];
+      if (status != OutputFileStatus::StagedToSwitch) {
+        ++counts_[B];
+      }
+    }
+
+    template <Boundary::BT B>
+    std::enable_if_t<B == Boundary::InputFile>
+    update()
+    {
+      ++counts_[B];
+    }
+
+    void updateSize(unsigned const size) { size_ = size; }
+    void updateAge(std::chrono::seconds const age) { age_ = age; }
+
+  private:
+
+    std::array<unsigned,Boundary::NBoundaries()> counts_ {{}}; // Filled by aggregation
+    std::array<FileIndex::EntryNumber_t, Boundary::NBoundaries()-1> treeEntryNumbers_ {{}};
+    std::chrono::seconds age_ {std::chrono::seconds::zero()};
+    unsigned size_ {};
   };
 
   std::ostream& operator<<(std::ostream& os, FileProperties const& fp);

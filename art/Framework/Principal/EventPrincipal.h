@@ -59,8 +59,9 @@ namespace art {
     EventAuxiliary::ExperimentType ExperimentType() const { return aux().experimentType(); }
 
     EventAuxiliary const& aux() const { return aux_; }
-    SubRunNumber_t subRun() const { return aux().subRun(); }
+    SubRunNumber_t subRun() const { return id().subRun(); }
     RunNumber_t run() const { return id().run(); }
+    EventNumber_t event() const { return id().event(); }
 
     RunPrincipal const& runPrincipal() const;
     RunPrincipal& runPrincipal();

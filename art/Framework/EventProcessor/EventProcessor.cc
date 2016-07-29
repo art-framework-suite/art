@@ -547,6 +547,13 @@ art::EventProcessor::openSomeOutputFiles()
 }
 
 void
+art::EventProcessor::setOutputFileStatus(OutputFileStatus const ofs)
+{
+  endPathExecutor_->setOutputFileStatus(ofs);
+  FDEBUG(1) << "\tsetOutputFileStatus\n";
+}
+
+void
 art::EventProcessor::closeSomeOutputFiles()
 {
   endPathExecutor_->closeSomeOutputFiles();

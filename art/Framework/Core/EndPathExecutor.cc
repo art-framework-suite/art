@@ -210,7 +210,6 @@ void art::EndPathExecutor::recordOutputClosureRequests(Boundary const b)
       // standard.  There are no preconditions for std::set::insert,
       // so no state-checking is required.
       outputWorkersToClose_.insert(ow);
-      fileStatus_ = OutputFileStatus::StagedToSwitch;
     });
 }
 
@@ -242,15 +241,21 @@ bool art::EndPathExecutor::someOutputsOpen() const
 
 void art::EndPathExecutor::closeSomeOutputFiles()
 {
-  auto closeFile                   = [    ](auto ow){ow->closeFile();};
   auto invoke_sPreCloseOutputFile  = [this](auto ow){actReg_.sPreCloseOutputFile.invoke(ow->label());};
+  auto closeFile                   = [    ](auto ow){ow->closeFile();};
   auto invoke_sPostCloseOutputFile = [this](auto ow){actReg_.sPostCloseOutputFile.invoke(OutputFileInfo{ow->label(), ow->lastClosedFileName()});};
 
-  fileStatus_ = OutputFileStatus::Switching;
+  setOutputFileStatus(OutputFileStatus::Switching);
   cet::for_all(outputWorkersToClose_, invoke_sPreCloseOutputFile);
   cet::for_all(outputWorkersToClose_, closeFile);
   cet::for_all(outputWorkersToClose_, invoke_sPostCloseOutputFile);
   outputWorkersToOpen_ = std::move(outputWorkersToClose_);
+}
+
+void art::EndPathExecutor::setOutputFileStatus(OutputFileStatus const ofs)
+{
+  doForAllEnabledOutputWorkers_([ofs](auto ow){ow->setFileStatus(ofs);});
+  fileStatus_ = ofs;
 }
 
 void art::EndPathExecutor::openSomeOutputFiles(FileBlock const& fb)
@@ -260,7 +265,7 @@ void art::EndPathExecutor::openSomeOutputFiles(FileBlock const& fb)
 
   cet::for_all(outputWorkersToOpen_, openFile);
   cet::for_all(outputWorkersToOpen_, invoke_sPostOpenOutputFile);
-  fileStatus_ = OutputFileStatus::Open;
+  setOutputFileStatus(OutputFileStatus::Open);
 
   outputWorkersToOpen_.clear();
 }

@@ -522,6 +522,11 @@ isFileOpen() const
 }
 
 void
+art::OutputModule::setFileStatus(OutputFileStatus const)
+{
+}
+
+void
 art::OutputModule::
 startEndFile()
 {

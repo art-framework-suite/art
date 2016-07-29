@@ -13,6 +13,7 @@ appear in one worker.
 
 #include "art/Framework/Principal/fwd.h"
 #include "art/Framework/Core/Frameworkfwd.h"
+#include "art/Framework/Core/OutputFileStatus.h"
 #include "art/Framework/Core/OutputFileSwitchBoundary.h"
 #include "art/Framework/Core/WorkerT.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
@@ -52,6 +53,7 @@ namespace art {
     void setSubRunAuxiliaryRangeSetID(RangeSet const&);
 
     bool limitReached() const;
+    void setFileStatus(OutputFileStatus);
 
     void configure(OutputModuleDescription const& desc);
 
@@ -61,7 +63,6 @@ namespace art {
 
 private:
     ServiceHandle<CatalogInterface> ci_;
-    bool stagedToCloseFile_ {false};
     Boundary fileSwitchBoundary_ {Boundary::Unset};
   };
 }

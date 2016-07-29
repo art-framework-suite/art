@@ -93,6 +93,7 @@ public:
   int remainingEvents() const;
 
   bool fileIsOpen() const { return isFileOpen(); }
+  OutputFileStatus fileStatus() const;
 
   // Name of output file (may be overridden if default implementation is
   // not appropriate).
@@ -218,6 +219,7 @@ private:
   virtual bool requestsToCloseFile() const {return false;}
   virtual void incrementInputFileNumber() {}
   virtual Boundary fileSwitchBoundary() const { return Boundary::Unset; }
+  virtual void setFileStatus(OutputFileStatus);
 
   virtual void beginJob();
   virtual void endJob();

@@ -29,7 +29,6 @@ outputs: {
     fileName: "out_r%R.root"
     fileProperties: {
       maxRuns: 1
-      granularity: Run
     }
   }
 
@@ -38,7 +37,6 @@ outputs: {
     fileName: "out_r%r_sr%S.root"
     fileProperties: {
       maxSubRuns: 1
-      granularity: SubRun
     }
   }
 
@@ -47,7 +45,6 @@ outputs: {
     fileName : "out_r%r_sr%S_e%#.root"
     fileProperties: {
       maxEvents: 1
-      granularity: Event
     }
   }
 

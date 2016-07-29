@@ -8,6 +8,7 @@
   See also MockEventProcessor.
 */
 
+#include "art/Framework/Core/OutputFileStatus.h"
 #include "art/Framework/Core/OutputFileSwitchBoundary.h"
 #include "art/Framework/Principal/fwd.h"
 #include "canvas/Persistency/Provenance/EventID.h"
@@ -45,6 +46,7 @@ namespace art
     virtual void closeAllOutputFiles() = 0;
     virtual void openSomeOutputFiles() = 0;
     virtual void closeSomeOutputFiles() = 0;
+    virtual void setOutputFileStatus(OutputFileStatus) = 0;
 
     virtual void respondToOpenInputFile() = 0;
     virtual void respondToCloseInputFile() = 0;
