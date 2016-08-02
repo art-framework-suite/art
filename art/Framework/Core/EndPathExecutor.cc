@@ -5,7 +5,6 @@
 #include "art/Utilities/OutputFileInfo.h"
 #include "cetlib/container_algorithms.h"
 
-#include <iostream>
 #include <memory>
 #include <type_traits>
 #include <utility>
