@@ -13,7 +13,6 @@
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/GroupSelector.h"
 #include "art/Framework/Core/GroupSelectorRules.h"
-#include "art/Framework/Core/OutputFileStatus.h"
 #include "art/Framework/Core/OutputModuleDescription.h"
 #include "art/Framework/Core/OutputWorker.h"
 #include "art/Framework/Principal/fwd.h"
@@ -94,6 +93,7 @@ public:
   int remainingEvents() const;
 
   bool fileIsOpen() const { return isFileOpen(); }
+  OutputFileStatus fileStatus() const;
 
   // Name of output file (may be overridden if default implementation is
   // not appropriate).
@@ -106,7 +106,6 @@ public:
   BranchChildren const & branchChildren() const;
 
   void selectProducts(FileBlock const&);
-  void setFileStatus(OutputFileStatus);
 
   void registerProducts(MasterProductRegistry &,
                         ModuleDescription const &);
@@ -151,7 +150,6 @@ private:
   GroupSelector groupSelector_ {};
   int maxEvents_ {-1};
   int remainingEvents_ {maxEvents_};
-  OutputFileStatus fileStatus_ {OutputFileStatus::Closed};
 
   ModuleDescription moduleDescription_ {};
   // 'dummyModuleDescription_' is used for the memory- and
@@ -219,11 +217,9 @@ private:
 
   // Ask the OutputModule if we should end the current file.
   virtual bool requestsToCloseFile() const {return false;}
-  virtual bool stagedToCloseFile() const {
-    return fileStatus_ == OutputFileStatus::StagedToSwitch;
-  }
-  virtual void flagToCloseFile(bool const) {}
+  virtual void incrementInputFileNumber() {}
   virtual Boundary fileSwitchBoundary() const { return Boundary::Unset; }
+  virtual void setFileStatus(OutputFileStatus);
 
   virtual void beginJob();
   virtual void endJob();

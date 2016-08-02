@@ -1,35 +1,36 @@
 source: {
-   module_type: RootInput
-   fileNames: [
-      "../Stage2_ParticleSimulation_w.d/sim_1.root",
-      "../Stage2_ParticleSimulation_w.d/sim_2.root",
-      "../Stage2_ParticleSimulation_w.d/sim_3.root",
-      "../Stage2_ParticleSimulation_w.d/sim_4.root"
-   ]
+  module_type: RootInput
+  fileNames: [
+    "../Stage2_ParticleSimulation_w.d/sim_1.root",
+    "../Stage2_ParticleSimulation_w.d/sim_2.root",
+    "../Stage2_ParticleSimulation_w.d/sim_3.root",
+    "../Stage2_ParticleSimulation_w.d/sim_4.root"
+  ]
 }
 
 physics: {
 
-   filters: {
-      reco: {
-         module_type: Reconstruction
-         inputTag: ["sim:particleEnergies:particleSim"]
-         energyThreshold: 50
-      }
-   }
+  filters: {
+    reco: {
+      module_type: Reconstruction
+      inputTag: ["sim:particleEnergies:particleSim"]
+      energyThreshold: 50
+    }
+  }
 
-   p1: [reco]
-   e1: [out]
+  p1: [reco]
+  e1: [out]
 }
 
 outputs: {
-
-   out: {
-      module_type: RootOutput
-      fileName: "reco_%#.root"
-      SelectEvents: [p1]
-      maxEventsPerFile: 20
-   }
+  out: {
+    module_type: RootOutput
+    fileName: "reco_%#.root"
+    SelectEvents: [p1]
+    fileProperties: {
+      maxEvents: 20
+    }
+  }
 }
 
 process_name: reco

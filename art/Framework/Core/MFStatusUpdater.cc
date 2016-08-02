@@ -1,14 +1,14 @@
 #define MFSU_IMPL
 #include "art/Framework/Core/MFStatusUpdater.h"
 
-#include "messagefacility/MessageLogger/MessageLogger.h"
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Principal/Run.h"
 #include "art/Framework/Principal/SubRun.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
 #include "canvas/Persistency/Provenance/RunID.h"
 #include "canvas/Persistency/Provenance/SubRunID.h"
-#include "messagefacility/MessageLogger/MessageLoggerQ.h"
+#include "messagefacility/MessageLogger/MessageLogger.h"
+#include "messagefacility/MessageService/MessageLoggerQ.h"
 
 #include <sstream>
 #include <string>

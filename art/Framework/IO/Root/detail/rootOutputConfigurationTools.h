@@ -4,28 +4,15 @@
 #include "art/Framework/Core/OutputFileSwitchBoundary.h"
 
 namespace art {
+
+  class ClosingCriteria;
+
   namespace detail {
-
-    void checkFileSwitchConfig(Boundary fileSwitchBoundary,
-                               bool forceSwitch);
-
-    Boundary checkMaxSizeConfig(bool switchBoundarySet,
-                                Boundary switchBoundary,
-                                bool forceSwitch);
-
-    Boundary checkMaxEventsPerFileConfig(bool switchBoundarySet,
-                                         Boundary switchBoundary,
-                                         bool forceSwitch);
-
-    Boundary checkMaxAgeConfig(bool switchBoundarySet,
-                               Boundary switchBoundary,
-                               bool forceSwitch,
-                               unsigned maxAgeInSeconds);
 
     bool shouldFastClone(bool fastCloningSet,
                          bool fastCloning,
                          bool wantAllEvents,
-                         Boundary fileSwitchBoundary);
+                         ClosingCriteria const& fileProperties);
 
     bool shouldDropEvents(bool dropAllEventsSet,
                           bool dropAllEvents,

@@ -5,10 +5,11 @@
 
 #include <thread>
 
+using art::FileProperties;
 using art::ClosingCriteria;
 
 using file_size_t = unsigned;
-using no_events_t = art::FileIndex::EntryNumber_t;
+using no_events_t = unsigned;
 using seconds_t = std::chrono::seconds;
 
 namespace {
@@ -18,41 +19,33 @@ namespace {
 
   // The minimum duration a user can specify for output-file closing
   // is 1 second.  This is different than seconds_t::min().
-  constexpr seconds_t min_duration {1};
-
-  auto const& should_close = art::criteriaMet;
-
-  auto makeClosingCriteria(file_size_t const fileSize,
-                           no_events_t const events,
-                           seconds_t const secs)
-  {
-    ClosingCriteria c {};
-    c.maxFileSize = fileSize;
-    c.maxEventsPerFile = events;
-    c.maxFileAge = secs;
-    return c;
-  }
+  constexpr auto one_second() { return seconds_t{1}; }
 
 }
 
 BOOST_AUTO_TEST_SUITE(RootOutputClosingCriteria_t)
 
-BOOST_AUTO_TEST_CASE(DefaultCriteria)
+BOOST_AUTO_TEST_CASE(MaxCriteria)
 {
-  ClosingCriteria c {};
-  BOOST_CHECK(!should_close(c, 0, 0, min_duration));
+  FileProperties const closingCriteria {max_events, -1u, -1u, -1u, max_size, max_age};
+  ClosingCriteria c {closingCriteria, "Unset"};
+
+  FileProperties const fp {0, 0, 0, 0, 0, one_second()};
+  BOOST_CHECK(!c.should_close(fp));
 }
 
 BOOST_AUTO_TEST_CASE(TwoSecondSleep)
 {
   using namespace std::chrono;
-  auto const c = makeClosingCriteria(max_size, max_events, min_duration);
+  FileProperties const closingProperties {max_events, -1u, -1u, -1u, max_size, one_second()};
+  ClosingCriteria c {closingProperties, "Unset"};
 
   auto const beginTime = steady_clock::now();
   std::this_thread::sleep_for(seconds_t{2});
   auto const age = steady_clock::now()-beginTime;
 
-  BOOST_CHECK(should_close(c, 0, 0, duration_cast<seconds>(age)));
+  FileProperties const currentProperties {0, 0, 0, 0, 0, duration_cast<seconds>(age)};
+  BOOST_CHECK(c.should_close(currentProperties));
 }
 
 BOOST_AUTO_TEST_SUITE_END()

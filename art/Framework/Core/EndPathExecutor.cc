@@ -24,20 +24,20 @@ namespace {
 }
 
 art::EndPathExecutor::
-EndPathExecutor(PathManager & pm,
-                ActionTable & actions,
-                ActivityRegistry & areg,
+EndPathExecutor(PathManager& pm,
+                ActionTable& actions,
+                ActivityRegistry& areg,
                 MasterProductRegistry& mpr)
   : endPathInfo_{pm.endPathInfo()}
   , act_table_{&actions}
   , actReg_{areg}
   , outputWorkers_{getOutputWorkers(endPathInfo_.workers())}
-  , outputWorkersToOpen_{outputWorkers_} // seed with all output workers
+  , outputWorkersToOpen_(std::begin(outputWorkers_), std::end(outputWorkers_)) // seed with all output workers
   , workersEnabled_(endPathInfo_.workers().size(), true)
   , outputWorkersEnabled_(outputWorkers_.size(), true)
-  {
-    mpr.registerProductListUpdateCallback(std::bind(&art::EndPathExecutor::selectProducts, this, std::placeholders::_1));
-  }
+{
+  mpr.registerProductListUpdateCallback(std::bind(&art::EndPathExecutor::selectProducts, this, std::placeholders::_1));
+}
 
 bool art::EndPathExecutor::terminate() const
 {
@@ -89,21 +89,17 @@ void art::EndPathExecutor::closeAllOutputFiles()
   doForAllEnabledOutputWorkers_([this](OutputWorker * ow) {
       actReg_.sPreCloseOutputFile.invoke(ow->label());
       ow->closeFile();
-      actReg_.
-        sPostCloseOutputFile.invoke(OutputFileInfo(ow->label(),
-                                                   ow->lastClosedFileName()));
-    }
-    );
+      actReg_.sPostCloseOutputFile.invoke(OutputFileInfo(ow->label(),
+                                                         ow->lastClosedFileName()));
+    });
 }
 
 void art::EndPathExecutor::openAllOutputFiles(FileBlock & fb)
 {
-  doForAllEnabledOutputWorkers_([this, &fb](OutputWorker * ow) {
+  doForAllEnabledOutputWorkers_([this, &fb](OutputWorker* ow) {
       ow->openFile(fb);
-      actReg_.
-        sPostOpenOutputFile.invoke(ow->label());
-    }
-    );
+      actReg_.sPostOpenOutputFile.invoke(ow->label());
+    });
 }
 
 void art::EndPathExecutor::writeRun(RunPrincipal& rp)
@@ -117,7 +113,6 @@ void art::EndPathExecutor::writeRun(RunPrincipal& rp)
 void art::EndPathExecutor::writeSubRun(SubRunPrincipal& srp)
 {
   doForAllEnabledOutputWorkers_([&srp](auto w){ w->writeSubRun(srp); });
-  //  runRangeSetHandler_->updateFromSubRun(srp.id());
   if (fileStatus_ == OutputFileStatus::StagedToSwitch) {
     subRunRangeSetHandler_->rebase();
   }
@@ -176,7 +171,7 @@ void art::EndPathExecutor::setAuxiliaryRangeSetID(SubRunPrincipal& srp)
 
 void art::EndPathExecutor::setAuxiliaryRangeSetID(RunPrincipal& rp)
 {
-  if (fileStatus_ != OutputFileStatus::StagedToSwitch){
+  if (fileStatus_ != OutputFileStatus::StagedToSwitch) {
     runRangeSetHandler_->flushRanges();
   }
   auto const& ranges = runRangeSetHandler_->seenRanges();
@@ -189,25 +184,49 @@ void art::EndPathExecutor::selectProducts(FileBlock const& fb)
   doForAllEnabledOutputWorkers_([&fb](auto w) { w->selectProducts(fb); });
 }
 
-void art::EndPathExecutor::recordOutputClosureRequests()
+void art::EndPathExecutor::recordOutputClosureRequests(Boundary const b)
 {
-  for(auto ow : outputWorkers_) {
-    if (!ow->stagedToCloseFile() && ow->requestsToCloseFile()) {
-      outputWorkersToClose_[ow->fileSwitchBoundary()].push_back(ow);
-      ow->setFileStatus(OutputFileStatus::StagedToSwitch);
-      fileStatus_ = OutputFileStatus::StagedToSwitch;
-    }
-  }
+  doForAllEnabledOutputWorkers_([this,b](auto ow) {
+      // We need to support the following case:
+      //
+      //   fileProperties: {
+      //     maxEvents: 10
+      //     maxRuns: 1
+      //     granularity: Event
+      //   }
+      //
+      // If a request to close is made on a run boundary, but the
+      // granularity is still Event, then the file should close.  For
+      // that reason, the comparison is 'granularity > b' instead of
+      // 'granularity != b'.
+
+      auto const granularity = ow->fileSwitchBoundary();
+      if (granularity > b || !ow->requestsToCloseFile()) return;
+
+      // Technical note: although the outputWorkersToClose_ container
+      // is "moved from" in closeSomeOutputFiles, it is safe to call
+      // 'insert' vis-a-vis the [lib.types.movedfrom] section of the
+      // standard.  There are no preconditions for std::set::insert,
+      // so no state-checking is required.
+      outputWorkersToClose_.insert(ow);
+    });
 }
 
-bool art::EndPathExecutor::outputsToCloseAtBoundary(Boundary const b) const
+void art::EndPathExecutor::incrementInputFileNumber()
 {
-  return !outputWorkersToClose_[b].empty();
+  doForAllEnabledOutputWorkers_([](auto ow) {
+      ow->incrementInputFileNumber();
+    });
 }
 
 bool art::EndPathExecutor::outputsToOpen() const
 {
   return !outputWorkersToOpen_.empty();
+}
+
+bool art::EndPathExecutor::outputsToClose() const
+{
+  return !outputWorkersToClose_.empty();
 }
 
 bool art::EndPathExecutor::someOutputsOpen() const
@@ -219,40 +238,38 @@ bool art::EndPathExecutor::someOutputsOpen() const
                      } );
 }
 
-void art::EndPathExecutor::closeSomeOutputFiles(std::size_t const b)
+void art::EndPathExecutor::closeSomeOutputFiles()
 {
-  auto setFileStatus               = [    ](auto ow){ow->setFileStatus(OutputFileStatus::Switching);};
-  auto closeFile                   = [    ](auto ow){ow->closeFile();};
   auto invoke_sPreCloseOutputFile  = [this](auto ow){actReg_.sPreCloseOutputFile.invoke(ow->label());};
+  auto closeFile                   = [    ](auto ow){ow->closeFile();};
   auto invoke_sPostCloseOutputFile = [this](auto ow){actReg_.sPostCloseOutputFile.invoke(OutputFileInfo{ow->label(), ow->lastClosedFileName()});};
 
-  auto& workers = outputWorkersToClose_[b];
+  setOutputFileStatus(OutputFileStatus::Switching);
+  cet::for_all(outputWorkersToClose_, invoke_sPreCloseOutputFile);
+  cet::for_all(outputWorkersToClose_, closeFile);
+  cet::for_all(outputWorkersToClose_, invoke_sPostCloseOutputFile);
+  outputWorkersToOpen_ = std::move(outputWorkersToClose_);
+}
 
-  fileStatus_ = OutputFileStatus::Switching;
-  cet::for_all(workers, setFileStatus);
-  cet::for_all(workers, invoke_sPreCloseOutputFile);
-  cet::for_all(workers, closeFile);
-  cet::for_all(workers, invoke_sPostCloseOutputFile);
-  cet::copy_all(workers, std::back_inserter(outputWorkersToOpen_));
-
-  workers.clear();
+void art::EndPathExecutor::setOutputFileStatus(OutputFileStatus const ofs)
+{
+  doForAllEnabledOutputWorkers_([ofs](auto ow){ow->setFileStatus(ofs);});
+  fileStatus_ = ofs;
 }
 
 void art::EndPathExecutor::openSomeOutputFiles(FileBlock const& fb)
 {
-  auto setFileStatus               = [    ](auto ow){ow->setFileStatus(OutputFileStatus::Open);};
   auto openFile                    = [ &fb](auto ow){ow->openFile(fb);};
   auto invoke_sPostOpenOutputFile  = [this](auto ow){actReg_.sPostOpenOutputFile.invoke(ow->label());};
 
-  fileStatus_ = OutputFileStatus::Open;
   cet::for_all(outputWorkersToOpen_, openFile);
-  cet::for_all(outputWorkersToOpen_, setFileStatus);
   cet::for_all(outputWorkersToOpen_, invoke_sPostOpenOutputFile);
+  setOutputFileStatus(OutputFileStatus::Open);
 
   outputWorkersToOpen_.clear();
 }
 
-void art::EndPathExecutor::respondToOpenInputFile(FileBlock const & fb)
+void art::EndPathExecutor::respondToOpenInputFile(FileBlock const& fb)
 {
   doForAllEnabledWorkers_([&fb](auto w){ w->respondToOpenInputFile(fb); });
 }

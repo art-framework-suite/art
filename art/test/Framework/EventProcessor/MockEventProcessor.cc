@@ -121,54 +121,66 @@ namespace art {
 
   // Not used, this one does nothing
 
-  void MockEventProcessor::openInputFile() {
+  void MockEventProcessor::openInputFile()
+  {
     output_ << " \topenInputFile\n";
   }
 
-  void MockEventProcessor::closeInputFile() {
+  void MockEventProcessor::closeInputFile()
+  {
     output_ << "\tcloseInputFile\n";
   }
 
-  void MockEventProcessor::openAllOutputFiles() {
+  void MockEventProcessor::openAllOutputFiles()
+  {
     output_ << "\topenAllOutputFiles\n";
   }
 
-  void MockEventProcessor::closeAllOutputFiles() {
+  void MockEventProcessor::closeAllOutputFiles()
+  {
     output_ << "\tcloseAllOutputFiles\n";
   }
 
-  void MockEventProcessor::openSomeOutputFiles() {
+  void MockEventProcessor::openSomeOutputFiles()
+  {
     output_ << "\topenSomeOutputFiles\n";
     outputsToOpen_ = false;
   }
 
-  void MockEventProcessor::closeSomeOutputFiles(std::size_t const b) {
-    output_ << "\tcloseSomeOutputFiles (Level: " << art::Boundary{static_cast<Boundary::BT>(b)} << ")\n";
+  void MockEventProcessor::closeSomeOutputFiles()
+  {
+    output_ << "\tcloseSomeOutputFiles\n";
     outputsToClose_ = false;
     outputsToOpen_ = true;
   }
 
-  void MockEventProcessor::respondToOpenInputFile() {
+  void MockEventProcessor::respondToOpenInputFile()
+  {
     output_ << "\trespondToOpenInputFile\n";
   }
 
-  void MockEventProcessor::respondToCloseInputFile() {
+  void MockEventProcessor::respondToCloseInputFile()
+  {
     output_ << "\trespondToCloseInputFile\n";
   }
 
-  void MockEventProcessor::respondToOpenOutputFiles() {
+  void MockEventProcessor::respondToOpenOutputFiles()
+  {
     output_ << "\trespondToOpenOutputFiles\n";
   }
 
-  void MockEventProcessor::respondToCloseOutputFiles() {
+  void MockEventProcessor::respondToCloseOutputFiles()
+  {
     output_ << "\trespondToCloseOutputFiles\n";
   }
 
-  void MockEventProcessor::rewindInput() {
+  void MockEventProcessor::rewindInput()
+  {
     output_ << "\trewind\n";
   }
 
-  void MockEventProcessor::doErrorStuff() {
+  void MockEventProcessor::doErrorStuff()
+  {
     output_ << "\tdoErrorStuff\n";
   }
 
@@ -176,99 +188,121 @@ namespace art {
     output_ << "\tbeginJob\n";
   }
 
-  void MockEventProcessor::endJob() {
+  void MockEventProcessor::endJob()
+  {
     output_ << "\tendJob\n";
   }
 
-  void MockEventProcessor::beginRun(RunID run) {
+  void MockEventProcessor::beginRun(RunID run)
+  {
     output_ << "\tbeginRun....................(" << run << ")\n";
   }
 
-  void MockEventProcessor::endRun(RunID run) {
+  void MockEventProcessor::endRun(RunID run)
+  {
     output_ << "\tendRun......................(" << run << ")\n";
   }
 
-  void MockEventProcessor::beginSubRun(SubRunID const & sr) {
+  void MockEventProcessor::beginSubRun(SubRunID const & sr)
+  {
     output_ << "\tbeginSubRun.................(" << sr <<")\n";
   }
 
-  void MockEventProcessor::endSubRun(SubRunID const & sr) {
+  void MockEventProcessor::endSubRun(SubRunID const & sr)
+  {
     output_ << "\tendSubRun...................(" << sr << ")\n";
   }
 
-  RunID MockEventProcessor::runPrincipalID() const {
+  RunID MockEventProcessor::runPrincipalID() const
+  {
     return run_;
   }
 
-  SubRunID MockEventProcessor::subRunPrincipalID() const {
+  SubRunID MockEventProcessor::subRunPrincipalID() const
+  {
     return subRun_;
   }
 
-  EventID MockEventProcessor::eventPrincipalID() const {
+  EventID MockEventProcessor::eventPrincipalID() const
+  {
     return event_;
   }
 
-  bool MockEventProcessor::outputsToCloseAtBoundary(Boundary const) const {
+  bool MockEventProcessor::outputsToClose() const
+  {
     return outputsToClose_;
   }
 
-  bool MockEventProcessor::outputsToOpen() const {
+  bool MockEventProcessor::outputsToOpen() const
+  {
     return outputsToOpen_;
   }
 
-  bool MockEventProcessor::someOutputsOpen() const {
+  bool MockEventProcessor::someOutputsOpen() const
+  {
     return true;
   }
 
-  RunID MockEventProcessor::readAndCacheRun() {
+  RunID MockEventProcessor::readAndCacheRun()
+  {
     run_ = readRun_;
     output_ << "\treadAndCacheRun.............(" << run_ << ")\n";
     return run_;
   }
 
-  SubRunID MockEventProcessor::readAndCacheSubRun() {
+  SubRunID MockEventProcessor::readAndCacheSubRun()
+  {
     subRun_ = readSubRun_;
     run_    = subRun_.runID();
     output_ << "\treadAndCacheSubRun..........(" << subRun_ << ")\n";
     return subRun_;
   }
 
-  void MockEventProcessor::writeRun(RunID run) {
+  void MockEventProcessor::writeRun(RunID run)
+  {
     output_ << "\twriteRun....................(" << run << ")\n";
   }
 
-  void MockEventProcessor::writeSubRun(SubRunID const & sr) {
+  void MockEventProcessor::writeSubRun(SubRunID const & sr)
+  {
     output_ << "\twriteSubRun.................(" << sr << ")\n";
   }
 
-  void MockEventProcessor::setRunAuxiliaryRangeSetID(RunID run) {
+  void MockEventProcessor::setRunAuxiliaryRangeSetID(RunID run)
+  {
     output_ << "\tsetRunAuxiliaryRangeSetID...(" << run << ")\n";
   }
 
-  void MockEventProcessor::setSubRunAuxiliaryRangeSetID(SubRunID const & sr) {
+  void MockEventProcessor::setSubRunAuxiliaryRangeSetID(SubRunID const & sr)
+  {
     output_ << "\tsetSubRunAuxiliaryRangeSetID(" << sr << ")\n";
   }
 
-  void MockEventProcessor::clearPrincipalCache() {
+  void MockEventProcessor::clearPrincipalCache()
+  {
     output_ << "\tclearPrincipalCache\n";
   }
 
-  void MockEventProcessor::readEvent() {
+  void MockEventProcessor::readEvent()
+  {
     event_  = readEvent_;
     subRun_ = event_.subRunID();
     run_    = subRun_.runID();
     output_ << "\treadEvent....................(" << event_ << ")\n";
   }
 
-  void MockEventProcessor::processEvent() {
+  void MockEventProcessor::processEvent()
+  {
     output_ << "\tprocessEvent.................(" << event_ << ")\n";
   }
 
-  void MockEventProcessor::writeEvent() {
+  void MockEventProcessor::writeEvent()
+  {
     output_ << "\twriteEvent...................(" << event_ << ")\n";
   }
 
-  bool MockEventProcessor::shouldWeStop() const {
+  bool MockEventProcessor::shouldWeStop() const
+  {
     output_ << "\tshouldWeStop\n";
     return shouldWeStop_;
   }

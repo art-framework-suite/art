@@ -1,35 +1,37 @@
 source: {
-   module_type: EmptyEvent
-   maxEvents: 20
+  module_type: EmptyEvent
+  maxEvents: 20
 }
 
 physics: {
 
-   filters: {
-      filt: {
-         module_type: TestFilterSpecificEvents
-         eventsToAccept: [2,3,4,6,9,10,12,14,15,16,17,18]
-      }
-   }
+  filters: {
+    filt: {
+      module_type: TestFilterSpecificEvents
+      eventsToAccept: [2,3,4,6,9,10,12,14,15,16,17,18]
+    }
+  }
 
-   p1: [filt]
-   e1: [o1, o2]
+  p1: [filt]
+  e1: [o1, o2]
 }
 
 outputs: {
 
-   o1: {
-      module_type: RootOutput
-      fileName: "out.root"
-      SelectEvents: [p1]
-   }
+  o1: {
+    module_type: RootOutput
+    fileName: "out.root"
+    SelectEvents: [p1]
+  }
 
-   o2: {
-      module_type: RootOutput
-      fileName: "p_%#.root"
-      SelectEvents: [p1]
-      maxEventsPerFile: 3
-   }
+  o2: {
+    module_type: RootOutput
+    fileName: "p_%#.root"
+    SelectEvents: [p1]
+    fileProperties: {
+      maxEvents: 3
+    }
+  }
 }
 
 process_name: test1

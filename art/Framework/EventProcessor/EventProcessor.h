@@ -96,7 +96,7 @@ public:
   void openAllOutputFiles() override;
   void closeAllOutputFiles() override;
   void openSomeOutputFiles() override;
-  void closeSomeOutputFiles(std::size_t const) override;
+  void closeSomeOutputFiles() override;
 
   void respondToOpenInputFile() override;
   void respondToCloseInputFile() override;
@@ -104,26 +104,27 @@ public:
   void respondToCloseOutputFiles() override;
 
   void rewindInput() override;
-  void recordOutputClosureRequests() override;
+  void incrementInputFileNumber() override;
+  void recordOutputClosureRequests(Boundary) override;
 
   void doErrorStuff() override;
 
   void beginRun(RunID run) override;
   void endRun(RunID run) override;
 
-  void beginSubRun(SubRunID const & sr) override;
-  void endSubRun(SubRunID const & sr) override;
+  void beginSubRun(SubRunID const& sr) override;
+  void endSubRun(SubRunID const& sr) override;
 
   RunID    readAndCacheRun() override;
   SubRunID readAndCacheSubRun() override;
   void     clearPrincipalCache() override;
 
   void writeRun(RunID run) override;
-  void writeSubRun(SubRunID const & sr) override;
+  void writeSubRun(SubRunID const& sr) override;
   void writeEvent() override;
 
   void setRunAuxiliaryRangeSetID(RunID run) override;
-  void setSubRunAuxiliaryRangeSetID(SubRunID const & sr) override;
+  void setSubRunAuxiliaryRangeSetID(SubRunID const& sr) override;
 
   // Run/SubRun IDs from most recently added principals
   RunID runPrincipalID() const override;
@@ -139,22 +140,23 @@ public:
   void setExceptionMessageSubRuns(std::string const& message) override;
   bool alreadyHandlingException() const override;
 
-  bool outputsToCloseAtBoundary(Boundary const) const override;
   bool outputsToOpen() const override;
+  bool outputsToClose() const override;
   bool someOutputsOpen() const override;
+  void setOutputFileStatus(OutputFileStatus) override;
 
-  bool setTriggerPathEnabled(std::string const & name, bool enable) override;
-  bool setEndPathModuleEnabled(std::string const & label, bool enable) override;
+  bool setTriggerPathEnabled(std::string const& name, bool enable) override;
+  bool setEndPathModuleEnabled(std::string const& label, bool enable) override;
 
 private:
-  ServiceDirector initServices_(fhicl::ParameterSet const & top_pset,
-                                ActivityRegistry & areg,
-                                ServiceToken & token);
-  void initSchedules_(fhicl::ParameterSet const & pset);
+  ServiceDirector initServices_(fhicl::ParameterSet const& top_pset,
+                                ActivityRegistry& areg,
+                                ServiceToken& token);
+  void initSchedules_(fhicl::ParameterSet const& pset);
   void invokePostBeginJobWorkers_();
   template <typename T>
   void
-  processOneOccurrence_(typename T::MyPrincipal & p);
+  processOneOccurrence_(typename T::MyPrincipal& p);
 
   ServiceToken getToken_();
 

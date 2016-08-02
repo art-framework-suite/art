@@ -91,6 +91,11 @@ namespace statemachine {
     subRunException_ = false;
   }
 
+  void HandleSubRuns::disableFinalizeSubRun(Pause const&)
+  {
+    context<HandleFiles>().disallowStaging();
+    finalizeEnabled_ = false;
+  }
   void HandleSubRuns::beginSubRun(art::SubRunID sr)
   {
     beginSubRunCalled_ = true;
@@ -126,8 +131,14 @@ namespace statemachine {
     ep_.setSubRunAuxiliaryRangeSetID(currentSubRun_);
     if (beginSubRunCalled_) endSubRun(currentSubRun());
     ep_.writeSubRun(currentSubRun_);
-    ep_.recordOutputClosureRequests();
-    context<HandleFiles>().maybeTriggerOutputFileSwitch(Boundary::SubRun);
+
+    // Staging is not allowed whenever 'maybeTriggerOutputFileSwitch'
+    // is called due to exiting a 'Pause' state.
+    if (context<HandleFiles>().stagingAllowed()) {
+      ep_.recordOutputClosureRequests(Boundary::SubRun);
+      context<HandleFiles>().maybeTriggerOutputFileSwitch();
+    }
+
     currentSubRun_ = art::SubRunID(); // Invalid.
     subRunException_ = false;
   }
@@ -145,7 +156,6 @@ namespace statemachine {
   NewSubRun::NewSubRun(my_context ctx) :
     my_base{ctx}
   {
-    context<Machine>().setCurrentBoundary(Boundary::SubRun);
     context<HandleSubRuns>().setupCurrentSubRun();
     checkInvariant();
   }
@@ -164,7 +174,6 @@ namespace statemachine {
 
   PauseSubRun::PauseSubRun(my_context ctx)
     : my_base{ctx}
-  {
-  }
+  {}
 
 }

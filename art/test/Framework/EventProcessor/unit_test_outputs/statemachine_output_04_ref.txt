@@ -41,10 +41,7 @@ Machine parameters:  handleEmptyRuns = 0  handleEmptySubRuns = 0
 	endRun......................(run: 2)
 	writeRun....................(run: 2)
 	respondToCloseOutputFiles
-	closeSomeOutputFiles (Level: Event)
-	closeSomeOutputFiles (Level: SubRun)
-	closeSomeOutputFiles (Level: Run)
-	closeSomeOutputFiles (Level: InputFile)
+	closeSomeOutputFiles
 	respondToCloseInputFile
 	clearPrincipalCache
 	closeInputFile
@@ -121,10 +118,7 @@ Machine parameters:  handleEmptyRuns = 0  handleEmptySubRuns = 1
 	endRun......................(run: 2)
 	writeRun....................(run: 2)
 	respondToCloseOutputFiles
-	closeSomeOutputFiles (Level: Event)
-	closeSomeOutputFiles (Level: SubRun)
-	closeSomeOutputFiles (Level: Run)
-	closeSomeOutputFiles (Level: InputFile)
+	closeSomeOutputFiles
 	respondToCloseInputFile
 	clearPrincipalCache
 	closeInputFile
@@ -201,10 +195,7 @@ Machine parameters:  handleEmptyRuns = 1  handleEmptySubRuns = 0
 	endRun......................(run: 2)
 	writeRun....................(run: 2)
 	respondToCloseOutputFiles
-	closeSomeOutputFiles (Level: Event)
-	closeSomeOutputFiles (Level: SubRun)
-	closeSomeOutputFiles (Level: Run)
-	closeSomeOutputFiles (Level: InputFile)
+	closeSomeOutputFiles
 	respondToCloseInputFile
 	clearPrincipalCache
 	closeInputFile
@@ -281,10 +272,7 @@ Machine parameters:  handleEmptyRuns = 1  handleEmptySubRuns = 1
 	endRun......................(run: 2)
 	writeRun....................(run: 2)
 	respondToCloseOutputFiles
-	closeSomeOutputFiles (Level: Event)
-	closeSomeOutputFiles (Level: SubRun)
-	closeSomeOutputFiles (Level: Run)
-	closeSomeOutputFiles (Level: InputFile)
+	closeSomeOutputFiles
 	respondToCloseInputFile
 	clearPrincipalCache
 	closeInputFile

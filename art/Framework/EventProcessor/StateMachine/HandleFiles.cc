@@ -1,11 +1,14 @@
 #include "art/Framework/EventProcessor/StateMachine/Machine.h"
+#include "art/Framework/Core/OutputFileStatus.h"
 #include "cetlib/exception.h"
 
 #include <exception>
+#include <iostream>
 #include <sstream>
 #include <string>
 
 using art::Boundary;
+using art::OutputFileStatus;
 
 namespace statemachine {
 
@@ -20,11 +23,13 @@ namespace statemachine {
     ep_.respondToOpenInputFile();
   }
 
-  void HandleFiles::maybeTriggerOutputFileSwitch(Boundary::BT const b)
+  void HandleFiles::maybeTriggerOutputFileSwitch()
   {
-    if (!ep_.outputsToCloseAtBoundary(b)) return;
+    assert(stagingAllowed_);
 
-    // Don't trigger if a switch is already in progress!
+    if (!ep_.outputsToClose()) return;
+
+    // Don't trigger another switch if one is already in progress!
     if (switchInProgress_) return;
 
     post_event(Pause());
@@ -32,13 +37,20 @@ namespace statemachine {
     switchInProgress_ = true;
   }
 
+  void HandleFiles::disallowStaging()
+  {
+    ep_.setOutputFileStatus(OutputFileStatus::StagedToSwitch);
+    stagingAllowed_ = false;
+  }
+
   void HandleFiles::openSomeOutputFiles()
   {
-    if ( !ep_.outputsToOpen() ) return;
+    if (!ep_.outputsToOpen()) return;
 
     ep_.openSomeOutputFiles();
     ep_.respondToOpenOutputFiles();
     switchInProgress_ = false;
+    stagingAllowed_ = true;
   }
 
 

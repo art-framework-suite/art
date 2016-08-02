@@ -553,28 +553,29 @@ beginInputFile(FileBlock const& fb, bool fastClone)
 }
 
 void
+art::RootOutputFile::incrementInputFileNumber()
+{
+  fp_.update<Boundary::InputFile>();
+}
+
+void
 art::
 RootOutputFile::
 respondToCloseInputFile(FileBlock const&)
 {
-  for (auto const & treePtr : treePointers_) {
-    treePtr->setEntries();
-  }
+  cet::for_all(treePointers_, [](auto const& p){ p->setEntries(); });
 }
 
 bool
 art::
 RootOutputFile::
-requestsToCloseFile() const
+requestsToCloseFile()
 {
   using namespace std::chrono;
   unsigned int constexpr oneK {1024u};
-  Long64_t const size {filePtr_->GetSize() / oneK};
-  auto const fileAge = steady_clock::now() - beginTime_;\
-  return criteriaMet(fileSwitchCriteria_,
-                     size,
-                     eventEntryNumber_,
-                     duration_cast<seconds>(fileAge));
+  fp_.updateSize(filePtr_->GetSize()/oneK);
+  fp_.updateAge(duration_cast<seconds>(steady_clock::now() - beginTime_));
+  return fileSwitchCriteria_.should_close(fp_);
 }
 
 void
@@ -614,8 +615,8 @@ writeOne(EventPrincipal const& e)
   }
   pHistory_ = &e.history();
   // Add event to index
-  fileIndex_.addEntry(pEventAux_->id(), eventEntryNumber_);
-  ++eventEntryNumber_;
+  fileIndex_.addEntry(pEventAux_->id(), fp_.eventEntryNumber());
+  fp_.update<Boundary::Event>(status_);
 }
 
 void
@@ -626,8 +627,8 @@ writeSubRun(SubRunPrincipal const& sr)
   pSubRunAux_ = &sr.aux();
   pSubRunAux_->setRangeSetID(subRunRSID_);
   fillBranches<InSubRun>(sr, pSubRunProductProvenanceVector_);
-  fileIndex_.addEntry(EventID::invalidEvent(pSubRunAux_->id()), subRunEntryNumber_);
-  ++subRunEntryNumber_;
+  fileIndex_.addEntry(EventID::invalidEvent(pSubRunAux_->id()), fp_.subRunEntryNumber());
+  fp_.update<Boundary::SubRun>(status_);
 }
 
 void
@@ -638,8 +639,8 @@ writeRun(RunPrincipal const& r)
   pRunAux_ = &r.aux();
   pRunAux_->setRangeSetID(runRSID_);
   fillBranches<InRun>(r, pRunProductProvenanceVector_);
-  fileIndex_.addEntry(EventID::invalidEvent(pRunAux_->id()), runEntryNumber_);
-  ++runEntryNumber_;
+  fileIndex_.addEntry(EventID::invalidEvent(pRunAux_->id()), fp_.runEntryNumber());
+  fp_.update<Boundary::Run>(status_);
 }
 
 void

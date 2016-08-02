@@ -138,8 +138,10 @@ public: // MEMBER FUNCTIONS
   void setSubRunAuxiliaryRangeSetID(RangeSet const&);
   void finishEndFile();
   void beginInputFile(FileBlock const&, bool fastClone);
+  void incrementInputFileNumber();
   void respondToCloseInputFile(FileBlock const&);
-  bool requestsToCloseFile() const;
+  bool requestsToCloseFile();
+  void setFileStatus(OutputFileStatus const ofs) { status_ = ofs; }
 
   void selectProducts(FileBlock const&);
 
@@ -173,6 +175,7 @@ private: // MEMBER DATA
   OutputModule const* om_;
   std::string file_;
   ClosingCriteria fileSwitchCriteria_;
+  OutputFileStatus status_ {OutputFileStatus::Closed};
   int const compressionLevel_;
   int64_t const saveMemoryObjectThreshold_;
   int64_t const treeMaxVirtualSize_;
@@ -184,9 +187,7 @@ private: // MEMBER DATA
   bool currentlyFastCloning_ {true};
   std::shared_ptr<TFile> filePtr_;
   FileIndex fileIndex_ {};
-  FileIndex::EntryNumber_t eventEntryNumber_ {0LL};
-  FileIndex::EntryNumber_t subRunEntryNumber_ {0LL};
-  FileIndex::EntryNumber_t runEntryNumber_ {0LL};
+  FileProperties fp_ {};
   TTree* metaDataTree_ {nullptr};
   TTree* fileIndexTree_ {nullptr};
   TTree* parentageTree_ {nullptr};

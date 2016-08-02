@@ -522,10 +522,8 @@ isFileOpen() const
 }
 
 void
-art::OutputModule::
-setFileStatus(OutputFileStatus const fs)
+art::OutputModule::setFileStatus(OutputFileStatus const)
 {
-  fileStatus_ = fs;
 }
 
 void

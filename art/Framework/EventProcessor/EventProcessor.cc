@@ -547,9 +547,16 @@ art::EventProcessor::openSomeOutputFiles()
 }
 
 void
-art::EventProcessor::closeSomeOutputFiles(std::size_t const b)
+art::EventProcessor::setOutputFileStatus(OutputFileStatus const ofs)
 {
-  endPathExecutor_->closeSomeOutputFiles(b);
+  endPathExecutor_->setOutputFileStatus(ofs);
+  FDEBUG(1) << "\tsetOutputFileStatus\n";
+}
+
+void
+art::EventProcessor::closeSomeOutputFiles()
+{
+  endPathExecutor_->closeSomeOutputFiles();
   FDEBUG(1) << "\tcloseSomeOutputFiles\n";
 }
 
@@ -755,21 +762,27 @@ art::EventProcessor::writeEvent()
 }
 
 void
-art::EventProcessor::recordOutputClosureRequests()
+art::EventProcessor::incrementInputFileNumber()
 {
-  endPathExecutor_->recordOutputClosureRequests();
+  endPathExecutor_->incrementInputFileNumber();
 }
 
-bool
-art::EventProcessor::outputsToCloseAtBoundary(Boundary const b) const
+void
+art::EventProcessor::recordOutputClosureRequests(Boundary const b)
 {
-  return endPathExecutor_->outputsToCloseAtBoundary(b);
+  endPathExecutor_->recordOutputClosureRequests(b);
 }
 
 bool
 art::EventProcessor::outputsToOpen() const
 {
   return endPathExecutor_->outputsToOpen();
+}
+
+bool
+art::EventProcessor::outputsToClose() const
+{
+  return endPathExecutor_->outputsToClose();
 }
 
 bool

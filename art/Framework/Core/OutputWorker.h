@@ -38,6 +38,7 @@ namespace art {
     void closeFile();
 
     bool fileIsOpen() const;
+    void incrementInputFileNumber();
     bool requestsToCloseFile() const;
 
     bool wantAllEvents() const;
@@ -52,19 +53,16 @@ namespace art {
     void setSubRunAuxiliaryRangeSetID(RangeSet const&);
 
     bool limitReached() const;
+    void setFileStatus(OutputFileStatus);
 
     void configure(OutputModuleDescription const& desc);
 
     Boundary fileSwitchBoundary() const;
-    bool stagedToCloseFile() const;
-    void flagToCloseFile(bool flag);
-    void setFileStatus(OutputFileStatus);
 
     virtual void selectProducts(FileBlock const&);
 
 private:
     ServiceHandle<CatalogInterface> ci_;
-    bool stagedToCloseFile_ {false};
     Boundary fileSwitchBoundary_ {Boundary::Unset};
   };
 }

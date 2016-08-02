@@ -3,30 +3,30 @@
 
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "messagefacility/MessageLogger/MessageDrop.h"
-#include "messagefacility/MessageService/MessageLogger.h"
+#include "messagefacility/MessageLogger/MessageLoggerImpl.h"
 
 #include <string>
 
-#define MFSU_0_ARG_UPDATER_DECL(stateTag)                   \
+#define MFSU_0_ARG_UPDATER_DECL(stateTag)                       \
   typename decltype(ActivityRegistry::s##stateTag)::result_type \
   updateStatusTo##stateTag()
-#define MFSU_0_ARG_UPDATER_DEFN(stateTag)                         \
+#define MFSU_0_ARG_UPDATER_DEFN(stateTag)                             \
   typename decltype(art::ActivityRegistry::s##stateTag)::result_type  \
   art::MFStatusUpdater::updateStatusTo##stateTag()
 
-#define MFSU_1_ARG_UPDATER_DECL(stateTag)                   \
-  typename decltype(ActivityRegistry::s##stateTag)::result_type \
+#define MFSU_1_ARG_UPDATER_DECL(stateTag)                               \
+  typename decltype(ActivityRegistry::s##stateTag)::result_type         \
   updateStatusTo##stateTag(typename decltype(ActivityRegistry::s##stateTag)::slot_type::argument_type)
-#define MFSU_1_ARG_UPDATER_DEFN(stateTag)                           \
+#define MFSU_1_ARG_UPDATER_DEFN(stateTag)                               \
   typename decltype(art::ActivityRegistry::s##stateTag)::result_type    \
   art::MFStatusUpdater::                                                \
   updateStatusTo##stateTag(typename decltype(ActivityRegistry::s##stateTag)::slot_type::argument_type arg1 [[gnu::unused]])
 
-#define MFSU_2_ARG_UPDATER_DECL(stateTag)                           \
+#define MFSU_2_ARG_UPDATER_DECL(stateTag)                               \
   typename decltype(ActivityRegistry::s##stateTag)::result_type         \
   updateStatusTo##stateTag(typename decltype(ActivityRegistry::s##stateTag)::slot_type::first_argument_type, \
                            typename decltype(ActivityRegistry::s##stateTag)::slot_type::second_argument_type)
-#define MFSU_2_ARG_UPDATER_DEFN(stateTag)                           \
+#define MFSU_2_ARG_UPDATER_DEFN(stateTag)                               \
   typename decltype(art::ActivityRegistry::s##stateTag)::result_type    \
   art::MFStatusUpdater::                                                \
   updateStatusTo##stateTag(typename decltype(ActivityRegistry::s##stateTag)::slot_type::first_argument_type arg1 [[gnu::unused]], \
@@ -119,8 +119,8 @@ private:
   std::string workFlowStatus_;
 
   mf::MessageDrop& md_;
-  mf::service::MessageLogger& mls_;
-  mf::service::MessageLogger::EnabledState savedEnabledState_;
+  mf::MessageLoggerImpl& mls_;
+  mf::MessageLoggerImpl::EnabledState savedEnabledState_;
 };
 
 #undef MFSU_0_ARG_UPDATER_DECL

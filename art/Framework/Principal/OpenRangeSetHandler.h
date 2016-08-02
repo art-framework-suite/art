@@ -16,11 +16,12 @@
 //      those that were rejected due to failing a filter criterion.
 //
 //      In the case of an output-file switch, the RangeSet is
-//      "rebased" after the file-write, so that the updated RangeSet
-//      now begins where the non-updated RangeSet finished.  For
-//      example, if EmptyEvent has been configured to produce 20
-//      events for Run 1, SubRun 0, and there is an output-file switch
-//      after event 10, the RangeSets for the two files will be:
+//      "rebased" (or cleared for an OpenRangeSetHandler).  The update
+//      function will appropriately assign the RangeHandler to the
+//      correct IDs when the next event is read.  For example, if
+//      EmptyEvent has been configured to produce 20 events for Run 1,
+//      SubRun 0, and there is an output-file switch after event 10,
+//      the RangeSets for the two files will be:
 //
 //        File A RangeSet = Run: 1 SubRun: 0 Event range: [1,11)
 //        File B RangeSet = Run: 1 SubRun: 0 Event range: [11,20)
@@ -43,8 +44,8 @@ namespace art {
 
     explicit OpenRangeSetHandler(RunNumber_t r);
 
-    // This class contains an iterator as a member.
-    // It should not be copied!
+    // This class contains an iterator as a member.  It should not be
+    // copied!
     OpenRangeSetHandler(OpenRangeSetHandler const&) = delete;
     OpenRangeSetHandler& operator=(OpenRangeSetHandler const&) = delete;
 
@@ -52,9 +53,6 @@ namespace art {
     OpenRangeSetHandler& operator=(OpenRangeSetHandler&&) = default;
 
   private:
-
-    auto begin() const { return ranges_.begin(); }
-    auto end() const { return ranges_.end(); }
 
     RangeSet do_getSeenRanges() const override;
 
@@ -65,7 +63,6 @@ namespace art {
 
     RangeSet ranges_ {RangeSet::invalid()};
     RangeSet::const_iterator rsIter_ {ranges_.begin()};
-    bool lastInSubRun_ {true};
   };
 
 }

@@ -36,6 +36,12 @@ namespace art {
     ci_->outputFileClosed(description().moduleLabel(), module().lastClosedFileName());
   }
 
+  void
+  OutputWorker::incrementInputFileNumber()
+  {
+    return module().incrementInputFileNumber();
+  }
+
   bool
   OutputWorker::requestsToCloseFile() const {
     return module().requestsToCloseFile();
@@ -74,6 +80,8 @@ namespace art {
 
   bool OutputWorker::fileIsOpen() const {return module().fileIsOpen();}
 
+  void OutputWorker::setFileStatus(OutputFileStatus const ofs) { return module().setFileStatus(ofs); }
+
   bool OutputWorker::wantAllEvents() const {return module().wantAllEvents();}
 
   bool OutputWorker::limitReached() const {return module().limitReached();}
@@ -83,13 +91,5 @@ namespace art {
   void OutputWorker::selectProducts(FileBlock const& fb) { module().selectProducts(fb); }
 
   Boundary OutputWorker::fileSwitchBoundary() const { return module().fileSwitchBoundary(); }
-
-  bool OutputWorker::stagedToCloseFile() const {
-    return module().stagedToCloseFile();
-  }
-
-  void OutputWorker::setFileStatus(OutputFileStatus const fs) { module().setFileStatus(fs); }
-
-  void OutputWorker::flagToCloseFile(bool const b) { module().flagToCloseFile(b); }
 
 }

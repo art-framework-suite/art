@@ -1,5 +1,6 @@
 #include "art/Framework/Art/detail/handle_deprecated_configs.h"
 #include "art/Framework/Art/detail/exists_outside_prolog.h"
+#include "art/Framework/Art/detail/fhicl_key.h"
 #include "canvas/Utilities/Exception.h"
 #include "fhiclcpp/intermediate_table.h"
 
@@ -13,43 +14,44 @@ using std::vector;
 using fhicl::intermediate_table;
 using table_t = intermediate_table::table_t;
 using sequence_t = intermediate_table::sequence_t;
+using art::detail::fhicl_key;
 
 namespace {
-  string boundaryFromFileMode(string const& fileMode, std::ostringstream& msg)
+
+  string new_config(string const& fileMode, string const& module_label)
   {
-    bool allowedLegacyParameter {false};
-    string boundary;
+    std::ostringstream c;
     if (fileMode == "MERGE") {
-      allowedLegacyParameter = true;
-      boundary = "Unset";
-      msg << "The deprecated configuration will be replaced by the following,\n"
-          << "which will be added to each of the 'RootOutput' modules\n"
-          << "to yield equivalent behavior to the MERGE mode:\n"
-          << "  outputs.<module_label>.fileSwitch.boundary: \"Unset\"";
+      c << fhicl_key("outputs", module_label,"fileProperties","granularity")+": \"Event\"";
     }
     else if (fileMode == "NOMERGE") {
-      allowedLegacyParameter = true;
-      boundary = "InputFile";
-      msg << "The deprecated configuration will be replaced by the following,\n"
-          << "which will be added to each of the 'RootOutput' modules\n"
-          << "to yield equivalent behavior to the NOMERGE mode:\n"
-          << "  outputs.<module_label>.fileSwitch: {\n"
-          << "    boundary: \"InputFile\"\n"
-          << "    force: true\n"
-          << "  }";
+      c << fhicl_key("outputs", module_label,"fileProperties") << ": {\n"
+        << "    maxInputFiles: 1\n"
+        << "    granularity: \"InputFile\"\n"
+        << "  }";
     }
-    else if (fileMode == "FULLLUMIMERGE" || fileMode == "FULLMERGE") {
-      msg << "The \"" << fileMode << "\" fileMode option is no longer supported.\n"
-          << "Please contact artists@fnal.gov for guidance.\n\n";
+    return c.str();
+  }
+
+  string boundaryFromFileMode(string const& fileMode,
+                              std::ostringstream& msg,
+                              table_t const& outputs)
+  {
+    if (fileMode != "MERGE" && fileMode != "NOMERGE") {
+      msg << "\nPlease contact artists@fnal.gov for guidance.\n\n";
+      throw art::Exception(art::errors::Configuration) << msg.str();
+    }
+
+    if (outputs.empty()) {
+      msg << "It will be removed.\n";
     }
     else {
-      msg << "The \"" << fileMode << "\" fileMode option is not supported.\n"
-          << "Please contact artists@fnal.gov for guidance.\n\n";
+      msg << "\nIt will be replaced with the following configurations:";
+      for (auto const& o : outputs)
+        msg << "\n\n  " << new_config(fileMode, o.first);
     }
-    return
-      allowedLegacyParameter ?
-      (std::cerr << msg.str() << "\n\n", boundary) :
-      throw art::Exception(art::errors::Configuration) << msg.str();
+    std::cerr << msg.str() << "\n\n";
+    return fileMode == "MERGE" ? "Unset" : "InputFile";
   }
 }
 
@@ -64,23 +66,32 @@ art::detail::handle_deprecated_configs(intermediate_table& raw_config)
 void
 art::detail::handle_deprecated_fileMode(intermediate_table& raw_config)
 {
-  string const& param {"services.scheduler.fileMode"};
+  auto const& param = fhicl_key("services","scheduler","fileMode");
   if (!exists_outside_prolog(raw_config, param)) return;
 
+  auto const& value =  raw_config.get<string>(param);
   std::ostringstream msg;
-  msg << "\nThe \"" << param << "\" parameter is deprecated.\n";
+  msg << "\nThe following specification is no longer supported:\n"
+      << "  " << param << ": " << value << '\n';
 
-  auto const fileMode = raw_config.get<string>(param);
+  string const outputs_key {"outputs"};
+  table_t outputs;
+  if (exists_outside_prolog(raw_config, outputs_key))
+    outputs = raw_config.get<table_t>(outputs_key);
+
+  auto const& boundary = boundaryFromFileMode(value, msg, outputs);
   raw_config.erase(param);
-  string const& boundary = boundaryFromFileMode(fileMode, msg);
 
-  for (auto const& o : raw_config.get<table_t&>("outputs")) {
-    string const& module_label = "outputs."+o.first;
-    if (raw_config.get<string>(module_label+".module_type") != "RootOutput")
+  for (auto const& o : outputs) {
+    auto const& module_label = fhicl_key(outputs_key, o.first);
+    auto const& module_type = fhicl_key(module_label, "module_type");
+
+    if (exists_outside_prolog(raw_config,module_type) && raw_config.get<string>(module_type) != "RootOutput")
       continue;
-    raw_config.put(module_label+".fileSwitch.boundary", boundary);
+
+    raw_config.put(fhicl_key(module_label,"fileProperties","granularity"), boundary);
     if (boundary == "InputFile") {
-      raw_config.put(module_label+".fileSwitch.force", true);
+      raw_config.put(fhicl_key(module_label,"fileProperties","maxInputFiles"), 1);
     }
   }
 }
@@ -137,7 +148,7 @@ art::detail::handle_deprecated_SelectEvents(intermediate_table& raw_config)
 void
 art::detail::handle_deprecated_MemoryTracker(intermediate_table& raw_config)
 {
-  string const& stem {"services.MemoryTracker"};
+  string const stem {"services.MemoryTracker"};
   string const& filename_parameter {stem+".filename"};
   if (!exists_outside_prolog(raw_config, filename_parameter)) return;
 
