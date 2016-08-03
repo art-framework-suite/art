@@ -82,6 +82,7 @@ namespace statemachine {
   {
     if (!processAndFinalizeEnabled_) return;
     if (eventException_) return;
+    if (currentEvent_.isFlush()) return;
 
     eventException_ = true;
     ep_.processEvent();
@@ -107,6 +108,7 @@ namespace statemachine {
     handleEvents.setEventException(true);
     markNonEmpty();
     ep_.readEvent();
+    handleEvents.setCurrentEvent(ep_.eventPrincipalID());
     handleEvents.setEventException(false);
     checkInvariant();
   }

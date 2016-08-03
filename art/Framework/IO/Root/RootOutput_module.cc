@@ -285,7 +285,7 @@ void
 art::RootOutput::
 respondToCloseInputFile(FileBlock const& fb)
 {
-  if (rootOutputFile_) {
+  if (isFileOpen()) {
     rootOutputFile_->respondToCloseInputFile(fb);
   }
 }
@@ -469,7 +469,8 @@ doRegisterProducts(MasterProductRegistry & mpr,
 void
 art::RootOutput::setFileStatus(OutputFileStatus const ofs)
 {
-  return rootOutputFile_->setFileStatus(ofs);
+  if (isFileOpen())
+    rootOutputFile_->setFileStatus(ofs);
 }
 
 bool
@@ -482,14 +483,15 @@ isFileOpen() const
 void
 art::RootOutput::incrementInputFileNumber()
 {
-  rootOutputFile_->incrementInputFileNumber();
+  if (isFileOpen())
+    rootOutputFile_->incrementInputFileNumber();
 }
 
 bool
 art::RootOutput::
 requestsToCloseFile() const
 {
-  return  rootOutputFile_->requestsToCloseFile();
+  return isFileOpen() ? rootOutputFile_->requestsToCloseFile() : false;
 }
 
 art::Boundary

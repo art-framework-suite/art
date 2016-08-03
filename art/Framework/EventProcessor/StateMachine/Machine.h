@@ -65,7 +65,7 @@ namespace statemachine {
     void closeAllOutputFiles();
     void closeSomeOutputFiles();
     void closeSomeOutputFiles(SwitchOutputFiles const&);
-    void goToNewInputFile(InputFile const&);
+    void closeInputFile(InputFile const&);
 
   private:
 
@@ -104,7 +104,7 @@ namespace statemachine {
       sc::transition<Event, Error, Machine, &Machine::closeAllFiles>,
       sc::transition<SubRun, Error, Machine, &Machine::closeAllFiles>,
       sc::transition<Run, Error, Machine, &Machine::closeAllFiles>,
-      sc::transition<InputFile, HandleFiles, Machine, &Machine::goToNewInputFile>,
+      sc::transition<InputFile, HandleFiles, Machine, &Machine::closeInputFile>,
       sc::transition<SwitchOutputFiles, Error, Machine, &Machine::closeAllFiles>,
       sc::transition<Stop, Stopping, Machine, &Machine::closeAllFiles> >;
 
@@ -271,6 +271,7 @@ namespace statemachine {
     void disableProcessAndFinalizeEvent(Pause const&);
     void exit();
     void processAndFinalizeEvent();
+    void setCurrentEvent(art::EventID const& id) { currentEvent_ = id; }
     void setEventException(bool const value) { eventException_ = value; }
 
     using reactions = sc::transition<Event, HandleEvents>;

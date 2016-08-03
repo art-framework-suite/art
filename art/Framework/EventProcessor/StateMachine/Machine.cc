@@ -20,13 +20,8 @@ namespace statemachine {
   bool Machine::handleEmptyRuns() const { return handleEmptyRuns_; }
   bool Machine::handleEmptySubRuns() const { return handleEmptySubRuns_; }
 
-  void Machine::goToNewInputFile(InputFile const&)
+  void Machine::closeInputFile(InputFile const&)
   {
-    ep_->incrementInputFileNumber();
-    ep_->recordOutputClosureRequests(Boundary::InputFile);
-    if (ep_->outputsToClose()) {
-      closeSomeOutputFiles();
-    }
     closeInputFile();
   }
 
@@ -40,6 +35,11 @@ namespace statemachine {
 
   void Machine::closeInputFile()
   {
+    ep_->incrementInputFileNumber();
+    ep_->recordOutputClosureRequests(Boundary::InputFile);
+    if (ep_->outputsToClose()) {
+      closeSomeOutputFiles();
+    }
     ep_->respondToCloseInputFile();
     ep_->clearPrincipalCache();
     ep_->closeInputFile();
@@ -57,6 +57,7 @@ namespace statemachine {
     //               flagged as needing to close.  Otherwise,
     //               'respondtoCloseOutputFiles' will be needlessly
     //               called.
+    assert(ep_->outputsToClose());
     ep_->respondToCloseOutputFiles();
     ep_->closeSomeOutputFiles();
   }

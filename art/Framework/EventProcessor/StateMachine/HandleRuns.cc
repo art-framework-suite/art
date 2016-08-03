@@ -96,7 +96,8 @@ namespace statemachine {
   {
     beginRunCalled_ = true;
     runException_ = true;
-    ep_.beginRun(run);
+    if (!run.isFlush())
+      ep_.beginRun(run);
     runException_ = false;
   }
 
@@ -104,6 +105,8 @@ namespace statemachine {
   {
     beginRunCalled_ = false;
     runException_ = true;
+    // Note: flush flag is not checked here since endRun is only
+    // called from finalizeRun, which is where the check happens.
     ep_.endRun(run);
     runException_ = false;
   }
@@ -117,6 +120,7 @@ namespace statemachine {
   {
     if (!finalizeEnabled_) return;
     if (runException_) return;
+    if (currentRun_.isFlush()) return;
 
     runException_ = true;
     context<HandleFiles>().openSomeOutputFiles();
