@@ -4,6 +4,8 @@
 #include "canvas/Persistency/Provenance/ProcessHistoryID.h"
 #include "cetlib/container_algorithms.h"
 
+#include <cassert>
+
 std::vector<std::string>
 art::detail::orderedProcessNames(std::string const& currentProcessName)
 {
