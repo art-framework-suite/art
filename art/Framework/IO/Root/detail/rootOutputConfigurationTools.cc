@@ -3,6 +3,21 @@
 #include "canvas/Utilities/Exception.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
+using namespace art;
+
+namespace {
+  bool maxCriterionSpecified(ClosingCriteria const& cc)
+  {
+    auto fp = std::mem_fn(&ClosingCriteria::fileProperties);
+    return
+      fp(cc).nEvents() != Defaults::unsigned_max() ||
+      fp(cc).nSubRuns() != Defaults::unsigned_max() ||
+      fp(cc).nRuns() != Defaults::unsigned_max() ||
+      fp(cc).size() != Defaults::size_max() ||
+      fp(cc).age().count() != Defaults::seconds_max();
+  }
+}
+
 bool
 art::detail::shouldFastClone(bool const fastCloningSet,
                              bool const fastCloning,
@@ -19,7 +34,7 @@ art::detail::shouldFastClone(bool const fastCloningSet,
     mf::LogWarning("FastCloning") << "Fast cloning deactivated due to presence of\n"
                                   << "event selection configuration.";
   }
-  if (fastCloning && cc.granularity() < Boundary::InputFile) {
+  if (fastCloning && maxCriterionSpecified(cc) && cc.granularity() < Boundary::InputFile) {
     result = false;
     mf::LogWarning("FastCloning") << "Fast cloning deactivated due to request to allow\n"
                                   << "output file switching at an Event, SubRun, or Run boundary.";

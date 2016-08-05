@@ -30,6 +30,13 @@
 
 namespace art {
 
+  struct Defaults {
+    static constexpr auto unsigned_max() { return std::numeric_limits<unsigned>::max(); }
+    static constexpr auto size_max() { return 0x7f000000u; }
+    static constexpr auto seconds_max() { return std::chrono::duration_values<unsigned>::max(); }
+    static constexpr auto granularity_default() { return "Event"; }
+  };
+
   class FileProperties {
   public:
 
@@ -85,19 +92,19 @@ namespace art {
   class ClosingCriteria {
   public:
 
-    struct Config {
+    struct Config : Defaults {
       using Name = fhicl::Name;
       using Comment = fhicl::Comment;
       template <typename T> using Atom = fhicl::Atom<T>;
       template <typename T> using OptionalAtom = fhicl::OptionalAtom<T>;
 
-      Atom<unsigned> maxEvents { Name("maxEvents"), -1u };
-      Atom<unsigned> maxSubRuns { Name("maxSubRuns"), -1u };
-      Atom<unsigned> maxRuns { Name("maxRuns"), -1u };
-      Atom<unsigned> maxInputFiles { Name("maxInputFiles"), -1u };
-      Atom<unsigned> maxSize { Name("maxSize"), Comment("Maximum size of file (in KiB)"), 0x7f000000u };
-      Atom<unsigned> maxAge { Name("maxAge"), Comment("Maximum age of output file (in seconds)"), std::chrono::duration_values<unsigned>::max() };
-      fhicl::Atom<std::string> granularity { fhicl::Name("granularity"), Comment(GRANULARITY_COMMENT), "Event" };
+      Atom<unsigned> maxEvents { Name("maxEvents"), unsigned_max() };
+      Atom<unsigned> maxSubRuns { Name("maxSubRuns"), unsigned_max() };
+      Atom<unsigned> maxRuns { Name("maxRuns"), unsigned_max() };
+      Atom<unsigned> maxInputFiles { Name("maxInputFiles"), unsigned_max() };
+      Atom<unsigned> maxSize { Name("maxSize"), Comment("Maximum size of file (in KiB)"), size_max() };
+      Atom<unsigned> maxAge { Name("maxAge"), Comment("Maximum age of output file (in seconds)"), seconds_max() };
+      fhicl::Atom<std::string> granularity { fhicl::Name("granularity"), Comment(GRANULARITY_COMMENT), granularity_default() };
     };
 
     ClosingCriteria(Config const& fp);
