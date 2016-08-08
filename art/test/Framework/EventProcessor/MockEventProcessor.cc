@@ -1,17 +1,45 @@
+#include "canvas/Persistency/Provenance/IDNumber.h"
 #include "canvas/Utilities/Exception.h"
 #include "art/test/Framework/EventProcessor/MockEventProcessor.h"
 
+#include <cctype>
 #include <sstream>
 #include <string>
+
+using namespace art;
 
 namespace {
 
   std::uint32_t number(std::string const& action)
   {
     if (std::count(action.begin(), action.end(), ':') != 1u)
-      throw art::Exception(art::errors::Configuration)
+      throw Exception{errors::Configuration}
         << "The specified action for \"" << action << "\" must\n"
         << "contain only one ':'.";
+    auto const level = action.substr(0,1);
+    auto const symbol = action.substr(2);
+    if (symbol.empty())
+      throw Exception{errors::Configuration}
+        << "The symbol for \"" << action << "\" is empty.\n"
+        << "Please provide a positive number, or the character 'f'.\n";
+
+    // For flush values -- r:f, s:f, or e:f
+    if (std::isalpha(symbol[0])) {
+      if (symbol[0] != 'f') {
+        throw Exception{errors::Configuration}
+          << "The character specified for a symbol must be 'f'.\n";
+      }
+      switch (level[0]) {
+      case 'r': return IDNumber<Level::Run>::flush_value();
+      case 's': return IDNumber<Level::SubRun>::flush_value();
+      case 'e': return IDNumber<Level::Event>::flush_value();
+      default:
+        throw Exception{errors::Configuration}
+          << "Action specifying flush value does not correspond to 'r', 's', or 'e'.\n";
+      }
+    }
+
+    // For everything else
     return std::stoul(action.substr(2)); // (e.g.) e:14 - start at "14"
   }
 
@@ -48,15 +76,15 @@ namespace art {
     // Loop over the mock data items
     std::istringstream input {mockData_};
     bool firstAction {true};
-    for (std::string action; input >> action; ) {
+    for (std::string action; input >> action;) {
 
       if (action == "InputFile") {
         output_ << nextItemType("InputFile");
-        machine.process_event( statemachine::InputFile() );
+        machine.process_event(statemachine::InputFile());
       }
       else if (action == "InputFile+OutputFiles") {
-        if ( !firstAction )
-          throw art::Exception(art::errors::Configuration)
+        if (!firstAction)
+          throw Exception{errors::Configuration}
             << "Statemachine test pattern \"" << action << "\" can only appear as\n"
             << "first action in the requested action list.\n";
         // Request output file switch along with InputFile switch.
@@ -65,7 +93,7 @@ namespace art {
         // between output file closures and openings.
         outputsToOpen_ = true;
         output_ << nextItemType("InputFile+OutputFiles");
-        machine.process_event( statemachine::InputFile() );
+        machine.process_event(statemachine::InputFile());
       }
       else if (action == "InputFile+SwitchOutputFiles") {
         // Request output file switch along with InputFile switch.
@@ -74,7 +102,7 @@ namespace art {
         // between output file closures and openings.
         outputsToClose_ = true;
         output_ << nextItemType("InputFile+SwitchOutputFiles");
-        machine.process_event( statemachine::InputFile() );
+        machine.process_event(statemachine::InputFile());
       }
       else if (action == "SwitchOutputFiles") {
         // Do not process 'SwitchOutputFiles' event here!  That event
@@ -87,27 +115,30 @@ namespace art {
       }
       else if (action == "Stop") {
         output_ << nextItemType("Stop");
-        machine.process_event( statemachine::Stop() );
+        machine.process_event(statemachine::Stop());
       }
       else if (action[0] == 'r') {
-        readRun_ = RunID{number(action)};
+        auto const r = number(action);
+        readRun_ = (r == IDNumber<Level::Run>::flush_value()) ? RunID::flushRun() : RunID{r};
         output_ << nextItemType("Run");
-        machine.process_event( statemachine::Run(readRun_) );
+        machine.process_event(statemachine::Run(readRun_));
       }
       else if (action[0] == 's') {
-        readSubRun_ = SubRunID{run_, number(action)};
+        auto const sr = number(action);
+        readSubRun_ = (sr == IDNumber<Level::SubRun>::flush_value()) ? SubRunID::flushSubRun() : SubRunID{run_, sr};
         output_ << nextItemType("SubRun");
-        machine.process_event( statemachine::SubRun(readSubRun_) );
+        machine.process_event(statemachine::SubRun(readSubRun_));
       }
       else if (action[0] == 'e') {
-        readEvent_ = EventID{subRun_, number(action)};
+        auto const e = number(action);
+        readEvent_ = (e == IDNumber<Level::Event>::flush_value()) ? EventID::flushEvent() : EventID{subRun_, e};
         // a special value for test purposes only
-        shouldWeStop_ = (readEvent_.event() == 7) ? true : false;
+        shouldWeStop_ = (readEvent_.event() == 7);
         output_ << nextItemType("Event");
-        machine.process_event( statemachine::Event() );
+        machine.process_event(statemachine::Event());
       }
       else {
-        throw art::Exception(art::errors::Configuration)
+        throw Exception{errors::Configuration}
           << "Statemachine test pattern \"" << action << "\" not recognized.";
       }
 
