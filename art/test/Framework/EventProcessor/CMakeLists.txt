@@ -28,7 +28,7 @@ macro(statemachine_test i)
 endmacro()
 
 # Multiple invocations of Statemachine_t.sh.
-foreach(i RANGE 1 12)
+foreach(i RANGE 1 13)
   execute_process(COMMAND printf "%02d" ${i}
     OUTPUT_VARIABLE j
     OUTPUT_STRIP_TRAILING_WHITESPACE

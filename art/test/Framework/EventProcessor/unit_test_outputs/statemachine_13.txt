@@ -1,0 +1,14 @@
+InputFile+OutputFiles
+r:1
+s:1
+e:1
+SwitchOutputFiles
+r:f
+s:f
+e:f
+InputFile
+r:1
+s:1
+e:2
+e:3
+Stop

@@ -64,8 +64,7 @@ art::ClosingCriteria::ClosingCriteria(FileProperties const& fp,
 bool
 art::ClosingCriteria::should_close(FileProperties const& fp) const
 {
-  return
-    fp.size() >= closingCriteria_.size() ||
+  return fp.size() >= closingCriteria_.size() ||
     fp.nEvents() >= closingCriteria_.nEvents() ||
     fp.nSubRuns() >= closingCriteria_.nSubRuns() ||
     fp.nRuns() >= closingCriteria_.nRuns() ||

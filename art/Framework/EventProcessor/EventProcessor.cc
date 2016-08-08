@@ -614,47 +614,41 @@ art::EventProcessor::doErrorStuff()
 void
 art::EventProcessor::beginRun(RunID run)
 {
-  if (!run.isFlush()) {
-    RunPrincipal & runPrincipal = principalCache_.runPrincipal(run);
-    processOneOccurrence_<OccurrenceTraits<RunPrincipal, BranchActionBegin>>(runPrincipal);
-    FDEBUG(1) << "\tbeginRun " << run.run() << "\n";
-  }
+  // Precondition: The RunID does not correspond to a flush ID.
+  assert(!run.isFlush());
+  RunPrincipal& runPrincipal = principalCache_.runPrincipal(run);
+  processOneOccurrence_<OccurrenceTraits<RunPrincipal, BranchActionBegin>>(runPrincipal);
+  FDEBUG(1) << "\tbeginRun " << run.run() << "\n";
 }
 
 void
 art::EventProcessor::endRun(RunID run)
 {
-  if (!run.isFlush()) {
-    RunPrincipal & runPrincipal = principalCache_.runPrincipal(run);
-    processOneOccurrence_<OccurrenceTraits<RunPrincipal, BranchActionEnd>>(runPrincipal);
-    FDEBUG(1) << "\tendRun " << run.run() << "\n";
-  }
+  // Precondition: The RunID does not correspond to a flush ID.
+  assert(!run.isFlush());
+  RunPrincipal& runPrincipal = principalCache_.runPrincipal(run);
+  processOneOccurrence_<OccurrenceTraits<RunPrincipal, BranchActionEnd>>(runPrincipal);
+  FDEBUG(1) << "\tendRun " << run.run() << "\n";
 }
 
 void
-art::EventProcessor::beginSubRun(SubRunID const & sr)
+art::EventProcessor::beginSubRun(SubRunID const& sr)
 {
-  if (!sr.isFlush()) {
-    // NOTE: Using 0 as the event number for the begin of a subRun block
-    // is a bad idea subRun blocks know their start and end times why
-    // not also start and end events?
-    SubRunPrincipal & subRunPrincipal = principalCache_.subRunPrincipal(sr);
-    processOneOccurrence_<OccurrenceTraits<SubRunPrincipal, BranchActionBegin>>(subRunPrincipal);
-    FDEBUG(1) << "\tbeginSubRun " << sr << "\n";
-  }
+  // Precondition: The SubRunID does not correspond to a flush ID.
+  assert(!sr.isFlush());
+  SubRunPrincipal& subRunPrincipal = principalCache_.subRunPrincipal(sr);
+  processOneOccurrence_<OccurrenceTraits<SubRunPrincipal, BranchActionBegin>>(subRunPrincipal);
+  FDEBUG(1) << "\tbeginSubRun " << sr << "\n";
 }
 
 void
-art::EventProcessor::endSubRun(SubRunID const & sr)
+art::EventProcessor::endSubRun(SubRunID const& sr)
 {
-  if (!sr.isFlush()) {
-    // NOTE: Using the max event number for the end of a subRun block is
-    // a bad idea subRun blocks know their start and end times why not
-    // also start and end events?
-    SubRunPrincipal & subRunPrincipal = principalCache_.subRunPrincipal(sr);
-    processOneOccurrence_<OccurrenceTraits<SubRunPrincipal, BranchActionEnd>>(subRunPrincipal);
-    FDEBUG(1) << "\tendSubRun " << sr << "\n";
-  }
+  // Precondition: The SubRunID does not correspond to a flush ID.
+  assert(!sr.isFlush());
+  SubRunPrincipal& subRunPrincipal = principalCache_.subRunPrincipal(sr);
+  processOneOccurrence_<OccurrenceTraits<SubRunPrincipal, BranchActionEnd>>(subRunPrincipal);
+  FDEBUG(1) << "\tendSubRun " << sr << "\n";
 }
 
 art::RunID
@@ -705,10 +699,10 @@ art::EventProcessor::setRunAuxiliaryRangeSetID(RunID const r)
 void
 art::EventProcessor::writeRun(RunID const r)
 {
-  if (!r.isFlush()) {
-    endPathExecutor_->writeRun(principalCache_.runPrincipal(r));
-    FDEBUG(1) << "\twriteRun " << r.run() << "\n";
-  }
+  // Precondition: The RunID does not correspond to a flush ID.
+  assert(!r.isFlush());
+  endPathExecutor_->writeRun(principalCache_.runPrincipal(r));
+  FDEBUG(1) << "\twriteRun " << r.run() << "\n";
 }
 
 void
@@ -721,10 +715,10 @@ art::EventProcessor::setSubRunAuxiliaryRangeSetID(SubRunID const & sr)
 void
 art::EventProcessor::writeSubRun(SubRunID const & sr)
 {
-  if (!sr.isFlush()) {
-    endPathExecutor_->writeSubRun(principalCache_.subRunPrincipal(sr));
-    FDEBUG(1) << "\twriteSubRun " << sr.run() << "/" << sr.subRun() << "\n";
-  }
+  // Precondition: The SubRunID does not correspond to a flush ID.
+  assert(!sr.isFlush());
+  endPathExecutor_->writeSubRun(principalCache_.subRunPrincipal(sr));
+  FDEBUG(1) << "\twriteSubRun " << sr.run() << "/" << sr.subRun() << "\n";
 }
 
 void
@@ -745,20 +739,21 @@ art::EventProcessor::readEvent()
 void
 art::EventProcessor::processEvent()
 {
-  if (!sm_evp_->id().isFlush()) {
-    processOneOccurrence_<OccurrenceTraits<EventPrincipal, BranchActionBegin>>(*sm_evp_);
-    FDEBUG(1) << "\tprocessEvent\n";
-  }
+  EventID const& id [[gnu::unused]] {sm_evp_->id()};
+  // Precondition: The EventID does not correspond to a flush ID.
+  assert(!id.isFlush());
+  processOneOccurrence_<OccurrenceTraits<EventPrincipal, BranchActionBegin>>(*sm_evp_);
+  FDEBUG(1) << "\tprocessEvent\n";
 }
 
 void
 art::EventProcessor::writeEvent()
 {
-  EventID const id {sm_evp_->id()};
-  if (!id.isFlush()) {
-    endPathExecutor_->writeEvent(*sm_evp_);
-    FDEBUG(1) << "\twriteEvent " << id.run() << "/" << id.subRun() << "/" << id.event() << "\n";
-  }
+  EventID const& id [[gnu::unused]] {sm_evp_->id()};
+  // Precondition: The EventID does not correspond to a flush ID.
+  assert(!id.isFlush());
+  endPathExecutor_->writeEvent(*sm_evp_);
+  FDEBUG(1) << "\twriteEvent " << id.run() << "/" << id.subRun() << "/" << id.event() << "\n";
 }
 
 void
