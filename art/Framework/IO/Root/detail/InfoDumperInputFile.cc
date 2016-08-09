@@ -1,9 +1,13 @@
 #include "art/Framework/IO/Root/detail/InfoDumperInputFile.h"
 #include "art/Framework/IO/Root/detail/setFileIndexPointer.h"
+#include "art/Framework/Principal/detail/orderedProcessNames.h"
+#include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
 #include "art/Persistency/RootDB/SQLite3Wrapper.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
 #include "canvas/Persistency/Provenance/rootNames.h"
 #include "canvas/Utilities/Exception.h"
+
+#include <iomanip>
 
 namespace {
 
@@ -25,24 +29,28 @@ namespace {
     return std::move(file);
   }
 
+  auto getMetaData(TFile* file)
+  {
+    return static_cast<TTree*>(file->Get(art::rootNames::metaDataTreeName().data()));
+  }
+
   auto getFileIndex(TFile* file)
   {
-    auto metaDataTree = static_cast<TTree*>(file->Get(art::rootNames::metaDataTreeName().data()));
+    auto md = getMetaData(file);
     auto fileIndexUniquePtr = std::make_unique<art::FileIndex>();
     auto findexPtr = &*fileIndexUniquePtr;
-    art::detail::setFileIndexPointer(file, metaDataTree, findexPtr);
-    art::input::getEntry(metaDataTree, 0);
+    art::detail::setFileIndexPointer(file, md, findexPtr);
+    art::input::getEntry(md, 0);
     return *fileIndexUniquePtr;
   }
 
   auto getFileFormatVersion(TFile* file)
   {
-    using namespace art::rootNames;
-    auto metaDataTree = static_cast<TTree*>(file->Get(metaDataTreeName().data()));
+    auto md = getMetaData(file);
     art::FileFormatVersion fftVersion {};
     auto fftPtr = &fftVersion;
-    metaDataTree->SetBranchAddress(metaBranchRootName<art::FileFormatVersion>(), &fftPtr);
-    art::input::getEntry(metaDataTree, 0);
+    md->SetBranchAddress(art::rootNames::metaBranchRootName<art::FileFormatVersion>(), &fftPtr);
+    art::input::getEntry(md, 0);
     return *fftPtr;
   }
 
@@ -52,10 +60,10 @@ namespace {
   getEntryNumbers(art::FileIndex::const_iterator& it,
                   art::FileIndex::const_iterator const end)
   {
-    EntryNumbers entries;
     if (it == end)
       return {};
 
+    EntryNumbers entries;
     auto const eid = it->eventID_;
     for (; it != end && eid == it->eventID_; ++it) {
       entries.push_back(it->entry_);
@@ -68,7 +76,14 @@ art::detail::InfoDumperInputFile::InfoDumperInputFile(std::string const& filenam
   : file_{openFile(filename)}
   , fileIndex_{getFileIndex(file_.get())}
   , fileFormatVersion_{getFileFormatVersion(file_.get())}
-{}
+{
+  ProcessHistoryMap pHistMap;
+  auto pHistMapPtr = &pHistMap;
+  auto md = getMetaData(file_.get());
+  md->SetBranchAddress(art::rootNames::metaBranchRootName<ProcessHistoryMap>(), &pHistMapPtr);
+  art::input::getEntry(md, 0);
+  ProcessHistoryRegistry::put(pHistMap);
+}
 
 void
 art::detail::InfoDumperInputFile::print_event_list(std::ostream& os) const
@@ -80,6 +95,16 @@ void
 art::detail::InfoDumperInputFile::print_file_index(std::ostream& os) const
 {
   os << fileIndex_;
+}
+
+void
+art::detail::InfoDumperInputFile::print_process_history(std::ostream& os) const
+{
+  os << "\n Chronological list of process names for processes that\n"
+     << " produced this file.\n\n";
+  unsigned i {1u};
+  for (auto const& process : orderedProcessNames())
+    os << std::setw(5) << std::right << i++ << ". " << process << '\n';
 }
 
 void

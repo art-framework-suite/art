@@ -5,7 +5,6 @@ art_make_library(
   detail/KeptProvenance.cc
   detail/getEntry.cc
   detail/resolveRangeSet.cc
-  detail/orderedProcessNames.cc
   detail/rootFileSizeTools.cc
   detail/rootOutputConfigurationTools.cc
   LIBRARIES
@@ -102,6 +101,7 @@ art_make_exec( NAME count_events
 art_make_exec(NAME file_info_dumper
   LIBRARIES art_Framework_IO_Root
   art_Framework_IO_Root_file_info_dumper
+  art_Framework_Principal
   ${Boost_PROGRAM_OPTIONS_LIBRARY}
   )
 

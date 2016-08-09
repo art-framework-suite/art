@@ -32,6 +32,7 @@ using std::vector;
 using stringvec = vector<string>;
 
 
+int print_process_history(InfoDumperInputFile& file, ostream& output);
 int print_range_sets(InfoDumperInputFile& file, ostream& output);
 int print_event_list(InfoDumperInputFile& file, ostream& output);
 int print_file_index(InfoDumperInputFile& file, ostream& output);
@@ -130,9 +131,10 @@ int main(int argc, char * argv[])
       bpo::options_description desc {descstr.str()};
       desc.add_options()
         ("help,h", "produce help message")
-        ("full-path", "prints full path of file name")
-        ("event-list", "prints event-list for each input file")
+        ("full-path", "print full path of file name")
+        ("event-list", "print event-list for each input file")
         ("file-index", "prints FileIndex object for each input file")
+        ("process-history", "prints list of processes that produced this file (output given in chronological order)")
         ("range-of-validity,R", "prints range of validity for each input file")
         ("db-to-file",
          ("Writes RootFileDB to external SQLite database with the same base name as the input file and the suffix '.db'.\n"s +
@@ -175,6 +177,7 @@ int main(int argc, char * argv[])
       file_names.reserve(file_count);
       cet::copy_all(vm["source"].as<stringvec>(), std::back_inserter(file_names));
 
+      bool const printProcessHistory = vm.count("process-history") > 0;
       bool const printRangeSets = vm.count("range-of-validity") > 0;
       bool const printEventList = vm.count("event-list") > 0;
       bool const printFileIndex = vm.count("file-index") > 0;
@@ -198,6 +201,7 @@ int main(int argc, char * argv[])
         output << std::string(30,'=') << '\n'
                << "File: " <<  printed_name << '\n';
         InfoDumperInputFile file {fn};
+        if (printProcessHistory) rc += print_process_history(file, output);
         if (printRangeSets) rc += print_range_sets(file, output);
         if (printFileIndex) rc += print_file_index(file, output);
         if (printEventList) rc += print_event_list(file, output);
@@ -216,6 +220,13 @@ int main(int argc, char * argv[])
     }
 
 //============================================================================
+
+int print_process_history(InfoDumperInputFile& file,
+                          ostream& output)
+{
+  file.print_process_history(output);
+  return 0;
+}
 
 int print_range_sets(InfoDumperInputFile& file,
                      ostream& output)
