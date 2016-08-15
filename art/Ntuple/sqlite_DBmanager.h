@@ -3,8 +3,7 @@
 
 #include "sqlite_helpers.h"
 
-namespace sqlite
-{
+namespace sqlite {
 
   class DBmanager {
   public:

@@ -12,9 +12,9 @@
 #include <ostream>
 #include <sstream>
 
-namespace {
+using namespace art;
 
-  using namespace art;
+namespace {
 
   void
   recreateLookups(ProductList const& prods,
@@ -30,11 +30,11 @@ namespace {
       // Look in the class of the product for a typedef named "value_type",
       // if there is one allow lookups by that type name too (and by all
       // of its base class names as well).
-      art::TypeWithDict const TY(val.second.producedClassName());
+      art::TypeWithDict const TY {val.second.producedClassName()};
       if (TY.category() != art::TypeWithDict::Category::CLASSTYPE) {
         continue;
       }
-      TClass * TYc = TY.tClass();
+      TClass* TYc = TY.tClass();
       auto ET = mapped_type_of(TYc);
       if (ET || (ET = value_type_of(TYc))) {
         // The class of the product has a nested type, "mapped_type," or,
@@ -47,7 +47,7 @@ namespace {
           std::vector<TClass*> bases;
           art::public_base_classes(ET.tClass(), bases);
           for (auto BT: bases) {
-            auto btFCN = art::TypeID(BT->GetTypeInfo()).friendlyClassName();
+            auto btFCN = art::TypeID{BT->GetTypeInfo()}.friendlyClassName();
             el[bt][btFCN][procName].push_back(bid);
           }
         }
@@ -60,17 +60,9 @@ namespace art {
 
   MasterProductRegistry::
   MasterProductRegistry()
-    : productList_()
-    , frozen_(false)
-    , productProduced_{false}
-    , perFileProds_()
-    , perFilePresenceLookups_()
-    , productLookup_()
-    , elementLookup_()
-    , dictChecker_()
-    {
-      perFileProds_.resize(1);
-    }
+  {
+    perFileProds_.resize(1);
+  }
 
   void
   MasterProductRegistry::
@@ -94,7 +86,7 @@ namespace art {
     auto & productListEntry = *I.first;
     auto & bd = productListEntry.second;
     bd.swap(*bdp);
-    perFileProds_[0].insert( productListEntry );
+    perFileProds_[0].insert(productListEntry);
     productProduced_[bd.branchType()] = true;
     perBranchPresenceLookup_[bd.branchType()].emplace(bd.branchID());
   }
@@ -108,10 +100,10 @@ namespace art {
     perFilePresenceLookups_.resize(1);
 
     // Set presence flags
-    for (auto const& p : pl ) {
-      auto const & bd = p.second;
-      auto const & presListForBT = presList[bd.branchType()];
-      if ( presListForBT.find( bd.branchID() ) != presListForBT.cend() ) {
+    for (auto const& p : pl) {
+      auto const& bd = p.second;
+      auto const& presListForBT = presList[bd.branchType()];
+      if (presListForBT.find(bd.branchID()) != presListForBT.cend()) {
         perFilePresenceLookups_[0][bd.branchType()].emplace(bd.branchID());
       }
     }
@@ -158,10 +150,10 @@ namespace art {
     perFilePresenceLookups_.resize(perFilePresenceLookups_.size()+1);
 
     // Set presence flags
-    for (auto const& p : pl ) {
+    for (auto const& p : pl) {
       auto const & bd = p.second;
       auto const & presListForBT = presList[bd.branchType()];
-      if ( presListForBT.find( bd.branchID() ) != presListForBT.cend() ) {
+      if (presListForBT.find(bd.branchID()) != presListForBT.cend()) {
         perFilePresenceLookups_.back()[bd.branchType()].emplace(bd.branchID());
       }
     }
@@ -216,10 +208,10 @@ namespace art {
     perFilePresenceLookups_.resize(1);
 
     // Set presence flags
-    for (auto const& p : other ) {
-      auto const & bd = p.second;
-      auto const & presListForBT = presList[bd.branchType()];
-      if ( presListForBT.find( bd.branchID() ) != presListForBT.cend() ) {
+    for (auto const& p : other) {
+      auto const& bd = p.second;
+      auto const& presListForBT = presList[bd.branchType()];
+      if (presListForBT.find(bd.branchID()) != presListForBT.cend()) {
         perFilePresenceLookups_[0][bd.branchType()].emplace(bd.branchID());
       }
     }
@@ -294,9 +286,9 @@ namespace art {
   MasterProductRegistry::
   presentWithFileIdx(BranchType const branchType, BranchID const bid) const
   {
-    for ( std::size_t i = 0; i != perFilePresenceLookups_.size() ; ++i) {
-      auto & pLookup = perFilePresenceLookups_[i][branchType];
-      if ( pLookup.find(bid) != pLookup.cend() )
+    for (std::size_t i{}; i != perFilePresenceLookups_.size() ; ++i) {
+      auto& pLookup = perFilePresenceLookups_[i][branchType];
+      if (pLookup.find(bid) != pLookup.cend())
         return i;
     }
     return DROPPED;

@@ -110,40 +110,29 @@ namespace art {
   namespace detail {
     // Template metaprogramming.
 
-    // Does the detail object have a hasMoreData function?
-    template < typename T, bool (T:: *)() > struct hasMoreData_function;
-    template < typename T, bool (T:: *)() const > struct hasMoreData_const_function;
+    template <typename T, typename = void>
+    struct has_hasMoreData : std::false_type {};
 
-    template <typename X>
-    no_tag
-    has_hasMoreData_helper(...);
+    template <typename T>
+    struct has_hasMoreData<T, enable_if_function_exists_t<bool(T::*)(), &T::hasMoreData>> : std::true_type {};
 
-    template <typename X>
-    yes_tag
-    has_hasMoreData_helper(hasMoreData_function<X, &X::hasMoreData> * dummy);
+    template <typename T>
+    struct has_hasMoreData<T, enable_if_function_exists_t<bool(T::*)() const, &T::hasMoreData>> : std::true_type {};
 
-    template <typename X>
-    yes_tag
-    has_hasMoreData_helper(hasMoreData_const_function<X, &X::hasMoreData> * dummy);
-
-    template <typename X>
-    struct has_hasMoreData {
-      static bool const value =
-        sizeof(has_hasMoreData_helper<X>(0)) == sizeof(yes_tag);
-    };
-
-    template <typename T> struct do_call_hasMoreData {
+    template <typename T>
+    struct do_call_hasMoreData {
       bool operator()(T & t)
-        {
-          return t.hasMoreData();
-        }
+      {
+        return t.hasMoreData();
+      }
     };
 
-    template <typename T> struct do_not_call_hasMoreData {
+    template <typename T>
+    struct do_not_call_hasMoreData {
       bool operator()(T &)
-        {
-          return false;
-        }
+      {
+        return false;
+      }
     };
   }
 }
@@ -187,24 +176,24 @@ private:
   ProductRegistryHelper h_;
   SourceHelper sourceHelper_; // So it can be used by detail.
   SourceDetail detail_;
-  input::ItemType state_;
+  input::ItemType state_ {input::IsInvalid};
 
   detail::FileNamesHandler<Source_wantFileServices<T>::value> fh_;
-  std::string currentFileName_;
+  std::string currentFileName_ {};
 
-  std::shared_ptr<RunPrincipal> cachedRP_;
-  std::shared_ptr<SubRunPrincipal> cachedSRP_;
-  std::unique_ptr<EventPrincipal> cachedE_;
+  std::shared_ptr<RunPrincipal> cachedRP_ {nullptr};
+  std::shared_ptr<SubRunPrincipal> cachedSRP_ {nullptr};
+  std::unique_ptr<EventPrincipal> cachedE_ {nullptr};
 
-  bool pendingSubRun_;
-  bool pendingEvent_;
+  bool pendingSubRun_ {false};
+  bool pendingEvent_ {false};
 
-  bool subRunIsNew_;
+  bool subRunIsNew_ {false};
 
-  SubRunNumber_t remainingSubRuns_;
-  bool haveSRLimit_;
-  EventNumber_t remainingEvents_;
-  bool haveEventLimit_;
+  SubRunNumber_t remainingSubRuns_ {1};
+  bool haveSRLimit_ {false};
+  EventNumber_t remainingEvents_ {1};
+  bool haveEventLimit_ {false};
 
   // Called in the constructor, to finish the process of product
   // registration.
@@ -233,30 +222,17 @@ private:
 
   // Throw an art::Exception(errors::DataCorruption), with the given
   // message text.
-  static void throwDataCorruption_(const char * msg);
+  static void throwDataCorruption_(const char* msg);
 };
 
 template <class T>
-art::Source<T>::Source(fhicl::ParameterSet const & p,
-                       InputSourceDescription & d) :
-  InputSource(),
-  act_(&d.activityRegistry),
-  h_(),
-  sourceHelper_(d.moduleDescription),
-  detail_(p, h_, sourceHelper_),
-  state_(input::IsInvalid),
-  fh_(p.get<std::vector<std::string>>("fileNames", std::vector<std::string>())),
-  currentFileName_(),
-  cachedRP_(),
-  cachedSRP_(),
-  cachedE_(),
-  pendingSubRun_(false),
-  pendingEvent_(false),
-  subRunIsNew_(false),
-  remainingSubRuns_(1),
-  haveSRLimit_(false),
-  remainingEvents_(1),
-  haveEventLimit_(false)
+art::Source<T>::Source(fhicl::ParameterSet const& p,
+                       InputSourceDescription& d) :
+  act_{&d.activityRegistry},
+  h_{},
+  sourceHelper_{d.moduleDescription},
+  detail_{p, h_, sourceHelper_},
+  fh_{p.get<std::vector<std::string>>("fileNames", std::vector<std::string>())}
 {
   // Handle maxSubRuns parameter.
   int64_t maxSubRuns_par = p.get<int64_t>("maxSubRuns", -1);
@@ -651,10 +627,10 @@ art::Source<T>::finishProductRegistration_(InputSourceDescription & d)
   // These _xERROR_ strings should never appear in branch names; they
   // are here as tracers to help identify any failures in coding.
   h_.registerProducts(d.productRegistry,
-                      ModuleDescription(fhicl::ParameterSet().id(), // Dummy
+                      ModuleDescription{fhicl::ParameterSet().id(), // Dummy
                                         "_NAMEERROR_",
                                         "_LABELERROR_",
-                                        d.moduleDescription.processConfiguration()));
+                                        d.moduleDescription.processConfiguration()});
 }
 
 #endif /* art_Framework_IO_Sources_Source_h */

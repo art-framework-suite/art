@@ -80,8 +80,6 @@ namespace art
     virtual std::unique_ptr<RangeSetHandler> runRangeSetHandler() = 0;
     virtual std::unique_ptr<RangeSetHandler> subRunRangeSetHandler() = 0;
 
-    // Temporary workaround for broken design.
-    virtual void storeMPRforBrokenRandomAccess(MasterProductRegistry&);
   };
 }
 

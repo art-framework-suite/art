@@ -767,12 +767,9 @@ writeFileCatalogMetadata(FileStatsCollector const& stats,
     insert_md_row(stmt, kv);
   }
   // Add our own specific information: File format and friends.
-  insert_md_row(stmt, { "file_format", "\"artroot\"" });
-  insert_md_row(stmt, { "file_format_era",
-        cet::canonical_string(getFileFormatEra()) });
-  insert_md_row(stmt, { "file_format_version",
-        to_string(getFileFormatVersion())
-        });
+  insert_md_row(stmt, {"file_format", "\"artroot\""});
+  insert_md_row(stmt, {"file_format_era", cet::canonical_string(getFileFormatEra())});
+  insert_md_row(stmt, {"file_format_version", to_string(getFileFormatVersion())});
   namespace bpt = boost::posix_time;
   // File start time.
   insert_md_row(stmt, { "start_time", cet::canonical_string(
@@ -805,11 +802,11 @@ writeFileCatalogMetadata(FileStatsCollector const& stats,
       // Rewind over last delimiter.
       buf.seekp(-2, ios_base::cur);
       buf << " ]";
-      insert_md_row(stmt, { "runs", buf.str() });
+      insert_md_row(stmt, {"runs", buf.str()});
     }
   }
   // Number of events.
-  insert_md_row(stmt, { "event_count", to_string(stats.eventsThisFile()) });
+  insert_md_row(stmt, {"event_count", to_string(stats.eventsThisFile())});
   // first_event and last_event.
   auto eidToTuple = [](EventID const & eid)->string {
     ostringstream eidStr;
@@ -822,8 +819,8 @@ writeFileCatalogMetadata(FileStatsCollector const& stats,
     << " ]";
     return eidStr.str();
   };
-  insert_md_row(stmt, { "first_event", eidToTuple(stats.lowestEventID()) });
-  insert_md_row(stmt, { "last_event", eidToTuple(stats.highestEventID()) });
+  insert_md_row(stmt, {"first_event", eidToTuple(stats.lowestEventID())});
+  insert_md_row(stmt, {"last_event", eidToTuple(stats.highestEventID())});
   // File parents.
   if (!stats.parents().empty()) {
     ostringstream pstring;
