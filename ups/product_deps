@@ -15,13 +15,9 @@ qualifier	canvas		notes
 e10:debug	e10:debug
 e10:prof	e10:prof
 e10:prof:sse2	e10:prof	-msse2 -ftree-vectorizer-verbose
-nu:e10:debug	e10:nu:debug
-nu:e10:prof	e10:nu:prof
 e9:debug	e9:debug
 e9:prof		e9:prof
 e9:prof:sse2	e9:prof		-msse2 -ftree-vectorizer-verbose
-nu:e9:debug	e9:nu:debug
-nu:e9:prof	e9:nu:prof
 end_qualifier_list
 
 # Local Variables:
