@@ -22,26 +22,30 @@ namespace art {
   template <typename T>
   class WorkerT : public Worker {
   public:
-    typedef T ModuleType;
-    typedef WorkerT<T> WorkerType;
-    WorkerT(std::unique_ptr<T> &&,
+    using ModuleType = T;
+    using WorkerType = WorkerT<T>;
+
+    WorkerT(std::unique_ptr<T>&&,
             ModuleDescription const&,
             WorkerParams const&);
 
-    void reconfigure(fhicl::ParameterSet const &pset) override {
-      module_->reconfigure(pset); }
+    void reconfigure(fhicl::ParameterSet const& pset) override
+    {
+      module_->reconfigure(pset);
+    }
 
     bool modifiesEvent() const override { return module_->modifiesEvent(); }
 
     template <typename ModType>
     static std::unique_ptr<T> makeModule(ModuleDescription const& md,
-                                         fhicl::ParameterSet const& pset) {
-      std::unique_ptr<ModType> module = std::unique_ptr<ModType>(new ModType(pset));
+                                         fhicl::ParameterSet const& pset)
+    {
+      auto module = std::make_unique<ModType>(pset);
       return std::unique_ptr<T>(module.release());
     }
 
   protected:
-    T & module() {return *module_;}
+    T& module() {return *module_;}
     T const& module() const {return *module_;}
 
   private:
@@ -66,16 +70,16 @@ namespace art {
     void implRespondToCloseOutputFiles(FileBlock const& fb) override;
     std::string workerType() const override;
 
-    std::shared_ptr<T> module_;
+    std::unique_ptr<T> module_;
   };
 
   template <typename T>
   inline
-  WorkerT<T>::WorkerT(std::unique_ptr<T> && ed,
+  WorkerT<T>::WorkerT(std::unique_ptr<T>&& ed,
                       ModuleDescription const& md,
                       WorkerParams const& wp) :
     Worker{md, wp},
-    module_{ed.release()}
+    module_{std::move(ed)}
   {
     module_->setModuleDescription(md);
     module_->registerProducts(wp.reg_, md);
@@ -84,84 +88,97 @@ namespace art {
   template <typename T>
   bool
   WorkerT<T>::implDoBegin(EventPrincipal& ep,
-                          CurrentProcessingContext const* cpc) {
+                          CurrentProcessingContext const* cpc)
+  {
     return module_->doEvent(ep, cpc);
   }
 
   template <typename T>
   bool
-  WorkerT<T>::implDoEnd(EventPrincipal& ,
-                        CurrentProcessingContext const*) {
+  WorkerT<T>::implDoEnd(EventPrincipal&,
+                        CurrentProcessingContext const*)
+  {
     return false;
   }
 
   template <typename T>
   bool
   WorkerT<T>::implDoBegin(RunPrincipal& rp,
-                          CurrentProcessingContext const* cpc) {
+                          CurrentProcessingContext const* cpc)
+  {
     return module_->doBeginRun(rp, cpc);
   }
 
   template <typename T>
   bool
   WorkerT<T>::implDoEnd(RunPrincipal& rp,
-                        CurrentProcessingContext const* cpc) {
+                        CurrentProcessingContext const* cpc)
+  {
     return module_->doEndRun(rp, cpc);
   }
 
   template <typename T>
   bool
   WorkerT<T>::implDoBegin(SubRunPrincipal& srp,
-                          CurrentProcessingContext const* cpc) {
+                          CurrentProcessingContext const* cpc)
+  {
     return module_->doBeginSubRun(srp, cpc);
   }
 
   template <typename T>
   bool
   WorkerT<T>::implDoEnd(SubRunPrincipal& srp,
-                        CurrentProcessingContext const* cpc) {
+                        CurrentProcessingContext const* cpc)
+  {
     return module_->doEndSubRun(srp, cpc);
   }
 
   template <typename T>
   std::string
-  WorkerT<T>::workerType() const {
+  WorkerT<T>::workerType() const
+  {
     return module_->workerType();
   }
 
   template <typename T>
   void
-  WorkerT<T>::implBeginJob() {
+  WorkerT<T>::implBeginJob()
+  {
     module_->doBeginJob();
   }
 
   template <typename T>
   void
-  WorkerT<T>::implEndJob() {
+  WorkerT<T>::implEndJob()
+  {
     module_->doEndJob();
   }
 
   template <typename T>
   void
-  WorkerT<T>::implRespondToOpenInputFile(FileBlock const& fb) {
+  WorkerT<T>::implRespondToOpenInputFile(FileBlock const& fb)
+  {
     module_->doRespondToOpenInputFile(fb);
   }
 
   template <typename T>
   void
-  WorkerT<T>::implRespondToCloseInputFile(FileBlock const& fb) {
+  WorkerT<T>::implRespondToCloseInputFile(FileBlock const& fb)
+  {
     module_->doRespondToCloseInputFile(fb);
   }
 
   template <typename T>
   void
-  WorkerT<T>::implRespondToOpenOutputFiles(FileBlock const& fb) {
+  WorkerT<T>::implRespondToOpenOutputFiles(FileBlock const& fb)
+  {
     module_->doRespondToOpenOutputFiles(fb);
   }
 
   template <typename T>
   void
-  WorkerT<T>::implRespondToCloseOutputFiles(FileBlock const& fb) {
+  WorkerT<T>::implRespondToCloseOutputFiles(FileBlock const& fb)
+  {
     module_->doRespondToCloseOutputFiles(fb);
   }
 }

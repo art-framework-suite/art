@@ -15,10 +15,10 @@ namespace {
   matchesBySpec(std::string const& spec)
   {
     std::vector<PluginMetadata> result;
-    for ( auto const & pr : art::Suffixes::all() ) {
+    for (auto const & pr : art::Suffixes::all()) {
       auto mc = get_MetadataCollector(pr.first);
 
-      for ( auto const& info : get_LibraryInfoCollection(pr.first, spec, indent__2()) )
+      for (auto const& info : get_LibraryInfoCollection(pr.first, spec, indent__2()))
         result.push_back( mc->collect(info) );
     }
     return result;
@@ -27,18 +27,18 @@ namespace {
 }
 
 void
-art::detail::print_available_plugins(suffix_type st,
+art::detail::print_available_plugins(suffix_type const st,
                                      std::string const& spec)
 {
   auto coll = get_LibraryInfoCollection(st, spec);
-  if ( coll.empty() ) return;
+  if (coll.empty()) return;
 
   auto ms = get_MetadataSummary(st, coll);
 
   cout << "\n" << thick_rule(ms->widths()) << "\n\n"
        << ms->header()
        << "\n" << thin_rule(ms->widths()) << "\n";
-  for ( auto const & info : coll ) {
+  for (auto const& info : coll) {
     cout << ms->summary(info);
   }
   cout << "\n" << thick_rule(ms->widths()) << "\n\n";
@@ -62,7 +62,7 @@ art::detail::print_descriptions(std::vector<std::string> const& plugins)
   for (auto const& plugin : plugins) {
 
     auto matches = matchesBySpec(plugin);
-    if ( matches.empty() ) {
+    if (matches.empty()) {
       cout << indent0() << font_bold(plugin) << " did not match any plugin.\n";
       cout << fixed_rule();
       continue;

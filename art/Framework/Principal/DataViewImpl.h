@@ -49,21 +49,19 @@
 
 #include "art/Framework/Principal/fwd.h"
 #include "art/Framework/Principal/Handle.h"
-#include "canvas/Persistency/Common/EDProduct.h"
 #include "art/Persistency/Common/GroupQueryResult.h"
-#include "canvas/Persistency/Common/Wrapper.h"
 #include "art/Persistency/Common/fwd.h"
+#include "art/Persistency/Provenance/detail/type_aliases.h"
+#include "canvas/Persistency/Common/EDProduct.h"
 #include "canvas/Persistency/Common/traits.h"
 #include "canvas/Persistency/Provenance/BranchDescription.h"
 #include "canvas/Persistency/Provenance/BranchID.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
 #include "canvas/Persistency/Provenance/ProductProvenance.h"
 #include "canvas/Persistency/Provenance/ProvenanceFwd.h"
-#include "art/Persistency/Provenance/detail/type_aliases.h"
 #include "canvas/Utilities/InputTag.h"
 #include "canvas/Utilities/TypeID.h"
 
-#include <memory>
 #include <ostream>
 #include <memory>
 #include <string>

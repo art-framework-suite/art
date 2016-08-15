@@ -12,6 +12,7 @@
 #include "art/Framework/Principal/DataViewImpl.h"
 #include "art/Framework/Principal/fwd.h"
 #include "art/Utilities/ProductTokens.h"
+#include "canvas/Persistency/Common/Wrapper.h"
 #include "canvas/Persistency/Provenance/RunAuxiliary.h"
 #include "canvas/Persistency/Provenance/RunID.h"
 #include "canvas/Utilities/TypeID.h"
