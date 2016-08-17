@@ -33,11 +33,12 @@ namespace art {
 
     using FP = std::string const&(LibraryInfo::*)() const;
 
-    inline std::size_t columnWidth( LibraryInfoCollection const& coll,
-                                    FP fp,
-                                    std::string const& header ) {
-      std::size_t s{ header.size() };
-      cet::for_all( coll,[&s,fp](auto const& li){s = std::max(s,(li.*fp)().size());} );
+    inline std::size_t columnWidth(LibraryInfoCollection const& coll,
+                                   FP fp,
+                                   std::string const& header)
+    {
+      std::size_t s {header.size()};
+      cet::for_all(coll, [&s,fp](auto const& li){s = std::max(s,(li.*fp)().size());});
       return s;
     }
 
@@ -48,7 +49,7 @@ namespace art {
 
     inline std::size_t rule_size(Widths const& widths)
     {
-      std::size_t result { indent0().size() };
+      std::size_t result {indent0().size()};
       for (std::size_t const w : widths)
         result += w;
       return result += (widths.size()-1)*4u; // Account for space between columns;

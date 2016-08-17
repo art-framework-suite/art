@@ -85,24 +85,14 @@ namespace art {
 
     ////////////////////////////////////////////////////////////////////
     // Does the detail object have a method void startEvent()?
-    template <typename T, void (T:: *)(Event const &)> struct startEvent_function;
+    template <typename T, typename = void>
+    struct has_old_startEvent : std::false_type {};
 
-    //////////
-    // Temporary trapping of old interface in user code.
-    template <typename X, void (X:: *)()> struct old_startEvent_function;
-    template <typename X>
-    no_tag
-    has_old_startEvent_helper(...);
-    template <typename X>
-    yes_tag
-    has_old_startEvent_helper(old_startEvent_function<X, &X::startEvent> * dummy);
-    template <typename X>
-    struct has_old_startEvent {
-      static bool const value =
-        sizeof(has_old_startEvent_helper<X>(0)) == sizeof(yes_tag);
-    };
+    template <typename T>
+    struct has_old_startEvent<T, enable_if_function_exists_t<void(T::*)(), &T::startEvent>> : std::true_type {};
 
-    template <typename T> struct do_call_old_startEvent {
+    template <typename T>
+    struct do_call_old_startEvent {
     public:
       void operator()(T & t) {
         static bool need_warning = true;
@@ -117,8 +107,9 @@ namespace art {
       }
     };
 
-    template <typename T> struct do_not_call_old_startEvent {
-      void operator()(T&) { }
+    template <typename T>
+    struct do_not_call_old_startEvent {
+      void operator()(T&) {}
     };
 
     template <typename T> struct do_not_call_startEvent {
@@ -134,6 +125,12 @@ namespace art {
     };
     //////////
 
+    template <typename T, typename = void>
+    struct has_startEvent : std::false_type {};
+
+    template <typename T>
+    struct has_startEvent<T, enable_if_function_exists_t<void(T::*)(Event const&), &T::startEvent>> : std::true_type {};
+
     template <typename T> struct call_startEvent {
     public:
       call_startEvent(Event const & e) : e_(e) { }
@@ -142,55 +139,35 @@ namespace art {
       Event const & e_;
     };
 
-    template <typename T>
-    no_tag
-    has_startEvent_helper(...);
-
-    template <typename T>
-    yes_tag
-    has_startEvent_helper(startEvent_function<T, &T::startEvent> * dummy);
-
-    template <typename T>
-    struct has_startEvent {
-      static bool const value =
-        sizeof(has_startEvent_helper<T>(0)) == sizeof(yes_tag);
-    };
     ////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////
     // Does the detail object have a method size_t eventsToSkip() const?
-    template <typename T, size_t (T:: *)()> struct eventsToSkip_function;
-    template <typename T, size_t (T:: *)() const> struct const_eventsToSkip_function;
 
-    template <typename T> struct do_not_setup_eventsToSkip {
-      do_not_setup_eventsToSkip(MixHelper &, T &) { }
+    template <typename T, typename = void>
+    struct has_eventsToSkip : std::false_type {};
+
+    template <typename T>
+    struct has_eventsToSkip<T, enable_if_function_exists_t<size_t(T::*)(), &T::eventsToSkip>> : std::true_type {};
+
+    template <typename T>
+    struct has_eventsToSkip<T, enable_if_function_exists_t<size_t(T::*)() const, &T::eventsToSkip>> : std::true_type {};
+
+    template <typename T>
+    struct do_not_setup_eventsToSkip {
+      do_not_setup_eventsToSkip(MixHelper&, T&) { }
     };
 
     template <typename T>
     size_t
-    call_eventsToSkip(T & t) { return t.eventsToSkip(); }
+    call_eventsToSkip(T& t) { return t.eventsToSkip(); }
 
-    template <typename T> struct setup_eventsToSkip {
-      setup_eventsToSkip(MixHelper & helper, T & t) {
+    template <typename T>
+    struct setup_eventsToSkip {
+      setup_eventsToSkip(MixHelper& helper, T& t)
+      {
         helper.setEventsToSkipFunction(std::bind(&detail::call_eventsToSkip<T>, std::ref(t)));
       }
-    };
-
-    template <typename T>
-    no_tag
-    has_eventsToSkip_helper(...);
-
-    template <typename T>
-    yes_tag
-    has_eventsToSkip_helper(eventsToSkip_function<T, &T::eventsToSkip> *);
-
-    template <typename T>
-    yes_tag
-    has_eventsToSkip_helper(const_eventsToSkip_function<T, &T::eventsToSkip> *);
-
-    template <typename T> struct has_eventsToSkip {
-      static bool const value =
-        sizeof(has_eventsToSkip_helper<T>(0)) == sizeof(yes_tag);
     };
 
     ////////////////////////////////////////////////////////////////////
@@ -198,65 +175,51 @@ namespace art {
     ////////////////////////////////////////////////////////////////////
     // Does the detail object have a method void
     // processEventIDs(EventIDSequence const &)?
-    template <typename T, void (T:: *)(EventIDSequence const &)> struct processEventIDs_function;
 
-    template <typename T> struct do_not_call_processEventIDs {
-    public:
-      void operator()(T &, EventIDSequence const &) {}
-    };
+    template <typename T, typename = void>
+    struct has_processEventIDs : std::false_type {};
 
-    template <typename T> struct call_processEventIDs {
-    public:
-      void operator()(T & t, EventIDSequence const & seq) { t.processEventIDs(seq); }
+    template <typename T>
+    struct has_processEventIDs<T, enable_if_function_exists_t<void(T::*)(EventIDSequence const&), &T::processEventIDs>> : std::true_type {};
+
+    template <typename T>
+    struct do_not_call_processEventIDs {
+      void operator()(T&, EventIDSequence const&) {}
     };
 
     template <typename T>
-    no_tag
-    has_processEventIDs_helper(...);
-
-    template <typename T>
-    yes_tag
-    has_processEventIDs_helper(processEventIDs_function<T, &T::processEventIDs> * dummy);
-
-    template <typename T>
-    struct has_processEventIDs {
-      static bool const value =
-        sizeof(has_processEventIDs_helper<T>(0)) == sizeof(yes_tag);
+    struct call_processEventIDs {
+      void operator()(T& t, EventIDSequence const& seq) { t.processEventIDs(seq); }
     };
+
     ////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////
     // Does the detail object have a method void finalizeEvent(Event&)?
-    template <typename T, void (T:: *)(Event &)> struct finalizeEvent_function;
+    template <typename T, typename = void>
+    struct has_finalizeEvent : std::false_type {};
 
-    template <typename T> struct do_not_call_finalizeEvent {
-    public:
-      void operator()(T &, Event &) {}
-    };
+    template <typename T>
+    struct has_finalizeEvent<T, enable_if_function_exists_t<void(T::*)(Event&), &T::finalizeEvent>> : std::true_type {};
 
-    template <typename T> struct call_finalizeEvent {
-    public:
-      void operator()(T & t, Event & e) { t.finalizeEvent(e); }
+    template <typename T>
+    struct do_not_call_finalizeEvent {
+      void operator()(T&, Event&) {}
     };
 
     template <typename T>
-    no_tag
-    has_finalizeEvent_helper(...);
-
-    template <typename T>
-    yes_tag
-    has_finalizeEvent_helper(finalizeEvent_function<T, &T::finalizeEvent> * dummy);
-
-    template <typename T>
-    struct has_finalizeEvent {
-      static bool const value =
-        sizeof(has_finalizeEvent_helper<T>(0)) == sizeof(yes_tag);
+    struct call_finalizeEvent {
+      void operator()(T& t, Event& e) { t.finalizeEvent(e); }
     };
+
     ////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////
     // Does the detail object have respondToXXX methods()?
-    template <typename T, void (T:: *)(FileBlock const &)>
+    template <typename T>
+    using respond_to_file = void(T::*)(FileBlock const&);
+
+    template <typename T, respond_to_file<T>>
     struct respondToXXX_function;
 
     template <typename T> struct do_not_call_respondToXXX {
@@ -287,61 +250,34 @@ namespace art {
       }
     };
 
-    template <typename T>
-    no_tag
-    has_respondToOpenInputFile_helper(...);
+    // has_respondToOpenInputFile
+    template <typename T, typename = void>
+    struct has_respondToOpenInputFile : std::false_type {};
 
     template <typename T>
-    yes_tag
-    has_respondToOpenInputFile_helper(respondToXXX_function<T, &T::respondToOpenInputFile> * dummy);
+    struct has_respondToOpenInputFile<T, enable_if_function_exists_t<respond_to_file<T>, &T::respondToOpenInputFile>> : std::true_type {};
+
+    // has_respondToCloseInputFile
+    template <typename T, typename = void>
+    struct has_respondToCloseInputFile : std::false_type {};
 
     template <typename T>
-    no_tag
-    has_respondToCloseInputFile_helper(...);
+    struct has_respondToCloseInputFile<T, enable_if_function_exists_t<respond_to_file<T>, &T::respondToCloseInputFile>> : std::true_type {};
+
+    // has_respondToOpenOutputFiles
+    template <typename T, typename = void>
+    struct has_respondToOpenOutputFiles : std::false_type {};
 
     template <typename T>
-    yes_tag
-    has_respondToCloseInputFile_helper(respondToXXX_function<T, &T::respondToCloseInputFile> * dummy);
+    struct has_respondToOpenOutputFiles<T, enable_if_function_exists_t<respond_to_file<T>, &T::respondToOpenOutputFiles>> : std::true_type {};
+
+    // has_respondToCloseOutputFiles
+    template <typename T, typename = void>
+    struct has_respondToCloseOutputFiles : std::false_type {};
 
     template <typename T>
-    no_tag
-    has_respondToOpenOutputFiles_helper(...);
+    struct has_respondToCloseOutputFiles<T, enable_if_function_exists_t<respond_to_file<T>, &T::respondToCloseOutputFiles>> : std::true_type {};
 
-    template <typename T>
-    yes_tag
-    has_respondToOpenOutputFiles_helper(respondToXXX_function<T, &T::respondToOpenOutputFiles> * dummy);
-
-    template <typename T>
-    no_tag
-    has_respondToCloseOutputFiles_helper(...);
-
-    template <typename T>
-    yes_tag
-    has_respondToCloseOutputFiles_helper(respondToXXX_function<T, &T::respondToCloseOutputFiles> * dummy);
-
-    template <typename T>
-    struct has_respondToOpenInputFile {
-      static bool const value =
-        sizeof(has_respondToOpenInputFile_helper<T>(0)) == sizeof(yes_tag);
-    };
-
-    template <typename T>
-    struct has_respondToCloseInputFile {
-      static bool const value =
-        sizeof(has_respondToCloseInputFile_helper<T>(0)) == sizeof(yes_tag);
-    };
-
-    template <typename T>
-    struct has_respondToOpenOutputFiles {
-      static bool const value =
-        sizeof(has_respondToOpenOutputFiles_helper<T>(0)) == sizeof(yes_tag);
-    };
-
-    template <typename T>
-    struct has_respondToCloseOutputFiles {
-      static bool const value =
-        sizeof(has_respondToCloseOutputFiles_helper<T>(0)) == sizeof(yes_tag);
-    };
     ////////////////////////////////////////////////////////////////////
 
   } // detail namespace

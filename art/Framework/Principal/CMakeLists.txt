@@ -7,6 +7,8 @@ art_make(LIB_LIBRARIES art_Persistency_Provenance canvas_Persistency_Provenance
   fhiclcpp
   cetlib
   ${CLHEP}
+  SUBDIRS
+  detail
 )
 
 install_headers(SUBDIRS detail)

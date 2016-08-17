@@ -86,21 +86,21 @@ public:
 private:
   void checkDicts_(BranchDescription const & productDesc);
 
-  ProductList productList_;
-  bool frozen_;
-  std::array<bool, NumBranchTypes> productProduced_;
-  std::vector<ProductList> perFileProds_;
+  ProductList productList_ {};
+  bool frozen_ {false};
+  std::array<bool, NumBranchTypes> productProduced_ {{false}}; //filled by aggregation
+  std::vector<ProductList> perFileProds_ {};
 
-  PerBranchTypePresence  perBranchPresenceLookup_;
-  PerFilePresence perFilePresenceLookups_;
+  PerBranchTypePresence  perBranchPresenceLookup_ {{}};
+  PerFilePresence perFilePresenceLookups_ {};
   // Support finding a BranchID by <product friendly class name, process name>.
-  std::vector<BranchTypeLookup> productLookup_;
+  std::vector<BranchTypeLookup> productLookup_ {};
   // Support finding a BranchID by
   // <product::value_type friendly class name, process name>.
-  std::vector<BranchTypeLookup> elementLookup_;
-  std::vector<ProductListUpdatedCallback> productListUpdatedCallbacks_;
+  std::vector<BranchTypeLookup> elementLookup_ {};
+  std::vector<ProductListUpdatedCallback> productListUpdatedCallbacks_ {};
 
-  DictionaryChecker dictChecker_;
+  DictionaryChecker dictChecker_ {};
 };
 
 // Local Variables:

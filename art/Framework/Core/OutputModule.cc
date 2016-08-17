@@ -91,7 +91,7 @@ lastClosedFileName() const
 
 void
 art::OutputModule::
-configure(OutputModuleDescription const & desc)
+configure(OutputModuleDescription const& desc)
 {
   remainingEvents_ = maxEvents_ = desc.maxEvents_;
 }
@@ -117,8 +117,8 @@ doSelectProducts()
       // Transient, skip it.
       continue;
     }
-    if ( !pmd.produced(bt, bid) &&
-         pmd.presentWithFileIdx(bt, bid) == MasterProductRegistry::DROPPED ) {
+    if (!pmd.produced(bt, bid) &&
+        pmd.presentWithFileIdx(bt, bid) == MasterProductRegistry::DROPPED) {
       // Not produced in this process, and previously dropped, skip it.
       continue;
     }
@@ -143,34 +143,34 @@ selectProducts(FileBlock const& fb)
 
 void
 art::OutputModule::
-registerProducts(MasterProductRegistry & mpr,
-                 ModuleDescription const & md)
+registerProducts(MasterProductRegistry& mpr,
+                 ModuleDescription const& md)
 {
   doRegisterProducts(mpr, md);
 }
 
 void
 art::OutputModule::
-preSelectProducts(FileBlock const &)
+preSelectProducts(FileBlock const&)
 {
 }
 
 void
 art::OutputModule::
-postSelectProducts(FileBlock const &)
+postSelectProducts(FileBlock const&)
 {
 }
 
 void
 art::OutputModule::
-doRegisterProducts(MasterProductRegistry &,
-                   ModuleDescription const &)
+doRegisterProducts(MasterProductRegistry&,
+                   ModuleDescription const&)
 {
 }
 
 void
 art::OutputModule::
-reconfigure(ParameterSet const &)
+reconfigure(ParameterSet const&)
 {
   throw art::Exception(errors::UnimplementedFeature)
     << "Modules of type "
@@ -295,7 +295,7 @@ doEndRun(RunPrincipal const & rp,
   detail::CPCSentry sentry {current_context_, cpc};
   FDEBUG(2) << "endRun called\n";
   endRun(rp);
-  Run const r {const_cast<RunPrincipal &>(rp), moduleDescription_};
+  Run const r {const_cast<RunPrincipal&>(rp), moduleDescription_};
   cet::for_all(plugins_, [&r](auto& p){ p->doEndRun(r); });
   return true;
 }

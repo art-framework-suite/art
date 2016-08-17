@@ -1,23 +1,18 @@
-#include "art/Framework/IO/Root/detail/orderedProcessNames.h"
+#include "art/Framework/Principal/detail/orderedProcessNames.h"
 #include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
 #include "canvas/Persistency/Provenance/ProcessHistory.h"
 #include "canvas/Persistency/Provenance/ProcessHistoryID.h"
 #include "cetlib/container_algorithms.h"
 
-#include <cassert>
+#include <iostream>
 
 std::vector<std::string>
-art::detail::orderedProcessNames(std::string const& currentProcessName)
+art::detail::orderedProcessNames()
 {
   std::vector<std::string> result;
   // Find entry with largest number of process histories
   ProcessHistory history;
   ProcessHistory::size_type max_size {};
-
-  if (ProcessHistoryRegistry::empty()) {
-    result.push_back(currentProcessName);
-    return result;
-  }
 
   for (auto const& hist : ProcessHistoryRegistry::get()) {
     if (hist.second.size() > max_size) {
@@ -33,10 +28,6 @@ art::detail::orderedProcessNames(std::string const& currentProcessName)
                      [](auto const& config) {
                        return config.processName();
                      } );
-
-  assert(!result.empty());
-  if (result.back() != currentProcessName)
-    result.push_back(currentProcessName);
 
   return result;
 }

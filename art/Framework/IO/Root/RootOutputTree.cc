@@ -97,32 +97,35 @@ writeTree() const
   writeTTree(metaTree_);
 }
 
-static
-void
-fastCloneTTree(TTree* in, TTree* out)
-{
-  if (in->GetEntries() == 0) {
-    return;
-  }
-  TTreeCloner cloner(in, out, "", TTreeCloner::kIgnoreMissingTopLevel);
-  if (!cloner.IsValid()) {
-    throw art::Exception(art::errors::FatalRootError)
-        << "invalid TTreeCloner\n";
-  }
-  out->SetEntries(out->GetEntries() + in->GetEntries());
-  cloner.Exec();
-}
-
 void
 RootOutputTree::
-fastCloneTree(TTree* tree)
+fastCloneTree(TTree* intree)
 {
   unclonedReadBranches_.clear();
   unclonedReadBranchNames_.clear();
   if (!currentlyFastCloning_) {
     return;
   }
-  fastCloneTTree(tree, tree_);
+  if (intree->GetEntries() != 0) {
+    TTreeCloner cloner(intree, tree_, "", TTreeCloner::kIgnoreMissingTopLevel |
+                       TTreeCloner::kNoWarnings | TTreeCloner::kNoFileCache);
+    if (cloner.IsValid()) {
+      tree_->SetEntries(tree_->GetEntries() + intree->GetEntries());
+      cloner.Exec();
+    }
+    else {
+      currentlyFastCloning_ = false;
+      mf::LogInfo("fastCloneTree")
+          << "INFO: Unable to fast clone tree "
+          << intree->GetName()
+          << '\n'
+          << "INFO: ROOT reason is:\n"
+          << "INFO: "
+          << cloner.GetWarning()
+          << '\n'
+          << "INFO: Processing will continue, tree will be slow cloned.";
+    }
+  }
   for (auto const& val : readBranches_) {
     if (val->GetEntries() != tree_->GetEntries()) {
       unclonedReadBranches_.push_back(val);

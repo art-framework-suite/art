@@ -14,6 +14,7 @@
 #include "art/Framework/Principal/ResultsPrincipal.h"
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
+#include "art/Framework/Principal/detail/orderedProcessNames.h"
 #include "art/Utilities/ConfigTable.h"
 #include "canvas/Utilities/Exception.h"
 #include "cetlib/column_width.h"
@@ -27,6 +28,56 @@
 #include <string>
 #include <vector>
 
+namespace {
+  struct ProductInfo {
+    std::string module_label;
+    std::string instance_name;
+    std::string product_type;
+    std::string friendly_type;
+    std::string str_size;
+  };
+
+  std::string product_size(art::EDProduct const* product, bool const isPresent, bool const onDemand)
+  {
+    return
+      isPresent ? product->productSize() :
+      onDemand ? "o/d" : "?";
+  }
+
+  std::string dummyProcess() { return "PROCESS NAME"; }
+  auto dummyInfo()
+  {
+    return ProductInfo{"MODULE_LABEL",
+        "PRODUCT INSTANCE NAME",
+        "DATA PRODUCT TYPE",
+        "PRODUCT FRIENDLY TYPE",
+        "SIZE"};
+  }
+
+
+  using ProductInfos = std::vector<ProductInfo>;
+  std::size_t columnWidthFirst(std::map<std::string,ProductInfos> const& m, std::string const& title)
+  {
+    std::size_t i {title.size()};
+    cet::for_all(m, [&i](auto const& entry) { i=std::max(i, entry.first.size()); } );
+    return i;
+  }
+
+  std::size_t columnWidth(std::map<std::string,ProductInfos> const& m,
+                          std::string const ProductInfo::* pim,
+                          std::string const& title)
+  {
+    std::size_t i {title.size()};
+    for (auto const& entry : m) {
+      for (auto const& pi : entry.second) {
+        i = std::max(i, (pi.*pim).size());
+      }
+    }
+    return i;
+  }
+
+}
+
 namespace art {
   class FileDumperOutput;
 }
@@ -38,7 +89,7 @@ public:
 
   struct Config {
     fhicl::TableFragment<OutputModule::Config> omConfig;
-    fhicl::Atom<bool> onDemandProduction           { fhicl::Name("onDemandProduction")      , false };
+    fhicl::Atom<bool> onDemandProduction           { fhicl::Name("onDemandProduction"), false };
     fhicl::Atom<bool> wantProductFullClassName     { fhicl::Name("wantProductFullClassName"), true };
     fhicl::Atom<bool> wantProductFriendlyClassName { fhicl::Name("wantProductFriendlyClassName"), wantProductFullClassName() };
     fhicl::Atom<bool> resolveProducts { fhicl::Name("resolveProducts"), true };
@@ -47,27 +98,28 @@ public:
 
   using Parameters = ConfigTable<Config, OutputModule::Config::KeysToIgnore>;
 
-  explicit FileDumperOutput(Parameters const &);
-
+  explicit FileDumperOutput(Parameters const&);
 
 private:
-  void write(EventPrincipal & e) override;
-  void writeRun(RunPrincipal & r) override;
-  void writeSubRun(SubRunPrincipal & sr) override;
-  void readResults(ResultsPrincipal const & resp) override;
+  void write(EventPrincipal& e) override;
+  void writeRun(RunPrincipal& r) override;
+  void writeSubRun(SubRunPrincipal& sr) override;
+  void readResults(ResultsPrincipal const& resp) override;
+  void respondToCloseInputFile(FileBlock const& fb) override;
 
   template <typename P>
-  void printPrincipal(P const & p);
+  void printPrincipal(P const& p);
 
   bool wantOnDemandProduction_;
   bool wantProductFullClassName_;
   bool wantProductFriendlyClassName_;
   bool wantResolveProducts_;
   bool wantPresentOnly_;
+  std::vector<std::string> orderedProcesses_ {dummyProcess()};
 };  // FileDumperOutput
 
 art::FileDumperOutput::
-FileDumperOutput(art::FileDumperOutput::Parameters const & ps)
+FileDumperOutput(art::FileDumperOutput::Parameters const& ps)
   :
   OutputModule{ps().omConfig, ps.get_PSet()},
   wantOnDemandProduction_{ps().onDemandProduction()},
@@ -80,53 +132,63 @@ FileDumperOutput(art::FileDumperOutput::Parameters const & ps)
 
 void
 art::FileDumperOutput::
-write(EventPrincipal & e)
+write(EventPrincipal& e)
 {
   printPrincipal(e);
 }
 
 void
 art::FileDumperOutput::
-writeRun(RunPrincipal & r)
+writeRun(RunPrincipal& r)
 {
   printPrincipal(r);
 }
 
 void
 art::FileDumperOutput::
-writeSubRun(SubRunPrincipal & sr)
+writeSubRun(SubRunPrincipal& sr)
 {
   printPrincipal(sr);
 }
 
 void
 art::FileDumperOutput::
-readResults(ResultsPrincipal const & resp)
+readResults(ResultsPrincipal const& resp)
 {
   printPrincipal(resp);
+}
+
+void
+art::FileDumperOutput::respondToCloseInputFile(FileBlock const&)
+{
+  orderedProcesses_.clear();
 }
 
 template <typename P>
 void
 art::FileDumperOutput::
-printPrincipal(P const & p)
+printPrincipal(P const& p)
 {
-  if (!p.size()) { return; } // Nothing to do.
-  std::cout << "PRINCIPAL TYPE: " << BranchTypeToString(p.branchType()) << std::endl;
-  // prepare the data structure, a sequence of columns:
-  using column = std::vector<std::string>;
-  constexpr unsigned int ncols {6};
-  std::vector<column> col(ncols);
-  // provide column headings:
-  col[0].push_back("PROCESS NAME");
-  col[1].push_back("MODULE LABEL");
-  col[2].push_back("PRODUCT INSTANCE NAME");
-  col[3].push_back("DATA PRODUCT TYPE");
-  col[4].push_back("PRODUCT FRIENDLY TYPE");
-  col[5].push_back("SIZE");
+  if (!p.size()) return;
+
+  // The current execution of art does not allow for input files with
+  // different process histories (to first order).  So re-populating
+  // the list of ordered process names for each input file, while
+  // unnecessary for current art, anticipates a future version of art
+  // that can accommodate different process histories for a collection
+  // of input files.
+  if (orderedProcesses_.size() == 1ull) {
+    cet::copy_all(detail::orderedProcessNames(), std::back_inserter(orderedProcesses_));
+  }
+
   size_t present {0};
   size_t not_present {0};
-  // insert the per-product data:
+  std::map<std::string, std::vector<ProductInfo>> products;
+
+  auto const& dinfo = dummyInfo();
+
+  products[dummyProcess()].emplace_back(dinfo);
+
   for (auto const& pr : p) {
     auto const& g = *pr.second;
     auto const& oh = p.getForOutput(g.productDescription().branchID(), wantResolveProducts_);
@@ -141,38 +203,38 @@ printPrincipal(P const & p)
       ++not_present;
     }
 
-    if ((!wantPresentOnly_) || productPresent) {
-      col[0].push_back(g.processName());
-      col[1].push_back(g.moduleLabel());
-      col[2].push_back(g.productInstanceName());
-      col[3].push_back(g.productDescription().producedClassName());
-      col[4].push_back(g.productDescription().friendlyClassName());
-      if (productPresent) {
-        col[5].push_back(product->productSize());
-      }
-      else {
-        col[5].push_back(g.onDemand() ? "o/d" : "?");
-      }
+    if (!wantPresentOnly_ || productPresent) {
+      auto pi = ProductInfo{g.moduleLabel(),
+                            g.productInstanceName(),
+                            g.productDescription().producedClassName(),
+                            g.productDescription().friendlyClassName(),
+                            product_size(product, productPresent, g.onDemand())};
+      products[g.processName()].emplace_back(std::move(pi));
     }
   }
-  // determine each column's width:
-  std::vector<unsigned> width(ncols);
-  std::transform(col.begin(),
-                 col.end(),
-                 width.begin(),
-                 &cet::column_width);
-  // prepare and emit the per-product information:
-  for (unsigned row = 0, end = col[0].size(); row != end; ++row) {
-    std::string s;
-    for (unsigned c = 0, end = ncols - 1; c != end; ++c) {
-      if (c == 3 && ! wantProductFullClassName_) { continue; }
-      if (c == 4 && ! wantProductFriendlyClassName_) { continue; }
-      s.append(cet::rpad(col[c][row], width[c], '.'))
-      .append(" | ");
+
+  std::cout << "PRINCIPAL TYPE: " << BranchTypeToString(p.branchType()) << std::endl;
+
+  std::vector<std::size_t> const widths {columnWidthFirst(products, dummyProcess()),
+                                         columnWidth(products, &ProductInfo::module_label, dinfo.module_label),
+                                         columnWidth(products, &ProductInfo::instance_name, dinfo.instance_name),
+                                         columnWidth(products, &ProductInfo::product_type, dinfo.product_type),
+                                         columnWidth(products, &ProductInfo::friendly_type, dinfo.friendly_type),
+                                         columnWidth(products, &ProductInfo::str_size, dinfo.str_size)};
+
+  for (auto const& process : orderedProcesses_) {
+    for (auto const& pi : products[process]) {
+      std::ostringstream oss;
+      oss << cet::rpad(process, widths[0], '.') << " | "
+          << cet::rpad(pi.module_label, widths[1], '.') << " | "
+          << cet::rpad(pi.instance_name, widths[2], '.') << " | ";
+      if (wantProductFullClassName_) oss << cet::rpad(pi.product_type, widths[3], '.') << " | ";
+      if (wantProductFriendlyClassName_) oss << cet::rpad(pi.friendly_type, widths[4], '.') << " | ";
+      oss << cet::lpad(pi.str_size, widths[5], '.');
+      std::cout << oss.str() << '\n';
     }
-    s.append(cet::lpad(col[ncols - 1][row], width[ncols - 1], '.'));
-    std::cout << s << '\n';
   }
+
   std::cout << "\nTotal products (present, not present): "
             << present + not_present
             << " ("

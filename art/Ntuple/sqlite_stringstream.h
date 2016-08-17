@@ -84,20 +84,17 @@ namespace sqlite {
     }
 
     stringstream() = default;
-    stringstream(stringstream&&) = default; // Cannot be 'noexcept' since
-                                            // 'std::deque<std::string>'
-                                            // is not nothrow move-constructible
-    stringstream& operator=(stringstream&&) noexcept = default;
+
+    using data_container_t = std::deque<std::string>;
+
+    stringstream(stringstream&&) noexcept(std::is_nothrow_move_constructible<data_container_t>::value)= default;
+    stringstream& operator=(stringstream&&) noexcept(std::is_nothrow_move_assignable<data_container_t>::value)= default;
 
     // Disable copy c'tor/assignment
     stringstream( const stringstream& ) = delete;
     stringstream& operator=( const stringstream& ) = delete;
 
   private:
-
-    using data_container_t = std::deque<std::string>;
-    static_assert(std::is_nothrow_move_assignable<data_container_t>::value,
-                  "Chosen container for sqlite::stringstream is not nothrow move assignable.");
 
     data_container_t data_;
 

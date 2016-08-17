@@ -107,25 +107,25 @@ public:
 
   void selectProducts(FileBlock const&);
 
-  void registerProducts(MasterProductRegistry &,
-                        ModuleDescription const &);
+  void registerProducts(MasterProductRegistry&,
+                        ModuleDescription const&);
 
 protected:
   // The returned pointer will be null unless the this is currently
   // executing its event loop function ('write').
-  CurrentProcessingContext const * currentContext() const;
+  CurrentProcessingContext const* currentContext() const;
 
-  ModuleDescription const & description() const;
+  ModuleDescription const& description() const;
 
   // Called before selectProducts() has done its work.
-  virtual void preSelectProducts(FileBlock const &);
+  virtual void preSelectProducts(FileBlock const&);
 
   // Called after selectProducts() has done its work.
-  virtual void postSelectProducts(FileBlock const &);
+  virtual void postSelectProducts(FileBlock const&);
 
   // Called to register products if necessary.
-  virtual void doRegisterProducts(MasterProductRegistry &,
-                                  ModuleDescription const &);
+  virtual void doRegisterProducts(MasterProductRegistry&,
+                                  ModuleDescription const&);
 
 private:
 
@@ -343,7 +343,7 @@ branchChildren() const
 inline
 void
 art::OutputModule::
-setModuleDescription(ModuleDescription const & md)
+setModuleDescription(ModuleDescription const& md)
 {
   moduleDescription_ = md;
   dummyModuleDescription_ = ModuleDescription{md.parameterSetID(),

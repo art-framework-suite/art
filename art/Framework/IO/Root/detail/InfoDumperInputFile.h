@@ -24,6 +24,7 @@ namespace art {
       using EntryNumbers = input::EntryNumbers;
 
       InfoDumperInputFile(std::string const& filename);
+      void print_process_history(std::ostream&) const;
       void print_range_sets(std::ostream&) const;
       void print_event_list(std::ostream&) const;
       void print_file_index(std::ostream&) const;

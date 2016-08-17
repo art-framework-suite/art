@@ -13,6 +13,7 @@
 #include "art/Framework/IO/Root/Inputfwd.h"
 #include "art/Framework/IO/Root/detail/resolveRangeSet.h"
 #include "art/Framework/Principal/ClosedRangeSetHandler.h"
+#include "art/Framework/Principal/OpenRangeSetHandler.h"
 #include "art/Framework/Principal/Principal.h"
 #include "canvas/Persistency/Provenance/BranchKey.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
@@ -178,24 +179,23 @@ namespace art {
     }
 
     template<typename AUX>
-    std::unique_ptr<ClosedRangeSetHandler> fillAux(FileFormatVersion const fileFormatVersion,
-                                                    EntryNumbers const& entries,
-                                                    sqlite3* db,
-                                                    std::string const& filename,
-                                                    AUX& aux)
+    std::unique_ptr<RangeSetHandler> fillAux(FileFormatVersion const fileFormatVersion,
+                                             EntryNumbers const& entries,
+                                             sqlite3* db,
+                                             std::string const& filename,
+                                             AUX& aux)
     {
       auto auxResult = getAux<AUX>(entries[0]);
       if (fileFormatVersion.value_ < 9) {
-        auto rs = detail::makeFullRangeSet<AUX::branch_type>(auxResult.id());
         std::swap(aux, auxResult);
-        auto result = std::make_unique<ClosedRangeSetHandler>(rs);
-        return result;
+        return std::make_unique<OpenRangeSetHandler>(aux.run());
       }
 
       auto rangeSet = detail::resolveRangeSet(db,
                                               filename,
                                               AUX::branch_type,
                                               auxResult.rangeSetID());
+
       for(auto i = entries.cbegin()+1, e = entries.cend(); i!=e; ++i) {
         auto const& tmpAux = getAux<AUX>(*i);
         detail::mergeAuxiliary(auxResult, tmpAux);
@@ -208,7 +208,7 @@ namespace art {
       auto merged = std::make_unique<ClosedRangeSetHandler>(rangeSet);
       auxResult.setRangeSetID(-1u); // Range set of new auxiliary is invalid
       std::swap(aux, auxResult);
-      return merged;
+      return std::move(merged);
     }
 
     TTree const*
