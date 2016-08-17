@@ -694,7 +694,7 @@ namespace art {
   unique_ptr<RangeSetHandler>
   RootInputFile::runRangeSetHandler()
   {
-    return unique_ptr<ClosedRangeSetHandler>(runRangeSetHandler_.release());
+    return std::move(runRangeSetHandler_);
   }
 
   shared_ptr<RunPrincipal>
@@ -820,7 +820,7 @@ namespace art {
   unique_ptr<RangeSetHandler>
   RootInputFile::subRunRangeSetHandler()
   {
-    return unique_ptr<ClosedRangeSetHandler>(subRunRangeSetHandler_.release());
+    return std::move(subRunRangeSetHandler_);
   }
 
   shared_ptr<SubRunPrincipal>
