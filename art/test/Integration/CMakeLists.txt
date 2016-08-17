@@ -1476,3 +1476,5 @@ cet_test(SimpleServiceTest_t HANDBUILT
   TEST_ARGS --rethrow-all -c SimpleServiceTest_t.fcl
   DATAFILES fcl/SimpleServiceTest_t.fcl
   )
+
+add_subdirectory(fastclonefail)

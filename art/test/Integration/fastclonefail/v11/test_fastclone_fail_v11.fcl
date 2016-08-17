@@ -1,0 +1,28 @@
+process_name: DEVEL
+
+source: {
+  module_type: RootInput
+}
+
+outputs: {
+  out1: {
+    module_type: RootOutput
+    fileName: "copy.root"
+    fileProperties: {
+      granularity: InputFile
+    }
+  }
+}
+
+physics: {
+  analyzers: {
+    ClonedProdAnalyzer: {
+      module_type: ClonedProdAnalyzer
+    }
+  }
+  trigpath1: [ ]
+  endpath1: [ ClonedProdAnalyzer, out1 ]
+  trigger_paths: [ ]
+  end_paths: [ endpath1 ]
+}
+
