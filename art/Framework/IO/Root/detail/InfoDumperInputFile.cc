@@ -50,7 +50,17 @@ namespace {
     art::FileFormatVersion fftVersion {};
     auto fftPtr = &fftVersion;
     md->SetBranchAddress(art::rootNames::metaBranchRootName<art::FileFormatVersion>(), &fftPtr);
+
+    // We populate the ProcessHistoryRegistry here to reduce the
+    // number of times we have to call art::input::getEntry, which
+    // seems to cause unexplainable woe.
+    art::ProcessHistoryMap pHistMap;
+    auto pHistMapPtr = &pHistMap;
+    md->SetBranchAddress(art::rootNames::metaBranchRootName<decltype(pHistMap)>(), &pHistMapPtr);
+
     art::input::getEntry(md, 0);
+
+    art::ProcessHistoryRegistry::put(pHistMap);
     return *fftPtr;
   }
 
@@ -76,14 +86,7 @@ art::detail::InfoDumperInputFile::InfoDumperInputFile(std::string const& filenam
   : file_{openFile(filename)}
   , fileIndex_{getFileIndex(file_.get())}
   , fileFormatVersion_{getFileFormatVersion(file_.get())}
-{
-  ProcessHistoryMap pHistMap;
-  auto pHistMapPtr = &pHistMap;
-  auto md = getMetaData(file_.get());
-  md->SetBranchAddress(art::rootNames::metaBranchRootName<ProcessHistoryMap>(), &pHistMapPtr);
-  art::input::getEntry(md, 0);
-  ProcessHistoryRegistry::put(pHistMap);
-}
+{}
 
 void
 art::detail::InfoDumperInputFile::print_event_list(std::ostream& os) const
