@@ -39,7 +39,7 @@ namespace art {
       , max{sqlite::max(db, table, column)}
       , median{sqlite::median(db, table, column)}
       , rms{sqlite::rms(db, table, column)}
-      , n{sqlite::query_db<uint32_t>(db, "select count(*) from "+table+";")}
+      , n{sqlite::nrows(db, table)}
     {}
 
     std::string label {};
@@ -95,7 +95,7 @@ namespace art {
     bool overwriteContents_;
 
     template<unsigned SIZE>
-    using name_array = ntuple::name_array<SIZE>;
+    using name_array = sqlite::name_array<SIZE>;
     name_array<7u> timeReportTuple_;
     name_array<4u> timeEventTuple_;
     name_array<5u> timeModuleTuple_;

@@ -207,24 +207,24 @@ art::MemoryTracker::postEventProcessing(Event const&)
   auto const data = procInfo_.getCurrentData();
   auto const deltas = data-evtData_;
 
-  eventTable_.insert(eventId_.run(),
-                     eventId_.subRun(),
-                     eventId_.event(),
-                     data[LinuxProcData::VSIZE],
-                     deltas[LinuxProcData::VSIZE],
-                     data[LinuxProcData::RSS],
-                     deltas[LinuxProcData::RSS]);
+  sqlite::insert_into(eventTable_).values(eventId_.run(),
+                                          eventId_.subRun(),
+                                          eventId_.event(),
+                                          data[LinuxProcData::VSIZE],
+                                          deltas[LinuxProcData::VSIZE],
+                                          data[LinuxProcData::RSS],
+                                          deltas[LinuxProcData::RSS]);
 
   if (includeMallocInfo_) {
     auto minfo = LinuxMallInfo().get();
-    eventHeapTable_->insert(eventTable_.lastRowid(),
-                            minfo.arena,
-                            minfo.ordblks,
-                            minfo.keepcost,
-                            minfo.hblkhd,
-                            minfo.hblks,
-                            minfo.uordblks,
-                            minfo.fordblks);
+    sqlite::insert_into(*eventHeapTable_).values(eventTable_.lastRowid(),
+                                                 minfo.arena,
+                                                 minfo.ordblks,
+                                                 minfo.keepcost,
+                                                 minfo.hblkhd,
+                                                 minfo.hblks,
+                                                 minfo.uordblks,
+                                                 minfo.fordblks);
   }
 }
 
@@ -241,25 +241,25 @@ art::MemoryTracker::postModule(ModuleDescription const& md)
   auto const data = procInfo_.getCurrentData();
   auto const deltas = data-modData_;
 
-  moduleTable_.insert(eventId_.run(),
-                      eventId_.subRun(),
-                      eventId_.event(),
-                      pathname_+":"s+md.moduleLabel()+":"s+md.moduleName(),
-                      data[LinuxProcData::VSIZE],
-                      deltas[LinuxProcData::VSIZE],
-                      data[LinuxProcData::RSS],
-                      deltas[LinuxProcData::RSS]);
+  sqlite::insert_into(moduleTable_).values(eventId_.run(),
+                                           eventId_.subRun(),
+                                           eventId_.event(),
+                                           pathname_+":"s+md.moduleLabel()+":"s+md.moduleName(),
+                                           data[LinuxProcData::VSIZE],
+                                           deltas[LinuxProcData::VSIZE],
+                                           data[LinuxProcData::RSS],
+                                           deltas[LinuxProcData::RSS]);
 
   if (includeMallocInfo_) {
     auto minfo = LinuxMallInfo().get();
-    moduleHeapTable_->insert(moduleTable_.lastRowid(),
-                             minfo.arena,
-                             minfo.ordblks,
-                             minfo.keepcost,
-                             minfo.hblkhd,
-                             minfo.hblks,
-                             minfo.uordblks,
-                             minfo.fordblks);
+    sqlite::insert_into(*moduleHeapTable_).values(moduleTable_.lastRowid(),
+                                                  minfo.arena,
+                                                  minfo.ordblks,
+                                                  minfo.keepcost,
+                                                  minfo.hblkhd,
+                                                  minfo.hblks,
+                                                  minfo.uordblks,
+                                                  minfo.fordblks);
   }
 }
 
@@ -347,8 +347,8 @@ art::MemoryTracker::checkMallocConfig_(std::string const& dbfilename,
 void
 art::MemoryTracker::recordPeakUsages_()
 {
-  peakUsageTable_.insert("VmPeak", procInfo_.getVmPeak(), "Peak virtual memory (MB)");
-  peakUsageTable_.insert("VmHWM", procInfo_.getVmHWM(), "Peak resident set size (MB)");
+  sqlite::insert_into(peakUsageTable_).values("VmPeak", procInfo_.getVmPeak(), "Peak virtual memory (MB)");
+  sqlite::insert_into(peakUsageTable_).values("VmHWM", procInfo_.getVmHWM(), "Peak resident set size (MB)");
 }
 
 //======================================================================
@@ -356,8 +356,15 @@ void
 art::MemoryTracker::generalSummary_(std::ostringstream& oss)
 {
   peakUsageTable_.flush();
-  auto const vmMax = sqlite::query_db<double>(dbMgr_, "select Value from PeakUsage where Name='VmPeak'");
-  auto const rssMax = sqlite::query_db<double>(dbMgr_, "select Value from PeakUsage where Name='VmHWM'");
+  using namespace sqlite;
+  result rVMax;
+  result rRMax;
+  rVMax << select("Value").from(peakUsageTable_).where("Name='VmPeak'");
+  rRMax << select("Value").from(peakUsageTable_).where("Name='VmHWM'");
+  double vmMax;
+  double rssMax;
+  throw_if_empty(rVMax) >> vmMax;
+  throw_if_empty(rRMax) >> rssMax;
 
   oss << "  Peak virtual memory usage (VmPeak)  : " << vmMax << " Mbytes\n"
       << "  Peak resident set size usage (VmHWM): " << rssMax << " Mbytes\n"
@@ -365,8 +372,15 @@ art::MemoryTracker::generalSummary_(std::ostringstream& oss)
 
   summaryTable_.flush();
 
-  auto const& steps = sqlite::getUniqueEntries<std::string>(dbMgr_, "Summary", "ProcessStep");
-  auto const& mods  = sqlite::getUniqueEntries<std::string>(dbMgr_, "Summary", "ModuleId");
+  result rSteps;
+  result rMods;
+  rSteps << select_distinct("ProcessStep").from(summaryTable_);
+  rMods << select_distinct("ModuleId").from(summaryTable_);
+
+  std::vector<std::string> steps;
+  std::vector<std::string> mods;
+  rSteps >> steps;
+  rMods >> mods;
 
   // Calculate column widths
   std::size_t sWidth{}, mWidth{};
@@ -383,7 +397,10 @@ art::MemoryTracker::generalSummary_(std::ostringstream& oss)
 
   std::string cachedStep {};
   std::size_t i {};
-  for (auto& entry : sqlite::query_db(dbMgr_, "SELECT * FROM Summary")) {
+
+  result r;
+  r << select("*").from(summaryTable_);
+  for (auto& entry : r) {
     std::string step;
     std::string module;
     double dv;
@@ -419,10 +436,12 @@ art::MemoryTracker::eventSummary_(std::ostringstream& oss,
 
   eventDataList_t evtList;
   std::size_t i{};
-  for (auto& entry : sqlite::query_db(dbMgr_,
-                                      "SELECT rowid,* FROM EventInfo "s+
-                                      "WHERE "s+column+" > 0 ORDER BY "s+column+" DESC LIMIT 5"s,
-                                      false)) {
+  using namespace sqlite;
+
+  result r;
+  r << select("rowid,*").from(eventTable_).where(column+" > 0").order_by(column,"desc").limit(5);
+
+  for (auto& entry : r) {
     if (i++ < numToSkip_) continue;
     auto evtData = convertToEvtIdData(entry);
     evtList.push_back(std::move(evtData));
@@ -460,7 +479,9 @@ art::MemoryTracker::moduleSummary_(std::ostringstream& oss,
 {
   moduleTable_.flush();
 
-  std::vector<std::string> const& mods = sqlite::getUniqueEntries<std::string>(dbMgr_, "ModuleInfo", "PathModuleId");
+  using namespace sqlite;
+  result r;
+  r << select_distinct("PathModuleId").from(moduleTable_);
 
   // Fill map, which will have form
   //
@@ -472,7 +493,9 @@ art::MemoryTracker::moduleSummary_(std::ostringstream& oss,
 
   orderedMap_t<modName_t,eventDataList_t> modMap;
 
-  for (auto const& mod : mods) {
+  for (auto& row : r) {
+    std::string mod {};
+    row >> mod;
     std::string const ddl =
       "CREATE TABLE temp.tmpModTable AS "s +
       "SELECT * FROM ModuleInfo WHERE PathModuleId='"s+mod+"'"s;
@@ -482,10 +505,10 @@ art::MemoryTracker::moduleSummary_(std::ostringstream& oss,
 
     eventDataList_t evtList;
     std::size_t i{};
-    for (auto& entry : sqlite::query_db(dbMgr_,
-                                        "SELECT "s+columns+" FROM temp.tmpModTable "s+
-                                        "WHERE "+column+" > 0 ORDER BY "s+column+" DESC LIMIT 5"s,
-                                        false)) {
+
+    for (auto& entry : query(dbMgr_,
+                             "SELECT "s+columns+" FROM temp.tmpModTable "s+
+                             "WHERE "+column+" > 0 ORDER BY "s+column+" DESC LIMIT 5"s)) {
       if (i++ < numToSkip_) continue;
       auto evtData = convertToEvtIdData(entry);
       evtList.push_back(std::move(evtData));
@@ -496,7 +519,7 @@ art::MemoryTracker::moduleSummary_(std::ostringstream& oss,
   }
 
   // Calculate widths
-  std::size_t modWidth{0}, evtWidth{0};
+  std::size_t modWidth{}, evtWidth{};
   for (auto const& mod : modMap) {
     modWidth = std::max(modWidth, mod.first.size());
     for (auto const& evtInfo : mod.second) {
@@ -505,7 +528,7 @@ art::MemoryTracker::moduleSummary_(std::ostringstream& oss,
   }
 
   std::size_t const width = std::max({header.size(), modWidth, evtWidth});
-  std::string const rule  = std::string(width+4+4*12,'=');
+  std::string const rule(width+4+4*12,'=');
 
   oss << banners::vsize_rss(header, width+2, 10) << "\n"
       << rule  << "\n";

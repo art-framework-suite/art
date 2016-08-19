@@ -88,7 +88,7 @@ namespace art {
     detail::LinuxProcData::proc_array modData_ {{0.}};
 
     template <unsigned N>
-    using name_array = ntuple::name_array<N>;
+    using name_array = sqlite::name_array<N>;
 
     name_array<3u> peakUsageColumns_ {{"Name", "Value", "Description"}};
     name_array<4u> summaryColumns_   {{"ProcessStep", "ModuleId", "DeltaVsize", "DeltaRSS"}};

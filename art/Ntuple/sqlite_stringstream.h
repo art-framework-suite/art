@@ -34,6 +34,7 @@
 #include <deque>
 #include <string>
 #include <type_traits>
+#include <vector>
 
 #include "canvas/Utilities/Exception.h"
 
@@ -45,41 +46,56 @@ namespace sqlite {
     bool empty() const { return data_.empty(); }
     std::size_t size() const { return data_.size(); }
 
-    std::string const & operator[]( int const index ) const { return data_[index]; }
+    std::string const& operator[](int const index) const { return data_[index]; }
 
-    stringstream& operator<< ( const char * str ) & {
-      data_.push_back( str );
+    stringstream& operator<< (char const* str) &
+    {
+      data_.push_back(str);
       return *this;
     }
 
-    stringstream& operator<< ( char * str ) & {
-      data_.push_back( str );
+    stringstream& operator<< (char* str) &
+    {
+      data_.push_back(str);
       return *this;
     }
 
-    stringstream& operator<< ( std::string const & str ) & {
-      data_.push_back( str );
+    stringstream& operator<< (std::string const& str) &
+    {
+      data_.push_back(str);
       return *this;
     }
 
-    template < typename T >
-    stringstream& operator<< ( T arg ) & {
-      data_.push_back( std::to_string( std::move( arg ) ) );
+    template <typename T>
+    stringstream& operator<< (T arg) &
+    {
+      data_.push_back(std::to_string(std::move(arg)));
       return *this;
     }
 
     // Inserters
 
-    template< typename T>
-    auto convertTo( std::string const & arg ) {
+    template<typename T>
+    auto convertTo(std::string const& arg)
+    {
       return arg;
     }
 
-    template < typename T>
-    stringstream& operator >> ( T& arg ) {
+    template <typename T>
+    stringstream& operator>> (T& arg)
+    {
       check_size_();
-      arg = convertTo<T>( data_.front() );
+      arg = convertTo<T>(data_.front());
       data_.pop_front();
+      return *this;
+    }
+
+    template <typename T>
+    stringstream& operator>> (std::vector<T>& arg)
+    {
+      check_size_();
+      arg.assign(data_.begin(), data_.end());
+      data_.clear();
       return *this;
     }
 
@@ -91,15 +107,16 @@ namespace sqlite {
     stringstream& operator=(stringstream&&) noexcept(std::is_nothrow_move_assignable<data_container_t>::value)= default;
 
     // Disable copy c'tor/assignment
-    stringstream( const stringstream& ) = delete;
-    stringstream& operator=( const stringstream& ) = delete;
+    stringstream(stringstream const&) = delete;
+    stringstream& operator=(stringstream const&) = delete;
 
   private:
 
     data_container_t data_;
 
-    void check_size_() {
-      if ( data_.empty() ) {
+    void check_size_()
+    {
+      if (data_.empty()) {
         throw art::Exception(art::errors::LogicError)
           << "sqlite::stringstream is empty.  Cannot pop front.";
       }
@@ -107,15 +124,15 @@ namespace sqlite {
 
   };
 
-  template<> inline auto stringstream::convertTo<int               >( std::string const & arg ) { return std::stoi  ( arg ); }
-  template<> inline auto stringstream::convertTo<long              >( std::string const & arg ) { return std::stol  ( arg ); }
-  template<> inline auto stringstream::convertTo<long long         >( std::string const & arg ) { return std::stoll ( arg ); }
-  template<> inline auto stringstream::convertTo<unsigned          >( std::string const & arg ) { return std::stoul ( arg ); }
-  template<> inline auto stringstream::convertTo<unsigned long     >( std::string const & arg ) { return std::stoul ( arg ); }
-  template<> inline auto stringstream::convertTo<unsigned long long>( std::string const & arg ) { return std::stoull( arg ); }
-  template<> inline auto stringstream::convertTo<float             >( std::string const & arg ) { return std::stof  ( arg ); }
-  template<> inline auto stringstream::convertTo<double            >( std::string const & arg ) { return std::stod  ( arg ); }
-  template<> inline auto stringstream::convertTo<long double       >( std::string const & arg ) { return std::stold ( arg ); }
+  template<> inline auto stringstream::convertTo<int               >(std::string const& arg) { return std::stoi  (arg); }
+  template<> inline auto stringstream::convertTo<long              >(std::string const& arg) { return std::stol  (arg); }
+  template<> inline auto stringstream::convertTo<long long         >(std::string const& arg) { return std::stoll (arg); }
+  template<> inline auto stringstream::convertTo<unsigned          >(std::string const& arg) { return std::stoul (arg); }
+  template<> inline auto stringstream::convertTo<unsigned long     >(std::string const& arg) { return std::stoul (arg); }
+  template<> inline auto stringstream::convertTo<unsigned long long>(std::string const& arg) { return std::stoull(arg); }
+  template<> inline auto stringstream::convertTo<float             >(std::string const& arg) { return std::stof  (arg); }
+  template<> inline auto stringstream::convertTo<double            >(std::string const& arg) { return std::stod  (arg); }
+  template<> inline auto stringstream::convertTo<long double       >(std::string const& arg) { return std::stold (arg); }
 
 } // namespace sqlite
 

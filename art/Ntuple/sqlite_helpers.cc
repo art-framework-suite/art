@@ -6,6 +6,7 @@
 
 #include <cassert>
 #include <cmath>
+#include <iostream>
 
 #include "art/Ntuple/sqlite_helpers.h"
 #include "canvas/Utilities/Exception.h"
@@ -13,32 +14,6 @@
 namespace sqlite {
 
   namespace detail {
-
-    //=======================================================================
-    int getResult(void* data, int ncols [[gnu::unused]], char** results, char** /*cnames*/)
-    {
-      assert(ncols >= 1);
-      auto j = static_cast<query_result*>(data);
-      sqlite::stringstream resultStream;
-      for (int i{0}; i < ncols ; ++i) {
-        resultStream << results[i];
-      }
-      j->data.emplace_back(std::move(resultStream));
-      return 0;
-    }
-
-    //=======================================================================
-    query_result query(sqlite3* db,std::string const& ddl)
-    {
-      query_result res;
-      char* errmsg {nullptr};
-      if (sqlite3_exec(db, ddl.c_str(), detail::getResult, &res, &errmsg) != SQLITE_OK) {
-        std::string msg{errmsg};
-        sqlite3_free(errmsg);
-        throw art::Exception(art::errors::SQLExecutionError, msg);
-      }
-      return res;
-    }
 
     //=================================================================
     // hasTable(db, name, cnames) returns true if the db has a table
@@ -53,9 +28,9 @@ namespace sqlite {
       cmd += name;
       cmd += '"';
 
-      detail::query_result const res = query(db, cmd);
+      auto const res = query(db, cmd);
 
-      if (res.data.empty()) { return false; }
+      if (res.empty()) { return false; }
       if (res.data.size() == 1 && res.data[0][0] == sqlddl) { return true; }
       throw art::Exception(art::errors::SQLExecutionError)
         << "Existing database table name does not match description";
@@ -83,7 +58,6 @@ namespace sqlite {
 
   } // namespace detail
 
-  //=======================================================================
   sqlite3* openDatabaseFile(std::string const& filename)
   {
     sqlite3* db {nullptr};
@@ -127,29 +101,45 @@ namespace sqlite {
   // Statistics helpers
 
   double mean(sqlite3* db, std::string const& tname, std::string const& colname){
-    return query_db<double>( db, "select avg("s+colname+") from " + tname );
+    double result {};
+    auto r = query(db, "select avg("s+colname+") from " + tname);
+    throw_if_empty(r) >> result;
+    return result;
   }
 
   double median(sqlite3* db, std::string const& tname, std::string const& colname){
-    return query_db<double>(db,
-                            "select avg("s+colname+")"+
-                            " from (select "+colname+
-                            " from "+tname+
-                            " order by "+colname+
-                            " limit 2 - (select count(*) from " + tname+") % 2"+
-                            " offset (select (count(*) - 1) / 2"+
-                            " from " + tname+"))");
+    double result {};
+    auto r = query(db,
+                      "select avg("s+colname+")"+
+                      " from (select "+colname+
+                      " from "+tname+
+                      " order by "+colname+
+                      " limit 2 - (select count(*) from " + tname+") % 2"+
+                      " offset (select (count(*) - 1) / 2"+
+                      " from " + tname+"))");
+    throw_if_empty(r) >> result;
+    return result;
   }
 
   double rms(sqlite3* db, std::string const& tname, std::string const& colname){
-    double const ms = query_db<double>(db,
-                                       "select sum("s+
-                                       "(" + colname + "-(select avg(" + colname + ") from " + tname +"))" +
-                                       "*" +
-                                       "(" + colname + "-(select avg(" + colname + ") from " + tname +"))" +
-                                       " ) /" +
-                                       "(count(" + colname +")) from " + tname);
-    return std::sqrt(ms);
+    double result {};
+    auto r = query(db,
+                      "select sum("s+
+                      "(" + colname + "-(select avg(" + colname + ") from " + tname +"))" +
+                      "*" +
+                      "(" + colname + "-(select avg(" + colname + ") from " + tname +"))" +
+                      " ) /" +
+                      "(count(" + colname +")) from " + tname);
+    throw_if_empty(r) >> result;
+    return std::sqrt(result);
+  }
+
+  unsigned nrows(sqlite3* db, std::string const& tname)
+  {
+    unsigned result {};
+    auto r = query(db,"select count(*) from "+tname+";");
+    throw_if_empty(r) >> result;
+    return result;
   }
 
 } // namespace sqlite

@@ -76,9 +76,13 @@ art::TimeTracker::postEndJob()
   timeEventTable_.flush();
   timeModuleTable_.flush();
 
-  auto const evtStats =
-    (timeEventTable_.lastRowid() == 0 ) ? Statistics{} : Statistics{"Full event", dbMgr_, "TimeEvent", "Time"};
-  auto const& modules = sqlite::getUniqueEntries<std::string>(dbMgr_, "TimeModule", "PathModuleId", false);
+  auto const evtStats = (timeEventTable_.lastRowid() == 0 ) ? Statistics{} : Statistics{"Full event", dbMgr_, "TimeEvent", "Time"};
+  using namespace sqlite;
+
+  result r;
+  r << select_distinct("PathModuleId").from(timeModuleTable_);
+  std::vector<std::string> modules;
+  r >> modules;
 
   std::vector<Statistics> modStats;
   for (auto const& mod : modules) {
@@ -108,10 +112,10 @@ void
 art::TimeTracker::postEventProcessing(Event const&)
 {
   double const t = (now()-eventStart_).seconds();
-  timeEventTable_.insert(eventId_.run(),
-                         eventId_.subRun(),
-                         eventId_.event(),
-                         t);
+  sqlite::insert_into(timeEventTable_).values(eventId_.run(),
+                                              eventId_.subRun(),
+                                              eventId_.event(),
+                                              t);
 }
 
 //======================================================================
@@ -125,11 +129,11 @@ void
 art::TimeTracker::postModule(ModuleDescription const& desc)
 {
   double const t = (now()-moduleStart_).seconds();
-  timeModuleTable_.insert(eventId_.run(),
-                          eventId_.subRun(),
-                          eventId_.event(),
-                          pathname_+":"s+desc.moduleLabel()+":"s+desc.moduleName(),
-                          t);
+  sqlite::insert_into(timeModuleTable_).values(eventId_.run(),
+                                               eventId_.subRun(),
+                                               eventId_.event(),
+                                               pathname_+":"s+desc.moduleLabel()+":"s+desc.moduleName(),
+                                               t);
 }
 
 //======================================================================
@@ -138,26 +142,26 @@ art::TimeTracker::logToDatabase_(Statistics const& evt,
                                  std::vector<Statistics> const& modules)
 {
   if (evt.n == 0u) return;
-  timeReportTable_.insert(evt.label,
-                          evt.min,
-                          evt.mean,
-                          evt.max,
-                          evt.median,
-                          evt.rms,
-                          evt.n);
+  sqlite::insert_into(timeReportTable_).values(evt.label,
+                                               evt.min,
+                                               evt.mean,
+                                               evt.max,
+                                               evt.median,
+                                               evt.rms,
+                                               evt.n);
   for (auto const& mod: modules) {
-    timeReportTable_.insert(mod.label,
-                            mod.min,
-                            mod.mean,
-                            mod.max,
-                            mod.median,
-                            mod.rms,
-                            mod.n);
+    sqlite::insert_into(timeReportTable_).values(mod.label,
+                                                 mod.min,
+                                                 mod.mean,
+                                                 mod.max,
+                                                 mod.median,
+                                                 mod.rms,
+                                                 mod.n);
   }
 }
 
 void
-art::TimeTracker::logToDestination_(Statistics const& evt [[gnu::unused]],
+art::TimeTracker::logToDestination_(Statistics const& evt,
                                     std::vector<Statistics> const& modules)
 {
   std::size_t width {30};
