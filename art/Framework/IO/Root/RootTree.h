@@ -205,10 +205,9 @@ namespace art {
                                                           tmpAux.rangeSetID());
         rangeSet.merge(tmpRangeSet);
       }
-      auto merged = std::make_unique<ClosedRangeSetHandler>(rangeSet);
       auxResult.setRangeSetID(-1u); // Range set of new auxiliary is invalid
       std::swap(aux, auxResult);
-      return std::move(merged);
+      return std::make_unique<ClosedRangeSetHandler>(rangeSet);
     }
 
     TTree const*

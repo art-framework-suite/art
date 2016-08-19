@@ -105,18 +105,6 @@ namespace art
     respondToCloseOutputFiles(fb);
   }
 
-  void
-  EDProducer::doRespondToOpenOutputFile()
-  {
-    respondToOpenOutputFile();
-  }
-
-  void
-  EDProducer::doRespondToCloseOutputFile()
-  {
-    respondToCloseOutputFile();
-  }
-
   CurrentProcessingContext const*
   EDProducer::currentContext() const {
     return current_context_.get();
