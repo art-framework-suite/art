@@ -71,9 +71,10 @@ namespace sqlite {
     return IncompleteQuery{std::move(result)};
   }
 
-  inline auto select_distinct(std::string const& column)
+  template <typename... T>
+  auto select_distinct(T const&... t)
   {
-    std::string result {"select distinct "+column};
+    std::string result {"select distinct "+detail::concatenate(t...)};
     return IncompleteQuery{std::move(result)};
   }
 

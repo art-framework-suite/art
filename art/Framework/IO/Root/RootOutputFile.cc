@@ -760,18 +760,14 @@ writeFileCatalogMetadata(FileStatsCollector const& stats,
   insert_into(fileCatalogMetadata).values("file_format", "\"artroot\"");
   insert_into(fileCatalogMetadata).values("file_format_era", cet::canonical_string(getFileFormatEra()));
   insert_into(fileCatalogMetadata).values("file_format_version", to_string(getFileFormatVersion()));
-  namespace bpt = boost::posix_time;
+
   // File start time.
-  insert_into(fileCatalogMetadata).values("start_time",
-                                          cet::canonical_string(
-                                                                bpt::to_iso_extended_string(
-                                                                                            stats.outputFileOpenTime()))
-                                          );
+  namespace bpt = boost::posix_time;
+  auto formatted_time = [](auto const& t){ return cet::canonical_string(bpt::to_iso_extended_string(t)); };
+  insert_into(fileCatalogMetadata).values("start_time", formatted_time(stats.outputFileOpenTime()));
   // File "end" time: now, since file is not actually closed yet.
-  insert_into(fileCatalogMetadata).values("end_time", cet::canonical_string(
-                                                                            bpt::to_iso_extended_string(
-                                                                                                        boost::posix_time::second_clock::universal_time()))
-                                          );
+  insert_into(fileCatalogMetadata).values("end_time", formatted_time(boost::posix_time::second_clock::universal_time()));
+
   // Run/subRun information.
   if (!stats.seenSubRuns().empty()) {
 
