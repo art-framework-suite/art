@@ -91,26 +91,26 @@ namespace art {
     using name_array = sqlite::name_array<N>;
 
     name_array<3u> peakUsageColumns_ {{"Name", "Value", "Description"}};
-    name_array<4u> summaryColumns_   {{"ProcessStep", "ModuleId", "DeltaVsize", "DeltaRSS"}};
-    name_array<7u> eventColumns_     {{"Run", "Subrun", "Event", "Vsize", "DeltaVsize", "RSS", "DeltaRSS"}};
-    name_array<8u> moduleColumns_    {{"Run", "Subrun", "Event", "PathModuleId", "Vsize", "DeltaVsize", "RSS", "DeltaRSS"}};
+    name_array<5u> otherInfoColumns_ {{"ProcessStep", "ModuleLabel", "ModuleType", "DeltaVsize", "DeltaRSS"}};
+    name_array<7u> eventColumns_     {{"Run", "SubRun", "Event", "Vsize", "DeltaVsize", "RSS", "DeltaRSS"}};
+    name_array<10u> moduleColumns_   {{"Run", "SubRun", "Event", "Path", "ModuleLabel", "ModuleType", "Vsize", "DeltaVsize", "RSS", "DeltaRSS"}};
     name_array<8u> eventHeapColumns_ {{"EvtRowId", "arena", "ordblks", "keepcost", "hblkhd", "hblks", "uordblks", "fordblks"}};
     name_array<8u> moduleHeapColumns_{{"ModRowId", "arena", "ordblks", "keepcost", "hblkhd", "hblks", "uordblks", "fordblks"}};
 
+    using CallbackPair = detail::CallbackPair;
     using peakUsage_t = ntuple::Ntuple<std::string,double,std::string>;
-    using memSummary_t = ntuple::Ntuple<std::string,std::string,double,double>;
+    using otherInfo_t = CallbackPair::otherInfo_t;
     using memEvent_t = ntuple::Ntuple<uint32_t,uint32_t,uint32_t,double,double,double,double>;
-    using memModule_t = ntuple::Ntuple<uint32_t,uint32_t,uint32_t,std::string,double,double,double,double>;
+    using memModule_t = ntuple::Ntuple<uint32_t,uint32_t,uint32_t,std::string,std::string,std::string,double,double,double,double>;
     using memHeap_t = ntuple::Ntuple<sqlite_int64,int,int,int,int,int,int,int>;
 
     peakUsage_t peakUsageTable_;
-    memSummary_t summaryTable_;
+    otherInfo_t otherInfoTable_;
     memEvent_t eventTable_;
     memModule_t moduleTable_;
     std::unique_ptr<memHeap_t> eventHeapTable_;
     std::unique_ptr<memHeap_t> moduleHeapTable_;
 
-    using CallbackPair = detail::CallbackPair;
     CallbackPair modConstruction_;
     CallbackPair modBeginJob_;
     CallbackPair modEndJob_;

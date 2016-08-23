@@ -40,6 +40,8 @@ namespace sqlite {
       return (sizeof...(T) != 0u) ? column_info(h) + "," + columns(t...) : column_info(h);
     }
 
+
+
     template <typename COL_PACK, std::size_t... I>
     std::string createTable_ddl(std::string const& tname,
                                 COL_PACK const& cols,
@@ -72,7 +74,7 @@ namespace sqlite {
                            column_pack<ARGS...> const& cols,
                            bool const delete_contents)
   {
-    std::string const sqlddl = detail::createTable_ddl(tname, cols, std::index_sequence_for<ARGS...>());
+    std::string const& sqlddl = detail::createTable_ddl(tname, cols, std::index_sequence_for<ARGS...>());
     if (!detail::hasTable(db, tname, sqlddl)) {
       exec(db, sqlddl);
     }

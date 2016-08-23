@@ -29,11 +29,15 @@ namespace art {
 
     explicit Statistics() = default;
 
-    explicit Statistics(std::string const& identifier,
+    explicit Statistics(std::string const& p,
+                        std::string const& label,
+                        std::string const& type,
                         sqlite3* db,
                         std::string const& table,
                         std::string const& column)
-      : label{identifier}
+      : path{p}
+      , mod_label{label}
+      , mod_type{type}
       , min{sqlite::min(db, table, column)}
       , mean{sqlite::mean(db, table, column)}
       , max{sqlite::max(db, table, column)}
@@ -42,7 +46,9 @@ namespace art {
       , n{sqlite::nrows(db, table)}
     {}
 
-    std::string label {};
+    std::string path {};
+    std::string mod_label {};
+    std::string mod_type {};
     double min {-1.};
     double mean {-1.};
     double max {-1.};
@@ -96,15 +102,12 @@ namespace art {
 
     template<unsigned SIZE>
     using name_array = sqlite::name_array<SIZE>;
-    name_array<7u> timeReportTuple_;
     name_array<4u> timeEventTuple_;
-    name_array<5u> timeModuleTuple_;
+    name_array<7u> timeModuleTuple_;
 
-    using timeReport_t = ntuple::Ntuple<std::string,double,double,double,double,double,uint32_t>;
     using timeEvent_t  = ntuple::Ntuple<uint32_t,uint32_t,uint32_t,double>;
-    using timeModule_t = ntuple::Ntuple<uint32_t,uint32_t,uint32_t,std::string,double>;
+    using timeModule_t = ntuple::Ntuple<uint32_t,uint32_t,uint32_t,std::string,std::string,std::string,double>;
 
-    timeReport_t timeReportTable_;
     timeEvent_t  timeEventTable_;
     timeModule_t timeModuleTable_;
 

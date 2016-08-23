@@ -6,10 +6,27 @@
 
 #include <cassert>
 #include <cmath>
-#include <iostream>
+#include <regex>
 
 #include "art/Ntuple/sqlite_helpers.h"
 #include "canvas/Utilities/Exception.h"
+
+namespace {
+  std::string normalize(std::string to_replace)
+  {
+    // Replace multiple spaces with 1 space.
+    {
+      std::regex const r {"\\s+"};
+      to_replace = std::regex_replace(to_replace, r, " ");
+    }
+    // Ensure no spaces after commas
+    {
+      std::regex const r {", "};
+      to_replace = std::regex_replace(to_replace, r, ",");
+    }
+    return to_replace;
+  }
+}
 
 namespace sqlite {
 
@@ -17,23 +34,42 @@ namespace sqlite {
 
     //=================================================================
     // hasTable(db, name, cnames) returns true if the db has a table
-    // named 'name', with colums named 'cns' suitable for carrying a
+    // named 'name', with columns named 'cns' suitable for carrying a
     // tuple<ARGS...>. It returns false if there is no table of that
     // name, and throws an exception if there is a table of the given
     // name but it does not match both the given column names and
     // column types.
     bool hasTable(sqlite3* db, std::string const& name, std::string const& sqlddl)
     {
-      std::string cmd("select sql from sqlite_master where type=\"table\" and name=\"");
+      std::string cmd {"select sql from sqlite_master where type=\"table\" and name=\""};
       cmd += name;
       cmd += '"';
 
       auto const res = query(db, cmd);
 
-      if (res.empty()) { return false; }
-      if (res.data.size() == 1 && res.data[0][0] == sqlddl) { return true; }
+      if (res.empty())
+        return false;
+
+      if (res.data.size() != 1ull) {
+        throw art::Exception(art::errors::SQLExecutionError)
+          << "Problematic query: " << res.data.size() << " instead of 1.\n";
+      }
+
+      // This is a somewhat fragile way of validating schemas.  A
+      // better way would be to rely on sqlite3's insertion facilities
+      // to determine if an insert of in-memory data would be
+      // compatible with the on-disk schema.  This would require
+      // creating a temporary table (so as to avoid inserting then
+      // deleting a dummy row into the desired table)according to the
+      // on-disk schema, and inserting some default values according
+      // to the requested schema.
+      if (normalize(res.data[0][0]) == normalize(sqlddl))
+        return true;
+
       throw art::Exception(art::errors::SQLExecutionError)
-        << "Existing database table name does not match description";
+        << "Existing database table name does not match description:\n"
+        << "   DDL on disk: " << res.data[0][0] << '\n'
+        << "   Current DDL: " << sqlddl << '\n';
     }
 
     //================================================================
@@ -49,7 +85,7 @@ namespace sqlite {
       // they may (unintentionally) remove the 'nolock' parameter,
       // thus potentially causing issues with nfs.
       if (filename.substr(0,5) == "file:") {
-        throw art::Exception(art::errors::Configuration)
+        throw art::Exception{art::errors::Configuration}
           << "art does not allow an SQLite database filename that starts with 'file:'.\n"
           << "Please contact artists@fnal.gov if you believe this is an error.";
       }
@@ -110,13 +146,13 @@ namespace sqlite {
   double median(sqlite3* db, std::string const& tname, std::string const& colname){
     double result {};
     auto r = query(db,
-                      "select avg("s+colname+")"+
-                      " from (select "+colname+
-                      " from "+tname+
-                      " order by "+colname+
-                      " limit 2 - (select count(*) from " + tname+") % 2"+
-                      " offset (select (count(*) - 1) / 2"+
-                      " from " + tname+"))");
+                   "select avg("s+colname+")"+
+                   " from (select "+colname+
+                   " from "+tname+
+                   " order by "+colname+
+                   " limit 2 - (select count(*) from " + tname+") % 2"+
+                   " offset (select (count(*) - 1) / 2"+
+                   " from " + tname+"))");
     throw_if_empty(r) >> result;
     return result;
   }
@@ -124,12 +160,12 @@ namespace sqlite {
   double rms(sqlite3* db, std::string const& tname, std::string const& colname){
     double result {};
     auto r = query(db,
-                      "select sum("s+
-                      "(" + colname + "-(select avg(" + colname + ") from " + tname +"))" +
-                      "*" +
-                      "(" + colname + "-(select avg(" + colname + ") from " + tname +"))" +
-                      " ) /" +
-                      "(count(" + colname +")) from " + tname);
+                   "select sum("s+
+                   "(" + colname + "-(select avg(" + colname + ") from " + tname +"))" +
+                   "*" +
+                   "(" + colname + "-(select avg(" + colname + ") from " + tname +"))" +
+                   " ) /" +
+                   "(count(" + colname +")) from " + tname);
     throw_if_empty(r) >> result;
     return std::sqrt(result);
   }
