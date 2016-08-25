@@ -1,0 +1,23 @@
+#!/bin/bash
+
+test -z $ART_DIR && (echo "" ; echo "ERROR: You must setup art before calling the migration script."; echo "") && exit 1
+
+. ${ART_DIR}/tools/migration/db-migration.sh
+
+set_file_names $@
+
+sqlite3 $file .dump |
+    sed "/TimeReport/d" |
+    sed -e "s/Subrun/SubRun/g" |
+    sed -e "s/PathModuleId/Path text,ModuleLabel text, ModuleType/g" |
+    sed -e "s/:/','/g" > $temp_file
+
+if grep -q Time $temp_file; then
+    validate_new_file $new_file
+    sqlite3 $new_file < $temp_file
+    echo "Created new sqlite database (\"$new_file\")."
+else
+    echo "Supplied file (\"$file\") is not a time-tracker database."
+fi
+
+rm $temp_file
