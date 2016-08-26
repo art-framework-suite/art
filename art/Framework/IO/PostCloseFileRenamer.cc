@@ -4,6 +4,7 @@
 #include "canvas/Utilities/Exception.h"
 #include "boost/date_time/posix_time/posix_time.hpp"
 #include "boost/filesystem.hpp"
+#include "boost/regex.hpp"
 
 #include <iomanip>
 #include <string>
@@ -11,33 +12,12 @@
 
 namespace bfs = boost::filesystem;
 
-namespace {
-  std::string renameFile(std::string const& inPath,
-                         std::string const& toFile)
-  {
-    boost::system::error_code ec;
-    bfs::rename(inPath, toFile, ec);
-    if (ec) { // Fail (different filesystems? Try copy / delete instead).
-      // This attempt will throw on failure.
-      bfs::copy_file(inPath,
-                     toFile,
-                     bfs::copy_option::overwrite_if_exists);
-      bfs::remove(inPath);
-    }
-    return toFile;
-  }
-}
-
-art::PostCloseFileRenamer::
-PostCloseFileRenamer(FileStatsCollector const & stats)
-  :
-  stats_(stats)
-{
-}
+art::PostCloseFileRenamer::PostCloseFileRenamer(FileStatsCollector const& stats)
+  : stats_{stats}
+{}
 
 std::string
-art::PostCloseFileRenamer::
-applySubstitutions(std::string const & filePattern) const
+art::PostCloseFileRenamer::applySubstitutions(std::string const& filePattern) const
 {
   std::string result; // Empty
   using namespace boost::regex_constants;
@@ -109,8 +89,7 @@ applySubstitutions(std::string const & filePattern) const
 }
 
 std::string
-art::PostCloseFileRenamer::
-subInputFileName_(boost::smatch const & match) const
+art::PostCloseFileRenamer::subInputFileName_(boost::smatch const& match) const
 {
   using namespace boost::regex_constants;
   using boost::regex;
@@ -121,7 +100,7 @@ subInputFileName_(boost::smatch const & match) const
   // If the filename is empty, substitute "-". If it is merely the
   // required substitution that is empty, substitute "".
   if (!stats_.lastOpenedInputFile().empty()) {
-    bfs::path const ifp(stats_.lastOpenedInputFile());
+    bfs::path const ifp {stats_.lastOpenedInputFile()};
     if (match[4].matched) { // %if[bdenp]
       switch (*(match[4].first)) {
       case 'b':
@@ -163,9 +142,9 @@ subInputFileName_(boost::smatch const & match) const
       }
     } else if (match[5].matched) { // Regex substitution.
       // Decompose the regex;
-      syntax_option_type sflags { ECMAScript };
-      match_flag_type mflags { match_default };
-      bool global { false };
+      syntax_option_type sflags {ECMAScript};
+      match_flag_type mflags {match_default};
+      bool global {false};
       if (match[7].matched) { // Options.
         for (auto c : match[7].str()) {
           switch (c) {
@@ -187,7 +166,7 @@ subInputFileName_(boost::smatch const & match) const
       if (!global) {
         mflags |= format_first_only;
       }
-      regex dsub(match[5].str(), sflags);
+      regex const dsub {match[5].str(), sflags};
       result = regex_replace(stats_.lastOpenedInputFile(), dsub, match[6].str(), mflags);
     } else { // INTERNAL ERROR.
         throw Exception(errors::LogicError)
@@ -202,8 +181,7 @@ subInputFileName_(boost::smatch const & match) const
 }
 
 std::string
-art::PostCloseFileRenamer::
-subTimestamp_(boost::smatch const & match) const
+art::PostCloseFileRenamer::subTimestamp_(boost::smatch const& match) const
 {
   std::string result;
   switch (*(match[3].first)) {
@@ -224,8 +202,7 @@ subTimestamp_(boost::smatch const & match) const
 }
 
 std::string
-art::PostCloseFileRenamer::
-subFilledNumeric_(boost::smatch const & match) const
+art::PostCloseFileRenamer::subFilledNumeric_(boost::smatch const& match) const
 {
   std::string result;
   std::ostringstream num_str;
@@ -267,26 +244,18 @@ subFilledNumeric_(boost::smatch const & match) const
 }
 
 std::string
-art::PostCloseFileRenamer::
-maybeRenameFile(std::string const & inPath, std::string const & toPattern) {
-  std::string outPath {applySubstitutions(toPattern)};
-  bfs::path target {outPath};
-
-  while( bfs::exists(target) ) {
-    // Add index to file name if the target file already exists
-    auto const index = std::to_string(stats_.sequenceNum());
-    std::size_t const pos = outPath.find('.');
-    std::string const& base {outPath.substr(0,pos)};
-    std::string newOutPath {base+"_"+index};
-    if (pos != std::string::npos) {
-      std::string const& suffix {outPath.substr(pos+1)};
-      newOutPath += "."+suffix;
-    }
-    bfs::path newOutTarget {newOutPath};
-    using std::swap;
-    swap(target, newOutTarget);
-    swap(outPath, newOutPath);
+art::PostCloseFileRenamer::maybeRenameFile(std::string const& inPath, std::string const& toPattern)
+{
+  std::string const& newFile = applySubstitutions(toPattern);
+  boost::system::error_code ec;
+  bfs::rename(inPath, newFile, ec);
+  if (ec) {
+    // Fail (different filesystems? Try copy / delete instead).
+    // This attempt will throw on failure.
+    bfs::copy_file(inPath,
+                   newFile,
+                   bfs::copy_option::overwrite_if_exists);
+    bfs::remove(inPath);
   }
-
-  return renameFile(inPath, outPath);
+  return newFile;
 }

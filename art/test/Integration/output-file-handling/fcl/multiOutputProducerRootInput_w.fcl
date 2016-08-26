@@ -16,7 +16,7 @@ outputs: {
 
   o2: {
     module_type: RootOutput
-    fileName: "out_r%R.root"
+    fileName: "out_r%R_%#.root"
     fileProperties: {
       maxRuns: 1
       granularity: Run
@@ -25,7 +25,7 @@ outputs: {
 
   o3: {
     module_type: RootOutput
-    fileName: "out_r%r_sr%S.root"
+    fileName: "out_r%r_sr%S_%#.root"
     fileProperties: {
       maxSubRuns: 1
       granularity: SubRun

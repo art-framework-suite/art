@@ -1,7 +1,7 @@
 #ifndef art_Framework_IO_Root_detail_rootOutputConfigurationTools_h
 #define art_Framework_IO_Root_detail_rootOutputConfigurationTools_h
 
-#include "art/Framework/Core/OutputFileSwitchBoundary.h"
+#include <string>
 
 namespace art {
 
@@ -17,6 +17,8 @@ namespace art {
     bool shouldDropEvents(bool dropAllEventsSet,
                           bool dropAllEvents,
                           bool dropAllSubRuns);
+
+    void validateFileNamePattern(bool const do_check, std::string const& pattern);
   }
 }
 

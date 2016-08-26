@@ -1,5 +1,5 @@
 <separator (=)>
-File: out_r1_sr0.root
+File: out_r1_sr0_1.root
  Run: 1
   SubRun: 0 Event range: [1,6)
 
@@ -24,7 +24,7 @@ and Events stored in the root file.
               1              0              5              4
 
 <separator (=)>
-File: out_r1_sr1.root
+File: out_r1_sr1_2.root
  Run: 1
   SubRun: 1 Event range: [1,6)
 
@@ -49,7 +49,7 @@ and Events stored in the root file.
               1              1              5              4
 
 <separator (=)>
-File: out_r2_sr0.root
+File: out_r2_sr0_3.root
  Run: 2
   SubRun: 0 Event range: [1,5)
 

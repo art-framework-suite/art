@@ -9,6 +9,7 @@
 #include <string>
 #include <vector>
 
+using namespace std::string_literals;
 using std::string;
 using std::vector;
 using fhicl::intermediate_table;
@@ -18,41 +19,45 @@ using art::detail::fhicl_key;
 
 namespace {
 
-  string new_config(string const& fileMode, string const& module_label)
+  template <typename T>
+  T maybe_quote(T const& t)
   {
-    std::ostringstream c;
-    if (fileMode == "MERGE") {
-      c << fhicl_key("outputs", module_label,"fileProperties","granularity")+": \"Event\"";
-    }
-    else if (fileMode == "NOMERGE") {
-      c << fhicl_key("outputs", module_label,"fileProperties") << ": {\n"
-        << "    maxInputFiles: 1\n"
-        << "    granularity: \"InputFile\"\n"
-        << "  }";
-    }
-    return c.str();
+    return t;
   }
 
-  string boundaryFromFileMode(string const& fileMode,
-                              std::ostringstream& msg,
-                              table_t const& outputs)
+  template <>
+  std::string maybe_quote(std::string const& t)
+  {
+    return "\""+t+"\"";
+  }
+
+  template <typename T>
+  struct KeyValuePair {
+    std::string key;
+    T value;
+  };
+
+  template <typename T>
+  std::ostream& operator<<(std::ostream& os, KeyValuePair<T> const& pr)
+  {
+    os << pr.key << ": " << maybe_quote(pr.value);
+    return os;
+  }
+
+  template <typename T>
+  KeyValuePair<T> make_config_pair(std::string const& k, T const& v)
+  {
+    return KeyValuePair<T>{k,v};
+  }
+
+  void validate_supported_mode(std::ostringstream& msg, string const& fileMode)
   {
     if (fileMode != "MERGE" && fileMode != "NOMERGE") {
       msg << "\nPlease contact artists@fnal.gov for guidance.\n\n";
-      throw art::Exception(art::errors::Configuration) << msg.str();
+      throw art::Exception{art::errors::Configuration} << msg.str();
     }
-
-    if (outputs.empty()) {
-      msg << "It will be removed.\n";
-    }
-    else {
-      msg << "\nIt will be replaced with the following configurations:";
-      for (auto const& o : outputs)
-        msg << "\n\n  " << new_config(fileMode, o.first);
-    }
-    std::cerr << msg.str() << "\n\n";
-    return fileMode == "MERGE" ? "Unset" : "InputFile";
   }
+
 }
 
 void
@@ -66,22 +71,38 @@ art::detail::handle_deprecated_configs(intermediate_table& raw_config)
 void
 art::detail::handle_deprecated_fileMode(intermediate_table& raw_config)
 {
-  auto const& param = fhicl_key("services","scheduler","fileMode");
-  if (!exists_outside_prolog(raw_config, param)) return;
+  auto const& fm_key = fhicl_key("services","scheduler","fileMode");
+  if (!exists_outside_prolog(raw_config, fm_key)) return;
 
-  auto const& value =  raw_config.get<string>(param);
+  auto const& fileMode = raw_config.get<string>(fm_key);
+  raw_config.erase(fm_key);
+
   std::ostringstream msg;
   msg << "\nThe following specification is no longer supported:\n"
-      << "  " << param << ": " << value << '\n';
+      << "  " << fm_key << ": " << fileMode << '\n';
+
+  validate_supported_mode(msg, fileMode);
 
   string const outputs_key {"outputs"};
   table_t outputs;
   if (exists_outside_prolog(raw_config, outputs_key))
     outputs = raw_config.get<table_t>(outputs_key);
 
-  auto const& boundary = boundaryFromFileMode(value, msg, outputs);
-  raw_config.erase(param);
+  if (outputs.empty() || fileMode == "MERGE") {
+    msg << "It has been removed.\n";
+    std::cerr << msg.str() << "\n\n";
+    return;
+  }
 
+  // We get here only if fileMode == "NOMERGE"
+
+  auto supported_filename = [](string const& fileName) {
+    if (fileName.find("%#") != string::npos)
+      return fileName;
+    return fileName.substr(0,fileName.find(".root"))+"_%#.root";
+  };
+
+  msg << "\nIt has been replaced with the following configurations:\n\n";
   for (auto const& o : outputs) {
     auto const& module_label = fhicl_key(outputs_key, o.first);
     auto const& module_type = fhicl_key(module_label, "module_type");
@@ -89,11 +110,27 @@ art::detail::handle_deprecated_fileMode(intermediate_table& raw_config)
     if (exists_outside_prolog(raw_config,module_type) && raw_config.get<string>(module_type) != "RootOutput")
       continue;
 
-    raw_config.put(fhicl_key(module_label,"fileProperties","granularity"), boundary);
-    if (boundary == "InputFile") {
-      raw_config.put(fhicl_key(module_label,"fileProperties","maxInputFiles"), 1);
+    auto const& fileName_key = fhicl_key(module_label, "fileName");
+    bool const fileName_exists = exists_outside_prolog(raw_config,fileName_key);
+
+    if (fileName_exists) {
+      auto const& new_fileName = supported_filename(raw_config.get<string>(fileName_key));
+      auto fileNamePair = make_config_pair(fileName_key, new_fileName);
+      msg << "  " << fileNamePair << '\n';
+      raw_config.put(fileNamePair.key, fileNamePair.value);
     }
+
+    auto const& fileProperties = fhicl_key(module_label, "fileProperties");
+    auto granularityPair = make_config_pair(fhicl_key(fileProperties,"granularity"), "InputFile"s);
+    msg << "  " << granularityPair << '\n';
+    raw_config.put(granularityPair.key, granularityPair.value);
+
+    auto maxInputFilesPair = make_config_pair(fhicl_key(fileProperties,"maxInputFiles"), 1);
+    msg << "  " << maxInputFilesPair << "\n\n";
+    raw_config.put(maxInputFilesPair.key, maxInputFilesPair.value);
   }
+  std::cerr << msg.str() << '\n';
+  raw_config.erase(fileMode);
 }
 
 void

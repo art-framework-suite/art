@@ -1,5 +1,6 @@
 outputs: {
    o1: {
+      fileName: "o1_%#.root"
       fileProperties: {
          granularity: "InputFile"
          maxInputFiles: 1
@@ -8,6 +9,7 @@ outputs: {
       module_type: "RootOutput"
    }
    o2: {
+      fileName: "o2_%#_works.root"
       fileProperties: {
          granularity: "InputFile"
          maxInputFiles: 1

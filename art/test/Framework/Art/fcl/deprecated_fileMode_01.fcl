@@ -1,8 +1,7 @@
 process_name: merge
 services.scheduler.fileMode: MERGE
 
-outputs: {
+outputs: {   # no extra config should be placed in these modules
    o1: { module_type: RootOutput }
-   o2: { module_type: RootOutput }
-   o3: { module_type: MyUnsupportedOutput } # no extra config should be placed in this module
+   o2: { module_type: MyUnsupportedOutput }
 }
