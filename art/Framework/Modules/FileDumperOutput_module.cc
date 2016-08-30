@@ -15,12 +15,12 @@
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Framework/Principal/detail/orderedProcessNames.h"
-#include "art/Utilities/ConfigTable.h"
 #include "canvas/Utilities/Exception.h"
 #include "cetlib/column_width.h"
 #include "cetlib/lpad.h"
 #include "cetlib/rpad.h"
 #include "fhiclcpp/ParameterSet.h"
+#include "fhiclcpp/types/Table.h"
 
 #include <algorithm>
 #include <iomanip>
@@ -96,7 +96,7 @@ public:
     fhicl::Atom<bool> onlyIfPresent   { fhicl::Name("onlyIfPresent"), false };
   };
 
-  using Parameters = ConfigTable<Config, OutputModule::Config::KeysToIgnore>;
+  using Parameters = fhicl::Table<Config, OutputModule::Config::KeysToIgnore>;
 
   explicit FileDumperOutput(Parameters const&);
 

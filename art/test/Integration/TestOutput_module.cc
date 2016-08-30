@@ -1,10 +1,10 @@
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Core/OutputModule.h"
-#include "art/Utilities/ConfigTable.h"
 #include "cetlib/exception.h"
+#include "fhiclcpp/types/Atom.h"
+#include "fhiclcpp/types/Table.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
-#include "fhiclcpp/types/Atom.h"
 #include <cassert>
 
 namespace arttest {
@@ -19,7 +19,7 @@ public:
     fhicl::Atom<unsigned> shouldPass { fhicl::Name("shouldPass") };
   };
 
-  using Parameters = art::ConfigTable<Config, art::OutputModule::Config::KeysToIgnore>;
+  using Parameters = fhicl::Table<Config, art::OutputModule::Config::KeysToIgnore>;
   explicit TestOutput(Parameters const&);
 
 private:

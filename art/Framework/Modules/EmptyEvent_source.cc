@@ -16,10 +16,10 @@
 #include "canvas/Persistency/Provenance/SubRunAuxiliary.h"
 #include "canvas/Persistency/Provenance/SubRunID.h"
 #include "canvas/Persistency/Provenance/Timestamp.h"
-#include "art/Utilities/ConfigTable.h"
 #include "cetlib/BasicPluginFactory.h"
 #include "fhiclcpp/types/Atom.h"
 #include "fhiclcpp/types/OptionalAtom.h"
+#include "fhiclcpp/types/Table.h"
 #include "fhiclcpp/types/TableFragment.h"
 #include "fhiclcpp/ParameterSet.h"
 
@@ -59,7 +59,7 @@ public:
 
   };
 
-  using Parameters = art::ConfigTable<Config, Config::KeysToIgnore>;
+  using Parameters = fhicl::Table<Config, Config::KeysToIgnore>;
 
   explicit EmptyEvent(Parameters const& config,
                       InputSourceDescription & desc);

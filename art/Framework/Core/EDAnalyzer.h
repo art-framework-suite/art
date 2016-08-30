@@ -9,10 +9,12 @@
 
 #include "art/Framework/Core/EngineCreator.h"
 #include "art/Framework/Core/EventObserver.h"
-#include "art/Framework/Principal/fwd.h"
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/WorkerT.h"
+#include "art/Framework/Core/detail/IgnoreModuleLabel.h"
+#include "art/Framework/Principal/fwd.h"
 #include "fhiclcpp/ParameterSet.h"
+#include "fhiclcpp/types/KeysToIgnore.h"
 #include "fhiclcpp/types/OptionalTable.h"
 #include "fhiclcpp/types/Table.h"
 #include "fhiclcpp/types/TableFragment.h"
@@ -37,29 +39,32 @@ namespace art
     using WorkerType = WorkerT<EDAnalyzer>;
     using ModuleType = EDAnalyzer;
 
+    //---------------------------------------------------------------------------
     // Configuration
-    template <typename T>
-    struct FullConfig {
-      fhicl::Atom<std::string> module_type { fhicl::Name("module_type") };
-      fhicl::TableFragment<EventObserver::EOConfig> eoConfig;
-      fhicl::TableFragment<T> user;
-    };
 
-    template < typename UserConfig >
+    template <typename UserConfig, typename UserKeysToIgnore = void>
     class Table {
+
+      template <typename T>
+      struct FullConfig {
+        fhicl::Atom<std::string> module_type { fhicl::Name("module_type") };
+        fhicl::TableFragment<EventObserver::EOConfig> eoConfig;
+        fhicl::TableFragment<T> user;
+      };
+
+      using KeysToIgnore_t = std::conditional_t<std::is_void<UserKeysToIgnore>::value,
+                                                detail::IgnoreModuleLabel,
+                                                fhicl::KeysToIgnore<detail::IgnoreModuleLabel, UserKeysToIgnore>>;
+
+      fhicl::Table<FullConfig<UserConfig>, KeysToIgnore_t> fullConfig_;
+
     public:
 
-      Table() = default;
-
-      Table( fhicl::ParameterSet const& pset ) : Table()
-      {
-        std::set<std::string> const keys_to_ignore { "module_label" };
-        fullConfig_.validate_ParameterSet( pset, keys_to_ignore );
-      }
+      Table(fhicl::Name&& name) : fullConfig_{std::move(name)} {}
+      Table(fhicl::ParameterSet const& pset) : fullConfig_{pset} {}
 
       auto const& operator()() const { return fullConfig_().user(); }
-
-      auto const& eoFragment()  const { return fullConfig_().eoConfig(); }
+      auto const& eoFragment() const { return fullConfig_().eoConfig(); }
       auto const& get_PSet() const { return fullConfig_.get_PSet(); }
 
       void print_allowed_configuration(std::ostream& os, std::string const& prefix) const
@@ -67,9 +72,9 @@ namespace art
         fullConfig_.print_allowed_configuration(os, prefix);
       }
 
-    private:
-      fhicl::Table<FullConfig<UserConfig>> fullConfig_ { fhicl::Name{"<module_label>"} };
     };
+
+    //---------------------------------------------------------------------------
 
     template <typename Config>
     explicit EDAnalyzer(Table<Config> const& config)

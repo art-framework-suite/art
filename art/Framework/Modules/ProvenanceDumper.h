@@ -128,13 +128,13 @@
 #include "art/Framework/Principal/Provenance.h"
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
-#include "art/Utilities/ConfigTable.h"
 #include "canvas/Utilities/Exception.h"
 #include "cetlib/detail/metaprogramming.h"
 #include "cetlib/exempt_ptr.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/types/Atom.h"
 #include "fhiclcpp/types/Sequence.h"
+#include "fhiclcpp/types/Table.h"
 
 #include <algorithm>
 
@@ -201,8 +201,8 @@ namespace art {
     public OutputModule {
   public:
 
-    using Parameters = art::ConfigTable<ProvenanceDumperConfig<DETAIL>,
-                                        art::OutputModule::Config::KeysToIgnore>;
+    using Parameters = fhicl::Table<ProvenanceDumperConfig<DETAIL>,
+                                    art::OutputModule::Config::KeysToIgnore>;
 
     explicit ProvenanceDumper(Parameters const & ps)
       :

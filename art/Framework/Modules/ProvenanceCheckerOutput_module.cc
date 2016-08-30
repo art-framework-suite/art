@@ -11,10 +11,10 @@
 #include "art/Framework/Core/OutputModule.h"
 #include "art/Persistency/Provenance/ProductMetaData.h"
 #include "canvas/Persistency/Provenance/ProductList.h"
-#include "art/Utilities/ConfigTable.h"
 #include "cetlib/exception.h"
 #include "cetlib/exempt_ptr.h"
 #include "fhiclcpp/ParameterSet.h"
+#include "fhiclcpp/types/Table.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 namespace art {
@@ -26,7 +26,7 @@ namespace art {
       fhicl::TableFragment<OutputModule::Config> omConfig;
     };
 
-    using Parameters = ConfigTable<Config, OutputModule::Config::KeysToIgnore>;
+    using Parameters = fhicl::Table<Config, OutputModule::Config::KeysToIgnore>;
     explicit ProvenanceCheckerOutput(Parameters const&);
     virtual ~ProvenanceCheckerOutput();
 

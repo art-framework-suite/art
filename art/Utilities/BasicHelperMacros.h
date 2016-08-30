@@ -1,14 +1,15 @@
 #ifndef art_Utilities_BasicHelperMacros_h
 #define art_Utilities_BasicHelperMacros_h
 
-////////////////////////////////////////////////////////////////////////
+// =====================================================================
 //
 // HelperMacros
 //
-////////////////////////////////////////////////////////////////////////
+// =====================================================================
 
 #include "boost/filesystem.hpp"
 #include "cetlib/detail/metaprogramming.h"
+#include "fhiclcpp/types/Name.h"
 
 #include <ostream>
 #include <string>
@@ -43,7 +44,7 @@ namespace art {
     {
       std::ostream& operator()(std::ostream& os, std::string const& prefix)
       {
-        typename T::Parameters{}.print_allowed_configuration(os, prefix);
+        typename T::Parameters{fhicl::Name("<config>")}.print_allowed_configuration(os, prefix);
         return os;
       }
     };
