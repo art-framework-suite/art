@@ -71,7 +71,7 @@
 #include "canvas/Persistency/Common/Ptr.h"
 #include "canvas/Persistency/Common/PtrVector.h"
 #include "canvas/Persistency/Provenance/ProductID.h"
-#include "canvas/Utilities/detail/metaprogramming.h"
+#include "cetlib/detail/metaprogramming.h"
 #include "cetlib/map_vector.h"
 
 #include <cstddef>
@@ -84,12 +84,15 @@ namespace art {
 
   // Template metaprogramming.
   namespace detail {
+    using cet::detail::no_tag;
+    using cet::detail::yes_tag;
+
     template <typename T, typename InIter, void (T::*)(InIter, InIter)> struct two_arg_insert_func;
     template <typename T, typename I> no_tag has_two_arg_insert_helper(...);
     template <typename T, typename I> yes_tag has_two_arg_insert_helper(two_arg_insert_func<T, I, &T::insert> *dummy);
     template <typename T>
     struct has_two_arg_insert {
-      static bool const value =
+      static bool constexpr value =
         sizeof(has_two_arg_insert_helper<T, typename T::const_iterator>(0)) == sizeof(yes_tag);
     };
 
@@ -98,7 +101,7 @@ namespace art {
     template <typename T, typename R, typename O, typename I> yes_tag has_three_arg_insert_helper(three_arg_insert_func<T, R, O, I, &T::insert> *dummy);
     template <typename T>
     struct has_three_arg_insert {
-      static bool const value =
+      static bool constexpr value =
         sizeof(has_three_arg_insert_helper<T, void, typename T::iterator, typename T::const_iterator>(0)) == sizeof(yes_tag) ||
         sizeof(has_three_arg_insert_helper<T, typename T::iterator, typename T::const_iterator, typename T::const_iterator>(0)) == sizeof(yes_tag);
     };

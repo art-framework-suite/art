@@ -7,10 +7,11 @@
 //
 ////////////////////////////////////////////////////////////////////////
 
+#include "boost/filesystem.hpp"
+#include "cetlib/detail/metaprogramming.h"
+
 #include <ostream>
 #include <string>
-#include "canvas/Utilities/detail/metaprogramming.h"
-#include "boost/filesystem.hpp"
 
 namespace bfs = boost::filesystem;
 
@@ -18,10 +19,9 @@ namespace bfs = boost::filesystem;
 
 #define PROVIDE_FILE_PATH()                              \
   extern "C"                                             \
-  std::string                                            \
-  get_source_location()                                  \
+  std::string get_source_location()                      \
   {                                                      \
-    bfs::path const p( __FILE__ );                       \
+    bfs::path const p {__FILE__};                        \
     return bfs::complete(p).native();                    \
   }
 
@@ -39,9 +39,9 @@ namespace art {
     };
 
     template<class T>
-    struct MaybePrintDescription<T, enable_if_type_exists_t<typename T::Parameters>>
+    struct MaybePrintDescription<T, cet::detail::enable_if_type_exists_t<typename T::Parameters>>
     {
-      std::ostream & operator()(std::ostream & os, std::string const& prefix)
+      std::ostream& operator()(std::ostream& os, std::string const& prefix)
       {
         typename T::Parameters{}.print_allowed_configuration(os, prefix);
         return os;
@@ -51,15 +51,13 @@ namespace art {
   }
 }
 
-#define PROVIDE_DESCRIPTION( klass )                                    \
+#define PROVIDE_DESCRIPTION(klass)                                      \
   extern "C"                                                            \
-  std::ostream&                                                         \
-  print_description(std::ostream& os, std::string const& prefix)        \
+  std::ostream& print_description(std::ostream& os, std::string const& prefix) \
   {                                                                     \
     art::detail::MaybePrintDescription<klass> print;                    \
     return print(os,prefix);                                            \
   }                                                                     \
-
 
 #endif /* art_Utilities_BasicHelperMacros_h */
 

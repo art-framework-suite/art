@@ -12,7 +12,7 @@
 
 #include "art/Framework/Services/Registry/ServiceScope.h"
 #include "art/Utilities/ScheduleID.h"
-#include "canvas/Utilities/detail/metaprogramming.h"
+#include "cetlib/detail/metaprogramming.h"
 #include <memory>
 #include <type_traits>
 
@@ -21,6 +21,8 @@ namespace art {
   class ActivityRegistry;
 
   namespace detail {
+
+    using cet::detail::enable_if_function_exists_t;
 
     // General template.
     template<typename T, ServiceScope SCOPE>

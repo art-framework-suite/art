@@ -20,7 +20,6 @@
 #include "art/Framework/Core/detail/ModuleTypeDeducer.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
 #include "art/Utilities/BasicHelperMacros.h"
-#include "canvas/Utilities/detail/metaprogramming.h"
 #include "fhiclcpp/ParameterSet.h"
 
 #include "art/Framework/Core/EventObserver.h"
