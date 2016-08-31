@@ -3,36 +3,37 @@
 namespace bfs = boost::filesystem;
 using cet::LibraryManager;
 
-std::string
-art::detail::getModuleType( LibraryManager const& lm,
-                            std::string const& fullSpec )
-{
-  std::string result {"[ error ]"};
+namespace art {
+  namespace detail {
 
-  auto type = [&lm,&fullSpec](std::string& modType) {
-    ModuleTypeFunc_t * symbolType{};
-    lm.getSymbolByLibspec(fullSpec, "moduleType", symbolType);
-    modType = art::to_string( symbolType() );
-  };
+    template <>
+    std::string getType<suffix_type::module>(cet::LibraryManager const& lm,
+                                             std::string const& fullSpec)
+    {
+      using ModuleTypeFunc_t = art::ModuleType();
 
-  try_resolve(type, __func__, result);
+      auto type = [&lm,&fullSpec](){
+        ModuleTypeFunc_t* symbolType{};
+        lm.getSymbolByLibspec(fullSpec, "moduleType", symbolType);
+        return art::to_string(symbolType());
+      };
 
-  return result;
-}
+      return resolve_if_present(type, __func__, "[ error ]");
+    }
 
-std::string
-art::detail::getPluginType( LibraryManager const& lm,
-                            std::string const& fullSpec )
-{
-  std::string result = "[ error ]";
+    template <>
+    std::string getType<suffix_type::plugin>(cet::LibraryManager const& lm,
+                                             std::string const& fullSpec)
+    {
+      using PluginTypeFunc_t = std::string();
 
-  auto type = [&lm,&fullSpec](std::string& pluginType) {
-    PluginTypeFunc_t * symbolType{};
-    lm.getSymbolByLibspec(fullSpec, "pluginType", symbolType);
-    pluginType = symbolType();
-  };
+      auto type = [&lm,&fullSpec](){
+        PluginTypeFunc_t* symbolType{};
+        lm.getSymbolByLibspec(fullSpec, "pluginType", symbolType);
+        return symbolType();
+      };
 
-  try_resolve(type, __func__, result);
-
-  return result;
+      return resolve_if_present(type, __func__, "[ error ]");
+    }
+  }
 }

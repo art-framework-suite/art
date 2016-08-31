@@ -45,6 +45,7 @@ set(art_Framework_Art_sources
   run_art.cc
   detail/MetadataRegexHelpers.cc
   detail/PrintPluginMetadata.cc
+  detail/PluginSymbolResolvers.cc
   detail/ServiceNames.cc
   detail/fillSourceList.cc
   detail/get_LibraryInfoCollection.cc
