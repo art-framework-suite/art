@@ -29,41 +29,6 @@ namespace {
     return std::move(file);
   }
 
-  auto getMetaData(TFile* file)
-  {
-    return static_cast<TTree*>(file->Get(art::rootNames::metaDataTreeName().data()));
-  }
-
-  auto getFileIndex(TFile* file)
-  {
-    auto md = getMetaData(file);
-    auto fileIndexUniquePtr = std::make_unique<art::FileIndex>();
-    auto findexPtr = &*fileIndexUniquePtr;
-    art::detail::setFileIndexPointer(file, md, findexPtr);
-    art::input::getEntry(md, 0);
-    return *fileIndexUniquePtr;
-  }
-
-  auto getFileFormatVersion(TFile* file)
-  {
-    auto md = getMetaData(file);
-    art::FileFormatVersion fftVersion {};
-    auto fftPtr = &fftVersion;
-    md->SetBranchAddress(art::rootNames::metaBranchRootName<art::FileFormatVersion>(), &fftPtr);
-
-    // We populate the ProcessHistoryRegistry here to reduce the
-    // number of times we have to call art::input::getEntry, which
-    // seems to cause unexplainable woe.
-    art::ProcessHistoryMap pHistMap;
-    auto pHistMapPtr = &pHistMap;
-    md->SetBranchAddress(art::rootNames::metaBranchRootName<decltype(pHistMap)>(), &pHistMapPtr);
-
-    art::input::getEntry(md, 0);
-
-    art::ProcessHistoryRegistry::put(pHistMap);
-    return *fftPtr;
-  }
-
   using EntryNumbers = art::detail::InfoDumperInputFile::EntryNumbers;
 
   EntryNumbers
@@ -84,9 +49,28 @@ namespace {
 
 art::detail::InfoDumperInputFile::InfoDumperInputFile(std::string const& filename)
   : file_{openFile(filename)}
-  , fileIndex_{getFileIndex(file_.get())}
-  , fileFormatVersion_{getFileFormatVersion(file_.get())}
-{}
+{
+  std::unique_ptr<TTree> md {static_cast<TTree*>(file_->Get(art::rootNames::metaDataTreeName().data()))};
+  auto fftPtr = &fileFormatVersion_;
+  md->SetBranchAddress(art::rootNames::metaBranchRootName<art::FileFormatVersion>(), &fftPtr);
+
+  auto bidsPtr = &branchIDLists_;
+  md->SetBranchAddress(art::rootNames::metaBranchRootName<art::BranchIDLists>(), &bidsPtr);
+
+  // We populate the ProcessHistoryRegistry here to reduce the
+  // number of times we have to call art::input::getEntry, which
+  // seems to cause unexplainable woe.
+  art::ProcessHistoryMap pHistMap;
+  auto pHistMapPtr = &pHistMap;
+  md->SetBranchAddress(art::rootNames::metaBranchRootName<decltype(pHistMap)>(), &pHistMapPtr);
+
+  art::input::getEntry(md.get(), 0);
+
+  art::ProcessHistoryRegistry::put(pHistMap);
+
+  auto findexPtr = &fileIndex_;
+  art::detail::setFileIndexPointer(file_.get(), md.get(), findexPtr);
+}
 
 void
 art::detail::InfoDumperInputFile::print_event_list(std::ostream& os) const
@@ -108,6 +92,20 @@ art::detail::InfoDumperInputFile::print_process_history(std::ostream& os) const
   unsigned i {1u};
   for (auto const& process : orderedProcessNames())
     os << std::setw(5) << std::right << i++ << ". " << process << '\n';
+}
+
+void
+art::detail::InfoDumperInputFile::print_branchIDLists(std::ostream& os) const
+{
+  os << "\n Chronological list of BranchIDs produced for this file.\n";
+  unsigned i {};
+  for (auto const& process : orderedProcessNames()) {
+    os << "\n Process " <<  i+1 << ": " << process << '\n';
+    for (auto const& bid : branchIDLists_[i]) {
+      os << "    " << bid << '\n';
+    }
+    ++i;
+  }
 }
 
 void
