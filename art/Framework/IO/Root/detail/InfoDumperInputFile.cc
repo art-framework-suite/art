@@ -97,7 +97,10 @@ art::detail::InfoDumperInputFile::print_process_history(std::ostream& os) const
 void
 art::detail::InfoDumperInputFile::print_branchIDLists(std::ostream& os) const
 {
-  os << "\n Chronological list of BranchIDs produced for this file.\n";
+  os << "\n List of BranchIDs produced for this file.  The BranchIDs are\n"
+     << " grouped according to the process in which they were produced.  The\n"
+     << " processes are presented in chronological order; however within each process,\n"
+     << " the order of listed BranchIDs is not meaningful.\n";
   unsigned i {};
   for (auto const& process : orderedProcessNames()) {
     os << "\n Process " <<  i+1 << ": " << process << '\n';
