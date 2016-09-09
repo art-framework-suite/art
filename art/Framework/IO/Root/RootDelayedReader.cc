@@ -94,12 +94,16 @@ namespace art {
         return result;
       }
 
+      // Unfortunately, we cannot use detail::resolveRangeSetInfo in
+      // this case because products that represent a full (Sub)Run are
+      // allowed to be duplicated in an input file.  The behavior in
+      // such a case is a NOP.
       RangeSet mergedRangeSet = detail::resolveRangeSet(db_,
                                                         "SomeInput"s,
                                                         branchType_,
                                                         result->getRangeSetID());
 
-      for(auto it = entrySet_.cbegin()+1, e = entrySet_.cend(); it!= e; ++it) {
+      for (auto it = entrySet_.cbegin()+1, e = entrySet_.cend(); it!= e; ++it) {
         auto p = get_product(*it);
         auto const id = p->getRangeSetID();
 
@@ -130,9 +134,6 @@ namespace art {
         }
         // NOP when both RangeSets are invalid
       }
-      // Must collapse the range!  It sets the checksum.  Yeah...I
-      // don't like it either. -KJK
-      mergedRangeSet.collapse();
       std::swap(rs, mergedRangeSet);
     }
 

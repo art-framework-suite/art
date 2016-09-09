@@ -157,19 +157,18 @@ art::detail::InfoDumperInputFile::getRangeSet(TTree* tree,
                                               sqlite3* db,
                                               std::string const& filename) const
 {
+  auto resolve_info = [db,&filename](auto const id) {
+    return detail::resolveRangeSetInfo(db, filename, InRun, id);
+  };
+
   auto auxResult = getAuxiliary(tree, entries[0]);
-  auto rangeSet = detail::resolveRangeSet(db,
-                                          filename,
-                                          InRun,
-                                          auxResult.rangeSetID());
+  auto rangeSetInfo = resolve_info(auxResult.rangeSetID());
+
   for(auto i = entries.cbegin()+1, e = entries.cend(); i!=e; ++i) {
     auto const& tmpAux = getAuxiliary(tree, *i);
     auxResult.mergeAuxiliary(tmpAux);
-    auto const& tmpRangeSet = detail::resolveRangeSet(db,
-                                                      filename,
-                                                      InRun,
-                                                      tmpAux.rangeSetID());
-    rangeSet.merge(tmpRangeSet);
+    rangeSetInfo.update(resolve_info(tmpAux.rangeSetID()));
   }
-  return rangeSet.collapse();
+
+  return resolveRangeSet(rangeSetInfo);
 }

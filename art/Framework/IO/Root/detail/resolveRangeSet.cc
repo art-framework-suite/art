@@ -42,16 +42,17 @@ namespace {
 }
 
 using art::EventRange;
+using art::RangeSet;
 
-art::RangeSet
-art::detail::resolveRangeSet(sqlite3* db,
-                             std::string const& filename,
-                             BranchType const bt,
-                             unsigned const rangeSetID)
+art::detail::RangeSetInfo
+art::detail::resolveRangeSetInfo(sqlite3* db,
+                                 std::string const& filename,
+                                 BranchType const bt,
+                                 unsigned const rangeSetID)
 {
   // Invalid rangeSetID check
   if (rangeSetID == std::numeric_limits<unsigned>::max())
-    return RangeSet::invalid();
+    return RangeSetInfo::invalid();
 
   sqlite3_stmt* stmt {nullptr};
   std::string const run_ddl {"SELECT Run FROM "+BranchTypeToString(bt)+"RangeSets WHERE rowid=="
@@ -81,5 +82,24 @@ art::detail::resolveRangeSet(sqlite3* db,
   rc = sqlite3_finalize(stmt);
   successful_finalize(rc, sqlite3_errmsg(db), filename);
 
-  return ranges.empty() ? RangeSet::forRun(RunID{r}) : RangeSet{r, ranges};
+  return RangeSetInfo{r,std::move(ranges)};
+}
+
+art::RangeSet
+art::detail::resolveRangeSet(RangeSetInfo const& rsi)
+{
+  if (rsi.is_invalid()) {
+    return RangeSet::invalid();
+  }
+  return rsi.ranges.empty() ? RangeSet::forRun(RunID{rsi.run}) : RangeSet{rsi.run, rsi.ranges};
+}
+
+art::RangeSet
+art::detail::resolveRangeSet(sqlite3* db,
+                             std::string const& filename,
+                             BranchType const bt,
+                             unsigned const rangeSetID)
+{
+  auto const& rsInfo = resolveRangeSetInfo(db, filename, bt, rangeSetID);
+  return resolveRangeSet(rsInfo);
 }
