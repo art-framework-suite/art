@@ -117,7 +117,8 @@ namespace {
     if ((ruleMatch[3].length() > 0) && // Have a BranchType specification.
         (ruleMatch[3] != "*")) { // Wildcard is NOP, here.
       std::smatch btMatch;
-      if (std::regex_match(ruleMatch[3].str(),
+      auto const foundBT = ruleMatch[3].str();
+      if (std::regex_match(foundBT,
                            btMatch,
                            branchTypeRE)) {
         // Should be true by construction.

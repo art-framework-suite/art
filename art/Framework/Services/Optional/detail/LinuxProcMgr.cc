@@ -102,9 +102,9 @@ namespace art {
       while (!feof(file)) {
         char buffer[128];
         if (fgets(buffer, sizeof(buffer), file) != nullptr) {
-          std::smatch sm;
-          if (std::regex_search(std::string{buffer}, sm, pattern)) {
-            value = std::stod(sm.str(1))/LinuxProcData::kB; // convert to MB
+          std::cmatch cm;
+          if (std::regex_search(buffer, cm, pattern)) {
+            value = std::stod(cm.str(1))/LinuxProcData::kB; // convert to MB
             break;
           }
         }

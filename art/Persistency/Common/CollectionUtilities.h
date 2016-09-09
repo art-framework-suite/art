@@ -198,8 +198,8 @@ template <typename iterator>
 bool
 art::detail::verifyPtrCollection(iterator beg,
                                  iterator end,
-                                 art::ProductID id = art::ProductID(),
-                                 art::EDProductGetter const *getter = 0) {
+                                 art::ProductID id,
+                                 art::EDProductGetter const *getter) {
   if (beg == end) return true;
   if (!id.isValid()) {
     id = (*beg).id();
