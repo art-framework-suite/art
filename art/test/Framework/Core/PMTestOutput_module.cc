@@ -14,8 +14,8 @@
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Framework/Services/System/FileCatalogMetadata.h"
-#include "art/Utilities/ConfigTable.h"
 #include "fhiclcpp/ParameterSet.h"
+#include "fhiclcpp/types/Table.h"
 
 
 namespace arttest {
@@ -29,7 +29,7 @@ public:
     fhicl::TableFragment<art::OutputModule::Config> omConfig;
   };
 
-  using Parameters = art::ConfigTable<Config, art::OutputModule::Config::KeysToIgnore>;
+  using Parameters = fhicl::Table<Config, art::OutputModule::Config::KeysToIgnore>;
   explicit PMTestOutput(Parameters const & p);
   virtual ~PMTestOutput();
 

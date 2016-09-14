@@ -26,7 +26,10 @@ namespace {
 std::ostream&
 art::operator<<(std::ostream& os, art::Statistics const& info)
 {
-  os << info.label << "  "
+  std::string label {info.path};
+  if (info.path != "Full event")
+    label += ":"s + info.mod_label + ":"s + info.mod_type;
+  os << label << "  "
      << boost::format(" %=12g ") % info.min
      << boost::format(" %=12g ") % info.mean
      << boost::format(" %=12g ") % info.max
@@ -43,11 +46,9 @@ art::TimeTracker::TimeTracker(ServiceTable<Config> const & config, ActivityRegis
   , dbMgr_{config().dbOutput().filename()}
   , overwriteContents_{config().dbOutput().overwrite()}
     // table headers
-  , timeReportTuple_{"ReportType","Min","Mean","Max","Median","RMS","nEvts" }
-  , timeEventTuple_ {"Run","Subrun","Event","Time" }
-  , timeModuleTuple_{"Run","Subrun","Event","PathModuleId","Time"}
+  , timeEventTuple_ {"Run","SubRun","Event","Time" }
+  , timeModuleTuple_{"Run","SubRun","Event","Path", "ModuleLabel", "ModuleType","Time"}
     // tables
-  , timeReportTable_{dbMgr_, "TimeReport", timeReportTuple_, true} // always recompute reports
   , timeEventTable_ {dbMgr_, "TimeEvent" , timeEventTuple_ , overwriteContents_}
   , timeModuleTable_{dbMgr_, "TimeModule", timeModuleTuple_, overwriteContents_}
 {
@@ -76,24 +77,32 @@ art::TimeTracker::postEndJob()
   timeEventTable_.flush();
   timeModuleTable_.flush();
 
-  auto const evtStats =
-    (timeEventTable_.lastRowid() == 0 ) ? Statistics{} : Statistics{"Full event", dbMgr_, "TimeEvent", "Time"};
-  auto const& modules = sqlite::getUniqueEntries<std::string>(dbMgr_, "TimeModule", "PathModuleId", false);
+  if (!printSummary_) return;
+
+  // Gather statistics
+  auto const evtStats = (timeEventTable_.lastRowid() == 0 ) ? Statistics{} : Statistics{"Full event", "", "", dbMgr_, "TimeEvent", "Time"};
+  using namespace sqlite;
+
+  result r;
+  r << select_distinct("Path","ModuleLabel","ModuleType").from(timeModuleTable_);
 
   std::vector<Statistics> modStats;
-  for (auto const& mod : modules) {
+  for (auto& row : r) {
+    std::string path {};
+    std::string mod_label {};
+    std::string mod_type {};
+    row >> path >> mod_label >> mod_type;
     std::string const ddl =
       "CREATE TABLE temp.tmpModTable AS "s +
-      "SELECT * FROM TimeModule WHERE PathModuleId='"s+mod+"'"s;
+      "SELECT * FROM TimeModule WHERE Path='"s+path+"'"s +
+      " AND ModuleLabel='"s+mod_label+"'"s +
+      " AND ModuleType='"s+mod_type+"'"s;
     sqlite::exec(dbMgr_, ddl);
-    modStats.emplace_back(mod, dbMgr_, "temp.tmpModTable", "Time");
+    modStats.emplace_back(path, mod_label, mod_type, dbMgr_, "temp.tmpModTable", "Time");
     sqlite::dropTable(dbMgr_, "temp.tmpModTable");
   }
 
-  if (dbMgr_.logToDb())
-    logToDatabase_(evtStats, modStats);
-  if (printSummary_)
-    logToDestination_(evtStats, modStats);
+  logToDestination_(evtStats, modStats);
 }
 
 //======================================================================
@@ -108,10 +117,10 @@ void
 art::TimeTracker::postEventProcessing(Event const&)
 {
   double const t = (now()-eventStart_).seconds();
-  timeEventTable_.insert(eventId_.run(),
-                         eventId_.subRun(),
-                         eventId_.event(),
-                         t);
+  sqlite::insert_into(timeEventTable_).values(eventId_.run(),
+                                              eventId_.subRun(),
+                                              eventId_.event(),
+                                              t);
 }
 
 //======================================================================
@@ -125,43 +134,25 @@ void
 art::TimeTracker::postModule(ModuleDescription const& desc)
 {
   double const t = (now()-moduleStart_).seconds();
-  timeModuleTable_.insert(eventId_.run(),
-                          eventId_.subRun(),
-                          eventId_.event(),
-                          pathname_+":"s+desc.moduleLabel()+":"s+desc.moduleName(),
-                          t);
+  sqlite::insert_into(timeModuleTable_).values(eventId_.run(),
+                                               eventId_.subRun(),
+                                               eventId_.event(),
+                                               pathname_,
+                                               desc.moduleLabel(),
+                                               desc.moduleName(),
+                                               t);
 }
 
 //======================================================================
 void
-art::TimeTracker::logToDatabase_(Statistics const& evt,
-                                 std::vector<Statistics> const& modules)
-{
-  if (evt.n == 0u) return;
-  timeReportTable_.insert(evt.label,
-                          evt.min,
-                          evt.mean,
-                          evt.max,
-                          evt.median,
-                          evt.rms,
-                          evt.n);
-  for (auto const& mod: modules) {
-    timeReportTable_.insert(mod.label,
-                            mod.min,
-                            mod.mean,
-                            mod.max,
-                            mod.median,
-                            mod.rms,
-                            mod.n);
-  }
-}
-
-void
-art::TimeTracker::logToDestination_(Statistics const& evt [[gnu::unused]],
+art::TimeTracker::logToDestination_(Statistics const& evt,
                                     std::vector<Statistics> const& modules)
 {
   std::size_t width {30};
-  cet::for_all(modules, [&width](auto const& mod) { width = std::max(width, mod.label.size()); });
+  auto identifier_size = [](Statistics const& s) {
+    return s.path.size() + s.mod_label.size() + s.mod_type.size() + 2; // Don't forget the two ':'s.
+  };
+  cet::for_all(modules, [&identifier_size,&width](auto const& mod) { width = std::max(width, identifier_size(mod)); });
 
   std::ostringstream msgOss;
   msgOss << std::string(width+4+5*14+12,'=') << "\n";

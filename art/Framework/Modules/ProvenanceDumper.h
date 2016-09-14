@@ -128,13 +128,13 @@
 #include "art/Framework/Principal/Provenance.h"
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
-#include "art/Utilities/ConfigTable.h"
 #include "canvas/Utilities/Exception.h"
-#include "canvas/Utilities/detail/metaprogramming.h"
+#include "cetlib/detail/metaprogramming.h"
 #include "cetlib/exempt_ptr.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/types/Atom.h"
 #include "fhiclcpp/types/Sequence.h"
+#include "fhiclcpp/types/Table.h"
 
 #include <algorithm>
 
@@ -149,7 +149,7 @@ namespace art {
   };
 
   template <typename DETAIL>
-  struct ProvenanceDumperConfig<DETAIL, detail::enable_if_type_exists_t<typename DETAIL::Config>> {
+  struct ProvenanceDumperConfig<DETAIL, cet::detail::enable_if_type_exists_t<typename DETAIL::Config>> {
     fhicl::TableFragment<art::OutputModule::Config> omConfig;
     fhicl::Atom<bool> wantPresentOnly { fhicl::Name("wantPresentOnly"), true };
     fhicl::Atom<bool> resolveProducts { fhicl::Name("resolveProducts"), true };
@@ -197,12 +197,12 @@ private:
 namespace art {
 
   template <typename DETAIL>
-  class ProvenanceDumper<DETAIL, detail::enable_if_type_exists_t<typename DETAIL::Config>> :
+  class ProvenanceDumper<DETAIL, cet::detail::enable_if_type_exists_t<typename DETAIL::Config>> :
     public OutputModule {
   public:
 
-    using Parameters = art::ConfigTable<ProvenanceDumperConfig<DETAIL>,
-                                        art::OutputModule::Config::KeysToIgnore>;
+    using Parameters = fhicl::Table<ProvenanceDumperConfig<DETAIL>,
+                                    art::OutputModule::Config::KeysToIgnore>;
 
     explicit ProvenanceDumper(Parameters const & ps)
       :
@@ -217,7 +217,7 @@ namespace art {
   private:
 
     void beginJob() override { impl_.beginJob(); }
-    void endJob()  override { impl_.endJob(); }
+    void endJob() override { impl_.endJob(); }
 
     void write      (EventPrincipal  & e ) override { impl_.write(e); }
     void writeSubRun(SubRunPrincipal & sr) override { impl_.writeSubRun(sr); }

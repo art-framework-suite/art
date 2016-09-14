@@ -18,9 +18,9 @@ namespace art {
   class ServiceTable {
   public:
 
-    ServiceTable() = default;
+    ServiceTable(fhicl::Name&& name) : config_{std::move(name)} {}
 
-    ServiceTable(fhicl::ParameterSet const & pset) : ServiceTable()
+    ServiceTable(fhicl::ParameterSet const & pset) : config_{fhicl::Name{"<service>"}}
     {
       std::set<std::string> const keys_to_ignore = {"service_type", "service_provider"};
       config_.validate_ParameterSet(pset, keys_to_ignore);
@@ -36,7 +36,7 @@ namespace art {
     auto const& operator()() const { return config_(); }
 
   private:
-    fhicl::Table<T> config_ { fhicl::Name("<service>") };
+    fhicl::Table<T> config_;
   };
 
   template <typename T, typename U>

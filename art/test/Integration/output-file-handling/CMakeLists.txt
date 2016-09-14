@@ -66,9 +66,9 @@ foreach(source EmptyEvent RootInput)
     TEST_ARGS
     --range-of-validity
     --file-index
-    ${OutputFilePath}/out_r1_sr0.root
-    ${OutputFilePath}/out_r1_sr1.root
-    ${OutputFilePath}/out_r2_sr0.root
+    ${OutputFilePath}/out_r1_sr0_1.root
+    ${OutputFilePath}/out_r1_sr1_2.root
+    ${OutputFilePath}/out_r2_sr0_3.root
     REF "${CMAKE_CURRENT_SOURCE_DIR}/MultiOutput_FileIndexCheck_SubRun_t-ref.txt"
     TEST_PROPERTIES DEPENDS MultiOutputProducer${source}_w
     )
@@ -81,8 +81,8 @@ foreach(source EmptyEvent RootInput)
     TEST_ARGS
     --range-of-validity
     --file-index
-    ${OutputFilePath}/out_r1.root
-    ${OutputFilePath}/out_r2.root
+    ${OutputFilePath}/out_r1_1.root
+    ${OutputFilePath}/out_r2_2.root
     REF "${CMAKE_CURRENT_SOURCE_DIR}/MultiOutput_FileIndexCheck_Run_t-ref.txt"
     TEST_PROPERTIES DEPENDS MultiOutputProducer${source}_w
     )
@@ -111,8 +111,8 @@ cet_test(MultiInput_SwitchOutputOnNewInput_w HANDBUILT
   TEST_EXEC art
   TEST_ARGS
   -c multiInput_SwitchOutputOnNewInput_w.fcl
-  -s ${InputFilePath}/out_r1.root
-  -s ${InputFilePath}/out_r2.root
+  -s ${InputFilePath}/out_r1_1.root
+  -s ${InputFilePath}/out_r2_2.root
   DATAFILES
   fcl/multiInput_SwitchOutputOnNewInput_w.fcl
   TEST_PROPERTIES DEPENDS MultiOutputProducerEmptyEvent_w

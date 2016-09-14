@@ -9,9 +9,6 @@ outputs: {
   out1: {
     module_type: RootOutput
     fileName: "out.root"
-    fileProperties: {
-      granularity: InputFile
-    }
   }
 }
 
@@ -26,4 +23,3 @@ physics: {
   trigger_paths: [ trigpath1 ]
   end_paths: [ endpath1 ]
 }
-

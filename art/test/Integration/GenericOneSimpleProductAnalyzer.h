@@ -4,7 +4,7 @@
 #include "art/Framework/Core/EDAnalyzer.h"
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Principal/Handle.h"
-#include "canvas/Utilities/detail/metaprogramming.h"
+#include "cetlib/detail/metaprogramming.h"
 #include "cetlib/exception.h"
 #include "fhiclcpp/ParameterSet.h"
 
@@ -17,14 +17,14 @@ namespace arttest {
     // All this detail is to decide whether our product P has a "value"
     // member or is (effectively) converitible-to-V.
     template <typename V, typename P, V P::*> struct value_member;
-    template <typename V, typename P> art::detail::no_tag  has_value_helper(...);
-    template <typename V, typename P> art::detail::yes_tag has_value_helper(value_member<V, P, &P::value> *x);
+    template <typename V, typename P> cet::detail::no_tag  has_value_helper(...);
+    template <typename V, typename P> cet::detail::yes_tag has_value_helper(value_member<V, P, &P::value> *x);
 
     template <typename V, typename P>
     struct has_value_member
     {
-      static bool const value =
-        sizeof(has_value_helper<V, P>(0)) == sizeof(art::detail::yes_tag);
+      static bool constexpr value =
+        sizeof(has_value_helper<V, P>(0)) == sizeof(cet::detail::yes_tag);
     };
 
     template <typename V, typename P>

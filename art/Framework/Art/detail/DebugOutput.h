@@ -45,7 +45,7 @@ public:
     return *osp_;
   }
 
-  bool stream_is_valid(){ return osp_->stream(); }
+  bool stream_is_valid(){ return bool(osp_->stream()); }
 
   void to_cerr() { dest_ = destination::cerr; }
 

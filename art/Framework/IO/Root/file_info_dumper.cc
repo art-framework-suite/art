@@ -36,6 +36,7 @@ int print_process_history(InfoDumperInputFile& file, ostream& output);
 int print_range_sets(InfoDumperInputFile& file, ostream& output);
 int print_event_list(InfoDumperInputFile& file, ostream& output);
 int print_file_index(InfoDumperInputFile& file, ostream& output);
+int print_branchIDLists(InfoDumperInputFile& file, ostream& output);
 int db_to_file(InfoDumperInputFile& file, ostream& output, ostream& errors);
 
 namespace {
@@ -136,6 +137,7 @@ int main(int argc, char * argv[])
         ("file-index", "prints FileIndex object for each input file")
         ("process-history", "prints list of processes that produced this file (output given in chronological order)")
         ("range-of-validity,R", "prints range of validity for each input file")
+        ("branch-ids,B", "prints BranchID lists stored in the file")
         ("db-to-file",
          ("Writes RootFileDB to external SQLite database with the same base name as the input file and the suffix '.db'.\n"s +
           "(Writes to directory in which '"s + argv[0] + "' is executed)."s).c_str())
@@ -183,6 +185,7 @@ int main(int argc, char * argv[])
       bool const printFileIndex = vm.count("file-index") > 0;
       bool const saveDbToFile   = vm.count("db-to-file") > 0;
       bool const fullPath       = vm.count("full-path")  > 0;
+      bool const printBranchIDLists  = vm.count("branch-ids") > 0;
 
       if (printEventList && printFileIndex) {
         std::cerr << "The --event-list and --file-index options are mutually exclusive.\n";
@@ -206,6 +209,7 @@ int main(int argc, char * argv[])
         if (printFileIndex) rc += print_file_index(file, output);
         if (printEventList) rc += print_event_list(file, output);
         if (saveDbToFile)   rc += db_to_file(file, output, errors);
+        if (printBranchIDLists) rc += print_branchIDLists(file, output);
         output << '\n';
       }
       return rc;
@@ -246,6 +250,13 @@ int print_file_index(InfoDumperInputFile& file,
                      ostream& output)
 {
   file.print_file_index(output);
+  return 0;
+}
+
+int print_branchIDLists(InfoDumperInputFile& file,
+                        ostream& output)
+{
+  file.print_branchIDLists(output);
   return 0;
 }
 

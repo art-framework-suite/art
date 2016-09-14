@@ -34,7 +34,7 @@
 #include "art/Framework/Principal/Provenance.h"
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
-#include "canvas/Utilities/detail/metaprogramming.h"
+#include "cetlib/detail/metaprogramming.h"
 #include "fhiclcpp/ParameterSet.h"
 
 namespace art {
@@ -106,6 +106,7 @@ namespace art {
     ////////////////////////////////////////////////////////////////////////
     // Metaprogramming to deal with optional pre/post and begin/end
     // job functions.
+    using cet::detail::enable_if_function_exists_t;
 
     // void DETAIL::beginJob();
     template <typename DETAIL, typename Enable = void>

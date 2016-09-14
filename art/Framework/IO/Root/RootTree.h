@@ -191,24 +191,20 @@ namespace art {
         return std::make_unique<OpenRangeSetHandler>(aux.run());
       }
 
-      auto rangeSet = detail::resolveRangeSet(db,
-                                              filename,
-                                              AUX::branch_type,
-                                              auxResult.rangeSetID());
+      auto resolve_info = [db,&filename](auto const id) {
+        return detail::resolveRangeSetInfo(db, filename, AUX::branch_type, id);
+      };
 
-      for(auto i = entries.cbegin()+1, e = entries.cend(); i!=e; ++i) {
+      auto rangeSetInfo = resolve_info(auxResult.rangeSetID());
+      for (auto i = entries.cbegin()+1, e = entries.cend(); i!=e; ++i) {
         auto const& tmpAux = getAux<AUX>(*i);
         detail::mergeAuxiliary(auxResult, tmpAux);
-        auto const& tmpRangeSet = detail::resolveRangeSet(db,
-                                                          filename,
-                                                          AUX::branch_type,
-                                                          tmpAux.rangeSetID());
-        rangeSet.merge(tmpRangeSet);
+        rangeSetInfo.update(resolve_info(tmpAux.rangeSetID()));
       }
-      auto merged = std::make_unique<ClosedRangeSetHandler>(rangeSet);
+
       auxResult.setRangeSetID(-1u); // Range set of new auxiliary is invalid
       std::swap(aux, auxResult);
-      return std::move(merged);
+      return std::make_unique<ClosedRangeSetHandler>(resolveRangeSet(rangeSetInfo));
     }
 
     TTree const*

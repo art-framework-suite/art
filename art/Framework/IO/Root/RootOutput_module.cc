@@ -19,7 +19,6 @@
 #include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Framework/Principal/SubRun.h"
 #include "art/Persistency/Provenance/ProductMetaData.h"
-#include "art/Utilities/ConfigTable.h"
 #include "art/Utilities/parent_path.h"
 #include "art/Utilities/unique_filename.h"
 #include "canvas/Persistency/Provenance/FileFormatVersion.h"
@@ -27,6 +26,7 @@
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/types/Atom.h"
 #include "fhiclcpp/types/OptionalAtom.h"
+#include "fhiclcpp/types/Table.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include <iomanip>
@@ -45,7 +45,7 @@ namespace art {
 class art::RootOutput final : public OutputModule {
 public:
 
-  static constexpr const char* default_tmpDir = "<parent-path-of-filename>";
+  static constexpr char const* default_tmpDir {"<parent-path-of-filename>"};
 
   struct Config {
 
@@ -68,7 +68,7 @@ public:
     Atom<bool> dropMetaDataForDroppedData { Name("dropMetaDataForDroppedData"), false };
     Atom<std::string> dropMetaData { Name("dropMetaData"), "NONE" };
     Atom<bool> writeParameterSets { Name("writeParameterSets"), true };
-    fhicl::Table<ClosingCriteria::Config> closingCriteria { Name("fileProperties") };
+    fhicl::Table<ClosingCriteria::Config> fileProperties { Name("fileProperties") };
 
     Config()
     {
@@ -93,7 +93,7 @@ public:
 
   };
 
-  using Parameters = art::ConfigTable<Config,Config::KeysToIgnore>;
+  using Parameters = fhicl::Table<Config,Config::KeysToIgnore>;
 
   explicit RootOutput(Parameters const&);
 
@@ -104,24 +104,24 @@ public:
 
   void event(EventPrincipal const&) override;
 
-  void beginSubRun(SubRunPrincipal const &) override;
-  void endSubRun(SubRunPrincipal const &) override;
+  void beginSubRun(SubRunPrincipal const&) override;
+  void endSubRun(SubRunPrincipal const&) override;
 
-  void beginRun(RunPrincipal const &) override;
-  void endRun(RunPrincipal const &) override;
+  void beginRun(RunPrincipal const&) override;
+  void endRun(RunPrincipal const&) override;
 
 private:
 
   std::string const& lastClosedFileName() const override;
   void openFile(FileBlock const&) override;
-  void respondToOpenInputFile(FileBlock const &) override;
-  void readResults(ResultsPrincipal const & resp) override;
+  void respondToOpenInputFile(FileBlock const&) override;
+  void readResults(ResultsPrincipal const& resp) override;
   void respondToCloseInputFile(FileBlock const&) override;
   void incrementInputFileNumber() override;
   Boundary fileSwitchBoundary() const override;
-  void write(EventPrincipal &) override;
-  void writeSubRun(SubRunPrincipal &) override;
-  void writeRun(RunPrincipal &) override;
+  void write(EventPrincipal&) override;
+  void writeSubRun(SubRunPrincipal&) override;
+  void writeRun(RunPrincipal&) override;
   void setSubRunAuxiliaryRangeSetID(RangeSet const&) override;
   void setRunAuxiliaryRangeSetID(RangeSet const&) override;
   bool isFileOpen() const override;
@@ -144,8 +144,8 @@ private:
                              override;
   void writeProductDependencies() override;
   void finishEndFile() override;
-  void doRegisterProducts(MasterProductRegistry & mpr,
-                          ModuleDescription const & md) override;
+  void doRegisterProducts(MasterProductRegistry& mpr,
+                          ModuleDescription const& md) override;
 
 private:
 
@@ -184,7 +184,7 @@ private:
 };
 
 art::RootOutput::
-RootOutput(Parameters const & config)
+RootOutput(Parameters const& config)
   : OutputModule{config().omConfig, config.get_PSet()}
   , catalog_{config().catalog()}
   , dropAllSubRuns_{config().dropAllSubRuns()}
@@ -200,7 +200,9 @@ RootOutput(Parameters const & config)
   , dropMetaData_{config().dropMetaData()}
   , dropMetaDataForDroppedData_{config().dropMetaDataForDroppedData()}
   , writeParameterSets_{config().writeParameterSets()}
-  , fileProperties_{config().closingCriteria()}
+  , fileProperties_{
+    (detail::validateFileNamePattern(config.get_PSet().has_key(config().fileProperties.name()), filePattern_), // comma operator!
+     config().fileProperties())}
   , rpm_{config.get_PSet()}
 {
   bool const dropAllEventsSet {config().dropAllEvents(dropAllEvents_)};
@@ -273,9 +275,9 @@ respondToOpenInputFile(FileBlock const& fb)
 
 void
 art::RootOutput::
-readResults(ResultsPrincipal const & resp)
+readResults(ResultsPrincipal const& resp)
 {
-  rpm_.for_each_RPWorker([&resp](RPWorker & w) {
+  rpm_.for_each_RPWorker([&resp](RPWorker& w) {
       Results const res {const_cast<ResultsPrincipal&>(resp), w.moduleDescription()};
       w.rp().doReadResults(res);
     } );
@@ -292,7 +294,7 @@ respondToCloseInputFile(FileBlock const& fb)
 
 void
 art::RootOutput::
-write(EventPrincipal & ep)
+write(EventPrincipal& ep)
 {
   if (dropAllEvents_) {
     return;
@@ -334,7 +336,7 @@ setRunAuxiliaryRangeSetID(RangeSet const& rs)
 
 void
 art::RootOutput::
-writeRun(RunPrincipal & r)
+writeRun(RunPrincipal& r)
 {
   if (hasNewlyDroppedBranch()[InRun]) {
     r.addToProcessHistory();
@@ -353,7 +355,7 @@ startEndFile()
       hasNewlyDroppedBranch()[InResults]) {
     resp->addToProcessHistory();
   }
-  rpm_.for_each_RPWorker([&resp](RPWorker & w) {
+  rpm_.for_each_RPWorker([&resp](RPWorker& w) {
       Results res{*resp, w.moduleDescription()};
       w.rp().doWriteResults(res);
     } );
@@ -444,7 +446,7 @@ art::RootOutput::finishEndFile()
 {
   rootOutputFile_->finishEndFile();
   fstats_.recordFileClose();
-  lastClosedFileName_ = PostCloseFileRenamer(fstats_).maybeRenameFile(rootOutputFile_->currentFileName(), filePattern_);
+  lastClosedFileName_ = PostCloseFileRenamer{fstats_}.maybeRenameFile(rootOutputFile_->currentFileName(), filePattern_);
   rootOutputFile_.reset();
   detail::logFileAction("Closed output file ", lastClosedFileName_);
   rpm_.invoke(&ResultsProducer::doClear);
@@ -452,12 +454,12 @@ art::RootOutput::finishEndFile()
 
 void
 art::RootOutput::
-doRegisterProducts(MasterProductRegistry & mpr,
-                   ModuleDescription const & md)
+doRegisterProducts(MasterProductRegistry& mpr,
+                   ModuleDescription const& md)
 {
   // Register Results products from ResultsProducers.
-  rpm_.for_each_RPWorker([&mpr, &md](RPWorker & w) {
-      auto const & params = w.params();
+  rpm_.for_each_RPWorker([&mpr, &md](RPWorker& w) {
+      auto const& params = w.params();
       w.setModuleDescription(ModuleDescription{params.rpPSetID,
                                                params.rpPluginType,
                                                md.moduleLabel() + '#' + params.rpLabel,
@@ -554,48 +556,48 @@ void
 art::RootOutput::
 event(EventPrincipal const& ep)
 {
-  rpm_.for_each_RPWorker([&ep](RPWorker & w) {
-      Event const e{const_cast<EventPrincipal &>(ep), w.moduleDescription()};
+  rpm_.for_each_RPWorker([&ep](RPWorker& w) {
+      Event const e{const_cast<EventPrincipal&>(ep), w.moduleDescription()};
       w.rp().doEvent(e);
     });
 }
 
 void
 art::RootOutput::
-beginSubRun(art::SubRunPrincipal const & srp)
+beginSubRun(art::SubRunPrincipal const& srp)
 {
-  rpm_.for_each_RPWorker([&srp](RPWorker & w) {
-      SubRun const sr{const_cast<SubRunPrincipal &>(srp), w.moduleDescription()};
+  rpm_.for_each_RPWorker([&srp](RPWorker& w) {
+      SubRun const sr{const_cast<SubRunPrincipal&>(srp), w.moduleDescription()};
       w.rp().doBeginSubRun(sr);
     });
 }
 
 void
 art::RootOutput::
-endSubRun(art::SubRunPrincipal const & srp)
+endSubRun(art::SubRunPrincipal const& srp)
 {
-  rpm_.for_each_RPWorker([&srp](RPWorker & w) {
-      SubRun const sr{const_cast<SubRunPrincipal &>(srp), w.moduleDescription()};
+  rpm_.for_each_RPWorker([&srp](RPWorker& w) {
+      SubRun const sr{const_cast<SubRunPrincipal&>(srp), w.moduleDescription()};
       w.rp().doEndSubRun(sr);
     });
 }
 
 void
 art::RootOutput::
-beginRun(art::RunPrincipal const & rp)
+beginRun(art::RunPrincipal const& rp)
 {
-  rpm_.for_each_RPWorker([&rp](RPWorker & w) {
-      Run const r{const_cast<RunPrincipal &>(rp), w.moduleDescription()};
+  rpm_.for_each_RPWorker([&rp](RPWorker& w) {
+      Run const r{const_cast<RunPrincipal&>(rp), w.moduleDescription()};
       w.rp().doBeginRun(r);
     });
 }
 
 void
 art::RootOutput::
-endRun(art::RunPrincipal const & rp)
+endRun(art::RunPrincipal const& rp)
 {
-  rpm_.for_each_RPWorker([&rp](RPWorker & w) {
-      Run const r{const_cast<RunPrincipal &>(rp), w.moduleDescription()};
+  rpm_.for_each_RPWorker([&rp](RPWorker& w) {
+      Run const r{const_cast<RunPrincipal&>(rp), w.moduleDescription()};
       w.rp().doEndRun(r);
     });
 }

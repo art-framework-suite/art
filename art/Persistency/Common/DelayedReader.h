@@ -21,7 +21,6 @@ namespace art {
   class BranchID;
   class BranchKey;
   class EDProductGetterFinder;
-  class ProductRangeSetLookup;
   class RangeSet;
 
   class DelayedReader {

@@ -118,7 +118,7 @@ namespace art {
 
   private:
     FileProperties closingCriteria_;
-    Boundary granularity_;
+    Boundary granularity_ {Boundary::value(Defaults::granularity_default())};
   };
 
 }

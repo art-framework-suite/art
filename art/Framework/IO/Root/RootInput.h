@@ -10,7 +10,8 @@
 #include "canvas/Persistency/Provenance/BranchDescription.h"
 #include "canvas/Persistency/Provenance/BranchID.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
-#include "art/Utilities/ConfigTable.h"
+#include "fhiclcpp/types/KeysToIgnore.h"
+#include "fhiclcpp/types/Table.h"
 #include "fhiclcpp/types/TableFragment.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
@@ -38,7 +39,7 @@ namespace art {
       };
     };
 
-    using Parameters = ConfigTable<Config, Config::KeysToIgnore>;
+    using Parameters = fhicl::Table<Config, Config::KeysToIgnore>;
 
     RootInput(Parameters const&, InputSourceDescription&);
     using DecrepitRelicInputSourceImplementation::runPrincipal;

@@ -6,6 +6,7 @@
 #include "TTree.h"
 #include "art/Framework/IO/Root/Inputfwd.h"
 #include "art/Framework/IO/Root/detail/resolveRangeSet.h"
+#include "art/Persistency/Provenance/BranchIDListRegistry.h"
 #include "canvas/Persistency/Provenance/FileFormatVersion.h"
 #include "canvas/Persistency/Provenance/FileIndex.h"
 #include "canvas/Persistency/Provenance/RangeSet.h"
@@ -28,6 +29,7 @@ namespace art {
       void print_range_sets(std::ostream&) const;
       void print_event_list(std::ostream&) const;
       void print_file_index(std::ostream&) const;
+      void print_branchIDLists(std::ostream& os) const;
       TFile* tfile() const { return file_.get(); }
 
     private:
@@ -39,6 +41,7 @@ namespace art {
                            std::string const& filename) const;
 
       std::unique_ptr<TFile> file_;
+      BranchIDLists branchIDLists_ {};
       FileIndex fileIndex_;
       FileFormatVersion fileFormatVersion_;
     };

@@ -104,18 +104,6 @@ namespace art
     respondToCloseOutputFiles(fb);
   }
 
-  void
-  EDFilter::doRespondToOpenOutputFile()
-  {
-    respondToOpenOutputFile();
-  }
-
-  void
-  EDFilter::doRespondToCloseOutputFile()
-  {
-    respondToCloseOutputFile();
-  }
-
   CurrentProcessingContext const*
   EDFilter::currentContext() const {
     return current_context_.get();

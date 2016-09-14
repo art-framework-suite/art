@@ -4,7 +4,6 @@
 
 #include "art/Framework/IO/Root/Inputfwd.h"
 #include "art/Persistency/Common/DelayedReader.h"
-#include "art/Persistency/Provenance/ProductRangeSetLookup.h"
 #include "canvas/Persistency/Provenance/BranchID.h"
 #include "canvas/Persistency/Provenance/BranchKey.h"
 #include "canvas/Persistency/Provenance/BranchType.h"

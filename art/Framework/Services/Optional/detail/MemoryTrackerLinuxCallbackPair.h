@@ -18,18 +18,16 @@ namespace art {
 
   namespace detail {
 
-    using memSummary_t = ntuple::Ntuple<std::string,std::string,double,double>;
-
     class CallbackPair {
     public:
 
-      CallbackPair(memSummary_t& summaryTable,
-                   LinuxProcMgr const & procMgr,
-                   std::size_t  const & evtCounter,
-                   std::string  const & processStep)
-        : summaryTable_{&summaryTable}
+      using otherInfo_t = ntuple::Ntuple<std::string,std::string,std::string,double,double>;
+
+      CallbackPair(otherInfo_t& table,
+                   LinuxProcMgr const& procMgr,
+                   std::string const& processStep)
+        : table_{&table}
         , procMgr_{&procMgr}
-        , counter_{&evtCounter}
         , processStep_{processStep}
       {}
 
@@ -41,16 +39,16 @@ namespace art {
       void post(ModuleDescription const& md)
       {
         deltas_ = procMgr_->getCurrentData()-baseline_;
-        summaryTable_->insert(processStep_,
-                              md.moduleLabel()+":"s+md.moduleName(),
-                              deltas_[LinuxProcData::VSIZE],
-                              deltas_[LinuxProcData::RSS]);
+        sqlite::insert_into(*table_).values(processStep_,
+                                            md.moduleLabel(),
+                                            md.moduleName(),
+                                            deltas_[LinuxProcData::VSIZE],
+                                            deltas_[LinuxProcData::RSS]);
       }
 
     private:
-      cet::exempt_ptr<memSummary_t> summaryTable_;
+      cet::exempt_ptr<otherInfo_t> table_;
       cet::exempt_ptr<LinuxProcMgr const> procMgr_;
-      cet::exempt_ptr<std::size_t const>  counter_;
       std::string processStep_;
 
       LinuxProcData::proc_array baseline_ {{0.}};

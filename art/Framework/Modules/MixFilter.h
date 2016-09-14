@@ -70,7 +70,7 @@
 #include "art/Framework/IO/ProductMix/MixHelper.h"
 #include "art/Framework/IO/ProductMix/MixOpBase.h"
 #include "art/Framework/Services/Registry/ServiceRegistry.h"
-#include "canvas/Utilities/detail/metaprogramming.h"
+#include "cetlib/detail/metaprogramming.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include <functional>
@@ -82,6 +82,7 @@ namespace art {
 
   namespace detail {
     // Template metaprogramming.
+    using cet::detail::enable_if_function_exists_t;
 
     ////////////////////////////////////////////////////////////////////
     // Does the detail object have a method void startEvent()?

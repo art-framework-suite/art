@@ -20,7 +20,7 @@ namespace art {
       try {
         result = f();
       }
-      catch( cet::exception const & e ){
+      catch(cet::exception const& e) {
         std::cout << "In: " << caller << std::endl;
         std::cout << e.what() << std::endl;
       }
@@ -28,17 +28,17 @@ namespace art {
     }
 
     template <art::suffix_type st>
-    std::string getFilePath( cet::LibraryManager const& lm,
-                             std::string const& fullspec)
+    std::string getFilePath(cet::LibraryManager const& lm,
+                            std::string const& fullspec)
     {
       using GetSourceLoc_t = std::string();
 
       auto path = [&lm,&fullspec](){
         GetSourceLoc_t* symbolLoc{};
-        lm.getSymbolByLibspec(fullspec, "get_source_location",symbolLoc );
-        std::string source { symbolLoc() };
-        boost::filesystem::path const p ( source );
-        if ( !boost::filesystem::exists(p) ) {
+        lm.getSymbolByLibspec(fullspec, "get_source_location", symbolLoc);
+        std::string source {symbolLoc()};
+        boost::filesystem::path const p {source};
+        if (!boost::filesystem::exists(p)) {
           source = "/ [ external source ] /"+fullspec+"_"+Suffixes::get(st)+".cc";
         }
         return source;
@@ -48,56 +48,28 @@ namespace art {
     }
 
     template <art::suffix_type>
-    std::string getType( cet::LibraryManager const&,
-                         std::string const& /*fullSpec*/ )
+    std::string getType(cet::LibraryManager const&,
+                        std::string const& /*fullSpec*/)
     {
       return {};
     }
 
-    template<>
-    std::string
-    getType<suffix_type::module>( cet::LibraryManager const& lm,
-                                  std::string const& fullSpec )
-    {
-      using ModuleTypeFunc_t = art::ModuleType();
-
-      auto type = [&lm,&fullSpec](){
-        ModuleTypeFunc_t * symbolType{};
-        lm.getSymbolByLibspec(fullSpec, "moduleType", symbolType);
-        return art::to_string( symbolType() );
-      };
-
-      return resolve_if_present(type, __func__, "[ error ]");
-    }
-
-    template<>
-    std::string
-    getType<suffix_type::plugin>( cet::LibraryManager const& lm,
-                                  std::string const& fullSpec )
-    {
-      using PluginTypeFunc_t = std::string();
-
-      auto type = [&lm,&fullSpec](){
-        PluginTypeFunc_t * symbolType{};
-        lm.getSymbolByLibspec(fullSpec, "pluginType", symbolType);
-        return symbolType();
-      };
-
-      return resolve_if_present(type, __func__, "[ error ]");
-    }
+    template <> std::string getType<suffix_type::module>(cet::LibraryManager const& lm, std::string const& fullSpec);
+    template <> std::string getType<suffix_type::plugin>(cet::LibraryManager const& lm, std::string const& fullSpec);
 
     template <art::suffix_type>
-    std::string getDescription( cet::LibraryManager const& lm,
-                                std::string const& fullSpec,
-                                std::string const& tab)
+    std::string getDescription(cet::LibraryManager const& lm,
+                               std::string const& fullSpec,
+                               std::string const& name,
+                               std::string const& tab)
     {
-      using GetDescription_t = std::ostream&(std::ostream&, std::string const&);
+      using GetDescription_t = std::ostream&(std::ostream&, std::string const&, std::string const&);
 
-      auto description = [&lm,&fullSpec,&tab](){
-        GetDescription_t * symbolType{};
+      auto description = [&lm, &fullSpec, &name, &tab]() {
+        GetDescription_t* symbolType{};
         lm.getSymbolByLibspec(fullSpec, "print_description", symbolType);
         std::ostringstream oss;
-        symbolType(oss,tab);
+        symbolType(oss, name, tab);
         return oss.str();
       };
 

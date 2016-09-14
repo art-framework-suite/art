@@ -8,9 +8,6 @@ outputs: {
   out1: {
     module_type: RootOutput
     fileName: "copy.root"
-    fileProperties: {
-      granularity: InputFile
-    }
   }
 }
 
@@ -25,4 +22,3 @@ physics: {
   trigger_paths: [ ]
   end_paths: [ endpath1 ]
 }
-
