@@ -56,8 +56,6 @@ simple_plugin(TFileService "service"
   ${ROOT_RIO}
   ${ROOT_THREAD})
 
-simple_plugin(Timing "service" art_Persistency_Provenance canvas_Persistency_Provenance)
-
 simple_plugin(TimeTracker "service"
   art_Persistency_Provenance canvas_Persistency_Provenance
   cetlib

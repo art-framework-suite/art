@@ -129,7 +129,6 @@ doProcessOptions(bpo::variables_map const & vm,
                      vm["timing-db"].as<std::string>().data());
   }
   else if (vm.count("notiming")) {
-    raw_config.erase("services.Timing");
     raw_config.erase("services.TimeTracker");
   }
   auto const memdb = vm.count("memcheck-db");

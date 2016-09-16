@@ -979,13 +979,6 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     )
 endif()
 
-cet_test(TimingService_issue_2979_t HANDBUILT
-  TEST_EXEC art
-  TEST_ARGS -c issue_2979.fcl
-  DATAFILES
-  fcl/issue_2979.fcl
-)
-
 cet_test(TimeTracker_issue_3598_t1 HANDBUILT
   TEST_EXEC art
   TEST_ARGS -c issue_3598_t1.fcl
