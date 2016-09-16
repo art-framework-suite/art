@@ -239,47 +239,22 @@ art::EventProcessor::endJob()
 
 art::ServiceDirector
 art::EventProcessor::
-initServices_(ParameterSet const & top_pset,
-              ActivityRegistry & areg,
-              ServiceToken & token)
+initServices_(ParameterSet const& top_pset,
+              ActivityRegistry& areg,
+              ServiceToken& token)
 {
   auto services = top_pset.get<ParameterSet>("services", {});
 
-  // Save and non-standard service config, "floating_point_control" to
+  // Check if disallowed 'user' table is specified:
+
+
+  // Save and non-standard service configs, "floating_point_control" to
   // prevent ServiceDirector trying to make one itself.
   auto const fpc_pset = services.get<ParameterSet>("floating_point_control", {});
   services.erase("floating_point_control");
 
   // Remove non-standard non-service config, "message."
   services.erase("message");
-
-  // Move all services from user into main services block.
-  auto const user = services.get<ParameterSet>("user", {});
-  if (!user.is_empty()) {
-    mf::LogWarning("CONFIG")
-      << "Use of services.user parameter set is deprecated.\n"
-      << "Define all services in services parameter set.";
-  }
-  for (auto const & key : user.get_names()) {
-    if (user.is_key_to_table(key)) {
-      if (!services.has_key(key)) {
-        services.put(key, user.get<ParameterSet>(key));
-      }
-      else {
-        throw Exception(errors::Configuration)
-          << "Detected a name clash: key "
-          << key
-          << " is defined in services and services.user.";
-      }
-    }
-    else {
-      throw Exception(errors::Configuration)
-        << "Detected a non-table parameter "
-        << key
-        << " in services.user.";
-    }
-  }
-  services.erase("user");
 
   // Deal with possible configuration for system service requiring
   // special construction:

@@ -132,7 +132,7 @@ fillCache_(ParameterSets  const & psets, cet::LibraryManager const & lm)
         std::string iface_name(cet::demangle_symbol(iface_helper->get_typeid().name()));
         throw Exception(errors::Configuration)
             << "Illegal use of service interface implementation as service name in configuration.\n"
-            << "Correct use: services.user."
+            << "Correct use: services."
             << iface_name
             << ": { service_provider: \""
             << service_provider
