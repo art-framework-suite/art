@@ -967,14 +967,6 @@ cet_test(ServiceUsingService_02_t HANDBUILT
   fcl/ServiceUsingService_02.fcl
 )
 
-cet_test(SimpleMemoryCheck_t HANDBUILT
-  TEST_EXEC art
-  TEST_ARGS -c simpleMemoryCheck.fcl
-  DATAFILES
-  fcl/simpleMemoryCheck.fcl
-  fcl/messageDefaults.fcl
-  )
-
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   cet_test(MemoryTracker_t HANDBUILT
     TEST_EXEC art

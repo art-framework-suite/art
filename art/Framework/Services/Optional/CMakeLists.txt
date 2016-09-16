@@ -7,7 +7,6 @@ if ( ${CMAKE_SYSTEM_NAME} MATCHES "Linux" )
   list( APPEND
     art_Framework_Services_Optional_sources
     MemoryTrackerLinux.cc
-    SimpleMemoryCheckLinux.cc
     detail/LinuxProcMgr.cc
     )
 endif()
@@ -38,11 +37,6 @@ simple_plugin(RandomNumberGenerator "service"
   )
 
 simple_plugin(SimpleInteraction "service" art_Framework_Services_UserInteraction)
-
-simple_plugin(SimpleMemoryCheck "service"
-  art_Persistency_Provenance canvas_Persistency_Provenance
-  art_Framework_Services_Optional
-  )
 
 simple_plugin(MemoryAdjuster "service"
   art_Framework_Services_Optional

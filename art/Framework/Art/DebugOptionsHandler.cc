@@ -140,7 +140,6 @@ doProcessOptions(bpo::variables_map const & vm,
                      vm["memcheck-db"].as<std::string>().data());
   }
   else if (vm.count("nomemcheck")) {
-    raw_config.erase("services.SimpleMemoryCheck");
     raw_config.erase("services.MemoryTracker");
   }
   return 0;

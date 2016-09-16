@@ -15,27 +15,8 @@ services:
               'FileInPathError','FileOpenError','FileReadError','FatalRootError',
               'MismatchedInputFiles','ProductDoesNotSupportViews',
               'ProductDoesNotSupportPtr','NotFound']
-    # IgnoreCompletely: []
-#    wantSummary: true
      wantTracer: true
-    # fileMode: ""
-    # handleEmptyRuns: true
-    # handleEmptySubRuns: true
-    # enableSigInt: true
-    # unloadRootSigHandler: false
-    # resetRootErrHandler: true
   }
-
-   # These are provided by Art, but are not system services and therefore
-   # need to be configured to come to life.
-#   Timing: { }
-#   SimpleMemoryCheck: { }
-#   TFileService: { fileName: "tfile_output.root" }
-
-   user:
-   {
-     # user-defined, plugin services
-   }
 }
 
 services.message: @local::messageDefaults
