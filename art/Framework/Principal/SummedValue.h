@@ -105,7 +105,7 @@ namespace art {
       else if (art::overlapping_ranges(rangeOfValidity_, newRS)) {
         throw Exception{errors::ProductCannotBeAggregated, "SummedValue<T>::update"}
              << "\nThe following ranges corresponding to the type:\n"
-             << "   '" << cet::demangle(typeid(T).name()) << "'"
+             << "   '" << cet::demangle_symbol(typeid(T).name()) << "'"
              << "\ncannot be aggregated\n"
              << rangeOfValidity_
              << " and\n"

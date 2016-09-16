@@ -129,7 +129,7 @@ fillCache_(ParameterSets  const & psets, cet::LibraryManager const & lm)
           << "Contact the art developers <artists@fnal.gov>.\n";
       }
       if (service_provider == service_name) {
-        std::string iface_name(cet::demangle(iface_helper->get_typeid().name()));
+        std::string iface_name(cet::demangle_symbol(iface_helper->get_typeid().name()));
         throw Exception(errors::Configuration)
             << "Illegal use of service interface implementation as service name in configuration.\n"
             << "Correct use: services.user."
