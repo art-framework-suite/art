@@ -25,16 +25,25 @@ namespace art {
 
     //==========================================================================
 
-    inline std::string indent0()   { return std::string(3, ' '); }
-    inline std::string indent_1()  { return std::string(4, ' '); }
-    inline std::string indent__2() { return std::string(8, ' '); }
+    inline std::string indent(std::size_t const i) { return std::string(i,' '); }
+    inline std::string indent0()   { return indent(3); }
+    inline std::string indent_1()  { return indent(4); }
+    inline std::string indent__2() { return indent(8); }
 
     //==========================================================================
 
-    using FP = std::string const&(LibraryInfo::*)() const;
+    template <typename T, typename Elem>
+    std::size_t columnWidth(T const& coll,
+                            std::string const Elem::*cp,
+                            std::string const& header)
+    {
+      std::size_t s {header.size()};
+      cet::for_all(coll, [&s,cp](auto const& elem){s = std::max(s,(elem.*cp).size());});
+      return s;
+    }
 
     inline std::size_t columnWidth(LibraryInfoCollection const& coll,
-                                   FP fp,
+                                   std::string const&(LibraryInfo::*fp)() const,
                                    std::string const& header)
     {
       std::size_t s {header.size()};

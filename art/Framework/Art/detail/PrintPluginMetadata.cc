@@ -3,7 +3,9 @@
 #include "art/Framework/Art/detail/get_MetadataCollector.h"
 #include "art/Framework/Art/detail/get_MetadataSummary.h"
 #include "art/Utilities/PluginSuffixes.h"
+#include "cetlib/container_algorithms.h"
 
+#include <iomanip>
 #include <iostream>
 
 using namespace art::detail;
@@ -15,11 +17,13 @@ namespace {
   matchesBySpec(std::string const& spec)
   {
     std::vector<PluginMetadata> result;
-    for (auto const & pr : art::Suffixes::all()) {
+    for (auto const& pr : art::Suffixes::all()) {
       auto mc = get_MetadataCollector(pr.first);
-
-      for (auto const& info : get_LibraryInfoCollection(pr.first, spec, indent__2()))
-        result.push_back( mc->collect(info) );
+      cet::transform_all(get_LibraryInfoCollection(pr.first, spec, indent__2()),
+                         std::back_inserter(result),
+                         [&mc](auto const& info){
+                           return mc->collect(info);
+                         });
     }
     return result;
   }
@@ -28,9 +32,10 @@ namespace {
 
 void
 art::detail::print_available_plugins(suffix_type const st,
+                                     bool const verbose,
                                      std::string const& spec)
 {
-  auto coll = get_LibraryInfoCollection(st, spec);
+  auto coll = get_LibraryInfoCollection(st, spec, "", verbose);
   if (coll.empty()) return;
 
   auto ms = get_MetadataSummary(st, coll);
@@ -38,10 +43,42 @@ art::detail::print_available_plugins(suffix_type const st,
   cout << "\n" << thick_rule(ms->widths()) << "\n\n"
        << ms->header()
        << "\n" << thin_rule(ms->widths()) << "\n";
+
+  std::size_t i {};
+  std::map<std::string, std::vector<std::string>> duplicates;
   for (auto const& info : coll) {
-    cout << ms->summary(info);
+    auto summary = ms->summary(info, ++i);
+    cout << summary.message;
+    if (summary.is_duplicate)
+      duplicates[info.short_spec()].push_back(info.long_spec());
   }
   cout << "\n" << thick_rule(ms->widths()) << "\n\n";
+  if (duplicates.empty()) return;
+
+  std::string const type_spec = (st==suffix_type::plugin) ? "plugin_type" : "module_type";
+  cout << indent0() << "The " << Suffixes::get(st) << "s marked '*' above are degenerate--i.e. specifying the short\n"
+       << indent0() << type_spec << " value leads to an ambiguity.  In order to use a degenerate\n"
+       << indent0() << Suffixes::get(st) << ", in your configuration file, give the long specification (as\n"
+       << indent0() << "shown in the table below), surrounded by quotation (\") marks.\n\n";
+  std::size_t const firstColW {columnWidth(duplicates, &decltype(duplicates)::value_type::first, "module_type")};
+  cout << indent0()
+       << std::setw(firstColW+4) << std::left << type_spec
+       << std::left << "Long specification" << '\n';
+  cout << indent0() << thin_rule({100}) << '\n';
+  for (auto const& dup : duplicates) {
+    auto const& long_specs = dup.second;
+    cout << indent0()
+         << std::setw(firstColW+4) << std::left << dup.first
+         << std::left << long_specs[0] << '\n';
+    for (auto it = long_specs.begin()+1, end = long_specs.end(); it != end; ++it)  {
+      cout << indent0()
+           << std::setw(firstColW+4) << "\"\""
+           << std::left << *it << '\n';
+    }
+  }
+
+  cout << "\n\n";
+
 }
 
 void

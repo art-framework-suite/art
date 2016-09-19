@@ -45,6 +45,9 @@ BasicOptionsHandler(bpo::options_description & desc,
      "List all available services that can be invoked in a FHiCL file.")
     ("print-description",bpo::value<std::vector<std::string>>()->multitoken(),
      "Print description of specified module, service, source, or other plugin (multiple OK).")
+    ("status-bar",
+     "Provide status bar that reports the progress of retrieving"
+     "plugin information for a 'print-available' command.")
     ;
 }
 
@@ -65,19 +68,25 @@ doCheckOptions(bpo::variables_map const & vm)
     std::cout << '\n';
     return 1;
   }
-  if ( vm.count("print-available") ) {
-    detail::print_available_plugins(Suffixes::get(vm["print-available"].as<std::string>()));
+  bool const status_bar = vm.count("status-bar") > 0;
+  if (vm.count("print-available")) {
+    detail::print_available_plugins(Suffixes::get(vm["print-available"].as<std::string>()), status_bar);
     return 1;
   }
-  if ( vm.count("print-available-modules") ) {
-    detail::print_available_plugins(suffix_type::module);
+  if (vm.count("print-available-modules")) {
+    detail::print_available_plugins(suffix_type::module, status_bar);
     return 1;
   }
-  if ( vm.count("print-available-services") ) {
-    detail::print_available_plugins(suffix_type::service);
+  if (vm.count("print-available-services")) {
+    detail::print_available_plugins(suffix_type::service, status_bar);
     return 1;
   }
-  if ( vm.count("print-description") ) {
+  if (status_bar) {
+    throw Exception(errors::Configuration)
+      << "The '--status-bar' option can be used only with the '--print-available*' program options.\n";
+  }
+
+  if (vm.count("print-description")) {
     detail::print_descriptions( vm["print-description"].as<std::vector<std::string>>());
     return 1;
   }
