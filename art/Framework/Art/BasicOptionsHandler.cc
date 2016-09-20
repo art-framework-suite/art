@@ -46,7 +46,7 @@ BasicOptionsHandler(bpo::options_description & desc,
     ("print-description",bpo::value<std::vector<std::string>>()->multitoken(),
      "Print description of specified module, service, source, or other plugin (multiple OK).")
     ("status-bar",
-     "Provide status bar that reports the progress of retrieving"
+     "Provide status bar that reports the progress of retrieving "
      "plugin information for a 'print-available' command.")
     ;
 }
