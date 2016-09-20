@@ -6,8 +6,8 @@
 
 #include "art/Framework/Services/Optional/MemoryTracker.h"
 #include "art/Framework/Services/Optional/detail/LinuxMallInfo.h"
-#include "art/Ntuple/Ntuple.h"
-#include "art/Ntuple/sqlite_helpers.h"
+#include "cetlib/Ntuple/Ntuple.h"
+#include "cetlib/Ntuple/sqlite_helpers.h"
 #include "boost/format.hpp"
 #include "canvas/Utilities/Exception.h"
 #include "cetlib/container_algorithms.h"

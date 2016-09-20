@@ -3,9 +3,9 @@ set( art_Framework_Services_Optional_sources
   detail/TH1AddDirectorySentry.cc
 )
 
-if ( ${CMAKE_SYSTEM_NAME} MATCHES "Linux" ) 
-  list( APPEND 
-    art_Framework_Services_Optional_sources 
+if ( ${CMAKE_SYSTEM_NAME} MATCHES "Linux" )
+  list( APPEND
+    art_Framework_Services_Optional_sources
     MemoryTrackerLinux.cc
     SimpleMemoryCheckLinux.cc
     detail/LinuxProcMgr.cc
@@ -25,7 +25,7 @@ art_make_library( SOURCE ${art_Framework_Services_Optional_sources}
   art_Framework_Services_Registry
   art_Persistency_Provenance canvas_Persistency_Provenance
   art_Utilities canvas_Utilities
-  art_Ntuple
+  cetlib
 )
 
 simple_plugin(RandomNumberGenerator "service"
@@ -50,8 +50,8 @@ simple_plugin(MemoryAdjuster "service"
 
 simple_plugin(MemoryTracker "service"
   art_Framework_Services_Optional
-  art_Ntuple
   art_Persistency_Provenance canvas_Persistency_Provenance
+  cetlib
   )
 
 simple_plugin(TFileService "service"
@@ -65,8 +65,8 @@ simple_plugin(TFileService "service"
 simple_plugin(Timing "service" art_Persistency_Provenance canvas_Persistency_Provenance)
 
 simple_plugin(TimeTracker "service"
-  art_Ntuple
   art_Persistency_Provenance canvas_Persistency_Provenance
+  cetlib
   ${TBB}
   ${RT}
   )

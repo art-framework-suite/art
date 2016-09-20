@@ -6,7 +6,7 @@
 
 #include "art/Framework/Services/Optional/TimeTracker.h"
 #include "art/Framework/Services/Registry/ServiceMacros.h"
-#include "art/Ntuple/sqlite_helpers.h"
+#include "cetlib/Ntuple/sqlite_helpers.h"
 #include "boost/format.hpp"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
