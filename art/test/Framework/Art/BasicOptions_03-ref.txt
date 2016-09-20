@@ -1,3 +1,4 @@
+
 <separator (=)>
 
      module_type                         Type        Source location
@@ -159,17 +160,15 @@
 11. SeekToEventClient         art         <path>/SeekToEventClient_service.cc
 12. ServiceUsing              art         <path>/ServiceUsing_service.cc
 13. SimpleInteraction         art         <path>/SimpleInteraction_service.cc
-14. SimpleMemoryCheck         art         <path>/SimpleMemoryCheck_service.cc
-15. SimpleServiceTest         art         <path>/SimpleServiceTest_service.cc
-16. TFileService              art         <path>/TFileService_service.cc
-17. Throwing                  art         <path>/Throwing_service.cc
-18. TimeTracker               art         <path>/TimeTracker_service.cc
-19. Timing                    art         <path>/Timing_service.cc
-20. Tracer                    art         <path>/Tracer_service.cc
-21. TrivialFileDelivery       art         <path>/TrivialFileDelivery_service.cc
-22. TrivialFileTransfer       art         <path>/TrivialFileTransfer_service.cc
-23. Wanted                    art         <path>/Wanted_service.cc
-24. floating_point_control    art         <path>/FloatingPointControl_service.cc
+14. SimpleServiceTest         art         <path>/SimpleServiceTest_service.cc
+15. TFileService              art         <path>/TFileService_service.cc
+16. Throwing                  art         <path>/Throwing_service.cc
+17. TimeTracker               art         <path>/TimeTracker_service.cc
+18. Tracer                    art         <path>/Tracer_service.cc
+19. TrivialFileDelivery       art         <path>/TrivialFileDelivery_service.cc
+20. TrivialFileTransfer       art         <path>/TrivialFileTransfer_service.cc
+21. Wanted                    art         <path>/Wanted_service.cc
+22. floating_point_control    art         <path>/FloatingPointControl_service.cc
 
 <separator (=)>
 
@@ -203,3 +202,4 @@
         [ provided in future release ]
 
 <separator (=)>
+
