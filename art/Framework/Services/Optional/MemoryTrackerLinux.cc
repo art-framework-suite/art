@@ -97,10 +97,8 @@ namespace {
   //========================================================================
   // Other helpers
 
-  enum sql_constants { ROWID };
   auto convertToEvtIdData(sqlite::stringstream& entry)
   {
-    std::size_t rowid;
     art::RunNumber_t run;
     art::SubRunNumber_t srun;
     art::EventNumber_t evt;
@@ -109,7 +107,7 @@ namespace {
     double rss;
     double drss;
 
-    entry >> rowid >> run >> srun >> evt;
+    entry >> run >> srun >> evt;
     std::ostringstream id;
     id << art::EventID{run,srun,evt};
 
@@ -119,12 +117,12 @@ namespace {
       throw art::Exception{art::errors::LogicError,"Extra fields in sqlite query result not used."};
     }
 
-    return std::make_tuple(rowid, id.str(), memdata::MemData{v, dv, rss, drss});
+    return std::make_pair(id.str(), memdata::MemData{v, dv, rss, drss});
   }
 
   //========================================================================
   namespace aliases {
-    using eventData_t     = std::tuple<std::size_t,std::string,memdata::MemData>;
+    using eventData_t     = decltype(convertToEvtIdData(std::declval<sqlite::stringstream&>()));
     using eventDataList_t = std::vector<eventData_t>;
     using modName_t       = std::string;
     template<typename KEY, typename VALUE> using orderedMap_t = std::vector<std::pair<KEY,VALUE>>;
@@ -446,7 +444,7 @@ art::MemoryTracker::eventSummary_(std::ostringstream& oss,
   using namespace sqlite;
 
   result r;
-  r << select("rowid,*").from(eventTable_).where(column+" > 0").order_by(column,"desc").limit(5);
+  r << select("*").from(eventTable_).where(column+" > 0").order_by(column,"desc").limit(5);
 
   for (auto& entry : r) {
     if (i++ < numToSkip_) continue;
@@ -512,7 +510,7 @@ art::MemoryTracker::moduleSummary_(std::ostringstream& oss,
       " AND ModuleType='"s+mod_type+"'"s;
     sqlite::exec(dbMgr_, ddl);
 
-    std::string const& columns = "rowid,Run,Subrun,Event,Vsize,DeltaVsize,RSS,DeltaRSS";
+    std::string const& columns = "Run,Subrun,Event,Vsize,DeltaVsize,RSS,DeltaRSS";
 
     eventDataList_t evtList;
     std::size_t i{};
