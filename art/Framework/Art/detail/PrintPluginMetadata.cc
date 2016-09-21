@@ -13,8 +13,7 @@ using std::cout;
 
 namespace {
 
-  std::vector<art::detail::PluginMetadata>
-  matchesBySpec(std::string const& spec)
+  std::vector<art::detail::PluginMetadata> matchesBySpec(std::string const& spec)
   {
     std::vector<PluginMetadata> result;
     for (auto const& pr : art::Suffixes::all()) {
@@ -26,6 +25,33 @@ namespace {
                          });
     }
     return result;
+  }
+
+  using Duplicates_t = std::map<std::string, std::vector<std::string>>;
+  void duplicates_message(art::suffix_type const st, Duplicates_t const& duplicates)
+  {
+    using namespace art;
+    std::string const type_spec = (st==suffix_type::plugin) ? "plugin_type" : "module_type";
+    cout << indent0() << "The " << Suffixes::get(st) << "s marked '*' above are degenerate--i.e. specifying the short\n"
+         << indent0() << type_spec << " value leads to an ambiguity.  In order to use a degenerate\n"
+         << indent0() << Suffixes::get(st) << ", in your configuration file, give the long specification (as\n"
+         << indent0() << "shown in the table below), surrounded by quotation (\") marks.\n\n";
+    std::size_t const firstColW {columnWidth(duplicates, &Duplicates_t::value_type::first, "module_type")};
+    cout << indent0()
+         << std::setw(firstColW+4) << std::left << type_spec
+         << std::left << "Long specification" << '\n';
+    cout << indent0() << thin_rule({100}) << '\n';
+    for (auto const& dup : duplicates) {
+      auto const& long_specs = dup.second;
+      cout << indent0()
+           << std::setw(firstColW+4) << std::left << dup.first
+           << std::left << long_specs[0] << '\n';
+      for (auto it = long_specs.begin()+1, end = long_specs.end(); it != end; ++it)  {
+        cout << indent0()
+             << std::setw(firstColW+4) << "\"\""
+             << std::left << *it << '\n';
+      }
+    }
   }
 
 }
@@ -45,7 +71,7 @@ art::detail::print_available_plugins(suffix_type const st,
        << "\n" << thin_rule(ms->widths()) << "\n";
 
   std::size_t i {};
-  std::map<std::string, std::vector<std::string>> duplicates;
+  Duplicates_t duplicates;
   for (auto const& info : coll) {
     auto summary = ms->summary(info, ++i);
     cout << summary.message;
@@ -53,32 +79,11 @@ art::detail::print_available_plugins(suffix_type const st,
       duplicates[info.short_spec()].push_back(info.long_spec());
   }
   cout << "\n" << thick_rule(ms->widths()) << "\n\n";
+
   if (duplicates.empty()) return;
 
-  std::string const type_spec = (st==suffix_type::plugin) ? "plugin_type" : "module_type";
-  cout << indent0() << "The " << Suffixes::get(st) << "s marked '*' above are degenerate--i.e. specifying the short\n"
-       << indent0() << type_spec << " value leads to an ambiguity.  In order to use a degenerate\n"
-       << indent0() << Suffixes::get(st) << ", in your configuration file, give the long specification (as\n"
-       << indent0() << "shown in the table below), surrounded by quotation (\") marks.\n\n";
-  std::size_t const firstColW {columnWidth(duplicates, &decltype(duplicates)::value_type::first, "module_type")};
-  cout << indent0()
-       << std::setw(firstColW+4) << std::left << type_spec
-       << std::left << "Long specification" << '\n';
-  cout << indent0() << thin_rule({100}) << '\n';
-  for (auto const& dup : duplicates) {
-    auto const& long_specs = dup.second;
-    cout << indent0()
-         << std::setw(firstColW+4) << std::left << dup.first
-         << std::left << long_specs[0] << '\n';
-    for (auto it = long_specs.begin()+1, end = long_specs.end(); it != end; ++it)  {
-      cout << indent0()
-           << std::setw(firstColW+4) << "\"\""
-           << std::left << *it << '\n';
-    }
-  }
-
+  duplicates_message(st, duplicates);
   cout << "\n\n";
-
 }
 
 void
