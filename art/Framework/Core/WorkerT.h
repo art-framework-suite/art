@@ -36,14 +36,6 @@ namespace art {
 
     bool modifiesEvent() const override { return module_->modifiesEvent(); }
 
-    template <typename ModType>
-    static std::unique_ptr<T> makeModule(ModuleDescription const& md,
-                                         fhicl::ParameterSet const& pset)
-    {
-      auto module = std::make_unique<ModType>(pset);
-      return std::unique_ptr<T>(module.release());
-    }
-
   protected:
     T& module() {return *module_;}
     T const& module() const {return *module_;}
