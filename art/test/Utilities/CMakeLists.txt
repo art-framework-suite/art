@@ -1,12 +1,18 @@
 # cet_test macro
 set(default_art_test_libraries
   art_Utilities
+  art_Version
   canvas_Utilities
   cetlib
   MF_MessageLogger
   ${ROOT_CINT}
   ${ROOT_REFLEX}
   )
+
+simple_plugin(ClassTool "tool" ${Boost_FILESYSTEM_LIBRARY} ${Boost_SYSTEM_LIBRARY})
+simple_plugin(FunctionTool "tool" ${Boost_FILESYSTEM_LIBRARY} ${Boost_SYSTEM_LIBRARY})
+
+cet_test(make_tool_t USE_BOOST_UNIT LIBRARIES ${default_art_test_libraries})
 
 cet_test(ParameterSet_get_CLHEP_t
   LIBRARIES ${default_art_test_libraries} ${CLHEP}

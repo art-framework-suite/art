@@ -1,10 +1,10 @@
 #include "art/Framework/Core/detail/ModuleFactory.h"
 
-#include "cetlib/detail/wrapLibraryManagerException.h"
 #include "art/Framework/Core/ModuleMacros.h"
-#include "canvas/Utilities/Exception.h"
 #include "art/Utilities/PluginSuffixes.h"
 #include "art/Version/GetReleaseVersion.h"
+#include "canvas/Utilities/Exception.h"
+#include "cetlib/detail/wrapLibraryManagerException.h"
 
 art::detail::ModuleFactory::ModuleFactory()
   :

@@ -14,9 +14,10 @@ detail::get_MetadataSummary(suffix_type const st,
 {
   switch(st) {
   case suffix_type::module : return std::make_unique<MetadataSummaryFor<suffix_type::module> >(coll);
-  case suffix_type::plugin : return std::make_unique<MetadataSummaryFor<suffix_type::plugin> >(coll);
   case suffix_type::service: return std::make_unique<MetadataSummaryFor<suffix_type::service>>(coll);
   case suffix_type::source : return std::make_unique<MetadataSummaryFor<suffix_type::source> >(coll);
+  case suffix_type::plugin : return std::make_unique<MetadataSummaryFor<suffix_type::plugin> >(coll);
+    //  case suffix_type::tool   : return std::make_unique<MetadataSummaryFor<suffix_type::tool  > >(coll);
   default:
     throw art::Exception(art::errors::LogicError, "get_MetadataSummary")
       << "suffix_type : " << st << " is not valid.";
