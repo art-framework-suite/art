@@ -12,17 +12,6 @@
 namespace art {
   namespace detail {
 
-    //=========================================================================
-    // bold-fontifier
-    struct font_bold {
-      font_bold(std::string const& str ) : instance(str){}
-      std::string instance;
-    };
-
-    inline std::ostream& operator<< ( std::ostream& os, font_bold const && fb ) {
-      return os <<  "\033[1m" << fb.instance << "\033[0m";
-    }
-
     //==========================================================================
 
     inline std::string indent(std::size_t const i) { return std::string(i,' '); }

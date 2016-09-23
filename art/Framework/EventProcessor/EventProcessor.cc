@@ -22,15 +22,16 @@
 #include "art/Framework/Services/System/ScheduleContext.h"
 #include "art/Framework/Services/System/TriggerNamesService.h"
 #include "art/Persistency/Provenance/BranchIDListHelper.h"
+#include "art/Utilities/ScheduleID.h"
+#include "art/Utilities/UnixSignalHandlers.h"
+#include "art/Utilities/bold_fontify.h"
+#include "art/Version/GetReleaseVersion.h"
+#include "boost/thread/xtime.hpp"
 #include "canvas/Persistency/Provenance/BranchType.h"
 #include "canvas/Persistency/Provenance/ProcessConfiguration.h"
 #include "canvas/Utilities/DebugMacros.h"
 #include "canvas/Utilities/Exception.h"
 #include "canvas/Utilities/GetPassID.h"
-#include "art/Utilities/ScheduleID.h"
-#include "art/Utilities/UnixSignalHandlers.h"
-#include "art/Version/GetReleaseVersion.h"
-#include "boost/thread/xtime.hpp"
 #include "cetlib/exception_collector.h"
 #include "cetlib/container_algorithms.h"
 #include "fhiclcpp/types/detail/validationException.h"
@@ -94,13 +95,13 @@ namespace {
       // any EDproducts,which would be registered in the
       // MasterProductRegistry.  Also fill in the process history item
       // for this process.
-      art::ModuleDescription md(main_input.id(),
-                                main_input.get<std::string>("module_type"),
-                                main_input.get<std::string>("module_label"),
-                                art::ProcessConfiguration(processName,
-                                                          params.id(),
-                                                          art::getReleaseVersion(),
-                                                          art::getPassID()));
+      art::ModuleDescription const md {main_input.id(),
+                                       main_input.get<std::string>("module_type"),
+                                       main_input.get<std::string>("module_label"),
+                                       art::ProcessConfiguration{processName,
+                                                                 params.id(),
+                                                                 art::getReleaseVersion(),
+                                                                 art::getPassID()}};
       sourceSpecified = true;
       art::InputSourceDescription isd{md, preg, areg};
       try {
@@ -108,8 +109,8 @@ namespace {
       }
       catch(fhicl::detail::validationException const& e){
         throw art::Exception(art::errors::Configuration)
-          << "\n\nModule label: \033[1m" << md.moduleLabel() << "\033[0m"
-          <<   "\nmodule_type : \033[1m" << md.moduleName() <<  "\033[0m"
+          << "\n\nModule label: " << art::detail::bold_fontify(md.moduleLabel())
+          <<   "\nmodule_type : " << art::detail::bold_fontify(md.moduleName())
           << "\n\n" << e.what();
       }
     }
