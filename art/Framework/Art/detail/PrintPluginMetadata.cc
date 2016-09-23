@@ -3,6 +3,7 @@
 #include "art/Framework/Art/detail/get_MetadataCollector.h"
 #include "art/Framework/Art/detail/get_MetadataSummary.h"
 #include "art/Utilities/PluginSuffixes.h"
+#include "art/Utilities/bold_fontify.h"
 #include "cetlib/container_algorithms.h"
 
 #include <iomanip>
@@ -105,7 +106,7 @@ art::detail::print_descriptions(std::vector<std::string> const& plugins)
 
     auto matches = matchesBySpec(plugin);
     if (matches.empty()) {
-      cout << indent0() << font_bold(plugin) << " did not match any plugin.\n";
+      cout << indent0() << bold_fontify(plugin) << " did not match any plugin.\n";
       cout << fixed_rule();
       continue;
     }

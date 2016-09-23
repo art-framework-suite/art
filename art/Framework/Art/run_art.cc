@@ -3,7 +3,7 @@
 #include "art/Framework/Art/BasicOptionsHandler.h"
 #include "art/Framework/Art/BasicPostProcessor.h"
 #include "art/Framework/Art/InitRootHandlers.h"
-#include "art/Framework/Art/detail/bold_fontify.h"
+#include "art/Utilities/bold_fontify.h"
 #include "art/Framework/Art/detail/handle_deprecated_configs.h"
 #include "art/Framework/EventProcessor/EventProcessor.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"

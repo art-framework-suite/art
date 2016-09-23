@@ -7,6 +7,7 @@
 #include "art/Framework/Art/detail/PluginMetadata.h"
 #include "art/Framework/Art/detail/ServiceNames.h"
 #include "art/Utilities/PluginSuffixes.h"
+#include "art/Utilities/bold_fontify.h"
 
 #include <regex>
 
@@ -26,10 +27,10 @@ namespace art {
       std::string header_(LibraryInfo const& li) const
       {
         static ServiceNames const serviceNames;
-        std::string const printed_name = serviceNames.fclname( li.short_spec() );
+        std::string const& printed_name = serviceNames.fclname(li.short_spec());
         std::ostringstream result;
         result << indent_1()  << "service : "
-               << font_bold( printed_name )
+               << bold_fontify(printed_name)
                << "\n\n";
         return result.str();
       }

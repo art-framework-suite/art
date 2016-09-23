@@ -1,6 +1,6 @@
 #include "art/Framework/Art/FileCatalogOptionsHandler.h"
 
-#include "art/Framework/Art/detail/bold_fontify.h"
+#include "art/Utilities/bold_fontify.h"
 #include "art/Framework/Art/detail/exists_outside_prolog.h"
 #include "art/Framework/Art/detail/fhicl_key.h"
 #include "canvas/Utilities/Exception.h"

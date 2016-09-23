@@ -1,6 +1,6 @@
 #include "art/Framework/Art/DebugOptionsHandler.h"
 
-#include "art/Framework/Art/detail/bold_fontify.h"
+#include "art/Utilities/bold_fontify.h"
 #include "art/Framework/Art/detail/fhicl_key.h"
 #include "canvas/Utilities/Exception.h"
 #include "fhiclcpp/coding.h"
