@@ -2,65 +2,31 @@
 #define art_Utilities_Tool_h
 
 #include "art/Utilities/PluginSuffixes.h"
-#include "art/Version/GetReleaseVersion.h"
-#include "cetlib/LibraryManager.h"
+#include "art/Utilities/detail/tool_type.h"
+#include "canvas/Utilities/Exception.h"
+#include "cetlib/BasicPluginFactory.h"
 #include "cetlib/detail/wrapLibraryManagerException.h"
 #include "fhiclcpp/ParameterSet.h"
-
-#include <functional>
-#include <memory>
-#include <type_traits>
 
 namespace art {
 
   template <typename T>
-  using ToolClassMaker_t = std::unique_ptr<T>(fhicl::ParameterSet const&);
-
-  //  template <typename T>
-  // struct Tool;
+  using tool_return_type = typename detail::tool_type<T>::return_type;
 
   template <typename T>
-  std::enable_if_t<!std::is_function<T>::value, std::unique_ptr<T>>
-  make_tool(fhicl::ParameterSet const& pset)
+  auto make_tool(fhicl::ParameterSet const& pset)
   {
-    cet::LibraryManager lm {Suffixes::tool()};
+    cet::BasicPluginFactory factory {Suffixes::tool(), detail::tool_type<T>::plugin_function_name()};
     std::string const libspec {pset.get<std::string>("tool_type")};
-    ToolClassMaker_t<T>* symbol {nullptr};
+    tool_return_type<T> result;
     try {
-      lm.getSymbolByLibspec(libspec, "makeTool", symbol);
+      result = detail::tool_type<T>::make_plugin(factory, libspec, pset);
     }
-    catch (art::Exception& e) {
-      cet::detail::wrapLibraryManagerException(e, "Tool", libspec, getReleaseVersion());
+    catch (cet::exception const& e) {
+      throw Exception(errors::Configuration, "make_tool: ", e)
+        << "Exception caught while processing plugin spec: " << libspec << '\n';
     }
-    if (symbol == nullptr) {
-      throw art::Exception(errors::Configuration, "BadPluginLibrary")
-        << "Tool " << libspec
-        << " with version " << getReleaseVersion()
-        << " has internal symbol definition problems: consult an expert.";
-    }
-    return symbol(pset);
-  }
-
-  template <typename T>
-  std::enable_if_t<std::is_function<T>::value, std::function<T>>
-  make_tool(fhicl::ParameterSet const& pset)
-  {
-    cet::LibraryManager lm {Suffixes::tool()};
-    std::string const libspec {pset.get<std::string>("tool_type")};
-    T** symbol {nullptr};
-    try {
-      lm.getSymbolByLibspec(libspec, "toolFunction", symbol);
-    }
-    catch (art::Exception& e) {
-      cet::detail::wrapLibraryManagerException(e, "Tool", libspec, getReleaseVersion());
-    }
-    if (symbol == nullptr) {
-      throw art::Exception(errors::Configuration, "BadPluginLibrary")
-        << "Tool " << libspec
-        << " with version " << getReleaseVersion()
-        << " has internal symbol definition problems: consult an expert.";
-    }
-    return *symbol;
+    return result;
   }
 
 }

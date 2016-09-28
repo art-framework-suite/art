@@ -14,6 +14,7 @@
 ////////////////////////////////////////////////////////////////////////
 
 #include "art/Utilities/BasicHelperMacros.h"
+#include "cetlib/PluginTypeDeducer.h"
 #include "fhiclcpp/ParameterSet.h"
 
 #include <memory>

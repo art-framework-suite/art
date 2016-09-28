@@ -3,11 +3,10 @@
 #include <iostream>
 
 namespace arttest {
-  int print(int const i)
+  int addOne(int const i)
   {
-    std::cout << " Wow, this worked: " << i << ".\n";
-    return i;
+    return i+1;
   }
 }
 
-DEFINE_ART_TOOL_FUNCTION(arttest::print)
+DEFINE_ART_TOOL_FUNCTION(arttest::addOne)
