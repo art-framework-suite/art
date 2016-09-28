@@ -1,10 +1,6 @@
 %MSG-i MF_INIT_OK:  <date-time> JobSetup
 Messagelogger initialization complete.
 %MSG
-%MSG-w MemoryTracker:  <date-time> JobSetup
-The 'services.MemoryTracker.ignoreTotal' parameter is deprecated;
-its value of 3 will not be used.  Contact artists@fnal.gov for questions.
-%MSG
 Begin processing the 1st record. run: 1 subRun: 0 event: 1 at <date-time>
 Begin processing the 2nd record. run: 1 subRun: 0 event: 2 at <date-time>
 Begin processing the 3rd record. run: 1 subRun: 0 event: 3 at <date-time>
