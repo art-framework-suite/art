@@ -14,7 +14,8 @@ namespace statemachine {
                    bool handleEmptySubRuns) :
     ep_{ep},
     handleEmptyRuns_{handleEmptyRuns},
-    handleEmptySubRuns_{handleEmptySubRuns} { }
+    handleEmptySubRuns_{handleEmptySubRuns}
+  {}
 
   art::IEventProcessor& Machine::ep() const { return *ep_; }
   bool Machine::handleEmptyRuns() const { return handleEmptyRuns_; }
@@ -78,6 +79,27 @@ namespace statemachine {
     ep_{context<Machine>().ep()}
   {
     ep_.beginJob();
+  }
+
+    Stopping::Stopping(my_context ctx) :
+    my_base{ctx},
+    ep_{context<Machine>().ep()}
+  {
+    ep_.endJob();
+    post_event(Stop{});
+  }
+
+  sc::result Stopping::react(Stop const &)
+  {
+    return terminate();
+  }
+
+  Error::Error(my_context ctx) :
+    my_base{ctx},
+    ep_{context<Machine>().ep()}
+  {
+    post_event(Stop{});
+    ep_.doErrorStuff();
   }
 
 }

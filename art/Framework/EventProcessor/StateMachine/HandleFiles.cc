@@ -32,8 +32,8 @@ namespace statemachine {
     // Don't trigger another switch if one is already in progress!
     if (switchInProgress_) return;
 
-    post_event(Pause());
-    post_event(SwitchOutputFiles());
+    post_event(Pause{});
+    post_event(SwitchOutputFiles{});
     switchInProgress_ = true;
   }
 
@@ -51,28 +51,6 @@ namespace statemachine {
     ep_.respondToOpenOutputFiles();
     switchInProgress_ = false;
     stagingAllowed_ = true;
-  }
-
-
-  Stopping::Stopping(my_context ctx) :
-    my_base{ctx},
-    ep_{context<Machine>().ep()}
-  {
-    ep_.endJob();
-    post_event(Stop());
-  }
-
-  sc::result Stopping::react(Stop const &)
-  {
-    return terminate();
-  }
-
-  Error::Error(my_context ctx) :
-    my_base{ctx},
-    ep_{context<Machine>().ep()}
-  {
-    post_event(Stop());
-    ep_.doErrorStuff();
   }
 
   NewInputFile::NewInputFile(my_context ctx) :

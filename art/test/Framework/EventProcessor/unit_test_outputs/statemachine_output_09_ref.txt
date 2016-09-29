@@ -11,21 +11,21 @@ Machine parameters:  handleEmptyRuns = 0  handleEmptySubRuns = 0
 	beginRun....................(run: 1)
 	beginSubRun.................(run: 1 subRun: 1)
 	readEvent....................(run: 1 subRun: 1 event: 1)
-    *** nextItemType: Event ***
 	processEvent.................(run: 1 subRun: 1 event: 1)
 	shouldWeStop
+    *** nextItemType: Event ***
 	openSomeOutputFiles
 	respondToOpenOutputFiles
 	writeEvent...................(run: 1 subRun: 1 event: 1)
 	readEvent....................(run: 1 subRun: 1 event: 2)
-    *** nextItemType: Event ***
 	processEvent.................(run: 1 subRun: 1 event: 2)
 	shouldWeStop
+    *** nextItemType: Event ***
 	writeEvent...................(run: 1 subRun: 1 event: 2)
 	readEvent....................(run: 1 subRun: 1 event: 3)
-    *** nextItemType: InputFile+SwitchOutputFiles ***
 	processEvent.................(run: 1 subRun: 1 event: 3)
 	shouldWeStop
+    *** nextItemType: InputFile+SwitchOutputFiles ***
 	writeEvent...................(run: 1 subRun: 1 event: 3)
 	setSubRunAuxiliaryRangeSetID(run: 1 subRun: 1)
 	endSubRun...................(run: 1 subRun: 1)
@@ -48,16 +48,16 @@ Machine parameters:  handleEmptyRuns = 0  handleEmptySubRuns = 0
 	beginRun....................(run: 1)
 	beginSubRun.................(run: 1 subRun: 1)
 	readEvent....................(run: 1 subRun: 1 event: 4)
-    *** nextItemType: Event ***
 	processEvent.................(run: 1 subRun: 1 event: 4)
 	shouldWeStop
+    *** nextItemType: Event ***
 	openSomeOutputFiles
 	respondToOpenOutputFiles
 	writeEvent...................(run: 1 subRun: 1 event: 4)
 	readEvent....................(run: 1 subRun: 1 event: 5)
-    *** nextItemType: InputFile ***
 	processEvent.................(run: 1 subRun: 1 event: 5)
 	shouldWeStop
+    *** nextItemType: InputFile ***
 	writeEvent...................(run: 1 subRun: 1 event: 5)
 	setSubRunAuxiliaryRangeSetID(run: 1 subRun: 1)
 	endSubRun...................(run: 1 subRun: 1)
@@ -78,9 +78,9 @@ Machine parameters:  handleEmptyRuns = 0  handleEmptySubRuns = 0
 	beginRun....................(run: 1)
 	beginSubRun.................(run: 1 subRun: 1)
 	readEvent....................(run: 1 subRun: 1 event: 6)
-    *** nextItemType: Event ***
 	processEvent.................(run: 1 subRun: 1 event: 6)
 	shouldWeStop
+    *** nextItemType: Event ***
 	writeEvent...................(run: 1 subRun: 1 event: 6)
 	readEvent....................(run: 1 subRun: 1 event: 7)
 	processEvent.................(run: 1 subRun: 1 event: 7)
@@ -117,21 +117,21 @@ Machine parameters:  handleEmptyRuns = 0  handleEmptySubRuns = 1
 	beginRun....................(run: 1)
 	beginSubRun.................(run: 1 subRun: 1)
 	readEvent....................(run: 1 subRun: 1 event: 1)
-    *** nextItemType: Event ***
 	processEvent.................(run: 1 subRun: 1 event: 1)
 	shouldWeStop
+    *** nextItemType: Event ***
 	openSomeOutputFiles
 	respondToOpenOutputFiles
 	writeEvent...................(run: 1 subRun: 1 event: 1)
 	readEvent....................(run: 1 subRun: 1 event: 2)
-    *** nextItemType: Event ***
 	processEvent.................(run: 1 subRun: 1 event: 2)
 	shouldWeStop
+    *** nextItemType: Event ***
 	writeEvent...................(run: 1 subRun: 1 event: 2)
 	readEvent....................(run: 1 subRun: 1 event: 3)
-    *** nextItemType: InputFile+SwitchOutputFiles ***
 	processEvent.................(run: 1 subRun: 1 event: 3)
 	shouldWeStop
+    *** nextItemType: InputFile+SwitchOutputFiles ***
 	writeEvent...................(run: 1 subRun: 1 event: 3)
 	setSubRunAuxiliaryRangeSetID(run: 1 subRun: 1)
 	endSubRun...................(run: 1 subRun: 1)
@@ -154,16 +154,16 @@ Machine parameters:  handleEmptyRuns = 0  handleEmptySubRuns = 1
 	beginRun....................(run: 1)
 	beginSubRun.................(run: 1 subRun: 1)
 	readEvent....................(run: 1 subRun: 1 event: 4)
-    *** nextItemType: Event ***
 	processEvent.................(run: 1 subRun: 1 event: 4)
 	shouldWeStop
+    *** nextItemType: Event ***
 	openSomeOutputFiles
 	respondToOpenOutputFiles
 	writeEvent...................(run: 1 subRun: 1 event: 4)
 	readEvent....................(run: 1 subRun: 1 event: 5)
-    *** nextItemType: InputFile ***
 	processEvent.................(run: 1 subRun: 1 event: 5)
 	shouldWeStop
+    *** nextItemType: InputFile ***
 	writeEvent...................(run: 1 subRun: 1 event: 5)
 	setSubRunAuxiliaryRangeSetID(run: 1 subRun: 1)
 	endSubRun...................(run: 1 subRun: 1)
@@ -184,9 +184,9 @@ Machine parameters:  handleEmptyRuns = 0  handleEmptySubRuns = 1
 	beginRun....................(run: 1)
 	beginSubRun.................(run: 1 subRun: 1)
 	readEvent....................(run: 1 subRun: 1 event: 6)
-    *** nextItemType: Event ***
 	processEvent.................(run: 1 subRun: 1 event: 6)
 	shouldWeStop
+    *** nextItemType: Event ***
 	writeEvent...................(run: 1 subRun: 1 event: 6)
 	readEvent....................(run: 1 subRun: 1 event: 7)
 	processEvent.................(run: 1 subRun: 1 event: 7)
@@ -223,21 +223,21 @@ Machine parameters:  handleEmptyRuns = 1  handleEmptySubRuns = 0
     *** nextItemType: Event ***
 	beginSubRun.................(run: 1 subRun: 1)
 	readEvent....................(run: 1 subRun: 1 event: 1)
-    *** nextItemType: Event ***
 	processEvent.................(run: 1 subRun: 1 event: 1)
 	shouldWeStop
+    *** nextItemType: Event ***
 	openSomeOutputFiles
 	respondToOpenOutputFiles
 	writeEvent...................(run: 1 subRun: 1 event: 1)
 	readEvent....................(run: 1 subRun: 1 event: 2)
-    *** nextItemType: Event ***
 	processEvent.................(run: 1 subRun: 1 event: 2)
 	shouldWeStop
+    *** nextItemType: Event ***
 	writeEvent...................(run: 1 subRun: 1 event: 2)
 	readEvent....................(run: 1 subRun: 1 event: 3)
-    *** nextItemType: InputFile+SwitchOutputFiles ***
 	processEvent.................(run: 1 subRun: 1 event: 3)
 	shouldWeStop
+    *** nextItemType: InputFile+SwitchOutputFiles ***
 	writeEvent...................(run: 1 subRun: 1 event: 3)
 	setSubRunAuxiliaryRangeSetID(run: 1 subRun: 1)
 	endSubRun...................(run: 1 subRun: 1)
@@ -260,16 +260,16 @@ Machine parameters:  handleEmptyRuns = 1  handleEmptySubRuns = 0
     *** nextItemType: Event ***
 	beginSubRun.................(run: 1 subRun: 1)
 	readEvent....................(run: 1 subRun: 1 event: 4)
-    *** nextItemType: Event ***
 	processEvent.................(run: 1 subRun: 1 event: 4)
 	shouldWeStop
+    *** nextItemType: Event ***
 	openSomeOutputFiles
 	respondToOpenOutputFiles
 	writeEvent...................(run: 1 subRun: 1 event: 4)
 	readEvent....................(run: 1 subRun: 1 event: 5)
-    *** nextItemType: InputFile ***
 	processEvent.................(run: 1 subRun: 1 event: 5)
 	shouldWeStop
+    *** nextItemType: InputFile ***
 	writeEvent...................(run: 1 subRun: 1 event: 5)
 	setSubRunAuxiliaryRangeSetID(run: 1 subRun: 1)
 	endSubRun...................(run: 1 subRun: 1)
@@ -290,9 +290,9 @@ Machine parameters:  handleEmptyRuns = 1  handleEmptySubRuns = 0
     *** nextItemType: Event ***
 	beginSubRun.................(run: 1 subRun: 1)
 	readEvent....................(run: 1 subRun: 1 event: 6)
-    *** nextItemType: Event ***
 	processEvent.................(run: 1 subRun: 1 event: 6)
 	shouldWeStop
+    *** nextItemType: Event ***
 	writeEvent...................(run: 1 subRun: 1 event: 6)
 	readEvent....................(run: 1 subRun: 1 event: 7)
 	processEvent.................(run: 1 subRun: 1 event: 7)
@@ -329,21 +329,21 @@ Machine parameters:  handleEmptyRuns = 1  handleEmptySubRuns = 1
     *** nextItemType: Event ***
 	beginSubRun.................(run: 1 subRun: 1)
 	readEvent....................(run: 1 subRun: 1 event: 1)
-    *** nextItemType: Event ***
 	processEvent.................(run: 1 subRun: 1 event: 1)
 	shouldWeStop
+    *** nextItemType: Event ***
 	openSomeOutputFiles
 	respondToOpenOutputFiles
 	writeEvent...................(run: 1 subRun: 1 event: 1)
 	readEvent....................(run: 1 subRun: 1 event: 2)
-    *** nextItemType: Event ***
 	processEvent.................(run: 1 subRun: 1 event: 2)
 	shouldWeStop
+    *** nextItemType: Event ***
 	writeEvent...................(run: 1 subRun: 1 event: 2)
 	readEvent....................(run: 1 subRun: 1 event: 3)
-    *** nextItemType: InputFile+SwitchOutputFiles ***
 	processEvent.................(run: 1 subRun: 1 event: 3)
 	shouldWeStop
+    *** nextItemType: InputFile+SwitchOutputFiles ***
 	writeEvent...................(run: 1 subRun: 1 event: 3)
 	setSubRunAuxiliaryRangeSetID(run: 1 subRun: 1)
 	endSubRun...................(run: 1 subRun: 1)
@@ -366,16 +366,16 @@ Machine parameters:  handleEmptyRuns = 1  handleEmptySubRuns = 1
     *** nextItemType: Event ***
 	beginSubRun.................(run: 1 subRun: 1)
 	readEvent....................(run: 1 subRun: 1 event: 4)
-    *** nextItemType: Event ***
 	processEvent.................(run: 1 subRun: 1 event: 4)
 	shouldWeStop
+    *** nextItemType: Event ***
 	openSomeOutputFiles
 	respondToOpenOutputFiles
 	writeEvent...................(run: 1 subRun: 1 event: 4)
 	readEvent....................(run: 1 subRun: 1 event: 5)
-    *** nextItemType: InputFile ***
 	processEvent.................(run: 1 subRun: 1 event: 5)
 	shouldWeStop
+    *** nextItemType: InputFile ***
 	writeEvent...................(run: 1 subRun: 1 event: 5)
 	setSubRunAuxiliaryRangeSetID(run: 1 subRun: 1)
 	endSubRun...................(run: 1 subRun: 1)
@@ -396,9 +396,9 @@ Machine parameters:  handleEmptyRuns = 1  handleEmptySubRuns = 1
     *** nextItemType: Event ***
 	beginSubRun.................(run: 1 subRun: 1)
 	readEvent....................(run: 1 subRun: 1 event: 6)
-    *** nextItemType: Event ***
 	processEvent.................(run: 1 subRun: 1 event: 6)
 	shouldWeStop
+    *** nextItemType: Event ***
 	writeEvent...................(run: 1 subRun: 1 event: 6)
 	readEvent....................(run: 1 subRun: 1 event: 7)
 	processEvent.................(run: 1 subRun: 1 event: 7)

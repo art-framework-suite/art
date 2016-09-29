@@ -268,11 +268,12 @@ namespace statemachine {
     HandleEvents(my_context ctx);
     ~HandleEvents();
 
-    void disableProcessAndFinalizeEvent(Pause const&);
+    void disableFinalizeEvent(Pause const&);
     void exit();
-    void processAndFinalizeEvent();
+    void finalizeEvent();
     void setCurrentEvent(art::EventID const& id) { currentEvent_ = id; }
     void setEventException(bool const value) { eventException_ = value; }
+    auto const& currentEvent() const { return currentEvent_; }
 
     using reactions = sc::transition<Event, HandleEvents>;
 
@@ -281,10 +282,11 @@ namespace statemachine {
     art::EventID currentEvent_;
     bool exitCalled_ {false};
     bool eventException_ {false};
-    bool processAndFinalizeEnabled_ {true};
+    bool finalizeEnabled_ {true};
   };
 
   class PauseEvent;
+  class ProcessEvent;
 
   class NewEvent : public sc::state<NewEvent, HandleEvents>
   {
@@ -295,17 +297,29 @@ namespace statemachine {
     void checkInvariant();
     void markNonEmpty();
 
-    using reactions = sc::transition<Pause, PauseEvent, HandleEvents, &HandleEvents::disableProcessAndFinalizeEvent>;
+    using reactions = mpl::list<
+      sc::transition<Process, ProcessEvent>,
+      sc::transition<Pause, PauseEvent, HandleEvents, &HandleEvents::disableFinalizeEvent>>;
 
   private:
     art::IEventProcessor & ep_;
   };
 
+  class ProcessEvent: public sc::state<ProcessEvent, HandleEvents> {
+  public:
+    ProcessEvent(my_context ctx);
+  private:
+    art::IEventProcessor& ep_;
+  };
+
   class PauseEvent : public sc::state<PauseEvent, HandleEvents> {
   public:
+
     PauseEvent(my_context ctx);
 
-    using reactions = sc::transition<SwitchOutputFiles, sc::deep_history<HandleRuns>, Machine, &Machine::closeSomeOutputFiles>;
+    using reactions = mpl::list<
+      sc::transition<SwitchOutputFiles, sc::deep_history<HandleRuns>, Machine, &Machine::closeSomeOutputFiles>,
+      sc::transition<Process, ProcessEvent>>;
   };
 
 }

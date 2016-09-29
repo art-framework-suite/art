@@ -15,13 +15,32 @@ Machine
             \
             HandleEvents
 
+For each level of processing (Run, SubRun, and Event), the general
+pattern is followed:
+  _________________________________
+ | Handle<Level>s                  |
+ |---------------------------------|
+ |           New<Level>            |
+ |           /       \             |
+ |          /         \            |
+ | Pause<Level> --> Process<Level> |
+ |_________________________________|
+
+The "Process<Level>" state is typically a composite state called
+"Handle<Next-level-down>s".  For the Event level, the "Process<Level>"
+state is simply called "ProcessEvent".  The ProcessEvent state is
+entered from either the NewEvent or PauseEvent state by reception of
+the "Process" state-machine event.  The "Process" state-machine event
+is posted, internally within the state-machine, as the last function
+call in the NewEvent state.
+
 List of nested states for a given composite state:
 
 Machine      : Starting, Stopping, Error, HandleFiles
 HandleFiles  : NewInputFile             , HandleRuns
 HandleRuns   : NewRun      , PauseRun   , HandleSubRuns
 HandleSubRuns: NewSubRun   , PauseSubRun, HandleEvents
-HandleEvents : NewEvent    , PauseEvent
+HandleEvents : NewEvent    , PauseEvent , ProcessEvent
 
 For the full diagram, please see the 'sm.txt' file, which can be
 parsed by plantuml to produce a suitable diagram.  The
@@ -33,14 +52,14 @@ state is of interest.
 Upon receiving an Event, Run, SubRun, or InputFile state-machine
 event, the machine transitions outside of the relevant composite state
 ('HandleEvents' for an Event event, 'HandleFiles' for an InputFile
-event, etc.) and reenters the same composite state, going to the
+event, etc.) and re-enters the same composite state, going to the
 corresponding first state 'New{Event,SubRun,Run,InputFile}'.
 
 The creation of principals happens during the entry actions in the
 'New*' states.
 
 The writing of products is done during the exit actions of the
-composite states ("processAndFinalizeEvent", "finalizeSubRun", and
+composite states ("finalizeEvent", "finalizeSubRun", and
 "finalizeRun").
 
 ==================================
@@ -80,16 +99,16 @@ posted to the event queue.
 
 The SubRun event will be acted upon by performing the following steps:
 
-  [1] The machine exits from HandleEvents, calling
-      processAndFinalizeEvent (thereby writing the event products).
+  [1] The machine exits from HandleEvents, calling finalizeEvent
+      (thereby writing the event products).
   [2] The machine exits from HandleSubRuns, calling finalizeSubRun
       (thereby writing the subrun products).
-  [3] The machine reenters the HandleSubRuns composite state,
+  [3] The machine re-enters the HandleSubRuns composite state,
       proceeding immediately to NewSubRun, where a principal for the
       new subrun is created.
 
 This is now the point at which the output file can be closed.  Note
-that the new subrun has already been started!  When closing an output
+that the new SubRun has already been started!  When closing an output
 file, we must also write the Run products that have accumulated...but
 note that we DO NOT want to write the subrun products from the new
 subrun.
