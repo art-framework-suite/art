@@ -34,9 +34,7 @@ RootInputFileSequence(fhicl::TableFragment<RootInputFileSequence::Config> const&
                       InputSource::ProcessingMode pMode,
                       MasterProductRegistry& mpr,
                       ProcessConfiguration const& processConfig)
-  : catalog_(catalog)
-  , firstFile_(true)
-  , rootFile_()
+  : catalog_{catalog}
   , matchMode_(BranchDescription::Permissive)
   , fileIndexes_(fileCatalogItems().size())
   , eventsRemainingInFile_(0)
@@ -226,8 +224,7 @@ seekToEvent(EventID const& eID, bool exact)
     return EventID();
   }
   // Look for event in files previously opened without reopening unnecessary files.
-  typedef vector<std::shared_ptr<FileIndex>>::const_iterator Iter;
-  for (Iter itBegin = fileIndexes_.begin(), itEnd = fileIndexes_.end(),
+  for (auto itBegin = fileIndexes_.cbegin(), itEnd = fileIndexes_.cend(),
        it = itBegin;
        (!found) && it != itEnd;
        ++it) {
@@ -287,7 +284,7 @@ readFile_()
     assert(0);
   }
   if (!rootFile_) {
-    return std::shared_ptr<FileBlock>(new FileBlock);
+    return std::make_shared<FileBlock>();
   }
   return rootFile_->createFileBlock();
 }
@@ -296,17 +293,15 @@ void
 RootInputFileSequence::
 closeFile_()
 {
-  if (rootFile_) {
-    // Account for events skipped in the file.
-    eventsToSkip_ = rootFile_->eventsToSkip();
-    {
-      rootFile_->close(primary());
-    }
-    detail::logFileAction("Closed input file ", rootFile_->file());
-    rootFile_.reset();
-    if (duplicateChecker_.get() != 0) {
-      duplicateChecker_->inputFileClosed();
-    }
+  if (!rootFile_) return;
+
+  // Account for events skipped in the file.
+  eventsToSkip_ = rootFile_->eventsToSkip();
+  rootFile_->close(primary());
+  detail::logFileAction("Closed input file ", rootFile_->file());
+  rootFile_.reset();
+  if (duplicateChecker_.get() != nullptr) {
+    duplicateChecker_->inputFileClosed();
   }
 }
 
@@ -403,7 +398,7 @@ initFile(bool skipBadFiles, bool initMPR/*=false*/)
 
 
   // Create branches to read the products from the input file.
-  for ( auto const& prod : rootFile_->productList() ) {
+  for (auto const& prod : rootFile_->productList()) {
     auto const& input_bd = prod.second;
     auto const& mpr_list = mpr_.productList();
     auto bd_it = mpr_list.find( art::BranchKey( input_bd ) );
@@ -412,23 +407,23 @@ initFile(bool skipBadFiles, bool initMPR/*=false*/)
         << "Unable to find product listed in input file in MasterProductRegistry.\n"
         << "Please report this to artists@fnal.gov";
     }
-    auto & bd = bd_it->second;
+    auto& bd = bd_it->second;
 
-    bool const present = mpr_.presentWithFileIdx( bd.branchType(),
-                                                  bd.branchID() ) != MasterProductRegistry::DROPPED;
+    bool const present  = mpr_.presentWithFileIdx(bd.branchType(), bd.branchID()) != MasterProductRegistry::DROPPED;
 
     rootFile_->treePointers()[bd.branchType()]->addBranch(prod.first,
                                                           bd,
                                                           bd.branchName(),
-                                                          present );
+                                                          present);
   }
 
   BranchIDListHelper::updateFromInput(rootFile_->branchIDLists(), catalog_.currentFile().fileName());
 }
 
-  std::unique_ptr<RootInputFile>
+std::unique_ptr<RootInputFile>
 RootInputFileSequence::
-openSecondaryFile(int idx, string const& name,
+openSecondaryFile(int idx,
+                  string const& name,
                   exempt_ptr<RootInputFile> primaryFile)
 {
   std::shared_ptr<TFile> filePtr;
@@ -482,19 +477,18 @@ openSecondaryFile(int idx, string const& name,
                                rif->perBranchTypePresence(),
                                *rif->createFileBlock().get());
 
-  for ( auto const& prod : rif->productList() ) {
+  for (auto const& prod : rif->productList()) {
     auto const& input_bd = prod.second;
     auto const& mpr_list = mpr_.productList();
-    auto bd_it = mpr_list.find( art::BranchKey( input_bd ) );
-    if ( bd_it == mpr_list.end() ) {
+    auto bd_it = mpr_list.find(art::BranchKey(input_bd));
+    if (bd_it == mpr_list.end()) {
       throw art::Exception(errors::LogicError, "RootInputFileSequence::openSecondaryFile()")
         << "Unable to find product listed in input file in MasterProductRegistry.\n"
         << "Please report this to artists@fnal.gov";
     }
-    auto & bd = bd_it->second;
+    auto& bd = bd_it->second;
 
-    bool const present = mpr_.presentWithFileIdx( bd.branchType(),
-                                                  bd.branchID() ) != MasterProductRegistry::DROPPED;
+    bool const present = mpr_.presentWithFileIdx(bd.branchType(), bd.branchID()) != MasterProductRegistry::DROPPED;
 
     rif->treePointers()[bd.branchType()]->addBranch(prod.first,
                                                     bd,
