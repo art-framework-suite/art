@@ -249,9 +249,9 @@ private: // MEMBER FUNCTIONS
 private: // MEMBER DATA
 
   InputFileCatalog& catalog_;
-  bool firstFile_;
-  RootInputFileSharedPtr rootFile_;
-  BranchDescription::MatchMode matchMode_;
+  bool firstFile_ {true};
+  RootInputFileSharedPtr rootFile_ {nullptr};
+  BranchDescription::MatchMode matchMode_ {BranchDescription::Permissive};
   std::vector<std::shared_ptr<FileIndex>> fileIndexes_;
   int eventsRemainingInFile_;
   EventID origEventID_;
