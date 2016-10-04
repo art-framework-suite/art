@@ -1,0 +1,8 @@
+simple_plugin(ClassTool "tool" ${Boost_FILESYSTEM_LIBRARY} ${Boost_SYSTEM_LIBRARY})
+simple_plugin(NestedClassTool "tool" ${Boost_FILESYSTEM_LIBRARY} ${Boost_SYSTEM_LIBRARY})
+simple_plugin(FunctionTool "tool" ${Boost_FILESYSTEM_LIBRARY} ${Boost_SYSTEM_LIBRARY})
+simple_plugin(NestedFunctionTool "tool" art_Utilities ${Boost_FILESYSTEM_LIBRARY} ${Boost_SYSTEM_LIBRARY})
+simple_plugin(NestedFunctionInClassTool "tool" art_Utilities ${Boost_FILESYSTEM_LIBRARY} ${Boost_SYSTEM_LIBRARY})
+simple_plugin(AddNumber "tool" ${Boost_FILESYSTEM_LIBRARY} ${Boost_SYSTEM_LIBRARY})
+simple_plugin(SubtractNumber "tool" ${Boost_FILESYSTEM_LIBRARY} ${Boost_SYSTEM_LIBRARY})
+simple_plugin(MultiplyNumber "tool" ${Boost_FILESYSTEM_LIBRARY} ${Boost_SYSTEM_LIBRARY})

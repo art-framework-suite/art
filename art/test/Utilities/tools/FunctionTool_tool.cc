@@ -1,7 +1,5 @@
 #include "art/Framework/Core/ToolMacros.h"
 
-#include <iostream>
-
 namespace arttest {
   int addOne(int const i)
   {
