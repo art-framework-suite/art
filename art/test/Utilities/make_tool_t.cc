@@ -83,20 +83,21 @@ BOOST_AUTO_TEST_CASE(polymorphic_tools)
   {
     fhicl::ParameterSet ps;
     ps.put("tool_type", "AddNumber");
+    ps.put("incrementBy", 7);
     art::make_tool<arttest::OperationBase>(ps)->adjustNumber(i);
-    BOOST_CHECK_EQUAL(i, 18);
+    BOOST_CHECK_EQUAL(i, 24);
   }
   {
     fhicl::ParameterSet ps;
     ps.put("tool_type", "SubtractNumber");
     art::make_tool<arttest::OperationBase>(ps)->adjustNumber(i);
-    BOOST_CHECK_EQUAL(i, 17);
+    BOOST_CHECK_EQUAL(i, 23);
   }
   {
     fhicl::ParameterSet ps;
     ps.put("tool_type", "MultiplyNumber");
     art::make_tool<arttest::OperationBase>(ps)->adjustNumber(i);
-    BOOST_CHECK_EQUAL(i, 34);
+    BOOST_CHECK_EQUAL(i, 46);
   }
 }
 

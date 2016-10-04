@@ -13,7 +13,7 @@ namespace art {
       using ModuleTypeFunc_t = art::ModuleType();
 
       auto type = [&lm,&fullSpec](){
-        ModuleTypeFunc_t* symbolType{};
+        ModuleTypeFunc_t* symbolType {nullptr};
         lm.getSymbolByLibspec(fullSpec, "moduleType", symbolType);
         return art::to_string(symbolType());
       };
@@ -28,8 +28,23 @@ namespace art {
       using PluginTypeFunc_t = std::string();
 
       auto type = [&lm,&fullSpec](){
-        PluginTypeFunc_t* symbolType{};
+        PluginTypeFunc_t* symbolType {nullptr};
         lm.getSymbolByLibspec(fullSpec, "pluginType", symbolType);
+        return symbolType();
+      };
+
+      return resolve_if_present(type, __func__, "[ error ]");
+    }
+
+    template <>
+    std::string getType<suffix_type::tool>(cet::LibraryManager const& lm,
+                                           std::string const& fullSpec)
+    {
+      using ToolTypeFunc_t = std::string();
+
+      auto type = [&lm,&fullSpec](){
+        ToolTypeFunc_t* symbolType {nullptr};
+        lm.getSymbolByLibspec(fullSpec, "toolType", symbolType);
         return symbolType();
       };
 

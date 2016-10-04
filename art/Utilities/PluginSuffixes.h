@@ -60,7 +60,7 @@
 
 namespace art {
 
-  enum class suffix_type {module, plugin, service, source, tool, unknown};
+  enum class suffix_type {module, plugin, service, source, tool};
 
   inline std::ostream& operator<<(std::ostream& os, suffix_type const st)
   {

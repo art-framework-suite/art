@@ -1,5 +1,5 @@
-#ifndef art_Framework_Art_detail_md_summary_MetadataSummaryForService_h
-#define art_Framework_Art_detail_md_summary_MetadataSummaryForService_h
+#ifndef art_Framework_Art_detail_md_summary_MetadataSummaryForTool_h
+#define art_Framework_Art_detail_md_summary_MetadataSummaryForTool_h
 
 #include "art/Framework/Art/detail/LibraryInfoCollection.h"
 #include "art/Framework/Art/detail/MetadataSummary.h"
@@ -13,15 +13,15 @@ namespace art {
   namespace detail {
 
     template <>
-    class MetadataSummaryFor<suffix_type::service> : public MetadataSummary {
+    class MetadataSummaryFor<suffix_type::tool> : public MetadataSummary {
     public:
 
       MetadataSummaryFor(LibraryInfoCollection const& coll)
         : widths_{
             std::to_string(coll.size()).size(),
-            columnWidth(coll, &LibraryInfo::short_spec, "Service"),
-            columnWidth(coll, &LibraryInfo::provider  , "Provider"),
-            columnWidth(coll, &LibraryInfo::path      , "Source location")
+            columnWidth(coll, &LibraryInfo::short_spec , "tool_type"),
+            columnWidth(coll, &LibraryInfo::plugin_type, "Type"),
+            columnWidth(coll, &LibraryInfo::path       , "Source location")
           }
       {}
 
@@ -34,8 +34,8 @@ namespace art {
       {
         std::ostringstream result;
         result << indent(widths_[0]+2)
-               << std::setw(widths_[1]+4) << std::left << "Service"
-               << std::setw(widths_[2]+4) << std::left << "Provider"
+               << std::setw(widths_[1]+4) << std::left << "tool_type"
+               << std::setw(widths_[2]+4) << std::left << "Type"
                << std::left << "Source location";
         return result.str();
       }
@@ -45,7 +45,7 @@ namespace art {
         std::ostringstream result;
         result << std::setw(widths_[0]) << std::right << entry << ". "
                << std::setw(widths_[1]+4) << std::left << li.short_spec()
-               << std::setw(widths_[2]+4) << std::left << li.provider()
+               << std::setw(widths_[2]+4) << std::left << li.plugin_type()
                << std::left << li.path()
                << "\n";
         return {result.str(), false};
@@ -57,7 +57,7 @@ namespace art {
 }
 
 
-#endif /* art_Framework_Art_detail_md_summary_MetadataSummaryForService_h */
+#endif /* art_Framework_Art_detail_md_summary_MetadataSummaryForTool_h */
 
 // Local variables:
 // mode: c++

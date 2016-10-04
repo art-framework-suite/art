@@ -1,15 +1,29 @@
 #include "art/Framework/Core/ToolMacros.h"
+#include "art/Utilities/ToolConfigTable.h"
 #include "art/test/Utilities/tools/OperationBase.h"
 
 namespace fhicl { class ParameterSet; }
 
-namespace arttest {
-  class AddNumber : public OperationBase {
-  public:
-    explicit AddNumber(fhicl::ParameterSet const&){}
-  private:
-    void do_adjustNumber(int& i) const override { ++i; }
+namespace {
+
+  struct Config {
+    fhicl::Atom<int> incrementBy { fhicl::Name("incrementBy"), 1 };
   };
+
+  class AddNumber : public arttest::OperationBase {
+  public:
+
+    using Parameters = art::ToolConfigTable<Config>;
+    explicit AddNumber(Parameters const& config)
+      : incrementBy_{config().incrementBy()}
+    {}
+
+  private:
+    int incrementBy_;
+
+    void do_adjustNumber(int& i) const override { i += incrementBy_; }
+  };
+
 }
 
-DEFINE_ART_TOOL_CLASS(arttest::AddNumber)
+DEFINE_ART_TOOL_CLASS(AddNumber)

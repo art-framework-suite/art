@@ -9,7 +9,8 @@
 
 #include "boost/filesystem.hpp"
 #include "cetlib/detail/metaprogramming.h"
-#include "fhiclcpp/types/Name.h"
+#include "fhiclcpp/types/Atom.h"
+#include "fhiclcpp/types/Table.h"
 
 #include <ostream>
 #include <string>
@@ -33,7 +34,7 @@ namespace art {
 
     template<class T, class Enable = void>
     struct MaybePrintDescription{
-      std::ostream & operator()(std::ostream& os, std::string const& /*name*/, std::string const& prefix)
+      std::ostream& operator()(std::ostream& os, std::string const& /*name*/, std::string const& prefix)
       {
         return os << "\n" << prefix << "[ None provided ]\n";
       }
@@ -49,15 +50,9 @@ namespace art {
       }
     };
 
-    template<class T>
-    struct MaybePrintDescription<T, std::enable_if_t<!std::is_class<T>::value>>
-    {
-      std::ostream& operator()(std::ostream& os, std::string const& name, std::string const& prefix)
-      {
-        return os << "\n" << prefix << "[No description for non-class plugin]\n";
-      }
+    struct ToolConfig {
+      fhicl::Atom<std::string> tool_type { fhicl::Name("tool_type") };
     };
-
 
   }
 }
@@ -68,6 +63,15 @@ namespace art {
   {                                                                     \
     art::detail::MaybePrintDescription<klass> print;                    \
     return print(os, name, prefix);                                     \
+  }
+
+#define PROVIDE_TOOL_FUNCTION_DESCRIPTION()                             \
+  extern "C"                                                            \
+  std::ostream& print_description(std::ostream& os, std::string const& name, std::string const& prefix) \
+  {                                                                     \
+    fhicl::Table<art::detail::ToolConfig> tc { fhicl::Name(name) };     \
+    tc.print_allowed_configuration(os, prefix);                         \
+    return os;                                                          \
   }
 
 #endif /* art_Utilities_BasicHelperMacros_h */

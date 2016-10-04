@@ -56,6 +56,7 @@ namespace art {
 
     template <> std::string getType<suffix_type::module>(cet::LibraryManager const& lm, std::string const& fullSpec);
     template <> std::string getType<suffix_type::plugin>(cet::LibraryManager const& lm, std::string const& fullSpec);
+    template <> std::string getType<suffix_type::tool>(cet::LibraryManager const& lm, std::string const& fullSpec);
 
     template <art::suffix_type>
     std::string getDescription(cet::LibraryManager const& lm,

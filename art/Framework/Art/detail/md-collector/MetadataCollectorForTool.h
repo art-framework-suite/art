@@ -1,11 +1,12 @@
-#ifndef art_Framework_Art_detail_md_collector_MetadataCollectorForPlugin_h
-#define art_Framework_Art_detail_md_collector_MetadataCollectorForPlugin_h
+#ifndef art_Framework_Art_detail_md_collector_MetadataCollectorForTool_h
+#define art_Framework_Art_detail_md_collector_MetadataCollectorForTool_h
 
 #include "art/Framework/Art/detail/MetadataCollector.h"
 #include "art/Framework/Art/detail/MetadataRegexHelpers.h"
 #include "art/Framework/Art/detail/PrintFormatting.h"
 #include "art/Framework/Art/detail/PluginMetadata.h"
 #include "art/Utilities/PluginSuffixes.h"
+#include "art/Utilities/bold_fontify.h"
 
 #include <regex>
 
@@ -13,7 +14,7 @@ namespace art {
   namespace detail {
 
     template<>
-    class MetadataCollectorFor<suffix_type::plugin> : public MetadataCollector {
+    class MetadataCollectorFor<suffix_type::tool> : public MetadataCollector {
     public:
 
       PluginMetadata doCollect(LibraryInfo const& li) const override
@@ -27,7 +28,7 @@ namespace art {
         std::ostringstream result;
         std::string const long_spec = li.long_spec().empty() ? " [ No alternate specification available ] " : li.long_spec();
         result << indent_1()
-               << "plugin_type: " << bold_fontify(li.short_spec())
+               << "tool_type : " << bold_fontify(li.short_spec())
                << " (or \"" << long_spec << "\")"
                << "\n\n";
         return result.str();
@@ -50,7 +51,7 @@ namespace art {
                << indent_1()  << "---------------------\n";
 
         std::string printedConfig = li.description();
-        replace_type(printedConfig, li.short_spec(), regex_for_spec("plugin_type"));
+        replace_type(printedConfig, li.short_spec(), regex_for_spec("tool_type"));
 
         result << printedConfig;
         return result.str();
@@ -60,7 +61,7 @@ namespace art {
   }
 }
 
-#endif /* art_Framework_Art_detail_md_collector_MetadataCollectorForPlugin_h */
+#endif /* art_Framework_Art_detail_md_collector_MetadataCollectorForTool_h */
 
 // Local variables:
 // mode: c++

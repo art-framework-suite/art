@@ -24,6 +24,8 @@
 #define DEFINE_ART_TOOL_CLASS(tool)                                     \
   extern "C" {                                                          \
     PROVIDE_FILE_PATH()                                                 \
+    PROVIDE_DESCRIPTION(tool)                                           \
+    std::string toolType() { return "class"; }                          \
     std::enable_if_t<std::is_class< tool >::value, std::unique_ptr< tool > > \
     makeTool(fhicl::ParameterSet const& pset)                           \
     {                                                                   \
@@ -34,6 +36,8 @@
 #define DEFINE_ART_TOOL_FUNCTION(tool)                                  \
   extern "C" {                                                          \
     PROVIDE_FILE_PATH()                                                 \
+    PROVIDE_TOOL_FUNCTION_DESCRIPTION()                                 \
+    std::string toolType() { return "function"; }                       \
     auto toolFunction = tool;                                           \
   }
 

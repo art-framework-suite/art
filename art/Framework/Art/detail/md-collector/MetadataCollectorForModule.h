@@ -19,7 +19,7 @@ namespace art {
 
       PluginMetadata doCollect(LibraryInfo const& li) const override
       {
-        return { header_(li), details_(li), allowed_configuration_(li) };
+        return {header_(li), details_(li), allowed_configuration_(li)};
       }
 
     private:
@@ -51,8 +51,7 @@ namespace art {
                << indent_1()  << "---------------------\n";
 
         std::string printedConfig = li.description();
-        replace_module_type ( printedConfig, li.short_spec() );
-        replace_label( "module_label", printedConfig );
+        replace_type(printedConfig, li.short_spec(), regex_for_spec("module_type"));
 
         result << printedConfig;
         return result.str();
