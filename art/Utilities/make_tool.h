@@ -29,6 +29,12 @@ namespace art {
     return result;
   }
 
+  template <typename T, typename TableConfig>
+  inline auto make_tool(TableConfig const& tc)
+  {
+    return make_tool<T>(tc.get_PSet());
+  }
+
 }
 
 #endif

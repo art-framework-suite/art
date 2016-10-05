@@ -12,27 +12,25 @@
 
 namespace art {
 
-  namespace detail {
-    struct MinimalToolConfig {
-      fhicl::Atom<std::string> tool_type { fhicl::Name("tool_type") };
-      struct KeysToIgnore {
-        std::set<std::string> operator()() { return {}; }
-      };
+  struct MinimalToolConfig {
+    fhicl::Atom<std::string> tool_type { fhicl::Name("tool_type") };
+    struct KeysToIgnore {
+      std::set<std::string> operator()() { return {}; }
     };
-  }
+  };
 
   template <typename UserConfig, typename UserKeysToIgnore = void>
   class ToolConfigTable {
 
     template <typename T>
     struct FullConfig {
-      fhicl::TableFragment<detail::MinimalToolConfig> tool_type;
+      fhicl::TableFragment<MinimalToolConfig> tool_type;
       fhicl::TableFragment<T> user;
     };
 
     using KeysToIgnore_t = std::conditional_t<std::is_void<UserKeysToIgnore>::value,
-                                              detail::MinimalToolConfig::KeysToIgnore,
-                                              fhicl::KeysToIgnore<detail::MinimalToolConfig::KeysToIgnore, UserKeysToIgnore>>;
+                                              MinimalToolConfig::KeysToIgnore,
+                                              fhicl::KeysToIgnore<MinimalToolConfig::KeysToIgnore, UserKeysToIgnore>>;
 
     fhicl::Table<FullConfig<UserConfig>, KeysToIgnore_t> fullConfig_;
 

@@ -1,4 +1,11 @@
 #include "messageDefaults.fcl"
+BEGIN_PROLOG
+tools: {
+  addIntsImpl: {
+    tool_type: addInts
+  }
+}
+END_PROLOG
 
 process_name: "TEST"
 
@@ -27,16 +34,19 @@ physics:
     {
       module_type: AddIntsProducer
       labels: [ "one" ]
+      @table::tools
     }
     result2:
     {
       module_type: AddIntsProducer
       labels: [ "result1", "one" ]
+      @table::tools
     }
     result4:
     {
       module_type: AddIntsProducer
       labels: [ "result2", "result2" ]
+      @table::tools
     }
   }
   analyzers:
