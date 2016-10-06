@@ -31,7 +31,8 @@ cet_cmake_env()
 cet_set_compiler_flags(DIAGS VIGILANT
   WERROR
   NO_UNDEFINED
-  EXTRA_FLAGS -pedantic -Wnon-virtual-dtor -Wdelete-non-virtual-dtor
+  EXTRA_FLAGS -pedantic
+  EXTRA_CXX_FLAGS -Wnon-virtual-dtor -Wdelete-non-virtual-dtor
   )
 cet_have_qual(sse2 SSE2)
 if ( SSE2 )
