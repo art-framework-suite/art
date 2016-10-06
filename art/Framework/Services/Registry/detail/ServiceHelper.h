@@ -42,7 +42,7 @@ namespace art {
 
 // Base class. Note virtual inheritance below.
 struct art::detail::ServiceHelperBase {
-  virtual ~ServiceHelperBase() = default;
+  virtual ~ServiceHelperBase() noexcept = default;
   virtual TypeID get_typeid() const = 0;
   virtual ServiceScope scope() const = 0;
   virtual bool is_interface() const = 0;
@@ -75,6 +75,7 @@ struct art::detail::ServiceInterfaceHelper :
 
 // A per-schedule service.
 struct art::detail::ServicePSMHelper {
+  virtual ~ServicePSMHelper() noexcept = default;
   virtual
   std::unique_ptr<ServiceWrapperBase>
   make(fhicl::ParameterSet const & cfg,
@@ -83,6 +84,7 @@ struct art::detail::ServicePSMHelper {
 };
 
 struct art::detail::ServicePSRHelper {
+  virtual ~ServicePSRHelper() noexcept = default;
   virtual
   void *
   retrieve(std::shared_ptr<ServiceWrapperBase> & swb,
@@ -91,6 +93,7 @@ struct art::detail::ServicePSRHelper {
 
 // A global or legacy service
 struct art::detail::ServiceLGMHelper {
+  virtual ~ServiceLGMHelper() noexcept = default;
   virtual
   std::unique_ptr<ServiceWrapperBase>
   make(fhicl::ParameterSet const & cfg,
@@ -98,6 +101,7 @@ struct art::detail::ServiceLGMHelper {
 };
 
 struct art::detail::ServiceLGRHelper {
+  virtual ~ServiceLGRHelper() noexcept = default;
   virtual
   void *
   retrieve(std::shared_ptr<ServiceWrapperBase> & swb) const = 0;

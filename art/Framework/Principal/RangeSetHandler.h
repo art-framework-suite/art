@@ -11,6 +11,7 @@ namespace art {
 
   class RangeSetHandler {
   public:
+    virtual ~RangeSetHandler() noexcept = default;
 
     RangeSet seenRanges() const { return do_getSeenRanges(); }
 

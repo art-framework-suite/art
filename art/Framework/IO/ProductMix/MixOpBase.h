@@ -18,6 +18,8 @@ namespace art {
 
 class art::MixOpBase {
 public:
+  virtual ~MixOpBase() noexcept = default;
+
   virtual
   InputTag const & inputTag() const = 0;
 
