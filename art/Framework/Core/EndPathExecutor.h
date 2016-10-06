@@ -87,7 +87,7 @@ public:
   bool setEndPathModuleEnabled(std::string const & label, bool enable);
 
   // Call selectProducts() on all OutputModules.
-  virtual void selectProducts(FileBlock const&);
+  void selectProducts(FileBlock const&);
 
 private:
   using OutputWorkers = std::vector<OutputWorker*>;
