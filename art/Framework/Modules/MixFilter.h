@@ -55,6 +55,11 @@
 //    // Receive the ordered sequence of EventIDs that will be mixed into
 //    // the current event; useful for bookkeeping purposes.
 //
+//    void processEventAuxiliaries(art::EventAuxiliarySequence const &);
+//
+//    // Receive the ordered sequence of EventAuxiliaries that will be mixed into
+//    // the current event; useful for bookkeeping purposes.
+//
 //    void finalizeEvent(art::Event &t);
 //
 //    // Do end-of-event tasks (e.g., inserting bookkeeping objects into
@@ -70,8 +75,11 @@
 #include "art/Framework/IO/ProductMix/MixHelper.h"
 #include "art/Framework/IO/ProductMix/MixOpBase.h"
 #include "art/Framework/Services/Registry/ServiceRegistry.h"
+#include "canvas/Persistency/Provenance/BranchType.h"
 #include "cetlib/detail/metaprogramming.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
+
+#include "TBranch.h"
 
 #include <functional>
 #include <type_traits>
@@ -191,6 +199,35 @@ namespace art {
     template <typename T>
     struct call_processEventIDs {
       void operator()(T& t, EventIDSequence const& seq) { t.processEventIDs(seq); }
+    };
+
+    ////////////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////////////
+    // Does the detail object have a method void
+    // processEventAuxiliaries(EventAuxiliarySequence const &)?
+
+    template <typename T, typename = void>
+    struct has_processEventAuxiliaries : std::false_type {};
+
+    template <typename T>
+    struct has_processEventAuxiliaries<T, enable_if_function_exists_t<void(T::*)(EventAuxiliarySequence const&), &T::processEventAuxiliaries>> : std::true_type {};
+
+    template <typename T>
+    struct do_not_call_processEventAuxiliaries {
+      void operator()(T&, MixHelper&, EntryNumberSequence const&, size_t) {}
+    };
+
+    template <typename T>
+    struct call_processEventAuxiliaries {
+      void
+      operator()(T& t, MixHelper& h, EntryNumberSequence const& enseq, size_t nSecondaries)
+      {
+        EventAuxiliarySequence auxseq;
+        auxseq.reserve(nSecondaries);
+        h.generateEventAuxiliarySequence(enseq, auxseq);
+        t.processEventAuxiliaries(auxseq);
+      }
     };
 
     ////////////////////////////////////////////////////////////////////
@@ -394,10 +431,15 @@ art::MixFilter<T>::filter(art::Event & e)
                        detail::call_processEventIDs<T>,
                        detail::do_not_call_processEventIDs<T> > maybe_call_processEventIDs;
   maybe_call_processEventIDs(detail_, eIDseq);
-  // 5. Make the MixHelper read info into all the products, invoke the
+  // 5. Give the event auxiliary sequence to the detail object.
+  std::conditional_t < detail::has_processEventAuxiliaries<T>::value,
+                       detail::call_processEventAuxiliaries<T>,
+                       detail::do_not_call_processEventAuxiliaries<T> > maybe_call_processEventAuxiliaries;
+  maybe_call_processEventAuxiliaries(detail_, helper_, enSeq, nSecondaries);
+  // 6. Make the MixHelper read info into all the products, invoke the
   // mix functions and put the products into the event.
   helper_.mixAndPut(enSeq, e);
-  // 6. Call detail object's finalizeEvent() if it exists.
+  // 7. Call detail object's finalizeEvent() if it exists.
   std::conditional_t < detail::has_finalizeEvent<T>::value,
                        detail::call_finalizeEvent<T>,
                        detail::do_not_call_finalizeEvent<T> >

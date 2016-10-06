@@ -127,6 +127,11 @@ public:
   // sequence of EventIDs.
   void processEventIDs(art::EventIDSequence const & seq);
 
+  // Optional processEventAuxiliaries(): after the generation of the event
+  // sequence, this function will be called if it exists to provide the
+  // sequence of EventAuxiliaries.
+  void processEventAuxiliaries(art::EventAuxiliarySequence const &);
+
   // Optional.finalizeEvent(): (eg) put bookkeping products in event. Do
   // *not* place mix products into the event: this will already have
   // been done for you.
@@ -193,6 +198,7 @@ private:
   std::unique_ptr<art::EventIDSequence> eIDs_ {};
   bool startEvent_called_ {false};
   bool processEventIDs_called_ {false};
+  bool processEventAuxiliaries_called_ {false};
   int currentEvent_ {-1};
   bool const testZeroSecondaries_;
   bool const testPtrFailure_;
@@ -404,6 +410,24 @@ processEventIDs(art::EventIDSequence const & seq)
 
 void
 arttest::MixFilterTestDetail::
+processEventAuxiliaries(art::EventAuxiliarySequence const & seq)
+{
+  processEventAuxiliaries_called_ = true;
+  // We only need a very simple test to check that there actually
+  // are auxiliaries in the sequence.  No need for full coverage,
+  // the event ids test takes care of that.
+  if ((readMode_ == art::MixHelper::Mode::SEQUENTIAL) && (currentEvent_ == 0)) {
+    BOOST_REQUIRE_EQUAL(seq.size(), nSecondaries_);
+    size_t offset = 1;
+    for (auto const& val : seq) {
+      BOOST_REQUIRE_EQUAL(val.event(), offset);
+      ++offset;
+    }
+  }
+}
+
+void
+arttest::MixFilterTestDetail::
 finalizeEvent(art::Event & e)
 {
   e.put(std::make_unique<std::string>("BlahBlahBlah"));
@@ -414,6 +438,8 @@ finalizeEvent(art::Event & e)
 #endif
   BOOST_REQUIRE(processEventIDs_called_);
   processEventIDs_called_ = false;
+  BOOST_REQUIRE(processEventAuxiliaries_called_);
+  processEventAuxiliaries_called_ = false;
 }
 
 void

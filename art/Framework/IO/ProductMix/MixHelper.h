@@ -319,6 +319,8 @@ public:
   bool generateEventSequence(size_t nSecondaries,
                              EntryNumberSequence & enSeq,
                              EventIDSequence & eIDseq);
+  void generateEventAuxiliarySequence(EntryNumberSequence const&,
+                                      EventAuxiliarySequence&);
   void mixAndPut(EntryNumberSequence const & enSeq,
                  Event & e);
   void setEventsToSkipFunction(std::function < size_t () > eventsToSkip);

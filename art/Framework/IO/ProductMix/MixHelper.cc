@@ -227,6 +227,36 @@ generateEventSequence(size_t nSecondaries,
 }
 
 void
+art::MixHelper::
+generateEventAuxiliarySequence(EntryNumberSequence const& enseq,
+                               EventAuxiliarySequence& auxseq)
+{
+  auto auxBranch =
+    currentEventTree_->GetBranch(
+      BranchTypeToAuxiliaryBranchName(InEvent).c_str());
+  auto aux = std::make_unique<EventAuxiliary>();
+  auto pAux = aux.get();
+  auxBranch->SetAddress(&pAux);
+  for (auto const entry : enseq) {
+    auto err = currentEventTree_->LoadTree(entry);
+    if (err == -2) {
+      // FIXME: Throw an error here!
+      // FIXME: -2 means entry number too big.
+      // Disconnect the branch from the i/o buffer.
+      //auxBranch->SetAddress(0);
+    }
+    // Note: Root will overwrite the old event
+    //       auxiliary with the new one.
+    input::getEntry(auxBranch, entry);
+    // Note: We are intentionally making a copy here
+    //       of the fetched event auxiliary!
+    auxseq.push_back(*pAux);
+  }
+  // Disconnect the branch from the i/o buffer.
+  auxBranch->SetAddress(0);
+}
+
+void
 art::MixHelper::mixAndPut(EntryNumberSequence const & enSeq,
                           Event & e)
 {
