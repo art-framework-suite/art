@@ -69,7 +69,7 @@ namespace art {
     MaybeIncrementCounts<T::level, decltype(counts_)> counts {counts_};
     counts.template increment<stats::Visited>();
 
-    MaybeRunStopwatch<T::isEvent_> sentry {stopwatch_};
+    MaybeRunStopwatch<T::level> sentry {stopwatch_};
     bool rc {true};
     try {
       // may want to change the return value from the worker to be the
@@ -83,8 +83,8 @@ namespace art {
     }
 
     // Ignore return code for non-event (e.g. run, subRun) calls
-    if (T::isEvent_ && filterAction_ == Veto) rc = !rc;
-    else if (!T::isEvent_ || filterAction_ == Ignore) rc = true;
+    if (T::level == Level::Event && filterAction_ == Veto) rc = !rc;
+    else if (T::level != Level::Event || filterAction_ == Ignore) rc = true;
 
     counts.update(rc);
     return rc;

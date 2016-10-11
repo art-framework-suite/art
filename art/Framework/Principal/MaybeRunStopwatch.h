@@ -10,6 +10,7 @@ calls the destructor which stops the clock.
 
 ----------------------------------------------------------------------*/
 
+#include "canvas/Persistency/Provenance/IDNumber.h"
 #include "cetlib/cpu_timer.h"
 
 namespace art {
@@ -18,8 +19,15 @@ namespace art {
     using timer_type = cet::cpu_timer;
   };
 
-  template <bool run>
+  template <Level>
   class MaybeRunStopwatch : Stopwatch {
+    using timer_type = cet::cpu_timer;
+  public:
+    MaybeRunStopwatch(timer_type&){}
+  };
+
+  template <>
+  class MaybeRunStopwatch<Level::Event> : Stopwatch {
   public:
 
     MaybeRunStopwatch(timer_type& timer): stopwatch_{timer} {
@@ -32,13 +40,6 @@ namespace art {
 
   private:
     timer_type& stopwatch_;
-  };
-
-  template <>
-  class MaybeRunStopwatch<false> : Stopwatch {
-  public:
-    using timer_type = cet::cpu_timer;
-    MaybeRunStopwatch(timer_type&){}
   };
 
 }

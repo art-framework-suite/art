@@ -247,7 +247,7 @@ bool art::Worker::doWork(typename T::MyPrincipal& p,
     rc = ImplDoWork<T::processing_action>::invoke(this, p, cpc);
     state_ = Pass;
 
-    if (T::isEvent_ && !rc)
+    if (T::level == Level::Event && !rc)
       state_ = Fail;
   }
 
@@ -260,7 +260,7 @@ bool art::Worker::doWork(typename T::MyPrincipal& p,
     // Get the action corresponding to this exception.  However, if
     // processing something other than an event (e.g. run, subRun)
     // always rethrow.
-    actions::ActionCodes action {T::isEvent_ ? actions_.find(e.root_cause()) : actions::Rethrow};
+    actions::ActionCodes action {T::level == Level::Event ? actions_.find(e.root_cause()) : actions::Rethrow};
 
     // If we are processing an endPath, treat SkipEvent or FailPath as
     // FailModule, so any subsequent OutputModules are still run.

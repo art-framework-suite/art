@@ -19,8 +19,8 @@ public:
   void addEvent();
   void addPass();
 
-  template <bool isEvent>
-  MaybeRunStopwatch<isEvent> maybeRunStopwatch() { return {stopwatch_};}
+  template <Level L>
+  MaybeRunStopwatch<L> maybeRunStopwatch() { return {stopwatch_};}
 
   WorkerMap const& workers() const;
   PathPtrs const& pathPtrs() const;

@@ -133,9 +133,9 @@ void art::Path::process(typename T::MyPrincipal& ep)
   int nwrwue {-1}; // numWorkersRunWithoutUnhandledException
   auto signaler = std::make_unique<PathSignalSentry<T>>(actReg_, name_, nwrwue, state_);
 
-  MaybeRunStopwatch<T::isEvent_> sentry {stopwatch_};
+  MaybeRunStopwatch<T::level> sentry {stopwatch_};
 
-  if (T::isEvent_) {
+  if (T::level == Level::Event) {
     ++timesRun_;
   }
   state_ = hlt::Ready;
@@ -151,15 +151,15 @@ void art::Path::process(typename T::MyPrincipal& ep)
     }
     catch(cet::exception& e) {
       // handleWorkerFailure may throw a new exception.
-      should_continue = handleWorkerFailure(e, nwrwue, T::isEvent_);
+      should_continue = handleWorkerFailure(e, nwrwue, T::level == Level::Event);
     }
     catch(...) {
-      recordUnknownException(nwrwue, T::isEvent_);
+      recordUnknownException(nwrwue, T::level == Level::Event);
       throw;
     }
   }
-  updateCounters(should_continue, T::isEvent_);
-  recordStatus(nwrwue, T::isEvent_);
+  updateCounters(should_continue, T::level == Level::Event);
+  recordStatus(nwrwue, T::level == Level::Event);
 }
 
 // ======================================================================

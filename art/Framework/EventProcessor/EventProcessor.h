@@ -248,7 +248,7 @@ try {
 }
 catch (cet::exception & ex) {
   actions::ActionCodes const action {
-    T::isEvent_ ? act_table_.find(ex.root_cause()) : actions::Rethrow
+    T::level == Level::Event ? act_table_.find(ex.root_cause()) : actions::Rethrow
   };
   switch (action) {
   case actions::IgnoreCompletely: {

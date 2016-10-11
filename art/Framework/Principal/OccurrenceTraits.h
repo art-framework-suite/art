@@ -32,7 +32,6 @@ namespace art {
     using MyPrincipal = EventPrincipal;
     constexpr static BranchActionType processing_action {BranchActionProcess};
     constexpr static Level level {L};
-    constexpr static bool isEvent_ {true};
     static void preScheduleSignal(ActivityRegistry* a, EventPrincipal * ep) {
       Event ev{*ep, ModuleDescription{}};
       a->sPreProcessEvent.invoke(ev);
@@ -69,7 +68,6 @@ namespace art {
     public:
       using MyPrincipal = RunPrincipal;
       constexpr static Level level {Level::Run};
-      constexpr static bool isEvent_ {false};
       constexpr static BranchActionType processing_action {BranchActionBegin};
 
       static void preScheduleSignal(ActivityRegistry* a, RunPrincipal* rp) {
@@ -99,7 +97,6 @@ namespace art {
 
       using MyPrincipal = RunPrincipal;
       constexpr static Level level {Level::Run};
-      constexpr static bool isEvent_ {false};
       constexpr static BranchActionType processing_action {BranchActionEnd};
 
       static void preScheduleSignal(ActivityRegistry* a, RunPrincipal const* rp) {
@@ -133,7 +130,6 @@ namespace art {
 
       using MyPrincipal = SubRunPrincipal;
       constexpr static Level level {Level::SubRun};
-      constexpr static bool isEvent_ {false};
       constexpr static BranchActionType processing_action {BranchActionBegin};
 
       static void preScheduleSignal(ActivityRegistry* a, SubRunPrincipal* srp) {
@@ -163,7 +159,6 @@ namespace art {
 
       using MyPrincipal = SubRunPrincipal;
       constexpr static Level level {Level::SubRun};
-      constexpr static bool isEvent_ {false};
       constexpr static BranchActionType processing_action {BranchActionEnd};
 
       static void preScheduleSignal(ActivityRegistry* a, SubRunPrincipal const* srp) {

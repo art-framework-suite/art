@@ -128,8 +128,8 @@ Schedule::process(typename T::MyPrincipal& principal)
     w->reset();
   });
   triggerPathsInfo_.pathResults().reset();
-  MaybeRunStopwatch<T::isEvent_> sentry {triggerPathsInfo_.maybeRunStopwatch<T::isEvent_>()};
-  if (T::isEvent_) {
+  MaybeRunStopwatch<T::level> sentry {triggerPathsInfo_.maybeRunStopwatch<T::level>()};
+  if (T::level == Level::Event) {
     triggerPathsInfo_.addEvent();
     EventPrincipal& ep = dynamic_cast<EventPrincipal&>(principal);
     // FIXME: This can work with generic Principals just as soon as
@@ -142,7 +142,7 @@ Schedule::process(typename T::MyPrincipal& principal)
     }
   }
   try {
-    if (runTriggerPaths_<T>(principal) && T::isEvent_) {
+    if (runTriggerPaths_<T>(principal) && T::level == Level::Event) {
       triggerPathsInfo_.addPass();
     }
     if (results_inserter_.get()) {
@@ -150,7 +150,7 @@ Schedule::process(typename T::MyPrincipal& principal)
     }
   }
   catch (cet::exception& e) {
-    actions::ActionCodes action = (T::isEvent_ ? act_table_->find(e.root_cause()) : actions::Rethrow);
+    actions::ActionCodes action = (T::level == Level::Event ? act_table_->find(e.root_cause()) : actions::Rethrow);
     assert(action != actions::IgnoreCompletely);
     assert(action != actions::FailPath);
     assert(action != actions::FailModule);

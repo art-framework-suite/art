@@ -120,8 +120,8 @@ art::EndPathExecutor::
 process(typename T::MyPrincipal & ep)
 {
   this->resetAll();
-  auto sentry (endPathInfo_.maybeRunStopwatch<T::isEvent_>());
-  if (T::isEvent_) {
+  auto sentry (endPathInfo_.maybeRunStopwatch<T::level>());
+  if (T::level == Level::Event) {
     endPathInfo_.addEvent();
   }
   try {
@@ -130,7 +130,7 @@ process(typename T::MyPrincipal & ep)
     }
   }
   catch (cet::exception & ex) {
-    actions::ActionCodes const action {T::isEvent_ ? act_table_->find(ex.root_cause()) : actions::Rethrow};
+    actions::ActionCodes const action {T::level == Level::Event ? act_table_->find(ex.root_cause()) : actions::Rethrow};
     switch (action) {
     case actions::IgnoreCompletely: {
       mf::LogWarning(ex.category())
