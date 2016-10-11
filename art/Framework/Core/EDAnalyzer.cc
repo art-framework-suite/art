@@ -20,7 +20,7 @@ namespace art
     Event e {const_cast<EventPrincipal&>(ep), moduleDescription_};
     if (wantAllEvents() || wantEvent(e)) {
       analyze(e);
-      counts.increment<true, stats::Run, stats::Passed>();
+      counts.increment<stats::Run, stats::Passed>();
     }
     return true;
   }

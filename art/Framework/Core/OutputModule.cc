@@ -222,7 +222,7 @@ doEvent(EventPrincipal const& ep, CurrentProcessingContext const* cpc, CountingS
   Event const e {const_cast<EventPrincipal&>(ep), moduleDescription_};
   if (wantAllEvents() || wantEvent(e)) {
     event(ep);
-    counts.increment<true, stats::Run, stats::Passed>();
+    counts.increment<stats::Run, stats::Passed>();
   }
   return true;
 }

@@ -66,9 +66,10 @@ namespace art {
   bool WorkerInPath::runWorker(typename T::MyPrincipal& ep,
                                CurrentProcessingContext const* cpc)
   {
-    MaybeRunStopwatch<T::isEvent_> sentry {stopwatch_};
-    counts_.increment<T::isEvent_, stats::Visited>();
+    MaybeIncrementCounts<T::level, decltype(counts_)> counts {counts_};
+    counts.template increment<stats::Visited>();
 
+    MaybeRunStopwatch<T::isEvent_> sentry {stopwatch_};
     bool rc {true};
     try {
       // may want to change the return value from the worker to be the
@@ -77,7 +78,7 @@ namespace art {
       rc = worker_->doWork<T>(ep, cpc);
     }
     catch(...) {
-      counts_.increment<T::isEvent_, stats::ExceptionThrown>();
+      counts.template increment<stats::ExceptionThrown>();
       throw;
     }
 
@@ -85,7 +86,7 @@ namespace art {
     if (T::isEvent_ && filterAction_ == Veto) rc = !rc;
     else if (!T::isEvent_ || filterAction_ == Ignore) rc = true;
 
-    counts_.update<T::isEvent_>(rc);
+    counts.update(rc);
     return rc;
   }  // runWorker<>()
 

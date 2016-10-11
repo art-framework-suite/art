@@ -24,18 +24,17 @@ namespace art {
     template <typename FIELD>
     std::size_t times() const;
 
-    template <bool isEvent>
-    void increment() {}
-
-    template <bool isEvent, typename HEAD_FIELD, typename... TAIL_FIELDS>
+    template <typename HEAD_FIELD>
     void increment();
 
-    template <bool isEvent>
-    void update(bool const rc);
+    template <typename HEAD_FIELD, typename... TAIL_FIELDS>
+    std::enable_if_t<(sizeof...(TAIL_FIELDS)>0)> increment();
 
+    void update(bool const rc);
     void reset();
 
   private:
+
     std::tuple<ARGS...> counts_; // Value-initialized
   };
 
@@ -61,26 +60,32 @@ namespace art {
   }
 
   template <typename... ARGS>
-  template <bool isEvent, typename HEAD_FIELD, typename... TAIL_FIELDS>
+  template <typename FIELD>
   void
   ExecutionCounts<ARGS...>::increment()
   {
-    if (isEvent) {
-      ++std::get<HEAD_FIELD>(counts_).value;
-      increment<true, TAIL_FIELDS...>();
-    }
+    ++std::get<FIELD>(counts_).value;
   }
 
+  template <typename... ARGS>
+  template <typename HEAD_FIELD, typename... TAIL_FIELDS>
+  std::enable_if_t<(sizeof...(TAIL_FIELDS)>0)>
+  ExecutionCounts<ARGS...>::increment()
+  {
+    increment<HEAD_FIELD>();
+    increment<TAIL_FIELDS...>();
+  }
+
+
   template <typename ... ARGS>
-  template <bool isEvent>
   void
   ExecutionCounts<ARGS...>::update(bool const rc)
   {
     if (rc) {
-      increment<isEvent,stats::Passed>();
+      increment<stats::Passed>();
     }
     else {
-      increment<isEvent,stats::Failed>();
+      increment<stats::Failed>();
     }
   }
 

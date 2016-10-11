@@ -31,6 +31,7 @@ namespace art {
     static_assert(L==Level::Event, "ProcessPackage can be used only for the Event level.\n");
     using MyPrincipal = EventPrincipal;
     constexpr static BranchActionType processing_action {BranchActionProcess};
+    constexpr static Level level {L};
     constexpr static bool isEvent_ {true};
     static void preScheduleSignal(ActivityRegistry* a, EventPrincipal * ep) {
       Event ev{*ep, ModuleDescription{}};
@@ -67,6 +68,7 @@ namespace art {
     class Begin {
     public:
       using MyPrincipal = RunPrincipal;
+      constexpr static Level level {Level::Run};
       constexpr static bool isEvent_ {false};
       constexpr static BranchActionType processing_action {BranchActionBegin};
 
@@ -96,6 +98,7 @@ namespace art {
     public:
 
       using MyPrincipal = RunPrincipal;
+      constexpr static Level level {Level::Run};
       constexpr static bool isEvent_ {false};
       constexpr static BranchActionType processing_action {BranchActionEnd};
 
@@ -129,6 +132,7 @@ namespace art {
     public:
 
       using MyPrincipal = SubRunPrincipal;
+      constexpr static Level level {Level::SubRun};
       constexpr static bool isEvent_ {false};
       constexpr static BranchActionType processing_action {BranchActionBegin};
 
@@ -158,6 +162,7 @@ namespace art {
     public:
 
       using MyPrincipal = SubRunPrincipal;
+      constexpr static Level level {Level::SubRun};
       constexpr static bool isEvent_ {false};
       constexpr static BranchActionType processing_action {BranchActionEnd};
 

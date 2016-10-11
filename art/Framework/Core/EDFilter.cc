@@ -21,9 +21,9 @@ namespace art
     detail::CPCSentry sentry {current_context_, cpc};
     Event e {ep, moduleDescription_};
     bool const rc = filter(e);
-    counts.increment<true, stats::Run>();
+    counts.increment<stats::Run>();
     e.commit_(checkPutProducts_, expectedProducts());
-    counts.update<true>(rc);
+    counts.update(rc);
     return rc;
   }
 

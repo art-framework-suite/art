@@ -28,6 +28,7 @@ reused until the worker is reset().
 #include "art/Framework/Principal/BranchActionType.h"
 #include "art/Framework/Principal/CurrentProcessingContext.h"
 #include "art/Framework/Principal/ExecutionCounts.h"
+#include "art/Framework/Principal/MaybeIncrementCounts.h"
 #include "art/Framework/Principal/MaybeRunStopwatch.h"
 #include "art/Framework/Principal/fwd.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
@@ -210,7 +211,8 @@ template <typename T>
 bool art::Worker::doWork(typename T::MyPrincipal& p,
                          CurrentProcessingContext const* cpc)
 {
-  counts_.increment<T::isEvent_,stats::Visited>();
+  MaybeIncrementCounts<T::level, decltype(counts_)> counts {counts_};
+  counts.template increment<stats::Visited>();
 
   switch(state_) {
   case Ready: break;
@@ -253,7 +255,7 @@ bool art::Worker::doWork(typename T::MyPrincipal& p,
 
     // NOTE: the warning printed as a result of ignoring or failing a
     // module will only be printed during the full true processing
-    // pass of this module
+    // pass of this module.
 
     // Get the action corresponding to this exception.  However, if
     // processing something other than an event (e.g. run, subRun)
@@ -268,7 +270,7 @@ bool art::Worker::doWork(typename T::MyPrincipal& p,
     switch(action) {
     case actions::IgnoreCompletely: {
       rc=true;
-      counts_.increment<true, stats::Passed>();
+      counts.template increment<stats::Passed>();
       state_ = Pass;
       mf::LogWarning("IgnoreCompletely")
         << "Module ignored an exception\n"
@@ -281,26 +283,25 @@ bool art::Worker::doWork(typename T::MyPrincipal& p,
       mf::LogWarning("FailModule")
         << "Module failed due to an exception\n"
         << e.what() << "\n";
-      counts_.increment<true, stats::Failed>();
+      counts.template increment<stats::Failed>();
       state_ = Fail;
       break;
     }
 
     default: {
 
-      // we should not need to include the event/run/module names the
-      // exception because the error logger will pick this up
-      // automatically.  I'm leaving it in until this is verified
+      // We should not need to include the event/run/module names.
+      // The exception because the error logger will pick this up
+      // automatically.  I'm leaving it in until this is verified.
 
       // here we simply add a small amount of data to the exception to
       // add some context, we could have rethrown it as something else
       // and embedded with this exception as an argument to the
       // constructor.
-
-      counts_.increment<T::isEvent_, stats::ExceptionThrown>();
+      counts.template increment<stats::ExceptionThrown>();
       state_ = Exception;
       e << "cet::exception going through module ";
-      detail::exceptionContext(md_, p, e);
+      //      detail::exceptionContext(md_, p, e);
       if (auto edmEx = dynamic_cast<art::Exception*>(&e)) {
         cached_exception_ = std::make_shared<art::Exception>(*edmEx);
       } else {
@@ -312,7 +313,7 @@ bool art::Worker::doWork(typename T::MyPrincipal& p,
   }
 
   catch(std::bad_alloc const& bda) {
-    counts_.increment<T::isEvent_, stats::ExceptionThrown>();
+    counts.template increment<stats::ExceptionThrown>();
     state_ = Exception;
     cached_exception_ = std::make_shared<art::Exception>(errors::BadAlloc);
     *cached_exception_
@@ -322,7 +323,7 @@ bool art::Worker::doWork(typename T::MyPrincipal& p,
     throw *cached_exception_;
   }
   catch(std::exception const& e) {
-    counts_.increment<T::isEvent_, stats::ExceptionThrown>();
+    counts.template increment<stats::ExceptionThrown>();
     state_ = Exception;
     cached_exception_ = std::make_shared<art::Exception>(errors::StdException);
     *cached_exception_
@@ -332,7 +333,7 @@ bool art::Worker::doWork(typename T::MyPrincipal& p,
     throw *cached_exception_;
   }
   catch(std::string const& s) {
-    counts_.increment<T::isEvent_, stats::ExceptionThrown>();
+    counts.template increment<stats::ExceptionThrown>();
     state_ = Exception;
     cached_exception_ = std::make_shared<art::Exception>(errors::BadExceptionType, "std::string");
     *cached_exception_
@@ -342,7 +343,7 @@ bool art::Worker::doWork(typename T::MyPrincipal& p,
     throw *cached_exception_;
   }
   catch(char const* c) {
-    counts_.increment<T::isEvent_, stats::ExceptionThrown>();
+    counts.template increment<stats::ExceptionThrown>();
     state_ = Exception;
     cached_exception_ = std::make_shared<art::Exception>(errors::BadExceptionType, "const char *");
     *cached_exception_
@@ -352,7 +353,7 @@ bool art::Worker::doWork(typename T::MyPrincipal& p,
     throw *cached_exception_;
   }
   catch(...) {
-    counts_.increment<T::isEvent_, stats::ExceptionThrown>();
+    counts.template increment<stats::ExceptionThrown>();
     state_ = Exception;
     cached_exception_ = std::make_shared<art::Exception>(errors::Unknown, "repeated");
     *cached_exception_

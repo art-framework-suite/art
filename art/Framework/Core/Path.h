@@ -127,7 +127,7 @@ namespace art {
 template <typename T>
 void art::Path::process(typename T::MyPrincipal& ep)
 {
-  //Create the PathSignalSentry before the MaybeRunStopwatch so that
+  // Create the PathSignalSentry before the MaybeRunStopwatch so that
   // we only record the time spent in the path not from the signal
 
   int nwrwue {-1}; // numWorkersRunWithoutUnhandledException
@@ -140,21 +140,14 @@ void art::Path::process(typename T::MyPrincipal& ep)
   }
   state_ = hlt::Ready;
 
-
   bool should_continue {true};
-  CurrentProcessingContext cpc{&name_, bitPosition(), isEndPath_};
+  CurrentProcessingContext cpc {&name_, bitPosition(), isEndPath_};
 
-  WorkersInPath::size_type idx {0};
-  // It seems likely that 'nwrwue' and 'idx' can never differ ---
-  // if so, we should remove one of them!.
-  for (WorkersInPath::iterator i = workers_.begin(), end = workers_.end();
-       i != end && should_continue;
-       ++i, ++idx) {
+  for (auto it = workers_.begin(), end = workers_.end(); it != end && should_continue; ++it) {
     ++nwrwue;
-    assert (static_cast<int>(idx) == nwrwue);
     try {
-      cpc.activate(idx, i->getWorker()->descPtr());
-      should_continue = i->runWorker<T>(ep, &cpc);
+      cpc.activate(nwrwue, it->getWorker()->descPtr());
+      should_continue = it->runWorker<T>(ep, &cpc);
     }
     catch(cet::exception& e) {
       // handleWorkerFailure may throw a new exception.

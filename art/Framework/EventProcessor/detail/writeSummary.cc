@@ -30,6 +30,23 @@ namespace {
     }
   }
 
+  void workersInEndPathTriggerReport(int const firstBit,
+                                  int const bitPosition,
+                                  art::Path::WorkersInPath const& workersInPath)
+  {
+    for (auto const& workerInPath : workersInPath) {
+      auto const success = workerInPath.timesPassed() + workerInPath.timesFailed();
+      auto const visited = success + workerInPath.timesExcept();
+      LogAbsolute("ArtSummary") << "TrigReport "
+                                << right << setw(5)  << firstBit
+                                << right << setw(5)  << bitPosition << " "
+                                << right << setw(10) << visited << " "
+                                << right << setw(10) << success << " "
+                                << right << setw(10) << visited-success << " "
+                                << workerInPath.getWorker()->description().moduleLabel() << "";
+    }
+  }
+
   void workersInPathTimeReport(unsigned long const totalEvents,
                                art::Path::WorkersInPath const& workersInPath)
   {
@@ -127,11 +144,10 @@ art::detail::triggerReport(PathsInfo const& epi, PathsInfo const& tpi, bool cons
     LogAbsolute("ArtSummary") << "TrigReport "
                               << right << setw(10) << "Trig Bit#" << " "
                               << right << setw(10) << "Visited" << " "
-                              << right << setw(10) << "Passed" << " "
-                              << right << setw(10) << "Failed" << " "
+                              << right << setw(10) << "Success" << " "
                               << right << setw(10) << "Error" << " "
                               << "Name" << "";
-    workersInPathTriggerReport(0, path->bitPosition(), path->workersInPath());
+    workersInEndPathTriggerReport(0, path->bitPosition(), path->workersInPath());
   }
 
   if (wantSummary) {
