@@ -110,9 +110,9 @@ TrigReport ---------- Event  Summary ------------
 TrigReport Events total = 1000 passed = 1000 failed = 0
 
 TrigReport ------ Modules in End-Path: end_path ------------
-TrigReport  Trig Bit#    Visited     Passed     Failed      Error Name
-TrigReport     0    0       1000       1000          0          0 mod1
-TrigReport     0    0       1000       1000          0          0 mod2
+TrigReport  Trig Bit#        Run    Success      Error Name
+TrigReport     0    0       1000       1000          0 mod1
+TrigReport     0    0       1000       1000          0 mod2
 
 TimeReport ---------- Time  Summary ---[sec]----
 TimeReport CPU = <duration> Real = <duration>
