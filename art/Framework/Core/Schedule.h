@@ -28,7 +28,7 @@
 #include "art/Framework/Core/PathManager.h"
 #include "art/Framework/Principal/Actions.h"
 #include "art/Framework/Principal/EventPrincipal.h"
-#include "art/Framework/Principal/OccurrenceTraits.h"
+#include "art/Framework/Principal/PrincipalPackages.h"
 #include "art/Framework/Principal/Provenance.h"
 #include "art/Framework/Principal/MaybeRunStopwatch.h"
 #include "art/Framework/Principal/Worker.h"

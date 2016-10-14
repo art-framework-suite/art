@@ -1,9 +1,10 @@
-#ifndef art_Framework_Principal_OccurrenceTraits_h
-#define art_Framework_Principal_OccurrenceTraits_h
+#ifndef art_Framework_Principal_PrincipalPackages_h
+#define art_Framework_Principal_PrincipalPackages_h
 
 // ======================================================================
 //
-// OccurrenceTraits
+// PrincipalPackages: encapsulates information necessary for
+//                    processing of Events, SubRuns, and Runs.
 //
 // ======================================================================
 
@@ -23,7 +24,6 @@
 // ----------------------------------------------------------------------
 
 namespace art {
-  template <typename T, BranchActionType B> class OccurrenceTraits;
 
   template <Level L>
   class ProcessPackage {
@@ -193,7 +193,7 @@ namespace art {
 
 // ======================================================================
 
-#endif /* art_Framework_Principal_OccurrenceTraits_h */
+#endif /* art_Framework_Principal_ProcessPackage_h */
 
 // Local Variables:
 // mode: c++

@@ -10,7 +10,7 @@
 */
 
 #include "art/Framework/Principal/CurrentProcessingContext.h"
-#include "art/Framework/Principal/OccurrenceTraits.h"
+#include "art/Framework/Principal/PrincipalPackages.h"
 #include "art/Framework/Principal/MaybeRunStopwatch.h"
 #include "art/Framework/Principal/Worker.h"
 #include "art/Framework/Core/WorkerInPath.h"

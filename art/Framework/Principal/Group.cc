@@ -2,7 +2,7 @@
 // vim: set sw=2:
 
 #include "art/Framework/Principal/EventPrincipal.h"
-#include "art/Framework/Principal/OccurrenceTraits.h"
+#include "art/Framework/Principal/PrincipalPackages.h"
 #include "art/Framework/Principal/Worker.h"
 #include "art/Persistency/Provenance/ProductMetaData.h"
 #include "canvas/Persistency/Provenance/BranchKey.h"
