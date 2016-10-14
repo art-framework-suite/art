@@ -35,15 +35,15 @@ namespace {
                                   art::Path::WorkersInPath const& workersInPath)
   {
     for (auto const& workerInPath : workersInPath) {
-      auto const success = workerInPath.timesPassed() + workerInPath.timesFailed();
-      auto const visited = success + workerInPath.timesExcept();
+      auto worker = workerInPath.getWorker();
+      assert(worker->timesFailed()==0);
       LogAbsolute("ArtSummary") << "TrigReport "
                                 << right << setw(5)  << firstBit
                                 << right << setw(5)  << bitPosition << " "
-                                << right << setw(10) << visited << " "
-                                << right << setw(10) << success << " "
-                                << right << setw(10) << visited-success << " "
-                                << workerInPath.getWorker()->description().moduleLabel() << "";
+                                << right << setw(10) << worker->timesRun() << " " // proxy for visited
+                                << right << setw(10) << worker->timesPassed() << " "
+                                << right << setw(10) << worker->timesExcept() << " "
+                                << worker->description().moduleLabel() << "";
     }
   }
 
@@ -109,17 +109,16 @@ art::detail::triggerReport(PathsInfo const& epi, PathsInfo const& tpi, bool cons
     LogAbsolute("ArtSummary") << "TrigReport "
                               << right << setw(10) << "Trig Bit#" << " "
                               << right << setw(10) << "Run" << " "
-                              << right << setw(10) << "Passed" << " "
-                              << right << setw(10) << "Failed" << " "
+                              << right << setw(10) << "Success" << " "
                               << right << setw(10) << "Error" << " "
                               << "Name" << "";
     for (auto const& path : epi.pathPtrs()) {
+      assert(path->timesFailed()==0);
       LogAbsolute("ArtSummary") << "TrigReport "
                                 << right << setw(5) << 0
                                 << right << setw(5) << path->bitPosition() << " "
                                 << right << setw(10) << path->timesRun() << " "
                                 << right << setw(10) << path->timesPassed() << " "
-                                << right << setw(10) << path->timesFailed() << " "
                                 << right << setw(10) << path->timesExcept() << " "
                                 << path->name() << "";
     }
@@ -143,7 +142,7 @@ art::detail::triggerReport(PathsInfo const& epi, PathsInfo const& tpi, bool cons
     LogAbsolute("ArtSummary") << "TrigReport " << "------ Modules in End-Path: " << path->name() << " ------------";
     LogAbsolute("ArtSummary") << "TrigReport "
                               << right << setw(10) << "Trig Bit#" << " "
-                              << right << setw(10) << "Visited" << " "
+                              << right << setw(10) << "Run" << " "
                               << right << setw(10) << "Success" << " "
                               << right << setw(10) << "Error" << " "
                               << "Name" << "";
@@ -151,6 +150,8 @@ art::detail::triggerReport(PathsInfo const& epi, PathsInfo const& tpi, bool cons
   }
 
   if (wantSummary) {
+    // This table can arguably be removed since all summary
+    // information is better described aboved.
     LogAbsolute("ArtSummary") << "";
     LogAbsolute("ArtSummary") << "TrigReport " << "---------- Module Summary ------------";
     LogAbsolute("ArtSummary") << "TrigReport "
@@ -160,17 +161,29 @@ art::detail::triggerReport(PathsInfo const& epi, PathsInfo const& tpi, bool cons
                               << right << setw(10) << "Failed" << " "
                               << right << setw(10) << "Error" << " "
                               << "Name" << "";
-    auto workerstats = [](WorkerMap::value_type const& val) {
+
+    for (auto const& val: tpi.workers()) {
       LogAbsolute("ArtSummary") << "TrigReport "
-      << right << setw(10) << val.second->timesVisited() << " "
-      << right << setw(10) << val.second->timesRun() << " "
-      << right << setw(10) << val.second->timesPassed() << " "
-      << right << setw(10) << val.second->timesFailed() << " "
-      << right << setw(10) << val.second->timesExcept() << " "
-      << val.first << "";
-    };
-    cet::for_all(tpi.workers(), workerstats);
-    cet::for_all(epi.workers(), workerstats);
+                                << right << setw(10) << val.second->timesVisited() << " "
+                                << right << setw(10) << val.second->timesRun() << " "
+                                << right << setw(10) << val.second->timesPassed() << " "
+                                << right << setw(10) << val.second->timesFailed() << " "
+                                << right << setw(10) << val.second->timesExcept() << " "
+                                << val.first << "";
+    }
+
+    for (auto const& val: epi.workers()) {
+      // Instead of timesVisited(), which is confusing for the user
+      // for end-path modules, we just report timesRun() as a proxy
+      // for visited.
+      LogAbsolute("ArtSummary") << "TrigReport "
+                                << right << setw(10) << val.second->timesVisited() << " "
+                                << right << setw(10) << val.second->timesRun() << " "
+                                << right << setw(10) << val.second->timesPassed() << " "
+                                << right << setw(10) << val.second->timesFailed() << " "
+                                << right << setw(10) << val.second->timesExcept() << " "
+                                << val.first << "";
+    }
   }
 }
 
