@@ -21,6 +21,7 @@ extern "C" {
 #include "sqlite3.h"
 }
 
+#include <cstddef>
 #include <iomanip>
 #include <iostream>
 #include <iterator>
@@ -53,11 +54,11 @@ size_t
 db_size(sqlite3 * db)
 {
   sqlite3_stmt * stmt;
-  sqlite3_prepare_v2(db, "PRAGMA page_size;", -1, &stmt, NULL);
+  sqlite3_prepare_v2(db, "PRAGMA page_size;", -1, &stmt, nullptr);
   sqlite3_step(stmt);
   size_t page_size = sqlite3_column_int64(stmt, 0);
   sqlite3_finalize(stmt);
-  sqlite3_prepare_v2(db, "PRAGMA page_count;", -1, &stmt, NULL);
+  sqlite3_prepare_v2(db, "PRAGMA page_count;", -1, &stmt, nullptr);
   sqlite3_step(stmt);
   size_t page_count = sqlite3_column_int64(stmt, 0);
   sqlite3_finalize(stmt);

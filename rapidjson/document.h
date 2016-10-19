@@ -306,7 +306,7 @@ struct GenericStringRef {
             GenericValue instead.
      */
     explicit GenericStringRef(const CharType* str)
-        : s(str), length(internal::StrLen(str)){ RAPIDJSON_ASSERT(s != NULL); }
+        : s(str), length(internal::StrLen(str)){ RAPIDJSON_ASSERT(s != nullptr); }
 
     //! Create constant string reference from pointer and length
     /*! \param str constant string, lifetime assumed to be longer than the use of the string in e.g. a GenericValue
@@ -316,7 +316,7 @@ struct GenericStringRef {
         \note Constant complexity.
      */
     GenericStringRef(const CharType* str, SizeType len)
-        : s(str), length(len) { RAPIDJSON_ASSERT(s != NULL); }
+        : s(str), length(len) { RAPIDJSON_ASSERT(s != nullptr); }
 
     //! implicit conversion to plain CharType pointer
     operator const Ch *() const { return s; }
@@ -1562,7 +1562,7 @@ private:
 
     //! Initialize this value as copy string with initial data, without calling destructor.
     void SetStringRaw(StringRefType s, Allocator& allocator) {
-        Ch* str = NULL;
+        Ch* str = nullptr;
         if(ShortString::Usable(s.length)) {
             flags_ = kShortStringFlag;
             data_.ss.SetLength(s.length);

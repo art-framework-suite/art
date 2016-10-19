@@ -22,6 +22,7 @@ extern "C" {
 
 #include <algorithm>
 #include <cstring>
+#include <cstddef>
 #include <cstdlib>
 #include <iostream>
 #include <iterator>
@@ -180,7 +181,7 @@ bool read_all_fc_metadata_entries(TFile & file,
   art::SQLite3Wrapper sqliteDB {&file, "RootFileDB"};
   // Read the entries into memory.
   sqlite3_stmt * stmt = 0;
-  sqlite3_prepare_v2(sqliteDB,"SELECT rowid, Name, Value from FileCatalog_metadata;", -1, &stmt, NULL);
+  sqlite3_prepare_v2(sqliteDB,"SELECT rowid, Name, Value from FileCatalog_metadata;", -1, &stmt, nullptr);
   bool row_found = false;
   int sqlite_status = SQLITE_OK;
   while ((sqlite_status = sqlite3_step(stmt)) == SQLITE_ROW) {

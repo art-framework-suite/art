@@ -41,6 +41,7 @@ typedef sqlite_int64 i64;
 #endif // TKEYVFS_NO_ROOT
 
 #include <cassert>
+#include <cstddef>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -481,10 +482,10 @@ static int closeUnixFile(sqlite3_file * id)
     }
   }
 #endif // TKEYVFS_NO_ROOT
-  if (pFile->pBuf != NULL) {
+  if (pFile->pBuf != nullptr) {
     free(pFile->pBuf);
   }
-  if (pFile->zPath != NULL) {
+  if (pFile->zPath != nullptr) {
     free((void *)pFile->zPath);
   }
   memset(pFile, 0, sizeof(unixFile));
@@ -554,7 +555,7 @@ static int fcntlSizeHint(unixFile * pFile, i64 nByte)
     if ((nSize > pFile->fileSize) && (nAlloc > pFile->bufAllocated)) {
       if (nAlloc > pFile->bufAllocated) {
         char * pNewBuf = (char *)realloc((void *)pFile->pBuf, (size_t)nAlloc);
-        if (pNewBuf == NULL) {
+        if (pNewBuf == nullptr) {
           /**/
 #if TKEYVFS_TRACE
           fprintf(stderr, "End   fcntlSizeHint ...\n");
@@ -635,7 +636,7 @@ static int seekAndWrite(unixFile * id, i64 offset, const void * pBuf, int cnt)
     }
     newBufSize = ((nByte + (i64)(MEMPAGE - 1)) / ((i64)MEMPAGE)) * ((i64)MEMPAGE);
     char * pNewBuf = (char *)realloc((void *)id->pBuf, (size_t)(newBufSize));
-    if (pNewBuf == NULL) {
+    if (pNewBuf == nullptr) {
       id->lastErrno = errno;
 #if TKEYVFS_TRACE
       fprintf(stderr, "End   seekAndWrite ...\n");
@@ -801,7 +802,7 @@ static int unixTruncate(sqlite3_file * id, i64 nByte)
   if (nByte == 0) {
     free(pFile->pBuf);
     pFile->pBuf = (char *)calloc(1, MEMPAGE);
-    if (pFile->pBuf == NULL) {
+    if (pFile->pBuf == nullptr) {
       pFile->bufAllocated = 0;
       pFile->fileSize = 0;
       pFile->lastErrno = errno;
@@ -817,7 +818,7 @@ static int unixTruncate(sqlite3_file * id, i64 nByte)
     i64 newBufSize = ((nByte + (i64)(MEMPAGE - 1)) / ((i64)MEMPAGE)) * ((i64)MEMPAGE);
     i64 zeroCnt = newBufSize - nByte;
     char * pNewBuf = (char *)realloc((void *)pFile->pBuf, (size_t)newBufSize);
-    if (pNewBuf == NULL) {
+    if (pNewBuf == nullptr) {
       pFile->lastErrno = errno;
 #if TKEYVFS_TRACE
       fprintf(stderr, "End   unixTruncate ...\n");
@@ -1124,7 +1125,7 @@ static int unixOpen(
   const char * zName = zPath;
 #if TKEYVFS_TRACE
   fprintf(stderr, "Begin unixOpen ...\n");
-  if (zPath != NULL) {
+  if (zPath != nullptr) {
     fprintf(stderr, "filename: %s\n", zPath);
   }
 #endif /* TKEYVFS_TRACE */
@@ -1139,16 +1140,16 @@ static int unixOpen(
     }
     zName = zTmpname;
   }
-  if (zName != NULL) {
+  if (zName != nullptr) {
     p->zPath = (char *)malloc(strlen(zName) + 1);
-    if (p->zPath != NULL) {
+    if (p->zPath != nullptr) {
       (void *)strcpy((char *)p->zPath, zName);
     }
   }
   p->lastErrno = 0;
   p->pMethod = &nolockIoMethods;
 #ifndef TKEYVFS_NO_ROOT
-  p->rootFile = (TFile *)NULL;
+  p->rootFile = nullptr;
   if (eType & SQLITE_OPEN_MAIN_DB) {
     p->rootFile = gRootFile;
   }
@@ -1194,7 +1195,7 @@ static int unixOpen(
     nAlloc = MEMPAGE;
     p->pBuf = (char *)calloc(1, MEMPAGE);
 #endif // TKEYVFS_NO_ROOT
-    if (p->pBuf == NULL) {
+    if (p->pBuf == nullptr) {
       /**/
 #if TKEYVFS_TRACE
       fprintf(stderr, "End   unixOpen ...\n");
@@ -1213,7 +1214,7 @@ static int unixOpen(
   }
   else {
     p->pBuf = (char *)calloc(1, MEMPAGE);
-    if (p->pBuf == NULL) {
+    if (p->pBuf == nullptr) {
       /**/
 #if TKEYVFS_TRACE
       fprintf(stderr, "End   unixOpen ...\n");
@@ -1245,7 +1246,7 @@ static int unixDelete(
   UNUSED_PARAMETER(NotUsed);
 #if TKEYVFS_TRACE
   fprintf(stderr, "Begin unixDelete ...\n");
-  if (zPath != NULL) {
+  if (zPath != nullptr) {
     fprintf(stderr, "filename: %s\n", zPath);
   }
 #endif /* TKEYVFS_TRACE */
@@ -1276,7 +1277,7 @@ static int unixAccess(
   UNUSED_PARAMETER(NotUsed);
 #if TKEYVFS_TRACE
   fprintf(stderr, "Begin unixAccess ...\n");
-  if (zPath != NULL) {
+  if (zPath != nullptr) {
     fprintf(stderr, "filename: %s\n", zPath);
   }
 #endif /* TKEYVFS_TRACE */
@@ -1331,7 +1332,7 @@ static int unixFullPathname(
   /**/
 #if TKEYVFS_TRACE
   fprintf(stderr, "Begin unixFullPathName ...\n");
-  if (zPath != NULL) {
+  if (zPath != nullptr) {
     fprintf(stderr, "filename: %s\n", zPath);
   }
 #endif /* TKEYVFS_TRACE */
@@ -1582,7 +1583,7 @@ static int unixSetSystemCall(
 #endif /* TKEYVFS_TRACE */
   if (zName == 0) {
     /* If no zName is given, restore all system calls to their default
-    ** settings and return NULL
+    ** settings and return nullptr
     */
     rc = SQLITE_OK;
     for (i = 0; i < sizeof(aSyscall) / sizeof(aSyscall[0]); i++) {
@@ -1616,8 +1617,8 @@ static int unixSetSystemCall(
 }
 
 /*
-** Return the value of a system call.  Return NULL if zName is not a
-** recognized system call name.  NULL is also returned if the system call
+** Return the value of a system call.  Return nullptr if zName is not a
+** recognized system call name.  nullptr is also returned if the system call
 ** is currently undefined.
 */
 static sqlite3_syscall_ptr unixGetSystemCall(sqlite3_vfs * pNotUsed, const char * zName)
@@ -1643,8 +1644,8 @@ static sqlite3_syscall_ptr unixGetSystemCall(sqlite3_vfs * pNotUsed, const char 
 }
 
 /*
-** Return the name of the first system call after zName.  If zName==NULL
-** then return the name of the first system call.  Return NULL if zName
+** Return the name of the first system call after zName.  If zName==nullptr
+** then return the name of the first system call.  Return nullptr if zName
 ** is the last system call or if zName is not the name of a valid
 ** system call.
 */
@@ -1783,7 +1784,7 @@ extern "C" {
 #endif // TKEYVFS_NO_ROOT
     return sqlite3_open_v2(filename, ppDb, flags,
 #ifdef TKEYVFS_NO_ROOT
-                           NULL
+                           nullptr
 #else
                            "tkeyvfs"
 #endif
