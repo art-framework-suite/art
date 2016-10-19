@@ -21,8 +21,6 @@
 
 #include <functional>
 
-#include "TBranch.h"
-
 namespace art {
   template <typename PROD> class MixOp;
 }
