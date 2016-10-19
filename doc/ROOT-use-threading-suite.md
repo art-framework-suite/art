@@ -1,6 +1,6 @@
-# ROOT use in the _art_ suite from a threading perspective.
+# ROOT use in the _art_ suite from a threading perspective
 
-## Overview.
+## Overview
 
 Non-test files including ROOT headers comprise 58 files, split between _canvas_ and _art_:
 
@@ -28,7 +28,7 @@ Non-test files including ROOT headers comprise 58 files, split between _canvas_ 
 `art/art/Framework/Services/Optional/TFileDirectory.h`\
 `art/art/Framework/Services/Optional/detail/TH1AddDirectorySentry.cc`
 
-    These files collectively provide the `art::TFileService`{.cpp} service. See below for more details.
+    These files collectively provide the `art::TFileService`{.cpp} service. See ["`art::TFileService`{.cpp} and friends"](#arttfileservice-and-friends) below for more details.
 
 * `art/art/Framework/IO/Root/BranchMapperWithReader.h`\
 `art/art/Framework/IO/Root/Inputfwd.h`\
@@ -76,12 +76,12 @@ Non-test files including ROOT headers comprise 58 files, split between _canvas_ 
 
     These files are all involved with the type system and/or "normal" ROOT I/O and are handled in a separate report.
 
-## `art::TFileService`{.cpp} and friends.
+## `art::TFileService`{.cpp} and friends
 
 * `art::TFileService`{.cpp} opens a new `TFile`{.cpp} file based on the provided configuration at service construction time. This is not guaranteed to be early, although in the current implementation of the framework all services are constructed at configuration validation time, before the `beginJob` stage.
 
-* `art::TFileService`{.cpp} has only one public data member, which exposes a non-`const`{.cpp} `TFile`{.cpp} pointer to user code.
+* `art::TFileService`{.cpp} has only one public member function, `TFile & file() const`{.cpp}, which exposes a non-`const`{.cpp} `TFile`{.cpp} to user code by reference.
 
 * `art::TFileService`{.cpp} takes advantage of the signals and slots mechanism to ensure that `art::TFileService::setDirectoryName(...)`{.cpp} is called to set ROOT's `gDirectory`{.cpp} global variable. This is a (kind of) thread-local variable, which could have consequences within TBB's task-based system, especially in the context of task preemption.
 
-* `art::TFileDirectory`{.cpp} keeps track of a particular directory, and when calling functions such as `mkdir(...)`{.cpp}, `make<T, ARGS...>(...)`{.cpp} or `makeAndRegister<T, ARGS...>(...)`{.cpp} will cd into that directory for the duration of the desired operation. These functions make use of `TDirectory::GetDirectory(...)`{,cpp}, `gDirectory`{.cpp} (see above), `TFile::cd()`{.cpp}, and possibly `T::T(...)`{.cpp}, `T::SetName(...)`{.cpp}, `T::SetTitle(...)`{.cpp}, and `TDirectory::Append(...)`{.cpp}.
+* `art::TFileDirectory`{.cpp} keeps track of a particular directory, and when calling functions such as `mkdir(...)`{.cpp}, `make<T, ARGS...>(...)`{.cpp} or `makeAndRegister<T, ARGS...>(...)`{.cpp} will change to that ROOT directory for the duration of the desired operation. These functions make use of `TDirectory::GetDirectory(...)`{,cpp}, `gDirectory`{.cpp} (see above), `TFile::cd()`{.cpp}, and possibly `T::T(...)`{.cpp}, `T::SetName(...)`{.cpp}, `T::SetTitle(...)`{.cpp}, and `TDirectory::Append(...)`{.cpp}.
