@@ -16,6 +16,8 @@
 // the service cache in the face of pre-made and per-schedule services,
 // and services implementing interfaces.
 //
+//   LG = Legacy/Global  M = make  R = retrieve
+//   PS = Per-schedule   M = make  R = retrieve
 ////////////////////////////////////////////////////////////////////////
 
 #include "art/Framework/Services/Registry/ServiceScope.h"
@@ -42,20 +44,20 @@ namespace art {
 
 // Base class. Note virtual inheritance below.
 struct art::detail::ServiceHelperBase {
-  virtual ~ServiceHelperBase() = default;
+  virtual ~ServiceHelperBase() noexcept = default;
   virtual TypeID get_typeid() const = 0;
   virtual ServiceScope scope() const = 0;
   virtual bool is_interface() const = 0;
   virtual bool is_interface_impl() const = 0;
 };
 
-// A "real" service (not an interface).
+// For a "real" service (not an interface).
 struct art::detail::ServiceImplHelper :
   public virtual art::detail::ServiceHelperBase {
   bool is_interface() const override { return false; } // Not necessarily final.
 };
 
-// A service implementing an interface.
+// For a service implementing an interface.
 struct art::detail::ServiceInterfaceImplHelper :
   public art::detail::ServiceImplHelper {
   bool is_interface_impl() const final override { return true; }
@@ -66,15 +68,16 @@ struct art::detail::ServiceInterfaceImplHelper :
   convert(std::shared_ptr<ServiceWrapperBase> const & swb) const = 0;
 };
 
-// An interface.
+// For the service interface itself.
 struct art::detail::ServiceInterfaceHelper :
   public virtual art::detail::ServiceHelperBase {
   bool is_interface() const final override { return true; }
   bool is_interface_impl() const final override { return false; }
 };
 
-// A per-schedule service.
-struct art::detail::ServicePSMHelper {
+// For a per-schedule service.
+struct art::detail::ServicePSMHelper { // PerScheduleMaker
+  virtual ~ServicePSMHelper() noexcept = default;
   virtual
   std::unique_ptr<ServiceWrapperBase>
   make(fhicl::ParameterSet const & cfg,
@@ -82,22 +85,25 @@ struct art::detail::ServicePSMHelper {
        size_t nSchedules) const = 0;
 };
 
-struct art::detail::ServicePSRHelper {
+struct art::detail::ServicePSRHelper { // PerScheduleRetriever
+  virtual ~ServicePSRHelper() noexcept = default;
   virtual
   void *
   retrieve(std::shared_ptr<ServiceWrapperBase> & swb,
            ScheduleID sID) const = 0;
 };
 
-// A global or legacy service
-struct art::detail::ServiceLGMHelper {
+// For a global or legacy service
+struct art::detail::ServiceLGMHelper { // LegacyOrGlobalMaker
+  virtual ~ServiceLGMHelper() noexcept = default;
   virtual
   std::unique_ptr<ServiceWrapperBase>
   make(fhicl::ParameterSet const & cfg,
        ActivityRegistry & reg) const = 0;
 };
 
-struct art::detail::ServiceLGRHelper {
+struct art::detail::ServiceLGRHelper { // LegacyOrGlobalRetriever
+  virtual ~ServiceLGRHelper() noexcept = default;
   virtual
   void *
   retrieve(std::shared_ptr<ServiceWrapperBase> & swb) const = 0;

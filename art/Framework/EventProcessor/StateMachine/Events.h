@@ -33,13 +33,14 @@ namespace statemachine {
 
   // It is slightly confusing that this one refers to both physics
   // event and a boost statechart event ...
-  class Event : public sc::event<Event> { };
+  class Event : public sc::event<Event> {};
 
   class InputFile : public sc::event<InputFile> {};
   class SwitchOutputFiles : public sc::event<SwitchOutputFiles> {};
 
   class Stop : public sc::event<Stop> {};
   class Pause : public sc::event<Pause> {};
+  class Process : public sc::event<Process> {};
 
 }
 

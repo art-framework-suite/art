@@ -1,6 +1,6 @@
 #include "art/Framework/Art/BasicSourceOptionsHandler.h"
 
-#include "art/Framework/Art/detail/bold_fontify.h"
+#include "art/Utilities/bold_fontify.h"
 #include "art/Framework/Art/detail/fillSourceList.h"
 #include "canvas/Utilities/Exception.h"
 #include "cetlib/container_algorithms.h"

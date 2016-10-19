@@ -129,8 +129,7 @@ setTriggerPathEnabled(std::string const& name, bool enable)
 {
   auto& pp = triggerPathsInfo_.pathPtrs();
   PathPtrs::iterator found;
-  auto pathFinder =
-  [&name](std::unique_ptr<Path> const & p_ptr) {
+  auto pathFinder = [&name](std::unique_ptr<Path> const & p_ptr) {
     return p_ptr->name() == name;
   };
   if ((found =
@@ -205,4 +204,3 @@ makeTriggerResultsInserter_(fhicl::ParameterSet const & trig_pset,
   results_inserter_->setActivityRegistry(cet::exempt_ptr<ActivityRegistry>
                                          (&areg));
 }
-

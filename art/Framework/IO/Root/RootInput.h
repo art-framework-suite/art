@@ -107,13 +107,12 @@ namespace art {
     void rewind_() override;
 
     template<typename T>
-    EventID
-    postSeekChecks(EventID const& foundID, T eventSpec,
-                   std::enable_if_t<std::is_convertible<T, off_t>::value>* = nullptr);
+    std::enable_if_t<std::is_convertible<T, off_t>::value, EventID>
+    postSeekChecks(EventID const& foundID, T eventSpec);
+
     template<typename T>
-    EventID
-    postSeekChecks(EventID const& foundID, T eventSpec,
-                   std::enable_if_t<!std::is_convertible<T, off_t>::value>* = nullptr);
+    std::enable_if_t<!std::is_convertible<T, off_t>::value, EventID>
+    postSeekChecks(EventID const& foundID, T eventSpec);
   }; // class RootInput
 
   template<typename T>
@@ -134,15 +133,13 @@ namespace art {
     }
     foundID = postSeekChecks(foundID, eventSpec);
     accessState_.setWantedEventID(foundID);
-    if (primaryFileSequence_->rootFile() !=
-        accessState_.rootFileForLastReadEvent()) {
+    if (primaryFileSequence_->rootFile() != accessState_.rootFileForLastReadEvent()) {
       accessState_.setState(AccessState::SEEKING_FILE);
     }
     else if (foundID.runID() != accessState_.lastReadEventID().runID()) {
       accessState_.setState(AccessState::SEEKING_RUN);
     }
-    else if (foundID.subRunID() !=
-             accessState_.lastReadEventID().subRunID()) {
+    else if (foundID.subRunID() != accessState_.lastReadEventID().subRunID()) {
       accessState_.setState(AccessState::SEEKING_SUBRUN);
     }
     else {
@@ -152,10 +149,9 @@ namespace art {
   }
 
   template<typename T>
-  EventID
+  std::enable_if_t<std::is_convertible<T, off_t>::value, EventID>
   RootInput::
-  postSeekChecks(EventID const& foundID, T eventspec,
-                 std::enable_if_t<std::is_convertible<T, off_t>::value>*)
+  postSeekChecks(EventID const& foundID, T eventspec)
   {
     if (eventspec == 0 && foundID == accessState_.lastReadEventID()) {
       // We're supposed to be reading the, "next" event but it's a
@@ -170,10 +166,9 @@ namespace art {
   }
 
   template<typename T>
-  EventID
+  std::enable_if_t<!std::is_convertible<T, off_t>::value, EventID>
   RootInput::
-  postSeekChecks(EventID const& foundID, T,
-                 std::enable_if_t<!std::is_convertible<T, off_t>::value >*)
+  postSeekChecks(EventID const& foundID, T)
   {
     // Default implementation is NOP.
     return foundID;

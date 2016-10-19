@@ -1,5 +1,7 @@
 include(ArtMake)
 
+add_subdirectory(sqlite/memoryTracker)
+add_subdirectory(sqlite/timeTracker)
 add_subdirectory(migration)
 
 cet_script(filter-memoryTracker-output filter-timeTracker-output)

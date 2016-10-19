@@ -9,14 +9,3 @@ if ( ${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     TEST_EXEC ProcTester
     )
 endif()
-
-cet_make_exec( ConstrainedMultimapTester
-  SOURCE ConstrainedMultimapTester.cc
-  LIBRARIES
-  art_Framework_Services_Optional
-  )
-
-cet_test( ConstrainedMultimap_t HANDBUILT
-  TEST_EXEC ConstrainedMultimapTester
-  )
-  

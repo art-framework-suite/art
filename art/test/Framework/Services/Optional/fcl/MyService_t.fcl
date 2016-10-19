@@ -1,6 +1,6 @@
 process_name: TEST
 
-services.user.MyServiceInterface.service_provider: MyService
+services.MyServiceInterface.service_provider: MyService
 
 physics:
 {

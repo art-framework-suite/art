@@ -60,7 +60,7 @@
 
 namespace art {
 
-  enum class suffix_type { module, plugin, service, source, unknown };
+  enum class suffix_type {module, plugin, service, source, unknown};
 
   inline std::ostream& operator<<(std::ostream& os, suffix_type const st)
   {
@@ -70,12 +70,12 @@ namespace art {
   class Suffixes {
   public:
 
-    static std::string const & module () { return suffixes_[suffix_type::module ]; }
-    static std::string const & plugin () { return suffixes_[suffix_type::plugin ]; }
-    static std::string const & service() { return suffixes_[suffix_type::service]; }
-    static std::string const & source () { return suffixes_[suffix_type::source ]; }
+    static std::string const& module () { return suffixes_[suffix_type::module ]; }
+    static std::string const& plugin () { return suffixes_[suffix_type::plugin ]; }
+    static std::string const& service() { return suffixes_[suffix_type::service]; }
+    static std::string const& source () { return suffixes_[suffix_type::source ]; }
 
-    static std::string const & get(suffix_type st) { return suffixes_[st]; }
+    static std::string const& get(suffix_type st) { return suffixes_[st]; }
 
     static std::string print()
     {
@@ -85,7 +85,7 @@ namespace art {
       return result;
     }
 
-    static suffix_type const & get(std::string const& suffix) {
+    static suffix_type const& get(std::string const& suffix) {
       auto it = rSuffixes_.find(suffix);
       if ( it == rSuffixes_.cend() ) {
         throw art::Exception(art::errors::NotFound)
@@ -96,7 +96,7 @@ namespace art {
       return it->second;
     }
 
-    static std::map<suffix_type,std::string> const & all() { return suffixes_; }
+    static std::map<suffix_type,std::string> const& all() { return suffixes_; }
 
   private:
     static std::map<suffix_type,std::string> suffixes_;

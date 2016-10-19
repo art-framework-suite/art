@@ -76,11 +76,11 @@
 namespace art {
   namespace detail {
 
-    void print_available_plugins(suffix_type st, std::string const& spec);
+    void print_available_plugins(suffix_type st, bool const verbose, std::string const& spec);
 
-    inline void print_available_plugins(suffix_type st)
+    inline void print_available_plugins(suffix_type const st, bool const verbose)
     {
-      print_available_plugins(st, dflt_spec_pattern());
+      print_available_plugins(st, verbose, dflt_spec_pattern());
     }
 
     void print_description (std::vector<PluginMetadata> const& matches);

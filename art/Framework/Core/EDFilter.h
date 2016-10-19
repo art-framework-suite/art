@@ -32,8 +32,8 @@ namespace art
     , public EngineCreator
   {
   public:
-    static constexpr bool Pass = true;
-    static constexpr bool Fail = false;
+    static constexpr bool Pass {true};
+    static constexpr bool Fail {false};
 
     template <typename T> friend class WorkerT;
     using ModuleType = EDFilter;
@@ -63,7 +63,7 @@ namespace art
 
     using CPC_exempt_ptr = cet::exempt_ptr<CurrentProcessingContext const>;
 
-    bool doEvent(EventPrincipal& ep, CPC_exempt_ptr cpc);
+    bool doEvent(EventPrincipal& ep, CPC_exempt_ptr cpc, CountingStatistics&);
     void doBeginJob();
     void doEndJob();
     bool doBeginRun(RunPrincipal & rp, CPC_exempt_ptr cpc);

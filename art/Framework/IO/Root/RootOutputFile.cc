@@ -17,7 +17,7 @@
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
-#include "art/Ntuple/Transaction.h"
+#include "cetlib/Ntuple/Transaction.h"
 #include "art/Persistency/Provenance/BranchIDListRegistry.h"
 #include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
 #include "art/Persistency/Provenance/ProductMetaData.h"
@@ -682,7 +682,8 @@ RootOutputFile::
 writeFileIndex()
 {
   fileIndex_.sortBy_Run_SubRun_Event();
-  FileIndex::Element const* findexElemPtr = nullptr;
+  FileIndex::Element elem {};
+  auto findexElemPtr = &elem;
   TBranch* b = fileIndexTree_->Branch(metaBranchRootName<FileIndex::Element>(),
                                       &findexElemPtr, basketSize_, 0);
   // FIXME: Turn this into a throw!
@@ -691,6 +692,7 @@ writeFileIndex()
     findexElemPtr = &entry;
     b->Fill();
   }
+  b->SetAddress(0);
 }
 
 void

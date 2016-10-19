@@ -16,7 +16,7 @@ outputs: {
 
 services: {
   scheduler: { fileMode: MERGE }
-  SimpleMemoryCheck: { }
+  MemoryTracker: { }
 }
 
 physics: {

@@ -18,7 +18,7 @@ namespace art {
 
       PluginMetadata doCollect(LibraryInfo const& li) const override
       {
-        return { header_(li), details_(li), allowed_configuration_(li) };
+        return {header_(li), details_(li), allowed_configuration_(li)};
       }
 
     private:
@@ -27,7 +27,7 @@ namespace art {
         std::ostringstream result;
         std::string const long_spec = li.long_spec().empty() ? " [ No alternate specification available ] " : li.long_spec();
         result << indent_1()
-               << "plugin_type: " << font_bold(li.short_spec())
+               << "plugin_type: " << bold_fontify(li.short_spec())
                << " (or \"" << long_spec << "\")"
                << "\n\n";
         return result.str();

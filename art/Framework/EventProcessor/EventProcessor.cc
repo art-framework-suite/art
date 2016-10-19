@@ -8,7 +8,7 @@
 #include "art/Framework/Core/InputSourceFactory.h"
 #include "art/Framework/EventProcessor/detail/writeSummary.h"
 #include "art/Framework/Principal/EventPrincipal.h"
-#include "art/Framework/Principal/OccurrenceTraits.h"
+#include "art/Framework/Principal/PrincipalPackages.h"
 #include "art/Framework/Principal/RangeSetHandler.h"
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
@@ -22,15 +22,16 @@
 #include "art/Framework/Services/System/ScheduleContext.h"
 #include "art/Framework/Services/System/TriggerNamesService.h"
 #include "art/Persistency/Provenance/BranchIDListHelper.h"
+#include "art/Utilities/ScheduleID.h"
+#include "art/Utilities/UnixSignalHandlers.h"
+#include "art/Utilities/bold_fontify.h"
+#include "art/Version/GetReleaseVersion.h"
+#include "boost/thread/xtime.hpp"
 #include "canvas/Persistency/Provenance/BranchType.h"
 #include "canvas/Persistency/Provenance/ProcessConfiguration.h"
 #include "canvas/Utilities/DebugMacros.h"
 #include "canvas/Utilities/Exception.h"
 #include "canvas/Utilities/GetPassID.h"
-#include "art/Utilities/ScheduleID.h"
-#include "art/Utilities/UnixSignalHandlers.h"
-#include "art/Version/GetReleaseVersion.h"
-#include "boost/thread/xtime.hpp"
 #include "cetlib/exception_collector.h"
 #include "cetlib/container_algorithms.h"
 #include "fhiclcpp/types/detail/validationException.h"
@@ -94,13 +95,13 @@ namespace {
       // any EDproducts,which would be registered in the
       // MasterProductRegistry.  Also fill in the process history item
       // for this process.
-      art::ModuleDescription md(main_input.id(),
-                                main_input.get<std::string>("module_type"),
-                                main_input.get<std::string>("module_label"),
-                                art::ProcessConfiguration(processName,
-                                                          params.id(),
-                                                          art::getReleaseVersion(),
-                                                          art::getPassID()));
+      art::ModuleDescription const md {main_input.id(),
+                                       main_input.get<std::string>("module_type"),
+                                       main_input.get<std::string>("module_label"),
+                                       art::ProcessConfiguration{processName,
+                                                                 params.id(),
+                                                                 art::getReleaseVersion(),
+                                                                 art::getPassID()}};
       sourceSpecified = true;
       art::InputSourceDescription isd{md, preg, areg};
       try {
@@ -108,8 +109,8 @@ namespace {
       }
       catch(fhicl::detail::validationException const& e){
         throw art::Exception(art::errors::Configuration)
-          << "\n\nModule label: \033[1m" << md.moduleLabel() << "\033[0m"
-          <<   "\nmodule_type : \033[1m" << md.moduleName() <<  "\033[0m"
+          << "\n\nModule label: " << art::detail::bold_fontify(md.moduleLabel())
+          <<   "\nmodule_type : " << art::detail::bold_fontify(md.moduleName())
           << "\n\n" << e.what();
       }
     }
@@ -238,47 +239,22 @@ art::EventProcessor::endJob()
 
 art::ServiceDirector
 art::EventProcessor::
-initServices_(ParameterSet const & top_pset,
-              ActivityRegistry & areg,
-              ServiceToken & token)
+initServices_(ParameterSet const& top_pset,
+              ActivityRegistry& areg,
+              ServiceToken& token)
 {
   auto services = top_pset.get<ParameterSet>("services", {});
 
-  // Save and non-standard service config, "floating_point_control" to
+  // Check if disallowed 'user' table is specified:
+
+
+  // Save and non-standard service configs, "floating_point_control" to
   // prevent ServiceDirector trying to make one itself.
   auto const fpc_pset = services.get<ParameterSet>("floating_point_control", {});
   services.erase("floating_point_control");
 
   // Remove non-standard non-service config, "message."
   services.erase("message");
-
-  // Move all services from user into main services block.
-  auto const user = services.get<ParameterSet>("user", {});
-  if (!user.is_empty()) {
-    mf::LogWarning("CONFIG")
-      << "Use of services.user parameter set is deprecated.\n"
-      << "Define all services in services parameter set.";
-  }
-  for (auto const & key : user.get_names()) {
-    if (user.is_key_to_table(key)) {
-      if (!services.has_key(key)) {
-        services.put(key, user.get<ParameterSet>(key));
-      }
-      else {
-        throw Exception(errors::Configuration)
-          << "Detected a name clash: key "
-          << key
-          << " is defined in services and services.user.";
-      }
-    }
-    else {
-      throw Exception(errors::Configuration)
-        << "Detected a non-table parameter "
-        << key
-        << " in services.user.";
-    }
-  }
-  services.erase("user");
 
   // Deal with possible configuration for system service requiring
   // special construction:
@@ -617,7 +593,7 @@ art::EventProcessor::beginRun(RunID run)
   // Precondition: The RunID does not correspond to a flush ID.
   assert(!run.isFlush());
   RunPrincipal& runPrincipal = principalCache_.runPrincipal(run);
-  processOneOccurrence_<OccurrenceTraits<RunPrincipal, BranchActionBegin>>(runPrincipal);
+  process_<Begin<Level::Run>>(runPrincipal);
   FDEBUG(1) << "\tbeginRun " << run.run() << "\n";
 }
 
@@ -627,7 +603,7 @@ art::EventProcessor::endRun(RunID run)
   // Precondition: The RunID does not correspond to a flush ID.
   assert(!run.isFlush());
   RunPrincipal& runPrincipal = principalCache_.runPrincipal(run);
-  processOneOccurrence_<OccurrenceTraits<RunPrincipal, BranchActionEnd>>(runPrincipal);
+  process_<End<Level::Run>>(runPrincipal);
   FDEBUG(1) << "\tendRun " << run.run() << "\n";
 }
 
@@ -637,7 +613,7 @@ art::EventProcessor::beginSubRun(SubRunID const& sr)
   // Precondition: The SubRunID does not correspond to a flush ID.
   assert(!sr.isFlush());
   SubRunPrincipal& subRunPrincipal = principalCache_.subRunPrincipal(sr);
-  processOneOccurrence_<OccurrenceTraits<SubRunPrincipal, BranchActionBegin>>(subRunPrincipal);
+  process_<Begin<Level::SubRun>>(subRunPrincipal);
   FDEBUG(1) << "\tbeginSubRun " << sr << "\n";
 }
 
@@ -647,7 +623,7 @@ art::EventProcessor::endSubRun(SubRunID const& sr)
   // Precondition: The SubRunID does not correspond to a flush ID.
   assert(!sr.isFlush());
   SubRunPrincipal& subRunPrincipal = principalCache_.subRunPrincipal(sr);
-  processOneOccurrence_<OccurrenceTraits<SubRunPrincipal, BranchActionEnd>>(subRunPrincipal);
+  process_<End<Level::SubRun>>(subRunPrincipal);
   FDEBUG(1) << "\tendSubRun " << sr << "\n";
 }
 
@@ -742,7 +718,7 @@ art::EventProcessor::processEvent()
   EventID const& id [[gnu::unused]] {sm_evp_->id()};
   // Precondition: The EventID does not correspond to a flush ID.
   assert(!id.isFlush());
-  processOneOccurrence_<OccurrenceTraits<EventPrincipal, BranchActionBegin>>(*sm_evp_);
+  process_<Do<Level::Event>>(*sm_evp_);
   FDEBUG(1) << "\tprocessEvent\n";
 }
 

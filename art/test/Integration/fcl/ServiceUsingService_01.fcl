@@ -2,10 +2,7 @@ process_name: t
 
 services:
 {
-  user:
-  {
-    Reconfigurable: { }
-    ServiceUsing: { }
-    Wanted: { }
-  }
+   Reconfigurable: { }
+   ServiceUsing: { }
+   Wanted: { }
 }

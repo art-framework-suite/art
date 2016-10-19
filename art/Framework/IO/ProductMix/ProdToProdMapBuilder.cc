@@ -5,6 +5,10 @@
 #include "art/Framework/Principal/EventPrincipal.h"
 #include "canvas/Persistency/Provenance/BranchIDList.h"
 #include "canvas/Utilities/Exception.h"
+
+#include "Rtypes.h"
+#include "TTree.h"
+
 #include <iomanip>
 #include <iostream>
 

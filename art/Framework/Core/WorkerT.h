@@ -36,24 +36,15 @@ namespace art {
 
     bool modifiesEvent() const override { return module_->modifiesEvent(); }
 
-    template <typename ModType>
-    static std::unique_ptr<T> makeModule(ModuleDescription const& md,
-                                         fhicl::ParameterSet const& pset)
-    {
-      auto module = std::make_unique<ModType>(pset);
-      return std::unique_ptr<T>(module.release());
-    }
-
   protected:
     T& module() {return *module_;}
     T const& module() const {return *module_;}
 
   private:
 
-    bool implDoBegin(EventPrincipal& ep,
-                     CurrentProcessingContext const* cpc) override;
-    bool implDoEnd(EventPrincipal& ep,
-                   CurrentProcessingContext const* cpc) override;
+    bool implDoProcess(EventPrincipal& ep,
+                       CurrentProcessingContext const* cpc,
+                       CountingStatistics&) override;
     bool implDoBegin(RunPrincipal& rp,
                      CurrentProcessingContext const* cpc) override;
     bool implDoEnd(RunPrincipal& rp,
@@ -87,18 +78,11 @@ namespace art {
 
   template <typename T>
   bool
-  WorkerT<T>::implDoBegin(EventPrincipal& ep,
-                          CurrentProcessingContext const* cpc)
+  WorkerT<T>::implDoProcess(EventPrincipal& ep,
+                            CurrentProcessingContext const* cpc,
+                            CountingStatistics& stats)
   {
-    return module_->doEvent(ep, cpc);
-  }
-
-  template <typename T>
-  bool
-  WorkerT<T>::implDoEnd(EventPrincipal&,
-                        CurrentProcessingContext const*)
-  {
-    return false;
+    return module_->doEvent(ep, cpc, stats);
   }
 
   template <typename T>

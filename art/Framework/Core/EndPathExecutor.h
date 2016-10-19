@@ -22,7 +22,7 @@
 #include "art/Framework/Core/PathsInfo.h"
 #include "art/Framework/Principal/Actions.h"
 #include "art/Framework/Principal/EventPrincipal.h"
-#include "art/Framework/Principal/OccurrenceTraits.h"
+#include "art/Framework/Principal/PrincipalPackages.h"
 #include "art/Framework/Principal/RangeSetHandler.h"
 #include "art/Framework/Principal/MaybeRunStopwatch.h"
 #include "art/Framework/Principal/Worker.h"
@@ -46,7 +46,7 @@ public:
                   MasterProductRegistry& mpr);
 
   template <typename T>
-  void processOneOccurrence(typename T::MyPrincipal& principal);
+  void process(typename T::MyPrincipal& principal);
 
   void beginJob();
   void endJob();
@@ -87,7 +87,7 @@ public:
   bool setEndPathModuleEnabled(std::string const & label, bool enable);
 
   // Call selectProducts() on all OutputModules.
-  virtual void selectProducts(FileBlock const&);
+  void selectProducts(FileBlock const&);
 
 private:
   using OutputWorkers = std::vector<OutputWorker*>;
@@ -117,20 +117,20 @@ private:
 template <typename T>
 void
 art::EndPathExecutor::
-processOneOccurrence(typename T::MyPrincipal & ep)
+process(typename T::MyPrincipal & ep)
 {
   this->resetAll();
-  auto sentry (endPathInfo_.maybeRunStopwatch<T::isEvent_>());
-  if (T::isEvent_) {
+  auto sentry (endPathInfo_.maybeRunStopwatch<T::level>());
+  if (T::level == Level::Event) {
     endPathInfo_.addEvent();
   }
   try {
     if (!endPathInfo_.pathPtrs().empty()) {
-      endPathInfo_.pathPtrs().front()->processOneOccurrence<T>(ep);
+      endPathInfo_.pathPtrs().front()->process<T>(ep);
     }
   }
   catch (cet::exception & ex) {
-    actions::ActionCodes const action {T::isEvent_ ? act_table_->find(ex.root_cause()) : actions::Rethrow};
+    actions::ActionCodes const action {T::level == Level::Event ? act_table_->find(ex.root_cause()) : actions::Rethrow};
     switch (action) {
     case actions::IgnoreCompletely: {
       mf::LogWarning(ex.category())

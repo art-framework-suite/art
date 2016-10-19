@@ -1,6 +1,6 @@
 process_name: "SR2"
 
-services.user: {
+services: {
   RandomNumberGenerator: { }
 }
 

@@ -78,6 +78,7 @@ simple_plugin(Reconfigurable              "service" NO_INSTALL )
 simple_plugin(Reconfiguring               "module"  NO_INSTALL )
 simple_plugin(RunSubRunProductProducerNoPut "module"  NO_INSTALL )
 simple_plugin(SAMMetadataTest             "module"  NO_INSTALL art_Framework_Services_System_FileCatalogMetadata_service )
+simple_plugin(SeekToEventClient           "service" NO_INSTALL art_Framework_IO_Root_RootInput_source)
 simple_plugin(ServiceUsing                "service" NO_INSTALL )
 simple_plugin(SimpleDerivedAnalyzer       "module"  NO_INSTALL )
 simple_plugin(SimpleDerivedProducer       "module"  NO_INSTALL )
@@ -966,14 +967,6 @@ cet_test(ServiceUsingService_02_t HANDBUILT
   fcl/ServiceUsingService_02.fcl
 )
 
-cet_test(SimpleMemoryCheck_t HANDBUILT
-  TEST_EXEC art
-  TEST_ARGS -c simpleMemoryCheck.fcl
-  DATAFILES
-  fcl/simpleMemoryCheck.fcl
-  fcl/messageDefaults.fcl
-  )
-
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   cet_test(MemoryTracker_t HANDBUILT
     TEST_EXEC art
@@ -985,13 +978,6 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     OUTPUT_FILTERS "filter-memoryTracker-output" "DEFAULT"
     )
 endif()
-
-cet_test(TimingService_issue_2979_t HANDBUILT
-  TEST_EXEC art
-  TEST_ARGS -c issue_2979.fcl
-  DATAFILES
-  fcl/issue_2979.fcl
-)
 
 cet_test(TimeTracker_issue_3598_t1 HANDBUILT
   TEST_EXEC art
@@ -1010,6 +996,33 @@ cet_test(TimeTracker_issue_3598_t3 HANDBUILT
   REF "${CMAKE_CURRENT_SOURCE_DIR}/TimeTracker_issue_3598_t3-ref.txt"
   OUTPUT_FILTERS "filter-timeTracker-output" "DEFAULT"
   )
+
+macro(seekToEventTest NEVENTS)
+  set(SeekToEventPrefix "SeekToEvent_${NEVENTS}_events")
+  set(SeekToEventFclPrefix "seekToEvent_${NEVENTS}_events")
+  cet_test(${SeekToEventPrefix}_w HANDBUILT
+    TEST_EXEC art
+    TEST_ARGS -c empty.fcl -n ${NEVENTS} -o out.root
+    DATAFILES fcl/empty.fcl
+    )
+
+  cet_test(${SeekToEventPrefix}_t HANDBUILT
+    TEST_EXEC art
+    TEST_ARGS -c ${SeekToEventFclPrefix}.fcl ../${SeekToEventPrefix}_w.d/out.root -o out.root
+    DATAFILES fcl/${SeekToEventFclPrefix}.fcl
+    TEST_PROPERTIES DEPENDS ${SeekToEventPrefix}_w
+    )
+
+  cet_test(${SeekToEventPrefix}_verify HANDBUILT
+    TEST_EXEC file_info_dumper
+    TEST_ARGS --file-index ../${SeekToEventPrefix}_t.d/out.root
+    REF "${CMAKE_CURRENT_SOURCE_DIR}/${SeekToEventPrefix}_verify-ref.txt"
+    TEST_PROPERTIES DEPENDS ${SeekToEventPrefix}_t
+    )
+endmacro()
+
+seekToEventTest(1)
+seekToEventTest(4)
 
 cet_test(SAM_metadata HANDBUILT
   TEST_EXEC art

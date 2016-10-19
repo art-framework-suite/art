@@ -2,10 +2,7 @@ process_name: DEVEL
 
 services:
 {
-   user:
-   {
-     Reconfigurable: { other_value: 5 }
-   }
+   Reconfigurable: { other_value: 5 }
 }
 
 physics:

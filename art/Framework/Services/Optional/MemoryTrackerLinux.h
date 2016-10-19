@@ -13,12 +13,13 @@
 #include "art/Framework/Services/Optional/detail/MemoryTrackerLinuxCallbackPair.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/ServiceTable.h"
-#include "art/Ntuple/Ntuple.h"
-#include "art/Ntuple/sqlite_DBmanager.h"
 #include "canvas/Persistency/Provenance/EventID.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
+#include "cetlib/Ntuple/Ntuple.h"
+#include "cetlib/Ntuple/sqlite_DBmanager.h"
 #include "cetlib/exempt_ptr.h"
 #include "fhiclcpp/types/Atom.h"
+#include "fhiclcpp/types/OptionalAtom.h"
 #include "fhiclcpp/types/Sequence.h"
 
 #include <bitset>
@@ -32,14 +33,18 @@ namespace art {
 
     struct Config {
       using Name = fhicl::Name;
-      fhicl::Atom<unsigned> ignoreTotal { Name("ignoreTotal"), 1u };
+      using Comment = fhicl::Comment;
       fhicl::Sequence<std::string> printSummaries { Name("printSummaries"), {"general", "event", "module"} };
+      fhicl::Atom<int> maxTableLength { Name("maxTableLength"), Comment("The 'maxTableLength' parameter bounds the maximum number of rows\n"
+                                                                        "shown in the summary tables. Specifying a negative value (e.g. '-1')\n"
+                                                                        "means that all rows should be shown."), 5};
       struct DBoutput {
         fhicl::Atom<std::string> filename { Name("filename"), "" };
         fhicl::Atom<bool> overwrite { Name("overwrite"), false };
       };
       fhicl::Table<DBoutput> dbOutput { Name("dbOutput") };
       fhicl::Atom<bool> includeMallocInfo { Name("includeMallocInfo"), false };
+      fhicl::OptionalAtom<unsigned> ignoreTotal { Name("ignoreTotal"), Comment("The following parameter is deprecated and no longer used.")};
     };
 
     using Parameters = ServiceTable<Config>;
@@ -74,8 +79,8 @@ namespace art {
     detail::LinuxProcMgr procInfo_;
 
     // Options
-    unsigned numToSkip_;
     std::bitset<ntypes> printSummary_;
+    int maxTableLength_;
     sqlite::DBmanager dbMgr_;
     bool overwriteContents_;
     bool includeMallocInfo_;

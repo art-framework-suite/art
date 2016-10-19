@@ -91,7 +91,7 @@ p1:a3:TestSimpleMemoryCheckProducer
  <ev-info>
 <separator (-)>
 p1:TriggerResults:TriggerResultInserter
-  [[ no events ]] 
+  [ no events ]
 
 Modules with large Vsize (Mbytes)            Vsize      Δ Vsize      RSS         Δ RSS 
 <separator (=)>

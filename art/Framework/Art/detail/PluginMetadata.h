@@ -9,7 +9,7 @@ namespace art {
 
     class PluginMetadata {
     public:
-      
+
       PluginMetadata(std::string const& header,
                      std::string const& details,
                      std::string const& config)
@@ -27,7 +27,7 @@ namespace art {
       std::string header_;
       std::string details_;
       std::string config_;
-      
+
     };
 
   }

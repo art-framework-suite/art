@@ -156,7 +156,7 @@ private:
   void invokePostBeginJobWorkers_();
   template <typename T>
   void
-  processOneOccurrence_(typename T::MyPrincipal& p);
+  process_(typename T::MyPrincipal& p);
 
   ServiceToken getToken_();
 
@@ -240,15 +240,15 @@ art::detail::PrincipalSignalSentry<T>::
 
 template <typename T>
 void
-art::EventProcessor::processOneOccurrence_(typename T::MyPrincipal & p)
+art::EventProcessor::process_(typename T::MyPrincipal& p)
 try {
   detail::PrincipalSignalSentry<T> sentry(actReg_, p);
-  schedule_->processOneOccurrence<T>(p);
-  endPathExecutor_->processOneOccurrence<T>(p);
+  schedule_->process<T>(p);
+  endPathExecutor_->process<T>(p);
 }
 catch (cet::exception & ex) {
   actions::ActionCodes const action {
-    T::isEvent_ ? act_table_.find(ex.root_cause()) : actions::Rethrow
+    T::level == Level::Event ? act_table_.find(ex.root_cause()) : actions::Rethrow
   };
   switch (action) {
   case actions::IgnoreCompletely: {

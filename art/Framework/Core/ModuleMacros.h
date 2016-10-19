@@ -18,8 +18,8 @@
 #include "art/Framework/Core/ModuleType.h"
 #include "art/Framework/Core/WorkerT.h"
 #include "art/Framework/Core/detail/ModuleTypeDeducer.h"
-#include "canvas/Persistency/Provenance/ModuleDescription.h"
 #include "art/Utilities/BasicHelperMacros.h"
+#include "canvas/Persistency/Provenance/ModuleDescription.h"
 #include "fhiclcpp/ParameterSet.h"
 
 #include "art/Framework/Core/EventObserver.h"
@@ -28,14 +28,11 @@
 #include <ostream>
 #include <string>
 
-// Function typedefs (used in art).
+// Function aliases (used in art).
 namespace art {
   namespace detail {
-
-    typedef art::Worker* (WorkerMaker_t) (art::WorkerParams const&,
-                                          art::ModuleDescription const&);
-    typedef art::ModuleType (ModuleTypeFunc_t) ();
-
+    using WorkerMaker_t = Worker*(WorkerParams const&, ModuleDescription const&);
+    using ModuleTypeFunc_t = ModuleType();
   }
 }
 

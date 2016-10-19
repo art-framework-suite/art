@@ -2,7 +2,7 @@
 // vim: set sw=2:
 
 #include "art/Framework/Principal/EventPrincipal.h"
-#include "art/Framework/Principal/OccurrenceTraits.h"
+#include "art/Framework/Principal/PrincipalPackages.h"
 #include "art/Framework/Principal/Worker.h"
 #include "art/Persistency/Provenance/ProductMetaData.h"
 #include "canvas/Persistency/Provenance/BranchKey.h"
@@ -130,7 +130,7 @@ obtainDesiredProduct(bool fillOnDemand, TypeID const& wanted_wrapper_type) const
   std::unique_ptr<art::EDProduct> retval;
   // Try unscheduled production.
   if (fillOnDemand && onDemand()) {
-    productProducer_->doWork<OccurrenceTraits<EventPrincipal,BranchActionBegin>>(*onDemandPrincipal_, 0);
+    productProducer_->doWork<Do<Level::Event>>(*onDemandPrincipal_, nullptr);
     return retval;
   }
   BranchKey const bk {productDescription()};

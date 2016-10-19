@@ -16,24 +16,24 @@ namespace statemachine {
   {
   }
 
-  void HandleEvents::disableProcessAndFinalizeEvent(Pause const&)
+  void HandleEvents::disableFinalizeEvent(Pause const&)
   {
     context<HandleFiles>().disallowStaging();
-    processAndFinalizeEnabled_ = false;
+    finalizeEnabled_ = false;
   }
 
   void HandleEvents::exit()
   {
     if (ep_.alreadyHandlingException()) return;
     exitCalled_ = true;
-    processAndFinalizeEvent();
+    finalizeEvent();
   }
 
   HandleEvents::~HandleEvents()
   {
     if (!exitCalled_) {
       try {
-        processAndFinalizeEvent();
+        finalizeEvent();
       }
       catch (cet::exception const& e) {
         std::ostringstream message;
@@ -51,7 +51,7 @@ namespace statemachine {
                 << "Another exception was caught while trying to clean up an event after\n"
                 << "the primary exception.  We give up trying to clean up an event at\n"
                 << "this point.  This additional exception was a\n"
-                << "std::bad_alloc exception thrown inside HandleEvents::processAndFinalizeEvent.\n"
+                << "std::bad_alloc exception thrown inside HandleEvents::finalizeEvent.\n"
                 << "The job has probably exhausted the virtual memory available\n"
                 << "to the process.\n";
         ep_.setExceptionMessageSubRuns(message.str());
@@ -62,7 +62,7 @@ namespace statemachine {
                 << "Another exception was caught while trying to clean up an event after\n"
                 << "the primary exception.  We give up trying to clean up an event at\n"
                 << "this point.  This additional exception was a\n"
-                << "standard library exception thrown inside HandleEvents::processAndFinalizeEvent\n"
+                << "standard library exception thrown inside HandleEvents::finalizeEvent\n"
                 << e.what() << "\n";
         ep_.setExceptionMessageSubRuns(message.str());
       }
@@ -72,21 +72,19 @@ namespace statemachine {
                 << "Another exception was caught while trying to clean up an event after\n"
                 << "the primary exception.  We give up trying to clean up an event at\n"
                 << "this point.  This additional exception was of unknown type and\n"
-                << "thrown inside HandleEvents::processAndFinalizeEvent\n";
+                << "thrown inside HandleEvents::finalizeEvent\n";
         ep_.setExceptionMessageSubRuns(message.str());
       }
     }
   }
 
-  void HandleEvents::processAndFinalizeEvent()
+  void HandleEvents::finalizeEvent()
   {
-    if (!processAndFinalizeEnabled_) return;
+    if (!finalizeEnabled_) return;
     if (eventException_) return;
     if (currentEvent_.isFlush()) return;
 
     eventException_ = true;
-    ep_.processEvent();
-    if (ep_.shouldWeStop()) { post_event(Stop()); }
     context<HandleFiles>().openSomeOutputFiles();
     ep_.writeEvent();
 
@@ -111,6 +109,7 @@ namespace statemachine {
     handleEvents.setCurrentEvent(ep_.eventPrincipalID());
     handleEvents.setEventException(false);
     checkInvariant();
+    post_event(Process{});
   }
 
   NewEvent::~NewEvent()
@@ -132,9 +131,20 @@ namespace statemachine {
     context<HandleSubRuns>().beginSubRunIfNotDoneAlready();
   }
 
-  PauseEvent::PauseEvent(my_context ctx)
-    : my_base(ctx)
+  ProcessEvent::ProcessEvent(my_context ctx)
+    : my_base{ctx}
+    , ep_{context<Machine>().ep()}
   {
+    if (context<HandleEvents>().currentEvent().isFlush()) return;
+
+    ep_.processEvent();
+    if (ep_.shouldWeStop()) {
+      post_event(Stop{});
+    }
   }
+
+  PauseEvent::PauseEvent(my_context ctx)
+    : my_base{ctx}
+  {}
 
 }

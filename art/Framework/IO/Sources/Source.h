@@ -20,8 +20,12 @@
 // DEFINE_ART_INPUT_SOURCE(arttest::GeneratorTest)
 //
 // However, there are several "flavors" of InputSource possible using
-// this template, and one may wish to specify them using the "traits"
-// found in SourceTraits.h. Any traits you wish to specialize must be
+// this template, and one may wish to specify them using the "type
+// traits" found in SourceTraits.h. Type traits are simple class
+// templates that are used to signal properties of the classes used as
+// their template arguments. Specialization is common. There are many
+// examples of type traits in the standard, such as std::is_const<T> or
+// std::is_integral<T>. Any traits you wish to specialize must be
 // defined *after* the definition of your detail class T, but *before*
 // the typedef above which will attempt to instantiate them. See
 // SourceTraits.h for descriptions of the different traits one might

@@ -101,11 +101,6 @@ protected:
   void
   produces(std::string const & instanceName = std::string());
 
-  template<class P, BranchType B>
-  [[deprecated("Remove the second (art::BranchType) argument.")]]
-  void
-  produces(std::string const & instanceName = std::string());
-
 public:
   virtual ~ResultsProducer() = default;
 
@@ -122,9 +117,9 @@ public:
 
   void registerProducts(MasterProductRegistry & mpr,
                         ModuleDescription const & md)
-    {
-      ProductRegistryHelper::registerProducts(mpr, md);
-    }
+  {
+    ProductRegistryHelper::registerProducts(mpr, md);
+  }
 
 private:
   // Functions for implementation by subclasses.
@@ -152,18 +147,6 @@ art::ResultsProducer::
 produces(std::string const & instanceName)
 {
   ProductRegistryHelper::produces<P, InResults>(instanceName);
-}
-
-template<class P, art::BranchType B>
-inline
-void
-art::ResultsProducer::
-produces(std::string const & instanceName)
-{
-  static_assert(B == InResults,
-                "Specifying a BranchType != InResults to "
-                "art::ResultsProducer::produces is not permitted.");
-  produces<P>(instanceName);
 }
 
 inline

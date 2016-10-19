@@ -9,6 +9,7 @@
 // ======================================================================
 
 #include "art/Framework/Core/Frameworkfwd.h"
+#include "art/Framework/Principal/ExecutionCounts.h"
 #include "art/Framework/Principal/MaybeRunStopwatch.h"
 #include "art/Framework/Principal/Worker.h"
 
@@ -30,18 +31,20 @@ namespace art {
     bool runWorker(typename T::MyPrincipal&,
                    CurrentProcessingContext const* cpc);
 
-    std::pair<double,double> timeCpuReal() const {
+    std::pair<double,double> timeCpuReal() const
+    {
       return std::pair<double,double>(stopwatch_.cpuTime(), stopwatch_.realTime());
     }
 
-    void clearCounters() {
-      timesVisited_ = timesPassed_ = timesFailed_ = timesExcept_ = 0;
+    void clearCounters()
+    {
+      counts_ = Counts_t{};
     }
 
-    int timesVisited() const { return timesVisited_; }
-    int timesPassed() const { return timesPassed_; }
-    int timesFailed() const { return timesFailed_; }
-    int timesExcept() const { return timesExcept_; }
+    std::size_t timesVisited() const { return counts_.times<stats::Visited>(); }
+    std::size_t timesPassed() const { return counts_.times<stats::Passed>(); }
+    std::size_t timesFailed() const { return counts_.times<stats::Failed>(); }
+    std::size_t timesExcept() const { return counts_.times<stats::ExceptionThrown>(); }
 
     FilterAction filterAction() const { return filterAction_; }
     Worker* getWorker() const { return worker_; }
@@ -52,46 +55,38 @@ namespace art {
   private:
     Stopwatch::timer_type stopwatch_ {};
 
-    int timesVisited_ {};
-    int timesPassed_ {};
-    int timesFailed_ {};
-    int timesExcept_ {};
+    using Counts_t = ExecutionCounts<stats::Visited, stats::Passed, stats::Failed, stats::ExceptionThrown>;
+    Counts_t counts_ {};
 
     FilterAction filterAction_ {Normal};
     Worker* worker_;
   };  // WorkerInPath
 
   template <typename T>
-  bool WorkerInPath::runWorker(typename T::MyPrincipal & ep,
-                               CurrentProcessingContext const* cpc) {
+  bool WorkerInPath::runWorker(typename T::MyPrincipal& ep,
+                               CurrentProcessingContext const* cpc)
+  {
+    MaybeIncrementCounts<T::level, decltype(counts_)> counts {counts_};
+    counts.template increment<stats::Visited>();
 
-    MaybeMaybeRunStopwatch<T::isEvent_> sentry {stopwatch_};
-
-    if (T::isEvent_) {
-      ++timesVisited_;
-    }
+    MaybeRunStopwatch<T::level> sentry {stopwatch_};
     bool rc {true};
-
     try {
-        // may want to change the return value from the worker to be
-        // the Worker::FilterAction so conditions in the path will be easier to
-        // identify
-        rc = worker_->doWork<T>(ep, cpc);
-
-        // Ignore return code for non-event (e.g. run, subRun) calls
-        if (!T::isEvent_) rc = true;
-        else if (filterAction_ == Veto) rc = !rc;
-        else if (filterAction_ == Ignore) rc = true;
-
-        if (T::isEvent_) {
-          if(rc) ++timesPassed_; else ++timesFailed_;
-        }
+      // may want to change the return value from the worker to be the
+      // Worker::FilterAction so conditions in the path will be easier
+      // to identify
+      rc = worker_->doWork<T>(ep, cpc);
     }
     catch(...) {
-        if (T::isEvent_) ++timesExcept_;
-        throw;
+      counts.template increment<stats::ExceptionThrown>();
+      throw;
     }
 
+    // Ignore return code for non-event (e.g. run, subRun) calls
+    if (T::level == Level::Event && filterAction_ == Veto) rc = !rc;
+    else if (T::level != Level::Event || filterAction_ == Ignore) rc = true;
+
+    counts.update(rc);
     return rc;
   }  // runWorker<>()
 

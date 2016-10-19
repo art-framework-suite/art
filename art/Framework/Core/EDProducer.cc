@@ -16,11 +16,14 @@ namespace art
 
   bool
   EDProducer::doEvent(EventPrincipal& ep,
-                      CPC_exempt_ptr cpc) {
+                      CPC_exempt_ptr cpc,
+                      CountingStatistics& counts) {
     detail::CPCSentry sentry {current_context_, cpc};
     Event e {ep, moduleDescription_};
     produce(e);
+    counts.increment<stats::Run>();
     e.commit_(checkPutProducts_, expectedProducts());
+    counts.increment<stats::Passed>();
     return true;
   }
 
@@ -28,7 +31,7 @@ namespace art
   EDProducer::doBeginJob() {
     // 'checkPutProducts_' cannot be set during the c'tor
     // initialization list since 'moduleDescription_' is empty there.
-    checkPutProducts_ = detail::get_failureToPut_flag( moduleDescription_ );
+    checkPutProducts_ = detail::get_failureToPut_flag(moduleDescription_);
     beginJob();
   }
 

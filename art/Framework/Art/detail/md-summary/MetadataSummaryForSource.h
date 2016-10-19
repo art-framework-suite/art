@@ -19,6 +19,7 @@ namespace art {
       MetadataSummaryFor(LibraryInfoCollection const& coll)
         : coll_{coll}
         , widths_{
+            std::to_string(coll.size()).size(),
             columnWidth(coll, &LibraryInfo::short_spec, "module_type"),
             columnWidth(coll, &LibraryInfo::provider  , "Provider"),
             columnWidth(coll, &LibraryInfo::path      , "Source location")
@@ -35,26 +36,27 @@ namespace art {
       std::string doHeader() const override
       {
         std::ostringstream result;
-        result << indent0()
-               << std::setw(widths_[0]+4) << std::left << "module_type"
-               << std::setw(widths_[1]+4) << std::left << "Provider"
+        result << indent(widths_[0]+2)
+               << std::setw(widths_[1]+4) << std::left << "module_type"
+               << std::setw(widths_[2]+4) << std::left << "Provider"
                << std::left << "Source location";
         return result.str();
       }
 
-      std::string doSummary(LibraryInfo const& li) const override
+      Summary doSummary(LibraryInfo const& li, std::size_t const entry) const override
       {
-        auto const count = std::count_if( coll_.cbegin(), coll_.cend(),
-                                          LibraryInfoMatch{li.short_spec()} );
-        auto const dupl  = std::string(3, (count != 1) ? '*' : ' ');
+        auto const count = std::count_if(coll_.cbegin(), coll_.cend(),
+                                         LibraryInfoMatch{li.short_spec()});
+        bool const is_duplicate = count != 1;
+        auto const dupl  = is_duplicate ? '*' : ' ';
 
         std::ostringstream result;
-        result << dupl
-               << std::setw(widths_[0]+4) << std::left << li.short_spec()
-               << std::setw(widths_[1]+4) << std::left << li.provider()
+        result << std::setw(widths_[0]) << std::right << entry << '.' << dupl
+               << std::setw(widths_[1]+4) << std::left << li.short_spec()
+               << std::setw(widths_[2]+4) << std::left << li.provider()
                << std::left << li.path()
                << "\n";
-        return result.str();
+        return {result.str(), is_duplicate};
       }
 
     };

@@ -2,6 +2,7 @@
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/System/TriggerNamesService.h"
 #include "art/Version/GetReleaseVersion.h"
+#include "art/Utilities/bold_fontify.h"
 #include "canvas/Utilities/Exception.h"
 #include "canvas/Utilities/GetPassID.h"
 #include "cetlib/container_algorithms.h"
@@ -478,33 +479,31 @@ makeWorker_(detail::ModuleConfigInfo const & mci,
   auto it = workers.find(mci.label());
   if (it == workers.end()) { // Need worker.
     auto moduleConfig = procPS_.get<ParameterSet>(mci.configPath() + '.' + mci.label());
-    WorkerParams p(procPS_,
-                   moduleConfig,
-                   preg_,
-                   exceptActions_,
-                   art::ServiceHandle<art::TriggerNamesService>()->getProcessName());
-    ModuleDescription md(moduleConfig.id(),
-                         p.pset_.get<std::string>("module_type"),
-                         p.pset_.get<std::string>("module_label"),
-                         ProcessConfiguration(p.processName_,
-                                              procPS_.id(),
-                                              getReleaseVersion(),
-                                              getPassID()));
+    WorkerParams const p {procPS_,
+                          moduleConfig,
+                          preg_,
+                          exceptActions_,
+                          ServiceHandle<TriggerNamesService>()->getProcessName()};
+    ModuleDescription const md {moduleConfig.id(),
+                                p.pset_.get<std::string>("module_type"),
+                                p.pset_.get<std::string>("module_label"),
+                                ProcessConfiguration{p.processName_,
+                                                     procPS_.id(),
+                                                     getReleaseVersion(),
+                                                     getPassID()}};
     areg_.sPreModuleConstruction.invoke(md);
     try {
       auto worker = fact_.makeWorker(p, md);
       areg_.sPostModuleConstruction.invoke(md);
-      it = workers.
-        emplace(mci.label(),
-                std::move(worker)).first;
+      it = workers.emplace(mci.label(), std::move(worker)).first;
       it->second->setActivityRegistry(&areg_);
     }
-    catch ( fhicl::detail::validationException const & e ) {
+    catch (fhicl::detail::validationException const& e) {
       std::ostringstream err_stream;
-      err_stream << "\n\nModule label: \033[1m" << md.moduleLabel() << "\033[0m"
-                 <<   "\nmodule_type : \033[1m" << md.moduleName() <<  "\033[0m"
+      err_stream << "\n\nModule label: " << detail::bold_fontify(md.moduleLabel())
+                 <<   "\nmodule_type : " << detail::bold_fontify(md.moduleName())
                  << "\n\n" << e.what();
-      configErrMsgs_.push_back( err_stream.str() );
+      configErrMsgs_.push_back(err_stream.str());
     }
   }
   return it->second.get();
@@ -514,27 +513,26 @@ makeWorker_(detail::ModuleConfigInfo const & mci,
 std::unique_ptr<art::Path>
 art::PathManager::
 fillWorkers_(int bitpos,
-             std::string const & pathName,
-             ModInfos const & modInfos,
+             std::string const& pathName,
+             ModInfos const& modInfos,
              Path::TrigResPtr pathResults,
-             WorkerMap & workers)
+             WorkerMap& workers)
 {
   assert(!modInfos.empty());
   std::vector<WorkerInPath> pathWorkers;
-  std::ostringstream config_error_stream;
-  for (auto const & mci : modInfos) {
+  for (auto const& mci : modInfos) {
     makeWorker_(mci, workers, pathWorkers);
   }
 
-  if ( configErrMsgs_.size() ) {
-    std::size_t const width (100);
+  if (configErrMsgs_.size()) {
+    std::size_t const width {100};
     std::ostringstream err_msg;
     err_msg << "\n"
             << std::string(width,'=')
             << "\n\n"
             << "!! The following modules have been misconfigured: !!"
             << "\n";
-    for ( auto const& err : configErrMsgs_ ) {
+    for (auto const& err : configErrMsgs_) {
       err_msg << "\n"
               << std::string(width,'-')
               << "\n"
@@ -552,7 +550,6 @@ fillWorkers_(int bitpos,
                                      pathName,
                                      std::move(pathWorkers),
                                      std::move(pathResults),
-                                     procPS_,
                                      exceptActions_,
                                      areg_,
                                      is_observer(modInfos.front().moduleConfigInfo().moduleType()));

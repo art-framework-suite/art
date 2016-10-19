@@ -37,10 +37,13 @@ state HandleFiles {
         [*] --> NewEvent
         NewEvent: entry/readEvent
 
-        NewEvent --> PauseEvent: Pause/disableProcessAndFinalizeEvent
+        NewEvent --> PauseEvent: Pause/disableFinalizeEvent
+        NewEvent --> ProcessEvent: Process
+        PauseEvent --> ProcessEvent: Process
+        ProcessEvent: entry/processEvent
       }
       HandleEvents: entry/initCurrentEvent
-      HandleEvents: exit/processAndFinalizeEvent
+      HandleEvents: exit/finalizeEvent
     }
     HandleSubRuns: entry/initCurrentSubRun
     HandleSubRuns: exit/finalizeSubRun

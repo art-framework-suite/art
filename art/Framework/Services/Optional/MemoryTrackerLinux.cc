@@ -6,10 +6,10 @@
 
 #include "art/Framework/Services/Optional/MemoryTracker.h"
 #include "art/Framework/Services/Optional/detail/LinuxMallInfo.h"
-#include "art/Ntuple/Ntuple.h"
-#include "art/Ntuple/sqlite_helpers.h"
 #include "boost/format.hpp"
 #include "canvas/Utilities/Exception.h"
+#include "cetlib/Ntuple/Ntuple.h"
+#include "cetlib/Ntuple/sqlite_helpers.h"
 #include "cetlib/container_algorithms.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
@@ -97,10 +97,8 @@ namespace {
   //========================================================================
   // Other helpers
 
-  enum sql_constants { ROWID };
   auto convertToEvtIdData(sqlite::stringstream& entry)
   {
-    std::size_t rowid;
     art::RunNumber_t run;
     art::SubRunNumber_t srun;
     art::EventNumber_t evt;
@@ -109,7 +107,7 @@ namespace {
     double rss;
     double drss;
 
-    entry >> rowid >> run >> srun >> evt;
+    entry >> run >> srun >> evt;
     std::ostringstream id;
     id << art::EventID{run,srun,evt};
 
@@ -119,12 +117,12 @@ namespace {
       throw art::Exception{art::errors::LogicError,"Extra fields in sqlite query result not used."};
     }
 
-    return std::make_tuple(rowid, id.str(), memdata::MemData{v, dv, rss, drss});
+    return std::make_pair(id.str(), memdata::MemData{v, dv, rss, drss});
   }
 
   //========================================================================
   namespace aliases {
-    using eventData_t     = std::tuple<std::size_t,std::string,memdata::MemData>;
+    using eventData_t     = decltype(convertToEvtIdData(std::declval<sqlite::stringstream&>()));
     using eventDataList_t = std::vector<eventData_t>;
     using modName_t       = std::string;
     template<typename KEY, typename VALUE> using orderedMap_t = std::vector<std::pair<KEY,VALUE>>;
@@ -141,8 +139,8 @@ using namespace aliases;
 
 art::MemoryTracker::MemoryTracker(ServiceTable<Config> const& config,
                                   ActivityRegistry& iReg)
-  : numToSkip_     {config().ignoreTotal()}
-  , printSummary_  {setbits_(config().printSummaries())}
+  : printSummary_  {setbits_(config().printSummaries())}
+  , maxTableLength_{config().maxTableLength()}
   , dbMgr_         {config().dbOutput().filename()}
   , overwriteContents_{config().dbOutput().overwrite()}
   , includeMallocInfo_{checkMallocConfig_(config().dbOutput().filename(),
@@ -163,6 +161,11 @@ art::MemoryTracker::MemoryTracker(ServiceTable<Config> const& config,
   , modBeginSubRun_ {otherInfoTable_, procInfo_, "Module beginSubRun"}
   , modEndSubRun_   {otherInfoTable_, procInfo_, "Module endSubRun"}
 {
+  unsigned i{};
+  if (config().ignoreTotal(i)) {
+    mf::LogWarning("MemoryTracker") << "The 'services.MemoryTracker.ignoreTotal' parameter is deprecated;\n"
+                                    << "its value of " << i << " will not be used.  Contact artists@fnal.gov for questions.";
+  }
   iReg.sPreModuleConstruction .watch( &this->modConstruction_, &CallbackPair::pre  );
   iReg.sPostModuleConstruction.watch( &this->modConstruction_, &CallbackPair::post );
   iReg.sPreModuleBeginJob     .watch( &this->modBeginJob_    , &CallbackPair::pre  );
@@ -277,7 +280,7 @@ art::MemoryTracker::postEndJob()
   if (printSummary_.test(GENERAL)) {
     msgOss << rule << "\n\n";
     msgOss << std::left << "MemoryTracker General SUMMARY (all numbers in units of Mbytes)\n\n";
-    generalSummary_( msgOss );
+    generalSummary_(msgOss);
   }
   if (printSummary_.test(EVENT)) {
     msgOss << rule << "\n\n";
@@ -442,14 +445,12 @@ art::MemoryTracker::eventSummary_(std::ostringstream& oss,
   eventTable_.flush();
 
   eventDataList_t evtList;
-  std::size_t i{};
   using namespace sqlite;
 
   result r;
-  r << select("rowid,*").from(eventTable_).where(column+" > 0").order_by(column,"desc").limit(5);
+  r << select("*").from(eventTable_).where(column+" > 0").order_by(column,"desc").limit(maxTableLength_);
 
   for (auto& entry : r) {
-    if (i++ < numToSkip_) continue;
     auto evtData = convertToEvtIdData(entry);
     evtList.push_back(std::move(evtData));
   }
@@ -466,7 +467,7 @@ art::MemoryTracker::eventSummary_(std::ostringstream& oss,
       << rule << "\n";
 
   if (evtList.empty()) {
-    oss << "  [[ no events ]] " << "\n";
+    oss << "  [ no events ]\n";
   }
 
   for (auto const& data : evtList) {
@@ -512,15 +513,12 @@ art::MemoryTracker::moduleSummary_(std::ostringstream& oss,
       " AND ModuleType='"s+mod_type+"'"s;
     sqlite::exec(dbMgr_, ddl);
 
-    std::string const& columns = "rowid,Run,Subrun,Event,Vsize,DeltaVsize,RSS,DeltaRSS";
+    std::string const& columns = "Run,Subrun,Event,Vsize,DeltaVsize,RSS,DeltaRSS";
 
     eventDataList_t evtList;
-    std::size_t i{};
-
     for (auto& entry : query(dbMgr_,
                              "SELECT "s+columns+" FROM temp.tmpModTable "s+
-                             "WHERE "+column+" > 0 ORDER BY "s+column+" DESC LIMIT 5"s)) {
-      if (i++ < numToSkip_) continue;
+                             "WHERE "+column+" > 0 ORDER BY "s+column+" DESC LIMIT "s+std::to_string(maxTableLength_))) {
       auto evtData = convertToEvtIdData(entry);
       evtList.push_back(std::move(evtData));
     }
@@ -548,7 +546,7 @@ art::MemoryTracker::moduleSummary_(std::ostringstream& oss,
     oss << itMod->first << "\n";
 
     if (itMod->second.empty()) {
-      oss << "  [[ no events ]] " << "\n";
+      oss << "  [ no events ]\n";
     }
 
     for (auto const& evtInfo : itMod->second) {

@@ -6,12 +6,7 @@
 #include <map>
 #include <string>
 
-namespace fhicl
-{
-  class ParameterSet;
-}
-
-// ----------------------------------------------------------------------
+namespace fhicl { class ParameterSet; }
 
 namespace art {
   namespace actions {
@@ -22,7 +17,6 @@ namespace art {
 class art::ActionTable {
 public:
 
-
   ActionTable();
   explicit ActionTable(const fhicl::ParameterSet&);
 
@@ -32,10 +26,10 @@ public:
   actions::ActionCodes find(const std::string& category) const;
 
 private:
-  typedef std::map<std::string, actions::ActionCodes> ActionMap;
+  using ActionMap = std::map<std::string, actions::ActionCodes>;
 
   void addDefaults_();
-  void install_(actions::ActionCodes code, const fhicl::ParameterSet& scheduler);
+  void install_(actions::ActionCodes code, fhicl::ParameterSet const& scheduler);
 
   ActionMap map_;
 };  // ActionTable

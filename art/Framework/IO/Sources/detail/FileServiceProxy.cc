@@ -11,7 +11,6 @@ FileServiceProxy(std::vector<std::string> && fileNames,
   attemptsPerPhase_(attempts),
   waitBetweenAttempts_(waitBetweenAttempts)
 {
-  std::sort(fileNames.begin(), fileNames.end());
   ci_->configure(std::move(fileNames));
 }
 

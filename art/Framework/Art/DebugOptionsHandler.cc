@@ -1,6 +1,6 @@
 #include "art/Framework/Art/DebugOptionsHandler.h"
 
-#include "art/Framework/Art/detail/bold_fontify.h"
+#include "art/Utilities/bold_fontify.h"
 #include "art/Framework/Art/detail/fhicl_key.h"
 #include "canvas/Utilities/Exception.h"
 #include "fhiclcpp/coding.h"
@@ -129,7 +129,6 @@ doProcessOptions(bpo::variables_map const & vm,
                      vm["timing-db"].as<std::string>().data());
   }
   else if (vm.count("notiming")) {
-    raw_config.erase("services.Timing");
     raw_config.erase("services.TimeTracker");
   }
   auto const memdb = vm.count("memcheck-db");
@@ -140,7 +139,6 @@ doProcessOptions(bpo::variables_map const & vm,
                      vm["memcheck-db"].as<std::string>().data());
   }
   else if (vm.count("nomemcheck")) {
-    raw_config.erase("services.SimpleMemoryCheck");
     raw_config.erase("services.MemoryTracker");
   }
   return 0;

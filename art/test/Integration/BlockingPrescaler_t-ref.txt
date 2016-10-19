@@ -35,7 +35,7 @@ TrigReport  Trig Bit#        Run     Passed     Failed      Error Name
 TrigReport     1    0         25         10         15          0 p1
 
 TrigReport -------End-Path   Summary ------------
-TrigReport  Trig Bit#        Run     Passed     Failed      Error Name
+TrigReport  Trig Bit#        Run    Success      Error Name
 
 TrigReport ---------- Modules in Path: p1 ------------
 TrigReport  Trig Bit#    Visited     Passed     Failed      Error Name
