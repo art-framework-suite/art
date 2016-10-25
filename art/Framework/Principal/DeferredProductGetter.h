@@ -37,7 +37,7 @@ art::DeferredProductGetter::
 isReady()
 const
 {
-  return (maybeResolveGetter_() != nullptr);
+  return (maybeResolveGetter_() != nullptr) && realGetter_->isReady();
 }
 #endif
 
