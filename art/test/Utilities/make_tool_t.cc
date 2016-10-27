@@ -4,7 +4,9 @@
 #include "art/Utilities/make_tool.h"
 #include "art/test/Utilities/tools/OperationBase.h"
 #include "art/test/Utilities/tools/ClassTool.h"
+#include "art/test/Utilities/tools/FunctionTool.h"
 #include "art/test/Utilities/tools/NestedClassTool.h"
+#include "art/test/Utilities/tools/NestedFunctionTool.h"
 #include "art/test/Utilities/tools/NestedFunctionInClassTool.h"
 #include "fhiclcpp/make_ParameterSet.h"
 
@@ -36,8 +38,11 @@ BOOST_AUTO_TEST_CASE(tool_function)
 {
   fhicl::ParameterSet ps;
   ps.put("tool_type", "FunctionTool"s);
-  auto addOne = art::make_tool<int(int)>(ps);
-  BOOST_CHECK_EQUAL(addOne(17), 18);
+  int i {17};
+  auto addOne1 = art::make_tool<decltype(arttest::addOne)>(ps, "addOne");
+  auto addOne2 = art::make_tool<int(int)>(ps, "addOne");
+  BOOST_CHECK_EQUAL(addOne1(i), 18);
+  BOOST_CHECK_EQUAL(addOne2(i), 18);
 }
 
 BOOST_AUTO_TEST_CASE(nested_function_tools)
@@ -48,7 +53,7 @@ BOOST_AUTO_TEST_CASE(nested_function_tools)
      << "  tool_type: FunctionTool"
      << "}";
   auto const& ps = pset_from_oss(ss);
-  auto callThroughToAddOne = art::make_tool<int(fhicl::ParameterSet const&, int)>(ps);
+  auto callThroughToAddOne = art::make_tool<decltype(arttest::callThroughToAddOne)>(ps, "callThroughToAddOne");
   auto const& nestedPS = ps.get<fhicl::ParameterSet>("addOneTool");
   BOOST_CHECK_EQUAL(callThroughToAddOne(nestedPS, 17), 18);
 }

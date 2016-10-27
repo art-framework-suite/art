@@ -21,7 +21,7 @@ namespace {
 
     explicit AddIntsProducer(Parameters const& p) :
       labels_{p().labels()},
-      addInts_{art::make_tool<void(int&,int)>(p().tool_table.get<fhicl::ParameterSet>())}
+      addInts_{art::make_tool<void(int&,int)>(p().tool_table.get<fhicl::ParameterSet>(), "addInts")}
     {
       produces<arttest::IntProduct>();
     }

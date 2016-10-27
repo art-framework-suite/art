@@ -190,19 +190,19 @@
 
 <separator (=)>
 
-    tool_type                    Type        Source location
+    tool_type                    Type                   Source location
 <separator (-)>
- 1. AddNumber                    class       /home/knoepfel/art/art/test/Utilities/tools/AddNumber_tool.cc
- 2. ClassTool                    class       /home/knoepfel/art/art/test/Utilities/tools/ClassTool_tool.cc
- 3. FunctionTool                 function    /home/knoepfel/art/art/test/Utilities/tools/FunctionTool_tool.cc
- 4. MessagePrinter               class       /home/knoepfel/art/art/test/Integration/MessagePrinter_tool.cc
- 5. MultiplyNumber               class       /home/knoepfel/art/art/test/Utilities/tools/MultiplyNumber_tool.cc
- 6. NestedClassTool              class       /home/knoepfel/art/art/test/Utilities/tools/NestedClassTool_tool.cc
- 7. NestedFunctionInClassTool    class       /home/knoepfel/art/art/test/Utilities/tools/NestedFunctionInClassTool_tool.cc
- 8. NestedFunctionTool           function    /home/knoepfel/art/art/test/Utilities/tools/NestedFunctionTool_tool.cc
- 9. ReadNextArbitrator           class       /home/knoepfel/art/art/test/Integration/ReadNextArbitrator_tool.cc
-10. SubtractNumber               class       /home/knoepfel/art/art/test/Utilities/tools/SubtractNumber_tool.cc
-11. addInts                      function    /home/knoepfel/art/art/test/Integration/addInts_tool.cc
+ 1. AddNumber                    class                  /home/knoepfel/art/art/test/Utilities/tools/AddNumber_tool.cc
+ 2. ClassTool                    class                  /home/knoepfel/art/art/test/Utilities/tools/ClassTool_tool.cc
+ 3. FunctionTool                 addOne                 /home/knoepfel/art/art/test/Utilities/tools/FunctionTool_tool.cc
+ 4. MessagePrinter               class                  /home/knoepfel/art/art/test/Integration/MessagePrinter_tool.cc
+ 5. MultiplyNumber               class                  /home/knoepfel/art/art/test/Utilities/tools/MultiplyNumber_tool.cc
+ 6. NestedClassTool              class                  /home/knoepfel/art/art/test/Utilities/tools/NestedClassTool_tool.cc
+ 7. NestedFunctionInClassTool    class                  /home/knoepfel/art/art/test/Utilities/tools/NestedFunctionInClassTool_tool.cc
+ 8. NestedFunctionTool           callThroughToAddOne    /home/knoepfel/art/art/test/Utilities/tools/NestedFunctionTool_tool.cc
+ 9. ReadNextArbitrator           class                  /home/knoepfel/art/art/test/Integration/ReadNextArbitrator_tool.cc
+10. SubtractNumber               class                  /home/knoepfel/art/art/test/Utilities/tools/SubtractNumber_tool.cc
+11. addInts                      addInts                /home/knoepfel/art/art/test/Integration/addInts_tool.cc
 
 <separator (=)>
 

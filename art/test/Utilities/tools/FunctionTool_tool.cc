@@ -7,4 +7,4 @@ namespace arttest {
   }
 }
 
-DEFINE_ART_TOOL_FUNCTION(arttest::addOne)
+DEFINE_ART_TOOL_FUNCTION(arttest::addOne, "addOne")

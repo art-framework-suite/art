@@ -1,6 +1,7 @@
 #ifndef art_Utilities_detail_tool_type_h
 #define art_Utilities_detail_tool_type_h
 
+#include "canvas/Utilities/Exception.h"
 #include "cetlib/BasicPluginFactory.h"
 
 #include <functional>
@@ -27,8 +28,6 @@ namespace art {
       {
         return factory.makePlugin<std::unique_ptr<T>>(libspec, pset);
       }
-
-      static std::string plugin_function_name() { return "makeTool"; }
     };
 
     template <typename T>
@@ -38,12 +37,17 @@ namespace art {
 
       static auto make_plugin(cet::BasicPluginFactory& factory,
                               std::string const& libspec,
-                              fhicl::ParameterSet const&)
+                              fhicl::ParameterSet const&,
+                              std::string const& function_plugin_type)
       {
-        return factory.makePlugin<T>(libspec);
-      }
+        auto const pluginType = factory.pluginType(libspec);
+        return pluginType == function_plugin_type ?
+          factory.makePlugin<T>(libspec) :
+          throw Exception(errors::Configuration, "tool_type::make_plugin: ")
+            << "Unrecognized function-tool type \"" << function_plugin_type << "\" for plugin \"" << libspec << "\".\n"
+            << "Allowed function-tool type for above plugin is: \"" << pluginType << "\".\n";
 
-      static std::string plugin_function_name() { return "toolFunction"; }
+      }
     };
 
   }

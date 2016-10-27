@@ -33,11 +33,11 @@
     }                                                                   \
   }
 
-#define DEFINE_ART_TOOL_FUNCTION(tool)                                  \
+#define DEFINE_ART_TOOL_FUNCTION(tool, type)                            \
   extern "C" {                                                          \
     PROVIDE_FILE_PATH()                                                 \
     PROVIDE_TOOL_FUNCTION_DESCRIPTION()                                 \
-    std::string toolType() { return "function"; }                       \
+    std::string toolType() { return type; }                             \
     auto toolFunction = tool;                                           \
   }
 
