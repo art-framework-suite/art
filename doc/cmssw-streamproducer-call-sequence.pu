@@ -1,0 +1,159 @@
+@startuml
+participant WorkerMaker
+participant "ProducingModuleAdaptorBase<EDProducerBase>" as pmAdaptorBase
+participant "EDProducerAdaptorBase" as edAdaptorBase
+participant "EDProducerAdaptor<T>" as base
+participant "T::GlobalCache" as globalCache
+participant "edm::stream::impl" as stream_impl
+participant "Global abilities" as abilities
+participant "EDProducerBase*" as tbase
+participant "T*" as T
+
+skinparam sequenceGroupBackgroundColor #LightGreen
+box "User's module" #LightBlue
+    participant T
+end box
+
+create base
+== Initialize global cache ==
+WorkerMaker -> base: ""auto module = makeModule(pset)""
+create edAdaptorBase
+base -> edAdaptorBase: create
+create pmAdaptorBase
+edAdaptorBase -> pmAdaptorBase : create
+note right of pmAdaptorBase: ""m_streamModules.resize(1);""
+note right of base:\
+""m_runs.resize(1);""\n\
+""m_lumis.resize(1);""\n\
+""m_runSummaries.resize(1);""\n\
+""m_lumiSummaries.resize(1);""
+base -> stream_impl
+stream_impl -> T: ""impl::makeGlobal<T>(pset,...)""
+create globalCache
+T -> globalCache: ""auto m_global = T::initializeGlobalCache(pset)""
+note right of globalCache: ""m_global""
+
+== Construct stream module ==
+WorkerMaker -> pmAdaptorBase: ""module->preAllocate(...)""
+pmAdaptorBase -> base: ""m_mod->doPreallocate(...)""
+base -> base: ""setupStreamModules()"" 
+base -> pmAdaptorBase: ""createStreamModules<T>(...)""
+pmAdaptorBase -> stream_impl
+stream_impl -> T: ""impl::makeStreamModule(pset, m_global)""
+activate T
+create tbase
+T -> tbase: create
+
+== Call beginJob ==
+pmAdaptorBase -> pmAdaptorBase: ""doBeginJob(...)""
+loop nStream times
+     pmAdaptorBase -> tbase: ""doBeginStream(...)""
+     tbase -> T: ""beginStream(...)""
+     T --> T: ""beginStream(...)""
+end
+
+== Call beginRun ==
+pmAdaptorBase -> base: ""doBeginRun(...)""
+base -> abilities
+abilities -> T: ""MyGlobalRun::beginRun(...,m_global,m_run[0])""
+T -> base: ""m_runs[0] = T::globalBeginRun(...,&rc)""
+note right of base: ""RunContext rc {m_runs[0], m_global};""
+base -> abilities
+abilities -> T: ""MyGlobalRunSummary::beginRun(...,&rc)""
+T -> base: ""m_runSummaries[0] = T::globalBeginRunSummary(...,&rc)""
+base -> abilities
+abilities -> T: ""MyGlobalRunProduce::produce(...,&rc)""
+T -> T: ""T::globalBeginRunProduce(...,&rc)""
+base -> base: ""commit(r)""
+loop nStream times
+       pmAdaptorBase->tbase: ""doStreamBeginRun(...)""
+       tbase -> T: ""beginRun(...)""
+       T --> T: ""beginRun(...)""
+end
+
+== Call beginLuminosityBlock ==
+pmAdaptorBase -> base: ""doBeginLuminosityBlock(...)""
+note right of base: ""RunContext rc {m_runs[0], m_global};""
+base -> abilities
+abilities -> T: ""MyGlobalLuminosityBlock::beginLuminosityBlock(...,&rc,m_lumis[0])""
+T -> base: ""m_lumis[0] = T::globalBeginLuminosityBlock(...,&rc)""
+note right of base: ""LuminosityBlockContext lc {m_lumis[0], m_runs[0], m_global};""
+base -> abilities
+abilities -> T: ""MyGlobalLuminosityBlockSummary::beginLuminosityBlock(...,&lc,m_lumiSummaries[0])""
+T -> base: ""m_lumiSummaries[0] = T::globalBeginLuminosityBlockSummary(...,&lc)""
+base -> abilities
+abilities -> T: ""MyBeginLuminosityBlockProduce::produce(...,&lc)""
+T -> T: ""T::globalBeginLuminosityBlockProduce(...,&lc)""
+base -> base: ""commit(lb)""
+loop nStream times
+       pmAdaptorBase->tbase: ""doStreamBeginLuminosityBlock(...)""
+       tbase -> T: ""beginLuminosityBlock(...)""
+       T --> T: ""beginLuminosityBlock(...)""
+end
+
+== Call produce ==
+
+edAdaptorBase -> tbase: ""doEvent(...)""
+tbase -> T: ""produce(...)""
+T -> T: ""produce(...)""
+
+== Call endLuminosityBlock ==
+loop nStream times
+       pmAdaptorBase->tbase: ""doStreamEndLuminosityBlock(...)""
+       tbase -> T: ""endLuminosityBlock(...)""
+       T --> T: ""endLuminosityBlock(...)""
+       pmAdaptorBase->base: ""streamEndLuminosityBlockSummary(...)""
+       base-> abilities
+       abilities -> T: ""MyGlobalLuminosityBlockSummary::streamEndLuminosityBlockSummary(...,m_lumiSummaries[0])""
+       T -> T: ""endLuminosityBlockSummary(...,m_lumiSummaries[0])""
+end
+pmAdaptorBase-> base: ""doEndLuminosityBlock(...)""
+note right of base: ""LuminosityBlockContext lc {m_lumis[0], m_runs[0], m_global};""
+base -> abilities
+abilities -> T: ""MyEndLuminosityBlockProduce::produce(...,&lc,m_lumiSummaries[0])""
+T -> T: ""T::globalEndLuminosityBlockProduce(...,&lc,m_lumiSummaries[0])""
+base -> base: ""commit(lb)""
+base -> abilities
+abilities -> T: ""MyGlobalLuminosityBlockSummary::globalEndLuminosityBlock(...,&lc,m_lumiSummaries[0])""
+T -> T: ""T::globalEndLuminosityBlockSummary(...,&lc,m_lumiSummaries[0])""
+base -> abilities
+abilities -> T: ""MyGlobalLuminosityBlock::endLuminosityBlock(...,&lc)""
+T -> T: ""T::globalEndLuminosityBlock(...,&lc)""
+
+== Call endRun ==
+loop nStream times
+       pmAdaptorBase->tbase: ""doStreamEndRun(...)""
+       tbase -> T: ""endRun(...)""
+       T --> T: ""endRun(...)""
+       pmAdaptorBase->base: ""streamEndRunSummary(...)""
+       base-> abilities
+       abilities -> T: ""MyGlobalRunSummary::streamEndRunSummary(...,m_runSummaries[0])""
+       T -> T: ""endRunSummary(...,m_runSummaries[0])""
+end
+pmAdaptorBase-> base: ""doEndRun(...)""
+note right of base: ""RunContext r {m_runs[0], m_global};""
+base -> abilities
+abilities -> T: ""MyEndRunProduce::produce(...,&rc,m_runSummaries[0])""
+T -> T: ""T::globalEndRunProduce(...,&rc,m_runSummaries[0])""
+base -> base: ""commit(r)""
+base -> abilities
+abilities -> T: ""MyGlobalRunSummary::globalEndRun(...,&rc,m_runSummaries[0])""
+T -> T: ""T::globalEndRunSummary(...,&rc,m_runSummaries[0])""
+base -> abilities
+abilities -> T: ""MyGlobalRun::endRun(...,&rc)""
+T -> T: ""T::globalEndRun(...,&rc)""
+
+== Call endJob ==
+
+loop nStream times
+     pmAdaptorBase -> tbase: ""doEndStream(...)""
+     tbase -> T: ""endStream(...)""
+     T --> T: ""endStream(...)""
+end
+
+pmAdaptorBase->base: ""doEndJob()""
+base -> abilities
+abilities->T: ""endJob(m_global)""
+T -> T: ""T::globalEndJob(m_global)""
+
+@enduml
