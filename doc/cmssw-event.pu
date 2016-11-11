@@ -1,0 +1,33 @@
+@startuml
+abstract class EventBase {
+}
+note left of EventBase
+Common class for
+""FWCore"" and ""FWLite""
+endnote
+
+class Event {
+  -provRecorder_ : PrincipalGetAdapter
+}
+EventBase <|-- Event
+Event -> PrincipalGetAdapter
+
+class PrincipalGetAdapter {
+  -principal_ : Principal const&
+}
+PrincipalGetAdapter -> Principal
+abstract class EDProductGetter
+EDProductGetter <|-- Principal
+
+class Principal {
+  -productResolvers_ : ProductResolverCollection
+}
+
+Principal -> ProductResolverBase
+note top of ProductResolverBase
+<color:red>The ""Resolution"" object owns the product.</color>
+The product is eventually co-owned
+by the ""Handle<T>"" (actually ""HandleBase"").
+endnote
+!include cmssw-product-resolvers.pu
+@enduml

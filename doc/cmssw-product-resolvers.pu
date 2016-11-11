@@ -1,0 +1,30 @@
+@startuml
+abstract class ProductResolverBase {
+  {abstract} virtual Resolution resolveProduct_() const = 0
+}
+ProductResolverBase <|-- DataManagingProductResolver
+ProductResolverBase -> Resolution
+abstract class DataManagingProductResolver
+DataManagingProductResolver <|-- InputProductResolver
+DataManagingProductResolver <|-- ProducedProductResolver
+ProducedProductResolver <|-- PuttableProductResolver
+ProducedProductResolver <|-- UnscheduledProductResolver
+ProductResolverBase <|-- AliasProductResolver
+ProductResolverBase <|-- ParentProcessProductResolver
+ProductResolverBase <|-- NoProcessProductResolver
+ProductResolverBase <|-- SingleChoiceNoProcessProductResolver
+
+class Resolution {
+  - m_data : ProductData const*
+}
+class ProductData {
+  - wrapper_ : shared_ptr<WrapperBase> <<mutable>>
+}
+Resolution -> ProductData
+ProductData -> WrapperBase
+WrapperBase <|-- Wrapper
+class Wrapper<T>{
+  - obj : T
+  + T const* product() const
+}
+@enduml
