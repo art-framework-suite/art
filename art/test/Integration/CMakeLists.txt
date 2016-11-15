@@ -928,6 +928,7 @@ foreach(num 1 2 3 4)
   cet_test(ProvenanceDumper_r${num} HANDBUILT
   TEST_EXEC art_ut
   TEST_ARGS -- --rethrow-all -c "ProvenanceDumper_r${num}.fcl"
+  REQUIRED_FILES "../ProvenanceDumper_w.d/out.root"
   DATAFILES
   fcl/FileDumperOutputTest_r.fcl
   fcl/ProvenanceDumper_r1.fcl
@@ -1491,3 +1492,18 @@ cet_test(SimpleServiceTest_t HANDBUILT
   )
 
 add_subdirectory(fastclonefail)
+
+simple_plugin(TestReadImmediateControl "module" NO_INSTALL USE_BOOST_UNIT)
+
+foreach(num 1 2 3 4 5)
+  cet_test(ImmediateReadControl_${num} HANDBUILT 
+    TEST_EXEC art_ut
+    TEST_ARGS -- --rethrow-all -c "ImmediateReadControl_${num}.fcl"
+    REQUIRED_FILES "../FileDumperOutput_w.d/out.root"
+    DATAFILES
+    fcl/FileDumperOutputTest_r.fcl
+    fcl/ImmediateReadControl_1.fcl
+    fcl/ImmediateReadControl_${num}.fcl
+    TEST_PROPERTIES DEPENDS FileDumperOutputTest_w
+    )
+endforeach()

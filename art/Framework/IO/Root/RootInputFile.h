@@ -71,6 +71,7 @@ namespace art {
                   unsigned int treeCacheSize,
                   int64_t treeMaxVirtualSize,
                   int64_t saveMemoryObjectThreashold,
+                  bool delayedReadEventProducts,
                   bool delayedReadSubRunProducts,
                   bool delayedReadRunProducts,
                   InputSource::ProcessingMode processingMode,
@@ -403,6 +404,7 @@ namespace art {
     EventNumber_t eventsToSkip_;
     std::vector<SubRunID> whichSubRunsToSkip_;
     RootTreePtrArray treePointers_;
+    bool delayedReadEventProducts_;
     bool delayedReadSubRunProducts_;
     bool delayedReadRunProducts_;
     InputSource::ProcessingMode processingMode_;
