@@ -14,15 +14,20 @@
 // There are two parameters that control the behavior of this module
 // template:
 //
-//    1. wantPresentOnly (bool, default true)
+//    1. wantPresentOnly (bool, default true).
 //
 //       If true, produce provenances and invoke relevant callbacks only
-//       if the product is actually present.
+//       if the product is actually present in the event (but see
+//       wantResolvedOnly below, which supercedes).
 //
 //    2. resolveProducts (bool, default true).
 //
-//       If true, attempt to resolve the product before attempting to
-//       determine whether it is present.
+//       If true, attempt to resolve the product if it is present.
+//
+//    3. wantResolvedOnly (bool, default false).
+//       If true, produce provenances and invoke relevant callbacks only
+//       if the product has already been resolved successfully (either
+//       due to resolveProducts or by other means).
 //
 // The ProvenanceDumper class template requires the use of a type DETAIL
 // as its template paramenter; this type DETAIL must supply the
@@ -50,9 +55,9 @@
 //    void preProcessEvent();
 //
 //    // Called prior to looping over any Provenances to be found in the
-//    // event (always called if present)..
+//    // event (always called if present).
 //
-//    void processEventProvenance(art::Provenance const &);
+//    void processEventProvenance(art::Provenance const &); // OR
 //
 //    // Called for each Provenance in the event (not called if there
 //    // are none).
@@ -60,14 +65,14 @@
 //    void postProcessEvent();
 //
 //    // Called after looping over any Provenances to be found in the
-//    // event (always called if present)..
+//    // event (always called if present).
 //
 //    void preProcessSubRun();
 //
 //    // Called prior to looping over any Provenances to be found in the
-//    // subrun (always called if present)..
+//    // subrun (always called if present).
 //
-//    void processSubRunProvenance(art::Provenance const &);
+//    void processSubRunProvenance(art::Provenance const &); // OR
 //
 //    // Called for each Provenance in the subrun (not called if there
 //    // are none).
@@ -75,14 +80,14 @@
 //    void postProcessSubRun();
 //
 //    // Called after looping over any Provenances to be found in the
-//    // subrun (always called if present)..
+//    // subrun (always called if present).
 //
 //    void preProcessRun();
 //
 //    // Called prior to looping over any Provenances to be found in the
-//    // run (always called if present)..
+//    // run (always called if present).
 //
-//    void processRunProvenance(art::Provenance const &);
+//    void processRunProvenance(art::Provenance const &); // OR
 //
 //    // Called for each Provenance in the run (not called if there
 //    // are none).
@@ -90,7 +95,7 @@
 //    void postProcessRun();
 //
 //    // Called after looping over any Provenances to be found in the
-//    // run (always called if present)..
+//    // run (always called if present).
 //
 //    void endJob();
 //
@@ -98,27 +103,8 @@
 //    // endJob() member function.
 //
 ////////////////////////////////////
-// Advanced notes.
+// For advanced notes, see detail/ProvenanceDumperImpl.h.
 //
-// For those interested in how the framework obtains the provenance
-// information, here are some notes:
-//
-// This module template contains a lot of template metaprograming to
-// ensure that only those functions relevant to the user's purpose (and
-// therefore defined) are called, and at the right time. If you are
-// interested in how the provenance is obtained, the only function
-// necessary to this understanding below is:
-//
-//    template <typename DETAIL>
-//    template <typename PRINCIPAL>
-//    void
-//    art::detail::PrincipalProcessor<DETAIL>::
-//    operator()(PRINCIPAL const & p,
-//               void (DETAIL:: *func)(art::Provenance const &)) const
-//
-// This function will loop over the Groups in a particular Principal,
-// attempt to resolve the product if possible and then construct a
-// Provenance to pass to the correct callback function func.
 //
 ////////////////////////////////////////////////////////////////////////
 #include "art/Framework/Core/OutputModule.h"
@@ -146,6 +132,7 @@ namespace art {
     fhicl::TableFragment<art::OutputModule::Config> omConfig;
     fhicl::Atom<bool> wantPresentOnly { fhicl::Name("wantPresentOnly"), true };
     fhicl::Atom<bool> resolveProducts { fhicl::Name("resolveProducts"), true };
+    fhicl::Atom<bool> wantResolvedOnly { fhicl::Name("wantResolvedOnly"), true };
   };
 
   template <typename DETAIL>
@@ -153,6 +140,7 @@ namespace art {
     fhicl::TableFragment<art::OutputModule::Config> omConfig;
     fhicl::Atom<bool> wantPresentOnly { fhicl::Name("wantPresentOnly"), true };
     fhicl::Atom<bool> resolveProducts { fhicl::Name("resolveProducts"), true };
+    fhicl::Atom<bool> wantResolvedOnly { fhicl::Name("wantResolvedOnly"), true };
     fhicl::TableFragment<typename DETAIL::Config> user;
   };
 
@@ -170,14 +158,14 @@ public:
     :
     OutputModule{ps},
     detail_{ps},
-    wantPresentOnly_{ps.get<bool>("wantPresentOnly", true)},
-    resolveProducts_{ps.get<bool>("resolveProducts", true)},
-    pp_{detail_, wantPresentOnly_, resolveProducts_},
+    pp_{detail_,
+        ps.get<bool>("wantPresentOnly", true),
+        ps.get<bool>("resolveProducts", true),
+        ps.get<bool>("wantResolvedOnly", false)},
     impl_{detail_, pp_}
   {}
 
 private:
-
   void beginJob() override { impl_.beginJob(); }
   void endJob()  override { impl_.endJob(); }
 
@@ -186,11 +174,8 @@ private:
   void writeRun   (RunPrincipal    & r ) override { impl_.writeRun(r); }
 
   DETAIL detail_;
-  bool wantPresentOnly_;
-  bool resolveProducts_;
   detail::PrincipalProcessor<DETAIL> pp_;
   detail::ProvenanceDumperImpl<DETAIL> impl_;
-
 };
 
 
@@ -208,14 +193,14 @@ namespace art {
       :
       OutputModule{ps().omConfig, ps.get_PSet()},
       detail_{ps().user},
-      wantPresentOnly_{ps().wantPresentOnly()},
-      resolveProducts_{ps().resolveProducts()},
-      pp_{detail_, wantPresentOnly_, resolveProducts_},
+      pp_{detail_,
+          ps().wantPresentOnly(),
+          ps().resolveProducts(),
+          ps().wantResolvedOnly()},
       impl_{detail_, pp_}
     {}
 
   private:
-
     void beginJob() override { impl_.beginJob(); }
     void endJob() override { impl_.endJob(); }
 
@@ -224,11 +209,8 @@ namespace art {
     void writeRun   (RunPrincipal    & r ) override { impl_.writeRun(r); }
 
     DETAIL detail_;
-    bool wantPresentOnly_;
-    bool resolveProducts_;
     detail::PrincipalProcessor<DETAIL> pp_;
     detail::ProvenanceDumperImpl<DETAIL> impl_;
-
   };
 }
 
