@@ -4,7 +4,10 @@ abstract class ProductResolverBase {
 }
 ProductResolverBase <|-- DataManagingProductResolver
 ProductResolverBase -> Resolution
-abstract class DataManagingProductResolver
+abstract class DataManagingProductResolver {
+  - productData_ : ProductData
+}
+DataManagingProductResolver --> ProductData
 DataManagingProductResolver <|-- InputProductResolver
 DataManagingProductResolver <|-- ProducedProductResolver
 ProducedProductResolver <|-- PuttableProductResolver

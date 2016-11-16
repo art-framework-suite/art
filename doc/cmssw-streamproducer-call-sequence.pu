@@ -21,7 +21,7 @@ create edAdaptorBase
 base -> edAdaptorBase: create
 create pmAdaptorBase
 edAdaptorBase -> pmAdaptorBase : create
-note right of pmAdaptorBase: ""m_streamModules.resize(1);""
+note right of pmAdaptorBase: ""m_streamModules.resize(nStream);""
 note right of base:\
 ""m_runs.resize(1);""\n\
 ""m_lumis.resize(1);""\n\
