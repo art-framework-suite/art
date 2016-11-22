@@ -309,6 +309,6 @@ FloatingPointControl::echoState()
 // ======================================================================
 
 PROVIDE_FILE_PATH()
-PROVIDE_DESCRIPTION(art::FloatingPointControl)
+PROVIDE_ALLOWED_CONFIGURATION(art::FloatingPointControl)
 
 // ======================================================================

@@ -200,7 +200,7 @@
     Allowed configuration
     <separator (-)>
 
-        [ provided in future release ]
+        [ None provided ]
 
 <separator (=)>
 

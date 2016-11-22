@@ -1,7 +1,9 @@
 #include "art/Framework/Art/detail/PluginSymbolResolvers.h"
 
+using namespace std::string_literals;
 namespace bfs = boost::filesystem;
 using cet::LibraryManager;
+
 
 namespace art {
   namespace detail {
@@ -12,13 +14,13 @@ namespace art {
     {
       using ModuleTypeFunc_t = art::ModuleType();
 
-      auto type = [&lm,&fullSpec](){
+      auto type = [&lm,&fullSpec] {
         ModuleTypeFunc_t* symbolType{};
         lm.getSymbolByLibspec(fullSpec, "moduleType", symbolType);
         return art::to_string(symbolType());
       };
 
-      return resolve_if_present(type, __func__, "[ error ]");
+      return resolve_if_present(type, __func__, "[ error ]"s);
     }
 
     template <>
@@ -27,13 +29,13 @@ namespace art {
     {
       using PluginTypeFunc_t = std::string();
 
-      auto type = [&lm,&fullSpec](){
+      auto type = [&lm,&fullSpec] {
         PluginTypeFunc_t* symbolType{};
         lm.getSymbolByLibspec(fullSpec, "pluginType", symbolType);
         return symbolType();
       };
 
-      return resolve_if_present(type, __func__, "[ error ]");
+      return resolve_if_present(type, __func__, "[ error ]"s);
     }
   }
 }

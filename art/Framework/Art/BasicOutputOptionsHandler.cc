@@ -1,6 +1,7 @@
 #include "art/Framework/Art/BasicOutputOptionsHandler.h"
 
 #include "art/Utilities/bold_fontify.h"
+#include "art/Framework/Art/detail/AllowedConfiguration.h"
 #include "art/Framework/Art/detail/exists_outside_prolog.h"
 #include "art/Framework/Art/detail/fhicl_key.h"
 #include "canvas/Utilities/Exception.h"
@@ -266,16 +267,25 @@ doProcessOptions(bpo::variables_map const & vm,
   if (!tmpDir_.empty()) {
     std::string const& tfile_key = fhicl_key("services","TFileService");
     if (detail::exists_outside_prolog(raw_config, tfile_key)) {
+      assert(detail::supports_key(art::suffix_type::service, "TFileService", "tmpDir"));
       raw_config.put(fhicl_key(tfile_key,"tmpDir"), tmpDir_);
     }
+
+    // Inject tmpDir for output modules that support the 'tmpDir' parameter.
     std::string const outputs_stem {"outputs"};
     if (detail::exists_outside_prolog(raw_config, outputs_stem)) {
-      auto const & table = raw_config.get<table_t const &>(outputs_stem);
+      auto const& table = raw_config.get<table_t const&>(outputs_stem);
       for (auto const & output : table) {
-        if (detail::exists_outside_prolog(raw_config, fhicl_key(outputs_stem, output.first, "module_type"))) {
-          // Inject tmpDir into the module configuration.
-          raw_config.put(fhicl_key(outputs_stem, output.first, "tmpDir"), tmpDir_);
-        }
+        auto const& module_label = fhicl_key(outputs_stem, output.first);
+        auto const& module_type = fhicl_key(module_label, "module_type");
+        if (!detail::exists_outside_prolog(raw_config, module_type))
+          continue;
+
+        auto const& spec = raw_config.get<std::string>(module_type);
+        if (!detail::supports_key(art::suffix_type::module, spec, "tmpDir"))
+          continue;
+
+        raw_config.put(fhicl_key(module_label, "tmpDir"), tmpDir_);
       }
     }
   }

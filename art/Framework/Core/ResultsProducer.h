@@ -223,7 +223,7 @@ doClear()
 
 #define DEFINE_ART_RESULTS_PLUGIN(klass)                           \
   PROVIDE_FILE_PATH()                                              \
-  PROVIDE_DESCRIPTION(klass)                                       \
+  PROVIDE_ALLOWED_CONFIGURATION(klass)                                       \
   DEFINE_BASIC_PLUGINTYPE_FUNC(art::ResultsProducer)               \
   extern "C" {                                                     \
     std::unique_ptr<art::RPWorker>                            \

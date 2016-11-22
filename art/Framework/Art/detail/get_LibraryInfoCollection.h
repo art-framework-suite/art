@@ -19,7 +19,6 @@ namespace art {
     LibraryInfoCollection
     get_LibraryInfoCollection(suffix_type suffix,
                               std::string const& pattern,
-                              std::string const& prefix  = "",
                               bool const verbose = false);
 
   } // detail

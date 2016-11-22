@@ -9,6 +9,7 @@
 #include "art/Framework/Principal/SubRun.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Framework/Principal/OpenRangeSetHandler.h"
+#include "art/Utilities/ConfigurationTable.h"
 #include "canvas/Persistency/Provenance/EventAuxiliary.h"
 #include "canvas/Persistency/Provenance/EventID.h"
 #include "canvas/Persistency/Provenance/RunAuxiliary.h"
@@ -19,7 +20,6 @@
 #include "cetlib/BasicPluginFactory.h"
 #include "fhiclcpp/types/Atom.h"
 #include "fhiclcpp/types/OptionalAtom.h"
-#include "fhiclcpp/types/Table.h"
 #include "fhiclcpp/types/TableFragment.h"
 #include "fhiclcpp/ParameterSet.h"
 
@@ -59,7 +59,7 @@ public:
 
   };
 
-  using Parameters = fhicl::Table<Config, Config::KeysToIgnore>;
+  using Parameters = art::WrappedTable<Config, Config::KeysToIgnore>;
 
   explicit EmptyEvent(Parameters const& config,
                       InputSourceDescription & desc);
