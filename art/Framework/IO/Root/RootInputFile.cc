@@ -98,6 +98,7 @@ namespace art {
                 unsigned int treeCacheSize,
                 int64_t treeMaxVirtualSize,
                 int64_t saveMemoryObjectThreshold,
+                bool delayedReadEventProducts,
                 bool delayedReadSubRunProducts,
                 bool delayedReadRunProducts,
                 InputSource::ProcessingMode processingMode,
@@ -125,6 +126,7 @@ namespace art {
       std::make_unique<RootTree>(filePtr_, InSubRun, saveMemoryObjectThreshold, this),
       std::make_unique<RootTree>(filePtr_, InRun, saveMemoryObjectThreshold, this),
       std::make_unique<RootTree>(filePtr_, InResults, saveMemoryObjectThreshold, this, true /* missingOK */) }
+    , delayedReadEventProducts_{delayedReadEventProducts}
     , delayedReadSubRunProducts_{delayedReadSubRunProducts}
     , delayedReadRunProducts_{delayedReadRunProducts}
     , processingMode_{processingMode}
@@ -654,6 +656,9 @@ namespace art {
                                                0,
                                                nullptr);
     eventTree().fillGroups(*ep);
+    if (!delayedReadEventProducts_) {
+      ep->readImmediate();
+    }
     primaryEP_ = make_exempt_ptr(ep.get());
     return ep;
   }

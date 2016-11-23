@@ -3,9 +3,9 @@
 #include "art/Framework/Principal/Handle.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/System/TriggerNamesService.h"
+#include "art/Utilities/ConfigurationTable.h"
 #include "canvas/Persistency/Common/TriggerResults.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
-#include "fhiclcpp/types/Table.h"
 
 #include <algorithm>
 #include <cassert>
@@ -61,7 +61,7 @@ public:
     fhicl::Atom<bool> expectTriggerResults { fhicl::Name("expectTriggerResults"), true };
   };
 
-  using Parameters = fhicl::Table<Config, art::OutputModule::Config::KeysToIgnore>;
+  using Parameters = art::WrappedTable<Config, art::OutputModule::Config::KeysToIgnore>;
   explicit TestBitsOutput(Parameters const&);
 
 private:

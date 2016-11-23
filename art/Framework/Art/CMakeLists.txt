@@ -44,10 +44,11 @@ set(art_Framework_Art_sources
   find_config.cc
   run_art.cc
   detail/MetadataRegexHelpers.cc
-  detail/PrintPluginMetadata.cc
+  detail/AllowedConfiguration.cc
   detail/PluginSymbolResolvers.cc
   detail/ServiceNames.cc
   detail/fillSourceList.cc
+  detail/describe.cc
   detail/get_LibraryInfoCollection.cc
   detail/get_MetadataCollector.cc
   detail/get_MetadataSummary.cc

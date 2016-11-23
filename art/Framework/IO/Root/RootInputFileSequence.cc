@@ -46,6 +46,7 @@ RootInputFileSequence(fhicl::TableFragment<RootInputFileSequence::Config> const&
   , treeCacheSize_{config().cacheSize()}
   , treeMaxVirtualSize_{config().treeMaxVirtualSize()}
   , saveMemoryObjectThreshold_{config().saveMemoryObjectThreshold()}
+  , delayedReadEventProducts_{config().delayedReadEventProducts()}
   , delayedReadSubRunProducts_{config().delayedReadSubRunProducts()}
   , delayedReadRunProducts_{config().delayedReadRunProducts()}
   , forcedRunOffset_(0)
@@ -355,6 +356,7 @@ initFile(bool skipBadFiles, bool initMPR/*=false*/)
                 treeCacheSize_,
                 treeMaxVirtualSize_,
                 saveMemoryObjectThreshold_,
+                delayedReadEventProducts_,
                 delayedReadSubRunProducts_,
                 delayedReadRunProducts_,
                 processingMode_,
@@ -458,6 +460,7 @@ openSecondaryFile(int idx,
                                               treeCacheSize_,
                                               treeMaxVirtualSize_,
                                               saveMemoryObjectThreshold_,
+                                              delayedReadEventProducts_,
                                               delayedReadSubRunProducts_,
                                               delayedReadRunProducts_,
                                               processingMode_,

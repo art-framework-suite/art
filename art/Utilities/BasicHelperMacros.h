@@ -7,10 +7,12 @@
 //
 // =====================================================================
 
+#include "art/Utilities/ConfigurationTable.h"
 #include "boost/filesystem.hpp"
 #include "cetlib/detail/metaprogramming.h"
 #include "fhiclcpp/types/Atom.h"
 #include "fhiclcpp/types/Table.h"
+#include "fhiclcpp/types/detail/optional_parameter_message.h"
 
 #include <ostream>
 #include <string>
@@ -33,20 +35,19 @@ namespace art {
   namespace detail {
 
     template<class T, class Enable = void>
-    struct MaybePrintDescription{
-      std::ostream& operator()(std::ostream& os, std::string const& /*name*/, std::string const& prefix)
+    struct AllowedConfiguration {
+      static std::unique_ptr<art::ConfigurationTable> get(std::string const& /*name*/)
       {
-        return os << "\n" << prefix << "[ None provided ]\n";
+        return std::unique_ptr<art::ConfigurationTable>{nullptr};
       }
     };
 
     template<class T>
-    struct MaybePrintDescription<T, cet::detail::enable_if_type_exists_t<typename T::Parameters>>
+    struct AllowedConfiguration<T, cet::detail::enable_if_type_exists_t<typename T::Parameters>>
     {
-      std::ostream& operator()(std::ostream& os, std::string const& name, std::string const& prefix)
+      static std::unique_ptr<art::ConfigurationTable> get(std::string const& name)
       {
-        typename T::Parameters{fhicl::Name(name)}.print_allowed_configuration(os, prefix);
-        return os;
+        return std::make_unique<typename T::Parameters>(fhicl::Name{name});
       }
     };
 
@@ -57,12 +58,11 @@ namespace art {
   }
 }
 
-#define PROVIDE_DESCRIPTION(klass)                                      \
+#define PROVIDE_ALLOWED_CONFIGURATION(klass)                            \
   extern "C"                                                            \
-  std::ostream& print_description(std::ostream& os, std::string const& name, std::string const& prefix) \
+  std::unique_ptr<art::ConfigurationTable> allowed_configuration(std::string const& name) \
   {                                                                     \
-    art::detail::MaybePrintDescription<klass> print;                    \
-    return print(os, name, prefix);                                     \
+    return art::detail::AllowedConfiguration< klass >::get(name);       \
   }
 
 #define PROVIDE_TOOL_FUNCTION_DESCRIPTION()                             \

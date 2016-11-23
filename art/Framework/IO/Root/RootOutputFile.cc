@@ -216,7 +216,6 @@ namespace {
 
     assert(principalRS.is_sorted());
     assert(productRS.is_sorted());
-    assert(!principalRS.ranges().empty());
 
     if (bt == art::InRun && productRS.is_full_run()) return;
     if (bt == art::InSubRun && productRS.is_full_subRun()) return;

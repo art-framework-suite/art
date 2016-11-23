@@ -40,7 +40,7 @@ namespace art {
 #define DEFINE_ART_MODULE(klass)                                        \
   extern "C" {                                                          \
     PROVIDE_FILE_PATH()                                                 \
-    PROVIDE_DESCRIPTION(klass)                                          \
+    PROVIDE_ALLOWED_CONFIGURATION(klass)                                \
     art::Worker*                                                        \
     make_worker(art::WorkerParams const& wp,                            \
                 art::ModuleDescription const& md)                       \

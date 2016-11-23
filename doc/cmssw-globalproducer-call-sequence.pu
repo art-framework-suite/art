@@ -1,0 +1,170 @@
+@startuml
+participant WorkerMaker
+participant WorkerT
+participant ModuleHolder
+participant EDProducerBase
+participant "Ability<T>" as Ability
+participant T
+
+skinparam sequenceGroupBackgroundColor #LightGreen
+box "User's module" #LightBlue
+    participant T
+end box
+
+== Construct global module ==
+WorkerMaker -> T: ""auto module = makeModule(pset)""
+activate T
+create EDProducerBase
+T -> EDProducerBase: create
+create Ability
+T -> Ability: create
+note right of Ability: \
+There can be many different ""Ability<T>"" base classes from which\n\
+a user's module can inherit.  To avoid cluttering up the diagram, I\n\
+fold all of them into one ""Ability<T>"" instance.
+
+create ModuleHolder
+EDProducerBase -> ModuleHolder: owned by
+note right of ModuleHolder: ""std::shared_ptr<T> m_mod""
+
+WorkerMaker -> ModuleHolder: ""module->preallocate(...)""
+ModuleHolder -> EDProducerBase: ""m_mod->doPreallocate(...)""
+EDProducerBase -> T: ""preallocStreams(nStreams)""
+T -> T: ""//preallocStreams(nStreams)//""
+
+create WorkerT
+ModuleHolder -> WorkerT: owned by
+note right of WorkerT: ""std::shared_ptr<EDProducerBase> module_""
+
+== Call beginJob ==
+WorkerT -> EDProducerBase: ""module_->doBeginJob()""
+EDProducerBase -> T: ""beginJob()""
+T -> T: ""//beginJob()//""
+
+== Call beginStreams ==
+loop nStream
+     WorkerT -> EDProducerBase: ""module_->doBeginStream(StreamID id)""
+     EDProducerBase -> Ability: ""doBeginStream_(id)""
+     Ability -> T: ""beginStream(id)""
+     T -> Ability: ""scaches_[id] = //beginStream(id)//.release()""
+end loop
+
+== Call beginRun ==
+WorkerT -> EDProducerBase: ""module_->doBeginRun(...)""
+
+EDProducerBase -> Ability: ""doBeginRun_(...)""
+Ability -> T: ""globalBeginRun(...)""
+T -> Ability: ""rcache_ = //globalBeginRun(...)//""
+
+EDProducerBase -> Ability: ""doBeginRunSummary_(...)""
+Ability -> T: ""globalBeginRunSummary(...)""
+T -> Ability: ""rscache_ = //globalBeginRunSummary(...)//""
+
+EDProducerBase -> Ability: ""doBeginRunProduce_(...)""
+Ability -> T: ""globalBeginRunProduce(...)""
+T -> T: ""//globalBeginRunProduce(...)//""
+
+EDProducerBase -> EDProducerBase: commit_(r)
+
+loop nStream
+     WorkerT -> EDProducerBase: ""module_->doStreamBeginRun(StreamID id, ...)""
+     EDProducerBase -> Ability: ""doStreamBeginRun_(id, ...)""
+     Ability -> T: ""streamBeginRun(id, ...)""
+     T -> T: ""//streamBeginRun(id, ...)//""
+end loop
+
+== Call beginLuminosityBlock ==
+WorkerT -> EDProducerBase: ""module_->doBeginLuminosityBlock(...)""
+
+EDProducerBase -> Ability: ""doBeginLuminosityBlock_(...)""
+Ability -> T: ""globalBeginLuminosityBlock(...)""
+T -> Ability: ""lbcache_ = //globalBeginLuminosityBlock(...)//""
+
+EDProducerBase -> Ability: ""doBeginLuminosityBlockSummary_(...)""
+Ability -> T: ""globalBeginLuminosityBlockSummary(...)""
+T -> Ability: ""lbscache_ = //globalBeginLuminosityBlockSummary(...)//""
+
+EDProducerBase -> Ability: ""doBeginLuminosityBlockProduce_(...)""
+Ability -> T: ""globalBeginLuminosityBlockProduce(...)""
+T -> T: ""//globalBeginLuminosityBlockProduce(...)//""
+
+loop nStream
+     WorkerT -> EDProducerBase: ""module_->doStreamBeginLuminosityBlock(StreamID id, ...)""
+     EDProducerBase -> Ability: ""doStreamBeginLuminosityBlock_(StreamID id, ...)""
+     Ability -> T: ""streamBeginBeginLuminosity(id, ...)""
+     T -> T: ""//streamBeginBeginLuminosity(id, ...)//""
+end loop
+
+== Call produce ==
+WorkerT -> EDProducerBase: ""module_->doEvent(...)""
+EDProducerBase -> T: ""produce(Stream id, Event&)""
+T -> T: ""//produce(id,...)//""
+
+== Call endLuminosityBlock ==
+loop nStream
+     WorkerT -> EDProducerBase: ""module_->doStreamEndLuminosityBlock(StreamID id, ...)""
+     EDProducerBase -> Ability: ""doStreamEndLuminosityBlock_(id, ...)""
+     Ability -> T: ""streamEndLuminosityBlock(id, ...)""
+     T -> T: ""//streamEndLuminosityBlock(id, ...)//""
+
+     EDProducerBase -> Ability: ""doStreamEndLuminosityBlockSummary_(StreamID id, ...)""
+     Ability -> T: ""streamEndLuminosityBlockSummary(id, ..., lbscache_)""
+     T -> T: ""//streamEndLuminosityBlockSummary(id, ..., lbscache_)//""
+end loop
+
+WorkerT -> EDProducerBase: ""module_->doEndLuminosityBlock(...)""
+
+EDProducerBase -> Ability: ""doEndLuminosityBlockProduce_(...)""
+Ability -> T: ""globalEndLuminosityBlockProduce(...)""
+T -> T: ""//globalEndLuminosityBlockProduce(...)//""
+
+EDProducerBase -> Ability: ""doEndLuminosityBlockSummary_(...)""
+Ability -> T: ""globalEndLuminosityBlockSummary(..., lbscache_)""
+T -> T: ""//globalEndLuminosityBlockSummary(..., lbscache_)//""
+
+EDProducerBase -> Ability: ""doEndLuminosityBlock_(...)""
+Ability -> T: ""globalEndLuminosityBlock(...)""
+T -> T: ""//globalEndLuminosityBlock(...)//""
+
+== Call endRun ==
+loop nStream
+     WorkerT -> EDProducerBase: ""module_->doStreamEndRun(StreamID id, ...)""
+     EDProducerBase -> Ability: ""doStreamEndRun_(id, ...)""
+     Ability -> T: ""streamEndRun(id, ...)""
+     T -> T: ""//streamEndRun(id, ...)//""
+
+     EDProducerBase -> Ability: ""doStreamEndRunSummary_(StreamID id, ...)""
+     Ability -> T: ""streamEndRunSummary(id, ..., rscache_)""
+     T -> T: ""//streamEndRunSummary(id, ..., rscache_)//""
+end loop
+
+WorkerT -> EDProducerBase: ""module_->doEndRun(...)""
+
+EDProducerBase -> Ability: ""doEndRunProduce_(...)""
+Ability -> T: ""globalEndRunProduce(...)""
+T -> T: ""//globalEndRunProduce(...)//""
+
+EDProducerBase -> Ability: ""doEndRunSummary_(...)""
+Ability -> T: ""globalEndRunSummary(..., rscache_)""
+T -> T: ""//globalEndRunSummary(..., rscache_)//""
+
+EDProducerBase -> Ability: ""doEndRun_(...)""
+Ability -> T: ""globalEndRun(...)""
+T -> T: ""//globalEndRun(...)//""
+
+EDProducerBase -> EDProducerBase: commit_(r)
+
+== Call endStreams ==
+loop nStream
+     WorkerT -> EDProducerBase: ""module_->doEndStream(StreamID)""
+     EDProducerBase -> Ability: ""doEndStream_(StreamID)""
+     Ability -> T: ""endStream(StreamID id)""
+     T -> T: ""//endStream(id)//""
+end loop
+
+== Call endJob ==
+WorkerT -> EDProducerBase: ""module_->doEndJob()""
+EDProducerBase -> T: ""endJob()""
+T -> T: ""//endJob()//""
+
+@enduml

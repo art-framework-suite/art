@@ -1,0 +1,12 @@
+#include "FileDumperOutputTest_r.fcl"
+
+process_name: "ImmediateReadControl"
+
+outputs.out1: { module_type: TestReadImmediateControl
+                wantResolvedOnly: true
+                resolveProducts: false }
+
+# Expectancies to match default readImmediate controls.
+outputs.out1.expectRunProducts: true
+outputs.out1.expectSubRunProducts: true
+outputs.out1.expectEventProducts: false

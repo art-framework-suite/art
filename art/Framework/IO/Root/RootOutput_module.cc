@@ -19,6 +19,7 @@
 #include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Framework/Principal/SubRun.h"
 #include "art/Persistency/Provenance/ProductMetaData.h"
+#include "art/Utilities/ConfigurationTable.h"
 #include "art/Utilities/parent_path.h"
 #include "art/Utilities/unique_filename.h"
 #include "canvas/Persistency/Provenance/FileFormatVersion.h"
@@ -85,7 +86,7 @@ public:
     struct KeysToIgnore {
       std::set<std::string> operator()() const
       {
-        std::set<std::string> keys { art::OutputModule::Config::KeysToIgnore::get() };
+        std::set<std::string> keys {art::OutputModule::Config::KeysToIgnore::get()};
         keys.insert("results");
         return keys;
       }
@@ -93,7 +94,7 @@ public:
 
   };
 
-  using Parameters = fhicl::Table<Config,Config::KeysToIgnore>;
+  using Parameters = art::WrappedTable<Config,Config::KeysToIgnore>;
 
   explicit RootOutput(Parameters const&);
 

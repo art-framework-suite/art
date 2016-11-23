@@ -3,6 +3,7 @@
 
 #include "art/Framework/Art/detail/PrintFormatting.h"
 #include "art/Framework/Core/ModuleType.h"
+#include "art/Utilities/ConfigurationTable.h"
 #include "art/Utilities/PluginSuffixes.h"
 #include "boost/filesystem.hpp"
 #include "cetlib/LibraryManager.h"
@@ -14,8 +15,8 @@
 namespace art {
   namespace detail {
 
-    template <typename F>
-    std::string resolve_if_present(F f, std::string const& caller, std::string result)
+    template <typename F, typename RT = decltype(std::declval<F>()())>
+    RT resolve_if_present(F f, std::string const& caller, RT result)
     {
       try {
         result = f();
@@ -33,7 +34,8 @@ namespace art {
     {
       using GetSourceLoc_t = std::string();
 
-      auto path = [&lm,&fullspec](){
+      using namespace std::string_literals;
+      auto path = [&lm,&fullspec] {
         GetSourceLoc_t* symbolLoc{};
         lm.getSymbolByLibspec(fullspec, "get_source_location", symbolLoc);
         std::string source {symbolLoc()};
@@ -44,7 +46,7 @@ namespace art {
         return source;
       };
 
-      return resolve_if_present(path, __func__, "[ not found ]");
+      return resolve_if_present(path, __func__, "[ not found ]"s);
     }
 
     template <art::suffix_type>
@@ -59,22 +61,19 @@ namespace art {
     template <> std::string getType<suffix_type::tool>(cet::LibraryManager const& lm, std::string const& fullSpec);
 
     template <art::suffix_type>
-    std::string getDescription(cet::LibraryManager const& lm,
-                               std::string const& fullSpec,
-                               std::string const& name,
-                               std::string const& tab)
+    std::unique_ptr<art::ConfigurationTable> getAllowedConfiguration(cet::LibraryManager const& lm,
+                                                                     std::string const& fullSpec,
+                                                                     std::string const& name)
     {
-      using GetDescription_t = std::ostream&(std::ostream&, std::string const&, std::string const&);
+      using GetAllowedConfiguration_t = std::unique_ptr<art::ConfigurationTable>(std::string const&);
 
-      auto description = [&lm, &fullSpec, &name, &tab]() {
-        GetDescription_t* symbolType{};
-        lm.getSymbolByLibspec(fullSpec, "print_description", symbolType);
-        std::ostringstream oss;
-        symbolType(oss, name, tab);
-        return oss.str();
+      auto description = [&lm, &fullSpec, &name] {
+        GetAllowedConfiguration_t* symbolType{};
+        lm.getSymbolByLibspec(fullSpec, "allowed_configuration", symbolType);
+        return symbolType(name);
       };
 
-      return resolve_if_present(description, __func__, "");
+      return resolve_if_present(description, __func__, std::unique_ptr<art::ConfigurationTable>{nullptr});
     }
 
   }

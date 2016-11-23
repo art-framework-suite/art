@@ -1,10 +1,11 @@
 #include "art/Framework/Art/detail/PrintFormatting.h"
-#include "art/Framework/Art/detail/PrintPluginMetadata.h"
+#include "art/Framework/Art/detail/AllowedConfiguration.h"
 #include "art/Framework/Art/detail/get_MetadataCollector.h"
 #include "art/Framework/Art/detail/get_MetadataSummary.h"
 #include "art/Utilities/PluginSuffixes.h"
 #include "art/Utilities/bold_fontify.h"
 #include "cetlib/container_algorithms.h"
+#include "fhiclcpp/types/detail/SearchAllowedConfiguration.h"
 
 #include <iomanip>
 #include <iostream>
@@ -19,10 +20,10 @@ namespace {
     std::vector<PluginMetadata> result;
     for (auto const& pr : art::Suffixes::all()) {
       auto mc = get_MetadataCollector(pr.first);
-      cet::transform_all(get_LibraryInfoCollection(pr.first, spec, indent__2()),
+      cet::transform_all(get_LibraryInfoCollection(pr.first, spec),
                          std::back_inserter(result),
                          [&mc](auto const& info){
-                           return mc->collect(info);
+                           return mc->collect(info, indent__2());
                          });
     }
     return result;
@@ -62,7 +63,7 @@ art::detail::print_available_plugins(suffix_type const st,
                                      bool const verbose,
                                      std::string const& spec)
 {
-  auto coll = get_LibraryInfoCollection(st, spec, "", verbose);
+  auto coll = get_LibraryInfoCollection(st, spec, verbose);
   if (coll.empty()) return;
 
   auto ms = get_MetadataSummary(st, coll);
@@ -87,6 +88,25 @@ art::detail::print_available_plugins(suffix_type const st,
   cout << "\n\n";
 }
 
+bool
+art::detail::supports_key(suffix_type const st, std::string const& spec, std::string const& key [[gnu::unused]])
+{
+  art::Exception e {art::errors::LogicError, "art::detail::has_key"};
+  auto coll = get_LibraryInfoCollection(st, spec);
+  if (coll.empty()) {
+    throw e << bold_fontify(spec) << " did not match any plugin.\n";
+  }
+  else if (coll.size() > 1ull) {
+    throw e << bold_fontify(spec) << " matched more than one plugin.\n"
+            << "When querying plugin configurations, the plugin specification\n"
+            << "must resolve to a unique library.\n";
+  }
+  if (auto config = coll.begin()->allowed_config()) {
+    return fhicl::detail::SearchAllowedConfiguration::supports_key(*config->parameter_base(), key);
+  }
+  return false;
+}
+
 void
 art::detail::print_description(std::vector<PluginMetadata> const& matches)
 {
@@ -103,14 +123,12 @@ art::detail::print_descriptions(std::vector<std::string> const& plugins)
 {
   cout << fixed_rule();
   for (auto const& plugin : plugins) {
-
     auto matches = matchesBySpec(plugin);
     if (matches.empty()) {
       cout << indent0() << bold_fontify(plugin) << " did not match any plugin.\n";
       cout << fixed_rule();
       continue;
     }
-
     print_description(matches);
   }
 }

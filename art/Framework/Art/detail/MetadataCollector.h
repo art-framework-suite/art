@@ -21,11 +21,11 @@ namespace art {
     class MetadataCollector {
     public:
 
-      PluginMetadata collect(LibraryInfo const& li) const { return doCollect(li); }
+      PluginMetadata collect(LibraryInfo const& li, std::string const& prefix) const { return doCollect(li, prefix); }
       virtual ~MetadataCollector() = default;
 
     private:
-      virtual PluginMetadata doCollect(LibraryInfo const& li) const = 0;
+      virtual PluginMetadata doCollect(LibraryInfo const& li, std::string const& prefix) const = 0;
 
     };
 

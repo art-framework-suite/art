@@ -4,6 +4,7 @@ art_make(LIB_LIBRARIES
   MF_Utilities
   fhiclcpp
   cetlib
+  cetlib_except
   ${Boost_FILESYSTEM_LIBRARY}
   ${Boost_REGEX_LIBRARY}
   ${Boost_SYSTEM_LIBRARY}
