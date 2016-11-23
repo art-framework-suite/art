@@ -202,11 +202,11 @@ art::detail::get_LibraryInfoCollection(suffix_type const st,
                                        bool const verbose)
 {
   switch(st) {
-  case suffix_type::module  : return getCollection<suffix_type::module >(pattern, tab, verbose);
-  case suffix_type::service : return getCollection<suffix_type::service>(pattern, tab, verbose);
-  case suffix_type::source  : return getCollection<suffix_type::source >(pattern, tab, verbose);
-  case suffix_type::plugin  : return getCollection<suffix_type::plugin >(pattern, tab, verbose);
-  case suffix_type::tool    : return getCollection<suffix_type::tool   >(pattern, tab, verbose);
+  case suffix_type::module  : return getCollection<suffix_type::module >(pattern, verbose);
+  case suffix_type::service : return getCollection<suffix_type::service>(pattern, verbose);
+  case suffix_type::source  : return getCollection<suffix_type::source >(pattern, verbose);
+  case suffix_type::plugin  : return getCollection<suffix_type::plugin >(pattern, verbose);
+  case suffix_type::tool    : return getCollection<suffix_type::tool   >(pattern, verbose);
     // No default - allow compiler to warn if missing suffix_type.
   }
   return {};

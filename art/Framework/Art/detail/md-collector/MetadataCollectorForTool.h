@@ -17,9 +17,9 @@ namespace art {
     class MetadataCollectorFor<suffix_type::tool> : public MetadataCollector {
     public:
 
-      PluginMetadata doCollect(LibraryInfo const& li) const override
+      PluginMetadata doCollect(LibraryInfo const& li, std::string const& prefix) const override
       {
-        return {header_(li), details_(li), allowed_configuration_(li)};
+        return {header_(li), details_(li), allowed_configuration_(li, prefix)};
       }
 
     private:
@@ -44,13 +44,13 @@ namespace art {
         return result.str();
       }
 
-      std::string allowed_configuration_(LibraryInfo const& li) const
+      std::string allowed_configuration_(LibraryInfo const& li, std::string const& prefix) const
       {
         std::ostringstream result;
         result << indent_1()  << "Allowed configuration\n"
                << indent_1()  << "---------------------\n";
 
-        std::string printedConfig = li.description();
+        std::string printedConfig {describe(li.allowed_config(), prefix)};
         replace_type(printedConfig, li.short_spec(), regex_for_spec("tool_type"));
 
         result << printedConfig;

@@ -65,13 +65,10 @@ namespace art {
     return art::detail::AllowedConfiguration< klass >::get(name);       \
   }
 
-#define PROVIDE_TOOL_FUNCTION_DESCRIPTION()                             \
-  extern "C"                                                            \
-  std::ostream& print_description(std::ostream& os, std::string const& name, std::string const& prefix) \
+#define PROVIDE_ALLOWED_CONFIGURATION_TOOL_FUNCTION()                   \
+  std::unique_ptr<art::ConfigurationTable> allowed_configuration(std::string const& name) \
   {                                                                     \
-    fhicl::Table<art::detail::ToolConfig> tc { fhicl::Name(name) };     \
-    tc.print_allowed_configuration(os, prefix);                         \
-    return os;                                                          \
+    return std::make_unique<art::WrappedTable<art::detail::ToolConfig>>(fhicl::Name{name}); \
   }
 
 #endif /* art_Utilities_BasicHelperMacros_h */

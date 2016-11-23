@@ -50,7 +50,7 @@ namespace art {
         return symbolType();
       };
 
-      return resolve_if_present(type, __func__, "[ error ]");
+      return resolve_if_present(type, __func__, "[ error ]"s);
     }
   }
 }

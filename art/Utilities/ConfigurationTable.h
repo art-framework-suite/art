@@ -26,7 +26,7 @@ namespace art {
     virtual cet::exempt_ptr<fhicl::detail::ParameterBase const> get_parameter_base() const = 0;
   };
 
-  template <typename T, typename KeysToIgnore>
+  template <typename T, typename KeysToIgnore = void>
   class WrappedTable : public ConfigurationTable {
   public:
     WrappedTable(fhicl::Name&& name) : table_{std::move(name)} {}
