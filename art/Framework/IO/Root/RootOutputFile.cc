@@ -897,7 +897,9 @@ finishEndFile()
     auto const branchType = static_cast<BranchType>(i);
     treePointers_[branchType]->writeTree();
   }
-  // Write out DB
+  // Write out DB -- the d'tor of the SQLite3Wrapper calls
+  // sqlite3_close.  For the tkeyvfs, closing the DB calls
+  // rootFile->Write("",TObject::kOverwrite).
   rootFileDB_.reset();
   // Close the file.
   filePtr_->Close();

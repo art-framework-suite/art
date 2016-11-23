@@ -475,7 +475,7 @@ static int closeUnixFile(sqlite3_file * id)
       fprintf(stderr, "tkeyvfs: failed to write root tkey containing database to root file!\n");
     }
     /* Force the root file to flush the top-level directory entry for our tkey to disk. */
-    cnt = pFile->rootFile->Write();
+    cnt = pFile->rootFile->Write("", TObject::kOverwrite);
     if (cnt < 0) {
       /* bad */
       fprintf(stderr, "tkeyvfs: failed to write root file to disk!\n");
