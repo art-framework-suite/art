@@ -185,7 +185,7 @@ private: // MEMBER DATA
   bool dropMetaDataForDroppedData_;
   bool fastCloning_;
   bool currentlyFastCloning_ {true};
-  std::shared_ptr<TFile> filePtr_;
+  std::unique_ptr<TFile> filePtr_;
   FileIndex fileIndex_ {};
   FileProperties fp_ {};
   TTree* metaDataTree_ {nullptr};

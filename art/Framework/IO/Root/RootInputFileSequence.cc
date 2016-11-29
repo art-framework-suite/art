@@ -312,7 +312,7 @@ initFile(bool skipBadFiles, bool initMPR/*=false*/)
 {
   // close the currently open file, any, and delete the RootInputFile object.
   closeFile_();
-  std::shared_ptr<TFile> filePtr;
+  std::unique_ptr<TFile> filePtr;
   try {
     detail::logFileAction("Initiating request to open input file ",
                           catalog_.currentFile().fileName());
@@ -343,36 +343,35 @@ initFile(bool skipBadFiles, bool initMPR/*=false*/)
   detail::logFileAction("Opened input file ",
                         catalog_.currentFile().fileName());
   vector<string> empty_vs;
-  rootFile_ = make_shared<RootInputFile>(
-                catalog_.currentFile().fileName(),
-                catalog_.url(),
-                processConfiguration(),
-                catalog_.currentFile().logicalFileName(),
-                filePtr,
-                origEventID_,
-                eventsToSkip_,
-                whichSubRunsToSkip_,
-                fastCloningInfo_,
-                treeCacheSize_,
-                treeMaxVirtualSize_,
-                saveMemoryObjectThreshold_,
-                delayedReadEventProducts_,
-                delayedReadSubRunProducts_,
-                delayedReadRunProducts_,
-                processingMode_,
-                forcedRunOffset_,
-                noEventSort_,
-                groupSelectorRules_,
-                false,
-                duplicateChecker_,
-                dropDescendants_,
-                readParameterSets_,
-                /*primaryFile*/exempt_ptr<RootInputFile>(),
-                /*secondaryFileNameIdx*/-1,
-                secondaryFileNames_.empty() ?
-                empty_vs :
-                secondaryFileNames_.at(catalog_.currentIndex()),
-                this);
+  rootFile_ = make_shared<RootInputFile>(catalog_.currentFile().fileName(),
+                                         catalog_.url(),
+                                         processConfiguration(),
+                                         catalog_.currentFile().logicalFileName(),
+                                         std::move(filePtr),
+                                         origEventID_,
+                                         eventsToSkip_,
+                                         whichSubRunsToSkip_,
+                                         fastCloningInfo_,
+                                         treeCacheSize_,
+                                         treeMaxVirtualSize_,
+                                         saveMemoryObjectThreshold_,
+                                         delayedReadEventProducts_,
+                                         delayedReadSubRunProducts_,
+                                         delayedReadRunProducts_,
+                                         processingMode_,
+                                         forcedRunOffset_,
+                                         noEventSort_,
+                                         groupSelectorRules_,
+                                         false,
+                                         duplicateChecker_,
+                                         dropDescendants_,
+                                         readParameterSets_,
+                                         /*primaryFile*/exempt_ptr<RootInputFile>(),
+                                         /*secondaryFileNameIdx*/-1,
+                                         secondaryFileNames_.empty() ?
+                                         empty_vs :
+                                         secondaryFileNames_.at(catalog_.currentIndex()),
+                                         this);
   assert(catalog_.currentIndex() != InputFileCatalog::indexEnd);
   if (catalog_.currentIndex() + 1 > fileIndexes_.size()) {
     fileIndexes_.resize(catalog_.currentIndex() + 1);
@@ -428,7 +427,7 @@ openSecondaryFile(int idx,
                   string const& name,
                   exempt_ptr<RootInputFile> primaryFile)
 {
-  std::shared_ptr<TFile> filePtr;
+  std::unique_ptr<TFile> filePtr;
   try {
     detail::logFileAction("Attempting  to open secondary input file ", name);
     filePtr.reset(TFile::Open(name.c_str()));
@@ -452,7 +451,7 @@ openSecondaryFile(int idx,
                                               /*url*/"",
                                               processConfiguration(),
                                               /*logicalFileName*/"",
-                                              filePtr,
+                                              std::move(filePtr),
                                               origEventID_,
                                               eventsToSkip_,
                                               whichSubRunsToSkip_,

@@ -25,8 +25,6 @@
 #include "art/Persistency/Provenance/MasterProductRegistry.h"
 #include "canvas/Persistency/Provenance/PassID.h"
 #include "canvas/Persistency/Provenance/ReleaseVersion.h"
-#include "boost/thread/condition.hpp"
-#include "boost/thread/thread.hpp"
 #include "cetlib/exception.h"
 #include "cetlib/trim.h"
 #include "fhiclcpp/ParameterSet.h"
@@ -184,7 +182,6 @@ private:
   std::unique_ptr<InputSource> input_ {nullptr};
   std::unique_ptr<Schedule> schedule_ {nullptr};
   std::unique_ptr<EndPathExecutor> endPathExecutor_ {nullptr};
-
   std::unique_ptr<FileBlock> fb_ {nullptr};
 
   std::unique_ptr<statemachine::Machine> machine_ {nullptr};

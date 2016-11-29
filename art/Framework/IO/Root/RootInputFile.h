@@ -63,7 +63,7 @@ namespace art {
                   std::string const& catalogName,
                   ProcessConfiguration const& processConfiguration,
                   std::string const& logicalFileName,
-                  std::shared_ptr<TFile> filePtr,
+                  std::unique_ptr<TFile>&& filePtr,
                   EventID const& origEventID,
                   unsigned int eventsToSkip,
                   std::vector<SubRunID> const& whichSubRunsToSkip,
@@ -392,7 +392,7 @@ namespace art {
     std::string const catalog_;
     ProcessConfiguration const& processConfiguration_;
     std::string const logicalFile_;
-    std::shared_ptr<TFile> filePtr_;
+    std::unique_ptr<TFile> filePtr_;
     SQLite3Wrapper sqliteDB_ {filePtr_.get(), "RootFileDB"};
     EventID origEventID_;
     EventNumber_t eventsToSkip_;
@@ -422,13 +422,13 @@ namespace art {
                RunAuxiliary,
                ResultsAuxiliary> auxiliaries_ {};   // Must be in same order as treePointers_ !
     std::unique_ptr<ProductRegistry> productListHolder_ {std::make_unique<ProductRegistry>()};
-    std::shared_ptr<BranchIDListRegistry::collection_type const> branchIDLists_ {nullptr};
+    std::unique_ptr<BranchIDListRegistry::collection_type const> branchIDLists_ {nullptr};
 
     PerBranchTypePresence perBranchTypeProdPresence_ {{}}; // filled by aggregation
     TTree* eventHistoryTree_ {nullptr};
     std::shared_ptr<History> history_ {std::make_shared<History>()};
-    std::shared_ptr<BranchChildren> branchChildren_ {std::make_shared<BranchChildren>()};
-    std::vector<std::unique_ptr<RootInputFile>> secondaryFiles_ {};
+    std::unique_ptr<BranchChildren> branchChildren_ {std::make_unique<BranchChildren>()};
+    std::vector<std::unique_ptr<RootInputFile> > secondaryFiles_ {};
     // We need to add the secondary principals to the primary
     // principal when they are delay read, so we need to keep
     // around a pointer to the primary.  Note that these are

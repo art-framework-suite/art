@@ -90,7 +90,7 @@ namespace art {
                 string const& catalogName,
                 ProcessConfiguration const& processConfiguration,
                 string const& logicalFileName,
-                shared_ptr<TFile> filePtr,
+                unique_ptr<TFile>&& filePtr,
                 EventID const& origEventID,
                 unsigned int eventsToSkip,
                 vector<SubRunID> const& whichSubRunsToSkip,
@@ -117,15 +117,15 @@ namespace art {
     , catalog_{catalogName}
     , processConfiguration_{processConfiguration}
     , logicalFile_{logicalFileName}
-    , filePtr_{filePtr}
+    , filePtr_{std::move(filePtr)}
     , origEventID_{origEventID}
     , eventsToSkip_{eventsToSkip}
     , whichSubRunsToSkip_{whichSubRunsToSkip}
     , treePointers_ { // Order (and number) must match BranchTypes.h!
-      std::make_unique<RootTree>(filePtr_, InEvent, saveMemoryObjectThreshold, this),
-      std::make_unique<RootTree>(filePtr_, InSubRun, saveMemoryObjectThreshold, this),
-      std::make_unique<RootTree>(filePtr_, InRun, saveMemoryObjectThreshold, this),
-      std::make_unique<RootTree>(filePtr_, InResults, saveMemoryObjectThreshold, this, true /* missingOK */) }
+      std::make_unique<RootTree>(filePtr_.get(), InEvent, saveMemoryObjectThreshold, this),
+      std::make_unique<RootTree>(filePtr_.get(), InSubRun, saveMemoryObjectThreshold, this),
+      std::make_unique<RootTree>(filePtr_.get(), InRun, saveMemoryObjectThreshold, this),
+      std::make_unique<RootTree>(filePtr_.get(), InResults, saveMemoryObjectThreshold, this, true /* missingOK */) }
     , delayedReadEventProducts_{delayedReadEventProducts}
     , delayedReadSubRunProducts_{delayedReadSubRunProducts}
     , delayedReadRunProducts_{delayedReadRunProducts}
@@ -193,7 +193,7 @@ namespace art {
 
     // Here we read the metadata tree
     input::getEntry(metaDataTree, 0);
-    branchIDLists_.reset(branchIDListsAPtr.release());
+    branchIDLists_ = std::move(branchIDListsAPtr);
     // Check the, "Era" of the input file (new since art v0.5.0). If it
     // does not match what we expect we cannot read the file. Required
     // since we reset the file versioning since forking off from
@@ -409,7 +409,7 @@ namespace art {
                                        eventTree().tree(),
                                        fastClonable(),
                                        file_,
-                                       branchChildren_,
+                                       std::move(branchChildren_),
                                        readResults());
   }
 

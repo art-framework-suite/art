@@ -26,7 +26,6 @@
 #include "art/Utilities/UnixSignalHandlers.h"
 #include "art/Utilities/bold_fontify.h"
 #include "art/Version/GetReleaseVersion.h"
-#include "boost/thread/xtime.hpp"
 #include "canvas/Persistency/Provenance/BranchType.h"
 #include "canvas/Persistency/Provenance/ProcessConfiguration.h"
 #include "canvas/Utilities/DebugMacros.h"

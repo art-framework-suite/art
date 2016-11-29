@@ -15,7 +15,7 @@
 namespace art {
 
   RootTree::
-  RootTree(std::shared_ptr<TFile> filePtr,
+  RootTree(cet::exempt_ptr<TFile> filePtr,
            BranchType const branchType,
            int64_t saveMemoryObjectThreshold,
            cet::exempt_ptr<RootInputFile> primaryFile,
@@ -130,7 +130,7 @@ namespace art {
     return std::make_unique<RootDelayedReader>(fileFormatVersion,
                                                inputDB,
                                                entrySet,
-                                               branches_,
+                                               branches_.get(),
                                                this,
                                                saveMemoryObjectThreshold_,
                                                primaryFile_,

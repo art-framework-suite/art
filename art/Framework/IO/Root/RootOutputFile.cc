@@ -362,19 +362,19 @@ RootOutputFile(OutputModule* om,
   , filePtr_{TFile::Open(file_.c_str(), "recreate", "", compressionLevel)}
   , treePointers_ { // Order (and number) must match BranchTypes.h!
     std::make_unique<RootOutputTree>(static_cast<EventPrincipal*>(nullptr),
-                                     filePtr_, InEvent, pEventAux_,
+                                     filePtr_.get(), InEvent, pEventAux_,
                                      pEventProductProvenanceVector_, basketSize, splitLevel,
                                      treeMaxVirtualSize, saveMemoryObjectThreshold),
     std::make_unique<RootOutputTree>(static_cast<SubRunPrincipal*>(nullptr),
-                                     filePtr_, InSubRun, pSubRunAux_,
+                                     filePtr_.get(), InSubRun, pSubRunAux_,
                                      pSubRunProductProvenanceVector_, basketSize, splitLevel,
                                      treeMaxVirtualSize, saveMemoryObjectThreshold),
     std::make_unique<RootOutputTree>(static_cast<RunPrincipal*>(nullptr),
-                                     filePtr_, InRun, pRunAux_,
+                                     filePtr_.get(), InRun, pRunAux_,
                                      pRunProductProvenanceVector_, basketSize, splitLevel,
                                      treeMaxVirtualSize, saveMemoryObjectThreshold),
     std::make_unique<RootOutputTree>(static_cast<ResultsPrincipal*>(nullptr),
-                                     filePtr_, InResults, pResultsAux_,
+                                     filePtr_.get(), InResults, pResultsAux_,
                                      pResultsProductProvenanceVector_, basketSize, splitLevel,
                                      treeMaxVirtualSize, saveMemoryObjectThreshold) }
   , rootFileDB_{filePtr_.get(), "RootFileDB", SQLITE_OPEN_CREATE | SQLITE_OPEN_READWRITE}
