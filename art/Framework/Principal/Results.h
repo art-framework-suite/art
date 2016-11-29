@@ -76,7 +76,7 @@ art::Results::put(std::unique_ptr<PROD> && product, std::string const& productIn
 
   auto result = putProducts().emplace(bd.branchID(), PMValue { std::move(wp), bd, RangeSet::invalid() });
   if (!result.second) {
-    throw art::Exception(art::errors::InsertFailure)
+    throw art::Exception(art::errors::ProductPutFailure)
       << "Results::put: Attempt to put multiple products with the\n"
       << "              following description onto the Results.\n"
       << "              Products must be unique per Results.\n"

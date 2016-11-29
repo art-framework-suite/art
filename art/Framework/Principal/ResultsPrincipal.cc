@@ -90,7 +90,7 @@ put(std::unique_ptr<EDProduct>&& edp, BranchDescription const& bd,
     std::unique_ptr<ProductProvenance const>&& productProvenance)
 {
   if (!edp) {
-    throw art::Exception(art::errors::InsertFailure, "Null Pointer")
+    throw art::Exception(art::errors::ProductPutFailure, "Null Pointer")
         << "put: Cannot put because unique_ptr to product is null."
         << "\n";
   }

@@ -222,7 +222,7 @@ art::Event::put(std::unique_ptr<PROD> && product,
                                              std::move(wp),
                                              bd);
   if ( !result.second ) {
-    throw art::Exception(art::errors::InsertFailure)
+    throw art::Exception(art::errors::ProductPutFailure)
       << "Event::put: Attempt to put multiple products with the\n"
       << "            following description onto the Event.\n"
       << "            Products must be unique per Event.\n"

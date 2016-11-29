@@ -14,7 +14,7 @@ namespace {
 
   bool insert_failure(art::Exception const& e)
   {
-    return e.categoryCode() == art::errors::InsertFailure;
+    return e.categoryCode() == art::errors::ProductPutFailure;
   }
 
   bool run_fragment_put(std::string const what)

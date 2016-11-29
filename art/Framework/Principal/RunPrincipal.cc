@@ -80,7 +80,7 @@ namespace art {
       RangeSet&& rs)
   {
     if (!edp) {
-      throw Exception(errors::InsertFailure, "Null Pointer")
+      throw Exception(errors::ProductPutFailure, "Null Pointer")
         << "put: Cannot put because unique_ptr to product is null."
         << "\n";
     }

@@ -174,7 +174,7 @@ art::SubRun::put(std::unique_ptr<PROD>&& product,
                 "           function to your class, or contact artists@fnal.gov.\n");
 
   if (productRangeSet_.collapse().is_full_subRun()) {
-    throw art::Exception(art::errors::InsertFailure, "SubRun::put")
+    throw art::Exception(art::errors::ProductPutFailure, "SubRun::put")
       << "\nCannot put a product corresponding to a full SubRun using\n"
       << "art::subRunFragment().  This can happen if you attempted to\n"
       << "put a product at beginSubRun using art::subRunFragment().\n"
@@ -199,7 +199,7 @@ art::SubRun::put(std::unique_ptr<PROD>&& product,
                 "              void aggregate(T const&)\n"
                 "           function to your class, or contact artists@fnal.gov.\n");
   if (token.rs.collapse().is_full_subRun()) {
-    throw Exception{errors::InsertFailure, "Run::put"}
+    throw Exception{errors::ProductPutFailure, "Run::put"}
       << "\nCannot put a product corresponding to a full SubRun using\n"
       << "art::subRunFragment(art::RangeSet&).  Please use:\n"
       << "   art::fullSubRun()\n"
@@ -223,7 +223,7 @@ art::SubRun::put_(std::unique_ptr<PROD>&& product,
   }
 
   if (!rs.is_valid()) {
-    throw art::Exception{art::errors::InsertFailure, "SubRun::put"}
+    throw art::Exception{art::errors::ProductPutFailure, "SubRun::put"}
       << "\nCannot put a product with an invalid RangeSet.\n"
       << "Please contact artists@fnal.gov.\n";
   }
@@ -233,7 +233,7 @@ art::SubRun::put_(std::unique_ptr<PROD>&& product,
 
   auto result = putProducts().emplace(bd.branchID(), PMValue{std::move(wp), bd, rs});
   if (!result.second) {
-    throw art::Exception{art::errors::InsertFailure, "SubRun::put"}
+    throw art::Exception{art::errors::ProductPutFailure, "SubRun::put"}
       << "\nAttempt to put multiple products with the\n"
       << "following description onto the SubRun.\n"
       << "Products must be unique per SubRun.\n"

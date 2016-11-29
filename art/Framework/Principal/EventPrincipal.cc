@@ -149,12 +149,12 @@ put(std::unique_ptr<EDProduct>&& edp,
     std::unique_ptr<ProductProvenance const>&& productProvenance)
 {
   if (!edp) {
-    throw art::Exception(art::errors::InsertFailure, "Null Pointer")
+    throw art::Exception(art::errors::ProductPutFailure, "Null Pointer")
         << "put: Cannot put because unique_ptr to product is null.\n";
   }
   ProductID pid = branchIDToProductID(bd.branchID());
   if (!pid.isValid()) {
-    throw art::Exception(art::errors::InsertFailure, "Null Product ID")
+    throw art::Exception(art::errors::ProductPutFailure, "Null Product ID")
         << "put: Cannot put product with null Product ID.\n";
   }
   branchMapper().insert(std::move(productProvenance));
