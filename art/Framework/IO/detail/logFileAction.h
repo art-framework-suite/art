@@ -9,7 +9,7 @@ namespace art {
   }
 }
 
-#endif
+#endif /* art_Framework_IO_detail_logFileAction_h */
 
 // Local variables:
 // mode: c++

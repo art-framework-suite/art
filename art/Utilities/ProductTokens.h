@@ -1,5 +1,5 @@
-#ifndef art_Framework_Core_detail_ProductTokens_h
-#define art_Framework_Core_detail_ProductTokens_h
+#ifndef art_Utilities_ProductTokens_h
+#define art_Utilities_ProductTokens_h
 
 #include "canvas/Persistency/Provenance/RangeSet.h"
 
@@ -29,7 +29,7 @@ namespace art {
 
 }
 
-#endif
+#endif /* art_Utilities_ProductTokens_h */
 
 // Local variables:
 // mode: c++

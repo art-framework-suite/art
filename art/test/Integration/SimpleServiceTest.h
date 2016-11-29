@@ -1,5 +1,5 @@
-#ifndef SimpleServiceTest_h
-#define SimpleServiceTest_h
+#ifndef art_test_Integration_SimpleServiceTest_h
+#define art_test_Integration_SimpleServiceTest_h
 ////////////////////////////////////////////////////////////////////////
 // Class:       SimpleServiceTest
 // Plugin Type: service (art v1_19_00_rc3)
@@ -31,4 +31,8 @@ private:
 };
 
 DECLARE_ART_SERVICE(arttest::SimpleServiceTest, LEGACY)
-#endif /* SimpleServiceTest_h */
+#endif /* art_test_Integration_SimpleServiceTest_h */
+
+// Local Variables:
+// mode: c++
+// End:

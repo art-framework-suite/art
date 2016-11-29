@@ -98,7 +98,7 @@ namespace art {
 
 }
 
-#endif
+#endif /* art_Framework_Principal_ExecutionCounts_h */
 
 // Local variables:
 // mode: c++

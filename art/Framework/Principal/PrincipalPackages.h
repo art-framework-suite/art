@@ -193,7 +193,7 @@ namespace art {
 
 // ======================================================================
 
-#endif /* art_Framework_Principal_ProcessPackage_h */
+#endif /* art_Framework_Principal_PrincipalPackages_h */
 
 // Local Variables:
 // mode: c++

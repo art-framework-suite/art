@@ -21,7 +21,7 @@ namespace art {
   }
 }
 
-#endif
+#endif /* art_Framework_Core_OutputFileStatus_h */
 
 // Local variables:
 // mode: c++

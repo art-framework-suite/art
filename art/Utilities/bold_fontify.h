@@ -1,5 +1,5 @@
-#ifndef art_Framework_Art_detail_bold_fontify_h
-#define art_Framework_Art_detail_bold_fontify_h
+#ifndef art_Utilities_bold_fontify_h
+#define art_Utilities_bold_fontify_h
 
 #include <string>
 
@@ -12,7 +12,7 @@ namespace art {
   }
 }
 
-#endif
+#endif /* art_Utilities_bold_fontify_h */
 
 // Local variables:
 // Mode: c++

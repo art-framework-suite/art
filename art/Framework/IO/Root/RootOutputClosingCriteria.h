@@ -124,7 +124,7 @@ namespace art {
 }
 
 #undef GRANULARITY_COMMENT
-#endif /* art_Framework_IO_Root_RootOutputClosingCritieria_h */
+#endif /* art_Framework_IO_Root_RootOutputClosingCriteria_h */
 
 // Local variables:
 // mode: c++

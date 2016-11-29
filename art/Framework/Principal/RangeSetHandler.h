@@ -35,7 +35,7 @@ namespace art {
 
 }
 
-#endif
+#endif /* art_Framework_Principal_RangeSetHandler_h */
 
 // Local variables:
 // mode: c++
