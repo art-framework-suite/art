@@ -99,8 +99,8 @@ addOrReplaceGroup(std::unique_ptr<Group>&& g)
     return;
   }
   BranchDescription const& bd = group->productDescription();
-  throw art::Exception(art::errors::InsertFailure, "AlreadyPresent")
-      << "addGroup_: Problem found while adding product provenance, "
+  throw art::Exception(art::errors::ProductRegistrationFailure, "EventPrincipal::addOrReplaceGroup")
+      << "Problem found while adding product provenance: "
       << "product already exists for ("
       << bd.friendlyClassName()
       << ","

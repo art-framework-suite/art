@@ -23,10 +23,10 @@ namespace art {
   // b. process name from TriggerNameService;
   // c. product registry from ProductMetaData.
   template <typename T>
-  BranchDescription const &
+  BranchDescription const&
   get_BranchDescription(BranchType branch_type,
-                        std::string const &module_label,
-                        std::string const &instance_name);
+                        std::string const& module_label,
+                        std::string const& instance_name);
 
   // 2. Get:
   // a. type info from template arg;
@@ -34,53 +34,54 @@ namespace art {
   // c. product registry from principal;
   // d. branch type from principal.
   template <typename T>
-  BranchDescription const &
-  get_BranchDescription(Principal const &principal,
-                        std::string const &module_label,
-                        std::string const &instance_name);
+  BranchDescription const&
+  get_BranchDescription(Principal const& principal,
+                        std::string const& module_label,
+                        std::string const& instance_name);
 
   // 3. Get:
   // a. type info from TypeID;
   // b. process name from TriggerNameService;
   // c. product registry from ProductMetaData.
-  BranchDescription const &
+  BranchDescription const&
   get_BranchDescription(TypeID type_id,
                         BranchType branch_type,
-                        std::string const &module_label,
-                        std::string const &instance_name);
+                        std::string const& module_label,
+                        std::string const& instance_name);
 
   // 4. Get:
   // a. type info from TypeID;
   // b. process name from principal;
   // c. product registry from principal.
   // d. branch type from principal.
-  BranchDescription const &
+  BranchDescription const&
   get_BranchDescription(TypeID type_id,
-                        Principal const &principal,
-                        std::string const &module_label,
-                        std::string const &instance_name);
+                        Principal const& principal,
+                        std::string const& module_label,
+                        std::string const& instance_name);
 
   // 5. Get:
   // a. type info from TypeID;
   // b. process name from string;
   // c. product list from reference.
-  BranchDescription const &
+  BranchDescription const&
   get_BranchDescription(TypeID tid,
-                        std::string const &process_name,
-                        ProductList const &product_list,
+                        std::string const& process_name,
+                        ProductList const& product_list,
                         BranchType branch_type,
-                        std::string const &module_label,
-                        std::string const &instance_name);
+                        std::string const& module_label,
+                        std::string const& instance_name);
 }
 
 // 1
 template <typename T>
 inline
-art::BranchDescription const &
+art::BranchDescription const&
 art::get_BranchDescription(BranchType branch_type,
-                           std::string const &module_label,
-                           std::string const &instance_name) {
-  return get_BranchDescription(TypeID(typeid(T)),
+                           std::string const& module_label,
+                           std::string const& instance_name)
+{
+  return get_BranchDescription(TypeID{typeid(T)},
                                branch_type,
                                module_label,
                                instance_name); // 3.
@@ -89,11 +90,12 @@ art::get_BranchDescription(BranchType branch_type,
 // 2.
 template <typename T>
 inline
-art::BranchDescription const &
-art::get_BranchDescription(Principal const &principal,
-                           std::string const &module_label,
-                           std::string const &instance_name) {
-  return get_BranchDescription(TypeID(typeid(T)),
+art::BranchDescription const&
+art::get_BranchDescription(Principal const& principal,
+                           std::string const& module_label,
+                           std::string const& instance_name)
+{
+  return get_BranchDescription(TypeID{typeid(T)},
                                principal,
                                module_label,
                                instance_name); // 4.

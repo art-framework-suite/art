@@ -24,33 +24,41 @@ namespace arttest {
 class arttest::ProductIDGetter : public art::EDProducer {
 public:
 
-  explicit ProductIDGetter(fhicl::ParameterSet const &);
-  void produce(art::Event &) override;
+  explicit ProductIDGetter(fhicl::ParameterSet const&);
+  void produce(art::Event&) override;
 
 };
 
 
-arttest::ProductIDGetter::ProductIDGetter(fhicl::ParameterSet const &)
+arttest::ProductIDGetter::ProductIDGetter(fhicl::ParameterSet const&)
 {
-  produces<std::vector<int> >();
-  produces<art::Ptr<int> >();
+  produces<std::vector<int>>();
+  produces<art::Ptr<int>>();
 }
 
-void arttest::ProductIDGetter::produce(art::Event &e) {
+void arttest::ProductIDGetter::produce(art::Event& e)
+{
+  // Test that getting a ProductID for an unregistered product yields an exception.
+  BOOST_REQUIRE_EXCEPTION(getProductID<int>(e),
+                          art::Exception,
+                          [](art::Exception const& e) {
+                            return e.categoryCode() == art::errors::ProductRegistrationFailure;
+                          });
+
   auto vip = std::make_unique<std::vector<int>>();
   vip->push_back(0);
   vip->push_back(2);
   vip->push_back(4);
   vip->push_back(6);
 
-  art::ProductID pv(getProductID<std::vector<int> >(e));
+  art::ProductID const pv {getProductID<std::vector<int>>(e)};
   auto ptr = std::make_unique<art::Ptr<int>>(pv, 2, e.productGetter(pv));
 
   BOOST_REQUIRE(ptr->id().isValid());
 
-  art::ProductID id(e.put(std::move(vip)));
+  art::ProductID const id {e.put(std::move(vip))};
 
-  art::Ptr<int> ptr_check(id, 2, e.productGetter(id));
+  art::Ptr<int> const ptr_check {id, 2, e.productGetter(id)};
 
   BOOST_REQUIRE_EQUAL(ptr->id(), ptr_check.id());
 

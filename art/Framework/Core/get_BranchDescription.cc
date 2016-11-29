@@ -10,51 +10,52 @@
 #include "canvas/Utilities/Exception.h"
 
 // 3.
-art::BranchDescription const &
-art::get_BranchDescription(TypeID tid,
-                           BranchType branch_type,
+art::BranchDescription const&
+art::get_BranchDescription(TypeID const tid,
+                           BranchType const branch_type,
                            std::string const &module_label,
-                           std::string const &instance_name) {
-  return
-    get_BranchDescription(tid,
-                          ServiceHandle<TriggerNamesService>()->getProcessName(),
-                          ProductMetaData::instance().productList(),
-                          branch_type,
-                          module_label,
-                          instance_name); // 5.
+                           std::string const &instance_name)
+{
+  return get_BranchDescription(tid,
+                               ServiceHandle<TriggerNamesService>()->getProcessName(),
+                               ProductMetaData::instance().productList(),
+                               branch_type,
+                               module_label,
+                               instance_name); // 5.
 }
 
 // 4.
-art::BranchDescription const &
-art::get_BranchDescription(TypeID type_id,
-                           Principal const &principal,
-                           std::string const &module_label,
-                           std::string const &instance_name) {
-  return
-    get_BranchDescription(type_id,
-                          principal.processConfiguration().processName(),
-                          ProductMetaData::instance().productList(),
-                          principal.branchType(),
-                          module_label,
-                          instance_name); // 5.
+art::BranchDescription const&
+art::get_BranchDescription(TypeID const type_id,
+                           Principal const& principal,
+                           std::string const& module_label,
+                           std::string const& instance_name)
+{
+  return get_BranchDescription(type_id,
+                               principal.processConfiguration().processName(),
+                               ProductMetaData::instance().productList(),
+                               principal.branchType(),
+                               module_label,
+                               instance_name); // 5.
 }
 
 // 5.
-art::BranchDescription const &
-art::get_BranchDescription(TypeID type_id,
-                           std::string const &process_name,
-                           ProductList const &product_list,
-                           BranchType branch_type,
-                           std::string const &module_label,
-                           std::string const &instance_name) {
-  BranchKey bk(type_id.friendlyClassName(),
-               module_label,
-               instance_name,
-               process_name,
-               branch_type);
-  ProductList::const_iterator it = product_list.find(bk);
+art::BranchDescription const&
+art::get_BranchDescription(TypeID const type_id,
+                           std::string const& process_name,
+                           ProductList const& product_list,
+                           BranchType const branch_type,
+                           std::string const& module_label,
+                           std::string const& instance_name)
+{
+  BranchKey const bk {type_id.friendlyClassName(),
+      module_label,
+      instance_name,
+      process_name,
+      branch_type};
+  auto const it = product_list.find(bk);
   if (it == product_list.end()) {
-    throw art::Exception(art::errors::InsertFailure)
+    throw art::Exception{art::errors::ProductRegistrationFailure, "art::get_BranchDescription"}
       << "No product is registered for\n"
       << "  process name:                '" << bk.processName_ << "'\n"
       << "  module label:                '" << bk.moduleLabel_ << "'\n"
@@ -64,4 +65,3 @@ art::get_BranchDescription(TypeID type_id,
   }
   return it->second;
 }
-
