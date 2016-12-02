@@ -66,10 +66,10 @@ namespace art {
            BranchDescription const& bd,
            RangeSet&& rs)
   {
-    addOrReplaceGroup(gfactory::make_group(std::move(prod),
-                                           bd,
+    addOrReplaceGroup(gfactory::make_group(bd,
                                            ProductID{},
-                                           std::move(rs)));
+                                           std::move(rs),
+                                           std::move(prod)));
   }
 
   void

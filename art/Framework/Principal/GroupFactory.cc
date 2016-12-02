@@ -1,10 +1,9 @@
 #include "art/Framework/Principal/GroupFactory.h"
 // vim: set sw=2:
 
-#include "art/Framework/Principal/AssnsGroup.h"
-#include "art/Framework/Principal/Group.h"
 #include "canvas/Persistency/Common/Assns.h"
 #include "canvas/Persistency/Provenance/TypeTools.h"
+#include "canvas/Persistency/Provenance/BranchDescription.h"
 #include "canvas/Utilities/Exception.h"
 #include "canvas/Utilities/WrappedClassName.h"
 #include "cetlib/demangle.h"
@@ -12,92 +11,54 @@
 
 using namespace std;
 
-namespace art {
-  namespace gfactory {
-
-    namespace {
-      bool
-      getWrapperTIDs(BranchDescription const& bd, TypeID& twid, TypeID& twpid)
-      {
-        auto const taName = bd.producedClassName();
-        TypeWithDict const ta(taName);
-        if (!ta) {
-          throwLateDictionaryError(taName);
-        }
-        auto const twName = art::wrappedClassName(taName);
-        TypeWithDict tw(twName);
-        if (!tw) {
-          throwLateDictionaryError(twName);
-        }
-        twid = tw.id();
-        auto const tpName = name_of_assns_partner(taName);
-        TypeWithDict tp(tpName);
-        bool isNormalGroup = (tp.category() == TypeWithDict::Category::NONE);
-        if (!isNormalGroup) {
-          if (!tp) {
-            throwLateDictionaryError(tpName);
-          }
-          auto const twpName = art::wrappedClassName(tpName);
-          TypeWithDict twp(twpName);
-          if (!twp) {
-            throwLateDictionaryError(twpName);
-          }
-         twpid = twp.id();
-        }
-        return isNormalGroup;
-      }
-
-    } // unnamed namespace
-
-    unique_ptr<Group>
-    make_group(BranchDescription const& bd,
-               ProductID const& pid,
-               RangeSet&& rs)
-    {
-      TypeID twid;
-      TypeID twpid;
-      if (getWrapperTIDs(bd, twid, twpid)) {
-        unique_ptr<Group> group(new Group(bd, pid, twid, move(rs)));
-        return group;
-      }
-      unique_ptr<Group> group(new AssnsGroup(bd, pid, twid, twpid, move(rs)));
-      return group;
+namespace {
+  void maybeThrowLateDictionaryError(art::TypeWithDict const & twd,
+                                     std::string const & tname)
+  {
+    if (!twd) {
+      art::throwLateDictionaryError(tname);
     }
+  }
+}
 
-    unique_ptr<Group>
-    make_group(BranchDescription const& bd,
-               ProductID const& pid,
-               RangeSet&& rs,
-               cet::exempt_ptr<Worker> productProducer,
-               cet::exempt_ptr<EventPrincipal> onDemandPrincipal)
-    {
-      TypeID twid;
-      TypeID twpid;
-      if (getWrapperTIDs(bd, twid, twpid)) {
-        unique_ptr<Group> group(new Group(bd, pid, twid, move(rs), productProducer,
-                                          onDemandPrincipal));
-        return group;
+std::vector<art::TypeID>
+art::gfactory::detail::
+getWrapperTIDs(BranchDescription const& bd)
+{
+  std::vector<TypeID> result;
+  auto const taName = bd.producedClassName();
+  TypeWithDict const ta(taName);
+  maybeThrowLateDictionaryError(ta, taName);
+  auto const twName = art::wrappedClassName(taName);
+  TypeWithDict tw(twName);
+  maybeThrowLateDictionaryError(tw, twName);
+  result.emplace_back(tw.id()); // Wrapper.
+  if (ta.category() == TypeWithDict::Category::CLASSTYPE) {
+    if (is_instantiation_of(ta.tClass(), "art::Assns")) {
+      auto const tpName = name_of_assns_partner(taName);
+      TypeWithDict tp(tpName);
+      maybeThrowLateDictionaryError(tp, tpName);
+      auto const twpName = art::wrappedClassName(tpName);
+      TypeWithDict twp(twpName);
+      maybeThrowLateDictionaryError(twp, twpName);
+      result.emplace_back(twp.id()); // Wrapper of partner.
+      auto base = find_nested_type_named("base", ta.tClass());
+      if (base.category() != TypeWithDict::Category::NONE) {
+        auto const baseName = base.className();
+        maybeThrowLateDictionaryError(base, baseName);
+        auto const basewName = art::wrappedClassName(baseName);
+        TypeWithDict basew(basewName);
+        maybeThrowLateDictionaryError(basew, basewName);
+        result.emplace_back(basew); // Wrapper of base.
+        auto const basepName = name_of_assns_partner(baseName);
+        TypeWithDict basep(basepName);
+        maybeThrowLateDictionaryError(basep, basepName);
+        auto const basewpName = art::wrappedClassName(basepName);
+        TypeWithDict basewp(basepName);
+        maybeThrowLateDictionaryError(basewp, basewpName);
+        result.emplace_back(basewp); // Wrapper of partner's base.
       }
-      unique_ptr<Group> group(new AssnsGroup(bd, pid, twid, twpid, move(rs), productProducer,
-                                             onDemandPrincipal));
-      return group;
     }
-
-    unique_ptr<Group>
-    make_group(unique_ptr<EDProduct>&& edp,
-               BranchDescription const& bd,
-               ProductID const& pid,
-               RangeSet&& rs)
-    {
-      TypeID twid;
-      TypeID twpid;
-      if (getWrapperTIDs(bd, twid, twpid)) {
-        unique_ptr<Group> group(new Group(move(edp), bd, pid, twid, move(rs)));
-        return group;
-      }
-      unique_ptr<Group> group(new AssnsGroup(move(edp), bd, pid, twid, twpid, move(rs)));
-      return group;
-    }
-
-  } // namespace gfactory
-} // namespace art
+  }
+  return result;
+}
