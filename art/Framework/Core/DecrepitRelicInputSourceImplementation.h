@@ -47,6 +47,8 @@ Some examples of InputSource subclasses may be:
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/InputSource.h"
 #include "art/Framework/Core/ProductRegistryHelper.h"
+#include "art/Framework/Principal/RunPrincipal.h"
+#include "art/Framework/Principal/SubRunPrincipal.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
 #include "canvas/Persistency/Provenance/RunID.h"
 #include "canvas/Persistency/Provenance/SubRunID.h"
@@ -98,16 +100,16 @@ namespace art
 
     /// Read next event
     /// Indicate inability to get a new event by returning a null unique_ptr.
-    std::unique_ptr<EventPrincipal> readEvent(std::shared_ptr<SubRunPrincipal> srp) override;
+    std::unique_ptr<EventPrincipal> readEvent(cet::exempt_ptr<SubRunPrincipal> srp) override;
 
     /// Read a specific event
     std::unique_ptr<EventPrincipal> readEvent(EventID const&) override;
 
     /// Read next subRun
-    std::shared_ptr<SubRunPrincipal> readSubRun(std::shared_ptr<RunPrincipal> rp) override;
+    std::unique_ptr<SubRunPrincipal> readSubRun(cet::exempt_ptr<RunPrincipal> rp) override;
 
     /// Read next run.
-    std::shared_ptr<RunPrincipal> readRun() override;
+    std::unique_ptr<RunPrincipal> readRun() override;
 
     /// Read next file
     std::unique_ptr<FileBlock> readFile(MasterProductRegistry&) override;
@@ -181,11 +183,23 @@ namespace art
     /// To set the current time, as seen by the input source
     void setTimestamp(Timestamp const& theTime) {time_ = theTime;}
 
-    input::ItemType state() const{return state_;}
-    std::shared_ptr<RunPrincipal> runPrincipal() const {return runPrincipal_;}
-    std::shared_ptr<SubRunPrincipal> subRunPrincipal() const {return subRunPrincipal_;}
-    void setRunPrincipal(std::shared_ptr<RunPrincipal> rp) {runPrincipal_ = rp;}
-    void setSubRunPrincipal(std::shared_ptr<SubRunPrincipal> srp);
+    input::ItemType state() const {return state_;}
+    cet::exempt_ptr<RunPrincipal> runPrincipalExemptPtr() { return cachedRunPrincipal_; }
+    cet::exempt_ptr<SubRunPrincipal> subRunPrincipalExemptPtr() { return cachedSubRunPrincipal_; }
+
+    std::unique_ptr<RunPrincipal> runPrincipal()
+    {
+      cachedRunPrincipal_ = runPrincipal_.get();
+      return std::move(runPrincipal_);
+    }
+
+    std::unique_ptr<SubRunPrincipal> subRunPrincipal()
+    {
+      cachedSubRunPrincipal_ = subRunPrincipal_.get();
+      return std::move(subRunPrincipal_);
+    }
+
+    void setRunPrincipal(std::unique_ptr<RunPrincipal>&& rp) {runPrincipal_ = std::move(rp);}
     void resetRunPrincipal() {runPrincipal_.reset();}
     void resetSubRunPrincipal() {subRunPrincipal_.reset();}
     void reset() {
@@ -199,8 +213,8 @@ namespace art
     bool limitReached() const {return eventLimitReached() || subRunLimitReached();}
     virtual input::ItemType getNextItemType() = 0;
     input::ItemType nextItemType_();
-    virtual std::shared_ptr<RunPrincipal> readRun_() = 0;
-    virtual std::shared_ptr<SubRunPrincipal> readSubRun_() = 0;
+    virtual std::unique_ptr<RunPrincipal> readRun_() = 0;
+    virtual std::unique_ptr<SubRunPrincipal> readSubRun_() = 0;
     virtual std::unique_ptr<EventPrincipal> readEvent_() = 0;
     virtual std::unique_ptr<FileBlock> readFile_();
     virtual void closeFile_() {}
@@ -224,8 +238,10 @@ namespace art
     Timestamp time_ {Timestamp::invalidTimestamp()};
     bool doneReadAhead_ {false};
     input::ItemType state_ {input::IsInvalid};
-    std::shared_ptr<RunPrincipal>  runPrincipal_ {nullptr};
-    std::shared_ptr<SubRunPrincipal>  subRunPrincipal_ {nullptr};
+    std::unique_ptr<RunPrincipal>  runPrincipal_ {nullptr};
+    std::unique_ptr<SubRunPrincipal>  subRunPrincipal_ {nullptr};
+    cet::exempt_ptr<RunPrincipal>  cachedRunPrincipal_ {nullptr};
+    cet::exempt_ptr<SubRunPrincipal>  cachedSubRunPrincipal_ {nullptr};
   };  // DecrepitRelicInputSourceImplementation
 
 }  // art

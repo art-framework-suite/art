@@ -213,8 +213,9 @@ namespace art {
     return std::make_unique<FileBlock>();
   }
 
-  std::shared_ptr<RunPrincipal>
-  DecrepitRelicInputSourceImplementation::readRun() {
+  std::unique_ptr<RunPrincipal>
+  DecrepitRelicInputSourceImplementation::readRun()
+  {
     // Note: For the moment, we do not support saving and restoring the state of the
     // random number generator if random numbers are generated during processing of runs
     // (e.g. beginRun(), endRun())
@@ -222,11 +223,13 @@ namespace art {
     assert(state_ == input::IsRun);
     assert(!limitReached());
     doneReadAhead_ = false;
-    return runPrincipal_;
+    cachedRunPrincipal_ = runPrincipal_.get();
+    return std::move(runPrincipal_);
   }
 
-  std::shared_ptr<SubRunPrincipal>
-  DecrepitRelicInputSourceImplementation::readSubRun(std::shared_ptr<RunPrincipal> rp) {
+  std::unique_ptr<SubRunPrincipal>
+  DecrepitRelicInputSourceImplementation::readSubRun(cet::exempt_ptr<RunPrincipal> rp)
+  {
     // Note: For the moment, we do not support saving and restoring the state of the
     // random number generator if random numbers are generated during processing of subRuns
     // (e.g. beginSubRun(), endSubRun())
@@ -237,11 +240,12 @@ namespace art {
     --remainingSubRuns_;
     assert(subRunPrincipal_->run() == rp->run());
     subRunPrincipal_->setRunPrincipal(rp);
-    return subRunPrincipal_;
+    cachedSubRunPrincipal_ = subRunPrincipal_.get();
+    return std::move(subRunPrincipal_);
   }
 
   std::unique_ptr<EventPrincipal>
-  DecrepitRelicInputSourceImplementation::readEvent(std::shared_ptr<SubRunPrincipal> srp) {
+  DecrepitRelicInputSourceImplementation::readEvent(cet::exempt_ptr<SubRunPrincipal> srp) {
     assert(doneReadAhead_);
     assert(state_ == input::IsEvent);
     assert(!eventLimitReached());
@@ -323,16 +327,15 @@ namespace art {
   DecrepitRelicInputSourceImplementation::endJob() { }
 
   RunID
-  DecrepitRelicInputSourceImplementation::run() const
-  {
-    assert(runPrincipal());
-    return runPrincipal()->id();
+  DecrepitRelicInputSourceImplementation::run() const {
+    assert(runPrincipal_);
+    return runPrincipal_->id();
   }
 
   SubRunID
   DecrepitRelicInputSourceImplementation::subRun() const {
-    assert(subRunPrincipal());
-    return subRunPrincipal()->id();
+    assert(subRunPrincipal_);
+    return subRunPrincipal_->id();
   }
 
 }  // art

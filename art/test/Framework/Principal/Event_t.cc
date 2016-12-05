@@ -258,16 +258,16 @@ EventTestFixture::EventTestFixture()
   EventID id = make_id();
   ProcessConfiguration const& pc = gf().currentModuleDescription_->processConfiguration();
   RunAuxiliary runAux(id.run(), time, time);
-  auto rp = std::make_shared<RunPrincipal>(runAux, pc);
-  SubRunAuxiliary subRunAux(rp->run(), 1u, time, time);
-  auto srp = std::make_shared<SubRunPrincipal>(subRunAux, pc);
-  srp->setRunPrincipal(rp);
+  auto rp = std::make_unique<RunPrincipal>(runAux, pc);
+  SubRunAuxiliary subRunAux {rp->run(), 1u, time, time};
+  auto srp = std::make_unique<SubRunPrincipal>(subRunAux, pc);
+  srp->setRunPrincipal(rp.get());
   EventAuxiliary eventAux(id, time, true);
   auto history = std::make_shared<History>();
   const_cast<ProcessHistoryID &>(history->processHistoryID()) = processHistoryID;
   principal_ = std::make_unique<EventPrincipal>(eventAux, pc, history);
 
-  principal_->setSubRunPrincipal(srp);
+  principal_->setSubRunPrincipal(srp.get());
   currentEvent_ = std::make_unique<Event>(*principal_, *gf().currentModuleDescription_);
 
   delete processHistory;

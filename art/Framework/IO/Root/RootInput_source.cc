@@ -154,7 +154,7 @@ readFile_()
   return primaryFileSequence_->readFile_();
 }
 
-std::shared_ptr<RunPrincipal>
+std::unique_ptr<RunPrincipal>
 RootInput::
 readRun()
 {
@@ -172,7 +172,7 @@ readRun()
   }
 }
 
-std::shared_ptr<RunPrincipal>
+std::unique_ptr<RunPrincipal>
 RootInput::
 readRun_()
 {
@@ -185,9 +185,9 @@ RootInput::runRangeSetHandler()
   return primaryFileSequence_->runRangeSetHandler();
 }
 
-std::shared_ptr<SubRunPrincipal>
+std::unique_ptr<SubRunPrincipal>
 RootInput::
-readSubRun(std::shared_ptr<RunPrincipal> rp)
+readSubRun(cet::exempt_ptr<RunPrincipal> rp)
 {
   switch (accessState_.state()) {
   case AccessState::SEQUENTIAL:
@@ -203,11 +203,10 @@ readSubRun(std::shared_ptr<RunPrincipal> rp)
   }
 }
 
-std::shared_ptr<SubRunPrincipal>
+std::unique_ptr<SubRunPrincipal>
 RootInput::
 readSubRun_()
-{
-  return primaryFileSequence_->readSubRun_(runPrincipal());
+  return primaryFileSequence_->readSubRun_(runPrincipalExemptPtr());
 }
 
 std::unique_ptr<RangeSetHandler>
@@ -218,14 +217,14 @@ RootInput::subRunRangeSetHandler()
 
 std::unique_ptr<EventPrincipal>
 RootInput::
-readEvent(std::shared_ptr<SubRunPrincipal> srp)
+readEvent(cet::exempt_ptr<SubRunPrincipal> srp)
 {
   return readEvent_(srp);
 }
 
 std::unique_ptr<EventPrincipal>
 RootInput::
-readEvent_(std::shared_ptr<SubRunPrincipal> srp)
+readEvent_(cet::exempt_ptr<SubRunPrincipal> srp)
 {
   switch (accessState_.state()) {
     case AccessState::SEQUENTIAL:
@@ -233,13 +232,10 @@ readEvent_(std::shared_ptr<SubRunPrincipal> srp)
     case AccessState::SEEKING_EVENT:
       accessState_.resetState();
       {
-        std::unique_ptr<EventPrincipal>
-        result(primaryFileSequence_->readIt(accessState_.wantedEventID(),
-                                            true));
+        std::unique_ptr<EventPrincipal> result {primaryFileSequence_->readIt(accessState_.wantedEventID(), true)};
         if (result.get()) {
           accessState_.setLastReadEventID(result->id());
-          accessState_.setRootFileForLastReadEvent(
-            primaryFileSequence_->rootFileForLastReadEvent());
+          accessState_.setRootFileForLastReadEvent(primaryFileSequence_->rootFileForLastReadEvent());
           result->setSubRunPrincipal(srp);
         }
         return result;

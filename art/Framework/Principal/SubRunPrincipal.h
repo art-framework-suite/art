@@ -41,8 +41,8 @@ namespace art {
     RunPrincipal const& runPrincipal() const;
     RunPrincipal& runPrincipal();
 
-    std::shared_ptr<RunPrincipal> runPrincipalSharedPtr() { return runPrincipal_; }
-    void setRunPrincipal(std::shared_ptr<RunPrincipal> rp) { runPrincipal_ = rp; }
+    cet::exempt_ptr<RunPrincipal> runPrincipalExemptPtr() { return runPrincipal_; }
+    void setRunPrincipal(cet::exempt_ptr<RunPrincipal> rp) { runPrincipal_ = rp; }
 
     SubRunAuxiliary const& aux() const { return aux_; }
     SubRunID id() const { return aux().id(); }
@@ -75,7 +75,7 @@ namespace art {
     void setProcessHistoryID(ProcessHistoryID const& phid) override;
 
     SubRunAuxiliary aux_;
-    std::shared_ptr<RunPrincipal> runPrincipal_ {nullptr};
+    cet::exempt_ptr<RunPrincipal> runPrincipal_ {nullptr};
     RangeSet rangeSet_ {RangeSet::invalid()};
   };
 

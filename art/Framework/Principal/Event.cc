@@ -8,10 +8,10 @@
 #include "art/Framework/Principal/Event.h"
 
 #include "art/Framework/Principal/EventPrincipal.h"
-#include "art/Framework/Principal/SubRun.h"
-#include "canvas/Persistency/Provenance/BranchType.h"
-#include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
 #include "art/Framework/Principal/Provenance.h"
+#include "art/Framework/Principal/SubRun.h"
+#include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
+#include "canvas/Persistency/Provenance/BranchType.h"
 #include "fhiclcpp/ParameterSetRegistry.h"
 
 using namespace std;
@@ -20,8 +20,8 @@ using namespace fhicl;
 namespace art {
 
   namespace {
-    SubRun * newSubRun(EventPrincipal& ep, ModuleDescription const& md) {
-      return (ep.subRunPrincipalSharedPtr() ? new SubRun{ep.subRunPrincipal(), md} : 0);
+    SubRun* newSubRun(EventPrincipal& ep, ModuleDescription const& md) {
+      return (ep.subRunPrincipalExemptPtr() ? new SubRun{ep.subRunPrincipal(), md} : nullptr);
     }
   }
 
@@ -61,14 +61,6 @@ namespace art {
     return getSubRun().getRun();
   }
 
-//   History const&
-//   Event::history() const {
-//     DataViewImpl const& dvi = me();
-//     EDProductGetter const* pg = dvi.prodGetter(); // certain to be non-null
-//     assert(pg);
-//     EventPrincipal const& ep = dynamic_cast<EventPrincipal const&>(*pg);
-//     return ep.history();
-//   }
   History const&
   Event::history() const {
     return eventPrincipal().history();

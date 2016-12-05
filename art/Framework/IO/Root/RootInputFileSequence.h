@@ -119,17 +119,17 @@ public: // MEMBER FUNCTIONS
   input::ItemType
   getNextItemType();
 
-  std::shared_ptr<RunPrincipal>
+  std::unique_ptr<RunPrincipal>
   readIt(RunID const&);
 
-  std::shared_ptr<RunPrincipal>
+  std::unique_ptr<RunPrincipal>
   readRun_();
 
-  std::shared_ptr<SubRunPrincipal>
-  readIt(SubRunID const&, std::shared_ptr<RunPrincipal>);
+  std::unique_ptr<SubRunPrincipal>
+  readIt(SubRunID const&, cet::exempt_ptr<RunPrincipal>);
 
-  std::shared_ptr<SubRunPrincipal>
-  readSubRun_(std::shared_ptr<RunPrincipal>);
+  std::unique_ptr<SubRunPrincipal>
+  readSubRun_(cet::exempt_ptr<RunPrincipal>);
 
   std::unique_ptr<EventPrincipal>
   readIt(EventID const&, bool exact = false);

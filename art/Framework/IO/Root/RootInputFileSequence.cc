@@ -8,6 +8,8 @@
 #include "art/Framework/IO/Root/RootTree.h"
 #include "art/Framework/IO/detail/logFileAction.h"
 #include "art/Framework/Principal/EventPrincipal.h"
+#include "art/Framework/Principal/RunPrincipal.h"
+#include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Persistency/Provenance/BranchIDListHelper.h"
 #include "art/Persistency/Provenance/MasterProductRegistry.h"
@@ -620,9 +622,9 @@ RootInputFileSequence::subRunRangeSetHandler()
   return rootFile_->subRunRangeSetHandler();
 }
 
-std::shared_ptr<SubRunPrincipal>
+std::unique_ptr<SubRunPrincipal>
 RootInputFileSequence::
-readIt(SubRunID const& id, std::shared_ptr<RunPrincipal> rp)
+readIt(SubRunID const& id, cet::exempt_ptr<RunPrincipal> rp)
 {
   // Attempt to find subRun in currently open input file.
   bool found = rootFile_->setEntry<InSubRun>(id);
@@ -630,7 +632,7 @@ readIt(SubRunID const& id, std::shared_ptr<RunPrincipal> rp)
     return readSubRun_(rp);
   }
   if (!catalog_.isSearchable()) {
-    return std::shared_ptr<SubRunPrincipal>();
+    return std::unique_ptr<SubRunPrincipal>{nullptr};
   }
   // Look for event in cached files
   typedef vector<std::shared_ptr<FileIndex>>::const_iterator Iter;
@@ -657,17 +659,17 @@ readIt(SubRunID const& id, std::shared_ptr<RunPrincipal> rp)
     }
   }
   // not found
-  return std::shared_ptr<SubRunPrincipal>();
+  return std::unique_ptr<SubRunPrincipal>{nullptr};
 }
 
-std::shared_ptr<SubRunPrincipal>
+std::unique_ptr<SubRunPrincipal>
 RootInputFileSequence::
-readSubRun_(std::shared_ptr<RunPrincipal> rp)
+readSubRun_(cet::exempt_ptr<RunPrincipal> rp)
 {
   return rootFile_->readSubRun(rp);
 }
 
-std::shared_ptr<RunPrincipal>
+std::unique_ptr<RunPrincipal>
 RootInputFileSequence::
 readIt(RunID const& id)
 {
@@ -679,7 +681,7 @@ readIt(RunID const& id)
   }
   if (!catalog_.isSearchable()) {
     // Cannot random access files, give up.
-    return std::shared_ptr<RunPrincipal>();
+    return std::unique_ptr<RunPrincipal>{nullptr};
   }
   // Look for the run in the opened files.
   for (auto B = fileIndexes_.cbegin(), E = fileIndexes_.cend(), I = B;
@@ -704,10 +706,10 @@ readIt(RunID const& id)
     }
   }
   // Not found.
-  return std::shared_ptr<RunPrincipal>();
+  return std::unique_ptr<RunPrincipal>{nullptr};
 }
 
-std::shared_ptr<RunPrincipal>
+std::unique_ptr<RunPrincipal>
 RootInputFileSequence::
 readRun_()
 {

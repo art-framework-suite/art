@@ -37,40 +37,40 @@ public:
   template <typename T>
   Ptr<T>
   makePtr(TypeLabel const& t,
-          EventPrincipal const& ep,
-          typename Ptr<T>::key_type key) const;
+           EventPrincipal const& ep,
+           typename Ptr<T>::key_type key) const;
 
-  RunPrincipal * makeRunPrincipal(RunAuxiliary const& runAux) const;
+  RunPrincipal* makeRunPrincipal(RunAuxiliary const& runAux) const;
 
-  RunPrincipal * makeRunPrincipal(RunID r,
-                                  Timestamp const& startTime) const;
+  RunPrincipal* makeRunPrincipal(RunID r,
+                                 Timestamp const& startTime) const;
 
-  RunPrincipal * makeRunPrincipal(RunNumber_t r,
-                                  Timestamp const& startTime) const;
+  RunPrincipal* makeRunPrincipal(RunNumber_t r,
+                                 Timestamp const& startTime) const;
 
-  SubRunPrincipal * makeSubRunPrincipal(SubRunAuxiliary const& subRunAux) const;
+  SubRunPrincipal* makeSubRunPrincipal(SubRunAuxiliary const& subRunAux) const;
 
-  SubRunPrincipal * makeSubRunPrincipal(SubRunID const& sr,
-                                        Timestamp const& startTime) const;
+  SubRunPrincipal* makeSubRunPrincipal(SubRunID const& sr,
+                                       Timestamp const& startTime) const;
 
-  SubRunPrincipal * makeSubRunPrincipal(RunNumber_t r,
-                                        SubRunNumber_t sr,
-                                        Timestamp const& startTime) const;
+  SubRunPrincipal* makeSubRunPrincipal(RunNumber_t r,
+                                       SubRunNumber_t sr,
+                                       Timestamp const& startTime) const;
 
-  EventPrincipal * makeEventPrincipal(EventAuxiliary const& eventAux,
-                                      std::shared_ptr<History>&& history) const;
+  EventPrincipal* makeEventPrincipal(EventAuxiliary const& eventAux,
+                                     std::shared_ptr<History>&& history) const;
 
-  EventPrincipal * makeEventPrincipal(EventID const& e,
-                                      Timestamp const& startTime,
-                                      bool isRealData = true,
-                                      EventAuxiliary::ExperimentType eType = EventAuxiliary::Data) const;
+  EventPrincipal* makeEventPrincipal(EventID const& e,
+                                     Timestamp const& startTime,
+                                     bool isRealData = true,
+                                     EventAuxiliary::ExperimentType eType = EventAuxiliary::Data) const;
 
-  EventPrincipal * makeEventPrincipal(RunNumber_t r,
-                                      SubRunNumber_t sr,
-                                      EventNumber_t e,
-                                      Timestamp const& startTime,
-                                      bool isRealData = true,
-                                      EventAuxiliary::ExperimentType eType = EventAuxiliary::Data) const;
+  EventPrincipal* makeEventPrincipal(RunNumber_t r,
+                                     SubRunNumber_t sr,
+                                     EventNumber_t e,
+                                     Timestamp const& startTime,
+                                     bool isRealData = true,
+                                     EventAuxiliary::ExperimentType eType = EventAuxiliary::Data) const;
 
 private:
   ModuleDescription md_;

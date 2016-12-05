@@ -7,7 +7,10 @@
 #include "art/Framework/IO/Root/FastCloningInfoProvider.h"
 #include "art/Framework/IO/Root/RootInputFileSequence.h"
 #include "art/Framework/IO/Root/RootTree.h"
+#include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Principal/ResultsPrincipal.h"
+#include "art/Framework/Principal/RunPrincipal.h"
+#include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Persistency/Provenance/BranchIDListRegistry.h"
 #include "art/Persistency/RootDB/SQLite3Wrapper.h"
 #include "art/Persistency/Provenance/MasterProductRegistry.h"
@@ -99,14 +102,14 @@ namespace art {
     bool
     readEventForSecondaryFile(EventID eID);
 
-    std::shared_ptr<RunPrincipal>
+    std::unique_ptr<RunPrincipal>
     readRun();
 
     bool
     readRunForSecondaryFile(RunID);
 
-    std::shared_ptr<SubRunPrincipal>
-    readSubRun(std::shared_ptr<RunPrincipal>);
+    std::unique_ptr<SubRunPrincipal>
+    readSubRun(cet::exempt_ptr<RunPrincipal>);
 
     bool
     readSubRunForSecondaryFile(SubRunID);
@@ -385,7 +388,7 @@ namespace art {
 
     std::unique_ptr<RunPrincipal   > readCurrentRun(EntryNumbers const&);
     std::unique_ptr<SubRunPrincipal> readCurrentSubRun(EntryNumbers const&,
-                                                       std::shared_ptr<RunPrincipal>);
+                                                       cet::exempt_ptr<RunPrincipal>);
     std::unique_ptr<EventPrincipal > readCurrentEvent(std::pair<EntryNumbers,bool> const&);
 
     std::string const file_;
@@ -428,7 +431,7 @@ namespace art {
     TTree* eventHistoryTree_ {nullptr};
     std::shared_ptr<History> history_ {std::make_shared<History>()};
     std::unique_ptr<BranchChildren> branchChildren_ {std::make_unique<BranchChildren>()};
-    std::vector<std::unique_ptr<RootInputFile> > secondaryFiles_ {};
+    std::vector<std::unique_ptr<RootInputFile>> secondaryFiles_ {};
     // We need to add the secondary principals to the primary
     // principal when they are delay read, so we need to keep
     // around a pointer to the primary.  Note that these are

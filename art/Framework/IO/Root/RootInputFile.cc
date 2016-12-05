@@ -702,7 +702,7 @@ namespace art {
     return std::move(runRangeSetHandler_);
   }
 
-  shared_ptr<RunPrincipal>
+  unique_ptr<RunPrincipal>
   RootInputFile::
   readRun()
   {
@@ -812,9 +812,9 @@ namespace art {
     return std::move(subRunRangeSetHandler_);
   }
 
-  shared_ptr<SubRunPrincipal>
+  unique_ptr<SubRunPrincipal>
   RootInputFile::
-  readSubRun(shared_ptr<RunPrincipal> rp)
+  readSubRun(cet::exempt_ptr<RunPrincipal> rp)
   {
     assert(fiIter_ != fiEnd_);
     assert(fiIter_->getEntryType() == FileIndex::kSubRun);
@@ -833,7 +833,7 @@ namespace art {
   unique_ptr<SubRunPrincipal>
   RootInputFile::
   readCurrentSubRun(EntryNumbers const& entryNumbers,
-                    shared_ptr<RunPrincipal> rp [[gnu::unused]])
+                    cet::exempt_ptr<RunPrincipal> rp [[gnu::unused]])
   {
     subRunRangeSetHandler_ = fillAuxiliary<InSubRun>(entryNumbers);
     assert(subRunAux().id() == fiIter_->eventID_.subRunID());

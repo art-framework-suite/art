@@ -8,7 +8,7 @@ namespace art {
   namespace {
     Run *
     newRun(SubRunPrincipal& srp, ModuleDescription const& md) {
-      return (srp.runPrincipalSharedPtr() ? new Run{srp.runPrincipal(), md} : nullptr);
+      return (srp.runPrincipalExemptPtr() ? new Run{srp.runPrincipal(), md} : nullptr);
     }
   }
 

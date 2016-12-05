@@ -264,7 +264,7 @@ art::MixHelper::mixAndPut(EntryNumberSequence const & enSeq,
   ptpBuilder_.populateRemapper(ptrRemapper_, e);
   // Do the branch-wise read, mix and put.
   cet::for_all(mixOps_,
-               [&,this](auto const& op){ this->mixAndPutOne_(op, enSeq, e); });
+               [&,this](auto const& op){ this->mixAndPutOne_(op.get(), enSeq, e); });
   nEventsReadThisFile_ += enSeq.size();
   totalEventsRead_ += enSeq.size();
 }
@@ -421,7 +421,7 @@ buildEventIDIndex_(FileIndex const & fileIndex)
 
 void
 art::MixHelper::
-mixAndPutOne_(std::shared_ptr<MixOpBase> op,
+mixAndPutOne_(cet::exempt_ptr<MixOpBase> op,
               EntryNumberSequence const & enSeq,
               Event & e)
 {

@@ -329,14 +329,14 @@ private:
   MixHelper(MixHelper const&) = delete;
   MixHelper& operator=(MixHelper const&) = delete;
 
-  typedef std::vector<std::shared_ptr<MixOpBase> > MixOpList;
+  typedef std::vector<std::unique_ptr<MixOpBase>> MixOpList;
   typedef MixOpList::iterator MixOpIter;
 
   Mode initReadMode_(std::string const & mode) const;
 
   void openAndReadMetaData_(std::string fileName);
   void buildEventIDIndex_(FileIndex const & fileIndex);
-  void mixAndPutOne_(std::shared_ptr<MixOpBase> mixOp,
+  void mixAndPutOne_(cet::exempt_ptr<MixOpBase> mixOp,
                      EntryNumberSequence const & enSeq,
                      Event & e);
   bool openNextFile_();
@@ -423,7 +423,9 @@ declareMixOp(InputTag const & inputTag,
              > mixFunc,
              bool outputProduct)
 {
-  if (outputProduct) { producesProvider_.produces<PROD>(outputInstanceLabel); }
+  if (outputProduct) {
+    producesProvider_.produces<PROD>(outputInstanceLabel);
+  }
   mixOps_.emplace_back(new MixOp<PROD>(inputTag,
                                        outputInstanceLabel,
                                        mixFunc,

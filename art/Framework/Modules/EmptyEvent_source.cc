@@ -74,8 +74,8 @@ private:
   art::input::ItemType getNextItemType() override;
   void setRunAndEventInfo();
   std::unique_ptr<EventPrincipal> readEvent_() override;
-  std::shared_ptr<SubRunPrincipal> readSubRun_() override;
-  std::shared_ptr<RunPrincipal> readRun_() override;
+  std::unique_ptr<SubRunPrincipal> readSubRun_() override;
+  std::unique_ptr<RunPrincipal> readRun_() override;
 
   std::unique_ptr<RangeSetHandler> runRangeSetHandler() override;
   std::unique_ptr<RangeSetHandler> subRunRangeSetHandler() override;
@@ -142,14 +142,14 @@ art::EmptyEvent::EmptyEvent(art::EmptyEvent::Parameters const& config, InputSour
     eventID_ = origEventID_;
   }
 
-std::shared_ptr<RunPrincipal>
+std::unique_ptr<RunPrincipal>
 art::EmptyEvent::readRun_() {
   auto ts = plugin_ ?
     plugin_->doBeginRunTimestamp(eventID_.runID()) :
     Timestamp::invalidTimestamp();
-  RunAuxiliary const runAux{eventID_.runID(), ts, Timestamp::invalidTimestamp()};
+  RunAuxiliary const runAux {eventID_.runID(), ts, Timestamp::invalidTimestamp()};
   newRun_ = false;
-  auto rp_ptr = std::make_shared<RunPrincipal>(runAux, processConfiguration());
+  auto rp_ptr = std::make_unique<RunPrincipal>(runAux, processConfiguration());
   if (plugin_) {
     Run const r {*rp_ptr, moduleDescription()};
     plugin_->doBeginRun(r);
@@ -163,14 +163,14 @@ art::EmptyEvent::runRangeSetHandler()
   return std::make_unique<OpenRangeSetHandler>(eventID_.run());
 }
 
-std::shared_ptr<SubRunPrincipal>
+std::unique_ptr<SubRunPrincipal>
 EmptyEvent::readSubRun_() {
-  if (processingMode() == Runs) return std::shared_ptr<SubRunPrincipal>();
+  if (processingMode() == Runs) return std::unique_ptr<SubRunPrincipal>{nullptr};
   auto ts = plugin_ ?
     plugin_->doBeginSubRunTimestamp(eventID_.subRunID()) :
     Timestamp::invalidTimestamp();
-  SubRunAuxiliary const subRunAux{eventID_.subRunID(), ts, Timestamp::invalidTimestamp()};
-  auto srp_ptr = std::make_shared<SubRunPrincipal>(subRunAux, processConfiguration());
+  SubRunAuxiliary const subRunAux {eventID_.subRunID(), ts, Timestamp::invalidTimestamp()};
+  auto srp_ptr = std::make_unique<SubRunPrincipal>(subRunAux, processConfiguration());
   if (plugin_) {
     SubRun const sr {*srp_ptr, moduleDescription()};
     plugin_->doBeginSubRun(sr);
