@@ -50,15 +50,21 @@ art::AssnsGroup::
 resolveProductIfAvailable(bool fillOnDemand,
                           TypeID const& wanted_wrapper_type) const
 {
+  // Ask us for something we can do.
+  if (!(wanted_wrapper_type == producedWrapperType() ||
+        wanted_wrapper_type == partnerWrapperType_)) {
+    throwResolveLogicError(wanted_wrapper_type);
+  }
   bool result =
     Group::resolveProductIfAvailable(fillOnDemand, producedWrapperType());
   if (!(productUnavailable() ||
         (result = uniqueProduct(wanted_wrapper_type))) &&
-      wanted_wrapper_type == partnerWrapperType_ &&
       Group::uniqueProduct() != nullptr) {
-    // We know at this point that our wanted object has not been read or
-    // created yet.
-    result = makePartner(wanted_wrapper_type, partnerProduct_);
+    if (wanted_wrapper_type == partnerWrapperType_) {
+      // We know at this point that our wanted object has not been read
+      // or created yet.
+      result = makePartner(wanted_wrapper_type, partnerProduct_);
+    }
   }
   return result;
 }

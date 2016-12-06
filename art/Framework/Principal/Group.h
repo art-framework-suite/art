@@ -179,6 +179,8 @@ namespace art {
 
     void setProduct(std::unique_ptr<EDProduct>&& prod) const;
 
+    [[noreturn]] void throwResolveLogicError (TypeID const & wanted_wrapper_type) const;
+
   private:
 
     bool dropped() const;

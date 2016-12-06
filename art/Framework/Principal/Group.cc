@@ -68,6 +68,9 @@ art::Group::
 resolveProductIfAvailable(bool const fillOnDemand,
                           TypeID const& wanted_wrapper_type) const
 {
+  if (wanted_wrapper_type != wrapperType_) {
+    throwResolveLogicError(wanted_wrapper_type);
+  }
   bool result = product_.get();
   if (!(result || productUnavailable())) {
     std::unique_ptr<EDProduct> edp {obtainDesiredProduct(fillOnDemand, wanted_wrapper_type)};
@@ -138,6 +141,17 @@ setProduct(std::unique_ptr<EDProduct>&& prod) const
 {
   assert(!product_.get());
   product_ = std::move(prod);
+}
+
+void
+art::Group::
+throwResolveLogicError(TypeID const & wanted_wrapper_type) const
+{
+  throw Exception(errors::LogicError, "INTERNAL ERROR: ")
+    << cet::demangle_symbol(typeid(*this).name())
+    << " cannot resolve wanted product of type "
+    << wanted_wrapper_type.className()
+    << ".\n";
 }
 
 bool

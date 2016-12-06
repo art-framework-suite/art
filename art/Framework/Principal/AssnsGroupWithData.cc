@@ -34,9 +34,17 @@ art::AssnsGroupWithData::
 resolveProductIfAvailable(bool fillOnDemand,
                           TypeID const& wanted_wrapper_type) const
 {
+  // Prerequisite: ask us for something we can do.
+  if(!(wanted_wrapper_type == producedWrapperType() ||
+       wanted_wrapper_type == partnerWrapperType() ||
+       wanted_wrapper_type == baseWrapperType_ ||
+       wanted_wrapper_type == partnerBaseWrapperType_)) {
+    throwResolveLogicError(wanted_wrapper_type);
+  }
+
   TypeID const & upstream_wrapper_type =
     (wanted_wrapper_type == partnerBaseWrapperType_ ||
-     wanted_wrapper_type == AssnsGroup::partnerWrapperType()) ?
+     wanted_wrapper_type == partnerWrapperType()) ?
     partnerWrapperType() :
     producedWrapperType();
   bool result =
@@ -49,7 +57,6 @@ resolveProductIfAvailable(bool fillOnDemand,
       result = makePartner(wanted_wrapper_type, baseProduct_);
     } else if (wanted_wrapper_type == partnerBaseWrapperType_) {
       result = makePartner(wanted_wrapper_type, partnerBaseProduct_);
-    } else { // Nothing we can deal with.
     }
   }
   return result;
