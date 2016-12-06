@@ -2,7 +2,7 @@ process_name: t
 
 services:
 {
-   Reconfigurable: { }
-   ServiceUsing: { }
-   Wanted: { }
+  Reconfigurable: { }
+  ServiceUsing: { }
+  Wanted: { messagePrinter: { tool_type: MessagePrinter } }
 }

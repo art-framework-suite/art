@@ -1,37 +1,49 @@
 #include "art/Framework/Core/EDProducer.h"
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Principal/Event.h"
+#include "art/Utilities/ToolConfigTable.h"
+#include "art/Utilities/make_tool.h"
 #include "art/test/TestObjects/ToyProducts.h"
+#include "fhiclcpp/types/DelegatedParameter.h"
 
-namespace arttest {
-   class AddIntsProducer;
+using namespace fhicl;
+
+namespace {
+
+  struct Config {
+    DelegatedParameter tool_table { Name("addIntsImpl") };
+    Sequence<std::string> labels { Name("labels") };
+  };
+
+  class AddIntsProducer : public art::EDProducer {
+  public:
+    using Parameters = art::EDProducer::Table<Config>;
+
+    explicit AddIntsProducer(Parameters const& p) :
+      labels_{p().labels()},
+      addInts_{art::make_tool<void(int&,int)>(p().tool_table.get<fhicl::ParameterSet>(), "addInts")}
+    {
+      produces<arttest::IntProduct>();
+    }
+
+    void produce(art::Event& e) override;
+  private:
+    std::vector<std::string> labels_;
+    // Test tool invocation from within module.
+    std::function<void(int&,int)> addInts_;
+  };
+
+  void
+  AddIntsProducer::produce(art::Event& e)
+  {
+    int value{};
+    for(auto const& label : labels_) {
+      auto const newVal = e.getValidHandle<arttest::IntProduct>(label)->value;
+      addInts_(value, newVal);
+    }
+    e.put(std::make_unique<arttest::IntProduct>(value));
+  }
+
 }
 
-class arttest::AddIntsProducer : public art::EDProducer {
-public:
-   explicit AddIntsProducer(fhicl::ParameterSet const& p) :
-      labels_(p.get<std::vector<std::string> >("labels")) {
-      produces<IntProduct>();
-   }
-   void produce(art::Event& e) override;
-private:
-   std::vector<std::string> labels_;
-};
-
-void
-arttest::AddIntsProducer::produce(art::Event& e) {
-   int value = 0;
-   for(std::vector<std::string>::iterator
-          itLabel = labels_.begin(),
-          itLabelEnd = labels_.end();
-       itLabel != itLabelEnd;
-       ++itLabel) {
-      art::Handle<IntProduct> anInt;
-      e.getByLabel(*itLabel, anInt);
-      value +=anInt->value;
-   }
-   std::unique_ptr<IntProduct> p(new IntProduct(value));
-   e.put(std::move(p));
-}
-
-DEFINE_ART_MODULE(arttest::AddIntsProducer)
+DEFINE_ART_MODULE(AddIntsProducer)

@@ -1,0 +1,8 @@
+simple_plugin(ClassTool "tool" ${Boost_FILESYSTEM_LIBRARY} ${Boost_SYSTEM_LIBRARY})
+simple_plugin(NestedClassTool "tool" ${Boost_FILESYSTEM_LIBRARY} ${Boost_SYSTEM_LIBRARY})
+simple_plugin(FunctionTool "tool" cetlib cetlib_except fhiclcpp ${Boost_FILESYSTEM_LIBRARY} ${Boost_SYSTEM_LIBRARY})
+simple_plugin(NestedFunctionTool "tool" cetlib cetlib_except fhiclcpp art_Utilities ${Boost_FILESYSTEM_LIBRARY} ${Boost_SYSTEM_LIBRARY})
+simple_plugin(NestedFunctionInClassTool "tool" art_Utilities ${Boost_FILESYSTEM_LIBRARY} ${Boost_SYSTEM_LIBRARY})
+simple_plugin(AddNumber "tool" cetlib cetlib_except fhiclcpp ${Boost_FILESYSTEM_LIBRARY} ${Boost_SYSTEM_LIBRARY})
+simple_plugin(SubtractNumber "tool" ${Boost_FILESYSTEM_LIBRARY} ${Boost_SYSTEM_LIBRARY})
+simple_plugin(MultiplyNumber "tool" ${Boost_FILESYSTEM_LIBRARY} ${Boost_SYSTEM_LIBRARY})

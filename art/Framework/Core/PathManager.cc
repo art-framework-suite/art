@@ -199,6 +199,26 @@ onDemandWorkers()
                                      triggerPathsInfo(ScheduleID::first()).workers()));
       }
     }
+    if (configErrMsgs_.size()) {
+      std::size_t const width {100};
+      std::ostringstream err_msg;
+      err_msg << "\n"
+              << std::string(width,'=')
+              << "\n\n"
+              << "!! The following on-demand modules have been misconfigured: !!"
+              << "\n";
+      for (auto const& err : configErrMsgs_) {
+        err_msg << "\n"
+                << std::string(width,'-')
+                << "\n"
+                << err;
+      }
+      err_msg << "\n"
+              << std::string(width,'=')
+              << "\n\n";
+
+      throw art::Exception(art::errors::Configuration) << err_msg.str();
+    }
   }
   return std::move(result);
 }

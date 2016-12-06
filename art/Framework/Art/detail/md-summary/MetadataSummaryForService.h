@@ -19,9 +19,9 @@ namespace art {
       MetadataSummaryFor(LibraryInfoCollection const& coll)
         : widths_{
             std::to_string(coll.size()).size(),
-            columnWidth(coll, &LibraryInfo::short_spec , "module_type"),
-            columnWidth(coll, &LibraryInfo::provider   , "Provider"),
-            columnWidth(coll, &LibraryInfo::path       , "Source location")
+            columnWidth(coll, &LibraryInfo::short_spec, "Service"),
+            columnWidth(coll, &LibraryInfo::provider  , "Provider"),
+            columnWidth(coll, &LibraryInfo::path      , "Source location")
           }
       {}
 

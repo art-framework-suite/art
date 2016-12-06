@@ -49,11 +49,7 @@ namespace art {
         std::ostringstream result;
         result << indent_1() << "Allowed configuration\n"
                << indent_1() << "---------------------\n";
-
-        std::string printedConfig {describe(li.allowed_config(), prefix)};
-        replace_label(li.short_spec(), printedConfig);
-
-        result << printedConfig;
+        result << describe(li.allowed_config(), prefix);
         return result.str();
       }
     };

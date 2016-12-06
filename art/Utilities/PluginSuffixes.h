@@ -14,7 +14,7 @@
   for a given plugin spec as provided by the user.  This way users can
   type:
 
-     art --print-description EmptyEvent TFileService IntProducer RPTest
+     art --print-description EmptyEvent TFileService IntProducer RPTest <MyTool>
 
   where
 
@@ -43,7 +43,7 @@
   2. Require creating a free function that returns the full list of
      allowed suffixes.  Then for each
 
-        'Suffixes::{module,service,source,plugin}()'
+        'Suffixes::{module,service,source,plugin,tool}()'
 
      free function call, the full-list function would be called each
      time, which seems unnecessary.
@@ -60,7 +60,7 @@
 
 namespace art {
 
-  enum class suffix_type {module, plugin, service, source, unknown};
+  enum class suffix_type {module, plugin, service, source, tool};
 
   inline std::ostream& operator<<(std::ostream& os, suffix_type const st)
   {
@@ -74,13 +74,14 @@ namespace art {
     static std::string const& plugin () { return suffixes_[suffix_type::plugin ]; }
     static std::string const& service() { return suffixes_[suffix_type::service]; }
     static std::string const& source () { return suffixes_[suffix_type::source ]; }
+    static std::string const& tool   () { return suffixes_[suffix_type::tool   ]; }
 
     static std::string const& get(suffix_type st) { return suffixes_[st]; }
 
     static std::string print()
     {
       std::string result;
-      for ( auto const& pr : suffixes_ )
+      for (auto const& pr : suffixes_)
         result += "\n    '"+pr.second+"'";
       return result;
     }

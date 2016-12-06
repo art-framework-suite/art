@@ -191,6 +191,25 @@
 
 <separator (=)>
 
+    tool_type                    Type                   Source location
+<separator (-)>
+ 1. AddNumber                    class                  <path>/AddNumber_tool.cc
+ 2. ClassTool                    class                  <path>/ClassTool_tool.cc
+ 3. FunctionTool                 addOne                 <path>/FunctionTool_tool.cc
+ 4. MessagePrinter               class                  <path>/MessagePrinter_tool.cc
+ 5. MultiplyNumber               class                  <path>/MultiplyNumber_tool.cc
+ 6. NestedClassTool              class                  <path>/NestedClassTool_tool.cc
+ 7. NestedFunctionInClassTool    class                  <path>/NestedFunctionInClassTool_tool.cc
+ 8. NestedFunctionTool           callThroughToAddOne    <path>/NestedFunctionTool_tool.cc
+ 9. ReadNextArbitrator           class                  <path>/ReadNextArbitrator_tool.cc
+10. SubtractNumber               class                  <path>/SubtractNumber_tool.cc
+11. addInts                      addInts                <path>/addInts_tool.cc
+
+<separator (=)>
+
+
+<separator (=)>
+
     service : [1mmessage[0m
 
         provider: art

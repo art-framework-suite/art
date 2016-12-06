@@ -44,10 +44,10 @@ namespace art {
 
     RootInput(Parameters const&, InputSourceDescription&);
     using DecrepitRelicInputSourceImplementation::runPrincipal;
-    // Find the requested event and set the system up
-    // to read run and subRun records where appropriate. Note the
-    // corresponding seekToEvent function must exist in
-    // RootInputFileSequence to avoid a compile error.
+    // Find the requested event and set the system up to read run and
+    // subRun records where appropriate. Note the corresponding
+    // seekToEvent function must exist in RootInputFileSequence to
+    // avoid a compile error.
     template<typename T> bool seekToEvent(T eventSpec, bool exact = false);
   private:
     class AccessState {
