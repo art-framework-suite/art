@@ -369,7 +369,7 @@ findGroupsForProcess(std::vector<BranchID> const& vbid,
     }
     // If the product is a dummy filler, group will now be marked unavailable.
     // Unscheduled execution can fail to produce the EDProduct so check.
-    if (!group->productUnavailable() && !group->onDemand()) {
+    if (!(group->productUnavailable() || group->onDemand())) {
       // Found a good match, save it.
       res.push_back(GroupQueryResult(group.get()));
     }
