@@ -50,31 +50,33 @@ namespace {
       if (TY.category() != art::TypeWithDict::Category::CLASSTYPE) {
         continue;
       }
-      TClass* TYc = TY.tClass();
+      TClass* const TYc = TY.tClass();
       auto ET = mapped_type_of(TYc);
       if (ET || (ET = value_type_of(TYc))) {
         // The class of the product has a nested type, "mapped_type," or,
         // "value_type," so allow lookups by that type and all of its base
         // types too.
-        auto vtFCN = ET.friendlyClassName();
+        auto const vtFCN = ET.friendlyClassName();
         el[bt][vtFCN][procName].emplace_back(bid);
         if (ET.category() == art::TypeWithDict::Category::CLASSTYPE) {
           // Repeat this for all public base classes of the value_type.
           std::vector<TClass*> bases;
           art::public_base_classes(ET.tClass(), bases);
-          for (auto BT: bases) {
-            auto btFCN = art::TypeID{BT->GetTypeInfo()}.friendlyClassName();
+          for (auto const BT: bases) {
+            auto const btFCN = art::TypeID{BT->GetTypeInfo()}.friendlyClassName();
             el[bt][btFCN][procName].emplace_back(bid);
           }
         }
       }
       if (is_instantiation_of(TYc, "art::Assns")) {
-        auto const base = find_nested_type_named("base", TYc);
-        if (base) { // We're an Assns<A, B, D>, with a base Assns<A, B>.
+        auto const TYName = TY.className();
+        auto const baseName = name_of_assns_base(TYName);
+        if (!baseName.empty()) { // We're an Assns<A, B, D>, with a base Assns<A, B>.
+          TypeWithDict const base(baseName);
           // Add this to the list of "second-tier" products to register
           // later.
           assert(base.category() == art::TypeWithDict::Category::CLASSTYPE);
-          auto baseFCN = base.friendlyClassName();
+          auto const baseFCN = base.friendlyClassName();
           pendingEntries.emplace_back(BranchType(bt), baseFCN, procName,
                                       val.first.moduleLabel_,
                                       val.first.productInstanceName_,
