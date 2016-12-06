@@ -58,10 +58,7 @@ resolveProductIfAvailable(bool fillOnDemand,
       Group::uniqueProduct() != nullptr) {
     // We know at this point that our wanted object has not been read or
     // created yet.
-    auto edp = Group::uniqueProduct()->makePartner(wanted_wrapper_type.typeInfo());
-    if ((result = edp.get())) {
-      partnerProduct_ = std::move(edp);
-    }
+    result = makePartner(wanted_wrapper_type, partnerProduct_);
   }
   return result;
 }

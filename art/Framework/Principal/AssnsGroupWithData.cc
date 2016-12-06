@@ -46,7 +46,9 @@ resolveProductIfAvailable(bool fillOnDemand,
         (result = uniqueProduct(wanted_wrapper_type))) &&
       AssnsGroup::uniqueProduct(upstream_wrapper_type)) {
     if (wanted_wrapper_type == baseWrapperType_) {
+      result = makePartner(wanted_wrapper_type, baseProduct_);
     } else if (wanted_wrapper_type == partnerBaseWrapperType_) {
+      result = makePartner(wanted_wrapper_type, partnerBaseProduct_);
     } else { // Nothing we can deal with.
     }
   }

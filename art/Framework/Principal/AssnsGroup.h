@@ -92,6 +92,17 @@ protected:
       return partnerWrapperType_;
     }
 
+  bool makePartner(TypeID const& wanted_wrapper_type,
+                   std::unique_ptr<EDProduct> & partner) const
+    {
+      bool result;
+      auto edp = Group::uniqueProduct()->makePartner(wanted_wrapper_type.typeInfo());
+      if ((result = edp.get())) {
+        partner = std::move(edp);
+      }
+      return result;
+    }
+
 private:
 
   TypeID partnerWrapperType_;
