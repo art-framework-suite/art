@@ -49,14 +49,14 @@ getWrapperTIDs(BranchDescription const& bd)
         auto const basewName = art::wrappedClassName(baseName);
         TypeWithDict const basew(basewName);
         maybeThrowLateDictionaryError(basew, basewName);
-        result.emplace_back(basew); // Wrapper of base.
+        result.emplace_back(basew.id()); // Wrapper of base.
         auto const basepName = name_of_assns_partner(baseName);
         TypeWithDict const basep(basepName);
         maybeThrowLateDictionaryError(basep, basepName);
         auto const basewpName = art::wrappedClassName(basepName);
-        TypeWithDict const basewp(basepName);
+        TypeWithDict const basewp(basewpName);
         maybeThrowLateDictionaryError(basewp, basewpName);
-        result.emplace_back(basewp); // Wrapper of partner's base.
+        result.emplace_back(basewp.id()); // Wrapper of partner's base.
       }
     }
   }
