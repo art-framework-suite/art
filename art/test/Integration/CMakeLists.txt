@@ -1526,3 +1526,5 @@ cet_test(CmdLineTmpDir_t HANDBUILT
   cmdLineTmpDir_t-ref.txt
   TEST_PROPERTIES DEPENDS CmdLineTmpDir_w
   )
+
+add_subdirectory(AssnsReaderTest)

@@ -16,17 +16,33 @@ using namespace art;
 
 namespace {
 
+  struct PendingBTLEntry {
+    PendingBTLEntry(BranchType bt, std::string fcn, std::string procName,
+                    std::string moduleLabel, std::string instanceName,
+                    BranchID bid)
+      : bk(std::move(fcn), std::move(moduleLabel), std::move(instanceName), std::move(procName), bt)
+      , bid(bid)
+      {}
+
+    BranchKey bk;
+    BranchID bid;
+  };
+
   void
   recreateLookups(ProductList const& prods,
                   BranchTypeLookup& pl,
                   BranchTypeLookup& el)
   {
+    std::vector<PendingBTLEntry> pendingEntries;
+    std::unordered_map<BranchID,
+      std::pair<std::string, std::string>,
+      BranchID::Hash> insertedABVs;
     for (auto const& val: prods) {
       auto const& procName = val.first.processName_;
       auto const& bid = val.second.branchID();
       auto const& prodFCN = val.first.friendlyClassName_;
       auto const bt = val.first.branchType_;
-      pl[bt][prodFCN][procName].push_back(bid);
+      pl[bt][prodFCN][procName].emplace_back(bid);
       // Look in the class of the product for a typedef named "value_type",
       // if there is one allow lookups by that type name too (and by all
       // of its base class names as well).
@@ -34,25 +50,67 @@ namespace {
       if (TY.category() != art::TypeWithDict::Category::CLASSTYPE) {
         continue;
       }
-      TClass* TYc = TY.tClass();
+      TClass* const TYc = TY.tClass();
       auto ET = mapped_type_of(TYc);
       if (ET || (ET = value_type_of(TYc))) {
         // The class of the product has a nested type, "mapped_type," or,
         // "value_type," so allow lookups by that type and all of its base
         // types too.
-        auto vtFCN = ET.friendlyClassName();
-        el[bt][vtFCN][procName].push_back(bid);
+        auto const vtFCN = ET.friendlyClassName();
+        el[bt][vtFCN][procName].emplace_back(bid);
         if (ET.category() == art::TypeWithDict::Category::CLASSTYPE) {
           // Repeat this for all public base classes of the value_type.
           std::vector<TClass*> bases;
           art::public_base_classes(ET.tClass(), bases);
-          for (auto BT: bases) {
-            auto btFCN = art::TypeID{BT->GetTypeInfo()}.friendlyClassName();
-            el[bt][btFCN][procName].push_back(bid);
+          for (auto const BT: bases) {
+            auto const btFCN = art::TypeID{BT->GetTypeInfo()}.friendlyClassName();
+            el[bt][btFCN][procName].emplace_back(bid);
           }
         }
       }
+      if (is_instantiation_of(TYc, "art::Assns")) {
+        auto const TYName = TY.className();
+        auto const baseName = name_of_assns_base(TYName);
+        if (!baseName.empty()) { // We're an Assns<A, B, D>, with a base Assns<A, B>.
+          TypeWithDict const base(baseName);
+          // Add this to the list of "second-tier" products to register
+          // later.
+          assert(base.category() == art::TypeWithDict::Category::CLASSTYPE);
+          auto const baseFCN = base.friendlyClassName();
+          pendingEntries.emplace_back(BranchType(bt), baseFCN, procName,
+                                      val.first.moduleLabel_,
+                                      val.first.productInstanceName_,
+                                      bid);
+        } else {
+          // Add our bid to the list of real Assns<A, B, void> products
+          // already registered.
+          insertedABVs[bid] =
+            std::make_pair(val.first.moduleLabel_,
+                           val.first.productInstanceName_);
+        }
+      }
     }
+    auto const iend = insertedABVs.cend();
+    // Preserve useful ordering, only inserting if we don't already have
+    // a *real* Assns<A, B, void> for that module label / instance name
+    // combination.
+    std::for_each(pendingEntries.cbegin(),
+                  pendingEntries.cend(),
+                  [&pl, &insertedABVs, iend](auto const & pe)
+                  {
+                    auto & bids = pl[pe.bk.branchType_][pe.bk.friendlyClassName_][pe.bk.processName_];
+                    if (bids.empty() ||
+                        !std::any_of(bids.cbegin(), bids.cend(),
+                                     [&insertedABVs, &iend, &pe](BranchID const & bid) {
+                                       auto i = insertedABVs.find(bid);
+                                       return i != iend &&
+                                         i->second.first == pe.bk.moduleLabel_ &&
+                                         i->second.second == pe.bk.productInstanceName_;
+                                     }))
+                    {
+                      bids.emplace_back(pe.bid);
+                    }
+                  });
   }
 }
 

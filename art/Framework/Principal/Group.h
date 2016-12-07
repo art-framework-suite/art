@@ -6,7 +6,6 @@
 //  A collection of information related to a single EDProduct.
 //
 
-#include "art/Framework/Principal/GroupFactory.h"
 #include "art/Framework/Principal/fwd.h"
 #include "art/Persistency/Common/DelayedReader.h"
 #include "canvas/Persistency/Common/EDProduct.h"
@@ -16,10 +15,14 @@
 #include "canvas/Persistency/Provenance/ProductID.h"
 #include "canvas/Persistency/Provenance/ProductProvenance.h"
 #include "canvas/Persistency/Provenance/RangeSet.h"
+#include "canvas/Utilities/Exception.h"
 #include "art/Utilities/fwd.h"
+#include "cetlib/container_algorithms.h"
 #include "cetlib/exempt_ptr.h"
 
+#include <algorithm>
 #include <memory>
+#include <type_traits>
 
 namespace art {
 
@@ -29,29 +32,12 @@ namespace art {
 
   class Group : public EDProductGetter {
 
+    // The operative part of the GroupFactory system.
+    template <typename ... ARGS>
     friend
     std::unique_ptr<Group>
-    gfactory::
-    make_group(BranchDescription const&,
-               ProductID const&,
-               RangeSet&&);
-
-    friend
-    std::unique_ptr<Group>
-    gfactory::
-    make_group(BranchDescription const&,
-               ProductID const&,
-               RangeSet&&,
-               cet::exempt_ptr<Worker>,
-               cet::exempt_ptr<EventPrincipal>);
-
-    friend
-    std::unique_ptr<Group>
-    gfactory::
-    make_group(std::unique_ptr<EDProduct>&&,
-               BranchDescription const&,
-               ProductID const&,
-               RangeSet&&);
+    gfactory::detail::
+    make_group(BranchDescription const &, ARGS && ... args);
 
   public:
 
@@ -62,19 +48,38 @@ namespace art {
     //
     // Use GroupFactory to make.
     //
+    Group(BranchDescription const& bd,
+          ProductID const& pid,
+          RangeSet&& rs,
+          art::TypeID const& wrapper_type,
+          std::unique_ptr<EDProduct>&& edp = nullptr,
+          cet::exempt_ptr<Worker> productProducer = cet::exempt_ptr<Worker> {},
+          cet::exempt_ptr<EventPrincipal> onDemandPrincipal = cet::exempt_ptr<EventPrincipal> {})
+      : wrapperType_{wrapper_type}
+      , product_{std::move(edp)}
+      , branchDescription_{&bd}
+      , pid_{pid}
+      , productProducer_{productProducer}
+      , onDemandPrincipal_{onDemandPrincipal}
+      , rangeOfValidity_{std::move(rs)}
+      {}
 
     Group(BranchDescription const& bd,
           ProductID const& pid,
-          TypeID const& wrapper_type,
           RangeSet&& rs,
-          cet::exempt_ptr<Worker> productProducer = cet::exempt_ptr<Worker>{},
-          cet::exempt_ptr<EventPrincipal> onDemandPrincipal = cet::exempt_ptr<EventPrincipal>{});
+          cet::exempt_ptr<Worker> productProducer,
+          cet::exempt_ptr<EventPrincipal> onDemandPrincipal,
+          art::TypeID const& wrapper_type)
+      : Group{bd, pid, std::move(rs), wrapper_type, nullptr, productProducer, onDemandPrincipal}
+      {}
 
-    Group(std::unique_ptr<EDProduct>&& edp,
-          BranchDescription const& bd,
+    Group(BranchDescription const& bd,
           ProductID const& pid,
-          TypeID const& wrapper_type,
-          RangeSet&& rs);
+          RangeSet&& rs,
+          std::unique_ptr<EDProduct>&& edp,
+          art::TypeID const& wrapper_type)
+      : Group{bd, pid, std::move(rs), wrapper_type, std::move(edp)}
+      {}
 
   public:
 
@@ -160,10 +165,10 @@ namespace art {
 
     TypeID const& producedWrapperType() const
     {
-      return wrapper_type_;
+      return wrapperType_;
     }
 
-    void removeCachedProduct() const;
+    virtual void removeCachedProduct() const;
 
     RangeSet const& rangeOfValidity() const { return rangeOfValidity_; }
 
@@ -174,13 +179,15 @@ namespace art {
 
     void setProduct(std::unique_ptr<EDProduct>&& prod) const;
 
+    [[noreturn]] void throwResolveLogicError (TypeID const & wanted_wrapper_type) const;
+
   private:
 
     bool dropped() const;
 
   private:
 
-    TypeID wrapper_type_ {};
+    TypeID wrapperType_ {};
     cet::exempt_ptr<BranchMapper const> ppResolver_ {nullptr};
     cet::exempt_ptr<DelayedReader const> productResolver_ {nullptr};
     mutable std::unique_ptr<EDProduct> product_ {nullptr};

@@ -4,6 +4,9 @@
 // For enums only.
 #include "art/Framework/Principal/ActionCodes.h"
 
+// For declaration of std::unique_ptr.
+#include <memory>
+
 namespace art {
 
   class ActionTable; // Action.h
@@ -37,6 +40,16 @@ namespace art {
   template <class T> class View;
   class Worker;
   class WorkerParams;
+  class BranchDescription;
+
+  namespace gfactory {
+    namespace detail {
+      template <typename ... ARGS>
+      std::unique_ptr<Group>
+      make_group(BranchDescription const & bd,
+                 ARGS && ... args);
+    }
+  }
 }  // art
 
 #endif /* art_Framework_Principal_fwd_h */
