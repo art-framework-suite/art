@@ -174,12 +174,9 @@ void arttest::AssnsProducer::produce(art::Event &e) {
     addSV(bvm, vui_pid, 3, mvs_pid, 33);
   }
 
-  std::cerr << ">> vui->size(): " << vui->size() << ".\n";
-  std::cerr << ">> vs->size(): " << vs->size() << ".\n";
   e.put(std::move(vui));
   e.put(std::move(vs));
   if (wantMV_) {
-  std::cerr << ">> mvs->size(): " << mvs->size() << ".\n";
     e.put(std::move(mvs), "mv");
     e.put(std::move(b), "mapvec");
     if (wantMany_) {
