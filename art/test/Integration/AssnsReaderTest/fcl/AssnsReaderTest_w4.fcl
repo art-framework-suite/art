@@ -1,0 +1,12 @@
+#include "AssnsReaderTest_4.fcl"
+
+#include "AssnsReaderTest_w.fcl"
+
+#include "AssnsReaderTest_r.fcl"
+
+process_name: ASSNSW2
+
+source: { module_type: "RootInput" fileNames: [ "../AssnsReaderTest_w3.d/out.root" ] }
+
+physics.analyzers.a1.process: ASSNSW2
+physics.analyzers.a2.process: ASSNSW2
