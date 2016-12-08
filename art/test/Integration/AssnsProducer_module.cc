@@ -46,11 +46,12 @@ private:
   bool const wantMV_; // Produce mapvector and derived Assns.
   bool const wantMany_; // Produce many-to-many associations.
   bool const dinkVoid_; // Distinguish ABV from ABD with extra entry.
+  bool const wantAmbiguous_; // Add an extra ABD to cause ambiguity.
 };
 
 namespace {
-  typedef art::Assns<size_t, string, arttest::AssnTestData> AssnsAB_t;
-  typedef art::Assns<string, size_t, arttest::AssnTestData> AssnsBA_t;
+  typedef art::Assns<size_t, string, arttest::AssnTestData> AssnsABX_t;
+  typedef art::Assns<size_t, string, string> AssnsABY_t;
   typedef art::Assns<size_t, string> AssnsVoid_t;
 }
 
@@ -59,14 +60,15 @@ arttest::AssnsProducer::AssnsProducer(fhicl::ParameterSet const & ps)
   , wantMV_(ps.get<bool>("wantMV", true))
   , wantMany_(ps.get<bool>("wantMany", true))
   , dinkVoid_(ps.get<bool>("dinkVoid", false))
+  , wantAmbiguous_(ps.get<bool>("wantAmbiguous", false))
 {
   produces<uintvec>();
   produces<stringvec>();
   if (wantMV_) {
     produces<mapvec>("mv");
-    produces<AssnsAB_t>("mapvec");
+    produces<AssnsABX_t>("mapvec");
     if (wantMany_) {
-      produces<AssnsAB_t>("manymapvec");
+      produces<AssnsABX_t>("manymapvec");
     }
     if (wantVoid_ != "NONE") {
       produces<AssnsVoid_t>("mapvec");
@@ -75,15 +77,18 @@ arttest::AssnsProducer::AssnsProducer(fhicl::ParameterSet const & ps)
       }
     }
   }
-  produces<AssnsAB_t>();
+  produces<AssnsABX_t>();
   if (wantMany_) {
-    produces<AssnsAB_t>("many");
+    produces<AssnsABX_t>("many");
   }
   if (wantVoid_ == "ALL") {
     produces<AssnsVoid_t>();
     if (wantMany_) {
       produces<AssnsVoid_t>("many");
     }
+  }
+  if (wantAmbiguous_) {
+    produces<AssnsABY_t>();
   }
 }
 
@@ -111,24 +116,26 @@ void arttest::AssnsProducer::produce(art::Event &e) {
   // We will need the product IDs of the data products.
   ProductID vui_pid = getProductID<uintvec>(e);
   ProductID vs_pid = getProductID<stringvec>(e);
-  ProductID mvs_pid = getProductID<mapvec>(e, "mv");
 
   // Create the association objects.
   // Assns into vectors.
-  std::unique_ptr<AssnsAB_t>    a(new AssnsAB_t);
-  std::unique_ptr<AssnsVoid_t> av(new AssnsVoid_t);
+  auto a = std::make_unique<AssnsABX_t>();
+  auto ay = std::make_unique<AssnsABY_t>();
+  auto av = std::make_unique<AssnsVoid_t>();
+
   // Assns into map_vector.
-  std::unique_ptr<AssnsAB_t>    b(new AssnsAB_t);
-  std::unique_ptr<AssnsVoid_t> bv(new AssnsVoid_t);
+  auto b = std::make_unique<AssnsABX_t>();
+  auto bv = std::make_unique<AssnsVoid_t>();
 
   // addS will add to both x and xv a reference between slot1 of
   // productID1 and slot2 of productID2. The reference in x will have
   // associated data td.
-  auto addS = [&e](auto& x,
-       auto& xv,
-       ProductID id1, int slot1,
-       ProductID id2, int slot2,
-       auto td)
+  auto addS =
+    [&e](auto& x,
+         auto& xv,
+         ProductID id1, int slot1,
+         ProductID id2, int slot2,
+         auto td)
     {
       auto const p1 = Ptr<size_t>(id1, slot1, e.productGetter(id1));
       auto const p2 = Ptr<string>(id2, slot2, e.productGetter(id2));
@@ -136,42 +143,68 @@ void arttest::AssnsProducer::produce(art::Event &e) {
       xv->addSingle(p1, p2);
     };
   // AddSV adds only to x, and has no td.
-  auto addSV = [&e](auto& x,
-       ProductID id1, int slot1,
-       ProductID id2, int slot2)
+  auto addSV =
+    [&e](auto& x,
+         ProductID id1, int slot1,
+         ProductID id2, int slot2)
     {
       auto const p1 = Ptr<size_t>(id1, slot1, e.productGetter(id1));
       auto const p2 = Ptr<string>(id2, slot2, e.productGetter(id2));
       x->addSingle(p1, p2);
     };
+  // AddSS adds only to x (with td).
+  auto addSS =
+    [&e](auto& x,
+         ProductID id1, int slot1,
+         ProductID id2, int slot2,
+         auto td)
+    {
+      auto const p1 = Ptr<size_t>(id1, slot1, e.productGetter(id1));
+      auto const p2 = Ptr<string>(id2, slot2, e.productGetter(id2));
+      x->addSingle(p1, p2, td);
+    };
 
   // We add associations in an order such that the associated data are
   // in alphabetical order.
   addS(a, av, vui_pid, 1, vs_pid, 2, AssnTestData(1,2,"A"));
-  addS(b, bv, vui_pid, 1, mvs_pid, 0, AssnTestData(1,0,"A"));
+  addSS(ay, vui_pid, 1, vs_pid, 2, "A");
 
   addS(a, av, vui_pid, 2, vs_pid, 0, AssnTestData(2,0,"B"));
-  addS(b, bv, vui_pid, 2, mvs_pid, 11, AssnTestData(2,11,"B"));
+  addSS(ay, vui_pid, 2, vs_pid, 0, "B");
 
   addS(a, av, vui_pid, 0, vs_pid, 1, AssnTestData(0,1,"C"));
-  addS(b, bv, vui_pid, 0, mvs_pid, 22, AssnTestData(0,22,"C"));
+  addSS(ay, vui_pid, 0, vs_pid, 1, "C");
 
   if (dinkVoid_) {
     addSV(av, vui_pid, 3, vs_pid, 3);
-    addSV(bv, vui_pid, 3, mvs_pid, 33);
   }
 
-  auto am = make_unique<AssnsAB_t>(*a);
+  auto am = make_unique<AssnsABX_t>(*a);
   auto avm = make_unique<AssnsVoid_t>(*av);
-  auto bm = make_unique<AssnsAB_t>(*b);
-  auto bvm = make_unique<AssnsVoid_t>(*bv);
 
   addS(am, avm, vui_pid, 1, vs_pid, 2, AssnTestData(1,2,"AA"));
-  addS(bm, bvm, vui_pid, 1, mvs_pid, 0, AssnTestData(1,0,"AA"));
 
   if (dinkVoid_) {
     addSV(avm, vui_pid, 3, vs_pid, 3);
-    addSV(bvm, vui_pid, 3, mvs_pid, 33);
+  }
+
+  std::unique_ptr<AssnsABX_t> bm;
+  std::unique_ptr<AssnsVoid_t> bvm;
+
+  if (wantMV_) {
+    ProductID mvs_pid = getProductID<mapvec>(e, "mv");
+    addS(b, bv, vui_pid, 1, mvs_pid, 0, AssnTestData(1,0,"A"));
+    addS(b, bv, vui_pid, 2, mvs_pid, 11, AssnTestData(2,11,"B"));
+    addS(b, bv, vui_pid, 0, mvs_pid, 22, AssnTestData(0,22,"C"));
+    if (dinkVoid_) {
+      addSV(bv, vui_pid, 3, mvs_pid, 33);
+    }
+    bm = make_unique<AssnsABX_t>(*b);
+    bvm = make_unique<AssnsVoid_t>(*bv);
+    addS(bm, bvm, vui_pid, 1, mvs_pid, 0, AssnTestData(1,0,"AA"));
+    if (dinkVoid_) {
+      addSV(bvm, vui_pid, 3, mvs_pid, 33);
+    }
   }
 
   e.put(std::move(vui));
@@ -198,6 +231,9 @@ void arttest::AssnsProducer::produce(art::Event &e) {
     if (wantMany_) {
       e.put(std::move(avm), "many");
     }
+  }
+  if (wantAmbiguous_) {
+    e.put(std::move(ay));
   }
 }
 
