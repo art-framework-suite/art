@@ -57,10 +57,10 @@ private:
 namespace {
   typedef size_t A_t;
   typedef std::string B_t;
-  typedef art::Assns<size_t, std::string, arttest::AssnTestData> AssnsAB_t;
-  typedef art::Assns<std::string, size_t, arttest::AssnTestData> AssnsBA_t;
-  typedef art::Assns<size_t, std::string> AssnsABV_t;
-  typedef art::Assns<std::string, size_t> AssnsBAV_t;
+  typedef art::Assns<A_t, B_t, arttest::AssnTestData> AssnsAB_t;
+  typedef art::Assns<B_t, size_t, arttest::AssnTestData> AssnsBA_t;
+  typedef art::Assns<A_t, B_t> AssnsABV_t;
+  typedef art::Assns<B_t, size_t> AssnsBAV_t;
 
   // function template to allow us to dereference both maybe_ref<T>
   // objects and objects that have an operator*.
@@ -174,11 +174,15 @@ arttest::AssnsAnalyzer::analyze(art::Event const & e)
   testMany<art::FindManyP>(e);
 }
 
-template <template <typename, typename> class FO>
+template <template <typename, typename = void> class FO>
 void
 arttest::AssnsAnalyzer::
 testOne(art::Event const & e) const
 {
+  // Behavior on missing bColl is different for FindOne vs FindOneP.
+  static constexpr
+    bool isFOP [[gnu::unused]] =
+    std::is_same<typename FO<B_t>::value_type, art::Ptr<typename FO<B_t>::assoc_t> >::value;
   art::Handle<AssnsAB_t> hAB;
   art::Handle<AssnsBA_t> hBA;
   art::Handle<AssnsABV_t> hABV;
@@ -196,12 +200,12 @@ testOne(art::Event const & e) const
     BOOST_REQUIRE_EQUAL(hBAV->size(), 3ul);
   }
   // Construct a FO using a handle to a collection.
-  art::Handle<std::vector<size_t> > hAcoll;
+  art::Handle<std::vector<A_t> > hAcoll;
   BOOST_REQUIRE(e.getByLabel(inputLabel_, hAcoll));
-  auto vhAcoll = e.getValidHandle<std::vector<size_t> >(inputLabel_);
+  auto vhAcoll = e.getValidHandle<std::vector<A_t> >(inputLabel_);
   // First, check we can make an FO on a non-existent label without
   // barfing immediately.
-  FO<std::string, arttest::AssnTestData> foDead(hAcoll, e, "noModule");
+  FO<B_t, arttest::AssnTestData> foDead(hAcoll, e, "noModule");
   BOOST_REQUIRE(!foDead.isValid());
   BOOST_REQUIRE_EXCEPTION(foDead.size(),                                \
                           art::Exception,                               \
@@ -219,18 +223,18 @@ testOne(art::Event const & e) const
                           });
 
   // Now do our normal checks.
-  art::Handle<std::vector<std::string> > hBcoll;
-  std::unique_ptr<FO<size_t, arttest::AssnTestData> > foA;
-  std::unique_ptr<FO<size_t, void> > foAV;
+  art::Handle<std::vector<B_t> > hBcoll;
+  std::unique_ptr<FO<A_t, arttest::AssnTestData> > foA;
+  std::unique_ptr<FO<A_t> > foAV;
   if (! bCollMissing_) {
     BOOST_REQUIRE(e.getByLabel(inputLabel_, hBcoll));
-    foA.reset(new FO<size_t, arttest::AssnTestData>(hBcoll, e, inputLabel_));
-    foAV.reset(new FO<size_t, void>(hBcoll, e, inputLabel_));
+    foA.reset(new FO<A_t, arttest::AssnTestData>(hBcoll, e, inputLabel_));
+    foAV.reset(new FO<A_t>(hBcoll, e, inputLabel_));
   }
-  FO<std::string, arttest::AssnTestData> foB(hAcoll, e, inputLabel_);
-  FO<std::string, arttest::AssnTestData> foB2(vhAcoll, e, inputLabel_);
-  FO<std::string, void> foBV(hAcoll, e, inputLabel_);
-  std::vector<art::Ptr<size_t> > vp;
+  FO<B_t, arttest::AssnTestData> foB(hAcoll, e, inputLabel_);
+  FO<B_t, arttest::AssnTestData> foB2(vhAcoll, e, inputLabel_);
+  FO<B_t> foBV(hAcoll, e, inputLabel_);
+  std::vector<art::Ptr<A_t> > vp;
   vp.reserve(3);
   for (size_t i = 0; i < 3; ++i) {
     vp.emplace_back(hAcoll, i);
@@ -366,12 +370,15 @@ testOne(art::Event const & e) const
   BOOST_CHECK_THROW(foApv.data(3), std::out_of_range);
 }
 
-template <template <typename, typename> class FM>
+template <template <typename, typename = void> class FM>
 void
 arttest::AssnsAnalyzer::
 testMany(art::Event const & e) const
 {
-  art::Handle<std::vector<size_t> > hAcoll;
+  static constexpr
+    bool isFMP [[gnu::unused]] =
+    std::is_same<typename FM<B_t>::value_type, art::Ptr<typename FM<B_t>::assoc_t> >::value;
+  art::Handle<std::vector<A_t> > hAcoll;
   BOOST_REQUIRE(e.getByLabel(inputLabel_, hAcoll));
 
   // First, check we can make an FM on a non-existent label without
@@ -397,7 +404,7 @@ testMany(art::Event const & e) const
   // Check FindMany.
   FM<B_t, arttest::AssnTestData>
     fmB(hAcoll, e, art::InputTag(inputLabel_, "many"));
-  art::Ptr<size_t> larry(hAcoll, 0), curly(hAcoll, 1), mo(hAcoll, 2);
+  art::Ptr<A_t> larry(hAcoll, 0), curly(hAcoll, 1), mo(hAcoll, 2);
   FM<B_t, arttest::AssnTestData>
     fmB2({larry, curly, mo}, e, art::InputTag(inputLabel_, "many"));
   for (auto const & f : { fmB, fmB2 }) {
@@ -415,7 +422,7 @@ testMany(art::Event const & e) const
     BOOST_CHECK_EQUAL(f.data(1).size(), 2ul);
     BOOST_CHECK_EQUAL(f.data(2).size(), 1ul);
   }
-  FM<B_t, void> fmBV(hAcoll, e, art::InputTag(inputLabel_, "many"));
+  FM<B_t> fmBV(hAcoll, e, art::InputTag(inputLabel_, "many"));
   if (bCollMissing_) {
     BOOST_CHECK_EQUAL(fmBV.at(0).size(), 0ul);
     BOOST_CHECK_EQUAL(fmBV.at(1).size(), 0ul);
@@ -429,7 +436,7 @@ testMany(art::Event const & e) const
   // Check FindMany on View.
   art::View<A_t> va;
   BOOST_REQUIRE(e.getView(inputLabel_, va));
-  FM<B_t, void> fmBv(va, e, art::InputTag(inputLabel_, "many"));
+  FM<B_t> fmBv(va, e, art::InputTag(inputLabel_, "many"));
   BOOST_REQUIRE(fmBV == fmBv);
   // Check FindMany on shuffled reference collection.
   auto va2 = va.vals(); // Copy.
@@ -439,7 +446,7 @@ testMany(art::Event const & e) const
     swap(*va2.begin(), *(va2.begin()+2));
   }
   BOOST_REQUIRE(va.vals() != va2);
-  FM<B_t, void> fmBv2(va2, e, art::InputTag(inputLabel_, "many"));
+  FM<B_t> fmBv2(va2, e, art::InputTag(inputLabel_, "many"));
   for (size_t i = 0, e = fmBv2.size(); i != e; ++i) {
     using std::find;
     auto it = find(va.begin(), va.end(), va2[i]);
@@ -448,7 +455,7 @@ testMany(art::Event const & e) const
   }
 
   // Check FindMany on map_vector
-  FM<B_t, void> fmvBV(hAcoll, e, art::InputTag(inputLabel_, "manymapvec"));
+  FM<B_t> fmvBV(hAcoll, e, art::InputTag(inputLabel_, "manymapvec"));
   if (!bCollMissing_) {
     BOOST_CHECK_EQUAL(fmvBV.at(0).size(), 1ul);
     BOOST_CHECK_EQUAL(fmvBV.at(1).size(), 2ul);
