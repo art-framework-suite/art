@@ -1528,3 +1528,11 @@ cet_test(CmdLineTmpDir_t HANDBUILT
   )
 
 add_subdirectory(AssnsReaderTest)
+
+cet_test(DataFlowDumper_t HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS -c data_flow_dumper_t.fcl -n 1
+  DATAFILES
+  fcl/data_flow_dumper_t.fcl
+  TEST_PROPERTIES DEPENDS test_tiered_input_05d_t
+ )
