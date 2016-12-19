@@ -345,11 +345,11 @@ testOne(art::Event const & e) const
   FO<B_t, arttest::AssnTestData> foBmv(hAcoll, e, tag);
   if (! bCollMissing_) {
     BOOST_CHECK_EQUAL(dereference(foBmv.at(0)), dereference(foB.at(0)));
-    BOOST_CHECK_EQUAL(foBmv.data(0), foB.data(0));
+    BOOST_CHECK_EQUAL(dereference(foBmv.data(0)).label, dereference(foB.data(0)).label);
     BOOST_CHECK_EQUAL(dereference(foBmv.at(1)), dereference(foB.at(1)));
-    BOOST_CHECK_EQUAL(foBmv.data(1), foB.data(1));
+    BOOST_CHECK_EQUAL(dereference(foBmv.data(1)).label, dereference(foB.data(1)).label);
     BOOST_CHECK_EQUAL(dereference(foBmv.at(2)), dereference(foB.at(2)));
-    BOOST_CHECK_EQUAL(foBmv.data(2), foB.data(2));
+    BOOST_CHECK_EQUAL(dereference(foBmv.data(2)).label, dereference(foB.data(2)).label);
   }
   // ... and a View into a map_vector.
   art::View<B_t> vmvb;
