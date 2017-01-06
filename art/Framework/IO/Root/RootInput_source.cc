@@ -206,6 +206,7 @@ readSubRun(cet::exempt_ptr<RunPrincipal> rp)
 std::unique_ptr<SubRunPrincipal>
 RootInput::
 readSubRun_()
+{
   return primaryFileSequence_->readSubRun_(runPrincipalExemptPtr());
 }
 

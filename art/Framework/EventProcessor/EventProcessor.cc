@@ -659,7 +659,7 @@ art::SubRunID
 art::EventProcessor::readSubRun()
 {
   SignalSentry subRunSourceSentry {actReg_.sPreSourceSubRun, actReg_.sPostSourceSubRun};
-  subRunPrincipal_ = input_->readSubRun(runPrincipal_);
+  subRunPrincipal_ = input_->readSubRun(runPrincipal_.get());
   endPathExecutor_->seedSubRunRangeSet(input_->subRunRangeSetHandler());
   FDEBUG(1) << "\treadSubRun " << "\n";
   return subRunPrincipalID();
@@ -704,7 +704,7 @@ art::EventID
 art::EventProcessor::readEvent()
 {
   SignalSentry sourceSentry {actReg_.sPreSource, actReg_.sPostSource};
-  eventPrincipal_ = input_->readEvent(subRunPrincipal_);
+  eventPrincipal_ = input_->readEvent(subRunPrincipal_.get());
   FDEBUG(1) << "\treadEvent\n";
   return eventPrincipalID();
 }

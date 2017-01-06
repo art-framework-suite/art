@@ -87,10 +87,17 @@ namespace art {
   }
 
   void
-  DecrepitRelicInputSourceImplementation::setSubRunPrincipal(std::shared_ptr<SubRunPrincipal> srp)
+  DecrepitRelicInputSourceImplementation::setRunPrincipal(std::unique_ptr<RunPrincipal>&& rp)
   {
-    subRunPrincipal_ = srp;
-    subRunPrincipal_->setRunPrincipal(runPrincipal_);
+    runPrincipal_ = std::move(rp);
+  }
+
+  void
+  DecrepitRelicInputSourceImplementation::setSubRunPrincipal(std::unique_ptr<SubRunPrincipal>&& srp)
+  {
+    assert(cachedRunPrincipal_);
+    subRunPrincipal_ = std::move(srp);
+    subRunPrincipal_->setRunPrincipal(cachedRunPrincipal_);
   }
 
   // This next function is to guarantee that "runs only" mode does not

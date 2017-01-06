@@ -185,8 +185,8 @@ private:
   std::unique_ptr<FileBlock> fb_ {nullptr};
 
   std::unique_ptr<statemachine::Machine> machine_ {nullptr};
-  std::shared_ptr<RunPrincipal> runPrincipal_ {nullptr};
-  std::shared_ptr<SubRunPrincipal> subRunPrincipal_ {nullptr};
+  std::unique_ptr<RunPrincipal> runPrincipal_ {nullptr};
+  std::unique_ptr<SubRunPrincipal> subRunPrincipal_ {nullptr};
   std::unique_ptr<EventPrincipal> eventPrincipal_ {nullptr};
   bool shouldWeStop_ {false};
   bool stateMachineWasInErrorState_ {false};

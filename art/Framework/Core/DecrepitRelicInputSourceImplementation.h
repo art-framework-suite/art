@@ -199,7 +199,8 @@ namespace art
       return std::move(subRunPrincipal_);
     }
 
-    void setRunPrincipal(std::unique_ptr<RunPrincipal>&& rp) {runPrincipal_ = std::move(rp);}
+    void setRunPrincipal(std::unique_ptr<RunPrincipal>&& rp);
+    void setSubRunPrincipal(std::unique_ptr<SubRunPrincipal>&& srp);
     void resetRunPrincipal() {runPrincipal_.reset();}
     void resetSubRunPrincipal() {subRunPrincipal_.reset();}
     void reset() {
@@ -238,10 +239,10 @@ namespace art
     Timestamp time_ {Timestamp::invalidTimestamp()};
     bool doneReadAhead_ {false};
     input::ItemType state_ {input::IsInvalid};
-    std::unique_ptr<RunPrincipal>  runPrincipal_ {nullptr};
-    std::unique_ptr<SubRunPrincipal>  subRunPrincipal_ {nullptr};
-    cet::exempt_ptr<RunPrincipal>  cachedRunPrincipal_ {nullptr};
-    cet::exempt_ptr<SubRunPrincipal>  cachedSubRunPrincipal_ {nullptr};
+    std::unique_ptr<RunPrincipal> runPrincipal_ {nullptr};
+    std::unique_ptr<SubRunPrincipal> subRunPrincipal_ {nullptr};
+    cet::exempt_ptr<RunPrincipal> cachedRunPrincipal_ {nullptr};
+    cet::exempt_ptr<SubRunPrincipal> cachedSubRunPrincipal_ {nullptr};
   };  // DecrepitRelicInputSourceImplementation
 
 }  // art
