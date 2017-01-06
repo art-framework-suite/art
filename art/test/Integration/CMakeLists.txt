@@ -1028,6 +1028,27 @@ endmacro()
 seekToEventTest(1)
 seekToEventTest(4)
 
+cet_test(SeekToEvent_3_events_w HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS -c seekToEvent_3_events_w.fcl -o out.root
+  DATAFILES
+  fcl/seekToEvent_3_events_w.fcl
+  )
+
+cet_test(SeekToEvent_3_events_t HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS -c seekToEvent_3_events_t.fcl ../SeekToEvent_3_events_w.d/out.root -o out.root
+  DATAFILES fcl/seekToEvent_3_events_t.fcl
+  TEST_PROPERTIES DEPENDS SeekToEvent_3_events_w
+  )
+
+cet_test(SeekToEvent_3_events_verify HANDBUILT
+  TEST_EXEC file_info_dumper
+  TEST_ARGS --file-index ../SeekToEvent_3_events_t.d/out.root
+  REF "${CMAKE_CURRENT_SOURCE_DIR}/SeekToEvent_3_events_verify-ref.txt"
+  TEST_PROPERTIES DEPENDS SeekToEvent_3_events_t
+  )
+
 cet_test(SAM_metadata HANDBUILT
   TEST_EXEC art
   TEST_ARGS -c "SAMMetadata_w.fcl"

@@ -189,7 +189,7 @@ namespace art
     std::shared_ptr<RunPrincipal> runPrincipal() const {return runPrincipal_;}
     std::shared_ptr<SubRunPrincipal> subRunPrincipal() const {return subRunPrincipal_;}
     void setRunPrincipal(std::shared_ptr<RunPrincipal> rp) {runPrincipal_ = rp;}
-    void setSubRunPrincipal(std::shared_ptr<SubRunPrincipal> srp) {subRunPrincipal_ = srp;}
+    void setSubRunPrincipal(std::shared_ptr<SubRunPrincipal> srp);
     void resetRunPrincipal() {runPrincipal_.reset();}
     void resetSubRunPrincipal() {subRunPrincipal_.reset();}
     void reset() {

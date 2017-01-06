@@ -86,6 +86,13 @@ namespace art {
     registerProducts(desc.productRegistry, moduleDescription_);
   }
 
+  void
+  DecrepitRelicInputSourceImplementation::setSubRunPrincipal(std::shared_ptr<SubRunPrincipal> srp)
+  {
+    subRunPrincipal_ = srp;
+    subRunPrincipal_->setRunPrincipal(runPrincipal_);
+  }
+
   // This next function is to guarantee that "runs only" mode does not
   // return events or subRuns, and that "runs and subRuns only" mode
   // does not return events.  For input sources that are not random
@@ -356,7 +363,8 @@ namespace art {
   DecrepitRelicInputSourceImplementation::endJob() { }
 
   RunID
-  DecrepitRelicInputSourceImplementation::run() const {
+  DecrepitRelicInputSourceImplementation::run() const
+  {
     assert(runPrincipal());
     return runPrincipal()->id();
   }
