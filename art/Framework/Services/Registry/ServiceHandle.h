@@ -36,6 +36,7 @@ public:
   // accessors:
   T  * operator -> () const  { return  instance; }
   T  & operator * () const  { return *instance; }
+  T  * get() const { return instance; }
 
 private:
   T  * instance;
@@ -53,6 +54,7 @@ public:
   // accessors:
   T  * operator -> () const  { return  instance; }
   T  & operator * () const  { return *instance; }
+  T  * get() const { return instance; }
 
 private:
   T  * instance;
