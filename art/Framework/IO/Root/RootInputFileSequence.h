@@ -125,17 +125,11 @@ public: // MEMBER FUNCTIONS
   std::shared_ptr<RunPrincipal>
   readRun_();
 
-  std::vector<std::shared_ptr<RunPrincipal>>
-  readRunFromSecondaryFiles_();
-
   std::shared_ptr<SubRunPrincipal>
   readIt(SubRunID const&, std::shared_ptr<RunPrincipal>);
 
   std::shared_ptr<SubRunPrincipal>
   readSubRun_(std::shared_ptr<RunPrincipal>);
-
-  std::vector<std::shared_ptr<SubRunPrincipal>>
-  readSubRunFromSecondaryFiles_(std::shared_ptr<RunPrincipal>);
 
   std::unique_ptr<EventPrincipal>
   readIt(EventID const&, bool exact = false);

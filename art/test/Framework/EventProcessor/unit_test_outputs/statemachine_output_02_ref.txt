@@ -7,7 +7,6 @@ Machine parameters:  handleEmptyRuns = 0  handleEmptySubRuns = 0
 	respondToCloseOutputFiles
 	closeSomeOutputFiles
 	respondToCloseInputFile
-	clearPrincipalCache
 	closeInputFile
  	openInputFile
 	respondToOpenInputFile
@@ -15,19 +14,16 @@ Machine parameters:  handleEmptyRuns = 0  handleEmptySubRuns = 0
 	respondToCloseOutputFiles
 	closeSomeOutputFiles
 	respondToCloseInputFile
-	clearPrincipalCache
 	closeInputFile
  	openInputFile
 	respondToOpenInputFile
     *** nextItemType: InputFile ***
 	respondToCloseInputFile
-	clearPrincipalCache
 	closeInputFile
  	openInputFile
 	respondToOpenInputFile
     *** nextItemType: InputFile ***
 	respondToCloseInputFile
-	clearPrincipalCache
 	closeInputFile
  	openInputFile
 	respondToOpenInputFile
@@ -35,25 +31,22 @@ Machine parameters:  handleEmptyRuns = 0  handleEmptySubRuns = 0
 	respondToCloseOutputFiles
 	closeSomeOutputFiles
 	respondToCloseInputFile
-	clearPrincipalCache
 	closeInputFile
  	openInputFile
 	respondToOpenInputFile
     *** nextItemType: Run ***
-	readAndCacheRun.............(run: 1)
+	readRun.....................(run: 1)
     *** nextItemType: InputFile ***
 	openSomeOutputFiles
 	respondToOpenOutputFiles
 	setRunAuxiliaryRangeSetID...(run: 1)
 	writeRun....................(run: 1)
 	respondToCloseInputFile
-	clearPrincipalCache
 	closeInputFile
  	openInputFile
 	respondToOpenInputFile
     *** nextItemType: InputFile ***
 	respondToCloseInputFile
-	clearPrincipalCache
 	closeInputFile
  	openInputFile
 	respondToOpenInputFile
@@ -61,14 +54,13 @@ Machine parameters:  handleEmptyRuns = 0  handleEmptySubRuns = 0
 	respondToCloseOutputFiles
 	closeSomeOutputFiles
 	respondToCloseInputFile
-	clearPrincipalCache
 	closeInputFile
  	openInputFile
 	respondToOpenInputFile
     *** nextItemType: Run ***
-	readAndCacheRun.............(run: 2)
+	readRun.....................(run: 2)
     *** nextItemType: SubRun ***
-	readAndCacheSubRun..........(run: 2 subRun: 1)
+	readSubRun..................(run: 2 subRun: 1)
     *** nextItemType: InputFile ***
 	openSomeOutputFiles
 	respondToOpenOutputFiles
@@ -77,13 +69,11 @@ Machine parameters:  handleEmptyRuns = 0  handleEmptySubRuns = 0
 	setRunAuxiliaryRangeSetID...(run: 2)
 	writeRun....................(run: 2)
 	respondToCloseInputFile
-	clearPrincipalCache
 	closeInputFile
  	openInputFile
 	respondToOpenInputFile
     *** nextItemType: InputFile ***
 	respondToCloseInputFile
-	clearPrincipalCache
 	closeInputFile
  	openInputFile
 	respondToOpenInputFile
@@ -91,7 +81,6 @@ Machine parameters:  handleEmptyRuns = 0  handleEmptySubRuns = 0
 	respondToCloseOutputFiles
 	closeSomeOutputFiles
 	respondToCloseInputFile
-	clearPrincipalCache
 	closeInputFile
  	openInputFile
 	respondToOpenInputFile
@@ -99,7 +88,6 @@ Machine parameters:  handleEmptyRuns = 0  handleEmptySubRuns = 0
 	respondToCloseOutputFiles
 	closeAllOutputFiles
 	respondToCloseInputFile
-	clearPrincipalCache
 	closeInputFile
 	endJob
 The state machine reports it has been terminated
@@ -113,7 +101,6 @@ Machine parameters:  handleEmptyRuns = 0  handleEmptySubRuns = 1
 	respondToCloseOutputFiles
 	closeSomeOutputFiles
 	respondToCloseInputFile
-	clearPrincipalCache
 	closeInputFile
  	openInputFile
 	respondToOpenInputFile
@@ -121,19 +108,16 @@ Machine parameters:  handleEmptyRuns = 0  handleEmptySubRuns = 1
 	respondToCloseOutputFiles
 	closeSomeOutputFiles
 	respondToCloseInputFile
-	clearPrincipalCache
 	closeInputFile
  	openInputFile
 	respondToOpenInputFile
     *** nextItemType: InputFile ***
 	respondToCloseInputFile
-	clearPrincipalCache
 	closeInputFile
  	openInputFile
 	respondToOpenInputFile
     *** nextItemType: InputFile ***
 	respondToCloseInputFile
-	clearPrincipalCache
 	closeInputFile
  	openInputFile
 	respondToOpenInputFile
@@ -141,25 +125,22 @@ Machine parameters:  handleEmptyRuns = 0  handleEmptySubRuns = 1
 	respondToCloseOutputFiles
 	closeSomeOutputFiles
 	respondToCloseInputFile
-	clearPrincipalCache
 	closeInputFile
  	openInputFile
 	respondToOpenInputFile
     *** nextItemType: Run ***
-	readAndCacheRun.............(run: 1)
+	readRun.....................(run: 1)
     *** nextItemType: InputFile ***
 	openSomeOutputFiles
 	respondToOpenOutputFiles
 	setRunAuxiliaryRangeSetID...(run: 1)
 	writeRun....................(run: 1)
 	respondToCloseInputFile
-	clearPrincipalCache
 	closeInputFile
  	openInputFile
 	respondToOpenInputFile
     *** nextItemType: InputFile ***
 	respondToCloseInputFile
-	clearPrincipalCache
 	closeInputFile
  	openInputFile
 	respondToOpenInputFile
@@ -167,14 +148,13 @@ Machine parameters:  handleEmptyRuns = 0  handleEmptySubRuns = 1
 	respondToCloseOutputFiles
 	closeSomeOutputFiles
 	respondToCloseInputFile
-	clearPrincipalCache
 	closeInputFile
  	openInputFile
 	respondToOpenInputFile
     *** nextItemType: Run ***
-	readAndCacheRun.............(run: 2)
+	readRun.....................(run: 2)
     *** nextItemType: SubRun ***
-	readAndCacheSubRun..........(run: 2 subRun: 1)
+	readSubRun..................(run: 2 subRun: 1)
     *** nextItemType: InputFile ***
 	openSomeOutputFiles
 	respondToOpenOutputFiles
@@ -187,13 +167,11 @@ Machine parameters:  handleEmptyRuns = 0  handleEmptySubRuns = 1
 	endRun......................(run: 2)
 	writeRun....................(run: 2)
 	respondToCloseInputFile
-	clearPrincipalCache
 	closeInputFile
  	openInputFile
 	respondToOpenInputFile
     *** nextItemType: InputFile ***
 	respondToCloseInputFile
-	clearPrincipalCache
 	closeInputFile
  	openInputFile
 	respondToOpenInputFile
@@ -201,7 +179,6 @@ Machine parameters:  handleEmptyRuns = 0  handleEmptySubRuns = 1
 	respondToCloseOutputFiles
 	closeSomeOutputFiles
 	respondToCloseInputFile
-	clearPrincipalCache
 	closeInputFile
  	openInputFile
 	respondToOpenInputFile
@@ -209,7 +186,6 @@ Machine parameters:  handleEmptyRuns = 0  handleEmptySubRuns = 1
 	respondToCloseOutputFiles
 	closeAllOutputFiles
 	respondToCloseInputFile
-	clearPrincipalCache
 	closeInputFile
 	endJob
 The state machine reports it has been terminated
@@ -223,7 +199,6 @@ Machine parameters:  handleEmptyRuns = 1  handleEmptySubRuns = 0
 	respondToCloseOutputFiles
 	closeSomeOutputFiles
 	respondToCloseInputFile
-	clearPrincipalCache
 	closeInputFile
  	openInputFile
 	respondToOpenInputFile
@@ -231,19 +206,16 @@ Machine parameters:  handleEmptyRuns = 1  handleEmptySubRuns = 0
 	respondToCloseOutputFiles
 	closeSomeOutputFiles
 	respondToCloseInputFile
-	clearPrincipalCache
 	closeInputFile
  	openInputFile
 	respondToOpenInputFile
     *** nextItemType: InputFile ***
 	respondToCloseInputFile
-	clearPrincipalCache
 	closeInputFile
  	openInputFile
 	respondToOpenInputFile
     *** nextItemType: InputFile ***
 	respondToCloseInputFile
-	clearPrincipalCache
 	closeInputFile
  	openInputFile
 	respondToOpenInputFile
@@ -251,12 +223,11 @@ Machine parameters:  handleEmptyRuns = 1  handleEmptySubRuns = 0
 	respondToCloseOutputFiles
 	closeSomeOutputFiles
 	respondToCloseInputFile
-	clearPrincipalCache
 	closeInputFile
  	openInputFile
 	respondToOpenInputFile
     *** nextItemType: Run ***
-	readAndCacheRun.............(run: 1)
+	readRun.....................(run: 1)
 	beginRun....................(run: 1)
     *** nextItemType: InputFile ***
 	openSomeOutputFiles
@@ -265,13 +236,11 @@ Machine parameters:  handleEmptyRuns = 1  handleEmptySubRuns = 0
 	endRun......................(run: 1)
 	writeRun....................(run: 1)
 	respondToCloseInputFile
-	clearPrincipalCache
 	closeInputFile
  	openInputFile
 	respondToOpenInputFile
     *** nextItemType: InputFile ***
 	respondToCloseInputFile
-	clearPrincipalCache
 	closeInputFile
  	openInputFile
 	respondToOpenInputFile
@@ -279,15 +248,14 @@ Machine parameters:  handleEmptyRuns = 1  handleEmptySubRuns = 0
 	respondToCloseOutputFiles
 	closeSomeOutputFiles
 	respondToCloseInputFile
-	clearPrincipalCache
 	closeInputFile
  	openInputFile
 	respondToOpenInputFile
     *** nextItemType: Run ***
-	readAndCacheRun.............(run: 2)
+	readRun.....................(run: 2)
 	beginRun....................(run: 2)
     *** nextItemType: SubRun ***
-	readAndCacheSubRun..........(run: 2 subRun: 1)
+	readSubRun..................(run: 2 subRun: 1)
     *** nextItemType: InputFile ***
 	openSomeOutputFiles
 	respondToOpenOutputFiles
@@ -297,13 +265,11 @@ Machine parameters:  handleEmptyRuns = 1  handleEmptySubRuns = 0
 	endRun......................(run: 2)
 	writeRun....................(run: 2)
 	respondToCloseInputFile
-	clearPrincipalCache
 	closeInputFile
  	openInputFile
 	respondToOpenInputFile
     *** nextItemType: InputFile ***
 	respondToCloseInputFile
-	clearPrincipalCache
 	closeInputFile
  	openInputFile
 	respondToOpenInputFile
@@ -311,7 +277,6 @@ Machine parameters:  handleEmptyRuns = 1  handleEmptySubRuns = 0
 	respondToCloseOutputFiles
 	closeSomeOutputFiles
 	respondToCloseInputFile
-	clearPrincipalCache
 	closeInputFile
  	openInputFile
 	respondToOpenInputFile
@@ -319,7 +284,6 @@ Machine parameters:  handleEmptyRuns = 1  handleEmptySubRuns = 0
 	respondToCloseOutputFiles
 	closeAllOutputFiles
 	respondToCloseInputFile
-	clearPrincipalCache
 	closeInputFile
 	endJob
 The state machine reports it has been terminated
@@ -333,7 +297,6 @@ Machine parameters:  handleEmptyRuns = 1  handleEmptySubRuns = 1
 	respondToCloseOutputFiles
 	closeSomeOutputFiles
 	respondToCloseInputFile
-	clearPrincipalCache
 	closeInputFile
  	openInputFile
 	respondToOpenInputFile
@@ -341,19 +304,16 @@ Machine parameters:  handleEmptyRuns = 1  handleEmptySubRuns = 1
 	respondToCloseOutputFiles
 	closeSomeOutputFiles
 	respondToCloseInputFile
-	clearPrincipalCache
 	closeInputFile
  	openInputFile
 	respondToOpenInputFile
     *** nextItemType: InputFile ***
 	respondToCloseInputFile
-	clearPrincipalCache
 	closeInputFile
  	openInputFile
 	respondToOpenInputFile
     *** nextItemType: InputFile ***
 	respondToCloseInputFile
-	clearPrincipalCache
 	closeInputFile
  	openInputFile
 	respondToOpenInputFile
@@ -361,12 +321,11 @@ Machine parameters:  handleEmptyRuns = 1  handleEmptySubRuns = 1
 	respondToCloseOutputFiles
 	closeSomeOutputFiles
 	respondToCloseInputFile
-	clearPrincipalCache
 	closeInputFile
  	openInputFile
 	respondToOpenInputFile
     *** nextItemType: Run ***
-	readAndCacheRun.............(run: 1)
+	readRun.....................(run: 1)
 	beginRun....................(run: 1)
     *** nextItemType: InputFile ***
 	openSomeOutputFiles
@@ -375,13 +334,11 @@ Machine parameters:  handleEmptyRuns = 1  handleEmptySubRuns = 1
 	endRun......................(run: 1)
 	writeRun....................(run: 1)
 	respondToCloseInputFile
-	clearPrincipalCache
 	closeInputFile
  	openInputFile
 	respondToOpenInputFile
     *** nextItemType: InputFile ***
 	respondToCloseInputFile
-	clearPrincipalCache
 	closeInputFile
  	openInputFile
 	respondToOpenInputFile
@@ -389,15 +346,14 @@ Machine parameters:  handleEmptyRuns = 1  handleEmptySubRuns = 1
 	respondToCloseOutputFiles
 	closeSomeOutputFiles
 	respondToCloseInputFile
-	clearPrincipalCache
 	closeInputFile
  	openInputFile
 	respondToOpenInputFile
     *** nextItemType: Run ***
-	readAndCacheRun.............(run: 2)
+	readRun.....................(run: 2)
 	beginRun....................(run: 2)
     *** nextItemType: SubRun ***
-	readAndCacheSubRun..........(run: 2 subRun: 1)
+	readSubRun..................(run: 2 subRun: 1)
     *** nextItemType: InputFile ***
 	openSomeOutputFiles
 	respondToOpenOutputFiles
@@ -409,13 +365,11 @@ Machine parameters:  handleEmptyRuns = 1  handleEmptySubRuns = 1
 	endRun......................(run: 2)
 	writeRun....................(run: 2)
 	respondToCloseInputFile
-	clearPrincipalCache
 	closeInputFile
  	openInputFile
 	respondToOpenInputFile
     *** nextItemType: InputFile ***
 	respondToCloseInputFile
-	clearPrincipalCache
 	closeInputFile
  	openInputFile
 	respondToOpenInputFile
@@ -423,7 +377,6 @@ Machine parameters:  handleEmptyRuns = 1  handleEmptySubRuns = 1
 	respondToCloseOutputFiles
 	closeSomeOutputFiles
 	respondToCloseInputFile
-	clearPrincipalCache
 	closeInputFile
  	openInputFile
 	respondToOpenInputFile
@@ -431,7 +384,6 @@ Machine parameters:  handleEmptyRuns = 1  handleEmptySubRuns = 1
 	respondToCloseOutputFiles
 	closeAllOutputFiles
 	respondToCloseInputFile
-	clearPrincipalCache
 	closeInputFile
 	endJob
 The state machine reports it has been terminated

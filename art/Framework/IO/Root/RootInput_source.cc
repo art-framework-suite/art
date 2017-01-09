@@ -185,13 +185,6 @@ RootInput::runRangeSetHandler()
   return primaryFileSequence_->runRangeSetHandler();
 }
 
-std::vector<std::shared_ptr<RunPrincipal>>
-RootInput::
-readRunFromSecondaryFiles_()
-{
-  return std::move(primaryFileSequence_->readRunFromSecondaryFiles_());
-}
-
 std::shared_ptr<SubRunPrincipal>
 RootInput::
 readSubRun(std::shared_ptr<RunPrincipal> rp)
@@ -215,13 +208,6 @@ RootInput::
 readSubRun_()
 {
   return primaryFileSequence_->readSubRun_(runPrincipal());
-}
-
-std::vector<std::shared_ptr<SubRunPrincipal>>
-RootInput::
-readSubRunFromSecondaryFiles_()
-{
-  return std::move(primaryFileSequence_->readSubRunFromSecondaryFiles_(runPrincipal()));
 }
 
 std::unique_ptr<RangeSetHandler>

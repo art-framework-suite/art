@@ -592,8 +592,7 @@ art::EventProcessor::beginRun(RunID run)
 {
   // Precondition: The RunID does not correspond to a flush ID.
   assert(!run.isFlush());
-  RunPrincipal& runPrincipal = principalCache_.runPrincipal(run);
-  process_<Begin<Level::Run>>(runPrincipal);
+  process_<Begin<Level::Run>>(*runPrincipal_);
   FDEBUG(1) << "\tbeginRun " << run.run() << "\n";
 }
 
@@ -602,8 +601,7 @@ art::EventProcessor::endRun(RunID run)
 {
   // Precondition: The RunID does not correspond to a flush ID.
   assert(!run.isFlush());
-  RunPrincipal& runPrincipal = principalCache_.runPrincipal(run);
-  process_<End<Level::Run>>(runPrincipal);
+  process_<End<Level::Run>>(*runPrincipal_);
   FDEBUG(1) << "\tendRun " << run.run() << "\n";
 }
 
@@ -612,8 +610,7 @@ art::EventProcessor::beginSubRun(SubRunID const& sr)
 {
   // Precondition: The SubRunID does not correspond to a flush ID.
   assert(!sr.isFlush());
-  SubRunPrincipal& subRunPrincipal = principalCache_.subRunPrincipal(sr);
-  process_<Begin<Level::SubRun>>(subRunPrincipal);
+  process_<Begin<Level::SubRun>>(*subRunPrincipal_);
   FDEBUG(1) << "\tbeginSubRun " << sr << "\n";
 }
 
@@ -622,53 +619,52 @@ art::EventProcessor::endSubRun(SubRunID const& sr)
 {
   // Precondition: The SubRunID does not correspond to a flush ID.
   assert(!sr.isFlush());
-  SubRunPrincipal& subRunPrincipal = principalCache_.subRunPrincipal(sr);
-  process_<End<Level::SubRun>>(subRunPrincipal);
+  process_<End<Level::SubRun>>(*subRunPrincipal_);
   FDEBUG(1) << "\tendSubRun " << sr << "\n";
 }
 
 art::RunID
 art::EventProcessor::runPrincipalID() const
 {
-  return principalCache_.noMoreRuns() ? art::RunID{} : principalCache_.runPrincipal().id();
+  return runPrincipal_ ? runPrincipal_->id() : art::RunID{};
 }
 
 art::SubRunID
 art::EventProcessor::subRunPrincipalID() const
 {
-  return principalCache_.noMoreSubRuns() ? art::SubRunID{} : principalCache_.subRunPrincipal().id();
+  return subRunPrincipal_ ? subRunPrincipal_->id() : art::SubRunID{};
 }
 
 art::EventID
 art::EventProcessor::eventPrincipalID() const
 {
-  return sm_evp_.get() == nullptr ? art::EventID{} : sm_evp_->id();
+  return eventPrincipal_.get() == nullptr ? art::EventID{} : eventPrincipal_->id();
 }
 
 art::RunID
-art::EventProcessor::readAndCacheRun()
+art::EventProcessor::readRun()
 {
   SignalSentry runSourceSentry {actReg_.sPreSourceRun, actReg_.sPostSourceRun};
-  principalCache_.insert(input_->readRun());
+  runPrincipal_ = input_->readRun();
   endPathExecutor_->seedRunRangeSet(input_->runRangeSetHandler());
-  FDEBUG(1) << "\treadAndCacheRun " << "\n";
+  FDEBUG(1) << "\treadRun " << "\n";
   return runPrincipalID();
 }
 
 art::SubRunID
-art::EventProcessor::readAndCacheSubRun()
+art::EventProcessor::readSubRun()
 {
   SignalSentry subRunSourceSentry {actReg_.sPreSourceSubRun, actReg_.sPostSourceSubRun};
-  principalCache_.insert(input_->readSubRun(principalCache_.runPrincipalPtr()));
+  subRunPrincipal_ = input_->readSubRun(runPrincipal_);
   endPathExecutor_->seedSubRunRangeSet(input_->subRunRangeSetHandler());
-  FDEBUG(1) << "\treadAndCacheSubRun " << "\n";
+  FDEBUG(1) << "\treadSubRun " << "\n";
   return subRunPrincipalID();
 }
 
 void
 art::EventProcessor::setRunAuxiliaryRangeSetID(RunID const r)
 {
-  endPathExecutor_->setAuxiliaryRangeSetID(principalCache_.runPrincipal(r));
+  endPathExecutor_->setAuxiliaryRangeSetID(*runPrincipal_);
   FDEBUG(1) << "\twriteRunAuxiliaryRangeSets " << r.run() << "\n";
 }
 
@@ -677,58 +673,51 @@ art::EventProcessor::writeRun(RunID const r)
 {
   // Precondition: The RunID does not correspond to a flush ID.
   assert(!r.isFlush());
-  endPathExecutor_->writeRun(principalCache_.runPrincipal(r));
+  endPathExecutor_->writeRun(*runPrincipal_);
   FDEBUG(1) << "\twriteRun " << r.run() << "\n";
 }
 
 void
-art::EventProcessor::setSubRunAuxiliaryRangeSetID(SubRunID const & sr)
+art::EventProcessor::setSubRunAuxiliaryRangeSetID(SubRunID const& sr)
 {
-  endPathExecutor_->setAuxiliaryRangeSetID(principalCache_.subRunPrincipal(sr));
+  endPathExecutor_->setAuxiliaryRangeSetID(*subRunPrincipal_);
   FDEBUG(1) << "\twriteSubRunAuxiliaryRangeSets " << sr.run() << "/" << sr.subRun() << "\n";
 }
 
 void
-art::EventProcessor::writeSubRun(SubRunID const & sr)
+art::EventProcessor::writeSubRun(SubRunID const& sr)
 {
   // Precondition: The SubRunID does not correspond to a flush ID.
   assert(!sr.isFlush());
-  endPathExecutor_->writeSubRun(principalCache_.subRunPrincipal(sr));
+  endPathExecutor_->writeSubRun(*subRunPrincipal_);
   FDEBUG(1) << "\twriteSubRun " << sr.run() << "/" << sr.subRun() << "\n";
-}
-
-void
-art::EventProcessor::clearPrincipalCache()
-{
-  principalCache_.deleteAllPrincipals();
-  FDEBUG(1) << "\tclearPrincipalCache\n";
 }
 
 void
 art::EventProcessor::readEvent()
 {
   SignalSentry sourceSentry(actReg_.sPreSource, actReg_.sPostSource);
-  sm_evp_ = input_->readEvent(principalCache_.subRunPrincipalPtr());
+  eventPrincipal_ = input_->readEvent(subRunPrincipal_);
   FDEBUG(1) << "\treadEvent\n";
 }
 
 void
 art::EventProcessor::processEvent()
 {
-  EventID const& id [[gnu::unused]] {sm_evp_->id()};
+  EventID const& id [[gnu::unused]] {eventPrincipal_->id()};
   // Precondition: The EventID does not correspond to a flush ID.
   assert(!id.isFlush());
-  process_<Do<Level::Event>>(*sm_evp_);
+  process_<Do<Level::Event>>(*eventPrincipal_);
   FDEBUG(1) << "\tprocessEvent\n";
 }
 
 void
 art::EventProcessor::writeEvent()
 {
-  EventID const& id [[gnu::unused]] {sm_evp_->id()};
+  EventID const& id [[gnu::unused]] {eventPrincipal_->id()};
   // Precondition: The EventID does not correspond to a flush ID.
   assert(!id.isFlush());
-  endPathExecutor_->writeEvent(*sm_evp_);
+  endPathExecutor_->writeEvent(*eventPrincipal_);
   FDEBUG(1) << "\twriteEvent " << id.run() << "/" << id.subRun() << "/" << id.event() << "\n";
 }
 

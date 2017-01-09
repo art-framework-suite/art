@@ -79,7 +79,7 @@ namespace statemachine {
   void HandleRuns::setupCurrentRun()
   {
     runException_ = true;
-    currentRun_ = ep_.readAndCacheRun();
+    currentRun_ = ep_.readRun();
     runException_ = false;
     if (context<Machine>().handleEmptyRuns()) {
       beginRun(currentRun());

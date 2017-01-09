@@ -71,8 +71,8 @@ namespace art
     virtual void beginSubRun(SubRunID const &) = 0;
     virtual void endSubRun(SubRunID const &) = 0;
 
-    virtual RunID readAndCacheRun() = 0;
-    virtual SubRunID readAndCacheSubRun() = 0;
+    virtual RunID readRun() = 0;
+    virtual SubRunID readSubRun() = 0;
     virtual RunID runPrincipalID() const = 0;
     virtual SubRunID subRunPrincipalID() const = 0;
     virtual EventID eventPrincipalID() const = 0;
@@ -80,7 +80,6 @@ namespace art
     virtual void writeSubRun(SubRunID const &) = 0;
     virtual void setRunAuxiliaryRangeSetID(RunID) = 0;
     virtual void setSubRunAuxiliaryRangeSetID(SubRunID const &) = 0;
-    virtual void clearPrincipalCache() = 0;
 
     virtual void readEvent() = 0;
     virtual void processEvent() = 0;

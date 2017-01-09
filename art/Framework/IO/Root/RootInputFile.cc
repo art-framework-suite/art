@@ -722,17 +722,6 @@ namespace art {
     return move(rp);
   }
 
-  vector<shared_ptr<RunPrincipal>>
-  RootInputFile::
-  readRunFromSecondaryFiles()
-  {
-    vector<shared_ptr<RunPrincipal>> rps;
-    for (auto const& val : secondaryRPs_) {
-      rps.emplace_back(dynamic_pointer_cast<RunPrincipal>(val));
-    }
-    return rps;
-  }
-
   unique_ptr<RunPrincipal>
   RootInputFile::
   readCurrentRun(EntryNumbers const& entryNumbers)
@@ -845,17 +834,6 @@ namespace art {
     auto srp = readCurrentSubRun(entryNumbers, rp);
     nextEntry();
     return move(srp);
-  }
-
-  vector<shared_ptr<SubRunPrincipal>>
-  RootInputFile::
-  readSubRunFromSecondaryFiles(shared_ptr<RunPrincipal>)
-  {
-    vector<shared_ptr<SubRunPrincipal>> srps;
-    for (auto const& val : secondarySRPs_) {
-      srps.emplace_back(dynamic_pointer_cast<SubRunPrincipal>(val));
-    }
-    return srps;
   }
 
   unique_ptr<SubRunPrincipal>

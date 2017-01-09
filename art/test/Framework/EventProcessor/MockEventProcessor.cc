@@ -274,18 +274,18 @@ namespace art {
     return true;
   }
 
-  RunID MockEventProcessor::readAndCacheRun()
+  RunID MockEventProcessor::readRun()
   {
     run_ = readRun_;
-    output_ << "\treadAndCacheRun.............(" << run_ << ")\n";
+    output_ << "\treadRun.....................(" << run_ << ")\n";
     return run_;
   }
 
-  SubRunID MockEventProcessor::readAndCacheSubRun()
+  SubRunID MockEventProcessor::readSubRun()
   {
     subRun_ = readSubRun_;
     run_    = subRun_.runID();
-    output_ << "\treadAndCacheSubRun..........(" << subRun_ << ")\n";
+    output_ << "\treadSubRun..................(" << subRun_ << ")\n";
     return subRun_;
   }
 
@@ -307,11 +307,6 @@ namespace art {
   void MockEventProcessor::setSubRunAuxiliaryRangeSetID(SubRunID const & sr)
   {
     output_ << "\tsetSubRunAuxiliaryRangeSetID(" << sr << ")\n";
-  }
-
-  void MockEventProcessor::clearPrincipalCache()
-  {
-    output_ << "\tclearPrincipalCache\n";
   }
 
   void MockEventProcessor::readEvent()

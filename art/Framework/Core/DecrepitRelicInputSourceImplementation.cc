@@ -158,13 +158,11 @@ namespace art {
       }
       else if (newState == input::IsRun || oldState == input::IsFile) {
         runPrincipal_ = readRun_();
-        secondaryRunPrincipals_ = readRunFromSecondaryFiles_();
         state_ = input::IsRun;
       }
       else if (newState == input::IsSubRun || oldState == input::IsRun) {
         assert(processingMode() != Runs);
         subRunPrincipal_ = readSubRun_();
-        secondarySubRunPrincipals_ = readSubRunFromSecondaryFiles_();
         state_ = input::IsSubRun;
       }
       else {
@@ -175,16 +173,6 @@ namespace art {
     if (state_ == input::IsStop) {
       subRunPrincipal_.reset();
       runPrincipal_.reset();
-      for (auto rp: secondaryRunPrincipals_) {
-        rp.reset();
-      }
-      // FIXME: Use the swap trick here to really release the memory!
-      secondaryRunPrincipals_.clear();
-      for (auto srp: secondarySubRunPrincipals_) {
-        srp.reset();
-      }
-      // FIXME: Use the swap trick here to really release the memory!
-      secondarySubRunPrincipals_.clear();
     }
     return state_;
   }
@@ -237,18 +225,6 @@ namespace art {
     return runPrincipal_;
   }
 
-  std::vector<std::shared_ptr<RunPrincipal>>
-  DecrepitRelicInputSourceImplementation::
-  readRunFromSecondaryFiles()
-  {
-    // It is not appropriate to check the state variable here, as it
-    // might already have been changed in preparation for the next state
-    // change (in the case of random access for e.g. an event
-    // display. The appropriate place for checking this preconditions is
-    // in readRun().
-    return std::move(secondaryRunPrincipals_);
-  }
-
   std::shared_ptr<SubRunPrincipal>
   DecrepitRelicInputSourceImplementation::readSubRun(std::shared_ptr<RunPrincipal> rp) {
     // Note: For the moment, we do not support saving and restoring the state of the
@@ -262,22 +238,6 @@ namespace art {
     assert(subRunPrincipal_->run() == rp->run());
     subRunPrincipal_->setRunPrincipal(rp);
     return subRunPrincipal_;
-  }
-
-  std::vector<std::shared_ptr<SubRunPrincipal>>
-  DecrepitRelicInputSourceImplementation::
-  readSubRunFromSecondaryFiles(std::shared_ptr<RunPrincipal> rp)
-  {
-    // It is not appropriate to check the state variable here, as it
-    // might already have been changed in preparation for the next state
-    // change (in the case of random access for e.g. an event
-    // display. The appropriate place for checking this preconditions is
-    // in readSubRun().
-    for (auto srp: secondarySubRunPrincipals_) {
-      assert(srp->run() == rp->run());
-      srp->setRunPrincipal(rp);
-    }
-    return std::move(secondarySubRunPrincipals_);
   }
 
   std::unique_ptr<EventPrincipal>

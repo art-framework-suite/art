@@ -94,10 +94,8 @@ namespace art {
     std::unique_ptr<EventPrincipal> readEvent_(std::shared_ptr<SubRunPrincipal>);
     std::shared_ptr<SubRunPrincipal> readSubRun(std::shared_ptr<RunPrincipal>) override;
     std::shared_ptr<SubRunPrincipal> readSubRun_() override;
-    std::vector<std::shared_ptr<SubRunPrincipal>>  readSubRunFromSecondaryFiles_() override;
     std::shared_ptr<RunPrincipal> readRun() override;
     std::shared_ptr<RunPrincipal> readRun_() override;
-    std::vector<std::shared_ptr<RunPrincipal>> readRunFromSecondaryFiles_() override;
     std::shared_ptr<FileBlock> readFile(MasterProductRegistry&) override;
     std::shared_ptr<FileBlock> readFile_() override;
     std::unique_ptr<RangeSetHandler> runRangeSetHandler() override;

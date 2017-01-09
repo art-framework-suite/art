@@ -54,8 +54,8 @@ namespace art
     void beginSubRun(SubRunID const & sr) override;
     void endSubRun(SubRunID const & sr) override;
 
-    RunID readAndCacheRun() override;
-    SubRunID readAndCacheSubRun() override;
+    RunID readRun() override;
+    SubRunID readSubRun() override;
     RunID runPrincipalID() const override;
     SubRunID subRunPrincipalID() const override;
     EventID eventPrincipalID() const override;
@@ -63,7 +63,6 @@ namespace art
     void writeSubRun(SubRunID const & sr) override;
     void setRunAuxiliaryRangeSetID(RunID run) override;
     void setSubRunAuxiliaryRangeSetID(SubRunID const & sr) override;
-    void clearPrincipalCache() override;
     void writeEvent() override;
 
     void readEvent() override;

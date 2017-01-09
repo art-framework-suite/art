@@ -668,13 +668,6 @@ readSubRun_(std::shared_ptr<RunPrincipal> rp)
   return rootFile_->readSubRun(rp);
 }
 
-std::vector<std::shared_ptr<SubRunPrincipal>>
-RootInputFileSequence::
-readSubRunFromSecondaryFiles_(std::shared_ptr<RunPrincipal> rp)
-{
-  return std::move(rootFile_->readSubRunFromSecondaryFiles(rp));
-}
-
 std::shared_ptr<RunPrincipal>
 RootInputFileSequence::
 readIt(RunID const& id)
@@ -720,13 +713,6 @@ RootInputFileSequence::
 readRun_()
 {
   return rootFile_->readRun();
-}
-
-std::vector<std::shared_ptr<RunPrincipal>>
-RootInputFileSequence::
-readRunFromSecondaryFiles_()
-{
-  return std::move(rootFile_->readRunFromSecondaryFiles());
 }
 
 input::ItemType

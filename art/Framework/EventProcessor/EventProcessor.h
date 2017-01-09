@@ -14,7 +14,6 @@
 #include "art/Framework/Core/InputSource.h"
 #include "art/Framework/Core/MFStatusUpdater.h"
 #include "art/Framework/Core/PathManager.h"
-#include "art/Framework/Core/PrincipalCache.h"
 #include "art/Framework/Core/Schedule.h"
 #include "art/Framework/EventProcessor/ServiceDirector.h"
 #include "art/Framework/EventProcessor/StateMachine/Machine.h"
@@ -115,9 +114,8 @@ public:
   void beginSubRun(SubRunID const& sr) override;
   void endSubRun(SubRunID const& sr) override;
 
-  RunID    readAndCacheRun() override;
-  SubRunID readAndCacheSubRun() override;
-  void     clearPrincipalCache() override;
+  RunID    readRun() override;
+  SubRunID readSubRun() override;
 
   void writeRun(RunID run) override;
   void writeSubRun(SubRunID const& sr) override;
@@ -188,9 +186,10 @@ private:
 
   std::shared_ptr<FileBlock> fb_ {};
 
-  std::unique_ptr<statemachine::Machine> machine_ {};
-  PrincipalCache principalCache_ {}; // Cache is necessary for handling empty runs/subruns
-  std::unique_ptr<EventPrincipal> sm_evp_ {};
+  std::unique_ptr<statemachine::Machine> machine_ {nullptr};
+  std::shared_ptr<RunPrincipal> runPrincipal_ {nullptr};
+  std::shared_ptr<SubRunPrincipal> subRunPrincipal_ {nullptr};
+  std::unique_ptr<EventPrincipal> eventPrincipal_ {nullptr};
   bool shouldWeStop_ {false};
   bool stateMachineWasInErrorState_ {false};
   bool handleEmptyRuns_;

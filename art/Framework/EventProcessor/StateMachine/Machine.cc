@@ -42,7 +42,6 @@ namespace statemachine {
       closeSomeOutputFiles();
     }
     ep_->respondToCloseInputFile();
-    ep_->clearPrincipalCache();
     ep_->closeInputFile();
   }
 

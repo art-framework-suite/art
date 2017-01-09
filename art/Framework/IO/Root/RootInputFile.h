@@ -102,17 +102,11 @@ namespace art {
     std::shared_ptr<RunPrincipal>
     readRun();
 
-    std::vector<std::shared_ptr<RunPrincipal>>
-    readRunFromSecondaryFiles();
-
     bool
     readRunForSecondaryFile(RunID);
 
     std::shared_ptr<SubRunPrincipal>
     readSubRun(std::shared_ptr<RunPrincipal>);
-
-    std::vector<std::shared_ptr<SubRunPrincipal>>
-    readSubRunFromSecondaryFiles(std::shared_ptr<RunPrincipal>);
 
     bool
     readSubRunForSecondaryFile(SubRunID);

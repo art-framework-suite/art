@@ -87,7 +87,7 @@ namespace statemachine {
   {
     assert(context<HandleRuns>().currentRun().isValid());
     subRunException_ = true;
-    currentSubRun_ = ep_.readAndCacheSubRun();
+    currentSubRun_ = ep_.readSubRun();
     subRunException_ = false;
   }
 
