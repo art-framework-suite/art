@@ -309,12 +309,13 @@ namespace art {
     output_ << "\tsetSubRunAuxiliaryRangeSetID(" << subRun_ << ")\n";
   }
 
-  void MockEventProcessor::readEvent()
+  EventID MockEventProcessor::readEvent()
   {
     event_  = readEvent_;
     subRun_ = event_.subRunID();
     run_    = subRun_.runID();
     output_ << "\treadEvent....................(" << event_ << ")\n";
+    return event_;
   }
 
   void MockEventProcessor::processEvent()

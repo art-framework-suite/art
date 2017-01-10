@@ -53,22 +53,23 @@ namespace {
   public:
     using PreSig_t  = art::GlobalSignal<art::detail::SignalResponseType::FIFO, void>;
     using PostSig_t = art::GlobalSignal<art::detail::SignalResponseType::LIFO, void>;
-    SignalSentry(SignalSentry const &) = delete;
-    SignalSentry & operator=(SignalSentry const &) = delete;
-    SignalSentry(PreSig_t & pre, PostSig_t & post)
-      :
-      post_(post) {
+    SignalSentry(SignalSentry const&) = delete;
+    SignalSentry& operator=(SignalSentry const&) = delete;
+    SignalSentry(PreSig_t& pre, PostSig_t& post)
+      : post_(post)
+    {
       pre.invoke();
     }
-    ~SignalSentry() {
+    ~SignalSentry()
+    {
       post_.invoke();
     }
   private:
-    PostSig_t & post_;
+    PostSig_t& post_;
   };
 
   ////////////////////////////////////
-  void setupAsDefaultEmptySource(ParameterSet & p)
+  void setupAsDefaultEmptySource(ParameterSet& p)
   {
     p.put("module_type", "EmptyEvent");
     p.put("module_label", "source");
@@ -76,10 +77,10 @@ namespace {
   }
 
   std::unique_ptr<art::InputSource>
-  makeInput(ParameterSet const & params,
-            std::string const & processName,
-            art::MasterProductRegistry & preg,
-            art::ActivityRegistry & areg)
+  makeInput(ParameterSet const& params,
+            std::string const& processName,
+            art::MasterProductRegistry& preg,
+            art::ActivityRegistry& areg)
   {
     ParameterSet defaultEmptySource;
     setupAsDefaultEmptySource(defaultEmptySource);
@@ -135,7 +136,7 @@ namespace {
 
 }
 
-art::EventProcessor::EventProcessor(ParameterSet const & pset)
+art::EventProcessor::EventProcessor(ParameterSet const& pset)
   :
   act_table_{pset.get<ParameterSet>("services.scheduler")},
   actReg_(),
@@ -197,7 +198,7 @@ art::EventProcessor::beginJob()
   try {
     input_->doBeginJob();
   }
-  catch (cet::exception & e) {
+  catch (cet::exception& e) {
     mf::LogError("BeginJob") << "A cet::exception happened while processing"
                              " the beginJob of the 'source'\n";
     e << "A cet::exception happened while processing"
@@ -277,7 +278,7 @@ initServices_(ParameterSet const& top_pset,
 
 void
 art::EventProcessor::
-initSchedules_(ParameterSet const & pset)
+initSchedules_(ParameterSet const& pset)
 {
   // Initialize TBB with desired number of threads.
   int const num_threads = pset.get<int>("services.num_threads",
@@ -302,7 +303,7 @@ invokePostBeginJobWorkers_()
   std::vector<Worker *> allWorkers;
   allWorkers.reserve(pathManager_.triggerPathsInfo(ScheduleID::first()).workers().size() +
                      pathManager_.endPathInfo().workers().size());
-  auto workerStripper = [&allWorkers](WorkerMap::value_type const & val) {
+  auto workerStripper = [&allWorkers](WorkerMap::value_type const& val) {
     allWorkers.emplace_back(val.second.get());
   };
   cet::for_all(pathManager_.triggerPathsInfo(ScheduleID::first()).workers(),
@@ -414,7 +415,7 @@ art::EventProcessor::runToCompletion()
   // terminate the state machine before invoking its destructor.
   // We've seen crashes which are not understood when that is not
   // done.  Maintainers of this code should be careful about this.
-  catch (cet::exception & e) {
+  catch (cet::exception& e) {
     terminateAbnormally_();
     e << "cet::exception caught in EventProcessor and rethrown\n";
     e << exceptionMessageSubRuns_;
@@ -440,7 +441,7 @@ art::EventProcessor::runToCompletion()
         << exceptionMessageRuns_
         << exceptionMessageFiles_;
   }
-  catch (std::string const & e) {
+  catch (std::string const& e) {
     terminateAbnormally_();
     throw cet::exception("Unknown")
         << "The EventProcessor caught a string-based exception type and converted it to a cet::exception\n"
@@ -496,7 +497,7 @@ art::EventProcessor::openInputFile()
 void
 art::EventProcessor::closeInputFile()
 {
-  SignalSentry fileCloseSentry{actReg_.sPreCloseFile, actReg_.sPostCloseFile};
+  SignalSentry fileCloseSentry {actReg_.sPreCloseFile, actReg_.sPostCloseFile};
   input_->closeFile();
   FDEBUG(1) << "\tcloseInputFile\n";
 }
@@ -700,12 +701,13 @@ art::EventProcessor::writeSubRun()
   FDEBUG(1) << "\twriteSubRun " << sr.run() << "/" << sr.subRun() << "\n";
 }
 
-void
+art::EventID
 art::EventProcessor::readEvent()
 {
-  SignalSentry sourceSentry(actReg_.sPreSource, actReg_.sPostSource);
+  SignalSentry sourceSentry {actReg_.sPreSource, actReg_.sPostSource};
   eventPrincipal_ = input_->readEvent(subRunPrincipal_);
   FDEBUG(1) << "\treadEvent\n";
+  return eventPrincipalID();
 }
 
 void
@@ -768,19 +770,19 @@ art::EventProcessor::shouldWeStop() const
 }
 
 void
-art::EventProcessor::setExceptionMessageFiles(std::string const & message)
+art::EventProcessor::setExceptionMessageFiles(std::string const& message)
 {
   exceptionMessageFiles_ = message;
 }
 
 void
-art::EventProcessor::setExceptionMessageRuns(std::string const & message)
+art::EventProcessor::setExceptionMessageRuns(std::string const& message)
 {
   exceptionMessageRuns_ = message;
 }
 
 void
-art::EventProcessor::setExceptionMessageSubRuns(std::string const & message)
+art::EventProcessor::setExceptionMessageSubRuns(std::string const& message)
 {
   exceptionMessageSubRuns_ = message;
 }
@@ -793,14 +795,14 @@ art::EventProcessor::alreadyHandlingException() const
 
 bool
 art::EventProcessor::
-setTriggerPathEnabled(std::string const & name, bool enable)
+setTriggerPathEnabled(std::string const& name, bool const enable)
 {
   return schedule_->setTriggerPathEnabled(name, enable);
 }
 
 bool
 art::EventProcessor::
-setEndPathModuleEnabled(std::string const & label, bool enable)
+setEndPathModuleEnabled(std::string const& label, bool const enable)
 {
   return endPathExecutor_->setEndPathModuleEnabled(label, enable);
 }

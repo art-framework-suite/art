@@ -65,7 +65,7 @@ namespace art
     void setSubRunAuxiliaryRangeSetID() override;
     void writeEvent() override;
 
-    void readEvent() override;
+    EventID readEvent() override;
     void processEvent() override;
     bool shouldWeStop() const override;
 

@@ -129,7 +129,7 @@ public:
   SubRunID subRunPrincipalID() const override;
   EventID eventPrincipalID() const override;
 
-  void readEvent() override;
+  EventID readEvent() override;
   void processEvent() override;
   bool shouldWeStop() const override;
 

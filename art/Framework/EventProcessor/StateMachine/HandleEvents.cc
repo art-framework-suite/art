@@ -13,8 +13,7 @@ namespace statemachine {
     my_base{ctx},
     ep_{context<Machine>().ep()},
     currentEvent_{ep_.eventPrincipalID()}
-  {
-  }
+  {}
 
   void HandleEvents::disableFinalizeEvent(Pause const&)
   {
@@ -105,8 +104,7 @@ namespace statemachine {
     auto& handleEvents = context<HandleEvents>();
     handleEvents.setEventException(true);
     markNonEmpty();
-    ep_.readEvent();
-    handleEvents.setCurrentEvent(ep_.eventPrincipalID());
+    handleEvents.setCurrentEvent(ep_.readEvent());
     handleEvents.setEventException(false);
     checkInvariant();
     post_event(Process{});

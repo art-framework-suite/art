@@ -81,7 +81,7 @@ namespace art
     virtual void setRunAuxiliaryRangeSetID() = 0;
     virtual void setSubRunAuxiliaryRangeSetID() = 0;
 
-    virtual void readEvent() = 0;
+    virtual EventID readEvent() = 0;
     virtual void processEvent() = 0;
     virtual void writeEvent() = 0;
     virtual bool shouldWeStop() const = 0;
