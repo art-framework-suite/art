@@ -6,6 +6,7 @@
 #include "art/Framework/Principal/AssnsGroup.h"
 #include "art/Framework/Principal/AssnsGroupWithData.h"
 #include "art/Framework/Principal/Group.h"
+#include "canvas/Persistency/Common/detail/getWrapperTIDs.h"
 #include "canvas/Utilities/TypeID.h"
 #include "cetlib/exempt_ptr.h"
 
@@ -39,9 +40,6 @@ namespace art {
                RangeSet&&,
                std::unique_ptr<EDProduct>&&);
 
-    namespace detail { // Internal use only.
-      std::vector<art::TypeID> getWrapperTIDs(BranchDescription const& bd);
-    }
   } // namespace gfactory
 
 } // namespace art
@@ -87,7 +85,7 @@ make_group(BranchDescription const & bd,
            ARGS && ... args)
 {
   std::unique_ptr<Group> result;
-  auto tids = getWrapperTIDs(bd);
+  auto tids = art::detail::getWrapperTIDs(bd);
   switch (tids.size()) {
   case 1ull: // Standard Group.
     // Can't use std::make_unique<> because Group's constructor is
