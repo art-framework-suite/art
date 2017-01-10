@@ -65,21 +65,21 @@ namespace art
     virtual void beginJob() = 0;
     virtual void endJob() = 0;
 
-    virtual void beginRun(RunID) = 0;
-    virtual void endRun(RunID) = 0;
+    virtual void beginRun() = 0;
+    virtual void endRun() = 0;
 
-    virtual void beginSubRun(SubRunID const &) = 0;
-    virtual void endSubRun(SubRunID const &) = 0;
+    virtual void beginSubRun() = 0;
+    virtual void endSubRun() = 0;
 
     virtual RunID readRun() = 0;
     virtual SubRunID readSubRun() = 0;
     virtual RunID runPrincipalID() const = 0;
     virtual SubRunID subRunPrincipalID() const = 0;
     virtual EventID eventPrincipalID() const = 0;
-    virtual void writeRun(RunID) = 0;
-    virtual void writeSubRun(SubRunID const &) = 0;
-    virtual void setRunAuxiliaryRangeSetID(RunID) = 0;
-    virtual void setSubRunAuxiliaryRangeSetID(SubRunID const &) = 0;
+    virtual void writeRun() = 0;
+    virtual void writeSubRun() = 0;
+    virtual void setRunAuxiliaryRangeSetID() = 0;
+    virtual void setSubRunAuxiliaryRangeSetID() = 0;
 
     virtual void readEvent() = 0;
     virtual void processEvent() = 0;

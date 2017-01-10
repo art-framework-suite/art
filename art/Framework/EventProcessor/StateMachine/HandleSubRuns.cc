@@ -96,28 +96,23 @@ namespace statemachine {
     context<HandleFiles>().disallowStaging();
     finalizeEnabled_ = false;
   }
-  void HandleSubRuns::beginSubRun(art::SubRunID sr)
+  void HandleSubRuns::beginSubRun()
   {
     beginSubRunCalled_ = true;
     subRunException_ = true;
-    if (!sr.isFlush())
-      ep_.beginSubRun(sr);
+    if (!currentSubRun_.isFlush())
+      ep_.beginSubRun();
     subRunException_ = false;
   }
 
-  void HandleSubRuns::endSubRun(art::SubRunID sr)
+  void HandleSubRuns::endSubRun()
   {
     beginSubRunCalled_ = false;
     subRunException_ = true;
     // Note: flush flag is not checked here since endSubRun is only
     // called from finalizeRun, which is where the check happens.
-    ep_.endSubRun(sr);
+    ep_.endSubRun();
     subRunException_ = false;
-  }
-
-  void HandleSubRuns::finalizeSubRun(SubRun const&)
-  {
-    finalizeSubRun();
   }
 
   void HandleSubRuns::finalizeSubRun()
@@ -132,9 +127,10 @@ namespace statemachine {
       context<HandleRuns>().beginRunIfNotDoneAlready();
       beginSubRunIfNotDoneAlready();
     }
-    ep_.setSubRunAuxiliaryRangeSetID(currentSubRun_);
-    if (beginSubRunCalled_) endSubRun(currentSubRun());
-    ep_.writeSubRun(currentSubRun_);
+    ep_.setSubRunAuxiliaryRangeSetID();
+    if (beginSubRunCalled_)
+      endSubRun();
+    ep_.writeSubRun();
 
     // Staging is not allowed whenever 'maybeTriggerOutputFileSwitch'
     // is called due to exiting a 'Pause' state.
@@ -143,13 +139,13 @@ namespace statemachine {
       context<HandleFiles>().maybeTriggerOutputFileSwitch();
     }
 
-    currentSubRun_ = art::SubRunID(); // Invalid.
+    currentSubRun_ = art::SubRunID{}; // Invalid.
     subRunException_ = false;
   }
 
   void HandleSubRuns::beginSubRunIfNotDoneAlready()
   {
-    if (!beginSubRunCalled_) beginSubRun(currentSubRun());
+    if (!beginSubRunCalled_) beginSubRun();
   }
 
   void HandleSubRuns::markSubRunNonEmpty()

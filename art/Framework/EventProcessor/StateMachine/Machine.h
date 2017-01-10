@@ -116,7 +116,7 @@ namespace statemachine {
     void maybeTriggerOutputFileSwitch();
 
   private:
-    art::IEventProcessor & ep_;
+    art::IEventProcessor& ep_;
     bool stagingAllowed_ {true};
     bool switchInProgress_ {false};
   };
@@ -129,7 +129,7 @@ namespace statemachine {
 
     sc::result react(Stop const&);
   private:
-    art::IEventProcessor & ep_;
+    art::IEventProcessor& ep_;
   };
 
   class Error : public sc::state<Error, Machine> {
@@ -137,7 +137,7 @@ namespace statemachine {
     Error(my_context ctx);
     using reactions = sc::transition<Stop, Stopping>;
   private:
-    art::IEventProcessor & ep_;
+    art::IEventProcessor& ep_;
   };
 
   class HandleRuns;
@@ -167,16 +167,15 @@ namespace statemachine {
     bool beginRunCalled() const;
     art::RunID currentRun() const;
     void setupCurrentRun();
-    void beginRun(art::RunID run);
-    void endRun(art::RunID run);
-    void finalizeRun(Run const&);
+    void beginRun();
+    void endRun();
     void finalizeRun();
     void beginRunIfNotDoneAlready();
 
     void disableFinalizeRun(Pause const&);
 
   private:
-    art::IEventProcessor & ep_;
+    art::IEventProcessor& ep_;
     art::RunID currentRun_;
     bool exitCalled_ {false};
     bool beginRunCalled_ {false};
@@ -214,15 +213,14 @@ namespace statemachine {
     ~HandleSubRuns();
     void checkInvariant();
 
-    art::SubRunID const & currentSubRun() const;
+    art::SubRunID const& currentSubRun() const;
     bool beginSubRunCalled() const;
 
     void disableFinalizeSubRun(Pause const&);
-    void beginSubRun(art::SubRunID run);
-    void endSubRun(art::SubRunID run);
+    void beginSubRun();
+    void endSubRun();
 
     void setupCurrentSubRun();
-    void finalizeSubRun(SubRun const&);
     void finalizeSubRun();
     void markSubRunNonEmpty();
     void beginSubRunIfNotDoneAlready();
@@ -230,7 +228,7 @@ namespace statemachine {
     using reactions = sc::transition<SubRun, HandleSubRuns>;
 
   private:
-    art::IEventProcessor & ep_;
+    art::IEventProcessor& ep_;
     art::SubRunID currentSubRun_;
     bool exitCalled_ {false};
     bool beginSubRunCalled_ {false};
@@ -278,7 +276,7 @@ namespace statemachine {
     using reactions = sc::transition<Event, HandleEvents>;
 
   private:
-    art::IEventProcessor & ep_;
+    art::IEventProcessor& ep_;
     art::EventID currentEvent_;
     bool exitCalled_ {false};
     bool eventException_ {false};
@@ -302,7 +300,7 @@ namespace statemachine {
       sc::transition<Pause, PauseEvent, HandleEvents, &HandleEvents::disableFinalizeEvent>>;
 
   private:
-    art::IEventProcessor & ep_;
+    art::IEventProcessor& ep_;
   };
 
   class ProcessEvent: public sc::state<ProcessEvent, HandleEvents> {

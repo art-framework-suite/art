@@ -48,21 +48,21 @@ namespace art
     void beginJob() override;
     void endJob() override;
 
-    void beginRun(RunID run) override;
-    void endRun(RunID run) override;
+    void beginRun() override;
+    void endRun() override;
 
-    void beginSubRun(SubRunID const & sr) override;
-    void endSubRun(SubRunID const & sr) override;
+    void beginSubRun() override;
+    void endSubRun() override;
 
     RunID readRun() override;
     SubRunID readSubRun() override;
     RunID runPrincipalID() const override;
     SubRunID subRunPrincipalID() const override;
     EventID eventPrincipalID() const override;
-    void writeRun(RunID run) override;
-    void writeSubRun(SubRunID const & sr) override;
-    void setRunAuxiliaryRangeSetID(RunID run) override;
-    void setSubRunAuxiliaryRangeSetID(SubRunID const & sr) override;
+    void writeRun() override;
+    void writeSubRun() override;
+    void setRunAuxiliaryRangeSetID() override;
+    void setSubRunAuxiliaryRangeSetID() override;
     void writeEvent() override;
 
     void readEvent() override;

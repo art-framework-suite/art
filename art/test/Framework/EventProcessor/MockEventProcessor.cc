@@ -224,24 +224,24 @@ namespace art {
     output_ << "\tendJob\n";
   }
 
-  void MockEventProcessor::beginRun(RunID run)
+  void MockEventProcessor::beginRun()
   {
-    output_ << "\tbeginRun....................(" << run << ")\n";
+    output_ << "\tbeginRun....................(" << run_ << ")\n";
   }
 
-  void MockEventProcessor::endRun(RunID run)
+  void MockEventProcessor::endRun()
   {
-    output_ << "\tendRun......................(" << run << ")\n";
+    output_ << "\tendRun......................(" << run_ << ")\n";
   }
 
-  void MockEventProcessor::beginSubRun(SubRunID const & sr)
+  void MockEventProcessor::beginSubRun()
   {
-    output_ << "\tbeginSubRun.................(" << sr <<")\n";
+    output_ << "\tbeginSubRun.................(" << subRun_ <<")\n";
   }
 
-  void MockEventProcessor::endSubRun(SubRunID const & sr)
+  void MockEventProcessor::endSubRun()
   {
-    output_ << "\tendSubRun...................(" << sr << ")\n";
+    output_ << "\tendSubRun...................(" << subRun_ << ")\n";
   }
 
   RunID MockEventProcessor::runPrincipalID() const
@@ -289,24 +289,24 @@ namespace art {
     return subRun_;
   }
 
-  void MockEventProcessor::writeRun(RunID run)
+  void MockEventProcessor::writeRun()
   {
-    output_ << "\twriteRun....................(" << run << ")\n";
+    output_ << "\twriteRun....................(" << run_ << ")\n";
   }
 
-  void MockEventProcessor::writeSubRun(SubRunID const & sr)
+  void MockEventProcessor::writeSubRun()
   {
-    output_ << "\twriteSubRun.................(" << sr << ")\n";
+    output_ << "\twriteSubRun.................(" << subRun_ << ")\n";
   }
 
-  void MockEventProcessor::setRunAuxiliaryRangeSetID(RunID run)
+  void MockEventProcessor::setRunAuxiliaryRangeSetID()
   {
-    output_ << "\tsetRunAuxiliaryRangeSetID...(" << run << ")\n";
+    output_ << "\tsetRunAuxiliaryRangeSetID...(" << run_ << ")\n";
   }
 
-  void MockEventProcessor::setSubRunAuxiliaryRangeSetID(SubRunID const & sr)
+  void MockEventProcessor::setSubRunAuxiliaryRangeSetID()
   {
-    output_ << "\tsetSubRunAuxiliaryRangeSetID(" << sr << ")\n";
+    output_ << "\tsetSubRunAuxiliaryRangeSetID(" << subRun_ << ")\n";
   }
 
   void MockEventProcessor::readEvent()
