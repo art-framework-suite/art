@@ -1,7 +1,6 @@
 source: {
   module_type: EmptyEvent
   maxEvents: 8
-  #maxSubRuns: 2
 }
 
 outputs: {

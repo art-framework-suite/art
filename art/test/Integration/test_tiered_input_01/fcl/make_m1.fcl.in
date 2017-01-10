@@ -1,7 +1,6 @@
 source: {
   module_type: EmptyEvent
   maxEvents: 8
-  #maxSubRuns: 2
 }
 
 outputs: {
@@ -16,16 +15,11 @@ physics: {
     m1a: {
       module_type: IntProducer
       ivalue: 1
+      branchType: @LEVEL@
     }
   }
-  filters: {
-  }
   p1: [ m1a ]
-  trigger_paths: [ p1 ]
-  analyzers: {
-  }
   e1: [ out1 ]
-  end_paths: [ e1 ]
 }
 
 process_name: MAKEM1

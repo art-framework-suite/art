@@ -2,11 +2,11 @@ process_name: FileDumperOutputTestw
 
 physics: {
   producers: {
-    m1a:    
-    {       
+    m1a:
+    {
       module_type: SimpleDerivedProducer
-      nvalues: 16                       
-    }                                   
+      nvalues: 16
+    }
     m1b: {
       module_type: DerivedPtrVectorProducer
       input_label: m1a
@@ -30,7 +30,7 @@ physics: {
 }
 
 outputs: {
-  out1: 
+  out1:
   {
     module_type: FileDumperOutput
   }

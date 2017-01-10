@@ -1367,7 +1367,7 @@ cet_test(TestEmptyEventTimestampNoRSRTS_t HANDBUILT
 simple_plugin(FindManySpeedTestProducer "module" NO_INSTALL)
 simple_plugin(FindManySpeedTestAnalyzer "module" NO_INSTALL)
 
-add_subdirectory(testPtrVector)
+add_subdirectory(ptr-vector)
 add_subdirectory(test_tiered_input_01)
 add_subdirectory(test_tiered_input_02)
 add_subdirectory(test_tiered_input_03)

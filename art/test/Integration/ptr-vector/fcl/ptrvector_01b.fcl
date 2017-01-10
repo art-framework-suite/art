@@ -10,13 +10,12 @@ physics:
     }
   }
   e1: [ a1 ]
-  end_paths: [ e1 ]
 }
 
 source:
 {
   module_type: RootInput
-  fileNames: [ "../test_ptrvector_01a_t.d/out.root" ]
+  fileNames: [ "../PtrVector_01a_t.d/out.root" ]
 }
 
 process_name: DEVEL2

@@ -9,25 +9,22 @@
 #include <iostream>
 
 arttest::InFlightConfiguration::
-InFlightConfiguration(fhicl::ParameterSet const & ps,
-                      art::ActivityRegistry & areg)
-:
-  UserInteraction(areg),
-  moduleInfos_(),
-  pathSelectionService_(),
-  callCount_(0)
+InFlightConfiguration(fhicl::ParameterSet const& ps,
+                      art::ActivityRegistry& areg)
+  : UserInteraction(areg)
 {
   // Testing only: user implementations would not do this!
   if (ps.get("test_missing_pathselection", false)) {
     BOOST_REQUIRE(!art::ServiceRegistry::instance().isAvailable<art::PathSelection>());
-  } else {
-    pathSelectionService_.reset(new art::ServiceHandle<art::PathSelection>);
+  }
+  else {
+    pathSelectionService_ = std::make_unique<art::ServiceHandle<art::PathSelection>>();
   }
 }
 
 void
 arttest::InFlightConfiguration::
-moduleList(std::vector<ModuleInfo> const & infos)
+moduleList(std::vector<ModuleInfo> const& infos)
 {
   moduleInfos_ = infos;
 }
@@ -50,7 +47,7 @@ pickModule()
   //   callReconfigure(index, ps).
   //
   // Note that the module so identified *must* have implemented the
-  // reconfigure(fhicl::ParameterSet const &) call or an exception will
+  // reconfigure(fhicl::ParameterSet const&) call or an exception will
   // be thrown that should be caught and dealt with here.
   //
   // As far as actually disabling end path modules, you will need to
@@ -83,7 +80,7 @@ pickModule()
     // Reconfigure analyzer.
     auto it = std::find_if(moduleInfos_.cbegin(),
                            moduleInfos_.cend(),
-                           [](ModuleInfo const & mi)
+                           [](ModuleInfo const& mi)
                            {
                              return mi.label == "ia1";
                            });
@@ -96,6 +93,7 @@ pickModule()
               << std::boolalpha
               << ps.get<bool>("require_presence")
               << ".\n";
+    ps.erase("expected_value"); // 'expected_value' not allowed when 'require_presence' is false
     callReconfigure(std::distance(moduleInfos_.cbegin(), it), ps);
     // Deactivate path.
     (*pathSelectionService_)->setTriggerPathEnabled("p1", false);

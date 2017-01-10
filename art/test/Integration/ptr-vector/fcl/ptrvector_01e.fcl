@@ -1,8 +1,4 @@
 physics: {
-
-  producers: {
-  }
-
   analyzers: {
     a1:
     {
@@ -11,12 +7,7 @@ physics: {
       nvalues: 8
     }
   }
-
-   p1: []
-   e1: [ a1, out1 ]
-
-   trigger_paths: [ p1 ]
-   end_paths: [ e1 ]
+  e1: [ a1, out1 ]
 }
 
 outputs: {
@@ -28,10 +19,10 @@ outputs: {
 
 source: {
   module_type: RootInput
-  fileNames: [ "../test_ptrvector_01d_t.d/out2.root" ]
+  fileNames: [ "../PtrVector_01d_t.d/out2.root" ]
   secondaryFileNames: [
-    { a: "../test_ptrvector_01d_t.d/out2.root"
-      b: [ "../test_ptrvector_01c_t.d/out1.root" ]
+    { a: "../PtrVector_01d_t.d/out2.root"
+      b: [ "../PtrVector_01c_t.d/out1.root" ]
     }
   ]
 }

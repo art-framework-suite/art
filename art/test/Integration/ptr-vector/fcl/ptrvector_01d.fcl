@@ -1,17 +1,4 @@
-physics: {
-
-  producers: {
-  }
-
-  analyzers: {
-  }
-
-   p1: []
-   e1: [ out1 ]
-
-   trigger_paths: [ p1 ]
-   end_paths: [ e1 ]
-}
+physics.e1: [out1]
 
 outputs: {
   out1: {
@@ -23,7 +10,7 @@ outputs: {
 
 source: {
   module_type: RootInput
-  fileNames: [ "../test_ptrvector_01c_t.d/out1.root" ]
+  fileNames: [ "../PtrVector_01c_t.d/out1.root" ]
 }
 
 process_name: DROP
