@@ -188,15 +188,14 @@ namespace art {
   }
 
   // Return a dummy file block.
-  std::shared_ptr<FileBlock>
+  std::unique_ptr<FileBlock>
   DecrepitRelicInputSourceImplementation::readFile(MasterProductRegistry& /*mpr*/)
   {
     assert(doneReadAhead_);
     assert(state_ == input::IsFile);
     assert(!limitReached());
     doneReadAhead_ = false;
-    std::shared_ptr<FileBlock> fb = readFile_();
-    return fb;
+    return readFile_();
   }
 
   void
@@ -208,9 +207,10 @@ namespace art {
   // This function must be overridden for any input source that reads a file
   // containing Products. Such a function should update the MasterProductRegistry
   // to reflect the products found in this new file.
-  std::shared_ptr<FileBlock>
-  DecrepitRelicInputSourceImplementation::readFile_() {
-    return std::shared_ptr<FileBlock>(new FileBlock);
+  std::unique_ptr<FileBlock>
+  DecrepitRelicInputSourceImplementation::readFile_()
+  {
+    return std::make_unique<FileBlock>();
   }
 
   std::shared_ptr<RunPrincipal>

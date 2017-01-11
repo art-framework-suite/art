@@ -110,35 +110,10 @@ namespace art {
       getExistingGroup(bid)->removeCachedProduct();
     }
 
-    // FIXME: Unused!
-    void
-    setSecondaryPrincipals(std::vector<std::unique_ptr<Principal>>& sp)
-    {
-      secondaryPrincipals_.clear();
-      for (auto I = sp.begin(), E = sp.end(); I != E; ++I) {
-        secondaryPrincipals_.emplace_back(std::move(*I));
-      }
-    }
-
-    // FIXME: Unused!
-    void
-    setSecondaryPrincipals(std::vector<std::shared_ptr<Principal>> const& sp)
-    {
-      secondaryPrincipals_.clear();
-      secondaryPrincipals_.insert(secondaryPrincipals_.end(), sp.begin(),
-                                  sp.end());
-    }
-
     void
     addSecondaryPrincipal(std::unique_ptr<Principal>&& val)
     {
       secondaryPrincipals_.emplace_back(std::move(val));
-    }
-
-    void
-    addSecondaryPrincipal(std::shared_ptr<Principal> const& val)
-    {
-      secondaryPrincipals_.emplace_back(val);
     }
 
     void
@@ -348,7 +323,7 @@ namespace art {
     // and subRun principals is the lifetime of the input file,
     // while the lifetime of event principals ends at the next
     // event read.
-    std::vector<std::shared_ptr<Principal>> secondaryPrincipals_;
+    std::vector<std::unique_ptr<Principal>> secondaryPrincipals_;
 
     // Index into the per-file lookup tables.  Each principal is
     // read from particular secondary file.

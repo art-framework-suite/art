@@ -130,7 +130,7 @@ nextItemType()
   }
 }
 
-std::shared_ptr<FileBlock>
+std::unique_ptr<FileBlock>
 RootInput::
 readFile(MasterProductRegistry& /*mpr*/)
 {
@@ -147,7 +147,7 @@ readFile(MasterProductRegistry& /*mpr*/)
   }
 }
 
-std::shared_ptr<FileBlock>
+std::unique_ptr<FileBlock>
 RootInput::
 readFile_()
 {

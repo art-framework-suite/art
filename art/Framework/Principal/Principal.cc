@@ -438,7 +438,7 @@ getExistingGroup(BranchID const bid) const
   if (I != groups_.end()) {
     return I->second.get();
   }
-  for (auto p : secondaryPrincipals_) {
+  for (auto& p : secondaryPrincipals_) {
     auto I = p->groups_.find(bid);
     if (I != p->groups_.end()) {
       return I->second.get();
@@ -481,8 +481,8 @@ getGroupForPtr(BranchType const btype, BranchID const bid) const
       continue;
     }
     std::size_t const index = ProductMetaData::instance().presentWithFileIdx(btype, bid);
-    if ( index == MasterProductRegistry::DROPPED ) continue;
-    auto p = secondaryPrincipals_[index-1];
+    if (index == MasterProductRegistry::DROPPED) continue;
+    auto& p = secondaryPrincipals_[index-1];
     auto it = p->groups_.find(bid);
     // Note: There will be groups for dropped products, so we
     //       must check for that.  We want the group where the
@@ -505,7 +505,7 @@ getGroup(BranchID const bid) const
       return I->second;
     }
   }
-  for (auto p : secondaryPrincipals_) {
+  for (auto& p : secondaryPrincipals_) {
     auto I = p->groups_.find(bid);
     if (I != p->groups_.end()) {
       return I->second;

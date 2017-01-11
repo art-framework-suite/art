@@ -269,7 +269,7 @@ endJob()
   closeFile_();
 }
 
-std::shared_ptr<FileBlock>
+std::unique_ptr<FileBlock>
 RootInputFileSequence::
 readFile_()
 {
@@ -282,10 +282,10 @@ readFile_()
   }
   else if (!nextFile()) {
     // FIXME: Turn this into a throw!
-    assert(0);
+    assert(false);
   }
   if (!rootFile_) {
-    return std::make_shared<FileBlock>();
+    return std::make_unique<FileBlock>();
   }
   return rootFile_->createFileBlock();
 }

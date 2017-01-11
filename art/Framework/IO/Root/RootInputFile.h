@@ -176,7 +176,7 @@ namespace art {
       return fastClonable_;
     }
 
-    std::shared_ptr<FileBlock>
+    std::unique_ptr<FileBlock>
     createFileBlock();
 
     template <BranchType BT>

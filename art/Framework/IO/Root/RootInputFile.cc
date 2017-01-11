@@ -401,11 +401,11 @@ namespace art {
     return forcedRunOffset_;
   }
 
-  shared_ptr<FileBlock>
+  unique_ptr<FileBlock>
   RootInputFile::
   createFileBlock()
   {
-    return std::make_shared<FileBlock>(fileFormatVersion_,
+    return std::make_unique<FileBlock>(fileFormatVersion_,
                                        eventTree().tree(),
                                        fastClonable(),
                                        file_,
@@ -692,7 +692,7 @@ namespace art {
                                                 secondaryFileNameIdx_ + 1,
                                                 primaryFile_->primaryEP_.get());
     eventTree().fillGroups(*sep);
-    primaryFile_->primaryEP_->addSecondaryPrincipal(unique_ptr<Principal>{move(sep)});
+    primaryFile_->primaryEP_->addSecondaryPrincipal(move(sep));
     return true;
   }
 
@@ -787,7 +787,7 @@ namespace art {
       runAux().beginTime_ = eventAux().time();
       runAux().endTime_ = Timestamp::invalidTimestamp();
     }
-    auto rp = std::make_shared<RunPrincipal>(runAux(),
+    auto rp = std::make_unique<RunPrincipal>(runAux(),
                                              processConfiguration_,
                                              runTree().makeBranchMapper(),
                                              runTree().makeDelayedReader(fileFormatVersion_,
@@ -802,7 +802,7 @@ namespace art {
     if (!delayedReadRunProducts_) {
       rp->readImmediate();
     }
-    primaryFile_->primaryRP_->addSecondaryPrincipal(static_pointer_cast<Principal>(rp));
+    primaryFile_->primaryRP_->addSecondaryPrincipal(move(rp));
     return true;
   }
 
@@ -898,7 +898,7 @@ namespace art {
       subRunAux().beginTime_ = eventAux().time();
       subRunAux().endTime_ = Timestamp::invalidTimestamp();
     }
-    auto srp = std::make_shared<SubRunPrincipal>(subRunAux(),
+    auto srp = std::make_unique<SubRunPrincipal>(subRunAux(),
                                                  processConfiguration_,
                                                  subRunTree().makeBranchMapper(),
                                                  subRunTree().makeDelayedReader(fileFormatVersion_,
@@ -913,7 +913,7 @@ namespace art {
     if (!delayedReadSubRunProducts_) {
       srp->readImmediate();
     }
-    primaryFile_->primarySRP_->addSecondaryPrincipal(static_pointer_cast<Principal>(srp));
+    primaryFile_->primarySRP_->addSecondaryPrincipal(move(srp));
     return true;
   }
 
@@ -1020,8 +1020,10 @@ namespace art {
 
   void
   RootInputFile::
-  dropOnInput(GroupSelectorRules const& rules, bool dropDescendants,
-              bool /*dropMergeable*/, ProductList& prodList)
+  dropOnInput(GroupSelectorRules const& rules,
+              bool const dropDescendants,
+              bool const /*dropMergeable*/,
+              ProductList& prodList)
   {
     // This is the selector for drop on input.
     GroupSelector groupSelector;

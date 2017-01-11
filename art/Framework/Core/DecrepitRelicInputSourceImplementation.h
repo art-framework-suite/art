@@ -110,7 +110,7 @@ namespace art
     std::shared_ptr<RunPrincipal> readRun() override;
 
     /// Read next file
-    std::shared_ptr<FileBlock> readFile(MasterProductRegistry&) override;
+    std::unique_ptr<FileBlock> readFile(MasterProductRegistry&) override;
 
     /// close current file
     void closeFile() override;
@@ -202,7 +202,7 @@ namespace art
     virtual std::shared_ptr<RunPrincipal> readRun_() = 0;
     virtual std::shared_ptr<SubRunPrincipal> readSubRun_() = 0;
     virtual std::unique_ptr<EventPrincipal> readEvent_() = 0;
-    virtual std::shared_ptr<FileBlock> readFile_();
+    virtual std::unique_ptr<FileBlock> readFile_();
     virtual void closeFile_() {}
     virtual void skip(int);
     virtual void rewind_();

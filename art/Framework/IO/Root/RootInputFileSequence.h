@@ -94,7 +94,7 @@ public: // MEMBER FUNCTIONS
   void
   endJob();
 
-  std::shared_ptr<FileBlock>
+  std::unique_ptr<FileBlock>
   readFile_();
 
   std::unique_ptr<RootInputFile>

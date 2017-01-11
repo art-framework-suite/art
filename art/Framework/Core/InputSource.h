@@ -72,7 +72,7 @@ namespace art
     virtual input::ItemType nextItemType() = 0;
     virtual RunID run() const = 0;
     virtual SubRunID subRun() const = 0;
-    virtual std::shared_ptr<FileBlock> readFile(MasterProductRegistry&) = 0;
+    virtual std::unique_ptr<FileBlock> readFile(MasterProductRegistry&) = 0;
     virtual void closeFile() = 0;
     virtual std::shared_ptr<RunPrincipal> readRun() = 0;
     virtual std::shared_ptr<SubRunPrincipal> readSubRun(std::shared_ptr<RunPrincipal> rp) = 0;

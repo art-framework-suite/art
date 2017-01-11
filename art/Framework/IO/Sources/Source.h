@@ -158,7 +158,7 @@ public:
   RunID run() const override;
   SubRunID subRun() const override;
 
-  std::shared_ptr<FileBlock> readFile(MasterProductRegistry & mpr) override;
+  std::unique_ptr<FileBlock> readFile(MasterProductRegistry & mpr) override;
   void closeFile() override;
 
   std::shared_ptr<RunPrincipal> readRun() override;
@@ -572,16 +572,16 @@ art::Source<T>::subRunRangeSetHandler()
 
 
 template <class T>
-std::shared_ptr<art::FileBlock>
+std::unique_ptr<art::FileBlock>
 art::Source<T>::readFile(MasterProductRegistry &)
 {
-  FileBlock * newF = 0;
+  FileBlock* newF = nullptr;
   detail_.readFile(currentFileName_, newF);
   if (!newF) {
     throw Exception(errors::LogicError)
         << "detail_::readFile() failed to return a valid FileBlock object\n";
   }
-  return std::shared_ptr<FileBlock>(newF);
+  return std::unique_ptr<FileBlock>(newF);
 }
 
 template <class T>
