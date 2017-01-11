@@ -709,7 +709,6 @@ namespace art {
     assert(fiIter_ != fiEnd_);
     assert(fiIter_->getEntryType() == FileIndex::kRun);
     assert(fiIter_->eventID_.runID().isValid());
-    secondaryRPs_.clear();
 
     auto const& entryNumbers = getEntryNumbers(InRun).first;
     if (!runTree().current(entryNumbers)) {
@@ -804,10 +803,6 @@ namespace art {
       rp->readImmediate();
     }
     primaryFile_->primaryRP_->addSecondaryPrincipal(static_pointer_cast<Principal>(rp));
-    // FIXME: These secondary run principals will never be cached
-    // FIXME: by the event processor!  This means that we cannot
-    // FIXME: output run data products from them.
-    primaryFile_->secondaryRPs_.emplace_back(move(rp));
     return true;
   }
 
@@ -823,7 +818,6 @@ namespace art {
   {
     assert(fiIter_ != fiEnd_);
     assert(fiIter_->getEntryType() == FileIndex::kSubRun);
-    secondarySRPs_.clear();
 
     auto const& entryNumbers = getEntryNumbers(InSubRun).first;
     if (!subRunTree().current(entryNumbers)) {
@@ -920,10 +914,6 @@ namespace art {
       srp->readImmediate();
     }
     primaryFile_->primarySRP_->addSecondaryPrincipal(static_pointer_cast<Principal>(srp));
-    // FIXME: These secondary subRun principals will never be cached
-    // FIXME: by the event processor!  This means that we cannot
-    // FIXME: output subrun data products from them.
-    primaryFile_->secondarySRPs_.emplace_back(move(srp));
     return true;
   }
 

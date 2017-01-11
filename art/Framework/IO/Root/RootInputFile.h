@@ -428,7 +428,7 @@ namespace art {
     TTree* eventHistoryTree_ {nullptr};
     std::shared_ptr<History> history_ {std::make_shared<History>()};
     std::shared_ptr<BranchChildren> branchChildren_ {std::make_shared<BranchChildren>()};
-    std::vector<std::unique_ptr<RootInputFile> > secondaryFiles_ {};
+    std::vector<std::unique_ptr<RootInputFile>> secondaryFiles_ {};
     // We need to add the secondary principals to the primary
     // principal when they are delay read, so we need to keep
     // around a pointer to the primary.  Note that these are
@@ -437,14 +437,6 @@ namespace art {
     cet::exempt_ptr<EventPrincipal> primaryEP_ {};
     cet::exempt_ptr<RunPrincipal> primaryRP_ {};
     cet::exempt_ptr<SubRunPrincipal> primarySRP_ {};
-    // The event processor reads run and subRun principals through
-    // and interface that can return only the primary one.  These
-    // data members cache the secondary ones so that the event
-    // processor can collect them with a second call.  The secondary
-    // event principals do not need to be collected since they are
-    // never subjected to merging of their data products.
-    std::vector<std::shared_ptr<Principal>> secondaryRPs_ {};
-    std::vector<std::shared_ptr<Principal>> secondarySRPs_ {};
     std::unique_ptr<RangeSetHandler> subRunRangeSetHandler_ {nullptr};
     std::unique_ptr<RangeSetHandler> runRangeSetHandler_ {nullptr};
 
