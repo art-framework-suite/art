@@ -116,7 +116,7 @@ private:
   std::string processName_;
   PathsInfo& triggerPathsInfo_;
   std::vector<unsigned char> pathsEnabled_;
-  std::shared_ptr<Worker> results_inserter_;
+  std::unique_ptr<Worker> results_inserter_;
   OnDemandBranches demand_branches_;
 };
 
