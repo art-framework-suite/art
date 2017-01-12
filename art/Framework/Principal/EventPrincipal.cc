@@ -231,14 +231,12 @@ EventPrincipal::
 getGroup(ProductID const& pid) const
 {
   BranchID bid = productIDToBranchID(pid);
-  SharedConstGroupPtr const& g = getGroupForPtr(art::InEvent,bid);
+  auto const g = getGroupForPtr(art::InEvent,bid);
   if (g.get()) {
     return GroupQueryResult(g.get());
   }
-  std::shared_ptr<art::Exception> whyFailed(
-    new art::Exception(art::errors::ProductNotFound, "InvalidID"));
-  *whyFailed
-      << "getGroup: no product with given product id: " << pid << "\n";
+  std::shared_ptr<art::Exception> whyFailed {new art::Exception(art::errors::ProductNotFound, "InvalidID")};
+  *whyFailed << "getGroup: no product with given product id: " << pid << "\n";
   return GroupQueryResult(whyFailed);
 }
 
@@ -250,7 +248,7 @@ getByProductID(ProductID const& pid) const
   // function, but I'm not sure it does the *right* thing in the face
   // of an unavailable product or other rare failure.
   BranchID bid = productIDToBranchID(pid);
-  SharedConstGroupPtr const& g(getResolvedGroup(bid, true, true));
+  auto const g = getResolvedGroup(bid, true, true);
   if (!g) {
     std::shared_ptr<art::Exception>
     whyFailed(new art::Exception(art::errors::ProductNotFound, "InvalidID"));

@@ -9,6 +9,7 @@
 // ======================================================================
 
 #include "art/Framework/Core/EndPathExecutor.h"
+#include "art/Framework/Core/FileBlock.h"
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/IEventProcessor.h"
 #include "art/Framework/Core/InputSource.h"
@@ -180,11 +181,11 @@ private:
   std::unique_ptr<ServiceRegistry::Operate> servicesSentry_ {};
   PathManager pathManager_; // Must outlive schedules.
   ServiceDirector serviceDirector_;
-  std::unique_ptr<InputSource> input_ {};
-  std::unique_ptr<Schedule> schedule_ {};
-  std::unique_ptr<EndPathExecutor> endPathExecutor_ {};
+  std::unique_ptr<InputSource> input_ {nullptr};
+  std::unique_ptr<Schedule> schedule_ {nullptr};
+  std::unique_ptr<EndPathExecutor> endPathExecutor_ {nullptr};
 
-  std::shared_ptr<FileBlock> fb_ {};
+  std::unique_ptr<FileBlock> fb_ {nullptr};
 
   std::unique_ptr<statemachine::Machine> machine_ {nullptr};
   std::shared_ptr<RunPrincipal> runPrincipal_ {nullptr};

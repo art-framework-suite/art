@@ -32,7 +32,6 @@ namespace art {
   public:
 
     using Auxiliary = EventAuxiliary;
-    using SharedConstGroupPtr = Principal::SharedConstGroupPtr;
     static constexpr BranchType branch_type = Auxiliary::branch_type;
 
     EventPrincipal(EventAuxiliary const& aux,

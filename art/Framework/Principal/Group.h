@@ -21,6 +21,7 @@
 #include "cetlib/exempt_ptr.h"
 
 #include <algorithm>
+#include <iostream>
 #include <memory>
 #include <type_traits>
 

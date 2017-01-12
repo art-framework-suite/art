@@ -45,13 +45,11 @@ namespace art {
 
   public: // TYPES
 
-    using GroupCollection = std::map<BranchID, std::shared_ptr<Group>>;
+    using GroupCollection = std::map<BranchID, std::unique_ptr<Group>>;
     using const_iterator = GroupCollection::const_iterator;
     using ProcessNameConstIterator = ProcessHistory::const_iterator;
-    using SharedConstGroupPtr = std::shared_ptr<const Group>;
     using GroupQueryResultVec = std::vector<GroupQueryResult>;
     using size_type = GroupCollection::size_type;
-    using SharedGroupPtr = std::shared_ptr<Group>;
     using ProcessName = std::string;
 
   public: // MEMBER FUNCTIONS
@@ -228,8 +226,7 @@ namespace art {
       assert(!bd.moduleLabel().empty());
       assert(!bd.processName().empty());
       group->setResolvers(branchMapper(), *store_);
-      std::shared_ptr<Group> g(group.release());
-      groups_.insert(make_pair(bd.branchID(), g));
+      groups_.emplace(bd.branchID(), std::move(group));
     }
 
     void
@@ -241,8 +238,15 @@ namespace art {
       assert(!bd.moduleLabel().empty());
       assert(!bd.processName().empty());
       group->setResolvers(branchMapper(), *store_);
-      std::shared_ptr<Group> g(group.release());
-      groups_[bd.branchID()]->replace(*g);
+      // Would dearly love to use:
+      //      groups_[bd.branchID()] = std::move(group);
+      // However, this leads to bad things for on-demand
+      // reconstruction--for some reason the 'replace' function is
+      // necessary to ensure accurately working unscheduled
+      // reconstruction.  I would like to find a way to fix this in
+      // the future, should on-demand reconstruction need to be
+      // retained.
+      groups_[bd.branchID()]->replace(*group);
     }
 
     int
@@ -251,13 +255,13 @@ namespace art {
     cet::exempt_ptr<Group const>
     getExistingGroup(BranchID const bid) const;
 
-    std::shared_ptr<const Group> const
+    cet::exempt_ptr<Group const> const
     getGroupForPtr(BranchType const btype, BranchID const bid) const;
 
-    std::shared_ptr<const Group> const
+    cet::exempt_ptr<Group const> const
     getGroup(BranchID const bid) const;
 
-    std::shared_ptr<const Group> const
+    cet::exempt_ptr<Group const> const
     getResolvedGroup(BranchID const bid,
                      bool resolveProd,
                      bool fillOnDemand) const;
@@ -306,7 +310,7 @@ namespace art {
     mutable bool processHistoryModified_;
 
     // products and provenances are persistent
-    std::map<BranchID, std::shared_ptr<Group>> groups_;
+    std::map<BranchID, std::unique_ptr<Group>> groups_;
 
     // Pointer to the mapper that will get provenance
     // information from the persistent store.
