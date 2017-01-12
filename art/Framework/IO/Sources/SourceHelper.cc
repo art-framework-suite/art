@@ -6,86 +6,77 @@
 #include "canvas/Persistency/Provenance/RunAuxiliary.h"
 #include "canvas/Persistency/Provenance/SubRunAuxiliary.h"
 
-#include <cassert>
-#include <memory>
+art::SourceHelper::SourceHelper(ModuleDescription const& md) :
+  md_{md}
+{}
 
-art::SourceHelper::SourceHelper(ModuleDescription const & md) :
-  md_(md)
-{ }
-
-art::RunPrincipal *
-art::SourceHelper::makeRunPrincipal(RunAuxiliary const & runAux) const
+art::RunPrincipal*
+art::SourceHelper::makeRunPrincipal(RunAuxiliary const& runAux) const
 {
   return new RunPrincipal{runAux, md_.processConfiguration()};
 }
 
-art::RunPrincipal *
-art::SourceHelper::makeRunPrincipal(RunID r,
-                                    Timestamp const & startTime) const
+art::RunPrincipal*
+art::SourceHelper::makeRunPrincipal(RunID const r,
+                                    Timestamp const& startTime) const
 {
-  RunAuxiliary runAux(r,
-                      startTime,
-                      Timestamp::invalidTimestamp());
+  RunAuxiliary const runAux {r, startTime, Timestamp::invalidTimestamp()};
   return new RunPrincipal{runAux, md_.processConfiguration()};
 }
 
-art::RunPrincipal *
-art::SourceHelper::makeRunPrincipal(RunNumber_t r,
-                                    Timestamp const & startTime) const
+art::RunPrincipal*
+art::SourceHelper::makeRunPrincipal(RunNumber_t const r,
+                                    Timestamp const& startTime) const
 {
   return makeRunPrincipal(RunID{r}, startTime);
 }
 
-art::SubRunPrincipal *
-art::SourceHelper::makeSubRunPrincipal(SubRunAuxiliary const & subRunAux
-                                       ) const
+art::SubRunPrincipal*
+art::SourceHelper::makeSubRunPrincipal(SubRunAuxiliary const& subRunAux) const
 {
   return new SubRunPrincipal{subRunAux, md_.processConfiguration()};
 }
 
-art::SubRunPrincipal *
-art::SourceHelper::makeSubRunPrincipal(SubRunID const & sr,
-                                       Timestamp const & startTime) const
+art::SubRunPrincipal*
+art::SourceHelper::makeSubRunPrincipal(SubRunID const& sr,
+                                       Timestamp const& startTime) const
 {
-  SubRunAuxiliary subRunAux(sr,
-                            startTime,
-                            Timestamp::invalidTimestamp());
+  SubRunAuxiliary const subRunAux {sr, startTime, Timestamp::invalidTimestamp()};
   return new SubRunPrincipal{subRunAux, md_.processConfiguration()};
 }
 
-art::SubRunPrincipal *
-art::SourceHelper::makeSubRunPrincipal(RunNumber_t r,
-                                       SubRunNumber_t sr,
-                                       Timestamp const & startTime) const
+art::SubRunPrincipal*
+art::SourceHelper::makeSubRunPrincipal(RunNumber_t const r,
+                                       SubRunNumber_t const sr,
+                                       Timestamp const& startTime) const
 {
   return makeSubRunPrincipal(SubRunID{r, sr}, startTime);
 }
 
-art::EventPrincipal *
-art::SourceHelper::makeEventPrincipal(EventAuxiliary const & eventAux,
-                                      std::shared_ptr<History> && history
-                                      ) const
+art::EventPrincipal*
+art::SourceHelper::makeEventPrincipal(EventAuxiliary const& eventAux,
+                                      std::shared_ptr<History>&& history) const
 {
   return new EventPrincipal{eventAux, md_.processConfiguration(), history};
 }
 
-art::EventPrincipal *
-art::SourceHelper::makeEventPrincipal(EventID const & e,
-                                      Timestamp const & startTime,
-                                      bool isRealData,
-                                      EventAuxiliary::ExperimentType eType) const
+art::EventPrincipal*
+art::SourceHelper::makeEventPrincipal(EventID const& e,
+                                      Timestamp const& startTime,
+                                      bool const isRealData,
+                                      EventAuxiliary::ExperimentType const eType) const
 {
-  EventAuxiliary eventAux(e, startTime, isRealData, eType);
+  EventAuxiliary const eventAux {e, startTime, isRealData, eType};
   return new EventPrincipal{eventAux, md_.processConfiguration()};
 }
 
-art::EventPrincipal *
-art::SourceHelper::makeEventPrincipal(RunNumber_t r,
-                                      SubRunNumber_t sr,
-                                      EventNumber_t e,
-                                      Timestamp const & startTime,
-                                      bool isRealData,
-                                      EventAuxiliary::ExperimentType eType) const
+art::EventPrincipal*
+art::SourceHelper::makeEventPrincipal(RunNumber_t const r,
+                                      SubRunNumber_t const sr,
+                                      EventNumber_t const e,
+                                      Timestamp const& startTime,
+                                      bool const isRealData,
+                                      EventAuxiliary::ExperimentType const eType) const
 {
   return makeEventPrincipal(EventID{r, sr, e}, startTime, isRealData, eType);
 }

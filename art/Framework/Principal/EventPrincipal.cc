@@ -230,14 +230,13 @@ GroupQueryResult
 EventPrincipal::
 getGroup(ProductID const& pid) const
 {
-  BranchID bid = productIDToBranchID(pid);
-  auto const g = getGroupForPtr(art::InEvent,bid);
-  if (g.get()) {
-    return GroupQueryResult(g.get());
+  BranchID const bid = productIDToBranchID(pid);
+  if (auto const g = getGroupForPtr(art::InEvent, bid)) {
+    return GroupQueryResult{g};
   }
-  std::shared_ptr<art::Exception> whyFailed {new art::Exception(art::errors::ProductNotFound, "InvalidID")};
+  auto whyFailed = std::make_shared<art::Exception>(art::errors::ProductNotFound, "InvalidID");
   *whyFailed << "getGroup: no product with given product id: " << pid << "\n";
-  return GroupQueryResult(whyFailed);
+  return GroupQueryResult{whyFailed};
 }
 
 GroupQueryResult
@@ -247,16 +246,13 @@ getByProductID(ProductID const& pid) const
   // FIXME: This reproduces the logic of the old version of the
   // function, but I'm not sure it does the *right* thing in the face
   // of an unavailable product or other rare failure.
-  BranchID bid = productIDToBranchID(pid);
-  auto const g = getResolvedGroup(bid, true, true);
-  if (!g) {
-    std::shared_ptr<art::Exception>
-    whyFailed(new art::Exception(art::errors::ProductNotFound, "InvalidID"));
-    *whyFailed
-        << "getGroup: no product with given product id: " << pid << "\n";
-    return GroupQueryResult(whyFailed);
+  BranchID const bid = productIDToBranchID(pid);
+  if (auto const g = getResolvedGroup(bid, true, true)) {
+    return GroupQueryResult{g};
   }
-  return GroupQueryResult(g.get());
+  auto whyFailed = std::make_shared<art::Exception>(art::errors::ProductNotFound, "InvalidID");
+  *whyFailed << "getGroup: no product with given product id: " << pid << "\n";
+  return GroupQueryResult{whyFailed};
 }
 
 EventSelectionIDVector const&
@@ -274,7 +270,7 @@ deferredGetter_(ProductID const& pid) const
   if (it != deferredGetters_.end()) {
     return it->second.get();
   }
-  deferredGetters_[pid] = std::make_shared<DeferredProductGetter>(cet::exempt_ptr<EventPrincipal const>(this), pid);
+  deferredGetters_[pid] = std::make_shared<DeferredProductGetter>(cet::exempt_ptr<EventPrincipal const>{this}, pid);
   return deferredGetters_[pid].get();
 }
 

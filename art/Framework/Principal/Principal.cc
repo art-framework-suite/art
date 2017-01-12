@@ -373,7 +373,7 @@ findGroupsForProcess(std::vector<BranchID> const& vbid,
       continue;
     }
     // Found a good match, save it.
-    res.push_back(GroupQueryResult(group.get()));
+    res.emplace_back(group);
   }
 }
 
