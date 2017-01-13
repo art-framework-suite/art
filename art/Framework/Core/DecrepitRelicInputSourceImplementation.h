@@ -47,6 +47,7 @@ Some examples of InputSource subclasses may be:
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/InputSource.h"
 #include "art/Framework/Core/ProductRegistryHelper.h"
+#include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
@@ -199,10 +200,17 @@ namespace art
       return std::move(subRunPrincipal_);
     }
 
+    std::unique_ptr<EventPrincipal> eventPrincipal()
+    {
+      return std::move(eventPrincipal_);
+    }
+
     void setRunPrincipal(std::unique_ptr<RunPrincipal>&& rp);
     void setSubRunPrincipal(std::unique_ptr<SubRunPrincipal>&& srp);
+    void setEventPrincipal(std::unique_ptr<EventPrincipal>&& ep);
     void resetRunPrincipal() {runPrincipal_.reset();}
     void resetSubRunPrincipal() {subRunPrincipal_.reset();}
+    void resetEventPrincipal() {eventPrincipal_.reset();}
     void reset() {
       doneReadAhead_ = false;
       state_ = input::IsInvalid;
@@ -241,6 +249,7 @@ namespace art
     input::ItemType state_ {input::IsInvalid};
     std::unique_ptr<RunPrincipal> runPrincipal_ {nullptr};
     std::unique_ptr<SubRunPrincipal> subRunPrincipal_ {nullptr};
+    std::unique_ptr<EventPrincipal> eventPrincipal_ {nullptr};
     cet::exempt_ptr<RunPrincipal> cachedRunPrincipal_ {nullptr};
     cet::exempt_ptr<SubRunPrincipal> cachedSubRunPrincipal_ {nullptr};
   };  // DecrepitRelicInputSourceImplementation

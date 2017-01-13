@@ -118,15 +118,23 @@ nextItemType()
     case AccessState::SEEKING_FILE:
       return input::IsFile;
     case AccessState::SEEKING_RUN:
+      setRunPrincipal(primaryFileSequence_->readIt(accessState_.wantedEventID().runID()));
       return input::IsRun;
     case AccessState::SEEKING_SUBRUN:
+      // RunPrincipal has been handed off to the EventProcessor by this point.  Used the cached pointer.
+      setSubRunPrincipal(primaryFileSequence_->readIt(accessState_.wantedEventID().subRunID(), runPrincipalExemptPtr()));
       return input::IsSubRun;
-    case AccessState::SEEKING_EVENT:
+    case AccessState::SEEKING_EVENT: {
+      auto const wantedEventID = accessState_.wantedEventID();
+      setEventPrincipal(primaryFileSequence_->readIt(wantedEventID, true));
+      accessState_.setLastReadEventID(wantedEventID);
+      accessState_.setRootFileForLastReadEvent(primaryFileSequence_->rootFileForLastReadEvent());
       return input::IsEvent;
+    }
     default:
       throw Exception(errors::LogicError)
-          << "RootInputSource::nextItemType encountered an "
-             "unknown AccessState.\n";
+        << "RootInputSource::nextItemType encountered an "
+        "unknown AccessState.\n";
   }
 }
 
@@ -163,7 +171,6 @@ readRun()
     return DecrepitRelicInputSourceImplementation::readRun();
   case AccessState::SEEKING_RUN:
     accessState_.setState(AccessState::SEEKING_SUBRUN);
-    setRunPrincipal(primaryFileSequence_->readIt(accessState_.wantedEventID().runID()));
     return runPrincipal();
   default:
     throw Exception(errors::LogicError)
@@ -194,7 +201,6 @@ readSubRun(cet::exempt_ptr<RunPrincipal> rp)
     return DecrepitRelicInputSourceImplementation::readSubRun(rp);
   case AccessState::SEEKING_SUBRUN:
     accessState_.setState(AccessState::SEEKING_EVENT);
-    setSubRunPrincipal(primaryFileSequence_->readIt(accessState_.wantedEventID().subRunID(), rp));
     return subRunPrincipal();
   default:
     throw Exception(errors::LogicError)
@@ -232,15 +238,7 @@ readEvent_(cet::exempt_ptr<SubRunPrincipal> srp)
       return DecrepitRelicInputSourceImplementation::readEvent(srp);
     case AccessState::SEEKING_EVENT:
       accessState_.resetState();
-      {
-        std::unique_ptr<EventPrincipal> result {primaryFileSequence_->readIt(accessState_.wantedEventID(), true)};
-        if (result.get()) {
-          accessState_.setLastReadEventID(result->id());
-          accessState_.setRootFileForLastReadEvent(primaryFileSequence_->rootFileForLastReadEvent());
-          result->setSubRunPrincipal(srp);
-        }
-        return result;
-      }
+      return eventPrincipal();
     default:
       throw Exception(errors::LogicError)
           << "RootInputSource::readEvent encountered an "

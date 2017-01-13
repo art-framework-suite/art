@@ -100,6 +100,14 @@ namespace art {
     subRunPrincipal_->setRunPrincipal(cachedRunPrincipal_);
   }
 
+  void
+  DecrepitRelicInputSourceImplementation::setEventPrincipal(std::unique_ptr<EventPrincipal>&& ep)
+  {
+    assert(cachedSubRunPrincipal_);
+    eventPrincipal_ = std::move(ep);
+    eventPrincipal_->setSubRunPrincipal(cachedSubRunPrincipal_);
+  }
+
   // This next function is to guarantee that "runs only" mode does not
   // return events or subRuns, and that "runs and subRuns only" mode
   // does not return events.  For input sources that are not random
@@ -259,23 +267,23 @@ namespace art {
     doneReadAhead_ = false;
 
     preRead();
-    std::unique_ptr<EventPrincipal> result = readEvent_();
-    assert(srp->run() == result->run());
-    assert(srp->subRun() == result->subRun());
-    result->setSubRunPrincipal(srp);
-    if (result.get() != 0) {
-      Event event(*result, moduleDescription());
+    eventPrincipal_ = readEvent_();
+    assert(srp->run() == eventPrincipal_->run());
+    assert(srp->subRun() == eventPrincipal_->subRun());
+    eventPrincipal_->setSubRunPrincipal(srp);
+    if (eventPrincipal_.get() != 0) {
+      Event event(*eventPrincipal_, moduleDescription());
       postRead(event);
       if (remainingEvents_ > 0) --remainingEvents_;
       ++readCount_;
-      setTimestamp(result->time());
+      setTimestamp(eventPrincipal_->time());
       if ((reportFrequency_ > 0) &&
           ! (readCount_ % reportFrequency_))
       {
-        issueReports(result->id());
+        issueReports(eventPrincipal_->id());
       }
     }
-    return result;
+    return std::move(eventPrincipal_);
   }
 
   std::unique_ptr<EventPrincipal>
