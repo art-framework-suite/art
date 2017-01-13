@@ -16,17 +16,71 @@ using namespace art;
 
 namespace {
 
-  struct PendingBTLEntry {
-    PendingBTLEntry(BranchType bt, std::string fcn, std::string procName,
-                    std::string moduleLabel, std::string instanceName,
-                    BranchID bid)
-      : bk(std::move(fcn), std::move(moduleLabel), std::move(instanceName), std::move(procName), bt)
-      , bid(bid)
+  class CheapTag {
+public:
+    CheapTag(std::string const & label,
+             std::string const & instance,
+             std::string const & process)
+      : label_(label)
+      , instance_(instance)
+      , process_(process)
       {}
 
-    BranchKey bk;
-    BranchID bid;
+    std::string const & label() const { return label_;}
+    std::string const & instance() const { return instance_; }
+    std::string const & process() const { return process_; }
+
+private:
+    std::string label_;
+    std::string instance_;
+    std::string process_;
   };
+
+  inline
+  bool
+  operator == (CheapTag const & left,
+               CheapTag const & right)
+  {
+    return left.label() == right.label() &&
+      left.instance() == right.instance() &&
+      left.process() == right.process();
+  }
+
+  inline
+  bool
+  operator != (CheapTag const & left,
+               CheapTag const & right)
+  {
+    return ! (left == right);
+  }
+
+  class PendingBTLEntry {
+public:
+    PendingBTLEntry(BranchType bt, std::string fcn,
+                    std::string const & moduleLabel,
+                    std::string const & instanceName,
+                    std::string const & procName,
+                    BranchID bid)
+      : bt_(bt)
+      , fcn_(std::move(fcn))
+      , ct_(moduleLabel, instanceName, procName)
+      , bid_(std::move(bid))
+      {}
+
+    BranchType bt() const { return bt_; }
+    std::string const & fcn() const { return fcn_; }
+    CheapTag const & ct() const { return ct_; }
+    std::string const & label() const { return ct_.label();}
+    std::string const & instance() const { return ct_.instance(); }
+    std::string const & process() const { return ct_.process(); }
+    BranchID bid() const { return bid_; }
+private:
+    BranchType bt_;
+    std::string fcn_;
+    CheapTag ct_;
+    BranchID bid_;
+  };
+
 
   void
   recreateLookups(ProductList const& prods,
@@ -34,12 +88,10 @@ namespace {
                   BranchTypeLookup& el)
   {
     std::vector<PendingBTLEntry> pendingEntries;
-    std::unordered_map<BranchID,
-      std::pair<std::string, std::string>,
-      BranchID::Hash> insertedABVs;
+    std::unordered_map<BranchID, CheapTag, BranchID::Hash> insertedABVs;
     for (auto const& val: prods) {
       auto const& procName = val.first.processName_;
-      auto const& bid = val.second.branchID();
+      auto const bid = val.second.branchID();
       auto const& prodFCN = val.first.friendlyClassName_;
       auto const bt = val.first.branchType_;
       pl[bt][prodFCN][procName].emplace_back(bid);
@@ -68,25 +120,28 @@ namespace {
           }
         }
       }
-      if (is_instantiation_of(TYc, "art::Assns")) {
+      auto const & moduleLabel = val.first.moduleLabel_;
+      auto const & instanceName = val.first.productInstanceName_;
+      if (is_assns(TY.id())) {
         auto const TYName = TY.className();
         auto const baseName = name_of_assns_base(TYName);
-        if (!baseName.empty()) { // We're an Assns<A, B, D>, with a base Assns<A, B>.
+        if (!baseName.empty()) {
+          // We're an Assns<A, B, D>, with a base Assns<A, B>.
           TypeWithDict const base(baseName);
           // Add this to the list of "second-tier" products to register
           // later.
           assert(base.category() == art::TypeWithDict::Category::CLASSTYPE);
           auto const baseFCN = base.friendlyClassName();
-          pendingEntries.emplace_back(BranchType(bt), baseFCN, procName,
-                                      val.first.moduleLabel_,
-                                      val.first.productInstanceName_,
+          pendingEntries.emplace_back(BranchType(bt),
+                                      baseFCN,
+                                      moduleLabel,
+                                      instanceName,
+                                      procName,
                                       bid);
         } else {
           // Add our bid to the list of real Assns<A, B, void> products
           // already registered.
-          insertedABVs[bid] =
-            std::make_pair(val.first.moduleLabel_,
-                           val.first.productInstanceName_);
+          insertedABVs.insert({ bid, { moduleLabel, instanceName, procName } });
         }
       }
     }
@@ -98,17 +153,16 @@ namespace {
                   pendingEntries.cend(),
                   [&pl, &insertedABVs, iend](auto const & pe)
                   {
-                    auto & bids = pl[pe.bk.branchType_][pe.bk.friendlyClassName_][pe.bk.processName_];
+                    auto & bids = pl[pe.bt()][pe.fcn()][pe.process()];
                     if (bids.empty() ||
                         !std::any_of(bids.cbegin(), bids.cend(),
-                                     [&insertedABVs, &iend, &pe](BranchID const & bid) {
+                                     [&insertedABVs, &iend, &pe](BranchID bid) {
                                        auto i = insertedABVs.find(bid);
                                        return i != iend &&
-                                         i->second.first == pe.bk.moduleLabel_ &&
-                                         i->second.second == pe.bk.productInstanceName_;
+                                         pe.ct() == i->second;
                                      }))
                     {
-                      bids.emplace_back(pe.bid);
+                      bids.emplace_back(pe.bid());
                     }
                   });
   }
