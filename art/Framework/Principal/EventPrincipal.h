@@ -65,9 +65,6 @@ namespace art {
     RunPrincipal const& runPrincipal() const;
     RunPrincipal& runPrincipal();
 
-    void addOnDemandGroup(BranchDescription const& desc,
-                          cet::exempt_ptr<Worker> worker);
-
     EventSelectionIDVector const& eventSelectionIDs() const;
 
     History const&  history() const { return *history_; }

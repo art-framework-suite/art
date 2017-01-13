@@ -34,14 +34,12 @@ protected:
                      TypeID const & base_wrapper_type,
                      TypeID const & partner_base_wrapper_type,
                      std::unique_ptr<EDProduct>&& edp = nullptr,
-                     cet::exempt_ptr<Worker> productProducer = cet::exempt_ptr<Worker>(),
-                     cet::exempt_ptr<EventPrincipal> onDemandPrincipal =  cet::exempt_ptr<EventPrincipal>())
+                     cet::exempt_ptr<Worker> productProducer = cet::exempt_ptr<Worker>())
     : AssnsGroup(bd, pid, std::move(rs),
                  primary_wrapper_type,
                  partner_wrapper_type,
                  std::move(edp),
-                 productProducer,
-                 onDemandPrincipal)
+                 productProducer)
     , baseWrapperType_{base_wrapper_type}
     , partnerBaseWrapperType_{partner_base_wrapper_type}
     , baseProduct_{}
@@ -68,7 +66,6 @@ protected:
                      ProductID const& pid,
                      RangeSet&& rs,
                      cet::exempt_ptr<Worker> productProducer,
-                     cet::exempt_ptr<EventPrincipal> onDemandPrincipal,
                      TypeID const& primary_wrapper_type,
                      TypeID const& partner_wrapper_type,
                      TypeID const& base_wrapper_type,
@@ -79,8 +76,7 @@ protected:
                          base_wrapper_type,
                          partner_base_wrapper_type,
                          nullptr,
-                         productProducer,
-                         onDemandPrincipal)
+                         productProducer)
     {}
 
   EDProduct const * anyProduct() const override;
@@ -91,8 +87,7 @@ protected:
   uniqueProduct(TypeID const & wanted_wrapper_type) const override;
 
   bool
-  resolveProductIfAvailable(bool fillOnDemand,
-                            TypeID const &) const override;
+  resolveProductIfAvailable(TypeID const &) const override;
 
   void removeCachedProduct() const override;
 

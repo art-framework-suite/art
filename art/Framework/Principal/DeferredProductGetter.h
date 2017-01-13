@@ -17,9 +17,8 @@ public:
   EDProduct const *anyProduct() const override;
   EDProduct const *uniqueProduct() const override;
   EDProduct const *uniqueProduct(TypeID const &) const override;
-  bool resolveProduct(bool fillOnDemand, TypeID const &) const override;
-  bool resolveProductIfAvailable(bool fillOnDemand,
-                                         TypeID const &) const override;
+  bool resolveProduct(TypeID const &) const override;
+  bool resolveProductIfAvailable(TypeID const &) const override;
 
 private:
   cet::exempt_ptr<EDProductGetter const> resolveGetter_() const;
@@ -30,7 +29,6 @@ private:
   mutable cet::exempt_ptr<EDProductGetter const> realGetter_;
 };  // EDProductGetter
 
-#ifndef __GCCXML__
 inline
 bool
 art::DeferredProductGetter::
@@ -39,7 +37,6 @@ const
 {
   return (maybeResolveGetter_() != nullptr) && realGetter_->isReady();
 }
-#endif
 
 #endif /* art_Framework_Principal_DeferredProductGetter_h */
 

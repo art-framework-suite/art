@@ -44,8 +44,6 @@ Schedule(ScheduleID sID, PathManager& pm, ParameterSet const& proc_pset,
   , triggerPathsInfo_(pm.triggerPathsInfo(sID_))
   , pathsEnabled_(triggerPathsInfo_.pathPtrs().size(), true)
   , results_inserter_()
-  , demand_branches_(catalogOnDemandBranches_(pm.onDemandWorkers(),
-                                              mpr.productList()))
 {
   if (!triggerPathsInfo_.pathPtrs().empty()) {
     makeTriggerResultsInserter_(tns.getTriggerPSet(), mpr, areg);
@@ -158,27 +156,6 @@ beginJob()
   doForAllWorkers_([](auto w) {
       w->beginJob();
     });
-}
-
-art::Schedule::OnDemandBranches
-art::Schedule::
-catalogOnDemandBranches_(PathManager::Workers onDemandWorkers,
-                         ProductList const & plist)
-{
-  OnDemandBranches result;
-  std::multimap<std::string, BranchDescription const *>
-    branchLookup;
-  for (auto const& pr : plist) {
-    branchLookup.emplace(pr.second.moduleLabel(), &pr.second);
-  }
-  for (auto w : onDemandWorkers) {
-    auto const& label = w->description().moduleLabel();
-    for (auto I = branchLookup.lower_bound(label),
-              E = branchLookup.upper_bound(label); I != E; ++I) {
-      result.emplace(w, I->second);
-    }
-  }
-  return result;
 }
 
 void

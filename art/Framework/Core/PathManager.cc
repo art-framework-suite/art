@@ -126,8 +126,6 @@ PathManager(ParameterSet const & procPS,
   preg_(preg),
   exceptActions_(exceptActions),
   areg_(areg),
-  allowUnscheduled_(procPS_.get<bool>("services.scheduler.allowUnscheduled",
-                                      false)),
   trigger_paths_config_(findLegacyConfig(procPS_, "physics.trigger_paths")),
   end_paths_config_(findLegacyConfig(procPS_, "physics.end_paths")),
   fact_(),
@@ -183,46 +181,6 @@ triggerPathsInfo(ScheduleID sID)
   }
   return it->second;
 }
-
-art::PathManager::Workers
-art::PathManager::
-onDemandWorkers()
-{
-  Workers result;
-  // FIXME: until we go truly multi-schedule and can deal with
-  // multiply-constructed or shared modules, glom onto the primary
-  // schedule's worker map.
-  if (allowUnscheduled()) {
-    for (auto const & val : allModules_) {
-      if (is_modifier(val.second.moduleType())) {
-        result.push_back(makeWorker_(val.second,
-                                     triggerPathsInfo(ScheduleID::first()).workers()));
-      }
-    }
-    if (configErrMsgs_.size()) {
-      std::size_t const width {100};
-      std::ostringstream err_msg;
-      err_msg << "\n"
-              << std::string(width,'=')
-              << "\n\n"
-              << "!! The following on-demand modules have been misconfigured: !!"
-              << "\n";
-      for (auto const& err : configErrMsgs_) {
-        err_msg << "\n"
-                << std::string(width,'-')
-                << "\n"
-                << err;
-      }
-      err_msg << "\n"
-              << std::string(width,'=')
-              << "\n\n";
-
-      throw art::Exception(art::errors::Configuration) << err_msg.str();
-    }
-  }
-  return std::move(result);
-}
-
 
 art::detail::ModuleConfigInfoMap
 art::PathManager::
@@ -288,13 +246,7 @@ processPathConfigs_()
   vstring trigger_path_names;
   auto services = procPS_.get<ParameterSet>("services",{});
   auto opts(services.get<ParameterSet>("scheduler", ParameterSet()));
-  auto nSchedules = opts.get<size_t>("num_schedules", 1);
-  // Check we're not being asked to do something we can't.
-  if (allowUnscheduled_ && nSchedules > 1) {
-    throw Exception(errors::UnimplementedFeature)
-        << "Multi-schedule operation is not possible with on-demand "
-        << "module execution.\n";
-  }
+  auto nSchedules [[gnu::unused]] = opts.get<size_t>("num_schedules", 1);
   // Identify and process paths.
   std::set<std::string> known_pars {
     "analyzers",
@@ -349,15 +301,6 @@ processPathConfigs_()
     mf::LogInfo("PathConfiguration")
       << "Multiple end paths have been combined into one end path,\n"
       << "\"end_path\" since order is irrelevant.\n";
-  }
-
-  if (allowUnscheduled_) {
-    // All modifiers are "used."
-    for (auto const & val : allModules_) {
-      if (is_modifier(val.second.moduleType())) {
-        specified_modules.emplace(val.second.label());
-      }
-    };
   }
 
   vstring unused_modules;

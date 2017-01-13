@@ -94,10 +94,6 @@ addOrReplaceGroup(std::unique_ptr<Group>&& g)
     addGroup_(std::move(g));
     return;
   }
-  if (group->onDemand()) {
-    replaceGroup(std::move(g));
-    return;
-  }
   BranchDescription const& bd = group->productDescription();
   throw art::Exception(art::errors::ProductRegistrationFailure, "EventPrincipal::addOrReplaceGroup")
       << "Problem found while adding product provenance: "
@@ -131,15 +127,6 @@ addGroup(std::unique_ptr<EDProduct>&& prod, BranchDescription const& bd)
                                          branchIDToProductID(bd.branchID()),
                                          RangeSet::invalid(),
                                          std::move(prod)));
-}
-
-void
-EventPrincipal::
-addOnDemandGroup(BranchDescription const& desc, cet::exempt_ptr<Worker> worker)
-{
-  ProductID pid(branchIDToProductID(desc.branchID()));
-  cet::exempt_ptr<EventPrincipal> epp(this);
-  addOrReplaceGroup(gfactory::make_group(desc, pid, RangeSet::invalid(), worker, epp));
 }
 
 void
@@ -247,7 +234,7 @@ getByProductID(ProductID const& pid) const
   // function, but I'm not sure it does the *right* thing in the face
   // of an unavailable product or other rare failure.
   BranchID const bid = productIDToBranchID(pid);
-  if (auto const g = getResolvedGroup(bid, true, true)) {
+  if (auto const g = getResolvedGroup(bid, true)) {
     return GroupQueryResult{g};
   }
   auto whyFailed = std::make_shared<art::Exception>(art::errors::ProductNotFound, "InvalidID");

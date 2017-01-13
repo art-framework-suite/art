@@ -48,10 +48,10 @@ status() const
 
 bool
 art::Group::
-resolveProduct(bool fillOnDemand, TypeID const& wanted_wrapper_type) const
+resolveProduct(TypeID const& wanted_wrapper_type) const
 {
   if (!productUnavailable()) {
-    return resolveProductIfAvailable(fillOnDemand, wanted_wrapper_type);
+    return resolveProductIfAvailable(wanted_wrapper_type);
   }
   art::Exception e {errors::ProductNotFound, "InaccessibleProduct"};
   e << "resolveProduct: product is not accessible\n"
@@ -65,15 +65,14 @@ resolveProduct(bool fillOnDemand, TypeID const& wanted_wrapper_type) const
 
 bool
 art::Group::
-resolveProductIfAvailable(bool const fillOnDemand,
-                          TypeID const& wanted_wrapper_type) const
+resolveProductIfAvailable(TypeID const& wanted_wrapper_type) const
 {
   if (wanted_wrapper_type != wrapperType_) {
     throwResolveLogicError(wanted_wrapper_type);
   }
   bool result = product_.get();
   if (!(result || productUnavailable())) {
-    std::unique_ptr<EDProduct> edp {obtainDesiredProduct(fillOnDemand, wanted_wrapper_type)};
+    std::unique_ptr<EDProduct> edp {obtainDesiredProduct(wanted_wrapper_type)};
     if ((result = edp.get())) {
       setProduct(std::move(edp));
     }
@@ -83,28 +82,18 @@ resolveProductIfAvailable(bool const fillOnDemand,
 
 std::unique_ptr<art::EDProduct>
 art::Group::
-obtainDesiredProduct(bool fillOnDemand, TypeID const& wanted_wrapper_type) const
+obtainDesiredProduct(TypeID const& wanted_wrapper_type) const
 {
-  std::unique_ptr<art::EDProduct> retval;
-  // Try unscheduled production.
-  if (fillOnDemand && onDemand()) {
-    productProducer_->doWork<Do<Level::Event>>(*onDemandPrincipal_, nullptr);
-    return retval;
-  }
   BranchKey const bk {productDescription()};
-  retval = productResolver_->getProduct(bk,
-                                        wanted_wrapper_type,
-                                        rangeOfValidity_);
-  return retval;
+  return productResolver_->getProduct(bk,
+                                      wanted_wrapper_type,
+                                      rangeOfValidity_);
 }
 
 bool
 art::Group::
 productUnavailable() const
 {
-  if (onDemand()) {
-    return false;
-  }
   if (dropped()) {
     return true;
   }
@@ -165,27 +154,6 @@ dropped() const
   std::size_t const index = ProductMetaData::instance().presentWithFileIdx( branchDescription_->branchType(),
                                                                             branchDescription_->branchID() );
   return index == MasterProductRegistry::DROPPED;
-}
-
-void
-art::Group::
-swap(Group& other)
-{
-  using std::swap;
-  swap(ppResolver_, other.ppResolver_);
-  swap(product_, other.product_);
-  swap(branchDescription_, other.branchDescription_);
-  swap(pid_, other.pid_);
-  swap(productProducer_, other.productProducer_);
-  swap(onDemandPrincipal_, other.onDemandPrincipal_);
-  swap(rangeOfValidity_, other.rangeOfValidity_);
-}
-
-void
-art::Group::
-replace(Group& g)
-{
-  this->swap(g);
 }
 
 void

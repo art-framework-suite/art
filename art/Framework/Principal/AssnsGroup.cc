@@ -47,8 +47,7 @@ uniqueProduct(TypeID const& wanted_wrapper_type) const
 
 bool
 art::AssnsGroup::
-resolveProductIfAvailable(bool fillOnDemand,
-                          TypeID const& wanted_wrapper_type) const
+resolveProductIfAvailable(TypeID const& wanted_wrapper_type) const
 {
   // Ask us for something we can do.
   if (!(wanted_wrapper_type == producedWrapperType() ||
@@ -56,7 +55,7 @@ resolveProductIfAvailable(bool fillOnDemand,
     throwResolveLogicError(wanted_wrapper_type);
   }
   bool result =
-    Group::resolveProductIfAvailable(fillOnDemand, producedWrapperType());
+    Group::resolveProductIfAvailable(producedWrapperType());
   if (!(productUnavailable() ||
         (result = uniqueProduct(wanted_wrapper_type))) &&
       Group::uniqueProduct() != nullptr) {

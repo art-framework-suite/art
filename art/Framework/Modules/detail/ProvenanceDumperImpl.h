@@ -58,7 +58,7 @@ namespace art {
         Group const & g = *pr.second;
         if (resolveProducts_) {
           try {
-            if (!g.resolveProduct(false, g.producedWrapperType()))
+            if (!g.resolveProduct(g.producedWrapperType()))
               { throw Exception(errors::DataCorruption, "data corruption"); }
           }
           catch (art::Exception const & e) {

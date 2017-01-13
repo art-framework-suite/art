@@ -31,8 +31,7 @@ uniqueProduct(TypeID const& wanted_wrapper_type) const
 
 bool
 art::AssnsGroupWithData::
-resolveProductIfAvailable(bool fillOnDemand,
-                          TypeID const& wanted_wrapper_type) const
+resolveProductIfAvailable(TypeID const& wanted_wrapper_type) const
 {
   // Prerequisite: ask us for something we can do.
   if(!(wanted_wrapper_type == producedWrapperType() ||
@@ -48,8 +47,7 @@ resolveProductIfAvailable(bool fillOnDemand,
     partnerWrapperType() :
     producedWrapperType();
   bool result =
-    AssnsGroup::resolveProductIfAvailable(fillOnDemand,
-                                          upstream_wrapper_type);
+    AssnsGroup::resolveProductIfAvailable(upstream_wrapper_type);
   if (!(productUnavailable() ||
         (result = uniqueProduct(wanted_wrapper_type))) &&
       AssnsGroup::uniqueProduct(upstream_wrapper_type)) {

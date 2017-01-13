@@ -31,8 +31,7 @@ namespace art {
     make_group(BranchDescription const&,
                ProductID const&,
                RangeSet&&,
-               cet::exempt_ptr<Worker> productProducer,
-               cet::exempt_ptr<EventPrincipal> onDemandPrincipal);
+               cet::exempt_ptr<Worker> productProducer);
 
     std::unique_ptr<Group>
     make_group(BranchDescription const&,
@@ -60,10 +59,9 @@ art::gfactory::
 make_group(BranchDescription const& bd,
            ProductID const& pid,
            RangeSet&& rs,
-           cet::exempt_ptr<Worker> productProducer,
-           cet::exempt_ptr<EventPrincipal> onDemandPrincipal)
+           cet::exempt_ptr<Worker> productProducer)
 {
-  return detail::make_group(bd, pid, std::move(rs), productProducer, onDemandPrincipal);
+  return detail::make_group(bd, pid, std::move(rs), productProducer);
 }
 
 inline

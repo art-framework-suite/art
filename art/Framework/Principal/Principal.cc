@@ -317,9 +317,11 @@ findGroups(ProcessLookup const& pl, SelectorBase const& sel,
            GroupQueryResultVec& res, bool stopIfProcessHasMatch,
            TypeID wanted_wrapper/*=TypeID()*/) const
 {
-  // Handle groups for current process, note that we need to
-  // look at the current process even if it is not in the processHistory
-  // because of potential unscheduled (onDemand) production
+  // Handle groups for current process, note that we need to look at
+  // the current process even if it is not in the processHistory
+  // because of potential unscheduled (onDemand) production.
+  // [We don't support unscheduled production anymore, so I'm not sure
+  // how much the logic here should be adjusted. -KJK]
   {
     auto I = pl.find(processConfiguration_.processName());
     if (I != pl.end()) {
@@ -362,14 +364,14 @@ findGroupsForProcess(std::vector<BranchID> const& vbid,
       continue;
     }
     if (wanted_wrapper) {
-      group->resolveProduct(true, wanted_wrapper);
+      group->resolveProduct(wanted_wrapper);
     }
     else {
-      group->resolveProduct(true, group->producedWrapperType());
+      group->resolveProduct(group->producedWrapperType());
     }
     // If the product is a dummy filler, group will now be marked unavailable.
     // Unscheduled execution can fail to produce the EDProduct so check.
-    if (group->productUnavailable() || group->onDemand()) {
+    if (group->productUnavailable()) {
       continue;
     }
     // Found a good match, save it.
@@ -381,7 +383,7 @@ OutputHandle
 Principal::
 getForOutput(BranchID const bid, bool resolveProd) const
 {
-  auto const& g = getResolvedGroup(bid, resolveProd, false);
+  auto const& g = getResolvedGroup(bid, resolveProd);
   if (!g) {
     return OutputHandle{g->rangeOfValidity()};
   }
@@ -412,8 +414,7 @@ getForOutput(BranchID const bid, bool resolveProd) const
 cet::exempt_ptr<Group const> const
 Principal::
 getResolvedGroup(BranchID const bid,
-                 bool const resolveProd,
-                 bool const fillOnDemand) const
+                 bool const resolveProd) const
 {
   // FIXME: This reproduces the behavior of the original getGroup with
   // resolveProv == false but I am not sure this is correct in the case
@@ -422,9 +423,8 @@ getResolvedGroup(BranchID const bid,
   if (!g.get() || !resolveProd) {
     return g;
   }
-  bool const gotIt = g->resolveProductIfAvailable(fillOnDemand,
-                                                  g->producedWrapperType());
-  if (!gotIt && g->onDemand()) {
+  bool const gotIt = g->resolveProductIfAvailable(g->producedWrapperType());
+  if (!gotIt) {
     // Behavior is the same as if the group wasn't there.
     return nullptr;
   }

@@ -120,7 +120,7 @@ namespace art {
       readProvenanceImmediate();
       for (auto const& val : groups_) {
         if (!val.second->productUnavailable()) {
-          val.second->resolveProduct(false, val.second->producedWrapperType());
+          val.second->resolveProduct(val.second->producedWrapperType());
         }
       }
     }
@@ -129,9 +129,7 @@ namespace art {
     readProvenanceImmediate() const
     {
       for (auto const& val : groups_) {
-        if (!val.second->onDemand()) {
-          (void) val.second->productProvenancePtr();
-        }
+        (void) val.second->productProvenancePtr();
       }
       branchMapperPtr_->setDelayedRead(false);
     }
@@ -238,15 +236,7 @@ namespace art {
       assert(!bd.moduleLabel().empty());
       assert(!bd.processName().empty());
       group->setResolvers(branchMapper(), *store_);
-      // Would dearly love to use:
-      //      groups_[bd.branchID()] = std::move(group);
-      // However, this leads to bad things for on-demand
-      // reconstruction--for some reason the 'replace' function is
-      // necessary to ensure accurately working unscheduled
-      // reconstruction.  I would like to find a way to fix this in
-      // the future, should on-demand reconstruction need to be
-      // retained.
-      groups_[bd.branchID()]->replace(*group);
+      groups_[bd.branchID()] = std::move(group);
     }
 
     int
@@ -263,8 +253,7 @@ namespace art {
 
     cet::exempt_ptr<Group const> const
     getResolvedGroup(BranchID const bid,
-                     bool resolveProd,
-                     bool fillOnDemand) const;
+                     bool resolveProd) const;
 
   private: // MEMBER FUNCTIONS
 
