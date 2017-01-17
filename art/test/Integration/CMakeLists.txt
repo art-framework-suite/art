@@ -337,10 +337,10 @@ foreach(num 02 03 04)
   )
 endforeach()
 
-cet_test_assertion("outR \\\\|\\\\| inR"
+cet_test_assertion("outR || inR"
   ToyRawInput_t_02
   )
-cet_test_assertion("outSR \\\\|\\\\| inSR"
+cet_test_assertion("outSR || inSR"
   ToyRawInput_t_03
   ToyRawInput_t_04
   )
