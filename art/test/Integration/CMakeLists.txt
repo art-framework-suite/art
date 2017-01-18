@@ -309,96 +309,6 @@ cet_test(ToyProductProducerAnalyzer_t HANDBUILT
   fcl/toyProductProducerAnalyzer_t.fcl
   )
 
-cet_test(ToyRawInput_t_01 HANDBUILT
-  TEST_EXEC art
-  TEST_ARGS --rethrow-all -c ToyRawInput_01.fcl
-  DATAFILES
-  fcl/ToyRawInput_01.fcl
-)
-
-cet_test(ToyRawInput_OutputCheck_t_01 HANDBUILT
-  TEST_EXEC file_info_dumper
-  TEST_ARGS
-  --range-of-validity
-  --file-index
-  "../ToyRawInput_t_01.d/out.root"
-  REF "${CMAKE_CURRENT_SOURCE_DIR}/ToyRawInput_t_01-ref.txt"
-  TEST_PROPERTIES
-  DEPENDS ToyRawInput_t_01
-  )
-
-foreach(num 02 03 04)
-  cet_test(ToyRawInput_t_${num} HANDBUILT
-    TEST_EXEC test_must_abort
-    TEST_ARGS art -c ToyRawInput_${num}.fcl
-    DATAFILES
-    fcl/ToyRawInput_${num}.fcl
-    fcl/ToyRawInput_common.fcl
-  )
-endforeach()
-
-cet_test_assertion("outR || inR"
-  ToyRawInput_t_02
-  )
-cet_test_assertion("outSR || inSR"
-  ToyRawInput_t_03
-  ToyRawInput_t_04
-  )
-
-foreach(num 01 02 03)
-  cet_test(ToyProductProducerMultiput_t_${num} HANDBUILT
-    TEST_EXEC art
-    TEST_ARGS --rethrow-all -c ToyProductProducerMultiput_t_${num}.fcl
-    DATAFILES
-    fcl/ToyProductProducerMultiput_t_${num}.fcl
-    TEST_PROPERTIES
-    PASS_REGULAR_EXPRESSION "Attempt to put multiple products with the"
-    PASS_REGULAR_EXPRESSION "following description onto the"
-    )
-endforeach()
-
-
-foreach(num 05 06 07 08 09 10 11 12)
-  cet_test(ToyRawInput_t_${num} HANDBUILT
-    TEST_EXEC art
-    TEST_ARGS --rethrow-all -c ToyRawInput_${num}.fcl
-    DATAFILES
-    fcl/ToyRawInput_${num}.fcl
-    fcl/ToyRawInput_common.fcl
-  )
-endforeach()
-
-
-SET_TESTS_PROPERTIES(ToyRawInput_t_05 PROPERTIES
-  PASS_REGULAR_EXPRESSION
-  "readNext returned a 'new' SubRun that was the same as the previous SubRun"
-)
-
-SET_TESTS_PROPERTIES(ToyRawInput_t_06 PROPERTIES
-  PASS_REGULAR_EXPRESSION
-  "readNext returned a 'new' Run that was the same as the previous Run"
-)
-
-SET_TESTS_PROPERTIES(ToyRawInput_t_07 PROPERTIES
-  PASS_REGULAR_EXPRESSION
-  "readNext returned a new Run and Event without a SubRun"
-)
-
-SET_TESTS_PROPERTIES(ToyRawInput_t_08 PROPERTIES
-  PASS_REGULAR_EXPRESSION
-  "readNext returned true but created no new data"
-)
-
-SET_TESTS_PROPERTIES(ToyRawInput_t_09 PROPERTIES
-  PASS_REGULAR_EXPRESSION
-  "readNext returned false but created new data"
-)
-
-SET_TESTS_PROPERTIES(ToyRawInput_t_10 PROPERTIES
-  PASS_REGULAR_EXPRESSION
-  "readNext returned a new Run with a SubRun from the wrong Run"
-)
-
 cet_test(ToyRawInput_w HANDBUILT
   TEST_EXEC art
   TEST_ARGS --rethrow-all -c ToyRawInput_w.fcl
@@ -473,6 +383,94 @@ cet_test(ToyRawFileInput_r3 HANDBUILT
   fcl/ToyRawInput_r1.fcl
   TEST_PROPERTIES DEPENDS ToyRawFileInput_w
 )
+
+cet_test(ToyRawInput_t_01 HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --rethrow-all -c ToyRawInput_01.fcl
+  DATAFILES
+  fcl/ToyRawInput_01.fcl
+)
+
+cet_test(ToyRawInput_OutputCheck_t_01 HANDBUILT
+  TEST_EXEC file_info_dumper
+  TEST_ARGS
+  --range-of-validity
+  --file-index
+  "../ToyRawInput_t_01.d/out.root"
+  REF "${CMAKE_CURRENT_SOURCE_DIR}/ToyRawInput_t_01-ref.txt"
+  TEST_PROPERTIES
+  DEPENDS ToyRawInput_t_01
+  )
+
+foreach(num 02 03 04 11 12)
+  cet_test(ToyRawInput_t_${num} HANDBUILT
+    TEST_EXEC test_must_abort
+    TEST_ARGS art -c ToyRawInput_${num}.fcl
+    DATAFILES
+    fcl/ToyRawInput_${num}.fcl
+    fcl/ToyRawInput_common.fcl
+  )
+endforeach()
+
+cet_test_assertion("outR || inR"
+  ToyRawInput_t_02
+  ToyRawInput_t_03
+  ToyRawInput_t_04
+  ToyRawInput_t_11
+  )
+cet_test_assertion("outSR || inSR" ToyRawInput_t_12)
+
+foreach(num 05 06 07 08 09 10)
+  cet_test(ToyRawInput_t_${num} HANDBUILT
+    TEST_EXEC art
+    TEST_ARGS --rethrow-all -c ToyRawInput_${num}.fcl
+    DATAFILES
+    fcl/ToyRawInput_${num}.fcl
+    fcl/ToyRawInput_common.fcl
+  )
+endforeach()
+
+SET_TESTS_PROPERTIES(ToyRawInput_t_05 PROPERTIES
+  PASS_REGULAR_EXPRESSION
+  "readNext returned a 'new' SubRun that was the same as the previous SubRun"
+)
+
+SET_TESTS_PROPERTIES(ToyRawInput_t_06 PROPERTIES
+  PASS_REGULAR_EXPRESSION
+  "readNext returned a 'new' Run that was the same as the previous Run"
+)
+
+SET_TESTS_PROPERTIES(ToyRawInput_t_07 PROPERTIES
+  PASS_REGULAR_EXPRESSION
+  "readNext returned a new Run and Event without a SubRun"
+)
+
+SET_TESTS_PROPERTIES(ToyRawInput_t_08 PROPERTIES
+  PASS_REGULAR_EXPRESSION
+  "readNext returned true but created no new data"
+)
+
+SET_TESTS_PROPERTIES(ToyRawInput_t_09 PROPERTIES
+  PASS_REGULAR_EXPRESSION
+  "readNext returned false but created new data"
+)
+
+SET_TESTS_PROPERTIES(ToyRawInput_t_10 PROPERTIES
+  PASS_REGULAR_EXPRESSION
+  "readNext returned a new Run with a SubRun from the wrong Run"
+)
+
+foreach(num 01 02 03)
+  cet_test(ToyProductProducerMultiput_t_${num} HANDBUILT
+    TEST_EXEC art
+    TEST_ARGS --rethrow-all -c ToyProductProducerMultiput_t_${num}.fcl
+    DATAFILES
+    fcl/ToyProductProducerMultiput_t_${num}.fcl
+    TEST_PROPERTIES
+    PASS_REGULAR_EXPRESSION "Attempt to put multiple products with the"
+    PASS_REGULAR_EXPRESSION "following description onto the"
+    )
+endforeach()
 
 cet_test(BareString_w HANDBUILT
   TEST_EXEC art

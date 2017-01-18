@@ -14,7 +14,7 @@
 // call along the lines of:
 //
 // namespace arttest {
-//  typedef art::Source<GeneratorTestDetail> GeneratorTest;
+//   typedef art::Source<GeneratorTestDetail> GeneratorTest;
 // }
 //
 // DEFINE_ART_INPUT_SOURCE(arttest::GeneratorTest)
@@ -38,9 +38,9 @@
 //    configuration file. The ProductRegistryHelper must be used to
 //    register products to be reconstituted by this source.
 //
-//      T(fhicl::ParameterSet const &,
-//        art::ProductRegistryHelper &,
-//        art::SourceHelper const &);
+//      T(fhicl::ParameterSet const&,
+//        art::ProductRegistryHelper&,
+//        art::SourceHelper const&);
 //
 //    * Open the file of the given name, returning a new fileblock in
 //    fb. If readFile is unable to return a valid FileBlock it should
@@ -126,7 +126,7 @@ namespace art {
 
     template <typename T>
     struct do_call_hasMoreData {
-      bool operator()(T & t)
+      bool operator()(T& t)
       {
         return t.hasMoreData();
       }
@@ -134,7 +134,7 @@ namespace art {
 
     template <typename T>
     struct do_not_call_hasMoreData {
-      bool operator()(T &)
+      bool operator()(T&)
       {
         return false;
       }
@@ -146,19 +146,19 @@ namespace art {
 template <class T>
 class art::Source final : public art::InputSource {
 public:
-  Source(Source<T> const &) = delete;
-  Source<T> & operator=(Source<T> const &) = delete;
+  Source(Source<T> const&) = delete;
+  Source<T>& operator=(Source<T> const&) = delete;
 
   typedef T SourceDetail;
 
-  Source(fhicl::ParameterSet const & p,
-         InputSourceDescription & d);
+  Source(fhicl::ParameterSet const& p,
+         InputSourceDescription& d);
 
   input::ItemType nextItemType() override;
   RunID run() const override;
   SubRunID subRun() const override;
 
-  std::unique_ptr<FileBlock> readFile(MasterProductRegistry & mpr) override;
+  std::unique_ptr<FileBlock> readFile(MasterProductRegistry& mpr) override;
   void closeFile() override;
 
   std::unique_ptr<RunPrincipal> readRun() override;
@@ -187,13 +187,12 @@ private:
 
   std::unique_ptr<RunPrincipal> newRP_ {nullptr};
   std::unique_ptr<SubRunPrincipal> newSRP_ {nullptr};
+  std::unique_ptr<EventPrincipal> newE_ {nullptr};
 
+  // Cached Run and SubRun Principals used for users creating new
+  // SubRun and Event Principals.  These are non owning!
   cet::exempt_ptr<RunPrincipal> cachedRP_ {nullptr};
   cet::exempt_ptr<SubRunPrincipal> cachedSRP_ {nullptr};
-
-  std::unique_ptr<EventPrincipal> cachedE_ {nullptr};
-  std::unique_ptr<RangeSetHandler> cachedRunRangeSetHandler_ {nullptr};
-  std::unique_ptr<RangeSetHandler> cachedSubRunRangeSetHandler_ {nullptr};
 
   bool pendingSubRun_ {false};
   bool pendingEvent_ {false};
@@ -207,7 +206,7 @@ private:
 
   // Called in the constructor, to finish the process of product
   // registration.
-  void finishProductRegistration_(InputSourceDescription & d);
+  void finishProductRegistration_(InputSourceDescription& d);
 
   // Make detail_ try to read more stuff from its file. Cache any new
   // run/subrun/event. Throw an exception if we detect an error in the
@@ -390,22 +389,20 @@ art::Source<T>::readNext_()
     pendingEvent_  = newE.get() != nullptr;
     if (newR) {
       newRP_ = std::move(newR);
-      cachedRunRangeSetHandler_ = std::make_unique<OpenRangeSetHandler>(newRP_->run());
     }
     if (newSR) {
       auto rp = newRP_ ? newRP_.get() : cachedRP_.get();
       newSR->setRunPrincipal(rp);
       newSRP_ = std::move(newSR);
-      cachedSubRunRangeSetHandler_ = std::make_unique<OpenRangeSetHandler>(newSRP_->run());
     }
     auto srp = newSRP_ ? newSRP_.get() : cachedSRP_.get();
     newE->setSubRunPrincipal(srp);
-    cachedE_ = std::move(newE);
+    newE_ = std::move(newE);
     if (newRP_)
     { state_ = input::IsRun; }
     else if (newSRP_)
     { state_ = input::IsSubRun; }
-    else if (cachedE_.get())
+    else if (newE_)
     { state_ = input::IsEvent; }
   }
   return result;
@@ -458,7 +455,7 @@ art::Source<T>::nextItemType()
             << "Input file '"
             << currentFileName_
             << "' contains an Event "
-            << cachedE_->id()
+            << newE_->id()
             << " that belongs to no SubRun\n";
       else
       { readNextAndRequireRun_(); }
@@ -542,7 +539,7 @@ template <class T>
 std::unique_ptr<art::RangeSetHandler>
 art::Source<T>::runRangeSetHandler()
 {
-  return std::move(cachedRunRangeSetHandler_);
+  return std::make_unique<OpenRangeSetHandler>(cachedRP_->run());
 }
 
 template <class T>
@@ -560,7 +557,7 @@ template <class T>
 std::unique_ptr<art::RangeSetHandler>
 art::Source<T>::subRunRangeSetHandler()
 {
-  return std::move(cachedSubRunRangeSetHandler_);
+  return std::make_unique<OpenRangeSetHandler>(cachedSRP_->run());
 }
 
 
@@ -622,17 +619,17 @@ std::unique_ptr<art::EventPrincipal>
 art::Source<T>::readEvent(cet::exempt_ptr<SubRunPrincipal>)
 {
   if (haveEventLimit_) { --remainingEvents_; }
-  return std::move(cachedE_);
+  return std::move(newE_);
 }
 
 template <class T>
 void
-art::Source<T>::finishProductRegistration_(InputSourceDescription & d)
+art::Source<T>::finishProductRegistration_(InputSourceDescription& d)
 {
   // These _xERROR_ strings should never appear in branch names; they
   // are here as tracers to help identify any failures in coding.
   h_.registerProducts(d.productRegistry,
-                      ModuleDescription{fhicl::ParameterSet().id(), // Dummy
+                      ModuleDescription{fhicl::ParameterSet{}.id(), // Dummy
                                         "_NAMEERROR_",
                                         "_LABELERROR_",
                                         d.moduleDescription.processConfiguration()});
