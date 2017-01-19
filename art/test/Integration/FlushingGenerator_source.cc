@@ -25,11 +25,11 @@ public:
 
   void readFile(std::string const & name, art::FileBlock *& fb);
 
-  bool readNext(art::RunPrincipal * const & inR,
-                art::SubRunPrincipal * const & inSR,
-                art::RunPrincipal *& outR,
-                art::SubRunPrincipal *& outSR,
-                art::EventPrincipal *& outE);
+  bool readNext(art::RunPrincipal const* const inR,
+                art::SubRunPrincipal const* const inSR,
+                art::RunPrincipal*& outR,
+                art::SubRunPrincipal*& outSR,
+                art::EventPrincipal*& outE);
 
 private:
   bool readFileCalled_;
@@ -39,9 +39,9 @@ private:
 };
 
 arttest::FlushingGeneratorDetail::
-FlushingGeneratorDetail(fhicl::ParameterSet const &,
-                        art::ProductRegistryHelper &,
-                        art::SourceHelper const & sHelper)
+FlushingGeneratorDetail(fhicl::ParameterSet const&,
+                        art::ProductRegistryHelper&,
+                        art::SourceHelper const& sHelper)
   :
   readFileCalled_(false),
   sHelper_(sHelper),
@@ -68,8 +68,8 @@ readFile(std::string const & name, art::FileBlock *& fb)
 
 bool
 arttest::FlushingGeneratorDetail::
-readNext(art::RunPrincipal * const & inR,
-         art::SubRunPrincipal * const & inSR,
+readNext(art::RunPrincipal const* const inR,
+         art::SubRunPrincipal const* const inSR,
          art::RunPrincipal *& outR,
          art::SubRunPrincipal *& outSR,
          art::EventPrincipal *& outE)

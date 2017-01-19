@@ -44,8 +44,8 @@ arttest::ToySource::closeCurrentFile()
 }
 
 bool
-arttest::ToySource::readNext(art::RunPrincipal* const& inR,
-                             art::SubRunPrincipal* const& inSR,
+arttest::ToySource::readNext(art::RunPrincipal const* const inR,
+                             art::SubRunPrincipal const* const inSR,
                              art::RunPrincipal*& outR,
                              art::SubRunPrincipal*& outSR,
                              art::EventPrincipal*& outE)

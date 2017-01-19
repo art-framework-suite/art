@@ -142,6 +142,7 @@ public:
   using HandleT = Handle<T>;
 
 private:
+
   EventPrincipal const& eventPrincipal() const { return eventPrincipal_; }
   EventPrincipal      & eventPrincipal()       { return eventPrincipal_; }
 

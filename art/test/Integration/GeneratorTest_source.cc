@@ -27,8 +27,8 @@ public:
 
   void readFile(std::string const& name, art::FileBlock*& fb);
 
-  bool readNext(art::RunPrincipal* const& inR,
-                art::SubRunPrincipal* const& inSR,
+  bool readNext(art::RunPrincipal const* const inR,
+                art::SubRunPrincipal const* const inSR,
                 art::RunPrincipal*& outR,
                 art::SubRunPrincipal*& outSR,
                 art::EventPrincipal*& outE);
@@ -67,8 +67,8 @@ readFile(std::string const& name, art::FileBlock*& fb)
 
 bool
 arttest::GeneratorTestDetail::
-readNext(art::RunPrincipal* const& inR,
-         art::SubRunPrincipal* const& inSR,
+readNext(art::RunPrincipal const* const inR,
+         art::SubRunPrincipal const* const inSR,
          art::RunPrincipal*& outR,
          art::SubRunPrincipal*& outSR,
          art::EventPrincipal*& outE)
