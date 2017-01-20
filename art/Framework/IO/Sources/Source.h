@@ -395,9 +395,11 @@ art::Source<T>::readNext_()
       newSR->setRunPrincipal(rp);
       newSRP_ = std::move(newSR);
     }
-    auto srp = newSRP_ ? newSRP_.get() : cachedSRP_.get();
-    newE->setSubRunPrincipal(srp);
-    newE_ = std::move(newE);
+    if (newE) {
+      auto srp = newSRP_ ? newSRP_.get() : cachedSRP_.get();
+      newE->setSubRunPrincipal(srp);
+      newE_ = std::move(newE);
+    }
     if (newRP_)
     { state_ = input::IsRun; }
     else if (newSRP_)
