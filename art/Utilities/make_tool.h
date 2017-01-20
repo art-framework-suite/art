@@ -10,16 +10,6 @@
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 namespace art {
-  namespace detail {
-    inline void unsupported_feature_warning() {
-      mf::LogAbsolute("Unsupported") << "==============================================\n"
-                                     << "!!!           Unsupported feature          !!!\n"
-                                     << "----------------------------------------------\n"
-                                     << "The tool feature is undocumented, unsupported,\n"
-                                     << "and unstable.  Do not use it!\n"
-                                     << "==============================================\n";
-    }
-  }
 
   template <typename T>
   using tool_return_type = typename detail::tool_type<T>::return_type;
@@ -28,7 +18,6 @@ namespace art {
   std::enable_if_t<std::is_class<T>::value, tool_return_type<T>>
   make_tool(fhicl::ParameterSet const& pset)
   {
-    detail::unsupported_feature_warning();
     cet::BasicPluginFactory factory {Suffixes::tool(), "makeTool"};
     std::string const libspec {pset.get<std::string>("tool_type")};
     tool_return_type<T> result;
@@ -46,7 +35,6 @@ namespace art {
   std::enable_if_t<std::is_function<T>::value, tool_return_type<T>>
   make_tool(fhicl::ParameterSet const& pset, std::string const& function_tool_type)
   {
-    detail::unsupported_feature_warning();
     cet::BasicPluginFactory factory {Suffixes::tool(), "toolFunction", "toolType"};
     std::string const libspec {pset.get<std::string>("tool_type")};
     tool_return_type<T> result;
