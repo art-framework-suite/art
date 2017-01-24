@@ -1,0 +1,6 @@
+BEGIN_PROLOG
+scheduler: {
+  handleEmptyRuns: true
+  handleEmptySubRuns: false
+}
+END_PROLOG

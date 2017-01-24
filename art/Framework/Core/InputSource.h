@@ -16,22 +16,37 @@
 #include "cetlib/exempt_ptr.h"
 
 #include <memory>
+#include <ostream>
 
 namespace art
 {
   class MasterProductRegistry;
 
-  namespace input
-  {
-    enum ItemType
-      {
-        IsInvalid,
-        IsStop,
-        IsFile,
-        IsRun,
-        IsSubRun,
-        IsEvent
-      };
+  namespace input {
+    enum ItemType {IsInvalid, IsStop, IsFile, IsRun, IsSubRun, IsEvent};
+    inline std::ostream& operator<<(std::ostream& os, ItemType const it)
+    {
+      switch(it) {
+      case IsInvalid:
+        os << "Invalid";
+        break;
+      case IsStop:
+        os << "Stop";
+        break;
+      case IsFile:
+        os << "InputFile";
+        break;
+      case IsRun:
+        os << "Run";
+        break;
+      case IsSubRun:
+        os << "SubRun";
+        break;
+      case IsEvent:
+        os << "Event";
+      }
+      return os;
+    }
   }
 
   class InputSource

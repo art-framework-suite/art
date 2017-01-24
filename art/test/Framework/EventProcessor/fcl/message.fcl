@@ -1,0 +1,19 @@
+BEGIN_PROLOG
+message: {
+  destinations: {
+    STDOUT: {
+      categories: {
+        ArtReport: {
+          limit: 100
+        }
+        default: {
+          limit: -1
+        }
+      }
+      // Suppress all possible messages
+      threshold: "HIGHEST"
+      type: cout
+    }
+  }
+}
+END_PROLOG

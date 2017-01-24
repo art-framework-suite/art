@@ -1,0 +1,20 @@
+#include "message.fcl"
+#include "handleEmptyRunsAndSubRuns_@HANDLEEMPTY@.fcl"
+source: {
+  module_type: EventProcessorTest
+  fileNames: @nil
+}
+services: {
+  message: @local::message
+  scheduler: @local::scheduler
+}
+physics.e1: [o1]
+outputs.o1: {
+  module_type: EventProcessorTestOutput
+  switchAfter: [
+    ["a_11.txt", [1,1,1]],
+    ["a_11.txt", []],
+    ["b_11.txt", [1,1,5]],
+    ["c_11.txt", [2,0]]
+  ]
+}

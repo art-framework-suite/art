@@ -133,6 +133,8 @@ namespace {
     return std::unique_ptr<art::InputSource>();
   }
 
+  std::string spaces(unsigned const n) { return std::string(n,' '); }
+
 }
 
 art::EventProcessor::EventProcessor(ParameterSet const& pset)
@@ -185,7 +187,7 @@ art::EventProcessor::~EventProcessor()
 void
 art::EventProcessor::beginJob()
 {
-  FDEBUG(1) << "\tbeginJob\n";
+  FDEBUG(1) << spaces(8) << "beginJob\n";
   breakpoints::beginJob();
   // make the services available
   ServiceRegistry::Operate op {serviceToken_};
@@ -225,7 +227,7 @@ art::EventProcessor::beginJob()
 void
 art::EventProcessor::endJob()
 {
-  FDEBUG(1) << "\tendJob\n";
+  FDEBUG(1) << spaces(8) << "endJob\n";
   // Collects exceptions, so we don't throw before all operations are performed.
   cet::exception_collector c;
   // Make the services available
@@ -240,10 +242,9 @@ art::EventProcessor::endJob()
 }
 
 art::ServiceDirector
-art::EventProcessor::
-initServices_(ParameterSet const& top_pset,
-              ActivityRegistry& areg,
-              ServiceToken& token)
+art::EventProcessor::initServices_(ParameterSet const& top_pset,
+                                   ActivityRegistry& areg,
+                                   ServiceToken& token)
 {
   auto services = top_pset.get<ParameterSet>("services", {});
 
@@ -278,8 +279,7 @@ initServices_(ParameterSet const& top_pset,
 }
 
 void
-art::EventProcessor::
-initSchedules_(ParameterSet const& pset)
+art::EventProcessor::initSchedules_(ParameterSet const& pset)
 {
   // Initialize TBB with desired number of threads.
   int const num_threads = pset.get<int>("services.num_threads",
@@ -296,8 +296,7 @@ initSchedules_(ParameterSet const& pset)
 }
 
 void
-art::EventProcessor::
-invokePostBeginJobWorkers_()
+art::EventProcessor::invokePostBeginJobWorkers_()
 {
   // Need to convert multiple lists of workers into a long list that the
   // postBeginJobWorkers callbacks can understand.
@@ -335,7 +334,7 @@ art::EventProcessor::runToCompletion()
   try {
     while (true) {
       auto const itemType = input_->nextItemType();
-      FDEBUG(1) << "itemType = " << itemType << "\n";
+      FDEBUG(1) << spaces(4) << "*** nextItemType: " << itemType << " ***\n";
       // Look for a shutdown signal
       {
         boost::mutex::scoped_lock sl(usr2_lock);
@@ -471,7 +470,7 @@ art::EventProcessor::runToCompletion()
         << exceptionMessageFiles_;
   }
   if (machine_->terminated()) {
-    FDEBUG(1) << "The state machine reports it has been terminated\n";
+    FDEBUG(2) << "The state machine reports it has been terminated\n";
   }
   if (stateMachineWasInErrorState_) {
     throw cet::exception("BadState")
@@ -485,7 +484,7 @@ void
 art::EventProcessor::openInputFile()
 {
   actReg_.sPreOpenFile.invoke();
-  FDEBUG(1) << "\topenInputFile\n";
+  FDEBUG(1) << spaces(8) << "openInputFile\n";
   fb_ = input_->readFile(preg_);
   if (!fb_) {
     throw Exception(errors::LogicError)
@@ -500,42 +499,42 @@ art::EventProcessor::closeInputFile()
 {
   SignalSentry fileCloseSentry {actReg_.sPreCloseFile, actReg_.sPostCloseFile};
   input_->closeFile();
-  FDEBUG(1) << "\tcloseInputFile\n";
+  FDEBUG(1) << spaces(8) << "closeInputFile\n";
 }
 
 void
 art::EventProcessor::openAllOutputFiles()
 {
   endPathExecutor_->openAllOutputFiles(*fb_);
-  FDEBUG(1) << "\topenAllOutputFiles\n";
+  FDEBUG(1) << spaces(8) << "openAllOutputFiles\n";
 }
 
 void
 art::EventProcessor::closeAllOutputFiles()
 {
   endPathExecutor_->closeAllOutputFiles();
-  FDEBUG(1) << "\tcloseAllOutputFiles\n";
+  FDEBUG(1) << spaces(8) << "closeAllOutputFiles\n";
 }
 
 void
 art::EventProcessor::openSomeOutputFiles()
 {
   endPathExecutor_->openSomeOutputFiles(*fb_);
-  FDEBUG(1) << "\topenSomeOutputFiles\n";
+  FDEBUG(1) << spaces(8) << "openSomeOutputFiles\n";
 }
 
 void
 art::EventProcessor::setOutputFileStatus(OutputFileStatus const ofs)
 {
   endPathExecutor_->setOutputFileStatus(ofs);
-  FDEBUG(1) << "\tsetOutputFileStatus\n";
+  FDEBUG(1) << spaces(8) << "setOutputFileStatus\n";
 }
 
 void
 art::EventProcessor::closeSomeOutputFiles()
 {
   endPathExecutor_->closeSomeOutputFiles();
-  FDEBUG(1) << "\tcloseSomeOutputFiles\n";
+  FDEBUG(1) << spaces(8) << "closeSomeOutputFiles\n";
 }
 
 void
@@ -543,7 +542,7 @@ art::EventProcessor::respondToOpenInputFile()
 {
   schedule_->respondToOpenInputFile(*fb_);
   endPathExecutor_->respondToOpenInputFile(*fb_);
-  FDEBUG(1) << "\trespondToOpenInputFile\n";
+  FDEBUG(1) << spaces(8) << "respondToOpenInputFile\n";
 }
 
 void
@@ -551,7 +550,7 @@ art::EventProcessor::respondToCloseInputFile()
 {
   schedule_->respondToCloseInputFile(*fb_);
   endPathExecutor_->respondToCloseInputFile(*fb_);
-  FDEBUG(1) << "\trespondToCloseInputFile\n";
+  FDEBUG(1) << spaces(8) << "respondToCloseInputFile\n";
 }
 
 void
@@ -559,7 +558,7 @@ art::EventProcessor::respondToOpenOutputFiles()
 {
   schedule_->respondToOpenOutputFiles(*fb_);
   endPathExecutor_->respondToOpenOutputFiles(*fb_);
-  FDEBUG(1) << "\trespondToOpenOutputFiles\n";
+  FDEBUG(1) << spaces(8) << "respondToOpenOutputFiles\n";
 }
 
 void
@@ -567,20 +566,20 @@ art::EventProcessor::respondToCloseOutputFiles()
 {
   schedule_->respondToCloseOutputFiles(*fb_);
   endPathExecutor_->respondToCloseOutputFiles(*fb_);
-  FDEBUG(1) << "\trespondToCloseOutputFiles\n";
+  FDEBUG(1) << spaces(8) << "respondToCloseOutputFiles\n";
 }
 
 void
 art::EventProcessor::rewindInput()
 {
   input_->rewind();
-  FDEBUG(1) << "\trewind\n";
+  FDEBUG(1) << spaces(8) << "rewind\n";
 }
 
 void
 art::EventProcessor::doErrorStuff()
 {
-  FDEBUG(1) << "\tdoErrorStuff\n";
+  FDEBUG(1) << spaces(8) << "doErrorStuff\n";
   mf::LogError("StateMachine")
       << "The EventProcessor state machine encountered an unexpected event\n"
       "and went to the error state\n"
@@ -596,7 +595,7 @@ art::EventProcessor::beginRun()
   RunID const run {runPrincipal_->id()};
   assert(!run.isFlush());
   process_<Begin<Level::Run>>(*runPrincipal_);
-  FDEBUG(1) << "\tbeginRun....................(" << run << ")\n";
+  FDEBUG(1) << spaces(8) << "beginRun....................(" << run << ")\n";
 }
 
 void
@@ -606,7 +605,7 @@ art::EventProcessor::endRun()
   RunID const run {runPrincipal_->id()};
   assert(!run.isFlush());
   process_<End<Level::Run>>(*runPrincipal_);
-  FDEBUG(1) << "\tendRun......................(" << run << ")\n";
+  FDEBUG(1) << spaces(8) << "endRun......................(" << run << ")\n";
 }
 
 void
@@ -616,7 +615,7 @@ art::EventProcessor::beginSubRun()
   SubRunID const sr {subRunPrincipal_->id()};
   assert(!sr.isFlush());
   process_<Begin<Level::SubRun>>(*subRunPrincipal_);
-  FDEBUG(1) << "\tbeginSubRun.................(" << sr <<")\n";
+  FDEBUG(1) << spaces(8) << "beginSubRun.................(" << sr <<")\n";
 }
 
 void
@@ -626,7 +625,7 @@ art::EventProcessor::endSubRun()
   SubRunID const sr {subRunPrincipal_->id()};
   assert(!sr.isFlush());
   process_<End<Level::SubRun>>(*subRunPrincipal_);
-  FDEBUG(1) << "\tendSubRun...................(" << sr << ")\n";
+  FDEBUG(1) << spaces(8) << "endSubRun...................(" << sr << ")\n";
 }
 
 art::RunID
@@ -653,7 +652,7 @@ art::EventProcessor::readRun()
   SignalSentry runSourceSentry {actReg_.sPreSourceRun, actReg_.sPostSourceRun};
   runPrincipal_ = input_->readRun();
   endPathExecutor_->seedRunRangeSet(input_->runRangeSetHandler());
-  FDEBUG(1) << "\treadRun.....................(" << runPrincipalID() << ")\n";
+  FDEBUG(1) << spaces(8) << "readRun.....................(" << runPrincipalID() << ")\n";
   return runPrincipalID();
 }
 
@@ -663,7 +662,7 @@ art::EventProcessor::readSubRun()
   SignalSentry subRunSourceSentry {actReg_.sPreSourceSubRun, actReg_.sPostSourceSubRun};
   subRunPrincipal_ = input_->readSubRun(runPrincipal_.get());
   endPathExecutor_->seedSubRunRangeSet(input_->subRunRangeSetHandler());
-  FDEBUG(1) << "\treadSubRun..................(" << subRunPrincipalID() << ")\n";
+  FDEBUG(1) << spaces(8) << "readSubRun..................(" << subRunPrincipalID() << ")\n";
   return subRunPrincipalID();
 }
 
@@ -671,7 +670,7 @@ void
 art::EventProcessor::setRunAuxiliaryRangeSetID()
 {
   endPathExecutor_->setAuxiliaryRangeSetID(*runPrincipal_);
-  FDEBUG(1) << "\tsetRunAuxiliaryRangeSetID...(" << runPrincipalID() << ")\n";
+  FDEBUG(1) << spaces(8) << "setRunAuxiliaryRangeSetID...(" << runPrincipalID() << ")\n";
 }
 
 void
@@ -681,14 +680,14 @@ art::EventProcessor::writeRun()
   RunID const r {runPrincipal_->id()};
   assert(!r.isFlush());
   endPathExecutor_->writeRun(*runPrincipal_);
-  FDEBUG(1) << "\twriteRun....................(" << r << ")\n";
+  FDEBUG(1) << spaces(8) << "writeRun....................(" << r << ")\n";
 }
 
 void
 art::EventProcessor::setSubRunAuxiliaryRangeSetID()
 {
   endPathExecutor_->setAuxiliaryRangeSetID(*subRunPrincipal_);
-  FDEBUG(1) << "\tsetSubRunAuxiliaryRangeSetID(" << subRunPrincipalID() << ")\n";
+  FDEBUG(1) << spaces(8) << "setSubRunAuxiliaryRangeSetID(" << subRunPrincipalID() << ")\n";
 }
 
 void
@@ -698,7 +697,7 @@ art::EventProcessor::writeSubRun()
   SubRunID const& sr {subRunPrincipal_->id()};
   assert(!sr.isFlush());
   endPathExecutor_->writeSubRun(*subRunPrincipal_);
-  FDEBUG(1) << "\twriteSubRun.................(" << sr << ")\n";
+  FDEBUG(1) << spaces(8) << "writeSubRun.................(" << sr << ")\n";
 }
 
 art::EventID
@@ -706,7 +705,7 @@ art::EventProcessor::readEvent()
 {
   SignalSentry sourceSentry {actReg_.sPreSource, actReg_.sPostSource};
   eventPrincipal_ = input_->readEvent(subRunPrincipal_.get());
-  FDEBUG(1) << "\treadEvent....................(" << eventPrincipalID() << ")\n";
+  FDEBUG(1) << spaces(8) << "readEvent...................(" << eventPrincipalID() << ")\n";
   return eventPrincipalID();
 }
 
@@ -717,7 +716,7 @@ art::EventProcessor::processEvent()
   // Precondition: The EventID does not correspond to a flush ID.
   assert(!id.isFlush());
   process_<Do<Level::Event>>(*eventPrincipal_);
-  FDEBUG(1) << "\tprocessEvent.................(" << id << ")\n";
+  FDEBUG(1) << spaces(8) << "processEvent................(" << id << ")\n";
 }
 
 void
@@ -727,7 +726,7 @@ art::EventProcessor::writeEvent()
   // Precondition: The EventID does not correspond to a flush ID.
   assert(!id.isFlush());
   endPathExecutor_->writeEvent(*eventPrincipal_);
-  FDEBUG(1) << "\twriteEvent...................(" << id << ")\n";
+  FDEBUG(1) << spaces(8) << "writeEvent..................(" << id << ")\n";
   eventPrincipal_.reset();
 }
 
@@ -764,7 +763,7 @@ art::EventProcessor::someOutputsOpen() const
 bool
 art::EventProcessor::shouldWeStop() const
 {
-  FDEBUG(1) << "\tshouldWeStop\n";
+  FDEBUG(1) << spaces(8) << "shouldWeStop\n";
   if (shouldWeStop_) { return true; }
   return endPathExecutor_->terminate();
 }
@@ -794,15 +793,13 @@ art::EventProcessor::alreadyHandlingException() const
 }
 
 bool
-art::EventProcessor::
-setTriggerPathEnabled(std::string const& name, bool const enable)
+art::EventProcessor::setTriggerPathEnabled(std::string const& name, bool const enable)
 {
   return schedule_->setTriggerPathEnabled(name, enable);
 }
 
 bool
-art::EventProcessor::
-setEndPathModuleEnabled(std::string const& label, bool const enable)
+art::EventProcessor::setEndPathModuleEnabled(std::string const& label, bool const enable)
 {
   return endPathExecutor_->setEndPathModuleEnabled(label, enable);
 }
@@ -827,7 +824,7 @@ art::EventProcessor::terminateMachine_()
     machine_->process_event(statemachine::Stop());
   }
   else {
-    FDEBUG(1) << "EventProcessor::terminateMachine_: The state machine was already terminated \n";
+    FDEBUG(2) << "EventProcessor::terminateMachine_: The state machine was already terminated \n";
   }
 }
 
