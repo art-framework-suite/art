@@ -12,4 +12,4 @@ namespace arttest {
   };
 }
 
-DEFINE_ART_TOOL_CLASS(arttest::MultiplyNumber)
+DEFINE_ART_CLASS_TOOL(arttest::MultiplyNumber)

@@ -26,4 +26,4 @@ namespace {
 
 }
 
-DEFINE_ART_TOOL_CLASS(AddNumber)
+DEFINE_ART_CLASS_TOOL(AddNumber)

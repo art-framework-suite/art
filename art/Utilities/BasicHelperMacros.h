@@ -65,7 +65,7 @@ namespace art {
     return art::detail::AllowedConfiguration< klass >::get(name);       \
   }
 
-#define PROVIDE_ALLOWED_CONFIGURATION_TOOL_FUNCTION()                   \
+#define PROVIDE_ALLOWED_CONFIGURATION_FUNCTION_TOOL()                   \
   std::unique_ptr<art::ConfigurationTable> allowed_configuration(std::string const& name) \
   {                                                                     \
     return std::make_unique<art::WrappedTable<art::detail::ToolConfig>>(fhicl::Name{name}); \

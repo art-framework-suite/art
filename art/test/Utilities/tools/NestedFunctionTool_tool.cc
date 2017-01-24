@@ -10,4 +10,4 @@ namespace arttest {
   }
 }
 
-DEFINE_ART_TOOL_FUNCTION(arttest::callThroughToAddOne, "callThroughToAddOne")
+DEFINE_ART_FUNCTION_TOOL(arttest::callThroughToAddOne, "callThroughToAddOne")
