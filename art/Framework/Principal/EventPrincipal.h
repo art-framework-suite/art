@@ -46,9 +46,8 @@ namespace art {
     // use compiler-generated copy c'tor, copy assignment.
 
     SubRunPrincipal const& subRunPrincipal() const;
-    SubRunPrincipal& subRunPrincipal();
 
-    cet::exempt_ptr<SubRunPrincipal> subRunPrincipalExemptPtr() { return subRunPrincipal_; }
+    cet::exempt_ptr<SubRunPrincipal const> subRunPrincipalExemptPtr() const { return subRunPrincipal_; }
     void setSubRunPrincipal(cet::exempt_ptr<SubRunPrincipal> srp) { subRunPrincipal_ = srp;  }
 
     EventID const& id() const { return aux().id(); }

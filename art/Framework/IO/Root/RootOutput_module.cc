@@ -279,7 +279,7 @@ art::RootOutput::
 readResults(ResultsPrincipal const& resp)
 {
   rpm_.for_each_RPWorker([&resp](RPWorker& w) {
-      Results const res {const_cast<ResultsPrincipal&>(resp), w.moduleDescription()};
+      Results const res {resp, w.moduleDescription()};
       w.rp().doReadResults(res);
     } );
 }
@@ -357,8 +357,8 @@ startEndFile()
     resp->addToProcessHistory();
   }
   rpm_.for_each_RPWorker([&resp](RPWorker& w) {
-      Results res{*resp, w.moduleDescription()};
-      w.rp().doWriteResults(res);
+      Results res {*resp, w.moduleDescription()};
+      w.rp().doWriteResults(*resp, res);
     } );
   rootOutputFile_->writeResults(*resp);
 }
@@ -558,7 +558,7 @@ art::RootOutput::
 event(EventPrincipal const& ep)
 {
   rpm_.for_each_RPWorker([&ep](RPWorker& w) {
-      Event const e{const_cast<EventPrincipal&>(ep), w.moduleDescription()};
+      Event const e {ep, w.moduleDescription()};
       w.rp().doEvent(e);
     });
 }
@@ -568,7 +568,7 @@ art::RootOutput::
 beginSubRun(art::SubRunPrincipal const& srp)
 {
   rpm_.for_each_RPWorker([&srp](RPWorker& w) {
-      SubRun const sr{const_cast<SubRunPrincipal&>(srp), w.moduleDescription()};
+      SubRun const sr {srp, w.moduleDescription()};
       w.rp().doBeginSubRun(sr);
     });
 }
@@ -578,7 +578,7 @@ art::RootOutput::
 endSubRun(art::SubRunPrincipal const& srp)
 {
   rpm_.for_each_RPWorker([&srp](RPWorker& w) {
-      SubRun const sr{const_cast<SubRunPrincipal&>(srp), w.moduleDescription()};
+      SubRun const sr {srp, w.moduleDescription()};
       w.rp().doEndSubRun(sr);
     });
 }
@@ -588,7 +588,7 @@ art::RootOutput::
 beginRun(art::RunPrincipal const& rp)
 {
   rpm_.for_each_RPWorker([&rp](RPWorker& w) {
-      Run const r{const_cast<RunPrincipal&>(rp), w.moduleDescription()};
+      Run const r {rp, w.moduleDescription()};
       w.rp().doBeginRun(r);
     });
 }
@@ -598,7 +598,7 @@ art::RootOutput::
 endRun(art::RunPrincipal const& rp)
 {
   rpm_.for_each_RPWorker([&rp](RPWorker& w) {
-      Run const r{const_cast<RunPrincipal&>(rp), w.moduleDescription()};
+      Run const r {rp, w.moduleDescription()};
       w.rp().doEndRun(r);
     });
 }

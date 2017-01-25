@@ -195,7 +195,7 @@ doBeginRun(RunPrincipal const & rp,
   detail::CPCSentry sentry{current_context_, cpc};
   FDEBUG(2) << "beginRun called\n";
   beginRun(rp);
-  Run const r {const_cast<RunPrincipal &>(rp), moduleDescription_};
+  Run const r {rp, moduleDescription_};
   cet::for_all(plugins_, [&r](auto& p){ p->doBeginRun(r); });
   return true;
 }
@@ -208,7 +208,7 @@ doBeginSubRun(SubRunPrincipal const& srp,
   detail::CPCSentry sentry {current_context_, cpc};
   FDEBUG(2) << "beginSubRun called\n";
   beginSubRun(srp);
-  SubRun const sr {const_cast<SubRunPrincipal&>(srp), moduleDescription_};
+  SubRun const sr {srp, moduleDescription_};
   cet::for_all(plugins_, [&sr](auto& p){ p->doBeginSubRun(sr); });
   return true;
 }
@@ -219,7 +219,7 @@ doEvent(EventPrincipal const& ep, CurrentProcessingContext const* cpc, CountingS
 {
   detail::CPCSentry sentry {current_context_, cpc};
   FDEBUG(2) << "doEvent called\n";
-  Event const e {const_cast<EventPrincipal&>(ep), moduleDescription_};
+  Event const e {ep, moduleDescription_};
   if (wantAllEvents() || wantEvent(e)) {
     event(ep);
     counts.increment<stats::Run, stats::Passed>();
@@ -267,7 +267,7 @@ doEndSubRun(SubRunPrincipal const& srp,
   detail::CPCSentry sentry{current_context_, cpc};
   FDEBUG(2) << "endSubRun called\n";
   endSubRun(srp);
-  SubRun const sr {const_cast<SubRunPrincipal&>(srp), moduleDescription_};
+  SubRun const sr {srp, moduleDescription_};
   cet::for_all(plugins_, [&sr](auto& p){ p->doEndSubRun(sr); });
   return true;
 }
@@ -296,7 +296,7 @@ doEndRun(RunPrincipal const & rp,
   detail::CPCSentry sentry {current_context_, cpc};
   FDEBUG(2) << "endRun called\n";
   endRun(rp);
-  Run const r {const_cast<RunPrincipal&>(rp), moduleDescription_};
+  Run const r {rp, moduleDescription_};
   cet::for_all(plugins_, [&r](auto& p){ p->doEndRun(r); });
   return true;
 }

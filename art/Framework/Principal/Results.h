@@ -24,7 +24,7 @@ namespace art {
 
 class art::Results : private art::DataViewImpl {
 public:
-  Results(ResultsPrincipal& srp, const ModuleDescription& md);
+  explicit Results(ResultsPrincipal const& srp, ModuleDescription const& md);
   ~Results() {}
 
   typedef DataViewImpl Base;
@@ -34,7 +34,6 @@ public:
   using Base::getMany;
   using Base::getManyByType;
   using Base::removeCachedProduct;
-  using Base::me;
   using Base::processHistory;
 
   ///Put a new product.
@@ -57,7 +56,7 @@ private:
   friend class DecrepitRelicInputSourceImplementation;
   friend class ResultsProducer;
 
-  void commit_();
+  void commit_(ResultsPrincipal&);
 };
 
 template <typename PROD>

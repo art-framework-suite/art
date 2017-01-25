@@ -16,13 +16,12 @@ using namespace std;
 
 namespace art {
 
-  DataViewImpl::DataViewImpl(Principal & pcpl,
+  DataViewImpl::DataViewImpl(Principal const& pcpl,
                              ModuleDescription const& md,
                              BranchType const branchType)  :
-    putProducts_(),
-    principal_(pcpl),
-    md_(md),
-    branchType_(branchType)
+    principal_{pcpl},
+    md_{md},
+    branchType_{branchType}
   {}
 
   size_t
@@ -174,7 +173,7 @@ namespace art {
   void
   DataViewImpl::removeCachedProduct_(BranchID const bid) const
   {
-    principal().removeCachedProduct(bid);
+    principal_.removeCachedProduct(bid);
   }
 
 }  // art

@@ -11,6 +11,7 @@
 // ======================================================================
 
 #include "art/Framework/Principal/DataViewImpl.h"
+#include "art/Framework/Principal/Run.h"
 #include "art/Framework/Principal/fwd.h"
 #include "art/Utilities/ProductTokens.h"
 #include "canvas/Persistency/Common/Wrapper.h"
@@ -27,7 +28,7 @@ public:
 
   using Base = DataViewImpl;
 
-  SubRun(SubRunPrincipal& srp,
+  SubRun(SubRunPrincipal const& srp,
          ModuleDescription const& md,
          RangeSet const& rsForPuttingProducts = RangeSet::invalid());
 
@@ -43,7 +44,6 @@ public:
   using Base::getMany;
   using Base::getManyByType;
   using Base::removeCachedProduct;
-  using Base::me;
   using Base::processHistory;
 
   template <typename PROD>
@@ -64,11 +64,6 @@ public:
 
 
 private:
-  SubRunPrincipal const&
-  subRunPrincipal() const;
-
-  SubRunPrincipal &
-  subRunPrincipal();
 
   // commit_() is called to complete the transaction represented by
   // this DataViewImpl. The friendships required are gross, but any
@@ -79,7 +74,7 @@ private:
   friend class EDFilter;
   friend class EDProducer;
 
-  void commit_();
+  void commit_(SubRunPrincipal&);
 
   ///Put a new product with a 'product instance name' and a 'range set'
   template <typename PROD>
@@ -89,7 +84,7 @@ private:
        RangeSet const& rs);
 
   SubRunAuxiliary const& aux_;
-  std::shared_ptr<Run const> const run_;
+  std::unique_ptr<Run const> const run_;
   RangeSet productRangeSet_;
 };
 

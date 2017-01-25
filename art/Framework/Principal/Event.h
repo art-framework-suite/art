@@ -11,6 +11,7 @@
 // ======================================================================
 
 #include "art/Framework/Principal/DataViewImpl.h"
+#include "art/Framework/Principal/SubRun.h"
 #include "art/Framework/Principal/detail/maybe_record_parents.h"
 #include "art/Framework/Principal/fwd.h"
 #include "art/Persistency/Common/GroupQueryResult.h"
@@ -41,7 +42,7 @@ class art::Event : private art::DataViewImpl {
 public:
 
   using Base = DataViewImpl;
-  Event(EventPrincipal& ep, const ModuleDescription& md);
+  explicit Event(EventPrincipal const& ep, ModuleDescription const& md);
 
   // AUX functions.
   EventID   id() const {return aux_.id();}
@@ -59,7 +60,6 @@ public:
   using Base::getMany;
   using Base::getManyByType;
   using Base::removeCachedProduct;
-  using Base::me;
   using Base::processHistory;
   using Base::size;
 
@@ -134,7 +134,7 @@ public:
   getProcessParameterSet(std::string const& processName,
                          fhicl::ParameterSet& ps) const;
 
-  EDProductGetter const * productGetter(ProductID const &) const;
+  EDProductGetter const* productGetter(ProductID const&) const;
 
   ProductID branchIDToProductID(BranchID const bid) const;
 
@@ -142,9 +142,6 @@ public:
   using HandleT = Handle<T>;
 
 private:
-
-  EventPrincipal const& eventPrincipal() const { return eventPrincipal_; }
-  EventPrincipal      & eventPrincipal()       { return eventPrincipal_; }
 
   template< typename ELEMENT >
   void fillView_( GroupQueryResult & bh,
@@ -168,16 +165,18 @@ private:
   friend class EDProducer;
   friend class ProdToProdMapBuilder;
 
-  void commit_(bool checkPutProducts,
+  void commit_(EventPrincipal&,
+               bool checkPutProducts,
                ProducedMap const& expectedProducts);
-  void commit_aux(Base::BranchIDsMap& products,
+  void commit_aux(EventPrincipal&,
+                  Base::BranchIDsMap& products,
                   bool record_parents);
 
   GroupQueryResult getByProductID_(ProductID const& oid) const;
 
   EventAuxiliary const& aux_;
-  std::shared_ptr<SubRun const> const subRun_;
-  EventPrincipal & eventPrincipal_;
+  std::unique_ptr<SubRun const> const subRun_;
+  EventPrincipal const& eventPrincipal_;
 
   // gotBranchIDs_ must be mutable because it records all 'gets',
   // which do not logically modify the DataViewImpl. gotBranchIDs_ is

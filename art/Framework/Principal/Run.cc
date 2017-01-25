@@ -16,7 +16,7 @@ using fhicl::ParameterSetRegistry;
 
 namespace art {
 
-  Run::Run(RunPrincipal& rp, ModuleDescription const& md, RangeSet const& rs) :
+  Run::Run(RunPrincipal const& rp, ModuleDescription const& md, RangeSet const& rs) :
     DataViewImpl{rp, md, InRun},
     aux_{rp.aux()},
     productRangeSet_{rs}
@@ -49,9 +49,8 @@ namespace art {
   }
 
   void
-  Run::commit_()
+  Run::commit_(RunPrincipal& rp)
   {
-    auto & rp = dynamic_cast<RunPrincipal &>(principal());
     auto put_in_principal = [&rp](auto& elem) {
 
       auto runProductProvenancePtr = std::make_unique<ProductProvenance const>(elem.first,

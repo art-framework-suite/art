@@ -100,15 +100,4 @@ namespace art {
     return *runPrincipal_;
   }
 
-  RunPrincipal&
-  SubRunPrincipal::
-  runPrincipal()
-  {
-    if (!runPrincipal_) {
-      throw Exception(errors::NullPointerError)
-        << "Tried to obtain a NULL runPrincipal.\n";
-    }
-    return *runPrincipal_;
-  }
-
 } // namespace art

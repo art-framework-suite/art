@@ -25,9 +25,9 @@ public:
 
   using Base = DataViewImpl;
 
-  Run(RunPrincipal& rp,
-      ModuleDescription const& md,
-      RangeSet const& rsForPuttingProducts = RangeSet::invalid());
+  explicit Run(RunPrincipal const& rp,
+               ModuleDescription const& md,
+               RangeSet const& rsForPuttingProducts = RangeSet::invalid());
 
   // AUX functions.
   RunID const& id() const {return aux_.id();}
@@ -40,7 +40,6 @@ public:
   using Base::getMany;
   using Base::getManyByType;
   using Base::removeCachedProduct;
-  using Base::me;
   using Base::processHistory;
 
   template <typename PROD>
@@ -77,7 +76,7 @@ private:
   friend class EDFilter;
   friend class EDProducer;
 
-  void commit_();
+  void commit_(RunPrincipal&);
 
   ///Put a new product with a 'product instance name' and a 'range set'
   template <typename PROD>

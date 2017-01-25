@@ -39,9 +39,8 @@ namespace art {
                     SubRunPrincipal* = nullptr);
 
     RunPrincipal const& runPrincipal() const;
-    RunPrincipal& runPrincipal();
 
-    cet::exempt_ptr<RunPrincipal> runPrincipalExemptPtr() { return runPrincipal_; }
+    cet::exempt_ptr<RunPrincipal const> runPrincipalExemptPtr() const { return runPrincipal_; }
     void setRunPrincipal(cet::exempt_ptr<RunPrincipal> rp) { runPrincipal_ = rp; }
 
     SubRunAuxiliary const& aux() const { return aux_; }

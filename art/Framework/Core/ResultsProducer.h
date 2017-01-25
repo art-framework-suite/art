@@ -78,6 +78,7 @@
 #include "fhiclcpp/ParameterSet.h"
 
 namespace art {
+  class ResultsPrincipal;
   class ResultsProducer;
 
   class Event;
@@ -112,7 +113,7 @@ public:
   void doEndRun(Run const &);
   void doEvent(Event const &);
   void doReadResults(Results const &);
-  void doWriteResults(Results &);
+  void doWriteResults(ResultsPrincipal &, Results &);
   void doClear();
 
   void registerProducts(MasterProductRegistry & mpr,
