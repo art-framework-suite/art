@@ -33,12 +33,12 @@ public:
   };
 
   using Parameters = EDFilter::Table<Config>;
-  explicit BlockingPrescaler(Parameters const & );
+  explicit BlockingPrescaler(Parameters const&);
 
-  virtual bool filter(Event &) override;
+  virtual bool filter(Event&) override;
 
 private:
-  size_t count_;
+  size_t count_ {};
   size_t const m_;      // accept m in n (sequentially).
   size_t const n_;
   size_t const offset_; // First accepted event is 1 + offset.
@@ -50,20 +50,18 @@ private:
 art::BlockingPrescaler::
 BlockingPrescaler(Parameters const & config)
   :
-  EDFilter(),
-  count_(0),
-  m_(config().blockSize()),
-  n_(config().stepSize()),
-  offset_(config().offset())
+  m_{config().blockSize()},
+  n_{config().stepSize()},
+  offset_{config().offset()}
 {
 }
 
 bool
-art::BlockingPrescaler::
-filter(Event &)
+art::BlockingPrescaler::filter(Event&)
 {
-  bool result { (count_ >= offset_) && ((count_ - offset_) % n_) < m_ };
+  bool const result {(count_ >= offset_) && ((count_ - offset_) % n_) < m_};
   ++count_;
   return result;
 }
+
 DEFINE_ART_MODULE(art::BlockingPrescaler)
