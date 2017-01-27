@@ -11,7 +11,6 @@
 #include "art/Framework/Core/EndPathExecutor.h"
 #include "art/Framework/Core/FileBlock.h"
 #include "art/Framework/Core/Frameworkfwd.h"
-#include "art/Framework/Core/IEventProcessor.h"
 #include "art/Framework/Core/InputSource.h"
 #include "art/Framework/Core/MFStatusUpdater.h"
 #include "art/Framework/Core/PathManager.h"
@@ -51,10 +50,22 @@ namespace art {
   }
 }
 
-class art::EventProcessor : public art::IEventProcessor {
+class art::EventProcessor {
 public:
-  EventProcessor(EventProcessor const &) = delete;
-  EventProcessor & operator=(EventProcessor const &) = delete;
+
+  // Status codes:
+  //   0     successful completion
+  //   3     signal received
+  //  values are for historical reasons.
+  enum Status { epSuccess=0, epSignal=3 };
+
+  // Eventually, we might replace StatusCode with a class. This
+  // class should have an automatic conversion to 'int'.
+
+  using StatusCode = Status;
+
+  EventProcessor (EventProcessor const&) = delete;
+  EventProcessor& operator=(EventProcessor const&) = delete;
 
   // The input string 'config' contains the entire contents of a  configuration file.
   // Also allows the attachement of pre-existing services specified  by 'token', and
@@ -62,15 +73,15 @@ public:
   // 'defaultServices' are overridden by 'config'.
   // 'forcedServices' cause an exception if the same service is specified in 'config'.
 
-  EventProcessor(fhicl::ParameterSet const & pset);
+  EventProcessor(fhicl::ParameterSet const& pset);
   ~EventProcessor();
 
   // This should be called before the first call to 'run'.
-  void beginJob() override;
+  void beginJob();
 
   // This should be called before the EventProcessor is destroyed
   // throws if any module's endJob throws an exception.
-  void endJob() override;
+  void endJob();
 
   //------------------------------------------------------------------
   // The function "runToCompletion" will run until the job is "complete",
@@ -84,66 +95,66 @@ public:
   //   epSignal - processing terminated early, SIGUSR2 encountered
   //   epSuccess - all other cases
   //
-  StatusCode runToCompletion() override;
+  StatusCode runToCompletion();
 
   // The following functions are used by the code implementing our
   // boost statemachine
 
-  void openInputFile() override;
-  void closeInputFile() override;
-  void openAllOutputFiles() override;
-  void closeAllOutputFiles() override;
-  void openSomeOutputFiles() override;
-  void closeSomeOutputFiles() override;
+  void openInputFile();
+  void closeInputFile();
+  void openAllOutputFiles();
+  void closeAllOutputFiles();
+  void openSomeOutputFiles();
+  void closeSomeOutputFiles();
 
-  void respondToOpenInputFile() override;
-  void respondToCloseInputFile() override;
-  void respondToOpenOutputFiles() override;
-  void respondToCloseOutputFiles() override;
+  void respondToOpenInputFile();
+  void respondToCloseInputFile();
+  void respondToOpenOutputFiles();
+  void respondToCloseOutputFiles();
 
-  void rewindInput() override;
-  void incrementInputFileNumber() override;
-  void recordOutputClosureRequests(Boundary) override;
+  void rewindInput();
+  void incrementInputFileNumber();
+  void recordOutputClosureRequests(Boundary);
 
-  void doErrorStuff() override;
+  void doErrorStuff();
 
-  void beginRun() override;
-  void endRun() override;
+  void beginRun();
+  void endRun();
 
-  void beginSubRun() override;
-  void endSubRun() override;
+  void beginSubRun();
+  void endSubRun();
 
-  RunID    readRun() override;
-  SubRunID readSubRun() override;
+  RunID    readRun();
+  SubRunID readSubRun();
 
-  void writeRun() override;
-  void writeSubRun() override;
-  void writeEvent() override;
+  void writeRun();
+  void writeSubRun();
+  void writeEvent();
 
-  void setRunAuxiliaryRangeSetID() override;
-  void setSubRunAuxiliaryRangeSetID() override;
+  void setRunAuxiliaryRangeSetID();
+  void setSubRunAuxiliaryRangeSetID();
 
   // Run/SubRun IDs from most recently added principals
-  RunID runPrincipalID() const override;
-  SubRunID subRunPrincipalID() const override;
-  EventID eventPrincipalID() const override;
+  RunID runPrincipalID() const;
+  SubRunID subRunPrincipalID() const;
+  EventID eventPrincipalID() const;
 
-  EventID readEvent() override;
-  void processEvent() override;
-  bool shouldWeStop() const override;
+  EventID readEvent();
+  void processEvent();
+  bool shouldWeStop() const;
 
-  void setExceptionMessageFiles(std::string const& message) override;
-  void setExceptionMessageRuns(std::string const& message) override;
-  void setExceptionMessageSubRuns(std::string const& message) override;
-  bool alreadyHandlingException() const override;
+  void setExceptionMessageFiles(std::string const& message);
+  void setExceptionMessageRuns(std::string const& message);
+  void setExceptionMessageSubRuns(std::string const& message);
+  bool alreadyHandlingException() const;
 
-  bool outputsToOpen() const override;
-  bool outputsToClose() const override;
-  bool someOutputsOpen() const override;
-  void setOutputFileStatus(OutputFileStatus) override;
+  bool outputsToOpen() const;
+  bool outputsToClose() const;
+  bool someOutputsOpen() const;
+  void setOutputFileStatus(OutputFileStatus);
 
-  bool setTriggerPathEnabled(std::string const& name, bool enable) override;
-  bool setEndPathModuleEnabled(std::string const& label, bool enable) override;
+  bool setTriggerPathEnabled(std::string const& name, bool enable);
+  bool setEndPathModuleEnabled(std::string const& label, bool enable);
 
 private:
   ServiceDirector initServices_(fhicl::ParameterSet const& top_pset,

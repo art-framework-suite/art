@@ -1,6 +1,5 @@
 #ifndef art_Framework_Services_Registry_ActivityRegistry_h
 #define art_Framework_Services_Registry_ActivityRegistry_h
-#ifndef __GCCXML__
 
 ////////////////////////////////////////////////////////////////////////
 // ActivityRegistry
@@ -318,7 +317,6 @@ public:
 
 };  // ActivityRegistry
 
-#endif /* __GCCXML__ */
 #endif /* art_Framework_Services_Registry_ActivityRegistry_h */
 
 // Local Variables:

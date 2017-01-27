@@ -12,7 +12,6 @@
 //
 // ======================================================================
 
-#include "art/Framework/Core/IEventProcessor.h"
 #include "art/Framework/Core/OutputFileSwitchBoundary.h"
 #include "art/Framework/EventProcessor/StateMachine/Events.h"
 #include "art/Framework/Principal/fwd.h"
@@ -31,6 +30,10 @@
 #include <utility>
 #include <vector>
 
+namespace art {
+  class EventProcessor;
+}
+
 namespace sc = boost::statechart;
 namespace mpl = boost::mpl;
 
@@ -46,11 +49,11 @@ namespace statemachine {
 
   class Machine : public sc::state_machine<Machine, Starting> {
   public:
-    Machine(art::IEventProcessor* ep,
+    Machine(art::EventProcessor* ep,
             bool handleEmptyRuns,
             bool handleEmptySubRuns);
 
-    art::IEventProcessor& ep() const;
+    art::EventProcessor& ep() const;
     bool handleEmptyRuns() const;
     bool handleEmptySubRuns() const;
 
@@ -69,7 +72,7 @@ namespace statemachine {
 
   private:
 
-    art::IEventProcessor* ep_;
+    art::EventProcessor* ep_;
     bool handleEmptyRuns_;
     bool handleEmptySubRuns_;
   };
@@ -91,7 +94,7 @@ namespace statemachine {
       sc::transition<Stop, Stopping> >;
 
   private:
-    art::IEventProcessor& ep_;
+    art::EventProcessor& ep_;
   };
 
   class NewInputFile;
@@ -116,7 +119,7 @@ namespace statemachine {
     void maybeTriggerOutputFileSwitch();
 
   private:
-    art::IEventProcessor& ep_;
+    art::EventProcessor& ep_;
     bool stagingAllowed_ {true};
     bool switchInProgress_ {false};
   };
@@ -129,7 +132,7 @@ namespace statemachine {
 
     sc::result react(Stop const&);
   private:
-    art::IEventProcessor& ep_;
+    art::EventProcessor& ep_;
   };
 
   class Error : public sc::state<Error, Machine> {
@@ -137,7 +140,7 @@ namespace statemachine {
     Error(my_context ctx);
     using reactions = sc::transition<Stop, Stopping>;
   private:
-    art::IEventProcessor& ep_;
+    art::EventProcessor& ep_;
   };
 
   class HandleRuns;
@@ -175,7 +178,7 @@ namespace statemachine {
     void disableFinalizeRun(Pause const&);
 
   private:
-    art::IEventProcessor& ep_;
+    art::EventProcessor& ep_;
     art::RunID currentRun_;
     bool exitCalled_ {false};
     bool beginRunCalled_ {false};
@@ -228,7 +231,7 @@ namespace statemachine {
     using reactions = sc::transition<SubRun, HandleSubRuns>;
 
   private:
-    art::IEventProcessor& ep_;
+    art::EventProcessor& ep_;
     art::SubRunID currentSubRun_;
     bool exitCalled_ {false};
     bool beginSubRunCalled_ {false};
@@ -276,7 +279,7 @@ namespace statemachine {
     using reactions = sc::transition<Event, HandleEvents>;
 
   private:
-    art::IEventProcessor& ep_;
+    art::EventProcessor& ep_;
     art::EventID currentEvent_;
     bool exitCalled_ {false};
     bool eventException_ {false};
@@ -300,14 +303,14 @@ namespace statemachine {
       sc::transition<Pause, PauseEvent, HandleEvents, &HandleEvents::disableFinalizeEvent>>;
 
   private:
-    art::IEventProcessor& ep_;
+    art::EventProcessor& ep_;
   };
 
   class ProcessEvent: public sc::state<ProcessEvent, HandleEvents> {
   public:
     ProcessEvent(my_context ctx);
   private:
-    art::IEventProcessor& ep_;
+    art::EventProcessor& ep_;
   };
 
   class PauseEvent : public sc::state<PauseEvent, HandleEvents> {

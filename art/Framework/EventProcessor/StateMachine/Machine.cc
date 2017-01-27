@@ -1,4 +1,5 @@
 #include "art/Framework/EventProcessor/StateMachine/Machine.h"
+#include "art/Framework/EventProcessor/EventProcessor.h"
 #include "cetlib/exception.h"
 
 #include <exception>
@@ -9,7 +10,7 @@ using art::Boundary;
 
 namespace statemachine {
 
-  Machine::Machine(art::IEventProcessor* ep,
+  Machine::Machine(art::EventProcessor* ep,
                    bool handleEmptyRuns,
                    bool handleEmptySubRuns) :
     ep_{ep},
@@ -17,7 +18,7 @@ namespace statemachine {
     handleEmptySubRuns_{handleEmptySubRuns}
   {}
 
-  art::IEventProcessor& Machine::ep() const { return *ep_; }
+  art::EventProcessor& Machine::ep() const { return *ep_; }
   bool Machine::handleEmptyRuns() const { return handleEmptyRuns_; }
   bool Machine::handleEmptySubRuns() const { return handleEmptySubRuns_; }
 

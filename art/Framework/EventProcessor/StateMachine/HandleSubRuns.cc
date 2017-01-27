@@ -1,4 +1,5 @@
 #include "art/Framework/EventProcessor/StateMachine/Machine.h"
+#include "art/Framework/EventProcessor/EventProcessor.h"
 #include "cetlib/exception.h"
 
 #include <exception>
