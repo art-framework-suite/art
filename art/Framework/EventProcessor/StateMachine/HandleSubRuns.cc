@@ -12,23 +12,27 @@ namespace statemachine {
 
   HandleSubRuns::HandleSubRuns(my_context ctx) :
     my_base{ctx},
-    ep_{context<Machine>().ep()},
-    currentSubRun_{ep_.subRunPrincipalID()}
+    ep_{context<Machine>().ep()}
   {
+    ep_.setCurrentSubRun(ep_.subRunPrincipalID());
+    ep_.setExitSubRunCalled(false);
+    ep_.setBeginSubRunCalled(false);
+    ep_.setSubRunException(false);
+    ep_.setFinalizeSubRunEnabled(true);
     checkInvariant();
   }
 
   void HandleSubRuns::exit()
   {
     if (ep_.alreadyHandlingException()) return;
-    exitCalled_ = true;
+    ep_.setExitSubRunCalled(true);
     checkInvariant();
     finalizeSubRun();
   }
 
   HandleSubRuns::~HandleSubRuns()
   {
-    if (!exitCalled_) {
+    if (!ep_.exitSubRunCalled()) {
       try {
         checkInvariant();
         finalizeSubRun();
@@ -78,75 +82,72 @@ namespace statemachine {
 
   void HandleSubRuns::checkInvariant()
   {
-    assert(context<HandleRuns>().currentRun().isValid());
+    assert(ep_.currentRun().isValid());
   }
-
-  bool HandleSubRuns::beginSubRunCalled() const { return beginSubRunCalled_; }
-  art::SubRunID const& HandleSubRuns::currentSubRun() const { return currentSubRun_; }
 
   void HandleSubRuns::setupCurrentSubRun()
   {
-    assert(context<HandleRuns>().currentRun().isValid());
-    subRunException_ = true;
-    currentSubRun_ = ep_.readSubRun();
-    subRunException_ = false;
+    assert(ep_.currentRun().isValid());
+    ep_.setSubRunException(true);
+    ep_.setCurrentSubRun(ep_.readSubRun());
+    ep_.setSubRunException(false);
   }
 
   void HandleSubRuns::disableFinalizeSubRun(Pause const&)
   {
-    context<HandleFiles>().disallowStaging();
-    finalizeEnabled_ = false;
+    ep_.disallowStaging();
+    ep_.setFinalizeSubRunEnabled(false);
   }
   void HandleSubRuns::beginSubRun()
   {
-    beginSubRunCalled_ = true;
-    subRunException_ = true;
-    if (!currentSubRun_.isFlush())
+    ep_.setBeginSubRunCalled(true);
+    ep_.setSubRunException(true);
+    if (!ep_.currentSubRun().isFlush())
       ep_.beginSubRun();
-    subRunException_ = false;
+    ep_.setSubRunException(false);
   }
 
   void HandleSubRuns::endSubRun()
   {
-    beginSubRunCalled_ = false;
-    subRunException_ = true;
+    ep_.setBeginSubRunCalled(false);
+    ep_.setSubRunException(true);
     // Note: flush flag is not checked here since endSubRun is only
     // called from finalizeRun, which is where the check happens.
     ep_.endSubRun();
-    subRunException_ = false;
+    ep_.setSubRunException(false);
   }
 
   void HandleSubRuns::finalizeSubRun()
   {
-    if (!finalizeEnabled_) return;
-    if (subRunException_) return;
-    if (currentSubRun_.isFlush()) return;
+    if (!ep_.finalizeSubRunEnabled()) return;
+    if (ep_.subRunException()) return;
+    if (ep_.currentSubRun().isFlush()) return;
 
-    subRunException_ = true;
-    context<HandleFiles>().openSomeOutputFiles();
-    if (context<Machine>().handleEmptySubRuns()) {
+    ep_.setSubRunException(true);
+    ep_.openSomeOutputFiles();
+    if (ep_.handleEmptySubRuns()) {
       context<HandleRuns>().beginRunIfNotDoneAlready();
       beginSubRunIfNotDoneAlready();
     }
     ep_.setSubRunAuxiliaryRangeSetID();
-    if (beginSubRunCalled_)
+    if (ep_.beginSubRunCalled())
       endSubRun();
     ep_.writeSubRun();
 
     // Staging is not allowed whenever 'maybeTriggerOutputFileSwitch'
     // is called due to exiting a 'Pause' state.
-    if (context<HandleFiles>().stagingAllowed()) {
+    if (ep_.stagingAllowed()) {
       ep_.recordOutputClosureRequests(Boundary::SubRun);
-      context<HandleFiles>().maybeTriggerOutputFileSwitch();
+      ep_.maybeTriggerOutputFileSwitch();
     }
 
-    currentSubRun_ = art::SubRunID{}; // Invalid.
-    subRunException_ = false;
+    ep_.setCurrentSubRun(art::SubRunID{}); // Invalid.
+    ep_.setSubRunException(false);
   }
 
   void HandleSubRuns::beginSubRunIfNotDoneAlready()
   {
-    if (!beginSubRunCalled_) beginSubRun();
+    if (!ep_.beginSubRunCalled()) beginSubRun();
   }
 
   void HandleSubRuns::markSubRunNonEmpty()
@@ -155,7 +156,8 @@ namespace statemachine {
   }
 
   NewSubRun::NewSubRun(my_context ctx) :
-    my_base{ctx}
+    my_base{ctx},
+    ep_{context<Machine>().ep()}
   {
     context<HandleSubRuns>().setupCurrentSubRun();
     checkInvariant();
@@ -168,9 +170,9 @@ namespace statemachine {
 
   void NewSubRun::checkInvariant()
   {
-    assert(context<HandleRuns>().currentRun().isValid());
-    assert(context<HandleSubRuns>().currentSubRun().runID() == context<HandleRuns>().currentRun());
-    assert(context<HandleSubRuns>().currentSubRun().isValid());
+    assert(ep_.currentRun().isValid());
+    assert(ep_.currentSubRun().runID() == ep_.currentRun());
+    assert(ep_.currentSubRun().isValid());
   }
 
   PauseSubRun::PauseSubRun(my_context ctx)

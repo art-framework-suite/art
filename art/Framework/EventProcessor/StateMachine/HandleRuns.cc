@@ -13,21 +13,25 @@ namespace statemachine {
 
   HandleRuns::HandleRuns(my_context ctx) :
     my_base{ctx},
-    ep_{context<Machine>().ep()},
-    currentRun_{ep_.runPrincipalID()}
+    ep_{context<Machine>().ep()}
   {
+    ep_.setBeginRunCalled(false);
+    ep_.setExitRunCalled(false);
+    ep_.setRunException(false);
+    ep_.setFinalizeRunEnabled(true);
+    ep_.setCurrentRun(ep_.runPrincipalID());
   }
 
   void HandleRuns::exit()
   {
     if (ep_.alreadyHandlingException()) return;
-    exitCalled_ = true;
+    ep_.setExitRunCalled(true);
     finalizeRun();
   }
 
   HandleRuns::~HandleRuns()
   {
-    if (!exitCalled_) {
+    if (!ep_.exitRunCalled()) {
       try {
         finalizeRun();
       }
@@ -74,82 +78,79 @@ namespace statemachine {
     }
   }
 
-  bool HandleRuns::beginRunCalled() const { return beginRunCalled_; }
-  art::RunID HandleRuns::currentRun() const { return currentRun_; }
-
   void HandleRuns::setupCurrentRun()
   {
-    runException_ = true;
-    currentRun_ = ep_.readRun();
-    runException_ = false;
-    if (context<Machine>().handleEmptyRuns()) {
+    ep_.setRunException(true);
+    ep_.setCurrentRun(ep_.readRun());
+    ep_.setRunException(false);
+    if (ep_.handleEmptyRuns()) {
       beginRun();
     }
   }
 
   void HandleRuns::disableFinalizeRun(Pause const&)
   {
-    context<HandleFiles>().disallowStaging();
-    finalizeEnabled_ = false;
+    ep_.disallowStaging();
+    ep_.setFinalizeRunEnabled(false);
   }
 
   void HandleRuns::beginRun()
   {
-    beginRunCalled_ = true;
-    runException_ = true;
-    if (!currentRun_.isFlush())
+    ep_.setBeginRunCalled(true);
+    ep_.setRunException(true);
+    if (!ep_.currentRun().isFlush())
       ep_.beginRun();
-    runException_ = false;
+    ep_.setRunException(false);
   }
 
   void HandleRuns::endRun()
   {
-    beginRunCalled_ = false;
-    runException_ = true;
+    ep_.setRunException(true);
     // Note: flush flag is not checked here since endRun is only
     // called from finalizeRun, which is where the check happens.
     ep_.endRun();
-    runException_ = false;
+    ep_.setRunException(false);
   }
 
   void HandleRuns::finalizeRun()
   {
-    if (!finalizeEnabled_) return;
-    if (runException_) return;
-    if (currentRun_.isFlush()) return;
+    if (!ep_.finalizeRunEnabled()) return;
+    if (ep_.runException()) return;
+    if (ep_.currentRun().isFlush()) return;
 
-    runException_ = true;
-    context<HandleFiles>().openSomeOutputFiles();
+    ep_.setRunException(true);
+    ep_.openSomeOutputFiles();
     ep_.setRunAuxiliaryRangeSetID();
-    if (beginRunCalled_)
+    if (ep_.beginRunCalled())
       endRun();
     ep_.writeRun();
 
     // Staging is not allowed whenever 'maybeTriggerOutputFileSwitch'
     // is called due to exiting a 'Pause' state.
-    if (context<HandleFiles>().stagingAllowed()) {
+    if (ep_.stagingAllowed()) {
       ep_.recordOutputClosureRequests(Boundary::Run);
-      context<HandleFiles>().maybeTriggerOutputFileSwitch();
+      ep_.maybeTriggerOutputFileSwitch();
     }
 
-    currentRun_ = art::RunID{}; // Invalid.
-    runException_ = false;
+    ep_.setCurrentRun(art::RunID{}); // Invalid.
+    ep_.setRunException(false);
   }
 
   void HandleRuns::beginRunIfNotDoneAlready()
   {
-    if (!beginRunCalled_)
+    if (!ep_.beginRunCalled())
       beginRun();
   }
 
   NewRun::NewRun(my_context ctx) :
-    my_base{ctx}
+    my_base{ctx},
+    ep_{context<Machine>().ep()}
   {
     context<HandleRuns>().setupCurrentRun();
     // Here we assume that the input source or event processor
     // will throw if we fail to get a valid run.  Therefore
     // we should not ever fail this assert.
-    assert(context<HandleRuns>().currentRun().isValid());
+    assert(ep_.currentRun().isValid());
   }
 
   PauseRun::PauseRun(my_context ctx)

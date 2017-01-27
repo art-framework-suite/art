@@ -10,69 +10,27 @@ using art::Boundary;
 
 namespace statemachine {
 
-  Machine::Machine(art::EventProcessor* ep,
-                   bool handleEmptyRuns,
-                   bool handleEmptySubRuns) :
-    ep_{ep},
-    handleEmptyRuns_{handleEmptyRuns},
-    handleEmptySubRuns_{handleEmptySubRuns}
+  Machine::Machine(art::EventProcessor* ep) :
+    ep_{ep}
   {}
 
   art::EventProcessor& Machine::ep() const { return *ep_; }
-  bool Machine::handleEmptyRuns() const { return handleEmptyRuns_; }
-  bool Machine::handleEmptySubRuns() const { return handleEmptySubRuns_; }
 
   void Machine::closeInputFile(InputFile const&)
   {
-    closeInputFile();
-  }
-
-  void Machine::closeAllOutputFiles()
-  {
-    if (!ep_->someOutputsOpen()) return;
-
-    ep_->respondToCloseOutputFiles();
-    ep_->closeAllOutputFiles();
-  }
-
-  void Machine::closeInputFile()
-  {
-    ep_->incrementInputFileNumber();
-    ep_->recordOutputClosureRequests(Boundary::InputFile);
-    if (ep_->outputsToClose()) {
-      closeSomeOutputFiles();
-    }
-    ep_->respondToCloseInputFile();
     ep_->closeInputFile();
-  }
-
-  void Machine::closeAllFiles()
-  {
-    closeAllOutputFiles();
-    closeInputFile();
-  }
-
-  void Machine::closeSomeOutputFiles()
-  {
-    // Precondition: there are SOME output files that have been
-    //               flagged as needing to close.  Otherwise,
-    //               'respondtoCloseOutputFiles' will be needlessly
-    //               called.
-    assert(ep_->outputsToClose());
-    ep_->respondToCloseOutputFiles();
-    ep_->closeSomeOutputFiles();
   }
 
   void Machine::closeSomeOutputFiles(SwitchOutputFiles const&)
   {
-    closeSomeOutputFiles();
+    ep_->closeSomeOutputFiles();
   }
 
-  void Machine::closeAllFiles(Event const&) { closeAllFiles(); }
-  void Machine::closeAllFiles(SubRun const&) { closeAllFiles(); }
-  void Machine::closeAllFiles(Run const&) { closeAllFiles(); }
-  void Machine::closeAllFiles(SwitchOutputFiles const&) { closeAllFiles(); }
-  void Machine::closeAllFiles(Stop const&) { closeAllFiles(); }
+  void Machine::closeAllFiles(Event const&) { ep_->closeAllFiles(); }
+  void Machine::closeAllFiles(SubRun const&) { ep_->closeAllFiles(); }
+  void Machine::closeAllFiles(Run const&) { ep_->closeAllFiles(); }
+  void Machine::closeAllFiles(SwitchOutputFiles const&) { ep_->closeAllFiles(); }
+  void Machine::closeAllFiles(Stop const&) { ep_->closeAllFiles(); }
 
   Starting::Starting(my_context ctx) :
     my_base{ctx},

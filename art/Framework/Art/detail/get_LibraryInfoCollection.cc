@@ -56,7 +56,7 @@ namespace {
       std::cerr << '\r';
     }
   private:
-    std::string const& libType_;
+    std::string const libType_;
     std::size_t const w_;
     std::size_t const d_;
     bool const v_;
@@ -87,12 +87,12 @@ namespace {
     bool const print_available_services = (spec == dflt_spec_pattern());
 
     if (print_only_message || print_available_services) {
-      result.emplace( "[ none ]",
-                      std::make_pair("message",""),
-                      "[ See https://cdcvs.fnal.gov/redmine/projects/art/wiki/Messagefacility ]",
-                      std::unique_ptr<art::ConfigurationTable>{nullptr},
-                      "art",
-                      "" );
+      result.emplace("[ none ]",
+                     std::make_pair("message",""),
+                     "[ See https://cdcvs.fnal.gov/redmine/projects/art/wiki/Messagefacility ]",
+                     std::unique_ptr<art::ConfigurationTable>{nullptr},
+                     "art",
+                     "" );
       return true;
     }
     return false;

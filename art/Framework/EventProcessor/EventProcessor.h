@@ -101,6 +101,7 @@ public:
   // boost statemachine
 
   void openInputFile();
+  void closeAllFiles();
   void closeInputFile();
   void openAllOutputFiles();
   void closeAllOutputFiles();
@@ -148,15 +149,83 @@ public:
   void setExceptionMessageSubRuns(std::string const& message);
   bool alreadyHandlingException() const;
 
+  bool switchInProgress() const { return switchInProgress_; }
+  bool stagingAllowed() const { return stagingAllowed_; }
+
+  void disallowStaging() {
+    setOutputFileStatus(OutputFileStatus::StagedToSwitch);
+    setStagingAllowed(false);
+  }
+
+  bool handleEmptyRuns() const { return handleEmptyRuns_; }
+  bool handleEmptySubRuns() const { return handleEmptySubRuns_; }
+
   bool outputsToOpen() const;
   bool outputsToClose() const;
   bool someOutputsOpen() const;
   void setOutputFileStatus(OutputFileStatus);
+  void setStagingAllowed(bool const value) { stagingAllowed_ = value; }
+  void setSwitchInProgress(bool const value) { switchInProgress_ = value; }
+  void maybeTriggerOutputFileSwitch();
 
   bool setTriggerPathEnabled(std::string const& name, bool enable);
   bool setEndPathModuleEnabled(std::string const& label, bool enable);
 
+  // Stuff from state machine
+  bool beginRunCalled() const { return beginRunCalled_; }
+  bool exitRunCalled() const { return exitRunCalled_; }
+  bool runException() const { return runException_; }
+  bool finalizeRunEnabled() const { return finalizeRunEnabled_; }
+  RunID currentRun() const { return currentRun_; }
+
+  bool beginSubRunCalled() const { return beginSubRunCalled_; }
+  bool exitSubRunCalled() const { return exitSubRunCalled_; }
+  bool subRunException() const { return subRunException_; }
+  bool finalizeSubRunEnabled() const { return finalizeSubRunEnabled_; }
+  SubRunID const& currentSubRun() const { return currentSubRun_; }
+
+  bool exitEventCalled() const { return exitEventCalled_; }
+  bool eventException() const { return eventException_; }
+  bool finalizeEventEnabled() const { return finalizeEventEnabled_; }
+  EventID const& currentEvent() const { return currentEvent_; }
+
+  void setBeginRunCalled(bool const value) { beginRunCalled_ = value; }
+  void setExitRunCalled(bool const value) { exitRunCalled_ = value; }
+  void setRunException(bool const value) { runException_ = value; }
+  void setFinalizeRunEnabled(bool const value) { finalizeRunEnabled_ = value; }
+  void setCurrentRun(RunID const r) { currentRun_ = r; }
+
+  void setBeginSubRunCalled(bool const value) { beginSubRunCalled_ = value; }
+  void setExitSubRunCalled(bool const value) { exitSubRunCalled_ = value; }
+  void setSubRunException(bool const value) { subRunException_ = value; }
+  void setFinalizeSubRunEnabled(bool const value) { finalizeSubRunEnabled_ = value; }
+  void setCurrentSubRun(SubRunID const& sr) { currentSubRun_ = sr; }
+
+  void setExitEventCalled(bool const value) { exitEventCalled_ = value; }
+  void setEventException(bool const value) { eventException_ = value; }
+  void setFinalizeEventEnabled(bool const value) { finalizeEventEnabled_ = value; }
+  void setCurrentEvent(EventID const& e) { currentEvent_ = e; }
+
 private:
+
+  // Stuff from state machine
+  bool beginRunCalled_ {false}; // Should be stack variable local to run loop
+  bool exitRunCalled_ {false};  // ""
+  bool runException_ {false};   // ""
+  bool finalizeRunEnabled_ {true};
+  RunID currentRun_ {};
+
+  bool beginSubRunCalled_ {false}; // Should be stack variable local to run loop
+  bool exitSubRunCalled_ {false};  // ""
+  bool subRunException_ {false};   // ""
+  bool finalizeSubRunEnabled_ {true};
+  SubRunID currentSubRun_ {};
+
+  bool exitEventCalled_ {false};
+  bool eventException_ {false};
+  bool finalizeEventEnabled_ {true};
+  EventID currentEvent_ {};
+
   ServiceDirector initServices_(fhicl::ParameterSet const& top_pset,
                                 ActivityRegistry& areg,
                                 ServiceToken& token);
@@ -201,8 +270,10 @@ private:
   std::unique_ptr<EventPrincipal> eventPrincipal_ {nullptr};
   bool shouldWeStop_ {false};
   bool stateMachineWasInErrorState_ {false};
-  bool handleEmptyRuns_;
-  bool handleEmptySubRuns_;
+  bool const handleEmptyRuns_;
+  bool const handleEmptySubRuns_;
+  bool stagingAllowed_ {true};
+  bool switchInProgress_ {false};
   std::string exceptionMessageFiles_ {};
   std::string exceptionMessageRuns_ {};
   std::string exceptionMessageSubRuns_ {};
@@ -216,25 +287,26 @@ private:
 template <typename T>
 class art::detail::PrincipalSignalSentry {
 public:
-  PrincipalSignalSentry(PrincipalSignalSentry<T> const &) = delete;
-  PrincipalSignalSentry<T> operator=(PrincipalSignalSentry<T> const &) = delete;
+
+  PrincipalSignalSentry(PrincipalSignalSentry<T> const&) = delete;
+  PrincipalSignalSentry<T> operator=(PrincipalSignalSentry<T> const&) = delete;
 
   using principal_t = typename T::MyPrincipal;
-  PrincipalSignalSentry(art::ActivityRegistry & a, principal_t & ep);
+  explicit PrincipalSignalSentry(art::ActivityRegistry& a, principal_t& ep);
   ~PrincipalSignalSentry();
 
 private:
-  art::ActivityRegistry & a_;
-  principal_t & ep_;
+  art::ActivityRegistry& a_;
+  principal_t& ep_;
 };
 
 template <class T>
 art::detail::PrincipalSignalSentry<T>::
-PrincipalSignalSentry(art::ActivityRegistry & a,
-                      typename PrincipalSignalSentry<T>::principal_t & ep)
+PrincipalSignalSentry(art::ActivityRegistry& a,
+                      typename PrincipalSignalSentry<T>::principal_t& ep)
   :
-  a_(a),
-  ep_(ep)
+  a_{a},
+  ep_{ep}
 {
   T::preScheduleSignal(&a_, &ep_);
 }

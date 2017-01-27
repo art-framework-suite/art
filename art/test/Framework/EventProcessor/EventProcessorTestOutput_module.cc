@@ -1,7 +1,7 @@
 // ======================================================================
 //
-// ProvenanceCheckerOutput: Check the consistency of provenance stored
-//                          in the framework
+// EventProcessorTestOutput: Allows testing the output-file switching
+// mechanism. See OUTPUT_COMMENT macro below.
 //
 // ======================================================================
 
@@ -52,25 +52,21 @@ namespace {
 
     bool matches(std::string const& fn) const
     {
-      // std::cout << "..." << __func__ << ": " << filename_ << " == " << fn << '\n';
       return filename_ == fn;
     }
 
     bool matches(std::string const& fn, RunID const& id) const
     {
-      // std::cout << "..." << __func__ << ": " << r_ << " == " << id.run() << '\n';
       return matches(fn) && r_ == id.run();
     }
 
     bool matches(std::string const& fn, SubRunID const& id) const
     {
-      // std::cout << "..." << __func__ << ": " << sr_ << " == " << id.subRun() << '\n';
       return matches(fn, id.runID()) && sr_ == id.subRun();
     }
 
     bool matches(std::string const& fn, EventID const& id) const
     {
-      // std::cout << "..." << __func__ << ": " << e_ << " == " << id.event() << '\n';
       return matches(fn, id.subRunID()) && e_ == id.event();
     }
 
@@ -82,6 +78,22 @@ namespace {
   };
 }
 
+#define OUTPUT_COMMENT                                                \
+ "To indicate where an output file should switch, one can\n"         \
+ "specify the switch points via:\n\n"                                \
+ "  switchAfter: [\n"                                                \
+ "    [\"a.txt\", [1]    ], # ==> Switch after Run 1 in file \"a.txt\"\n" \
+ "    [\"a.txt\", []     ], # ==> Switch after file \"a.txt\"\n"         \
+ "    [\"b.txt\", [1,4]  ], # ==> Switch after Run 1, SubRun 4 in file \"b.txt\"\n" \
+ "    [\"b.txt\", [2,3,7]]  # ==> Switch after Run 2, SubRun 3, Event 7 in file \"b.txt\"\n" \
+ "  ]\n\n"                                                           \
+ "Note that the switching behavior should be put in the order that\n" \
+ "the switching is expected--e.g. it would be an error to\n"         \
+ "specify [\"a.txt\", []] as the first item since that would\n"      \
+ "tell the module to switch after the first file has been\n"         \
+ "processed, and then switch after Run 1 in file \"a.txt\". In\n"    \
+ "other words, no sorting is done of the specified switch points."
+
 namespace arttest {
 
   class EventProcessorTestOutput final : public OutputModule {
@@ -89,7 +101,8 @@ namespace arttest {
 
     struct Config {
       fhicl::TableFragment<OutputModule::Config> omConfig;
-      fhicl::Sequence<fhicl::TupleAs<SwitchPoint(std::string,fhicl::Sequence<std::uint32_t>)>> switchAfter { fhicl::Name("switchAfter"), std::vector<SwitchPoint>{} };
+      fhicl::Sequence<fhicl::TupleAs<SwitchPoint(std::string,fhicl::Sequence<std::uint32_t>)>> switchAfter {
+        fhicl::Name("switchAfter"), fhicl::Comment(OUTPUT_COMMENT), std::vector<SwitchPoint>{}};
     };
 
     using Parameters = WrappedTable<Config, OutputModule::Config::KeysToIgnore>;
@@ -177,5 +190,5 @@ namespace arttest {
   };
 
 }
-
+#undef OUTPUT_COMMENT
 DEFINE_ART_MODULE(arttest::EventProcessorTestOutput)

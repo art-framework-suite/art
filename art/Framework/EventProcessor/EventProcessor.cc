@@ -52,10 +52,11 @@ namespace {
   public:
     using PreSig_t  = art::GlobalSignal<art::detail::SignalResponseType::FIFO, void>;
     using PostSig_t = art::GlobalSignal<art::detail::SignalResponseType::LIFO, void>;
+
     SignalSentry(SignalSentry const&) = delete;
     SignalSentry& operator=(SignalSentry const&) = delete;
-    SignalSentry(PreSig_t& pre, PostSig_t& post)
-      : post_(post)
+
+    explicit SignalSentry(PreSig_t& pre, PostSig_t& post) : post_{post}
     {
       pre.invoke();
     }
@@ -326,9 +327,7 @@ art::EventProcessor::runToCompletion()
   stateMachineWasInErrorState_ = false;
   // Make the services available
   ServiceRegistry::Operate op {serviceToken_};
-  machine_ = std::make_unique<statemachine::Machine>( this,
-                                                      handleEmptyRuns_,
-                                                      handleEmptySubRuns_ );
+  machine_ = std::make_unique<statemachine::Machine>(this);
   machine_->initiate();
 
   try {
@@ -337,7 +336,7 @@ art::EventProcessor::runToCompletion()
       FDEBUG(1) << spaces(4) << "*** nextItemType: " << itemType << " ***\n";
       // Look for a shutdown signal
       {
-        boost::mutex::scoped_lock sl(usr2_lock);
+        boost::mutex::scoped_lock sl {usr2_lock};
         if (art::shutdown_flag > 0) {
           //changeState(mShutdownSignal);
           returnCode = epSignal;
@@ -411,6 +410,7 @@ art::EventProcessor::runToCompletion()
   // One tricky aspect of the state machine is that things which can
   // throw should not be invoked by the state machine while another
   // exception is being handled.
+  //
   // Another tricky aspect is that it appears to be important to
   // terminate the state machine before invoking its destructor.
   // We've seen crashes which are not understood when that is not
@@ -481,6 +481,21 @@ art::EventProcessor::runToCompletion()
 }
 
 void
+art::EventProcessor::maybeTriggerOutputFileSwitch()
+{
+  assert(stagingAllowed());
+
+  if (!outputsToClose()) return;
+
+  // Don't trigger another switch if one is already in progress!
+  if (switchInProgress()) return;
+
+  machine_->post_event(statemachine::Pause{});
+  machine_->post_event(statemachine::SwitchOutputFiles{});
+  setSwitchInProgress(true);
+}
+
+void
 art::EventProcessor::openInputFile()
 {
   actReg_.sPreOpenFile.invoke();
@@ -492,11 +507,25 @@ art::EventProcessor::openInputFile()
         << "should be valid or readFile() should throw.\n";
   }
   actReg_.sPostOpenFile.invoke(fb_->fileName());
+  respondToOpenInputFile();
+}
+
+void
+art::EventProcessor::closeAllFiles()
+{
+  closeAllOutputFiles();
+  closeInputFile();
 }
 
 void
 art::EventProcessor::closeInputFile()
 {
+  incrementInputFileNumber();
+  recordOutputClosureRequests(Boundary::InputFile);
+  if (outputsToClose()) {
+    closeSomeOutputFiles();
+  }
+  respondToCloseInputFile();
   SignalSentry fileCloseSentry {actReg_.sPreCloseFile, actReg_.sPostCloseFile};
   input_->closeFile();
   FDEBUG(1) << spaces(8) << "closeInputFile\n";
@@ -512,6 +541,9 @@ art::EventProcessor::openAllOutputFiles()
 void
 art::EventProcessor::closeAllOutputFiles()
 {
+  if (!someOutputsOpen()) return;
+  respondToCloseOutputFiles();
+
   endPathExecutor_->closeAllOutputFiles();
   FDEBUG(1) << spaces(8) << "closeAllOutputFiles\n";
 }
@@ -519,8 +551,13 @@ art::EventProcessor::closeAllOutputFiles()
 void
 art::EventProcessor::openSomeOutputFiles()
 {
+  if (!outputsToOpen()) return;
+
   endPathExecutor_->openSomeOutputFiles(*fb_);
   FDEBUG(1) << spaces(8) << "openSomeOutputFiles\n";
+  respondToOpenOutputFiles();
+  setSwitchInProgress(false);
+  setStagingAllowed(true);
 }
 
 void
@@ -533,6 +570,12 @@ art::EventProcessor::setOutputFileStatus(OutputFileStatus const ofs)
 void
 art::EventProcessor::closeSomeOutputFiles()
 {
+  // Precondition: there are SOME output files that have been
+  //               flagged as needing to close.  Otherwise,
+  //               'respondtoCloseOutputFiles' will be needlessly
+  //               called.
+  assert(outputsToClose());
+  respondToCloseOutputFiles();
   endPathExecutor_->closeSomeOutputFiles();
   FDEBUG(1) << spaces(8) << "closeSomeOutputFiles\n";
 }

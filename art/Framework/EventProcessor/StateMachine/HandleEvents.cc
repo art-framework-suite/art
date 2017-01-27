@@ -12,26 +12,30 @@ namespace statemachine {
 
   HandleEvents::HandleEvents(my_context ctx) :
     my_base{ctx},
-    ep_{context<Machine>().ep()},
-    currentEvent_{ep_.eventPrincipalID()}
-  {}
+    ep_{context<Machine>().ep()}
+  {
+    ep_.setExitEventCalled(false);
+    ep_.setEventException(false);
+    ep_.setFinalizeEventEnabled(true);
+    ep_.setCurrentEvent(ep_.eventPrincipalID());
+  }
 
   void HandleEvents::disableFinalizeEvent(Pause const&)
   {
-    context<HandleFiles>().disallowStaging();
-    finalizeEnabled_ = false;
+    ep_.disallowStaging();
+    ep_.setFinalizeEventEnabled(false);
   }
 
   void HandleEvents::exit()
   {
     if (ep_.alreadyHandlingException()) return;
-    exitCalled_ = true;
+    ep_.setExitEventCalled(true);
     finalizeEvent();
   }
 
   HandleEvents::~HandleEvents()
   {
-    if (!exitCalled_) {
+    if (!ep_.exitEventCalled()) {
       try {
         finalizeEvent();
       }
@@ -80,33 +84,32 @@ namespace statemachine {
 
   void HandleEvents::finalizeEvent()
   {
-    if (!finalizeEnabled_) return;
-    if (eventException_) return;
-    if (currentEvent_.isFlush()) return;
+    if (!ep_.finalizeEventEnabled()) return;
+    if (ep_.eventException()) return;
+    if (ep_.currentEvent().isFlush()) return;
 
-    eventException_ = true;
-    context<HandleFiles>().openSomeOutputFiles();
+    ep_.setEventException(true);
+    ep_.openSomeOutputFiles();
     ep_.writeEvent();
 
     // Staging is not allowed whenever 'maybeTriggerOutputFileSwitch'
     // is called due to exiting a 'Pause' state.
-    if (context<HandleFiles>().stagingAllowed()) {
+    if (ep_.stagingAllowed()) {
       ep_.recordOutputClosureRequests(Boundary::Event);
-      context<HandleFiles>().maybeTriggerOutputFileSwitch();
+      ep_.maybeTriggerOutputFileSwitch();
     }
 
-    eventException_ = false;
+    ep_.setEventException(false);
   }
 
   NewEvent::NewEvent(my_context ctx) :
     my_base{ctx},
     ep_{context<Machine>().ep()}
   {
-    auto& handleEvents = context<HandleEvents>();
-    handleEvents.setEventException(true);
+    ep_.setEventException(true);
     markNonEmpty();
-    handleEvents.setCurrentEvent(ep_.readEvent());
-    handleEvents.setEventException(false);
+    ep_.setCurrentEvent(ep_.readEvent());
+    ep_.setEventException(false);
     checkInvariant();
     post_event(Process{});
   }
@@ -118,10 +121,10 @@ namespace statemachine {
 
   void NewEvent::checkInvariant()
   {
-    assert(context<HandleRuns>().currentRun().isValid());
-    assert(context<HandleRuns>().beginRunCalled());
-    assert(context<HandleSubRuns>().currentSubRun().runID() == context<HandleRuns>().currentRun());
-    assert(context<HandleSubRuns>().currentSubRun().isValid());
+    assert(ep_.currentRun().isValid());
+    assert(ep_.beginRunCalled());
+    assert(ep_.currentSubRun().runID() == ep_.currentRun());
+    assert(ep_.currentSubRun().isValid());
   }
 
   void NewEvent::markNonEmpty()
@@ -134,7 +137,7 @@ namespace statemachine {
     : my_base{ctx}
     , ep_{context<Machine>().ep()}
   {
-    if (context<HandleEvents>().currentEvent().isFlush()) return;
+    if (ep_.currentEvent().isFlush()) return;
 
     ep_.processEvent();
     if (ep_.shouldWeStop()) {
