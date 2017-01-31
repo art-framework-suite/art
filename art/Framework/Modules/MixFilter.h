@@ -337,7 +337,7 @@ public:
 
 private:
   fhicl::ParameterSet const &
-  initEngine(fhicl::ParameterSet const & p);
+  initEngine_(fhicl::ParameterSet const & p);
   MixHelper helper_;
   MixDetail detail_;
 };
@@ -346,7 +346,7 @@ template <class T>
 art::MixFilter<T>::MixFilter(fhicl::ParameterSet const & p)
   :
   EDFilter(),
-  helper_(initEngine(p), *this), // See note below
+  helper_(initEngine_(p), *this), // See note below
   detail_(p, helper_)
 {
   // Note that the random number engine is created in the initializer
@@ -450,7 +450,7 @@ art::MixFilter<T>::filter(art::Event & e)
 
 template <class T>
 fhicl::ParameterSet const &
-art::MixFilter<T>::initEngine(fhicl::ParameterSet const & p) {
+art::MixFilter<T>::initEngine_(fhicl::ParameterSet const & p) {
   // If we can't create one of these, the helper will deal with the
   // situation accordingly.
   if (ServiceRegistry::instance().isAvailable<RandomNumberGenerator>()) {
