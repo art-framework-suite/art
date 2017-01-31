@@ -48,7 +48,7 @@
 //
 //     * offset is a single offset into the container into which the Ptr
 //     points. It should be of type
-//     convertible-to-container::size::type.
+//     convertible-to-container::size_type.
 //
 //     * offsets is an arbitrary container of such offsets as described
 //     in the documentation in
@@ -66,7 +66,7 @@
 //       PtrVector<A> newPV(remap(oldPV, offset));
 //
 //  3. Remap a compatible collection (including PtrVector) of Ptr
-// providing begin, end iteratorsq. (This will also remap a compatible
+// providing begin, end iterators. (This will also remap a compatible
 // collection of PtrVector, but not of PtrVector const * -- for the
 // latter, see 4-10.)
 //
@@ -441,7 +441,7 @@ operator()(std::vector<PROD const *> const &in,
   this->operator()<CONT>(in,
                          out,
                          offsets,
-                         [&x](auto& elem){ elem.extractor(x); }); // 10?
+                         [&x](auto& elem){ elem.extractor(x); }); // 10.
 }
 
 // 9.
