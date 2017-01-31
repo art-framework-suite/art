@@ -15,10 +15,10 @@ InputSourceFactory: created input source EventProcessorTestSource
         readEvent...................(run: 1 subRun: 1 event: 1)
         processEvent................(run: 1 subRun: 1 event: 1)
         shouldWeStop
-    *** nextItemType: SubRun ***
         openSomeOutputFiles
         respondToOpenOutputFiles
         writeEvent..................(run: 1 subRun: 1 event: 1)
+    *** nextItemType: SubRun ***
         setSubRunAuxiliaryRangeSetID(run: 1 subRun: 1)
         endSubRun...................(run: 1 subRun: 1)
         writeSubRun.................(run: 1 subRun: 1)
@@ -28,8 +28,8 @@ InputSourceFactory: created input source EventProcessorTestSource
         readEvent...................(run: 1 subRun: 2 event: 1)
         processEvent................(run: 1 subRun: 2 event: 1)
         shouldWeStop
-    *** nextItemType: InputFile ***
         writeEvent..................(run: 1 subRun: 2 event: 1)
+    *** nextItemType: InputFile ***
         setSubRunAuxiliaryRangeSetID(run: 1 subRun: 2)
         endSubRun...................(run: 1 subRun: 2)
         writeSubRun.................(run: 1 subRun: 2)
@@ -52,10 +52,10 @@ InputSourceFactory: created input source EventProcessorTestSource
         readEvent...................(run: 1 subRun: 2 event: 2)
         processEvent................(run: 1 subRun: 2 event: 2)
         shouldWeStop
-    *** nextItemType: Stop ***
         openSomeOutputFiles
         respondToOpenOutputFiles
         writeEvent..................(run: 1 subRun: 2 event: 2)
+    *** nextItemType: Stop ***
         setSubRunAuxiliaryRangeSetID(run: 1 subRun: 2)
         endSubRun...................(run: 1 subRun: 2)
         writeSubRun.................(run: 1 subRun: 2)

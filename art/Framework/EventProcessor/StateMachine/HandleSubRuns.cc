@@ -32,50 +32,8 @@ namespace statemachine {
   HandleSubRuns::~HandleSubRuns()
   {
     if (!ep_.exitSubRunCalled()) {
-      try {
-        checkInvariant();
-        ep_.finalizeSubRun();
-      }
-      catch (cet::exception const& e) {
-        std::ostringstream message;
-        message << "------------------------------------------------------------\n"
-                << "Another exception was caught while trying to clean up subRuns after\n"
-                << "the primary exception.  We give up trying to clean up subRuns at\n"
-                << "this point.  The description of this additional exception follows:\n"
-                << "cet::exception\n"
-                << e.explain_self();
-        ep_.setExceptionMessageSubRuns(message.str());
-      }
-      catch (std::bad_alloc const& e) {
-        std::ostringstream message;
-        message << "------------------------------------------------------------\n"
-                << "Another exception was caught while trying to clean up subRuns\n"
-                << "after the primary exception.  We give up trying to clean up subRuns\n"
-                << "at this point.  This additional exception was a\n"
-                << "std::bad_alloc exception thrown inside HandleSubRuns::finalizeAllSubRuns.\n"
-                << "The job has probably exhausted the virtual memory available\n"
-                << "to the process.\n";
-        ep_.setExceptionMessageSubRuns(message.str());
-      }
-      catch (std::exception const& e) {
-        std::ostringstream message;
-        message << "------------------------------------------------------------\n"
-                << "Another exception was caught while trying to clean up subRuns after\n"
-                << "the primary exception.  We give up trying to clean up subRuns at\n"
-                << "this point.  This additional exception was a\n"
-                << "standard library exception thrown inside HandleSubRuns::finalizeAllSubRuns\n"
-                << e.what() << "\n";
-        ep_.setExceptionMessageSubRuns(message.str());
-      }
-      catch (...) {
-        std::ostringstream message;
-        message << "------------------------------------------------------------\n"
-                << "Another exception was caught while trying to clean up subRuns after\n"
-                << "the primary exception.  We give up trying to clean up subRuns at\n"
-                << "this point.  This additional exception was of unknown type and\n"
-                << "thrown inside HandleSubRuns::finalizeAllSubRuns\n";
-        ep_.setExceptionMessageSubRuns(message.str());
-      }
+      checkInvariant();
+      ep_.try_finalize<art::Level::SubRun>();
     }
   }
 

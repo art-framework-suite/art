@@ -66,10 +66,10 @@ InputSourceFactory: created input source EventProcessorTestSource
         beginRun....................(run: 2)
     *** nextItemType: SubRun ***
         readSubRun..................(run: 2 subRun: 1)
+        beginSubRun.................(run: 2 subRun: 1)
     *** nextItemType: InputFile ***
         openSomeOutputFiles
         respondToOpenOutputFiles
-        beginSubRun.................(run: 2 subRun: 1)
         setSubRunAuxiliaryRangeSetID(run: 2 subRun: 1)
         endSubRun...................(run: 2 subRun: 1)
         writeSubRun.................(run: 2 subRun: 1)

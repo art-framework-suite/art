@@ -31,49 +31,7 @@ namespace statemachine {
   HandleRuns::~HandleRuns()
   {
     if (!ep_.exitRunCalled()) {
-      try {
-        ep_.finalizeRun();
-      }
-      catch (cet::exception const& e) {
-        std::ostringstream message;
-        message << "------------------------------------------------------------\n"
-                << "Another exception was caught while trying to clean up runs after\n"
-                << "the primary exception.  We give up trying to clean up runs at\n"
-                << "this point.  The description of this additional exception follows:\n"
-                << "cet::exception\n"
-                << e.explain_self();
-        ep_.setExceptionMessageRuns(message.str());
-      }
-      catch (std::bad_alloc const& e) {
-        std::ostringstream message;
-        message << "------------------------------------------------------------\n"
-                << "Another exception was caught while trying to clean up runs\n"
-                << "after the primary exception.  We give up trying to clean up runs\n"
-                << "at this point.  This additional exception was a\n"
-                << "std::bad_alloc exception thrown inside HandleRuns::finalizeRun.\n"
-                << "The job has probably exhausted the virtual memory available\n"
-                << "to the process.\n";
-        ep_.setExceptionMessageRuns(message.str());
-      }
-      catch (std::exception const& e) {
-        std::ostringstream message;
-        message << "------------------------------------------------------------\n"
-                << "Another exception was caught while trying to clean up runs after\n"
-                << "the primary exception.  We give up trying to clean up runs at\n"
-                << "this point.  This additional exception was a\n"
-                << "standard library exception thrown inside HandleRuns::finalizeRun\n"
-                << e.what() << "\n";
-        ep_.setExceptionMessageRuns(message.str());
-      }
-      catch (...) {
-        std::ostringstream message;
-        message << "------------------------------------------------------------\n"
-                << "Another exception was caught while trying to clean up runs after\n"
-                << "the primary exception.  We give up trying to clean up runs at\n"
-                << "this point.  This additional exception was of unknown type and\n"
-                << "thrown inside HandleRuns::finalizeRun\n";
-        ep_.setExceptionMessageRuns(message.str());
-      }
+      ep_.try_finalize<art::Level::Run>();
     }
   }
 

@@ -25,8 +25,8 @@ InputSourceFactory: created input source EventProcessorTestSource
         readEvent...................(run: 2 subRun: 2 event: 1)
         processEvent................(run: 2 subRun: 2 event: 1)
         shouldWeStop
-    *** nextItemType: SubRun ***
         writeEvent..................(run: 2 subRun: 2 event: 1)
+    *** nextItemType: SubRun ***
         setSubRunAuxiliaryRangeSetID(run: 2 subRun: 2)
         endSubRun...................(run: 2 subRun: 2)
         writeSubRun.................(run: 2 subRun: 2)

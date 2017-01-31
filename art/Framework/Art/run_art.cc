@@ -247,7 +247,7 @@ int art::run_art_common_(fhicl::ParameterSet const& main_pset, art::detail::Debu
       std::cerr << "Art has handled signal "
                 << art::shutdown_flag
                 << ".\n";
-      if ( scheduler_pset.get<bool>("errorOnSIGINT") )
+      if (scheduler_pset.get<bool>("errorOnSIGINT"))
         rc = 128 + art::shutdown_flag;
     }
   }

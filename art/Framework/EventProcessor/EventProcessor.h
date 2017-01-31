@@ -22,6 +22,8 @@
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/ServiceToken.h"
 #include "art/Persistency/Provenance/MasterProductRegistry.h"
+#include "art/Utilities/UnixSignalHandlers.h"
+#include "canvas/Persistency/Provenance/IDNumber.h"
 #include "canvas/Persistency/Provenance/PassID.h"
 #include "canvas/Persistency/Provenance/ReleaseVersion.h"
 #include "cetlib/exception.h"
@@ -119,6 +121,10 @@ public:
 
   void doErrorStuff();
 
+  template <Level L> void finalize();
+  template <Level L> void try_finalize();
+  template <Level L> void setExceptionMessage(std::string const&);
+
   void setupCurrentRun();
   void readRun();
   void beginRun();
@@ -149,9 +155,6 @@ public:
 
   bool shouldWeStop() const;
 
-  void setExceptionMessageFiles(std::string const& message);
-  void setExceptionMessageRuns(std::string const& message);
-  void setExceptionMessageSubRuns(std::string const& message);
   bool alreadyHandlingException() const;
 
   bool switchInProgress() const { return switchInProgress_; }
@@ -203,6 +206,23 @@ public:
   void setFinalizeEventEnabled(bool const value) { finalizeEventEnabled_ = value; }
 
 private:
+
+  template <Level L> std::enable_if_t<(underlying_value(L)<underlying_value(Level::N)-1)> begin();
+  template <Level L> std::enable_if_t<(underlying_value(L)<underlying_value(Level::N)-1)> process();
+  template <Level L> std::enable_if_t<(underlying_value(L)==underlying_value(Level::N)-1)> process();
+  template <Level L> std::enable_if_t<(underlying_value(L)<underlying_value(Level::N)-1)> end();
+
+  template <Level L> void endContainingLevels();
+
+
+  template <Level L>
+  bool levelsToProcess();
+
+  void levelProcessed();
+  Level advance();
+
+  Level nextLevel_ {Level::Empty};
+  std::vector<Level> activeLevels_ {Level::Job};
 
   // Stuff from state machine
   bool beginRunCalled_ {false}; // Should be stack variable local to run loop
@@ -267,9 +287,15 @@ private:
   bool const handleEmptySubRuns_;
   bool stagingAllowed_ {true};
   bool switchInProgress_ {false};
-  std::string exceptionMessageFiles_ {};
-  std::string exceptionMessageRuns_ {};
-  std::string exceptionMessageSubRuns_ {};
+
+  // Note that the non-const references are initialized after the
+  // exceptionMessages_ object is initialized.
+  std::array<std::string, art::underlying_value(art::Level::N)> exceptionMessages_;
+  std::string& exceptionMessageFiles_ {std::get<art::underlying_value(art::Level::InputFile)>(exceptionMessages_)};
+  std::string& exceptionMessageRuns_ {std::get<art::underlying_value(art::Level::Run)>(exceptionMessages_)};
+  std::string& exceptionMessageSubRuns_ {std::get<art::underlying_value(art::Level::SubRun)>(exceptionMessages_)};
+  std::string& exceptionMessageEvents_ {std::get<art::underlying_value(art::Level::Event)>(exceptionMessages_)};
+
   bool alreadyHandlingException_ {false};
 
 };  // EventProcessor
@@ -343,6 +369,162 @@ catch (...) {
   throw;
 }
 
+template <art::Level L>
+bool
+art::EventProcessor::levelsToProcess()
+{
+  if (nextLevel_ == Level::Empty) {
+    nextLevel_ = advance();
+    boost::mutex::scoped_lock sl {usr2_lock};
+    if (art::shutdown_flag > 0) {
+      throw Exception{errors::SignalReceived};
+    }
+  }
+
+  if (nextLevel_ == L) {
+    activeLevels_.push_back(nextLevel_);
+    nextLevel_ = Level::Empty;
+    return true;
+  }
+  else if (nextLevel_ < L) {
+    return false;
+  }
+  else if (nextLevel_ == Level::Done) {
+    return false;
+  }
+
+  throw Exception{errors::LogicError} << "Incorrect level hierarchy.";
+}
+
+namespace art {
+  template <> inline void EventProcessor::begin<Level::Job>() { beginJob(); }
+  template <> inline void EventProcessor::begin<Level::InputFile>() { openInputFile(); }
+  template <> inline void EventProcessor::begin<Level::Run>() { setupCurrentRun(); }
+  template <> inline void EventProcessor::begin<Level::SubRun>() { setupCurrentSubRun(); }
+
+  template <> inline void EventProcessor::finalize<Level::Event>() { finalizeEvent(); }
+  template <> inline void EventProcessor::finalize<Level::SubRun>() { finalizeSubRun(); }
+  template <> inline void EventProcessor::finalize<Level::Run>() { finalizeRun(); }
+  template <> inline void EventProcessor::finalize<Level::InputFile>() {
+    if (nextLevel_ == Level::Done) {
+      closeAllFiles();
+    }
+    else {
+      closeInputFile();
+    }
+  }
+  template <> inline void EventProcessor::finalize<Level::Job>() { endJob(); }
+
+  template <> inline void EventProcessor::endContainingLevels<Level::Job>() {}
+  template <> inline void EventProcessor::endContainingLevels<Level::InputFile>() {}
+  template <> inline void EventProcessor::endContainingLevels<Level::Run>() {}
+
+  template <> inline void EventProcessor::endContainingLevels<Level::SubRun>()
+  {
+    try_finalize<Level::Run>();
+  }
+
+  template <> inline void EventProcessor::endContainingLevels<Level::Event>()
+  {
+    try_finalize<Level::SubRun>();
+    endContainingLevels<Level::SubRun>();
+  }
+}
+
+
+
+template <art::Level L>
+std::enable_if_t<(art::underlying_value(L)==art::underlying_value(art::Level::N)-1)>
+art::EventProcessor::process()
+{
+  beginRunIfNotDoneAlready();
+  beginSubRunIfNotDoneAlready();
+  readEvent();
+
+  if (eventPrincipalID().isFlush()) return;
+  processEvent();
+
+  if (shouldWeStop()) { // ???
+  }
+  try_finalize<Level::Event>();
+  if (outputsToClose()) {
+    disallowStaging();
+    endContainingLevels<Level::Event>();
+    closeSomeOutputFiles();
+  }
+}
+
+template <art::Level L>
+std::enable_if_t<(art::underlying_value(L)<art::underlying_value(art::Level::N)-1)>
+art::EventProcessor::process()
+{
+  begin<L>();
+  auto constexpr next_level = static_cast<art::Level>(art::underlying_value(L)+1);
+  while (levelsToProcess<next_level>()) {
+    process<next_level>();
+    levelProcessed();
+  }
+  try_finalize<L>();
+  if (outputsToClose()) {
+    disallowStaging();
+    endContainingLevels<L>();
+    closeSomeOutputFiles();
+  }
+}
+
+template <art::Level L>
+void
+art::EventProcessor::setExceptionMessage(std::string const& message)
+{
+  std::get<art::underlying_value(L)>(exceptionMessages_) = message;
+}
+
+template <art::Level L>
+void
+art::EventProcessor::try_finalize()
+  try {
+    finalize<L>();
+  }
+  catch (cet::exception const& e) {
+    std::ostringstream message;
+    message << "------------------------------------------------------------\n"
+            << "Another exception was caught while trying to clean up " << L << "s after\n"
+            << "the primary exception.  We give up trying to clean up " << L << "s at\n"
+            << "this point.  The description of this additional exception follows:\n"
+            << "cet::exception\n"
+            << e.explain_self();
+    setExceptionMessage<L>(message.str());
+  }
+  catch (std::bad_alloc const& e) {
+    std::ostringstream message;
+    message << "------------------------------------------------------------\n"
+            << "Another exception was caught while trying to clean up " << L << "s\n"
+            << "after the primary exception.  We give up trying to clean up " << L << "s\n"
+            << "at this point.  This additional exception was a\n"
+            << "std::bad_alloc exception thrown inside Handle" << L << "s::finalize" << L << ".\n"
+            << "The job has probably exhausted the virtual memory available\n"
+            << "to the process.\n";
+    setExceptionMessage<L>(message.str());
+  }
+  catch (std::exception const& e) {
+    std::ostringstream message;
+    message << "------------------------------------------------------------\n"
+            << "Another exception was caught while trying to clean up " << L << "s after\n"
+            << "the primary exception.  We give up trying to clean up " << L << "s at\n"
+            << "this point.  This additional exception was a\n"
+            << "standard library exception thrown inside Handle" << L << "s::finalize" << L << "\n"
+            << e.what() << "\n";
+    setExceptionMessage<L>(message.str());
+  }
+  catch (...) {
+    std::ostringstream message;
+    message << "------------------------------------------------------------\n"
+            << "Another exception was caught while trying to clean up " << L << "s after\n"
+            << "the primary exception.  We give up trying to clean up " << L << "s at\n"
+            << "this point.  This additional exception was of unknown type and\n"
+            << "thrown inside Handle" << L << "s::finalize" << L << "\n";
+    setExceptionMessage<L>(message.str());
+  }
 
 // ======================================================================
 

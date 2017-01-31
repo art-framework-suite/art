@@ -23,7 +23,6 @@
 #include "art/Framework/Services/System/TriggerNamesService.h"
 #include "art/Persistency/Provenance/BranchIDListHelper.h"
 #include "art/Utilities/ScheduleID.h"
-#include "art/Utilities/UnixSignalHandlers.h"
 #include "art/Utilities/bold_fontify.h"
 #include "art/Version/GetReleaseVersion.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
@@ -233,7 +232,7 @@ art::EventProcessor::endJob()
   cet::exception_collector c;
   // Make the services available
   ServiceRegistry::Operate op {serviceToken_};
-  c.call([this](){ terminateMachine_(); });
+  //  c.call([this](){ terminateMachine_(); });
   c.call([this](){ schedule_->endJob(); });
   c.call([this](){ endPathExecutor_->endJob(); });
   bool summarize = ServiceHandle<TriggerNamesService>()->wantSummary();
@@ -328,47 +327,47 @@ art::EventProcessor::runToCompletion()
   // Make the services available
   ServiceRegistry::Operate op {serviceToken_};
   machine_ = std::make_unique<statemachine::Machine>(this);
-  machine_->initiate();
+  // machine_->initiate();
 
   try {
-    while (true) {
-      auto const itemType = input_->nextItemType();
-      FDEBUG(1) << spaces(4) << "*** nextItemType: " << itemType << " ***\n";
-      // Look for a shutdown signal
-      {
-        boost::mutex::scoped_lock sl {usr2_lock};
-        if (art::shutdown_flag > 0) {
-          //changeState(mShutdownSignal);
-          returnCode = epSignal;
-          machine_->process_event(statemachine::Stop());
-          break;
-        }
-      }
-      if (itemType == input::IsStop) {
-        machine_->process_event(statemachine::Stop());
-      }
-      else if (itemType == input::IsFile) {
-        machine_->process_event(statemachine::InputFile());
-      }
-      else if (itemType == input::IsRun) {
-        machine_->process_event(statemachine::Run(input_->run()));
-      }
-      else if (itemType == input::IsSubRun) {
-        machine_->process_event(statemachine::SubRun(input_->subRun()));
-      }
-      else if (itemType == input::IsEvent) {
-        machine_->process_event(statemachine::Event());
-      }
-      // This should be impossible
-      else {
-        throw art::Exception(errors::LogicError)
-            << "Unknown next item type passed to EventProcessor\n"
-            << "Please report this error to the art developers\n";
-      }
-      if (machine_->terminated()) {
-        break;
-      }
-    }  // End of loop over state machine events
+    process<Level::Job>();
+
+  // try {
+  //   while (true) {
+  //     auto const nextLevel_ = advance();
+  //     // Look for a shutdown signal
+  //     {
+  //       boost::mutex::scoped_lock sl {usr2_lock};
+  //       if (art::shutdown_flag > 0) {
+  //         returnCode = epSignal;
+  //         machine_->process_event(statemachine::Stop());
+  //         break;
+  //       }
+  //     }
+  //     if (nextLevel_ == Level::Done) {
+  //       machine_->process_event(statemachine::Stop());
+  //     }
+  //     else if (nextLevel_ == Level::InputFile) {
+  //       machine_->process_event(statemachine::InputFile());
+  //     }
+  //     else if (nextLevel_ == Level::Run) {
+  //       machine_->process_event(statemachine::Run(input_->run()));
+  //     }
+  //     else if (nextLevel_ == Level::SubRun) {
+  //       machine_->process_event(statemachine::SubRun(input_->subRun()));
+  //     }
+  //     else if (nextLevel_ == Level::Event) {
+  //       machine_->process_event(statemachine::Event());
+  //     }
+  //     else {
+  //       throw art::Exception(errors::LogicError)
+  //           << "Unknown next item type passed to EventProcessor\n"
+  //           << "Please report this error to the art developers\n";
+  //     }
+  //     if (machine_->terminated()) {
+  //       break;
+  //     }
+  //   }  // End of loop over state machine events
   } // Try block
 
   // Some comments on exception handling related to the boost state
@@ -415,9 +414,24 @@ art::EventProcessor::runToCompletion()
   // terminate the state machine before invoking its destructor.
   // We've seen crashes which are not understood when that is not
   // done.  Maintainers of this code should be careful about this.
+  catch (art::Exception& e) {
+    if (e.categoryCode() == art::errors::SignalReceived) {
+      returnCode = epSignal;
+    }
+    else {
+      terminateAbnormally_();
+      e << "art::Exception caught in EventProcessor and rethrown\n";
+      e << exceptionMessageEvents_;
+      e << exceptionMessageSubRuns_;
+      e << exceptionMessageRuns_;
+      e << exceptionMessageFiles_;
+      throw e;
+    }
+  }
   catch (cet::exception& e) {
     terminateAbnormally_();
     e << "cet::exception caught in EventProcessor and rethrown\n";
+    e << exceptionMessageEvents_;
     e << exceptionMessageSubRuns_;
     e << exceptionMessageRuns_;
     e << exceptionMessageFiles_;
@@ -428,6 +442,7 @@ art::EventProcessor::runToCompletion()
     throw cet::exception("std::bad_alloc")
         << "The EventProcessor caught a std::bad_alloc exception and converted it to a cet::exception\n"
         << "The job has probably exhausted the virtual memory available to the process.\n"
+        << exceptionMessageEvents_
         << exceptionMessageSubRuns_
         << exceptionMessageRuns_
         << exceptionMessageFiles_;
@@ -437,6 +452,7 @@ art::EventProcessor::runToCompletion()
     throw cet::exception("StdException")
         << "The EventProcessor caught a std::exception and converted it to a cet::exception\n"
         << "Previous information:\n" << e.what() << "\n"
+        << exceptionMessageEvents_
         << exceptionMessageSubRuns_
         << exceptionMessageRuns_
         << exceptionMessageFiles_;
@@ -447,6 +463,7 @@ art::EventProcessor::runToCompletion()
         << "The EventProcessor caught a string-based exception type and converted it to a cet::exception\n"
         << e
         << "\n"
+        << exceptionMessageEvents_
         << exceptionMessageSubRuns_
         << exceptionMessageRuns_
         << exceptionMessageFiles_;
@@ -457,6 +474,7 @@ art::EventProcessor::runToCompletion()
         << "The EventProcessor caught a string-based exception type and converted it to a cet::exception\n"
         << e
         << "\n"
+        << exceptionMessageEvents_
         << exceptionMessageSubRuns_
         << exceptionMessageRuns_
         << exceptionMessageFiles_;
@@ -465,6 +483,7 @@ art::EventProcessor::runToCompletion()
     terminateAbnormally_();
     throw cet::exception("Unknown")
         << "The EventProcessor caught an unknown exception type and converted it to a cet::exception\n"
+        << exceptionMessageEvents_
         << exceptionMessageSubRuns_
         << exceptionMessageRuns_
         << exceptionMessageFiles_;
@@ -478,6 +497,31 @@ art::EventProcessor::runToCompletion()
         << "entering the Error state.\n";
   }
   return returnCode;
+}
+
+void
+art::EventProcessor::levelProcessed()
+{
+  assert(!activeLevels_.empty());
+  activeLevels_.pop_back();
+}
+
+art::Level
+art::EventProcessor::advance()
+{
+  auto const itemType = input_->nextItemType();
+  FDEBUG(1) << spaces(4) << "*** nextItemType: " << itemType << " ***\n";
+  switch(itemType) {
+  case input::IsStop: return Level::Done;
+  case input::IsFile: return Level::InputFile;
+  case input::IsRun: return Level::Run;
+  case input::IsSubRun: return Level::SubRun;
+  case input::IsEvent: return Level::Event;
+  case input::IsInvalid: {
+    throw art::Exception{art::errors::LogicError} << "Invalid next item type presented to state machine.";
+  }
+  }
+  return Level::Empty;
 }
 
 void
@@ -637,11 +681,13 @@ art::EventProcessor::doErrorStuff()
 void
 art::EventProcessor::setupCurrentRun()
 {
+  finalizeRunEnabled_ = true;
   runException_ = true;
   readRun();
   runException_ = false;
   if (handleEmptyRuns_) {
     beginRun();
+    beginRunCalled_ = true;
   }
 }
 
@@ -657,21 +703,22 @@ art::EventProcessor::readRun()
 void
 art::EventProcessor::beginRun()
 {
-  beginRunCalled_ = true;
+  if (runPrincipalID().isFlush()) return;
+
+  finalizeRunEnabled_ = true;
   runException_ = true;
-  if (!runPrincipalID().isFlush()) {
-    process_<Begin<Level::Run>>(*runPrincipal_);
-    FDEBUG(1) << spaces(8) << "beginRun....................(" << runPrincipal_->id() << ")\n";
-  }
+  process_<Begin<Level::Run>>(*runPrincipal_);
+  FDEBUG(1) << spaces(8) << "beginRun....................(" << runPrincipal_->id() << ")\n";
   runException_ = false;
 }
 
 void
 art::EventProcessor::beginRunIfNotDoneAlready()
 {
-  if (!beginRunCalled_) {
-    beginRun();
-  }
+  if (beginRunCalled_) return;
+
+  beginRun();
+  beginRunCalled_ = true;
 }
 
 void
@@ -724,9 +771,11 @@ art::EventProcessor::finalizeRun()
   // is called due to exiting a 'Pause' state.
   if (stagingAllowed_) {
     recordOutputClosureRequests(Boundary::Run);
-    maybeTriggerOutputFileSwitch();
+    //    maybeTriggerOutputFileSwitch();
   }
 
+  beginRunCalled_ = false;
+  finalizeRunEnabled_ = false;
   runException_ = false;
 }
 
@@ -736,10 +785,16 @@ art::EventProcessor::finalizeRun()
 void
 art::EventProcessor::setupCurrentSubRun()
 {
+  finalizeSubRunEnabled_ = true;
   assert(runPrincipalID().isValid());
   subRunException_ = true;
   readSubRun();
   subRunException_ = false;
+  if (handleEmptySubRuns_) {
+    beginRunIfNotDoneAlready();
+    beginSubRun();
+    beginSubRunCalled_ = true;
+  }
 }
 
 void
@@ -754,21 +809,22 @@ art::EventProcessor::readSubRun()
 void
 art::EventProcessor::beginSubRun()
 {
-  beginSubRunCalled_ = true;
+  if (subRunPrincipalID().isFlush()) return;
+
+  finalizeSubRunEnabled_ = true;
   subRunException_ = true;
-  if (!subRunPrincipalID().isFlush()) {
-    process_<Begin<Level::SubRun>>(*subRunPrincipal_);
-    FDEBUG(1) << spaces(8) << "beginSubRun.................(" << subRunPrincipal_->id() <<")\n";
-  }
+  process_<Begin<Level::SubRun>>(*subRunPrincipal_);
+  FDEBUG(1) << spaces(8) << "beginSubRun.................(" << subRunPrincipal_->id() <<")\n";
   subRunException_ = false;
 }
 
 void
 art::EventProcessor::beginSubRunIfNotDoneAlready()
 {
-  if (!beginSubRunCalled_) {
-    beginSubRun();
-  }
+  if (beginSubRunCalled_) return;
+
+  beginSubRun();
+  beginSubRunCalled_ = true;
 }
 
 void
@@ -781,7 +837,6 @@ art::EventProcessor::setSubRunAuxiliaryRangeSetID()
 void
 art::EventProcessor::endSubRun()
 {
-  beginSubRunCalled_ = false;
   subRunException_ = true;
   // Precondition: The SubRunID does not correspond to a flush ID.
   // Note: the flush flag is not explicitly checked here since
@@ -813,10 +868,6 @@ art::EventProcessor::finalizeSubRun()
 
   subRunException_ = true;
   openSomeOutputFiles();
-  if (handleEmptySubRuns_) {
-    beginRunIfNotDoneAlready();
-    beginSubRunIfNotDoneAlready();
-  }
   setSubRunAuxiliaryRangeSetID();
   if (beginSubRunCalled_) {
     endSubRun();
@@ -827,9 +878,11 @@ art::EventProcessor::finalizeSubRun()
   // is called due to exiting a 'Pause' state.
   if (stagingAllowed_) {
     recordOutputClosureRequests(Boundary::SubRun);
-    maybeTriggerOutputFileSwitch();
+    //    maybeTriggerOutputFileSwitch();
   }
 
+  finalizeSubRunEnabled_ = false;
+  beginSubRunCalled_ = false;
   subRunException_ = false;
 }
 
@@ -857,6 +910,7 @@ art::EventProcessor::eventPrincipalID() const
 void
 art::EventProcessor::readEvent()
 {
+  finalizeEventEnabled_ = true;
   SignalSentry sourceSentry {actReg_.sPreSource, actReg_.sPostSource};
   eventPrincipal_ = input_->readEvent(subRunPrincipal_.get());
   FDEBUG(1) << spaces(8) << "readEvent...................(" << eventPrincipalID() << ")\n";
@@ -898,9 +952,10 @@ art::EventProcessor::finalizeEvent()
   // is called due to exiting a 'Pause' state.
   if (stagingAllowed_) {
     recordOutputClosureRequests(Boundary::Event);
-    maybeTriggerOutputFileSwitch();
+    //    maybeTriggerOutputFileSwitch();
   }
 
+  finalizeEventEnabled_ = false;
   eventException_ = false;
 }
 
@@ -942,24 +997,6 @@ art::EventProcessor::shouldWeStop() const
   return endPathExecutor_->terminate();
 }
 
-void
-art::EventProcessor::setExceptionMessageFiles(std::string const& message)
-{
-  exceptionMessageFiles_ = message;
-}
-
-void
-art::EventProcessor::setExceptionMessageRuns(std::string const& message)
-{
-  exceptionMessageRuns_ = message;
-}
-
-void
-art::EventProcessor::setExceptionMessageSubRuns(std::string const& message)
-{
-  exceptionMessageSubRuns_ = message;
-}
-
 bool
 art::EventProcessor::alreadyHandlingException() const
 {
@@ -994,12 +1031,12 @@ void
 art::EventProcessor::terminateMachine_()
 {
   assert(machine_);
-  if (!machine_->terminated()) {
-    machine_->process_event(statemachine::Stop());
-  }
-  else {
-    FDEBUG(2) << "EventProcessor::terminateMachine_: The state machine was already terminated \n";
-  }
+  // if (!machine_->terminated()) {
+  //   //    machine_->process_event(statemachine::Stop());
+  // }
+  // else {
+  //   FDEBUG(2) << "EventProcessor::terminateMachine_: The state machine was already terminated \n";
+  // }
 }
 
 void
