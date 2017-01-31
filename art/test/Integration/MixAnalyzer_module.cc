@@ -10,7 +10,7 @@
 #include "cetlib/quiet_unit_test.hpp"
 
 #include "art/Framework/Core/EDAnalyzer.h"
-#include "art/Framework/IO/ProductMix/MixContainerTypes.h"
+#include "art/Framework/IO/ProductMix/MixTypes.h"
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Principal/Handle.h"
 #include "art/Framework/Core/ModuleMacros.h"

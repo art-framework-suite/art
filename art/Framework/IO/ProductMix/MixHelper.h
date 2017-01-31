@@ -193,7 +193,7 @@
 #include "CLHEP/Random/RandFlat.h"
 #include "art/Framework/Core/ProducerBase.h"
 #include "art/Framework/Core/PtrRemapper.h"
-#include "art/Framework/IO/ProductMix/MixContainerTypes.h"
+#include "art/Framework/IO/ProductMix/MixTypes.h"
 #include "art/Framework/IO/ProductMix/MixOp.h"
 #include "art/Framework/IO/ProductMix/ProdToProdMapBuilder.h"
 #include "art/Framework/Principal/fwd.h"
@@ -226,11 +226,6 @@ namespace art {
 class art::MixHelper {
 private:
   typedef std::function<std::string ()> ProviderFunc_;
-  template <typename PROD, typename OPROD>
-  using MixFunc_ =
-    std::function<bool (std::vector<PROD const *> const &,
-                        OPROD &,
-                        PtrRemapper const &)>;
 
 public:
   enum class Mode
@@ -263,7 +258,7 @@ public:
   // 1.
   template <art::BranchType B = art::InEvent, typename PROD, typename OPROD>
   void declareMixOp(InputTag const & inputTag,
-                    MixFunc_<PROD, OPROD> mixFunc,
+                    MixFunc<PROD, OPROD> mixFunc,
                     bool outputProduct = true);
 
 
@@ -271,7 +266,7 @@ public:
   template <art::BranchType B = art::InEvent, typename PROD, typename OPROD>
   void declareMixOp(InputTag const & inputTag,
                     std::string const & outputInstanceLabel,
-                    MixFunc_<PROD, OPROD> mixFunc,
+                    MixFunc<PROD, OPROD> mixFunc,
                     bool outputProduct = true);
 
   // 3.
@@ -321,6 +316,7 @@ public:
   void generateEventAuxiliarySequence(EntryNumberSequence const&,
                                       EventAuxiliarySequence&);
   void mixAndPut(EntryNumberSequence const & enSeq,
+                 EventIDSequence const & eIDseq,
                  Event & e);
   void setEventsToSkipFunction(std::function < size_t () > eventsToSkip);
 
@@ -335,9 +331,6 @@ private:
 
   void openAndReadMetaData_(std::string fileName);
   void buildEventIDIndex_(FileIndex const & fileIndex);
-  void mixAndPutOne_(cet::exempt_ptr<MixOpBase> mixOp,
-                     EntryNumberSequence const & enSeq,
-                     Event & e);
   bool openNextFile_();
   void buildBranchIDTransMap_(ProdToProdMapBuilder::BranchIDTransMap & transMap);
 
@@ -358,14 +351,17 @@ private:
   ProdToProdMapBuilder ptpBuilder_;
   std::unique_ptr<CLHEP::RandFlat> dist_;
   std::function < size_t () > eventsToSkip_;
-  EntryNumberSequence shuffledSequence_; // RANDOM_NO_REPLACE only.s
+  EntryNumberSequence shuffledSequence_; // RANDOM_NO_REPLACE only.
+  bool haveSubRunMixOps_;
+  bool haveRunMixOps_;
 
   // Root-specific state.
-  EventIDIndex eventIDIndex_;
   cet::value_ptr<TFile> currentFile_;
   cet::exempt_ptr<TTree> currentMetaDataTree_;
-  cet::exempt_ptr<TTree> currentEventTree_;
-  RootBranchInfoList dataBranches_;
+  std::array<cet::exempt_ptr<TTree>, art::BranchType::NumBranchTypes> currentDataTrees_;
+  FileIndex currentFileIndex_;
+  std::array<RootBranchInfoList, art::BranchType::NumBranchTypes> dataBranches_;
+  EventIDIndex eventIDIndex_;
 };
 
 inline
@@ -401,10 +397,10 @@ inline
 void
 art::MixHelper::
 declareMixOp(InputTag const & inputTag,
-             MixFunc_<PROD, OPROD> mixFunc,
+             MixFunc<PROD, OPROD> mixFunc,
              bool outputProduct)
 {
-  declareMixOp(inputTag, inputTag.instance(), mixFunc, outputProduct); // 2.
+  declareMixOp<B>(inputTag, inputTag.instance(), mixFunc, outputProduct); // 2.
 }
 
 // 2.
@@ -413,17 +409,23 @@ void
 art::MixHelper::
 declareMixOp(InputTag const & inputTag,
              std::string const & outputInstanceLabel,
-             MixFunc_<PROD, OPROD> mixFunc,
+             MixFunc<PROD, OPROD> mixFunc,
              bool outputProduct)
 {
   if (outputProduct) {
     producesProvider_.produces<PROD>(outputInstanceLabel);
   }
-  mixOps_.emplace_back(new MixOp<PROD>(inputTag,
-                                       outputInstanceLabel,
-                                       mixFunc,
-                                       outputProduct,
-                                       compactMissingProducts_));
+  if (B == art::InSubRun) {
+    haveSubRunMixOps_ = true;
+  } else if (B == art::InRun) {
+    haveRunMixOps_ = true;
+  }
+  mixOps_.emplace_back(new MixOp<PROD, OPROD>(inputTag,
+                                              outputInstanceLabel,
+                                              mixFunc,
+                                              outputProduct,
+                                              compactMissingProducts_,
+                                              B));
 }
 
 // 3.
@@ -438,7 +440,7 @@ declareMixOp(InputTag const & inputTag,
              T & t,
              bool outputProduct)
 {
-  declareMixOp(inputTag, inputTag.instance(), mixFunc, t, outputProduct); // 4.
+  declareMixOp<B>(inputTag, inputTag.instance(), mixFunc, t, outputProduct); // 4.
 }
 
 // 4.
@@ -456,9 +458,9 @@ declareMixOp(InputTag const & inputTag,
   using std::placeholders::_1;
   using std::placeholders::_2;
   using std::placeholders::_3;
-  declareMixOp(inputTag,
+  declareMixOp<B>(inputTag,
                outputInstanceLabel,
-               static_cast<MixFunc_<PROD, OPROD> >(std::bind(mixFunc, &t, _1, _2, _3)),
+               static_cast<MixFunc<PROD, OPROD> >(std::bind(mixFunc, &t, _1, _2, _3)),
                outputProduct); // 2.
 }
 
@@ -474,7 +476,7 @@ declareMixOp(InputTag const & inputTag,
              T const & t,
              bool outputProduct)
 {
-  declareMixOp(inputTag, inputTag.instance(), mixFunc, t, outputProduct); // 6.
+  declareMixOp<B>(inputTag, inputTag.instance(), mixFunc, t, outputProduct); // 6.
 }
 
 // 6.
@@ -492,10 +494,10 @@ declareMixOp(InputTag const & inputTag,
   using std::placeholders::_1;
   using std::placeholders::_2;
   using std::placeholders::_3;
-  declareMixOp(inputTag,
-               outputInstanceLabel,
-               static_cast<MixFunc_<PROD, OPROD> >(std::bind(mixFunc, &t, _1, _2, _3)),
-               outputProduct); // 2.
+  declareMixOp<B>(inputTag,
+                  outputInstanceLabel,
+                  static_cast<MixFunc<PROD, OPROD> >(std::bind(mixFunc, &t, _1, _2, _3)),
+                  outputProduct); // 2.
 }
 
 #endif /* art_Framework_IO_ProductMix_MixHelper_h */

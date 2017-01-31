@@ -1,2 +1,2 @@
-#include "art/Framework/IO/ProductMix/MixContainerTypes.h"
+#include "art/Framework/IO/ProductMix/MixTypes.h"
 #include "canvas/Persistency/Common/Wrapper.h"
