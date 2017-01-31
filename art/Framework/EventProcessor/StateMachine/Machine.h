@@ -149,12 +149,6 @@ namespace statemachine {
 
     using reactions = sc::transition<Run, HandleRuns>;
 
-    void setupCurrentRun();
-    void beginRun();
-    void endRun();
-    void finalizeRun();
-    void beginRunIfNotDoneAlready();
-
     void disableFinalizeRun(Pause const&);
 
   private:
@@ -192,13 +186,8 @@ namespace statemachine {
     void checkInvariant();
 
     void disableFinalizeSubRun(Pause const&);
-    void beginSubRun();
-    void endSubRun();
 
-    void setupCurrentSubRun();
     void finalizeSubRun();
-    void markSubRunNonEmpty();
-    void beginSubRunIfNotDoneAlready();
 
     using reactions = sc::transition<SubRun, HandleSubRuns>;
 
@@ -238,7 +227,6 @@ namespace statemachine {
 
     void disableFinalizeEvent(Pause const&);
     void exit();
-    void finalizeEvent();
 
     using reactions = sc::transition<Event, HandleEvents>;
 
@@ -256,7 +244,6 @@ namespace statemachine {
     ~NewEvent();
 
     void checkInvariant();
-    void markNonEmpty();
 
     using reactions = mpl::list<sc::transition<Process, ProcessEvent>,
                                 sc::transition<Pause, PauseEvent, HandleEvents, &HandleEvents::disableFinalizeEvent>>;

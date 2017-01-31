@@ -119,29 +119,34 @@ public:
 
   void doErrorStuff();
 
+  void setupCurrentRun();
+  void readRun();
   void beginRun();
-  void endRun();
-
-  void beginSubRun();
-  void endSubRun();
-
-  RunID    readRun();
-  SubRunID readSubRun();
-
-  void writeRun();
-  void writeSubRun();
-  void writeEvent();
-
+  void beginRunIfNotDoneAlready();
   void setRunAuxiliaryRangeSetID();
+  void endRun();
+  void writeRun();
+  void finalizeRun();
+
+  void setupCurrentSubRun();
+  void readSubRun();
+  void beginSubRun();
+  void beginSubRunIfNotDoneAlready();
   void setSubRunAuxiliaryRangeSetID();
+  void endSubRun();
+  void writeSubRun();
+  void finalizeSubRun();
+
+  void readEvent();
+  void processEvent();
+  void writeEvent();
+  void finalizeEvent();
 
   // Run/SubRun IDs from most recently added principals
   RunID runPrincipalID() const;
   SubRunID subRunPrincipalID() const;
   EventID eventPrincipalID() const;
 
-  EventID readEvent();
-  void processEvent();
   bool shouldWeStop() const;
 
   void setExceptionMessageFiles(std::string const& message);
@@ -154,11 +159,8 @@ public:
 
   void disallowStaging() {
     setOutputFileStatus(OutputFileStatus::StagedToSwitch);
-    setStagingAllowed(false);
+    stagingAllowed_ = false;
   }
-
-  bool handleEmptyRuns() const { return handleEmptyRuns_; }
-  bool handleEmptySubRuns() const { return handleEmptySubRuns_; }
 
   bool outputsToOpen() const;
   bool outputsToClose() const;
@@ -176,35 +178,29 @@ public:
   bool exitRunCalled() const { return exitRunCalled_; }
   bool runException() const { return runException_; }
   bool finalizeRunEnabled() const { return finalizeRunEnabled_; }
-  RunID currentRun() const { return currentRun_; }
 
   bool beginSubRunCalled() const { return beginSubRunCalled_; }
   bool exitSubRunCalled() const { return exitSubRunCalled_; }
   bool subRunException() const { return subRunException_; }
   bool finalizeSubRunEnabled() const { return finalizeSubRunEnabled_; }
-  SubRunID const& currentSubRun() const { return currentSubRun_; }
 
   bool exitEventCalled() const { return exitEventCalled_; }
   bool eventException() const { return eventException_; }
   bool finalizeEventEnabled() const { return finalizeEventEnabled_; }
-  EventID const& currentEvent() const { return currentEvent_; }
 
   void setBeginRunCalled(bool const value) { beginRunCalled_ = value; }
   void setExitRunCalled(bool const value) { exitRunCalled_ = value; }
   void setRunException(bool const value) { runException_ = value; }
   void setFinalizeRunEnabled(bool const value) { finalizeRunEnabled_ = value; }
-  void setCurrentRun(RunID const r) { currentRun_ = r; }
 
   void setBeginSubRunCalled(bool const value) { beginSubRunCalled_ = value; }
   void setExitSubRunCalled(bool const value) { exitSubRunCalled_ = value; }
   void setSubRunException(bool const value) { subRunException_ = value; }
   void setFinalizeSubRunEnabled(bool const value) { finalizeSubRunEnabled_ = value; }
-  void setCurrentSubRun(SubRunID const& sr) { currentSubRun_ = sr; }
 
   void setExitEventCalled(bool const value) { exitEventCalled_ = value; }
   void setEventException(bool const value) { eventException_ = value; }
   void setFinalizeEventEnabled(bool const value) { finalizeEventEnabled_ = value; }
-  void setCurrentEvent(EventID const& e) { currentEvent_ = e; }
 
 private:
 
@@ -213,18 +209,15 @@ private:
   bool exitRunCalled_ {false};  // ""
   bool runException_ {false};   // ""
   bool finalizeRunEnabled_ {true};
-  RunID currentRun_ {};
 
   bool beginSubRunCalled_ {false}; // Should be stack variable local to run loop
   bool exitSubRunCalled_ {false};  // ""
   bool subRunException_ {false};   // ""
   bool finalizeSubRunEnabled_ {true};
-  SubRunID currentSubRun_ {};
 
   bool exitEventCalled_ {false};
   bool eventException_ {false};
   bool finalizeEventEnabled_ {true};
-  EventID currentEvent_ {};
 
   ServiceDirector initServices_(fhicl::ParameterSet const& top_pset,
                                 ActivityRegistry& areg,

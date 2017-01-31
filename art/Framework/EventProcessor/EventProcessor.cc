@@ -631,44 +631,206 @@ art::EventProcessor::doErrorStuff()
   stateMachineWasInErrorState_ = true;
 }
 
+//=============================================
+// Run level
+
+void
+art::EventProcessor::setupCurrentRun()
+{
+  runException_ = true;
+  readRun();
+  runException_ = false;
+  if (handleEmptyRuns_) {
+    beginRun();
+  }
+}
+
+void
+art::EventProcessor::readRun()
+{
+  SignalSentry runSourceSentry {actReg_.sPreSourceRun, actReg_.sPostSourceRun};
+  runPrincipal_ = input_->readRun();
+  endPathExecutor_->seedRunRangeSet(input_->runRangeSetHandler());
+  FDEBUG(1) << spaces(8) << "readRun.....................(" << runPrincipalID() << ")\n";
+}
+
 void
 art::EventProcessor::beginRun()
 {
-  // Precondition: The RunID does not correspond to a flush ID.
-  RunID const run {runPrincipal_->id()};
-  assert(!run.isFlush());
-  process_<Begin<Level::Run>>(*runPrincipal_);
-  FDEBUG(1) << spaces(8) << "beginRun....................(" << run << ")\n";
+  beginRunCalled_ = true;
+  runException_ = true;
+  if (!runPrincipalID().isFlush()) {
+    process_<Begin<Level::Run>>(*runPrincipal_);
+    FDEBUG(1) << spaces(8) << "beginRun....................(" << runPrincipal_->id() << ")\n";
+  }
+  runException_ = false;
+}
+
+void
+art::EventProcessor::beginRunIfNotDoneAlready()
+{
+  if (!beginRunCalled_) {
+    beginRun();
+  }
+}
+
+void
+art::EventProcessor::setRunAuxiliaryRangeSetID()
+{
+  endPathExecutor_->setAuxiliaryRangeSetID(*runPrincipal_);
+  FDEBUG(1) << spaces(8) << "setRunAuxiliaryRangeSetID...(" << runPrincipalID() << ")\n";
 }
 
 void
 art::EventProcessor::endRun()
 {
-  // Precondition: The RunID does not correspond to a flush ID.
+  runException_ = true;
+  // Precondition: The RunID does not correspond to a flush ID. --
+  // N.B. The flush flag is not explicitly checked here since endRun
+  // is only called from finalizeRun, which is where the check
+  // happens.
   RunID const run {runPrincipal_->id()};
   assert(!run.isFlush());
   process_<End<Level::Run>>(*runPrincipal_);
   FDEBUG(1) << spaces(8) << "endRun......................(" << run << ")\n";
+  runException_ = false;
+}
+
+void
+art::EventProcessor::writeRun()
+{
+  // Precondition: The RunID does not correspond to a flush ID.
+  RunID const r {runPrincipal_->id()};
+  assert(!r.isFlush());
+  endPathExecutor_->writeRun(*runPrincipal_);
+  FDEBUG(1) << spaces(8) << "writeRun....................(" << r << ")\n";
+}
+
+void
+art::EventProcessor::finalizeRun()
+{
+  if (!finalizeRunEnabled_) return;
+  if (runException_) return;
+  if (runPrincipalID().isFlush()) return;
+
+  runException_ = true;
+  openSomeOutputFiles();
+  setRunAuxiliaryRangeSetID();
+  if (beginRunCalled_)
+    endRun();
+  writeRun();
+
+  // Staging is not allowed whenever 'maybeTriggerOutputFileSwitch'
+  // is called due to exiting a 'Pause' state.
+  if (stagingAllowed_) {
+    recordOutputClosureRequests(Boundary::Run);
+    maybeTriggerOutputFileSwitch();
+  }
+
+  runException_ = false;
+}
+
+//=============================================
+// SubRun level
+
+void
+art::EventProcessor::setupCurrentSubRun()
+{
+  assert(runPrincipalID().isValid());
+  subRunException_ = true;
+  readSubRun();
+  subRunException_ = false;
+}
+
+void
+art::EventProcessor::readSubRun()
+{
+  SignalSentry subRunSourceSentry {actReg_.sPreSourceSubRun, actReg_.sPostSourceSubRun};
+  subRunPrincipal_ = input_->readSubRun(runPrincipal_.get());
+  endPathExecutor_->seedSubRunRangeSet(input_->subRunRangeSetHandler());
+  FDEBUG(1) << spaces(8) << "readSubRun..................(" << subRunPrincipalID() << ")\n";
 }
 
 void
 art::EventProcessor::beginSubRun()
 {
-  // Precondition: The SubRunID does not correspond to a flush ID.
-  SubRunID const sr {subRunPrincipal_->id()};
-  assert(!sr.isFlush());
-  process_<Begin<Level::SubRun>>(*subRunPrincipal_);
-  FDEBUG(1) << spaces(8) << "beginSubRun.................(" << sr <<")\n";
+  beginSubRunCalled_ = true;
+  subRunException_ = true;
+  if (!subRunPrincipalID().isFlush()) {
+    process_<Begin<Level::SubRun>>(*subRunPrincipal_);
+    FDEBUG(1) << spaces(8) << "beginSubRun.................(" << subRunPrincipal_->id() <<")\n";
+  }
+  subRunException_ = false;
+}
+
+void
+art::EventProcessor::beginSubRunIfNotDoneAlready()
+{
+  if (!beginSubRunCalled_) {
+    beginSubRun();
+  }
+}
+
+void
+art::EventProcessor::setSubRunAuxiliaryRangeSetID()
+{
+  endPathExecutor_->setAuxiliaryRangeSetID(*subRunPrincipal_);
+  FDEBUG(1) << spaces(8) << "setSubRunAuxiliaryRangeSetID(" << subRunPrincipalID() << ")\n";
 }
 
 void
 art::EventProcessor::endSubRun()
 {
+  beginSubRunCalled_ = false;
+  subRunException_ = true;
   // Precondition: The SubRunID does not correspond to a flush ID.
+  // Note: the flush flag is not explicitly checked here since
+  // endSubRun is only called from finalizeSubRun, which is where the
+  // check happens.
   SubRunID const sr {subRunPrincipal_->id()};
   assert(!sr.isFlush());
   process_<End<Level::SubRun>>(*subRunPrincipal_);
   FDEBUG(1) << spaces(8) << "endSubRun...................(" << sr << ")\n";
+  subRunException_ = false;
+}
+
+void
+art::EventProcessor::writeSubRun()
+{
+  // Precondition: The SubRunID does not correspond to a flush ID.
+  SubRunID const& sr {subRunPrincipal_->id()};
+  assert(!sr.isFlush());
+  endPathExecutor_->writeSubRun(*subRunPrincipal_);
+  FDEBUG(1) << spaces(8) << "writeSubRun.................(" << sr << ")\n";
+}
+
+void
+art::EventProcessor::finalizeSubRun()
+{
+  if (!finalizeSubRunEnabled_) return;
+  if (subRunException_) return;
+  if (subRunPrincipalID().isFlush()) return;
+
+  subRunException_ = true;
+  openSomeOutputFiles();
+  if (handleEmptySubRuns_) {
+    beginRunIfNotDoneAlready();
+    beginSubRunIfNotDoneAlready();
+  }
+  setSubRunAuxiliaryRangeSetID();
+  if (beginSubRunCalled_) {
+    endSubRun();
+  }
+  writeSubRun();
+
+  // Staging is not allowed whenever 'maybeTriggerOutputFileSwitch'
+  // is called due to exiting a 'Pause' state.
+  if (stagingAllowed_) {
+    recordOutputClosureRequests(Boundary::SubRun);
+    maybeTriggerOutputFileSwitch();
+  }
+
+  subRunException_ = false;
 }
 
 art::RunID
@@ -689,67 +851,15 @@ art::EventProcessor::eventPrincipalID() const
   return eventPrincipal_ ? eventPrincipal_->id() : art::EventID{};
 }
 
-art::RunID
-art::EventProcessor::readRun()
-{
-  SignalSentry runSourceSentry {actReg_.sPreSourceRun, actReg_.sPostSourceRun};
-  runPrincipal_ = input_->readRun();
-  endPathExecutor_->seedRunRangeSet(input_->runRangeSetHandler());
-  FDEBUG(1) << spaces(8) << "readRun.....................(" << runPrincipalID() << ")\n";
-  return runPrincipalID();
-}
-
-art::SubRunID
-art::EventProcessor::readSubRun()
-{
-  SignalSentry subRunSourceSentry {actReg_.sPreSourceSubRun, actReg_.sPostSourceSubRun};
-  subRunPrincipal_ = input_->readSubRun(runPrincipal_.get());
-  endPathExecutor_->seedSubRunRangeSet(input_->subRunRangeSetHandler());
-  FDEBUG(1) << spaces(8) << "readSubRun..................(" << subRunPrincipalID() << ")\n";
-  return subRunPrincipalID();
-}
+//=============================================
+// Event level
 
 void
-art::EventProcessor::setRunAuxiliaryRangeSetID()
-{
-  endPathExecutor_->setAuxiliaryRangeSetID(*runPrincipal_);
-  FDEBUG(1) << spaces(8) << "setRunAuxiliaryRangeSetID...(" << runPrincipalID() << ")\n";
-}
-
-void
-art::EventProcessor::writeRun()
-{
-  // Precondition: The RunID does not correspond to a flush ID.
-  RunID const r {runPrincipal_->id()};
-  assert(!r.isFlush());
-  endPathExecutor_->writeRun(*runPrincipal_);
-  FDEBUG(1) << spaces(8) << "writeRun....................(" << r << ")\n";
-}
-
-void
-art::EventProcessor::setSubRunAuxiliaryRangeSetID()
-{
-  endPathExecutor_->setAuxiliaryRangeSetID(*subRunPrincipal_);
-  FDEBUG(1) << spaces(8) << "setSubRunAuxiliaryRangeSetID(" << subRunPrincipalID() << ")\n";
-}
-
-void
-art::EventProcessor::writeSubRun()
-{
-  // Precondition: The SubRunID does not correspond to a flush ID.
-  SubRunID const& sr {subRunPrincipal_->id()};
-  assert(!sr.isFlush());
-  endPathExecutor_->writeSubRun(*subRunPrincipal_);
-  FDEBUG(1) << spaces(8) << "writeSubRun.................(" << sr << ")\n";
-}
-
-art::EventID
 art::EventProcessor::readEvent()
 {
   SignalSentry sourceSentry {actReg_.sPreSource, actReg_.sPostSource};
   eventPrincipal_ = input_->readEvent(subRunPrincipal_.get());
   FDEBUG(1) << spaces(8) << "readEvent...................(" << eventPrincipalID() << ")\n";
-  return eventPrincipalID();
 }
 
 void
@@ -765,12 +875,33 @@ art::EventProcessor::processEvent()
 void
 art::EventProcessor::writeEvent()
 {
-  EventID const& id [[gnu::unused]] {eventPrincipal_->id()};
+  EventID const& id {eventPrincipal_->id()};
   // Precondition: The EventID does not correspond to a flush ID.
   assert(!id.isFlush());
   endPathExecutor_->writeEvent(*eventPrincipal_);
   FDEBUG(1) << spaces(8) << "writeEvent..................(" << id << ")\n";
   eventPrincipal_.reset();
+}
+
+void
+art::EventProcessor::finalizeEvent()
+{
+  if (!finalizeEventEnabled_) return;
+  if (eventException_) return;
+  if (eventPrincipalID().isFlush()) return;
+
+  eventException_ = true;
+  openSomeOutputFiles();
+  writeEvent();
+
+  // Staging is not allowed whenever 'maybeTriggerOutputFileSwitch'
+  // is called due to exiting a 'Pause' state.
+  if (stagingAllowed_) {
+    recordOutputClosureRequests(Boundary::Event);
+    maybeTriggerOutputFileSwitch();
+  }
+
+  eventException_ = false;
 }
 
 void
