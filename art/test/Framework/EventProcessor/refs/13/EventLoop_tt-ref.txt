@@ -10,25 +10,25 @@ InputSourceFactory: created input source EventProcessorTestSource
         beginRun....................(run: 1)
     *** nextItemType: SubRun ***
         readSubRun..................(run: 1 subRun: 1)
-    *** nextItemType: Event ***
         beginSubRun.................(run: 1 subRun: 1)
+    *** nextItemType: Event ***
         readEvent...................(run: 1 subRun: 1 event: 1)
         processEvent................(run: 1 subRun: 1 event: 1)
         shouldWeStop
-    *** nextItemType: Run ***
         openSomeOutputFiles
         respondToOpenOutputFiles
         writeEvent..................(run: 1 subRun: 1 event: 1)
+    *** nextItemType: Run ***
         setSubRunAuxiliaryRangeSetID(run: 1 subRun: 1)
         endSubRun...................(run: 1 subRun: 1)
         writeSubRun.................(run: 1 subRun: 1)
         setRunAuxiliaryRangeSetID...(run: 1)
         endRun......................(run: 1)
         writeRun....................(run: 1)
-        readRun.....................(run: FLUSH)
         setOutputFileStatus
         respondToCloseOutputFiles
         closeSomeOutputFiles
+        readRun.....................(run: FLUSH)
     *** nextItemType: SubRun ***
         readSubRun..................(run: FLUSH subRun: FLUSH)
     *** nextItemType: Event ***
@@ -43,20 +43,20 @@ InputSourceFactory: created input source EventProcessorTestSource
         beginRun....................(run: 1)
     *** nextItemType: SubRun ***
         readSubRun..................(run: 1 subRun: 1)
-    *** nextItemType: Event ***
         beginSubRun.................(run: 1 subRun: 1)
+    *** nextItemType: Event ***
         readEvent...................(run: 1 subRun: 1 event: 2)
         processEvent................(run: 1 subRun: 1 event: 2)
         shouldWeStop
-    *** nextItemType: Event ***
         openSomeOutputFiles
         respondToOpenOutputFiles
         writeEvent..................(run: 1 subRun: 1 event: 2)
+    *** nextItemType: Event ***
         readEvent...................(run: 1 subRun: 1 event: 3)
         processEvent................(run: 1 subRun: 1 event: 3)
         shouldWeStop
-    *** nextItemType: Stop ***
         writeEvent..................(run: 1 subRun: 1 event: 3)
+    *** nextItemType: Stop ***
         setSubRunAuxiliaryRangeSetID(run: 1 subRun: 1)
         endSubRun...................(run: 1 subRun: 1)
         writeSubRun.................(run: 1 subRun: 1)

@@ -16,7 +16,6 @@
 #include "art/Framework/Core/PathManager.h"
 #include "art/Framework/Core/Schedule.h"
 #include "art/Framework/EventProcessor/ServiceDirector.h"
-#include "art/Framework/EventProcessor/StateMachine/Machine.h"
 #include "art/Framework/Principal/Actions.h"
 #include "art/Framework/Principal/fwd.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
@@ -36,12 +35,6 @@
 #include <memory>
 #include <string>
 #include <vector>
-
-namespace statemachine {
-  class Machine;
-}
-
-// ----------------------------------------------------------------------
 
 namespace art {
   class EventProcessor;
@@ -176,41 +169,20 @@ public:
   bool setTriggerPathEnabled(std::string const& name, bool enable);
   bool setEndPathModuleEnabled(std::string const& label, bool enable);
 
-  // Stuff from state machine
-  bool beginRunCalled() const { return beginRunCalled_; }
-  bool exitRunCalled() const { return exitRunCalled_; }
-  bool runException() const { return runException_; }
-  bool finalizeRunEnabled() const { return finalizeRunEnabled_; }
-
-  bool beginSubRunCalled() const { return beginSubRunCalled_; }
-  bool exitSubRunCalled() const { return exitSubRunCalled_; }
-  bool subRunException() const { return subRunException_; }
-  bool finalizeSubRunEnabled() const { return finalizeSubRunEnabled_; }
-
-  bool exitEventCalled() const { return exitEventCalled_; }
-  bool eventException() const { return eventException_; }
-  bool finalizeEventEnabled() const { return finalizeEventEnabled_; }
-
   void setBeginRunCalled(bool const value) { beginRunCalled_ = value; }
-  void setExitRunCalled(bool const value) { exitRunCalled_ = value; }
-  void setRunException(bool const value) { runException_ = value; }
   void setFinalizeRunEnabled(bool const value) { finalizeRunEnabled_ = value; }
 
   void setBeginSubRunCalled(bool const value) { beginSubRunCalled_ = value; }
-  void setExitSubRunCalled(bool const value) { exitSubRunCalled_ = value; }
-  void setSubRunException(bool const value) { subRunException_ = value; }
   void setFinalizeSubRunEnabled(bool const value) { finalizeSubRunEnabled_ = value; }
 
-  void setExitEventCalled(bool const value) { exitEventCalled_ = value; }
-  void setEventException(bool const value) { eventException_ = value; }
   void setFinalizeEventEnabled(bool const value) { finalizeEventEnabled_ = value; }
 
 private:
 
-  template <Level L> std::enable_if_t<(underlying_value(L)<underlying_value(Level::N)-1)> begin();
-  template <Level L> std::enable_if_t<(underlying_value(L)<underlying_value(Level::N)-1)> process();
-  template <Level L> std::enable_if_t<(underlying_value(L)==underlying_value(Level::N)-1)> process();
-  template <Level L> std::enable_if_t<(underlying_value(L)<underlying_value(Level::N)-1)> end();
+  template <Level L> std::enable_if_t<(underlying_value(L)<underlying_value(Level::N)-1u)> begin();
+  template <Level L> std::enable_if_t<(underlying_value(L)<underlying_value(Level::N)-1u)> process();
+  template <Level L> std::enable_if_t<(underlying_value(L)==underlying_value(Level::N)-1u)> process();
+  template <Level L> std::enable_if_t<(underlying_value(L)<underlying_value(Level::N)-1u)> end();
 
   template <Level L> void endContainingLevels();
 
@@ -220,23 +192,18 @@ private:
 
   void levelProcessed();
   Level advance();
+  void readLevel(Level const l);
 
   Level nextLevel_ {Level::Empty};
   std::vector<Level> activeLevels_ {Level::Job};
 
   // Stuff from state machine
   bool beginRunCalled_ {false}; // Should be stack variable local to run loop
-  bool exitRunCalled_ {false};  // ""
-  bool runException_ {false};   // ""
   bool finalizeRunEnabled_ {true};
 
   bool beginSubRunCalled_ {false}; // Should be stack variable local to run loop
-  bool exitSubRunCalled_ {false};  // ""
-  bool subRunException_ {false};   // ""
   bool finalizeSubRunEnabled_ {true};
 
-  bool exitEventCalled_ {false};
-  bool eventException_ {false};
   bool finalizeEventEnabled_ {true};
 
   ServiceDirector initServices_(fhicl::ParameterSet const& top_pset,
@@ -253,7 +220,6 @@ private:
   StatusCode runCommon_();
   void servicesActivate_(ServiceToken st);
   void servicesDeactivate_();
-  void terminateMachine_();
   void terminateAbnormally_();
 
   //------------------------------------------------------------------
@@ -277,7 +243,6 @@ private:
   std::unique_ptr<EndPathExecutor> endPathExecutor_ {nullptr};
   std::unique_ptr<FileBlock> fb_ {nullptr};
 
-  std::unique_ptr<statemachine::Machine> machine_ {nullptr};
   std::unique_ptr<RunPrincipal> runPrincipal_ {nullptr};
   std::unique_ptr<SubRunPrincipal> subRunPrincipal_ {nullptr};
   std::unique_ptr<EventPrincipal> eventPrincipal_ {nullptr};
@@ -379,11 +344,17 @@ art::EventProcessor::levelsToProcess()
     if (art::shutdown_flag > 0) {
       throw Exception{errors::SignalReceived};
     }
+    //    readLevel(nextLevel_);
   }
 
   if (nextLevel_ == L) {
     activeLevels_.push_back(nextLevel_);
     nextLevel_ = Level::Empty;
+    if (outputsToClose()) {
+      disallowStaging();
+      endContainingLevels<Level::Event>();
+      closeSomeOutputFiles();
+    }
     return true;
   }
   else if (nextLevel_ < L) {
@@ -434,7 +405,7 @@ namespace art {
 
 
 template <art::Level L>
-std::enable_if_t<(art::underlying_value(L)==art::underlying_value(art::Level::N)-1)>
+std::enable_if_t<(art::underlying_value(L)==art::underlying_value(art::Level::N)-1u)>
 art::EventProcessor::process()
 {
   beginRunIfNotDoneAlready();
@@ -444,14 +415,10 @@ art::EventProcessor::process()
   if (eventPrincipalID().isFlush()) return;
   processEvent();
 
-  if (shouldWeStop()) { // ???
+  if (shouldWeStop()) {
+    nextLevel_ = Level::Done;
   }
   try_finalize<Level::Event>();
-  if (outputsToClose()) {
-    disallowStaging();
-    endContainingLevels<Level::Event>();
-    closeSomeOutputFiles();
-  }
 }
 
 template <art::Level L>
@@ -459,17 +426,11 @@ std::enable_if_t<(art::underlying_value(L)<art::underlying_value(art::Level::N)-
 art::EventProcessor::process()
 {
   begin<L>();
-  auto constexpr next_level = static_cast<art::Level>(art::underlying_value(L)+1);
-  while (levelsToProcess<next_level>()) {
-    process<next_level>();
+  while (levelsToProcess<level_down(L)>()) {
+    process<level_down(L)>();
     levelProcessed();
   }
   try_finalize<L>();
-  if (outputsToClose()) {
-    disallowStaging();
-    endContainingLevels<L>();
-    closeSomeOutputFiles();
-  }
 }
 
 template <art::Level L>

@@ -1,3 +1,0 @@
-@startuml
-!include sm_handleFiles.iuml
-@enduml

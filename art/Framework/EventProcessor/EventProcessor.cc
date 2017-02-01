@@ -172,16 +172,6 @@ art::EventProcessor::~EventProcessor()
   // Services must stay usable until they go out of scope, meaning
   // that modules may (say) use services in their destructors.
   servicesActivate_(serviceToken_);
-  // The state machine should have already been cleaned up and
-  // destroyed at this point by a call to EndJob or earlier when it
-  // completed processing events, but if it has not been we'll take
-  // care of it here at the last moment.  This could cause problems if
-  // we are already handling an exception and another one is thrown
-  // here ..  For a critical executable the solution to this problem
-  // is for the code using the EventProcessor to explicitly call
-  // EndJob or use runToCompletion, then the next line of code is
-  // never executed.
-  terminateMachine_();
 }
 
 void
@@ -232,7 +222,6 @@ art::EventProcessor::endJob()
   cet::exception_collector c;
   // Make the services available
   ServiceRegistry::Operate op {serviceToken_};
-  //  c.call([this](){ terminateMachine_(); });
   c.call([this](){ schedule_->endJob(); });
   c.call([this](){ endPathExecutor_->endJob(); });
   bool summarize = ServiceHandle<TriggerNamesService>()->wantSummary();
@@ -323,11 +312,8 @@ art::EventProcessor::StatusCode
 art::EventProcessor::runToCompletion()
 {
   StatusCode returnCode {epSuccess};
-  stateMachineWasInErrorState_ = false;
   // Make the services available
   ServiceRegistry::Operate op {serviceToken_};
-  machine_ = std::make_unique<statemachine::Machine>(this);
-  // machine_->initiate();
 
   try {
     process<Level::Job>();
@@ -488,14 +474,6 @@ art::EventProcessor::runToCompletion()
         << exceptionMessageRuns_
         << exceptionMessageFiles_;
   }
-  if (machine_->terminated()) {
-    FDEBUG(2) << "The state machine reports it has been terminated\n";
-  }
-  if (stateMachineWasInErrorState_) {
-    throw cet::exception("BadState")
-        << "The boost state machine in the EventProcessor exited after\n"
-        << "entering the Error state.\n";
-  }
   return returnCode;
 }
 
@@ -518,26 +496,22 @@ art::EventProcessor::advance()
   case input::IsSubRun: return Level::SubRun;
   case input::IsEvent: return Level::Event;
   case input::IsInvalid: {
-    throw art::Exception{art::errors::LogicError} << "Invalid next item type presented to state machine.";
+    throw art::Exception{art::errors::LogicError} << "Invalid next item type presented to the event processor.";
   }
   }
   return Level::Empty;
 }
 
-void
-art::EventProcessor::maybeTriggerOutputFileSwitch()
-{
-  assert(stagingAllowed());
-
-  if (!outputsToClose()) return;
-
-  // Don't trigger another switch if one is already in progress!
-  if (switchInProgress()) return;
-
-  machine_->post_event(statemachine::Pause{});
-  machine_->post_event(statemachine::SwitchOutputFiles{});
-  setSwitchInProgress(true);
-}
+// void
+// art::EventProcessor::readLevel(Level const l)
+// {
+//   switch (l) {
+//   case Level::Run: readRun(); break;
+//   case Level::SubRun: readSubRun(); break;
+//   case Level::Event: readEvent(); break;
+//   default: {}
+//   }
+// }
 
 void
 art::EventProcessor::openInputFile()
@@ -672,7 +646,6 @@ art::EventProcessor::doErrorStuff()
       "and went to the error state\n"
       "Will attempt to terminate processing normally\n"
       "This likely indicates a bug in an input module, corrupted input, or both\n";
-  stateMachineWasInErrorState_ = true;
 }
 
 //=============================================
@@ -682,12 +655,9 @@ void
 art::EventProcessor::setupCurrentRun()
 {
   finalizeRunEnabled_ = true;
-  runException_ = true;
   readRun();
-  runException_ = false;
   if (handleEmptyRuns_) {
     beginRun();
-    beginRunCalled_ = true;
   }
 }
 
@@ -706,19 +676,17 @@ art::EventProcessor::beginRun()
   if (runPrincipalID().isFlush()) return;
 
   finalizeRunEnabled_ = true;
-  runException_ = true;
   process_<Begin<Level::Run>>(*runPrincipal_);
   FDEBUG(1) << spaces(8) << "beginRun....................(" << runPrincipal_->id() << ")\n";
-  runException_ = false;
+  beginRunCalled_ = true;
 }
 
 void
 art::EventProcessor::beginRunIfNotDoneAlready()
 {
-  if (beginRunCalled_) return;
-
-  beginRun();
-  beginRunCalled_ = true;
+  if (!beginRunCalled_) {
+    beginRun();
+  }
 }
 
 void
@@ -731,7 +699,6 @@ art::EventProcessor::setRunAuxiliaryRangeSetID()
 void
 art::EventProcessor::endRun()
 {
-  runException_ = true;
   // Precondition: The RunID does not correspond to a flush ID. --
   // N.B. The flush flag is not explicitly checked here since endRun
   // is only called from finalizeRun, which is where the check
@@ -740,7 +707,6 @@ art::EventProcessor::endRun()
   assert(!run.isFlush());
   process_<End<Level::Run>>(*runPrincipal_);
   FDEBUG(1) << spaces(8) << "endRun......................(" << run << ")\n";
-  runException_ = false;
 }
 
 void
@@ -757,26 +723,23 @@ void
 art::EventProcessor::finalizeRun()
 {
   if (!finalizeRunEnabled_) return;
-  if (runException_) return;
   if (runPrincipalID().isFlush()) return;
 
-  runException_ = true;
   openSomeOutputFiles();
   setRunAuxiliaryRangeSetID();
-  if (beginRunCalled_)
+  if (beginRunCalled_) {
     endRun();
+  }
   writeRun();
 
   // Staging is not allowed whenever 'maybeTriggerOutputFileSwitch'
   // is called due to exiting a 'Pause' state.
   if (stagingAllowed_) {
     recordOutputClosureRequests(Boundary::Run);
-    //    maybeTriggerOutputFileSwitch();
   }
 
   beginRunCalled_ = false;
   finalizeRunEnabled_ = false;
-  runException_ = false;
 }
 
 //=============================================
@@ -787,13 +750,10 @@ art::EventProcessor::setupCurrentSubRun()
 {
   finalizeSubRunEnabled_ = true;
   assert(runPrincipalID().isValid());
-  subRunException_ = true;
   readSubRun();
-  subRunException_ = false;
   if (handleEmptySubRuns_) {
     beginRunIfNotDoneAlready();
     beginSubRun();
-    beginSubRunCalled_ = true;
   }
 }
 
@@ -812,19 +772,17 @@ art::EventProcessor::beginSubRun()
   if (subRunPrincipalID().isFlush()) return;
 
   finalizeSubRunEnabled_ = true;
-  subRunException_ = true;
   process_<Begin<Level::SubRun>>(*subRunPrincipal_);
   FDEBUG(1) << spaces(8) << "beginSubRun.................(" << subRunPrincipal_->id() <<")\n";
-  subRunException_ = false;
+  beginSubRunCalled_ = true;
 }
 
 void
 art::EventProcessor::beginSubRunIfNotDoneAlready()
 {
-  if (beginSubRunCalled_) return;
-
-  beginSubRun();
-  beginSubRunCalled_ = true;
+  if (!beginSubRunCalled_) {
+    beginSubRun();
+  }
 }
 
 void
@@ -837,7 +795,6 @@ art::EventProcessor::setSubRunAuxiliaryRangeSetID()
 void
 art::EventProcessor::endSubRun()
 {
-  subRunException_ = true;
   // Precondition: The SubRunID does not correspond to a flush ID.
   // Note: the flush flag is not explicitly checked here since
   // endSubRun is only called from finalizeSubRun, which is where the
@@ -846,7 +803,6 @@ art::EventProcessor::endSubRun()
   assert(!sr.isFlush());
   process_<End<Level::SubRun>>(*subRunPrincipal_);
   FDEBUG(1) << spaces(8) << "endSubRun...................(" << sr << ")\n";
-  subRunException_ = false;
 }
 
 void
@@ -863,10 +819,8 @@ void
 art::EventProcessor::finalizeSubRun()
 {
   if (!finalizeSubRunEnabled_) return;
-  if (subRunException_) return;
   if (subRunPrincipalID().isFlush()) return;
 
-  subRunException_ = true;
   openSomeOutputFiles();
   setSubRunAuxiliaryRangeSetID();
   if (beginSubRunCalled_) {
@@ -874,16 +828,13 @@ art::EventProcessor::finalizeSubRun()
   }
   writeSubRun();
 
-  // Staging is not allowed whenever 'maybeTriggerOutputFileSwitch'
-  // is called due to exiting a 'Pause' state.
+  // Staging is not allowed whenever an output-file switch is in flight.
   if (stagingAllowed_) {
     recordOutputClosureRequests(Boundary::SubRun);
-    //    maybeTriggerOutputFileSwitch();
   }
 
   finalizeSubRunEnabled_ = false;
   beginSubRunCalled_ = false;
-  subRunException_ = false;
 }
 
 art::RunID
@@ -941,10 +892,8 @@ void
 art::EventProcessor::finalizeEvent()
 {
   if (!finalizeEventEnabled_) return;
-  if (eventException_) return;
   if (eventPrincipalID().isFlush()) return;
 
-  eventException_ = true;
   openSomeOutputFiles();
   writeEvent();
 
@@ -952,11 +901,9 @@ art::EventProcessor::finalizeEvent()
   // is called due to exiting a 'Pause' state.
   if (stagingAllowed_) {
     recordOutputClosureRequests(Boundary::Event);
-    //    maybeTriggerOutputFileSwitch();
   }
 
   finalizeEventEnabled_ = false;
-  eventException_ = false;
 }
 
 void
@@ -998,12 +945,6 @@ art::EventProcessor::shouldWeStop() const
 }
 
 bool
-art::EventProcessor::alreadyHandlingException() const
-{
-  return alreadyHandlingException_;
-}
-
-bool
 art::EventProcessor::setTriggerPathEnabled(std::string const& name, bool const enable)
 {
   return schedule_->setTriggerPathEnabled(name, enable);
@@ -1028,26 +969,11 @@ art::EventProcessor::servicesDeactivate_()
 }
 
 void
-art::EventProcessor::terminateMachine_()
-{
-  assert(machine_);
-  // if (!machine_->terminated()) {
-  //   //    machine_->process_event(statemachine::Stop());
-  // }
-  // else {
-  //   FDEBUG(2) << "EventProcessor::terminateMachine_: The state machine was already terminated \n";
-  // }
-}
-
-void
 art::EventProcessor::terminateAbnormally_() try
 {
-  alreadyHandlingException_ = true;
   if (ServiceRegistry::instance().isAvailable<RandomNumberGenerator>()) {
     ServiceHandle<RandomNumberGenerator>()->saveToFile_();
   }
-  terminateMachine_();
-  alreadyHandlingException_ = false;
 }
 catch (...)
 {
