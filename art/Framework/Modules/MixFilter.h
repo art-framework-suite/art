@@ -1,10 +1,11 @@
 #ifndef art_Framework_Modules_MixFilter_h
 #define art_Framework_Modules_MixFilter_h
 
-// ======================================================================
+////////////////////////////////////////////////////////////////////////
 //
 // The MixFilter class template is used to create filters capable of
-// mixing products from a secondary event stream into the primary event.
+// mixing products from a secondary event (or subrun, or run) stream
+// into the primary event.
 //
 // The MixFilter class template requires the use of a type T as its
 // template parameter; this type T must supply the following non-static
@@ -27,7 +28,7 @@
 //    //    produces<> calls.
 //    //
 //    // Further details may be found in
-//    // art/Framework/ProductMix/MixHelper.h.
+//    // art/Framework/IO/ProductMix/MixHelper.h.
 //
 //    size_t nSecondaries() const;
 //
@@ -65,6 +66,22 @@
 //    // Do end-of-event tasks (e.g., inserting bookkeeping data products into
 //    // the primary event).
 //
+//    void respondToOpenInputFile(FileBlock const & fb);
+//
+//    // Called when a new primary input file is opened.
+//
+//    void respondToCloseInputFile(FileBlock const & fb);
+//
+//    // Called when a primary input file is closed.
+//
+//    void respondToOpenOutputFiles(FileBlock const & fb);
+//
+//    // Called when a new output file is opened.
+//
+//    void respondToCloseOutputFiles(FileBlock const & fb);
+//
+//    // Called when an output file is closed.
+//
 //    void beginSubRun(art::SubRun const & sr);
 //
 //    // Do beginning-of-subrun tasks.
@@ -81,11 +98,43 @@
 //
 //    // Do end-of-run tasks (e.g. insert products into the primary run).
 //
-// Functions declared to the MixHelper to actually carry out the mixing
-// of the products may be (1) member functions of this or another class;
-// or (2) free functions (including bound functions) or (3) function
-// objects.
-// ======================================================================
+////////////////////////////////////////////////////////////////////////
+// Notes.
+//
+// 1. Functions declared to the MixHelper to actually carry out the
+//    mixing of the products may be (1) member functions of this or
+//    another class; or (2) free functions (including bound functions)
+//    or (3) function objects.
+//
+// 2. It is possible to declare mix operations which produce an output
+//    product of a different type to that of the mixed input products
+//    via the provision of an appropriate mixer function: see the
+//    documentation in art/Framework/IO/ProductMix/MixHelper.h for more
+//    details.
+//
+// 3. It is possible to declare mix operations which take as input
+//    products from the subrun or run streams. Some points to note:
+//
+//    * The mix operation so declared will be invoked upon every primary
+//      event.
+//
+//    * There will be one provided product for every mixed event from
+//      the secondary stream, regardless of duplication. It is the
+//      responsibility of the user's mixing function to deal with the
+//      provided information appropriately. We recommend making use of
+//      the optional processEventIDs(...) and
+//      prodcessEventAuxiliaries(...) functions to avoid unintentional
+//      double-counting of information.
+//
+//    * The mix operation may generate event-level data for the primary
+//      stream from the provided subrun and run products exactly as if
+//      it were a normal event-level mix operation. Any production of
+//      subrun- or run-level data from the primary stream should be done
+//      in the optional endSubRun(..) and / or endRun(...) functions as
+//      appropriate. Any such subrun- or run-level products should be
+//      declared appropriately via art::MixHelper::products(...).
+//
+////////////////////////////////////////////////////////////////////////
 
 #include "art/Framework/Core/EDFilter.h"
 #include "art/Framework/IO/ProductMix/MixTypes.h"

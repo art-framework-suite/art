@@ -85,8 +85,22 @@
 // declareMixOp templates.
 //
 // These function templates should be used by writers of product-mixing
-// "detail" classes to declare each product mix operation. Such an
-// operation may be specified by providing:
+// "detail" classes to declare each product mix operation.
+//
+// All of the declareMixOp(...) function templates have the following
+// template arguments:
+//
+// 1. The BranchType (defaults to art::InEvent). Specify explicitly if
+//    you wish to mix subrun or run products, or if you need to specify
+//    explicitly any of the other template arguments.
+//
+// 2. The incoming product type (deduced from the provided callable
+//    mixer argument).
+//
+// 3. The outgoing product type (deduced from the provided callable
+//    mixer argument).
+//
+// A product mixing operation should be  specified by providing:
 //
 //  1. an InputTag specifying which secondary products should be mixed;
 //
@@ -110,10 +124,12 @@
 //     taken to indicate whether the product should be placed in the
 //     event.
 //
-//     For free functions, function objects, and pre-bound member
-//     functions, the product type template argument need not be
-//     specified as it can be deduced from the signature of the provided
-//     function.
+//     Generally speaking the PROD and OPROD template arguments are
+//     deducible from the callable mixer function which, once bound (if
+//     appropriate) to any provided class instance, should be
+//     convertible to an instantiation of the template instance
+//     art::MixFunc<PROD, OPROD>. See
+//     art/Framework/IO/ProductMix/MixTypes.h for more details.
 //
 //     If the provided function is a member function it may be provided
 //     bound to the object upon which it is to be called by the user (in
@@ -128,6 +144,9 @@
 //     different mix function) then the template argument must be
 //     specified in order to constrain the overload set to a single
 //     function.
+//
+//     See also the description of the template alias art::MixFunc<PROD,
+//     OPROD> defined in art/Framework/IO/ProductMix/MixTypes.h.
 //
 //  4. An optional boolean, "outputProduct," defaulting to, "true." A
 //     false value for this parameter indicates that the mix product
@@ -158,8 +177,9 @@
 //
 // Note: For signatures 3-6, if the compiler complains about an
 // unresolved overload your first move should be to specify the product
-// type as template argument. If that does not resolve the problem, try
-// an explicit:
+// type(s) as template argument (to do this you must specify explicitly
+// the BranchType template argument first). If that does not resolve the
+// problem, try an explicit:
 //
 //   const_cast<T const&>(t)
 //
@@ -172,10 +192,10 @@
 ////////////////////////////////////
 // produces() templates.
 //
-// Call as you would from the constructor of a module to declare
-// (e.g., bookkeeping) products to be put into the event that are *not*
-// direct results of a product mix. For the latter case, see the
-// declareMixOp() templates above.
+// Call as you would from the constructor of a module to declare (e.g.,
+// bookkeeping) products to be put into the event that are *not* direct
+// results of a single product mix operation. For the latter case, see
+// the declareMixOp() templates above.
 //
 // Signatures for produces():
 //
@@ -243,7 +263,7 @@ public:
   // Returns the current mixing mode.
   Mode readMode() const;
 
-  // Registers a callback to the detail object to determing the next
+  // Registers a callback to the detail object to determine the next
   // secondary file to read.
   void registerSecondaryFileNameProvider(ProviderFunc_ func);
 

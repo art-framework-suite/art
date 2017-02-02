@@ -132,9 +132,9 @@ public:
   // sequence of EventAuxiliaries.
   void processEventAuxiliaries(art::EventAuxiliarySequence const &);
 
-  // Optional.finalizeEvent(): (eg) put bookeeping products in event. Do
-  // *not* place mix products into the event: this will already have
-  // been done for you.
+  // Optional.finalizeEvent(): (eg) put bookkeeping products in
+  // event. Do *not* place mix products into the event: this will
+  // already have been done for you.
   void finalizeEvent(art::Event & t);
 
   // Optional respondToXXXfunctions, called at the right time if they
