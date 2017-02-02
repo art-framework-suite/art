@@ -64,7 +64,7 @@ namespace art {
     update(OutputFileStatus const status)
     {
       ++treeEntryNumbers_[B];
-      if (status != OutputFileStatus::StagedToSwitch) {
+      if (status != OutputFileStatus::Switching) {
         ++counts_[B];
       }
     }

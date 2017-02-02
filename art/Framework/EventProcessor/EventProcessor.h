@@ -62,21 +62,8 @@ public:
   EventProcessor (EventProcessor const&) = delete;
   EventProcessor& operator=(EventProcessor const&) = delete;
 
-  // The input string 'config' contains the entire contents of a  configuration file.
-  // Also allows the attachement of pre-existing services specified  by 'token', and
-  // the specification of services by name only (defaultServices and forcedServices).
-  // 'defaultServices' are overridden by 'config'.
-  // 'forcedServices' cause an exception if the same service is specified in 'config'.
-
-  EventProcessor(fhicl::ParameterSet const& pset);
+  explicit EventProcessor(fhicl::ParameterSet const& pset);
   ~EventProcessor();
-
-  // This should be called before the first call to 'run'.
-  void beginJob();
-
-  // This should be called before the EventProcessor is destroyed
-  // throws if any module's endJob throws an exception.
-  void endJob();
 
   //------------------------------------------------------------------
   // The function "runToCompletion" will run until the job is "complete",
@@ -92,132 +79,80 @@ public:
   //
   StatusCode runToCompletion();
 
-  // The following functions are used by the code implementing our
-  // boost statemachine
+  bool setTriggerPathEnabled(std::string const& name, bool enable);
+  bool setEndPathModuleEnabled(std::string const& label, bool enable);
+
+private:
+
+  // Event-loop infrastructure
+  template <Level L> bool levelsToProcess();
+
+  template <Level L> std::enable_if_t<is_above_most_deeply_nested_level(L)> begin();
+  template <Level L> void process();
+  template <Level L> void finalize();
+  template <Level L> void finalizeContainingLevels() {}
+  template <Level L> void recordOutputModuleClosureRequests() {}
+
+  void markLevelAsProcessed();
+  Level advanceItemType();
+
+  // Level-specific member functions
+  void beginJob();
+  void endJob();
 
   void openInputFile();
-  void closeAllFiles();
-  void closeInputFile();
-  void openAllOutputFiles();
-  void closeAllOutputFiles();
   void openSomeOutputFiles();
+  void openAllOutputFiles();
+
+  void closeInputFile();
   void closeSomeOutputFiles();
+  void closeAllOutputFiles();
+  void closeAllFiles();
 
   void respondToOpenInputFile();
   void respondToCloseInputFile();
   void respondToOpenOutputFiles();
   void respondToCloseOutputFiles();
 
-  void rewindInput();
-  void incrementInputFileNumber();
-  void recordOutputClosureRequests(Boundary);
-
-  void doErrorStuff();
-
-  template <Level L> void finalize();
-  template <Level L> void try_finalize();
-  template <Level L> void setExceptionMessage(std::string const&);
-
-  void setupCurrentRun();
   void readRun();
   void beginRun();
   void beginRunIfNotDoneAlready();
   void setRunAuxiliaryRangeSetID();
   void endRun();
   void writeRun();
-  void finalizeRun();
 
-  void setupCurrentSubRun();
   void readSubRun();
   void beginSubRun();
   void beginSubRunIfNotDoneAlready();
   void setSubRunAuxiliaryRangeSetID();
   void endSubRun();
   void writeSubRun();
-  void finalizeSubRun();
 
   void readEvent();
   void processEvent();
   void writeEvent();
-  void finalizeEvent();
-
-  // Run/SubRun IDs from most recently added principals
-  RunID runPrincipalID() const;
-  SubRunID subRunPrincipalID() const;
-  EventID eventPrincipalID() const;
 
   bool shouldWeStop() const;
 
-  bool alreadyHandlingException() const;
-
-  bool switchInProgress() const { return switchInProgress_; }
-  bool stagingAllowed() const { return stagingAllowed_; }
-
-  void disallowStaging() {
-    setOutputFileStatus(OutputFileStatus::StagedToSwitch);
-    stagingAllowed_ = false;
-  }
-
-  bool outputsToOpen() const;
-  bool outputsToClose() const;
-  bool someOutputsOpen() const;
   void setOutputFileStatus(OutputFileStatus);
-  void setStagingAllowed(bool const value) { stagingAllowed_ = value; }
-  void setSwitchInProgress(bool const value) { switchInProgress_ = value; }
-  void maybeTriggerOutputFileSwitch();
 
-  bool setTriggerPathEnabled(std::string const& name, bool enable);
-  bool setEndPathModuleEnabled(std::string const& label, bool enable);
+  Level nextLevel_ {Level::ReadyToAdvance};
+  std::vector<Level> activeLevels_ {highest_level()};
 
-  void setBeginRunCalled(bool const value) { beginRunCalled_ = value; }
-  void setFinalizeRunEnabled(bool const value) { finalizeRunEnabled_ = value; }
+  bool beginRunCalled_ {false};    // Should be stack variable local to run loop
+  bool beginSubRunCalled_ {false}; // Should be stack variable local to subrun loop
 
-  void setBeginSubRunCalled(bool const value) { beginSubRunCalled_ = value; }
-  void setFinalizeSubRunEnabled(bool const value) { finalizeSubRunEnabled_ = value; }
-
-  void setFinalizeEventEnabled(bool const value) { finalizeEventEnabled_ = value; }
-
-private:
-
-  template <Level L> std::enable_if_t<(underlying_value(L)<underlying_value(Level::N)-1u)> begin();
-  template <Level L> std::enable_if_t<(underlying_value(L)<underlying_value(Level::N)-1u)> process();
-  template <Level L> std::enable_if_t<(underlying_value(L)==underlying_value(Level::N)-1u)> process();
-  template <Level L> std::enable_if_t<(underlying_value(L)<underlying_value(Level::N)-1u)> end();
-
-  template <Level L> void endContainingLevels();
-
-
-  template <Level L>
-  bool levelsToProcess();
-
-  void levelProcessed();
-  Level advance();
-  void readLevel(Level const l);
-
-  Level nextLevel_ {Level::Empty};
-  std::vector<Level> activeLevels_ {Level::Job};
-
-  // Stuff from state machine
-  bool beginRunCalled_ {false}; // Should be stack variable local to run loop
   bool finalizeRunEnabled_ {true};
-
-  bool beginSubRunCalled_ {false}; // Should be stack variable local to run loop
   bool finalizeSubRunEnabled_ {true};
-
-  bool finalizeEventEnabled_ {true};
 
   ServiceDirector initServices_(fhicl::ParameterSet const& top_pset,
                                 ActivityRegistry& areg,
                                 ServiceToken& token);
   void initSchedules_(fhicl::ParameterSet const& pset);
   void invokePostBeginJobWorkers_();
-  template <typename T>
-  void
-  process_(typename T::MyPrincipal& p);
 
-  ServiceToken getToken_();
+  template <typename T> void process_(typename T::MyPrincipal& p);
 
-  StatusCode runCommon_();
   void servicesActivate_(ServiceToken st);
   void servicesDeactivate_();
   void terminateAbnormally_();
@@ -247,21 +182,8 @@ private:
   std::unique_ptr<SubRunPrincipal> subRunPrincipal_ {nullptr};
   std::unique_ptr<EventPrincipal> eventPrincipal_ {nullptr};
   bool shouldWeStop_ {false};
-  bool stateMachineWasInErrorState_ {false};
   bool const handleEmptyRuns_;
   bool const handleEmptySubRuns_;
-  bool stagingAllowed_ {true};
-  bool switchInProgress_ {false};
-
-  // Note that the non-const references are initialized after the
-  // exceptionMessages_ object is initialized.
-  std::array<std::string, art::underlying_value(art::Level::N)> exceptionMessages_;
-  std::string& exceptionMessageFiles_ {std::get<art::underlying_value(art::Level::InputFile)>(exceptionMessages_)};
-  std::string& exceptionMessageRuns_ {std::get<art::underlying_value(art::Level::Run)>(exceptionMessages_)};
-  std::string& exceptionMessageSubRuns_ {std::get<art::underlying_value(art::Level::SubRun)>(exceptionMessages_)};
-  std::string& exceptionMessageEvents_ {std::get<art::underlying_value(art::Level::Event)>(exceptionMessages_)};
-
-  bool alreadyHandlingException_ {false};
 
 };  // EventProcessor
 
@@ -333,161 +255,6 @@ catch (...) {
     << "an exception occurred during current event processing\n";
   throw;
 }
-
-template <art::Level L>
-bool
-art::EventProcessor::levelsToProcess()
-{
-  if (nextLevel_ == Level::Empty) {
-    nextLevel_ = advance();
-    boost::mutex::scoped_lock sl {usr2_lock};
-    if (art::shutdown_flag > 0) {
-      throw Exception{errors::SignalReceived};
-    }
-    //    readLevel(nextLevel_);
-  }
-
-  if (nextLevel_ == L) {
-    activeLevels_.push_back(nextLevel_);
-    nextLevel_ = Level::Empty;
-    if (outputsToClose()) {
-      disallowStaging();
-      endContainingLevels<Level::Event>();
-      closeSomeOutputFiles();
-    }
-    return true;
-  }
-  else if (nextLevel_ < L) {
-    return false;
-  }
-  else if (nextLevel_ == Level::Done) {
-    return false;
-  }
-
-  throw Exception{errors::LogicError} << "Incorrect level hierarchy.";
-}
-
-namespace art {
-  template <> inline void EventProcessor::begin<Level::Job>() { beginJob(); }
-  template <> inline void EventProcessor::begin<Level::InputFile>() { openInputFile(); }
-  template <> inline void EventProcessor::begin<Level::Run>() { setupCurrentRun(); }
-  template <> inline void EventProcessor::begin<Level::SubRun>() { setupCurrentSubRun(); }
-
-  template <> inline void EventProcessor::finalize<Level::Event>() { finalizeEvent(); }
-  template <> inline void EventProcessor::finalize<Level::SubRun>() { finalizeSubRun(); }
-  template <> inline void EventProcessor::finalize<Level::Run>() { finalizeRun(); }
-  template <> inline void EventProcessor::finalize<Level::InputFile>() {
-    if (nextLevel_ == Level::Done) {
-      closeAllFiles();
-    }
-    else {
-      closeInputFile();
-    }
-  }
-  template <> inline void EventProcessor::finalize<Level::Job>() { endJob(); }
-
-  template <> inline void EventProcessor::endContainingLevels<Level::Job>() {}
-  template <> inline void EventProcessor::endContainingLevels<Level::InputFile>() {}
-  template <> inline void EventProcessor::endContainingLevels<Level::Run>() {}
-
-  template <> inline void EventProcessor::endContainingLevels<Level::SubRun>()
-  {
-    try_finalize<Level::Run>();
-  }
-
-  template <> inline void EventProcessor::endContainingLevels<Level::Event>()
-  {
-    try_finalize<Level::SubRun>();
-    endContainingLevels<Level::SubRun>();
-  }
-}
-
-
-
-template <art::Level L>
-std::enable_if_t<(art::underlying_value(L)==art::underlying_value(art::Level::N)-1u)>
-art::EventProcessor::process()
-{
-  beginRunIfNotDoneAlready();
-  beginSubRunIfNotDoneAlready();
-  readEvent();
-
-  if (eventPrincipalID().isFlush()) return;
-  processEvent();
-
-  if (shouldWeStop()) {
-    nextLevel_ = Level::Done;
-  }
-  try_finalize<Level::Event>();
-}
-
-template <art::Level L>
-std::enable_if_t<(art::underlying_value(L)<art::underlying_value(art::Level::N)-1)>
-art::EventProcessor::process()
-{
-  begin<L>();
-  while (levelsToProcess<level_down(L)>()) {
-    process<level_down(L)>();
-    levelProcessed();
-  }
-  try_finalize<L>();
-}
-
-template <art::Level L>
-void
-art::EventProcessor::setExceptionMessage(std::string const& message)
-{
-  std::get<art::underlying_value(L)>(exceptionMessages_) = message;
-}
-
-template <art::Level L>
-void
-art::EventProcessor::try_finalize()
-  try {
-    finalize<L>();
-  }
-  catch (cet::exception const& e) {
-    std::ostringstream message;
-    message << "------------------------------------------------------------\n"
-            << "Another exception was caught while trying to clean up " << L << "s after\n"
-            << "the primary exception.  We give up trying to clean up " << L << "s at\n"
-            << "this point.  The description of this additional exception follows:\n"
-            << "cet::exception\n"
-            << e.explain_self();
-    setExceptionMessage<L>(message.str());
-  }
-  catch (std::bad_alloc const& e) {
-    std::ostringstream message;
-    message << "------------------------------------------------------------\n"
-            << "Another exception was caught while trying to clean up " << L << "s\n"
-            << "after the primary exception.  We give up trying to clean up " << L << "s\n"
-            << "at this point.  This additional exception was a\n"
-            << "std::bad_alloc exception thrown inside Handle" << L << "s::finalize" << L << ".\n"
-            << "The job has probably exhausted the virtual memory available\n"
-            << "to the process.\n";
-    setExceptionMessage<L>(message.str());
-  }
-  catch (std::exception const& e) {
-    std::ostringstream message;
-    message << "------------------------------------------------------------\n"
-            << "Another exception was caught while trying to clean up " << L << "s after\n"
-            << "the primary exception.  We give up trying to clean up " << L << "s at\n"
-            << "this point.  This additional exception was a\n"
-            << "standard library exception thrown inside Handle" << L << "s::finalize" << L << "\n"
-            << e.what() << "\n";
-    setExceptionMessage<L>(message.str());
-  }
-  catch (...) {
-    std::ostringstream message;
-    message << "------------------------------------------------------------\n"
-            << "Another exception was caught while trying to clean up " << L << "s after\n"
-            << "the primary exception.  We give up trying to clean up " << L << "s at\n"
-            << "this point.  This additional exception was of unknown type and\n"
-            << "thrown inside Handle" << L << "s::finalize" << L << "\n";
-    setExceptionMessage<L>(message.str());
-  }
-
-// ======================================================================
 
 #endif /* art_Framework_EventProcessor_EventProcessor_h */
 
