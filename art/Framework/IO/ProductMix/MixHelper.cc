@@ -296,7 +296,11 @@ art::MixHelper::mixAndPut(EntryNumberSequence const & eventEntries,
       if (it != currentFileIndex_.cend()) {
         subRunEntries.emplace_back(it->entry_);
       } else {
-        // FIXME: throw.
+        throw Exception(errors::NotFound, "NO_SUBRUN")
+          << "- Unable to find an entry in the SubRun tree corresponding to event ID "
+          << eID << " in secondary mixing input file "
+          << currentFile_->GetName()
+          << ".\n";
       }
     }
   }
@@ -307,7 +311,11 @@ art::MixHelper::mixAndPut(EntryNumberSequence const & eventEntries,
       if (it != currentFileIndex_.cend()) {
         runEntries.emplace_back(it->entry_);
       } else {
-        // FIXME: throw.
+        throw Exception(errors::NotFound, "NO_RUN")
+          << "- Unable to find an entry in the Run tree corresponding to event ID "
+          << eID << " in secondary mixing input file "
+          << currentFile_->GetName()
+          << ".\n";
       }
     } 
   }
@@ -329,8 +337,10 @@ art::MixHelper::mixAndPut(EntryNumberSequence const & eventEntries,
       op->mixAndPut(e, nopRemapper);
       break;
     default:
-      // FIXME: throw.
-    { }
+      throw Exception(errors::LogicError, "Unsupported BranchType")
+        << "- MixHelper::mixAndPut() attempted to handle unsupported branch type "
+        << op->branchType()
+        << ".\n";
     }
   }
   nEventsReadThisFile_ += eventEntries.size();
