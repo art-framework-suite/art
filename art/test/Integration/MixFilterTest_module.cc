@@ -216,6 +216,10 @@ private:
   bool startEvent_called_ {false};
   bool processEventIDs_called_ {false};
   bool processEventAuxiliaries_called_ {false};
+  size_t beginSubRunCounter_ {0ull};
+  size_t endSubRunCounter_ {0ull};
+  size_t beginRunCounter_ {0ull};
+  size_t endRunCounter_ {0ull};
   int currentEvent_ {-1};
   bool const testZeroSecondaries_;
   bool const testPtrFailure_;
@@ -353,6 +357,10 @@ arttest::MixFilterTestDetail::
     BOOST_CHECK_EQUAL(allEvents_.size(), uniqueEvents_.size());
   }
   BOOST_CHECK_EQUAL(respondFunctionsSeen_, expectedRespondFunctionCalls_);
+  BOOST_CHECK_EQUAL(beginSubRunCounter_, 1ull);
+  BOOST_CHECK_EQUAL(endSubRunCounter_, 1ull);
+  BOOST_CHECK_EQUAL(beginRunCounter_, 1ull);
+  BOOST_CHECK_EQUAL(endRunCounter_, 1ull);
 }
 
 #ifndef ART_TEST_NO_STARTEVENT
@@ -503,24 +511,28 @@ respondToCloseOutputFiles(art::FileBlock const &) {
 void
 arttest::MixFilterTestDetail::
 beginSubRun(art::SubRun const &) {
+  ++beginSubRunCounter_;
   subRunInfo_ = 0.0;
 }
 
 void
 arttest::MixFilterTestDetail::
 endSubRun(art::SubRun & sr) {
+  ++endSubRunCounter_;
   sr.put(std::make_unique<double>(subRunInfo_));
 }
 
 void
 arttest::MixFilterTestDetail::
 beginRun(art::Run const &) {
+  ++beginRunCounter_;
   runInfo_ = 0.0;
 }
 
 void
 arttest::MixFilterTestDetail::
 endRun(art::Run & r) {
+  ++endRunCounter_;
   r.put(std::make_unique<double>(runInfo_));
 }
 
