@@ -413,7 +413,7 @@ declareMixOp(InputTag const & inputTag,
              bool outputProduct)
 {
   if (outputProduct) {
-    producesProvider_.produces<PROD>(outputInstanceLabel);
+    produces<OPROD>(outputInstanceLabel);
   }
   if (B == art::InSubRun) {
     haveSubRunMixOps_ = true;
