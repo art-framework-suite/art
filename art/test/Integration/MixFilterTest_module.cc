@@ -132,7 +132,7 @@ public:
   // sequence of EventAuxiliaries.
   void processEventAuxiliaries(art::EventAuxiliarySequence const &);
 
-  // Optional.finalizeEvent(): (eg) put bookkeping products in event. Do
+  // Optional.finalizeEvent(): (eg) put bookeeping products in event. Do
   // *not* place mix products into the event: this will already have
   // been done for you.
   void finalizeEvent(art::Event & t);
@@ -144,15 +144,22 @@ public:
   void respondToOpenOutputFiles(art::FileBlock const & fb);
   void respondToCloseOutputFiles(art::FileBlock const & fb);
 
+  // Optional {begin,end}{Sub,}Run functions, called at the right time
+  // if they exist.
+  void beginSubRun(art::SubRun const & sr);
+  void endSubRun(art::SubRun & sr);
+  void beginRun(art::Run const & r);
+  void endRun(art::Run & r);
+
   // Mixing functions. Note that they do not *have* to be member
   // functions of this detail class: they may be member functions of a
   // completely unrelated class; free functions or function objects
   // provided they (or the function object's operator()) have the
   // expected signature.
-  template <typename T>
+  template <typename PROD, typename OPROD = PROD>
   bool
-  mixByAddition(std::vector<T const *> const &,
-                T &,
+  mixByAddition(std::vector<PROD const *> const &,
+                OPROD &,
                 art::PtrRemapper const &);
 
   bool
@@ -187,6 +194,16 @@ public:
                     std::vector<art::Ptr<cet::map_vector<unsigned int>::value_type> > &out,
                     art::PtrRemapper const & remap);
 
+  bool
+  mixSRProduct(std::vector<double const *> const & in,
+               DoubleProduct & out,
+               art::PtrRemapper const &);
+
+  bool
+  mixRProduct(std::vector<double const *> const & in,
+              DoubleProduct & out,
+              art::PtrRemapper const &);
+
   template <typename COLL>
   void verifyInSize(COLL const & in) const;
 
@@ -214,6 +231,9 @@ private:
   std::vector<int> allEvents_ {};
   std::unordered_set<int> uniqueEvents_ {};
 
+  // For testing run and subrun mixing.
+  double subRunInfo_ {0.0};
+  double runInfo_ {0.0};
 };
 
 template <typename COLL>
@@ -254,6 +274,8 @@ MixFilterTestDetail(fhicl::ParameterSet const & p,
                                "mixProducer"));
   helper.produces<std::string>(); // "Bookkeeping"
   helper.produces<art::EventIDSequence>(); // "Bookkeeping"
+  helper.produces<double, art::InSubRun>(); // SubRun product test.
+  helper.produces<double, art::InRun>(); // Run product test.
   helper.declareMixOp
   (art::InputTag(mixProducerLabel, "doubleLabel"),
    &MixFilterTestDetail::mixByAddition<double>, *this);
@@ -283,9 +305,7 @@ MixFilterTestDetail(fhicl::ParameterSet const & p,
   helper.declareMixOp
   (art::InputTag(mixProducerLabel, "intVectorPtrLabel"),
    &MixFilterTestDetail::mixmap_vectorPtrs, *this);
-  std::function < bool (std::vector<IntProduct const *> const &,
-                        IntProduct &,
-                        art::PtrRemapper const &) >
+  art::MixFunc<IntProduct>
     mixfunc([this](std::vector<IntProduct const *> const & in,
                    IntProduct,
                    art::PtrRemapper const &) -> bool
@@ -313,6 +333,12 @@ MixFilterTestDetail(fhicl::ParameterSet const & p,
     });
   helper.declareMixOp(art::InputTag(mixProducerLabel, "SpottyProductLabel"),
                       mixfunc, false);
+  // SubRun mixing.
+  helper.declareMixOp<art::InSubRun>(art::InputTag(mixProducerLabel, "DoubleSRLabel"), "SRInfo",
+                                     &MixFilterTestDetail::mixSRProduct, *this);
+  // Run mixing.
+  helper.declareMixOp<art::InRun>(art::InputTag(mixProducerLabel, "DoubleRLabel"), "RInfo",
+                                  &MixFilterTestDetail::mixRProduct, *this);
 }
 
 arttest::MixFilterTestDetail::
@@ -386,11 +412,19 @@ processEventIDs(art::EventIDSequence const & seq)
     if (testNoLimEventDupes_) {
       // We should have no duplicate within the secondaries.
       std::unordered_set<int> s;
-      cet::transform_all(seq, std::inserter(s, s.begin()), [](art::EventID const & eid) { return eid.event(); });
+      cet::transform_all(seq, std::inserter(s, s.begin()),
+                         [](art::EventID const & eid) {
+                           return eid.event() +
+                             eid.subRun() * 100 +
+                             (eid.run() - 1) * 500; });
       BOOST_CHECK_EQUAL(seq.size(), s.size());
     } else { // Require dupes over 2 events.
       auto checkpoint(allEvents_.size());
-      cet::transform_all(seq, std::back_inserter(allEvents_), [](art::EventID const & eid) { return eid.event(); });
+      cet::transform_all(seq, std::back_inserter(allEvents_),
+                         [](art::EventID const & eid) {
+                           return eid.event() +
+                             eid.subRun() * 100 +
+                             (eid.run() - 1) * 500; });
       uniqueEvents_.insert(allEvents_.cbegin() + checkpoint, allEvents_.cend());
       // Test at end job for duplicates.
     }
@@ -466,11 +500,35 @@ respondToCloseOutputFiles(art::FileBlock const &) {
   ++respondFunctionsSeen_;
 }
 
-template<typename T>
+void
+arttest::MixFilterTestDetail::
+beginSubRun(art::SubRun const &) {
+  subRunInfo_ = 0.0;
+}
+
+void
+arttest::MixFilterTestDetail::
+endSubRun(art::SubRun & sr) {
+  sr.put(std::make_unique<double>(subRunInfo_));
+}
+
+void
+arttest::MixFilterTestDetail::
+beginRun(art::Run const &) {
+  runInfo_ = 0.0;
+}
+
+void
+arttest::MixFilterTestDetail::
+endRun(art::Run & r) {
+  r.put(std::make_unique<double>(runInfo_));
+}
+
+template<typename PROD, typename OPROD>
 bool
 arttest::MixFilterTestDetail::
-mixByAddition(std::vector<T const *> const & in,
-              T & out,
+mixByAddition(std::vector<PROD const *> const & in,
+              OPROD & out,
               art::PtrRemapper const &)
 {
   verifyInSize(in);
@@ -573,6 +631,29 @@ mixmap_vectorPtrs(std::vector<std::vector<art::Ptr<cet::map_vector<unsigned int>
         map_vectorOffsets_);
   return true; //  Always want product in event.
 }
+
+bool
+arttest::MixFilterTestDetail::
+mixSRProduct(std::vector<double const *> const & in,
+             DoubleProduct & out,
+             art::PtrRemapper const & remap)
+{
+  mixByAddition(in, out, remap);
+  subRunInfo_ += out.value;
+  return true;
+}
+
+bool
+arttest::MixFilterTestDetail::
+mixRProduct(std::vector<double const *> const & in,
+            DoubleProduct & out,
+            art::PtrRemapper const & remap)
+{
+  mixByAddition(in, out, remap);
+  runInfo_ += out.value;
+  return true;
+}
+
 
 namespace arttest {
   DEFINE_ART_MODULE(ART_MFT)

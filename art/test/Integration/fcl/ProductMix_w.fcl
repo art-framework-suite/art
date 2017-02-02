@@ -27,5 +27,7 @@ outputs:
 source:
 {
   module_type: EmptyEvent
+  numberEventsInRun: 500
+  numberEventsInSubRun: 100
   maxEvents: 1000
 }

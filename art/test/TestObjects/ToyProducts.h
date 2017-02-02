@@ -79,6 +79,29 @@ namespace arttest
     double value;
   };
 
+  inline
+  DoubleProduct
+  operator + (DoubleProduct const & left, DoubleProduct const right)
+  {
+    return DoubleProduct(left.value + right.value);
+  }
+
+  inline
+  DoubleProduct &
+  operator += (DoubleProduct & left, DoubleProduct const & right)
+  {
+    left.aggregate(right);
+    return left;
+  }
+
+  inline
+  DoubleProduct &
+  operator += (DoubleProduct & left, double right)
+  {
+    left.value += right;
+    return left;
+  }
+
   struct StringProduct
   {
     StringProduct() : name_() {}

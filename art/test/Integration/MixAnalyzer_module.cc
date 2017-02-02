@@ -179,7 +179,10 @@ void arttest::MixAnalyzer::analyze(art::Event const &e) {
   art::Handle<art::EventIDSequence> eidsH;
   BOOST_REQUIRE((e.getByLabel(mixFilterLabel_, eidsH)));
   for (size_t i = 0; i < nSecondaries_; ++i) {
-    BOOST_REQUIRE_EQUAL((*eidsH)[i].event(), (eventCounter_ - 1) * nSecondaries_ + i + 1);
+    BOOST_REQUIRE_EQUAL((*eidsH)[i].event() +
+                        ((*eidsH)[i].subRun() * 100) +
+                        (((*eidsH)[i].run() - 1) * 500),
+                        (eventCounter_ - 1) * nSecondaries_ + i + 1);
   }
 }
 
