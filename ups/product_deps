@@ -8,7 +8,7 @@ perllib  product_dir
 #
 product		version
 canvas		v1_05_01
-cetbuildtools	v5_06_05	-	only_for_build
+cetbuildtools	v5_05_06	-	only_for_build
 end_product_list
 
 qualifier	canvas		notes
