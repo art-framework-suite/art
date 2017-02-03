@@ -42,8 +42,7 @@ function(simple_plugin name type)
       art_Framework_Services_Registry
       art_Persistency_Common
       art_Utilities
-      canvas_Persistency_Common
-      canvas_Utilities
+      canvas
       fhiclcpp
       cetlib
       ${Boost_FILESYSTEM_LIBRARY}
@@ -56,9 +55,7 @@ function(simple_plugin name type)
       art_Persistency_Common
       art_Persistency_Provenance
       art_Utilities
-      canvas_Persistency_Common
-      canvas_Persistency_Provenance
-      canvas_Utilities
+      canvas
       fhiclcpp
       cetlib
       ${ROOT_CORE}

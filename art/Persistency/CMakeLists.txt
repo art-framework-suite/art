@@ -1,6 +1,3 @@
-# project name
-project(Persistency)
-
 # build Persistency libraries
 #add_subdirectory (CLHEPDictionaries)
 add_subdirectory (Common)

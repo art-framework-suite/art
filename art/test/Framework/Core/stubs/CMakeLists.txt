@@ -1,6 +1,3 @@
-2# project name
-project(FrameworkCoreStubs)
-
 # version number
 set (FrameworkCoreStubs_VERSION_MAJOR 1)
 set (FrameworkCoreStubs_VERSION_MINOR 0)

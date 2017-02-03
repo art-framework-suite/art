@@ -3,7 +3,6 @@ set(CMAKE_MODULE_PATH
   ${CMAKE_CURRENT_SOURCE_DIR}
   )
 
-# project name
 art_make_library(SOURCE
   ToySource.cc
   LIBRARIES art_Framework_IO_Sources

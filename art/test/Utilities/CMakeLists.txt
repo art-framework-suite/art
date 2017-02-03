@@ -2,7 +2,7 @@
 set(default_art_test_libraries
   art_Utilities
   art_Version
-  canvas_Utilities
+  canvas
   cetlib
   MF_MessageLogger
   ${ROOT_CINT}
@@ -41,4 +41,4 @@ endforeach()
 cet_test(ScheduleID_t USE_BOOST_UNIT)
 
 cet_test(parent_path_t USE_BOOST_UNIT
-  LIBRARIES art_Utilities canvas_Utilities)
+  LIBRARIES art_Utilities canvas)

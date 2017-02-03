@@ -8,9 +8,9 @@ art_make(
   art_Framework_Services_Optional_TimeTracker_service
   art_Framework_Principal
   art_Persistency_Common
-  art_Persistency_Provenance canvas_Persistency_Provenance
+  art_Persistency_Provenance canvas
   art_Framework_Services_Registry
-  art_Utilities canvas_Utilities
+  art_Utilities
   art_Version
   MF_MessageLogger
   MF_MessageService
