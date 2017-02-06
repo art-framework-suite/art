@@ -62,6 +62,15 @@ function(simple_plugin name type)
       ${Boost_FILESYSTEM_LIBRARY}
       ${Boost_SYSTEM_LIBRARY}
       )
+  elseif("${type}" STREQUAL "tool")
+    list(INSERT simple_plugin_liblist 0
+      art_Utilities
+      fhiclcpp
+      cetlib
+      cetlib_except
+      ${Boost_FILESYSTEM_LIBRARY}
+      ${Boost_SYSTEM_LIBRARY}
+      )
   endif()
   if ("${type}" STREQUAL "source")
     list(INSERT simple_plugin_liblist 0
