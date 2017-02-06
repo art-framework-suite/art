@@ -216,7 +216,7 @@ namespace art {
     // Add a new Group.
     // We take ownership of the Group, which in turn owns its data.
     void
-    addGroup_(std::unique_ptr<Group>&& group)
+    addGroup(std::unique_ptr<Group>&& group)
     {
       BranchDescription const& bd = group->productDescription();
       assert(!bd.producedClassName().empty());
@@ -256,10 +256,6 @@ namespace art {
                      bool resolveProd) const;
 
   private: // MEMBER FUNCTIONS
-
-    virtual
-    void
-    addOrReplaceGroup(std::unique_ptr<Group>&&) = 0;
 
     virtual
     ProcessHistoryID const&

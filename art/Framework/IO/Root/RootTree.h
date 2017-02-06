@@ -143,7 +143,7 @@ namespace art {
     void
     fillGroups(Principal& item)
     {
-      if ((metaTree_ == 0) || (metaTree_->GetNbranches() == 0)) {
+      if ((metaTree_ == nullptr) || (metaTree_->GetNbranches() == 0)) {
         return;
       }
       // Loop over provenance

@@ -55,13 +55,13 @@ namespace art {
 
       auto runProductProvenancePtr = std::make_unique<ProductProvenance const>(elem.first,
                                                                                productstatus::present());
-      rp.put( std::move(elem.second.prod),
-              elem.second.bd,
-              std::move(runProductProvenancePtr),
-              std::move(elem.second.rs) );
+      rp.put(std::move(elem.second.prod),
+             elem.second.bd,
+             std::move(runProductProvenancePtr),
+             std::move(elem.second.rs));
     };
 
-    cet::for_all( putProducts(), put_in_principal );
+    cet::for_all(putProducts(), put_in_principal);
 
     // the cleanup is all or none
     putProducts().clear();

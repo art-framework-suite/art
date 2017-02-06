@@ -134,12 +134,18 @@ namespace art {
                                                                        productstatus::present(),
                                                                        gotBranchIDVector);
 
-      ep.put( std::move(elem.second.prod),
-              elem.second.bd,
-              std::move(productProvenancePtr) );
+      auto const& bd = elem.second.bd;
+      if (!ep.branchIDToProductID(bd.branchID()).isValid()) {
+        throw art::Exception(art::errors::ProductPutFailure, "Null Product ID")
+          << "put: Cannot put product with null Product ID.\n";
+      }
+
+      ep.put(std::move(elem.second.prod),
+             bd,
+             std::move(productProvenancePtr));
     };
 
-    cet::for_all( products, put_in_principal );
+    cet::for_all(products, put_in_principal);
 
     // the cleanup is all or none
     products.clear();

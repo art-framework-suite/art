@@ -69,15 +69,10 @@ runPrincipal() const
 
 void
 EventPrincipal::
-addOrReplaceGroup(std::unique_ptr<Group>&& g)
+throwIfExistingGroup(BranchDescription const& bd) const
 {
-  cet::exempt_ptr<Group const> group = getExistingGroup(g->productDescription().branchID());
-  if (!group) {
-    addGroup_(std::move(g));
-    return;
-  }
-  BranchDescription const& bd = group->productDescription();
-  throw art::Exception(art::errors::ProductRegistrationFailure, "EventPrincipal::addOrReplaceGroup")
+  if (auto group = getExistingGroup(bd.branchID())) {
+    throw art::Exception(art::errors::ProductRegistrationFailure, "EventPrincipal::addOrReplaceGroup")
       << "Problem found while adding product provenance: "
       << "product already exists for ("
       << bd.friendlyClassName()
@@ -90,25 +85,17 @@ addOrReplaceGroup(std::unique_ptr<Group>&& g)
       << ","
       << bd.branchType()
       << ")\n";
+  }
 }
 
 void
 EventPrincipal::
 addGroup(BranchDescription const& bd)
 {
-  addOrReplaceGroup(gfactory::make_group(bd,
-                                         branchIDToProductID(bd.branchID()),
-                                         RangeSet::invalid()));
-}
-
-void
-EventPrincipal::
-addGroup(std::unique_ptr<EDProduct>&& prod, BranchDescription const& bd)
-{
-  addOrReplaceGroup(gfactory::make_group(bd,
-                                         branchIDToProductID(bd.branchID()),
-                                         RangeSet::invalid(),
-                                         std::move(prod)));
+  throwIfExistingGroup(bd);
+  Principal::addGroup(gfactory::make_group(bd,
+                                           branchIDToProductID(bd.branchID()),
+                                           RangeSet::invalid()));
 }
 
 void
@@ -117,17 +104,13 @@ put(std::unique_ptr<EDProduct>&& edp,
     BranchDescription const& bd,
     std::unique_ptr<ProductProvenance const>&& productProvenance)
 {
-  if (!edp) {
-    throw art::Exception(art::errors::ProductPutFailure, "Null Pointer")
-        << "put: Cannot put because unique_ptr to product is null.\n";
-  }
-  ProductID pid = branchIDToProductID(bd.branchID());
-  if (!pid.isValid()) {
-    throw art::Exception(art::errors::ProductPutFailure, "Null Product ID")
-        << "put: Cannot put product with null Product ID.\n";
-  }
+  assert(edp);
   branchMapper().insert(std::move(productProvenance));
-  addGroup(std::move(edp), bd);
+  throwIfExistingGroup(bd);
+  Principal::addGroup(gfactory::make_group(bd,
+                                           branchIDToProductID(bd.branchID()),
+                                           RangeSet::invalid(),
+                                           std::move(edp)));
 }
 
 EDProductGetter const*

@@ -45,14 +45,9 @@ void
 art::ResultsPrincipal::
 addOrReplaceGroup(std::unique_ptr<Group>&& g)
 {
-  cet::exempt_ptr<Group const> group =
-    getExistingGroup(g->productDescription().branchID());
-  if (!group) {
-    addGroup_(std::move(g));
-    return;
-  }
-  BranchDescription const& bd = group->productDescription();
-  mf::LogWarning("ResultsMerging")
+  if (auto group = getExistingGroup(g->productDescription().branchID())) {
+    BranchDescription const& bd = group->productDescription();
+    mf::LogWarning("ResultsMerging")
       << "Problem found while adding product provenance, "
       << "product already exists for ("
       << bd.friendlyClassName()
@@ -63,6 +58,10 @@ addOrReplaceGroup(std::unique_ptr<Group>&& g)
       << ","
       << bd.processName()
       << ")\n";
+  }
+  else {
+    Principal::addGroup(std::move(g));
+  }
 }
 
 void
@@ -76,24 +75,14 @@ addGroup(BranchDescription const& bd)
 
 void
 art::ResultsPrincipal::
-addGroup(std::unique_ptr<EDProduct>&& prod, BranchDescription const& bd)
+put(std::unique_ptr<EDProduct>&& edp,
+    BranchDescription const& bd,
+    std::unique_ptr<ProductProvenance const>&& productProvenance)
 {
+  assert(edp);
+  branchMapper().insert(std::move(productProvenance));
   addOrReplaceGroup(gfactory::make_group(bd,
                                          ProductID{},
                                          RangeSet::invalid(),
-                                         std::move(prod)));
-}
-
-void
-art::ResultsPrincipal::
-put(std::unique_ptr<EDProduct>&& edp, BranchDescription const& bd,
-    std::unique_ptr<ProductProvenance const>&& productProvenance)
-{
-  if (!edp) {
-    throw art::Exception(art::errors::ProductPutFailure, "Null Pointer")
-        << "put: Cannot put because unique_ptr to product is null."
-        << "\n";
-  }
-  branchMapper().insert(std::move(productProvenance));
-  this->addGroup(std::move(edp), bd);
+                                         std::move(edp)));
 }

@@ -78,8 +78,7 @@ namespace art {
              BranchDescription const& bd,
              std::unique_ptr<ProductProvenance const>&& productProvenance);
 
-    void addGroup(BranchDescription const&);
-    void addGroup(std::unique_ptr<EDProduct>&&, BranchDescription const&);
+    void addGroup(BranchDescription const&) override;
 
     ProductID branchIDToProductID(BranchID const bid) const;
 
@@ -94,7 +93,7 @@ namespace art {
 
     BranchID productIDToBranchID(ProductID const& pid) const;
 
-    void addOrReplaceGroup(std::unique_ptr<Group>&& g) override;
+    void throwIfExistingGroup(BranchDescription const& bd) const;
 
     ProcessHistoryID const&
     processHistoryID() const override
