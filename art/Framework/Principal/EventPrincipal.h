@@ -32,7 +32,6 @@ namespace art {
   public:
 
     using Auxiliary = EventAuxiliary;
-    using SharedConstGroupPtr = Principal::SharedConstGroupPtr;
     static constexpr BranchType branch_type = Auxiliary::branch_type;
 
     EventPrincipal(EventAuxiliary const& aux,
@@ -47,10 +46,9 @@ namespace art {
     // use compiler-generated copy c'tor, copy assignment.
 
     SubRunPrincipal const& subRunPrincipal() const;
-    SubRunPrincipal& subRunPrincipal();
 
-    std::shared_ptr<SubRunPrincipal> subRunPrincipalSharedPtr() { return subRunPrincipal_; }
-    void setSubRunPrincipal(std::shared_ptr<SubRunPrincipal> srp) { subRunPrincipal_ = srp;  }
+    cet::exempt_ptr<SubRunPrincipal const> subRunPrincipalExemptPtr() const { return subRunPrincipal_; }
+    void setSubRunPrincipal(cet::exempt_ptr<SubRunPrincipal> srp) { subRunPrincipal_ = srp;  }
 
     EventID const& id() const { return aux().id(); }
     Timestamp const& time() const { return aux().time(); }
@@ -65,9 +63,6 @@ namespace art {
 
     RunPrincipal const& runPrincipal() const;
     RunPrincipal& runPrincipal();
-
-    void addOnDemandGroup(BranchDescription const& desc,
-                          cet::exempt_ptr<Worker> worker);
 
     EventSelectionIDVector const& eventSelectionIDs() const;
 
@@ -130,7 +125,7 @@ namespace art {
 
     EventAuxiliary aux_;
 
-    std::shared_ptr<SubRunPrincipal> subRunPrincipal_ {nullptr};
+    cet::exempt_ptr<SubRunPrincipal> subRunPrincipal_ {nullptr};
     std::shared_ptr<History> history_;
     std::map<BranchListIndex, ProcessIndex> branchToProductIDHelper_ {};
     bool lastInSubRun_ {false};

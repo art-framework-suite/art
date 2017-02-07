@@ -1,13 +1,20 @@
-#include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/IO/Root/RootInput.h"
+#include "art/Framework/Principal/Event.h"
+#include "art/Framework/Principal/Run.h"
+#include "art/Framework/Principal/SubRun.h"
+#include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/test/Integration/SeekToEventClient.h"
 #include "fhiclcpp/ParameterSet.h"
+
+#include <cassert>
+#include <iostream>
 
 arttest::SeekToEventClient::SeekToEventClient(Parameters const& config,
                                               art::ActivityRegistry& r)
   : nextEventsToProcess_{config().nextEventsToProcess()}
 {
   r.sPostBeginJobWorkers.watch(this, &SeekToEventClient::postBeginJobWorkers);
+  r.sPostProcessEvent.watch(this, &SeekToEventClient::preProcessEvent);
   r.sPostProcessEvent.watch(this, &SeekToEventClient::postProcessEvent);
 }
 
@@ -22,6 +29,15 @@ arttest::SeekToEventClient::postBeginJobWorkers(art::InputSource* input_source,
     throw art::Exception(art::errors::Configuration)
       << "The SeekToEventClient service can be used only with\n"
       << "the RootInput source.\n";
+}
+
+void
+arttest::SeekToEventClient::preProcessEvent(art::Event const& e)
+{
+  // Check to make sure SubRuns and Runs are appropriately filled.
+  // Exception will be thrown if not.  Discard return value.
+  e.getSubRun();
+  e.getRun();
 }
 
 void

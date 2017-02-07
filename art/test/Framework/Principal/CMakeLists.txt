@@ -5,7 +5,7 @@ art_dictionary(NO_INSTALL)
 set( test_Framework_Principal_libraries
   art_Framework_Core
   art_Framework_Principal
-  art_Utilities canvas_Utilities
+  art_Utilities canvas
   ${Boost_FILESYSTEM_LIBRARY}
   ${ROOT_CINTEX}
   ${ROOT_TREE}

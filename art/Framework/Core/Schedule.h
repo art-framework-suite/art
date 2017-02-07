@@ -89,14 +89,8 @@ public:
   bool setTriggerPathEnabled(std::string const& name, bool enable);
 
 private:
-  typedef
-  std::multimap<Worker *, BranchDescription const *> OnDemandBranches;
 
   // Private initialization helpers.
-  OnDemandBranches
-  catalogOnDemandBranches_(PathManager::Workers onDemandWorkers,
-                           ProductList const & plist);
-
   void
   makeTriggerResultsInserter_(fhicl::ParameterSet const & trig_pset,
                               MasterProductRegistry & mpr,
@@ -116,8 +110,7 @@ private:
   std::string processName_;
   PathsInfo& triggerPathsInfo_;
   std::vector<unsigned char> pathsEnabled_;
-  std::shared_ptr<Worker> results_inserter_;
-  OnDemandBranches demand_branches_;
+  std::unique_ptr<Worker> results_inserter_ {nullptr};
 };
 
 template<typename T>
@@ -131,15 +124,6 @@ Schedule::process(typename T::MyPrincipal& principal)
   MaybeRunStopwatch<T::level> sentry {triggerPathsInfo_.maybeRunStopwatch<T::level>()};
   if (T::level == Level::Event) {
     triggerPathsInfo_.addEvent();
-    EventPrincipal& ep = dynamic_cast<EventPrincipal&>(principal);
-    // FIXME: This can work with generic Principals just as soon as
-    // the metadata can handle (or obviate) a BranchID <-> ProductID
-    // conversion for all principal types.
-    for (auto& val : demand_branches_) {
-      if (val.second->branchType() == ep.branchType()) {
-        ep.addOnDemandGroup(*val.second, val.first);
-      }
-    }
   }
   try {
     if (runTriggerPaths_<T>(principal) && T::level == Level::Event) {

@@ -8,43 +8,13 @@
 #include "canvas/Persistency/Provenance/BranchKey.h"
 #include "canvas/Persistency/Provenance/ProductStatus.h"
 #include "canvas/Persistency/Provenance/TypeTools.h"
-#include "cetlib/demangle.h"
+#include "cetlib_except/demangle.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include <string>
 
-namespace art {
-
-Group::
-Group(BranchDescription const& bd,
-      ProductID const& pid,
-      art::TypeID const& wrapper_type,
-      RangeSet&& rs,
-      cet::exempt_ptr<Worker> productProducer,
-      cet::exempt_ptr<EventPrincipal> onDemandPrincipal)
-  : wrapper_type_{wrapper_type}
-  , branchDescription_{&bd}
-  , pid_{pid}
-  , productProducer_{productProducer}
-  , onDemandPrincipal_{onDemandPrincipal}
-  , rangeOfValidity_{std::move(rs)}
-{}
-
-Group::
-Group(std::unique_ptr<EDProduct>&& edp,
-      BranchDescription const& bd,
-      ProductID const& pid,
-      art::TypeID const& wrapper_type,
-      RangeSet&& rs)
-  : wrapper_type_{wrapper_type}
-  , product_{std::move(edp)}
-  , branchDescription_{&bd}
-  , pid_{pid}
-  , rangeOfValidity_{std::move(rs)}
-{}
-
 art::ProductStatus
-Group::
+art::Group::
 status() const
 {
   if (dropped()) {
@@ -77,11 +47,11 @@ status() const
 }
 
 bool
-Group::
-resolveProduct(bool fillOnDemand, TypeID const& wanted_wrapper_type) const
+art::Group::
+resolveProduct(TypeID const& wanted_wrapper_type) const
 {
   if (!productUnavailable()) {
-    return resolveProductIfAvailable(fillOnDemand, wanted_wrapper_type);
+    return resolveProductIfAvailable(wanted_wrapper_type);
   }
   art::Exception e {errors::ProductNotFound, "InaccessibleProduct"};
   e << "resolveProduct: product is not accessible\n"
@@ -94,59 +64,36 @@ resolveProduct(bool fillOnDemand, TypeID const& wanted_wrapper_type) const
 }
 
 bool
-Group::
-resolveProductIfAvailable(bool const fillOnDemand,
-                          TypeID const& wanted_wrapper_type) const
+art::Group::
+resolveProductIfAvailable(TypeID const& wanted_wrapper_type) const
 {
-  if (product_.get()) {
-    // Already resolved.
-    return true;
+  if (wanted_wrapper_type != wrapperType_) {
+    throwResolveLogicError(wanted_wrapper_type);
   }
-  if (productUnavailable()) {
-    // It is possible for a product to be on the product list but the
-    // run product is not present.
-    return false;
+  bool result = product_.get();
+  if (!(result || productUnavailable())) {
+    std::unique_ptr<EDProduct> edp {obtainDesiredProduct(wanted_wrapper_type)};
+    if ((result = edp.get())) {
+      setProduct(std::move(edp));
+    }
   }
-
-  if (wanted_wrapper_type != wrapper_type_) {
-    throw Exception{errors::LogicError}
-        << "Attempted to obtain a product of different type ("
-        << wanted_wrapper_type.className()
-        << ") than produced ("
-        << wrapper_type_.className()
-        << ").\n";
-  }
-  std::unique_ptr<EDProduct> edp {obtainDesiredProduct(fillOnDemand, wanted_wrapper_type)};
-  if (edp.get()) {
-    setProduct(std::move(edp));
-  }
-  return product_.get();
+  return result;
 }
 
 std::unique_ptr<art::EDProduct>
-Group::
-obtainDesiredProduct(bool fillOnDemand, TypeID const& wanted_wrapper_type) const
+art::Group::
+obtainDesiredProduct(TypeID const& wanted_wrapper_type) const
 {
-  std::unique_ptr<art::EDProduct> retval;
-  // Try unscheduled production.
-  if (fillOnDemand && onDemand()) {
-    productProducer_->doWork<Do<Level::Event>>(*onDemandPrincipal_, nullptr);
-    return retval;
-  }
   BranchKey const bk {productDescription()};
-  retval = productResolver_->getProduct(bk,
-                                        wanted_wrapper_type,
-                                        rangeOfValidity_);
-  return retval;
+  return productResolver_->getProduct(bk,
+                                      wanted_wrapper_type,
+                                      rangeOfValidity_);
 }
 
 bool
-Group::
+art::Group::
 productUnavailable() const
 {
-  if (onDemand()) {
-    return false;
-  }
   if (dropped()) {
     return true;
   }
@@ -157,7 +104,7 @@ productUnavailable() const
 }
 
 cet::exempt_ptr<art::ProductProvenance const>
-Group::
+art::Group::
 productProvenancePtr() const
 {
   if (!ppResolver_) {
@@ -167,7 +114,7 @@ productProvenancePtr() const
 }
 
 void
-Group::
+art::Group::
 removeCachedProduct() const
 {
   // This check should already have been done by the surrounding art
@@ -178,15 +125,26 @@ removeCachedProduct() const
 }
 
 void
-Group::
+art::Group::
 setProduct(std::unique_ptr<EDProduct>&& prod) const
 {
   assert(!product_.get());
   product_ = std::move(prod);
 }
 
+void
+art::Group::
+throwResolveLogicError(TypeID const & wanted_wrapper_type) const
+{
+  throw Exception(errors::LogicError, "INTERNAL ERROR: ")
+    << cet::demangle_symbol(typeid(*this).name())
+    << " cannot resolve wanted product of type "
+    << wanted_wrapper_type.className()
+    << ".\n";
+}
+
 bool
-Group::
+art::Group::
 dropped() const
 {
   if ( !branchDescription_ ) return false;
@@ -199,33 +157,10 @@ dropped() const
 }
 
 void
-Group::
-swap(Group& other)
-{
-  using std::swap;
-  swap(ppResolver_, other.ppResolver_);
-  swap(product_, other.product_);
-  swap(branchDescription_, other.branchDescription_);
-  swap(pid_, other.pid_);
-  swap(productProducer_, other.productProducer_);
-  swap(onDemandPrincipal_, other.onDemandPrincipal_);
-  swap(rangeOfValidity_, other.rangeOfValidity_);
-}
-
-void
-Group::
-replace(Group& g)
-{
-  this->swap(g);
-}
-
-void
-Group::
+art::Group::
 write(std::ostream& os) const
 {
   // This is grossly inadequate. It is also not critical for the
   // first pass.
   os << "Group for product with ID: " << pid_;
 }
-
-} // namespace art

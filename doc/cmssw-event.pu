@@ -1,0 +1,28 @@
+@startuml
+abstract class EventBase {
+}
+note right of EventBase
+Common class for
+""FWCore"" and ""FWLite""
+endnote
+
+class Event {
+  -provRecorder_ : PrincipalGetAdapter
+}
+EventBase <|-- Event
+Event --> PrincipalGetAdapter
+
+class PrincipalGetAdapter {
+  -principal_ : Principal const&
+}
+PrincipalGetAdapter -> Principal
+abstract class EDProductGetter
+EDProductGetter <|-- Principal
+
+class Principal {
+  -productResolvers_ : ProductResolverCollection
+}
+
+Principal -> ProductResolverBase
+!include cmssw-product-resolvers.pu
+@enduml

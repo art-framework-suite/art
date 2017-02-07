@@ -7,6 +7,7 @@
 #include "art/Framework/IO/Catalog/InputFileCatalog.h"
 #include "art/Framework/IO/Root/Inputfwd.h"
 #include "art/Framework/IO/Root/RootInputFileSequence.h"
+#include "art/Utilities/ConfigurationTable.h"
 #include "canvas/Persistency/Provenance/BranchDescription.h"
 #include "canvas/Persistency/Provenance/BranchID.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
@@ -39,14 +40,14 @@ namespace art {
       };
     };
 
-    using Parameters = fhicl::Table<Config, Config::KeysToIgnore>;
+    using Parameters = art::WrappedTable<Config, Config::KeysToIgnore>;
 
     RootInput(Parameters const&, InputSourceDescription&);
     using DecrepitRelicInputSourceImplementation::runPrincipal;
-    // Find the requested event and set the system up
-    // to read run and subRun records where appropriate. Note the
-    // corresponding seekToEvent function must exist in
-    // RootInputFileSequence to avoid a compile error.
+    // Find the requested event and set the system up to read run and
+    // subRun records where appropriate. Note the corresponding
+    // seekToEvent function must exist in RootInputFileSequence to
+    // avoid a compile error.
     template<typename T> bool seekToEvent(T eventSpec, bool exact = false);
   private:
     class AccessState {
@@ -77,7 +78,6 @@ namespace art {
       std::shared_ptr<RootInputFile> rootFileForLastReadEvent_;
       EventID wantedEventID_;
     }; // class AccessState
-    typedef std::shared_ptr<RootInputFile> RootInputFileSharedPtr;
     typedef input::EntryNumber EntryNumber;
   private:
     InputFileCatalog  catalog_;
@@ -88,17 +88,15 @@ namespace art {
   private:
     input::ItemType nextItemType() override;
     using DecrepitRelicInputSourceImplementation::readEvent;
-    std::unique_ptr<EventPrincipal> readEvent(std::shared_ptr<SubRunPrincipal>) override;
+    std::unique_ptr<EventPrincipal> readEvent(cet::exempt_ptr<SubRunPrincipal>) override;
     std::unique_ptr<EventPrincipal> readEvent_() override;
-    std::unique_ptr<EventPrincipal> readEvent_(std::shared_ptr<SubRunPrincipal>);
-    std::shared_ptr<SubRunPrincipal> readSubRun(std::shared_ptr<RunPrincipal>) override;
-    std::shared_ptr<SubRunPrincipal> readSubRun_() override;
-    std::vector<std::shared_ptr<SubRunPrincipal>>  readSubRunFromSecondaryFiles_() override;
-    std::shared_ptr<RunPrincipal> readRun() override;
-    std::shared_ptr<RunPrincipal> readRun_() override;
-    std::vector<std::shared_ptr<RunPrincipal>> readRunFromSecondaryFiles_() override;
-    std::shared_ptr<FileBlock> readFile(MasterProductRegistry&) override;
-    std::shared_ptr<FileBlock> readFile_() override;
+    std::unique_ptr<EventPrincipal> readEvent_(cet::exempt_ptr<SubRunPrincipal>);
+    std::unique_ptr<SubRunPrincipal> readSubRun(cet::exempt_ptr<RunPrincipal>) override;
+    std::unique_ptr<SubRunPrincipal> readSubRun_() override;
+    std::unique_ptr<RunPrincipal> readRun() override;
+    std::unique_ptr<RunPrincipal> readRun_() override;
+    std::unique_ptr<FileBlock> readFile(MasterProductRegistry&) override;
+    std::unique_ptr<FileBlock> readFile_() override;
     std::unique_ptr<RangeSetHandler> runRangeSetHandler() override;
     std::unique_ptr<RangeSetHandler> subRunRangeSetHandler() override;
     void closeFile_() override;

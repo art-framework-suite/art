@@ -10,6 +10,7 @@
 #include "art/Framework/Core/detail/IgnoreModuleLabel.h"
 #include "art/Framework/Core/get_BranchDescription.h"
 #include "art/Framework/Principal/fwd.h"
+#include "art/Utilities/ConfigurationTable.h"
 #include "art/Utilities/ProductTokens.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
 #include "canvas/Persistency/Provenance/ProductID.h"
@@ -44,7 +45,7 @@ namespace art {
 
     // Configuration
     template <typename UserConfig, typename UserKeysToIgnore = void>
-    class Table {
+    class Table : public ConfigurationTable {
 
       template <typename T>
       struct FullConfig {
@@ -59,6 +60,8 @@ namespace art {
 
       fhicl::Table<FullConfig<UserConfig>, KeysToIgnore_t> fullConfig_;
 
+      cet::exempt_ptr<fhicl::detail::ParameterBase const> get_parameter_base() const override { return &fullConfig_; }
+
     public:
 
       Table(fhicl::Name&& name) : fullConfig_{std::move(name)} {}
@@ -68,7 +71,7 @@ namespace art {
       auto const& operator()() const { return fullConfig_().user(); }
       auto const& get_PSet() const { return fullConfig_.get_PSet(); }
 
-      void print_allowed_configuration (std::ostream& os, std::string const& prefix) const
+      void print_allowed_configuration(std::ostream& os, std::string const& prefix) const
       {
         fullConfig_.print_allowed_configuration(os, prefix);
       }

@@ -22,8 +22,8 @@ art_make_library( SOURCE ${art_Framework_Services_Optional_sources}
   ${Boost_REGEX_LIBRARY}
   ${Boost_SYSTEM_LIBRARY}
   art_Framework_Services_Registry
-  art_Persistency_Provenance canvas_Persistency_Provenance
-  art_Utilities canvas_Utilities
+  art_Persistency_Provenance canvas
+  art_Utilities
   cetlib
 )
 
@@ -44,7 +44,7 @@ simple_plugin(MemoryAdjuster "service"
 
 simple_plugin(MemoryTracker "service"
   art_Framework_Services_Optional
-  art_Persistency_Provenance canvas_Persistency_Provenance
+  art_Persistency_Provenance canvas
   cetlib
   )
 
@@ -57,13 +57,13 @@ simple_plugin(TFileService "service"
   ${ROOT_THREAD})
 
 simple_plugin(TimeTracker "service"
-  art_Persistency_Provenance canvas_Persistency_Provenance
+  art_Persistency_Provenance canvas
   cetlib
   ${TBB}
   ${RT}
   )
 
-simple_plugin(Tracer "service" art_Persistency_Provenance canvas_Persistency_Provenance)
+simple_plugin(Tracer "service" art_Persistency_Provenance canvas)
 
 simple_plugin(TrivialFileDelivery "service")
 

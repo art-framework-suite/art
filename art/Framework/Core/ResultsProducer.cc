@@ -8,10 +8,10 @@ value = "ResultsProducer";
 
 void
 art::ResultsProducer::
-doWriteResults(Results & res)
+doWriteResults(ResultsPrincipal& rp, Results& res)
 {
   writeResults(res);
-  res.commit_();
+  res.commit_(rp);
 }
 
 void

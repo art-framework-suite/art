@@ -5,7 +5,7 @@ set(default_test_libraries
   art_Framework_Services_Registry
   art_Framework_Core
   art_Framework_Principal
-  art_Utilities canvas_Utilities
+  art_Utilities
   ${Boost_FILESYSTEM_LIBRARY}
   ${ROOT_CINTEX}
   ${ROOT_TREE}

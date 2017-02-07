@@ -120,13 +120,6 @@ BOOST_AUTO_TEST_CASE ( Construct )
      "    ERROR: Entry a in path p1 refers to a module label a which is not configured.\n"
      "---- Configuration END\n"); // Unconfigured label.
   test_sets.emplace_back
-    ("process_name: \"test\" "
-     "services.scheduler: { allowUnscheduled: true num_schedules: 3 }",
-     art::errors::UnimplementedFeature,
-     "---- UnimplementedFeature BEGIN\n"
-     "  Multi-schedule operation is not possible with on-demand module execution.\n"
-     "---- UnimplementedFeature END\n"); // On-demand with multi-schedule.
-  test_sets.emplace_back
     ("process_name: pathMisspecification "
      "physics: { "
      "  producers : {} "

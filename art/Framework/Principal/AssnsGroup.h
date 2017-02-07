@@ -15,47 +15,48 @@ class ProductID;
 
 class AssnsGroup : public Group {
 
+  // The operative part of the GroupFactory system.
+  template <typename ... ARGS>
   friend
   std::unique_ptr<Group>
-  gfactory::make_group(BranchDescription const&,
-                       ProductID const&,
-                       RangeSet&&);
-
-  friend
-  std::unique_ptr<Group>
-  gfactory::make_group(BranchDescription const&,
-                       ProductID const&,
-                       RangeSet&&,
-                       cet::exempt_ptr<Worker>,
-                       cet::exempt_ptr<EventPrincipal>);
-
-  friend
-  std::unique_ptr<Group>
-  gfactory::make_group(std::unique_ptr<EDProduct>&&,
-                       BranchDescription const&,
-                       ProductID const&,
-                       RangeSet&&);
+  gfactory::detail::
+  make_group(BranchDescription const &, ARGS && ... args);
 
 public:
 
-  AssnsGroup();
+  AssnsGroup() = default;
 
-private:
+protected:
 
   AssnsGroup(BranchDescription const& bd,
              ProductID const& pid,
+             RangeSet&& rs,
              TypeID const& primary_wrapper_type,
-             TypeID const& secondary_wrapper_type,
-             RangeSet&&,
-             cet::exempt_ptr<Worker> productProducer = cet::exempt_ptr<Worker>(),
-             cet::exempt_ptr<EventPrincipal> onDemandPrincipal =  cet::exempt_ptr<EventPrincipal>());
+             TypeID const& partner_wrapper_type,
+             std::unique_ptr<EDProduct>&& edp = nullptr,
+             cet::exempt_ptr<Worker> productProducer = cet::exempt_ptr<Worker>())
+    : Group{bd, pid, std::move(rs), primary_wrapper_type, std::move(edp), productProducer}
+    , partnerWrapperType_{partner_wrapper_type}
+    , partnerProduct_{}
+    {}
 
-  AssnsGroup(std::unique_ptr<EDProduct>&& edp,
-             BranchDescription const& bd,
+  AssnsGroup(BranchDescription const& bd,
              ProductID const& pid,
-             TypeID const& primary_type,
-             TypeID const& secondary_type,
-             RangeSet&&);
+             RangeSet&& rs,
+             std::unique_ptr<EDProduct>&& edp,
+             TypeID const& primary_wrapper_type,
+             TypeID const& partner_wrapper_type)
+    : AssnsGroup{bd, pid, std::move(rs), primary_wrapper_type, partner_wrapper_type, std::move(edp)}
+    {}
+
+  AssnsGroup(BranchDescription const& bd,
+             ProductID const& pid,
+             RangeSet&& rs,
+             cet::exempt_ptr<Worker> productProducer,
+             TypeID const& primary_wrapper_type,
+             TypeID const& partner_wrapper_type)
+    : AssnsGroup{bd, pid, std::move(rs), primary_wrapper_type, partner_wrapper_type, nullptr, productProducer}
+    {}
 
 public:
 
@@ -78,12 +79,32 @@ public:
   uniqueProduct(TypeID const& wanted_wrapper_type) const override;
 
   bool
-  resolveProductIfAvailable(bool fillOnDemand, TypeID const&) const override;
+  resolveProductIfAvailable(TypeID const&) const override;
+
+  void removeCachedProduct() const override;
+
+protected:
+
+  TypeID const & partnerWrapperType() const
+    {
+      return partnerWrapperType_;
+    }
+
+  bool makePartner(TypeID const& wanted_wrapper_type,
+                   std::unique_ptr<EDProduct> & partner) const
+    {
+      bool result;
+      auto edp = Group::uniqueProduct()->makePartner(wanted_wrapper_type.typeInfo());
+      if ((result = edp.get())) {
+        partner = std::move(edp);
+      }
+      return result;
+    }
 
 private:
 
-  TypeID secondary_wrapper_type_;
-  mutable std::unique_ptr<EDProduct> secondaryProduct_;
+  TypeID partnerWrapperType_;
+  mutable std::unique_ptr<EDProduct> partnerProduct_;
 
 };
 

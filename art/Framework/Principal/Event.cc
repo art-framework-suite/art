@@ -8,10 +8,10 @@
 #include "art/Framework/Principal/Event.h"
 
 #include "art/Framework/Principal/EventPrincipal.h"
-#include "art/Framework/Principal/SubRun.h"
-#include "canvas/Persistency/Provenance/BranchType.h"
-#include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
 #include "art/Framework/Principal/Provenance.h"
+#include "art/Framework/Principal/SubRun.h"
+#include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
+#include "canvas/Persistency/Provenance/BranchType.h"
 #include "fhiclcpp/ParameterSetRegistry.h"
 
 using namespace std;
@@ -20,31 +20,31 @@ using namespace fhicl;
 namespace art {
 
   namespace {
-    SubRun * newSubRun(EventPrincipal& ep, ModuleDescription const& md) {
-      return (ep.subRunPrincipalSharedPtr() ? new SubRun{ep.subRunPrincipal(), md} : 0);
+    SubRun* newSubRun(EventPrincipal const& ep, ModuleDescription const& md) {
+      return (ep.subRunPrincipalExemptPtr() ? new SubRun{ep.subRunPrincipal(), md} : nullptr);
     }
   }
 
-  Event::Event(EventPrincipal& ep, ModuleDescription const& md)
-    : DataViewImpl {ep, md, InEvent}
-    , aux_         {ep.aux()}
-    , subRun_      {newSubRun(ep, md)}
+  Event::Event(EventPrincipal const& ep, ModuleDescription const& md)
+    : DataViewImpl{ep, md, InEvent}
+    , aux_{ep.aux()}
+    , subRun_{newSubRun(ep, md)}
     , eventPrincipal_{ep}
   { }
 
-  EDProductGetter const *
-  Event::productGetter(ProductID const & pid) const {
-    return eventPrincipal().productGetter(pid);
+  EDProductGetter const*
+  Event::productGetter(ProductID const& pid) const {
+    return eventPrincipal_.productGetter(pid);
   }
 
   ProductID
   Event::branchIDToProductID(BranchID const bid) const {
-    return eventPrincipal().branchIDToProductID(bid);
+    return eventPrincipal_.branchIDToProductID(bid);
   }
 
   ProductID
   Event::makeProductID(BranchDescription const& desc) const {
-    return eventPrincipal().branchIDToProductID(desc.branchID());
+    return eventPrincipal_.branchIDToProductID(desc.branchID());
   }
 
   SubRun const&
@@ -61,22 +61,14 @@ namespace art {
     return getSubRun().getRun();
   }
 
-//   History const&
-//   Event::history() const {
-//     DataViewImpl const& dvi = me();
-//     EDProductGetter const* pg = dvi.prodGetter(); // certain to be non-null
-//     assert(pg);
-//     EventPrincipal const& ep = dynamic_cast<EventPrincipal const&>(*pg);
-//     return ep.history();
-//   }
   History const&
   Event::history() const {
-    return eventPrincipal().history();
+    return eventPrincipal_.history();
   }
 
   ProcessHistoryID const&
   Event::processHistoryID() const {
-    return eventPrincipal().history().processHistoryID();
+    return eventPrincipal_.history().processHistoryID();
   }
 
 
@@ -86,39 +78,42 @@ namespace art {
   {
     // Get the ProcessHistory for this event.
     ProcessHistory ph;
-    if (!ProcessHistoryRegistry::get(processHistoryID(), ph))
-      {
-        throw Exception(errors::NotFound)
-          << "ProcessHistoryID " << processHistoryID()
-          << " is claimed to describe " << id()
-          << "\nbut is not found in the ProcessHistoryRegistry.\n"
-             "This file is malformed.\n";
-      }
+    if (!ProcessHistoryRegistry::get(processHistoryID(), ph)) {
+      throw Exception(errors::NotFound)
+        << "ProcessHistoryID " << processHistoryID()
+        << " is claimed to describe " << id()
+        << "\nbut is not found in the ProcessHistoryRegistry.\n"
+        "This file is malformed.\n";
+    }
 
     ProcessConfiguration config;
-    bool process_found = ph.getConfigurationForProcess(processName, config);
-    if (process_found)
+    bool const process_found {ph.getConfigurationForProcess(processName, config)};
+    if (process_found) {
       ParameterSetRegistry::get(config.parameterSetID(), ps);
+    }
     return process_found;
   }
 
   GroupQueryResult
   Event::getByProductID_(ProductID const& oid) const
   {
-    return eventPrincipal().getByProductID(oid);
+    return eventPrincipal_.getByProductID(oid);
   }
 
 
   void
-  Event::commit_(bool const checkProducts, ProducedMap const& expectedProducts)
+  Event::commit_(EventPrincipal& ep, bool const checkProducts, ProducedMap const& expectedProducts)
   {
+    // Check addresses only since type of 'ep' will hopefully change to Principal&.
+    assert(&ep == &eventPrincipal_);
     checkPutProducts(checkProducts, expectedProducts, putProducts());
-    commit_aux(putProducts(), true);
-    commit_aux(putProductsWithoutParents(), false);
+    commit_aux(ep, putProducts(), true);
+    commit_aux(ep, putProductsWithoutParents(), false);
   }
 
   void
-  Event::commit_aux(Base::BranchIDsMap& products,
+  Event::commit_aux(EventPrincipal& ep,
+                    Base::BranchIDsMap& products,
                     bool const record_parents)
   {
     vector<BranchID> gotBranchIDVector;
@@ -132,7 +127,7 @@ namespace art {
       gotBranchIDVector.assign(gotBranchIDs_.begin(), gotBranchIDs_.end());
     }
 
-    auto put_in_principal = [&gotBranchIDVector, &ep=eventPrincipal()](auto& elem) {
+    auto put_in_principal = [&gotBranchIDVector, &ep](auto& elem) {
 
       // set provenance
       auto productProvenancePtr = make_unique<ProductProvenance const>(elem.first,

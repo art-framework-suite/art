@@ -23,10 +23,8 @@
 #include "art/Framework/Services/System/TriggerNamesService.h"
 #include "art/Persistency/Provenance/BranchIDListHelper.h"
 #include "art/Utilities/ScheduleID.h"
-#include "art/Utilities/UnixSignalHandlers.h"
 #include "art/Utilities/bold_fontify.h"
 #include "art/Version/GetReleaseVersion.h"
-#include "boost/thread/xtime.hpp"
 #include "canvas/Persistency/Provenance/BranchType.h"
 #include "canvas/Persistency/Provenance/ProcessConfiguration.h"
 #include "canvas/Utilities/DebugMacros.h"
@@ -53,22 +51,26 @@ namespace {
   public:
     using PreSig_t  = art::GlobalSignal<art::detail::SignalResponseType::FIFO, void>;
     using PostSig_t = art::GlobalSignal<art::detail::SignalResponseType::LIFO, void>;
-    SignalSentry(SignalSentry const &) = delete;
-    SignalSentry & operator=(SignalSentry const &) = delete;
-    SignalSentry(PreSig_t & pre, PostSig_t & post)
-      :
-      post_(post) {
+
+    SignalSentry(SignalSentry const&) = delete;
+    SignalSentry& operator=(SignalSentry const&) = delete;
+
+    explicit SignalSentry(PreSig_t& pre, PostSig_t& post) : post_{post}
+    {
       pre.invoke();
     }
-    ~SignalSentry() {
+
+    ~SignalSentry()
+    {
       post_.invoke();
     }
+
   private:
-    PostSig_t & post_;
+    PostSig_t& post_;
   };
 
   ////////////////////////////////////
-  void setupAsDefaultEmptySource(ParameterSet & p)
+  void setupAsDefaultEmptySource(ParameterSet& p)
   {
     p.put("module_type", "EmptyEvent");
     p.put("module_label", "source");
@@ -76,10 +78,10 @@ namespace {
   }
 
   std::unique_ptr<art::InputSource>
-  makeInput(ParameterSet const & params,
-            std::string const & processName,
-            art::MasterProductRegistry & preg,
-            art::ActivityRegistry & areg)
+  makeInput(ParameterSet const& params,
+            std::string const& processName,
+            art::MasterProductRegistry& preg,
+            art::ActivityRegistry& areg)
   {
     ParameterSet defaultEmptySource;
     setupAsDefaultEmptySource(defaultEmptySource);
@@ -96,12 +98,12 @@ namespace {
       // MasterProductRegistry.  Also fill in the process history item
       // for this process.
       art::ModuleDescription const md {main_input.id(),
-                                       main_input.get<std::string>("module_type"),
-                                       main_input.get<std::string>("module_label"),
-                                       art::ProcessConfiguration{processName,
-                                                                 params.id(),
-                                                                 art::getReleaseVersion(),
-                                                                 art::getPassID()}};
+          main_input.get<std::string>("module_type"),
+          main_input.get<std::string>("module_label"),
+          art::ProcessConfiguration{processName,
+            params.id(),
+            art::getReleaseVersion(),
+            art::getPassID()}};
       sourceSpecified = true;
       art::InputSourceDescription isd{md, preg, areg};
       try {
@@ -133,9 +135,11 @@ namespace {
     return std::unique_ptr<art::InputSource>();
   }
 
+  inline std::string spaces(unsigned const n) { return std::string(n,' '); }
+
 }
 
-art::EventProcessor::EventProcessor(ParameterSet const & pset)
+art::EventProcessor::EventProcessor(ParameterSet const& pset)
   :
   act_table_{pset.get<ParameterSet>("services.scheduler")},
   actReg_(),
@@ -170,78 +174,12 @@ art::EventProcessor::~EventProcessor()
   // Services must stay usable until they go out of scope, meaning
   // that modules may (say) use services in their destructors.
   servicesActivate_(serviceToken_);
-  // The state machine should have already been cleaned up and
-  // destroyed at this point by a call to EndJob or earlier when it
-  // completed processing events, but if it has not been we'll take
-  // care of it here at the last moment.  This could cause problems if
-  // we are already handling an exception and another one is thrown
-  // here ..  For a critical executable the solution to this problem
-  // is for the code using the EventProcessor to explicitly call
-  // EndJob or use runToCompletion, then the next line of code is
-  // never executed.
-  terminateMachine_();
-}
-
-void
-art::EventProcessor::beginJob()
-{
-  breakpoints::beginJob();
-  // make the services available
-  ServiceRegistry::Operate op {serviceToken_};
-  // NOTE: This implementation assumes 'Job' means one call the
-  // EventProcessor::run. If it really means once per 'application'
-  // then this code will have to be changed.  Also have to deal with
-  // case where have 'run' then new Module added and do 'run' again.
-  // In that case the newly added Module needs its 'beginJob' to be
-  // called.
-  try {
-    input_->doBeginJob();
-  }
-  catch (cet::exception & e) {
-    mf::LogError("BeginJob") << "A cet::exception happened while processing"
-                             " the beginJob of the 'source'\n";
-    e << "A cet::exception happened while processing"
-      " the beginJob of the 'source'\n";
-    throw;
-  }
-  catch (std::exception const& e) {
-    mf::LogError("BeginJob") << "A std::exception happened while processing"
-                             " the beginJob of the 'source'\n";
-    throw;
-  }
-  catch (...) {
-    mf::LogError("BeginJob") << "An unknown exception happened while"
-                             " processing the beginJob of the 'source'\n";
-    throw;
-  }
-  schedule_->beginJob();
-  endPathExecutor_->beginJob();
-  actReg_.sPostBeginJob.invoke();
-
-  invokePostBeginJobWorkers_();
-}
-
-void
-art::EventProcessor::endJob()
-{
-  // Collects exceptions, so we don't throw before all operations are performed.
-  cet::exception_collector c;
-  // Make the services available
-  ServiceRegistry::Operate op {serviceToken_};
-  c.call([this](){ terminateMachine_(); });
-  c.call([this](){ schedule_->endJob(); });
-  c.call([this](){ endPathExecutor_->endJob(); });
-  bool summarize = ServiceHandle<TriggerNamesService>()->wantSummary();
-  c.call([this,summarize](){ detail::writeSummary(pathManager_, summarize); });
-  c.call([this](){ input_->doEndJob(); });
-  c.call([this](){ actReg_.sPostEndJob.invoke(); });
 }
 
 art::ServiceDirector
-art::EventProcessor::
-initServices_(ParameterSet const& top_pset,
-              ActivityRegistry& areg,
-              ServiceToken& token)
+art::EventProcessor::initServices_(ParameterSet const& top_pset,
+                                   ActivityRegistry& areg,
+                                   ServiceToken& token)
 {
   auto services = top_pset.get<ParameterSet>("services", {});
 
@@ -276,8 +214,7 @@ initServices_(ParameterSet const& top_pset,
 }
 
 void
-art::EventProcessor::
-initSchedules_(ParameterSet const & pset)
+art::EventProcessor::initSchedules_(ParameterSet const& pset)
 {
   // Initialize TBB with desired number of threads.
   int const num_threads = pset.get<int>("services.num_threads",
@@ -294,246 +231,457 @@ initSchedules_(ParameterSet const & pset)
 }
 
 void
-art::EventProcessor::
-invokePostBeginJobWorkers_()
+art::EventProcessor::invokePostBeginJobWorkers_()
 {
   // Need to convert multiple lists of workers into a long list that the
   // postBeginJobWorkers callbacks can understand.
   std::vector<Worker *> allWorkers;
   allWorkers.reserve(pathManager_.triggerPathsInfo(ScheduleID::first()).workers().size() +
                      pathManager_.endPathInfo().workers().size());
-  auto workerStripper = [&allWorkers](WorkerMap::value_type const & val) {
+  auto workerStripper = [&allWorkers](WorkerMap::value_type const& val) {
     allWorkers.emplace_back(val.second.get());
   };
   cet::for_all(pathManager_.triggerPathsInfo(ScheduleID::first()).workers(),
                workerStripper);
   cet::for_all(pathManager_.endPathInfo().workers(),
-                workerStripper);
+               workerStripper);
   actReg_.sPostBeginJobWorkers.invoke(input_.get(), allWorkers);
 }
 
-art::ServiceToken
-art::EventProcessor::getToken_()
+//================================================================
+// Event-loop infrastructure
+
+template <art::Level L>
+bool
+art::EventProcessor::levelsToProcess()
 {
-  return serviceToken_;
+  if (nextLevel_ == Level::ReadyToAdvance) {
+    nextLevel_ = advanceItemType();
+    boost::mutex::scoped_lock sl {usr2_lock};
+    if (art::shutdown_flag > 0) {
+      throw Exception{errors::SignalReceived};
+    }
+    // Consider reading right here?
+  }
+
+  if (nextLevel_ == L) {
+    activeLevels_.push_back(nextLevel_);
+    nextLevel_ = Level::ReadyToAdvance;
+    if (endPathExecutor_->outputsToClose()) {
+      setOutputFileStatus(OutputFileStatus::Switching);
+      finalizeContainingLevels<L>();
+      closeSomeOutputFiles();
+    }
+    return true;
+  }
+  else if (nextLevel_ < L) {
+    return false;
+  }
+  else if (nextLevel_ == highest_level()) {
+    return false;
+  }
+
+  throw Exception{errors::LogicError} << "Incorrect level hierarchy.";
+}
+
+namespace art {
+
+  // Specializations for process function template
+
+  template <>
+  inline void EventProcessor::begin<Level::Job>()
+  {
+    beginJob();
+  }
+
+  template <>
+  inline void EventProcessor::begin<Level::InputFile>()
+  {
+    openInputFile();
+  }
+
+  template <>
+  void EventProcessor::begin<Level::Run>()
+  {
+    finalizeRunEnabled_ = true;
+    readRun();
+    if (handleEmptyRuns_) {
+      beginRun();
+    }
+  }
+
+  template <>
+  void EventProcessor::begin<Level::SubRun>()
+  {
+    finalizeSubRunEnabled_ = true;
+    assert(runPrincipal_);
+    assert(runPrincipal_->id().isValid());
+    readSubRun();
+    if (handleEmptySubRuns_) {
+      beginRunIfNotDoneAlready();
+      beginSubRun();
+    }
+  }
+
+  template <>
+  void EventProcessor::finalize<Level::Event>()
+  {
+    assert(eventPrincipal_);
+    if (eventPrincipal_->id().isFlush()) return;
+
+    openSomeOutputFiles();
+    writeEvent();
+  }
+
+  template <>
+  void EventProcessor::finalize<Level::SubRun>()
+  {
+    assert(subRunPrincipal_);
+    if (!finalizeSubRunEnabled_) return;
+    if (subRunPrincipal_->id().isFlush()) return;
+
+    openSomeOutputFiles();
+    setSubRunAuxiliaryRangeSetID();
+    if (beginSubRunCalled_) {
+      endSubRun();
+    }
+    writeSubRun();
+
+    finalizeSubRunEnabled_ = false;
+  }
+
+  template <>
+  void EventProcessor::finalize<Level::Run>()
+  {
+    assert(runPrincipal_);
+    if (!finalizeRunEnabled_) return;
+    if (runPrincipal_->id().isFlush()) return;
+
+    openSomeOutputFiles();
+    setRunAuxiliaryRangeSetID();
+    if (beginRunCalled_) {
+      endRun();
+    }
+    writeRun();
+
+    finalizeRunEnabled_ = false;
+  }
+
+  template <>
+  void EventProcessor::finalize<Level::InputFile>()
+  {
+    if (nextLevel_ == Level::Job) {
+      closeAllFiles();
+    }
+    else {
+      closeInputFile();
+    }
+  }
+
+  template <>
+  inline void EventProcessor::finalize<Level::Job>()
+  {
+    endJob();
+  }
+
+  template <>
+  inline void EventProcessor::finalizeContainingLevels<Level::SubRun>()
+  {
+    finalize<Level::Run>();
+  }
+
+  template <>
+  inline void EventProcessor::finalizeContainingLevels<Level::Event>()
+  {
+    finalize<Level::SubRun>();
+    finalize<Level::Run>();
+  }
+
+  template <>
+  inline void EventProcessor::recordOutputModuleClosureRequests<Level::Run>()
+  {
+    endPathExecutor_->recordOutputClosureRequests(Boundary::Run);
+  }
+
+  template <>
+  inline void EventProcessor::recordOutputModuleClosureRequests<Level::SubRun>()
+  {
+    endPathExecutor_->recordOutputClosureRequests(Boundary::SubRun);
+  }
+
+  template <>
+  inline void EventProcessor::recordOutputModuleClosureRequests<Level::Event>()
+  {
+    endPathExecutor_->recordOutputClosureRequests(Boundary::Event);
+  }
+
+  template <>
+  void EventProcessor::process<most_deeply_nested_level()>()
+  {
+    beginRunIfNotDoneAlready();
+    beginSubRunIfNotDoneAlready();
+    readEvent();
+
+    assert(eventPrincipal_);
+    if (eventPrincipal_->id().isFlush()) return;
+    processEvent();
+
+    if (shouldWeStop()) {
+      nextLevel_ = highest_level(); // FIXME: maybe go somewhere else?
+    }
+    finalize<most_deeply_nested_level()>();
+    recordOutputModuleClosureRequests<most_deeply_nested_level()>();
+  }
+
+} // namespace art
+
+template <art::Level L>
+void
+art::EventProcessor::process()
+{
+  begin<L>();
+  while (levelsToProcess<level_down(L)>()) {
+    process<level_down(L)>();
+    markLevelAsProcessed();
+  }
+  finalize<L>();
+  recordOutputModuleClosureRequests<L>();
 }
 
 art::EventProcessor::StatusCode
 art::EventProcessor::runToCompletion()
 {
   StatusCode returnCode {epSuccess};
-  stateMachineWasInErrorState_ = false;
   // Make the services available
   ServiceRegistry::Operate op {serviceToken_};
-  machine_ = std::make_unique<statemachine::Machine>( this,
-                                                      handleEmptyRuns_,
-                                                      handleEmptySubRuns_ );
-  machine_->initiate();
 
   try {
-    while (true) {
-      auto const itemType = input_->nextItemType();
-      FDEBUG(1) << "itemType = " << itemType << "\n";
-      // Look for a shutdown signal
-      {
-        boost::mutex::scoped_lock sl(usr2_lock);
-        if (art::shutdown_flag > 0) {
-          //changeState(mShutdownSignal);
-          returnCode = epSignal;
-          machine_->process_event(statemachine::Stop());
-          break;
-        }
-      }
-      if (itemType == input::IsStop) {
-        machine_->process_event(statemachine::Stop());
-      }
-      else if (itemType == input::IsFile) {
-        machine_->process_event(statemachine::InputFile());
-      }
-      else if (itemType == input::IsRun) {
-        machine_->process_event(statemachine::Run(input_->run()));
-      }
-      else if (itemType == input::IsSubRun) {
-        machine_->process_event(statemachine::SubRun(input_->subRun()));
-      }
-      else if (itemType == input::IsEvent) {
-        machine_->process_event(statemachine::Event());
-      }
-      // This should be impossible
-      else {
-        throw art::Exception(errors::LogicError)
-            << "Unknown next item type passed to EventProcessor\n"
-            << "Please report this error to the art developers\n";
-      }
-      if (machine_->terminated()) {
-        break;
-      }
-    }  // End of loop over state machine events
-  } // Try block
-
-  // Some comments on exception handling related to the boost state
-  // machine:
-  //
-  // Some states used in the machine are special because they perform
-  // actions while the machine is being terminated, actions such as
-  // close files, call endRun, call endSubRun etc ..  Each of these
-  // states has two functions that perform these actions.  The
-  // functions are almost identical.  The major difference is that one
-  // version catches all exceptions and the other lets exceptions pass
-  // through.  The destructor catches them and the other function
-  // named "exit" lets them pass through.  On a normal termination,
-  // boost will always call "exit" and then the state destructor.  In
-  // our state classes, the the destructors do nothing if the exit
-  // function already took care of things.  Here's the interesting
-  // part.  When boost is handling an exception the "exit" function is
-  // not called (a boost feature).
-  //
-  // If an exception occurs while the boost machine is in control
-  // (which usually means inside a process_event call), then the boost
-  // state machine destroys its states and "terminates" itself.  This
-  // is already done before we hit the catch blocks below. In this
-  // case the call to terminateMachine below only destroys an already
-  // terminated state machine.  Because exit is not called, the state
-  // destructors handle cleaning up subRuns, runs, and files.  The
-  // destructors swallow all exceptions and only pass through the
-  // exceptions messages which are tacked onto the original exception
-  // below.
-  //
-  // If an exception occurs when the boost state machine is not in
-  // control (outside the process_event functions), then boost cannot
-  // destroy its own states.  The terminateMachine function below
-  // takes care of that.  The flag "alreadyHandlingException" is set
-  // true so that the state exit functions do nothing (and cannot
-  // throw more exceptions while handling the first).  Then the state
-  // destructors take care of this because exit did nothing.
-  //
-  // One tricky aspect of the state machine is that things which can
-  // throw should not be invoked by the state machine while another
-  // exception is being handled.
-  // Another tricky aspect is that it appears to be important to
-  // terminate the state machine before invoking its destructor.
-  // We've seen crashes which are not understood when that is not
-  // done.  Maintainers of this code should be careful about this.
-  catch (cet::exception & e) {
+    process<highest_level()>();
+  }
+  catch (art::Exception const& e) {
+    if (e.categoryCode() == art::errors::SignalReceived) {
+      returnCode = epSignal;
+    }
+    else {
+      terminateAbnormally_();
+      throw e;
+    }
+  }
+  catch (cet::exception const& e) {
     terminateAbnormally_();
-    e << "cet::exception caught in EventProcessor and rethrown\n";
-    e << exceptionMessageSubRuns_;
-    e << exceptionMessageRuns_;
-    e << exceptionMessageFiles_;
     throw e;
   }
   catch (std::bad_alloc const& e) {
     terminateAbnormally_();
     throw cet::exception("std::bad_alloc")
-        << "The EventProcessor caught a std::bad_alloc exception and converted it to a cet::exception\n"
-        << "The job has probably exhausted the virtual memory available to the process.\n"
-        << exceptionMessageSubRuns_
-        << exceptionMessageRuns_
-        << exceptionMessageFiles_;
+      << "The EventProcessor caught a std::bad_alloc exception and converted it to a cet::exception\n"
+      << "The job has probably exhausted the virtual memory available to the process.\n";
   }
   catch (std::exception const& e) {
     terminateAbnormally_();
     throw cet::exception("StdException")
-        << "The EventProcessor caught a std::exception and converted it to a cet::exception\n"
-        << "Previous information:\n" << e.what() << "\n"
-        << exceptionMessageSubRuns_
-        << exceptionMessageRuns_
-        << exceptionMessageFiles_;
+      << "The EventProcessor caught a std::exception and converted it to a cet::exception\n"
+      << "Previous information:\n" << e.what() << "\n";
   }
-  catch (std::string const & e) {
+  catch (std::string const& e) {
     terminateAbnormally_();
     throw cet::exception("Unknown")
-        << "The EventProcessor caught a string-based exception type and converted it to a cet::exception\n"
-        << e
-        << "\n"
-        << exceptionMessageSubRuns_
-        << exceptionMessageRuns_
-        << exceptionMessageFiles_;
+      << "The EventProcessor caught a string-based exception type and converted it to a cet::exception\n"
+      << e
+      << "\n";
   }
   catch (char const * e) {
     terminateAbnormally_();
     throw cet::exception("Unknown")
-        << "The EventProcessor caught a string-based exception type and converted it to a cet::exception\n"
-        << e
-        << "\n"
-        << exceptionMessageSubRuns_
-        << exceptionMessageRuns_
-        << exceptionMessageFiles_;
+      << "The EventProcessor caught a string-based exception type and converted it to a cet::exception\n"
+      << e
+      << "\n";
   }
   catch (...) {
     terminateAbnormally_();
     throw cet::exception("Unknown")
-        << "The EventProcessor caught an unknown exception type and converted it to a cet::exception\n"
-        << exceptionMessageSubRuns_
-        << exceptionMessageRuns_
-        << exceptionMessageFiles_;
-  }
-  if (machine_->terminated()) {
-    FDEBUG(1) << "The state machine reports it has been terminated\n";
-  }
-  if (stateMachineWasInErrorState_) {
-    throw cet::exception("BadState")
-        << "The boost state machine in the EventProcessor exited after\n"
-        << "entering the Error state.\n";
+      << "The EventProcessor caught an unknown exception type and converted it to a cet::exception\n";
   }
   return returnCode;
 }
 
 void
+art::EventProcessor::markLevelAsProcessed()
+{
+  assert(!activeLevels_.empty());
+  activeLevels_.pop_back();
+}
+
+art::Level
+art::EventProcessor::advanceItemType()
+{
+  auto const itemType = input_->nextItemType();
+  FDEBUG(1) << spaces(4) << "*** nextItemType: " << itemType << " ***\n";
+  switch(itemType) {
+  case input::IsStop: return highest_level();
+  case input::IsFile: return Level::InputFile;
+  case input::IsRun: return Level::Run;
+  case input::IsSubRun: return Level::SubRun;
+  case input::IsEvent: return Level::Event;
+  case input::IsInvalid: {
+    throw art::Exception{art::errors::LogicError}
+      << "Invalid next item type presented to the event processor.\n"
+      << "Please contact artists@fnal.gov.";
+  }
+  }
+  throw art::Exception{art::errors::LogicError}
+    << "Unrecognized next item type presented to the event processor.\n"
+    << "Please contact artists@fnal.gov.";
+}
+
+//=============================================
+// Job level
+
+void
+art::EventProcessor::beginJob()
+{
+  FDEBUG(1) << spaces(8) << "beginJob\n";
+  breakpoints::beginJob();
+  // make the services available
+  ServiceRegistry::Operate op {serviceToken_};
+  // NOTE: This implementation assumes 'Job' means one call the
+  // EventProcessor::run. If it really means once per 'application'
+  // then this code will have to be changed.  Also have to deal with
+  // case where have 'run' then new Module added and do 'run' again.
+  // In that case the newly added Module needs its 'beginJob' to be
+  // called.
+  try {
+    input_->doBeginJob();
+  }
+  catch (cet::exception& e) {
+    mf::LogError("BeginJob") << "A cet::exception happened while processing"
+      " the beginJob of the 'source'\n";
+    e << "A cet::exception happened while processing"
+      " the beginJob of the 'source'\n";
+    throw;
+  }
+  catch (std::exception const&) {
+    mf::LogError("BeginJob") << "A std::exception happened while processing"
+      " the beginJob of the 'source'\n";
+    throw;
+  }
+  catch (...) {
+    mf::LogError("BeginJob") << "An unknown exception happened while"
+      " processing the beginJob of the 'source'\n";
+    throw;
+  }
+  schedule_->beginJob();
+  endPathExecutor_->beginJob();
+  actReg_.sPostBeginJob.invoke();
+
+  invokePostBeginJobWorkers_();
+}
+
+void
+art::EventProcessor::endJob()
+{
+  FDEBUG(1) << spaces(8) << "endJob\n";
+  // Collects exceptions, so we don't throw before all operations are performed.
+  cet::exception_collector c;
+  // Make the services available
+  ServiceRegistry::Operate op {serviceToken_};
+  c.call([this](){ schedule_->endJob(); });
+  c.call([this](){ endPathExecutor_->endJob(); });
+  bool summarize = ServiceHandle<TriggerNamesService>()->wantSummary();
+  c.call([this,summarize](){ detail::writeSummary(pathManager_, summarize); });
+  c.call([this](){ input_->doEndJob(); });
+  c.call([this](){ actReg_.sPostEndJob.invoke(); });
+}
+
+//====================================================
+// File level
+
+void
 art::EventProcessor::openInputFile()
 {
   actReg_.sPreOpenFile.invoke();
-  FDEBUG(1) << " \treadFile\n";
+  FDEBUG(1) << spaces(8) << "openInputFile\n";
   fb_ = input_->readFile(preg_);
   if (!fb_) {
     throw Exception(errors::LogicError)
-        << "Source readFile() did not return a valid FileBlock: FileBlock "
-        << "should be valid or readFile() should throw.\n";
+      << "Source readFile() did not return a valid FileBlock: FileBlock "
+      << "should be valid or readFile() should throw.\n";
   }
   actReg_.sPostOpenFile.invoke(fb_->fileName());
+  respondToOpenInputFile();
+}
+
+void
+art::EventProcessor::closeAllFiles()
+{
+  closeAllOutputFiles();
+  closeInputFile();
 }
 
 void
 art::EventProcessor::closeInputFile()
 {
-  SignalSentry fileCloseSentry{actReg_.sPreCloseFile, actReg_.sPostCloseFile};
+  endPathExecutor_->incrementInputFileNumber();
+  // Output-file closing on input-file boundaries are tricky since
+  // input files must outlive the output files, which often have data
+  // copied forward from the input files.  That's why the
+  // recordOutputClosureRequests call is made here instead of in a
+  // specialization of recordOutputModuleClosureRequests<>.
+  endPathExecutor_->recordOutputClosureRequests(Boundary::InputFile);
+  if (endPathExecutor_->outputsToClose()) {
+    closeSomeOutputFiles();
+  }
+  respondToCloseInputFile();
+  SignalSentry fileCloseSentry {actReg_.sPreCloseFile, actReg_.sPostCloseFile};
   input_->closeFile();
-  FDEBUG(1) << "\tcloseInputFile\n";
+  FDEBUG(1) << spaces(8) << "closeInputFile\n";
 }
 
 void
 art::EventProcessor::openAllOutputFiles()
 {
   endPathExecutor_->openAllOutputFiles(*fb_);
-  FDEBUG(1) << "\topenAllOutputFiles\n";
+  FDEBUG(1) << spaces(8) << "openAllOutputFiles\n";
 }
 
 void
 art::EventProcessor::closeAllOutputFiles()
 {
+  if (!endPathExecutor_->someOutputsOpen()) return;
+
+  respondToCloseOutputFiles();
   endPathExecutor_->closeAllOutputFiles();
-  FDEBUG(1) << "\tcloseAllOutputFiles\n";
+  FDEBUG(1) << spaces(8) << "closeAllOutputFiles\n";
 }
 
 void
 art::EventProcessor::openSomeOutputFiles()
 {
+  if (!endPathExecutor_->outputsToOpen()) return;
+
   endPathExecutor_->openSomeOutputFiles(*fb_);
-  FDEBUG(1) << "\topenSomeOutputFiles\n";
+  FDEBUG(1) << spaces(8) << "openSomeOutputFiles\n";
+  respondToOpenOutputFiles();
 }
 
 void
 art::EventProcessor::setOutputFileStatus(OutputFileStatus const ofs)
 {
   endPathExecutor_->setOutputFileStatus(ofs);
-  FDEBUG(1) << "\tsetOutputFileStatus\n";
+  FDEBUG(1) << spaces(8) << "setOutputFileStatus\n";
 }
 
 void
 art::EventProcessor::closeSomeOutputFiles()
 {
+  // Precondition: there are SOME output files that have been
+  //               flagged as needing to close.  Otherwise,
+  //               'respondtoCloseOutputFiles' will be needlessly
+  //               called.
+  assert(endPathExecutor_->outputsToClose());
+  respondToCloseOutputFiles();
   endPathExecutor_->closeSomeOutputFiles();
-  FDEBUG(1) << "\tcloseSomeOutputFiles\n";
+  FDEBUG(1) << spaces(8) << "closeSomeOutputFiles\n";
 }
 
 void
@@ -541,7 +689,7 @@ art::EventProcessor::respondToOpenInputFile()
 {
   schedule_->respondToOpenInputFile(*fb_);
   endPathExecutor_->respondToOpenInputFile(*fb_);
-  FDEBUG(1) << "\trespondToOpenInputFile\n";
+  FDEBUG(1) << spaces(8) << "respondToOpenInputFile\n";
 }
 
 void
@@ -549,7 +697,7 @@ art::EventProcessor::respondToCloseInputFile()
 {
   schedule_->respondToCloseInputFile(*fb_);
   endPathExecutor_->respondToCloseInputFile(*fb_);
-  FDEBUG(1) << "\trespondToCloseInputFile\n";
+  FDEBUG(1) << spaces(8) << "respondToCloseInputFile\n";
 }
 
 void
@@ -557,7 +705,7 @@ art::EventProcessor::respondToOpenOutputFiles()
 {
   schedule_->respondToOpenOutputFiles(*fb_);
   endPathExecutor_->respondToOpenOutputFiles(*fb_);
-  FDEBUG(1) << "\trespondToOpenOutputFiles\n";
+  FDEBUG(1) << spaces(8) << "respondToOpenOutputFiles\n";
 }
 
 void
@@ -565,245 +713,198 @@ art::EventProcessor::respondToCloseOutputFiles()
 {
   schedule_->respondToCloseOutputFiles(*fb_);
   endPathExecutor_->respondToCloseOutputFiles(*fb_);
-  FDEBUG(1) << "\trespondToCloseOutputFiles\n";
+  FDEBUG(1) << spaces(8) << "respondToCloseOutputFiles\n";
 }
+
+//=============================================
+// Run level
 
 void
-art::EventProcessor::rewindInput()
-{
-  input_->rewind();
-  FDEBUG(1) << "\trewind\n";
-}
-
-void
-art::EventProcessor::doErrorStuff()
-{
-  FDEBUG(1) << "\tdoErrorStuff\n";
-  mf::LogError("StateMachine")
-      << "The EventProcessor state machine encountered an unexpected event\n"
-      "and went to the error state\n"
-      "Will attempt to terminate processing normally\n"
-      "This likely indicates a bug in an input module, corrupted input, or both\n";
-  stateMachineWasInErrorState_ = true;
-}
-
-void
-art::EventProcessor::beginRun(RunID run)
-{
-  // Precondition: The RunID does not correspond to a flush ID.
-  assert(!run.isFlush());
-  RunPrincipal& runPrincipal = principalCache_.runPrincipal(run);
-  process_<Begin<Level::Run>>(runPrincipal);
-  FDEBUG(1) << "\tbeginRun " << run.run() << "\n";
-}
-
-void
-art::EventProcessor::endRun(RunID run)
-{
-  // Precondition: The RunID does not correspond to a flush ID.
-  assert(!run.isFlush());
-  RunPrincipal& runPrincipal = principalCache_.runPrincipal(run);
-  process_<End<Level::Run>>(runPrincipal);
-  FDEBUG(1) << "\tendRun " << run.run() << "\n";
-}
-
-void
-art::EventProcessor::beginSubRun(SubRunID const& sr)
-{
-  // Precondition: The SubRunID does not correspond to a flush ID.
-  assert(!sr.isFlush());
-  SubRunPrincipal& subRunPrincipal = principalCache_.subRunPrincipal(sr);
-  process_<Begin<Level::SubRun>>(subRunPrincipal);
-  FDEBUG(1) << "\tbeginSubRun " << sr << "\n";
-}
-
-void
-art::EventProcessor::endSubRun(SubRunID const& sr)
-{
-  // Precondition: The SubRunID does not correspond to a flush ID.
-  assert(!sr.isFlush());
-  SubRunPrincipal& subRunPrincipal = principalCache_.subRunPrincipal(sr);
-  process_<End<Level::SubRun>>(subRunPrincipal);
-  FDEBUG(1) << "\tendSubRun " << sr << "\n";
-}
-
-art::RunID
-art::EventProcessor::runPrincipalID() const
-{
-  return principalCache_.noMoreRuns() ? art::RunID{} : principalCache_.runPrincipal().id();
-}
-
-art::SubRunID
-art::EventProcessor::subRunPrincipalID() const
-{
-  return principalCache_.noMoreSubRuns() ? art::SubRunID{} : principalCache_.subRunPrincipal().id();
-}
-
-art::EventID
-art::EventProcessor::eventPrincipalID() const
-{
-  return sm_evp_.get() == nullptr ? art::EventID{} : sm_evp_->id();
-}
-
-art::RunID
-art::EventProcessor::readAndCacheRun()
+art::EventProcessor::readRun()
 {
   SignalSentry runSourceSentry {actReg_.sPreSourceRun, actReg_.sPostSourceRun};
-  principalCache_.insert(input_->readRun());
+  runPrincipal_ = input_->readRun();
   endPathExecutor_->seedRunRangeSet(input_->runRangeSetHandler());
-  FDEBUG(1) << "\treadAndCacheRun " << "\n";
-  return runPrincipalID();
+  assert(runPrincipal_);
+  FDEBUG(1) << spaces(8) << "readRun.....................(" << runPrincipal_->id() << ")\n";
 }
 
-art::SubRunID
-art::EventProcessor::readAndCacheSubRun()
+void
+art::EventProcessor::beginRun()
+{
+  assert(runPrincipal_);
+  RunID const r {runPrincipal_->id()};
+  if (r.isFlush()) return;
+
+  finalizeRunEnabled_ = true;
+  process_<Begin<Level::Run>>(*runPrincipal_);
+  FDEBUG(1) << spaces(8) << "beginRun....................(" << r << ")\n";
+  beginRunCalled_ = true;
+}
+
+void
+art::EventProcessor::beginRunIfNotDoneAlready()
+{
+  if (!beginRunCalled_) {
+    beginRun();
+  }
+}
+
+void
+art::EventProcessor::setRunAuxiliaryRangeSetID()
+{
+  assert(runPrincipal_);
+  endPathExecutor_->setAuxiliaryRangeSetID(*runPrincipal_);
+  FDEBUG(1) << spaces(8) << "setRunAuxiliaryRangeSetID...(" << runPrincipal_->id() << ")\n";
+}
+
+void
+art::EventProcessor::endRun()
+{
+  assert(runPrincipal_);
+  // Precondition: The RunID does not correspond to a flush ID. --
+  // N.B. The flush flag is not explicitly checked here since endRun
+  // is only called from finalizeRun, which is where the check
+  // happens.
+  RunID const run {runPrincipal_->id()};
+  assert(!run.isFlush());
+  process_<End<Level::Run>>(*runPrincipal_);
+  FDEBUG(1) << spaces(8) << "endRun......................(" << run << ")\n";
+  beginRunCalled_ = false;
+}
+
+void
+art::EventProcessor::writeRun()
+{
+  assert(runPrincipal_);
+  // Precondition: The RunID does not correspond to a flush ID.
+  RunID const r {runPrincipal_->id()};
+  assert(!r.isFlush());
+  endPathExecutor_->writeRun(*runPrincipal_);
+  FDEBUG(1) << spaces(8) << "writeRun....................(" << r << ")\n";
+}
+
+//=============================================
+// SubRun level
+
+void
+art::EventProcessor::readSubRun()
 {
   SignalSentry subRunSourceSentry {actReg_.sPreSourceSubRun, actReg_.sPostSourceSubRun};
-  principalCache_.insert(input_->readSubRun(principalCache_.runPrincipalPtr()));
+  subRunPrincipal_ = input_->readSubRun(runPrincipal_.get());
   endPathExecutor_->seedSubRunRangeSet(input_->subRunRangeSetHandler());
-  FDEBUG(1) << "\treadAndCacheSubRun " << "\n";
-  return subRunPrincipalID();
+  assert(subRunPrincipal_);
+  FDEBUG(1) << spaces(8) << "readSubRun..................(" << subRunPrincipal_->id() << ")\n";
 }
 
 void
-art::EventProcessor::setRunAuxiliaryRangeSetID(RunID const r)
+art::EventProcessor::beginSubRun()
 {
-  endPathExecutor_->setAuxiliaryRangeSetID(principalCache_.runPrincipal(r));
-  FDEBUG(1) << "\twriteRunAuxiliaryRangeSets " << r.run() << "\n";
+  assert(subRunPrincipal_);
+  SubRunID const sr {subRunPrincipal_->id()};
+  if (sr.isFlush()) return;
+
+  finalizeSubRunEnabled_ = true;
+  process_<Begin<Level::SubRun>>(*subRunPrincipal_);
+  FDEBUG(1) << spaces(8) << "beginSubRun.................(" << sr <<")\n";
+  beginSubRunCalled_ = true;
 }
 
 void
-art::EventProcessor::writeRun(RunID const r)
+art::EventProcessor::beginSubRunIfNotDoneAlready()
 {
-  // Precondition: The RunID does not correspond to a flush ID.
-  assert(!r.isFlush());
-  endPathExecutor_->writeRun(principalCache_.runPrincipal(r));
-  FDEBUG(1) << "\twriteRun " << r.run() << "\n";
+  if (!beginSubRunCalled_) {
+    beginSubRun();
+  }
 }
 
 void
-art::EventProcessor::setSubRunAuxiliaryRangeSetID(SubRunID const & sr)
+art::EventProcessor::setSubRunAuxiliaryRangeSetID()
 {
-  endPathExecutor_->setAuxiliaryRangeSetID(principalCache_.subRunPrincipal(sr));
-  FDEBUG(1) << "\twriteSubRunAuxiliaryRangeSets " << sr.run() << "/" << sr.subRun() << "\n";
+  assert(subRunPrincipal_);
+  endPathExecutor_->setAuxiliaryRangeSetID(*subRunPrincipal_);
+  FDEBUG(1) << spaces(8) << "setSubRunAuxiliaryRangeSetID(" << subRunPrincipal_->id() << ")\n";
 }
 
 void
-art::EventProcessor::writeSubRun(SubRunID const & sr)
+art::EventProcessor::endSubRun()
 {
+  assert(subRunPrincipal_);
   // Precondition: The SubRunID does not correspond to a flush ID.
+  // Note: the flush flag is not explicitly checked here since
+  // endSubRun is only called from finalizeSubRun, which is where the
+  // check happens.
+  SubRunID const sr {subRunPrincipal_->id()};
   assert(!sr.isFlush());
-  endPathExecutor_->writeSubRun(principalCache_.subRunPrincipal(sr));
-  FDEBUG(1) << "\twriteSubRun " << sr.run() << "/" << sr.subRun() << "\n";
+  process_<End<Level::SubRun>>(*subRunPrincipal_);
+  FDEBUG(1) << spaces(8) << "endSubRun...................(" << sr << ")\n";
+  beginSubRunCalled_ = false;
 }
 
 void
-art::EventProcessor::clearPrincipalCache()
+art::EventProcessor::writeSubRun()
 {
-  principalCache_.deleteAllPrincipals();
-  FDEBUG(1) << "\tclearPrincipalCache\n";
+  assert(subRunPrincipal_);
+  // Precondition: The SubRunID does not correspond to a flush ID.
+  SubRunID const& sr {subRunPrincipal_->id()};
+  assert(!sr.isFlush());
+  endPathExecutor_->writeSubRun(*subRunPrincipal_);
+  FDEBUG(1) << spaces(8) << "writeSubRun.................(" << sr << ")\n";
 }
+
+//=============================================
+// Event level
 
 void
 art::EventProcessor::readEvent()
 {
-  SignalSentry sourceSentry(actReg_.sPreSource, actReg_.sPostSource);
-  sm_evp_ = input_->readEvent(principalCache_.subRunPrincipalPtr());
-  FDEBUG(1) << "\treadEvent\n";
+  assert(subRunPrincipal_);
+  assert(subRunPrincipal_->id().isValid());
+  SignalSentry sourceSentry {actReg_.sPreSource, actReg_.sPostSource};
+  eventPrincipal_ = input_->readEvent(subRunPrincipal_.get());
+  assert(eventPrincipal_);
+  FDEBUG(1) << spaces(8) << "readEvent...................(" << eventPrincipal_->id() << ")\n";
 }
 
 void
 art::EventProcessor::processEvent()
 {
-  EventID const& id [[gnu::unused]] {sm_evp_->id()};
+  assert(eventPrincipal_);
+  EventID const& id {eventPrincipal_->id()};
   // Precondition: The EventID does not correspond to a flush ID.
   assert(!id.isFlush());
-  process_<Do<Level::Event>>(*sm_evp_);
-  FDEBUG(1) << "\tprocessEvent\n";
+  process_<Do<Level::Event>>(*eventPrincipal_);
+  FDEBUG(1) << spaces(8) << "processEvent................(" << id << ")\n";
 }
 
 void
 art::EventProcessor::writeEvent()
 {
-  EventID const& id [[gnu::unused]] {sm_evp_->id()};
+  assert(eventPrincipal_);
+  EventID const& id {eventPrincipal_->id()};
   // Precondition: The EventID does not correspond to a flush ID.
   assert(!id.isFlush());
-  endPathExecutor_->writeEvent(*sm_evp_);
-  FDEBUG(1) << "\twriteEvent " << id.run() << "/" << id.subRun() << "/" << id.event() << "\n";
-}
-
-void
-art::EventProcessor::incrementInputFileNumber()
-{
-  endPathExecutor_->incrementInputFileNumber();
-}
-
-void
-art::EventProcessor::recordOutputClosureRequests(Boundary const b)
-{
-  endPathExecutor_->recordOutputClosureRequests(b);
-}
-
-bool
-art::EventProcessor::outputsToOpen() const
-{
-  return endPathExecutor_->outputsToOpen();
-}
-
-bool
-art::EventProcessor::outputsToClose() const
-{
-  return endPathExecutor_->outputsToClose();
-}
-
-bool
-art::EventProcessor::someOutputsOpen() const
-{
-  return endPathExecutor_->someOutputsOpen();
+  endPathExecutor_->writeEvent(*eventPrincipal_);
+  FDEBUG(1) << spaces(8) << "writeEvent..................(" << id << ")\n";
+  eventPrincipal_.reset();
 }
 
 bool
 art::EventProcessor::shouldWeStop() const
 {
-  FDEBUG(1) << "\tshouldWeStop\n";
+  FDEBUG(1) << spaces(8) << "shouldWeStop\n";
   if (shouldWeStop_) { return true; }
   return endPathExecutor_->terminate();
 }
 
-void
-art::EventProcessor::setExceptionMessageFiles(std::string const & message)
-{
-  exceptionMessageFiles_ = message;
-}
-
-void
-art::EventProcessor::setExceptionMessageRuns(std::string const & message)
-{
-  exceptionMessageRuns_ = message;
-}
-
-void
-art::EventProcessor::setExceptionMessageSubRuns(std::string const & message)
-{
-  exceptionMessageSubRuns_ = message;
-}
-
 bool
-art::EventProcessor::alreadyHandlingException() const
-{
-  return alreadyHandlingException_;
-}
-
-bool
-art::EventProcessor::
-setTriggerPathEnabled(std::string const & name, bool enable)
+art::EventProcessor::setTriggerPathEnabled(std::string const& name, bool const enable)
 {
   return schedule_->setTriggerPathEnabled(name, enable);
 }
 
 bool
-art::EventProcessor::
-setEndPathModuleEnabled(std::string const & label, bool enable)
+art::EventProcessor::setEndPathModuleEnabled(std::string const& label, bool const enable)
 {
   return endPathExecutor_->setEndPathModuleEnabled(label, enable);
 }
@@ -821,26 +922,12 @@ art::EventProcessor::servicesDeactivate_()
 }
 
 void
-art::EventProcessor::terminateMachine_()
+art::EventProcessor::terminateAbnormally_()
+try
 {
-  assert(machine_);
-  if (!machine_->terminated()) {
-    machine_->process_event(statemachine::Stop());
-  }
-  else {
-    FDEBUG(1) << "EventProcessor::terminateMachine_: The state machine was already terminated \n";
-  }
-}
-
-void
-art::EventProcessor::terminateAbnormally_() try
-{
-  alreadyHandlingException_ = true;
   if (ServiceRegistry::instance().isAvailable<RandomNumberGenerator>()) {
     ServiceHandle<RandomNumberGenerator>()->saveToFile_();
   }
-  terminateMachine_();
-  alreadyHandlingException_ = false;
 }
 catch (...)
 {

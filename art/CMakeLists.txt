@@ -1,6 +1,3 @@
-# project name
-project(artCode)
-
 include(ArtMake)
 
 # cmake will automatically order the library builds according to declared dependencies

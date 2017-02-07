@@ -49,12 +49,9 @@ public:
 
   vstring const & triggerPathNames() const;
 
-  bool allowUnscheduled() const;
-
   // These methods may trigger module construction.
   PathsInfo & endPathInfo();
   PathsInfo & triggerPathsInfo(ScheduleID sID);
-  Workers onDemandWorkers();
 
   void resetAll(); // Reset trigger results ready for next event.
 
@@ -87,7 +84,7 @@ private:
   ActivityRegistry & areg_;
 
   // Cached parameters.
-  bool const allowUnscheduled_;
+
   // Backwards compatibility cached parameters.
   std::unique_ptr<std::set<std::string> > trigger_paths_config_;
   std::unique_ptr<std::set<std::string> > end_paths_config_;
@@ -109,13 +106,6 @@ art::PathManager::triggerPathNames() const
   return triggerPathNames_;
 }
 
-inline
-bool
-art::PathManager::
-allowUnscheduled() const
-{
-  return allowUnscheduled_;
-}
 #endif /* art_Framework_Core_PathManager_h */
 
 // Local Variables:

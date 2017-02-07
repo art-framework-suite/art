@@ -1,0 +1,31 @@
+@startuml
+DataViewImpl --* Event: private inheritance
+class Event {
+  -eventPrincipal_ : EventPrincipal&
+}
+Event -> EventPrincipal
+abstract class Principal {
+  - groups_ : map<BranchID, shared_ptr<Group>>
+}
+Principal <|-- EventPrincipal
+abstract class EDProductGetterFinder
+EDProductGetterFinder <|-- Principal
+
+Principal -> Group
+abstract class EDProductGetter
+EDProductGetter <|-- Group
+Group <|-- AssnsGroup
+
+class Group {
+  - product_ : unique_ptr<EDProduct> <<mutable>>
+  - pid_ : ProductID <<mutable>>
+  - rangeOfValidity_ : RangeSet <<mutable>>  
+}
+
+Group -> EDProduct
+class Wrapper<T>{
+  -obj : T
+  +T const* product() const
+}
+EDProduct <|-- Wrapper
+@enduml

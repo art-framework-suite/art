@@ -13,6 +13,7 @@
 #include "art/Framework/Core/WorkerT.h"
 #include "art/Framework/Core/detail/IgnoreModuleLabel.h"
 #include "art/Framework/Principal/fwd.h"
+#include "art/Utilities/ConfigurationTable.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/types/KeysToIgnore.h"
 #include "fhiclcpp/types/OptionalTable.h"
@@ -43,21 +44,7 @@ namespace art
     // Configuration
 
     template <typename UserConfig, typename UserKeysToIgnore = void>
-    class Table {
-
-      template <typename T>
-      struct FullConfig {
-        fhicl::Atom<std::string> module_type { fhicl::Name("module_type") };
-        fhicl::TableFragment<EventObserver::EOConfig> eoConfig;
-        fhicl::TableFragment<T> user;
-      };
-
-      using KeysToIgnore_t = std::conditional_t<std::is_void<UserKeysToIgnore>::value,
-                                                detail::IgnoreModuleLabel,
-                                                fhicl::KeysToIgnore<detail::IgnoreModuleLabel, UserKeysToIgnore>>;
-
-      fhicl::Table<FullConfig<UserConfig>, KeysToIgnore_t> fullConfig_;
-
+    class Table : public ConfigurationTable {
     public:
 
       Table(fhicl::Name&& name) : fullConfig_{std::move(name)} {}
@@ -72,6 +59,21 @@ namespace art
         fullConfig_.print_allowed_configuration(os, prefix);
       }
 
+    private:
+
+      template <typename T>
+      struct FullConfig {
+        fhicl::Atom<std::string> module_type { fhicl::Name("module_type") };
+        fhicl::TableFragment<EventObserver::EOConfig> eoConfig;
+        fhicl::TableFragment<T> user;
+      };
+
+      using KeysToIgnore_t = std::conditional_t<std::is_void<UserKeysToIgnore>::value,
+                                                detail::IgnoreModuleLabel,
+                                                fhicl::KeysToIgnore<detail::IgnoreModuleLabel, UserKeysToIgnore>>;
+
+      fhicl::Table<FullConfig<UserConfig>, KeysToIgnore_t> fullConfig_;
+      cet::exempt_ptr<fhicl::detail::ParameterBase const> get_parameter_base() const override { return &fullConfig_; }
     };
 
     //---------------------------------------------------------------------------

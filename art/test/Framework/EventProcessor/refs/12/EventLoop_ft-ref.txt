@@ -1,0 +1,80 @@
+INFO: using default process_name, "DUMMY."
+InputSourceFactory: module_type = EventProcessorTestSource
+InputSourceFactory: created input source EventProcessorTestSource
+        beginJob
+    *** nextItemType: InputFile ***
+        openInputFile
+        respondToOpenInputFile
+    *** nextItemType: Run ***
+        readRun.....................(run: 1)
+    *** nextItemType: SubRun ***
+        readSubRun..................(run: 1 subRun: 1)
+        beginRun....................(run: 1)
+        beginSubRun.................(run: 1 subRun: 1)
+    *** nextItemType: Event ***
+        readEvent...................(run: 1 subRun: 1 event: 1)
+        processEvent................(run: 1 subRun: 1 event: 1)
+        shouldWeStop
+        openSomeOutputFiles
+        respondToOpenOutputFiles
+        writeEvent..................(run: 1 subRun: 1 event: 1)
+    *** nextItemType: InputFile ***
+        setSubRunAuxiliaryRangeSetID(run: 1 subRun: 1)
+        endSubRun...................(run: 1 subRun: 1)
+        writeSubRun.................(run: 1 subRun: 1)
+        setRunAuxiliaryRangeSetID...(run: 1)
+        endRun......................(run: 1)
+        writeRun....................(run: 1)
+        respondToCloseOutputFiles
+        closeSomeOutputFiles
+        respondToCloseInputFile
+        closeInputFile
+        openInputFile
+        respondToOpenInputFile
+    *** nextItemType: Run ***
+        readRun.....................(run: 1)
+    *** nextItemType: SubRun ***
+        readSubRun..................(run: 1 subRun: 2)
+        beginRun....................(run: 1)
+        beginSubRun.................(run: 1 subRun: 2)
+    *** nextItemType: Event ***
+        readEvent...................(run: 1 subRun: 2 event: 1)
+        processEvent................(run: 1 subRun: 2 event: 1)
+        shouldWeStop
+        openSomeOutputFiles
+        respondToOpenOutputFiles
+        writeEvent..................(run: 1 subRun: 2 event: 1)
+    *** nextItemType: InputFile ***
+        setSubRunAuxiliaryRangeSetID(run: 1 subRun: 2)
+        endSubRun...................(run: 1 subRun: 2)
+        writeSubRun.................(run: 1 subRun: 2)
+        setRunAuxiliaryRangeSetID...(run: 1)
+        endRun......................(run: 1)
+        writeRun....................(run: 1)
+        respondToCloseInputFile
+        closeInputFile
+        openInputFile
+        respondToOpenInputFile
+    *** nextItemType: Run ***
+        readRun.....................(run: 1)
+    *** nextItemType: SubRun ***
+        readSubRun..................(run: 1 subRun: 1)
+        beginRun....................(run: 1)
+        beginSubRun.................(run: 1 subRun: 1)
+    *** nextItemType: Event ***
+        readEvent...................(run: 1 subRun: 1 event: 2)
+        processEvent................(run: 1 subRun: 1 event: 2)
+        shouldWeStop
+        writeEvent..................(run: 1 subRun: 1 event: 2)
+    *** nextItemType: Stop ***
+        setSubRunAuxiliaryRangeSetID(run: 1 subRun: 1)
+        endSubRun...................(run: 1 subRun: 1)
+        writeSubRun.................(run: 1 subRun: 1)
+        setRunAuxiliaryRangeSetID...(run: 1)
+        endRun......................(run: 1)
+        writeRun....................(run: 1)
+        respondToCloseOutputFiles
+        closeAllOutputFiles
+        respondToCloseInputFile
+        closeInputFile
+        endJob

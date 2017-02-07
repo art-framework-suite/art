@@ -9,24 +9,22 @@
 // ======================================================================
 
 #include "art/Framework/Core/EndPathExecutor.h"
+#include "art/Framework/Core/FileBlock.h"
 #include "art/Framework/Core/Frameworkfwd.h"
-#include "art/Framework/Core/IEventProcessor.h"
 #include "art/Framework/Core/InputSource.h"
 #include "art/Framework/Core/MFStatusUpdater.h"
 #include "art/Framework/Core/PathManager.h"
-#include "art/Framework/Core/PrincipalCache.h"
 #include "art/Framework/Core/Schedule.h"
 #include "art/Framework/EventProcessor/ServiceDirector.h"
-#include "art/Framework/EventProcessor/StateMachine/Machine.h"
 #include "art/Framework/Principal/Actions.h"
 #include "art/Framework/Principal/fwd.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/ServiceToken.h"
 #include "art/Persistency/Provenance/MasterProductRegistry.h"
+#include "art/Utilities/UnixSignalHandlers.h"
+#include "canvas/Persistency/Provenance/IDNumber.h"
 #include "canvas/Persistency/Provenance/PassID.h"
 #include "canvas/Persistency/Provenance/ReleaseVersion.h"
-#include "boost/thread/condition.hpp"
-#include "boost/thread/thread.hpp"
 #include "cetlib/exception.h"
 #include "cetlib/trim.h"
 #include "fhiclcpp/ParameterSet.h"
@@ -38,12 +36,6 @@
 #include <string>
 #include <vector>
 
-namespace statemachine {
-  class Machine;
-}
-
-// ----------------------------------------------------------------------
-
 namespace art {
   class EventProcessor;
 
@@ -53,26 +45,25 @@ namespace art {
   }
 }
 
-class art::EventProcessor : public art::IEventProcessor {
+class art::EventProcessor {
 public:
-  EventProcessor(EventProcessor const &) = delete;
-  EventProcessor & operator=(EventProcessor const &) = delete;
 
-  // The input string 'config' contains the entire contents of a  configuration file.
-  // Also allows the attachement of pre-existing services specified  by 'token', and
-  // the specification of services by name only (defaultServices and forcedServices).
-  // 'defaultServices' are overridden by 'config'.
-  // 'forcedServices' cause an exception if the same service is specified in 'config'.
+  // Status codes:
+  //   0     successful completion
+  //   3     signal received
+  //  values are for historical reasons.
+  enum Status { epSuccess=0, epSignal=3 };
 
-  EventProcessor(fhicl::ParameterSet const & pset);
+  // Eventually, we might replace StatusCode with a class. This
+  // class should have an automatic conversion to 'int'.
+
+  using StatusCode = Status;
+
+  EventProcessor (EventProcessor const&) = delete;
+  EventProcessor& operator=(EventProcessor const&) = delete;
+
+  explicit EventProcessor(fhicl::ParameterSet const& pset);
   ~EventProcessor();
-
-  // This should be called before the first call to 'run'.
-  void beginJob() override;
-
-  // This should be called before the EventProcessor is destroyed
-  // throws if any module's endJob throws an exception.
-  void endJob() override;
 
   //------------------------------------------------------------------
   // The function "runToCompletion" will run until the job is "complete",
@@ -86,84 +77,84 @@ public:
   //   epSignal - processing terminated early, SIGUSR2 encountered
   //   epSuccess - all other cases
   //
-  StatusCode runToCompletion() override;
+  StatusCode runToCompletion();
 
-  // The following functions are used by the code implementing our
-  // boost statemachine
-
-  void openInputFile() override;
-  void closeInputFile() override;
-  void openAllOutputFiles() override;
-  void closeAllOutputFiles() override;
-  void openSomeOutputFiles() override;
-  void closeSomeOutputFiles() override;
-
-  void respondToOpenInputFile() override;
-  void respondToCloseInputFile() override;
-  void respondToOpenOutputFiles() override;
-  void respondToCloseOutputFiles() override;
-
-  void rewindInput() override;
-  void incrementInputFileNumber() override;
-  void recordOutputClosureRequests(Boundary) override;
-
-  void doErrorStuff() override;
-
-  void beginRun(RunID run) override;
-  void endRun(RunID run) override;
-
-  void beginSubRun(SubRunID const& sr) override;
-  void endSubRun(SubRunID const& sr) override;
-
-  RunID    readAndCacheRun() override;
-  SubRunID readAndCacheSubRun() override;
-  void     clearPrincipalCache() override;
-
-  void writeRun(RunID run) override;
-  void writeSubRun(SubRunID const& sr) override;
-  void writeEvent() override;
-
-  void setRunAuxiliaryRangeSetID(RunID run) override;
-  void setSubRunAuxiliaryRangeSetID(SubRunID const& sr) override;
-
-  // Run/SubRun IDs from most recently added principals
-  RunID runPrincipalID() const override;
-  SubRunID subRunPrincipalID() const override;
-  EventID eventPrincipalID() const override;
-
-  void readEvent() override;
-  void processEvent() override;
-  bool shouldWeStop() const override;
-
-  void setExceptionMessageFiles(std::string const& message) override;
-  void setExceptionMessageRuns(std::string const& message) override;
-  void setExceptionMessageSubRuns(std::string const& message) override;
-  bool alreadyHandlingException() const override;
-
-  bool outputsToOpen() const override;
-  bool outputsToClose() const override;
-  bool someOutputsOpen() const override;
-  void setOutputFileStatus(OutputFileStatus) override;
-
-  bool setTriggerPathEnabled(std::string const& name, bool enable) override;
-  bool setEndPathModuleEnabled(std::string const& label, bool enable) override;
+  bool setTriggerPathEnabled(std::string const& name, bool enable);
+  bool setEndPathModuleEnabled(std::string const& label, bool enable);
 
 private:
+
+  // Event-loop infrastructure
+  template <Level L> bool levelsToProcess();
+
+  template <Level L> std::enable_if_t<is_above_most_deeply_nested_level(L)> begin();
+  template <Level L> void process();
+  template <Level L> void finalize();
+  template <Level L> void finalizeContainingLevels() {}
+  template <Level L> void recordOutputModuleClosureRequests() {}
+
+  void markLevelAsProcessed();
+  Level advanceItemType();
+
+  // Level-specific member functions
+  void beginJob();
+  void endJob();
+
+  void openInputFile();
+  void openSomeOutputFiles();
+  void openAllOutputFiles();
+
+  void closeInputFile();
+  void closeSomeOutputFiles();
+  void closeAllOutputFiles();
+  void closeAllFiles();
+
+  void respondToOpenInputFile();
+  void respondToCloseInputFile();
+  void respondToOpenOutputFiles();
+  void respondToCloseOutputFiles();
+
+  void readRun();
+  void beginRun();
+  void beginRunIfNotDoneAlready();
+  void setRunAuxiliaryRangeSetID();
+  void endRun();
+  void writeRun();
+
+  void readSubRun();
+  void beginSubRun();
+  void beginSubRunIfNotDoneAlready();
+  void setSubRunAuxiliaryRangeSetID();
+  void endSubRun();
+  void writeSubRun();
+
+  void readEvent();
+  void processEvent();
+  void writeEvent();
+
+  bool shouldWeStop() const;
+
+  void setOutputFileStatus(OutputFileStatus);
+
+  Level nextLevel_ {Level::ReadyToAdvance};
+  std::vector<Level> activeLevels_ {highest_level()};
+
+  bool beginRunCalled_ {false};    // Should be stack variable local to run loop
+  bool beginSubRunCalled_ {false}; // Should be stack variable local to subrun loop
+
+  bool finalizeRunEnabled_ {true};
+  bool finalizeSubRunEnabled_ {true};
+
   ServiceDirector initServices_(fhicl::ParameterSet const& top_pset,
                                 ActivityRegistry& areg,
                                 ServiceToken& token);
   void initSchedules_(fhicl::ParameterSet const& pset);
   void invokePostBeginJobWorkers_();
-  template <typename T>
-  void
-  process_(typename T::MyPrincipal& p);
 
-  ServiceToken getToken_();
+  template <typename T> void process_(typename T::MyPrincipal& p);
 
-  StatusCode runCommon_();
   void servicesActivate_(ServiceToken st);
   void servicesDeactivate_();
-  void terminateMachine_();
   void terminateAbnormally_();
 
   //------------------------------------------------------------------
@@ -182,23 +173,17 @@ private:
   std::unique_ptr<ServiceRegistry::Operate> servicesSentry_ {};
   PathManager pathManager_; // Must outlive schedules.
   ServiceDirector serviceDirector_;
-  std::unique_ptr<InputSource> input_ {};
-  std::unique_ptr<Schedule> schedule_ {};
-  std::unique_ptr<EndPathExecutor> endPathExecutor_ {};
+  std::unique_ptr<InputSource> input_ {nullptr};
+  std::unique_ptr<Schedule> schedule_ {nullptr};
+  std::unique_ptr<EndPathExecutor> endPathExecutor_ {nullptr};
+  std::unique_ptr<FileBlock> fb_ {nullptr};
 
-  std::shared_ptr<FileBlock> fb_ {};
-
-  std::unique_ptr<statemachine::Machine> machine_ {};
-  PrincipalCache principalCache_ {}; // Cache is necessary for handling empty runs/subruns
-  std::unique_ptr<EventPrincipal> sm_evp_ {};
+  std::unique_ptr<RunPrincipal> runPrincipal_ {nullptr};
+  std::unique_ptr<SubRunPrincipal> subRunPrincipal_ {nullptr};
+  std::unique_ptr<EventPrincipal> eventPrincipal_ {nullptr};
   bool shouldWeStop_ {false};
-  bool stateMachineWasInErrorState_ {false};
-  bool handleEmptyRuns_;
-  bool handleEmptySubRuns_;
-  std::string exceptionMessageFiles_ {};
-  std::string exceptionMessageRuns_ {};
-  std::string exceptionMessageSubRuns_ {};
-  bool alreadyHandlingException_ {false};
+  bool const handleEmptyRuns_;
+  bool const handleEmptySubRuns_;
 
 };  // EventProcessor
 
@@ -208,25 +193,26 @@ private:
 template <typename T>
 class art::detail::PrincipalSignalSentry {
 public:
-  PrincipalSignalSentry(PrincipalSignalSentry<T> const &) = delete;
-  PrincipalSignalSentry<T> operator=(PrincipalSignalSentry<T> const &) = delete;
+
+  PrincipalSignalSentry(PrincipalSignalSentry<T> const&) = delete;
+  PrincipalSignalSentry<T> operator=(PrincipalSignalSentry<T> const&) = delete;
 
   using principal_t = typename T::MyPrincipal;
-  PrincipalSignalSentry(art::ActivityRegistry & a, principal_t & ep);
+  explicit PrincipalSignalSentry(art::ActivityRegistry& a, principal_t& ep);
   ~PrincipalSignalSentry();
 
 private:
-  art::ActivityRegistry & a_;
-  principal_t & ep_;
+  art::ActivityRegistry& a_;
+  principal_t& ep_;
 };
 
 template <class T>
 art::detail::PrincipalSignalSentry<T>::
-PrincipalSignalSentry(art::ActivityRegistry & a,
-                      typename PrincipalSignalSentry<T>::principal_t & ep)
+PrincipalSignalSentry(art::ActivityRegistry& a,
+                      typename PrincipalSignalSentry<T>::principal_t& ep)
   :
-  a_(a),
-  ep_(ep)
+  a_{a},
+  ep_{ep}
 {
   T::preScheduleSignal(&a_, &ep_);
 }
@@ -269,9 +255,6 @@ catch (...) {
     << "an exception occurred during current event processing\n";
   throw;
 }
-
-
-// ======================================================================
 
 #endif /* art_Framework_EventProcessor_EventProcessor_h */
 

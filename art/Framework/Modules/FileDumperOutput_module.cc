@@ -15,12 +15,12 @@
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Framework/Principal/detail/orderedProcessNames.h"
+#include "art/Utilities/ConfigurationTable.h"
 #include "canvas/Utilities/Exception.h"
 #include "cetlib/column_width.h"
 #include "cetlib/lpad.h"
 #include "cetlib/rpad.h"
 #include "fhiclcpp/ParameterSet.h"
-#include "fhiclcpp/types/Table.h"
 
 #include <algorithm>
 #include <iomanip>
@@ -37,11 +37,9 @@ namespace {
     std::string str_size;
   };
 
-  std::string product_size(art::EDProduct const* product, bool const isPresent, bool const onDemand)
+  std::string product_size(art::EDProduct const* product, bool const isPresent)
   {
-    return
-      isPresent ? product->productSize() :
-      onDemand ? "o/d" : "?";
+    return isPresent ? product->productSize() : "?";
   }
 
   std::string dummyProcess() { return "PROCESS NAME"; }
@@ -89,14 +87,13 @@ public:
 
   struct Config {
     fhicl::TableFragment<OutputModule::Config> omConfig;
-    fhicl::Atom<bool> onDemandProduction           { fhicl::Name("onDemandProduction"), false };
     fhicl::Atom<bool> wantProductFullClassName     { fhicl::Name("wantProductFullClassName"), true };
     fhicl::Atom<bool> wantProductFriendlyClassName { fhicl::Name("wantProductFriendlyClassName"), wantProductFullClassName() };
     fhicl::Atom<bool> resolveProducts { fhicl::Name("resolveProducts"), true };
     fhicl::Atom<bool> onlyIfPresent   { fhicl::Name("onlyIfPresent"), false };
   };
 
-  using Parameters = fhicl::Table<Config, OutputModule::Config::KeysToIgnore>;
+  using Parameters = art::WrappedTable<Config, OutputModule::Config::KeysToIgnore>;
 
   explicit FileDumperOutput(Parameters const&);
 
@@ -110,7 +107,6 @@ private:
   template <typename P>
   void printPrincipal(P const& p);
 
-  bool wantOnDemandProduction_;
   bool wantProductFullClassName_;
   bool wantProductFriendlyClassName_;
   bool wantResolveProducts_;
@@ -122,7 +118,6 @@ art::FileDumperOutput::
 FileDumperOutput(art::FileDumperOutput::Parameters const& ps)
   :
   OutputModule{ps().omConfig, ps.get_PSet()},
-  wantOnDemandProduction_{ps().onDemandProduction()},
   wantProductFullClassName_{ps().wantProductFullClassName()},
   wantProductFriendlyClassName_{ps().wantProductFriendlyClassName()},
   wantResolveProducts_{ps().resolveProducts()},
@@ -208,7 +203,7 @@ printPrincipal(P const& p)
                             g.productInstanceName(),
                             g.productDescription().producedClassName(),
                             g.productDescription().friendlyClassName(),
-                            product_size(product, productPresent, g.onDemand())};
+                            product_size(product, productPresent)};
       products[g.processName()].emplace_back(std::move(pi));
     }
   }

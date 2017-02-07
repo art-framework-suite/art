@@ -18,9 +18,7 @@ using art::Prescaler;
 
 // ======================================================================
 
-class art::Prescaler
-  : public EDFilter
-{
+class art::Prescaler : public EDFilter {
 public:
 
   struct Config {
@@ -29,40 +27,29 @@ public:
   };
 
   using Parameters = EDFilter::Table<Config>;
-  explicit Prescaler( Parameters const & );
+  explicit Prescaler(Parameters const&);
 
-  bool filter( Event & ) override;
-  void endJob() override;
+  bool filter(Event&) override;
 
 private:
-  int count_;
-  int n_;      // accept one in n
-  int offset_; // with offset,
-               // i.e. sequence of events does not have to start at first event
+  int count_ {};
+  int const n_;      // accept one in n
+  int const offset_; // with offset,
+                     // i.e. sequence of events does not have to start at first event
 
 };  // Prescaler
 
 // ======================================================================
 
-Prescaler::Prescaler( Parameters const & config )
-  : EDFilter( )
-  , count_ ( 0 )
-  , n_     ( config().prescaleFactor() )
-  , offset_( config().prescaleOffset() )
+Prescaler::Prescaler(Parameters const& config)
+  : n_{config().prescaleFactor()}
+  , offset_{config().prescaleOffset()}
 { }
 
 bool
-  Prescaler::filter( Event & /* unused */ )
+Prescaler::filter(Event&)
 {
   return ++count_ % n_ == offset_;
 }
 
-void
-  Prescaler::endJob()
-{ }
-
-// ======================================================================
-
 DEFINE_ART_MODULE(Prescaler)
-
-// ======================================================================

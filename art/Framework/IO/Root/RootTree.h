@@ -22,6 +22,7 @@
 #include "canvas/Persistency/Provenance/ProvenanceFwd.h"
 #include "canvas/Persistency/Provenance/RunID.h"
 #include "canvas/Persistency/Provenance/SubRunID.h"
+#include "cetlib/exempt_ptr.h"
 
 #include "TBranch.h"
 #include "TTree.h"
@@ -73,7 +74,7 @@ namespace art {
     using EntryNumber = input::EntryNumber;
     using EntryNumbers = input::EntryNumbers;
   public:
-    RootTree(std::shared_ptr<TFile>,
+    RootTree(cet::exempt_ptr<TFile>,
              BranchType,
              int64_t saveMemoryObjectThreshold,
              cet::exempt_ptr<RootInputFile>,
@@ -236,7 +237,7 @@ namespace art {
     }
 
   private:
-    std::shared_ptr<TFile> filePtr_;
+    cet::exempt_ptr<TFile> filePtr_;
     // We use bare pointers for pointers to some ROOT entities.
     // Root owns them and uses bare pointers internally,
     // therefore, using smart pointers here will do no good.
@@ -249,7 +250,7 @@ namespace art {
     EntryNumber entries_ {0};
     EntryNumber entryNumber_ {-1};
     std::vector<std::string> branchNames_ {};
-    std::shared_ptr<BranchMap> branches_ {std::make_shared<BranchMap>()};
+    std::unique_ptr<BranchMap> branches_ {std::make_unique<BranchMap>()};
     cet::exempt_ptr<RootInputFile> primaryFile_;
   };
 

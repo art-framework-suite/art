@@ -6,6 +6,7 @@
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include <cassert>
+#include <cstddef>
 
 namespace {
 
@@ -151,7 +152,7 @@ initDB(int flags, TFile * tfile)
       err = sqlite3_open(key_.c_str(), &db_);
       break;
     case SQLITE3_FILEDB:
-      err = sqlite3_open_v2(key_.c_str(), &db_, flags, NULL);
+      err = sqlite3_open_v2(key_.c_str(), &db_, flags, nullptr);
       break;
     case SQLITE3_TMPDB:
       err = sqlite3_open(key_.c_str(), &db_);

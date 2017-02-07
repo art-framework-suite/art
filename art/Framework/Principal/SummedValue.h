@@ -43,7 +43,7 @@
 #include "art/Framework/Principal/Handle.h"
 #include "canvas/Persistency/Common/detail/aggregate.h"
 #include "canvas/Persistency/Provenance/RangeSet.h"
-#include "cetlib/demangle.h"
+#include "cetlib_except/demangle.h"
 
 #include <memory>
 
@@ -200,7 +200,7 @@ namespace art {
 
 }
 
-#endif
+#endif /* art_Framework_Principal_SummedValue_h */
 
 // Local variables:
 // mode: c++

@@ -17,7 +17,7 @@ namespace art {
   }
 }
 
-#endif
+#endif /* art_Framework_Core_detail_IgnoreModuleLabel_h */
 
 // Local variables:
 // mode: c++

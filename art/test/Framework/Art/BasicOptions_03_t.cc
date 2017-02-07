@@ -1,4 +1,4 @@
-#include "art/Framework/Art/detail/PrintPluginMetadata.h"
+#include "art/Framework/Art/detail/AllowedConfiguration.h"
 #include "art/Utilities/PluginSuffixes.h"
 
 int main()

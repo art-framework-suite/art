@@ -1,6 +1,6 @@
 #include "art/Framework/Art/BasicOptionsHandler.h"
 
-#include "art/Framework/Art/detail/PrintPluginMetadata.h"
+#include "art/Framework/Art/detail/AllowedConfiguration.h"
 #include "art/Utilities/PluginSuffixes.h"
 #include "art/Version/GetReleaseVersion.h"
 #include "canvas/Utilities/Exception.h"

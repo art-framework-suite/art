@@ -1,6 +1,6 @@
 #include "FileDumperOutputTest_r.fcl"
 
-process_name: "ProcenanveDumperR"
+process_name: "ProvenanceDumperR"
 
 outputs.out1:
 { module_type: TestProvenanceDumper

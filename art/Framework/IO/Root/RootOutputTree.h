@@ -7,6 +7,7 @@
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
 #include "canvas/Persistency/Provenance/ProductProvenance.h"
+#include "cetlib/exempt_ptr.h"
 
 #include "TTree.h"
 
@@ -33,7 +34,7 @@ namespace art {
     // Constructor for trees with no fast cloning
     template<typename T>
     RootOutputTree(/*dummy*/T*,
-                   std::shared_ptr<TFile> filePtr,
+                   cet::exempt_ptr<TFile> filePtr,
                    BranchType const branchType,
                    typename T::Auxiliary const*& pAux,
                    ProductProvenances*& pProductProvenanceVector,
@@ -131,7 +132,7 @@ namespace art {
 
   private: // MEMBER DATA
 
-    std::shared_ptr<TFile> filePtr_;
+    cet::exempt_ptr<TFile> filePtr_;
     TTree* const tree_;
     TTree* const metaTree_;
     TBranch* auxBranch_ {nullptr};

@@ -67,10 +67,10 @@ namespace art {
            BranchDescription const& bd,
            RangeSet&& rs)
   {
-    addOrReplaceGroup(gfactory::make_group(std::move(prod),
-                                           bd,
+    addOrReplaceGroup(gfactory::make_group(bd,
                                            ProductID{},
-                                           std::move(rs)));
+                                           std::move(rs),
+                                           std::move(prod)));
   }
 
   void
@@ -81,7 +81,7 @@ namespace art {
       RangeSet&& rs)
   {
     if (!edp) {
-      throw art::Exception(art::errors::InsertFailure, "Null Pointer")
+      throw art::Exception(art::errors::ProductPutFailure, "Null Pointer")
         << "put: Cannot put because unique_ptr to product is null."
         << "\n";
     }
@@ -92,17 +92,6 @@ namespace art {
   RunPrincipal const&
   SubRunPrincipal::
   runPrincipal() const
-  {
-    if (!runPrincipal_) {
-      throw Exception(errors::NullPointerError)
-        << "Tried to obtain a NULL runPrincipal.\n";
-    }
-    return *runPrincipal_;
-  }
-
-  RunPrincipal&
-  SubRunPrincipal::
-  runPrincipal()
   {
     if (!runPrincipal_) {
       throw Exception(errors::NullPointerError)

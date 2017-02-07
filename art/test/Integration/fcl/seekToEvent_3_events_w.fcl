@@ -1,0 +1,5 @@
+source: {
+  module_type: EmptyEvent
+  maxEvents: 8
+  numberEventsInRun: 4
+}

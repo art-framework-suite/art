@@ -13,7 +13,7 @@ services:
   {
     Rethrow: ['OtherArt','StdException','Unknown','BadAlloc',
               'BadExceptionType','DictionaryNotFound',
-              'InsertFailure','Configuration','LogicError','UnimplementedFeature',
+              'ProductPutFailure','Configuration','LogicError','UnimplementedFeature',
               'InvalidReference','NullPointerError','NoProductSpecified','EventTimeout',
               'DataCorruption','ScheduleExecutionFailure','EventProcessorFailure',
               'FileInPathError','FileOpenError','FileReadError','FatalRootError',

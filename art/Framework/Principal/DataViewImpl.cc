@@ -16,13 +16,12 @@ using namespace std;
 
 namespace art {
 
-  DataViewImpl::DataViewImpl(Principal & pcpl,
+  DataViewImpl::DataViewImpl(Principal const& pcpl,
                              ModuleDescription const& md,
                              BranchType const branchType)  :
-    putProducts_(),
-    principal_(pcpl),
-    md_(md),
-    branchType_(branchType)
+    principal_{pcpl},
+    md_{md},
+    branchType_{branchType}
   {}
 
   size_t
@@ -120,16 +119,16 @@ namespace art {
                                  ProducedMap const& expectedBids,
                                  BranchIDsMap const& products)
   {
-    if ( !checkProducts ) return;
+    if (!checkProducts) return;
 
     std::vector<std::string> missing;
-    for ( auto const& bid : expectedBids ) {
+    for (auto const& bid : expectedBids) {
       auto const& putBids = products;
-      if ( putBids.find(bid.first) == putBids.cend() )
+      if (putBids.find(bid.first) == putBids.cend())
         missing.emplace_back(bid.second);
     }
 
-    if ( missing.size() ) {
+    if (!missing.empty()) {
       std::ostringstream errmsg;
       errmsg << "The following products have been declared with 'produces',\n"
              << "but they have not been placed onto the event:\n"
@@ -138,24 +137,25 @@ namespace art {
         errmsg << bd
                << "=========================\n";
       }
-      throw Exception(errors::LogicError) << errmsg.str();
+      throw Exception{errors::LogicError, "DataViewImpl::checkPutProducts"} << errmsg.str();
     }
   }
 
   BranchDescription const&
   DataViewImpl::getBranchDescription(TypeID const& type,
-                                     string const& productInstanceName) const {
-    string friendlyClassName = type.friendlyClassName();
-    BranchKey bk(friendlyClassName,
-                 md_.moduleLabel(),
-                 productInstanceName,
-                 md_.processName(),
-                 branchType_);
-    ProductList const& pl = ProductMetaData::instance().productList();
-    ProductList::const_iterator it = pl.find(bk);
+                                     string const& productInstanceName) const
+  {
+    string const friendlyClassName {type.friendlyClassName()};
+    BranchKey bk {friendlyClassName,
+                  md_.moduleLabel(),
+                  productInstanceName,
+                  md_.processName(),
+                  branchType_};
+    auto const& pl = ProductMetaData::instance().productList();
+    auto it = pl.find(bk);
 
     if (it == pl.end()) {
-      throw art::Exception(art::errors::InsertFailure)
+      throw art::Exception{art::errors::ProductRegistrationFailure, "DataViewImpl::getBranchDescription"}
         << "Illegal attempt to retrieve an unregistered product.\n"
         << "No product is registered for\n"
         << "  process name:                '" << bk.processName_ << "'\n"
@@ -173,7 +173,7 @@ namespace art {
   void
   DataViewImpl::removeCachedProduct_(BranchID const bid) const
   {
-    principal().removeCachedProduct(bid);
+    principal_.removeCachedProduct(bid);
   }
 
 }  // art

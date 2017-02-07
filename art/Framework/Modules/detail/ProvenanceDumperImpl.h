@@ -5,29 +5,11 @@
 //
 // Provides main implementation for ProvenanceDumper
 //
-// Uses A LOT of metaprogramming
-/////////////////////////////////////////
-// Advanced notes.
+// Uses A LOT of metaprogramming.
 //
-// For those interested in how the framework obtains the provenance
-// information, here are some notes:
-//
-// This module template contains a lot of template metaprograming to
-// ensure that only those functions relevant to the user's purpose
-// (and therefore defined) are called, and at the right time. If you
-// are interested in how the provenance is obtained, the only function
-// necessary to this understanding below is:
-//
-//    template <typename DETAIL>
-//    template <typename PRINCIPAL>
-//    void
-//    art::detail::PrincipalProcessor<DETAIL>::
-//    operator()(PRINCIPAL const & p,
-//               void (DETAIL:: *func)(art::Provenance const &)) const
-//
-// This function will loop over the Groups in a particular Principal,
-// attempt to resolve the product if possible and then construct a
-// Provenance to pass to the correct callback function func.
+// The process_() function will loop over the Groups in a particular
+// Principal, attempt to resolve the product if possible and then
+// construct a Provenance to pass to the correct callback function func.
 //
 ////////////////////////////////////////////////////////////////////////
 #include "art/Framework/Principal/EventPrincipal.h"
@@ -44,37 +26,39 @@ namespace art {
     class PrincipalProcessor {
     public:
       PrincipalProcessor(DETAIL & detail,
-                         bool wantPresentOnly,
-                         bool resolveProducts)
+                         bool const wantPresentOnly,
+                         bool const resolveProducts,
+                         bool const wantResolvedOnly)
         :
         detail_(detail),
         wantPresentOnly_(wantPresentOnly),
-        resolveProducts_(resolveProducts)
+        resolveProducts_(resolveProducts),
+        wantResolvedOnly_(wantResolvedOnly)
       { }
-      template <typename PRINCIPAL>
+
       void
-      operator()(PRINCIPAL const & p,
+      operator()(art::Principal const & p,
                  void (DETAIL:: *func)(art::Provenance const &)) const;
+
     private:
+
       DETAIL & detail_;
-      bool wantPresentOnly_;
-      bool resolveProducts_;
+      bool const wantPresentOnly_;
+      bool const resolveProducts_;
+      bool const wantResolvedOnly_;
     };
 
-    // The function that does all the work: everything else is fluff.
     template <typename DETAIL>
-    template <typename PRINCIPAL>
     void
     PrincipalProcessor<DETAIL>::
-    operator()(PRINCIPAL const & p,
+    operator()(art::Principal const & p,
                void (DETAIL:: *func)(art::Provenance const &)) const
     {
-      if (!p.size()) { return; } // Nothing to do.
       for (auto const& pr : p) {
         Group const & g = *pr.second;
-        if (wantPresentOnly_ && resolveProducts_) {
+        if (resolveProducts_) {
           try {
-            if (!g.resolveProduct(false, g.producedWrapperType()))
+            if (!g.resolveProduct(g.producedWrapperType()))
               { throw Exception(errors::DataCorruption, "data corruption"); }
           }
           catch (art::Exception const & e) {
@@ -85,8 +69,16 @@ namespace art {
                 << "Product reported as not present, but is pointed to nonetheless!";
           }
         }
-        if ((!wantPresentOnly_) || g.anyProduct()) {
-          (detail_.*func)(Provenance{cet::exempt_ptr<Group const>{&g}});
+        bool wantCallFunc = true;
+        Provenance const prov {cet::exempt_ptr<Group const>{&g}};
+        if (wantResolvedOnly_) {
+          wantCallFunc = (g.anyProduct() != nullptr);
+        } else if (wantPresentOnly_) {
+          wantCallFunc = prov.isPresent();
+        }
+
+        if (wantCallFunc) {
+          (detail_.*func)(prov);
         }
       }
     }

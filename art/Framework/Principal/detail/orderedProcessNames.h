@@ -12,7 +12,7 @@ namespace art {
   }
 }
 
-#endif
+#endif /* art_Framework_Principal_detail_orderedProcessNames_h */
 
 // Local variables:
 // mode: c++

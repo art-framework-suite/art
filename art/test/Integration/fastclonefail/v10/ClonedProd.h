@@ -1,5 +1,5 @@
-#ifndef CLONEDPROD_H
-#define CLONEDPROD_H
+#ifndef art_test_Integration_fastclonefail_v10_ClonedProd_h
+#define art_test_Integration_fastclonefail_v10_ClonedProd_h
 
 #include "canvas/Persistency/Common/Wrapper.h"
 
@@ -15,4 +15,8 @@ private:
 
 } // namespace arttest
 
-#endif // CLONEDPROD_H
+#endif /* art_test_Integration_fastclonefail_v10_ClonedProd_h */
+
+// Local Variables:
+// mode: c++
+// End:

@@ -64,6 +64,7 @@ public: // MEMBER FUNCTIONS
     Atom<unsigned> cacheSize { Name("cacheSize"), 0u };
     Atom<std::int64_t> treeMaxVirtualSize { Name("treeMaxVirtualSize"), -1 };
     Atom<std::int64_t> saveMemoryObjectThreshold { Name("saveMemoryObjectThreshold"), -1 };
+    Atom<bool> delayedReadEventProducts { Name("delayedReadEventProducts"), true };
     Atom<bool> delayedReadSubRunProducts { Name("delayedReadSubRunProducts"), false };
     Atom<bool> delayedReadRunProducts { Name("delayedReadRunProducts"), false };
     Sequence<std::string> inputCommands { Name("inputCommands"), std::vector<std::string>{"keep *"} };
@@ -93,7 +94,7 @@ public: // MEMBER FUNCTIONS
   void
   endJob();
 
-  std::shared_ptr<FileBlock>
+  std::unique_ptr<FileBlock>
   readFile_();
 
   std::unique_ptr<RootInputFile>
@@ -118,23 +119,17 @@ public: // MEMBER FUNCTIONS
   input::ItemType
   getNextItemType();
 
-  std::shared_ptr<RunPrincipal>
+  std::unique_ptr<RunPrincipal>
   readIt(RunID const&);
 
-  std::shared_ptr<RunPrincipal>
+  std::unique_ptr<RunPrincipal>
   readRun_();
 
-  std::vector<std::shared_ptr<RunPrincipal>>
-  readRunFromSecondaryFiles_();
+  std::unique_ptr<SubRunPrincipal>
+  readIt(SubRunID const&, cet::exempt_ptr<RunPrincipal>);
 
-  std::shared_ptr<SubRunPrincipal>
-  readIt(SubRunID const&, std::shared_ptr<RunPrincipal>);
-
-  std::shared_ptr<SubRunPrincipal>
-  readSubRun_(std::shared_ptr<RunPrincipal>);
-
-  std::vector<std::shared_ptr<SubRunPrincipal>>
-  readSubRunFromSecondaryFiles_(std::shared_ptr<RunPrincipal>);
+  std::unique_ptr<SubRunPrincipal>
+  readSubRun_(cet::exempt_ptr<RunPrincipal>);
 
   std::unique_ptr<EventPrincipal>
   readIt(EventID const&, bool exact = false);
@@ -206,6 +201,12 @@ public: // MEMBER FUNCTIONS
   };
 
   bool
+  delayedReadEventProducts() const
+  {
+    return delayedReadEventProducts_;
+  }
+
+  bool
   delayedReadSubRunProducts() const
   {
     return delayedReadSubRunProducts_;
@@ -262,6 +263,7 @@ private: // MEMBER DATA
   unsigned int const treeCacheSize_;
   int64_t const treeMaxVirtualSize_;
   int64_t const saveMemoryObjectThreshold_;
+  bool const delayedReadEventProducts_;
   bool const delayedReadSubRunProducts_;
   bool const delayedReadRunProducts_;
   int forcedRunOffset_;

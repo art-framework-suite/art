@@ -16,7 +16,6 @@ using cet::LibraryManager;
 
 namespace {
 
-  std::string const empty_description {"\n" + indent__2() + "[ provided in future release ]\n"};
   std::string const regex_prefix {"([-A-Za-z0-9]*_)*"};
   std::regex  const slash {"/"};
 
@@ -57,7 +56,7 @@ namespace {
       std::cerr << '\r';
     }
   private:
-    std::string const& libType_;
+    std::string const libType_;
     std::size_t const w_;
     std::size_t const d_;
     bool const v_;
@@ -84,16 +83,16 @@ namespace {
   bool messagefacility_included(std::string const& spec,
                                 LibraryInfoCollection& result)
   {
-    bool const print_only_message       = (spec == "message");
+    bool const print_only_message = (spec == "message");
     bool const print_available_services = (spec == dflt_spec_pattern());
 
     if (print_only_message || print_available_services) {
-      result.emplace( "[ none ]",
-                      std::make_pair("message",""),
-                      "[ See https://cdcvs.fnal.gov/redmine/projects/art/wiki/Messagefacility ]",
-                      empty_description,
-                      "art",
-                      "" );
+      result.emplace("[ none ]",
+                     std::make_pair("message",""),
+                     "[ See https://cdcvs.fnal.gov/redmine/projects/art/wiki/Messagefacility ]",
+                     std::unique_ptr<art::ConfigurationTable>{nullptr},
+                     "art",
+                     "" );
       return true;
     }
     return false;
@@ -107,16 +106,16 @@ namespace {
     switch (st) {
     case suffix_type::module: return "<module_label>";
     case suffix_type::plugin: return "<plugin_label>";
+    case suffix_type::tool  : return "<tool_label>";
     case suffix_type::source: return "source";
     default :
       throw art::Exception(art::errors::LogicError)
-        << "The " << Suffixes::get(st) << "is not supported for function: " << __func__ << '\n';
+        << "The '" << Suffixes::get(st) << "' suffix is not supported for function: " << __func__ << '\n';
     }
   }
 
   template <suffix_type st>
   LibraryInfoCollection getCollection(std::string const& spec,
-                                      std::string const& tab,
                                       bool const verbose)
   {
     LibraryInfoCollection result;
@@ -130,12 +129,13 @@ namespace {
       auto const& libspecs = lm.getSpecsByPath(lib);
       std::string const& spec = libspecs.second.empty() ? libspecs.first : libspecs.second;
 
-      std::string const& type     = getType<st>(lm, spec);
-      std::string const& path     = getFilePath<st>(lm, spec);
-      std::string const& provider = getProvider(spec);
-      std::string const& desc     = getDescription<st>(lm, spec, fhicl_name(st), tab);
+      result.emplace(lib,
+                     libspecs,
+                     getFilePath<st>(lm, spec),
+                     getAllowedConfiguration<st>(lm, spec, fhicl_name(st)),
+                     getProvider(spec),
+                     getType<st>(lm, spec));
 
-      result.emplace(lib, libspecs, path, desc, provider, type);
       status_bar.print_progress(++i);
     }
     return result;
@@ -144,7 +144,6 @@ namespace {
   template <>
   LibraryInfoCollection
   getCollection<suffix_type::service>(std::string const& spec,
-                                      std::string const& tab,
                                       bool const verbose)
   {
     // These services are not configurable by users.
@@ -174,17 +173,17 @@ namespace {
     std::size_t i {};
     for (auto const& lib : libs) {
       auto const& libspecs = lm.getSpecsByPath(lib);
-
-      std::string const& spec     = libspecs.first;
+      std::string const& spec = libspecs.first;
       std::string const& fullspec = libspecs.second;
-      std::string const& type     = getType<suffix_type::service>( lm, libspecs.second );
-      std::string const& provider = getProvider(fullspec);
-      std::string const& path     = getFilePath<suffix_type::service>(lm, spec); // full specs may be empty
-
       auto const& fclname = ServiceNames::fclname(spec);
-      std::string const& desc = getDescription<suffix_type::service>(lm, spec, fclname, tab); // for user-defined servicxes
 
-      result.emplace(lib, std::make_pair(fclname, fullspec), path, desc, provider, type);
+      result.emplace(lib,
+                     std::make_pair(fclname, fullspec),
+                     getFilePath<suffix_type::service>(lm, spec),                      // full specs may be empty
+                     getAllowedConfiguration<suffix_type::service>(lm, spec, fclname), // for user-defined servicxes
+                     getProvider(fullspec),
+                     getType<suffix_type::service>(lm, libspecs.second));
+
       status_bar.print_progress(++i);
     }
     if (messagefacility_included(spec, result)) {
@@ -200,13 +199,15 @@ namespace {
 LibraryInfoCollection
 art::detail::get_LibraryInfoCollection(suffix_type const st,
                                        std::string const& pattern,
-                                       std::string const& tab,
                                        bool const verbose)
 {
   switch(st) {
-  case suffix_type::module  : return getCollection<suffix_type::module >(pattern, tab, verbose);
-  case suffix_type::service : return getCollection<suffix_type::service>(pattern, tab, verbose);
-  case suffix_type::source  : return getCollection<suffix_type::source >(pattern, tab, verbose);
-  default                   : return getCollection<suffix_type::plugin >(pattern, tab, verbose);
+  case suffix_type::module  : return getCollection<suffix_type::module >(pattern, verbose);
+  case suffix_type::service : return getCollection<suffix_type::service>(pattern, verbose);
+  case suffix_type::source  : return getCollection<suffix_type::source >(pattern, verbose);
+  case suffix_type::plugin  : return getCollection<suffix_type::plugin >(pattern, verbose);
+  case suffix_type::tool    : return getCollection<suffix_type::tool   >(pattern, verbose);
+    // No default - allow compiler to warn if missing suffix_type.
   }
+  return {};
 }

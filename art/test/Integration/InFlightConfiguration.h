@@ -15,19 +15,19 @@ namespace arttest {
 
 class arttest::InFlightConfiguration : public ui::UserInteraction {
 public:
-  InFlightConfiguration(fhicl::ParameterSet const & ps,
-                        art::ActivityRegistry & areg);
+  InFlightConfiguration(fhicl::ParameterSet const& ps,
+                        art::ActivityRegistry& areg);
 
-  void moduleList(std::vector<ModuleInfo> const & infos) override;
+  void moduleList(std::vector<ModuleInfo> const& infos) override;
   void pickModule() override;
   UserInteraction::NextStep nextAction() override;
 
 private:
-  std::vector<ModuleInfo> moduleInfos_;
+  std::vector<ModuleInfo> moduleInfos_ {};
   // Note user implementations would cache by value, not pointer.
-  std::unique_ptr<art::ServiceHandle<art::PathSelection> > pathSelectionService_;
+  std::unique_ptr<art::ServiceHandle<art::PathSelection>> pathSelectionService_ {nullptr};
 
-  size_t callCount_;
+  size_t callCount_ {};
 };
 
 DECLARE_ART_SERVICE(arttest::InFlightConfiguration, LEGACY)

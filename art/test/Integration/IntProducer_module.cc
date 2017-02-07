@@ -41,9 +41,9 @@ public:
 
   using Parameters = EDProducer::Table<Config>;
   explicit IntProducer( EDProducer::Table<Config> const& p )
-    : value_( p().ivalue() )
+    : value_{p().ivalue()}
       // enums don't usually have a conversion from string
-    , branchType_( art::BranchType( p().branchType() ) )
+    , branchType_{art::BranchType( p().branchType() )}
   {
     switch (branchType_) {
     case art::InEvent:
@@ -52,7 +52,7 @@ public:
     case art::InSubRun:
       produces<IntProduct, art::InSubRun>();
       break;
-    case art::InRun:
+   case art::InRun:
       produces<IntProduct, art::InRun>();
       break;
     default:

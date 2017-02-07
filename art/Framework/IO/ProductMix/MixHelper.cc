@@ -14,6 +14,7 @@
 
 #include <algorithm>
 #include <cassert>
+#include <functional>
 #include <iterator>
 #include <limits>
 #include <numeric>
@@ -28,7 +29,7 @@ namespace {
       void > {
   public:
     EventIDIndexBuilder(art::EventIDIndex & index);
-    result_type operator()(argument_type bIDs) const;
+    result_type operator()(argument_type element) const;
   private:
     art::EventIDIndex & index_;
   };
@@ -37,10 +38,27 @@ namespace {
     public std::unary_function<Long64_t, art::EventID> {
   public:
     EventIDLookup(art::EventIDIndex const & index);
-    result_type operator()(argument_type bIDs) const;
+    result_type operator()(argument_type entry) const;
   private:
     art::EventIDIndex const & index_;
   };
+
+  std::array<cet::exempt_ptr<TTree>, art::NumBranchTypes>
+  initDataTrees(cet::value_ptr<TFile> const & currentFile)
+  {
+    std::array<cet::exempt_ptr<TTree>, art::NumBranchTypes> result;
+    for (auto bt = 0; bt != art::NumBranchTypes; ++bt) {
+      result[bt].reset(static_cast<TTree*>(
+                         currentFile->Get(art::rootNames::dataTreeName(static_cast<art::BranchType>(bt)).c_str())));
+      if (result[bt].get() == nullptr and bt != art::InResults) {
+        throw art::Exception(art::errors::FileReadError)
+          << "Unable to read event tree from secondary event stream file "
+          << currentFile->GetName()
+          << ".\n";
+      }
+    }
+    return result;
+  }
 }  // namespace
 
 inline
@@ -66,13 +84,13 @@ EventIDLookup::EventIDLookup(art::EventIDIndex const & index)
 {}
 
 EventIDLookup::result_type
-EventIDLookup::operator()(argument_type element) const
+EventIDLookup::operator()(argument_type entry) const
 {
-  art::EventIDIndex::const_iterator i = index_.find(element);
+  art::EventIDIndex::const_iterator i = index_.find(entry);
   if (i == index_.end()) {
     throw art::Exception(art::errors::LogicError)
         << "MixHelper could not find entry number "
-        << element
+        << entry
         << " in its own lookup table.\n";
   }
   return i->second;
@@ -132,11 +150,14 @@ MixHelper(fhicl::ParameterSet const & pset,
   dist_(initDist(readMode_)),
   eventsToSkip_(),
   shuffledSequence_(),
-  eventIDIndex_(),
+  haveSubRunMixOps_(false),
+  haveRunMixOps_(false),
   currentFile_(),
   currentMetaDataTree_(),
-  currentEventTree_(),
-  dataBranches_()
+  currentDataTrees_(),
+  currentFileIndex_(),
+  dataBranches_(),
+  eventIDIndex_()
 {
 }
 
@@ -231,14 +252,14 @@ art::MixHelper::
 generateEventAuxiliarySequence(EntryNumberSequence const& enseq,
                                EventAuxiliarySequence& auxseq)
 {
+  auto const eventTree = currentDataTrees_[InEvent];
   auto auxBranch =
-    currentEventTree_->GetBranch(
-      BranchTypeToAuxiliaryBranchName(InEvent).c_str());
+    eventTree->GetBranch(BranchTypeToAuxiliaryBranchName(InEvent).c_str());
   auto aux = std::make_unique<EventAuxiliary>();
   auto pAux = aux.get();
   auxBranch->SetAddress(&pAux);
   for (auto const entry : enseq) {
-    auto err = currentEventTree_->LoadTree(entry);
+    auto err = eventTree->LoadTree(entry);
     if (err == -2) {
       // FIXME: Throw an error here!
       // FIXME: -2 means entry number too big.
@@ -257,16 +278,73 @@ generateEventAuxiliarySequence(EntryNumberSequence const& enseq,
 }
 
 void
-art::MixHelper::mixAndPut(EntryNumberSequence const & enSeq,
+art::MixHelper::mixAndPut(EntryNumberSequence const & eventEntries,
+                          EventIDSequence const & eIDseq,
                           Event & e)
 {
   // Populate the remapper in case we need to remap any Ptrs.
   ptpBuilder_.populateRemapper(ptrRemapper_, e);
+  // Dummy remapper in case we need it.
+  static const PtrRemapper nopRemapper;
+  // Create required info only if we're likely to need it:
+  EntryNumberSequence subRunEntries;
+  EntryNumberSequence runEntries;
+  if (haveSubRunMixOps_) {
+    subRunEntries.reserve(eIDseq.size());
+    for (auto const & eID : eIDseq) {
+      auto const it = currentFileIndex_.findPosition(eID.subRunID(), true);
+      if (it != currentFileIndex_.cend()) {
+        subRunEntries.emplace_back(it->entry_);
+      } else {
+        throw Exception(errors::NotFound, "NO_SUBRUN")
+          << "- Unable to find an entry in the SubRun tree corresponding to event ID "
+          << eID << " in secondary mixing input file "
+          << currentFile_->GetName()
+          << ".\n";
+      }
+    }
+  }
+  if (haveRunMixOps_) {
+    runEntries.reserve(eIDseq.size());
+    for (auto const & eID : eIDseq) {
+      auto const it = currentFileIndex_.findPosition(eID.runID(), true);
+      if (it != currentFileIndex_.cend()) {
+        runEntries.emplace_back(it->entry_);
+      } else {
+        throw Exception(errors::NotFound, "NO_RUN")
+          << "- Unable to find an entry in the Run tree corresponding to event ID "
+          << eID << " in secondary mixing input file "
+          << currentFile_->GetName()
+          << ".\n";
+      }
+    } 
+  }
   // Do the branch-wise read, mix and put.
-  cet::for_all(mixOps_,
-               [&,this](auto const& op){ this->mixAndPutOne_(op, enSeq, e); });
-  nEventsReadThisFile_ += enSeq.size();
-  totalEventsRead_ += enSeq.size();
+  for (auto const & op : mixOps_) {
+    switch (op->branchType()) {
+    case InEvent:
+      op->readFromFile(eventEntries);
+      op->mixAndPut(e, ptrRemapper_);
+      break;
+    case InSubRun:
+      op->readFromFile(subRunEntries);
+      // No Ptrs in subrun products.
+      op->mixAndPut(e, nopRemapper);
+      break;
+    case InRun:
+      op->readFromFile(runEntries);
+      // No Ptrs in run products.
+      op->mixAndPut(e, nopRemapper);
+      break;
+    default:
+      throw Exception(errors::LogicError, "Unsupported BranchType")
+        << "- MixHelper::mixAndPut() attempted to handle unsupported branch type "
+        << op->branchType()
+        << ".\n";
+    }
+  }
+  nEventsReadThisFile_ += eventEntries.size();
+  totalEventsRead_ += eventEntries.size();
 }
 
 void
@@ -337,22 +415,13 @@ openAndReadMetaData_(std::string filename)
         << filename
         << ".\n";
   }
-  // Obtain event tree.
-  currentEventTree_.reset(static_cast<TTree*>(
-    currentFile_->Get(art::rootNames::eventTreeName().c_str())));
-  if (currentEventTree_.get() == 0) {
-    throw Exception(errors::FileReadError)
-      << "Unable to read event tree from secondary event stream file "
-      << filename
-      << ".\n";
-  }
-  nEventsInFile_ = currentEventTree_->GetEntries();
+  currentDataTrees_ = initDataTrees(currentFile_);
+  nEventsInFile_ = currentDataTrees_[InEvent]->GetEntries();
   // Read meta data
   FileFormatVersion * ffVersion_p = &ffVersion_;
   currentMetaDataTree_.get()->SetBranchAddress(
     art::rootNames::metaBranchRootName<FileFormatVersion>(), &ffVersion_p);
-  FileIndex fileIndex;
-  FileIndex* fileIndexPtr = &fileIndex;
+  FileIndex* fileIndexPtr = &currentFileIndex_;
   detail::setFileIndexPointer(currentFile_.get(), currentMetaDataTree_.get(),
                               fileIndexPtr);
   BranchIDLists branchIDLists;
@@ -386,7 +455,15 @@ openAndReadMetaData_(std::string filename)
             ("set to \"" + ffVersion_.era_ + "\" "))
         << ".\n";
   }
-  dataBranches_.reset(currentEventTree_.get());
+  using std::cbegin;
+  using std::cend;
+  auto dbCount = 0;
+  for (auto const tree : currentDataTrees_) {
+    if (tree.get()) {
+      dataBranches_[dbCount].reset(tree.get());
+    }
+    ++dbCount;
+  }
   // Prepare to read EventHistory tree.
   TTree * ehTree =
     static_cast<TTree *>(currentFile_->
@@ -397,7 +474,7 @@ openAndReadMetaData_(std::string filename)
         << filename
         << ".\n";
   }
-  buildEventIDIndex_(fileIndex);
+  buildEventIDIndex_(currentFileIndex_);
   ProdToProdMapBuilder::BranchIDTransMap transMap;
   buildBranchIDTransMap_(transMap);
   ptpBuilder_.prepareTranslationTables(transMap, branchIDLists, ehTree);
@@ -417,16 +494,6 @@ art::MixHelper::
 buildEventIDIndex_(FileIndex const & fileIndex)
 {
   cet::for_all(fileIndex, EventIDIndexBuilder(eventIDIndex_));
-}
-
-void
-art::MixHelper::
-mixAndPutOne_(std::shared_ptr<MixOpBase> op,
-              EntryNumberSequence const & enSeq,
-              Event & e)
-{
-  op->readFromFile(enSeq);
-  op->mixAndPut(e, ptrRemapper_);
 }
 
 bool
@@ -475,7 +542,8 @@ buildBranchIDTransMap_(ProdToProdMapBuilder::BranchIDTransMap &
        e = mixOps_.end();
        i != e;
        ++i) {
-    (*i)->initializeBranchInfo(dataBranches_);
+    auto const bt = (*i)->branchType();
+    (*i)->initializeBranchInfo(dataBranches_[bt]);
 #if ART_DEBUG_PTRREMAPPER
     std::cerr << "BranchIDTransMap: "
               << std::hex
@@ -488,7 +556,8 @@ buildBranchIDTransMap_(ProdToProdMapBuilder::BranchIDTransMap &
               << std::dec
               << ".\n";
 #endif
-    transMap[(*i)->incomingBranchID()] =
-      (*i)->outgoingBranchID();
+    if (bt == InEvent) {
+      transMap[(*i)->incomingBranchID()] = (*i)->outgoingBranchID();
+    }
   }
 }

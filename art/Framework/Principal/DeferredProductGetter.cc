@@ -44,16 +44,16 @@ uniqueProduct(TypeID const &tid) const
 
 bool
 art::DeferredProductGetter::
-resolveProduct(bool fillOnDemand, TypeID const &tid) const
+resolveProduct(TypeID const &tid) const
 {
-  return resolveGetter_()->resolveProduct(fillOnDemand, tid);
+  return resolveGetter_()->resolveProduct(tid);
 }
 
 bool
 art::DeferredProductGetter::
-resolveProductIfAvailable(bool fillOnDemand, TypeID const &tid) const
+resolveProductIfAvailable(TypeID const &tid) const
 {
-  return resolveGetter_()->resolveProductIfAvailable(fillOnDemand, tid);
+  return resolveGetter_()->resolveProductIfAvailable(tid);
 }
 
 cet::exempt_ptr<art::EDProductGetter const>

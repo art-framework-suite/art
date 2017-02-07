@@ -1,7 +1,5 @@
-# project name
-project(art_Framework_Modules)
-
 simple_plugin(BlockingPrescaler       "module")
+simple_plugin(DataFlowDumper          "module")
 simple_plugin(EmptyEvent              "source")
 simple_plugin(FileDumperOutput        "module")
 simple_plugin(Prescaler               "module")

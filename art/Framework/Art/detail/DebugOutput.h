@@ -20,17 +20,9 @@ namespace art {
 class art::detail::DebugOutput {
 public:
 
-  enum class destination { none, cerr, file };
+  enum class destination {none, cerr, file};
 
-  DebugOutput()
-    : dest_{destination::none}
-    , preempting_{true}
-    , mode_{fhicl::detail::print_mode::raw}
-    , osp_{}
-  {}
-
-
-  std::string const& filename() { return filename_; }
+  std::string const& filename() const { return filename_; }
 
   fhicl::detail::print_mode mode() const { return mode_; }
 
@@ -41,11 +33,9 @@ public:
     return result;
   }
 
-  cet::ostream_handle& stream() {
-    return *osp_;
-  }
+  cet::ostream_handle& stream() { return *osp_; }
 
-  bool stream_is_valid(){ return bool(osp_->stream()); }
+  bool stream_is_valid(){ return static_cast<bool>(*osp_); }
 
   void to_cerr() { dest_ = destination::cerr; }
 
@@ -63,50 +53,45 @@ public:
 
   explicit operator bool() { return maybe_initialize_(); }
 
-  static destination destination_via_env(std::string& fn) {
+  static destination destination_via_env(std::string& fn)
+  {
+    char const* debug_config {getenv("ART_DEBUG_CONFIG")};
+    if (debug_config == nullptr) return destination::none;
 
-    char const * debug_config { getenv("ART_DEBUG_CONFIG") };
-    if ( debug_config == nullptr ) return destination::none;
-
-    bool isFilename{false};
+    auto dest = destination::cerr;
     try {
-      isFilename = std::regex_match(debug_config, std::regex("[[:alpha:]/\\.].*"));
-
-      std::string suffix = "follows";
-      if ( isFilename ) {
-        fn     = debug_config;
-        suffix = "to file "+fn;
+      // Check if the provided character string is a file name
+      if (std::regex_match(debug_config, std::regex("[[:alpha:]/\\.].*"))) {
+        fn = debug_config;
+        dest = destination::file;
       }
-
       std::cerr << "** ART_DEBUG_CONFIG is defined **\n";
-
     }
-    catch(std::regex_error const & e) {
+    catch(std::regex_error const& e) {
       std::cerr << "REGEX ERROR: " << e.code() << ".\n";
     }
 
-    return isFilename ? destination::file : destination::cerr;
-
-  };
+    return dest;
+  }
 
 private:
 
-  destination dest_;
-  bool preempting_;
-  fhicl::detail::print_mode mode_;
-  std::string filename_;
-  std::unique_ptr<cet::ostream_handle> osp_;
+  destination dest_ {destination::none};
+  bool preempting_ {true};
+  fhicl::detail::print_mode mode_ {fhicl::detail::print_mode::raw};
+  std::string filename_ {};
+  std::unique_ptr<cet::ostream_handle> osp_ {nullptr};
 
   bool maybe_initialize_() {
     switch(dest_) {
     case destination::none : return false;
     case destination::file : {
-      osp_ = std::make_unique<cet::ostream_owner>(filename_);
-      if ( osp_->stream() ) break;
+      osp_ = std::make_unique<cet::ostream_handle>(filename_);
+      if (*osp_) break;
       std::cerr << "Output of config to " << filename_ << " failed: fallback to stderr.\n";
     }
     case destination::cerr : {
-      osp_ = std::make_unique<cet::ostream_observer>(std::cerr);
+      osp_ = std::make_unique<cet::ostream_handle>(std::cerr);
       break;
     }
     }

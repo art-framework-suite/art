@@ -8,6 +8,8 @@
 #include "art/Framework/IO/Root/RootTree.h"
 #include "art/Framework/IO/detail/logFileAction.h"
 #include "art/Framework/Principal/EventPrincipal.h"
+#include "art/Framework/Principal/RunPrincipal.h"
+#include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Persistency/Provenance/BranchIDListHelper.h"
 #include "art/Persistency/Provenance/MasterProductRegistry.h"
@@ -46,6 +48,7 @@ RootInputFileSequence(fhicl::TableFragment<RootInputFileSequence::Config> const&
   , treeCacheSize_{config().cacheSize()}
   , treeMaxVirtualSize_{config().treeMaxVirtualSize()}
   , saveMemoryObjectThreshold_{config().saveMemoryObjectThreshold()}
+  , delayedReadEventProducts_{config().delayedReadEventProducts()}
   , delayedReadSubRunProducts_{config().delayedReadSubRunProducts()}
   , delayedReadRunProducts_{config().delayedReadRunProducts()}
   , forcedRunOffset_(0)
@@ -268,7 +271,7 @@ endJob()
   closeFile_();
 }
 
-std::shared_ptr<FileBlock>
+std::unique_ptr<FileBlock>
 RootInputFileSequence::
 readFile_()
 {
@@ -281,10 +284,10 @@ readFile_()
   }
   else if (!nextFile()) {
     // FIXME: Turn this into a throw!
-    assert(0);
+    assert(false);
   }
   if (!rootFile_) {
-    return std::make_shared<FileBlock>();
+    return std::make_unique<FileBlock>();
   }
   return rootFile_->createFileBlock();
 }
@@ -311,7 +314,7 @@ initFile(bool skipBadFiles, bool initMPR/*=false*/)
 {
   // close the currently open file, any, and delete the RootInputFile object.
   closeFile_();
-  std::shared_ptr<TFile> filePtr;
+  std::unique_ptr<TFile> filePtr;
   try {
     detail::logFileAction("Initiating request to open input file ",
                           catalog_.currentFile().fileName());
@@ -342,35 +345,35 @@ initFile(bool skipBadFiles, bool initMPR/*=false*/)
   detail::logFileAction("Opened input file ",
                         catalog_.currentFile().fileName());
   vector<string> empty_vs;
-  rootFile_ = make_shared<RootInputFile>(
-                catalog_.currentFile().fileName(),
-                catalog_.url(),
-                processConfiguration(),
-                catalog_.currentFile().logicalFileName(),
-                filePtr,
-                origEventID_,
-                eventsToSkip_,
-                whichSubRunsToSkip_,
-                fastCloningInfo_,
-                treeCacheSize_,
-                treeMaxVirtualSize_,
-                saveMemoryObjectThreshold_,
-                delayedReadSubRunProducts_,
-                delayedReadRunProducts_,
-                processingMode_,
-                forcedRunOffset_,
-                noEventSort_,
-                groupSelectorRules_,
-                false,
-                duplicateChecker_,
-                dropDescendants_,
-                readParameterSets_,
-                /*primaryFile*/exempt_ptr<RootInputFile>(),
-                /*secondaryFileNameIdx*/-1,
-                secondaryFileNames_.empty() ?
-                empty_vs :
-                secondaryFileNames_.at(catalog_.currentIndex()),
-                this);
+  rootFile_ = make_shared<RootInputFile>(catalog_.currentFile().fileName(),
+                                         catalog_.url(),
+                                         processConfiguration(),
+                                         catalog_.currentFile().logicalFileName(),
+                                         std::move(filePtr),
+                                         origEventID_,
+                                         eventsToSkip_,
+                                         whichSubRunsToSkip_,
+                                         fastCloningInfo_,
+                                         treeCacheSize_,
+                                         treeMaxVirtualSize_,
+                                         saveMemoryObjectThreshold_,
+                                         delayedReadEventProducts_,
+                                         delayedReadSubRunProducts_,
+                                         delayedReadRunProducts_,
+                                         processingMode_,
+                                         forcedRunOffset_,
+                                         noEventSort_,
+                                         groupSelectorRules_,
+                                         false,
+                                         duplicateChecker_,
+                                         dropDescendants_,
+                                         readParameterSets_,
+                                         /*primaryFile*/exempt_ptr<RootInputFile>(),
+                                         /*secondaryFileNameIdx*/-1,
+                                         secondaryFileNames_.empty() ?
+                                         empty_vs :
+                                         secondaryFileNames_.at(catalog_.currentIndex()),
+                                         this);
   assert(catalog_.currentIndex() != InputFileCatalog::indexEnd);
   if (catalog_.currentIndex() + 1 > fileIndexes_.size()) {
     fileIndexes_.resize(catalog_.currentIndex() + 1);
@@ -426,7 +429,7 @@ openSecondaryFile(int idx,
                   string const& name,
                   exempt_ptr<RootInputFile> primaryFile)
 {
-  std::shared_ptr<TFile> filePtr;
+  std::unique_ptr<TFile> filePtr;
   try {
     detail::logFileAction("Attempting  to open secondary input file ", name);
     filePtr.reset(TFile::Open(name.c_str()));
@@ -450,7 +453,7 @@ openSecondaryFile(int idx,
                                               /*url*/"",
                                               processConfiguration(),
                                               /*logicalFileName*/"",
-                                              filePtr,
+                                              std::move(filePtr),
                                               origEventID_,
                                               eventsToSkip_,
                                               whichSubRunsToSkip_,
@@ -458,6 +461,7 @@ openSecondaryFile(int idx,
                                               treeCacheSize_,
                                               treeMaxVirtualSize_,
                                               saveMemoryObjectThreshold_,
+                                              delayedReadEventProducts_,
                                               delayedReadSubRunProducts_,
                                               delayedReadRunProducts_,
                                               processingMode_,
@@ -618,9 +622,9 @@ RootInputFileSequence::subRunRangeSetHandler()
   return rootFile_->subRunRangeSetHandler();
 }
 
-std::shared_ptr<SubRunPrincipal>
+std::unique_ptr<SubRunPrincipal>
 RootInputFileSequence::
-readIt(SubRunID const& id, std::shared_ptr<RunPrincipal> rp)
+readIt(SubRunID const& id, cet::exempt_ptr<RunPrincipal> rp)
 {
   // Attempt to find subRun in currently open input file.
   bool found = rootFile_->setEntry<InSubRun>(id);
@@ -628,7 +632,7 @@ readIt(SubRunID const& id, std::shared_ptr<RunPrincipal> rp)
     return readSubRun_(rp);
   }
   if (!catalog_.isSearchable()) {
-    return std::shared_ptr<SubRunPrincipal>();
+    return std::unique_ptr<SubRunPrincipal>{nullptr};
   }
   // Look for event in cached files
   typedef vector<std::shared_ptr<FileIndex>>::const_iterator Iter;
@@ -655,24 +659,17 @@ readIt(SubRunID const& id, std::shared_ptr<RunPrincipal> rp)
     }
   }
   // not found
-  return std::shared_ptr<SubRunPrincipal>();
+  return std::unique_ptr<SubRunPrincipal>{nullptr};
 }
 
-std::shared_ptr<SubRunPrincipal>
+std::unique_ptr<SubRunPrincipal>
 RootInputFileSequence::
-readSubRun_(std::shared_ptr<RunPrincipal> rp)
+readSubRun_(cet::exempt_ptr<RunPrincipal> rp)
 {
   return rootFile_->readSubRun(rp);
 }
 
-std::vector<std::shared_ptr<SubRunPrincipal>>
-RootInputFileSequence::
-readSubRunFromSecondaryFiles_(std::shared_ptr<RunPrincipal> rp)
-{
-  return std::move(rootFile_->readSubRunFromSecondaryFiles(rp));
-}
-
-std::shared_ptr<RunPrincipal>
+std::unique_ptr<RunPrincipal>
 RootInputFileSequence::
 readIt(RunID const& id)
 {
@@ -684,7 +681,7 @@ readIt(RunID const& id)
   }
   if (!catalog_.isSearchable()) {
     // Cannot random access files, give up.
-    return std::shared_ptr<RunPrincipal>();
+    return std::unique_ptr<RunPrincipal>{nullptr};
   }
   // Look for the run in the opened files.
   for (auto B = fileIndexes_.cbegin(), E = fileIndexes_.cend(), I = B;
@@ -709,21 +706,14 @@ readIt(RunID const& id)
     }
   }
   // Not found.
-  return std::shared_ptr<RunPrincipal>();
+  return std::unique_ptr<RunPrincipal>{nullptr};
 }
 
-std::shared_ptr<RunPrincipal>
+std::unique_ptr<RunPrincipal>
 RootInputFileSequence::
 readRun_()
 {
   return rootFile_->readRun();
-}
-
-std::vector<std::shared_ptr<RunPrincipal>>
-RootInputFileSequence::
-readRunFromSecondaryFiles_()
-{
-  return std::move(rootFile_->readRunFromSecondaryFiles());
 }
 
 input::ItemType

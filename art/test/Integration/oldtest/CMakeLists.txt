@@ -1,6 +1,3 @@
-# project name
-project(FWCoreIntegrationTest)
-
 set( cpp_files TestIntegration.cpp
 	       testRunner.cpp )
 set( TestThingProducer_sources ThingProducer.cc ThingAlgorithm.cc )
@@ -26,7 +23,7 @@ set( exe_list TestIntegrationEventHistory
 
 link_libraries( art_Framework_Core
                 art_Framework_PluginManager
-                art_Utilities canvas_Utilities
+                art_Utilities canvas
                 ${Boost_FILESYSTEM_LIBRARY}  )
 
 # more libraries to be added

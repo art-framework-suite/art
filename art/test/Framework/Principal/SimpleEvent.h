@@ -17,7 +17,7 @@ namespace arttest {
 
 }
 
-#endif
+#endif /* art_test_Framework_Principal_SimpleEvent_h */
 
 // Local variables:
 // mode: c++

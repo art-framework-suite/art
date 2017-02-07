@@ -1,0 +1,5 @@
+BEGIN_PROLOG
+moduleOptions: {
+  wantVoid: "NONE"
+}
+END_PROLOG

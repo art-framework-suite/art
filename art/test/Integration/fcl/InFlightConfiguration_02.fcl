@@ -44,9 +44,9 @@ physics:
 services:
 {
   PathSelection: { }
-   InFlightConfiguration: {
-      reconfigureModule: true
-   }
+  InFlightConfiguration: {
+    reconfigureModule: true
+  }
 }
 
 source:

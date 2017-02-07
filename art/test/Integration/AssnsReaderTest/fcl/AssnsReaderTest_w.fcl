@@ -1,0 +1,15 @@
+process_name: ASSNSW
+
+source: { module_type: EmptyEvent maxEvents: 2 }
+
+physics.producers.ap1: {
+  module_type: AssnsProducer
+  dinkVoid: true
+  @table::moduleOptions
+}
+physics.producers.ap2: {
+  module_type: AssnsProducer
+  dinkVoid: true
+  @table::moduleOptions
+}
+physics.a1: [ ap1, ap2 ]

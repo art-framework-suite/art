@@ -216,7 +216,6 @@ namespace {
 
     assert(principalRS.is_sorted());
     assert(productRS.is_sorted());
-    assert(!principalRS.ranges().empty());
 
     if (bt == art::InRun && productRS.is_full_run()) return;
     if (bt == art::InSubRun && productRS.is_full_subRun()) return;
@@ -363,19 +362,19 @@ RootOutputFile(OutputModule* om,
   , filePtr_{TFile::Open(file_.c_str(), "recreate", "", compressionLevel)}
   , treePointers_ { // Order (and number) must match BranchTypes.h!
     std::make_unique<RootOutputTree>(static_cast<EventPrincipal*>(nullptr),
-                                     filePtr_, InEvent, pEventAux_,
+                                     filePtr_.get(), InEvent, pEventAux_,
                                      pEventProductProvenanceVector_, basketSize, splitLevel,
                                      treeMaxVirtualSize, saveMemoryObjectThreshold),
     std::make_unique<RootOutputTree>(static_cast<SubRunPrincipal*>(nullptr),
-                                     filePtr_, InSubRun, pSubRunAux_,
+                                     filePtr_.get(), InSubRun, pSubRunAux_,
                                      pSubRunProductProvenanceVector_, basketSize, splitLevel,
                                      treeMaxVirtualSize, saveMemoryObjectThreshold),
     std::make_unique<RootOutputTree>(static_cast<RunPrincipal*>(nullptr),
-                                     filePtr_, InRun, pRunAux_,
+                                     filePtr_.get(), InRun, pRunAux_,
                                      pRunProductProvenanceVector_, basketSize, splitLevel,
                                      treeMaxVirtualSize, saveMemoryObjectThreshold),
     std::make_unique<RootOutputTree>(static_cast<ResultsPrincipal*>(nullptr),
-                                     filePtr_, InResults, pResultsAux_,
+                                     filePtr_.get(), InResults, pResultsAux_,
                                      pResultsProductProvenanceVector_, basketSize, splitLevel,
                                      treeMaxVirtualSize, saveMemoryObjectThreshold) }
   , rootFileDB_{filePtr_.get(), "RootFileDB", SQLITE_OPEN_CREATE | SQLITE_OPEN_READWRITE}
@@ -898,7 +897,9 @@ finishEndFile()
     auto const branchType = static_cast<BranchType>(i);
     treePointers_[branchType]->writeTree();
   }
-  // Write out DB
+  // Write out DB -- the d'tor of the SQLite3Wrapper calls
+  // sqlite3_close.  For the tkeyvfs, closing the DB calls
+  // rootFile->Write("",TObject::kOverwrite).
   rootFileDB_.reset();
   // Close the file.
   filePtr_->Close();

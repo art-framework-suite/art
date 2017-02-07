@@ -15,7 +15,7 @@
 
 #include <memory>
 
-namespace art { 
+namespace art {
   class FileBlock;
   class ProductRegistryHelper;
   class SourceHelper;
@@ -29,34 +29,34 @@ namespace arttest {
 
   class DoNothingInput {
   public:
-    
+
     DoNothingInput(fhicl::ParameterSet const&,
                 art::ProductRegistryHelper&,
                 art::SourceHelper const&)
     {}
-    
+
     ~DoNothingInput()
     {
       art::ServiceHandle<Wanted> shouldNotThrow [[gnu::unused]];
     }
-    
+
     void readFile(std::string const &, art::FileBlock*&)
     {}
 
     void closeCurrentFile()
     {}
-    
-    bool readNext(art::RunPrincipal* const&,
-                  art::SubRunPrincipal* const&,
+
+    bool readNext(art::RunPrincipal const* const,
+                  art::SubRunPrincipal const* const,
                   art::RunPrincipal*&,
                   art::SubRunPrincipal*&,
                   art::EventPrincipal*&)
-    { 
-      return false; 
+    {
+      return false;
     }
 
   };
-  
-}  
+
+}
 
 DEFINE_ART_INPUT_SOURCE(art::Source<arttest::DoNothingInput>)
