@@ -43,7 +43,7 @@ public:
            BranchDescription const&,
            std::unique_ptr<ProductProvenance const>&&);
 
-  void addGroup(BranchDescription const&) override;
+  void fillGroup(BranchDescription const&) override;
 
   BranchType branchType() const override;
   RangeSet seenRanges() const override { return RangeSet::invalid(); }

@@ -53,7 +53,7 @@ namespace art {
 
     BranchType branchType() const override { return branch_type; }
 
-    void addGroup(BranchDescription const&) override;
+    void fillGroup(BranchDescription const&) override;
 
     void put(std::unique_ptr<EDProduct>&&,
              BranchDescription const&,

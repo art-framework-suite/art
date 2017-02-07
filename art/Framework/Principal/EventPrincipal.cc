@@ -90,12 +90,12 @@ throwIfExistingGroup(BranchDescription const& bd) const
 
 void
 EventPrincipal::
-addGroup(BranchDescription const& bd)
+fillGroup(BranchDescription const& bd)
 {
   throwIfExistingGroup(bd);
-  Principal::addGroup(gfactory::make_group(bd,
-                                           branchIDToProductID(bd.branchID()),
-                                           RangeSet::invalid()));
+  Principal::fillGroup(gfactory::make_group(bd,
+                                            branchIDToProductID(bd.branchID()),
+                                            RangeSet::invalid()));
 }
 
 void
@@ -107,10 +107,10 @@ put(std::unique_ptr<EDProduct>&& edp,
   assert(edp);
   branchMapper().insert(std::move(productProvenance));
   throwIfExistingGroup(bd);
-  Principal::addGroup(gfactory::make_group(bd,
-                                           branchIDToProductID(bd.branchID()),
-                                           RangeSet::invalid(),
-                                           std::move(edp)));
+  Principal::fillGroup(gfactory::make_group(bd,
+                                            branchIDToProductID(bd.branchID()),
+                                            RangeSet::invalid(),
+                                            std::move(edp)));
 }
 
 EDProductGetter const*

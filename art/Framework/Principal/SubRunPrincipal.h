@@ -57,7 +57,7 @@ namespace art {
              std::unique_ptr<ProductProvenance const>&&,
              RangeSet&&);
 
-    void addGroup(BranchDescription const&);
+    void fillGroup(BranchDescription const&) override;
 
     RangeSet seenRanges() const override { return rangeSet_; }
     void updateSeenRanges(RangeSet const& rs) { rangeSet_ = rs; }

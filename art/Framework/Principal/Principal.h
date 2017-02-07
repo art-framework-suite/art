@@ -193,7 +193,7 @@ namespace art {
 
     virtual
     void
-    addGroup(BranchDescription const&) = 0;
+    fillGroup(BranchDescription const&) = 0;
 
     virtual
     RangeSet
@@ -213,33 +213,9 @@ namespace art {
       return *store_;
     }
 
-    void
-    addOrReplaceGroup(std::unique_ptr<Group>&& group)
-    {
-      if (getExistingGroup(group->productDescription().branchID()) != nullptr) {
-        replaceGroup(std::move(group));
-      }
-      else {
-        addGroup(std::move(group));
-      }
-    }
-
-    // Add a new Group.
     // We take ownership of the Group, which in turn owns its data.
     void
-    addGroup(std::unique_ptr<Group>&& group)
-    {
-      BranchDescription const& bd = group->productDescription();
-      assert(!bd.producedClassName().empty());
-      assert(!bd.friendlyClassName().empty());
-      assert(!bd.moduleLabel().empty());
-      assert(!bd.processName().empty());
-      group->setResolvers(branchMapper(), *store_);
-      groups_.emplace(bd.branchID(), std::move(group));
-    }
-
-    void
-    replaceGroup(std::unique_ptr<Group>&& group)
+    fillGroup(std::unique_ptr<Group>&& group)
     {
       BranchDescription const& bd = group->productDescription();
       assert(!bd.producedClassName().empty());

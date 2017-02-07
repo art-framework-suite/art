@@ -680,19 +680,19 @@ namespace art {
     fillHistory();
     overrideRunNumber(const_cast<EventID&>(eventAux().id()),
                       eventAux().isRealData());
-    auto sep = std::make_unique<EventPrincipal>(eventAux(),
-                                                processConfiguration_,
-                                                history_,
-                                                eventTree().makeBranchMapper(),
-                                                eventTree().makeDelayedReader(fileFormatVersion_,
-                                                                              InEvent,
-                                                                              entryNumbers.first,
-                                                                              eventAux().id()),
-                                                entryNumbers.second,
-                                                secondaryFileNameIdx_ + 1,
-                                                primaryFile_->primaryEP_.get());
-    eventTree().fillGroups(*sep);
-    primaryFile_->primaryEP_->addSecondaryPrincipal(move(sep));
+    auto ep = std::make_unique<EventPrincipal>(eventAux(),
+                                               processConfiguration_,
+                                               history_,
+                                               eventTree().makeBranchMapper(),
+                                               eventTree().makeDelayedReader(fileFormatVersion_,
+                                                                             InEvent,
+                                                                             entryNumbers.first,
+                                                                             eventAux().id()),
+                                               entryNumbers.second,
+                                               secondaryFileNameIdx_ + 1,
+                                               primaryFile_->primaryEP_.get());
+    eventTree().fillGroups(*ep);
+    primaryFile_->primaryEP_->addSecondaryPrincipal(move(ep));
     return true;
   }
 

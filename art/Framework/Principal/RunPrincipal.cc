@@ -40,11 +40,11 @@ namespace art {
 
   void
   RunPrincipal::
-  addGroup(BranchDescription const& bd)
+  fillGroup(BranchDescription const& bd)
   {
-    addOrReplaceGroup(gfactory::make_group(bd,
-                                           ProductID{},
-                                           RangeSet::invalid()));
+    Principal::fillGroup(gfactory::make_group(bd,
+                                              ProductID{},
+                                              RangeSet::invalid()));
   }
 
   void
@@ -56,10 +56,10 @@ namespace art {
   {
     assert(edp);
     branchMapper().insert(std::move(productProvenance));
-    addOrReplaceGroup(gfactory::make_group(bd,
-                                           ProductID{},
-                                           std::move(rs),
-                                           std::move(edp)));
+    Principal::fillGroup(gfactory::make_group(bd,
+                                              ProductID{},
+                                              std::move(rs),
+                                              std::move(edp)));
 
   }
 

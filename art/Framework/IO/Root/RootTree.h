@@ -73,7 +73,7 @@ namespace art {
     using BranchMap = input::BranchMap;
     using EntryNumber = input::EntryNumber;
     using EntryNumbers = input::EntryNumbers;
-  public:
+
     RootTree(cet::exempt_ptr<TFile>,
              BranchType,
              int64_t saveMemoryObjectThreshold,
@@ -141,14 +141,14 @@ namespace art {
     }
 
     void
-    fillGroups(Principal& item)
+    fillGroups(Principal& p)
     {
       if ((metaTree_ == nullptr) || (metaTree_->GetNbranches() == 0)) {
         return;
       }
       // Loop over provenance
       for (auto const& b : *branches_) {
-        item.addGroup(b.second.branchDescription_);
+        p.fillGroup(b.second.branchDescription_);
       }
     }
 

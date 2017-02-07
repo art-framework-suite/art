@@ -78,7 +78,7 @@ namespace art {
              BranchDescription const& bd,
              std::unique_ptr<ProductProvenance const>&& productProvenance);
 
-    void addGroup(BranchDescription const&) override;
+    void fillGroup(BranchDescription const&) override;
 
     ProductID branchIDToProductID(BranchID const bid) const;
 

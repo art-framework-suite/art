@@ -43,11 +43,11 @@ setProcessHistoryID(ProcessHistoryID const& phid)
 
 void
 art::ResultsPrincipal::
-addGroup(BranchDescription const& bd)
+fillGroup(BranchDescription const& bd)
 {
-  addOrReplaceGroup(gfactory::make_group(bd,
-                                         ProductID{},
-                                         RangeSet::invalid()));
+  Principal::fillGroup(gfactory::make_group(bd,
+                                            ProductID{},
+                                            RangeSet::invalid()));
 }
 
 void
@@ -58,8 +58,8 @@ put(std::unique_ptr<EDProduct>&& edp,
 {
   assert(edp);
   branchMapper().insert(std::move(productProvenance));
-  addOrReplaceGroup(gfactory::make_group(bd,
-                                         ProductID{},
-                                         RangeSet::invalid(),
-                                         std::move(edp)));
+  Principal::fillGroup(gfactory::make_group(bd,
+                                            ProductID{},
+                                            RangeSet::invalid(),
+                                            std::move(edp)));
 }
