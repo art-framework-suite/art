@@ -19,7 +19,7 @@
 #include "canvas/Utilities/DebugMacros.h"
 #include "canvas/Utilities/Exception.h"
 #include "cetlib/canonical_string.h"
-#include "cetlib/demangle.h"
+#include "cetlib_except/demangle.h"
 #include "cetlib/exempt_ptr.h"
 #include "rapidjson/document.h"
 #include "rapidjson/error/en.h"

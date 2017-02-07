@@ -34,7 +34,7 @@
 #include "canvas/Persistency/Common/detail/is_handle.h"
 #include "canvas/Persistency/Provenance/ProductID.h"
 #include "canvas/Utilities/Exception.h"
-#include "cetlib/demangle.h"
+#include "cetlib_except/demangle.h"
 #include "cetlib/exception.h"
 
 #include <memory>

@@ -1,7 +1,7 @@
 #include "art/Framework/Principal/AssnsGroup.h"
 // vim: set sw=2:
 
-#include "cetlib/demangle.h"
+#include "cetlib_except/demangle.h"
 
 art::EDProduct const*
 art::AssnsGroup::
