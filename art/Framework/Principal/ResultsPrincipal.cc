@@ -45,19 +45,8 @@ void
 art::ResultsPrincipal::
 addOrReplaceGroup(std::unique_ptr<Group>&& g)
 {
-  if (auto group = getExistingGroup(g->productDescription().branchID())) {
-    BranchDescription const& bd = group->productDescription();
-    mf::LogWarning("ResultsMerging")
-      << "Problem found while adding product provenance, "
-      << "product already exists for ("
-      << bd.friendlyClassName()
-      << ","
-      << bd.moduleLabel()
-      << ","
-      << bd.productInstanceName()
-      << ","
-      << bd.processName()
-      << ")\n";
+  if (getExistingGroup(g->productDescription().branchID()) != nullptr) {
+    Principal::replaceGroup(std::move(g));
   }
   else {
     Principal::addGroup(std::move(g));
