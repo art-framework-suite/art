@@ -50,8 +50,6 @@ public:
 
 private:
 
-  void addOrReplaceGroup(std::unique_ptr<Group>&& g);
-
   ProcessHistoryID const& processHistoryID() const override;
 
   void setProcessHistoryID(ProcessHistoryID const& phid) override;

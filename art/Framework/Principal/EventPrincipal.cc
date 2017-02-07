@@ -72,7 +72,7 @@ EventPrincipal::
 throwIfExistingGroup(BranchDescription const& bd) const
 {
   if (auto group = getExistingGroup(bd.branchID())) {
-    throw art::Exception(art::errors::ProductRegistrationFailure, "EventPrincipal::addOrReplaceGroup")
+    throw art::Exception(art::errors::ProductRegistrationFailure, "EventPrincipal::throwIfExistingGroup")
       << "Problem found while adding product provenance: "
       << "product already exists for ("
       << bd.friendlyClassName()

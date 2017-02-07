@@ -43,18 +43,6 @@ setProcessHistoryID(ProcessHistoryID const& phid)
 
 void
 art::ResultsPrincipal::
-addOrReplaceGroup(std::unique_ptr<Group>&& g)
-{
-  if (getExistingGroup(g->productDescription().branchID()) != nullptr) {
-    Principal::replaceGroup(std::move(g));
-  }
-  else {
-    Principal::addGroup(std::move(g));
-  }
-}
-
-void
-art::ResultsPrincipal::
 addGroup(BranchDescription const& bd)
 {
   addOrReplaceGroup(gfactory::make_group(bd,

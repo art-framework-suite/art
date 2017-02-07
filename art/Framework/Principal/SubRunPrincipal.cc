@@ -41,18 +41,6 @@ namespace art {
 
   void
   SubRunPrincipal::
-  addOrReplaceGroup(std::unique_ptr<Group>&& g)
-  {
-    if (getExistingGroup(g->productDescription().branchID()) != nullptr) {
-      Principal::replaceGroup(std::move(g));
-    }
-    else {
-      Principal::addGroup(std::move(g));
-    }
-  }
-
-  void
-  SubRunPrincipal::
   addGroup(BranchDescription const& bd)
   {
     addOrReplaceGroup(gfactory::make_group(bd,

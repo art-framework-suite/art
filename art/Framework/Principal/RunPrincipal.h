@@ -67,7 +67,6 @@ namespace art {
 
   private:
 
-    void addOrReplaceGroup(std::unique_ptr<Group>&&);
     ProcessHistoryID const& processHistoryID() const override;
     void setProcessHistoryID(ProcessHistoryID const&) override;
 

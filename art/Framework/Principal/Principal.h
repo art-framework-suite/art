@@ -213,6 +213,17 @@ namespace art {
       return *store_;
     }
 
+    void
+    addOrReplaceGroup(std::unique_ptr<Group>&& group)
+    {
+      if (getExistingGroup(group->productDescription().branchID()) != nullptr) {
+        replaceGroup(std::move(group));
+      }
+      else {
+        addGroup(std::move(group));
+      }
+    }
+
     // Add a new Group.
     // We take ownership of the Group, which in turn owns its data.
     void
