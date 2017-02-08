@@ -162,14 +162,14 @@ public:
   std::unique_ptr<RunPrincipal> readRun() override;
 
   std::unique_ptr<SubRunPrincipal>
-  readSubRun(cet::exempt_ptr<RunPrincipal> rp) override;
+  readSubRun(cet::exempt_ptr<RunPrincipal const> rp) override;
 
   std::unique_ptr<art::RangeSetHandler> runRangeSetHandler() override;
   std::unique_ptr<art::RangeSetHandler> subRunRangeSetHandler() override;
 
   using InputSource::readEvent;
   std::unique_ptr<EventPrincipal>
-  readEvent(cet::exempt_ptr<SubRunPrincipal> srp) override;
+  readEvent(cet::exempt_ptr<SubRunPrincipal const> srp) override;
 
 private:
 
@@ -576,7 +576,7 @@ art::Source<T>::readRun()
 
 template <class T>
 std::unique_ptr<art::SubRunPrincipal>
-art::Source<T>::readSubRun(cet::exempt_ptr<RunPrincipal>)
+art::Source<T>::readSubRun(cet::exempt_ptr<RunPrincipal const>)
 {
   if (!newSRP_) throw Exception(errors::LogicError)
         << "Error in Source<T>\n"
@@ -592,7 +592,7 @@ art::Source<T>::readSubRun(cet::exempt_ptr<RunPrincipal>)
 
 template <class T>
 std::unique_ptr<art::EventPrincipal>
-art::Source<T>::readEvent(cet::exempt_ptr<SubRunPrincipal>)
+art::Source<T>::readEvent(cet::exempt_ptr<SubRunPrincipal const>)
 {
   if (haveEventLimit_) { --remainingEvents_; }
   return std::move(newE_);

@@ -243,7 +243,7 @@ namespace art {
   }
 
   std::unique_ptr<SubRunPrincipal>
-  DecrepitRelicInputSourceImplementation::readSubRun(cet::exempt_ptr<RunPrincipal> rp)
+  DecrepitRelicInputSourceImplementation::readSubRun(cet::exempt_ptr<RunPrincipal const> rp)
   {
     // Note: For the moment, we do not support saving and restoring the state of the
     // random number generator if random numbers are generated during processing of subRuns
@@ -260,20 +260,17 @@ namespace art {
   }
 
   std::unique_ptr<EventPrincipal>
-  DecrepitRelicInputSourceImplementation::readEvent(cet::exempt_ptr<SubRunPrincipal> srp) {
+  DecrepitRelicInputSourceImplementation::readEvent(cet::exempt_ptr<SubRunPrincipal const> srp) {
     assert(doneReadAhead_);
     assert(state_ == input::IsEvent);
     assert(!eventLimitReached());
     doneReadAhead_ = false;
 
-    preRead();
     eventPrincipal_ = readEvent_();
     assert(srp->run() == eventPrincipal_->run());
     assert(srp->subRun() == eventPrincipal_->subRun());
     eventPrincipal_->setSubRunPrincipal(srp);
-    if (eventPrincipal_.get() != 0) {
-      Event event(*eventPrincipal_, moduleDescription());
-      postRead(event);
+    if (eventPrincipal_.get() != nullptr) {
       if (remainingEvents_ > 0) --remainingEvents_;
       ++readCount_;
       setTimestamp(eventPrincipal_->time());
@@ -325,14 +322,6 @@ namespace art {
       << "DecrepitRelicInputSourceImplementation::rewind()\n"
       << "Rewind is not implemented for this type of Input Source\n"
       << "Contact a Framework Developer\n";
-  }
-
-  void
-  DecrepitRelicInputSourceImplementation::preRead() {  // roughly corresponds to "end of the prev event"
-  }
-
-  void
-  DecrepitRelicInputSourceImplementation::postRead(Event&) {
   }
 
   void

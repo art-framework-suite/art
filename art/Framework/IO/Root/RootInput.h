@@ -88,10 +88,10 @@ namespace art {
   private:
     input::ItemType nextItemType() override;
     using DecrepitRelicInputSourceImplementation::readEvent;
-    std::unique_ptr<EventPrincipal> readEvent(cet::exempt_ptr<SubRunPrincipal>) override;
+    std::unique_ptr<EventPrincipal> readEvent(cet::exempt_ptr<SubRunPrincipal const>) override;
     std::unique_ptr<EventPrincipal> readEvent_() override;
-    std::unique_ptr<EventPrincipal> readEvent_(cet::exempt_ptr<SubRunPrincipal>);
-    std::unique_ptr<SubRunPrincipal> readSubRun(cet::exempt_ptr<RunPrincipal>) override;
+    std::unique_ptr<EventPrincipal> readEvent_(cet::exempt_ptr<SubRunPrincipal const>);
+    std::unique_ptr<SubRunPrincipal> readSubRun(cet::exempt_ptr<RunPrincipal const>) override;
     std::unique_ptr<SubRunPrincipal> readSubRun_() override;
     std::unique_ptr<RunPrincipal> readRun() override;
     std::unique_ptr<RunPrincipal> readRun_() override;

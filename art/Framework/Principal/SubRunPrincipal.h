@@ -41,7 +41,7 @@ namespace art {
     RunPrincipal const& runPrincipal() const;
 
     cet::exempt_ptr<RunPrincipal const> runPrincipalExemptPtr() const { return runPrincipal_; }
-    void setRunPrincipal(cet::exempt_ptr<RunPrincipal> rp) { runPrincipal_ = rp; }
+    void setRunPrincipal(cet::exempt_ptr<RunPrincipal const> rp) { runPrincipal_ = rp; }
 
     SubRunAuxiliary const& aux() const { return aux_; }
     SubRunID id() const { return aux().id(); }
@@ -70,7 +70,7 @@ namespace art {
     void setProcessHistoryID(ProcessHistoryID const& phid) override;
 
     SubRunAuxiliary aux_;
-    cet::exempt_ptr<RunPrincipal> runPrincipal_ {nullptr};
+    cet::exempt_ptr<RunPrincipal const> runPrincipal_ {nullptr};
     RangeSet rangeSet_ {RangeSet::invalid()};
   };
 

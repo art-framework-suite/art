@@ -187,7 +187,7 @@ art::EmptyEvent::subRunRangeSetHandler()
 
 std::unique_ptr<EventPrincipal>
 EmptyEvent::readEvent_() {
-  assert(ep_.get() != 0 || processingMode() != RunsSubRunsAndEvents);
+  assert(ep_.get() != nullptr || processingMode() != RunsSubRunsAndEvents);
   return std::move(ep_);
 }
 
@@ -286,7 +286,7 @@ art::EmptyEvent::getNextItemType() {
   if (newSubRun_) {
     return input::IsSubRun;
   }
-  if(ep_.get() != 0) return input::IsEvent;
+  if(ep_.get() != nullptr) return input::IsEvent;
   EventID oldEventID = eventID_;
   if (!eventSet_) {
     subRunSet_ = false;
@@ -321,7 +321,7 @@ art::EmptyEvent::getNextItemType() {
   ++numberEventsInThisSubRun_;
   bool const lastEventInSubRun = numberEventsInThisSubRun_ == numberEventsInSubRun_;
   reallyReadEvent(lastEventInSubRun);
-  if (ep_.get() == 0) {
+  if (ep_.get() == nullptr) {
     return input::IsStop;
   }
   eventSet_ = false;

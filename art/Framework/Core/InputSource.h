@@ -10,9 +10,6 @@
 
 #include "art/Framework/Principal/fwd.h"
 #include "art/Framework/Core/Frameworkfwd.h"
-#include "canvas/Persistency/Provenance/EventID.h"
-#include "canvas/Persistency/Provenance/RunID.h"
-#include "canvas/Persistency/Provenance/SubRunID.h"
 #include "cetlib/exempt_ptr.h"
 
 #include <memory>
@@ -89,8 +86,8 @@ namespace art
     virtual std::unique_ptr<FileBlock> readFile(MasterProductRegistry&) = 0;
     virtual void closeFile() = 0;
     virtual std::unique_ptr<RunPrincipal> readRun() = 0;
-    virtual std::unique_ptr<SubRunPrincipal> readSubRun(cet::exempt_ptr<RunPrincipal> rp) = 0;
-    virtual std::unique_ptr<EventPrincipal> readEvent(cet::exempt_ptr<SubRunPrincipal> srp) = 0;
+    virtual std::unique_ptr<SubRunPrincipal> readSubRun(cet::exempt_ptr<RunPrincipal const> rp) = 0;
+    virtual std::unique_ptr<EventPrincipal> readEvent(cet::exempt_ptr<SubRunPrincipal const> srp) = 0;
     virtual std::unique_ptr<RangeSetHandler> runRangeSetHandler() = 0;
     virtual std::unique_ptr<RangeSetHandler> subRunRangeSetHandler() = 0;
 

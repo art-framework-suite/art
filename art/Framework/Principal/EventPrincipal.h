@@ -48,7 +48,7 @@ namespace art {
     SubRunPrincipal const& subRunPrincipal() const;
 
     cet::exempt_ptr<SubRunPrincipal const> subRunPrincipalExemptPtr() const { return subRunPrincipal_; }
-    void setSubRunPrincipal(cet::exempt_ptr<SubRunPrincipal> srp) { subRunPrincipal_ = srp;  }
+    void setSubRunPrincipal(cet::exempt_ptr<SubRunPrincipal const> srp) { subRunPrincipal_ = srp;  }
 
     EventID const& id() const { return aux().id(); }
     Timestamp const& time() const { return aux().time(); }
@@ -124,7 +124,7 @@ namespace art {
 
     EventAuxiliary aux_;
 
-    cet::exempt_ptr<SubRunPrincipal> subRunPrincipal_ {nullptr};
+    cet::exempt_ptr<SubRunPrincipal const> subRunPrincipal_ {nullptr};
     std::shared_ptr<History> history_;
     std::map<BranchListIndex, ProcessIndex> branchToProductIDHelper_ {};
     bool lastInSubRun_ {false};

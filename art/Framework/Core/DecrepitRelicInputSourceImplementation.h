@@ -101,13 +101,13 @@ namespace art
 
     /// Read next event
     /// Indicate inability to get a new event by returning a null unique_ptr.
-    std::unique_ptr<EventPrincipal> readEvent(cet::exempt_ptr<SubRunPrincipal> srp) override;
+    std::unique_ptr<EventPrincipal> readEvent(cet::exempt_ptr<SubRunPrincipal const> srp) override;
 
     /// Read a specific event
     std::unique_ptr<EventPrincipal> readEvent(EventID const&) override;
 
     /// Read next subRun
-    std::unique_ptr<SubRunPrincipal> readSubRun(cet::exempt_ptr<RunPrincipal> rp) override;
+    std::unique_ptr<SubRunPrincipal> readSubRun(cet::exempt_ptr<RunPrincipal const> rp) override;
 
     /// Read next run.
     std::unique_ptr<RunPrincipal> readRun() override;
@@ -223,8 +223,6 @@ namespace art
     virtual void closeFile_() {}
     virtual void skip(int);
     virtual void rewind_();
-    void preRead();
-    void postRead(Event& event);
     virtual void beginJob();
     virtual void endJob();
 
