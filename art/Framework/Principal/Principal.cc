@@ -27,23 +27,17 @@ using namespace std;
 namespace art {
 
 Principal::
-~Principal()
-{
-  primaryPrincipal_ = nullptr;
-}
-
-Principal::
 Principal(ProcessConfiguration const& pc, ProcessHistoryID const& hist,
           std::unique_ptr<BranchMapper>&& mapper,
           std::unique_ptr<DelayedReader>&& reader, int idx,
-          Principal* primaryPrincipal)
+          cet::exempt_ptr<Principal const> primaryPrincipal)
   : processHistoryPtr_(new ProcessHistory)
   , processConfiguration_(pc)
   , processHistoryModified_(false)
   , groups_()
   , branchMapperPtr_(std::move(mapper))
   , store_(std::move(reader))
-  , primaryPrincipal_(primaryPrincipal)
+  , primaryPrincipal_{primaryPrincipal}
   , secondaryPrincipals_()
   , secondaryIdx_(idx)
   , nextSecondaryFileIdx_(0)

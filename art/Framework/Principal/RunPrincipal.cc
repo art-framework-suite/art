@@ -14,8 +14,8 @@ namespace art {
                ProcessConfiguration const& pc,
                std::unique_ptr<BranchMapper>&& mapper,
                std::unique_ptr<DelayedReader>&& rtrv,
-               int idx,
-               RunPrincipal* primaryPrincipal)
+               int const idx,
+               cet::exempt_ptr<RunPrincipal const> primaryPrincipal)
     : Principal{pc, aux.processHistoryID_, std::move(mapper), std::move(rtrv), idx, primaryPrincipal}
     , aux_{aux}
   {

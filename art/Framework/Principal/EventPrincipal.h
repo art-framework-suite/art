@@ -41,7 +41,7 @@ namespace art {
                    std::unique_ptr<DelayedReader>&& rtrv = std::make_unique<NoDelayedReader>(),
                    bool lastInSubRun = false,
                    int idx = 0,
-                   EventPrincipal* = nullptr);
+                   cet::exempt_ptr<EventPrincipal const> = nullptr);
 
     // use compiler-generated copy c'tor, copy assignment.
 
@@ -62,7 +62,6 @@ namespace art {
     EventNumber_t event() const { return id().event(); }
 
     RunPrincipal const& runPrincipal() const;
-    RunPrincipal& runPrincipal();
 
     EventSelectionIDVector const& eventSelectionIDs() const;
 

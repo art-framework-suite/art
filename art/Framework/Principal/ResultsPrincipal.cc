@@ -9,14 +9,14 @@
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 art::ResultsPrincipal::
-ResultsPrincipal(ResultsAuxiliary const & aux,
-                 ProcessConfiguration const & pc,
-                 std::unique_ptr<BranchMapper> && mapper,
-                 std::unique_ptr<DelayedReader> && rtrv, int idx,
-                 ResultsPrincipal * primaryPrincipal)
-  : Principal(pc, aux.processHistoryID_, std::move(mapper), std::move(rtrv),
-              idx, primaryPrincipal),
-    aux_(aux)
+ResultsPrincipal(ResultsAuxiliary const& aux,
+                 ProcessConfiguration const& pc,
+                 std::unique_ptr<BranchMapper>&& mapper,
+                 std::unique_ptr<DelayedReader>&& rtrv,
+                 int const idx,
+                 cet::exempt_ptr<ResultsPrincipal const> primaryPrincipal)
+  : Principal{pc, aux.processHistoryID_, std::move(mapper), std::move(rtrv), idx, primaryPrincipal}
+  , aux_{aux}
 {
 }
 

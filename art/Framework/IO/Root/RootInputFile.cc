@@ -690,7 +690,7 @@ namespace art {
                                                                              eventAux().id()),
                                                entryNumbers.second,
                                                secondaryFileNameIdx_ + 1,
-                                               primaryFile_->primaryEP_.get());
+                                               primaryFile_->primaryEP_);
     eventTree().fillGroups(*ep);
     primaryFile_->primaryEP_->addSecondaryPrincipal(move(ep));
     return true;
@@ -796,7 +796,7 @@ namespace art {
                                                                          entryNumbers,
                                                                          fiIter_->eventID_),
                                              secondaryFileNameIdx_ + 1,
-                                             primaryFile_->primaryRP_.get());
+                                             primaryFile_->primaryRP_);
 
     runTree().fillGroups(*rp);
     if (!delayedReadRunProducts_) {
@@ -907,7 +907,7 @@ namespace art {
                                                                                 entryNumbers,
                                                                                 fiIter_->eventID_),
                                                  secondaryFileNameIdx_ + 1,
-                                                 primaryFile_->primarySRP_.get());
+                                                 primaryFile_->primarySRP_);
 
     subRunTree().fillGroups(*srp);
     if (!delayedReadSubRunProducts_) {

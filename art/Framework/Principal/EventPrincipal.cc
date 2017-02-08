@@ -28,8 +28,8 @@ EventPrincipal(EventAuxiliary const& aux,
                std::unique_ptr<BranchMapper>&& mapper,
                std::unique_ptr<DelayedReader>&& rtrv,
                bool const lastInSubRun,
-               int idx,
-               EventPrincipal* primaryPrincipal)
+               int const idx,
+               cet::exempt_ptr<EventPrincipal const> primaryPrincipal)
   : Principal{pc, history->processHistoryID(), std::move(mapper), std::move(rtrv), idx, primaryPrincipal}
   , aux_{aux}
   , history_{history}

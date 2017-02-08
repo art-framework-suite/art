@@ -37,8 +37,8 @@ namespace art {
                  ProcessConfiguration const&,
                  std::unique_ptr<BranchMapper>&& = std::make_unique<BranchMapper>(),
                  std::unique_ptr<DelayedReader>&& = std::make_unique<NoDelayedReader>(),
-                 int idx = 0,
-                 RunPrincipal* = nullptr);
+                 int const idx = 0,
+                 cet::exempt_ptr<RunPrincipal const> = nullptr);
 
     RunAuxiliary const& aux() const { return aux_; }
 

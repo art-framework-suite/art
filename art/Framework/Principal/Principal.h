@@ -54,8 +54,7 @@ namespace art {
 
   public: // MEMBER FUNCTIONS
 
-    virtual
-    ~Principal();
+    virtual ~Principal() noexcept = default;
 
     Principal(Principal const&) = delete;
 
@@ -67,7 +66,7 @@ namespace art {
               std::unique_ptr<BranchMapper>&&,
               std::unique_ptr<DelayedReader>&&,
               int idx,
-              Principal*);
+              cet::exempt_ptr<Principal const>);
 
     OutputHandle
     getForOutput(BranchID const, bool resolveProd) const;
@@ -293,7 +292,7 @@ namespace art {
     std::unique_ptr<DelayedReader> store_;
 
     // Back pointer to the primary principal.
-    cet::exempt_ptr<Principal> primaryPrincipal_;
+    cet::exempt_ptr<Principal const> primaryPrincipal_;
 
     // Secondary principals.  Note that the lifetime of run
     // and subRun principals is the lifetime of the input file,
