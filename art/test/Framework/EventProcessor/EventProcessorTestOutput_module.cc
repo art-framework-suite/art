@@ -177,8 +177,9 @@ namespace arttest {
         activeSwitchPoint_ = SwitchPoint{};
       }
       else {
+        CET_USE_FREE_CBEGIN_CEND();
         // Pop the front
-        switchPoints_.erase(std::cbegin(switchPoints_));
+        switchPoints_.erase(cbegin(switchPoints_));
         activeSwitchPoint_ = switchPoints_.front();
       }
     }

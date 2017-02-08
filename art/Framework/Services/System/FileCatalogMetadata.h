@@ -99,9 +99,8 @@ private:
 
     void check_values(collection_type const& fromInput) const
     {
-      using namespace std;
-      using namespace cet::container_helpers;
       for (auto const& pr : fromInput) {
+        CET_USE_FREE_CBEGIN_CEND();
         auto it = inputmd_.find(pr.first);
         if ( it == cend(inputmd_) ) {
           throw Exception(errors::LogicError)
