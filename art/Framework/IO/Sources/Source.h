@@ -155,8 +155,6 @@ public:
          InputSourceDescription& d);
 
   input::ItemType nextItemType() override;
-  RunID run() const override;
-  SubRunID subRun() const override;
 
   std::unique_ptr<FileBlock> readFile(MasterProductRegistry& mpr) override;
   void closeFile() override;
@@ -527,32 +525,10 @@ art::Source<T>::readNextAndRefuseEvent_()
 }
 
 template <class T>
-art::RunID
-art::Source<T>::run() const
-{
-  if (!newRP_) throw Exception(errors::LogicError)
-        << "Error in Source<T>\n"
-        << "run() called when no RunPrincipal exists\n"
-        << "Please report this to the art developers\n";
-  return newRP_->id();
-}
-
-template <class T>
 std::unique_ptr<art::RangeSetHandler>
 art::Source<T>::runRangeSetHandler()
 {
   return std::make_unique<OpenRangeSetHandler>(cachedRP_->run());
-}
-
-template <class T>
-art::SubRunID
-art::Source<T>::subRun() const
-{
-  if (!newSRP_) throw Exception(errors::LogicError)
-        << "Error in Source<T>\n"
-        << "subRun() called when no SubRunPrincipal exists\n"
-        << "Please report this to the art developers\n";
-  return newSRP_->id();
 }
 
 template <class T>
@@ -561,8 +537,6 @@ art::Source<T>::subRunRangeSetHandler()
 {
   return std::make_unique<OpenRangeSetHandler>(cachedSRP_->run());
 }
-
-
 
 template <class T>
 std::unique_ptr<art::FileBlock>

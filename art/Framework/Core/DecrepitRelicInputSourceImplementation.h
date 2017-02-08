@@ -168,12 +168,6 @@ namespace art
     /// Accessor for the current time, as seen by the input source
     Timestamp const& timestamp() const {return time_;}
 
-    /// Accessor for current run number
-    RunID run() const final override;
-
-    /// Accessor for current subRun number
-    SubRunID subRun() const final override;
-
     /// RunsSubRunsAndEvents (default), RunsAndSubRuns, or Runs.
     ProcessingMode processingMode() const {return processingMode_;}
 

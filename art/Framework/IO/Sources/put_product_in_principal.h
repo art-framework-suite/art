@@ -61,7 +61,7 @@ art::put_product_in_principal(std::unique_ptr<T> && product,
                               std::string const &instance_name) {
 
   if (product.get() == nullptr) {
-    TypeID typeID{typeid(T)};
+    TypeID const typeID {typeid(T)};
     throw art::Exception(art::errors::NullPointerError)
       << "put_product_in_principal: A null unique_ptr was passed to 'put'.\n"
       << "The pointer is of type " << typeID << ".\n"
@@ -88,7 +88,7 @@ art::put_product_in_principal(std::unique_ptr<T> && product,
                               RangeSet&& rs) {
 
   if (product.get() == nullptr) {
-    TypeID typeID{typeid(T)};
+    TypeID const typeID {typeid(T)};
     throw art::Exception(art::errors::NullPointerError)
       << "put_product_in_principal: A null unique_ptr was passed to 'put'.\n"
       << "The pointer is of type " << typeID << ".\n"

@@ -137,9 +137,6 @@ namespace arttest {
       return rc;
     }
 
-    art::RunID run() const override { return run_; }
-    art::SubRunID subRun() const override { return subRun_; }
-
     std::unique_ptr<art::RunPrincipal> readRun() override
     {
       art::RunAuxiliary const aux {run_, nullTimestamp(), nullTimestamp()};

@@ -341,18 +341,6 @@ namespace art {
   void
   DecrepitRelicInputSourceImplementation::endJob() { }
 
-  RunID
-  DecrepitRelicInputSourceImplementation::run() const {
-    assert(runPrincipal_);
-    return runPrincipal_->id();
-  }
-
-  SubRunID
-  DecrepitRelicInputSourceImplementation::subRun() const {
-    assert(subRunPrincipal_);
-    return subRunPrincipal_->id();
-  }
-
 }  // art
 
 // ======================================================================
