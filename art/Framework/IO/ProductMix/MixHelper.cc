@@ -455,8 +455,6 @@ openAndReadMetaData_(std::string filename)
             ("set to \"" + ffVersion_.era_ + "\" "))
         << ".\n";
   }
-  using std::cbegin;
-  using std::cend;
   auto dbCount = 0;
   for (auto const tree : currentDataTrees_) {
     if (tree.get()) {

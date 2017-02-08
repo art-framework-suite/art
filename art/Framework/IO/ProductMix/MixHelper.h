@@ -412,7 +412,7 @@ art::MixHelper::produces(std::string const & instanceName)
 }
 
 // 1.
-template <art::BranchType B = art::InEvent, typename PROD, typename OPROD>
+template <art::BranchType B, typename PROD, typename OPROD>
 inline
 void
 art::MixHelper::
@@ -424,7 +424,7 @@ declareMixOp(InputTag const & inputTag,
 }
 
 // 2.
-template <art::BranchType B = art::InEvent, typename PROD, typename OPROD>
+template <art::BranchType B, typename PROD, typename OPROD>
 void
 art::MixHelper::
 declareMixOp(InputTag const & inputTag,
@@ -449,7 +449,7 @@ declareMixOp(InputTag const & inputTag,
 }
 
 // 3.
-template <art::BranchType B = art::InEvent, typename PROD, typename OPROD, typename T>
+template <art::BranchType B, typename PROD, typename OPROD, typename T>
 inline
 void
 art::MixHelper::
@@ -464,7 +464,7 @@ declareMixOp(InputTag const & inputTag,
 }
 
 // 4.
-template <art::BranchType B = art::InEvent, typename PROD, typename OPROD, typename T>
+template <art::BranchType B, typename PROD, typename OPROD, typename T>
 void
 art::MixHelper::
 declareMixOp(InputTag const & inputTag,
@@ -485,7 +485,7 @@ declareMixOp(InputTag const & inputTag,
 }
 
 // 5.
-template <art::BranchType B = art::InEvent, typename PROD, typename OPROD, typename T>
+template <art::BranchType B, typename PROD, typename OPROD, typename T>
 inline
 void
 art::MixHelper::
@@ -500,7 +500,7 @@ declareMixOp(InputTag const & inputTag,
 }
 
 // 6.
-template <art::BranchType B = art::InEvent, typename PROD, typename OPROD, typename T>
+template <art::BranchType B, typename PROD, typename OPROD, typename T>
 void
 art::MixHelper::
 declareMixOp(InputTag const & inputTag,
