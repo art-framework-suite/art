@@ -9,4 +9,3 @@ art is an event-processing framework for particle physics experiments.
 Experiments use the art framework to build programs that process data 
 in a variety of contexts.
 https://cdcvs.fnal.gov/redmine/projects/art/wiki
-
