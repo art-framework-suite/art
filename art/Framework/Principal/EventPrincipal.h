@@ -61,12 +61,9 @@ namespace art {
     RunNumber_t run() const { return id().run(); }
     EventNumber_t event() const { return id().event(); }
 
-    RunPrincipal const& runPrincipal() const;
-
     EventSelectionIDVector const& eventSelectionIDs() const;
 
-    History const&  history() const { return *history_; }
-    History& history() { return *history_; }
+    History const& history() const { return *history_; }
 
     using Principal::getGroup;
 

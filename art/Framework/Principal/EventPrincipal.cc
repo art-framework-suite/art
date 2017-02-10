@@ -60,13 +60,6 @@ subRunPrincipal() const
   return *subRunPrincipal_;
 }
 
-RunPrincipal const&
-EventPrincipal::
-runPrincipal() const
-{
-  return subRunPrincipal().runPrincipal();
-}
-
 void
 EventPrincipal::
 throwIfExistingGroup(BranchDescription const& bd) const
