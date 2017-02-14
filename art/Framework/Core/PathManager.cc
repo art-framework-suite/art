@@ -167,17 +167,15 @@ triggerPathsInfo(ScheduleID sID)
   if (it == triggerPathsInfo_.end()) {
     it = triggerPathsInfo_.emplace(sID, PathsInfo()).first;
     it->second.pathResults() = HLTGlobalStatus(triggerPathNames_.size());
-    int bitpos { 0 };
-    cet::for_all(protoTrigPathMap_,
-                 [this, sID, it, &bitpos](auto const & val)
-                 {
-                   it->second.pathPtrs().emplace_back(this->fillWorkers_(bitpos,
-                                                                         val.first,
-                                                                         val.second,
-                                                                         Path::TrigResPtr(&it->second.pathResults()),
-                                                                         it->second.workers()));
-                   ++bitpos;
-                 });
+    cet::for_all_with_index(protoTrigPathMap_,
+                            [this, sID, it](int const bitpos, auto const& val)
+                            {
+                              it->second.pathPtrs().emplace_back(this->fillWorkers_(bitpos,
+                                                                                    val.first,
+                                                                                    val.second,
+                                                                                    Path::TrigResPtr(&it->second.pathResults()),
+                                                                                    it->second.workers()));
+                            });
   }
   return it->second;
 }
@@ -189,8 +187,7 @@ fillAllModules_()
   static ParameterSet const empty;
   detail::ModuleConfigInfoMap all_modules;
   std::ostringstream error_stream;
-  for (auto const & pathRootName :
-         detail::ModuleConfigInfo::allModulePathRoots()) {
+  for (auto const& pathRootName : detail::ModuleConfigInfo::allModulePathRoots()) {
     auto const pathRoot = procPS_.get<ParameterSet>(pathRootName, empty);
     for (auto const & name : pathRoot.get_names()) {
       try {

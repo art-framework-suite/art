@@ -1,10 +1,10 @@
-
 //
 
 #include "art/Framework/Core/TriggerNames.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/System/TriggerNamesService.h"
 #include "canvas/Persistency/Common/TriggerResults.h"
+#include "cetlib/container_algorithms.h"
 
 namespace art {
 
@@ -39,13 +39,10 @@ namespace art {
            "occur, but that is not supported and you should not do that)\n";
     }
 
-    unsigned int index = 0;
-    for (Strings::const_iterator iName = triggerNames_.begin(),
-         iEnd = triggerNames_.end();
-         iName != iEnd;
-         ++iName, ++index) {
-      indexMap_[*iName] = index;
-    }
+    cet::for_all_with_index(triggerNames_,
+                            [this](unsigned const index, auto const& name) {
+                              indexMap_[name] = index;
+                            });
     return true;
   }
 
