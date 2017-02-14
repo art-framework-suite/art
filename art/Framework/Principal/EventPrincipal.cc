@@ -39,7 +39,7 @@ EventPrincipal(EventAuxiliary const& aux,
   if (ProductMetaData::instance().productProduced(InEvent)) {
     addToProcessHistory();
     // Add index into BranchIDListRegistry for products produced this process
-    history_->addBranchListIndexEntry(BranchIDListRegistry::instance()->size() - 1);
+    history_->addBranchListIndexEntry(BranchIDListRegistry::instance().size()-1);
   }
   // Fill in helper map for Branch to ProductID mapping
   for (auto IB = history->branchListIndexes().cbegin(),
@@ -128,13 +128,14 @@ productIDToBranchID(ProductID const& pid) const
     --procidx;
     if (procidx < history().branchListIndexes().size()) {
       auto const blix = history().branchListIndexes()[procidx];
-      if (blix < BranchIDListRegistry::instance()->data().size()) {
-        auto const & blist = BranchIDListRegistry::instance()->data()[blix];
+      auto const& breg_data = BranchIDListRegistry::instance().data();
+      if (blix < breg_data.size()) {
+        auto const & blist = breg_data[blix];
         auto productidx = pid.productIndex();
         if (productidx > 0) {
           --productidx;
           if (productidx < blist.size()) {
-            result = BranchID(blist[productidx]);
+            result = BranchID{blist[productidx]};
           }
         }
       }
@@ -151,8 +152,7 @@ branchIDToProductID(BranchID const bid) const
     throw art::Exception(art::errors::NotFound, "InvalidID")
         << "branchIDToProductID: invalid BranchID supplied\n";
   }
-  auto const& branchIDToIndexMap =
-    BranchIDListRegistry::instance()->extra().branchIDToIndexMap();
+  auto const& branchIDToIndexMap = BranchIDListRegistry::instance().branchIDToIndexMap();
   auto it = branchIDToIndexMap.find(bid);
   if (it == branchIDToIndexMap.end()) {
     throw art::Exception(art::errors::NotFound, "Bad BranchID")

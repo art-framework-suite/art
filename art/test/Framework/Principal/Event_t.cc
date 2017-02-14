@@ -8,24 +8,23 @@
 #include "art/Framework/Principal/Selector.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Framework/Principal/Handle.h"
+#include "art/Persistency/Provenance/BranchIDListRegistry.h"
+#include "art/Persistency/Provenance/MasterProductRegistry.h"
+#include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
+#include "art/Version/GetReleaseVersion.h"
 #include "canvas/Persistency/Common/Wrapper.h"
 #include "canvas/Persistency/Provenance/BranchDescription.h"
-#include "art/Persistency/Provenance/BranchIDListHelper.h"
-#include "art/Persistency/Provenance/BranchIDListHelper.h"
 #include "canvas/Persistency/Provenance/EventAuxiliary.h"
 #include "canvas/Persistency/Provenance/EventID.h"
 #include "canvas/Persistency/Provenance/History.h"
-#include "art/Persistency/Provenance/MasterProductRegistry.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
 #include "canvas/Persistency/Provenance/ProcessHistory.h"
-#include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
 #include "canvas/Persistency/Provenance/RunAuxiliary.h"
 #include "canvas/Persistency/Provenance/SubRunAuxiliary.h"
 #include "canvas/Persistency/Provenance/Timestamp.h"
 #include "canvas/Persistency/Provenance/TypeLabel.h"
 #include "canvas/Utilities/GetPassID.h"
 #include "canvas/Utilities/InputTag.h"
-#include "art/Version/GetReleaseVersion.h"
 #include "cetlib/container_algorithms.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "art/test/TestObjects/ToyProducts.h"
@@ -129,7 +128,7 @@ MPRGlobalTestFixture::MPRGlobalTestFixture()
   // Freeze the product registry before we make the Event.
   availableProducts_->setFrozen();
   ProductMetaData::create_instance(*availableProducts_);
-  BranchIDListHelper::updateRegistries(*availableProducts_);
+  BranchIDListRegistry::updateFromProductRegistry(*availableProducts_);
 }
 
 template <class T>

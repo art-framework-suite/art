@@ -1,33 +1,30 @@
-#include "art/Persistency/Provenance/BranchIDListHelper.h"
-// vim: set sw=2:
-
 #include "art/Persistency/Provenance/BranchIDListRegistry.h"
-#include "canvas/Persistency/Provenance/BranchKey.h"
 #include "art/Persistency/Provenance/MasterProductRegistry.h"
+#include "canvas/Persistency/Provenance/BranchKey.h"
 #include "canvas/Persistency/Provenance/ProductList.h"
 #include "canvas/Utilities/Exception.h"
 #include "cetlib/container_algorithms.h"
 
 #include <iomanip>
 #include <sstream>
-#include <utility>
 
 namespace {
 
-  using BranchIDList = art::BranchIDListRegistry::collection_type::value_type;
+  using BranchIDList = art::BranchIDList;
+  using BranchIDLists = art::BranchIDLists;
+  using BranchIDConcurrentLists = art::BranchIDListRegistry::collection_type;
 
   std::size_t width(BranchIDList const& v)
   {
     std::size_t w{};
-    cet::for_all(v, [&w](auto entry){w = std::max(w, std::to_string(entry).size());} );
+    cet::for_all(v, [&w](auto entry){w = std::max(w, std::to_string(entry).size());});
     return w;
   }
 
-  std::string
-  mismatch_msg(BranchIDList const& i, BranchIDList const& j)
+  std::string mismatch_msg(BranchIDList const& i, BranchIDList const& j)
   {
-    std::size_t const iW = std::max(width(i), std::string{"Previous File"}.size());
-    std::size_t const jW = std::max(width(j), std::string{"File to merge"}.size());
+    std::size_t const iW {std::max(width(i), std::string{"Previous File"}.size())};
+    std::size_t const jW {std::max(width(j), std::string{"File to merge"}.size())};
 
     std::ostringstream msg;
     msg << "  Previous File    File to merge\n";
@@ -46,14 +43,14 @@ namespace {
     return msg.str();
   }
 
-  auto first_new_BranchIDList(art::BranchIDLists const& ref,
-                              art::BranchIDLists const& test,
+  auto first_new_BranchIDList(BranchIDConcurrentLists const& ref,
+                              BranchIDLists const& test,
                               std::string const& fileName)
   {
     std::string err_msg;
     std::size_t i{};
-    for ( ; i != std::min(ref.size(), test.size()); ++i ) {
-      if ( ref[i] != test[i] ) {
+    for (; i != std::min(ref.size(), test.size()); ++i) {
+      if (ref[i] != test[i]) {
         err_msg += "Process " + std::to_string(i+1) + ":\n\n";
         err_msg += mismatch_msg(ref[i], test[i]);
         err_msg += "\n\n";
@@ -81,24 +78,34 @@ namespace {
 
 } // unnamed namespace
 
+// ----------------------------------------------------------------------
+// Declarations of static data for classes instantiated from the
+// class template.
+
+art::BranchIDListRegistry* art::BranchIDListRegistry::instance_ = nullptr;
+
+// ----------------------------------------------------------------------
+
+art::BranchIDListRegistry&
+art::BranchIDListRegistry::instance()
+{
+  static BranchIDListRegistry me;
+  instance_ = &me;
+  return *instance_;
+}
+
 // Called on primary file open.  Verify that the new file produced the
 // same Event-level products for each process in the process history
 // it has in common with the previous files, and allow it to add more
 // process history onto the end.
 void
-art::
-BranchIDListHelper::
-updateFromInput(BranchIDLists const & file_bidlists, std::string const& fileName)
+art::BranchIDListRegistry::updateFromInput(BranchIDLists const& file_bidlists,
+                                           std::string const& fileName)
 {
-  auto& breg = *BranchIDListRegistry::instance();
-  auto& reg_bidlists = breg.data();
-
-  std::for_each( first_new_BranchIDList(reg_bidlists, file_bidlists, fileName),
-                 file_bidlists.cend(),
-                 [&breg](auto const& new_list) {
-                   breg.insertMapped( new_list );
-                 } );
-
+  auto& reg_bidlists = instance().data_;
+  reg_bidlists.insert(reg_bidlists.cend(),
+                      first_new_BranchIDList(reg_bidlists, file_bidlists, fileName),
+                      file_bidlists.cend());
   generate_branchIDToIndexMap();
 }
 
@@ -109,9 +116,7 @@ updateFromInput(BranchIDLists const & file_bidlists, std::string const& fileName
 //   produced by the current process.
 //
 void
-art::
-BranchIDListHelper::
-updateRegistries(MasterProductRegistry const& mpr)
+art::BranchIDListRegistry::updateFromProductRegistry(MasterProductRegistry const& mpr)
 {
   // Accumulate a list of branch id's produced by the current process
   // for use by ProductID <--> BranchID mapping.
@@ -127,7 +132,7 @@ updateRegistries(MasterProductRegistry const& mpr)
   // concatenated on input with the ones before it.
   //
   // This restriction can be lifted in the future by simply placing an
-  // 'if ( !bidlist.empty() )' condition in front of the following
+  // 'if (!bidlist.empty())' condition in front of the following
   // statement.  Doing so, however, could cause a breaking change in
   // the following scenario:
   //
@@ -144,32 +149,18 @@ updateRegistries(MasterProductRegistry const& mpr)
   // Then files produced from old art will be incompatible with files
   // produced with new art even though the configuration for each are
   // the same.
-  BranchIDListRegistry::instance()->insertMapped(bidlist);
-
+  instance().data_.push_back(bidlist);
   generate_branchIDToIndexMap();
 }
 
 void
-art::
-BranchIDListHelper::
-clearRegistries()
+art::BranchIDListRegistry::generate_branchIDToIndexMap()
 {
-  auto& breg = *BranchIDListRegistry::instance();
-  breg.data().clear();
-  breg.extra().branchIDToIndexMap_.clear();
-}
-
-void
-art::
-BranchIDListHelper::
-generate_branchIDToIndexMap()
-{
-  auto& breg = *BranchIDListRegistry::instance();
-  auto& branchIDToIndexMap = breg.extra().branchIDToIndexMap_;
-  auto& bidlists = breg.data();
-  for(std::size_t n=0, n_max = bidlists.size(); n != n_max; ++n ) {
-    for (std::size_t m=0, m_max = bidlists[n].size(); m != m_max; ++m ) {
-      branchIDToIndexMap.emplace( BranchID{bidlists[n][m]}, IndexPair{n,m});
+  auto& bidlists = instance().data_;
+  auto& branchIDToIndexMap = instance().branchIDToIndexMap_;
+  for (std::size_t n {}, n_max = bidlists.size(); n != n_max; ++n) {
+    for (std::size_t m {}, m_max = bidlists[n].size(); m != m_max; ++m) {
+      branchIDToIndexMap.emplace(BranchID{bidlists[n][m]}, IndexPair{n,m});
     }
   }
 }

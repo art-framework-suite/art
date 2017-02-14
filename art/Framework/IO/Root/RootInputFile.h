@@ -129,7 +129,7 @@ namespace art {
       return productListHolder_->productList_;
     }
 
-    BranchIDListRegistry::collection_type const&
+    BranchIDLists const&
     branchIDLists()
     {
       return *branchIDLists_;
@@ -425,7 +425,7 @@ namespace art {
                RunAuxiliary,
                ResultsAuxiliary> auxiliaries_ {};   // Must be in same order as treePointers_ !
     std::unique_ptr<ProductRegistry> productListHolder_ {std::make_unique<ProductRegistry>()};
-    std::unique_ptr<BranchIDListRegistry::collection_type const> branchIDLists_ {nullptr};
+    std::unique_ptr<BranchIDLists const> branchIDLists_ {nullptr};
 
     PerBranchTypePresence perBranchTypeProdPresence_ {{}}; // filled by aggregation
     TTree* eventHistoryTree_ {nullptr};

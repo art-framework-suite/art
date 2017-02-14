@@ -11,7 +11,7 @@
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
-#include "art/Persistency/Provenance/BranchIDListHelper.h"
+#include "art/Persistency/Provenance/BranchIDListRegistry.h"
 #include "art/Persistency/Provenance/MasterProductRegistry.h"
 #include "cetlib/container_algorithms.h"
 #include "fhiclcpp/ParameterSet.h"
@@ -404,15 +404,15 @@ initFile(bool skipBadFiles, bool initMPR/*=false*/)
   for (auto const& prod : rootFile_->productList()) {
     auto const& input_bd = prod.second;
     auto const& mpr_list = mpr_.productList();
-    auto bd_it = mpr_list.find( art::BranchKey( input_bd ) );
-    if ( bd_it == mpr_list.end() ) {
+    auto bd_it = mpr_list.find(art::BranchKey{input_bd});
+    if (bd_it == mpr_list.end()) {
       throw art::Exception(errors::LogicError, "RootInputFileSequence::initFile()" )
         << "Unable to find product listed in input file in MasterProductRegistry.\n"
         << "Please report this to artists@fnal.gov";
     }
-    auto& bd = bd_it->second;
+    auto const& bd = bd_it->second;
 
-    bool const present  = mpr_.presentWithFileIdx(bd.branchType(), bd.branchID()) != MasterProductRegistry::DROPPED;
+    bool const present {mpr_.presentWithFileIdx(bd.branchType(), bd.branchID()) != MasterProductRegistry::DROPPED};
 
     rootFile_->treePointers()[bd.branchType()]->addBranch(prod.first,
                                                           bd,
@@ -420,7 +420,7 @@ initFile(bool skipBadFiles, bool initMPR/*=false*/)
                                                           present);
   }
 
-  BranchIDListHelper::updateFromInput(rootFile_->branchIDLists(), catalog_.currentFile().fileName());
+  BranchIDListRegistry::updateFromInput(rootFile_->branchIDLists(), catalog_.currentFile().fileName());
 }
 
 std::unique_ptr<RootInputFile>
@@ -504,7 +504,7 @@ openSecondaryFile(int idx,
   // Perform checks on branch id lists from the secondary to make
   // sure they match the primary.  If they did not then product id's
   // would not be stable.
-  BranchIDListHelper::updateFromInput(rif->branchIDLists(), name);
+  BranchIDListRegistry::updateFromInput(rif->branchIDLists(), name);
   return std::move(rif);
 }
 

@@ -1,11 +1,11 @@
 #include "art/Framework/Core/ProductRegistryHelper.h"
 // vim: set sw=2:
 
-#include "canvas/Persistency/Provenance/BranchDescription.h"
-#include "canvas/Persistency/Provenance/BranchIDList.h"
-#include "art/Persistency/Provenance/BranchIDListHelper.h"
+#include "art/Persistency/Provenance/BranchIDListRegistry.h"
 #include "art/Framework/Core/FileBlock.h"
 #include "art/Persistency/Provenance/MasterProductRegistry.h"
+#include "canvas/Persistency/Provenance/BranchDescription.h"
+#include "canvas/Persistency/Provenance/BranchIDList.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
 #include "canvas/Persistency/Provenance/TypeLabel.h"
 #include "canvas/Utilities/DebugMacros.h"
@@ -33,7 +33,7 @@ registerProducts(MasterProductRegistry& mpr,
     }
     FileBlock fb({}, "ProductRegistryHelper");
     mpr.initFromFirstPrimaryFile(*productList_, tp, fb);
-    BranchIDListHelper::updateFromInput({bil}, fb.fileName());
+    BranchIDListRegistry::updateFromInput({bil}, fb.fileName());
     productList_.reset(); // Reset, since we no longer need it.
   }
   for (auto const& val : typeLabelList_) {

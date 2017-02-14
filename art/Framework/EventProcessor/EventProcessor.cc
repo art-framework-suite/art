@@ -21,7 +21,7 @@
 #include "art/Framework/Services/System/PathSelection.h"
 #include "art/Framework/Services/System/ScheduleContext.h"
 #include "art/Framework/Services/System/TriggerNamesService.h"
-#include "art/Persistency/Provenance/BranchIDListHelper.h"
+#include "art/Persistency/Provenance/BranchIDListRegistry.h"
 #include "art/Utilities/ScheduleID.h"
 #include "art/Utilities/bold_fontify.h"
 #include "art/Version/GetReleaseVersion.h"
@@ -165,7 +165,7 @@ art::EventProcessor::EventProcessor(ParameterSet const& pset)
                                                        preg_);
   initSchedules_(pset);
   FDEBUG(2) << pset.to_string() << std::endl;
-  BranchIDListHelper::updateRegistries(preg_);
+  BranchIDListRegistry::updateFromProductRegistry(preg_);
   servicesDeactivate_();
 }
 

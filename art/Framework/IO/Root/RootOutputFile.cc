@@ -666,8 +666,8 @@ art::
 RootOutputFile::
 writeFileFormatVersion()
 {
-  FileFormatVersion ver(getFileFormatVersion(), getFileFormatEra());
-  FileFormatVersion* pver = &ver;
+  FileFormatVersion const ver {getFileFormatVersion(), getFileFormatEra()};
+  FileFormatVersion const* pver = &ver;
   TBranch* b = metaDataTree_->Branch(metaBranchRootName<FileFormatVersion>(),
                                      &pver, basketSize_, 0);
   // FIXME: Turn this into a throw!
@@ -682,7 +682,7 @@ writeFileIndex()
 {
   fileIndex_.sortBy_Run_SubRun_Event();
   FileIndex::Element elem {};
-  auto findexElemPtr = &elem;
+  auto const* findexElemPtr = &elem;
   TBranch* b = fileIndexTree_->Branch(metaBranchRootName<FileIndex::Element>(),
                                       &findexElemPtr, basketSize_, 0);
   // FIXME: Turn this into a throw!
@@ -716,8 +716,7 @@ art::
 RootOutputFile::
 writeProcessHistoryRegistry()
 {
-  ProcessHistoryMap const& r = ProcessHistoryRegistry::get();
-  ProcessHistoryMap* p = &const_cast<ProcessHistoryMap&>(r);
+  ProcessHistoryMap const* p = &ProcessHistoryRegistry::get();
   TBranch* b = metaDataTree_->Branch(metaBranchRootName<ProcessHistoryMap>(),
                                      &p, basketSize_, 0);
   if (b != nullptr) {
@@ -733,7 +732,7 @@ art::
 RootOutputFile::
 writeBranchIDListRegistry()
 {
-  BranchIDLists* p = &BranchIDListRegistry::instance()->data();
+  BranchIDLists const* p = &BranchIDListRegistry::instance().data();
   TBranch* b = metaDataTree_->Branch(metaBranchRootName<BranchIDLists>(), &p,
                                      basketSize_, 0);
   // FIXME: Turn this into a throw!
@@ -846,14 +845,14 @@ writeProductDescriptionRegistry()
   auto end = branchesWithStoredHistory_.end();
 
   ProductRegistry reg;
-  for ( auto const& pr : ProductMetaData::instance().productList() ) {
-    if ( branchesWithStoredHistory_.find(pr.second.branchID()) == end ){
+  for (auto const& pr : ProductMetaData::instance().productList()) {
+    if (branchesWithStoredHistory_.find(pr.second.branchID()) == end){
       continue;
     }
     reg.productList_.emplace_hint(reg.productList_.end(),pr);
   }
 
-  auto* regp = &reg;
+  ProductRegistry const* regp = &reg;
   TBranch* b = metaDataTree_->Branch(metaBranchRootName<ProductRegistry>(),
                                      &regp, basketSize_, 0);
   // FIXME: Turn this into a throw!
@@ -866,8 +865,7 @@ art::
 RootOutputFile::
 writeProductDependencies()
 {
-  BranchChildren& pDeps = const_cast<BranchChildren&>(om_->branchChildren());
-  BranchChildren* ppDeps = &pDeps;
+  BranchChildren const* ppDeps = &om_->branchChildren();
   TBranch* b = metaDataTree_->Branch(metaBranchRootName<BranchChildren>(),
                                      &ppDeps, basketSize_, 0);
   // FIXME: Turn this into a throw!
@@ -999,10 +997,7 @@ art::RootOutputFile::getProduct(art::OutputHandle const& oh,
                                 art::RangeSet const& /*prunedProductRS*/,
                                 std::string const& wrappedName)
 {
-  if (oh.isValid())
-    return oh.wrapper();
-  else
-    return dummyProductCache_.product(wrappedName);
+  return oh.isValid() ? oh.wrapper() : dummyProductCache_.product(wrappedName);
 }
 
 template <BranchType BT>
@@ -1011,8 +1006,5 @@ art::RootOutputFile::getProduct(art::OutputHandle const& oh,
                                 art::RangeSet const& prunedProductRS,
                                 std::string const& wrappedName)
 {
-  if (oh.isValid() && prunedProductRS.is_valid())
-    return oh.wrapper();
-  else
-    return dummyProductCache_.product(wrappedName);
+  return (oh.isValid() && prunedProductRS.is_valid()) ? oh.wrapper() : dummyProductCache_.product(wrappedName);
 }

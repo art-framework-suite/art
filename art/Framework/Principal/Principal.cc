@@ -70,15 +70,14 @@ addToProcessHistory()
     }
   }
   ph.push_back(processConfiguration_);
-  // OPTIMIZATION NOTE:  As of 0_9_0_pre3
-  // For very simple Sources (e.g. EmptyEvent) this routine takes
-  // up nearly 50% of the time per event, and 96% of the time for
-  // this routine is spent in computing the ProcessHistory id which
-  // happens because we are reconstructing the ProcessHistory for
-  // each event (the process ID is first computed in the call to
-  // insertMapped() below).  It would probably be better to move
-  // the ProcessHistory construction out to somewhere which persists
-  // for longer than one Event.
+  // OPTIMIZATION NOTE: As of 0_9_0_pre3
+  // For very simple Sources (e.g. EmptyEvent) this routine takes up
+  // nearly 50% of the time per event, and 96% of the time for this
+  // routine is spent in computing the ProcessHistory id which happens
+  // because we are reconstructing the ProcessHistory for each event.
+  // It would probably be better to move the ProcessHistory
+  // construction out to somewhere which persists for longer than one
+  // Event.
   ProcessHistoryRegistry::put(ph);
   setProcessHistoryID(ph.id());
   processHistoryModified_ = true;
