@@ -163,6 +163,10 @@ art::EventProcessor::EventProcessor(ParameterSet const& pset)
                                                        act_table_,
                                                        actReg_,
                                                        preg_);
+  // Schedules are created *after* the end-path executor to ensure
+  // that ResultsProducers (owned by RootOutput) can call produces<>.
+  // The MasterProductRegistry is frozen in the c'tor of the Schedule,
+  // which owns all other producers and filters.
   initSchedules_(pset);
   FDEBUG(2) << pset.to_string() << std::endl;
   BranchIDListRegistry::updateFromProductRegistry(preg_);
@@ -182,9 +186,6 @@ art::EventProcessor::initServices_(ParameterSet const& top_pset,
                                    ServiceToken& token)
 {
   auto services = top_pset.get<ParameterSet>("services", {});
-
-  // Check if disallowed 'user' table is specified:
-
 
   // Save and non-standard service configs, "floating_point_control" to
   // prevent ServiceDirector trying to make one itself.

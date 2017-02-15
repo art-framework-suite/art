@@ -36,7 +36,7 @@ EndPathExecutor(PathManager& pm,
   , workersEnabled_(endPathInfo_.workers().size(), true)
   , outputWorkersEnabled_(outputWorkers_.size(), true)
 {
-  mpr.registerProductListUpdateCallback(std::bind(&art::EndPathExecutor::selectProducts, this, std::placeholders::_1));
+  mpr.registerProductListUpdatedCallback([this](auto const& fb){ this->selectProducts(fb); });
 }
 
 bool art::EndPathExecutor::terminate() const

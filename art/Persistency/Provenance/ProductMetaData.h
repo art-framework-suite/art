@@ -2,19 +2,20 @@
 #define art_Persistency_Provenance_ProductMetaData_h
 // vim: set sw=2:
 
-//
+//==========================================================
 //  ProductMetaData
 //
-//  Singleton facade providing readonly access to the
+//  Singleton facade providing read-only access to the
 //  MasterProductRegistry.
-//
+//==========================================================
 
-#include "canvas/Persistency/Provenance/BranchID.h"
-#include "canvas/Persistency/Provenance/BranchType.h"
 #include "art/Persistency/Provenance/MasterProductRegistry.h"
-#include "canvas/Persistency/Provenance/ProductList.h"
 #include "art/Persistency/Provenance/detail/type_aliases.h"
 #include "cetlib/exempt_ptr.h"
+#include "canvas/Persistency/Provenance/BranchID.h"
+#include "canvas/Persistency/Provenance/BranchType.h"
+#include "canvas/Persistency/Provenance/ProductList.h"
+
 #include <ostream>
 #include <vector>
 
@@ -23,116 +24,110 @@ class MPRGlobalTestFixture;
 
 namespace art {
 
-class Schedule;
+  class Schedule;
 
-class ProductMetaData {
+  class ProductMetaData {
 
-  friend class Schedule;
+    friend class Schedule;
 
-  // Used for testing.
-  friend class ::MPRGlobalTestFixture;
+    // Used for testing.
+    friend class ::MPRGlobalTestFixture;
 
-public:
+  public:
 
-  // Give access to the only instance; throws if it is not yet made.
-  static ProductMetaData const& instance()
-  {
-    if (!me) {
-      throw Exception(errors::LogicError)
+    // Give access to the only instance; throws if it is not yet made.
+    static ProductMetaData const& instance()
+    {
+      if (!me) {
+        throw Exception(errors::LogicError)
           << "ProductMetaData::instance called before the sole instance was created.";
+      }
+      return *me;
     }
-    return *me;
-  }
 
-private:
+  private:
 
-  // Only friends are permitted to create the instance.
-  ProductMetaData(MasterProductRegistry const& mpr)
-    : mpr_(&mpr)
-  {
-  }
+    // Only friends are permitted to create the instance.
+    ProductMetaData(MasterProductRegistry const& mpr)
+      : mpr_{&mpr}
+    {}
 
-  // Only the create_instance() member will create an instance.
-  static void create_instance(MasterProductRegistry const& mpr)
-  {
-    if (me) {
-      throw Exception(errors::LogicError)
+    // Only the create_instance() member will create an instance.
+    static void create_instance(MasterProductRegistry const& mpr)
+    {
+      if (me) {
+        throw Exception(errors::LogicError)
           << "ProductMetaData::create_instance called more than once.";
+      }
+      me = new ProductMetaData(mpr);
     }
-    me = new ProductMetaData(mpr);
-  }
 
-private:
+  private:
 
-  // Singleton pattern instance pointer.
-  static ProductMetaData const* me;
+    // Singleton pattern instance pointer.
+    static ProductMetaData const* me;
 
-public:
+  public:
 
-  ProductMetaData(ProductMetaData const&) = delete;
-  ProductMetaData& operator=(ProductMetaData const&) = delete;
+    ProductMetaData(ProductMetaData const&) = delete;
+    ProductMetaData& operator=(ProductMetaData const&) = delete;
 
-  // Accessors: this is the facade presented by ProductMetaData
-  // for the MasterProductRegistry.
-  ProductList const& productList() const
+    // Accessors: this is the facade presented by ProductMetaData
+    // for the MasterProductRegistry.
+    ProductList const& productList() const
+    {
+      return mpr_->productList();
+    }
+
+    // Print all the BranchDescriptions we contain.
+    void printBranchDescriptions(std::ostream& os) const
+    {
+      mpr_->print(os);
+    }
+
+    bool produced(BranchType const btype, BranchID const bid) const
+    {
+      return mpr_->produced(btype, bid);
+    }
+
+    std::size_t presentWithFileIdx(BranchType const btype, BranchID const bid) const
+    {
+      return mpr_->presentWithFileIdx(btype, bid);
+    }
+
+    // Obtain lookup map to find a group by type of product.
+    std::vector<BranchTypeLookup> const& productLookup() const
+    {
+      return mpr_->productLookup();
+    }
+
+    // Obtain lookup map to find a group by type of element in a product
+    // which is a collection.
+    std::vector<BranchTypeLookup> const& elementLookup() const
+    {
+      return mpr_->elementLookup();
+    }
+
+    // Return true if any product is produced in this process for
+    // the given branch type.
+    bool productProduced(BranchType which) const
+    {
+      return mpr_->productProduced(which);
+    }
+
+  private:
+
+    cet::exempt_ptr<MasterProductRegistry const> mpr_;
+
+  };
+
+  inline
+  std::ostream&
+  operator<<(std::ostream& os, ProductMetaData const& pmd)
   {
-    return mpr_->productList();
+    pmd.printBranchDescriptions(os);
+    return os;
   }
-
-  // Print all the BranchDescriptions we contain.
-  void printBranchDescriptions(std::ostream& os) const
-  {
-    mpr_->print(os);
-  }
-
-  bool produced(BranchType const btype, BranchID const bid) const
-  {
-    return mpr_->produced(btype, bid);
-  }
-
-  std::size_t presentWithFileIdx(BranchType const btype, BranchID const bid) const
-  {
-    return mpr_->presentWithFileIdx(btype, bid);
-  }
-
-  // Obtain lookup map to find a group by type of product.
-  std::vector<BranchTypeLookup> const& productLookup() const
-  {
-    return mpr_->productLookup();
-  }
-
-  // Obtain lookup map to find a group by type of element in a product
-  // which is a collection.
-  std::vector<BranchTypeLookup> const& elementLookup() const
-  {
-    return mpr_->elementLookup();
-  }
-
-  // Return true if any product is produced in this process for
-  // the given branch type.
-  bool productProduced(BranchType which) const
-  {
-    return mpr_->productProduced(which);
-  }
-
-  std::vector<ProductListUpdatedCallback> const&
-  productListUpdatedCallbacks() const {
-    return mpr_->productListUpdatedCallbacks();
-  }
-
-private:
-
-  cet::exempt_ptr<MasterProductRegistry const> mpr_;
-
-};
-
-inline
-std::ostream&
-operator<<(std::ostream& os, ProductMetaData const& pmd)
-{
-  pmd.printBranchDescriptions(os);
-  return os;
-}
 
 } // namespace art
 

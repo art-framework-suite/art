@@ -2,6 +2,26 @@
 #define art_Persistency_Provenance_MasterProductRegistry_h
 // vim: set sw=2:
 
+//====================================================================
+// MasterProductRegistry
+//
+// Although this is not technically a registry, it is the
+// representation for ProductMetaData, which is the read-only facade
+// to the single static instance of this class within art.  As such,
+// this class should be treated as a registry.
+//
+// All modifications to the registry happen either at system startup,
+// or when input files are opened.  Once we intend to support
+// concurrent reading from different input files, it will be necessary
+// for any registry modifications to happen in a thread-safe manner.
+//
+// This class is not altogether necessary--it is meant to facilitate
+// more efficient lookup of products.  Steps should be taken to
+// determine how this class, and the associated ProductMetaData class,
+// could be removed in favor of alternative efficiency improvements in
+// product lookup that do not rely on a registry.
+// ====================================================================
+
 #include "canvas/Persistency/Provenance/BranchDescription.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
 #include "canvas/Persistency/Provenance/DictionaryChecker.h"
@@ -15,10 +35,6 @@
 #include <string>
 #include <vector>
 
-namespace Reflex {
-  class Type;
-}
-
 namespace art {
 
   class BranchID;
@@ -27,61 +43,46 @@ namespace art {
   class MasterProductRegistry;
 
   std::ostream& operator<<(std::ostream& os, MasterProductRegistry const& mpr);
-
 }
 
 class art::MasterProductRegistry {
-
 public:
+
+  static constexpr std::size_t DROPPED {std::numeric_limits<std::size_t>::max()};
+
+  explicit MasterProductRegistry() = default;
+
   MasterProductRegistry(MasterProductRegistry const&) = delete;
   MasterProductRegistry& operator=(MasterProductRegistry const&) = delete;
-  MasterProductRegistry();
-  ProductList const& productList() const {
-    return productList_;
-  }
-  ProductList::size_type size() const {
-    return productList_.size();
-  }
-  bool productProduced(BranchType branchType) const {
-    return productProduced_[branchType];
-  }
-  // Obtain lookup map to find a group by type of product.
-  std::vector<BranchTypeLookup> const& productLookup() const {
-    return productLookup_;
-  }
-  // Obtain lookup map to find a group by type of element
-  // in a product which is a collection.
-  std::vector<BranchTypeLookup> const& elementLookup() const {
-    return elementLookup_;
-  }
-  void print(std::ostream&) const;
+
   void addProduct(std::unique_ptr<BranchDescription>&&);
-
+  void setFrozen();
   void initFromFirstPrimaryFile(ProductList const&, PerBranchTypePresence const&, FileBlock const&);
-  void updateFromSecondaryFile (ProductList const&, PerBranchTypePresence const&, FileBlock const&);
-
-  bool produced(BranchType const, BranchID const) const;
-
-  static constexpr std::size_t DROPPED = std::numeric_limits<std::size_t>::max();
-
-  std::size_t presentWithFileIdx(BranchType const, BranchID const) const;
   std::string updateFromNewPrimaryFile(ProductList const&,
                                        PerBranchTypePresence const&,
                                        std::string const& fileName,
                                        BranchDescription::MatchMode,
                                        FileBlock const&);
+  void updateFromSecondaryFile(ProductList const&, PerBranchTypePresence const&, FileBlock const&);
+  void registerProductListUpdatedCallback(ProductListUpdatedCallback cb);
 
-  void setFrozen();
+  auto const& productList() const { return productList_; }
+  auto size() const { return productList_.size(); }
 
-  std::vector<ProductListUpdatedCallback> const&
-  productListUpdatedCallbacks() const {
-    return productListUpdatedCallbacks_;
+  // Obtain lookup map to find a group by type of product.
+  auto const& productLookup() const { return productLookup_; }
+
+  // Obtain lookup map to find a group by type of element in a product
+  // which is a collection.
+  auto const& elementLookup() const { return elementLookup_; }
+
+  void print(std::ostream&) const;
+
+  bool productProduced(BranchType branchType) const {
+    return productProduced_[branchType];
   }
-
-  void
-  registerProductListUpdateCallback(ProductListUpdatedCallback cb) {
-    productListUpdatedCallbacks_.push_back(cb);
-  }
+  bool produced(BranchType, BranchID) const;
+  std::size_t presentWithFileIdx(BranchType, BranchID) const;
 
 private:
   void checkDicts_(BranchDescription const & productDesc);
@@ -89,7 +90,7 @@ private:
   ProductList productList_ {};
   bool frozen_ {false};
   std::array<bool, NumBranchTypes> productProduced_ {{false}}; //filled by aggregation
-  std::vector<ProductList> perFileProds_ {};
+  std::vector<ProductList> perFileProds_ {{}}; // Fill with 1 empty list
 
   PerBranchTypePresence  perBranchPresenceLookup_ {{}};
   PerFilePresence perFilePresenceLookups_ {};
