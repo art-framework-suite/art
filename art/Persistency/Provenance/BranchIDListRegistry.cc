@@ -12,7 +12,6 @@ namespace {
 
   using BranchIDList = art::BranchIDList;
   using BranchIDLists = art::BranchIDLists;
-  using BranchIDConcurrentLists = art::BranchIDListRegistry::collection_type;
 
   std::size_t width(BranchIDList const& v)
   {
@@ -43,7 +42,7 @@ namespace {
     return msg.str();
   }
 
-  auto first_new_BranchIDList(BranchIDConcurrentLists const& ref,
+  auto first_new_BranchIDList(BranchIDLists const& ref,
                               BranchIDLists const& test,
                               std::string const& fileName)
   {
