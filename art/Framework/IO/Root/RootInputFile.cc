@@ -13,8 +13,8 @@
 #include "art/Framework/IO/Root/detail/setFileIndexPointer.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/System/FileCatalogMetadata.h"
+#include "art/Persistency/Provenance/BranchIDListRegistry.h"
 #include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
-#include "canvas/Persistency/Provenance/rootNames.h"
 #include "canvas/Persistency/Common/EDProduct.h"
 #include "canvas/Persistency/Provenance/BranchChildren.h"
 #include "canvas/Persistency/Provenance/BranchDescription.h"
@@ -24,6 +24,7 @@
 #include "canvas/Persistency/Provenance/ParentageRegistry.h"
 #include "canvas/Persistency/Provenance/ProductList.h"
 #include "canvas/Persistency/Provenance/RunID.h"
+#include "canvas/Persistency/Provenance/rootNames.h"
 #include "canvas/Utilities/Exception.h"
 #include "canvas/Utilities/FriendlyName.h"
 #include "cetlib/container_algorithms.h"
@@ -184,8 +185,8 @@ namespace art {
     auto pHistMapPtr = &pHistMap;
     metaDataTree->SetBranchAddress(metaBranchRootName<ProcessHistoryMap>(), &pHistMapPtr);
 
-    auto branchIDListsAPtr = std::make_unique<BranchIDLists>();
-    auto branchIDListsPtr = branchIDListsAPtr.get();
+    BranchIDLists branchIDLists;
+    auto branchIDListsPtr = &branchIDLists;
     metaDataTree->SetBranchAddress(metaBranchRootName<BranchIDLists>(), &branchIDListsPtr);
 
     auto branchChildrenBuffer = branchChildren_.get();
@@ -193,7 +194,11 @@ namespace art {
 
     // Here we read the metadata tree
     input::getEntry(metaDataTree, 0);
-    branchIDLists_ = std::move(branchIDListsAPtr);
+    // Perform checks on branch id lists from the secondary to make
+    // sure they match the primary.  If they did not then product id's
+    // would not be stable.
+    BranchIDListRegistry::updateFromInput(branchIDLists, file_);
+
     // Check the, "Era" of the input file (new since art v0.5.0). If it
     // does not match what we expect we cannot read the file. Required
     // since we reset the file versioning since forking off from
@@ -228,12 +233,11 @@ namespace art {
 
     // Also need to check RootFileDB if we have one.
     if (fileFormatVersion_.value_ >= 5) {
-      if ( readIncomingParameterSets &&
-           have_table(sqliteDB_, "ParameterSets", file_)) {
+      if (readIncomingParameterSets && have_table(sqliteDB_, "ParameterSets", file_)) {
         fhicl::ParameterSetRegistry::importFrom(sqliteDB_);
       }
-      if ( art::ServiceRegistry::instance().isAvailable<art::FileCatalogMetadata>() &&
-           have_table(sqliteDB_, "FileCatalog_metadata", file_)) {
+      if (art::ServiceRegistry::instance().isAvailable<art::FileCatalogMetadata>() &&
+          have_table(sqliteDB_, "FileCatalog_metadata", file_)) {
         sqlite3_stmt* stmt {nullptr};
         sqlite3_prepare_v2(sqliteDB_,
                            "SELECT Name, Value from FileCatalog_metadata;",
@@ -285,7 +289,7 @@ namespace art {
 
   void
   RootInputFile::
-  readParentageTree(unsigned int treeCacheSize)
+  readParentageTree(unsigned int const treeCacheSize)
   {
     //
     //  Auxiliary routine for the constructor.
@@ -298,14 +302,13 @@ namespace art {
     parentageTree->SetCacheSize(static_cast<Long64_t>(treeCacheSize));
     ParentageID idBuffer;
     auto pidBuffer = &idBuffer;
-    parentageTree->SetBranchAddress(rootNames::parentageIDBranchName().c_str(),
-                                    &pidBuffer);
+    parentageTree->SetBranchAddress(rootNames::parentageIDBranchName().c_str(), &pidBuffer);
     Parentage parentageBuffer;
     auto pParentageBuffer = &parentageBuffer;
-    parentageTree->SetBranchAddress(rootNames::parentageBranchName().c_str(),
-                                    &pParentageBuffer);
-    for (Long64_t i = 0, numEntries = parentageTree->GetEntries(); i < numEntries;
-         ++i) {
+    parentageTree->SetBranchAddress(rootNames::parentageBranchName().c_str(), &pParentageBuffer);
+
+    // Fill the registry
+    for (EntryNumber i = 0, numEntries = parentageTree->GetEntries(); i < numEntries; ++i) {
       input::getEntry(parentageTree, i);
       if (idBuffer != parentageBuffer.id()) {
         throw art::Exception{errors::DataCorruption}
@@ -313,8 +316,9 @@ namespace art {
       }
       ParentageRegistry::put(parentageBuffer);
     }
-    parentageTree->SetBranchAddress(rootNames::parentageIDBranchName().c_str(), 0);
-    parentageTree->SetBranchAddress(rootNames::parentageBranchName().c_str(), 0);
+
+    parentageTree->SetBranchAddress(rootNames::parentageIDBranchName().c_str(), nullptr);
+    parentageTree->SetBranchAddress(rootNames::parentageBranchName().c_str(), nullptr);
   }
 
   EventID

@@ -11,7 +11,6 @@
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
-#include "art/Persistency/Provenance/BranchIDListRegistry.h"
 #include "art/Persistency/Provenance/MasterProductRegistry.h"
 #include "cetlib/container_algorithms.h"
 #include "fhiclcpp/ParameterSet.h"
@@ -137,21 +136,17 @@ RootInputFileSequence(fhicl::TableFragment<RootInputFileSequence::Config> const&
     }
     secondaryFileNames_.push_back(std::move(secondaries));
   }
-  RunNumber_t firstRun{};
-  bool haveFirstRun = config().hasFirstRun(firstRun);
-  SubRunNumber_t firstSubRun{};
-  bool haveFirstSubRun = config().hasFirstSubRun(firstSubRun);
-  EventNumber_t firstEvent{};
-  bool haveFirstEvent = config().hasFirstEvent(firstEvent);
+  RunNumber_t firstRun {};
+  bool const haveFirstRun {config().hasFirstRun(firstRun)};
+  SubRunNumber_t firstSubRun {};
+  bool const haveFirstSubRun {config().hasFirstSubRun(firstSubRun)};
+  EventNumber_t firstEvent {};
+  bool const haveFirstEvent {config().hasFirstEvent(firstEvent)};
 
-  RunID firstRunID = haveFirstRun ? RunID(firstRun) : RunID::firstRun();
+  RunID const firstRunID {haveFirstRun ? RunID{firstRun} : RunID::firstRun()};
+  SubRunID const firstSubRunID {haveFirstSubRun ? SubRunID{firstRunID.run(), firstSubRun} : SubRunID::firstSubRun(firstRunID)};
 
-  SubRunID firstSubRunID =
-    haveFirstSubRun ? SubRunID(firstRunID.run(), firstSubRun) : SubRunID::firstSubRun(firstRunID);
-
-  origEventID_ = haveFirstEvent ?
-    EventID(firstSubRunID.run(), firstSubRunID.subRun(), firstEvent) :
-    EventID::firstEvent(firstSubRunID);
+  origEventID_ = haveFirstEvent ? EventID{firstSubRunID, firstEvent} : EventID::firstEvent(firstSubRunID);
 
   if (noEventSort_ && haveFirstEvent) {
     throw art::Exception(errors::Configuration)
@@ -370,9 +365,7 @@ initFile(bool skipBadFiles, bool initMPR/*=false*/)
                                          readParameterSets_,
                                          /*primaryFile*/exempt_ptr<RootInputFile>(),
                                          /*secondaryFileNameIdx*/-1,
-                                         secondaryFileNames_.empty() ?
-                                         empty_vs :
-                                         secondaryFileNames_.at(catalog_.currentIndex()),
+                                         secondaryFileNames_.empty() ? empty_vs : secondaryFileNames_.at(catalog_.currentIndex()),
                                          this);
   assert(catalog_.currentIndex() != InputFileCatalog::indexEnd);
   if (catalog_.currentIndex() + 1 > fileIndexes_.size()) {
@@ -382,16 +375,15 @@ initFile(bool skipBadFiles, bool initMPR/*=false*/)
   if (initMPR) {
     mpr_.initFromFirstPrimaryFile(rootFile_->productList(),
                                   rootFile_->perBranchTypePresence(),
-                                  *rootFile_->createFileBlock().get());
+                                  *rootFile_->createFileBlock());
   }
   else {
     // make sure the new product list is compatible with the main one
-    string mergeInfo =
-      mpr_.updateFromNewPrimaryFile(rootFile_->productList(),
-                                    rootFile_->perBranchTypePresence(),
-                                    catalog_.currentFile().fileName(),
-                                    matchMode_,
-                                    *rootFile_->createFileBlock().get());
+    string const mergeInfo = mpr_.updateFromNewPrimaryFile(rootFile_->productList(),
+                                                           rootFile_->perBranchTypePresence(),
+                                                           catalog_.currentFile().fileName(),
+                                                           matchMode_,
+                                                           *rootFile_->createFileBlock());
     if (!mergeInfo.empty()) {
       throw art::Exception(errors::MismatchedInputFiles,
                            "RootInputFileSequence::initFile()")
@@ -419,8 +411,6 @@ initFile(bool skipBadFiles, bool initMPR/*=false*/)
                                                           bd.branchName(),
                                                           present);
   }
-
-  BranchIDListRegistry::updateFromInput(rootFile_->branchIDLists(), catalog_.currentFile().fileName());
 }
 
 std::unique_ptr<RootInputFile>
@@ -449,37 +439,37 @@ openSecondaryFile(int idx,
   }
   detail::logFileAction("Opened secondary input file ", name);
   vector<string> empty_vs;
-  auto rif = std::make_unique<RootInputFile>( name,
-                                              /*url*/"",
-                                              processConfiguration(),
-                                              /*logicalFileName*/"",
-                                              std::move(filePtr),
-                                              origEventID_,
-                                              eventsToSkip_,
-                                              whichSubRunsToSkip_,
-                                              fastCloningInfo_,
-                                              treeCacheSize_,
-                                              treeMaxVirtualSize_,
-                                              saveMemoryObjectThreshold_,
-                                              delayedReadEventProducts_,
-                                              delayedReadSubRunProducts_,
-                                              delayedReadRunProducts_,
-                                              processingMode_,
-                                              forcedRunOffset_,
-                                              noEventSort_,
-                                              groupSelectorRules_,
-                                              /*dropMergeable*/false,
-                                              /*duplicateChecker_*/nullptr,
-                                              dropDescendants_,
-                                              readParameterSets_,
-                                              /*primaryFile*/primaryFile,
-                                              /*secondaryFileNameIdx*/idx,
-                                              /*secondaryFileNames*/empty_vs,
-                                              /*rifSequence*/this);
+  auto rif = std::make_unique<RootInputFile>(name,
+                                             /*url*/"",
+                                             processConfiguration(),
+                                             /*logicalFileName*/"",
+                                             std::move(filePtr),
+                                             origEventID_,
+                                             eventsToSkip_,
+                                             whichSubRunsToSkip_,
+                                             fastCloningInfo_,
+                                             treeCacheSize_,
+                                             treeMaxVirtualSize_,
+                                             saveMemoryObjectThreshold_,
+                                             delayedReadEventProducts_,
+                                             delayedReadSubRunProducts_,
+                                             delayedReadRunProducts_,
+                                             processingMode_,
+                                             forcedRunOffset_,
+                                             noEventSort_,
+                                             groupSelectorRules_,
+                                             /*dropMergeable*/false,
+                                             /*duplicateChecker_*/nullptr,
+                                             dropDescendants_,
+                                             readParameterSets_,
+                                             /*primaryFile*/primaryFile,
+                                             /*secondaryFileNameIdx*/idx,
+                                             /*secondaryFileNames*/empty_vs,
+                                             /*rifSequence*/this);
 
   mpr_.updateFromSecondaryFile(rif->productList(),
                                rif->perBranchTypePresence(),
-                               *rif->createFileBlock().get());
+                               *rif->createFileBlock());
 
   for (auto const& prod : rif->productList()) {
     auto const& input_bd = prod.second;
@@ -501,10 +491,6 @@ openSecondaryFile(int idx,
 
   }
 
-  // Perform checks on branch id lists from the secondary to make
-  // sure they match the primary.  If they did not then product id's
-  // would not be stable.
-  BranchIDListRegistry::updateFromInput(rif->branchIDLists(), name);
   return std::move(rif);
 }
 
@@ -761,7 +747,7 @@ rewind_()
   }
   firstFile_ = true;
   catalog_.rewind();
-  if (duplicateChecker_.get() != 0) {
+  if (duplicateChecker_.get() != nullptr) {
     duplicateChecker_->rewind();
   }
 }
