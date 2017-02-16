@@ -1,5 +1,4 @@
 set(art_Persistency_RootDB_suorce
-  MetaDataAccess.cc
   SQLErrMsg.cc
   SQLite3Wrapper.cc
   tkeyvfs.cc
