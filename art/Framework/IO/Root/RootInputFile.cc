@@ -94,7 +94,6 @@ namespace art {
                 unique_ptr<TFile>&& filePtr,
                 EventID const& origEventID,
                 unsigned int eventsToSkip,
-                vector<SubRunID> const& whichSubRunsToSkip,
                 FastCloningInfoProvider const& fcip,
                 unsigned int treeCacheSize,
                 int64_t treeMaxVirtualSize,
@@ -121,7 +120,6 @@ namespace art {
     , filePtr_{std::move(filePtr)}
     , origEventID_{origEventID}
     , eventsToSkip_{eventsToSkip}
-    , whichSubRunsToSkip_{whichSubRunsToSkip}
     , treePointers_ { // Order (and number) must match BranchTypes.h!
       std::make_unique<RootTree>(filePtr_.get(), InEvent, saveMemoryObjectThreshold, this),
       std::make_unique<RootTree>(filePtr_.get(), InSubRun, saveMemoryObjectThreshold, this),
@@ -194,10 +192,8 @@ namespace art {
 
     // Here we read the metadata tree
     input::getEntry(metaDataTree, 0);
-    // Perform checks on branch id lists from the secondary to make
-    // sure they match the primary.  If they did not then product id's
-    // would not be stable.
     BranchIDListRegistry::updateFromInput(branchIDLists, file_);
+    metaDataTree->SetBranchAddress(metaBranchRootName<BranchIDLists>(), nullptr);
 
     // Check the, "Era" of the input file (new since art v0.5.0). If it
     // does not match what we expect we cannot read the file. Required
@@ -376,13 +372,6 @@ namespace art {
     if (it->eventID_ < origEventID_) {
       return false;
     }
-    for (auto const& subrun : whichSubRunsToSkip_) {
-      if (fileIndex_.findPosition(subrun, true) != fiEnd_) {
-        // We must skip a subRun in this file.  We will simply assume that
-        // it may contain an event, in which case we cannot fast copy.
-        return false;
-      }
-    }
     return true;
   }
 
@@ -477,11 +466,6 @@ namespace art {
       if ((currentRun == origEventID_.runID()) &&
           (currentSubRun < origEventID_.subRunID())) {
         fiIter_ = fileIndex_.findSubRunOrRunPosition(origEventID_.subRunID());
-        return getNextEntryTypeWanted();
-      }
-      // Skip the subRun if it is in whichSubRunsToSkip_.
-      if (binary_search_all(whichSubRunsToSkip_, currentSubRun)) {
-        fiIter_ = fileIndex_.findSubRunOrRunPosition(currentSubRun.next());
         return getNextEntryTypeWanted();
       }
       return FileIndex::kSubRun;

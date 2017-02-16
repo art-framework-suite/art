@@ -331,8 +331,8 @@ art::MasterProductRegistry::updateFromSecondaryFile(ProductList const& pl,
 
   // Set presence flags
   for (auto const& p : pl) {
-    auto const & bd = p.second;
-    auto const & presListForBT = presList[bd.branchType()];
+    auto const& bd = p.second;
+    auto const& presListForBT = presList[bd.branchType()];
     if (presListForBT.find(bd.branchID()) != presListForBT.cend()) {
       perFilePresenceLookups_.back()[bd.branchType()].emplace(bd.branchID());
     }
@@ -368,8 +368,7 @@ art::MasterProductRegistry::updateFromSecondaryFile(ProductList const& pl,
   }
   productLookup_.resize(productLookup_.size()+1);
   elementLookup_.resize(elementLookup_.size()+1);
-  recreateLookups(perFileProds_.back(), productLookup_.back(),
-                  elementLookup_.back());
+  recreateLookups(perFileProds_.back(), productLookup_.back(), elementLookup_.back());
   cet::for_all(productListUpdatedCallbacks_, [&fb](auto const& callback){ callback(fb); });
 }
 

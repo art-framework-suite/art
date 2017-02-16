@@ -1,6 +1,7 @@
 #include "art/Framework/IO/Root/RootInputFileSequence.h"
 // vim: set sw=2:
 
+#include "TFile.h"
 #include "art/Framework/Core/FileBlock.h"
 #include "art/Framework/IO/Catalog/FileCatalog.h"
 #include "art/Framework/IO/Catalog/InputFileCatalog.h"
@@ -15,7 +16,7 @@
 #include "cetlib/container_algorithms.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
-#include "TFile.h"
+
 #include <ctime>
 #include <map>
 #include <set>
@@ -36,12 +37,8 @@ RootInputFileSequence(fhicl::TableFragment<RootInputFileSequence::Config> const&
                       MasterProductRegistry& mpr,
                       ProcessConfiguration const& processConfig)
   : catalog_{catalog}
-  , matchMode_(BranchDescription::Permissive)
   , fileIndexes_(fileCatalogItems().size())
-  , eventsRemainingInFile_(0)
-  , origEventID_()
   , eventsToSkip_{config().skipEvents()}
-  , whichSubRunsToSkip_()
   , noEventSort_{config().noEventSort()}
   , skipBadFiles_{config().skipBadFiles()}
   , treeCacheSize_{config().cacheSize()}
@@ -50,24 +47,20 @@ RootInputFileSequence(fhicl::TableFragment<RootInputFileSequence::Config> const&
   , delayedReadEventProducts_{config().delayedReadEventProducts()}
   , delayedReadSubRunProducts_{config().delayedReadSubRunProducts()}
   , delayedReadRunProducts_{config().delayedReadRunProducts()}
-  , forcedRunOffset_(0)
-  , setRun_(0U)
   , groupSelectorRules_{config().inputCommands(), "inputCommands", "InputSource"}
-  , duplicateChecker_()
   , dropDescendants_{config().dropDescendantsOfDroppedBranches()}
   , readParameterSets_{config().readParameterSets()}
-  , fastCloningInfo_(fcip)
-  , processingMode_(pMode)
-  , processConfiguration_(processConfig)
-  , secondaryFileNames_()
-  , mpr_(mpr)
+  , fastCloningInfo_{fcip}
+  , processingMode_{pMode}
+  , processConfiguration_{processConfig}
+  , mpr_{mpr}
 {
   auto const& primaryFileNames = catalog_.fileSources();
 
   map<string const, vector<string> const> secondaryFilesMap;
 
   std::vector<Config::SecondaryFile> secondaryFiles;
-  if ( config().secondaryFileNames( secondaryFiles ) ) {
+  if (config().secondaryFileNames(secondaryFiles)) {
     for (auto const& val: secondaryFiles) {
       auto const a = val.a();
       auto const b = val.b();
@@ -87,10 +80,9 @@ RootInputFileSequence(fhicl::TableFragment<RootInputFileSequence::Config> const&
 
   vector<pair<vector<string>::const_iterator,
          vector<string>::const_iterator>> stk;
-  for (auto PNI = primaryFileNames.cbegin(), PNE = primaryFileNames.end();
-      PNI != PNE; ++PNI) {
+  for (auto const& primaryFileName : primaryFileNames) {
     vector<string> secondaries;
-    auto SFMI = secondaryFilesMap.find(*PNI);
+    auto SFMI = secondaryFilesMap.find(primaryFileName);
     if (SFMI == secondaryFilesMap.end()) {
       // This primary has no secondaries.
       secondaryFileNames_.push_back(std::move(secondaries));
@@ -154,10 +146,9 @@ RootInputFileSequence(fhicl::TableFragment<RootInputFileSequence::Config> const&
         << "You cannot request \"noEventSort\" and also set \"firstEvent\".\n";
   }
   if (primary()) {
-    duplicateChecker_.reset(new DuplicateChecker(config().dc));
+    duplicateChecker_ = std::make_shared<DuplicateChecker>(config().dc);
   }
-  string const & matchMode = config().fileMatchMode();
-  if (matchMode == string("strict")) {
+  if (config().fileMatchMode() == string("strict")) {
     matchMode_ = BranchDescription::Strict;
   }
   while (catalog_.getNextFile()) {
@@ -347,7 +338,6 @@ initFile(bool skipBadFiles, bool initMPR/*=false*/)
                                          std::move(filePtr),
                                          origEventID_,
                                          eventsToSkip_,
-                                         whichSubRunsToSkip_,
                                          fastCloningInfo_,
                                          treeCacheSize_,
                                          treeMaxVirtualSize_,
@@ -363,7 +353,7 @@ initFile(bool skipBadFiles, bool initMPR/*=false*/)
                                          duplicateChecker_,
                                          dropDescendants_,
                                          readParameterSets_,
-                                         /*primaryFile*/exempt_ptr<RootInputFile>(),
+                                         /*primaryFile*/exempt_ptr<RootInputFile>{nullptr},
                                          /*secondaryFileNameIdx*/-1,
                                          secondaryFileNames_.empty() ? empty_vs : secondaryFileNames_.at(catalog_.currentIndex()),
                                          this);
@@ -446,7 +436,6 @@ openSecondaryFile(int idx,
                                              std::move(filePtr),
                                              origEventID_,
                                              eventsToSkip_,
-                                             whichSubRunsToSkip_,
                                              fastCloningInfo_,
                                              treeCacheSize_,
                                              treeMaxVirtualSize_,

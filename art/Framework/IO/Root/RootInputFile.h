@@ -69,7 +69,6 @@ namespace art {
                   std::unique_ptr<TFile>&& filePtr,
                   EventID const& origEventID,
                   unsigned int eventsToSkip,
-                  std::vector<SubRunID> const& whichSubRunsToSkip,
                   FastCloningInfoProvider const& fcip,
                   unsigned int treeCacheSize,
                   int64_t treeMaxVirtualSize,
@@ -393,7 +392,6 @@ namespace art {
     SQLite3Wrapper sqliteDB_ {filePtr_.get(), "RootFileDB"};
     EventID origEventID_;
     EventNumber_t eventsToSkip_;
-    std::vector<SubRunID> whichSubRunsToSkip_;
     RootTreePtrArray treePointers_;
     bool delayedReadEventProducts_;
     bool delayedReadSubRunProducts_;
