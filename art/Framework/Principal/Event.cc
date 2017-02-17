@@ -77,8 +77,8 @@ namespace art {
                                 ParameterSet& ps) const
   {
     // Get the ProcessHistory for this event.
-    ProcessHistory ph;
-    if (!ProcessHistoryRegistry::get(processHistoryID(), ph)) {
+    auto ph = ProcessHistoryRegistry::find(processHistoryID());
+    if (ph == ProcessHistoryRegistry::cend()) {
       throw Exception(errors::NotFound)
         << "ProcessHistoryID " << processHistoryID()
         << " is claimed to describe " << id()
@@ -87,7 +87,7 @@ namespace art {
     }
 
     ProcessConfiguration config;
-    bool const process_found {ph.getConfigurationForProcess(processName, config)};
+    bool const process_found {ph->second.getConfigurationForProcess(processName, config)};
     if (process_found) {
       ParameterSetRegistry::get(config.parameterSetID(), ps);
     }

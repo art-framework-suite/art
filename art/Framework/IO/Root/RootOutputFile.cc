@@ -716,7 +716,11 @@ art::
 RootOutputFile::
 writeProcessHistoryRegistry()
 {
-  ProcessHistoryMap const* p = &ProcessHistoryRegistry::get();
+  ProcessHistoryMap pHistMap;
+  for (auto const& pr : ProcessHistoryRegistry::get()) {
+    pHistMap.emplace(pr);
+  }
+  auto const* p = &pHistMap;
   TBranch* b = metaDataTree_->Branch(metaBranchRootName<ProcessHistoryMap>(),
                                      &p, basketSize_, 0);
   if (b != nullptr) {

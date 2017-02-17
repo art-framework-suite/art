@@ -46,8 +46,10 @@ Principal(ProcessConfiguration const& pc, ProcessHistoryID const& hist,
     return;
   }
   assert(!ProcessHistoryRegistry::empty());
-  bool found [[gnu::unused]] = ProcessHistoryRegistry::get(hist, *processHistoryPtr_);
+  auto ph = ProcessHistoryRegistry::find(hist);
+  bool const found [[gnu::unused]] {ph != ProcessHistoryRegistry::cend()};
   assert(found);
+  *processHistoryPtr_ = ph->second;
 }
 
 void
@@ -78,7 +80,7 @@ addToProcessHistory()
   // It would probably be better to move the ProcessHistory
   // construction out to somewhere which persists for longer than one
   // Event.
-  ProcessHistoryRegistry::put(ph);
+  ProcessHistoryRegistry::emplace(ph.id(), ph);
   setProcessHistoryID(ph.id());
   processHistoryModified_ = true;
 }

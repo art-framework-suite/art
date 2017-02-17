@@ -43,8 +43,8 @@ using namespace art;
 using fhicl::ParameterSet;
 
 namespace {
-  art::EventID   make_id() { return art::EventID(2112, 47, 25); }
-  art::Timestamp make_timestamp() { return art::Timestamp(1); }
+  art::EventID   make_id() { return art::EventID{2112, 47, 25}; }
+  art::Timestamp make_timestamp() { return art::Timestamp{1}; }
 }
 
 // This is a gross hack, to allow us to test the event
@@ -234,7 +234,7 @@ EventTestFixture::EventTestFixture()
   processHistory->push_back(processEarly);
   processHistory->push_back(processLate);
 
-  ProcessHistoryRegistry::put(ph);
+  ProcessHistoryRegistry::emplace(ph.id(), ph);
 
   ProcessHistoryID processHistoryID = ph.id();
 

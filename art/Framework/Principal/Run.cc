@@ -24,27 +24,9 @@ namespace art {
 
   bool
   Run::getProcessParameterSet(std::string const& /*processName*/,
-                              std::vector<ParameterSet>& psets) const
+                              std::vector<ParameterSet>& /*psets*/) const
   {
-    // Get the relevant ProcessHistoryIDs
-    auto get_history = [](ProcessHistoryID const& id) {
-      ProcessHistory temp;
-      ProcessHistoryRegistry::get(id, temp);
-    };
-
-    std::vector<ProcessHistoryID> historyIDs;
-    cet::for_all( historyIDs, get_history );
-
-    // Get the relevant ParameterSetIDs.
-    auto fill_psets = [&psets](ParameterSetID const& id){
-      ParameterSet temp;
-      ParameterSetRegistry::get(id, temp);
-      psets.push_back(temp);
-    };
-
-    std::vector<ParameterSetID> psetIdsUsed;
-    cet::for_all( psetIdsUsed, fill_psets );
-
+    // Unimplemented
     return false;
   }
 

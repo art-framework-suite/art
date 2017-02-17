@@ -9,14 +9,12 @@
 
 #include "canvas/Persistency/Provenance/ProcessConfiguration.h"
 #include "canvas/Persistency/Provenance/ProcessConfigurationID.h"
-#include "cetlib/registry_via_id.h"
+#include "canvas/Persistency/Provenance/thread_safe_registry_via_id.h"
 
 namespace art {
 
-  typedef  cet::registry_via_id<ProcessConfigurationID,ProcessConfiguration>
-           ProcessConfigurationRegistry;
-  typedef  ProcessConfigurationRegistry::collection_type
-           ProcessConfigurationMap;
+  using ProcessConfigurationRegistry = thread_safe_registry_via_id<ProcessConfigurationID,ProcessConfiguration>;
+  using ProcessConfigurationMap = ProcessConfigurationRegistry::collection_type;
 
 }  // art
 

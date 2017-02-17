@@ -9,18 +9,11 @@
 
 #include "canvas/Persistency/Provenance/ProcessHistory.h"
 #include "canvas/Persistency/Provenance/ProcessHistoryID.h"
-#include "cetlib/registry_via_id.h"
-
-// ----------------------------------------------------------------------
+#include "canvas/Persistency/Provenance/thread_safe_registry_via_id.h"
 
 namespace art {
-
-  using ProcessHistoryRegistry = cet::registry_via_id<ProcessHistoryID,ProcessHistory>;
-
-  static_assert(std::is_same<ProcessHistoryRegistry::collection_type, ProcessHistoryMap>::value,
-                "ProcessHistoryRegistry::collection_type and ProcessHistoryMap should be the same type!");
-
-}  // art
+  using ProcessHistoryRegistry = thread_safe_registry_via_id<ProcessHistoryID, ProcessHistory>;
+}
 
 // ======================================================================
 
