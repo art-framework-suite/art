@@ -417,9 +417,11 @@ fillDependencyGraph()
     BranchID const child = bp.first;
     std::set<ParentageID> const & eIds = bp.second;
     for (auto const& eId : eIds) {
-      Parentage entryDesc;
-      ParentageRegistry::get(eId, entryDesc);
-      for (auto const& p : entryDesc.parents())
+      auto parIt = ParentageRegistry::find(eId);
+      if (parIt == ParentageRegistry::cend()) {
+        continue;
+      }
+      for (auto const& p : parIt->second.parents())
         branchChildren_.insertChild(p, child);
     }
   }

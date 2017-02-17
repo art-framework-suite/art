@@ -308,9 +308,9 @@ namespace art {
       input::getEntry(parentageTree, i);
       if (idBuffer != parentageBuffer.id()) {
         throw art::Exception{errors::DataCorruption}
-          << "Corruption of Parentage tree detected.\n";
+        << "Corruption of Parentage tree detected.\n";
       }
-      ParentageRegistry::put(parentageBuffer);
+      ParentageRegistry::emplace(parentageBuffer.id(), parentageBuffer);
     }
 
     parentageTree->SetBranchAddress(rootNames::parentageIDBranchName().c_str(), nullptr);
