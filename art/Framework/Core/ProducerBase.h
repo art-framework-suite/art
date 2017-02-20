@@ -64,8 +64,7 @@ namespace art {
 
     public:
 
-      Table(fhicl::Name&& name) : fullConfig_{std::move(name)} {}
-
+      explicit Table(fhicl::Name&& name) : fullConfig_{std::move(name)} {}
       Table(fhicl::ParameterSet const& pset) : fullConfig_{pset} {}
 
       auto const& operator()() const { return fullConfig_().user(); }
@@ -93,12 +92,12 @@ namespace art {
 
   }
 
-  template <typename T, typename U>
-  inline decltype(auto) operator<<(T&& t, ProducerBase::Table<U> const& u)
+  template <typename T>
+  inline std::ostream& operator<<(std::ostream& os, ProducerBase::Table<T> const& t)
   {
-    std::ostringstream oss;
-    u.print_allowed_configuration(oss, std::string(3,' '));
-    return std::forward<T>(t) << oss.str();
+    std::ostringstream config;
+    t.print_allowed_configuration(config, std::string(3,' '));
+    return os << config.str();
   }
 
 }  // art
