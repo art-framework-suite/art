@@ -184,7 +184,7 @@ void art::EndPathExecutor::selectProducts(FileBlock const& fb)
   doForAllEnabledOutputWorkers_([&fb](auto w) { w->selectProducts(fb); });
 }
 
-void art::EndPathExecutor::recordOutputClosureRequests(Boundary const b)
+void art::EndPathExecutor::recordOutputClosureRequests(Granularity const b)
 {
   doForAllEnabledOutputWorkers_([this,b](auto ow) {
       // We need to support the following case:
@@ -200,7 +200,7 @@ void art::EndPathExecutor::recordOutputClosureRequests(Boundary const b)
       // that reason, the comparison is 'granularity > b' instead of
       // 'granularity != b'.
 
-      auto const granularity = ow->fileSwitchBoundary();
+      auto const granularity = ow->fileGranularity();
       if (granularity > b || !ow->requestsToCloseFile()) return;
 
       // Technical note: although the outputWorkersToClose_ container

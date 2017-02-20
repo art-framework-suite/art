@@ -47,7 +47,6 @@ namespace art {
   class ActivityRegistry;
 
   class EventProcessor;
-  class WorkerRegistry;
   class Schedule;
 }  // art
 

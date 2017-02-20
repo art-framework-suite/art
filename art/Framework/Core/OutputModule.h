@@ -216,10 +216,19 @@ private:
   // the appropriate tests have been done.
   void reallyCloseFile();
 
-  // Ask the OutputModule if we should end the current file.
-  virtual bool requestsToCloseFile() const {return false;}
   virtual void incrementInputFileNumber() {}
-  virtual Boundary fileSwitchBoundary() const { return Boundary::Unset; }
+
+  // Ask the OutputModule if we should end the current file.
+  // N.B. The default file granularity is 'Unset', which means that
+  //      even if an output module requests to close its file, the
+  //      file will not switch.  To ensure that a file switch requires
+  //      where desired, the author of the output module MUST provide
+  //      an override.  It would be desirable to check if both
+  //      requestsToCloseFile() and fileGranularity() could be checked
+  //      at compile time.  However, such a check would require an
+  //      interface change.
+  virtual bool requestsToCloseFile() const {return false;}
+  virtual Granularity fileGranularity() const { return Granularity::Unset; }
   virtual void setFileStatus(OutputFileStatus);
 
   virtual void beginJob();

@@ -165,7 +165,7 @@ namespace arttest {
       return requestsFileClose_;
     }
 
-    Boundary fileSwitchBoundary() const { return Boundary::Event; }
+    Granularity fileGranularity() const { return Granularity::Event; }
 
     void updateSwitchPoints()
     {

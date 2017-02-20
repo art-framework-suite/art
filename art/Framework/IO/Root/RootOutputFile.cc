@@ -543,7 +543,7 @@ beginInputFile(FileBlock const& fb, bool fastClone)
 void
 art::RootOutputFile::incrementInputFileNumber()
 {
-  fp_.update<Boundary::InputFile>();
+  fp_.update<Granularity::InputFile>();
 }
 
 void
@@ -604,7 +604,7 @@ writeOne(EventPrincipal const& e)
   pHistory_ = &e.history();
   // Add event to index
   fileIndex_.addEntry(pEventAux_->id(), fp_.eventEntryNumber());
-  fp_.update<Boundary::Event>(status_);
+  fp_.update<Granularity::Event>(status_);
 }
 
 void
@@ -616,7 +616,7 @@ writeSubRun(SubRunPrincipal const& sr)
   pSubRunAux_->setRangeSetID(subRunRSID_);
   fillBranches<InSubRun>(sr, pSubRunProductProvenanceVector_);
   fileIndex_.addEntry(EventID::invalidEvent(pSubRunAux_->id()), fp_.subRunEntryNumber());
-  fp_.update<Boundary::SubRun>(status_);
+  fp_.update<Granularity::SubRun>(status_);
 }
 
 void
@@ -628,7 +628,7 @@ writeRun(RunPrincipal const& r)
   pRunAux_->setRangeSetID(runRSID_);
   fillBranches<InRun>(r, pRunProductProvenanceVector_);
   fileIndex_.addEntry(EventID::invalidEvent(pRunAux_->id()), fp_.runEntryNumber());
-  fp_.update<Boundary::Run>(status_);
+  fp_.update<Granularity::Run>(status_);
 }
 
 void

@@ -58,7 +58,7 @@ art::ClosingCriteria::ClosingCriteria(Config const& c)
 art::ClosingCriteria::ClosingCriteria(FileProperties const& fp,
                                       std::string const& granularity)
   : closingCriteria_{fp}
-  , granularity_{Boundary::value(granularity)}
+  , granularity_{Granularity::value(granularity)}
 {}
 
 bool

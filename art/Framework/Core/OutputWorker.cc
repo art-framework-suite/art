@@ -90,6 +90,6 @@ namespace art {
 
   void OutputWorker::selectProducts(FileBlock const& fb) { module().selectProducts(fb); }
 
-  Boundary OutputWorker::fileSwitchBoundary() const { return module().fileSwitchBoundary(); }
+  Granularity OutputWorker::fileGranularity() const { return module().fileGranularity(); }
 
 }

@@ -1,5 +1,5 @@
-#ifndef art_Framework_Core_OutputFileSwitchBoundary_h
-#define art_Framework_Core_OutputFileSwitchBoundary_h
+#ifndef art_Framework_Core_OutputFileGranularity_h
+#define art_Framework_Core_OutputFileGranularity_h
 
 #include "canvas/Utilities/Exception.h"
 #include <stdexcept>
@@ -7,11 +7,11 @@
 
 namespace art {
 
-  class Boundary {
+  class Granularity {
   public:
-    enum BT { Event, SubRun, Run, InputFile, Unset };
+    enum BT {Event, SubRun, Run, InputFile, Job, Unset};
 
-    Boundary(BT const b) : b_{b} {}
+    Granularity(BT const b) : b_{b} {}
 
     BT operator()() const { return b_; }
     operator std::size_t() const { return static_cast<std::size_t>(b_); }
@@ -24,6 +24,7 @@ namespace art {
       else if (spec == "SubRun") return SubRun;
       else if (spec == "Run") return Run;
       else if (spec == "InputFile") return InputFile;
+      else if (spec == "Job") return Job;
       else if (spec == "Unset") return Unset;
       else
         throw art::Exception(art::errors::Configuration)
@@ -33,31 +34,34 @@ namespace art {
           "   \"SubRun\"\n"
           "   \"Run\"\n"
           "   \"InputFile\"\n"
+          "   \"Job\"\n"
           "   \"Unset\"";
-
     }
 
   private:
     BT b_;
   };
 
-  inline std::ostream& operator<<(std::ostream& os, Boundary const& b)
+  inline std::ostream& operator<<(std::ostream& os, Granularity const& b)
   {
     std::string token {"Unset"};
     switch(b()) {
-    case Boundary::Event:
+    case Granularity::Event:
       token = "Event";
       break;
-    case Boundary::SubRun:
+    case Granularity::SubRun:
       token = "SubRun";
       break;
-    case Boundary::Run:
+    case Granularity::Run:
       token = "Run";
       break;
-    case Boundary::InputFile:
+    case Granularity::InputFile:
       token = "InputFile";
       break;
-    case Boundary::Unset: ;
+    case Granularity::Job:
+      token = "Job";
+      break;
+    case Granularity::Unset: ;
     }
     os << token;
     return os;
@@ -65,7 +69,7 @@ namespace art {
 
 }
 
-#endif /* art_Framework_Core_OutputFileSwitchBoundary_h */
+#endif /* art_Framework_Core_OutputFileGranularity_h */
 
 // Local variables:
 // mode: c++

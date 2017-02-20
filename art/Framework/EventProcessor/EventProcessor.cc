@@ -401,19 +401,19 @@ namespace art {
   template <>
   inline void EventProcessor::recordOutputModuleClosureRequests<Level::Run>()
   {
-    endPathExecutor_->recordOutputClosureRequests(Boundary::Run);
+    endPathExecutor_->recordOutputClosureRequests(Granularity::Run);
   }
 
   template <>
   inline void EventProcessor::recordOutputModuleClosureRequests<Level::SubRun>()
   {
-    endPathExecutor_->recordOutputClosureRequests(Boundary::SubRun);
+    endPathExecutor_->recordOutputClosureRequests(Granularity::SubRun);
   }
 
   template <>
   inline void EventProcessor::recordOutputModuleClosureRequests<Level::Event>()
   {
-    endPathExecutor_->recordOutputClosureRequests(Boundary::Event);
+    endPathExecutor_->recordOutputClosureRequests(Granularity::Event);
   }
 
   template <>
@@ -628,7 +628,7 @@ art::EventProcessor::closeInputFile()
   // copied forward from the input files.  That's why the
   // recordOutputClosureRequests call is made here instead of in a
   // specialization of recordOutputModuleClosureRequests<>.
-  endPathExecutor_->recordOutputClosureRequests(Boundary::InputFile);
+  endPathExecutor_->recordOutputClosureRequests(Granularity::InputFile);
   if (endPathExecutor_->outputsToClose()) {
     closeSomeOutputFiles();
   }

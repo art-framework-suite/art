@@ -16,7 +16,7 @@
 // input.
 // ======================================================================
 #include "art/Framework/Core/OutputFileStatus.h"
-#include "art/Framework/Core/OutputFileSwitchBoundary.h"
+#include "art/Framework/Core/OutputFileGranularity.h"
 #include "art/Framework/Core/OutputWorker.h"
 #include "art/Framework/Core/PathManager.h"
 #include "art/Framework/Core/PathsInfo.h"
@@ -74,7 +74,7 @@ public:
   void respondToCloseOutputFiles(FileBlock const& fb);
 
   // Allow output files to close that need to
-  void recordOutputClosureRequests(Boundary);
+  void recordOutputClosureRequests(Granularity);
   bool outputsToOpen() const;
   bool outputsToClose() const;
   bool someOutputsOpen() const;

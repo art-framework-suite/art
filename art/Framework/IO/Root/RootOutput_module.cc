@@ -119,7 +119,7 @@ private:
   void readResults(ResultsPrincipal const& resp) override;
   void respondToCloseInputFile(FileBlock const&) override;
   void incrementInputFileNumber() override;
-  Boundary fileSwitchBoundary() const override;
+  Granularity fileGranularity() const override;
   void write(EventPrincipal&) override;
   void writeSubRun(SubRunPrincipal&) override;
   void writeRun(RunPrincipal&) override;
@@ -497,9 +497,9 @@ requestsToCloseFile() const
   return isFileOpen() ? rootOutputFile_->requestsToCloseFile() : false;
 }
 
-art::Boundary
+art::Granularity
 art::RootOutput::
-fileSwitchBoundary() const
+fileGranularity() const
 {
   return fileProperties_.granularity();
 }
