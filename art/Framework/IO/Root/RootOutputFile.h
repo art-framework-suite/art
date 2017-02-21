@@ -115,7 +115,7 @@ public: // MEMBER FUNCTIONS
                           int const basketSize,
                           DropMetaData dropMetaData,
                           bool dropMetaDataForDroppedData,
-                          bool fastCloning);
+                          bool fastCloningRequested);
 
   void writeOne(EventPrincipal const&);
   void writeSubRun(SubRunPrincipal const&);
@@ -183,8 +183,8 @@ private: // MEMBER DATA
   int const basketSize_;
   DropMetaData dropMetaData_;
   bool dropMetaDataForDroppedData_;
-  bool fastCloning_;
-  bool currentlyFastCloning_ {true};
+  bool fastCloningEnabledAtConstruction_;
+  bool wasFastCloned_ {false};
   std::unique_ptr<TFile> filePtr_;
   FileIndex fileIndex_ {};
   FileProperties fp_ {};

@@ -379,8 +379,8 @@ Principal::
 getForOutput(BranchID const bid, bool resolveProd) const
 {
   auto const& g = getResolvedGroup(bid, resolveProd);
-  if (!g) {
-    return OutputHandle{g->rangeOfValidity()};
+  if (g.get() == nullptr) {
+    return OutputHandle{RangeSet::invalid()};
   }
   auto const & pmd = ProductMetaData::instance();
   auto const bt = g->productDescription().branchType();

@@ -97,24 +97,27 @@ writeTree() const
   writeTTree(metaTree_);
 }
 
-void
+bool
 RootOutputTree::
 fastCloneTree(TTree* intree)
 {
   unclonedReadBranches_.clear();
   unclonedReadBranchNames_.clear();
-  if (!currentlyFastCloning_) {
-    return;
+  if (!fastCloningEnabled_) {
+    return false;
   }
+
+  bool cloned {false};
   if (intree->GetEntries() != 0) {
     TTreeCloner cloner(intree, tree_, "", TTreeCloner::kIgnoreMissingTopLevel |
                        TTreeCloner::kNoWarnings | TTreeCloner::kNoFileCache);
     if (cloner.IsValid()) {
       tree_->SetEntries(tree_->GetEntries() + intree->GetEntries());
       cloner.Exec();
+      cloned = true;
     }
     else {
-      currentlyFastCloning_ = false;
+      fastCloningEnabled_ = false;
       mf::LogInfo("fastCloneTree")
           << "INFO: Unable to fast clone tree "
           << intree->GetName()
@@ -132,6 +135,7 @@ fastCloneTree(TTree* intree)
       unclonedReadBranchNames_.insert(string(val->GetName()));
     }
   }
+  return cloned;
 }
 
 static
@@ -157,7 +161,7 @@ fillTree()
   bool saveMemory = (saveMemoryObjectThreshold_ > -1);
   fillTreeBranches(tree_, producedBranches_, saveMemory,
                    saveMemoryObjectThreshold_);
-  if (currentlyFastCloning_) {
+  if (fastCloningEnabled_) {
     fillTreeBranches(tree_, unclonedReadBranches_, saveMemory,
                      saveMemoryObjectThreshold_);
   }
