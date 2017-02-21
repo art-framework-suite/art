@@ -56,7 +56,7 @@ sub processBasicOptions {
   GetOptionsFromArray($plugin_options,
                       "scope=s" => sub { $self->_setScope(@_); }) or
                         do { usage(); exit(1); };
-  $self->{scope} = (uc $self->{scope}) || "LEGACY";
+  $self->{scope} = $self->{scope} ? (uc $self->{scope}) : "LEGACY";
 }
 
 sub _setScope {
