@@ -85,7 +85,7 @@ namespace art {
     bool
     checkSplitLevelAndBasketSize(TTree*) const;
 
-    void fastCloneTree(TTree*);
+    bool fastCloneTree(TTree*);
     void fillTree();
     void writeTree() const;
 
@@ -120,7 +120,7 @@ namespace art {
     void
     beginInputFile(bool fastCloning)
     {
-      currentlyFastCloning_ = fastCloning;
+      fastCloningEnabled_ = fastCloning;
     }
 
     bool
@@ -143,7 +143,12 @@ namespace art {
     std::vector<TBranch*> readBranches_ {};
     std::vector<TBranch*> unclonedReadBranches_ {};
     std::set<std::string> unclonedReadBranchNames_ {};
-    bool currentlyFastCloning_ {false};
+
+    // The default for 'fastCloningEnabled_' is false so that SubRuns
+    // and Runs are not fast- cloned.  We explicitly set this variable
+    // to true for the event tree.
+    bool fastCloningEnabled_ {false};
+
     int basketSize_;
     int splitLevel_;
     int64_t saveMemoryObjectThreshold_;

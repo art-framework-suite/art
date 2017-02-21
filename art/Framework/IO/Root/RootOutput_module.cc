@@ -172,7 +172,7 @@ private:
 
   // We keep this for the use of RootOutputFile and we also use it
   // during file open to make some choices.
-  bool fastCloning_ {true};
+  bool fastCloningEnabled_ {true};
 
   // Set false only for cases where we are guaranteed never to need
   // historical ParameterSet information in the downstream file
@@ -210,12 +210,12 @@ RootOutput(Parameters const& config)
   dropAllEvents_ = detail::shouldDropEvents(dropAllEventsSet, dropAllEvents_, dropAllSubRuns_);
 
   // N.B. Any time file switching is enabled at a boundary other than
-  //      InputFile, fastCloning_ ***MUST*** be deactivated.  This is
+  //      InputFile, fastCloningEnabled_ ***MUST*** be deactivated.  This is
   //      to ensure that the Event tree from the InputFile is not
   //      accidentally cloned to the output file before the output
   //      module has seen the events that are going to be processed.
-  bool const fastCloningSet {config().fastCloning(fastCloning_)};
-  fastCloning_ = detail::shouldFastClone(fastCloningSet, fastCloning_, wantAllEvents(), fileProperties_);
+  bool const fastCloningSet {config().fastCloning(fastCloningEnabled_)};
+  fastCloningEnabled_ = detail::shouldFastClone(fastCloningSet, fastCloningEnabled_, wantAllEvents(), fileProperties_);
 
   if (!writeParameterSets_) {
     mf::LogWarning("PROVENANCE")
@@ -256,10 +256,10 @@ respondToOpenInputFile(FileBlock const& fb)
   ++inputFileCount_;
   if (!isFileOpen()) return;
 
-  bool fastCloneThisOne = fastCloning_ && (fb.tree() != nullptr) &&
+  bool fastCloneThisOne = fastCloningEnabled_ && (fb.tree() != nullptr) &&
                           ((remainingEvents() < 0) ||
                            (remainingEvents() >= fb.tree()->GetEntries()));
-  if (fastCloning_ && !fastCloneThisOne) {
+  if (fastCloningEnabled_ && !fastCloneThisOne) {
     mf::LogWarning("FastCloning")
       << "Fast cloning deactivated for this input file due to "
       << "empty event tree and/or event limits.";
@@ -270,7 +270,7 @@ respondToOpenInputFile(FileBlock const& fb)
       << "information in FileBlock.";
     fastCloneThisOne = false;
   }
-  rootOutputFile_->beginInputFile(fb, fastCloneThisOne && fastCloning_);
+  rootOutputFile_->beginInputFile(fb, fastCloneThisOne);
   fstats_.recordInputFile(fb.fileName());
 }
 
@@ -523,7 +523,7 @@ doOpenFile()
                                                      basketSize_,
                                                      dropMetaData_,
                                                      dropMetaDataForDroppedData_,
-                                                     fastCloning_);
+                                                     fastCloningEnabled_);
   fstats_.recordFileOpen();
   detail::logFileAction("Opened output file with pattern ", filePattern_);
 }
