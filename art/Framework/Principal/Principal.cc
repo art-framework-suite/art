@@ -27,29 +27,26 @@ using namespace std;
 namespace art {
 
 Principal::
-Principal(ProcessConfiguration const& pc, ProcessHistoryID const& hist,
+Principal(ProcessConfiguration const& pc,
+          ProcessHistoryID const& hist,
           std::unique_ptr<BranchMapper>&& mapper,
-          std::unique_ptr<DelayedReader>&& reader, int idx,
+          std::unique_ptr<DelayedReader>&& reader,
+          int const idx,
           cet::exempt_ptr<Principal const> primaryPrincipal)
-  : processHistoryPtr_(new ProcessHistory)
-  , processConfiguration_(pc)
-  , processHistoryModified_(false)
-  , groups_()
-  , branchMapperPtr_(std::move(mapper))
-  , store_(std::move(reader))
+  : processConfiguration_{pc}
+  , branchMapperPtr_{std::move(mapper)}
+  , store_{std::move(reader)}
   , primaryPrincipal_{primaryPrincipal}
-  , secondaryPrincipals_()
-  , secondaryIdx_(idx)
-  , nextSecondaryFileIdx_(0)
+  , secondaryIdx_{idx}
 {
   if (!hist.isValid()) {
     return;
   }
   assert(!ProcessHistoryRegistry::empty());
-  auto ph = ProcessHistoryRegistry::find(hist);
-  bool const found [[gnu::unused]] {ph != ProcessHistoryRegistry::cend()};
+  ProcessHistory ph;
+  bool const found [[gnu::unused]] {ProcessHistoryRegistry::get(hist, ph)};
   assert(found);
-  *processHistoryPtr_ = ph->second;
+  std::swap(*processHistoryPtr_ , ph);
 }
 
 void

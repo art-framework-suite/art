@@ -274,14 +274,14 @@ namespace art {
 
   private: // MEMBER DATA
 
-    std::shared_ptr<ProcessHistory> processHistoryPtr_;
+    std::shared_ptr<ProcessHistory> processHistoryPtr_ {std::make_shared<ProcessHistory>()};
 
     ProcessConfiguration const& processConfiguration_;
 
-    mutable bool processHistoryModified_;
+    mutable bool processHistoryModified_ {false};
 
     // products and provenances are persistent
-    std::map<BranchID, std::unique_ptr<Group>> groups_;
+    std::map<BranchID, std::unique_ptr<Group>> groups_ {};
 
     // Pointer to the mapper that will get provenance
     // information from the persistent store.
@@ -298,7 +298,7 @@ namespace art {
     // and subRun principals is the lifetime of the input file,
     // while the lifetime of event principals ends at the next
     // event read.
-    std::vector<std::unique_ptr<Principal>> secondaryPrincipals_;
+    std::vector<std::unique_ptr<Principal>> secondaryPrincipals_ {};
 
     // Index into the per-file lookup tables.  Each principal is
     // read from particular secondary file.
@@ -306,7 +306,7 @@ namespace art {
 
     // Index into the secondary file names vector of the next
     // file that a secondary principal should be created from.
-    mutable int nextSecondaryFileIdx_;
+    mutable int nextSecondaryFileIdx_ {};
 
   };
 
