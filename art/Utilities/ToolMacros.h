@@ -26,10 +26,10 @@
     PROVIDE_FILE_PATH()                                                 \
     PROVIDE_ALLOWED_CONFIGURATION(tool)                                 \
     std::string toolType() { return "class"; }                          \
-    std::enable_if_t<std::is_class< tool >::value, std::unique_ptr< tool >> \
+    std::enable_if_t<std::is_class<tool>::value, std::unique_ptr<tool>> \
     makeTool(fhicl::ParameterSet const& pset)                           \
     {                                                                   \
-      return std::make_unique< tool >(pset);                            \
+      return std::make_unique<tool>(pset);                              \
     }                                                                   \
   }
 

@@ -62,7 +62,7 @@ namespace art {
   extern "C"                                                            \
   std::unique_ptr<art::ConfigurationTable> allowed_configuration(std::string const& name) \
   {                                                                     \
-    return art::detail::AllowedConfiguration< klass >::get(name);       \
+    return art::detail::AllowedConfiguration<klass>::get(name);       \
   }
 
 #define PROVIDE_ALLOWED_CONFIGURATION_FUNCTION_TOOL()                   \
