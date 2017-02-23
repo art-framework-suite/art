@@ -1,4 +1,4 @@
-#include "art/Framework/Core/EventObserver.h"
+#include "art/Framework/Core/EventObserverBase.h"
 
 #include "art/Framework/Core/detail/OutputModuleUtils.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
@@ -15,21 +15,21 @@ using fhicl::ParameterSet;
 
 namespace art {
 
-  EventObserver::EventObserver(vector<string> const& paths,
+  EventObserverBase::EventObserverBase(vector<string> const& paths,
                                fhicl::ParameterSet const& pset)
     : selector_config_id_{pset.id()}
   {
     init_(paths);
   }
 
-  EventObserver::EventObserver(ParameterSet const& pset)
+  EventObserverBase::EventObserverBase(ParameterSet const& pset)
     : selector_config_id_{pset.id()}
   {
     auto const& paths = pset.get<vector<string>>("SelectEvents",{});
     init_(paths);
   }
 
-  void EventObserver::init_(vector<string> const& paths)
+  void EventObserverBase::init_(vector<string> const& paths)
   {
     ServiceHandle<TriggerNamesService> TNS;
     process_name_ = TNS->getProcessName();

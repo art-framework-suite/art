@@ -88,7 +88,7 @@ namespace art {
       if (isEvent) ++timesPassed_;
       state_ = art::hlt::Pass;
     } else {
-      if(isEvent) ++timesFailed_;
+      if (isEvent) ++timesFailed_;
       state_ = art::hlt::Fail;
     }
   }

@@ -8,7 +8,7 @@
 // ======================================================================
 
 #include "art/Framework/Core/EngineCreator.h"
-#include "art/Framework/Core/EventObserver.h"
+#include "art/Framework/Core/EventObserverBase.h"
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/WorkerT.h"
 #include "art/Framework/Core/detail/IgnoreModuleLabel.h"
@@ -31,7 +31,7 @@ namespace art
   class MasterProductRegistry;
 
   class EDAnalyzer
-    : public EventObserver,
+    : public EventObserverBase,
       public EngineCreator
   {
   public:
@@ -64,7 +64,7 @@ namespace art
       template <typename T>
       struct FullConfig {
         fhicl::Atom<std::string> module_type { fhicl::Name("module_type") };
-        fhicl::TableFragment<EventObserver::EOConfig> eoConfig;
+        fhicl::TableFragment<EventObserverBase::EOConfig> eoConfig;
         fhicl::TableFragment<T> user;
       };
 
@@ -80,12 +80,12 @@ namespace art
 
     template <typename Config>
     explicit EDAnalyzer(Table<Config> const& config)
-      : EventObserver{config.eoFragment().selectEvents(), config.get_PSet()}
+      : EventObserverBase{config.eoFragment().selectEvents(), config.get_PSet()}
       , EngineCreator{}
     {}
 
     explicit EDAnalyzer(fhicl::ParameterSet const& pset)
-      : EventObserver{pset}
+      : EventObserverBase{pset}
       , EngineCreator{}
     {}
 

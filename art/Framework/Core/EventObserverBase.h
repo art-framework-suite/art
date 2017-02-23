@@ -1,5 +1,6 @@
-#ifndef art_Framework_Core_EventObserver_h
-#define art_Framework_Core_EventObserver_h
+#ifndef art_Framework_Core_EventObserverBase_h
+#define art_Framework_Core_EventObserverBase_h
+
 // Common base class for module which do not modify events, such as
 // OutputModule and EDAnalyzer.
 
@@ -15,11 +16,12 @@ namespace art {
   class MasterProductRegistry;
   class ModuleDescription;
 
-  class EventObserver;
+  class EventObserverBase;
 }
 
-class art::EventObserver {
+class art::EventObserverBase {
 public:
+
   bool modifiesEvent() const { return false; }
 
   // FIXME: One could obviate the need for this trivial implementation
@@ -44,8 +46,8 @@ protected:
         std::vector<std::string>{} };
   };
 
-  explicit EventObserver(std::vector<std::string> const& paths, fhicl::ParameterSet const& config);
-  explicit EventObserver(fhicl::ParameterSet const& config);
+  explicit EventObserverBase(std::vector<std::string> const& paths, fhicl::ParameterSet const& config);
+  explicit EventObserverBase(fhicl::ParameterSet const& config);
   detail::CachedProducts& cachedProducts() { return selectors_; }
 
 private:
@@ -64,7 +66,7 @@ private:
 
 };
 
-#endif /* art_Framework_Core_EventObserver_h */
+#endif /* art_Framework_Core_EventObserverBase_h */
 
 // Local Variables:
 // mode: c++

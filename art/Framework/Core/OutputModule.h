@@ -8,7 +8,7 @@
 //
 // ======================================================================
 
-#include "art/Framework/Core/EventObserver.h"
+#include "art/Framework/Core/EventObserverBase.h"
 #include "art/Framework/Core/FileCatalogMetadataPlugin.h"
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/GroupSelector.h"
@@ -49,7 +49,7 @@ namespace art {
   class ResultsPrincipal;
 }
 
-class art::OutputModule : public EventObserver {
+class art::OutputModule : public EventObserverBase {
 public:
   OutputModule(OutputModule const &) = delete;
   OutputModule & operator=(OutputModule const &) = delete;
@@ -70,7 +70,7 @@ public:
     };
 
     fhicl::Atom<std::string> moduleType { fhicl::Name("module_type") };
-    fhicl::TableFragment<EventObserver::EOConfig> eoFragment;
+    fhicl::TableFragment<EventObserverBase::EOConfig> eoFragment;
     fhicl::Sequence<std::string> outputCommands { fhicl::Name("outputCommands"), std::vector<std::string>{"keep *"} };
     fhicl::Atom<std::string> fileName   { fhicl::Name("fileName"), "" };
     fhicl::Atom<std::string> dataTier   { fhicl::Name("dataTier"), "" };
