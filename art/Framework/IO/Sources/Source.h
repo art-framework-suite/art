@@ -606,9 +606,10 @@ art::Source<T>::finishProductRegistration_(InputSourceDescription& d)
   // are here as tracers to help identify any failures in coding.
   h_.registerProducts(d.productRegistry,
                       ModuleDescription{fhicl::ParameterSet{}.id(), // Dummy
-                                        "_NAMEERROR_",
-                                        "_LABELERROR_",
-                                        d.moduleDescription.processConfiguration()});
+                                                                "_NAMEERROR_",
+                                                                "_LABELERROR_",
+                                                                d.moduleDescription.processConfiguration(),
+                                                                ModuleDescription::invalidID()});
 }
 
 #endif /* art_Framework_IO_Sources_Source_h */

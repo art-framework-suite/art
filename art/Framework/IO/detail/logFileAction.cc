@@ -1,6 +1,8 @@
 #include "art/Framework/IO/detail/logFileAction.h"
 // vim: set sw=2:
 #include "messagefacility/MessageLogger/MessageLogger.h"
+
+#include <cstring>
 #include <ctime>
 
 void

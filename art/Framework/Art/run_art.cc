@@ -196,10 +196,9 @@ int art::run_art_common_(fhicl::ParameterSet const& main_pset, art::detail::Debu
   //
   // Start the messagefacility
   //
-  mf::MessageDrop::instance()->jobMode = std::string("analysis");
-  mf::MessageDrop::instance()->runEvent = std::string("JobSetup");
-  mf::StartMessageFacility(mf::MessageFacilityService::MultiThread,
-                           services_pset.get<fhicl::ParameterSet>("message",{}));
+  mf::MessageDrop::jobMode = std::string("analysis");
+  mf::MessageDrop::instance()->iteration = std::string("JobSetup");
+  mf::StartMessageFacility(services_pset.get<fhicl::ParameterSet>("message",{}));
   mf::LogInfo("MF_INIT_OK") << "Messagelogger initialization complete.";
   //
   // Configuration output (non-preempting)

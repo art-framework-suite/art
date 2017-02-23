@@ -2,8 +2,10 @@
 #define art_Framework_Core_MFStatusUpdater_h
 
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
-#include "messagefacility/MessageLogger/MessageDrop.h"
-#include "messagefacility/MessageLogger/MessageLoggerImpl.h"
+#include "canvas/Persistency/Provenance/ModuleDescription.h"
+
+#include "messagefacility/MessageService/MessageDrop.h"
+#include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include <string>
 
@@ -42,10 +44,6 @@ public:
   MFStatusUpdater operator=(MFStatusUpdater const&) = delete;
 
   MFStatusUpdater(ActivityRegistry &areg);
-
-  // Public interface to get state information.
-  std::string const &programStatus() const { return programStatus_; }
-  std::string const &workFlowSatus() const { return workFlowStatus_; }
 
 private:
   MFSU_0_ARG_UPDATER_DECL(PostBeginJob);
@@ -99,29 +97,69 @@ private:
   MFSU_1_ARG_UPDATER_DECL(PreModuleEndSubRun);
   MFSU_1_ARG_UPDATER_DECL(PostModuleEndSubRun);
 
-  void setContext(std::string const &ps);
-  void setMinimalContext(std::string const &ps);
-  void setContext(art::ModuleDescription const &desc);
-  void setContext(art::ModuleDescription const &desc,
-                  std::string const &phase);
-  void restoreContext(std::string const &ps);
-  void restoreContext(art::ModuleDescription const &desc);
-  void restoreContext(art::ModuleDescription const &desc,
-                      std::string const &phase);
-  void setWorkFlowStatus(std::string wfs);
-  std::string moduleIDString(const ModuleDescription &desc);
-  std::string moduleIDString(const ModuleDescription &desc,
-                             std::string const &suffix);
+  void moduleWithPhase(art::ModuleDescription const & desc,
+                       std::string const & phase);
+  void preModuleWithPhase(art::ModuleDescription const & desc,
+                          std::string const & phase = {});
+  void postModuleWithPhase(art::ModuleDescription const & desc,
+                           std::string const & phase = {});
+  void saveEnabledState(art::ModuleDescription const & desc);
+  void saveEnabledState(std::string const & moduleLabel);
+  void restoreEnabledState();
 
   ActivityRegistry &areg_;
 
-  std::string programStatus_;
-  std::string workFlowStatus_;
-
   mf::MessageDrop& md_;
-  mf::MessageLoggerImpl& mls_;
-  mf::MessageLoggerImpl::EnabledState savedEnabledState_;
+  mf::EnabledState savedEnabledState_;
 };
+
+inline
+void
+art::MFStatusUpdater::
+moduleWithPhase(art::ModuleDescription const & desc,
+                std::string const & phase)
+{
+  md_.setModuleWithPhase(desc.moduleName(),
+                         desc.moduleLabel(),
+                         desc.id(),
+                         phase);
+}
+
+inline
+void
+art::MFStatusUpdater::
+preModuleWithPhase(art::ModuleDescription const & desc,
+                   std::string const & phase)
+{
+  moduleWithPhase(desc, phase);
+  saveEnabledState(desc);
+}
+
+inline
+void
+art::MFStatusUpdater::
+postModuleWithPhase(art::ModuleDescription const & desc,
+                    std::string const & phase)
+{
+  moduleWithPhase(desc, phase);
+  restoreEnabledState();
+}
+
+inline
+void
+art::MFStatusUpdater::
+saveEnabledState(art::ModuleDescription const & desc)
+{
+  saveEnabledState(desc.moduleLabel());
+}
+
+inline
+void
+art::MFStatusUpdater::
+saveEnabledState(std::string const & moduleLabel)
+{
+  savedEnabledState_ = mf::setEnabledState(moduleLabel);
+}
 
 #undef MFSU_0_ARG_UPDATER_DECL
 #undef MFSU_1_ARG_UPDATER_DECL

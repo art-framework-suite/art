@@ -21,6 +21,14 @@
 
 namespace {
 
+  enum class SeverityLevel {
+    kInfo,
+      kWarning,
+      kError,
+      kSysError,
+      kFatal
+      };
+
   void RootErrorHandler(int level, bool die,
                         char const* location, char const* message)
   {
@@ -28,11 +36,16 @@ namespace {
 
     // Translate ROOT severity level to MessageLogger severity level
 
-    ELseverityLevel              el_severity = ELseverityLevel::ELsev_info;
-    if     ( level >= kFatal   ) el_severity = ELseverityLevel::ELsev_fatal;
-    else if( level >= kSysError) el_severity = ELseverityLevel::ELsev_severe;
-    else if( level >= kError   ) el_severity = ELseverityLevel::ELsev_error;
-    else if( level >= kWarning ) el_severity = ELseverityLevel::ELsev_warning;
+    SeverityLevel el_severity = SeverityLevel::kInfo;
+    if (level >= kFatal) {
+      el_severity = SeverityLevel::kFatal;
+    } else if (level >= kSysError) {
+      el_severity = SeverityLevel::kSysError;
+    } else if (level >= kError) {
+      el_severity = SeverityLevel::kError;
+    } else if (level >= kWarning) {
+      el_severity = SeverityLevel::kWarning;
+    }
 
     // Adapt C-strings to std::strings
     // Arrange to report the error location as furnished by Root
@@ -83,15 +96,14 @@ namespace {
      && (el_message.find("fill branch") != std::string::npos)
      && (el_message.find("address") != std::string::npos)
      && (el_message.find("not set") != std::string::npos) ) {
-      el_severity = ELseverityLevel::ELsev_fatal;
+      el_severity = SeverityLevel::kFatal;
     }
     if( (el_message.find("Tree branches") != std::string::npos)
      && (el_message.find("different numbers of entries") != std::string::npos) ) {
-      el_severity = ELseverityLevel::ELsev_fatal;
+      el_severity = SeverityLevel::kFatal;
     }
 
     // Intercept some messages and downgrade the severity
-
     if( (el_message.find("dictionary") != std::string::npos) ||
         (el_message.find("already in TClassTable") != std::string::npos) ||
         (el_message.find("matrix not positive definite") != std::string::npos) ||
@@ -99,15 +111,15 @@ namespace {
         (el_location.find("TDecompChol::Solve") != std::string::npos) ||
         (el_location.find("THistPainter::PaintInit") != std::string::npos) ||
         (el_location.find("TGClient::GetFontByName") != std::string::npos)) {
-      el_severity = ELseverityLevel::ELsev_info;
+      el_severity = SeverityLevel::kInfo;
     }
 
-    if ( (el_location.find("TUnixSystem::SetDisplay") != std::string::npos) &&
-         (el_message.find("DISPLAY not set") != std::string::npos) ) {
-      el_severity = ELseverityLevel::ELsev_info;
+    if ((el_location.find("TUnixSystem::SetDisplay") != std::string::npos) &&
+        (el_message.find("DISPLAY not set") != std::string::npos) ) {
+      el_severity = SeverityLevel::kInfo;
     }
 
-    if( el_severity == ELseverityLevel::ELsev_info ) {
+    if (el_severity == SeverityLevel::kInfo) {
       // Don't throw if the message is just informational.
       die = false;
     } else {
@@ -129,23 +141,18 @@ namespace {
     // Currently we get here only for informational messages,
     // but we leave the other code in just in case we change
     // the criteria for throwing.
-    if( el_severity == ELseverityLevel::ELsev_fatal ) {
+    if (el_severity == SeverityLevel::kFatal ) {
       mf::LogError("Root_Fatal") << el_location << el_message;
-    }
-    else if( el_severity == ELseverityLevel::ELsev_severe ) {
+    } else if (el_severity == SeverityLevel::kSysError) {
       mf::LogError("Root_Severe") << el_location << el_message;
-    }
-    else if( el_severity == ELseverityLevel::ELsev_error ) {
+    } else if (el_severity == SeverityLevel::kError) {
       mf::LogError("Root_Error") << el_location << el_message;
-    }
-    else if( el_severity == ELseverityLevel::ELsev_warning ) {
+    } else if (el_severity == SeverityLevel::kWarning) {
       mf::LogWarning("Root_Warning") << el_location << el_message ;
-    }
-    else if( el_severity == ELseverityLevel::ELsev_info ) {
+    } else if (el_severity == SeverityLevel::kInfo) {
       mf::LogInfo("Root_Information") << el_location << el_message ;
     }
   }
-
 }  // namespace
 
 namespace art {

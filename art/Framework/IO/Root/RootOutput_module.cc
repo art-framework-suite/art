@@ -462,9 +462,10 @@ doRegisterProducts(MasterProductRegistry& mpr,
   rpm_.for_each_RPWorker([&mpr, &md](RPWorker& w) {
       auto const& params = w.params();
       w.setModuleDescription(ModuleDescription{params.rpPSetID,
-                                               params.rpPluginType,
-                                               md.moduleLabel() + '#' + params.rpLabel,
-                                               md.processConfiguration()});
+            params.rpPluginType,
+            md.moduleLabel() + '#' + params.rpLabel,
+            md.processConfiguration(),
+            ModuleDescription::invalidID()});
       w.rp().registerProducts(mpr, w.moduleDescription());
     });
 }
