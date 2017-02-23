@@ -19,12 +19,20 @@
 // trigger paths.
 //
 // Almost all the functions return information related to the current
-// process only.  The second and third getTrigPaths functions are exceptions.
-// They will return the trigger path names from previous processes.
+// process only.  The second getTrigPaths function is an exception.
+// It will return the trigger path names from previous processes.
+//
+// Multi-threading considerations:
+//
+//   This service is constructed during process start-up, which is
+//   done in a single-threaded environment.  Since all other interface
+//   is `const` qualified, and there are no mutables, reading from
+//   this service is inherently thread-safe.
 //
 // ======================================================================
 
 #include "art/Framework/Services/Registry/ServiceMacros.h"
+#include "cetlib/container_algorithms.h"
 #include "fhiclcpp/ParameterSet.h"
 #include <map>
 #include <string>
@@ -39,49 +47,39 @@ namespace art {
 
 class art::TriggerNamesService {
 public:
-  typedef  std::vector<std::string>             Strings;
-  typedef  std::map<std::string, unsigned int>  PosMap;
-  typedef  PosMap::size_type                    size_type;
 
-  TriggerNamesService(fhicl::ParameterSet const & procPS,
-                      std::vector<std::string> const & triggerPathNames);
+  using Strings = std::vector<std::string>;
+  using PosMap = std::map<std::string, unsigned int>;
+  using size_type = PosMap::size_type;
 
-  // Use compiler-generated copy c'tor, copy assignment, and d'tor
+  TriggerNamesService(fhicl::ParameterSet const& procPS,
+                      std::vector<std::string> const& triggerPathNames);
 
-  // trigger names for the current process
-
-  // Return the number of trigger paths in the current process.
+  // Trigger path information for the current process
   size_type size() const { return trignames_.size(); }
-  Strings const & getTrigPaths() const { return trignames_; }
-  std::string const & getTrigPath(size_type const i) const { return trignames_.at(i);}
-  size_type  findTrigPath(std::string const & name) const { return find(trigpos_, name);}
+  Strings const& getTrigPaths() const { return trignames_; }
+  std::string const& getTrigPath(size_type const i) const { return trignames_.at(i);}
+  size_type findTrigPath(std::string const& name) const { return find(trigpos_, name);}
 
-  // Get the ordered vector of trigger names that corresponds to the bits
-  // in the TriggerResults object.  Unlike the other functions in this class,
-  // the next two functions will retrieve the names for previous processes.
-  // If the TriggerResults object is from the current process, this only
-  // works for modules in end paths, because the TriggerResults object is
-  // not created until the normal paths complete execution.
-  // Returns false if it fails to find the trigger path names.
-  bool getTrigPaths(TriggerResults const & triggerResults,
-                    Strings & trigPaths) const;
+  // Get the ordered vector of trigger names that corresponds to the
+  // bits in the TriggerResults object.  Unlike the other functions in
+  // this class, the next two functions will retrieve the names for
+  // previous processes.  If the TriggerResults object is from the
+  // current process, this only works for modules in end paths,
+  // because the TriggerResults object is not created until the normal
+  // paths complete execution.  Returns false if it fails to find the
+  // trigger path names.
+  bool getTrigPaths(TriggerResults const& triggerResults, Strings& trigPaths) const;
 
-  Strings const & getTrigPathModules(std::string const & name) const {
-    return modulenames_.at(find(trigpos_, name));
-  }
-  Strings const & getTrigPathModules(size_type const i) const {
-    return modulenames_.at(i);
-  }
-  std::string const & getTrigPathModule(std::string const & name, size_type const j) const {
-    return (modulenames_.at(find(trigpos_, name))).at(j);
-  }
-  std::string const & getTrigPathModule(size_type const i, size_type const j) const {
-    return (modulenames_.at(i)).at(j);
-  }
+  auto getTrigPathModules(std::string const& name) const -> Strings const&;
+  auto getTrigPathModules(size_type const i) const -> Strings const&;
+  std::string const& getTrigPathModule(std::string const& name, size_type const j) const;
+  std::string const& getTrigPathModule(size_type const i, size_type const j) const;
 
-  size_type find(PosMap const & posmap, std::string const & name) const {
-    PosMap::const_iterator const pos(posmap.find(name));
-    if (pos == posmap.end()) {
+  size_type find(PosMap const& posmap, std::string const& name) const
+  {
+    auto const pos = posmap.find(name);
+    if (pos == posmap.cend()) {
       return posmap.size();
     }
     else {
@@ -89,33 +87,57 @@ public:
     }
   }
 
-  void loadPosMap(PosMap & posmap, Strings const & names) const {
-    size_type const n(names.size());
-    for (size_type i = 0; i != n; ++i) {
-      posmap[names[i]] = i;
-    }
-  }
-
-  std::string const & getProcessName() const { return process_name_; }
+  std::string const& getProcessName() const { return process_name_; }
   bool wantSummary() const { return wantSummary_; }
 
   // Parameter set containing the trigger paths
-  fhicl::ParameterSet const & getTriggerPSet() const { return trigger_pset_; }
+  fhicl::ParameterSet const& getTriggerPSet() const { return trigger_pset_; }
 
 private:
-  Strings trignames_;
-  PosMap  trigpos_;
-  Strings end_names_;
-  PosMap  end_pos_;
 
-  fhicl::ParameterSet trigger_pset_; // Parameter set of trigger paths
-                                     // (used by TriggerResults
-                                     // objects).
-  std::vector<Strings> modulenames_; // Labels of modules on trigger paths
+  Strings trignames_;
+  PosMap  trigpos_ {};
+  Strings end_names_ {};
+  PosMap  end_pos_ {};
+
+  fhicl::ParameterSet trigger_pset_ {}; // Parameter set of trigger paths
+                                        // (used by TriggerResults
+                                        // objects).
+  std::vector<Strings> modulenames_ {}; // Labels of modules on trigger paths
 
   std::string process_name_;
   bool wantSummary_;
 };  // TriggerNamesService
+
+// ======================================================================
+// Implementation
+inline
+auto art::TriggerNamesService::getTrigPathModules(std::string const& name) const
+  -> Strings const&
+{
+  return modulenames_.at(find(trigpos_, name));
+}
+
+inline
+auto art::TriggerNamesService::getTrigPathModules(size_type const i) const
+  -> Strings const&
+{
+  return modulenames_.at(i);
+}
+
+inline
+std::string const&
+art::TriggerNamesService::getTrigPathModule(std::string const& name, size_type const j) const
+{
+  return modulenames_.at(find(trigpos_, name)).at(j);
+}
+
+inline
+std::string const&
+art::TriggerNamesService::getTrigPathModule(size_type const i, size_type const j) const
+{
+  return modulenames_.at(i).at(j);
+}
 
 // ======================================================================
 
