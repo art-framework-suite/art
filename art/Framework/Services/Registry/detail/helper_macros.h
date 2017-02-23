@@ -55,7 +55,7 @@
 #define DEFINE_ART_SERVICE_TYPEID(svc)          \
   art::TypeID                                   \
   get_typeid() const override                   \
-  { return TypeID(typeid(svc)); }
+  { return TypeID{typeid(svc)}; }
 
 ////////////////////////////////////////////////////////////////////////
 // Define a member function to return the scope of the service, and a
@@ -64,17 +64,17 @@
 #define DEFINE_ART_SERVICE_SCOPE(scopeArg)                              \
   ServiceScope scope() const override                                   \
   { return ServiceScope::scopeArg; }                                    \
-  static constexpr ServiceScope scope_val { ServiceScope::scopeArg };
+  static constexpr ServiceScope scope_val {ServiceScope::scopeArg};
 
 ////////////////////////////////////////////////////////////////////////
 // Define a member function to retrieve the desired service.
 
 // Legacy and global services.
 #define DEFINE_ART_L_G_SERVICE_RETRIEVER(svc,scopeArg)                  \
-  void *                                                                \
-  retrieve(std::shared_ptr<ServiceWrapperBase> & swb) const final override \
+  void*                                                                 \
+  retrieve(std::shared_ptr<ServiceWrapperBase>& swb) const final override \
   { return                                                              \
-      &dynamic_cast<ServiceWrapper<svc, ServiceScope::scopeArg> *>(swb.get())->get(); \
+      &dynamic_cast<ServiceWrapper<svc, ServiceScope::scopeArg>*>(swb.get())->get(); \
   }
 
 // Legacy service.
@@ -87,11 +87,11 @@
 
 // Per-schedule service.
 #define DEFINE_ART_PER_SCHEDULE_SERVICE_RETRIEVER(svc)                  \
-  void *                                                                \
-  retrieve(std::shared_ptr<ServiceWrapperBase> & swb,                   \
-           ScheduleID sID) const final override                         \
+  void*                                                                 \
+  retrieve(std::shared_ptr<ServiceWrapperBase>& swb,                    \
+           ScheduleID const sID) const final override                   \
   { return                                                              \
-      &dynamic_cast<ServiceWrapper<svc, ServiceScope::PER_SCHEDULE> *>(swb.get())->get(sID); \
+      &dynamic_cast<ServiceWrapper<svc, ServiceScope::PER_SCHEDULE>*>(swb.get())->get(sID); \
   }
 
 ////////////////////////////////////////////////////////////////////////
@@ -100,8 +100,8 @@
 // Legacy and global services.
 #define DEFINE_ART_L_G_SERVICE_MAKER(svc,scopeArg)                      \
   std::unique_ptr<ServiceWrapperBase>                                   \
-  make(fhicl::ParameterSet const & cfg,                                 \
-       ActivityRegistry & reg) const final override                     \
+  make(fhicl::ParameterSet const& cfg,                                  \
+       ActivityRegistry& reg) const final override                      \
   { return                                                              \
       std::make_unique<ServiceWrapper<svc, ServiceScope::scopeArg>>(cfg, reg); \
   }                                                                     \
@@ -117,8 +117,8 @@
 // Per-schedule services.
 #define DEFINE_ART_PER_SCHEDULE_SERVICE_MAKER(svc)                      \
   std::unique_ptr<ServiceWrapperBase>                                   \
-  make(fhicl::ParameterSet const & cfg,                                 \
-       ActivityRegistry & reg,                                          \
+  make(fhicl::ParameterSet const& cfg,                                 \
+       ActivityRegistry& reg,                                          \
        size_t nSchedules) const final override                          \
   { return                                                              \
       std::make_unique<ServiceWrapper<svc, ServiceScope::PER_SCHEDULE>>(cfg, reg, nSchedules); \
@@ -186,14 +186,14 @@
           DEFINE_ART_##scopeArg##_SERVICE_MAKER(svc)                    \
           DEFINE_ART_##scopeArg##_SERVICE_RETRIEVER(svc)                \
           art::TypeID get_interface_typeid() const final override       \
-          { return TypeID(typeid(iface)); }                             \
+          { return TypeID{typeid(iface)}; }                             \
         std::unique_ptr<ServiceWrapperBase>                             \
-          convert(std::shared_ptr<ServiceWrapperBase> const & swb) const final override \
+          convert(std::shared_ptr<ServiceWrapperBase> const& swb) const final override \
         { return std::unique_ptr<art::detail::ServiceWrapperBase>(      \
-                                                                  static_cast<art::detail::ServiceWrapperBase *>( \
-                                                                                                                 std::dynamic_pointer_cast<ServiceWrapper<svc, ServiceScope::scopeArg> > \
-                                                                                                                 (swb).get()->getAs<iface>() \
-                                                                                                                  ) \
+                                                                  static_cast<art::detail::ServiceWrapperBase*>( \
+                                                                                                                std::dynamic_pointer_cast<ServiceWrapper<svc, ServiceScope::scopeArg>> \
+                                                                                                                (swb)->getAs<iface>() \
+                                                                                                                 ) \
                                                                         ); \
         }                                                               \
         static_assert(scope_val == ServiceHelper<iface>::scope_val, /* Safety check */ \
@@ -233,7 +233,7 @@
     std::unique_ptr<art::detail::ServiceHelperBase>                     \
     create_##type##_helper() {                                          \
       return                                                            \
-        std::unique_ptr<art::detail::ServiceHelperBase>(new art::detail::ServiceHelper<svc>); \
+        std::make_unique<art::detail::ServiceHelper<svc>>();            \
     }                                                                   \
   }
 

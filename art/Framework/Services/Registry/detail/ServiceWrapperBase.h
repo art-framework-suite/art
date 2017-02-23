@@ -17,36 +17,34 @@
 namespace art {
   namespace detail {
     class ServiceWrapperBase;
-
-    typedef std::shared_ptr<detail::ServiceWrapperBase>  WrapperBase_ptr;
+    using WrapperBase_ptr = std::shared_ptr<detail::ServiceWrapperBase>;
   }
 }
 
-#ifndef __CGCCXML__
 class art::detail::ServiceWrapperBase {
 public:
-  ServiceWrapperBase() { }
+
+  explicit ServiceWrapperBase() = default;
 
   // Noncopyable
-  ServiceWrapperBase(ServiceWrapperBase const &) = delete;
-  ServiceWrapperBase& operator = (ServiceWrapperBase const &) = delete;
+  ServiceWrapperBase(ServiceWrapperBase const&) = delete;
+  ServiceWrapperBase& operator = (ServiceWrapperBase const&) = delete;
 
   virtual ~ServiceWrapperBase() = default;
 
-  void reconfigure(fhicl::ParameterSet const &);
+  void reconfigure(fhicl::ParameterSet const&);
 
 private:
-  virtual void reconfigure_service(fhicl::ParameterSet const &) = 0;
+  virtual void reconfigure_service(fhicl::ParameterSet const&) = 0;
 };  // ServiceWrapperBase
 
 inline
 void
-art::detail::ServiceWrapperBase::reconfigure(fhicl::ParameterSet const & ps)
+art::detail::ServiceWrapperBase::reconfigure(fhicl::ParameterSet const& ps)
 {
   reconfigure_service(ps);
 }
 
-#endif
 #endif /* art_Framework_Services_Registry_detail_ServiceWrapperBase_h */
 
 // Local Variables:
