@@ -88,37 +88,38 @@
  83. RootOutput                          output      <path>/RootOutput_module.cc
  84. RunSubRunProductProducerNoPut       producer    <path>/RunSubRunProductProducerNoPut_module.cc
  85. S                                   producer    <path>/U_S_module.cc
- 86. SAMMetadataTest                     analyzer    <path>/SAMMetadataTest_module.cc
- 87. SimpleDerivedAnalyzer               analyzer    <path>/SimpleDerivedAnalyzer_module.cc
- 88. SimpleDerivedProducer               producer    <path>/SimpleDerivedProducer_module.cc
- 89. SimpleServiceTestAnalyzer           analyzer    <path>/SimpleServiceTestAnalyzer_module.cc
- 90. TH1DataProducer                     producer    <path>/TH1DataProducer_module.cc
- 91. TestAnalyzerSelect                  analyzer    <path>/TestAnalyzerSelect_module.cc
- 92. TestBitsOutput                      output      <path>/TestBitsOutput_module.cc
- 93. TestFilter                          filter      <path>/TestFilter_module.cc
- 94. TestFilterSpecificEvents            filter      <path>/TestFilterSpecificEvents_module.cc
- 95. TestMod                             producer    <path>/TestMod_module.cc
- 96. TestOutput                          output      <path>/TestOutput_module.cc
- 97. TestProvenanceDumper                output      <path>/TestProvenanceDumper_module.cc
- 98. TestReadImmediateControl            output      <path>/TestReadImmediateControl_module.cc
- 99. TestRemoveCachedProduct             analyzer    <path>/TestRemoveCachedProduct_module.cc
-100. TestResultAnalyzer                  analyzer    <path>/TestResultAnalyzer_module.cc
-101. TestServiceUsingService             analyzer    <path>/TestServiceUsingService_module.cc
-102. TestSimpleMemoryCheckProducer       producer    <path>/TestSimpleMemoryCheckProducer_module.cc
-103. TestTFileServiceAnalyzer            analyzer    <path>/TestTFileServiceAnalyzer_module.cc
-104. TestTimeTrackerAnalyzer             analyzer    <path>/TestTimeTrackerAnalyzer_module.cc
-105. TestTimeTrackerFilter               filter      <path>/TestTimeTrackerFilter_module.cc
-106. TestTimeTrackerProducer             producer    <path>/TestTimeTrackerProducer_module.cc
-107. ThrowingAnalyzer                    analyzer    <path>/ThrowingAnalyzer_module.cc
-108. ThrowingProducer                    producer    <path>/ThrowingProducer_module.cc
-109. ToyProductAnalyzer                  analyzer    <path>/ToyProductAnalyzer_module.cc
-110. ToyProductProducer                  producer    <path>/ToyProductProducer_module.cc
-111. ToyProductProducerMultiput          producer    <path>/ToyProductProducerMultiput_module.cc
-112. ToyRawInputTester                   analyzer    <path>/ToyRawInputTester_module.cc
-113. ToyRawProductAnalyzer               analyzer    <path>/ToyRawProductAnalyzer_module.cc
-114. UnitTestClient                      analyzer    <path>/UnitTestClient_module.cc
-115. UnputtingProducer                   producer    <path>/UnputtingProducer_module.cc
-116. ValidHandleTester                   analyzer    <path>/ValidHandleTester_module.cc
+ 86. SAMMetadataConcurrentTest           analyzer    <path>/SAMMetadataConcurrentTest_module.cc
+ 87. SAMMetadataTest                     analyzer    <path>/SAMMetadataTest_module.cc
+ 88. SimpleDerivedAnalyzer               analyzer    <path>/SimpleDerivedAnalyzer_module.cc
+ 89. SimpleDerivedProducer               producer    <path>/SimpleDerivedProducer_module.cc
+ 90. SimpleServiceTestAnalyzer           analyzer    <path>/SimpleServiceTestAnalyzer_module.cc
+ 91. TH1DataProducer                     producer    <path>/TH1DataProducer_module.cc
+ 92. TestAnalyzerSelect                  analyzer    <path>/TestAnalyzerSelect_module.cc
+ 93. TestBitsOutput                      output      <path>/TestBitsOutput_module.cc
+ 94. TestFilter                          filter      <path>/TestFilter_module.cc
+ 95. TestFilterSpecificEvents            filter      <path>/TestFilterSpecificEvents_module.cc
+ 96. TestMod                             producer    <path>/TestMod_module.cc
+ 97. TestOutput                          output      <path>/TestOutput_module.cc
+ 98. TestProvenanceDumper                output      <path>/TestProvenanceDumper_module.cc
+ 99. TestReadImmediateControl            output      <path>/TestReadImmediateControl_module.cc
+100. TestRemoveCachedProduct             analyzer    <path>/TestRemoveCachedProduct_module.cc
+101. TestResultAnalyzer                  analyzer    <path>/TestResultAnalyzer_module.cc
+102. TestServiceUsingService             analyzer    <path>/TestServiceUsingService_module.cc
+103. TestSimpleMemoryCheckProducer       producer    <path>/TestSimpleMemoryCheckProducer_module.cc
+104. TestTFileServiceAnalyzer            analyzer    <path>/TestTFileServiceAnalyzer_module.cc
+105. TestTimeTrackerAnalyzer             analyzer    <path>/TestTimeTrackerAnalyzer_module.cc
+106. TestTimeTrackerFilter               filter      <path>/TestTimeTrackerFilter_module.cc
+107. TestTimeTrackerProducer             producer    <path>/TestTimeTrackerProducer_module.cc
+108. ThrowingAnalyzer                    analyzer    <path>/ThrowingAnalyzer_module.cc
+109. ThrowingProducer                    producer    <path>/ThrowingProducer_module.cc
+110. ToyProductAnalyzer                  analyzer    <path>/ToyProductAnalyzer_module.cc
+111. ToyProductProducer                  producer    <path>/ToyProductProducer_module.cc
+112. ToyProductProducerMultiput          producer    <path>/ToyProductProducerMultiput_module.cc
+113. ToyRawInputTester                   analyzer    <path>/ToyRawInputTester_module.cc
+114. ToyRawProductAnalyzer               analyzer    <path>/ToyRawProductAnalyzer_module.cc
+115. UnitTestClient                      analyzer    <path>/UnitTestClient_module.cc
+116. UnputtingProducer                   producer    <path>/UnputtingProducer_module.cc
+117. ValidHandleTester                   analyzer    <path>/ValidHandleTester_module.cc
 
 <separator (=)>
 

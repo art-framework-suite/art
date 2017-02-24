@@ -78,6 +78,7 @@ simple_plugin(ReadNextArbitrator          "tool"    NO_INSTALL)
 simple_plugin(Reconfigurable              "service" NO_INSTALL)
 simple_plugin(Reconfiguring               "module"  NO_INSTALL)
 simple_plugin(RunSubRunProductProducerNoPut "module"  NO_INSTALL)
+simple_plugin(SAMMetadataConcurrentTest   "module"  NO_INSTALL USE_BOOST_UNIT art_Framework_Services_System_FileCatalogMetadata_service)
 simple_plugin(SAMMetadataTest             "module"  NO_INSTALL art_Framework_Services_System_FileCatalogMetadata_service)
 simple_plugin(SeekToEventClient           "service" NO_INSTALL art_Framework_IO_Root_RootInput_source)
 simple_plugin(ServiceUsing                "service" NO_INSTALL)
@@ -1161,6 +1162,12 @@ cet_test(SAM_metadataFromInput_conflictingFields HANDBUILT
 set_tests_properties(SAM_metadataFromInput_conflictingFields
   PROPERTIES DEPENDS "SAM_metadataFromInput_01;SAM_metadataFromInput_02")
 
+cet_test(SAM_metadata_concurrent_insertion HANDBUILT
+  TEST_EXEC art_ut
+  TEST_ARGS -- --rethrow-all -c "SAMMetadata_concurrent_insertion_t.fcl"
+  DATAFILES
+  fcl/SAMMetadata_concurrent_insertion_t.fcl
+)
 cet_test(GeneratorSource_t HANDBUILT
   TEST_EXEC art
   TEST_ARGS -c "GeneratorSource_t.fcl"
