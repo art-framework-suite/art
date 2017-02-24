@@ -19,11 +19,10 @@ namespace art {
   bool
   TriggerNames::init(TriggerResults const& triggerResults) {
 
-    if ( psetID_valid_ && psetID_ == triggerResults.parameterSetID()) {
+    if (psetID_valid_ && psetID_ == triggerResults.parameterSetID()) {
       return false;
     }
-    art::ServiceHandle<art::TriggerNamesService> tns;
-    if (tns->getTrigPaths(triggerResults, triggerNames_)) {
+    if (ServiceHandle<TriggerNamesService const>{}->getTrigPaths(triggerResults, triggerNames_)) {
       psetID_ = triggerResults.parameterSetID();
       psetID_valid_ = true;
     }

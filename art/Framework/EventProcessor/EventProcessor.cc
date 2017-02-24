@@ -156,7 +156,7 @@ art::EventProcessor::EventProcessor(ParameterSet const& pset)
 
   // Services
   // System service FileCatalogMetadata needs to know about the process name.
-  ServiceHandle<art::FileCatalogMetadata>()->addMetadataString("process_name", processName);
+  ServiceHandle<art::FileCatalogMetadata>{}->addMetadataString("process_name", processName);
 
   input_ = makeInput(pset, processName, preg_, actReg_);
   endPathExecutor_ = std::make_unique<EndPathExecutor>(pathManager_,
@@ -201,7 +201,7 @@ art::EventProcessor::initServices_(ParameterSet const& top_pset,
   services.erase("PathSelection");
 
   // Create the service director and all user-configured services.
-  ServiceDirector director{std::move(services), areg, token};
+  ServiceDirector director {std::move(services), areg, token};
 
   // Services requiring special construction.
   director.addSystemService<CurrentModule>(areg);
@@ -225,7 +225,7 @@ art::EventProcessor::initSchedules_(ParameterSet const& pset)
   schedule_ = std::make_unique<Schedule>(ScheduleID::first(),
                                          pathManager_,
                                          pset,
-                                         ServiceRegistry::instance().get<TriggerNamesService>(),
+                                         *ServiceHandle<TriggerNamesService const>{},
                                          preg_,
                                          act_table_,
                                          actReg_);
@@ -588,8 +588,8 @@ art::EventProcessor::endJob()
   ServiceRegistry::Operate op {serviceToken_};
   c.call([this](){ schedule_->endJob(); });
   c.call([this](){ endPathExecutor_->endJob(); });
-  bool summarize = ServiceHandle<TriggerNamesService>()->wantSummary();
-  c.call([this,summarize](){ detail::writeSummary(pathManager_, summarize); });
+  c.call([this](){ detail::writeSummary(pathManager_,
+                                        ServiceHandle<TriggerNamesService const>{}->wantSummary()); });
   c.call([this](){ input_->doEndJob(); });
   c.call([this](){ actReg_.sPostEndJob.invoke(); });
 }
@@ -927,7 +927,7 @@ art::EventProcessor::terminateAbnormally_()
 try
 {
   if (ServiceRegistry::instance().isAvailable<RandomNumberGenerator>()) {
-    ServiceHandle<RandomNumberGenerator>()->saveToFile_();
+    ServiceHandle<RandomNumberGenerator>{}->saveToFile_();
   }
 }
 catch (...)

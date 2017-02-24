@@ -41,8 +41,8 @@ namespace {
                bool const memTracker,
                bool const timeTracker)
       : md_{md}
-      , mem_(memTracker ? &*art::ServiceHandle<art::MemoryTracker>{} : nullptr)
-      , time_(timeTracker ? &*art::ServiceHandle<art::TimeTracker>{} : nullptr)
+      , mem_(memTracker ? art::ServiceHandle<art::MemoryTracker>{}.get() : nullptr)
+      , time_(timeTracker ? art::ServiceHandle<art::TimeTracker>{}.get() : nullptr)
     {
       if (mem_) mem_->preModule(md_);
       if (time_) time_->preModule(md_);
@@ -606,8 +606,8 @@ namespace {
     for (auto & plugin : plugins) {
       art::FileCatalogMetadata::collection_type tmp = plugin->doProduceMetadata();
       ssmd.reserve(tmp.size() + ssmd.size());
-      for (auto && entry : tmp) {
-        if (art::ServiceHandle<art::FileCatalogMetadata>()->wantCheckSyntax()) {
+      for (auto&& entry : tmp) {
+        if (art::ServiceHandle<art::FileCatalogMetadata const>{}->wantCheckSyntax()) {
           rapidjson::Document d;
           string checkString("{ ");
           checkString += cet::canonical_string(entry.first) +
@@ -646,8 +646,7 @@ writeFileCatalogMetadata()
 {
   // Obtain metadata from service for output.
   FileCatalogMetadata::collection_type md, ssmd;
-  auto fcm = ServiceHandle<FileCatalogMetadata>();
-  fcm->getMetadata(md);
+  ServiceHandle<FileCatalogMetadata const>{}->getMetadata(md);
   if (!dataTier_.empty()) {
     md.emplace_back("data_tier", cet::canonical_string(dataTier_));
   }

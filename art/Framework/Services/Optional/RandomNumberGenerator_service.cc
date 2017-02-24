@@ -109,7 +109,7 @@ namespace {
   inline label_t
   qualify_engine_label(label_t const& engine_label)
   {
-    return art::ServiceHandle<art::CurrentModule>()->label() + ":" + engine_label;
+    return art::ServiceHandle<art::CurrentModule const>{}->label() + ":" + engine_label;
   }
 
   template <class DesiredEngineType>

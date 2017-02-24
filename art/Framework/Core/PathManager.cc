@@ -443,7 +443,7 @@ makeWorker_(detail::ModuleConfigInfo const & mci,
                           moduleConfig,
                           preg_,
                           exceptActions_,
-                          ServiceHandle<TriggerNamesService>()->getProcessName()};
+                          ServiceHandle<TriggerNamesService const>{}->getProcessName()};
     ModuleDescription const md {moduleConfig.id(),
                                 p.pset_.get<std::string>("module_type"),
                                 p.pset_.get<std::string>("module_label"),

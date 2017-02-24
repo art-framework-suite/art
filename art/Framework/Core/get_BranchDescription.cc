@@ -17,7 +17,7 @@ art::get_BranchDescription(TypeID const tid,
                            std::string const &instance_name)
 {
   return get_BranchDescription(tid,
-                               ServiceHandle<TriggerNamesService>()->getProcessName(),
+                               ServiceHandle<TriggerNamesService const>{}->getProcessName(),
                                ProductMetaData::instance().productList(),
                                branch_type,
                                module_label,

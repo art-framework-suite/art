@@ -31,7 +31,7 @@ namespace art {
 
   void EventObserverBase::init_(vector<string> const& paths)
   {
-    ServiceHandle<TriggerNamesService> TNS;
+    ServiceHandle<TriggerNamesService const> TNS;
     process_name_ = TNS->getProcessName();
     vector<string> const& trigPaths = TNS->getTrigPaths();
     if (paths.empty()) {
