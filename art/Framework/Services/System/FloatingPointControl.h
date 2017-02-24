@@ -106,48 +106,36 @@ namespace art {
   class FloatingPointControl;
 }
 
-using art::FloatingPointControl;
-using fhicl::ParameterSet;
-
 // ----------------------------------------------------------------------
 
-class art::FloatingPointControl
-{
-  FloatingPointControl( FloatingPointControl const & ) = delete;
-  FloatingPointControl& operator = ( FloatingPointControl const & ) = delete;
-
+class art::FloatingPointControl {
+  FloatingPointControl(FloatingPointControl const&) = delete;
+  FloatingPointControl& operator=(FloatingPointControl const&) = delete;
 public:
-  // c'tor:
-  FloatingPointControl( ParameterSet const &,
-                        ActivityRegistry   &);
 
-  // use compiler-generated d'tor
-
-  void postEndJob( );
-
-  void preModule(const ModuleDescription&);
-  void postModule(const ModuleDescription&);
+  explicit FloatingPointControl(fhicl::ParameterSet const&, ActivityRegistry&);
 
 private:
+
+  void postEndJob();
+  void preModule(ModuleDescription const&);
+  void postModule(ModuleDescription const&);
+
   void controlFpe();
   void echoState();
 
-  bool enableDivByZeroEx_;
-  bool enableInvalidEx_;
-  bool enableOverFlowEx_;
-  bool enableUnderFlowEx_;
+  bool enableDivByZeroEx_ {false};
+  bool enableInvalidEx_ {false};
+  bool enableOverFlowEx_ {false};
+  bool enableUnderFlowEx_ {false};
 
   bool setPrecisionDouble_;
   bool reportSettings_;
 
-  using String  = std::string;
-  using VString = std::vector<String>;
-  using PSet    = fhicl::ParameterSet;
-
-  fenv_t                    fpuState_;
-  fenv_t                    OSdefault_; // OS's fpu state on job startup
-  std::map<String, fenv_t>  stateMap_;
-  std::stack<fenv_t>        stateStack_;
+  fenv_t fpuState_ {};
+  fenv_t OSdefault_ {}; // OS's fpu state on job startup
+  std::map<std::string, fenv_t>  stateMap_ {};
+  std::stack<fenv_t> stateStack_ {};
 
 };  // FloatingPointControl
 

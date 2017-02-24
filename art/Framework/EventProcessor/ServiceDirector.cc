@@ -10,9 +10,10 @@
 #include "art/Framework/Services/System/TriggerNamesService.h"
 #include "fhiclcpp/ParameterSetRegistry.h"
 
-namespace {
+using fhicl::ParameterSet;
+using ParameterSets = std::vector<ParameterSet>;
 
-  using ParameterSets = std::vector<ParameterSet>;
+namespace {
 
   void
   addService(std::string const& name, ParameterSets& service_set)
