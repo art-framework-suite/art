@@ -60,14 +60,14 @@ public:
   };
 
   using Parameters = ServiceTable<Config>;
-  FileCatalogMetadata(Parameters const & config, ActivityRegistry &);
+  FileCatalogMetadata(Parameters const& config, ActivityRegistry&);
 
   // Add a new value to the metadata store.
-  void addMetadata(std::string const & key, std::string const & value);
+  void addMetadata(std::string const& key, std::string const& value);
   // Ensure the value is a canonical string representation.
-  void addMetadataString(std::string const & key, std::string const & value);
+  void addMetadataString(std::string const& key, std::string const& value);
 
-  void getMetadata(collection_type & coll) const; // Dump stored metadata into the provided container.
+  void getMetadata(collection_type& coll) const; // Dump stored metadata into the provided container.
 
   // RootInput can set the run-type and file-type parameters
   void setMetadataFromInput(collection_type const& coll);
@@ -78,7 +78,7 @@ public:
 
 private:
   bool const checkSyntax_;
-  collection_type md_;
+  collection_type md_ {};
 
   class InheritedMetadata {
   public:
@@ -102,7 +102,7 @@ private:
       for (auto const& pr : fromInput) {
         CET_USE_FREE_CBEGIN_CEND();
         auto it = inputmd_.find(pr.first);
-        if ( it == cend(inputmd_) ) {
+        if (it == cend(inputmd_)) {
           throw Exception(errors::LogicError)
             << "Metadata key " << pr.first
             << " missing from list of metadata to inherit from input files.\n";
@@ -121,14 +121,14 @@ private:
     std::unordered_map<std::string, std::string> inputmd_;
   };
 
-  std::unique_ptr<InheritedMetadata> imd_;
+  std::unique_ptr<InheritedMetadata> imd_ {};
   std::vector<std::string> mdToInherit_;
 };
 
 inline
 void
 art::FileCatalogMetadata::
-addMetadataString(std::string const & key, std::string const & value)
+addMetadataString(std::string const& key, std::string const& value)
 {
   addMetadata(key, cet::canonical_string(value));
 }
@@ -140,10 +140,12 @@ setMetadataFromInput(collection_type const& mdFromInput)
 {
   if (mdToInherit_.empty()) return;
 
-  if (!imd_)
+  if (!imd_) {
     imd_ = std::make_unique<InheritedMetadata>(mdToInherit_, mdFromInput);
-  else
+  }
+  else {
     imd_->check_values(mdFromInput);
+  }
 
   OldToNew const translator;
   for (auto const& pr : imd_->entries()) {
@@ -154,7 +156,7 @@ setMetadataFromInput(collection_type const& mdFromInput)
 inline
 void
 art::FileCatalogMetadata::
-getMetadata(collection_type & coll) const
+getMetadata(collection_type& coll) const
 {
   cet::copy_all(md_, std::back_inserter(coll));
 }
