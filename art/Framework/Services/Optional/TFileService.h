@@ -28,8 +28,8 @@ class art::TFileService
   : public TFileDirectory
 {
   // non-copyable:
-  TFileService( TFileService const & ) = delete;
-  TFileService operator = ( TFileService const & ) = delete;
+  TFileService(TFileService const&) = delete;
+  TFileService operator = (TFileService const&) = delete;
 
 public:
 
@@ -43,14 +43,14 @@ public:
 
   // c'tor:
   using Parameters = ServiceTable<Config>;
-  TFileService( ServiceTable<Config> const & config,
-                art::ActivityRegistry      & r);
+  TFileService(ServiceTable<Config> const& config,
+               art::ActivityRegistry& r);
 
   // d'tor:
   ~TFileService();
 
   // accessor:
-  TFile & file() const { return * file_; }
+  TFile& file() const { return *file_; }
 
 private:
   bool const closeFileFast_;
@@ -59,7 +59,7 @@ private:
   std::string uniqueFilename_;
 
   // set current directory according to module name and prepare to create directory
-  void setDirectoryName( art::ModuleDescription const & desc );
+  void setDirectoryName(art::ModuleDescription const& desc);
 };  // TFileService
 
 // ======================================================================

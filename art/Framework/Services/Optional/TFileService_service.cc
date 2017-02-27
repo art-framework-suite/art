@@ -13,9 +13,9 @@
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/System/TriggerNamesService.h"
-#include "canvas/Persistency/Provenance/ModuleDescription.h"
 #include "art/Utilities/parent_path.h"
 #include "art/Utilities/unique_filename.h"
+#include "canvas/Persistency/Provenance/ModuleDescription.h"
 #include "fhiclcpp/ParameterSet.h"
 
 #include "TFile.h"
@@ -87,5 +87,3 @@ TFileService::setDirectoryName(ModuleDescription const& desc)
 // ======================================================================
 
 DEFINE_ART_SERVICE(TFileService)
-
-// ======================================================================
