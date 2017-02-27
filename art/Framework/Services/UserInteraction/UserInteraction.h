@@ -32,28 +32,31 @@ namespace ui {
 
   class UserInteraction {
   public:
-    typedef std::vector<art::Worker *> Workers;
 
-    enum NextStep { NextEvent = 0, ReprocessEvent = 1, RewindFile = 2, Invalid = 3};
+    using Workers = std::vector<art::Worker*>;
+
+    enum NextStep {NextEvent = 0, ReprocessEvent = 1, RewindFile = 2, Invalid = 3};
 
     struct ModuleInfo {
-      ModuleInfo(std::string const & lab, std::string const & n,
-                 bool isEndPathModule,
-                 fhicl::ParameterSet const & p):
-        label(lab), class_name(n), endPathModule(isEndPathModule), pset(p) { }
+      ModuleInfo(std::string const& lab,
+                 std::string const& n,
+                 bool const isEndPathModule,
+                 fhicl::ParameterSet const& p):
+        label{lab}, class_name{n}, endPathModule{isEndPathModule}, pset{p}
+      { }
       std::string label;
       std::string class_name;
       bool endPathModule;
       fhicl::ParameterSet pset;
     };
 
-    explicit UserInteraction(art::ActivityRegistry &);
+    explicit UserInteraction(art::ActivityRegistry&);
     virtual ~UserInteraction() = default;
 
     // must be supplied by user. called when the module list is
     // available.  this will supply user code with a list of
     // information about the configured modules.
-    virtual void moduleList(std::vector<ModuleInfo> const &) = 0;
+    virtual void moduleList(std::vector<ModuleInfo> const&) = 0;
 
     // must be supplied by user, called when we want to tell the derived
     // service when to cause reconfigure by invoking callReconfigure().
@@ -68,19 +71,19 @@ namespace ui {
     // executed in the module.  The argument is the index into the
     // worker (module) array.
     void callReconfigure(int module_index,
-                         fhicl::ParameterSet const & pset);
+                         fhicl::ParameterSet const& pset);
 
   private:
-    void preEvent(art::Event const & ev);
-    void postEvent(art::Event const & ev);
-    void postBeginJobWorkers(art::InputSource * is, std::vector<art::Worker *> const &);
+    void preEvent(art::Event const& ev);
+    void postEvent(art::Event const& ev);
+    void postBeginJobWorkers(art::InputSource* is, std::vector<art::Worker*> const&);
 
 
     // void preModuleEvent(art::ModuleDescription const& md);
     // void postModuleEvent(art::ModuleDescription const& md);
 
     Workers workers_;
-    art::InputSource * input_;
+    art::InputSource* input_;
   };
 }
 

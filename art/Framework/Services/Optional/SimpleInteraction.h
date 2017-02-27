@@ -31,9 +31,9 @@ namespace ui {
     struct Config {};
 
     using Parameters = art::ServiceTable<Config>;
-    SimpleInteraction(Parameters const &, art::ActivityRegistry &);
+    SimpleInteraction(Parameters const&, art::ActivityRegistry&);
 
-    void moduleList(std::vector<ModuleInfo> const &) override;
+    void moduleList(std::vector<ModuleInfo> const&) override;
     void pickModule() override;
     UserInteraction::NextStep nextAction() override;
 

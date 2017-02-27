@@ -50,23 +50,24 @@ namespace art {
     using Parameters = ServiceTable<Config>;
     MemoryTracker(ServiceTable<Config> const&, ActivityRegistry&);
 
-    // Path level
-    void prePathProcessing(std::string const&);
-
-    // Event level
-    void preEventProcessing (Event const&);
-    void postEventProcessing(Event const&);
-
     // Module level
     void preModule (ModuleDescription const&);
     void postModule(ModuleDescription const&);
 
-    // Wrap up
-    void postEndJob();
-
-    enum summary_type { GENERAL, EVENT, MODULE, ntypes };
+    enum summary_type {GENERAL, EVENT, MODULE, ntypes};
 
   private:
+
+    // Callbacks
+    // ... Path level
+    void prePathProcessing(std::string const&);
+
+    // ... Event level
+    void preEventProcessing (Event const&);
+    void postEventProcessing(Event const&);
+
+    // ... Wrap up
+    void postEndJob();
 
     std::bitset<ntypes> setbits_(std::vector<std::string> const&);
     bool checkMallocConfig_(std::string const&, bool);

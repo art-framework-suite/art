@@ -1,4 +1,5 @@
 #include "art/Framework/Services/Optional/SimpleInteraction.h"
+#include "cetlib/container_algorithms.h"
 
 #include <cerrno>
 #include <cstdlib>
@@ -9,30 +10,28 @@ using namespace std;
 
 namespace ui {
 
-  SimpleInteraction::SimpleInteraction(SimpleInteraction::Parameters const &,
-                                       ActivityRegistry & iReg):
-    UserInteraction(iReg)
+  SimpleInteraction::SimpleInteraction(SimpleInteraction::Parameters const&,
+                                       ActivityRegistry& iReg):
+    UserInteraction{iReg}
   {
   }
 
-  void SimpleInteraction::moduleList(std::vector<ModuleInfo> const & mi)
+  void SimpleInteraction::moduleList(std::vector<ModuleInfo> const& mi)
   {
     infos_ = mi;
   }
 
   void SimpleInteraction::pickModule()
   {
-    bool done = false;
+    bool done {false};
     while (!done) {
       string entered;
-      int which = 0;
+      int which {};
       cout << "You really want to reconfigure one of the modules, do you not?" << endl;
-      std::vector<ModuleInfo>::iterator ib(infos_.begin()),
-          ie(infos_.end());
-      for (which = 0; ib != ie; ++ib, ++which) {
-        std::cout << which << ". " << ib->label << " "
-                  << ib->class_name << "\n";
-      }
+      cet::for_all_with_index(infos_,
+                              [](unsigned const i, auto const& mi) {
+                                cout << i << ". " << mi.label << " " << mi.class_name << "\n";
+                              });
       cout << "which one do you want (e for end)? ";
       cout.flush();
       cin >> entered;
@@ -50,13 +49,13 @@ namespace ui {
 
   UserInteraction::NextStep SimpleInteraction::nextAction()
   {
-    int which = 3;
+    int which {3};
     while (true) {
-      std::cout << " finished event:" << std::endl;
+      cout << " finished event:" << std::endl;
       cout << "what do you want to do?" << endl;
-      cout << " 0. continue\n";
-      cout << " 1. reprocess current event\n";
-      cout << " 2. restart at the first event\n" << endl;
+      cout << " 0. continue\n"
+           << " 1. reprocess current event\n"
+           << " 2. restart at the first event\n" << endl;
       cout << "? ";
       cout.flush();
       cin >> which;
@@ -66,7 +65,7 @@ namespace ui {
       else
       { break; }
     }
-    return (NextStep)which;
+    return static_cast<NextStep>(which);
   }
 }
 
