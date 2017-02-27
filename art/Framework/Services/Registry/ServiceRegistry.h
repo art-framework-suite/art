@@ -55,7 +55,7 @@ namespace art {
 
     virtual ~ServiceRegistry();
 
-    template< class T, typename = std::enable_if<detail::ServiceHelper<T>::scope_val != ServiceScope::PER_SCHEDULE>>
+    template< class T, typename = std::enable_if_t<detail::ServiceHelper<T>::scope_val != ServiceScope::PER_SCHEDULE>>
     T & get() const
       {
         if( !manager_ )
