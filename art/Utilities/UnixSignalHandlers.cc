@@ -20,11 +20,11 @@
 
 namespace art {
 
-  boost::mutex usr2_lock;
+  std::mutex usr2_lock;
 
 //--------------------------------------------------------------
 
-  std::atomic<int> shutdown_flag { 0 };
+  std::atomic<int> shutdown_flag {0};
 
   extern "C" {
     void ep_sigusr2(int which,siginfo_t*,void*)
@@ -41,7 +41,7 @@ namespace art {
 
 //--------------------------------------------------------------
 
-  boost::mutex signum_lock;
+  std::mutex signum_lock;
   volatile int signum_value =
 #if defined(__linux__)
                    SIGRTMIN;
@@ -53,8 +53,8 @@ namespace art {
 
   int getSigNum()
   {
-    boost::mutex::scoped_lock sl(signum_lock);
-    int rc = signum_value;
+    std::lock_guard<decltype(signum_lock)> lock {signum_lock};
+    int const rc {signum_value};
     ++signum_value;
     return rc;
   }

@@ -258,7 +258,7 @@ art::EventProcessor::levelsToProcess()
 {
   if (nextLevel_ == Level::ReadyToAdvance) {
     nextLevel_ = advanceItemType();
-    boost::mutex::scoped_lock sl {usr2_lock};
+    std::lock_guard<decltype(usr2_lock)> lock {usr2_lock};
     if (art::shutdown_flag > 0) {
       throw Exception{errors::SignalReceived};
     }
