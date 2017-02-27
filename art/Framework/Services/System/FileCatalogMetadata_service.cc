@@ -17,8 +17,7 @@ namespace {
   }
 }
 
-art::FileCatalogMetadata::FileCatalogMetadata(art::FileCatalogMetadata::Parameters const& config,
-                                              ActivityRegistry&)
+art::FileCatalogMetadata::FileCatalogMetadata(art::FileCatalogMetadata::Parameters const& config)
   : checkSyntax_{config().checkSyntax()}
   , mdToInherit_{maybeTranslate(config().metadataFromInput())}
 {

@@ -76,7 +76,7 @@ public:
   };
 
   using Parameters = ServiceTable<Config>;
-  explicit FileCatalogMetadata(Parameters const& config, ActivityRegistry&);
+  explicit FileCatalogMetadata(Parameters const& config);
 
   // Add a new value to the metadata store.
   void addMetadata(std::string const& key, std::string const& value);
