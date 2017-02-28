@@ -66,7 +66,7 @@ namespace art {
   };
 
 }
-#endif /* art_Utilities_OpenRangeSetHandler_h */
+#endif /* art_Framework_Principal_OpenRangeSetHandler_h */
 
 // Local Variables:
 // mode: c++

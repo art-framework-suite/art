@@ -43,7 +43,7 @@
 #include "art/Framework/Principal/Handle.h"
 #include "canvas/Persistency/Common/detail/aggregate.h"
 #include "canvas/Persistency/Provenance/RangeSet.h"
-#include "cetlib/demangle.h"
+#include "cetlib_except/demangle.h"
 
 #include <memory>
 
@@ -105,7 +105,7 @@ namespace art {
       else if (art::overlapping_ranges(rangeOfValidity_, newRS)) {
         throw Exception{errors::ProductCannotBeAggregated, "SummedValue<T>::update"}
              << "\nThe following ranges corresponding to the type:\n"
-             << "   '" << cet::demangle(typeid(T).name()) << "'"
+             << "   '" << cet::demangle_symbol(typeid(T).name()) << "'"
              << "\ncannot be aggregated\n"
              << rangeOfValidity_
              << " and\n"
@@ -200,7 +200,7 @@ namespace art {
 
 }
 
-#endif
+#endif /* art_Framework_Principal_SummedValue_h */
 
 // Local variables:
 // mode: c++

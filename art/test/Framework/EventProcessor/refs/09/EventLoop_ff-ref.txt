@@ -1,0 +1,95 @@
+INFO: using default process_name, "DUMMY."
+InputSourceFactory: module_type = EventProcessorTestSource
+InputSourceFactory: created input source EventProcessorTestSource
+        beginJob
+    *** nextItemType: InputFile ***
+        openInputFile
+        respondToOpenInputFile
+    *** nextItemType: Run ***
+        readRun.....................(run: 1)
+    *** nextItemType: SubRun ***
+        readSubRun..................(run: 1 subRun: 1)
+    *** nextItemType: Event ***
+        beginRun....................(run: 1)
+        beginSubRun.................(run: 1 subRun: 1)
+        readEvent...................(run: 1 subRun: 1 event: 1)
+        processEvent................(run: 1 subRun: 1 event: 1)
+        shouldWeStop
+        openSomeOutputFiles
+        respondToOpenOutputFiles
+        writeEvent..................(run: 1 subRun: 1 event: 1)
+    *** nextItemType: Event ***
+        readEvent...................(run: 1 subRun: 1 event: 2)
+        processEvent................(run: 1 subRun: 1 event: 2)
+        shouldWeStop
+        writeEvent..................(run: 1 subRun: 1 event: 2)
+    *** nextItemType: Event ***
+        readEvent...................(run: 1 subRun: 1 event: 3)
+        processEvent................(run: 1 subRun: 1 event: 3)
+        shouldWeStop
+        writeEvent..................(run: 1 subRun: 1 event: 3)
+    *** nextItemType: InputFile ***
+        setSubRunAuxiliaryRangeSetID(run: 1 subRun: 1)
+        endSubRun...................(run: 1 subRun: 1)
+        writeSubRun.................(run: 1 subRun: 1)
+        setRunAuxiliaryRangeSetID...(run: 1)
+        endRun......................(run: 1)
+        writeRun....................(run: 1)
+        respondToCloseOutputFiles
+        closeSomeOutputFiles
+        respondToCloseInputFile
+        closeInputFile
+        openInputFile
+        respondToOpenInputFile
+    *** nextItemType: Run ***
+        readRun.....................(run: 1)
+    *** nextItemType: SubRun ***
+        readSubRun..................(run: 1 subRun: 1)
+    *** nextItemType: Event ***
+        beginRun....................(run: 1)
+        beginSubRun.................(run: 1 subRun: 1)
+        readEvent...................(run: 1 subRun: 1 event: 4)
+        processEvent................(run: 1 subRun: 1 event: 4)
+        shouldWeStop
+        openSomeOutputFiles
+        respondToOpenOutputFiles
+        writeEvent..................(run: 1 subRun: 1 event: 4)
+    *** nextItemType: Event ***
+        readEvent...................(run: 1 subRun: 1 event: 5)
+        processEvent................(run: 1 subRun: 1 event: 5)
+        shouldWeStop
+        writeEvent..................(run: 1 subRun: 1 event: 5)
+    *** nextItemType: InputFile ***
+        setSubRunAuxiliaryRangeSetID(run: 1 subRun: 1)
+        endSubRun...................(run: 1 subRun: 1)
+        writeSubRun.................(run: 1 subRun: 1)
+        setRunAuxiliaryRangeSetID...(run: 1)
+        endRun......................(run: 1)
+        writeRun....................(run: 1)
+        respondToCloseInputFile
+        closeInputFile
+        openInputFile
+        respondToOpenInputFile
+    *** nextItemType: Run ***
+        readRun.....................(run: 1)
+    *** nextItemType: SubRun ***
+        readSubRun..................(run: 1 subRun: 1)
+    *** nextItemType: Event ***
+        beginRun....................(run: 1)
+        beginSubRun.................(run: 1 subRun: 1)
+        readEvent...................(run: 1 subRun: 1 event: 6)
+        processEvent................(run: 1 subRun: 1 event: 6)
+        shouldWeStop
+        writeEvent..................(run: 1 subRun: 1 event: 6)
+    *** nextItemType: Stop ***
+        setSubRunAuxiliaryRangeSetID(run: 1 subRun: 1)
+        endSubRun...................(run: 1 subRun: 1)
+        writeSubRun.................(run: 1 subRun: 1)
+        setRunAuxiliaryRangeSetID...(run: 1)
+        endRun......................(run: 1)
+        writeRun....................(run: 1)
+        respondToCloseOutputFiles
+        closeAllOutputFiles
+        respondToCloseInputFile
+        closeInputFile
+        endJob

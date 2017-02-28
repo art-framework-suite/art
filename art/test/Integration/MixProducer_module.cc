@@ -31,6 +31,8 @@ public:
   explicit MixProducer(fhicl::ParameterSet const &p);
 
   void produce(art::Event &e) override;
+  void endSubRun(art::SubRun & sr) override;
+  void endRun(art::Run & r) override;
 
 private:
   typedef cet::map_vector<unsigned int> mv_t;
@@ -39,13 +41,16 @@ private:
 
   // Declare member data here.
   size_t eventCounter_;
-
+  size_t subrunCounter_;
+  size_t runCounter_;
 };
 
 
 arttest::MixProducer::MixProducer(fhicl::ParameterSet const &)
   :
-  eventCounter_(0)
+  eventCounter_(0ull),
+  subrunCounter_(0ull),
+  runCounter_(0ull)
 {
   produces<double>("doubleLabel");
   produces<IntProduct>("IntProductLabel");
@@ -57,6 +62,8 @@ arttest::MixProducer::MixProducer(fhicl::ParameterSet const &)
   produces<ProductWithPtrs>("ProductWithPtrsLabel");
   produces<mv_t>("mapVectorLabel");
   produces<std::vector<art::Ptr<mvv_t> > >("intVectorPtrLabel");
+  produces<double, art::InSubRun>("DoubleSRLabel");
+  produces<double, art::InRun>("DoubleRLabel");
 }
 
 void arttest::MixProducer::produce(art::Event &e) {
@@ -135,6 +142,16 @@ void arttest::MixProducer::produce(art::Event &e) {
 
   e.put(std::move(mvvp), "intVectorPtrLabel");
   e.put(std::move(mv), "mapVectorLabel"); // Note we're putting these into the event in the "wrong" order.
+}
+
+void arttest::MixProducer::endSubRun(art::SubRun & sr) {
+  ++subrunCounter_;
+  sr.put(std::unique_ptr<double>(new double(subrunCounter_)), "DoubleSRLabel");
+}
+
+void arttest::MixProducer::endRun(art::Run & r) {
+  ++runCounter_;
+  r.put(std::unique_ptr<double>(new double(runCounter_)), "DoubleRLabel");
 }
 
 DEFINE_ART_MODULE(arttest::MixProducer)

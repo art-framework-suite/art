@@ -8,7 +8,7 @@
 #include "art/Framework/Principal/SubRun.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
 #include "canvas/Utilities/Exception.h"
-#include "cetlib/demangle.h"
+#include "cetlib_except/demangle.h"
 #include "fhiclcpp/ParameterSetRegistry.h"
 
 namespace art
@@ -16,11 +16,14 @@ namespace art
 
   bool
   EDProducer::doEvent(EventPrincipal& ep,
-                      CPC_exempt_ptr cpc) {
+                      CPC_exempt_ptr cpc,
+                      CountingStatistics& counts) {
     detail::CPCSentry sentry {current_context_, cpc};
     Event e {ep, moduleDescription_};
     produce(e);
-    e.commit_(checkPutProducts_, expectedProducts());
+    counts.increment<stats::Run>();
+    e.commit_(ep, checkPutProducts_, expectedProducts());
+    counts.increment<stats::Passed>();
     return true;
   }
 
@@ -28,7 +31,7 @@ namespace art
   EDProducer::doBeginJob() {
     // 'checkPutProducts_' cannot be set during the c'tor
     // initialization list since 'moduleDescription_' is empty there.
-    checkPutProducts_ = detail::get_failureToPut_flag( moduleDescription_ );
+    checkPutProducts_ = detail::get_failureToPut_flag(moduleDescription_);
     beginJob();
   }
 
@@ -51,7 +54,7 @@ namespace art
     detail::CPCSentry sentry {current_context_, cpc};
     Run r {rp, moduleDescription_, RangeSet::forRun(rp.id())};
     beginRun(r);
-    r.commit_();
+    r.commit_(rp);
     return true;
   }
 
@@ -61,7 +64,7 @@ namespace art
     detail::CPCSentry sentry {current_context_, cpc};
     Run r {rp, moduleDescription_, rp.seenRanges()};
     endRun(r);
-    r.commit_();
+    r.commit_(rp);
     return true;
   }
 
@@ -71,7 +74,7 @@ namespace art
     detail::CPCSentry sentry {current_context_, cpc};
     SubRun sr {srp, moduleDescription_, RangeSet::forSubRun(srp.id())};
     beginSubRun(sr);
-    sr.commit_();
+    sr.commit_(srp);
     return true;
   }
 
@@ -81,7 +84,7 @@ namespace art
     detail::CPCSentry sentry {current_context_, cpc};
     SubRun sr {srp, moduleDescription_, srp.seenRanges()};
     endSubRun(sr);
-    sr.commit_();
+    sr.commit_(srp);
     return true;
   }
 

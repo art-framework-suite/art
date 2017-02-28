@@ -2,6 +2,7 @@
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/System/TriggerNamesService.h"
 #include "art/Version/GetReleaseVersion.h"
+#include "art/Utilities/bold_fontify.h"
 #include "canvas/Utilities/Exception.h"
 #include "canvas/Utilities/GetPassID.h"
 #include "cetlib/container_algorithms.h"
@@ -125,8 +126,6 @@ PathManager(ParameterSet const & procPS,
   preg_(preg),
   exceptActions_(exceptActions),
   areg_(areg),
-  allowUnscheduled_(procPS_.get<bool>("services.scheduler.allowUnscheduled",
-                                      false)),
   trigger_paths_config_(findLegacyConfig(procPS_, "physics.trigger_paths")),
   end_paths_config_(findLegacyConfig(procPS_, "physics.end_paths")),
   fact_(),
@@ -182,26 +181,6 @@ triggerPathsInfo(ScheduleID sID)
   }
   return it->second;
 }
-
-art::PathManager::Workers
-art::PathManager::
-onDemandWorkers()
-{
-  Workers result;
-  // FIXME: until we go truly multi-schedule and can deal with
-  // multiply-constructed or shared modules, glom onto the primary
-  // schedule's worker map.
-  if (allowUnscheduled()) {
-    for (auto const & val : allModules_) {
-      if (is_modifier(val.second.moduleType())) {
-        result.push_back(makeWorker_(val.second,
-                                     triggerPathsInfo(ScheduleID::first()).workers()));
-      }
-    }
-  }
-  return std::move(result);
-}
-
 
 art::detail::ModuleConfigInfoMap
 art::PathManager::
@@ -267,13 +246,7 @@ processPathConfigs_()
   vstring trigger_path_names;
   auto services = procPS_.get<ParameterSet>("services",{});
   auto opts(services.get<ParameterSet>("scheduler", ParameterSet()));
-  auto nSchedules = opts.get<size_t>("num_schedules", 1);
-  // Check we're not being asked to do something we can't.
-  if (allowUnscheduled_ && nSchedules > 1) {
-    throw Exception(errors::UnimplementedFeature)
-        << "Multi-schedule operation is not possible with on-demand "
-        << "module execution.\n";
-  }
+  auto nSchedules [[gnu::unused]] = opts.get<size_t>("num_schedules", 1);
   // Identify and process paths.
   std::set<std::string> known_pars {
     "analyzers",
@@ -328,15 +301,6 @@ processPathConfigs_()
     mf::LogInfo("PathConfiguration")
       << "Multiple end paths have been combined into one end path,\n"
       << "\"end_path\" since order is irrelevant.\n";
-  }
-
-  if (allowUnscheduled_) {
-    // All modifiers are "used."
-    for (auto const & val : allModules_) {
-      if (is_modifier(val.second.moduleType())) {
-        specified_modules.emplace(val.second.label());
-      }
-    };
   }
 
   vstring unused_modules;
@@ -478,33 +442,31 @@ makeWorker_(detail::ModuleConfigInfo const & mci,
   auto it = workers.find(mci.label());
   if (it == workers.end()) { // Need worker.
     auto moduleConfig = procPS_.get<ParameterSet>(mci.configPath() + '.' + mci.label());
-    WorkerParams p(procPS_,
-                   moduleConfig,
-                   preg_,
-                   exceptActions_,
-                   art::ServiceHandle<art::TriggerNamesService>()->getProcessName());
-    ModuleDescription md(moduleConfig.id(),
-                         p.pset_.get<std::string>("module_type"),
-                         p.pset_.get<std::string>("module_label"),
-                         ProcessConfiguration(p.processName_,
-                                              procPS_.id(),
-                                              getReleaseVersion(),
-                                              getPassID()));
+    WorkerParams const p {procPS_,
+                          moduleConfig,
+                          preg_,
+                          exceptActions_,
+                          ServiceHandle<TriggerNamesService>()->getProcessName()};
+    ModuleDescription const md {moduleConfig.id(),
+                                p.pset_.get<std::string>("module_type"),
+                                p.pset_.get<std::string>("module_label"),
+                                ProcessConfiguration{p.processName_,
+                                                     procPS_.id(),
+                                                     getReleaseVersion(),
+                                                     getPassID()}};
     areg_.sPreModuleConstruction.invoke(md);
     try {
       auto worker = fact_.makeWorker(p, md);
       areg_.sPostModuleConstruction.invoke(md);
-      it = workers.
-        emplace(mci.label(),
-                std::move(worker)).first;
+      it = workers.emplace(mci.label(), std::move(worker)).first;
       it->second->setActivityRegistry(&areg_);
     }
-    catch ( fhicl::detail::validationException const & e ) {
+    catch (fhicl::detail::validationException const& e) {
       std::ostringstream err_stream;
-      err_stream << "\n\nModule label: \033[1m" << md.moduleLabel() << "\033[0m"
-                 <<   "\nmodule_type : \033[1m" << md.moduleName() <<  "\033[0m"
+      err_stream << "\n\nModule label: " << detail::bold_fontify(md.moduleLabel())
+                 <<   "\nmodule_type : " << detail::bold_fontify(md.moduleName())
                  << "\n\n" << e.what();
-      configErrMsgs_.push_back( err_stream.str() );
+      configErrMsgs_.push_back(err_stream.str());
     }
   }
   return it->second.get();
@@ -514,27 +476,26 @@ makeWorker_(detail::ModuleConfigInfo const & mci,
 std::unique_ptr<art::Path>
 art::PathManager::
 fillWorkers_(int bitpos,
-             std::string const & pathName,
-             ModInfos const & modInfos,
+             std::string const& pathName,
+             ModInfos const& modInfos,
              Path::TrigResPtr pathResults,
-             WorkerMap & workers)
+             WorkerMap& workers)
 {
   assert(!modInfos.empty());
   std::vector<WorkerInPath> pathWorkers;
-  std::ostringstream config_error_stream;
-  for (auto const & mci : modInfos) {
+  for (auto const& mci : modInfos) {
     makeWorker_(mci, workers, pathWorkers);
   }
 
-  if ( configErrMsgs_.size() ) {
-    std::size_t const width (100);
+  if (configErrMsgs_.size()) {
+    std::size_t const width {100};
     std::ostringstream err_msg;
     err_msg << "\n"
             << std::string(width,'=')
             << "\n\n"
             << "!! The following modules have been misconfigured: !!"
             << "\n";
-    for ( auto const& err : configErrMsgs_ ) {
+    for (auto const& err : configErrMsgs_) {
       err_msg << "\n"
               << std::string(width,'-')
               << "\n"
@@ -552,7 +513,6 @@ fillWorkers_(int bitpos,
                                      pathName,
                                      std::move(pathWorkers),
                                      std::move(pathResults),
-                                     procPS_,
                                      exceptActions_,
                                      areg_,
                                      is_observer(modInfos.front().moduleConfigInfo().moduleType()));

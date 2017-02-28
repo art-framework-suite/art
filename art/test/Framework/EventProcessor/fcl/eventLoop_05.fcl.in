@@ -1,0 +1,4 @@
+#include "handleEmptyRunsAndSubRuns_@HANDLEEMPTY@.fcl"
+outputs.o1.switchAfter: [
+  ["a.txt", []]
+]

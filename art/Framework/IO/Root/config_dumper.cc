@@ -21,6 +21,7 @@ extern "C" {
 #include "sqlite3.h"
 }
 
+#include <cstddef>
 #include <iomanip>
 #include <iostream>
 #include <iterator>
@@ -53,11 +54,11 @@ size_t
 db_size(sqlite3 * db)
 {
   sqlite3_stmt * stmt;
-  sqlite3_prepare_v2(db, "PRAGMA page_size;", -1, &stmt, NULL);
+  sqlite3_prepare_v2(db, "PRAGMA page_size;", -1, &stmt, nullptr);
   sqlite3_step(stmt);
   size_t page_size = sqlite3_column_int64(stmt, 0);
   sqlite3_finalize(stmt);
-  sqlite3_prepare_v2(db, "PRAGMA page_count;", -1, &stmt, NULL);
+  sqlite3_prepare_v2(db, "PRAGMA page_count;", -1, &stmt, nullptr);
   sqlite3_step(stmt);
   size_t page_count = sqlite3_column_int64(stmt, 0);
   sqlite3_finalize(stmt);
@@ -292,8 +293,6 @@ int main(int argc, char * argv[])
      "Only entities whose identifier (label (M), service type (S) "
      "or process name (P)) match (multiple OK).")
     ("help,h", "this help message.")
-    ("label,l", bpo::value<stringvec>(),
-     "module label (deprecated), use --filter instead.")
     ("modules,M", "PsetType: print module configurations (default).")
     ("source,s", bpo::value<stringvec>()->composing(),
      "source data file (multiple OK).")
@@ -336,11 +335,6 @@ int main(int argc, char * argv[])
   stringvec filters;
   if (vm.count("filter")) {
     cet::copy_all(vm["filter"].as<stringvec>(),
-                  std::back_inserter(filters));
-  }
-  if (vm.count("label")) {
-    std::cerr << "WARNING: --label|-l is deprecated: use --filter instead.\n";
-    cet::copy_all(vm["label"].as<stringvec>(),
                   std::back_inserter(filters));
   }
 

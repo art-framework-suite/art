@@ -21,7 +21,7 @@ namespace art {
   };
 
 }
-#endif /* art_Framework_Art_DebugOptionsHandler_h */
+#endif /* art_Framework_Art_EventProcessingOptionsHandler_h */
 
 // Local Variables:
 // mode: c++

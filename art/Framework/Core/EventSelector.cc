@@ -251,47 +251,6 @@ namespace art {
   } // acceptEvent(TriggerResults const& tr)
 
   bool
-  EventSelector::acceptEvent(unsigned char const* array_of_trigger_results,
-                             int number_of_trigger_paths) const
-  {
-
-    // This should never occur unless someone uses this function in
-    // an incorrect way ...
-    if (!results_from_current_process_) {
-      throw art::Exception(errors::Configuration)
-        << "\nEventSelector.cc::acceptEvent, you are attempting to\n"
-        << "use a bit array for trigger results instead of the\n"
-        << "TriggerResults object for a previous process.  This\n"
-        << "will not work and ought to be impossible\n";
-    }
-
-    if (accept_all_) return true;
-
-    // Form HLTGlobalStatus object to represent the array_of_trigger_results
-    HLTGlobalStatus tr(number_of_trigger_paths);
-    int byteIndex = 0;
-    int subIndex  = 0;
-    for (int pathIndex = 0; pathIndex < number_of_trigger_paths; ++pathIndex)
-      {
-        int state = array_of_trigger_results[byteIndex] >> (subIndex * 2);
-        state &= 0x3;
-        HLTPathStatus pathStatus(static_cast<hlt::HLTState>(state));
-        tr[pathIndex] = pathStatus;
-        ++subIndex;
-        if (subIndex == 4)
-          { ++byteIndex;
-            subIndex = 0;
-          }
-      }
-
-    // Now make the decision, based on the HLTGlobalStatus tr,
-    // which we have created from the supplied array of results
-
-    return selectionDecision(tr);
-
-  } // acceptEvent(array_of_trigger_results, number_of_trigger_paths)
-
-  bool
   EventSelector::selectionDecision(HLTGlobalStatus const& tr) const
   {
     if (accept_all_) return true;

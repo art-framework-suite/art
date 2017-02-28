@@ -4,6 +4,8 @@
 #include "art/Utilities/PluginSuffixes.h"
 #include "cetlib/LibraryManager.h"
 
+#include <iomanip>
+#include <iostream>
 #include <regex>
 #include <set>
 #include <utility>
@@ -14,9 +16,51 @@ using cet::LibraryManager;
 
 namespace {
 
-  std::string const empty_description {"\n" + indent__2() + "[ provided in future release ]\n"};
   std::string const regex_prefix {"([-A-Za-z0-9]*_)*"};
   std::regex  const slash {"/"};
+
+  inline std::string plugin_suffix(std::size_t const sz)
+  {
+    return sz != 1ull ? "s" : "";
+  }
+
+  // Auxiliary class for creating status bar.
+  class StatusBar {
+  public:
+
+    StatusBar(std::string const& libType,
+              std::size_t const width,
+              std::size_t const denom,
+              bool const verbose)
+      : libType_{libType}
+      , w_{width}
+      , d_{denom}
+      , v_{verbose}
+    {
+      if (v_) std::cerr << '\n';
+    }
+
+    ~StatusBar(){
+      if (v_) std::cerr << '\n';
+    }
+
+    void print_progress(std::size_t const num) const
+    {
+      if (!v_)
+        return;
+      std::size_t const per {100*num/d_};
+      std::cerr << "   Loaded "
+                << std::setw(w_) << std::right << num << '/' << d_
+                << " " << libType_ << plugin_suffix(d_)
+                << " (" << per << "%)   " << std::flush;
+      std::cerr << '\r';
+    }
+  private:
+    std::string const libType_;
+    std::size_t const w_;
+    std::size_t const d_;
+    bool const v_;
+  };
 
   std::string pattern(std::string const& spec)
   {
@@ -36,20 +80,22 @@ namespace {
     return result;
   }
 
-  void maybe_include_messagefacility(std::string const& spec,
-                                     LibraryInfoCollection& result)
+  bool messagefacility_included(std::string const& spec,
+                                LibraryInfoCollection& result)
   {
-    bool const print_only_message       = (spec == "message");
+    bool const print_only_message = (spec == "message");
     bool const print_available_services = (spec == dflt_spec_pattern());
 
-    if ( print_only_message || print_available_services ) {
-      result.emplace( "[ none ]",
-                      std::make_pair("message",""),
-                      "[ See https://cdcvs.fnal.gov/redmine/projects/art/wiki/Messagefacility ]",
-                      empty_description,
-                      "art",
-                      "" );
+    if (print_only_message || print_available_services) {
+      result.emplace("[ none ]",
+                     std::make_pair("message",""),
+                     "[ See https://cdcvs.fnal.gov/redmine/projects/art/wiki/Messagefacility ]",
+                     std::unique_ptr<art::ConfigurationTable>{nullptr},
+                     "art",
+                     "" );
+      return true;
     }
+    return false;
   }
 
   using suffix_type = art::suffix_type;
@@ -60,39 +106,45 @@ namespace {
     switch (st) {
     case suffix_type::module: return "<module_label>";
     case suffix_type::plugin: return "<plugin_label>";
+    case suffix_type::tool  : return "<tool_label>";
     case suffix_type::source: return "source";
     default :
       throw art::Exception(art::errors::LogicError)
-        << "The " << Suffixes::get(st) << "is not supported for function: " << __func__ << '\n';
+        << "The '" << Suffixes::get(st) << "' suffix is not supported for function: " << __func__ << '\n';
     }
   }
 
   template <suffix_type st>
   LibraryInfoCollection getCollection(std::string const& spec,
-                                      std::string const& tab)
+                                      bool const verbose)
   {
     LibraryInfoCollection result;
     LibraryManager const lm {Suffixes::get(st), pattern(spec)};
-    for (auto const& lib : getLibraries(lm)) {
-
+    std::size_t i{};
+    auto const& libs = getLibraries(lm);
+    auto const sz = libs.size();
+    auto const w = std::to_string(sz).size();
+    StatusBar const status_bar {lm.libType(), w, sz, verbose};
+    for (auto const& lib : libs) {
       auto const& libspecs = lm.getSpecsByPath(lib);
       std::string const& spec = libspecs.second.empty() ? libspecs.first : libspecs.second;
 
-      std::string const& type     = getType<st>(lm, spec);
-      std::string const& path     = getFilePath<st>(lm, spec);
-      std::string const& provider = getProvider(spec);
-      std::string const& desc     = getDescription<st>(lm, spec, fhicl_name(st), tab);
+      result.emplace(lib,
+                     libspecs,
+                     getFilePath<st>(lm, spec),
+                     getAllowedConfiguration<st>(lm, spec, fhicl_name(st)),
+                     getProvider(spec),
+                     getType<st>(lm, spec));
 
-      result.emplace(lib, libspecs, path, desc, provider, type);
+      status_bar.print_progress(++i);
     }
-
     return result;
   }
 
   template <>
   LibraryInfoCollection
   getCollection<suffix_type::service>(std::string const& spec,
-                                      std::string const& tab)
+                                      bool const verbose)
   {
     // These services are not configurable by users.
     std::set<std::string> const systemServicesToIgnore {
@@ -104,28 +156,39 @@ namespace {
 
     std::string const& pSpec = ServiceNames::libname(spec);
 
-    LibraryInfoCollection result;
     LibraryManager const lm {Suffixes::get(suffix_type::service), pattern(pSpec)};
-    for ( auto const& lib : getLibraries(lm) ) {
+    auto libs = getLibraries(lm);
 
+    // Remove libraries that should be ignored
+    libs.erase(std::remove_if(libs.begin(),
+                              libs.end(),
+                              [&lm, &systemServicesToIgnore](auto const& path) {
+                                return cet::search_all(systemServicesToIgnore, lm.getSpecsByPath(path).first);
+                              }),
+               libs.cend());
+
+    auto const sz = libs.size() + static_cast<std::size_t>(spec == dflt_spec_pattern());
+    StatusBar const status_bar {lm.libType(), std::to_string(sz).size(), sz, verbose};
+    LibraryInfoCollection result;
+    std::size_t i {};
+    for (auto const& lib : libs) {
       auto const& libspecs = lm.getSpecsByPath(lib);
-
-      // Skip non-configurable system services
-      if (systemServicesToIgnore.find(libspecs.first) != systemServicesToIgnore.cend()) continue;
-
-      std::string const& spec     = libspecs.first;
+      std::string const& spec = libspecs.first;
       std::string const& fullspec = libspecs.second;
-      std::string const& type     = getType<suffix_type::service>( lm, libspecs.second );
-      std::string const& provider = getProvider(fullspec);
-      std::string const& path     = getFilePath<suffix_type::service>(lm, spec); // full specs may be empty
-
       auto const& fclname = ServiceNames::fclname(spec);
-      std::string const& desc = getDescription<suffix_type::service>(lm, spec, fclname, tab); // for user-defined servicxes
 
-      result.emplace(lib, std::make_pair(fclname, fullspec), path, desc, provider, type);
+      result.emplace(lib,
+                     std::make_pair(fclname, fullspec),
+                     getFilePath<suffix_type::service>(lm, spec),                      // full specs may be empty
+                     getAllowedConfiguration<suffix_type::service>(lm, spec, fclname), // for user-defined servicxes
+                     getProvider(fullspec),
+                     getType<suffix_type::service>(lm, libspecs.second));
+
+      status_bar.print_progress(++i);
     }
-
-    maybe_include_messagefacility(spec, result);
+    if (messagefacility_included(spec, result)) {
+      status_bar.print_progress(++i);
+    }
 
     return result;
   }
@@ -136,12 +199,15 @@ namespace {
 LibraryInfoCollection
 art::detail::get_LibraryInfoCollection(suffix_type const st,
                                        std::string const& pattern,
-                                       std::string const& tab)
+                                       bool const verbose)
 {
   switch(st) {
-  case suffix_type::module  : return getCollection<suffix_type::module >(pattern, tab);
-  case suffix_type::service : return getCollection<suffix_type::service>(pattern, tab);
-  case suffix_type::source  : return getCollection<suffix_type::source >(pattern, tab);
-  default                   : return getCollection<suffix_type::plugin >(pattern, tab);
+  case suffix_type::module  : return getCollection<suffix_type::module >(pattern, verbose);
+  case suffix_type::service : return getCollection<suffix_type::service>(pattern, verbose);
+  case suffix_type::source  : return getCollection<suffix_type::source >(pattern, verbose);
+  case suffix_type::plugin  : return getCollection<suffix_type::plugin >(pattern, verbose);
+  case suffix_type::tool    : return getCollection<suffix_type::tool   >(pattern, verbose);
+    // No default - allow compiler to warn if missing suffix_type.
   }
+  return {};
 }

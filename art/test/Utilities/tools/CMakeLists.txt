@@ -1,0 +1,8 @@
+simple_plugin(ClassTool "tool" NO_INSTALL)
+simple_plugin(NestedClassTool "tool" NO_INSTALL)
+simple_plugin(FunctionTool "tool" NO_INSTALL)
+simple_plugin(NestedFunctionTool "tool" NO_INSTALL)
+simple_plugin(NestedFunctionInClassTool "tool" NO_INSTALL)
+simple_plugin(AddNumber "tool" NO_INSTALL)
+simple_plugin(SubtractNumber "tool" NO_INSTALL)
+simple_plugin(MultiplyNumber "tool" NO_INSTALL)

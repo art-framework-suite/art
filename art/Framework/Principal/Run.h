@@ -25,9 +25,9 @@ public:
 
   using Base = DataViewImpl;
 
-  Run(RunPrincipal& rp,
-      ModuleDescription const& md,
-      RangeSet const& rsForPuttingProducts = RangeSet::invalid());
+  explicit Run(RunPrincipal const& rp,
+               ModuleDescription const& md,
+               RangeSet const& rsForPuttingProducts = RangeSet::invalid());
 
   // AUX functions.
   RunID const& id() const {return aux_.id();}
@@ -40,7 +40,6 @@ public:
   using Base::getMany;
   using Base::getManyByType;
   using Base::removeCachedProduct;
-  using Base::me;
   using Base::processHistory;
 
   template <typename PROD>
@@ -77,7 +76,7 @@ private:
   friend class EDFilter;
   friend class EDProducer;
 
-  void commit_();
+  void commit_(RunPrincipal&);
 
   ///Put a new product with a 'product instance name' and a 'range set'
   template <typename PROD>
@@ -171,7 +170,7 @@ art::Run::put(std::unique_ptr<PROD>&& product,
                 "           function to your class, or contact artists@fnal.gov.\n");
 
   if (productRangeSet_.collapse().is_full_run()) {
-    throw Exception{errors::InsertFailure, "Run::put"}
+    throw Exception{errors::ProductPutFailure, "Run::put"}
       << "\nCannot put a product corresponding to a full Run using\n"
       << "art::runFragment().  This can happen if you attempted to\n"
       << "put a product at beginRun using art::runFragment().\n"
@@ -196,7 +195,7 @@ art::Run::put(std::unique_ptr<PROD>&& product,
                 "              void aggregate(T const&)\n"
                 "           function to your class, or contact artists@fnal.gov.\n");
   if (token.rs.collapse().is_full_run()) {
-    throw Exception{errors::InsertFailure, "Run::put"}
+    throw Exception{errors::ProductPutFailure, "Run::put"}
       << "\nCannot put a product corresponding to a full Run using\n"
       << "art::runFragment(art::RangeSet&).  Please use:\n"
       << "   art::fullRun()\n"
@@ -221,7 +220,7 @@ art::Run::put_(std::unique_ptr<PROD>&& product,
   }
 
   if (!rs.is_valid()) {
-    throw Exception{errors::InsertFailure, "Run::put"}
+    throw Exception{errors::ProductPutFailure, "Run::put"}
       << "\nCannot put a product with an invalid RangeSet.\n"
       << "Please contact artists@fnal.gov.\n";
   }
@@ -231,7 +230,7 @@ art::Run::put_(std::unique_ptr<PROD>&& product,
 
   auto result = putProducts().emplace(bd.branchID(), PMValue{std::move(wp), bd, rs});
   if (!result.second) {
-    throw Exception{errors::InsertFailure, "Run::put"}
+    throw Exception{errors::ProductPutFailure, "Run::put"}
       << "\nAttempt to put multiple products with the\n"
       << "following description onto the Run.\n"
       << "Products must be unique per Run.\n"

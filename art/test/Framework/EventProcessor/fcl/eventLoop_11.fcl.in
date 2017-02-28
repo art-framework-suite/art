@@ -1,0 +1,7 @@
+#include "handleEmptyRunsAndSubRuns_@HANDLEEMPTY@.fcl"
+outputs.o1.switchAfter: [
+  ["a.txt", [1,1,1]],
+  ["a.txt", []],
+  ["b.txt", [1,1,5]],
+  ["c.txt", [2,0]]
+]

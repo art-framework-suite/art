@@ -18,12 +18,6 @@
 
 // ----------------------------------------------------------------------
 
-#define ACCEPT_EVENT_MSG                                                \
-  "\n\n"                                                                \
-  "art warning: This function has been deprecated.\n"                   \
-  "             Please contact artists@fnal.gov for assistance.\n"      \
-  "\n"
-
 namespace art {
 
   // possible return codes for the testSelectionOverlap
@@ -52,7 +46,6 @@ namespace art {
 
     bool wantAll() const { return accept_all_; }
     bool acceptEvent(TriggerResults const&);
-    [[deprecated(ACCEPT_EVENT_MSG)]] bool acceptEvent(unsigned char const*, int) const;
 
     std::shared_ptr<TriggerResults>
     maskTriggerResults(TriggerResults const& inputResults);

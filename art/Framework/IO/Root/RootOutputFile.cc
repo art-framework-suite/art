@@ -17,7 +17,7 @@
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
-#include "art/Ntuple/Transaction.h"
+#include "cetlib/Ntuple/Transaction.h"
 #include "art/Persistency/Provenance/BranchIDListRegistry.h"
 #include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
 #include "art/Persistency/Provenance/ProductMetaData.h"
@@ -216,7 +216,6 @@ namespace {
 
     assert(principalRS.is_sorted());
     assert(productRS.is_sorted());
-    assert(!principalRS.ranges().empty());
 
     if (bt == art::InRun && productRS.is_full_run()) return;
     if (bt == art::InSubRun && productRS.is_full_subRun()) return;
@@ -348,7 +347,7 @@ RootOutputFile(OutputModule* om,
                int const basketSize,
                DropMetaData dropMetaData,
                bool const dropMetaDataForDroppedData,
-               bool const fastCloning)
+               bool const fastCloningRequested)
   : om_{om}
   , file_{fileName}
   , fileSwitchCriteria_{fileSwitchCriteria}
@@ -359,23 +358,23 @@ RootOutputFile(OutputModule* om,
   , basketSize_{basketSize}
   , dropMetaData_{dropMetaData}
   , dropMetaDataForDroppedData_{dropMetaDataForDroppedData}
-  , fastCloning_{fastCloning}
+  , fastCloningEnabledAtConstruction_{fastCloningRequested}
   , filePtr_{TFile::Open(file_.c_str(), "recreate", "", compressionLevel)}
   , treePointers_ { // Order (and number) must match BranchTypes.h!
     std::make_unique<RootOutputTree>(static_cast<EventPrincipal*>(nullptr),
-                                     filePtr_, InEvent, pEventAux_,
+                                     filePtr_.get(), InEvent, pEventAux_,
                                      pEventProductProvenanceVector_, basketSize, splitLevel,
                                      treeMaxVirtualSize, saveMemoryObjectThreshold),
     std::make_unique<RootOutputTree>(static_cast<SubRunPrincipal*>(nullptr),
-                                     filePtr_, InSubRun, pSubRunAux_,
+                                     filePtr_.get(), InSubRun, pSubRunAux_,
                                      pSubRunProductProvenanceVector_, basketSize, splitLevel,
                                      treeMaxVirtualSize, saveMemoryObjectThreshold),
     std::make_unique<RootOutputTree>(static_cast<RunPrincipal*>(nullptr),
-                                     filePtr_, InRun, pRunAux_,
+                                     filePtr_.get(), InRun, pRunAux_,
                                      pRunProductProvenanceVector_, basketSize, splitLevel,
                                      treeMaxVirtualSize, saveMemoryObjectThreshold),
     std::make_unique<RootOutputTree>(static_cast<ResultsPrincipal*>(nullptr),
-                                     filePtr_, InResults, pResultsAux_,
+                                     filePtr_.get(), InResults, pResultsAux_,
                                      pResultsProductProvenanceVector_, basketSize, splitLevel,
                                      treeMaxVirtualSize, saveMemoryObjectThreshold) }
   , rootFileDB_{filePtr_.get(), "RootFileDB", SQLITE_OPEN_CREATE | SQLITE_OPEN_READWRITE}
@@ -507,38 +506,40 @@ selectProducts(FileBlock const& fb)
 void
 art::
 RootOutputFile::
-beginInputFile(FileBlock const& fb, bool fastClone)
+beginInputFile(FileBlock const& fb, bool fastCloneFromOutputModule)
 {
+  bool shouldFastClone {fastCloningEnabledAtConstruction_ && fastCloneFromOutputModule};
+  // Create output branches, and then redo calculation to determine if
+  // fast cloning should be done.
   selectProducts(fb);
-  auto const origCurrentlyFastCloning = currentlyFastCloning_;
-  currentlyFastCloning_ = fastCloning_ && fastClone;
-  if (currentlyFastCloning_ &&
+  if (shouldFastClone &&
       !treePointers_[InEvent]->checkSplitLevelAndBasketSize(fb.tree())) {
     mf::LogWarning("FastCloning")
       << "Fast cloning deactivated for this input file due to "
       << "splitting level and/or basket size.";
-    currentlyFastCloning_ = false;
-  } else if (fb.tree() && fb.tree()->GetCurrentFile()->GetVersion() < 60001) {
+    shouldFastClone = false;
+  }
+  else if (fb.tree() && fb.tree()->GetCurrentFile()->GetVersion() < 60001) {
     mf::LogWarning("FastCloning")
       << "Fast cloning deactivated for this input file due to "
       << "ROOT version used to write it (< 6.00/01)\n"
       "having a different splitting policy.";
-    currentlyFastCloning_ = false;
+    shouldFastClone = false;
   }
 
-  if (currentlyFastCloning_ && fb.fileFormatVersion().value_ < 9) {
+  if (shouldFastClone && fb.fileFormatVersion().value_ < 9) {
     mf::LogWarning("FastCloning")
       << "Fast cloning deactivated for this input file due to "
       << "reading in file that does not support RangeSets.";
-    currentlyFastCloning_ = false;
+    shouldFastClone = false;
   }
 
-  if (currentlyFastCloning_ && !origCurrentlyFastCloning) {
+  if (shouldFastClone && !fastCloningEnabledAtConstruction_) {
     mf::LogWarning("FastCloning")
       << "Fast cloning reactivated for this input file.";
   }
-  treePointers_[InEvent]->beginInputFile(currentlyFastCloning_);
-  treePointers_[InEvent]->fastCloneTree(fb.tree());
+  treePointers_[InEvent]->beginInputFile(shouldFastClone);
+  wasFastCloned_ = treePointers_[InEvent]->fastCloneTree(fb.tree());
 }
 
 void
@@ -682,7 +683,8 @@ RootOutputFile::
 writeFileIndex()
 {
   fileIndex_.sortBy_Run_SubRun_Event();
-  FileIndex::Element const* findexElemPtr = nullptr;
+  FileIndex::Element elem {};
+  auto findexElemPtr = &elem;
   TBranch* b = fileIndexTree_->Branch(metaBranchRootName<FileIndex::Element>(),
                                       &findexElemPtr, basketSize_, 0);
   // FIXME: Turn this into a throw!
@@ -691,6 +693,7 @@ writeFileIndex()
     findexElemPtr = &entry;
     b->Fill();
   }
+  b->SetAddress(0);
 }
 
 void
@@ -896,7 +899,9 @@ finishEndFile()
     auto const branchType = static_cast<BranchType>(i);
     treePointers_[branchType]->writeTree();
   }
-  // Write out DB
+  // Write out DB -- the d'tor of the SQLite3Wrapper calls
+  // sqlite3_close.  For the tkeyvfs, closing the DB calls
+  // rootFile->Write("",TObject::kOverwrite).
   rootFileDB_.reset();
   // Close the file.
   filePtr_->Close();
@@ -910,7 +915,7 @@ RootOutputFile::
 fillBranches(Principal const& principal,
              vector<ProductProvenance>* vpp)
 {
-  bool const fastCloning = (BT == InEvent) && currentlyFastCloning_;
+  bool const fastCloning = (BT == InEvent) && wasFastCloned_;
   detail::KeptProvenance keptProvenance {dropMetaData_, dropMetaDataForDroppedData_, branchesWithStoredHistory_};
   map<unsigned,unsigned> checksumToIndex;
 

@@ -1,8 +1,8 @@
 #include "art/Framework/Art/BasicPostProcessor.h"
 
 #include "art/Framework/Art/detail/exists_outside_prolog.h"
+#include "art/Framework/Art/detail/fhicl_key.h"
 #include "canvas/Utilities/Exception.h"
-#include "art/Utilities/detail/serviceConfigLocation.h"
 #include "cetlib/container_algorithms.h"
 #include "cetlib/filepath_maker.h"
 #include "fhiclcpp/coding.h"
@@ -17,12 +17,13 @@ namespace {
 
   using table_t = fhicl::extended_value::table_t;
   using art::detail::exists_outside_prolog;
+  using art::detail::fhicl_key;
 
   void
   verifyProcessName(fhicl::intermediate_table & raw_config)
   {
     if (exists_outside_prolog(raw_config, "process_name")) {
-      auto process_name(raw_config.get<std::string>("process_name"));
+      auto const& process_name = raw_config.get<std::string>("process_name");
       if (process_name.empty()) {
         throw cet::exception("BAD_PROCESS_NAME")
             << "Empty process_name not permitted.";
@@ -46,8 +47,10 @@ namespace {
   void
   verifyInterfaces(fhicl::intermediate_table & raw_config)
   {
-    auto ciProvider = art::detail::serviceConfigLocation(raw_config, "CatalogInterface") + ".service_provider";
-    auto ftProvider = art::detail::serviceConfigLocation(raw_config, "FileTransfer") + ".service_provider";
+    std::string const services {"services"};
+    std::string const service_provider {"service_provider"};
+    auto ciProvider = fhicl_key(services, "CatalogInterface", service_provider);
+    auto ftProvider = fhicl_key(services, "FileTransfer", service_provider);
     if (!exists_outside_prolog(raw_config, ciProvider)) {
       raw_config.put(ciProvider, "TrivialFileDelivery");
     }
@@ -159,10 +162,8 @@ namespace {
 
   void addServiceType(fhicl::intermediate_table & raw_config)
   {
-    std::vector<std::string> const excluded =
-      { "message", "scheduler", "user" };
+    std::vector<std::string> const excluded {"message", "scheduler"};
     injectServiceType(raw_config, "services", excluded);
-    injectServiceType(raw_config, "services.user");
   }
 } // namespace
 

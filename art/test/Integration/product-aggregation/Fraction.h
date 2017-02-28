@@ -1,5 +1,5 @@
-#ifndef test_Integration_product_aggregation_Fraction_h
-#define test_Integration_product_aggregation_Fraction_h
+#ifndef art_test_Integration_product_aggregation_Fraction_h
+#define art_test_Integration_product_aggregation_Fraction_h
 
 namespace arttest {
 
@@ -56,7 +56,7 @@ namespace arttest {
 
 }
 
-#endif
+#endif /* art_test_Integration_product_aggregation_Fraction_h */
 
 // Local variables:
 // mode: c++

@@ -15,7 +15,7 @@
 namespace art {
 
   RootTree::
-  RootTree(std::shared_ptr<TFile> filePtr,
+  RootTree(cet::exempt_ptr<TFile> filePtr,
            BranchType const branchType,
            int64_t saveMemoryObjectThreshold,
            cet::exempt_ptr<RootInputFile> primaryFile,
@@ -130,7 +130,7 @@ namespace art {
     return std::make_unique<RootDelayedReader>(fileFormatVersion,
                                                inputDB,
                                                entrySet,
-                                               branches_,
+                                               branches_.get(),
                                                this,
                                                saveMemoryObjectThreshold_,
                                                primaryFile_,
@@ -175,27 +175,4 @@ namespace art {
     return std::make_unique<BranchMapperWithReader>(productProvenanceBranch_, entryNumber_);
   }
 
-  namespace input {
-
-    Int_t
-    getEntry(TBranch* branch, EntryNumber entryNumber) try
-      {
-        return branch->GetEntry(entryNumber);
-      }
-    catch (cet::exception& e)
-      {
-        throw art::Exception(art::errors::FileReadError) << e.explain_self() << "\n";
-      }
-
-    Int_t
-    getEntry(TTree* tree, EntryNumber entryNumber) try
-      {
-        return tree->GetEntry(entryNumber);
-      }
-    catch (cet::exception& e)
-      {
-        throw art::Exception(art::errors::FileReadError) << e.explain_self() << "\n";
-      }
-
-  } // namespace input
 } // namespace art

@@ -1,0 +1,22 @@
+#ifndef art_test_Utilities_ClassTool_h
+#define art_test_Utilities_ClassTool_h
+
+namespace fhicl {
+  class ParameterSet;
+}
+
+namespace arttest {
+  struct ClassTool {
+    ClassTool(fhicl::ParameterSet const&){}
+    int addOne(int const i)
+    {
+      return i+1;
+    }
+  };
+}
+
+#endif
+
+// Local variables:
+// mode: c++
+// End:

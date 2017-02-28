@@ -1,6 +1,7 @@
 #ifndef art_Framework_Services_Registry_ServiceTable_h
 #define art_Framework_Services_Registry_ServiceTable_h
 
+#include "art/Utilities/ConfigurationTable.h"
 #include "fhiclcpp/types/Table.h"
 #include "fhiclcpp/types/detail/validationException.h"
 
@@ -15,14 +16,14 @@ namespace fhicl {
 namespace art {
 
   template <typename T>
-  class ServiceTable {
+  class ServiceTable : public ConfigurationTable {
   public:
 
-    ServiceTable(fhicl::Name&& name) : config_{std::move(name)} {}
+    explicit ServiceTable(fhicl::Name&& name) : config_{std::move(name)} {}
 
-    ServiceTable(fhicl::ParameterSet const & pset) : config_{fhicl::Name{"<service>"}}
+    ServiceTable(fhicl::ParameterSet const& pset) : config_{fhicl::Name{"<service>"}}
     {
-      std::set<std::string> const keys_to_ignore = {"service_type", "service_provider"};
+      std::set<std::string> const keys_to_ignore {"service_type", "service_provider"};
       config_.validate_ParameterSet(pset, keys_to_ignore);
     }
 
@@ -37,14 +38,15 @@ namespace art {
 
   private:
     fhicl::Table<T> config_;
+    cet::exempt_ptr<fhicl::detail::ParameterBase const> get_parameter_base() const override { return &config_; }
   };
 
-  template <typename T, typename U>
-  inline decltype(auto) operator<<(T&& t, ServiceTable<U> const& u)
+  template <typename T>
+  inline std::ostream& operator<<(std::ostream& os, ServiceTable<T> const& t)
   {
-    std::ostringstream oss;
-    u.print_allowed_configuration(oss, std::string(3, ' '));
-    return std::forward<T>(t) << oss.str();
+    std::ostringstream config;
+    t.print_allowed_configuration(config, std::string(3, ' '));
+    return os << config.str();
   }
 
 }

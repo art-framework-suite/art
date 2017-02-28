@@ -64,7 +64,7 @@ namespace art {
     update(OutputFileStatus const status)
     {
       ++treeEntryNumbers_[B];
-      if (status != OutputFileStatus::StagedToSwitch) {
+      if (status != OutputFileStatus::Switching) {
         ++counts_[B];
       }
     }
@@ -124,7 +124,7 @@ namespace art {
 }
 
 #undef GRANULARITY_COMMENT
-#endif /* art_Framework_IO_Root_RootOutputClosingCritieria_h */
+#endif /* art_Framework_IO_Root_RootOutputClosingCriteria_h */
 
 // Local variables:
 // mode: c++

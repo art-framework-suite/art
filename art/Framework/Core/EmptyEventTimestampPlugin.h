@@ -45,7 +45,7 @@
 
 #define DEFINE_ART_EMPTYEVENTTIMESTAMP_PLUGIN(klass)  \
   PROVIDE_FILE_PATH()                                 \
-  PROVIDE_DESCRIPTION(klass)                          \
+  PROVIDE_ALLOWED_CONFIGURATION(klass)                          \
   DEFINE_BASIC_PLUGIN(klass,                          \
                       art::EmptyEventTimestampPlugin)
 

@@ -93,9 +93,9 @@ sub optionalEntries {
 sub requiredEntries {
   return
     {
-     write => "void write(art::EventPrincipal const & e) override",
-     writeRun => "void writeRun(art::RunPrincipal const & r) override",
-     writeSubRun => "void writeSubRun(art::SubRunPrincipal const & sr) override"
+     write => "void write(art::EventPrincipal & e) override",
+     writeRun => "void writeRun(art::RunPrincipal & r) override",
+     writeSubRun => "void writeSubRun(art::SubRunPrincipal & sr) override"
     };
 }
 

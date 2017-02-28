@@ -12,8 +12,7 @@
 #include <functional>
 #include <map>
 
-#include "Rtypes.h"
-#include "TTree.h"
+class TTree;
 
 namespace art {
   class ProdToProdMapBuilder;

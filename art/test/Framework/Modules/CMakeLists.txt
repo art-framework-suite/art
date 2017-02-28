@@ -1,6 +1,3 @@
-# project name
-project(FWCoreModulesTest)
-
 set( cpp_files TestIntegration.cpp )
 
 link_libraries(  FWCoreModules  )

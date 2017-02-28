@@ -25,7 +25,7 @@ namespace art {
   }
 }
 
-#endif
+#endif /* art_Framework_Art_detail_fhicl_key_h */
 
 // Local variables:
 // mode: c++

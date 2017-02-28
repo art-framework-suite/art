@@ -13,6 +13,7 @@
 #include "art/Framework/Core/WorkerT.h"
 #include "art/Framework/Core/detail/IgnoreModuleLabel.h"
 #include "art/Framework/Principal/fwd.h"
+#include "art/Utilities/ConfigurationTable.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/types/KeysToIgnore.h"
 #include "fhiclcpp/types/OptionalTable.h"
@@ -43,7 +44,22 @@ namespace art
     // Configuration
 
     template <typename UserConfig, typename UserKeysToIgnore = void>
-    class Table {
+    class Table : public ConfigurationTable {
+    public:
+
+      explicit Table(fhicl::Name&& name) : fullConfig_{std::move(name)} {}
+      Table(fhicl::ParameterSet const& pset) : fullConfig_{pset} {}
+
+      auto const& operator()() const { return fullConfig_().user(); }
+      auto const& eoFragment() const { return fullConfig_().eoConfig(); }
+      auto const& get_PSet() const { return fullConfig_.get_PSet(); }
+
+      void print_allowed_configuration(std::ostream& os, std::string const& prefix) const
+      {
+        fullConfig_.print_allowed_configuration(os, prefix);
+      }
+
+    private:
 
       template <typename T>
       struct FullConfig {
@@ -57,21 +73,7 @@ namespace art
                                                 fhicl::KeysToIgnore<detail::IgnoreModuleLabel, UserKeysToIgnore>>;
 
       fhicl::Table<FullConfig<UserConfig>, KeysToIgnore_t> fullConfig_;
-
-    public:
-
-      Table(fhicl::Name&& name) : fullConfig_{std::move(name)} {}
-      Table(fhicl::ParameterSet const& pset) : fullConfig_{pset} {}
-
-      auto const& operator()() const { return fullConfig_().user(); }
-      auto const& eoFragment() const { return fullConfig_().eoConfig(); }
-      auto const& get_PSet() const { return fullConfig_.get_PSet(); }
-
-      void print_allowed_configuration(std::ostream& os, std::string const& prefix) const
-      {
-        fullConfig_.print_allowed_configuration(os, prefix);
-      }
-
+      cet::exempt_ptr<fhicl::detail::ParameterBase const> get_parameter_base() const override { return &fullConfig_; }
     };
 
     //---------------------------------------------------------------------------
@@ -100,7 +102,7 @@ namespace art
 
     using CPC_exempt_ptr = cet::exempt_ptr<CurrentProcessingContext const>;
 
-    bool doEvent(EventPrincipal const& ep, CPC_exempt_ptr cpc);
+    bool doEvent(EventPrincipal const& ep, CPC_exempt_ptr cpc, CountingStatistics&);
     void doBeginJob();
     void doEndJob();
     bool doBeginRun(RunPrincipal const& rp, CPC_exempt_ptr cpc);
@@ -133,12 +135,12 @@ namespace art
     CPC_exempt_ptr current_context_ {nullptr};
   };  // EDAnalyzer
 
-  template <typename T, typename U>
-  inline decltype(auto) operator<<(T&& t, EDAnalyzer::Table<U> const& u)
+  template <typename T>
+  inline std::ostream& operator<<(std::ostream& os, EDAnalyzer::Table<T> const& t)
   {
-    std::ostringstream oss;
-    u.print_allowed_configuration(oss, std::string(3,' '));
-    return std::forward<T>(t) << oss.str();
+    std::ostringstream config;
+    t.print_allowed_configuration(config, std::string(3,' '));
+    return os << config.str();
   }
 
 }  // art

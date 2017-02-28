@@ -12,3 +12,7 @@
 DECLARE_ART_SERVICE(art::MemoryTracker, LEGACY)
 
 #endif /* art_Framework_Services_Optional_MemoryTracker_h */
+
+// Local Variables:
+// mode: c++
+// End:

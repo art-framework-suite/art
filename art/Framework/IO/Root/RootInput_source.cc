@@ -118,19 +118,27 @@ nextItemType()
     case AccessState::SEEKING_FILE:
       return input::IsFile;
     case AccessState::SEEKING_RUN:
+      setRunPrincipal(primaryFileSequence_->readIt(accessState_.wantedEventID().runID()));
       return input::IsRun;
     case AccessState::SEEKING_SUBRUN:
+      // RunPrincipal has been handed off to the EventProcessor by this point.  Used the cached pointer.
+      setSubRunPrincipal(primaryFileSequence_->readIt(accessState_.wantedEventID().subRunID(), runPrincipalExemptPtr()));
       return input::IsSubRun;
-    case AccessState::SEEKING_EVENT:
+    case AccessState::SEEKING_EVENT: {
+      auto const wantedEventID = accessState_.wantedEventID();
+      setEventPrincipal(primaryFileSequence_->readIt(wantedEventID, true));
+      accessState_.setLastReadEventID(wantedEventID);
+      accessState_.setRootFileForLastReadEvent(primaryFileSequence_->rootFileForLastReadEvent());
       return input::IsEvent;
+    }
     default:
       throw Exception(errors::LogicError)
-          << "RootInputSource::nextItemType encountered an "
-             "unknown AccessState.\n";
+        << "RootInputSource::nextItemType encountered an "
+        "unknown AccessState.\n";
   }
 }
 
-std::shared_ptr<FileBlock>
+std::unique_ptr<FileBlock>
 RootInput::
 readFile(MasterProductRegistry& /*mpr*/)
 {
@@ -147,14 +155,14 @@ readFile(MasterProductRegistry& /*mpr*/)
   }
 }
 
-std::shared_ptr<FileBlock>
+std::unique_ptr<FileBlock>
 RootInput::
 readFile_()
 {
   return primaryFileSequence_->readFile_();
 }
 
-std::shared_ptr<RunPrincipal>
+std::unique_ptr<RunPrincipal>
 RootInput::
 readRun()
 {
@@ -163,7 +171,6 @@ readRun()
     return DecrepitRelicInputSourceImplementation::readRun();
   case AccessState::SEEKING_RUN:
     accessState_.setState(AccessState::SEEKING_SUBRUN);
-    setRunPrincipal(primaryFileSequence_->readIt(accessState_.wantedEventID().runID()));
     return runPrincipal();
   default:
     throw Exception(errors::LogicError)
@@ -172,7 +179,7 @@ readRun()
   }
 }
 
-std::shared_ptr<RunPrincipal>
+std::unique_ptr<RunPrincipal>
 RootInput::
 readRun_()
 {
@@ -185,23 +192,15 @@ RootInput::runRangeSetHandler()
   return primaryFileSequence_->runRangeSetHandler();
 }
 
-std::vector<std::shared_ptr<RunPrincipal>>
+std::unique_ptr<SubRunPrincipal>
 RootInput::
-readRunFromSecondaryFiles_()
-{
-  return std::move(primaryFileSequence_->readRunFromSecondaryFiles_());
-}
-
-std::shared_ptr<SubRunPrincipal>
-RootInput::
-readSubRun(std::shared_ptr<RunPrincipal> rp)
+readSubRun(cet::exempt_ptr<RunPrincipal> rp)
 {
   switch (accessState_.state()) {
   case AccessState::SEQUENTIAL:
     return DecrepitRelicInputSourceImplementation::readSubRun(rp);
   case AccessState::SEEKING_SUBRUN:
     accessState_.setState(AccessState::SEEKING_EVENT);
-    setSubRunPrincipal(primaryFileSequence_->readIt(accessState_.wantedEventID().subRunID(), rp));
     return subRunPrincipal();
   default:
     throw Exception(errors::LogicError)
@@ -210,18 +209,11 @@ readSubRun(std::shared_ptr<RunPrincipal> rp)
   }
 }
 
-std::shared_ptr<SubRunPrincipal>
+std::unique_ptr<SubRunPrincipal>
 RootInput::
 readSubRun_()
 {
-  return primaryFileSequence_->readSubRun_(runPrincipal());
-}
-
-std::vector<std::shared_ptr<SubRunPrincipal>>
-RootInput::
-readSubRunFromSecondaryFiles_()
-{
-  return std::move(primaryFileSequence_->readSubRunFromSecondaryFiles_(runPrincipal()));
+  return primaryFileSequence_->readSubRun_(runPrincipalExemptPtr());
 }
 
 std::unique_ptr<RangeSetHandler>
@@ -232,32 +224,21 @@ RootInput::subRunRangeSetHandler()
 
 std::unique_ptr<EventPrincipal>
 RootInput::
-readEvent(std::shared_ptr<SubRunPrincipal> srp)
+readEvent(cet::exempt_ptr<SubRunPrincipal> srp)
 {
   return readEvent_(srp);
 }
 
 std::unique_ptr<EventPrincipal>
 RootInput::
-readEvent_(std::shared_ptr<SubRunPrincipal> srp)
+readEvent_(cet::exempt_ptr<SubRunPrincipal> srp)
 {
   switch (accessState_.state()) {
     case AccessState::SEQUENTIAL:
       return DecrepitRelicInputSourceImplementation::readEvent(srp);
     case AccessState::SEEKING_EVENT:
       accessState_.resetState();
-      {
-        std::unique_ptr<EventPrincipal>
-        result(primaryFileSequence_->readIt(accessState_.wantedEventID(),
-                                            true));
-        if (result.get()) {
-          accessState_.setLastReadEventID(result->id());
-          accessState_.setRootFileForLastReadEvent(
-            primaryFileSequence_->rootFileForLastReadEvent());
-          result->setSubRunPrincipal(srp);
-        }
-        return result;
-      }
+      return eventPrincipal();
     default:
       throw Exception(errors::LogicError)
           << "RootInputSource::readEvent encountered an "

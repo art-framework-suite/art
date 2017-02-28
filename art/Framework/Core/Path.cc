@@ -2,9 +2,9 @@
 
 #include "art/Framework/Principal/Actions.h"
 #include "cetlib/container_algorithms.h"
-#include <algorithm>
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
+#include <algorithm>
 
 using namespace cet;
 using namespace fhicl;
@@ -15,26 +15,26 @@ namespace art {
 
   Path::Path(int const bitpos,
              string const& path_name,
-             WorkersInPath workers,
-             TrigResPtr pathResults,
-             ParameterSet const&,
+             WorkersInPath&& workers,
+             TrigResPtr&& pathResults,
              ActionTable& actions,
              ActivityRegistry& areg,
              bool const isEndPath):
-    bitpos_(bitpos),
-    name_(path_name),
-    trptr_(std::move(pathResults)),
-    actReg_(areg),
-    act_table_(&actions),
-    workers_(std::move(workers)),
-    isEndPath_(isEndPath)
-  {
-  }
+    bitpos_{bitpos},
+    name_{path_name},
+    trptr_{std::move(pathResults)},
+    actReg_{areg},
+    act_table_{&actions},
+    workers_{std::move(workers)},
+    isEndPath_{isEndPath}
+  {}
 
   bool
   Path::handleWorkerFailure(cet::exception const& e,
-                            int nwrwue, bool isEvent) {
-    bool should_continue = true;
+                            int const nwrwue,
+                            bool const isEvent)
+  {
+    bool should_continue {true};
 
     // there is no support as of yet for specific paths having
     // different exception behavior
@@ -64,7 +64,8 @@ namespace art {
   }
 
   void
-  Path::recordUnknownException(int nwrwue, bool isEvent) {
+  Path::recordUnknownException(int const nwrwue, bool const isEvent)
+  {
     mf::LogError("PassingThrough")
       << "Exception passing through path " << name_ << "\n";
     if (isEvent) ++timesExcept_;
@@ -73,14 +74,16 @@ namespace art {
   }
 
   void
-  Path::recordStatus(int nwrwue, bool isEvent) {
+  Path::recordStatus(int const nwrwue, bool const isEvent)
+  {
     if (isEvent && trptr_) {
       (*trptr_)[bitpos_]=HLTPathStatus(state_, nwrwue);
     }
   }
 
   void
-  Path::updateCounters(bool success, bool isEvent) {
+  Path::updateCounters(bool const success, bool const isEvent)
+  {
     if (success) {
       if (isEvent) ++timesPassed_;
       state_ = art::hlt::Pass;
@@ -91,21 +94,25 @@ namespace art {
   }
 
   void
-  Path::clearCounters() {
+  Path::clearCounters()
+  {
     timesRun_ = timesPassed_ = timesFailed_ = timesExcept_ = 0;
     for_all(workers_, [](auto& w) { w.clearCounters(); });
   }
 
-   void Path::findEventModifiers(std::vector<std::string> &foundLabels) const {
+   void Path::findEventModifiers(std::vector<std::string>& foundLabels) const
+   {
       findByModifiesEvent(true, foundLabels);
    }
 
-   void Path::findEventObservers(std::vector<std::string> &foundLabels) const {
+   void Path::findEventObservers(std::vector<std::string>& foundLabels) const
+   {
       findByModifiesEvent(false, foundLabels);
    }
 
-   void Path::findByModifiesEvent(bool modifies,
-                                  std::vector<std::string> &foundLabels) const {
+   void Path::findByModifiesEvent(bool const modifies,
+                                  std::vector<std::string>& foundLabels) const
+   {
      for (auto const& w : workers_) {
        if (w.modifiesEvent() == modifies) {
          foundLabels.push_back(w.label());

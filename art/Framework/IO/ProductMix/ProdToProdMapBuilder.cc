@@ -5,6 +5,10 @@
 #include "art/Framework/Principal/EventPrincipal.h"
 #include "canvas/Persistency/Provenance/BranchIDList.h"
 #include "canvas/Utilities/Exception.h"
+
+#include "Rtypes.h"
+#include "TTree.h"
+
 #include <iomanip>
 #include <iostream>
 
@@ -41,10 +45,7 @@ art::ProdToProdMapBuilder::populateRemapper(PtrRemapper & mapper, Event & e) con
   std::transform(branchIDTransMap_.begin(),
                  branchIDTransMap_.end(),
                  std::inserter(mapper.prodTransMap_, mapper.prodTransMap_.begin()),
-                 ProdTransMapBuilder(secondaryProductMap_,
-                                     ////                                     *dynamic_cast<EventPrincipal const *>
-                                     ////                                     (e.productGetter())));
-                                     e.eventPrincipal()));
+                 ProdTransMapBuilder{secondaryProductMap_, e.eventPrincipal_});
 #if ART_DEBUG_PTRREMAPPER
   for (PtrRemapper::ProdTransMap_t::const_iterator
        i = mapper.prodTransMap_.begin(),

@@ -7,7 +7,10 @@
 #include "art/Framework/IO/Root/FastCloningInfoProvider.h"
 #include "art/Framework/IO/Root/RootInputFileSequence.h"
 #include "art/Framework/IO/Root/RootTree.h"
+#include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Principal/ResultsPrincipal.h"
+#include "art/Framework/Principal/RunPrincipal.h"
+#include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Persistency/Provenance/BranchIDListRegistry.h"
 #include "art/Persistency/RootDB/SQLite3Wrapper.h"
 #include "art/Persistency/Provenance/MasterProductRegistry.h"
@@ -63,7 +66,7 @@ namespace art {
                   std::string const& catalogName,
                   ProcessConfiguration const& processConfiguration,
                   std::string const& logicalFileName,
-                  std::shared_ptr<TFile> filePtr,
+                  std::unique_ptr<TFile>&& filePtr,
                   EventID const& origEventID,
                   unsigned int eventsToSkip,
                   std::vector<SubRunID> const& whichSubRunsToSkip,
@@ -71,6 +74,7 @@ namespace art {
                   unsigned int treeCacheSize,
                   int64_t treeMaxVirtualSize,
                   int64_t saveMemoryObjectThreashold,
+                  bool delayedReadEventProducts,
                   bool delayedReadSubRunProducts,
                   bool delayedReadRunProducts,
                   InputSource::ProcessingMode processingMode,
@@ -98,20 +102,14 @@ namespace art {
     bool
     readEventForSecondaryFile(EventID eID);
 
-    std::shared_ptr<RunPrincipal>
+    std::unique_ptr<RunPrincipal>
     readRun();
-
-    std::vector<std::shared_ptr<RunPrincipal>>
-    readRunFromSecondaryFiles();
 
     bool
     readRunForSecondaryFile(RunID);
 
-    std::shared_ptr<SubRunPrincipal>
-    readSubRun(std::shared_ptr<RunPrincipal>);
-
-    std::vector<std::shared_ptr<SubRunPrincipal>>
-    readSubRunFromSecondaryFiles(std::shared_ptr<RunPrincipal>);
+    std::unique_ptr<SubRunPrincipal>
+    readSubRun(cet::exempt_ptr<RunPrincipal>);
 
     bool
     readSubRunForSecondaryFile(SubRunID);
@@ -181,7 +179,7 @@ namespace art {
       return fastClonable_;
     }
 
-    std::shared_ptr<FileBlock>
+    std::unique_ptr<FileBlock>
     createFileBlock();
 
     template <BranchType BT>
@@ -390,19 +388,20 @@ namespace art {
 
     std::unique_ptr<RunPrincipal   > readCurrentRun(EntryNumbers const&);
     std::unique_ptr<SubRunPrincipal> readCurrentSubRun(EntryNumbers const&,
-                                                       std::shared_ptr<RunPrincipal>);
+                                                       cet::exempt_ptr<RunPrincipal>);
     std::unique_ptr<EventPrincipal > readCurrentEvent(std::pair<EntryNumbers,bool> const&);
 
     std::string const file_;
     std::string const catalog_;
     ProcessConfiguration const& processConfiguration_;
     std::string const logicalFile_;
-    std::shared_ptr<TFile> filePtr_;
+    std::unique_ptr<TFile> filePtr_;
     SQLite3Wrapper sqliteDB_ {filePtr_.get(), "RootFileDB"};
     EventID origEventID_;
     EventNumber_t eventsToSkip_;
     std::vector<SubRunID> whichSubRunsToSkip_;
     RootTreePtrArray treePointers_;
+    bool delayedReadEventProducts_;
     bool delayedReadSubRunProducts_;
     bool delayedReadRunProducts_;
     InputSource::ProcessingMode processingMode_;
@@ -426,13 +425,13 @@ namespace art {
                RunAuxiliary,
                ResultsAuxiliary> auxiliaries_ {};   // Must be in same order as treePointers_ !
     std::unique_ptr<ProductRegistry> productListHolder_ {std::make_unique<ProductRegistry>()};
-    std::shared_ptr<BranchIDListRegistry::collection_type const> branchIDLists_ {nullptr};
+    std::unique_ptr<BranchIDListRegistry::collection_type const> branchIDLists_ {nullptr};
 
     PerBranchTypePresence perBranchTypeProdPresence_ {{}}; // filled by aggregation
     TTree* eventHistoryTree_ {nullptr};
     std::shared_ptr<History> history_ {std::make_shared<History>()};
-    std::shared_ptr<BranchChildren> branchChildren_ {std::make_shared<BranchChildren>()};
-    std::vector<std::unique_ptr<RootInputFile> > secondaryFiles_ {};
+    std::unique_ptr<BranchChildren> branchChildren_ {std::make_unique<BranchChildren>()};
+    std::vector<std::unique_ptr<RootInputFile>> secondaryFiles_ {};
     // We need to add the secondary principals to the primary
     // principal when they are delay read, so we need to keep
     // around a pointer to the primary.  Note that these are
@@ -441,14 +440,6 @@ namespace art {
     cet::exempt_ptr<EventPrincipal> primaryEP_ {};
     cet::exempt_ptr<RunPrincipal> primaryRP_ {};
     cet::exempt_ptr<SubRunPrincipal> primarySRP_ {};
-    // The event processor reads run and subRun principals through
-    // and interface that can return only the primary one.  These
-    // data members cache the secondary ones so that the event
-    // processor can collect them with a second call.  The secondary
-    // event principals do not need to be collected since they are
-    // never subjected to merging of their data products.
-    std::vector<std::shared_ptr<Principal>> secondaryRPs_ {};
-    std::vector<std::shared_ptr<Principal>> secondarySRPs_ {};
     std::unique_ptr<RangeSetHandler> subRunRangeSetHandler_ {nullptr};
     std::unique_ptr<RangeSetHandler> runRangeSetHandler_ {nullptr};
 

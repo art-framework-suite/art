@@ -2,6 +2,7 @@
 
 #include "canvas/Utilities/DebugMacros.h"
 
+#include <cstddef>
 #include <cstdlib>
 #include <exception>
 #include <iomanip>
@@ -86,7 +87,7 @@ namespace art {
 
     for(int num = SIGRTMIN; num < SIGRTMAX; ++num) {
       MUST_BE_ZERO(sigaddset(&myset,num));
-      MUST_BE_ZERO(sigaction(num,&tmpact,NULL));
+      MUST_BE_ZERO(sigaction(num,&tmpact,nullptr));
     }
 
     MUST_BE_ZERO(pthread_sigmask(SIG_BLOCK,&myset,0));
@@ -151,7 +152,7 @@ namespace art {
       return;
     }
 
-    if(sigaction(mysig,&act,NULL) != 0) {
+    if(sigaction(mysig,&act,nullptr) != 0) {
       perror("sigaction failed");
       abort();
     }

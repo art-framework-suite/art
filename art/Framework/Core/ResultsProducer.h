@@ -78,6 +78,7 @@
 #include "fhiclcpp/ParameterSet.h"
 
 namespace art {
+  class ResultsPrincipal;
   class ResultsProducer;
 
   class Event;
@@ -101,11 +102,6 @@ protected:
   void
   produces(std::string const & instanceName = std::string());
 
-  template<class P, BranchType B>
-  [[deprecated("Remove the second (art::BranchType) argument.")]]
-  void
-  produces(std::string const & instanceName = std::string());
-
 public:
   virtual ~ResultsProducer() = default;
 
@@ -117,14 +113,14 @@ public:
   void doEndRun(Run const &);
   void doEvent(Event const &);
   void doReadResults(Results const &);
-  void doWriteResults(Results &);
+  void doWriteResults(ResultsPrincipal &, Results &);
   void doClear();
 
   void registerProducts(MasterProductRegistry & mpr,
                         ModuleDescription const & md)
-    {
-      ProductRegistryHelper::registerProducts(mpr, md);
-    }
+  {
+    ProductRegistryHelper::registerProducts(mpr, md);
+  }
 
 private:
   // Functions for implementation by subclasses.
@@ -152,18 +148,6 @@ art::ResultsProducer::
 produces(std::string const & instanceName)
 {
   ProductRegistryHelper::produces<P, InResults>(instanceName);
-}
-
-template<class P, art::BranchType B>
-inline
-void
-art::ResultsProducer::
-produces(std::string const & instanceName)
-{
-  static_assert(B == InResults,
-                "Specifying a BranchType != InResults to "
-                "art::ResultsProducer::produces is not permitted.");
-  produces<P>(instanceName);
 }
 
 inline
@@ -240,7 +224,7 @@ doClear()
 
 #define DEFINE_ART_RESULTS_PLUGIN(klass)                           \
   PROVIDE_FILE_PATH()                                              \
-  PROVIDE_DESCRIPTION(klass)                                       \
+  PROVIDE_ALLOWED_CONFIGURATION(klass)                                       \
   DEFINE_BASIC_PLUGINTYPE_FUNC(art::ResultsProducer)               \
   extern "C" {                                                     \
     std::unique_ptr<art::RPWorker>                            \

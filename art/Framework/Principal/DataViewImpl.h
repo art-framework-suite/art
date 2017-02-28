@@ -79,9 +79,10 @@ public:
 
   DataViewImpl(DataViewImpl const&) = delete;
   DataViewImpl& operator=(DataViewImpl const&) = delete;
-  DataViewImpl(Principal &,
-               ModuleDescription const&,
-               BranchType);
+
+  explicit DataViewImpl(Principal const&,
+                        ModuleDescription const&,
+                        BranchType);
 
   size_t size() const;
 
@@ -114,14 +115,11 @@ public:
   ProcessHistory const&
   processHistory() const;
 
-  DataViewImpl const&
-  me() const {return *this;}
-
   struct PMValue {
 
-    PMValue( std::unique_ptr<EDProduct>&& p,
-             BranchDescription const& b,
-             RangeSet const& r)
+    PMValue(std::unique_ptr<EDProduct>&& p,
+            BranchDescription const& b,
+            RangeSet const& r)
       : prod{std::move(p)}, bd{b}, rs{r}
     {}
 
@@ -134,9 +132,6 @@ public:
 
 protected:
 
-  Principal      & principal()       {return principal_;}
-  Principal const& principal() const {return principal_;}
-
   BranchIDsMap      & putProducts()       {return putProducts_;}
   BranchIDsMap const& putProducts() const {return putProducts_;}
 
@@ -146,7 +141,7 @@ protected:
   void
   checkPutProducts(bool checkProducts,
                    ProducedMap const& expectedBids,
-                   BranchIDsMap const& products );
+                   BranchIDsMap const& products);
 
   BranchDescription const&
   getBranchDescription(TypeID const& type, std::string const& productInstanceName) const;
@@ -215,12 +210,12 @@ private:
   // pens for EDProducts inserted into this DataViewImpl. Pointers
   // in these collections own the products to which they point.
   //
-  BranchIDsMap putProducts_;               // keep parentage info for these
-  BranchIDsMap putProductsWithoutParents_; // ... but not for these
+  BranchIDsMap putProducts_ {};               // keep parentage info for these
+  BranchIDsMap putProductsWithoutParents_ {}; // ... but not for these
 
   // Each DataViewImpl must have an associated Principal, used as the
   // source of all 'gets' and the target of 'puts'.
-  Principal & principal_;
+  Principal const& principal_;
 
   // Each DataViewImpl must have a description of the module executing the
   // "transaction" which the DataViewImpl represents.
@@ -239,9 +234,8 @@ art::operator<<(std::ostream& os, Handle<PROD> const& h)
   return os;
 }
 
-// Implementation of  DataViewImpl  member templates. See  DataViewImpl.cc for the
-// implementation of non-template members.
-//
+// Implementation of DataViewImpl member templates. See
+// DataViewImpl.cc for the implementation of non-template members.
 
 template <typename PROD>
 inline
@@ -250,7 +244,7 @@ art::DataViewImpl::get(SelectorBase const& sel,
                        Handle<PROD>& result) const
 {
   result.clear();
-  GroupQueryResult bh = get_(TypeID(typeid(PROD)),sel);
+  GroupQueryResult bh = get_(TypeID{typeid(PROD)},sel);
   convert_handle(bh, result);
   return bh.succeeded();
 }

@@ -16,9 +16,9 @@ namespace art {
     class MetadataCollectorFor<suffix_type::plugin> : public MetadataCollector {
     public:
 
-      PluginMetadata doCollect(LibraryInfo const& li) const override
+      PluginMetadata doCollect(LibraryInfo const& li, std::string const& prefix) const override
       {
-        return { header_(li), details_(li), allowed_configuration_(li) };
+        return {header_(li), details_(li), allowed_configuration_(li, prefix)};
       }
 
     private:
@@ -27,7 +27,7 @@ namespace art {
         std::ostringstream result;
         std::string const long_spec = li.long_spec().empty() ? " [ No alternate specification available ] " : li.long_spec();
         result << indent_1()
-               << "plugin_type: " << font_bold(li.short_spec())
+               << "plugin_type: " << bold_fontify(li.short_spec())
                << " (or \"" << long_spec << "\")"
                << "\n\n";
         return result.str();
@@ -43,15 +43,14 @@ namespace art {
         return result.str();
       }
 
-      std::string allowed_configuration_(LibraryInfo const& li) const
+      std::string allowed_configuration_(LibraryInfo const& li, std::string const& prefix) const
       {
         std::ostringstream result;
         result << indent_1()  << "Allowed configuration\n"
                << indent_1()  << "---------------------\n";
 
-        std::string printedConfig = li.description();
-        replace_module_type ( printedConfig, li.short_spec() );
-        replace_label( "plugin_label", printedConfig );
+        std::string printedConfig {describe(li.allowed_config(), prefix)};
+        replace_type(printedConfig, li.short_spec(), regex_for_spec("plugin_type"));
 
         result << printedConfig;
         return result.str();

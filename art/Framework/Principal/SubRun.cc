@@ -7,12 +7,12 @@ namespace art {
 
   namespace {
     Run *
-    newRun(SubRunPrincipal& srp, ModuleDescription const& md) {
-      return (srp.runPrincipalSharedPtr() ? new Run{srp.runPrincipal(), md} : nullptr);
+    newRun(SubRunPrincipal const& srp, ModuleDescription const& md) {
+      return (srp.runPrincipalExemptPtr() ? new Run{srp.runPrincipal(), md} : nullptr);
     }
   }
 
-  SubRun::SubRun(SubRunPrincipal& srp, ModuleDescription const& md, RangeSet const& rs) :
+  SubRun::SubRun(SubRunPrincipal const& srp, ModuleDescription const& md, RangeSet const& rs) :
     DataViewImpl{srp, md, InSubRun},
     aux_{srp.aux()},
     run_{newRun(srp, md)},
@@ -29,9 +29,8 @@ namespace art {
   }
 
   void
-  SubRun::commit_()
+  SubRun::commit_(SubRunPrincipal& srp)
   {
-    auto & srp = dynamic_cast<SubRunPrincipal &>(principal());
     auto put_in_principal = [&srp](auto& elem) {
 
       // set provenance

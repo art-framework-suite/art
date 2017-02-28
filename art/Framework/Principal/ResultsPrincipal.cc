@@ -78,10 +78,10 @@ void
 art::ResultsPrincipal::
 addGroup(std::unique_ptr<EDProduct>&& prod, BranchDescription const& bd)
 {
-  addOrReplaceGroup(gfactory::make_group(std::move(prod),
-                                         bd,
+  addOrReplaceGroup(gfactory::make_group(bd,
                                          ProductID{},
-                                         RangeSet::invalid()));
+                                         RangeSet::invalid(),
+                                         std::move(prod)));
 }
 
 void
@@ -90,7 +90,7 @@ put(std::unique_ptr<EDProduct>&& edp, BranchDescription const& bd,
     std::unique_ptr<ProductProvenance const>&& productProvenance)
 {
   if (!edp) {
-    throw art::Exception(art::errors::InsertFailure, "Null Pointer")
+    throw art::Exception(art::errors::ProductPutFailure, "Null Pointer")
         << "put: Cannot put because unique_ptr to product is null."
         << "\n";
   }

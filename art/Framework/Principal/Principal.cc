@@ -317,9 +317,11 @@ findGroups(ProcessLookup const& pl, SelectorBase const& sel,
            GroupQueryResultVec& res, bool stopIfProcessHasMatch,
            TypeID wanted_wrapper/*=TypeID()*/) const
 {
-  // Handle groups for current process, note that we need to
-  // look at the current process even if it is not in the processHistory
-  // because of potential unscheduled (onDemand) production
+  // Handle groups for current process, note that we need to look at
+  // the current process even if it is not in the processHistory
+  // because of potential unscheduled (onDemand) production.
+  // [We don't support unscheduled production anymore, so I'm not sure
+  // how much the logic here should be adjusted. -KJK]
   {
     auto I = pl.find(processConfiguration_.processName());
     if (I != pl.end()) {
@@ -362,17 +364,18 @@ findGroupsForProcess(std::vector<BranchID> const& vbid,
       continue;
     }
     if (wanted_wrapper) {
-      group->resolveProduct(true, wanted_wrapper);
+      group->resolveProduct(wanted_wrapper);
     }
     else {
-      group->resolveProduct(true, group->producedWrapperType());
+      group->resolveProduct(group->producedWrapperType());
     }
     // If the product is a dummy filler, group will now be marked unavailable.
     // Unscheduled execution can fail to produce the EDProduct so check.
-    if (!group->productUnavailable() && !group->onDemand()) {
-      // Found a good match, save it.
-      res.push_back(GroupQueryResult(group.get()));
+    if (group->productUnavailable()) {
+      continue;
     }
+    // Found a good match, save it.
+    res.emplace_back(group);
   }
 }
 
@@ -380,9 +383,9 @@ OutputHandle
 Principal::
 getForOutput(BranchID const bid, bool resolveProd) const
 {
-  auto const& g = getResolvedGroup(bid, resolveProd, false);
-  if (!g) {
-    return OutputHandle{g->rangeOfValidity()};
+  auto const& g = getResolvedGroup(bid, resolveProd);
+  if (g.get() == nullptr) {
+    return OutputHandle{RangeSet::invalid()};
   }
   auto const & pmd = ProductMetaData::instance();
   auto const bt = g->productDescription().branchType();
@@ -408,22 +411,20 @@ getForOutput(BranchID const bid, bool resolveProd) const
   return OutputHandle{g->anyProduct(), &g->productDescription(), g->productProvenancePtr(), g->rangeOfValidity()};
 }
 
-std::shared_ptr<const Group> const
+cet::exempt_ptr<Group const> const
 Principal::
 getResolvedGroup(BranchID const bid,
-                 bool const resolveProd,
-                 bool const fillOnDemand) const
+                 bool const resolveProd) const
 {
   // FIXME: This reproduces the behavior of the original getGroup with
   // resolveProv == false but I am not sure this is correct in the case
   // of an unavailable product.
-  std::shared_ptr<const Group> const& g(getGroupForPtr(branchType(),bid));
+  auto const g = getGroupForPtr(branchType(),bid);
   if (!g.get() || !resolveProd) {
     return g;
   }
-  bool gotIt = g->resolveProductIfAvailable(fillOnDemand,
-                                            g->producedWrapperType());
-  if (!gotIt && g->onDemand()) {
+  bool const gotIt = g->resolveProductIfAvailable(g->producedWrapperType());
+  if (!gotIt) {
     // Behavior is the same as if the group wasn't there.
     return nullptr;
   }
@@ -438,7 +439,7 @@ getExistingGroup(BranchID const bid) const
   if (I != groups_.end()) {
     return I->second.get();
   }
-  for (auto p : secondaryPrincipals_) {
+  for (auto& p : secondaryPrincipals_) {
     auto I = p->groups_.find(bid);
     if (I != p->groups_.end()) {
       return I->second.get();
@@ -447,11 +448,11 @@ getExistingGroup(BranchID const bid) const
   return nullptr;
 }
 
-std::shared_ptr<const Group> const
+cet::exempt_ptr<Group const> const
 Principal::
 getGroupForPtr(BranchType const btype, BranchID const bid) const
 {
-  const Principal* pp = this;
+  Principal const* pp = this;
   if (primaryPrincipal_ != nullptr) {
     pp = primaryPrincipal_.get();
   }
@@ -463,12 +464,12 @@ getGroupForPtr(BranchType const btype, BranchID const bid) const
     // Note: There will be groups for dropped products, so we
     //       must check for that.  We want the group where the
     //       product can actually be retrieved from.
-    return (it != pp->groups_.end()) ? it->second : nullptr;
+    return (it != pp->groups_.end()) ? it->second.get() : nullptr;
   }
   else if ( index > 0 && ( index-1 < secondaryPrincipals_.size() ) ) {
     auto const& groups = secondaryPrincipals_[index-1]->groups_;
     auto it = groups.find(bid);
-    return (it != groups.end()) ? it->second : nullptr;
+    return (it != groups.end()) ? it->second.get() : nullptr;
   }
   while (1) {
     int err = tryNextSecondaryFile();
@@ -481,17 +482,17 @@ getGroupForPtr(BranchType const btype, BranchID const bid) const
       continue;
     }
     std::size_t const index = ProductMetaData::instance().presentWithFileIdx(btype, bid);
-    if ( index == MasterProductRegistry::DROPPED ) continue;
-    auto p = secondaryPrincipals_[index-1];
+    if (index == MasterProductRegistry::DROPPED) continue;
+    auto& p = secondaryPrincipals_[index-1];
     auto it = p->groups_.find(bid);
     // Note: There will be groups for dropped products, so we
     //       must check for that.  We want the group where the
     //       product can actually be retrieved from.
-    return (it != p->groups_.end()) ? it->second : nullptr;
+    return (it != p->groups_.end()) ? it->second.get() : nullptr;
   }
 }
 
-std::shared_ptr<const Group> const
+cet::exempt_ptr<Group const> const
 Principal::
 getGroup(BranchID const bid) const
 {
@@ -502,13 +503,13 @@ getGroup(BranchID const bid) const
   {
     auto I = pp->groups_.find(bid);
     if (I != pp->groups_.end()) {
-      return I->second;
+      return I->second.get();
     }
   }
-  for (auto p : secondaryPrincipals_) {
+  for (auto& p : secondaryPrincipals_) {
     auto I = p->groups_.find(bid);
     if (I != p->groups_.end()) {
-      return I->second;
+      return I->second.get();
     }
   }
   return nullptr;

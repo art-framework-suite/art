@@ -1,0 +1,14 @@
+#include "message.fcl"
+source: {
+  module_type: EventProcessorTestSource
+  fileNames: @nil
+}
+
+physics.e1: [o1]
+outputs.o1.module_type: EventProcessorTestOutput
+
+services.message: @local::message
+services.scheduler: {
+  handleEmptyRuns: false
+  handleEmptySubRuns: false
+}

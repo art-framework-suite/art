@@ -85,8 +85,22 @@
 // declareMixOp templates.
 //
 // These function templates should be used by writers of product-mixing
-// "detail" classes to declare each product mix operation. Such an
-// operation may be specified by providing:
+// "detail" classes to declare each product mix operation.
+//
+// All of the declareMixOp(...) function templates have the following
+// template arguments:
+//
+// 1. The BranchType (defaults to art::InEvent). Specify explicitly if
+//    you wish to mix subrun or run products, or if you need to specify
+//    explicitly any of the other template arguments.
+//
+// 2. The incoming product type (deduced from the provided callable
+//    mixer argument).
+//
+// 3. The outgoing product type (deduced from the provided callable
+//    mixer argument).
+//
+// A product mixing operation should be  specified by providing:
 //
 //  1. an InputTag specifying which secondary products should be mixed;
 //
@@ -96,13 +110,13 @@
 //  3. a callable mixer such as:
 //
 //     bool mixfunc(std::vector<PROD const *> const &,
-//                  PROD &,
+//                  OPROD &,
 //                  PtrRemapper const &),
 //
 //     As the user may prefer, the mixer may take the form of:
 //       a) an arbitrarily-named free function, or
-//       b) a function object whose operator() must have the correct
-//          type (see below), or
+//       b) a function object whose operator() must have a signature
+//          whose arguments match those above, or
 //       c) an arbitrarily-named member function of any class.
 //     In each case, the mixer must have the same type (i.e.,
 //     the same return type and the same parameter types) illustrated
@@ -110,10 +124,12 @@
 //     taken to indicate whether the product should be placed in the
 //     event.
 //
-//     For free functions, function objects, and pre-bound member
-//     functions, the product type template argument need not be
-//     specified as it can be deduced from the signature of the provided
-//     function.
+//     Generally speaking the PROD and OPROD template arguments are
+//     deducible from the callable mixer function which, once bound (if
+//     appropriate) to any provided class instance, should be
+//     convertible to an instantiation of the template instance
+//     art::MixFunc<PROD, OPROD>. See
+//     art/Framework/IO/ProductMix/MixTypes.h for more details.
 //
 //     If the provided function is a member function it may be provided
 //     bound to the object upon which it is to be called by the user (in
@@ -128,6 +144,9 @@
 //     different mix function) then the template argument must be
 //     specified in order to constrain the overload set to a single
 //     function.
+//
+//     See also the description of the template alias art::MixFunc<PROD,
+//     OPROD> defined in art/Framework/IO/ProductMix/MixTypes.h.
 //
 //  4. An optional boolean, "outputProduct," defaulting to, "true." A
 //     false value for this parameter indicates that the mix product
@@ -158,8 +177,9 @@
 //
 // Note: For signatures 3-6, if the compiler complains about an
 // unresolved overload your first move should be to specify the product
-// type as template argument. If that does not resolve the problem, try
-// an explicit:
+// type(s) as template argument (to do this you must specify explicitly
+// the BranchType template argument first). If that does not resolve the
+// problem, try an explicit:
 //
 //   const_cast<T const&>(t)
 //
@@ -172,10 +192,10 @@
 ////////////////////////////////////
 // produces() templates.
 //
-// Call as you would from the constructor of a module to declare
-// (e.g., bookkeeping) products to be put into the event that are *not*
-// direct results of a product mix. For the latter case, see the
-// declareMixOp() templates above.
+// Call as you would from the constructor of a module to declare (e.g.,
+// bookkeeping) products to be put into the event that are *not* direct
+// results of a single product mix operation. For the latter case, see
+// the declareMixOp() templates above.
 //
 // Signatures for produces():
 //
@@ -193,7 +213,7 @@
 #include "CLHEP/Random/RandFlat.h"
 #include "art/Framework/Core/ProducerBase.h"
 #include "art/Framework/Core/PtrRemapper.h"
-#include "art/Framework/IO/ProductMix/MixContainerTypes.h"
+#include "art/Framework/IO/ProductMix/MixTypes.h"
 #include "art/Framework/IO/ProductMix/MixOp.h"
 #include "art/Framework/IO/ProductMix/ProdToProdMapBuilder.h"
 #include "art/Framework/Principal/fwd.h"
@@ -243,7 +263,7 @@ public:
   // Returns the current mixing mode.
   Mode readMode() const;
 
-  // Registers a callback to the detail object to determing the next
+  // Registers a callback to the detail object to determine the next
   // secondary file to read.
   void registerSecondaryFileNameProvider(ProviderFunc_ func);
 
@@ -256,59 +276,53 @@ public:
   void produces(std::string const & instanceName = std::string());
 
   // 1.
-  template <typename PROD>
+  template <art::BranchType B = art::InEvent, typename PROD, typename OPROD>
   void declareMixOp(InputTag const & inputTag,
-                    std::function < bool (std::vector<PROD const *> const &,
-                                          PROD &,
-                                          PtrRemapper const &)
-                    > mixFunc,
+                    MixFunc<PROD, OPROD> mixFunc,
                     bool outputProduct = true);
 
 
   // 2.
-  template <typename PROD>
+  template <art::BranchType B = art::InEvent, typename PROD, typename OPROD>
   void declareMixOp(InputTag const & inputTag,
                     std::string const & outputInstanceLabel,
-                    std::function < bool (std::vector<PROD const *> const &,
-                                          PROD &,
-                                          PtrRemapper const &)
-                    > mixFunc,
+                    MixFunc<PROD, OPROD> mixFunc,
                     bool outputProduct = true);
 
   // 3.
-  template <typename PROD, typename T>
+  template <art::BranchType B = art::InEvent, typename PROD, typename OPROD, typename T>
   void declareMixOp(InputTag const & inputTag,
                     bool (T::*mixfunc)(std::vector<PROD const *> const &,
-                                       PROD &,
+                                       OPROD &,
                                        PtrRemapper const &),
                     T & t,
                     bool outputProduct = true);
 
   // 4.
-  template <typename PROD, typename T>
+  template <art::BranchType B = art::InEvent, typename PROD, typename OPROD, typename T>
   void declareMixOp(InputTag const & inputTag,
                     std::string const & outputInstanceLabel,
                     bool (T::*mixfunc)(std::vector<PROD const *> const &,
-                                       PROD &,
+                                       OPROD &,
                                        PtrRemapper const &),
                     T & t,
                     bool outputProduct = true);
 
   // 5.
-  template <typename PROD, typename T>
+  template <art::BranchType B = art::InEvent, typename PROD, typename OPROD, typename T>
   void declareMixOp(InputTag const & inputTag,
                     bool (T::*mixfunc)(std::vector<PROD const *> const &,
-                                       PROD &,
+                                       OPROD &,
                                        PtrRemapper const &) const,
                     T const & t,
                     bool outputProduct = true);
 
   // 6.
-  template <typename PROD, typename T>
+  template <art::BranchType B = art::InEvent, typename PROD, typename OPROD, typename T>
   void declareMixOp(InputTag const & inputTag,
                     std::string const & outputInstanceLabel,
                     bool (T::*mixfunc)(std::vector<PROD const *> const &,
-                                       PROD &,
+                                       OPROD &,
                                        PtrRemapper const &) const,
                     T const & t,
                     bool outputProduct = true);
@@ -319,7 +333,10 @@ public:
   bool generateEventSequence(size_t nSecondaries,
                              EntryNumberSequence & enSeq,
                              EventIDSequence & eIDseq);
+  void generateEventAuxiliarySequence(EntryNumberSequence const&,
+                                      EventAuxiliarySequence&);
   void mixAndPut(EntryNumberSequence const & enSeq,
+                 EventIDSequence const & eIDseq,
                  Event & e);
   void setEventsToSkipFunction(std::function < size_t () > eventsToSkip);
 
@@ -327,16 +344,13 @@ private:
   MixHelper(MixHelper const&) = delete;
   MixHelper& operator=(MixHelper const&) = delete;
 
-  typedef std::vector<std::shared_ptr<MixOpBase> > MixOpList;
+  typedef std::vector<std::unique_ptr<MixOpBase>> MixOpList;
   typedef MixOpList::iterator MixOpIter;
 
   Mode initReadMode_(std::string const & mode) const;
 
   void openAndReadMetaData_(std::string fileName);
   void buildEventIDIndex_(FileIndex const & fileIndex);
-  void mixAndPutOne_(std::shared_ptr<MixOpBase> mixOp,
-                     EntryNumberSequence const & enSeq,
-                     Event & e);
   bool openNextFile_();
   void buildBranchIDTransMap_(ProdToProdMapBuilder::BranchIDTransMap & transMap);
 
@@ -357,14 +371,17 @@ private:
   ProdToProdMapBuilder ptpBuilder_;
   std::unique_ptr<CLHEP::RandFlat> dist_;
   std::function < size_t () > eventsToSkip_;
-  EntryNumberSequence shuffledSequence_; // RANDOM_NO_REPLACE only.s
+  EntryNumberSequence shuffledSequence_; // RANDOM_NO_REPLACE only.
+  bool haveSubRunMixOps_;
+  bool haveRunMixOps_;
 
   // Root-specific state.
-  EventIDIndex eventIDIndex_;
   cet::value_ptr<TFile> currentFile_;
   cet::exempt_ptr<TTree> currentMetaDataTree_;
-  cet::exempt_ptr<TTree> currentEventTree_;
-  RootBranchInfoList dataBranches_;
+  std::array<cet::exempt_ptr<TTree>, art::BranchType::NumBranchTypes> currentDataTrees_;
+  FileIndex currentFileIndex_;
+  std::array<RootBranchInfoList, art::BranchType::NumBranchTypes> dataBranches_;
+  EventIDIndex eventIDIndex_;
 };
 
 inline
@@ -395,63 +412,65 @@ art::MixHelper::produces(std::string const & instanceName)
 }
 
 // 1.
-template <typename PROD>
+template <art::BranchType B, typename PROD, typename OPROD>
 inline
 void
 art::MixHelper::
 declareMixOp(InputTag const & inputTag,
-             std::function < bool (std::vector<PROD const *> const &,
-                                   PROD &,
-                                   PtrRemapper const &)
-             > mixFunc,
+             MixFunc<PROD, OPROD> mixFunc,
              bool outputProduct)
 {
-  declareMixOp(inputTag, inputTag.instance(), mixFunc, outputProduct); // 2.
+  declareMixOp<B>(inputTag, inputTag.instance(), mixFunc, outputProduct); // 2.
 }
 
 // 2.
-template <typename PROD>
+template <art::BranchType B, typename PROD, typename OPROD>
 void
 art::MixHelper::
 declareMixOp(InputTag const & inputTag,
              std::string const & outputInstanceLabel,
-             std::function < bool (std::vector<PROD const *> const &,
-                                   PROD &,
-                                   PtrRemapper const &)
-             > mixFunc,
+             MixFunc<PROD, OPROD> mixFunc,
              bool outputProduct)
 {
-  if (outputProduct) { producesProvider_.produces<PROD>(outputInstanceLabel); }
-  mixOps_.emplace_back(new MixOp<PROD>(inputTag,
-                                       outputInstanceLabel,
-                                       mixFunc,
-                                       outputProduct,
-                                       compactMissingProducts_));
+  if (outputProduct) {
+    produces<OPROD>(outputInstanceLabel);
+  }
+  if (B == art::InSubRun) {
+    haveSubRunMixOps_ = true;
+  } else if (B == art::InRun) {
+    haveRunMixOps_ = true;
+  }
+  mixOps_.emplace_back(new MixOp<PROD, OPROD>(inputTag,
+                                              outputInstanceLabel,
+                                              mixFunc,
+                                              outputProduct,
+                                              compactMissingProducts_,
+                                              B));
 }
 
 // 3.
-template <typename PROD, typename T>
+template <art::BranchType B, typename PROD, typename OPROD, typename T>
 inline
 void
 art::MixHelper::
 declareMixOp(InputTag const & inputTag,
              bool (T::*mixFunc)(std::vector<PROD const *> const &,
-                                PROD &,
+                                OPROD &,
                                 PtrRemapper const &),
              T & t,
              bool outputProduct)
 {
-  declareMixOp(inputTag, inputTag.instance(), mixFunc, t, outputProduct); // 4.
+  declareMixOp<B>(inputTag, inputTag.instance(), mixFunc, t, outputProduct); // 4.
 }
 
 // 4.
-template <typename PROD, typename T>
+template <art::BranchType B, typename PROD, typename OPROD, typename T>
 void
 art::MixHelper::
 declareMixOp(InputTag const & inputTag,
              std::string const & outputInstanceLabel,
              bool (T::*mixFunc)(std::vector<PROD const *> const &,
-                                PROD &,
+                                OPROD &,
                                 PtrRemapper const &),
              T & t,
              bool outputProduct)
@@ -459,37 +478,35 @@ declareMixOp(InputTag const & inputTag,
   using std::placeholders::_1;
   using std::placeholders::_2;
   using std::placeholders::_3;
-  if (outputProduct) { producesProvider_.produces<PROD>(outputInstanceLabel); }
-  mixOps_.emplace_back(new MixOp<PROD>(inputTag,
-                                       outputInstanceLabel,
-                                       std::bind(mixFunc, &t, _1, _2, _3),
-                                       outputProduct,
-                                       compactMissingProducts_));
+  declareMixOp<B>(inputTag,
+               outputInstanceLabel,
+               static_cast<MixFunc<PROD, OPROD> >(std::bind(mixFunc, &t, _1, _2, _3)),
+               outputProduct); // 2.
 }
 
 // 5.
-template <typename PROD, typename T>
+template <art::BranchType B, typename PROD, typename OPROD, typename T>
 inline
 void
 art::MixHelper::
 declareMixOp(InputTag const & inputTag,
              bool (T::*mixFunc)(std::vector<PROD const *> const &,
-                                PROD &,
+                                OPROD &,
                                 PtrRemapper const &) const,
              T const & t,
              bool outputProduct)
 {
-  declareMixOp(inputTag, inputTag.instance(), mixFunc, t, outputProduct); // 6.
+  declareMixOp<B>(inputTag, inputTag.instance(), mixFunc, t, outputProduct); // 6.
 }
 
 // 6.
-template <typename PROD, typename T>
+template <art::BranchType B, typename PROD, typename OPROD, typename T>
 void
 art::MixHelper::
 declareMixOp(InputTag const & inputTag,
              std::string const & outputInstanceLabel,
              bool (T::*mixFunc)(std::vector<PROD const *> const &,
-                                PROD &,
+                                OPROD &,
                                 PtrRemapper const &) const,
              T const & t,
              bool outputProduct)
@@ -497,12 +514,10 @@ declareMixOp(InputTag const & inputTag,
   using std::placeholders::_1;
   using std::placeholders::_2;
   using std::placeholders::_3;
-  if (outputProduct) { producesProvider_.produces<PROD>(outputInstanceLabel); }
-  mixOps_.emplace_back(new MixOp<PROD>(inputTag,
-                                       outputInstanceLabel,
-                                       std::bind(mixFunc, &t, _1, _2, _3),
-                                       outputProduct,
-                                       compactMissingProducts_));
+  declareMixOp<B>(inputTag,
+                  outputInstanceLabel,
+                  static_cast<MixFunc<PROD, OPROD> >(std::bind(mixFunc, &t, _1, _2, _3)),
+                  outputProduct); // 2.
 }
 
 #endif /* art_Framework_IO_ProductMix_MixHelper_h */

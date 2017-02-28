@@ -14,7 +14,7 @@
 #include "art/Framework/Services/Registry/detail/ServiceWrapper.h"
 #include "canvas/Utilities/Exception.h"
 #include "canvas/Utilities/TypeID.h"
-#include "cetlib/demangle.h"
+#include "cetlib_except/demangle.h"
 
 #include <map>
 #include <memory>

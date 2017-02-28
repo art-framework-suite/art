@@ -13,24 +13,40 @@
 #include "canvas/Persistency/Provenance/EventID.h"
 #include "canvas/Persistency/Provenance/RunID.h"
 #include "canvas/Persistency/Provenance/SubRunID.h"
+#include "cetlib/exempt_ptr.h"
 
 #include <memory>
+#include <ostream>
 
 namespace art
 {
   class MasterProductRegistry;
 
-  namespace input
-  {
-    enum ItemType
-      {
-        IsInvalid,
-        IsStop,
-        IsFile,
-        IsRun,
-        IsSubRun,
-        IsEvent
-      };
+  namespace input {
+    enum ItemType {IsInvalid, IsStop, IsFile, IsRun, IsSubRun, IsEvent};
+    inline std::ostream& operator<<(std::ostream& os, ItemType const it)
+    {
+      switch(it) {
+      case IsInvalid:
+        os << "Invalid";
+        break;
+      case IsStop:
+        os << "Stop";
+        break;
+      case IsFile:
+        os << "InputFile";
+        break;
+      case IsRun:
+        os << "Run";
+        break;
+      case IsSubRun:
+        os << "SubRun";
+        break;
+      case IsEvent:
+        os << "Event";
+      }
+      return os;
+    }
   }
 
   class InputSource
@@ -72,11 +88,11 @@ namespace art
     virtual input::ItemType nextItemType() = 0;
     virtual RunID run() const = 0;
     virtual SubRunID subRun() const = 0;
-    virtual std::shared_ptr<FileBlock> readFile(MasterProductRegistry&) = 0;
+    virtual std::unique_ptr<FileBlock> readFile(MasterProductRegistry&) = 0;
     virtual void closeFile() = 0;
-    virtual std::shared_ptr<RunPrincipal> readRun() = 0;
-    virtual std::shared_ptr<SubRunPrincipal> readSubRun(std::shared_ptr<RunPrincipal> rp) = 0;
-    virtual std::unique_ptr<EventPrincipal> readEvent(std::shared_ptr<SubRunPrincipal> srp) = 0;
+    virtual std::unique_ptr<RunPrincipal> readRun() = 0;
+    virtual std::unique_ptr<SubRunPrincipal> readSubRun(cet::exempt_ptr<RunPrincipal> rp) = 0;
+    virtual std::unique_ptr<EventPrincipal> readEvent(cet::exempt_ptr<SubRunPrincipal> srp) = 0;
     virtual std::unique_ptr<RangeSetHandler> runRangeSetHandler() = 0;
     virtual std::unique_ptr<RangeSetHandler> subRunRangeSetHandler() = 0;
 

@@ -87,7 +87,7 @@ namespace art {
   };
 
 }
-#endif /* art_Utilities_ClosedRangeSetHandler_h */
+#endif /* art_Framework_Principal_ClosedRangeSetHandler_h */
 
 // Local Variables:
 // mode: c++

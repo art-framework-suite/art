@@ -49,7 +49,7 @@ namespace art {
   }
 }
 
-#endif
+#endif /* art_Framework_IO_Root_detail_InfoDumperInputFile_h */
 
 // Local variables:
 // mode: c++

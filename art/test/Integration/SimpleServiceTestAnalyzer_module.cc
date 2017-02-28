@@ -53,6 +53,8 @@ arttest::SimpleServiceTestAnalyzer::SimpleServiceTestAnalyzer(fhicl::ParameterSe
   EDAnalyzer(p)
 {
   assert(art::ServiceHandle<arttest::SimpleServiceTest>()->verifyStatus());
+  assert((*art::ServiceHandle<arttest::SimpleServiceTest>()).verifyStatus());
+  assert(art::ServiceHandle<arttest::SimpleServiceTest>().get()->verifyStatus());
 }
 
 void arttest::SimpleServiceTestAnalyzer::analyze(art::Event const &)

@@ -6,7 +6,7 @@
 
 #include "art/Framework/Services/Optional/TimeTracker.h"
 #include "art/Framework/Services/Registry/ServiceMacros.h"
-#include "art/Ntuple/sqlite_helpers.h"
+#include "cetlib/Ntuple/sqlite_helpers.h"
 #include "boost/format.hpp"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
@@ -79,12 +79,35 @@ art::TimeTracker::postEndJob()
 
   if (!printSummary_) return;
 
-  // Gather statistics
-  auto const evtStats = (timeEventTable_.lastRowid() == 0 ) ? Statistics{} : Statistics{"Full event", "", "", dbMgr_, "TimeEvent", "Time"};
-  using namespace sqlite;
+  if (timeEventTable_.lastRowid() == 0 && timeModuleTable_.lastRowid() == 0) {
+    logToDestination_(Statistics{}, std::vector<Statistics>{});
+    return;
+  }
 
-  result r;
-  r << select_distinct("Path","ModuleLabel","ModuleType").from(timeModuleTable_);
+  if (timeEventTable_.lastRowid() == 0 && timeModuleTable_.lastRowid() != 0) {
+    throw art::Exception(art::errors::LogicError)
+      << "Malformed TimeTracker database.  The TimeEvent table is empty, but\n"
+      << "the TimeModule table is not.  Please contact artists@fnal.gov.";
+  }
+
+  // Gather statistics for full Event
+  // -- Unfortunately, this is not a simple query since the
+  //    'RootOutput(write)' times are not recorded in the TimeEvent
+  //    rows.  They must be added in.
+
+  std::string const fullEventTime_ddl =
+    "CREATE TABLE temp.fullEventTime AS "
+    "SELECT Run,Subrun,Event,SUM(Time) AS FullEventTime FROM ("
+    "       SELECT Run,Subrun,Event,Time FROM TimeEvent"
+    "       UNION"
+    "       SELECT Run,Subrun,Event,Time FROM TimeModule WHERE ModuleType='RootOutput(write)'"
+    ") GROUP BY Run,Subrun,Event";
+  sqlite::exec(dbMgr_, fullEventTime_ddl);
+  Statistics const evtStats {"Full event", "", "", dbMgr_, "temp.fullEventTime", "FullEventTime"};
+  sqlite::dropTable(dbMgr_, "temp.fullEventTime");
+
+  sqlite::result r;
+  r << sqlite::select_distinct("Path","ModuleLabel","ModuleType").from(timeModuleTable_);
 
   std::vector<Statistics> modStats;
   for (auto& row : r) {

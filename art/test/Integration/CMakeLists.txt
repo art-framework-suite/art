@@ -3,7 +3,6 @@ set(CMAKE_MODULE_PATH
   ${CMAKE_CURRENT_SOURCE_DIR}
   )
 
-# project name
 art_make_library(SOURCE
   ToySource.cc
   LIBRARIES art_Framework_IO_Sources
@@ -51,11 +50,12 @@ simple_plugin(FlushingGeneratorTestFilter "module"  NO_INSTALL )
 simple_plugin(GeneratorTest               "source"  NO_INSTALL )
 simple_plugin(ImplicitRSAssignmentAnalyzer "module" NO_INSTALL USE_BOOST_UNIT)
 simple_plugin(ImplicitRSAssignmentProducer "module" NO_INSTALL USE_BOOST_UNIT)
-simple_plugin(InFlightConfiguration       "service" NO_INSTALL USE_BOOST_UNIT art_Framework_Services_Registry art_Framework_Services_UserInteraction art_Framework_Services_System_PathSelection_service )
+simple_plugin(InFlightConfiguration       "service" NO_INSTALL USE_BOOST_UNIT art_Framework_Services_Registry art_Framework_Services_UserInteraction art_Framework_EventProcessor_PathSelection_service )
 simple_plugin(IntProducer                 "module"  NO_INSTALL )
 simple_plugin(IntTestAnalyzer             "module"  NO_INSTALL )
 simple_plugin(IntVectorAnalyzer           "module"  NO_INSTALL )
 simple_plugin(IntVectorProducer           "module"  NO_INSTALL )
+simple_plugin(MessagePrinter              "tool"    NO_INSTALL )
 simple_plugin(MixAnalyzer                 "module"  NO_INSTALL USE_BOOST_UNIT )
 simple_plugin(MixFilterTest               "module"  NO_INSTALL USE_BOOST_UNIT art_Framework_IO_ProductMix )
 simple_plugin(MixFilterTestETS            "module"  NO_INSTALL USE_BOOST_UNIT art_Framework_IO_ProductMix )
@@ -74,10 +74,12 @@ simple_plugin(PtrVectorSimpleAnalyzer     "module"  NO_INSTALL )
 simple_plugin(PtrmvAnalyzer               "module"  NO_INSTALL USE_BOOST_UNIT )
 simple_plugin(PtrmvProducer               "module"  NO_INSTALL )
 simple_plugin(RandomNumberSaveTest        "module"  NO_INSTALL USE_BOOST_UNIT )
+simple_plugin(ReadNextArbitrator          "tool"    NO_INSTALL )
 simple_plugin(Reconfigurable              "service" NO_INSTALL )
 simple_plugin(Reconfiguring               "module"  NO_INSTALL )
 simple_plugin(RunSubRunProductProducerNoPut "module"  NO_INSTALL )
 simple_plugin(SAMMetadataTest             "module"  NO_INSTALL art_Framework_Services_System_FileCatalogMetadata_service )
+simple_plugin(SeekToEventClient           "service" NO_INSTALL art_Framework_IO_Root_RootInput_source)
 simple_plugin(ServiceUsing                "service" NO_INSTALL )
 simple_plugin(SimpleDerivedAnalyzer       "module"  NO_INSTALL )
 simple_plugin(SimpleDerivedProducer       "module"  NO_INSTALL )
@@ -105,6 +107,7 @@ simple_plugin(ToyRawProductAnalyzer       "module"  NO_INSTALL )
 simple_plugin(U_S                         "module"  NO_INSTALL ALLOW_UNDERSCORES )
 simple_plugin(ValidHandleTester           "module"  NO_INSTALL )
 simple_plugin(Wanted                      "service" NO_INSTALL )
+simple_plugin(addInts                     "tool"    NO_INSTALL )
 
 art_dictionary(DICTIONARY_LIBRARIES cetlib NO_INSTALL)
 
@@ -305,96 +308,6 @@ cet_test(ToyProductProducerAnalyzer_t HANDBUILT
   fcl/toyProductProducerAnalyzer_t.fcl
   )
 
-cet_test(ToyRawInput_t_01 HANDBUILT
-  TEST_EXEC art
-  TEST_ARGS --rethrow-all -c ToyRawInput_01.fcl
-  DATAFILES
-  fcl/ToyRawInput_01.fcl
-)
-
-cet_test(ToyRawInput_OutputCheck_t_01 HANDBUILT
-  TEST_EXEC file_info_dumper
-  TEST_ARGS
-  --range-of-validity
-  --file-index
-  "../ToyRawInput_t_01.d/out.root"
-  REF "${CMAKE_CURRENT_SOURCE_DIR}/ToyRawInput_t_01-ref.txt"
-  TEST_PROPERTIES
-  DEPENDS ToyRawInput_t_01
-  )
-
-foreach(num 02 03 04)
-  cet_test(ToyRawInput_t_${num} HANDBUILT
-    TEST_EXEC test_must_abort
-    TEST_ARGS art -c ToyRawInput_${num}.fcl
-    DATAFILES
-    fcl/ToyRawInput_${num}.fcl
-    fcl/ToyRawInput_common.fcl
-  )
-endforeach()
-
-cet_test_assertion("outR \\\\|\\\\| inR"
-  ToyRawInput_t_02
-  )
-cet_test_assertion("outSR \\\\|\\\\| inSR"
-  ToyRawInput_t_03
-  ToyRawInput_t_04
-  )
-
-foreach(num 01 02 03)
-  cet_test(ToyProductProducerMultiput_t_${num} HANDBUILT
-    TEST_EXEC art
-    TEST_ARGS --rethrow-all -c ToyProductProducerMultiput_t_${num}.fcl
-    DATAFILES
-    fcl/ToyProductProducerMultiput_t_${num}.fcl
-    TEST_PROPERTIES
-    PASS_REGULAR_EXPRESSION "Attempt to put multiple products with the"
-    PASS_REGULAR_EXPRESSION "following description onto the"
-    )
-endforeach()
-
-
-foreach(num 05 06 07 08 09 10 11 12)
-  cet_test(ToyRawInput_t_${num} HANDBUILT
-    TEST_EXEC art
-    TEST_ARGS --rethrow-all -c ToyRawInput_${num}.fcl
-    DATAFILES
-    fcl/ToyRawInput_${num}.fcl
-    fcl/ToyRawInput_common.fcl
-  )
-endforeach()
-
-
-SET_TESTS_PROPERTIES(ToyRawInput_t_05 PROPERTIES
-  PASS_REGULAR_EXPRESSION
-  "readNext returned a 'new' SubRun that was the same as the previous SubRun"
-)
-
-SET_TESTS_PROPERTIES(ToyRawInput_t_06 PROPERTIES
-  PASS_REGULAR_EXPRESSION
-  "readNext returned a 'new' Run that was the same as the previous Run"
-)
-
-SET_TESTS_PROPERTIES(ToyRawInput_t_07 PROPERTIES
-  PASS_REGULAR_EXPRESSION
-  "readNext returned a new Run and Event without a SubRun"
-)
-
-SET_TESTS_PROPERTIES(ToyRawInput_t_08 PROPERTIES
-  PASS_REGULAR_EXPRESSION
-  "readNext returned true but created no new data"
-)
-
-SET_TESTS_PROPERTIES(ToyRawInput_t_09 PROPERTIES
-  PASS_REGULAR_EXPRESSION
-  "readNext returned false but created new data"
-)
-
-SET_TESTS_PROPERTIES(ToyRawInput_t_10 PROPERTIES
-  PASS_REGULAR_EXPRESSION
-  "readNext returned a new Run with a SubRun from the wrong Run"
-)
-
 cet_test(ToyRawInput_w HANDBUILT
   TEST_EXEC art
   TEST_ARGS --rethrow-all -c ToyRawInput_w.fcl
@@ -469,6 +382,94 @@ cet_test(ToyRawFileInput_r3 HANDBUILT
   fcl/ToyRawInput_r1.fcl
   TEST_PROPERTIES DEPENDS ToyRawFileInput_w
 )
+
+cet_test(ToyRawInput_t_01 HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --rethrow-all -c ToyRawInput_01.fcl
+  DATAFILES
+  fcl/ToyRawInput_01.fcl
+)
+
+cet_test(ToyRawInput_OutputCheck_t_01 HANDBUILT
+  TEST_EXEC file_info_dumper
+  TEST_ARGS
+  --range-of-validity
+  --file-index
+  "../ToyRawInput_t_01.d/out.root"
+  REF "${CMAKE_CURRENT_SOURCE_DIR}/ToyRawInput_t_01-ref.txt"
+  TEST_PROPERTIES
+  DEPENDS ToyRawInput_t_01
+  )
+
+foreach(num 02 03 04 11 12)
+  cet_test(ToyRawInput_t_${num} HANDBUILT
+    TEST_EXEC test_must_abort
+    TEST_ARGS art -c ToyRawInput_${num}.fcl
+    DATAFILES
+    fcl/ToyRawInput_${num}.fcl
+    fcl/ToyRawInput_common.fcl
+  )
+endforeach()
+
+cet_test_assertion("outR || inR"
+  ToyRawInput_t_02
+  ToyRawInput_t_03
+  ToyRawInput_t_04
+  ToyRawInput_t_11
+  )
+cet_test_assertion("outSR || inSR" ToyRawInput_t_12)
+
+foreach(num 05 06 07 08 09 10)
+  cet_test(ToyRawInput_t_${num} HANDBUILT
+    TEST_EXEC art
+    TEST_ARGS --rethrow-all -c ToyRawInput_${num}.fcl
+    DATAFILES
+    fcl/ToyRawInput_${num}.fcl
+    fcl/ToyRawInput_common.fcl
+  )
+endforeach()
+
+SET_TESTS_PROPERTIES(ToyRawInput_t_05 PROPERTIES
+  PASS_REGULAR_EXPRESSION
+  "readNext returned a 'new' SubRun that was the same as the previous SubRun"
+)
+
+SET_TESTS_PROPERTIES(ToyRawInput_t_06 PROPERTIES
+  PASS_REGULAR_EXPRESSION
+  "readNext returned a 'new' Run that was the same as the previous Run"
+)
+
+SET_TESTS_PROPERTIES(ToyRawInput_t_07 PROPERTIES
+  PASS_REGULAR_EXPRESSION
+  "readNext returned a new Run and Event without a SubRun"
+)
+
+SET_TESTS_PROPERTIES(ToyRawInput_t_08 PROPERTIES
+  PASS_REGULAR_EXPRESSION
+  "readNext returned true but created no new data"
+)
+
+SET_TESTS_PROPERTIES(ToyRawInput_t_09 PROPERTIES
+  PASS_REGULAR_EXPRESSION
+  "readNext returned false but created new data"
+)
+
+SET_TESTS_PROPERTIES(ToyRawInput_t_10 PROPERTIES
+  PASS_REGULAR_EXPRESSION
+  "readNext returned a new Run with a SubRun from the wrong Run"
+)
+
+foreach(num 01 02 03)
+  cet_test(ToyProductProducerMultiput_t_${num} HANDBUILT
+    TEST_EXEC art
+    TEST_ARGS --rethrow-all -c ToyProductProducerMultiput_t_${num}.fcl
+    DATAFILES
+    fcl/ToyProductProducerMultiput_t_${num}.fcl
+    TEST_PROPERTIES
+    PASS_REGULAR_EXPRESSION "Attempt to put multiple products with the"
+    PASS_REGULAR_EXPRESSION "following description onto the"
+    )
+endforeach()
 
 cet_test(BareString_w HANDBUILT
   TEST_EXEC art
@@ -927,6 +928,7 @@ foreach(num 1 2 3 4)
   cet_test(ProvenanceDumper_r${num} HANDBUILT
   TEST_EXEC art_ut
   TEST_ARGS -- --rethrow-all -c "ProvenanceDumper_r${num}.fcl"
+  REQUIRED_FILES "../ProvenanceDumper_w.d/out.root"
   DATAFILES
   fcl/FileDumperOutputTest_r.fcl
   fcl/ProvenanceDumper_r1.fcl
@@ -966,14 +968,6 @@ cet_test(ServiceUsingService_02_t HANDBUILT
   fcl/ServiceUsingService_02.fcl
 )
 
-cet_test(SimpleMemoryCheck_t HANDBUILT
-  TEST_EXEC art
-  TEST_ARGS -c simpleMemoryCheck.fcl
-  DATAFILES
-  fcl/simpleMemoryCheck.fcl
-  fcl/messageDefaults.fcl
-  )
-
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   cet_test(MemoryTracker_t HANDBUILT
     TEST_EXEC art
@@ -985,13 +979,6 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     OUTPUT_FILTERS "filter-memoryTracker-output" "DEFAULT"
     )
 endif()
-
-cet_test(TimingService_issue_2979_t HANDBUILT
-  TEST_EXEC art
-  TEST_ARGS -c issue_2979.fcl
-  DATAFILES
-  fcl/issue_2979.fcl
-)
 
 cet_test(TimeTracker_issue_3598_t1 HANDBUILT
   TEST_EXEC art
@@ -1009,6 +996,54 @@ cet_test(TimeTracker_issue_3598_t3 HANDBUILT
   DATAFILES fcl/issue_3598_t3.fcl
   REF "${CMAKE_CURRENT_SOURCE_DIR}/TimeTracker_issue_3598_t3-ref.txt"
   OUTPUT_FILTERS "filter-timeTracker-output" "DEFAULT"
+  )
+
+macro(seekToEventTest NEVENTS)
+  set(SeekToEventPrefix "SeekToEvent_${NEVENTS}_events")
+  set(SeekToEventFclPrefix "seekToEvent_${NEVENTS}_events")
+  cet_test(${SeekToEventPrefix}_w HANDBUILT
+    TEST_EXEC art
+    TEST_ARGS -c empty.fcl -n ${NEVENTS} -o out.root
+    DATAFILES fcl/empty.fcl
+    )
+
+  cet_test(${SeekToEventPrefix}_t HANDBUILT
+    TEST_EXEC art
+    TEST_ARGS -c ${SeekToEventFclPrefix}.fcl ../${SeekToEventPrefix}_w.d/out.root -o out.root
+    DATAFILES fcl/${SeekToEventFclPrefix}.fcl
+    TEST_PROPERTIES DEPENDS ${SeekToEventPrefix}_w
+    )
+
+  cet_test(${SeekToEventPrefix}_verify HANDBUILT
+    TEST_EXEC file_info_dumper
+    TEST_ARGS --file-index ../${SeekToEventPrefix}_t.d/out.root
+    REF "${CMAKE_CURRENT_SOURCE_DIR}/${SeekToEventPrefix}_verify-ref.txt"
+    TEST_PROPERTIES DEPENDS ${SeekToEventPrefix}_t
+    )
+endmacro()
+
+seekToEventTest(1)
+seekToEventTest(4)
+
+cet_test(SeekToEvent_3_events_w HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS -c seekToEvent_3_events_w.fcl -o out.root
+  DATAFILES
+  fcl/seekToEvent_3_events_w.fcl
+  )
+
+cet_test(SeekToEvent_3_events_t HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS -c seekToEvent_3_events_t.fcl ../SeekToEvent_3_events_w.d/out.root -o out.root
+  DATAFILES fcl/seekToEvent_3_events_t.fcl
+  TEST_PROPERTIES DEPENDS SeekToEvent_3_events_w
+  )
+
+cet_test(SeekToEvent_3_events_verify HANDBUILT
+  TEST_EXEC file_info_dumper
+  TEST_ARGS --file-index ../SeekToEvent_3_events_t.d/out.root
+  REF "${CMAKE_CURRENT_SOURCE_DIR}/SeekToEvent_3_events_verify-ref.txt"
+  TEST_PROPERTIES DEPENDS SeekToEvent_3_events_t
   )
 
 cet_test(SAM_metadata HANDBUILT
@@ -1329,7 +1364,7 @@ cet_test(TestEmptyEventTimestampNoRSRTS_t HANDBUILT
 simple_plugin(FindManySpeedTestProducer "module" NO_INSTALL)
 simple_plugin(FindManySpeedTestAnalyzer "module" NO_INSTALL)
 
-add_subdirectory(testPtrVector)
+add_subdirectory(ptr-vector)
 add_subdirectory(test_tiered_input_01)
 add_subdirectory(test_tiered_input_02)
 add_subdirectory(test_tiered_input_03)
@@ -1478,3 +1513,44 @@ cet_test(SimpleServiceTest_t HANDBUILT
   )
 
 add_subdirectory(fastclonefail)
+
+simple_plugin(TestReadImmediateControl "module" NO_INSTALL USE_BOOST_UNIT)
+
+foreach(num 1 2 3 4 5)
+  cet_test(ImmediateReadControl_${num} HANDBUILT
+    TEST_EXEC art_ut
+    TEST_ARGS -- --rethrow-all -c "ImmediateReadControl_${num}.fcl"
+    REQUIRED_FILES "../FileDumperOutput_w.d/out.root"
+    DATAFILES
+    fcl/FileDumperOutputTest_r.fcl
+    fcl/ImmediateReadControl_1.fcl
+    fcl/ImmediateReadControl_${num}.fcl
+    TEST_PROPERTIES DEPENDS FileDumperOutputTest_w
+    )
+endforeach()
+
+cet_test(CmdLineTmpDir_w HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS -c cmdLineTmpDir.fcl --tmpDir=tmp --debug-config=CmdLineTmpDir_w.out
+  DATAFILES
+  fcl/cmdLineTmpDir.fcl
+  TEST_PROPERTIES WILL_FAIL TRUE
+  )
+
+cet_test(CmdLineTmpDir_t HANDBUILT
+  TEST_EXEC diff
+  TEST_ARGS cmdLineTmpDir_t-ref.txt "../CmdLineTmpDir_w.d/CmdLineTmpDir_w.out"
+  DATAFILES
+  cmdLineTmpDir_t-ref.txt
+  TEST_PROPERTIES DEPENDS CmdLineTmpDir_w
+  )
+
+add_subdirectory(AssnsReaderTest)
+
+cet_test(DataFlowDumper_t HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS -c data_flow_dumper_t.fcl -n 1
+  DATAFILES
+  fcl/data_flow_dumper_t.fcl
+  TEST_PROPERTIES DEPENDS test_tiered_input_05d_t
+ )

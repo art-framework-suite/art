@@ -105,7 +105,7 @@ void art::EndPathExecutor::openAllOutputFiles(FileBlock & fb)
 void art::EndPathExecutor::writeRun(RunPrincipal& rp)
 {
   doForAllEnabledOutputWorkers_([&rp](auto w){ w->writeRun(rp); });
-  if (fileStatus_ == OutputFileStatus::StagedToSwitch) {
+  if (fileStatus_ == OutputFileStatus::Switching) {
     runRangeSetHandler_->rebase();
   }
 }
@@ -113,7 +113,7 @@ void art::EndPathExecutor::writeRun(RunPrincipal& rp)
 void art::EndPathExecutor::writeSubRun(SubRunPrincipal& srp)
 {
   doForAllEnabledOutputWorkers_([&srp](auto w){ w->writeSubRun(srp); });
-  if (fileStatus_ == OutputFileStatus::StagedToSwitch) {
+  if (fileStatus_ == OutputFileStatus::Switching) {
     subRunRangeSetHandler_->rebase();
   }
 }
@@ -148,7 +148,7 @@ void art::EndPathExecutor::setAuxiliaryRangeSetID(SubRunPrincipal& srp)
   //  Run    RangeSet: { Run 1 : SubRun 0 : Events [5,11)
   //                             SubRun 1 : Events [1,7)    <-- Current iterator of handler
   //                             SubRun 1 : Events [9,15) }
-  if (fileStatus_ == OutputFileStatus::StagedToSwitch) {
+  if (fileStatus_ == OutputFileStatus::Switching) {
     // For a range split just before SubRun 1, Event 6, the range sets
     // should become:
     //
@@ -171,7 +171,7 @@ void art::EndPathExecutor::setAuxiliaryRangeSetID(SubRunPrincipal& srp)
 
 void art::EndPathExecutor::setAuxiliaryRangeSetID(RunPrincipal& rp)
 {
-  if (fileStatus_ != OutputFileStatus::StagedToSwitch) {
+  if (fileStatus_ != OutputFileStatus::Switching) {
     runRangeSetHandler_->flushRanges();
   }
   auto const& ranges = runRangeSetHandler_->seenRanges();

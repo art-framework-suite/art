@@ -39,21 +39,9 @@ namespace {
 art::Worker::Worker(ModuleDescription const& iMD,
                     WorkerParams const& iWP)
   :
-  timer_(),
-  timesRun_(),
-  timesVisited_(),
-  timesPassed_(),
-  timesFailed_(),
-  timesExcept_(),
-  state_(Ready),
-  md_(iMD),
-  actions_(iWP.actions_),
-  cached_exception_(),
-  actReg_()
+  md_{iMD},
+  actions_{iWP.actions_}
 {
-}
-
-art::Worker::~Worker() {
 }
 
 void

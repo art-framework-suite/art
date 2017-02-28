@@ -1,5 +1,5 @@
-#ifndef test_Integration_product_aggregation_TrackEfficiency_h
-#define test_Integration_product_aggregation_TrackEfficiency_h
+#ifndef art_test_Integration_product_aggregation_TrackEfficiency_h
+#define art_test_Integration_product_aggregation_TrackEfficiency_h
 
 #include "canvas/Persistency/Provenance/IDNumber.h"
 
@@ -35,7 +35,7 @@ namespace arttest {
 
 }
 
-#endif
+#endif /* art_test_Integration_product_aggregation_TrackEfficiency_h */
 
 // Local variables:
 // mode: c++

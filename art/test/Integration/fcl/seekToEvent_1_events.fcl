@@ -1,0 +1,6 @@
+# The purpose of this test is to demonstrate that if there is only one
+# event in the input file, the seekToEvent functionality still works.
+
+services.SeekToEventClient.nextEventsToProcess: [
+   [1,0,1] // Run the first event a second time.
+]

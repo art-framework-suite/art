@@ -3,16 +3,16 @@
 #include "art/Framework/Art/BasicOptionsHandler.h"
 #include "art/Framework/Art/BasicPostProcessor.h"
 #include "art/Framework/Art/InitRootHandlers.h"
-#include "art/Framework/Art/detail/bold_fontify.h"
+#include "art/Utilities/bold_fontify.h"
 #include "art/Framework/Art/detail/handle_deprecated_configs.h"
 #include "art/Framework/EventProcessor/EventProcessor.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/Registry/ServiceRegistry.h"
 #include "art/Framework/Services/Registry/ServiceToken.h"
-#include "canvas/Utilities/Exception.h"
 #include "art/Utilities/ExceptionMessages.h"
 #include "art/Utilities/RootHandlers.h"
 #include "art/Utilities/UnixSignalHandlers.h"
+#include "canvas/Utilities/Exception.h"
 #include "cetlib/container_algorithms.h"
 #include "cetlib/exception.h"
 #include "fhiclcpp/ParameterSet.h"
@@ -38,7 +38,7 @@ using art::detail::bold_fontify;
 // -----------------------------------------------
 namespace {
   struct RootErrorHandlerSentry {
-    RootErrorHandlerSentry(bool reset) {
+    RootErrorHandlerSentry(bool const reset) {
       art::setRootErrorHandler(reset);
     }
     ~RootErrorHandlerSentry() {
@@ -73,8 +73,7 @@ int art::run_art(int argc,
   // Parse the command line.
   bpo::variables_map vm;
   try {
-    bpo::store(bpo::command_line_parser(argc, argv).options(all_desc).positional(pd).run(),
-               vm);
+    bpo::store(bpo::command_line_parser(argc, argv).options(all_desc).positional(pd).run(), vm);
     bpo::notify(vm);
   }
   catch (bpo::error const & e) {
@@ -248,7 +247,7 @@ int art::run_art_common_(fhicl::ParameterSet const& main_pset, art::detail::Debu
       std::cerr << "Art has handled signal "
                 << art::shutdown_flag
                 << ".\n";
-      if ( scheduler_pset.get<bool>("errorOnSIGINT") )
+      if (scheduler_pset.get<bool>("errorOnSIGINT"))
         rc = 128 + art::shutdown_flag;
     }
   }

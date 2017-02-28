@@ -121,10 +121,15 @@ int main(int argc, char ** argv) {
     return 2;
   }
   if (vm.count("help")) {
-    std::cout << desc << std::endl;
+    std::cerr << desc << std::endl;
     return 1;
   } else if (vm.count("hr")) {
     want_hr = true;
+  }
+  if (vm.count("source") == 0) {
+    std::cerr << "Require at least one source file.\n";
+    std::cerr << desc << "\n";
+    return 1;
   }
   auto const & sources = vm["source"].as<stringvec>();
   auto const expected = sources.size();

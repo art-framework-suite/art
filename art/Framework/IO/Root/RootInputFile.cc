@@ -90,7 +90,7 @@ namespace art {
                 string const& catalogName,
                 ProcessConfiguration const& processConfiguration,
                 string const& logicalFileName,
-                shared_ptr<TFile> filePtr,
+                unique_ptr<TFile>&& filePtr,
                 EventID const& origEventID,
                 unsigned int eventsToSkip,
                 vector<SubRunID> const& whichSubRunsToSkip,
@@ -98,6 +98,7 @@ namespace art {
                 unsigned int treeCacheSize,
                 int64_t treeMaxVirtualSize,
                 int64_t saveMemoryObjectThreshold,
+                bool delayedReadEventProducts,
                 bool delayedReadSubRunProducts,
                 bool delayedReadRunProducts,
                 InputSource::ProcessingMode processingMode,
@@ -116,15 +117,16 @@ namespace art {
     , catalog_{catalogName}
     , processConfiguration_{processConfiguration}
     , logicalFile_{logicalFileName}
-    , filePtr_{filePtr}
+    , filePtr_{std::move(filePtr)}
     , origEventID_{origEventID}
     , eventsToSkip_{eventsToSkip}
     , whichSubRunsToSkip_{whichSubRunsToSkip}
     , treePointers_ { // Order (and number) must match BranchTypes.h!
-      std::make_unique<RootTree>(filePtr_, InEvent, saveMemoryObjectThreshold, this),
-      std::make_unique<RootTree>(filePtr_, InSubRun, saveMemoryObjectThreshold, this),
-      std::make_unique<RootTree>(filePtr_, InRun, saveMemoryObjectThreshold, this),
-      std::make_unique<RootTree>(filePtr_, InResults, saveMemoryObjectThreshold, this, true /* missingOK */) }
+      std::make_unique<RootTree>(filePtr_.get(), InEvent, saveMemoryObjectThreshold, this),
+      std::make_unique<RootTree>(filePtr_.get(), InSubRun, saveMemoryObjectThreshold, this),
+      std::make_unique<RootTree>(filePtr_.get(), InRun, saveMemoryObjectThreshold, this),
+      std::make_unique<RootTree>(filePtr_.get(), InResults, saveMemoryObjectThreshold, this, true /* missingOK */) }
+    , delayedReadEventProducts_{delayedReadEventProducts}
     , delayedReadSubRunProducts_{delayedReadSubRunProducts}
     , delayedReadRunProducts_{delayedReadRunProducts}
     , processingMode_{processingMode}
@@ -191,7 +193,7 @@ namespace art {
 
     // Here we read the metadata tree
     input::getEntry(metaDataTree, 0);
-    branchIDLists_.reset(branchIDListsAPtr.release());
+    branchIDLists_ = std::move(branchIDListsAPtr);
     // Check the, "Era" of the input file (new since art v0.5.0). If it
     // does not match what we expect we cannot read the file. Required
     // since we reset the file versioning since forking off from
@@ -399,15 +401,15 @@ namespace art {
     return forcedRunOffset_;
   }
 
-  shared_ptr<FileBlock>
+  unique_ptr<FileBlock>
   RootInputFile::
   createFileBlock()
   {
-    return std::make_shared<FileBlock>(fileFormatVersion_,
+    return std::make_unique<FileBlock>(fileFormatVersion_,
                                        eventTree().tree(),
                                        fastClonable(),
                                        file_,
-                                       branchChildren_,
+                                       std::move(branchChildren_),
                                        readResults());
   }
 
@@ -654,6 +656,9 @@ namespace art {
                                                0,
                                                nullptr);
     eventTree().fillGroups(*ep);
+    if (!delayedReadEventProducts_) {
+      ep->readImmediate();
+    }
     primaryEP_ = make_exempt_ptr(ep.get());
     return ep;
   }
@@ -687,7 +692,7 @@ namespace art {
                                                 secondaryFileNameIdx_ + 1,
                                                 primaryFile_->primaryEP_.get());
     eventTree().fillGroups(*sep);
-    primaryFile_->primaryEP_->addSecondaryPrincipal(unique_ptr<Principal>{move(sep)});
+    primaryFile_->primaryEP_->addSecondaryPrincipal(move(sep));
     return true;
   }
 
@@ -697,14 +702,13 @@ namespace art {
     return std::move(runRangeSetHandler_);
   }
 
-  shared_ptr<RunPrincipal>
+  unique_ptr<RunPrincipal>
   RootInputFile::
   readRun()
   {
     assert(fiIter_ != fiEnd_);
     assert(fiIter_->getEntryType() == FileIndex::kRun);
     assert(fiIter_->eventID_.runID().isValid());
-    secondaryRPs_.clear();
 
     auto const& entryNumbers = getEntryNumbers(InRun).first;
     if (!runTree().current(entryNumbers)) {
@@ -715,17 +719,6 @@ namespace art {
     auto rp = readCurrentRun(entryNumbers);
     nextEntry();
     return move(rp);
-  }
-
-  vector<shared_ptr<RunPrincipal>>
-  RootInputFile::
-  readRunFromSecondaryFiles()
-  {
-    vector<shared_ptr<RunPrincipal>> rps;
-    for (auto const& val : secondaryRPs_) {
-      rps.emplace_back(dynamic_pointer_cast<RunPrincipal>(val));
-    }
-    return rps;
   }
 
   unique_ptr<RunPrincipal>
@@ -794,7 +787,7 @@ namespace art {
       runAux().beginTime_ = eventAux().time();
       runAux().endTime_ = Timestamp::invalidTimestamp();
     }
-    auto rp = std::make_shared<RunPrincipal>(runAux(),
+    auto rp = std::make_unique<RunPrincipal>(runAux(),
                                              processConfiguration_,
                                              runTree().makeBranchMapper(),
                                              runTree().makeDelayedReader(fileFormatVersion_,
@@ -809,11 +802,7 @@ namespace art {
     if (!delayedReadRunProducts_) {
       rp->readImmediate();
     }
-    primaryFile_->primaryRP_->addSecondaryPrincipal(static_pointer_cast<Principal>(rp));
-    // FIXME: These secondary run principals will never be cached
-    // FIXME: by the event processor!  This means that we cannot
-    // FIXME: output run data products from them.
-    primaryFile_->secondaryRPs_.emplace_back(move(rp));
+    primaryFile_->primaryRP_->addSecondaryPrincipal(move(rp));
     return true;
   }
 
@@ -823,13 +812,12 @@ namespace art {
     return std::move(subRunRangeSetHandler_);
   }
 
-  shared_ptr<SubRunPrincipal>
+  unique_ptr<SubRunPrincipal>
   RootInputFile::
-  readSubRun(shared_ptr<RunPrincipal> rp)
+  readSubRun(cet::exempt_ptr<RunPrincipal> rp)
   {
     assert(fiIter_ != fiEnd_);
     assert(fiIter_->getEntryType() == FileIndex::kSubRun);
-    secondarySRPs_.clear();
 
     auto const& entryNumbers = getEntryNumbers(InSubRun).first;
     if (!subRunTree().current(entryNumbers)) {
@@ -842,21 +830,10 @@ namespace art {
     return move(srp);
   }
 
-  vector<shared_ptr<SubRunPrincipal>>
-  RootInputFile::
-  readSubRunFromSecondaryFiles(shared_ptr<RunPrincipal>)
-  {
-    vector<shared_ptr<SubRunPrincipal>> srps;
-    for (auto const& val : secondarySRPs_) {
-      srps.emplace_back(dynamic_pointer_cast<SubRunPrincipal>(val));
-    }
-    return srps;
-  }
-
   unique_ptr<SubRunPrincipal>
   RootInputFile::
   readCurrentSubRun(EntryNumbers const& entryNumbers,
-                    shared_ptr<RunPrincipal> rp [[gnu::unused]])
+                    cet::exempt_ptr<RunPrincipal> rp [[gnu::unused]])
   {
     subRunRangeSetHandler_ = fillAuxiliary<InSubRun>(entryNumbers);
     assert(subRunAux().id() == fiIter_->eventID_.subRunID());
@@ -921,7 +898,7 @@ namespace art {
       subRunAux().beginTime_ = eventAux().time();
       subRunAux().endTime_ = Timestamp::invalidTimestamp();
     }
-    auto srp = std::make_shared<SubRunPrincipal>(subRunAux(),
+    auto srp = std::make_unique<SubRunPrincipal>(subRunAux(),
                                                  processConfiguration_,
                                                  subRunTree().makeBranchMapper(),
                                                  subRunTree().makeDelayedReader(fileFormatVersion_,
@@ -936,11 +913,7 @@ namespace art {
     if (!delayedReadSubRunProducts_) {
       srp->readImmediate();
     }
-    primaryFile_->primarySRP_->addSecondaryPrincipal(static_pointer_cast<Principal>(srp));
-    // FIXME: These secondary subRun principals will never be cached
-    // FIXME: by the event processor!  This means that we cannot
-    // FIXME: output subrun data products from them.
-    primaryFile_->secondarySRPs_.emplace_back(move(srp));
+    primaryFile_->primarySRP_->addSecondaryPrincipal(move(srp));
     return true;
   }
 
@@ -1047,8 +1020,10 @@ namespace art {
 
   void
   RootInputFile::
-  dropOnInput(GroupSelectorRules const& rules, bool dropDescendants,
-              bool /*dropMergeable*/, ProductList& prodList)
+  dropOnInput(GroupSelectorRules const& rules,
+              bool const dropDescendants,
+              bool const /*dropMergeable*/,
+              ProductList& prodList)
   {
     // This is the selector for drop on input.
     GroupSelector groupSelector;

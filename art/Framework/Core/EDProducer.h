@@ -58,7 +58,7 @@ namespace art
 
     using CPC_exempt_ptr = cet::exempt_ptr<CurrentProcessingContext const>;
 
-    bool doEvent(EventPrincipal& ep, CPC_exempt_ptr cpcp);
+    bool doEvent(EventPrincipal& ep, CPC_exempt_ptr cpcp, CountingStatistics&);
     void doBeginJob();
     void doEndJob();
     bool doBeginRun(RunPrincipal & rp, CPC_exempt_ptr cpc);

@@ -32,6 +32,7 @@ cet_set_compiler_flags(DIAGS VIGILANT
   WERROR
   NO_UNDEFINED
   EXTRA_FLAGS -pedantic
+  EXTRA_CXX_FLAGS -Wnon-virtual-dtor -Wdelete-non-virtual-dtor
   )
 cet_have_qual(sse2 SSE2)
 if ( SSE2 )
@@ -41,17 +42,18 @@ endif()
 cet_report_compiler_flags()
 
 # these are minimum required versions, not the actual product versions
-find_ups_product( canvas )
-find_ups_product( messagefacility )
-find_ups_product( fhiclcpp )
-find_ups_product( cetlib )
-find_ups_product( tbb )
-find_ups_product( clhep )
+find_ups_product(canvas v1_06_00)
+find_ups_product(messagefacility)
+find_ups_product(fhiclcpp)
+find_ups_product(cetlib v2_01_00)
+find_ups_product(cetlib_except v1_01_00)
+find_ups_product(tbb)
+find_ups_product(clhep)
 find_ups_root()
 find_ups_boost()
-find_ups_product( cppunit )
-find_ups_product( sqlite )
-find_ups_product (cetbuildtools)
+find_ups_product(cppunit)
+find_ups_product(sqlite)
+find_ups_product(cetbuildtools)
 
 # define CLHEP
 cet_find_library( CLHEP  NAMES CLHEP   PATHS ENV CLHEP_LIB_DIR NO_DEFAULT_PATH )

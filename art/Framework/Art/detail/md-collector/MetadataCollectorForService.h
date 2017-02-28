@@ -7,6 +7,7 @@
 #include "art/Framework/Art/detail/PluginMetadata.h"
 #include "art/Framework/Art/detail/ServiceNames.h"
 #include "art/Utilities/PluginSuffixes.h"
+#include "art/Utilities/bold_fontify.h"
 
 #include <regex>
 
@@ -17,19 +18,19 @@ namespace art {
     class MetadataCollectorFor<suffix_type::service> : public MetadataCollector {
     public:
 
-      PluginMetadata doCollect(LibraryInfo const& li) const override
+      PluginMetadata doCollect(LibraryInfo const& li, std::string const& prefix) const override
       {
-        return { header_(li), details_(li), allowed_configuration_(li) };
+        return { header_(li), details_(li), allowed_configuration_(li, prefix) };
       }
 
     private:
       std::string header_(LibraryInfo const& li) const
       {
         static ServiceNames const serviceNames;
-        std::string const printed_name = serviceNames.fclname( li.short_spec() );
+        std::string const& printed_name = serviceNames.fclname(li.short_spec());
         std::ostringstream result;
         result << indent_1()  << "service : "
-               << font_bold( printed_name )
+               << bold_fontify(printed_name)
                << "\n\n";
         return result.str();
       }
@@ -43,16 +44,12 @@ namespace art {
         return result.str();
       }
 
-      std::string allowed_configuration_(LibraryInfo const& li) const
+      std::string allowed_configuration_(LibraryInfo const& li, std::string const& prefix) const
       {
         std::ostringstream result;
         result << indent_1() << "Allowed configuration\n"
                << indent_1() << "---------------------\n";
-
-        std::string printedConfig = li.description();
-        replace_label( li.short_spec(), printedConfig );
-
-        result << printedConfig;
+        result << describe(li.allowed_config(), prefix);
         return result.str();
       }
     };

@@ -2,14 +2,14 @@ source: {
    module_type: DoNothingInput
 }
 
-services.Wanted : {}
+services.Wanted.messagePrinter.tool_type: MessagePrinter
 
 physics: {
-   
+
    producers: {
       p1: { module_type: ThrowingProducer throw: false}
    }
-   
+
    analyzers: {
       a1: { module_type: ThrowingAnalyzer throw: false}
    }

@@ -11,7 +11,7 @@ art_make_library(
   art_Framework_Principal
   art_Persistency_RootDB
   art_Utilities
-  canvas_Persistency_Provenance
+  canvas
   MF_MessageLogger
   ${ROOT_CORE}
   ${ROOT_RIO}
@@ -30,7 +30,7 @@ art_make_library(
   LIBRARIES
   art_Framework_IO_Root_detail_sources
   art_Persistency_RootDB
-  canvas_Persistency_Provenance
+  canvas
   cetlib
   )
 
@@ -50,11 +50,11 @@ art_make(EXCLUDE
   art_Framework_IO_detail
   art_Framework_Services_Registry
   art_Framework_Services_System_FileCatalogMetadata_service
-  art_Ntuple
   art_Persistency_Common
-  art_Persistency_Provenance canvas_Persistency_Provenance
+  art_Persistency_Provenance canvas
   art_Framework_IO_RootVersion
   art_Framework_IO_Root_detail_sources
+  cetlib
   ${ROOT_CINTEX}
   ${ROOT_TREE}
   ${ROOT_NET}
@@ -73,7 +73,7 @@ art_make_exec( NAME product_sizes_dumper
 
 art_make_exec( NAME config_dumper
   LIBRARIES art_Framework_IO_Root
-  art_Utilities canvas_Utilities
+  art_Utilities canvas
   art_Framework_Core
   ${Boost_PROGRAM_OPTIONS_LIBRARY}
   ${ROOT_TREE}
@@ -82,7 +82,7 @@ art_make_exec( NAME config_dumper
 
 art_make_exec( NAME sam_metadata_dumper
   LIBRARIES art_Framework_IO_Root
-  art_Utilities canvas_Utilities
+  art_Utilities canvas
   art_Framework_Core
   ${Boost_PROGRAM_OPTIONS_LIBRARY}
   ${ROOT_RIO}
@@ -92,7 +92,7 @@ art_make_exec( NAME count_events
   LIBRARIES
   art_Framework_IO_Root
   art_Framework_Core
-  art_Utilities canvas_Utilities
+  art_Utilities canvas
   ${Boost_PROGRAM_OPTIONS_LIBRARY}
   ${ROOT_TREE}
   ${ROOT_RIO}

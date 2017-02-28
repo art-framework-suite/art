@@ -65,7 +65,7 @@ namespace art {
 
 }
 
-#endif
+#endif /* art_Framework_Core_OutputFileSwitchBoundary_h */
 
 // Local variables:
 // mode: c++

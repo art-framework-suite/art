@@ -44,10 +44,11 @@ set(art_Framework_Art_sources
   find_config.cc
   run_art.cc
   detail/MetadataRegexHelpers.cc
-  detail/PrintPluginMetadata.cc
+  detail/AllowedConfiguration.cc
   detail/PluginSymbolResolvers.cc
   detail/ServiceNames.cc
   detail/fillSourceList.cc
+  detail/describe.cc
   detail/get_LibraryInfoCollection.cc
   detail/get_MetadataCollector.cc
   detail/get_MetadataSummary.cc
@@ -62,8 +63,8 @@ art_make_library( LIBRARY_NAME art_Framework_Art
   art_Framework_Core
   art_Framework_Services_Registry
   art_Persistency_Common
-  art_Persistency_Provenance canvas_Persistency_Provenance
-  art_Utilities canvas_Utilities
+  art_Persistency_Provenance canvas
+  art_Utilities canvas
   art_Version
   ${ROOT_HIST}
   ${ROOT_MATRIX}
@@ -122,7 +123,7 @@ art_exec(nova_ut art_ut artapp LIBRARIES ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 art_make_exec(NAME check_libs
   SOURCE ${CMAKE_CURRENT_BINARY_DIR}/check_libs.cc
   LIBRARIES
-  art_Utilities canvas_Utilities
+  art_Utilities canvas
   cetlib
   )
 

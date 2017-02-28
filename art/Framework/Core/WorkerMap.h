@@ -7,7 +7,7 @@
 #include <memory>
 
 namespace art {
-  typedef std::map<std::string, std::shared_ptr<Worker>> WorkerMap;
+  using WorkerMap = std::map<std::string, std::unique_ptr<Worker>>;
 }
 #endif /* art_Framework_Core_WorkerMap_h */
 

@@ -1,11 +1,10 @@
 #include "art/Framework/Art/FileCatalogOptionsHandler.h"
 
-#include "art/Framework/Art/detail/bold_fontify.h"
+#include "art/Utilities/bold_fontify.h"
 #include "art/Framework/Art/detail/exists_outside_prolog.h"
 #include "art/Framework/Art/detail/fhicl_key.h"
-#include "canvas/Utilities/Exception.h"
-#include "art/Utilities/detail/serviceConfigLocation.h"
 #include "art/Utilities/ensureTable.h"
+#include "canvas/Utilities/Exception.h"
 #include "cetlib/split.h"
 #include "fhiclcpp/coding.h"
 #include "fhiclcpp/extended_value.h"
@@ -206,9 +205,10 @@ art::FileCatalogOptionsHandler::
 doProcessOptions(bpo::variables_map const & vm,
                  fhicl::intermediate_table & raw_config)
 {
-  auto const& ciLocation = detail::serviceConfigLocation(raw_config, "CatalogInterface");
-  auto const& ftLocation = detail::serviceConfigLocation(raw_config, "FileTransfer");
-  auto const& fcmdLocation = detail::serviceConfigLocation(raw_config, "FileCatalogMetadata");
+  std::string const services {"services"};
+  auto const& ciLocation = fhicl_key(services, "CatalogInterface");
+  auto const& ftLocation = fhicl_key(services, "FileTransfer");
+  auto const& fcmdLocation = fhicl_key(services, "FileCatalogMetadata");
 
   ////////////////////////////////////////////////////////////////////////
   // Load up the configuration with command-line options.
@@ -307,7 +307,7 @@ doProcessOptions(bpo::variables_map const & vm,
   if (wantSAMweb) {
     raw_config.put(fhicl_key(ciLocation, "service_provider"), "IFCatalogInterface");
     raw_config.put(fhicl_key(ftLocation, "service_provider"), "IFFileTransfer");
-    art::ensureTable(raw_config, detail::serviceConfigLocation(raw_config, "IFDH"));
+    art::ensureTable(raw_config, fhicl_key(services, "IFDH"));
   }
   return 0;
 }

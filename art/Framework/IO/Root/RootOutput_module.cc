@@ -19,6 +19,7 @@
 #include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Framework/Principal/SubRun.h"
 #include "art/Persistency/Provenance/ProductMetaData.h"
+#include "art/Utilities/ConfigurationTable.h"
 #include "art/Utilities/parent_path.h"
 #include "art/Utilities/unique_filename.h"
 #include "canvas/Persistency/Provenance/FileFormatVersion.h"
@@ -85,7 +86,7 @@ public:
     struct KeysToIgnore {
       std::set<std::string> operator()() const
       {
-        std::set<std::string> keys { art::OutputModule::Config::KeysToIgnore::get() };
+        std::set<std::string> keys {art::OutputModule::Config::KeysToIgnore::get()};
         keys.insert("results");
         return keys;
       }
@@ -93,7 +94,7 @@ public:
 
   };
 
-  using Parameters = fhicl::Table<Config,Config::KeysToIgnore>;
+  using Parameters = art::WrappedTable<Config,Config::KeysToIgnore>;
 
   explicit RootOutput(Parameters const&);
 
@@ -171,7 +172,7 @@ private:
 
   // We keep this for the use of RootOutputFile and we also use it
   // during file open to make some choices.
-  bool fastCloning_ {true};
+  bool fastCloningEnabled_ {true};
 
   // Set false only for cases where we are guaranteed never to need
   // historical ParameterSet information in the downstream file
@@ -209,12 +210,12 @@ RootOutput(Parameters const& config)
   dropAllEvents_ = detail::shouldDropEvents(dropAllEventsSet, dropAllEvents_, dropAllSubRuns_);
 
   // N.B. Any time file switching is enabled at a boundary other than
-  //      InputFile, fastCloning_ ***MUST*** be deactivated.  This is
+  //      InputFile, fastCloningEnabled_ ***MUST*** be deactivated.  This is
   //      to ensure that the Event tree from the InputFile is not
   //      accidentally cloned to the output file before the output
   //      module has seen the events that are going to be processed.
-  bool const fastCloningSet {config().fastCloning(fastCloning_)};
-  fastCloning_ = detail::shouldFastClone(fastCloningSet, fastCloning_, wantAllEvents(), fileProperties_);
+  bool const fastCloningSet {config().fastCloning(fastCloningEnabled_)};
+  fastCloningEnabled_ = detail::shouldFastClone(fastCloningSet, fastCloningEnabled_, wantAllEvents(), fileProperties_);
 
   if (!writeParameterSets_) {
     mf::LogWarning("PROVENANCE")
@@ -255,10 +256,10 @@ respondToOpenInputFile(FileBlock const& fb)
   ++inputFileCount_;
   if (!isFileOpen()) return;
 
-  bool fastCloneThisOne = fastCloning_ && (fb.tree() != nullptr) &&
+  bool fastCloneThisOne = fastCloningEnabled_ && (fb.tree() != nullptr) &&
                           ((remainingEvents() < 0) ||
                            (remainingEvents() >= fb.tree()->GetEntries()));
-  if (fastCloning_ && !fastCloneThisOne) {
+  if (fastCloningEnabled_ && !fastCloneThisOne) {
     mf::LogWarning("FastCloning")
       << "Fast cloning deactivated for this input file due to "
       << "empty event tree and/or event limits.";
@@ -269,7 +270,7 @@ respondToOpenInputFile(FileBlock const& fb)
       << "information in FileBlock.";
     fastCloneThisOne = false;
   }
-  rootOutputFile_->beginInputFile(fb, fastCloneThisOne && fastCloning_);
+  rootOutputFile_->beginInputFile(fb, fastCloneThisOne);
   fstats_.recordInputFile(fb.fileName());
 }
 
@@ -278,7 +279,7 @@ art::RootOutput::
 readResults(ResultsPrincipal const& resp)
 {
   rpm_.for_each_RPWorker([&resp](RPWorker& w) {
-      Results const res {const_cast<ResultsPrincipal&>(resp), w.moduleDescription()};
+      Results const res {resp, w.moduleDescription()};
       w.rp().doReadResults(res);
     } );
 }
@@ -356,8 +357,8 @@ startEndFile()
     resp->addToProcessHistory();
   }
   rpm_.for_each_RPWorker([&resp](RPWorker& w) {
-      Results res{*resp, w.moduleDescription()};
-      w.rp().doWriteResults(res);
+      Results res {*resp, w.moduleDescription()};
+      w.rp().doWriteResults(*resp, res);
     } );
   rootOutputFile_->writeResults(*resp);
 }
@@ -522,7 +523,7 @@ doOpenFile()
                                                      basketSize_,
                                                      dropMetaData_,
                                                      dropMetaDataForDroppedData_,
-                                                     fastCloning_);
+                                                     fastCloningEnabled_);
   fstats_.recordFileOpen();
   detail::logFileAction("Opened output file with pattern ", filePattern_);
 }
@@ -557,7 +558,7 @@ art::RootOutput::
 event(EventPrincipal const& ep)
 {
   rpm_.for_each_RPWorker([&ep](RPWorker& w) {
-      Event const e{const_cast<EventPrincipal&>(ep), w.moduleDescription()};
+      Event const e {ep, w.moduleDescription()};
       w.rp().doEvent(e);
     });
 }
@@ -567,7 +568,7 @@ art::RootOutput::
 beginSubRun(art::SubRunPrincipal const& srp)
 {
   rpm_.for_each_RPWorker([&srp](RPWorker& w) {
-      SubRun const sr{const_cast<SubRunPrincipal&>(srp), w.moduleDescription()};
+      SubRun const sr {srp, w.moduleDescription()};
       w.rp().doBeginSubRun(sr);
     });
 }
@@ -577,7 +578,7 @@ art::RootOutput::
 endSubRun(art::SubRunPrincipal const& srp)
 {
   rpm_.for_each_RPWorker([&srp](RPWorker& w) {
-      SubRun const sr{const_cast<SubRunPrincipal&>(srp), w.moduleDescription()};
+      SubRun const sr {srp, w.moduleDescription()};
       w.rp().doEndSubRun(sr);
     });
 }
@@ -587,7 +588,7 @@ art::RootOutput::
 beginRun(art::RunPrincipal const& rp)
 {
   rpm_.for_each_RPWorker([&rp](RPWorker& w) {
-      Run const r{const_cast<RunPrincipal&>(rp), w.moduleDescription()};
+      Run const r {rp, w.moduleDescription()};
       w.rp().doBeginRun(r);
     });
 }
@@ -597,7 +598,7 @@ art::RootOutput::
 endRun(art::RunPrincipal const& rp)
 {
   rpm_.for_each_RPWorker([&rp](RPWorker& w) {
-      Run const r{const_cast<RunPrincipal&>(rp), w.moduleDescription()};
+      Run const r {rp, w.moduleDescription()};
       w.rp().doEndRun(r);
     });
 }

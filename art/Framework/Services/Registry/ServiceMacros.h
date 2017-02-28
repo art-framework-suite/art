@@ -92,7 +92,7 @@
 #define DEFINE_ART_SERVICE(svc) \
   DEFINE_ART_SH_CREATE(svc)     \
   PROVIDE_FILE_PATH()           \
-  PROVIDE_DESCRIPTION(svc)
+  PROVIDE_ALLOWED_CONFIGURATION(svc)
 
 // Declare an interface.
 #define DECLARE_ART_SERVICE_INTERFACE(svc,scope) \

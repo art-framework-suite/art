@@ -3,7 +3,7 @@
 
 #include <string>
 
-#include "art/Framework/IO/ProductMix/MixContainerTypes.h"
+#include "art/Framework/IO/ProductMix/MixTypes.h"
 #include "art/Framework/IO/Root/RootBranchInfoList.h"
 #include "canvas/Persistency/Provenance/FileIndex.h"
 #include "art/Utilities/fwd.h"
@@ -18,6 +18,8 @@ namespace art {
 
 class art::MixOpBase {
 public:
+  virtual ~MixOpBase() noexcept = default;
+
   virtual
   InputTag const & inputTag() const = 0;
 
@@ -47,6 +49,11 @@ public:
   virtual
   void
   readFromFile(EntryNumberSequence const & seq) = 0;
+
+  virtual
+  BranchType
+  branchType() const = 0;
+
 };
 #endif /* art_Framework_IO_ProductMix_MixOpBase_h */
 

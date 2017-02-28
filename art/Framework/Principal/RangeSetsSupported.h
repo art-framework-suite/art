@@ -12,7 +12,7 @@ namespace art {
   }
 }
 
-#endif
+#endif /* art_Framework_Principal_RangeSetsSupported_h */
 
 // Local variables:
 // mode: c++

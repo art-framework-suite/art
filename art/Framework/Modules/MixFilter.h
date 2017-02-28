@@ -1,10 +1,11 @@
 #ifndef art_Framework_Modules_MixFilter_h
 #define art_Framework_Modules_MixFilter_h
 
-// ======================================================================
+////////////////////////////////////////////////////////////////////////
 //
 // The MixFilter class template is used to create filters capable of
-// mixing products from a secondary event stream into the primary event.
+// mixing products from a secondary event (or subrun, or run) stream
+// into the primary event.
 //
 // The MixFilter class template requires the use of a type T as its
 // template parameter; this type T must supply the following non-static
@@ -27,7 +28,7 @@
 //    //    produces<> calls.
 //    //
 //    // Further details may be found in
-//    // art/Framework/ProductMix/MixHelper.h.
+//    // art/Framework/IO/ProductMix/MixHelper.h.
 //
 //    size_t nSecondaries() const;
 //
@@ -39,7 +40,7 @@
 // it is declared.  (There must, of course, be a function definition
 // corresponding to each declared function.)
 //
-//    void startEvent(art::Event const &e);
+//    void startEvent(art::Event const & e);
 //
 //    // Reset internal cache information at the start of the current
 //    // event.
@@ -50,28 +51,101 @@
 //    // next secondary input file that should be skipped. Note:
 //    // may be declare const or not as appropriate.
 //
-//    void processEventIDs(art::EventIDSequence const &seq);
+//    void processEventIDs(art::EventIDSequence const & seq);
 //
 //    // Receive the ordered sequence of EventIDs that will be mixed into
 //    // the current event; useful for bookkeeping purposes.
 //
-//    void finalizeEvent(art::Event &t);
+//    void processEventAuxiliaries(art::EventAuxiliarySequence const & seq);
 //
-//    // Do end-of-event tasks (e.g., inserting bookkeeping objects into
+//    // Receive the ordered sequence of EventAuxiliaries that will be mixed
+//    // into the current event; useful for bookkeeping purposes.
+//
+//    void finalizeEvent(art::Event & e);
+//
+//    // Do end-of-event tasks (e.g., inserting bookkeeping data products into
 //    // the primary event).
 //
-// Functions declared to the MixHelper to actually carry out the mixing
-// of the products may be (1) member functions of this or another class;
-// or (2) free functions or (3) function objects.
-// ======================================================================
+//    void respondToOpenInputFile(FileBlock const & fb);
+//
+//    // Called when a new primary input file is opened.
+//
+//    void respondToCloseInputFile(FileBlock const & fb);
+//
+//    // Called when a primary input file is closed.
+//
+//    void respondToOpenOutputFiles(FileBlock const & fb);
+//
+//    // Called when a new output file is opened.
+//
+//    void respondToCloseOutputFiles(FileBlock const & fb);
+//
+//    // Called when an output file is closed.
+//
+//    void beginSubRun(art::SubRun const & sr);
+//
+//    // Do beginning-of-subrun tasks.
+//
+//    void endSubRun(art::SubRun & sr);
+//
+//    // Do end-of-subrun tasks (e.g. insert products into the primary subrun).
+//
+//    void beginRun(art::Run const & r);
+//
+//    // Do beginning-of-run tasks.
+//
+//    void endRun(art::Run & r);
+//
+//    // Do end-of-run tasks (e.g. insert products into the primary run).
+//
+////////////////////////////////////////////////////////////////////////
+// Notes.
+//
+// 1. Functions declared to the MixHelper to actually carry out the
+//    mixing of the products may be (1) member functions of this or
+//    another class; or (2) free functions (including bound functions)
+//    or (3) function objects.
+//
+// 2. It is possible to declare mix operations which produce an output
+//    product of a different type to that of the mixed input products
+//    via the provision of an appropriate mixer function: see the
+//    documentation in art/Framework/IO/ProductMix/MixHelper.h for more
+//    details.
+//
+// 3. It is possible to declare mix operations which take as input
+//    products from the subrun or run streams. Some points to note:
+//
+//    * The mix operation so declared will be invoked upon every primary
+//      event.
+//
+//    * There will be one provided product for every mixed event from
+//      the secondary stream, regardless of duplication. It is the
+//      responsibility of the user's mixing function to deal with the
+//      provided information appropriately. We recommend making use of
+//      the optional processEventIDs(...) and
+//      prodcessEventAuxiliaries(...) functions to avoid unintentional
+//      double-counting of information.
+//
+//    * The mix operation may generate event-level data for the primary
+//      stream from the provided subrun and run products exactly as if
+//      it were a normal event-level mix operation. Any production of
+//      subrun- or run-level data from the primary stream should be done
+//      in the optional endSubRun(..) and / or endRun(...) functions as
+//      appropriate. Any such subrun- or run-level products should be
+//      declared appropriately via art::MixHelper::products(...).
+//
+////////////////////////////////////////////////////////////////////////
 
 #include "art/Framework/Core/EDFilter.h"
-#include "art/Framework/IO/ProductMix/MixContainerTypes.h"
+#include "art/Framework/IO/ProductMix/MixTypes.h"
 #include "art/Framework/IO/ProductMix/MixHelper.h"
 #include "art/Framework/IO/ProductMix/MixOpBase.h"
 #include "art/Framework/Services/Registry/ServiceRegistry.h"
+#include "canvas/Persistency/Provenance/BranchType.h"
 #include "cetlib/detail/metaprogramming.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
+
+#include "TBranch.h"
 
 #include <functional>
 #include <type_traits>
@@ -196,6 +270,35 @@ namespace art {
     ////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////
+    // Does the detail object have a method void
+    // processEventAuxiliaries(EventAuxiliarySequence const &)?
+
+    template <typename T, typename = void>
+    struct has_processEventAuxiliaries : std::false_type {};
+
+    template <typename T>
+    struct has_processEventAuxiliaries<T, enable_if_function_exists_t<void(T::*)(EventAuxiliarySequence const&), &T::processEventAuxiliaries>> : std::true_type {};
+
+    template <typename T>
+    struct do_not_call_processEventAuxiliaries {
+      void operator()(T&, MixHelper&, EntryNumberSequence const&, size_t) {}
+    };
+
+    template <typename T>
+    struct call_processEventAuxiliaries {
+      void
+      operator()(T& t, MixHelper& h, EntryNumberSequence const& enseq, size_t nSecondaries)
+      {
+        EventAuxiliarySequence auxseq;
+        auxseq.reserve(nSecondaries);
+        h.generateEventAuxiliarySequence(enseq, auxseq);
+        t.processEventAuxiliaries(auxseq);
+      }
+    };
+
+    ////////////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////////////
     // Does the detail object have a method void finalizeEvent(Event&)?
     template <typename T, typename = void>
     struct has_finalizeEvent : std::false_type {};
@@ -211,6 +314,86 @@ namespace art {
     template <typename T>
     struct call_finalizeEvent {
       void operator()(T& t, Event& e) { t.finalizeEvent(e); }
+    };
+
+    ////////////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////////////
+    // Does the detail object have a method void beginSubRun(SubRun const &)?
+    template <typename T, typename = void>
+    struct has_beginSubRun : std::false_type {};
+
+    template <typename T>
+    struct has_beginSubRun<T, enable_if_function_exists_t<void(T::*)(SubRun const &), &T::beginSubRun>> : std::true_type {};
+
+    template <typename T>
+    struct do_not_call_beginSubRun {
+      void operator()(T&, SubRun const &) {}
+    };
+
+    template <typename T>
+    struct call_beginSubRun {
+      void operator()(T& t, SubRun const & sr) { t.beginSubRun(sr); }
+    };
+
+    ////////////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////////////
+    // Does the detail object have a method void endSubRun(SubRun&)?
+    template <typename T, typename = void>
+    struct has_endSubRun : std::false_type {};
+
+    template <typename T>
+    struct has_endSubRun<T, enable_if_function_exists_t<void(T::*)(SubRun&), &T::endSubRun>> : std::true_type {};
+
+    template <typename T>
+    struct do_not_call_endSubRun {
+      void operator()(T&, SubRun&) {}
+    };
+
+    template <typename T>
+    struct call_endSubRun {
+      void operator()(T& t, SubRun& sr) { t.endSubRun(sr); }
+    };
+
+    ////////////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////////////
+    // Does the detail object have a method void beginRun(Run const &)?
+    template <typename T, typename = void>
+    struct has_beginRun : std::false_type {};
+
+    template <typename T>
+    struct has_beginRun<T, enable_if_function_exists_t<void(T::*)(Run const &), &T::beginRun>> : std::true_type {};
+
+    template <typename T>
+    struct do_not_call_beginRun {
+      void operator()(T&, Run const &) {}
+    };
+
+    template <typename T>
+    struct call_beginRun {
+      void operator()(T& t, Run const & r) { t.beginRun(r); }
+    };
+
+    ////////////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////////////
+    // Does the detail object have a method void endRun(Run&)?
+    template <typename T, typename = void>
+    struct has_endRun : std::false_type {};
+
+    template <typename T>
+    struct has_endRun<T, enable_if_function_exists_t<void(T::*)(Run&), &T::endRun>> : std::true_type {};
+
+    template <typename T>
+    struct do_not_call_endRun {
+      void operator()(T&, Run&) {}
+    };
+
+    template <typename T>
+    struct call_endRun {
+      void operator()(T& t, Run& r) { t.endRun(r); }
     };
 
     ////////////////////////////////////////////////////////////////////
@@ -286,7 +469,7 @@ namespace art {
 } // art namespace
 
 template <class T>
-class art::MixFilter : public art::EDFilter {
+class art::MixFilter : public EDFilter {
 public:
   typedef T MixDetail;
   explicit MixFilter(fhicl::ParameterSet const & p);
@@ -296,11 +479,15 @@ public:
   void respondToCloseInputFile(FileBlock const & fb) override;
   void respondToOpenOutputFiles(FileBlock const & fb) override;
   void respondToCloseOutputFiles(FileBlock const & fb) override;
-  bool filter(art::Event & e) override;
+  bool filter(Event & e) override;
+  bool beginSubRun(SubRun & sr) override;
+  bool endSubRun(SubRun & sr) override;
+  bool beginRun(Run & r) override;
+  bool endRun(Run & r) override;
 
 private:
   fhicl::ParameterSet const &
-  initEngine(fhicl::ParameterSet const & p);
+  initEngine_(fhicl::ParameterSet const & p);
   MixHelper helper_;
   MixDetail detail_;
 };
@@ -309,7 +496,7 @@ template <class T>
 art::MixFilter<T>::MixFilter(fhicl::ParameterSet const & p)
   :
   EDFilter(),
-  helper_(initEngine(p), *this), // See note below
+  helper_(initEngine_(p), *this), // See note below
   detail_(p, helper_)
 {
   // Note that the random number engine is created in the initializer
@@ -334,9 +521,9 @@ void
 art::MixFilter<T>::respondToOpenInputFile(FileBlock const & fb)
 {
   std::conditional_t<detail::has_respondToOpenInputFile<T>::value,
-                     detail::call_respondToOpenInputFile<T>,
-                     detail::do_not_call_respondToXXX<T>>
-    (detail_, fb);
+    detail::call_respondToOpenInputFile<T>,
+    detail::do_not_call_respondToXXX<T>>
+  (detail_, fb);
 }
 
 template <class T>
@@ -345,7 +532,7 @@ art::MixFilter<T>::respondToCloseInputFile(FileBlock const & fb)
 {
   std::conditional_t<detail::has_respondToCloseInputFile<T>::value,
                      detail::call_respondToCloseInputFile<T>,
-                     detail::do_not_call_respondToXXX<T>>
+    detail::do_not_call_respondToXXX<T>>
     (detail_, fb);
 }
 
@@ -355,7 +542,7 @@ art::MixFilter<T>::respondToOpenOutputFiles(FileBlock const & fb)
 {
   std::conditional_t<detail::has_respondToOpenOutputFiles<T>::value,
                      detail::call_respondToOpenOutputFiles<T>,
-                     detail::do_not_call_respondToXXX<T>>
+    detail::do_not_call_respondToXXX<T>>
     (detail_, fb);
 }
 
@@ -365,7 +552,7 @@ art::MixFilter<T>::respondToCloseOutputFiles(FileBlock const & fb)
 {
   std::conditional_t <detail::has_respondToCloseOutputFiles<T>::value,
                       detail::call_respondToCloseOutputFiles<T>,
-                      detail::do_not_call_respondToXXX<T>>
+    detail::do_not_call_respondToXXX<T>>
     (detail_, fb);
 }
 
@@ -394,10 +581,15 @@ art::MixFilter<T>::filter(art::Event & e)
                        detail::call_processEventIDs<T>,
                        detail::do_not_call_processEventIDs<T> > maybe_call_processEventIDs;
   maybe_call_processEventIDs(detail_, eIDseq);
-  // 5. Make the MixHelper read info into all the products, invoke the
+  // 5. Give the event auxiliary sequence to the detail object.
+  std::conditional_t < detail::has_processEventAuxiliaries<T>::value,
+                       detail::call_processEventAuxiliaries<T>,
+                       detail::do_not_call_processEventAuxiliaries<T> > maybe_call_processEventAuxiliaries;
+  maybe_call_processEventAuxiliaries(detail_, helper_, enSeq, nSecondaries);
+  // 6. Make the MixHelper read info into all the products, invoke the
   // mix functions and put the products into the event.
-  helper_.mixAndPut(enSeq, e);
-  // 6. Call detail object's finalizeEvent() if it exists.
+  helper_.mixAndPut(enSeq, eIDseq, e);
+  // 7. Call detail object's finalizeEvent() if it exists.
   std::conditional_t < detail::has_finalizeEvent<T>::value,
                        detail::call_finalizeEvent<T>,
                        detail::do_not_call_finalizeEvent<T> >
@@ -407,8 +599,52 @@ art::MixFilter<T>::filter(art::Event & e)
 }
 
 template <class T>
+bool
+art::MixFilter<T>::beginSubRun(SubRun & sr)
+{
+  std::conditional_t <detail::has_beginSubRun<T>::value,
+    detail::call_beginSubRun<T>,
+    detail::do_not_call_beginSubRun<T>> maybe_call_beginSubRun;
+    maybe_call_beginSubRun(detail_, sr);
+  return true;
+}
+
+template <class T>
+bool
+art::MixFilter<T>::endSubRun(SubRun & sr)
+{
+  std::conditional_t <detail::has_endSubRun<T>::value,
+    detail::call_endSubRun<T>,
+    detail::do_not_call_endSubRun<T>> maybe_call_endSubRun;
+    maybe_call_endSubRun(detail_, sr);
+  return true;
+}
+
+template <class T>
+bool
+art::MixFilter<T>::beginRun(Run & r)
+{
+  std::conditional_t <detail::has_beginRun<T>::value,
+    detail::call_beginRun<T>,
+    detail::do_not_call_beginRun<T>> maybe_call_beginRun;
+    maybe_call_beginRun(detail_, r);
+  return true;
+}
+
+template <class T>
+bool
+art::MixFilter<T>::endRun(Run & r)
+{
+  std::conditional_t <detail::has_endRun<T>::value,
+    detail::call_endRun<T>,
+    detail::do_not_call_endRun<T>> maybe_call_endRun;
+    maybe_call_endRun(detail_, r);
+  return true;
+}
+
+template <class T>
 fhicl::ParameterSet const &
-art::MixFilter<T>::initEngine(fhicl::ParameterSet const & p) {
+art::MixFilter<T>::initEngine_(fhicl::ParameterSet const & p) {
   // If we can't create one of these, the helper will deal with the
   // situation accordingly.
   if (ServiceRegistry::instance().isAvailable<RandomNumberGenerator>()) {

@@ -167,22 +167,21 @@ EventPrincipalTestFixture::EventPrincipalTestFixture()
   art::BranchDescription const& branchFromRegistry(it->second);
 
   std::shared_ptr<art::Parentage> entryDescriptionPtr(new art::Parentage);
-  std::unique_ptr<art::ProductProvenance const>
-    productProvenancePtr(new art::ProductProvenance(branchFromRegistry.branchID(),
-                                                    art::productstatus::present(),
-                                                    entryDescriptionPtr));
+  std::unique_ptr<art::ProductProvenance const> productProvenancePtr(new art::ProductProvenance(branchFromRegistry.branchID(),
+                                                                                                art::productstatus::present(),
+                                                                                                entryDescriptionPtr));
 
   art::ProcessConfiguration* process = gf().processConfigurations_[tag];
   BOOST_REQUIRE(process);
   art::Timestamp now(1234567UL);
-  art::RunAuxiliary runAux(eventID.run(), now, now);
-  std::shared_ptr<art::RunPrincipal> rp(new art::RunPrincipal(runAux, *process));
-  art::SubRunAuxiliary subRunAux(rp->run(), eventID.subRun(), now, now);
-  std::shared_ptr<art::SubRunPrincipal>srp(new art::SubRunPrincipal(subRunAux, *process));
-  srp->setRunPrincipal(rp);
+  art::RunAuxiliary runAux {eventID.run(), now, now};
+  auto rp = std::make_unique<art::RunPrincipal>(runAux, *process);
+  art::SubRunAuxiliary subRunAux {rp->run(), eventID.subRun(), now, now};
+  auto srp = std::make_unique<art::SubRunPrincipal>(subRunAux, *process);
+  srp->setRunPrincipal(rp.get());
   art::EventAuxiliary eventAux(eventID, now, true);
-  pEvent_.reset(new art::EventPrincipal(eventAux, *process));
-  pEvent_->setSubRunPrincipal(srp);
+  pEvent_ = std::make_unique<art::EventPrincipal>(eventAux, *process);
+  pEvent_->setSubRunPrincipal(srp.get());
   pEvent_->put(std::move(product), branchFromRegistry, std::move(productProvenancePtr));
 
   BOOST_REQUIRE_EQUAL(pEvent_->size(), 1u);

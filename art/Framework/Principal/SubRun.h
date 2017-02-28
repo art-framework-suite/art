@@ -11,6 +11,7 @@
 // ======================================================================
 
 #include "art/Framework/Principal/DataViewImpl.h"
+#include "art/Framework/Principal/Run.h"
 #include "art/Framework/Principal/fwd.h"
 #include "art/Utilities/ProductTokens.h"
 #include "canvas/Persistency/Common/Wrapper.h"
@@ -27,7 +28,7 @@ public:
 
   using Base = DataViewImpl;
 
-  SubRun(SubRunPrincipal& srp,
+  SubRun(SubRunPrincipal const& srp,
          ModuleDescription const& md,
          RangeSet const& rsForPuttingProducts = RangeSet::invalid());
 
@@ -43,7 +44,6 @@ public:
   using Base::getMany;
   using Base::getManyByType;
   using Base::removeCachedProduct;
-  using Base::me;
   using Base::processHistory;
 
   template <typename PROD>
@@ -64,11 +64,6 @@ public:
 
 
 private:
-  SubRunPrincipal const&
-  subRunPrincipal() const;
-
-  SubRunPrincipal &
-  subRunPrincipal();
 
   // commit_() is called to complete the transaction represented by
   // this DataViewImpl. The friendships required are gross, but any
@@ -79,7 +74,7 @@ private:
   friend class EDFilter;
   friend class EDProducer;
 
-  void commit_();
+  void commit_(SubRunPrincipal&);
 
   ///Put a new product with a 'product instance name' and a 'range set'
   template <typename PROD>
@@ -89,7 +84,7 @@ private:
        RangeSet const& rs);
 
   SubRunAuxiliary const& aux_;
-  std::shared_ptr<Run const> const run_;
+  std::unique_ptr<Run const> const run_;
   RangeSet productRangeSet_;
 };
 
@@ -174,7 +169,7 @@ art::SubRun::put(std::unique_ptr<PROD>&& product,
                 "           function to your class, or contact artists@fnal.gov.\n");
 
   if (productRangeSet_.collapse().is_full_subRun()) {
-    throw art::Exception(art::errors::InsertFailure, "SubRun::put")
+    throw art::Exception(art::errors::ProductPutFailure, "SubRun::put")
       << "\nCannot put a product corresponding to a full SubRun using\n"
       << "art::subRunFragment().  This can happen if you attempted to\n"
       << "put a product at beginSubRun using art::subRunFragment().\n"
@@ -199,7 +194,7 @@ art::SubRun::put(std::unique_ptr<PROD>&& product,
                 "              void aggregate(T const&)\n"
                 "           function to your class, or contact artists@fnal.gov.\n");
   if (token.rs.collapse().is_full_subRun()) {
-    throw Exception{errors::InsertFailure, "Run::put"}
+    throw Exception{errors::ProductPutFailure, "Run::put"}
       << "\nCannot put a product corresponding to a full SubRun using\n"
       << "art::subRunFragment(art::RangeSet&).  Please use:\n"
       << "   art::fullSubRun()\n"
@@ -223,7 +218,7 @@ art::SubRun::put_(std::unique_ptr<PROD>&& product,
   }
 
   if (!rs.is_valid()) {
-    throw art::Exception{art::errors::InsertFailure, "SubRun::put"}
+    throw art::Exception{art::errors::ProductPutFailure, "SubRun::put"}
       << "\nCannot put a product with an invalid RangeSet.\n"
       << "Please contact artists@fnal.gov.\n";
   }
@@ -233,7 +228,7 @@ art::SubRun::put_(std::unique_ptr<PROD>&& product,
 
   auto result = putProducts().emplace(bd.branchID(), PMValue{std::move(wp), bd, rs});
   if (!result.second) {
-    throw art::Exception{art::errors::InsertFailure, "SubRun::put"}
+    throw art::Exception{art::errors::ProductPutFailure, "SubRun::put"}
       << "\nAttempt to put multiple products with the\n"
       << "following description onto the SubRun.\n"
       << "Products must be unique per SubRun.\n"

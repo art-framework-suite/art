@@ -1,6 +1,6 @@
 process_name: PSTest
 
-services.user:
+services:
 {
   PSTest: { }
   PSTestInterface: { service_provider: PSTestInterfaceImpl }

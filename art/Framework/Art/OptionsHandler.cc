@@ -1,7 +1,7 @@
 #include "art/Framework/Art/OptionsHandler.h"
 
 #include "cetlib/exception.h"
-#include "cetlib/demangle.h"
+#include "cetlib_except/demangle.h"
 
 #include <iostream>
 #include <stdexcept>
@@ -59,7 +59,7 @@ int
 art::OptionsHandler::
 checkOptions(bpo::variables_map const & vm)
 {
-  std::string const thisClass(cet::demangle(typeid(*this).name()));
+  std::string const thisClass(cet::demangle_symbol(typeid(*this).name()));
   return exceptionCatcher([&vm,this](){ return this->doCheckOptions(vm); },
                           thisClass + "::doCheckOptions()",
                           89);
@@ -70,7 +70,7 @@ art::OptionsHandler::
 processOptions(bpo::variables_map const & vm,
                fhicl::intermediate_table & raw_config)
 {
-  std::string const thisClass(cet::demangle(typeid(*this).name()));
+  std::string const thisClass(cet::demangle_symbol(typeid(*this).name()));
   return exceptionCatcher([&, this](){
       return this->doProcessOptions(vm, raw_config);
     },

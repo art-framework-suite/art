@@ -1,6 +1,3 @@
-# project name
-project(FWCoreServiceRegistryTest)
-
 set( TestDummyService_sources stubs/DependsOnDummyService.cc
 			      stubs/DummyService.cc
 			      stubs/DummyServiceE0.cc )

@@ -60,27 +60,9 @@ subRunPrincipal() const
   return *subRunPrincipal_;
 }
 
-SubRunPrincipal&
-EventPrincipal::
-subRunPrincipal()
-{
-  if (!subRunPrincipal_) {
-    throw Exception(errors::NullPointerError)
-        << "Tried to obtain a NULL subRunPrincipal.\n";
-  }
-  return *subRunPrincipal_;
-}
-
 RunPrincipal const&
 EventPrincipal::
 runPrincipal() const
-{
-  return subRunPrincipal().runPrincipal();
-}
-
-RunPrincipal&
-EventPrincipal::
-runPrincipal()
 {
   return subRunPrincipal().runPrincipal();
 }
@@ -94,13 +76,9 @@ addOrReplaceGroup(std::unique_ptr<Group>&& g)
     addGroup_(std::move(g));
     return;
   }
-  if (group->onDemand()) {
-    replaceGroup(std::move(g));
-    return;
-  }
   BranchDescription const& bd = group->productDescription();
-  throw art::Exception(art::errors::InsertFailure, "AlreadyPresent")
-      << "addGroup_: Problem found while adding product provenance, "
+  throw art::Exception(art::errors::ProductRegistrationFailure, "EventPrincipal::addOrReplaceGroup")
+      << "Problem found while adding product provenance: "
       << "product already exists for ("
       << bd.friendlyClassName()
       << ","
@@ -127,19 +105,10 @@ void
 EventPrincipal::
 addGroup(std::unique_ptr<EDProduct>&& prod, BranchDescription const& bd)
 {
-  addOrReplaceGroup(gfactory::make_group(std::move(prod),
-                                         bd,
+  addOrReplaceGroup(gfactory::make_group(bd,
                                          branchIDToProductID(bd.branchID()),
-                                         RangeSet::invalid()));
-}
-
-void
-EventPrincipal::
-addOnDemandGroup(BranchDescription const& desc, cet::exempt_ptr<Worker> worker)
-{
-  ProductID pid(branchIDToProductID(desc.branchID()));
-  cet::exempt_ptr<EventPrincipal> epp(this);
-  addOrReplaceGroup(gfactory::make_group(desc, pid, RangeSet::invalid(), worker, epp));
+                                         RangeSet::invalid(),
+                                         std::move(prod)));
 }
 
 void
@@ -149,12 +118,12 @@ put(std::unique_ptr<EDProduct>&& edp,
     std::unique_ptr<ProductProvenance const>&& productProvenance)
 {
   if (!edp) {
-    throw art::Exception(art::errors::InsertFailure, "Null Pointer")
+    throw art::Exception(art::errors::ProductPutFailure, "Null Pointer")
         << "put: Cannot put because unique_ptr to product is null.\n";
   }
   ProductID pid = branchIDToProductID(bd.branchID());
   if (!pid.isValid()) {
-    throw art::Exception(art::errors::InsertFailure, "Null Product ID")
+    throw art::Exception(art::errors::ProductPutFailure, "Null Product ID")
         << "put: Cannot put product with null Product ID.\n";
   }
   branchMapper().insert(std::move(productProvenance));
@@ -230,16 +199,13 @@ GroupQueryResult
 EventPrincipal::
 getGroup(ProductID const& pid) const
 {
-  BranchID bid = productIDToBranchID(pid);
-  SharedConstGroupPtr const& g = getGroupForPtr(art::InEvent,bid);
-  if (g.get()) {
-    return GroupQueryResult(g.get());
+  BranchID const bid = productIDToBranchID(pid);
+  if (auto const g = getGroupForPtr(art::InEvent, bid)) {
+    return GroupQueryResult{g};
   }
-  std::shared_ptr<art::Exception> whyFailed(
-    new art::Exception(art::errors::ProductNotFound, "InvalidID"));
-  *whyFailed
-      << "getGroup: no product with given product id: " << pid << "\n";
-  return GroupQueryResult(whyFailed);
+  auto whyFailed = std::make_shared<art::Exception>(art::errors::ProductNotFound, "InvalidID");
+  *whyFailed << "getGroup: no product with given product id: " << pid << "\n";
+  return GroupQueryResult{whyFailed};
 }
 
 GroupQueryResult
@@ -249,16 +215,13 @@ getByProductID(ProductID const& pid) const
   // FIXME: This reproduces the logic of the old version of the
   // function, but I'm not sure it does the *right* thing in the face
   // of an unavailable product or other rare failure.
-  BranchID bid = productIDToBranchID(pid);
-  SharedConstGroupPtr const& g(getResolvedGroup(bid, true, true));
-  if (!g) {
-    std::shared_ptr<art::Exception>
-    whyFailed(new art::Exception(art::errors::ProductNotFound, "InvalidID"));
-    *whyFailed
-        << "getGroup: no product with given product id: " << pid << "\n";
-    return GroupQueryResult(whyFailed);
+  BranchID const bid = productIDToBranchID(pid);
+  if (auto const g = getResolvedGroup(bid, true)) {
+    return GroupQueryResult{g};
   }
-  return GroupQueryResult(g.get());
+  auto whyFailed = std::make_shared<art::Exception>(art::errors::ProductNotFound, "InvalidID");
+  *whyFailed << "getGroup: no product with given product id: " << pid << "\n";
+  return GroupQueryResult{whyFailed};
 }
 
 EventSelectionIDVector const&
@@ -276,7 +239,7 @@ deferredGetter_(ProductID const& pid) const
   if (it != deferredGetters_.end()) {
     return it->second.get();
   }
-  deferredGetters_[pid] = std::make_shared<DeferredProductGetter>(cet::exempt_ptr<EventPrincipal const>(this), pid);
+  deferredGetters_[pid] = std::make_shared<DeferredProductGetter>(cet::exempt_ptr<EventPrincipal const>{this}, pid);
   return deferredGetters_[pid].get();
 }
 
