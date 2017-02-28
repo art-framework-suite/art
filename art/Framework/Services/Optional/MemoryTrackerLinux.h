@@ -50,10 +50,6 @@ namespace art {
     using Parameters = ServiceTable<Config>;
     MemoryTracker(ServiceTable<Config> const&, ActivityRegistry&);
 
-    // Module level
-    void preModule (ModuleDescription const&);
-    void postModule(ModuleDescription const&);
-
     enum summary_type {GENERAL, EVENT, MODULE, ntypes};
 
   private:
@@ -65,6 +61,10 @@ namespace art {
     // ... Event level
     void preEventProcessing (Event const&);
     void postEventProcessing(Event const&);
+
+    // ... Module level
+    void setCurrentData(ModuleDescription const&);
+    void recordData(ModuleDescription const& md, std::string const& suffix);
 
     // ... Wrap up
     void postEndJob();

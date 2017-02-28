@@ -74,10 +74,7 @@ namespace art {
     };
 
     using Parameters = ServiceTable<Config>;
-    TimeTracker(ServiceTable<Config> const &, ActivityRegistry&);
-
-    void preModule(ModuleDescription const&);
-    void postModule(ModuleDescription const&);
+    TimeTracker(ServiceTable<Config> const&, ActivityRegistry&);
 
   private:
 
@@ -87,6 +84,9 @@ namespace art {
 
     void preEventProcessing(Event const&);
     void postEventProcessing(Event const&);
+
+    void startTime(ModuleDescription const&);
+    void recordTime(ModuleDescription const& md, std::string const& suffix);
 
     void logToDatabase_(Statistics const& evt, std::vector<Statistics> const& modules);
     void logToDestination_(Statistics const& evt, std::vector<Statistics> const& modules);

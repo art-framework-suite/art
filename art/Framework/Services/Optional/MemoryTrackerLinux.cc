@@ -177,8 +177,10 @@ art::MemoryTracker::MemoryTracker(ServiceTable<Config> const& config,
   iReg.sPreProcessPath        .watch(  this                  , &MemoryTracker::prePathProcessing);
   iReg.sPreProcessEvent       .watch(  this                  , &MemoryTracker::preEventProcessing);
   iReg.sPostProcessEvent      .watch(  this                  , &MemoryTracker::postEventProcessing);
-  iReg.sPreModule             .watch(  this                  , &MemoryTracker::preModule);
-  iReg.sPostModule            .watch(  this                  , &MemoryTracker::postModule);
+  iReg.sPreModule             .watch(  this                  , &MemoryTracker::setCurrentData);
+  iReg.sPostModule            .watch([this](auto const& md){ this->recordData(md, ""s); });
+  iReg.sPreWriteEvent         .watch(  this                  , &MemoryTracker::setCurrentData);
+  iReg.sPostWriteEvent        .watch([this](auto const& md){ this->recordData(md, "(write)"s); });
   iReg.sPreModuleEndSubRun    .watch( &this->modEndSubRun_   , &CallbackPair::pre  );
   iReg.sPostModuleEndSubRun   .watch( &this->modEndSubRun_   , &CallbackPair::post );
   iReg.sPreModuleEndRun       .watch( &this->modEndRun_      , &CallbackPair::pre  );
@@ -232,13 +234,13 @@ art::MemoryTracker::postEventProcessing(Event const&)
 
 //======================================================================
 void
-art::MemoryTracker::preModule(ModuleDescription const&)
+art::MemoryTracker::setCurrentData(ModuleDescription const&)
 {
   modData_ = procInfo_.getCurrentData();
 }
 
 void
-art::MemoryTracker::postModule(ModuleDescription const& md)
+art::MemoryTracker::recordData(ModuleDescription const& md, std::string const& suffix)
 {
   auto const data = procInfo_.getCurrentData();
   auto const deltas = data-modData_;
@@ -248,7 +250,7 @@ art::MemoryTracker::postModule(ModuleDescription const& md)
                                            eventId_.event(),
                                            pathname_,
                                            md.moduleLabel(),
-                                           md.moduleName(),
+                                           md.moduleName()+suffix,
                                            data[LinuxProcData::VSIZE],
                                            deltas[LinuxProcData::VSIZE],
                                            data[LinuxProcData::RSS],

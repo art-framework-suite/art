@@ -120,9 +120,14 @@ void art::EndPathExecutor::writeSubRun(SubRunPrincipal& srp)
 
 void art::EndPathExecutor::writeEvent(EventPrincipal& ep)
 {
-  doForAllEnabledOutputWorkers_([&ep](auto w){ w->writeEvent(ep); });
+  doForAllEnabledOutputWorkers_([this, &ep](auto w){
+      auto const& md = w->description();
+      actReg_.sPreWriteEvent.invoke(md);
+      w->writeEvent(ep);
+      actReg_.sPostWriteEvent.invoke(md);
+    });
   auto const& eid = ep.id();
-  bool const lastInSubRun = ep.isLastInSubRun();
+  bool const lastInSubRun {ep.isLastInSubRun()};
   runRangeSetHandler_->update(eid, lastInSubRun);
   subRunRangeSetHandler_->update(eid, lastInSubRun);
 }

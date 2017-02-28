@@ -30,33 +30,6 @@ using fhicl::ParameterSet;
 using std::vector;
 using std::string;
 
-namespace {
-
-  class OMServices {
-    art::ModuleDescription const& md_;
-    cet::exempt_ptr<art::MemoryTracker> mem_;
-    cet::exempt_ptr<art::TimeTracker> time_;
-  public:
-    OMServices(art::ModuleDescription const& md,
-               bool const memTracker,
-               bool const timeTracker)
-      : md_{md}
-      , mem_(memTracker ? art::ServiceHandle<art::MemoryTracker>{}.get() : nullptr)
-      , time_(timeTracker ? art::ServiceHandle<art::TimeTracker>{}.get() : nullptr)
-    {
-      if (mem_) mem_->preModule(md_);
-      if (time_) time_->preModule(md_);
-    }
-
-    ~OMServices()
-    {
-      if (mem_) mem_->postModule(md_);
-      if (time_) time_->postModule(md_);
-    }
-  };
-
-}
-
 art::OutputModule::
 OutputModule(fhicl::TableFragment<Config> const& config,
              ParameterSet const& containing_pset)
@@ -231,7 +204,6 @@ void
 art::OutputModule::
 doWriteEvent(EventPrincipal& ep)
 {
-  OMServices sentry {dummyModuleDescription_, memTrackerAvailable_, timeTrackerAvailable_ };
   detail::PVSentry clearTriggerResults {cachedProducts()};
   FDEBUG(2) << "writeEvent called\n";
   Event const e {ep, moduleDescription_};

@@ -123,6 +123,15 @@ public:
   GlobalSignal<detail::SignalResponseType::LIFO, void,
                Event const &> sPostProcessEvent;
 
+  // Signal is emitted after the event has been processed, but before
+  // the event has been written.
+  GlobalSignal<detail::SignalResponseType::FIFO, void,
+               ModuleDescription const &> sPreWriteEvent;
+
+  // Signal is emitted after the event has been written.
+  GlobalSignal<detail::SignalResponseType::LIFO, void,
+               ModuleDescription const &> sPostWriteEvent;
+
   // Signal is emitted after the Run has been created by the InputSource
   // but before any modules have seen the Run
   GlobalSignal<detail::SignalResponseType::FIFO, void,

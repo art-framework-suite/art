@@ -18,8 +18,6 @@
 #include "art/Framework/Principal/fwd.h"
 #include "art/Framework/Principal/RangeSetHandler.h"
 #include "art/Framework/Services/FileServiceInterfaces/CatalogInterface.h"
-#include "art/Framework/Services/Optional/MemoryTracker.h"
-#include "art/Framework/Services/Optional/TimeTracker.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/System/FileCatalogMetadata.h"
 #include "art/Persistency/Provenance/Selections.h"
@@ -152,13 +150,6 @@ private:
   int remainingEvents_ {maxEvents_};
 
   ModuleDescription moduleDescription_ {};
-  // 'dummyModuleDescription_' is used for the memory- and
-  // time-tracking services to distinguish between processing an event
-  // and writing one.
-  ModuleDescription dummyModuleDescription_ {};
-  bool const memTrackerAvailable_ {ServiceRegistry::instance().isAvailable<MemoryTracker>()};
-  bool const timeTrackerAvailable_ {ServiceRegistry::instance().isAvailable<TimeTracker>()};
-
   cet::exempt_ptr<CurrentProcessingContext const> current_context_ {nullptr};
 
   using BranchParents = std::map<BranchID, std::set<ParentageID> >;
@@ -356,10 +347,6 @@ art::OutputModule::
 setModuleDescription(ModuleDescription const& md)
 {
   moduleDescription_ = md;
-  dummyModuleDescription_ = ModuleDescription{md.parameterSetID(),
-                                              md.moduleName()+"(write)",
-                                              md.moduleLabel(),
-                                              md.processConfiguration()};
 }
 
 inline

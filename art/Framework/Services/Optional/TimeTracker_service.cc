@@ -59,8 +59,10 @@ art::TimeTracker::TimeTracker(ServiceTable<Config> const & config, ActivityRegis
   iRegistry.sPreProcessEvent.watch(this, &TimeTracker::preEventProcessing);
   iRegistry.sPostProcessEvent.watch(this, &TimeTracker::postEventProcessing);
 
-  iRegistry.sPreModule.watch(this, &TimeTracker::preModule);
-  iRegistry.sPostModule.watch(this, &TimeTracker::postModule);
+  iRegistry.sPreModule.watch(this, &TimeTracker::startTime);
+  iRegistry.sPostModule.watch([this](auto const& md) { this->recordTime(md,""s); });
+  iRegistry.sPreWriteEvent.watch(this, &TimeTracker::startTime);
+  iRegistry.sPostWriteEvent.watch([this](auto const& md) { this->recordTime(md,"(write)"s); });
 }
 
 //======================================================================
@@ -148,13 +150,13 @@ art::TimeTracker::postEventProcessing(Event const&)
 
 //======================================================================
 void
-art::TimeTracker::preModule(ModuleDescription const&)
+art::TimeTracker::startTime(ModuleDescription const&)
 {
   moduleStart_ = now();
 }
 
 void
-art::TimeTracker::postModule(ModuleDescription const& desc)
+art::TimeTracker::recordTime(ModuleDescription const& desc, std::string const& suffix)
 {
   double const t = (now()-moduleStart_).seconds();
   sqlite::insert_into(timeModuleTable_).values(eventId_.run(),
@@ -162,7 +164,7 @@ art::TimeTracker::postModule(ModuleDescription const& desc)
                                                eventId_.event(),
                                                pathname_,
                                                desc.moduleLabel(),
-                                               desc.moduleName(),
+                                               desc.moduleName()+suffix,
                                                t);
 }
 

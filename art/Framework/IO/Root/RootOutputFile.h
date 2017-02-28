@@ -2,14 +2,6 @@
 #define art_Framework_IO_Root_RootOutputFile_h
 // vim: set sw=2:
 
-// FIXME! There is an incestuous relationship between RootOutputFile and
-// RootOutput that only works because the methods of RootOutput and
-// OutputItem used by RootOutputFile are all inline. A correct and
-// robust implementation would have a OutputItem defined in a separate
-// file and the information (basket size, etc) in a different class in
-// the main art/Framework/Root library accessed by both RootOutputFile
-// and RootOutput. This has been entered as issue #2885.
-
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/OutputModule.h"
 #include "art/Framework/IO/FileStatsCollector.h"
@@ -18,6 +10,9 @@
 #include "art/Framework/IO/Root/RootOutputTree.h"
 #include "art/Framework/IO/Root/detail/DummyProductCache.h"
 #include "art/Framework/Principal/RangeSetsSupported.h"
+#include "art/Persistency/Provenance/Selections.h"
+#include "art/Persistency/RootDB/SQLite3Wrapper.h"
+#include "boost/filesystem.hpp"
 #include "canvas/Persistency/Provenance/BranchDescription.h"
 #include "canvas/Persistency/Provenance/BranchID.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
@@ -25,9 +20,7 @@
 #include "canvas/Persistency/Provenance/ParameterSetBlob.h"
 #include "canvas/Persistency/Provenance/ParameterSetMap.h"
 #include "canvas/Persistency/Provenance/ProductProvenance.h"
-#include "art/Persistency/Provenance/Selections.h"
-#include "art/Persistency/RootDB/SQLite3Wrapper.h"
-#include "boost/filesystem.hpp"
+#include "cetlib/Ntuple/Ntuple.h"
 
 #include <array>
 #include <map>
@@ -56,7 +49,7 @@ namespace art {
 class art::RootOutputFile {
 public: // TYPES
 
-  enum class ClosureRequestMode { MaxEvents, MaxSize, Unset };
+  enum class ClosureRequestMode {MaxEvents, MaxSize, Unset};
   using  RootOutputTreePtrArray = std::array<std::unique_ptr<RootOutputTree>, NumBranchTypes>;
 
   struct OutputItem {

@@ -4,8 +4,6 @@ art_make(
   art_Framework_Services_System_CurrentModule_service
   art_Framework_Services_System_TriggerNamesService_service
   art_Framework_Services_Optional_RandomNumberGenerator_service
-  art_Framework_Services_Optional_MemoryTracker_service
-  art_Framework_Services_Optional_TimeTracker_service
   art_Framework_Principal
   art_Persistency_Common
   art_Persistency_Provenance canvas
