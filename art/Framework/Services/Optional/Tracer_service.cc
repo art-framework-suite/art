@@ -19,7 +19,11 @@
 #include "canvas/Persistency/Provenance/Timestamp.h"
 #include "fhiclcpp/types/Atom.h"
 #include "fhiclcpp/types/Name.h"
+
 #include <iostream>
+#include <string>
+
+using namespace std::string_literals;
 
 namespace art {
   class Tracer;
@@ -27,16 +31,13 @@ namespace art {
 
 using art::Tracer;
 
-namespace {
+// ======================================================================
+class Tracer {
+public:
+
   struct Config {
     fhicl::Atom<std::string> indentation { fhicl::Name("indentation"), "++" };
   };
-}
-
-// ======================================================================
-class Tracer
-{
-public:
 
   using Parameters = ServiceTable<Config>;
   Tracer(ServiceTable<Config> const&, ActivityRegistry&);
@@ -119,11 +120,11 @@ public:
 
 private:
   std::string indentation_;
-  unsigned int depth_;
+  unsigned int depth_ {};
 
-  std::ostream & indent( unsigned n = 1u ) const
+  std::ostream& indent(unsigned n = 1u) const
   {
-    for( ; n != 0u; --n )
+    for(; n != 0u; --n)
       std::cout << indentation_;
     return std::cout;
   }
@@ -133,9 +134,8 @@ private:
 // ======================================================================
 // constructors and destructor
 
-Tracer::Tracer(ServiceTable<Config> const& config, ActivityRegistry&iRegistry)
-  : indentation_( config().indentation() )
-  , depth_      ( 0 )
+Tracer::Tracer(ServiceTable<Config> const& config, ActivityRegistry& iRegistry)
+  : indentation_{config().indentation()}
 {
   iRegistry.sPostBeginJob.watch(this, &Tracer::postBeginJob);
   iRegistry.sPostEndJob.watch(this, &Tracer::postEndJob);
@@ -289,9 +289,7 @@ Tracer::preCloseOutputFile (std::string const & label) {
 
 void
 Tracer::postCloseOutputFile (OutputFileInfo const & info) {
-  std::string const fn { info.fileName().empty() ?
-      std::string("<none>") :
-      info.fileName() };
+  std::string const fn {info.fileName().empty() ? "<none>"s : info.fileName()};
   indent(2) << "finished close output file "
             << fn
             << " from "
@@ -497,10 +495,5 @@ Tracer::postModuleEndJob(ModuleDescription const& iDescription) {
 }
 
 // ======================================================================
-
-// The DECLARE macro call should be moved to the header file, should you
-// create one.
 DECLARE_ART_SERVICE(Tracer, LEGACY)
 DEFINE_ART_SERVICE(Tracer)
-
-// ======================================================================

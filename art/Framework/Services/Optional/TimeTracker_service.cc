@@ -4,42 +4,144 @@
 //
 // ======================================================================
 
-#include "art/Framework/Services/Optional/TimeTracker.h"
+#include "art/Framework/Principal/Event.h"
+#include "art/Framework/Services/Registry/ActivityRegistry.h"
+#include "art/Framework/Services/Registry/ServiceTable.h"
 #include "art/Framework/Services/Registry/ServiceMacros.h"
-#include "cetlib/Ntuple/sqlite_helpers.h"
 #include "boost/format.hpp"
+#include "cetlib/Ntuple/Ntuple.h"
+#include "cetlib/Ntuple/sqlite_DBmanager.h"
+#include "cetlib/Ntuple/sqlite_helpers.h"
+#include "canvas/Persistency/Provenance/EventID.h"
+#include "canvas/Persistency/Provenance/ModuleDescription.h"
+#include "canvas/Persistency/Provenance/ProvenanceFwd.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
+#include "fhiclcpp/types/Atom.h"
+#include "fhiclcpp/types/Name.h"
+#include "fhiclcpp/types/Table.h"
+#include "tbb/tick_count.h"
 
 #include <algorithm>
 #include <iomanip>
 #include <sstream>
+#include <string>
 
 using namespace ntuple;
 using std::setw;
 
 namespace {
+
   // 'using' declaration won't work because 'now' is a member function
   auto now = std::bind(&tbb::tick_count::now);
+
+  struct Statistics {
+
+    explicit Statistics() = default;
+
+    explicit Statistics(std::string const& p,
+                        std::string const& label,
+                        std::string const& type,
+                        sqlite3* db,
+                        std::string const& table,
+                        std::string const& column)
+      : path{p}
+      , mod_label{label}
+      , mod_type{type}
+      , min{sqlite::min(db, table, column)}
+      , mean{sqlite::mean(db, table, column)}
+      , max{sqlite::max(db, table, column)}
+      , median{sqlite::median(db, table, column)}
+      , rms{sqlite::rms(db, table, column)}
+      , n{sqlite::nrows(db, table)}
+    {}
+
+    std::string path {};
+    std::string mod_label {};
+    std::string mod_type {};
+    double min {-1.};
+    double mean {-1.};
+    double max {-1.};
+    double median {-1.};
+    double rms {-1.};
+    unsigned n {0u};
+  };
+
+  std::ostream& operator<<(std::ostream& os, Statistics const& info)
+  {
+    std::string label {info.path};
+    if (info.path != "Full event")
+      label += ":"s + info.mod_label + ":"s + info.mod_type;
+    os << label << "  "
+       << boost::format(" %=12g ") % info.min
+       << boost::format(" %=12g ") % info.mean
+       << boost::format(" %=12g ") % info.max
+       << boost::format(" %=12g ") % info.median
+       << boost::format(" %=12g ") % info.rms
+       << boost::format(" %=10d ") % info.n;
+    return os;
+  }
 }
 
-// ======================================================================
-std::ostream&
-art::operator<<(std::ostream& os, art::Statistics const& info)
-{
-  std::string label {info.path};
-  if (info.path != "Full event")
-    label += ":"s + info.mod_label + ":"s + info.mod_type;
-  os << label << "  "
-     << boost::format(" %=12g ") % info.min
-     << boost::format(" %=12g ") % info.mean
-     << boost::format(" %=12g ") % info.max
-     << boost::format(" %=12g ") % info.median
-     << boost::format(" %=12g ") % info.rms
-     << boost::format(" %=10d ") % info.n;
-  return os;
+namespace art {
+  class TimeTracker;
 }
 
-// ======================================================================
+// =======================================================================
+class art::TimeTracker {
+public:
+
+  struct Config {
+    fhicl::Atom<bool> printSummary { fhicl::Name("printSummary"), true };
+
+    struct DBoutput {
+      fhicl::Atom<std::string> filename { fhicl::Name("filename"), "" };
+      fhicl::Atom<bool> overwrite { fhicl::Name("overwrite"), false };
+    };
+    fhicl::Table<DBoutput> dbOutput { fhicl::Name("dbOutput") };
+  };
+
+  using Parameters = ServiceTable<Config>;
+  TimeTracker(ServiceTable<Config> const&, ActivityRegistry&);
+
+private:
+
+  void prePathProcessing(std::string const&);
+
+  void postEndJob();
+
+  void preEventProcessing(Event const&);
+  void postEventProcessing(Event const&);
+
+  void startTime(ModuleDescription const&);
+  void recordTime(ModuleDescription const& md, std::string const& suffix);
+
+  void logToDatabase_(Statistics const& evt, std::vector<Statistics> const& modules);
+  void logToDestination_(Statistics const& evt, std::vector<Statistics> const& modules);
+
+  std::string pathname_;
+  EventID eventId_;
+  tbb::tick_count eventStart_;
+  tbb::tick_count moduleStart_;
+
+  bool printSummary_;
+  sqlite::DBmanager dbMgr_;
+  bool overwriteContents_;
+
+  template<unsigned SIZE>
+  using name_array = sqlite::name_array<SIZE>;
+  name_array<4u> timeEventTuple_;
+  name_array<7u> timeModuleTuple_;
+
+  using timeEvent_t  = ntuple::Ntuple<uint32_t,uint32_t,uint32_t,double>;
+  using timeModule_t = ntuple::Ntuple<uint32_t,uint32_t,uint32_t,std::string,std::string,std::string,double>;
+
+  timeEvent_t  timeEventTable_;
+  timeModule_t timeModuleTable_;
+};  // art::TimeTracker
+
+
+//=================================================================
+// Implementation below
 
 art::TimeTracker::TimeTracker(ServiceTable<Config> const & config, ActivityRegistry& iRegistry)
   : printSummary_{config().printSummary()}
@@ -210,4 +312,6 @@ art::TimeTracker::logToDestination_(Statistics const& evt,
   mf::LogAbsolute("TimeTracker") << msgOss.str();
 }
 
+//===========================================================
+DECLARE_ART_SERVICE(art::TimeTracker, LEGACY)
 DEFINE_ART_SERVICE(art::TimeTracker)
