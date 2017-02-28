@@ -1,13 +1,10 @@
-#ifndef art_Framework_Services_Optional_MemoryTrackerDarwin_h
-#define art_Framework_Services_Optional_MemoryTrackerDarwin_h
-
 // ======================================================================
 //
 // MemoryTrackerDarwin
 //
 // ======================================================================
 
-#include "art/Framework/Services/Registry/ServiceTable.h"
+#include "art/Framework/Services/Registry/ServiceMacros.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 namespace fhicl { class ParameterSet; }
@@ -15,7 +12,6 @@ namespace fhicl { class ParameterSet; }
 namespace art {
 
   class ActivityRegistry;
-  class ModuleDescription;
 
   class MemoryTracker {
   public:
@@ -27,16 +23,8 @@ namespace art {
                                        << "https://cdcvs.fnal.gov/redmine/projects/cet-is/issues/new\n\n";
     }
 
-    // Module level
-    void preModule (ModuleDescription const&) {}
-    void postModule(ModuleDescription const&) {}
-
   };
+}
 
-}  // art
-
-#endif /* art_Framework_Services_Optional_MemoryTrackerDarwin_h */
-
-// Local variables:
-// mode: c++
-// End:
+DECLARE_ART_SERVICE(art::MemoryTracker, LEGACY)
+DEFINE_ART_SERVICE(art::MemoryTracker)
