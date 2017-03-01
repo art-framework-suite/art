@@ -9,11 +9,8 @@ namespace {
   class ModuleSignalSentry {
   public:
 
-    using PreSig_t  = art::GlobalSignal<art::detail::SignalResponseType::FIFO, void,
-                                        art::ModuleDescription const &>;
-
-    using PostSig_t = art::GlobalSignal<art::detail::SignalResponseType::LIFO, void,
-                                        art::ModuleDescription const &>;
+    using PreSig_t  = art::GlobalSignal<art::detail::SignalResponseType::FIFO, void(art::ModuleDescription const&)>;
+    using PostSig_t = art::GlobalSignal<art::detail::SignalResponseType::LIFO, void(art::ModuleDescription const&)>;
 
     ModuleSignalSentry( art::ActivityRegistry* a,
                         PreSig_t & pre,

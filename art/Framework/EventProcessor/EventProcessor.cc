@@ -49,8 +49,8 @@ namespace {
   // Most signals.
   class SignalSentry {
   public:
-    using PreSig_t  = art::GlobalSignal<art::detail::SignalResponseType::FIFO, void>;
-    using PostSig_t = art::GlobalSignal<art::detail::SignalResponseType::LIFO, void>;
+    using PreSig_t  = art::GlobalSignal<art::detail::SignalResponseType::FIFO, void()>;
+    using PostSig_t = art::GlobalSignal<art::detail::SignalResponseType::LIFO, void()>;
 
     SignalSentry(SignalSentry const&) = delete;
     SignalSentry& operator=(SignalSentry const&) = delete;
