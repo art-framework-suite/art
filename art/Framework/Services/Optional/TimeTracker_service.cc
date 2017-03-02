@@ -9,9 +9,10 @@
 #include "art/Framework/Services/Registry/ServiceTable.h"
 #include "art/Framework/Services/Registry/ServiceMacros.h"
 #include "boost/format.hpp"
-#include "cetlib/Ntuple/Ntuple.h"
-#include "cetlib/Ntuple/sqlite_DBmanager.h"
-#include "cetlib/Ntuple/sqlite_helpers.h"
+#include "cetlib/Ntuple.h"
+#include "cetlib/sqlite/Connection.h"
+#include "cetlib/sqlite/helpers.h"
+#include "cetlib/sqlite/statistics.h"
 #include "canvas/Persistency/Provenance/EventID.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
 #include "canvas/Persistency/Provenance/ProvenanceFwd.h"
@@ -26,7 +27,7 @@
 #include <sstream>
 #include <string>
 
-using namespace ntuple;
+using namespace cet;
 using std::setw;
 
 namespace {
@@ -41,7 +42,7 @@ namespace {
     explicit Statistics(std::string const& p,
                         std::string const& label,
                         std::string const& type,
-                        sqlite3* db,
+                        sqlite3* const db,
                         std::string const& table,
                         std::string const& column)
       : path{p}
@@ -101,7 +102,7 @@ public:
   };
 
   using Parameters = ServiceTable<Config>;
-  TimeTracker(ServiceTable<Config> const&, ActivityRegistry&);
+  explicit TimeTracker(ServiceTable<Config> const&, ActivityRegistry&);
 
 private:
 
@@ -124,16 +125,16 @@ private:
   tbb::tick_count moduleStart_;
 
   bool printSummary_;
-  sqlite::DBmanager dbMgr_;
+  cet::sqlite::Connection db_;
   bool overwriteContents_;
 
   template<unsigned SIZE>
-  using name_array = sqlite::name_array<SIZE>;
+  using name_array = cet::sqlite::name_array<SIZE>;
   name_array<4u> timeEventTuple_;
   name_array<7u> timeModuleTuple_;
 
-  using timeEvent_t  = ntuple::Ntuple<uint32_t,uint32_t,uint32_t,double>;
-  using timeModule_t = ntuple::Ntuple<uint32_t,uint32_t,uint32_t,std::string,std::string,std::string,double>;
+  using timeEvent_t  = cet::Ntuple<uint32_t,uint32_t,uint32_t,double>;
+  using timeModule_t = cet::Ntuple<uint32_t,uint32_t,uint32_t,std::string,std::string,std::string,double>;
 
   timeEvent_t  timeEventTable_;
   timeModule_t timeModuleTable_;
@@ -145,14 +146,14 @@ private:
 
 art::TimeTracker::TimeTracker(ServiceTable<Config> const & config, ActivityRegistry& iRegistry)
   : printSummary_{config().printSummary()}
-  , dbMgr_{config().dbOutput().filename()}
+  , db_{config().dbOutput().filename()}
   , overwriteContents_{config().dbOutput().overwrite()}
     // table headers
   , timeEventTuple_ {"Run","SubRun","Event","Time" }
   , timeModuleTuple_{"Run","SubRun","Event","Path", "ModuleLabel", "ModuleType","Time"}
     // tables
-  , timeEventTable_ {dbMgr_, "TimeEvent" , timeEventTuple_ , overwriteContents_}
-  , timeModuleTable_{dbMgr_, "TimeModule", timeModuleTuple_, overwriteContents_}
+  , timeEventTable_ {db_, "TimeEvent" , timeEventTuple_ , overwriteContents_}
+  , timeModuleTable_{db_, "TimeModule", timeModuleTuple_, overwriteContents_}
 {
   iRegistry.sPreProcessPath.watch(this, &TimeTracker::prePathProcessing);
 
@@ -206,12 +207,14 @@ art::TimeTracker::postEndJob()
     "       UNION"
     "       SELECT Run,Subrun,Event,Time FROM TimeModule WHERE ModuleType='RootOutput(write)'"
     ") GROUP BY Run,Subrun,Event";
-  sqlite::exec(dbMgr_, fullEventTime_ddl);
-  Statistics const evtStats {"Full event", "", "", dbMgr_, "temp.fullEventTime", "FullEventTime"};
-  sqlite::dropTable(dbMgr_, "temp.fullEventTime");
 
-  sqlite::result r;
-  r << sqlite::select_distinct("Path","ModuleLabel","ModuleType").from(timeModuleTable_);
+  using namespace cet;
+  sqlite::exec(db_, fullEventTime_ddl);
+  Statistics const evtStats {"Full event", "", "", db_, "temp.fullEventTime", "FullEventTime"};
+  sqlite::dropTable(db_, "temp.fullEventTime");
+
+  sqlite::query_result r;
+  r << sqlite::select_distinct("Path","ModuleLabel","ModuleType").from(db_, timeModuleTable_.name());
 
   std::vector<Statistics> modStats;
   for (auto& row : r) {
@@ -224,9 +227,9 @@ art::TimeTracker::postEndJob()
       "SELECT * FROM TimeModule WHERE Path='"s+path+"'"s +
       " AND ModuleLabel='"s+mod_label+"'"s +
       " AND ModuleType='"s+mod_type+"'"s;
-    sqlite::exec(dbMgr_, ddl);
-    modStats.emplace_back(path, mod_label, mod_type, dbMgr_, "temp.tmpModTable", "Time");
-    sqlite::dropTable(dbMgr_, "temp.tmpModTable");
+    sqlite::exec(db_, ddl);
+    modStats.emplace_back(path, mod_label, mod_type, db_, "temp.tmpModTable", "Time");
+    sqlite::dropTable(db_, "temp.tmpModTable");
   }
 
   logToDestination_(evtStats, modStats);

@@ -16,7 +16,6 @@
 #include "art/Framework/Principal/ResultsPrincipal.h"
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
-#include "cetlib/Ntuple/Transaction.h"
 #include "art/Persistency/Provenance/BranchIDListRegistry.h"
 #include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
 #include "art/Persistency/Provenance/ProductMetaData.h"
@@ -45,6 +44,8 @@
 #include "cetlib/canonical_string.h"
 #include "cetlib/container_algorithms.h"
 #include "cetlib/exempt_ptr.h"
+#include "cetlib/sqlite/Transaction.h"
+#include "cetlib/sqlite/exec.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/ParameterSetID.h"
 #include "fhiclcpp/ParameterSetRegistry.h"
@@ -75,8 +76,6 @@ namespace {
         << name << '\n'
         << "is zero.\n";
 
-    sqlite::Transaction txn {db};
-    art::SQLErrMsg errMsg;
     std::string ddl =
       "DROP TABLE IF EXISTS " + name + "; "
       "CREATE TABLE " + name +
@@ -88,9 +87,7 @@ namespace {
     ddl += ") ";
     ddl += suffix;
     ddl += ";";
-    sqlite3_exec(db, ddl.c_str(), nullptr, nullptr, errMsg);
-    errMsg.throwIfError();
-    txn.commit();
+    sqlite::exec(db, ddl);
   }
 
   void
@@ -752,7 +749,7 @@ writeFileCatalogMetadata(FileStatsCollector const& stats,
                          FileCatalogMetadata::collection_type const& md,
                          FileCatalogMetadata::collection_type const& ssmd)
 {
-  ntuple::Ntuple<std::string,std::string> fileCatalogMetadata {rootFileDB_,
+  cet::Ntuple<std::string,std::string> fileCatalogMetadata {rootFileDB_,
       "FileCatalog_metadata",
         {"Name","Value"},
       true};

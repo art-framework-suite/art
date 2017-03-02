@@ -8,7 +8,7 @@
 
 #include "art/Framework/Services/Optional/detail/LinuxProcData.h"
 #include "art/Framework/Services/Optional/detail/LinuxProcMgr.h"
-#include "cetlib/Ntuple/Ntuple.h"
+#include "cetlib/Ntuple.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
 #include "cetlib/exempt_ptr.h"
 
@@ -21,7 +21,7 @@ namespace art {
     class CallbackPair {
     public:
 
-      using otherInfo_t = ntuple::Ntuple<std::string,std::string,std::string,double,double>;
+      using otherInfo_t = cet::Ntuple<std::string,std::string,std::string,double,double>;
 
       CallbackPair(otherInfo_t& table,
                    LinuxProcMgr const& procMgr,

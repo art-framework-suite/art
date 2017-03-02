@@ -20,7 +20,7 @@
 #include "canvas/Persistency/Provenance/ParameterSetBlob.h"
 #include "canvas/Persistency/Provenance/ParameterSetMap.h"
 #include "canvas/Persistency/Provenance/ProductProvenance.h"
-#include "cetlib/Ntuple/Ntuple.h"
+#include "cetlib/Ntuple.h"
 
 #include <array>
 #include <map>

@@ -16,11 +16,11 @@
 #include "canvas/Persistency/Provenance/EventID.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
 #include "canvas/Utilities/Exception.h"
-#include "cetlib/Ntuple/Ntuple.h"
-#include "cetlib/Ntuple/sqlite_DBmanager.h"
-#include "cetlib/Ntuple/sqlite_helpers.h"
+#include "cetlib/Ntuple.h"
 #include "cetlib/container_algorithms.h"
 #include "cetlib/exempt_ptr.h"
+#include "cetlib/sqlite/Connection.h"
+#include "cetlib/sqlite/select.h"
 #include "fhiclcpp/types/Atom.h"
 #include "fhiclcpp/types/OptionalAtom.h"
 #include "fhiclcpp/types/Sequence.h"
@@ -91,7 +91,7 @@ namespace art {
     // Options
     std::bitset<ntypes> printSummary_;
     int maxTableLength_;
-    sqlite::DBmanager dbMgr_;
+    cet::sqlite::Connection db_;
     bool overwriteContents_;
     bool includeMallocInfo_;
 
@@ -103,7 +103,7 @@ namespace art {
     detail::LinuxProcData::proc_array modData_ {{0.}};
 
     template <unsigned N>
-    using name_array = sqlite::name_array<N>;
+    using name_array = cet::sqlite::name_array<N>;
 
     name_array<3u> peakUsageColumns_ {{"Name", "Value", "Description"}};
     name_array<5u> otherInfoColumns_ {{"ProcessStep", "ModuleLabel", "ModuleType", "DeltaVsize", "DeltaRSS"}};
@@ -113,11 +113,11 @@ namespace art {
     name_array<8u> moduleHeapColumns_{{"ModRowId", "arena", "ordblks", "keepcost", "hblkhd", "hblks", "uordblks", "fordblks"}};
 
     using CallbackPair = detail::CallbackPair;
-    using peakUsage_t = ntuple::Ntuple<std::string,double,std::string>;
+    using peakUsage_t = cet::Ntuple<std::string,double,std::string>;
     using otherInfo_t = CallbackPair::otherInfo_t;
-    using memEvent_t = ntuple::Ntuple<uint32_t,uint32_t,uint32_t,double,double,double,double>;
-    using memModule_t = ntuple::Ntuple<uint32_t,uint32_t,uint32_t,std::string,std::string,std::string,double,double,double,double>;
-    using memHeap_t = ntuple::Ntuple<sqlite_int64,int,int,int,int,int,int,int>;
+    using memEvent_t = cet::Ntuple<uint32_t,uint32_t,uint32_t,double,double,double,double>;
+    using memModule_t = cet::Ntuple<uint32_t,uint32_t,uint32_t,std::string,std::string,std::string,double,double,double,double>;
+    using memHeap_t = cet::Ntuple<sqlite_int64,int,int,int,int,int,int,int>;
 
     peakUsage_t peakUsageTable_;
     otherInfo_t otherInfoTable_;
@@ -142,7 +142,7 @@ namespace art {
 // Implementation below
 
 using namespace std::string_literals;
-using namespace ntuple;
+using namespace cet;
 using std::setw;
 
 namespace {
@@ -219,7 +219,7 @@ namespace {
   //========================================================================
   // Other helpers
 
-  auto convertToEvtIdData(sqlite::stringstream& entry)
+  auto convertToEvtIdData(cet::sqlite::stringstream& entry)
   {
     art::RunNumber_t run;
     art::SubRunNumber_t srun;
@@ -244,7 +244,7 @@ namespace {
 
   //========================================================================
   namespace aliases {
-    using eventData_t     = decltype(convertToEvtIdData(std::declval<sqlite::stringstream&>()));
+    using eventData_t     = decltype(convertToEvtIdData(std::declval<cet::sqlite::stringstream&>()));
     using eventDataList_t = std::vector<eventData_t>;
     using modName_t       = std::string;
     template<typename KEY, typename VALUE> using orderedMap_t = std::vector<std::pair<KEY,VALUE>>;
@@ -263,17 +263,17 @@ art::MemoryTracker::MemoryTracker(ServiceTable<Config> const& config,
                                   ActivityRegistry& iReg)
   : printSummary_  {setbits_(config().printSummaries())}
   , maxTableLength_{config().maxTableLength()}
-  , dbMgr_         {config().dbOutput().filename()}
+  , db_         {config().dbOutput().filename()}
   , overwriteContents_{config().dbOutput().overwrite()}
   , includeMallocInfo_{checkMallocConfig_(config().dbOutput().filename(),
                                           config().includeMallocInfo())}
     // tables
-  , peakUsageTable_ {dbMgr_, "PeakUsage", peakUsageColumns_, true} // always recompute the peak usage
-  , otherInfoTable_ {dbMgr_, "OtherInfo", otherInfoColumns_, overwriteContents_}
-  , eventTable_     {dbMgr_, "EventInfo", eventColumns_, overwriteContents_}
-  , moduleTable_    {dbMgr_, "ModuleInfo", moduleColumns_, overwriteContents_}
-  , eventHeapTable_ {includeMallocInfo_ ? std::make_unique<memHeap_t>(dbMgr_, "EventMallocInfo" , eventHeapColumns_ ) : nullptr}
-  , moduleHeapTable_{includeMallocInfo_ ? std::make_unique<memHeap_t>(dbMgr_, "ModuleMallocInfo", moduleHeapColumns_) : nullptr}
+  , peakUsageTable_ {db_, "PeakUsage", peakUsageColumns_, true} // always recompute the peak usage
+  , otherInfoTable_ {db_, "OtherInfo", otherInfoColumns_, overwriteContents_}
+  , eventTable_     {db_, "EventInfo", eventColumns_, overwriteContents_}
+  , moduleTable_    {db_, "ModuleInfo", moduleColumns_, overwriteContents_}
+  , eventHeapTable_ {includeMallocInfo_ ? std::make_unique<memHeap_t>(db_, "EventMallocInfo" , eventHeapColumns_ ) : nullptr}
+  , moduleHeapTable_{includeMallocInfo_ ? std::make_unique<memHeap_t>(db_, "ModuleMallocInfo", moduleHeapColumns_) : nullptr}
     // instantiate the class templates
   , modConstruction_{otherInfoTable_, procInfo_, "Module Construction"}
   , modBeginJob_    {otherInfoTable_, procInfo_, "Module beginJob"}
@@ -484,11 +484,11 @@ void
 art::MemoryTracker::generalSummary_(std::ostringstream& oss)
 {
   peakUsageTable_.flush();
-  using namespace sqlite;
-  result rVMax;
-  result rRMax;
-  rVMax << select("Value").from(peakUsageTable_).where("Name='VmPeak'");
-  rRMax << select("Value").from(peakUsageTable_).where("Name='VmHWM'");
+  using namespace cet::sqlite;
+  query_result rVMax;
+  query_result rRMax;
+  rVMax << select("Value").from(db_, peakUsageTable_.name()).where("Name='VmPeak'");
+  rRMax << select("Value").from(db_, peakUsageTable_.name()).where("Name='VmHWM'");
   double vmMax;
   double rssMax;
   throw_if_empty(rVMax) >> vmMax;
@@ -500,10 +500,10 @@ art::MemoryTracker::generalSummary_(std::ostringstream& oss)
 
   otherInfoTable_.flush();
 
-  result rSteps;
-  result rMods;
-  rSteps << select_distinct("ProcessStep").from(otherInfoTable_);
-  rMods << select_distinct("ModuleLabel","ModuleType").from(otherInfoTable_);
+  query_result rSteps;
+  query_result rMods;
+  rSteps << select_distinct("ProcessStep").from(db_, otherInfoTable_.name());
+  rMods << select_distinct("ModuleLabel","ModuleType").from(db_, otherInfoTable_.name());
 
   std::vector<std::string> steps;
   rSteps >> steps;
@@ -531,8 +531,8 @@ art::MemoryTracker::generalSummary_(std::ostringstream& oss)
   std::string cachedStep {};
   std::size_t i {};
 
-  result r;
-  r << select("*").from(otherInfoTable_);
+  query_result r;
+  r << select("*").from(db_, otherInfoTable_.name());
   for (auto& entry : r) {
     std::string step;
     std::string modLabel;
@@ -569,10 +569,10 @@ art::MemoryTracker::eventSummary_(std::ostringstream& oss,
   eventTable_.flush();
 
   eventDataList_t evtList;
-  using namespace sqlite;
+  using namespace cet::sqlite;
 
-  result r;
-  r << select("*").from(eventTable_).where(column+" > 0").order_by(column,"desc").limit(maxTableLength_);
+  query_result r;
+  r << select("*").from(db_, eventTable_.name()).where(column+" > 0").order_by(column,"desc").limit(maxTableLength_);
 
   for (auto& entry : r) {
     auto evtData = convertToEvtIdData(entry);
@@ -611,9 +611,9 @@ art::MemoryTracker::moduleSummary_(std::ostringstream& oss,
 {
   moduleTable_.flush();
 
-  using namespace sqlite;
-  result r;
-  r << select_distinct("Path","ModuleLabel","ModuleType").from(moduleTable_);
+  using namespace cet::sqlite;
+  query_result r;
+  r << select_distinct("Path","ModuleLabel","ModuleType").from(db_, moduleTable_.name());
 
   // Fill map, which will have form
   //
@@ -635,12 +635,12 @@ art::MemoryTracker::moduleSummary_(std::ostringstream& oss,
       "SELECT * FROM ModuleInfo WHERE Path='"s+path+"'"s +
       " AND ModuleLabel='"s+mod_label+"'"s +
       " AND ModuleType='"s+mod_type+"'"s;
-    sqlite::exec(dbMgr_, ddl);
+    sqlite::exec(db_, ddl);
 
     std::string const& columns = "Run,Subrun,Event,Vsize,DeltaVsize,RSS,DeltaRSS";
 
     eventDataList_t evtList;
-    for (auto& entry : query(dbMgr_,
+    for (auto& entry : query(db_,
                              "SELECT "s+columns+" FROM temp.tmpModTable "s+
                              "WHERE "+column+" > 0 ORDER BY "s+column+" DESC LIMIT "s+std::to_string(maxTableLength_))) {
       auto evtData = convertToEvtIdData(entry);
@@ -648,7 +648,7 @@ art::MemoryTracker::moduleSummary_(std::ostringstream& oss,
     }
     modMap.emplace_back(path+":"s+mod_label+":"s+mod_type, std::move(evtList));
 
-    sqlite::dropTable(dbMgr_, "temp.tmpModTable");
+    sqlite::dropTable(db_, "temp.tmpModTable");
   }
 
   // Calculate widths
