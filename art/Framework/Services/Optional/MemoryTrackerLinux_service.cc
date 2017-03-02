@@ -333,7 +333,7 @@ art::MemoryTracker::postEventProcessing(Event const&)
   auto const data = procInfo_.getCurrentData();
   auto const deltas = data-evtData_;
 
-  sqlite::insert_into(eventTable_).values(eventId_.run(),
+  eventTable_.insert(eventId_.run(),
                                           eventId_.subRun(),
                                           eventId_.event(),
                                           data[LinuxProcData::VSIZE],
@@ -343,7 +343,7 @@ art::MemoryTracker::postEventProcessing(Event const&)
 
   if (includeMallocInfo_) {
     auto minfo = LinuxMallInfo().get();
-    sqlite::insert_into(*eventHeapTable_).values(eventTable_.lastRowid(),
+    eventHeapTable_->insert(eventTable_.lastRowid(),
                                                  minfo.arena,
                                                  minfo.ordblks,
                                                  minfo.keepcost,
@@ -367,7 +367,7 @@ art::MemoryTracker::recordData(ModuleDescription const& md, std::string const& s
   auto const data = procInfo_.getCurrentData();
   auto const deltas = data-modData_;
 
-  sqlite::insert_into(moduleTable_).values(eventId_.run(),
+  moduleTable_.insert(eventId_.run(),
                                            eventId_.subRun(),
                                            eventId_.event(),
                                            pathname_,
@@ -380,7 +380,7 @@ art::MemoryTracker::recordData(ModuleDescription const& md, std::string const& s
 
   if (includeMallocInfo_) {
     auto minfo = LinuxMallInfo().get();
-    sqlite::insert_into(*moduleHeapTable_).values(moduleTable_.lastRowid(),
+    moduleHeapTable_->insert(moduleTable_.lastRowid(),
                                                   minfo.arena,
                                                   minfo.ordblks,
                                                   minfo.keepcost,
@@ -475,8 +475,8 @@ art::MemoryTracker::checkMallocConfig_(std::string const& dbfilename,
 void
 art::MemoryTracker::recordPeakUsages_()
 {
-  sqlite::insert_into(peakUsageTable_).values("VmPeak", procInfo_.getVmPeak(), "Peak virtual memory (MB)");
-  sqlite::insert_into(peakUsageTable_).values("VmHWM", procInfo_.getVmHWM(), "Peak resident set size (MB)");
+  peakUsageTable_.insert("VmPeak", procInfo_.getVmPeak(), "Peak virtual memory (MB)");
+  peakUsageTable_.insert("VmHWM", procInfo_.getVmHWM(), "Peak resident set size (MB)");
 }
 
 //======================================================================

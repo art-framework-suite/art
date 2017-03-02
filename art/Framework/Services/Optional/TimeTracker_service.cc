@@ -244,7 +244,7 @@ void
 art::TimeTracker::postEventProcessing(Event const&)
 {
   double const t = (now()-eventStart_).seconds();
-  sqlite::insert_into(timeEventTable_).values(eventId_.run(),
+  timeEventTable_.insert(eventId_.run(),
                                               eventId_.subRun(),
                                               eventId_.event(),
                                               t);
@@ -261,7 +261,7 @@ void
 art::TimeTracker::recordTime(ModuleDescription const& desc, std::string const& suffix)
 {
   double const t = (now()-moduleStart_).seconds();
-  sqlite::insert_into(timeModuleTable_).values(eventId_.run(),
+  timeModuleTable_.insert(eventId_.run(),
                                                eventId_.subRun(),
                                                eventId_.event(),
                                                pathname_,

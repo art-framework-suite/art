@@ -39,7 +39,7 @@ namespace art {
       void post(ModuleDescription const& md)
       {
         deltas_ = procMgr_->getCurrentData()-baseline_;
-        sqlite::insert_into(*table_).values(processStep_,
+        table_->insert(processStep_,
                                             md.moduleLabel(),
                                             md.moduleName(),
                                             deltas_[LinuxProcData::VSIZE],

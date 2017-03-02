@@ -759,19 +759,19 @@ writeFileCatalogMetadata(FileStatsCollector const& stats,
   using namespace sqlite;
   Transaction txn {rootFileDB_};
   for (auto const& kv : md) {
-    insert_into(fileCatalogMetadata).values(kv.first, kv.second);
+    fileCatalogMetadata.insert(kv.first, kv.second);
   }
   // Add our own specific information: File format and friends.
-  insert_into(fileCatalogMetadata).values("file_format", "\"artroot\"");
-  insert_into(fileCatalogMetadata).values("file_format_era", cet::canonical_string(getFileFormatEra()));
-  insert_into(fileCatalogMetadata).values("file_format_version", to_string(getFileFormatVersion()));
+  fileCatalogMetadata.insert("file_format", "\"artroot\"");
+  fileCatalogMetadata.insert("file_format_era", cet::canonical_string(getFileFormatEra()));
+  fileCatalogMetadata.insert("file_format_version", to_string(getFileFormatVersion()));
 
   // File start time.
   namespace bpt = boost::posix_time;
   auto formatted_time = [](auto const& t){ return cet::canonical_string(bpt::to_iso_extended_string(t)); };
-  insert_into(fileCatalogMetadata).values("start_time", formatted_time(stats.outputFileOpenTime()));
+  fileCatalogMetadata.insert("start_time", formatted_time(stats.outputFileOpenTime()));
   // File "end" time: now, since file is not actually closed yet.
-  insert_into(fileCatalogMetadata).values("end_time", formatted_time(boost::posix_time::second_clock::universal_time()));
+  fileCatalogMetadata.insert("end_time", formatted_time(boost::posix_time::second_clock::universal_time()));
 
   // Run/subRun information.
   if (!stats.seenSubRuns().empty()) {
@@ -794,11 +794,11 @@ writeFileCatalogMetadata(FileStatsCollector const& stats,
       // Rewind over last delimiter.
       buf.seekp(-2, ios_base::cur);
       buf << " ]";
-      insert_into(fileCatalogMetadata).values("runs", buf.str());
+      fileCatalogMetadata.insert("runs", buf.str());
     }
   }
   // Number of events.
-  insert_into(fileCatalogMetadata).values("event_count", to_string(stats.eventsThisFile()));
+  fileCatalogMetadata.insert("event_count", to_string(stats.eventsThisFile()));
   // first_event and last_event.
   auto eidToTuple = [](EventID const & eid)->string {
     ostringstream eidStr;
@@ -811,8 +811,8 @@ writeFileCatalogMetadata(FileStatsCollector const& stats,
     << " ]";
     return eidStr.str();
   };
-  insert_into(fileCatalogMetadata).values("first_event", eidToTuple(stats.lowestEventID()));
-  insert_into(fileCatalogMetadata).values("last_event", eidToTuple(stats.highestEventID()));
+  fileCatalogMetadata.insert("first_event", eidToTuple(stats.lowestEventID()));
+  fileCatalogMetadata.insert("last_event", eidToTuple(stats.highestEventID()));
   // File parents.
   if (!stats.parents().empty()) {
     ostringstream pstring;
@@ -823,11 +823,11 @@ writeFileCatalogMetadata(FileStatsCollector const& stats,
     // Rewind over last delimiter.
     pstring.seekp(-2, ios_base::cur);
     pstring << " ]";
-    insert_into(fileCatalogMetadata).values("parents", pstring.str());
+    fileCatalogMetadata.insert("parents", pstring.str());
   }
   // Incoming stream-specific metadata overrides.
   for (auto const& kv : ssmd) {
-    insert_into(fileCatalogMetadata).values(kv.first, kv.second);
+    fileCatalogMetadata.insert(kv.first, kv.second);
   }
   txn.commit();
 }
