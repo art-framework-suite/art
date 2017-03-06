@@ -8,9 +8,9 @@
 
 #include "art/Framework/Services/Optional/detail/LinuxProcData.h"
 #include "art/Framework/Services/Optional/detail/LinuxProcMgr.h"
-#include "cetlib/Ntuple.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
 #include "cetlib/exempt_ptr.h"
+#include "cetlib/sqlite/Ntuple.h"
 
 #include <string>
 
@@ -21,7 +21,7 @@ namespace art {
     class CallbackPair {
     public:
 
-      using otherInfo_t = cet::Ntuple<std::string,std::string,std::string,double,double>;
+      using otherInfo_t = cet::sqlite::Ntuple<std::string,std::string,std::string,double,double>;
 
       CallbackPair(otherInfo_t& table,
                    LinuxProcMgr const& procMgr,
@@ -40,10 +40,10 @@ namespace art {
       {
         deltas_ = procMgr_->getCurrentData()-baseline_;
         table_->insert(processStep_,
-                                            md.moduleLabel(),
-                                            md.moduleName(),
-                                            deltas_[LinuxProcData::VSIZE],
-                                            deltas_[LinuxProcData::RSS]);
+                       md.moduleLabel(),
+                       md.moduleName(),
+                       deltas_[LinuxProcData::VSIZE],
+                       deltas_[LinuxProcData::RSS]);
       }
 
     private:

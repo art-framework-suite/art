@@ -9,8 +9,8 @@
 #include "art/Framework/Services/Registry/ServiceTable.h"
 #include "art/Framework/Services/Registry/ServiceMacros.h"
 #include "boost/format.hpp"
-#include "cetlib/Ntuple.h"
 #include "cetlib/sqlite/Connection.h"
+#include "cetlib/sqlite/Ntuple.h"
 #include "cetlib/sqlite/helpers.h"
 #include "cetlib/sqlite/statistics.h"
 #include "canvas/Persistency/Provenance/EventID.h"
@@ -133,8 +133,8 @@ private:
   name_array<4u> timeEventTuple_;
   name_array<7u> timeModuleTuple_;
 
-  using timeEvent_t  = cet::Ntuple<uint32_t,uint32_t,uint32_t,double>;
-  using timeModule_t = cet::Ntuple<uint32_t,uint32_t,uint32_t,std::string,std::string,std::string,double>;
+  using timeEvent_t  = cet::sqlite::Ntuple<uint32_t,uint32_t,uint32_t,double>;
+  using timeModule_t = cet::sqlite::Ntuple<uint32_t,uint32_t,uint32_t,std::string,std::string,std::string,double>;
 
   timeEvent_t  timeEventTable_;
   timeModule_t timeModuleTable_;
@@ -184,23 +184,34 @@ art::TimeTracker::postEndJob()
 
   if (!printSummary_) return;
 
-  if (timeEventTable_.lastRowid() == 0 && timeModuleTable_.lastRowid() == 0) {
+  using namespace cet::sqlite;
+  query_result<std::size_t> rEvents;
+  rEvents << select("count(*)").from(db_, timeEventTable_.name());
+
+  query_result<std::size_t> rModules;
+  rModules << select("count(*)").from(db_, timeModuleTable_.name());
+
+  auto const nEventRows = unique_value(rEvents);
+  auto const nModuleRows = unique_value(rModules);
+
+  if (nEventRows == 0 && nModuleRows == 0) {
     logToDestination_(Statistics{}, std::vector<Statistics>{});
     return;
   }
 
-  if (timeEventTable_.lastRowid() == 0 && timeModuleTable_.lastRowid() != 0) {
+  if (nEventRows == 0 && nModuleRows != 0) {
     throw art::Exception(art::errors::LogicError)
       << "Malformed TimeTracker database.  The TimeEvent table is empty, but\n"
       << "the TimeModule table is not.  Please contact artists@fnal.gov.";
   }
 
+  using namespace std;
   // Gather statistics for full Event
   // -- Unfortunately, this is not a simple query since the
   //    'RootOutput(write)' times are not recorded in the TimeEvent
   //    rows.  They must be added in.
 
-  std::string const fullEventTime_ddl =
+  string const fullEventTime_ddl =
     "CREATE TABLE temp.fullEventTime AS "
     "SELECT Run,Subrun,Event,SUM(Time) AS FullEventTime FROM ("
     "       SELECT Run,Subrun,Event,Time FROM TimeEvent"
@@ -208,28 +219,24 @@ art::TimeTracker::postEndJob()
     "       SELECT Run,Subrun,Event,Time FROM TimeModule WHERE ModuleType='RootOutput(write)'"
     ") GROUP BY Run,Subrun,Event";
 
-  using namespace cet;
-  sqlite::exec(db_, fullEventTime_ddl);
+  using namespace cet::sqlite;
+  exec(db_, fullEventTime_ddl);
   Statistics const evtStats {"Full event", "", "", db_, "temp.fullEventTime", "FullEventTime"};
-  sqlite::dropTable(db_, "temp.fullEventTime");
+  drop_table(db_, "temp.fullEventTime");
 
-  sqlite::query_result r;
-  r << sqlite::select_distinct("Path","ModuleLabel","ModuleType").from(db_, timeModuleTable_.name());
+  query_result<string, string, string> r;
+  r << select_distinct("Path","ModuleLabel","ModuleType").from(db_, timeModuleTable_.name());
 
   std::vector<Statistics> modStats;
-  for (auto& row : r) {
-    std::string path {};
-    std::string mod_label {};
-    std::string mod_type {};
-    row >> path >> mod_label >> mod_type;
-    std::string const ddl =
-      "CREATE TABLE temp.tmpModTable AS "s +
-      "SELECT * FROM TimeModule WHERE Path='"s+path+"'"s +
-      " AND ModuleLabel='"s+mod_label+"'"s +
-      " AND ModuleType='"s+mod_type+"'"s;
-    sqlite::exec(db_, ddl);
+  for (auto const& row : r) {
+    string path, mod_label, mod_type;
+    tie(path, mod_label, mod_type) = row;
+    create_table_as("temp.tmpModTable",
+                    select("*").from(db_, "TimeModule").where("Path='"s+path+"'"s +
+                                                              " AND ModuleLabel='"s+mod_label+"'"s +
+                                                              " AND ModuleType='"s+mod_type+"'"s));
     modStats.emplace_back(path, mod_label, mod_type, db_, "temp.tmpModTable", "Time");
-    sqlite::dropTable(db_, "temp.tmpModTable");
+    drop_table(db_, "temp.tmpModTable");
   }
 
   logToDestination_(evtStats, modStats);
@@ -248,9 +255,9 @@ art::TimeTracker::postEventProcessing(Event const&)
 {
   double const t = (now()-eventStart_).seconds();
   timeEventTable_.insert(eventId_.run(),
-                                              eventId_.subRun(),
-                                              eventId_.event(),
-                                              t);
+                         eventId_.subRun(),
+                         eventId_.event(),
+                         t);
 }
 
 //======================================================================
@@ -265,12 +272,12 @@ art::TimeTracker::recordTime(ModuleDescription const& desc, std::string const& s
 {
   double const t = (now()-moduleStart_).seconds();
   timeModuleTable_.insert(eventId_.run(),
-                                               eventId_.subRun(),
-                                               eventId_.event(),
-                                               pathname_,
-                                               desc.moduleLabel(),
-                                               desc.moduleName()+suffix,
-                                               t);
+                          eventId_.subRun(),
+                          eventId_.event(),
+                          pathname_,
+                          desc.moduleLabel(),
+                          desc.moduleName()+suffix,
+                          t);
 }
 
 //======================================================================

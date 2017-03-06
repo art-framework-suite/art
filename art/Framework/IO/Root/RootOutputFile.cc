@@ -44,8 +44,11 @@
 #include "cetlib/canonical_string.h"
 #include "cetlib/container_algorithms.h"
 #include "cetlib/exempt_ptr.h"
+#include "cetlib/sqlite/Ntuple.h"
 #include "cetlib/sqlite/Transaction.h"
+#include "cetlib/sqlite/create_table.h"
 #include "cetlib/sqlite/exec.h"
+#include "cetlib/sqlite/insert.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/ParameterSetID.h"
 #include "fhiclcpp/ParameterSetRegistry.h"
@@ -104,15 +107,6 @@ namespace {
   }
 
   void
-  insert_rangeSets_row(sqlite3_stmt* stmt,
-                       art::RunNumber_t const r)
-  {
-    sqlite3_bind_int64(stmt, 1, r);
-    sqlite3_step(stmt);
-    sqlite3_reset(stmt);
-  }
-
-  void
   insert_rangeSets_eventSets_row(sqlite3_stmt* stmt,
                                  unsigned const rsid,
                                  unsigned const esid)
@@ -123,48 +117,27 @@ namespace {
     sqlite3_reset(stmt);
   }
 
-  int
-  found_rowid(sqlite3_stmt* stmt)
-  {
-    return sqlite3_step(stmt) == SQLITE_ROW ?
-      sqlite3_column_int64(stmt,0) :
-      throw art::Exception(art::errors::SQLExecutionError)
-      << "ROWID not found for EventRanges.\n"
-      << "Contact artists@fnal.gov.\n";
-  }
-
   unsigned
   getNewRangeSetID(sqlite3* db,
                    art::BranchType const bt,
                    art::RunNumber_t const r)
   {
-    sqlite::Transaction txn {db};
-    sqlite3_stmt* stmt {nullptr};
-    std::string const ddl {"INSERT INTO " + art::BranchTypeToString(bt) + "RangeSets(Run) VALUES(?);"};
-    sqlite3_prepare_v2(db, ddl.c_str(), -1, &stmt, nullptr);
-    insert_rangeSets_row(stmt, r);
-    unsigned const rsID = sqlite3_last_insert_rowid(db);
-    sqlite3_finalize(stmt);
-    txn.commit();
-    return rsID;
+    sqlite::insert_into(db, art::BranchTypeToString(bt)+"RangeSets").values(r);
+    return sqlite3_last_insert_rowid(db);
   }
 
   vector<unsigned>
   getExistingRangeSetIDs(sqlite3* db, art::RangeSet const& rs)
   {
     vector<unsigned> rangeSetIDs;
-    for (auto const& range : rs) {
-      sqlite::Transaction txn {db};
-      sqlite3_stmt* stmt {nullptr};
-      std::string const ddl {"SELECT ROWID FROM EventRanges WHERE "
-          "SubRun=" + std::to_string(range.subRun()) + " AND "
-          "begin=" + std::to_string(range.begin()) + " AND "
-          "end=" + std::to_string(range.end()) + ";"};
-      sqlite3_prepare_v2(db, ddl.c_str(), -1, &stmt, nullptr);
-      rangeSetIDs.push_back(found_rowid(stmt));
-      sqlite3_finalize(stmt);
-      txn.commit();
-    }
+    cet::transform_all(rs, std::back_inserter(rangeSetIDs),
+                       [db](auto const& range) {
+                         sqlite::query_result<unsigned> r;
+                         r << sqlite::select("ROWID").from(db, "EventRanges").where("SubRun=" + std::to_string(range.subRun()) + " AND "
+                                                                                    "begin=" + std::to_string(range.begin()) + " AND "
+                                                                                    "end=" + std::to_string(range.end()));
+                         return unique_value(r);
+                       });
     return rangeSetIDs;
   }
 
@@ -447,25 +420,19 @@ operator()(OutputItem const& lh, OutputItem const& rh) const
 void
 art::RootOutputFile::createDatabaseTables()
 {
-
-  // // FileCatalog metadata
-  // create_table(rootFileDB_, "FileCatalog_metadata",
-  //              {"ID INTEGER PRIMARY KEY", "Name", "Value"});
-
   // Event ranges
   create_table(rootFileDB_, "EventRanges",
                {"SubRun INTEGER", "begin INTEGER", "end INTEGER", "UNIQUE (SubRun,begin,end) ON CONFLICT IGNORE"});
 
   // SubRun range sets
-  create_table(rootFileDB_, "SubRunRangeSets",
-               {"Run INTEGER"});
+  using namespace cet::sqlite;
+  create_table(rootFileDB_, "SubRunRangeSets", column<int>{"Run"});
   create_table(rootFileDB_, "SubRunRangeSets_EventRanges",
                {"RangeSetsID INTEGER", "EventRangesID INTEGER", "PRIMARY KEY(RangeSetsID,EventRangesID)"},
                "WITHOUT ROWID");
 
   // Run range sets
-  create_table(rootFileDB_, "RunRangeSets",
-               {"Run INTEGER"});
+  create_table(rootFileDB_, "RunRangeSets", column<int>{"Run"});
   create_table(rootFileDB_, "RunRangeSets_EventRanges",
                {"RangeSetsID INTEGER", "EventRangesID INTEGER", "PRIMARY KEY(RangeSetsID,EventRangesID)"},
                "WITHOUT ROWID");
@@ -749,7 +716,7 @@ writeFileCatalogMetadata(FileStatsCollector const& stats,
                          FileCatalogMetadata::collection_type const& md,
                          FileCatalogMetadata::collection_type const& ssmd)
 {
-  cet::Ntuple<std::string,std::string> fileCatalogMetadata {rootFileDB_,
+  cet::sqlite::Ntuple<std::string,std::string> fileCatalogMetadata {rootFileDB_,
       "FileCatalog_metadata",
         {"Name","Value"},
       true};

@@ -16,10 +16,10 @@
 #include "canvas/Persistency/Provenance/EventID.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
 #include "canvas/Utilities/Exception.h"
-#include "cetlib/Ntuple.h"
 #include "cetlib/container_algorithms.h"
 #include "cetlib/exempt_ptr.h"
 #include "cetlib/sqlite/Connection.h"
+#include "cetlib/sqlite/Ntuple.h"
 #include "cetlib/sqlite/select.h"
 #include "fhiclcpp/types/Atom.h"
 #include "fhiclcpp/types/OptionalAtom.h"
@@ -109,22 +109,23 @@ namespace art {
     name_array<5u> otherInfoColumns_ {{"ProcessStep", "ModuleLabel", "ModuleType", "DeltaVsize", "DeltaRSS"}};
     name_array<7u> eventColumns_     {{"Run", "SubRun", "Event", "Vsize", "DeltaVsize", "RSS", "DeltaRSS"}};
     name_array<10u> moduleColumns_   {{"Run", "SubRun", "Event", "Path", "ModuleLabel", "ModuleType", "Vsize", "DeltaVsize", "RSS", "DeltaRSS"}};
-    name_array<8u> eventHeapColumns_ {{"EvtRowId", "arena", "ordblks", "keepcost", "hblkhd", "hblks", "uordblks", "fordblks"}};
-    name_array<8u> moduleHeapColumns_{{"ModRowId", "arena", "ordblks", "keepcost", "hblkhd", "hblks", "uordblks", "fordblks"}};
+    name_array<10u> eventHeapColumns_ {{"Run", "SubRun", "Event", "arena", "ordblks", "keepcost", "hblkhd", "hblks", "uordblks", "fordblks"}};
+    name_array<13u> moduleHeapColumns_{{"Run", "SubRun", "Event", "Path", "ModuleLabel", "ModuleType", "arena", "ordblks", "keepcost", "hblkhd", "hblks", "uordblks", "fordblks"}};
 
     using CallbackPair = detail::CallbackPair;
-    using peakUsage_t = cet::Ntuple<std::string,double,std::string>;
+    using peakUsage_t = cet::sqlite::Ntuple<std::string,double,std::string>;
     using otherInfo_t = CallbackPair::otherInfo_t;
-    using memEvent_t = cet::Ntuple<uint32_t,uint32_t,uint32_t,double,double,double,double>;
-    using memModule_t = cet::Ntuple<uint32_t,uint32_t,uint32_t,std::string,std::string,std::string,double,double,double,double>;
-    using memHeap_t = cet::Ntuple<sqlite_int64,int,int,int,int,int,int,int>;
+    using memEvent_t = cet::sqlite::Ntuple<uint32_t,uint32_t,uint32_t,double,double,double,double>;
+    using memModule_t = cet::sqlite::Ntuple<uint32_t,uint32_t,uint32_t,std::string,std::string,std::string,double,double,double,double>;
+    using memEventHeap_t = cet::sqlite::Ntuple<uint32_t,uint32_t,uint32_t,int,int,int,int,int,int,int>;
+    using memModuleHeap_t = cet::sqlite::Ntuple<uint32_t,uint32_t,uint32_t,std::string,std::string,std::string,int,int,int,int,int,int,int>;
 
     peakUsage_t peakUsageTable_;
     otherInfo_t otherInfoTable_;
     memEvent_t eventTable_;
     memModule_t moduleTable_;
-    std::unique_ptr<memHeap_t> eventHeapTable_;
-    std::unique_ptr<memHeap_t> moduleHeapTable_;
+    std::unique_ptr<memEventHeap_t> eventHeapTable_;
+    std::unique_ptr<memModuleHeap_t> moduleHeapTable_;
 
     CallbackPair modConstruction_;
     CallbackPair modBeginJob_;
@@ -215,12 +216,7 @@ namespace {
     }
   } // (anon::)memdata
 
-
-  //========================================================================
-  // Other helpers
-
-  auto convertToEvtIdData(cet::sqlite::stringstream& entry)
-  {
+  auto convertToEvtIdData = [](auto const& row) {
     art::RunNumber_t run;
     art::SubRunNumber_t srun;
     art::EventNumber_t evt;
@@ -229,22 +225,16 @@ namespace {
     double rss;
     double drss;
 
-    entry >> run >> srun >> evt;
+    std::tie(run, srun, evt, v, dv, rss, drss) = row;
+
     std::ostringstream id;
-    id << art::EventID{run,srun,evt};
-
-    entry >> v >> dv >> rss >> drss;
-
-    if (!entry.empty()) {
-      throw art::Exception{art::errors::LogicError,"Extra fields in sqlite query result not used."};
-    }
-
+    id << art::EventID{run, srun, evt};
     return std::make_pair(id.str(), memdata::MemData{v, dv, rss, drss});
-  }
+  };
 
   //========================================================================
   namespace aliases {
-    using eventData_t     = decltype(convertToEvtIdData(std::declval<cet::sqlite::stringstream&>()));
+    using eventData_t     = std::pair<std::string, memdata::MemData>;
     using eventDataList_t = std::vector<eventData_t>;
     using modName_t       = std::string;
     template<typename KEY, typename VALUE> using orderedMap_t = std::vector<std::pair<KEY,VALUE>>;
@@ -272,8 +262,8 @@ art::MemoryTracker::MemoryTracker(ServiceTable<Config> const& config,
   , otherInfoTable_ {db_, "OtherInfo", otherInfoColumns_, overwriteContents_}
   , eventTable_     {db_, "EventInfo", eventColumns_, overwriteContents_}
   , moduleTable_    {db_, "ModuleInfo", moduleColumns_, overwriteContents_}
-  , eventHeapTable_ {includeMallocInfo_ ? std::make_unique<memHeap_t>(db_, "EventMallocInfo" , eventHeapColumns_ ) : nullptr}
-  , moduleHeapTable_{includeMallocInfo_ ? std::make_unique<memHeap_t>(db_, "ModuleMallocInfo", moduleHeapColumns_) : nullptr}
+  , eventHeapTable_ {includeMallocInfo_ ? std::make_unique<memEventHeap_t>(db_, "EventMallocInfo" , eventHeapColumns_ ) : nullptr}
+  , moduleHeapTable_{includeMallocInfo_ ? std::make_unique<memModuleHeap_t>(db_, "ModuleMallocInfo", moduleHeapColumns_) : nullptr}
     // instantiate the class templates
   , modConstruction_{otherInfoTable_, procInfo_, "Module Construction"}
   , modBeginJob_    {otherInfoTable_, procInfo_, "Module beginJob"}
@@ -288,28 +278,28 @@ art::MemoryTracker::MemoryTracker(ServiceTable<Config> const& config,
     mf::LogWarning("MemoryTracker") << "The 'services.MemoryTracker.ignoreTotal' parameter is deprecated;\n"
                                     << "its value of " << i << " will not be used.  Contact artists@fnal.gov for questions.";
   }
-  iReg.sPreModuleConstruction .watch( &this->modConstruction_, &CallbackPair::pre  );
-  iReg.sPostModuleConstruction.watch( &this->modConstruction_, &CallbackPair::post );
-  iReg.sPreModuleBeginJob     .watch( &this->modBeginJob_    , &CallbackPair::pre  );
-  iReg.sPostModuleBeginJob    .watch( &this->modBeginJob_    , &CallbackPair::post );
-  iReg.sPreModuleBeginRun     .watch( &this->modBeginRun_    , &CallbackPair::pre  );
-  iReg.sPostModuleBeginRun    .watch( &this->modBeginRun_    , &CallbackPair::post );
-  iReg.sPreModuleBeginSubRun  .watch( &this->modBeginSubRun_ , &CallbackPair::pre  );
-  iReg.sPostModuleBeginSubRun .watch( &this->modBeginSubRun_ , &CallbackPair::post );
-  iReg.sPreProcessPath        .watch(  this                  , &MemoryTracker::prePathProcessing);
-  iReg.sPreProcessEvent       .watch(  this                  , &MemoryTracker::preEventProcessing);
-  iReg.sPostProcessEvent      .watch(  this                  , &MemoryTracker::postEventProcessing);
-  iReg.sPreModule             .watch(  this                  , &MemoryTracker::setCurrentData);
+  iReg.sPreModuleConstruction .watch(&this->modConstruction_, &CallbackPair::pre );
+  iReg.sPostModuleConstruction.watch(&this->modConstruction_, &CallbackPair::post);
+  iReg.sPreModuleBeginJob     .watch(&this->modBeginJob_    , &CallbackPair::pre );
+  iReg.sPostModuleBeginJob    .watch(&this->modBeginJob_    , &CallbackPair::post);
+  iReg.sPreModuleBeginRun     .watch(&this->modBeginRun_    , &CallbackPair::pre );
+  iReg.sPostModuleBeginRun    .watch(&this->modBeginRun_    , &CallbackPair::post);
+  iReg.sPreModuleBeginSubRun  .watch(&this->modBeginSubRun_ , &CallbackPair::pre );
+  iReg.sPostModuleBeginSubRun .watch(&this->modBeginSubRun_ , &CallbackPair::post);
+  iReg.sPreProcessPath        .watch( this                  , &MemoryTracker::prePathProcessing);
+  iReg.sPreProcessEvent       .watch( this                  , &MemoryTracker::preEventProcessing);
+  iReg.sPostProcessEvent      .watch( this                  , &MemoryTracker::postEventProcessing);
+  iReg.sPreModule             .watch( this                  , &MemoryTracker::setCurrentData);
   iReg.sPostModule            .watch([this](auto const& md){ this->recordData(md, ""s); });
-  iReg.sPreWriteEvent         .watch(  this                  , &MemoryTracker::setCurrentData);
+  iReg.sPreWriteEvent         .watch( this                  , &MemoryTracker::setCurrentData);
   iReg.sPostWriteEvent        .watch([this](auto const& md){ this->recordData(md, "(write)"s); });
-  iReg.sPreModuleEndSubRun    .watch( &this->modEndSubRun_   , &CallbackPair::pre  );
-  iReg.sPostModuleEndSubRun   .watch( &this->modEndSubRun_   , &CallbackPair::post );
-  iReg.sPreModuleEndRun       .watch( &this->modEndRun_      , &CallbackPair::pre  );
-  iReg.sPostModuleEndRun      .watch( &this->modEndRun_      , &CallbackPair::post );
-  iReg.sPreModuleEndJob       .watch( &this->modEndJob_      , &CallbackPair::pre  );
-  iReg.sPostModuleEndJob      .watch( &this->modEndJob_      , &CallbackPair::post );
-  iReg.sPostEndJob            .watch(  this                  , &MemoryTracker::postEndJob);
+  iReg.sPreModuleEndSubRun    .watch(&this->modEndSubRun_   , &CallbackPair::pre );
+  iReg.sPostModuleEndSubRun   .watch(&this->modEndSubRun_   , &CallbackPair::post);
+  iReg.sPreModuleEndRun       .watch(&this->modEndRun_      , &CallbackPair::pre );
+  iReg.sPostModuleEndRun      .watch(&this->modEndRun_      , &CallbackPair::post);
+  iReg.sPreModuleEndJob       .watch(&this->modEndJob_      , &CallbackPair::pre );
+  iReg.sPostModuleEndJob      .watch(&this->modEndJob_      , &CallbackPair::post);
+  iReg.sPostEndJob            .watch( this                  , &MemoryTracker::postEndJob);
 }
 
 //======================================================================
@@ -334,23 +324,25 @@ art::MemoryTracker::postEventProcessing(Event const&)
   auto const deltas = data-evtData_;
 
   eventTable_.insert(eventId_.run(),
-                                          eventId_.subRun(),
-                                          eventId_.event(),
-                                          data[LinuxProcData::VSIZE],
-                                          deltas[LinuxProcData::VSIZE],
-                                          data[LinuxProcData::RSS],
-                                          deltas[LinuxProcData::RSS]);
+                     eventId_.subRun(),
+                     eventId_.event(),
+                     data[LinuxProcData::VSIZE],
+                     deltas[LinuxProcData::VSIZE],
+                     data[LinuxProcData::RSS],
+                     deltas[LinuxProcData::RSS]);
 
   if (includeMallocInfo_) {
     auto minfo = LinuxMallInfo().get();
-    eventHeapTable_->insert(eventTable_.lastRowid(),
-                                                 minfo.arena,
-                                                 minfo.ordblks,
-                                                 minfo.keepcost,
-                                                 minfo.hblkhd,
-                                                 minfo.hblks,
-                                                 minfo.uordblks,
-                                                 minfo.fordblks);
+    eventHeapTable_->insert(eventId_.run(),
+                            eventId_.subRun(),
+                            eventId_.event(),
+                            minfo.arena,
+                            minfo.ordblks,
+                            minfo.keepcost,
+                            minfo.hblkhd,
+                            minfo.hblks,
+                            minfo.uordblks,
+                            minfo.fordblks);
   }
 }
 
@@ -368,26 +360,31 @@ art::MemoryTracker::recordData(ModuleDescription const& md, std::string const& s
   auto const deltas = data-modData_;
 
   moduleTable_.insert(eventId_.run(),
-                                           eventId_.subRun(),
-                                           eventId_.event(),
-                                           pathname_,
-                                           md.moduleLabel(),
-                                           md.moduleName()+suffix,
-                                           data[LinuxProcData::VSIZE],
-                                           deltas[LinuxProcData::VSIZE],
-                                           data[LinuxProcData::RSS],
-                                           deltas[LinuxProcData::RSS]);
+                      eventId_.subRun(),
+                      eventId_.event(),
+                      pathname_,
+                      md.moduleLabel(),
+                      md.moduleName()+suffix,
+                      data[LinuxProcData::VSIZE],
+                      deltas[LinuxProcData::VSIZE],
+                      data[LinuxProcData::RSS],
+                      deltas[LinuxProcData::RSS]);
 
   if (includeMallocInfo_) {
     auto minfo = LinuxMallInfo().get();
-    moduleHeapTable_->insert(moduleTable_.lastRowid(),
-                                                  minfo.arena,
-                                                  minfo.ordblks,
-                                                  minfo.keepcost,
-                                                  minfo.hblkhd,
-                                                  minfo.hblks,
-                                                  minfo.uordblks,
-                                                  minfo.fordblks);
+    moduleHeapTable_->insert(eventId_.run(),
+                             eventId_.subRun(),
+                             eventId_.event(),
+                             pathname_,
+                             md.moduleLabel(),
+                             md.moduleName()+suffix,
+                             minfo.arena,
+                             minfo.ordblks,
+                             minfo.keepcost,
+                             minfo.hblkhd,
+                             minfo.hblks,
+                             minfo.uordblks,
+                             minfo.fordblks);
   }
 }
 
@@ -485,42 +482,40 @@ art::MemoryTracker::generalSummary_(std::ostringstream& oss)
 {
   peakUsageTable_.flush();
   using namespace cet::sqlite;
-  query_result rVMax;
-  query_result rRMax;
+  using namespace std;
+  query_result<double> rVMax;
+  query_result<double> rRMax;
   rVMax << select("Value").from(db_, peakUsageTable_.name()).where("Name='VmPeak'");
   rRMax << select("Value").from(db_, peakUsageTable_.name()).where("Name='VmHWM'");
-  double vmMax;
-  double rssMax;
-  throw_if_empty(rVMax) >> vmMax;
-  throw_if_empty(rRMax) >> rssMax;
 
-  oss << "  Peak virtual memory usage (VmPeak)  : " << vmMax << " Mbytes\n"
-      << "  Peak resident set size usage (VmHWM): " << rssMax << " Mbytes\n"
+  oss << "  Peak virtual memory usage (VmPeak)  : " << unique_value(rVMax) << " Mbytes\n"
+      << "  Peak resident set size usage (VmHWM): " << unique_value(rRMax) << " Mbytes\n"
       << "\n\n";
 
   otherInfoTable_.flush();
 
-  query_result rSteps;
-  query_result rMods;
+  query_result<string> rSteps;
+  query_result<string,string> rMods;
   rSteps << select_distinct("ProcessStep").from(db_, otherInfoTable_.name());
   rMods << select_distinct("ModuleLabel","ModuleType").from(db_, otherInfoTable_.name());
 
-  std::vector<std::string> steps;
-  rSteps >> steps;
+  vector<string> steps;
+  cet::transform_all(rSteps, back_inserter(steps), [](auto const& row){ return std::get<0>(row); });
 
-  std::vector<std::string> mods;
+  vector<string> mods;
   for (auto& r : rMods) {
-    std::string label{}, type{};
-    r >> label >> type;
+    string label;
+    string type;
+    tie(label, type) = r;
     mods.emplace_back(label+":"s+type);
   }
 
   // Calculate column widths
-  std::size_t sWidth{}, mWidth{};
+  size_t sWidth{}, mWidth{};
   cet::for_all(steps, [&sWidth](auto const& s){ sWidth = std::max(sWidth, s.size()); });
   cet::for_all(mods , [&mWidth](auto const& s){ mWidth = std::max(mWidth, s.size()); });
 
-  std::string const rule = std::string(sWidth+2+mWidth+2+2*12,'=');
+  string const rule (sWidth+2+mWidth+2+2*12,'=');
 
   oss << setw(sWidth+2) << "ProcessStep"
       << setw(mWidth+2) << "Module ID"
@@ -528,24 +523,23 @@ art::MemoryTracker::generalSummary_(std::ostringstream& oss)
       << boost::format(" %_=10s ") % "\u0394 RSS"
       << "\n" << rule << "\n";
 
-  std::string cachedStep {};
-  std::size_t i {};
+  string cachedStep {};
+  size_t i {};
 
-  query_result r;
+  query_result<string,string,string,double,double> r;
   r << select("*").from(db_, otherInfoTable_.name());
-  for (auto& entry : r) {
-    std::string step;
-    std::string modLabel;
-    std::string modType;
+  for (auto const& entry : r) {
+    string step;
+    string modLabel;
+    string modType;
     double dv;
     double drss;
-
-    entry >> step >> modLabel >> modType >> dv >> drss;
+    tie(step, modLabel, modType, dv, drss) = entry;
 
     if (cachedStep != step) {
       cachedStep = step;
       if (i != 0ull) {
-        oss << std::string(sWidth+2+mWidth+2+2*12,'-') << "\n";
+        oss << string(sWidth+2+mWidth+2+2*12,'-') << "\n";
       }
     }
 
@@ -568,24 +562,23 @@ art::MemoryTracker::eventSummary_(std::ostringstream& oss,
 {
   eventTable_.flush();
 
-  eventDataList_t evtList;
   using namespace cet::sqlite;
+  using namespace std;
 
-  query_result r;
+  query_result<art::RunNumber_t, art::SubRunNumber_t, art::EventNumber_t, double, double, double, double> r;
   r << select("*").from(db_, eventTable_.name()).where(column+" > 0").order_by(column,"desc").limit(maxTableLength_);
 
-  for (auto& entry : r) {
-    auto evtData = convertToEvtIdData(entry);
-    evtList.push_back(std::move(evtData));
-  }
 
-  std::size_t evtWidth{};
+  eventDataList_t evtList;
+  cet::transform_all(r, back_inserter(evtList), convertToEvtIdData);
+
+  size_t evtWidth{};
   for (auto const& data : evtList) {
-    evtWidth = std::max(evtWidth, std::get<std::string>(data).size());
+    evtWidth = std::max(evtWidth, std::get<string>(data).size());
   }
 
-  std::size_t const width = std::max(header.size(), evtWidth);
-  std::string const rule  = std::string(width+4+4*12,'=');
+  size_t const width {std::max(header.size(), evtWidth)};
+  string const rule (width+4+4*12,'=');
 
   oss << banners::vsize_rss(header, width+4, 10) << "\n"
       << rule << "\n";
@@ -597,7 +590,7 @@ art::MemoryTracker::eventSummary_(std::ostringstream& oss,
   for (auto const& data : evtList) {
     std::ostringstream preamble;
     preamble << "  ";
-    preamble << setw(evtWidth+2) << std::left << std::get<std::string>(data);
+    preamble << setw(evtWidth+2) << std::left << std::get<string>(data);
     oss << setw(width+4) << preamble.str() << std::get<MemData>(data) << "\n";
   }
   oss << "\n";
@@ -612,7 +605,8 @@ art::MemoryTracker::moduleSummary_(std::ostringstream& oss,
   moduleTable_.flush();
 
   using namespace cet::sqlite;
-  query_result r;
+  using namespace std;
+  query_result<string, string, string> r;
   r << select_distinct("Path","ModuleLabel","ModuleType").from(db_, moduleTable_.name());
 
   // Fill map, which will have form
@@ -626,42 +620,38 @@ art::MemoryTracker::moduleSummary_(std::ostringstream& oss,
   orderedMap_t<modName_t,eventDataList_t> modMap;
 
   for (auto& row : r) {
-    std::string path {};
-    std::string mod_label {};
-    std::string mod_type {};
-    row >> path >> mod_label >> mod_type;
-    std::string const ddl =
-      "CREATE TABLE temp.tmpModTable AS "s +
-      "SELECT * FROM ModuleInfo WHERE Path='"s+path+"'"s +
-      " AND ModuleLabel='"s+mod_label+"'"s +
-      " AND ModuleType='"s+mod_type+"'"s;
-    sqlite::exec(db_, ddl);
+    string path, mod_label, mod_type;
+    tie(path, mod_label, mod_type) = row;
+    create_table_as("temp.tmpModTable",
+                    select("*").from(db_, moduleTable_.name()).where("Path='"s+path+"'"s +
+                                                                     " AND ModuleLabel='"s+mod_label+"'"s +
+                                                                     " AND ModuleType='"s+mod_type+"'"s));
 
-    std::string const& columns = "Run,Subrun,Event,Vsize,DeltaVsize,RSS,DeltaRSS";
+    // Same as event columns, but 'select' does not yet support
+    // unpacking name_array's.
+    string const columns {"Run,Subrun,Event,Vsize,DeltaVsize,RSS,DeltaRSS"};
+
+    query_result<art::RunNumber_t, art::SubRunNumber_t, art::EventNumber_t, double, double, double, double> r;
+    r << select(columns).from(db_, "temp.tmpModTable").where(column+"> 0").order_by(column, "desc").limit(maxTableLength_);
 
     eventDataList_t evtList;
-    for (auto& entry : query(db_,
-                             "SELECT "s+columns+" FROM temp.tmpModTable "s+
-                             "WHERE "+column+" > 0 ORDER BY "s+column+" DESC LIMIT "s+std::to_string(maxTableLength_))) {
-      auto evtData = convertToEvtIdData(entry);
-      evtList.push_back(std::move(evtData));
-    }
+    cet::transform_all(r, back_inserter(evtList), convertToEvtIdData);
     modMap.emplace_back(path+":"s+mod_label+":"s+mod_type, std::move(evtList));
 
-    sqlite::dropTable(db_, "temp.tmpModTable");
+    drop_table(db_, "temp.tmpModTable");
   }
 
   // Calculate widths
-  std::size_t modWidth{}, evtWidth{};
+  size_t modWidth{}, evtWidth{};
   for (auto const& mod : modMap) {
     modWidth = std::max(modWidth, mod.first.size());
     for (auto const& evtInfo : mod.second) {
-      evtWidth = std::max(evtWidth, std::get<std::string>(evtInfo).size());
+      evtWidth = std::max(evtWidth, std::get<string>(evtInfo).size());
     }
   }
 
-  std::size_t const width = std::max({header.size(), modWidth, evtWidth});
-  std::string const rule(width+4+4*12,'=');
+  size_t const width {std::max({header.size(), modWidth, evtWidth})};
+  string const rule (width+4+4*12,'=');
 
   oss << banners::vsize_rss(header, width+2, 10) << "\n"
       << rule  << "\n";
@@ -674,14 +664,14 @@ art::MemoryTracker::moduleSummary_(std::ostringstream& oss,
     }
 
     for (auto const& evtInfo : itMod->second) {
-      std::ostringstream preamble;
+      ostringstream preamble;
       preamble << "  ";
-      preamble << setw(evtWidth+2) << std::left << std::get<std::string>(evtInfo);
+      preamble << setw(evtWidth+2) << std::left << std::get<string>(evtInfo);
       oss << setw(width+2) << preamble.str() << std::get<MemData>(evtInfo) << "\n";
     }
 
     if (std::next(itMod) != modMap.cend()) {
-      oss << std::string(width+4+4*12,'-') << "\n";
+      oss << string(width+4+4*12,'-') << "\n";
     }
 
   }
