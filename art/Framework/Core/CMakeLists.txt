@@ -11,7 +11,6 @@ art_make(
   art_Utilities
   art_Version
   MF_MessageLogger
-  MF_MessageService
   fhiclcpp
   cetlib
   ${CLHEP}
