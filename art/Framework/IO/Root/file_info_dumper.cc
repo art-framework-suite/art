@@ -169,7 +169,7 @@ int main(int argc, char * argv[])
 
       // Get the names of the files we will process.
       stringvec file_names;
-      size_t const file_count = vm.count("source");
+      size_t const file_count {vm.count("source")};
       if (file_count < 1) {
         std::cerr << "One or more input files must be specified;"
                   << " supply filenames as program arguments\n"
@@ -268,12 +268,12 @@ int db_to_file(InfoDumperInputFile& file,
   std::string const& rootFileName = current_file->GetName();
 
   // db file name has the same base as the input art/ROOT file
-  std::string::size_type const dist = rootFileName.find(".root")-rootFileName.find_last_of('/');
-  std::string const base = rootFileName.substr(rootFileName.find_last_of('/')+1, dist);
-  std::string const extFileName = base + "db";
+  std::string::size_type const dist {rootFileName.find(".root")-rootFileName.find_last_of('/')};
+  std::string const base {rootFileName.substr(rootFileName.find_last_of('/')+1, dist)};
+  std::string const extFileName {base + "db"};
 
   art::SQLite3Wrapper db {current_file, "RootFileDB"};
-  int const rc = dbToFile(db, extFileName.c_str());
+  int const rc {dbToFile(db, extFileName.c_str())};
   if (rc == 0) {
     output << "\nRootFileDB from file \"" << current_file->GetName() << "\"\n"
            << "saved to external database file \"" << extFileName << "\".\n";

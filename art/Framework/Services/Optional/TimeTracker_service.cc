@@ -6,8 +6,10 @@
 
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
-#include "art/Framework/Services/Registry/ServiceTable.h"
+#include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/Registry/ServiceMacros.h"
+#include "art/Framework/Services/Registry/ServiceTable.h"
+#include "art/Framework/Services/System/DatabaseConnection.h"
 #include "boost/format.hpp"
 #include "cetlib/sqlite/Connection.h"
 #include "cetlib/sqlite/Ntuple.h"
@@ -146,7 +148,7 @@ private:
 
 art::TimeTracker::TimeTracker(ServiceTable<Config> const & config, ActivityRegistry& iRegistry)
   : printSummary_{config().printSummary()}
-  , db_{config().dbOutput().filename()}
+  , db_{ServiceHandle<DatabaseConnection>{}->get(config().dbOutput().filename())}
   , overwriteContents_{config().dbOutput().overwrite()}
     // table headers
   , timeEventTuple_ {"Run","SubRun","Event","Time" }

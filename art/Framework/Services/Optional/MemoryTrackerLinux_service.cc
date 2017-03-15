@@ -10,8 +10,10 @@
 #include "art/Framework/Services/Optional/detail/LinuxProcMgr.h"
 #include "art/Framework/Services/Optional/detail/MemoryTrackerLinuxCallbackPair.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
+#include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/Registry/ServiceMacros.h"
 #include "art/Framework/Services/Registry/ServiceTable.h"
+#include "art/Framework/Services/System/DatabaseConnection.h"
 #include "boost/format.hpp"
 #include "canvas/Persistency/Provenance/EventID.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
@@ -253,7 +255,7 @@ art::MemoryTracker::MemoryTracker(ServiceTable<Config> const& config,
                                   ActivityRegistry& iReg)
   : printSummary_  {setbits_(config().printSummaries())}
   , maxTableLength_{config().maxTableLength()}
-  , db_         {config().dbOutput().filename()}
+  , db_{ServiceHandle<DatabaseConnection>{}->get(config().dbOutput().filename())}
   , overwriteContents_{config().dbOutput().overwrite()}
   , includeMallocInfo_{checkMallocConfig_(config().dbOutput().filename(),
                                           config().includeMallocInfo())}

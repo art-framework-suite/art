@@ -16,11 +16,12 @@
 #include "art/Framework/Principal/ResultsPrincipal.h"
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
+#include "art/Framework/Services/System/DatabaseConnection.h"
 #include "art/Persistency/Provenance/BranchIDListRegistry.h"
 #include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
 #include "art/Persistency/Provenance/ProductMetaData.h"
 #include "art/Persistency/RootDB/SQLErrMsg.h"
-#include "art/Persistency/RootDB/SQLite3Wrapper.h"
+#include "art/Persistency/RootDB/TKeyVFSOpenPolicy.h"
 #include "art/Version/GetReleaseVersion.h"
 #include "boost/date_time/posix_time/posix_time.hpp"
 #include "canvas/Persistency/Provenance/rootNames.h"
@@ -346,7 +347,9 @@ RootOutputFile(OutputModule* om,
                                      filePtr_.get(), InResults, pResultsAux_,
                                      pResultsProductProvenanceVector_, basketSize, splitLevel,
                                      treeMaxVirtualSize, saveMemoryObjectThreshold) }
-  , rootFileDB_{filePtr_.get(), "RootFileDB", SQLITE_OPEN_CREATE | SQLITE_OPEN_READWRITE}
+  , rootFileDB_{ServiceHandle<DatabaseConnection>{}->get<TKeyVFSOpenPolicy>("RootFileDB",
+                                                                            filePtr_.get(),
+                                                                            SQLITE_OPEN_CREATE|SQLITE_OPEN_READWRITE)}
 {
   // Don't split metadata tree or event description tree
   metaDataTree_ = RootOutputTree::makeTTree(filePtr_.get(), rootNames::metaDataTreeName(), 0);
@@ -716,11 +719,8 @@ writeFileCatalogMetadata(FileStatsCollector const& stats,
                          FileCatalogMetadata::collection_type const& md,
                          FileCatalogMetadata::collection_type const& ssmd)
 {
-  cet::sqlite::Ntuple<std::string,std::string> fileCatalogMetadata {rootFileDB_,
-      "FileCatalog_metadata",
-        {"Name","Value"},
-      true};
-  using namespace sqlite;
+  using namespace cet::sqlite;
+  Ntuple<std::string,std::string> fileCatalogMetadata {rootFileDB_, "FileCatalog_metadata", {"Name","Value"}, true};
   Transaction txn {rootFileDB_};
   for (auto const& kv : md) {
     fileCatalogMetadata.insert(kv.first, kv.second);
@@ -852,10 +852,8 @@ writeResults(ResultsPrincipal & resp)
 }
 
 void
-RootOutputFile::
-finishEndFile()
+art::RootOutputFile::writeTTrees()
 {
-  metaDataTree_->SetEntries(-1);
   RootOutputTree::writeTTree(metaDataTree_);
   RootOutputTree::writeTTree(fileIndexTree_);
   RootOutputTree::writeTTree(parentageTree_);
@@ -864,13 +862,12 @@ finishEndFile()
     auto const branchType = static_cast<BranchType>(i);
     treePointers_[branchType]->writeTree();
   }
-  // Write out DB -- the d'tor of the SQLite3Wrapper calls
-  // sqlite3_close.  For the tkeyvfs, closing the DB calls
-  // rootFile->Write("",TObject::kOverwrite).
-  rootFileDB_.reset();
-  // Close the file.
-  filePtr_->Close();
-  filePtr_.reset();
+  // // Write out DB -- the d'tor of the Connection calls sqlite3_close.
+  // // For the tkeyvfs, closing the DB calls
+  // //   rootFile->Write("",TObject::kOverwrite).
+  // rootFileDB_.reset();
+  // // File closed when d'tor of TFile is called
+  // filePtr_.reset();
 }
 
 template <art::BranchType BT>

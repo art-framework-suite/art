@@ -12,7 +12,6 @@
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Persistency/Provenance/BranchIDListRegistry.h"
-#include "art/Persistency/RootDB/SQLite3Wrapper.h"
 #include "art/Persistency/Provenance/MasterProductRegistry.h"
 #include "art/Persistency/Provenance/detail/type_aliases.h"
 #include "canvas/Persistency/Provenance/BranchChildren.h"
@@ -32,6 +31,7 @@
 #include "canvas/Persistency/Provenance/SubRunAuxiliary.h"
 #include "canvas/Persistency/Provenance/SubRunID.h"
 #include "cetlib/exempt_ptr.h"
+#include "cetlib/sqlite/Connection.h"
 
 #include <array>
 #include <map>
@@ -389,7 +389,7 @@ namespace art {
     ProcessConfiguration const& processConfiguration_;
     std::string const logicalFile_;
     std::unique_ptr<TFile> filePtr_;
-    SQLite3Wrapper sqliteDB_ {filePtr_.get(), "RootFileDB"};
+    cet::sqlite::Connection sqliteDB_;
     EventID origEventID_;
     EventNumber_t eventsToSkip_;
     RootTreePtrArray treePointers_;

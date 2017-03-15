@@ -27,7 +27,7 @@ namespace art {
   public: // STATIC MEMBER FUNCTIONS
 
     static TTree* makeTTree(TFile*, std::string const& name, int splitLevel);
-    static void writeTTree(TTree*);
+    static void writeTTree(TTree*) noexcept;
 
   public: // MEMBER FUNCTIONS
 

@@ -152,28 +152,29 @@
 
     Service                   Provider    Source location
 <separator (-)>
- 1. FileCatalogMetadata       art         <path>/FileCatalogMetadata_service.cc
- 2. InFlightConfiguration     art         <path>/InFlightConfiguration_service.cc
- 3. MemoryAdjuster            art         <path>/MemoryAdjuster_service.cc
- 4. MemoryTracker             art         <path>/MemoryTrackerLinux_service.cc
- 5. MyService                 art         <path>/MyService_service.cc
- 6. MyServiceUsingIface       art         <path>/MyServiceUsingIface_service.cc
- 7. PSTest                    art         <path>/PSTest_service.cc
- 8. PSTestInterfaceImpl       art         <path>/PSTestInterfaceImpl_service.cc
- 9. RandomNumberGenerator     art         <path>/RandomNumberGenerator_service.cc
-10. Reconfigurable            art         <path>/Reconfigurable_service.cc
-11. SeekToEventClient         art         <path>/SeekToEventClient_service.cc
-12. ServiceUsing              art         <path>/ServiceUsing_service.cc
-13. SimpleInteraction         art         <path>/SimpleInteraction_service.cc
-14. SimpleServiceTest         art         <path>/SimpleServiceTest_service.cc
-15. TFileService              art         <path>/TFileService_service.cc
-16. Throwing                  art         <path>/Throwing_service.cc
-17. TimeTracker               art         <path>/TimeTracker_service.cc
-18. Tracer                    art         <path>/Tracer_service.cc
-19. TrivialFileDelivery       art         <path>/TrivialFileDelivery_service.cc
-20. TrivialFileTransfer       art         <path>/TrivialFileTransfer_service.cc
-21. Wanted                    art         <path>/Wanted_service.cc
-22. floating_point_control    art         <path>/FloatingPointControl_service.cc
+ 1. DatabaseConnection        art         <path>/DatabaseConnection_service.cc
+ 2. FileCatalogMetadata       art         <path>/FileCatalogMetadata_service.cc
+ 3. InFlightConfiguration     art         <path>/InFlightConfiguration_service.cc
+ 4. MemoryAdjuster            art         <path>/MemoryAdjuster_service.cc
+ 5. MemoryTracker             art         <path>/MemoryTrackerLinux_service.cc
+ 6. MyService                 art         <path>/MyService_service.cc
+ 7. MyServiceUsingIface       art         <path>/MyServiceUsingIface_service.cc
+ 8. PSTest                    art         <path>/PSTest_service.cc
+ 9. PSTestInterfaceImpl       art         <path>/PSTestInterfaceImpl_service.cc
+10. RandomNumberGenerator     art         <path>/RandomNumberGenerator_service.cc
+11. Reconfigurable            art         <path>/Reconfigurable_service.cc
+12. SeekToEventClient         art         <path>/SeekToEventClient_service.cc
+13. ServiceUsing              art         <path>/ServiceUsing_service.cc
+14. SimpleInteraction         art         <path>/SimpleInteraction_service.cc
+15. SimpleServiceTest         art         <path>/SimpleServiceTest_service.cc
+16. TFileService              art         <path>/TFileService_service.cc
+17. Throwing                  art         <path>/Throwing_service.cc
+18. TimeTracker               art         <path>/TimeTracker_service.cc
+19. Tracer                    art         <path>/Tracer_service.cc
+20. TrivialFileDelivery       art         <path>/TrivialFileDelivery_service.cc
+21. TrivialFileTransfer       art         <path>/TrivialFileTransfer_service.cc
+22. Wanted                    art         <path>/Wanted_service.cc
+23. floating_point_control    art         <path>/FloatingPointControl_service.cc
 
 <separator (=)>
 

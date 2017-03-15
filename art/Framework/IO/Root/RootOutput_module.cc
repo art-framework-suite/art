@@ -445,10 +445,11 @@ art::RootOutput::writeProductDependencies()
 void
 art::RootOutput::finishEndFile()
 {
-  rootOutputFile_->finishEndFile();
-  fstats_.recordFileClose();
-  lastClosedFileName_ = PostCloseFileRenamer{fstats_}.maybeRenameFile(rootOutputFile_->currentFileName(), filePattern_);
+  std::string const currentFileName {rootOutputFile_->currentFileName()};
+  rootOutputFile_->writeTTrees();
   rootOutputFile_.reset();
+  fstats_.recordFileClose();
+  lastClosedFileName_ = PostCloseFileRenamer{fstats_}.maybeRenameFile(currentFileName, filePattern_);
   detail::logFileAction("Closed output file ", lastClosedFileName_);
   rpm_.invoke(&ResultsProducer::doClear);
 }

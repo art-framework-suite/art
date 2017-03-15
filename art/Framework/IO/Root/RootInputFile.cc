@@ -12,9 +12,11 @@
 #include "art/Framework/IO/Root/detail/resolveRangeSet.h"
 #include "art/Framework/IO/Root/detail/setFileIndexPointer.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
+#include "art/Framework/Services/System/DatabaseConnection.h"
 #include "art/Framework/Services/System/FileCatalogMetadata.h"
 #include "art/Persistency/Provenance/BranchIDListRegistry.h"
 #include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
+#include "art/Persistency/RootDB/TKeyVFSOpenPolicy.h"
 #include "canvas/Persistency/Common/EDProduct.h"
 #include "canvas/Persistency/Provenance/BranchChildren.h"
 #include "canvas/Persistency/Provenance/BranchDescription.h"
@@ -118,6 +120,7 @@ namespace art {
     , processConfiguration_{processConfiguration}
     , logicalFile_{logicalFileName}
     , filePtr_{std::move(filePtr)}
+    , sqliteDB_{ServiceHandle<DatabaseConnection>{}->get<TKeyVFSOpenPolicy>("RootFileDB", filePtr_.get())}
     , origEventID_{origEventID}
     , eventsToSkip_{eventsToSkip}
     , treePointers_ { // Order (and number) must match BranchTypes.h!

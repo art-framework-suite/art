@@ -11,7 +11,6 @@
 #include "art/Framework/IO/Root/detail/DummyProductCache.h"
 #include "art/Framework/Principal/RangeSetsSupported.h"
 #include "art/Persistency/Provenance/Selections.h"
-#include "art/Persistency/RootDB/SQLite3Wrapper.h"
 #include "boost/filesystem.hpp"
 #include "canvas/Persistency/Provenance/BranchDescription.h"
 #include "canvas/Persistency/Provenance/BranchID.h"
@@ -20,6 +19,7 @@
 #include "canvas/Persistency/Provenance/ParameterSetBlob.h"
 #include "canvas/Persistency/Provenance/ParameterSetMap.h"
 #include "canvas/Persistency/Provenance/ProductProvenance.h"
+#include "cetlib/sqlite/Connection.h"
 
 #include <array>
 #include <map>
@@ -27,9 +27,9 @@
 #include <string>
 #include <vector>
 
+#include "TFile.h"
 #include "TROOT.h"
 
-class TFile;
 class TTree;
 
 namespace art {
@@ -109,6 +109,8 @@ public: // MEMBER FUNCTIONS
                           bool dropMetaDataForDroppedData,
                           bool fastCloningRequested);
 
+  void writeTTrees();
+
   void writeOne(EventPrincipal const&);
   void writeSubRun(SubRunPrincipal const&);
   void writeRun(RunPrincipal const&);
@@ -128,7 +130,6 @@ public: // MEMBER FUNCTIONS
   void writeResults(ResultsPrincipal & resp);
   void setRunAuxiliaryRangeSetID(RangeSet const&);
   void setSubRunAuxiliaryRangeSetID(RangeSet const&);
-  void finishEndFile();
   void beginInputFile(FileBlock const&, bool fastClone);
   void incrementInputFileNumber();
   void respondToCloseInputFile(FileBlock const&);
@@ -177,7 +178,7 @@ private: // MEMBER DATA
   bool dropMetaDataForDroppedData_;
   bool fastCloningEnabledAtConstruction_;
   bool wasFastCloned_ {false};
-  std::unique_ptr<TFile> filePtr_;
+  std::unique_ptr<TFile> filePtr_; // File closed when d'tor called
   FileIndex fileIndex_ {};
   FileProperties fp_ {};
   TTree* metaDataTree_ {nullptr};
@@ -200,7 +201,10 @@ private: // MEMBER DATA
   RootOutputTreePtrArray treePointers_;
   bool dataTypeReported_ {false};
   std::set<BranchID> branchesWithStoredHistory_ {};
-  SQLite3Wrapper rootFileDB_;
+  cet::sqlite::Connection rootFileDB_; // Connection closed when d'tor
+                                       // called.  DB written to file
+                                       // when sqlite3_close is
+                                       // called.
   OutputItemListArray selectedOutputItemList_ {{}}; // filled by aggregation
   detail::DummyProductCache dummyProductCache_ {};
   unsigned subRunRSID_ {-1u};

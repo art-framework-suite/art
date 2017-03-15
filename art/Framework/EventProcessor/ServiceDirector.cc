@@ -2,12 +2,6 @@
 
 #include "art/Framework/Services/Optional/RandomNumberGenerator.h"
 #include "art/Framework/Services/Registry/ServiceRegistry.h"
-#include "art/Framework/Services/System/CurrentModule.h"
-#include "art/Framework/Services/System/FileCatalogMetadata.h"
-#include "art/Framework/Services/System/FloatingPointControl.h"
-#include "art/Framework/Services/System/PathSelection.h"
-#include "art/Framework/Services/System/ScheduleContext.h"
-#include "art/Framework/Services/System/TriggerNamesService.h"
 #include "fhiclcpp/ParameterSetRegistry.h"
 
 using fhicl::ParameterSet;
@@ -54,6 +48,10 @@ namespace {
     // Force presence of FileCatalogMetadata service.
     addService("FileCatalogMetadata", services, service_set);
     services.erase("FileCatalogMetadata");
+
+    // Force presence of DatabaseConnection service.
+    addService("DatabaseConnection", services, service_set);
+    services.erase("DatabaseConnection");
 
     // Extract all
     for (auto const& key : services.get_pset_names()) {
