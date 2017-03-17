@@ -1,32 +1,12 @@
-# //   #include "messageDefaults.fcl"
-
-
-services:
-{
+services: {
   # Always-present services; configuration optional.
   floating_point_control: {
-        moduleNames: [ default ]
-default: {
-   enableDivByZeroEx: true
-}
+    enableDivByZeroEx: true
   }
 }
 
-# services.message: @local::messageDefaults
-
-physics:
-{
-  analyzers:
-  {
-    a1:
-    {
-      module_type: UnitTestClient
-    }
-  }
-
-   e1: [ a1 ]
-   end_paths: [ e1 ]
-}
+physics.analyzers.a1.module_type: FPCTest
+physics.e1: [a1]
 
 source: { module_type: EmptyEvent maxEvents: 5 }
 

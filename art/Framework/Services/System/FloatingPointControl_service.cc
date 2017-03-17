@@ -70,108 +70,42 @@ namespace {
 
 // ======================================================================
 
-art::FloatingPointControl::FloatingPointControl(fhicl::ParameterSet const& ps, ActivityRegistry& reg)
-  : setPrecisionDouble_{ps.get<bool>("setPrecisionDouble",true)}
-  , reportSettings_{ps.get<bool>("reportSettings",false)}
+art::FloatingPointControl::FloatingPointControl(Parameters const& c, ActivityRegistry& reg)
+  : enableDivByZeroEx_ {c().enableDivByZeroEx()}
+  , enableInvalidEx_   {c().enableInvalidEx()}
+  , enableOverFlowEx_  {c().enableOverFlowEx()}
+  , enableUnderFlowEx_ {c().enableUnderFlowEx()}
+  , setPrecisionDouble_{c().setPrecisionDouble()}
+  , reportSettings_    {c().reportSettings()}
 {
   reg.sPostEndJob.watch(this, &FloatingPointControl::postEndJob);
-  reg.sPreModule.watch (this, &FloatingPointControl::preModule);
-  reg.sPostModule.watch(this, &FloatingPointControl::postModule);
 
-  // Get the state of the fpu and save it as the "OSdefault" state.
-  // The language here is a bit odd.  We use "OSdefault" to label the fpu
-  // state we inherit from the OS on job startup.  By contrast, "default"
-  // is the label we use for the fpu state when either we or the user has
-  // specified a state for modules not appearing in the module list.
-  // Generally, "OSdefault" and "default" are the same but are not
-  // required to be so.
+  // Get the state of the fpu to restore it after the job is done.
+  fenv_t fpuState;
+  fegetenv(&fpuState);
+  OSdefault_ = fpuState;
 
-  fegetenv(&fpuState_);
-  OSdefault_ = fpuState_;
-  stateStack_.push(OSdefault_);
   if (reportSettings_) {
-    mf::LogVerbatim("FPE_Enable") << "\nSettings for OSdefault";
+    mf::LogVerbatim("FPE_Enable") << "\nOS's FP settings";
     echoState();
   }
 
-  // Then go handle the cases described in the ps file
-  auto moduleNames = ps.get<std::vector<std::string>>("moduleNames", {});
-
-  // If the module name list is missing or empty,
-  // set default values for all parameters
-
-  if (moduleNames.empty()) {
-    enableDivByZeroEx_  = false;
-    enableInvalidEx_    = false;
-    enableOverFlowEx_   = false;
-    enableUnderFlowEx_  = false;
-    setPrecisionDouble_ = true;
-
-    controlFpe();
-    if (reportSettings_) {
-      mf::LogVerbatim("FPE_Enable") << "\nSettings for default";
-      echoState();
-    }
-    fegetenv(&fpuState_);
-    stateMap_["default"] = fpuState_;
-
-  } else {
-
-    // Otherwise, scan the module name list and set per-module values.
-    // Be careful to treat any user-specified default first.  If there
-    // is one, use it to override our default.  Then remove it from the
-    // list so we don't see it again while handling everything else.
-
-    auto pos = cet::find_in_all(moduleNames, "default");
-    if (pos != moduleNames.end()) {
-      auto const& secondary = ps.get<fhicl::ParameterSet>(*pos, {});
-      enableDivByZeroEx_ = secondary.get<bool>("enableDivByZeroEx", false);
-      enableInvalidEx_   = secondary.get<bool>("enableInvalidEx"  , false);
-      enableOverFlowEx_  = secondary.get<bool>("enableOverFlowEx" , false);
-      enableUnderFlowEx_ = secondary.get<bool>("enableUnderFlowEx", false);
-      controlFpe();
-      if (reportSettings_) {
-        mf::LogVerbatim("FPE_Enable") << "\nSettings for unnamed module";
-        echoState();
-      }
-      fegetenv(&fpuState_);
-      stateMap_["default"] =  fpuState_;
-      moduleNames.erase(pos);
-    }
-
-    // Then handle the rest.
-
-    for (auto const& name : moduleNames) {
-      auto const& secondary = ps.get<fhicl::ParameterSet>(name, {});
-      enableDivByZeroEx_  = secondary.get<bool>("enableDivByZeroEx", false);
-      enableInvalidEx_    = secondary.get<bool>("enableInvalidEx",   false);
-      enableOverFlowEx_   = secondary.get<bool>("enableOverFlowEx",  false);
-      enableUnderFlowEx_  = secondary.get<bool>("enableUnderFlowEx", false);
-      controlFpe();
-      if (reportSettings_) {
-        mf::LogVerbatim("FPE_Enable") << "\nSettings for module " << name;
-        echoState();
-      }
-      fegetenv(&fpuState_);
-      stateMap_[name] = fpuState_;
-    }
+  // Update the state according to the user's configuration
+  controlFpe(fpuState);
+  if (reportSettings_) {
+    mf::LogVerbatim("FPE_Enable") << "\nUpdated FP settings per user's configuration";
+    echoState();
   }
-
-  // And finally, restore the state back to the way we found it originally
-
-  fesetenv(&OSdefault_);
-}  // c'tor
+}
 
 // ----------------------------------------------------------------------
 
 void
 art::FloatingPointControl::postEndJob()
 {
-  // At EndJob, put the state of the fpu back to "OSdefault"
-  fpuState_ = stateMap_["OSdefault"];
   fesetenv(&OSdefault_);
   if (reportSettings_) {
-    mf::LogVerbatim("FPE_Enable") << "\nSettings at end job ";
+    mf::LogVerbatim("FPE_Enable") << "\nRestored to OS's FPE settings";
     echoState();
   }
 }
@@ -179,55 +113,14 @@ art::FloatingPointControl::postEndJob()
 // ----------------------------------------------------------------------
 
 void
-art::FloatingPointControl::preModule(ModuleDescription const& iDescription)
+art::FloatingPointControl::controlFpe(fenv_t& fpuState)
 {
-  // On entry to a module, find the desired state of the fpu and set it
-  // accordingly.  Note that any module whose label does not appear in our
-  // list gets the default settings.
+  unsigned short int const FE_PRECISION {1<<5};
 
-  auto const& modName = iDescription.moduleLabel();
-  if (stateMap_.find(modName) == stateMap_.end())  {
-    fpuState_ = stateMap_["default"];
-  } else {
-    fpuState_ = stateMap_[modName];
-  }
-  fesetenv(&fpuState_);
-  stateStack_.push(fpuState_);
-  if (reportSettings_) {
-    mf::LogVerbatim("FPE_Enable") << "\nSettings at begin module " << modName;
-    echoState();
-  }
-}
+  // NB: We do not let users control signaling inexact (FE_INEXACT).
 
-// ----------------------------------------------------------------------
-
-void
-art::FloatingPointControl::postModule(ModuleDescription const&)
-{
-
-  // On exit from a module, set the state of the fpu back to what it was before entry
-
-  stateStack_.pop();
-  fpuState_ = stateStack_.top();
-  fesetenv(&fpuState_);
-  if (reportSettings_) {
-    mf::LogVerbatim("FPE_Enable") << "\nSettings after end module ";
-    echoState();
-  }
-}
-
-// ----------------------------------------------------------------------
-
-void
-art::FloatingPointControl::controlFpe()
-{
-  unsigned short int FE_PRECISION  = 1<<5;
-  /*
-   * NB: We do not let users control signaling inexact (FE_INEXACT).
-   */
-
-  unsigned short int suppress = FE_PRECISION;
-  unsigned short int enable_sse = 0;
+  unsigned short int suppress {FE_PRECISION};
+  unsigned short int enable_sse {};
 
   if (!enableDivByZeroEx_)
     suppress |= FE_DIVBYZERO;
@@ -249,12 +142,12 @@ art::FloatingPointControl::controlFpe()
   else
     enable_sse |= ART_UM_MASK;
 
-  fegetenv(&fpuState_);
-  SET_CONTROL_EX(fpuState_, suppress);
+  fegetenv(&fpuState);
+  SET_CONTROL_EX(fpuState, suppress);
   // also set the bits in the SSE unit
-  fpuState_.__mxcsr &= ~enable_sse;
+  fpuState.__mxcsr &= ~enable_sse;
 
-  fesetenv(&fpuState_);
+  fesetenv(&fpuState);
 
 #ifdef __linux__
 #ifdef __i386__
@@ -267,7 +160,6 @@ art::FloatingPointControl::controlFpe()
   }
 #endif
 #endif
-
 }
 
 // ----------------------------------------------------------------------
