@@ -1,5 +1,5 @@
-#ifndef art_test_Utilities_NestedFunctionInClassTool_h
-#define art_test_Utilities_NestedFunctionInClassTool_h
+#ifndef art_test_Utilities_tools_NestedFunctionInClassTool_h
+#define art_test_Utilities_tools_NestedFunctionInClassTool_h
 
 #include "art/Utilities/make_tool.h"
 #include "fhiclcpp/ParameterSet.h"
@@ -28,7 +28,7 @@ namespace arttest {
   };
 }
 
-#endif
+#endif /* art_test_Utilities_tools_NestedFunctionInClassTool_h */
 
 // Local variables:
 // mode: c++

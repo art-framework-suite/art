@@ -1,5 +1,5 @@
-#ifndef art_test_Utilities_OperationBase_h
-#define art_test_Utilities_OperationBase_h
+#ifndef art_test_Utilities_tools_OperationBase_h
+#define art_test_Utilities_tools_OperationBase_h
 
 namespace arttest {
   class OperationBase {
@@ -13,7 +13,7 @@ namespace arttest {
   };
 }
 
-#endif
+#endif /* art_test_Utilities_tools_OperationBase_h */
 
 // Local variables:
 // mode: c++

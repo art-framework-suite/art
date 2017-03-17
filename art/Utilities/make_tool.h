@@ -1,5 +1,5 @@
-#ifndef art_Utilities_Tool_h
-#define art_Utilities_Tool_h
+#ifndef art_Utilities_make_tool_h
+#define art_Utilities_make_tool_h
 
 #include "art/Utilities/PluginSuffixes.h"
 #include "art/Utilities/detail/tool_type.h"
@@ -66,7 +66,7 @@ namespace art {
 
 }
 
-#endif
+#endif /* art_Utilities_make_tool_h */
 
 // Local variables:
 // mode: c++

@@ -57,4 +57,4 @@ namespace art {
 // Local Variables:
 // mode: c++
 // End:
-#endif /* art_Utilities_BranchIDListRegistry_h */
+#endif /* art_Persistency_Provenance_BranchIDListRegistry_h */

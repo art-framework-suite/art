@@ -13,7 +13,7 @@ namespace arttest {
   };
 }
 
-#endif
+#endif /* art_test_Integration_ReadNextArbitrator_h */
 
 // Local variables:
 // mode: c++

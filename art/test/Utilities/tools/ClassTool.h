@@ -1,5 +1,5 @@
-#ifndef art_test_Utilities_ClassTool_h
-#define art_test_Utilities_ClassTool_h
+#ifndef art_test_Utilities_tools_ClassTool_h
+#define art_test_Utilities_tools_ClassTool_h
 
 namespace fhicl {
   class ParameterSet;
@@ -15,7 +15,7 @@ namespace arttest {
   };
 }
 
-#endif
+#endif /* art_test_Utilities_tools_ClassTool_h */
 
 // Local variables:
 // mode: c++

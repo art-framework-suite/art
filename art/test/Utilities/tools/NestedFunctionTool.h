@@ -10,4 +10,4 @@ namespace arttest {
 // Local variables:
 // mode: c++
 // End:
-#endif
+#endif /* art_test_Utilities_tools_NestedFunctionTool_h */

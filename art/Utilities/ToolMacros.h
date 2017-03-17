@@ -1,5 +1,5 @@
-#ifndef art_Framework_Core_ToolMacros_h
-#define art_Framework_Core_ToolMacros_h
+#ifndef art_Utilities_ToolMacros_h
+#define art_Utilities_ToolMacros_h
 
 ////////////////////////////////////////////////////////////////////////
 // ToolMacros
@@ -41,7 +41,7 @@
     auto toolFunction = tool;                                           \
   }
 
-#endif /* art_Framework_Core_ToolMacros_h */
+#endif /* art_Utilities_ToolMacros_h */
 
 // Local Variables:
 // mode: c++

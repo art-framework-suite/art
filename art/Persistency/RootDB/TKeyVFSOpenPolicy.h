@@ -22,7 +22,7 @@ namespace art {
   };
 }
 
-#endif
+#endif /* art_Persistency_RootDB_TKeyVFSOpenPolicy_h */
 
 // Local variable:
 // mode: c++

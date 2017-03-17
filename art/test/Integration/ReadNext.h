@@ -13,7 +13,7 @@ namespace arttest {
   };
 }
 
-#endif
+#endif /* art_test_Integration_ReadNext_h */
 
 // Local variables:
 // mode: c++
