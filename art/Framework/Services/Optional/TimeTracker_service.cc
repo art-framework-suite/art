@@ -11,31 +11,33 @@
 #include "art/Framework/Services/Registry/ServiceTable.h"
 #include "art/Framework/Services/System/DatabaseConnection.h"
 #include "boost/format.hpp"
+#include "canvas/Persistency/Provenance/EventID.h"
+#include "canvas/Persistency/Provenance/ModuleDescription.h"
+#include "canvas/Persistency/Provenance/ProvenanceFwd.h"
 #include "cetlib/sqlite/Connection.h"
 #include "cetlib/sqlite/Ntuple.h"
 #include "cetlib/sqlite/helpers.h"
 #include "cetlib/sqlite/statistics.h"
-#include "canvas/Persistency/Provenance/EventID.h"
-#include "canvas/Persistency/Provenance/ModuleDescription.h"
-#include "canvas/Persistency/Provenance/ProvenanceFwd.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 #include "fhiclcpp/types/Atom.h"
 #include "fhiclcpp/types/Name.h"
 #include "fhiclcpp/types/Table.h"
-#include "tbb/tick_count.h"
 
 #include <algorithm>
+#include <chrono>
 #include <iomanip>
 #include <sstream>
 #include <string>
+#include <vector>
 
 using namespace cet;
 using std::setw;
+using std::chrono::steady_clock;
 
 namespace {
 
   // 'using' declaration won't work because 'now' is a member function
-  auto now = std::bind(&tbb::tick_count::now);
+  auto now = std::bind(&steady_clock::now);
 
   struct Statistics {
 
@@ -94,13 +96,13 @@ class art::TimeTracker {
 public:
 
   struct Config {
-    fhicl::Atom<bool> printSummary { fhicl::Name("printSummary"), true };
+    fhicl::Atom<bool> printSummary {fhicl::Name{"printSummary"}, true};
 
     struct DBoutput {
-      fhicl::Atom<std::string> filename { fhicl::Name("filename"), "" };
-      fhicl::Atom<bool> overwrite { fhicl::Name("overwrite"), false };
+      fhicl::Atom<std::string> filename {fhicl::Name{"filename"}, ""};
+      fhicl::Atom<bool> overwrite {fhicl::Name{"overwrite"}, false};
     };
-    fhicl::Table<DBoutput> dbOutput { fhicl::Name("dbOutput") };
+    fhicl::Table<DBoutput> dbOutput {fhicl::Name{"dbOutput"}};
   };
 
   using Parameters = ServiceTable<Config>;
@@ -121,10 +123,13 @@ private:
   void logToDatabase_(Statistics const& evt, std::vector<Statistics> const& modules);
   void logToDestination_(Statistics const& evt, std::vector<Statistics> const& modules);
 
-  std::string pathname_;
-  EventID eventId_;
-  tbb::tick_count eventStart_;
-  tbb::tick_count moduleStart_;
+  struct PerScheduleData {
+    std::string pathName; // This member will need to be rethought once we decide to process paths in parallel per event.
+    EventID eventID;
+    steady_clock::time_point eventStart;
+    steady_clock::time_point moduleStart;
+  };
+  std::vector<PerScheduleData> data_;
 
   bool printSummary_;
   cet::sqlite::Connection db_;
@@ -157,6 +162,10 @@ art::TimeTracker::TimeTracker(ServiceTable<Config> const & config, ActivityRegis
   , timeEventTable_ {db_, "TimeEvent" , timeEventTuple_ , overwriteContents_}
   , timeModuleTable_{db_, "TimeModule", timeModuleTuple_, overwriteContents_}
 {
+  // Placeholder until we are multi-threaded
+  unsigned const nSchedules {1u};
+  data_.resize(nSchedules);
+
   iRegistry.sPreProcessPath.watch(this, &TimeTracker::prePathProcessing);
 
   iRegistry.sPostEndJob.watch(this, &TimeTracker::postEndJob);
@@ -174,7 +183,9 @@ art::TimeTracker::TimeTracker(ServiceTable<Config> const & config, ActivityRegis
 void
 art::TimeTracker::prePathProcessing(std::string const& pathname)
 {
-  pathname_ = pathname;
+  // Placeholder until we're multi-threaded
+  unsigned const scheduleID {0u};
+  data_[scheduleID].pathName = pathname;
 }
 
 //======================================================================
@@ -246,19 +257,25 @@ art::TimeTracker::postEndJob()
 
 //======================================================================
 void
-art::TimeTracker::preEventProcessing(Event const& ev)
+art::TimeTracker::preEventProcessing(Event const& e)
 {
-  eventId_ = ev.id();
-  eventStart_ = now();
+  // Placeholder until we're multi-threaded
+  unsigned const scheduleID {0u};
+  auto& d = data_[scheduleID];
+  d.eventID = e.id();
+  d.eventStart = now();
 }
 
 void
 art::TimeTracker::postEventProcessing(Event const&)
 {
-  double const t = (now()-eventStart_).seconds();
-  timeEventTable_.insert(eventId_.run(),
-                         eventId_.subRun(),
-                         eventId_.event(),
+  // Placeholder until we're multi-threaded
+  unsigned const scheduleID {0u};
+  auto const& d = data_[scheduleID];
+  auto const t = std::chrono::duration<double>{now()-d.eventStart}.count();
+  timeEventTable_.insert(d.eventID.run(),
+                         d.eventID.subRun(),
+                         d.eventID.event(),
                          t);
 }
 
@@ -266,17 +283,23 @@ art::TimeTracker::postEventProcessing(Event const&)
 void
 art::TimeTracker::startTime(ModuleDescription const&)
 {
-  moduleStart_ = now();
+  // Placeholder until we're multi-threaded
+  unsigned const scheduleID {0u};
+  auto& d = data_[scheduleID];
+  d.moduleStart = now();
 }
 
 void
 art::TimeTracker::recordTime(ModuleDescription const& desc, std::string const& suffix)
 {
-  double const t = (now()-moduleStart_).seconds();
-  timeModuleTable_.insert(eventId_.run(),
-                          eventId_.subRun(),
-                          eventId_.event(),
-                          pathname_,
+  // Placeholder until we're multi-threaded
+  unsigned const scheduleID {0u};
+  auto const& d = data_[scheduleID];
+  auto const t = std::chrono::duration<double>{now()-d.moduleStart}.count();
+  timeModuleTable_.insert(d.eventID.run(),
+                          d.eventID.subRun(),
+                          d.eventID.event(),
+                          d.pathName,
                           desc.moduleLabel(),
                           desc.moduleName()+suffix,
                           t);
