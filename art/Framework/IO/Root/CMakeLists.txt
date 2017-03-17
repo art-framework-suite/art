@@ -51,10 +51,11 @@ art_make(EXCLUDE
   art_Framework_Services_Registry
   art_Framework_Services_System_FileCatalogMetadata_service
   art_Persistency_Common
-  art_Persistency_Provenance canvas
+  art_Persistency_Provenance
   art_Framework_IO_RootVersion
   art_Framework_IO_Root_detail_sources
   cetlib
+  canvas
   ${ROOT_CINTEX}
   ${ROOT_TREE}
   ${ROOT_NET}
