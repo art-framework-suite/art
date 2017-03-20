@@ -6,6 +6,18 @@
 // EngineCreator - enable a derived class to access the
 //                 RandomNumberGenerator::createEngine()
 //
+// MT-FIXME:
+//
+//   Once we adopt multiple module types (legacy, one, per-schedule,
+//   and global), then the steps that are necessary for creating
+//   engines will depend on the given module type.  If a user
+//   specifies:
+//
+//     createEngine(1237);
+//
+//   then N instances of the specified engine should be created, one
+//   for each of N schedules, regardless of the module type.
+//
 // ======================================================================
 
 #include "art/Framework/Services/Optional/RandomNumberGenerator.h"

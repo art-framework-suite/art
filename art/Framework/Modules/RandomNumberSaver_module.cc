@@ -13,6 +13,7 @@
 #include "fhiclcpp/types/Atom.h"
 
 #include <memory>
+#include <mutex>
 
 namespace art {
   class RandomNumberSaver;
@@ -23,8 +24,7 @@ using art::RandomNumberSaver;
 
 // ======================================================================
 
-class art::RandomNumberSaver : public EDProducer
-{
+class art::RandomNumberSaver : public EDProducer {
   using RNGservice = RandomNumberGenerator;
 
 public:
@@ -34,7 +34,7 @@ public:
 
   // --- Configuration
   struct Config {
-    Atom<bool> debug { Name("debug"), false };
+    Atom<bool> debug {Name{"debug"}, false};
   };
 
   using Parameters = EDProducer::Table<Config>;
@@ -44,7 +44,7 @@ public:
 
 private:
   bool debug_;
-
+  std::mutex m_ {};
 };  // RandomNumberSaver
 
 // ======================================================================
@@ -61,10 +61,14 @@ RandomNumberSaver(Parameters const& config)
 void
 RandomNumberSaver::produce(Event& e)
 {
-  ServiceHandle<RNGservice> rng;
-  e.put(std::make_unique<snapshot_t>(rng->accessSnapshot_()));
+  // Placeholder until we can directly access the schedule ID.
+  unsigned const scheduleID {0u};
+  ServiceHandle<RNGservice const> rng;
+  e.put(std::make_unique<snapshot_t>(rng->accessSnapshot_(scheduleID)));
 
   if (debug_) {
+    // Only take out the lock if running in debug mode.
+    std::lock_guard<std::mutex> hold {m_};
     rng->print_();
   }
 }

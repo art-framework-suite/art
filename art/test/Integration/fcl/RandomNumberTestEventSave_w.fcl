@@ -23,10 +23,8 @@ physics:
     }
   }
 
-  p1: [ randomSaver, randomTester ]
-  o1: [ output ]
-  trigger_paths: [ p1 ]
-  end_paths: [ o1 ]
+  p1: [randomSaver, randomTester]
+  o1: [output]
 }
 
 source:
