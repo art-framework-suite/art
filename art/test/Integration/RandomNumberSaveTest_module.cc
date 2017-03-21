@@ -10,7 +10,7 @@
 // from art v1_00_00.
 ////////////////////////////////////////////////////////////////////////
 
-#include "art/Framework/Core/EDFilter.h"
+#include "art/Framework/Core/EDProducer.h"
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Principal/Handle.h"
@@ -31,13 +31,13 @@ namespace arttest {
   class RandomNumberSaveTest;
 }
 
-class arttest::RandomNumberSaveTest : public art::EDFilter {
+class arttest::RandomNumberSaveTest : public art::EDProducer {
 public:
   using prod_t = std::vector<size_t>;
 
   explicit RandomNumberSaveTest(fhicl::ParameterSet const& p);
 
-  bool filter(art::Event& e) override;
+  void produce(art::Event& e) override;
 
 private:
 
@@ -69,7 +69,7 @@ arttest::RandomNumberSaveTest::RandomNumberSaveTest(fhicl::ParameterSet const& p
   produces<prod_t>();
 }
 
-bool arttest::RandomNumberSaveTest::filter(art::Event& e)
+void arttest::RandomNumberSaveTest::produce(art::Event& e)
 {
   if (++eventN_ == dieOnNthEvent_) {
     throw art::Exception(art::errors::Configuration)
@@ -84,7 +84,7 @@ bool arttest::RandomNumberSaveTest::filter(art::Event& e)
   nums.reserve(nums_size);
   generate_n(std::back_inserter(nums),
              nums_size,
-             [this](){ return dist_.fireInt(random_range);});
+             [this]{ return dist_.fireInt(random_range);});
   std::cerr << "nums: " << nums << "\n";
   if (e.getByLabel(myLabel_, hp)) {
     std::cerr << "(*hp): " << *hp << "\n";
@@ -98,7 +98,6 @@ bool arttest::RandomNumberSaveTest::filter(art::Event& e)
     // Writing.
     e.put(std::make_unique<prod_t>(nums));
   }
-  return true;
 }
 
 DEFINE_ART_MODULE(arttest::RandomNumberSaveTest)

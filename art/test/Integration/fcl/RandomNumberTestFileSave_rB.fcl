@@ -2,7 +2,7 @@
 
 services.RandomNumberGenerator: { restoreFrom: "../RandomNumberTestFileSave_wB.d/state.txt" }
 
-physics.filters.randomTester.genUnsaved: false
+physics.producers.randomTester.genUnsaved: false
 
 source.skipEvents: 9
 source.maxEvents: 1

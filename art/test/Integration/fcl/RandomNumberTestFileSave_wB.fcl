@@ -2,5 +2,5 @@
 
 services.RandomNumberGenerator.saveTo: "state.txt"
 
-physics.filters.randomTester.dieOnNthEvent: 10
-physics.filters.randomTester.genUnsaved: false
+physics.producers.randomTester.dieOnNthEvent: 10
+physics.producers.randomTester.genUnsaved: false
