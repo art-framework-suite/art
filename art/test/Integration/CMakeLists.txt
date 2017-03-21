@@ -34,6 +34,7 @@ simple_plugin(BareStringAnalyzer          "module"  NO_INSTALL)
 simple_plugin(BareStringProducer          "module"  NO_INSTALL)
 simple_plugin(CompressedIntProducer       "module"  NO_INSTALL)
 simple_plugin(CompressedIntTestAnalyzer   "module"  NO_INSTALL)
+simple_plugin(ConcurrentEngineRetrieval   "module"  NO_INSTALL USE_BOOST_UNIT)
 simple_plugin(DeferredIsReadyWithAssnsAnalyzer "module"  NO_INSTALL)
 simple_plugin(DeferredIsReadyWithAssnsProducer "module"  NO_INSTALL)
 simple_plugin(DerivedPtrVectorProducer    "module"  NO_INSTALL)
@@ -833,6 +834,15 @@ foreach(num RANGE 1 4)
     TEST_PROPERTIES DEPENDS DropOnOutput_wB_0${num}
     )
 endforeach()
+
+# Write a data file containing stored products and stored random number
+# states for subsequent tests.
+cet_test(RNGConcurrentAccess_t HANDBUILT
+  TEST_EXEC art_ut
+  TEST_ARGS -- --rethrow-all -c "RNGConcurrentAccess_t.fcl"
+  DATAFILES
+  fcl/RNGConcurrentAccess_t.fcl
+)
 
 # Write a data file containing stored products and stored random number
 # states for subsequent tests.

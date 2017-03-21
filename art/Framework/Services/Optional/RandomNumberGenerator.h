@@ -182,6 +182,10 @@ namespace art {
   class EventProcessor;     // to be granted friendship
   class RandomNumberSaver;  // to be granted friendship
 
+  namespace test {
+    class ConcurrentEngineRetrieval; // to be granted friendship only for testing
+  }
+
   class RandomNumberGenerator;
 }
 
@@ -195,6 +199,7 @@ class art::RandomNumberGenerator {
   friend class EngineCreator;
   friend class EventProcessor;
   friend class RandomNumberSaver;
+  friend class test::ConcurrentEngineRetrieval;
 
   // --- Prevent copying:
   RandomNumberGenerator(RandomNumberGenerator const&) = delete;
@@ -232,10 +237,19 @@ public:
   base_engine_t& getEngine(label_t const& engine_label) const;
 
 private:
+
   // --- Engine establishment:
   base_engine_t& createEngine(ScheduleID schedule_id, seed_t seed);
   base_engine_t& createEngine(ScheduleID schedule_id, seed_t seed, std::string const& kind_of_engine_to_make);
   base_engine_t& createEngine(ScheduleID schedule_id, seed_t seed, std::string kind_of_engine_to_make, label_t const& engine_label);
+
+  base_engine_t& getEngine(ScheduleID schedule_id, label_t const& engine_label = {}) const;
+
+  // --- MT-FIXME: Only for testing
+  //     For testing multi-schedule parallization of this service, the
+  //     requested number of schedules is not expanded UNLESS the
+  //     expandToNSchedules() function is called by a friend.
+  void expandToNSchedules(std::size_t const n) { data_.resize(n); }
 
   // --- Snapshot management helpers:
   void takeSnapshot_(ScheduleID scheduleID);

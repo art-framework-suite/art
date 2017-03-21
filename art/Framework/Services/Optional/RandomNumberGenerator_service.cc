@@ -210,11 +210,19 @@ base_engine_t&
 RNGservice::getEngine(label_t const& engine_label) const
 {
   // Place holder until we can use a system that provides the right context.
-  auto const schedule_id = ScheduleID::first().id();
-  label_t const& label = qualify_engine_label(schedule_id, engine_label);
+  auto const schedule_id = ScheduleID::first();
+  return getEngine(schedule_id, engine_label);
+}
 
-  auto d = data_[schedule_id].dict_.find(label);
-  if (d == data_[schedule_id].dict_.end()) {
+base_engine_t&
+RNGservice::getEngine(ScheduleID const schedule_id, label_t const& engine_label) const
+{
+  // Place holder until we can use a system that provides the right context.
+  auto const sid = schedule_id.id();
+  label_t const& label = qualify_engine_label(sid, engine_label);
+
+  auto d = data_[sid].dict_.find(label);
+  if (d == data_[sid].dict_.end()) {
     throw cet::exception("RANDOM")
       << "RNGservice::getEngine():\n"
       "The requested engine \"" << label << "\" has not been established.\n";
@@ -260,6 +268,8 @@ RNGservice::createEngine(ScheduleID const schedule_id,
                          label_t const& engine_label)
 {
   auto const sid = schedule_id.id();
+  assert(sid < data_.size());
+
   label_t const& label = qualify_engine_label(sid, engine_label);
 
   if (!engine_creation_is_okay_) {
