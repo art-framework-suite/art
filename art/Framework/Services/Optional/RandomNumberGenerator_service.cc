@@ -47,6 +47,7 @@
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Principal/Handle.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
+#include "cetlib/assert_only_one_thread.h"
 #include "cetlib/container_algorithms.h"
 #include "cetlib/exception.h"
 #include "cetlib/no_delete.h"
@@ -403,13 +404,13 @@ RNGservice::restoreSnapshot_(unsigned const schedule_id, art::Event const& event
 }  // restoreSnapshot_()
 
 // ----------------------------------------------------------------------
-// 'saveToFile_' will be executed only in single-threaded mode.  No
-// need to protect against data races.
 void
 RNGservice::saveToFile_()
 {
   if (saveToFilename_.empty())
     return;
+
+  CET_ASSERT_ONLY_ONE_THREAD();
 
   // access the file:
   ofstream outfile {saveToFilename_.c_str()};
@@ -434,13 +435,13 @@ RNGservice::saveToFile_()
 }  // saveToFile_()
 
 // ----------------------------------------------------------------------
-// 'restoreFromFile_' will be executed only in single-threaded mode.
-// No need to protect against data races.
 void
 RNGservice::restoreFromFile_()
 {
   if (restoreFromFilename_.empty())
     return;
+
+  CET_ASSERT_ONLY_ONE_THREAD();
 
   // access the file:
   ifstream infile {restoreFromFilename_.c_str()};
@@ -469,7 +470,7 @@ RNGservice::restoreFromFile_()
 
     eptr_t& eptr = d->second;
     assert(eptr && "RNGservice::restoreFromFile_()" );
-    assert(cet::search_all(data.tracker_, label) && "RNGservice::restoreFromFile_()");
+    assert(data.tracker_.find(label) != data.tracker_.cend() && "RNGservice::restoreFromFile_()");
     init_t& how {data.tracker_[label]};
     if (how == VIA_SEED) { // OK
       if (!eptr->get(infile)) {
@@ -493,8 +494,8 @@ RNGservice::restoreFromFile_()
         << " from file\nwhich was originally initialized via an "
         << " unknown or impossible method.\n";
     }
+    assert(invariant_holds_(schedule_id) && "RNGservice::restoreFromFile_()");
   }
-  assert(invariant_holds_(schedule_id) && "RNGservice::restoreFromFile_()");
 }  // restoreFromFile_()
 
 // ----------------------------------------------------------------------
