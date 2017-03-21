@@ -162,9 +162,11 @@
 
 #include "art/Framework/Services/Registry/ServiceMacros.h"
 #include "art/Framework/Services/Registry/ServiceTable.h"
+#include "art/Utilities/ScheduleID.h"
 #include "canvas/Persistency/Common/RNGsnapshot.h"
 #include "fhiclcpp/types/Atom.h"
 #include "fhiclcpp/types/Name.h"
+
 #include <map>
 #include <memory>
 #include <string>
@@ -231,16 +233,16 @@ public:
 
 private:
   // --- Engine establishment:
-  base_engine_t& createEngine(unsigned schedule_id, seed_t seed);
-  base_engine_t& createEngine(unsigned schedule_id, seed_t seed, std::string const& kind_of_engine_to_make);
-  base_engine_t& createEngine(unsigned schedule_id, seed_t seed, std::string kind_of_engine_to_make, label_t const& engine_label);
+  base_engine_t& createEngine(ScheduleID schedule_id, seed_t seed);
+  base_engine_t& createEngine(ScheduleID schedule_id, seed_t seed, std::string const& kind_of_engine_to_make);
+  base_engine_t& createEngine(ScheduleID schedule_id, seed_t seed, std::string kind_of_engine_to_make, label_t const& engine_label);
 
   // --- Snapshot management helpers:
-  void takeSnapshot_(unsigned scheduleID);
-  void restoreSnapshot_(unsigned scheduleID, art::Event const&);
-  snapshot_t const& accessSnapshot_(unsigned const scheduleID) const
+  void takeSnapshot_(ScheduleID scheduleID);
+  void restoreSnapshot_(ScheduleID scheduleID, art::Event const&);
+  snapshot_t const& accessSnapshot_(ScheduleID const schedule_id) const
   {
-    return data_[scheduleID].snapshot_;
+    return data_[schedule_id.id()].snapshot_;
   }
 
   // --- File management helpers:
@@ -249,7 +251,7 @@ private:
 
   // --- Debugging helpers:
   void print_() const;
-  bool invariant_holds_(unsigned const scheduleID);
+  bool invariant_holds_(ScheduleID::size_type scheduleID);
 
   // --- Callbacks:
   void preProcessEvent(art::Event const&);

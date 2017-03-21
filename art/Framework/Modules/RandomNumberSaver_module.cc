@@ -10,6 +10,7 @@
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Services/Optional/RandomNumberGenerator.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
+#include "art/Utilities/ScheduleID.h"
 #include "fhiclcpp/types/Atom.h"
 
 #include <memory>
@@ -61,10 +62,10 @@ RandomNumberSaver(Parameters const& config)
 void
 RandomNumberSaver::produce(Event& e)
 {
-  // Placeholder until we can directly access the schedule ID.
-  unsigned const scheduleID {0u};
+  // MT-FIXME: Placeholder until we're multithreaded.
+  auto const sid = ScheduleID::first();
   ServiceHandle<RNGservice const> rng;
-  e.put(std::make_unique<snapshot_t>(rng->accessSnapshot_(scheduleID)));
+  e.put(std::make_unique<snapshot_t>(rng->accessSnapshot_(sid)));
 
   if (debug_) {
     // Only take out the lock if running in debug mode.

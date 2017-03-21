@@ -10,6 +10,7 @@
 #include "art/Framework/Services/Registry/ServiceMacros.h"
 #include "art/Framework/Services/Registry/ServiceTable.h"
 #include "art/Framework/Services/System/DatabaseConnection.h"
+#include "art/Utilities/ScheduleID.h"
 #include "boost/format.hpp"
 #include "canvas/Persistency/Provenance/EventID.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
@@ -162,7 +163,7 @@ art::TimeTracker::TimeTracker(ServiceTable<Config> const & config, ActivityRegis
   , timeEventTable_ {db_, "TimeEvent" , timeEventTuple_ , overwriteContents_}
   , timeModuleTable_{db_, "TimeModule", timeModuleTuple_, overwriteContents_}
 {
-  // Placeholder until we are multi-threaded
+  // MT-FIXME: Placeholder until we are multi-threaded
   unsigned const nSchedules {1u};
   data_.resize(nSchedules);
 
@@ -183,9 +184,9 @@ art::TimeTracker::TimeTracker(ServiceTable<Config> const & config, ActivityRegis
 void
 art::TimeTracker::prePathProcessing(std::string const& pathname)
 {
-  // Placeholder until we're multi-threaded
-  unsigned const scheduleID {0u};
-  data_[scheduleID].pathName = pathname;
+  // MT-FIXME: Placeholder until we're multi-threaded
+  auto const sid = ScheduleID::first().id();
+  data_[sid].pathName = pathname;
 }
 
 //======================================================================
@@ -259,9 +260,9 @@ art::TimeTracker::postEndJob()
 void
 art::TimeTracker::preEventProcessing(Event const& e)
 {
-  // Placeholder until we're multi-threaded
-  unsigned const scheduleID {0u};
-  auto& d = data_[scheduleID];
+  // MT-FIXME: Placeholder until we're multi-threaded
+  auto const sid = ScheduleID::first().id();
+  auto& d = data_[sid];
   d.eventID = e.id();
   d.eventStart = now();
 }
@@ -269,9 +270,9 @@ art::TimeTracker::preEventProcessing(Event const& e)
 void
 art::TimeTracker::postEventProcessing(Event const&)
 {
-  // Placeholder until we're multi-threaded
-  unsigned const scheduleID {0u};
-  auto const& d = data_[scheduleID];
+  // MT-FIXME: Placeholder until we're multi-threaded
+  auto const sid = ScheduleID::first().id();
+  auto const& d = data_[sid];
   auto const t = std::chrono::duration<double>{now()-d.eventStart}.count();
   timeEventTable_.insert(d.eventID.run(),
                          d.eventID.subRun(),
@@ -283,18 +284,18 @@ art::TimeTracker::postEventProcessing(Event const&)
 void
 art::TimeTracker::startTime(ModuleDescription const&)
 {
-  // Placeholder until we're multi-threaded
-  unsigned const scheduleID {0u};
-  auto& d = data_[scheduleID];
+  // MT-FIXME: Placeholder until we're multi-threaded
+  auto const sid = ScheduleID::first().id();
+  auto& d = data_[sid];
   d.moduleStart = now();
 }
 
 void
 art::TimeTracker::recordTime(ModuleDescription const& desc, std::string const& suffix)
 {
-  // Placeholder until we're multi-threaded
-  unsigned const scheduleID {0u};
-  auto const& d = data_[scheduleID];
+  // MT-FIXME: Placeholder until we're multi-threaded
+  auto const sid = ScheduleID::first().id();
+  auto const& d = data_[sid];
   auto const t = std::chrono::duration<double>{now()-d.moduleStart}.count();
   timeModuleTable_.insert(d.eventID.run(),
                           d.eventID.subRun(),

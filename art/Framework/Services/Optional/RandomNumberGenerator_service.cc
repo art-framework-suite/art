@@ -62,6 +62,7 @@
 
 using art::RNGsnapshot;
 using art::RandomNumberGenerator;
+using art::ScheduleID;
 using fhicl::ParameterSet;
 using std::ifstream;
 using std::ofstream;
@@ -101,7 +102,7 @@ namespace {
   }
 
   inline label_t
-  qualify_engine_label(unsigned const schedule_id, label_t const& engine_label)
+  qualify_engine_label(ScheduleID::size_type const schedule_id, label_t const& engine_label)
   {
     // ModuleLabel:ScheduleID:EngineLabel
     std::string label {art::ServiceHandle<art::CurrentModule const>{}->label()};
@@ -192,7 +193,7 @@ RNGservice::RandomNumberGenerator(Parameters const& config,
   reg.sPostEndJob.watch     (this, &RNGservice::postEndJob);
   reg.sPreProcessEvent.watch(this, &RNGservice::preProcessEvent);
 
-  // Placeholder until we can actually query number of schedules.
+  // MT-FIXME: Placeholder until we can query number of schedules.
   unsigned const nSchedules {1u};
   data_.resize(nSchedules);
 }
@@ -209,7 +210,7 @@ base_engine_t&
 RNGservice::getEngine(label_t const& engine_label) const
 {
   // Place holder until we can use a system that provides the right context.
-  unsigned constexpr schedule_id {0u};
+  auto const schedule_id = ScheduleID::first().id();
   label_t const& label = qualify_engine_label(schedule_id, engine_label);
 
   auto d = data_[schedule_id].dict_.find(label);
@@ -226,7 +227,7 @@ RNGservice::getEngine(label_t const& engine_label) const
 // ======================================================================
 
 bool
-RNGservice::invariant_holds_(unsigned const schedule_id)
+RNGservice::invariant_holds_(ScheduleID::size_type const schedule_id)
 {
   auto const& d = data_[schedule_id];
   return d.dict_.size() == d.tracker_.size() &&
@@ -236,7 +237,7 @@ RNGservice::invariant_holds_(unsigned const schedule_id)
 // ----------------------------------------------------------------------
 
 base_engine_t&
-RNGservice::createEngine(unsigned const schedule_id,
+RNGservice::createEngine(ScheduleID const schedule_id,
                          seed_t const seed)
 {
   return createEngine(schedule_id, seed, DEFAULT_ENGINE_KIND);
@@ -244,7 +245,7 @@ RNGservice::createEngine(unsigned const schedule_id,
 
 
 base_engine_t&
-RNGservice::createEngine(unsigned const schedule_id,
+RNGservice::createEngine(ScheduleID const schedule_id,
                          seed_t const seed,
                          string const& requested_engine_kind)
 {
@@ -253,12 +254,13 @@ RNGservice::createEngine(unsigned const schedule_id,
 
 
 base_engine_t&
-RNGservice::createEngine(unsigned const schedule_id,
+RNGservice::createEngine(ScheduleID const schedule_id,
                          seed_t const seed,
                          string requested_engine_kind,
                          label_t const& engine_label)
 {
-  label_t const& label = qualify_engine_label(schedule_id, engine_label);
+  auto const sid = schedule_id.id();
+  label_t const& label = qualify_engine_label(sid, engine_label);
 
   if (!engine_creation_is_okay_) {
     throw cet::exception("RANDOM")
@@ -266,7 +268,7 @@ RNGservice::createEngine(unsigned const schedule_id,
       "Attempt to create engine \"" << label << "\" is too late.\n";
   }
 
-  auto& d = data_[schedule_id];
+  auto& d = data_[sid];
   if (d.tracker_.find(label) != d.tracker_.cend()) {
     throw cet::exception("RANDOM")
       << "RNGservice::createEngine():\n"
@@ -289,7 +291,7 @@ RNGservice::createEngine(unsigned const schedule_id,
   else                          log << "seed " << seed;
   log << ".\n";
 
-  assert(invariant_holds_(schedule_id) && "RNGservice::createEngine()");
+  assert(invariant_holds_(sid) && "RNGservice::createEngine()");
   return *eptr;
 
 }  // createEngine<>()
@@ -332,12 +334,12 @@ RNGservice::print_() const
 // ----------------------------------------------------------------------
 
 void
-RNGservice::takeSnapshot_(unsigned const schedule_id)
+RNGservice::takeSnapshot_(ScheduleID const schedule_id)
 {
   mf::LogDebug log {"RANDOM"};
   log << "RNGservice::takeSnapshot_() of the following engine labels:\n";
 
-  auto& d = data_[schedule_id];
+  auto& d = data_[schedule_id.id()];
   d.snapshot_.clear();
   for (auto const& pr : d.dict_) {
     label_t const& label = pr.first;
@@ -353,7 +355,7 @@ RNGservice::takeSnapshot_(unsigned const schedule_id)
 // ----------------------------------------------------------------------
 
 void
-RNGservice::restoreSnapshot_(unsigned const schedule_id, art::Event const& event)
+RNGservice::restoreSnapshot_(ScheduleID const schedule_id, art::Event const& event)
 {
   if (restoreStateLabel_.empty())
     return;
@@ -362,7 +364,7 @@ RNGservice::restoreSnapshot_(unsigned const schedule_id, art::Event const& event
   using saved_t = std::vector<RNGsnapshot>;
   auto const& saved = *event.getValidHandle<saved_t>(restoreStateLabel_);
 
-  auto& d = data_[schedule_id];
+  auto& d = data_[schedule_id.id()];
 
   // restore engines from saved-states product:
   for (auto const& snapshot : saved) {
@@ -400,7 +402,7 @@ RNGservice::restoreSnapshot_(unsigned const schedule_id, art::Event const& event
     }
   }  // for
 
-  assert(invariant_holds_(schedule_id) && "RNGsnapshot::restoreSnapshot_()");
+  assert(invariant_holds_(schedule_id.id()) && "RNGsnapshot::restoreSnapshot_()");
 }  // restoreSnapshot_()
 
 // ----------------------------------------------------------------------
@@ -457,8 +459,8 @@ RNGservice::restoreFromFile_()
     assert(std::count(label.cbegin(), label.cend(), ':') == 2u);
     auto const p1 = label.find_first_of(':');
     auto const p2 = label.find_last_of(':');
-    unsigned const schedule_id = std::stoul(label.substr(p1+1,p2));
-    auto& data = data_[schedule_id];
+    ScheduleID const schedule_id (std::stoul(label.substr(p1+1,p2)));
+    auto& data = data_[schedule_id.id()];
 
     auto d = data.dict_.find(label);
     if (d == data.dict_.end()) {
@@ -494,7 +496,7 @@ RNGservice::restoreFromFile_()
         << " from file\nwhich was originally initialized via an "
         << " unknown or impossible method.\n";
     }
-    assert(invariant_holds_(schedule_id) && "RNGservice::restoreFromFile_()");
+    assert(invariant_holds_(schedule_id.id()) && "RNGservice::restoreFromFile_()");
   }
 }  // restoreFromFile_()
 
@@ -510,7 +512,7 @@ RNGservice::postBeginJob()
 void
 RNGservice::preProcessEvent(art::Event const& e)
 {
-  unsigned const schedule_id {0u};
+  auto const schedule_id = ScheduleID::first();
   takeSnapshot_(schedule_id);
   restoreSnapshot_(schedule_id, e);
 }
@@ -520,7 +522,7 @@ RNGservice::postEndJob()
 {
   // For normal termination, we wish to save the state at the *end* of
   // processing, not at the beginning of the last event.
-  unsigned const schedule_id {0u};
+  auto const schedule_id = ScheduleID::first();
   takeSnapshot_(schedule_id);
   saveToFile_();
 }

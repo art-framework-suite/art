@@ -6,12 +6,12 @@
 // ======================================================================
 
 #include "art/Framework/Core/EngineCreator.h"
+#include "art/Utilities/ScheduleID.h"
 #include <vector>
 
 namespace {
-  // MT-FIXME: This function should be replaced by a legitimate
-  // schedule-id provider.
-  constexpr auto placeholder_schedule_id() { return 0u; }
+  // MT-FIXME: Placeholder until we're multi-threaded.
+  auto placeholder_schedule_id() { return art::ScheduleID::first(); }
 }
 
 using art::EngineCreator;
