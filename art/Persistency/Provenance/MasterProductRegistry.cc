@@ -6,6 +6,7 @@
 #include "canvas/Persistency/Provenance/TypeWithDict.h"
 #include "canvas/Utilities/TypeID.h"
 #include "canvas/Utilities/WrappedClassName.h"
+#include "cetlib/assert_only_one_thread.h"
 #include "cetlib/exception.h"
 
 #include <cassert>
@@ -173,6 +174,8 @@ art::MasterProductRegistry::addProduct(std::unique_ptr<BranchDescription>&& bdp)
     throw cet::exception("ProductRegistry", "addProduct")
       << "Cannot modify the MasterProductRegistry because it is frozen.\n";
   }
+  CET_ASSERT_ONLY_ONE_THREAD();
+
   checkDicts_(*bdp);
   auto I = productList_.emplace(BranchKey{*bdp}, BranchDescription());
   if (!I.second) {
@@ -197,6 +200,9 @@ art::MasterProductRegistry::setFrozen()
   if (frozen_) {
     return;
   }
+
+  CET_ASSERT_ONLY_ONE_THREAD();
+
   frozen_ = true;
   productLookup_.assign(1u,{}); // Seed with one empty vector
   elementLookup_.assign(1u,{}); // ""
@@ -208,6 +214,8 @@ art::MasterProductRegistry::initFromFirstPrimaryFile(ProductList const& pl,
                                                      PerBranchTypePresence const& presList,
                                                      FileBlock const& fb)
 {
+  CET_ASSERT_ONLY_ONE_THREAD();
+
   perFilePresenceLookups_.resize(1);
 
   // Set presence flags
@@ -255,6 +263,8 @@ art::MasterProductRegistry::updateFromNewPrimaryFile(ProductList const& other,
                                                      std::string const& fileName,
                                                      BranchDescription::MatchMode m, FileBlock const& fb)
 {
+  CET_ASSERT_ONLY_ONE_THREAD();
+
   perFileProds_.resize(1);
   perFilePresenceLookups_.assign(1u,{}); // Seed with one empty vector
 
@@ -326,6 +336,8 @@ art::MasterProductRegistry::updateFromSecondaryFile(ProductList const& pl,
                                                     PerBranchTypePresence const& presList,
                                                     FileBlock const& fb)
 {
+  CET_ASSERT_ONLY_ONE_THREAD();
+
   perFileProds_.resize(perFileProds_.size()+1);
   perFilePresenceLookups_.resize(perFilePresenceLookups_.size()+1);
 
@@ -375,6 +387,7 @@ art::MasterProductRegistry::updateFromSecondaryFile(ProductList const& pl,
 void
 art::MasterProductRegistry::registerProductListUpdatedCallback(ProductListUpdatedCallback cb)
 {
+  CET_ASSERT_ONLY_ONE_THREAD();
   productListUpdatedCallbacks_.push_back(cb);
 }
 

@@ -19,6 +19,7 @@
 #include "art/Framework/Services/Registry/ServiceMacros.h"
 #include "art/Framework/Services/Registry/ServiceTable.h"
 #include "art/Utilities/SAMMetadataTranslators.h"
+#include "cetlib/assert_only_one_thread.h"
 #include "cetlib/canonical_string.h"
 #include "cetlib/container_algorithms.h"
 #include "fhiclcpp/types/Atom.h"
@@ -162,8 +163,7 @@ inline
 void
 art::FileCatalogMetadata::setMetadataFromInput(collection_type const& mdFromInput)
 {
-  // No lock here -- called only in a single-threaded context, and it
-  // is eventually held by a call down to addMetadata anyway.
+  CET_ASSERT_ONLY_ONE_THREAD();
   if (mdToInherit_.empty()) {
     return;
   }

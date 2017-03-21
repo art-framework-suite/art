@@ -3,6 +3,7 @@
 #include "canvas/Persistency/Provenance/BranchKey.h"
 #include "canvas/Persistency/Provenance/ProductList.h"
 #include "canvas/Utilities/Exception.h"
+#include "cetlib/assert_only_one_thread.h"
 #include "cetlib/container_algorithms.h"
 
 #include <iomanip>
@@ -101,6 +102,7 @@ void
 art::BranchIDListRegistry::updateFromInput(BranchIDLists const& file_bidlists,
                                            std::string const& fileName)
 {
+  CET_ASSERT_ONLY_ONE_THREAD();
   auto& reg_bidlists = instance().data_;
   reg_bidlists.insert(reg_bidlists.cend(),
                       first_new_BranchIDList(reg_bidlists, file_bidlists, fileName),
@@ -117,6 +119,7 @@ art::BranchIDListRegistry::updateFromInput(BranchIDLists const& file_bidlists,
 void
 art::BranchIDListRegistry::updateFromProductRegistry(MasterProductRegistry const& mpr)
 {
+  CET_ASSERT_ONLY_ONE_THREAD();
   // Accumulate a list of branch id's produced by the current process
   // for use by ProductID <--> BranchID mapping.
   BranchIDList bidlist;
@@ -155,6 +158,7 @@ art::BranchIDListRegistry::updateFromProductRegistry(MasterProductRegistry const
 void
 art::BranchIDListRegistry::generate_branchIDToIndexMap()
 {
+  CET_ASSERT_ONLY_ONE_THREAD();
   auto& bidlists = instance().data_;
   auto& branchIDToIndexMap = instance().branchIDToIndexMap_;
   for (std::size_t n {}, n_max = bidlists.size(); n != n_max; ++n) {

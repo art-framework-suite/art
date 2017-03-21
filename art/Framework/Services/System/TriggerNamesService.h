@@ -22,13 +22,6 @@
 // process only.  The second getTrigPaths function is an exception.
 // It will return the trigger path names from previous processes.
 //
-// Multi-threading considerations:
-//
-//   This service is constructed during process start-up, which is
-//   done in a single-threaded environment.  Since all other interface
-//   is `const` qualified, and there are no mutables, reading from
-//   this service is inherently thread-safe.
-//
 // ======================================================================
 
 #include "art/Framework/Services/Registry/ServiceMacros.h"
