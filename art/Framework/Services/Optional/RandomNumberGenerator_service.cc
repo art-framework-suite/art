@@ -522,6 +522,8 @@ RNGservice::postEndJob()
 {
   // For normal termination, we wish to save the state at the *end* of
   // processing, not at the beginning of the last event.
+
+  // MT-FIXME: Placeholder until we're multithreaded.
   auto const schedule_id = ScheduleID::first();
   takeSnapshot_(schedule_id);
   saveToFile_();

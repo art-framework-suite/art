@@ -18,6 +18,10 @@
 //   then N instances of the specified engine should be created, one
 //   for each of N schedules, regardless of the module type.
 //
+//   A decision must be made if each instance should receive the same
+//   seed, or different ones.  I suspect they should be different so
+//   as to avoid undesirable over-sampling of fluctuations.
+//
 // ======================================================================
 
 #include "art/Framework/Services/Optional/RandomNumberGenerator.h"
