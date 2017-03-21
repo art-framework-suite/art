@@ -32,7 +32,6 @@ private:
   std::atomic<flag_type> in_context_;
 };
 
-#ifndef __GCCXML__
 inline
 bool
 art::ScheduleContext::
@@ -48,7 +47,6 @@ resetContext()
 {
   return in_context_.fetch_and(false);
 }
-#endif
 
 DECLARE_ART_SYSTEM_SERVICE(art::ScheduleContext, GLOBAL)
 #endif /* art_Framework_Services_System_ScheduleContext_h */
