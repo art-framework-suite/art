@@ -17,7 +17,7 @@
 #include <functional>
 
 namespace art {
-  template <detail::SignalResponseType, typename ResultType, typename... Args > class GlobalSignal;
+  template <detail::SignalResponseType, typename ResultType, typename... Args> class GlobalSignal;
 
   // Only supported template definition is a partial specialization on
   // a function type--i.e. and instantiation of GlobalSignal must look
