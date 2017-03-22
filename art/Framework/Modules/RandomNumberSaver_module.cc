@@ -62,7 +62,7 @@ RandomNumberSaver(Parameters const& config)
 void
 RandomNumberSaver::produce(Event& e)
 {
-  // MT-FIXME: Placeholder until we're multithreaded.
+  // MT-TODO: Placeholder until we're multithreaded.
   auto const sid = ScheduleID::first();
   ServiceHandle<RNGservice const> rng;
   e.put(std::make_unique<snapshot_t>(rng->accessSnapshot_(sid)));

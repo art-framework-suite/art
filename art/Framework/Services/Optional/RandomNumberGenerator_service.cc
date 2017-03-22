@@ -193,7 +193,7 @@ RNGservice::RandomNumberGenerator(Parameters const& config,
   reg.sPostEndJob.watch     (this, &RNGservice::postEndJob);
   reg.sPreProcessEvent.watch(this, &RNGservice::preProcessEvent);
 
-  // MT-FIXME: Placeholder until we can query number of schedules.
+  // MT-TODO: Placeholder until we can query number of schedules.
   unsigned const nSchedules {1u};
   data_.resize(nSchedules);
 }
@@ -267,6 +267,10 @@ RNGservice::createEngine(ScheduleID const schedule_id,
                          string requested_engine_kind,
                          label_t const& engine_label)
 {
+  // If concurrrent engine creation is desired...even within a
+  // schedule, then concurrent containers should be used.
+  CET_ASSERT_ONLY_ONE_THREAD();
+
   auto const sid = schedule_id.id();
   assert(sid < data_.size());
 
@@ -316,6 +320,8 @@ RNGservice::createEngine(ScheduleID const schedule_id,
 void
 RNGservice::print_() const
 {
+  CET_ASSERT_ONLY_ONE_THREAD();
+
   static unsigned ncalls {};
 
   if (!debug_ || ++ncalls > nPrint_)
@@ -434,7 +440,7 @@ RNGservice::saveToFile_()
   for (auto const& d : data_) {
     for (auto const& pr : d.dict_) {
       outfile << pr.first << '\n';
-      eptr_t const& eptr = pr.second;
+      auto const& eptr = pr.second;
       assert(eptr && "RNGservice::saveToFile_()");
 
       eptr->put(outfile);
@@ -480,11 +486,11 @@ RNGservice::restoreFromFile_()
         << " not configured in this job.\n";
     }
 
-    eptr_t& eptr = d->second;
-    assert(eptr && "RNGservice::restoreFromFile_()" );
     assert(data.tracker_.find(label) != data.tracker_.cend() && "RNGservice::restoreFromFile_()");
     init_t& how {data.tracker_[label]};
     if (how == VIA_SEED) { // OK
+      auto& eptr = d->second;
+      assert(eptr && "RNGservice::restoreFromFile_()" );
       if (!eptr->get(infile)) {
         throw cet::exception("RANDOM")
           << "RNGservice::restoreFromFile_():\n"
@@ -513,7 +519,7 @@ RNGservice::restoreFromFile_()
 // ----------------------------------------------------------------------
 
 void
-RNGservice::postBeginJob()
+RNGservice::postBeginJob() // Consider changing this to preBeginJob
 {
   restoreFromFile_();
   engine_creation_is_okay_ = false;
@@ -533,7 +539,7 @@ RNGservice::postEndJob()
   // For normal termination, we wish to save the state at the *end* of
   // processing, not at the beginning of the last event.
 
-  // MT-FIXME: Adjust so that the loop does not require creating
+  // MT-TODO: Adjust so that the loop does not require creating
   // temporary schedule IDs, but instead uses a system-provided
   // looping mechanism.
   for (ScheduleID::size_type i {}; i < data_.size() ; ++i) {

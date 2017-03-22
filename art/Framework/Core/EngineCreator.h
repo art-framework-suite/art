@@ -6,7 +6,7 @@
 // EngineCreator - enable a derived class to access the
 //                 RandomNumberGenerator::createEngine()
 //
-// MT-FIXME:
+// MT-TODO:
 //
 //   Once we adopt multiple module types (legacy, one, per-schedule,
 //   and global), then the steps that are necessary for creating

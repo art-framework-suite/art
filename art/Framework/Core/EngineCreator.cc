@@ -10,7 +10,7 @@
 #include <vector>
 
 namespace {
-  // MT-FIXME: Placeholder until we're multi-threaded.
+  // MT-TODO: Placeholder until we're multi-threaded.
   auto placeholder_schedule_id() { return art::ScheduleID::first(); }
 }
 

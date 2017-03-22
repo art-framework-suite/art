@@ -54,7 +54,7 @@ namespace art {
     {
       auto const seed = p.get<int>("seed", 0);
       std::uint16_t constexpr num_schedules {4};
-      rng_->expandToNSchedules(num_schedules); // MT-FIXME: To be removed whenever we are truly multi-schedule aware.
+      rng_->expandToNSchedules(num_schedules); // MT-TODO: To be removed whenever we are truly multi-schedule aware.
       for (std::uint16_t i {}; i < num_schedules; ++i) {
         dists_.emplace_back(rng_->createEngine(ScheduleID{i}, seed));
       }

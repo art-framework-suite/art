@@ -163,7 +163,7 @@ art::TimeTracker::TimeTracker(ServiceTable<Config> const & config, ActivityRegis
   , timeEventTable_ {db_, "TimeEvent" , timeEventTuple_ , overwriteContents_}
   , timeModuleTable_{db_, "TimeModule", timeModuleTuple_, overwriteContents_}
 {
-  // MT-FIXME: Placeholder until we are multi-threaded
+  // MT-TODO: Placeholder until we are multi-threaded
   unsigned const nSchedules {1u};
   data_.resize(nSchedules);
 
@@ -184,7 +184,7 @@ art::TimeTracker::TimeTracker(ServiceTable<Config> const & config, ActivityRegis
 void
 art::TimeTracker::prePathProcessing(std::string const& pathname)
 {
-  // MT-FIXME: Placeholder until we're multi-threaded
+  // MT-TODO: Placeholder until we're multi-threaded
   auto const sid = ScheduleID::first().id();
   data_[sid].pathName = pathname;
 }
@@ -260,7 +260,7 @@ art::TimeTracker::postEndJob()
 void
 art::TimeTracker::preEventProcessing(Event const& e)
 {
-  // MT-FIXME: Placeholder until we're multi-threaded
+  // MT-TODO: Placeholder until we're multi-threaded
   auto const sid = ScheduleID::first().id();
   auto& d = data_[sid];
   d.eventID = e.id();
@@ -270,7 +270,7 @@ art::TimeTracker::preEventProcessing(Event const& e)
 void
 art::TimeTracker::postEventProcessing(Event const&)
 {
-  // MT-FIXME: Placeholder until we're multi-threaded
+  // MT-TODO: Placeholder until we're multi-threaded
   auto const sid = ScheduleID::first().id();
   auto const& d = data_[sid];
   auto const t = std::chrono::duration<double>{now()-d.eventStart}.count();
@@ -284,7 +284,7 @@ art::TimeTracker::postEventProcessing(Event const&)
 void
 art::TimeTracker::startTime(ModuleDescription const&)
 {
-  // MT-FIXME: Placeholder until we're multi-threaded
+  // MT-TODO: Placeholder until we're multi-threaded
   auto const sid = ScheduleID::first().id();
   auto& d = data_[sid];
   d.moduleStart = now();
@@ -293,7 +293,7 @@ art::TimeTracker::startTime(ModuleDescription const&)
 void
 art::TimeTracker::recordTime(ModuleDescription const& desc, std::string const& suffix)
 {
-  // MT-FIXME: Placeholder until we're multi-threaded
+  // MT-TODO: Placeholder until we're multi-threaded
   auto const sid = ScheduleID::first().id();
   auto const& d = data_[sid];
   auto const t = std::chrono::duration<double>{now()-d.moduleStart}.count();

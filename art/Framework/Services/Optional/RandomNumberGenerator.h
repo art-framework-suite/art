@@ -233,6 +233,9 @@ public:
   RandomNumberGenerator(Parameters const&, art::ActivityRegistry&);
 
   // --- Engine access:
+
+  // TODO: Could remove if we do not need to support access from
+  //       engines restored from file.
   base_engine_t& getEngine() const;
   base_engine_t& getEngine(label_t const& engine_label) const;
 
@@ -245,7 +248,7 @@ private:
 
   base_engine_t& getEngine(ScheduleID schedule_id, label_t const& engine_label = {}) const;
 
-  // --- MT-FIXME: Only for testing
+  // --- MT-TODO: Only for testing
   //     For testing multi-schedule parallization of this service, the
   //     requested number of schedules is not expanded UNLESS the
   //     expandToNSchedules() function is called by a friend.
@@ -260,6 +263,7 @@ private:
   }
 
   // --- File management helpers:
+  //     TODO: Determine if this facility is necessary.
   void saveToFile_();
   void restoreFromFile_();
 
