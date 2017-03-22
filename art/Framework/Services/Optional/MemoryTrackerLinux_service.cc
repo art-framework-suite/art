@@ -2,6 +2,23 @@
 //
 // MemoryTracker
 //
+// The MemoryTracker service records VSize and RSS information
+// throughout the course of an art process.  It inserts memory
+// information into an in-memory SQLite database, or an external file
+// if the user provides a non-empty file name.
+//
+// In the context of multi-threading, the memory information recorded
+// corresponds to all memory information for the process, and not for
+// individual threads.  A consequence of this is that the recorded
+// memory usage for a given event may not correspond to memory usage
+// of that event per se, but can include contributions from other
+// events that are being processed concurrently.
+//
+// In order to have a straightforward interpretation of the
+// per-event/module memory usage of an art process, then only one
+// thread should be used.  The max VSize and RSS measurements of a job
+// should be meaningful, however, even in a multi-threaded process.
+//
 // ======================================================================
 
 #include "art/Framework/Principal/Event.h"
@@ -45,17 +62,18 @@ namespace art {
     struct Config {
       using Name = fhicl::Name;
       using Comment = fhicl::Comment;
-      fhicl::Sequence<std::string> printSummaries { Name("printSummaries"), {"general", "event", "module"} };
-      fhicl::Atom<int> maxTableLength { Name("maxTableLength"), Comment("The 'maxTableLength' parameter bounds the maximum number of rows\n"
-                                                                        "shown in the summary tables. Specifying a negative value (e.g. '-1')\n"
-                                                                        "means that all rows should be shown."), 5};
+      fhicl::Sequence<std::string> printSummaries {Name{"printSummaries"}, {"general", "event", "module"}};
+      fhicl::Atom<int> maxTableLength {Name{"maxTableLength"},
+                                       Comment{"The 'maxTableLength' parameter bounds the maximum number of rows\n"
+                                               "shown in the summary tables. Specifying a negative value (e.g. '-1')\n"
+                                               "means that all rows should be shown."}, 5};
       struct DBoutput {
-        fhicl::Atom<std::string> filename { Name("filename"), "" };
-        fhicl::Atom<bool> overwrite { Name("overwrite"), false };
+        fhicl::Atom<std::string> filename {Name{"filename"}, ""};
+        fhicl::Atom<bool> overwrite {Name{"overwrite"}, false};
       };
-      fhicl::Table<DBoutput> dbOutput { Name("dbOutput") };
-      fhicl::Atom<bool> includeMallocInfo { Name("includeMallocInfo"), false };
-      fhicl::OptionalAtom<unsigned> ignoreTotal { Name("ignoreTotal"), Comment("The following parameter is deprecated and no longer used.")};
+      fhicl::Table<DBoutput> dbOutput {Name{"dbOutput"}};
+      fhicl::Atom<bool> includeMallocInfo {Name{"includeMallocInfo"}, false };
+      fhicl::OptionalAtom<unsigned> ignoreTotal {Name{"ignoreTotal"}, Comment{"The following parameter is deprecated and no longer used."}};
     };
 
     using Parameters = ServiceTable<Config>;
@@ -97,12 +115,13 @@ namespace art {
     bool overwriteContents_;
     bool includeMallocInfo_;
 
-    std::string pathname_ {};
-    detail::LinuxProcData::proc_array evtData_ {{0.}};
-    art::EventID eventId_ {};
-    std::size_t evtCount_ {};
-
-    detail::LinuxProcData::proc_array modData_ {{0.}};
+    struct PerScheduleData {
+      std::string pathName {};
+      detail::LinuxProcData::proc_array evtData {{0.}};
+      art::EventID eventID {};
+      detail::LinuxProcData::proc_array modData {{0.}};
+    };
+    std::vector<PerScheduleData> data_;
 
     template <unsigned N>
     using name_array = cet::sqlite::name_array<N>;
@@ -275,6 +294,10 @@ art::MemoryTracker::MemoryTracker(ServiceTable<Config> const& config,
   , modBeginSubRun_ {otherInfoTable_, procInfo_, "Module beginSubRun"}
   , modEndSubRun_   {otherInfoTable_, procInfo_, "Module endSubRun"}
 {
+  // MT-TODO: Placeholder until we are multi-threaded
+  unsigned const nSchedules {1u};
+  data_.resize(nSchedules);
+
   unsigned i{};
   if (config().ignoreTotal(i)) {
     mf::LogWarning("MemoryTracker") << "The 'services.MemoryTracker.ignoreTotal' parameter is deprecated;\n"
@@ -308,36 +331,45 @@ art::MemoryTracker::MemoryTracker(ServiceTable<Config> const& config,
 void
 art::MemoryTracker::prePathProcessing(std::string const& pathname)
 {
-  pathname_ = pathname;
+  // MT-TODO: Placeholder until we're multi-threaded
+  auto const sid = ScheduleID::first().id();
+  data_[sid].pathName = pathname;
 }
 
 //======================================================================
 void
 art::MemoryTracker::preEventProcessing(Event const& e)
 {
-  eventId_ = e.id();
-  evtData_ = procInfo_.getCurrentData();
+  // MT-TODO: Placeholder until we're multi-threaded
+  auto const sid = ScheduleID::first().id();
+  auto& d = data_[sid];
+  d.eventID = e.id();
+  d.evtData = procInfo_.getCurrentData();
 }
 
 void
 art::MemoryTracker::postEventProcessing(Event const&)
 {
-  auto const data = procInfo_.getCurrentData();
-  auto const deltas = data-evtData_;
+  // MT-TODO: Placeholder until we're multi-threaded
+  auto const sid = ScheduleID::first().id();
+  auto& d = data_[sid];
 
-  eventTable_.insert(eventId_.run(),
-                     eventId_.subRun(),
-                     eventId_.event(),
+  auto const data = procInfo_.getCurrentData();
+  auto const deltas = data-d.evtData;
+
+  eventTable_.insert(d.eventID.run(),
+                     d.eventID.subRun(),
+                     d.eventID.event(),
                      data[LinuxProcData::VSIZE],
                      deltas[LinuxProcData::VSIZE],
                      data[LinuxProcData::RSS],
                      deltas[LinuxProcData::RSS]);
 
   if (includeMallocInfo_) {
-    auto minfo = LinuxMallInfo().get();
-    eventHeapTable_->insert(eventId_.run(),
-                            eventId_.subRun(),
-                            eventId_.event(),
+    auto minfo = LinuxMallInfo{}.get();
+    eventHeapTable_->insert(d.eventID.run(),
+                            d.eventID.subRun(),
+                            d.eventID.event(),
                             minfo.arena,
                             minfo.ordblks,
                             minfo.keepcost,
@@ -352,19 +384,25 @@ art::MemoryTracker::postEventProcessing(Event const&)
 void
 art::MemoryTracker::setCurrentData(ModuleDescription const&)
 {
-  modData_ = procInfo_.getCurrentData();
+  // MT-TODO: Placeholder until we're multi-threaded
+  auto const sid = ScheduleID::first().id();
+  data_[sid].modData = procInfo_.getCurrentData();
 }
 
 void
 art::MemoryTracker::recordData(ModuleDescription const& md, std::string const& suffix)
 {
-  auto const data = procInfo_.getCurrentData();
-  auto const deltas = data-modData_;
+  // MT-TODO: Placeholder until we're multi-threaded
+  auto const sid = ScheduleID::first().id();
+  auto& d = data_[sid];
 
-  moduleTable_.insert(eventId_.run(),
-                      eventId_.subRun(),
-                      eventId_.event(),
-                      pathname_,
+  auto const data = procInfo_.getCurrentData();
+  auto const deltas = data-d.modData;
+
+  moduleTable_.insert(d.eventID.run(),
+                      d.eventID.subRun(),
+                      d.eventID.event(),
+                      d.pathName,
                       md.moduleLabel(),
                       md.moduleName()+suffix,
                       data[LinuxProcData::VSIZE],
@@ -373,11 +411,11 @@ art::MemoryTracker::recordData(ModuleDescription const& md, std::string const& s
                       deltas[LinuxProcData::RSS]);
 
   if (includeMallocInfo_) {
-    auto minfo = LinuxMallInfo().get();
-    moduleHeapTable_->insert(eventId_.run(),
-                             eventId_.subRun(),
-                             eventId_.event(),
-                             pathname_,
+    auto minfo = LinuxMallInfo{}.get();
+    moduleHeapTable_->insert(d.eventID.run(),
+                             d.eventID.subRun(),
+                             d.eventID.event(),
+                             d.pathName,
                              md.moduleLabel(),
                              md.moduleName()+suffix,
                              minfo.arena,

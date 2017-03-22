@@ -51,7 +51,7 @@ namespace art {
     }
 
     //=======================================================
-    LinuxProcMgr::~LinuxProcMgr()
+    LinuxProcMgr::~LinuxProcMgr() noexcept
     {
       close(fd_);
     }
@@ -73,7 +73,7 @@ namespace art {
         buf[cnt] = '\0';
 
         LinuxProcData::vsize_t vsize;
-        LinuxProcData::rss_t   rss;
+        LinuxProcData::rss_t rss;
 
         std::istringstream iss {buf};
         iss >> token_ignore(22) >> vsize >> rss;

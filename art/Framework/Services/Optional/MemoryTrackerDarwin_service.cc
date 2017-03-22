@@ -11,12 +11,11 @@ namespace fhicl { class ParameterSet; }
 
 namespace art {
 
-  class ActivityRegistry;
-
   class MemoryTracker {
   public:
 
-    MemoryTracker(fhicl::ParameterSet const&, ActivityRegistry&) {
+    MemoryTracker(fhicl::ParameterSet const&)
+    {
       mf::LogAbsolute("MemoryTracker") << "\n"
                                        << "The MemoryTracker service is not supported for this operating system.\n"
                                        << "If desired, please log an issue with:\n\n"

@@ -72,7 +72,7 @@ namespace art {
     struct LinuxProcData {
 
       // supported procfs types
-      enum procfs_type{ VSIZE, RSS, ntypes };
+      enum procfs_type{VSIZE, RSS, ntypes};
 
       // aliases
       using vsize_t    = unsigned long;
@@ -80,32 +80,32 @@ namespace art {
       using proc_array = std::array<double,ntypes>;
 
       // constants
-      static constexpr double kB = 1024.;
-      static constexpr double MB = kB*kB;
+      static constexpr double kB {1024.};
+      static constexpr double MB {kB*kB};
     };
 
     // operator overloads for std::array arithmetic
     // ... must type 'using namespace art::detail' to use
 
-    inline bool operator > (LinuxProcData::proc_array const& left,
-                            LinuxProcData::proc_array const& right)
+    inline bool operator>(LinuxProcData::proc_array const& left,
+                          LinuxProcData::proc_array const& right)
     {
       for (unsigned i{} ; i < LinuxProcData::ntypes ; ++i) {
-        if ( left[i] > right[i] ) return true;
+        if (left[i] > right[i]) return true;
       }
       return false;
     }
 
     inline
-    bool operator <= (LinuxProcData::proc_array const& left,
-                      LinuxProcData::proc_array const& right)
+    bool operator<=(LinuxProcData::proc_array const& left,
+                    LinuxProcData::proc_array const& right)
     {
       return !(left > right);
     }
 
     inline
-    LinuxProcData::proc_array operator- (LinuxProcData::proc_array const& left,
-                                         LinuxProcData::proc_array const& right)
+    LinuxProcData::proc_array operator-(LinuxProcData::proc_array const& left,
+                                        LinuxProcData::proc_array const& right)
     {
       LinuxProcData::proc_array tmp = {0.};
       for (unsigned i{} ; i < LinuxProcData::ntypes ; ++i) {
@@ -118,7 +118,7 @@ namespace art {
     LinuxProcData::proc_array& operator+= (LinuxProcData::proc_array& left,
                                            LinuxProcData::proc_array const& right)
     {
-      for ( unsigned i{} ; i < LinuxProcData::ntypes ; ++i ) {
+      for (unsigned i{} ; i < LinuxProcData::ntypes ; ++i) {
         left[i] += right[i];
       }
       return left;

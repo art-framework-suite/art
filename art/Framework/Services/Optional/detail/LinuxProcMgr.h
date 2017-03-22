@@ -9,8 +9,8 @@ namespace art {
     class LinuxProcMgr {
     public:
 
-      LinuxProcMgr();
-      ~LinuxProcMgr();
+      explicit LinuxProcMgr();
+      ~LinuxProcMgr() noexcept;
 
       LinuxProcData::proc_array getCurrentData() const;
       double getVmPeak() const { return getStatusData_("VmPeak"); }
