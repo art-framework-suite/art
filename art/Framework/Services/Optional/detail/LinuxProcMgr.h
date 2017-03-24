@@ -2,17 +2,21 @@
 #define art_Framework_Services_Optional_detail_LinuxProcMgr_h
 
 #include "art/Framework/Services/Optional/detail/LinuxProcData.h"
+#include "art/Utilities/ScheduleID.h"
+
+#include <vector>
 
 namespace art {
   namespace detail {
 
     class LinuxProcMgr {
+      using sid_size_type = ScheduleID::size_type;
     public:
 
-      explicit LinuxProcMgr();
+      explicit LinuxProcMgr(sid_size_type nSchedules);
       ~LinuxProcMgr() noexcept;
 
-      LinuxProcData::proc_array getCurrentData() const;
+      LinuxProcData::proc_tuple getCurrentData(sid_size_type) const;
       double getVmPeak() const { return getStatusData_("VmPeak"); }
       double getVmHWM() const { return getStatusData_("VmHWM"); }
 
@@ -27,7 +31,7 @@ namespace art {
 
       pid_t pid_;
       long pgSize_;
-      int fd_ {};
+      std::vector<int> fileDescriptors_ {};
     };
 
   }

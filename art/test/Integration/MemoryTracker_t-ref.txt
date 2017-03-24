@@ -20,92 +20,11 @@ TimeReport CPU = <duration> Real = <duration>
 
 <separator (=)>
 
-MemoryTracker General SUMMARY (all numbers in units of Mbytes)
+MemoryTracker summary
 
 Peak virtual memory usage (VmPeak)  :	<mem-size>
 Peak resident set size usage (VmHWM):	<mem-size>
-
-
-ProcessStep          Module ID                                Δ Vsize      Δ RSS 
-<separator (=)>
-Module Construction	a1:TestSimpleMemoryCheckProducer	<mem-size>	<mem-size>
-Module Construction	a2:TestSimpleMemoryCheckProducer	<mem-size>	<mem-size>
-Module Construction	a3:TestSimpleMemoryCheckProducer	<mem-size>	<mem-size>
-Module Construction	TriggerResults:TriggerResultInserter	<mem-size>	<mem-size>
-<separator (-)>
-Module beginJob	a1:TestSimpleMemoryCheckProducer	<mem-size>	<mem-size>
-Module beginJob	a2:TestSimpleMemoryCheckProducer	<mem-size>	<mem-size>
-Module beginJob	a3:TestSimpleMemoryCheckProducer	<mem-size>	<mem-size>
-Module beginJob	TriggerResults:TriggerResultInserter	<mem-size>	<mem-size>
-<separator (-)>
-Module beginRun	a1:TestSimpleMemoryCheckProducer	<mem-size>	<mem-size>
-Module beginRun	a2:TestSimpleMemoryCheckProducer	<mem-size>	<mem-size>
-Module beginRun	a3:TestSimpleMemoryCheckProducer	<mem-size>	<mem-size>
-Module beginRun	TriggerResults:TriggerResultInserter	<mem-size>	<mem-size>
-<separator (-)>
-Module beginSubRun	a1:TestSimpleMemoryCheckProducer	<mem-size>	<mem-size>
-Module beginSubRun	a2:TestSimpleMemoryCheckProducer	<mem-size>	<mem-size>
-Module beginSubRun	a3:TestSimpleMemoryCheckProducer	<mem-size>	<mem-size>
-Module beginSubRun	TriggerResults:TriggerResultInserter	<mem-size>	<mem-size>
-<separator (-)>
-Module endSubRun	a1:TestSimpleMemoryCheckProducer	<mem-size>	<mem-size>
-Module endSubRun	a2:TestSimpleMemoryCheckProducer	<mem-size>	<mem-size>
-Module endSubRun	a3:TestSimpleMemoryCheckProducer	<mem-size>	<mem-size>
-Module endSubRun	TriggerResults:TriggerResultInserter	<mem-size>	<mem-size>
-<separator (-)>
-Module endRun	a1:TestSimpleMemoryCheckProducer	<mem-size>	<mem-size>
-Module endRun	a2:TestSimpleMemoryCheckProducer	<mem-size>	<mem-size>
-Module endRun	a3:TestSimpleMemoryCheckProducer	<mem-size>	<mem-size>
-Module endRun	TriggerResults:TriggerResultInserter	<mem-size>	<mem-size>
-<separator (-)>
-Module endJob	a1:TestSimpleMemoryCheckProducer	<mem-size>	<mem-size>
-Module endJob	a2:TestSimpleMemoryCheckProducer	<mem-size>	<mem-size>
-Module endJob	a3:TestSimpleMemoryCheckProducer	<mem-size>	<mem-size>
-Module endJob	TriggerResults:TriggerResultInserter	<mem-size>	<mem-size>
-
-<separator (=)>
-
-MemoryTracker Per-event SUMMARY
-
-Events increasing Vsize (Mbytes)        Vsize      Δ Vsize      RSS         Δ RSS 
-<separator (=)>
- <ev-info>
-
-Events with large Vsize (Mbytes)        Vsize      Δ Vsize      RSS         Δ RSS 
-<separator (=)>
- <ev-info>
-
-<separator (=)>
-
-MemoryTracker Per-module SUMMARY
-
-Modules increasing Vsize (Mbytes)            Vsize      Δ Vsize      RSS         Δ RSS 
-<separator (=)>
-p1:a1:TestSimpleMemoryCheckProducer
- <ev-info>
-<separator (-)>
-p1:a2:TestSimpleMemoryCheckProducer
- <ev-info>
-<separator (-)>
-p1:a3:TestSimpleMemoryCheckProducer
- <ev-info>
-<separator (-)>
-p1:TriggerResults:TriggerResultInserter
-  [ no events ]
-
-Modules with large Vsize (Mbytes)            Vsize      Δ Vsize      RSS         Δ RSS 
-<separator (=)>
-p1:a1:TestSimpleMemoryCheckProducer
- <ev-info>
-<separator (-)>
-p1:a2:TestSimpleMemoryCheckProducer
- <ev-info>
-<separator (-)>
-p1:a3:TestSimpleMemoryCheckProducer
- <ev-info>
-<separator (-)>
-p1:TriggerResults:TriggerResultInserter
- <ev-info>
+  Details saved in: 'memoryTracker.db'
 
 <separator (=)>
 

@@ -62,8 +62,9 @@
 //
 //===================================================================
 
-#include <array>
 #include <sstream>
+#include <tuple>
+#include <type_traits>
 
 namespace art {
   namespace detail {
@@ -75,55 +76,50 @@ namespace art {
       enum procfs_type{VSIZE, RSS, ntypes};
 
       // aliases
-      using vsize_t    = unsigned long;
-      using rss_t      = long;
-      using proc_array = std::array<double,ntypes>;
+      struct proc_type {};
+      struct vsize_t : proc_type {
+        using value_type = unsigned long;
+        explicit vsize_t(value_type const v) : value{v} {}
+        value_type value;
+      };
+
+      struct rss_t : proc_type {
+        using value_type = long;
+        explicit rss_t(value_type const v) : value{v} {}
+        value_type value;
+      };
+
+      using proc_tuple = std::tuple<vsize_t,rss_t>;
+
+      static auto make_proc_tuple(vsize_t::value_type const vsize = {}, rss_t::value_type const rss = {})
+      {
+        return proc_tuple{vsize_t{vsize}, rss_t{rss}};
+      }
+
+      template <typename T>
+      static
+      std::enable_if_t<std::is_base_of<proc_type,T>::value, double>
+      getValueInMB(proc_tuple const& t)
+      {
+        // Info from proc is in bytes; convert to base-10 MB.
+        return std::get<T>(t).value/MB;
+      }
 
       // constants
-      static constexpr double kB {1024.};
-      static constexpr double MB {kB*kB};
+      static constexpr double KB {1000.};
+      static constexpr double KiB {1.024*KB};
+      static constexpr double MB {KB*KB};
+      static constexpr double MiB {KiB*KiB};
     };
 
     // operator overloads for std::array arithmetic
     // ... must type 'using namespace art::detail' to use
 
-    inline bool operator>(LinuxProcData::proc_array const& left,
-                          LinuxProcData::proc_array const& right)
-    {
-      for (unsigned i{} ; i < LinuxProcData::ntypes ; ++i) {
-        if (left[i] > right[i]) return true;
-      }
-      return false;
-    }
+    LinuxProcData::proc_tuple operator-(LinuxProcData::proc_tuple const& left,
+                                        LinuxProcData::proc_tuple const& right);
 
-    inline
-    bool operator<=(LinuxProcData::proc_array const& left,
-                    LinuxProcData::proc_array const& right)
-    {
-      return !(left > right);
-    }
-
-    inline
-    LinuxProcData::proc_array operator-(LinuxProcData::proc_array const& left,
-                                        LinuxProcData::proc_array const& right)
-    {
-      LinuxProcData::proc_array tmp = {0.};
-      for (unsigned i{} ; i < LinuxProcData::ntypes ; ++i) {
-        tmp[i] = left[i] - right[i];
-      }
-      return tmp;
-    }
-
-    inline
-    LinuxProcData::proc_array& operator+= (LinuxProcData::proc_array& left,
-                                           LinuxProcData::proc_array const& right)
-    {
-      for (unsigned i{} ; i < LinuxProcData::ntypes ; ++i) {
-        left[i] += right[i];
-      }
-      return left;
-    }
-
+    LinuxProcData::proc_tuple& operator+= (LinuxProcData::proc_tuple& left,
+                                           LinuxProcData::proc_tuple const& right);
   }
 }
 #endif /* art_Framework_Services_Optional_detail_LinuxProcData_h */

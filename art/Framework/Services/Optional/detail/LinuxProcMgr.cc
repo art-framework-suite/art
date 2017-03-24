@@ -7,6 +7,7 @@
 #include "art/Framework/Services/Optional/detail/LinuxProcData.h"
 #include "art/Framework/Services/Optional/detail/LinuxProcMgr.h"
 #include "canvas/Utilities/Exception.h"
+#include "cetlib/assert_only_one_thread.h"
 
 #include <regex>
 #include <sstream>
@@ -38,33 +39,43 @@ namespace art {
   namespace detail {
 
     //=======================================================
-    LinuxProcMgr::LinuxProcMgr()
+    LinuxProcMgr::LinuxProcMgr(sid_size_type const nSchedules)
       : pid_{getpid()}
       , pgSize_{sysconf(_SC_PAGESIZE)}
     {
       std::ostringstream ost;
       ost << "/proc/" << pid_ << "/stat";
-      if ((fd_ = open(ost.str().c_str(), O_RDONLY)) < 0) {
-        throw Exception{errors::Configuration}
-          << " Failed to open: " << ost.str() << std::endl;
+
+      for (sid_size_type i {}; i < nSchedules; ++i) {
+        auto fd = open(ost.str().c_str(), O_RDONLY);
+        if (fd < 0) {
+          throw Exception{errors::Configuration}
+          << " Failed to open: " << ost.str() << " for schedule: " << i << '\n';
+        }
+        fileDescriptors_.push_back(fd);
       }
     }
 
     //=======================================================
     LinuxProcMgr::~LinuxProcMgr() noexcept
     {
-      close(fd_);
+      for (auto const fd : fileDescriptors_) {
+        close(fd);
+      }
     }
 
     //=======================================================
-    LinuxProcData::proc_array LinuxProcMgr::getCurrentData() const
+    LinuxProcData::proc_tuple
+    LinuxProcMgr::getCurrentData(sid_size_type const sid) const
     {
-      lseek(fd_, 0, SEEK_SET);
+      auto& fd = fileDescriptors_[sid];
+
+      lseek(fd, 0, SEEK_SET);
 
       char buf[400];
-      int const cnt = read(fd_, buf, sizeof(buf));
+      ssize_t const cnt {read(fd, buf, sizeof(buf))};
 
-      LinuxProcData::proc_array data;
+      auto data = LinuxProcData::make_proc_tuple();
 
       if (cnt < 0) {
         perror("Read of Proc file failed:");
@@ -72,22 +83,23 @@ namespace art {
       else if (cnt > 0) {
         buf[cnt] = '\0';
 
-        LinuxProcData::vsize_t vsize;
-        LinuxProcData::rss_t rss;
+        LinuxProcData::vsize_t::value_type vsize;
+        LinuxProcData::rss_t::value_type rss;
 
         std::istringstream iss {buf};
         iss >> token_ignore(22) >> vsize >> rss;
 
-        data = {vsize/LinuxProcData::MB,
-                rss*pgSize_/LinuxProcData::MB};
+        data = LinuxProcData::make_proc_tuple(vsize, rss*pgSize_);
       }
       return data;
-
     }
 
     //=======================================================
-    double LinuxProcMgr::getStatusData_(std::string const& field) const
+    double
+    LinuxProcMgr::getStatusData_(std::string const& field) const
     {
+      CET_ASSERT_ONLY_ONE_THREAD();
+
       std::ostringstream ost;
       ost << "cat /proc/" << pid_ << "/status";
 
@@ -104,7 +116,9 @@ namespace art {
         if (fgets(buffer, sizeof(buffer), file) != nullptr) {
           std::cmatch cm;
           if (std::regex_search(buffer, cm, pattern)) {
-            value = std::stod(cm.str(1))/LinuxProcData::kB; // convert to MB
+            // Reported value from proc (although labeled 'kB') is
+            // actually in KiB.  Will convert to base-10 MB.
+            value = std::stod(cm.str(1))*LinuxProcData::KiB/LinuxProcData::MB;
             break;
           }
         }
