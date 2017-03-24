@@ -36,7 +36,7 @@ class Tracer {
 public:
 
   struct Config {
-    fhicl::Atom<std::string> indentation { fhicl::Name("indentation"), "++" };
+    fhicl::Atom<std::string> indentation {fhicl::Name{"indentation"}, "++"};
   };
 
   using Parameters = ServiceTable<Config>;
@@ -219,76 +219,96 @@ Tracer::Tracer(ServiceTable<Config> const& config, ActivityRegistry& iRegistry)
 
 void
 Tracer::postBeginJob() {
-   indent(1) << " Job started" << std::endl;
-}
-void
-Tracer::postEndJob() {
-   indent(1) << " Job ended" << std::endl;
+  indent(1) << " Job started" << std::endl;
 }
 
 void
-Tracer::preSourceEvent() {
+Tracer::postEndJob()
+{
+  indent(1) << " Job ended" << std::endl;
+}
+
+void
+Tracer::preSourceEvent()
+{
   indent(2) << "source event" << std::endl;
 }
+
 void
-Tracer::postSourceEvent () {
+Tracer::postSourceEvent ()
+{
   indent(2) << "finished: source event" << std::endl;
 }
 
 void
-Tracer::preSourceSubRun() {
+Tracer::preSourceSubRun()
+{
   indent(2) << "source subRun" << std::endl;
 }
+
 void
-Tracer::postSourceSubRun () {
+Tracer::postSourceSubRun ()
+{
   indent(2) << "finished: source subRun" << std::endl;
 }
 
 void
-Tracer::preSourceRun() {
+Tracer::preSourceRun()
+{
   indent(2) << "source run" << std::endl;
 }
+
 void
-Tracer::postSourceRun () {
+Tracer::postSourceRun ()
+{
   indent(2) << "finished: source run" << std::endl;
 }
 
 void
-Tracer::preOpenFile() {
+Tracer::preOpenFile()
+{
   indent(2) << "open input file" << std::endl;
 }
+
 void
-Tracer::postOpenFile (std::string const &fn) {
+Tracer::postOpenFile (std::string const &fn)
+{
   indent(2) << "finished: open input file "
             << fn
             << std::endl;
 }
 
 void
-Tracer::preCloseFile() {
+Tracer::preCloseFile()
+{
   indent(2) << "close input file" << std::endl;
 }
+
 void
-Tracer::postCloseFile () {
+Tracer::postCloseFile ()
+{
   indent(2) << "finished: close input file" << std::endl;
 }
 
 void
-Tracer::postOpenOutputFile (std::string const & label) {
+Tracer::postOpenOutputFile (std::string const & label)
+{
   indent(2) << "opened output file from "
             << label
             << std::endl;
 }
 
 void
-Tracer::preCloseOutputFile (std::string const & label) {
+Tracer::preCloseOutputFile (std::string const & label)
+{
   indent(2) << "close output file from "
             << label
             << std::endl;
 }
 
 void
-Tracer::postCloseOutputFile (OutputFileInfo const & info) {
+Tracer::postCloseOutputFile (OutputFileInfo const & info)
+{
   std::string const fn {info.fileName().empty() ? "<none>"s : info.fileName()};
   indent(2) << "finished close output file "
             << fn
@@ -298,118 +318,144 @@ Tracer::postCloseOutputFile (OutputFileInfo const & info) {
 }
 
 void
-Tracer::preEvent(Event const& ev) {
-   depth_=0;
-   indent(2) << " processing event:"
-             << ev.id()
-             << " time:"
-             << ev.time().value()
-             << std::endl;
-}
-void
-Tracer::postEvent(Event const&) {
-   indent(2) << " finished event:" << std::endl;
+Tracer::preEvent(Event const& ev)
+{
+  depth_=0;
+  indent(2) << " processing event:"
+            << ev.id()
+            << " time:"
+            << ev.time().value()
+            << std::endl;
 }
 
 void
-Tracer::prePathEvent(std::string const& iName) {
+Tracer::postEvent(Event const&)
+{
+  indent(2) << " finished event:" << std::endl;
+}
+
+void
+Tracer::prePathEvent(std::string const& iName)
+{
   indent(3) << " processing path for event:" << iName << std::endl;
 }
+
 void
-Tracer::postPathEvent(std::string const& /*iName*/, HLTPathStatus const&) {
+Tracer::postPathEvent(std::string const& /*iName*/, HLTPathStatus const&)
+{
   indent(3) << " finished path for event:" << std::endl;
 }
 
 void
-Tracer::preModuleEvent(ModuleDescription const& iDescription) {
-   ++depth_;
-   indent(3+depth_) << " module for event:" << iDescription.moduleLabel() << std::endl;
-}
-void
-Tracer::postModuleEvent(ModuleDescription const& iDescription) {
-   --depth_;
-   indent(4+depth_) << " finished for event:" << iDescription.moduleLabel() << std::endl;
+Tracer::preModuleEvent(ModuleDescription const& iDescription)
+{
+  ++depth_;
+  indent(3+depth_) << " module for event:" << iDescription.moduleLabel() << std::endl;
 }
 
 void
-Tracer::preBeginRun(Run const& run) {
-   depth_=0;
-   indent(2) << " processing begin run:"
-             << run.id()
-             << " time:"
-             << run.beginTime().value()
-             << std::endl;
-}
-void
-Tracer::postBeginRun(Run const&) {
-   indent(2) << " finished begin run:" << std::endl;
+Tracer::postModuleEvent(ModuleDescription const& iDescription)
+{
+  --depth_;
+  indent(4+depth_) << " finished for event:" << iDescription.moduleLabel() << std::endl;
 }
 
 void
-Tracer::prePathBeginRun(std::string const& iName) {
+Tracer::preBeginRun(Run const& run)
+{
+  depth_=0;
+  indent(2) << " processing begin run:"
+            << run.id()
+            << " time:"
+            << run.beginTime().value()
+            << std::endl;
+}
+
+void
+Tracer::postBeginRun(Run const&)
+{
+  indent(2) << " finished begin run:" << std::endl;
+}
+
+void
+Tracer::prePathBeginRun(std::string const& iName)
+{
   indent(3) << " processing path for begin run:" << iName << std::endl;
 }
 
 void
-Tracer::postPathBeginRun(std::string const& /*iName*/, HLTPathStatus const&) {
+Tracer::postPathBeginRun(std::string const& /*iName*/, HLTPathStatus const&)
+{
   indent(3) << " finished path for begin run:" << std::endl;
 }
 
 void
-Tracer::preModuleBeginRun(ModuleDescription const& iDescription) {
-   ++depth_;
-   indent(3+depth_) << " module for begin run:" << iDescription.moduleLabel() << std::endl;
-}
-void
-Tracer::postModuleBeginRun(ModuleDescription const& iDescription) {
-   --depth_;
-   indent(4+depth_) << " finished for begin run:" << iDescription.moduleLabel() << std::endl;
+Tracer::preModuleBeginRun(ModuleDescription const& iDescription)
+{
+  ++depth_;
+  indent(3+depth_) << " module for begin run:" << iDescription.moduleLabel() << std::endl;
 }
 
 void
-Tracer::preEndRun(RunID const& iID, Timestamp const& iTime) {
-   depth_=0;
-   indent(2) << " processing end run:" << iID << " time:" << iTime.value() << std::endl;
+Tracer::postModuleBeginRun(ModuleDescription const& iDescription)
+{
+  --depth_;
+  indent(4+depth_) << " finished for begin run:" << iDescription.moduleLabel() << std::endl;
 }
 
 void
-Tracer::postEndRun(Run const&) {
-   indent(2) << " finished end run:" << std::endl;
+Tracer::preEndRun(RunID const& iID, Timestamp const& iTime)
+{
+  depth_=0;
+  indent(2) << " processing end run:" << iID << " time:" << iTime.value() << std::endl;
 }
 
 void
-Tracer::prePathEndRun(std::string const& iName) {
+Tracer::postEndRun(Run const&)
+{
+  indent(2) << " finished end run:" << std::endl;
+}
+
+void
+Tracer::prePathEndRun(std::string const& iName)
+{
   indent(3) << " processing path for end run:" << iName << std::endl;
 }
+
 void
-Tracer::postPathEndRun(std::string const& /*iName*/, HLTPathStatus const&) {
+Tracer::postPathEndRun(std::string const& /*iName*/, HLTPathStatus const&)
+{
   indent(3) << " finished path for end run:" << std::endl;
 }
 
 void
-Tracer::preModuleEndRun(ModuleDescription const& iDescription) {
-   ++depth_;
-   indent(3+depth_) << " module for end run:" << iDescription.moduleLabel() << std::endl;
-}
-void
-Tracer::postModuleEndRun(ModuleDescription const& iDescription) {
-   --depth_;
-   indent(4+depth_) << " finished for end run:" << iDescription.moduleLabel() << std::endl;
+Tracer::preModuleEndRun(ModuleDescription const& iDescription)
+{
+  ++depth_;
+  indent(3+depth_) << " module for end run:" << iDescription.moduleLabel() << std::endl;
 }
 
 void
-Tracer::preBeginSubRun(SubRun const& subRun) {
-   depth_=0;
-   indent(2) << " processing begin subRun:"
-             << subRun.id()
-             << " time:"
-             << subRun.beginTime().value()
-             << std::endl;
+Tracer::postModuleEndRun(ModuleDescription const& iDescription)
+{
+  --depth_;
+  indent(4+depth_) << " finished for end run:" << iDescription.moduleLabel() << std::endl;
+}
+
+void
+Tracer::preBeginSubRun(SubRun const& subRun)
+{
+  depth_=0;
+  indent(2) << " processing begin subRun:"
+            << subRun.id()
+            << " time:"
+            << subRun.beginTime().value()
+            << std::endl;
 }
 
 void
 Tracer::postBeginSubRun(SubRun const&) {
-   indent(2) << " finished begin subRun:" << std::endl;
+  indent(2) << " finished begin subRun:" << std::endl;
 }
 
 void
@@ -423,23 +469,23 @@ Tracer::postPathBeginSubRun(std::string const& /*iName*/, HLTPathStatus const&) 
 
 void
 Tracer::preModuleBeginSubRun(ModuleDescription const& iDescription) {
-   ++depth_;
-   indent(3+depth_) << " module for begin subRun:" << iDescription.moduleLabel() << std::endl;
+  ++depth_;
+  indent(3+depth_) << " module for begin subRun:" << iDescription.moduleLabel() << std::endl;
 }
 void
 Tracer::postModuleBeginSubRun(ModuleDescription const& iDescription) {
-   --depth_;
-   indent(4) << " finished for begin subRun:" << iDescription.moduleLabel() << std::endl;
+  --depth_;
+  indent(4) << " finished for begin subRun:" << iDescription.moduleLabel() << std::endl;
 }
 
 void
 Tracer::preEndSubRun(SubRunID const& iID, Timestamp const& iTime) {
-   depth_=0;
-   indent(2) << " processing end subRun:" << iID << " time:" << iTime.value() << std::endl;
+  depth_=0;
+  indent(2) << " processing end subRun:" << iID << " time:" << iTime.value() << std::endl;
 }
 void
 Tracer::postEndSubRun(SubRun const&) {
-   indent(2) << " finished end subRun:" << std::endl;
+  indent(2) << " finished end subRun:" << std::endl;
 }
 
 void
@@ -454,14 +500,14 @@ Tracer::postPathEndSubRun(std::string const& /*iName*/, HLTPathStatus const&) {
 
 void
 Tracer::preModuleEndSubRun(ModuleDescription const& iDescription) {
-   ++depth_;
-   indent(3+depth_) << " module for end subRun:" << iDescription.moduleLabel() << std::endl;
+  ++depth_;
+  indent(3+depth_) << " module for end subRun:" << iDescription.moduleLabel() << std::endl;
 }
 
 void
 Tracer::postModuleEndSubRun(ModuleDescription const& iDescription) {
-   --depth_;
-   indent(4+depth_) << " finished for end subRun:" << iDescription.moduleLabel() << std::endl;
+  --depth_;
+  indent(4+depth_) << " finished for end subRun:" << iDescription.moduleLabel() << std::endl;
 }
 
 void

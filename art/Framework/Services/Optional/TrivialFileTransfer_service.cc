@@ -1,39 +1,39 @@
-#include "art/Framework/Services/Optional/TrivialFileTransfer.h"
 #include "art/Framework/Services/FileServiceInterfaces/FileTransferStatus.h"
+#include "art/Framework/Services/Optional/TrivialFileTransfer.h"
+
 #include <cerrno>
 #include <cstdlib>
 #include <fstream>
-#include <iterator>  // for istream_iterator and ostream_iterator
-#include <algorithm> // for std::copy
-#include <stdio.h>   // for tmpnam()
-#include <cstdlib>   // for getenv()
+#include <iterator>
+#include <algorithm>
+
 using namespace art;
 using namespace std;
 using fhicl::ParameterSet;
 
-art::TrivialFileTransfer::TrivialFileTransfer
-(TrivialFileTransfer::Parameters const & , ActivityRegistry &)
-  : scratchArea("."/*std::getenv("ART_FILE_TRANSFER_SCRATCH_AREA")*/)
-{
+namespace {
+  std::string const fileURI {"file://"};
 }
 
-int art::TrivialFileTransfer::doTranslateToLocalFilename
-(std::string const & uri, std::string & fileFQname)
+art::TrivialFileTransfer::TrivialFileTransfer(TrivialFileTransfer::Parameters const&)
+{}
+
+int art::TrivialFileTransfer::doTranslateToLocalFilename(std::string const& uri, std::string& fileFQname)
 {
-  static std::string const fileURI { "file://" };
-  if (uri.compare(0, 7, fileURI) != 0) {
+  if (uri.substr(0, 7) != fileURI) {
     fileFQname = uri; // Unexpected protocol: pass through.
     return FileTransferStatus::SUCCESS;
   }
+
   FileTransferStatus stat = FileTransferStatus::PENDING;
   fileFQname = "";
   std::string inFileName;
-  int inFileStatus = stripURI(uri, inFileName);
-  if (inFileStatus != 0) {
+  if (stripURI(uri, inFileName) != 0) {
     stat = FileTransferStatus::BAD_REQUEST;
     return stat;
   }
-  ifstream infile(inFileName.c_str());
+
+  ifstream infile {inFileName.c_str()};
   if (!infile) {
     stat = FileTransferStatus::NOT_FOUND;
     return stat;
@@ -52,11 +52,9 @@ int art::TrivialFileTransfer::doTranslateToLocalFilename
   //   scratch file name, to try to maintain traceability in case things break.
 }
 
-int art::TrivialFileTransfer::stripURI
-(std::string const & uri, std::string & inFileName) const
+int art::TrivialFileTransfer::stripURI(std::string const& uri, std::string& inFileName) const
 {
-  const std::string filestr("file://");
-  if (uri.substr(0, 7) != filestr) {
+  if (uri.substr(0, 7) != fileURI) {
     inFileName = "";
     return 1;
   }
@@ -64,11 +62,11 @@ int art::TrivialFileTransfer::stripURI
   return 0;
 }
 
-int art::TrivialFileTransfer::copyFile(std::ifstream & in, std::ofstream & out) const
+int art::TrivialFileTransfer::copyFile(std::ifstream& in, std::ofstream& out) const
 {
-  std::copy(std::istream_iterator<char>(in),
-            std::istream_iterator<char>(),
-            std::ostream_iterator<char>(out));
+  std::copy(std::istream_iterator<char>{in},
+            std::istream_iterator<char>{},
+            std::ostream_iterator<char>{out});
   return 0;
 }
 

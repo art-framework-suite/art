@@ -5,9 +5,9 @@
 #include <string>
 
 std::string
-art::translateFileDeliveryStatus(FileDeliveryStatus stat)
+art::translateFileDeliveryStatus(FileDeliveryStatus const stat)
 {
-  switch( stat ) {
+  switch(stat) {
   default:
   {
     std::ostringstream os;

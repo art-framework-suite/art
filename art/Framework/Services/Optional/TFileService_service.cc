@@ -16,6 +16,7 @@
 #include "art/Utilities/parent_path.h"
 #include "art/Utilities/unique_filename.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
+#include "cetlib/assert_only_one_thread.h"
 #include "fhiclcpp/ParameterSet.h"
 
 #include "TFile.h"
@@ -77,6 +78,7 @@ TFileService::~TFileService()
 void
 TFileService::setDirectoryName(ModuleDescription const& desc)
 {
+  CET_ASSERT_ONLY_ONE_THREAD();
   dir_ = desc.moduleLabel();
   descr_ = dir_ ;
   descr_ += " (";
