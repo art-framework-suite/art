@@ -112,14 +112,6 @@ namespace art {
       static constexpr double MiB {KiB*KiB};
     };
 
-    // operator overloads for std::array arithmetic
-    // ... must type 'using namespace art::detail' to use
-
-    LinuxProcData::proc_tuple operator-(LinuxProcData::proc_tuple const& left,
-                                        LinuxProcData::proc_tuple const& right);
-
-    LinuxProcData::proc_tuple& operator+= (LinuxProcData::proc_tuple& left,
-                                           LinuxProcData::proc_tuple const& right);
   }
 }
 #endif /* art_Framework_Services_Optional_detail_LinuxProcData_h */

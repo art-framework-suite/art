@@ -6,7 +6,6 @@ set( art_Framework_Services_Optional_sources
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   list(APPEND
     art_Framework_Services_Optional_sources
-    detail/LinuxProcData.cc
     detail/LinuxProcMgr.cc
     )
   set(MemoryTrackerSource MemoryTrackerLinux_service.cc)
