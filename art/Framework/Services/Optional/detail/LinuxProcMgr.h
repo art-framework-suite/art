@@ -1,6 +1,18 @@
 #ifndef art_Framework_Services_Optional_detail_LinuxProcMgr_h
 #define art_Framework_Services_Optional_detail_LinuxProcMgr_h
 
+// ================================================================
+// LinuxProcMgr
+//
+// Responsible for retrieving procfs information used by the
+// MemoryTracker.
+//
+// MT-TODO: Once we decide to allow multiple modules to process the
+// same event concurrently, we'll need to adjust how memory
+// information is retrieved--it may need to be per-thread instead of
+// per-schedule.
+// ================================================================
+
 #include "art/Framework/Services/Optional/detail/LinuxProcData.h"
 #include "art/Utilities/ScheduleID.h"
 

@@ -20,7 +20,7 @@ TimeReport CPU = <duration> Real = <duration>
 
 <separator (=)>
 
-MemoryTracker summary
+MemoryTracker summary (base-10 MB units used)
 
 Peak virtual memory usage (VmPeak)  :	<mem-size>
 Peak resident set size usage (VmHWM):	<mem-size>
