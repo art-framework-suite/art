@@ -345,7 +345,7 @@ art::MemoryTracker::summary_()
   std::string const rule(100,'=');
   msgOss << rule << "\n\n";
   // Should be more explicit that these are MB and not MiB."
-  msgOss << std::left << "MemoryTracker summary\n\n";
+  msgOss << std::left << "MemoryTracker summary (base-10 MB units used)\n\n";
   msgOss << "  Peak virtual memory usage (VmPeak)  : " << unique_value(rVMax) << " MB\n"
          << "  Peak resident set size usage (VmHWM): " << unique_value(rRMax) << " MB\n";
   if (!(fileName_.empty() || fileName_ == ":memory:")) {
