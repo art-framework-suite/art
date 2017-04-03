@@ -157,7 +157,7 @@
  2. FileCatalogMetadata       art         <path>/FileCatalogMetadata_service.cc
  3. InFlightConfiguration     art         <path>/InFlightConfiguration_service.cc
  4. MemoryAdjuster            art         <path>/MemoryAdjuster_service.cc
- 5. MemoryTracker             art         <path>/MemoryTrackerLinux_service.cc
+ 5. MemoryTracker             art         <path>/MemoryTracker<platform>_service.cc
  6. MyService                 art         <path>/MyService_service.cc
  7. MyServiceUsingIface       art         <path>/MyServiceUsingIface_service.cc
  8. PSTest                    art         <path>/PSTest_service.cc
