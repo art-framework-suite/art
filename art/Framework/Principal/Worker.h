@@ -58,8 +58,6 @@ public:
   Worker(ModuleDescription const& iMD, WorkerParams const& iWP);
   virtual ~Worker() noexcept = default;
 
-  virtual void reconfigure(fhicl::ParameterSet const &) = 0;
-
   template <typename T>
   bool doWork(typename T::MyPrincipal&,
               CurrentProcessingContext const* cpc);

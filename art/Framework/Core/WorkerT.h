@@ -29,11 +29,6 @@ namespace art {
             ModuleDescription const&,
             WorkerParams const&);
 
-    void reconfigure(fhicl::ParameterSet const& pset) override
-    {
-      module_->reconfigure(pset);
-    }
-
     bool modifiesEvent() const override { return module_->modifiesEvent(); }
 
   protected:

@@ -38,8 +38,6 @@ simple_plugin(RandomNumberGenerator "service"
   ${CLHEP}
   )
 
-simple_plugin(SimpleInteraction "service" art_Framework_Services_UserInteraction)
-
 simple_plugin(MemoryAdjuster "service"
   art_Framework_Services_Optional
   )
