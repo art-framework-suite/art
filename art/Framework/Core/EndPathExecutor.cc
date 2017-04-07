@@ -299,38 +299,6 @@ void art::EndPathExecutor::beginJob()
   doForAllEnabledWorkers_([](auto w){ w->beginJob(); });
 }
 
-bool
-art::EndPathExecutor::
-setEndPathModuleEnabled(std::string const & label, bool enable)
-{
-  bool result;
-  auto & workers = endPathInfo_.workers();
-  WorkerMap::iterator foundW;
-  if ((foundW = workers.find(label)) != workers.end()) {
-    size_t const index = std::distance(workers.begin(), foundW);
-    result = workersEnabled_[index];
-    workersEnabled_[index] = enable;
-  } else {
-    throw Exception(errors::ScheduleExecutionFailure)
-      << "Attempt to "
-      << (enable?"enable":"disable")
-      << " unconfigured module "
-      << label
-      << ".\n";
-  }
-  auto owFinder = [&label](OutputWorkers::const_reference ow) {
-    return ow->label() == label;
-  };
-  OutputWorkers::iterator foundOW;
-  if ((foundOW = std::find_if(outputWorkers_.begin(),
-                              outputWorkers_.end(),
-                              owFinder)) != outputWorkers_.end()) {
-    auto const index = std::distance(outputWorkers_.begin(), foundOW);
-    outputWorkersEnabled_[index] = enable;
-  }
-  return result;
-}
-
 void
 art::EndPathExecutor::resetAll()
 {

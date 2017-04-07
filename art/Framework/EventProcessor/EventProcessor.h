@@ -79,9 +79,6 @@ public:
   //
   StatusCode runToCompletion();
 
-  bool setTriggerPathEnabled(std::string const& name, bool enable);
-  bool setEndPathModuleEnabled(std::string const& label, bool enable);
-
 private:
 
   // Event-loop infrastructure

@@ -84,9 +84,6 @@ public:
   // Call respondToCloseOutputFiles() on all Modules
   void respondToCloseOutputFiles(FileBlock const&);
 
-  // Temporarily enable or disable a configured path.
-  bool setTriggerPathEnabled(std::string const& name, bool enable);
-
 private:
 
   // Private initialization helpers.

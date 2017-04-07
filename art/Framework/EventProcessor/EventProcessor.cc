@@ -889,18 +889,6 @@ art::EventProcessor::shouldWeStop() const
   return endPathExecutor_->terminate();
 }
 
-bool
-art::EventProcessor::setTriggerPathEnabled(std::string const& name, bool const enable)
-{
-  return schedule_->setTriggerPathEnabled(name, enable);
-}
-
-bool
-art::EventProcessor::setEndPathModuleEnabled(std::string const& label, bool const enable)
-{
-  return endPathExecutor_->setEndPathModuleEnabled(label, enable);
-}
-
 void
 art::EventProcessor::servicesActivate_(ServiceToken const st)
 {

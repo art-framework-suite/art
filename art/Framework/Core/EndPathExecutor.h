@@ -83,9 +83,6 @@ public:
   // Return whether a module has reached its maximum count.
   bool terminate() const;
 
-  // Temporarily enable or disable a configured end path module.
-  bool setEndPathModuleEnabled(std::string const & label, bool enable);
-
   // Call selectProducts() on all OutputModules.
   void selectProducts(FileBlock const&);
 
