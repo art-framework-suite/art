@@ -149,7 +149,6 @@ namespace {
     // These services are not configurable by users.
     std::set<std::string> const systemServicesToIgnore {
       "CurrentModule",
-      "PathSelection",
       "ScheduleContext",
       "TriggerNamesService"
     };

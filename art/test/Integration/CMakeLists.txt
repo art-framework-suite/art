@@ -51,7 +51,6 @@ simple_plugin(FlushingGeneratorTestFilter "module"  NO_INSTALL)
 simple_plugin(GeneratorTest               "source"  NO_INSTALL)
 simple_plugin(ImplicitRSAssignmentAnalyzer "module" NO_INSTALL USE_BOOST_UNIT)
 simple_plugin(ImplicitRSAssignmentProducer "module" NO_INSTALL USE_BOOST_UNIT)
-simple_plugin(InFlightConfiguration       "service" NO_INSTALL USE_BOOST_UNIT art_Framework_Services_Registry art_Framework_Services_UserInteraction art_Framework_EventProcessor_PathSelection_service)
 simple_plugin(IntProducer                 "module"  NO_INSTALL)
 simple_plugin(IntTestAnalyzer             "module"  NO_INSTALL)
 simple_plugin(IntVectorAnalyzer           "module"  NO_INSTALL)
@@ -1263,15 +1262,6 @@ cet_test(ImplicitRSAssignment_t HANDBUILT
   DATAFILES
   fcl/implicitRSAssignment_t.fcl
   )
-
-foreach (num 1 2)
-  cet_test(InFlightConfiguration_0${num}_t HANDBUILT
-    TEST_EXEC art_ut
-    TEST_ARGS -- --config InFlightConfiguration_0${num}.fcl
-    DATAFILES
-    fcl/InFlightConfiguration_0${num}.fcl
-    )
-endforeach()
 
 cet_test(TH1Data_t HANDBUILT
   TEST_EXEC art

@@ -18,7 +18,6 @@
 #include "art/Framework/Services/System/CurrentModule.h"
 #include "art/Framework/Services/System/FileCatalogMetadata.h"
 #include "art/Framework/Services/System/FloatingPointControl.h"
-#include "art/Framework/Services/System/PathSelection.h"
 #include "art/Framework/Services/System/ScheduleContext.h"
 #include "art/Framework/Services/System/TriggerNamesService.h"
 #include "art/Persistency/Provenance/BranchIDListRegistry.h"
@@ -195,11 +194,6 @@ art::EventProcessor::initServices_(ParameterSet const& top_pset,
   // Remove non-standard non-service config, "message."
   services.erase("message");
 
-  // Deal with possible configuration for system service requiring
-  // special construction:
-  auto const pathSelection = services.get<ParameterSet>("PathSelection", {});
-  services.erase("PathSelection");
-
   // Create the service director and all user-configured services.
   ServiceDirector director {std::move(services), areg, token};
 
@@ -208,9 +202,6 @@ art::EventProcessor::initServices_(ParameterSet const& top_pset,
   director.addSystemService<TriggerNamesService>(top_pset, pathManager_.triggerPathNames());
   director.addSystemService<FloatingPointControl>(fpc_pset, areg);
   director.addSystemService<ScheduleContext>();
-  if (!pathSelection.is_empty()) {
-    director.addSystemService<PathSelection>(*this);
-  }
   return std::move(director);
 }
 
