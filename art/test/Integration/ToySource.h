@@ -43,7 +43,7 @@ protected:
   // Helper function to throw an exception with the appropriate text.
   static void throw_exception_from(const char* funcname);
 
-  typedef std::vector<std::vector<int> > vv_t;
+  typedef std::vector<std::vector<int>> vv_t;
   typedef vv_t::const_iterator iter;
 
   iter    current_;

@@ -44,17 +44,15 @@ void Reconfiguring::analyze( art::Event const & )
   ParameterSets psets;
   inst.presentToken().getParameterSets(psets);
 
-  ParameterSets::iterator cur=psets.begin(),end=psets.end();
-  for(;cur!=end;++cur)
-    {
-      std::cerr << "service name = "
-            << cur->get<std::string>("service_type","none")
-                << "\n";
-      cur->put<int>("debug_level",10);
-    }
+  for (auto& cur : psets) {
+    std::cerr << "service name = "
+              << cur.get<std::string>("service_type","none")
+              << "\n";
+    cur.put<int>("debug_level",10);
+  }
   inst.presentToken().putParameterSets(psets);
 
-  int level_after = rc->get_debug_level();
+  int const level_after {rc->get_debug_level()};
 
   std::cerr << "before=" << level_before << " after=" << level_after << "\n";
 
@@ -62,8 +60,4 @@ void Reconfiguring::analyze( art::Event const & )
   assert(level_after==10);
 }
 
-// ----------------------------------------------------------------------
-
 DEFINE_ART_MODULE(Reconfiguring)
-
-// ======================================================================

@@ -33,9 +33,7 @@ physics:
   }
 
   p: [ rp1 ]
-  trigger_paths: [ p ]
   e1: [ wp1a, rp1a, a1 ]
-  end_paths: [ e1 ]
 }
 
 source:

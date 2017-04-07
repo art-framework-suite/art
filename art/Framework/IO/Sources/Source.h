@@ -146,30 +146,26 @@ namespace art {
 template <class T>
 class art::Source final : public art::InputSource {
 public:
+
   Source(Source<T> const&) = delete;
   Source<T>& operator=(Source<T> const&) = delete;
 
-  typedef T SourceDetail;
+  using SourceDetail = T;
 
-  Source(fhicl::ParameterSet const& p,
-         InputSourceDescription& d);
+  Source(fhicl::ParameterSet const& p, InputSourceDescription& d);
 
   input::ItemType nextItemType() override;
 
   std::unique_ptr<FileBlock> readFile(MasterProductRegistry& mpr) override;
   void closeFile() override;
 
+  using InputSource::readEvent;
   std::unique_ptr<RunPrincipal> readRun() override;
-
-  std::unique_ptr<SubRunPrincipal>
-  readSubRun(cet::exempt_ptr<RunPrincipal const> rp) override;
+  std::unique_ptr<SubRunPrincipal> readSubRun(cet::exempt_ptr<RunPrincipal const> rp) override;
+  std::unique_ptr<EventPrincipal> readEvent(cet::exempt_ptr<SubRunPrincipal const> srp) override;
 
   std::unique_ptr<art::RangeSetHandler> runRangeSetHandler() override;
   std::unique_ptr<art::RangeSetHandler> subRunRangeSetHandler() override;
-
-  using InputSource::readEvent;
-  std::unique_ptr<EventPrincipal>
-  readEvent(cet::exempt_ptr<SubRunPrincipal const> srp) override;
 
 private:
 
@@ -275,9 +271,23 @@ art::Source<T>::throwIfInsane_(bool const result,
 {
   std::ostringstream errMsg;
   if (result) {
-    if (!newR && !newSR && !newE)
-      throw Exception(errors::LogicError)
+    if (!newR && !newSR && !newE) {
+      throw Exception{errors::LogicError}
         << "readNext returned true but created no new data\n";
+    }
+
+    if (!cachedRP_ && !newR) {
+      throw Exception(errors::LogicError)
+        << "readNext returned true but no RunPrincipal has been set, and no cached RunPrincipal exists.\n"
+        "This can happen if a new input file has been opened and the RunPrincipal has not been appropriately assigned.";
+    }
+
+    if (!cachedSRP_ && !newSR) {
+      throw Exception(errors::LogicError)
+        << "readNext returned true but no SubRunPrincipal has been set, and no cached SubRunPrincipal exists.\n"
+        "This can happen if a new input file has been opened and the SubRunPrincipal has not been appropriately assigned.";
+    }
+
     if (cachedRP_ && newR && cachedRP_.get() == newR) {
       errMsg
         << "readNext returned a new Run which is the old Run for "

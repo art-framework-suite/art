@@ -84,6 +84,7 @@ simple_plugin(SeekToEventClient           "service" NO_INSTALL art_Framework_IO_
 simple_plugin(ServiceUsing                "service" NO_INSTALL)
 simple_plugin(SimpleDerivedAnalyzer       "module"  NO_INSTALL)
 simple_plugin(SimpleDerivedProducer       "module"  NO_INSTALL)
+simple_plugin(SimpleSource                "source"  NO_INSTALL)
 simple_plugin(TH1DataProducer             "module"  NO_INSTALL art_test_TestObjects)
 simple_plugin(TestAnalyzerSelect          "module"  NO_INSTALL)
 simple_plugin(TestBitsOutput              "module"  NO_INSTALL)
@@ -402,6 +403,9 @@ cet_test(ToyRawInput_OutputCheck_t_01 HANDBUILT
   DEPENDS ToyRawInput_t_01
   )
 
+# Utility script to turn an expected abort into a pass
+cet_script(test_must_abort NO_INSTALL)
+
 foreach(num 02 03 04 11 12)
   cet_test(ToyRawInput_t_${num} HANDBUILT
     TEST_EXEC test_must_abort
@@ -419,6 +423,19 @@ cet_test_assertion("outR || inR"
   ToyRawInput_t_11
   )
 cet_test_assertion("outSR || inSR" ToyRawInput_t_12)
+
+# The following test throws an exception and does not return status
+# code 0.  The test is checking that the correct exception has been
+# thrown, as indicated by the regular-expression pattern that matches
+# the exception message.
+cet_test(SimpleSource_t_01 HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS -c SimpleSource_t_01.fcl
+  DATAFILES
+  fcl/SimpleSource_t_01.fcl
+  TEST_PROPERTIES
+  PASS_REGULAR_EXPRESSION "readNext returned true but no RunPrincipal has been set"
+  )
 
 foreach(num 05 06 07 08 09 10)
   cet_test(ToyRawInput_t_${num} HANDBUILT

@@ -189,8 +189,9 @@
 4. FlushingGenerator           art         <path>/FlushingGenerator_source.cc
 5. GeneratorTest               art         <path>/GeneratorTest_source.cc
 6. RootInput                   art         <path>/RootInput_source.cc
-7. ToyRawFileInput             art         <path>/ToyRawFileInput_source.cc
-8. ToyRawInput                 art         <path>/ToyRawInput_source.cc
+7. SimpleSource                art         <path>/SimpleSource_source.cc
+8. ToyRawFileInput             art         <path>/ToyRawFileInput_source.cc
+9. ToyRawInput                 art         <path>/ToyRawInput_source.cc
 
 <separator (=)>
 
