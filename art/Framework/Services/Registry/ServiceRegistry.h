@@ -54,28 +54,28 @@ namespace art {
     friend class Operate;
     template <typename T, art::ServiceScope> friend class ServiceHandle;
 
-    template <typename T> bool isAvailable() const
+    template <typename T>
+    static bool isAvailable()
     {
-      if (!manager_) {
-        throw art::Exception(art::errors::ServiceNotFound, "Service")
-          <<" no ServiceRegistry has been set for this thread";
+      if (auto& mgr = instance().manager_) {
+        return mgr->isAvailable<T>();
       }
-      return manager_->isAvailable<T>();
+
+      throw art::Exception(art::errors::ServiceNotFound, "Service")
+        <<" no ServiceRegistry has been set for this thread";
     }
-
-     // The token can be passed to another thread in order to have the
-     // same services available in the other thread.
-
-    ServiceToken presentToken() const;
-
-    static ServiceRegistry& instance();
-
-  public:
 
     using ParameterSets = std::vector<fhicl::ParameterSet>;
     static ServiceToken createSet(ParameterSets const&, ActivityRegistry&);
 
   private:
+
+     // The token can be passed to another thread in order to have the
+     // same services available in the other thread.
+    ServiceToken presentToken() const;
+
+    static ServiceRegistry& instance();
+
     // returns old token
     ServiceToken setContext(ServiceToken const& iNewToken);
     void unsetContext(ServiceToken const& iOldToken);

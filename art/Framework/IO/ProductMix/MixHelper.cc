@@ -114,7 +114,7 @@ namespace {
     using namespace art;
     std::unique_ptr<CLHEP::RandFlat> result;
     if (readMode > MixHelper::Mode::SEQUENTIAL) {
-      if (ServiceRegistry::instance().isAvailable<RandomNumberGenerator>()) {
+      if (ServiceRegistry::isAvailable<RandomNumberGenerator>()) {
         result.reset(new CLHEP::RandFlat(ServiceHandle<RandomNumberGenerator>{}->getEngine()));
       } else {
         throw Exception(errors::Configuration, "MixHelper")
