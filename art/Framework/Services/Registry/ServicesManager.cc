@@ -18,12 +18,7 @@ art::ServicesManager::
 ServicesManager(ParameterSets const& psets,
                 cet::LibraryManager const& lm,
                 ActivityRegistry& reg):
-  registry_(reg),
-  factory_(),
-  index_(),
-  requestedCreationOrder_(),
-  actualCreationOrder_(),
-  configErrMsgs_()
+  registry_{reg}
 {
   fillCache_(psets, lm);
 }
@@ -56,8 +51,7 @@ art::ServicesManager::forceCreation()
 }
 
 void
-art::ServicesManager::
-getParameterSets(ParameterSets& out) const
+art::ServicesManager::getParameterSets(ParameterSets& out) const
 {
   ParameterSets tmp;
   for (auto const& cur : factory_) {
@@ -67,22 +61,7 @@ getParameterSets(ParameterSets& out) const
 }
 
 void
-art::ServicesManager::
-putParameterSets(ParameterSets const& n)
-{
-  for (auto const& cur : n) {
-    auto const& service_name = cur.get<std::string>("service_type", "junk");
-    auto ii = index_.find(service_name);
-    if (ii != index_.end()) {
-      (ii->second)->second.putParameterSet(cur);
-      registry_.sPostServiceReconfigure.invoke(service_name);
-    }
-  }
-}
-
-void
-art::ServicesManager::
-fillCache_(ParameterSets const& psets, cet::LibraryManager const& lm)
+art::ServicesManager::fillCache_(ParameterSets const& psets, cet::LibraryManager const& lm)
 {
   // Receive from EventProcessor when we go multi-schedule.
   detail::ServiceCacheEntry::setNSchedules(1);
@@ -153,9 +132,8 @@ fillCache_(ParameterSets const& psets, cet::LibraryManager const& lm)
 }  // fillCache()
 
 std::pair<art::detail::ServiceCache::iterator, bool>
-art::ServicesManager::
-insertImpl_(fhicl::ParameterSet const& pset,
-            std::unique_ptr<detail::ServiceHelperBase>&& helper)
+art::ServicesManager::insertImpl_(fhicl::ParameterSet const& pset,
+                                  std::unique_ptr<detail::ServiceHelperBase>&& helper)
 {
   // Need temporary because we can't guarantee the order of evaluation
   // of the arguments to std::make_pair() below.
@@ -166,10 +144,9 @@ insertImpl_(fhicl::ParameterSet const& pset,
 }
 
 void
-art::ServicesManager::
-insertInterface_(fhicl::ParameterSet const& pset,
-                 std::unique_ptr<detail::ServiceHelperBase>&& helper,
-                 detail::ServiceCache::iterator const implEntry)
+art::ServicesManager::insertInterface_(fhicl::ParameterSet const& pset,
+                                       std::unique_ptr<detail::ServiceHelperBase>&& helper,
+                                       detail::ServiceCache::iterator const implEntry)
 {
   // Need temporary because we can't guarantee the order of evaluation
   // of the arguments to std::make_pair() below.

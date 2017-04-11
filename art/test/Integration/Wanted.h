@@ -1,28 +1,29 @@
 #ifndef art_test_Integration_Wanted_h
 #define art_test_Integration_Wanted_h
-// Service with a name near the end of the alphabet with a hook to make
-// sure it gets called.
 
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/Registry/ServiceMacros.h"
+#include "fhiclcpp/ParameterSet.h"
 
-namespace arttest {
-  class Wanted;
+namespace art {
+  namespace test {
+    class Wanted;
+  }
 }
 
-class arttest::Wanted {
+class art::test::Wanted {
 public:
-  Wanted(fhicl::ParameterSet const &, art::ActivityRegistry &);
+  explicit Wanted(fhicl::ParameterSet const&) {}
 
-  bool postBeginJobCalled() const { return postBeginJobCalled_; }
+  int getCachedValue() const { return cached_value_; }
+  void setValue(int const value) { cached_value_ = value; }
 
 private:
-  void postBeginJob();
-
-  bool postBeginJobCalled_;
+  int cached_value_;
 };
-DECLARE_ART_SERVICE(arttest::Wanted, LEGACY)
+
+DECLARE_ART_SERVICE(art::test::Wanted, LEGACY)
 #endif /* art_test_Integration_Wanted_h */
 
 // Local Variables:

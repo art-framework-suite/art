@@ -79,18 +79,6 @@ getService(ActivityRegistry& reg, detail::ServiceStack& creationOrder) const
 
 void
 art::detail::ServiceCacheEntry::
-putParameterSet(fhicl::ParameterSet const& newConfig)
-{
-  if (config_ != newConfig) {
-    config_ = newConfig;
-    if (service_) {
-      service_->reconfigure(config_);
-    }
-  }
-}
-
-void
-art::detail::ServiceCacheEntry::
 makeAndCacheService(ActivityRegistry& reg) const
 {
   assert(is_impl() && "ServiceCacheEntry::makeAndCacheService called on a service interface!");

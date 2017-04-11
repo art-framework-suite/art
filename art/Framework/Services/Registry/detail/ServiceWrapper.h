@@ -33,25 +33,6 @@ namespace art {
     template <typename T>
     class ServiceWrapper<T, ServiceScope::PER_SCHEDULE>;
 
-    ////////////////////////////////////
-    // Support structures.
-    template <typename T, typename Enable = void>
-    struct has_reconfig_function : std::false_type {};
-
-    template <typename T>
-    struct has_reconfig_function<T, enable_if_function_exists_t<void(T::*)(fhicl::ParameterSet const&), &T::reconfigure>> : std::true_type {};
-
-
-    template<typename T>
-    struct DoReconfig {
-      void operator()(T& a, fhicl::ParameterSet const& b) { a.reconfigure(b); }
-    };
-
-    template <typename T>
-    struct DoNothing {
-      void operator()(T&, fhicl::ParameterSet const&) {}
-    };
-
     // If we have a constructor taking fhicl::ParameterSet const& and
     // ActivityRegistry&, use it. Otherwise, call a one-argument
     // constructor taking fhicl::ParameterSet const& only.
@@ -112,13 +93,6 @@ public:
   }
 
 private:
-  void reconfigure_service(fhicl::ParameterSet const& n) override
-  {
-    std::conditional_t<detail::has_reconfig_function<T>::value,
-                       detail::DoReconfig<T>,
-                       detail::DoNothing<T>> reconfig_or_nothing;
-    reconfig_or_nothing(*service_ptr_, n);
-  }
 
   std::shared_ptr<T> service_ptr_;
 
@@ -175,16 +149,9 @@ public:
   }
 
 private:
-  void reconfigure_service(fhicl::ParameterSet const& n) override {
-    std::conditional_t<detail::has_reconfig_function<T>::value,
-                       detail::DoReconfig<T>,
-                       detail::DoNothing<T>> reconfig_or_nothing;
-    for (auto& service_ptr : service_ptrs_) {
-      reconfig_or_nothing(*service_ptr, n);
-    }
-  }
 
   std::vector<std::shared_ptr<T>> service_ptrs_ {};
+
 };
 
 // ======================================================================

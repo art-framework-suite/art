@@ -258,9 +258,6 @@ public:
   // Signal is emitted after the module finished processing endSubRun
   GlobalSignal<detail::SignalResponseType::LIFO, void(ModuleDescription const&)> sPostModuleEndSubRun;
 
-  // Signal emitted any time a service gets reconfigured.
-  GlobalSignal<detail::SignalResponseType::LIFO, void(std::string const&)> sPostServiceReconfigure;
-
 };  // ActivityRegistry
 
 #endif /* art_Framework_Services_Registry_ActivityRegistry_h */

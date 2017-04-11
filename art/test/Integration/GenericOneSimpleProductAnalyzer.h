@@ -133,19 +133,6 @@ public:
     }
   }
 
-  void reconfigure(fhicl::ParameterSet const& pset) override
-  {
-    Parameters const ps {pset};
-    input_label_ = ps().input_label();
-    require_presence_ = ps().require_presence();
-    if (require_presence_) {
-      value_ = ps().expected_value();
-    } else {
-      V tmp {};
-      std::swap(value_, tmp);
-    }
-  }
-
 private:
   V value_ {};
   std::string input_label_;

@@ -78,7 +78,6 @@ public:
   void forceCreation();
 
   void getParameterSets(ParameterSets& out) const;
-  void putParameterSets(ParameterSets const&);
 
 private:
 
@@ -99,12 +98,12 @@ private:
 
   // these are real things that we use.
   art::ActivityRegistry& registry_;
-  detail::ServiceCache factory_;
-  NameIndex index_;
+  detail::ServiceCache factory_ {};
+  NameIndex index_ {};
 
-  TypeIDs requestedCreationOrder_;
-  detail::ServiceStack actualCreationOrder_;
-  std::vector<std::string> configErrMsgs_;
+  TypeIDs requestedCreationOrder_ {};
+  detail::ServiceStack actualCreationOrder_ {};
+  std::vector<std::string> configErrMsgs_ {};
 
 };  // ServicesManager
 

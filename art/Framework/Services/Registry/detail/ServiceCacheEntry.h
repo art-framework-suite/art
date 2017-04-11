@@ -48,8 +48,6 @@ public:
 
   fhicl::ParameterSet const& getParameterSet() const;
 
-  void putParameterSet(fhicl::ParameterSet const& newConfig);
-
   template <typename T,
             typename = std::enable_if_t<detail::ServiceHelper<T>::scope_val != ServiceScope::PER_SCHEDULE>>
   T& get(ActivityRegistry& reg, detail::ServiceStack& creationOrder) const;

@@ -53,8 +53,6 @@ OutputModule(ParameterSet const& pset)
   , plugins_{makePlugins_(pset)}
 {}
 
-art::OutputModule::~OutputModule(){}
-
 string const &
 art::OutputModule::
 lastClosedFileName() const
@@ -139,16 +137,6 @@ art::OutputModule::
 doRegisterProducts(MasterProductRegistry&,
                    ModuleDescription const&)
 {
-}
-
-void
-art::OutputModule::
-reconfigure(ParameterSet const&)
-{
-  throw art::Exception(errors::UnimplementedFeature)
-    << "Modules of type "
-    << cet::demangle_symbol(typeid(*this).name())
-    << " are not reconfigurable.\n";
 }
 
 void

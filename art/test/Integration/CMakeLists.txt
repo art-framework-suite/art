@@ -75,8 +75,6 @@ simple_plugin(PtrmvAnalyzer               "module"  NO_INSTALL USE_BOOST_UNIT)
 simple_plugin(PtrmvProducer               "module"  NO_INSTALL)
 simple_plugin(RandomNumberSaveTest        "module"  NO_INSTALL USE_BOOST_UNIT)
 simple_plugin(ReadNextArbitrator          "tool"    NO_INSTALL)
-simple_plugin(Reconfigurable              "service" NO_INSTALL)
-simple_plugin(Reconfiguring               "module"  NO_INSTALL)
 simple_plugin(RunSubRunProductProducerNoPut "module"  NO_INSTALL)
 simple_plugin(SAMMetadataConcurrentTest   "module"  NO_INSTALL USE_BOOST_UNIT art_Framework_Services_System_FileCatalogMetadata_service)
 simple_plugin(SAMMetadataTest             "module"  NO_INSTALL art_Framework_Services_System_FileCatalogMetadata_service)
@@ -263,14 +261,6 @@ cet_test(issue_0926_t.sh PREBUILT
 cet_test(issue_0940_t.sh PREBUILT
   DATAFILES
   fcl/issue_0940.fcl
-  fcl/messageDefaults.fcl
-)
-
-cet_test(reconfig_t HANDBUILT
-  TEST_EXEC art
-  TEST_ARGS --rethrow-all -c test_reconfig_01.fcl
-  DATAFILES
-  fcl/test_reconfig_01.fcl
   fcl/messageDefaults.fcl
 )
 
@@ -980,19 +970,11 @@ cet_test(AssnsFastClone_w HANDBUILT
   TEST_PROPERTIES DEPENDS Assns_w
 )
 
-cet_test(ServiceUsingService_01_t HANDBUILT
+cet_test(ServiceUsingService_t HANDBUILT
   TEST_EXEC art_ut
-  TEST_ARGS -- -c "ServiceUsingService_01.fcl"
+  TEST_ARGS -- -c "ServiceUsingService_t.fcl"
   DATAFILES
-  fcl/ServiceUsingService_01.fcl
-)
-
-cet_test(ServiceUsingService_02_t HANDBUILT
-  TEST_EXEC art_ut
-  TEST_ARGS -- -c "ServiceUsingService_02.fcl"
-  DATAFILES
-  fcl/test_reconfig_01.fcl
-  fcl/ServiceUsingService_02.fcl
+  fcl/ServiceUsingService_t.fcl
 )
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")

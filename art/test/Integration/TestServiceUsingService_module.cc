@@ -11,17 +11,18 @@
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "cetlib/quiet_unit_test.hpp"
-#include "art/test/Integration/Reconfigurable.h"
 #include "art/test/Integration/ServiceUsing.h"
 #include "art/test/Integration/Wanted.h"
 
-namespace arttest {
-  class TestServiceUsingService;
+namespace art {
+  namespace test {
+    class TestServiceUsingService;
+  }
 }
 
-class arttest::TestServiceUsingService : public art::EDAnalyzer {
+class art::test::TestServiceUsingService : public EDAnalyzer {
 public:
-  explicit TestServiceUsingService(fhicl::ParameterSet const &);
+  explicit TestServiceUsingService(fhicl::ParameterSet const&);
   ~TestServiceUsingService();
 
   void analyze(art::Event const &) override;
@@ -36,42 +37,40 @@ private:
 };
 
 
-arttest::TestServiceUsingService::TestServiceUsingService(fhicl::ParameterSet const &p)
+art::test::TestServiceUsingService::TestServiceUsingService(fhicl::ParameterSet const& p)
  :
-  art::EDAnalyzer(p),
-  debug_level_(art::ServiceHandle<ServiceUsing>()->getCachedValue())
+  EDAnalyzer{p},
+  debug_level_{ServiceHandle<ServiceUsing const>()->getCachedValue()}
 {
 }
 
-arttest::TestServiceUsingService::~TestServiceUsingService()
+art::test::TestServiceUsingService::~TestServiceUsingService()
 {
   // Test that art::ServiceHandle can be dereferenced in a module destructor
-  art::ServiceHandle<ServiceUsing>()->getCachedValue();
+  ServiceHandle<ServiceUsing const>{}->getCachedValue();
 }
 
 
-void arttest::TestServiceUsingService::analyze(art::Event const &)
+void art::test::TestServiceUsingService::analyze(Event const&)
 {
   // NOP.
 }
 
-void arttest::TestServiceUsingService::beginJob()
+void art::test::TestServiceUsingService::beginJob()
 {
-  BOOST_CHECK_EQUAL(debug_level_,
-                    art::ServiceHandle<ServiceUsing>()->getCachedValue());
-  BOOST_CHECK_EQUAL(art::ServiceHandle<Reconfigurable>()->get_debug_level(),
-                    art::ServiceHandle<ServiceUsing>()->getCachedValue());
+  ServiceHandle<ServiceUsing const> sus;
+  BOOST_CHECK_EQUAL(debug_level_, sus->getCachedValue());
+  BOOST_CHECK_EQUAL(ServiceHandle<Wanted const>{}->getCachedValue(), sus->getCachedValue());
 }
 
-void arttest::TestServiceUsingService::endJob()
+void art::test::TestServiceUsingService::endJob()
 {
-  art::ServiceHandle<Reconfigurable> reconfigurable;
-  BOOST_CHECK(reconfigurable->postBeginJobCalled());
-  BOOST_CHECK(art::ServiceHandle<Wanted>()->postBeginJobCalled());
+  ServiceHandle<ServiceUsing const> sus;
+  BOOST_CHECK(sus->postBeginJobCalled());
 
-  int const current_value = art::ServiceHandle<ServiceUsing>()->getCachedValue();
+  int const current_value {sus->getCachedValue()};
   BOOST_CHECK_NE(debug_level_, current_value);
-  BOOST_CHECK_EQUAL(reconfigurable->get_debug_level(), current_value);
+  BOOST_CHECK_EQUAL(ServiceHandle<Wanted const>{}->getCachedValue(), current_value);
 }
 
-DEFINE_ART_MODULE(arttest::TestServiceUsingService)
+DEFINE_ART_MODULE(art::test::TestServiceUsingService)

@@ -30,7 +30,7 @@ ServiceRegistry::unsetContext(ServiceToken const& iOldToken)
 ServiceToken
 ServiceRegistry::presentToken() const
 {
-  return manager_;
+  return ServiceToken{manager_};
 }
 
 ServiceToken
@@ -39,7 +39,7 @@ ServiceRegistry::createSet(ParameterSets const& iPS, ActivityRegistry& reg)
   auto result = std::make_shared<ServicesManager>(iPS,
                                                   ServiceRegistry::instance().lm_,
                                                   reg);
-  return ServiceToken(result);
+  return ServiceToken{result};
 }
 
 ServiceRegistry&

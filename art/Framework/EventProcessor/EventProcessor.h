@@ -165,7 +165,7 @@ private:
   ActivityRegistry actReg_;
   MFStatusUpdater mfStatusUpdater_;
   MasterProductRegistry preg_ {};
-  ServiceToken serviceToken_ {};
+  ServiceToken serviceToken_ {ServiceToken::createInvalid()};
   tbb::task_scheduler_init tbbManager_ {tbb::task_scheduler_init::deferred};
   std::unique_ptr<ServiceRegistry::Operate> servicesSentry_ {};
   PathManager pathManager_; // Must outlive schedules.

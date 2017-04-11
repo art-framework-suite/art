@@ -225,18 +225,14 @@ int art::run_art_common_(fhicl::ParameterSet const& main_pset, art::detail::Debu
   if (scheduler_pset.get<bool>("unloadRootSigHandler", true)) {
     art::unloadRootSigHandler();
   }
-  RootErrorHandlerSentry re_sentry(scheduler_pset.get<bool>("resetRootErrHandler", true));
+  RootErrorHandlerSentry re_sentry {scheduler_pset.get<bool>("resetRootErrHandler", true)};
   // Load all dictionaries.
   if (scheduler_pset.get<bool>("debugDictionaries", false)) {
     throw Exception(errors::UnimplementedFeature)
       << "debugDictionaries not yet implemented for ROOT 6.\n";
   }
   art::completeRootHandlers();
-  art::ServiceToken dummyToken;
-  // TODO: Possibly remove addServices -- we have already made
-  // most of them. Have to see how the module factory interacts
-  // with the current module facility.
-  // processDesc->addServices(defaultServices, forcedServices);
+
   int rc {0};
   try {
     EventProcessor ep {main_pset};

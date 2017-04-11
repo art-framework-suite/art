@@ -117,7 +117,7 @@ namespace art
     virtual void analyze(Event const&) = 0;
     virtual void beginJob(){}
     virtual void endJob(){}
-    virtual void reconfigure(fhicl::ParameterSet const&);
+    virtual void reconfigure(fhicl::ParameterSet const&) {} // Not called by framework
     virtual void beginRun(Run const&){}
     virtual void endRun(Run const&){}
     virtual void beginSubRun(SubRun const&){}

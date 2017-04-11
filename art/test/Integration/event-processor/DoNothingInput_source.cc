@@ -25,38 +25,40 @@ namespace fhicl {
   class ParameterSet;
 }
 
-namespace arttest {
+namespace art {
+  namespace test {
 
-  class DoNothingInput {
-  public:
+    class DoNothingInput {
+    public:
 
-    DoNothingInput(fhicl::ParameterSet const&,
-                art::ProductRegistryHelper&,
-                art::SourceHelper const&)
-    {}
+      DoNothingInput(fhicl::ParameterSet const&,
+                     ProductRegistryHelper&,
+                     SourceHelper const&)
+      {}
 
-    ~DoNothingInput()
-    {
-      art::ServiceHandle<Wanted> shouldNotThrow [[gnu::unused]];
-    }
+      ~DoNothingInput()
+      {
+        ServiceHandle<Wanted> shouldNotThrow [[gnu::unused]];
+      }
 
-    void readFile(std::string const &, art::FileBlock*&)
-    {}
+      void readFile(std::string const &, art::FileBlock*&)
+      {}
 
-    void closeCurrentFile()
-    {}
+      void closeCurrentFile()
+      {}
 
-    bool readNext(art::RunPrincipal const* const,
-                  art::SubRunPrincipal const* const,
-                  art::RunPrincipal*&,
-                  art::SubRunPrincipal*&,
-                  art::EventPrincipal*&)
-    {
-      return false;
-    }
+      bool readNext(RunPrincipal const* const,
+                    SubRunPrincipal const* const,
+                    RunPrincipal*&,
+                    SubRunPrincipal*&,
+                    EventPrincipal*&)
+      {
+        return false;
+      }
 
-  };
+    };
 
-}
+  } // test
+} //art
 
-DEFINE_ART_INPUT_SOURCE(art::Source<arttest::DoNothingInput>)
+DEFINE_ART_INPUT_SOURCE(art::Source<art::test::DoNothingInput>)

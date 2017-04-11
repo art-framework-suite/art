@@ -32,18 +32,7 @@ public:
 
   virtual ~ServiceWrapperBase() = default;
 
-  void reconfigure(fhicl::ParameterSet const&);
-
-private:
-  virtual void reconfigure_service(fhicl::ParameterSet const&) = 0;
 };  // ServiceWrapperBase
-
-inline
-void
-art::detail::ServiceWrapperBase::reconfigure(fhicl::ParameterSet const& ps)
-{
-  reconfigure_service(ps);
-}
 
 #endif /* art_Framework_Services_Registry_detail_ServiceWrapperBase_h */
 

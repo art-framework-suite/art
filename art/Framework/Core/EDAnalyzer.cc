@@ -35,14 +35,6 @@ namespace art
     endJob();
   }
 
-  void
-  EDAnalyzer::reconfigure(fhicl::ParameterSet const&) {
-    throw art::Exception(errors::UnimplementedFeature)
-      << "Modules of type "
-      << cet::demangle_symbol(typeid(*this).name())
-      << " are not reconfigurable.\n";
-  }
-
   bool
   EDAnalyzer::doBeginRun(RunPrincipal const& rp,
                          CPC_exempt_ptr cpc) {

@@ -32,16 +32,17 @@ class art::ServiceToken
   friend class ServicesManager;
 
 public:
-  ServiceToken( ) { }
+
+  static auto createInvalid() { return ServiceToken{nullptr}; }
 
   template <typename T, typename = std::enable_if_t<detail::ServiceHelper<T>::scope_val != ServiceScope::PER_SCHEDULE>>
-    void add( std::unique_ptr<T> && serv )
+  void add(std::unique_ptr<T>&& serv)
   {
     manager_->put(std::move(serv));
   }
 
   template <typename T, typename = std::enable_if_t<detail::ServiceHelper<T>::scope_val == ServiceScope::PER_SCHEDULE>>
-  void add( std::vector<std::unique_ptr<T>> && services )
+  void add(std::vector<std::unique_ptr<T>>&& services)
   {
     manager_->put(std::move(services));
   }
@@ -52,14 +53,15 @@ public:
   }
 
   void getParameterSets(ServicesManager::ParameterSets& out) const
-  { manager_->getParameterSets(out); }
-  void putParameterSets(ServicesManager::ParameterSets const& in)
-  { manager_->putParameterSets(in); }
+  {
+    manager_->getParameterSets(out);
+  }
 
 private:
-  ServiceToken( std::shared_ptr<ServicesManager> iManager )
-  : manager_( iManager )
-  { }
+
+  explicit ServiceToken(std::shared_ptr<ServicesManager> iManager) :
+    manager_{iManager}
+  {}
 
   std::shared_ptr<ServicesManager> manager_;
 

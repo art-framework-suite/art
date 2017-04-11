@@ -85,42 +85,41 @@
  80. PtrmvProducer                       producer    <path>/PtrmvProducer_module.cc
  81. RandomNumberSaveTest                producer    <path>/RandomNumberSaveTest_module.cc
  82. RandomNumberSaver                   producer    <path>/RandomNumberSaver_module.cc
- 83. Reconfiguring                       analyzer    <path>/Reconfiguring_module.cc
- 84. Reconstruction                      filter      <path>/Reconstruction_module.cc
- 85. RootOutput                          output      <path>/RootOutput_module.cc
- 86. RunSubRunProductProducerNoPut       producer    <path>/RunSubRunProductProducerNoPut_module.cc
- 87. S                                   producer    <path>/U_S_module.cc
- 88. SAMMetadataConcurrentTest           analyzer    <path>/SAMMetadataConcurrentTest_module.cc
- 89. SAMMetadataTest                     analyzer    <path>/SAMMetadataTest_module.cc
- 90. SimpleDerivedAnalyzer               analyzer    <path>/SimpleDerivedAnalyzer_module.cc
- 91. SimpleDerivedProducer               producer    <path>/SimpleDerivedProducer_module.cc
- 92. SimpleServiceTestAnalyzer           analyzer    <path>/SimpleServiceTestAnalyzer_module.cc
- 93. TH1DataProducer                     producer    <path>/TH1DataProducer_module.cc
- 94. TestAnalyzerSelect                  analyzer    <path>/TestAnalyzerSelect_module.cc
- 95. TestBitsOutput                      output      <path>/TestBitsOutput_module.cc
- 96. TestFilter                          filter      <path>/TestFilter_module.cc
- 97. TestFilterSpecificEvents            filter      <path>/TestFilterSpecificEvents_module.cc
- 98. TestMod                             producer    <path>/TestMod_module.cc
- 99. TestOutput                          output      <path>/TestOutput_module.cc
-100. TestProvenanceDumper                output      <path>/TestProvenanceDumper_module.cc
-101. TestReadImmediateControl            output      <path>/TestReadImmediateControl_module.cc
-102. TestRemoveCachedProduct             analyzer    <path>/TestRemoveCachedProduct_module.cc
-103. TestResultAnalyzer                  analyzer    <path>/TestResultAnalyzer_module.cc
-104. TestServiceUsingService             analyzer    <path>/TestServiceUsingService_module.cc
-105. TestSimpleMemoryCheckProducer       producer    <path>/TestSimpleMemoryCheckProducer_module.cc
-106. TestTFileServiceAnalyzer            analyzer    <path>/TestTFileServiceAnalyzer_module.cc
-107. TestTimeTrackerAnalyzer             analyzer    <path>/TestTimeTrackerAnalyzer_module.cc
-108. TestTimeTrackerFilter               filter      <path>/TestTimeTrackerFilter_module.cc
-109. TestTimeTrackerProducer             producer    <path>/TestTimeTrackerProducer_module.cc
-110. ThrowingAnalyzer                    analyzer    <path>/ThrowingAnalyzer_module.cc
-111. ThrowingProducer                    producer    <path>/ThrowingProducer_module.cc
-112. ToyProductAnalyzer                  analyzer    <path>/ToyProductAnalyzer_module.cc
-113. ToyProductProducer                  producer    <path>/ToyProductProducer_module.cc
-114. ToyProductProducerMultiput          producer    <path>/ToyProductProducerMultiput_module.cc
-115. ToyRawInputTester                   analyzer    <path>/ToyRawInputTester_module.cc
-116. ToyRawProductAnalyzer               analyzer    <path>/ToyRawProductAnalyzer_module.cc
-117. UnputtingProducer                   producer    <path>/UnputtingProducer_module.cc
-118. ValidHandleTester                   analyzer    <path>/ValidHandleTester_module.cc
+ 83. Reconstruction                      filter      <path>/Reconstruction_module.cc
+ 84. RootOutput                          output      <path>/RootOutput_module.cc
+ 85. RunSubRunProductProducerNoPut       producer    <path>/RunSubRunProductProducerNoPut_module.cc
+ 86. S                                   producer    <path>/U_S_module.cc
+ 87. SAMMetadataConcurrentTest           analyzer    <path>/SAMMetadataConcurrentTest_module.cc
+ 88. SAMMetadataTest                     analyzer    <path>/SAMMetadataTest_module.cc
+ 89. SimpleDerivedAnalyzer               analyzer    <path>/SimpleDerivedAnalyzer_module.cc
+ 90. SimpleDerivedProducer               producer    <path>/SimpleDerivedProducer_module.cc
+ 91. SimpleServiceTestAnalyzer           analyzer    <path>/SimpleServiceTestAnalyzer_module.cc
+ 92. TH1DataProducer                     producer    <path>/TH1DataProducer_module.cc
+ 93. TestAnalyzerSelect                  analyzer    <path>/TestAnalyzerSelect_module.cc
+ 94. TestBitsOutput                      output      <path>/TestBitsOutput_module.cc
+ 95. TestFilter                          filter      <path>/TestFilter_module.cc
+ 96. TestFilterSpecificEvents            filter      <path>/TestFilterSpecificEvents_module.cc
+ 97. TestMod                             producer    <path>/TestMod_module.cc
+ 98. TestOutput                          output      <path>/TestOutput_module.cc
+ 99. TestProvenanceDumper                output      <path>/TestProvenanceDumper_module.cc
+100. TestReadImmediateControl            output      <path>/TestReadImmediateControl_module.cc
+101. TestRemoveCachedProduct             analyzer    <path>/TestRemoveCachedProduct_module.cc
+102. TestResultAnalyzer                  analyzer    <path>/TestResultAnalyzer_module.cc
+103. TestServiceUsingService             analyzer    <path>/TestServiceUsingService_module.cc
+104. TestSimpleMemoryCheckProducer       producer    <path>/TestSimpleMemoryCheckProducer_module.cc
+105. TestTFileServiceAnalyzer            analyzer    <path>/TestTFileServiceAnalyzer_module.cc
+106. TestTimeTrackerAnalyzer             analyzer    <path>/TestTimeTrackerAnalyzer_module.cc
+107. TestTimeTrackerFilter               filter      <path>/TestTimeTrackerFilter_module.cc
+108. TestTimeTrackerProducer             producer    <path>/TestTimeTrackerProducer_module.cc
+109. ThrowingAnalyzer                    analyzer    <path>/ThrowingAnalyzer_module.cc
+110. ThrowingProducer                    producer    <path>/ThrowingProducer_module.cc
+111. ToyProductAnalyzer                  analyzer    <path>/ToyProductAnalyzer_module.cc
+112. ToyProductProducer                  producer    <path>/ToyProductProducer_module.cc
+113. ToyProductProducerMultiput          producer    <path>/ToyProductProducerMultiput_module.cc
+114. ToyRawInputTester                   analyzer    <path>/ToyRawInputTester_module.cc
+115. ToyRawProductAnalyzer               analyzer    <path>/ToyRawProductAnalyzer_module.cc
+116. UnputtingProducer                   producer    <path>/UnputtingProducer_module.cc
+117. ValidHandleTester                   analyzer    <path>/ValidHandleTester_module.cc
 
 <separator (=)>
 
@@ -162,19 +161,17 @@
  7. PSTest                    art         <path>/PSTest_service.cc
  8. PSTestInterfaceImpl       art         <path>/PSTestInterfaceImpl_service.cc
  9. RandomNumberGenerator     art         <path>/RandomNumberGenerator_service.cc
-10. Reconfigurable            art         <path>/Reconfigurable_service.cc
-11. SeekToEventClient         art         <path>/SeekToEventClient_service.cc
-12. ServiceUsing              art         <path>/ServiceUsing_service.cc
-13. SimpleInteraction         art         <path>/SimpleInteraction_service.cc
-14. SimpleServiceTest         art         <path>/SimpleServiceTest_service.cc
-15. TFileService              art         <path>/TFileService_service.cc
-16. Throwing                  art         <path>/Throwing_service.cc
-17. TimeTracker               art         <path>/TimeTracker_service.cc
-18. Tracer                    art         <path>/Tracer_service.cc
-19. TrivialFileDelivery       art         <path>/TrivialFileDelivery_service.cc
-20. TrivialFileTransfer       art         <path>/TrivialFileTransfer_service.cc
-21. Wanted                    art         <path>/Wanted_service.cc
-22. floating_point_control    art         <path>/FloatingPointControl_service.cc
+10. SeekToEventClient         art         <path>/SeekToEventClient_service.cc
+11. ServiceUsing              art         <path>/ServiceUsing_service.cc
+12. SimpleServiceTest         art         <path>/SimpleServiceTest_service.cc
+13. TFileService              art         <path>/TFileService_service.cc
+14. Throwing                  art         <path>/Throwing_service.cc
+15. TimeTracker               art         <path>/TimeTracker_service.cc
+16. Tracer                    art         <path>/Tracer_service.cc
+17. TrivialFileDelivery       art         <path>/TrivialFileDelivery_service.cc
+18. TrivialFileTransfer       art         <path>/TrivialFileTransfer_service.cc
+19. Wanted                    art         <path>/Wanted_service.cc
+20. floating_point_control    art         <path>/FloatingPointControl_service.cc
 
 <separator (=)>
 
