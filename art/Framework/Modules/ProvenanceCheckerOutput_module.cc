@@ -28,7 +28,6 @@ namespace art {
 
     using Parameters = art::WrappedTable<Config, OutputModule::Config::KeysToIgnore>;
     explicit ProvenanceCheckerOutput(Parameters const&);
-    virtual ~ProvenanceCheckerOutput();
 
   private:
     void write(EventPrincipal & e) override;
@@ -41,9 +40,6 @@ namespace art {
   //
   ProvenanceCheckerOutput::ProvenanceCheckerOutput(ProvenanceCheckerOutput::Parameters const& ps) :
     OutputModule{ps().omConfig, ps.get_PSet()}
-  { }
-
-  ProvenanceCheckerOutput::~ProvenanceCheckerOutput()
   { }
 
   //
