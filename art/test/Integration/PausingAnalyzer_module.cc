@@ -16,39 +16,44 @@
 #include "canvas/Utilities/InputTag.h"
 #include "fhiclcpp/ParameterSet.h"
 
-extern "C" {
-#include <unistd.h>
-}
-
 #include <iostream>
+#include <chrono>
+#include <thread>
 
-namespace arttest {
-  class PausingAnalyzer;
+namespace art {
+  namespace test {
+    class PausingAnalyzer;
+  }
 }
 
-class arttest::PausingAnalyzer : public art::EDAnalyzer {
+class art::test::PausingAnalyzer : public EDAnalyzer {
 public:
-  explicit PausingAnalyzer(fhicl::ParameterSet const & p);
 
-  void analyze(art::Event const & e) override;
+  struct Config {
+    fhicl::Atom<unsigned> pauseTime {fhicl::Name{"pauseTime"}, fhicl::Comment{"Pause time is in seconds."}, 5u};
+  };
+  using Parameters = EDAnalyzer::Table<Config>;
+
+  explicit PausingAnalyzer(Parameters const& p);
+
+  void analyze(Event const&) override;
 
 private:
-  unsigned int pauseTime_;
+  std::chrono::seconds pauseTime_;
 };
 
-arttest::PausingAnalyzer::PausingAnalyzer(fhicl::ParameterSet const & p)
-:
-  art::EDAnalyzer(p),
-  pauseTime_(p.get<unsigned int>("pauseTime", 5))
+art::test::PausingAnalyzer::PausingAnalyzer(Parameters const & p)
+  : EDAnalyzer{p},
+    pauseTime_{p().pauseTime()}
 {
 }
 
-void arttest::PausingAnalyzer::analyze(art::Event const &)
+void art::test::PausingAnalyzer::analyze(Event const&)
 {
-  std::cerr << ">> Pausing for " << pauseTime_
+  std::cerr << ">> Pausing for " << pauseTime_.count()
             << " seconds.\n";
-  sleep(pauseTime_);
+  std::this_thread::sleep_for(pauseTime_);
   std::cerr << ">> Pause complete.\n";
 }
 
-DEFINE_ART_MODULE(arttest::PausingAnalyzer)
+DEFINE_ART_MODULE(art::test::PausingAnalyzer)

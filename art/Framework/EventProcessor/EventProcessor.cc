@@ -243,16 +243,26 @@ art::EventProcessor::invokePostBeginJobWorkers_()
 //================================================================
 // Event-loop infrastructure
 
+namespace {
+  bool shutdown_flag_active()
+  {
+    using namespace art;
+    std::lock_guard<decltype(usr2_lock)> lock {usr2_lock};
+    return shutdown_flag > 0;
+  }
+}
+
+
 template <art::Level L>
 bool
 art::EventProcessor::levelsToProcess()
 {
+  if (shutdown_flag_active()) {
+    return false;
+  }
+
   if (nextLevel_ == Level::ReadyToAdvance) {
     nextLevel_ = advanceItemType();
-    std::lock_guard<decltype(usr2_lock)> lock {usr2_lock};
-    if (art::shutdown_flag > 0) {
-      throw Exception{errors::SignalReceived};
-    }
     // Consider reading right here?
   }
 
@@ -275,6 +285,7 @@ art::EventProcessor::levelsToProcess()
 
   throw Exception{errors::LogicError} << "Incorrect level hierarchy.";
 }
+
 
 namespace art {
 
@@ -410,6 +421,10 @@ namespace art {
   template <>
   void EventProcessor::process<most_deeply_nested_level()>()
   {
+    if (shutdown_flag_active()) {
+      return;
+    }
+
     beginRunIfNotDoneAlready();
     beginSubRunIfNotDoneAlready();
     readEvent();
@@ -431,6 +446,10 @@ template <art::Level L>
 void
 art::EventProcessor::process()
 {
+  if (shutdown_flag_active()) {
+    return;
+  }
+
   begin<L>();
   while (levelsToProcess<level_down(L)>()) {
     process<level_down(L)>();
@@ -449,15 +468,13 @@ art::EventProcessor::runToCompletion()
 
   try {
     process<highest_level()>();
-  }
-  catch (art::Exception const& e) {
-    if (e.categoryCode() == art::errors::SignalReceived) {
+    if (art::shutdown_flag > 0) {
       returnCode = epSignal;
     }
-    else {
-      terminateAbnormally_();
-      throw e;
-    }
+  }
+  catch (art::Exception const& e) {
+    terminateAbnormally_();
+    throw e;
   }
   catch (cet::exception const& e) {
     terminateAbnormally_();

@@ -1209,12 +1209,12 @@ cet_test(test_compressed_simple_01_t.sh PREBUILT
 
 cet_script(signal_handling_t.sh NO_INSTALL)
 
+message(STATUS "!!!!! Current source dir: ${CMAKE_CURRENT_SOURCE_DIR}/signal_handling_01_t-ref.txt")
+
 cet_test(signal_handling_01_t HANDBUILT
   TEST_EXEC signal_handling_t.sh
   TEST_ARGS -c signal_sigint.fcl SIGINT
-  TEST_PROPERTIES
-  PASS_REGULAR_EXPRESSION
-  "Art has handled signal 2\\."
+  REF "${CMAKE_CURRENT_SOURCE_DIR}/signal_handling_01_t-ref.txt"
   DATAFILES
   fcl/signal_sigint.fcl
   )
@@ -1222,9 +1222,7 @@ cet_test(signal_handling_01_t HANDBUILT
 cet_test(signal_handling_02_t HANDBUILT
   TEST_EXEC signal_handling_t.sh
   TEST_ARGS -c signal_sigint.fcl SIGQUIT
-  TEST_PROPERTIES
-  PASS_REGULAR_EXPRESSION
-  "Art has handled signal 3\\."
+  REF "${CMAKE_CURRENT_SOURCE_DIR}/signal_handling_02_t-ref.txt"
   DATAFILES
   fcl/signal_sigint.fcl
   )
@@ -1232,9 +1230,7 @@ cet_test(signal_handling_02_t HANDBUILT
 cet_test(signal_handling_03_t HANDBUILT
   TEST_EXEC signal_handling_t.sh
   TEST_ARGS -c signal_sigint.fcl SIGTERM
-  TEST_PROPERTIES
-  PASS_REGULAR_EXPRESSION
-  "Art has handled signal 15\\."
+  REF "${CMAKE_CURRENT_SOURCE_DIR}/signal_handling_03_t-ref.txt"
   DATAFILES
   fcl/signal_sigint.fcl
   )
