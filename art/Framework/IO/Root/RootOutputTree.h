@@ -27,7 +27,7 @@ namespace art {
   public: // STATIC MEMBER FUNCTIONS
 
     static TTree* makeTTree(TFile*, std::string const& name, int splitLevel);
-    static void writeTTree(TTree*) noexcept;
+    static void writeTTree(TTree*) noexcept(false); // This routine MAY THROW if art converts a ROOT error message to an exception.
 
   public: // MEMBER FUNCTIONS
 

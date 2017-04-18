@@ -76,7 +76,7 @@ checkSplitLevelAndBasketSize(TTree* inputTree) const
 
 void
 RootOutputTree::
-writeTTree(TTree* tree) noexcept
+writeTTree(TTree* tree) noexcept(false)
 {
   // Update the tree-level entry count because we have been
   // using branch fill instead of tree fill.
