@@ -136,8 +136,8 @@ process(typename T::MyPrincipal & ep)
       break;
     }
     default: {
-      throw art::Exception(errors::EventProcessorFailure)
-        << "An exception occurred during current event processing\n"
+      throw art::Exception(errors::EventProcessorFailure, "EndPathExecutor:")
+        << "an exception occurred during current event processing\n"
         << ex;
     }
     }

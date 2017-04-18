@@ -54,9 +54,8 @@ namespace art {
           if (isEvent) ++timesExcept_;
           state_ = art::hlt::Exception;
           recordStatus(nwrwue, isEvent);
-          throw art::Exception(errors::ScheduleExecutionFailure,
-              "ProcessingStopped.\n", e)
-              << "Exception going through path " << name_ << "\n";
+          throw art::Exception{errors::ScheduleExecutionFailure, "Path: ProcessingStopped.", e}
+          << "Exception going through path " << name_ << "\n";
       }
     }
 

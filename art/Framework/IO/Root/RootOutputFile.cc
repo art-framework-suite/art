@@ -862,12 +862,6 @@ art::RootOutputFile::writeTTrees()
     auto const branchType = static_cast<BranchType>(i);
     treePointers_[branchType]->writeTree();
   }
-  // // Write out DB -- the d'tor of the Connection calls sqlite3_close.
-  // // For the tkeyvfs, closing the DB calls
-  // //   rootFile->Write("",TObject::kOverwrite).
-  // rootFileDB_.reset();
-  // // File closed when d'tor of TFile is called
-  // filePtr_.reset();
 }
 
 template <art::BranchType BT>

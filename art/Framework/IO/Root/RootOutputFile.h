@@ -60,7 +60,7 @@ public: // TYPES
     public:
 
       explicit Sorter(TTree* tree);
-      bool  operator()(OutputItem const& lh, OutputItem const& rh) const;
+      bool operator()(OutputItem const& lh, OutputItem const& rh) const;
 
     private:
 
