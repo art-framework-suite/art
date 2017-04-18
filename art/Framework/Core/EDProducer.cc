@@ -20,8 +20,8 @@ namespace art
                       CountingStatistics& counts) {
     detail::CPCSentry sentry {current_context_, cpc};
     Event e {ep, moduleDescription_};
-    produce(e);
     counts.increment<stats::Run>();
+    produce(e);
     e.commit_(ep, checkPutProducts_, expectedProducts());
     counts.increment<stats::Passed>();
     return true;

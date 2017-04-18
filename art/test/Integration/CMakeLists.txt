@@ -1209,8 +1209,6 @@ cet_test(test_compressed_simple_01_t.sh PREBUILT
 
 cet_script(signal_handling_t.sh NO_INSTALL)
 
-message(STATUS "!!!!! Current source dir: ${CMAKE_CURRENT_SOURCE_DIR}/signal_handling_01_t-ref.txt")
-
 cet_test(signal_handling_01_t HANDBUILT
   TEST_EXEC signal_handling_t.sh
   TEST_ARGS -c signal_sigint.fcl SIGINT

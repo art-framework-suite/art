@@ -16,6 +16,7 @@
 #include "art/Framework/Core/PathManager.h"
 #include "art/Framework/Core/Schedule.h"
 #include "art/Framework/EventProcessor/ServiceDirector.h"
+#include "art/Framework/EventProcessor/detail/ExceptionCollector.h"
 #include "art/Framework/Principal/Actions.h"
 #include "art/Framework/Principal/fwd.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
@@ -135,6 +136,7 @@ private:
 
   Level nextLevel_ {Level::ReadyToAdvance};
   std::vector<Level> activeLevels_ {highest_level()};
+  detail::ExceptionCollector ec_ {};
 
   bool beginRunCalled_ {false};    // Should be stack variable local to run loop
   bool beginSubRunCalled_ {false}; // Should be stack variable local to subrun loop
@@ -241,9 +243,9 @@ catch (cet::exception & ex) {
     break;
   }
   default: {
-    throw art::Exception(errors::EventProcessorFailure)
-      << "An exception occurred during current event processing\n"
-      << ex;
+    throw art::Exception{errors::EventProcessorFailure,
+                         "EventProcessor: an exception occurred during current event processing",
+                         ex};
   }
   }
 }

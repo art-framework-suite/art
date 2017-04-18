@@ -20,8 +20,8 @@ namespace art
                     CountingStatistics& counts) {
     detail::CPCSentry sentry {current_context_, cpc};
     Event e {ep, moduleDescription_};
-    bool const rc = filter(e);
     counts.increment<stats::Run>();
+    bool const rc = filter(e);
     e.commit_(ep, checkPutProducts_, expectedProducts());
     counts.update(rc);
     return rc;

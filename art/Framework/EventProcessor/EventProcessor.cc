@@ -29,7 +29,6 @@
 #include "canvas/Utilities/DebugMacros.h"
 #include "canvas/Utilities/Exception.h"
 #include "canvas/Utilities/GetPassID.h"
-#include "cetlib/exception_collector.h"
 #include "cetlib/container_algorithms.h"
 #include "fhiclcpp/types/detail/validationException.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
@@ -243,24 +242,10 @@ art::EventProcessor::invokePostBeginJobWorkers_()
 //================================================================
 // Event-loop infrastructure
 
-namespace {
-  bool shutdown_flag_active()
-  {
-    using namespace art;
-    std::lock_guard<decltype(usr2_lock)> lock {usr2_lock};
-    return shutdown_flag > 0;
-  }
-}
-
-
 template <art::Level L>
 bool
 art::EventProcessor::levelsToProcess()
 {
-  if (shutdown_flag_active()) {
-    return false;
-  }
-
   if (nextLevel_ == Level::ReadyToAdvance) {
     nextLevel_ = advanceItemType();
     // Consider reading right here?
@@ -421,7 +406,7 @@ namespace art {
   template <>
   void EventProcessor::process<most_deeply_nested_level()>()
   {
-    if (shutdown_flag_active()) {
+    if (shutdown_flag > 0 || !ec_.empty()) {
       return;
     }
 
@@ -446,17 +431,22 @@ template <art::Level L>
 void
 art::EventProcessor::process()
 {
-  if (shutdown_flag_active()) {
+  if (shutdown_flag > 0 || !ec_.empty()) {
     return;
   }
 
-  begin<L>();
-  while (levelsToProcess<level_down(L)>()) {
-    process<level_down(L)>();
-    markLevelAsProcessed();
+  ec_.call([this]{ begin<L>(); });
+
+  while (shutdown_flag == 0 && ec_.empty() && levelsToProcess<level_down(L)>()) {
+    ec_.call([this]{
+        process<level_down(L)>();
+        markLevelAsProcessed();
+      });
   }
-  finalize<L>();
-  recordOutputModuleClosureRequests<L>();
+  ec_.call([this]{
+      finalize<L>();
+      recordOutputModuleClosureRequests<L>();
+    });
 }
 
 art::EventProcessor::StatusCode
@@ -466,51 +456,18 @@ art::EventProcessor::runToCompletion()
   // Make the services available
   ServiceRegistry::Operate op {serviceToken_};
 
-  try {
-    process<highest_level()>();
-    if (art::shutdown_flag > 0) {
-      returnCode = epSignal;
-    }
-  }
-  catch (art::Exception const& e) {
+  ec_.call([this,&returnCode]{
+      process<highest_level()>();
+      if (art::shutdown_flag > 0) {
+        returnCode = epSignal;
+      }
+    });
+
+  if (!ec_.empty()) {
     terminateAbnormally_();
-    throw e;
+    ec_.rethrow();
   }
-  catch (cet::exception const& e) {
-    terminateAbnormally_();
-    throw e;
-  }
-  catch (std::bad_alloc const& e) {
-    terminateAbnormally_();
-    throw cet::exception("std::bad_alloc")
-      << "The EventProcessor caught a std::bad_alloc exception and converted it to a cet::exception\n"
-      << "The job has probably exhausted the virtual memory available to the process.\n";
-  }
-  catch (std::exception const& e) {
-    terminateAbnormally_();
-    throw cet::exception("StdException")
-      << "The EventProcessor caught a std::exception and converted it to a cet::exception\n"
-      << "Previous information:\n" << e.what() << "\n";
-  }
-  catch (std::string const& e) {
-    terminateAbnormally_();
-    throw cet::exception("Unknown")
-      << "The EventProcessor caught a string-based exception type and converted it to a cet::exception\n"
-      << e
-      << "\n";
-  }
-  catch (char const * e) {
-    terminateAbnormally_();
-    throw cet::exception("Unknown")
-      << "The EventProcessor caught a string-based exception type and converted it to a cet::exception\n"
-      << e
-      << "\n";
-  }
-  catch (...) {
-    terminateAbnormally_();
-    throw cet::exception("Unknown")
-      << "The EventProcessor caught an unknown exception type and converted it to a cet::exception\n";
-  }
+
   return returnCode;
 }
 
@@ -534,13 +491,13 @@ art::EventProcessor::advanceItemType()
   case input::IsEvent: return Level::Event;
   case input::IsInvalid: {
     throw art::Exception{art::errors::LogicError}
-      << "Invalid next item type presented to the event processor.\n"
-      << "Please contact artists@fnal.gov.";
+    << "Invalid next item type presented to the event processor.\n"
+         << "Please contact artists@fnal.gov.";
   }
   }
   throw art::Exception{art::errors::LogicError}
-    << "Unrecognized next item type presented to the event processor.\n"
-    << "Please contact artists@fnal.gov.";
+  << "Unrecognized next item type presented to the event processor.\n"
+       << "Please contact artists@fnal.gov.";
 }
 
 //=============================================
@@ -590,16 +547,14 @@ void
 art::EventProcessor::endJob()
 {
   FDEBUG(1) << spaces(8) << "endJob\n";
-  // Collects exceptions, so we don't throw before all operations are performed.
-  cet::exception_collector c;
   // Make the services available
   ServiceRegistry::Operate op {serviceToken_};
-  c.call([this](){ schedule_->endJob(); });
-  c.call([this](){ endPathExecutor_->endJob(); });
-  c.call([this](){ detail::writeSummary(pathManager_,
+  ec_.call([this]{ schedule_->endJob(); });
+  ec_.call([this]{ endPathExecutor_->endJob(); });
+  ec_.call([this]{ detail::writeSummary(pathManager_,
                                         ServiceHandle<TriggerNamesService const>{}->wantSummary()); });
-  c.call([this](){ input_->doEndJob(); });
-  c.call([this](){ actReg_.sPostEndJob.invoke(); });
+  ec_.call([this]{ input_->doEndJob(); });
+  ec_.call([this]{ actReg_.sPostEndJob.invoke(); });
 }
 
 //====================================================
@@ -920,12 +875,12 @@ art::EventProcessor::servicesDeactivate_()
 
 void
 art::EventProcessor::terminateAbnormally_()
-try
-{
-  if (ServiceRegistry::isAvailable<RandomNumberGenerator>()) {
-    ServiceHandle<RandomNumberGenerator>{}->saveToFile_();
-  }
-}
-catch (...)
-{
-}
+  try
+    {
+      if (ServiceRegistry::isAvailable<RandomNumberGenerator>()) {
+        ServiceHandle<RandomNumberGenerator>{}->saveToFile_();
+      }
+    }
+  catch (...)
+    {
+    }

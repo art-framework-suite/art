@@ -182,8 +182,11 @@ doEvent(EventPrincipal const& ep, CurrentProcessingContext const* cpc, CountingS
   FDEBUG(2) << "doEvent called\n";
   Event const e {ep, moduleDescription_};
   if (wantAllEvents() || wantEvent(e)) {
+    // Run is incremented before analyze(e); to properly count
+    // whenever an exception is thrown in the user's module.
+    counts.increment<stats::Run>();
     event(ep);
-    counts.increment<stats::Run, stats::Passed>();
+    counts.increment<stats::Passed>();
   }
   return true;
 }

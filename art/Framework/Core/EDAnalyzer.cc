@@ -19,8 +19,11 @@ namespace art
     detail::PVSentry pvSentry {cachedProducts()};
     Event const e {ep, moduleDescription_};
     if (wantAllEvents() || wantEvent(e)) {
+      // Run is incremented before analyze(e); to properly count
+      // whenever an exception is thrown in the user's module.
+      counts.increment<stats::Run>();
       analyze(e);
-      counts.increment<stats::Run, stats::Passed>();
+      counts.increment<stats::Passed>();
     }
     return true;
   }

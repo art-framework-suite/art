@@ -1,35 +1,38 @@
 #include "art/Framework/Core/EDProducer.h"
 #include "art/Framework/Core/ModuleMacros.h"
+#include "art/test/Integration/event-processor/ThrowAfterConfig.h"
 #include "canvas/Utilities/Exception.h"
 #include "fhiclcpp/types/Atom.h"
 
-namespace {
+namespace art {
+  namespace test {
 
-  struct Config {
-    fhicl::Atom<bool> doThrow { fhicl::Name("throw") };
-  };
+    class ThrowingProducer : public EDProducer {
+      unsigned count_{};
+      unsigned threshold_;
+    public:
 
+      using Parameters = EDProducer::Table<ThrowAfterConfig>;
+
+      ThrowingProducer(Parameters const& p) :
+        threshold_{p().throwAfter()}
+      {
+        if (p().throwFromCtor()) {
+          throw Exception{errors::OtherArt} << "Throw from c'tor.\n";
+        }
+      }
+
+      void produce(Event&) override
+      {
+        if (count_ >= threshold_) {
+          throw Exception{errors::OtherArt} << "Throw from produce.\n";
+        }
+        ++count_;
+      }
+
+    };
+
+  }
 }
 
-namespace arttest {
-
-  class ThrowingProducer : public art::EDProducer {
-    bool doThrow_{false};
-  public:
-
-    using Parameters = art::EDProducer::Table<Config>;
-
-    ThrowingProducer(Parameters const& c)
-      : doThrow_( c().doThrow() )
-    {
-      if ( doThrow_ )
-        throw art::Exception(art::errors::Configuration, "Throwing producer ctor");
-    }
-
-    void produce(art::Event&) override {}
-    
-  };
-
-}
-
-DEFINE_ART_MODULE(arttest::ThrowingProducer)
+DEFINE_ART_MODULE(art::test::ThrowingProducer)
