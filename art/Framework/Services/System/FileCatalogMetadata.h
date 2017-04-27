@@ -65,14 +65,14 @@ public:
     fhicl::Atom<std::string> fileType  { fhicl::Name("fileType"),
         fhicl::Comment("Can specify 'fileType' only if it is not specified\n"
                        "in the 'metadataFromInput' list."),
-        [this](){ return !inMetadataList("fileType"); },
+        [this]{ return !inMetadataList("fileType"); },
         "unknown"
     };
 
     fhicl::OptionalAtom<std::string> runType   { fhicl::Name("runType"),
         fhicl::Comment("Can specify 'runType' only if it is not specified\n"
                        "in the 'metadataFromInput' list."),
-        [this](){ return !inMetadataList("runType"); }
+        [this]{ return !inMetadataList("runType"); }
     };
   };
 

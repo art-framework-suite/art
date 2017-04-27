@@ -9,7 +9,6 @@
 #include "art/Framework/IO/Root/DuplicateChecker.h"
 #include "art/Framework/IO/Root/FastCloningInfoProvider.h"
 #include "art/Framework/IO/Root/GetFileFormatEra.h"
-#include "art/Framework/IO/Root/detail/resolveRangeSet.h"
 #include "art/Framework/IO/Root/detail/setFileIndexPointer.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/System/DatabaseConnection.h"
@@ -115,19 +114,19 @@ namespace art {
                 int secondaryFileNameIdx,
                 vector<string> const& secondaryFileNames,
                 RootInputFileSequence* rifSequence)
-    : file_{fileName}
+    : fileName_{fileName}
     , catalog_{catalogName}
     , processConfiguration_{processConfiguration}
-    , logicalFile_{logicalFileName}
+    , logicalFileName_{logicalFileName}
     , filePtr_{std::move(filePtr)}
     , sqliteDB_{ServiceHandle<DatabaseConnection>{}->get<TKeyVFSOpenPolicy>("RootFileDB", filePtr_.get())}
     , origEventID_{origEventID}
     , eventsToSkip_{eventsToSkip}
     , treePointers_ { // Order (and number) must match BranchTypes.h!
-      std::make_unique<RootTree>(filePtr_.get(), InEvent, saveMemoryObjectThreshold, this),
-      std::make_unique<RootTree>(filePtr_.get(), InSubRun, saveMemoryObjectThreshold, this),
-      std::make_unique<RootTree>(filePtr_.get(), InRun, saveMemoryObjectThreshold, this),
-      std::make_unique<RootTree>(filePtr_.get(), InResults, saveMemoryObjectThreshold, this, true /* missingOK */) }
+      std::make_unique<RootInputTree>(filePtr_.get(), InEvent, saveMemoryObjectThreshold, this),
+      std::make_unique<RootInputTree>(filePtr_.get(), InSubRun, saveMemoryObjectThreshold, this),
+      std::make_unique<RootInputTree>(filePtr_.get(), InRun, saveMemoryObjectThreshold, this),
+      std::make_unique<RootInputTree>(filePtr_.get(), InResults, saveMemoryObjectThreshold, this, true /* missingOK */) }
     , delayedReadEventProducts_{delayedReadEventProducts}
     , delayedReadSubRunProducts_{delayedReadSubRunProducts}
     , delayedReadRunProducts_{delayedReadRunProducts}
@@ -195,7 +194,7 @@ namespace art {
 
     // Here we read the metadata tree
     input::getEntry(metaDataTree, 0);
-    BranchIDListRegistry::updateFromInput(branchIDLists, file_);
+    BranchIDListRegistry::updateFromInput(branchIDLists, fileName_);
     metaDataTree->SetBranchAddress(metaBranchRootName<BranchIDLists>(), nullptr);
 
     // Check the, "Era" of the input file (new since art v0.5.0). If it
@@ -212,7 +211,7 @@ namespace art {
         << "\" era: "
         << "Era of "
         << "\""
-        << file_
+        << fileName_
         << "\" was "
         << (fileFormatVersion_.era_.empty() ?
             "not set" :
@@ -232,11 +231,11 @@ namespace art {
 
     // Also need to check RootFileDB if we have one.
     if (fileFormatVersion_.value_ >= 5) {
-      if (readIncomingParameterSets && have_table(sqliteDB_, "ParameterSets", file_)) {
+      if (readIncomingParameterSets && have_table(sqliteDB_, "ParameterSets", fileName_)) {
         fhicl::ParameterSetRegistry::importFrom(sqliteDB_);
       }
       if (art::ServiceRegistry::isAvailable<art::FileCatalogMetadata>() &&
-          have_table(sqliteDB_, "FileCatalog_metadata", file_)) {
+          have_table(sqliteDB_, "FileCatalog_metadata", fileName_)) {
         sqlite3_stmt* stmt {nullptr};
         sqlite3_prepare_v2(sqliteDB_,
                            "SELECT Name, Value from FileCatalog_metadata;",
@@ -404,7 +403,7 @@ namespace art {
     return std::make_unique<FileBlock>(fileFormatVersion_,
                                        eventTree().tree(),
                                        fastClonable(),
-                                       file_,
+                                       fileName_,
                                        std::move(branchChildren_),
                                        readResults());
   }
@@ -419,30 +418,11 @@ namespace art {
     return fiIter_->getEntryType();
   }
 
-  // Temporary KLUDGE until we can properly merge runs and subRuns across files
-  // This KLUDGE skips duplicate run or subRun entries.
-  FileIndex::EntryType
-  RootInputFile::
-  getEntryTypeSkippingDups()
-  {
-    while (1) {
-      if (fiIter_ == fiEnd_) {
-        return FileIndex::kEnd;
-      }
-      if (fiIter_->eventID_.isValid() ||  // will not skip duplicate events
-          (fiIter_ == fiBegin_) || // guarding next condition
-          ((fiIter_ - 1)->eventID_.subRun() != fiIter_->eventID_.subRun())) { // do not skip unique subruns
-        return fiIter_->getEntryType();
-      }
-      nextEntry();
-    }
-  }
-
   FileIndex::EntryType
   RootInputFile::
   getNextEntryTypeWanted()
   {
-    auto entryType = getEntryTypeSkippingDups();
+    auto entryType = getEntryType();
     if (entryType == FileIndex::kEnd) {
       return FileIndex::kEnd;
     }
@@ -484,25 +464,24 @@ namespace art {
       return getNextEntryTypeWanted();
     }
     if (duplicateChecker_.get() &&
-        duplicateChecker_->isDuplicateAndCheckActive(fiIter_->eventID_, file_)) {
+        duplicateChecker_->isDuplicateAndCheckActive(fiIter_->eventID_, fileName_)) {
       nextEntry();
       return getNextEntryTypeWanted();
     }
     if (eventsToSkip_ == 0) {
       return FileIndex::kEvent;
     }
-    // We have specified a count of events to skip,
-    // keep skipping events in this subRun block
-    // until we reach the end of the subRun block or
-    // the full count of the number of events to skip.
+    // We have specified a count of events to skip, keep skipping
+    // events in this subRun block until we reach the end of the
+    // subRun block or the full count of the number of events to skip.
     while ((eventsToSkip_ != 0) && (fiIter_ != fiEnd_) &&
-           (getEntryTypeSkippingDups() == FileIndex::kEvent)) {
+           (getEntryType() == FileIndex::kEvent)) {
       nextEntry();
       --eventsToSkip_;
       while ((eventsToSkip_ != 0) && (fiIter_ != fiEnd_) &&
              (fiIter_->getEntryType() == FileIndex::kEvent) &&
              duplicateChecker_.get() &&
-             duplicateChecker_->isDuplicateAndCheckActive(fiIter_->eventID_, file_)) {
+             duplicateChecker_->isDuplicateAndCheckActive(fiIter_->eventID_, fileName_)) {
         nextEntry();
       }
     }
@@ -708,7 +687,7 @@ namespace art {
     }
 
     auto rp = readCurrentRun(entryNumbers);
-    nextEntry();
+    advanceEntry(entryNumbers.size());
     return move(rp);
   }
 
@@ -817,7 +796,7 @@ namespace art {
     }
 
     auto srp = readCurrentSubRun(entryNumbers, rp);
-    nextEntry();
+    advanceEntry(entryNumbers.size());
     return move(srp);
   }
 
@@ -988,11 +967,11 @@ namespace art {
 
     if (t == InEvent && entries.size() > 1ul) {
       throw Exception{errors::FileReadError}
-        << "File " << file_ << " has multiple entries for\n"
+        << "File " << fileName_ << " has multiple entries for\n"
         << eid << '\n';
     }
 
-    bool const lastInSubRun = (it == fiEnd_ || it->eventID_.subRun() != subrun);
+    bool const lastInSubRun {it == fiEnd_ || it->eventID_.subRun() != subrun};
     return std::pair<EntryNumbers,bool>{entries, lastInSubRun};
   }
 
@@ -1048,7 +1027,7 @@ namespace art {
           << bd.branchName()
           << "' is being dropped from the input\n"
           << "of file '"
-          << file_
+          << fileName_
           << "' because it is dependent on a branch\n"
           << "that was explicitly dropped.\n";
       }

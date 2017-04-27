@@ -1,9 +1,9 @@
-#ifndef art_Framework_IO_Root_RootTree_h
-#define art_Framework_IO_Root_RootTree_h
+#ifndef art_Framework_IO_Root_RootInputTree_h
+#define art_Framework_IO_Root_RootInputTree_h
 // vim: set sw=2:
 
 //
-//  RootTree
+//  RootInputTree
 //
 //  Used by ROOT input sources.
 //
@@ -68,21 +68,21 @@ namespace art {
   class DelayedReader;
   class Principal;
 
-  class RootTree {
+  class RootInputTree {
   public:
     using BranchMap = input::BranchMap;
     using EntryNumber = input::EntryNumber;
     using EntryNumbers = input::EntryNumbers;
 
-    RootTree(cet::exempt_ptr<TFile>,
+    RootInputTree(cet::exempt_ptr<TFile>,
              BranchType,
              int64_t saveMemoryObjectThreshold,
              cet::exempt_ptr<RootInputFile>,
              bool missingOK = false);
-    RootTree(RootTree const&) = delete;
-    RootTree& operator=(RootTree const&) = delete;
+    RootInputTree(RootInputTree const&) = delete;
+    RootInputTree& operator=(RootInputTree const&) = delete;
 
-    explicit operator bool () const { return isValid(); }
+    explicit operator bool() const { return isValid(); }
 
     bool isValid() const;
     bool hasBranch(std::string const& branchName) const;
@@ -91,20 +91,10 @@ namespace art {
                    bool const presentInSomeFile);
     void dropBranch(std::string const& branchName);
 
-    bool
-    next()
-    {
-      return ++entryNumber_ < entries_;
-    }
+    bool next() { return ++entryNumber_ < entries_; }
+    bool previous() { return --entryNumber_ >= 0; }
 
-    bool
-    previous()
-    {
-      return --entryNumber_ >= 0;
-    }
-
-    bool
-    current(EntryNumbers const& numbers)
+    bool current(EntryNumbers const& numbers)
     {
       assert(!numbers.empty());
       return std::all_of(numbers.cbegin(),
@@ -114,31 +104,12 @@ namespace art {
                          });
     }
 
-    void
-    rewind()
-    {
-      entryNumber_ = 0;
-    }
-
-    EntryNumber
-    entryNumber() const
-    {
-      return entryNumber_;
-    }
-
-    EntryNumber
-    entries() const
-    {
-      return entries_;
-    }
+    void rewind() { entryNumber_ = 0; }
+    EntryNumber entryNumber() const { return entryNumber_; }
+    EntryNumber entries() const { return entries_; }
 
     void setEntryNumber(EntryNumber theEntryNumber);
-
-    std::vector<std::string> const&
-    branchNames() const
-    {
-      return branchNames_;
-    }
+    std::vector<std::string> const& branchNames() const { return branchNames_; }
 
     void
     fillGroups(Principal& p)
@@ -208,33 +179,14 @@ namespace art {
       return std::make_unique<ClosedRangeSetHandler>(resolveRangeSet(rangeSetInfo));
     }
 
-    TTree const*
-    tree() const
-    {
-      return tree_;
-    }
-
-    TTree const*
-    metaTree() const
-    {
-      return metaTree_;
-    }
+    TTree const* tree() const { return tree_; }
+    TTree const* metaTree() const { return metaTree_; }
 
     void setCacheSize(unsigned int cacheSize) const;
-
     void setTreeMaxVirtualSize(int treeMaxVirtualSize);
 
-    BranchMap const&
-    branches() const
-    {
-      return *branches_;
-    }
-
-    TBranch*
-    productProvenanceBranch() const
-    {
-      return productProvenanceBranch_;
-    }
+    BranchMap const& branches() const { return *branches_; }
+    TBranch* productProvenanceBranch() const { return productProvenanceBranch_; }
 
   private:
     cet::exempt_ptr<TFile> filePtr_;
@@ -259,4 +211,4 @@ namespace art {
 // Local Variables:
 // mode: c++
 // End:
-#endif /* art_Framework_IO_Root_RootTree_h */
+#endif /* art_Framework_IO_Root_RootInputTree_h */

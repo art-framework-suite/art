@@ -1,6 +1,5 @@
 #include "art/Framework/IO/Root/GetFileFormatEra.h"
 #include "art/Framework/IO/Root/detail/InfoDumperInputFile.h"
-#include "art/Framework/IO/Root/detail/resolveRangeSet.h"
 #include "art/Persistency/RootDB/SQLite3Wrapper.h"
 #include "art/Persistency/RootDB/tkeyvfs.h"
 #include "boost/program_options.hpp"

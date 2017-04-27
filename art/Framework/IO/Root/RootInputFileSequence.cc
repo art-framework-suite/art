@@ -6,7 +6,7 @@
 #include "art/Framework/IO/Catalog/FileCatalog.h"
 #include "art/Framework/IO/Catalog/InputFileCatalog.h"
 #include "art/Framework/IO/Root/RootInputFile.h"
-#include "art/Framework/IO/Root/RootTree.h"
+#include "art/Framework/IO/Root/RootInputTree.h"
 #include "art/Framework/IO/detail/logFileAction.h"
 #include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Principal/RunPrincipal.h"
@@ -286,7 +286,7 @@ closeFile_()
   // Account for events skipped in the file.
   eventsToSkip_ = rootFile_->eventsToSkip();
   rootFile_->close(primary());
-  detail::logFileAction("Closed input file ", rootFile_->file());
+  detail::logFileAction("Closed input file ", rootFile_->fileName());
   rootFile_.reset();
   if (duplicateChecker_.get() != nullptr) {
     duplicateChecker_->inputFileClosed();

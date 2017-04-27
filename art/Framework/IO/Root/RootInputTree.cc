@@ -1,4 +1,4 @@
-#include "art/Framework/IO/Root/RootTree.h"
+#include "art/Framework/IO/Root/RootInputTree.h"
 // vim: set sw=2:
 
 #include "art/Framework/IO/Root/RootDelayedReader.h"
@@ -14,8 +14,8 @@
 
 namespace art {
 
-  RootTree::
-  RootTree(cet::exempt_ptr<TFile> filePtr,
+  RootInputTree::
+  RootInputTree(cet::exempt_ptr<TFile> filePtr,
            BranchType const branchType,
            int64_t saveMemoryObjectThreshold,
            cet::exempt_ptr<RootInputFile> primaryFile,
@@ -38,14 +38,14 @@ namespace art {
     }
     if (!(missingOK || isValid())) {
       throw Exception(errors::FileReadError)
-        << "RootTree for branch type "
+        << "RootInputTree for branch type "
         << BranchTypeToString(branchType)
         << " could not be initialized correctly from input file.\n";
     }
   }
 
   bool
-  RootTree::
+  RootInputTree::
   isValid() const
   {
     if ((metaTree_ == 0) || (metaTree_->GetNbranches() == 0)) {
@@ -55,14 +55,14 @@ namespace art {
   }
 
   bool
-  RootTree::
+  RootInputTree::
   hasBranch(std::string const& branchName) const
   {
     return tree_->GetBranch(branchName.c_str()) != 0;
   }
 
   void
-  RootTree::
+  RootInputTree::
   addBranch(BranchKey const& key,
             BranchDescription const& bd,
             std::string const& branchName,
@@ -81,7 +81,7 @@ namespace art {
   }
 
   void
-  RootTree::
+  RootInputTree::
   dropBranch(std::string const& branchName)
   {
     TBranch* branch = tree_->GetBranch(branchName.c_str());
@@ -110,7 +110,7 @@ namespace art {
   }
 
   std::unique_ptr<DelayedReader>
-  RootTree::
+  RootInputTree::
   makeDelayedReader(FileFormatVersion const fileFormatVersion,
                     BranchType const branchType,
                     EntryNumbers const& entrySet,
@@ -120,7 +120,7 @@ namespace art {
   }
 
   std::unique_ptr<DelayedReader>
-  RootTree::
+  RootInputTree::
   makeDelayedReader(FileFormatVersion const fileFormatVersion,
                     sqlite3* inputDB,
                     BranchType const branchType,
@@ -139,14 +139,14 @@ namespace art {
   }
 
   void
-  RootTree::
+  RootInputTree::
   setCacheSize(unsigned int cacheSize) const
   {
     tree_->SetCacheSize(static_cast<Long64_t>(cacheSize));
   }
 
   void
-  RootTree::
+  RootInputTree::
   setTreeMaxVirtualSize(int treeMaxVirtualSize)
   {
     if (treeMaxVirtualSize >= 0) {
@@ -155,7 +155,7 @@ namespace art {
   }
 
   void
-  RootTree::
+  RootInputTree::
   setEntryNumber(EntryNumber theEntryNumber)
   {
     // Note: An entry number of -1 is ok, this can be used
@@ -169,7 +169,7 @@ namespace art {
   }
 
   std::unique_ptr<BranchMapper>
-  RootTree::
+  RootInputTree::
   makeBranchMapper() const
   {
     return std::make_unique<BranchMapperWithReader>(productProvenanceBranch_, entryNumber_);

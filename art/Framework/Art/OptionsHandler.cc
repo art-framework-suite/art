@@ -57,22 +57,22 @@ namespace {
 
 int
 art::OptionsHandler::
-checkOptions(bpo::variables_map const & vm)
+checkOptions(bpo::variables_map const& vm)
 {
   std::string const thisClass(cet::demangle_symbol(typeid(*this).name()));
-  return exceptionCatcher([&vm,this](){ return this->doCheckOptions(vm); },
+  return exceptionCatcher([&vm,this]{ return doCheckOptions(vm); },
                           thisClass + "::doCheckOptions()",
                           89);
 }
 
 int
 art::OptionsHandler::
-processOptions(bpo::variables_map const & vm,
-               fhicl::intermediate_table & raw_config)
+processOptions(bpo::variables_map const& vm,
+               fhicl::intermediate_table& raw_config)
 {
   std::string const thisClass(cet::demangle_symbol(typeid(*this).name()));
-  return exceptionCatcher([&, this](){
-      return this->doProcessOptions(vm, raw_config);
+  return exceptionCatcher([&, this]{
+      return doProcessOptions(vm, raw_config);
     },
     thisClass + "::doProcessOptions()",
     90);

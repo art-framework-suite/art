@@ -1,4 +1,5 @@
 #include "art/Framework/IO/Root/detail/InfoDumperInputFile.h"
+#include "art/Framework/IO/Root/detail/resolveRangeSet.h"
 #include "art/Framework/IO/Root/detail/setFileIndexPointer.h"
 #include "art/Framework/Principal/detail/orderedProcessNames.h"
 #include "art/Persistency/Provenance/ProcessHistoryRegistry.h"

@@ -4,13 +4,14 @@
 #include "TBranch.h"
 #include "TFile.h"
 #include "TTree.h"
+#include "sqlite3.h"
 #include "art/Framework/IO/Root/Inputfwd.h"
-#include "art/Framework/IO/Root/detail/resolveRangeSet.h"
 #include "art/Persistency/Provenance/BranchIDListRegistry.h"
 #include "canvas/Persistency/Provenance/FileFormatVersion.h"
 #include "canvas/Persistency/Provenance/FileIndex.h"
 #include "canvas/Persistency/Provenance/RangeSet.h"
 #include "canvas/Persistency/Provenance/RunAuxiliary.h"
+
 #include <memory>
 #include <ostream>
 #include <string>
