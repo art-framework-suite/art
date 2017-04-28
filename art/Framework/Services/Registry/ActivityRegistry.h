@@ -66,22 +66,22 @@ public:
   GlobalSignal<detail::SignalResponseType::LIFO, void()> sJobFailure;
 
   // Signal is emitted before the source starts creating an Event
-  GlobalSignal<detail::SignalResponseType::FIFO, void()> sPreSource;
+  GlobalSignal<detail::SignalResponseType::FIFO, void()> sPreSourceEvent;
 
   // Signal is emitted after the source starts creating an Event
-  GlobalSignal<detail::SignalResponseType::LIFO, void()> sPostSource;
+  GlobalSignal<detail::SignalResponseType::LIFO, void(Event const&)> sPostSourceEvent;
 
   // Signal is emitted before the source starts creating a SubRun
   GlobalSignal<detail::SignalResponseType::FIFO, void()> sPreSourceSubRun;
 
   // Signal is emitted after the source starts creating a SubRun
-  GlobalSignal<detail::SignalResponseType::LIFO, void()> sPostSourceSubRun;
+  GlobalSignal<detail::SignalResponseType::LIFO, void(SubRun const&)> sPostSourceSubRun;
 
   // Signal is emitted before the source starts creating a Run
   GlobalSignal<detail::SignalResponseType::FIFO, void()> sPreSourceRun;
 
   // Signal is emitted after the source starts creating a Run
-  GlobalSignal<detail::SignalResponseType::LIFO, void()> sPostSourceRun;
+  GlobalSignal<detail::SignalResponseType::LIFO, void(Run const&)> sPostSourceRun;
 
   // Signal is emitted before the source opens a file
   GlobalSignal<detail::SignalResponseType::FIFO, void()> sPreOpenFile;

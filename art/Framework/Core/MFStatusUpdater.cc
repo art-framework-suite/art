@@ -27,8 +27,8 @@ art::MFStatusUpdater::MFStatusUpdater(ActivityRegistry &areg) :
   MFSU_WATCH_UPDATER(PostBeginJob);
   MFSU_WATCH_UPDATER(PostEndJob);
   MFSU_WATCH_UPDATER(JobFailure);
-  MFSU_WATCH_UPDATER(PreSource);
-  MFSU_WATCH_UPDATER(PostSource);
+  MFSU_WATCH_UPDATER(PreSourceEvent);
+  MFSU_WATCH_UPDATER(PostSourceEvent);
   MFSU_WATCH_UPDATER(PreSourceSubRun);
   MFSU_WATCH_UPDATER(PostSourceSubRun);
   MFSU_WATCH_UPDATER(PreSourceRun);
@@ -103,13 +103,13 @@ MFSU_0_ARG_UPDATER_DEFN(JobFailure) {
   mf::MessageLoggerQ::MLqSUM();
 }
 
-MFSU_0_ARG_UPDATER_DEFN(PreSource) {
-  md_.setSinglet("Source"s);
+MFSU_0_ARG_UPDATER_DEFN(PreSourceEvent) {
+  md_.setSinglet("SourceEvent"s);
   saveEnabledState("source"s);
 }
 
-MFSU_0_ARG_UPDATER_DEFN(PostSource) {
-  md_.setSinglet("PostSource"s);
+MFSU_1_ARG_UPDATER_DEFN(PostSourceEvent) {
+  md_.setSinglet("PostSourceEvent"s);
   restoreEnabledState();
 }
 
@@ -118,7 +118,7 @@ MFSU_0_ARG_UPDATER_DEFN(PreSourceSubRun) {
   saveEnabledState("source"s);
 }
 
-MFSU_0_ARG_UPDATER_DEFN(PostSourceSubRun) {
+MFSU_1_ARG_UPDATER_DEFN(PostSourceSubRun) {
   md_.setSinglet("PostSourceSubRun"s);
   restoreEnabledState();
 }
@@ -128,7 +128,7 @@ MFSU_0_ARG_UPDATER_DEFN(PreSourceRun) {
   saveEnabledState("source"s);
 }
 
-MFSU_0_ARG_UPDATER_DEFN(PostSourceRun) {
+MFSU_1_ARG_UPDATER_DEFN(PostSourceRun) {
   md_.setSinglet("PostSourceRun"s);
   restoreEnabledState();
 }

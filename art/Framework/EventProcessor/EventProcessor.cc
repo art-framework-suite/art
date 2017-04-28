@@ -664,9 +664,12 @@ art::EventProcessor::respondToCloseOutputFiles()
 void
 art::EventProcessor::readRun()
 {
-  actReg_.sPreSourceRun.invoke();
-  runPrincipal_ = input_->readRun();
-  actReg_.sPostSourceRun.invoke();
+  {
+    actReg_.sPreSourceRun.invoke();
+    runPrincipal_ = input_->readRun();
+    Run const r {*runPrincipal_, ModuleDescription{}};
+    actReg_.sPostSourceRun.invoke(r);
+  }
   endPathExecutor_->seedRunRangeSet(input_->runRangeSetHandler());
   assert(runPrincipal_);
   FDEBUG(1) << spaces(8) << "readRun.....................(" << runPrincipal_->id() << ")\n";
@@ -733,9 +736,12 @@ art::EventProcessor::writeRun()
 void
 art::EventProcessor::readSubRun()
 {
-  actReg_.sPreSourceSubRun.invoke();
-  subRunPrincipal_ = input_->readSubRun(runPrincipal_.get());
-  actReg_.sPostSourceSubRun.invoke();
+  {
+    actReg_.sPreSourceSubRun.invoke();
+    subRunPrincipal_ = input_->readSubRun(runPrincipal_.get());
+    SubRun const sr {*subRunPrincipal_, ModuleDescription{}};
+    actReg_.sPostSourceSubRun.invoke(sr);
+  }
   endPathExecutor_->seedSubRunRangeSet(input_->subRunRangeSetHandler());
   assert(subRunPrincipal_);
   FDEBUG(1) << spaces(8) << "readSubRun..................(" << subRunPrincipal_->id() << ")\n";
@@ -804,9 +810,12 @@ art::EventProcessor::readEvent()
 {
   assert(subRunPrincipal_);
   assert(subRunPrincipal_->id().isValid());
-  actReg_.sPreSource.invoke();
-  eventPrincipal_ = input_->readEvent(subRunPrincipal_.get());
-  actReg_.sPostSource.invoke();
+  {
+    actReg_.sPreSourceEvent.invoke();
+    eventPrincipal_ = input_->readEvent(subRunPrincipal_.get());
+    Event const e {*eventPrincipal_, ModuleDescription{}};
+    actReg_.sPostSourceEvent.invoke(e);
+  }
   assert(eventPrincipal_);
   FDEBUG(1) << spaces(8) << "readEvent...................(" << eventPrincipal_->id() << ")\n";
 }

@@ -20,6 +20,7 @@
 #include "fhiclcpp/types/Atom.h"
 #include "fhiclcpp/types/Name.h"
 
+#include <cassert>
 #include <iostream>
 #include <string>
 
@@ -85,13 +86,13 @@ public:
   void postModuleEndJob(ModuleDescription const& md);
 
   void preSourceEvent();
-  void postSourceEvent();
+  void postSourceEvent(Event const&);
 
   void preSourceSubRun();
-  void postSourceSubRun();
+  void postSourceSubRun(SubRun const&);
 
   void preSourceRun();
-  void postSourceRun();
+  void postSourceRun(Run const&);
 
   void preOpenFile();
   void postOpenFile(std::string const &fn);
@@ -194,8 +195,8 @@ Tracer::Tracer(ServiceTable<Config> const& config, ActivityRegistry& iRegistry)
   iRegistry.sPreEndSubRun.watch(this, &Tracer::preEndSubRun);
   iRegistry.sPostEndSubRun.watch(this, &Tracer::postEndSubRun);
 
-  iRegistry.sPreSource.watch(this, &Tracer::preSourceEvent);
-  iRegistry.sPostSource.watch(this, &Tracer::postSourceEvent);
+  iRegistry.sPreSourceEvent.watch(this, &Tracer::preSourceEvent);
+  iRegistry.sPostSourceEvent.watch(this, &Tracer::postSourceEvent);
 
   iRegistry.sPreOpenFile.watch(this, &Tracer::preOpenFile);
   iRegistry.sPostOpenFile.watch(this, &Tracer::postOpenFile);
@@ -235,7 +236,7 @@ Tracer::preSourceEvent()
 }
 
 void
-Tracer::postSourceEvent ()
+Tracer::postSourceEvent (Event const&)
 {
   indent(2) << "finished: source event" << std::endl;
 }
@@ -247,7 +248,7 @@ Tracer::preSourceSubRun()
 }
 
 void
-Tracer::postSourceSubRun ()
+Tracer::postSourceSubRun (SubRun const&)
 {
   indent(2) << "finished: source subRun" << std::endl;
 }
@@ -259,7 +260,7 @@ Tracer::preSourceRun()
 }
 
 void
-Tracer::postSourceRun ()
+Tracer::postSourceRun (Run const&)
 {
   indent(2) << "finished: source run" << std::endl;
 }

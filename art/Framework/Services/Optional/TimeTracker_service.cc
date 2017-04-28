@@ -32,8 +32,9 @@
 #include <vector>
 
 using namespace cet;
-using std::setw;
 using std::chrono::steady_clock;
+using std::setw;
+using std::string;
 
 namespace {
 
@@ -44,12 +45,12 @@ namespace {
 
     explicit Statistics() = default;
 
-    explicit Statistics(std::string const& p,
-                        std::string const& label,
-                        std::string const& type,
+    explicit Statistics(string const& p,
+                        string const& label,
+                        string const& type,
                         sqlite3* const db,
-                        std::string const& table,
-                        std::string const& column)
+                        string const& table,
+                        string const& column)
       : path{p}
       , mod_label{label}
       , mod_type{type}
@@ -61,9 +62,9 @@ namespace {
       , n{sqlite::nrows(db, table)}
     {}
 
-    std::string path {};
-    std::string mod_label {};
-    std::string mod_type {};
+    string path {};
+    string mod_label {};
+    string mod_type {};
     double min {-1.};
     double mean {-1.};
     double max {-1.};
@@ -74,7 +75,7 @@ namespace {
 
   std::ostream& operator<<(std::ostream& os, Statistics const& info)
   {
-    std::string label {info.path};
+    string label {info.path};
     if (info.path != "Full event")
       label += ":"s + info.mod_label + ":"s + info.mod_type;
     os << label << "  "
@@ -100,7 +101,7 @@ public:
     fhicl::Atom<bool> printSummary {fhicl::Name{"printSummary"}, true};
 
     struct DBoutput {
-      fhicl::Atom<std::string> filename {fhicl::Name{"filename"}, ""};
+      fhicl::Atom<string> filename {fhicl::Name{"filename"}, ""};
       fhicl::Atom<bool> overwrite {fhicl::Name{"overwrite"}, false};
     };
     fhicl::Table<DBoutput> dbOutput {fhicl::Name{"dbOutput"}};
@@ -111,21 +112,24 @@ public:
 
 private:
 
-  void prePathProcessing(std::string const&);
+  void prePathProcessing(string const&);
 
   void postEndJob();
+
+  void preEventReading();
+  void postEventReading(Event const&);
 
   void preEventProcessing(Event const&);
   void postEventProcessing(Event const&);
 
   void startTime(ModuleDescription const&);
-  void recordTime(ModuleDescription const& md, std::string const& suffix);
+  void recordTime(ModuleDescription const& md, string const& suffix);
 
   void logToDatabase_(Statistics const& evt, std::vector<Statistics> const& modules);
   void logToDestination_(Statistics const& evt, std::vector<Statistics> const& modules);
 
   struct PerScheduleData {
-    std::string pathName; // This member will need to be rethought once we decide to process paths in parallel per event.
+    string pathName; // This member will need to be rethought once we decide to process paths in parallel per event.
     EventID eventID;
     steady_clock::time_point eventStart;
     steady_clock::time_point moduleStart;
@@ -138,12 +142,15 @@ private:
 
   template<unsigned SIZE>
   using name_array = cet::sqlite::name_array<SIZE>;
+  name_array<5u> timeSourceTuple_;
   name_array<4u> timeEventTuple_;
   name_array<7u> timeModuleTuple_;
 
+  using timeSource_t = cet::sqlite::Ntuple<uint32_t,uint32_t,uint32_t,string,double>;
   using timeEvent_t  = cet::sqlite::Ntuple<uint32_t,uint32_t,uint32_t,double>;
-  using timeModule_t = cet::sqlite::Ntuple<uint32_t,uint32_t,uint32_t,std::string,std::string,std::string,double>;
+  using timeModule_t = cet::sqlite::Ntuple<uint32_t,uint32_t,uint32_t,string,string,string,double>;
 
+  timeSource_t timeSourceTable_;
   timeEvent_t  timeEventTable_;
   timeModule_t timeModuleTable_;
 };  // art::TimeTracker
@@ -157,9 +164,11 @@ art::TimeTracker::TimeTracker(ServiceTable<Config> const & config, ActivityRegis
   , db_{ServiceHandle<DatabaseConnection>{}->get(config().dbOutput().filename())}
   , overwriteContents_{config().dbOutput().overwrite()}
     // table headers
+  , timeSourceTuple_{"Run","SubRun","Event","Source","Time"}
   , timeEventTuple_ {"Run","SubRun","Event","Time" }
   , timeModuleTuple_{"Run","SubRun","Event","Path", "ModuleLabel", "ModuleType","Time"}
     // tables
+  , timeSourceTable_{db_, "TimeSource", timeSourceTuple_, overwriteContents_}
   , timeEventTable_ {db_, "TimeEvent" , timeEventTuple_ , overwriteContents_}
   , timeModuleTable_{db_, "TimeModule", timeModuleTuple_, overwriteContents_}
 {
@@ -171,9 +180,14 @@ art::TimeTracker::TimeTracker(ServiceTable<Config> const & config, ActivityRegis
 
   iRegistry.sPostEndJob.watch(this, &TimeTracker::postEndJob);
 
+  iRegistry.sPreSourceEvent.watch(this, &TimeTracker::preEventReading);
+  iRegistry.sPostSourceEvent.watch(this, &TimeTracker::postEventReading);
   iRegistry.sPreProcessEvent.watch(this, &TimeTracker::preEventProcessing);
   iRegistry.sPostProcessEvent.watch(this, &TimeTracker::postEventProcessing);
 
+  // Event reading
+  // iRegistry.sPreSource.watch(this, &TimeTracker::startTime);
+  // iRegistry.sPostSource.watch([this](auto const& md) { this->recordTime(md,"(read)"s); });
   iRegistry.sPreModule.watch(this, &TimeTracker::startTime);
   iRegistry.sPostModule.watch([this](auto const& md) { this->recordTime(md,""s); });
   iRegistry.sPreWriteEvent.watch(this, &TimeTracker::startTime);
@@ -182,7 +196,7 @@ art::TimeTracker::TimeTracker(ServiceTable<Config> const & config, ActivityRegis
 
 //======================================================================
 void
-art::TimeTracker::prePathProcessing(std::string const& pathname)
+art::TimeTracker::prePathProcessing(string const& pathname)
 {
   // MT-TODO: Placeholder until we're multi-threaded
   auto const sid = ScheduleID::first().id();
@@ -193,6 +207,7 @@ art::TimeTracker::prePathProcessing(std::string const& pathname)
 void
 art::TimeTracker::postEndJob()
 {
+  timeSourceTable_.flush();
   timeEventTable_.flush();
   timeModuleTable_.flush();
 
@@ -258,12 +273,38 @@ art::TimeTracker::postEndJob()
 
 //======================================================================
 void
-art::TimeTracker::preEventProcessing(Event const& e)
+art::TimeTracker::preEventReading()
+{
+  // MT-TODO: Placeholder until we're multi-threaded
+  auto const sid = ScheduleID::first().id();
+  auto& d = data_[sid];
+  d.eventID = EventID::invalidEvent();
+  d.eventStart = now();
+}
+
+void
+art::TimeTracker::postEventReading(Event const& e)
 {
   // MT-TODO: Placeholder until we're multi-threaded
   auto const sid = ScheduleID::first().id();
   auto& d = data_[sid];
   d.eventID = e.id();
+  auto const t = std::chrono::duration<double>{now()-d.eventStart}.count();
+  timeSourceTable_.insert(d.eventID.run(),
+                          d.eventID.subRun(),
+                          d.eventID.event(),
+                          "source", // FIXME: Should be module_type
+                          t);
+}
+
+//======================================================================
+void
+art::TimeTracker::preEventProcessing(Event const& e [[gnu::unused]])
+{
+  // MT-TODO: Placeholder until we're multi-threaded
+  auto const sid = ScheduleID::first().id();
+  auto& d = data_[sid];
+  assert(d.eventID == e.id());
   d.eventStart = now();
 }
 
@@ -291,7 +332,7 @@ art::TimeTracker::startTime(ModuleDescription const&)
 }
 
 void
-art::TimeTracker::recordTime(ModuleDescription const& desc, std::string const& suffix)
+art::TimeTracker::recordTime(ModuleDescription const& desc, string const& suffix)
 {
   // MT-TODO: Placeholder until we're multi-threaded
   auto const sid = ScheduleID::first().id();
@@ -318,7 +359,7 @@ art::TimeTracker::logToDestination_(Statistics const& evt,
   cet::for_all(modules, [&identifier_size,&width](auto const& mod) { width = std::max(width, identifier_size(mod)); });
 
   std::ostringstream msgOss;
-  msgOss << std::string(width+4+5*14+12,'=') << "\n";
+  msgOss << string(width+4+5*14+12,'=') << "\n";
   msgOss << std::setw(width+2) << std::left << "TimeTracker printout (sec)"
          << boost::format(" %=12s ") % "Min"
          << boost::format(" %=12s ") % "Avg"
@@ -327,7 +368,7 @@ art::TimeTracker::logToDestination_(Statistics const& evt,
          << boost::format(" %=12s ") % "RMS"
          << boost::format(" %=10s ") % "nEvts" << "\n";
 
-  msgOss << std::string(width+4+5*14+12,'=') << "\n";
+  msgOss << string(width+4+5*14+12,'=') << "\n";
 
   if (evt.n == 0u) {
     msgOss << "[ No processed events ]\n";
@@ -336,7 +377,7 @@ art::TimeTracker::logToDestination_(Statistics const& evt,
     // N.B. setw(width) applies to the first field in
     //      ostream& art::operator<<(ostream&, Statistics const&).
     msgOss << setw(width) << evt << '\n';
-    msgOss << std::string(width+4+5*14+12,'-') << "\n";
+    msgOss << string(width+4+5*14+12,'-') << "\n";
     if (modules.empty())
       msgOss << "[ No configured modules ]\n";
     for (auto const& mod : modules) {
@@ -344,7 +385,7 @@ art::TimeTracker::logToDestination_(Statistics const& evt,
     }
   }
 
-  msgOss << std::string(width+4+5*14+12,'=') << "\n";
+  msgOss << string(width+4+5*14+12,'=') << "\n";
   mf::LogAbsolute("TimeTracker") << msgOss.str();
 }
 
