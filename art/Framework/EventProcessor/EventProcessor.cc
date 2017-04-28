@@ -44,29 +44,6 @@ using fhicl::ParameterSet;
 
 namespace {
 
-  // Most signals.
-  class SignalSentry {
-  public:
-    using PreSig_t  = art::GlobalSignal<art::detail::SignalResponseType::FIFO, void()>;
-    using PostSig_t = art::GlobalSignal<art::detail::SignalResponseType::LIFO, void()>;
-
-    SignalSentry(SignalSentry const&) = delete;
-    SignalSentry& operator=(SignalSentry const&) = delete;
-
-    explicit SignalSentry(PreSig_t& pre, PostSig_t& post) : post_{post}
-    {
-      pre.invoke();
-    }
-
-    ~SignalSentry()
-    {
-      post_.invoke();
-    }
-
-  private:
-    PostSig_t& post_;
-  };
-
   ////////////////////////////////////
   void setupAsDefaultEmptySource(ParameterSet& p)
   {
@@ -596,8 +573,9 @@ art::EventProcessor::closeInputFile()
     closeSomeOutputFiles();
   }
   respondToCloseInputFile();
-  SignalSentry fileCloseSentry {actReg_.sPreCloseFile, actReg_.sPostCloseFile};
+  actReg_.sPreCloseFile.invoke();
   input_->closeFile();
+  actReg_.sPostCloseFile.invoke();
   FDEBUG(1) << spaces(8) << "closeInputFile\n";
 }
 
@@ -686,8 +664,9 @@ art::EventProcessor::respondToCloseOutputFiles()
 void
 art::EventProcessor::readRun()
 {
-  SignalSentry runSourceSentry {actReg_.sPreSourceRun, actReg_.sPostSourceRun};
+  actReg_.sPreSourceRun.invoke();
   runPrincipal_ = input_->readRun();
+  actReg_.sPostSourceRun.invoke();
   endPathExecutor_->seedRunRangeSet(input_->runRangeSetHandler());
   assert(runPrincipal_);
   FDEBUG(1) << spaces(8) << "readRun.....................(" << runPrincipal_->id() << ")\n";
@@ -754,8 +733,9 @@ art::EventProcessor::writeRun()
 void
 art::EventProcessor::readSubRun()
 {
-  SignalSentry subRunSourceSentry {actReg_.sPreSourceSubRun, actReg_.sPostSourceSubRun};
+  actReg_.sPreSourceSubRun.invoke();
   subRunPrincipal_ = input_->readSubRun(runPrincipal_.get());
+  actReg_.sPostSourceSubRun.invoke();
   endPathExecutor_->seedSubRunRangeSet(input_->subRunRangeSetHandler());
   assert(subRunPrincipal_);
   FDEBUG(1) << spaces(8) << "readSubRun..................(" << subRunPrincipal_->id() << ")\n";
@@ -824,8 +804,9 @@ art::EventProcessor::readEvent()
 {
   assert(subRunPrincipal_);
   assert(subRunPrincipal_->id().isValid());
-  SignalSentry sourceSentry {actReg_.sPreSource, actReg_.sPostSource};
+  actReg_.sPreSource.invoke();
   eventPrincipal_ = input_->readEvent(subRunPrincipal_.get());
+  actReg_.sPostSource.invoke();
   assert(eventPrincipal_);
   FDEBUG(1) << spaces(8) << "readEvent...................(" << eventPrincipal_->id() << ")\n";
 }
