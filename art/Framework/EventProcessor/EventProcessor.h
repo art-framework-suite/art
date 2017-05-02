@@ -213,14 +213,14 @@ PrincipalSignalSentry(art::ActivityRegistry& a,
   a_{a},
   ep_{ep}
 {
-  T::preScheduleSignal(&a_, &ep_);
+  T::preScheduleSignal(a_, &ep_);
 }
 
 template <class T>
 art::detail::PrincipalSignalSentry<T>::
 ~PrincipalSignalSentry()
 {
-  T::postScheduleSignal(&a_, &ep_);
+  T::postScheduleSignal(a_, &ep_);
 }
 
 template <typename T>

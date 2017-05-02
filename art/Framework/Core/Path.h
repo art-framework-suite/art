@@ -103,19 +103,20 @@ namespace art {
   namespace {
     template <typename T>
     class PathSignalSentry {
-  public:
-      PathSignalSentry(ActivityRegistry & a,
+    public:
+      PathSignalSentry(ActivityRegistry& a,
                        std::string const& name,
                        int const& nwrwue,
                        hlt::HLTState const& state) :
         a_(a), name_(name), nwrwue_(nwrwue), state_(state) {
-        T::prePathSignal(&a_, name_);
+        T::prePathSignal(a_, name_);
       }
-      ~PathSignalSentry() {
+      ~PathSignalSentry()
+      {
         HLTPathStatus status(state_, nwrwue_);
-        T::postPathSignal(&a_, name_, status);
+        T::postPathSignal(a_, name_, status);
       }
-  private:
+    private:
       ActivityRegistry& a_;
       std::string const& name_;
       int const& nwrwue_;
@@ -131,8 +132,7 @@ void art::Path::process(typename T::MyPrincipal& ep)
   // we only record the time spent in the path not from the signal
 
   int nwrwue {-1}; // numWorkersRunWithoutUnhandledException
-  auto signaler = std::make_unique<PathSignalSentry<T>>(actReg_, name_, nwrwue, state_);
-
+  PathSignalSentry<T> signaler {actReg_, name_, nwrwue, state_};
   MaybeRunStopwatch<T::level> sentry {stopwatch_};
 
   if (T::level == Level::Event) {

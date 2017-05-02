@@ -37,6 +37,7 @@ reused until the worker is reset().
 #include "fhiclcpp/ParameterSet.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
+#include <cassert>
 #include <iosfwd>
 #include <memory>
 #include <utility>
@@ -138,10 +139,10 @@ namespace art {
   namespace detail {
     template <typename T> class ModuleSignalSentry;
     template <typename T>
-    cet::exception &
-    exceptionContext(ModuleDescription const &md,
-                     T const &ip,
-                     cet::exception &ex);
+    cet::exception&
+    exceptionContext(ModuleDescription const& md,
+                     T const& ip,
+                     cet::exception& ex);
   }
 
   template <>
@@ -182,23 +183,23 @@ namespace art {
 template <typename T>
 class art::detail::ModuleSignalSentry {
 public:
-  ModuleSignalSentry(ActivityRegistry *a, ModuleDescription& md) : a_{a}, md_{&md} {
-    if(a_) T::preModuleSignal(a_, md_);
+  ModuleSignalSentry(ActivityRegistry& a, ModuleDescription& md) : a_{a}, md_{&md}
+  {
+    T::preModuleSignal(a_, md_);
   }
   ~ModuleSignalSentry() {
-    if(a_) T::postModuleSignal(a_, md_);
+    T::postModuleSignal(a_, md_);
   }
 private:
-  ActivityRegistry* a_;
+  ActivityRegistry& a_;
   ModuleDescription* md_;
 };
 
 template <typename T>
 cet::exception&
-art::detail::
-exceptionContext(ModuleDescription const& iMD,
-                 T const& ip,
-                 cet::exception& iEx)
+art::detail::exceptionContext(ModuleDescription const& iMD,
+                              T const& ip,
+                              cet::exception& iEx)
 {
   iEx << iMD.moduleName() << "/" << iMD.moduleLabel()
       << " " << ip.id() << "\n";
@@ -240,7 +241,8 @@ bool art::Worker::doWork(typename T::MyPrincipal& p,
         << "Product dependencies have invoked a module execution cycle.\n";
     }
 
-    detail::ModuleSignalSentry<T> cpp {actReg_.get(), md_};
+    assert(actReg_.get() != nullptr);
+    detail::ModuleSignalSentry<T> cpp {*actReg_, md_};
     state_ = Working;
     rc = ImplDoWork<T::processing_action>::invoke(this, p, cpc);
     state_ = Pass;
@@ -249,7 +251,7 @@ bool art::Worker::doWork(typename T::MyPrincipal& p,
       state_ = Fail;
   }
 
-  catch(cet::exception& e) {
+  catch (cet::exception& e) {
 
     // NOTE: the warning printed as a result of ignoring or failing a
     // module will only be printed during the full true processing
@@ -310,7 +312,7 @@ bool art::Worker::doWork(typename T::MyPrincipal& p,
     }
   }
 
-  catch(std::bad_alloc const& bda) {
+  catch (std::bad_alloc const& bda) {
     counts.template increment<stats::ExceptionThrown>();
     state_ = Exception;
     cached_exception_ = std::make_shared<art::Exception>(errors::BadAlloc);
@@ -320,7 +322,7 @@ bool art::Worker::doWork(typename T::MyPrincipal& p,
       << "The job has probably exhausted the virtual memory available to the process.\n";
     throw *cached_exception_;
   }
-  catch(std::exception const& e) {
+  catch (std::exception const& e) {
     counts.template increment<stats::ExceptionThrown>();
     state_ = Exception;
     cached_exception_ = std::make_shared<art::Exception>(errors::StdException);
@@ -330,7 +332,7 @@ bool art::Worker::doWork(typename T::MyPrincipal& p,
                                                           << "Previous information:\n" << e.what();
     throw *cached_exception_;
   }
-  catch(std::string const& s) {
+  catch (std::string const& s) {
     counts.template increment<stats::ExceptionThrown>();
     state_ = Exception;
     cached_exception_ = std::make_shared<art::Exception>(errors::BadExceptionType, "std::string");
@@ -340,7 +342,7 @@ bool art::Worker::doWork(typename T::MyPrincipal& p,
                                                           << "Previous information:\n string = " << s;
     throw *cached_exception_;
   }
-  catch(char const* c) {
+  catch (char const* c) {
     counts.template increment<stats::ExceptionThrown>();
     state_ = Exception;
     cached_exception_ = std::make_shared<art::Exception>(errors::BadExceptionType, "const char *");
@@ -350,7 +352,7 @@ bool art::Worker::doWork(typename T::MyPrincipal& p,
                                                           << "Previous information:\n const char* = " << c << "\n";
     throw *cached_exception_;
   }
-  catch(...) {
+  catch (...) {
     counts.template increment<stats::ExceptionThrown>();
     state_ = Exception;
     cached_exception_ = std::make_shared<art::Exception>(errors::Unknown, "repeated");
