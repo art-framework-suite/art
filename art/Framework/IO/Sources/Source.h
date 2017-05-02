@@ -152,7 +152,7 @@ public:
 
   using SourceDetail = T;
 
-  Source(fhicl::ParameterSet const& p, InputSourceDescription& d);
+  explicit Source(fhicl::ParameterSet const& p, InputSourceDescription& d);
 
   input::ItemType nextItemType() override;
 
@@ -219,7 +219,7 @@ private:
   void readNextAndRefuseEvent_();
 
   // Test the newly read data for validity, given our current state.
-  void throwIfInsane_(bool const result,
+  void throwIfInsane_(bool result,
                       RunPrincipal* newR,
                       SubRunPrincipal* newSR,
                       EventPrincipal* newE) const;
@@ -232,6 +232,7 @@ private:
 template <class T>
 art::Source<T>::Source(fhicl::ParameterSet const& p,
                        InputSourceDescription& d) :
+  InputSource{d.moduleDescription},
   act_{&d.activityRegistry},
   sourceHelper_{d.moduleDescription},
   detail_{p, h_, sourceHelper_},
@@ -616,10 +617,10 @@ art::Source<T>::finishProductRegistration_(InputSourceDescription& d)
   // are here as tracers to help identify any failures in coding.
   h_.registerProducts(d.productRegistry,
                       ModuleDescription{fhicl::ParameterSet{}.id(), // Dummy
-                                                                "_NAMEERROR_",
-                                                                "_LABELERROR_",
-                                                                d.moduleDescription.processConfiguration(),
-                                                                ModuleDescription::invalidID()});
+                                        "_NAMEERROR_",
+                                        "_LABELERROR_",
+                                        d.moduleDescription.processConfiguration(),
+                                        ModuleDescription::invalidID()});
 }
 
 #endif /* art_Framework_IO_Sources_Source_h */

@@ -50,7 +50,6 @@ Some examples of InputSource subclasses may be:
 #include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
-#include "canvas/Persistency/Provenance/ModuleDescription.h"
 #include "canvas/Persistency/Provenance/RunID.h"
 #include "canvas/Persistency/Provenance/SubRunID.h"
 #include "canvas/Persistency/Provenance/Timestamp.h"
@@ -156,9 +155,6 @@ namespace art
     /// -1 is used for unlimited.
     int remainingSubRuns() const {return remainingSubRuns_;}
 
-    ModuleDescription const& moduleDescription() const {return moduleDescription_;}
-    ProcessConfiguration const& processConfiguration() const {return moduleDescription().processConfiguration();}
-
     /// Called by framework at beginning of job
     void doBeginJob() override;
 
@@ -230,7 +226,6 @@ namespace art
     int maxEvents_;
     int maxSubRuns_;
     int const reportFrequency_;
-    ModuleDescription const moduleDescription_;
 
     int remainingEvents_ {maxEvents_};
     int remainingSubRuns_ {maxSubRuns_};

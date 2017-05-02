@@ -2,6 +2,7 @@
 #include "art/Framework/Art/detail/AllowedConfiguration.h"
 #include "art/Framework/Art/detail/get_MetadataCollector.h"
 #include "art/Framework/Art/detail/get_MetadataSummary.h"
+#include "art/Utilities/HorizontalRule.h"
 #include "art/Utilities/PluginSuffixes.h"
 #include "art/Utilities/bold_fontify.h"
 #include "cetlib/container_algorithms.h"
@@ -14,6 +15,8 @@ using namespace art::detail;
 using std::cout;
 
 namespace {
+
+  constexpr art::HorizontalRule fixed_rule{100};
 
   std::vector<art::detail::PluginMetadata> matchesBySpec(std::string const& spec)
   {
@@ -42,7 +45,7 @@ namespace {
     cout << indent0()
          << std::setw(firstColW+4) << std::left << type_spec
          << std::left << "Long specification" << '\n';
-    cout << indent0() << thin_rule({100}) << '\n';
+    cout << indent0() << fixed_rule('-') << '\n';
     for (auto const& dup : duplicates) {
       auto const& long_specs = dup.second;
       cout << indent0()
@@ -68,9 +71,10 @@ art::detail::print_available_plugins(suffix_type const st,
 
   auto ms = get_MetadataSummary(st, coll);
 
-  cout << "\n" << thick_rule(ms->widths()) << "\n\n"
+  HorizontalRule const rule{rule_size(ms->widths())};
+  cout << "\n" << rule('=') << "\n\n"
        << ms->header()
-       << "\n" << thin_rule(ms->widths()) << "\n";
+       << "\n" << rule('-') << '\n';
 
   std::size_t i {};
   Duplicates_t duplicates;
@@ -80,7 +84,7 @@ art::detail::print_available_plugins(suffix_type const st,
     if (summary.is_duplicate)
       duplicates[info.short_spec()].push_back(info.long_spec());
   }
-  cout << "\n" << thick_rule(ms->widths()) << "\n\n";
+  cout << "\n" << rule('=') << "\n\n";
 
   if (duplicates.empty()) return;
 
@@ -114,19 +118,19 @@ art::detail::print_description(std::vector<PluginMetadata> const& matches)
     cout << m.header()
          << m.details()
          << m.allowed_configuration();
-    cout << fixed_rule();
+    cout << '\n' << fixed_rule('=') << "\n\n";
   }
 }
 
 void
 art::detail::print_descriptions(std::vector<std::string> const& plugins)
 {
-  cout << fixed_rule();
+  cout << '\n' << fixed_rule('=') << "\n\n";
   for (auto const& plugin : plugins) {
     auto matches = matchesBySpec(plugin);
     if (matches.empty()) {
       cout << indent0() << bold_fontify(plugin) << " did not match any plugin.\n";
-      cout << fixed_rule();
+      cout << '\n' << fixed_rule('=') << "\n\n";
       continue;
     }
     print_description(matches);

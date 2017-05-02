@@ -52,22 +52,6 @@ namespace art {
         result += w;
       return result += (widths.size()-1)*4u; // Account for space between columns;
     }
-
-    inline auto thick_rule(Widths const& widths)
-    {
-      return std::string(rule_size(widths),'=');
-    }
-
-    inline auto thin_rule(Widths const& widths)
-    {
-      return std::string(rule_size(widths),'-');
-    }
-
-    inline std::string fixed_rule()
-    {
-      return "\n"+std::string(100,'=')+"\n\n";
-    }
-
   }
 }
 

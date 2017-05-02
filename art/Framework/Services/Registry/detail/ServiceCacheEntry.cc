@@ -9,6 +9,8 @@
 #include "art/Framework/Services/Registry/detail/ServiceStack.h"
 #include "art/Framework/Services/Registry/detail/ServiceWrapper.h"
 #include "art/Framework/Services/Registry/detail/ServiceHelper.h"
+#include "art/Utilities/HorizontalRule.h"
+#include "art/Utilities/bold_fontify.h"
 #include "canvas/Utilities/Exception.h"
 #include "cetlib_except/demangle.h"
 #include "fhiclcpp/ParameterSet.h"
@@ -93,17 +95,17 @@ makeAndCacheService(ActivityRegistry& reg) const
   catch (fhicl::detail::validationException const& e)
     {
       std::ostringstream err_stream;
-      std::size_t const width (100);
+      constexpr HorizontalRule rule{100};
       err_stream << "\n"
-                 << std::string(width,'=')
+                 << rule('=')
                  << "\n\n"
                  << "!! The following service has been misconfigured: !!"
                  << "\n\n"
-                 << std::string(width,'-')
-                 << "\n\nservice_type: \033[1m" << config_.get<std::string>("service_type") << "\033[0m"
+                 << rule('-')
+                 << "\n\nservice_type: " << art::detail::bold_fontify(config_.get<std::string>("service_type"))
                  << "\n\n" << e.what()
                  << "\n"
-                 << std::string(width,'=')
+                 << rule('=')
                  << "\n\n";
       throw art::Exception(art::errors::Configuration) << err_stream.str();
     }

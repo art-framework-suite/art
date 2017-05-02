@@ -187,6 +187,7 @@ TimeTracker printout (sec)                     Min           Avg           Max  
 <separator (=)>
 Full event	<duration> <duration> <duration> <duration> <duration> 1000    
 <separator (-)>
+source:EmptyEvent(read)	<duration> <duration> <duration> <duration> <duration> 1000    
 p1:prod:TestTimeTrackerProducer	<duration> <duration> <duration> <duration> <duration> 1000    
 p1:filt:TestTimeTrackerFilter	<duration> <duration> <duration> <duration> <duration> 1000    
 p1:TriggerResults:TriggerResultInserter	<duration> <duration> <duration> <duration> <duration> 1000    

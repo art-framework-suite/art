@@ -6,21 +6,14 @@
 #include "canvas/Utilities/Exception.h"
 #include "cetlib/detail/wrapLibraryManagerException.h"
 
-art::detail::ModuleFactory::ModuleFactory()
-  :
-  lm_{Suffixes::module()}
-{
-}
-
 art::ModuleType
-art::detail::ModuleFactory::
-moduleType(std::string const & libspec)
+art::detail::ModuleFactory::moduleType(std::string const& libspec)
 {
-  ModuleTypeFunc_t * symbol = nullptr;
+  ModuleTypeFunc_t* symbol = nullptr;
   try {
     lm_.getSymbolByLibspec(libspec, "moduleType", symbol);
   }
-  catch (art::Exception & e) {
+  catch (art::Exception& e) {
     cet::detail::wrapLibraryManagerException(e, "Module", libspec, getReleaseVersion());
   }
   if (symbol == nullptr) {
@@ -33,15 +26,14 @@ moduleType(std::string const & libspec)
 }
 
 std::unique_ptr<art::Worker>
-art::detail::ModuleFactory::
-makeWorker(WorkerParams const & p, ModuleDescription const & md)
+art::detail::ModuleFactory::makeWorker(WorkerParams const& p, ModuleDescription const& md)
 {
   std::string libspec(p.pset_.get<std::string>("module_type"));
-  WorkerMaker_t * symbol = nullptr;
+  WorkerMaker_t* symbol = nullptr;
   try {
     lm_.getSymbolByLibspec(libspec, "make_worker", symbol);
   }
-  catch (art::Exception & e) {
+  catch (art::Exception& e) {
     cet::detail::wrapLibraryManagerException(e, "Module", libspec, getReleaseVersion());
   }
   if (symbol == nullptr) {

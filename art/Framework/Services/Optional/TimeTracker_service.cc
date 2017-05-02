@@ -10,6 +10,7 @@
 #include "art/Framework/Services/Registry/ServiceMacros.h"
 #include "art/Framework/Services/Registry/ServiceTable.h"
 #include "art/Framework/Services/System/DatabaseConnection.h"
+#include "art/Utilities/HorizontalRule.h"
 #include "art/Utilities/ScheduleID.h"
 #include "boost/format.hpp"
 #include "canvas/Persistency/Provenance/EventID.h"
@@ -76,8 +77,12 @@ namespace {
   std::ostream& operator<<(std::ostream& os, Statistics const& info)
   {
     string label {info.path};
-    if (info.path != "Full event")
-      label += ":"s + info.mod_label + ":"s + info.mod_type;
+    if (!info.mod_label.empty()) {
+      label += ':' + info.mod_label;
+    }
+    if (!info.mod_type.empty()) {
+      label += ':' + info.mod_type;
+    }
     os << label << "  "
        << boost::format(" %=12g ") % info.min
        << boost::format(" %=12g ") % info.mean
@@ -113,7 +118,7 @@ public:
 private:
 
   void prePathProcessing(string const&);
-
+  void postSourceConstruction(ModuleDescription const&);
   void postEndJob();
 
   void preEventReading();
@@ -139,8 +144,9 @@ private:
   bool printSummary_;
   cet::sqlite::Connection db_;
   bool overwriteContents_;
+  string sourceType_{};
 
-  template<unsigned SIZE>
+  template <unsigned SIZE>
   using name_array = cet::sqlite::name_array<SIZE>;
   name_array<5u> timeSourceTuple_;
   name_array<4u> timeEventTuple_;
@@ -176,18 +182,19 @@ art::TimeTracker::TimeTracker(ServiceTable<Config> const & config, ActivityRegis
   unsigned const nSchedules {1u};
   data_.resize(nSchedules);
 
+  iRegistry.sPostSourceConstruction.watch(this, &TimeTracker::postSourceConstruction);
   iRegistry.sPreProcessPath.watch(this, &TimeTracker::prePathProcessing);
-
   iRegistry.sPostEndJob.watch(this, &TimeTracker::postEndJob);
 
+  // Event reading
   iRegistry.sPreSourceEvent.watch(this, &TimeTracker::preEventReading);
   iRegistry.sPostSourceEvent.watch(this, &TimeTracker::postEventReading);
+
+  // Event execution
   iRegistry.sPreProcessEvent.watch(this, &TimeTracker::preEventProcessing);
   iRegistry.sPostProcessEvent.watch(this, &TimeTracker::postEventProcessing);
 
-  // Event reading
-  // iRegistry.sPreSource.watch(this, &TimeTracker::startTime);
-  // iRegistry.sPostSource.watch([this](auto const& md) { this->recordTime(md,"(read)"s); });
+  // Module execution
   iRegistry.sPreModule.watch(this, &TimeTracker::startTime);
   iRegistry.sPostModule.watch([this](auto const& md) { this->recordTime(md,""s); });
   iRegistry.sPreWriteEvent.watch(this, &TimeTracker::startTime);
@@ -237,8 +244,8 @@ art::TimeTracker::postEndJob()
   using namespace std;
   // Gather statistics for full Event
   // -- Unfortunately, this is not a simple query since the
-  //    'RootOutput(write)' times are not recorded in the TimeEvent
-  //    rows.  They must be added in.
+  //    'RootOutput(write)' times and the source time are not
+  //    recorded in the TimeEvent rows.  They must be added in.
 
   string const fullEventTime_ddl =
     "CREATE TABLE temp.fullEventTime AS "
@@ -246,6 +253,8 @@ art::TimeTracker::postEndJob()
     "       SELECT Run,Subrun,Event,Time FROM TimeEvent"
     "       UNION"
     "       SELECT Run,Subrun,Event,Time FROM TimeModule WHERE ModuleType='RootOutput(write)'"
+    "       UNION"
+    "       SELECT Run,Subrun,Event,Time FROM TimeSource"
     ") GROUP BY Run,Subrun,Event";
 
   using namespace cet::sqlite;
@@ -257,6 +266,8 @@ art::TimeTracker::postEndJob()
   r << select_distinct("Path","ModuleLabel","ModuleType").from(db_, timeModuleTable_.name());
 
   std::vector<Statistics> modStats;
+  modStats.emplace_back("source", sourceType_+"(read)", "", db_, "TimeSource", "Time");
+
   for (auto const& row : r) {
     string path, mod_label, mod_type;
     tie(path, mod_label, mod_type) = row;
@@ -269,6 +280,13 @@ art::TimeTracker::postEndJob()
   }
 
   logToDestination_(evtStats, modStats);
+}
+
+//======================================================================
+void
+art::TimeTracker::postSourceConstruction(ModuleDescription const& md)
+{
+  sourceType_ = md.moduleName();
 }
 
 //======================================================================
@@ -293,7 +311,7 @@ art::TimeTracker::postEventReading(Event const& e)
   timeSourceTable_.insert(d.eventID.run(),
                           d.eventID.subRun(),
                           d.eventID.event(),
-                          "source", // FIXME: Should be module_type
+                          sourceType_,
                           t);
 }
 
@@ -359,8 +377,9 @@ art::TimeTracker::logToDestination_(Statistics const& evt,
   cet::for_all(modules, [&identifier_size,&width](auto const& mod) { width = std::max(width, identifier_size(mod)); });
 
   std::ostringstream msgOss;
-  msgOss << string(width+4+5*14+12,'=') << "\n";
-  msgOss << std::setw(width+2) << std::left << "TimeTracker printout (sec)"
+  HorizontalRule const rule{width+4+5*14+12};
+  msgOss << rule('=') << "\n"
+         << std::setw(width+2) << std::left << "TimeTracker printout (sec)"
          << boost::format(" %=12s ") % "Min"
          << boost::format(" %=12s ") % "Avg"
          << boost::format(" %=12s ") % "Max"
@@ -368,7 +387,7 @@ art::TimeTracker::logToDestination_(Statistics const& evt,
          << boost::format(" %=12s ") % "RMS"
          << boost::format(" %=10s ") % "nEvts" << "\n";
 
-  msgOss << string(width+4+5*14+12,'=') << "\n";
+  msgOss << rule('=') << "\n";
 
   if (evt.n == 0u) {
     msgOss << "[ No processed events ]\n";
@@ -376,16 +395,14 @@ art::TimeTracker::logToDestination_(Statistics const& evt,
   else {
     // N.B. setw(width) applies to the first field in
     //      ostream& art::operator<<(ostream&, Statistics const&).
-    msgOss << setw(width) << evt << '\n';
-    msgOss << string(width+4+5*14+12,'-') << "\n";
-    if (modules.empty())
-      msgOss << "[ No configured modules ]\n";
+    msgOss << setw(width) << evt << '\n'
+           << rule('-') << "\n";
     for (auto const& mod : modules) {
       msgOss << setw(width) << mod << '\n';
     }
   }
 
-  msgOss << string(width+4+5*14+12,'=') << "\n";
+  msgOss << rule('=') << "\n";
   mf::LogAbsolute("TimeTracker") << msgOss.str();
 }
 

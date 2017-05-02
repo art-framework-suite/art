@@ -49,6 +49,7 @@ private:
   MFSU_0_ARG_UPDATER_DECL(PostBeginJob);
   MFSU_0_ARG_UPDATER_DECL(PostEndJob);
   MFSU_0_ARG_UPDATER_DECL(JobFailure);
+  MFSU_1_ARG_UPDATER_DECL(PostSourceConstruction);
   MFSU_0_ARG_UPDATER_DECL(PreSourceEvent);
   MFSU_1_ARG_UPDATER_DECL(PostSourceEvent);
   MFSU_0_ARG_UPDATER_DECL(PreSourceSubRun);

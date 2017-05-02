@@ -65,6 +65,9 @@ public:
   // processing fails with an uncaught exception.
   GlobalSignal<detail::SignalResponseType::LIFO, void()> sJobFailure;
 
+  // Signal is emitted after the source's constructor is called
+  GlobalSignal<detail::SignalResponseType::LIFO, void(ModuleDescription const&)> sPostSourceConstruction;
+
   // Signal is emitted before the source starts creating an Event
   GlobalSignal<detail::SignalResponseType::FIFO, void()> sPreSourceEvent;
 

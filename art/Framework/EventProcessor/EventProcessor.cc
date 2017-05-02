@@ -68,8 +68,8 @@ namespace {
         mf::LogInfo("EventProcessorSourceConfig")
           << "Could not find a source configuration: using default.";
       }
-      // Fill in "ModuleDescription", in case the input source produces
-      // any EDproducts,which would be registered in the
+      // Fill in "ModuleDescription", in case the input source
+      // produces any EDproducts, which would be registered in the
       // MasterProductRegistry.  Also fill in the process history item
       // for this process.
       art::ModuleDescription const md {main_input.id(),
@@ -82,9 +82,10 @@ namespace {
       sourceSpecified = true;
       art::InputSourceDescription isd{md, preg, areg};
       try {
-        return std::unique_ptr<art::InputSource>(art::InputSourceFactory::make(main_input, isd));
+        auto source = art::InputSourceFactory::make(main_input, isd);
+        return source;
       }
-      catch(fhicl::detail::validationException const& e){
+      catch (fhicl::detail::validationException const& e) {
         throw art::Exception(art::errors::Configuration)
           << "\n\nModule label: " << art::detail::bold_fontify(md.moduleLabel())
           <<   "\nmodule_type : " << art::detail::bold_fontify(md.moduleName())
@@ -127,13 +128,14 @@ art::EventProcessor::EventProcessor(ParameterSet const& pset)
   servicesActivate_(serviceToken_);
   serviceToken_.forceCreation();
 
-  std::string const processName {pset.get<std::string>("process_name")};
+  std::string const& processName {pset.get<std::string>("process_name")};
 
   // Services
   // System service FileCatalogMetadata needs to know about the process name.
   ServiceHandle<art::FileCatalogMetadata>{}->addMetadataString("process_name", processName);
 
   input_ = makeInput(pset, processName, preg_, actReg_);
+  actReg_.sPostSourceConstruction.invoke(input_->moduleDescription());
   endPathExecutor_ = std::make_unique<EndPathExecutor>(pathManager_,
                                                        act_table_,
                                                        actReg_,
@@ -162,8 +164,8 @@ art::EventProcessor::initServices_(ParameterSet const& top_pset,
 {
   auto services = top_pset.get<ParameterSet>("services", {});
 
-  // Save and non-standard service configs, "floating_point_control" to
-  // prevent ServiceDirector trying to make one itself.
+  // Save and non-standard service configs, "floating_point_control"
+  // to prevent ServiceDirector trying to make one itself.
   auto const fpc_pset = services.get<ParameterSet>("floating_point_control", {});
   services.erase("floating_point_control");
 
@@ -171,7 +173,7 @@ art::EventProcessor::initServices_(ParameterSet const& top_pset,
   services.erase("message");
 
   // Create the service director and all user-configured services.
-  ServiceDirector director {std::move(services), areg, token};
+  ServiceDirector director{std::move(services), areg, token};
 
   // Services requiring special construction.
   director.addSystemService<CurrentModule>(areg);
@@ -188,7 +190,6 @@ art::EventProcessor::initSchedules_(ParameterSet const& pset)
   int const num_threads = pset.get<int>("services.num_threads",
                                         tbb::task_scheduler_init::default_num_threads());
   tbbManager_.initialize(num_threads);
-
   schedule_ = std::make_unique<Schedule>(ScheduleID::first(),
                                          pathManager_,
                                          pset,
@@ -201,9 +202,9 @@ art::EventProcessor::initSchedules_(ParameterSet const& pset)
 void
 art::EventProcessor::invokePostBeginJobWorkers_()
 {
-  // Need to convert multiple lists of workers into a long list that the
-  // postBeginJobWorkers callbacks can understand.
-  std::vector<Worker *> allWorkers;
+  // Need to convert multiple lists of workers into a long list that
+  // the postBeginJobWorkers callbacks can understand.
+  std::vector<Worker*> allWorkers;
   allWorkers.reserve(pathManager_.triggerPathsInfo(ScheduleID::first()).workers().size() +
                      pathManager_.endPathInfo().workers().size());
   auto workerStripper = [&allWorkers](WorkerMap::value_type const& val) {
@@ -847,7 +848,9 @@ bool
 art::EventProcessor::shouldWeStop() const
 {
   FDEBUG(1) << spaces(8) << "shouldWeStop\n";
-  if (shouldWeStop_) { return true; }
+  if (shouldWeStop_) {
+    return true;
+  }
   return endPathExecutor_->terminate();
 }
 
@@ -865,12 +868,11 @@ art::EventProcessor::servicesDeactivate_()
 
 void
 art::EventProcessor::terminateAbnormally_()
-  try
-    {
-      if (ServiceRegistry::isAvailable<RandomNumberGenerator>()) {
-        ServiceHandle<RandomNumberGenerator>{}->saveToFile_();
-      }
-    }
-  catch (...)
-    {
-    }
+try {
+  if (ServiceRegistry::isAvailable<RandomNumberGenerator>()) {
+    ServiceHandle<RandomNumberGenerator>{}->saveToFile_();
+  }
+}
+catch (...)
+{
+}

@@ -2,6 +2,8 @@
 #define art_Framework_EventProcessor_ServiceDirector_h
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/ServiceToken.h"
+#include "art/Utilities/HorizontalRule.h"
+#include "art/Utilities/bold_fontify.h"
 #include "canvas/Utilities/Exception.h"
 #include "cetlib_except/demangle.h"
 #include "fhiclcpp/ParameterSet.h"
@@ -31,29 +33,24 @@ template <typename SERVICE, typename... ARGS>
 void
 art::ServiceDirector::
 addSystemService(ARGS&&... args)
-{
-  try {
-    serviceToken_.add(std::make_unique<SERVICE>(std::forward<ARGS>(args)...));
-  }
-  catch (fhicl::detail::validationException const & e) {
-    std::ostringstream err_stream;
-    std::size_t const width (100);
-    err_stream << "\n"
-               << std::string(width,'=')
-               << "\n\n"
-               << "!! The following service has been misconfigured: !!"
-               << "\n\n"
-               << std::string(width,'-')
-               << "\n\nservice_type: \033[1m"
-               << cet::demangle_symbol(typeid(SERVICE).name())
-               << "\033[0m"
-               << "\n\n" << e.what()
-               << "\n"
-               << std::string(width,'=')
-               << "\n\n";
-    throw art::Exception(art::errors::Configuration) << err_stream.str();
-  }
+try {
+  serviceToken_.add(std::make_unique<SERVICE>(std::forward<ARGS>(args)...));
 }
+catch (fhicl::detail::validationException const& e) {
+  constexpr HorizontalRule rule{100};
+  throw art::Exception(art::errors::Configuration)
+    << "\n"
+    << rule('=')
+    << "\n\n"
+    << "!! The following service has been misconfigured: !!"
+    << "\n\n"
+    << rule('-')
+    << "\n\nservice_type: " << art::detail::bold_fontify(cet::demangle_symbol(typeid(SERVICE).name()))
+    << "\n\n" << e.what()
+    << "\n"
+    << rule('=')
+    << "\n\n";
+ }
 
 #endif /* art_Framework_EventProcessor_ServiceDirector_h */
 

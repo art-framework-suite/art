@@ -10,6 +10,7 @@
 
 #include "art/Framework/Principal/fwd.h"
 #include "art/Framework/Core/Frameworkfwd.h"
+#include "canvas/Persistency/Provenance/ModuleDescription.h"
 #include "cetlib/exempt_ptr.h"
 
 #include <memory>
@@ -46,33 +47,29 @@ namespace art
     }
   }
 
-  class InputSource
-  {
+  class InputSource {
   public:
 
     // TODO:
     // This enum should probably be moved outside of InputSource.
-    enum ProcessingMode
-      {
-        Runs,
-        RunsAndSubRuns,
-        RunsSubRunsAndEvents
-      };
+    enum ProcessingMode {Runs, RunsAndSubRuns, RunsSubRunsAndEvents};
 
+    explicit InputSource(ModuleDescription const& md) : moduleDescription_{md} {}
     virtual ~InputSource() noexcept = default;
 
-    // Interface expected by EventProcessor.
+    auto const& moduleDescription() const { return moduleDescription_; }
+    auto const& processConfiguration() const { return moduleDescription_.processConfiguration(); }
 
-    // Return the Event specified by the given EventID, or the next one
-    // in the input sequence after the given EventID if one with the
-    // given id can not be found. Derived classes that can not perform
-    // random access should not implement this function; the default
-    // implementation will throw an exception.
+    // Return the Event specified by the given EventID, or the next
+    // one in the input sequence after the given EventID if one with
+    // the given id can not be found. Derived classes that can not
+    // perform random access should not implement this function; the
+    // default implementation will throw an exception.
     virtual std::unique_ptr<EventPrincipal> readEvent(EventID const& id);
 
-    // Skip forward (or backward, if n<0) n events. Derived classes that
-    // can not perform random access should not implement this function;
-    // the default implementation will throw an exception.
+    // Skip forward (or backward, if n<0) n events. Derived classes
+    // that can not perform random access should not implement this
+    // function; the default implementation will throw an exception.
     virtual void skipEvents(int n);
 
     // Rewind to the beginning of input. Derived classes that can not
@@ -91,6 +88,8 @@ namespace art
     virtual std::unique_ptr<RangeSetHandler> runRangeSetHandler() = 0;
     virtual std::unique_ptr<RangeSetHandler> subRunRangeSetHandler() = 0;
 
+  private:
+    ModuleDescription moduleDescription_;
   };
 }
 

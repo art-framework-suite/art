@@ -84,7 +84,8 @@ namespace arttest {
 
     EventProcessorTestSource(fhicl::ParameterSet const& ps,
                              art::InputSourceDescription& isd)
-      : isd_{isd}
+      : InputSource{isd.moduleDescription}
+      , isd_{isd}
       , fileNames_{ps.get<std::vector<std::string>>("fileNames")}
     {}
 

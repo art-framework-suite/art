@@ -27,6 +27,7 @@ art::MFStatusUpdater::MFStatusUpdater(ActivityRegistry &areg) :
   MFSU_WATCH_UPDATER(PostBeginJob);
   MFSU_WATCH_UPDATER(PostEndJob);
   MFSU_WATCH_UPDATER(JobFailure);
+  MFSU_WATCH_UPDATER(PostSourceConstruction);
   MFSU_WATCH_UPDATER(PreSourceEvent);
   MFSU_WATCH_UPDATER(PostSourceEvent);
   MFSU_WATCH_UPDATER(PreSourceSubRun);
@@ -59,7 +60,6 @@ art::MFStatusUpdater::MFStatusUpdater(ActivityRegistry &areg) :
   MFSU_WATCH_UPDATER(PostPathEndSubRun);
   MFSU_WATCH_UPDATER(PreModuleConstruction);
   MFSU_WATCH_UPDATER(PostModuleConstruction);
-  //   MFSU_WATCH_UPDATER(PostBeginJobWorkers); // Nothing to do.
   MFSU_WATCH_UPDATER(PreModuleBeginJob);
   MFSU_WATCH_UPDATER(PostModuleBeginJob);
   MFSU_WATCH_UPDATER(PreModuleEndJob);
@@ -101,6 +101,11 @@ MFSU_0_ARG_UPDATER_DEFN(PostEndJob) {
 MFSU_0_ARG_UPDATER_DEFN(JobFailure) {
   md_.setSinglet("JobFailure"s);
   mf::MessageLoggerQ::MLqSUM();
+}
+
+MFSU_1_ARG_UPDATER_DEFN(PostSourceConstruction) {
+  md_.setSinglet("PostSourceConstruction"s);
+  md_.iteration = "SourceConstruction";
 }
 
 MFSU_0_ARG_UPDATER_DEFN(PreSourceEvent) {

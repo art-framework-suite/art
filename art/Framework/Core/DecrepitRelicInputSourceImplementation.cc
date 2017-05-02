@@ -51,12 +51,12 @@ namespace art {
   using DRISI = DecrepitRelicInputSourceImplementation;
 
   DecrepitRelicInputSourceImplementation::
-  DecrepitRelicInputSourceImplementation(fhicl::TableFragment<DRISI::Config> const & config,
-                                         InputSourceDescription & desc)
-    : maxEvents_{config().maxEvents()}
+  DecrepitRelicInputSourceImplementation(fhicl::TableFragment<DRISI::Config> const& config,
+                                         InputSourceDescription& desc)
+    : InputSource{desc.moduleDescription}
+    , maxEvents_{config().maxEvents()}
     , maxSubRuns_{config().maxSubRuns()}
     , reportFrequency_{config().reportFrequency()}
-    , moduleDescription_{desc.moduleDescription}
   {
     if (reportFrequency_ < 0) {
       throw art::Exception(art::errors::Configuration)
@@ -82,7 +82,7 @@ namespace art {
     }
 
     // This must come LAST in the constructor.
-    registerProducts(desc.productRegistry, moduleDescription_);
+    registerProducts(desc.productRegistry, moduleDescription());
   }
 
   void

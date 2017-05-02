@@ -21,9 +21,9 @@ namespace art
 
   struct InputSourceDescription
   {
-    InputSourceDescription(ModuleDescription const & ,
-                           MasterProductRegistry & ,
-                           ActivityRegistry &);
+    InputSourceDescription(ModuleDescription const&,
+                           MasterProductRegistry&,
+                           ActivityRegistry&);
 
 
     ModuleDescription const& moduleDescription;

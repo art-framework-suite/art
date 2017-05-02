@@ -122,6 +122,7 @@ TimeTracker printout (sec)                   Min           Avg           Max    
 <separator (=)>
 Full event	<duration> <duration> <duration> <duration> <duration> 1000    
 <separator (-)>
+source:EmptyEvent(read)	<duration> <duration> <duration> <duration> <duration> 1000    
 end_path:mod1:TestTimeTrackerAnalyzer	<duration> <duration> <duration> <duration> <duration> 1000    
 end_path:mod2:TestTimeTrackerAnalyzer	<duration> <duration> <duration> <duration> <duration> 1000    
 
