@@ -14,13 +14,13 @@
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/ParameterSetRegistry.h"
 
-fhicl::ParameterSet const &
+fhicl::ParameterSet const&
 art::Provenance::parameterSet() const
 {
   return fhicl::ParameterSetRegistry::get(*psetIDs().begin());
 }
 
-std::ostream &
+std::ostream&
 art::Provenance::write(std::ostream& os) const
 {
   // This is grossly inadequate, but it is not critical for the
