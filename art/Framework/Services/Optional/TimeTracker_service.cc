@@ -243,7 +243,7 @@ art::TimeTracker::postEndJob()
 
   using namespace std;
   // Gather statistics for full Event
-  // -- Unfortunately, this is not a simple query since the
+  // -- Unfortunately, this is not a simple query since the (e.g.)
   //    'RootOutput(write)' times and the source time are not
   //    recorded in the TimeEvent rows.  They must be added in.
 
@@ -252,7 +252,7 @@ art::TimeTracker::postEndJob()
     "SELECT Run,Subrun,Event,SUM(Time) AS FullEventTime FROM ("
     "       SELECT Run,Subrun,Event,Time FROM TimeEvent"
     "       UNION"
-    "       SELECT Run,Subrun,Event,Time FROM TimeModule WHERE ModuleType='RootOutput(write)'"
+    "       SELECT Run,Subrun,Event,Time FROM TimeModule WHERE ModuleType LIKE '%(write)'"
     "       UNION"
     "       SELECT Run,Subrun,Event,Time FROM TimeSource"
     ") GROUP BY Run,Subrun,Event";
