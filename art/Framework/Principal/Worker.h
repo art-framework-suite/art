@@ -187,7 +187,9 @@ public:
   {
     T::preModuleSignal(a_, md_);
   }
-  ~ModuleSignalSentry() noexcept(false) {
+
+  ~ModuleSignalSentry() noexcept(false)
+  {
     T::postModuleSignal(a_, md_);
   }
 private:
@@ -250,7 +252,6 @@ bool art::Worker::doWork(typename T::MyPrincipal& p,
     if (T::level == Level::Event && !rc)
       state_ = Fail;
   }
-
   catch (cet::exception& e) {
 
     // NOTE: the warning printed as a result of ignoring or failing a
@@ -267,6 +268,7 @@ bool art::Worker::doWork(typename T::MyPrincipal& p,
     if (cpc && cpc->isEndPath()) {
       if (action == actions::SkipEvent || action == actions::FailPath) action = actions::FailModule;
     }
+
     switch(action) {
     case actions::IgnoreCompletely: {
       rc=true;
@@ -277,7 +279,6 @@ bool art::Worker::doWork(typename T::MyPrincipal& p,
         << e.what() << "\n";
       break;
     }
-
     case actions::FailModule: {
       rc=true;
       mf::LogWarning("FailModule")
@@ -287,9 +288,7 @@ bool art::Worker::doWork(typename T::MyPrincipal& p,
       state_ = Fail;
       break;
     }
-
     default: {
-
       // We should not need to include the event/run/module names.
       // The exception because the error logger will pick this up
       // automatically.  I'm leaving it in until this is verified.
@@ -304,14 +303,14 @@ bool art::Worker::doWork(typename T::MyPrincipal& p,
       //      detail::exceptionContext(md_, p, e);
       if (auto edmEx = dynamic_cast<art::Exception*>(&e)) {
         cached_exception_ = std::make_shared<art::Exception>(*edmEx);
-      } else {
+      }
+      else {
         cached_exception_ = std::make_shared<art::Exception>(errors::OtherArt, std::string(), e);
       }
       throw;
     }
     }
   }
-
   catch (std::bad_alloc const& bda) {
     counts.template increment<stats::ExceptionThrown>();
     state_ = Exception;

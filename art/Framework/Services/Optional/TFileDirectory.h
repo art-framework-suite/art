@@ -10,7 +10,7 @@
 #include <string>
 #include <utility>
 
-#include "art/Framework/Services/Optional/detail/TH1AddDirectorySentry.h"
+#include "art/Framework/Services/Optional/detail/RootDirectorySentry.h"
 #include "TDirectory.h"
 
 class TFile;
@@ -70,7 +70,7 @@ namespace art {
   T*
   TFileDirectory::make(ARGS... args) const
   {
-    RootDirectorySentry sentry;
+    detail::RootDirectorySentry sentry;
     cd();
     return new T{args...};
   }
@@ -81,7 +81,7 @@ namespace art {
                                   char const* title,
                                   ARGS... args) const
   {
-    RootDirectorySentry sentry;
+    detail::RootDirectorySentry sentry;
     cd();
     T* p = new T{args...};
     p->SetName(name);

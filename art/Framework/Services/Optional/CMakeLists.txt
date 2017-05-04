@@ -1,6 +1,6 @@
 set( art_Framework_Services_Optional_sources
   TFileDirectory.cc
-  detail/TH1AddDirectorySentry.cc
+  detail/RootDirectorySentry.cc
 )
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")

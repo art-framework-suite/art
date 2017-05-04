@@ -20,7 +20,7 @@ namespace {
       pre.invoke(md_);
     }
 
-    ~ModuleSignalSentry()
+    ~ModuleSignalSentry() noexcept(false)
     {
       post_.invoke(md_);
     }

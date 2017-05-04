@@ -51,7 +51,7 @@ art::TFileDirectory::fullPath() const
 art::TFileDirectory
 art::TFileDirectory::mkdir(std::string const& dir, std::string const& descr)
 {
-  RootDirectorySentry sentry;
+  detail::RootDirectorySentry sentry;
   cd();
   return TFileDirectory{dir, descr, file_, fullPath()};
 }
