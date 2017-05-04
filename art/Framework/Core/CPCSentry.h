@@ -27,7 +27,7 @@ namespace art {
         c = value;
       }
 
-      ~CPCSentry() { *referenced_ = nullptr; }
+      ~CPCSentry() noexcept { *referenced_ = nullptr; }
 
     private:
       cet::exempt_ptr<CurrentProcessingContext const>* referenced_;

@@ -193,12 +193,12 @@ template <typename T>
 class art::detail::PrincipalSignalSentry {
 public:
 
-  PrincipalSignalSentry(PrincipalSignalSentry<T> const&) = delete;
-  PrincipalSignalSentry<T> operator=(PrincipalSignalSentry<T> const&) = delete;
+  PrincipalSignalSentry(PrincipalSignalSentry const&) = delete;
+  PrincipalSignalSentry operator=(PrincipalSignalSentry const&) = delete;
 
   using principal_t = typename T::MyPrincipal;
   explicit PrincipalSignalSentry(art::ActivityRegistry& a, principal_t& ep);
-  ~PrincipalSignalSentry();
+  ~PrincipalSignalSentry() noexcept(false);
 
 private:
   art::ActivityRegistry& a_;
@@ -213,14 +213,13 @@ PrincipalSignalSentry(art::ActivityRegistry& a,
   a_{a},
   ep_{ep}
 {
-  T::preScheduleSignal(a_, &ep_);
+  T::preScheduleSignal(a_, ep_);
 }
 
 template <class T>
-art::detail::PrincipalSignalSentry<T>::
-~PrincipalSignalSentry()
+art::detail::PrincipalSignalSentry<T>::~PrincipalSignalSentry() noexcept(false)
 {
-  T::postScheduleSignal(a_, &ep_);
+  T::postScheduleSignal(a_, ep_);
 }
 
 template <typename T>

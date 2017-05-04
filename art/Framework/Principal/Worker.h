@@ -183,16 +183,16 @@ namespace art {
 template <typename T>
 class art::detail::ModuleSignalSentry {
 public:
-  ModuleSignalSentry(ActivityRegistry& a, ModuleDescription& md) : a_{a}, md_{&md}
+  ModuleSignalSentry(ActivityRegistry& a, ModuleDescription& md) : a_{a}, md_{md}
   {
     T::preModuleSignal(a_, md_);
   }
-  ~ModuleSignalSentry() {
+  ~ModuleSignalSentry() noexcept(false) {
     T::postModuleSignal(a_, md_);
   }
 private:
   ActivityRegistry& a_;
-  ModuleDescription* md_;
+  ModuleDescription& md_;
 };
 
 template <typename T>

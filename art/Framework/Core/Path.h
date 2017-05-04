@@ -108,12 +108,13 @@ namespace art {
                        std::string const& name,
                        int const& nwrwue,
                        hlt::HLTState const& state) :
-        a_(a), name_(name), nwrwue_(nwrwue), state_(state) {
+        a_{a}, name_{name}, nwrwue_{nwrwue}, state_{state}
+      {
         T::prePathSignal(a_, name_);
       }
-      ~PathSignalSentry()
+      ~PathSignalSentry() noexcept(false)
       {
-        HLTPathStatus status(state_, nwrwue_);
+        HLTPathStatus const status(state_, nwrwue_);
         T::postPathSignal(a_, name_, status);
       }
     private:

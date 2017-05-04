@@ -38,7 +38,7 @@ namespace art {
 class art::Provenance {
 public:
 
-  explicit Provenance() = default;
+  explicit constexpr Provenance() = default;
   explicit Provenance(cet::exempt_ptr<Group const> g) : group_{g} {}
 
   // Full product description
@@ -74,7 +74,6 @@ public:
   // General utilities
   std::ostream& write(std::ostream& os) const;
   bool equals(Provenance const& other) const { return group_ == other.group_; }
-  void swap(Provenance& other) { std::swap(group_, other.group_); }
 
 private:
   cet::exempt_ptr<Group const> group_ {nullptr};
@@ -93,12 +92,6 @@ inline bool
 art::operator==(art::Provenance const& a, art::Provenance const& b)
 {
   return a.equals(b);
-}
-
-inline void
-art::swap(art::Provenance& x, art::Provenance& y)
-{
-  x.swap(y);
 }
 
 // ======================================================================
