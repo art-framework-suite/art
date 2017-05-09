@@ -29,7 +29,9 @@ set_source_files_properties(MixFilterTestOldStartEvent_module.cc
 
 simple_plugin(AddIntsProducer             "module"  NO_INSTALL)
 simple_plugin(AssnsAnalyzer               "module"  NO_INSTALL USE_BOOST_UNIT)
+simple_plugin(AssnsMultipleProduces       "module"  NO_INSTALL)
 simple_plugin(AssnsProducer               "module"  NO_INSTALL)
+simple_plugin(AssnsWrongPut               "module"  NO_INSTALL)
 simple_plugin(BareStringAnalyzer          "module"  NO_INSTALL)
 simple_plugin(BareStringProducer          "module"  NO_INSTALL)
 simple_plugin(CompressedIntProducer       "module"  NO_INSTALL)
@@ -968,6 +970,24 @@ cet_test(AssnsFastClone_w HANDBUILT
   DATAFILES
   fcl/AssnsFastClone_w.fcl
   TEST_PROPERTIES DEPENDS Assns_w
+)
+
+cet_test(AssnsWrongPut_t HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS -c "AssnsWrongPut_t.fcl"
+  DATAFILES
+  fcl/AssnsWrongPut_t.fcl
+  TEST_PROPERTIES
+  PASS_REGULAR_EXPRESSION "but they have not been placed onto the event"
+)
+
+cet_test(AssnsMultipleProduces_t HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS -c "AssnsMultipleProduces_t.fcl"
+  DATAFILES
+  fcl/AssnsMultipleProduces_t.fcl
+  TEST_PROPERTIES
+  PASS_REGULAR_EXPRESSION "That friendly name has already been registered for this module."
 )
 
 cet_test(ServiceUsingService_t HANDBUILT

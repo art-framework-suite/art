@@ -17,6 +17,39 @@
 #include <cassert>
 #include <string>
 
+namespace {
+
+  // A user may wish to declare:
+  //
+  //   produces<Assns<A,B>>(instance_name);
+  //   produces<Assns<B,A>>(instance_name);
+  //
+  // in their module constructor.  If the instance names are the same
+  // for both produces declarations, then this is a logic error, since
+  // Assns<A,B> and Assns<B,A> correspond to the same set of
+  // associations.  This error can be detected by checking the
+  // friendlyClassName, which resolves to the same string for
+  // Assns<A,B> and Assns<B,A>.
+
+  void check_for_duplicate_Assns(std::set<art::TypeLabel> const& typeLabels){
+    std::map<std::string, std::set<std::string>> instanceToFriendlyNames;
+    for (auto const& tl : typeLabels) {
+      auto result = instanceToFriendlyNames[tl.productInstanceName].emplace(tl.friendlyClassName());
+      if (!result.second) {
+        throw art::Exception(art::errors::LogicError, "check_for_duplicate_Assns: ")
+          << "An attempt has been made to call the equivalent of\n\n"
+          << "   produces<" << tl.className() << ">(\"" << tl.productInstanceName << "\")\n\n"
+          << "which results in a prepared (\"friendly\") name of:\n\n"
+          << "   "<< *result.first << "\n\n"
+          << "That friendly name has already been registered for this module.\n"
+          << "Please check to make sure that produces<> has not already been\n"
+          << "called for an Assns<> with reversed template arguments.  Such\n"
+          << "behavior is not supported.  Contact artists@fnal.gov for guidance.\n";
+      }
+    }
+  }
+}
+
 void
 art::ProductRegistryHelper::registerProducts(MasterProductRegistry& mpr,
                                              ModuleDescription const& md)
@@ -35,6 +68,7 @@ art::ProductRegistryHelper::registerProducts(MasterProductRegistry& mpr,
     BranchIDListRegistry::updateFromInput({bil}, fb.fileName());
     productList_.reset(); // Reset, since we no longer need it.
   }
+  check_for_duplicate_Assns(typeLabelList_[InEvent]);
   for (auto const& valsPerBranchType : typeLabelList_) {
     for (auto const& val : valsPerBranchType) {
       auto bd = std::make_unique<art::BranchDescription>(val, md);
