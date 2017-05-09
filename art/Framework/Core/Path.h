@@ -99,33 +99,6 @@ private:
   void updateCounters(bool succeed, bool isEvent);
 };
 
-namespace art {
-  namespace {
-    template <typename T>
-    class PathSignalSentry {
-    public:
-      PathSignalSentry(ActivityRegistry& a,
-                       std::string const& name,
-                       int const& nwrwue,
-                       hlt::HLTState const& state) :
-        a_{a}, name_{name}, nwrwue_{nwrwue}, state_{state}
-      {
-        T::prePathSignal(a_, name_);
-      }
-      ~PathSignalSentry() noexcept(false)
-      {
-        HLTPathStatus const status(state_, nwrwue_);
-        T::postPathSignal(a_, name_, status);
-      }
-    private:
-      ActivityRegistry& a_;
-      std::string const& name_;
-      int const& nwrwue_;
-      hlt::HLTState const& state_;
-    };
-  }
-}
-
 template <typename T>
 void art::Path::process(typename T::MyPrincipal& ep)
 {
@@ -133,34 +106,38 @@ void art::Path::process(typename T::MyPrincipal& ep)
   // we only record the time spent in the path not from the signal
 
   int nwrwue {-1}; // numWorkersRunWithoutUnhandledException
-  PathSignalSentry<T> signaler {actReg_, name_, nwrwue, state_};
-  MaybeRunStopwatch<T::level> sentry {stopwatch_};
+  T::prePathSignal(actReg_, name_);
+  {
+    MaybeRunStopwatch<T::level> sentry {stopwatch_};
 
-  if (T::level == Level::Event) {
-    ++timesRun_;
+    if (T::level == Level::Event) {
+      ++timesRun_;
+    }
+    state_ = hlt::Ready;
+
+    bool should_continue {true};
+    CurrentProcessingContext cpc {&name_, bitPosition(), isEndPath_};
+
+    for (auto it = workers_.begin(), end = workers_.end(); it != end && should_continue; ++it) {
+      ++nwrwue;
+      try {
+        cpc.activate(nwrwue, it->getWorker()->descPtr());
+        should_continue = it->runWorker<T>(ep, &cpc);
+      }
+      catch (cet::exception& e) {
+        // handleWorkerFailure may throw a new exception.
+        should_continue = handleWorkerFailure(e, nwrwue, T::level == Level::Event);
+      }
+      catch (...) {
+        recordUnknownException(nwrwue, T::level == Level::Event);
+        throw;
+      }
+    }
+    updateCounters(should_continue, T::level == Level::Event);
+    recordStatus(nwrwue, T::level == Level::Event);
   }
-  state_ = hlt::Ready;
-
-  bool should_continue {true};
-  CurrentProcessingContext cpc {&name_, bitPosition(), isEndPath_};
-
-  for (auto it = workers_.begin(), end = workers_.end(); it != end && should_continue; ++it) {
-    ++nwrwue;
-    try {
-      cpc.activate(nwrwue, it->getWorker()->descPtr());
-      should_continue = it->runWorker<T>(ep, &cpc);
-    }
-    catch(cet::exception& e) {
-      // handleWorkerFailure may throw a new exception.
-      should_continue = handleWorkerFailure(e, nwrwue, T::level == Level::Event);
-    }
-    catch(...) {
-      recordUnknownException(nwrwue, T::level == Level::Event);
-      throw;
-    }
-  }
-  updateCounters(should_continue, T::level == Level::Event);
-  recordStatus(nwrwue, T::level == Level::Event);
+  HLTPathStatus const status(state_, nwrwue);
+  T::postPathSignal(actReg_, name_, status);
 }
 
 // ======================================================================

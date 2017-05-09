@@ -23,5 +23,5 @@ TMP=`mktemp -t graceful_shutdown_t.sh.XXXXXXXXXX`
 trap "[[ -n \"$TMP\" ]] && rm $TMP* 2>/dev/null" EXIT
 
 # Start art
-art --rethrow-all -c "$config" --trace -n 10 >"$TMP"
+art --rethrow-all -c "$config" --trace -n 10 --timing >"$TMP"
 cat "$TMP"

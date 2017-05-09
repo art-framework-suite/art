@@ -137,7 +137,6 @@ private:
 
 namespace art {
   namespace detail {
-    template <typename T> class ModuleSignalSentry;
     template <typename T>
     cet::exception&
     exceptionContext(ModuleDescription const& md,
@@ -179,23 +178,6 @@ namespace art {
   };
 
 }
-
-template <typename T>
-class art::detail::ModuleSignalSentry {
-public:
-  ModuleSignalSentry(ActivityRegistry& a, ModuleDescription& md) : a_{a}, md_{md}
-  {
-    T::preModuleSignal(a_, md_);
-  }
-
-  ~ModuleSignalSentry() noexcept(false)
-  {
-    T::postModuleSignal(a_, md_);
-  }
-private:
-  ActivityRegistry& a_;
-  ModuleDescription& md_;
-};
 
 template <typename T>
 cet::exception&
@@ -244,9 +226,12 @@ bool art::Worker::doWork(typename T::MyPrincipal& p,
     }
 
     assert(actReg_.get() != nullptr);
-    detail::ModuleSignalSentry<T> cpp {*actReg_, md_};
     state_ = Working;
+
+    T::preModuleSignal(*actReg_, md_);
     rc = ImplDoWork<T::processing_action>::invoke(this, p, cpc);
+    T::postModuleSignal(*actReg_, md_);
+
     state_ = Pass;
 
     if (T::level == Level::Event && !rc)

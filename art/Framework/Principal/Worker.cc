@@ -4,33 +4,6 @@
 
 using mf::LogError;
 
-namespace {
-
-  class ModuleSignalSentry {
-  public:
-
-    using PreSig_t  = art::GlobalSignal<art::detail::SignalResponseType::FIFO, void(art::ModuleDescription const&)>;
-    using PostSig_t = art::GlobalSignal<art::detail::SignalResponseType::LIFO, void(art::ModuleDescription const&)>;
-
-    ModuleSignalSentry(PreSig_t& pre,
-                       PostSig_t& post,
-                       art::ModuleDescription& md)
-      : post_{post}, md_{md}
-    {
-      pre.invoke(md_);
-    }
-
-    ~ModuleSignalSentry() noexcept(false)
-    {
-      post_.invoke(md_);
-    }
-  private:
-    PostSig_t post_;
-    art::ModuleDescription& md_;
-  };
-
-}  // namespace
-
 art::Worker::Worker(ModuleDescription const& iMD,
                     WorkerParams const& iWP)
   :
@@ -48,10 +21,9 @@ void
 art::Worker::beginJob()
 try {
   assert(actReg_.get() != nullptr);
-  ModuleSignalSentry cpp(actReg_->sPreModuleBeginJob,
-                         actReg_->sPostModuleBeginJob,
-                         md_);
+  actReg_->sPreModuleBeginJob.invoke(md_);
   implBeginJob();
+  actReg_->sPostModuleBeginJob.invoke(md_);
 }
 catch (cet::exception& e) {
   // should event id be included?
@@ -103,10 +75,9 @@ void
 art::Worker::endJob()
 try {
   assert(actReg_.get() != nullptr);
-  ModuleSignalSentry cpp(actReg_->sPreModuleEndJob,
-                         actReg_->sPostModuleEndJob,
-                         md_);
+  actReg_->sPreModuleEndJob.invoke(md_);
   implEndJob();
+  actReg_->sPostModuleEndJob.invoke(md_);
 }
 catch (cet::exception& e) {
   LogError("EndJob")
@@ -158,38 +129,34 @@ void
 art::Worker::respondToOpenInputFile(FileBlock const& fb)
 {
   assert(actReg_.get() != nullptr);
-  ModuleSignalSentry cpp(actReg_->sPreModuleRespondToOpenInputFile,
-                         actReg_->sPostModuleRespondToOpenInputFile,
-                         md_);
+  actReg_->sPreModuleRespondToOpenInputFile.invoke(md_);
   implRespondToOpenInputFile(fb);
+  actReg_->sPostModuleRespondToOpenInputFile.invoke(md_);
 }
 
 void
 art::Worker::respondToCloseInputFile(FileBlock const& fb)
 {
   assert(actReg_.get() != nullptr);
-  ModuleSignalSentry cpp(actReg_->sPreModuleRespondToCloseInputFile,
-                         actReg_->sPostModuleRespondToCloseInputFile,
-                         md_);
+  actReg_->sPreModuleRespondToCloseInputFile.invoke(md_);
   implRespondToCloseInputFile(fb);
+  actReg_->sPostModuleRespondToCloseInputFile.invoke(md_);
 }
 
 void
 art::Worker::respondToOpenOutputFiles(FileBlock const& fb)
 {
   assert(actReg_.get() != nullptr);
-  ModuleSignalSentry cpp(actReg_->sPreModuleRespondToOpenOutputFiles,
-                         actReg_->sPostModuleRespondToOpenOutputFiles,
-                         md_);
+  actReg_->sPreModuleRespondToOpenOutputFiles.invoke(md_);
   implRespondToOpenOutputFiles(fb);
+  actReg_->sPostModuleRespondToOpenOutputFiles.invoke(md_);
 }
 
 void
 art::Worker::respondToCloseOutputFiles(FileBlock const& fb)
 {
   assert(actReg_.get() != nullptr);
-  ModuleSignalSentry cpp(actReg_->sPreModuleRespondToCloseOutputFiles,
-                         actReg_->sPostModuleRespondToCloseOutputFiles,
-                         md_);
+  actReg_->sPreModuleRespondToCloseOutputFiles.invoke(md_);
   implRespondToCloseOutputFiles(fb);
+  actReg_->sPostModuleRespondToCloseOutputFiles.invoke(md_);
 }

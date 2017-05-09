@@ -39,11 +39,6 @@
 
 namespace art {
   class EventProcessor;
-
-  namespace detail {
-    template <typename T>
-    class PrincipalSignalSentry;
-  }
 }
 
 class art::EventProcessor {
@@ -187,48 +182,14 @@ private:
 };  // EventProcessor
 
 ////////////////////////////////////
-// Class ScheduleSignalSentry<T> is used to emit the pre- and post-
-// signals associated with the principal associated with T.
-template <typename T>
-class art::detail::PrincipalSignalSentry {
-public:
-
-  PrincipalSignalSentry(PrincipalSignalSentry const&) = delete;
-  PrincipalSignalSentry operator=(PrincipalSignalSentry const&) = delete;
-
-  using principal_t = typename T::MyPrincipal;
-  explicit PrincipalSignalSentry(art::ActivityRegistry& a, principal_t& ep);
-  ~PrincipalSignalSentry() noexcept(false);
-
-private:
-  art::ActivityRegistry& a_;
-  principal_t& ep_;
-};
-
-template <class T>
-art::detail::PrincipalSignalSentry<T>::
-PrincipalSignalSentry(art::ActivityRegistry& a,
-                      typename PrincipalSignalSentry<T>::principal_t& ep)
-  :
-  a_{a},
-  ep_{ep}
-{
-  T::preScheduleSignal(a_, ep_);
-}
-
-template <class T>
-art::detail::PrincipalSignalSentry<T>::~PrincipalSignalSentry() noexcept(false)
-{
-  T::postScheduleSignal(a_, ep_);
-}
-
 template <typename T>
 void
 art::EventProcessor::process_(typename T::MyPrincipal& p)
 try {
-  detail::PrincipalSignalSentry<T> sentry(actReg_, p);
+  T::preScheduleSignal(actReg_, p);
   schedule_->process<T>(p);
   endPathExecutor_->process<T>(p);
+  T::postScheduleSignal(actReg_, p);
 }
 catch (cet::exception & ex) {
   actions::ActionCodes const action {

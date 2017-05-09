@@ -26,6 +26,7 @@ cet_test(graceful_shutdown_from_exception_t HANDBUILT
   TEST_EXEC graceful_shutdown_t.sh
   TEST_ARGS -c test_graceful_shutdown.fcl
   REF "${CMAKE_CURRENT_SOURCE_DIR}/graceful_shutdown_from_exception_t-ref.txt"
+  OUTPUT_FILTERS "filter-timeTracker-output" "DEFAULT"
   DATAFILES
   fcl/test_graceful_shutdown.fcl
   )
