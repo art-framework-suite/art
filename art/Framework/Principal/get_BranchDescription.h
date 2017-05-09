@@ -1,10 +1,9 @@
 #ifndef art_Framework_Core_get_BranchDescription_h
 #define art_Framework_Core_get_BranchDescription_h
+
 ////////////////////////////////////////////////////////////////////////
 // Helper class to find a product's BranchDescription in the
 // MasterProductRegistry.
-//
-// 2011/03/15 CG,
 ////////////////////////////////////////////////////////////////////////
 
 #include "canvas/Persistency/Provenance/ProductList.h"

@@ -1,8 +1,9 @@
 #include "art/Framework/Principal/DataViewImpl.h"
 
 #include "art/Framework/Principal/Principal.h"
-#include "art/Persistency/Provenance/ProductMetaData.h"
 #include "art/Framework/Principal/Selector.h"
+#include "art/Framework/Principal/get_BranchDescription.h"
+#include "art/Persistency/Provenance/ProductMetaData.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
 #include "canvas/Persistency/Provenance/ProductList.h"
 #include "canvas/Persistency/Provenance/ProductProvenance.h"
@@ -64,7 +65,7 @@ namespace art {
   DataViewImpl::getMatchingSequence_(TypeID const& elementType,
                                      SelectorBase const& selector,
                                      GroupQueryResultVec& results,
-                                     bool stopIfProcessHasMatch) const
+                                     bool const stopIfProcessHasMatch) const
   {
     return principal_.getMatchingSequence(elementType,
                                           selector,
@@ -77,15 +78,15 @@ namespace art {
                                             string const& label,
                                             string const& productInstanceName,
                                             GroupQueryResultVec& results,
-                                            bool stopIfProcessHasMatch) const
+                                            bool const stopIfProcessHasMatch) const
   {
-    art::Selector sel(art::ModuleLabelSelector(label) &&
-                      art::ProductInstanceNameSelector(productInstanceName));
+    art::Selector sel(art::ModuleLabelSelector{label} &&
+                      art::ProductInstanceNameSelector{productInstanceName});
 
-    int n = principal_.getMatchingSequence(elementType,
-                                           sel,
-                                           results,
-                                           stopIfProcessHasMatch);
+    int const n = principal_.getMatchingSequence(elementType,
+                                                 sel,
+                                                 results,
+                                                 stopIfProcessHasMatch);
     return n;
   }
 
@@ -95,16 +96,16 @@ namespace art {
                                             string const& productInstanceName,
                                             string const& processName,
                                             GroupQueryResultVec& results,
-                                            bool stopIfProcessHasMatch) const
+                                            bool const stopIfProcessHasMatch) const
   {
-    art::Selector sel(art::ModuleLabelSelector(label) &&
-                      art::ProductInstanceNameSelector(productInstanceName) &&
-                      art::ProcessNameSelector(processName) );
+    art::Selector sel(art::ModuleLabelSelector{label} &&
+                      art::ProductInstanceNameSelector{productInstanceName} &&
+                      art::ProcessNameSelector{processName});
 
-    int n = principal_.getMatchingSequence(elementType,
-                                           sel,
-                                           results,
-                                           stopIfProcessHasMatch);
+    int const n = principal_.getMatchingSequence(elementType,
+                                                 sel,
+                                                 results,
+                                                 stopIfProcessHasMatch);
     return n;
   }
 
@@ -133,7 +134,7 @@ namespace art {
       errmsg << "The following products have been declared with 'produces',\n"
              << "but they have not been placed onto the event:\n"
              << "=========================\n";
-      for ( auto const& bd : missing ) {
+      for (auto const& bd : missing) {
         errmsg << bd
                << "=========================\n";
       }
@@ -145,29 +146,12 @@ namespace art {
   DataViewImpl::getBranchDescription(TypeID const& type,
                                      string const& productInstanceName) const
   {
-    string const friendlyClassName {type.friendlyClassName()};
-    BranchKey bk {friendlyClassName,
-                  md_.moduleLabel(),
-                  productInstanceName,
-                  md_.processName(),
-                  branchType_};
-    auto const& pl = ProductMetaData::instance().productList();
-    auto it = pl.find(bk);
-
-    if (it == pl.end()) {
-      throw art::Exception{art::errors::ProductRegistrationFailure, "DataViewImpl::getBranchDescription"}
-        << "Illegal attempt to retrieve an unregistered product.\n"
-        << "No product is registered for\n"
-        << "  process name:                '" << bk.processName_ << "'\n"
-        << "  module label:                '" << bk.moduleLabel_ << "'\n"
-        << "  product friendly class name: '" << bk.friendlyClassName_ << "'\n"
-        << "  product instance name:       '" << bk.productInstanceName_ << "'\n"
-        << "  branch type:                 '" << branchType_ << "'\n"
-        << "Registered products currently:\n"
-        << ProductMetaData::instance()
-        << '\n';
-    }
-    return it->second;
+    return get_BranchDescription(type,
+                                 md_.processName(),
+                                 ProductMetaData::instance().productList(),
+                                 branchType_,
+                                 md_.moduleLabel(),
+                                 productInstanceName);
   }
 
   void

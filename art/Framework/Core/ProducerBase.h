@@ -8,8 +8,8 @@
 
 #include "art/Framework/Core/ProductRegistryHelper.h"
 #include "art/Framework/Core/detail/IgnoreModuleLabel.h"
-#include "art/Framework/Core/get_BranchDescription.h"
 #include "art/Framework/Principal/fwd.h"
+#include "art/Framework/Principal/get_BranchDescription.h"
 #include "art/Utilities/ConfigurationTable.h"
 #include "art/Utilities/ProductTokens.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
@@ -39,8 +39,8 @@ namespace art {
     bool modifiesEvent() const { return true; }
 
     template <typename PROD, BranchType B, typename TRANS>
-    ProductID getProductID(TRANS const &translator,
-                           ModuleDescription const &moduleDescription,
+    ProductID getProductID(TRANS const& translator,
+                           ModuleDescription const& moduleDescription,
                            std::string const& instanceName) const;
 
     // Configuration
@@ -81,9 +81,9 @@ namespace art {
 
   template <typename PROD, BranchType B, typename TRANS>
   ProductID
-  ProducerBase::getProductID(TRANS const &translator,
-                             ModuleDescription const &md,
-                             std::string const &instanceName) const {
+  ProducerBase::getProductID(TRANS const& translator,
+                             ModuleDescription const& md,
+                             std::string const& instanceName) const {
     return
       translator.branchIDToProductID
       (get_BranchDescription<PROD>(B,

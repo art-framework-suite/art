@@ -114,10 +114,10 @@ getByLabel(TypeID const& productType, string const& label,
            string const& productInstanceName, string const& processName) const
 {
   GroupQueryResultVec results;
-  Selector sel(ModuleLabelSelector(label) &&
-               ProductInstanceNameSelector(productInstanceName) &&
-               ProcessNameSelector(processName));
-  int nFound = findGroupsForProduct(productType, sel, results, true);
+  Selector sel(ModuleLabelSelector{label} &&
+               ProductInstanceNameSelector{productInstanceName} &&
+               ProcessNameSelector{processName});
+  int const nFound = findGroupsForProduct(productType, sel, results, true);
   if (nFound == 0) {
     auto whyFailed = std::make_shared<art::Exception>(art::errors::ProductNotFound);
     *whyFailed << "getByLabel: Found zero products matching all criteria\n"
@@ -379,23 +379,23 @@ getForOutput(BranchID const bid, bool resolveProd) const
   if (g.get() == nullptr) {
     return OutputHandle{RangeSet::invalid()};
   }
-  auto const & pmd = ProductMetaData::instance();
+  auto const& pmd = ProductMetaData::instance();
   auto const bt = g->productDescription().branchType();
   if (resolveProd
       &&
       ((g->anyProduct() == nullptr) || !g->anyProduct()->isPresent())
       &&
-      ( pmd.presentWithFileIdx(bt, bid) != MasterProductRegistry::DROPPED ||
-        pmd.produced(bt, bid) )
+      (pmd.presentWithFileIdx(bt, bid) != MasterProductRegistry::DROPPED ||
+       pmd.produced(bt, bid))
       &&
       (bt == InEvent)
       &&
       productstatus::present(g->productProvenancePtr()->productStatus())) {
     throw Exception(errors::LogicError, "Principal::getForOutput\n")
-        << "A product with a status of 'present' is not actually present.\n"
-        << "The branch name is "
-        << g->productDescription().branchName()
-        << "\nContact a framework developer.\n";
+      << "A product with a status of 'present' is not actually present.\n"
+      << "The branch name is "
+      << g->productDescription().branchName()
+      << "\nContact a framework developer.\n";
   }
   if (!g->anyProduct() && !g->productProvenancePtr()) {
     return OutputHandle{g->rangeOfValidity()};

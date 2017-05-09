@@ -6,14 +6,14 @@
 // Principal.
 //
 // NOTE that this should *not* be used to put products in the event that
-// require parentage informtion to be filled in.
+// require parentage information to be filled in.
 //
 // 2011/03/15 CG,
 ////////////////////////////////////////////////////////////////////////
 
-#include "art/Framework/Core/get_BranchDescription.h"
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
+#include "art/Framework/Principal/get_BranchDescription.h"
 #include "canvas/Persistency/Common/EDProduct.h"
 #include "canvas/Persistency/Provenance/BranchDescription.h"
 #include "canvas/Persistency/Provenance/BranchKey.h"

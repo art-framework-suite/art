@@ -20,13 +20,13 @@
 // -----------------------------------------------------------------
 
 #include "art/Framework/Principal/fwd.h"
-#include "canvas/Persistency/Common/Assns.h"
-#include "canvas/Persistency/Provenance/BranchType.h"
 #include "art/Persistency/Provenance/MasterProductRegistry.h"
-#include "canvas/Persistency/Provenance/ProductList.h"
-#include "canvas/Persistency/Provenance/TypeLabel.h"
 #include "art/Persistency/Provenance/detail/branchNameComponentChecking.h"
 #include "art/Persistency/Provenance/detail/type_aliases.h"
+#include "canvas/Persistency/Common/Assns.h"
+#include "canvas/Persistency/Provenance/BranchType.h"
+#include "canvas/Persistency/Provenance/ProductList.h"
+#include "canvas/Persistency/Provenance/TypeLabel.h"
 #include "canvas/Utilities/Exception.h"
 #include "canvas/Utilities/TypeID.h"
 #include "cetlib/exception.h"
@@ -92,19 +92,19 @@ public:
                         ModuleDescription const& md);
   // Record the production of an object of type P, with optional
   // instance name, in the Event (by default), Run, or SubRun.
-  template<class P, BranchType B = InEvent>
+  template <typename P, BranchType B = InEvent>
   void produces(std::string const& instanceName = std::string());
 
   // Record the reconstitution of an object of type P, in either the
   // Run, SubRun, or Event, recording that this object was
   // originally created by a module with label modLabel, and with an
   // optional instance name.
-  template<class P, BranchType B>
+  template <typename P, BranchType B>
   TypeLabel const&
   reconstitutes(std::string const& modLabel,
                 std::string const& instanceName = std::string());
 
-  template<BranchType B = InEvent>
+  template <BranchType B = InEvent>
   ProducedMap const&
   expectedProducts() const
   {
@@ -130,41 +130,35 @@ private:
     return *result.first;
   }
 
-private:
-
   std::set<TypeLabel> typeLabelList_;
   PerBranchTypeProduced expectedProducts_;
 
   // Set by an input source for merging into the
   // master product registry by registerProducts().
   std::unique_ptr<ProductList> productList_;
-
 };
 
 template<typename P, art::BranchType B>
 inline
 void
-art::ProductRegistryHelper::
-produces(std::string const& instanceName)
+art::ProductRegistryHelper::produces(std::string const& instanceName)
 {
   verifyInstanceName(instanceName);
-  TypeID productType(typeid(P));
+  TypeID const productType{typeid(P)};
   verifyFriendlyClassName(productType.friendlyClassName());
-  insertOrThrow(TypeLabel(B, productType, instanceName));
+  insertOrThrow(TypeLabel{B, productType, instanceName});
 }
 
 template<typename P, art::BranchType B>
 art::TypeLabel const&
-art::ProductRegistryHelper::
-reconstitutes(std::string const& emulatedModule,
-              std::string const& instanceName)
+art::ProductRegistryHelper::reconstitutes(std::string const& emulatedModule,
+                                          std::string const& instanceName)
 {
   verifyModuleLabel(emulatedModule);
   verifyInstanceName(instanceName);
-  TypeID productType(typeid(P));
+  TypeID const productType{typeid(P)};
   verifyFriendlyClassName(productType.friendlyClassName());
-  return insertOrThrow(TypeLabel(B, productType, instanceName,
-                                 emulatedModule));
+  return insertOrThrow(TypeLabel{B, productType, instanceName, emulatedModule});
 }
 
 #endif /* art_Framework_Core_ProductRegistryHelper_h */

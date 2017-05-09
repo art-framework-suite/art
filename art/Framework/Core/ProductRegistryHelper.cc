@@ -18,9 +18,8 @@
 #include <string>
 
 void
-art::ProductRegistryHelper::
-registerProducts(MasterProductRegistry& mpr,
-                 ModuleDescription const& md)
+art::ProductRegistryHelper::registerProducts(MasterProductRegistry& mpr,
+                                             ModuleDescription const& md)
 {
   if (productList_) {
     BranchIDList bil;
@@ -31,14 +30,14 @@ registerProducts(MasterProductRegistry& mpr,
       tp[bd.branchType()].emplace(bid);
       bil.push_back(bid);
     }
-    FileBlock fb({}, "ProductRegistryHelper");
+    FileBlock const fb{{}, "ProductRegistryHelper"};
     mpr.initFromFirstPrimaryFile(*productList_, tp, fb);
     BranchIDListRegistry::updateFromInput({bil}, fb.fileName());
     productList_.reset(); // Reset, since we no longer need it.
   }
   for (auto const& val : typeLabelList_) {
     auto bd = std::make_unique<art::BranchDescription>(val, md);
-    auto & expProducts = expectedProducts_[bd->branchType()];
+    auto& expProducts = expectedProducts_[bd->branchType()];
     std::ostringstream oss;
     oss << *bd;
     expProducts.emplace(bd->branchID(), oss.str());

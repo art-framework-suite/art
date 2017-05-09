@@ -20,8 +20,9 @@ using namespace fhicl;
 namespace art {
 
   namespace {
-    SubRun* newSubRun(EventPrincipal const& ep, ModuleDescription const& md) {
-      return (ep.subRunPrincipalExemptPtr() ? new SubRun{ep.subRunPrincipal(), md} : nullptr);
+    SubRun* newSubRun(EventPrincipal const& ep, ModuleDescription const& md)
+    {
+      return ep.subRunPrincipalExemptPtr() ? new SubRun{ep.subRunPrincipal(), md} : nullptr;
     }
   }
 
@@ -157,33 +158,33 @@ namespace art {
       // If the product retrieved is transient, don't use its branch ID.
       // use the branch ID's of its parents.
       vector<BranchID> const& bids = prov.parents();
-      gotBranchIDs_.insert( bids.begin(), bids.end() );
+      gotBranchIDs_.insert(bids.begin(), bids.end());
     } else {
       gotBranchIDs_.insert(prov.branchID());
     }
   }
 
-// ----------------------------------------------------------------------
+  // ----------------------------------------------------------------------
 
   void
-  Event::ensure_unique_product( std::size_t         nFound,
-                                TypeID      const & typeID,
-                                std::string const & moduleLabel,
-                                std::string const & productInstanceName,
-                                std::string const & processName ) const
+  Event::ensure_unique_product(std::size_t const  nFound,
+                               TypeID      const& typeID,
+                               std::string const& moduleLabel,
+                               std::string const& productInstanceName,
+                               std::string const& processName) const
   {
-    if( nFound == 1 ) return;
+    if (nFound == 1) return;
 
     art::Exception e(art::errors::ProductNotFound);
     e << "getView: Found "
       << (nFound == 0 ? "no products"
-                      : "more than one product"
-         )
+          : "more than one product"
+          )
       << " matching all criteria\n"
       << "Looking for sequence of type: " << typeID << "\n"
       << "Looking for module label: " << moduleLabel << "\n"
       << "Looking for productInstanceName: " << productInstanceName << "\n";
-    if( ! processName.empty() )
+    if (!processName.empty())
       e << "Looking for processName: "<< processName <<"\n";
     throw e;
   }

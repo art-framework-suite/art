@@ -1,8 +1,6 @@
 #include "art/Persistency/Provenance/detail/branchNameComponentChecking.h"
-
-#include "canvas/Persistency/Provenance/BranchKey.h"
-
 #include "boost/algorithm/string.hpp"
+#include "canvas/Persistency/Provenance/BranchKey.h"
 
 #include <regex>
 #include <string>
@@ -10,18 +8,18 @@
 
 namespace {
 
-  static std::regex const typeRE("^(?:[[:alnum:]]|::)*");
-  static std::regex const typeSelectorRE("^(?:[[:alnum:]\\*\\?]|::)*");
-  static std::regex const labelRE("^[[:alnum:]#]*");
-  static std::regex const labelSelectorRE("^[[:alnum:]#\\*\\?]*");
-  static std::regex const processRE("^[[:alnum:]]*");
-  static std::regex const processSelectorRE("^[[:alnum:]\\*\\?]*");
+  std::regex const typeRE("^(?:[[:alnum:]]|::)*");
+  std::regex const typeSelectorRE("^(?:[[:alnum:]\\*\\?]|::)*");
+  std::regex const labelRE("^[[:alnum:]#]*");
+  std::regex const labelSelectorRE("^[[:alnum:]#\\*\\?]*");
+  std::regex const processRE("^[[:alnum:]]*");
+  std::regex const processSelectorRE("^[[:alnum:]\\*\\?]*");
 
   bool
-  checkBranchNameComponent(std::string const & component,
-                           std::string const & designation,
-                           std::regex const & re,
-                           std::string & errMsg,
+  checkBranchNameComponent(std::string const& component,
+                           std::string const& designation,
+                           std::regex const& re,
+                           std::string& errMsg,
                            bool emptyOK = false)
   {
     bool result = true;
@@ -29,7 +27,8 @@ namespace {
       if (!emptyOK) {
         errMsg += "Illegal empty " + designation + ".\n";
       }
-    } else {
+    }
+    else {
       std::smatch sm;
       result = std::regex_search(component, sm, re) && sm.suffix().str().empty();
       if (!result) {
@@ -45,8 +44,8 @@ namespace {
 }
 
 art::BranchKey
-art::detail::splitToComponents(std::string const & branchName,
-                               std::string & errMsg)
+art::detail::splitToComponents(std::string const& branchName,
+                               std::string& errMsg)
 {
   std::vector<std::string> parts;
   boost::split(parts, branchName, boost::is_any_of("_"));
@@ -62,8 +61,8 @@ art::detail::splitToComponents(std::string const & branchName,
 
 bool
 art::detail::
-checkBranchNameSelector(std::string const & branchNameSelector,
-                        std::string & errMsg)
+checkBranchNameSelector(std::string const& branchNameSelector,
+                        std::string& errMsg)
 {
   errMsg.clear();
   auto components = splitToComponents(branchNameSelector, errMsg);
@@ -72,8 +71,8 @@ checkBranchNameSelector(std::string const & branchNameSelector,
 
 bool
 art::detail::
-checkBranchNameSelector(BranchKey const & components,
-                        std::string & errMsg)
+checkBranchNameSelector(BranchKey const& components,
+                        std::string& errMsg)
 {
   // Inclusive operation: do all steps.
   bool result = checkFriendlyNameSelector(components.friendlyClassName_,
@@ -89,8 +88,8 @@ checkBranchNameSelector(BranchKey const & components,
 
 bool
 art::detail::
-checkFriendlyName(std::string const & friendlyName,
-                  std::string & errMsg)
+checkFriendlyName(std::string const& friendlyName,
+                  std::string& errMsg)
 {
   return checkBranchNameComponent(friendlyName,
                                   "friendly name",
@@ -100,8 +99,8 @@ checkFriendlyName(std::string const & friendlyName,
 
 bool
 art::detail::
-checkFriendlyNameSelector(std::string const & friendlyNameSelector,
-                          std::string & errMsg)
+checkFriendlyNameSelector(std::string const& friendlyNameSelector,
+                          std::string& errMsg)
 {
   return checkBranchNameComponent(friendlyNameSelector,
                                   "friendly name",
@@ -111,8 +110,8 @@ checkFriendlyNameSelector(std::string const & friendlyNameSelector,
 
 bool
 art::detail::
-checkModuleLabel(std::string const & moduleLabel,
-                 std::string & errMsg)
+checkModuleLabel(std::string const& moduleLabel,
+                 std::string& errMsg)
 {
   return checkBranchNameComponent(moduleLabel,
                                   "module label",
@@ -122,8 +121,8 @@ checkModuleLabel(std::string const & moduleLabel,
 
 bool
 art::detail::
-checkModuleLabelSelector(std::string const & moduleLabelSelector,
-                         std::string & errMsg)
+checkModuleLabelSelector(std::string const& moduleLabelSelector,
+                         std::string& errMsg)
 {
   return checkBranchNameComponent(moduleLabelSelector,
                                   "module label",
@@ -133,8 +132,8 @@ checkModuleLabelSelector(std::string const & moduleLabelSelector,
 
 bool
 art::detail::
-checkInstanceName(std::string const & instanceName,
-                  std::string & errMsg)
+checkInstanceName(std::string const& instanceName,
+                  std::string& errMsg)
 {
   return checkBranchNameComponent(instanceName,
                                   "instance name",
@@ -145,8 +144,8 @@ checkInstanceName(std::string const & instanceName,
 
 bool
 art::detail::
-checkInstanceNameSelector(std::string const & instanceNameSelector,
-                          std::string & errMsg)
+checkInstanceNameSelector(std::string const& instanceNameSelector,
+                          std::string& errMsg)
 {
   return checkBranchNameComponent(instanceNameSelector,
                                   "instance name",
@@ -157,8 +156,8 @@ checkInstanceNameSelector(std::string const & instanceNameSelector,
 
 bool
 art::detail::
-checkProcessName(std::string const & processName,
-                 std::string & errMsg)
+checkProcessName(std::string const& processName,
+                 std::string& errMsg)
 {
   return checkBranchNameComponent(processName,
                                   "process name",
@@ -168,8 +167,8 @@ checkProcessName(std::string const & processName,
 
 bool
 art::detail::
-checkProcessNameSelector(std::string const & processNameSelector,
-                         std::string & errMsg)
+checkProcessNameSelector(std::string const& processNameSelector,
+                         std::string& errMsg)
 {
   return checkBranchNameComponent(processNameSelector,
                                   "process name",

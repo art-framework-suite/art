@@ -21,15 +21,14 @@ using namespace std;
 
 namespace art {
 
-EventPrincipal::
-EventPrincipal(EventAuxiliary const& aux,
-               ProcessConfiguration const& pc,
-               std::shared_ptr<History> history,
-               std::unique_ptr<BranchMapper>&& mapper,
-               std::unique_ptr<DelayedReader>&& rtrv,
-               bool const lastInSubRun,
-               int const idx,
-               cet::exempt_ptr<EventPrincipal const> primaryPrincipal)
+EventPrincipal::EventPrincipal(EventAuxiliary const& aux,
+                               ProcessConfiguration const& pc,
+                               std::shared_ptr<History> history,
+                               std::unique_ptr<BranchMapper>&& mapper,
+                               std::unique_ptr<DelayedReader>&& rtrv,
+                               bool const lastInSubRun,
+                               int const idx,
+                               cet::exempt_ptr<EventPrincipal const> primaryPrincipal)
   : Principal{pc, history->processHistoryID(), std::move(mapper), std::move(rtrv), idx, primaryPrincipal}
   , aux_{aux}
   , history_{history}
@@ -50,8 +49,7 @@ EventPrincipal(EventAuxiliary const& aux,
 }
 
 SubRunPrincipal const&
-EventPrincipal::
-subRunPrincipal() const
+EventPrincipal::subRunPrincipal() const
 {
   if (!subRunPrincipal_) {
     throw Exception(errors::NullPointerError)
@@ -61,8 +59,7 @@ subRunPrincipal() const
 }
 
 void
-EventPrincipal::
-throwIfExistingGroup(BranchDescription const& bd) const
+EventPrincipal::throwIfExistingGroup(BranchDescription const& bd) const
 {
   if (auto group = getExistingGroup(bd.branchID())) {
     throw art::Exception(art::errors::ProductRegistrationFailure, "EventPrincipal::throwIfExistingGroup")
@@ -82,8 +79,7 @@ throwIfExistingGroup(BranchDescription const& bd) const
 }
 
 void
-EventPrincipal::
-fillGroup(BranchDescription const& bd)
+EventPrincipal::fillGroup(BranchDescription const& bd)
 {
   throwIfExistingGroup(bd);
   Principal::fillGroup(gfactory::make_group(bd,
@@ -92,10 +88,9 @@ fillGroup(BranchDescription const& bd)
 }
 
 void
-EventPrincipal::
-put(std::unique_ptr<EDProduct>&& edp,
-    BranchDescription const& bd,
-    std::unique_ptr<ProductProvenance const>&& productProvenance)
+EventPrincipal::put(std::unique_ptr<EDProduct>&& edp,
+                    BranchDescription const& bd,
+                    std::unique_ptr<ProductProvenance const>&& productProvenance)
 {
   assert(edp);
   branchMapper().insert(std::move(productProvenance));
@@ -107,16 +102,14 @@ put(std::unique_ptr<EDProduct>&& edp,
 }
 
 EDProductGetter const*
-EventPrincipal::
-productGetter(ProductID const& pid) const
+EventPrincipal::productGetter(ProductID const& pid) const
 {
-  EDProductGetter const* result = getByProductID(pid).result().get();
+  EDProductGetter const* result{getByProductID(pid).result().get()};
   return result ? result : deferredGetter_(pid);
 }
 
 BranchID
-EventPrincipal::
-productIDToBranchID(ProductID const& pid) const
+EventPrincipal::productIDToBranchID(ProductID const& pid) const
 {
   BranchID result;
   if (!pid.isValid()) {
@@ -145,8 +138,7 @@ productIDToBranchID(ProductID const& pid) const
 }
 
 ProductID
-EventPrincipal::
-branchIDToProductID(BranchID const bid) const
+EventPrincipal::branchIDToProductID(BranchID const bid) const
 {
   if (!bid.isValid()) {
     throw art::Exception(art::errors::NotFound, "InvalidID")
@@ -172,8 +164,7 @@ branchIDToProductID(BranchID const bid) const
 }
 
 GroupQueryResult
-EventPrincipal::
-getGroup(ProductID const& pid) const
+EventPrincipal::getGroup(ProductID const& pid) const
 {
   BranchID const bid = productIDToBranchID(pid);
   if (auto const g = getGroupForPtr(art::InEvent, bid)) {
@@ -185,8 +176,7 @@ getGroup(ProductID const& pid) const
 }
 
 GroupQueryResult
-EventPrincipal::
-getByProductID(ProductID const& pid) const
+EventPrincipal::getByProductID(ProductID const& pid) const
 {
   // FIXME: This reproduces the logic of the old version of the
   // function, but I'm not sure it does the *right* thing in the face
@@ -201,15 +191,13 @@ getByProductID(ProductID const& pid) const
 }
 
 EventSelectionIDVector const&
-EventPrincipal::
-eventSelectionIDs() const
+EventPrincipal::eventSelectionIDs() const
 {
   return history_->eventSelectionIDs();
 }
 
 EDProductGetter const*
-EventPrincipal::
-deferredGetter_(ProductID const& pid) const
+EventPrincipal::deferredGetter_(ProductID const& pid) const
 {
   auto it = deferredGetters_.find(pid);
   if (it != deferredGetters_.end()) {
