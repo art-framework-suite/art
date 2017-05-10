@@ -37,8 +37,8 @@ public:
   template <typename T>
   Ptr<T>
   makePtr(TypeLabel const& t,
-           EventPrincipal const& ep,
-           typename Ptr<T>::key_type key) const;
+          EventPrincipal const& ep,
+          typename Ptr<T>::key_type key) const;
 
   RunPrincipal* makeRunPrincipal(RunAuxiliary const& runAux) const;
 
@@ -83,7 +83,7 @@ makePtr(TypeLabel const& tl,
         EventPrincipal const& ep,
         typename Ptr<T>::key_type key) const
 {
-  auto pid = ep.branchIDToProductID(BranchDescription{tl, md_}.branchID());
+  auto pid = ep.branchIDToProductID(BranchDescription{InEvent, tl, md_}.branchID());
   return Ptr<T>(pid, key, ep.productGetter(pid));
 }
 

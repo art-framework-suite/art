@@ -69,9 +69,10 @@ art::ProductRegistryHelper::registerProducts(MasterProductRegistry& mpr,
     productList_.reset(); // Reset, since we no longer need it.
   }
   check_for_duplicate_Assns(typeLabelList_[InEvent]);
-  for (auto const& valsPerBranchType : typeLabelList_) {
-    for (auto const& val : valsPerBranchType) {
-      auto bd = std::make_unique<art::BranchDescription>(val, md);
+  for (std::size_t ibt{}; ibt != NumBranchTypes; ++ibt) {
+    auto bt = static_cast<BranchType>(ibt);
+    for (auto const& val : typeLabelList_[bt]) {
+      auto bd = std::make_unique<art::BranchDescription>(bt, val, md);
       mpr.addProduct(std::move(bd));
     }
   }

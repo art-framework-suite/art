@@ -12,6 +12,7 @@
 #include <cassert>
 #include <ostream>
 #include <sstream>
+#include <unordered_map>
 
 using namespace art;
 

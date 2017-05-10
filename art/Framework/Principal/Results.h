@@ -74,7 +74,7 @@ art::Results::put(std::unique_ptr<PROD>&& product, std::string const& productIns
   auto const& bd = getBranchDescription(tid, productInstanceName);
   auto wp = std::make_unique<Wrapper<PROD>>(std::move(product));
 
-  auto result = putProducts().emplace(TypeLabel{InResults, tid, productInstanceName},
+  auto result = putProducts().emplace(TypeLabel{tid, productInstanceName},
                                       PMValue{std::move(wp), bd, RangeSet::invalid()});
   if (!result.second) {
     throw art::Exception(art::errors::ProductPutFailure)

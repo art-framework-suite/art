@@ -114,9 +114,9 @@ public:
 private:
 
   TypeLabel const&
-  insertOrThrow(TypeLabel const& tl)
+  insertOrThrow(BranchType const bt, TypeLabel const& tl)
   {
-    auto result = typeLabelList_[tl.branchType].insert(tl);
+    auto result = typeLabelList_[bt].insert(tl);
     if (!result.second) {
       throw Exception(errors::LogicError, "RegistrationFailure")
         << "The module being constructed attempted to "
@@ -145,7 +145,7 @@ art::ProductRegistryHelper::produces(std::string const& instanceName)
   verifyInstanceName(instanceName);
   TypeID const productType{typeid(P)};
   verifyFriendlyClassName(productType.friendlyClassName());
-  insertOrThrow(TypeLabel{B, productType, instanceName});
+  insertOrThrow(B, TypeLabel{productType, instanceName});
 }
 
 template<typename P, art::BranchType B>
@@ -157,7 +157,7 @@ art::ProductRegistryHelper::reconstitutes(std::string const& emulatedModule,
   verifyInstanceName(instanceName);
   TypeID const productType{typeid(P)};
   verifyFriendlyClassName(productType.friendlyClassName());
-  return insertOrThrow(TypeLabel{B, productType, instanceName, emulatedModule});
+  return insertOrThrow(B, TypeLabel{productType, instanceName, emulatedModule});
 }
 
 #endif /* art_Framework_Core_ProductRegistryHelper_h */

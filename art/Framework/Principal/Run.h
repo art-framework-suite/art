@@ -229,7 +229,7 @@ art::Run::put_(std::unique_ptr<PROD>&& product,
   auto const& bd = getBranchDescription(tid, productInstanceName);
   auto wp = std::make_unique<Wrapper<PROD>>(std::move(product));
 
-  auto result = putProducts().emplace(TypeLabel{InRun, tid, productInstanceName},
+  auto result = putProducts().emplace(TypeLabel{tid, productInstanceName},
                                       PMValue{std::move(wp), bd, rs});
   if (!result.second) {
     throw Exception{errors::ProductPutFailure, "Run::put"}

@@ -123,11 +123,9 @@ fake_single_process_branch(std::string const& tag,
                              moduleLabel,
                              *fake_single_module_process(tag, processName, modParams));
 
-  art::BranchDescription* result =
-    new art::BranchDescription(art::TypeLabel(art::InEvent,
-                                              dummyType,
-                                              productInstanceName),
-                               mod);
+  auto result = new art::BranchDescription(art::InEvent,
+                                           art::TypeLabel{dummyType, productInstanceName},
+                                           mod);
   branchKeys_.insert(std::make_pair(tag, art::BranchKey(*result)));
   return std::unique_ptr<art::BranchDescription>(result);
 }

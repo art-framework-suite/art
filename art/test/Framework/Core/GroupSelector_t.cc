@@ -20,53 +20,41 @@
 #include <vector>
 
 namespace {
-  art::BranchKey
-  make_BranchKey(art::BranchDescription const &b) {
-    return art::BranchKey(b.friendlyClassName(),
-                          b.moduleLabel(),
-                          b.productInstanceName(),
-                          b.processName(),
-                          b.branchType());
-  }
 
   art::BranchDescription
-  makeBranchDescription(art::BranchType bt,
-                        std::string const &moduleLabel,
-                        std::string const &processName,
-                        std::string const &instanceName,
-                        fhicl::ParameterSet const &pset,
-                        art::TypeID const &producedType) {
-    return
-      art::BranchDescription(art::TypeLabel(bt, producedType, instanceName),
-                             art::ModuleDescription
-                             (pset.id(),
-                              "arttest::NOMOD",
-                              moduleLabel,
-                              art::ProcessConfiguration(processName,
-                                                        fhicl::ParameterSet().id(),
-                                                        art::getReleaseVersion(),
-                                                        "")));
+  makeBranchDescription(art::BranchType const bt,
+                        std::string const& moduleLabel,
+                        std::string const& processName,
+                        std::string const& instanceName,
+                        fhicl::ParameterSet const& pset,
+                        art::TypeID const& producedType)
+  {
+    return art::BranchDescription(bt,
+                                  art::TypeLabel{producedType, instanceName},
+                                  art::ModuleDescription(pset.id(),
+                                                         "arttest::NOMOD",
+                                                         moduleLabel,
+                                                         art::ProcessConfiguration(processName,
+                                                                                   fhicl::ParameterSet{}.id(),
+                                                                                   art::getReleaseVersion(),
+                                                                                   "")));
   }
 
   void apply_gs(art::GroupSelector const& gs,
-                art::ProductList const &pList,
+                art::ProductList const& pList,
                 std::vector<bool>& results)
   {
-    for (art::ProductList::const_iterator
-           it = pList.begin(),
-           end = pList.end();
-         it != end;
-         ++it) {
-      results.push_back(gs.selected(it->second));
+    for (auto const& p : pList) {
+      results.push_back(gs.selected(p.second));
     }
   }
 
   void doTest(fhicl::ParameterSet const& params,
-              std::string const & testname,
-              art::ProductList const &pList,
-              std::vector<bool> const & expected)
+              std::string const& testname,
+              art::ProductList const& pList,
+              std::vector<bool> const& expected)
   {
-    std::string const parameterName = "outputCommands";
+    std::string const parameterName{"outputCommands"};
     art::GroupSelectorRules gsr(params.get<std::vector<std::string>>(parameterName, {"keep *"}),
                                 parameterName, testname);
     art::GroupSelector gs;
@@ -80,82 +68,70 @@ namespace {
   }
 
   class GlobalSetup {
-public:
-    static
-    GlobalSetup &
-    instance() {
+  public:
+    static GlobalSetup& instance() {
       static GlobalSetup s_gs;
       return s_gs;
     }
 
-    art::ProductList & pList() { return pList_; }
+    art::ProductList& pList() { return pList_; }
 
-private:
-    GlobalSetup()
-      :
-      pList_(initProductList())
-      {
-      }
-
-    ~GlobalSetup() = default;
+  private:
+    GlobalSetup(): pList_{initProductList()}
+    {}
 
     art::ProductList pList_;
 
-    art::ProductList
-    initProductList() {
+    art::ProductList initProductList()
+    {
       // We pretend to have one module, with two products. The products
       // are of the same and, type differ in instance name.
       fhicl::ParameterSet modAparams;
       modAparams.put<int>("i", 2112);
       modAparams.put<std::string>("s", "hi");
 
-      art::BranchDescription
-        b1(makeBranchDescription(art::InEvent, "modA", "PROD", "i1",
-                                 modAparams,
-                                 art::TypeID(typeid(arttest::ProdTypeA<std::string>))));
-      art::BranchDescription
-        b2(makeBranchDescription(art::InEvent, "modA", "PROD", "i2",
-                                 modAparams,
-                                 art::TypeID(typeid(arttest::ProdTypeA<std::string>))));
+      auto b1 = makeBranchDescription(art::InEvent, "modA", "PROD", "i1",
+                                      modAparams,
+                                      art::TypeID{typeid(arttest::ProdTypeA<std::string>)});
+
+      auto b2 = makeBranchDescription(art::InEvent, "modA", "PROD", "i2",
+                                      modAparams,
+                                      art::TypeID{typeid(arttest::ProdTypeA<std::string>)});
 
       // Our second pretend module has only one product, and gives it no
       // instance name.
       fhicl::ParameterSet modBparams;
       modBparams.put<double>("d", 2.5);
 
-      art::BranchDescription
-        b3(makeBranchDescription(art::InRun, "modB", "HLT", "",
-                                 modBparams,
-                                 art::TypeID(typeid(arttest::ProdTypeB<std::string>))));
+      auto b3 = makeBranchDescription(art::InRun, "modB", "HLT", "",
+                                      modBparams,
+                                      art::TypeID{typeid(arttest::ProdTypeB<std::string>)});
 
       // Our third pretend is like modA, except it has a processName_ of
       // "USER"
-      art::BranchDescription
-        b4(makeBranchDescription(art::InSubRun, "modA", "USER", "i1",
-                                 modAparams,
-                                 art::TypeID(typeid(arttest::ProdTypeA<std::string>))));
-      art::BranchDescription
-        b5(makeBranchDescription(art::InResults, "modA", "USER", "i2",
-                                 modAparams,
-                                 art::TypeID(typeid(arttest::ProdTypeA<std::string>))));
+      auto b4 = makeBranchDescription(art::InSubRun, "modA", "USER", "i1",
+                                      modAparams,
+                                      art::TypeID{typeid(arttest::ProdTypeA<std::string>)});
+      auto b5 = makeBranchDescription(art::InResults, "modA", "USER", "i2",
+                                      modAparams,
+                                      art::TypeID{typeid(arttest::ProdTypeA<std::string>)});
 
       // Extra tests.
-      art::BranchDescription
-        b6(makeBranchDescription(art::InRun,
-                                 "ptrmvWriter",
-                                 "PtrmvW",
-                                 "",
-                                 modAparams,
-                                 art::TypeID(typeid(art::Ptr<std::string>))));
+      auto b6 = makeBranchDescription(art::InRun,
+                                      "ptrmvWriter",
+                                      "PtrmvW",
+                                      "",
+                                      modAparams,
+                                      art::TypeID{typeid(art::Ptr<std::string>)});
 
-      art::ProductList result {
+      art::ProductList const result {
         // Ordered correctly for ease of deducing expected results.
-        { make_BranchKey(b6), b6 }, // Stringart::Ptr_ptrmvWriter__PtrmvW, InRun.
-        { make_BranchKey(b1), b1 }, // ProdTypeA_modA_i1_PROD, InEvent.
-        { make_BranchKey(b4), b4 }, // ProdTypeA_modA_i1_USER, InSubRun.
-        { make_BranchKey(b2), b2 }, // ProdTypeA_modA_i2_PROD, InEvent.
-        { make_BranchKey(b5), b5 }, // ProdTypeA_modA_i2_USER, InResults.
-        { make_BranchKey(b3), b3 }  // ProdTypeB_modB__HLT, InRun.
+        { art::BranchKey{b6}, b6 }, // Stringart::Ptr_ptrmvWriter__PtrmvW, InRun.
+        { art::BranchKey{b1}, b1 }, // ProdTypeA_modA_i1_PROD, InEvent.
+        { art::BranchKey{b4}, b4 }, // ProdTypeA_modA_i1_USER, InSubRun.
+        { art::BranchKey{b2}, b2 }, // ProdTypeA_modA_i2_PROD, InEvent.
+        { art::BranchKey{b5}, b5 }, // ProdTypeA_modA_i2_USER, InResults.
+        { art::BranchKey{b3}, b3 }  // ProdTypeB_modB__HLT, InRun.
       };
       return result;
     }
@@ -163,7 +139,7 @@ private:
 
   struct ProductListAccessor {
     ProductListAccessor() : pList(GlobalSetup::instance().pList()) { }
-    art::ProductList & pList;
+    art::ProductList& pList;
   };
 
 }
@@ -322,12 +298,11 @@ BOOST_AUTO_TEST_CASE(Illegal_spec)
   cmds.push_back(bad_rule);
   std::string const parameterName = "outputCommands";
   bad.put<std::vector<std::string> >(parameterName, cmds);
-  BOOST_REQUIRE_EXCEPTION(art::GroupSelectorRules(bad.get<std::vector<std::string>>(parameterName), \
-                                                  parameterName, "GroupSelectorTest"), \
-                          art::Exception,                               \
-                          [](auto const & e)                            \
-                          {                                             \
-                            return e.categoryCode() == art::errors::Configuration; \
+  BOOST_REQUIRE_EXCEPTION(art::GroupSelectorRules(bad.get<std::vector<std::string>>(parameterName),
+                                                  parameterName, "GroupSelectorTest"),
+                          art::Exception,
+                          [](auto const& e) {
+                            return e.categoryCode() == art::errors::Configuration;
                           });
 }
 
@@ -384,12 +359,11 @@ BOOST_AUTO_TEST_CASE(Bad_type)
   cmds.push_back(bad_rule);
   std::string const parameterName = "outputCommands";
   bad.put<std::vector<std::string> >(parameterName, cmds);
-  BOOST_REQUIRE_EXCEPTION(art::GroupSelectorRules(bad.get<std::vector<std::string>>(parameterName), \
-                                                  parameterName, "GroupSelectorTest"), \
-                          art::Exception,                               \
-                          [](auto const & e)                            \
-                          {                                             \
-                            return e.categoryCode() == art::errors::Configuration; \
+  BOOST_REQUIRE_EXCEPTION(art::GroupSelectorRules(bad.get<std::vector<std::string>>(parameterName),
+                                                  parameterName, "GroupSelectorTest"),
+                          art::Exception,
+                          [](auto const& e) {
+                            return e.categoryCode() == art::errors::Configuration;
                           });
 }
 

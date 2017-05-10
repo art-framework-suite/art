@@ -227,7 +227,7 @@ art::SubRun::put_(std::unique_ptr<PROD>&& product,
   auto const& bd = getBranchDescription(tid, productInstanceName);
   auto wp = std::make_unique<Wrapper<PROD>>(std::move(product));
 
-  auto result = putProducts().emplace(TypeLabel{InSubRun, tid, productInstanceName},
+  auto result = putProducts().emplace(TypeLabel{tid, productInstanceName},
                                       PMValue{std::move(wp), bd, rs});
   if (!result.second) {
     throw art::Exception{art::errors::ProductPutFailure, "SubRun::put"}

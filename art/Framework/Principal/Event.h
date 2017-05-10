@@ -220,7 +220,7 @@ art::Event::put(std::unique_ptr<PROD>&& product,
 
   auto result = detail::maybe_record_parents(putProducts(),
                                              putProductsWithoutParents(),
-                                             TypeLabel{InEvent, tid, productInstanceName},
+                                             TypeLabel{tid, productInstanceName},
                                              std::move(wp),
                                              bd);
   if (!result.second) {
