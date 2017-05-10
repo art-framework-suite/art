@@ -21,7 +21,7 @@ namespace art {
            using TypeLookup       = std::map<std::string const, ProcessLookup>;
            using BranchTypeLookup = std::array<TypeLookup, NumBranchTypes>;
 
-           using ProductListUpdatedCallback = std::function<void (FileBlock const &)>;
+           using ProductListUpdatedCallback = std::function<void(FileBlock const&)>;
   }
 
   inline namespace presence {
@@ -34,9 +34,8 @@ namespace art {
   inline namespace registration {
            // Used for determining which products were declared (with
            // produces<>) per branch type, and module label
-           using BranchSummary_t        = std::string;
-           using ProducedMap            = std::unordered_map<BranchID,BranchSummary_t,BranchID::Hash>;
-           using PerBranchTypeProduced  = std::array<ProducedMap,NumBranchTypes>;
+           using ProducedSet            = std::set<TypeLabel>;
+           using PerBranchTypeProduced  = std::array<ProducedSet,NumBranchTypes>;
   }
 
 }

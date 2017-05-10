@@ -103,7 +103,7 @@ namespace art {
 
 
   void
-  Event::commit_(EventPrincipal& ep, bool const checkProducts, ProducedMap const& expectedProducts)
+  Event::commit_(EventPrincipal& ep, bool const checkProducts, std::set<TypeLabel> const& expectedProducts)
   {
     // Check addresses only since type of 'ep' will hopefully change to Principal&.
     assert(&ep == &eventPrincipal_);
@@ -114,7 +114,7 @@ namespace art {
 
   void
   Event::commit_aux(EventPrincipal& ep,
-                    Base::BranchIDsMap& products,
+                    Base::TypeLabelMap& products,
                     bool const record_parents)
   {
     vector<BranchID> gotBranchIDVector;
@@ -131,11 +131,11 @@ namespace art {
     auto put_in_principal = [&gotBranchIDVector, &ep](auto& elem) {
 
       // set provenance
-      auto productProvenancePtr = make_unique<ProductProvenance const>(elem.first,
+      auto const& bd = elem.second.bd;
+      auto productProvenancePtr = make_unique<ProductProvenance const>(bd.branchID(),
                                                                        productstatus::present(),
                                                                        gotBranchIDVector);
 
-      auto const& bd = elem.second.bd;
       if (!ep.branchIDToProductID(bd.branchID()).isValid()) {
         throw art::Exception(art::errors::ProductPutFailure, "Null Product ID")
           << "put: Cannot put product with null Product ID.\n";

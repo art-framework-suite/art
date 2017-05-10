@@ -39,12 +39,12 @@ public:
   ///Put a new product.
   template <typename PROD>
   void
-  put(std::unique_ptr<PROD> && product) {put<PROD>(std::move(product), std::string());}
+  put(std::unique_ptr<PROD>&& product) {put<PROD>(std::move(product), std::string());}
 
   ///Put a new product with a 'product instance name'
   template <typename PROD>
   void
-  put(std::unique_ptr<PROD> && product, std::string const& productInstanceName);
+  put(std::unique_ptr<PROD>&& product, std::string const& productInstanceName);
 
 private:
 
@@ -61,19 +61,21 @@ private:
 
 template <typename PROD>
 void
-art::Results::put(std::unique_ptr<PROD> && product, std::string const& productInstanceName) {
-
+art::Results::put(std::unique_ptr<PROD>&& product, std::string const& productInstanceName)
+{
+  TypeID const tid{typeid(PROD)};
   if (!product) { // Null pointer is illegal.
     throw art::Exception(art::errors::NullPointerError)
       << "Results::put: A null unique_ptr was passed to 'put'.\n"
-      << "The pointer is of type " << TypeID{typeid(PROD)} << ".\n"
+      << "The pointer is of type " << tid << ".\n"
       << "The specified productInstanceName was '" << productInstanceName << "'.\n";
   }
 
-  auto const & bd = getBranchDescription(TypeID(*product), productInstanceName);
-  auto  wp = std::make_unique<Wrapper<PROD> >(std::move(product));
+  auto const& bd = getBranchDescription(tid, productInstanceName);
+  auto wp = std::make_unique<Wrapper<PROD>>(std::move(product));
 
-  auto result = putProducts().emplace(bd.branchID(), PMValue { std::move(wp), bd, RangeSet::invalid() });
+  auto result = putProducts().emplace(TypeLabel{InResults, tid, productInstanceName},
+                                      PMValue{std::move(wp), bd, RangeSet::invalid()});
   if (!result.second) {
     throw art::Exception(art::errors::ProductPutFailure)
       << "Results::put: Attempt to put multiple products with the\n"

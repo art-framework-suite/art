@@ -134,20 +134,20 @@ public:
     RangeSet rs;
   };
 
-  using BranchIDsMap = std::unordered_map<BranchID, PMValue, BranchID::Hash>;
+  using TypeLabelMap = std::map<TypeLabel, PMValue>;
 
 protected:
 
-  BranchIDsMap      & putProducts()       {return putProducts_;}
-  BranchIDsMap const& putProducts() const {return putProducts_;}
+  TypeLabelMap      & putProducts()       {return putProducts_;}
+  TypeLabelMap const& putProducts() const {return putProducts_;}
 
-  BranchIDsMap      & putProductsWithoutParents()       {return putProductsWithoutParents_;}
-  BranchIDsMap const& putProductsWithoutParents() const {return putProductsWithoutParents_;}
+  TypeLabelMap      & putProductsWithoutParents()       {return putProductsWithoutParents_;}
+  TypeLabelMap const& putProductsWithoutParents() const {return putProductsWithoutParents_;}
 
   void
   checkPutProducts(bool checkProducts,
-                   ProducedMap const& expectedBids,
-                   BranchIDsMap const& products);
+                   std::set<TypeLabel> const& expectedProducts,
+                   TypeLabelMap const& putProducts);
 
   BranchDescription const&
   getBranchDescription(TypeID const& type, std::string const& productInstanceName) const;
@@ -209,8 +209,8 @@ private:
   // pens for EDProducts inserted into this DataViewImpl. Pointers
   // in these collections own the products to which they point.
   //
-  BranchIDsMap putProducts_ {};               // keep parentage info for these
-  BranchIDsMap putProductsWithoutParents_ {}; // ... but not for these
+  TypeLabelMap putProducts_ {};               // keep parentage info for these
+  TypeLabelMap putProductsWithoutParents_ {}; // ... but not for these
 
   // Each DataViewImpl must have an associated Principal, used as the
   // source of all 'gets' and the target of 'puts'.

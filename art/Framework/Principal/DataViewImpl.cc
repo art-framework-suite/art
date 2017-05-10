@@ -117,16 +117,18 @@ namespace art {
 
   void
   DataViewImpl::checkPutProducts(bool const checkProducts,
-                                 ProducedMap const& expectedBids,
-                                 BranchIDsMap const& products)
+                                 std::set<TypeLabel> const& expectedProducts,
+                                 TypeLabelMap const& putProducts)
   {
     if (!checkProducts) return;
 
     std::vector<std::string> missing;
-    for (auto const& bid : expectedBids) {
-      auto const& putBids = products;
-      if (putBids.find(bid.first) == putBids.cend())
-        missing.emplace_back(bid.second);
+    for (auto const& typeLabel : expectedProducts) {
+      if (putProducts.find(typeLabel) != putProducts.cend()) continue;
+
+      std::ostringstream desc;
+      desc << getBranchDescription(typeLabel.typeID, typeLabel.productInstanceName);
+      missing.emplace_back(desc.str());
     }
 
     if (!missing.empty()) {
@@ -134,8 +136,8 @@ namespace art {
       errmsg << "The following products have been declared with 'produces',\n"
              << "but they have not been placed onto the event:\n"
              << "=========================\n";
-      for (auto const& bd : missing) {
-        errmsg << bd
+      for (auto const& desc : missing) {
+        errmsg << desc
                << "=========================\n";
       }
       throw Exception{errors::LogicError, "DataViewImpl::checkPutProducts"} << errmsg.str();

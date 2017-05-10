@@ -34,11 +34,12 @@ namespace art {
     auto put_in_principal = [&srp](auto& elem) {
 
       // set provenance
-      auto subRunProductProvenancePtr = std::make_unique<ProductProvenance const>(elem.first,
+      auto const& bd = elem.second.bd;
+      auto subRunProductProvenancePtr = std::make_unique<ProductProvenance const>(bd.branchID(),
                                                                                   productstatus::present());
 
       srp.put(std::move(elem.second.prod),
-              elem.second.bd,
+              bd,
               std::move(subRunProductProvenancePtr),
               std::move(elem.second.rs));
     };

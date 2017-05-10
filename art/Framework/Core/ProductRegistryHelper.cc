@@ -35,12 +35,10 @@ art::ProductRegistryHelper::registerProducts(MasterProductRegistry& mpr,
     BranchIDListRegistry::updateFromInput({bil}, fb.fileName());
     productList_.reset(); // Reset, since we no longer need it.
   }
-  for (auto const& val : typeLabelList_) {
-    auto bd = std::make_unique<art::BranchDescription>(val, md);
-    auto& expProducts = expectedProducts_[bd->branchType()];
-    std::ostringstream oss;
-    oss << *bd;
-    expProducts.emplace(bd->branchID(), oss.str());
-    mpr.addProduct(std::move(bd));
+  for (auto const& valsPerBranchType : typeLabelList_) {
+    for (auto const& val : valsPerBranchType) {
+      auto bd = std::make_unique<art::BranchDescription>(val, md);
+      mpr.addProduct(std::move(bd));
+    }
   }
 }

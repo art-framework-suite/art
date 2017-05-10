@@ -51,7 +51,7 @@ namespace {
 namespace art {
   class EDProducer {
   public:
-    static void commitEvent(EventPrincipal& ep, Event& e, ProducedMap const& expectedProducts)
+    static void commitEvent(EventPrincipal& ep, Event& e, std::set<TypeLabel> const& expectedProducts)
     {
       e.commit_(ep, false, expectedProducts);
     }
@@ -289,7 +289,7 @@ addProduct(std::unique_ptr<T> && product,
 
   Event temporaryEvent(*principal_, description->second);
   ProductID id = temporaryEvent.put(std::move(product), productLabel);
-  EDProducer::commitEvent(*principal_, temporaryEvent, ProducedMap{});
+  EDProducer::commitEvent(*principal_, temporaryEvent, std::set<TypeLabel>{});
   return id;
 }
 
@@ -333,7 +333,7 @@ BOOST_AUTO_TEST_CASE(putAnIntProduct)
   auto three = std::make_unique<arttest::IntProduct>(3);
   currentEvent_->put(std::move(three), "int1");
   BOOST_REQUIRE_EQUAL(currentEvent_->size(), 1u);
-  EDProducer::commitEvent(*principal_, *currentEvent_, ProducedMap{});
+  EDProducer::commitEvent(*principal_, *currentEvent_, ProducedSet{});
   BOOST_REQUIRE_EQUAL(currentEvent_->size(), 1u);
 }
 
@@ -341,7 +341,7 @@ BOOST_AUTO_TEST_CASE(putAndGetAnIntProduct)
 {
   auto four = std::make_unique<arttest::IntProduct>(4);
   currentEvent_->put(std::move(four), "int1");
-  EDProducer::commitEvent(*principal_, *currentEvent_, ProducedMap{});
+  EDProducer::commitEvent(*principal_, *currentEvent_, ProducedSet{});
 
   ProcessNameSelector should_match("CURRENT");
   ProcessNameSelector should_not_match("NONESUCH");
@@ -374,7 +374,7 @@ BOOST_AUTO_TEST_CASE(getByProductID)
     BOOST_REQUIRE(id2 != ProductID());
     BOOST_REQUIRE(id2 != id1);
 
-    EDProducer::commitEvent(*principal_, *currentEvent_, ProducedMap{});
+    EDProducer::commitEvent(*principal_, *currentEvent_, ProducedSet{});
     BOOST_REQUIRE_EQUAL(currentEvent_->size(), 2u);
   }
 
@@ -482,7 +482,7 @@ BOOST_AUTO_TEST_CASE(getBySelector)
 
   auto twoHundred = std::make_unique<product_t>(200);
   currentEvent_->put(std::move(twoHundred), "int1");
-  EDProducer::commitEvent(*principal_, *currentEvent_, ProducedMap{});
+  EDProducer::commitEvent(*principal_, *currentEvent_, ProducedSet{});
 
   BOOST_REQUIRE_EQUAL(currentEvent_->size(), 6u);
 
@@ -561,7 +561,7 @@ BOOST_AUTO_TEST_CASE(getByLabel)
 
   auto twoHundred = std::make_unique<product_t>(200);
   currentEvent_->put(std::move(twoHundred), "int1");
-  EDProducer::commitEvent(*principal_, *currentEvent_, ProducedMap{});
+  EDProducer::commitEvent(*principal_, *currentEvent_, ProducedSet{});
 
   BOOST_REQUIRE_EQUAL(currentEvent_->size(), 6u);
 
@@ -608,7 +608,7 @@ BOOST_AUTO_TEST_CASE(getManyByType)
 
   auto twoHundred = std::make_unique<product_t>(200);
   currentEvent_->put(std::move(twoHundred), "int1");
-  EDProducer::commitEvent(*principal_, *currentEvent_, ProducedMap{});
+  EDProducer::commitEvent(*principal_, *currentEvent_, ProducedSet{});
 
   BOOST_REQUIRE_EQUAL(currentEvent_->size(), 6u);
 

@@ -167,9 +167,9 @@ private:
 
   void commit_(EventPrincipal&,
                bool checkPutProducts,
-               ProducedMap const& expectedProducts);
+               std::set<TypeLabel> const& expectedProducts);
   void commit_aux(EventPrincipal&,
-                  Base::BranchIDsMap& products,
+                  Base::TypeLabelMap& products,
                   bool record_parents);
 
   GroupQueryResult getByProductID_(ProductID const& oid) const;
@@ -220,6 +220,7 @@ art::Event::put(std::unique_ptr<PROD>&& product,
 
   auto result = detail::maybe_record_parents(putProducts(),
                                              putProductsWithoutParents(),
+                                             TypeLabel{InEvent, tid, productInstanceName},
                                              std::move(wp),
                                              bd);
   if (!result.second) {

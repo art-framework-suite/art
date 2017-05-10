@@ -29,10 +29,11 @@ art::Run::commit_(RunPrincipal& rp)
 {
   auto put_in_principal = [&rp](auto& elem) {
 
-    auto runProductProvenancePtr = std::make_unique<ProductProvenance const>(elem.first,
+    auto const& bd = elem.second.bd;
+    auto runProductProvenancePtr = std::make_unique<ProductProvenance const>(bd.branchID(),
                                                                              productstatus::present());
     rp.put(std::move(elem.second.prod),
-           elem.second.bd,
+           bd,
            std::move(runProductProvenancePtr),
            std::move(elem.second.rs));
   };

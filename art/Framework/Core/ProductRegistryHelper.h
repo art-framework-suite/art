@@ -105,10 +105,10 @@ public:
                 std::string const& instanceName = std::string());
 
   template <BranchType B = InEvent>
-  ProducedMap const&
+  std::set<TypeLabel> const&
   expectedProducts() const
   {
-    return expectedProducts_[B];
+    return typeLabelList_[B];
   }
 
 private:
@@ -116,7 +116,7 @@ private:
   TypeLabel const&
   insertOrThrow(TypeLabel const& tl)
   {
-    auto result = typeLabelList_.insert(tl);
+    auto result = typeLabelList_[tl.branchType].insert(tl);
     if (!result.second) {
       throw Exception(errors::LogicError, "RegistrationFailure")
         << "The module being constructed attempted to "
@@ -130,8 +130,7 @@ private:
     return *result.first;
   }
 
-  std::set<TypeLabel> typeLabelList_;
-  PerBranchTypeProduced expectedProducts_;
+  std::array<std::set<TypeLabel>, NumBranchTypes> typeLabelList_;
 
   // Set by an input source for merging into the
   // master product registry by registerProducts().

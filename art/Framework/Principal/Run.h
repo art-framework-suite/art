@@ -211,10 +211,11 @@ art::Run::put_(std::unique_ptr<PROD>&& product,
                std::string const& productInstanceName,
                RangeSet const& rs)
 {
+  TypeID const tid{typeid(PROD)};
   if (product.get() == nullptr) {
     throw Exception{errors::NullPointerError, "Run::put"}
       << "\nA null unique_ptr was passed to 'put'.\n"
-      << "The pointer is of type " << TypeID{typeid(PROD)} << ".\n"
+      << "The pointer is of type " << tid << ".\n"
       << "The specified productInstanceName was '"
       << productInstanceName << "'.\n";
   }
@@ -225,10 +226,11 @@ art::Run::put_(std::unique_ptr<PROD>&& product,
       << "Please contact artists@fnal.gov.\n";
   }
 
-  auto const& bd = getBranchDescription(TypeID(*product), productInstanceName);
+  auto const& bd = getBranchDescription(tid, productInstanceName);
   auto wp = std::make_unique<Wrapper<PROD>>(std::move(product));
 
-  auto result = putProducts().emplace(bd.branchID(), PMValue{std::move(wp), bd, rs});
+  auto result = putProducts().emplace(TypeLabel{InRun, tid, productInstanceName},
+                                      PMValue{std::move(wp), bd, rs});
   if (!result.second) {
     throw Exception{errors::ProductPutFailure, "Run::put"}
       << "\nAttempt to put multiple products with the\n"
