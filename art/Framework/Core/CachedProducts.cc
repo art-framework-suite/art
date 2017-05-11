@@ -26,25 +26,23 @@ art::detail::CachedProducts::setup(vector<pair<string, string>> const& path_spec
   // Turn the passed path specs into a map of process name to
   // a vector of trigger names.
   map<string, vector<string>> paths_for_process;
-  for (auto i = path_specs.begin(), e = path_specs.end(); i != e; ++i) {
-    if (i->second == "") {
-      // Use passed process name if none specified in the path spec.
-      paths_for_process[process_name].push_back(i->first);
-      continue;
-    }
-    paths_for_process[i->second].push_back(i->first);
+  for (auto const& pr : path_specs) {
+    auto const& pname = pr.first.empty() ? process_name : pr.first;
+    paths_for_process[pname].push_back(pr.second);
   }
-  // Now go through all the process names found, and create an
-  // event selector for each one.
-  for (auto i = paths_for_process.begin(), e = paths_for_process.end();
-       i != e; ++i) {
-    if (i->first == process_name) {
+
+  // Now go through all the process names found, and create an event
+  // selector for each one.
+  for (auto const& pr : paths_for_process) {
+    auto const& pname = pr.first;
+    auto const& paths = pr.second;
+    if (pname == process_name) {
       // For the passed process name we have been given the trigger names.
-      p_and_e_selectors_.emplace_back(i->first, EventSelector{i->second, triggernames});
+      p_and_e_selectors_.emplace_back(pname, EventSelector{paths, triggernames});
       continue;
     }
     // For other process names we do not know the trigger names.
-    p_and_e_selectors_.emplace_back(i->first, EventSelector{i->second});
+    p_and_e_selectors_.emplace_back(pname, EventSelector{paths});
   }
 }
 

@@ -136,6 +136,29 @@ cet_test(EventSelectorFromFile_r2 HANDBUILT
   TEST_PROPERTIES DEPENDS EventSelectorFromFile_w
 )
 
+cet_test(SelectEventsFromPreviousProcess_w HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --rethrow-all --config SelectEventsFromPreviousProcess_w.fcl -n 10 -o out.root
+  DATAFILES
+  fcl/SelectEventsFromPreviousProcess_w.fcl
+  )
+
+cet_test(SelectEventsFromPreviousProcess_t HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --rethrow-all --config SelectEventsFromPreviousProcess_t.fcl
+  -s ../SelectEventsFromPreviousProcess_w.d/out.root
+  DATAFILES
+  fcl/SelectEventsFromPreviousProcess_t.fcl
+  TEST_PROPERTIES DEPENDS SelectEventsFromPreviousProcess_w
+  )
+
+cet_test(SelectEventsFromPreviousProcess_EventList_t HANDBUILT
+  TEST_EXEC file_info_dumper
+  TEST_ARGS --event-list ../SelectEventsFromPreviousProcess_t.d/out.root
+  REF "${CMAKE_CURRENT_SOURCE_DIR}/SelectEventsFromPreviousProcess_t-ref.txt"
+  TEST_PROPERTIES DEPENDS SelectEventsFromPreviousProcess_t
+  )
+
 cet_test(test_dropAllEventsSubruns_t.sh PREBUILT
   DATAFILES
   fcl/dropAllEvents_t.fcl

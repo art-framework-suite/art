@@ -50,10 +50,7 @@ outputs:
 source:
 {
   module_type: EmptyEvent
-
-  # were in the global area before
   maxEvents: 20
-  # maxSubRuns: 2
 }
 
 process_name: DEVEL

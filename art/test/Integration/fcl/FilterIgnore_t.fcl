@@ -69,9 +69,6 @@ physics:
   p5a: [ m4a, f2, m2a, "!f3", m3a, "-f4", m4a ]
 
   e: [ outp1, outp2, outp3, outp4, outp5 ]
-
-  trigger_paths: [ p1a, p2a, p3a, p4a, p5a ]
-  end_paths: [ e ]
 }
 
 outputs:
@@ -80,7 +77,7 @@ outputs:
   {
     module_type: TestOutput
     shouldPass: 40
-    SelectEvents: [ p1a ]
+    SelectEvents: [ "PROD:p1a" ] # Test process-name specification for SelectEvents
   }
 
   outp2:
