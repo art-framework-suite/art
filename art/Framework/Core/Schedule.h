@@ -30,7 +30,6 @@
 #include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Principal/PrincipalPackages.h"
 #include "art/Framework/Principal/Provenance.h"
-#include "art/Framework/Principal/MaybeRunStopwatch.h"
 #include "art/Framework/Principal/Worker.h"
 #include "art/Framework/Principal/fwd.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
@@ -117,7 +116,6 @@ Schedule::process(typename T::MyPrincipal& principal)
     w->reset();
   });
   triggerPathsInfo_.pathResults().reset();
-  MaybeRunStopwatch<T::level> sentry {triggerPathsInfo_.maybeRunStopwatch<T::level>()};
   if (T::level == Level::Event) {
     triggerPathsInfo_.addEvent();
   }

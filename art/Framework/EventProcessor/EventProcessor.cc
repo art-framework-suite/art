@@ -257,6 +257,7 @@ namespace art {
   template <>
   inline void EventProcessor::begin<Level::Job>()
   {
+    timer_.start();
     beginJob();
   }
 
@@ -348,6 +349,7 @@ namespace art {
   inline void EventProcessor::finalize<Level::Job>()
   {
     endJob();
+    timer_.stop();
   }
 
   template <>
@@ -530,7 +532,8 @@ art::EventProcessor::endJob()
   ec_.call([this]{ schedule_->endJob(); });
   ec_.call([this]{ endPathExecutor_->endJob(); });
   ec_.call([this]{ detail::writeSummary(pathManager_,
-                                        ServiceHandle<TriggerNamesService const>{}->wantSummary()); });
+                                        ServiceHandle<TriggerNamesService const>{}->wantSummary(),
+                                        timer_); });
   ec_.call([this]{ input_->doEndJob(); });
   ec_.call([this]{ actReg_.sPostEndJob.invoke(); });
 }

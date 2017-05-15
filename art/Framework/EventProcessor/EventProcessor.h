@@ -26,6 +26,7 @@
 #include "canvas/Persistency/Provenance/IDNumber.h"
 #include "canvas/Persistency/Provenance/PassID.h"
 #include "canvas/Persistency/Provenance/ReleaseVersion.h"
+#include "cetlib/cpu_timer.h"
 #include "cetlib/exception.h"
 #include "cetlib/trim.h"
 #include "fhiclcpp/ParameterSet.h"
@@ -132,6 +133,7 @@ private:
   Level nextLevel_ {Level::ReadyToAdvance};
   std::vector<Level> activeLevels_ {highest_level()};
   detail::ExceptionCollector ec_ {};
+  cet::cpu_timer timer_{};
 
   bool beginRunCalled_ {false};    // Should be stack variable local to run loop
   bool beginSubRunCalled_ {false}; // Should be stack variable local to subrun loop

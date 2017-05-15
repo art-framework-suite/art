@@ -142,21 +142,19 @@ art::PathManager::PathManager(ParameterSet const& procPS,
 art::PathsInfo&
 art::PathManager::endPathInfo()
 {
-  if (!protoEndPathInfo_.empty()&&
-      endPathInfo_.pathPtrs().empty()) {
+  if (!protoEndPathInfo_.empty() && endPathInfo_.pathPtrs().empty()) {
     // Need to create path from proto information.
-    endPathInfo_.pathPtrs().emplace_back
-      (fillWorkers_(0,
-                    "end_path",
-                    protoEndPathInfo_,
-                    nullptr, // End path, no trigger results needed.
-                    endPathInfo_.workers()));
+    endPathInfo_.pathPtrs().emplace_back(fillWorkers_(0,
+                                                      "end_path",
+                                                      protoEndPathInfo_,
+                                                      nullptr, // End path, no trigger results needed.
+                                                      endPathInfo_.workers()));
   }
   return endPathInfo_;
 }
 
 art::PathsInfo&
-art::PathManager::triggerPathsInfo(ScheduleID sID)
+art::PathManager::triggerPathsInfo(ScheduleID const sID)
 {
   if (triggerPathNames_.empty())
     return triggerPathsInfo_[sID]; // Empty.
@@ -181,14 +179,13 @@ art::PathManager::triggerPathsInfo(ScheduleID sID)
 art::detail::ModuleConfigInfoMap
 art::PathManager::fillAllModules_()
 {
-  static ParameterSet const empty;
   detail::ModuleConfigInfoMap all_modules;
   std::ostringstream error_stream;
   for (auto const& pathRootName : detail::ModuleConfigInfo::allModulePathRoots()) {
-    auto const pathRoot = procPS_.get<ParameterSet>(pathRootName, empty);
+    auto const pathRoot = procPS_.get<ParameterSet>(pathRootName, {});
     for (auto const& name : pathRoot.get_names()) {
       try {
-        detail::ModuleConfigInfo mci(procPS_, name, pathRootName);
+        detail::ModuleConfigInfo const mci {procPS_, name, pathRootName};
         auto actualModType = fact_.moduleType(mci.libSpec());
         if (actualModType != mci.moduleType()) {
           error_stream
@@ -237,9 +234,7 @@ art::PathManager::vstring
 art::PathManager::processPathConfigs_()
 {
   vstring trigger_path_names;
-  auto services = procPS_.get<ParameterSet>("services",{});
-  auto opts(services.get<ParameterSet>("scheduler", ParameterSet()));
-  auto nSchedules [[gnu::unused]] = opts.get<size_t>("num_schedules", 1);
+  auto nSchedules [[gnu::unused]] = procPS_.get<size_t>("services.scheduler.num_schedules", 1);
   // Identify and process paths.
   std::set<std::string> known_pars {
     "analyzers",

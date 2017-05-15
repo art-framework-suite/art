@@ -10,7 +10,6 @@
 
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Principal/ExecutionCounts.h"
-#include "art/Framework/Principal/MaybeRunStopwatch.h"
 #include "art/Framework/Principal/Worker.h"
 
 #include <memory>
@@ -31,11 +30,6 @@ namespace art {
     bool runWorker(typename T::MyPrincipal&,
                    CurrentProcessingContext const* cpc);
 
-    std::pair<double,double> timeCpuReal() const
-    {
-      return std::pair<double,double>(stopwatch_.cpuTime(), stopwatch_.realTime());
-    }
-
     void clearCounters()
     {
       counts_ = Counts_t{};
@@ -53,7 +47,6 @@ namespace art {
     bool modifiesEvent() const { return worker_->modifiesEvent(); }
 
   private:
-    Stopwatch::timer_type stopwatch_ {};
 
     using Counts_t = ExecutionCounts<stats::Visited, stats::Passed, stats::Failed, stats::ExceptionThrown>;
     Counts_t counts_ {};
@@ -69,7 +62,6 @@ namespace art {
     MaybeIncrementCounts<T::level, decltype(counts_)> counts {counts_};
     counts.template increment<stats::Visited>();
 
-    MaybeRunStopwatch<T::level> sentry {stopwatch_};
     bool rc {true};
     try {
       // may want to change the return value from the worker to be the
@@ -77,7 +69,7 @@ namespace art {
       // to identify
       rc = worker_->doWork<T>(ep, cpc);
     }
-    catch(...) {
+    catch (...) {
       counts.template increment<stats::ExceptionThrown>();
       throw;
     }

@@ -1,6 +1,7 @@
 #include "art/Framework/EventProcessor/detail/writeSummary.h"
 
 #include "art/Framework/Core/PathManager.h"
+#include "cetlib/cpu_timer.h"
 #include "cetlib/container_algorithms.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
@@ -46,30 +47,16 @@ namespace {
                                 << worker->description().moduleLabel() << "";
     }
   }
-
-  void workersInPathTimeReport(unsigned long const totalEvents,
-                               art::Path::WorkersInPath const& workersInPath)
-  {
-    for (auto const& workerInPath : workersInPath) {
-      LogAbsolute("ArtSummary") << "TimeReport "
-                                << setprecision(6) << fixed
-                                << right << setw(10) << workerInPath.timeCpuReal().first / std::max(1ul, totalEvents) << " "
-                                << right << setw(10) << workerInPath.timeCpuReal().second / std::max(1ul, totalEvents) << " "
-                                << right << setw(10) << workerInPath.timeCpuReal().first / std::max(1ul, workerInPath.timesVisited()) << " "
-                                << right << setw(10) << workerInPath.timeCpuReal().second / std::max(1ul, workerInPath.timesVisited()) << " "
-                                << workerInPath.getWorker()->description().moduleLabel() << "";
-    }
-  }
 }
 
 void
-art::detail::writeSummary(PathManager& pm, bool const wantSummary)
+art::detail::writeSummary(PathManager& pm, bool const wantSummary, cet::cpu_timer const& jobTimer)
 {
   // Still only assuming one schedule. Will need to loop when we get around to it.
   auto const& epi = pm.endPathInfo();
   auto const& tpi = pm.triggerPathsInfo(ScheduleID::first());
   triggerReport(epi, tpi, wantSummary);
-  timeReport(epi, tpi, wantSummary);
+  timeReport(jobTimer);
 }
 
 void
@@ -188,181 +175,13 @@ art::detail::triggerReport(PathsInfo const& epi, PathsInfo const& tpi, bool cons
 }
 
 void
-art::detail::timeReport(PathsInfo const& epi, PathsInfo const& tpi, bool const wantSummary)
+art::detail::timeReport(cet::cpu_timer const& timer)
 {
   LogAbsolute("ArtSummary") << "";
   // The timing report (CPU and Real Time):
   LogAbsolute("ArtSummary") << "TimeReport " << "---------- Time  Summary ---[sec]----";
   LogAbsolute("ArtSummary") << "TimeReport"
                             << setprecision(6) << fixed
-                            << " CPU = " << tpi.timeCpuReal().first + epi.timeCpuReal().first
-                            << " Real = " << tpi.timeCpuReal().second + epi.timeCpuReal().second
-                            << "";
-  LogAbsolute("ArtSummary") << "";
-  if (wantSummary) {
-    LogAbsolute("ArtSummary") << "TimeReport " << "---------- Event  Summary ---[sec]----";
-    LogAbsolute("ArtSummary") << "TimeReport"
-                              << setprecision(6) << fixed
-                              << " CPU/event = " << (tpi.timeCpuReal().first + epi.timeCpuReal().first) / std::max(1ul, tpi.totalEvents())
-                              << " Real/event = " << (tpi.timeCpuReal().second + epi.timeCpuReal().second) / std::max(1ul, tpi.totalEvents())
-                              << "";
-    LogAbsolute("ArtSummary") << "";
-    LogAbsolute("ArtSummary") << "TimeReport " << "---------- Path   Summary ---[sec]----";
-    LogAbsolute("ArtSummary") << "TimeReport "
-                              << right << setw(22) << "per event "
-                              << right << setw(22) << "per path-run "
-                              << "";
-    LogAbsolute("ArtSummary") << "TimeReport "
-                              << right << setw(10) << "CPU" << " "
-                              << right << setw(10) << "Real" << " "
-                              << right << setw(10) << "CPU" << " "
-                              << right << setw(10) << "Real" << " "
-                              << "Name" << "";
-    for (auto const& path : tpi.pathPtrs()) {
-      LogAbsolute("ArtSummary") << "TimeReport "
-                                << setprecision(6) << fixed
-                                << right << setw(10) << path->timeCpuReal().first / std::max(1ul, tpi.totalEvents()) << " "
-                                << right << setw(10) << path->timeCpuReal().second / std::max(1ul, tpi.totalEvents()) << " "
-                                << right << setw(10) << path->timeCpuReal().first / std::max(1ul, path->timesRun()) << " "
-                                << right << setw(10) << path->timeCpuReal().second / std::max(1ul, path->timesRun()) << " "
-                                << path->name() << "";
-    }
-    LogAbsolute("ArtSummary") << "TimeReport "
-                              << right << setw(10) << "CPU" << " "
-                              << right << setw(10) << "Real" << " "
-                              << right << setw(10) << "CPU" << " "
-                              << right << setw(10) << "Real" << " "
-                              << "Name" << "";
-    LogAbsolute("ArtSummary") << "TimeReport "
-                              << right << setw(22) << "per event "
-                              << right << setw(22) << "per path-run "
-                              << "";
-    LogAbsolute("ArtSummary") << "";
-    LogAbsolute("ArtSummary") << "TimeReport " << "-------End-Path   Summary ---[sec]----";
-    LogAbsolute("ArtSummary") << "TimeReport "
-                              << right << setw(22) << "per event "
-                              << right << setw(22) << "per endpath-run "
-                              << "";
-    LogAbsolute("ArtSummary") << "TimeReport "
-                              << right << setw(10) << "CPU" << " "
-                              << right << setw(10) << "Real" << " "
-                              << right << setw(10) << "CPU" << " "
-                              << right << setw(10) << "Real" << " "
-                              << "Name" << "";
-    for (auto const& path : epi.pathPtrs()) {
-      LogAbsolute("ArtSummary") << "TimeReport "
-                                << setprecision(6) << fixed
-                                << right << setw(10) << path->timeCpuReal().first / std::max(1ul, epi.totalEvents()) << " "
-                                << right << setw(10) << path->timeCpuReal().second / std::max(1ul, epi.totalEvents()) << " "
-                                << right << setw(10) << path->timeCpuReal().first / std::max(1ul, path->timesRun()) << " "
-                                << right << setw(10) << path->timeCpuReal().second / std::max(1ul, path->timesRun()) << " "
-                                << path->name() << "";
-    }
-    LogAbsolute("ArtSummary") << "TimeReport "
-                              << right << setw(10) << "CPU" << " "
-                              << right << setw(10) << "Real" << " "
-                              << right << setw(10) << "CPU" << " "
-                              << right << setw(10) << "Real" << " "
-                              << "Name" << "";
-    LogAbsolute("ArtSummary") << "TimeReport "
-                              << right << setw(22) << "per event "
-                              << right << setw(22) << "per endpath-run "
-                              << "";
-    for (auto const& path : tpi.pathPtrs()) {
-      LogAbsolute("ArtSummary") << "";
-      LogAbsolute("ArtSummary") << "TimeReport " << "---------- Modules in Path: " << path->name() << " ---[sec]----";
-      LogAbsolute("ArtSummary") << "TimeReport "
-                                << right << setw(22) << "per event "
-                                << right << setw(22) << "per module-visit "
-                                << "";
-      LogAbsolute("ArtSummary") << "TimeReport "
-                                << right << setw(10) << "CPU" << " "
-                                << right << setw(10) << "Real" << " "
-                                << right << setw(10) << "CPU" << " "
-                                << right << setw(10) << "Real" << " "
-                                << "Name" << "";
-      workersInPathTimeReport(tpi.totalEvents(), path->workersInPath());
-    }
-    LogAbsolute("ArtSummary") << "TimeReport "
-                              << right << setw(10) << "CPU" << " "
-                              << right << setw(10) << "Real" << " "
-                              << right << setw(10) << "CPU" << " "
-                              << right << setw(10) << "Real" << " "
-                              << "Name" << "";
-    LogAbsolute("ArtSummary") << "TimeReport "
-                              << right << setw(22) << "per event "
-                              << right << setw(22) << "per module-visit "
-                              << "";
-    for (auto const& path : epi.pathPtrs()) {
-      LogAbsolute("ArtSummary") << "";
-      LogAbsolute("ArtSummary") << "TimeReport " << "------ Modules in End-Path: " << path->name() << " ---[sec]----";
-      LogAbsolute("ArtSummary") << "TimeReport "
-                                << right << setw(22) << "per event "
-                                << right << setw(22) << "per module-visit "
-                                << "";
-      LogAbsolute("ArtSummary") << "TimeReport "
-                                << right << setw(10) << "CPU" << " "
-                                << right << setw(10) << "Real" << " "
-                                << right << setw(10) << "CPU" << " "
-                                << right << setw(10) << "Real" << " "
-                                << "Name" << "";
-      workersInPathTimeReport(tpi.totalEvents(), path->workersInPath());
-    }
-    LogAbsolute("ArtSummary") << "TimeReport "
-                              << right << setw(10) << "CPU" << " "
-                              << right << setw(10) << "Real" << " "
-                              << right << setw(10) << "CPU" << " "
-                              << right << setw(10) << "Real" << " "
-                              << "Name" << "";
-    LogAbsolute("ArtSummary") << "TimeReport "
-                              << right << setw(22) << "per event "
-                              << right << setw(22) << "per module-visit "
-                              << "";
-    LogAbsolute("ArtSummary") << "";
-    LogAbsolute("ArtSummary") << "TimeReport " << "---------- Module Summary ---[sec]----";
-    LogAbsolute("ArtSummary") << "TimeReport "
-                              << right << setw(22) << "per event "
-                              << right << setw(22) << "per module-run "
-                              << right << setw(22) << "per module-visit "
-                              << "";
-    LogAbsolute("ArtSummary") << "TimeReport "
-                              << right << setw(10) << "CPU" << " "
-                              << right << setw(10) << "Real" << " "
-                              << right << setw(10) << "CPU" << " "
-                              << right << setw(10) << "Real" << " "
-                              << right << setw(10) << "CPU" << " "
-                              << right << setw(10) << "Real" << " "
-                              << "Name" << "";
-
-    auto workerTimes = [&tpi](WorkerMap::value_type const& val) {
-      LogAbsolute("ArtSummary") << "TimeReport "
-      << setprecision(6) << fixed
-      << right << setw(10) << val.second->timeCpuReal().first / std::max(1ul, tpi.totalEvents()) << " "
-      << right << setw(10) << val.second->timeCpuReal().second / std::max(1ul, tpi.totalEvents()) << " "
-      << right << setw(10) << val.second->timeCpuReal().first / std::max(1ul, val.second->timesRun()) << " "
-      << right << setw(10) << val.second->timeCpuReal().second / std::max(1ul, val.second->timesRun()) << " "
-      << right << setw(10) << val.second->timeCpuReal().first / std::max(1ul, val.second->timesVisited()) << " "
-      << right << setw(10) << val.second->timeCpuReal().second / std::max(1ul, val.second->timesVisited()) << " "
-      << val.first << "";
-    };
-    cet::for_all(tpi.workers(), workerTimes);
-    cet::for_all(epi.workers(), workerTimes);
-
-    LogAbsolute("ArtSummary") << "TimeReport "
-                              << right << setw(10) << "CPU" << " "
-                              << right << setw(10) << "Real" << " "
-                              << right << setw(10) << "CPU" << " "
-                              << right << setw(10) << "Real" << " "
-                              << right << setw(10) << "CPU" << " "
-                              << right << setw(10) << "Real" << " "
-                              << "Name" << "";
-    LogAbsolute("ArtSummary") << "TimeReport "
-                              << right << setw(22) << "per event "
-                              << right << setw(22) << "per module-run "
-                              << right << setw(22) << "per module-visit "
-                              << "";
-    LogAbsolute("ArtSummary") << "";
-    LogAbsolute("ArtSummary") << "T---Report end!" << "";
-    LogAbsolute("ArtSummary") << "";
-  }
+                            << " CPU = " << timer.cpuTime() << " Real = " << timer.realTime()
+                            << "\n";
 }

@@ -29,7 +29,6 @@ reused until the worker is reset().
 #include "art/Framework/Principal/CurrentProcessingContext.h"
 #include "art/Framework/Principal/ExecutionCounts.h"
 #include "art/Framework/Principal/MaybeIncrementCounts.h"
-#include "art/Framework/Principal/MaybeRunStopwatch.h"
 #include "art/Framework/Principal/fwd.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
 #include "cetlib/exception.h"
@@ -77,11 +76,6 @@ public:
   /// this was done to improve performance based on profiling
   void setActivityRegistry(cet::exempt_ptr<ActivityRegistry> areg);
 
-  std::pair<double,double> timeCpuReal() const
-  {
-    return std::pair<double,double>(timer_.cpuTime(),timer_.realTime());
-  }
-
   void clearCounters()
   {
     counts_ = CountingStatistics{};
@@ -123,8 +117,6 @@ private:
   virtual void implRespondToCloseInputFile(FileBlock const& fb) = 0;
   virtual void implRespondToOpenOutputFiles(FileBlock const& fb) = 0;
   virtual void implRespondToCloseOutputFiles(FileBlock const& fb) = 0;
-
-  cet::cpu_timer timer_ {};
 
   CountingStatistics counts_ {};
   State state_ {Ready};

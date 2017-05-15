@@ -24,7 +24,6 @@
 #include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Principal/PrincipalPackages.h"
 #include "art/Framework/Principal/RangeSetHandler.h"
-#include "art/Framework/Principal/MaybeRunStopwatch.h"
 #include "art/Framework/Principal/Worker.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
 #include "cetlib/trim.h"
@@ -117,7 +116,7 @@ art::EndPathExecutor::
 process(typename T::MyPrincipal & ep)
 {
   this->resetAll();
-  auto sentry (endPathInfo_.maybeRunStopwatch<T::level>());
+
   if (T::level == Level::Event) {
     endPathInfo_.addEvent();
   }
