@@ -250,7 +250,7 @@ namespace art {
     ProcessConfiguration const& processConfiguration_;
     std::string const logicalFileName_;
     std::unique_ptr<TFile> filePtr_;
-    cet::sqlite::Connection sqliteDB_;
+    cet::sqlite::Connection sqliteDB_{}; // Start with invalid connection.
     EventID origEventID_;
     EventNumber_t eventsToSkip_;
     RootInputTreePtrArray treePointers_;

@@ -31,20 +31,16 @@ namespace art {
     using Auxiliary = RunAuxiliary;
     static constexpr BranchType branch_type = RunAuxiliary::branch_type;
 
-  public:
-
     RunPrincipal(RunAuxiliary const&,
                  ProcessConfiguration const&,
                  std::unique_ptr<BranchMapper>&& = std::make_unique<BranchMapper>(),
                  std::unique_ptr<DelayedReader>&& = std::make_unique<NoDelayedReader>(),
-                 int const idx = 0,
+                 int idx = 0,
                  cet::exempt_ptr<RunPrincipal const> = nullptr);
 
     RunAuxiliary const& aux() const { return aux_; }
-
-    RunNumber_t run() const { return aux().run(); }
-
     RunID const& id() const { return aux().id(); }
+    RunNumber_t run() const { return aux().run(); }
 
     Timestamp const& beginTime() const { return aux().beginTime(); }
     Timestamp const& endTime() const { return aux().endTime(); }

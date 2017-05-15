@@ -28,7 +28,6 @@ namespace art {
   class EventID;
 
   class EventPrincipal final : public Principal {
-
   public:
 
     using Auxiliary = EventAuxiliary;
@@ -42,8 +41,6 @@ namespace art {
                    bool lastInSubRun = false,
                    int idx = 0,
                    cet::exempt_ptr<EventPrincipal const> = nullptr);
-
-    // use compiler-generated copy c'tor, copy assignment.
 
     SubRunPrincipal const& subRunPrincipal() const;
 

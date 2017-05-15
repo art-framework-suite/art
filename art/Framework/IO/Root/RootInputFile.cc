@@ -119,7 +119,6 @@ namespace art {
     , processConfiguration_{processConfiguration}
     , logicalFileName_{logicalFileName}
     , filePtr_{std::move(filePtr)}
-    , sqliteDB_{ServiceHandle<DatabaseConnection>{}->get<TKeyVFSOpenPolicy>("RootFileDB", filePtr_.get())}
     , origEventID_{origEventID}
     , eventsToSkip_{eventsToSkip}
     , treePointers_ { // Order (and number) must match BranchTypes.h!
@@ -231,6 +230,7 @@ namespace art {
 
     // Also need to check RootFileDB if we have one.
     if (fileFormatVersion_.value_ >= 5) {
+      sqliteDB_ = ServiceHandle<DatabaseConnection>{}->get<TKeyVFSOpenPolicy>("RootFileDB", filePtr_.get());
       if (readIncomingParameterSets && have_table(sqliteDB_, "ParameterSets", fileName_)) {
         fhicl::ParameterSetRegistry::importFrom(sqliteDB_);
       }
