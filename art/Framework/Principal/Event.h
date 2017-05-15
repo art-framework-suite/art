@@ -13,7 +13,6 @@
 #include "art/Framework/Principal/DataViewImpl.h"
 #include "art/Framework/Principal/Handle.h"
 #include "art/Framework/Principal/SubRun.h"
-#include "art/Framework/Principal/detail/maybe_record_parents.h"
 #include "art/Framework/Principal/fwd.h"
 #include "art/Persistency/Common/GroupQueryResult.h"
 #include "art/Persistency/Provenance/detail/type_aliases.h"
@@ -38,7 +37,7 @@ namespace art {
   class ProdToProdMapBuilder;  // fwd declaration to avoid circularity
 }
 
-class art::Event : private art::DataViewImpl {
+class art::Event final : private art::DataViewImpl {
 public:
 
   using Base = DataViewImpl;
@@ -169,8 +168,7 @@ private:
                bool checkPutProducts,
                std::set<TypeLabel> const& expectedProducts);
   void commit_aux(EventPrincipal&,
-                  Base::TypeLabelMap& products,
-                  bool record_parents);
+                  Base::TypeLabelMap& products);
 
   GroupQueryResult getByProductID_(ProductID const& oid) const;
 
@@ -218,11 +216,8 @@ art::Event::put(std::unique_ptr<PROD>&& product,
   auto const& bd = getBranchDescription(tid, productInstanceName);
   auto        wp = std::make_unique<Wrapper<PROD>>(std::move(product));
 
-  auto result = detail::maybe_record_parents(putProducts(),
-                                             putProductsWithoutParents(),
-                                             TypeLabel{tid, productInstanceName},
-                                             std::move(wp),
-                                             bd);
+  auto result = putProducts().emplace(TypeLabel{tid, productInstanceName},
+                                      DataViewImpl::PMValue{std::move(wp), bd, RangeSet::invalid()});
   if (!result.second) {
     throw art::Exception(art::errors::ProductPutFailure)
       << "Event::put: Attempt to put multiple products with the\n"

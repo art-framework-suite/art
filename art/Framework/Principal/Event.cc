@@ -108,22 +108,14 @@ namespace art {
     // Check addresses only since type of 'ep' will hopefully change to Principal&.
     assert(&ep == &eventPrincipal_);
     checkPutProducts(checkProducts, expectedProducts, putProducts());
-    commit_aux(ep, putProducts(), true);
-    commit_aux(ep, putProductsWithoutParents(), false);
+    commit_aux(ep, putProducts());
   }
 
   void
-  Event::commit_aux(EventPrincipal& ep,
-                    Base::TypeLabelMap& products,
-                    bool const record_parents)
+  Event::commit_aux(EventPrincipal& ep, Base::TypeLabelMap& products)
   {
     vector<BranchID> gotBranchIDVector;
-
-    // Note that gotBranchIDVector will remain empty if
-    // record_parents is false (and may be empty if record_parents is
-    // true).
-
-    if (record_parents && !gotBranchIDs_.empty()) {
+    if (!gotBranchIDs_.empty()) {
       gotBranchIDVector.reserve(gotBranchIDs_.size());
       gotBranchIDVector.assign(gotBranchIDs_.begin(), gotBranchIDs_.end());
     }

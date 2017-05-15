@@ -22,12 +22,12 @@ namespace art {
   class Results;
 }
 
-class art::Results : private art::DataViewImpl {
+class art::Results final : private art::DataViewImpl {
 public:
-  explicit Results(ResultsPrincipal const& srp, ModuleDescription const& md);
-  ~Results() {}
 
-  typedef DataViewImpl Base;
+  explicit Results(ResultsPrincipal const& srp, ModuleDescription const& md);
+
+  using Base = DataViewImpl;
 
   using Base::get;
   using Base::getByLabel;
@@ -50,8 +50,8 @@ private:
 
   // commit_() is called to complete the transaction represented by
   // this DataViewImpl. The friendships required are gross, but any
-  // alternative is not great either.  Putting it into the
-  // public interface is asking for trouble
+  // alternative is not great either.  Putting it into the public
+  // interface is asking for trouble
   friend class InputSource;
   friend class DecrepitRelicInputSourceImplementation;
   friend class ResultsProducer;

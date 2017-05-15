@@ -20,7 +20,7 @@
 #include <memory>
 #include <utility>
 
-class art::Run : private art::DataViewImpl {
+class art::Run final : private art::DataViewImpl {
 public:
 
   using Base = DataViewImpl;

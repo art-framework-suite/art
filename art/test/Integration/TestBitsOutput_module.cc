@@ -94,21 +94,21 @@ void arttest::TestBitsOutput::event(art::EventPrincipal const&)
   moduleDescription_ = *currentContext()->moduleDescription();
 }
 
-void arttest::TestBitsOutput::write(art::EventPrincipal & ep)
+void arttest::TestBitsOutput::write(art::EventPrincipal& ep)
 {
-  Event ev{ep, moduleDescription_};
-  // There should not be a TriggerResults object in the event
-  // if all three of the following requirements are met:
+  Event const ev{ep, moduleDescription_};
+  // There should not be a TriggerResults object in the event if all
+  // three of the following requirements are met:
   //
   //     1.  MakeTriggerResults has not been explicitly set true
   //     2.  There are no filter modules in any path
   //     3.  The input file of the job does not have a TriggerResults object
   //
-  // The user of this test module is expected to know
-  // whether these conditions are met and let the module know
-  // if no TriggerResults object is expected using the configuration
-  // file.  In this case, the next few lines of code will abort
-  // if a TriggerResults object is found.
+  // The user of this test module is expected to know whether these
+  // conditions are met and let the module know if no TriggerResults
+  // object is expected using the configuration file.  In this case,
+  // the next few lines of code will abort if a TriggerResults object
+  // is found.
   if (!expectTriggerResults_) {
     try {
       art::Handle<art::TriggerResults> prod {getTriggerResults(ev)};
@@ -124,15 +124,18 @@ void arttest::TestBitsOutput::write(art::EventPrincipal & ep)
               << std::endl;
     abort();
   }
-  // Now deal with the other case where we
-  // expect the object to be present.
+
+  // Now deal with the other case where we expect the object to be
+  // present.
   art::Handle<art::TriggerResults> prod {getTriggerResults(ev)};
+  // TriggerResults objects should have no parents.
+  assert(prod.provenance()->parents().empty());
   std::vector<unsigned char> vHltState;
   ServiceHandle<TriggerNamesService> tns;
   std::vector<std::string> const& hlts = tns->getTrigPaths();
   unsigned int hltSize = hlts.size();
   for (unsigned int i = 0; i != hltSize; ++i) {
-    vHltState.push_back(((prod->at(i)).state()));
+    vHltState.push_back(prod->at(i).state());
   }
   //Pack into member hltbits_
   packIntoString(vHltState, hltbits_);

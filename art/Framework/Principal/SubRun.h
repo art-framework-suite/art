@@ -23,7 +23,7 @@
 #include <memory>
 #include <utility>
 
-class art::SubRun : private art::DataViewImpl {
+class art::SubRun final : private art::DataViewImpl {
 public:
 
   using Base = DataViewImpl;

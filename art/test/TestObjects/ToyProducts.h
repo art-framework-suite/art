@@ -184,14 +184,6 @@ namespace arttest
     return a.data < b.data;
   }
 
-  struct Prodigal : public art::DoNotRecordParents
-  {
-    int data;
-    Prodigal() : data(0) { }
-    explicit Prodigal(int i) : data(i) { }
-    void aggregate(Prodigal const&) const {}
-  };
-
   using VSimpleProduct = std::vector<Simple>;
 
   struct Hit {
