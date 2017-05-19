@@ -1040,21 +1040,25 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     )
 endif()
 
-cet_test(TimeTracker_issue_3598_t1 HANDBUILT
+cet_test(TimeTracker_t1 HANDBUILT
   TEST_EXEC art
-  TEST_ARGS -c issue_3598_t1.fcl
-  DATAFILES fcl/issue_3598_t1.fcl
-  REF "${CMAKE_CURRENT_SOURCE_DIR}/TimeTracker_issue_3598_t1-ref.txt"
+  TEST_ARGS -c TimeTracker_t1.fcl
+  DATAFILES fcl/TimeTracker_t1.fcl
+  REF "${CMAKE_CURRENT_SOURCE_DIR}/TimeTracker_t1-ref.txt"
   OUTPUT_FILTERS "filter-timeTracker-output" "DEFAULT"
   )
 
-cet_test(TimeTracker_issue_3598_t2 HANDBUILT TEST_EXEC art TEST_ARGS -c issue_3598_t2.fcl DATAFILES fcl/issue_3598_t2.fcl)
-
-cet_test(TimeTracker_issue_3598_t3 HANDBUILT
+cet_test(TimeTracker_t2 HANDBUILT
   TEST_EXEC art
-  TEST_ARGS -c issue_3598_t3.fcl
-  DATAFILES fcl/issue_3598_t3.fcl
-  REF "${CMAKE_CURRENT_SOURCE_DIR}/TimeTracker_issue_3598_t3-ref.txt"
+  TEST_ARGS -c TimeTracker_t2.fcl
+  DATAFILES fcl/TimeTracker_t2.fcl
+  )
+
+cet_test(TimeTracker_t3 HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS -c TimeTracker_t3.fcl
+  DATAFILES fcl/TimeTracker_t3.fcl
+  REF "${CMAKE_CURRENT_SOURCE_DIR}/TimeTracker_t3-ref.txt"
   OUTPUT_FILTERS "filter-timeTracker-output" "DEFAULT"
   )
 

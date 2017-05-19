@@ -111,11 +111,11 @@ TrigReport Events total = 1000 passed = 310 failed = 690
 
 TrigReport ---------- Path   Summary ------------
 TrigReport  Trig Bit#        Run     Passed     Failed      Error Name
-TrigReport     1    0       1000       1310        690          0 p1
+TrigReport     1    0       1000        310        690          0 p1
 
 TrigReport -------End-Path   Summary ------------
 TrigReport  Trig Bit#        Run    Success      Error Name
-TrigReport     0    0       1000       2000          0 end_path
+TrigReport     0    0       1000       1000          0 end_path
 
 TrigReport ---------- Modules in Path: p1 ------------
 TrigReport  Trig Bit#    Visited     Passed     Failed      Error Name

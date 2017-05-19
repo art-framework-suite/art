@@ -120,9 +120,9 @@ void art::Path::process(typename T::MyPrincipal& ep)
       recordUnknownException(nwrwue, T::level == Level::Event);
       throw;
     }
-    updateCounters(should_continue, T::level == Level::Event);
-    recordStatus(nwrwue, T::level == Level::Event);
   }
+  updateCounters(should_continue, T::level == Level::Event);
+  recordStatus(nwrwue, T::level == Level::Event);
   HLTPathStatus const status(state_, nwrwue);
   T::postPathSignal(actReg_, name_, status);
 }
