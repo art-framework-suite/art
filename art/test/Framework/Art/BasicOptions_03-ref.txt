@@ -34,94 +34,95 @@
  29. ESSecondaryProducer                 producer    <path>/ESSecondaryProducer_module.cc
  30. EmptyPSetRegistryChecker            analyzer    <path>/EmptyPSetRegistryChecker_module.cc
  31. EventGenerator                      producer    <path>/EventGenerator_module.cc
- 32. EventProcessorTestOutput            output      <path>/EventProcessorTestOutput_module.cc
- 33. FPCTest                             analyzer    <path>/FPCTest_module.cc
- 34. FailEverything                      filter      <path>/FailEverything_module.cc
- 35. FailingAnalyzer                     analyzer    <path>/FailingAnalyzer_module.cc
- 36. FailingProducer                     producer    <path>/FailingProducer_module.cc
- 37. FileDumperOutput                    output      <path>/FileDumperOutput_module.cc
- 38. FindManySpeedTestAnalyzer           analyzer    <path>/FindManySpeedTestAnalyzer_module.cc
- 39. FindManySpeedTestProducer           producer    <path>/FindManySpeedTestProducer_module.cc
- 40. FlushingGeneratorTest               output      <path>/FlushingGeneratorTest_module.cc
- 41. FlushingGeneratorTestFilter         filter      <path>/FlushingGeneratorTestFilter_module.cc
- 42. HMRunProdProducer                   producer    <path>/HMRunProdProducer_module.cc
- 43. HMSubRunProdProducer                producer    <path>/HMSubRunProdProducer_module.cc
- 44. ImplicitRSAssignmentAnalyzer        analyzer    <path>/ImplicitRSAssignmentAnalyzer_module.cc
- 45. ImplicitRSAssignmentProducer        producer    <path>/ImplicitRSAssignmentProducer_module.cc
- 46. InputProducer                       producer    <path>/InputProducer_module.cc
- 47.*InputProducerNoEvents               producer    <path>/InputProducerNoEvents_module.cc
+ 32. EventIDFilter                       filter      <path>/EventIDFilter_module.cc
+ 33. EventProcessorTestOutput            output      <path>/EventProcessorTestOutput_module.cc
+ 34. FPCTest                             analyzer    <path>/FPCTest_module.cc
+ 35. FailEverything                      filter      <path>/FailEverything_module.cc
+ 36. FailingAnalyzer                     analyzer    <path>/FailingAnalyzer_module.cc
+ 37. FailingProducer                     producer    <path>/FailingProducer_module.cc
+ 38. FileDumperOutput                    output      <path>/FileDumperOutput_module.cc
+ 39. FindManySpeedTestAnalyzer           analyzer    <path>/FindManySpeedTestAnalyzer_module.cc
+ 40. FindManySpeedTestProducer           producer    <path>/FindManySpeedTestProducer_module.cc
+ 41. FlushingGeneratorTest               output      <path>/FlushingGeneratorTest_module.cc
+ 42. FlushingGeneratorTestFilter         filter      <path>/FlushingGeneratorTestFilter_module.cc
+ 43. HMRunProdProducer                   producer    <path>/HMRunProdProducer_module.cc
+ 44. HMSubRunProdProducer                producer    <path>/HMSubRunProdProducer_module.cc
+ 45. ImplicitRSAssignmentAnalyzer        analyzer    <path>/ImplicitRSAssignmentAnalyzer_module.cc
+ 46. ImplicitRSAssignmentProducer        producer    <path>/ImplicitRSAssignmentProducer_module.cc
+ 47. InputProducer                       producer    <path>/InputProducer_module.cc
  48.*InputProducerNoEvents               producer    <path>/InputProducerNoEvents_module.cc
- 49. InputProducerOnlyEvents             producer    <path>/InputProducerOnlyEvents_module.cc
- 50. IntProducer                         producer    <path>/IntProducer_module.cc
- 51. IntTestAnalyzer                     analyzer    <path>/IntTestAnalyzer_module.cc
- 52. IntVectorAnalyzer                   analyzer    <path>/IntVectorAnalyzer_module.cc
- 53. IntVectorProducer                   producer    <path>/IntVectorProducer_module.cc
- 54. MixAnalyzer                         analyzer    <path>/MixAnalyzer_module.cc
- 55. MixFilterTest                       filter      <path>/MixFilterTest_module.cc
- 56. MixFilterTestETS                    filter      <path>/MixFilterTestETS_module.cc
- 57. MixFilterTestETSc                   filter      <path>/MixFilterTestETSc_module.cc
- 58. MixFilterTestNoStartEvent           filter      <path>/MixFilterTestNoStartEvent_module.cc
- 59. MixFilterTestOldStartEvent          filter      <path>/MixFilterTestOldStartEvent_module.cc
- 60. MixProducer                         producer    <path>/MixProducer_module.cc
- 61. MockClusterListAnalyzer             analyzer    <path>/MockClusterListAnalyzer_module.cc
- 62. MockClusterListProducer             producer    <path>/MockClusterListProducer_module.cc
- 63. MyServiceUser                       analyzer    <path>/MyServiceUser_module.cc
- 64. PMTestAnalyzer                      analyzer    <path>/PMTestAnalyzer_module.cc
- 65. PMTestFilter                        filter      <path>/PMTestFilter_module.cc
- 66. PMTestOutput                        output      <path>/PMTestOutput_module.cc
- 67. PMTestProducer                      producer    <path>/PMTestProducer_module.cc
- 68. PSTestAnalyzer                      analyzer    <path>/PSTestAnalyzer_module.cc
- 69. ParticleSimulator                   producer    <path>/ParticleSimulator_module.cc
- 70. PassEverything                      filter      <path>/PassEverything_module.cc
- 71. PausingAnalyzer                     analyzer    <path>/PausingAnalyzer_module.cc
- 72. Prescaler                           filter      <path>/Prescaler_module.cc
- 73. ProductIDGetter                     producer    <path>/ProductIDGetter_module.cc
- 74. ProductIDGetterAnalyzer             analyzer    <path>/ProductIDGetterAnalyzer_module.cc
- 75. ProductIDGetterNoPut                producer    <path>/ProductIDGetterNoPut_module.cc
- 76. ProvenanceCheckerOutput             output      <path>/ProvenanceCheckerOutput_module.cc
- 77. PtrListAnalyzer                     analyzer    <path>/PtrListAnalyzer_module.cc
- 78. PtrVectorAnalyzer                   analyzer    <path>/PtrVectorAnalyzer_module.cc
- 79. PtrVectorProducer                   producer    <path>/PtrVectorProducer_module.cc
- 80. PtrVectorSimpleAnalyzer             analyzer    <path>/PtrVectorSimpleAnalyzer_module.cc
- 81. PtrmvAnalyzer                       analyzer    <path>/PtrmvAnalyzer_module.cc
- 82. PtrmvProducer                       producer    <path>/PtrmvProducer_module.cc
- 83. RandomNumberSaveTest                producer    <path>/RandomNumberSaveTest_module.cc
- 84. RandomNumberSaver                   producer    <path>/RandomNumberSaver_module.cc
- 85. Reconstruction                      filter      <path>/Reconstruction_module.cc
- 86. RootOutput                          output      <path>/RootOutput_module.cc
- 87. RunSubRunProductProducerNoPut       producer    <path>/RunSubRunProductProducerNoPut_module.cc
- 88. S                                   producer    <path>/U_S_module.cc
- 89. SAMMetadataConcurrentTest           analyzer    <path>/SAMMetadataConcurrentTest_module.cc
- 90. SAMMetadataTest                     analyzer    <path>/SAMMetadataTest_module.cc
- 91. SimpleDerivedAnalyzer               analyzer    <path>/SimpleDerivedAnalyzer_module.cc
- 92. SimpleDerivedProducer               producer    <path>/SimpleDerivedProducer_module.cc
- 93. SimpleServiceTestAnalyzer           analyzer    <path>/SimpleServiceTestAnalyzer_module.cc
- 94. TH1DataProducer                     producer    <path>/TH1DataProducer_module.cc
- 95. TestAnalyzerSelect                  analyzer    <path>/TestAnalyzerSelect_module.cc
- 96. TestBitsOutput                      output      <path>/TestBitsOutput_module.cc
- 97. TestFilter                          filter      <path>/TestFilter_module.cc
- 98. TestFilterSpecificEvents            filter      <path>/TestFilterSpecificEvents_module.cc
- 99. TestMod                             producer    <path>/TestMod_module.cc
-100. TestOutput                          output      <path>/TestOutput_module.cc
-101. TestProvenanceDumper                output      <path>/TestProvenanceDumper_module.cc
-102. TestReadImmediateControl            output      <path>/TestReadImmediateControl_module.cc
-103. TestRemoveCachedProduct             analyzer    <path>/TestRemoveCachedProduct_module.cc
-104. TestResultAnalyzer                  analyzer    <path>/TestResultAnalyzer_module.cc
-105. TestServiceUsingService             analyzer    <path>/TestServiceUsingService_module.cc
-106. TestSimpleMemoryCheckProducer       producer    <path>/TestSimpleMemoryCheckProducer_module.cc
-107. TestTFileServiceAnalyzer            analyzer    <path>/TestTFileServiceAnalyzer_module.cc
-108. TestTimeTrackerAnalyzer             analyzer    <path>/TestTimeTrackerAnalyzer_module.cc
-109. TestTimeTrackerFilter               filter      <path>/TestTimeTrackerFilter_module.cc
-110. TestTimeTrackerProducer             producer    <path>/TestTimeTrackerProducer_module.cc
-111. ThrowingAnalyzer                    analyzer    <path>/ThrowingAnalyzer_module.cc
-112. ThrowingProducer                    producer    <path>/ThrowingProducer_module.cc
-113. ToyProductAnalyzer                  analyzer    <path>/ToyProductAnalyzer_module.cc
-114. ToyProductProducer                  producer    <path>/ToyProductProducer_module.cc
-115. ToyProductProducerMultiput          producer    <path>/ToyProductProducerMultiput_module.cc
-116. ToyRawInputTester                   analyzer    <path>/ToyRawInputTester_module.cc
-117. ToyRawProductAnalyzer               analyzer    <path>/ToyRawProductAnalyzer_module.cc
-118. UnputtingProducer                   producer    <path>/UnputtingProducer_module.cc
-119. ValidHandleTester                   analyzer    <path>/ValidHandleTester_module.cc
+ 49.*InputProducerNoEvents               producer    <path>/InputProducerNoEvents_module.cc
+ 50. InputProducerOnlyEvents             producer    <path>/InputProducerOnlyEvents_module.cc
+ 51. IntProducer                         producer    <path>/IntProducer_module.cc
+ 52. IntTestAnalyzer                     analyzer    <path>/IntTestAnalyzer_module.cc
+ 53. IntVectorAnalyzer                   analyzer    <path>/IntVectorAnalyzer_module.cc
+ 54. IntVectorProducer                   producer    <path>/IntVectorProducer_module.cc
+ 55. MixAnalyzer                         analyzer    <path>/MixAnalyzer_module.cc
+ 56. MixFilterTest                       filter      <path>/MixFilterTest_module.cc
+ 57. MixFilterTestETS                    filter      <path>/MixFilterTestETS_module.cc
+ 58. MixFilterTestETSc                   filter      <path>/MixFilterTestETSc_module.cc
+ 59. MixFilterTestNoStartEvent           filter      <path>/MixFilterTestNoStartEvent_module.cc
+ 60. MixFilterTestOldStartEvent          filter      <path>/MixFilterTestOldStartEvent_module.cc
+ 61. MixProducer                         producer    <path>/MixProducer_module.cc
+ 62. MockClusterListAnalyzer             analyzer    <path>/MockClusterListAnalyzer_module.cc
+ 63. MockClusterListProducer             producer    <path>/MockClusterListProducer_module.cc
+ 64. MyServiceUser                       analyzer    <path>/MyServiceUser_module.cc
+ 65. PMTestAnalyzer                      analyzer    <path>/PMTestAnalyzer_module.cc
+ 66. PMTestFilter                        filter      <path>/PMTestFilter_module.cc
+ 67. PMTestOutput                        output      <path>/PMTestOutput_module.cc
+ 68. PMTestProducer                      producer    <path>/PMTestProducer_module.cc
+ 69. PSTestAnalyzer                      analyzer    <path>/PSTestAnalyzer_module.cc
+ 70. ParticleSimulator                   producer    <path>/ParticleSimulator_module.cc
+ 71. PassEverything                      filter      <path>/PassEverything_module.cc
+ 72. PausingAnalyzer                     analyzer    <path>/PausingAnalyzer_module.cc
+ 73. Prescaler                           filter      <path>/Prescaler_module.cc
+ 74. ProductIDGetter                     producer    <path>/ProductIDGetter_module.cc
+ 75. ProductIDGetterAnalyzer             analyzer    <path>/ProductIDGetterAnalyzer_module.cc
+ 76. ProductIDGetterNoPut                producer    <path>/ProductIDGetterNoPut_module.cc
+ 77. ProvenanceCheckerOutput             output      <path>/ProvenanceCheckerOutput_module.cc
+ 78. PtrListAnalyzer                     analyzer    <path>/PtrListAnalyzer_module.cc
+ 79. PtrVectorAnalyzer                   analyzer    <path>/PtrVectorAnalyzer_module.cc
+ 80. PtrVectorProducer                   producer    <path>/PtrVectorProducer_module.cc
+ 81. PtrVectorSimpleAnalyzer             analyzer    <path>/PtrVectorSimpleAnalyzer_module.cc
+ 82. PtrmvAnalyzer                       analyzer    <path>/PtrmvAnalyzer_module.cc
+ 83. PtrmvProducer                       producer    <path>/PtrmvProducer_module.cc
+ 84. RandomNumberSaveTest                producer    <path>/RandomNumberSaveTest_module.cc
+ 85. RandomNumberSaver                   producer    <path>/RandomNumberSaver_module.cc
+ 86. Reconstruction                      filter      <path>/Reconstruction_module.cc
+ 87. RootOutput                          output      <path>/RootOutput_module.cc
+ 88. RunSubRunProductProducerNoPut       producer    <path>/RunSubRunProductProducerNoPut_module.cc
+ 89. S                                   producer    <path>/U_S_module.cc
+ 90. SAMMetadataConcurrentTest           analyzer    <path>/SAMMetadataConcurrentTest_module.cc
+ 91. SAMMetadataTest                     analyzer    <path>/SAMMetadataTest_module.cc
+ 92. SimpleDerivedAnalyzer               analyzer    <path>/SimpleDerivedAnalyzer_module.cc
+ 93. SimpleDerivedProducer               producer    <path>/SimpleDerivedProducer_module.cc
+ 94. SimpleServiceTestAnalyzer           analyzer    <path>/SimpleServiceTestAnalyzer_module.cc
+ 95. TH1DataProducer                     producer    <path>/TH1DataProducer_module.cc
+ 96. TestAnalyzerSelect                  analyzer    <path>/TestAnalyzerSelect_module.cc
+ 97. TestBitsOutput                      output      <path>/TestBitsOutput_module.cc
+ 98. TestFilter                          filter      <path>/TestFilter_module.cc
+ 99. TestFilterSpecificEvents            filter      <path>/TestFilterSpecificEvents_module.cc
+100. TestMod                             producer    <path>/TestMod_module.cc
+101. TestOutput                          output      <path>/TestOutput_module.cc
+102. TestProvenanceDumper                output      <path>/TestProvenanceDumper_module.cc
+103. TestReadImmediateControl            output      <path>/TestReadImmediateControl_module.cc
+104. TestRemoveCachedProduct             analyzer    <path>/TestRemoveCachedProduct_module.cc
+105. TestResultAnalyzer                  analyzer    <path>/TestResultAnalyzer_module.cc
+106. TestServiceUsingService             analyzer    <path>/TestServiceUsingService_module.cc
+107. TestSimpleMemoryCheckProducer       producer    <path>/TestSimpleMemoryCheckProducer_module.cc
+108. TestTFileServiceAnalyzer            analyzer    <path>/TestTFileServiceAnalyzer_module.cc
+109. TestTimeTrackerAnalyzer             analyzer    <path>/TestTimeTrackerAnalyzer_module.cc
+110. TestTimeTrackerFilter               filter      <path>/TestTimeTrackerFilter_module.cc
+111. TestTimeTrackerProducer             producer    <path>/TestTimeTrackerProducer_module.cc
+112. ThrowingAnalyzer                    analyzer    <path>/ThrowingAnalyzer_module.cc
+113. ThrowingProducer                    producer    <path>/ThrowingProducer_module.cc
+114. ToyProductAnalyzer                  analyzer    <path>/ToyProductAnalyzer_module.cc
+115. ToyProductProducer                  producer    <path>/ToyProductProducer_module.cc
+116. ToyProductProducerMultiput          producer    <path>/ToyProductProducerMultiput_module.cc
+117. ToyRawInputTester                   analyzer    <path>/ToyRawInputTester_module.cc
+118. ToyRawProductAnalyzer               analyzer    <path>/ToyRawProductAnalyzer_module.cc
+119. UnputtingProducer                   producer    <path>/UnputtingProducer_module.cc
+120. ValidHandleTester                   analyzer    <path>/ValidHandleTester_module.cc
 
 <separator (=)>
 
