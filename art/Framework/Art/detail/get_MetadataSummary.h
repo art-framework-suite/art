@@ -9,7 +9,7 @@
 namespace art {
   namespace detail {
 
-    std::unique_ptr<MetadataSummary> 
+    std::unique_ptr<MetadataSummary>
     get_MetadataSummary(suffix_type st,
                         LibraryInfoCollection const& coll);
 

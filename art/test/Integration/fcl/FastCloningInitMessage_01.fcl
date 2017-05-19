@@ -7,6 +7,6 @@ source: { module_type: EmptyEvent
         }
 
 outputs: {
-  o1: { module_type: RootOutput 
+  o1: { module_type: RootOutput
         fileName: "out.root" }
 }

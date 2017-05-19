@@ -6,7 +6,7 @@ simple_plugin(AssnsReaderTest "module" NO_INSTALL USE_BOOST_UNIT)
 # A: unsigned long
 # B: std::string
 # D: arttest::AssnsTestData
-# 
+#
 #
 # 1.
 #   * Writer options:
@@ -16,7 +16,7 @@ simple_plugin(AssnsReaderTest "module" NO_INSTALL USE_BOOST_UNIT)
 #   * Writer / reader options:
 #
 #     wantVoid: "ALL"
-# 
+#
 #   * Event data products
 #
 #     PROCESS | MODULE_LABEL   | INSTANCE   | DATA PRODUCT TYPE   | SIZE
@@ -54,7 +54,7 @@ simple_plugin(AssnsReaderTest "module" NO_INSTALL USE_BOOST_UNIT)
 #   * Writer / reader options:
 #
 #     wantVoid: "SOME"
-# 
+#
 #   * Event data products
 #
 #     PROCESS | MODULE_LABEL   | INSTANCE   | DATA PRODUCT TYPE   | SIZE
@@ -77,9 +77,9 @@ simple_plugin(AssnsReaderTest "module" NO_INSTALL USE_BOOST_UNIT)
 #     ASSNSW  | ap2            | mapvec     | art::Assns<A,B,D>   |    3
 #     ASSNSW  | ap2            | mapvec     | art::Assns<A,B>     |    4
 #     ASSNSW  | ap2            | mv         | cet::map_vector<B>  |    4
-#     
+#
 #     Total products (present, not present): 19 (19, 0).
-#     
+#
 # 3.
 #   * Writer options:
 #
@@ -88,7 +88,7 @@ simple_plugin(AssnsReaderTest "module" NO_INSTALL USE_BOOST_UNIT)
 #   * Writer / reader options:
 #
 #     wantVoid: "NONE"
-# 
+#
 #   * Event data products
 #
 #     PROCESS | MODULE_LABEL   | INSTANCE   | DATA PRODUCT TYPE   | SIZE
@@ -120,7 +120,7 @@ simple_plugin(AssnsReaderTest "module" NO_INSTALL USE_BOOST_UNIT)
 #   * Writer / reader options:
 #
 #     wantVoid: "NONE"
-# 
+#
 #   * Event data products
 #
 #     PROCESS | MODULE_LABEL   | INSTANCE   | DATA PRODUCT TYPE   | SIZE
@@ -176,7 +176,7 @@ simple_plugin(AssnsReaderTest "module" NO_INSTALL USE_BOOST_UNIT)
 #     wantMany: false
 #     wantMV: false
 #     wantAmbiguous: true
-# 
+#
 #   * Event data products
 #
 #     PROCESS | MODULE_LABEL   | INSTANCE   | DATA PRODUCT TYPE   | SIZE
@@ -201,7 +201,7 @@ simple_plugin(AssnsReaderTest "module" NO_INSTALL USE_BOOST_UNIT)
 #
 #     wantVoid: "ALL"
 #     wantAmbiguous: true
-# 
+#
 #   * Event data products
 #
 #     PROCESS | MODULE_LABEL   | INSTANCE   | DATA PRODUCT TYPE   | SIZE

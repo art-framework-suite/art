@@ -4,7 +4,7 @@ source:
    maxEvents : 5
    firstRun : 1
    firstSubRun : 1
-   
+
 }
 
 physics:
@@ -25,9 +25,9 @@ physics:
    end_paths: [ e1 ]
 }
 
-outputs: 
+outputs:
 {
-   output: 
+   output:
    {
       module_type: RootOutput
       fileName : "ToyProductProducer_t_02.root"

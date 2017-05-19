@@ -18,7 +18,7 @@ BOOST_AUTO_TEST_CASE(SourceListWithComments)
       "f5.root# this file is sometimes problematic\n"
       "f6.root\n"
       };
-  
+
   std::istringstream is(files);
   std::vector<std::string> slist;
   art::detail::fillSourceList(is, slist);

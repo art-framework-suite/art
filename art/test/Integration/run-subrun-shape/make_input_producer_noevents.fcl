@@ -1,4 +1,4 @@
-services.message.destinations.log: { 
+services.message.destinations.log: {
    type: file
    filename: "noevents.log"
    threshold: "Debug"
