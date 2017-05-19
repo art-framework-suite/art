@@ -77,6 +77,4 @@ art::EventIDFilter::filter(art::Event& e)
   return matcher_(e.id());
 }
 
-#undef PARAMETER_COMMENT
-
 DEFINE_ART_MODULE(art::EventIDFilter)
