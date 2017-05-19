@@ -104,6 +104,8 @@ cet_test(BasicOptions_03_t
   REF "${CMAKE_CURRENT_SOURCE_DIR}/BasicOptions_03-ref.txt"
   )
 
+add_subdirectory(PrintAvailable)
+
 ####################################
 # BasicOutputOptionsHandler.
 

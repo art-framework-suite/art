@@ -1,128 +1,12 @@
 
 <separator (=)>
 
-     module_type                         Type        Source location
+   module_type      Type        Source location
 <separator (-)>
-  1. AddIntsProducer                     producer    <path>/AddIntsProducer_module.cc
-  2. AssembleMoreProducts                producer    <path>/AssembleMoreProducts_module.cc
-  3. AssembleMoreProductsRobust          producer    <path>/AssembleMoreProductsRobust_module.cc
-  4. AssembleProducts                    producer    <path>/AssembleProducts_module.cc
-  5. AssnsAnalyzer                       analyzer    <path>/AssnsAnalyzer_module.cc
-  6. AssnsMultipleProduces               producer    <path>/AssnsMultipleProduces_module.cc
-  7. AssnsProducer                       producer    <path>/AssnsProducer_module.cc
-  8. AssnsReaderTest                     analyzer    <path>/AssnsReaderTest_module.cc
-  9. AssnsWrongPut                       producer    <path>/AssnsWrongPut_module.cc
- 10. BadAssnsProducer                    producer    <path>/BadAssnsProducer_module.cc
- 11. BareStringAnalyzer                  analyzer    <path>/BareStringAnalyzer_module.cc
- 12. BareStringProducer                  producer    <path>/BareStringProducer_module.cc
- 13. BigProductProducer                  producer    <path>/BigProductProducer_module.cc
- 14. BlockingPrescaler                   filter      <path>/BlockingPrescaler_module.cc
- 15. CheckMoreProducts                   analyzer    <path>/CheckMoreProducts_module.cc
- 16. CheckProducts                       analyzer    <path>/CheckProducts_module.cc
- 17. CompressedIntProducer               producer    <path>/CompressedIntProducer_module.cc
- 18. CompressedIntTestAnalyzer           analyzer    <path>/CompressedIntTestAnalyzer_module.cc
- 19. ConcurrentEngineRetrieval           analyzer    <path>/ConcurrentEngineRetrieval_module.cc
- 20. DataFlowDumper                      output      <path>/DataFlowDumper_module.cc
- 21. DeferredIsReadyWithAssnsAnalyzer    analyzer    <path>/DeferredIsReadyWithAssnsAnalyzer_module.cc
- 22. DeferredIsReadyWithAssnsProducer    producer    <path>/DeferredIsReadyWithAssnsProducer_module.cc
- 23. DerivedPtrVectorProducer            producer    <path>/DerivedPtrVectorProducer_module.cc
- 24. DoubleProducer                      producer    <path>/DoubleProducer_module.cc
- 25. DoubleTestAnalyzer                  analyzer    <path>/DoubleTestAnalyzer_module.cc
- 26. DropTestAnalyzer                    analyzer    <path>/DropTestAnalyzer_module.cc
- 27. DropTestParentageFaker              producer    <path>/DropTestParentageFaker_module.cc
- 28. ESPrimaryProducer                   producer    <path>/ESPrimaryProducer_module.cc
- 29. ESSecondaryProducer                 producer    <path>/ESSecondaryProducer_module.cc
- 30. EmptyPSetRegistryChecker            analyzer    <path>/EmptyPSetRegistryChecker_module.cc
- 31. EventGenerator                      producer    <path>/EventGenerator_module.cc
- 32. EventIDFilter                       filter      <path>/EventIDFilter_module.cc
- 33. EventProcessorTestOutput            output      <path>/EventProcessorTestOutput_module.cc
- 34. FPCTest                             analyzer    <path>/FPCTest_module.cc
- 35. FailEverything                      filter      <path>/FailEverything_module.cc
- 36. FailingAnalyzer                     analyzer    <path>/FailingAnalyzer_module.cc
- 37. FailingProducer                     producer    <path>/FailingProducer_module.cc
- 38. FileDumperOutput                    output      <path>/FileDumperOutput_module.cc
- 39. FindManySpeedTestAnalyzer           analyzer    <path>/FindManySpeedTestAnalyzer_module.cc
- 40. FindManySpeedTestProducer           producer    <path>/FindManySpeedTestProducer_module.cc
- 41. FlushingGeneratorTest               output      <path>/FlushingGeneratorTest_module.cc
- 42. FlushingGeneratorTestFilter         filter      <path>/FlushingGeneratorTestFilter_module.cc
- 43. HMRunProdProducer                   producer    <path>/HMRunProdProducer_module.cc
- 44. HMSubRunProdProducer                producer    <path>/HMSubRunProdProducer_module.cc
- 45. ImplicitRSAssignmentAnalyzer        analyzer    <path>/ImplicitRSAssignmentAnalyzer_module.cc
- 46. ImplicitRSAssignmentProducer        producer    <path>/ImplicitRSAssignmentProducer_module.cc
- 47. InputProducer                       producer    <path>/InputProducer_module.cc
- 48.*InputProducerNoEvents               producer    <path>/InputProducerNoEvents_module.cc
- 49.*InputProducerNoEvents               producer    <path>/InputProducerNoEvents_module.cc
- 50. InputProducerOnlyEvents             producer    <path>/InputProducerOnlyEvents_module.cc
- 51. IntProducer                         producer    <path>/IntProducer_module.cc
- 52. IntTestAnalyzer                     analyzer    <path>/IntTestAnalyzer_module.cc
- 53. IntVectorAnalyzer                   analyzer    <path>/IntVectorAnalyzer_module.cc
- 54. IntVectorProducer                   producer    <path>/IntVectorProducer_module.cc
- 55. MixAnalyzer                         analyzer    <path>/MixAnalyzer_module.cc
- 56. MixFilterTest                       filter      <path>/MixFilterTest_module.cc
- 57. MixFilterTestETS                    filter      <path>/MixFilterTestETS_module.cc
- 58. MixFilterTestETSc                   filter      <path>/MixFilterTestETSc_module.cc
- 59. MixFilterTestNoStartEvent           filter      <path>/MixFilterTestNoStartEvent_module.cc
- 60. MixFilterTestOldStartEvent          filter      <path>/MixFilterTestOldStartEvent_module.cc
- 61. MixProducer                         producer    <path>/MixProducer_module.cc
- 62. MockClusterListAnalyzer             analyzer    <path>/MockClusterListAnalyzer_module.cc
- 63. MockClusterListProducer             producer    <path>/MockClusterListProducer_module.cc
- 64. MyServiceUser                       analyzer    <path>/MyServiceUser_module.cc
- 65. PMTestAnalyzer                      analyzer    <path>/PMTestAnalyzer_module.cc
- 66. PMTestFilter                        filter      <path>/PMTestFilter_module.cc
- 67. PMTestOutput                        output      <path>/PMTestOutput_module.cc
- 68. PMTestProducer                      producer    <path>/PMTestProducer_module.cc
- 69. PSTestAnalyzer                      analyzer    <path>/PSTestAnalyzer_module.cc
- 70. ParticleSimulator                   producer    <path>/ParticleSimulator_module.cc
- 71. PassEverything                      filter      <path>/PassEverything_module.cc
- 72. PausingAnalyzer                     analyzer    <path>/PausingAnalyzer_module.cc
- 73. Prescaler                           filter      <path>/Prescaler_module.cc
- 74. ProductIDGetter                     producer    <path>/ProductIDGetter_module.cc
- 75. ProductIDGetterAnalyzer             analyzer    <path>/ProductIDGetterAnalyzer_module.cc
- 76. ProductIDGetterNoPut                producer    <path>/ProductIDGetterNoPut_module.cc
- 77. ProvenanceCheckerOutput             output      <path>/ProvenanceCheckerOutput_module.cc
- 78. PtrListAnalyzer                     analyzer    <path>/PtrListAnalyzer_module.cc
- 79. PtrVectorAnalyzer                   analyzer    <path>/PtrVectorAnalyzer_module.cc
- 80. PtrVectorProducer                   producer    <path>/PtrVectorProducer_module.cc
- 81. PtrVectorSimpleAnalyzer             analyzer    <path>/PtrVectorSimpleAnalyzer_module.cc
- 82. PtrmvAnalyzer                       analyzer    <path>/PtrmvAnalyzer_module.cc
- 83. PtrmvProducer                       producer    <path>/PtrmvProducer_module.cc
- 84. RandomNumberSaveTest                producer    <path>/RandomNumberSaveTest_module.cc
- 85. RandomNumberSaver                   producer    <path>/RandomNumberSaver_module.cc
- 86. Reconstruction                      filter      <path>/Reconstruction_module.cc
- 87. RootOutput                          output      <path>/RootOutput_module.cc
- 88. RunSubRunProductProducerNoPut       producer    <path>/RunSubRunProductProducerNoPut_module.cc
- 89. S                                   producer    <path>/U_S_module.cc
- 90. SAMMetadataConcurrentTest           analyzer    <path>/SAMMetadataConcurrentTest_module.cc
- 91. SAMMetadataTest                     analyzer    <path>/SAMMetadataTest_module.cc
- 92. SimpleDerivedAnalyzer               analyzer    <path>/SimpleDerivedAnalyzer_module.cc
- 93. SimpleDerivedProducer               producer    <path>/SimpleDerivedProducer_module.cc
- 94. SimpleServiceTestAnalyzer           analyzer    <path>/SimpleServiceTestAnalyzer_module.cc
- 95. TH1DataProducer                     producer    <path>/TH1DataProducer_module.cc
- 96. TestAnalyzerSelect                  analyzer    <path>/TestAnalyzerSelect_module.cc
- 97. TestBitsOutput                      output      <path>/TestBitsOutput_module.cc
- 98. TestFilter                          filter      <path>/TestFilter_module.cc
- 99. TestFilterSpecificEvents            filter      <path>/TestFilterSpecificEvents_module.cc
-100. TestMod                             producer    <path>/TestMod_module.cc
-101. TestOutput                          output      <path>/TestOutput_module.cc
-102. TestProvenanceDumper                output      <path>/TestProvenanceDumper_module.cc
-103. TestReadImmediateControl            output      <path>/TestReadImmediateControl_module.cc
-104. TestRemoveCachedProduct             analyzer    <path>/TestRemoveCachedProduct_module.cc
-105. TestResultAnalyzer                  analyzer    <path>/TestResultAnalyzer_module.cc
-106. TestServiceUsingService             analyzer    <path>/TestServiceUsingService_module.cc
-107. TestSimpleMemoryCheckProducer       producer    <path>/TestSimpleMemoryCheckProducer_module.cc
-108. TestTFileServiceAnalyzer            analyzer    <path>/TestTFileServiceAnalyzer_module.cc
-109. TestTimeTrackerAnalyzer             analyzer    <path>/TestTimeTrackerAnalyzer_module.cc
-110. TestTimeTrackerFilter               filter      <path>/TestTimeTrackerFilter_module.cc
-111. TestTimeTrackerProducer             producer    <path>/TestTimeTrackerProducer_module.cc
-112. ThrowingAnalyzer                    analyzer    <path>/ThrowingAnalyzer_module.cc
-113. ThrowingProducer                    producer    <path>/ThrowingProducer_module.cc
-114. ToyProductAnalyzer                  analyzer    <path>/ToyProductAnalyzer_module.cc
-115. ToyProductProducer                  producer    <path>/ToyProductProducer_module.cc
-116. ToyProductProducerMultiput          producer    <path>/ToyProductProducerMultiput_module.cc
-117. ToyRawInputTester                   analyzer    <path>/ToyRawInputTester_module.cc
-118. ToyRawProductAnalyzer               analyzer    <path>/ToyRawProductAnalyzer_module.cc
-119. UnputtingProducer                   producer    <path>/UnputtingProducer_module.cc
-120. ValidHandleTester                   analyzer    <path>/ValidHandleTester_module.cc
+1. DummyAnalyzer    analyzer    <path>/DummyAnalyzer_module.cc
+2. DummyFilter      filter      <path>/DummyFilter_module.cc
+3.*DummyProducer    producer    <path>/DummyProducer_module.cc
+4.*DummyProducer    producer    <path>/DummyProducer_module.cc
 
 <separator (=)>
 
@@ -131,86 +15,46 @@
    module, in your configuration file, give the long specification (as
    shown in the table below), surrounded by quotation (") marks.
 
-   module_type              Long specification
+   module_type      Long specification
    <separator (-)>
-   InputProducerNoEvents    art/test/Integration/event-shape/InputProducerNoEvents
-   ""                       art/test/Integration/run-subrun-shape/InputProducerNoEvents
+   DummyProducer    art/test/Framework/Art/PrintAvailable/Colliding/DummyProducer
+   ""               art/test/Framework/Art/PrintAvailable/DummyProducer
 
 
 
 <separator (=)>
 
-   plugin_type                       Type                         Source location
+   plugin_type             Type               Source location
 <separator (-)>
-1. RPTest                            ResultsProducer              <path>/RPTest_plugin.cc
-2. RPTestReader                      ResultsProducer              <path>/RPTestReader_plugin.cc
-3. TestEmptyEventTimestamp           EmptyEventTimestampPlugin    <path>/TestEmptyEventTimestamp_plugin.cc
-4. TestEmptyEventTimestampNoRSRTS    EmptyEventTimestampPlugin    <path>/TestEmptyEventTimestampNoRSRTS_plugin.cc
-5. TestMetadata                      FileCatalogMetadataPlugin    <path>/TestMetadata_plugin.cc
+1. DummyResultsProducer    ResultsProducer    <path>/DummyResultsProducer_plugin.cc
 
 <separator (=)>
 
 
 <separator (=)>
 
-    Service                   Provider    Source location
+   Service         Provider    Source location
 <separator (-)>
- 1. DatabaseConnection        art         <path>/DatabaseConnection_service.cc
- 2. FileCatalogMetadata       art         <path>/FileCatalogMetadata_service.cc
- 3. MemoryAdjuster            art         <path>/MemoryAdjuster_service.cc
- 4. MemoryTracker             art         <path>/MemoryTracker<platform>_service.cc
- 5. MyService                 art         <path>/MyService_service.cc
- 6. MyServiceUsingIface       art         <path>/MyServiceUsingIface_service.cc
- 7. PSTest                    art         <path>/PSTest_service.cc
- 8. PSTestInterfaceImpl       art         <path>/PSTestInterfaceImpl_service.cc
- 9. RandomNumberGenerator     art         <path>/RandomNumberGenerator_service.cc
-10. SeekToEventClient         art         <path>/SeekToEventClient_service.cc
-11. ServiceUsing              art         <path>/ServiceUsing_service.cc
-12. SimpleServiceTest         art         <path>/SimpleServiceTest_service.cc
-13. TFileService              art         <path>/TFileService_service.cc
-14. Throwing                  art         <path>/Throwing_service.cc
-15. TimeTracker               art         <path>/TimeTracker_service.cc
-16. Tracer                    art         <path>/Tracer_service.cc
-17. TrivialFileDelivery       art         <path>/TrivialFileDelivery_service.cc
-18. TrivialFileTransfer       art         <path>/TrivialFileTransfer_service.cc
-19. Wanted                    art         <path>/Wanted_service.cc
-20. floating_point_control    art         <path>/FloatingPointControl_service.cc
+1. DummyService    art         <path>/DummyService_service.cc
 
 <separator (=)>
 
 
 <separator (=)>
 
-   module_type                 Provider    Source location
+   module_type    Provider    Source location
 <separator (-)>
-1. DoNothingInput              art         <path>/DoNothingInput_source.cc
-2. EmptyEvent                  art         <path>/EmptyEvent_source.cc
-3. EventProcessorTestSource    art         <path>/EventProcessorTestSource_source.cc
-4. FlushingGenerator           art         <path>/FlushingGenerator_source.cc
-5. GeneratorTest               art         <path>/GeneratorTest_source.cc
-6. RootInput                   art         <path>/RootInput_source.cc
-7. SimpleSource                art         <path>/SimpleSource_source.cc
-8. ToyRawFileInput             art         <path>/ToyRawFileInput_source.cc
-9. ToyRawInput                 art         <path>/ToyRawInput_source.cc
+1. DummySource    art         <path>/DummySource_source.cc
 
 <separator (=)>
 
 
 <separator (=)>
 
-    tool_type                    Type                   Source location
+   tool_type            Type     Source location
 <separator (-)>
- 1. AddNumber                    class                  <path>/AddNumber_tool.cc
- 2. ClassTool                    class                  <path>/ClassTool_tool.cc
- 3. FunctionTool                 addOne                 <path>/FunctionTool_tool.cc
- 4. MessagePrinter               class                  <path>/MessagePrinter_tool.cc
- 5. MultiplyNumber               class                  <path>/MultiplyNumber_tool.cc
- 6. NestedClassTool              class                  <path>/NestedClassTool_tool.cc
- 7. NestedFunctionInClassTool    class                  <path>/NestedFunctionInClassTool_tool.cc
- 8. NestedFunctionTool           callThroughToAddOne    <path>/NestedFunctionTool_tool.cc
- 9. ReadNextArbitrator           class                  <path>/ReadNextArbitrator_tool.cc
-10. SubtractNumber               class                  <path>/SubtractNumber_tool.cc
-11. addInts                      addInts                <path>/addInts_tool.cc
+1. DummyClassTool       class    <path>/DummyClassTool_tool.cc
+2. DummyFunctionTool    num      <path>/DummyFunctionTool_tool.cc
 
 <separator (=)>
 
