@@ -113,6 +113,14 @@ simple_plugin(addInts                     "tool"    NO_INSTALL)
 
 art_dictionary(DICTIONARY_LIBRARIES cetlib NO_INSTALL)
 
+cet_test(EventIDFilter_t HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --rethrow-all --config EventIDFilter_t.fcl -n 10
+  DATAFILES
+  fcl/EventIDFilter_t.fcl
+  REF "${CMAKE_CURRENT_SOURCE_DIR}/EventIDFilter_t-ref.txt"
+)
+
 cet_test(EventSelectorFromFile_w HANDBUILT
   TEST_EXEC art
   TEST_ARGS --rethrow-all --config EventSelectorFromFile_w.fcl

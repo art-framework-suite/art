@@ -1,0 +1,21 @@
+%MSG-i MF_INIT_OK:  <date-time> JobSetup
+Messagelogger initialization complete.
+%MSG
+Begin processing the 1st record. run: 1 subRun: 0 event: 1 at <date-time>
+Begin processing the 2nd record. run: 1 subRun: 0 event: 2 at <date-time>
+Begin processing the 3rd record. run: 1 subRun: 0 event: 3 at <date-time>
+Begin processing the 4th record. run: 1 subRun: 0 event: 4 at <date-time>
+Begin processing the 5th record. run: 1 subRun: 0 event: 5 at <date-time>
+Begin processing the 6th record. run: 1 subRun: 0 event: 6 at <date-time>
+Begin processing the 7th record. run: 1 subRun: 0 event: 7 at <date-time>
+Begin processing the 8th record. run: 1 subRun: 0 event: 8 at <date-time>
+Begin processing the 9th record. run: 1 subRun: 0 event: 9 at <date-time>
+Begin processing the 10th record. run: 1 subRun: 0 event: 10 at <date-time>
+
+TrigReport ---------- Event  Summary ------------
+TrigReport Events total = 10 passed = 2 failed = 8
+
+TimeReport ---------- Time  Summary ---[sec]----
+TimeReport CPU = <duration> Real = <duration>
+
+Art has completed and will exit with status 0.
