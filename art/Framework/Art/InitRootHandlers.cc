@@ -10,6 +10,7 @@
 
 #include "TError.h"
 #include "TH1.h"
+#include "TROOT.h"
 #include "TSystem.h"
 #include "TTree.h"
 
@@ -26,7 +27,7 @@ namespace {
     kFatal
   };
 
-  void RootErrorHandler(int level, bool die,
+  void RootErrorHandler(int const level, bool die,
                         char const* location, char const* message)
   {
     using mf::ELseverityLevel;
@@ -181,6 +182,7 @@ namespace art {
   void completeRootHandlers()
   {
     // Set ROOT parameters.
+    ROOT::EnableThreadSafety();
     TTree::SetMaxTreeSize(kMaxLong64);
     TH1::AddDirectory(kFALSE);
 
