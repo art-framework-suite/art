@@ -100,6 +100,7 @@ Begin processing the 7th record. run: 1 subRun: 0 event: 7 at <date-time>
 ++++finished: close input file
 ++ endJob module:a1
 ++ endJob finished:a1
+
 <separator (=)>
 TimeTracker printout (sec)            Min           Avg           Max         Median          RMS         nEvts   
 <separator (=)>
@@ -107,7 +108,6 @@ Full event	<duration> <duration> <duration> <duration> <duration> 7
 <separator (-)>
 source:EmptyEvent(read)	<duration> <duration> <duration> <duration> <duration> 7     
 end_path:a1:ThrowingAnalyzer	<duration> <duration> <duration> <duration> <duration> 6     
-
 ++ Job ended
 
 TrigReport ---------- Event  Summary ------------

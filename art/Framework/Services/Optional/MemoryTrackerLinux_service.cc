@@ -344,15 +344,14 @@ art::MemoryTracker::summary_()
 
   mf::LogAbsolute log {"MemoryTracker"};
   HorizontalRule const rule{100};
-  log << rule('=') << "\n\n";
-  // Should be more explicit that these are MB and not MiB."
+  log << '\n' << rule('=') << '\n';
   log << std::left << "MemoryTracker summary (base-10 MB units used)\n\n";
   log << "  Peak virtual memory usage (VmPeak)  : " << unique_value(rVMax) << " MB\n"
-         << "  Peak resident set size usage (VmHWM): " << unique_value(rRMax) << " MB\n";
+      << "  Peak resident set size usage (VmHWM): " << unique_value(rRMax) << " MB\n";
   if (!(fileName_.empty() || fileName_ == ":memory:")) {
     log << "  Details saved in: '" << fileName_ << "'\n";
   }
-  log << '\n' << rule('=');
+  log << rule('=');
 }
 
 DECLARE_ART_SERVICE(art::MemoryTracker, LEGACY)

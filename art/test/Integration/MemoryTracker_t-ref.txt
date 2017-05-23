@@ -11,14 +11,13 @@ Begin processing the 7th record. run: 1 subRun: 0 event: 7 at <date-time>
 Begin processing the 8th record. run: 1 subRun: 0 event: 8 at <date-time>
 Begin processing the 9th record. run: 1 subRun: 0 event: 9 at <date-time>
 Begin processing the 10th record. run: 1 subRun: 0 event: 10 at <date-time>
-<separator (=)>
 
+<separator (=)>
 MemoryTracker summary (base-10 MB units used)
 
 Peak virtual memory usage (VmPeak)  :	<mem-size>
 Peak resident set size usage (VmHWM):	<mem-size>
   Details saved in: 'memoryTracker.db'
-
 <separator (=)>
 
 TrigReport ---------- Event  Summary ------------

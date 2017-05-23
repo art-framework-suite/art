@@ -378,7 +378,7 @@ art::TimeTracker::logToDestination_(Statistics const& evt,
 
   std::ostringstream msgOss;
   HorizontalRule const rule{width+4+5*14+12};
-  msgOss << rule('=') << "\n"
+  msgOss << '\n' << rule('=') << '\n'
          << std::setw(width+2) << std::left << "TimeTracker printout (sec)"
          << boost::format(" %=12s ") % "Min"
          << boost::format(" %=12s ") % "Avg"
@@ -387,7 +387,7 @@ art::TimeTracker::logToDestination_(Statistics const& evt,
          << boost::format(" %=12s ") % "RMS"
          << boost::format(" %=10s ") % "nEvts" << "\n";
 
-  msgOss << rule('=') << "\n";
+  msgOss << rule('=') << '\n';
 
   if (evt.n == 0u) {
     msgOss << "[ No processed events ]\n";
@@ -396,13 +396,13 @@ art::TimeTracker::logToDestination_(Statistics const& evt,
     // N.B. setw(width) applies to the first field in
     //      ostream& art::operator<<(ostream&, Statistics const&).
     msgOss << setw(width) << evt << '\n'
-           << rule('-') << "\n";
+           << rule('-') << '\n';
     for (auto const& mod : modules) {
       msgOss << setw(width) << mod << '\n';
     }
   }
 
-  msgOss << rule('=') << "\n";
+  msgOss << rule('=');
   mf::LogAbsolute("TimeTracker") << msgOss.str();
 }
 

@@ -105,6 +105,7 @@ Begin processing the 200th record. run: 1 subRun: 0 event: 200 at <date-time>
 Begin processing the 300th record. run: 1 subRun: 0 event: 300 at <date-time>
 Begin processing the 500th record. run: 1 subRun: 0 event: 500 at <date-time>
 Begin processing the 900th record. run: 1 subRun: 0 event: 900 at <date-time>
+
 <separator (=)>
 TimeTracker printout (sec)                     Min           Avg           Max         Median          RMS         nEvts   
 <separator (=)>
@@ -116,7 +117,6 @@ p1:filt:TestTimeTrackerFilter	<duration> <duration> <duration> <duration> <durat
 p1:TriggerResults:TriggerResultInserter	<duration> <duration> <duration> <duration> <duration> 1000    
 end_path:mod1:TestTimeTrackerAnalyzer	<duration> <duration> <duration> <duration> <duration> 1000    
 end_path:mod2:TestTimeTrackerAnalyzer	<duration> <duration> <duration> <duration> <duration> 1000    
-
 
 TrigReport ---------- Event  Summary ------------
 TrigReport Events total = 1000 passed = 310 failed = 690
