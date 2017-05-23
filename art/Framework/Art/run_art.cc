@@ -7,6 +7,7 @@
 #include "art/Framework/EventProcessor/EventProcessor.h"
 #include "art/Framework/Services/Registry/ServiceToken.h"
 #include "art/Utilities/ExceptionMessages.h"
+#include "art/Utilities/HorizontalRule.h"
 #include "art/Utilities/RootHandlers.h"
 #include "art/Utilities/UnixSignalHandlers.h"
 #include "canvas/Utilities/Exception.h"
@@ -44,7 +45,7 @@ namespace {
 } // namespace
 
 int art::run_art(int argc,
-                 char ** argv,
+                 char** argv,
                  bpo::options_description& in_desc,
                  cet::filepath_maker& lookupPolicy,
                  art::OptionsHandlers&& handlers,
@@ -108,20 +109,20 @@ int art::run_art(int argc,
     make_ParameterSet(raw_config, main_pset);
   }
   catch (cet::exception& e) {
+    HorizontalRule const rule{36};
     std::cerr << "ERROR: Failed to create a parameter set from parsed configuration with exception "
               << e.what()
               << ".\n";
     std::cerr << "       Intermediate configuration state follows:\n"
-              << "------------------------------------"
-              << "------------------------------------"
-              << "\n";
+              << rule('-')
+              << rule('-')
+              << '\n';
     for (auto const& item : raw_config) {
-      std::cerr << item.first << ": " << item.second.to_string() << "\n";
+      std::cerr << item.first << ": " << item.second.to_string() << '\n';
     }
-    std::cerr
-        << "------------------------------------"
-        << "------------------------------------"
-        << "\n";
+    std::cerr << rule('-')
+              << rule('-')
+              << '\n';
     return 91;
   }
   // Main parameter set must be placed in registry manually.
@@ -155,18 +156,18 @@ int art::run_art_string_config(std::string const& config_string)
     make_ParameterSet(raw_config, main_pset);
   }
   catch (cet::exception& e) {
+    HorizontalRule const rule{36};
     std::cerr << "ERROR: Failed to create a parameter set from an input configuration string with exception "
               << e.what()
               << ".\n";
     std::cerr << "       Input configuration string follows:\n"
-              << "------------------------------------"
-              << "------------------------------------"
+              << rule('-')
+              << rule('-')
               << "\n";
     std::cerr << config_string << "\n";
-    std::cerr
-        << "------------------------------------"
-        << "------------------------------------"
-        << "\n";
+    std::cerr << rule('-')
+              << rule('-')
+              << '\n';
     return 91;
   }
   // Main parameter set must be placed in registry manually.
