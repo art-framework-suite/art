@@ -9,7 +9,6 @@
 #include "art/Utilities/ExceptionMessages.h"
 #include "art/Utilities/RootHandlers.h"
 #include "art/Utilities/UnixSignalHandlers.h"
-#include "art/Utilities/bold_fontify.h"
 #include "canvas/Utilities/Exception.h"
 #include "cetlib/container_algorithms.h"
 #include "cetlib/exception.h"
@@ -31,7 +30,6 @@
 #include <vector>
 
 namespace bpo = boost::program_options;
-using art::detail::bold_fontify;
 
 // -----------------------------------------------
 namespace {
@@ -43,21 +41,20 @@ namespace {
       SetErrorHandler(DefaultErrorHandler);
     }
   };
-
 } // namespace
 
 int art::run_art(int argc,
                  char ** argv,
-                 bpo::options_description & in_desc,
-                 cet::filepath_maker & lookupPolicy,
-                 art::OptionsHandlers && handlers,
-                 art::detail::DebugOutput && dbg)
+                 bpo::options_description& in_desc,
+                 cet::filepath_maker& lookupPolicy,
+                 art::OptionsHandlers&& handlers,
+                 art::detail::DebugOutput&& dbg)
 {
   std::ostringstream descstr;
-  descstr << '\n' << bold_fontify("Usage") << ": "
+  descstr << '\n' << "Usage" << ": "
           << boost::filesystem::path(argv[0]).filename().native()
           << " <-c <config-file>> <other-options> [<source-file>]+\n\n"
-          << bold_fontify("Basic options");
+          << "Basic options";
   bpo::options_description all_desc {descstr.str()};
   all_desc.add(in_desc);
   // BasicOptionsHandler should always be first in the list!
@@ -74,13 +71,13 @@ int art::run_art(int argc,
     bpo::store(bpo::command_line_parser(argc, argv).options(all_desc).positional(pd).run(), vm);
     bpo::notify(vm);
   }
-  catch (bpo::error const & e) {
+  catch (bpo::error const& e) {
     std::cerr << "Exception from command line processing in " << argv[0]
               << ": " << e.what() << "\n";
     return 88;
   }
   // Preliminary argument checking.
-  for (auto & handler : handlers) {
+  for (auto& handler : handlers) {
     auto result = handler->checkOptions(vm);
     if (result != 0) {
       return result;
@@ -88,7 +85,7 @@ int art::run_art(int argc,
   }
   // Processing of arguments and post-processing of config.
   fhicl::intermediate_table raw_config;
-  for (auto & handler : handlers) {
+  for (auto& handler : handlers) {
     auto result = handler->processOptions(vm, raw_config);
     if (result != 0) {
       return result;
@@ -110,7 +107,7 @@ int art::run_art(int argc,
   try {
     make_ParameterSet(raw_config, main_pset);
   }
-  catch (cet::exception & e) {
+  catch (cet::exception& e) {
     std::cerr << "ERROR: Failed to create a parameter set from parsed configuration with exception "
               << e.what()
               << ".\n";
@@ -118,7 +115,7 @@ int art::run_art(int argc,
               << "------------------------------------"
               << "------------------------------------"
               << "\n";
-    for (auto const & item : raw_config) {
+    for (auto const& item : raw_config) {
       std::cerr << item.first << ": " << item.second.to_string() << "\n";
     }
     std::cerr
@@ -157,7 +154,7 @@ int art::run_art_string_config(std::string const& config_string)
     // create the parameter set
     make_ParameterSet(raw_config, main_pset);
   }
-  catch (cet::exception & e) {
+  catch (cet::exception& e) {
     std::cerr << "ERROR: Failed to create a parameter set from an input configuration string with exception "
               << e.what()
               << ".\n";
@@ -185,8 +182,8 @@ int art::run_art_string_config(std::string const& config_string)
 
 int art::run_art_common_(fhicl::ParameterSet const& main_pset, art::detail::DebugOutput debug)
 {
-  auto const & services_pset  = main_pset.get<fhicl::ParameterSet>("services",{});
-  auto const & scheduler_pset = services_pset.get<fhicl::ParameterSet>("scheduler",{});
+  auto const& services_pset = main_pset.get<fhicl::ParameterSet>("services",{});
+  auto const& scheduler_pset = services_pset.get<fhicl::ParameterSet>("scheduler",{});
 
   if (debug && debug.preempting()) {
     std::cerr << debug.banner();

@@ -27,8 +27,8 @@ namespace {
 } // namespace
 
 art::BasicOptionsHandler::
-BasicOptionsHandler(bpo::options_description & desc,
-                    cet::filepath_maker & maker)
+BasicOptionsHandler(bpo::options_description& desc,
+                    cet::filepath_maker& maker)
   : help_desc_{desc}
   , maker_{maker}
 {
@@ -53,7 +53,7 @@ BasicOptionsHandler(bpo::options_description & desc,
 
 int
 art::BasicOptionsHandler::
-doCheckOptions(bpo::variables_map const & vm)
+doCheckOptions(bpo::variables_map const& vm)
 {
   // Technically the "help" and "print*" options are processing steps,
   // but we want to short-circuit.
@@ -104,13 +104,13 @@ doCheckOptions(bpo::variables_map const & vm)
 
 int
 art::BasicOptionsHandler::
-doProcessOptions(bpo::variables_map const & vm,
-                 fhicl::intermediate_table & raw_config)
+doProcessOptions(bpo::variables_map const& vm,
+                 fhicl::intermediate_table& raw_config)
 {
   try {
     fhicl::parse_document(vm["config"].as<std::string>(), maker_, raw_config);
   }
-  catch (cet::exception & e) {
+  catch (cet::exception& e) {
     std::cerr << "Failed to parse the configuration file '"
               << vm["config"].as<std::string>()
               << "' with exception\n" << e.what()
