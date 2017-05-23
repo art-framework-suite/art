@@ -1,5 +1,5 @@
-#include "art/Framework/Services/Optional/detail/LinuxProcData.h"
-#include "art/Framework/Services/Optional/detail/LinuxProcMgr.h"
+#include "art/Utilities/LinuxProcData.h"
+#include "art/Utilities/LinuxProcMgr.h"
 #include "art/Utilities/ScheduleID.h"
 #include "cetlib/SimultaneousFunctionSpawner.h"
 #include "cetlib/container_algorithms.h"
@@ -11,10 +11,9 @@
 #include <tuple>
 #include <vector>
 
-using namespace art::detail;
+using art::LinuxProcData;
+using art::LinuxProcMgr;
 using art::ScheduleID;
-using art::detail::LinuxProcData;
-using art::detail::LinuxProcMgr;
 using vsize_t = LinuxProcData::vsize_t;
 using rss_t = LinuxProcData::rss_t;
 

@@ -531,11 +531,11 @@ art::EventProcessor::endJob()
   ServiceRegistry::Operate op {serviceToken_};
   ec_.call([this]{ schedule_->endJob(); });
   ec_.call([this]{ endPathExecutor_->endJob(); });
+  ec_.call([this]{ input_->doEndJob(); });
+  ec_.call([this]{ actReg_.sPostEndJob.invoke(); });
   ec_.call([this]{ detail::writeSummary(pathManager_,
                                         ServiceHandle<TriggerNamesService const>{}->wantSummary(),
                                         timer_); });
-  ec_.call([this]{ input_->doEndJob(); });
-  ec_.call([this]{ actReg_.sPostEndJob.invoke(); });
 }
 
 //====================================================

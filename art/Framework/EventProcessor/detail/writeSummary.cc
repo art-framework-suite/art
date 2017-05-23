@@ -1,6 +1,7 @@
 #include "art/Framework/EventProcessor/detail/writeSummary.h"
 
 #include "art/Framework/Core/PathManager.h"
+#include "art/Utilities/LinuxProcMgr.h"
 #include "cetlib/cpu_timer.h"
 #include "cetlib/container_algorithms.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
@@ -55,8 +56,13 @@ art::detail::writeSummary(PathManager& pm, bool const wantSummary, cet::cpu_time
   // Still only assuming one schedule. Will need to loop when we get around to it.
   auto const& epi = pm.endPathInfo();
   auto const& tpi = pm.triggerPathsInfo(ScheduleID::first());
+  LogAbsolute("ArtSummary") << "";
   triggerReport(epi, tpi, wantSummary);
+  LogAbsolute("ArtSummary") << "";
   timeReport(jobTimer);
+  LogAbsolute("ArtSummary") << "";
+  memoryReport();
+  LogAbsolute("ArtSummary") << "";
 }
 
 void
@@ -64,7 +70,6 @@ art::detail::triggerReport(PathsInfo const& epi, PathsInfo const& tpi, bool cons
 {
   // The trigger report (pass/fail etc.):
   // Printed even if summary not requested, per issue #1864.
-  LogAbsolute("ArtSummary") << "";
   LogAbsolute("ArtSummary") << "TrigReport " << "---------- Event  Summary ------------";
   LogAbsolute("ArtSummary") << "TrigReport"
                             << " Events total = " << tpi.totalEvents()
@@ -177,11 +182,16 @@ art::detail::triggerReport(PathsInfo const& epi, PathsInfo const& tpi, bool cons
 void
 art::detail::timeReport(cet::cpu_timer const& timer)
 {
-  LogAbsolute("ArtSummary") << "";
-  // The timing report (CPU and Real Time):
   LogAbsolute("ArtSummary") << "TimeReport " << "---------- Time  Summary ---[sec]----";
   LogAbsolute("ArtSummary") << "TimeReport"
                             << setprecision(6) << fixed
-                            << " CPU = " << timer.cpuTime() << " Real = " << timer.realTime()
-                            << "\n";
+                            << " CPU = " << timer.cpuTime() << " Real = " << timer.realTime();
+}
+
+void
+art::detail::memoryReport()
+{
+  LinuxProcMgr procInfo{1};
+  LogAbsolute("ArtSummary") << "MemReport  " << "---------- Memory  Summary ---[base-10 MB]----";
+  LogAbsolute("ArtSummary") << "MemReport  VmPeak = " << procInfo.getVmPeak() << " VmHWM = " << procInfo.getVmHWM();
 }

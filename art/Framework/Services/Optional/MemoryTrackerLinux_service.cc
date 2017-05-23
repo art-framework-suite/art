@@ -23,13 +23,14 @@
 
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Services/Optional/detail/LinuxMallInfo.h"
-#include "art/Framework/Services/Optional/detail/LinuxProcData.h"
-#include "art/Framework/Services/Optional/detail/LinuxProcMgr.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/Registry/ServiceMacros.h"
 #include "art/Framework/Services/Registry/ServiceTable.h"
 #include "art/Framework/Services/System/DatabaseConnection.h"
+#include "art/Utilities/HorizontalRule.h"
+#include "art/Utilities/LinuxProcData.h"
+#include "art/Utilities/LinuxProcMgr.h"
 #include "canvas/Persistency/Provenance/EventID.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
 #include "canvas/Utilities/Exception.h"
@@ -84,7 +85,7 @@ namespace art {
     void flushTables_();
     void summary_();
 
-    detail::LinuxProcMgr procInfo_;
+    LinuxProcMgr procInfo_;
     std::string fileName_;
 
     // Options
@@ -137,9 +138,9 @@ namespace {
 }
 
 //======================================================================================
-using namespace art::detail;
-using vsize_t = LinuxProcData::vsize_t;
-using rss_t = LinuxProcData::rss_t;
+using art::detail::LinuxMallInfo;
+using vsize_t = art::LinuxProcData::vsize_t;
+using rss_t = art::LinuxProcData::rss_t;
 
 art::MemoryTracker::MemoryTracker(ServiceTable<Config> const& config,
                                   ActivityRegistry& iReg)
@@ -341,17 +342,17 @@ art::MemoryTracker::summary_()
   rVMax << select("Value").from(db_, peakUsageTable_.name()).where("Name='VmPeak'");
   rRMax << select("Value").from(db_, peakUsageTable_.name()).where("Name='VmHWM'");
 
-  mf::LogAbsolute msgOss {"MemoryTracker"};
-  std::string const rule(100,'=');
-  msgOss << rule << "\n\n";
+  mf::LogAbsolute log {"MemoryTracker"};
+  HorizontalRule const rule{100};
+  log << rule('=') << "\n\n";
   // Should be more explicit that these are MB and not MiB."
-  msgOss << std::left << "MemoryTracker summary (base-10 MB units used)\n\n";
-  msgOss << "  Peak virtual memory usage (VmPeak)  : " << unique_value(rVMax) << " MB\n"
+  log << std::left << "MemoryTracker summary (base-10 MB units used)\n\n";
+  log << "  Peak virtual memory usage (VmPeak)  : " << unique_value(rVMax) << " MB\n"
          << "  Peak resident set size usage (VmHWM): " << unique_value(rRMax) << " MB\n";
   if (!(fileName_.empty() || fileName_ == ":memory:")) {
-    msgOss << "  Details saved in: '" << fileName_ << "'\n";
+    log << "  Details saved in: '" << fileName_ << "'\n";
   }
-  msgOss << '\n' << rule << '\n';
+  log << '\n' << rule('=');
 }
 
 DECLARE_ART_SERVICE(art::MemoryTracker, LEGACY)

@@ -1,19 +1,15 @@
-set( art_Framework_Services_Optional_sources
+set(art_Framework_Services_Optional_sources
   TFileDirectory.cc
   detail/RootDirectorySentry.cc
 )
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-  list(APPEND
-    art_Framework_Services_Optional_sources
-    detail/LinuxProcMgr.cc
-    )
   set(MemoryTrackerSource MemoryTrackerLinux_service.cc)
 else()
   set(MemoryTrackerSource MemoryTrackerDarwin_service.cc)
 endif()
 
-art_make_library( SOURCE ${art_Framework_Services_Optional_sources}
+art_make_library(SOURCE ${art_Framework_Services_Optional_sources}
   LIBRARIES cetlib
   ${ROOT_HIST}
   ${ROOT_MATRIX}

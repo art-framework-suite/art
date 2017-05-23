@@ -1,5 +1,3 @@
-add_subdirectory( detail )
-
 simple_plugin(MyService "service" NO_INSTALL)
 
 simple_plugin(MyServiceUsingIface "service" NO_INSTALL

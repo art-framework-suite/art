@@ -12,6 +12,7 @@ namespace art {
     void writeSummary(PathManager& pm, bool wantSummary, cet::cpu_timer const& timer);
     void triggerReport(PathsInfo const& endPathsInfo, PathsInfo const& triggerPathsInfo, bool wantSummary);
     void timeReport(cet::cpu_timer const& timer);
+    void memoryReport();
   }
 }
 #endif /* art_Framework_EventProcessor_detail_writeSummary_h */
