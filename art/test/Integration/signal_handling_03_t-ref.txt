@@ -50,6 +50,7 @@ Begin processing the 1st record. run: 1 subRun: 0 event: 1 at <date-time>
 ++++finished: close input file
 ++ endJob module:pa
 ++ endJob finished:pa
+++ Job ended
 
 TrigReport ---------- Event  Summary ------------
 TrigReport Events total = 1 passed = 1 failed = 0
@@ -61,7 +62,9 @@ TrigReport     0    0          1          1          0 pa
 TimeReport ---------- Time  Summary ---[sec]----
 TimeReport CPU = <duration> Real = <duration>
 
-++ Job ended
+MemReport  ---------- Memory  Summary ---[base-10 MB]----
+MemReport  VmPeak = <mem-size> VmHWM = <mem-size>
+
 Art has completed and will exit with status 143.
 >> Pausing for 5 seconds.
 >> Pause complete.

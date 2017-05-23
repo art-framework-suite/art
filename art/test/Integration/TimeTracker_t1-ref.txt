@@ -105,6 +105,18 @@ Begin processing the 200th record. run: 1 subRun: 0 event: 200 at <date-time>
 Begin processing the 300th record. run: 1 subRun: 0 event: 300 at <date-time>
 Begin processing the 500th record. run: 1 subRun: 0 event: 500 at <date-time>
 Begin processing the 900th record. run: 1 subRun: 0 event: 900 at <date-time>
+<separator (=)>
+TimeTracker printout (sec)                     Min           Avg           Max         Median          RMS         nEvts   
+<separator (=)>
+Full event	<duration> <duration> <duration> <duration> <duration> 1000    
+<separator (-)>
+source:EmptyEvent(read)	<duration> <duration> <duration> <duration> <duration> 1000    
+p1:prod:TestTimeTrackerProducer	<duration> <duration> <duration> <duration> <duration> 1000    
+p1:filt:TestTimeTrackerFilter	<duration> <duration> <duration> <duration> <duration> 1000    
+p1:TriggerResults:TriggerResultInserter	<duration> <duration> <duration> <duration> <duration> 1000    
+end_path:mod1:TestTimeTrackerAnalyzer	<duration> <duration> <duration> <duration> <duration> 1000    
+end_path:mod2:TestTimeTrackerAnalyzer	<duration> <duration> <duration> <duration> <duration> 1000    
+
 
 TrigReport ---------- Event  Summary ------------
 TrigReport Events total = 1000 passed = 310 failed = 690
@@ -137,16 +149,7 @@ TrigReport       1000       1000       1000          0          0 mod2
 TimeReport ---------- Time  Summary ---[sec]----
 TimeReport CPU = <duration> Real = <duration>
 
-<separator (=)>
-TimeTracker printout (sec)                     Min           Avg           Max         Median          RMS         nEvts   
-<separator (=)>
-Full event	<duration> <duration> <duration> <duration> <duration> 1000    
-<separator (-)>
-source:EmptyEvent(read)	<duration> <duration> <duration> <duration> <duration> 1000    
-p1:prod:TestTimeTrackerProducer	<duration> <duration> <duration> <duration> <duration> 1000    
-p1:filt:TestTimeTrackerFilter	<duration> <duration> <duration> <duration> <duration> 1000    
-p1:TriggerResults:TriggerResultInserter	<duration> <duration> <duration> <duration> <duration> 1000    
-end_path:mod1:TestTimeTrackerAnalyzer	<duration> <duration> <duration> <duration> <duration> 1000    
-end_path:mod2:TestTimeTrackerAnalyzer	<duration> <duration> <duration> <duration> <duration> 1000    
+MemReport  ---------- Memory  Summary ---[base-10 MB]----
+MemReport  VmPeak = <mem-size> VmHWM = <mem-size>
 
 Art has completed and will exit with status 0.
