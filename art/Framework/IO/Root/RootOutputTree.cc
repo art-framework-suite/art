@@ -51,16 +51,16 @@ RootOutputTree::
 checkSplitLevelAndBasketSize(TTree* inputTree) const
 {
   // Do the split level and basket size match in the input and output?
-  if (inputTree == 0) {
+  if (inputTree == nullptr) {
     return false;
   }
   for (auto const& val : readBranches_) {
     TBranch* outputBranch = val;
-    if (outputBranch == 0) {
+    if (outputBranch == nullptr) {
       continue;
     }
     TBranch* inputBranch = inputTree->GetBranch(outputBranch->GetName());
-    if (inputBranch == 0) {
+    if (inputBranch == nullptr) {
       continue;
     }
     if ((inputBranch->GetSplitLevel() != outputBranch->GetSplitLevel()) ||
@@ -76,7 +76,7 @@ checkSplitLevelAndBasketSize(TTree* inputTree) const
 
 void
 RootOutputTree::
-writeTTree(TTree* tree)
+writeTTree(TTree* tree) noexcept(false)
 {
   // Update the tree-level entry count because we have been
   // using branch fill instead of tree fill.
@@ -256,7 +256,7 @@ addOutputBranch(BranchDescription const& bd, void const*& pProd)
     // of entries already written to the data tree.
     std::unique_ptr<EDProduct> dummy(static_cast<EDProduct*>(cls->New()));
     pProd = dummy.get();
-    int bytesWritten = 0;
+    int bytesWritten {};
     for (auto i = nEntries_; i > 0; --i) {
       auto cnt = branch->Fill();
       if (cnt <= 0) {

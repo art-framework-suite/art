@@ -1,4 +1,5 @@
 #include "art/Framework/IO/Root/detail/InfoDumperInputFile.h"
+#include "art/Framework/IO/Root/detail/resolveRangeSet.h"
 #include "art/Framework/IO/Root/detail/setFileIndexPointer.h"
 #include "art/Framework/Principal/detail/orderedProcessNames.h"
 #include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
@@ -22,7 +23,7 @@ namespace {
     auto* key_ptr = file->GetKey("RootFileDB");
     if (key_ptr == nullptr) {
       throw art::Exception{art::errors::FileReadError}
-      << "\nRequested DB, \"RootFileDB\" of type, \"tkeyvfs\", not present in file: \"" << fn << "\"\n"
+      << "Requested DB, \"RootFileDB\" of type, \"tkeyvfs\", not present in file: \"" << fn << "\"\n"
       << "Either this is not an art/ROOT file, it is a corrupt art/ROOT file,\n"
       << "or it is an art/ROOT file produced with a version older than v1_00_12.\n";
     }
@@ -57,9 +58,9 @@ art::detail::InfoDumperInputFile::InfoDumperInputFile(std::string const& filenam
   auto bidsPtr = &branchIDLists_;
   md->SetBranchAddress(art::rootNames::metaBranchRootName<art::BranchIDLists>(), &bidsPtr);
 
-  // We populate the ProcessHistoryRegistry here to reduce the
-  // number of times we have to call art::input::getEntry, which
-  // seems to cause unexplainable woe.
+  // We populate the ProcessHistoryRegistry here to reduce the number
+  // of times we have to call art::input::getEntry, which seems to
+  // cause unexplainable woe.
   art::ProcessHistoryMap pHistMap;
   auto pHistMapPtr = &pHistMap;
   md->SetBranchAddress(art::rootNames::metaBranchRootName<decltype(pHistMap)>(), &pHistMapPtr);

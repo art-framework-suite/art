@@ -14,7 +14,7 @@ appear in one worker.
 #include "art/Framework/Principal/fwd.h"
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/OutputFileStatus.h"
-#include "art/Framework/Core/OutputFileSwitchBoundary.h"
+#include "art/Framework/Core/OutputFileGranularity.h"
 #include "art/Framework/Core/WorkerT.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/FileServiceInterfaces/CatalogInterface.h"
@@ -57,13 +57,13 @@ namespace art {
 
     void configure(OutputModuleDescription const& desc);
 
-    Boundary fileSwitchBoundary() const;
+    Granularity fileGranularity() const;
 
     virtual void selectProducts(FileBlock const&);
 
 private:
     ServiceHandle<CatalogInterface> ci_;
-    Boundary fileSwitchBoundary_ {Boundary::Unset};
+    Granularity fileGranularity_ {Granularity::Unset};
   };
 }
 

@@ -1,56 +1,21 @@
 #!/usr/bin/perl -w
 ########################################################################
-# filter-output.
-#
-# Filter out some things that would affect the utility of a comparison
-# with reference.
-#
-# If this is not sufficient for your needs, write your own and use the
-# OUTPUT_FILTER option of cet_test() to override. See CetTest.cmake
-# documentation for details.
-#
-# 2014/12/16 CHG.
+# MemoryTracker filter-output.
 ########################################################################
 use strict;
 
-my ($in_tt, $in_mm, $mm_format, $final_mm_clause, $in_ev_list);
-my $n_sep = 0;
+my ($in_mm);
 
 while (<>) {
   ########################################################################
   # MemoryTracker summary lines
   if ($in_mm) {
-    if ($final_mm_clause and m&^={20}& and ++$n_sep == 2) {
-      # Done. Clean up.
-      undef $in_mm;
-      undef $final_mm_clause;
-      undef $mm_format;
-      $n_sep = 0;
-    } elsif ($mm_format == 1) {
-      s&\s+(Peak virtual memory usage \(VmPeak\)\s*:)\s+(.*)$&${1}\t<mem-size>&;
-      s&\s+(Peak resident set size usage \(VmHWM\)\s*:)\s+(.*)$&${1}\t<mem-size>&;
-      s&^(Module \S+)\s+(\S+)\s+.*$&${1}\t${2}\t<mem-size>\t<mem-size>&;
-    } else { # $mm_format == 2
-      if (m&^\s*run&) {
-        if (not $in_ev_list) {
-          $in_ev_list = 1;
-        }
-        next;
-      } else {
-        if ($in_ev_list) {
-          undef $in_ev_list;
-          print " <ev-info>\n";
-        }
-      }
-    }
+    s&\s+(Peak virtual memory usage \(VmPeak\)\s*:)\s+(.*)$&${1}\t<mem-size>&;
+    s&\s+(Peak resident set size usage \(VmHWM\)\s*:)\s+(.*)$&${1}\t<mem-size>&;
+    s&^(Module \S+)\s+(\S+)\s+.*$&${1}\t${2}\t<mem-size>\t<mem-size>&;
   }
-  if (m&^MemoryTracker General SUMMARY&) {
+  if (m&^MemoryTracker summary&) {
     $in_mm = 1;
-    $mm_format = 1;
-  } elsif ($in_mm and m&^MemoryTracker Per-event SUMMARY&) {
-    $mm_format = 2;
-  } elsif ($in_mm and m&^Modules with large Vsize&) {
-    $final_mm_clause = 1;
   }
   ########################################################################
   print;

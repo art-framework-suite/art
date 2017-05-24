@@ -18,8 +18,8 @@ extern int main(); //Forward declaration for friendship of test.
 
 class art::ScheduleContext {
 public:
-  ScheduleContext();
-  ScheduleID currentScheduleID();
+  explicit ScheduleContext() noexcept = default;
+  ScheduleID currentScheduleID() const;
 
   friend class detail::ScheduleContextSetter;
   friend int ::main();
@@ -28,27 +28,23 @@ private:
   bool setContext();
   bool resetContext();
 
-  typedef unsigned char flag_type;
-  std::atomic<flag_type> in_context_;
+  using flag_type = unsigned char;
+  std::atomic<flag_type> in_context_ {false};
 };
 
-#ifndef __GCCXML__
 inline
 bool
-art::ScheduleContext::
-setContext()
+art::ScheduleContext::setContext()
 {
   return in_context_.fetch_or(true);
 }
 
 inline
 bool
-art::ScheduleContext::
-resetContext()
+art::ScheduleContext::resetContext()
 {
   return in_context_.fetch_and(false);
 }
-#endif
 
 DECLARE_ART_SYSTEM_SERVICE(art::ScheduleContext, GLOBAL)
 #endif /* art_Framework_Services_System_ScheduleContext_h */

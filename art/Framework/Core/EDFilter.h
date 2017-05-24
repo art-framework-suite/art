@@ -80,7 +80,7 @@ namespace art
     virtual bool filter(Event&) = 0;
     virtual void beginJob(){}
     virtual void endJob(){}
-    virtual void reconfigure(fhicl::ParameterSet const&);
+    virtual void reconfigure(fhicl::ParameterSet const&) {} // Not called by framework
     virtual bool beginRun(Run &){return true;}
     virtual bool endRun(Run &){return true;}
     virtual bool beginSubRun(SubRun &){return true;}

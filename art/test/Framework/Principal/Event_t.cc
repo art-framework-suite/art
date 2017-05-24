@@ -8,24 +8,23 @@
 #include "art/Framework/Principal/Selector.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Framework/Principal/Handle.h"
+#include "art/Persistency/Provenance/BranchIDListRegistry.h"
+#include "art/Persistency/Provenance/MasterProductRegistry.h"
+#include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
+#include "art/Version/GetReleaseVersion.h"
 #include "canvas/Persistency/Common/Wrapper.h"
 #include "canvas/Persistency/Provenance/BranchDescription.h"
-#include "art/Persistency/Provenance/BranchIDListHelper.h"
-#include "art/Persistency/Provenance/BranchIDListHelper.h"
 #include "canvas/Persistency/Provenance/EventAuxiliary.h"
 #include "canvas/Persistency/Provenance/EventID.h"
 #include "canvas/Persistency/Provenance/History.h"
-#include "art/Persistency/Provenance/MasterProductRegistry.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
 #include "canvas/Persistency/Provenance/ProcessHistory.h"
-#include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
 #include "canvas/Persistency/Provenance/RunAuxiliary.h"
 #include "canvas/Persistency/Provenance/SubRunAuxiliary.h"
 #include "canvas/Persistency/Provenance/Timestamp.h"
 #include "canvas/Persistency/Provenance/TypeLabel.h"
 #include "canvas/Utilities/GetPassID.h"
 #include "canvas/Utilities/InputTag.h"
-#include "art/Version/GetReleaseVersion.h"
 #include "cetlib/container_algorithms.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "art/test/TestObjects/ToyProducts.h"
@@ -44,17 +43,17 @@ using namespace art;
 using fhicl::ParameterSet;
 
 namespace {
-  art::EventID   make_id() { return art::EventID(2112, 47, 25); }
-  art::Timestamp make_timestamp() { return art::Timestamp(1); }
+  art::EventID   make_id() { return art::EventID{2112, 47, 25}; }
+  art::Timestamp make_timestamp() { return art::Timestamp{1}; }
 }
 
 // This is a gross hack, to allow us to test the event
 namespace art {
   class EDProducer {
   public:
-    static void commitEvent(EventPrincipal& ep, Event& e, ProducedMap const& expectedProducts)
+    static void commitEvent(EventPrincipal& ep, Event& e)
     {
-      e.commit_(ep, false, expectedProducts);
+      e.commit_(ep, false, std::set<TypeLabel>{});
     }
   };
 }
@@ -120,16 +119,14 @@ MPRGlobalTestFixture::MPRGlobalTestFixture()
 
   std::string productInstanceName("int1");
 
-  availableProducts_->addProduct(std::make_unique<BranchDescription>
-                                 (art::TypeLabel(InEvent,
-                                                 product_type,
-                                                 productInstanceName),
-                                  *currentModuleDescription_));
+  availableProducts_->addProduct(std::make_unique<BranchDescription>(InEvent,
+                                                                     art::TypeLabel{product_type, productInstanceName},
+                                                                     *currentModuleDescription_));
 
   // Freeze the product registry before we make the Event.
   availableProducts_->setFrozen();
   ProductMetaData::create_instance(*availableProducts_);
-  BranchIDListHelper::updateRegistries(*availableProducts_);
+  BranchIDListRegistry::updateFromProductRegistry(*availableProducts_);
 }
 
 template <class T>
@@ -163,11 +160,9 @@ registerProduct(std::string const& tag,
   TypeID product_type(typeid(T));
 
   moduleDescriptions_[tag] = localModuleDescription;
-  availableProducts_->addProduct(std::make_unique<BranchDescription>
-                                 (art::TypeLabel(InEvent,
-                                                 product_type,
-                                                 productInstanceName),
-                                  localModuleDescription));
+  availableProducts_->addProduct(std::make_unique<BranchDescription>(InEvent,
+                                                                     art::TypeLabel{product_type, productInstanceName},
+                                                                     localModuleDescription));
 }
 
 struct EventTestFixture {
@@ -235,7 +230,7 @@ EventTestFixture::EventTestFixture()
   processHistory->push_back(processEarly);
   processHistory->push_back(processLate);
 
-  ProcessHistoryRegistry::put(ph);
+  ProcessHistoryRegistry::emplace(ph.id(), ph);
 
   ProcessHistoryID processHistoryID = ph.id();
 
@@ -290,7 +285,7 @@ addProduct(std::unique_ptr<T> && product,
 
   Event temporaryEvent(*principal_, description->second);
   ProductID id = temporaryEvent.put(std::move(product), productLabel);
-  EDProducer::commitEvent(*principal_, temporaryEvent, ProducedMap{});
+  EDProducer::commitEvent(*principal_, temporaryEvent);
   return id;
 }
 
@@ -334,7 +329,7 @@ BOOST_AUTO_TEST_CASE(putAnIntProduct)
   auto three = std::make_unique<arttest::IntProduct>(3);
   currentEvent_->put(std::move(three), "int1");
   BOOST_REQUIRE_EQUAL(currentEvent_->size(), 1u);
-  EDProducer::commitEvent(*principal_, *currentEvent_, ProducedMap{});
+  EDProducer::commitEvent(*principal_, *currentEvent_);
   BOOST_REQUIRE_EQUAL(currentEvent_->size(), 1u);
 }
 
@@ -342,7 +337,7 @@ BOOST_AUTO_TEST_CASE(putAndGetAnIntProduct)
 {
   auto four = std::make_unique<arttest::IntProduct>(4);
   currentEvent_->put(std::move(four), "int1");
-  EDProducer::commitEvent(*principal_, *currentEvent_, ProducedMap{});
+  EDProducer::commitEvent(*principal_, *currentEvent_);
 
   ProcessNameSelector should_match("CURRENT");
   ProcessNameSelector should_not_match("NONESUCH");
@@ -375,7 +370,7 @@ BOOST_AUTO_TEST_CASE(getByProductID)
     BOOST_REQUIRE(id2 != ProductID());
     BOOST_REQUIRE(id2 != id1);
 
-    EDProducer::commitEvent(*principal_, *currentEvent_, ProducedMap{});
+    EDProducer::commitEvent(*principal_, *currentEvent_);
     BOOST_REQUIRE_EQUAL(currentEvent_->size(), 2u);
   }
 
@@ -483,7 +478,7 @@ BOOST_AUTO_TEST_CASE(getBySelector)
 
   auto twoHundred = std::make_unique<product_t>(200);
   currentEvent_->put(std::move(twoHundred), "int1");
-  EDProducer::commitEvent(*principal_, *currentEvent_, ProducedMap{});
+  EDProducer::commitEvent(*principal_, *currentEvent_);
 
   BOOST_REQUIRE_EQUAL(currentEvent_->size(), 6u);
 
@@ -562,7 +557,7 @@ BOOST_AUTO_TEST_CASE(getByLabel)
 
   auto twoHundred = std::make_unique<product_t>(200);
   currentEvent_->put(std::move(twoHundred), "int1");
-  EDProducer::commitEvent(*principal_, *currentEvent_, ProducedMap{});
+  EDProducer::commitEvent(*principal_, *currentEvent_);
 
   BOOST_REQUIRE_EQUAL(currentEvent_->size(), 6u);
 
@@ -609,7 +604,7 @@ BOOST_AUTO_TEST_CASE(getManyByType)
 
   auto twoHundred = std::make_unique<product_t>(200);
   currentEvent_->put(std::move(twoHundred), "int1");
-  EDProducer::commitEvent(*principal_, *currentEvent_, ProducedMap{});
+  EDProducer::commitEvent(*principal_, *currentEvent_);
 
   BOOST_REQUIRE_EQUAL(currentEvent_->size(), 6u);
 

@@ -22,7 +22,7 @@
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
 #include "fhiclcpp/ParameterSet.h"
 
-#include "art/Framework/Core/EventObserver.h"
+#include "art/Framework/Core/EventObserverBase.h"
 
 #include <memory>
 #include <ostream>

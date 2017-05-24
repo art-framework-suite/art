@@ -1,6 +1,5 @@
 #include "art/Framework/Art/DebugOptionsHandler.h"
 
-#include "art/Utilities/bold_fontify.h"
 #include "art/Framework/Art/detail/fhicl_key.h"
 #include "canvas/Utilities/Exception.h"
 #include "fhiclcpp/coding.h"
@@ -19,15 +18,14 @@ DebugOptionsHandler(bpo::options_description& desc,
                     detail::DebugOutput& dbg)
   : dbg_{dbg}
 {
-  std::string const description {detail::bold_fontify("Debugging options")};
-  bpo::options_description debug_options {description};
+  bpo::options_description debug_options{"Debugging options"};
   debug_options.add_options()
     ("trace", "Activate tracing.")
     ("notrace", "Deactivate tracing.")
     ("timing", "Activate monitoring of time spent per event/module.")
     ("timing-db", bpo::value<std::string>(), "Output time-tracking data to SQLite3 database with name <db-file>.")
     ("notiming", "Deactivate time tracking.")
-    ("memcheck", "Activate monitoring of memory use.")
+    ("memcheck", "Activate monitoring of memory use (deprecated--per-job memory information printed in job summary).")
     ("memcheck-db", bpo::value<std::string>(), "Output memory use data to SQLite3 database with name <db-file>.")
     ("nomemcheck", "Deactivate monitoring of memory use.")
     ("debug-config", bpo::value<std::string>(),

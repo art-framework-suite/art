@@ -17,7 +17,7 @@ physics: {
 outputs:
 {
   out1:
-  { 
+  {
     module_type: TestProvenanceDumper
   }
 }

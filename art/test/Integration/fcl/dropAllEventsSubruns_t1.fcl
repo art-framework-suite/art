@@ -22,7 +22,7 @@ physics:
    end_paths: [ e1 ]
 }
 
-outputs: 
+outputs:
 {
    output : {
       module_type: RootOutput

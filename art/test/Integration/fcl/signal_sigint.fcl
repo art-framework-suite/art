@@ -6,7 +6,7 @@ source:
   maxEvents: 2
 }
 
-physics.analyzers.pa: 
+physics.analyzers.pa:
 {
   module_type: PausingAnalyzer
 }

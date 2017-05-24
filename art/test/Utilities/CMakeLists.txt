@@ -42,3 +42,7 @@ cet_test(ScheduleID_t USE_BOOST_UNIT)
 
 cet_test(parent_path_t USE_BOOST_UNIT
   LIBRARIES art_Utilities canvas)
+
+if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+  cet_test(Proc_t LIBRARIES art_Utilities)
+endif()

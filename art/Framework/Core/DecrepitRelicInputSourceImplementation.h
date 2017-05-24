@@ -50,7 +50,6 @@ Some examples of InputSource subclasses may be:
 #include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
-#include "canvas/Persistency/Provenance/ModuleDescription.h"
 #include "canvas/Persistency/Provenance/RunID.h"
 #include "canvas/Persistency/Provenance/SubRunID.h"
 #include "canvas/Persistency/Provenance/Timestamp.h"
@@ -101,13 +100,13 @@ namespace art
 
     /// Read next event
     /// Indicate inability to get a new event by returning a null unique_ptr.
-    std::unique_ptr<EventPrincipal> readEvent(cet::exempt_ptr<SubRunPrincipal> srp) override;
+    std::unique_ptr<EventPrincipal> readEvent(cet::exempt_ptr<SubRunPrincipal const> srp) override;
 
     /// Read a specific event
     std::unique_ptr<EventPrincipal> readEvent(EventID const&) override;
 
     /// Read next subRun
-    std::unique_ptr<SubRunPrincipal> readSubRun(cet::exempt_ptr<RunPrincipal> rp) override;
+    std::unique_ptr<SubRunPrincipal> readSubRun(cet::exempt_ptr<RunPrincipal const> rp) override;
 
     /// Read next run.
     std::unique_ptr<RunPrincipal> readRun() override;
@@ -156,9 +155,6 @@ namespace art
     /// -1 is used for unlimited.
     int remainingSubRuns() const {return remainingSubRuns_;}
 
-    ModuleDescription const& moduleDescription() const {return moduleDescription_;}
-    ProcessConfiguration const& processConfiguration() const {return moduleDescription().processConfiguration();}
-
     /// Called by framework at beginning of job
     void doBeginJob() override;
 
@@ -167,12 +163,6 @@ namespace art
 
     /// Accessor for the current time, as seen by the input source
     Timestamp const& timestamp() const {return time_;}
-
-    /// Accessor for current run number
-    RunID run() const final override;
-
-    /// Accessor for current subRun number
-    SubRunID subRun() const final override;
 
     /// RunsSubRunsAndEvents (default), RunsAndSubRuns, or Runs.
     ProcessingMode processingMode() const {return processingMode_;}
@@ -229,8 +219,6 @@ namespace art
     virtual void closeFile_() {}
     virtual void skip(int);
     virtual void rewind_();
-    void preRead();
-    void postRead(Event& event);
     virtual void beginJob();
     virtual void endJob();
 
@@ -238,7 +226,6 @@ namespace art
     int maxEvents_;
     int maxSubRuns_;
     int const reportFrequency_;
-    ModuleDescription const moduleDescription_;
 
     int remainingEvents_ {maxEvents_};
     int remainingSubRuns_ {maxSubRuns_};

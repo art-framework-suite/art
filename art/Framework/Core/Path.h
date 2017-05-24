@@ -11,7 +11,6 @@
 
 #include "art/Framework/Principal/CurrentProcessingContext.h"
 #include "art/Framework/Principal/PrincipalPackages.h"
-#include "art/Framework/Principal/MaybeRunStopwatch.h"
 #include "art/Framework/Principal/Worker.h"
 #include "art/Framework/Core/WorkerInPath.h"
 #include "canvas/Persistency/Common/HLTenums.h"
@@ -52,11 +51,6 @@ public:
   int bitPosition() const { return bitpos_; }
   std::string const& name() const { return name_; }
 
-  std::pair<double,double> timeCpuReal() const
-  {
-    return std::pair<double,double>(stopwatch_.cpuTime(), stopwatch_.realTime());
-  }
-
   void clearCounters();
 
   std::size_t timesRun() const { return timesRun_; }
@@ -74,7 +68,6 @@ private:
 
   void findByModifiesEvent(bool modifies, std::vector<std::string>& foundLabels) const;
 
-  Stopwatch::timer_type stopwatch_ {};
   std::size_t timesRun_ {};
   std::size_t timesPassed_ {};
   std::size_t timesFailed_ {};
@@ -99,41 +92,11 @@ private:
   void updateCounters(bool succeed, bool isEvent);
 };
 
-namespace art {
-  namespace {
-    template <typename T>
-    class PathSignalSentry {
-  public:
-      PathSignalSentry(ActivityRegistry & a,
-                       std::string const& name,
-                       int const& nwrwue,
-                       hlt::HLTState const& state) :
-        a_(a), name_(name), nwrwue_(nwrwue), state_(state) {
-        T::prePathSignal(&a_, name_);
-      }
-      ~PathSignalSentry() {
-        HLTPathStatus status(state_, nwrwue_);
-        T::postPathSignal(&a_, name_, status);
-      }
-  private:
-      ActivityRegistry& a_;
-      std::string const& name_;
-      int const& nwrwue_;
-      hlt::HLTState const& state_;
-    };
-  }
-}
-
 template <typename T>
 void art::Path::process(typename T::MyPrincipal& ep)
 {
-  // Create the PathSignalSentry before the MaybeRunStopwatch so that
-  // we only record the time spent in the path not from the signal
-
   int nwrwue {-1}; // numWorkersRunWithoutUnhandledException
-  auto signaler = std::make_unique<PathSignalSentry<T>>(actReg_, name_, nwrwue, state_);
-
-  MaybeRunStopwatch<T::level> sentry {stopwatch_};
+  T::prePathSignal(actReg_, name_);
 
   if (T::level == Level::Event) {
     ++timesRun_;
@@ -149,17 +112,19 @@ void art::Path::process(typename T::MyPrincipal& ep)
       cpc.activate(nwrwue, it->getWorker()->descPtr());
       should_continue = it->runWorker<T>(ep, &cpc);
     }
-    catch(cet::exception& e) {
+    catch (cet::exception& e) {
       // handleWorkerFailure may throw a new exception.
       should_continue = handleWorkerFailure(e, nwrwue, T::level == Level::Event);
     }
-    catch(...) {
+    catch (...) {
       recordUnknownException(nwrwue, T::level == Level::Event);
       throw;
     }
   }
   updateCounters(should_continue, T::level == Level::Event);
   recordStatus(nwrwue, T::level == Level::Event);
+  HLTPathStatus const status(state_, nwrwue);
+  T::postPathSignal(actReg_, name_, status);
 }
 
 // ======================================================================

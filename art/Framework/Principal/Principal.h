@@ -54,8 +54,7 @@ namespace art {
 
   public: // MEMBER FUNCTIONS
 
-    virtual
-    ~Principal();
+    virtual ~Principal() noexcept = default;
 
     Principal(Principal const&) = delete;
 
@@ -67,7 +66,7 @@ namespace art {
               std::unique_ptr<BranchMapper>&&,
               std::unique_ptr<DelayedReader>&&,
               int idx,
-              Principal*);
+              cet::exempt_ptr<Principal const>);
 
     OutputHandle
     getForOutput(BranchID const, bool resolveProd) const;
@@ -193,7 +192,7 @@ namespace art {
 
     virtual
     void
-    addGroup(BranchDescription const&) = 0;
+    fillGroup(BranchDescription const&) = 0;
 
     virtual
     RangeSet
@@ -213,22 +212,9 @@ namespace art {
       return *store_;
     }
 
-    // Add a new Group.
     // We take ownership of the Group, which in turn owns its data.
     void
-    addGroup_(std::unique_ptr<Group>&& group)
-    {
-      BranchDescription const& bd = group->productDescription();
-      assert(!bd.producedClassName().empty());
-      assert(!bd.friendlyClassName().empty());
-      assert(!bd.moduleLabel().empty());
-      assert(!bd.processName().empty());
-      group->setResolvers(branchMapper(), *store_);
-      groups_.emplace(bd.branchID(), std::move(group));
-    }
-
-    void
-    replaceGroup(std::unique_ptr<Group>&& group)
+    fillGroup(std::unique_ptr<Group>&& group)
     {
       BranchDescription const& bd = group->productDescription();
       assert(!bd.producedClassName().empty());
@@ -256,10 +242,6 @@ namespace art {
                      bool resolveProd) const;
 
   private: // MEMBER FUNCTIONS
-
-    virtual
-    void
-    addOrReplaceGroup(std::unique_ptr<Group>&&) = 0;
 
     virtual
     ProcessHistoryID const&
@@ -292,14 +274,14 @@ namespace art {
 
   private: // MEMBER DATA
 
-    std::shared_ptr<ProcessHistory> processHistoryPtr_;
+    std::shared_ptr<ProcessHistory> processHistoryPtr_ {std::make_shared<ProcessHistory>()};
 
     ProcessConfiguration const& processConfiguration_;
 
-    mutable bool processHistoryModified_;
+    mutable bool processHistoryModified_ {false};
 
     // products and provenances are persistent
-    std::map<BranchID, std::unique_ptr<Group>> groups_;
+    std::map<BranchID, std::unique_ptr<Group>> groups_ {};
 
     // Pointer to the mapper that will get provenance
     // information from the persistent store.
@@ -310,13 +292,13 @@ namespace art {
     std::unique_ptr<DelayedReader> store_;
 
     // Back pointer to the primary principal.
-    cet::exempt_ptr<Principal> primaryPrincipal_;
+    cet::exempt_ptr<Principal const> primaryPrincipal_;
 
     // Secondary principals.  Note that the lifetime of run
     // and subRun principals is the lifetime of the input file,
     // while the lifetime of event principals ends at the next
     // event read.
-    std::vector<std::unique_ptr<Principal>> secondaryPrincipals_;
+    std::vector<std::unique_ptr<Principal>> secondaryPrincipals_ {};
 
     // Index into the per-file lookup tables.  Each principal is
     // read from particular secondary file.
@@ -324,7 +306,7 @@ namespace art {
 
     // Index into the secondary file names vector of the next
     // file that a secondary principal should be created from.
-    mutable int nextSecondaryFileIdx_;
+    mutable int nextSecondaryFileIdx_ {};
 
   };
 

@@ -35,13 +35,13 @@ namespace art {
                     ProcessConfiguration const&,
                     std::unique_ptr<BranchMapper>&& = std::make_unique<BranchMapper>(),
                     std::unique_ptr<DelayedReader>&& = std::make_unique<NoDelayedReader>(),
-                    int idx = 0,
-                    SubRunPrincipal* = nullptr);
+                    int const idx = 0,
+                    cet::exempt_ptr<SubRunPrincipal const> = nullptr);
 
     RunPrincipal const& runPrincipal() const;
 
     cet::exempt_ptr<RunPrincipal const> runPrincipalExemptPtr() const { return runPrincipal_; }
-    void setRunPrincipal(cet::exempt_ptr<RunPrincipal> rp) { runPrincipal_ = rp; }
+    void setRunPrincipal(cet::exempt_ptr<RunPrincipal const> rp) { runPrincipal_ = rp; }
 
     SubRunAuxiliary const& aux() const { return aux_; }
     SubRunID id() const { return aux().id(); }
@@ -57,7 +57,7 @@ namespace art {
              std::unique_ptr<ProductProvenance const>&&,
              RangeSet&&);
 
-    void addGroup(BranchDescription const&);
+    void fillGroup(BranchDescription const&) override;
 
     RangeSet seenRanges() const override { return rangeSet_; }
     void updateSeenRanges(RangeSet const& rs) { rangeSet_ = rs; }
@@ -66,15 +66,11 @@ namespace art {
 
   private:
 
-    void addGroup(std::unique_ptr<EDProduct>&&,
-                  BranchDescription const&,
-                  RangeSet&&);
-    void addOrReplaceGroup(std::unique_ptr<Group>&& g) override;
     ProcessHistoryID const& processHistoryID() const override;
     void setProcessHistoryID(ProcessHistoryID const& phid) override;
 
     SubRunAuxiliary aux_;
-    cet::exempt_ptr<RunPrincipal> runPrincipal_ {nullptr};
+    cet::exempt_ptr<RunPrincipal const> runPrincipal_ {nullptr};
     RangeSet rangeSet_ {RangeSet::invalid()};
   };
 

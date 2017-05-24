@@ -27,33 +27,26 @@ using namespace std;
 namespace art {
 
 Principal::
-~Principal()
-{
-  primaryPrincipal_ = nullptr;
-}
-
-Principal::
-Principal(ProcessConfiguration const& pc, ProcessHistoryID const& hist,
+Principal(ProcessConfiguration const& pc,
+          ProcessHistoryID const& hist,
           std::unique_ptr<BranchMapper>&& mapper,
-          std::unique_ptr<DelayedReader>&& reader, int idx,
-          Principal* primaryPrincipal)
-  : processHistoryPtr_(new ProcessHistory)
-  , processConfiguration_(pc)
-  , processHistoryModified_(false)
-  , groups_()
-  , branchMapperPtr_(std::move(mapper))
-  , store_(std::move(reader))
-  , primaryPrincipal_(primaryPrincipal)
-  , secondaryPrincipals_()
-  , secondaryIdx_(idx)
-  , nextSecondaryFileIdx_(0)
+          std::unique_ptr<DelayedReader>&& reader,
+          int const idx,
+          cet::exempt_ptr<Principal const> primaryPrincipal)
+  : processConfiguration_{pc}
+  , branchMapperPtr_{std::move(mapper)}
+  , store_{std::move(reader)}
+  , primaryPrincipal_{primaryPrincipal}
+  , secondaryIdx_{idx}
 {
   if (!hist.isValid()) {
     return;
   }
   assert(!ProcessHistoryRegistry::empty());
-  bool found [[gnu::unused]] = ProcessHistoryRegistry::get(hist, *processHistoryPtr_);
+  ProcessHistory ph;
+  bool const found [[gnu::unused]] {ProcessHistoryRegistry::get(hist, ph)};
   assert(found);
+  std::swap(*processHistoryPtr_ , ph);
 }
 
 void
@@ -76,16 +69,15 @@ addToProcessHistory()
     }
   }
   ph.push_back(processConfiguration_);
-  // OPTIMIZATION NOTE:  As of 0_9_0_pre3
-  // For very simple Sources (e.g. EmptyEvent) this routine takes
-  // up nearly 50% of the time per event, and 96% of the time for
-  // this routine is spent in computing the ProcessHistory id which
-  // happens because we are reconstructing the ProcessHistory for
-  // each event (the process ID is first computed in the call to
-  // insertMapped() below).  It would probably be better to move
-  // the ProcessHistory construction out to somewhere which persists
-  // for longer than one Event.
-  ProcessHistoryRegistry::put(ph);
+  // OPTIMIZATION NOTE: As of 0_9_0_pre3
+  // For very simple Sources (e.g. EmptyEvent) this routine takes up
+  // nearly 50% of the time per event, and 96% of the time for this
+  // routine is spent in computing the ProcessHistory id which happens
+  // because we are reconstructing the ProcessHistory for each event.
+  // It would probably be better to move the ProcessHistory
+  // construction out to somewhere which persists for longer than one
+  // Event.
+  ProcessHistoryRegistry::emplace(ph.id(), ph);
   setProcessHistoryID(ph.id());
   processHistoryModified_ = true;
 }
@@ -122,10 +114,10 @@ getByLabel(TypeID const& productType, string const& label,
            string const& productInstanceName, string const& processName) const
 {
   GroupQueryResultVec results;
-  Selector sel(ModuleLabelSelector(label) &&
-               ProductInstanceNameSelector(productInstanceName) &&
-               ProcessNameSelector(processName));
-  int nFound = findGroupsForProduct(productType, sel, results, true);
+  Selector sel(ModuleLabelSelector{label} &&
+               ProductInstanceNameSelector{productInstanceName} &&
+               ProcessNameSelector{processName});
+  int const nFound = findGroupsForProduct(productType, sel, results, true);
   if (nFound == 0) {
     auto whyFailed = std::make_shared<art::Exception>(art::errors::ProductNotFound);
     *whyFailed << "getByLabel: Found zero products matching all criteria\n"
@@ -387,23 +379,23 @@ getForOutput(BranchID const bid, bool resolveProd) const
   if (g.get() == nullptr) {
     return OutputHandle{RangeSet::invalid()};
   }
-  auto const & pmd = ProductMetaData::instance();
+  auto const& pmd = ProductMetaData::instance();
   auto const bt = g->productDescription().branchType();
   if (resolveProd
       &&
       ((g->anyProduct() == nullptr) || !g->anyProduct()->isPresent())
       &&
-      ( pmd.presentWithFileIdx(bt, bid) != MasterProductRegistry::DROPPED ||
-        pmd.produced(bt, bid) )
+      (pmd.presentWithFileIdx(bt, bid) != MasterProductRegistry::DROPPED ||
+       pmd.produced(bt, bid))
       &&
       (bt == InEvent)
       &&
       productstatus::present(g->productProvenancePtr()->productStatus())) {
     throw Exception(errors::LogicError, "Principal::getForOutput\n")
-        << "A product with a status of 'present' is not actually present.\n"
-        << "The branch name is "
-        << g->productDescription().branchName()
-        << "\nContact a framework developer.\n";
+      << "A product with a status of 'present' is not actually present.\n"
+      << "The branch name is "
+      << g->productDescription().branchName()
+      << "\nContact a framework developer.\n";
   }
   if (!g->anyProduct() && !g->productProvenancePtr()) {
     return OutputHandle{g->rangeOfValidity()};

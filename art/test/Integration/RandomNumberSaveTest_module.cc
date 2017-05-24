@@ -10,11 +10,10 @@
 // from art v1_00_00.
 ////////////////////////////////////////////////////////////////////////
 
-#include "art/Framework/Core/EDFilter.h"
+#include "art/Framework/Core/EDProducer.h"
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Principal/Handle.h"
-#include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/Optional/RandomNumberGenerator.h"
 #include "canvas/Utilities/Exception.h"
 #include "cetlib/container_algorithms.h"
@@ -32,25 +31,26 @@ namespace arttest {
   class RandomNumberSaveTest;
 }
 
-class arttest::RandomNumberSaveTest : public art::EDFilter {
+class arttest::RandomNumberSaveTest : public art::EDProducer {
 public:
   using prod_t = std::vector<size_t>;
 
-  explicit RandomNumberSaveTest(fhicl::ParameterSet const & p);
+  explicit RandomNumberSaveTest(fhicl::ParameterSet const& p);
 
-  bool filter(art::Event & e) override;
+  void produce(art::Event& e) override;
 
 private:
 
   std::string myLabel_;
   CLHEP::RandFlat dist_;
   size_t dieOnNthEvent_;
-  size_t eventN_;
+  size_t eventN_ {};
   bool genUnsaved_;
 };
 
-std::ostream & operator << (std::ostream & os,
-                            arttest::RandomNumberSaveTest::prod_t const & v) {
+std::ostream& operator<<(std::ostream& os,
+                         arttest::RandomNumberSaveTest::prod_t const& v)
+{
   cet::copy_all(v,
                 std::ostream_iterator<arttest::RandomNumberSaveTest::prod_t::value_type>
                 (os, ", "));
@@ -59,19 +59,17 @@ std::ostream & operator << (std::ostream & os,
 
 #include "cetlib/quiet_unit_test.hpp"
 
-arttest::RandomNumberSaveTest::RandomNumberSaveTest(fhicl::ParameterSet const & p)
+arttest::RandomNumberSaveTest::RandomNumberSaveTest(fhicl::ParameterSet const& p)
   :
-  myLabel_(p.get<std::string>("module_label")),
-  dist_((createEngine(get_seed_value(p)),
-         art::ServiceHandle<art::RandomNumberGenerator>()->getEngine())),
-  dieOnNthEvent_(p.get<size_t>("dieOnNthEvent", 0)),
-  eventN_(0),
-  genUnsaved_(p.get<bool>("genUnsaved", true))
+  myLabel_{p.get<std::string>("module_label")},
+  dist_{createEngine(get_seed_value(p))},
+  dieOnNthEvent_{p.get<size_t>("dieOnNthEvent", 0)},
+  genUnsaved_{p.get<bool>("genUnsaved", true)}
 {
   produces<prod_t>();
 }
 
-bool arttest::RandomNumberSaveTest::filter(art::Event & e)
+void arttest::RandomNumberSaveTest::produce(art::Event& e)
 {
   if (++eventN_ == dieOnNthEvent_) {
     throw art::Exception(art::errors::Configuration)
@@ -81,12 +79,12 @@ bool arttest::RandomNumberSaveTest::filter(art::Event & e)
   }
   art::Handle<prod_t> hp;
   prod_t nums;
-  static size_t const nums_size = 5;
-  static size_t const random_range = 1000;
+  static size_t constexpr nums_size {5};
+  static size_t constexpr random_range {1000};
   nums.reserve(nums_size);
   generate_n(std::back_inserter(nums),
              nums_size,
-             [this](){ return dist_.fireInt(random_range);});
+             [this]{ return dist_.fireInt(random_range);});
   std::cerr << "nums: " << nums << "\n";
   if (e.getByLabel(myLabel_, hp)) {
     std::cerr << "(*hp): " << *hp << "\n";
@@ -100,7 +98,6 @@ bool arttest::RandomNumberSaveTest::filter(art::Event & e)
     // Writing.
     e.put(std::make_unique<prod_t>(nums));
   }
-  return true;
 }
 
 DEFINE_ART_MODULE(arttest::RandomNumberSaveTest)

@@ -4,44 +4,30 @@
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/Registry/ServiceMacros.h"
-#include "fhiclcpp/ParameterSet.h"
+#include "art/test/Integration/Wanted.h"
 
-#include "art/test/Integration/Reconfigurable.h"
-
-namespace arttest {
-  class ServiceUsing;
+namespace art {
+  namespace test {
+    class ServiceUsing;
+  }
 }
 
-class arttest::ServiceUsing {
+class art::test::ServiceUsing {
 public:
-  ServiceUsing(fhicl::ParameterSet const &, art::ActivityRegistry &);
+  ServiceUsing(fhicl::ParameterSet const&, art::ActivityRegistry&);
 
-  int getCachedValue() const;
+  int getCachedValue() const { return cached_value_; }
+  bool postBeginJobCalled() const { return postBeginJobCalled_; }
+
 private:
-  void maybeGetNewValue(std::string const & service_name);
 
-  int getNewValue();
-
-  int cached_debug_value_;
+  void postBeginJob();
+  bool postBeginJobCalled_ {false};
+  int cached_value_ {};
+  ServiceHandle<Wanted> wanted_ {};
 };
 
-inline
-int
-arttest::ServiceUsing::
-getCachedValue() const
-{
-  return cached_debug_value_;
-}
-
-inline
-int
-arttest::ServiceUsing::
-getNewValue()
-{
-  return art::ServiceHandle<Reconfigurable>()->get_debug_level();
-}
-
-DECLARE_ART_SERVICE(arttest::ServiceUsing, LEGACY)
+DECLARE_ART_SERVICE(art::test::ServiceUsing, LEGACY)
 #endif /* art_test_Integration_ServiceUsing_h */
 
 // Local Variables:

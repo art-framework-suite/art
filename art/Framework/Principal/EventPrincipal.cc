@@ -21,15 +21,14 @@ using namespace std;
 
 namespace art {
 
-EventPrincipal::
-EventPrincipal(EventAuxiliary const& aux,
-               ProcessConfiguration const& pc,
-               std::shared_ptr<History> history,
-               std::unique_ptr<BranchMapper>&& mapper,
-               std::unique_ptr<DelayedReader>&& rtrv,
-               bool const lastInSubRun,
-               int idx,
-               EventPrincipal* primaryPrincipal)
+EventPrincipal::EventPrincipal(EventAuxiliary const& aux,
+                               ProcessConfiguration const& pc,
+                               std::shared_ptr<History> history,
+                               std::unique_ptr<BranchMapper>&& mapper,
+                               std::unique_ptr<DelayedReader>&& rtrv,
+                               bool const lastInSubRun,
+                               int const idx,
+                               cet::exempt_ptr<EventPrincipal const> primaryPrincipal)
   : Principal{pc, history->processHistoryID(), std::move(mapper), std::move(rtrv), idx, primaryPrincipal}
   , aux_{aux}
   , history_{history}
@@ -39,7 +38,7 @@ EventPrincipal(EventAuxiliary const& aux,
   if (ProductMetaData::instance().productProduced(InEvent)) {
     addToProcessHistory();
     // Add index into BranchIDListRegistry for products produced this process
-    history_->addBranchListIndexEntry(BranchIDListRegistry::instance()->size() - 1);
+    history_->addBranchListIndexEntry(BranchIDListRegistry::instance().size()-1);
   }
   // Fill in helper map for Branch to ProductID mapping
   for (auto IB = history->branchListIndexes().cbegin(),
@@ -50,8 +49,7 @@ EventPrincipal(EventAuxiliary const& aux,
 }
 
 SubRunPrincipal const&
-EventPrincipal::
-subRunPrincipal() const
+EventPrincipal::subRunPrincipal() const
 {
   if (!subRunPrincipal_) {
     throw Exception(errors::NullPointerError)
@@ -60,24 +58,11 @@ subRunPrincipal() const
   return *subRunPrincipal_;
 }
 
-RunPrincipal const&
-EventPrincipal::
-runPrincipal() const
-{
-  return subRunPrincipal().runPrincipal();
-}
-
 void
-EventPrincipal::
-addOrReplaceGroup(std::unique_ptr<Group>&& g)
+EventPrincipal::throwIfExistingGroup(BranchDescription const& bd) const
 {
-  cet::exempt_ptr<Group const> group = getExistingGroup(g->productDescription().branchID());
-  if (!group) {
-    addGroup_(std::move(g));
-    return;
-  }
-  BranchDescription const& bd = group->productDescription();
-  throw art::Exception(art::errors::ProductRegistrationFailure, "EventPrincipal::addOrReplaceGroup")
+  if (auto group = getExistingGroup(bd.branchID())) {
+    throw art::Exception(art::errors::ProductRegistrationFailure, "EventPrincipal::throwIfExistingGroup")
       << "Problem found while adding product provenance: "
       << "product already exists for ("
       << bd.friendlyClassName()
@@ -90,57 +75,41 @@ addOrReplaceGroup(std::unique_ptr<Group>&& g)
       << ","
       << bd.branchType()
       << ")\n";
-}
-
-void
-EventPrincipal::
-addGroup(BranchDescription const& bd)
-{
-  addOrReplaceGroup(gfactory::make_group(bd,
-                                         branchIDToProductID(bd.branchID()),
-                                         RangeSet::invalid()));
-}
-
-void
-EventPrincipal::
-addGroup(std::unique_ptr<EDProduct>&& prod, BranchDescription const& bd)
-{
-  addOrReplaceGroup(gfactory::make_group(bd,
-                                         branchIDToProductID(bd.branchID()),
-                                         RangeSet::invalid(),
-                                         std::move(prod)));
-}
-
-void
-EventPrincipal::
-put(std::unique_ptr<EDProduct>&& edp,
-    BranchDescription const& bd,
-    std::unique_ptr<ProductProvenance const>&& productProvenance)
-{
-  if (!edp) {
-    throw art::Exception(art::errors::ProductPutFailure, "Null Pointer")
-        << "put: Cannot put because unique_ptr to product is null.\n";
   }
-  ProductID pid = branchIDToProductID(bd.branchID());
-  if (!pid.isValid()) {
-    throw art::Exception(art::errors::ProductPutFailure, "Null Product ID")
-        << "put: Cannot put product with null Product ID.\n";
-  }
+}
+
+void
+EventPrincipal::fillGroup(BranchDescription const& bd)
+{
+  throwIfExistingGroup(bd);
+  Principal::fillGroup(gfactory::make_group(bd,
+                                            branchIDToProductID(bd.branchID()),
+                                            RangeSet::invalid()));
+}
+
+void
+EventPrincipal::put(std::unique_ptr<EDProduct>&& edp,
+                    BranchDescription const& bd,
+                    std::unique_ptr<ProductProvenance const>&& productProvenance)
+{
+  assert(edp);
   branchMapper().insert(std::move(productProvenance));
-  addGroup(std::move(edp), bd);
+  throwIfExistingGroup(bd);
+  Principal::fillGroup(gfactory::make_group(bd,
+                                            branchIDToProductID(bd.branchID()),
+                                            RangeSet::invalid(),
+                                            std::move(edp)));
 }
 
 EDProductGetter const*
-EventPrincipal::
-productGetter(ProductID const& pid) const
+EventPrincipal::productGetter(ProductID const& pid) const
 {
-  EDProductGetter const* result = getByProductID(pid).result().get();
+  EDProductGetter const* result{getByProductID(pid).result().get()};
   return result ? result : deferredGetter_(pid);
 }
 
 BranchID
-EventPrincipal::
-productIDToBranchID(ProductID const& pid) const
+EventPrincipal::productIDToBranchID(ProductID const& pid) const
 {
   BranchID result;
   if (!pid.isValid()) {
@@ -152,13 +121,14 @@ productIDToBranchID(ProductID const& pid) const
     --procidx;
     if (procidx < history().branchListIndexes().size()) {
       auto const blix = history().branchListIndexes()[procidx];
-      if (blix < BranchIDListRegistry::instance()->data().size()) {
-        auto const & blist = BranchIDListRegistry::instance()->data()[blix];
+      auto const& breg_data = BranchIDListRegistry::instance().data();
+      if (blix < breg_data.size()) {
+        auto const & blist = breg_data[blix];
         auto productidx = pid.productIndex();
         if (productidx > 0) {
           --productidx;
           if (productidx < blist.size()) {
-            result = BranchID(blist[productidx]);
+            result = BranchID{blist[productidx]};
           }
         }
       }
@@ -168,15 +138,13 @@ productIDToBranchID(ProductID const& pid) const
 }
 
 ProductID
-EventPrincipal::
-branchIDToProductID(BranchID const bid) const
+EventPrincipal::branchIDToProductID(BranchID const bid) const
 {
   if (!bid.isValid()) {
     throw art::Exception(art::errors::NotFound, "InvalidID")
         << "branchIDToProductID: invalid BranchID supplied\n";
   }
-  auto const& branchIDToIndexMap =
-    BranchIDListRegistry::instance()->extra().branchIDToIndexMap();
+  auto const& branchIDToIndexMap = BranchIDListRegistry::instance().branchIDToIndexMap();
   auto it = branchIDToIndexMap.find(bid);
   if (it == branchIDToIndexMap.end()) {
     throw art::Exception(art::errors::NotFound, "Bad BranchID")
@@ -196,8 +164,7 @@ branchIDToProductID(BranchID const bid) const
 }
 
 GroupQueryResult
-EventPrincipal::
-getGroup(ProductID const& pid) const
+EventPrincipal::getGroup(ProductID const& pid) const
 {
   BranchID const bid = productIDToBranchID(pid);
   if (auto const g = getGroupForPtr(art::InEvent, bid)) {
@@ -209,8 +176,7 @@ getGroup(ProductID const& pid) const
 }
 
 GroupQueryResult
-EventPrincipal::
-getByProductID(ProductID const& pid) const
+EventPrincipal::getByProductID(ProductID const& pid) const
 {
   // FIXME: This reproduces the logic of the old version of the
   // function, but I'm not sure it does the *right* thing in the face
@@ -225,15 +191,13 @@ getByProductID(ProductID const& pid) const
 }
 
 EventSelectionIDVector const&
-EventPrincipal::
-eventSelectionIDs() const
+EventPrincipal::eventSelectionIDs() const
 {
   return history_->eventSelectionIDs();
 }
 
 EDProductGetter const*
-EventPrincipal::
-deferredGetter_(ProductID const& pid) const
+EventPrincipal::deferredGetter_(ProductID const& pid) const
 {
   auto it = deferredGetters_.find(pid);
   if (it != deferredGetters_.end()) {

@@ -114,8 +114,8 @@ namespace {
     using namespace art;
     std::unique_ptr<CLHEP::RandFlat> result;
     if (readMode > MixHelper::Mode::SEQUENTIAL) {
-      if (ServiceRegistry::instance().isAvailable<RandomNumberGenerator>()) {
-        result.reset(new CLHEP::RandFlat(ServiceHandle<RandomNumberGenerator>()->getEngine()));
+      if (ServiceRegistry::isAvailable<RandomNumberGenerator>()) {
+        result.reset(new CLHEP::RandFlat(ServiceHandle<RandomNumberGenerator>{}->getEngine()));
       } else {
         throw Exception(errors::Configuration, "MixHelper")
           << "Random event mixing selected but RandomNumberGenerator service not loaded.\n"
@@ -317,7 +317,7 @@ art::MixHelper::mixAndPut(EntryNumberSequence const & eventEntries,
           << currentFile_->GetName()
           << ".\n";
       }
-    } 
+    }
   }
   // Do the branch-wise read, mix and put.
   for (auto const & op : mixOps_) {

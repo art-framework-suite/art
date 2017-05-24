@@ -68,14 +68,14 @@ namespace {
 
   // Common case, can dereference (eg Ptr<T>).
   template <typename T, template <typename> class WRAP>
-  typename std::enable_if<boost::has_dereference<WRAP<T> >::value, T const &>::type
+  std::enable_if_t<boost::has_dereference<WRAP<T> >::value, T const &>
   dereference(WRAP<T> const & wrapper) {
      return *wrapper;
   }
 
   // maybe_ref<T>.
   template <typename T, template <typename> class WRAP>
-  typename std::enable_if<std::is_same<WRAP<T>, cet::maybe_ref<T> >::value, T const &>::type
+  std::enable_if_t<std::is_same<WRAP<T>, cet::maybe_ref<T> >::value, T const &>
   dereference(WRAP<T> const & wrapper) {
      return wrapper.ref();
   }
@@ -116,7 +116,7 @@ namespace {
   // check_get specialized for FindOne
   template <typename T, typename D,
             template <typename, typename> class FO>
-  typename std::enable_if<std::is_same<FO<T, void>, art::FindOne<T, void> >::value>::type
+  std::enable_if_t<std::is_same<FO<T, void>, art::FindOne<T, void> >::value>
   check_get(FO<T, D> const & fA,
             FO<T, void> const & fAV) {
     typedef cet::maybe_ref<typename FO<T, void>::assoc_t const> item_t;
@@ -127,8 +127,8 @@ namespace {
   // check_get specialized for FindOneP
   template <typename T, typename D,
             template <typename, typename> class FO>
-  //typename std::enable_if<std::is_same<FO<T, void>, art::FindOneP<T, void> >::value>::type
-  typename std::enable_if<std::is_same<FO<T, void>, art::FindOneP<T, void> >::value>::type
+  //std::enable_if_t<std::is_same<FO<T, void>, art::FindOneP<T, void> >::value>
+  std::enable_if_t<std::is_same<FO<T, void>, art::FindOneP<T, void> >::value>
   check_get(FO<T, D> const & fA,
             FO<T, void> const & fAV) {
     typedef art::Ptr<typename FO<T, void>::assoc_t> item_t;
@@ -139,7 +139,7 @@ namespace {
   // check_get specialized for FindMany and FindManyP
   template <typename T, typename D,
             template <typename, typename> class FM>
-  typename std::enable_if<std::is_same<FM<T, void>, art::FindMany<T, void> >::value || std::is_same<FM<T, void>, art::FindManyP<T, void> >::value>::type
+  std::enable_if_t<std::is_same<FM<T, void>, art::FindMany<T, void> >::value || std::is_same<FM<T, void>, art::FindManyP<T, void> >::value>
   check_get(FM<T, D> const & fA,
             FM<T, void> const & fAV) {
     typename FM<T, void>::value_type item;

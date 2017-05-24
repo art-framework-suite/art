@@ -19,7 +19,6 @@ private:
   std::string const & fileName_;
 };
 
-#ifndef __GCXML__
 inline
 art::OutputFileInfo::
 OutputFileInfo(std::string const & moduleLabel,
@@ -45,7 +44,6 @@ fileName() const
 {
   return fileName_;
 }
-#endif /* __GCCXML__ */
 
 #endif /* art_Utilities_OutputFileInfo_h */
 

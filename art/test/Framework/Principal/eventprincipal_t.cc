@@ -8,19 +8,20 @@ Test of the EventPrincipal class.
 #include "cetlib/quiet_unit_test.hpp"
 
 #include "art/Framework/Principal/EventPrincipal.h"
-
-#include "art/Persistency/Provenance/ProductMetaData.h"
+#include "art/Framework/Principal/Provenance.h"
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/Selector.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Persistency/Common/GroupQueryResult.h"
-#include "art/Framework/Principal/Provenance.h"
+#include "art/Persistency/Provenance/BranchIDListRegistry.h"
+#include "art/Persistency/Provenance/ProductMetaData.h"
+#include "art/Persistency/Provenance/MasterProductRegistry.h"
+#include "art/Version/GetReleaseVersion.h"
+#include "art/test/TestObjects/ToyProducts.h"
 #include "canvas/Persistency/Common/Wrapper.h"
 #include "canvas/Persistency/Provenance/BranchDescription.h"
 #include "canvas/Persistency/Provenance/BranchID.h"
-#include "art/Persistency/Provenance/BranchIDListHelper.h"
 #include "canvas/Persistency/Provenance/EventAuxiliary.h"
-#include "art/Persistency/Provenance/MasterProductRegistry.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
 #include "canvas/Persistency/Provenance/Parentage.h"
 #include "canvas/Persistency/Provenance/ProcessConfiguration.h"
@@ -34,12 +35,11 @@ Test of the EventPrincipal class.
 #include "canvas/Utilities/Exception.h"
 #include "canvas/Utilities/GetPassID.h"
 #include "canvas/Utilities/TypeID.h"
-#include "art/Version/GetReleaseVersion.h"
-#include <memory>
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/ParameterSetID.h"
-#include "art/test/TestObjects/ToyProducts.h"
+
 #include <map>
+#include <memory>
 #include <stdexcept>
 #include <string>
 #include <typeinfo>
@@ -83,7 +83,7 @@ MPRGlobalTestFixture::MPRGlobalTestFixture()
   productRegistry_.addProduct(fake_single_process_branch("user", "USER"));
   productRegistry_.addProduct(fake_single_process_branch("rick", "USER2", "rick"));
   productRegistry_.setFrozen();
-  art::BranchIDListHelper::updateRegistries(productRegistry_);
+  art::BranchIDListRegistry::updateFromProductRegistry(productRegistry_);
   art::ProductMetaData::create_instance(productRegistry_);
 }
 
@@ -123,11 +123,9 @@ fake_single_process_branch(std::string const& tag,
                              moduleLabel,
                              *fake_single_module_process(tag, processName, modParams));
 
-  art::BranchDescription* result =
-    new art::BranchDescription(art::TypeLabel(art::InEvent,
-                                              dummyType,
-                                              productInstanceName),
-                               mod);
+  auto result = new art::BranchDescription(art::InEvent,
+                                           art::TypeLabel{dummyType, productInstanceName},
+                                           mod);
   branchKeys_.insert(std::make_pair(tag, art::BranchKey(*result)));
   return std::unique_ptr<art::BranchDescription>(result);
 }

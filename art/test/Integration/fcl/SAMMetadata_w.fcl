@@ -19,7 +19,7 @@ physics:
       ivalue: 2
     }
   }
-   
+
   analyzers:
   {
    a: { module_type: SAMMetadataTest }
@@ -40,4 +40,3 @@ outputs:
     fileName: "out.root"
   }
 }
-

@@ -5,7 +5,7 @@
 #include "TBranchElement.h"
 #include "TClass.h"
 #include "art/Framework/IO/Root/RootInputFile.h"
-#include "art/Framework/IO/Root/RootTree.h"
+#include "art/Framework/IO/Root/RootInputTree.h"
 #include "art/Framework/IO/Root/detail/resolveRangeSet.h"
 #include "canvas/Persistency/Common/RefCoreStreamer.h"
 #include "canvas/Persistency/Provenance/BranchDescription.h"
@@ -24,7 +24,7 @@ namespace art {
                     sqlite3* db,
                     std::vector<input::EntryNumber> const& entrySet,
                     cet::exempt_ptr<input::BranchMap const> branches,
-                    cet::exempt_ptr<RootTree> tree,
+                    cet::exempt_ptr<RootInputTree> tree,
                     int64_t const saveMemoryObjectThreshold,
                     cet::exempt_ptr<RootInputFile> primaryFile,
                     BranchType const branchType,

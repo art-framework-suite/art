@@ -16,32 +16,24 @@ namespace art {
   class ActivityRegistry;  // declaration only
   class CurrentModule;     // defined below
 }
-namespace fhicl {
-  class ParameterSet;      // declaration only
-}
 
 // ----------------------------------------------------------------------
 
-class art::CurrentModule
-{
-  CurrentModule( CurrentModule const & ) = delete;
-  CurrentModule operator = ( CurrentModule const & ) = delete;
+class art::CurrentModule {
+
+  CurrentModule(CurrentModule const&) = delete;
+  CurrentModule operator=(CurrentModule const&) = delete;
 
 public:
-  // c'tor:
-  CurrentModule( art::ActivityRegistry & r );
 
-  // use compiler-generated d'tor
+  CurrentModule(art::ActivityRegistry& r);
 
-  // accessor:
-  std::string
-    label() const { return desc_.moduleLabel(); }
+  std::string const& label() const { return desc_.moduleLabel(); }
 
 private:
-  art::ModuleDescription  desc_;
+  art::ModuleDescription desc_;
 
-  void
-  track_module( art::ModuleDescription const & desc );
+  void track_module(art::ModuleDescription const& desc);
 
 };  // CurrentModule
 

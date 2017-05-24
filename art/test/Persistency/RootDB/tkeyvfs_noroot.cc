@@ -1674,14 +1674,14 @@ static const char * unixNextSystemCall(sqlite3_vfs * p, const char * zName)
 #if TKEYVFS_TRACE
   fprintf(stderr, "End   unixNextSystemCall ...\n");
 #endif /* TKEYVFS_TRACE */
-  return 0;
+  return nullptr;
 }
 
 #ifndef TKEYVFS_NO_ROOT
 class RootFileSentry {
 public:
   RootFileSentry(TFile * fPtr);
-  ~RootFileSentry();
+  ~RootFileSentry() noexcept;
 };
 
 RootFileSentry::RootFileSentry(TFile * fPtr)
@@ -1689,9 +1689,9 @@ RootFileSentry::RootFileSentry(TFile * fPtr)
   gRootFile = fPtr;
 }
 
-RootFileSentry::~RootFileSentry()
+RootFileSentry::~RootFileSentry() noexcept
 {
-  gRootFile = 0;
+  gRootFile = nullptr;
 }
 #endif
 

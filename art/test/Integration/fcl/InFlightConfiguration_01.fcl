@@ -1,3 +1,0 @@
-process_name: TEST
-
-services: { InFlightConfiguration: { test_missing_pathselection: true } }

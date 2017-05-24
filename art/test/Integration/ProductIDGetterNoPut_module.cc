@@ -20,7 +20,7 @@ namespace arttest {
 
 class arttest::ProductIDGetterNoPut : public art::EDProducer {
 public:
-  
+
   explicit ProductIDGetterNoPut(fhicl::ParameterSet const &);
   void produce(art::Event &) override;
 

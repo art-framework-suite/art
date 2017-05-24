@@ -1,5 +1,5 @@
 #include "art/Framework/IO/Root/detail/resolveRangeSet.h"
-#include "art/Persistency/RootDB/SQLite3Wrapper.h"
+#include "sqlite3.h"
 
 namespace {
 

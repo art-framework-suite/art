@@ -18,10 +18,9 @@
 #include "art/Framework/Services/System/CurrentModule.h"
 #include "art/Framework/Services/System/FileCatalogMetadata.h"
 #include "art/Framework/Services/System/FloatingPointControl.h"
-#include "art/Framework/Services/System/PathSelection.h"
 #include "art/Framework/Services/System/ScheduleContext.h"
 #include "art/Framework/Services/System/TriggerNamesService.h"
-#include "art/Persistency/Provenance/BranchIDListHelper.h"
+#include "art/Persistency/Provenance/BranchIDListRegistry.h"
 #include "art/Utilities/ScheduleID.h"
 #include "art/Utilities/bold_fontify.h"
 #include "art/Version/GetReleaseVersion.h"
@@ -30,7 +29,6 @@
 #include "canvas/Utilities/DebugMacros.h"
 #include "canvas/Utilities/Exception.h"
 #include "canvas/Utilities/GetPassID.h"
-#include "cetlib/exception_collector.h"
 #include "cetlib/container_algorithms.h"
 #include "fhiclcpp/types/detail/validationException.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
@@ -45,29 +43,6 @@
 using fhicl::ParameterSet;
 
 namespace {
-
-  // Most signals.
-  class SignalSentry {
-  public:
-    using PreSig_t  = art::GlobalSignal<art::detail::SignalResponseType::FIFO, void>;
-    using PostSig_t = art::GlobalSignal<art::detail::SignalResponseType::LIFO, void>;
-
-    SignalSentry(SignalSentry const&) = delete;
-    SignalSentry& operator=(SignalSentry const&) = delete;
-
-    explicit SignalSentry(PreSig_t& pre, PostSig_t& post) : post_{post}
-    {
-      pre.invoke();
-    }
-
-    ~SignalSentry()
-    {
-      post_.invoke();
-    }
-
-  private:
-    PostSig_t& post_;
-  };
 
   ////////////////////////////////////
   void setupAsDefaultEmptySource(ParameterSet& p)
@@ -93,8 +68,8 @@ namespace {
         mf::LogInfo("EventProcessorSourceConfig")
           << "Could not find a source configuration: using default.";
       }
-      // Fill in "ModuleDescription", in case the input source produces
-      // any EDproducts,which would be registered in the
+      // Fill in "ModuleDescription", in case the input source
+      // produces any EDproducts, which would be registered in the
       // MasterProductRegistry.  Also fill in the process history item
       // for this process.
       art::ModuleDescription const md {main_input.id(),
@@ -107,9 +82,10 @@ namespace {
       sourceSpecified = true;
       art::InputSourceDescription isd{md, preg, areg};
       try {
-        return std::unique_ptr<art::InputSource>(art::InputSourceFactory::make(main_input, isd));
+        auto source = art::InputSourceFactory::make(main_input, isd);
+        return source;
       }
-      catch(fhicl::detail::validationException const& e){
+      catch (fhicl::detail::validationException const& e) {
         throw art::Exception(art::errors::Configuration)
           << "\n\nModule label: " << art::detail::bold_fontify(md.moduleLabel())
           <<   "\nmodule_type : " << art::detail::bold_fontify(md.moduleName())
@@ -152,20 +128,25 @@ art::EventProcessor::EventProcessor(ParameterSet const& pset)
   servicesActivate_(serviceToken_);
   serviceToken_.forceCreation();
 
-  std::string const processName {pset.get<std::string>("process_name")};
+  std::string const& processName {pset.get<std::string>("process_name")};
 
   // Services
   // System service FileCatalogMetadata needs to know about the process name.
-  ServiceHandle<art::FileCatalogMetadata>()->addMetadataString("process_name", processName);
+  ServiceHandle<art::FileCatalogMetadata>{}->addMetadataString("process_name", processName);
 
   input_ = makeInput(pset, processName, preg_, actReg_);
+  actReg_.sPostSourceConstruction.invoke(input_->moduleDescription());
   endPathExecutor_ = std::make_unique<EndPathExecutor>(pathManager_,
                                                        act_table_,
                                                        actReg_,
                                                        preg_);
+  // Schedules are created *after* the end-path executor to ensure
+  // that ResultsProducers (owned by RootOutput) can call produces<>.
+  // The MasterProductRegistry is frozen in the c'tor of the Schedule,
+  // which owns all other producers and filters.
   initSchedules_(pset);
   FDEBUG(2) << pset.to_string() << std::endl;
-  BranchIDListHelper::updateRegistries(preg_);
+  BranchIDListRegistry::updateFromProductRegistry(preg_);
   servicesDeactivate_();
 }
 
@@ -183,21 +164,13 @@ art::EventProcessor::initServices_(ParameterSet const& top_pset,
 {
   auto services = top_pset.get<ParameterSet>("services", {});
 
-  // Check if disallowed 'user' table is specified:
-
-
-  // Save and non-standard service configs, "floating_point_control" to
-  // prevent ServiceDirector trying to make one itself.
+  // Save and non-standard service configs, "floating_point_control"
+  // to prevent ServiceDirector trying to make one itself.
   auto const fpc_pset = services.get<ParameterSet>("floating_point_control", {});
   services.erase("floating_point_control");
 
   // Remove non-standard non-service config, "message."
   services.erase("message");
-
-  // Deal with possible configuration for system service requiring
-  // special construction:
-  auto const pathSelection = services.get<ParameterSet>("PathSelection", {});
-  services.erase("PathSelection");
 
   // Create the service director and all user-configured services.
   ServiceDirector director{std::move(services), areg, token};
@@ -207,9 +180,6 @@ art::EventProcessor::initServices_(ParameterSet const& top_pset,
   director.addSystemService<TriggerNamesService>(top_pset, pathManager_.triggerPathNames());
   director.addSystemService<FloatingPointControl>(fpc_pset, areg);
   director.addSystemService<ScheduleContext>();
-  if (!pathSelection.is_empty()) {
-    director.addSystemService<PathSelection>(*this);
-  }
   return std::move(director);
 }
 
@@ -220,11 +190,10 @@ art::EventProcessor::initSchedules_(ParameterSet const& pset)
   int const num_threads = pset.get<int>("services.num_threads",
                                         tbb::task_scheduler_init::default_num_threads());
   tbbManager_.initialize(num_threads);
-
   schedule_ = std::make_unique<Schedule>(ScheduleID::first(),
                                          pathManager_,
                                          pset,
-                                         ServiceRegistry::instance().get<TriggerNamesService>(),
+                                         *ServiceHandle<TriggerNamesService const>{},
                                          preg_,
                                          act_table_,
                                          actReg_);
@@ -233,9 +202,9 @@ art::EventProcessor::initSchedules_(ParameterSet const& pset)
 void
 art::EventProcessor::invokePostBeginJobWorkers_()
 {
-  // Need to convert multiple lists of workers into a long list that the
-  // postBeginJobWorkers callbacks can understand.
-  std::vector<Worker *> allWorkers;
+  // Need to convert multiple lists of workers into a long list that
+  // the postBeginJobWorkers callbacks can understand.
+  std::vector<Worker*> allWorkers;
   allWorkers.reserve(pathManager_.triggerPathsInfo(ScheduleID::first()).workers().size() +
                      pathManager_.endPathInfo().workers().size());
   auto workerStripper = [&allWorkers](WorkerMap::value_type const& val) {
@@ -257,10 +226,6 @@ art::EventProcessor::levelsToProcess()
 {
   if (nextLevel_ == Level::ReadyToAdvance) {
     nextLevel_ = advanceItemType();
-    boost::mutex::scoped_lock sl {usr2_lock};
-    if (art::shutdown_flag > 0) {
-      throw Exception{errors::SignalReceived};
-    }
     // Consider reading right here?
   }
 
@@ -284,6 +249,7 @@ art::EventProcessor::levelsToProcess()
   throw Exception{errors::LogicError} << "Incorrect level hierarchy.";
 }
 
+
 namespace art {
 
   // Specializations for process function template
@@ -291,6 +257,7 @@ namespace art {
   template <>
   inline void EventProcessor::begin<Level::Job>()
   {
+    timer_.start();
     beginJob();
   }
 
@@ -382,6 +349,7 @@ namespace art {
   inline void EventProcessor::finalize<Level::Job>()
   {
     endJob();
+    timer_.stop();
   }
 
   template <>
@@ -400,24 +368,28 @@ namespace art {
   template <>
   inline void EventProcessor::recordOutputModuleClosureRequests<Level::Run>()
   {
-    endPathExecutor_->recordOutputClosureRequests(Boundary::Run);
+    endPathExecutor_->recordOutputClosureRequests(Granularity::Run);
   }
 
   template <>
   inline void EventProcessor::recordOutputModuleClosureRequests<Level::SubRun>()
   {
-    endPathExecutor_->recordOutputClosureRequests(Boundary::SubRun);
+    endPathExecutor_->recordOutputClosureRequests(Granularity::SubRun);
   }
 
   template <>
   inline void EventProcessor::recordOutputModuleClosureRequests<Level::Event>()
   {
-    endPathExecutor_->recordOutputClosureRequests(Boundary::Event);
+    endPathExecutor_->recordOutputClosureRequests(Granularity::Event);
   }
 
   template <>
   void EventProcessor::process<most_deeply_nested_level()>()
   {
+    if (shutdown_flag > 0 || !ec_.empty()) {
+      return;
+    }
+
     beginRunIfNotDoneAlready();
     beginSubRunIfNotDoneAlready();
     readEvent();
@@ -439,13 +411,22 @@ template <art::Level L>
 void
 art::EventProcessor::process()
 {
-  begin<L>();
-  while (levelsToProcess<level_down(L)>()) {
-    process<level_down(L)>();
-    markLevelAsProcessed();
+  if (shutdown_flag > 0 || !ec_.empty()) {
+    return;
   }
-  finalize<L>();
-  recordOutputModuleClosureRequests<L>();
+
+  ec_.call([this]{ begin<L>(); });
+
+  while (shutdown_flag == 0 && ec_.empty() && levelsToProcess<level_down(L)>()) {
+    ec_.call([this]{
+        process<level_down(L)>();
+        markLevelAsProcessed();
+      });
+  }
+  ec_.call([this]{
+      finalize<L>();
+      recordOutputModuleClosureRequests<L>();
+    });
 }
 
 art::EventProcessor::StatusCode
@@ -455,53 +436,18 @@ art::EventProcessor::runToCompletion()
   // Make the services available
   ServiceRegistry::Operate op {serviceToken_};
 
-  try {
-    process<highest_level()>();
-  }
-  catch (art::Exception const& e) {
-    if (e.categoryCode() == art::errors::SignalReceived) {
-      returnCode = epSignal;
-    }
-    else {
-      terminateAbnormally_();
-      throw e;
-    }
-  }
-  catch (cet::exception const& e) {
+  ec_.call([this,&returnCode]{
+      process<highest_level()>();
+      if (art::shutdown_flag > 0) {
+        returnCode = epSignal;
+      }
+    });
+
+  if (!ec_.empty()) {
     terminateAbnormally_();
-    throw e;
+    ec_.rethrow();
   }
-  catch (std::bad_alloc const& e) {
-    terminateAbnormally_();
-    throw cet::exception("std::bad_alloc")
-      << "The EventProcessor caught a std::bad_alloc exception and converted it to a cet::exception\n"
-      << "The job has probably exhausted the virtual memory available to the process.\n";
-  }
-  catch (std::exception const& e) {
-    terminateAbnormally_();
-    throw cet::exception("StdException")
-      << "The EventProcessor caught a std::exception and converted it to a cet::exception\n"
-      << "Previous information:\n" << e.what() << "\n";
-  }
-  catch (std::string const& e) {
-    terminateAbnormally_();
-    throw cet::exception("Unknown")
-      << "The EventProcessor caught a string-based exception type and converted it to a cet::exception\n"
-      << e
-      << "\n";
-  }
-  catch (char const * e) {
-    terminateAbnormally_();
-    throw cet::exception("Unknown")
-      << "The EventProcessor caught a string-based exception type and converted it to a cet::exception\n"
-      << e
-      << "\n";
-  }
-  catch (...) {
-    terminateAbnormally_();
-    throw cet::exception("Unknown")
-      << "The EventProcessor caught an unknown exception type and converted it to a cet::exception\n";
-  }
+
   return returnCode;
 }
 
@@ -525,13 +471,13 @@ art::EventProcessor::advanceItemType()
   case input::IsEvent: return Level::Event;
   case input::IsInvalid: {
     throw art::Exception{art::errors::LogicError}
-      << "Invalid next item type presented to the event processor.\n"
-      << "Please contact artists@fnal.gov.";
+    << "Invalid next item type presented to the event processor.\n"
+         << "Please contact artists@fnal.gov.";
   }
   }
   throw art::Exception{art::errors::LogicError}
-    << "Unrecognized next item type presented to the event processor.\n"
-    << "Please contact artists@fnal.gov.";
+  << "Unrecognized next item type presented to the event processor.\n"
+       << "Please contact artists@fnal.gov.";
 }
 
 //=============================================
@@ -581,16 +527,15 @@ void
 art::EventProcessor::endJob()
 {
   FDEBUG(1) << spaces(8) << "endJob\n";
-  // Collects exceptions, so we don't throw before all operations are performed.
-  cet::exception_collector c;
   // Make the services available
   ServiceRegistry::Operate op {serviceToken_};
-  c.call([this](){ schedule_->endJob(); });
-  c.call([this](){ endPathExecutor_->endJob(); });
-  bool summarize = ServiceHandle<TriggerNamesService>()->wantSummary();
-  c.call([this,summarize](){ detail::writeSummary(pathManager_, summarize); });
-  c.call([this](){ input_->doEndJob(); });
-  c.call([this](){ actReg_.sPostEndJob.invoke(); });
+  ec_.call([this]{ schedule_->endJob(); });
+  ec_.call([this]{ endPathExecutor_->endJob(); });
+  ec_.call([this]{ input_->doEndJob(); });
+  ec_.call([this]{ actReg_.sPostEndJob.invoke(); });
+  ec_.call([this]{ detail::writeSummary(pathManager_,
+                                        ServiceHandle<TriggerNamesService const>{}->wantSummary(),
+                                        timer_); });
 }
 
 //====================================================
@@ -627,13 +572,14 @@ art::EventProcessor::closeInputFile()
   // copied forward from the input files.  That's why the
   // recordOutputClosureRequests call is made here instead of in a
   // specialization of recordOutputModuleClosureRequests<>.
-  endPathExecutor_->recordOutputClosureRequests(Boundary::InputFile);
+  endPathExecutor_->recordOutputClosureRequests(Granularity::InputFile);
   if (endPathExecutor_->outputsToClose()) {
     closeSomeOutputFiles();
   }
   respondToCloseInputFile();
-  SignalSentry fileCloseSentry {actReg_.sPreCloseFile, actReg_.sPostCloseFile};
+  actReg_.sPreCloseFile.invoke();
   input_->closeFile();
+  actReg_.sPostCloseFile.invoke();
   FDEBUG(1) << spaces(8) << "closeInputFile\n";
 }
 
@@ -722,8 +668,12 @@ art::EventProcessor::respondToCloseOutputFiles()
 void
 art::EventProcessor::readRun()
 {
-  SignalSentry runSourceSentry {actReg_.sPreSourceRun, actReg_.sPostSourceRun};
-  runPrincipal_ = input_->readRun();
+  {
+    actReg_.sPreSourceRun.invoke();
+    runPrincipal_ = input_->readRun();
+    Run const r {*runPrincipal_, ModuleDescription{}};
+    actReg_.sPostSourceRun.invoke(r);
+  }
   endPathExecutor_->seedRunRangeSet(input_->runRangeSetHandler());
   assert(runPrincipal_);
   FDEBUG(1) << spaces(8) << "readRun.....................(" << runPrincipal_->id() << ")\n";
@@ -790,8 +740,12 @@ art::EventProcessor::writeRun()
 void
 art::EventProcessor::readSubRun()
 {
-  SignalSentry subRunSourceSentry {actReg_.sPreSourceSubRun, actReg_.sPostSourceSubRun};
-  subRunPrincipal_ = input_->readSubRun(runPrincipal_.get());
+  {
+    actReg_.sPreSourceSubRun.invoke();
+    subRunPrincipal_ = input_->readSubRun(runPrincipal_.get());
+    SubRun const sr {*subRunPrincipal_, ModuleDescription{}};
+    actReg_.sPostSourceSubRun.invoke(sr);
+  }
   endPathExecutor_->seedSubRunRangeSet(input_->subRunRangeSetHandler());
   assert(subRunPrincipal_);
   FDEBUG(1) << spaces(8) << "readSubRun..................(" << subRunPrincipal_->id() << ")\n";
@@ -860,8 +814,12 @@ art::EventProcessor::readEvent()
 {
   assert(subRunPrincipal_);
   assert(subRunPrincipal_->id().isValid());
-  SignalSentry sourceSentry {actReg_.sPreSource, actReg_.sPostSource};
-  eventPrincipal_ = input_->readEvent(subRunPrincipal_.get());
+  {
+    actReg_.sPreSourceEvent.invoke();
+    eventPrincipal_ = input_->readEvent(subRunPrincipal_.get());
+    Event const e {*eventPrincipal_, ModuleDescription{}};
+    actReg_.sPostSourceEvent.invoke(e);
+  }
   assert(eventPrincipal_);
   FDEBUG(1) << spaces(8) << "readEvent...................(" << eventPrincipal_->id() << ")\n";
 }
@@ -893,20 +851,10 @@ bool
 art::EventProcessor::shouldWeStop() const
 {
   FDEBUG(1) << spaces(8) << "shouldWeStop\n";
-  if (shouldWeStop_) { return true; }
+  if (shouldWeStop_) {
+    return true;
+  }
   return endPathExecutor_->terminate();
-}
-
-bool
-art::EventProcessor::setTriggerPathEnabled(std::string const& name, bool const enable)
-{
-  return schedule_->setTriggerPathEnabled(name, enable);
-}
-
-bool
-art::EventProcessor::setEndPathModuleEnabled(std::string const& label, bool const enable)
-{
-  return endPathExecutor_->setEndPathModuleEnabled(label, enable);
 }
 
 void
@@ -923,10 +871,9 @@ art::EventProcessor::servicesDeactivate_()
 
 void
 art::EventProcessor::terminateAbnormally_()
-try
-{
-  if (ServiceRegistry::instance().isAvailable<RandomNumberGenerator>()) {
-    ServiceHandle<RandomNumberGenerator>()->saveToFile_();
+try {
+  if (ServiceRegistry::isAvailable<RandomNumberGenerator>()) {
+    ServiceHandle<RandomNumberGenerator>{}->saveToFile_();
   }
 }
 catch (...)

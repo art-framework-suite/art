@@ -11,6 +11,7 @@
 #include "art/Framework/Services/Registry/ServiceToken.h"
 #include "art/Framework/Services/Registry/ServicesManager.h"
 #include "art/Framework/Services/Registry/detail/ServiceHelper.h"
+#include "art/Utilities/PluginSuffixes.h"
 #include "art/Utilities/ScheduleID.h"
 #include "cetlib/LibraryManager.h"
 #include "fhiclcpp/ParameterSet.h"
@@ -24,21 +25,21 @@ namespace art {
 
   class ServiceRegistry {
     // non-copyable:
-    ServiceRegistry( ServiceRegistry const & ) = delete;
-    ServiceRegistry& operator=( ServiceRegistry const & ) = delete;
+    ServiceRegistry(ServiceRegistry const&) = delete;
+    ServiceRegistry& operator=(ServiceRegistry const&) = delete;
 
   public:
 
     class Operate {
       // non-copyable:
-      Operate( Operate const & ) = delete;
-      Operate& operator= ( Operate const & ) = delete;
+      Operate(Operate const&) = delete;
+      Operate& operator= (Operate const&) = delete;
       // override operator new to stop use on heap?
 
     public:
 
-      Operate(ServiceToken const & iToken)
-        : oldToken_{ ServiceRegistry::instance().setContext(iToken) }
+      Operate(ServiceToken const& iToken)
+        : oldToken_{ServiceRegistry::instance().setContext(iToken)}
       {}
 
       ~Operate()
@@ -50,60 +51,60 @@ namespace art {
       ServiceToken oldToken_;
     };  // Operate
 
-    friend int main( int argc, char* argv[] );
     friend class Operate;
+    template <typename T, art::ServiceScope> friend class ServiceHandle;
 
-    virtual ~ServiceRegistry();
-
-    template< class T, typename = std::enable_if_t<detail::ServiceHelper<T>::scope_val != ServiceScope::PER_SCHEDULE>>
-    T & get() const
-      {
-        if( !manager_ )
-          throw art::Exception(art::errors::ServiceNotFound, "Service")
-            <<" no ServiceRegistry has been set for this thread";
-        return manager_-> template get<T>();
-      }
-
-    template< class T, typename = std::enable_if_t<detail::ServiceHelper<T>::scope_val == ServiceScope::PER_SCHEDULE>>
-    T & get(ScheduleID sID) const
-      {
-        if( !manager_ )
-          throw art::Exception(art::errors::ServiceNotFound, "Service")
-            <<" no ServiceRegistry has been set for this thread";
-        return manager_-> template get<T>(sID);
-      }
-
-    template<class T> bool isAvailable() const
+    template <typename T>
+    static bool isAvailable()
     {
-      if( !manager_ )
-        throw art::Exception(art::errors::ServiceNotFound, "Service")
-          <<" no ServiceRegistry has been set for this thread";
-      return manager_-> template isAvailable<T>();
+      if (auto& mgr = instance().manager_) {
+        return mgr->isAvailable<T>();
+      }
+
+      throw art::Exception(art::errors::ServiceNotFound, "Service")
+        <<" no ServiceRegistry has been set for this thread";
     }
+
+    using ParameterSets = std::vector<fhicl::ParameterSet>;
+    static ServiceToken createSet(ParameterSets const&, ActivityRegistry&);
+
+  private:
 
      // The token can be passed to another thread in order to have the
      // same services available in the other thread.
-
     ServiceToken presentToken() const;
 
-    static ServiceRegistry & instance();
+    static ServiceRegistry& instance();
 
-  public: // Made public (temporarily) at the request of Emilio Meschi.
-    typedef ServicesManager SM;
-    typedef std::vector<fhicl::ParameterSet> ParameterSets;
-
-    static ServiceToken createSet(ParameterSets const &, ActivityRegistry & );
-
-  private:
     // returns old token
-    ServiceToken setContext( ServiceToken const & iNewToken );
-    void unsetContext( ServiceToken const & iOldToken );
+    ServiceToken setContext(ServiceToken const& iNewToken);
+    void unsetContext(ServiceToken const& iOldToken);
 
-    ServiceRegistry();
+    template <typename T, typename = std::enable_if_t<detail::ServiceHelper<T>::scope_val != ServiceScope::PER_SCHEDULE>>
+    T& get() const
+      {
+        if (!manager_) {
+          throw art::Exception(art::errors::ServiceNotFound, "Service")
+            <<" no ServiceRegistry has been set for this thread";
+        }
+        return manager_->get<T>();
+      }
+
+    template <typename T, typename = std::enable_if_t<detail::ServiceHelper<T>::scope_val == ServiceScope::PER_SCHEDULE>>
+    T& get(ScheduleID sID) const
+      {
+        if (!manager_) {
+          throw art::Exception(art::errors::ServiceNotFound, "Service")
+            <<" no ServiceRegistry has been set for this thread";
+        }
+        return manager_->get<T>(sID);
+      }
+
+    ServiceRegistry() = default;
 
     // ---------- member data --------------------------------
-    cet::LibraryManager lm_;
-    std::shared_ptr<ServicesManager> manager_;
+    cet::LibraryManager lm_ {Suffixes::service()};
+    std::shared_ptr<ServicesManager> manager_ {nullptr};
 
   };  // ServiceRegistry
 

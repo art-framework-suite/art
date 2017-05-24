@@ -11,6 +11,7 @@
 #include "art/Framework/Core/ModuleType.h"
 #include "art/Framework/Principal/Worker.h"
 #include "art/Framework/Principal/WorkerParams.h"
+#include "art/Utilities/PluginSuffixes.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
 
 #include <memory>
@@ -24,19 +25,20 @@ namespace art {
 
 class art::detail::ModuleFactory {
 public:
-  ModuleFactory();
 
-  ModuleFactory(ModuleFactory const &) = delete;
-  ModuleFactory & operator = (ModuleFactory const &) = delete;
+  ModuleFactory() = default;
 
-  ModuleType moduleType(std::string const & libspec);
+  ModuleFactory(ModuleFactory const&) = delete;
+  ModuleFactory& operator=(ModuleFactory const&) = delete;
+
+  ModuleType moduleType(std::string const& libspec);
 
   std::unique_ptr<Worker>
-  makeWorker(WorkerParams const & wp,
-             ModuleDescription const & md);
+  makeWorker(WorkerParams const& wp,
+             ModuleDescription const& md);
 
 private:
-  cet::LibraryManager lm_;
+  cet::LibraryManager lm_{Suffixes::module()};
 
 };
 #endif /* art_Framework_Core_detail_ModuleFactory_h */

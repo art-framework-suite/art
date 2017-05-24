@@ -34,16 +34,17 @@ namespace art {
     auto put_in_principal = [&srp](auto& elem) {
 
       // set provenance
-      auto subRunProductProvenancePtr = std::make_unique<ProductProvenance const>(elem.first,
+      auto const& bd = elem.second.bd;
+      auto subRunProductProvenancePtr = std::make_unique<ProductProvenance const>(bd.branchID(),
                                                                                   productstatus::present());
 
-      srp.put( std::move(elem.second.prod),
-               elem.second.bd,
-               std::move(subRunProductProvenancePtr),
-               std::move(elem.second.rs));
+      srp.put(std::move(elem.second.prod),
+              bd,
+              std::move(subRunProductProvenancePtr),
+              std::move(elem.second.rs));
     };
 
-    cet::for_all( putProducts(), put_in_principal );
+    cet::for_all(putProducts(), put_in_principal);
 
     // the cleanup is all or none
     putProducts().clear();

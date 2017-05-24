@@ -10,19 +10,18 @@ and manipulate Unix-style signal handling.
 
 #include "art/Utilities/fwd.h"
 
-#include "boost/thread/thread.hpp"
-
 #include <atomic>
 #include <csignal>
+#include <mutex>
 
 namespace art {
 
-  extern boost::mutex usr2_lock;
+  extern std::mutex usr2_lock;
   extern std::atomic<int> shutdown_flag;
 
   extern "C" {
     void ep_sigusr2(int,siginfo_t*,void*);
-    typedef void(*CFUNC)(int,siginfo_t*,void*);
+    using CFUNC = void(*)(int,siginfo_t*,void*);
   }
 
   int getSigNum();

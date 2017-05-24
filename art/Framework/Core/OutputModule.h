@@ -8,7 +8,7 @@
 //
 // ======================================================================
 
-#include "art/Framework/Core/EventObserver.h"
+#include "art/Framework/Core/EventObserverBase.h"
 #include "art/Framework/Core/FileCatalogMetadataPlugin.h"
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/GroupSelector.h"
@@ -18,8 +18,6 @@
 #include "art/Framework/Principal/fwd.h"
 #include "art/Framework/Principal/RangeSetHandler.h"
 #include "art/Framework/Services/FileServiceInterfaces/CatalogInterface.h"
-#include "art/Framework/Services/Optional/MemoryTracker.h"
-#include "art/Framework/Services/Optional/TimeTracker.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/System/FileCatalogMetadata.h"
 #include "art/Persistency/Provenance/Selections.h"
@@ -49,7 +47,7 @@ namespace art {
   class ResultsPrincipal;
 }
 
-class art::OutputModule : public EventObserver {
+class art::OutputModule : public EventObserverBase {
 public:
   OutputModule(OutputModule const &) = delete;
   OutputModule & operator=(OutputModule const &) = delete;
@@ -70,7 +68,7 @@ public:
     };
 
     fhicl::Atom<std::string> moduleType { fhicl::Name("module_type") };
-    fhicl::TableFragment<EventObserver::EOConfig> eoFragment;
+    fhicl::TableFragment<EventObserverBase::EOConfig> eoFragment;
     fhicl::Sequence<std::string> outputCommands { fhicl::Name("outputCommands"), std::vector<std::string>{"keep *"} };
     fhicl::Atom<std::string> fileName   { fhicl::Name("fileName"), "" };
     fhicl::Atom<std::string> dataTier   { fhicl::Name("dataTier"), "" };
@@ -81,8 +79,7 @@ public:
                         fhicl::ParameterSet const & containing_pset);
   explicit OutputModule(fhicl::ParameterSet const & pset);
 
-  virtual ~OutputModule();
-  virtual void reconfigure(fhicl::ParameterSet const &);
+  virtual ~OutputModule() noexcept = default;
 
   // Accessor for maximum number of events to be written.
   // -1 is used for unlimited.
@@ -152,13 +149,6 @@ private:
   int remainingEvents_ {maxEvents_};
 
   ModuleDescription moduleDescription_ {};
-  // 'dummyModuleDescription_' is used for the memory- and
-  // time-tracking services to distinguish between processing an event
-  // and writing one.
-  ModuleDescription dummyModuleDescription_ {};
-  bool const memTrackerAvailable_ {ServiceRegistry::instance().isAvailable<MemoryTracker>()};
-  bool const timeTrackerAvailable_ {ServiceRegistry::instance().isAvailable<TimeTracker>()};
-
   cet::exempt_ptr<CurrentProcessingContext const> current_context_ {nullptr};
 
   using BranchParents = std::map<BranchID, std::set<ParentageID> >;
@@ -216,10 +206,19 @@ private:
   // the appropriate tests have been done.
   void reallyCloseFile();
 
-  // Ask the OutputModule if we should end the current file.
-  virtual bool requestsToCloseFile() const {return false;}
   virtual void incrementInputFileNumber() {}
-  virtual Boundary fileSwitchBoundary() const { return Boundary::Unset; }
+
+  // Ask the OutputModule if we should end the current file.
+  // N.B. The default file granularity is 'Unset', which means that
+  //      even if an output module requests to close its file, the
+  //      file will not switch.  To ensure that a file switch requires
+  //      where desired, the author of the output module MUST provide
+  //      an override.  It would be desirable to check if both
+  //      requestsToCloseFile() and fileGranularity() could be checked
+  //      at compile time.  However, such a check would require an
+  //      interface change.
+  virtual bool requestsToCloseFile() const {return false;}
+  virtual Granularity fileGranularity() const { return Granularity::Unset; }
   virtual void setFileStatus(OutputFileStatus);
 
   virtual void beginJob();
@@ -347,10 +346,6 @@ art::OutputModule::
 setModuleDescription(ModuleDescription const& md)
 {
   moduleDescription_ = md;
-  dummyModuleDescription_ = ModuleDescription{md.parameterSetID(),
-                                              md.moduleName()+"(write)",
-                                              md.moduleLabel(),
-                                              md.processConfiguration()};
 }
 
 inline

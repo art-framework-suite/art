@@ -20,8 +20,9 @@ using namespace fhicl;
 namespace art {
 
   namespace {
-    SubRun* newSubRun(EventPrincipal const& ep, ModuleDescription const& md) {
-      return (ep.subRunPrincipalExemptPtr() ? new SubRun{ep.subRunPrincipal(), md} : nullptr);
+    SubRun* newSubRun(EventPrincipal const& ep, ModuleDescription const& md)
+    {
+      return ep.subRunPrincipalExemptPtr() ? new SubRun{ep.subRunPrincipal(), md} : nullptr;
     }
   }
 
@@ -102,27 +103,19 @@ namespace art {
 
 
   void
-  Event::commit_(EventPrincipal& ep, bool const checkProducts, ProducedMap const& expectedProducts)
+  Event::commit_(EventPrincipal& ep, bool const checkProducts, std::set<TypeLabel> const& expectedProducts)
   {
     // Check addresses only since type of 'ep' will hopefully change to Principal&.
     assert(&ep == &eventPrincipal_);
     checkPutProducts(checkProducts, expectedProducts, putProducts());
-    commit_aux(ep, putProducts(), true);
-    commit_aux(ep, putProductsWithoutParents(), false);
+    commit_aux(ep, putProducts());
   }
 
   void
-  Event::commit_aux(EventPrincipal& ep,
-                    Base::BranchIDsMap& products,
-                    bool const record_parents)
+  Event::commit_aux(EventPrincipal& ep, Base::TypeLabelMap& products)
   {
     vector<BranchID> gotBranchIDVector;
-
-    // Note that gotBranchIDVector will remain empty if
-    // record_parents is false (and may be empty if record_parents is
-    // true).
-
-    if (record_parents && !gotBranchIDs_.empty()) {
+    if (!gotBranchIDs_.empty()) {
       gotBranchIDVector.reserve(gotBranchIDs_.size());
       gotBranchIDVector.assign(gotBranchIDs_.begin(), gotBranchIDs_.end());
     }
@@ -130,16 +123,22 @@ namespace art {
     auto put_in_principal = [&gotBranchIDVector, &ep](auto& elem) {
 
       // set provenance
-      auto productProvenancePtr = make_unique<ProductProvenance const>(elem.first,
+      auto const& bd = elem.second.bd;
+      auto productProvenancePtr = make_unique<ProductProvenance const>(bd.branchID(),
                                                                        productstatus::present(),
                                                                        gotBranchIDVector);
 
-      ep.put( std::move(elem.second.prod),
-              elem.second.bd,
-              std::move(productProvenancePtr) );
+      if (!ep.branchIDToProductID(bd.branchID()).isValid()) {
+        throw art::Exception(art::errors::ProductPutFailure, "Null Product ID")
+          << "put: Cannot put product with null Product ID.\n";
+      }
+
+      ep.put(std::move(elem.second.prod),
+             bd,
+             std::move(productProvenancePtr));
     };
 
-    cet::for_all( products, put_in_principal );
+    cet::for_all(products, put_in_principal);
 
     // the cleanup is all or none
     products.clear();
@@ -151,33 +150,33 @@ namespace art {
       // If the product retrieved is transient, don't use its branch ID.
       // use the branch ID's of its parents.
       vector<BranchID> const& bids = prov.parents();
-      gotBranchIDs_.insert( bids.begin(), bids.end() );
+      gotBranchIDs_.insert(bids.begin(), bids.end());
     } else {
       gotBranchIDs_.insert(prov.branchID());
     }
   }
 
-// ----------------------------------------------------------------------
+  // ----------------------------------------------------------------------
 
   void
-  Event::ensure_unique_product( std::size_t         nFound,
-                                TypeID      const & typeID,
-                                std::string const & moduleLabel,
-                                std::string const & productInstanceName,
-                                std::string const & processName ) const
+  Event::ensure_unique_product(std::size_t const  nFound,
+                               TypeID      const& typeID,
+                               std::string const& moduleLabel,
+                               std::string const& productInstanceName,
+                               std::string const& processName) const
   {
-    if( nFound == 1 ) return;
+    if (nFound == 1) return;
 
     art::Exception e(art::errors::ProductNotFound);
     e << "getView: Found "
       << (nFound == 0 ? "no products"
-                      : "more than one product"
-         )
+          : "more than one product"
+          )
       << " matching all criteria\n"
       << "Looking for sequence of type: " << typeID << "\n"
       << "Looking for module label: " << moduleLabel << "\n"
       << "Looking for productInstanceName: " << productInstanceName << "\n";
-    if( ! processName.empty() )
+    if (!processName.empty())
       e << "Looking for processName: "<< processName <<"\n";
     throw e;
   }

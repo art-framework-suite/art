@@ -16,6 +16,7 @@
 #include "art/Framework/Core/PathManager.h"
 #include "art/Framework/Core/Schedule.h"
 #include "art/Framework/EventProcessor/ServiceDirector.h"
+#include "art/Framework/EventProcessor/detail/ExceptionCollector.h"
 #include "art/Framework/Principal/Actions.h"
 #include "art/Framework/Principal/fwd.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
@@ -25,6 +26,7 @@
 #include "canvas/Persistency/Provenance/IDNumber.h"
 #include "canvas/Persistency/Provenance/PassID.h"
 #include "canvas/Persistency/Provenance/ReleaseVersion.h"
+#include "cetlib/cpu_timer.h"
 #include "cetlib/exception.h"
 #include "cetlib/trim.h"
 #include "fhiclcpp/ParameterSet.h"
@@ -38,11 +40,6 @@
 
 namespace art {
   class EventProcessor;
-
-  namespace detail {
-    template <typename T>
-    class PrincipalSignalSentry;
-  }
 }
 
 class art::EventProcessor {
@@ -78,9 +75,6 @@ public:
   //   epSuccess - all other cases
   //
   StatusCode runToCompletion();
-
-  bool setTriggerPathEnabled(std::string const& name, bool enable);
-  bool setEndPathModuleEnabled(std::string const& label, bool enable);
 
 private:
 
@@ -138,6 +132,8 @@ private:
 
   Level nextLevel_ {Level::ReadyToAdvance};
   std::vector<Level> activeLevels_ {highest_level()};
+  detail::ExceptionCollector ec_ {};
+  cet::cpu_timer timer_{};
 
   bool beginRunCalled_ {false};    // Should be stack variable local to run loop
   bool beginSubRunCalled_ {false}; // Should be stack variable local to subrun loop
@@ -168,7 +164,7 @@ private:
   ActivityRegistry actReg_;
   MFStatusUpdater mfStatusUpdater_;
   MasterProductRegistry preg_ {};
-  ServiceToken serviceToken_ {};
+  ServiceToken serviceToken_ {ServiceToken::createInvalid()};
   tbb::task_scheduler_init tbbManager_ {tbb::task_scheduler_init::deferred};
   std::unique_ptr<ServiceRegistry::Operate> servicesSentry_ {};
   PathManager pathManager_; // Must outlive schedules.
@@ -188,49 +184,14 @@ private:
 };  // EventProcessor
 
 ////////////////////////////////////
-// Class ScheduleSignalSentry<T> is used to emit the pre- and post-
-// signals associated with the principal associated with T.
-template <typename T>
-class art::detail::PrincipalSignalSentry {
-public:
-
-  PrincipalSignalSentry(PrincipalSignalSentry<T> const&) = delete;
-  PrincipalSignalSentry<T> operator=(PrincipalSignalSentry<T> const&) = delete;
-
-  using principal_t = typename T::MyPrincipal;
-  explicit PrincipalSignalSentry(art::ActivityRegistry& a, principal_t& ep);
-  ~PrincipalSignalSentry();
-
-private:
-  art::ActivityRegistry& a_;
-  principal_t& ep_;
-};
-
-template <class T>
-art::detail::PrincipalSignalSentry<T>::
-PrincipalSignalSentry(art::ActivityRegistry& a,
-                      typename PrincipalSignalSentry<T>::principal_t& ep)
-  :
-  a_{a},
-  ep_{ep}
-{
-  T::preScheduleSignal(&a_, &ep_);
-}
-
-template <class T>
-art::detail::PrincipalSignalSentry<T>::
-~PrincipalSignalSentry()
-{
-  T::postScheduleSignal(&a_, &ep_);
-}
-
 template <typename T>
 void
 art::EventProcessor::process_(typename T::MyPrincipal& p)
 try {
-  detail::PrincipalSignalSentry<T> sentry(actReg_, p);
+  T::preScheduleSignal(actReg_, p);
   schedule_->process<T>(p);
   endPathExecutor_->process<T>(p);
+  T::postScheduleSignal(actReg_, p);
 }
 catch (cet::exception & ex) {
   actions::ActionCodes const action {
@@ -244,9 +205,9 @@ catch (cet::exception & ex) {
     break;
   }
   default: {
-    throw art::Exception(errors::EventProcessorFailure)
-      << "An exception occurred during current event processing\n"
-      << ex;
+    throw art::Exception{errors::EventProcessorFailure,
+                         "EventProcessor: an exception occurred during current event processing",
+                         ex};
   }
   }
 }

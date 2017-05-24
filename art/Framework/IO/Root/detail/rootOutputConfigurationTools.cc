@@ -1,4 +1,4 @@
-#include "art/Framework/Core/OutputFileSwitchBoundary.h"
+#include "art/Framework/Core/OutputFileGranularity.h"
 #include "art/Framework/IO/Root/RootOutputClosingCriteria.h"
 #include "art/Framework/IO/Root/detail/rootOutputConfigurationTools.h"
 #include "canvas/Utilities/Exception.h"
@@ -35,7 +35,7 @@ art::detail::shouldFastClone(bool const fastCloningSet,
     mf::LogWarning("FastCloning") << "Fast cloning deactivated due to presence of\n"
                                   << "event selection configuration.";
   }
-  if (fastCloning && maxCriterionSpecified(cc) && cc.granularity() < Boundary::InputFile) {
+  if (fastCloning && maxCriterionSpecified(cc) && cc.granularity() < Granularity::InputFile) {
     result = false;
     mf::LogWarning("FastCloning") << "Fast cloning deactivated due to request to allow\n"
                                   << "output file switching at an Event, SubRun, or Run boundary.";

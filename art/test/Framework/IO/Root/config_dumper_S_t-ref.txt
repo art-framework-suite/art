@@ -8,6 +8,9 @@ TrivialFileTransfer: {
 TrivialFileDelivery: {
 }
 
+DatabaseConnection: {
+}
+
 FileCatalogMetadata: {
 }
 

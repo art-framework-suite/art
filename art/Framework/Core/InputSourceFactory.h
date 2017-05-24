@@ -8,11 +8,11 @@
 // ======================================================================
 
 #include "art/Framework/Core/InputSource.h"
+#include "art/Utilities/PluginSuffixes.h"
 #include "cetlib/LibraryManager.h"
 #include "fhiclcpp/ParameterSet.h"
 
 #include <memory>
-#include <string>
 
 namespace art {
   class InputSourceFactory;
@@ -20,24 +20,21 @@ namespace art {
 
 // ----------------------------------------------------------------------
 
-class art::InputSourceFactory
-{
-  InputSourceFactory( InputSourceFactory const & ) = delete;
-  InputSourceFactory& operator = ( InputSourceFactory const & ) = delete;
+class art::InputSourceFactory {
+  InputSourceFactory(InputSourceFactory const&) = delete;
+  InputSourceFactory& operator=(InputSourceFactory const&) = delete;
 
  public:
-  static std::unique_ptr<InputSource>
-     make(fhicl::ParameterSet const&,
-          InputSourceDescription &);
+
+  static std::unique_ptr<InputSource> make(fhicl::ParameterSet const&,
+                                           InputSourceDescription&);
 
 private:
-  cet::LibraryManager lm_;
 
-  InputSourceFactory();
-  ~InputSourceFactory();
+  explicit InputSourceFactory() = default;
+  static InputSourceFactory& instance();
 
-  static InputSourceFactory &
-     the_factory_();
+  cet::LibraryManager lm_ {Suffixes::source()};
 
 };  // InputSourceFactory
 

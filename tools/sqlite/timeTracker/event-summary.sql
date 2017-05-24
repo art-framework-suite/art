@@ -2,8 +2,16 @@
 .mode column
 SELECT
         'Full Event' as '',
-        min(Time) AS "Min. (s)",
-        avg(Time) AS "Avg. (s)",
-        max(Time) AS "Max. (s)",
+        min(FullTime) AS "Min. (sec)",
+        avg(FullTime) AS "Avg. (sec)",
+        max(FullTime) AS "Max. (sec)",
         count(*) AS "Sample size (events)"
-FROM TimeEvent;
+FROM (
+     SELECT Run,SubRun,Event,SUM(Time) AS FullTime FROM (
+            SELECT Run,SubRun,Event,Time FROM TimeEvent
+            UNION
+            SELECT Run,SubRun,Event,Time FROM TimeModule WHERE ModuleType LIKE '%(write)'
+            UNION
+            SELECT Run,SubRun,Event,Time FROM TimeSource)
+     GROUP BY Run,SubRun,Event
+)

@@ -1,9 +1,25 @@
 #ifndef art_Framework_Services_System_FileCatalogMetadata_h
 #define art_Framework_Services_System_FileCatalogMetadata_h
 
+// ======================================================================
+// FileCatalogMetadata
+//
+// Multi-threading considerations:
+//
+//  This service is intended to be used by users via a ServiceHandle,
+//  which can be created at any point during job execution.  The
+//  interface exposed to the user allows both the insertion AND
+//  extraction of metadata.  To ensure well-defined behavior for
+//  attempts to concurrently insert and retrieve, the relevant
+//  functions must be guarded with locks.
+//
+//  For this class, we use a simple std::mutex, ensuring that member
+//  functions calling other member functions do not create a deadlock.
+
 #include "art/Framework/Services/Registry/ServiceMacros.h"
 #include "art/Framework/Services/Registry/ServiceTable.h"
 #include "art/Utilities/SAMMetadataTranslators.h"
+#include "cetlib/assert_only_one_thread.h"
 #include "cetlib/canonical_string.h"
 #include "cetlib/container_algorithms.h"
 #include "fhiclcpp/types/Atom.h"
@@ -11,6 +27,7 @@
 #include "fhiclcpp/types/Sequence.h"
 
 #include <iterator>
+#include <mutex>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -48,37 +65,37 @@ public:
     fhicl::Atom<std::string> fileType  { fhicl::Name("fileType"),
         fhicl::Comment("Can specify 'fileType' only if it is not specified\n"
                        "in the 'metadataFromInput' list."),
-        [this](){ return !inMetadataList("fileType"); },
+        [this]{ return !inMetadataList("fileType"); },
         "unknown"
     };
 
     fhicl::OptionalAtom<std::string> runType   { fhicl::Name("runType"),
         fhicl::Comment("Can specify 'runType' only if it is not specified\n"
                        "in the 'metadataFromInput' list."),
-        [this](){ return !inMetadataList("runType"); }
+        [this]{ return !inMetadataList("runType"); }
     };
   };
 
   using Parameters = ServiceTable<Config>;
-  FileCatalogMetadata(Parameters const & config, ActivityRegistry &);
+  explicit FileCatalogMetadata(Parameters const& config);
 
   // Add a new value to the metadata store.
-  void addMetadata(std::string const & key, std::string const & value);
+  void addMetadata(std::string const& key, std::string const& value);
   // Ensure the value is a canonical string representation.
-  void addMetadataString(std::string const & key, std::string const & value);
+  void addMetadataString(std::string const& key, std::string const& value);
 
-  void getMetadata(collection_type & coll) const; // Dump stored metadata into the provided container.
+  void getMetadata(collection_type& coll) const; // Dump stored metadata into the provided container.
 
   // RootInput can set the run-type and file-type parameters
   void setMetadataFromInput(collection_type const& coll);
-  bool inheritedFromInput(std::string const& name);
 
   // Ascertain whether JSON syntax checking is desired.
   bool wantCheckSyntax() const { return checkSyntax_; }
 
 private:
+
   bool const checkSyntax_;
-  collection_type md_;
+  collection_type md_ {};
 
   class InheritedMetadata {
   public:
@@ -102,7 +119,7 @@ private:
       for (auto const& pr : fromInput) {
         CET_USE_FREE_CBEGIN_CEND();
         auto it = inputmd_.find(pr.first);
-        if ( it == cend(inputmd_) ) {
+        if (it == cend(inputmd_)) {
           throw Exception(errors::LogicError)
             << "Metadata key " << pr.first
             << " missing from list of metadata to inherit from input files.\n";
@@ -121,29 +138,42 @@ private:
     std::unordered_map<std::string, std::string> inputmd_;
   };
 
-  std::unique_ptr<InheritedMetadata> imd_;
+  std::unique_ptr<InheritedMetadata> imd_ {};
   std::vector<std::string> mdToInherit_;
+
+  // To lock via a static mutex, we must wrap it in an inline function
+  // so it can be used in contexts where users don't link against the
+  // library associated with this class.
+  static std::mutex& service_mutex() {
+    static std::mutex m;
+    return m;
+  };
+
 };
 
 inline
 void
-art::FileCatalogMetadata::
-addMetadataString(std::string const & key, std::string const & value)
+art::FileCatalogMetadata::addMetadataString(std::string const& key, std::string const& value)
 {
+  // No lock here -- it is held by addMetadata
   addMetadata(key, cet::canonical_string(value));
 }
 
 inline
 void
-art::FileCatalogMetadata::
-setMetadataFromInput(collection_type const& mdFromInput)
+art::FileCatalogMetadata::setMetadataFromInput(collection_type const& mdFromInput)
 {
-  if (mdToInherit_.empty()) return;
+  CET_ASSERT_ONLY_ONE_THREAD();
+  if (mdToInherit_.empty()) {
+    return;
+  }
 
-  if (!imd_)
+  if (!imd_) {
     imd_ = std::make_unique<InheritedMetadata>(mdToInherit_, mdFromInput);
-  else
+  }
+  else {
     imd_->check_values(mdFromInput);
+  }
 
   OldToNew const translator;
   for (auto const& pr : imd_->entries()) {
@@ -153,9 +183,9 @@ setMetadataFromInput(collection_type const& mdFromInput)
 
 inline
 void
-art::FileCatalogMetadata::
-getMetadata(collection_type & coll) const
+art::FileCatalogMetadata::getMetadata(collection_type& coll) const
 {
+  std::lock_guard<std::mutex> lock {service_mutex()};
   cet::copy_all(md_, std::back_inserter(coll));
 }
 

@@ -9,14 +9,14 @@
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 art::ResultsPrincipal::
-ResultsPrincipal(ResultsAuxiliary const & aux,
-                 ProcessConfiguration const & pc,
-                 std::unique_ptr<BranchMapper> && mapper,
-                 std::unique_ptr<DelayedReader> && rtrv, int idx,
-                 ResultsPrincipal * primaryPrincipal)
-  : Principal(pc, aux.processHistoryID_, std::move(mapper), std::move(rtrv),
-              idx, primaryPrincipal),
-    aux_(aux)
+ResultsPrincipal(ResultsAuxiliary const& aux,
+                 ProcessConfiguration const& pc,
+                 std::unique_ptr<BranchMapper>&& mapper,
+                 std::unique_ptr<DelayedReader>&& rtrv,
+                 int const idx,
+                 cet::exempt_ptr<ResultsPrincipal const> primaryPrincipal)
+  : Principal{pc, aux.processHistoryID_, std::move(mapper), std::move(rtrv), idx, primaryPrincipal}
+  , aux_{aux}
 {
 }
 
@@ -43,57 +43,23 @@ setProcessHistoryID(ProcessHistoryID const& phid)
 
 void
 art::ResultsPrincipal::
-addOrReplaceGroup(std::unique_ptr<Group>&& g)
+fillGroup(BranchDescription const& bd)
 {
-  cet::exempt_ptr<Group const> group =
-    getExistingGroup(g->productDescription().branchID());
-  if (!group) {
-    addGroup_(std::move(g));
-    return;
-  }
-  BranchDescription const& bd = group->productDescription();
-  mf::LogWarning("ResultsMerging")
-      << "Problem found while adding product provenance, "
-      << "product already exists for ("
-      << bd.friendlyClassName()
-      << ","
-      << bd.moduleLabel()
-      << ","
-      << bd.productInstanceName()
-      << ","
-      << bd.processName()
-      << ")\n";
+  Principal::fillGroup(gfactory::make_group(bd,
+                                            ProductID{},
+                                            RangeSet::invalid()));
 }
 
 void
 art::ResultsPrincipal::
-addGroup(BranchDescription const& bd)
-{
-  addOrReplaceGroup(gfactory::make_group(bd,
-                                         ProductID{},
-                                         RangeSet::invalid()));
-}
-
-void
-art::ResultsPrincipal::
-addGroup(std::unique_ptr<EDProduct>&& prod, BranchDescription const& bd)
-{
-  addOrReplaceGroup(gfactory::make_group(bd,
-                                         ProductID{},
-                                         RangeSet::invalid(),
-                                         std::move(prod)));
-}
-
-void
-art::ResultsPrincipal::
-put(std::unique_ptr<EDProduct>&& edp, BranchDescription const& bd,
+put(std::unique_ptr<EDProduct>&& edp,
+    BranchDescription const& bd,
     std::unique_ptr<ProductProvenance const>&& productProvenance)
 {
-  if (!edp) {
-    throw art::Exception(art::errors::ProductPutFailure, "Null Pointer")
-        << "put: Cannot put because unique_ptr to product is null."
-        << "\n";
-  }
+  assert(edp);
   branchMapper().insert(std::move(productProvenance));
-  this->addGroup(std::move(edp), bd);
+  Principal::fillGroup(gfactory::make_group(bd,
+                                            ProductID{},
+                                            RangeSet::invalid(),
+                                            std::move(edp)));
 }

@@ -1,36 +1,37 @@
 #include "art/Framework/Core/EDAnalyzer.h"
 #include "art/Framework/Core/ModuleMacros.h"
+#include "art/test/Integration/event-processor/ThrowAfterConfig.h"
 #include "canvas/Utilities/Exception.h"
 #include "fhiclcpp/types/Atom.h"
 
-namespace {
+namespace art {
+  namespace test {
 
-  struct Config {
-    fhicl::Atom<bool> doThrow { fhicl::Name("throw") };
-  };
+    class ThrowingAnalyzer : public EDAnalyzer {
+      unsigned count_{};
+      unsigned threshold_;
+    public:
 
+      using Parameters = EDAnalyzer::Table<ThrowAfterConfig>;
+
+      ThrowingAnalyzer(Parameters const& p) :
+        EDAnalyzer{p}, threshold_{p().throwAfter()}
+      {
+        if (p().throwFromCtor()) {
+          throw Exception{errors::OtherArt} << "Throw from c'tor.\n";
+        }
+      }
+
+      void analyze(Event const&) override {
+        if (count_ > threshold_) {
+          throw Exception{errors::OtherArt} << "Throw from analyze.\n";
+        }
+        ++count_;
+      }
+
+    };
+
+  }
 }
 
-namespace arttest {
-
-  class ThrowingAnalyzer : public art::EDAnalyzer {
-    bool doThrow_{false};
-  public:
-
-    using Parameters = art::EDAnalyzer::Table<Config>;
-
-    ThrowingAnalyzer(Parameters const& c)
-      : EDAnalyzer(c)
-      , doThrow_( c().doThrow() )
-    {
-      if ( doThrow_ )
-        throw art::Exception(art::errors::Configuration, "Throwing analyzer ctor");
-    }
-
-    void analyze(art::Event const&) override {}
-
-  };
-
-}
-
-DEFINE_ART_MODULE(arttest::ThrowingAnalyzer)
+DEFINE_ART_MODULE(art::test::ThrowingAnalyzer)

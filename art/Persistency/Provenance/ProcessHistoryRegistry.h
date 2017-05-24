@@ -5,22 +5,22 @@
 //
 // ProcessHistoryRegistry
 //
+// This registry must be able to support concurrent writing and
+// reading.  For the foreseeable future, only concurrent insertion
+// will be necessary, however concurrent reading is also tested.  In
+// the event that an insertion can happen concurrently with a read,
+// care must be taken to determine if locking is required to ensure
+// serialized access to the registry.
+//
 // ======================================================================
 
 #include "canvas/Persistency/Provenance/ProcessHistory.h"
 #include "canvas/Persistency/Provenance/ProcessHistoryID.h"
-#include "cetlib/registry_via_id.h"
-
-// ----------------------------------------------------------------------
+#include "canvas/Persistency/Provenance/thread_safe_registry_via_id.h"
 
 namespace art {
-
-  using ProcessHistoryRegistry = cet::registry_via_id<ProcessHistoryID,ProcessHistory>;
-
-  static_assert(std::is_same<ProcessHistoryRegistry::collection_type, ProcessHistoryMap>::value,
-                "ProcessHistoryRegistry::collection_type and ProcessHistoryMap should be the same type!");
-
-}  // art
+  using ProcessHistoryRegistry = thread_safe_registry_via_id<ProcessHistoryID, ProcessHistory>;
+}
 
 // ======================================================================
 

@@ -12,35 +12,31 @@ namespace {
   };
 }
 
-namespace arttest {
-  class TestFilterSpecificEvents;
+namespace art {
+  namespace test {
+    class TestFilterSpecificEvents;
+  }
 }
 
-class arttest::TestFilterSpecificEvents : public art::EDFilter {
+class art::test::TestFilterSpecificEvents : public EDFilter {
 public:
 
   using Parameters = EDFilter::Table<Config>;
-  explicit TestFilterSpecificEvents(EDFilter::Table<Config> const&);
 
-  bool filter(art::Event& e) override;
+  explicit TestFilterSpecificEvents(Parameters const& ps)
+    : eventsToAccept_{ps().eventsToAccept()}
+  {
+    cet::sort_all(eventsToAccept_);
+  }
+
+  bool filter(art::Event& e) override
+  {
+    return cet::binary_search_all(eventsToAccept_, e.event());
+  }
 
 private:
   std::vector<unsigned> eventsToAccept_;
 };
 
-// -------
 
-// -----------------------------------------------------------------
-
-arttest::TestFilterSpecificEvents::TestFilterSpecificEvents(EDFilter::Table<Config> const& ps)
-  : eventsToAccept_{ps().eventsToAccept()}
-{
-  cet::sort_all(eventsToAccept_);
-}
-
-bool arttest::TestFilterSpecificEvents::filter(art::Event& e)
-{
-  return cet::binary_search_all(eventsToAccept_, e.event());
-}
-
-DEFINE_ART_MODULE(arttest::TestFilterSpecificEvents)
+DEFINE_ART_MODULE(art::test::TestFilterSpecificEvents)

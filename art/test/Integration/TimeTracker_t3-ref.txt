@@ -1,0 +1,132 @@
+%MSG-i MF_INIT_OK:  <date-time> JobSetup
+Messagelogger initialization complete.
+%MSG
+Begin processing the 1st record. run: 1 subRun: 0 event: 1 at <date-time>
+Begin processing the 2nd record. run: 1 subRun: 0 event: 2 at <date-time>
+Begin processing the 3rd record. run: 1 subRun: 0 event: 3 at <date-time>
+Begin processing the 4th record. run: 1 subRun: 0 event: 4 at <date-time>
+Begin processing the 5th record. run: 1 subRun: 0 event: 5 at <date-time>
+Begin processing the 6th record. run: 1 subRun: 0 event: 6 at <date-time>
+Begin processing the 7th record. run: 1 subRun: 0 event: 7 at <date-time>
+Begin processing the 8th record. run: 1 subRun: 0 event: 8 at <date-time>
+Begin processing the 9th record. run: 1 subRun: 0 event: 9 at <date-time>
+Begin processing the 10th record. run: 1 subRun: 0 event: 10 at <date-time>
+Begin processing the 11th record. run: 1 subRun: 0 event: 11 at <date-time>
+Begin processing the 12th record. run: 1 subRun: 0 event: 12 at <date-time>
+Begin processing the 13th record. run: 1 subRun: 0 event: 13 at <date-time>
+Begin processing the 14th record. run: 1 subRun: 0 event: 14 at <date-time>
+Begin processing the 15th record. run: 1 subRun: 0 event: 15 at <date-time>
+Begin processing the 16th record. run: 1 subRun: 0 event: 16 at <date-time>
+Begin processing the 17th record. run: 1 subRun: 0 event: 17 at <date-time>
+Begin processing the 18th record. run: 1 subRun: 0 event: 18 at <date-time>
+Begin processing the 19th record. run: 1 subRun: 0 event: 19 at <date-time>
+Begin processing the 20th record. run: 1 subRun: 0 event: 20 at <date-time>
+Begin processing the 21st record. run: 1 subRun: 0 event: 21 at <date-time>
+Begin processing the 22nd record. run: 1 subRun: 0 event: 22 at <date-time>
+Begin processing the 23rd record. run: 1 subRun: 0 event: 23 at <date-time>
+Begin processing the 24th record. run: 1 subRun: 0 event: 24 at <date-time>
+Begin processing the 25th record. run: 1 subRun: 0 event: 25 at <date-time>
+Begin processing the 26th record. run: 1 subRun: 0 event: 26 at <date-time>
+Begin processing the 27th record. run: 1 subRun: 0 event: 27 at <date-time>
+Begin processing the 28th record. run: 1 subRun: 0 event: 28 at <date-time>
+Begin processing the 29th record. run: 1 subRun: 0 event: 29 at <date-time>
+Begin processing the 30th record. run: 1 subRun: 0 event: 30 at <date-time>
+Begin processing the 31st record. run: 1 subRun: 0 event: 31 at <date-time>
+Begin processing the 32nd record. run: 1 subRun: 0 event: 32 at <date-time>
+Begin processing the 33rd record. run: 1 subRun: 0 event: 33 at <date-time>
+Begin processing the 34th record. run: 1 subRun: 0 event: 34 at <date-time>
+Begin processing the 35th record. run: 1 subRun: 0 event: 35 at <date-time>
+Begin processing the 36th record. run: 1 subRun: 0 event: 36 at <date-time>
+Begin processing the 37th record. run: 1 subRun: 0 event: 37 at <date-time>
+Begin processing the 38th record. run: 1 subRun: 0 event: 38 at <date-time>
+Begin processing the 39th record. run: 1 subRun: 0 event: 39 at <date-time>
+Begin processing the 40th record. run: 1 subRun: 0 event: 40 at <date-time>
+Begin processing the 41st record. run: 1 subRun: 0 event: 41 at <date-time>
+Begin processing the 42nd record. run: 1 subRun: 0 event: 42 at <date-time>
+Begin processing the 43rd record. run: 1 subRun: 0 event: 43 at <date-time>
+Begin processing the 44th record. run: 1 subRun: 0 event: 44 at <date-time>
+Begin processing the 45th record. run: 1 subRun: 0 event: 45 at <date-time>
+Begin processing the 46th record. run: 1 subRun: 0 event: 46 at <date-time>
+Begin processing the 47th record. run: 1 subRun: 0 event: 47 at <date-time>
+Begin processing the 48th record. run: 1 subRun: 0 event: 48 at <date-time>
+Begin processing the 49th record. run: 1 subRun: 0 event: 49 at <date-time>
+Begin processing the 50th record. run: 1 subRun: 0 event: 50 at <date-time>
+Begin processing the 51st record. run: 1 subRun: 0 event: 51 at <date-time>
+Begin processing the 52nd record. run: 1 subRun: 0 event: 52 at <date-time>
+Begin processing the 53rd record. run: 1 subRun: 0 event: 53 at <date-time>
+Begin processing the 54th record. run: 1 subRun: 0 event: 54 at <date-time>
+Begin processing the 55th record. run: 1 subRun: 0 event: 55 at <date-time>
+Begin processing the 56th record. run: 1 subRun: 0 event: 56 at <date-time>
+Begin processing the 57th record. run: 1 subRun: 0 event: 57 at <date-time>
+Begin processing the 58th record. run: 1 subRun: 0 event: 58 at <date-time>
+Begin processing the 59th record. run: 1 subRun: 0 event: 59 at <date-time>
+Begin processing the 60th record. run: 1 subRun: 0 event: 60 at <date-time>
+Begin processing the 61st record. run: 1 subRun: 0 event: 61 at <date-time>
+Begin processing the 62nd record. run: 1 subRun: 0 event: 62 at <date-time>
+Begin processing the 63rd record. run: 1 subRun: 0 event: 63 at <date-time>
+Begin processing the 64th record. run: 1 subRun: 0 event: 64 at <date-time>
+Begin processing the 65th record. run: 1 subRun: 0 event: 65 at <date-time>
+Begin processing the 66th record. run: 1 subRun: 0 event: 66 at <date-time>
+Begin processing the 67th record. run: 1 subRun: 0 event: 67 at <date-time>
+Begin processing the 68th record. run: 1 subRun: 0 event: 68 at <date-time>
+Begin processing the 69th record. run: 1 subRun: 0 event: 69 at <date-time>
+Begin processing the 70th record. run: 1 subRun: 0 event: 70 at <date-time>
+Begin processing the 71st record. run: 1 subRun: 0 event: 71 at <date-time>
+Begin processing the 72nd record. run: 1 subRun: 0 event: 72 at <date-time>
+Begin processing the 73rd record. run: 1 subRun: 0 event: 73 at <date-time>
+Begin processing the 74th record. run: 1 subRun: 0 event: 74 at <date-time>
+Begin processing the 75th record. run: 1 subRun: 0 event: 75 at <date-time>
+Begin processing the 76th record. run: 1 subRun: 0 event: 76 at <date-time>
+Begin processing the 77th record. run: 1 subRun: 0 event: 77 at <date-time>
+Begin processing the 78th record. run: 1 subRun: 0 event: 78 at <date-time>
+Begin processing the 79th record. run: 1 subRun: 0 event: 79 at <date-time>
+Begin processing the 80th record. run: 1 subRun: 0 event: 80 at <date-time>
+Begin processing the 81st record. run: 1 subRun: 0 event: 81 at <date-time>
+Begin processing the 82nd record. run: 1 subRun: 0 event: 82 at <date-time>
+Begin processing the 83rd record. run: 1 subRun: 0 event: 83 at <date-time>
+Begin processing the 84th record. run: 1 subRun: 0 event: 84 at <date-time>
+Begin processing the 85th record. run: 1 subRun: 0 event: 85 at <date-time>
+Begin processing the 86th record. run: 1 subRun: 0 event: 86 at <date-time>
+Begin processing the 87th record. run: 1 subRun: 0 event: 87 at <date-time>
+Begin processing the 88th record. run: 1 subRun: 0 event: 88 at <date-time>
+Begin processing the 89th record. run: 1 subRun: 0 event: 89 at <date-time>
+Begin processing the 90th record. run: 1 subRun: 0 event: 90 at <date-time>
+Begin processing the 91st record. run: 1 subRun: 0 event: 91 at <date-time>
+Begin processing the 92nd record. run: 1 subRun: 0 event: 92 at <date-time>
+Begin processing the 93rd record. run: 1 subRun: 0 event: 93 at <date-time>
+Begin processing the 94th record. run: 1 subRun: 0 event: 94 at <date-time>
+Begin processing the 95th record. run: 1 subRun: 0 event: 95 at <date-time>
+Begin processing the 96th record. run: 1 subRun: 0 event: 96 at <date-time>
+Begin processing the 97th record. run: 1 subRun: 0 event: 97 at <date-time>
+Begin processing the 98th record. run: 1 subRun: 0 event: 98 at <date-time>
+Begin processing the 99th record. run: 1 subRun: 0 event: 99 at <date-time>
+Begin processing the 100th record. run: 1 subRun: 0 event: 100 at <date-time>
+Begin processing the 200th record. run: 1 subRun: 0 event: 200 at <date-time>
+Begin processing the 300th record. run: 1 subRun: 0 event: 300 at <date-time>
+Begin processing the 500th record. run: 1 subRun: 0 event: 500 at <date-time>
+Begin processing the 900th record. run: 1 subRun: 0 event: 900 at <date-time>
+
+<separator (=)>
+TimeTracker printout (sec)                   Min           Avg           Max         Median          RMS         nEvts   
+<separator (=)>
+Full event	<duration> <duration> <duration> <duration> <duration> 1000    
+<separator (-)>
+source:EmptyEvent(read)	<duration> <duration> <duration> <duration> <duration> 1000    
+end_path:mod1:TestTimeTrackerAnalyzer	<duration> <duration> <duration> <duration> <duration> 1000    
+end_path:mod2:TestTimeTrackerAnalyzer	<duration> <duration> <duration> <duration> <duration> 1000    
+
+TrigReport ---------- Event  Summary ------------
+TrigReport Events total = 1000 passed = 1000 failed = 0
+
+TrigReport ------ Modules in End-Path: end_path ------------
+TrigReport  Trig Bit#        Run    Success      Error Name
+TrigReport     0    0       1000       1000          0 mod1
+TrigReport     0    0       1000       1000          0 mod2
+
+TimeReport ---------- Time  Summary ---[sec]----
+TimeReport CPU = <duration> Real = <duration>
+
+MemReport  ---------- Memory  Summary ---[base-10 MB]----
+MemReport  VmPeak = <mem-size> VmHWM = <mem-size>
+
+Art has completed and will exit with status 0.

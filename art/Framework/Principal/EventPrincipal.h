@@ -28,7 +28,6 @@ namespace art {
   class EventID;
 
   class EventPrincipal final : public Principal {
-
   public:
 
     using Auxiliary = EventAuxiliary;
@@ -41,14 +40,12 @@ namespace art {
                    std::unique_ptr<DelayedReader>&& rtrv = std::make_unique<NoDelayedReader>(),
                    bool lastInSubRun = false,
                    int idx = 0,
-                   EventPrincipal* = nullptr);
-
-    // use compiler-generated copy c'tor, copy assignment.
+                   cet::exempt_ptr<EventPrincipal const> = nullptr);
 
     SubRunPrincipal const& subRunPrincipal() const;
 
     cet::exempt_ptr<SubRunPrincipal const> subRunPrincipalExemptPtr() const { return subRunPrincipal_; }
-    void setSubRunPrincipal(cet::exempt_ptr<SubRunPrincipal> srp) { subRunPrincipal_ = srp;  }
+    void setSubRunPrincipal(cet::exempt_ptr<SubRunPrincipal const> srp) { subRunPrincipal_ = srp;  }
 
     EventID const& id() const { return aux().id(); }
     Timestamp const& time() const { return aux().time(); }
@@ -61,13 +58,9 @@ namespace art {
     RunNumber_t run() const { return id().run(); }
     EventNumber_t event() const { return id().event(); }
 
-    RunPrincipal const& runPrincipal() const;
-    RunPrincipal& runPrincipal();
-
     EventSelectionIDVector const& eventSelectionIDs() const;
 
-    History const&  history() const { return *history_; }
-    History& history() { return *history_; }
+    History const& history() const { return *history_; }
 
     using Principal::getGroup;
 
@@ -78,8 +71,7 @@ namespace art {
              BranchDescription const& bd,
              std::unique_ptr<ProductProvenance const>&& productProvenance);
 
-    void addGroup(BranchDescription const&);
-    void addGroup(std::unique_ptr<EDProduct>&&, BranchDescription const&);
+    void fillGroup(BranchDescription const&) override;
 
     ProductID branchIDToProductID(BranchID const bid) const;
 
@@ -94,7 +86,7 @@ namespace art {
 
     BranchID productIDToBranchID(ProductID const& pid) const;
 
-    void addOrReplaceGroup(std::unique_ptr<Group>&& g) override;
+    void throwIfExistingGroup(BranchDescription const& bd) const;
 
     ProcessHistoryID const&
     processHistoryID() const override
@@ -125,7 +117,7 @@ namespace art {
 
     EventAuxiliary aux_;
 
-    cet::exempt_ptr<SubRunPrincipal> subRunPrincipal_ {nullptr};
+    cet::exempt_ptr<SubRunPrincipal const> subRunPrincipal_ {nullptr};
     std::shared_ptr<History> history_;
     std::map<BranchListIndex, ProcessIndex> branchToProductIDHelper_ {};
     bool lastInSubRun_ {false};

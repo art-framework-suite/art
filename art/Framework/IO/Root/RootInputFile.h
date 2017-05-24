@@ -6,13 +6,12 @@
 #include "art/Framework/Core/InputSource.h"
 #include "art/Framework/IO/Root/FastCloningInfoProvider.h"
 #include "art/Framework/IO/Root/RootInputFileSequence.h"
-#include "art/Framework/IO/Root/RootTree.h"
+#include "art/Framework/IO/Root/RootInputTree.h"
 #include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Principal/ResultsPrincipal.h"
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Persistency/Provenance/BranchIDListRegistry.h"
-#include "art/Persistency/RootDB/SQLite3Wrapper.h"
 #include "art/Persistency/Provenance/MasterProductRegistry.h"
 #include "art/Persistency/Provenance/detail/type_aliases.h"
 #include "canvas/Persistency/Provenance/BranchChildren.h"
@@ -32,6 +31,7 @@
 #include "canvas/Persistency/Provenance/SubRunAuxiliary.h"
 #include "canvas/Persistency/Provenance/SubRunID.h"
 #include "cetlib/exempt_ptr.h"
+#include "cetlib/sqlite/Connection.h"
 
 #include <array>
 #include <map>
@@ -51,9 +51,9 @@ namespace art {
 
   public: // TYPES
 
-    using RootTreePtrArray = std::array<std::unique_ptr<RootTree>, NumBranchTypes>;
-    using EntryNumber = RootTree::EntryNumber;
-    using EntryNumbers = RootTree::EntryNumbers;
+    using RootInputTreePtrArray = std::array<std::unique_ptr<RootInputTree>, NumBranchTypes>;
+    using EntryNumber = RootInputTree::EntryNumber;
+    using EntryNumbers = RootInputTree::EntryNumbers;
 
   public: // MEMBER FUNCTIONS
 
@@ -69,7 +69,6 @@ namespace art {
                   std::unique_ptr<TFile>&& filePtr,
                   EventID const& origEventID,
                   unsigned int eventsToSkip,
-                  std::vector<SubRunID> const& whichSubRunsToSkip,
                   FastCloningInfoProvider const& fcip,
                   unsigned int treeCacheSize,
                   int64_t treeMaxVirtualSize,
@@ -90,108 +89,47 @@ namespace art {
                   std::vector<std::string> const& secondaryFileNames,
                   RootInputFileSequence* rifSequence);
 
-    void
-    reportOpened();
+    void reportOpened();
 
-    void
-    close(bool reallyClose);
+    void close(bool reallyClose);
 
-    std::unique_ptr<EventPrincipal>
-    readEvent();
+    std::unique_ptr<ResultsPrincipal> readResults();
+    std::unique_ptr<RunPrincipal> readRun();
+    std::unique_ptr<SubRunPrincipal> readSubRun(cet::exempt_ptr<RunPrincipal>);
+    std::unique_ptr<EventPrincipal> readEvent();
 
-    bool
-    readEventForSecondaryFile(EventID eID);
+    bool readRunForSecondaryFile(RunID);
+    bool readSubRunForSecondaryFile(SubRunID);
+    bool readEventForSecondaryFile(EventID eID);
 
-    std::unique_ptr<RunPrincipal>
-    readRun();
+    std::string const& fileName() const { return fileName_; }
 
-    bool
-    readRunForSecondaryFile(RunID);
-
-    std::unique_ptr<SubRunPrincipal>
-    readSubRun(cet::exempt_ptr<RunPrincipal>);
-
-    bool
-    readSubRunForSecondaryFile(SubRunID);
-
-    std::unique_ptr<art::ResultsPrincipal>
-    readResults();
-
-    std::string const&
-    file() const
-    {
-      return file_;
-    }
-
-    ProductList const&
-    productList() const
+    ProductList const& productList() const
     {
       return productListHolder_->productList_;
     }
 
-    BranchIDListRegistry::collection_type const&
-    branchIDLists()
-    {
-      return *branchIDLists_;
-    }
+    RunAuxiliary& runAux() { return std::get<RunAuxiliary>(auxiliaries_); }
+    ResultsAuxiliary& resultsAux() { return std::get<ResultsAuxiliary>(auxiliaries_); }
+    SubRunAuxiliary& subRunAux() { return std::get<SubRunAuxiliary>(auxiliaries_); }
+    EventAuxiliary& eventAux() { return std::get<EventAuxiliary>(auxiliaries_); }
 
-    EventAuxiliary&  eventAux()
-    {
-      return std::get<EventAuxiliary>(auxiliaries_);
-    }
+    RootInputTreePtrArray& treePointers() { return treePointers_; }
 
-    SubRunAuxiliary& subRunAux()
-    {
-      return std::get<SubRunAuxiliary>(auxiliaries_);
-    }
+    FileFormatVersion fileFormatVersion() const { return fileFormatVersion_; }
 
-    RunAuxiliary& runAux()
-    {
-      return std::get<RunAuxiliary>(auxiliaries_);
-    }
+    bool fastClonable() const { return fastClonable_; }
 
-    ResultsAuxiliary& resultsAux()
-    {
-      return std::get<ResultsAuxiliary>(auxiliaries_);
-    }
-
-    EventID const&
-    eventID() const
-    {
-      return std::get<EventAuxiliary>(auxiliaries_).id();
-    }
-
-    RootTreePtrArray&
-    treePointers()
-    {
-      return treePointers_;
-    }
-
-    FileFormatVersion
-    fileFormatVersion() const
-    {
-      return fileFormatVersion_;
-    }
-
-    bool
-    fastClonable() const
-    {
-      return fastClonable_;
-    }
-
-    std::unique_ptr<FileBlock>
-    createFileBlock();
+    std::unique_ptr<FileBlock> createFileBlock();
 
     template <BranchType BT>
-    void
-    setEntry(FileIndex::EntryNumber_t entry)
+    void setEntry(FileIndex::EntryNumber_t entry)
     {
       treePointers_[BT]->setEntryNumber(entry);
     }
 
     template <BranchType BT, typename ID>
-    bool
-    setEntry(ID const& id, bool exact = true)
+    bool setEntry(ID const& id, bool exact = true)
     {
       fiIter_ = fileIndex_.findPosition(id, exact);
       if (fiIter_ == fiEnd_) {
@@ -201,8 +139,7 @@ namespace art {
       return true;
     }
 
-    void
-    rewind()
+    void rewind()
     {
       fiIter_ = fiBegin_;
       // FIXME: Rewinding the trees is suspicious!
@@ -210,138 +147,55 @@ namespace art {
       eventTree().rewind();
       subRunTree().rewind();
       runTree().rewind();
-      //updateSecondaryIter();
     }
 
-    void
-    setToLastEntry()
-    {
-      fiIter_ = fiEnd_;
-      //updateSecondaryIter();
-    }
+    void setToLastEntry() { fiIter_ = fiEnd_; }
+    void nextEntry() { ++fiIter_; }
+    void previousEntry() { --fiIter_; }
+    void advanceEntry(std::size_t n) { while (n-- != 0) nextEntry(); }
 
-    void nextEntry()
-    {
-      ++fiIter_;
-      //updateSecondaryIter();
-    }
-
-    void
-    previousEntry()
-    {
-      --fiIter_;
-      //updateSecondaryIter();
-    }
-
-    PerBranchTypePresence
-    perBranchTypePresence()
+    PerBranchTypePresence perBranchTypePresence()
     {
       return perBranchTypeProdPresence_;
     }
 
-    unsigned int
-    eventsToSkip() const
-    {
-      return eventsToSkip_;
-    }
+    unsigned int eventsToSkip() const { return eventsToSkip_; }
+    int skipEvents(int offset);
+    int setForcedRunOffset(RunNumber_t const& forcedRunNumber);
 
-    int
-    skipEvents(int offset);
+    bool nextEventEntry() { return eventTree().next(); }
 
-    int
-    setForcedRunOffset(RunNumber_t const& forcedRunNumber);
+    FileIndex::EntryType getEntryType() const;
+    FileIndex::EntryType getNextEntryTypeWanted();
 
-    bool
-    nextEventEntry()
-    {
-      return eventTree().next();
-    }
-
-    FileIndex::EntryType
-    getEntryType() const;
-
-    FileIndex::EntryType
-    getEntryTypeSkippingDups();
-
-    FileIndex::EntryType
-    getNextEntryTypeWanted();
-
-    std::shared_ptr<FileIndex>
-    fileIndexSharedPtr() const
+    std::shared_ptr<FileIndex> fileIndexSharedPtr() const
     {
       return fileIndexSharedPtr_;
     }
 
-    EventID
-    eventIDForFileIndexPosition() const;
+    EventID eventIDForFileIndexPosition() const;
 
-    std::vector<std::string> const&
-    secondaryFileNames() const
-    {
-      return secondaryFileNames_;
-    }
+    auto const& secondaryFileNames() const { return secondaryFileNames_; }
+    auto const& secondaryFiles() const { return secondaryFiles_; }
 
-    std::vector<std::unique_ptr<RootInputFile> > const &
-    secondaryFiles() const
-    {
-      return secondaryFiles_;
-    }
-
-    void
-    openSecondaryFile(int const idx);
+    void openSecondaryFile(int const idx);
 
     std::unique_ptr<RangeSetHandler> runRangeSetHandler();
     std::unique_ptr<RangeSetHandler> subRunRangeSetHandler();
 
   private:
 
-    RootTree const &
-    eventTree() const
-    {
-      return *treePointers_[InEvent];
-    }
+    // const versions
+    RootInputTree const& eventTree() const { return *treePointers_[InEvent]; }
+    RootInputTree const& subRunTree() const { return *treePointers_[InSubRun]; }
+    RootInputTree const& runTree() const { return *treePointers_[InRun]; }
+    RootInputTree const& resultsTree() const { return *treePointers_[InResults]; }
 
-    RootTree &
-    eventTree()
-    {
-      return *treePointers_[InEvent];
-    }
-
-    RootTree const &
-    subRunTree() const
-    {
-      return *treePointers_[InSubRun];
-    }
-
-    RootTree &
-    subRunTree()
-    {
-      return *treePointers_[InSubRun];
-    }
-
-    RootTree const &
-    runTree() const
-    {
-      return *treePointers_[InRun];
-    }
-
-    RootTree &
-    runTree()
-    {
-      return *treePointers_[InRun];
-    }
-
-    RootTree const &
-    resultsTree() const
-    {
-      return *treePointers_[InResults];
-    }
-
-    RootTree &
-    resultsTree()
-    {
-      return *treePointers_[InResults];
-    }
+    // non-const versions
+    RootInputTree& eventTree() { return *treePointers_[InEvent]; }
+    RootInputTree& subRunTree() { return *treePointers_[InSubRun]; }
+    RootInputTree& runTree() { return *treePointers_[InRun]; }
+    RootInputTree& resultsTree() { return *treePointers_[InResults]; }
 
     bool setIfFastClonable(FastCloningInfoProvider const& fcip) const;
 
@@ -366,7 +220,7 @@ namespace art {
       return treePointers_[BT]->fillAux<AUX>(fileFormatVersion_,
                                              entries,
                                              sqliteDB_,
-                                             file_,
+                                             fileName_,
                                              aux);
     }
 
@@ -386,21 +240,20 @@ namespace art {
 
     std::pair<EntryNumbers,bool> getEntryNumbers(BranchType);
 
-    std::unique_ptr<RunPrincipal   > readCurrentRun(EntryNumbers const&);
+    std::unique_ptr<RunPrincipal> readCurrentRun(EntryNumbers const&);
     std::unique_ptr<SubRunPrincipal> readCurrentSubRun(EntryNumbers const&,
                                                        cet::exempt_ptr<RunPrincipal>);
-    std::unique_ptr<EventPrincipal > readCurrentEvent(std::pair<EntryNumbers,bool> const&);
+    std::unique_ptr<EventPrincipal> readCurrentEvent(std::pair<EntryNumbers,bool> const&);
 
-    std::string const file_;
+    std::string const fileName_;
     std::string const catalog_;
     ProcessConfiguration const& processConfiguration_;
-    std::string const logicalFile_;
+    std::string const logicalFileName_;
     std::unique_ptr<TFile> filePtr_;
-    SQLite3Wrapper sqliteDB_ {filePtr_.get(), "RootFileDB"};
+    cet::sqlite::Connection sqliteDB_{}; // Start with invalid connection.
     EventID origEventID_;
     EventNumber_t eventsToSkip_;
-    std::vector<SubRunID> whichSubRunsToSkip_;
-    RootTreePtrArray treePointers_;
+    RootInputTreePtrArray treePointers_;
     bool delayedReadEventProducts_;
     bool delayedReadSubRunProducts_;
     bool delayedReadRunProducts_;
@@ -425,7 +278,6 @@ namespace art {
                RunAuxiliary,
                ResultsAuxiliary> auxiliaries_ {};   // Must be in same order as treePointers_ !
     std::unique_ptr<ProductRegistry> productListHolder_ {std::make_unique<ProductRegistry>()};
-    std::unique_ptr<BranchIDListRegistry::collection_type const> branchIDLists_ {nullptr};
 
     PerBranchTypePresence perBranchTypeProdPresence_ {{}}; // filled by aggregation
     TTree* eventHistoryTree_ {nullptr};

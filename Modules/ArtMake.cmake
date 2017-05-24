@@ -71,23 +71,23 @@
 # * DICT_FUNCTIONS, if present, is passed to art_dictionary().
 # * DICT_COMPILE_FLAGS, if present, are passed to art_dictionary().
 #
-# art_make_library( [LIBRARY_NAME <library name>]  
+# art_make_library( [LIBRARY_NAME <library name>]
 #                   SOURCE <source code list>
-#                   [LIBRARIES <library list>] 
+#                   [LIBRARIES <library list>]
 #                   [WITH_STATIC_LIBRARY]
 #                   [NO_INSTALL]
 #                   [USE_PRODUCT_NAME]
 #                   [LIBRARY_NAME_VAR <var_name>] )
 #
 # * if USE_PRODUCT_NAME is specified, the product name will be prepended
-#   to the calculated library name 
+#   to the calculated library name
 # * USE_PRODUCT_NAME and LIBRARY_NAME are mutually exclusive
 #
 # * If LIBRARY_NAME_VAR is specified, then that variable will be set to
 # contain the final name of the library.
 #
-# art_make_exec( NAME <executable name>  
-#                [SOURCE <source code list>] 
+# art_make_exec( NAME <executable name>
+#                [SOURCE <source code list>]
 #                [LIBRARIES <library link list>]
 #                [USE_BOOST_UNIT]
 #                [NO_INSTALL] )
@@ -185,8 +185,8 @@ function( art_make_library )
          STRING( REGEX REPLACE "/" "_" art_make_lib_name "${CURRENT_SUBDIR}" )
       endif()
       if (AML_USE_PRODUCT_NAME)
-	set( art_make_lib_name ${product}_${art_make_lib_name} )
-	#message(STATUS "art_make_library debug:  calculated library name is now ${art_make_lib_name} for ${product}")
+        set( art_make_lib_name ${product}_${art_make_lib_name} )
+        #message(STATUS "art_make_library debug:  calculated library name is now ${art_make_lib_name} for ${product}")
       endif()
     endif()
     if (AML_LIBRARIES)
@@ -277,17 +277,17 @@ Use EXCLUDE to exclude particular (eg exec) source files from library.")
       foreach (glob ${plugin_glob_list})
         list (APPEND subdir_plugin_glob_list ${sub}/${glob})
       endforeach()
-	    FILE( GLOB subdir_src_files ${sub}/*.c ${sub}/*.cc ${sub}/*.cpp ${sub}/*.C ${sub}/*.cxx )
-	    FILE( GLOB subdir_ignore_dot_files ${sub}/.*.c ${sub}/.*.cc ${sub}/.*.cpp ${sub}/.*.C ${sub}/.*.cxx )
-	    FILE( GLOB subdir_plugin_files ${subdir_plugin_glob_list} )
+            FILE( GLOB subdir_src_files ${sub}/*.c ${sub}/*.cc ${sub}/*.cpp ${sub}/*.C ${sub}/*.cxx )
+            FILE( GLOB subdir_ignore_dot_files ${sub}/.*.c ${sub}/.*.cc ${sub}/.*.cpp ${sub}/.*.C ${sub}/.*.cxx )
+            FILE( GLOB subdir_plugin_files ${subdir_plugin_glob_list} )
       if (subdir_src_files)
-	      list(APPEND src_files ${subdir_src_files})
+              list(APPEND src_files ${subdir_src_files})
       endif(subdir_src_files)
       if (subdir_ignore_dot_files)
-	      list(APPEND ignore_dot_files ${subdir_ignore_dot_files})
+              list(APPEND ignore_dot_files ${subdir_ignore_dot_files})
       endif(subdir_ignore_dot_files)
       if (subdir_plugin_files)
-	      list(APPEND plugin_files ${subdir_plugin_files})
+              list(APPEND plugin_files ${subdir_plugin_files})
       endif(subdir_plugin_files)
     endforeach(sub)
   endif( AM_SUBDIRS )
@@ -311,8 +311,8 @@ Use EXCLUDE to exclude particular (eg exec) source files from library.")
     set(have_file FALSE)
     foreach( known_file ${art_file_list} )
       if( "${file}" MATCHES "${known_file}" )
-	      set(have_file TRUE)
-	    endif()
+              set(have_file TRUE)
+            endif()
     endforeach( known_file )
     if( NOT have_file )
       #message(STATUS "art_make debug: found new file ${file}")

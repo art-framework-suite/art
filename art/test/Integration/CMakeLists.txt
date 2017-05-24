@@ -27,89 +27,99 @@ set_source_files_properties(MixFilterTestOldStartEvent_module.cc
   PROPERTIES COMPILE_DEFINITIONS ART_TEST_OLD_STARTEVENT
 )
 
-simple_plugin(AddIntsProducer             "module"  NO_INSTALL )
-simple_plugin(AssnsAnalyzer               "module"  NO_INSTALL USE_BOOST_UNIT )
-simple_plugin(AssnsProducer               "module"  NO_INSTALL )
-simple_plugin(BareStringAnalyzer          "module"  NO_INSTALL )
-simple_plugin(BareStringProducer          "module"  NO_INSTALL )
-simple_plugin(CompressedIntProducer       "module"  NO_INSTALL )
-simple_plugin(CompressedIntTestAnalyzer   "module"  NO_INSTALL )
-simple_plugin(DeferredIsReadyWithAssnsAnalyzer "module"  NO_INSTALL )
-simple_plugin(DeferredIsReadyWithAssnsProducer "module"  NO_INSTALL )
-simple_plugin(DerivedPtrVectorProducer    "module"  NO_INSTALL )
-simple_plugin(DoubleProducer              "module"  NO_INSTALL )
-simple_plugin(DoubleTestAnalyzer          "module"  NO_INSTALL )
-simple_plugin(DropTestAnalyzer            "module"  NO_INSTALL USE_BOOST_UNIT )
-simple_plugin(DropTestParentageFaker      "module"  NO_INSTALL )
-simple_plugin(FailingAnalyzer             "module"  NO_INSTALL )
-simple_plugin(FailingProducer             "module"  NO_INSTALL )
-simple_plugin(UnputtingProducer           "module"  NO_INSTALL )
-simple_plugin(FlushingGenerator           "source"  NO_INSTALL )
-simple_plugin(FlushingGeneratorTest       "module"  NO_INSTALL )
-simple_plugin(FlushingGeneratorTestFilter "module"  NO_INSTALL )
-simple_plugin(GeneratorTest               "source"  NO_INSTALL )
+simple_plugin(AddIntsProducer             "module"  NO_INSTALL)
+simple_plugin(AssnsAnalyzer               "module"  NO_INSTALL USE_BOOST_UNIT)
+simple_plugin(AssnsMultipleProduces       "module"  NO_INSTALL)
+simple_plugin(AssnsProducer               "module"  NO_INSTALL)
+simple_plugin(AssnsWrongPut               "module"  NO_INSTALL)
+simple_plugin(BareStringAnalyzer          "module"  NO_INSTALL)
+simple_plugin(BareStringProducer          "module"  NO_INSTALL)
+simple_plugin(CompressedIntProducer       "module"  NO_INSTALL)
+simple_plugin(CompressedIntTestAnalyzer   "module"  NO_INSTALL)
+simple_plugin(ConcurrentEngineRetrieval   "module"  NO_INSTALL USE_BOOST_UNIT)
+simple_plugin(DeferredIsReadyWithAssnsAnalyzer "module"  NO_INSTALL)
+simple_plugin(DeferredIsReadyWithAssnsProducer "module"  NO_INSTALL)
+simple_plugin(DerivedPtrVectorProducer    "module"  NO_INSTALL)
+simple_plugin(DoubleProducer              "module"  NO_INSTALL)
+simple_plugin(DoubleTestAnalyzer          "module"  NO_INSTALL)
+simple_plugin(DropTestAnalyzer            "module"  NO_INSTALL USE_BOOST_UNIT)
+simple_plugin(DropTestParentageFaker      "module"  NO_INSTALL)
+simple_plugin(FailingAnalyzer             "module"  NO_INSTALL)
+simple_plugin(FailingProducer             "module"  NO_INSTALL)
+simple_plugin(UnputtingProducer           "module"  NO_INSTALL)
+simple_plugin(FlushingGenerator           "source"  NO_INSTALL)
+simple_plugin(FlushingGeneratorTest       "module"  NO_INSTALL)
+simple_plugin(FlushingGeneratorTestFilter "module"  NO_INSTALL)
+simple_plugin(GeneratorTest               "source"  NO_INSTALL)
 simple_plugin(ImplicitRSAssignmentAnalyzer "module" NO_INSTALL USE_BOOST_UNIT)
 simple_plugin(ImplicitRSAssignmentProducer "module" NO_INSTALL USE_BOOST_UNIT)
-simple_plugin(InFlightConfiguration       "service" NO_INSTALL USE_BOOST_UNIT art_Framework_Services_Registry art_Framework_Services_UserInteraction art_Framework_EventProcessor_PathSelection_service )
-simple_plugin(IntProducer                 "module"  NO_INSTALL )
-simple_plugin(IntTestAnalyzer             "module"  NO_INSTALL )
-simple_plugin(IntVectorAnalyzer           "module"  NO_INSTALL )
-simple_plugin(IntVectorProducer           "module"  NO_INSTALL )
-simple_plugin(MessagePrinter              "tool"    NO_INSTALL )
-simple_plugin(MixAnalyzer                 "module"  NO_INSTALL USE_BOOST_UNIT )
-simple_plugin(MixFilterTest               "module"  NO_INSTALL USE_BOOST_UNIT art_Framework_IO_ProductMix )
-simple_plugin(MixFilterTestETS            "module"  NO_INSTALL USE_BOOST_UNIT art_Framework_IO_ProductMix )
-simple_plugin(MixFilterTestETSc           "module"  NO_INSTALL USE_BOOST_UNIT art_Framework_IO_ProductMix )
-simple_plugin(MixFilterTestNoStartEvent   "module"  NO_INSTALL USE_BOOST_UNIT art_Framework_IO_ProductMix )
-simple_plugin(MixFilterTestOldStartEvent  "module"  NO_INSTALL USE_BOOST_UNIT art_Framework_IO_ProductMix )
-simple_plugin(MixProducer                 "module"  NO_INSTALL )
-simple_plugin(MockClusterListAnalyzer     "module"  NO_INSTALL )
-simple_plugin(MockClusterListProducer     "module"  NO_INSTALL )
-simple_plugin(PausingAnalyzer             "module"  NO_INSTALL )
-simple_plugin(ProductIDGetter             "module"  NO_INSTALL USE_BOOST_UNIT )
-simple_plugin(ProductIDGetterNoPut        "module"  NO_INSTALL USE_BOOST_UNIT )
-simple_plugin(ProductIDGetterAnalyzer     "module"  NO_INSTALL USE_BOOST_UNIT )
-simple_plugin(PtrListAnalyzer             "module"  NO_INSTALL )
-simple_plugin(PtrVectorSimpleAnalyzer     "module"  NO_INSTALL )
-simple_plugin(PtrmvAnalyzer               "module"  NO_INSTALL USE_BOOST_UNIT )
-simple_plugin(PtrmvProducer               "module"  NO_INSTALL )
-simple_plugin(RandomNumberSaveTest        "module"  NO_INSTALL USE_BOOST_UNIT )
-simple_plugin(ReadNextArbitrator          "tool"    NO_INSTALL )
-simple_plugin(Reconfigurable              "service" NO_INSTALL )
-simple_plugin(Reconfiguring               "module"  NO_INSTALL )
-simple_plugin(RunSubRunProductProducerNoPut "module"  NO_INSTALL )
-simple_plugin(SAMMetadataTest             "module"  NO_INSTALL art_Framework_Services_System_FileCatalogMetadata_service )
+simple_plugin(IntProducer                 "module"  NO_INSTALL)
+simple_plugin(IntTestAnalyzer             "module"  NO_INSTALL)
+simple_plugin(IntVectorAnalyzer           "module"  NO_INSTALL)
+simple_plugin(IntVectorProducer           "module"  NO_INSTALL)
+simple_plugin(MessagePrinter              "tool"    NO_INSTALL)
+simple_plugin(MixAnalyzer                 "module"  NO_INSTALL USE_BOOST_UNIT)
+simple_plugin(MixFilterTest               "module"  NO_INSTALL USE_BOOST_UNIT art_Framework_IO_ProductMix)
+simple_plugin(MixFilterTestETS            "module"  NO_INSTALL USE_BOOST_UNIT art_Framework_IO_ProductMix)
+simple_plugin(MixFilterTestETSc           "module"  NO_INSTALL USE_BOOST_UNIT art_Framework_IO_ProductMix)
+simple_plugin(MixFilterTestNoStartEvent   "module"  NO_INSTALL USE_BOOST_UNIT art_Framework_IO_ProductMix)
+simple_plugin(MixFilterTestOldStartEvent  "module"  NO_INSTALL USE_BOOST_UNIT art_Framework_IO_ProductMix)
+simple_plugin(MixProducer                 "module"  NO_INSTALL)
+simple_plugin(MockClusterListAnalyzer     "module"  NO_INSTALL)
+simple_plugin(MockClusterListProducer     "module"  NO_INSTALL)
+simple_plugin(PausingAnalyzer             "module"  NO_INSTALL)
+simple_plugin(ProductIDGetter             "module"  NO_INSTALL USE_BOOST_UNIT)
+simple_plugin(ProductIDGetterNoPut        "module"  NO_INSTALL USE_BOOST_UNIT)
+simple_plugin(ProductIDGetterAnalyzer     "module"  NO_INSTALL USE_BOOST_UNIT)
+simple_plugin(PtrListAnalyzer             "module"  NO_INSTALL)
+simple_plugin(PtrVectorSimpleAnalyzer     "module"  NO_INSTALL)
+simple_plugin(PtrmvAnalyzer               "module"  NO_INSTALL USE_BOOST_UNIT)
+simple_plugin(PtrmvProducer               "module"  NO_INSTALL)
+simple_plugin(RandomNumberSaveTest        "module"  NO_INSTALL USE_BOOST_UNIT)
+simple_plugin(ReadNextArbitrator          "tool"    NO_INSTALL)
+simple_plugin(RunSubRunProductProducerNoPut "module"  NO_INSTALL)
+simple_plugin(SAMMetadataConcurrentTest   "module"  NO_INSTALL USE_BOOST_UNIT art_Framework_Services_System_FileCatalogMetadata_service)
+simple_plugin(SAMMetadataTest             "module"  NO_INSTALL art_Framework_Services_System_FileCatalogMetadata_service)
 simple_plugin(SeekToEventClient           "service" NO_INSTALL art_Framework_IO_Root_RootInput_source)
-simple_plugin(ServiceUsing                "service" NO_INSTALL )
-simple_plugin(SimpleDerivedAnalyzer       "module"  NO_INSTALL )
-simple_plugin(SimpleDerivedProducer       "module"  NO_INSTALL )
+simple_plugin(ServiceUsing                "service" NO_INSTALL)
+simple_plugin(SimpleDerivedAnalyzer       "module"  NO_INSTALL)
+simple_plugin(SimpleDerivedProducer       "module"  NO_INSTALL)
+simple_plugin(SimpleSource                "source"  NO_INSTALL)
 simple_plugin(TH1DataProducer             "module"  NO_INSTALL art_test_TestObjects)
-simple_plugin(TestAnalyzerSelect          "module"  NO_INSTALL )
-simple_plugin(TestBitsOutput              "module"  NO_INSTALL )
-simple_plugin(TestFilter                  "module"  NO_INSTALL )
-simple_plugin(TestFilterSpecificEvents    "module"  NO_INSTALL )
-simple_plugin(TestOutput                  "module"  NO_INSTALL )
-simple_plugin(TestProvenanceDumper        "module"  NO_INSTALL USE_BOOST_UNIT )
-simple_plugin(TestResultAnalyzer          "module"  NO_INSTALL )
-simple_plugin(TestServiceUsingService     "module"  NO_INSTALL USE_BOOST_UNIT )
-simple_plugin(TestSimpleMemoryCheckProducer "module"  NO_INSTALL )
-simple_plugin(TestTimeTrackerProducer     "module"  NO_INSTALL )
-simple_plugin(TestTimeTrackerFilter       "module"  NO_INSTALL )
-simple_plugin(TestTimeTrackerAnalyzer     "module"  NO_INSTALL )
-simple_plugin(Throwing                    "service" NO_INSTALL )
-simple_plugin(ToyProductAnalyzer          "module"  NO_INSTALL )
-simple_plugin(ToyProductProducer          "module"  NO_INSTALL )
-simple_plugin(ToyProductProducerMultiput  "module"  NO_INSTALL )
-simple_plugin(ToyRawFileInput             "source"  NO_INSTALL USE_BOOST_UNIT art_test_Integration )
-simple_plugin(ToyRawInput                 "source"  NO_INSTALL USE_BOOST_UNIT art_test_Integration )
-simple_plugin(ToyRawInputTester           "module"  NO_INSTALL )
-simple_plugin(ToyRawProductAnalyzer       "module"  NO_INSTALL )
-simple_plugin(U_S                         "module"  NO_INSTALL ALLOW_UNDERSCORES )
-simple_plugin(ValidHandleTester           "module"  NO_INSTALL )
-simple_plugin(Wanted                      "service" NO_INSTALL )
-simple_plugin(addInts                     "tool"    NO_INSTALL )
+simple_plugin(TestAnalyzerSelect          "module"  NO_INSTALL)
+simple_plugin(TestBitsOutput              "module"  NO_INSTALL)
+simple_plugin(TestFilter                  "module"  NO_INSTALL)
+simple_plugin(TestFilterSpecificEvents    "module"  NO_INSTALL)
+simple_plugin(TestOutput                  "module"  NO_INSTALL)
+simple_plugin(TestProvenanceDumper        "module"  NO_INSTALL USE_BOOST_UNIT)
+simple_plugin(TestResultAnalyzer          "module"  NO_INSTALL)
+simple_plugin(TestServiceUsingService     "module"  NO_INSTALL USE_BOOST_UNIT)
+simple_plugin(TestSimpleMemoryCheckProducer "module"  NO_INSTALL)
+simple_plugin(TestTimeTrackerProducer     "module"  NO_INSTALL)
+simple_plugin(TestTimeTrackerFilter       "module"  NO_INSTALL)
+simple_plugin(TestTimeTrackerAnalyzer     "module"  NO_INSTALL)
+simple_plugin(Throwing                    "service" NO_INSTALL)
+simple_plugin(ToyProductAnalyzer          "module"  NO_INSTALL)
+simple_plugin(ToyProductProducer          "module"  NO_INSTALL)
+simple_plugin(ToyProductProducerMultiput  "module"  NO_INSTALL)
+simple_plugin(ToyRawFileInput             "source"  NO_INSTALL USE_BOOST_UNIT art_test_Integration)
+simple_plugin(ToyRawInput                 "source"  NO_INSTALL USE_BOOST_UNIT art_test_Integration)
+simple_plugin(ToyRawInputTester           "module"  NO_INSTALL)
+simple_plugin(ToyRawProductAnalyzer       "module"  NO_INSTALL)
+simple_plugin(U_S                         "module"  NO_INSTALL ALLOW_UNDERSCORES)
+simple_plugin(ValidHandleTester           "module"  NO_INSTALL)
+simple_plugin(Wanted                      "service" NO_INSTALL)
+simple_plugin(addInts                     "tool"    NO_INSTALL)
 
 art_dictionary(DICTIONARY_LIBRARIES cetlib NO_INSTALL)
+
+cet_test(EventIDFilter_t HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --rethrow-all --config EventIDFilter_t.fcl -n 10
+  DATAFILES
+  fcl/EventIDFilter_t.fcl
+  REF "${CMAKE_CURRENT_SOURCE_DIR}/EventIDFilter_t-ref.txt"
+)
 
 cet_test(EventSelectorFromFile_w HANDBUILT
   TEST_EXEC art
@@ -133,6 +143,29 @@ cet_test(EventSelectorFromFile_r2 HANDBUILT
   fcl/EventSelectorFromFile_r2.fcl
   TEST_PROPERTIES DEPENDS EventSelectorFromFile_w
 )
+
+cet_test(SelectEventsFromPreviousProcess_w HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --rethrow-all --config SelectEventsFromPreviousProcess_w.fcl -n 10 -o out.root
+  DATAFILES
+  fcl/SelectEventsFromPreviousProcess_w.fcl
+  )
+
+cet_test(SelectEventsFromPreviousProcess_t HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --rethrow-all --config SelectEventsFromPreviousProcess_t.fcl
+  -s ../SelectEventsFromPreviousProcess_w.d/out.root
+  DATAFILES
+  fcl/SelectEventsFromPreviousProcess_t.fcl
+  TEST_PROPERTIES DEPENDS SelectEventsFromPreviousProcess_w
+  )
+
+cet_test(SelectEventsFromPreviousProcess_EventList_t HANDBUILT
+  TEST_EXEC file_info_dumper
+  TEST_ARGS --event-list ../SelectEventsFromPreviousProcess_t.d/out.root
+  REF "${CMAKE_CURRENT_SOURCE_DIR}/SelectEventsFromPreviousProcess_t-ref.txt"
+  TEST_PROPERTIES DEPENDS SelectEventsFromPreviousProcess_t
+  )
 
 cet_test(test_dropAllEventsSubruns_t.sh PREBUILT
   DATAFILES
@@ -261,14 +294,6 @@ cet_test(issue_0926_t.sh PREBUILT
 cet_test(issue_0940_t.sh PREBUILT
   DATAFILES
   fcl/issue_0940.fcl
-  fcl/messageDefaults.fcl
-)
-
-cet_test(reconfig_t HANDBUILT
-  TEST_EXEC art
-  TEST_ARGS --rethrow-all -c test_reconfig_01.fcl
-  DATAFILES
-  fcl/test_reconfig_01.fcl
   fcl/messageDefaults.fcl
 )
 
@@ -401,6 +426,9 @@ cet_test(ToyRawInput_OutputCheck_t_01 HANDBUILT
   DEPENDS ToyRawInput_t_01
   )
 
+# Utility script to turn an expected abort into a pass
+cet_script(test_must_abort NO_INSTALL)
+
 foreach(num 02 03 04 11 12)
   cet_test(ToyRawInput_t_${num} HANDBUILT
     TEST_EXEC test_must_abort
@@ -418,6 +446,19 @@ cet_test_assertion("outR || inR"
   ToyRawInput_t_11
   )
 cet_test_assertion("outSR || inSR" ToyRawInput_t_12)
+
+# The following test throws an exception and does not return status
+# code 0.  The test is checking that the correct exception has been
+# thrown, as indicated by the regular-expression pattern that matches
+# the exception message.
+cet_test(SimpleSource_t_01 HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS -c SimpleSource_t_01.fcl
+  DATAFILES
+  fcl/SimpleSource_t_01.fcl
+  TEST_PROPERTIES
+  PASS_REGULAR_EXPRESSION "readNext returned true but no RunPrincipal has been set"
+  )
 
 foreach(num 05 06 07 08 09 10)
   cet_test(ToyRawInput_t_${num} HANDBUILT
@@ -545,7 +586,7 @@ cet_test(ProductMix_r1c1 HANDBUILT
   fcl/ProductMix_r1.fcl
   fcl/ProductMix_r1c.fcl
   TEST_PROPERTIES DEPENDS ProductMix_w
-  PASS_REGULAR_EXPRESSION "TrigReport Events total = 400 passed = 400 failed = 0.*MixingInputWrap      -w MixFilterTest[A-Za-z:]*                       1"
+  PASS_REGULAR_EXPRESSION "MixingInputWrap      -w MixFilterTest[A-Za-z:]*                       1.*TrigReport Events total = 400 passed = 400 failed = 0"
 )
 
 # Mix the events from ProductMix_w, testing that things behave properly
@@ -642,7 +683,7 @@ SET_TESTS_PROPERTIES(
   ProductMix_r1c2
   ProductMix_r1c3
   PROPERTIES
-  PASS_REGULAR_EXPRESSION "TrigReport Events total = 400 passed = 400 failed = 0.*MixingInputWrap      -w MixFilterTest[A-Za-z:]*                       2"
+  PASS_REGULAR_EXPRESSION "MixingInputWrap      -w MixFilterTest[A-Za-z:]*                       2.*TrigReport Events total = 400 passed = 400 failed = 0"
   )
 
 # Mix the events from ProductMix_w, testing that we correctly detect an
@@ -835,6 +876,15 @@ endforeach()
 
 # Write a data file containing stored products and stored random number
 # states for subsequent tests.
+cet_test(RNGConcurrentAccess_t HANDBUILT
+  TEST_EXEC art_ut
+  TEST_ARGS -- --rethrow-all -c "RNGConcurrentAccess_t.fcl"
+  DATAFILES
+  fcl/RNGConcurrentAccess_t.fcl
+)
+
+# Write a data file containing stored products and stored random number
+# states for subsequent tests.
 cet_test(RandomNumberTestEventSave_w HANDBUILT
   TEST_EXEC art_ut
   TEST_ARGS -- --rethrow-all -c "RandomNumberTestEventSave_w.fcl"
@@ -953,19 +1003,29 @@ cet_test(AssnsFastClone_w HANDBUILT
   TEST_PROPERTIES DEPENDS Assns_w
 )
 
-cet_test(ServiceUsingService_01_t HANDBUILT
-  TEST_EXEC art_ut
-  TEST_ARGS -- -c "ServiceUsingService_01.fcl"
+cet_test(AssnsWrongPut_t HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS -c "AssnsWrongPut_t.fcl"
   DATAFILES
-  fcl/ServiceUsingService_01.fcl
+  fcl/AssnsWrongPut_t.fcl
+  TEST_PROPERTIES
+  PASS_REGULAR_EXPRESSION "but they have not been placed onto the event"
 )
 
-cet_test(ServiceUsingService_02_t HANDBUILT
-  TEST_EXEC art_ut
-  TEST_ARGS -- -c "ServiceUsingService_02.fcl"
+cet_test(AssnsMultipleProduces_t HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS -c "AssnsMultipleProduces_t.fcl"
   DATAFILES
-  fcl/test_reconfig_01.fcl
-  fcl/ServiceUsingService_02.fcl
+  fcl/AssnsMultipleProduces_t.fcl
+  TEST_PROPERTIES
+  PASS_REGULAR_EXPRESSION "That friendly name has already been registered for this module."
+)
+
+cet_test(ServiceUsingService_t HANDBUILT
+  TEST_EXEC art_ut
+  TEST_ARGS -- -c "ServiceUsingService_t.fcl"
+  DATAFILES
+  fcl/ServiceUsingService_t.fcl
 )
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
@@ -980,21 +1040,25 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     )
 endif()
 
-cet_test(TimeTracker_issue_3598_t1 HANDBUILT
+cet_test(TimeTracker_t1 HANDBUILT
   TEST_EXEC art
-  TEST_ARGS -c issue_3598_t1.fcl
-  DATAFILES fcl/issue_3598_t1.fcl
-  REF "${CMAKE_CURRENT_SOURCE_DIR}/TimeTracker_issue_3598_t1-ref.txt"
+  TEST_ARGS -c TimeTracker_t1.fcl
+  DATAFILES fcl/TimeTracker_t1.fcl
+  REF "${CMAKE_CURRENT_SOURCE_DIR}/TimeTracker_t1-ref.txt"
   OUTPUT_FILTERS "filter-timeTracker-output" "DEFAULT"
   )
 
-cet_test(TimeTracker_issue_3598_t2 HANDBUILT TEST_EXEC art TEST_ARGS -c issue_3598_t2.fcl DATAFILES fcl/issue_3598_t2.fcl)
-
-cet_test(TimeTracker_issue_3598_t3 HANDBUILT
+cet_test(TimeTracker_t2 HANDBUILT
   TEST_EXEC art
-  TEST_ARGS -c issue_3598_t3.fcl
-  DATAFILES fcl/issue_3598_t3.fcl
-  REF "${CMAKE_CURRENT_SOURCE_DIR}/TimeTracker_issue_3598_t3-ref.txt"
+  TEST_ARGS -c TimeTracker_t2.fcl
+  DATAFILES fcl/TimeTracker_t2.fcl
+  )
+
+cet_test(TimeTracker_t3 HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS -c TimeTracker_t3.fcl
+  DATAFILES fcl/TimeTracker_t3.fcl
+  REF "${CMAKE_CURRENT_SOURCE_DIR}/TimeTracker_t3-ref.txt"
   OUTPUT_FILTERS "filter-timeTracker-output" "DEFAULT"
   )
 
@@ -1161,6 +1225,12 @@ cet_test(SAM_metadataFromInput_conflictingFields HANDBUILT
 set_tests_properties(SAM_metadataFromInput_conflictingFields
   PROPERTIES DEPENDS "SAM_metadataFromInput_01;SAM_metadataFromInput_02")
 
+cet_test(SAM_metadata_concurrent_insertion HANDBUILT
+  TEST_EXEC art_ut
+  TEST_ARGS -- --rethrow-all -c "SAMMetadata_concurrent_insertion_t.fcl"
+  DATAFILES
+  fcl/SAMMetadata_concurrent_insertion_t.fcl
+)
 cet_test(GeneratorSource_t HANDBUILT
   TEST_EXEC art
   TEST_ARGS -c "GeneratorSource_t.fcl"
@@ -1197,9 +1267,7 @@ cet_script(signal_handling_t.sh NO_INSTALL)
 cet_test(signal_handling_01_t HANDBUILT
   TEST_EXEC signal_handling_t.sh
   TEST_ARGS -c signal_sigint.fcl SIGINT
-  TEST_PROPERTIES
-  PASS_REGULAR_EXPRESSION
-  "Art has handled signal 2\\."
+  REF "${CMAKE_CURRENT_SOURCE_DIR}/signal_handling_01_t-ref.txt"
   DATAFILES
   fcl/signal_sigint.fcl
   )
@@ -1207,9 +1275,7 @@ cet_test(signal_handling_01_t HANDBUILT
 cet_test(signal_handling_02_t HANDBUILT
   TEST_EXEC signal_handling_t.sh
   TEST_ARGS -c signal_sigint.fcl SIGQUIT
-  TEST_PROPERTIES
-  PASS_REGULAR_EXPRESSION
-  "Art has handled signal 3\\."
+  REF "${CMAKE_CURRENT_SOURCE_DIR}/signal_handling_02_t-ref.txt"
   DATAFILES
   fcl/signal_sigint.fcl
   )
@@ -1217,14 +1283,12 @@ cet_test(signal_handling_02_t HANDBUILT
 cet_test(signal_handling_03_t HANDBUILT
   TEST_EXEC signal_handling_t.sh
   TEST_ARGS -c signal_sigint.fcl SIGTERM
-  TEST_PROPERTIES
-  PASS_REGULAR_EXPRESSION
-  "Art has handled signal 15\\."
+  REF "${CMAKE_CURRENT_SOURCE_DIR}/signal_handling_03_t-ref.txt"
   DATAFILES
   fcl/signal_sigint.fcl
   )
 
-if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin" )
+if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   set(sigusr_two_signal 31)
 else()
   set(sigusr_two_signal 12)
@@ -1246,15 +1310,6 @@ cet_test(ImplicitRSAssignment_t HANDBUILT
   DATAFILES
   fcl/implicitRSAssignment_t.fcl
   )
-
-foreach (num 1 2)
-  cet_test(InFlightConfiguration_0${num}_t HANDBUILT
-    TEST_EXEC art_ut
-    TEST_ARGS -- --config InFlightConfiguration_0${num}.fcl
-    DATAFILES
-    fcl/InFlightConfiguration_0${num}.fcl
-    )
-endforeach()
 
 cet_test(TH1Data_t HANDBUILT
   TEST_EXEC art

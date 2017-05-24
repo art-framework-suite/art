@@ -64,7 +64,7 @@ art::DataFlow::DataFlow(fhicl::TableFragment<Config> const& cfg) :
   debug_(cfg().debuglevel())
 {
   if (!out_) {
-    throw art::Exception(art::errors::FileOpenError) << 
+    throw art::Exception(art::errors::FileOpenError) <<
       "Failed to create output file: " << cfg().dotfile();
   }
 }
@@ -193,7 +193,7 @@ void write_parentage_line(art::Provenance const& p,
   if (debug > 0) {
     os << "# write_parentage_line for provenance: " << &p
        << " parent " << parent << '\n';
-  }  
+  }
   write_parent_id(parent, os);
   os << " -> ";
   write_module_id(p, os);

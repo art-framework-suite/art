@@ -1,13 +1,10 @@
 process_name: RNTESr
 
-services:
-{
-  RandomNumberGenerator: { restoreStateLabel: randomSaver }
-}
+services.RandomNumberGenerator: { restoreStateLabel: randomSaver }
 
 physics:
 {
-  filters:
+  producers:
   {
     randomTester:
     {
@@ -16,8 +13,7 @@ physics:
     }
   }
 
-  p1: [ randomTester ]
-  trigger_paths: [ p1 ]
+  p1: [randomTester]
 }
 
 source:

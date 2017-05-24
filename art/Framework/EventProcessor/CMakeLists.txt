@@ -9,11 +9,7 @@ art_make(
   art_Framework_Core
   art_Utilities canvas
   cetlib
-  EXCLUDE
-  PathSelection_service.cc
   )
-
-simple_plugin(PathSelection "service" art_Framework_Core art_Framework_EventProcessor)
 
 install_headers(SUBDIRS detail)
 install_source(SUBDIRS detail)

@@ -1,5 +1,5 @@
-#ifndef art_test_Utilities_NestedClassTool_h
-#define art_test_Utilities_NestedClassTool_h
+#ifndef art_test_Utilities_tools_NestedClassTool_h
+#define art_test_Utilities_tools_NestedClassTool_h
 
 #include "art/Utilities/make_tool.h"
 #include "art/test/Utilities/tools/ClassTool.h"
@@ -22,7 +22,7 @@ namespace arttest {
   };
 }
 
-#endif
+#endif /* art_test_Utilities_tools_NestedClassTool_h */
 
 // Local variables:
 // mode: c++

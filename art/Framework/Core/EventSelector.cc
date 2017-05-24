@@ -225,8 +225,7 @@ namespace art {
       if (!(psetID_initialized_ && psetID_ == tr.parameterSetID())) {
 
         Strings triggernames;
-        ServiceHandle<TriggerNamesService> tns;
-        if (tns->getTrigPaths(tr, triggernames)) {
+        if (ServiceHandle<TriggerNamesService const>{}->getTrigPaths(tr, triggernames)) {
           init(paths_, triggernames);
           psetID_ = tr.parameterSetID();
           psetID_initialized_ = true;

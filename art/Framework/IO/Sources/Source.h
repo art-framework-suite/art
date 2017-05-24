@@ -146,32 +146,26 @@ namespace art {
 template <class T>
 class art::Source final : public art::InputSource {
 public:
+
   Source(Source<T> const&) = delete;
   Source<T>& operator=(Source<T> const&) = delete;
 
-  typedef T SourceDetail;
+  using SourceDetail = T;
 
-  Source(fhicl::ParameterSet const& p,
-         InputSourceDescription& d);
+  explicit Source(fhicl::ParameterSet const& p, InputSourceDescription& d);
 
   input::ItemType nextItemType() override;
-  RunID run() const override;
-  SubRunID subRun() const override;
 
   std::unique_ptr<FileBlock> readFile(MasterProductRegistry& mpr) override;
   void closeFile() override;
 
+  using InputSource::readEvent;
   std::unique_ptr<RunPrincipal> readRun() override;
-
-  std::unique_ptr<SubRunPrincipal>
-  readSubRun(cet::exempt_ptr<RunPrincipal> rp) override;
+  std::unique_ptr<SubRunPrincipal> readSubRun(cet::exempt_ptr<RunPrincipal const> rp) override;
+  std::unique_ptr<EventPrincipal> readEvent(cet::exempt_ptr<SubRunPrincipal const> srp) override;
 
   std::unique_ptr<art::RangeSetHandler> runRangeSetHandler() override;
   std::unique_ptr<art::RangeSetHandler> subRunRangeSetHandler() override;
-
-  using InputSource::readEvent;
-  std::unique_ptr<EventPrincipal>
-  readEvent(cet::exempt_ptr<SubRunPrincipal> srp) override;
 
 private:
 
@@ -225,7 +219,7 @@ private:
   void readNextAndRefuseEvent_();
 
   // Test the newly read data for validity, given our current state.
-  void throwIfInsane_(bool const result,
+  void throwIfInsane_(bool result,
                       RunPrincipal* newR,
                       SubRunPrincipal* newSR,
                       EventPrincipal* newE) const;
@@ -238,6 +232,7 @@ private:
 template <class T>
 art::Source<T>::Source(fhicl::ParameterSet const& p,
                        InputSourceDescription& d) :
+  InputSource{d.moduleDescription},
   act_{&d.activityRegistry},
   sourceHelper_{d.moduleDescription},
   detail_{p, h_, sourceHelper_},
@@ -277,9 +272,23 @@ art::Source<T>::throwIfInsane_(bool const result,
 {
   std::ostringstream errMsg;
   if (result) {
-    if (!newR && !newSR && !newE)
-      throw Exception(errors::LogicError)
+    if (!newR && !newSR && !newE) {
+      throw Exception{errors::LogicError}
         << "readNext returned true but created no new data\n";
+    }
+
+    if (!cachedRP_ && !newR) {
+      throw Exception(errors::LogicError)
+        << "readNext returned true but no RunPrincipal has been set, and no cached RunPrincipal exists.\n"
+        "This can happen if a new input file has been opened and the RunPrincipal has not been appropriately assigned.";
+    }
+
+    if (!cachedSRP_ && !newSR) {
+      throw Exception(errors::LogicError)
+        << "readNext returned true but no SubRunPrincipal has been set, and no cached SubRunPrincipal exists.\n"
+        "This can happen if a new input file has been opened and the SubRunPrincipal has not been appropriately assigned.";
+    }
+
     if (cachedRP_ && newR && cachedRP_.get() == newR) {
       errMsg
         << "readNext returned a new Run which is the old Run for "
@@ -527,32 +536,10 @@ art::Source<T>::readNextAndRefuseEvent_()
 }
 
 template <class T>
-art::RunID
-art::Source<T>::run() const
-{
-  if (!newRP_) throw Exception(errors::LogicError)
-        << "Error in Source<T>\n"
-        << "run() called when no RunPrincipal exists\n"
-        << "Please report this to the art developers\n";
-  return newRP_->id();
-}
-
-template <class T>
 std::unique_ptr<art::RangeSetHandler>
 art::Source<T>::runRangeSetHandler()
 {
   return std::make_unique<OpenRangeSetHandler>(cachedRP_->run());
-}
-
-template <class T>
-art::SubRunID
-art::Source<T>::subRun() const
-{
-  if (!newSRP_) throw Exception(errors::LogicError)
-        << "Error in Source<T>\n"
-        << "subRun() called when no SubRunPrincipal exists\n"
-        << "Please report this to the art developers\n";
-  return newSRP_->id();
 }
 
 template <class T>
@@ -561,8 +548,6 @@ art::Source<T>::subRunRangeSetHandler()
 {
   return std::make_unique<OpenRangeSetHandler>(cachedSRP_->run());
 }
-
-
 
 template <class T>
 std::unique_ptr<art::FileBlock>
@@ -602,7 +587,7 @@ art::Source<T>::readRun()
 
 template <class T>
 std::unique_ptr<art::SubRunPrincipal>
-art::Source<T>::readSubRun(cet::exempt_ptr<RunPrincipal>)
+art::Source<T>::readSubRun(cet::exempt_ptr<RunPrincipal const>)
 {
   if (!newSRP_) throw Exception(errors::LogicError)
         << "Error in Source<T>\n"
@@ -618,7 +603,7 @@ art::Source<T>::readSubRun(cet::exempt_ptr<RunPrincipal>)
 
 template <class T>
 std::unique_ptr<art::EventPrincipal>
-art::Source<T>::readEvent(cet::exempt_ptr<SubRunPrincipal>)
+art::Source<T>::readEvent(cet::exempt_ptr<SubRunPrincipal const>)
 {
   if (haveEventLimit_) { --remainingEvents_; }
   return std::move(newE_);
@@ -634,7 +619,8 @@ art::Source<T>::finishProductRegistration_(InputSourceDescription& d)
                       ModuleDescription{fhicl::ParameterSet{}.id(), // Dummy
                                         "_NAMEERROR_",
                                         "_LABELERROR_",
-                                        d.moduleDescription.processConfiguration()});
+                                        d.moduleDescription.processConfiguration(),
+                                        ModuleDescription::invalidID()});
 }
 
 #endif /* art_Framework_IO_Sources_Source_h */

@@ -9,21 +9,16 @@
 #include "art/test/Integration/ToySource.h"
 #include "art/test/TestObjects/ToyProducts.h"
 
-arttest::ToySource::
-ToySource(fhicl::ParameterSet const& ps,
-          art::ProductRegistryHelper& helper,
-          art::SourceHelper const& sHelper) :
-  current_(),
-  end_(),
-  data_(ps),
-  fileData_(),
-  sHelper_(sHelper),
-  currentFilename_(),
-  throw_on_construction_(ps.get<bool>("throw_on_construction", false)),
-  throw_on_closeCurrentFile_(ps.get<bool>("throw_on_closeCurrentFile", false)),
-  throw_on_readNext_(ps.get<bool>("throw_on_readNext", false)),
-  throw_on_readFile_(ps.get<bool>("throw_on_construction", false)),
-  vtl_(helper.reconstitutes<std::vector<double>, art::InEvent>("m3"))
+arttest::ToySource::ToySource(fhicl::ParameterSet const& ps,
+                              art::ProductRegistryHelper& helper,
+                              art::SourceHelper const& sHelper) :
+  data_{ps},
+  sHelper_{sHelper},
+  throw_on_construction_{ps.get<bool>("throw_on_construction", false)},
+  throw_on_closeCurrentFile_{ps.get<bool>("throw_on_closeCurrentFile", false)},
+  throw_on_readNext_{ps.get<bool>("throw_on_readNext", false)},
+  throw_on_readFile_{ps.get<bool>("throw_on_construction", false)},
+  vtl_{helper.reconstitutes<std::vector<double>, art::InEvent>("m3")}
 {
   if (throw_on_construction_) throw_exception_from("ToySource");
   helper.reconstitutes<int, art::InEvent>("m1");
@@ -39,8 +34,8 @@ arttest::ToySource::closeCurrentFile()
 {
   if (throw_on_closeCurrentFile_) throw_exception_from("closeCurrentFile");
   fileData_.clear();
-  current_ = iter();
-  end_ = iter();
+  current_ = iter{};
+  end_ = iter{};
 }
 
 bool
@@ -59,43 +54,42 @@ arttest::ToySource::readNext(art::RunPrincipal const* const inR,
 
   if (data_.get<bool>("returnTrueWithoutNewFault", false)) return true;
 
-  bool readSomething = false;
+  bool readSomething {false};
 
-  if ((*current_)[0] != -1) // New run
+  static auto const timeStamp = art::Timestamp::invalidTimestamp();
+
+  int rN, srN, eN;
+  std::tie(rN, srN, eN) = *current_;
+
+  if (rN != -1) // New run
     {
-      art::Timestamp runstart; // current time?
-      outR = sHelper_.makeRunPrincipal((*current_)[0],  // run number
-                                       runstart);     // starting time
+      outR = sHelper_.makeRunPrincipal(rN, timeStamp);
       put_product_in_principal(make_unique<double>(76.5), *outR, "r1");
       readSomething = true;
     }
-  if ((*current_)[1] != -1) // New subrun
+  if (srN != -1) // New subrun
     {
       assert(outR || inR); // Must have one or the other.
       art::SubRunID newSRID;
       if (data_.get<bool>("newRunSameSubRunFault", false) && inSR)
         {
-          newSRID = art::SubRunID{inSR->id()};
+          newSRID = inSR->id();
         }
       else
         {
-          newSRID = art::SubRunID(outR?outR->run():inR->run(), (*current_)[1]);
+          newSRID = art::SubRunID(outR?outR->run():inR->run(), srN);
         }
-      art::Timestamp runstart; // current time?
-      outSR = sHelper_.makeSubRunPrincipal(newSRID.run(),
-                                           newSRID.subRun(),
-                                           runstart);     // starting time
+      outSR = sHelper_.makeSubRunPrincipal(newSRID, timeStamp);
       put_product_in_principal(make_unique<double>(7.0), *outSR, "s1");
       readSomething = true;
     }
-  if ((*current_)[2] != -1)
+  if (eN != -1)
     {
       assert(outSR || inSR);
-      art::Timestamp runstart; // current time?
       outE = sHelper_.makeEventPrincipal(outR?outR->run():inR->run(),
                                          outSR?outSR->subRun():inSR->subRun(),
-                                         (*current_)[2],  // event number
-                                         runstart);     // starting time
+                                         eN,  // event number
+                                         timeStamp);
       put_product_in_principal(make_unique<int>(26), *outE, "m1");
       put_product_in_principal(make_unique<bool>(false), *outE, "m2", "a");
       put_product_in_principal(make_unique<bool>(true), *outE, "m2", "b");

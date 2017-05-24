@@ -41,18 +41,18 @@ public:
 
 protected:
   // Helper function to throw an exception with the appropriate text.
-  static void throw_exception_from(const char* funcname);
+  [[noreturn]] static void throw_exception_from(const char* funcname);
 
-  typedef std::vector<std::vector<int> > vv_t;
-  typedef vv_t::const_iterator iter;
+  using vv_t = std::vector<std::tuple<int,int,int>>;
+  using iter = vv_t::const_iterator;
 
-  iter    current_;
-  iter    end_;
+  iter current_ {};
+  iter end_ {};
   fhicl::ParameterSet data_;
-  vv_t fileData_;
+  vv_t fileData_ {};
 
   art::SourceHelper const & sHelper_;
-  std::string currentFilename_;
+  std::string currentFilename_ {};
   bool const throw_on_construction_;
   bool const throw_on_closeCurrentFile_;
   bool const throw_on_readNext_;

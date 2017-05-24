@@ -21,15 +21,11 @@ namespace {
   }
 }
 
-art::TrivialFileDelivery::TrivialFileDelivery
-(TrivialFileDelivery::Parameters const &, ActivityRegistry &)
-  : fileList()
-  , nextFile(fileList.begin())
-  , endOfFiles(fileList.end())
-{
-}
+art::TrivialFileDelivery::TrivialFileDelivery(TrivialFileDelivery::Parameters const&)
+{}
 
-void art::TrivialFileDelivery::doConfigure(std::vector<std::string> const & items)
+void
+art::TrivialFileDelivery::doConfigure(std::vector<std::string> const& items)
 {
   fileList = items;
   nextFile = fileList.begin();
@@ -37,8 +33,7 @@ void art::TrivialFileDelivery::doConfigure(std::vector<std::string> const & item
 }
 
 int
-art::TrivialFileDelivery::
-doGetNextFileURI(std::string & uri, double & waitTime)
+art::TrivialFileDelivery::doGetNextFileURI(std::string& uri, double& waitTime)
 {
   FileDeliveryStatus stat;
   if (nextFile == endOfFiles) {
@@ -49,10 +44,12 @@ doGetNextFileURI(std::string & uri, double & waitTime)
   if (pos == std::string::npos) { // Bare filename.
     throwIfFileNotExist(nextFile->c_str());
     uri = prependFileDesignation(*nextFile);
-  } else if (nextFile->substr(0, pos) == "file") { // file://
+  }
+  else if (nextFile->substr(0, pos) == "file") { // file://
     throwIfFileNotExist(nextFile->c_str() + pos + 3);
     uri = *nextFile;
-  } else { // Unknown URI.
+  }
+  else { // Unknown URI.
     uri = *nextFile;
   }
   waitTime = 0.0;
@@ -63,34 +60,31 @@ doGetNextFileURI(std::string & uri, double & waitTime)
 
 // The remaining doXXX methods are trivial in this class, ignoring the XXX events.
 // The real SAMProtocol concrete class might have real work in these.
-void art::TrivialFileDelivery::doUpdateStatus(std::string const &, FileDisposition) {}
-void art::TrivialFileDelivery::doOutputFileOpened(std::string const &) {}
-void art::TrivialFileDelivery::doOutputModuleInitiated
-(std::string const &, ParameterSet const &) {}
-void art::TrivialFileDelivery::doOutputFileClosed
-(std::string const &, std::string const &) {}
-void art::TrivialFileDelivery::doEventSelected
-(std::string const &,
- EventID const &,
- HLTGlobalStatus const &) {}
+void art::TrivialFileDelivery::doUpdateStatus(std::string const&, FileDisposition) {}
+void art::TrivialFileDelivery::doOutputFileOpened(std::string const&) {}
+void art::TrivialFileDelivery::doOutputModuleInitiated(std::string const&, ParameterSet const&) {}
+void art::TrivialFileDelivery::doOutputFileClosed(std::string const&, std::string const&) {}
+void art::TrivialFileDelivery::doEventSelected(std::string const&,
+                                               EventID const&,
+                                               HLTGlobalStatus const&) {}
 
 bool art::TrivialFileDelivery::doIsSearchable() { return true; }
 void art::TrivialFileDelivery::doRewind() { nextFile=fileList.begin(); }
 
 // helper functions
 std::vector<std::string>
-art::TrivialFileDelivery::extractFileListFromPset(ParameterSet const & pset)
+art::TrivialFileDelivery::extractFileListFromPset(ParameterSet const& pset)
 {
-  ParameterSet p = pset.get<ParameterSet>("source");
-  return p.get< std::vector<std::string> >("fileNames");
+  auto const& p = pset.get<ParameterSet>("source");
+  return p.get<std::vector<std::string>>("fileNames");
   // TODO -- How do we properly throw if either source or fileNames is absent?
   // get() does throw, but is it the right throw and should we be catching it?
 }
 
 std::string
-art::TrivialFileDelivery::prependFileDesignation(std::string const & name) const
+art::TrivialFileDelivery::prependFileDesignation(std::string const& name) const
 {
-  std::string s("file://");
+  std::string const s {"file://"};
   return s + name;
 }
 

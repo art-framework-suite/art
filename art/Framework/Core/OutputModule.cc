@@ -30,37 +30,10 @@ using fhicl::ParameterSet;
 using std::vector;
 using std::string;
 
-namespace {
-
-  class OMServices {
-    art::ModuleDescription const& md_;
-    cet::exempt_ptr<art::MemoryTracker> mem_;
-    cet::exempt_ptr<art::TimeTracker> time_;
-  public:
-    OMServices(art::ModuleDescription const& md,
-               bool const memTracker,
-               bool const timeTracker)
-      : md_{md}
-      , mem_(memTracker ? &*art::ServiceHandle<art::MemoryTracker>{} : nullptr)
-      , time_(timeTracker ? &*art::ServiceHandle<art::TimeTracker>{} : nullptr)
-    {
-      if (mem_) mem_->preModule(md_);
-      if (time_) time_->preModule(md_);
-    }
-
-    ~OMServices()
-    {
-      if (mem_) mem_->postModule(md_);
-      if (time_) time_->postModule(md_);
-    }
-  };
-
-}
-
 art::OutputModule::
 OutputModule(fhicl::TableFragment<Config> const& config,
              ParameterSet const& containing_pset)
-  : EventObserver{config().eoFragment().selectEvents(), containing_pset}
+  : EventObserverBase{config().eoFragment().selectEvents(), containing_pset}
   , groupSelectorRules_{config().outputCommands(), "outputCommands", "OutputModule"}
   , configuredFileName_{config().fileName()}
   , dataTier_{config().dataTier()}
@@ -70,7 +43,7 @@ OutputModule(fhicl::TableFragment<Config> const& config,
 
 art::OutputModule::
 OutputModule(ParameterSet const& pset)
-  : EventObserver{pset}
+  : EventObserverBase{pset}
   , groupSelectorRules_{pset.get<vector<string>>("outputCommands", {"keep *"}),
         "outputCommands",
         "OutputModule"}
@@ -79,8 +52,6 @@ OutputModule(ParameterSet const& pset)
   , streamName_{pset.get<string>("streamName","")}
   , plugins_{makePlugins_(pset)}
 {}
-
-art::OutputModule::~OutputModule(){}
 
 string const &
 art::OutputModule::
@@ -170,16 +141,6 @@ doRegisterProducts(MasterProductRegistry&,
 
 void
 art::OutputModule::
-reconfigure(ParameterSet const&)
-{
-  throw art::Exception(errors::UnimplementedFeature)
-    << "Modules of type "
-    << cet::demangle_symbol(typeid(*this).name())
-    << " are not reconfigurable.\n";
-}
-
-void
-art::OutputModule::
 doBeginJob()
 {
   doSelectProducts();
@@ -221,8 +182,11 @@ doEvent(EventPrincipal const& ep, CurrentProcessingContext const* cpc, CountingS
   FDEBUG(2) << "doEvent called\n";
   Event const e {ep, moduleDescription_};
   if (wantAllEvents() || wantEvent(e)) {
+    // Run is incremented before event(ep); to properly count whenever
+    // an exception is thrown in the user's module.
+    counts.increment<stats::Run>();
     event(ep);
-    counts.increment<stats::Run, stats::Passed>();
+    counts.increment<stats::Passed>();
   }
   return true;
 }
@@ -231,7 +195,6 @@ void
 art::OutputModule::
 doWriteEvent(EventPrincipal& ep)
 {
-  OMServices sentry {dummyModuleDescription_, memTrackerAvailable_, timeTrackerAvailable_ };
   detail::PVSentry clearTriggerResults {cachedProducts()};
   FDEBUG(2) << "writeEvent called\n";
   Event const e {ep, moduleDescription_};
@@ -417,9 +380,11 @@ fillDependencyGraph()
     BranchID const child = bp.first;
     std::set<ParentageID> const & eIds = bp.second;
     for (auto const& eId : eIds) {
-      Parentage entryDesc;
-      ParentageRegistry::get(eId, entryDesc);
-      for (auto const& p : entryDesc.parents())
+      Parentage par;
+      if (!ParentageRegistry::get(eId, par)) {
+        continue;
+      }
+      for (auto const& p : par.parents())
         branchChildren_.insertChild(p, child);
     }
   }
@@ -604,8 +569,8 @@ namespace {
     for (auto & plugin : plugins) {
       art::FileCatalogMetadata::collection_type tmp = plugin->doProduceMetadata();
       ssmd.reserve(tmp.size() + ssmd.size());
-      for (auto && entry : tmp) {
-        if (art::ServiceHandle<art::FileCatalogMetadata>()->wantCheckSyntax()) {
+      for (auto&& entry : tmp) {
+        if (art::ServiceHandle<art::FileCatalogMetadata const>{}->wantCheckSyntax()) {
           rapidjson::Document d;
           string checkString("{ ");
           checkString += cet::canonical_string(entry.first) +
@@ -644,8 +609,7 @@ writeFileCatalogMetadata()
 {
   // Obtain metadata from service for output.
   FileCatalogMetadata::collection_type md, ssmd;
-  auto fcm = ServiceHandle<FileCatalogMetadata>();
-  fcm->getMetadata(md);
+  ServiceHandle<FileCatalogMetadata const>{}->getMetadata(md);
   if (!dataTier_.empty()) {
     md.emplace_back("data_tier", cet::canonical_string(dataTier_));
   }

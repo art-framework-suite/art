@@ -23,7 +23,7 @@ namespace art {
   class FastCloningInfoProvider;
   class RootInputFile;
   class RootDelayedReader;
-  class RootTree;
+  class RootInputTree;
   class RootInputFileSequence;
   class FileCatalogItem;
   class RootInput;

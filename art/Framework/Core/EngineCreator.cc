@@ -6,7 +6,13 @@
 // ======================================================================
 
 #include "art/Framework/Core/EngineCreator.h"
+#include "art/Utilities/ScheduleID.h"
 #include <vector>
+
+namespace {
+  // MT-TODO: Placeholder until we're multi-threaded.
+  auto placeholder_schedule_id() { return art::ScheduleID::first(); }
+}
 
 using art::EngineCreator;
 
@@ -15,14 +21,14 @@ using art::EngineCreator;
 EngineCreator::base_engine_t&
 EngineCreator::createEngine(seed_t const seed)
 {
-  return rng()->createEngine(seed);
+  return rng()->createEngine(placeholder_schedule_id(), seed);
 }
 
 EngineCreator::base_engine_t&
 EngineCreator::createEngine(seed_t const seed,
                             std::string const& kind_of_engine_to_make)
 {
-  return rng()->createEngine(seed, kind_of_engine_to_make);
+  return rng()->createEngine(placeholder_schedule_id(), seed, kind_of_engine_to_make);
 }
 
 EngineCreator::base_engine_t&
@@ -30,7 +36,7 @@ EngineCreator::createEngine(seed_t const seed,
                             std::string const& kind_of_engine_to_make,
                             label_t const& engine_label)
 {
-  return rng()->createEngine(seed, kind_of_engine_to_make, engine_label);
+  return rng()->createEngine(placeholder_schedule_id(), seed, kind_of_engine_to_make, engine_label);
 }
 
 EngineCreator::seed_t

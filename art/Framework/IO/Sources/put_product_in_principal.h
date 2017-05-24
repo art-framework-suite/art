@@ -6,14 +6,14 @@
 // Principal.
 //
 // NOTE that this should *not* be used to put products in the event that
-// require parentage informtion to be filled in.
+// require parentage information to be filled in.
 //
 // 2011/03/15 CG,
 ////////////////////////////////////////////////////////////////////////
 
-#include "art/Framework/Core/get_BranchDescription.h"
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
+#include "art/Framework/Principal/get_BranchDescription.h"
 #include "canvas/Persistency/Common/EDProduct.h"
 #include "canvas/Persistency/Provenance/BranchDescription.h"
 #include "canvas/Persistency/Provenance/BranchKey.h"
@@ -61,7 +61,7 @@ art::put_product_in_principal(std::unique_ptr<T> && product,
                               std::string const &instance_name) {
 
   if (product.get() == nullptr) {
-    TypeID typeID{typeid(T)};
+    TypeID const typeID {typeid(T)};
     throw art::Exception(art::errors::NullPointerError)
       << "put_product_in_principal: A null unique_ptr was passed to 'put'.\n"
       << "The pointer is of type " << typeID << ".\n"
@@ -88,7 +88,7 @@ art::put_product_in_principal(std::unique_ptr<T> && product,
                               RangeSet&& rs) {
 
   if (product.get() == nullptr) {
-    TypeID typeID{typeid(T)};
+    TypeID const typeID {typeid(T)};
     throw art::Exception(art::errors::NullPointerError)
       << "put_product_in_principal: A null unique_ptr was passed to 'put'.\n"
       << "The pointer is of type " << typeID << ".\n"

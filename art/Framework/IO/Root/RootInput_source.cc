@@ -194,7 +194,7 @@ RootInput::runRangeSetHandler()
 
 std::unique_ptr<SubRunPrincipal>
 RootInput::
-readSubRun(cet::exempt_ptr<RunPrincipal> rp)
+readSubRun(cet::exempt_ptr<RunPrincipal const> rp)
 {
   switch (accessState_.state()) {
   case AccessState::SEQUENTIAL:
@@ -224,14 +224,14 @@ RootInput::subRunRangeSetHandler()
 
 std::unique_ptr<EventPrincipal>
 RootInput::
-readEvent(cet::exempt_ptr<SubRunPrincipal> srp)
+readEvent(cet::exempt_ptr<SubRunPrincipal const> srp)
 {
   return readEvent_(srp);
 }
 
 std::unique_ptr<EventPrincipal>
 RootInput::
-readEvent_(cet::exempt_ptr<SubRunPrincipal> srp)
+readEvent_(cet::exempt_ptr<SubRunPrincipal const> srp)
 {
   switch (accessState_.state()) {
     case AccessState::SEQUENTIAL:

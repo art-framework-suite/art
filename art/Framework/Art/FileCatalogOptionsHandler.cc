@@ -1,6 +1,5 @@
 #include "art/Framework/Art/FileCatalogOptionsHandler.h"
 
-#include "art/Utilities/bold_fontify.h"
 #include "art/Framework/Art/detail/exists_outside_prolog.h"
 #include "art/Framework/Art/detail/fhicl_key.h"
 #include "art/Utilities/ensureTable.h"
@@ -26,7 +25,7 @@ using std::vector;
 namespace {
 
   string_pair_t
-  split_to_pair(string const & to_split)
+  split_to_pair(string const& to_split)
   {
     vector<string> tmp;
     tmp.reserve(2);
@@ -58,12 +57,12 @@ namespace {
     check_for_conflicting_options("sam-run-type" , {"sam-inherit-metadata", "sam-inherit-run-type" });
   }
 
-  void fill_tiers_streams(bpo::variables_map const & vm,
-                          fhicl::intermediate_table & raw_config)
+  void fill_tiers_streams(bpo::variables_map const& vm,
+                          fhicl::intermediate_table& raw_config)
   {
     // Precondition: at least one output module defined in the
     // configuration.
-    auto const & table = raw_config.get<table_t const&>("outputs");
+    auto const& table = raw_config.get<table_t const&>("outputs");
     string const outputs_stem {"outputs"};
     string const tier_spec_stem {"dataTier"};
     string const stream_name_stem {"streamName"};
@@ -76,10 +75,10 @@ namespace {
                    vm["sam-stream-name"].as<vector<string> >() :
                    vector<string>());
     std::map<string, string> sep_tiers, sep_streams;
-    for (auto const & tier : data_tiers) {
+    for (auto const& tier : data_tiers) {
       sep_tiers.insert(split_to_pair(tier));
     }
-    for (auto const & stream : stream_names) {
+    for (auto const& stream : stream_names) {
       sep_streams.insert(split_to_pair(stream));
     }
     auto const def_tier_it(sep_tiers.find("_default"));
@@ -90,7 +89,7 @@ namespace {
     auto const def_stream((def_stream_it != sep_streams.end()) ?
                           def_stream_it->second :
                           "");
-    for (auto const & output : table) {
+    for (auto const& output : table) {
       if (!exists_outside_prolog(raw_config, fhicl_key(outputs_stem, output.first, "module_type"))) {
         continue; // Not a module parameter set.
       }
@@ -132,10 +131,10 @@ namespace {
     }
   }
 
-  bool have_outputs(fhicl::intermediate_table & table) {
+  bool have_outputs(fhicl::intermediate_table& table) {
     bool result { false };
     if (exists_outside_prolog(table, "outputs")) {
-      auto const & ev = table.find("outputs");
+      auto const& ev = table.find("outputs");
       if (ev.is_a(fhicl::TABLE) &&
           !table.get<fhicl::extended_value::table_t const&>("outputs").empty()) {
         result = true;
@@ -144,7 +143,7 @@ namespace {
     return result;
   }
 
-  void maybeThrowOnMissingMetadata(fhicl::intermediate_table const & table) {
+  void maybeThrowOnMissingMetadata(fhicl::intermediate_table const& table) {
     string const key_stem { "services.FileCatalogMetadata." };
     vector<string> missingItems;
     if (!exists_outside_prolog(table, key_stem + "applicationFamily")) {
@@ -159,7 +158,7 @@ namespace {
     if (!missingItems.empty()) {
       art::Exception e(art::errors::Configuration);
       e << "SAM metadata information is required -- missing metadata:\n";
-      for (auto const & s : missingItems) {
+      for (auto const& s : missingItems) {
         e << s << "\n";
       }
     }
@@ -172,7 +171,7 @@ FileCatalogOptionsHandler(bpo::options_description& desc)
   : appFamily_{}
   , appVersion_{}
 {
-  bpo::options_description sam_options {detail::bold_fontify("SAM options")};
+  bpo::options_description sam_options{"SAM options"};
   sam_options.add_options()
     ("sam-web-uri", bpo::value<string>(), "URI for SAM web service.")
     ("sam-process-id", bpo::value<string>(), "SAM process ID.")
@@ -194,7 +193,7 @@ FileCatalogOptionsHandler(bpo::options_description& desc)
 
 int
 art::FileCatalogOptionsHandler::
-doCheckOptions(bpo::variables_map const &)
+doCheckOptions(bpo::variables_map const&)
 {
   // Checks can't be done until after post-processing.
   return 0;
@@ -202,8 +201,8 @@ doCheckOptions(bpo::variables_map const &)
 
 int
 art::FileCatalogOptionsHandler::
-doProcessOptions(bpo::variables_map const & vm,
-                 fhicl::intermediate_table & raw_config)
+doProcessOptions(bpo::variables_map const& vm,
+                 fhicl::intermediate_table& raw_config)
 {
   std::string const services {"services"};
   auto const& ciLocation = fhicl_key(services, "CatalogInterface");

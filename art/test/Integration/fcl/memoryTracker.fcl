@@ -1,37 +1,30 @@
 #include "messageDefaults.fcl"
 
-services:
-{
-   MemoryTracker: {
-      includeMallocInfo : true
-      printSummaries : ["*"]
-      dbOutput: {
-         filename : "memoryTracker.db"
-         overwrite: true
-      }
-   }
+services: {
+  MemoryTracker: {
+    includeMallocInfo : true
+    dbOutput: {
+      filename : "memoryTracker.db"
+      overwrite: true
+    }
+  }
 }
 
 services.message: @local::messageDefaults
 
-physics:
-{
-   producers:
-   {
-      a1: { module_type: TestSimpleMemoryCheckProducer }
-      a2: { module_type: TestSimpleMemoryCheckProducer }
-      a3: { module_type: TestSimpleMemoryCheckProducer }
-   }
+physics: {
+  producers: {
+    a1: { module_type: TestSimpleMemoryCheckProducer }
+    a2: { module_type: TestSimpleMemoryCheckProducer }
+    a3: { module_type: TestSimpleMemoryCheckProducer }
+  }
 
-   p1: [ a1,a2,a3 ]
-
-   trigger_paths: [ p1 ]
+  p1: [a1,a2,a3]
 }
 
-source:
-{
-   module_type: EmptyEvent
-   maxEvents  : 10
+source: {
+  module_type: EmptyEvent
+  maxEvents  : 10
 }
 
 process_name: MemoryTracker

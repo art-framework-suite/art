@@ -30,11 +30,9 @@
 #include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Principal/PrincipalPackages.h"
 #include "art/Framework/Principal/Provenance.h"
-#include "art/Framework/Principal/MaybeRunStopwatch.h"
 #include "art/Framework/Principal/Worker.h"
 #include "art/Framework/Principal/fwd.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
-#include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/Registry/ServiceRegistry.h"
 #include "canvas/Persistency/Common/HLTGlobalStatus.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
@@ -85,9 +83,6 @@ public:
   // Call respondToCloseOutputFiles() on all Modules
   void respondToCloseOutputFiles(FileBlock const&);
 
-  // Temporarily enable or disable a configured path.
-  bool setTriggerPathEnabled(std::string const& name, bool enable);
-
 private:
 
   // Private initialization helpers.
@@ -121,7 +116,6 @@ Schedule::process(typename T::MyPrincipal& principal)
     w->reset();
   });
   triggerPathsInfo_.pathResults().reset();
-  MaybeRunStopwatch<T::level> sentry {triggerPathsInfo_.maybeRunStopwatch<T::level>()};
   if (T::level == Level::Event) {
     triggerPathsInfo_.addEvent();
   }

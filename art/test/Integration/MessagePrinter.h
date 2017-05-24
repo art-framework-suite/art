@@ -17,7 +17,7 @@ namespace arttest {
   };
 }
 
-#endif
+#endif /* art_test_Integration_MessagePrinter_h */
 
 // Local variables:
 // mode: c++

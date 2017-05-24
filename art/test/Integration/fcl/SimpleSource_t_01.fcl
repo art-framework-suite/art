@@ -1,0 +1,8 @@
+process_name: DEVEL
+
+source: {
+  module_type: SimpleSource
+  fileNames: [f1,f2]
+  f1: [ [1,0,1] ]
+  f2: [ [-1, -1, 2]]
+}

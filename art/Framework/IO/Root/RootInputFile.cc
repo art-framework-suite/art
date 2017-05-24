@@ -9,12 +9,13 @@
 #include "art/Framework/IO/Root/DuplicateChecker.h"
 #include "art/Framework/IO/Root/FastCloningInfoProvider.h"
 #include "art/Framework/IO/Root/GetFileFormatEra.h"
-#include "art/Framework/IO/Root/detail/resolveRangeSet.h"
 #include "art/Framework/IO/Root/detail/setFileIndexPointer.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
+#include "art/Framework/Services/System/DatabaseConnection.h"
 #include "art/Framework/Services/System/FileCatalogMetadata.h"
+#include "art/Persistency/Provenance/BranchIDListRegistry.h"
 #include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
-#include "canvas/Persistency/Provenance/rootNames.h"
+#include "art/Persistency/RootDB/TKeyVFSOpenPolicy.h"
 #include "canvas/Persistency/Common/EDProduct.h"
 #include "canvas/Persistency/Provenance/BranchChildren.h"
 #include "canvas/Persistency/Provenance/BranchDescription.h"
@@ -24,6 +25,7 @@
 #include "canvas/Persistency/Provenance/ParentageRegistry.h"
 #include "canvas/Persistency/Provenance/ProductList.h"
 #include "canvas/Persistency/Provenance/RunID.h"
+#include "canvas/Persistency/Provenance/rootNames.h"
 #include "canvas/Utilities/Exception.h"
 #include "canvas/Utilities/FriendlyName.h"
 #include "cetlib/container_algorithms.h"
@@ -93,7 +95,6 @@ namespace art {
                 unique_ptr<TFile>&& filePtr,
                 EventID const& origEventID,
                 unsigned int eventsToSkip,
-                vector<SubRunID> const& whichSubRunsToSkip,
                 FastCloningInfoProvider const& fcip,
                 unsigned int treeCacheSize,
                 int64_t treeMaxVirtualSize,
@@ -113,19 +114,18 @@ namespace art {
                 int secondaryFileNameIdx,
                 vector<string> const& secondaryFileNames,
                 RootInputFileSequence* rifSequence)
-    : file_{fileName}
+    : fileName_{fileName}
     , catalog_{catalogName}
     , processConfiguration_{processConfiguration}
-    , logicalFile_{logicalFileName}
+    , logicalFileName_{logicalFileName}
     , filePtr_{std::move(filePtr)}
     , origEventID_{origEventID}
     , eventsToSkip_{eventsToSkip}
-    , whichSubRunsToSkip_{whichSubRunsToSkip}
     , treePointers_ { // Order (and number) must match BranchTypes.h!
-      std::make_unique<RootTree>(filePtr_.get(), InEvent, saveMemoryObjectThreshold, this),
-      std::make_unique<RootTree>(filePtr_.get(), InSubRun, saveMemoryObjectThreshold, this),
-      std::make_unique<RootTree>(filePtr_.get(), InRun, saveMemoryObjectThreshold, this),
-      std::make_unique<RootTree>(filePtr_.get(), InResults, saveMemoryObjectThreshold, this, true /* missingOK */) }
+      std::make_unique<RootInputTree>(filePtr_.get(), InEvent, saveMemoryObjectThreshold, this),
+      std::make_unique<RootInputTree>(filePtr_.get(), InSubRun, saveMemoryObjectThreshold, this),
+      std::make_unique<RootInputTree>(filePtr_.get(), InRun, saveMemoryObjectThreshold, this),
+      std::make_unique<RootInputTree>(filePtr_.get(), InResults, saveMemoryObjectThreshold, this, true /* missingOK */) }
     , delayedReadEventProducts_{delayedReadEventProducts}
     , delayedReadSubRunProducts_{delayedReadSubRunProducts}
     , delayedReadRunProducts_{delayedReadRunProducts}
@@ -184,8 +184,8 @@ namespace art {
     auto pHistMapPtr = &pHistMap;
     metaDataTree->SetBranchAddress(metaBranchRootName<ProcessHistoryMap>(), &pHistMapPtr);
 
-    auto branchIDListsAPtr = std::make_unique<BranchIDLists>();
-    auto branchIDListsPtr = branchIDListsAPtr.get();
+    BranchIDLists branchIDLists;
+    auto branchIDListsPtr = &branchIDLists;
     metaDataTree->SetBranchAddress(metaBranchRootName<BranchIDLists>(), &branchIDListsPtr);
 
     auto branchChildrenBuffer = branchChildren_.get();
@@ -193,7 +193,9 @@ namespace art {
 
     // Here we read the metadata tree
     input::getEntry(metaDataTree, 0);
-    branchIDLists_ = std::move(branchIDListsAPtr);
+    BranchIDListRegistry::updateFromInput(branchIDLists, fileName_);
+    metaDataTree->SetBranchAddress(metaBranchRootName<BranchIDLists>(), nullptr);
+
     // Check the, "Era" of the input file (new since art v0.5.0). If it
     // does not match what we expect we cannot read the file. Required
     // since we reset the file versioning since forking off from
@@ -208,7 +210,7 @@ namespace art {
         << "\" era: "
         << "Era of "
         << "\""
-        << file_
+        << fileName_
         << "\" was "
         << (fileFormatVersion_.era_.empty() ?
             "not set" :
@@ -228,12 +230,12 @@ namespace art {
 
     // Also need to check RootFileDB if we have one.
     if (fileFormatVersion_.value_ >= 5) {
-      if ( readIncomingParameterSets &&
-           have_table(sqliteDB_, "ParameterSets", file_)) {
+      sqliteDB_ = ServiceHandle<DatabaseConnection>{}->get<TKeyVFSOpenPolicy>("RootFileDB", filePtr_.get());
+      if (readIncomingParameterSets && have_table(sqliteDB_, "ParameterSets", fileName_)) {
         fhicl::ParameterSetRegistry::importFrom(sqliteDB_);
       }
-      if ( art::ServiceRegistry::instance().isAvailable<art::FileCatalogMetadata>() &&
-           have_table(sqliteDB_, "FileCatalog_metadata", file_)) {
+      if (art::ServiceRegistry::isAvailable<art::FileCatalogMetadata>() &&
+          have_table(sqliteDB_, "FileCatalog_metadata", fileName_)) {
         sqlite3_stmt* stmt {nullptr};
         sqlite3_prepare_v2(sqliteDB_,
                            "SELECT Name, Value from FileCatalog_metadata;",
@@ -285,7 +287,7 @@ namespace art {
 
   void
   RootInputFile::
-  readParentageTree(unsigned int treeCacheSize)
+  readParentageTree(unsigned int const treeCacheSize)
   {
     //
     //  Auxiliary routine for the constructor.
@@ -298,23 +300,23 @@ namespace art {
     parentageTree->SetCacheSize(static_cast<Long64_t>(treeCacheSize));
     ParentageID idBuffer;
     auto pidBuffer = &idBuffer;
-    parentageTree->SetBranchAddress(rootNames::parentageIDBranchName().c_str(),
-                                    &pidBuffer);
+    parentageTree->SetBranchAddress(rootNames::parentageIDBranchName().c_str(), &pidBuffer);
     Parentage parentageBuffer;
     auto pParentageBuffer = &parentageBuffer;
-    parentageTree->SetBranchAddress(rootNames::parentageBranchName().c_str(),
-                                    &pParentageBuffer);
-    for (Long64_t i = 0, numEntries = parentageTree->GetEntries(); i < numEntries;
-         ++i) {
+    parentageTree->SetBranchAddress(rootNames::parentageBranchName().c_str(), &pParentageBuffer);
+
+    // Fill the registry
+    for (EntryNumber i = 0, numEntries = parentageTree->GetEntries(); i < numEntries; ++i) {
       input::getEntry(parentageTree, i);
       if (idBuffer != parentageBuffer.id()) {
         throw art::Exception{errors::DataCorruption}
-          << "Corruption of Parentage tree detected.\n";
+        << "Corruption of Parentage tree detected.\n";
       }
-      ParentageRegistry::put(parentageBuffer);
+      ParentageRegistry::emplace(parentageBuffer.id(), parentageBuffer);
     }
-    parentageTree->SetBranchAddress(rootNames::parentageIDBranchName().c_str(), 0);
-    parentageTree->SetBranchAddress(rootNames::parentageBranchName().c_str(), 0);
+
+    parentageTree->SetBranchAddress(rootNames::parentageIDBranchName().c_str(), nullptr);
+    parentageTree->SetBranchAddress(rootNames::parentageBranchName().c_str(), nullptr);
   }
 
   EventID
@@ -372,13 +374,6 @@ namespace art {
     if (it->eventID_ < origEventID_) {
       return false;
     }
-    for (auto const& subrun : whichSubRunsToSkip_) {
-      if (fileIndex_.findPosition(subrun, true) != fiEnd_) {
-        // We must skip a subRun in this file.  We will simply assume that
-        // it may contain an event, in which case we cannot fast copy.
-        return false;
-      }
-    }
     return true;
   }
 
@@ -408,7 +403,7 @@ namespace art {
     return std::make_unique<FileBlock>(fileFormatVersion_,
                                        eventTree().tree(),
                                        fastClonable(),
-                                       file_,
+                                       fileName_,
                                        std::move(branchChildren_),
                                        readResults());
   }
@@ -423,30 +418,11 @@ namespace art {
     return fiIter_->getEntryType();
   }
 
-  // Temporary KLUDGE until we can properly merge runs and subRuns across files
-  // This KLUDGE skips duplicate run or subRun entries.
-  FileIndex::EntryType
-  RootInputFile::
-  getEntryTypeSkippingDups()
-  {
-    while (1) {
-      if (fiIter_ == fiEnd_) {
-        return FileIndex::kEnd;
-      }
-      if (fiIter_->eventID_.isValid() ||  // will not skip duplicate events
-          (fiIter_ == fiBegin_) || // guarding next condition
-          ((fiIter_ - 1)->eventID_.subRun() != fiIter_->eventID_.subRun())) { // do not skip unique subruns
-        return fiIter_->getEntryType();
-      }
-      nextEntry();
-    }
-  }
-
   FileIndex::EntryType
   RootInputFile::
   getNextEntryTypeWanted()
   {
-    auto entryType = getEntryTypeSkippingDups();
+    auto entryType = getEntryType();
     if (entryType == FileIndex::kEnd) {
       return FileIndex::kEnd;
     }
@@ -475,11 +451,6 @@ namespace art {
         fiIter_ = fileIndex_.findSubRunOrRunPosition(origEventID_.subRunID());
         return getNextEntryTypeWanted();
       }
-      // Skip the subRun if it is in whichSubRunsToSkip_.
-      if (binary_search_all(whichSubRunsToSkip_, currentSubRun)) {
-        fiIter_ = fileIndex_.findSubRunOrRunPosition(currentSubRun.next());
-        return getNextEntryTypeWanted();
-      }
       return FileIndex::kSubRun;
     }
     if (processingMode_ == InputSource::RunsAndSubRuns) {
@@ -493,25 +464,24 @@ namespace art {
       return getNextEntryTypeWanted();
     }
     if (duplicateChecker_.get() &&
-        duplicateChecker_->isDuplicateAndCheckActive(fiIter_->eventID_, file_)) {
+        duplicateChecker_->isDuplicateAndCheckActive(fiIter_->eventID_, fileName_)) {
       nextEntry();
       return getNextEntryTypeWanted();
     }
     if (eventsToSkip_ == 0) {
       return FileIndex::kEvent;
     }
-    // We have specified a count of events to skip,
-    // keep skipping events in this subRun block
-    // until we reach the end of the subRun block or
-    // the full count of the number of events to skip.
+    // We have specified a count of events to skip, keep skipping
+    // events in this subRun block until we reach the end of the
+    // subRun block or the full count of the number of events to skip.
     while ((eventsToSkip_ != 0) && (fiIter_ != fiEnd_) &&
-           (getEntryTypeSkippingDups() == FileIndex::kEvent)) {
+           (getEntryType() == FileIndex::kEvent)) {
       nextEntry();
       --eventsToSkip_;
       while ((eventsToSkip_ != 0) && (fiIter_ != fiEnd_) &&
              (fiIter_->getEntryType() == FileIndex::kEvent) &&
              duplicateChecker_.get() &&
-             duplicateChecker_->isDuplicateAndCheckActive(fiIter_->eventID_, file_)) {
+             duplicateChecker_->isDuplicateAndCheckActive(fiIter_->eventID_, fileName_)) {
         nextEntry();
       }
     }
@@ -680,19 +650,19 @@ namespace art {
     fillHistory();
     overrideRunNumber(const_cast<EventID&>(eventAux().id()),
                       eventAux().isRealData());
-    auto sep = std::make_unique<EventPrincipal>(eventAux(),
-                                                processConfiguration_,
-                                                history_,
-                                                eventTree().makeBranchMapper(),
-                                                eventTree().makeDelayedReader(fileFormatVersion_,
-                                                                              InEvent,
-                                                                              entryNumbers.first,
-                                                                              eventAux().id()),
-                                                entryNumbers.second,
-                                                secondaryFileNameIdx_ + 1,
-                                                primaryFile_->primaryEP_.get());
-    eventTree().fillGroups(*sep);
-    primaryFile_->primaryEP_->addSecondaryPrincipal(move(sep));
+    auto ep = std::make_unique<EventPrincipal>(eventAux(),
+                                               processConfiguration_,
+                                               history_,
+                                               eventTree().makeBranchMapper(),
+                                               eventTree().makeDelayedReader(fileFormatVersion_,
+                                                                             InEvent,
+                                                                             entryNumbers.first,
+                                                                             eventAux().id()),
+                                               entryNumbers.second,
+                                               secondaryFileNameIdx_ + 1,
+                                               primaryFile_->primaryEP_);
+    eventTree().fillGroups(*ep);
+    primaryFile_->primaryEP_->addSecondaryPrincipal(move(ep));
     return true;
   }
 
@@ -717,7 +687,7 @@ namespace art {
     }
 
     auto rp = readCurrentRun(entryNumbers);
-    nextEntry();
+    advanceEntry(entryNumbers.size());
     return move(rp);
   }
 
@@ -796,7 +766,7 @@ namespace art {
                                                                          entryNumbers,
                                                                          fiIter_->eventID_),
                                              secondaryFileNameIdx_ + 1,
-                                             primaryFile_->primaryRP_.get());
+                                             primaryFile_->primaryRP_);
 
     runTree().fillGroups(*rp);
     if (!delayedReadRunProducts_) {
@@ -826,7 +796,7 @@ namespace art {
     }
 
     auto srp = readCurrentSubRun(entryNumbers, rp);
-    nextEntry();
+    advanceEntry(entryNumbers.size());
     return move(srp);
   }
 
@@ -907,7 +877,7 @@ namespace art {
                                                                                 entryNumbers,
                                                                                 fiIter_->eventID_),
                                                  secondaryFileNameIdx_ + 1,
-                                                 primaryFile_->primarySRP_.get());
+                                                 primaryFile_->primarySRP_);
 
     subRunTree().fillGroups(*srp);
     if (!delayedReadSubRunProducts_) {
@@ -997,11 +967,11 @@ namespace art {
 
     if (t == InEvent && entries.size() > 1ul) {
       throw Exception{errors::FileReadError}
-        << "File " << file_ << " has multiple entries for\n"
+        << "File " << fileName_ << " has multiple entries for\n"
         << eid << '\n';
     }
 
-    bool const lastInSubRun = (it == fiEnd_ || it->eventID_.subRun() != subrun);
+    bool const lastInSubRun {it == fiEnd_ || it->eventID_.subRun() != subrun};
     return std::pair<EntryNumbers,bool>{entries, lastInSubRun};
   }
 
@@ -1057,7 +1027,7 @@ namespace art {
           << bd.branchName()
           << "' is being dropped from the input\n"
           << "of file '"
-          << file_
+          << fileName_
           << "' because it is dependent on a branch\n"
           << "that was explicitly dropped.\n";
       }

@@ -32,15 +32,15 @@ namespace {
                         fhicl::ParameterSet const &pset,
                         art::TypeID const &producedType) {
     return
-      art::BranchDescription(art::TypeLabel(bt, producedType, instanceName),
+      art::BranchDescription(bt,
+                             art::TypeLabel{producedType, instanceName},
                              art::ModuleDescription(pset.id(),
                                                     "arttest::NOMOD",
                                                     moduleLabel,
-                                                    art::ProcessConfiguration
-                                                    (processName,
-                                                     fhicl::ParameterSet().id(),
-                                                     art::getReleaseVersion(),
-                                                     "")));
+                                                    art::ProcessConfiguration(processName,
+                                                                              fhicl::ParameterSet().id(),
+                                                                              art::getReleaseVersion(),
+                                                                              "")));
   }
 }
 

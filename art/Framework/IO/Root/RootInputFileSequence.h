@@ -170,12 +170,6 @@ public: // MEMBER FUNCTIONS
     return eventsToSkip_;
   }
 
-  std::vector<SubRunID> const&
-  whichSubRunsToSkip()
-  {
-    return whichSubRunsToSkip_;
-  }
-
   FastCloningInfoProvider const&
   fastCloningInfo() const
   {
@@ -254,10 +248,9 @@ private: // MEMBER DATA
   RootInputFileSharedPtr rootFile_ {nullptr};
   BranchDescription::MatchMode matchMode_ {BranchDescription::Permissive};
   std::vector<std::shared_ptr<FileIndex>> fileIndexes_;
-  int eventsRemainingInFile_;
-  EventID origEventID_;
+  int eventsRemainingInFile_ {};
+  EventID origEventID_ {};
   EventNumber_t eventsToSkip_;
-  std::vector<SubRunID> whichSubRunsToSkip_; // FIXME: unused
   bool const noEventSort_;
   bool const skipBadFiles_;
   unsigned int const treeCacheSize_;
@@ -266,17 +259,17 @@ private: // MEMBER DATA
   bool const delayedReadEventProducts_;
   bool const delayedReadSubRunProducts_;
   bool const delayedReadRunProducts_;
-  int forcedRunOffset_;
-  RunNumber_t setRun_;
+  int forcedRunOffset_ {};
+  RunNumber_t setRun_ {};
   GroupSelectorRules groupSelectorRules_;
-  std::shared_ptr<DuplicateChecker> duplicateChecker_;
+  std::shared_ptr<DuplicateChecker> duplicateChecker_ {nullptr};
   bool const dropDescendants_;
   bool const readParameterSets_;
   RootInputFileSharedPtr rootFileForLastReadEvent_;
   FastCloningInfoProvider fastCloningInfo_;
   InputSource::ProcessingMode processingMode_;
   ProcessConfiguration const& processConfiguration_;
-  std::vector<std::vector<std::string>> secondaryFileNames_;
+  std::vector<std::vector<std::string>> secondaryFileNames_ {};
   MasterProductRegistry& mpr_;
 
 };

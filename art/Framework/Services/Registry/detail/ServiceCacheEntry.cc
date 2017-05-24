@@ -9,6 +9,8 @@
 #include "art/Framework/Services/Registry/detail/ServiceStack.h"
 #include "art/Framework/Services/Registry/detail/ServiceWrapper.h"
 #include "art/Framework/Services/Registry/detail/ServiceHelper.h"
+#include "art/Utilities/HorizontalRule.h"
+#include "art/Utilities/bold_fontify.h"
 #include "canvas/Utilities/Exception.h"
 #include "cetlib_except/demangle.h"
 #include "fhiclcpp/ParameterSet.h"
@@ -20,38 +22,33 @@
 #include <utility>
 
 art::detail::ServiceCacheEntry::
-ServiceCacheEntry(fhicl::ParameterSet const & pset,
-                  std::unique_ptr<detail::ServiceHelperBase> && helper)
+ServiceCacheEntry(fhicl::ParameterSet const& pset,
+                  std::unique_ptr<detail::ServiceHelperBase>&& helper)
   :
-  config_(pset),
-  helper_(std::move(helper)),
-  service_(),
-  interface_impl_(nullptr)
+  config_{pset},
+  helper_{std::move(helper)}
 {
 }
 
 // Service interface implementation.
 art::detail::ServiceCacheEntry::
-ServiceCacheEntry(fhicl::ParameterSet const & pset,
-                  std::unique_ptr<detail::ServiceHelperBase> && helper,
-                  ServiceCacheEntry const & impl)
+ServiceCacheEntry(fhicl::ParameterSet const& pset,
+                  std::unique_ptr<detail::ServiceHelperBase>&& helper,
+                  ServiceCacheEntry const& impl)
   :
-  config_(pset),
-  helper_(std::move(helper)),
-  service_(),
-  interface_impl_(&impl)
+  config_{pset},
+  helper_{std::move(helper)},
+  interface_impl_{&impl}
 {
 }
 
 // Pre-made service (1).
 art::detail::ServiceCacheEntry::
 ServiceCacheEntry(WrapperBase_ptr premade_service,
-                  std::unique_ptr<detail::ServiceHelperBase> && helper)
+                  std::unique_ptr<detail::ServiceHelperBase>&& helper)
   :
-  config_(),
-  helper_(std::move(helper)),
-  service_(premade_service),
-  interface_impl_(nullptr)
+  helper_{std::move(helper)},
+  service_{premade_service}
 {
 }
 
@@ -59,7 +56,7 @@ ServiceCacheEntry(WrapperBase_ptr premade_service,
 // refers to it.
 art::detail::WrapperBase_ptr
 art::detail::ServiceCacheEntry::
-getService(ActivityRegistry & reg, detail::ServiceStack & creationOrder) const
+getService(ActivityRegistry& reg, detail::ServiceStack& creationOrder) const
 {
   if (is_interface()) { // Service interface
     if (!service_) {
@@ -84,60 +81,48 @@ getService(ActivityRegistry & reg, detail::ServiceStack & creationOrder) const
 
 void
 art::detail::ServiceCacheEntry::
-putParameterSet(fhicl::ParameterSet const & newConfig)
-{
-  if (config_ != newConfig) {
-    config_ = newConfig;
-    if (service_) {
-      service_->reconfigure(config_);
-    }
-  }
-}
-
-void
-art::detail::ServiceCacheEntry::
-makeAndCacheService(ActivityRegistry & reg) const
+makeAndCacheService(ActivityRegistry& reg) const
 {
   assert(is_impl() && "ServiceCacheEntry::makeAndCacheService called on a service interface!");
   try {
     if (serviceScope() == ServiceScope::PER_SCHEDULE) {
-      service_ = dynamic_cast<detail::ServicePSMHelper &>(*helper_).make(config_, reg, nSchedules());
+      service_ = dynamic_cast<detail::ServicePSMHelper&>(*helper_).make(config_, reg, nSchedules());
     }
     else {
-      service_ = dynamic_cast<detail::ServiceLGMHelper &>(*helper_).make(config_, reg);
+      service_ = dynamic_cast<detail::ServiceLGMHelper&>(*helper_).make(config_, reg);
     }
   }
-  catch (fhicl::detail::validationException const & e)
+  catch (fhicl::detail::validationException const& e)
     {
       std::ostringstream err_stream;
-      std::size_t const width (100);
+      constexpr HorizontalRule rule{100};
       err_stream << "\n"
-                 << std::string(width,'=')
+                 << rule('=')
                  << "\n\n"
                  << "!! The following service has been misconfigured: !!"
                  << "\n\n"
-                 << std::string(width,'-')
-                 << "\n\nservice_type: \033[1m" << config_.get<std::string>("service_type") << "\033[0m"
+                 << rule('-')
+                 << "\n\nservice_type: " << art::detail::bold_fontify(config_.get<std::string>("service_type"))
                  << "\n\n" << e.what()
                  << "\n"
-                 << std::string(width,'=')
+                 << rule('=')
                  << "\n\n";
       throw art::Exception(art::errors::Configuration) << err_stream.str();
     }
-  catch (cet::exception & e) {
+  catch (cet::exception& e) {
     throw Exception(errors::OtherArt, "ServiceCreation", e)
         << "cet::exception caught during construction of service type "
         << cet::demangle_symbol(helper_->get_typeid().name())
         << ":\n";
   }
-  catch (std::exception & e) {
+  catch (std::exception& e) {
     throw Exception(errors::StdException, "ServiceCreation")
         << "std::exception caught during construction of service type "
         << cet::demangle_symbol(helper_->get_typeid().name())
         << ": "
         << e.what();
   }
-  catch (std::string const & s) {
+  catch (std::string const& s) {
     throw Exception(errors::BadExceptionType)
         << "String exception during construction of service type "
         << cet::demangle_symbol(helper_->get_typeid().name())

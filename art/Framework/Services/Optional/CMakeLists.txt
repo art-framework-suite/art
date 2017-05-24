@@ -1,17 +1,15 @@
-set( art_Framework_Services_Optional_sources
+set(art_Framework_Services_Optional_sources
   TFileDirectory.cc
-  detail/TH1AddDirectorySentry.cc
+  detail/RootDirectorySentry.cc
 )
 
-if ( ${CMAKE_SYSTEM_NAME} MATCHES "Linux" )
-  list( APPEND
-    art_Framework_Services_Optional_sources
-    MemoryTrackerLinux.cc
-    detail/LinuxProcMgr.cc
-    )
+if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+  set(MemoryTrackerSource MemoryTrackerLinux_service.cc)
+else()
+  set(MemoryTrackerSource MemoryTrackerDarwin_service.cc)
 endif()
 
-art_make_library( SOURCE ${art_Framework_Services_Optional_sources}
+art_make_library(SOURCE ${art_Framework_Services_Optional_sources}
   LIBRARIES cetlib
   ${ROOT_HIST}
   ${ROOT_MATRIX}
@@ -36,16 +34,15 @@ simple_plugin(RandomNumberGenerator "service"
   ${CLHEP}
   )
 
-simple_plugin(SimpleInteraction "service" art_Framework_Services_UserInteraction)
-
 simple_plugin(MemoryAdjuster "service"
   art_Framework_Services_Optional
   )
 
-simple_plugin(MemoryTracker "service"
+basic_plugin(MemoryTracker "service"
   art_Framework_Services_Optional
   art_Persistency_Provenance canvas
   cetlib
+  SOURCE ${MemoryTrackerSource}
   )
 
 simple_plugin(TFileService "service"

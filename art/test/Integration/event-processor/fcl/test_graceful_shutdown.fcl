@@ -1,0 +1,7 @@
+source.module_type: EmptyEvent
+
+physics.analyzers.a1: {
+  module_type: ThrowingAnalyzer
+  throwAfter: 5
+}
+physics.e1: [a1]

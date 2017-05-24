@@ -2,26 +2,28 @@
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/System/TriggerNamesService.h"
 #include "art/Version/GetReleaseVersion.h"
+#include "art/Utilities/HorizontalRule.h"
 #include "art/Utilities/bold_fontify.h"
 #include "canvas/Utilities/Exception.h"
 #include "canvas/Utilities/GetPassID.h"
 #include "cetlib/container_algorithms.h"
 #include "fhiclcpp/types/detail/validationException.h"
 
-using fhicl::ParameterSet;
-
 #include <algorithm>
 #include <map>
 #include <set>
 #include <sstream>
 
+using fhicl::ParameterSet;
+
 namespace {
-  std::unique_ptr<std::set<std::string> >
-  findLegacyConfig(fhicl::ParameterSet const & ps,
-                   std::string const & param)
+
+  std::unique_ptr<std::set<std::string>>
+  findLegacyConfig(fhicl::ParameterSet const& ps,
+                   std::string const& param)
   {
     std::vector<std::string> tmp;
-    std::unique_ptr<std::set<std::string> > result;
+    std::unique_ptr<std::set<std::string>> result;
     if (ps.get_if_present(param, tmp)) {
       result.reset(new std::set<std::string>);
       result->insert(tmp.cbegin(), tmp.cend());
@@ -30,7 +32,7 @@ namespace {
   }
 
   std::string
-  stripLabel(std::string const & labelInPathConfig)
+  stripLabel(std::string const& labelInPathConfig)
   {
     auto label_start = labelInPathConfig.find_first_not_of("!-");
     if (label_start > 1) {
@@ -43,7 +45,7 @@ namespace {
   }
 
   art::WorkerInPath::FilterAction
-  filterAction(std::string const & labelInPathConfig)
+  filterAction(std::string const& labelInPathConfig)
   {
     switch (labelInPathConfig[0]) {
     case '!':
@@ -56,10 +58,10 @@ namespace {
   }
 
   void
-  check_missing_paths(std::set<std::string> const & specified_paths,
-                      art::PathManager::vstring const & path_names,
-                      std::string const & par_name,
-                      std::ostream & error_stream)
+  check_missing_paths(std::set<std::string> const& specified_paths,
+                      art::PathManager::vstring const& path_names,
+                      std::string const& par_name,
+                      std::ostream& error_stream)
   {
     art::PathManager::vstring missing_paths;
     std::set_difference(specified_paths.cbegin(),
@@ -67,7 +69,7 @@ namespace {
                         path_names.cbegin(),
                         path_names.cend(),
                         std::back_inserter(missing_paths));
-    for (auto const & path : missing_paths) {
+    for (auto const& path : missing_paths) {
       error_stream
         << "ERROR: Unknown path "
         << path
@@ -78,30 +80,29 @@ namespace {
   }
 
   void
-  check_misspecified_paths(fhicl::ParameterSet const & pset,
-                           std::vector<std::string> const & path_names)
+  check_misspecified_paths(fhicl::ParameterSet const& pset,
+                           std::vector<std::string> const& path_names)
   {
     using name_t  = std::string;
     using fhicl_t = std::string;
 
     std::map<name_t,fhicl_t> bad_names;
-    for ( auto const& name : path_names ){
-      if ( pset.is_key_to_sequence(name) ) continue;
+    for (auto const& name : path_names) {
+      if (pset.is_key_to_sequence(name)) continue;
       std::string const type = pset.is_key_to_table(name) ? "table" : "atom";
       bad_names.emplace(name,type);
     }
 
-    if ( bad_names.empty() ) return;
+    if (bad_names.empty()) return;
 
     std::string err_msg = "\n"
       "You have specified the following unsupported parameters in the\n"
       "\"physics\" block of your configuration:\n\n";
 
     cet::for_all(bad_names,
-                 [&err_msg](auto const& name)
-                 {
+                 [&err_msg](auto const& name) {
                    err_msg.append("   \"physics." +name.first+ "\"   ("+name.second+")\n");
-                 } );
+                 });
 
     err_msg
       .append("\n")
@@ -116,11 +117,10 @@ namespace {
 
 }
 
-art::PathManager::
-PathManager(ParameterSet const & procPS,
-            MasterProductRegistry & preg,
-            ActionTable & exceptActions,
-            ActivityRegistry & areg)
+art::PathManager::PathManager(ParameterSet const& procPS,
+                              MasterProductRegistry& preg,
+                              ActionTable& exceptActions,
+                              ActivityRegistry& areg)
   :
   procPS_(procPS),
   preg_(preg),
@@ -139,26 +139,22 @@ PathManager(ParameterSet const & procPS,
 {
 }
 
-art::PathsInfo &
-art::PathManager::
-endPathInfo()
+art::PathsInfo&
+art::PathManager::endPathInfo()
 {
-  if (!protoEndPathInfo_.empty() &&
-      endPathInfo_.pathPtrs().empty()) {
+  if (!protoEndPathInfo_.empty() && endPathInfo_.pathPtrs().empty()) {
     // Need to create path from proto information.
-    endPathInfo_.pathPtrs().emplace_back
-      (fillWorkers_(0,
-                    "end_path",
-                    protoEndPathInfo_,
-                    nullptr, // End path, no trigger results needed.
-                    endPathInfo_.workers()));
+    endPathInfo_.pathPtrs().emplace_back(fillWorkers_(0,
+                                                      "end_path",
+                                                      protoEndPathInfo_,
+                                                      nullptr, // End path, no trigger results needed.
+                                                      endPathInfo_.workers()));
   }
   return endPathInfo_;
 }
 
-art::PathsInfo &
-art::PathManager::
-triggerPathsInfo(ScheduleID sID)
+art::PathsInfo&
+art::PathManager::triggerPathsInfo(ScheduleID const sID)
 {
   if (triggerPathNames_.empty())
     return triggerPathsInfo_[sID]; // Empty.
@@ -167,34 +163,29 @@ triggerPathsInfo(ScheduleID sID)
   if (it == triggerPathsInfo_.end()) {
     it = triggerPathsInfo_.emplace(sID, PathsInfo()).first;
     it->second.pathResults() = HLTGlobalStatus(triggerPathNames_.size());
-    int bitpos { 0 };
-    cet::for_all(protoTrigPathMap_,
-                 [this, sID, it, &bitpos](auto const & val)
-                 {
-                   it->second.pathPtrs().emplace_back(this->fillWorkers_(bitpos,
-                                                                         val.first,
-                                                                         val.second,
-                                                                         Path::TrigResPtr(&it->second.pathResults()),
-                                                                         it->second.workers()));
-                   ++bitpos;
-                 });
+    cet::for_all_with_index(protoTrigPathMap_,
+                            [this, sID, it](int const bitpos, auto const& val)
+                            {
+                              it->second.pathPtrs().emplace_back(this->fillWorkers_(bitpos,
+                                                                                    val.first,
+                                                                                    val.second,
+                                                                                    Path::TrigResPtr(&it->second.pathResults()),
+                                                                                    it->second.workers()));
+                            });
   }
   return it->second;
 }
 
 art::detail::ModuleConfigInfoMap
-art::PathManager::
-fillAllModules_()
+art::PathManager::fillAllModules_()
 {
-  static ParameterSet const empty;
   detail::ModuleConfigInfoMap all_modules;
   std::ostringstream error_stream;
-  for (auto const & pathRootName :
-         detail::ModuleConfigInfo::allModulePathRoots()) {
-    auto const pathRoot = procPS_.get<ParameterSet>(pathRootName, empty);
-    for (auto const & name : pathRoot.get_names()) {
+  for (auto const& pathRootName : detail::ModuleConfigInfo::allModulePathRoots()) {
+    auto const pathRoot = procPS_.get<ParameterSet>(pathRootName, {});
+    for (auto const& name : pathRoot.get_names()) {
       try {
-        detail::ModuleConfigInfo mci(procPS_, name, pathRootName);
+        detail::ModuleConfigInfo const mci {procPS_, name, pathRootName};
         auto actualModType = fact_.moduleType(mci.libSpec());
         if (actualModType != mci.moduleType()) {
           error_stream
@@ -220,7 +211,7 @@ fillAllModules_()
             << ".\n";
         }
       }
-      catch (std::exception const &e ){
+      catch (std::exception const& e){
         error_stream
           << "  ERROR: Configuration of module with label "
           << name
@@ -240,13 +231,10 @@ fillAllModules_()
 }
 
 art::PathManager::vstring
-art::PathManager::
-processPathConfigs_()
+art::PathManager::processPathConfigs_()
 {
   vstring trigger_path_names;
-  auto services = procPS_.get<ParameterSet>("services",{});
-  auto opts(services.get<ParameterSet>("scheduler", ParameterSet()));
-  auto nSchedules [[gnu::unused]] = opts.get<size_t>("num_schedules", 1);
+  auto nSchedules [[gnu::unused]] = procPS_.get<size_t>("services.scheduler.num_schedules", 1);
   // Identify and process paths.
   std::set<std::string> known_pars {
     "analyzers",
@@ -285,7 +273,7 @@ processPathConfigs_()
 
   // Process each path.
   size_t num_end_paths { 0 };
-  for (auto const & path_name : path_names) {
+  for (auto const& path_name : path_names) {
     auto const path_seq = physics.get<vstring>(path_name);
     if (processOnePathConfig_(path_name,
                               path_seq,
@@ -293,7 +281,7 @@ processPathConfigs_()
                               error_stream)) {
       ++num_end_paths;
     }
-    for (auto const & mod : path_seq) {
+    for (auto const& mod : path_seq) {
       specified_modules.insert(stripLabel(mod));
     }
   }
@@ -305,7 +293,7 @@ processPathConfigs_()
 
   vstring unused_modules;
   std::set<std::string> all_module_labels;
-  for(auto const & val : allModules_) {
+  for(auto const& val : allModules_) {
     all_module_labels.insert(val.first);
   }
 
@@ -344,15 +332,14 @@ processPathConfigs_()
 }
 
 bool // Is wanted end path.
-art::PathManager::
-processOnePathConfig_(std::string const & path_name,
-                      vstring const & path_seq,
-                      vstring & trigger_path_names,
-                      std::ostream & error_stream)
+art::PathManager::processOnePathConfig_(std::string const& path_name,
+                                        vstring const& path_seq,
+                                        vstring& trigger_path_names,
+                                        std::ostream& error_stream)
 {
   enum class mod_cat_t { UNSET, OBSERVER, MODIFIER };
   mod_cat_t cat { mod_cat_t::UNSET };
-  for (auto const & modname : path_seq) {
+  for (auto const& modname : path_seq) {
     auto const label = stripLabel(modname);
     auto const it = allModules_.find(label);
     if (it == allModules_.end()) {
@@ -425,19 +412,17 @@ processOnePathConfig_(std::string const & path_name,
 }
 
 void
-art::PathManager::
-makeWorker_(detail::ModuleInPathInfo const & mipi,
-            WorkerMap & workers,
-            std::vector<WorkerInPath> & pathWorkers)
+art::PathManager::makeWorker_(detail::ModuleInPathInfo const& mipi,
+                              WorkerMap& workers,
+                              std::vector<WorkerInPath>& pathWorkers)
 {
   auto w = makeWorker_(mipi.moduleConfigInfo(), workers);
   pathWorkers.emplace_back(w, mipi.filterAction());
 }
 
-art::Worker *
-art::PathManager::
-makeWorker_(detail::ModuleConfigInfo const & mci,
-            WorkerMap & workers)
+art::Worker*
+art::PathManager::makeWorker_(detail::ModuleConfigInfo const& mci,
+                              WorkerMap& workers)
 {
   auto it = workers.find(mci.label());
   if (it == workers.end()) { // Need worker.
@@ -446,7 +431,7 @@ makeWorker_(detail::ModuleConfigInfo const & mci,
                           moduleConfig,
                           preg_,
                           exceptActions_,
-                          ServiceHandle<TriggerNamesService>()->getProcessName()};
+                          ServiceHandle<TriggerNamesService const>{}->getProcessName()};
     ModuleDescription const md {moduleConfig.id(),
                                 p.pset_.get<std::string>("module_type"),
                                 p.pset_.get<std::string>("module_label"),
@@ -474,12 +459,11 @@ makeWorker_(detail::ModuleConfigInfo const & mci,
 
 // Precondition: !modInfos.empty();
 std::unique_ptr<art::Path>
-art::PathManager::
-fillWorkers_(int bitpos,
-             std::string const& pathName,
-             ModInfos const& modInfos,
-             Path::TrigResPtr pathResults,
-             WorkerMap& workers)
+art::PathManager::fillWorkers_(int const bitpos,
+                               std::string const& pathName,
+                               ModInfos const& modInfos,
+                               Path::TrigResPtr pathResults,
+                               WorkerMap& workers)
 {
   assert(!modInfos.empty());
   std::vector<WorkerInPath> pathWorkers;
@@ -487,26 +471,25 @@ fillWorkers_(int bitpos,
     makeWorker_(mci, workers, pathWorkers);
   }
 
-  if (configErrMsgs_.size()) {
-    std::size_t const width {100};
+  if (!configErrMsgs_.empty()) {
+    constexpr HorizontalRule rule{100};
     std::ostringstream err_msg;
     err_msg << "\n"
-            << std::string(width,'=')
+            << rule('=')
             << "\n\n"
             << "!! The following modules have been misconfigured: !!"
             << "\n";
     for (auto const& err : configErrMsgs_) {
       err_msg << "\n"
-              << std::string(width,'-')
+              << rule('-')
               << "\n"
               << err;
     }
     err_msg << "\n"
-            << std::string(width,'=')
+            << rule('=')
             << "\n\n";
 
     throw art::Exception(art::errors::Configuration) << err_msg.str();
-
   }
 
   return std::make_unique<art::Path>(bitpos,

@@ -45,6 +45,7 @@ function(simple_plugin name type)
       canvas
       fhiclcpp
       cetlib
+      cetlib_except
       ${Boost_FILESYSTEM_LIBRARY}
       ${Boost_SYSTEM_LIBRARY}
       )
@@ -58,6 +59,7 @@ function(simple_plugin name type)
       canvas
       fhiclcpp
       cetlib
+      cetlib_except
       ${ROOT_CORE}
       ${Boost_FILESYSTEM_LIBRARY}
       ${Boost_SYSTEM_LIBRARY}

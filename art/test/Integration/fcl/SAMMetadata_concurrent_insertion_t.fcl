@@ -1,0 +1,6 @@
+process_name: SAMMetadataConcurrentT
+
+services.FileCatalogMetadata.checkSyntax: true
+
+physics.analyzers.a.module_type: SAMMetadataConcurrentTest
+physics.e: [a]

@@ -16,7 +16,7 @@ namespace art {
   using MixFunc =
     std::function<bool (std::vector<PROD const *> const &,
                         OPROD &,
-                        PtrRemapper const &)>; 
+                        PtrRemapper const &)>;
 
   using EventIDIndex = std::map<FileIndex::EntryNumber_t, EventID>;
   using SubRunIDIndex = std::map<SubRunID, FileIndex::EntryNumber_t>;

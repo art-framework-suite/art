@@ -27,152 +27,153 @@
 #include <functional>
 
 namespace art {
-  template <detail::SignalResponseType, typename ResultType, typename... Args > class LocalSignal;
-}
+  template <detail::SignalResponseType, typename ResultType, typename... Args> class LocalSignal;
 
-template <art::detail::SignalResponseType STYPE, typename ResultType, typename...Args>
-class art::LocalSignal {
-public:
-  // Typedefs
-  typedef std::function<ResultType(Args...)> slot_type;
-  typedef ResultType result_type;
-private:
-  // Required for derivative typedef below.
-  typedef std::vector<std::deque<slot_type> > ContainerType_;
-public:
-  typedef typename ContainerType_::size_type size_type;
+  template <detail::SignalResponseType STYPE, typename ResultType, typename... Args>
+  class LocalSignal<STYPE, ResultType(Args...)> {
+  public:
+    // Typedefs
+    using slot_type = std::function<ResultType(Args...)>;
+    using result_type = ResultType;
+  private:
+    // Required for derivative alias below.
+    using ContainerType_ = std::vector<std::deque<slot_type>>;
+  public:
+    using size_type = typename ContainerType_::size_type;
 
-  // Constructor.
-  LocalSignal(size_t nSchedules);
+    // Constructor.
+    LocalSignal(size_t nSchedules);
 
-  // 1. Free function or functor (or pre-bound member function).
-  void
-  watch(ScheduleID sID, std::function < ResultType(Args...) > slot);
-  // 2. Non-const member function.
-  template <typename T>
-  void
-  watch(ScheduleID sID, ResultType(T::*slot)(Args...), T & t);
-  // 3. Const member function.
-  template <typename T>
-  void
-  watch(ScheduleID sID, ResultType(T::*slot)(Args...) const, T const & t);
+    // 1. Free function or functor (or pre-bound member function).
+    void
+    watch(ScheduleID sID, std::function<ResultType(Args...)> slot);
+    // 2. Non-const member function.
+    template <typename T>
+    void
+    watch(ScheduleID sID, ResultType(T::*slot)(Args...), T& t);
+    // 3. Const member function.
+    template <typename T>
+    void
+    watch(ScheduleID sID, ResultType(T::*slot)(Args...) const, T const& t);
 
-  // 1. Free function or functor (or pre-bound member function).
-  void
-  watchAll(std::function < ResultType(Args...) > slot);
-  // 2. Non-const member function.
-  template <typename T>
-  void
-  watchAll(ResultType(T::*slot)(Args...), T & t);
-  // 3. Const member function.
-  template <typename T>
-  void
-  watchAll(ResultType(T::*slot)(Args...) const, T const & t);
+    // 1. Free function or functor (or pre-bound member function).
+    void
+    watchAll(std::function<ResultType(Args...)> slot);
+    // 2. Non-const member function.
+    template <typename T>
+    void
+    watchAll(ResultType(T::*slot)(Args...), T& t);
+    // 3. Const member function.
+    template <typename T>
+    void
+    watchAll(ResultType(T::*slot)(Args...) const, T const& t);
 
-  void invoke(ScheduleID sID, Args && ... args) const; // Discard ResultType.
+    void invoke(ScheduleID sID, Args&&... args) const; // Discard ResultType.
 
-  void clear(ScheduleID sID);
-  void clearAll();
+    void clear(ScheduleID sID);
+    void clearAll();
 
-private:
-  ContainerType_ signals_;
-};
+  private:
+    ContainerType_ signals_;
+  };
 
-template <art::detail::SignalResponseType STYPE, typename ResultType, typename...Args>
-art::LocalSignal<STYPE, ResultType, Args...>::
-LocalSignal(size_t nSchedules)
-:
-  signals_(nSchedules)
-{
-}
-
-// 1.
-template <art::detail::SignalResponseType STYPE, typename ResultType, typename...Args>
-void
-art::LocalSignal<STYPE, ResultType, Args...>::
-watch(ScheduleID sID, std::function < ResultType(Args...) > slot)
-{
-  detail::connect_to_signal<STYPE>(signals_.at(sID.id()),  slot);
-}
-
-// 2.
-template <art::detail::SignalResponseType STYPE, typename ResultType, typename...Args>
-template <typename T>
-void
-art::LocalSignal<STYPE, ResultType, Args...>::
-watch(ScheduleID sID, ResultType(T::*slot)(Args...), T & t)
-{
-  watch(sID, detail::makeWatchFunc(slot, t));
-}
-
-// 3.
-template <art::detail::SignalResponseType STYPE, typename ResultType, typename...Args>
-template <typename T>
-void
-art::LocalSignal<STYPE, ResultType, Args...>::
-watch(ScheduleID sID, ResultType(T::*slot)(Args...) const, T const & t)
-{
-  watch(sID, detail::makeWatchFunc(slot, t));
-}
-
-// 1.
-template <art::detail::SignalResponseType STYPE, typename ResultType, typename... Args>
-void
-art::LocalSignal<STYPE, ResultType, Args...>::
-watchAll(std::function<ResultType(Args...)> slot)
-{
-  for ( auto & signal : signals_ ) {
-    detail::connect_to_signal<STYPE>(signal, slot);
+  template <detail::SignalResponseType STYPE, typename ResultType, typename...Args>
+  LocalSignal<STYPE, ResultType(Args...)>::
+  LocalSignal(size_t nSchedules)
+    :
+    signals_(nSchedules)
+  {
   }
-}
 
-// 2.
-template <art::detail::SignalResponseType STYPE, typename ResultType, typename... Args>
-template <typename T>
-void
-art::LocalSignal<STYPE, ResultType, Args...>::
-watchAll(ResultType(T::*slot)(Args...), T & t)
-{
-  watchAll(detail::makeWatchFunc(slot, t));
-}
-
-// 3.
-template <art::detail::SignalResponseType STYPE, typename ResultType, typename... Args>
-template <typename T>
-void
-art::LocalSignal<STYPE, ResultType, Args...>::
-watchAll(ResultType(T::*slot)(Args...) const, T const & t)
-{
-  watchAll(detail::makeWatchFunc(slot, t));
-}
-
-template <art::detail::SignalResponseType STYPE, typename ResultType, typename... Args>
-void
-art::LocalSignal<STYPE, ResultType, Args...>::
-invoke(ScheduleID sID, Args && ... args) const
-{
-  for (auto f : signals_.at(sID.id())) {
-    f(std::forward<Args>(args)...);
+  // 1.
+  template <detail::SignalResponseType STYPE, typename ResultType, typename...Args>
+  void
+  LocalSignal<STYPE, ResultType(Args...)>::
+  watch(ScheduleID sID, std::function<ResultType(Args...)> slot)
+  {
+    detail::connect_to_signal<STYPE>(signals_.at(sID.id()),  slot);
   }
-}
 
-template <art::detail::SignalResponseType STYPE, typename ResultType, typename... Args>
-void
-art::LocalSignal<STYPE, ResultType, Args...>::
-clear(ScheduleID sID)
-{
-  signals_.at(sID.id()).clear();
-}
-
-template <art::detail::SignalResponseType STYPE, typename ResultType, typename... Args>
-void
-art::LocalSignal<STYPE, ResultType, Args...>::
-clearAll()
-{
-  for ( auto & signal : signals_ ) {
-    signal.clear();
+  // 2.
+  template <detail::SignalResponseType STYPE, typename ResultType, typename...Args>
+  template <typename T>
+  void
+  LocalSignal<STYPE, ResultType(Args...)>::
+  watch(ScheduleID sID, ResultType(T::*slot)(Args...), T& t)
+  {
+    watch(sID, detail::makeWatchFunc(slot, t));
   }
-}
+
+  // 3.
+  template <detail::SignalResponseType STYPE, typename ResultType, typename...Args>
+  template <typename T>
+  void
+  LocalSignal<STYPE, ResultType(Args...)>::
+  watch(ScheduleID sID, ResultType(T::*slot)(Args...) const, T const& t)
+  {
+    watch(sID, detail::makeWatchFunc(slot, t));
+  }
+
+  // 1.
+  template <detail::SignalResponseType STYPE, typename ResultType, typename... Args>
+  void
+  LocalSignal<STYPE, ResultType(Args...)>::
+  watchAll(std::function<ResultType(Args...)> slot)
+  {
+    for (auto& signal : signals_) {
+      detail::connect_to_signal<STYPE>(signal, slot);
+    }
+  }
+
+  // 2.
+  template <detail::SignalResponseType STYPE, typename ResultType, typename... Args>
+  template <typename T>
+  void
+  LocalSignal<STYPE, ResultType(Args...)>::
+  watchAll(ResultType(T::*slot)(Args...), T& t)
+  {
+    watchAll(detail::makeWatchFunc(slot, t));
+  }
+
+  // 3.
+  template <detail::SignalResponseType STYPE, typename ResultType, typename... Args>
+  template <typename T>
+  void
+  LocalSignal<STYPE, ResultType(Args...)>::
+  watchAll(ResultType(T::*slot)(Args...) const, T const& t)
+  {
+    watchAll(detail::makeWatchFunc(slot, t));
+  }
+
+  template <detail::SignalResponseType STYPE, typename ResultType, typename... Args>
+  void
+  LocalSignal<STYPE, ResultType(Args...)>::
+  invoke(ScheduleID sID, Args&& ... args) const
+  {
+    for (auto f : signals_.at(sID.id())) {
+      f(std::forward<Args>(args)...);
+    }
+  }
+
+  template <detail::SignalResponseType STYPE, typename ResultType, typename... Args>
+  void
+  LocalSignal<STYPE, ResultType(Args...)>::
+  clear(ScheduleID const sID)
+  {
+    signals_.at(sID.id()).clear();
+  }
+
+  template <detail::SignalResponseType STYPE, typename ResultType, typename... Args>
+  void
+  LocalSignal<STYPE, ResultType(Args...)>::
+  clearAll()
+  {
+    for (auto& signal : signals_) {
+      signal.clear();
+    }
+  }
+
+} // art
 #endif /* art_Framework_Services_Registry_LocalSignal_h */
 
 // Local Variables:

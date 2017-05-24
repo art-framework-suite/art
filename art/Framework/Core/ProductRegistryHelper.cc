@@ -1,11 +1,11 @@
 #include "art/Framework/Core/ProductRegistryHelper.h"
 // vim: set sw=2:
 
-#include "canvas/Persistency/Provenance/BranchDescription.h"
-#include "canvas/Persistency/Provenance/BranchIDList.h"
-#include "art/Persistency/Provenance/BranchIDListHelper.h"
+#include "art/Persistency/Provenance/BranchIDListRegistry.h"
 #include "art/Framework/Core/FileBlock.h"
 #include "art/Persistency/Provenance/MasterProductRegistry.h"
+#include "canvas/Persistency/Provenance/BranchDescription.h"
+#include "canvas/Persistency/Provenance/BranchIDList.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
 #include "canvas/Persistency/Provenance/TypeLabel.h"
 #include "canvas/Utilities/DebugMacros.h"
@@ -17,10 +17,42 @@
 #include <cassert>
 #include <string>
 
+namespace {
+
+  // A user may wish to declare:
+  //
+  //   produces<Assns<A,B>>(instance_name);
+  //   produces<Assns<B,A>>(instance_name);
+  //
+  // in their module constructor.  If the instance names are the same
+  // for both produces declarations, then this is a logic error, since
+  // Assns<A,B> and Assns<B,A> correspond to the same set of
+  // associations.  This error can be detected by checking the
+  // friendlyClassName, which resolves to the same string for
+  // Assns<A,B> and Assns<B,A>.
+
+  void check_for_duplicate_Assns(std::set<art::TypeLabel> const& typeLabels){
+    std::map<std::string, std::set<std::string>> instanceToFriendlyNames;
+    for (auto const& tl : typeLabels) {
+      auto result = instanceToFriendlyNames[tl.productInstanceName].emplace(tl.friendlyClassName());
+      if (!result.second) {
+        throw art::Exception(art::errors::LogicError, "check_for_duplicate_Assns: ")
+          << "An attempt has been made to call the equivalent of\n\n"
+          << "   produces<" << tl.className() << ">(\"" << tl.productInstanceName << "\")\n\n"
+          << "which results in a prepared (\"friendly\") name of:\n\n"
+          << "   "<< *result.first << "\n\n"
+          << "That friendly name has already been registered for this module.\n"
+          << "Please check to make sure that produces<> has not already been\n"
+          << "called for an Assns<> with reversed template arguments.  Such\n"
+          << "behavior is not supported.  Contact artists@fnal.gov for guidance.\n";
+      }
+    }
+  }
+}
+
 void
-art::ProductRegistryHelper::
-registerProducts(MasterProductRegistry& mpr,
-                 ModuleDescription const& md)
+art::ProductRegistryHelper::registerProducts(MasterProductRegistry& mpr,
+                                             ModuleDescription const& md)
 {
   if (productList_) {
     BranchIDList bil;
@@ -31,17 +63,17 @@ registerProducts(MasterProductRegistry& mpr,
       tp[bd.branchType()].emplace(bid);
       bil.push_back(bid);
     }
-    FileBlock fb({}, "ProductRegistryHelper");
+    FileBlock const fb{{}, "ProductRegistryHelper"};
     mpr.initFromFirstPrimaryFile(*productList_, tp, fb);
-    BranchIDListHelper::updateFromInput({bil}, fb.fileName());
+    BranchIDListRegistry::updateFromInput({bil}, fb.fileName());
     productList_.reset(); // Reset, since we no longer need it.
   }
-  for (auto const& val : typeLabelList_) {
-    auto bd = std::make_unique<art::BranchDescription>(val, md);
-    auto & expProducts = expectedProducts_[bd->branchType()];
-    std::ostringstream oss;
-    oss << *bd;
-    expProducts.emplace(bd->branchID(), oss.str());
-    mpr.addProduct(std::move(bd));
+  check_for_duplicate_Assns(typeLabelList_[InEvent]);
+  for (std::size_t ibt{}; ibt != NumBranchTypes; ++ibt) {
+    auto bt = static_cast<BranchType>(ibt);
+    for (auto const& val : typeLabelList_[bt]) {
+      auto bd = std::make_unique<art::BranchDescription>(bt, val, md);
+      mpr.addProduct(std::move(bd));
+    }
   }
 }

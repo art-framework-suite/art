@@ -1,25 +1,19 @@
 // Service to make sure we can use another service.
 
 #include "art/test/Integration/ServiceUsing.h"
-#include "art/test/Integration/Wanted.h"
 
-arttest::ServiceUsing::
-ServiceUsing(fhicl::ParameterSet const &, art::ActivityRegistry & reg )
-  :
-  cached_debug_value_(getNewValue()) // Uses ServiceHandle<Reconfigurable>
+art::test::ServiceUsing::ServiceUsing(fhicl::ParameterSet const&,
+                                    art::ActivityRegistry& reg)
 {
-  (void) art::ServiceHandle<Wanted>(); // Required to force construction.
-  reg.sPostServiceReconfigure.watch(this, &arttest::ServiceUsing::maybeGetNewValue);
+  reg.sPostBeginJob.watch(this, &ServiceUsing::postBeginJob);
+  wanted_->setValue(cached_value_);
 }
 
-void
-arttest::ServiceUsing::
-maybeGetNewValue(std::string const & service_name)
+void art::test::ServiceUsing::postBeginJob()
 {
-  static std::string const watched_service("Reconfigurable");
-  if (service_name == watched_service) {
-    cached_debug_value_ = getNewValue();
-  }
+  postBeginJobCalled_ = true;
+  cached_value_ = 10;
+  wanted_->setValue(cached_value_);
 }
 
-DEFINE_ART_SERVICE(arttest::ServiceUsing)
+DEFINE_ART_SERVICE(art::test::ServiceUsing)

@@ -29,8 +29,8 @@ void test_parse_path_spec() {
   assert(parsed[0].second == "p1");
   assert(parsed[1].first  == "b");
   assert(parsed[1].second == "p2");
-  assert(parsed[2].first  == "c");
-  assert(parsed[2].second == "");
+  assert(parsed[2].first  == "");
+  assert(parsed[2].second == "c");
   assert(parsed[3].first  == "ddd");
   assert(parsed[3].second == "p3");
   assert(parsed[4].first  == "eee");
@@ -42,4 +42,3 @@ int main()
   test_remove_whitespace();
   test_parse_path_spec();
 }
-

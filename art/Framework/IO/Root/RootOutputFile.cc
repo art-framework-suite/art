@@ -16,13 +16,12 @@
 #include "art/Framework/Principal/ResultsPrincipal.h"
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
-#include "art/Framework/Services/Registry/ServiceHandle.h"
-#include "cetlib/Ntuple/Transaction.h"
+#include "art/Framework/Services/System/DatabaseConnection.h"
 #include "art/Persistency/Provenance/BranchIDListRegistry.h"
 #include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
 #include "art/Persistency/Provenance/ProductMetaData.h"
 #include "art/Persistency/RootDB/SQLErrMsg.h"
-#include "art/Persistency/RootDB/SQLite3Wrapper.h"
+#include "art/Persistency/RootDB/TKeyVFSOpenPolicy.h"
 #include "art/Version/GetReleaseVersion.h"
 #include "boost/date_time/posix_time/posix_time.hpp"
 #include "canvas/Persistency/Provenance/rootNames.h"
@@ -46,6 +45,11 @@
 #include "cetlib/canonical_string.h"
 #include "cetlib/container_algorithms.h"
 #include "cetlib/exempt_ptr.h"
+#include "cetlib/sqlite/Ntuple.h"
+#include "cetlib/sqlite/Transaction.h"
+#include "cetlib/sqlite/create_table.h"
+#include "cetlib/sqlite/exec.h"
+#include "cetlib/sqlite/insert.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/ParameterSetID.h"
 #include "fhiclcpp/ParameterSetRegistry.h"
@@ -76,8 +80,6 @@ namespace {
         << name << '\n'
         << "is zero.\n";
 
-    sqlite::Transaction txn {db};
-    art::SQLErrMsg errMsg;
     std::string ddl =
       "DROP TABLE IF EXISTS " + name + "; "
       "CREATE TABLE " + name +
@@ -89,9 +91,7 @@ namespace {
     ddl += ") ";
     ddl += suffix;
     ddl += ";";
-    sqlite3_exec(db, ddl.c_str(), nullptr, nullptr, errMsg);
-    errMsg.throwIfError();
-    txn.commit();
+    sqlite::exec(db, ddl);
   }
 
   void
@@ -108,15 +108,6 @@ namespace {
   }
 
   void
-  insert_rangeSets_row(sqlite3_stmt* stmt,
-                       art::RunNumber_t const r)
-  {
-    sqlite3_bind_int64(stmt, 1, r);
-    sqlite3_step(stmt);
-    sqlite3_reset(stmt);
-  }
-
-  void
   insert_rangeSets_eventSets_row(sqlite3_stmt* stmt,
                                  unsigned const rsid,
                                  unsigned const esid)
@@ -127,48 +118,27 @@ namespace {
     sqlite3_reset(stmt);
   }
 
-  int
-  found_rowid(sqlite3_stmt* stmt)
-  {
-    return sqlite3_step(stmt) == SQLITE_ROW ?
-      sqlite3_column_int64(stmt,0) :
-      throw art::Exception(art::errors::SQLExecutionError)
-      << "ROWID not found for EventRanges.\n"
-      << "Contact artists@fnal.gov.\n";
-  }
-
   unsigned
   getNewRangeSetID(sqlite3* db,
                    art::BranchType const bt,
                    art::RunNumber_t const r)
   {
-    sqlite::Transaction txn {db};
-    sqlite3_stmt* stmt {nullptr};
-    std::string const ddl {"INSERT INTO " + art::BranchTypeToString(bt) + "RangeSets(Run) VALUES(?);"};
-    sqlite3_prepare_v2(db, ddl.c_str(), -1, &stmt, nullptr);
-    insert_rangeSets_row(stmt, r);
-    unsigned const rsID = sqlite3_last_insert_rowid(db);
-    sqlite3_finalize(stmt);
-    txn.commit();
-    return rsID;
+    sqlite::insert_into(db, art::BranchTypeToString(bt)+"RangeSets").values(r);
+    return sqlite3_last_insert_rowid(db);
   }
 
   vector<unsigned>
   getExistingRangeSetIDs(sqlite3* db, art::RangeSet const& rs)
   {
     vector<unsigned> rangeSetIDs;
-    for (auto const& range : rs) {
-      sqlite::Transaction txn {db};
-      sqlite3_stmt* stmt {nullptr};
-      std::string const ddl {"SELECT ROWID FROM EventRanges WHERE "
-          "SubRun=" + std::to_string(range.subRun()) + " AND "
-          "begin=" + std::to_string(range.begin()) + " AND "
-          "end=" + std::to_string(range.end()) + ";"};
-      sqlite3_prepare_v2(db, ddl.c_str(), -1, &stmt, nullptr);
-      rangeSetIDs.push_back(found_rowid(stmt));
-      sqlite3_finalize(stmt);
-      txn.commit();
-    }
+    cet::transform_all(rs, std::back_inserter(rangeSetIDs),
+                       [db](auto const& range) {
+                         sqlite::query_result<unsigned> r;
+                         r << sqlite::select("ROWID").from(db, "EventRanges").where("SubRun=" + std::to_string(range.subRun()) + " AND "
+                                                                                    "begin=" + std::to_string(range.begin()) + " AND "
+                                                                                    "end=" + std::to_string(range.end()));
+                         return unique_value(r);
+                       });
     return rangeSetIDs;
   }
 
@@ -361,23 +331,21 @@ RootOutputFile(OutputModule* om,
   , fastCloningEnabledAtConstruction_{fastCloningRequested}
   , filePtr_{TFile::Open(file_.c_str(), "recreate", "", compressionLevel)}
   , treePointers_ { // Order (and number) must match BranchTypes.h!
-    std::make_unique<RootOutputTree>(static_cast<EventPrincipal*>(nullptr),
-                                     filePtr_.get(), InEvent, pEventAux_,
+    std::make_unique<RootOutputTree>(filePtr_.get(), InEvent, pEventAux_,
                                      pEventProductProvenanceVector_, basketSize, splitLevel,
                                      treeMaxVirtualSize, saveMemoryObjectThreshold),
-    std::make_unique<RootOutputTree>(static_cast<SubRunPrincipal*>(nullptr),
-                                     filePtr_.get(), InSubRun, pSubRunAux_,
+    std::make_unique<RootOutputTree>(filePtr_.get(), InSubRun, pSubRunAux_,
                                      pSubRunProductProvenanceVector_, basketSize, splitLevel,
                                      treeMaxVirtualSize, saveMemoryObjectThreshold),
-    std::make_unique<RootOutputTree>(static_cast<RunPrincipal*>(nullptr),
-                                     filePtr_.get(), InRun, pRunAux_,
+    std::make_unique<RootOutputTree>(filePtr_.get(), InRun, pRunAux_,
                                      pRunProductProvenanceVector_, basketSize, splitLevel,
                                      treeMaxVirtualSize, saveMemoryObjectThreshold),
-    std::make_unique<RootOutputTree>(static_cast<ResultsPrincipal*>(nullptr),
-                                     filePtr_.get(), InResults, pResultsAux_,
+    std::make_unique<RootOutputTree>(filePtr_.get(), InResults, pResultsAux_,
                                      pResultsProductProvenanceVector_, basketSize, splitLevel,
                                      treeMaxVirtualSize, saveMemoryObjectThreshold) }
-  , rootFileDB_{filePtr_.get(), "RootFileDB", SQLITE_OPEN_CREATE | SQLITE_OPEN_READWRITE}
+  , rootFileDB_{ServiceHandle<DatabaseConnection>{}->get<TKeyVFSOpenPolicy>("RootFileDB",
+                                                                            filePtr_.get(),
+                                                                            SQLITE_OPEN_CREATE|SQLITE_OPEN_READWRITE)}
 {
   // Don't split metadata tree or event description tree
   metaDataTree_ = RootOutputTree::makeTTree(filePtr_.get(), rootNames::metaDataTreeName(), 0);
@@ -451,25 +419,19 @@ operator()(OutputItem const& lh, OutputItem const& rh) const
 void
 art::RootOutputFile::createDatabaseTables()
 {
-
-  // // FileCatalog metadata
-  // create_table(rootFileDB_, "FileCatalog_metadata",
-  //              {"ID INTEGER PRIMARY KEY", "Name", "Value"});
-
   // Event ranges
   create_table(rootFileDB_, "EventRanges",
                {"SubRun INTEGER", "begin INTEGER", "end INTEGER", "UNIQUE (SubRun,begin,end) ON CONFLICT IGNORE"});
 
   // SubRun range sets
-  create_table(rootFileDB_, "SubRunRangeSets",
-               {"Run INTEGER"});
+  using namespace cet::sqlite;
+  create_table(rootFileDB_, "SubRunRangeSets", column<int>{"Run"});
   create_table(rootFileDB_, "SubRunRangeSets_EventRanges",
                {"RangeSetsID INTEGER", "EventRangesID INTEGER", "PRIMARY KEY(RangeSetsID,EventRangesID)"},
                "WITHOUT ROWID");
 
   // Run range sets
-  create_table(rootFileDB_, "RunRangeSets",
-               {"Run INTEGER"});
+  create_table(rootFileDB_, "RunRangeSets", column<int>{"Run"});
   create_table(rootFileDB_, "RunRangeSets_EventRanges",
                {"RangeSetsID INTEGER", "EventRangesID INTEGER", "PRIMARY KEY(RangeSetsID,EventRangesID)"},
                "WITHOUT ROWID");
@@ -545,7 +507,7 @@ beginInputFile(FileBlock const& fb, bool fastCloneFromOutputModule)
 void
 art::RootOutputFile::incrementInputFileNumber()
 {
-  fp_.update<Boundary::InputFile>();
+  fp_.update<Granularity::InputFile>();
 }
 
 void
@@ -606,7 +568,7 @@ writeOne(EventPrincipal const& e)
   pHistory_ = &e.history();
   // Add event to index
   fileIndex_.addEntry(pEventAux_->id(), fp_.eventEntryNumber());
-  fp_.update<Boundary::Event>(status_);
+  fp_.update<Granularity::Event>(status_);
 }
 
 void
@@ -618,7 +580,7 @@ writeSubRun(SubRunPrincipal const& sr)
   pSubRunAux_->setRangeSetID(subRunRSID_);
   fillBranches<InSubRun>(sr, pSubRunProductProvenanceVector_);
   fileIndex_.addEntry(EventID::invalidEvent(pSubRunAux_->id()), fp_.subRunEntryNumber());
-  fp_.update<Boundary::SubRun>(status_);
+  fp_.update<Granularity::SubRun>(status_);
 }
 
 void
@@ -630,7 +592,7 @@ writeRun(RunPrincipal const& r)
   pRunAux_->setRangeSetID(runRSID_);
   fillBranches<InRun>(r, pRunProductProvenanceVector_);
   fileIndex_.addEntry(EventID::invalidEvent(pRunAux_->id()), fp_.runEntryNumber());
-  fp_.update<Boundary::Run>(status_);
+  fp_.update<Granularity::Run>(status_);
 }
 
 void
@@ -668,8 +630,8 @@ art::
 RootOutputFile::
 writeFileFormatVersion()
 {
-  FileFormatVersion ver(getFileFormatVersion(), getFileFormatEra());
-  FileFormatVersion* pver = &ver;
+  FileFormatVersion const ver {getFileFormatVersion(), getFileFormatEra()};
+  FileFormatVersion const* pver = &ver;
   TBranch* b = metaDataTree_->Branch(metaBranchRootName<FileFormatVersion>(),
                                      &pver, basketSize_, 0);
   // FIXME: Turn this into a throw!
@@ -684,7 +646,7 @@ writeFileIndex()
 {
   fileIndex_.sortBy_Run_SubRun_Event();
   FileIndex::Element elem {};
-  auto findexElemPtr = &elem;
+  auto const* findexElemPtr = &elem;
   TBranch* b = fileIndexTree_->Branch(metaBranchRootName<FileIndex::Element>(),
                                       &findexElemPtr, basketSize_, 0);
   // FIXME: Turn this into a throw!
@@ -718,8 +680,11 @@ art::
 RootOutputFile::
 writeProcessHistoryRegistry()
 {
-  ProcessHistoryMap const& r = ProcessHistoryRegistry::get();
-  ProcessHistoryMap* p = &const_cast<ProcessHistoryMap&>(r);
+  ProcessHistoryMap pHistMap;
+  for (auto const& pr : ProcessHistoryRegistry::get()) {
+    pHistMap.emplace(pr);
+  }
+  auto const* p = &pHistMap;
   TBranch* b = metaDataTree_->Branch(metaBranchRootName<ProcessHistoryMap>(),
                                      &p, basketSize_, 0);
   if (b != nullptr) {
@@ -735,7 +700,7 @@ art::
 RootOutputFile::
 writeBranchIDListRegistry()
 {
-  BranchIDLists* p = &BranchIDListRegistry::instance()->data();
+  BranchIDLists const* p = &BranchIDListRegistry::instance().data();
   TBranch* b = metaDataTree_->Branch(metaBranchRootName<BranchIDLists>(), &p,
                                      basketSize_, 0);
   // FIXME: Turn this into a throw!
@@ -750,26 +715,23 @@ writeFileCatalogMetadata(FileStatsCollector const& stats,
                          FileCatalogMetadata::collection_type const& md,
                          FileCatalogMetadata::collection_type const& ssmd)
 {
-  ntuple::Ntuple<std::string,std::string> fileCatalogMetadata {rootFileDB_,
-      "FileCatalog_metadata",
-        {"Name","Value"},
-      true};
-  using namespace sqlite;
+  using namespace cet::sqlite;
+  Ntuple<std::string,std::string> fileCatalogMetadata {rootFileDB_, "FileCatalog_metadata", {"Name","Value"}, true};
   Transaction txn {rootFileDB_};
   for (auto const& kv : md) {
-    insert_into(fileCatalogMetadata).values(kv.first, kv.second);
+    fileCatalogMetadata.insert(kv.first, kv.second);
   }
   // Add our own specific information: File format and friends.
-  insert_into(fileCatalogMetadata).values("file_format", "\"artroot\"");
-  insert_into(fileCatalogMetadata).values("file_format_era", cet::canonical_string(getFileFormatEra()));
-  insert_into(fileCatalogMetadata).values("file_format_version", to_string(getFileFormatVersion()));
+  fileCatalogMetadata.insert("file_format", "\"artroot\"");
+  fileCatalogMetadata.insert("file_format_era", cet::canonical_string(getFileFormatEra()));
+  fileCatalogMetadata.insert("file_format_version", to_string(getFileFormatVersion()));
 
   // File start time.
   namespace bpt = boost::posix_time;
   auto formatted_time = [](auto const& t){ return cet::canonical_string(bpt::to_iso_extended_string(t)); };
-  insert_into(fileCatalogMetadata).values("start_time", formatted_time(stats.outputFileOpenTime()));
+  fileCatalogMetadata.insert("start_time", formatted_time(stats.outputFileOpenTime()));
   // File "end" time: now, since file is not actually closed yet.
-  insert_into(fileCatalogMetadata).values("end_time", formatted_time(boost::posix_time::second_clock::universal_time()));
+  fileCatalogMetadata.insert("end_time", formatted_time(boost::posix_time::second_clock::universal_time()));
 
   // Run/subRun information.
   if (!stats.seenSubRuns().empty()) {
@@ -792,11 +754,11 @@ writeFileCatalogMetadata(FileStatsCollector const& stats,
       // Rewind over last delimiter.
       buf.seekp(-2, ios_base::cur);
       buf << " ]";
-      insert_into(fileCatalogMetadata).values("runs", buf.str());
+      fileCatalogMetadata.insert("runs", buf.str());
     }
   }
   // Number of events.
-  insert_into(fileCatalogMetadata).values("event_count", to_string(stats.eventsThisFile()));
+  fileCatalogMetadata.insert("event_count", to_string(stats.eventsThisFile()));
   // first_event and last_event.
   auto eidToTuple = [](EventID const & eid)->string {
     ostringstream eidStr;
@@ -809,8 +771,8 @@ writeFileCatalogMetadata(FileStatsCollector const& stats,
     << " ]";
     return eidStr.str();
   };
-  insert_into(fileCatalogMetadata).values("first_event", eidToTuple(stats.lowestEventID()));
-  insert_into(fileCatalogMetadata).values("last_event", eidToTuple(stats.highestEventID()));
+  fileCatalogMetadata.insert("first_event", eidToTuple(stats.lowestEventID()));
+  fileCatalogMetadata.insert("last_event", eidToTuple(stats.highestEventID()));
   // File parents.
   if (!stats.parents().empty()) {
     ostringstream pstring;
@@ -821,11 +783,11 @@ writeFileCatalogMetadata(FileStatsCollector const& stats,
     // Rewind over last delimiter.
     pstring.seekp(-2, ios_base::cur);
     pstring << " ]";
-    insert_into(fileCatalogMetadata).values("parents", pstring.str());
+    fileCatalogMetadata.insert("parents", pstring.str());
   }
   // Incoming stream-specific metadata overrides.
   for (auto const& kv : ssmd) {
-    insert_into(fileCatalogMetadata).values(kv.first, kv.second);
+    fileCatalogMetadata.insert(kv.first, kv.second);
   }
   txn.commit();
 }
@@ -848,14 +810,14 @@ writeProductDescriptionRegistry()
   auto end = branchesWithStoredHistory_.end();
 
   ProductRegistry reg;
-  for ( auto const& pr : ProductMetaData::instance().productList() ) {
-    if ( branchesWithStoredHistory_.find(pr.second.branchID()) == end ){
+  for (auto const& pr : ProductMetaData::instance().productList()) {
+    if (branchesWithStoredHistory_.find(pr.second.branchID()) == end){
       continue;
     }
     reg.productList_.emplace_hint(reg.productList_.end(),pr);
   }
 
-  auto* regp = &reg;
+  ProductRegistry const* regp = &reg;
   TBranch* b = metaDataTree_->Branch(metaBranchRootName<ProductRegistry>(),
                                      &regp, basketSize_, 0);
   // FIXME: Turn this into a throw!
@@ -868,8 +830,7 @@ art::
 RootOutputFile::
 writeProductDependencies()
 {
-  BranchChildren& pDeps = const_cast<BranchChildren&>(om_->branchChildren());
-  BranchChildren* ppDeps = &pDeps;
+  BranchChildren const* ppDeps = &om_->branchChildren();
   TBranch* b = metaDataTree_->Branch(metaBranchRootName<BranchChildren>(),
                                      &ppDeps, basketSize_, 0);
   // FIXME: Turn this into a throw!
@@ -887,10 +848,8 @@ writeResults(ResultsPrincipal & resp)
 }
 
 void
-RootOutputFile::
-finishEndFile()
+art::RootOutputFile::writeTTrees()
 {
-  metaDataTree_->SetEntries(-1);
   RootOutputTree::writeTTree(metaDataTree_);
   RootOutputTree::writeTTree(fileIndexTree_);
   RootOutputTree::writeTTree(parentageTree_);
@@ -899,13 +858,6 @@ finishEndFile()
     auto const branchType = static_cast<BranchType>(i);
     treePointers_[branchType]->writeTree();
   }
-  // Write out DB -- the d'tor of the SQLite3Wrapper calls
-  // sqlite3_close.  For the tkeyvfs, closing the DB calls
-  // rootFile->Write("",TObject::kOverwrite).
-  rootFileDB_.reset();
-  // Close the file.
-  filePtr_->Close();
-  filePtr_.reset();
 }
 
 template <art::BranchType BT>
@@ -1001,10 +953,7 @@ art::RootOutputFile::getProduct(art::OutputHandle const& oh,
                                 art::RangeSet const& /*prunedProductRS*/,
                                 std::string const& wrappedName)
 {
-  if (oh.isValid())
-    return oh.wrapper();
-  else
-    return dummyProductCache_.product(wrappedName);
+  return oh.isValid() ? oh.wrapper() : dummyProductCache_.product(wrappedName);
 }
 
 template <BranchType BT>
@@ -1013,8 +962,5 @@ art::RootOutputFile::getProduct(art::OutputHandle const& oh,
                                 art::RangeSet const& prunedProductRS,
                                 std::string const& wrappedName)
 {
-  if (oh.isValid() && prunedProductRS.is_valid())
-    return oh.wrapper();
-  else
-    return dummyProductCache_.product(wrappedName);
+  return (oh.isValid() && prunedProductRS.is_valid()) ? oh.wrapper() : dummyProductCache_.product(wrappedName);
 }

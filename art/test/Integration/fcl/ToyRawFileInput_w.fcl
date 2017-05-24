@@ -4,6 +4,6 @@ source:
 {
   module_type: ToyRawFileInput
   fileNames: [ "ToyRawFileInput_data.fcl" ]
-}  
+}
 
 physics.analyzers.wa1.fileNames: @local::source.fileNames

@@ -29,11 +29,6 @@ namespace art {
             ModuleDescription const&,
             WorkerParams const&);
 
-    void reconfigure(fhicl::ParameterSet const& pset) override
-    {
-      module_->reconfigure(pset);
-    }
-
     bool modifiesEvent() const override { return module_->modifiesEvent(); }
 
   protected:
@@ -53,8 +48,8 @@ namespace art {
                      CurrentProcessingContext const* cpc) override;
     bool implDoEnd(SubRunPrincipal& srp,
                    CurrentProcessingContext const* cpc) override;
-    void implBeginJob()  override;
-    void implEndJob()  override;
+    void implBeginJob() override;
+    void implEndJob() override;
     void implRespondToOpenInputFile(FileBlock const& fb) override;
     void implRespondToCloseInputFile(FileBlock const& fb) override;
     void implRespondToOpenOutputFiles(FileBlock const& fb) override;
@@ -66,11 +61,11 @@ namespace art {
 
   template <typename T>
   inline
-  WorkerT<T>::WorkerT(std::unique_ptr<T>&& ed,
+  WorkerT<T>::WorkerT(std::unique_ptr<T>&& module,
                       ModuleDescription const& md,
                       WorkerParams const& wp) :
     Worker{md, wp},
-    module_{std::move(ed)}
+    module_{std::move(module)}
   {
     module_->setModuleDescription(md);
     module_->registerProducts(wp.reg_, md);

@@ -24,7 +24,7 @@ class TFile;
 namespace art {
 
   class RootInputFile;
-  class RootTree;
+  class RootInputTree;
 
   class RootDelayedReader final : public DelayedReader {
 
@@ -39,7 +39,7 @@ namespace art {
                       sqlite3* db,
                       std::vector<input::EntryNumber> const& entrySet,
                       cet::exempt_ptr<input::BranchMap const>,
-                      cet::exempt_ptr<RootTree> tree,
+                      cet::exempt_ptr<RootInputTree> tree,
                       int64_t saveMemoryObjectThreshold,
                       cet::exempt_ptr<RootInputFile> primaryFile,
                       BranchType branchType,
@@ -60,7 +60,7 @@ namespace art {
     sqlite3* db_;
     std::vector<input::EntryNumber> const entrySet_;
     cet::exempt_ptr<input::BranchMap const> branches_;
-    cet::exempt_ptr<RootTree> tree_;
+    cet::exempt_ptr<RootInputTree> tree_;
     int64_t saveMemoryObjectThreshold_;
     cet::exempt_ptr<EDProductGetterFinder const> groupFinder_;
     cet::exempt_ptr<RootInputFile> primaryFile_;

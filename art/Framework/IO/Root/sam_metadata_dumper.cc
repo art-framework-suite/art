@@ -1,13 +1,13 @@
 // sam_metadata_dumper.cc
 
 #include "art/Framework/IO/Root/GetFileFormatEra.h"
+#include "art/Persistency/RootDB/SQLite3Wrapper.h"
+#include "art/Persistency/RootDB/tkeyvfs.h"
+#include "boost/program_options.hpp"
 #include "canvas/Persistency/Provenance/rootNames.h"
 #include "canvas/Persistency/Provenance/FileFormatVersion.h"
 #include "canvas/Persistency/Provenance/ParameterSetBlob.h"
 #include "canvas/Persistency/Provenance/ParameterSetMap.h"
-#include "art/Persistency/RootDB/SQLite3Wrapper.h"
-#include "art/Persistency/RootDB/tkeyvfs.h"
-#include "boost/program_options.hpp"
 #include "cetlib/container_algorithms.h"
 #include "cetlib/canonical_string.h"
 #include "fhiclcpp/ParameterSet.h"
@@ -229,7 +229,7 @@ int print_fc_metadata_from_file(TFile & file,
                                 bool want_json)
 {
   vector<FileCatalogMetadataEntry> all_metadata_entries;
-  if (! read_all_fc_metadata_entries(file, all_metadata_entries, errors)) {
+  if (!read_all_fc_metadata_entries(file, all_metadata_entries, errors)) {
     errors << "Unable to to read metadata entries.\n";
     return 1;
   }

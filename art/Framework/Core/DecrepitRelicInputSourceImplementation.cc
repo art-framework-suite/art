@@ -15,7 +15,6 @@
 #include "art/Framework/Principal/SubRun.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
-#include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 #include "fhiclcpp/ParameterSet.h"
 
@@ -52,12 +51,12 @@ namespace art {
   using DRISI = DecrepitRelicInputSourceImplementation;
 
   DecrepitRelicInputSourceImplementation::
-  DecrepitRelicInputSourceImplementation(fhicl::TableFragment<DRISI::Config> const & config,
-                                         InputSourceDescription & desc)
-    : maxEvents_{config().maxEvents()}
+  DecrepitRelicInputSourceImplementation(fhicl::TableFragment<DRISI::Config> const& config,
+                                         InputSourceDescription& desc)
+    : InputSource{desc.moduleDescription}
+    , maxEvents_{config().maxEvents()}
     , maxSubRuns_{config().maxSubRuns()}
     , reportFrequency_{config().reportFrequency()}
-    , moduleDescription_{desc.moduleDescription}
   {
     if (reportFrequency_ < 0) {
       throw art::Exception(art::errors::Configuration)
@@ -83,7 +82,7 @@ namespace art {
     }
 
     // This must come LAST in the constructor.
-    registerProducts(desc.productRegistry, moduleDescription_);
+    registerProducts(desc.productRegistry, moduleDescription());
   }
 
   void
@@ -243,7 +242,7 @@ namespace art {
   }
 
   std::unique_ptr<SubRunPrincipal>
-  DecrepitRelicInputSourceImplementation::readSubRun(cet::exempt_ptr<RunPrincipal> rp)
+  DecrepitRelicInputSourceImplementation::readSubRun(cet::exempt_ptr<RunPrincipal const> rp)
   {
     // Note: For the moment, we do not support saving and restoring the state of the
     // random number generator if random numbers are generated during processing of subRuns
@@ -260,20 +259,17 @@ namespace art {
   }
 
   std::unique_ptr<EventPrincipal>
-  DecrepitRelicInputSourceImplementation::readEvent(cet::exempt_ptr<SubRunPrincipal> srp) {
+  DecrepitRelicInputSourceImplementation::readEvent(cet::exempt_ptr<SubRunPrincipal const> srp) {
     assert(doneReadAhead_);
     assert(state_ == input::IsEvent);
     assert(!eventLimitReached());
     doneReadAhead_ = false;
 
-    preRead();
     eventPrincipal_ = readEvent_();
     assert(srp->run() == eventPrincipal_->run());
     assert(srp->subRun() == eventPrincipal_->subRun());
     eventPrincipal_->setSubRunPrincipal(srp);
-    if (eventPrincipal_.get() != 0) {
-      Event event(*eventPrincipal_, moduleDescription());
-      postRead(event);
+    if (eventPrincipal_.get() != nullptr) {
       if (remainingEvents_ > 0) --remainingEvents_;
       ++readCount_;
       setTimestamp(eventPrincipal_->time());
@@ -328,30 +324,10 @@ namespace art {
   }
 
   void
-  DecrepitRelicInputSourceImplementation::preRead() {  // roughly corresponds to "end of the prev event"
-  }
-
-  void
-  DecrepitRelicInputSourceImplementation::postRead(Event&) {
-  }
-
-  void
   DecrepitRelicInputSourceImplementation::beginJob() { }
 
   void
   DecrepitRelicInputSourceImplementation::endJob() { }
-
-  RunID
-  DecrepitRelicInputSourceImplementation::run() const {
-    assert(runPrincipal_);
-    return runPrincipal_->id();
-  }
-
-  SubRunID
-  DecrepitRelicInputSourceImplementation::subRun() const {
-    assert(subRunPrincipal_);
-    return subRunPrincipal_->id();
-  }
 
 }  // art
 

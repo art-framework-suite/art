@@ -1,0 +1,10 @@
+simple_plugin(DummyProducer "module" NO_INSTALL)
+simple_plugin(DummyFilter "module" NO_INSTALL)
+simple_plugin(DummyAnalyzer "module" NO_INSTALL)
+simple_plugin(DummyResultsProducer "plugin" NO_INSTALL art_Framework_Core)
+simple_plugin(DummyService "service" NO_INSTALL)
+simple_plugin(DummySource "source" NO_INSTALL)
+simple_plugin(DummyClassTool "tool" NO_INSTALL)
+simple_plugin(DummyFunctionTool "tool" NO_INSTALL)
+
+add_subdirectory(Colliding)

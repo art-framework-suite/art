@@ -42,4 +42,4 @@ namespace art {
 // Local variables:
 // mode: c++
 // End:
-#endif
+#endif /* art_Utilities_ConfigurationTable_h */

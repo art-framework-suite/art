@@ -119,7 +119,7 @@ private:
   void readResults(ResultsPrincipal const& resp) override;
   void respondToCloseInputFile(FileBlock const&) override;
   void incrementInputFileNumber() override;
-  Boundary fileSwitchBoundary() const override;
+  Granularity fileGranularity() const override;
   void write(EventPrincipal&) override;
   void writeSubRun(SubRunPrincipal&) override;
   void writeRun(RunPrincipal&) override;
@@ -445,10 +445,11 @@ art::RootOutput::writeProductDependencies()
 void
 art::RootOutput::finishEndFile()
 {
-  rootOutputFile_->finishEndFile();
-  fstats_.recordFileClose();
-  lastClosedFileName_ = PostCloseFileRenamer{fstats_}.maybeRenameFile(rootOutputFile_->currentFileName(), filePattern_);
+  std::string const currentFileName {rootOutputFile_->currentFileName()};
+  rootOutputFile_->writeTTrees();
   rootOutputFile_.reset();
+  fstats_.recordFileClose();
+  lastClosedFileName_ = PostCloseFileRenamer{fstats_}.maybeRenameFile(currentFileName, filePattern_);
   detail::logFileAction("Closed output file ", lastClosedFileName_);
   rpm_.invoke(&ResultsProducer::doClear);
 }
@@ -462,9 +463,10 @@ doRegisterProducts(MasterProductRegistry& mpr,
   rpm_.for_each_RPWorker([&mpr, &md](RPWorker& w) {
       auto const& params = w.params();
       w.setModuleDescription(ModuleDescription{params.rpPSetID,
-                                               params.rpPluginType,
-                                               md.moduleLabel() + '#' + params.rpLabel,
-                                               md.processConfiguration()});
+            params.rpPluginType,
+            md.moduleLabel() + '#' + params.rpLabel,
+            md.processConfiguration(),
+            ModuleDescription::invalidID()});
       w.rp().registerProducts(mpr, w.moduleDescription());
     });
 }
@@ -497,9 +499,9 @@ requestsToCloseFile() const
   return isFileOpen() ? rootOutputFile_->requestsToCloseFile() : false;
 }
 
-art::Boundary
+art::Granularity
 art::RootOutput::
-fileSwitchBoundary() const
+fileGranularity() const
 {
   return fileProperties_.granularity();
 }

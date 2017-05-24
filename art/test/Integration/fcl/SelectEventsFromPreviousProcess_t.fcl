@@ -1,0 +1,7 @@
+process_name: PROD2
+physics.e1: [o1]
+outputs.o1: {
+  module_type: RootOutput
+  SelectEvents: ["PROD1:p1"]
+  fileName: "out.root"
+}

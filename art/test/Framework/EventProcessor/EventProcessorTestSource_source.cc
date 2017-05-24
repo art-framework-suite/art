@@ -84,7 +84,8 @@ namespace arttest {
 
     EventProcessorTestSource(fhicl::ParameterSet const& ps,
                              art::InputSourceDescription& isd)
-      : isd_{isd}
+      : InputSource{isd.moduleDescription}
+      , isd_{isd}
       , fileNames_{ps.get<std::vector<std::string>>("fileNames")}
     {}
 
@@ -137,16 +138,13 @@ namespace arttest {
       return rc;
     }
 
-    art::RunID run() const override { return run_; }
-    art::SubRunID subRun() const override { return subRun_; }
-
     std::unique_ptr<art::RunPrincipal> readRun() override
     {
       art::RunAuxiliary const aux {run_, nullTimestamp(), nullTimestamp()};
       return std::make_unique<art::RunPrincipal>(aux, isd_.moduleDescription.processConfiguration());
     }
 
-    std::unique_ptr<art::SubRunPrincipal> readSubRun(cet::exempt_ptr<art::RunPrincipal> rp) override
+    std::unique_ptr<art::SubRunPrincipal> readSubRun(cet::exempt_ptr<art::RunPrincipal const> rp) override
     {
       art::SubRunAuxiliary const aux {subRun_, nullTimestamp(), nullTimestamp()};
       auto srp = std::make_unique<art::SubRunPrincipal>(aux, isd_.moduleDescription.processConfiguration());
@@ -155,7 +153,7 @@ namespace arttest {
     }
 
     using art::InputSource::readEvent;
-    std::unique_ptr<art::EventPrincipal> readEvent(cet::exempt_ptr<art::SubRunPrincipal> srp) override
+    std::unique_ptr<art::EventPrincipal> readEvent(cet::exempt_ptr<art::SubRunPrincipal const> srp) override
     {
       art::EventAuxiliary const aux {event_, nullTimestamp(), true};
       auto ep = std::make_unique<art::EventPrincipal>(aux, isd_.moduleDescription.processConfiguration());

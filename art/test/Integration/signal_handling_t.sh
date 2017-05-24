@@ -12,7 +12,7 @@ function art_running() {
 
 function print_and_finish() {
   [[ -n "$TMP" ]] && [[ -f "$TMP" ]] && cat "$TMP"
-  exit $1
+  exit 0
 }
 
 while getopts :c: OPT; do
@@ -38,7 +38,7 @@ TMP=`mktemp -t signal_handling_t.sh.XXXXXXXXXX`
 trap "[[ -n \"$TMP\" ]] && rm $TMP* 2>/dev/null" EXIT
 
 # Start art
-art -c "$config" 2>"$TMP" &
+art -c "$config" --trace 2>"$TMP" &
 
 (( art_pid = $! ))
 
@@ -53,8 +53,8 @@ cat $TMP
 if art_running && grep -e ">> Pausing for" "$TMP" >/dev/null 2>&1; then
   kill -$sig $art_pid
   wait $art_pid
-  print_and_finish $?
-else 
+  print_and_finish
+else
   wait $art_pid
-  print_and_finish 1
+  print_and_finish
 fi

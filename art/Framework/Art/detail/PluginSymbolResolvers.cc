@@ -44,7 +44,7 @@ namespace art {
     {
       using ToolTypeFunc_t = std::string();
 
-      auto type = [&lm,&fullSpec](){
+      auto type = [&lm,&fullSpec]{
         ToolTypeFunc_t* symbolType {nullptr};
         lm.getSymbolByLibspec(fullSpec, "toolType", symbolType);
         return symbolType();

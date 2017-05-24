@@ -1,6 +1,5 @@
 #include "art/Framework/Art/BasicOutputOptionsHandler.h"
 
-#include "art/Utilities/bold_fontify.h"
 #include "art/Framework/Art/detail/AllowedConfiguration.h"
 #include "art/Framework/Art/detail/exists_outside_prolog.h"
 #include "art/Framework/Art/detail/fhicl_key.h"
@@ -28,9 +27,8 @@ using stringvec = std::vector<std::string>;
 
 art::BasicOutputOptionsHandler::
 BasicOutputOptionsHandler(bpo::options_description& desc)
-  : tmpDir_{}
 {
-  bpo::options_description output_options {detail::bold_fontify("Output options")};
+  bpo::options_description output_options{"Output options"};
   output_options.add_options()
     ("TFileName,T", bpo::value<std::string>(),
      "File name for TFileService.")

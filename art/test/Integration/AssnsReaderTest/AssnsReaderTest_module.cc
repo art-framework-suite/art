@@ -200,7 +200,7 @@ arttest::AssnsReaderTest::analyze(art::Event const & e)
       }
     }
   }
-  
+
   // Check all <A, B, V> and <B, A, V>.
   BOOST_CHECK_EQUAL(e.getValidHandle<AssnsABX_t>(inputLabel_)->size(), 3ull);
   BOOST_CHECK_EQUAL(e.getValidHandle<AssnsBAX_t>(inputLabel_)->size(), 3ull);

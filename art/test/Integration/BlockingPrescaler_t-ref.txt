@@ -48,38 +48,7 @@ TrigReport         25         25         10         15          0 prescale
 TimeReport ---------- Time  Summary ---[sec]----
 TimeReport CPU = <duration> Real = <duration>
 
-TimeReport ---------- Event  Summary ---[sec]----
-TimeReport CPU/event = <duration> Real/event = <duration>
-
-TimeReport ---------- Path   Summary ---[sec]----
-TimeReport             per event          per path-run 
-TimeReport        CPU       Real        CPU       Real Name
-TimeReport   <duration>   <duration>   <duration>   <duration> p<duration>
-TimeReport        CPU       Real        CPU       Real Name
-TimeReport             per event          per path-run 
-
-TimeReport -------End-Path   Summary ---[sec]----
-TimeReport             per event       per endpath-run 
-TimeReport        CPU       Real        CPU       Real Name
-TimeReport        CPU       Real        CPU       Real Name
-TimeReport             per event       per endpath-run 
-
-TimeReport ---------- Modules in Path: p<duration> ---[sec]----
-TimeReport             per event      per module-visit 
-TimeReport        CPU       Real        CPU       Real Name
-TimeReport   <duration>   <duration>   <duration>   <duration> prescale
-TimeReport        CPU       Real        CPU       Real Name
-TimeReport             per event      per module-visit 
-TimeReport        CPU       Real        CPU       Real Name
-TimeReport             per event      per module-visit 
-
-TimeReport ---------- Module Summary ---[sec]----
-TimeReport             per event        per module-run      per module-visit 
-TimeReport        CPU       Real        CPU       Real        CPU       Real Name
-TimeReport   <duration>   <duration>   <duration>   <duration>   <duration>   <duration> prescale
-TimeReport        CPU       Real        CPU       Real        CPU       Real Name
-TimeReport             per event        per module-run      per module-visit 
-
-T---Report end!
+MemReport  ---------- Memory  Summary ---[base-10 MB]----
+MemReport  VmPeak = <mem-size> VmHWM = <mem-size>
 
 Art has completed and will exit with status 0.

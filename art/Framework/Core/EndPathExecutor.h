@@ -16,7 +16,7 @@
 // input.
 // ======================================================================
 #include "art/Framework/Core/OutputFileStatus.h"
-#include "art/Framework/Core/OutputFileSwitchBoundary.h"
+#include "art/Framework/Core/OutputFileGranularity.h"
 #include "art/Framework/Core/OutputWorker.h"
 #include "art/Framework/Core/PathManager.h"
 #include "art/Framework/Core/PathsInfo.h"
@@ -24,7 +24,6 @@
 #include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Principal/PrincipalPackages.h"
 #include "art/Framework/Principal/RangeSetHandler.h"
-#include "art/Framework/Principal/MaybeRunStopwatch.h"
 #include "art/Framework/Principal/Worker.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
 #include "cetlib/trim.h"
@@ -74,7 +73,7 @@ public:
   void respondToCloseOutputFiles(FileBlock const& fb);
 
   // Allow output files to close that need to
-  void recordOutputClosureRequests(Boundary);
+  void recordOutputClosureRequests(Granularity);
   bool outputsToOpen() const;
   bool outputsToClose() const;
   bool someOutputsOpen() const;
@@ -82,9 +81,6 @@ public:
 
   // Return whether a module has reached its maximum count.
   bool terminate() const;
-
-  // Temporarily enable or disable a configured end path module.
-  bool setEndPathModuleEnabled(std::string const & label, bool enable);
 
   // Call selectProducts() on all OutputModules.
   void selectProducts(FileBlock const&);
@@ -120,7 +116,7 @@ art::EndPathExecutor::
 process(typename T::MyPrincipal & ep)
 {
   this->resetAll();
-  auto sentry (endPathInfo_.maybeRunStopwatch<T::level>());
+
   if (T::level == Level::Event) {
     endPathInfo_.addEvent();
   }
@@ -139,8 +135,8 @@ process(typename T::MyPrincipal & ep)
       break;
     }
     default: {
-      throw art::Exception(errors::EventProcessorFailure)
-        << "An exception occurred during current event processing\n"
+      throw art::Exception(errors::EventProcessorFailure, "EndPathExecutor:")
+        << "an exception occurred during current event processing\n"
         << ex;
     }
     }

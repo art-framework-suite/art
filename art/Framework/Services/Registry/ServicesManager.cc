@@ -15,15 +15,10 @@
 #include <utility>
 
 art::ServicesManager::
-ServicesManager(ParameterSets const & psets,
-                cet::LibraryManager const & lm,
-                ActivityRegistry & reg):
-  registry_(reg),
-  factory_(),
-  index_(),
-  requestedCreationOrder_(),
-  actualCreationOrder_(),
-  configErrMsgs_()
+ServicesManager(ParameterSets const& psets,
+                cet::LibraryManager const& lm,
+                ActivityRegistry& reg):
+  registry_{reg}
 {
   fillCache_(psets, lm);
 }
@@ -56,8 +51,7 @@ art::ServicesManager::forceCreation()
 }
 
 void
-art::ServicesManager::
-getParameterSets(ParameterSets & out) const
+art::ServicesManager::getParameterSets(ParameterSets& out) const
 {
   ParameterSets tmp;
   for (auto const& cur : factory_) {
@@ -67,29 +61,14 @@ getParameterSets(ParameterSets & out) const
 }
 
 void
-art::ServicesManager::
-putParameterSets(ParameterSets const & n)
-{
-  for (auto const& cur : n) {
-    std::string service_name = cur.get<std::string>("service_type", "junk");
-    NameIndex::iterator ii = index_.find(service_name);
-    if (ii != index_.end()) {
-      (ii->second)->second.putParameterSet(cur);
-      registry_.sPostServiceReconfigure.invoke(service_name);
-    }
-  }
-}
-
-void
-art::ServicesManager::
-fillCache_(ParameterSets  const & psets, cet::LibraryManager const & lm)
+art::ServicesManager::fillCache_(ParameterSets const& psets, cet::LibraryManager const& lm)
 {
   // Receive from EventProcessor when we go multi-schedule.
   detail::ServiceCacheEntry::setNSchedules(1);
   // Loop over each configured service parameter set.
-  for (auto const & ps : psets) {
-    std::string service_name(ps.get<std::string>("service_type"));
-    std::string service_provider(ps.get<std::string>("service_provider", service_name));
+  for (auto const& ps : psets) {
+    std::string const service_name {ps.get<std::string>("service_type")};
+    std::string const service_provider {ps.get<std::string>("service_provider", service_name)};
     // Get the helper from the library.
     std::unique_ptr<detail::ServiceHelperBase> service_helper {
       lm.getSymbolByLibspec<SHBCREATOR_t>(service_provider,"create_service_helper")()
@@ -108,11 +87,11 @@ fillCache_(ParameterSets  const & psets, cet::LibraryManager const & lm)
     }
     std::unique_ptr<detail::ServiceInterfaceHelper> iface_helper;
     if (service_helper->is_interface_impl()) { // Expect an interface helper
-      iface_helper.reset(dynamic_cast<detail::ServiceInterfaceHelper *>
+      iface_helper.reset(dynamic_cast<detail::ServiceInterfaceHelper*>
                          (lm.getSymbolByLibspec<SHBCREATOR_t>
                           (service_provider,
                            "create_iface_helper")().release()));
-      if (dynamic_cast<detail::ServiceInterfaceImplHelper *>(service_helper.get())->get_interface_typeid() !=
+      if (dynamic_cast<detail::ServiceInterfaceImplHelper*>(service_helper.get())->get_interface_typeid() !=
           iface_helper->get_typeid()) {
         throw Exception(errors::LogicError)
           << "Service registration for "
@@ -122,14 +101,14 @@ fillCache_(ParameterSets  const & psets, cet::LibraryManager const & lm)
           << " ("
           << iface_helper->get_typeid().className()
           << ") != "
-          << dynamic_cast<detail::ServiceInterfaceImplHelper *>(service_helper.get())->get_interface_typeid()
+          << dynamic_cast<detail::ServiceInterfaceImplHelper*>(service_helper.get())->get_interface_typeid()
           << " ("
-          << dynamic_cast<detail::ServiceInterfaceImplHelper *>(service_helper.get())->get_interface_typeid().className()
+          << dynamic_cast<detail::ServiceInterfaceImplHelper*>(service_helper.get())->get_interface_typeid().className()
           << ").\n"
           << "Contact the art developers <artists@fnal.gov>.\n";
       }
       if (service_provider == service_name) {
-        std::string iface_name(cet::demangle_symbol(iface_helper->get_typeid().name()));
+        std::string const iface_name {cet::demangle_symbol(iface_helper->get_typeid().name())};
         throw Exception(errors::Configuration)
             << "Illegal use of service interface implementation as service name in configuration.\n"
             << "Correct use: services."
@@ -142,7 +121,7 @@ fillCache_(ParameterSets  const & psets, cet::LibraryManager const & lm)
     // Insert the cache entry for the main service implementation. Note
     // we save the typeid of the implementation because we're about to
     // give away the helper.
-    TypeID service_typeid(service_helper->get_typeid());
+    TypeID service_typeid {service_helper->get_typeid()};
     auto svc = insertImpl_(ps, std::move(service_helper));
     if (iface_helper) {
       insertInterface_(ps, std::move(iface_helper), svc.first);
@@ -153,27 +132,25 @@ fillCache_(ParameterSets  const & psets, cet::LibraryManager const & lm)
 }  // fillCache()
 
 std::pair<art::detail::ServiceCache::iterator, bool>
-art::ServicesManager::
-insertImpl_(fhicl::ParameterSet const & pset,
-            std::unique_ptr<detail::ServiceHelperBase> && helper)
+art::ServicesManager::insertImpl_(fhicl::ParameterSet const& pset,
+                                  std::unique_ptr<detail::ServiceHelperBase>&& helper)
 {
   // Need temporary because we can't guarantee the order of evaluation
   // of the arguments to std::make_pair() below.
-  TypeID sType(helper->get_typeid());
+  TypeID const sType {helper->get_typeid()};
   return factory_.emplace(sType,
                           detail::ServiceCacheEntry(pset,
                                                     std::move(helper)));
 }
 
 void
-art::ServicesManager::
-insertInterface_(fhicl::ParameterSet const & pset,
-                 std::unique_ptr<detail::ServiceHelperBase> && helper,
-                 detail::ServiceCache::iterator implEntry)
+art::ServicesManager::insertInterface_(fhicl::ParameterSet const& pset,
+                                       std::unique_ptr<detail::ServiceHelperBase>&& helper,
+                                       detail::ServiceCache::iterator const implEntry)
 {
   // Need temporary because we can't guarantee the order of evaluation
   // of the arguments to std::make_pair() below.
-  TypeID iType(helper->get_typeid());
+  TypeID const iType {helper->get_typeid()};
   factory_.emplace(iType,
                    detail::ServiceCacheEntry(pset,
                                              std::move(helper),

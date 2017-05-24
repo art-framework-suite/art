@@ -57,7 +57,6 @@
 #include "canvas/Persistency/Provenance/BranchDescription.h"
 #include "canvas/Persistency/Provenance/BranchID.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
-#include "canvas/Persistency/Provenance/ProductProvenance.h"
 #include "canvas/Persistency/Provenance/ProvenanceFwd.h"
 #include "canvas/Utilities/InputTag.h"
 #include "canvas/Utilities/TypeID.h"
@@ -96,6 +95,13 @@ public:
              std::string const& productInstanceName,
              Handle<PROD>& result) const;
 
+  template <typename PROD>
+  bool
+  getByLabel(std::string const& label,
+             std::string const& productInstanceName,
+             std::string const& processName,
+             Handle<PROD>& result) const;
+
   /// same as above, but using the InputTag class
   template <typename PROD>
   bool
@@ -103,14 +109,14 @@ public:
 
   template <typename PROD>
   void
-  getMany(SelectorBase const&, std::vector<Handle<PROD> >& results) const;
+  getMany(SelectorBase const&, std::vector<Handle<PROD>>& results) const;
 
   template <typename PROD>
   void
-  getManyByType(std::vector<Handle<PROD> >& results) const;
+  getManyByType(std::vector<Handle<PROD>>& results) const;
 
   template <typename PROD>
-  bool removeCachedProduct(Handle<PROD> & h) const;
+  bool removeCachedProduct(Handle<PROD>& h) const;
 
   ProcessHistory const&
   processHistory() const;
@@ -128,32 +134,44 @@ public:
     RangeSet rs;
   };
 
-  using BranchIDsMap = std::unordered_map<BranchID, PMValue, BranchID::Hash>;
+  using TypeLabelMap = std::map<TypeLabel, PMValue>;
 
 protected:
 
-  BranchIDsMap      & putProducts()       {return putProducts_;}
-  BranchIDsMap const& putProducts() const {return putProducts_;}
+  TypeLabelMap      & putProducts()       {return putProducts_;}
+  TypeLabelMap const& putProducts() const {return putProducts_;}
 
-  BranchIDsMap      & putProductsWithoutParents()       {return putProductsWithoutParents_;}
-  BranchIDsMap const& putProductsWithoutParents() const {return putProductsWithoutParents_;}
+  TypeLabelMap      & putProductsWithoutParents()       {return putProductsWithoutParents_;}
+  TypeLabelMap const& putProductsWithoutParents() const {return putProductsWithoutParents_;}
 
   void
   checkPutProducts(bool checkProducts,
-                   ProducedMap const& expectedBids,
-                   BranchIDsMap const& products);
+                   std::set<TypeLabel> const& expectedProducts,
+                   TypeLabelMap const& putProducts);
 
   BranchDescription const&
   getBranchDescription(TypeID const& type, std::string const& productInstanceName) const;
 
-  typedef std::vector<GroupQueryResult>  GroupQueryResultVec;
-
-  //------------------------------------------------------------
-  // Protected functions.
-  //
+  using GroupQueryResultVec = std::vector<GroupQueryResult>;
 
   // The following 'get' functions serve to isolate the DataViewImpl class
   // from the Principal class.
+  int
+  getMatchingSequenceByLabel_(TypeID const& elementType,
+                              std::string const& label,
+                              std::string const& productInstanceName,
+                              GroupQueryResultVec& results,
+                              bool stopIfProcessHasMatch) const;
+
+  int
+  getMatchingSequenceByLabel_(TypeID const& elementType,
+                              std::string const& label,
+                              std::string const& productInstanceName,
+                              std::string const& processName,
+                              GroupQueryResultVec& results,
+                              bool stopIfProcessHasMatch) const;
+
+private:
 
   GroupQueryResult
   get_(TypeID const& tid, SelectorBase const&) const;
@@ -179,27 +197,8 @@ protected:
                        GroupQueryResultVec& results,
                        bool stopIfProcessHasMatch) const;
 
-  int
-  getMatchingSequenceByLabel_(TypeID const& elementType,
-                              std::string const& label,
-                              std::string const& productInstanceName,
-                              GroupQueryResultVec& results,
-                              bool stopIfProcessHasMatch) const;
-
-  int
-  getMatchingSequenceByLabel_(TypeID const& elementType,
-                              std::string const& label,
-                              std::string const& productInstanceName,
-                              std::string const& processName,
-                              GroupQueryResultVec& results,
-                              bool stopIfProcessHasMatch) const;
-
-protected:
-  // Also isolates the DataViewImpl class
-  // from the Principal class.
   EDProductGetter const* prodGetter() const;
 
-private:
   void removeCachedProduct_(BranchID const bid) const;
 
   //------------------------------------------------------------
@@ -210,8 +209,8 @@ private:
   // pens for EDProducts inserted into this DataViewImpl. Pointers
   // in these collections own the products to which they point.
   //
-  BranchIDsMap putProducts_ {};               // keep parentage info for these
-  BranchIDsMap putProductsWithoutParents_ {}; // ... but not for these
+  TypeLabelMap putProducts_ {};               // keep parentage info for these
+  TypeLabelMap putProductsWithoutParents_ {}; // ... but not for these
 
   // Each DataViewImpl must have an associated Principal, used as the
   // source of all 'gets' and the target of 'puts'.
@@ -246,7 +245,7 @@ art::DataViewImpl::get(SelectorBase const& sel,
   result.clear();
   GroupQueryResult bh = get_(TypeID{typeid(PROD)},sel);
   convert_handle(bh, result);
-  return bh.succeeded();
+  return bh.succeeded() && !result.failedToGet();
 }
 
 template <typename PROD>
@@ -254,10 +253,7 @@ inline
 bool
 art::DataViewImpl::getByLabel(InputTag const& tag, Handle<PROD>& result) const
 {
-  result.clear();
-  GroupQueryResult bh = getByLabel_(TypeID(typeid(PROD)), tag.label(), tag.instance(), tag.process());
-  convert_handle(bh, result);
-  return bh.succeeded();
+  return getByLabel<PROD>(tag.label(), tag.instance(), tag.process(), result);
 }
 
 template <typename PROD>
@@ -267,10 +263,21 @@ art::DataViewImpl::getByLabel(std::string const& label,
                               std::string const& productInstanceName,
                               Handle<PROD>& result) const
 {
+  return getByLabel<PROD>(label, productInstanceName, {}, result);
+}
+
+template <typename PROD>
+inline
+bool
+art::DataViewImpl::getByLabel(std::string const& label,
+                              std::string const& productInstanceName,
+                              std::string const& processName,
+                              Handle<PROD>& result) const
+{
   result.clear();
-  GroupQueryResult bh = getByLabel_(TypeID(typeid(PROD)), label, productInstanceName, std::string());
+  GroupQueryResult bh = getByLabel_(TypeID{typeid(PROD)}, label, productInstanceName, processName);
   convert_handle(bh, result);
-  return bh.succeeded();
+  return bh.succeeded() && !result.failedToGet();
 }
 
 template <typename PROD>
@@ -280,7 +287,7 @@ art::DataViewImpl::getMany(SelectorBase const& sel,
                            std::vector<Handle<PROD>>& results) const
 {
   GroupQueryResultVec bhv;
-  getMany_(TypeID(typeid(PROD)), sel, bhv);
+  getMany_(TypeID{typeid(PROD)}, sel, bhv);
 
   // Go through the returned handles; for each element,
   //   1. create a Handle<PROD> and
@@ -294,11 +301,11 @@ art::DataViewImpl::getMany(SelectorBase const& sel,
   //
   // Question: do we even need to keep track of the "got products"
   // for this function, since it is *not* to be used by EDProducers?
-  std::vector<Handle<PROD> > products;
+  std::vector<Handle<PROD>> products;
 
   for (auto const& qr : bhv) {
     Handle<PROD> result;
-    convert_handle(qr, result);  // throws on conversion error
+    convert_handle(qr, result);
     products.push_back(result);
   }
   results.swap(products);
@@ -310,7 +317,7 @@ void
 art::DataViewImpl::getManyByType(std::vector<Handle<PROD>>& results) const
 {
   GroupQueryResultVec bhv;
-  getManyByType_(TypeID(typeid(PROD)), bhv);
+  getManyByType_(TypeID{typeid(PROD)}, bhv);
 
   // Go through the returned handles; for each element,
   //   1. create a Handle<PROD> and
@@ -324,11 +331,11 @@ art::DataViewImpl::getManyByType(std::vector<Handle<PROD>>& results) const
   //
   // Question: do we even need to keep track of the "got products"
   // for this function, since it is *not* to be used by EDProducers?
-  std::vector<Handle<PROD> > products;
+  std::vector<Handle<PROD>> products;
 
   for (auto const& qr : bhv) {
     Handle<PROD> result;
-    convert_handle(qr, result);  // throws on conversion error
+    convert_handle(qr, result);
     products.push_back(result);
   }
   results.swap(products);
@@ -337,8 +344,9 @@ art::DataViewImpl::getManyByType(std::vector<Handle<PROD>>& results) const
 template <typename PROD>
 bool
 art::DataViewImpl::
-removeCachedProduct(Handle<PROD> & h) const {
-  bool result { false };
+removeCachedProduct(Handle<PROD>& h) const
+{
+  bool result {false};
   if (h.isValid() && !h.provenance()->produced()) {
     removeCachedProduct_(h.provenance()->branchID());
     h.clear();

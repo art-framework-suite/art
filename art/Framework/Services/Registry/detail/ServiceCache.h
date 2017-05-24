@@ -8,11 +8,8 @@
 
 namespace art {
   namespace detail {
-
-    typedef  std::map< TypeID, detail::ServiceCacheEntry >  ServiceCache;
-
+    using ServiceCache = std::map<TypeID, detail::ServiceCacheEntry>;
   }
-
 }
 #endif /* art_Framework_Services_Registry_detail_ServiceCache_h */
 

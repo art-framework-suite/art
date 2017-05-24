@@ -15,8 +15,8 @@ namespace art {
                   ProcessConfiguration const& pc,
                   std::unique_ptr<BranchMapper>&& mapper,
                   std::unique_ptr<DelayedReader>&& rtrv,
-                  int idx,
-                  SubRunPrincipal* primaryPrincipal)
+                  int const idx,
+                  cet::exempt_ptr<SubRunPrincipal const> primaryPrincipal)
     : Principal{pc, aux.processHistoryID_, std::move(mapper), std::move(rtrv), idx, primaryPrincipal}
     , aux_{aux}
   {
@@ -41,36 +41,11 @@ namespace art {
 
   void
   SubRunPrincipal::
-  addOrReplaceGroup(std::unique_ptr<Group>&& g)
+  fillGroup(BranchDescription const& bd)
   {
-    cet::exempt_ptr<Group const> group = getExistingGroup(g->productDescription().branchID());
-    if (!group) {
-      addGroup_(std::move(g));
-    }
-    else {
-      replaceGroup(std::move(g));
-    }
-  }
-
-  void
-  SubRunPrincipal::
-  addGroup(BranchDescription const& bd)
-  {
-    addOrReplaceGroup(gfactory::make_group(bd,
-                                           ProductID{},
-                                           RangeSet::invalid()));
-  }
-
-  void
-  SubRunPrincipal::
-  addGroup(std::unique_ptr<EDProduct>&& prod,
-           BranchDescription const& bd,
-           RangeSet&& rs)
-  {
-    addOrReplaceGroup(gfactory::make_group(bd,
-                                           ProductID{},
-                                           std::move(rs),
-                                           std::move(prod)));
+    Principal::fillGroup(gfactory::make_group(bd,
+                                              ProductID{},
+                                              RangeSet::invalid()));
   }
 
   void
@@ -80,13 +55,12 @@ namespace art {
       std::unique_ptr<ProductProvenance const>&& productProvenance,
       RangeSet&& rs)
   {
-    if (!edp) {
-      throw art::Exception(art::errors::ProductPutFailure, "Null Pointer")
-        << "put: Cannot put because unique_ptr to product is null."
-        << "\n";
-    }
+    assert(edp);
     branchMapper().insert(std::move(productProvenance));
-    addGroup(std::move(edp), bd, std::move(rs));
+    Principal::fillGroup(gfactory::make_group(bd,
+                                              ProductID{},
+                                              std::move(rs),
+                                              std::move(edp)));
   }
 
   RunPrincipal const&

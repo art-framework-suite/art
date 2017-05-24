@@ -1,9 +1,6 @@
 process_name: RNTESw
 
-services:
-{
-  RandomNumberGenerator: { saveTo: "state.txt"}
-}
+services.RandomNumberGenerator: { saveTo: "state.txt"}
 
 physics:
 {
@@ -14,19 +11,15 @@ physics:
       module_type: RandomNumberSaver
       debug: true
     }
-  }
-  filters:
-  {
+
     randomTester:
     {
       module_type: RandomNumberSaveTest
     }
   }
 
-  p1: [ randomSaver, randomTester ]
-  o1: [ output ]
-  trigger_paths: [ p1 ]
-  end_paths: [ o1 ]
+  p1: [randomSaver, randomTester]
+  o1: [output]
 }
 
 source:
@@ -35,11 +28,8 @@ source:
   maxEvents: 10
 }
 
-outputs:
+outputs.output:
 {
-  output:
-  {
-    module_type: RootOutput
-    fileName: "out.root"
-  }
+  module_type: RootOutput
+  fileName: "out.root"
 }

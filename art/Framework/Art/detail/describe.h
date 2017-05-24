@@ -14,4 +14,4 @@ namespace art {
 // Local variables:
 // mode: c++
 // End:
-#endif
+#endif /* art_Framework_Art_detail_describe_h */

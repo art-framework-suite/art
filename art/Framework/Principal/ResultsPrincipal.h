@@ -30,12 +30,12 @@ public:
   using Auxiliary = ResultsAuxiliary;
   static constexpr BranchType branch_type = ResultsAuxiliary::branch_type;
 
-  ResultsPrincipal(ResultsAuxiliary const &,
-                   ProcessConfiguration const &,
-                   std::unique_ptr<BranchMapper> && mapper = std::make_unique<BranchMapper>(),
-                   std::unique_ptr<DelayedReader> && rtrv = std::make_unique<NoDelayedReader>(),
-                   int idx = 0,
-                   ResultsPrincipal* = nullptr);
+  ResultsPrincipal(ResultsAuxiliary const&,
+                   ProcessConfiguration const&,
+                   std::unique_ptr<BranchMapper>&& mapper = std::make_unique<BranchMapper>(),
+                   std::unique_ptr<DelayedReader>&& rtrv = std::make_unique<NoDelayedReader>(),
+                   int const idx = 0,
+                   cet::exempt_ptr<ResultsPrincipal const> = nullptr);
 
   ResultsAuxiliary const & aux() const { return aux_; }
 
@@ -43,15 +43,12 @@ public:
            BranchDescription const&,
            std::unique_ptr<ProductProvenance const>&&);
 
-  void addGroup(BranchDescription const&) override;
+  void fillGroup(BranchDescription const&) override;
 
   BranchType branchType() const override;
   RangeSet seenRanges() const override { return RangeSet::invalid(); }
 
 private:
-
-  void addGroup(std::unique_ptr<EDProduct>&&, BranchDescription const&);
-  void addOrReplaceGroup(std::unique_ptr<Group>&& g) override;
 
   ProcessHistoryID const& processHistoryID() const override;
 

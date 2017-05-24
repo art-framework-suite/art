@@ -31,20 +31,16 @@ namespace art {
     using Auxiliary = RunAuxiliary;
     static constexpr BranchType branch_type = RunAuxiliary::branch_type;
 
-  public:
-
     RunPrincipal(RunAuxiliary const&,
                  ProcessConfiguration const&,
                  std::unique_ptr<BranchMapper>&& = std::make_unique<BranchMapper>(),
                  std::unique_ptr<DelayedReader>&& = std::make_unique<NoDelayedReader>(),
                  int idx = 0,
-                 RunPrincipal* = nullptr);
+                 cet::exempt_ptr<RunPrincipal const> = nullptr);
 
     RunAuxiliary const& aux() const { return aux_; }
-
-    RunNumber_t run() const { return aux().run(); }
-
     RunID const& id() const { return aux().id(); }
+    RunNumber_t run() const { return aux().run(); }
 
     Timestamp const& beginTime() const { return aux().beginTime(); }
     Timestamp const& endTime() const { return aux().endTime(); }
@@ -53,7 +49,7 @@ namespace art {
 
     BranchType branchType() const override { return branch_type; }
 
-    void addGroup(BranchDescription const&);
+    void fillGroup(BranchDescription const&) override;
 
     void put(std::unique_ptr<EDProduct>&&,
              BranchDescription const&,
@@ -67,10 +63,6 @@ namespace art {
 
   private:
 
-    void addGroup(std::unique_ptr<EDProduct>&&,
-                  BranchDescription const&,
-                  RangeSet&&);
-    void addOrReplaceGroup(std::unique_ptr<Group>&&) override;
     ProcessHistoryID const& processHistoryID() const override;
     void setProcessHistoryID(ProcessHistoryID const&) override;
 

@@ -18,10 +18,17 @@
 #include "fhiclcpp/ParameterSet.h"
 
 class ValidHandleTester : public art::EDAnalyzer {
-public:
-  explicit ValidHandleTester(fhicl::ParameterSet const & p);
 
-  void analyze(art::Event const & e) override;
+  struct Config {
+    fhicl::Atom<std::string> input_label {fhicl::Name{"input_label"}};
+    fhicl::Atom<std::string> expected_value {fhicl::Name{"expected_value"}};
+  };
+
+public:
+
+  using Parameters = art::EDAnalyzer::Table<Config>;
+  explicit ValidHandleTester(Parameters const& p);
+  void analyze(art::Event const& e) override;
 
 private:
   art::InputTag input_tag_;
@@ -29,13 +36,13 @@ private:
 };
 
 
-ValidHandleTester::ValidHandleTester(fhicl::ParameterSet const & ps) :
-  art::EDAnalyzer(ps),
-  input_tag_(ps.get<std::string>("input_label")),
-  expected_value_(ps.get<std::string>("expected_value"))
+ValidHandleTester::ValidHandleTester(Parameters const& ps) :
+  art::EDAnalyzer{ps},
+  input_tag_{ps().input_label()},
+  expected_value_{ps().expected_value()}
 { }
 
-void ValidHandleTester::analyze(art::Event const & e)
+void ValidHandleTester::analyze(art::Event const& e)
 {
   // Make sure old-form access works.
   art::Handle<std::string> h;
@@ -46,7 +53,14 @@ void ValidHandleTester::analyze(art::Event const & e)
   // Make sure new-form access works.
   auto p = e.getValidHandle<std::string>(input_tag_);
   assert(*p == expected_value_);
-  assert(*p.provenance() == *h.provenance());
+  auto const& prov = *p.provenance();
+  assert(prov == *h.provenance());
+
+  // Test that Provenance::inputTag() was formed correctly
+  auto const& tag = prov.inputTag();
+  assert(tag.label() == prov.moduleLabel());
+  assert(tag.instance() == prov.productInstanceName());
+  assert(tag.process() == prov.processName());
 
   // Make sure conversion-to-pointer works.
   [&](std::string const* x){ assert(*x == expected_value_); }(p);

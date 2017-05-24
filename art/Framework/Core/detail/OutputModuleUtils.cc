@@ -6,30 +6,21 @@
 
 using namespace std;
 
-namespace art {
-namespace detail {
-
 void
-remove_whitespace(string& S)
+art::detail::remove_whitespace(string& s)
 {
-  S.erase(remove(S.begin(), S.end(), ' '), S.end());
-  S.erase(remove(S.begin(), S.end(), '\t'), S.end());
+  s.erase(remove(s.begin(), s.end(), ' '), s.end());
+  s.erase(remove(s.begin(), s.end(), '\t'), s.end());
 }
 
 void
-parse_path_spec(string const& PS, pair<string,string>& PPS)
+art::detail::parse_path_spec(string path, pair<string,string>& pname_path)
 {
-  string T(PS);
-  detail::remove_whitespace(T);
-  string::size_type C = T.find(":");
-  if (C == string::npos) {
-    PPS.first = T;
+  detail::remove_whitespace(path);
+  auto const pos = path.find(":");
+  if (pos == string::npos) {
+    pname_path = std::make_pair("", path);
     return;
   }
-  PPS.first  = T.substr(0, C);
-  PPS.second = T.substr(C + 1);
+  pname_path = make_pair(path.substr(0, pos), path.substr(pos+1));
 }
-
-} // namespace art
-} // namespace detail
-

@@ -25,11 +25,8 @@
 #include "cetlib/exempt_ptr.h"
 
 #include <algorithm>
-#include <algorithm>
 #include <cassert>
 #include <cstdlib>
-#include <iomanip>
-#include <numeric>
 
 using fhicl::ParameterSet;
 
@@ -37,13 +34,12 @@ art::Schedule::
 Schedule(ScheduleID sID, PathManager& pm, ParameterSet const& proc_pset,
          TriggerNamesService const& tns, MasterProductRegistry& mpr,
          ActionTable& actions, ActivityRegistry& areg)
-  : sID_(sID)
-  , process_pset_(proc_pset)
-  , act_table_(&actions)
-  , processName_(tns.getProcessName())
-  , triggerPathsInfo_(pm.triggerPathsInfo(sID_))
+  : sID_{sID}
+  , process_pset_{proc_pset}
+  , act_table_{&actions}
+  , processName_{tns.getProcessName()}
+  , triggerPathsInfo_{pm.triggerPathsInfo(sID_)}
   , pathsEnabled_(triggerPathsInfo_.pathPtrs().size(), true)
-  , results_inserter_()
 {
   if (!triggerPathsInfo_.pathPtrs().empty()) {
     makeTriggerResultsInserter_(tns.getTriggerPSet(), mpr, areg);
@@ -121,34 +117,6 @@ respondToCloseOutputFiles(FileBlock const& fb)
   });
 }
 
-bool
-art::Schedule::
-setTriggerPathEnabled(std::string const& name, bool enable)
-{
-  auto& pp = triggerPathsInfo_.pathPtrs();
-  PathPtrs::iterator found;
-  auto pathFinder = [&name](std::unique_ptr<Path> const & p_ptr) {
-    return p_ptr->name() == name;
-  };
-  if ((found =
-         std::find_if(pp.begin(),
-                      pp.end(),
-                      pathFinder)) != pp.end()) {
-    size_t index = std::distance(pp.begin(), found);
-    auto result = pathsEnabled_[index];
-    pathsEnabled_[index] = enable;
-    return result;
-  }
-  else {
-    throw Exception(errors::ScheduleExecutionFailure)
-        << "Attempt to "
-        << (enable ? "enable" : "disable")
-        << " unconfigured path "
-        << name
-        << ".\n";
-  }
-}
-
 void
 art::Schedule::
 beginJob()
@@ -160,12 +128,11 @@ beginJob()
 
 void
 art::Schedule::
-makeTriggerResultsInserter_(fhicl::ParameterSet const & trig_pset,
-                            MasterProductRegistry & mpr,
-                            ActivityRegistry & areg)
+makeTriggerResultsInserter_(fhicl::ParameterSet const& trig_pset,
+                            MasterProductRegistry& mpr,
+                            ActivityRegistry& areg)
 {
-  WorkerParams work_args(process_pset_, trig_pset, mpr, *act_table_,
-                         processName_);
+  WorkerParams const work_args{process_pset_, trig_pset, mpr, *act_table_, processName_};
   ModuleDescription md(trig_pset.id(),
                        "TriggerResultInserter",
                        "TriggerResults",
@@ -174,10 +141,8 @@ makeTriggerResultsInserter_(fhicl::ParameterSet const & trig_pset,
                                             getReleaseVersion(),
                                             getPassID()));
   areg.sPreModuleConstruction.invoke(md);
-  auto producer = std::make_unique<TriggerResultInserter>(trig_pset,
-                                                          triggerPathsInfo_.pathResults());
+  auto producer = std::make_unique<TriggerResultInserter>(trig_pset, triggerPathsInfo_.pathResults());
   results_inserter_ = std::make_unique<WorkerT<EDProducer>>(std::move(producer), md, work_args);
   areg.sPostModuleConstruction.invoke(md);
-  results_inserter_->setActivityRegistry(cet::exempt_ptr<ActivityRegistry>
-                                         (&areg));
+  results_inserter_->setActivityRegistry(cet::exempt_ptr<ActivityRegistry>(&areg));
 }

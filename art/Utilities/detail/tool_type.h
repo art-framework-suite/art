@@ -53,7 +53,7 @@ namespace art {
   }
 }
 
-#endif
+#endif /* art_Utilities_detail_tool_type_h */
 
 // Local variables:
 // mode: c++

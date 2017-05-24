@@ -29,10 +29,6 @@
  <class name="arttest::Sortable" ClassVersion="10">
   <version ClassVersion="10" checksum="4007300496"/>
  </class>
- <class name="arttest::Prodigal" ClassVersion="11">
-  <version ClassVersion="11" checksum="1398299384"/>
-  <version ClassVersion="10" checksum="518009779"/>
- </class>
  <class name="arttest::MockCluster" ClassVersion="10">
   <version ClassVersion="10" checksum="448456917"/>
  </class>
@@ -49,7 +45,6 @@
  <class name="art::Wrapper<arttest::Int16_tProduct>"/>
  <class name="art::Wrapper<arttest::DoubleProduct>"/>
  <class name="art::Wrapper<arttest::StringProduct>"/>
- <class name="art::Wrapper<arttest::Prodigal>"/>
  <class name="art::Wrapper<arttest::MockClusterList>"/>
 
  <class name="std::vector<arttest::SimpleDerived>"/>

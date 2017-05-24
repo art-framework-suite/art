@@ -1,6 +1,5 @@
 #include "art/Framework/Art/EventProcessingOptionsHandler.h"
 
-#include "art/Utilities/bold_fontify.h"
 #include "art/Framework/Art/detail/exists_outside_prolog.h"
 #include "art/Framework/Art/detail/fhicl_key.h"
 #include "canvas/Utilities/Exception.h"
@@ -32,10 +31,10 @@ namespace {
   // This function could be made more general, but there is currently
   // no need.
 
-  void fillTable( std::string const& bpo_key,
-                  std::string const& fhicl_key,
-                  bpo::variables_map const& vm,
-                  fhicl::intermediate_table& config )
+  void fillTable(std::string const& bpo_key,
+                 std::string const& fhicl_key,
+                 bpo::variables_map const& vm,
+                 fhicl::intermediate_table& config)
   {
     if (vm.count(bpo_key))
       config.put(fhicl_key, vm[bpo_key].as<bool>());
@@ -47,11 +46,10 @@ namespace {
 
 art::EventProcessingOptionsHandler::
 EventProcessingOptionsHandler(bpo::options_description& desc,
-                    bool const rethrowDefault)
+                              bool const rethrowDefault)
   : rethrowDefault_{rethrowDefault}
 {
-  std::string const description {detail::bold_fontify("Event-processing options")};
-  bpo::options_description processing_options {description};
+  bpo::options_description processing_options{"Event-processing options"};
   processing_options.add_options()
     ("default-exceptions", "Some exceptions may be handled differently by default (e.g. ProductNotFound).")
     ("rethrow-default", "All exceptions default to rethrow.")
@@ -69,7 +67,7 @@ EventProcessingOptionsHandler(bpo::options_description& desc,
 
 int
 art::EventProcessingOptionsHandler::
-doCheckOptions(bpo::variables_map const & vm)
+doCheckOptions(bpo::variables_map const& vm)
 {
   if ((vm.count("rethrow-all") +
        vm.count("rethrow-default") +
@@ -83,14 +81,14 @@ doCheckOptions(bpo::variables_map const & vm)
 
 int
 art::EventProcessingOptionsHandler::
-doProcessOptions(bpo::variables_map const & vm,
-                 fhicl::intermediate_table & raw_config)
+doProcessOptions(bpo::variables_map const& vm,
+                 fhicl::intermediate_table& raw_config)
 {
   std::string const scheduler_key {"services.scheduler"};
 
   if (vm.count("rethrow-all") == 1 ||
       vm.count("rethrow-default") == 1 ||
-      (rethrowDefault_ && vm.count("default-exceptions") == 0) ) {
+      (rethrowDefault_ && vm.count("default-exceptions") == 0)) {
     raw_config.put(fhicl_key(scheduler_key, "defaultExceptions"), false);
     if (vm.count("rethrow-all") == 1) {
       raw_config.putEmptySequence(fhicl_key(scheduler_key, "IgnoreCompletely"));

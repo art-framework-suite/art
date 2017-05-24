@@ -8,10 +8,12 @@
 #include <string>
 
 namespace {
-  typedef art::GlobalSignal<art::detail::SignalResponseType::FIFO, void, std::ostream &, std::string const &> TestSignal2;
-  typedef art::GlobalSignal<art::detail::SignalResponseType::LIFO, void, std::ostream &, std::string const &> TestSignal2a;
-  typedef art::GlobalSignal<art::detail::SignalResponseType::FIFO, void, std::ostream &> TestSignal1;
-  typedef art::GlobalSignal<art::detail::SignalResponseType::FIFO, void> TestSignal0;
+
+  using TestSignal0 = art::GlobalSignal<art::detail::SignalResponseType::FIFO, void()>;
+  using TestSignal1 = art::GlobalSignal<art::detail::SignalResponseType::FIFO, void(std::ostream&)>;
+  using TestSignal2 = art::GlobalSignal<art::detail::SignalResponseType::FIFO, void(std::ostream&, std::string const&)>;
+  using TestSignal2a = art::GlobalSignal<art::detail::SignalResponseType::LIFO, void(std::ostream&, std::string const&)>;
+
   template <uint16_t n>
   void
   testCallback(std::ostream & os, std::string const & text)

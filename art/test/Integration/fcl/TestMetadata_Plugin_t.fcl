@@ -4,7 +4,7 @@ source:
 {
   module_type: EmptyEvent
   maxEvents: 1
-}       
+}
 
 physics:
 {

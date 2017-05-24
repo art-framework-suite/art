@@ -3,7 +3,7 @@
 // vim: set sw=2:
 
 #include "art/Framework/Core/OutputFileStatus.h"
-#include "art/Framework/Core/OutputFileSwitchBoundary.h"
+#include "art/Framework/Core/OutputFileGranularity.h"
 #include "canvas/Persistency/Provenance/EventID.h"
 #include "canvas/Persistency/Provenance/FileIndex.h"
 #include "fhiclcpp/types/Atom.h"
@@ -15,17 +15,18 @@
 #define GRANULARITY_COMMENT                                             \
   "The 'granularity' parameter specifies the level at which\n"          \
   "an output file may be closed, and thereby the granularity\n"         \
-  "of the file.  The following values are possible:\n\n"               \
+  "of the file.  The following values are possible:\n\n"                \
   "    Value        Meaning\n"                                          \
   "   =======================================================\n"        \
   "   \"Event\"       Allow file switch at next Event\n"                \
   "   \"SubRun\"      Allow file switch at next SubRun\n"               \
   "   \"Run\"         Allow file switch at next Run\n"                  \
-  "   \"InputFile\"   Allow file switch at next InputFile\n\n"          \
+  "   \"InputFile\"   Allow file switch at next InputFile\n"            \
+  "   \"Job\"         File closes at the end of Job\n\n"                \
   "For example, if a granularity of \"SubRun\" is specified, but the\n" \
   "output-module has reached the maximum events written to disk (as\n"  \
   "specified by the 'maxEvents' parameter), the output module will NOT\n" \
-  "switch to a new file until a new SubRun has been reached (or\n" \
+  "switch to a new file until a new SubRun has been reached (or\n"      \
   "there are no more Events/SubRuns/Runs to process)."
 
 namespace art {
@@ -48,19 +49,19 @@ namespace art {
                    unsigned size,
                    std::chrono::seconds age);
 
-    auto nEvents() const { return counts_[Boundary::Event]; }
-    auto nSubRuns() const { return counts_[Boundary::SubRun]; }
-    auto nRuns() const { return counts_[Boundary::Run]; }
-    auto nInputFiles() const { return counts_[Boundary::InputFile]; }
+    auto nEvents() const { return counts_[Granularity::Event]; }
+    auto nSubRuns() const { return counts_[Granularity::SubRun]; }
+    auto nRuns() const { return counts_[Granularity::Run]; }
+    auto nInputFiles() const { return counts_[Granularity::InputFile]; }
     auto size() const { return size_; }
     auto age() const { return age_; }
 
-    auto eventEntryNumber() const { return treeEntryNumbers_[Boundary::Event]; }
-    auto subRunEntryNumber() const { return treeEntryNumbers_[Boundary::SubRun]; }
-    auto runEntryNumber() const { return treeEntryNumbers_[Boundary::Run]; }
+    auto eventEntryNumber() const { return treeEntryNumbers_[Granularity::Event]; }
+    auto subRunEntryNumber() const { return treeEntryNumbers_[Granularity::SubRun]; }
+    auto runEntryNumber() const { return treeEntryNumbers_[Granularity::Run]; }
 
-    template <Boundary::BT B>
-    std::enable_if_t<B != Boundary::InputFile>
+    template <Granularity::BT B>
+    std::enable_if_t<B != Granularity::InputFile>
     update(OutputFileStatus const status)
     {
       ++treeEntryNumbers_[B];
@@ -69,8 +70,8 @@ namespace art {
       }
     }
 
-    template <Boundary::BT B>
-    std::enable_if_t<B == Boundary::InputFile>
+    template <Granularity::BT B>
+    std::enable_if_t<B == Granularity::InputFile>
     update()
     {
       ++counts_[B];
@@ -81,8 +82,8 @@ namespace art {
 
   private:
 
-    std::array<unsigned,Boundary::NBoundaries()> counts_ {{}}; // Filled by aggregation
-    std::array<FileIndex::EntryNumber_t, Boundary::NBoundaries()-1> treeEntryNumbers_ {{}};
+    std::array<unsigned,Granularity::NBoundaries()> counts_ {{}}; // Filled by aggregation
+    std::array<FileIndex::EntryNumber_t, Granularity::NBoundaries()-1> treeEntryNumbers_ {{}};
     std::chrono::seconds age_ {std::chrono::seconds::zero()};
     unsigned size_ {};
   };
@@ -118,7 +119,7 @@ namespace art {
 
   private:
     FileProperties closingCriteria_;
-    Boundary granularity_ {Boundary::value(Defaults::granularity_default())};
+    Granularity granularity_ {Granularity::value(Defaults::granularity_default())};
   };
 
 }

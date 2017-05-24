@@ -27,21 +27,20 @@ namespace art {
   public: // STATIC MEMBER FUNCTIONS
 
     static TTree* makeTTree(TFile*, std::string const& name, int splitLevel);
-    static void writeTTree(TTree*);
+    static void writeTTree(TTree*) noexcept(false); // This routine MAY THROW if art converts a ROOT error message to an exception.
 
   public: // MEMBER FUNCTIONS
 
     // Constructor for trees with no fast cloning
-    template<typename T>
-    RootOutputTree(/*dummy*/T*,
-                   cet::exempt_ptr<TFile> filePtr,
+    template <typename Aux>
+    RootOutputTree(cet::exempt_ptr<TFile> filePtr,
                    BranchType const branchType,
-                   typename T::Auxiliary const*& pAux,
+                   Aux const*& pAux,
                    ProductProvenances*& pProductProvenanceVector,
-                   int bufSize,
-                   int splitLevel,
-                   int64_t treeMaxVirtualSize,
-                   int64_t saveMemoryObjectThreshold)
+                   int const bufSize,
+                   int const splitLevel,
+                   int64_t const treeMaxVirtualSize,
+                   int64_t const saveMemoryObjectThreshold)
       : filePtr_{filePtr}
       , tree_{makeTTree(filePtr.get(), BranchTypeToProductTreeName(branchType),
                         splitLevel)}
@@ -145,7 +144,7 @@ namespace art {
     std::set<std::string> unclonedReadBranchNames_ {};
 
     // The default for 'fastCloningEnabled_' is false so that SubRuns
-    // and Runs are not fast- cloned.  We explicitly set this variable
+    // and Runs are not fast-cloned.  We explicitly set this variable
     // to true for the event tree.
     bool fastCloningEnabled_ {false};
 

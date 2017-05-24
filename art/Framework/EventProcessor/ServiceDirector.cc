@@ -1,21 +1,16 @@
 #include "art/Framework/EventProcessor/ServiceDirector.h"
 
 #include "art/Framework/Services/Optional/RandomNumberGenerator.h"
-#include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/Registry/ServiceRegistry.h"
-#include "art/Framework/Services/System/CurrentModule.h"
-#include "art/Framework/Services/System/FileCatalogMetadata.h"
-#include "art/Framework/Services/System/FloatingPointControl.h"
-#include "art/Framework/Services/System/PathSelection.h"
-#include "art/Framework/Services/System/ScheduleContext.h"
-#include "art/Framework/Services/System/TriggerNamesService.h"
 #include "fhiclcpp/ParameterSetRegistry.h"
 
+using fhicl::ParameterSet;
+using ParameterSets = std::vector<ParameterSet>;
+
 namespace {
-  typedef std::vector<ParameterSet> ParameterSets;
 
   void
-  addService(std::string const & name, ParameterSets & service_set)
+  addService(std::string const& name, ParameterSets& service_set)
   {
     ParameterSet tmp;
     tmp.put("service_type", name);
@@ -24,9 +19,9 @@ namespace {
   }
 
   void
-  addService(std::string const & name,
-             ParameterSet const & source,
-             ParameterSets & service_set)
+  addService(std::string const& name,
+             ParameterSet const& source,
+             ParameterSets& service_set)
   {
     ParameterSet tmp;
     if (source.get_if_present(name, tmp)) {
@@ -38,15 +33,15 @@ namespace {
   }
 
   ParameterSets
-  extractServices(ParameterSet & services)
+  extractServices(ParameterSet&& services)
   {
     ParameterSets service_set;
-    bool const wantTracer = services.get<bool>("scheduler.wantTracer", false);
+    bool const wantTracer {services.get<bool>("scheduler.wantTracer", false)};
     services.erase("scheduler");
 
     // If we want the tracer and it's not explicitly configured, insert
     // it, otherwise it'll get picked up automatically.
-    if (wantTracer && ! services.has_key("Tracer")) {
+    if (wantTracer && !services.has_key("Tracer")) {
       addService("Tracer", service_set);
     }
 
@@ -54,8 +49,12 @@ namespace {
     addService("FileCatalogMetadata", services, service_set);
     services.erase("FileCatalogMetadata");
 
+    // Force presence of DatabaseConnection service.
+    addService("DatabaseConnection", services, service_set);
+    services.erase("DatabaseConnection");
+
     // Extract all
-    for (auto const & key : services.get_pset_names()) {
+    for (auto const& key : services.get_pset_names()) {
       addService(key, services, service_set);
     }
     return std::move(service_set);
@@ -63,11 +62,10 @@ namespace {
 }
 
 art::ServiceDirector::
-ServiceDirector(fhicl::ParameterSet services,
-                ActivityRegistry & areg,
-                ServiceToken & serviceToken)
-:
-  serviceToken_(serviceToken)
+ServiceDirector(fhicl::ParameterSet&& services,
+                ActivityRegistry& areg,
+                ServiceToken& serviceToken):
+  serviceToken_{serviceToken}
 {
-  serviceToken_ = ServiceRegistry::createSet(extractServices(services), areg);
+  serviceToken_ = ServiceRegistry::createSet(extractServices(std::move(services)), areg);
 }

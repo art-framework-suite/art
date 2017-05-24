@@ -7,11 +7,11 @@ services.Wanted.messagePrinter.tool_type: MessagePrinter
 physics: {
 
    producers: {
-      p1: { module_type: ThrowingProducer throw: true}
+      p1: { module_type: ThrowingProducer throwFromCtor: true}
    }
 
    analyzers: {
-      a1: { module_type: ThrowingAnalyzer throw: true}
+      a1: { module_type: ThrowingAnalyzer throwFromCtor: true}
    }
 
    t1: [p1]

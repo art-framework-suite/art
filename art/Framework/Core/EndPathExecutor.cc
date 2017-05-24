@@ -36,7 +36,7 @@ EndPathExecutor(PathManager& pm,
   , workersEnabled_(endPathInfo_.workers().size(), true)
   , outputWorkersEnabled_(outputWorkers_.size(), true)
 {
-  mpr.registerProductListUpdateCallback(std::bind(&art::EndPathExecutor::selectProducts, this, std::placeholders::_1));
+  mpr.registerProductListUpdatedCallback([this](auto const& fb){ this->selectProducts(fb); });
 }
 
 bool art::EndPathExecutor::terminate() const
@@ -120,9 +120,14 @@ void art::EndPathExecutor::writeSubRun(SubRunPrincipal& srp)
 
 void art::EndPathExecutor::writeEvent(EventPrincipal& ep)
 {
-  doForAllEnabledOutputWorkers_([&ep](auto w){ w->writeEvent(ep); });
+  doForAllEnabledOutputWorkers_([this, &ep](auto w){
+      auto const& md = w->description();
+      actReg_.sPreWriteEvent.invoke(md);
+      w->writeEvent(ep);
+      actReg_.sPostWriteEvent.invoke(md);
+    });
   auto const& eid = ep.id();
-  bool const lastInSubRun = ep.isLastInSubRun();
+  bool const lastInSubRun {ep.isLastInSubRun()};
   runRangeSetHandler_->update(eid, lastInSubRun);
   subRunRangeSetHandler_->update(eid, lastInSubRun);
 }
@@ -184,7 +189,7 @@ void art::EndPathExecutor::selectProducts(FileBlock const& fb)
   doForAllEnabledOutputWorkers_([&fb](auto w) { w->selectProducts(fb); });
 }
 
-void art::EndPathExecutor::recordOutputClosureRequests(Boundary const b)
+void art::EndPathExecutor::recordOutputClosureRequests(Granularity const b)
 {
   doForAllEnabledOutputWorkers_([this,b](auto ow) {
       // We need to support the following case:
@@ -200,7 +205,7 @@ void art::EndPathExecutor::recordOutputClosureRequests(Boundary const b)
       // that reason, the comparison is 'granularity > b' instead of
       // 'granularity != b'.
 
-      auto const granularity = ow->fileSwitchBoundary();
+      auto const granularity = ow->fileGranularity();
       if (granularity > b || !ow->requestsToCloseFile()) return;
 
       // Technical note: although the outputWorkersToClose_ container
@@ -292,38 +297,6 @@ void art::EndPathExecutor::respondToCloseOutputFiles(FileBlock const& fb)
 void art::EndPathExecutor::beginJob()
 {
   doForAllEnabledWorkers_([](auto w){ w->beginJob(); });
-}
-
-bool
-art::EndPathExecutor::
-setEndPathModuleEnabled(std::string const & label, bool enable)
-{
-  bool result;
-  auto & workers = endPathInfo_.workers();
-  WorkerMap::iterator foundW;
-  if ((foundW = workers.find(label)) != workers.end()) {
-    size_t const index = std::distance(workers.begin(), foundW);
-    result = workersEnabled_[index];
-    workersEnabled_[index] = enable;
-  } else {
-    throw Exception(errors::ScheduleExecutionFailure)
-      << "Attempt to "
-      << (enable?"enable":"disable")
-      << " unconfigured module "
-      << label
-      << ".\n";
-  }
-  auto owFinder = [&label](OutputWorkers::const_reference ow) {
-    return ow->label() == label;
-  };
-  OutputWorkers::iterator foundOW;
-  if ((foundOW = std::find_if(outputWorkers_.begin(),
-                              outputWorkers_.end(),
-                              owFinder)) != outputWorkers_.end()) {
-    auto const index = std::distance(outputWorkers_.begin(), foundOW);
-    outputWorkersEnabled_[index] = enable;
-  }
-  return result;
 }
 
 void
