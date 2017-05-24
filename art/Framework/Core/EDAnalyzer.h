@@ -7,6 +7,7 @@
 //
 // ======================================================================
 
+#include "art/Framework/Core/ConsumerBase.h"
 #include "art/Framework/Core/EngineCreator.h"
 #include "art/Framework/Core/EventObserverBase.h"
 #include "art/Framework/Core/Frameworkfwd.h"
@@ -30,9 +31,9 @@ namespace art
 {
   class MasterProductRegistry;
 
-  class EDAnalyzer
-    : public EventObserverBase,
-      public EngineCreator
+  class EDAnalyzer : public EventObserverBase,
+                     public ConsumerBase,
+                     public EngineCreator
   {
   public:
     template <typename T> friend class WorkerT;

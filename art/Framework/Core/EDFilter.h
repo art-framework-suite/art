@@ -10,11 +10,12 @@
 //
 // ======================================================================
 
+#include "art/Framework/Core/ConsumerBase.h"
 #include "art/Framework/Core/EngineCreator.h"
-#include "art/Framework/Principal/fwd.h"
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/ProducerBase.h"
 #include "art/Framework/Core/WorkerT.h"
+#include "art/Framework/Principal/fwd.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
 #include "canvas/Persistency/Provenance/RangeSet.h"
 #include "fhiclcpp/ParameterSet.h"
@@ -27,9 +28,9 @@
 namespace art
 {
 
-  class EDFilter
-    : public ProducerBase
-    , public EngineCreator
+  class EDFilter : public ProducerBase,
+                   public ConsumerBase,
+                   public EngineCreator
   {
   public:
     static constexpr bool Pass {true};

@@ -8,11 +8,12 @@
 //
 // ======================================================================
 
+#include "art/Framework/Core/ConsumerBase.h"
 #include "art/Framework/Core/EngineCreator.h"
-#include "art/Framework/Principal/fwd.h"
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/ProducerBase.h"
 #include "art/Framework/Core/WorkerT.h"
+#include "art/Framework/Principal/fwd.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
 #include "canvas/Persistency/Provenance/RangeSet.h"
 #include "fhiclcpp/ParameterSet.h"
@@ -22,12 +23,11 @@
 
 // ----------------------------------------------------------------------
 
-namespace art
-{
+namespace art {
 
-  class EDProducer
-    : public ProducerBase
-    , public EngineCreator
+  class EDProducer : public ProducerBase,
+                     public ConsumerBase,
+                     public EngineCreator
   {
   public:
     template <typename T> friend class WorkerT;

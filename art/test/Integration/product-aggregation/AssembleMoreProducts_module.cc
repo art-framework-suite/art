@@ -41,11 +41,12 @@ namespace {
     using Parameters = EDProducer::Table<Config>;
     explicit AssembleMoreProducts(Parameters const& config);
 
+  private:
+
     void beginSubRun(art::SubRun& sr) override;
     void endSubRun(art::SubRun& sr) override;
     void produce(art::Event&) override {}
 
-  private:
     art::InputTag trkEffTag_;
     art::InputTag nParticlesTag_;
     art::InputTag seenParticlesTag_;
@@ -68,6 +69,9 @@ namespace {
     , fullExpTrkEffs_{expectedEffs_.at(0).value(),
                       expectedEffs_.at(1).value()}
   {
+    consumes<arttest::TrackEfficiency, art::InSubRun>(trkEffTag_);
+    consumes<unsigned, art::InSubRun>(nParticlesTag_);
+    consumes<unsigned, art::InSubRun>(seenParticlesTag_);
     produces<double,art::InSubRun>("TrkEffValue");
     produces<double,art::InSubRun>("ParticleRatio");
   }

@@ -44,10 +44,8 @@ namespace arttest {
       V const& operator()(art::Handle<P> const& h) { return *h; }
     };
 
-  }
-
-}
-
+  } // detail
+} // arttest
 
 template <typename V, typename P>
 class arttest::GenericOneSimpleProductAnalyzer : public art::EDAnalyzer {
@@ -71,13 +69,21 @@ public:
     fhicl::Atom<V> expected_value;
   };
 
-  using Parameters = art::EDAnalyzer::Table<Config>;
+  using Parameters = EDAnalyzer::Table<Config>;
   GenericOneSimpleProductAnalyzer(Parameters const& ps) :
-    art::EDAnalyzer{ps},
+    EDAnalyzer{ps},
     input_label_{ps().input_label()},
     branch_type_{art::BranchType(ps().branch_type())},
     require_presence_{ps().require_presence()}
   {
+    switch(branch_type_) {
+    case art::InEvent: consumes<P>(input_label_); break;
+    case art::InSubRun: consumes<P, art::InSubRun>(input_label_); break;
+    case art::InRun: consumes<P, art::InRun>(input_label_); break;
+    default:
+      throw cet::exception("BranchTypeMismatch")
+        << "Branch type: " << branch_type_ << "not supported for this module.";
+    }
     if (require_presence_) {
       value_ = ps().expected_value();
     }
@@ -103,7 +109,7 @@ public:
       return;
     art::Handle<P> handle;
     e.getByLabel(input_label_, handle);
-    assert (handle.isValid() == require_presence_);
+    assert(handle.isValid() == require_presence_);
     if (require_presence_) {
       verify_value(art::InEvent,handle);
     }
@@ -115,7 +121,7 @@ public:
       return;
     art::Handle<P> handle;
     sr.getByLabel(input_label_, handle);
-    assert (handle.isValid() == require_presence_);
+    assert(handle.isValid() == require_presence_);
     if (require_presence_) {
       verify_value(art::InSubRun,handle);
     }
@@ -127,7 +133,7 @@ public:
       return;
     art::Handle<P> handle;
     r.getByLabel(input_label_, handle);
-    assert (handle.isValid() == require_presence_);
+    assert(handle.isValid() == require_presence_);
     if (require_presence_) {
       verify_value(art::InRun,handle);
     }

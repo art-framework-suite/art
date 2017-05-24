@@ -40,7 +40,9 @@ ValidHandleTester::ValidHandleTester(Parameters const& ps) :
   art::EDAnalyzer{ps},
   input_tag_{ps().input_label()},
   expected_value_{ps().expected_value()}
-{ }
+{
+  consumes<std::string>(input_tag_);
+}
 
 void ValidHandleTester::analyze(art::Event const& e)
 {
