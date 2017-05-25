@@ -58,6 +58,12 @@ art::detail::InfoDumperInputFile::InfoDumperInputFile(std::string const& filenam
   auto bidsPtr = &branchIDLists_;
   md->SetBranchAddress(art::rootNames::metaBranchRootName<art::BranchIDLists>(), &bidsPtr);
 
+  // FileIndex pointer needs to be set here (to wit, before we read
+  // the metadata tree) in case we are reading an old file in which
+  // FileIndex was a branch of the metadata tree.
+  auto findexPtr = &fileIndex_;
+  art::detail::setFileIndexPointer(file_.get(), md.get(), findexPtr);
+
   // We populate the ProcessHistoryRegistry here to reduce the number
   // of times we have to call art::input::getEntry, which seems to
   // cause unexplainable woe.
@@ -68,9 +74,6 @@ art::detail::InfoDumperInputFile::InfoDumperInputFile(std::string const& filenam
   art::input::getEntry(md.get(), 0);
 
   art::ProcessHistoryRegistry::put(pHistMap);
-
-  auto findexPtr = &fileIndex_;
-  art::detail::setFileIndexPointer(file_.get(), md.get(), findexPtr);
 }
 
 void
