@@ -91,6 +91,7 @@ namespace art {
         else {
           rs = RangeSet::forSubRun(eventID_.subRunID());
         }
+        configureRefCoreStreamer();
         return result;
       }
 
