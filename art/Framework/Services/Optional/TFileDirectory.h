@@ -72,7 +72,7 @@ namespace art {
   {
     detail::RootDirectorySentry sentry;
     cd();
-    return new T{args...};
+    return new T(args...);
   }
 
   template <typename T, typename... ARGS>
@@ -83,7 +83,7 @@ namespace art {
   {
     detail::RootDirectorySentry sentry;
     cd();
-    T* p = new T{args...};
+    T* p = new T(args...);
     p->SetName(name);
     p->SetTitle(title);
     gDirectory->Append(p);
