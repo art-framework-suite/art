@@ -18,7 +18,4 @@ TrigReport Events total = 10 passed = 2 failed = 8
 TimeReport ---------- Time  Summary ---[sec]----
 TimeReport CPU = <duration> Real = <duration>
 
-MemReport  ---------- Memory  Summary ---[base-10 MB]----
-MemReport  VmPeak = <mem-size> VmHWM = <mem-size>
-
 Art has completed and will exit with status 0.

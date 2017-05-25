@@ -120,9 +120,6 @@ TrigReport     0    0          7          6          1 a1
 TimeReport ---------- Time  Summary ---[sec]----
 TimeReport CPU = <duration> Real = <duration>
 
-MemReport  ---------- Memory  Summary ---[base-10 MB]----
-MemReport  VmPeak = <mem-size> VmHWM = <mem-size>
-
 %MSG-s ArtException:  <date-time> ModuleEndJob
 cet::exception caught in art
 ---- OtherArt BEGIN

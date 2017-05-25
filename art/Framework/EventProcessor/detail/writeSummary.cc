@@ -1,7 +1,7 @@
 #include "art/Framework/EventProcessor/detail/writeSummary.h"
 
 #include "art/Framework/Core/PathManager.h"
-#include "art/Utilities/LinuxProcMgr.h"
+#include "art/Framework/EventProcessor/detail/memoryReport.h"
 #include "cetlib/cpu_timer.h"
 #include "cetlib/container_algorithms.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
@@ -62,7 +62,6 @@ art::detail::writeSummary(PathManager& pm, bool const wantSummary, cet::cpu_time
   timeReport(jobTimer);
   LogAbsolute("ArtSummary") << "";
   memoryReport();
-  LogAbsolute("ArtSummary") << "";
 }
 
 void
@@ -186,12 +185,4 @@ art::detail::timeReport(cet::cpu_timer const& timer)
   LogAbsolute("ArtSummary") << "TimeReport"
                             << setprecision(6) << fixed
                             << " CPU = " << timer.cpuTime() << " Real = " << timer.realTime();
-}
-
-void
-art::detail::memoryReport()
-{
-  LinuxProcMgr procInfo{1};
-  LogAbsolute("ArtSummary") << "MemReport  " << "---------- Memory  Summary ---[base-10 MB]----";
-  LogAbsolute("ArtSummary") << "MemReport  VmPeak = " << procInfo.getVmPeak() << " VmHWM = " << procInfo.getVmHWM();
 }
