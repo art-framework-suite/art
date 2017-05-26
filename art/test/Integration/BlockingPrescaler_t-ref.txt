@@ -48,7 +48,4 @@ TrigReport         25         25         10         15          0 prescale
 TimeReport ---------- Time  Summary ---[sec]----
 TimeReport CPU = <duration> Real = <duration>
 
-MemReport  ---------- Memory  Summary ---[base-10 MB]----
-MemReport  VmPeak = <mem-size> VmHWM = <mem-size>
-
 Art has completed and will exit with status 0.

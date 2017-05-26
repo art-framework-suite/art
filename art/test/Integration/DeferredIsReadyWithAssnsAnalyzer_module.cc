@@ -50,7 +50,7 @@ void arttest::DeferredIsReadyWithAssnsAnalyzer::analyze(art::Event const & e)
   art::FindMany<std::string, arttest::AssnTestData> fmp(pv, e, inputLabel_);
   for (size_t i = 0, sz = fmp.size(); i != sz; ++i) {
     assert(fmp.at(i).size() > 0);
-    assert(*fmp.at(i)[0] == i + 'a');
+    assert(*fmp.at(i)[0] == std::string(1, i+'a'));
   }
 }
 

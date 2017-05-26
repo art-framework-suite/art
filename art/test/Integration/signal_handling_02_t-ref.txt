@@ -62,9 +62,6 @@ TrigReport     0    0          1          1          0 pa
 TimeReport ---------- Time  Summary ---[sec]----
 TimeReport CPU = <duration> Real = <duration>
 
-MemReport  ---------- Memory  Summary ---[base-10 MB]----
-MemReport  VmPeak = <mem-size> VmHWM = <mem-size>
-
 Art has completed and will exit with status 131.
 >> Pausing for 5 seconds.
 >> Pause complete.
