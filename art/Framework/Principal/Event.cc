@@ -115,45 +115,29 @@ namespace art {
   Event::commit_aux(EventPrincipal& ep, Base::TypeLabelMap& products)
   {
     vector<BranchID> gotBranchIDVector;
-    if (!gotBranchIDs_.empty()) {
-      gotBranchIDVector.reserve(gotBranchIDs_.size());
-      gotBranchIDVector.assign(gotBranchIDs_.begin(), gotBranchIDs_.end());
+    auto const& gotBranchIDs = retrievedProducts();
+    if (!gotBranchIDs.empty()) {
+      gotBranchIDVector.reserve(gotBranchIDs.size());
+      gotBranchIDVector.assign(gotBranchIDs.begin(), gotBranchIDs.end());
     }
 
-    auto put_in_principal = [&gotBranchIDVector, &ep](auto& elem) {
-
+    for (auto& elem : products) {
       // set provenance
       auto const& bd = elem.second.bd;
       auto productProvenancePtr = make_unique<ProductProvenance const>(bd.branchID(),
                                                                        productstatus::present(),
                                                                        gotBranchIDVector);
-
       if (!ep.branchIDToProductID(bd.branchID()).isValid()) {
         throw art::Exception(art::errors::ProductPutFailure, "Null Product ID")
           << "put: Cannot put product with null Product ID.\n";
       }
-
       ep.put(std::move(elem.second.prod),
              bd,
              std::move(productProvenancePtr));
     };
 
-    cet::for_all(products, put_in_principal);
-
     // the cleanup is all or none
     products.clear();
-  }
-
-  void
-  Event::addToGotBranchIDs(Provenance const& prov) const {
-    if (prov.branchDescription().transient()) {
-      // If the product retrieved is transient, don't use its branch ID.
-      // use the branch ID's of its parents.
-      vector<BranchID> const& bids = prov.parents();
-      gotBranchIDs_.insert(bids.begin(), bids.end());
-    } else {
-      gotBranchIDs_.insert(prov.branchID());
-    }
   }
 
   // ----------------------------------------------------------------------

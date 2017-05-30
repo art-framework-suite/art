@@ -43,12 +43,8 @@ public:
   using Base::getByLabel;
   using Base::getMany;
   using Base::getManyByType;
-  using Base::removeCachedProduct;
-  using Base::processHistory;
-
-  template <typename PROD>
-  art::ValidHandle<PROD>
-  getValidHandle(InputTag const& tag) const;
+  using Base::getPointerByLabel;
+  using Base::getValidHandle;
 
   Run const& getRun() const;
 
@@ -62,6 +58,9 @@ public:
   template <typename PROD> void put(std::unique_ptr<PROD>&&, std::string const& instanceName, FragmentToken<Level::SubRun>);
   template <typename PROD> void put(std::unique_ptr<PROD>&&, std::string const& instanceName, RangedFragmentToken<Level::SubRun>);
 
+  // Expert-level
+  using Base::removeCachedProduct;
+  using Base::processHistory;
 
 private:
 
@@ -90,15 +89,6 @@ private:
 
 //================================================================
 // Implementation
-
-template <typename PROD>
-art::ValidHandle<PROD>
-art::SubRun::getValidHandle(InputTag const& tag) const
-{
-  art::Handle<PROD> h;
-  getByLabel(tag, h);
-  return art::ValidHandle<PROD>(&(*h), *h.provenance());
-}
 
 //----------------------------------------------------------------
 // putting with no specified instance name

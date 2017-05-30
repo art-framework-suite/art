@@ -16,6 +16,7 @@
 #include "art/Framework/Principal/fwd.h"
 #include "art/Persistency/Common/GroupQueryResult.h"
 #include "art/Persistency/Provenance/detail/type_aliases.h"
+#include "art/Utilities/HorizontalRule.h"
 #include "canvas/Persistency/Common/Wrapper.h"
 #include "canvas/Persistency/Provenance/EventAuxiliary.h"
 #include "canvas/Persistency/Provenance/EventID.h"
@@ -54,76 +55,55 @@ public:
   bool isRealData() const {return aux_.isRealData();}
   EventAuxiliary::ExperimentType experimentType() const {return aux_.experimentType();}
 
-  using Base::get;
-  using Base::getByLabel;
-  using Base::getMany;
-  using Base::getManyByType;
-  using Base::removeCachedProduct;
-  using Base::processHistory;
-  using Base::size;
-
   SubRun const& getSubRun() const;
-
   Run const& getRun() const;
-
-  template <typename PROD>
-  bool get(ProductID const& oid, Handle<PROD>& result) const;
 
   History const& history() const;
   ProcessHistoryID const& processHistoryID() const;
 
-  ///Put a new product.
+  // Put a new product.
   template <typename PROD>
   ProductID put(std::unique_ptr<PROD>&& product) {return put<PROD>(std::move(product), std::string());}
 
-  ///Put a new product with a 'product instance name'
+  // Put a new product with a 'product instance name'
   template <typename PROD>
   ProductID put(std::unique_ptr<PROD>&& product, std::string const& productInstanceName);
 
-  template <typename PROD>
-  bool get(SelectorBase const& sel, Handle<PROD>& result) const;
+  // Retrieve a product
+  using Base::get;
+  using Base::getByLabel;
+  using Base::getMany;
+  using Base::getManyByType;
+  using Base::getPointerByLabel;
+  using Base::getValidHandle;
 
+  // Only Event products have a notion of ProductID.
   template <typename PROD>
-  PROD const& getByLabel(InputTag const& tag) const;
-
-  template <typename PROD>
-  art::ValidHandle<PROD> getValidHandle(InputTag const& tag) const;
-
-  template <typename PROD>
-  PROD const* getPointerByLabel(InputTag const& tag) const;
-
-  template <typename PROD>
-  bool getByLabel(InputTag const& tag, Handle<PROD>& result) const;
-
-  template <typename PROD>
-  bool getByLabel(std::string const& label,
-                  std::string const& productInstanceName,
-                  Handle<PROD>& result) const;
-
-  template <typename PROD>
-  void getMany(SelectorBase const& sel,
-               std::vector<Handle<PROD>>& results) const;
-
-  template <typename PROD>
-  void getManyByType(std::vector<Handle<PROD>>& results) const;
+  bool get(ProductID const& oid, Handle<PROD>& result) const;
 
   // If getView returns true, then result.isValid() is certain to be
   // true -- but the View may still be empty.
-  template< class ELEMENT >
-  std::size_t getView(std::string const&            moduleLabel,
-                      std::string const&            productInstanceName,
+  template <typename ELEMENT>
+  std::size_t getView(std::string const& moduleLabel,
+                      std::string const& productInstanceName,
                       std::vector<ELEMENT const*>& result) const;
 
-  template< class ELEMENT >
-  std::size_t getView(InputTag const&               tag,
+  template <typename ELEMENT>
+  std::size_t getView(InputTag const& tag,
                       std::vector<ELEMENT const*>& result) const;
 
-  template <class ELEMENT>
-  bool getView(std::string const& moduleLabel, std::string const& instanceName,
+  template <typename ELEMENT>
+  bool getView(std::string const& moduleLabel,
+               std::string const& instanceName,
                View<ELEMENT>& result) const;
 
-  template <class ELEMENT>
+  template <typename ELEMENT>
   bool getView(InputTag const& tag, View<ELEMENT>& result) const;
+
+  // Expert-level
+  using Base::removeCachedProduct;
+  using Base::processHistory;
+  using Base::size;
 
   // Return true if this Event has been subjected to a process with
   // the given processName, and false otherwise.
@@ -142,14 +122,16 @@ public:
 
 private:
 
+  using Base::addToGotBranchIDs;
+
   template <typename ELEMENT>
   void fillView_(GroupQueryResult& bh,
                  std::vector<ELEMENT const*>& result) const;
 
   ProductID makeProductID(BranchDescription const& desc) const;
 
-  void ensure_unique_product(std::size_t        nFound,
-                             TypeID      const& typeID,
+  void ensure_unique_product(std::size_t nFound,
+                             TypeID const& typeID,
                              std::string const& moduleLabel,
                              std::string const& productInstanceName,
                              std::string const& processName) const;
@@ -175,28 +157,7 @@ private:
   EventAuxiliary const& aux_;
   std::unique_ptr<SubRun const> const subRun_;
   EventPrincipal const& eventPrincipal_;
-
-  // gotBranchIDs_ must be mutable because it records all 'gets',
-  // which do not logically modify the DataViewImpl. gotBranchIDs_ is
-  // merely a cache reflecting what has been retreived from the
-  // Principal class.
-  mutable std::set<BranchID> gotBranchIDs_ {};
-  void addToGotBranchIDs(Provenance const& prov) const;
-
 };  // Event
-
-// ----------------------------------------------------------------------
-template <typename PROD>
-bool
-art::Event::get(ProductID const& oid, Handle<PROD>& result) const
-{
-  result.clear();
-  GroupQueryResult bh = getByProductID_(oid);
-  convert_handle(bh, result);
-  if (bh.succeeded())
-    addToGotBranchIDs(*result.provenance());
-  return bh.succeeded();
-}  // get<>()
 
 // ----------------------------------------------------------------------
 
@@ -214,31 +175,33 @@ art::Event::put(std::unique_ptr<PROD>&& product,
   }
 
   auto const& bd = getBranchDescription(tid, productInstanceName);
-  auto        wp = std::make_unique<Wrapper<PROD>>(std::move(product));
+  auto wp = std::make_unique<Wrapper<PROD>>(std::move(product));
 
   auto result = putProducts().emplace(TypeLabel{tid, productInstanceName},
                                       DataViewImpl::PMValue{std::move(wp), bd, RangeSet::invalid()});
   if (!result.second) {
+    HorizontalRule rule{30};
     throw art::Exception(art::errors::ProductPutFailure)
       << "Event::put: Attempt to put multiple products with the\n"
       << "            following description onto the Event.\n"
       << "            Products must be unique per Event.\n"
-      << "=================================\n"
+      << rule('=') << '\n'
       << bd
-      << "=================================\n";
+      << rule('=') << '\n';
   }
 
   return makeProductID(bd);
 }  // put<>()
 
 // ----------------------------------------------------------------------
-
 template <typename PROD>
 bool
-art::Event::get(SelectorBase const& sel,
-                Handle<PROD>& result) const
+art::Event::get(ProductID const& oid, Handle<PROD>& result) const
 {
-  bool ok = Base::get(sel, result);
+  result.clear(); // Is this the correct thing to do if an exception is thrown?
+  GroupQueryResult bh = getByProductID_(oid);
+  convert_handle(bh, result);
+  bool const ok{bh.succeeded() && !result.failedToGet()};
   if (ok) {
     addToGotBranchIDs(*result.provenance());
   }
@@ -247,82 +210,7 @@ art::Event::get(SelectorBase const& sel,
 
 // ----------------------------------------------------------------------
 
-template <typename PROD>
-PROD const&
-art::Event::getByLabel(InputTag const& tag) const
-{
-  art::Handle<PROD> h;
-  getByLabel(tag, h);
-  return *h;
-}
-
-template <typename PROD>
-art::ValidHandle<PROD>
-art::Event::getValidHandle(InputTag const& tag) const
-{
-  art::Handle<PROD> h;
-  getByLabel(tag, h);
-  return art::ValidHandle<PROD>(&(*h), *h.provenance());
-}
-
-template <typename PROD>
-PROD const*
-art::Event::getPointerByLabel(InputTag const& tag) const
-{
-  art::Handle<PROD> h;
-  getByLabel(tag, h);
-  return &(*h);
-}
-
-template <typename PROD>
-bool
-art::Event::getByLabel(InputTag const& tag, Handle<PROD>& result) const
-{
-  bool ok = Base::getByLabel(tag, result);
-  if (ok) {
-    addToGotBranchIDs(*result.provenance());
-  }
-  return ok;
-}  // getByLabel<>()
-
-template <typename PROD>
-bool
-art::Event::getByLabel(std::string const& label,
-                       std::string const& productInstanceName,
-                       Handle<PROD>& result) const
-{
-  bool ok = Base::getByLabel(label, productInstanceName, result);
-  if (ok) {
-    addToGotBranchIDs(*result.provenance());
-  }
-  return ok;
-}  // getByLabel<>()
-
-// ----------------------------------------------------------------------
-
-template <typename PROD>
-void
-art::Event::getMany(SelectorBase const& sel,
-                    std::vector<Handle<PROD>>& results) const
-{
-  Base::getMany(sel, results);
-  for (auto const& h : results)
-    addToGotBranchIDs(*h.provenance());
-}  // getMany<>()
-
-// ----------------------------------------------------------------------
-
-template <typename PROD>
-void
-art::Event::getManyByType(std::vector<Handle<PROD>>& results) const
-{
-  Base::getManyByType(results);
-  for (auto const& h : results)
-    addToGotBranchIDs(*h.provenance());
-}  // getManyByType<>()
-
-
-template< class ELEMENT >
+template <typename ELEMENT>
 std::size_t
 art::Event::getView(std::string const& moduleLabel,
                     std::string const& productInstanceName,
@@ -343,7 +231,7 @@ art::Event::getView(std::string const& moduleLabel,
   return result.size() - orig_size;
 }  // getView<>()
 
-template< class ELEMENT >
+template <typename ELEMENT>
 std::size_t
 art::Event::getView(InputTag const& tag,
                     std::vector<ELEMENT const*>& result) const
@@ -368,11 +256,11 @@ art::Event::getView(InputTag const& tag,
   return result.size() - orig_size;
 }  // getView<>()
 
-template <class ELEMENT>
+template <typename ELEMENT>
 bool
 art::Event::getView(std::string const& moduleLabel,
                     std::string const& productInstanceName,
-                    View<ELEMENT>&     result) const
+                    View<ELEMENT>& result) const
 {
   TypeID const typeID{typeid(ELEMENT)};
   GroupQueryResultVec bhv;
@@ -393,8 +281,9 @@ template <typename ELEMENT>
 bool
 art::Event::getView(InputTag const& tag, View<ELEMENT>& result) const
 {
-  if (tag.process().empty())
+  if (tag.process().empty()) {
     return getView(tag.label(), tag.instance(), result);
+  }
 
   TypeID const typeID{typeid(ELEMENT)};
   GroupQueryResultVec bhv;

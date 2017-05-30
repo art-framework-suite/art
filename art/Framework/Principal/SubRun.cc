@@ -3,12 +3,14 @@
 #include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Framework/Principal/Run.h"
 
+#include <vector>
+
 namespace art {
 
   namespace {
-    Run *
+    Run*
     newRun(SubRunPrincipal const& srp, ModuleDescription const& md) {
-      return (srp.runPrincipalExemptPtr() ? new Run{srp.runPrincipal(), md} : nullptr);
+      return srp.runPrincipalExemptPtr() ? new Run{srp.runPrincipal(), md} : nullptr;
     }
   }
 
@@ -31,12 +33,20 @@ namespace art {
   void
   SubRun::commit_(SubRunPrincipal& srp)
   {
-    auto put_in_principal = [&srp](auto& elem) {
+    std::vector<BranchID> gotBranchIDVector;
+    auto const& gotBranchIDs = retrievedProducts();
+    if (!gotBranchIDs.empty()) {
+      gotBranchIDVector.reserve(gotBranchIDs.size());
+      gotBranchIDVector.assign(gotBranchIDs.begin(), gotBranchIDs.end());
+    }
+
+    auto put_in_principal = [&srp, &gotBranchIDVector](auto& elem) {
 
       // set provenance
       auto const& bd = elem.second.bd;
       auto subRunProductProvenancePtr = std::make_unique<ProductProvenance const>(bd.branchID(),
-                                                                                  productstatus::present());
+                                                                                  productstatus::present(),
+                                                                                  gotBranchIDVector);
 
       srp.put(std::move(elem.second.prod),
               bd,

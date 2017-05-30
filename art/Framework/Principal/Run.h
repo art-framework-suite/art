@@ -35,16 +35,13 @@ public:
   Timestamp const& beginTime() const {return aux_.beginTime();}
   Timestamp const& endTime() const {return aux_.endTime();}
 
+  // Retrieve product
   using Base::get;
   using Base::getByLabel;
   using Base::getMany;
   using Base::getManyByType;
-  using Base::removeCachedProduct;
-  using Base::processHistory;
-
-  template <typename PROD>
-  art::ValidHandle<PROD>
-  getValidHandle(InputTag const& tag) const;
+  using Base::getPointerByLabel;
+  using Base::getValidHandle;
 
   template <typename PROD> void put(std::unique_ptr<PROD>&&);
   template <typename PROD> void put(std::unique_ptr<PROD>&&, FullToken<Level::Run>);
@@ -56,12 +53,15 @@ public:
   template <typename PROD> void put(std::unique_ptr<PROD>&&, std::string const& instanceName, FragmentToken<Level::Run>);
   template <typename PROD> void put(std::unique_ptr<PROD>&&, std::string const& instanceName, RangedFragmentToken<Level::Run>);
 
-  // Return true if this Run has been subjected to a process with
-  // the given processName, and false otherwise.
-  // If true is returned, then ps is filled with the ParameterSets
-  // (possibly more than one) used to configure the identified
-  // process(es). Equivalent ParameterSets are compressed out of the
-  // result.
+  // Expert-level
+  using Base::removeCachedProduct;
+  using Base::processHistory;
+
+  // Return true if this Run has been subjected to a process with the
+  // given processName, and false otherwise.  If true is returned,
+  // then ps is filled with the ParameterSets (possibly more than one)
+  // used to configure the identified process(es). Equivalent
+  // ParameterSets are compressed out of the result.
   bool
   getProcessParameterSet(std::string const& processName,
                          std::vector<fhicl::ParameterSet>& ps) const;
@@ -91,15 +91,6 @@ private:
 
 //================================================================
 // Implementation
-
-template <typename PROD>
-art::ValidHandle<PROD>
-art::Run::getValidHandle(InputTag const& tag) const
-{
-  art::Handle<PROD> h;
-  getByLabel(tag, h);
-  return art::ValidHandle<PROD>(&(*h), *h.provenance());
-}
 
 //----------------------------------------------------------------
 // putting with no specified instance name

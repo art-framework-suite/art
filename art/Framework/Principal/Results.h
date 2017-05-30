@@ -29,22 +29,27 @@ public:
 
   using Base = DataViewImpl;
 
+  // Retrieve a product
   using Base::get;
   using Base::getByLabel;
   using Base::getMany;
   using Base::getManyByType;
-  using Base::removeCachedProduct;
-  using Base::processHistory;
+  using Base::getPointerByLabel;
+  using Base::getValidHandle;
 
-  ///Put a new product.
+  // Put a new product.
   template <typename PROD>
   void
   put(std::unique_ptr<PROD>&& product) {put<PROD>(std::move(product), std::string());}
 
-  ///Put a new product with a 'product instance name'
+  // Put a new product with a 'product instance name'
   template <typename PROD>
   void
   put(std::unique_ptr<PROD>&& product, std::string const& productInstanceName);
+
+  // Expert-level
+  using Base::removeCachedProduct;
+  using Base::processHistory;
 
 private:
 

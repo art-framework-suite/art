@@ -27,11 +27,19 @@ art::Run::getProcessParameterSet(std::string const& /*processName*/,
 void
 art::Run::commit_(RunPrincipal& rp)
 {
-  auto put_in_principal = [&rp](auto& elem) {
+  std::vector<BranchID> gotBranchIDVector;
+  auto const& gotBranchIDs = retrievedProducts();
+  if (!gotBranchIDs.empty()) {
+    gotBranchIDVector.reserve(gotBranchIDs.size());
+    gotBranchIDVector.assign(gotBranchIDs.begin(), gotBranchIDs.end());
+  }
+
+  auto put_in_principal = [&rp, &gotBranchIDVector](auto& elem) {
 
     auto const& bd = elem.second.bd;
     auto runProductProvenancePtr = std::make_unique<ProductProvenance const>(bd.branchID(),
-                                                                             productstatus::present());
+                                                                             productstatus::present(),
+                                                                             gotBranchIDVector);
     rp.put(std::move(elem.second.prod),
            bd,
            std::move(runProductProvenancePtr),

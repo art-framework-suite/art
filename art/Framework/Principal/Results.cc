@@ -3,17 +3,28 @@
 #include "canvas/Persistency/Provenance/BranchType.h"
 #include "cetlib/container_algorithms.h"
 
+#include <vector>
+
 art::Results::Results(ResultsPrincipal const& resp, ModuleDescription const& md) :
   DataViewImpl{resp, md, InResults}
 {
 }
 
 void
-art::Results::commit_(ResultsPrincipal& resp) {
-  auto put_in_principal = [&resp](auto& elem) {
+art::Results::commit_(ResultsPrincipal& resp)
+{
+  std::vector<BranchID> gotBranchIDVector;
+  auto const& gotBranchIDs = retrievedProducts();
+  if (!gotBranchIDs.empty()) {
+    gotBranchIDVector.reserve(gotBranchIDs.size());
+    gotBranchIDVector.assign(gotBranchIDs.begin(), gotBranchIDs.end());
+  }
+
+  auto put_in_principal = [&resp, &gotBranchIDVector](auto& elem) {
     auto const& bd = elem.second.bd;
     auto resultsProductProvenancePtr = std::make_unique<ProductProvenance const>(bd.branchID(),
-                                                                                 productstatus::present());
+                                                                                 productstatus::present(),
+                                                                                 gotBranchIDVector);
     resp.put(std::move(elem.second.prod),
              bd,
              std::move(resultsProductProvenancePtr));

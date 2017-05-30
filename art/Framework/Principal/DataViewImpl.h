@@ -3,47 +3,41 @@
 
 // ======================================================================
 //
-// DataViewImpl - This is the implementation for accessing EDProducts and
-// inserting new EDproducts.
+// DataViewImpl - This is the implementation for accessing EDProducts
+// and inserting new EDproducts.
 //
 // Getting Data
 //
-// The art::DataViewImpl class provides many 'get*" methods for getting
-// data it contains.
+// The art::DataViewImpl class provides many 'get*" methods for
+// getting data it contains.
 //
-// The primary method for getting data is to use getByLabel(). The labels
-// are the label of the module assigned in the configuration file and the
-// 'product instance label' (which can be omitted in the case the 'product
-// instance label' is the default value).  The C++ type of the product
-// plus the two labels uniquely identify a product in the DataViewImpl.
+// The primary method for getting data is to use getByLabel(). The
+// labels are the label of the module assigned in the configuration
+// file and the 'product instance label' (which can be omitted in the
+// case the 'product instance label' is the default value).  The C++
+// type of the product plus the two labels uniquely identify a product
+// in the DataViewImpl.
 //
-// We use an event in the examples, but a run or a subrun can also hold
-// products.
+// We use an Event in the examples, but a Run or a SubRun can also
+// hold products.
 //
-// art::Handle<AppleCollection> apples;
-// event.getByLabel("tree",apples);
+//   art::Handle<AppleCollection> apples;
+//   event.getByLabel("tree", apples);
 //
-// art::Handle<FruitCollection> fruits;
-// event.getByLabel("market", "apple", fruits);
+//   art::Handle<FruitCollection> fruits;
+//   event.getByLabel("market", "apples", fruits);
 //
 // Putting Data
 //
-// std::unique_ptr<AppleCollection> pApples( new AppleCollection );
-// //fill the collection
-// ...
-// event.put(std::move(pApples));
+//   auto pApples = std::make_unique<AppleCollection>();
+//   // fill the collection
+//   ...
+//   event.put(std::move(pApples));
 //
-// std::unique_ptr<FruitCollection> pFruits( new FruitCollection );
-// //fill the collection
-// ...
-// event.put("apple", pFruits);
-//
-// //do loop and fill collection
-// for(unsigned int index = 0; ..... ) {
-// ....
-// apples->push_back( Apple(...) );
-//
-// }
+//   auto pFruits = std::make_unique<FruitCollection>();
+//   // fill the collection
+//   ...
+//   event.put(std::move(pFruits), "apples");
 //
 // ======================================================================
 
@@ -104,8 +98,20 @@ public:
 
   /// same as above, but using the InputTag class
   template <typename PROD>
+  PROD const&
+  getByLabel(InputTag const& tag) const;
+
+  template <typename PROD>
   bool
   getByLabel(InputTag const& tag, Handle<PROD>& result) const;
+
+  template <typename PROD>
+  PROD const*
+  getPointerByLabel(InputTag const& tag) const;
+
+  template <typename PROD>
+  ValidHandle<PROD>
+  getValidHandle(InputTag const& tag) const;
 
   template <typename PROD>
   void
@@ -134,15 +140,17 @@ public:
     RangeSet rs;
   };
 
+  using RetrievedProductSet = std::set<BranchID>;
   using TypeLabelMap = std::map<TypeLabel, PMValue>;
 
 protected:
 
+  void addToGotBranchIDs(Provenance const& prov) const;
+
   TypeLabelMap      & putProducts()       {return putProducts_;}
   TypeLabelMap const& putProducts() const {return putProducts_;}
 
-  TypeLabelMap      & putProductsWithoutParents()       {return putProductsWithoutParents_;}
-  TypeLabelMap const& putProductsWithoutParents() const {return putProductsWithoutParents_;}
+  RetrievedProductSet& retrievedProducts() {return gotBranchIDs_;}
 
   void
   checkPutProducts(bool checkProducts,
@@ -205,12 +213,16 @@ private:
   // Data members
   //
 
-  // putProducts_ and putProductsWithoutParents_ are the holding
-  // pens for EDProducts inserted into this DataViewImpl. Pointers
-  // in these collections own the products to which they point.
-  //
-  TypeLabelMap putProducts_ {};               // keep parentage info for these
-  TypeLabelMap putProductsWithoutParents_ {}; // ... but not for these
+  // putProducts_ is the holding pen for EDProducts inserted into this
+  // DataViewImpl. Pointers in these collections own the products to
+  // which they point.
+  TypeLabelMap putProducts_{};
+
+  // gotBranchIDs_ must be mutable because it records all 'gets',
+  // which do not logically modify the DataViewImpl. gotBranchIDs_ is
+  // merely a cache reflecting what has been retrieved from the
+  // Principal class.
+  mutable RetrievedProductSet gotBranchIDs_{};
 
   // Each DataViewImpl must have an associated Principal, used as the
   // source of all 'gets' and the target of 'puts'.
@@ -242,10 +254,14 @@ bool
 art::DataViewImpl::get(SelectorBase const& sel,
                        Handle<PROD>& result) const
 {
-  result.clear();
+  result.clear(); // Is this the correct thing to do if an exception is thrown?
   GroupQueryResult bh = get_(TypeID{typeid(PROD)},sel);
   convert_handle(bh, result);
-  return bh.succeeded() && !result.failedToGet();
+  bool const ok{bh.succeeded() && !result.failedToGet()};
+  if (ok) {
+    addToGotBranchIDs(*result.provenance());
+  }
+  return ok;
 }
 
 template <typename PROD>
@@ -274,10 +290,45 @@ art::DataViewImpl::getByLabel(std::string const& label,
                               std::string const& processName,
                               Handle<PROD>& result) const
 {
-  result.clear();
+  result.clear(); // Is this the correct thing to do if an exception is thrown?
   GroupQueryResult bh = getByLabel_(TypeID{typeid(PROD)}, label, productInstanceName, processName);
   convert_handle(bh, result);
-  return bh.succeeded() && !result.failedToGet();
+  bool const ok{bh.succeeded() && !result.failedToGet()};
+  if (ok) {
+    addToGotBranchIDs(*result.provenance());
+  }
+  return ok;
+}
+
+
+template <typename PROD>
+inline
+PROD const&
+art::DataViewImpl::getByLabel(InputTag const& tag) const
+{
+  art::Handle<PROD> h;
+  getByLabel(tag, h);
+  return *h;
+}
+
+template <typename PROD>
+inline
+PROD const*
+art::DataViewImpl::getPointerByLabel(InputTag const& tag) const
+{
+  art::Handle<PROD> h;
+  getByLabel(tag, h);
+  return &(*h);
+}
+
+template <typename PROD>
+inline
+art::ValidHandle<PROD>
+art::DataViewImpl::getValidHandle(InputTag const& tag) const
+{
+  art::Handle<PROD> h;
+  getByLabel(tag, h);
+  return art::ValidHandle<PROD>(&(*h), *h.provenance());
 }
 
 template <typename PROD>
@@ -289,26 +340,16 @@ art::DataViewImpl::getMany(SelectorBase const& sel,
   GroupQueryResultVec bhv;
   getMany_(TypeID{typeid(PROD)}, sel, bhv);
 
-  // Go through the returned handles; for each element,
-  //   1. create a Handle<PROD> and
-  //
-  // This function presents an exception safety difficulty. If an
-  // exception is thrown when converting a handle, the "got
-  // products" record will be wrong.
-  //
-  // Since EDProducers are not allowed to use this function,
-  // the problem does not seem too severe.
-  //
-  // Question: do we even need to keep track of the "got products"
-  // for this function, since it is *not* to be used by EDProducers?
   std::vector<Handle<PROD>> products;
-
   for (auto const& qr : bhv) {
     Handle<PROD> result;
     convert_handle(qr, result);
     products.push_back(result);
   }
   results.swap(products);
+
+  for (auto const& h : results)
+    addToGotBranchIDs(*h.provenance());
 }
 
 template <typename PROD>
@@ -319,34 +360,23 @@ art::DataViewImpl::getManyByType(std::vector<Handle<PROD>>& results) const
   GroupQueryResultVec bhv;
   getManyByType_(TypeID{typeid(PROD)}, bhv);
 
-  // Go through the returned handles; for each element,
-  //   1. create a Handle<PROD> and
-  //
-  // This function presents an exception safety difficulty. If an
-  // exception is thrown when converting a handle, the "got
-  // products" record will be wrong.
-  //
-  // Since EDProducers are not allowed to use this function,
-  // the problem does not seem too severe.
-  //
-  // Question: do we even need to keep track of the "got products"
-  // for this function, since it is *not* to be used by EDProducers?
   std::vector<Handle<PROD>> products;
-
   for (auto const& qr : bhv) {
     Handle<PROD> result;
     convert_handle(qr, result);
     products.push_back(result);
   }
   results.swap(products);
+
+  for (auto const& h : results)
+    addToGotBranchIDs(*h.provenance());
 }
 
 template <typename PROD>
 bool
-art::DataViewImpl::
-removeCachedProduct(Handle<PROD>& h) const
+art::DataViewImpl::removeCachedProduct(Handle<PROD>& h) const
 {
-  bool result {false};
+  bool result{false};
   if (h.isValid() && !h.provenance()->produced()) {
     removeCachedProduct_(h.provenance()->branchID());
     h.clear();

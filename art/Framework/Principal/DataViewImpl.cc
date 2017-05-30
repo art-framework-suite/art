@@ -4,6 +4,7 @@
 #include "art/Framework/Principal/Selector.h"
 #include "art/Framework/Principal/get_BranchDescription.h"
 #include "art/Persistency/Provenance/ProductMetaData.h"
+#include "art/Utilities/HorizontalRule.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
 #include "canvas/Persistency/Provenance/ProductList.h"
 #include "canvas/Persistency/Provenance/ProductProvenance.h"
@@ -116,6 +117,19 @@ namespace art {
   }
 
   void
+  DataViewImpl::addToGotBranchIDs(Provenance const& prov) const
+  {
+    if (prov.branchDescription().transient()) {
+      // If the product retrieved is transient, don't use its
+      // BranchID; use the BranchID's of its parents.
+      auto const& bids = prov.parents();
+      gotBranchIDs_.insert(bids.begin(), bids.end());
+    } else {
+      gotBranchIDs_.insert(prov.branchID());
+    }
+  }
+
+  void
   DataViewImpl::checkPutProducts(bool const checkProducts,
                                  std::set<TypeLabel> const& expectedProducts,
                                  TypeLabelMap const& putProducts)
@@ -133,12 +147,13 @@ namespace art {
 
     if (!missing.empty()) {
       std::ostringstream errmsg;
+      HorizontalRule rule{25};
       errmsg << "The following products have been declared with 'produces',\n"
              << "but they have not been placed onto the event:\n"
-             << "=========================\n";
+             << rule('=') << '\n';
       for (auto const& desc : missing) {
         errmsg << desc
-               << "=========================\n";
+               << rule('=') << '\n';
       }
       throw Exception{errors::LogicError, "DataViewImpl::checkPutProducts"} << errmsg.str();
     }
