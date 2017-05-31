@@ -55,13 +55,6 @@ namespace art {
     return principal_.getByLabel(tid, label, productInstanceName, processName);
   }
 
-  void
-  DataViewImpl::getManyByType_(TypeID const& tid,
-                               GroupQueryResultVec& results) const
-  {
-    principal_.getManyByType(tid, results);
-  }
-
   int
   DataViewImpl::getMatchingSequence_(TypeID const& elementType,
                                      SelectorBase const& selector,

@@ -43,6 +43,7 @@
 
 #include "art/Framework/Principal/fwd.h"
 #include "art/Framework/Principal/Handle.h"
+#include "art/Framework/Principal/Selector.h"
 #include "art/Persistency/Common/GroupQueryResult.h"
 #include "art/Persistency/Common/fwd.h"
 #include "art/Persistency/Provenance/detail/type_aliases.h"
@@ -357,19 +358,7 @@ inline
 void
 art::DataViewImpl::getManyByType(std::vector<Handle<PROD>>& results) const
 {
-  GroupQueryResultVec bhv;
-  getManyByType_(TypeID{typeid(PROD)}, bhv);
-
-  std::vector<Handle<PROD>> products;
-  for (auto const& qr : bhv) {
-    Handle<PROD> result;
-    convert_handle(qr, result);
-    products.push_back(result);
-  }
-  results.swap(products);
-
-  for (auto const& h : results)
-    addToGotBranchIDs(*h.provenance());
+  getMany(MatchAllSelector{}, results);
 }
 
 template <typename PROD>

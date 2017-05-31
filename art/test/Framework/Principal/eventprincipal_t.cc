@@ -236,7 +236,7 @@ BOOST_AUTO_TEST_CASE(failgetManyTest)
   art::TypeID tid(dummy);
 
   art::ProcessNameSelector sel("PROD");
-  std::vector<art::GroupQueryResult > handles;
+  std::vector<art::GroupQueryResult> handles;
   pEvent_->getMany(tid, sel, handles);
   BOOST_CHECK(handles.empty());
 }
@@ -247,10 +247,11 @@ BOOST_AUTO_TEST_CASE(failgetManybyTypeTest)
   // so that's a type sure not to match any product.
   art::ProductID dummy;
   art::TypeID tid(dummy);
-  std::vector<art::GroupQueryResult > handles;
 
-
-  pEvent_->getManyByType(tid, handles);
+  // getManyByType is achieved by providing a selector that matches
+  // everything.
+  std::vector<art::GroupQueryResult> handles;
+  pEvent_->getMany(tid, art::MatchAllSelector{}, handles);
   BOOST_CHECK(handles.empty());
 }
 

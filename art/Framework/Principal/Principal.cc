@@ -164,14 +164,6 @@ getMany(TypeID const& productType, SelectorBase const& sel,
   findGroupsForProduct(productType, sel, results, false);
 }
 
-void
-Principal::
-getManyByType(TypeID const& productType, GroupQueryResultVec& results) const
-{
-  MatchAllSelector sel;
-  findGroupsForProduct(productType, sel, results, false);
-}
-
 int
 Principal::
 tryNextSecondaryFile() const

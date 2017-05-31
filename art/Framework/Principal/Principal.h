@@ -85,9 +85,6 @@ namespace art {
             SelectorBase const&,
             std::vector<GroupQueryResult>& results) const;
 
-    void
-    getManyByType(TypeID const&, std::vector<GroupQueryResult>& results) const;
-
     // Return a vector of GroupQueryResults to the products which:
     //   1. are sequences,
     //   2. and have the nested type 'value_type'
