@@ -74,9 +74,10 @@ public:
   DataViewImpl(DataViewImpl const&) = delete;
   DataViewImpl& operator=(DataViewImpl const&) = delete;
 
-  explicit DataViewImpl(Principal const&,
-                        ModuleDescription const&,
-                        BranchType);
+  explicit DataViewImpl(Principal const& p,
+                        ModuleDescription const& md,
+                        BranchType bt,
+                        bool recordParents);
 
   size_t size() const;
 
@@ -235,6 +236,9 @@ private:
 
   // Is this an Event, a SubRun, or a Run.
   BranchType const branchType_;
+
+  // Should we record the parents of the products put into the event.
+  bool const recordParents_;
 };
 
 template <typename PROD>
@@ -259,7 +263,7 @@ art::DataViewImpl::get(SelectorBase const& sel,
   GroupQueryResult bh = get_(TypeID{typeid(PROD)},sel);
   convert_handle(bh, result);
   bool const ok{bh.succeeded() && !result.failedToGet()};
-  if (ok) {
+  if (recordParents_ && ok) {
     addToGotBranchIDs(*result.provenance());
   }
   return ok;
@@ -295,7 +299,7 @@ art::DataViewImpl::getByLabel(std::string const& label,
   GroupQueryResult bh = getByLabel_(TypeID{typeid(PROD)}, label, productInstanceName, processName);
   convert_handle(bh, result);
   bool const ok{bh.succeeded() && !result.failedToGet()};
-  if (ok) {
+  if (recordParents_ && ok) {
     addToGotBranchIDs(*result.provenance());
   }
   return ok;
@@ -348,6 +352,8 @@ art::DataViewImpl::getMany(SelectorBase const& sel,
     products.push_back(result);
   }
   results.swap(products);
+
+  if (!recordParents_) return;
 
   for (auto const& h : results)
     addToGotBranchIDs(*h.provenance());

@@ -20,10 +20,12 @@ namespace art {
 
   DataViewImpl::DataViewImpl(Principal const& pcpl,
                              ModuleDescription const& md,
-                             BranchType const branchType)  :
+                             BranchType const branchType,
+                             bool const recordParents) :
     principal_{pcpl},
     md_{md},
-    branchType_{branchType}
+    branchType_{branchType},
+    recordParents_{recordParents}
   {}
 
   size_t

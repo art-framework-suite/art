@@ -15,7 +15,7 @@ namespace art {
   }
 
   SubRun::SubRun(SubRunPrincipal const& srp, ModuleDescription const& md, RangeSet const& rs) :
-    DataViewImpl{srp, md, InSubRun},
+    DataViewImpl{srp, md, InSubRun, false},
     aux_{srp.aux()},
     run_{newRun(srp, md)},
     productRangeSet_{rs}

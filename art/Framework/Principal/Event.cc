@@ -19,6 +19,11 @@ using namespace fhicl;
 
 namespace art {
 
+  // It only makes sense to track parents when putting a product onto
+  // the event.  That requires a non-const Event object.
+  constexpr bool record_parents(Event*) { return true; }
+  constexpr bool record_parents(Event const*) { return false; }
+
   namespace {
     SubRun* newSubRun(EventPrincipal const& ep, ModuleDescription const& md)
     {
@@ -27,10 +32,11 @@ namespace art {
   }
 
   Event::Event(EventPrincipal const& ep, ModuleDescription const& md)
-    : DataViewImpl{ep, md, InEvent}
+    : DataViewImpl{ep, md, InEvent, record_parents(this)}
     , aux_{ep.aux()}
     , subRun_{newSubRun(ep, md)}
     , eventPrincipal_{ep}
+    , recordParents_{record_parents(this)}
   { }
 
   EDProductGetter const*

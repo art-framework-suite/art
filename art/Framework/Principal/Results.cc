@@ -6,7 +6,7 @@
 #include <vector>
 
 art::Results::Results(ResultsPrincipal const& resp, ModuleDescription const& md) :
-  DataViewImpl{resp, md, InResults}
+  DataViewImpl{resp, md, InResults, false}
 {
 }
 

@@ -42,7 +42,8 @@ class art::Event final : private art::DataViewImpl {
 public:
 
   using Base = DataViewImpl;
-  explicit Event(EventPrincipal const& ep, ModuleDescription const& md);
+  explicit Event(EventPrincipal const& ep,
+                 ModuleDescription const& md);
 
   // AUX functions.
   EventID   id() const {return aux_.id();}
@@ -157,6 +158,13 @@ private:
   EventAuxiliary const& aux_;
   std::unique_ptr<SubRun const> const subRun_;
   EventPrincipal const& eventPrincipal_;
+
+  // FIXME: The 'recordParents_' flag is necessary only for Event::get
+  // overload below.  For all other lookups, the
+  // DataViewImpl::recordParents_ flag is sufficient.  However, since
+  // a ProductID does not have meaning for a (Sub)Run product (at this
+  // point), we save the record-parents flag here too.
+  bool const recordParents_;
 };  // Event
 
 // ----------------------------------------------------------------------
@@ -202,7 +210,7 @@ art::Event::get(ProductID const& oid, Handle<PROD>& result) const
   GroupQueryResult bh = getByProductID_(oid);
   convert_handle(bh, result);
   bool const ok{bh.succeeded() && !result.failedToGet()};
-  if (ok) {
+  if (recordParents_ && ok) {
     addToGotBranchIDs(*result.provenance());
   }
   return ok;
