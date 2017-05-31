@@ -114,12 +114,7 @@ namespace art {
     // Check addresses only since type of 'ep' will hopefully change to Principal&.
     assert(&ep == &eventPrincipal_);
     checkPutProducts(checkProducts, expectedProducts, putProducts());
-    commit_aux(ep, putProducts());
-  }
 
-  void
-  Event::commit_aux(EventPrincipal& ep, Base::TypeLabelMap& products)
-  {
     vector<BranchID> gotBranchIDVector;
     auto const& gotBranchIDs = retrievedProducts();
     if (!gotBranchIDs.empty()) {
@@ -127,8 +122,7 @@ namespace art {
       gotBranchIDVector.assign(gotBranchIDs.begin(), gotBranchIDs.end());
     }
 
-    for (auto& elem : products) {
-      // set provenance
+    for (auto& elem : putProducts()) {
       auto const& bd = elem.second.bd;
       auto productProvenancePtr = make_unique<ProductProvenance const>(bd.branchID(),
                                                                        productstatus::present(),
@@ -143,7 +137,7 @@ namespace art {
     };
 
     // the cleanup is all or none
-    products.clear();
+    putProducts().clear();
   }
 
   // ----------------------------------------------------------------------

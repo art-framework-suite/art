@@ -1,9 +1,7 @@
 #include "art/Framework/Principal/SubRun.h"
-#include "canvas/Persistency/Provenance/BranchType.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Framework/Principal/Run.h"
-
-#include <vector>
+#include "canvas/Persistency/Provenance/BranchType.h"
 
 namespace art {
 
@@ -33,28 +31,16 @@ namespace art {
   void
   SubRun::commit_(SubRunPrincipal& srp)
   {
-    std::vector<BranchID> gotBranchIDVector;
-    auto const& gotBranchIDs = retrievedProducts();
-    if (!gotBranchIDs.empty()) {
-      gotBranchIDVector.reserve(gotBranchIDs.size());
-      gotBranchIDVector.assign(gotBranchIDs.begin(), gotBranchIDs.end());
-    }
-
-    auto put_in_principal = [&srp, &gotBranchIDVector](auto& elem) {
-
-      // set provenance
+    for (auto& elem : putProducts()) {
       auto const& bd = elem.second.bd;
-      auto subRunProductProvenancePtr = std::make_unique<ProductProvenance const>(bd.branchID(),
-                                                                                  productstatus::present(),
-                                                                                  gotBranchIDVector);
+      auto productProvenancePtr = std::make_unique<ProductProvenance const>(bd.branchID(),
+                                                                            productstatus::present());
 
       srp.put(std::move(elem.second.prod),
               bd,
-              std::move(subRunProductProvenancePtr),
+              std::move(productProvenancePtr),
               std::move(elem.second.rs));
-    };
-
-    cet::for_all(putProducts(), put_in_principal);
+    }
 
     // the cleanup is all or none
     putProducts().clear();

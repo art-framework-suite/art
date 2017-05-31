@@ -150,8 +150,6 @@ private:
   void commit_(EventPrincipal&,
                bool checkPutProducts,
                std::set<TypeLabel> const& expectedProducts);
-  void commit_aux(EventPrincipal&,
-                  Base::TypeLabelMap& products);
 
   GroupQueryResult getByProductID_(ProductID const& oid) const;
 

@@ -4,8 +4,6 @@
 #include "fhiclcpp/ParameterSetID.h"
 #include "fhiclcpp/ParameterSetRegistry.h"
 
-#include <vector>
-
 using fhicl::ParameterSet;
 using fhicl::ParameterSetID;
 using fhicl::ParameterSetRegistry;
@@ -27,26 +25,15 @@ art::Run::getProcessParameterSet(std::string const& /*processName*/,
 void
 art::Run::commit_(RunPrincipal& rp)
 {
-  std::vector<BranchID> gotBranchIDVector;
-  auto const& gotBranchIDs = retrievedProducts();
-  if (!gotBranchIDs.empty()) {
-    gotBranchIDVector.reserve(gotBranchIDs.size());
-    gotBranchIDVector.assign(gotBranchIDs.begin(), gotBranchIDs.end());
-  }
-
-  auto put_in_principal = [&rp, &gotBranchIDVector](auto& elem) {
-
+  for (auto& elem : putProducts()) {
     auto const& bd = elem.second.bd;
-    auto runProductProvenancePtr = std::make_unique<ProductProvenance const>(bd.branchID(),
-                                                                             productstatus::present(),
-                                                                             gotBranchIDVector);
+    auto productProvenancePtr = std::make_unique<ProductProvenance const>(bd.branchID(),
+                                                                          productstatus::present());
     rp.put(std::move(elem.second.prod),
            bd,
-           std::move(runProductProvenancePtr),
+           std::move(productProvenancePtr),
            std::move(elem.second.rs));
-  };
-
-  cet::for_all(putProducts(), put_in_principal);
+  }
 
   // the cleanup is all or none
   putProducts().clear();
