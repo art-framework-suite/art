@@ -124,6 +124,10 @@ public:
   getValidHandle(InputTag const& tag) const;
 
   template <typename PROD>
+  ValidHandle<PROD>
+  getByToken(ProductToken<PROD> const& token) const;
+
+  template <typename PROD>
   void
   getMany(SelectorBase const&, std::vector<Handle<PROD>>& results) const;
 
@@ -312,6 +316,7 @@ art::DataViewImpl::get(SelectorBase const& sel,
                        Handle<PROD>& result) const
 {
   result.clear(); // Is this the correct thing to do if an exception is thrown?
+  // We do *not* track whether consumes was called for a SelectorBase.
   GroupQueryResult bh = get_(TypeID{typeid(PROD)}, sel);
   convert_handle(bh, result);
   bool const ok{bh.succeeded() && !result.failedToGet()};
@@ -326,6 +331,7 @@ bool
 art::DataViewImpl::get(ProductID const pid, Handle<PROD>& result) const
 {
   result.clear(); // Is this the correct thing to do if an exception is thrown?
+  // We do *not* track whether consumes was called for a ProductID.
   GroupQueryResult bh = getByProductID_(pid);
   convert_handle(bh, result);
   bool const ok{bh.succeeded() && !result.failedToGet()};
@@ -403,6 +409,14 @@ art::DataViewImpl::getValidHandle(InputTag const& tag) const
   Handle<PROD> h;
   getByLabel(tag, h);
   return ValidHandle<PROD>(&(*h), *h.provenance());
+}
+
+template <typename PROD>
+inline
+art::ValidHandle<PROD>
+art::DataViewImpl::getByToken(ProductToken<PROD> const& token) const
+{
+  return getValidHandle<PROD>(token.inputTag());
 }
 
 template <typename PROD>

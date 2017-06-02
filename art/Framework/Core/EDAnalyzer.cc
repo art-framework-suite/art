@@ -11,6 +11,10 @@
 namespace art
 {
 
+  EDAnalyzer::EDAnalyzer(fhicl::ParameterSet const& pset)
+    : EventObserverBase{pset}
+  {}
+
   bool
   EDAnalyzer::doEvent(EventPrincipal const& ep,
                       CPC_exempt_ptr cpc,
@@ -41,7 +45,7 @@ namespace art
   void
   EDAnalyzer::doEndJob() {
     endJob();
-    consumesRecorder_.showMissingConsumes(moduleDescription_);
+    consumesRecorder_.showMissingConsumes();
   }
 
   bool

@@ -26,59 +26,63 @@ namespace {
 
 }
 
-namespace arttest {
-
-  class ToyProductProducerMultiput : public art::EDProducer {
-
-    art::BranchType branchType_;
-
-  public:
-
-    using Parameters = EDProducer::Table<Config>;
-    explicit ToyProductProducerMultiput( Parameters const& p )
-      : branchType_( art::BranchType( p().branchType() ) )
-    {
-      switch (branchType_) {
-      case art::InEvent:
-        produces<IntProduct>();
-        break;
-      case art::InSubRun:
-        produces<IntProduct, art::InSubRun>();
-        break;
-      case art::InRun:
-        produces<IntProduct, art::InRun>();
-        break;
-      default:
-        throw art::Exception(art::errors::LogicError)
-          << "Unknown branch type "
-          << branchType_
-          << ".\n";
-      }
-    }
-
-    void produce(art::Event &e) override
-    {
-      if ( branchType_ != art::InEvent ) return;
-      e.put( std::make_unique<IntProduct>(1) );
-      e.put( std::make_unique<IntProduct>(2) );
-    }
-
-    void endSubRun(art::SubRun &sr) override
-    {
-      if ( branchType_ != art::InSubRun ) return;
-      sr.put( std::make_unique<IntProduct>(3), art::subRunFragment() );
-      sr.put( std::make_unique<IntProduct>(4), art::subRunFragment() );
-    }
-
-    void endRun(art::Run &r) override
-    {
-      if ( branchType_ != art::InRun ) return;
-      r.put( std::make_unique<IntProduct>(5), art::runFragment() );
-      r.put( std::make_unique<IntProduct>(6), art::runFragment() );
-    }
-
-  };
-
+namespace art {
+  namespace test {
+    class ToyProductProducerMultiput;
+  }
 }
 
-DEFINE_ART_MODULE(arttest::ToyProductProducerMultiput)
+using arttest::IntProduct;
+
+class art::test::ToyProductProducerMultiput : public EDProducer {
+  BranchType const branchType_;
+public:
+
+  using Parameters = EDProducer::Table<Config>;
+  explicit ToyProductProducerMultiput(Parameters const& p)
+    : branchType_{BranchType(p().branchType())}
+  {
+    switch (branchType_) {
+    case InEvent:
+      produces<IntProduct>();
+      break;
+    case InSubRun:
+      produces<IntProduct, InSubRun>();
+      break;
+    case InRun:
+      produces<IntProduct, InRun>();
+      break;
+    default:
+      throw Exception(errors::LogicError)
+        << "Unknown branch type "
+        << branchType_
+        << ".\n";
+    }
+  }
+
+private:
+
+  void produce(Event &e) override
+  {
+    if (branchType_ != InEvent) return;
+    e.put(std::make_unique<IntProduct>(1));
+    e.put(std::make_unique<IntProduct>(2));
+  }
+
+  void endSubRun(SubRun &sr) override
+  {
+    if (branchType_ != InSubRun) return;
+    sr.put(std::make_unique<IntProduct>(3), subRunFragment());
+    sr.put(std::make_unique<IntProduct>(4), subRunFragment());
+  }
+
+  void endRun(Run &r) override
+  {
+    if (branchType_ != InRun) return;
+    r.put(std::make_unique<IntProduct>(5), runFragment());
+    r.put(std::make_unique<IntProduct>(6), runFragment());
+  }
+
+};
+
+DEFINE_ART_MODULE(art::test::ToyProductProducerMultiput)

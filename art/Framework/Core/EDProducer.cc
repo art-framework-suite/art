@@ -44,7 +44,7 @@ namespace art
   void
   EDProducer::doEndJob() {
     endJob();
-    consumesRecorder_.showMissingConsumes(moduleDescription_);
+    consumesRecorder_.showMissingConsumes();
   }
 
   bool

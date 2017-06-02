@@ -80,13 +80,9 @@ namespace art
     template <typename Config>
     explicit EDAnalyzer(Table<Config> const& config)
       : EventObserverBase{config.eoFragment().selectEvents(), config.get_PSet()}
-      , EngineCreator{}
     {}
 
-    explicit EDAnalyzer(fhicl::ParameterSet const& pset)
-      : EventObserverBase{pset}
-      , EngineCreator{}
-    {}
+    explicit EDAnalyzer(fhicl::ParameterSet const& pset);
 
     virtual ~EDAnalyzer() = default;
 
@@ -95,7 +91,7 @@ namespace art
   protected:
 
     template <typename T, BranchType BT = InEvent>
-    void consumes(InputTag const& it) { consumesRecorder_.consumes<T, BT>(it); }
+    ProductToken<T> consumes(InputTag const& it) { return consumesRecorder_.consumes<T, BT>(it); }
 
     template <typename T, BranchType BT = InEvent>
     void consumesMany() { consumesRecorder_.consumesMany<T, BT>(); }
@@ -133,13 +129,18 @@ namespace art
     virtual void respondToOpenOutputFiles(FileBlock const&) {}
     virtual void respondToCloseOutputFiles(FileBlock const&) {}
 
-    void setModuleDescription(ModuleDescription const& md) {
+    void setModuleDescription(ModuleDescription const& md)
+    {
       moduleDescription_ = md;
+      // Since the module description in the ConsumesRecorder class is
+      // owned by pointer, we must give it the owned object of this
+      // class--i.e. moduleDescription_, not md.
+      consumesRecorder_.setModuleDescription(moduleDescription_);
     }
 
+    ModuleDescription moduleDescription_{};
     ConsumesRecorder consumesRecorder_{};
-    ModuleDescription moduleDescription_ {};
-    CPC_exempt_ptr current_context_ {nullptr};
+    CPC_exempt_ptr current_context_{nullptr};
   };  // EDAnalyzer
 
   template <typename T>

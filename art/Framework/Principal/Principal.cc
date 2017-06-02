@@ -24,8 +24,7 @@
 
 using namespace cet;
 using namespace std;
-
-namespace art {
+using namespace art;
 
 Principal::Principal(ProcessConfiguration const& pc,
                      ProcessHistoryID const& hist,
@@ -58,11 +57,11 @@ Principal::addToProcessHistory()
   for (auto const& val : ph) {
     if (processName == val.processName()) {
       throw art::Exception(errors::Configuration)
-          << "The process name "
-          << processName
-          << " was previously used on these products.\n"
-          << "Please modify the configuration file to use a "
-          << "distinct process name.\n";
+        << "The process name "
+        << processName
+        << " was previously used on these products.\n"
+        << "Please modify the configuration file to use a "
+        << "distinct process name.\n";
     }
   }
   ph.push_back(processConfiguration_);
@@ -94,12 +93,12 @@ Principal::getBySelector(TypeID const& productType, SelectorBase const& sel) con
   }
   if (nFound > 1) {
     throw art::Exception(art::errors::ProductNotFound)
-        << "getBySelector: Found "
-        << nFound
-        << " products rather than one which match all criteria\n"
-        << "Looking for type: "
-        << productType
-        << "\n";
+      << "getBySelector: Found "
+      << nFound
+      << " products rather than one which match all criteria\n"
+      << "Looking for type: "
+      << productType
+      << "\n";
   }
   return results[0];
 }
@@ -141,25 +140,25 @@ Principal::getByLabel(TypeID const& productType,
                << (processName.empty() ? "" : "Looking for process: ")
                << processName
                << "\n";
-    return GroupQueryResult(whyFailed);
+    return GroupQueryResult{whyFailed};
   }
   if (nFound > 1) {
     throw art::Exception(art::errors::ProductNotFound)
-        << "getByLabel: Found "
-        << nFound
-        << " products rather than one which match all criteria\n"
-        << "Looking for type: "
-        << productType
-        << "\n"
-        << "Looking for module label: "
-        << label
-        << "\n"
-        << "Looking for productInstanceName: "
-        << productInstanceName
-        << "\n"
-        << (processName.empty() ? "" : "Looking for process: ")
-        << processName
-        << "\n";
+      << "getByLabel: Found "
+      << nFound
+      << " products rather than one which match all criteria\n"
+      << "Looking for type: "
+      << productType
+      << "\n"
+      << "Looking for module label: "
+      << label
+      << "\n"
+      << "Looking for productInstanceName: "
+      << productInstanceName
+      << "\n"
+      << (processName.empty() ? "" : "Looking for process: ")
+      << processName
+      << "\n";
   }
   return results[0];
 }
@@ -299,9 +298,9 @@ Principal::findGroupsForProduct(TypeID const& wanted_product,
     cl = TClass::GetClass(wrappedClassName(wanted_product.className()).c_str());
     if (!cl) {
       throw Exception(errors::DictionaryNotFound)
-    << "Dictionary not found for "
-    << wrappedClassName(wanted_product.className())
-    << ".\n";
+        << "Dictionary not found for "
+        << wrappedClassName(wanted_product.className())
+        << ".\n";
     }
     ret = findGroups(I->second, selector, results, stopIfProcessHasMatch,
                      TypeID(cl->GetTypeInfo()));
@@ -407,7 +406,7 @@ Principal::getForOutput(ProductID const pid, bool const resolveProd) const
   return OutputHandle{g->anyProduct(), &g->productDescription(), g->productProvenancePtr(), g->rangeOfValidity()};
 }
 
-cet::exempt_ptr<Group const>
+cet::exempt_ptr<Group const> const
 Principal::getResolvedGroup(ProductID const pid,
                             bool const resolveProd) const
 {
@@ -486,5 +485,3 @@ Principal::productGetter(ProductID const pid) const
   EDProductGetter const* result{getByProductID(pid).result().get()};
   return result ? result : deferredGetter_(pid);
 }
-
-} // namespace art

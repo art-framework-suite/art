@@ -43,7 +43,7 @@ namespace art
 
   void EDFilter::doEndJob() {
     endJob();
-    consumesRecorder_.showMissingConsumes(moduleDescription_);
+    consumesRecorder_.showMissingConsumes();
   }
 
   bool

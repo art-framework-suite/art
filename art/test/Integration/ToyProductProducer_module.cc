@@ -21,7 +21,10 @@ namespace arttest {
   class ToyProductProducer : public art::EDProducer {
   public:
 
-    explicit ToyProductProducer( fhicl::ParameterSet const& )
+    struct Config {};
+    using Parameters = art::EDProducer::Table<Config>;
+
+    explicit ToyProductProducer(Parameters const&)
     {
       produces<StringProduct,art::InRun>();
       produces<StringProduct,art::InRun>("bgnRun");
@@ -33,6 +36,8 @@ namespace arttest {
 
       produces<StringProduct>();
     }
+
+  private:
 
     void beginRun(art::Run& r) override
     {

@@ -11,55 +11,86 @@
 #include "art/Framework/Principal/Handle.h"
 #include "art/Framework/Principal/Run.h"
 #include "art/Framework/Principal/SubRun.h"
-
-#include "fhiclcpp/ParameterSet.h"
 #include "art/test/TestObjects/ToyProducts.h"
-
-#include <cassert>
+#include "fhiclcpp/types/Atom.h"
 
 namespace arttest {
 
   class ToyProductAnalyzer : public art::EDAnalyzer {
+    struct Config {
+      fhicl::Atom<std::string> inputLabel {fhicl::Name{"inputLabel"}};
+    };
   public:
 
-    explicit ToyProductAnalyzer(fhicl::ParameterSet const& pset) :
-      art::EDAnalyzer(pset),
-      inputLabel_(pset.get<std::string>("inputLabel"))
-    {}
+    using Parameters = art::EDAnalyzer::Table<Config>;
+    explicit ToyProductAnalyzer(Parameters const& pset);
 
   private:
 
-    std::string inputLabel_;
+    void beginRun(art::Run const& r) override;
+    void endRun(art::Run const& r) override;
+    void beginSubRun(art::SubRun const& sr) override;
+    void endSubRun(art::SubRun const& sr) override;
+    void analyze(art::Event const& e) override;
 
-    void beginRun(art::Run const& r) override
-    {
-      r.getValidHandle<StringProduct>(art::InputTag{inputLabel_, "bgnRun"});
-      r.getValidHandle<StringProduct>(art::InputTag{inputLabel_});
-    }
+    std::string const inputLabel_;
+    // Event token
+    art::ProductToken<StringProduct> eToken_;
+    // SubRun tokens
+    art::ProductToken<StringProduct> srToken_;
+    art::ProductToken<StringProduct> bsrToken_;
+    art::ProductToken<StringProduct> esrToken_;
+    // Run tokens
+    art::ProductToken<StringProduct> rToken_;
+    art::ProductToken<StringProduct> brToken_;
+    art::ProductToken<StringProduct> erToken_;
+  };
+}
 
-    void beginSubRun(art::SubRun const& sr) override
-    {
-      sr.getValidHandle<StringProduct>(art::InputTag{inputLabel_, "bgnSubRun"});
-      sr.getValidHandle<StringProduct>(art::InputTag{inputLabel_});
-    }
+arttest::ToyProductAnalyzer::ToyProductAnalyzer(Parameters const& pset) :
+  art::EDAnalyzer{pset},
+  inputLabel_{pset().inputLabel()},
+  eToken_{consumes<StringProduct>(inputLabel_)},
+  srToken_{consumes<StringProduct, art::InSubRun>(inputLabel_)},
+  bsrToken_{consumes<StringProduct, art::InSubRun>({inputLabel_, "bgnSubRun"})},
+  esrToken_{consumes<StringProduct, art::InSubRun>({inputLabel_, "endSubRun"})},
+  rToken_{consumes<StringProduct, art::InRun>(inputLabel_)},
+  brToken_{consumes<StringProduct, art::InRun>({inputLabel_, "bgnRun"})},
+  erToken_{consumes<StringProduct, art::InRun>({inputLabel_, "endRun"})}
+{
+}
 
-    void analyze(art::Event const& e) override
-    {
-      e.getValidHandle<StringProduct>(inputLabel_);
-    }
 
-    void endSubRun(art::SubRun const& sr) override
-    {
-      sr.getValidHandle<StringProduct>(art::InputTag{inputLabel_,"endSubRun"});
-    }
+void
+arttest::ToyProductAnalyzer::beginRun(art::Run const& r)
+{
+  r.getByToken(brToken_);
+  r.getByToken(rToken_);
+}
 
-    void endRun(art::Run const& r) override
-    {
-      r.getValidHandle<StringProduct>(art::InputTag{inputLabel_,"endRun"});
-    }
+void
+arttest::ToyProductAnalyzer::beginSubRun(art::SubRun const& sr)
+{
+  sr.getByToken(bsrToken_);
+  sr.getByToken(srToken_);
+}
 
-  };  // ToyProductAnalyzer
+void
+arttest::ToyProductAnalyzer::analyze(art::Event const& e)
+{
+  e.getByToken(eToken_);
+}
 
+void
+arttest::ToyProductAnalyzer::endSubRun(art::SubRun const& sr)
+{
+  sr.getByToken(esrToken_);
+}
+
+void
+arttest::ToyProductAnalyzer::endRun(art::Run const& r)
+{
+  r.getByToken(erToken_);
 }
 
 DEFINE_ART_MODULE(arttest::ToyProductAnalyzer)

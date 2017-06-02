@@ -89,10 +89,14 @@ namespace art {
 
     void setModuleDescription(ModuleDescription const& md) {
       moduleDescription_ = md;
+      // Since the module description in the ConsumesRecorder class is
+      // owned by pointer, we must give it the owned object of this
+      // class--i.e. moduleDescription_, not md.
+      consumesRecorder_.setModuleDescription(moduleDescription_);
     }
 
-    ConsumesRecorder consumesRecorder_{};
     ModuleDescription moduleDescription_{};
+    ConsumesRecorder consumesRecorder_{};
     CPC_exempt_ptr current_context_{nullptr};
     bool checkPutProducts_{true};
     std::set<TypeLabel> missingConsumes_{};

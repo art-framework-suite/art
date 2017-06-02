@@ -48,6 +48,12 @@ namespace {
 }
 
 void
+art::ConsumesRecorder::setModuleDescription(ModuleDescription const& md)
+{
+  moduleDescription_ = &md;
+}
+
+void
 art::ConsumesRecorder::prepareForJob(fhicl::ParameterSet const& pset)
 {
   if (!trackConsumes_) return;
@@ -77,7 +83,7 @@ art::ConsumesRecorder::validateConsumedProduct(BranchType const bt, ProductInfo 
 }
 
 void
-art::ConsumesRecorder::showMissingConsumes(ModuleDescription const& md) const
+art::ConsumesRecorder::showMissingConsumes() const
 {
   if (!trackConsumes_) return;
 
@@ -89,8 +95,8 @@ art::ConsumesRecorder::showMissingConsumes(ModuleDescription const& md) const
   mf::LogAbsolute log{"ArtConsumes"};
   log << '\n' << rule('=') << '\n'
       << "The following consumes statements are missing from\n"
-      << "  module label: '" << md.moduleLabel() << "' of class type '"
-      << md.moduleName() << "'\n"
+      << "  module label: '" << moduleDescription_->moduleLabel() << "' of class type '"
+      << moduleDescription_->moduleName() << "'\n"
       << rule('-') << '\n';
 
   cet::for_all_with_index(missingConsumes_,

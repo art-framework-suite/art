@@ -48,6 +48,7 @@ public:
   // Retrieve a product
   using Base::get;
   using Base::getByLabel;
+  using Base::getByToken;
   using Base::getMany;
   using Base::getManyByType;
   using Base::getPointerByLabel;

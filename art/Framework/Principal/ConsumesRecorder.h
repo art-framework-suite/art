@@ -6,10 +6,12 @@
 //---------------------------------------------------------------------------
 
 #include "art/Framework/Principal/ProductInfo.h"
+#include "art/Framework/Principal/ProductToken.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
 #include "canvas/Persistency/Provenance/TypeLabel.h"
 #include "canvas/Utilities/InputTag.h"
 #include "canvas/Utilities/TypeID.h"
+#include "cetlib/exempt_ptr.h"
 
 namespace fhicl {
   class ParameterSet;
@@ -30,6 +32,10 @@ namespace art {
       return invalidRec;
     }
 
+    // After the modules are constructed, their ModuleDescription
+    // values are assigned.  We receive the values of that assignment.
+    void setModuleDescription(ModuleDescription const& md);
+
     // Once all of the 'consumes(Many)' calls have been made for this
     // recorder, the consumables are sorted, and the configuration is
     // retrieved to specify the desired behavior in the case of a
@@ -37,15 +43,13 @@ namespace art {
     void prepareForJob(fhicl::ParameterSet const& pset);
 
     // Not sure what the return type of 'consumes' should be yet.
-    template <typename, BranchType>
-    void consumes(InputTag const&);
+    template <typename T, BranchType>
+    ProductToken<T> consumes(InputTag const&);
 
     template <typename, BranchType>
     void consumesMany();
-
     void validateConsumedProduct(BranchType const bt, ProductInfo const& pi);
-
-    void showMissingConsumes(ModuleDescription const& md) const;
+    void showMissingConsumes() const;
 
   private:
 
@@ -55,19 +59,22 @@ namespace art {
     bool requireConsumes_{false};
     ConsumableProducts consumables_{};
     ConsumableProductSets missingConsumes_{};
+    cet::exempt_ptr<ModuleDescription const> moduleDescription_{nullptr};
   };
 }
 
 //===========================================================================
 template <typename T, art::BranchType BT>
-void art::ConsumesRecorder::consumes(InputTag const& it)
+art::ProductToken<T>
+art::ConsumesRecorder::consumes(InputTag const& it)
 {
-  if (!trackConsumes_) return;
+  if (!trackConsumes_) return ProductToken<T>{}; // THIS CAN'T BE RIGHT.
 
   consumables_[BT].emplace_back(TypeID{typeid(T)},
                                 it.label(),
                                 it.instance(),
                                 it.process());
+  return ProductToken<T>{it};
 }
 
 template <typename T, art::BranchType BT>
