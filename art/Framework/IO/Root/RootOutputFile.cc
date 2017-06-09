@@ -17,7 +17,7 @@
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Framework/Services/System/DatabaseConnection.h"
-#include "art/Persistency/Provenance/BranchIDListRegistry.h"
+#include "canvas/Persistency/Provenance/BranchIDListRegistry.h"
 #include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
 #include "art/Persistency/Provenance/ProductMetaData.h"
 #include "art/Persistency/RootDB/SQLErrMsg.h"

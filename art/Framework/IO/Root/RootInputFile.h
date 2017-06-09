@@ -11,7 +11,7 @@
 #include "art/Framework/Principal/ResultsPrincipal.h"
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
-#include "art/Persistency/Provenance/BranchIDListRegistry.h"
+#include "canvas/Persistency/Provenance/BranchIDListRegistry.h"
 #include "art/Persistency/Provenance/MasterProductRegistry.h"
 #include "art/Persistency/Provenance/detail/type_aliases.h"
 #include "canvas/Persistency/Provenance/BranchChildren.h"

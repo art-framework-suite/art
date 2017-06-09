@@ -13,7 +13,7 @@
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/System/DatabaseConnection.h"
 #include "art/Framework/Services/System/FileCatalogMetadata.h"
-#include "art/Persistency/Provenance/BranchIDListRegistry.h"
+#include "canvas/Persistency/Provenance/BranchIDListRegistry.h"
 #include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
 #include "art/Persistency/RootDB/TKeyVFSOpenPolicy.h"
 #include "canvas/Persistency/Common/EDProduct.h"
@@ -193,7 +193,7 @@ namespace art {
 
     // Here we read the metadata tree
     input::getEntry(metaDataTree, 0);
-    BranchIDListRegistry::updateFromInput(branchIDLists, fileName_);
+    BranchIDListRegistry::mergeFromFile(branchIDLists, fileName_);
     metaDataTree->SetBranchAddress(metaBranchRootName<BranchIDLists>(), nullptr);
 
     // Check the, "Era" of the input file (new since art v0.5.0). If it

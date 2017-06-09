@@ -1,7 +1,7 @@
 #include "art/Framework/Core/ProductRegistryHelper.h"
 // vim: set sw=2:
 
-#include "art/Persistency/Provenance/BranchIDListRegistry.h"
+#include "canvas/Persistency/Provenance/BranchIDListRegistry.h"
 #include "art/Framework/Core/FileBlock.h"
 #include "art/Persistency/Provenance/MasterProductRegistry.h"
 #include "canvas/Persistency/Provenance/BranchDescription.h"
@@ -65,7 +65,7 @@ art::ProductRegistryHelper::registerProducts(MasterProductRegistry& mpr,
     }
     FileBlock const fb{{}, "ProductRegistryHelper"};
     mpr.initFromFirstPrimaryFile(*productList_, tp, fb);
-    BranchIDListRegistry::updateFromInput({bil}, fb.fileName());
+    BranchIDListRegistry::mergeFromFile({bil}, fb.fileName());
     productList_.reset(); // Reset, since we no longer need it.
   }
   check_for_duplicate_Assns(typeLabelList_[InEvent]);

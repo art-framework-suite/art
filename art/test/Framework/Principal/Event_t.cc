@@ -8,7 +8,7 @@
 #include "art/Framework/Principal/Selector.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Framework/Principal/Handle.h"
-#include "art/Persistency/Provenance/BranchIDListRegistry.h"
+#include "canvas/Persistency/Provenance/BranchIDListRegistry.h"
 #include "art/Persistency/Provenance/MasterProductRegistry.h"
 #include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
 #include "art/Version/GetReleaseVersion.h"
@@ -126,7 +126,7 @@ MPRGlobalTestFixture::MPRGlobalTestFixture()
   // Freeze the product registry before we make the Event.
   availableProducts_->setFrozen();
   ProductMetaData::create_instance(*availableProducts_);
-  BranchIDListRegistry::updateFromProductRegistry(*availableProducts_);
+  BranchIDListRegistry::expand(availableProducts_->productList());
 }
 
 template <class T>
