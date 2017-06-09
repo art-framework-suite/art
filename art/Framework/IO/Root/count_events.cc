@@ -11,7 +11,6 @@
 #include "boost/program_options.hpp"
 
 #include <algorithm>
-#include <iterator>
 #include <iostream>
 #include <string>
 #include <vector>

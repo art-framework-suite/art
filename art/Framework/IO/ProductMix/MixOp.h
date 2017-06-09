@@ -227,7 +227,7 @@ readFromFile(EntryNumberSequence const & seq)
   // Assume the sequence is ordered per
   // MixHelper::generateEventSequence.
   auto const b = seq.cbegin(), e = seq.cend();
-  for (EntryNumberSequence::const_iterator i = b; i != e; ++i) {
+  for (auto i = b; i != e; ++i) {
     auto fit = std::find(b, i, *i);
     if (fit == i) { // Need new product.
       inProducts_.emplace_back(new Wrapper<PROD>);

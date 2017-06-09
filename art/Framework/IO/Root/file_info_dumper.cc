@@ -18,7 +18,6 @@ extern "C" {
 #include <algorithm>
 #include <bitset>
 #include <iostream>
-#include <iterator>
 #include <ostream>
 #include <sstream>
 #include <string>

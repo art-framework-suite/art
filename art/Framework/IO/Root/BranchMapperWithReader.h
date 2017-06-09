@@ -27,18 +27,18 @@ class art::BranchMapperWithReader
   : public BranchMapper
 {
 public:
-  BranchMapperWithReader(TBranch * branch, input::EntryNumber entryNumber);
+  BranchMapperWithReader(TBranch* branch, input::EntryNumber entryNumber);
 
 private:
   void readProvenance_() const override;
 
-  TBranch * branchPtr_;
+  TBranch* branchPtr_;
   input::EntryNumber entryNumber_;
 
 };  // BranchMapperWithReader
 
 inline
-art::BranchMapperWithReader::BranchMapperWithReader(TBranch * branch, input::EntryNumber entryNumber) :
+art::BranchMapperWithReader::BranchMapperWithReader(TBranch* branch, input::EntryNumber entryNumber) :
   BranchMapper(true),
   branchPtr_  (branch),
   entryNumber_(entryNumber)
@@ -48,19 +48,17 @@ inline
 void
 art::BranchMapperWithReader::readProvenance_() const
 {
-  typedef  std::vector<ProductProvenance>  ppVec;
-  typedef  typename ppVec::const_iterator  iter_t;
+  typedef std::vector<ProductProvenance> ppVec;
 
   ppVec infoVector;
-  ppVec * pInfoVector(&infoVector);
+  ppVec* pInfoVector(&infoVector);
 
   branchPtr_->SetAddress(&pInfoVector);
   input::getEntry(branchPtr_, entryNumber_);
 
-  BranchMapperWithReader * me = const_cast<BranchMapperWithReader*>(this);
-  for (iter_t it  = infoVector.begin()
-            , end = infoVector.end(); it != end; ++it) {
-    me->insert(std::unique_ptr<ProductProvenance const>(new ProductProvenance(*it)));
+  auto me = const_cast<BranchMapperWithReader*>(this);
+  for (auto const& info : infoVector) {
+    me->insert(std::make_unique<ProductProvenance const>(info));
   }
 }
 

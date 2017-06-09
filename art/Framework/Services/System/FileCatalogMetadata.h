@@ -26,7 +26,6 @@
 #include "fhiclcpp/types/OptionalAtom.h"
 #include "fhiclcpp/types/Sequence.h"
 
-#include <iterator>
 #include <mutex>
 #include <string>
 #include <unordered_map>

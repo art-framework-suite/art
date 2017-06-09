@@ -16,7 +16,6 @@
 
 #include <algorithm>
 #include <fstream>
-#include <iterator>
 #include <string>
 #include <vector>
 
@@ -92,8 +91,8 @@ void write_id(art::Provenance const& p, std::ostream& os) {
 
 // format_product_node defines the format for the product nade.
 void format_product_node(std::string const& fcn,
-         std::string const& pin,
-         std::ostream& os)
+                         std::string const& pin,
+                         std::ostream& os)
 {
   os << " [label = \"" << fcn;
   if (!pin.empty()) os << "/" << pin;

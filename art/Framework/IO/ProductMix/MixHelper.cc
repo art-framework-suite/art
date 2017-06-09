@@ -15,7 +15,6 @@
 #include <algorithm>
 #include <cassert>
 #include <functional>
-#include <iterator>
 #include <limits>
 #include <numeric>
 #include <regex>
@@ -24,27 +23,24 @@
 #include "Rtypes.h"
 
 namespace {
-  class EventIDIndexBuilder :
-    public std::unary_function < art::FileIndex::Element const &,
-      void > {
+  class EventIDIndexBuilder : public std::unary_function<art::FileIndex::Element const&, void> {
   public:
-    EventIDIndexBuilder(art::EventIDIndex & index);
+    EventIDIndexBuilder(art::EventIDIndex& index);
     result_type operator()(argument_type element) const;
   private:
-    art::EventIDIndex & index_;
+    art::EventIDIndex& index_;
   };
 
-  class EventIDLookup :
-    public std::unary_function<Long64_t, art::EventID> {
+  class EventIDLookup : public std::unary_function<Long64_t, art::EventID> {
   public:
-    EventIDLookup(art::EventIDIndex const & index);
+    EventIDLookup(art::EventIDIndex const& index);
     result_type operator()(argument_type entry) const;
   private:
-    art::EventIDIndex const & index_;
+    art::EventIDIndex const& index_;
   };
 
   std::array<cet::exempt_ptr<TTree>, art::NumBranchTypes>
-  initDataTrees(cet::value_ptr<TFile> const & currentFile)
+  initDataTrees(cet::value_ptr<TFile> const& currentFile)
   {
     std::array<cet::exempt_ptr<TTree>, art::NumBranchTypes> result;
     for (auto bt = 0; bt != art::NumBranchTypes; ++bt) {
@@ -62,7 +58,7 @@ namespace {
 }  // namespace
 
 inline
-EventIDIndexBuilder::EventIDIndexBuilder(art::EventIDIndex & index)
+EventIDIndexBuilder::EventIDIndexBuilder(art::EventIDIndex& index)
   :
   index_(index)
 {
@@ -78,7 +74,7 @@ EventIDIndexBuilder::operator()(argument_type element) const
 }
 
 inline
-EventIDLookup::EventIDLookup(art::EventIDIndex const & index)
+EventIDLookup::EventIDLookup(art::EventIDIndex const& index)
   :
   index_(index)
 {}
@@ -86,7 +82,7 @@ EventIDLookup::EventIDLookup(art::EventIDIndex const & index)
 EventIDLookup::result_type
 EventIDLookup::operator()(argument_type entry) const
 {
-  art::EventIDIndex::const_iterator i = index_.find(entry);
+  auto i = index_.find(entry);
   if (i == index_.end()) {
     throw art::Exception(art::errors::LogicError)
         << "MixHelper could not find entry number "
@@ -97,7 +93,7 @@ EventIDLookup::operator()(argument_type entry) const
 }
 
 namespace {
-  double initCoverageFraction(fhicl::ParameterSet const & pset)
+  double initCoverageFraction(fhicl::ParameterSet const& pset)
   {
     double result = pset.get<double>("coverageFraction", 1.0);
     if (result > (1 + std::numeric_limits<double>::epsilon())) {
@@ -129,8 +125,8 @@ namespace {
 }
 
 art::MixHelper::
-MixHelper(fhicl::ParameterSet const & pset,
-          ProducerBase & producesProvider)
+MixHelper(fhicl::ParameterSet const& pset,
+          ProducerBase& producesProvider)
   :
   producesProvider_(producesProvider),
   filenames_(pset.get<std::vector<std::string> >("fileNames", { })),
@@ -176,8 +172,8 @@ registerSecondaryFileNameProvider(ProviderFunc_ func)
 bool
 art::MixHelper::
 generateEventSequence(size_t nSecondaries,
-                      EntryNumberSequence & enSeq,
-                      EventIDSequence & eIDseq)
+                      EntryNumberSequence& enSeq,
+                      EventIDSequence& eIDseq)
 {
   assert(enSeq.empty());
   assert(eIDseq.empty());
@@ -278,9 +274,9 @@ generateEventAuxiliarySequence(EntryNumberSequence const& enseq,
 }
 
 void
-art::MixHelper::mixAndPut(EntryNumberSequence const & eventEntries,
-                          EventIDSequence const & eIDseq,
-                          Event & e)
+art::MixHelper::mixAndPut(EntryNumberSequence const& eventEntries,
+                          EventIDSequence const& eIDseq,
+                          Event& e)
 {
   // Populate the remapper in case we need to remap any Ptrs.
   ptpBuilder_.populateRemapper(ptrRemapper_, e);
@@ -291,7 +287,7 @@ art::MixHelper::mixAndPut(EntryNumberSequence const & eventEntries,
   EntryNumberSequence runEntries;
   if (haveSubRunMixOps_) {
     subRunEntries.reserve(eIDseq.size());
-    for (auto const & eID : eIDseq) {
+    for (auto const& eID : eIDseq) {
       auto const it = currentFileIndex_.findPosition(eID.subRunID(), true);
       if (it != currentFileIndex_.cend()) {
         subRunEntries.emplace_back(it->entry_);
@@ -306,7 +302,7 @@ art::MixHelper::mixAndPut(EntryNumberSequence const & eventEntries,
   }
   if (haveRunMixOps_) {
     runEntries.reserve(eIDseq.size());
-    for (auto const & eID : eIDseq) {
+    for (auto const& eID : eIDseq) {
       auto const it = currentFileIndex_.findPosition(eID.runID(), true);
       if (it != currentFileIndex_.cend()) {
         runEntries.emplace_back(it->entry_);
@@ -320,7 +316,7 @@ art::MixHelper::mixAndPut(EntryNumberSequence const & eventEntries,
     }
   }
   // Do the branch-wise read, mix and put.
-  for (auto const & op : mixOps_) {
+  for (auto const& op : mixOps_) {
     switch (op->branchType()) {
     case InEvent:
       op->readFromFile(eventEntries);
@@ -356,7 +352,7 @@ setEventsToSkipFunction(std::function < size_t () > eventsToSkip)
 
 auto
 art::MixHelper::
-initReadMode_(std::string const & mode) const
+initReadMode_(std::string const& mode) const
 -> Mode
 {
   // These regexes must correspond by index to the valid Mode enumerator
@@ -368,7 +364,7 @@ initReadMode_(std::string const & mode) const
       std::regex("^randomnoreplace$", std::regex_constants::icase)
       };
   int i { 0 };
-  for (auto const & r : robjs) {
+  for (auto const& r : robjs) {
     if (std::regex_search(mode, r)) {
       return Mode(i);
     }
@@ -393,7 +389,7 @@ openAndReadMetaData_(std::string filename)
   try {
     currentFile_.reset(TFile::Open(filename.c_str()));
   }
-  catch (std::exception const & e) {
+  catch (std::exception const& e) {
     throw Exception(errors::FileOpenError, e.what())
         << "Unable to open specified secondary event stream file "
         << filename
@@ -482,14 +478,14 @@ openAndReadMetaData_(std::string filename)
     std::iota(shuffledSequence_.begin(), shuffledSequence_.end(), 0);
     std::random_shuffle(shuffledSequence_.begin(),
                         shuffledSequence_.end(),
-                        [this](EntryNumberSequence::difference_type const &n)
+                        [this](EntryNumberSequence::difference_type const& n)
                         { return dist_.get()->fireInt(n); });
   }
 }
 
 void
 art::MixHelper::
-buildEventIDIndex_(FileIndex const & fileIndex)
+buildEventIDIndex_(FileIndex const& fileIndex)
 {
   cet::for_all(fileIndex, EventIDIndexBuilder(eventIDIndex_));
 }
@@ -532,30 +528,25 @@ openNextFile_()
 
 void
 art::MixHelper::
-buildBranchIDTransMap_(ProdToProdMapBuilder::BranchIDTransMap &
-                       transMap)
+buildBranchIDTransMap_(ProdToProdMapBuilder::BranchIDTransMap& transMap)
 {
-  for (MixOpList::const_iterator
-       i = mixOps_.begin(),
-       e = mixOps_.end();
-       i != e;
-       ++i) {
-    auto const bt = (*i)->branchType();
-    (*i)->initializeBranchInfo(dataBranches_[bt]);
+  for (auto& mixOp : mixOps_) {
+    auto const bt = mixOp->branchType();
+    mixOp->initializeBranchInfo(dataBranches_[bt]);
 #if ART_DEBUG_PTRREMAPPER
     std::cerr << "BranchIDTransMap: "
               << std::hex
               << std::setfill('0')
               << std::setw(8)
-              << (*i)->incomingBranchID()
+              << mixOp->incomingBranchID()
               << " -> "
               << std::setw(8)
-              << (*i)->outgoingBranchID()
+              << mixOp->outgoingBranchID()
               << std::dec
               << ".\n";
 #endif
     if (bt == InEvent) {
-      transMap[(*i)->incomingBranchID()] = (*i)->outgoingBranchID();
+      transMap[mixOp->incomingBranchID()] = mixOp->outgoingBranchID();
     }
   }
 }

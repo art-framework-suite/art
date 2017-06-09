@@ -8,7 +8,6 @@
 
 #include <algorithm>
 #include <cctype>
-#include <iterator>
 #include <ostream>
 #include <regex>
 #include <string>
@@ -18,7 +17,7 @@ using namespace cet;
 using namespace fhicl;
 using namespace std;
 
-typedef vector<BranchDescription const*> VCBDP;
+using VCBDMP = vector<BranchDescription const*>;
 
 namespace {
 
@@ -28,8 +27,8 @@ namespace {
   // rules.
   inline
   bool
-  partial_match(const string& regularExpression,
-                const string& branchstring)
+  partial_match(string const& regularExpression,
+                string const& branchstring)
   {
     return regularExpression.empty()
       ? branchstring == ""
@@ -155,22 +154,20 @@ GroupSelectorRules::Rule::Rule(string const& s,
 void
 GroupSelectorRules::Rule::applyToAll(vector<BranchSelectState>& branchstates) const
 {
-  vector<BranchSelectState>::iterator it = branchstates.begin();
-  vector<BranchSelectState>::iterator end = branchstates.end();
-  for (; it != end; ++it) applyToOne(it->desc, it->selectMe);
+  for (auto& state : branchstates)
+    applyToOne(state.desc, state.selectMe);
 }
 
 void
 GroupSelectorRules::applyToAll(vector<BranchSelectState>& branchstates) const
 {
-  vector<Rule>::const_iterator it = rules_.begin();
-  vector<Rule>::const_iterator end = rules_.end();
-  for (; it != end; ++it) it->applyToAll(branchstates);
+  for (auto const& rule : rules_)
+    rule.applyToAll(branchstates);
 }
 
 void
 GroupSelectorRules::Rule::applyToOne(BranchDescription const* branch,
-                 bool& result) const
+                                     bool& result) const
 {
   if (this->appliesTo(branch)) result = selectflag_;
 }

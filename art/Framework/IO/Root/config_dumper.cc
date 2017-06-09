@@ -24,7 +24,6 @@ extern "C" {
 #include <cstddef>
 #include <iomanip>
 #include <iostream>
-#include <iterator>
 #include <memory>
 #include <ostream>
 #include <sstream>
@@ -181,14 +180,10 @@ bool read_all_parameter_sets(TFile & file,
            << ".\n";
     return false;
   }
-  for (ParameterSetMap::const_iterator
-       i = psm.begin(),
-       e = psm.end();
-       i != e;
-       ++i) {
+  for (auto const& pr : psm) {
     // Read the next ParameterSet directly into the output vector.
     fhicl::ParameterSet pset;
-    fhicl::make_ParameterSet(i->second.pset_, pset);
+    fhicl::make_ParameterSet(pr.second.pset_, pset);
     fhicl::ParameterSetRegistry::put(pset);
   }
   if (ffv.value_ >= 5) { // Should have metadata DB.

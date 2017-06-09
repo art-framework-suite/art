@@ -30,9 +30,9 @@ namespace art {
     explicit ProvenanceCheckerOutput(Parameters const&);
 
   private:
-    void write(EventPrincipal & e) override;
-    void writeSubRun(SubRunPrincipal &) override {}
-    void writeRun(RunPrincipal &) override {}
+    void write(EventPrincipal& e) override;
+    void writeSubRun(SubRunPrincipal&) override {}
+    void writeRun(RunPrincipal&) override {}
   };  // ProvenanceCheckerOutput
 
   //
@@ -49,111 +49,90 @@ namespace art {
                             const BranchMapper& iMapper,
                             std::map<BranchID,bool>& oMap,
                             std::set<BranchID>& oMapperMissing) {
-    for(std::vector<BranchID>::const_iterator it = iInfo.parentage().parents().begin(),
-          itEnd = iInfo.parentage().parents().end();
-        it != itEnd;
-        ++it) {
+    for (auto const& parent : iInfo.parentage().parents()) {
       //Don't look for parents if we've previously looked at the parents
-      if(oMap.find(*it) == oMap.end()) {
+      if (oMap.find(parent) == oMap.end()) {
         //use side effect of calling operator[] which is if the item isn't there it will add it as 'false'
-        oMap[*it];
-        cet::exempt_ptr<ProductProvenance const> pInfo = iMapper.branchToProductProvenance(*it);
-        if(pInfo.get()) {
+        oMap[parent];
+        cet::exempt_ptr<ProductProvenance const> pInfo = iMapper.branchToProductProvenance(parent);
+        if (pInfo.get()) {
           markAncestors(*pInfo,iMapper,oMap,oMapperMissing);
         } else {
-          oMapperMissing.insert(*it);
+          oMapperMissing.insert(parent);
         }
       }
     }
   }
 
   void
-  ProvenanceCheckerOutput::write(EventPrincipal & e) {
+  ProvenanceCheckerOutput::write(EventPrincipal& e)
+  {
     //check ProductProvenance's parents to see if they are in the ProductProvenance list
-    BranchMapper const &mapper = const_cast<EventPrincipal const &>(e).branchMapper();
+    BranchMapper const& mapper = const_cast<EventPrincipal const&>(e).branchMapper();
 
     std::map<BranchID,bool> seenParentInPrincipal;
     std::set<BranchID> missingFromMapper;
     std::set<BranchID> missingProductProvenance;
 
-    for(EventPrincipal::const_iterator it = e.begin(), itEnd = e.end();
-        it != itEnd;
-        ++it) {
-      if(it->second && !it->second->productUnavailable()) {
+    for (auto const& group : e) {
+      if (group.second && !group.second->productUnavailable()) {
         //This call seems to have a side effect of filling the 'ProductProvenance' in the Group
-        e.getForOutput(it->first, false);
+        e.getForOutput(group.first, false);
 
-        if(not it->second->productProvenancePtr().get() ) {
-          missingProductProvenance.insert(it->first);
+        if (not group.second->productProvenancePtr().get() ) {
+          missingProductProvenance.insert(group.first);
           continue;
         }
-        cet::exempt_ptr<ProductProvenance const> pInfo = mapper.branchToProductProvenance(it->first);
-        if(!pInfo.get()) {
-          missingFromMapper.insert(it->first);
+        cet::exempt_ptr<ProductProvenance const> pInfo = mapper.branchToProductProvenance(group.first);
+        if (!pInfo.get()) {
+          missingFromMapper.insert(group.first);
         }
-        markAncestors(*(it->second->productProvenancePtr()),mapper,seenParentInPrincipal, missingFromMapper);
+        markAncestors(*(group.second->productProvenancePtr()),mapper,seenParentInPrincipal, missingFromMapper);
       }
-      seenParentInPrincipal[it->first]=true;
+      seenParentInPrincipal[group.first]=true;
     }
 
     //Determine what BranchIDs are in the product registry
-    ProductList const &prodList = ProductMetaData::instance().productList();
+    auto const& prodList = ProductMetaData::instance().productList();
     std::set<BranchID> branchesInReg;
-    for(ProductList::const_iterator it = prodList.begin(), itEnd = prodList.end();
-        it != itEnd;
-        ++it) {
-      branchesInReg.insert(it->second.branchID());
+    for (auto const& prod : prodList) {
+      branchesInReg.insert(prod.second.branchID());
     }
 
     std::set<BranchID> missingFromPrincipal;
     std::set<BranchID> missingFromReg;
-    for(std::map<BranchID,bool>::iterator it=seenParentInPrincipal.begin(), itEnd = seenParentInPrincipal.end();
-        it != itEnd;
-        ++it) {
-      if(!it->second) {
-        missingFromPrincipal.insert(it->first);
+    for (auto const& seenParent : seenParentInPrincipal) {
+      if (!seenParent.second) {
+        missingFromPrincipal.insert(seenParent.first);
       }
-      if(branchesInReg.find(it->first) == branchesInReg.end()) {
-        missingFromReg.insert(it->first);
+      if (branchesInReg.find(seenParent.first) == branchesInReg.end()) {
+        missingFromReg.insert(seenParent.first);
       }
     }
 
-    if(missingFromMapper.size()) {
+    auto logBranchID = [](auto const& missing){ mf::LogProblem("ProvenanceChecker") << missing; };
+
+    if (missingFromMapper.size()) {
       mf::LogError("ProvenanceChecker") << "Missing the following BranchIDs from BranchMapper\n";
-      for(std::set<BranchID>::iterator it=missingFromMapper.begin(), itEnd = missingFromMapper.end();
-          it!=itEnd;
-          ++it) {
-        mf::LogProblem("ProvenanceChecker") << *it;
-      }
+      cet::for_all(missingFromMapper, logBranchID);
     }
-    if(missingFromPrincipal.size()) {
+
+    if (missingFromPrincipal.size()) {
       mf::LogError("ProvenanceChecker") << "Missing the following BranchIDs from EventPrincipal\n";
-      for(std::set<BranchID>::iterator it=missingFromPrincipal.begin(), itEnd = missingFromPrincipal.end();
-          it!=itEnd;
-          ++it) {
-        mf::LogProblem("ProvenanceChecker") << *it;
-      }
+      cet::for_all(missingFromPrincipal, logBranchID);
     }
 
-    if(missingProductProvenance.size()) {
+    if (missingProductProvenance.size()) {
       mf::LogError("ProvenanceChecker") << "The Groups for the following BranchIDs have no ProductProvenance\n";
-      for(std::set<BranchID>::iterator it=missingProductProvenance.begin(), itEnd = missingProductProvenance.end();
-          it!=itEnd;
-          ++it) {
-        mf::LogProblem("ProvenanceChecker") << *it;
-      }
+      cet::for_all(missingProductProvenance, logBranchID);
     }
 
-    if(missingFromReg.size()) {
+    if (missingFromReg.size()) {
       mf::LogError("ProvenanceChecker") << "Missing the following BranchIDs from ProductRegistry\n";
-      for(std::set<BranchID>::iterator it=missingFromReg.begin(), itEnd = missingFromReg.end();
-          it!=itEnd;
-          ++it) {
-        mf::LogProblem("ProvenanceChecker") << *it;
-      }
+      cet::for_all(missingFromReg, logBranchID);
     }
 
-    if(missingFromMapper.size() or missingFromPrincipal.size() or missingProductProvenance.size() or missingFromReg.size()) {
+    if (missingFromMapper.size() or missingFromPrincipal.size() or missingProductProvenance.size() or missingFromReg.size()) {
       throw cet::exception("ProvenanceError")
         << (missingFromMapper.size() or missingFromPrincipal.size()?"Having missing ancestors": "")
         << (missingFromMapper.size()?" from BranchMapper":"")

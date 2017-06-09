@@ -42,10 +42,10 @@ void art::RootBranchInfoList::reset(TTree *tree) {
 }
 
 bool
-art::RootBranchInfoList::
-findBranchInfo(TypeID const &type,
-               InputTag const &tag,
-               RootBranchInfo &rbInfo) const {
+art::RootBranchInfoList::findBranchInfo(TypeID const &type,
+                                        InputTag const &tag,
+                                        RootBranchInfo &rbInfo) const
+{
   std::ostringstream pat_s;
   pat_s << '^'
         << type.friendlyClassName()
@@ -60,15 +60,11 @@ findBranchInfo(TypeID const &type,
     pat_s << tag.process();
   }
   pat_s << "\\.$";
-  std::regex r(pat_s.str());
+  std::regex const r{pat_s.str()};
   // data_ is ordered so that the first match is the best.
-  for (Data_t::const_iterator
-         i = data_.begin(),
-         e = data_.end();
-       i !=e;
-       ++i) {
-    if (std::regex_match(i->branchName(), r)) {
-      rbInfo = *i;
+  for (auto const& datum : data_) {
+    if (std::regex_match(datum.branchName(), r)) {
+      rbInfo = datum;
       return true;
     }
   }

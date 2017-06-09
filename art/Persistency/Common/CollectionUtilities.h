@@ -181,7 +181,7 @@ namespace art {
     bool
     verifyPtrCollection(iterator beg,
                         iterator end,
-                        art::ProductID id = art::ProductID(),
+                        art::ProductID id = {},
                         art::EDProductGetter const *getter = 0);
   }
 }

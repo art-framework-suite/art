@@ -16,7 +16,7 @@ namespace art {
   // defined herein:
   class GroupSelector;
   std::ostream&
-    operator<< (std::ostream& os, const GroupSelector& gs);
+  operator<< (std::ostream& os, const GroupSelector& gs);
 
   // used herein:
   class BranchDescription;
@@ -25,10 +25,8 @@ namespace art {
 
 // ----------------------------------------------------------------------
 
-class art::GroupSelector
-{
+class art::GroupSelector {
 public:
-  GroupSelector();
 
   // N.B.: we assume there are not null pointers in the vector allBranches.
   void initialize(GroupSelectorRules const& rules,
@@ -44,8 +42,8 @@ public:
 private:
 
   // Keep a sorted collection indicating which groups are to be selected.
-  std::vector<BranchDescription const *>  groupsToSelect_;
-  bool initialized_;
+  std::vector<BranchDescription const*>  groupsToSelect_{};
+  bool initialized_{false};
 };  // GroupSelector
 
 // ======================================================================

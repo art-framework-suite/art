@@ -25,7 +25,6 @@ extern "C" {
 #include <cstddef>
 #include <cstdlib>
 #include <iostream>
-#include <iterator>
 #include <ostream>
 #include <sstream>
 #include <string>

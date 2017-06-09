@@ -8,34 +8,24 @@
 
 #include <algorithm>
 #include <cctype>
-#include <iterator>
 #include <ostream>
 
 using namespace art;
 using namespace cet;
 using namespace std;
 
-GroupSelector::GroupSelector() :
-groupsToSelect_( ),
-initialized_   (false)
-{ }
-
 void
 GroupSelector::initialize(GroupSelectorRules const& rules,
                           ProductList const& branchDescriptions)
 {
-  typedef GroupSelectorRules::BranchSelectState BranchSelectState;
+  using BranchSelectState = GroupSelectorRules::BranchSelectState;
 
   // Get a BranchSelectState for each branch, containing the branch
   // name, with its 'select bit' set to false.
   vector<BranchSelectState> branchstates;
   branchstates.reserve(branchDescriptions.size());
-  for (ProductList::const_iterator
-         it = branchDescriptions.begin(),
-         end = branchDescriptions.end();
-       it != end;
-       ++it) {
-    branchstates.push_back(BranchSelectState(&it->second));
+  for (auto const& pr : branchDescriptions) {
+    branchstates.push_back(BranchSelectState{&pr.second});
   }
 
   // Now  apply the rules to  the branchstates, in order.  Each rule
@@ -45,16 +35,12 @@ GroupSelector::initialize(GroupSelectorRules const& rules,
   // For each of the BranchSelectStates that indicates the branch is
   // to be selected, remember the branch.  The list of branch pointers
   // must be sorted for subsequent binary search to work.
-  {
-    vector<BranchSelectState>::const_iterator it = branchstates.begin();
-    vector<BranchSelectState>::const_iterator end = branchstates.end();
-    for (; it != end; ++it) {
-      if (it->selectMe) {
-        groupsToSelect_.push_back(it->desc);
-      }
+  for (auto const& state : branchstates) {
+    if (state.selectMe) {
+      groupsToSelect_.push_back(state.desc);
     }
-    sort_all(groupsToSelect_);
   }
+  sort_all(groupsToSelect_);
   initialized_ = true;
 }
 
@@ -77,12 +63,9 @@ GroupSelector::print(ostream& os) const
      << " has "
      << groupsToSelect_.size()
      << " groups to select:\n";
-  typedef  std::vector<BranchDescription const *> bd_ptr_t;
-  for( bd_ptr_t::const_iterator it = groupsToSelect_.begin(),
-                                e  = groupsToSelect_.end();
-       it != e; ++it )  {
-     os << (*it)->branchName() << '\n';
-   }
+  for (auto const& bd_ptr : groupsToSelect_) {
+    os << bd_ptr->branchName() << '\n';
+  }
 }
 
 //--------------------------------------------------
