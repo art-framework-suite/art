@@ -9,16 +9,6 @@
 # what determines if two input files can be concatenated together in
 # the same input process.  The consistency criteria are as follows:
 #
-# 1. For a process that creates more products or filters events, the
-#    number of processes used to create the first input file defines
-#    the maximum number of processes used to create any input file.
-#
-# 2. Each Event-level data product must have been
-#    produced in the same process for each input file.  In other
-#    words, when comparing the BranchIDList objects from one input
-#    file to the previous, each BranchIDList entry must be identical
-#    to the corresponding entry in the previous file.
-#
 # 3. For art processes that write output files, each input file must
 #    contain the SAME set of products.  Namely, a second input file
 #    with fewer products in it will result in an exception thrown.
@@ -29,7 +19,7 @@
 simple_plugin(InputProducerNoEvents "module" NO_INSTALL)
 
 #================================================================
-# (1)      a.root  b.root  ----> FAIL
+# (1)      a.root  b.root  ----> PASS
 #          ======  ======
 # Runs   : p1: r1  p1: r3
 #          p2: r2  p2: r4
@@ -40,14 +30,13 @@ simple_plugin(InputProducerNoEvents "module" NO_INSTALL)
 # Extra : NO
 # Output: NO
 
-cet_test( DifferentRunSubrunShapes_w HANDBUILT
+cet_test(DifferentRunSubrunShapes_w HANDBUILT
   TEST_EXEC ./make_input_different_shapes.sh
   DATAFILES
   make_input_producer_noevents.fcl
-  make_input_different_shapes.sh
-  )
+  make_input_different_shapes.sh)
 
-cet_test( DifferentRunSubrunShapes_r HANDBUILT
+cet_test(DifferentRunSubrunShapes_r HANDBUILT
   TEST_EXEC art
   TEST_ARGS -c empty.fcl
   -s ../DifferentRunSubrunShapes_w.d/a.root
@@ -56,9 +45,7 @@ cet_test( DifferentRunSubrunShapes_r HANDBUILT
   DATAFILES
   empty.fcl
   TEST_PROPERTIES
-  DEPENDS DifferentRunSubrunShapes_w
-  PASS_REGULAR_EXPRESSION "MismatchedInputFiles"
-  )
+  DEPENDS DifferentRunSubrunShapes_w)
 
 # (2)      a.root  b.root  ----> PASS
 #          ======  ======
@@ -71,14 +58,13 @@ cet_test( DifferentRunSubrunShapes_r HANDBUILT
 # Extra : NO
 # Output: YES
 
-cet_test( SameRunSubrunShapes_w HANDBUILT
+cet_test(SameRunSubrunShapes_w HANDBUILT
   TEST_EXEC ./make_input_same_shapes.sh
   DATAFILES
   make_input_producer_noevents.fcl
-  make_input_same_shapes.sh
-  )
+  make_input_same_shapes.sh)
 
-cet_test( SameRunSubrunShapes_r HANDBUILT
+cet_test(SameRunSubrunShapes_r HANDBUILT
   # This test will produce an output file with duplicate events.
   # Since we are just comparing shapes in this test, that is okay.
   # But reading the output file from this test will result in an
@@ -92,10 +78,9 @@ cet_test( SameRunSubrunShapes_r HANDBUILT
   DATAFILES
   empty.fcl
   TEST_PROPERTIES
-  DEPENDS SameRunSubrunShapes_w
-  )
+  DEPENDS SameRunSubrunShapes_w)
 
-# (3)      a.root  b.root  ----> FAIL (implicit TriggerResult insertion in Event)
+# (3)      a.root  b.root  ----> PASS
 #          ======  ======
 # Runs   : p1: r1  p1: r2
 #          p2: r2  p2: r1
@@ -106,14 +91,13 @@ cet_test( SameRunSubrunShapes_r HANDBUILT
 # Extra : NO
 # Output: YES
 
-cet_test( OppositeRunSubrunShapes_w HANDBUILT
+cet_test(OppositeRunSubrunShapes_w HANDBUILT
   TEST_EXEC ./make_input_opposite_shapes.sh
   DATAFILES
   make_input_producer_noevents.fcl
-  make_input_opposite_shapes.sh
-  )
+  make_input_opposite_shapes.sh)
 
-cet_test( OppositeRunSubrunShapes_r HANDBUILT
+cet_test(OppositeRunSubrunShapes_r HANDBUILT
   TEST_EXEC art
   TEST_ARGS -c empty.fcl
   -s ../OppositeRunSubrunShapes_w.d/a.root
@@ -122,9 +106,7 @@ cet_test( OppositeRunSubrunShapes_r HANDBUILT
   DATAFILES
   empty.fcl
   TEST_PROPERTIES
-  DEPENDS OppositeRunSubrunShapes_w
-  PASS_REGULAR_EXPRESSION "MismatchedInputFiles"
-  )
+  DEPENDS OppositeRunSubrunShapes_w)
 
 # (4)      a.root  b.root
 #          ======  ======
@@ -134,18 +116,17 @@ cet_test( OppositeRunSubrunShapes_r HANDBUILT
 #          p2: s2
 # Events : ------  ------
 
-cet_test( SubsetRunSubrunShapes_w HANDBUILT
+cet_test(SubsetRunSubrunShapes_w HANDBUILT
   TEST_EXEC ./make_input_subset_shapes.sh
   DATAFILES
   make_input_producer_noevents.fcl
-  make_input_subset_shapes.sh
-  )
+  make_input_subset_shapes.sh)
 
 # (4-00) ----> FAIL
 # Extra : NO
 # Output: YES
 
-cet_test( SubsetRunSubrunShapes_00_r HANDBUILT
+cet_test(SubsetRunSubrunShapes_00_r HANDBUILT
   TEST_EXEC art
   TEST_ARGS -c empty.fcl
   -s ../SubsetRunSubrunShapes_w.d/a.root
@@ -156,14 +137,13 @@ cet_test( SubsetRunSubrunShapes_00_r HANDBUILT
   empty.fcl
   TEST_PROPERTIES
   DEPENDS SubsetRunSubrunShapes_w
-  PASS_REGULAR_EXPRESSION "FatalRootError"
-  )
+  PASS_REGULAR_EXPRESSION "FatalRootError")
 
 # (4-01) ----> PASS
 # Extra : NO
 # Output: NO
 
-cet_test( SubsetRunSubrunShapes_01_r HANDBUILT
+cet_test(SubsetRunSubrunShapes_01_r HANDBUILT
   TEST_EXEC art
   TEST_ARGS -c empty.fcl
   -s ../SubsetRunSubrunShapes_w.d/a.root
@@ -172,15 +152,14 @@ cet_test( SubsetRunSubrunShapes_01_r HANDBUILT
   DATAFILES
   empty.fcl
   TEST_PROPERTIES
-  DEPENDS SubsetRunSubrunShapes_w
-  )
+  DEPENDS SubsetRunSubrunShapes_w)
 
-# (4-02) ----> FAIL
+# (4-02) ----> PASS
 # Input file order: 'b.root' -> 'a.root'
 # Extra : NO
 # Output: NO
 
-cet_test( SubsetRunSubrunShapes_02_r HANDBUILT
+cet_test(SubsetRunSubrunShapes_02_r HANDBUILT
   TEST_EXEC art
   TEST_ARGS -c empty.fcl
   -s ../SubsetRunSubrunShapes_w.d/b.root
@@ -189,6 +168,4 @@ cet_test( SubsetRunSubrunShapes_02_r HANDBUILT
   DATAFILES
   empty.fcl
   TEST_PROPERTIES
-  DEPENDS SubsetRunSubrunShapes_w
-  PASS_REGULAR_EXPRESSION "MismatchedInputFiles"
-  )
+  DEPENDS SubsetRunSubrunShapes_w)

@@ -1,10 +1,9 @@
 process_name: ESS
 
-physics.producers.ess1:
-{
+physics.producers.ess1: {
   module_type: ESSecondaryProducer
   moduleLabel: esp1
   index: 0
 }
 
-physics.tp1: [ ess1 ]
+physics.tp1: [ess1]

@@ -1,4 +1,4 @@
 process_name: ESP
 
 physics.producers.esp1.module_type: ESPrimaryProducer
-physics.tp1: [ esp1 ]
+physics.tp1: [esp1]
