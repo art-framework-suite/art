@@ -487,10 +487,10 @@ beginInputFile(FileBlock const& fb, bool fastCloneFromOutputModule)
     shouldFastClone = false;
   }
 
-  if (shouldFastClone && fb.fileFormatVersion().value_ < 9) {
+  if (shouldFastClone && fb.fileFormatVersion().value_ < 10) {
     mf::LogWarning("FastCloning")
       << "Fast cloning deactivated for this input file due to "
-      << "reading in file that does not support RangeSets.";
+      << "reading in file that has a different ProductID schema.";
     shouldFastClone = false;
   }
 
