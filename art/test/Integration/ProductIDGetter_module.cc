@@ -39,7 +39,7 @@ arttest::ProductIDGetter::ProductIDGetter(fhicl::ParameterSet const&)
 void arttest::ProductIDGetter::produce(art::Event& e)
 {
   // Test that getting a ProductID for an unregistered product yields an exception.
-  BOOST_REQUIRE_EXCEPTION(getProductID<int>(e),
+  BOOST_REQUIRE_EXCEPTION(getProductID<int>(),
                           art::Exception,
                           [](art::Exception const& e) {
                             return e.categoryCode() == art::errors::ProductRegistrationFailure;
@@ -51,7 +51,7 @@ void arttest::ProductIDGetter::produce(art::Event& e)
   vip->push_back(4);
   vip->push_back(6);
 
-  art::ProductID const pv {getProductID<std::vector<int>>(e)};
+  art::ProductID const pv {getProductID<std::vector<int>>()};
   auto ptr = std::make_unique<art::Ptr<int>>(pv, 2, e.productGetter(pv));
 
   BOOST_REQUIRE(ptr->id().isValid());

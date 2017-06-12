@@ -38,9 +38,8 @@ namespace art {
 
     bool modifiesEvent() const { return true; }
 
-    template <typename PROD, BranchType B, typename TRANS>
-    ProductID getProductID(TRANS const& translator,
-                           ModuleDescription const& moduleDescription,
+    template <typename PROD, BranchType B>
+    ProductID getProductID(ModuleDescription const& moduleDescription,
                            std::string const& instanceName) const;
 
     // Configuration
@@ -79,17 +78,15 @@ namespace art {
 
   };
 
-  template <typename PROD, BranchType B, typename TRANS>
+  template <typename PROD, BranchType B>
   ProductID
-  ProducerBase::getProductID(TRANS const& translator,
-                             ModuleDescription const& md,
-                             std::string const& instanceName) const {
-    return
-      translator.branchIDToProductID
-      (get_BranchDescription<PROD>(B,
-                                   md.moduleLabel(),
-                                   instanceName).branchID());
-
+  ProducerBase::getProductID(ModuleDescription const& md,
+                             std::string const& instanceName) const
+  {
+    auto const& bd = get_BranchDescription<PROD>(B,
+                                                 md.moduleLabel(),
+                                                 instanceName);
+    return ProductID{bd.branchID().id()};
   }
 
   template <typename T>

@@ -40,12 +40,6 @@ EventPrincipal::EventPrincipal(EventAuxiliary const& aux,
     // Add index into BranchIDListRegistry for products produced this process
     history_->addBranchListIndexEntry(BranchIDListRegistry::instance().size()-1);
   }
-  // Fill in helper map for Branch to ProductID mapping
-  for (auto IB = history->branchListIndexes().cbegin(),
-       IE = history->branchListIndexes().cend(), I = IB; I != IE; ++I) {
-    ProcessIndex pix = I - IB;
-    branchToProductIDHelper_.insert({*I, pix});
-  }
 }
 
 SubRunPrincipal const&
@@ -83,7 +77,7 @@ EventPrincipal::fillGroup(BranchDescription const& bd)
 {
   throwIfExistingGroup(bd);
   Principal::fillGroup(gfactory::make_group(bd,
-                                            branchIDToProductID(bd.branchID()),
+                                            ProductID{bd.branchID().id()},
                                             RangeSet::invalid()));
 }
 
@@ -96,7 +90,7 @@ EventPrincipal::put(std::unique_ptr<EDProduct>&& edp,
   branchMapper().insert(std::move(productProvenance));
   throwIfExistingGroup(bd);
   Principal::fillGroup(gfactory::make_group(bd,
-                                            branchIDToProductID(bd.branchID()),
+                                            ProductID{bd.branchID().id()},
                                             RangeSet::invalid(),
                                             std::move(edp)));
 }
@@ -108,65 +102,10 @@ EventPrincipal::productGetter(ProductID const& pid) const
   return result ? result : deferredGetter_(pid);
 }
 
-BranchID
-EventPrincipal::productIDToBranchID(ProductID const& pid) const
-{
-  BranchID result;
-  if (!pid.isValid()) {
-    throw art::Exception(art::errors::ProductNotFound, "InvalidID")
-        << "get by product ID: invalid ProductID supplied\n";
-  }
-  auto procidx = pid.processIndex();
-  if (procidx > 0) {
-    --procidx;
-    if (procidx < history().branchListIndexes().size()) {
-      auto const blix = history().branchListIndexes()[procidx];
-      auto const& breg_data = BranchIDListRegistry::instance().data();
-      if (blix < breg_data.size()) {
-        auto const & blist = breg_data[blix];
-        auto productidx = pid.productIndex();
-        if (productidx > 0) {
-          --productidx;
-          if (productidx < blist.size()) {
-            result = BranchID{blist[productidx]};
-          }
-        }
-      }
-    }
-  }
-  return result;
-}
-
-ProductID
-EventPrincipal::branchIDToProductID(BranchID const bid) const
-{
-  if (!bid.isValid()) {
-    throw art::Exception(art::errors::NotFound, "InvalidID")
-        << "branchIDToProductID: invalid BranchID supplied\n";
-  }
-  auto const& branchIDToIndexMap = BranchIDListRegistry::instance().branchIDToIndexMap();
-  auto it = branchIDToIndexMap.find(bid);
-  if (it == branchIDToIndexMap.end()) {
-    throw art::Exception(art::errors::NotFound, "Bad BranchID")
-        << "branchIDToProductID: productID cannot be determined "
-        "from BranchID\n";
-  }
-  auto blix = it->second.first;
-  auto productIndex = it->second.second;
-  auto i = branchToProductIDHelper_.find(blix);
-  if (i == branchToProductIDHelper_.end()) {
-    throw art::Exception(art::errors::NotFound, "Bad branch ID")
-        << "branchIDToProductID: productID cannot be determined "
-        "from BranchID\n";
-  }
-  auto processIndex = i->second;
-  return ProductID(processIndex + 1, productIndex + 1);
-}
-
 GroupQueryResult
 EventPrincipal::getGroup(ProductID const& pid) const
 {
-  BranchID const bid = productIDToBranchID(pid);
+  BranchID const bid{pid.value()};
   if (auto const g = getGroupForPtr(art::InEvent, bid)) {
     return GroupQueryResult{g};
   }
@@ -178,16 +117,7 @@ EventPrincipal::getGroup(ProductID const& pid) const
 GroupQueryResult
 EventPrincipal::getByProductID(ProductID const& pid) const
 {
-  // FIXME: This reproduces the logic of the old version of the
-  // function, but I'm not sure it does the *right* thing in the face
-  // of an unavailable product or other rare failure.
-  BranchID const bid = productIDToBranchID(pid);
-  if (auto const g = getResolvedGroup(bid, true)) {
-    return GroupQueryResult{g};
-  }
-  auto whyFailed = std::make_shared<art::Exception>(art::errors::ProductNotFound, "InvalidID");
-  *whyFailed << "getGroup: no product with given product id: " << pid << "\n";
-  return GroupQueryResult{whyFailed};
+  return getGroup(pid);
 }
 
 EventSelectionIDVector const&

@@ -114,8 +114,8 @@ void arttest::AssnsProducer::produce(art::Event &e) {
   }
 
   // We will need the product IDs of the data products.
-  ProductID vui_pid = getProductID<uintvec>(e);
-  ProductID vs_pid = getProductID<stringvec>(e);
+  ProductID vui_pid = getProductID<uintvec>();
+  ProductID vs_pid = getProductID<stringvec>();
 
   // Create the association objects.
   // Assns into vectors.
@@ -192,7 +192,7 @@ void arttest::AssnsProducer::produce(art::Event &e) {
   std::unique_ptr<AssnsVoid_t> bvm;
 
   if (wantMV_) {
-    ProductID mvs_pid = getProductID<mapvec>(e, "mv");
+    ProductID mvs_pid = getProductID<mapvec>("mv");
     addS(b, bv, vui_pid, 1, mvs_pid, 0, AssnTestData(1,0,"A"));
     addS(b, bv, vui_pid, 2, mvs_pid, 11, AssnTestData(2,11,"B"));
     addS(b, bv, vui_pid, 0, mvs_pid, 22, AssnTestData(0,22,"C"));

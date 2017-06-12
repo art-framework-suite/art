@@ -28,11 +28,11 @@ namespace arttest {
 
 class arttest::MixProducer : public art::EDProducer {
 public:
-  explicit MixProducer(fhicl::ParameterSet const &p);
+  explicit MixProducer(fhicl::ParameterSet const& p);
 
-  void produce(art::Event &e) override;
-  void endSubRun(art::SubRun & sr) override;
-  void endRun(art::Run & r) override;
+  void produce(art::Event& e) override;
+  void endSubRun(art::SubRun& sr) override;
+  void endRun(art::Run& r) override;
 
 private:
   typedef cet::map_vector<unsigned int> mv_t;
@@ -46,7 +46,7 @@ private:
 };
 
 
-arttest::MixProducer::MixProducer(fhicl::ParameterSet const &)
+arttest::MixProducer::MixProducer(fhicl::ParameterSet const&)
   :
   eventCounter_(0ull),
   subrunCounter_(0ull),
@@ -66,7 +66,7 @@ arttest::MixProducer::MixProducer(fhicl::ParameterSet const &)
   produces<double, art::InRun>("DoubleRLabel");
 }
 
-void arttest::MixProducer::produce(art::Event &e) {
+void arttest::MixProducer::produce(art::Event& e) {
   ++eventCounter_;
 
   // double
@@ -104,7 +104,7 @@ void arttest::MixProducer::produce(art::Event &e) {
   std::unique_ptr<art::PtrVector<double> >
     pvd(new art::PtrVector<double>());
   pvd->reserve(3);
-  art::ProductID collID(getProductID<std::vector<double> >(e, "doubleCollectionLabel"));
+  art::ProductID const collID{getProductID<std::vector<double>>("doubleCollectionLabel")};
   vpd->push_back(art::Ptr<double>(collID, 0, e.productGetter(collID)));
   vpd->push_back(art::Ptr<double>(collID, 4, e.productGetter(collID)));
   vpd->push_back(art::Ptr<double>(collID, 8, e.productGetter(collID)));
@@ -133,7 +133,7 @@ void arttest::MixProducer::produce(art::Event &e) {
   // Ptr into map_vector.
   std::unique_ptr<std::vector<art::Ptr<mvv_t> > > mvvp(new std::vector<art::Ptr<mvv_t> >);
   mvvp->reserve(mv_size);
-  art::ProductID mvID(getProductID<mv_t>(e, "mapVectorLabel"));
+  art::ProductID const mvID{getProductID<mv_t>("mapVectorLabel")};
   mvvp->push_back(art::Ptr<mvv_t>(mvID, 10 * (eventCounter_ - 1) + 7, e.productGetter(mvID)));
   mvvp->push_back(art::Ptr<mvv_t>(mvID, 10 * (eventCounter_ - 1) + 1, e.productGetter(mvID)));
   mvvp->push_back(art::Ptr<mvv_t>(mvID, 10 * (eventCounter_ - 1) + 3, e.productGetter(mvID)));
@@ -144,12 +144,14 @@ void arttest::MixProducer::produce(art::Event &e) {
   e.put(std::move(mv), "mapVectorLabel"); // Note we're putting these into the event in the "wrong" order.
 }
 
-void arttest::MixProducer::endSubRun(art::SubRun & sr) {
+void arttest::MixProducer::endSubRun(art::SubRun& sr)
+{
   ++subrunCounter_;
   sr.put(std::unique_ptr<double>(new double(subrunCounter_)), "DoubleSRLabel");
 }
 
-void arttest::MixProducer::endRun(art::Run & r) {
+void arttest::MixProducer::endRun(art::Run& r)
+{
   ++runCounter_;
   r.put(std::unique_ptr<double>(new double(runCounter_)), "DoubleRLabel");
 }

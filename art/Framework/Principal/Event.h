@@ -116,8 +116,6 @@ public:
 
   EDProductGetter const* productGetter(ProductID const&) const;
 
-  ProductID branchIDToProductID(BranchID const bid) const;
-
   template <typename T>
   using HandleT = Handle<T>;
 

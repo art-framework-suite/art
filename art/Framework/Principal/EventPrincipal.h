@@ -73,8 +73,6 @@ namespace art {
 
     void fillGroup(BranchDescription const&) override;
 
-    ProductID branchIDToProductID(BranchID const bid) const;
-
     BranchType branchType() const override { return branch_type; }
 
     bool isLastInSubRun() const { return lastInSubRun_; }
@@ -83,8 +81,6 @@ namespace art {
     RangeSet seenRanges() const override { return RangeSet::invalid(); }
 
   private:
-
-    BranchID productIDToBranchID(ProductID const& pid) const;
 
     void throwIfExistingGroup(BranchDescription const& bd) const;
 
@@ -119,7 +115,6 @@ namespace art {
 
     cet::exempt_ptr<SubRunPrincipal const> subRunPrincipal_ {nullptr};
     std::shared_ptr<History> history_;
-    std::map<BranchListIndex, ProcessIndex> branchToProductIDHelper_ {};
     bool lastInSubRun_ {false};
   };
 

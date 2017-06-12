@@ -67,8 +67,8 @@ FindManySpeedTestProducer(fhicl::ParameterSet const & p)
 
 void arttest::FindManySpeedTestProducer::produce(art::Event & e)
 {
-  auto vh_pid = getProductID<std::vector<arttest::Hit> >(e);
-  auto vt_pid = getProductID<std::vector<arttest::Track> >(e);
+  auto vh_pid = getProductID<std::vector<arttest::Hit>>();
+  auto vt_pid = getProductID<std::vector<arttest::Track>>();
 
   // Hits.
   auto hits = std::make_unique<std::vector<arttest::Hit> >(nHits_);

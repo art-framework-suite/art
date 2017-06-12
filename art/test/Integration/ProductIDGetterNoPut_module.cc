@@ -14,31 +14,32 @@
 
 #include <vector>
 
-namespace arttest {
-  class ProductIDGetterNoPut;
+namespace art {
+  namespace test {
+    class ProductIDGetterNoPut;
+  }
 }
 
-class arttest::ProductIDGetterNoPut : public art::EDProducer {
+class art::test::ProductIDGetterNoPut : public EDProducer {
 public:
-
-  explicit ProductIDGetterNoPut(fhicl::ParameterSet const &);
-  void produce(art::Event &) override;
-
+  explicit ProductIDGetterNoPut(fhicl::ParameterSet const&);
+  void produce(art::Event&) override;
 };
 
 
-arttest::ProductIDGetterNoPut::ProductIDGetterNoPut(fhicl::ParameterSet const &)
+art::test::ProductIDGetterNoPut::ProductIDGetterNoPut(fhicl::ParameterSet const&)
 {
   produces<int>();
   produces<int>("i1");
 }
 
-void arttest::ProductIDGetterNoPut::produce(art::Event &e) {
-  art::ProductID p1(getProductID<int>(e));
+void art::test::ProductIDGetterNoPut::produce(Event&)
+{
+  ProductID const p1{getProductID<int>()};
   BOOST_REQUIRE(p1.isValid());
-  art::ProductID p2(getProductID<int>(e, "i1"));
+  ProductID const p2{getProductID<int>("i1")};
   BOOST_REQUIRE(p2.isValid());
   BOOST_REQUIRE_NE(p1, p2);
 }
 
-DEFINE_ART_MODULE(arttest::ProductIDGetterNoPut)
+DEFINE_ART_MODULE(art::test::ProductIDGetterNoPut)

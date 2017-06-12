@@ -36,15 +36,9 @@ namespace art
 
     virtual ~EDProducer() = default;
 
-    template <typename PROD, BranchType B, typename TRANS>
+    template <typename PROD, BranchType B = InEvent>
     ProductID
-    getProductID(TRANS const &translator,
-                 std::string const& instanceName=std::string()) const;
-
-    template <typename PROD, typename TRANS>
-    ProductID
-    getProductID(TRANS const &translator,
-                 std::string const& instanceName=std::string()) const;
+    getProductID(std::string const& instanceName = {}) const;
 
     template <typename UserConfig>
     using Table = ProducerBase::Table<UserConfig>;
@@ -61,10 +55,10 @@ namespace art
     bool doEvent(EventPrincipal& ep, CPC_exempt_ptr cpcp, CountingStatistics&);
     void doBeginJob();
     void doEndJob();
-    bool doBeginRun(RunPrincipal & rp, CPC_exempt_ptr cpc);
-    bool doEndRun(RunPrincipal & rp, CPC_exempt_ptr cpc);
-    bool doBeginSubRun(SubRunPrincipal & srp, CPC_exempt_ptr cpc);
-    bool doEndSubRun(SubRunPrincipal & srp, CPC_exempt_ptr cpc);
+    bool doBeginRun(RunPrincipal& rp, CPC_exempt_ptr cpc);
+    bool doEndRun(RunPrincipal& rp, CPC_exempt_ptr cpc);
+    bool doBeginSubRun(SubRunPrincipal& srp, CPC_exempt_ptr cpc);
+    bool doEndSubRun(SubRunPrincipal& srp, CPC_exempt_ptr cpc);
     void doRespondToOpenInputFile(FileBlock const& fb);
     void doRespondToCloseInputFile(FileBlock const& fb);
     void doRespondToOpenOutputFiles(FileBlock const& fb);
@@ -72,15 +66,15 @@ namespace art
 
     std::string workerType() const {return "WorkerT<EDProducer>";}
 
-    virtual void produce(Event &) = 0;
+    virtual void produce(Event&) = 0;
     virtual void beginJob(){}
     virtual void endJob(){}
     virtual void reconfigure(fhicl::ParameterSet const&) {} // Not called by framework
 
-    virtual void beginRun(Run &){}
-    virtual void beginSubRun(SubRun &){}
-    virtual void endRun(Run &){}
-    virtual void endSubRun(SubRun &){}
+    virtual void beginRun(Run&){}
+    virtual void beginSubRun(SubRun&){}
+    virtual void endRun(Run&){}
+    virtual void endSubRun(SubRun&){}
 
     virtual void respondToOpenInputFile(FileBlock const&) {}
     virtual void respondToCloseInputFile(FileBlock const&) {}
@@ -96,24 +90,13 @@ namespace art
     bool checkPutProducts_ {true};
   };  // EDProducer
 
-  template <typename PROD, BranchType B, typename TRANS>
+  template <typename PROD, BranchType B>
   inline
   ProductID
-  EDProducer::getProductID(TRANS const &translator,
-                           std::string const& instanceName) const {
-    return ProducerBase::getProductID<PROD, B>(translator,
-                                               moduleDescription_,
+  EDProducer::getProductID(std::string const& instanceName) const
+  {
+    return ProducerBase::getProductID<PROD, B>(moduleDescription_,
                                                instanceName);
-  }
-
-  template <typename PROD, typename TRANS>
-  inline
-  ProductID
-  EDProducer::getProductID(TRANS const &translator,
-                           std::string const& instanceName) const {
-    return ProducerBase::getProductID<PROD, InEvent>(translator,
-                                                     moduleDescription_,
-                                                     instanceName);
   }
 
 }  // art

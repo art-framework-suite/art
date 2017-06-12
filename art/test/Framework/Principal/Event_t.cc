@@ -380,10 +380,7 @@ BOOST_AUTO_TEST_CASE(getByProductID)
   BOOST_REQUIRE_EQUAL(h.id(), wanted);
   BOOST_REQUIRE_EQUAL(h->value, 1);
 
-  ProductID invalid;
-  BOOST_REQUIRE_THROW(currentEvent_->get(invalid, h), cet::exception);
-  BOOST_REQUIRE(!h.isValid());
-  ProductID notpresent(0, std::numeric_limits<unsigned short>::max());
+  ProductID notpresent{};  // Need to make distinction about invalid vs. not present?
   BOOST_REQUIRE(!currentEvent_->get(notpresent, h));
   BOOST_REQUIRE(!h.isValid());
   BOOST_REQUIRE(h.failedToGet());

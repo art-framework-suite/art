@@ -195,10 +195,8 @@ BOOST_FIXTURE_TEST_SUITE(eventprincipal_t, EventPrincipalTestFixture)
 
 BOOST_AUTO_TEST_CASE(failgetbyIdTest)
 {
-  art::ProductID invalid;
-  BOOST_CHECK_THROW(pEvent_->getByProductID(invalid), art::Exception);
-
-  art::ProductID notpresent(0, 10000);
+  // Make test for invalid productID?
+  art::ProductID notpresent(0);
   art::GroupQueryResult h(pEvent_->getByProductID(notpresent));
   BOOST_CHECK(h.failed());
 }
@@ -243,8 +241,8 @@ BOOST_AUTO_TEST_CASE(failgetManyTest)
 
 BOOST_AUTO_TEST_CASE(failgetManybyTypeTest)
 {
-  // We don't put ProductIDs into the EventPrincipal,
-  // so that's a type sure not to match any product.
+  // We don't put ProductIDs into the EventPrincipal, so that's a type
+  // sure not to match any product.
   art::ProductID dummy;
   art::TypeID tid(dummy);
 
@@ -253,12 +251,6 @@ BOOST_AUTO_TEST_CASE(failgetManybyTypeTest)
   std::vector<art::GroupQueryResult> handles;
   pEvent_->getMany(tid, art::MatchAllSelector{}, handles);
   BOOST_CHECK(handles.empty());
-}
-
-BOOST_AUTO_TEST_CASE(failgetbyInvalidIdTest)
-{
-  art::ProductID id;
-  BOOST_CHECK_THROW(pEvent_->getByProductID(id), art::Exception);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

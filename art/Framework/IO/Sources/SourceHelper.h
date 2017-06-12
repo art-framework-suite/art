@@ -78,12 +78,12 @@ private:
 
 template <typename T>
 art::Ptr<T>
-art::SourceHelper::
-makePtr(TypeLabel const& tl,
-        EventPrincipal const& ep,
-        typename Ptr<T>::key_type key) const
+art::SourceHelper::makePtr(TypeLabel const& tl,
+                           EventPrincipal const& ep,
+                           typename Ptr<T>::key_type key) const
 {
-  auto pid = ep.branchIDToProductID(BranchDescription{InEvent, tl, md_}.branchID());
+  BranchDescription const bd{InEvent, tl, md_};
+  ProductID const pid{bd.branchID().id()};
   return Ptr<T>(pid, key, ep.productGetter(pid));
 }
 

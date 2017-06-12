@@ -45,13 +45,8 @@ namespace art {
   }
 
   ProductID
-  Event::branchIDToProductID(BranchID const bid) const {
-    return eventPrincipal_.branchIDToProductID(bid);
-  }
-
-  ProductID
   Event::makeProductID(BranchDescription const& desc) const {
-    return eventPrincipal_.branchIDToProductID(desc.branchID());
+    return ProductID{desc.branchID().id()};
   }
 
   SubRun const&
@@ -127,10 +122,6 @@ namespace art {
       auto productProvenancePtr = make_unique<ProductProvenance const>(bd.branchID(),
                                                                        productstatus::present(),
                                                                        gotBranchIDVector);
-      if (!ep.branchIDToProductID(bd.branchID()).isValid()) {
-        throw art::Exception(art::errors::ProductPutFailure, "Null Product ID")
-          << "put: Cannot put product with null Product ID.\n";
-      }
       ep.put(std::move(elem.second.prod),
              bd,
              std::move(productProvenancePtr));

@@ -124,44 +124,24 @@ namespace {
 
 }
 
-art::MixHelper::
-MixHelper(fhicl::ParameterSet const& pset,
-          ProducerBase& producesProvider)
+art::MixHelper::MixHelper(fhicl::ParameterSet const& pset,
+                          ProducerBase& producesProvider)
   :
-  producesProvider_(producesProvider),
-  filenames_(pset.get<std::vector<std::string> >("fileNames", { })),
-  compactMissingProducts_(pset.get<bool>("compactMissingProducts", false)),
-  providerFunc_(),
-  mixOps_(),
-  ptrRemapper_(),
-  fileIter_(filenames_.begin()),
-  readMode_(initReadMode_(pset.get<std::string>("readMode", "sequential"))),
-  coverageFraction_(initCoverageFraction(pset)),
-  nEventsReadThisFile_(0),
-  nEventsInFile_(0),
-  totalEventsRead_(0),
-  canWrapFiles_(pset.get<bool>("wrapFiles", false)),
-  ffVersion_(),
-  ptpBuilder_(),
-  dist_(initDist(readMode_)),
-  eventsToSkip_(),
-  shuffledSequence_(),
-  haveSubRunMixOps_(false),
-  haveRunMixOps_(false),
-  currentFile_(),
-  currentMetaDataTree_(),
-  currentDataTrees_(),
-  currentFileIndex_(),
-  dataBranches_(),
-  eventIDIndex_()
+  producesProvider_{producesProvider},
+  filenames_{pset.get<std::vector<std::string> >("fileNames", { })},
+  compactMissingProducts_{pset.get<bool>("compactMissingProducts", false)},
+  fileIter_{filenames_.begin()},
+  readMode_{initReadMode_(pset.get<std::string>("readMode", "sequential"))},
+  coverageFraction_{initCoverageFraction(pset)},
+  canWrapFiles_{pset.get<bool>("wrapFiles", false)},
+  dist_{initDist(readMode_)}
 {
 }
 
 void
-art::MixHelper::
-registerSecondaryFileNameProvider(ProviderFunc_ func)
+art::MixHelper::registerSecondaryFileNameProvider(ProviderFunc_ func)
 {
-  if (! filenames_.empty()) {
+  if (!filenames_.empty()) {
     throw Exception(errors::Configuration)
       << "Provision of a secondary file name provider is incompatible"
       << " with a\nnon-empty fileNames parameter to the mix filter.\n";
@@ -170,10 +150,9 @@ registerSecondaryFileNameProvider(ProviderFunc_ func)
 }
 
 bool
-art::MixHelper::
-generateEventSequence(size_t nSecondaries,
-                      EntryNumberSequence& enSeq,
-                      EventIDSequence& eIDseq)
+art::MixHelper::generateEventSequence(size_t const nSecondaries,
+                                      EntryNumberSequence& enSeq,
+                                      EventIDSequence& eIDseq)
 {
   assert(enSeq.empty());
   assert(eIDseq.empty());
@@ -244,9 +223,8 @@ generateEventSequence(size_t nSecondaries,
 }
 
 void
-art::MixHelper::
-generateEventAuxiliarySequence(EntryNumberSequence const& enseq,
-                               EventAuxiliarySequence& auxseq)
+art::MixHelper::generateEventAuxiliarySequence(EntryNumberSequence const& enseq,
+                                               EventAuxiliarySequence& auxseq)
 {
   auto const eventTree = currentDataTrees_[InEvent];
   auto auxBranch =
@@ -281,7 +259,7 @@ art::MixHelper::mixAndPut(EntryNumberSequence const& eventEntries,
   // Populate the remapper in case we need to remap any Ptrs.
   ptpBuilder_.populateRemapper(ptrRemapper_, e);
   // Dummy remapper in case we need it.
-  static const PtrRemapper nopRemapper;
+  static PtrRemapper const nopRemapper;
   // Create required info only if we're likely to need it:
   EntryNumberSequence subRunEntries;
   EntryNumberSequence runEntries;
@@ -344,25 +322,23 @@ art::MixHelper::mixAndPut(EntryNumberSequence const& eventEntries,
 }
 
 void
-art::MixHelper::
-setEventsToSkipFunction(std::function < size_t () > eventsToSkip)
+art::MixHelper::setEventsToSkipFunction(std::function < size_t () > eventsToSkip)
 {
   eventsToSkip_ = eventsToSkip;
 }
 
 auto
-art::MixHelper::
-initReadMode_(std::string const& mode) const
--> Mode
+art::MixHelper::initReadMode_(std::string const& mode) const
+  -> Mode
 {
   // These regexes must correspond by index to the valid Mode enumerator
   // values.
   static std::regex const robjs[4] {
     std::regex("^seq", std::regex_constants::icase),
-      std::regex("^random(replace)?$", std::regex_constants::icase),
-      std::regex("^randomlimreplace$", std::regex_constants::icase),
-      std::regex("^randomnoreplace$", std::regex_constants::icase)
-      };
+    std::regex("^random(replace)?$", std::regex_constants::icase),
+    std::regex("^randomlimreplace$", std::regex_constants::icase),
+    std::regex("^randomnoreplace$", std::regex_constants::icase)
+  };
   int i { 0 };
   for (auto const& r : robjs) {
     if (std::regex_search(mode, r)) {
@@ -382,8 +358,7 @@ initReadMode_(std::string const& mode) const
 }
 
 void
-art::MixHelper::
-openAndReadMetaData_(std::string filename)
+art::MixHelper::openAndReadMetaData_(std::string filename)
 {
   // Open file.
   try {
@@ -402,10 +377,8 @@ openAndReadMetaData_(std::string filename)
         << ".\n";
   }
   // Obtain meta data tree.
-  currentMetaDataTree_.reset(
-    static_cast<TTree*>(currentFile_->Get(
-      art::rootNames::metaDataTreeName().c_str())));
-  if (currentMetaDataTree_.get() == 0) {
+  currentMetaDataTree_.reset(static_cast<TTree*>(currentFile_->Get(art::rootNames::metaDataTreeName().c_str())));
+  if (currentMetaDataTree_.get() == nullptr) {
     throw Exception(errors::FileReadError)
         << "Unable to read meta data tree from secondary event stream file "
         << filename
@@ -414,17 +387,15 @@ openAndReadMetaData_(std::string filename)
   currentDataTrees_ = initDataTrees(currentFile_);
   nEventsInFile_ = currentDataTrees_[InEvent]->GetEntries();
   // Read meta data
-  FileFormatVersion * ffVersion_p = &ffVersion_;
-  currentMetaDataTree_.get()->SetBranchAddress(
-    art::rootNames::metaBranchRootName<FileFormatVersion>(), &ffVersion_p);
+  auto ffVersion_p = &ffVersion_;
+  currentMetaDataTree_->SetBranchAddress(art::rootNames::metaBranchRootName<FileFormatVersion>(), &ffVersion_p);
   FileIndex* fileIndexPtr = &currentFileIndex_;
-  detail::setFileIndexPointer(currentFile_.get(), currentMetaDataTree_.get(),
-                              fileIndexPtr);
+  detail::setFileIndexPointer(currentFile_.get(), currentMetaDataTree_.get(), fileIndexPtr);
+
   BranchIDLists branchIDLists;
-  BranchIDLists * branchIDLists_p = &branchIDLists;
-  currentMetaDataTree_.get()->SetBranchAddress(
-    art::rootNames::metaBranchRootName<BranchIDLists>(), &branchIDLists_p);
-  Int_t n = currentMetaDataTree_->GetEntry(0);
+  auto branchIDLists_p = &branchIDLists;
+  currentMetaDataTree_->SetBranchAddress(art::rootNames::metaBranchRootName<BranchIDLists>(), &branchIDLists_p);
+  Int_t const n = currentMetaDataTree_->GetEntry(0);
   switch (n) {
     case -1:
       throw Exception(errors::FileReadError)
@@ -458,20 +429,11 @@ openAndReadMetaData_(std::string filename)
     }
     ++dbCount;
   }
-  // Prepare to read EventHistory tree.
-  TTree * ehTree =
-    static_cast<TTree *>(currentFile_->
-                          Get(rootNames::eventHistoryTreeName().c_str()));
-  if (ehTree == 0) {
-    throw Exception(errors::FileReadError)
-        << "Unable to read event history tree from secondary event stream file "
-        << filename
-        << ".\n";
-  }
+
   buildEventIDIndex_(currentFileIndex_);
   ProdToProdMapBuilder::BranchIDTransMap transMap;
   buildBranchIDTransMap_(transMap);
-  ptpBuilder_.prepareTranslationTables(transMap, branchIDLists, ehTree);
+  ptpBuilder_.prepareTranslationTables(transMap);
   if (readMode_ == Mode::RANDOM_NO_REPLACE) {
     // Prepare shuffled event sequence.
     shuffledSequence_.resize(static_cast<size_t>(nEventsInFile_));
@@ -484,15 +446,13 @@ openAndReadMetaData_(std::string filename)
 }
 
 void
-art::MixHelper::
-buildEventIDIndex_(FileIndex const& fileIndex)
+art::MixHelper::buildEventIDIndex_(FileIndex const& fileIndex)
 {
   cet::for_all(fileIndex, EventIDIndexBuilder(eventIDIndex_));
 }
 
 bool
-art::MixHelper::
-openNextFile_()
+art::MixHelper::openNextFile_()
 {
   std::string filename;
   if (providerFunc_) {
@@ -519,16 +479,13 @@ openNextFile_()
     }
     filename = *fileIter_;
   }
-  nEventsReadThisFile_ = (readMode_ == Mode::SEQUENTIAL && eventsToSkip_) ?
-                         eventsToSkip_() :
-                         0; // Reset for this file.
+  nEventsReadThisFile_ = (readMode_ == Mode::SEQUENTIAL && eventsToSkip_) ? eventsToSkip_() : 0; // Reset for this file.
   openAndReadMetaData_(filename);
   return true;
 }
 
 void
-art::MixHelper::
-buildBranchIDTransMap_(ProdToProdMapBuilder::BranchIDTransMap& transMap)
+art::MixHelper::buildBranchIDTransMap_(ProdToProdMapBuilder::BranchIDTransMap& transMap)
 {
   for (auto& mixOp : mixOps_) {
     auto const bt = mixOp->branchType();
