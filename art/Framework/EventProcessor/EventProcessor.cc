@@ -20,7 +20,6 @@
 #include "art/Framework/Services/System/FloatingPointControl.h"
 #include "art/Framework/Services/System/ScheduleContext.h"
 #include "art/Framework/Services/System/TriggerNamesService.h"
-#include "canvas/Persistency/Provenance/BranchIDListRegistry.h"
 #include "art/Utilities/ScheduleID.h"
 #include "art/Utilities/bold_fontify.h"
 #include "art/Version/GetReleaseVersion.h"
@@ -146,7 +145,6 @@ art::EventProcessor::EventProcessor(ParameterSet const& pset)
   // which owns all other producers and filters.
   initSchedules_(pset);
   FDEBUG(2) << pset.to_string() << std::endl;
-  BranchIDListRegistry::expand(preg_.productList());
   servicesDeactivate_();
 }
 

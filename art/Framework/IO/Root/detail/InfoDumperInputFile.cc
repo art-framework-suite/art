@@ -55,8 +55,10 @@ art::detail::InfoDumperInputFile::InfoDumperInputFile(std::string const& filenam
   auto fftPtr = &fileFormatVersion_;
   md->SetBranchAddress(art::rootNames::metaBranchRootName<art::FileFormatVersion>(), &fftPtr);
 
-  auto bidsPtr = &branchIDLists_;
-  md->SetBranchAddress(art::rootNames::metaBranchRootName<art::BranchIDLists>(), &bidsPtr);
+  if (md->GetBranch(art::rootNames::metaBranchRootName<BranchIDLists>())) {
+    auto bidsPtr = &branchIDLists_;
+    md->SetBranchAddress(art::rootNames::metaBranchRootName<art::BranchIDLists>(), &bidsPtr);
+  }
 
   // FileIndex pointer needs to be set here (to wit, before we read
   // the metadata tree) in case we are reading an old file in which
@@ -101,6 +103,14 @@ art::detail::InfoDumperInputFile::print_process_history(std::ostream& os) const
 void
 art::detail::InfoDumperInputFile::print_branchIDLists(std::ostream& os) const
 {
+  if (fileFormatVersion_.value_ >= 10) {
+    std::ostringstream oss;
+    oss << "  BranchIDLists are not stored for art/ROOT files with a format\n"
+        << "  version of \"" << fileFormatVersion_ << "\".\n";
+    throw Exception{errors::FileReadError, "InfoDumperInputFile::print_branchIDLists:\n"}
+    << oss.str();
+  }
+
   os << "\n List of BranchIDs produced for this file.  The BranchIDs are\n"
      << " grouped according to the process in which they were produced.  The\n"
      << " processes are presented in chronological order; however within each process,\n"

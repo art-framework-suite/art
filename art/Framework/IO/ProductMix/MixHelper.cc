@@ -392,9 +392,6 @@ art::MixHelper::openAndReadMetaData_(std::string filename)
   FileIndex* fileIndexPtr = &currentFileIndex_;
   detail::setFileIndexPointer(currentFile_.get(), currentMetaDataTree_.get(), fileIndexPtr);
 
-  BranchIDLists branchIDLists;
-  auto branchIDLists_p = &branchIDLists;
-  currentMetaDataTree_->SetBranchAddress(art::rootNames::metaBranchRootName<BranchIDLists>(), &branchIDLists_p);
   Int_t const n = currentMetaDataTree_->GetEntry(0);
   switch (n) {
     case -1:

@@ -1,11 +1,9 @@
 #include "art/Framework/Core/ProductRegistryHelper.h"
 // vim: set sw=2:
 
-#include "canvas/Persistency/Provenance/BranchIDListRegistry.h"
 #include "art/Framework/Core/FileBlock.h"
 #include "art/Persistency/Provenance/MasterProductRegistry.h"
 #include "canvas/Persistency/Provenance/BranchDescription.h"
-#include "canvas/Persistency/Provenance/BranchIDList.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
 #include "canvas/Persistency/Provenance/TypeLabel.h"
 #include "canvas/Utilities/DebugMacros.h"
@@ -55,17 +53,14 @@ art::ProductRegistryHelper::registerProducts(MasterProductRegistry& mpr,
                                              ModuleDescription const& md)
 {
   if (productList_) {
-    BranchIDList bil;
     PerBranchTypePresence tp;
     for (auto const& val : *productList_) {
       auto const& bd = val.second;
       auto bid = bd.branchID().id();
       tp[bd.branchType()].emplace(bid);
-      bil.push_back(bid);
     }
     FileBlock const fb{{}, "ProductRegistryHelper"};
     mpr.initFromFirstPrimaryFile(*productList_, tp, fb);
-    BranchIDListRegistry::mergeFromFile({bil}, fb.fileName());
     productList_.reset(); // Reset, since we no longer need it.
   }
   check_for_duplicate_Assns(typeLabelList_[InEvent]);

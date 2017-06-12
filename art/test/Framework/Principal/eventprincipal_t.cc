@@ -13,7 +13,6 @@ Test of the EventPrincipal class.
 #include "art/Framework/Principal/Selector.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Persistency/Common/GroupQueryResult.h"
-#include "canvas/Persistency/Provenance/BranchIDListRegistry.h"
 #include "art/Persistency/Provenance/ProductMetaData.h"
 #include "art/Persistency/Provenance/MasterProductRegistry.h"
 #include "art/Version/GetReleaseVersion.h"
@@ -83,7 +82,6 @@ MPRGlobalTestFixture::MPRGlobalTestFixture()
   productRegistry_.addProduct(fake_single_process_branch("user", "USER"));
   productRegistry_.addProduct(fake_single_process_branch("rick", "USER2", "rick"));
   productRegistry_.setFrozen();
-  art::BranchIDListRegistry::expand(productRegistry_.productList());
   art::ProductMetaData::create_instance(productRegistry_);
 }
 

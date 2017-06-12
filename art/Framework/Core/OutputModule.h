@@ -49,8 +49,8 @@ namespace art {
 
 class art::OutputModule : public EventObserverBase {
 public:
-  OutputModule(OutputModule const &) = delete;
-  OutputModule & operator=(OutputModule const &) = delete;
+  OutputModule(OutputModule const&) = delete;
+  OutputModule& operator=(OutputModule const&) = delete;
 
   template <typename T> friend class WorkerT;
   friend class OutputWorker;
@@ -75,9 +75,9 @@ public:
     fhicl::Atom<std::string> streamName { fhicl::Name("streamName"), "" };
   };
 
-  explicit OutputModule(fhicl::TableFragment<Config> const & pset,
-                        fhicl::ParameterSet const & containing_pset);
-  explicit OutputModule(fhicl::ParameterSet const & pset);
+  explicit OutputModule(fhicl::TableFragment<Config> const& pset,
+                        fhicl::ParameterSet const& containing_pset);
+  explicit OutputModule(fhicl::ParameterSet const& pset);
 
   virtual ~OutputModule() noexcept = default;
 
@@ -94,13 +94,13 @@ public:
 
   // Name of output file (may be overridden if default implementation is
   // not appropriate).
-  virtual std::string const & lastClosedFileName() const;
+  virtual std::string const& lastClosedFileName() const;
 
-  bool selected(BranchDescription const & desc) const;
-  SelectionsArray const & keptProducts() const;
-  std::array<bool, NumBranchTypes> const & hasNewlyDroppedBranch() const;
+  bool selected(BranchDescription const& desc) const;
+  SelectionsArray const& keptProducts() const;
+  std::array<bool, NumBranchTypes> const& hasNewlyDroppedBranch() const;
 
-  BranchChildren const & branchChildren() const;
+  BranchChildren const& branchChildren() const;
 
   void selectProducts(FileBlock const&);
 
@@ -164,37 +164,37 @@ private:
   cet::BasicPluginFactory pluginFactory_ {};
   std::vector<std::string> pluginNames_ {}; // For diagnostics.
 
-  using PluginCollection_t = std::vector<std::unique_ptr<FileCatalogMetadataPlugin> >;
+  using PluginCollection_t = std::vector<std::unique_ptr<FileCatalogMetadataPlugin>>;
   PluginCollection_t plugins_;
 
   //------------------------------------------------------------------
   // private member functions
   //------------------------------------------------------------------
-  void configure(OutputModuleDescription const & desc);
+  void configure(OutputModuleDescription const& desc);
 
   void doBeginJob();
   void doEndJob();
   bool doEvent(EventPrincipal const& ep,
                CurrentProcessingContext const * cpc,
                CountingStatistics&);
-  bool doBeginRun(RunPrincipal const & rp,
+  bool doBeginRun(RunPrincipal const& rp,
                   CurrentProcessingContext const * cpc);
-  bool doEndRun(RunPrincipal const & rp,
+  bool doEndRun(RunPrincipal const& rp,
                 CurrentProcessingContext const * cpc);
-  bool doBeginSubRun(SubRunPrincipal const & srp,
+  bool doBeginSubRun(SubRunPrincipal const& srp,
                      CurrentProcessingContext const * cpc);
-  bool doEndSubRun(SubRunPrincipal const & srp,
+  bool doEndSubRun(SubRunPrincipal const& srp,
                    CurrentProcessingContext const * cpc);
-  void doWriteRun(RunPrincipal & rp);
-  void doWriteSubRun(SubRunPrincipal & srp);
+  void doWriteRun(RunPrincipal& rp);
+  void doWriteSubRun(SubRunPrincipal& srp);
   void doWriteEvent(EventPrincipal& ep);
   void doSetRunAuxiliaryRangeSetID(RangeSet const&);
   void doSetSubRunAuxiliaryRangeSetID(RangeSet const&);
-  void doOpenFile(FileBlock const & fb);
-  void doRespondToOpenInputFile(FileBlock const & fb);
-  void doRespondToCloseInputFile(FileBlock const & fb);
-  void doRespondToOpenOutputFiles(FileBlock const & fb);
-  void doRespondToCloseOutputFiles(FileBlock const & fb);
+  void doOpenFile(FileBlock const& fb);
+  void doRespondToOpenInputFile(FileBlock const& fb);
+  void doRespondToCloseInputFile(FileBlock const& fb);
+  void doRespondToOpenOutputFiles(FileBlock const& fb);
+  void doRespondToCloseOutputFiles(FileBlock const& fb);
   void doSelectProducts();
 
   std::string workerType() const {return "OutputWorker";}
@@ -223,29 +223,29 @@ private:
 
   virtual void beginJob();
   virtual void endJob();
-  virtual void beginRun(RunPrincipal const &);
-  virtual void endRun(RunPrincipal const &);
-  virtual void writeRun(RunPrincipal & r) = 0;
+  virtual void beginRun(RunPrincipal const&);
+  virtual void endRun(RunPrincipal const&);
+  virtual void writeRun(RunPrincipal& r) = 0;
   virtual void setRunAuxiliaryRangeSetID(RangeSet const&);
-  virtual void beginSubRun(SubRunPrincipal const &);
-  virtual void endSubRun(SubRunPrincipal const &);
-  virtual void writeSubRun(SubRunPrincipal & sr) = 0;
+  virtual void beginSubRun(SubRunPrincipal const&);
+  virtual void endSubRun(SubRunPrincipal const&);
+  virtual void writeSubRun(SubRunPrincipal& sr) = 0;
   virtual void setSubRunAuxiliaryRangeSetID(RangeSet const&);
   virtual void event(EventPrincipal const&);
   virtual void write(EventPrincipal& e) = 0;
 
-  virtual void openFile(FileBlock const &);
-  virtual void respondToOpenInputFile(FileBlock const &);
-  virtual void readResults(ResultsPrincipal const & resp);
-  virtual void respondToCloseInputFile(FileBlock const &);
-  virtual void respondToOpenOutputFiles(FileBlock const &);
-  virtual void respondToCloseOutputFiles(FileBlock const &);
+  virtual void openFile(FileBlock const&);
+  virtual void respondToOpenInputFile(FileBlock const&);
+  virtual void readResults(ResultsPrincipal const& resp);
+  virtual void respondToCloseInputFile(FileBlock const&);
+  virtual void respondToOpenOutputFiles(FileBlock const&);
+  virtual void respondToCloseOutputFiles(FileBlock const&);
 
   virtual bool isFileOpen() const;
 
-  void setModuleDescription(ModuleDescription const & md);
+  void setModuleDescription(ModuleDescription const& md);
 
-  void updateBranchParents(EventPrincipal const & ep);
+  void updateBranchParents(EventPrincipal const& ep);
   void fillDependencyGraph();
 
   bool limitReached() const;
@@ -261,17 +261,16 @@ private:
   virtual void writeProcessConfigurationRegistry();
   virtual void writeProcessHistoryRegistry();
   virtual void writeParameterSetRegistry();
-  virtual void writeBranchIDListRegistry();
   virtual void writeParentageRegistry();
   virtual void writeProductDescriptionRegistry();
   void writeFileCatalogMetadata();
-  virtual void doWriteFileCatalogMetadata(FileCatalogMetadata::collection_type const & md,
-                                          FileCatalogMetadata::collection_type const & ssmd);
+  virtual void doWriteFileCatalogMetadata(FileCatalogMetadata::collection_type const& md,
+                                          FileCatalogMetadata::collection_type const& ssmd);
   virtual void writeProductDependencies();
   virtual void writeBranchMapper();
   virtual void finishEndFile();
 
-  PluginCollection_t makePlugins_(fhicl::ParameterSet const & top_pset);
+  PluginCollection_t makePlugins_(fhicl::ParameterSet const& top_pset);
 };  // OutputModule
 
 inline
@@ -283,7 +282,7 @@ currentContext() const
 }
 
 inline
-art::ModuleDescription const &
+art::ModuleDescription const&
 art::OutputModule::
 description() const
 {
@@ -309,7 +308,7 @@ remainingEvents() const
 inline
 bool
 art::OutputModule::
-selected(BranchDescription const & desc) const
+selected(BranchDescription const& desc) const
 {
   return groupSelector_.selected(desc);
 }
@@ -318,7 +317,7 @@ inline
 auto
 art::OutputModule::
 keptProducts() const
-->  SelectionsArray const &
+->  SelectionsArray const&
 {
   return keptProducts_;
 }
@@ -327,13 +326,13 @@ inline
 auto
 art::OutputModule::
 hasNewlyDroppedBranch() const
--> std::array<bool, NumBranchTypes> const &
+-> std::array<bool, NumBranchTypes> const&
 {
   return hasNewlyDroppedBranch_;
 }
 
 inline
-art::BranchChildren const &
+art::BranchChildren const&
 art::OutputModule::
 branchChildren() const
 {

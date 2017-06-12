@@ -138,7 +138,6 @@ private:
   void writeParameterSetRegistry() override;
   void writeProductDescriptionRegistry() override;
   void writeParentageRegistry() override;
-  void writeBranchIDListRegistry() override;
   void
   doWriteFileCatalogMetadata(FileCatalogMetadata::collection_type const& md,
                              FileCatalogMetadata::collection_type const& ssmd)
@@ -419,13 +418,6 @@ art::RootOutput::
 writeParentageRegistry()
 {
   rootOutputFile_->writeParentageRegistry();
-}
-
-void
-art::RootOutput::
-writeBranchIDListRegistry()
-{
-  rootOutputFile_->writeBranchIDListRegistry();
 }
 
 void

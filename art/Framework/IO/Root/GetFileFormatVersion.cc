@@ -33,10 +33,12 @@
 //                 corresponds to containing ParameterSet of module
 //                 (i.e. the nested SelectEvents.SelectEvents is
 //                 deprecated).
+// ART_2011a  10   Remove persistence of BranchIDListRegistry.
+//                 ProductID schema change to storing checksum.
 //
 ////////////////////////////////////////////////////////////////////////
 
 namespace art
 {
-  int getFileFormatVersion() { return 9; }
+  int getFileFormatVersion() { return 10; }
 }

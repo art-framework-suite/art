@@ -122,7 +122,6 @@ public: // MEMBER FUNCTIONS
   void writeParameterSetRegistry();
   void writeProductDescriptionRegistry();
   void writeParentageRegistry();
-  void writeBranchIDListRegistry();
   void writeProductDependencies();
   void writeFileCatalogMetadata(FileStatsCollector const& stats,
                                 FileCatalogMetadata::collection_type const&,

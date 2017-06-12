@@ -17,7 +17,6 @@
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Framework/Services/System/DatabaseConnection.h"
-#include "canvas/Persistency/Provenance/BranchIDListRegistry.h"
 #include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
 #include "art/Persistency/Provenance/ProductMetaData.h"
 #include "art/Persistency/RootDB/SQLErrMsg.h"
@@ -27,7 +26,6 @@
 #include "canvas/Persistency/Provenance/rootNames.h"
 #include "canvas/Persistency/Provenance/BranchChildren.h"
 #include "canvas/Persistency/Provenance/BranchID.h"
-#include "canvas/Persistency/Provenance/BranchIDList.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
 #include "canvas/Persistency/Provenance/EventAuxiliary.h"
 #include "canvas/Persistency/Provenance/EventID.h"
@@ -693,19 +691,6 @@ writeProcessHistoryRegistry()
     throw Exception(errors::LogicError)
       << "Unable to locate required ProcessHistoryMap branch in output metadata tree.\n";
   }
-}
-
-void
-art::
-RootOutputFile::
-writeBranchIDListRegistry()
-{
-  BranchIDLists const* p = &BranchIDListRegistry::instance().data();
-  TBranch* b = metaDataTree_->Branch(metaBranchRootName<BranchIDLists>(), &p,
-                                     basketSize_, 0);
-  // FIXME: Turn this into a throw!
-  assert(b);
-  b->Fill();
 }
 
 void

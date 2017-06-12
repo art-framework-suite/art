@@ -345,7 +345,6 @@ reallyCloseFile()
   writeParameterSetRegistry();
   writeProductDescriptionRegistry();
   writeParentageRegistry();
-  writeBranchIDListRegistry();
   writeFileCatalogMetadata();
   writeProductDependencies();
   writeBranchMapper();
@@ -537,12 +536,6 @@ writeProcessHistoryRegistry()
 void
 art::OutputModule::
 writeParameterSetRegistry()
-{
-}
-
-void
-art::OutputModule::
-writeBranchIDListRegistry()
 {
 }
 

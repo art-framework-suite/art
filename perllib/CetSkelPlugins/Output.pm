@@ -73,7 +73,6 @@ sub optionalEntries {
      respondToOpenOutputFiles => "void respondToOpenOutputFiles(art::FileBlock const & fb) override",
      shouldWeCloseFile => "bool shouldWeCloseFile() const override",
      startEndFile => "void startEndFile() override",
-     writeBranchIDListRegistry => "void writeBranchIDListRegistry() override",
      writeBranchMapper => "void writeBranchMapper() override",
      writeEventHistory => "void writeEventHistory() override",
      writeFileFormatVersion => "void writeFileFormatVersion() override",
