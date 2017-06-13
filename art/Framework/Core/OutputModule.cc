@@ -82,14 +82,14 @@ doSelectProducts()
 
   for (auto const& val : pmd.productList()) {
     BranchDescription const& bd = val.second;
-    auto const bid = bd.branchID();
+    auto const pid = ProductID{bd.branchID().id()};
     auto const bt = bd.branchType();
     if (bd.transient()) {
       // Transient, skip it.
       continue;
     }
-    if (!pmd.produced(bt, bid) &&
-        pmd.presentWithFileIdx(bt, bid) == MasterProductRegistry::DROPPED) {
+    if (!pmd.produced(bt, pid) &&
+        pmd.presentWithFileIdx(bt, pid) == MasterProductRegistry::DROPPED) {
       // Not produced in this process, and previously dropped, skip it.
       continue;
     }
@@ -360,7 +360,7 @@ updateBranchParents(EventPrincipal const & ep)
   for (auto const& groupPr : ep) {
     auto const& group = *groupPr.second;
     if (group.productProvenancePtr()) {
-      BranchID const bid = groupPr.first;
+      BranchID const bid{groupPr.first.value()};
       auto it = branchParents_.find(bid);
       if (it == branchParents_.end()) {
         it = branchParents_.emplace(bid, std::set<ParentageID>()).first;

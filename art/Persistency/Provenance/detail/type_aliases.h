@@ -1,14 +1,15 @@
 #ifndef art_Persistency_Provenance_detail_type_aliases_h
 #define art_Persistency_Provenance_detail_type_aliases_h
 
-#include "canvas/Persistency/Provenance/BranchID.h"
+#include "canvas/Persistency/Provenance/ProductID.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
 
 #include <array>
 #include <functional>
 #include <map>
+#include <set>
 #include <string>
-#include <unordered_set>
+#include <vector>
 
 
 namespace art {
@@ -18,7 +19,7 @@ namespace art {
   inline namespace process {
            // Used for indices to find branch IDs by branchType, class type and process.
            // ... the key is the process name.
-           using ProcessLookup    = std::map<std::string const, std::vector<BranchID>>;
+           using ProcessLookup    = std::map<std::string const, std::vector<ProductID>>;
            // ... the key is the friendly class name.
            using TypeLookup       = std::map<std::string const, ProcessLookup>;
            using BranchTypeLookup = std::array<TypeLookup, NumBranchTypes>;
@@ -28,7 +29,8 @@ namespace art {
 
   inline namespace presence {
            // Used for determining product presence information in input files
-           using PresenceSet           = std::unordered_set<BranchID,BranchID::Hash>;
+           // FIXME: Change from set to unordered_set?
+           using PresenceSet           = std::set<ProductID>;
            using PerBranchTypePresence = std::array<PresenceSet,NumBranchTypes>;
            using PerFilePresence       = std::vector<PerBranchTypePresence>;
   }

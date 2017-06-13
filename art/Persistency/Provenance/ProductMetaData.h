@@ -12,7 +12,7 @@
 #include "art/Persistency/Provenance/MasterProductRegistry.h"
 #include "art/Persistency/Provenance/detail/type_aliases.h"
 #include "cetlib/exempt_ptr.h"
-#include "canvas/Persistency/Provenance/BranchID.h"
+#include "canvas/Persistency/Provenance/ProductID.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
 #include "canvas/Persistency/Provenance/ProductList.h"
 
@@ -85,14 +85,14 @@ namespace art {
       mpr_->print(os);
     }
 
-    bool produced(BranchType const btype, BranchID const bid) const
+    bool produced(BranchType const btype, ProductID const pid) const
     {
-      return mpr_->produced(btype, bid);
+      return mpr_->produced(btype, pid);
     }
 
-    std::size_t presentWithFileIdx(BranchType const btype, BranchID const bid) const
+    std::size_t presentWithFileIdx(BranchType const btype, ProductID const pid) const
     {
-      return mpr_->presentWithFileIdx(btype, bid);
+      return mpr_->presentWithFileIdx(btype, pid);
     }
 
     // Obtain lookup map to find a group by type of product.

@@ -42,7 +42,7 @@ detail::KeptProvenance::insertAncestors(ProductProvenance const& iGetParents,
     if (!info || dropMetaData_ != DropMetaData::DropNone) {
       continue;
     }
-    auto const* bd = principal.getForOutput(info->branchID(), false).desc();
+    auto const* bd = principal.getForOutput(ProductID{info->branchID().id()}, false).desc();
     if (bd && bd->produced() && provenance_.insert(*info).second) {
       // FIXME: Remove recursion!
       insertAncestors(*info, principal);

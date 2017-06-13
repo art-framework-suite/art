@@ -147,12 +147,11 @@ bool
 art::Group::
 dropped() const
 {
-  if ( !branchDescription_ ) return false;
-  if (  ProductMetaData::instance().produced( branchDescription_->branchType(),
-                                              branchDescription_->branchID() ) ) return false;
+  if (!branchDescription_ ) return false;
+  ProductID const pid{branchDescription_->branchID().id()};
+  if (ProductMetaData::instance().produced(branchDescription_->branchType(), pid)) return false;
 
-  std::size_t const index = ProductMetaData::instance().presentWithFileIdx( branchDescription_->branchType(),
-                                                                            branchDescription_->branchID() );
+  std::size_t const index = ProductMetaData::instance().presentWithFileIdx(branchDescription_->branchType(), pid);
   return index == MasterProductRegistry::DROPPED;
 }
 

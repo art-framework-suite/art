@@ -870,7 +870,7 @@ fillBranches(Principal const& principal,
     bool const keepProvenance = (dropMetaData_ == DropMetaData::DropNone ||
                                  (dropMetaData_ == DropMetaData::DropPrior &&
                                   produced));
-    auto const& oh = principal.getForOutput(bid, resolveProd);
+    auto const& oh = principal.getForOutput(ProductID{bid.id()}, resolveProd);
 
     unique_ptr<ProductProvenance> prov {nullptr};
     if (keepProvenance) {

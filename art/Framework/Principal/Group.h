@@ -38,7 +38,7 @@ namespace art {
     friend
     std::unique_ptr<Group>
     gfactory::detail::
-    make_group(BranchDescription const &, ARGS && ... args);
+    make_group(BranchDescription const&, ARGS&& ... args);
 
   public:
 
@@ -166,7 +166,7 @@ namespace art {
 
     void setProduct(std::unique_ptr<EDProduct>&& prod) const;
 
-    [[noreturn]] void throwResolveLogicError (TypeID const & wanted_wrapper_type) const;
+    [[noreturn]] void throwResolveLogicError (TypeID const& wanted_wrapper_type) const;
 
   private:
 

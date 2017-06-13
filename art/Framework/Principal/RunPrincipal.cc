@@ -43,7 +43,7 @@ namespace art {
   fillGroup(BranchDescription const& bd)
   {
     Principal::fillGroup(gfactory::make_group(bd,
-                                              ProductID{},
+                                              ProductID{bd.branchID().id()},
                                               RangeSet::invalid()));
   }
 
@@ -57,7 +57,7 @@ namespace art {
     assert(edp);
     branchMapper().insert(std::move(productProvenance));
     Principal::fillGroup(gfactory::make_group(bd,
-                                              ProductID{},
+                                              ProductID{bd.branchID().id()},
                                               std::move(rs),
                                               std::move(edp)));
 

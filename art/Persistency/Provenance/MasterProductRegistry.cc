@@ -10,6 +10,7 @@
 #include "cetlib/exception.h"
 
 #include <cassert>
+#include <map>
 #include <ostream>
 #include <sstream>
 #include <unordered_map>
@@ -61,11 +62,11 @@ namespace {
                     std::string const& moduleLabel,
                     std::string const& instanceName,
                     std::string const& procName,
-                    BranchID const bid)
+                    ProductID const pid)
       : bt_{bt}
       , fcn_{fcn}
       , ct_{moduleLabel, instanceName, procName}
-      , bid_{bid}
+      , pid_{pid}
     {}
 
     BranchType bt() const { return bt_; }
@@ -74,12 +75,12 @@ namespace {
     std::string const& label() const { return ct_.label();}
     std::string const& instance() const { return ct_.instance(); }
     std::string const& process() const { return ct_.process(); }
-    BranchID bid() const { return bid_; }
+    ProductID pid() const { return pid_; }
   private:
     BranchType bt_;
     std::string fcn_;
     CheapTag ct_;
-    BranchID bid_;
+    ProductID pid_;
   };
 
   void
@@ -88,13 +89,14 @@ namespace {
                   BranchTypeLookup& el)
   {
     std::vector<PendingBTLEntry> pendingEntries;
-    std::unordered_map<BranchID, CheapTag, BranchID::Hash> insertedABVs;
+    // FIXME: From map to unordered_map
+    std::map<ProductID, CheapTag> insertedABVs;
     for (auto const& val: prods) {
       auto const& procName = val.first.processName_;
-      auto const bid = val.second.branchID();
+      auto const pid = ProductID{val.second.branchID().id()};
       auto const& prodFCN = val.first.friendlyClassName_;
       auto const bt = val.first.branchType_;
-      pl[bt][prodFCN][procName].emplace_back(bid);
+      pl[bt][prodFCN][procName].emplace_back(pid);
       // Look in the class of the product for a typedef named "value_type",
       // if there is one allow lookups by that type name too (and by all
       // of its base class names as well).
@@ -109,14 +111,14 @@ namespace {
         // "value_type," so allow lookups by that type and all of its base
         // types too.
         auto const vtFCN = ET.friendlyClassName();
-        el[bt][vtFCN][procName].emplace_back(bid);
+        el[bt][vtFCN][procName].emplace_back(pid);
         if (ET.category() == art::TypeWithDict::Category::CLASSTYPE) {
           // Repeat this for all public base classes of the value_type.
           std::vector<TClass*> bases;
           art::public_base_classes(ET.tClass(), bases);
           for (auto const BT: bases) {
             auto const btFCN = art::TypeID{BT->GetTypeInfo()}.friendlyClassName();
-            el[bt][btFCN][procName].emplace_back(bid);
+            el[bt][btFCN][procName].emplace_back(pid);
           }
         }
       }
@@ -137,11 +139,12 @@ namespace {
                                       moduleLabel,
                                       instanceName,
                                       procName,
-                                      bid);
-        } else {
-          // Add our bid to the list of real Assns<A, B, void> products
+                                      pid);
+        }
+        else {
+          // Add our pid to the list of real Assns<A, B, void> products
           // already registered.
-          insertedABVs.insert({bid, {moduleLabel, instanceName, procName}});
+          insertedABVs.emplace(pid, CheapTag{moduleLabel, instanceName, procName});
         }
       }
     }
@@ -153,15 +156,15 @@ namespace {
                   pendingEntries.cend(),
                   [&pl, &insertedABVs, iend](auto const& pe)
                   {
-                    auto& bids = pl[pe.bt()][pe.fcn()][pe.process()];
-                    if (bids.empty() ||
-                        !std::any_of(bids.cbegin(), bids.cend(),
-                                     [&insertedABVs, &iend, &pe](BranchID const bid) {
-                                       auto i = insertedABVs.find(bid);
+                    auto& pids = pl[pe.bt()][pe.fcn()][pe.process()];
+                    if (pids.empty() ||
+                        !std::any_of(pids.cbegin(), pids.cend(),
+                                     [&insertedABVs, &iend, &pe](ProductID const pid) {
+                                       auto i = insertedABVs.find(pid);
                                        return i != iend && pe.ct() == i->second;
                                      }))
                     {
-                      bids.emplace_back(pe.bid());
+                      pids.emplace_back(pe.pid());
                     }
                   });
   }
@@ -192,7 +195,7 @@ art::MasterProductRegistry::addProduct(std::unique_ptr<BranchDescription>&& bdp)
   bd.swap(*bdp);
   perFileProds_[0].insert(productListEntry);
   productProduced_[bd.branchType()] = true;
-  perBranchPresenceLookup_[bd.branchType()].emplace(bd.branchID());
+  perBranchPresenceLookup_[bd.branchType()].emplace(ProductID{bd.branchID().id()});
 }
 
 void
@@ -223,8 +226,9 @@ art::MasterProductRegistry::initFromFirstPrimaryFile(ProductList const& pl,
   for (auto const& p : pl) {
     auto const& bd = p.second;
     auto const& presListForBT = presList[bd.branchType()];
-    if (presListForBT.find(bd.branchID()) != presListForBT.cend()) {
-      perFilePresenceLookups_[0][bd.branchType()].emplace(bd.branchID());
+    ProductID const pid{bd.branchID().id()};
+    if (presListForBT.find(pid) != presListForBT.cend()) {
+      perFilePresenceLookups_[0][bd.branchType()].emplace(pid);
     }
   }
 
@@ -273,8 +277,9 @@ art::MasterProductRegistry::updateFromNewPrimaryFile(ProductList const& other,
   for (auto const& p : other) {
     auto const& bd = p.second;
     auto const& presListForBT = presList[bd.branchType()];
-    if (presListForBT.find(bd.branchID()) != presListForBT.cend()) {
-      perFilePresenceLookups_[0][bd.branchType()].emplace(bd.branchID());
+    ProductID const pid{bd.branchID().id()};
+    if (presListForBT.find(pid) != presListForBT.cend()) {
+      perFilePresenceLookups_[0][bd.branchType()].emplace(pid);
     }
   }
 
@@ -346,8 +351,9 @@ art::MasterProductRegistry::updateFromSecondaryFile(ProductList const& pl,
   for (auto const& p : pl) {
     auto const& bd = p.second;
     auto const& presListForBT = presList[bd.branchType()];
-    if (presListForBT.find(bd.branchID()) != presListForBT.cend()) {
-      perFilePresenceLookups_.back()[bd.branchType()].emplace(bd.branchID());
+    ProductID const pid{bd.branchID().id()};
+    if (presListForBT.find(pid) != presListForBT.cend()) {
+      perFilePresenceLookups_.back()[bd.branchType()].emplace(pid);
     }
   }
 
@@ -393,18 +399,18 @@ art::MasterProductRegistry::registerProductListUpdatedCallback(ProductListUpdate
 }
 
 bool
-art::MasterProductRegistry::produced(BranchType const branchType, BranchID const bid) const
+art::MasterProductRegistry::produced(BranchType const branchType, ProductID const pid) const
 {
   auto const& pLookup = perBranchPresenceLookup_[branchType];
-  return pLookup.find(bid) != pLookup.cend();
+  return pLookup.find(pid) != pLookup.cend();
 }
 
 std::size_t
-art::MasterProductRegistry::presentWithFileIdx(BranchType const branchType, BranchID const bid) const
+art::MasterProductRegistry::presentWithFileIdx(BranchType const branchType, ProductID const pid) const
 {
   for (std::size_t i{}; i != perFilePresenceLookups_.size() ; ++i) {
     auto& pLookup = perFilePresenceLookups_[i][branchType];
-    if (pLookup.find(bid) != pLookup.cend())
+    if (pLookup.find(pid) != pLookup.cend())
       return i;
   }
   return DROPPED;

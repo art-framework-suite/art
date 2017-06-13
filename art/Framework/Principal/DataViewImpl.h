@@ -50,7 +50,7 @@
 #include "canvas/Persistency/Common/EDProduct.h"
 #include "canvas/Persistency/Common/traits.h"
 #include "canvas/Persistency/Provenance/BranchDescription.h"
-#include "canvas/Persistency/Provenance/BranchID.h"
+#include "canvas/Persistency/Provenance/ProductID.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
 #include "canvas/Persistency/Provenance/ProvenanceFwd.h"
 #include "canvas/Utilities/InputTag.h"
@@ -209,7 +209,7 @@ private:
 
   EDProductGetter const* prodGetter() const;
 
-  void removeCachedProduct_(BranchID const bid) const;
+  void removeCachedProduct_(ProductID const pid) const;
 
   //------------------------------------------------------------
   // Data members
@@ -373,7 +373,7 @@ art::DataViewImpl::removeCachedProduct(Handle<PROD>& h) const
 {
   bool result{false};
   if (h.isValid() && !h.provenance()->produced()) {
-    removeCachedProduct_(h.provenance()->branchID());
+    removeCachedProduct_(h.id());
     h.clear();
     result = true;
   }

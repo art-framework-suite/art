@@ -989,7 +989,7 @@ namespace art {
     for ( auto const& prodpr : prodList ){
       auto const& prod = prodpr.second;
       if (treePointers_[prod.branchType()]->hasBranch(prod.branchName())) {
-        perBranchTypeProdPresence_[prod.branchType()].emplace( prod.branchID() );
+        perBranchTypeProdPresence_[prod.branchType()].emplace(ProductID{prod.branchID().id()});
       }
     }
   }

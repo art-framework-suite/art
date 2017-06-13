@@ -4,11 +4,11 @@
 #include "art/Framework/Principal/Selector.h"
 #include "art/Persistency/Common/DelayedReader.h"
 #include "art/Persistency/Common/GroupQueryResult.h"
-#include "canvas/Persistency/Provenance/BranchMapper.h"
 #include "art/Persistency/Provenance/MasterProductRegistry.h"
-#include "canvas/Persistency/Provenance/ProcessHistory.h"
 #include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
 #include "art/Persistency/Provenance/ProductMetaData.h"
+#include "canvas/Persistency/Provenance/BranchMapper.h"
+#include "canvas/Persistency/Provenance/ProcessHistory.h"
 #include "canvas/Persistency/Provenance/ProductStatus.h"
 #include "canvas/Persistency/Provenance/TypeTools.h"
 #include "canvas/Utilities/Exception.h"
@@ -218,6 +218,19 @@ getMatchingSequence(TypeID const& elementType, SelectorBase const& selector,
   return 0;
 }
 
+void
+Principal::
+removeCachedProduct(ProductID const pid) const
+{
+  if (auto g = getExistingGroup(pid)) {
+    g->removeCachedProduct();
+    return;
+  }
+  throw Exception(errors::ProductNotFound, "removeCachedProduct")
+    << "Attempt to remove unknown product corresponding to ProductID: " << pid << '\n'
+    << "Please contact artists@fnal.gov\n";
+}
+
 size_t
 Principal::
 findGroupsForProduct(TypeID const& wanted_product,
@@ -330,14 +343,14 @@ findGroups(ProcessLookup const& pl, SelectorBase const& sel,
 
 void
 Principal::
-findGroupsForProcess(std::vector<BranchID> const& vbid,
+findGroupsForProcess(std::vector<ProductID> const& vpid,
                      SelectorBase const& sel,
                      GroupQueryResultVec& res,
                      TypeID wanted_wrapper) const
 {
 
-  for (auto const bid : vbid) {
-    auto group = getGroup(bid);
+  for (auto const pid : vpid) {
+    auto group = getGroup(pid);
     if (!group) {
       continue;
     }
@@ -365,9 +378,9 @@ findGroupsForProcess(std::vector<BranchID> const& vbid,
 
 OutputHandle
 Principal::
-getForOutput(BranchID const bid, bool resolveProd) const
+getForOutput(ProductID const pid, bool resolveProd) const
 {
-  auto const& g = getResolvedGroup(bid, resolveProd);
+  auto const& g = getResolvedGroup(pid, resolveProd);
   if (g.get() == nullptr) {
     return OutputHandle{RangeSet::invalid()};
   }
@@ -377,8 +390,8 @@ getForOutput(BranchID const bid, bool resolveProd) const
       &&
       ((g->anyProduct() == nullptr) || !g->anyProduct()->isPresent())
       &&
-      (pmd.presentWithFileIdx(bt, bid) != MasterProductRegistry::DROPPED ||
-       pmd.produced(bt, bid))
+      (pmd.presentWithFileIdx(bt, pid) != MasterProductRegistry::DROPPED ||
+       pmd.produced(bt, pid))
       &&
       (bt == InEvent)
       &&
@@ -397,13 +410,13 @@ getForOutput(BranchID const bid, bool resolveProd) const
 
 cet::exempt_ptr<Group const> const
 Principal::
-getResolvedGroup(BranchID const bid,
+getResolvedGroup(ProductID const pid,
                  bool const resolveProd) const
 {
   // FIXME: This reproduces the behavior of the original getGroup with
   // resolveProv == false but I am not sure this is correct in the case
   // of an unavailable product.
-  auto const g = getGroupForPtr(branchType(),bid);
+  auto const g = getGroupForPtr(branchType(),pid);
   if (!g.get() || !resolveProd) {
     return g;
   }
@@ -417,14 +430,14 @@ getResolvedGroup(BranchID const bid,
 
 cet::exempt_ptr<Group const>
 Principal::
-getExistingGroup(BranchID const bid) const
+getExistingGroup(ProductID const pid) const
 {
-  auto I = groups_.find(bid);
+  auto I = groups_.find(pid);
   if (I != groups_.end()) {
     return I->second.get();
   }
   for (auto& p : secondaryPrincipals_) {
-    auto I = p->groups_.find(bid);
+    auto I = p->groups_.find(pid);
     if (I != p->groups_.end()) {
       return I->second.get();
     }
@@ -434,17 +447,17 @@ getExistingGroup(BranchID const bid) const
 
 cet::exempt_ptr<Group const> const
 Principal::
-getGroupForPtr(BranchType const btype, BranchID const bid) const
+getGroupForPtr(BranchType const btype, ProductID const pid) const
 {
   Principal const* pp = this;
   if (primaryPrincipal_ != nullptr) {
     pp = primaryPrincipal_.get();
   }
 
-  std::size_t const index    = ProductMetaData::instance().presentWithFileIdx(btype, bid);
-  bool        const produced = ProductMetaData::instance().produced(btype, bid);
+  std::size_t const index    = ProductMetaData::instance().presentWithFileIdx(btype, pid);
+  bool        const produced = ProductMetaData::instance().produced(btype, pid);
   if ( produced || index == 0 ) {
-    auto it = pp->groups_.find(bid);
+    auto it = pp->groups_.find(pid);
     // Note: There will be groups for dropped products, so we
     //       must check for that.  We want the group where the
     //       product can actually be retrieved from.
@@ -452,7 +465,7 @@ getGroupForPtr(BranchType const btype, BranchID const bid) const
   }
   else if ( index > 0 && ( index-1 < secondaryPrincipals_.size() ) ) {
     auto const& groups = secondaryPrincipals_[index-1]->groups_;
-    auto it = groups.find(bid);
+    auto it = groups.find(pid);
     return (it != groups.end()) ? it->second.get() : nullptr;
   }
   while (1) {
@@ -465,10 +478,10 @@ getGroupForPtr(BranchType const btype, BranchID const bid) const
       // Run, SubRun, or Event not found.
       continue;
     }
-    std::size_t const index = ProductMetaData::instance().presentWithFileIdx(btype, bid);
+    std::size_t const index = ProductMetaData::instance().presentWithFileIdx(btype, pid);
     if (index == MasterProductRegistry::DROPPED) continue;
     auto& p = secondaryPrincipals_[index-1];
-    auto it = p->groups_.find(bid);
+    auto it = p->groups_.find(pid);
     // Note: There will be groups for dropped products, so we
     //       must check for that.  We want the group where the
     //       product can actually be retrieved from.
@@ -478,20 +491,20 @@ getGroupForPtr(BranchType const btype, BranchID const bid) const
 
 cet::exempt_ptr<Group const> const
 Principal::
-getGroup(BranchID const bid) const
+getGroup(ProductID const pid) const
 {
   const Principal* pp = this;
   if (primaryPrincipal_ != nullptr) {
     pp = primaryPrincipal_.get();
   }
   {
-    auto I = pp->groups_.find(bid);
+    auto I = pp->groups_.find(pid);
     if (I != pp->groups_.end()) {
       return I->second.get();
     }
   }
   for (auto& p : secondaryPrincipals_) {
-    auto I = p->groups_.find(bid);
+    auto I = p->groups_.find(pid);
     if (I != p->groups_.end()) {
       return I->second.get();
     }

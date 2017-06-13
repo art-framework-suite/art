@@ -21,9 +21,9 @@
 #include "art/Persistency/Common/GroupQueryResult.h"
 #include "art/Persistency/Provenance/detail/type_aliases.h"
 #include "canvas/Persistency/Common/Wrapper.h"
-#include "canvas/Persistency/Provenance/BranchID.h"
 #include "canvas/Persistency/Provenance/BranchMapper.h"
 #include "canvas/Persistency/Provenance/ProcessHistory.h"
+#include "canvas/Persistency/Provenance/ProductID.h"
 #include "canvas/Persistency/Provenance/ProductProvenance.h"
 #include "canvas/Persistency/Provenance/ProductStatus.h"
 #include "canvas/Persistency/Provenance/ProvenanceFwd.h"
@@ -45,7 +45,7 @@ namespace art {
 
   public: // TYPES
 
-    using GroupCollection = std::map<BranchID, std::unique_ptr<Group>>;
+    using GroupCollection = std::map<ProductID, std::unique_ptr<Group>>;
     using const_iterator = GroupCollection::const_iterator;
     using ProcessNameConstIterator = ProcessHistory::const_iterator;
     using GroupQueryResultVec = std::vector<GroupQueryResult>;
@@ -56,10 +56,9 @@ namespace art {
 
     virtual ~Principal() noexcept = default;
 
+    // Disable copying
     Principal(Principal const&) = delete;
-
-    Principal&
-    operator=(Principal const&) = delete;
+    Principal& operator=(Principal const&) = delete;
 
     Principal(ProcessConfiguration const&,
               ProcessHistoryID const&,
@@ -69,7 +68,7 @@ namespace art {
               cet::exempt_ptr<Principal const>);
 
     OutputHandle
-    getForOutput(BranchID const, bool resolveProd) const;
+    getForOutput(ProductID const, bool resolveProd) const;
 
     GroupQueryResult
     getBySelector(TypeID const&, SelectorBase const&) const;
@@ -99,10 +98,7 @@ namespace art {
                         bool stopIfProcessHasMatch) const;
 
     void
-    removeCachedProduct(BranchID const bid) const
-    {
-      getExistingGroup(bid)->removeCachedProduct();
-    }
+    removeCachedProduct(ProductID const pid) const;
 
     void
     addSecondaryPrincipal(std::unique_ptr<Principal>&& val)
@@ -182,7 +178,8 @@ namespace art {
     void
     addToProcessHistory();
 
-    // Obtain the branch type suitable for products inserted into the principal.
+    // Obtain the branch type suitable for products inserted into the
+    // principal.
     virtual
     BranchType
     branchType() const = 0;
@@ -219,23 +216,23 @@ namespace art {
       assert(!bd.moduleLabel().empty());
       assert(!bd.processName().empty());
       group->setResolvers(branchMapper(), *store_);
-      groups_[bd.branchID()] = std::move(group);
+      groups_[ProductID{bd.branchID().id()}] = std::move(group);
     }
 
     int
     tryNextSecondaryFile() const;
 
     cet::exempt_ptr<Group const>
-    getExistingGroup(BranchID const bid) const;
+    getExistingGroup(ProductID const pid) const;
 
     cet::exempt_ptr<Group const> const
-    getGroupForPtr(BranchType const btype, BranchID const bid) const;
+    getGroupForPtr(BranchType const btype, ProductID const pid) const;
 
     cet::exempt_ptr<Group const> const
-    getGroup(BranchID const bid) const;
+    getGroup(ProductID const pid) const;
 
     cet::exempt_ptr<Group const> const
-    getResolvedGroup(BranchID const bid,
+    getResolvedGroup(ProductID const pid,
                      bool resolveProd) const;
 
   private: // MEMBER FUNCTIONS
@@ -249,61 +246,63 @@ namespace art {
     setProcessHistoryID(ProcessHistoryID const&) = 0;
 
     size_t
-    findGroupsForProduct(TypeID const& wanted_product, SelectorBase const&,
+    findGroupsForProduct(TypeID const& wanted_product,
+                         SelectorBase const&,
                          std::vector<GroupQueryResult>& results,
                          bool stopIfProcessHasMatch) const;
 
     size_t
-    findGroups(ProcessLookup const&, SelectorBase const&,
+    findGroups(ProcessLookup const&,
+               SelectorBase const&,
                std::vector<GroupQueryResult>& results,
                bool stopIfProcessHasMatch,
                TypeID wanted_wrapper = TypeID{}) const;
 
     void
-    findGroupsForProcess(std::vector<BranchID> const& vbid,
+    findGroupsForProcess(std::vector<ProductID> const& vpid,
                          SelectorBase const& selector,
                          std::vector<GroupQueryResult>& results,
                          TypeID wanted_wrapper) const;
 
-    EDProductGetter const* getEDProductGetterImpl(ProductID const&) const override {
+    EDProductGetter const* getEDProductGetterImpl(ProductID const&) const override
+    {
       return nullptr;
     }
 
   private: // MEMBER DATA
 
-    std::shared_ptr<ProcessHistory> processHistoryPtr_ {std::make_shared<ProcessHistory>()};
+    std::shared_ptr<ProcessHistory> processHistoryPtr_{std::make_shared<ProcessHistory>()};
 
     ProcessConfiguration const& processConfiguration_;
 
-    mutable bool processHistoryModified_ {false};
+    mutable bool processHistoryModified_{false};
 
-    // products and provenances are persistent
-    std::map<BranchID, std::unique_ptr<Group>> groups_ {};
+    // Products and provenances are persistent.
+    GroupCollection groups_{};
 
-    // Pointer to the mapper that will get provenance
-    // information from the persistent store.
+    // Pointer to the mapper that will get provenance information from
+    // the persistent store.
     std::unique_ptr<BranchMapper> branchMapperPtr_;
 
-    // Pointer to the reader that will be used to obtain
-    // EDProducts from the persistent store.
+    // Pointer to the reader that will be used to obtain EDProducts
+    // from the persistent store.
     std::unique_ptr<DelayedReader> store_;
 
     // Back pointer to the primary principal.
     cet::exempt_ptr<Principal const> primaryPrincipal_;
 
-    // Secondary principals.  Note that the lifetime of run
-    // and subRun principals is the lifetime of the input file,
-    // while the lifetime of event principals ends at the next
-    // event read.
-    std::vector<std::unique_ptr<Principal>> secondaryPrincipals_ {};
+    // Secondary principals.  Note that the lifetime of run and subRun
+    // principals is the lifetime of the input file, while the
+    // lifetime of event principals ends at the next event read.
+    std::vector<std::unique_ptr<Principal>> secondaryPrincipals_{};
 
-    // Index into the per-file lookup tables.  Each principal is
-    // read from particular secondary file.
+    // Index into the per-file lookup tables.  Each principal is read
+    // from particular secondary file.
     int secondaryIdx_;
 
-    // Index into the secondary file names vector of the next
-    // file that a secondary principal should be created from.
-    mutable int nextSecondaryFileIdx_ {};
+    // Index into the secondary file names vector of the next file
+    // that a secondary principal should be created from.
+    mutable int nextSecondaryFileIdx_{};
 
   };
 

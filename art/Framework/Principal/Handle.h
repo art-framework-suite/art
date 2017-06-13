@@ -95,8 +95,6 @@ public:
   explicit constexpr Handle() = default;  // Default-constructed handles are invalid.
   explicit Handle(GroupQueryResult const&);
 
-  // use compiler-generated copy c'tor, copy assignment, and d'tor
-
   // pointer behaviors:
   T const& operator*() const;
   T const* operator->() const; // alias for product()
@@ -203,6 +201,8 @@ inline
 art::ProductID
 art::Handle<T>::id() const
 {
+  // FIXME: returning prov_.productID() should be sufficient since
+  // ProductID{} is invalid anyway.
   return prov_.isValid() ? prov_.productID() : ProductID{};
 }
 

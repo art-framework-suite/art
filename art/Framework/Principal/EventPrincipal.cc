@@ -51,7 +51,7 @@ EventPrincipal::subRunPrincipal() const
 void
 EventPrincipal::throwIfExistingGroup(BranchDescription const& bd) const
 {
-  if (auto group = getExistingGroup(bd.branchID())) {
+  if (auto group = getExistingGroup(ProductID{bd.branchID().id()})) {
     throw art::Exception(art::errors::ProductRegistrationFailure, "EventPrincipal::throwIfExistingGroup")
       << "Problem found while adding product provenance: "
       << "product already exists for ("
@@ -99,21 +99,14 @@ EventPrincipal::productGetter(ProductID const& pid) const
 }
 
 GroupQueryResult
-EventPrincipal::getGroup(ProductID const& pid) const
+EventPrincipal::getByProductID(ProductID const& pid) const
 {
-  BranchID const bid{pid.value()};
-  if (auto const g = getGroupForPtr(art::InEvent, bid)) {
+  if (auto const g = getGroupForPtr(art::InEvent, pid)) {
     return GroupQueryResult{g};
   }
   auto whyFailed = std::make_shared<art::Exception>(art::errors::ProductNotFound, "InvalidID");
   *whyFailed << "getGroup: no product with given product id: " << pid << "\n";
   return GroupQueryResult{whyFailed};
-}
-
-GroupQueryResult
-EventPrincipal::getByProductID(ProductID const& pid) const
-{
-  return getGroup(pid);
 }
 
 EventSelectionIDVector const&

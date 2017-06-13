@@ -167,9 +167,9 @@ namespace art {
   }
 
   void
-  DataViewImpl::removeCachedProduct_(BranchID const bid) const
+  DataViewImpl::removeCachedProduct_(ProductID const pid) const
   {
-    principal_.removeCachedProduct(bid);
+    principal_.removeCachedProduct(pid);
   }
 
 }  // art

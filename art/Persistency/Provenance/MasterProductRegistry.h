@@ -25,6 +25,7 @@
 #include "canvas/Persistency/Provenance/BranchDescription.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
 #include "canvas/Persistency/Provenance/DictionaryChecker.h"
+#include "canvas/Persistency/Provenance/ProductID.h"
 #include "canvas/Persistency/Provenance/ProductList.h"
 #include "art/Persistency/Provenance/detail/type_aliases.h"
 
@@ -37,7 +38,7 @@
 
 namespace art {
 
-  class BranchID;
+  class ProductID;
   class BranchKey;
   class FileBlock;
   class MasterProductRegistry;
@@ -81,8 +82,8 @@ public:
   bool productProduced(BranchType branchType) const {
     return productProduced_[branchType];
   }
-  bool produced(BranchType, BranchID) const;
-  std::size_t presentWithFileIdx(BranchType, BranchID) const;
+  bool produced(BranchType, ProductID) const;
+  std::size_t presentWithFileIdx(BranchType, ProductID) const;
 
 private:
   void checkDicts_(BranchDescription const & productDesc);
@@ -94,9 +95,9 @@ private:
 
   PerBranchTypePresence  perBranchPresenceLookup_ {{}};
   PerFilePresence perFilePresenceLookups_ {};
-  // Support finding a BranchID by <product friendly class name, process name>.
+  // Support finding a ProductID by <product friendly class name, process name>.
   std::vector<BranchTypeLookup> productLookup_ {};
-  // Support finding a BranchID by
+  // Support finding a ProductID by
   // <product::value_type friendly class name, process name>.
   std::vector<BranchTypeLookup> elementLookup_ {};
   std::vector<ProductListUpdatedCallback> productListUpdatedCallbacks_ {};

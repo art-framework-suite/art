@@ -64,7 +64,6 @@ namespace art {
 
     using Principal::getGroup;
 
-    GroupQueryResult getGroup(ProductID const& pid) const;
     GroupQueryResult getByProductID(ProductID const& pid) const;
 
     void put(std::unique_ptr<EDProduct>&& edp,
@@ -101,8 +100,9 @@ namespace art {
     // because a group does not exist until it is placed in the event.
     EDProductGetter const* deferredGetter_(ProductID const& pid) const;
 
-    EDProductGetter const* getEDProductGetterImpl(ProductID const& pid) const override {
-      return getGroup(pid).result().get();
+    EDProductGetter const* getEDProductGetterImpl(ProductID const& pid) const override
+    {
+      return getByProductID(pid).result().get();
     }
 
   private:
