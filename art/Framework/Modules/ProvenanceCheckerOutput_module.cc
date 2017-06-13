@@ -100,7 +100,7 @@ namespace art {
     auto const& prodList = ProductMetaData::instance().productList();
     std::set<ProductID> branchesInReg;
     for (auto const& prod : prodList) {
-      branchesInReg.insert(ProductID{prod.second.branchID().id()});
+      branchesInReg.insert(prod.second.productID());
     }
 
     std::set<ProductID> missingFromPrincipal;

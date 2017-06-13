@@ -51,7 +51,7 @@ EventPrincipal::subRunPrincipal() const
 void
 EventPrincipal::throwIfExistingGroup(BranchDescription const& bd) const
 {
-  if (auto group = getExistingGroup(ProductID{bd.branchID().id()})) {
+  if (auto group = getExistingGroup(bd.productID())) {
     throw art::Exception(art::errors::ProductRegistrationFailure, "EventPrincipal::throwIfExistingGroup")
       << "Problem found while adding product provenance: "
       << "product already exists for ("
@@ -73,7 +73,7 @@ EventPrincipal::fillGroup(BranchDescription const& bd)
 {
   throwIfExistingGroup(bd);
   Principal::fillGroup(gfactory::make_group(bd,
-                                            ProductID{bd.branchID().id()},
+                                            bd.productID(),
                                             RangeSet::invalid()));
 }
 
@@ -86,7 +86,7 @@ EventPrincipal::put(std::unique_ptr<EDProduct>&& edp,
   branchMapper().insert(std::move(productProvenance));
   throwIfExistingGroup(bd);
   Principal::fillGroup(gfactory::make_group(bd,
-                                            ProductID{bd.branchID().id()},
+                                            bd.productID(),
                                             RangeSet::invalid(),
                                             std::move(edp)));
 }

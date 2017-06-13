@@ -12,7 +12,7 @@ art::Results::commit_(ResultsPrincipal& resp)
 {
   for (auto& elem : putProducts()) {
     auto const& bd = elem.second.bd;
-    auto productProvenancePtr = std::make_unique<ProductProvenance const>(bd.branchID(),
+    auto productProvenancePtr = std::make_unique<ProductProvenance const>(BranchID{bd.productID().value()},
                                                                           productstatus::present());
     resp.put(std::move(elem.second.prod),
              bd,

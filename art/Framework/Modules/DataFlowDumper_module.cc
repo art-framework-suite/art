@@ -126,7 +126,7 @@ void write_product_node(art::BranchID const& bid,
   // with the right BranchID.
   auto it = std::find_if(begin(plist), end(plist),
                          [&bid](auto const& keyval) {
-                           return keyval.second.branchID() == bid;
+                           return art::BranchID{keyval.second.productID().value()} == bid;
                          });
   if (it == plist.end()) {
     os << "#Missing information for branch with id " << bid << '\n';

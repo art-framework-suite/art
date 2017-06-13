@@ -28,17 +28,17 @@
 namespace art {
   template <typename T, typename P>
   std::enable_if_t<P::branch_type == InEvent || P::branch_type == InResults>
-  put_product_in_principal(std::unique_ptr<T> && product,
-                           P &principal,
-                           std::string const &module_label,
-                           std::string const &instance_name = std::string());
+  put_product_in_principal(std::unique_ptr<T>&& product,
+                           P& principal,
+                           std::string const& module_label,
+                           std::string const& instance_name = {});
 
   template <typename T, typename P>
   std::enable_if_t<P::branch_type == InSubRun || P::branch_type == InRun>
-  put_product_in_principal(std::unique_ptr<T> && product,
-                           P &principal,
-                           std::string const &module_label,
-                           std::string const &instance_name = std::string(),
+  put_product_in_principal(std::unique_ptr<T>&& product,
+                           P& principal,
+                           std::string const& module_label,
+                           std::string const& instance_name = {},
                            RangeSet&& = RangeSet::invalid());
 
   inline RangeSet rangeSetFor(RunPrincipal const& rp)
@@ -55,11 +55,11 @@ namespace art {
 
 template <typename T, typename P>
 std::enable_if_t<P::branch_type == art::InEvent || P::branch_type == art::InResults>
-art::put_product_in_principal(std::unique_ptr<T> && product,
-                              P &principal,
-                              std::string const &module_label,
-                              std::string const &instance_name) {
-
+art::put_product_in_principal(std::unique_ptr<T>&& product,
+                              P& principal,
+                              std::string const& module_label,
+                              std::string const& instance_name)
+{
   if (product.get() == nullptr) {
     TypeID const typeID {typeid(T)};
     throw art::Exception(art::errors::NullPointerError)
@@ -69,24 +69,24 @@ art::put_product_in_principal(std::unique_ptr<T> && product,
       << instance_name << "'.\n";
   }
 
-  BranchDescription const &desc = get_BranchDescription<T>(principal,
+  BranchDescription const& desc = get_BranchDescription<T>(principal,
                                                            module_label,
                                                            instance_name);
 
-  std::unique_ptr<EDProduct> wp(new Wrapper<T>(std::move(product)));
+  std::unique_ptr<EDProduct> wp = std::make_unique<Wrapper<T>>(std::move(product));
   principal.put(std::move(wp),
                 desc,
-                std::make_unique<ProductProvenance const>(desc.branchID(), productstatus::present()));
+                std::make_unique<ProductProvenance const>(BranchID{desc.productID().value()}, productstatus::present()));
 }
 
 template <typename T, typename P>
 std::enable_if_t<P::branch_type == art::InSubRun || P::branch_type == art::InRun>
-art::put_product_in_principal(std::unique_ptr<T> && product,
-                              P &principal,
-                              std::string const &module_label,
-                              std::string const &instance_name,
-                              RangeSet&& rs) {
-
+art::put_product_in_principal(std::unique_ptr<T>&& product,
+                              P& principal,
+                              std::string const& module_label,
+                              std::string const& instance_name,
+                              RangeSet&& rs)
+{
   if (product.get() == nullptr) {
     TypeID const typeID {typeid(T)};
     throw art::Exception(art::errors::NullPointerError)
@@ -96,7 +96,7 @@ art::put_product_in_principal(std::unique_ptr<T> && product,
       << instance_name << "'.\n";
   }
 
-  BranchDescription const &desc = get_BranchDescription<T>(principal,
+  BranchDescription const& desc = get_BranchDescription<T>(principal,
                                                            module_label,
                                                            instance_name);
 
@@ -105,10 +105,10 @@ art::put_product_in_principal(std::unique_ptr<T> && product,
   if (!rs.is_valid())
     rs = rangeSetFor(principal);
 
-  std::unique_ptr<EDProduct> wp(new Wrapper<T>(std::move(product)));
+  std::unique_ptr<EDProduct> wp = std::make_unique<Wrapper<T>>(std::move(product));
   principal.put(std::move(wp),
                 desc,
-                std::make_unique<ProductProvenance const>(desc.branchID(), productstatus::present()),
+                std::make_unique<ProductProvenance const>(BranchID{desc.productID().value()}, productstatus::present()),
                 std::move(rs));
 }
 

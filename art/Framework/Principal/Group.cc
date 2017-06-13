@@ -110,7 +110,7 @@ productProvenancePtr() const
   if (!ppResolver_) {
     return cet::exempt_ptr<ProductProvenance const>();
   }
-  return ppResolver_->branchToProductProvenance(branchDescription_->branchID());
+  return ppResolver_->branchToProductProvenance(BranchID{branchDescription_->productID().value()});
 }
 
 void
@@ -148,7 +148,7 @@ art::Group::
 dropped() const
 {
   if (!branchDescription_ ) return false;
-  ProductID const pid{branchDescription_->branchID().id()};
+  auto const pid = branchDescription_->productID();
   if (ProductMetaData::instance().produced(branchDescription_->branchType(), pid)) return false;
 
   std::size_t const index = ProductMetaData::instance().presentWithFileIdx(branchDescription_->branchType(), pid);

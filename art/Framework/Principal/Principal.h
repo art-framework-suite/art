@@ -216,7 +216,7 @@ namespace art {
       assert(!bd.moduleLabel().empty());
       assert(!bd.processName().empty());
       group->setResolvers(branchMapper(), *store_);
-      groups_[ProductID{bd.branchID().id()}] = std::move(group);
+      groups_[bd.productID()] = std::move(group);
     }
 
     int

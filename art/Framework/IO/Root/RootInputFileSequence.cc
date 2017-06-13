@@ -393,7 +393,7 @@ initFile(bool skipBadFiles, bool initMPR/*=false*/)
     }
     auto const& bd = bd_it->second;
 
-    bool const present {mpr_.presentWithFileIdx(bd.branchType(), ProductID{bd.branchID().id()}) != MasterProductRegistry::DROPPED};
+    bool const present {mpr_.presentWithFileIdx(bd.branchType(), bd.productID()) != MasterProductRegistry::DROPPED};
 
     rootFile_->treePointers()[bd.branchType()]->addBranch(prod.first,
                                                           bd,
@@ -470,7 +470,7 @@ openSecondaryFile(int idx,
     }
     auto& bd = bd_it->second;
 
-    bool const present = mpr_.presentWithFileIdx(bd.branchType(), ProductID{bd.branchID().id()}) != MasterProductRegistry::DROPPED;
+    bool const present = mpr_.presentWithFileIdx(bd.branchType(), bd.productID()) != MasterProductRegistry::DROPPED;
 
     rif->treePointers()[bd.branchType()]->addBranch(prod.first,
                                                     bd,

@@ -46,7 +46,7 @@ art::ResultsPrincipal::
 fillGroup(BranchDescription const& bd)
 {
   Principal::fillGroup(gfactory::make_group(bd,
-                                            ProductID{bd.branchID().id()},
+                                            bd.productID(),
                                             RangeSet::invalid()));
 }
 
@@ -59,7 +59,7 @@ put(std::unique_ptr<EDProduct>&& edp,
   assert(edp);
   branchMapper().insert(std::move(productProvenance));
   Principal::fillGroup(gfactory::make_group(bd,
-                                            ProductID{bd.branchID().id()},
+                                            bd.productID(),
                                             RangeSet::invalid(),
                                             std::move(edp)));
 }

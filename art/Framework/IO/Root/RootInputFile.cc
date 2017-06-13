@@ -986,10 +986,10 @@ namespace art {
   RootInputFile::
   fillPerBranchTypePresenceFlags(ProductList const& prodList)
   {
-    for ( auto const& prodpr : prodList ){
-      auto const& prod = prodpr.second;
-      if (treePointers_[prod.branchType()]->hasBranch(prod.branchName())) {
-        perBranchTypeProdPresence_[prod.branchType()].emplace(ProductID{prod.branchID().id()});
+    for (auto const& prodpr : prodList){
+      auto const& desc = prodpr.second;
+      if (treePointers_[desc.branchType()]->hasBranch(desc.branchName())) {
+        perBranchTypeProdPresence_[desc.branchType()].emplace(desc.productID());
       }
     }
   }
@@ -1011,11 +1011,12 @@ namespace art {
     for (auto const& prod : prodList) {
       auto const& bd = prod.second;
       if (!groupSelector.selected(bd)) {
+        BranchID const bid{bd.productID().value()};
         if (dropDescendants) {
-          branchChildren_->appendToDescendants(bd.branchID(), branchesToDrop);
+          branchChildren_->appendToDescendants(bid, branchesToDrop);
         }
         else {
-          branchesToDrop.insert(bd.branchID());
+          branchesToDrop.insert(bid);
         }
       }
     }
@@ -1023,7 +1024,8 @@ namespace art {
     auto branchesToDropEnd = branchesToDrop.cend();
     for (auto I = prodList.begin(), E = prodList.end(); I != E;) {
       auto const& bd = I->second;
-      bool drop = branchesToDrop.find(bd.branchID()) != branchesToDropEnd;
+      BranchID const bid{bd.productID().value()};
+      bool drop = branchesToDrop.find(bid) != branchesToDropEnd;
       if (!drop) {
         ++I;
         continue;

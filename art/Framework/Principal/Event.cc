@@ -46,7 +46,7 @@ namespace art {
 
   ProductID
   Event::makeProductID(BranchDescription const& desc) const {
-    return ProductID{desc.branchID().id()};
+    return desc.productID();
   }
 
   SubRun const&
@@ -119,7 +119,7 @@ namespace art {
 
     for (auto& elem : putProducts()) {
       auto const& bd = elem.second.bd;
-      auto productProvenancePtr = make_unique<ProductProvenance const>(bd.branchID(),
+      auto productProvenancePtr = make_unique<ProductProvenance const>(BranchID{bd.productID().value()},
                                                                        productstatus::present(),
                                                                        gotBranchIDVector);
       ep.put(std::move(elem.second.prod),

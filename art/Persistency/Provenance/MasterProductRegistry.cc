@@ -93,7 +93,7 @@ namespace {
     std::map<ProductID, CheapTag> insertedABVs;
     for (auto const& val: prods) {
       auto const& procName = val.first.processName_;
-      auto const pid = ProductID{val.second.branchID().id()};
+      auto const pid = val.second.productID();
       auto const& prodFCN = val.first.friendlyClassName_;
       auto const bt = val.first.branchType_;
       pl[bt][prodFCN][procName].emplace_back(pid);
@@ -195,7 +195,7 @@ art::MasterProductRegistry::addProduct(std::unique_ptr<BranchDescription>&& bdp)
   bd.swap(*bdp);
   perFileProds_[0].insert(productListEntry);
   productProduced_[bd.branchType()] = true;
-  perBranchPresenceLookup_[bd.branchType()].emplace(ProductID{bd.branchID().id()});
+  perBranchPresenceLookup_[bd.branchType()].emplace(bd.productID());
 }
 
 void
@@ -226,7 +226,7 @@ art::MasterProductRegistry::initFromFirstPrimaryFile(ProductList const& pl,
   for (auto const& p : pl) {
     auto const& bd = p.second;
     auto const& presListForBT = presList[bd.branchType()];
-    ProductID const pid{bd.branchID().id()};
+    auto const pid = bd.productID();
     if (presListForBT.find(pid) != presListForBT.cend()) {
       perFilePresenceLookups_[0][bd.branchType()].emplace(pid);
     }
@@ -277,7 +277,7 @@ art::MasterProductRegistry::updateFromNewPrimaryFile(ProductList const& other,
   for (auto const& p : other) {
     auto const& bd = p.second;
     auto const& presListForBT = presList[bd.branchType()];
-    ProductID const pid{bd.branchID().id()};
+    auto const pid = bd.productID();
     if (presListForBT.find(pid) != presListForBT.cend()) {
       perFilePresenceLookups_[0][bd.branchType()].emplace(pid);
     }
@@ -351,7 +351,7 @@ art::MasterProductRegistry::updateFromSecondaryFile(ProductList const& pl,
   for (auto const& p : pl) {
     auto const& bd = p.second;
     auto const& presListForBT = presList[bd.branchType()];
-    ProductID const pid{bd.branchID().id()};
+    auto const pid = bd.productID();
     if (presListForBT.find(pid) != presListForBT.cend()) {
       perFilePresenceLookups_.back()[bd.branchType()].emplace(pid);
     }

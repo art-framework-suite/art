@@ -56,8 +56,7 @@ art::ProductRegistryHelper::registerProducts(MasterProductRegistry& mpr,
     PerBranchTypePresence tp;
     for (auto const& val : *productList_) {
       auto const& bd = val.second;
-      auto bid = bd.branchID().id();
-      tp[bd.branchType()].emplace(bid);
+      tp[bd.branchType()].emplace(bd.productID());
     }
     FileBlock const fb{{}, "ProductRegistryHelper"};
     mpr.initFromFirstPrimaryFile(*productList_, tp, fb);

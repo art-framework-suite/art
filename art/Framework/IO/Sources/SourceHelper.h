@@ -83,7 +83,7 @@ art::SourceHelper::makePtr(TypeLabel const& tl,
                            typename Ptr<T>::key_type key) const
 {
   BranchDescription const bd{InEvent, tl, md_};
-  ProductID const pid{bd.branchID().id()};
+  ProductID const pid{bd.productID()};
   return Ptr<T>(pid, key, ep.productGetter(pid));
 }
 

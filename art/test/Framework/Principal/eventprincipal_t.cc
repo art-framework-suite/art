@@ -162,10 +162,10 @@ EventPrincipalTestFixture::EventPrincipalTestFixture()
 
   art::BranchDescription const& branchFromRegistry(it->second);
 
-  std::shared_ptr<art::Parentage> entryDescriptionPtr(new art::Parentage);
-  std::unique_ptr<art::ProductProvenance const> productProvenancePtr(new art::ProductProvenance(branchFromRegistry.branchID(),
-                                                                                                art::productstatus::present(),
-                                                                                                entryDescriptionPtr));
+  auto entryDescriptionPtr = std::make_shared<art::Parentage>();
+  auto productProvenancePtr = std::make_unique<art::ProductProvenance const>(art::BranchID{branchFromRegistry.productID().value()},
+                                                                             art::productstatus::present(),
+                                                                             entryDescriptionPtr);
 
   art::ProcessConfiguration* process = gf().processConfigurations_[tag];
   BOOST_REQUIRE(process);

@@ -86,7 +86,7 @@ namespace art {
     auto const& bd = get_BranchDescription<PROD>(B,
                                                  md.moduleLabel(),
                                                  instanceName);
-    return ProductID{bd.branchID().id()};
+    return bd.productID();
   }
 
   template <typename T>

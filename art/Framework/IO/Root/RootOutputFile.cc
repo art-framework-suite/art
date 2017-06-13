@@ -796,10 +796,10 @@ writeProductDescriptionRegistry()
 
   ProductRegistry reg;
   for (auto const& pr : ProductMetaData::instance().productList()) {
-    if (branchesWithStoredHistory_.find(pr.second.branchID()) == end){
+    if (branchesWithStoredHistory_.find(BranchID{pr.second.productID().value()}) == end){
       continue;
     }
-    reg.productList_.emplace_hint(reg.productList_.end(),pr);
+    reg.productList_.emplace_hint(reg.productList_.end(), pr);
   }
 
   ProductRegistry const* regp = &reg;
@@ -860,7 +860,7 @@ fillBranches(Principal const& principal,
 
   for (auto const& val : selectedOutputItemList_[BT]) {
     auto const* bd = val.branchDescription_;
-    auto const bid = bd->branchID();
+    auto const bid = BranchID{bd->productID().value()};
     branchesWithStoredHistory_.insert(bid);
     bool const produced {bd->produced()};
     bool const resolveProd = (produced || !fastCloning ||
@@ -870,7 +870,7 @@ fillBranches(Principal const& principal,
     bool const keepProvenance = (dropMetaData_ == DropMetaData::DropNone ||
                                  (dropMetaData_ == DropMetaData::DropPrior &&
                                   produced));
-    auto const& oh = principal.getForOutput(ProductID{bid.id()}, resolveProd);
+    auto const& oh = principal.getForOutput(bd->productID(), resolveProd);
 
     unique_ptr<ProductProvenance> prov {nullptr};
     if (keepProvenance) {

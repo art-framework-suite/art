@@ -82,7 +82,7 @@ doSelectProducts()
 
   for (auto const& val : pmd.productList()) {
     BranchDescription const& bd = val.second;
-    auto const pid = ProductID{bd.branchID().id()};
+    auto const pid = bd.productID();
     auto const bt = bd.branchType();
     if (bd.transient()) {
       // Transient, skip it.

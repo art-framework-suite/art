@@ -68,16 +68,9 @@ public: // TYPES
       std::map<std::string, int> treeMap_;
     };
 
-    ~OutputItem() = default;
-
     explicit OutputItem(BranchDescription const* bd)
       : branchDescription_{bd}
     {}
-
-    BranchID branchID() const
-    {
-      return branchDescription_->branchID();
-    }
 
     std::string const& branchName() const
     {

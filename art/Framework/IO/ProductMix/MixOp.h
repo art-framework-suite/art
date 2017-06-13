@@ -206,7 +206,7 @@ outgoingBranchID() const
           << outputType.className()
           << ") that should have been registered!\n";
     }
-    result = I->second.branchID();
+    result = BranchID{I->second.productID().value()};
   }
   return result;
 }

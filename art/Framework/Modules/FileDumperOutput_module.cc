@@ -186,8 +186,7 @@ printPrincipal(P const& p)
 
   for (auto const& pr : p) {
     auto const& g = *pr.second;
-    ProductID const pid{g.productDescription().branchID().id()};
-    auto const& oh = p.getForOutput(pid, wantResolveProducts_);
+    auto const& oh = p.getForOutput(g.productDescription().productID(), wantResolveProducts_);
 
     EDProduct const* product = oh.isValid() ? oh.wrapper() : nullptr;
     bool const productPresent = product != nullptr && product->isPresent();
