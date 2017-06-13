@@ -63,7 +63,6 @@ public:
 
   // Identifiers corresponding to this product, necessary for art::Ptr support.
   ProductID const& productID() const {return group_->productID();}
-  BranchID branchID() const {return productDescription().branchID();}
 
   // Functions for querying the validity/presence of a product.
   bool isValid() const { return static_cast<bool>(group_); }

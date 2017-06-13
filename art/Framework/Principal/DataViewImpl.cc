@@ -120,7 +120,7 @@ namespace art {
       auto const& bids = prov.parents();
       gotBranchIDs_.insert(bids.begin(), bids.end());
     } else {
-      gotBranchIDs_.insert(prov.branchID());
+      gotBranchIDs_.insert(BranchID{prov.productID().value()});
     }
   }
 

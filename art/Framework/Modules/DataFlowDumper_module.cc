@@ -10,6 +10,7 @@
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Modules/ProvenanceDumper.h"
 #include "art/Persistency/Provenance/ProductMetaData.h"
+#include "canvas/Persistency/Provenance/BranchID.h"
 #include "canvas/Utilities/Exception.h"
 #include "fhiclcpp/types/Atom.h"
 #include "fhiclcpp/types/Name.h"
@@ -86,7 +87,7 @@ void write_id(art::BranchID const& bid, std::ostream& os) {
 }
 
 void write_id(art::Provenance const& p, std::ostream& os) {
-  write_id(p.branchID(), os);
+  write_id(art::BranchID{p.productID().value()}, os);
 }
 
 // format_product_node defines the format for the product nade.
