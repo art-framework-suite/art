@@ -8,7 +8,6 @@
 #include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Persistency/Common/GroupQueryResult.h"
 #include "art/Persistency/Provenance/ProductMetaData.h"
-#include "canvas/Persistency/Provenance/BranchListIndex.h"
 #include "cetlib/container_algorithms.h"
 
 #include <algorithm>
