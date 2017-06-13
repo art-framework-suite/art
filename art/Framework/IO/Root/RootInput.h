@@ -9,7 +9,6 @@
 #include "art/Framework/IO/Root/RootInputFileSequence.h"
 #include "art/Utilities/ConfigurationTable.h"
 #include "canvas/Persistency/Provenance/BranchDescription.h"
-#include "canvas/Persistency/Provenance/BranchID.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
 #include "fhiclcpp/types/KeysToIgnore.h"
 #include "fhiclcpp/types/Table.h"
@@ -82,7 +81,6 @@ namespace art {
   private:
     InputFileCatalog  catalog_;
     std::unique_ptr<RootInputFileSequence> primaryFileSequence_;
-    std::array<std::vector<BranchID>, NumBranchTypes>  branchIDsToReplace_;
     AccessState accessState_;
     MasterProductRegistry& mpr_;
   private:

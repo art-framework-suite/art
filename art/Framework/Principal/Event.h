@@ -121,7 +121,7 @@ public:
 
 private:
 
-  using Base::addToGotBranchIDs;
+  using Base::addToGotProductIDs;
 
   template <typename ELEMENT>
   void fillView_(GroupQueryResult& bh,
@@ -207,7 +207,7 @@ art::Event::get(ProductID const& oid, Handle<PROD>& result) const
   convert_handle(bh, result);
   bool const ok{bh.succeeded() && !result.failedToGet()};
   if (recordParents_ && ok) {
-    addToGotBranchIDs(*result.provenance());
+    addToGotProductIDs(*result.provenance());
   }
   return ok;
 }  // get<>()
@@ -314,7 +314,7 @@ art::Event::fillView_(GroupQueryResult& bh,
 {
   std::vector<void const*> erased_ptrs;
   bh.result()->uniqueProduct()->fillView(erased_ptrs);
-  addToGotBranchIDs(Provenance{bh.result()});
+  addToGotProductIDs(Provenance{bh.result()});
 
   std::vector<ELEMENT const*> vals;
   cet::transform_all(erased_ptrs,

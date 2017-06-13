@@ -76,7 +76,7 @@ art::put_product_in_principal(std::unique_ptr<T>&& product,
   std::unique_ptr<EDProduct> wp = std::make_unique<Wrapper<T>>(std::move(product));
   principal.put(std::move(wp),
                 desc,
-                std::make_unique<ProductProvenance const>(BranchID{desc.productID().value()}, productstatus::present()));
+                std::make_unique<ProductProvenance const>(desc.productID(), productstatus::present()));
 }
 
 template <typename T, typename P>
@@ -108,7 +108,7 @@ art::put_product_in_principal(std::unique_ptr<T>&& product,
   std::unique_ptr<EDProduct> wp = std::make_unique<Wrapper<T>>(std::move(product));
   principal.put(std::move(wp),
                 desc,
-                std::make_unique<ProductProvenance const>(BranchID{desc.productID().value()}, productstatus::present()),
+                std::make_unique<ProductProvenance const>(desc.productID(), productstatus::present()),
                 std::move(rs));
 }
 

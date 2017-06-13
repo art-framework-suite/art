@@ -51,17 +51,16 @@ namespace art {
                             std::map<ProductID, bool>& oMap,
                             std::set<ProductID>& oMapperMissing)
   {
-    for (auto const& parent : iInfo.parentage().parents()) {
+    for (art::ProductID const parent : iInfo.parentage().parents()) {
       //Don't look for parents if we've previously looked at the parents
-      ProductID const pid{parent.id()};
-      if (oMap.find(pid) == oMap.end()) {
+      if (oMap.find(parent) == oMap.end()) {
         //use side effect of calling operator[] which is if the item isn't there it will add it as 'false'
-        oMap[pid];
+        oMap[parent];
         cet::exempt_ptr<ProductProvenance const> pInfo = iMapper.branchToProductProvenance(parent);
         if (pInfo.get()) {
           markAncestors(*pInfo, iMapper, oMap, oMapperMissing);
         } else {
-          oMapperMissing.insert(pid);
+          oMapperMissing.insert(parent);
         }
       }
     }
@@ -86,8 +85,7 @@ namespace art {
           missingProductProvenance.insert(group.first);
           continue;
         }
-        BranchID const bid{group.first.value()};
-        cet::exempt_ptr<ProductProvenance const> pInfo = mapper.branchToProductProvenance(bid);
+        cet::exempt_ptr<ProductProvenance const> pInfo = mapper.branchToProductProvenance(group.first);
         if (!pInfo.get()) {
           missingFromMapper.insert(group.first);
         }
@@ -96,7 +94,7 @@ namespace art {
       seenParentInPrincipal[group.first]=true;
     }
 
-    //Determine what BranchIDs are in the product registry
+    //Determine what ProductIDs are in the product registry
     auto const& prodList = ProductMetaData::instance().productList();
     std::set<ProductID> branchesInReg;
     for (auto const& prod : prodList) {
@@ -118,22 +116,22 @@ namespace art {
     auto logProductID = [](auto const& missing){ mf::LogProblem("ProvenanceChecker") << missing; };
 
     if (missingFromMapper.size()) {
-      mf::LogError("ProvenanceChecker") << "Missing the following BranchIDs from BranchMapper\n";
+      mf::LogError("ProvenanceChecker") << "Missing the following ProductIDs from BranchMapper\n";
       cet::for_all(missingFromMapper, logProductID);
     }
 
     if (missingFromPrincipal.size()) {
-      mf::LogError("ProvenanceChecker") << "Missing the following BranchIDs from EventPrincipal\n";
+      mf::LogError("ProvenanceChecker") << "Missing the following ProductIDs from EventPrincipal\n";
       cet::for_all(missingFromPrincipal, logProductID);
     }
 
     if (missingProductProvenance.size()) {
-      mf::LogError("ProvenanceChecker") << "The Groups for the following BranchIDs have no ProductProvenance\n";
+      mf::LogError("ProvenanceChecker") << "The Groups for the following ProductIDs have no ProductProvenance\n";
       cet::for_all(missingProductProvenance, logProductID);
     }
 
     if (missingFromReg.size()) {
-      mf::LogError("ProvenanceChecker") << "Missing the following BranchIDs from ProductRegistry\n";
+      mf::LogError("ProvenanceChecker") << "Missing the following ProductIDs from ProductRegistry\n";
       cet::for_all(missingFromReg, logProductID);
     }
 

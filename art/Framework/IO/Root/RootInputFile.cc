@@ -24,6 +24,7 @@
 #include "canvas/Persistency/Provenance/ParameterSetMap.h"
 #include "canvas/Persistency/Provenance/ParentageRegistry.h"
 #include "canvas/Persistency/Provenance/ProductList.h"
+#include "canvas/Persistency/Provenance/ProductID.h"
 #include "canvas/Persistency/Provenance/RunID.h"
 #include "canvas/Persistency/Provenance/rootNames.h"
 #include "canvas/Utilities/Exception.h"
@@ -1007,16 +1008,15 @@ namespace art {
     groupSelector.initialize(rules, prodList);
     // Do drop on input. On the first pass, just fill
     // in a set of branches to be dropped.
-    set<BranchID> branchesToDrop;
+    set<ProductID> branchesToDrop;
     for (auto const& prod : prodList) {
       auto const& bd = prod.second;
       if (!groupSelector.selected(bd)) {
-        BranchID const bid{bd.productID().value()};
         if (dropDescendants) {
-          branchChildren_->appendToDescendants(bid, branchesToDrop);
+          branchChildren_->appendToDescendants(bd.productID(), branchesToDrop);
         }
         else {
-          branchesToDrop.insert(bid);
+          branchesToDrop.insert(bd.productID());
         }
       }
     }
@@ -1024,8 +1024,7 @@ namespace art {
     auto branchesToDropEnd = branchesToDrop.cend();
     for (auto I = prodList.begin(), E = prodList.end(); I != E;) {
       auto const& bd = I->second;
-      BranchID const bid{bd.productID().value()};
-      bool drop = branchesToDrop.find(bid) != branchesToDropEnd;
+      bool drop = branchesToDrop.find(bd.productID()) != branchesToDropEnd;
       if (!drop) {
         ++I;
         continue;

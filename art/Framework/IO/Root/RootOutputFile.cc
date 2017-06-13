@@ -796,7 +796,7 @@ writeProductDescriptionRegistry()
 
   ProductRegistry reg;
   for (auto const& pr : ProductMetaData::instance().productList()) {
-    if (branchesWithStoredHistory_.find(BranchID{pr.second.productID().value()}) == end){
+    if (branchesWithStoredHistory_.find(pr.second.productID()) == end) {
       continue;
     }
     reg.productList_.emplace_hint(reg.productList_.end(), pr);
@@ -860,8 +860,8 @@ fillBranches(Principal const& principal,
 
   for (auto const& val : selectedOutputItemList_[BT]) {
     auto const* bd = val.branchDescription_;
-    auto const bid = BranchID{bd->productID().value()};
-    branchesWithStoredHistory_.insert(bid);
+    auto const pid = bd->productID();
+    branchesWithStoredHistory_.insert(pid);
     bool const produced {bd->produced()};
     bool const resolveProd = (produced || !fastCloning ||
                               treePointers_[BT]->uncloned(bd->branchName()));
@@ -870,7 +870,7 @@ fillBranches(Principal const& principal,
     bool const keepProvenance = (dropMetaData_ == DropMetaData::DropNone ||
                                  (dropMetaData_ == DropMetaData::DropPrior &&
                                   produced));
-    auto const& oh = principal.getForOutput(bd->productID(), resolveProd);
+    auto const& oh = principal.getForOutput(pid, resolveProd);
 
     unique_ptr<ProductProvenance> prov {nullptr};
     if (keepProvenance) {
@@ -882,7 +882,7 @@ fillBranches(Principal const& principal,
         // No provenance, product was either not produced,
         // or was dropped, create provenance to remember that.
         auto const status = produced ? productstatus::neverCreated() : productstatus::dropped();
-        prov = std::make_unique<ProductProvenance>(keptProvenance.emplace(bid, status));
+        prov = std::make_unique<ProductProvenance>(keptProvenance.emplace(pid, status));
       }
     }
 

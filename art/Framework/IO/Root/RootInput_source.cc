@@ -72,7 +72,6 @@ RootInput(RootInput::Parameters const& config, InputSourceDescription& desc)
                                                                  processingMode(),
                                                                  desc.productRegistry,
                                                                  processConfiguration()))
-  , branchIDsToReplace_()
   , accessState_()
   , mpr_(desc.productRegistry)
 {

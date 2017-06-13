@@ -3,7 +3,6 @@
 
 #include "art/Persistency/Common/DelayedReader.h"
 #include "art/Framework/Principal/fwd.h"
-#include "canvas/Persistency/Provenance/BranchID.h"
 #include "canvas/Persistency/Provenance/ProvenanceFwd.h"
 
 #include <memory>

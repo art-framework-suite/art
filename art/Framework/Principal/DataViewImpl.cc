@@ -112,15 +112,15 @@ namespace art {
   }
 
   void
-  DataViewImpl::addToGotBranchIDs(Provenance const& prov) const
+  DataViewImpl::addToGotProductIDs(Provenance const& prov) const
   {
     if (prov.branchDescription().transient()) {
       // If the product retrieved is transient, don't use its
-      // BranchID; use the BranchID's of its parents.
-      auto const& bids = prov.parents();
-      gotBranchIDs_.insert(bids.begin(), bids.end());
+      // ProductID; use the ProductID's of its parents.
+      auto const& pids = prov.parents();
+      gotProductIDs_.insert(pids.begin(), pids.end());
     } else {
-      gotBranchIDs_.insert(BranchID{prov.productID().value()});
+      gotProductIDs_.insert(prov.productID());
     }
   }
 

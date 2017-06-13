@@ -360,13 +360,13 @@ updateBranchParents(EventPrincipal const & ep)
   for (auto const& groupPr : ep) {
     auto const& group = *groupPr.second;
     if (group.productProvenancePtr()) {
-      BranchID const bid{groupPr.first.value()};
-      auto it = branchParents_.find(bid);
+      ProductID const pid = groupPr.first;
+      auto it = branchParents_.find(pid);
       if (it == branchParents_.end()) {
-        it = branchParents_.emplace(bid, std::set<ParentageID>()).first;
+        it = branchParents_.emplace(pid, std::set<ParentageID>()).first;
       }
       it->second.insert(group.productProvenancePtr()->parentageID());
-      branchChildren_.insertEmpty(bid);
+      branchChildren_.insertEmpty(pid);
     }
   }
 }
@@ -376,8 +376,8 @@ art::OutputModule::
 fillDependencyGraph()
 {
   for (auto const& bp : branchParents_) {
-    BranchID const child = bp.first;
-    std::set<ParentageID> const & eIds = bp.second;
+    ProductID const child = bp.first;
+    std::set<ParentageID> const& eIds = bp.second;
     for (auto const& eId : eIds) {
       Parentage par;
       if (!ParentageRegistry::get(eId, par)) {

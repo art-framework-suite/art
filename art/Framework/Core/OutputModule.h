@@ -22,11 +22,11 @@
 #include "art/Framework/Services/System/FileCatalogMetadata.h"
 #include "art/Persistency/Provenance/Selections.h"
 #include "canvas/Persistency/Provenance/BranchChildren.h"
-#include "canvas/Persistency/Provenance/BranchID.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
 #include "canvas/Persistency/Provenance/IDNumber.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
 #include "canvas/Persistency/Provenance/ParentageID.h"
+#include "canvas/Persistency/Provenance/ProductID.h"
 #include "cetlib/BasicPluginFactory.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/types/Atom.h"
@@ -151,7 +151,7 @@ private:
   ModuleDescription moduleDescription_ {};
   cet::exempt_ptr<CurrentProcessingContext const> current_context_ {nullptr};
 
-  using BranchParents = std::map<BranchID, std::set<ParentageID> >;
+  using BranchParents = std::map<ProductID, std::set<ParentageID>>;
   BranchParents branchParents_ {};
 
   BranchChildren branchChildren_ {};

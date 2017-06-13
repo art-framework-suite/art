@@ -9,16 +9,14 @@
 // input sources to retrieve EDProducts from external storage.
 //
 
-#include "canvas/Persistency/Common/EDProduct.h"
-#include "canvas/Persistency/Provenance/BranchID.h"
 #include "art/Utilities/fwd.h"
+#include "canvas/Persistency/Common/EDProduct.h"
 #include "cetlib/exempt_ptr.h"
 
 #include <memory>
 
 namespace art {
 
-  class BranchID;
   class BranchKey;
   class EDProductGetterFinder;
   class RangeSet;

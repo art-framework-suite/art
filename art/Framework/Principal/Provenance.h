@@ -57,7 +57,7 @@ public:
   // Metadata about the product's origin
   RangeSet const& rangeOfValidity() const {return group_->rangeOfValidity();}
   Parentage const& parentage() const {return productProvenance().parentage();}
-  std::vector<BranchID> const& parents() const {return parentage().parents();}
+  std::vector<ProductID> const& parents() const {return parentage().parents();}
   fhicl::ParameterSet const& parameterSet() const;
   std::set<fhicl::ParameterSetID> const& psetIDs() const {return productDescription().psetIDs();}
 

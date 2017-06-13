@@ -108,9 +108,9 @@ art::Group::
 productProvenancePtr() const
 {
   if (!ppResolver_) {
-    return cet::exempt_ptr<ProductProvenance const>();
+    return cet::exempt_ptr<ProductProvenance const>{};
   }
-  return ppResolver_->branchToProductProvenance(BranchID{branchDescription_->productID().value()});
+  return ppResolver_->branchToProductProvenance(branchDescription_->productID());
 }
 
 void

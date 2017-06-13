@@ -33,7 +33,7 @@ namespace art {
   {
     for (auto& elem : putProducts()) {
       auto const& bd = elem.second.bd;
-      auto productProvenancePtr = std::make_unique<ProductProvenance const>(BranchID{bd.productID().value()},
+      auto productProvenancePtr = std::make_unique<ProductProvenance const>(bd.productID(),
                                                                             productstatus::present());
 
       srp.put(std::move(elem.second.prod),

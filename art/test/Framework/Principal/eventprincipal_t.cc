@@ -19,7 +19,6 @@ Test of the EventPrincipal class.
 #include "art/test/TestObjects/ToyProducts.h"
 #include "canvas/Persistency/Common/Wrapper.h"
 #include "canvas/Persistency/Provenance/BranchDescription.h"
-#include "canvas/Persistency/Provenance/BranchID.h"
 #include "canvas/Persistency/Provenance/EventAuxiliary.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
 #include "canvas/Persistency/Provenance/Parentage.h"
@@ -163,7 +162,7 @@ EventPrincipalTestFixture::EventPrincipalTestFixture()
   art::BranchDescription const& branchFromRegistry(it->second);
 
   auto entryDescriptionPtr = std::make_shared<art::Parentage>();
-  auto productProvenancePtr = std::make_unique<art::ProductProvenance const>(art::BranchID{branchFromRegistry.productID().value()},
+  auto productProvenancePtr = std::make_unique<art::ProductProvenance const>(branchFromRegistry.productID(),
                                                                              art::productstatus::present(),
                                                                              entryDescriptionPtr);
 

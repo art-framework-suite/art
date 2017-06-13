@@ -6,7 +6,7 @@ using namespace art;
 
 detail::KeptProvenance::KeptProvenance(DropMetaData const dropMetaData,
                                        bool const dropMetaDataForDroppedData,
-                                       std::set<BranchID>& branchesWithStoredHistory)
+                                       std::set<ProductID>& branchesWithStoredHistory)
   : dropMetaData_{dropMetaData}
   , dropMetaDataForDroppedData_{dropMetaDataForDroppedData}
   , branchesWithStoredHistory_{branchesWithStoredHistory}
@@ -19,9 +19,9 @@ detail::KeptProvenance::insert(ProductProvenance const& pp)
 }
 
 ProductProvenance const&
-detail::KeptProvenance::emplace(BranchID const bid, ProductStatus const status)
+detail::KeptProvenance::emplace(ProductID const pid, ProductStatus const status)
 {
-  return *provenance_.emplace(bid, status).first;
+  return *provenance_.emplace(pid, status).first;
 }
 
 
@@ -35,14 +35,14 @@ detail::KeptProvenance::insertAncestors(ProductProvenance const& iGetParents,
   if (dropMetaDataForDroppedData_) {
     return;
   }
-  auto const& parentBids = iGetParents.parentage().parents();
-  for (auto const bid : parentBids) {
-    branchesWithStoredHistory_.insert(bid);
-    auto info = principal.branchMapper().branchToProductProvenance(bid);
+  auto const& parents = iGetParents.parentage().parents();
+  for (auto const pid : parents) {
+    branchesWithStoredHistory_.insert(pid);
+    auto info = principal.branchMapper().branchToProductProvenance(pid);
     if (!info || dropMetaData_ != DropMetaData::DropNone) {
       continue;
     }
-    auto const* bd = principal.getForOutput(ProductID{info->branchID().id()}, false).desc();
+    auto const* bd = principal.getForOutput(info->productID(), false).desc();
     if (bd && bd->produced() && provenance_.insert(*info).second) {
       // FIXME: Remove recursion!
       insertAncestors(*info, principal);
@@ -57,5 +57,5 @@ detail::KeptProvenance::setStatus(ProductProvenance const& key,
   if (provenance_.erase(key) != 1ull)
     throw Exception(errors::LogicError, "detail::KeptProvenance::setStatus")
       << "Attempt to set product status for product whose provenance is not being recorded.\n";
-  provenance_.emplace(key.branchID(), status);
+  provenance_.emplace(key.productID(), status);
 }

@@ -142,17 +142,17 @@ public:
     RangeSet rs;
   };
 
-  using RetrievedProductSet = std::set<BranchID>;
+  using RetrievedProductSet = std::set<ProductID>;
   using TypeLabelMap = std::map<TypeLabel, PMValue>;
 
 protected:
 
-  void addToGotBranchIDs(Provenance const& prov) const;
+  void addToGotProductIDs(Provenance const& prov) const;
 
   TypeLabelMap      & putProducts()       {return putProducts_;}
   TypeLabelMap const& putProducts() const {return putProducts_;}
 
-  RetrievedProductSet& retrievedProducts() {return gotBranchIDs_;}
+  RetrievedProductSet& retrievedProducts() {return gotProductIDs_;}
 
   void
   checkPutProducts(bool checkProducts,
@@ -220,11 +220,11 @@ private:
   // which they point.
   TypeLabelMap putProducts_{};
 
-  // gotBranchIDs_ must be mutable because it records all 'gets',
-  // which do not logically modify the DataViewImpl. gotBranchIDs_ is
+  // gotProductIDs_ must be mutable because it records all 'gets',
+  // which do not logically modify the DataViewImpl. gotProductIDs_ is
   // merely a cache reflecting what has been retrieved from the
   // Principal class.
-  mutable RetrievedProductSet gotBranchIDs_{};
+  mutable RetrievedProductSet gotProductIDs_{};
 
   // Each DataViewImpl must have an associated Principal, used as the
   // source of all 'gets' and the target of 'puts'.
@@ -264,7 +264,7 @@ art::DataViewImpl::get(SelectorBase const& sel,
   convert_handle(bh, result);
   bool const ok{bh.succeeded() && !result.failedToGet()};
   if (recordParents_ && ok) {
-    addToGotBranchIDs(*result.provenance());
+    addToGotProductIDs(*result.provenance());
   }
   return ok;
 }
@@ -300,7 +300,7 @@ art::DataViewImpl::getByLabel(std::string const& label,
   convert_handle(bh, result);
   bool const ok{bh.succeeded() && !result.failedToGet()};
   if (recordParents_ && ok) {
-    addToGotBranchIDs(*result.provenance());
+    addToGotProductIDs(*result.provenance());
   }
   return ok;
 }
@@ -356,7 +356,7 @@ art::DataViewImpl::getMany(SelectorBase const& sel,
   if (!recordParents_) return;
 
   for (auto const& h : results)
-    addToGotBranchIDs(*h.provenance());
+    addToGotProductIDs(*h.provenance());
 }
 
 template <typename PROD>

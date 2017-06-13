@@ -97,9 +97,9 @@ namespace art {
   }
 
   GroupQueryResult
-  Event::getByProductID_(ProductID const& oid) const
+  Event::getByProductID_(ProductID const& pid) const
   {
-    return eventPrincipal_.getByProductID(oid);
+    return eventPrincipal_.getByProductID(pid);
   }
 
 
@@ -110,18 +110,18 @@ namespace art {
     assert(&ep == &eventPrincipal_);
     checkPutProducts(checkProducts, expectedProducts, putProducts());
 
-    vector<BranchID> gotBranchIDVector;
-    auto const& gotBranchIDs = retrievedProducts();
-    if (!gotBranchIDs.empty()) {
-      gotBranchIDVector.reserve(gotBranchIDs.size());
-      gotBranchIDVector.assign(gotBranchIDs.begin(), gotBranchIDs.end());
+    vector<ProductID> gotProductIDVector;
+    auto const& gotProductIDs = retrievedProducts();
+    if (!gotProductIDs.empty()) {
+      gotProductIDVector.reserve(gotProductIDs.size());
+      gotProductIDVector.assign(gotProductIDs.begin(), gotProductIDs.end());
     }
 
     for (auto& elem : putProducts()) {
       auto const& bd = elem.second.bd;
-      auto productProvenancePtr = make_unique<ProductProvenance const>(BranchID{bd.productID().value()},
+      auto productProvenancePtr = make_unique<ProductProvenance const>(bd.productID(),
                                                                        productstatus::present(),
-                                                                       gotBranchIDVector);
+                                                                       gotProductIDVector);
       ep.put(std::move(elem.second.prod),
              bd,
              std::move(productProvenancePtr));

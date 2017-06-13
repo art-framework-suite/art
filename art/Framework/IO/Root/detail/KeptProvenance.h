@@ -7,7 +7,7 @@
 //                 RootOutputFile::fillBranches.
 
 #include "art/Framework/IO/Root/DropMetaData.h"
-#include "canvas/Persistency/Provenance/BranchID.h"
+#include "canvas/Persistency/Provenance/ProductID.h"
 #include "canvas/Persistency/Provenance/ProductProvenance.h"
 
 #include <set>
@@ -22,10 +22,10 @@ namespace art {
     public:
       KeptProvenance(DropMetaData dropMetaData,
                      bool dropMetaDataForDroppedData,
-                     std::set<BranchID>& branchesWithStoredHistory);
+                     std::set<ProductID>& branchesWithStoredHistory);
 
       ProductProvenance const& insert(ProductProvenance const&);
-      ProductProvenance const& emplace(BranchID, ProductStatus);
+      ProductProvenance const& emplace(ProductID, ProductStatus);
       void setStatus(ProductProvenance const&, ProductStatus);
 
       auto begin() const { return provenance_.begin(); }
@@ -38,7 +38,7 @@ namespace art {
       bool const keepProvenance_ {true};
       DropMetaData const dropMetaData_;
       bool const dropMetaDataForDroppedData_;
-      std::set<BranchID>& branchesWithStoredHistory_;
+      std::set<ProductID>& branchesWithStoredHistory_;
       std::set<ProductProvenance> provenance_ {};
     };
 

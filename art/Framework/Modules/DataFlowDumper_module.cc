@@ -10,7 +10,7 @@
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Modules/ProvenanceDumper.h"
 #include "art/Persistency/Provenance/ProductMetaData.h"
-#include "canvas/Persistency/Provenance/BranchID.h"
+#include "canvas/Persistency/Provenance/ProductID.h"
 #include "canvas/Utilities/Exception.h"
 #include "fhiclcpp/types/Atom.h"
 #include "fhiclcpp/types/Name.h"
@@ -80,14 +80,14 @@ void art::DataFlow::postProcessEvent() {
 
 // Write the identifier for the node for the product to which this
 // Provenance belongs.
-void write_id(art::BranchID const& bid, std::ostream& os) {
+void write_id(art::ProductID const pid, std::ostream& os) {
   os << "\"b"
-     << bid
+     << pid
      << '\"';
 }
 
 void write_id(art::Provenance const& p, std::ostream& os) {
-  write_id(art::BranchID{p.productID().value()}, os);
+  write_id(p.productID(), os);
 }
 
 // format_product_node defines the format for the product nade.
@@ -112,27 +112,27 @@ void write_product_node(art::Provenance const& p,
   format_product_node(p.friendlyClassName(), p.productInstanceName(), os);
 }
 
-void write_product_node(art::BranchID const& bid,
+void write_product_node(art::ProductID const pid,
                         std::ostream& os,
                         int debug) {
   if (debug > 0) {
-    os << "# write_product_node for bid: " << bid << '\n';
+    os << "# write_product_node for pid: " << pid << '\n';
   }
   // Access to the productList is cheap, so not really worth caching.
   auto const& pmd = art::ProductMetaData::instance();
   auto const& plist = pmd.productList(); // note this is a map
   // The mapped_type in the map contains all the information we want,
   // but we have to do a linear search through the map to find the one
-  // with the right BranchID.
+  // with the right ProductID.
   auto it = std::find_if(begin(plist), end(plist),
-                         [&bid](auto const& keyval) {
-                           return art::BranchID{keyval.second.productID().value()} == bid;
+                         [&pid](auto const& keyval) {
+                           return keyval.second.productID() == pid;
                          });
   if (it == plist.end()) {
-    os << "#Missing information for branch with id " << bid << '\n';
+    os << "#Missing information for product with id " << pid << '\n';
     return;
   }
-  write_id(bid, os);
+  write_id(pid, os);
   format_product_node(it->second.friendlyClassName(),
                       it->second.productInstanceName(),
                       os);
@@ -181,13 +181,13 @@ void write_creator_line(art::Provenance const& p,
   os << ";\n";
 }
 
-void write_parent_id(art::BranchID const& parent,
+void write_parent_id(art::ProductID const parent,
                      std::ostream& os) {
  os << 'b' << parent;
 }
 
 void write_parentage_line(art::Provenance const& p,
-                          art::BranchID const& parent,
+                          art::ProductID const parent,
                           std::ostream& os,
                           int debug) {
   if (debug > 0) {
@@ -203,7 +203,7 @@ void write_parentage_line(art::Provenance const& p,
 void art::DataFlow::processEventProvenance(art::Provenance const& p) {
   write_product_node(p, out_, debug_);
   write_creator_line(p, colorscheme_, out_, debug_);
-  for (art::BranchID const& parent : p.parents()) {
+  for (art::ProductID const parent : p.parents()) {
     write_parentage_line(p, parent, out_, debug_);
   }
 }

@@ -13,11 +13,11 @@
 #include "art/Persistency/Provenance/Selections.h"
 #include "boost/filesystem.hpp"
 #include "canvas/Persistency/Provenance/BranchDescription.h"
-#include "canvas/Persistency/Provenance/BranchID.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
 #include "canvas/Persistency/Provenance/FileIndex.h"
 #include "canvas/Persistency/Provenance/ParameterSetBlob.h"
 #include "canvas/Persistency/Provenance/ParameterSetMap.h"
+#include "canvas/Persistency/Provenance/ProductID.h"
 #include "canvas/Persistency/Provenance/ProductProvenance.h"
 #include "cetlib/sqlite/Connection.h"
 
@@ -192,7 +192,7 @@ private: // MEMBER DATA
   History const* pHistory_ {nullptr};
   RootOutputTreePtrArray treePointers_;
   bool dataTypeReported_ {false};
-  std::set<BranchID> branchesWithStoredHistory_ {};
+  std::set<ProductID> branchesWithStoredHistory_ {};
   cet::sqlite::Connection rootFileDB_; // Connection closed when d'tor
                                        // called.  DB written to file
                                        // when sqlite3_close is
