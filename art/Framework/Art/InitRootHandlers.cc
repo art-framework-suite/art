@@ -4,6 +4,7 @@
 #include "canvas/Persistency/Common/detail/setPtrVectorBaseStreamer.h"
 #include "canvas/Persistency/Common/RefCoreStreamer.h"
 #include "canvas/Persistency/Provenance/BranchDescription.h"
+#include "canvas/Persistency/Provenance/ProductIDStreamer.h"
 #include "canvas/Persistency/Provenance/TransientStreamer.h"
 #include "canvas/Utilities/Exception.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
@@ -194,6 +195,7 @@ namespace art {
     setProvenanceTransientStreamers();
     detail::setBranchDescriptionStreamer();
     detail::setPtrVectorBaseStreamer();
+    configureProductIDStreamer();
     configureRefCoreStreamer();
   }
 

@@ -9,6 +9,7 @@
 #include "art/Framework/IO/Root/detail/resolveRangeSet.h"
 #include "canvas/Persistency/Common/RefCoreStreamer.h"
 #include "canvas/Persistency/Provenance/BranchDescription.h"
+#include "canvas/Persistency/Provenance/ProductIDStreamer.h"
 #include "canvas/Persistency/Provenance/RangeSet.h"
 #include "canvas/Utilities/TypeID.h"
 #include "cetlib/crc32.h"
@@ -27,6 +28,7 @@ namespace art {
                     cet::exempt_ptr<RootInputTree> tree,
                     int64_t const saveMemoryObjectThreshold,
                     cet::exempt_ptr<RootInputFile> primaryFile,
+                    cet::exempt_ptr<BranchIDLists const> bidLists,
                     BranchType const branchType,
                     EventID const eID)
     : fileFormatVersion_{version}
@@ -36,6 +38,7 @@ namespace art {
     , tree_{tree}
     , saveMemoryObjectThreshold_{saveMemoryObjectThreshold}
     , primaryFile_{primaryFile}
+    , branchIDLists_{bidLists}
     , branchType_{branchType}
     , eventID_{eID}
   {}
@@ -60,6 +63,7 @@ namespace art {
     TBranch* br {branchInfo.productBranch_};
     assert(br != nullptr);
 
+    configureProductIDStreamer(branchIDLists_);
     configureRefCoreStreamer(groupFinder_);
     TClass* cl {TClass::GetClass(ty.typeInfo())};
 
@@ -91,6 +95,7 @@ namespace art {
         else {
           rs = RangeSet::forSubRun(eventID_.subRunID());
         }
+        configureProductIDStreamer();
         configureRefCoreStreamer();
         return result;
       }
@@ -138,6 +143,7 @@ namespace art {
       std::swap(rs, mergedRangeSet);
     }
 
+    configureProductIDStreamer();
     configureRefCoreStreamer();
     return result;
   }
@@ -147,8 +153,8 @@ namespace art {
   RootDelayedReader::
   openNextSecondaryFile_(int idx)
   {
-    // idx being a number we can actually use is a precondition of this
-    // function.
+    // idx being a number we can actually use is a precondition of
+    // this function.
     assert(!(idx < 0));
 
     // Note:
@@ -166,9 +172,11 @@ namespace art {
       // We're done.
       return -2;
     }
+
     if (!sf[idx]) {
       primaryFile_->openSecondaryFile(idx);
     }
+
     switch (branchType_) {
     case InEvent: {
       if (!sf[idx]->readEventForSecondaryFile(eventID_)) {

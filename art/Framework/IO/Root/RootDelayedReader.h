@@ -4,6 +4,7 @@
 
 #include "art/Framework/IO/Root/Inputfwd.h"
 #include "art/Persistency/Common/DelayedReader.h"
+#include "canvas/Persistency/Provenance/BranchIDList.h"
 #include "canvas/Persistency/Provenance/BranchKey.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
 #include "canvas/Persistency/Provenance/EventID.h"
@@ -41,6 +42,7 @@ namespace art {
                       cet::exempt_ptr<RootInputTree> tree,
                       int64_t saveMemoryObjectThreshold,
                       cet::exempt_ptr<RootInputFile> primaryFile,
+                      cet::exempt_ptr<BranchIDLists const> branchIDLists,
                       BranchType branchType,
                       EventID);
 
@@ -63,6 +65,7 @@ namespace art {
     int64_t saveMemoryObjectThreshold_;
     cet::exempt_ptr<EDProductGetterFinder const> groupFinder_;
     cet::exempt_ptr<RootInputFile> primaryFile_;
+    cet::exempt_ptr<BranchIDLists const> branchIDLists_; // Only for backwards compatibility
     BranchType branchType_;
     EventID eventID_;
 

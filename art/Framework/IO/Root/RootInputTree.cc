@@ -112,17 +112,19 @@ namespace art {
   std::unique_ptr<DelayedReader>
   RootInputTree::
   makeDelayedReader(FileFormatVersion const fileFormatVersion,
+                    cet::exempt_ptr<BranchIDLists const> branchIDLists,
                     BranchType const branchType,
                     EntryNumbers const& entrySet,
                     EventID const eID)
   {
-    return makeDelayedReader(fileFormatVersion, nullptr, branchType, entrySet, eID);
+    return makeDelayedReader(fileFormatVersion, nullptr, branchIDLists, branchType, entrySet, eID);
   }
 
   std::unique_ptr<DelayedReader>
   RootInputTree::
   makeDelayedReader(FileFormatVersion const fileFormatVersion,
                     sqlite3* inputDB,
+                    cet::exempt_ptr<BranchIDLists const> branchIDLists,
                     BranchType const branchType,
                     EntryNumbers const& entrySet,
                     EventID const eID)
@@ -134,6 +136,7 @@ namespace art {
                                                this,
                                                saveMemoryObjectThreshold_,
                                                primaryFile_,
+                                               branchIDLists,
                                                branchType,
                                                eID);
   }

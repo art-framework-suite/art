@@ -16,7 +16,6 @@
 #include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
 #include "art/Persistency/RootDB/TKeyVFSOpenPolicy.h"
 #include "canvas/Persistency/Common/EDProduct.h"
-#include "canvas/Persistency/Provenance/BranchIDListRegistry.h"
 #include "canvas/Persistency/Provenance/BranchChildren.h"
 #include "canvas/Persistency/Provenance/BranchDescription.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
@@ -25,6 +24,7 @@
 #include "canvas/Persistency/Provenance/ParentageRegistry.h"
 #include "canvas/Persistency/Provenance/ProductList.h"
 #include "canvas/Persistency/Provenance/ProductID.h"
+#include "canvas/Persistency/Provenance/ProductIDStreamer.h"
 #include "canvas/Persistency/Provenance/RunID.h"
 #include "canvas/Persistency/Provenance/rootNames.h"
 #include "canvas/Utilities/Exception.h"
@@ -189,18 +189,15 @@ namespace art {
     metaDataTree->SetBranchAddress(metaBranchRootName<BranchChildren>(), &branchChildrenBuffer);
 
     // To support files that contain BranchIDLists
-    std::unique_ptr<BranchIDLists> bids{nullptr};
     if (metaDataTree->GetBranch(metaBranchRootName<BranchIDLists>())) {
-      bids = std::make_unique<BranchIDLists>();
-      auto branchIDListsPtr = bids.get();
+      auto branchIDListsPtr = branchIDLists_.get();
       metaDataTree->SetBranchAddress(metaBranchRootName<BranchIDLists>(), &branchIDListsPtr);
     }
 
     // Here we read the metadata tree
     input::getEntry(metaDataTree, 0);
 
-    if (bids) {
-      BranchIDListRegistry::resetFromFile(std::move(bids));
+    if (branchIDLists_) {
       metaDataTree->SetBranchAddress(metaBranchRootName<BranchIDLists>(), nullptr);
     }
 
@@ -271,9 +268,13 @@ namespace art {
     }
     ProcessHistoryRegistry::put(pHistMap);
     validateFile();
+
     // Read the parentage tree.  Old format files are handled
     // internally in readParentageTree().
+    configureProductIDStreamer(branchIDLists_.get());
     readParentageTree(treeCacheSize);
+    configureProductIDStreamer();
+
     initializeDuplicateChecker();
     if (noEventSort_) {
       fileIndex_.sortBy_Run_SubRun_EventEntry();
@@ -627,6 +628,7 @@ namespace art {
                                                history_,
                                                eventTree().makeBranchMapper(),
                                                eventTree().makeDelayedReader(fileFormatVersion_,
+                                                                             branchIDLists_.get(), // Only for backwards compatibility
                                                                              InEvent,
                                                                              entryNumbers.first,
                                                                              eventAux().id()),
@@ -663,6 +665,7 @@ namespace art {
                                                history_,
                                                eventTree().makeBranchMapper(),
                                                eventTree().makeDelayedReader(fileFormatVersion_,
+                                                                             branchIDLists_.get(), // Only for backwards compatibility
                                                                              InEvent,
                                                                              entryNumbers.first,
                                                                              eventAux().id()),
@@ -722,6 +725,7 @@ namespace art {
                                              runTree().makeBranchMapper(),
                                              runTree().makeDelayedReader(fileFormatVersion_,
                                                                          sqliteDB_,
+                                                                         nullptr,
                                                                          InRun,
                                                                          entryNumbers,
                                                                          fiIter_->eventID_),
@@ -770,6 +774,7 @@ namespace art {
                                              runTree().makeBranchMapper(),
                                              runTree().makeDelayedReader(fileFormatVersion_,
                                                                          sqliteDB_,
+                                                                         nullptr,
                                                                          InRun,
                                                                          entryNumbers,
                                                                          fiIter_->eventID_),
@@ -834,6 +839,7 @@ namespace art {
                                                  subRunTree().makeBranchMapper(),
                                                  subRunTree().makeDelayedReader(fileFormatVersion_,
                                                                                 sqliteDB_,
+                                                                                nullptr,
                                                                                 InSubRun,
                                                                                 entryNumbers,
                                                                                 fiIter_->eventID_),
@@ -881,6 +887,7 @@ namespace art {
                                                  subRunTree().makeBranchMapper(),
                                                  subRunTree().makeDelayedReader(fileFormatVersion_,
                                                                                 sqliteDB_,
+                                                                                nullptr,
                                                                                 InSubRun,
                                                                                 entryNumbers,
                                                                                 fiIter_->eventID_),
@@ -1067,6 +1074,7 @@ namespace art {
                                                 processConfiguration_,
                                                 resultsTree().makeBranchMapper(),
                                                 resultsTree().makeDelayedReader(fileFormatVersion_,
+                                                                                nullptr,
                                                                                 InResults,
                                                                                 entryNumbers,
                                                                                 EventID{}),

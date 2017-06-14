@@ -123,8 +123,18 @@ namespace art {
       }
     }
 
+    // The BranchIDLists are passed so we can configure the
+    // ProductIDStreamer, which is necessary for backwards
+    // compatibility with ProductIDs from older files.
+
+    // FIXME: Since in older files ProductIDs (and therefore the
+    // BranchIDLists) were only meaningfully used for events, we do
+    // not worry about passing the BranchIDLists in the SQLite-based
+    // makeDelayedReader overload used for (Sub)Runs.
+
     std::unique_ptr<DelayedReader>
     makeDelayedReader(FileFormatVersion,
+                      cet::exempt_ptr<BranchIDLists const> branchIDLists,
                       BranchType,
                       std::vector<EntryNumber> const& entrySet,
                       EventID);
@@ -132,6 +142,7 @@ namespace art {
     std::unique_ptr<DelayedReader>
     makeDelayedReader(FileFormatVersion,
                       sqlite3* inputDB,
+                      cet::exempt_ptr<BranchIDLists const> branchIDLists,
                       BranchType,
                       std::vector<EntryNumber> const& entrySet,
                       EventID);

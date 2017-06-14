@@ -264,6 +264,11 @@ namespace art {
                          std::vector<GroupQueryResult>& results,
                          TypeID wanted_wrapper) const;
 
+    // BranchIDLists const* getBranchIDListsImpl() const override
+    // {
+    //   return secondaryIdx_;
+    // }
+
     EDProductGetter const* getEDProductGetterImpl(ProductID const&) const override
     {
       return nullptr;

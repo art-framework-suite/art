@@ -14,6 +14,7 @@
 #include "art/Persistency/Provenance/MasterProductRegistry.h"
 #include "art/Persistency/Provenance/detail/type_aliases.h"
 #include "canvas/Persistency/Provenance/BranchChildren.h"
+#include "canvas/Persistency/Provenance/BranchIDList.h"
 #include "canvas/Persistency/Provenance/BranchMapper.h"
 #include "canvas/Persistency/Provenance/EventAuxiliary.h"
 #include "canvas/Persistency/Provenance/FileFormatVersion.h"
@@ -277,6 +278,7 @@ namespace art {
                RunAuxiliary,
                ResultsAuxiliary> auxiliaries_ {};   // Must be in same order as treePointers_ !
     std::unique_ptr<ProductRegistry> productListHolder_ {std::make_unique<ProductRegistry>()};
+    std::unique_ptr<BranchIDLists> branchIDLists_{nullptr}; // Only used for maintaining backwards compatibility
 
     PerBranchTypePresence perBranchTypeProdPresence_ {{}}; // filled by aggregation
     TTree* eventHistoryTree_ {nullptr};

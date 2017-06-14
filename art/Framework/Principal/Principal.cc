@@ -168,7 +168,7 @@ int
 Principal::
 tryNextSecondaryFile() const
 {
-  int err = store_->openNextSecondaryFile(nextSecondaryFileIdx_);
+  int const err = store_->openNextSecondaryFile(nextSecondaryFileIdx_);
   if (err != -2) {
     // there are more files to try
     ++nextSecondaryFileIdx_;
