@@ -20,9 +20,7 @@ physics:
   }
 
   p1: [ ptrmvWriter ]
-  trigger_paths: [ p1 ]
   e1: [ ptrmvReader, o1 ]
-  end_paths: [ e1 ]
 }
 
 outputs:

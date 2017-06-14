@@ -31,23 +31,24 @@ namespace {
 
 class arttest::PtrmvAnalyzer : public art::EDAnalyzer {
 public:
-  explicit PtrmvAnalyzer(fhicl::ParameterSet const &p);
+  explicit PtrmvAnalyzer(fhicl::ParameterSet const& p);
 
-  void analyze(art::Event const &e) override;
+  void analyze(art::Event const& e) override;
 
 private:
   std::string inputLabel_;
 };
 
 
-arttest::PtrmvAnalyzer::PtrmvAnalyzer(fhicl::ParameterSet const &p)
+arttest::PtrmvAnalyzer::PtrmvAnalyzer(fhicl::ParameterSet const& p)
   :
   art::EDAnalyzer(p),
   inputLabel_(p.get<std::string>("input_label"))
 {
 }
 
-void arttest::PtrmvAnalyzer::analyze(art::Event const &e) {
+void arttest::PtrmvAnalyzer::analyze(art::Event const& e)
+{
   // map_vector retrieval.
   art::Handle<mv_t> mv;
   BOOST_REQUIRE(e.getByLabel(inputLabel_, mv));
@@ -64,7 +65,7 @@ void arttest::PtrmvAnalyzer::analyze(art::Event const &e) {
   BOOST_CHECK(item == nullptr);// Not using EQUAL to avoid stream badness.
 
   // Ptr<std::string> retrieval.
-  art::Handle<art::Ptr<std::string> > ptr;
+  art::Handle<art::Ptr<std::string>> ptr;
   assert(e.getByLabel(inputLabel_, ptr));
   assert(**ptr == "TWO");
 

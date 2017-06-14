@@ -28,12 +28,12 @@ namespace {
 
 class arttest::PtrmvProducer : public art::EDProducer {
 public:
-  explicit PtrmvProducer(fhicl::ParameterSet const &p);
+  explicit PtrmvProducer(fhicl::ParameterSet const& p);
 
-  void produce(art::Event &e) override;
+  void produce(art::Event& e) override;
 };
 
-arttest::PtrmvProducer::PtrmvProducer(fhicl::ParameterSet const &)
+arttest::PtrmvProducer::PtrmvProducer(fhicl::ParameterSet const&)
 {
   produces<mv_t>();
   produces<art::Ptr<std::string> >();
@@ -42,40 +42,34 @@ arttest::PtrmvProducer::PtrmvProducer(fhicl::ParameterSet const &)
   produces<art::PtrVector<mvp_t> >();
 }
 
-void arttest::PtrmvProducer::produce(art::Event &e) {
-  std::unique_ptr<mv_t>
-    mv(new mv_t);
+void arttest::PtrmvProducer::produce(art::Event& e) {
+  auto mv = std::make_unique<mv_t>();
   mv->reserve(4);
   (*mv)[cet::map_vector_key(0)] = "ONE";
   (*mv)[cet::map_vector_key(3)] = "TWO";
   (*mv)[cet::map_vector_key(5)] = "THREE";
   (*mv)[cet::map_vector_key(7)] = "FOUR";
 
-  art::ProductID mvID(e.put(std::move(mv)));
+  art::ProductID const mvID{e.put(std::move(mv))};
 
-  e.put(std::unique_ptr<art::Ptr<std::string> >(new art::Ptr<std::string>(mvID, 3, e.productGetter(mvID))));
+  e.put(std::make_unique<art::Ptr<std::string>>(mvID, 3, e.productGetter(mvID)));
 
-  std::unique_ptr<art::PtrVector<std::string> >
-    pv(new art::PtrVector<std::string>());
-
+  auto pv = std::make_unique<art::PtrVector<std::string>>();
   pv->reserve(4);
-  pv->push_back(art::Ptr<std::string>(mvID, 5, e.productGetter(mvID)));
-  pv->push_back(art::Ptr<std::string>(mvID, 0, e.productGetter(mvID)));
-  pv->push_back(art::Ptr<std::string>(mvID, 7, e.productGetter(mvID)));
-  pv->push_back(art::Ptr<std::string>(mvID, 3, e.productGetter(mvID)));
+  pv->push_back(art::Ptr<std::string>{mvID, 5, e.productGetter(mvID)});
+  pv->push_back(art::Ptr<std::string>{mvID, 0, e.productGetter(mvID)});
+  pv->push_back(art::Ptr<std::string>{mvID, 7, e.productGetter(mvID)});
+  pv->push_back(art::Ptr<std::string>{mvID, 3, e.productGetter(mvID)});
 
   e.put(std::move(pv));
+  e.put(std::make_unique<art::Ptr<mvp_t>>(mvID, 3, e.productGetter(mvID)));
 
-  e.put(std::unique_ptr<art::Ptr<mvp_t> >(new art::Ptr<mvp_t>(mvID, 3, e.productGetter(mvID))));
-
-  std::unique_ptr<art::PtrVector<mvp_t> >
-    pvp(new art::PtrVector<mvp_t>());
-
+  auto pvp = std::make_unique<art::PtrVector<mvp_t>>();
   pvp->reserve(4);
-  pvp->push_back(art::Ptr<mvp_t>(mvID, 5, e.productGetter(mvID)));
-  pvp->push_back(art::Ptr<mvp_t>(mvID, 0, e.productGetter(mvID)));
-  pvp->push_back(art::Ptr<mvp_t>(mvID, 7, e.productGetter(mvID)));
-  pvp->push_back(art::Ptr<mvp_t>(mvID, 3, e.productGetter(mvID)));
+  pvp->push_back(art::Ptr<mvp_t>{mvID, 5, e.productGetter(mvID)});
+  pvp->push_back(art::Ptr<mvp_t>{mvID, 0, e.productGetter(mvID)});
+  pvp->push_back(art::Ptr<mvp_t>{mvID, 7, e.productGetter(mvID)});
+  pvp->push_back(art::Ptr<mvp_t>{mvID, 3, e.productGetter(mvID)});
 
   e.put(std::move(pvp));
 }

@@ -189,15 +189,19 @@ namespace art {
     metaDataTree->SetBranchAddress(metaBranchRootName<BranchChildren>(), &branchChildrenBuffer);
 
     // To support files that contain BranchIDLists
+    BranchIDLists branchIDLists;
+    bool hasBranchIDLists{false};
     if (metaDataTree->GetBranch(metaBranchRootName<BranchIDLists>())) {
-      auto branchIDListsPtr = branchIDLists_.get();
+      hasBranchIDLists = true;
+      auto branchIDListsPtr = &branchIDLists;
       metaDataTree->SetBranchAddress(metaBranchRootName<BranchIDLists>(), &branchIDListsPtr);
     }
 
     // Here we read the metadata tree
     input::getEntry(metaDataTree, 0);
 
-    if (branchIDLists_) {
+    if (hasBranchIDLists) {
+      branchIDLists_ = std::make_unique<BranchIDLists>(std::move(branchIDLists));
       metaDataTree->SetBranchAddress(metaBranchRootName<BranchIDLists>(), nullptr);
     }
 

@@ -13,8 +13,8 @@ physics:
     }
   }
 
-  e1: [ ptrmvReader, pc ]
-  end_paths: [ e1 ]
+  e1: [ptrmvReader, pc]
+
 }
 
 source:
