@@ -6,7 +6,7 @@
 #include "TTree.h"
 #include "sqlite3.h"
 #include "art/Framework/IO/Root/Inputfwd.h"
-#include "canvas/Persistency/Provenance/BranchIDList.h"
+#include "canvas/Persistency/Provenance/Compatibility/BranchIDList.h"
 #include "canvas/Persistency/Provenance/FileFormatVersion.h"
 #include "canvas/Persistency/Provenance/FileIndex.h"
 #include "canvas/Persistency/Provenance/RangeSet.h"

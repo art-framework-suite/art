@@ -4,9 +4,9 @@
 
 #include "art/Framework/IO/Root/Inputfwd.h"
 #include "art/Persistency/Common/DelayedReader.h"
-#include "canvas/Persistency/Provenance/BranchIDList.h"
 #include "canvas/Persistency/Provenance/BranchKey.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
+#include "canvas/Persistency/Provenance/Compatibility/BranchIDList.h"
 #include "canvas/Persistency/Provenance/EventID.h"
 #include "canvas/Persistency/Provenance/FileFormatVersion.h"
 #include "canvas/Persistency/Provenance/RangeSet.h"
