@@ -9,7 +9,7 @@
 #include "art/Framework/Core/ProductRegistryHelper.h"
 #include "art/Framework/Core/detail/IgnoreModuleLabel.h"
 #include "art/Framework/Principal/fwd.h"
-#include "art/Framework/Principal/get_BranchDescription.h"
+#include "art/Framework/Principal/get_ProductDescription.h"
 #include "art/Utilities/ConfigurationTable.h"
 #include "art/Utilities/ProductTokens.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
@@ -83,7 +83,7 @@ namespace art {
   ProducerBase::getProductID(ModuleDescription const& md,
                              std::string const& instanceName) const
   {
-    auto const& bd = get_BranchDescription<PROD>(B,
+    auto const& bd = get_ProductDescription<PROD>(B,
                                                  md.moduleLabel(),
                                                  instanceName);
     return bd.productID();

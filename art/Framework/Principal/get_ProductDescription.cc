@@ -1,4 +1,4 @@
-#include "art/Framework/Principal/get_BranchDescription.h"
+#include "art/Framework/Principal/get_ProductDescription.h"
 
 #include "art/Framework/Principal/Principal.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
@@ -11,12 +11,12 @@
 
 // 3.
 art::BranchDescription const&
-art::get_BranchDescription(TypeID const tid,
+art::get_ProductDescription(TypeID const tid,
                            BranchType const branch_type,
                            std::string const &module_label,
                            std::string const &instance_name)
 {
-  return get_BranchDescription(tid,
+  return get_ProductDescription(tid,
                                ServiceHandle<TriggerNamesService const>{}->getProcessName(),
                                ProductMetaData::instance().productList(),
                                branch_type,
@@ -26,12 +26,12 @@ art::get_BranchDescription(TypeID const tid,
 
 // 4.
 art::BranchDescription const&
-art::get_BranchDescription(TypeID const type_id,
+art::get_ProductDescription(TypeID const type_id,
                            Principal const& principal,
                            std::string const& module_label,
                            std::string const& instance_name)
 {
-  return get_BranchDescription(type_id,
+  return get_ProductDescription(type_id,
                                principal.processConfiguration().processName(),
                                ProductMetaData::instance().productList(),
                                principal.branchType(),
@@ -41,7 +41,7 @@ art::get_BranchDescription(TypeID const type_id,
 
 // 5.
 art::BranchDescription const&
-art::get_BranchDescription(TypeID const type_id,
+art::get_ProductDescription(TypeID const type_id,
                            std::string const& process_name,
                            ProductList const& product_list,
                            BranchType const branch_type,
@@ -55,7 +55,7 @@ art::get_BranchDescription(TypeID const type_id,
       branch_type};
   auto const it = product_list.find(bk);
   if (it == product_list.end()) {
-    throw art::Exception{art::errors::ProductRegistrationFailure, "art::get_BranchDescription"}
+    throw art::Exception{art::errors::ProductRegistrationFailure, "art::get_ProductDescription"}
       << "No product is registered for\n"
       << "  process name:                '" << bk.processName_ << "'\n"
       << "  module label:                '" << bk.moduleLabel_ << "'\n"

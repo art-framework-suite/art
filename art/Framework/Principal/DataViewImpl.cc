@@ -2,7 +2,7 @@
 
 #include "art/Framework/Principal/Principal.h"
 #include "art/Framework/Principal/Selector.h"
-#include "art/Framework/Principal/get_BranchDescription.h"
+#include "art/Framework/Principal/get_ProductDescription.h"
 #include "art/Persistency/Provenance/ProductMetaData.h"
 #include "art/Utilities/HorizontalRule.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
@@ -114,7 +114,7 @@ namespace art {
   void
   DataViewImpl::addToGotProductIDs(Provenance const& prov) const
   {
-    if (prov.branchDescription().transient()) {
+    if (prov.productDescription().transient()) {
       // If the product retrieved is transient, don't use its
       // ProductID; use the ProductID's of its parents.
       auto const& pids = prov.parents();
@@ -158,7 +158,7 @@ namespace art {
   DataViewImpl::getBranchDescription(TypeID const& type,
                                      string const& productInstanceName) const
   {
-    return get_BranchDescription(type,
+    return get_ProductDescription(type,
                                  md_.processName(),
                                  ProductMetaData::instance().productList(),
                                  branchType_,

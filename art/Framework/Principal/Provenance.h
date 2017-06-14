@@ -43,7 +43,6 @@ public:
 
   // Full product description
   BranchDescription const& productDescription() const {return group_->productDescription();}
-  BranchDescription const& branchDescription() const {return productDescription();}
 
   // Selected components of the product description
   std::string const& branchName() const {return productDescription().branchName();}

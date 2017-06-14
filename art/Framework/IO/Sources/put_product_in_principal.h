@@ -13,7 +13,7 @@
 
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
-#include "art/Framework/Principal/get_BranchDescription.h"
+#include "art/Framework/Principal/get_ProductDescription.h"
 #include "canvas/Persistency/Common/EDProduct.h"
 #include "canvas/Persistency/Provenance/BranchDescription.h"
 #include "canvas/Persistency/Provenance/BranchKey.h"
@@ -69,7 +69,7 @@ art::put_product_in_principal(std::unique_ptr<T>&& product,
       << instance_name << "'.\n";
   }
 
-  BranchDescription const& desc = get_BranchDescription<T>(principal,
+  BranchDescription const& desc = get_ProductDescription<T>(principal,
                                                            module_label,
                                                            instance_name);
 
@@ -96,7 +96,7 @@ art::put_product_in_principal(std::unique_ptr<T>&& product,
       << instance_name << "'.\n";
   }
 
-  BranchDescription const& desc = get_BranchDescription<T>(principal,
+  BranchDescription const& desc = get_ProductDescription<T>(principal,
                                                            module_label,
                                                            instance_name);
 
