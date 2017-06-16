@@ -36,17 +36,11 @@ namespace art {
     , aux_{ep.aux()}
     , subRun_{newSubRun(ep, md)}
     , eventPrincipal_{ep}
-    , recordParents_{record_parents(this)}
   { }
 
   EDProductGetter const*
   Event::productGetter(ProductID const& pid) const {
     return eventPrincipal_.productGetter(pid);
-  }
-
-  ProductID
-  Event::makeProductID(BranchDescription const& desc) const {
-    return desc.productID();
   }
 
   SubRun const&
@@ -96,13 +90,6 @@ namespace art {
     return process_found;
   }
 
-  GroupQueryResult
-  Event::getByProductID_(ProductID const& pid) const
-  {
-    return eventPrincipal_.getByProductID(pid);
-  }
-
-
   void
   Event::commit_(EventPrincipal& ep, bool const checkProducts, std::set<TypeLabel> const& expectedProducts)
   {
@@ -131,31 +118,4 @@ namespace art {
     putProducts().clear();
   }
 
-  // ----------------------------------------------------------------------
-
-  void
-  Event::ensure_unique_product(std::size_t const  nFound,
-                               TypeID      const& typeID,
-                               std::string const& moduleLabel,
-                               std::string const& productInstanceName,
-                               std::string const& processName) const
-  {
-    if (nFound == 1) return;
-
-    art::Exception e(art::errors::ProductNotFound);
-    e << "getView: Found "
-      << (nFound == 0 ? "no products"
-          : "more than one product"
-          )
-      << " matching all criteria\n"
-      << "Looking for sequence of type: " << typeID << "\n"
-      << "Looking for module label: " << moduleLabel << "\n"
-      << "Looking for productInstanceName: " << productInstanceName << "\n";
-    if (!processName.empty())
-      e << "Looking for processName: "<< processName <<"\n";
-    throw e;
-  }
-
-}  // art
-
-// ======================================================================
+} // art

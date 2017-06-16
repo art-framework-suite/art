@@ -83,8 +83,7 @@ addToProcessHistory()
 }
 
 GroupQueryResult
-Principal::
-getBySelector(TypeID const& productType, SelectorBase const& sel) const
+Principal::getBySelector(TypeID const& productType, SelectorBase const& sel) const
 {
   GroupQueryResultVec results;
   int nFound = findGroupsForProduct(productType, sel, results, true);
@@ -109,9 +108,21 @@ getBySelector(TypeID const& productType, SelectorBase const& sel) const
 }
 
 GroupQueryResult
-Principal::
-getByLabel(TypeID const& productType, string const& label,
-           string const& productInstanceName, string const& processName) const
+Principal::getByProductID(ProductID const pid) const
+{
+  if (auto const g = getGroupForPtr(art::InEvent, pid)) {
+    return GroupQueryResult{g};
+  }
+  auto whyFailed = std::make_shared<art::Exception>(art::errors::ProductNotFound, "InvalidID");
+  *whyFailed << "getGroup: no product with given product id: " << pid << "\n";
+  return GroupQueryResult{whyFailed};
+}
+
+GroupQueryResult
+Principal::getByLabel(TypeID const& productType,
+                      string const& label,
+                      string const& productInstanceName,
+                      string const& processName) const
 {
   GroupQueryResultVec results;
   Selector sel(ModuleLabelSelector{label} &&

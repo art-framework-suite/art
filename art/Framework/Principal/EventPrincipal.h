@@ -64,8 +64,6 @@ namespace art {
 
     using Principal::getGroup;
 
-    GroupQueryResult getByProductID(ProductID const& pid) const;
-
     void put(std::unique_ptr<EDProduct>&& edp,
              BranchDescription const& bd,
              std::unique_ptr<ProductProvenance const>&& productProvenance);

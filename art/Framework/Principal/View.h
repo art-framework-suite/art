@@ -16,33 +16,32 @@
 // added to the View<T>.
 //
 
-
 #include "art/Framework/Principal/fwd.h"
 #include "canvas/Persistency/Common/PtrVector.h"
 #include "cetlib/container_algorithms.h"
 
 template <class T>
-class art::View  {
+class art::View {
 public:
-  typedef std::vector<T const*> collection_type;
-  typedef typename collection_type::value_type value_type;
-  typedef typename collection_type::const_iterator const_iterator;
-  typedef typename collection_type::iterator iterator;
-  typedef typename collection_type::size_type size_type;
 
-  View() : vals_(), id_(), prod_(0) { }
+  using collection_type = std::vector<T const*>;
+  using value_type = typename collection_type::value_type;
+  using const_iterator = typename collection_type::const_iterator;
+  using iterator = typename collection_type::iterator;
+  using size_type = typename collection_type::size_type;
+
+  View() = default;
   collection_type&       vals()       { return vals_; }
   collection_type const& vals() const { return vals_; }
 
   // return true if this view has been populated, and false if it
   // has not.
-  bool isValid() const { return prod_ != 0; }
+  bool isValid() const { return prod_ != nullptr; }
 
   ProductID id() const { return id_; }
 
-  // Fill the given PtrVector<T> to refer to the same elements as
-  // the View does. It is only safe to call this if isValid() is
-  // true.
+  // Fill the given PtrVector<T> to refer to the same elements as the
+  // View does. It is only safe to call this if isValid() is true.
   void fill(PtrVector<T>& pv) const;
 
   // Conversion operators
@@ -59,11 +58,11 @@ public:
   size_type size() const { return vals_.size(); }
 
 private:
-  collection_type  vals_; // we do not own the pointed-to elements
-  ProductID        id_;
-  EDProduct const* prod_; // we do not own the product
+  collection_type  vals_{}; // we do not own the pointed-to elements
+  ProductID        id_{};
+  EDProduct const* prod_{nullptr}; // we do not own the product
 
-  friend class Event;
+  friend class DataViewImpl;
   void set_innards(ProductID const& id, EDProduct const* p);
 };
 
@@ -76,9 +75,9 @@ art::View<T>::fill(PtrVector<T>& pv) const
 
   std::size_t i{};
   for (auto a : addresses) {
-    if (cet::search_all(vals_,a)) {
+    if (cet::search_all(vals_, a)) {
       auto p = reinterpret_cast<T const*>(a);
-      pv.push_back(Ptr<T>(id_, const_cast<T*>(p), i));
+      pv.push_back(Ptr<T>{id_, const_cast<T*>(p), i});
       ++i;
     }
   }

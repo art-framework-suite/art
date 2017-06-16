@@ -73,6 +73,8 @@ namespace art {
     GroupQueryResult
     getBySelector(TypeID const&, SelectorBase const&) const;
 
+    GroupQueryResult getByProductID(ProductID const pid) const;
+
     GroupQueryResult
     getByLabel(TypeID const&,
                std::string const& label,

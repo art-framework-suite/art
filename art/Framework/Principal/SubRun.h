@@ -39,6 +39,7 @@ public:
   Timestamp const& beginTime() const {return aux_.beginTime();}
   Timestamp const& endTime() const {return aux_.endTime();}
 
+  // Retrieve a product
   using Base::get;
   using Base::getByLabel;
   using Base::getMany;
@@ -46,17 +47,22 @@ public:
   using Base::getPointerByLabel;
   using Base::getValidHandle;
 
+  // Retrieve a view to a collection of products
+  using Base::getView;
+
   Run const& getRun() const;
 
-  template <typename PROD> void put(std::unique_ptr<PROD>&&);
-  template <typename PROD> void put(std::unique_ptr<PROD>&&, FullToken<Level::SubRun>);
-  template <typename PROD> void put(std::unique_ptr<PROD>&&, FragmentToken<Level::SubRun>);
-  template <typename PROD> void put(std::unique_ptr<PROD>&&, RangedFragmentToken<Level::SubRun>);
+  // Put a new product
+  template <typename PROD> ProductID put(std::unique_ptr<PROD>&&);
+  template <typename PROD> ProductID put(std::unique_ptr<PROD>&&, FullToken<Level::SubRun>);
+  template <typename PROD> ProductID put(std::unique_ptr<PROD>&&, FragmentToken<Level::SubRun>);
+  template <typename PROD> ProductID put(std::unique_ptr<PROD>&&, RangedFragmentToken<Level::SubRun>);
 
-  template <typename PROD> void put(std::unique_ptr<PROD>&&, std::string const& instanceName);
-  template <typename PROD> void put(std::unique_ptr<PROD>&&, std::string const& instanceName, FullToken<Level::SubRun>);
-  template <typename PROD> void put(std::unique_ptr<PROD>&&, std::string const& instanceName, FragmentToken<Level::SubRun>);
-  template <typename PROD> void put(std::unique_ptr<PROD>&&, std::string const& instanceName, RangedFragmentToken<Level::SubRun>);
+  // Put a new product with an instance name
+  template <typename PROD> ProductID put(std::unique_ptr<PROD>&&, std::string const& instanceName);
+  template <typename PROD> ProductID put(std::unique_ptr<PROD>&&, std::string const& instanceName, FullToken<Level::SubRun>);
+  template <typename PROD> ProductID put(std::unique_ptr<PROD>&&, std::string const& instanceName, FragmentToken<Level::SubRun>);
+  template <typename PROD> ProductID put(std::unique_ptr<PROD>&&, std::string const& instanceName, RangedFragmentToken<Level::SubRun>);
 
   // Expert-level
   using Base::removeCachedProduct;
@@ -77,7 +83,7 @@ private:
 
   ///Put a new product with a 'product instance name' and a 'range set'
   template <typename PROD>
-  void
+  art::ProductID
   put_(std::unique_ptr<PROD>&& product,
        std::string const& productInstanceName,
        RangeSet const& rs);
@@ -94,59 +100,59 @@ private:
 // putting with no specified instance name
 
 template <typename PROD>
-void
+art::ProductID
 art::SubRun::put(std::unique_ptr<PROD>&& product)
 {
-  put<PROD>(std::move(product), std::string{});
+  return put<PROD>(std::move(product), std::string{});
 }
 
 template <typename PROD>
-void
+art::ProductID
 art::SubRun::put(std::unique_ptr<PROD>&& product,
                  FullToken<Level::SubRun> const token)
 {
-  put<PROD>(std::move(product), std::string{}, token);
+  return put<PROD>(std::move(product), std::string{}, token);
 }
 
 template <typename PROD>
-void
+art::ProductID
 art::SubRun::put(std::unique_ptr<PROD>&& product,
                  FragmentToken<Level::SubRun> const token)
 {
-  put<PROD>(std::move(product), std::string{}, token);
+  return put<PROD>(std::move(product), std::string{}, token);
 }
 
 template <typename PROD>
-void
+art::ProductID
 art::SubRun::put(std::unique_ptr<PROD>&& product,
                  RangedFragmentToken<Level::SubRun> token)
 {
-  put<PROD>(std::move(product), std::string{}, std::move(token));
+  return put<PROD>(std::move(product), std::string{}, std::move(token));
 }
 
 //----------------------------------------------------------------
 // putting with specified instance name
 
 template <typename PROD>
-void
+art::ProductID
 art::SubRun::put(std::unique_ptr<PROD>&& product,
                  std::string const& productInstanceName)
 {
   productRangeSet_.collapse();
-  put_<PROD>(std::move(product), productInstanceName, productRangeSet_);
+  return put_<PROD>(std::move(product), productInstanceName, productRangeSet_);
 }
 
 template <typename PROD>
-void
+art::ProductID
 art::SubRun::put(std::unique_ptr<PROD>&& product,
                  std::string const& productInstanceName,
                  FullToken<Level::SubRun>)
 {
-  put_<PROD>(std::move(product), productInstanceName, RangeSet::forSubRun(id()));
+  return put_<PROD>(std::move(product), productInstanceName, RangeSet::forSubRun(id()));
 }
 
 template <typename PROD>
-void
+art::ProductID
 art::SubRun::put(std::unique_ptr<PROD>&& product,
                  std::string const& productInstanceName,
                  FragmentToken<Level::SubRun>)
@@ -168,11 +174,11 @@ art::SubRun::put(std::unique_ptr<PROD>&& product,
       << "   art::subRunFragment(art::RangeSet const&)\n"
       << "or contact artists@fnal.gov for assistance.\n";
   }
-  put_<PROD>(std::move(product), productInstanceName, productRangeSet_);
+  return put_<PROD>(std::move(product), productInstanceName, productRangeSet_);
 }
 
 template <typename PROD>
-void
+art::ProductID
 art::SubRun::put(std::unique_ptr<PROD>&& product,
                  std::string const& productInstanceName,
                  RangedFragmentToken<Level::SubRun> token)
@@ -190,12 +196,12 @@ art::SubRun::put(std::unique_ptr<PROD>&& product,
       << "   art::fullSubRun()\n"
       << "or contact artists@fnal.gov for assistance.\n";
   }
-  put_<PROD>(std::move(product), productInstanceName, token.rs);
+  return put_<PROD>(std::move(product), productInstanceName, token.rs);
 }
 
 
 template <typename PROD>
-void
+art::ProductID
 art::SubRun::put_(std::unique_ptr<PROD>&& product,
                   std::string const& productInstanceName,
                   RangeSet const& rs)
@@ -228,6 +234,8 @@ art::SubRun::put_(std::unique_ptr<PROD>&& product,
       << bd
       << "=================================\n";
   }
+
+  return bd.productID();
 }
 
 #endif /* art_Framework_Principal_SubRun_h */

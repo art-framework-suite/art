@@ -78,28 +78,8 @@ public:
   using Base::getPointerByLabel;
   using Base::getValidHandle;
 
-  // Only Event products have a notion of ProductID.
-  template <typename PROD>
-  bool get(ProductID const& oid, Handle<PROD>& result) const;
-
-  // If getView returns true, then result.isValid() is certain to be
-  // true -- but the View may still be empty.
-  template <typename ELEMENT>
-  std::size_t getView(std::string const& moduleLabel,
-                      std::string const& productInstanceName,
-                      std::vector<ELEMENT const*>& result) const;
-
-  template <typename ELEMENT>
-  std::size_t getView(InputTag const& tag,
-                      std::vector<ELEMENT const*>& result) const;
-
-  template <typename ELEMENT>
-  bool getView(std::string const& moduleLabel,
-               std::string const& instanceName,
-               View<ELEMENT>& result) const;
-
-  template <typename ELEMENT>
-  bool getView(InputTag const& tag, View<ELEMENT>& result) const;
+  // Retrieve a view to a collection of products
+  using Base::getView;
 
   // Expert-level
   using Base::removeCachedProduct;
@@ -121,20 +101,6 @@ public:
 
 private:
 
-  using Base::addToGotProductIDs;
-
-  template <typename ELEMENT>
-  void fillView_(GroupQueryResult& bh,
-                 std::vector<ELEMENT const*>& result) const;
-
-  ProductID makeProductID(BranchDescription const& desc) const;
-
-  void ensure_unique_product(std::size_t nFound,
-                             TypeID const& typeID,
-                             std::string const& moduleLabel,
-                             std::string const& productInstanceName,
-                             std::string const& processName) const;
-
   // commit_() is called to complete the transaction represented by
   // this DataViewImpl. The friendships required are gross, but any
   // alternative is not great either.  Putting it into the public
@@ -143,24 +109,15 @@ private:
   friend class DecrepitRelicInputSourceImplementation;
   friend class EDFilter;
   friend class EDProducer;
-  friend class ProdToProdMapBuilder;
 
   void commit_(EventPrincipal&,
                bool checkPutProducts,
                std::set<TypeLabel> const& expectedProducts);
 
-  GroupQueryResult getByProductID_(ProductID const& oid) const;
-
   EventAuxiliary const& aux_;
   std::unique_ptr<SubRun const> const subRun_;
   EventPrincipal const& eventPrincipal_;
 
-  // FIXME: The 'recordParents_' flag is necessary only for Event::get
-  // overload below.  For all other lookups, the
-  // DataViewImpl::recordParents_ flag is sufficient.  However, since
-  // a ProductID does not have meaning for a (Sub)Run product (at this
-  // point), we save the record-parents flag here too.
-  bool const recordParents_;
 };  // Event
 
 // ----------------------------------------------------------------------
@@ -194,137 +151,10 @@ art::Event::put(std::unique_ptr<PROD>&& product,
       << rule('=') << '\n';
   }
 
-  return makeProductID(bd);
+  return bd.productID();
 }  // put<>()
 
 // ----------------------------------------------------------------------
-template <typename PROD>
-bool
-art::Event::get(ProductID const& oid, Handle<PROD>& result) const
-{
-  result.clear(); // Is this the correct thing to do if an exception is thrown?
-  GroupQueryResult bh = getByProductID_(oid);
-  convert_handle(bh, result);
-  bool const ok{bh.succeeded() && !result.failedToGet()};
-  if (recordParents_ && ok) {
-    addToGotProductIDs(*result.provenance());
-  }
-  return ok;
-}  // get<>()
-
-// ----------------------------------------------------------------------
-
-template <typename ELEMENT>
-std::size_t
-art::Event::getView(std::string const& moduleLabel,
-                    std::string const& productInstanceName,
-                    std::vector<ELEMENT const*>& result) const
-{
-  TypeID const typeID{typeid(ELEMENT)};
-  GroupQueryResultVec bhv;
-  int const nFound = getMatchingSequenceByLabel_(typeID,
-                                                 moduleLabel,
-                                                 productInstanceName,
-                                                 bhv,
-                                                 true);
-  ensure_unique_product(nFound, typeID,
-                        moduleLabel, productInstanceName, std::string());
-
-  std::size_t const orig_size = result.size();
-  fillView_(bhv[0], result);
-  return result.size() - orig_size;
-}  // getView<>()
-
-template <typename ELEMENT>
-std::size_t
-art::Event::getView(InputTag const& tag,
-                    std::vector<ELEMENT const*>& result) const
-{
-  if (tag.process().empty()) {
-    return getView(tag.label(), tag.instance(), result);
-  }
-
-  TypeID const typeID{typeid(ELEMENT)};
-  GroupQueryResultVec bhv;
-  int const nFound = getMatchingSequenceByLabel_(typeID,
-                                                 tag.label(),
-                                                 tag.instance(),
-                                                 tag.process(),
-                                                 bhv,
-                                                 true);
-  ensure_unique_product(nFound, typeID,
-                        tag.label(), tag.instance(), tag.process());
-
-  std::size_t const orig_size = result.size();
-  fillView_(bhv[0], result);
-  return result.size() - orig_size;
-}  // getView<>()
-
-template <typename ELEMENT>
-bool
-art::Event::getView(std::string const& moduleLabel,
-                    std::string const& productInstanceName,
-                    View<ELEMENT>& result) const
-{
-  TypeID const typeID{typeid(ELEMENT)};
-  GroupQueryResultVec bhv;
-  int const nFound = getMatchingSequenceByLabel_(typeID,
-                                                 moduleLabel,
-                                                 productInstanceName,
-                                                 bhv,
-                                                 true);
-  ensure_unique_product(nFound, typeID,
-                        moduleLabel, productInstanceName, std::string());
-
-  fillView_(bhv[0], result.vals());
-  result.set_innards(bhv[0].result()->productID(), bhv[0].result()->uniqueProduct());
-  return true;
-}
-
-template <typename ELEMENT>
-bool
-art::Event::getView(InputTag const& tag, View<ELEMENT>& result) const
-{
-  if (tag.process().empty()) {
-    return getView(tag.label(), tag.instance(), result);
-  }
-
-  TypeID const typeID{typeid(ELEMENT)};
-  GroupQueryResultVec bhv;
-  int const nFound = getMatchingSequenceByLabel_(typeID,
-                                                 tag.label(),
-                                                 tag.instance(),
-                                                 tag.process(),
-                                                 bhv,
-                                                 true);
-  ensure_unique_product(nFound, typeID,
-                        tag.label(), tag.instance(), tag.process());
-
-  fillView_(bhv[0], result.vals());
-  result.set_innards(bhv[0].result()->productID(), bhv[0].result()->uniqueProduct());
-  return true;
-}
-
-// ----------------------------------------------------------------------
-
-template <typename ELEMENT>
-void
-art::Event::fillView_(GroupQueryResult& bh,
-                      std::vector<ELEMENT const*>& result) const
-{
-  std::vector<void const*> erased_ptrs;
-  bh.result()->uniqueProduct()->fillView(erased_ptrs);
-  addToGotProductIDs(Provenance{bh.result()});
-
-  std::vector<ELEMENT const*> vals;
-  cet::transform_all(erased_ptrs,
-                     std::back_inserter(vals),
-                     [](auto p) {
-                       return static_cast<ELEMENT const*>(p);
-                     });
-
-  result.swap(vals);
-}
 
 #endif /* art_Framework_Principal_Event_h */
 

@@ -37,14 +37,17 @@ public:
   using Base::getPointerByLabel;
   using Base::getValidHandle;
 
+  // Retrieve a view to a collection of products
+  using Base::getView;
+
   // Put a new product.
   template <typename PROD>
-  void
-  put(std::unique_ptr<PROD>&& product) {put<PROD>(std::move(product), std::string());}
+  art::ProductID
+  put(std::unique_ptr<PROD>&& product);
 
   // Put a new product with a 'product instance name'
   template <typename PROD>
-  void
+  art::ProductID
   put(std::unique_ptr<PROD>&& product, std::string const& productInstanceName);
 
   // Expert-level
@@ -65,7 +68,14 @@ private:
 };
 
 template <typename PROD>
-void
+art::ProductID
+art::Results::put(std::unique_ptr<PROD>&& product)
+{
+  return put<PROD>(std::move(product), {});
+}
+
+template <typename PROD>
+art::ProductID
 art::Results::put(std::unique_ptr<PROD>&& product, std::string const& productInstanceName)
 {
   TypeID const tid{typeid(PROD)};
@@ -90,6 +100,8 @@ art::Results::put(std::unique_ptr<PROD>&& product, std::string const& productIns
       << bd
       << "=================================\n";
   }
+
+  return bd.productID();
 }
 
 #endif /* art_Framework_Principal_Results_h */

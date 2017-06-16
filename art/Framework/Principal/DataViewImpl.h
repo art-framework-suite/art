@@ -87,6 +87,10 @@ public:
 
   template <typename PROD>
   bool
+  get(ProductID const pid, Handle<PROD>& result) const;
+
+  template <typename PROD>
+  bool
   getByLabel(std::string const& label,
              std::string const& productInstanceName,
              Handle<PROD>& result) const;
@@ -123,8 +127,33 @@ public:
   void
   getManyByType(std::vector<Handle<PROD>>& results) const;
 
+  // If getView returns true, then result.isValid() is certain to be
+  // true -- but the View may still be empty.
+  template <typename ELEMENT>
+  std::size_t
+  getView(std::string const& moduleLabel,
+          std::string const& productInstanceName,
+          std::vector<ELEMENT const*>& result) const;
+
+  template <typename ELEMENT>
+  std::size_t
+  getView(InputTag const& tag,
+          std::vector<ELEMENT const*>& result) const;
+
+  template <typename ELEMENT>
+  bool
+  getView(std::string const& moduleLabel,
+          std::string const& instanceName,
+          View<ELEMENT>& result) const;
+
+  template <typename ELEMENT>
+  bool
+  getView(InputTag const& tag, View<ELEMENT>& result) const;
+
+
   template <typename PROD>
-  bool removeCachedProduct(Handle<PROD>& h) const;
+  bool
+  removeCachedProduct(Handle<PROD>& h) const;
 
   ProcessHistory const&
   processHistory() const;
@@ -159,6 +188,13 @@ protected:
                    std::set<TypeLabel> const& expectedProducts,
                    TypeLabelMap const& putProducts);
 
+  void
+  ensure_unique_product(std::size_t nFound,
+                        TypeID const& typeID,
+                        std::string const& moduleLabel,
+                        std::string const& productInstanceName,
+                        std::string const& processName) const;
+
   BranchDescription const&
   getBranchDescription(TypeID const& type, std::string const& productInstanceName) const;
 
@@ -187,6 +223,9 @@ private:
   get_(TypeID const& tid, SelectorBase const&) const;
 
   GroupQueryResult
+  getByProductID_(ProductID const pid) const;
+
+  GroupQueryResult
   getByLabel_(TypeID const& tid,
               std::string const& label,
               std::string const& productInstanceName,
@@ -206,6 +245,11 @@ private:
                        SelectorBase const& selector,
                        GroupQueryResultVec& results,
                        bool stopIfProcessHasMatch) const;
+
+  template <typename ELEMENT>
+  void
+  fillView_(GroupQueryResult& bh,
+            std::vector<ELEMENT const*>& result) const;
 
   EDProductGetter const* prodGetter() const;
 
@@ -261,6 +305,20 @@ art::DataViewImpl::get(SelectorBase const& sel,
 {
   result.clear(); // Is this the correct thing to do if an exception is thrown?
   GroupQueryResult bh = get_(TypeID{typeid(PROD)},sel);
+  convert_handle(bh, result);
+  bool const ok{bh.succeeded() && !result.failedToGet()};
+  if (recordParents_ && ok) {
+    addToGotProductIDs(*result.provenance());
+  }
+  return ok;
+}
+
+template <typename PROD>
+bool
+art::DataViewImpl::get(ProductID const pid, Handle<PROD>& result) const
+{
+  result.clear(); // Is this the correct thing to do if an exception is thrown?
+  GroupQueryResult bh = getByProductID_(pid);
   convert_handle(bh, result);
   bool const ok{bh.succeeded() && !result.failedToGet()};
   if (recordParents_ && ok) {
@@ -365,6 +423,118 @@ void
 art::DataViewImpl::getManyByType(std::vector<Handle<PROD>>& results) const
 {
   getMany(MatchAllSelector{}, results);
+}
+
+template <typename ELEMENT>
+std::size_t
+art::DataViewImpl::getView(std::string const& moduleLabel,
+                    std::string const& productInstanceName,
+                    std::vector<ELEMENT const*>& result) const
+{
+  TypeID const typeID{typeid(ELEMENT)};
+  GroupQueryResultVec bhv;
+  int const nFound = getMatchingSequenceByLabel_(typeID,
+                                                 moduleLabel,
+                                                 productInstanceName,
+                                                 bhv,
+                                                 true);
+  ensure_unique_product(nFound, typeID,
+                        moduleLabel, productInstanceName, std::string());
+
+  std::size_t const orig_size = result.size();
+  fillView_(bhv[0], result);
+  return result.size() - orig_size;
+}  // getView<>()
+
+template <typename ELEMENT>
+std::size_t
+art::DataViewImpl::getView(InputTag const& tag,
+                    std::vector<ELEMENT const*>& result) const
+{
+  if (tag.process().empty()) {
+    return getView(tag.label(), tag.instance(), result);
+  }
+
+  TypeID const typeID{typeid(ELEMENT)};
+  GroupQueryResultVec bhv;
+  int const nFound = getMatchingSequenceByLabel_(typeID,
+                                                 tag.label(),
+                                                 tag.instance(),
+                                                 tag.process(),
+                                                 bhv,
+                                                 true);
+  ensure_unique_product(nFound, typeID,
+                        tag.label(), tag.instance(), tag.process());
+
+  std::size_t const orig_size = result.size();
+  fillView_(bhv[0], result);
+  return result.size() - orig_size;
+}  // getView<>()
+
+template <typename ELEMENT>
+bool
+art::DataViewImpl::getView(std::string const& moduleLabel,
+                    std::string const& productInstanceName,
+                    View<ELEMENT>& result) const
+{
+  TypeID const typeID{typeid(ELEMENT)};
+  GroupQueryResultVec bhv;
+  int const nFound = getMatchingSequenceByLabel_(typeID,
+                                                 moduleLabel,
+                                                 productInstanceName,
+                                                 bhv,
+                                                 true);
+  ensure_unique_product(nFound, typeID,
+                        moduleLabel, productInstanceName, std::string());
+
+  fillView_(bhv[0], result.vals());
+  result.set_innards(bhv[0].result()->productID(), bhv[0].result()->uniqueProduct());
+  return true;
+}
+
+template <typename ELEMENT>
+bool
+art::DataViewImpl::getView(InputTag const& tag, View<ELEMENT>& result) const
+{
+  if (tag.process().empty()) {
+    return getView(tag.label(), tag.instance(), result);
+  }
+
+  TypeID const typeID{typeid(ELEMENT)};
+  GroupQueryResultVec bhv;
+  int const nFound = getMatchingSequenceByLabel_(typeID,
+                                                 tag.label(),
+                                                 tag.instance(),
+                                                 tag.process(),
+                                                 bhv,
+                                                 true);
+  ensure_unique_product(nFound, typeID,
+                        tag.label(), tag.instance(), tag.process());
+
+  fillView_(bhv[0], result.vals());
+  result.set_innards(bhv[0].result()->productID(), bhv[0].result()->uniqueProduct());
+  return true;
+}
+
+// ----------------------------------------------------------------------
+
+template <typename ELEMENT>
+void
+art::DataViewImpl::fillView_(GroupQueryResult& bh,
+                             std::vector<ELEMENT const*>& result) const
+{
+  std::vector<void const*> erased_ptrs;
+  bh.result()->uniqueProduct()->fillView(erased_ptrs);
+  addToGotProductIDs(Provenance{bh.result()});
+
+  std::vector<ELEMENT const*> vals;
+  cet::transform_all(erased_ptrs,
+                     std::back_inserter(vals),
+                     [](auto p) {
+                       return static_cast<ELEMENT const*>(p);
+                     });
+
+  result.swap(vals);
 }
 
 template <typename PROD>

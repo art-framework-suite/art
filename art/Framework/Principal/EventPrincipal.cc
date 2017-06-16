@@ -97,17 +97,6 @@ EventPrincipal::productGetter(ProductID const& pid) const
   return result ? result : deferredGetter_(pid);
 }
 
-GroupQueryResult
-EventPrincipal::getByProductID(ProductID const& pid) const
-{
-  if (auto const g = getGroupForPtr(art::InEvent, pid)) {
-    return GroupQueryResult{g};
-  }
-  auto whyFailed = std::make_shared<art::Exception>(art::errors::ProductNotFound, "InvalidID");
-  *whyFailed << "getGroup: no product with given product id: " << pid << "\n";
-  return GroupQueryResult{whyFailed};
-}
-
 EventSelectionIDVector const&
 EventPrincipal::eventSelectionIDs() const
 {
