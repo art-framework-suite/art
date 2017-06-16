@@ -1,7 +1,7 @@
 #include "art/Framework/IO/ProductMix/MixHelper.h"
 
 #include "art/Framework/IO/Root/GetFileFormatEra.h"
-#include "art/Framework/IO/Root/detail/setFileIndexPointer.h"
+#include "art/Framework/IO/Root/detail/readFileIndex.h"
 #include "canvas/Persistency/Provenance/rootNames.h"
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Services/Optional/RandomNumberGenerator.h"
@@ -9,6 +9,7 @@
 #include "art/Framework/Services/Registry/ServiceRegistry.h"
 #include "canvas/Persistency/Provenance/FileIndex.h"
 #include "canvas/Persistency/Provenance/History.h"
+#include "canvas/Persistency/Provenance/ProductIDStreamer.h"
 #include "cetlib/container_algorithms.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
@@ -111,7 +112,7 @@ namespace {
     std::unique_ptr<CLHEP::RandFlat> result;
     if (readMode > MixHelper::Mode::SEQUENTIAL) {
       if (ServiceRegistry::isAvailable<RandomNumberGenerator>()) {
-        result.reset(new CLHEP::RandFlat(ServiceHandle<RandomNumberGenerator>{}->getEngine()));
+        result = std::make_unique<CLHEP::RandFlat>(ServiceHandle<RandomNumberGenerator>{}->getEngine());
       } else {
         throw Exception(errors::Configuration, "MixHelper")
           << "Random event mixing selected but RandomNumberGenerator service not loaded.\n"
@@ -227,8 +228,7 @@ art::MixHelper::generateEventAuxiliarySequence(EntryNumberSequence const& enseq,
                                                EventAuxiliarySequence& auxseq)
 {
   auto const eventTree = currentDataTrees_[InEvent];
-  auto auxBranch =
-    eventTree->GetBranch(BranchTypeToAuxiliaryBranchName(InEvent).c_str());
+  auto auxBranch = eventTree->GetBranch(BranchTypeToAuxiliaryBranchName(InEvent).c_str());
   auto aux = std::make_unique<EventAuxiliary>();
   auto pAux = aux.get();
   auxBranch->SetAddress(&pAux);
@@ -297,16 +297,16 @@ art::MixHelper::mixAndPut(EntryNumberSequence const& eventEntries,
   for (auto const& op : mixOps_) {
     switch (op->branchType()) {
     case InEvent:
-      op->readFromFile(eventEntries);
+      op->readFromFile(eventEntries, branchIDLists_.get());
       op->mixAndPut(e, ptrRemapper_);
       break;
     case InSubRun:
-      op->readFromFile(subRunEntries);
+      op->readFromFile(subRunEntries, nullptr);
       // No Ptrs in subrun products.
       op->mixAndPut(e, nopRemapper);
       break;
     case InRun:
-      op->readFromFile(runEntries);
+      op->readFromFile(runEntries, nullptr);
       // No Ptrs in run products.
       op->mixAndPut(e, nopRemapper);
       break;
@@ -377,7 +377,7 @@ art::MixHelper::openAndReadMetaData_(std::string filename)
         << ".\n";
   }
   // Obtain meta data tree.
-  currentMetaDataTree_.reset(static_cast<TTree*>(currentFile_->Get(art::rootNames::metaDataTreeName().c_str())));
+  currentMetaDataTree_.reset(static_cast<TTree*>(currentFile_->Get(rootNames::metaDataTreeName().c_str())));
   if (currentMetaDataTree_.get() == nullptr) {
     throw Exception(errors::FileReadError)
         << "Unable to read meta data tree from secondary event stream file "
@@ -386,25 +386,44 @@ art::MixHelper::openAndReadMetaData_(std::string filename)
   }
   currentDataTrees_ = initDataTrees(currentFile_);
   nEventsInFile_ = currentDataTrees_[InEvent]->GetEntries();
-  // Read meta data
-  auto ffVersion_p = &ffVersion_;
-  currentMetaDataTree_->SetBranchAddress(art::rootNames::metaBranchRootName<FileFormatVersion>(), &ffVersion_p);
-  FileIndex* fileIndexPtr = &currentFileIndex_;
-  detail::setFileIndexPointer(currentFile_.get(), currentMetaDataTree_.get(), fileIndexPtr);
 
-  Int_t const n = currentMetaDataTree_->GetEntry(0);
-  switch (n) {
+  // Read meta data
+  {
+    auto ffVersion_p = &ffVersion_;
+    auto branch = currentMetaDataTree_->GetBranch(rootNames::metaBranchRootName<FileFormatVersion>());
+    assert(branch != nullptr);
+    branch->SetAddress(&ffVersion_p);
+    auto const n = branch->GetEntry(0);
+    switch (n) {
     case -1:
       throw Exception(errors::FileReadError)
-          << "Apparent I/O error reading meta data information from secondary event stream file "
-          << filename
-          << ".\n";
+        << "Apparent I/O error reading meta data information from secondary event stream file "
+        << filename
+        << ".\n";
     case 0:
       throw Exception(errors::FileReadError)
-          << "Meta data tree apparently empty reading secondary event stream file "
-          << filename
-          << ".\n";
+        << "Meta data tree apparently empty reading secondary event stream file "
+        << filename
+        << ".\n";
+    }
+    branch->SetAddress(nullptr);
   }
+
+  // Read file index
+  FileIndex* fileIndexPtr = &currentFileIndex_;
+  detail::readFileIndex(currentFile_.get(), currentMetaDataTree_.get(), fileIndexPtr);
+
+  // To support files that contain BranchIDLists
+  if (auto branch = currentMetaDataTree_->GetBranch(rootNames::metaBranchRootName<BranchIDLists>())) {
+    BranchIDLists branchIDLists;
+    auto branchIDListsPtr = &branchIDLists;
+    branch->SetAddress(&branchIDListsPtr);
+    input::getEntry(branch, 0);
+    branchIDLists_ = std::make_unique<BranchIDLists>(std::move(branchIDLists));
+    branch->SetAddress(nullptr);
+    configureProductIDStreamer(branchIDLists_.get());
+  }
+
   // Check file format era.
   std::string const expected_era = getFileFormatEra();
   if (ffVersion_.era_ != expected_era) {
@@ -428,8 +447,8 @@ art::MixHelper::openAndReadMetaData_(std::string filename)
   }
 
   buildEventIDIndex_(currentFileIndex_);
-  ProdToProdMapBuilder::BranchIDTransMap transMap;
-  buildBranchIDTransMap_(transMap);
+  ProdToProdMapBuilder::ProductIDTransMap transMap;
+  buildProductIDTransMap_(transMap);
   ptpBuilder_.prepareTranslationTables(transMap);
   if (readMode_ == Mode::RANDOM_NO_REPLACE) {
     // Prepare shuffled event sequence.
@@ -482,7 +501,7 @@ art::MixHelper::openNextFile_()
 }
 
 void
-art::MixHelper::buildBranchIDTransMap_(ProdToProdMapBuilder::BranchIDTransMap& transMap)
+art::MixHelper::buildProductIDTransMap_(ProdToProdMapBuilder::ProductIDTransMap& transMap)
 {
   for (auto& mixOp : mixOps_) {
     auto const bt = mixOp->branchType();
@@ -492,15 +511,15 @@ art::MixHelper::buildBranchIDTransMap_(ProdToProdMapBuilder::BranchIDTransMap& t
               << std::hex
               << std::setfill('0')
               << std::setw(8)
-              << mixOp->incomingBranchID()
+              << mixOp->incomingProductID()
               << " -> "
               << std::setw(8)
-              << mixOp->outgoingBranchID()
+              << mixOp->outgoingProductID()
               << std::dec
               << ".\n";
 #endif
     if (bt == InEvent) {
-      transMap[mixOp->incomingBranchID()] = mixOp->outgoingBranchID();
+      transMap[mixOp->incomingProductID()] = mixOp->outgoingProductID();
     }
   }
 }

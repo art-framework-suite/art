@@ -5,8 +5,11 @@
 
 #include "art/Framework/IO/ProductMix/MixTypes.h"
 #include "art/Framework/IO/Root/RootBranchInfoList.h"
-#include "canvas/Persistency/Provenance/FileIndex.h"
 #include "art/Utilities/fwd.h"
+#include "canvas/Persistency/Provenance/Compatibility/BranchIDList.h"
+#include "canvas/Persistency/Provenance/FileIndex.h"
+#include "canvas/Persistency/Provenance/ProductID.h"
+#include "cetlib/exempt_ptr.h"
 
 namespace art {
   class MixOpBase;
@@ -21,34 +24,34 @@ public:
   virtual ~MixOpBase() noexcept = default;
 
   virtual
-  InputTag const & inputTag() const = 0;
+  InputTag const& inputTag() const = 0;
 
   virtual
-  TypeID const & inputType() const = 0;
+  TypeID const& inputType() const = 0;
 
   virtual
-  std::string const & outputInstanceLabel() const = 0;
-
-  virtual
-  void
-  mixAndPut(Event & e,
-            PtrRemapper const & remap) const = 0;
+  std::string const& outputInstanceLabel() const = 0;
 
   virtual
   void
-  initializeBranchInfo(RootBranchInfoList const & rbiList) = 0;
-
-  virtual
-  BranchID
-  incomingBranchID() const = 0;
-
-  virtual
-  BranchID
-  outgoingBranchID() const = 0;
+  mixAndPut(Event& e,
+            PtrRemapper const& remap) const = 0;
 
   virtual
   void
-  readFromFile(EntryNumberSequence const & seq) = 0;
+  initializeBranchInfo(RootBranchInfoList const& rbiList) = 0;
+
+  virtual
+  ProductID
+  incomingProductID() const = 0;
+
+  virtual
+  ProductID
+  outgoingProductID() const = 0;
+
+  virtual
+  void
+  readFromFile(EntryNumberSequence const& seq, cet::exempt_ptr<BranchIDLists const> branchIDLists) = 0;
 
   virtual
   BranchType

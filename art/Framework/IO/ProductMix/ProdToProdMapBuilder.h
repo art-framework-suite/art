@@ -3,7 +3,6 @@
 
 #include "art/Framework/Core/PtrRemapper.h"
 #include "art/Framework/Principal/fwd.h"
-#include "canvas/Persistency/Provenance/BranchID.h"
 #include "canvas/Persistency/Provenance/History.h"
 #include "canvas/Persistency/Provenance/ProductID.h"
 #include "cetlib/exempt_ptr.h"
@@ -19,14 +18,14 @@ namespace art {
 
 class art::ProdToProdMapBuilder {
 public:
-  using BranchIDTransMap = std::map<BranchID, BranchID>;
+  using ProductIDTransMap = std::map<ProductID, ProductID>;
 
-  void prepareTranslationTables(BranchIDTransMap& transMap);
+  void prepareTranslationTables(ProductIDTransMap& transMap);
   void populateRemapper(PtrRemapper& mapper, Event& e) const;
 
 private:
 
-  BranchIDTransMap branchIDTransMap_{};
+  ProductIDTransMap productIDTransMap_{};
 };
 #endif /* art_Framework_IO_ProductMix_ProdToProdMapBuilder_h */
 

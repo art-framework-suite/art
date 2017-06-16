@@ -10,14 +10,17 @@
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/System/CurrentModule.h"
 #include "art/Framework/Services/System/TriggerNamesService.h"
+#include "art/Persistency/Provenance/ProductMetaData.h"
 #include "canvas/Persistency/Common/RefCoreStreamer.h"
-#include "canvas/Persistency/Provenance/BranchID.h"
 #include "canvas/Persistency/Provenance/BranchKey.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
+#include "canvas/Persistency/Provenance/Compatibility/BranchIDList.h"
 #include "canvas/Persistency/Provenance/ProductList.h"
-#include "art/Persistency/Provenance/ProductMetaData.h"
+#include "canvas/Persistency/Provenance/ProductID.h"
+#include "canvas/Persistency/Provenance/ProductIDStreamer.h"
 #include "canvas/Utilities/Exception.h"
 #include "canvas/Utilities/InputTag.h"
+#include "cetlib/exempt_ptr.h"
 
 #include <algorithm>
 #include <functional>
@@ -50,14 +53,14 @@ public:
   void
   initializeBranchInfo(RootBranchInfoList const & rbiList) override;
 
-  BranchID
-  incomingBranchID() const override;
+  ProductID
+  incomingProductID() const override;
 
-  BranchID
-  outgoingBranchID() const override;
+  ProductID
+  outgoingProductID() const override;
 
   void
-  readFromFile(EntryNumberSequence const & seq) override;
+  readFromFile(EntryNumberSequence const & seq, cet::exempt_ptr<BranchIDLists const> branchIDLists) override;
 
   BranchType
   branchType() const override;
@@ -179,19 +182,19 @@ initializeBranchInfo(RootBranchInfoList const & branchInfo_List)
 }
 
 template <typename PROD, typename OPROD>
-art::BranchID
+art::ProductID
 art::MixOp<PROD, OPROD>::
-incomingBranchID() const
+incomingProductID() const
 {
-  return BranchID(branchInfo_.branchName());
+  return ProductID{branchInfo_.branchName()};
 }
 
 template <typename PROD, typename OPROD>
-art::BranchID
+art::ProductID
 art::MixOp<PROD, OPROD>::
-outgoingBranchID() const
+outgoingProductID() const
 {
-  art::BranchID result;
+  art::ProductID result;
   if (outputProduct_) {
     TypeID const outputType(typeid(OPROD));
     BranchKey key(outputType.friendlyClassName(),
@@ -206,7 +209,7 @@ outgoingBranchID() const
           << outputType.className()
           << ") that should have been registered!\n";
     }
-    result = BranchID{I->second.productID().value()};
+    result = I->second.productID();
   }
   return result;
 }
@@ -214,14 +217,16 @@ outgoingBranchID() const
 template <typename PROD, typename OPROD>
 void
 art::MixOp<PROD, OPROD>::
-readFromFile(EntryNumberSequence const & seq)
+readFromFile(EntryNumberSequence const & seq, cet::exempt_ptr<BranchIDLists const> branchIDLists)
 {
   inProducts_.clear();
   inProducts_.reserve(seq.size());
-  if (branchInfo_.branch() == 0) {
+  if (branchInfo_.branch() == nullptr) {
     throw Exception(errors::LogicError)
         << "Branch not initialized for read.\n";
   }
+  // Make sure the schema evolution is ready for ProductID
+  configureProductIDStreamer(branchIDLists);
   // Make sure we don't have a ProductGetter set.
   configureRefCoreStreamer();
   // Assume the sequence is ordered per

@@ -9,7 +9,6 @@
 
 #include "TBranch.h"
 #include "art/Framework/IO/Root/Inputfwd.h"
-#include "canvas/Persistency/Provenance/BranchID.h"
 #include "canvas/Persistency/Provenance/BranchMapper.h"
 #include "canvas/Persistency/Provenance/ProductID.h"
 #include "canvas/Persistency/Provenance/ProductProvenance.h"

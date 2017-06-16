@@ -219,8 +219,8 @@
 #include "art/Framework/Principal/fwd.h"
 #include "art/Utilities/fwd.h"
 #include "canvas/Persistency/Common/EDProduct.h"
-#include "canvas/Persistency/Provenance/BranchID.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
+#include "canvas/Persistency/Provenance/Compatibility/BranchIDList.h"
 #include "canvas/Persistency/Provenance/FileFormatVersion.h"
 #include "canvas/Persistency/Provenance/ProductID.h"
 #include "canvas/Utilities/Exception.h"
@@ -350,7 +350,7 @@ private:
   void openAndReadMetaData_(std::string fileName);
   void buildEventIDIndex_(FileIndex const& fileIndex);
   bool openNextFile_();
-  void buildBranchIDTransMap_(ProdToProdMapBuilder::BranchIDTransMap& transMap);
+  void buildProductIDTransMap_(ProdToProdMapBuilder::ProductIDTransMap& transMap);
 
   ProducerBase& producesProvider_;
   std::vector<std::string> const filenames_;
@@ -366,6 +366,7 @@ private:
   Long64_t totalEventsRead_{};
   bool const canWrapFiles_;
   FileFormatVersion ffVersion_{};
+  std::unique_ptr<art::BranchIDLists> branchIDLists_{nullptr}; // For backwards compatibility
   ProdToProdMapBuilder ptpBuilder_{};
   std::unique_ptr<CLHEP::RandFlat> dist_;
   std::function<size_t()> eventsToSkip_{};

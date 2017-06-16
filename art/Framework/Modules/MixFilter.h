@@ -495,7 +495,6 @@ private:
 template <class T>
 art::MixFilter<T>::MixFilter(fhicl::ParameterSet const & p)
   :
-  EDFilter(),
   helper_(initEngine_(p), *this), // See note below
   detail_(p, helper_)
 {

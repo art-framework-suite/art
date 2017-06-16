@@ -25,7 +25,6 @@
 #include "boost/date_time/posix_time/posix_time.hpp"
 #include "canvas/Persistency/Provenance/rootNames.h"
 #include "canvas/Persistency/Provenance/BranchChildren.h"
-#include "canvas/Persistency/Provenance/BranchID.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
 #include "canvas/Persistency/Provenance/EventAuxiliary.h"
 #include "canvas/Persistency/Provenance/EventID.h"
