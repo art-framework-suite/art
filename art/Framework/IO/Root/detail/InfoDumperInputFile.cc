@@ -1,6 +1,6 @@
 #include "art/Framework/IO/Root/detail/InfoDumperInputFile.h"
 #include "art/Framework/IO/Root/detail/resolveRangeSet.h"
-#include "art/Framework/IO/Root/detail/setFileIndexPointer.h"
+#include "art/Framework/IO/Root/detail/readFileIndex.h"
 #include "art/Framework/Principal/detail/orderedProcessNames.h"
 #include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
 #include "art/Persistency/RootDB/SQLite3Wrapper.h"
@@ -51,31 +51,42 @@ namespace {
 art::detail::InfoDumperInputFile::InfoDumperInputFile(std::string const& filename)
   : file_{openFile(filename)}
 {
-  std::unique_ptr<TTree> md {static_cast<TTree*>(file_->Get(art::rootNames::metaDataTreeName().data()))};
-  auto fftPtr = &fileFormatVersion_;
-  md->SetBranchAddress(art::rootNames::metaBranchRootName<art::FileFormatVersion>(), &fftPtr);
+  using namespace art::rootNames;
+  std::unique_ptr<TTree> md {static_cast<TTree*>(file_->Get(metaDataTreeName().data()))};
 
-  if (md->GetBranch(art::rootNames::metaBranchRootName<BranchIDLists>())) {
-    auto bidsPtr = &branchIDLists_;
-    md->SetBranchAddress(art::rootNames::metaBranchRootName<art::BranchIDLists>(), &bidsPtr);
+  // Read file format
+  {
+    auto fftPtr = &fileFormatVersion_;
+    auto branch = md->GetBranch(metaBranchRootName<FileFormatVersion>());
+    assert(branch != nullptr);
+    branch->SetAddress(&fftPtr);
+    input::getEntry(branch, 0);
+    branch->SetAddress(nullptr);
   }
 
-  // FileIndex pointer needs to be set here (to wit, before we read
-  // the metadata tree) in case we are reading an old file in which
-  // FileIndex was a branch of the metadata tree.
+  // Read BranchID lists if they exist
+  if (auto branch = md->GetBranch(metaBranchRootName<BranchIDLists>())) {
+    auto bidsPtr = &branchIDLists_;
+    branch->SetAddress(&bidsPtr);
+    input::getEntry(branch, 0);
+    branch->SetAddress(nullptr);
+  }
+
+  // Read file index
   auto findexPtr = &fileIndex_;
-  art::detail::setFileIndexPointer(file_.get(), md.get(), findexPtr);
+  art::detail::readFileIndex(file_.get(), md.get(), findexPtr);
 
-  // We populate the ProcessHistoryRegistry here to reduce the number
-  // of times we have to call art::input::getEntry, which seems to
-  // cause unexplainable woe.
-  art::ProcessHistoryMap pHistMap;
-  auto pHistMapPtr = &pHistMap;
-  md->SetBranchAddress(art::rootNames::metaBranchRootName<decltype(pHistMap)>(), &pHistMapPtr);
-
-  art::input::getEntry(md.get(), 0);
-
-  art::ProcessHistoryRegistry::put(pHistMap);
+  // Read ProcessHistory
+  {
+    art::ProcessHistoryMap pHistMap;
+    auto pHistMapPtr = &pHistMap;
+    auto branch = md->GetBranch(metaBranchRootName<decltype(pHistMap)>());
+    assert(branch != nullptr);
+    branch->SetAddress(&pHistMapPtr);
+    art::input::getEntry(branch, 0);
+    art::ProcessHistoryRegistry::put(pHistMap);
+    branch->SetAddress(nullptr);
+  }
 }
 
 void

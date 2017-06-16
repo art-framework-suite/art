@@ -1,5 +1,5 @@
-#ifndef art_Framework_IO_Root_detail_setFileIndexPointer_h
-#define art_Framework_IO_Root_detail_setFileIndexPointer_h
+#ifndef art_Framework_IO_Root_detail_readFileIndex_h
+#define art_Framework_IO_Root_detail_readFileIndex_h
 
 #include "TFile.h"
 #include "TTree.h"
@@ -17,10 +17,12 @@ namespace art {
   namespace detail {
 
     inline
-    void setFileIndexPointer(TFile* file, TTree* metaDataTree, FileIndex *& findexPtr) {
+    void readFileIndex(TFile* file, TTree* metaDataTree, FileIndex *& findexPtr) {
 
-      if (metaDataTree->GetBranch(rootNames::metaBranchRootName<FileIndex>())) {
-        metaDataTree->SetBranchAddress(rootNames::metaBranchRootName<FileIndex>(), &findexPtr);
+      if (auto branch = metaDataTree->GetBranch(rootNames::metaBranchRootName<FileIndex>())) {
+        branch->SetAddress(&findexPtr);
+        input::getEntry(branch, 0);
+        branch->SetAddress(nullptr);
       }
       else {
         std::unique_ptr<TTree> fileIndexTree {static_cast<TTree*>(file->Get(rootNames::fileIndexTreeName().c_str()))};
@@ -41,7 +43,7 @@ namespace art {
 
 }
 
-#endif /* art_Framework_IO_Root_detail_setFileIndexPointer_h */
+#endif /* art_Framework_IO_Root_detail_readFileIndex_h */
 
 // Local Variables:
 // mode: c++

@@ -6,7 +6,7 @@
 #include "art/Framework/IO/Root/DuplicateChecker.h"
 #include "art/Framework/IO/Root/FastCloningInfoProvider.h"
 #include "art/Framework/IO/Root/GetFileFormatEra.h"
-#include "art/Framework/IO/Root/detail/setFileIndexPointer.h"
+#include "art/Framework/IO/Root/detail/readFileIndex.h"
 #include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
@@ -150,59 +150,90 @@ namespace art {
       resultsTree().setTreeMaxVirtualSize(treeMaxVirtualSize);
       resultsTree().setCacheSize(treeCacheSize);
     }
-    // Read the metadata tree.
+
+    // Retrieve the metadata tree.
     auto metaDataTree = static_cast<TTree*>(filePtr_->Get(rootNames::metaDataTreeName().c_str()));
     if (!metaDataTree) {
       throw art::Exception{errors::FileReadError}
-        << couldNotFindTree(rootNames::metaDataTreeName());
+      << couldNotFindTree(rootNames::metaDataTreeName());
     }
     metaDataTree->SetCacheSize(static_cast<Long64_t>(treeCacheSize));
-    auto fftPtr = &fileFormatVersion_;
+
     using namespace art::rootNames;
-    metaDataTree->SetBranchAddress(metaBranchRootName<FileFormatVersion>(), &fftPtr);
 
+    // Read file format version
+    {
+      auto fftPtr = &fileFormatVersion_;
+      auto branch = metaDataTree->GetBranch(metaBranchRootName<FileFormatVersion>());
+      assert(branch != nullptr);
+      branch->SetAddress(&fftPtr);
+      input::getEntry(branch, 0);
+      branch->SetAddress(nullptr);
+    }
+
+    // Read file index
     auto findexPtr = &fileIndex_;
-    detail::setFileIndexPointer(filePtr_.get(), metaDataTree, findexPtr);
-    auto plhPtr = productListHolder_.get();
-    assert(plhPtr != nullptr &&
-           "INTERNAL ERROR: productListHolder_ not initialized prior to use!.");
-    metaDataTree->SetBranchAddress(metaBranchRootName<ProductRegistry>(), &plhPtr);
-    if (plhPtr != productListHolder_.get()) {
-      // Should never happen, but just in case ROOT's behavior changes.
-      throw Exception{errors::LogicError}
-        << "ROOT has changed behavior and caused a memory leak while setting "
-        << "a branch address.";
-    }
-    ParameterSetMap psetMap;
-    auto psetMapPtr = &psetMap;
-    if (readIncomingParameterSets &&
-        metaDataTree->GetBranch(metaBranchRootName<ParameterSetMap>())) {
-      // May be in MetaData tree or DB.
-      metaDataTree->SetBranchAddress(metaBranchRootName<ParameterSetMap>(),
-                                     &psetMapPtr);
-    }
-    ProcessHistoryMap pHistMap;
-    auto pHistMapPtr = &pHistMap;
-    metaDataTree->SetBranchAddress(metaBranchRootName<ProcessHistoryMap>(), &pHistMapPtr);
-
-    auto branchChildrenBuffer = branchChildren_.get();
-    metaDataTree->SetBranchAddress(metaBranchRootName<BranchChildren>(), &branchChildrenBuffer);
+    detail::readFileIndex(filePtr_.get(), metaDataTree, findexPtr);
 
     // To support files that contain BranchIDLists
-    BranchIDLists branchIDLists;
-    bool hasBranchIDLists{false};
-    if (metaDataTree->GetBranch(metaBranchRootName<BranchIDLists>())) {
-      hasBranchIDLists = true;
+    if (auto branch = metaDataTree->GetBranch(metaBranchRootName<BranchIDLists>())) {
+      BranchIDLists branchIDLists;
       auto branchIDListsPtr = &branchIDLists;
-      metaDataTree->SetBranchAddress(metaBranchRootName<BranchIDLists>(), &branchIDListsPtr);
+      branch->SetAddress(&branchIDListsPtr);
+      input::getEntry(branch, 0);
+      branchIDLists_ = std::make_unique<BranchIDLists>(std::move(branchIDLists));
+      branch->SetAddress(nullptr);
+      configureProductIDStreamer(branchIDLists_.get());
     }
 
-    // Here we read the metadata tree
-    input::getEntry(metaDataTree, 0);
+    // Read the ProductList
+    {
+      auto plhPtr = productListHolder_.get();
+      assert(plhPtr != nullptr &&
+             "INTERNAL ERROR: productListHolder_ not initialized prior to use!.");
+      auto branch = metaDataTree->GetBranch(metaBranchRootName<ProductRegistry>());
+      assert(branch != nullptr);
+      branch->SetAddress(&plhPtr);
+      input::getEntry(branch, 0);
+      branch->SetAddress(nullptr);
+      if (plhPtr != productListHolder_.get()) {
+        // Should never happen, but just in case ROOT's behavior changes.
+        throw Exception{errors::LogicError}
+        << "ROOT has changed behavior and caused a memory leak while setting "
+             << "a branch address.";
+      }
+    }
 
-    if (hasBranchIDLists) {
-      branchIDLists_ = std::make_unique<BranchIDLists>(std::move(branchIDLists));
-      metaDataTree->SetBranchAddress(metaBranchRootName<BranchIDLists>(), nullptr);
+    // Read the ParameterSets if there are any on a branch.
+    {
+      ParameterSetMap psetMap;
+      auto psetMapPtr = &psetMap;
+      auto branch = metaDataTree->GetBranch(metaBranchRootName<ParameterSetMap>());
+      if (readIncomingParameterSets && branch != nullptr) {
+        branch->SetAddress(&psetMapPtr);
+        input::getEntry(branch, 0);
+        // Merge into the hashed registries.
+        for (auto const& psEntry : psetMap) {
+          fhicl::ParameterSet pset;
+          fhicl::make_ParameterSet(psEntry.second.pset_, pset);
+          // Note ParameterSet::id() has the side effect of making
+          // sure the parameter set *has* an ID.
+          pset.id();
+          fhicl::ParameterSetRegistry::put(pset);
+        }
+      }
+    }
+
+    // Read the ProcessHistory
+    {
+      ProcessHistoryMap pHistMap;
+      auto pHistMapPtr = &pHistMap;
+      auto branch = metaDataTree->GetBranch(metaBranchRootName<ProcessHistoryMap>());
+      assert(branch != nullptr);
+      branch->SetAddress(&pHistMapPtr);
+      input::getEntry(branch, 0);
+      ProcessHistoryRegistry::put(pHistMap);
+      branch->SetAddress(nullptr);
     }
 
     // Check the, "Era" of the input file (new since art v0.5.0). If it
@@ -214,27 +245,17 @@ namespace art {
     string const& expected_era = art::getFileFormatEra();
     if (fileFormatVersion_.era_ != expected_era) {
       throw art::Exception{art::errors::FileReadError}
-        << "Can only read files written during the \""
-        << expected_era
-        << "\" era: "
-        << "Era of "
-        << "\""
-        << fileName_
-        << "\" was "
-        << (fileFormatVersion_.era_.empty() ?
-            "not set" :
-            ("set to \"" + fileFormatVersion_.era_ + "\" "))
-        << ".\n";
-    }
-    // Merge into the hashed registries.
-    // Parameter Set
-    for (auto const& psEntry : psetMap) {
-      fhicl::ParameterSet pset;
-      fhicl::make_ParameterSet(psEntry.second.pset_, pset);
-      // Note ParameterSet::id() has the side effect of
-      // making sure the parameter set *has* an ID.
-      pset.id();
-      fhicl::ParameterSetRegistry::put(pset);
+      << "Can only read files written during the \""
+           << expected_era
+           << "\" era: "
+           << "Era of "
+           << "\""
+           << fileName_
+           << "\" was "
+           << (fileFormatVersion_.era_.empty() ?
+               "not set" :
+               ("set to \"" + fileFormatVersion_.era_ + "\" "))
+           << ".\n";
     }
 
     // Also need to check RootFileDB if we have one.
@@ -261,7 +282,7 @@ namespace art {
         int const finalize_status = sqlite3_finalize(stmt);
         if (finalize_status != SQLITE_OK) {
           throw art::Exception{art::errors::SQLExecutionError}
-               << "Unexpected status from DB status cleanup: "
+          << "Unexpected status from DB status cleanup: "
                << sqlite3_errmsg(sqliteDB_)
                << " (0x"
                << finalize_status
@@ -270,15 +291,11 @@ namespace art {
         art::ServiceHandle<art::FileCatalogMetadata>{}->setMetadataFromInput(md);
       }
     }
-    ProcessHistoryRegistry::put(pHistMap);
     validateFile();
 
     // Read the parentage tree.  Old format files are handled
     // internally in readParentageTree().
-    configureProductIDStreamer(branchIDLists_.get());
     readParentageTree(treeCacheSize);
-    configureProductIDStreamer();
-
     initializeDuplicateChecker();
     if (noEventSort_) {
       fileIndex_.sortBy_Run_SubRun_EventEntry();
@@ -296,6 +313,7 @@ namespace art {
     // Determine if this file is fast clonable.
     fastClonable_ = setIfFastClonable(fcip);
     reportOpened();
+    configureProductIDStreamer();
   }
 
   void
@@ -510,12 +528,12 @@ namespace art {
     }
     if (!eventTree().isValid()) {
       throw art::Exception{errors::DataCorruption}
-        << "'Events' tree is corrupted or not present\n"
-        << "in the input file.\n";
+      << "'Events' tree is corrupted or not present\n"
+           << "in the input file.\n";
     }
     if (fileIndex_.empty()) {
       throw art::Exception{art::errors::FileReadError}
-        << "FileIndex information is missing for the input file.\n";
+      << "FileIndex information is missing for the input file.\n";
     }
   }
 
@@ -552,7 +570,7 @@ namespace art {
     auto eventHistoryBranch = eventHistoryTree_->GetBranch(rootNames::eventHistoryBranchName().c_str());
     if (!eventHistoryBranch) {
       throw art::Exception{errors::DataCorruption}
-        << "Failed to find history branch in event history tree.\n";
+      << "Failed to find history branch in event history tree.\n";
     }
     eventHistoryBranch->SetAddress(&pHistory);
     input::getEntry(eventHistoryTree_, eventTree().entryNumber());
@@ -936,8 +954,8 @@ namespace art {
     }
     if (isRealData) {
       throw art::Exception{errors::Configuration, "RootInputFile::overrideRunNumber()"}
-        << "The 'setRunNumber' parameter of RootInput cannot "
-        << "be used with real data.\n";
+      << "The 'setRunNumber' parameter of RootInput cannot "
+           << "be used with real data.\n";
     }
     id = EventID(id.run() + forcedRunOffset_, id.subRun(), id.event());
   }
@@ -950,7 +968,7 @@ namespace art {
     eventHistoryTree_ = static_cast<TTree*>(filePtr_->Get(rootNames::eventHistoryTreeName().c_str()));
     if (!eventHistoryTree_) {
       throw art::Exception{errors::DataCorruption}
-        << "Failed to find the event history tree.\n";
+      << "Failed to find the event history tree.\n";
     }
     eventHistoryTree_->SetCacheSize(static_cast<Long64_t>(treeCacheSize));
   }
@@ -986,8 +1004,8 @@ namespace art {
 
     if (t == InEvent && entries.size() > 1ul) {
       throw Exception{errors::FileReadError}
-        << "File " << fileName_ << " has multiple entries for\n"
-        << eid << '\n';
+      << "File " << fileName_ << " has multiple entries for\n"
+      << eid << '\n';
     }
 
     bool const lastInSubRun {it == fiEnd_ || it->eventID_.subRun() != subrun};
