@@ -1432,7 +1432,6 @@ add_subdirectory(high-memory)
 add_subdirectory(output-file-handling)
 add_subdirectory(product-aggregation)
 add_subdirectory(range-sets)
-add_subdirectory(run-subrun-shape)
 add_subdirectory(BadAssns)
 
 cet_test(FastCloningInitMessage_01_t HANDBUILT
