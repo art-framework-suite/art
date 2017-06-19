@@ -23,17 +23,41 @@ namespace arttest {
 
 class arttest::ProductIDGetter : public art::EDProducer {
 public:
-
   explicit ProductIDGetter(fhicl::ParameterSet const&);
+private:
+  void beginSubRun(art::SubRun&) override;
   void produce(art::Event&) override;
-
 };
 
 
 arttest::ProductIDGetter::ProductIDGetter(fhicl::ParameterSet const&)
 {
+  produces<std::vector<int>, art::InSubRun>();
+  produces<art::Ptr<int>, art::InSubRun>();
   produces<std::vector<int>>();
   produces<art::Ptr<int>>();
+}
+
+void arttest::ProductIDGetter::beginSubRun(art::SubRun& sr)
+{
+  auto vip = std::make_unique<std::vector<int>>();
+  vip->push_back(1);
+  vip->push_back(3);
+  vip->push_back(5);
+  vip->push_back(7);
+
+  art::ProductID const pv{getProductID<std::vector<int>>()};
+  auto ptr = std::make_unique<art::Ptr<int>>(pv, 2, sr.productGetter(pv));
+
+  BOOST_REQUIRE(ptr->id().isValid());
+
+  art::ProductID const id {sr.put(std::move(vip))};
+  art::Ptr<int> const ptr_check {id, 2, sr.productGetter(id)};
+
+  BOOST_REQUIRE_EQUAL(ptr->id(), ptr_check.id());
+  BOOST_REQUIRE(!ptr_check.isAvailable());
+
+  sr.put(std::move(ptr), art::fullSubRun());
 }
 
 void arttest::ProductIDGetter::produce(art::Event& e)
@@ -57,11 +81,9 @@ void arttest::ProductIDGetter::produce(art::Event& e)
   BOOST_REQUIRE(ptr->id().isValid());
 
   art::ProductID const id {e.put(std::move(vip))};
-
   art::Ptr<int> const ptr_check {id, 2, e.productGetter(id)};
 
   BOOST_REQUIRE_EQUAL(ptr->id(), ptr_check.id());
-
   BOOST_REQUIRE(!ptr_check.isAvailable());
 
   e.put(std::move(ptr));

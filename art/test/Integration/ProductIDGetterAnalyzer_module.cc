@@ -20,27 +20,30 @@ namespace arttest {
 
 class arttest::ProductIDGetterAnalyzer : public art::EDAnalyzer {
 public:
-  explicit ProductIDGetterAnalyzer(fhicl::ParameterSet const &p);
-
-  void analyze(art::Event const &e) override;
-
-
+  explicit ProductIDGetterAnalyzer(fhicl::ParameterSet const& p);
 private:
+  void beginSubRun(art::SubRun const& sr) override;
+  void analyze(art::Event const& e) override;
   std::string input_label_;
 };
 
 
-arttest::ProductIDGetterAnalyzer::ProductIDGetterAnalyzer(fhicl::ParameterSet const &p)
-  :
-  art::EDAnalyzer(p),
-  input_label_(p.get<std::string>("input_label"))
+arttest::ProductIDGetterAnalyzer::ProductIDGetterAnalyzer(fhicl::ParameterSet const& p)
+  : art::EDAnalyzer{p},
+  input_label_{p.get<std::string>("input_label")}
 {
 }
 
-void arttest::ProductIDGetterAnalyzer::analyze(art::Event const &e) {
-  art::Handle<art::Ptr<int> > h;
-  BOOST_REQUIRE(e.getByLabel(input_label_, h));
+void arttest::ProductIDGetterAnalyzer::beginSubRun(art::SubRun const& sr)
+{
+  art::Handle<art::Ptr<int>> h;
+  BOOST_REQUIRE(sr.getByLabel(input_label_, h));
+  BOOST_REQUIRE_EQUAL(**h, 5);
+}
 
+void arttest::ProductIDGetterAnalyzer::analyze(art::Event const& e) {
+  art::Handle<art::Ptr<int>> h;
+  BOOST_REQUIRE(e.getByLabel(input_label_, h));
   BOOST_REQUIRE_EQUAL(**h, 4);
 }
 
