@@ -1,6 +1,7 @@
 #include "art/Framework/Principal/Principal.h"
 // vim: set sw=2:
 
+#include "art/Framework/Principal/DeferredProductGetter.h"
 #include "art/Framework/Principal/Selector.h"
 #include "art/Persistency/Common/DelayedReader.h"
 #include "art/Persistency/Common/GroupQueryResult.h"
@@ -387,9 +388,19 @@ findGroupsForProcess(std::vector<ProductID> const& vpid,
   }
 }
 
+EDProductGetter const*
+Principal::deferredGetter_(ProductID const pid) const
+{
+  auto it = deferredGetters_.find(pid);
+  if (it != deferredGetters_.end()) {
+    return it->second.get();
+  }
+  deferredGetters_[pid] = std::make_shared<DeferredProductGetter>(cet::exempt_ptr<Principal const>{this}, pid);
+  return deferredGetters_[pid].get();
+}
+
 OutputHandle
-Principal::
-getForOutput(ProductID const pid, bool resolveProd) const
+Principal::getForOutput(ProductID const pid, bool resolveProd) const
 {
   auto const& g = getResolvedGroup(pid, resolveProd);
   if (g.get() == nullptr) {
@@ -521,6 +532,13 @@ getGroup(ProductID const pid) const
     }
   }
   return nullptr;
+}
+
+EDProductGetter const*
+Principal::productGetter(ProductID const pid) const
+{
+  EDProductGetter const* result{getByProductID(pid).result().get()};
+  return result ? result : deferredGetter_(pid);
 }
 
 } // namespace art

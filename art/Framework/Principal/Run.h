@@ -71,6 +71,9 @@ public:
   getProcessParameterSet(std::string const& processName,
                          std::vector<fhicl::ParameterSet>& ps) const;
 
+  EDProductGetter const*
+  productGetter(ProductID const pid) const;
+
 private:
   // commit_() is called to complete the transaction represented by
   // this DataViewImpl. The friendships required are gross, but any
@@ -90,6 +93,7 @@ private:
        std::string const& productInstanceName,
        RangeSet const& rs);
 
+  Principal const& principal_;
   RunAuxiliary const& aux_;
   RangeSet productRangeSet_;
 };

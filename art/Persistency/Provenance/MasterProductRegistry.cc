@@ -89,8 +89,7 @@ namespace {
                   BranchTypeLookup& el)
   {
     std::vector<PendingBTLEntry> pendingEntries;
-    // FIXME: From map to unordered_map
-    std::map<ProductID, CheapTag> insertedABVs;
+    std::unordered_map<ProductID, CheapTag, ProductID::Hash> insertedABVs;
     for (auto const& val: prods) {
       auto const& procName = val.first.processName_;
       auto const pid = val.second.productID();

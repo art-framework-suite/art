@@ -94,7 +94,7 @@ public:
   getProcessParameterSet(std::string const& processName,
                          fhicl::ParameterSet& ps) const;
 
-  EDProductGetter const* productGetter(ProductID const&) const;
+  EDProductGetter const* productGetter(ProductID const) const;
 
   template <typename T>
   using HandleT = Handle<T>;

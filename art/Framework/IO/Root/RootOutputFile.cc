@@ -878,8 +878,8 @@ fillBranches(Principal const& principal,
         keptProvenance.insertAncestors(*oh.productProvenance(), principal);
       }
       else {
-        // No provenance, product was either not produced,
-        // or was dropped, create provenance to remember that.
+        // No provenance, product was either not produced, or was
+        // dropped, create provenance to remember that.
         auto const status = produced ? productstatus::neverCreated() : productstatus::dropped();
         prov = std::make_unique<ProductProvenance>(keptProvenance.emplace(pid, status));
       }

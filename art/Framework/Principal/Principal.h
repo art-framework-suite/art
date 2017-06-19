@@ -67,6 +67,9 @@ namespace art {
               int idx,
               cet::exempt_ptr<Principal const>);
 
+    EDProductGetter const*
+    productGetter(ProductID const pid) const;
+
     OutputHandle
     getForOutput(ProductID const, bool resolveProd) const;
 
@@ -266,6 +269,9 @@ namespace art {
                          std::vector<GroupQueryResult>& results,
                          TypeID wanted_wrapper) const;
 
+    EDProductGetter const*
+    deferredGetter_(ProductID const pid) const;
+
     EDProductGetter const* getEDProductGetterImpl(ProductID const&) const override
     {
       return nullptr;
@@ -276,6 +282,10 @@ namespace art {
     std::shared_ptr<ProcessHistory> processHistoryPtr_{std::make_shared<ProcessHistory>()};
 
     ProcessConfiguration const& processConfiguration_;
+
+    mutable
+    std::map<ProductID, std::shared_ptr<DeferredProductGetter const>>
+    deferredGetters_ {};
 
     mutable bool processHistoryModified_{false};
 

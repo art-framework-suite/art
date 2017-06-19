@@ -25,7 +25,7 @@ namespace art {
 class art::Results final : private art::DataViewImpl {
 public:
 
-  explicit Results(ResultsPrincipal const& srp, ModuleDescription const& md);
+  explicit Results(Principal const& p, ModuleDescription const& md);
 
   using Base = DataViewImpl;
 
@@ -54,6 +54,9 @@ public:
   using Base::removeCachedProduct;
   using Base::processHistory;
 
+  EDProductGetter const*
+  productGetter(ProductID const pid) const;
+
 private:
 
   // commit_() is called to complete the transaction represented by
@@ -65,6 +68,8 @@ private:
   friend class ResultsProducer;
 
   void commit_(ResultsPrincipal&);
+
+  Principal const& principal_;
 };
 
 template <typename PROD>

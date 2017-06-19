@@ -7,8 +7,8 @@
 #include <array>
 #include <functional>
 #include <map>
-#include <set>
 #include <string>
+#include <unordered_set>
 #include <vector>
 
 
@@ -29,8 +29,7 @@ namespace art {
 
   inline namespace presence {
            // Used for determining product presence information in input files
-           // FIXME: Change from set to unordered_set?
-           using PresenceSet           = std::set<ProductID>;
+           using PresenceSet           = std::unordered_set<ProductID, ProductID::Hash>;
            using PerBranchTypePresence = std::array<PresenceSet,NumBranchTypes>;
            using PerFilePresence       = std::vector<PerBranchTypePresence>;
   }

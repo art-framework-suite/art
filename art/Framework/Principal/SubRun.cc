@@ -14,6 +14,7 @@ namespace art {
 
   SubRun::SubRun(SubRunPrincipal const& srp, ModuleDescription const& md, RangeSet const& rs) :
     DataViewImpl{srp, md, InSubRun, false},
+    principal_{srp},
     aux_{srp.aux()},
     run_{newRun(srp, md)},
     productRangeSet_{rs}
@@ -26,6 +27,12 @@ namespace art {
         << "Tried to obtain a NULL run.\n";
     }
     return *run_;
+  }
+
+  EDProductGetter const*
+  SubRun::productGetter(ProductID const pid) const
+  {
+    return principal_.productGetter(pid);
   }
 
   void

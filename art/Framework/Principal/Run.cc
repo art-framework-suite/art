@@ -10,9 +10,16 @@ using fhicl::ParameterSetRegistry;
 
 art::Run::Run(RunPrincipal const& rp, ModuleDescription const& md, RangeSet const& rs) :
   DataViewImpl{rp, md, InRun, false},
+  principal_{rp},
   aux_{rp.aux()},
   productRangeSet_{rs}
 {}
+
+art::EDProductGetter const*
+art::Run::productGetter(ProductID const pid) const
+{
+  return principal_.productGetter(pid);
+}
 
 bool
 art::Run::getProcessParameterSet(std::string const& /*processName*/,

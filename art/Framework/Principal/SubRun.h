@@ -68,6 +68,9 @@ public:
   using Base::removeCachedProduct;
   using Base::processHistory;
 
+  EDProductGetter const*
+  productGetter(ProductID const pid) const;
+
 private:
 
   // commit_() is called to complete the transaction represented by
@@ -88,6 +91,7 @@ private:
        std::string const& productInstanceName,
        RangeSet const& rs);
 
+  Principal const& principal_;
   SubRunAuxiliary const& aux_;
   std::unique_ptr<Run const> const run_;
   RangeSet productRangeSet_;

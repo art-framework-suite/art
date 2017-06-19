@@ -2,9 +2,16 @@
 #include "art/Framework/Principal/ResultsPrincipal.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
 
-art::Results::Results(ResultsPrincipal const& resp, ModuleDescription const& md) :
-  DataViewImpl{resp, md, InResults, false}
+art::Results::Results(Principal const& p, ModuleDescription const& md) :
+  DataViewImpl{p, md, InResults, false},
+  principal_{p}
 {
+}
+
+art::EDProductGetter const*
+art::Results::productGetter(ProductID const pid) const
+{
+  return principal_.productGetter(pid);
 }
 
 void

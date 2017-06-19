@@ -73,8 +73,6 @@ namespace art {
     BranchType branchType() const override { return branch_type; }
 
     bool isLastInSubRun() const { return lastInSubRun_; }
-    EDProductGetter const* productGetter(ProductID const& pid) const;
-
     RangeSet seenRanges() const override { return RangeSet::invalid(); }
 
   private:
@@ -94,8 +92,9 @@ namespace art {
     }
 
     // This function and its associated member datum are required to
-    // handle the lifetime of a deferred getter, which in turn is required
-    // because a group does not exist until it is placed in the event.
+    // handle the lifetime of a deferred getter, which in turn is
+    // required because a group does not exist until it is placed in
+    // the event.
     EDProductGetter const* deferredGetter_(ProductID const& pid) const;
 
     EDProductGetter const* getEDProductGetterImpl(ProductID const& pid) const override
@@ -104,10 +103,6 @@ namespace art {
     }
 
   private:
-
-    mutable
-    std::map<ProductID, std::shared_ptr<DeferredProductGetter const>>
-    deferredGetters_ {};
 
     EventAuxiliary aux_;
 
