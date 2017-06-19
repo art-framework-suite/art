@@ -269,15 +269,20 @@ namespace art {
                          std::vector<GroupQueryResult>& results,
                          TypeID wanted_wrapper) const;
 
+
+  private: // MEMBER DATA
+
+    // This function and its associated member datum are required to
+    // handle the lifetime of a deferred getter, which in turn is
+    // required because a group does not exist until it is placed in
+    // the event.
     EDProductGetter const*
     deferredGetter_(ProductID const pid) const;
 
-    EDProductGetter const* getEDProductGetterImpl(ProductID const&) const override
+    EDProductGetter const* getEDProductGetterImpl(ProductID const& pid) const final override
     {
-      return nullptr;
+      return getByProductID(pid).result().get();
     }
-
-  private: // MEMBER DATA
 
     std::shared_ptr<ProcessHistory> processHistoryPtr_{std::make_shared<ProcessHistory>()};
 

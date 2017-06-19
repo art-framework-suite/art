@@ -30,7 +30,7 @@ namespace art {
   , history_{history}
   , lastInSubRun_{lastInSubRun}
   {
-    productReader().setGroupFinder(cet::exempt_ptr<EDProductGetterFinder const>(this));
+    productReader().setGroupFinder(cet::exempt_ptr<EDProductGetterFinder const>{this});
     if (ProductMetaData::instance().productProduced(InEvent)) {
       addToProcessHistory();
     }

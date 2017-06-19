@@ -19,6 +19,7 @@ namespace art {
     : Principal{pc, aux.processHistoryID_, std::move(mapper), std::move(rtrv), idx, primaryPrincipal}
     , aux_{aux}
   {
+    productReader().setGroupFinder(cet::exempt_ptr<EDProductGetterFinder const>{this});
     if (ProductMetaData::instance().productProduced(InRun)) {
       addToProcessHistory();
     }
