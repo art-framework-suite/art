@@ -91,17 +91,6 @@ namespace art {
       return history().setProcessHistoryID(phid);
     }
 
-    // This function and its associated member datum are required to
-    // handle the lifetime of a deferred getter, which in turn is
-    // required because a group does not exist until it is placed in
-    // the event.
-    EDProductGetter const* deferredGetter_(ProductID const& pid) const;
-
-    EDProductGetter const* getEDProductGetterImpl(ProductID const& pid) const override
-    {
-      return getByProductID(pid).result().get();
-    }
-
   private:
 
     EventAuxiliary aux_;

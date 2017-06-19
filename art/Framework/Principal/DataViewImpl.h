@@ -251,8 +251,6 @@ private:
   fillView_(GroupQueryResult& bh,
             std::vector<ELEMENT const*>& result) const;
 
-  EDProductGetter const* prodGetter() const;
-
   void removeCachedProduct_(ProductID const pid) const;
 
   //------------------------------------------------------------
