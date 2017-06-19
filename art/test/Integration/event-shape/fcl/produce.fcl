@@ -1,0 +1,4 @@
+process_name: @nil
+
+physics.producers.p1.module_type: ProductIDGetter
+physics.path: [p1]

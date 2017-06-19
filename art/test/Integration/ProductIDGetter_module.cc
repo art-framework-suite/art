@@ -17,20 +17,24 @@
 
 #include <vector>
 
-namespace arttest {
-  class ProductIDGetter;
+namespace art {
+  namespace test {
+    class ProductIDGetter;
+  }
 }
 
-class arttest::ProductIDGetter : public art::EDProducer {
+class art::test::ProductIDGetter : public EDProducer {
+  struct Config {};
 public:
-  explicit ProductIDGetter(fhicl::ParameterSet const&);
+  using Parameters = Table<Config>;
+  explicit ProductIDGetter(Parameters const&);
 private:
   void beginSubRun(art::SubRun&) override;
   void produce(art::Event&) override;
 };
 
 
-arttest::ProductIDGetter::ProductIDGetter(fhicl::ParameterSet const&)
+art::test::ProductIDGetter::ProductIDGetter(Parameters const&)
 {
   produces<std::vector<int>, art::InSubRun>();
   produces<art::Ptr<int>, art::InSubRun>();
@@ -38,7 +42,7 @@ arttest::ProductIDGetter::ProductIDGetter(fhicl::ParameterSet const&)
   produces<art::Ptr<int>>();
 }
 
-void arttest::ProductIDGetter::beginSubRun(art::SubRun& sr)
+void art::test::ProductIDGetter::beginSubRun(art::SubRun& sr)
 {
   auto vip = std::make_unique<std::vector<int>>();
   vip->push_back(1);
@@ -51,8 +55,8 @@ void arttest::ProductIDGetter::beginSubRun(art::SubRun& sr)
 
   BOOST_REQUIRE(ptr->id().isValid());
 
-  art::ProductID const id {sr.put(std::move(vip))};
-  art::Ptr<int> const ptr_check {id, 2, sr.productGetter(id)};
+  art::ProductID const id{sr.put(std::move(vip))};
+  art::Ptr<int> const ptr_check{id, 2, sr.productGetter(id)};
 
   BOOST_REQUIRE_EQUAL(ptr->id(), ptr_check.id());
   BOOST_REQUIRE(!ptr_check.isAvailable());
@@ -60,7 +64,7 @@ void arttest::ProductIDGetter::beginSubRun(art::SubRun& sr)
   sr.put(std::move(ptr), art::fullSubRun());
 }
 
-void arttest::ProductIDGetter::produce(art::Event& e)
+void art::test::ProductIDGetter::produce(art::Event& e)
 {
   // Test that getting a ProductID for an unregistered product yields an exception.
   BOOST_REQUIRE_EXCEPTION(getProductID<int>(),
@@ -75,13 +79,13 @@ void arttest::ProductIDGetter::produce(art::Event& e)
   vip->push_back(4);
   vip->push_back(6);
 
-  art::ProductID const pv {getProductID<std::vector<int>>()};
+  art::ProductID const pv{getProductID<std::vector<int>>()};
   auto ptr = std::make_unique<art::Ptr<int>>(pv, 2, e.productGetter(pv));
 
   BOOST_REQUIRE(ptr->id().isValid());
 
-  art::ProductID const id {e.put(std::move(vip))};
-  art::Ptr<int> const ptr_check {id, 2, e.productGetter(id)};
+  art::ProductID const id{e.put(std::move(vip))};
+  art::Ptr<int> const ptr_check{id, 2, e.productGetter(id)};
 
   BOOST_REQUIRE_EQUAL(ptr->id(), ptr_check.id());
   BOOST_REQUIRE(!ptr_check.isAvailable());
@@ -89,4 +93,4 @@ void arttest::ProductIDGetter::produce(art::Event& e)
   e.put(std::move(ptr));
 }
 
-DEFINE_ART_MODULE(arttest::ProductIDGetter)
+DEFINE_ART_MODULE(art::test::ProductIDGetter)

@@ -13,38 +13,43 @@
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Principal/Event.h"
 #include "canvas/Persistency/Common/Ptr.h"
+#include "fhiclcpp/types/Atom.h"
 
-namespace arttest {
-  class ProductIDGetterAnalyzer;
+namespace art {
+  namespace test {
+    class ProductIDGetterAnalyzer;
+  }
 }
 
-class arttest::ProductIDGetterAnalyzer : public art::EDAnalyzer {
+class art::test::ProductIDGetterAnalyzer : public EDAnalyzer {
+  struct Config {
+    fhicl::Atom<std::string> input_label{fhicl::Name{"input_label"}};
+  };
 public:
-  explicit ProductIDGetterAnalyzer(fhicl::ParameterSet const& p);
+  using Parameters = Table<Config>;
+  explicit ProductIDGetterAnalyzer(Parameters const& p);
 private:
-  void beginSubRun(art::SubRun const& sr) override;
-  void analyze(art::Event const& e) override;
+  void beginSubRun(SubRun const& sr) override;
+  void analyze(Event const& e) override;
   std::string input_label_;
 };
 
 
-arttest::ProductIDGetterAnalyzer::ProductIDGetterAnalyzer(fhicl::ParameterSet const& p)
-  : art::EDAnalyzer{p},
-  input_label_{p.get<std::string>("input_label")}
-{
-}
+art::test::ProductIDGetterAnalyzer::ProductIDGetterAnalyzer(Parameters const& p)
+  : EDAnalyzer{p},
+    input_label_{p().input_label()}
+{}
 
-void arttest::ProductIDGetterAnalyzer::beginSubRun(art::SubRun const& sr)
-{
-  art::Handle<art::Ptr<int>> h;
+void art::test::ProductIDGetterAnalyzer::beginSubRun(SubRun const& sr) {
+  Handle<Ptr<int>> h;
   BOOST_REQUIRE(sr.getByLabel(input_label_, h));
   BOOST_REQUIRE_EQUAL(**h, 5);
 }
 
-void arttest::ProductIDGetterAnalyzer::analyze(art::Event const& e) {
-  art::Handle<art::Ptr<int>> h;
+void art::test::ProductIDGetterAnalyzer::analyze(Event const& e) {
+  Handle<Ptr<int>> h;
   BOOST_REQUIRE(e.getByLabel(input_label_, h));
   BOOST_REQUIRE_EQUAL(**h, 4);
 }
 
-DEFINE_ART_MODULE(arttest::ProductIDGetterAnalyzer)
+DEFINE_ART_MODULE(art::test::ProductIDGetterAnalyzer)
