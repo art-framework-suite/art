@@ -49,7 +49,7 @@ class art::RootOutputFile {
 public: // TYPES
 
   enum class ClosureRequestMode {MaxEvents, MaxSize, Unset};
-  using  RootOutputTreePtrArray = std::array<std::unique_ptr<RootOutputTree>, NumBranchTypes>;
+  using RootOutputTreePtrArray = std::array<std::unique_ptr<RootOutputTree>, NumBranchTypes>;
 
   struct OutputItem {
 

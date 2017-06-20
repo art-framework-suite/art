@@ -2,7 +2,7 @@
 
 #include "art/Framework/IO/Root/GetFileFormatEra.h"
 #include "art/Framework/IO/Root/detail/readFileIndex.h"
-#include "canvas/Persistency/Provenance/rootNames.h"
+#include "art/Framework/IO/Root/detail/readMetadata.h"
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Services/Optional/RandomNumberGenerator.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
@@ -10,6 +10,7 @@
 #include "canvas/Persistency/Provenance/FileIndex.h"
 #include "canvas/Persistency/Provenance/History.h"
 #include "canvas/Persistency/Provenance/ProductIDStreamer.h"
+#include "canvas/Persistency/Provenance/rootNames.h"
 #include "cetlib/container_algorithms.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
@@ -96,7 +97,7 @@ EventIDLookup::operator()(argument_type entry) const
 namespace {
   double initCoverageFraction(fhicl::ParameterSet const& pset)
   {
-    double result = pset.get<double>("coverageFraction", 1.0);
+    auto result = pset.get<double>("coverageFraction", 1.0);
     if (result > (1 + std::numeric_limits<double>::epsilon())) {
       mf::LogWarning("Configuration")
         << "coverageFraction > 1: treating as a percentage.\n";
@@ -216,10 +217,9 @@ art::MixHelper::generateEventSequence(size_t const nSecondaries,
       << static_cast<int>(readMode_)
       << ". Contact the art developers.\n";
   }
-  std::transform(enSeq.begin(),
-                 enSeq.end(),
-                 std::back_inserter(eIDseq),
-                 EventIDLookup(eventIDIndex_));
+  cet::transform_all(enSeq,
+                     std::back_inserter(eIDseq),
+                     EventIDLookup{eventIDIndex_});
   return true;
 }
 
@@ -387,40 +387,16 @@ art::MixHelper::openAndReadMetaData_(std::string filename)
   currentDataTrees_ = initDataTrees(currentFile_);
   nEventsInFile_ = currentDataTrees_[InEvent]->GetEntries();
 
-  // Read meta data
-  {
-    auto ffVersion_p = &ffVersion_;
-    auto branch = currentMetaDataTree_->GetBranch(rootNames::metaBranchRootName<FileFormatVersion>());
-    assert(branch != nullptr);
-    branch->SetAddress(&ffVersion_p);
-    auto const n = branch->GetEntry(0);
-    switch (n) {
-    case -1:
-      throw Exception(errors::FileReadError)
-        << "Apparent I/O error reading meta data information from secondary event stream file "
-        << filename
-        << ".\n";
-    case 0:
-      throw Exception(errors::FileReadError)
-        << "Meta data tree apparently empty reading secondary event stream file "
-        << filename
-        << ".\n";
-    }
-    branch->SetAddress(nullptr);
-  }
+  ffVersion_ = detail::readMetadata<FileFormatVersion>(currentMetaDataTree_.get());
 
   // Read file index
   FileIndex* fileIndexPtr = &currentFileIndex_;
   detail::readFileIndex(currentFile_.get(), currentMetaDataTree_.get(), fileIndexPtr);
 
   // To support files that contain BranchIDLists
-  if (auto branch = currentMetaDataTree_->GetBranch(rootNames::metaBranchRootName<BranchIDLists>())) {
-    BranchIDLists branchIDLists;
-    auto branchIDListsPtr = &branchIDLists;
-    branch->SetAddress(&branchIDListsPtr);
-    input::getEntry(branch, 0);
+  BranchIDLists branchIDLists{};
+  if (detail::readMetadata(currentMetaDataTree_.get(), branchIDLists)) {
     branchIDLists_ = std::make_unique<BranchIDLists>(std::move(branchIDLists));
-    branch->SetAddress(nullptr);
     configureProductIDStreamer(branchIDLists_.get());
   }
 

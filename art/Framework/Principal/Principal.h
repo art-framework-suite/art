@@ -279,7 +279,7 @@ namespace art {
     EDProductGetter const*
     deferredGetter_(ProductID const pid) const;
 
-    EDProductGetter const* getEDProductGetterImpl(ProductID const& pid) const final override
+    EDProductGetter const* getEDProductGetterImpl(ProductID const pid) const final override
     {
       return getByProductID(pid).result().get();
     }

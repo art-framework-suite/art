@@ -175,16 +175,16 @@ private:
   void doBeginJob();
   void doEndJob();
   bool doEvent(EventPrincipal const& ep,
-               CurrentProcessingContext const * cpc,
+               CurrentProcessingContext const* cpc,
                CountingStatistics&);
   bool doBeginRun(RunPrincipal const& rp,
-                  CurrentProcessingContext const * cpc);
+                  CurrentProcessingContext const* cpc);
   bool doEndRun(RunPrincipal const& rp,
-                CurrentProcessingContext const * cpc);
+                CurrentProcessingContext const* cpc);
   bool doBeginSubRun(SubRunPrincipal const& srp,
-                     CurrentProcessingContext const * cpc);
+                     CurrentProcessingContext const* cpc);
   bool doEndSubRun(SubRunPrincipal const& srp,
-                   CurrentProcessingContext const * cpc);
+                   CurrentProcessingContext const* cpc);
   void doWriteRun(RunPrincipal& rp);
   void doWriteSubRun(SubRunPrincipal& srp);
   void doWriteEvent(EventPrincipal& ep);
@@ -274,67 +274,59 @@ private:
 };  // OutputModule
 
 inline
-art::CurrentProcessingContext const *
-art::OutputModule::
-currentContext() const
+art::CurrentProcessingContext const*
+art::OutputModule::currentContext() const
 {
   return current_context_.get();
 }
 
 inline
 art::ModuleDescription const&
-art::OutputModule::
-description() const
+art::OutputModule::description() const
 {
   return moduleDescription_;
 }
 
 inline
 int
-art::OutputModule::
-maxEvents() const
+art::OutputModule::maxEvents() const
 {
   return maxEvents_;
 }
 
 inline
 int
-art::OutputModule::
-remainingEvents() const
+art::OutputModule::remainingEvents() const
 {
   return remainingEvents_;
 }
 
 inline
 bool
-art::OutputModule::
-selected(BranchDescription const& desc) const
+art::OutputModule::selected(BranchDescription const& desc) const
 {
   return groupSelector_.selected(desc);
 }
 
 inline
 auto
-art::OutputModule::
-keptProducts() const
-->  SelectionsArray const&
+art::OutputModule::keptProducts() const
+  ->  SelectionsArray const&
 {
   return keptProducts_;
 }
 
 inline
 auto
-art::OutputModule::
-hasNewlyDroppedBranch() const
--> std::array<bool, NumBranchTypes> const&
+art::OutputModule::hasNewlyDroppedBranch() const
+  -> std::array<bool, NumBranchTypes> const&
 {
   return hasNewlyDroppedBranch_;
 }
 
 inline
 art::BranchChildren const&
-art::OutputModule::
-branchChildren() const
+art::OutputModule::branchChildren() const
 {
   return branchChildren_;
 }
@@ -349,8 +341,7 @@ setModuleDescription(ModuleDescription const& md)
 
 inline
 bool
-art::OutputModule::
-limitReached() const
+art::OutputModule::limitReached() const
 {
   return remainingEvents_ == 0;
 }

@@ -302,19 +302,17 @@ namespace {
 
 } // unnamed namespace
 
-art::
-RootOutputFile::
-RootOutputFile(OutputModule* om,
-               string const& fileName,
-               ClosingCriteria const& fileSwitchCriteria,
-               int const compressionLevel,
-               int64_t const saveMemoryObjectThreshold,
-               int64_t const treeMaxVirtualSize,
-               int const splitLevel,
-               int const basketSize,
-               DropMetaData dropMetaData,
-               bool const dropMetaDataForDroppedData,
-               bool const fastCloningRequested)
+art::RootOutputFile::RootOutputFile(OutputModule* om,
+                                    string const& fileName,
+                                    ClosingCriteria const& fileSwitchCriteria,
+                                    int const compressionLevel,
+                                    int64_t const saveMemoryObjectThreshold,
+                                    int64_t const treeMaxVirtualSize,
+                                    int const splitLevel,
+                                    int const basketSize,
+                                    DropMetaData dropMetaData,
+                                    bool const dropMetaDataForDroppedData,
+                                    bool const fastCloningRequested)
   : om_{om}
   , file_{fileName}
   , fileSwitchCriteria_{fileSwitchCriteria}
@@ -367,9 +365,7 @@ RootOutputFile(OutputModule* om,
   createDatabaseTables();
 }
 
-art::
-RootOutputFile::OutputItem::Sorter::
-Sorter(TTree* tree)
+art::RootOutputFile::OutputItem::Sorter::Sorter(TTree* tree)
 {
   // Fill a map mapping branch names to an index specifying
   // the order in the tree.
@@ -384,9 +380,7 @@ Sorter(TTree* tree)
 }
 
 bool
-art::
-RootOutputFile::OutputItem::Sorter::
-operator()(OutputItem const& lh, OutputItem const& rh) const
+art::RootOutputFile::OutputItem::Sorter::operator()(OutputItem const& lh, OutputItem const& rh) const
 {
   // Provides a comparison for sorting branches according
   // to the index values in treeMap_.  Branches not found
@@ -435,12 +429,10 @@ art::RootOutputFile::createDatabaseTables()
 }
 
 void
-art::
-RootOutputFile::
-selectProducts(FileBlock const& fb)
+art::RootOutputFile::selectProducts(FileBlock const& fb)
 {
   for (int i = InEvent; i < NumBranchTypes; ++i) {
-    auto bt = static_cast<BranchType>(i);
+    auto const bt = static_cast<BranchType>(i);
     auto& items = selectedOutputItemList_[bt];
     for (auto const& val : items) {
       treePointers_[bt]->resetOutputBranchAddress(*val.branchDescription_);
@@ -454,7 +446,7 @@ selectProducts(FileBlock const& fb)
     if ((bt == InEvent) && (fb.tree() != nullptr)) {
       // Only care about sorting event tree because that's the only one
       // we might fast clone.
-      sort(items.begin(), items.end(), OutputItem::Sorter(fb.tree()));
+      cet::sort_all(items, OutputItem::Sorter{fb.tree()});
     }
     for (auto const& val : items) {
       treePointers_[bt]->addOutputBranch(*val.branchDescription_, val.product_);
@@ -463,9 +455,7 @@ selectProducts(FileBlock const& fb)
 }
 
 void
-art::
-RootOutputFile::
-beginInputFile(FileBlock const& fb, bool fastCloneFromOutputModule)
+art::RootOutputFile::beginInputFile(FileBlock const& fb, bool fastCloneFromOutputModule)
 {
   bool shouldFastClone {fastCloningEnabledAtConstruction_ && fastCloneFromOutputModule};
   // Create output branches, and then redo calculation to determine if
@@ -508,17 +498,13 @@ art::RootOutputFile::incrementInputFileNumber()
 }
 
 void
-art::
-RootOutputFile::
-respondToCloseInputFile(FileBlock const&)
+art::RootOutputFile::respondToCloseInputFile(FileBlock const&)
 {
   cet::for_all(treePointers_, [](auto const& p){ p->setEntries(); });
 }
 
 bool
-art::
-RootOutputFile::
-requestsToCloseFile()
+art::RootOutputFile::requestsToCloseFile()
 {
   using namespace std::chrono;
   unsigned int constexpr oneK {1024u};
@@ -528,9 +514,7 @@ requestsToCloseFile()
 }
 
 void
-art::
-RootOutputFile::
-writeOne(EventPrincipal const& e)
+art::RootOutputFile::writeOne(EventPrincipal const& e)
 {
   // Auxiliary branch.
   // Note: pEventAux_ must be set before calling fillBranches
@@ -569,9 +553,7 @@ writeOne(EventPrincipal const& e)
 }
 
 void
-art::
-RootOutputFile::
-writeSubRun(SubRunPrincipal const& sr)
+art::RootOutputFile::writeSubRun(SubRunPrincipal const& sr)
 {
   pSubRunAux_ = &sr.aux();
   pSubRunAux_->setRangeSetID(subRunRSID_);
@@ -581,9 +563,7 @@ writeSubRun(SubRunPrincipal const& sr)
 }
 
 void
-art::
-RootOutputFile::
-writeRun(RunPrincipal const& r)
+art::RootOutputFile::writeRun(RunPrincipal const& r)
 {
   pRunAux_ = &r.aux();
   pRunAux_->setRangeSetID(runRSID_);
@@ -593,9 +573,7 @@ writeRun(RunPrincipal const& r)
 }
 
 void
-art::
-RootOutputFile::
-writeParentageRegistry()
+art::RootOutputFile::writeParentageRegistry()
 {
   ParentageID const* hash = new ParentageID;
   if (!parentageTree_->Branch(rootNames::parentageIDBranchName().c_str(),
@@ -623,9 +601,7 @@ writeParentageRegistry()
 }
 
 void
-art::
-RootOutputFile::
-writeFileFormatVersion()
+art::RootOutputFile::writeFileFormatVersion()
 {
   FileFormatVersion const ver {getFileFormatVersion(), getFileFormatEra()};
   FileFormatVersion const* pver = &ver;
@@ -637,9 +613,7 @@ writeFileFormatVersion()
 }
 
 void
-art::
-RootOutputFile::
-writeFileIndex()
+art::RootOutputFile::writeFileIndex()
 {
   fileIndex_.sortBy_Run_SubRun_Event();
   FileIndex::Element elem {};
@@ -656,26 +630,20 @@ writeFileIndex()
 }
 
 void
-art::
-RootOutputFile::
-writeEventHistory()
+art::RootOutputFile::writeEventHistory()
 {
   RootOutputTree::writeTTree(eventHistoryTree_);
 }
 
 void
-art::
-RootOutputFile::
-writeProcessConfigurationRegistry()
+art::RootOutputFile::writeProcessConfigurationRegistry()
 {
   // We don't do this yet; currently we're storing a slightly
   // bloated ProcessHistoryRegistry.
 }
 
 void
-art::
-RootOutputFile::
-writeProcessHistoryRegistry()
+art::RootOutputFile::writeProcessHistoryRegistry()
 {
   ProcessHistoryMap pHistMap;
   for (auto const& pr : ProcessHistoryRegistry::get()) {
@@ -693,11 +661,9 @@ writeProcessHistoryRegistry()
 }
 
 void
-art::
-RootOutputFile::
-writeFileCatalogMetadata(FileStatsCollector const& stats,
-                         FileCatalogMetadata::collection_type const& md,
-                         FileCatalogMetadata::collection_type const& ssmd)
+art::RootOutputFile::writeFileCatalogMetadata(FileStatsCollector const& stats,
+                                              FileCatalogMetadata::collection_type const& md,
+                                              FileCatalogMetadata::collection_type const& ssmd)
 {
   using namespace cet::sqlite;
   Ntuple<std::string,std::string> fileCatalogMetadata {rootFileDB_, "FileCatalog_metadata", {"Name","Value"}, true};
@@ -777,17 +743,13 @@ writeFileCatalogMetadata(FileStatsCollector const& stats,
 }
 
 void
-art::
-RootOutputFile::
-writeParameterSetRegistry()
+art::RootOutputFile::writeParameterSetRegistry()
 {
   fhicl::ParameterSetRegistry::exportTo(rootFileDB_);
 }
 
 void
-art::
-RootOutputFile::
-writeProductDescriptionRegistry()
+art::RootOutputFile::writeProductDescriptionRegistry()
 {
   // Make a local copy of the MasterProductRegistry's ProductList,
   // removing any transient or pruned products.
@@ -810,9 +772,7 @@ writeProductDescriptionRegistry()
 }
 
 void
-art::
-RootOutputFile::
-writeProductDependencies()
+art::RootOutputFile::writeProductDependencies()
 {
   BranchChildren const* ppDeps = &om_->branchChildren();
   TBranch* b = metaDataTree_->Branch(metaBranchRootName<BranchChildren>(),
@@ -823,9 +783,7 @@ writeProductDependencies()
 }
 
 void
-art::
-RootOutputFile::
-writeResults(ResultsPrincipal & resp)
+art::RootOutputFile::writeResults(ResultsPrincipal & resp)
 {
   pResultsAux_ = &resp.aux();
   fillBranches<InResults>(resp, pResultsProductProvenanceVector_);
@@ -846,10 +804,8 @@ art::RootOutputFile::writeTTrees()
 
 template <art::BranchType BT>
 void
-art::
-RootOutputFile::
-fillBranches(Principal const& principal,
-             vector<ProductProvenance>* vpp)
+art::RootOutputFile::fillBranches(Principal const& principal,
+                                  vector<ProductProvenance>* vpp)
 {
   bool const fastCloning = (BT == InEvent) && wasFastCloned_;
   detail::KeptProvenance keptProvenance {dropMetaData_, dropMetaDataForDroppedData_, branchesWithStoredHistory_};
@@ -910,9 +866,7 @@ fillBranches(Principal const& principal,
 }
 
 void
-art::
-RootOutputFile::
-setSubRunAuxiliaryRangeSetID(RangeSet const& ranges)
+art::RootOutputFile::setSubRunAuxiliaryRangeSetID(RangeSet const& ranges)
 {
   subRunRSID_ = getNewRangeSetID(rootFileDB_, InSubRun, ranges.run());
   insertIntoEventRanges(rootFileDB_, ranges);
@@ -921,9 +875,7 @@ setSubRunAuxiliaryRangeSetID(RangeSet const& ranges)
 }
 
 void
-art::
-RootOutputFile::
-setRunAuxiliaryRangeSetID(RangeSet const& ranges)
+art::RootOutputFile::setRunAuxiliaryRangeSetID(RangeSet const& ranges)
 {
   runRSID_ = getNewRangeSetID(rootFileDB_, InRun, ranges.run());
   insertIntoEventRanges(rootFileDB_, ranges);

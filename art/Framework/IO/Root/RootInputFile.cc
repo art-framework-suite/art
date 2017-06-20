@@ -6,6 +6,7 @@
 #include "art/Framework/IO/Root/DuplicateChecker.h"
 #include "art/Framework/IO/Root/FastCloningInfoProvider.h"
 #include "art/Framework/IO/Root/GetFileFormatEra.h"
+#include "art/Framework/IO/Root/detail/readMetadata.h"
 #include "art/Framework/IO/Root/detail/readFileIndex.h"
 #include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Principal/RunPrincipal.h"
@@ -161,57 +162,30 @@ namespace art {
 
     using namespace art::rootNames;
 
-    // Read file format version
-    {
-      auto fftPtr = &fileFormatVersion_;
-      auto branch = metaDataTree->GetBranch(metaBranchRootName<FileFormatVersion>());
-      assert(branch != nullptr);
-      branch->SetAddress(&fftPtr);
-      input::getEntry(branch, 0);
-      branch->SetAddress(nullptr);
-    }
+    fileFormatVersion_ = detail::readMetadata<FileFormatVersion>(metaDataTree);
 
     // Read file index
     auto findexPtr = &fileIndex_;
     detail::readFileIndex(filePtr_.get(), metaDataTree, findexPtr);
 
     // To support files that contain BranchIDLists
-    if (auto branch = metaDataTree->GetBranch(metaBranchRootName<BranchIDLists>())) {
-      BranchIDLists branchIDLists;
-      auto branchIDListsPtr = &branchIDLists;
-      branch->SetAddress(&branchIDListsPtr);
-      input::getEntry(branch, 0);
+    BranchIDLists branchIDLists{};
+    if (detail::readMetadata(metaDataTree, branchIDLists)) {
       branchIDLists_ = std::make_unique<BranchIDLists>(std::move(branchIDLists));
-      branch->SetAddress(nullptr);
       configureProductIDStreamer(branchIDLists_.get());
     }
 
+
     // Read the ProductList
     {
-      auto plhPtr = productListHolder_.get();
-      assert(plhPtr != nullptr &&
-             "INTERNAL ERROR: productListHolder_ not initialized prior to use!.");
-      auto branch = metaDataTree->GetBranch(metaBranchRootName<ProductRegistry>());
-      assert(branch != nullptr);
-      branch->SetAddress(&plhPtr);
-      input::getEntry(branch, 0);
-      branch->SetAddress(nullptr);
-      if (plhPtr != productListHolder_.get()) {
-        // Should never happen, but just in case ROOT's behavior changes.
-        throw Exception{errors::LogicError}
-        << "ROOT has changed behavior and caused a memory leak while setting "
-             << "a branch address.";
-      }
+      auto productList = detail::readMetadata<ProductRegistry>(metaDataTree);
+      productListHolder_ = std::make_unique<ProductRegistry>(std::move(productList));
     }
 
     // Read the ParameterSets if there are any on a branch.
     {
       ParameterSetMap psetMap;
-      auto psetMapPtr = &psetMap;
-      auto branch = metaDataTree->GetBranch(metaBranchRootName<ParameterSetMap>());
-      if (readIncomingParameterSets && branch != nullptr) {
-        branch->SetAddress(&psetMapPtr);
-        input::getEntry(branch, 0);
+      if (readIncomingParameterSets && detail::readMetadata(metaDataTree, psetMap)) {
         // Merge into the hashed registries.
         for (auto const& psEntry : psetMap) {
           fhicl::ParameterSet pset;
@@ -226,14 +200,8 @@ namespace art {
 
     // Read the ProcessHistory
     {
-      ProcessHistoryMap pHistMap;
-      auto pHistMapPtr = &pHistMap;
-      auto branch = metaDataTree->GetBranch(metaBranchRootName<ProcessHistoryMap>());
-      assert(branch != nullptr);
-      branch->SetAddress(&pHistMapPtr);
-      input::getEntry(branch, 0);
+      auto pHistMap = detail::readMetadata<ProcessHistoryMap>(metaDataTree);
       ProcessHistoryRegistry::put(pHistMap);
-      branch->SetAddress(nullptr);
     }
 
     // Check the, "Era" of the input file (new since art v0.5.0). If it

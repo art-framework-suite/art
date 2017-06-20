@@ -1,6 +1,7 @@
 #include "art/Framework/IO/Root/detail/InfoDumperInputFile.h"
 #include "art/Framework/IO/Root/detail/resolveRangeSet.h"
 #include "art/Framework/IO/Root/detail/readFileIndex.h"
+#include "art/Framework/IO/Root/detail/readMetadata.h"
 #include "art/Framework/Principal/detail/orderedProcessNames.h"
 #include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
 #include "art/Persistency/RootDB/SQLite3Wrapper.h"
@@ -54,23 +55,10 @@ art::detail::InfoDumperInputFile::InfoDumperInputFile(std::string const& filenam
   using namespace art::rootNames;
   std::unique_ptr<TTree> md {static_cast<TTree*>(file_->Get(metaDataTreeName().data()))};
 
-  // Read file format
-  {
-    auto fftPtr = &fileFormatVersion_;
-    auto branch = md->GetBranch(metaBranchRootName<FileFormatVersion>());
-    assert(branch != nullptr);
-    branch->SetAddress(&fftPtr);
-    input::getEntry(branch, 0);
-    branch->SetAddress(nullptr);
-  }
+  fileFormatVersion_ = detail::readMetadata<FileFormatVersion>(md.get());
 
   // Read BranchID lists if they exist
-  if (auto branch = md->GetBranch(metaBranchRootName<BranchIDLists>())) {
-    auto bidsPtr = &branchIDLists_;
-    branch->SetAddress(&bidsPtr);
-    input::getEntry(branch, 0);
-    branch->SetAddress(nullptr);
-  }
+  detail::readMetadata(md.get(), branchIDLists_);
 
   // Read file index
   auto findexPtr = &fileIndex_;
@@ -78,14 +66,8 @@ art::detail::InfoDumperInputFile::InfoDumperInputFile(std::string const& filenam
 
   // Read ProcessHistory
   {
-    art::ProcessHistoryMap pHistMap;
-    auto pHistMapPtr = &pHistMap;
-    auto branch = md->GetBranch(metaBranchRootName<decltype(pHistMap)>());
-    assert(branch != nullptr);
-    branch->SetAddress(&pHistMapPtr);
-    art::input::getEntry(branch, 0);
-    art::ProcessHistoryRegistry::put(pHistMap);
-    branch->SetAddress(nullptr);
+    auto pHistMap = detail::readMetadata<ProcessHistoryMap>(md.get());
+    ProcessHistoryRegistry::put(pHistMap);
   }
 }
 

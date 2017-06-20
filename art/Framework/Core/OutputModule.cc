@@ -30,9 +30,8 @@ using fhicl::ParameterSet;
 using std::vector;
 using std::string;
 
-art::OutputModule::
-OutputModule(fhicl::TableFragment<Config> const& config,
-             ParameterSet const& containing_pset)
+art::OutputModule::OutputModule(fhicl::TableFragment<Config> const& config,
+                                ParameterSet const& containing_pset)
   : EventObserverBase{config().eoFragment().selectEvents(), containing_pset}
   , groupSelectorRules_{config().outputCommands(), "outputCommands", "OutputModule"}
   , configuredFileName_{config().fileName()}
@@ -41,8 +40,7 @@ OutputModule(fhicl::TableFragment<Config> const& config,
   , plugins_{makePlugins_(containing_pset)}
 {}
 
-art::OutputModule::
-OutputModule(ParameterSet const& pset)
+art::OutputModule::OutputModule(ParameterSet const& pset)
   : EventObserverBase{pset}
   , groupSelectorRules_{pset.get<vector<string>>("outputCommands", {"keep *"}),
         "outputCommands",
@@ -54,22 +52,19 @@ OutputModule(ParameterSet const& pset)
 {}
 
 string const &
-art::OutputModule::
-lastClosedFileName() const
+art::OutputModule::lastClosedFileName() const
 {
   return configuredFileName_;
 }
 
 void
-art::OutputModule::
-configure(OutputModuleDescription const& desc)
+art::OutputModule::configure(OutputModuleDescription const& desc)
 {
   remainingEvents_ = maxEvents_ = desc.maxEvents_;
 }
 
 void
-art::OutputModule::
-doSelectProducts()
+art::OutputModule::doSelectProducts()
 {
   auto const& pmd = ProductMetaData::instance();
   groupSelector_.initialize(groupSelectorRules_,pmd.productList());
@@ -104,8 +99,7 @@ doSelectProducts()
 }
 
 void
-art::OutputModule::
-selectProducts(FileBlock const& fb)
+art::OutputModule::selectProducts(FileBlock const& fb)
 {
   preSelectProducts(fb);
   doSelectProducts();
@@ -113,35 +107,27 @@ selectProducts(FileBlock const& fb)
 }
 
 void
-art::OutputModule::
-registerProducts(MasterProductRegistry& mpr,
-                 ModuleDescription const& md)
+art::OutputModule::registerProducts(MasterProductRegistry& mpr,
+                                    ModuleDescription const& md)
 {
   doRegisterProducts(mpr, md);
 }
 
 void
-art::OutputModule::
-preSelectProducts(FileBlock const&)
-{
-}
+art::OutputModule::preSelectProducts(FileBlock const&)
+{}
 
 void
-art::OutputModule::
-postSelectProducts(FileBlock const&)
-{
-}
+art::OutputModule::postSelectProducts(FileBlock const&)
+{}
 
 void
-art::OutputModule::
-doRegisterProducts(MasterProductRegistry&,
-                   ModuleDescription const&)
-{
-}
+art::OutputModule::doRegisterProducts(MasterProductRegistry&,
+                                      ModuleDescription const&)
+{}
 
 void
-art::OutputModule::
-doBeginJob()
+art::OutputModule::doBeginJob()
 {
   doSelectProducts();
   beginJob();
@@ -149,9 +135,8 @@ doBeginJob()
 }
 
 bool
-art::OutputModule::
-doBeginRun(RunPrincipal const & rp,
-           CurrentProcessingContext const * cpc)
+art::OutputModule::doBeginRun(RunPrincipal const & rp,
+                              CurrentProcessingContext const * cpc)
 {
   detail::CPCSentry sentry{current_context_, cpc};
   FDEBUG(2) << "beginRun called\n";
@@ -162,9 +147,8 @@ doBeginRun(RunPrincipal const & rp,
 }
 
 bool
-art::OutputModule::
-doBeginSubRun(SubRunPrincipal const& srp,
-              CurrentProcessingContext const* cpc)
+art::OutputModule::doBeginSubRun(SubRunPrincipal const& srp,
+                                 CurrentProcessingContext const* cpc)
 {
   detail::CPCSentry sentry {current_context_, cpc};
   FDEBUG(2) << "beginSubRun called\n";
@@ -175,8 +159,7 @@ doBeginSubRun(SubRunPrincipal const& srp,
 }
 
 bool
-art::OutputModule::
-doEvent(EventPrincipal const& ep, CurrentProcessingContext const* cpc, CountingStatistics& counts)
+art::OutputModule::doEvent(EventPrincipal const& ep, CurrentProcessingContext const* cpc, CountingStatistics& counts)
 {
   detail::CPCSentry sentry {current_context_, cpc};
   FDEBUG(2) << "doEvent called\n";
@@ -192,8 +175,7 @@ doEvent(EventPrincipal const& ep, CurrentProcessingContext const* cpc, CountingS
 }
 
 void
-art::OutputModule::
-doWriteEvent(EventPrincipal& ep)
+art::OutputModule::doWriteEvent(EventPrincipal& ep)
 {
   detail::PVSentry clearTriggerResults {cachedProducts()};
   FDEBUG(2) << "writeEvent called\n";
@@ -216,16 +198,14 @@ doWriteEvent(EventPrincipal& ep)
 }
 
 void
-art::OutputModule::
-doSetSubRunAuxiliaryRangeSetID(RangeSet const& ranges)
+art::OutputModule::doSetSubRunAuxiliaryRangeSetID(RangeSet const& ranges)
 {
   setSubRunAuxiliaryRangeSetID(ranges);
 }
 
 bool
-art::OutputModule::
-doEndSubRun(SubRunPrincipal const& srp,
-            CurrentProcessingContext const* cpc)
+art::OutputModule::doEndSubRun(SubRunPrincipal const& srp,
+                               CurrentProcessingContext const* cpc)
 {
   detail::CPCSentry sentry{current_context_, cpc};
   FDEBUG(2) << "endSubRun called\n";
@@ -236,25 +216,22 @@ doEndSubRun(SubRunPrincipal const& srp,
 }
 
 void
-art::OutputModule::
-doWriteSubRun(SubRunPrincipal& srp)
+art::OutputModule::doWriteSubRun(SubRunPrincipal& srp)
 {
   FDEBUG(2) << "writeSubRun called\n";
   writeSubRun(srp);
 }
 
 void
-art::OutputModule::
-doSetRunAuxiliaryRangeSetID(RangeSet const& ranges)
+art::OutputModule::doSetRunAuxiliaryRangeSetID(RangeSet const& ranges)
 {
   FDEBUG(2) << "writeAuxiliaryRangeSets(rp) called\n";
   setRunAuxiliaryRangeSetID(ranges);
 }
 
 bool
-art::OutputModule::
-doEndRun(RunPrincipal const & rp,
-         CurrentProcessingContext const * cpc)
+art::OutputModule::doEndRun(RunPrincipal const & rp,
+                            CurrentProcessingContext const * cpc)
 {
   detail::CPCSentry sentry {current_context_, cpc};
   FDEBUG(2) << "endRun called\n";
@@ -265,16 +242,14 @@ doEndRun(RunPrincipal const & rp,
 }
 
 void
-art::OutputModule::
-doWriteRun(RunPrincipal & rp)
+art::OutputModule::doWriteRun(RunPrincipal & rp)
 {
   FDEBUG(2) << "writeRun called\n";
   writeRun(rp);
 }
 
 void
-art::OutputModule::
-doEndJob()
+art::OutputModule::doEndJob()
 {
   endJob();
   cet::for_all(plugins_, [](auto& p){ p->doEndJob(); });
@@ -288,8 +263,7 @@ art::OutputModule::doOpenFile(FileBlock const & fb)
 }
 
 void
-art::OutputModule::
-doRespondToOpenInputFile(FileBlock const & fb)
+art::OutputModule::doRespondToOpenInputFile(FileBlock const & fb)
 {
   respondToOpenInputFile(fb);
   std::unique_ptr<ResultsPrincipal> respHolder;
@@ -303,36 +277,31 @@ doRespondToOpenInputFile(FileBlock const & fb)
 }
 
 void
-art::OutputModule::
-doRespondToCloseInputFile(FileBlock const & fb)
+art::OutputModule::doRespondToCloseInputFile(FileBlock const & fb)
 {
   respondToCloseInputFile(fb);
 }
 
 void
-art::OutputModule::
-doRespondToOpenOutputFiles(FileBlock const & fb)
+art::OutputModule::doRespondToOpenOutputFiles(FileBlock const & fb)
 {
   respondToOpenOutputFiles(fb);
 }
 
 void
-art::OutputModule::
-doRespondToCloseOutputFiles(FileBlock const & fb)
+art::OutputModule::doRespondToCloseOutputFiles(FileBlock const & fb)
 {
   respondToCloseOutputFiles(fb);
 }
 
 void
-art::OutputModule::
-doCloseFile()
+art::OutputModule::doCloseFile()
 {
   if (isFileOpen()) { reallyCloseFile(); }
 }
 
 void
-art::OutputModule::
-reallyCloseFile()
+art::OutputModule::reallyCloseFile()
 {
   fillDependencyGraph();
   startEndFile();
@@ -354,8 +323,7 @@ reallyCloseFile()
 }
 
 void
-art::OutputModule::
-updateBranchParents(EventPrincipal const & ep)
+art::OutputModule::updateBranchParents(EventPrincipal const & ep)
 {
   for (auto const& groupPr : ep) {
     auto const& group = *groupPr.second;
@@ -372,8 +340,7 @@ updateBranchParents(EventPrincipal const & ep)
 }
 
 void
-art::OutputModule::
-fillDependencyGraph()
+art::OutputModule::fillDependencyGraph()
 {
   for (auto const& bp : branchParents_) {
     ProductID const child = bp.first;
@@ -390,166 +357,114 @@ fillDependencyGraph()
 }
 
 void
-art::OutputModule::
-beginJob()
-{
-}
+art::OutputModule::beginJob()
+{}
 
 void
-art::OutputModule::
-endJob()
-{
-}
+art::OutputModule::endJob()
+{}
 
 void
-art::OutputModule::
-event(EventPrincipal const&)
-{
-}
+art::OutputModule::event(EventPrincipal const&)
+{}
 
 void
-art::OutputModule::
-beginRun(RunPrincipal const &)
-{
-}
+art::OutputModule::beginRun(RunPrincipal const &)
+{}
 
 void
-art::OutputModule::
-endRun(RunPrincipal const &)
-{
-}
+art::OutputModule::endRun(RunPrincipal const &)
+{}
 
 void
-art::OutputModule::
-beginSubRun(SubRunPrincipal const &)
-{
-}
+art::OutputModule::beginSubRun(SubRunPrincipal const &)
+{}
 
 void
-art::OutputModule::
-endSubRun(SubRunPrincipal const &)
-{
-}
+art::OutputModule::endSubRun(SubRunPrincipal const &)
+{}
 
 void
-art::OutputModule::
-setRunAuxiliaryRangeSetID(RangeSet const&)
-{
-}
+art::OutputModule::setRunAuxiliaryRangeSetID(RangeSet const&)
+{}
 
 void
-art::OutputModule::
-setSubRunAuxiliaryRangeSetID(RangeSet const&)
-{
-}
+art::OutputModule::setSubRunAuxiliaryRangeSetID(RangeSet const&)
+{}
 
 void
-art::OutputModule::
-openFile(FileBlock const &)
-{
-}
+art::OutputModule::openFile(FileBlock const &)
+{}
 
 void
-art::OutputModule::
-respondToOpenInputFile(FileBlock const &)
-{
-}
+art::OutputModule::respondToOpenInputFile(FileBlock const &)
+{}
 
 void
-art::OutputModule::
-readResults(ResultsPrincipal const &)
-{
-}
+art::OutputModule::readResults(ResultsPrincipal const &)
+{}
 
 void
-art::OutputModule::
-respondToCloseInputFile(FileBlock const &)
-{
-}
+art::OutputModule::respondToCloseInputFile(FileBlock const &)
+{}
 
 void
-art::OutputModule::
-respondToOpenOutputFiles(FileBlock const &)
-{
-}
+art::OutputModule::respondToOpenOutputFiles(FileBlock const &)
+{}
 
 void
-art::OutputModule::
-respondToCloseOutputFiles(FileBlock const &)
-{
-}
+art::OutputModule::respondToCloseOutputFiles(FileBlock const &)
+{}
 
 bool
-art::OutputModule::
-isFileOpen() const
+art::OutputModule::isFileOpen() const
 {
   return true;
 }
 
 void
 art::OutputModule::setFileStatus(OutputFileStatus const)
-{
-}
+{}
 
 void
-art::OutputModule::
-startEndFile()
-{
-}
+art::OutputModule::startEndFile()
+{}
 
 void
-art::OutputModule::
-writeFileFormatVersion()
-{
-}
+art::OutputModule::writeFileFormatVersion()
+{}
 
 void
-art::OutputModule::
-writeFileIdentifier()
-{
-}
+art::OutputModule::writeFileIdentifier()
+{}
 
 void
-art::OutputModule::
-writeFileIndex()
-{
-}
+art::OutputModule::writeFileIndex()
+{}
 
 void
-art::OutputModule::
-writeEventHistory()
-{
-}
+art::OutputModule::writeEventHistory()
+{}
 
 void
-art::OutputModule::
-writeProcessConfigurationRegistry()
-{
-}
+art::OutputModule::writeProcessConfigurationRegistry()
+{}
 
 void
-art::OutputModule::
-writeProcessHistoryRegistry()
-{
-}
+art::OutputModule::writeProcessHistoryRegistry()
+{}
 
 void
-art::OutputModule::
-writeParameterSetRegistry()
-{
-}
+art::OutputModule::writeParameterSetRegistry()
+{}
 
 void
-art::OutputModule::
-writeParentageRegistry()
-{
-}
+art::OutputModule::writeParentageRegistry()
+{}
 
 void
-art::OutputModule::
-writeProductDescriptionRegistry()
-{
-}
+art::OutputModule::writeProductDescriptionRegistry()
+{}
 
 namespace {
   void
@@ -597,8 +512,7 @@ namespace {
 }
 
 void
-art::OutputModule::
-writeFileCatalogMetadata()
+art::OutputModule::writeFileCatalogMetadata()
 {
   // Obtain metadata from service for output.
   FileCatalogMetadata::collection_type md, ssmd;
@@ -618,36 +532,27 @@ writeFileCatalogMetadata()
 }
 
 void
-art::OutputModule::
-doWriteFileCatalogMetadata(FileCatalogMetadata::collection_type const &,
-                           FileCatalogMetadata::collection_type const &)
-{
-}
+art::OutputModule::doWriteFileCatalogMetadata(FileCatalogMetadata::collection_type const &,
+                                              FileCatalogMetadata::collection_type const &)
+{}
 
 void
-art::OutputModule::
-writeProductDependencies()
-{
-}
+art::OutputModule::writeProductDependencies()
+{}
 
 void
-art::OutputModule::
-writeBranchMapper()
-{
-}
+art::OutputModule::writeBranchMapper()
+{}
 
 void
-art::OutputModule::
-finishEndFile()
-{
-}
+art::OutputModule::finishEndFile()
+{}
 
 auto
-art::OutputModule::
-makePlugins_(ParameterSet const & top_pset)
+art::OutputModule::makePlugins_(ParameterSet const & top_pset)
   -> PluginCollection_t
 {
-  auto const psets = top_pset.get<vector<ParameterSet>>("FCMDPlugins", {} );
+  auto const psets = top_pset.get<vector<ParameterSet>>("FCMDPlugins", {});
   PluginCollection_t result;
   result.reserve(psets.size());
   size_t count {0};
@@ -657,8 +562,7 @@ makePlugins_(ParameterSet const & top_pset)
       auto const & libspec = pluginNames_.back();
       auto const pluginType = pluginFactory_.pluginType(libspec);
       if (pluginType == cet::PluginTypeDeducer<FileCatalogMetadataPlugin>::value) {
-        result.emplace_back(pluginFactory_.
-                            makePlugin<std::unique_ptr<FileCatalogMetadataPlugin> >(libspec, pset));
+        result.emplace_back(pluginFactory_.makePlugin<std::unique_ptr<FileCatalogMetadataPlugin>>(libspec, pset));
       } else {
         throw Exception(errors::Configuration, "OutputModule: ")
           << "unrecognized plugin type "
