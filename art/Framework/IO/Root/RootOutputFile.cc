@@ -365,48 +365,6 @@ art::RootOutputFile::RootOutputFile(OutputModule* om,
   createDatabaseTables();
 }
 
-art::RootOutputFile::OutputItem::Sorter::Sorter(TTree* tree)
-{
-  // Fill a map mapping branch names to an index specifying
-  // the order in the tree.
-  if (!tree) {
-    return;
-  }
-  auto branches = tree->GetListOfBranches();
-  for (int i = 0, sz = branches->GetEntries(); i != sz; ++i) {
-    auto br = reinterpret_cast<TBranchElement*>(branches->At(i));
-    treeMap_.emplace(string(br->GetName()), i);
-  }
-}
-
-bool
-art::RootOutputFile::OutputItem::Sorter::operator()(OutputItem const& lh, OutputItem const& rh) const
-{
-  // Provides a comparison for sorting branches according
-  // to the index values in treeMap_.  Branches not found
-  // are always put at the end, i.e. <not-found> is greater
-  // than <found>.
-  if (treeMap_.empty()) {
-    return lh < rh;
-  }
-  auto const& lname = lh.branchDescription_->branchName();
-  auto const& rname = rh.branchDescription_->branchName();
-  auto lit = treeMap_.find(lname);
-  auto rit = treeMap_.find(rname);
-  bool lfound = (lit != treeMap_.end());
-  bool rfound = (rit != treeMap_.end());
-  if (lfound && rfound) {
-    return lit->second < rit->second;
-  }
-  if (lfound) {
-    return true;
-  }
-  if (rfound) {
-    return false;
-  }
-  return lh < rh;
-}
-
 void
 art::RootOutputFile::createDatabaseTables()
 {
@@ -429,25 +387,19 @@ art::RootOutputFile::createDatabaseTables()
 }
 
 void
-art::RootOutputFile::selectProducts(FileBlock const& fb)
+art::RootOutputFile::selectProducts()
 {
   for (int i = InEvent; i < NumBranchTypes; ++i) {
     auto const bt = static_cast<BranchType>(i);
     auto& items = selectedOutputItemList_[bt];
-    for (auto const& val : items) {
-      treePointers_[bt]->resetOutputBranchAddress(*val.branchDescription_);
+
+    for (auto const& pd : om_->keptProducts()[bt]) {
+      // Persist Results products only if they have been produced by
+      // the current process.
+      if (bt == InResults && !pd->produced()) continue;
+      items.emplace(pd);
     }
-    items.clear();
-    for (auto const& bd : om_->keptProducts()[bt]) {
-      if ((bt < InResults) || bd->produced()) {
-        items.emplace_back(bd);
-      }
-    }
-    if ((bt == InEvent) && (fb.tree() != nullptr)) {
-      // Only care about sorting event tree because that's the only one
-      // we might fast clone.
-      cet::sort_all(items, OutputItem::Sorter{fb.tree()});
-    }
+
     for (auto const& val : items) {
       treePointers_[bt]->addOutputBranch(*val.branchDescription_, val.product_);
     }
@@ -455,12 +407,12 @@ art::RootOutputFile::selectProducts(FileBlock const& fb)
 }
 
 void
-art::RootOutputFile::beginInputFile(FileBlock const& fb, bool fastCloneFromOutputModule)
+art::RootOutputFile::beginInputFile(FileBlock const& fb, bool const fastCloneFromOutputModule)
 {
   bool shouldFastClone {fastCloningEnabledAtConstruction_ && fastCloneFromOutputModule};
   // Create output branches, and then redo calculation to determine if
   // fast cloning should be done.
-  selectProducts(fb);
+  selectProducts();
   if (shouldFastClone &&
       !treePointers_[InEvent]->checkSplitLevelAndBasketSize(fb.tree())) {
     mf::LogWarning("FastCloning")

@@ -1,13 +1,8 @@
 art_dictionary(NO_INSTALL)
 
 #================================================================
-# Product-shape testing (event products)
+# Data container (e.g. Run, Event) shape testing
 #================================================================
-#
-# FIXME: For art processes that write output files, each input file
-#        must contain the SAME set of products.  Namely, a second
-#        input file with fewer products in it will result in an
-#        exception thrown.
 
 cet_test(DifferentHistories_ProcessA_w HANDBUILT
   TEST_EXEC art_ut
@@ -17,7 +12,7 @@ cet_test(DifferentHistories_ProcessA_w HANDBUILT
 
 cet_test(DifferentHistories_ProcessB_w1 HANDBUILT
   TEST_EXEC art_ut
-  TEST_ARGS -- -c empty.fcl --process-name EMPTY -n 1 -o out.root
+  TEST_ARGS -- -c empty.fcl --process-name EMPTY -n 1 -e 2 -o out.root
   DATAFILES
   fcl/empty.fcl)
 
@@ -32,6 +27,8 @@ cet_test(DifferentHistories_ProcessB_w2 HANDBUILT
   fcl/produce.fcl
   TEST_PROPERTIES DEPENDS DifferentHistories_ProcessB_w1)
 
+# Check that inconsistently produced files can be read in the same
+# job, specifically de-referencing art::Ptrs in events and subruns.
 cet_test(DifferentHistories_r1 HANDBUILT
   TEST_EXEC art_ut
   TEST_ARGS --
@@ -41,7 +38,9 @@ cet_test(DifferentHistories_r1 HANDBUILT
   DATAFILES
   fcl/analyze.fcl)
 
-# Test writing out resulting products to output file
+# Check that inconsistently produced files can not only be read in the
+# same job (DifferentHistories_r1), but that the products therein can
+# be persisted to an output file.
 cet_test(DifferentHistories_r2 HANDBUILT
   TEST_EXEC art_ut
   TEST_ARGS --
@@ -52,12 +51,24 @@ cet_test(DifferentHistories_r2 HANDBUILT
   DATAFILES
   fcl/analyze.fcl)
 
+# Verify that the correct presence bits are set in the output of
+# DifferentHistories_r2.  To wit, any event products that were
+# produced with ProcA will have no products produced via ProcB, and
+# vice versa.
+cet_test(DifferentHistories_r3 HANDBUILT
+  TEST_EXEC art_ut
+  TEST_ARGS --
+  -c analyze_concatenated_histories.fcl
+  -s ../DifferentHistories_r2.d/out.root
+  DATAFILES
+  fcl/analyze_concatenated_histories.fcl
+  TEST_PROPERTIES DEPENDS DifferentHistories_r2)
+
 set_tests_properties(DifferentHistories_r1 PROPERTIES
   DEPENDS "DifferentHistories_ProcessA_w;DifferentHistories_ProcessB_w2")
 
 set_tests_properties(DifferentHistories_r2 PROPERTIES
-  DEPENDS "DifferentHistories_ProcessA_w;DifferentHistories_ProcessB_w2"
-  PASS_REGULAR_EXPRESSION "FatalRootError")
+  DEPENDS "DifferentHistories_ProcessA_w;DifferentHistories_ProcessB_w2")
 
 #============================================================================
 # More consistency checks, just for Event-level products, also testing

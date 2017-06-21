@@ -1,0 +1,6 @@
+physics.analyzers.a1: {
+  module_type: DifferentHistoriesAnalyzer
+  input_label: p1
+  process_names: [ProcA, ProcB]
+}
+physics.path: [a1]

@@ -200,11 +200,12 @@ namespace art {
     if (auto br = tree_->GetBranch(bd.branchName().c_str())) {
       // Already have this branch, possibly update the branch address.
       if (pProd == nullptr) {
-        // The OutputItem is freshly constructed and has not been passed
-        // to SetAddress yet.  If selectProducts has just been called,
-        // we get here just after the branch object has been deleted
-        // with a ResetBranchAddress() to prepare for the OutputItem
-        // being replaced, and the OutputItem has just been recreated.
+        // The OutputItem is freshly constructed and has not been
+        // passed to SetAddress yet.  If selectProducts has just been
+        // called, we get here just after the branch object has been
+        // deleted with a ResetBranchAddress() to prepare for the
+        // OutputItem being replaced, and the OutputItem has just been
+        // recreated.
         auto prod = reinterpret_cast<EDProduct*>(cls->New());
         pProd = prod;
         br->SetAddress(&pProd);
@@ -230,20 +231,14 @@ namespace art {
     TBranch* branch = tree_->Branch(bd.branchName().c_str(),
                                     bd.wrappedName().c_str(),
                                     &pProd, bsize, splitlvl);
-    //TBranch* branch = tree_->Branch(bd.branchName().c_str(),
-    //                                bd.wrappedName().c_str(),
-    //                                nullptr, bsize, splitlvl);
-    // Note that root will have just allocated a dummy product
-    // as the I/O buffer for the branch we have created.  We will
-    // replace this I/O buffer in RootOutputFile::fillBranches()
-    // with the actual product or our own dummy using
+
+    // Note that root will have just allocated a dummy product as the
+    // I/O buffer for the branch we have created.  We will replace
+    // this I/O buffer in RootOutputFile::fillBranches() with the
+    // actual product or our own dummy using
     // TBranchElement::SetAddress(), which will cause root to
     // automatically delete the dummy product it allocated here.
-    //if (pProd == nullptr) {
-    //  throw art::Exception(art::errors::FatalRootError)
-    //      << "OutputItem product pointer is a nullptr, branch"
-    //      << "creation failed to allocate an I/O buffer!\n";
-    //}
+
     pProd = nullptr;
     delete prod;
     if (bd.compression() != BranchDescription::invalidCompression) {

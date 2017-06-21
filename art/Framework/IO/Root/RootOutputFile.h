@@ -24,6 +24,7 @@
 #include <array>
 #include <map>
 #include <memory>
+#include <set>
 #include <string>
 #include <vector>
 
@@ -56,18 +57,6 @@ public: // TYPES
     BranchDescription const* branchDescription_ {nullptr};
     mutable void const* product_ {nullptr};
 
-    class Sorter {
-    public:
-
-      explicit Sorter(TTree* tree);
-      bool operator()(OutputItem const& lh, OutputItem const& rh) const;
-
-    private:
-
-      // Maps branch name to branch list index.
-      std::map<std::string, int> treeMap_;
-    };
-
     explicit OutputItem(BranchDescription const* bd)
       : branchDescription_{bd}
     {}
@@ -84,9 +73,8 @@ public: // TYPES
 
   };
 
-  using OutputItemList = std::vector<OutputItem>;
-
-  using OutputItemListArray =  std::array<OutputItemList, NumBranchTypes>;
+  using OutputItemList = std::set<OutputItem>;
+  using OutputItemListArray = std::array<OutputItemList, NumBranchTypes>;
 
 public: // MEMBER FUNCTIONS
 
@@ -128,7 +116,7 @@ public: // MEMBER FUNCTIONS
   bool requestsToCloseFile();
   void setFileStatus(OutputFileStatus const ofs) { status_ = ofs; }
 
-  void selectProducts(FileBlock const&);
+  void selectProducts();
 
   std::string const& currentFileName() const { return file_; }
 

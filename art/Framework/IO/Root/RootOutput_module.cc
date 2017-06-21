@@ -183,8 +183,7 @@ private:
   RPManager rpm_;
 };
 
-art::RootOutput::
-RootOutput(Parameters const& config)
+art::RootOutput::RootOutput(Parameters const& config)
   : OutputModule{config().omConfig, config.get_PSet()}
   , catalog_{config().catalog()}
   , dropAllSubRuns_{config().dropAllSubRuns()}
@@ -226,13 +225,11 @@ RootOutput(Parameters const& config)
 }
 
 void
-art::RootOutput::
-openFile(FileBlock const& fb)
+art::RootOutput::openFile(FileBlock const& fb)
 {
-  // Note: The file block here refers to the currently open
-  //       input file, so we can find out about the available
-  //       products by looping over the branches of the input
-  //       file data trees.
+  // Note: The file block here refers to the currently open input
+  //       file, so we can find out about the available products by
+  //       looping over the branches of the input file data trees.
   if (!isFileOpen()) {
     doOpenFile();
     respondToOpenInputFile(fb);
@@ -240,17 +237,15 @@ openFile(FileBlock const& fb)
 }
 
 void
-art::RootOutput::
-postSelectProducts(FileBlock const& fb)
+art::RootOutput::postSelectProducts(FileBlock const&)
 {
   if (isFileOpen()) {
-    rootOutputFile_->selectProducts(fb);
+    rootOutputFile_->selectProducts();
   }
 }
 
 void
-art::RootOutput::
-respondToOpenInputFile(FileBlock const& fb)
+art::RootOutput::respondToOpenInputFile(FileBlock const& fb)
 {
   ++inputFileCount_;
   if (!isFileOpen()) return;
@@ -274,8 +269,7 @@ respondToOpenInputFile(FileBlock const& fb)
 }
 
 void
-art::RootOutput::
-readResults(ResultsPrincipal const& resp)
+art::RootOutput::readResults(ResultsPrincipal const& resp)
 {
   rpm_.for_each_RPWorker([&resp](RPWorker& w) {
       Results const res {resp, w.moduleDescription()};
@@ -284,8 +278,7 @@ readResults(ResultsPrincipal const& resp)
 }
 
 void
-art::RootOutput::
-respondToCloseInputFile(FileBlock const& fb)
+art::RootOutput::respondToCloseInputFile(FileBlock const& fb)
 {
   if (isFileOpen()) {
     rootOutputFile_->respondToCloseInputFile(fb);
@@ -293,8 +286,7 @@ respondToCloseInputFile(FileBlock const& fb)
 }
 
 void
-art::RootOutput::
-write(EventPrincipal& ep)
+art::RootOutput::write(EventPrincipal& ep)
 {
   if (dropAllEvents_) {
     return;
@@ -307,15 +299,13 @@ write(EventPrincipal& ep)
 }
 
 void
-art::RootOutput::
-setSubRunAuxiliaryRangeSetID(RangeSet const& rs)
+art::RootOutput::setSubRunAuxiliaryRangeSetID(RangeSet const& rs)
 {
   rootOutputFile_->setSubRunAuxiliaryRangeSetID(rs);
 }
 
 void
-art::RootOutput::
-writeSubRun(SubRunPrincipal& sr)
+art::RootOutput::writeSubRun(SubRunPrincipal& sr)
 {
   if (dropAllSubRuns_) {
     return;
@@ -328,15 +318,13 @@ writeSubRun(SubRunPrincipal& sr)
 }
 
 void
-art::RootOutput::
-setRunAuxiliaryRangeSetID(RangeSet const& rs)
+art::RootOutput::setRunAuxiliaryRangeSetID(RangeSet const& rs)
 {
   rootOutputFile_->setRunAuxiliaryRangeSetID(rs);
 }
 
 void
-art::RootOutput::
-writeRun(RunPrincipal& r)
+art::RootOutput::writeRun(RunPrincipal& r)
 {
   if (hasNewlyDroppedBranch()[InRun]) {
     r.addToProcessHistory();
@@ -346,8 +334,7 @@ writeRun(RunPrincipal& r)
 }
 
 void
-art::RootOutput::
-startEndFile()
+art::RootOutput::startEndFile()
 {
   auto resp = std::make_unique<ResultsPrincipal>(ResultsAuxiliary{},
                                                  description().processConfiguration());
@@ -363,43 +350,37 @@ startEndFile()
 }
 
 void
-art::RootOutput::
-writeFileFormatVersion()
+art::RootOutput::writeFileFormatVersion()
 {
   rootOutputFile_->writeFileFormatVersion();
 }
 
 void
-art::RootOutput::
-writeFileIndex()
+art::RootOutput::writeFileIndex()
 {
   rootOutputFile_->writeFileIndex();
 }
 
 void
-art::RootOutput::
-writeEventHistory()
+art::RootOutput::writeEventHistory()
 {
   rootOutputFile_->writeEventHistory();
 }
 
 void
-art::RootOutput::
-writeProcessConfigurationRegistry()
+art::RootOutput::writeProcessConfigurationRegistry()
 {
   rootOutputFile_->writeProcessConfigurationRegistry();
 }
 
 void
-art::RootOutput::
-writeProcessHistoryRegistry()
+art::RootOutput::writeProcessHistoryRegistry()
 {
   rootOutputFile_->writeProcessHistoryRegistry();
 }
 
 void
-art::RootOutput::
-writeParameterSetRegistry()
+art::RootOutput::writeParameterSetRegistry()
 {
   if (writeParameterSets_) {
     rootOutputFile_->writeParameterSetRegistry();
@@ -407,22 +388,19 @@ writeParameterSetRegistry()
 }
 
 void
-art::RootOutput::
-writeProductDescriptionRegistry()
+art::RootOutput::writeProductDescriptionRegistry()
 {
   rootOutputFile_->writeProductDescriptionRegistry();
 }
 
 void
-art::RootOutput::
-writeParentageRegistry()
+art::RootOutput::writeParentageRegistry()
 {
   rootOutputFile_->writeParentageRegistry();
 }
 
 void
-art::RootOutput::
-doWriteFileCatalogMetadata(FileCatalogMetadata::collection_type const& md,
+art::RootOutput::doWriteFileCatalogMetadata(FileCatalogMetadata::collection_type const& md,
                            FileCatalogMetadata::collection_type const& ssmd)
 {
   rootOutputFile_->writeFileCatalogMetadata(fstats_, md, ssmd);
@@ -447,8 +425,7 @@ art::RootOutput::finishEndFile()
 }
 
 void
-art::RootOutput::
-doRegisterProducts(MasterProductRegistry& mpr,
+art::RootOutput::doRegisterProducts(MasterProductRegistry& mpr,
                    ModuleDescription const& md)
 {
   // Register Results products from ResultsProducers.
@@ -471,8 +448,7 @@ art::RootOutput::setFileStatus(OutputFileStatus const ofs)
 }
 
 bool
-art::RootOutput::
-isFileOpen() const
+art::RootOutput::isFileOpen() const
 {
   return rootOutputFile_.get() != nullptr;
 }
@@ -485,22 +461,19 @@ art::RootOutput::incrementInputFileNumber()
 }
 
 bool
-art::RootOutput::
-requestsToCloseFile() const
+art::RootOutput::requestsToCloseFile() const
 {
   return isFileOpen() ? rootOutputFile_->requestsToCloseFile() : false;
 }
 
 art::Granularity
-art::RootOutput::
-fileGranularity() const
+art::RootOutput::fileGranularity() const
 {
   return fileProperties_.granularity();
 }
 
 void
-art::RootOutput::
-doOpenFile()
+art::RootOutput::doOpenFile()
 {
   if (inputFileCount_ == 0) {
     throw art::Exception(art::errors::LogicError)
@@ -523,8 +496,7 @@ doOpenFile()
 }
 
 string const&
-art::RootOutput::
-lastClosedFileName() const
+art::RootOutput::lastClosedFileName() const
 {
   if (lastClosedFileName_.empty()) {
     throw Exception(errors::LogicError, "RootOutput::currentFileName(): ")
@@ -534,22 +506,19 @@ lastClosedFileName() const
 }
 
 void
-art::RootOutput::
-beginJob()
+art::RootOutput::beginJob()
 {
   rpm_.invoke(&ResultsProducer::doBeginJob);
 }
 
 void
-art::RootOutput::
-endJob()
+art::RootOutput::endJob()
 {
   rpm_.invoke(&ResultsProducer::doEndJob);
 }
 
 void
-art::RootOutput::
-event(EventPrincipal const& ep)
+art::RootOutput::event(EventPrincipal const& ep)
 {
   rpm_.for_each_RPWorker([&ep](RPWorker& w) {
       Event const e {ep, w.moduleDescription()};
@@ -558,8 +527,7 @@ event(EventPrincipal const& ep)
 }
 
 void
-art::RootOutput::
-beginSubRun(art::SubRunPrincipal const& srp)
+art::RootOutput::beginSubRun(art::SubRunPrincipal const& srp)
 {
   rpm_.for_each_RPWorker([&srp](RPWorker& w) {
       SubRun const sr {srp, w.moduleDescription()};
@@ -568,8 +536,7 @@ beginSubRun(art::SubRunPrincipal const& srp)
 }
 
 void
-art::RootOutput::
-endSubRun(art::SubRunPrincipal const& srp)
+art::RootOutput::endSubRun(art::SubRunPrincipal const& srp)
 {
   rpm_.for_each_RPWorker([&srp](RPWorker& w) {
       SubRun const sr {srp, w.moduleDescription()};
@@ -578,8 +545,7 @@ endSubRun(art::SubRunPrincipal const& srp)
 }
 
 void
-art::RootOutput::
-beginRun(art::RunPrincipal const& rp)
+art::RootOutput::beginRun(art::RunPrincipal const& rp)
 {
   rpm_.for_each_RPWorker([&rp](RPWorker& w) {
       Run const r {rp, w.moduleDescription()};
@@ -588,8 +554,7 @@ beginRun(art::RunPrincipal const& rp)
 }
 
 void
-art::RootOutput::
-endRun(art::RunPrincipal const& rp)
+art::RootOutput::endRun(art::RunPrincipal const& rp)
 {
   rpm_.for_each_RPWorker([&rp](RPWorker& w) {
       Run const r {rp, w.moduleDescription()};
