@@ -11,6 +11,7 @@
 // ======================================================================
 
 #include "art/Framework/Principal/DataViewImpl.h"
+#include "art/Framework/Principal/ProductInfo.h"
 #include "art/Framework/Principal/Run.h"
 #include "art/Framework/Principal/fwd.h"
 #include "art/Utilities/ProductTokens.h"
@@ -23,6 +24,10 @@
 #include <memory>
 #include <utility>
 
+namespace art {
+  class ConsumesRecorder;
+}
+
 class art::SubRun final : private art::DataViewImpl {
 public:
 
@@ -30,6 +35,7 @@ public:
 
   SubRun(SubRunPrincipal const& srp,
          ModuleDescription const& md,
+         ConsumesRecorder& consumesRecorder,
          RangeSet const& rsForPuttingProducts = RangeSet::invalid());
 
   SubRunNumber_t subRun() const {return aux_.subRun();}

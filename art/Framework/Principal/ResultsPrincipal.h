@@ -37,7 +37,7 @@ public:
                    int const idx = 0,
                    cet::exempt_ptr<ResultsPrincipal const> = nullptr);
 
-  ResultsAuxiliary const & aux() const { return aux_; }
+  ResultsAuxiliary const& aux() const { return aux_; }
 
   void put(std::unique_ptr<EDProduct>&&,
            BranchDescription const&,

@@ -7,27 +7,26 @@
 // from art v0_07_12.
 ////////////////////////////////////////////////////////////////////////
 
+#include "cetlib/quiet_unit_test.hpp"
 #include "art/Framework/Core/EDAnalyzer.h"
+#include "art/Framework/Core/ModuleMacros.h"
+#include "art/Framework/Principal/Event.h"
+#include "art/Framework/Principal/View.h"
+#include "art/test/TestObjects/AssnTestData.h"
 #include "canvas/Persistency/Common/FindMany.h"
 #include "canvas/Persistency/Common/FindManyP.h"
 #include "canvas/Persistency/Common/FindOne.h"
 #include "canvas/Persistency/Common/FindOneP.h"
-#include "art/Framework/Core/ModuleMacros.h"
-#include "art/Framework/Principal/Event.h"
-#include "art/Framework/Principal/View.h"
 #include "canvas/Persistency/Common/Assns.h"
 #include "canvas/Persistency/Common/Ptr.h"
 #include "canvas/Persistency/Common/PtrVector.h"
 #include "canvas/Utilities/InputTag.h"
 #include "cetlib/maybe_ref.h"
-#include "art/test/TestObjects/AssnTestData.h"
 
-#include "cetlib/quiet_unit_test.hpp"
 #include "boost/type_traits.hpp"
 
-#include <type_traits>
-
 #include <iostream>
+#include <type_traits>
 
 namespace arttest {
    class AssnsReaderTest;
@@ -62,6 +61,8 @@ namespace {
   typedef art::Assns<std::string, size_t> AssnsBAV_t;
 }
 
+using namespace std::string_literals;
+
 arttest::AssnsReaderTest::
 AssnsReaderTest(fhicl::ParameterSet const & ps)
   : art::EDAnalyzer(ps)
@@ -72,6 +73,28 @@ AssnsReaderTest(fhicl::ParameterSet const & ps)
   , wantMany_(ps.get<bool>("wantMany", true))
   , wantAmbiguous_(ps.get<bool>("wantAmbiguous", false))
 {
+  consumes<AssnsABV_t>(inputLabel_);
+  consumes<AssnsBAV_t>(inputLabel_);
+  consumes<AssnsABV_t>({inputLabel_, "many"s});
+  consumes<AssnsBAV_t>({inputLabel_, "many"s});
+  consumes<AssnsABV_t>({inputLabel_, "mapvec"s});
+  consumes<AssnsBAV_t>({inputLabel_, "mapvec"s});
+  consumes<AssnsABV_t>({inputLabel_, "manymapvec"s});
+  consumes<AssnsBAV_t>({inputLabel_, "manymapvec"s});
+
+  consumes<AssnsABX_t>(inputLabel_);
+  consumes<AssnsBAX_t>(inputLabel_);
+  consumes<AssnsABX_t>({inputLabel_, "many"s});
+  consumes<AssnsBAX_t>({inputLabel_, "many"s});
+  consumes<AssnsABX_t>({inputLabel_, "mapvec"s});
+  consumes<AssnsBAX_t>({inputLabel_, "mapvec"s});
+  consumes<AssnsABX_t>({inputLabel_, "manymapvec"s});
+  consumes<AssnsBAX_t>({inputLabel_, "manymapvec"s});
+
+  consumesMany<AssnsABV_t>();
+  consumesMany<AssnsBAV_t>();
+  consumesMany<AssnsABX_t>();
+  consumesMany<AssnsBAX_t>();
 }
 
 namespace {
@@ -128,7 +151,6 @@ namespace {
 void
 arttest::AssnsReaderTest::analyze(art::Event const & e)
 {
-  using namespace std::string_literals;
   std::size_t const vSize = (wantVoid_ == "ALL"s) ? 4ull : 3ull;
   std::size_t const mvVSize = (wantVoid_ != "NONE"s) ? 4ull : 3ull;
 

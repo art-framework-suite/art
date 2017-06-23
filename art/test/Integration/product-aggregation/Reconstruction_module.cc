@@ -47,9 +47,9 @@ namespace {
 
     bool filter(art::Event& e) override
     {
-      auto const& particleEnergies = e.getValidHandle<std::vector<double>>(inputTag_);
-      bool const pass = std::any_of(particleEnergies->cbegin(),
-                                    particleEnergies->cend(),
+      auto const& particleEnergies = e.getByLabel<std::vector<double>>(inputTag_);
+      bool const pass = std::any_of(particleEnergies.cbegin(),
+                                    particleEnergies.cend(),
                                     [this](double const energy){
                                       return energy >= threshold_;
                                     });

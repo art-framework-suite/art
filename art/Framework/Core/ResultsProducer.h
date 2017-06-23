@@ -100,7 +100,7 @@ class art::ResultsProducer : ProductRegistryHelper {
 protected:
   template <class P>
   void
-  produces(std::string const & instanceName = std::string());
+  produces(std::string const& instanceName = {});
 
 public:
   virtual ~ResultsProducer() = default;

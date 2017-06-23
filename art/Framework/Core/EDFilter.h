@@ -10,11 +10,11 @@
 //
 // ======================================================================
 
-#include "art/Framework/Core/ConsumerBase.h"
 #include "art/Framework/Core/EngineCreator.h"
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/ProducerBase.h"
 #include "art/Framework/Core/WorkerT.h"
+#include "art/Framework/Principal/ConsumesRecorder.h"
 #include "art/Framework/Principal/fwd.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
 #include "canvas/Persistency/Provenance/RangeSet.h"
@@ -29,12 +29,11 @@ namespace art
 {
 
   class EDFilter : public ProducerBase,
-                   public ConsumerBase,
                    public EngineCreator
   {
   public:
-    static constexpr bool Pass {true};
-    static constexpr bool Fail {false};
+    static constexpr bool Pass{true};
+    static constexpr bool Fail{false};
 
     template <typename T> friend class WorkerT;
     using ModuleType = EDFilter;
@@ -50,6 +49,13 @@ namespace art
     using Table = ProducerBase::Table<UserConfig>;
 
   protected:
+
+    template <typename T, BranchType BT = InEvent>
+    void consumes(InputTag const& it) { consumesRecorder_.consumes<T, BT>(it); }
+
+    template <typename T, BranchType BT = InEvent>
+    void consumesMany() { consumesRecorder_.consumesMany<T, BT>(); }
+
     // The returned pointer will be null unless the this is currently
     // executing its event loop function ('filter').
     CurrentProcessingContext const* currentContext() const;
@@ -89,9 +95,10 @@ namespace art
       moduleDescription_ = md;
     }
 
-    ModuleDescription moduleDescription_ {};
-    CPC_exempt_ptr current_context_ {nullptr};
-    bool checkPutProducts_ {true};
+    ConsumesRecorder consumesRecorder_{};
+    ModuleDescription moduleDescription_{};
+    CPC_exempt_ptr current_context_{nullptr};
+    bool checkPutProducts_{true};
   };  // EDFilter
 
   template <typename PROD, BranchType B>

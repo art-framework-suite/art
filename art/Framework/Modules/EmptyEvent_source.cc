@@ -124,26 +124,27 @@ art::EmptyEvent::EmptyEvent(art::EmptyEvent::Parameters const& config, InputSour
   eventCreationDelay_      {config().eventCreationDelay()},
   resetEventOnSubRun_      {config().resetEventOnSubRun()},
   plugin_                  {makePlugin_(config.get_PSet().get<fhicl::ParameterSet>("timestampPlugin", { }))}
-  {
+{
 
-    RunNumber_t firstRun{};
-    bool haveFirstRun = config().firstRun(firstRun);
-    SubRunNumber_t firstSubRun{};
-    bool haveFirstSubRun = config().firstSubRun(firstSubRun);
-    EventNumber_t firstEvent{};
-    bool haveFirstEvent = config().firstEvent(firstEvent);
-    RunID firstRunID = haveFirstRun?RunID(firstRun):RunID::firstRun();
-    SubRunID firstSubRunID = haveFirstSubRun?SubRunID(firstRunID.run(), firstSubRun):
-      SubRunID::firstSubRun(firstRunID);
-    origEventID_ = haveFirstEvent?EventID(firstSubRunID.run(),
-                                          firstSubRunID.subRun(),
-                                          firstEvent):
-      EventID::firstEvent(firstSubRunID);
-    eventID_ = origEventID_;
-  }
+  RunNumber_t firstRun{};
+  bool haveFirstRun = config().firstRun(firstRun);
+  SubRunNumber_t firstSubRun{};
+  bool haveFirstSubRun = config().firstSubRun(firstSubRun);
+  EventNumber_t firstEvent{};
+  bool haveFirstEvent = config().firstEvent(firstEvent);
+  RunID firstRunID = haveFirstRun?RunID(firstRun):RunID::firstRun();
+  SubRunID firstSubRunID = haveFirstSubRun?SubRunID(firstRunID.run(), firstSubRun):
+    SubRunID::firstSubRun(firstRunID);
+  origEventID_ = haveFirstEvent?EventID(firstSubRunID.run(),
+                                        firstSubRunID.subRun(),
+                                        firstEvent):
+    EventID::firstEvent(firstSubRunID);
+  eventID_ = origEventID_;
+}
 
 std::unique_ptr<RunPrincipal>
-art::EmptyEvent::readRun_() {
+art::EmptyEvent::readRun_()
+{
   auto ts = plugin_ ?
     plugin_->doBeginRunTimestamp(eventID_.runID()) :
     Timestamp::invalidTimestamp();
@@ -151,7 +152,7 @@ art::EmptyEvent::readRun_() {
   newRun_ = false;
   auto rp_ptr = std::make_unique<RunPrincipal>(runAux, processConfiguration());
   if (plugin_) {
-    Run const r {*rp_ptr, moduleDescription()};
+    Run const r {*rp_ptr, moduleDescription(), ConsumesRecorder::invalid()};
     plugin_->doBeginRun(r);
   }
   return rp_ptr;
@@ -164,7 +165,8 @@ art::EmptyEvent::runRangeSetHandler()
 }
 
 std::unique_ptr<SubRunPrincipal>
-EmptyEvent::readSubRun_() {
+EmptyEvent::readSubRun_()
+{
   if (processingMode() == Runs) return std::unique_ptr<SubRunPrincipal>{nullptr};
   auto ts = plugin_ ?
     plugin_->doBeginSubRunTimestamp(eventID_.subRunID()) :
@@ -172,7 +174,7 @@ EmptyEvent::readSubRun_() {
   SubRunAuxiliary const subRunAux {eventID_.subRunID(), ts, Timestamp::invalidTimestamp()};
   auto srp_ptr = std::make_unique<SubRunPrincipal>(subRunAux, processConfiguration());
   if (plugin_) {
-    SubRun const sr {*srp_ptr, moduleDescription()};
+    SubRun const sr {*srp_ptr, moduleDescription(), ConsumesRecorder::invalid()};
     plugin_->doBeginSubRun(sr);
   }
   newSubRun_ = false;

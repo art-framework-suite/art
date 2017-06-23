@@ -43,6 +43,8 @@
 
 #include "art/Framework/Principal/fwd.h"
 #include "art/Framework/Principal/Handle.h"
+#include "art/Framework/Principal/ConsumesRecorder.h"
+#include "art/Framework/Principal/ProductInfo.h"
 #include "art/Framework/Principal/Selector.h"
 #include "art/Persistency/Common/GroupQueryResult.h"
 #include "art/Persistency/Common/fwd.h"
@@ -58,6 +60,7 @@
 
 #include <ostream>
 #include <memory>
+#include <set>
 #include <string>
 #include <utility>
 #include <vector>
@@ -77,7 +80,8 @@ public:
   explicit DataViewImpl(Principal const& p,
                         ModuleDescription const& md,
                         BranchType bt,
-                        bool recordParents);
+                        bool recordParents,
+                        ConsumesRecorder& consumesRecorder);
 
   size_t size() const;
 
@@ -171,17 +175,25 @@ public:
     RangeSet rs;
   };
 
+  using RetrievedProductIDs = std::vector<ProductID>;
   using RetrievedProductSet = std::set<ProductID>;
   using TypeLabelMap = std::map<TypeLabel, PMValue>;
 
 protected:
 
-  void addToGotProductIDs(Provenance const& prov) const;
+  void recordAsParent(Provenance const& prov) const;
 
-  TypeLabelMap      & putProducts()       {return putProducts_;}
+  TypeLabelMap&       putProducts()       {return putProducts_;}
   TypeLabelMap const& putProducts() const {return putProducts_;}
 
-  RetrievedProductSet& retrievedProducts() {return gotProductIDs_;}
+  // Return the map of products that was retrieved via get*.  The
+  // retrievedProducts_ member is used to form the sequence of
+  // BranchIDs that serve as the "parents" to any put products.
+  RetrievedProductSet const& retrievedProducts() const {return retrievedProducts_;}
+
+  // Convert the retrievedProducts_ member to just the sequence of
+  // BranchIDs corresponding to product parents.
+  RetrievedProductIDs retrievedProductIDs() const;
 
   void
   checkPutProducts(bool checkProducts,
@@ -266,21 +278,25 @@ private:
   // which do not logically modify the DataViewImpl. gotProductIDs_ is
   // merely a cache reflecting what has been retrieved from the
   // Principal class.
-  mutable RetrievedProductSet gotProductIDs_{};
+  mutable RetrievedProductSet retrievedProducts_{};
 
   // Each DataViewImpl must have an associated Principal, used as the
   // source of all 'gets' and the target of 'puts'.
   Principal const& principal_;
 
-  // Each DataViewImpl must have a description of the module executing the
-  // "transaction" which the DataViewImpl represents.
+  // Each DataViewImpl must have a description of the module executing
+  // the "transaction" which the DataViewImpl represents.
   ModuleDescription const& md_;
 
   // Is this an Event, a SubRun, or a Run.
   BranchType const branchType_;
 
-  // Should we record the parents of the products put into the event.
+  // Should we record the parents for any products that will be put.
   bool const recordParents_;
+
+  // FIXME: Consumes stuff
+  bool const requireConsumes_{false};
+  ConsumesRecorder& consumesRecorder_;
 };
 
 template <typename PROD>
@@ -302,11 +318,11 @@ art::DataViewImpl::get(SelectorBase const& sel,
                        Handle<PROD>& result) const
 {
   result.clear(); // Is this the correct thing to do if an exception is thrown?
-  GroupQueryResult bh = get_(TypeID{typeid(PROD)},sel);
+  GroupQueryResult bh = get_(TypeID{typeid(PROD)}, sel);
   convert_handle(bh, result);
   bool const ok{bh.succeeded() && !result.failedToGet()};
   if (recordParents_ && ok) {
-    addToGotProductIDs(*result.provenance());
+    recordAsParent(*result.provenance());
   }
   return ok;
 }
@@ -320,7 +336,7 @@ art::DataViewImpl::get(ProductID const pid, Handle<PROD>& result) const
   convert_handle(bh, result);
   bool const ok{bh.succeeded() && !result.failedToGet()};
   if (recordParents_ && ok) {
-    addToGotProductIDs(*result.provenance());
+    recordAsParent(*result.provenance());
   }
   return ok;
 }
@@ -352,11 +368,14 @@ art::DataViewImpl::getByLabel(std::string const& label,
                               Handle<PROD>& result) const
 {
   result.clear(); // Is this the correct thing to do if an exception is thrown?
-  GroupQueryResult bh = getByLabel_(TypeID{typeid(PROD)}, label, productInstanceName, processName);
+  TypeID const tid{typeid(PROD)};
+  ProductInfo const pinfo{tid, label, productInstanceName, processName};
+  consumesRecorder_.validateConsumedProduct(branchType_, pinfo);
+  GroupQueryResult bh = getByLabel_(tid, label, productInstanceName, processName);
   convert_handle(bh, result);
   bool const ok{bh.succeeded() && !result.failedToGet()};
   if (recordParents_ && ok) {
-    addToGotProductIDs(*result.provenance());
+    recordAsParent(*result.provenance());
   }
   return ok;
 }
@@ -367,7 +386,7 @@ inline
 PROD const&
 art::DataViewImpl::getByLabel(InputTag const& tag) const
 {
-  art::Handle<PROD> h;
+  Handle<PROD> h;
   getByLabel(tag, h);
   return *h;
 }
@@ -377,7 +396,7 @@ inline
 PROD const*
 art::DataViewImpl::getPointerByLabel(InputTag const& tag) const
 {
-  art::Handle<PROD> h;
+  Handle<PROD> h;
   getByLabel(tag, h);
   return &(*h);
 }
@@ -387,9 +406,9 @@ inline
 art::ValidHandle<PROD>
 art::DataViewImpl::getValidHandle(InputTag const& tag) const
 {
-  art::Handle<PROD> h;
+  Handle<PROD> h;
   getByLabel(tag, h);
-  return art::ValidHandle<PROD>(&(*h), *h.provenance());
+  return ValidHandle<PROD>(&(*h), *h.provenance());
 }
 
 template <typename PROD>
@@ -398,8 +417,10 @@ void
 art::DataViewImpl::getMany(SelectorBase const& sel,
                            std::vector<Handle<PROD>>& results) const
 {
+  TypeID const tid{typeid(PROD)};
+  consumesRecorder_.validateConsumedProduct(branchType_, ProductInfo{tid});
   GroupQueryResultVec bhv;
-  getMany_(TypeID{typeid(PROD)}, sel, bhv);
+  getMany_(tid, sel, bhv);
 
   std::vector<Handle<PROD>> products;
   for (auto const& qr : bhv) {
@@ -412,7 +433,7 @@ art::DataViewImpl::getMany(SelectorBase const& sel,
   if (!recordParents_) return;
 
   for (auto const& h : results)
-    addToGotProductIDs(*h.provenance());
+    recordAsParent(*h.provenance());
 }
 
 template <typename PROD>
@@ -523,7 +544,7 @@ art::DataViewImpl::fillView_(GroupQueryResult& bh,
 {
   std::vector<void const*> erased_ptrs;
   bh.result()->uniqueProduct()->fillView(erased_ptrs);
-  addToGotProductIDs(Provenance{bh.result()});
+  recordAsParent(Provenance{bh.result()});
 
   std::vector<ELEMENT const*> vals;
   cet::transform_all(erased_ptrs,

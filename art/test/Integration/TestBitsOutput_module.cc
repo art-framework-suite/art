@@ -96,7 +96,7 @@ void arttest::TestBitsOutput::event(art::EventPrincipal const&)
 
 void arttest::TestBitsOutput::write(art::EventPrincipal& ep)
 {
-  Event const ev{ep, moduleDescription_};
+  Event const ev{ep, moduleDescription_, ConsumesRecorder::invalid()};
   // There should not be a TriggerResults object in the event if all
   // three of the following requirements are met:
   //

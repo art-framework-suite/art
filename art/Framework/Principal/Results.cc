@@ -2,8 +2,10 @@
 #include "art/Framework/Principal/ResultsPrincipal.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
 
-art::Results::Results(Principal const& p, ModuleDescription const& md) :
-  DataViewImpl{p, md, InResults, false},
+art::Results::Results(Principal const& p,
+                      ModuleDescription const& md,
+                      ConsumesRecorder& consumesRecorder) :
+  DataViewImpl{p, md, InResults, false, consumesRecorder},
   principal_{p}
 {
 }

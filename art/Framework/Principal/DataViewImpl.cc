@@ -1,5 +1,6 @@
 #include "art/Framework/Principal/DataViewImpl.h"
 
+#include "art/Framework/Principal/ConsumesRecorder.h"
 #include "art/Framework/Principal/Principal.h"
 #include "art/Framework/Principal/Selector.h"
 #include "art/Framework/Principal/get_ProductDescription.h"
@@ -21,11 +22,13 @@ namespace art {
   DataViewImpl::DataViewImpl(Principal const& pcpl,
                              ModuleDescription const& md,
                              BranchType const branchType,
-                             bool const recordParents) :
+                             bool const recordParents,
+                             ConsumesRecorder& consumesRecorder) :
     principal_{pcpl},
     md_{md},
     branchType_{branchType},
-    recordParents_{recordParents}
+    recordParents_{recordParents},
+    consumesRecorder_{consumesRecorder}
   {}
 
   size_t
@@ -118,16 +121,26 @@ namespace art {
   }
 
   void
-  DataViewImpl::addToGotProductIDs(Provenance const& prov) const
+  DataViewImpl::recordAsParent(Provenance const& prov) const
   {
     if (prov.productDescription().transient()) {
       // If the product retrieved is transient, don't use its
       // ProductID; use the ProductID's of its parents.
-      auto const& pids = prov.parents();
-      gotProductIDs_.insert(pids.begin(), pids.end());
-    } else {
-      gotProductIDs_.insert(prov.productID());
+      auto const& parents = prov.parents();
+      retrievedProducts_.insert(std::cbegin(parents), std::cend(parents));
     }
+    else {
+      retrievedProducts_.insert(prov.productID());
+    }
+  }
+
+  DataViewImpl::RetrievedProductIDs
+  DataViewImpl::retrievedProductIDs() const
+  {
+    std::vector<ProductID> result;
+    result.reserve(retrievedProducts_.size());
+    result.assign(std::cbegin(retrievedProducts_), std::cend(retrievedProducts_));
+    return result;
   }
 
   void
@@ -142,7 +155,7 @@ namespace art {
       if (putProducts.find(typeLabel) != putProducts.cend()) continue;
 
       std::ostringstream desc;
-      desc << getBranchDescription(typeLabel.typeID, typeLabel.productInstanceName);
+      desc << getBranchDescription(typeLabel.typeID(), typeLabel.productInstanceName());
       missing.emplace_back(desc.str());
     }
 

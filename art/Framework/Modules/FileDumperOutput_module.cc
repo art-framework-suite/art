@@ -28,14 +28,19 @@
 #include <string>
 #include <vector>
 
+namespace art {
+  namespace detail {
+    struct ProductInfo {
+      std::string module_label;
+      std::string instance_name;
+      std::string product_type;
+      std::string friendly_type;
+      std::string str_size;
+    };
+  }
+}
+
 namespace {
-  struct ProductInfo {
-    std::string module_label;
-    std::string instance_name;
-    std::string product_type;
-    std::string friendly_type;
-    std::string str_size;
-  };
 
   std::string product_size(art::EDProduct const* product, bool const isPresent)
   {
@@ -45,7 +50,7 @@ namespace {
   std::string dummyProcess() { return "PROCESS NAME"; }
   auto dummyInfo()
   {
-    return ProductInfo{"MODULE_LABEL",
+    return art::detail::ProductInfo{"MODULE_LABEL",
         "PRODUCT INSTANCE NAME",
         "DATA PRODUCT TYPE",
         "PRODUCT FRIENDLY TYPE",
@@ -53,7 +58,7 @@ namespace {
   }
 
 
-  using ProductInfos = std::vector<ProductInfo>;
+  using ProductInfos = std::vector<art::detail::ProductInfo>;
   std::size_t columnWidthFirst(std::map<std::string,ProductInfos> const& m, std::string const& title)
   {
     std::size_t i {title.size()};
@@ -62,7 +67,7 @@ namespace {
   }
 
   std::size_t columnWidth(std::map<std::string,ProductInfos> const& m,
-                          std::string const ProductInfo::* pim,
+                          std::string const art::detail::ProductInfo::* pim,
                           std::string const& title)
   {
     std::size_t i {title.size()};
@@ -161,8 +166,7 @@ art::FileDumperOutput::respondToCloseInputFile(FileBlock const&)
 
 template <typename P>
 void
-art::FileDumperOutput::
-printPrincipal(P const& p)
+art::FileDumperOutput::printPrincipal(P const& p)
 {
   if (!p.size()) return;
 
@@ -178,7 +182,7 @@ printPrincipal(P const& p)
 
   size_t present {0};
   size_t not_present {0};
-  std::map<std::string, std::vector<ProductInfo>> products;
+  std::map<std::string, std::vector<detail::ProductInfo>> products;
 
   auto const& dinfo = dummyInfo();
 
@@ -199,11 +203,11 @@ printPrincipal(P const& p)
     }
 
     if (!wantPresentOnly_ || productPresent) {
-      auto pi = ProductInfo{g.moduleLabel(),
-                            g.productInstanceName(),
-                            g.productDescription().producedClassName(),
-                            g.productDescription().friendlyClassName(),
-                            product_size(product, productPresent)};
+      auto pi = detail::ProductInfo{g.moduleLabel(),
+                                    g.productInstanceName(),
+                                    g.productDescription().producedClassName(),
+                                    g.productDescription().friendlyClassName(),
+                                    product_size(product, productPresent)};
       products[g.processName()].emplace_back(std::move(pi));
     }
   }
@@ -211,11 +215,11 @@ printPrincipal(P const& p)
   std::cout << "PRINCIPAL TYPE: " << BranchTypeToString(p.branchType()) << std::endl;
 
   std::vector<std::size_t> const widths {columnWidthFirst(products, dummyProcess()),
-                                         columnWidth(products, &ProductInfo::module_label, dinfo.module_label),
-                                         columnWidth(products, &ProductInfo::instance_name, dinfo.instance_name),
-                                         columnWidth(products, &ProductInfo::product_type, dinfo.product_type),
-                                         columnWidth(products, &ProductInfo::friendly_type, dinfo.friendly_type),
-                                         columnWidth(products, &ProductInfo::str_size, dinfo.str_size)};
+                                         columnWidth(products, &detail::ProductInfo::module_label, dinfo.module_label),
+                                         columnWidth(products, &detail::ProductInfo::instance_name, dinfo.instance_name),
+                                         columnWidth(products, &detail::ProductInfo::product_type, dinfo.product_type),
+                                         columnWidth(products, &detail::ProductInfo::friendly_type, dinfo.friendly_type),
+                                         columnWidth(products, &detail::ProductInfo::str_size, dinfo.str_size)};
 
   for (auto const& process : orderedProcesses_) {
     for (auto const& pi : products[process]) {

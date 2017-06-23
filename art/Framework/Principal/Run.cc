@@ -8,8 +8,11 @@ using fhicl::ParameterSet;
 using fhicl::ParameterSetID;
 using fhicl::ParameterSetRegistry;
 
-art::Run::Run(RunPrincipal const& rp, ModuleDescription const& md, RangeSet const& rs) :
-  DataViewImpl{rp, md, InRun, false},
+art::Run::Run(RunPrincipal const& rp,
+              ModuleDescription const& md,
+              ConsumesRecorder& consumesRecorder,
+              RangeSet const& rs) :
+  DataViewImpl{rp, md, InRun, false, consumesRecorder},
   principal_{rp},
   aux_{rp.aux()},
   productRangeSet_{rs}

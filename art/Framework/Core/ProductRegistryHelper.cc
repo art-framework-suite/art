@@ -32,11 +32,12 @@ namespace {
   void check_for_duplicate_Assns(std::set<art::TypeLabel> const& typeLabels){
     std::map<std::string, std::set<std::string>> instanceToFriendlyNames;
     for (auto const& tl : typeLabels) {
-      auto result = instanceToFriendlyNames[tl.productInstanceName].emplace(tl.friendlyClassName());
+      auto const& productInstanceName = tl.productInstanceName();
+      auto result = instanceToFriendlyNames[productInstanceName].emplace(tl.friendlyClassName());
       if (!result.second) {
         throw art::Exception(art::errors::LogicError, "check_for_duplicate_Assns: ")
           << "An attempt has been made to call the equivalent of\n\n"
-          << "   produces<" << tl.className() << ">(\"" << tl.productInstanceName << "\")\n\n"
+          << "   produces<" << tl.className() << ">(\"" << productInstanceName << "\")\n\n"
           << "which results in a prepared (\"friendly\") name of:\n\n"
           << "   "<< *result.first << "\n\n"
           << "That friendly name has already been registered for this module.\n"

@@ -17,9 +17,10 @@ namespace art
   bool
   EDFilter::doEvent(EventPrincipal& ep,
                     CPC_exempt_ptr cpc,
-                    CountingStatistics& counts) {
-    detail::CPCSentry sentry {current_context_, cpc};
-    Event e {ep, moduleDescription_};
+                    CountingStatistics& counts)
+  {
+    detail::CPCSentry sentry{current_context_, cpc};
+    Event e{ep, moduleDescription_, consumesRecorder_};
     counts.increment<stats::Run>();
     bool const rc = filter(e);
     e.commit_(ep, checkPutProducts_, expectedProducts());
@@ -28,22 +29,28 @@ namespace art
   }
 
   void
-  EDFilter::doBeginJob() {
+  EDFilter::doBeginJob()
+  {
     // 'checkPutProducts_' cannot be set during the c'tor
     // initialization list since 'moduleDescription_' is empty there.
-    checkPutProducts_ = detail::get_failureToPut_flag( moduleDescription_ );
+    auto const& mainID = moduleDescription_.mainParameterSetID();
+    auto const& scheduler_pset = fhicl::ParameterSetRegistry::get(mainID).get<fhicl::ParameterSet>("services.scheduler");
+    auto const& module_pset = fhicl::ParameterSetRegistry::get(moduleDescription_.parameterSetID());
+    checkPutProducts_ = detail::get_failureToPut_flag(scheduler_pset, module_pset);
+    consumesRecorder_.prepareForJob(scheduler_pset);
     beginJob();
   }
 
   void EDFilter::doEndJob() {
     endJob();
+    consumesRecorder_.showMissingConsumes(moduleDescription_);
   }
 
   bool
   EDFilter::doBeginRun(RunPrincipal & rp,
                        CPC_exempt_ptr cpc) {
     detail::CPCSentry sentry {current_context_, cpc};
-    Run r {rp, moduleDescription_, RangeSet::forRun(rp.id())};
+    Run r {rp, moduleDescription_, consumesRecorder_, RangeSet::forRun(rp.id())};
     bool const rc = beginRun(r);
     r.commit_(rp);
     return rc;
@@ -53,7 +60,7 @@ namespace art
   EDFilter::doEndRun(RunPrincipal & rp,
                      CPC_exempt_ptr cpc) {
     detail::CPCSentry sentry {current_context_, cpc};
-    Run r {rp, moduleDescription_, rp.seenRanges()};
+    Run r {rp, moduleDescription_, consumesRecorder_, rp.seenRanges()};
     bool const rc = endRun(r);
     r.commit_(rp);
     return rc;
@@ -63,7 +70,7 @@ namespace art
   EDFilter::doBeginSubRun(SubRunPrincipal & srp,
                           CPC_exempt_ptr cpc) {
     detail::CPCSentry sentry {current_context_, cpc};
-    SubRun sr {srp, moduleDescription_, RangeSet::forSubRun(srp.id())};
+    SubRun sr {srp, moduleDescription_, consumesRecorder_, RangeSet::forSubRun(srp.id())};
     bool const rc = beginSubRun(sr);
     sr.commit_(srp);
     return rc;
@@ -71,14 +78,13 @@ namespace art
 
   bool
   EDFilter::doEndSubRun(SubRunPrincipal & srp,
-                        CPC_exempt_ptr cpc) {
+                        CPC_exempt_ptr cpc)
+  {
     detail::CPCSentry sentry {current_context_, cpc};
-    SubRun sr {srp, moduleDescription_, srp.seenRanges()};
+    SubRun sr {srp, moduleDescription_, consumesRecorder_, srp.seenRanges()};
     bool const rc = endSubRun(sr);
     sr.commit_(srp);
     return rc;
-
-
   }
 
   void

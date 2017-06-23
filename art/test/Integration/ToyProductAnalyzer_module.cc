@@ -20,35 +20,41 @@
 namespace arttest {
 
   class ToyProductAnalyzer : public art::EDAnalyzer {
+  public:
+
+    explicit ToyProductAnalyzer(fhicl::ParameterSet const& pset) :
+      art::EDAnalyzer(pset),
+      inputLabel_(pset.get<std::string>("inputLabel"))
+    {}
+
+  private:
 
     std::string inputLabel_;
 
-  public:
-
-    explicit ToyProductAnalyzer( fhicl::ParameterSet const& pset) :
-      art::EDAnalyzer(pset),
-      inputLabel_( pset.get<std::string>("inputLabel") )
-    {}
-
-    void beginRun   ( const art::Run   & r  ) override {
+    void beginRun(art::Run const& r) override
+    {
       r.getValidHandle<StringProduct>(art::InputTag{inputLabel_, "bgnRun"});
       r.getValidHandle<StringProduct>(art::InputTag{inputLabel_});
     }
 
-    void beginSubRun( const art::SubRun& sr ) override {
+    void beginSubRun(art::SubRun const& sr) override
+    {
       sr.getValidHandle<StringProduct>(art::InputTag{inputLabel_, "bgnSubRun"});
       sr.getValidHandle<StringProduct>(art::InputTag{inputLabel_});
     }
 
-    void analyze    ( const art::Event & e  ) override {
+    void analyze(art::Event const& e) override
+    {
       e.getValidHandle<StringProduct>(inputLabel_);
     }
 
-    void endSubRun  ( const art::SubRun& sr ) override {
+    void endSubRun(art::SubRun const& sr) override
+    {
       sr.getValidHandle<StringProduct>(art::InputTag{inputLabel_,"endSubRun"});
     }
 
-    void endRun     ( const art::Run   & r  ) override {
+    void endRun(art::Run const& r) override
+    {
       r.getValidHandle<StringProduct>(art::InputTag{inputLabel_,"endRun"});
     }
 

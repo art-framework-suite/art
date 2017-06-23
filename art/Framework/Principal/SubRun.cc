@@ -7,16 +7,22 @@ namespace art {
 
   namespace {
     Run*
-    newRun(SubRunPrincipal const& srp, ModuleDescription const& md) {
-      return srp.runPrincipalExemptPtr() ? new Run{srp.runPrincipal(), md} : nullptr;
+    newRun(SubRunPrincipal const& srp,
+           ModuleDescription const& md,
+           ConsumesRecorder& consumesRecorder)
+    {
+      return srp.runPrincipalExemptPtr() ? new Run{srp.runPrincipal(), md, consumesRecorder} : nullptr;
     }
   }
 
-  SubRun::SubRun(SubRunPrincipal const& srp, ModuleDescription const& md, RangeSet const& rs) :
-    DataViewImpl{srp, md, InSubRun, false},
+  SubRun::SubRun(SubRunPrincipal const& srp,
+                 ModuleDescription const& md,
+                 ConsumesRecorder& consumesRecorder,
+                 RangeSet const& rs) :
+    DataViewImpl{srp, md, InSubRun, false, consumesRecorder},
     principal_{srp},
     aux_{srp.aux()},
-    run_{newRun(srp, md)},
+    run_{newRun(srp, md, consumesRecorder)},
     productRangeSet_{rs}
   {}
 

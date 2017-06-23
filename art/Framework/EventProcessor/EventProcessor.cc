@@ -669,7 +669,7 @@ art::EventProcessor::readRun()
   {
     actReg_.sPreSourceRun.invoke();
     runPrincipal_ = input_->readRun();
-    Run const r {*runPrincipal_, ModuleDescription{}};
+    Run const r {*runPrincipal_, ModuleDescription{}, ConsumesRecorder::invalid()};
     actReg_.sPostSourceRun.invoke(r);
   }
   endPathExecutor_->seedRunRangeSet(input_->runRangeSetHandler());
@@ -741,7 +741,7 @@ art::EventProcessor::readSubRun()
   {
     actReg_.sPreSourceSubRun.invoke();
     subRunPrincipal_ = input_->readSubRun(runPrincipal_.get());
-    SubRun const sr {*subRunPrincipal_, ModuleDescription{}};
+    SubRun const sr {*subRunPrincipal_, ModuleDescription{}, ConsumesRecorder::invalid()};
     actReg_.sPostSourceSubRun.invoke(sr);
   }
   endPathExecutor_->seedSubRunRangeSet(input_->subRunRangeSetHandler());
@@ -815,7 +815,7 @@ art::EventProcessor::readEvent()
   {
     actReg_.sPreSourceEvent.invoke();
     eventPrincipal_ = input_->readEvent(subRunPrincipal_.get());
-    Event const e {*eventPrincipal_, ModuleDescription{}};
+    Event const e {*eventPrincipal_, ModuleDescription{}, ConsumesRecorder::invalid()};
     actReg_.sPostSourceEvent.invoke(e);
   }
   assert(eventPrincipal_);

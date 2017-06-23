@@ -124,7 +124,7 @@ private:
         << "friendlyClassName: "
         << tl.friendlyClassName()
         << " and instanceName: "
-        << tl.productInstanceName
+        << tl.productInstanceName()
         << ".\n";
     }
     return *result.first;

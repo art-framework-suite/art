@@ -272,7 +272,7 @@ void
 art::RootOutput::readResults(ResultsPrincipal const& resp)
 {
   rpm_.for_each_RPWorker([&resp](RPWorker& w) {
-      Results const res {resp, w.moduleDescription()};
+      Results const res {resp, w.moduleDescription(), ConsumesRecorder::invalid()};
       w.rp().doReadResults(res);
     } );
 }
@@ -343,7 +343,7 @@ art::RootOutput::startEndFile()
     resp->addToProcessHistory();
   }
   rpm_.for_each_RPWorker([&resp](RPWorker& w) {
-      Results res {*resp, w.moduleDescription()};
+      Results res {*resp, w.moduleDescription(), ConsumesRecorder::invalid()};
       w.rp().doWriteResults(*resp, res);
     } );
   rootOutputFile_->writeResults(*resp);
@@ -521,7 +521,7 @@ void
 art::RootOutput::event(EventPrincipal const& ep)
 {
   rpm_.for_each_RPWorker([&ep](RPWorker& w) {
-      Event const e {ep, w.moduleDescription()};
+      Event const e {ep, w.moduleDescription(), ConsumesRecorder::invalid()};
       w.rp().doEvent(e);
     });
 }
@@ -530,7 +530,7 @@ void
 art::RootOutput::beginSubRun(art::SubRunPrincipal const& srp)
 {
   rpm_.for_each_RPWorker([&srp](RPWorker& w) {
-      SubRun const sr {srp, w.moduleDescription()};
+      SubRun const sr {srp, w.moduleDescription(), ConsumesRecorder::invalid()};
       w.rp().doBeginSubRun(sr);
     });
 }
@@ -539,7 +539,7 @@ void
 art::RootOutput::endSubRun(art::SubRunPrincipal const& srp)
 {
   rpm_.for_each_RPWorker([&srp](RPWorker& w) {
-      SubRun const sr {srp, w.moduleDescription()};
+      SubRun const sr {srp, w.moduleDescription(), ConsumesRecorder::invalid()};
       w.rp().doEndSubRun(sr);
     });
 }
@@ -548,7 +548,7 @@ void
 art::RootOutput::beginRun(art::RunPrincipal const& rp)
 {
   rpm_.for_each_RPWorker([&rp](RPWorker& w) {
-      Run const r {rp, w.moduleDescription()};
+      Run const r {rp, w.moduleDescription(), ConsumesRecorder::invalid()};
       w.rp().doBeginRun(r);
     });
 }
@@ -557,7 +557,7 @@ void
 art::RootOutput::endRun(art::RunPrincipal const& rp)
 {
   rpm_.for_each_RPWorker([&rp](RPWorker& w) {
-      Run const r {rp, w.moduleDescription()};
+      Run const r {rp, w.moduleDescription(), ConsumesRecorder::invalid()};
       w.rp().doEndRun(r);
     });
 }

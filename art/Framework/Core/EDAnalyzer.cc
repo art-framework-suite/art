@@ -6,6 +6,7 @@
 #include "art/Framework/Principal/SubRun.h"
 #include "canvas/Utilities/Exception.h"
 #include "cetlib_except/demangle.h"
+#include "fhiclcpp/ParameterSetRegistry.h"
 
 namespace art
 {
@@ -15,9 +16,9 @@ namespace art
                       CPC_exempt_ptr cpc,
                       CountingStatistics& counts)
   {
-    detail::CPCSentry sentry {current_context_, cpc};
-    detail::PVSentry pvSentry {cachedProducts()};
-    Event const e {ep, moduleDescription_};
+    detail::CPCSentry sentry{current_context_, cpc};
+    detail::PVSentry pvSentry{cachedProducts()};
+    Event const e{ep, moduleDescription_, consumesRecorder_};
     if (wantAllEvents() || wantEvent(e)) {
       // Run is incremented before analyze(e); to properly count
       // whenever an exception is thrown in the user's module.
@@ -29,20 +30,25 @@ namespace art
   }
 
   void
-  EDAnalyzer::doBeginJob() {
+  EDAnalyzer::doBeginJob()
+  {
+    auto const& mainID = moduleDescription_.mainParameterSetID();
+    auto const& scheduler_pset = fhicl::ParameterSetRegistry::get(mainID).get<fhicl::ParameterSet>("services.scheduler");
+    consumesRecorder_.prepareForJob(scheduler_pset);
     beginJob();
   }
 
   void
   EDAnalyzer::doEndJob() {
     endJob();
+    consumesRecorder_.showMissingConsumes(moduleDescription_);
   }
 
   bool
   EDAnalyzer::doBeginRun(RunPrincipal const& rp,
                          CPC_exempt_ptr cpc) {
     detail::CPCSentry sentry {current_context_, cpc};
-    Run const r {rp, moduleDescription_};
+    Run const r {rp, moduleDescription_, consumesRecorder_};
     beginRun(r);
     return true;
   }
@@ -51,7 +57,7 @@ namespace art
   EDAnalyzer::doEndRun(RunPrincipal const& rp,
                        CPC_exempt_ptr cpc) {
     detail::CPCSentry sentry {current_context_, cpc};
-    Run const r {rp, moduleDescription_};
+    Run const r {rp, moduleDescription_, consumesRecorder_};
     endRun(r);
     return true;
   }
@@ -60,7 +66,7 @@ namespace art
   EDAnalyzer::doBeginSubRun(SubRunPrincipal const& srp,
                             CPC_exempt_ptr cpc) {
     detail::CPCSentry sentry {current_context_, cpc};
-    SubRun const sr {srp, moduleDescription_};
+    SubRun const sr {srp, moduleDescription_, consumesRecorder_};
     beginSubRun(sr);
     return true;
   }
@@ -69,7 +75,7 @@ namespace art
   EDAnalyzer::doEndSubRun(SubRunPrincipal const& srp,
                           CPC_exempt_ptr cpc) {
     detail::CPCSentry sentry {current_context_, cpc};
-    SubRun const sr {srp, moduleDescription_};
+    SubRun const sr {srp, moduleDescription_, consumesRecorder_};
     endSubRun(sr);
     return true;
   }

@@ -8,11 +8,11 @@
 //
 // ======================================================================
 
-#include "art/Framework/Core/ConsumerBase.h"
 #include "art/Framework/Core/EngineCreator.h"
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/ProducerBase.h"
 #include "art/Framework/Core/WorkerT.h"
+#include "art/Framework/Principal/ConsumesRecorder.h"
 #include "art/Framework/Principal/fwd.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
 #include "canvas/Persistency/Provenance/RangeSet.h"
@@ -26,7 +26,6 @@
 namespace art {
 
   class EDProducer : public ProducerBase,
-                     public ConsumerBase,
                      public EngineCreator
   {
   public:
@@ -44,6 +43,13 @@ namespace art {
     using Table = ProducerBase::Table<UserConfig>;
 
   protected:
+
+    template <typename T, BranchType BT = InEvent>
+    void consumes(InputTag const& it) { consumesRecorder_.consumes<T, BT>(it); }
+
+    template <typename T, BranchType BT = InEvent>
+    void consumesMany() { consumesRecorder_.consumesMany<T, BT>(); }
+
     // The returned pointer will be null unless the this is currently
     // executing its event loop function ('produce').
     CurrentProcessingContext const* currentContext() const;
@@ -85,9 +91,11 @@ namespace art {
       moduleDescription_ = md;
     }
 
-    ModuleDescription moduleDescription_ {};
-    CPC_exempt_ptr current_context_ {nullptr};
-    bool checkPutProducts_ {true};
+    ConsumesRecorder consumesRecorder_{};
+    ModuleDescription moduleDescription_{};
+    CPC_exempt_ptr current_context_{nullptr};
+    bool checkPutProducts_{true};
+    std::set<TypeLabel> missingConsumes_{};
   };  // EDProducer
 
   template <typename PROD, BranchType B>
@@ -98,7 +106,6 @@ namespace art {
     return ProducerBase::getProductID<PROD, B>(moduleDescription_,
                                                instanceName);
   }
-
 }  // art
 
 // ======================================================================

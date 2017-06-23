@@ -12,6 +12,7 @@
 
 #include "art/Framework/Principal/DataViewImpl.h"
 #include "art/Framework/Principal/Handle.h"
+#include "art/Framework/Principal/ProductInfo.h"
 #include "art/Framework/Principal/SubRun.h"
 #include "art/Framework/Principal/fwd.h"
 #include "art/Persistency/Common/GroupQueryResult.h"
@@ -43,7 +44,8 @@ public:
 
   using Base = DataViewImpl;
   explicit Event(EventPrincipal const& ep,
-                 ModuleDescription const& md);
+                 ModuleDescription const& md,
+                 ConsumesRecorder& consumesRecorder);
 
   // AUX functions.
   EventID   id() const {return aux_.id();}
@@ -117,7 +119,6 @@ private:
   EventAuxiliary const& aux_;
   std::unique_ptr<SubRun const> const subRun_;
   EventPrincipal const& eventPrincipal_;
-
 };  // Event
 
 // ----------------------------------------------------------------------
@@ -155,7 +156,6 @@ art::Event::put(std::unique_ptr<PROD>&& product,
 }  // put<>()
 
 // ----------------------------------------------------------------------
-
 #endif /* art_Framework_Principal_Event_h */
 
 // Local Variables:

@@ -167,23 +167,19 @@ struct EventTestFixture {
   EventTestFixture();
 
   template <class T>
-  ProductID addProduct(std::unique_ptr<T> && product,
+  ProductID addProduct(std::unique_ptr<T>&& product,
                        std::string const& tag,
                        std::string const& productLabel = std::string());
 
-  MPRGlobalTestFixture &gf();
+  MPRGlobalTestFixture& gf();
   using modCache_t = MPRGlobalTestFixture::modCache_t;
   using iterator_t = MPRGlobalTestFixture::iterator_t;
 
-
-  std::unique_ptr<EventPrincipal> principal_;
-  std::unique_ptr<Event> currentEvent_;
+  std::unique_ptr<EventPrincipal> principal_{nullptr};
+  std::unique_ptr<Event> currentEvent_{nullptr};
 };
 
 EventTestFixture::EventTestFixture()
-  :
-  principal_(),
-  currentEvent_()
 {
   // First build a fake process history, that says there
   // were previous processes named "EARLY" and "LATE".
@@ -257,11 +253,11 @@ EventTestFixture::EventTestFixture()
   srp->setRunPrincipal(rp.get());
   EventAuxiliary eventAux(id, time, true);
   auto history = std::make_shared<History>();
-  const_cast<ProcessHistoryID &>(history->processHistoryID()) = processHistoryID;
+  const_cast<ProcessHistoryID&>(history->processHistoryID()) = processHistoryID;
   principal_ = std::make_unique<EventPrincipal>(eventAux, pc, history);
 
   principal_->setSubRunPrincipal(srp.get());
-  currentEvent_ = std::make_unique<Event>(*principal_, *gf().currentModuleDescription_);
+  currentEvent_ = std::make_unique<Event>(*principal_, *gf().currentModuleDescription_, ConsumesRecorder::invalid());
 
   delete processHistory;
 }
@@ -270,10 +266,9 @@ EventTestFixture::EventTestFixture()
 // as if it came from the module specified by the given tag.
 template <class T>
 ProductID
-EventTestFixture::
-addProduct(std::unique_ptr<T> && product,
-           std::string const& tag,
-           std::string const& productLabel)
+EventTestFixture::addProduct(std::unique_ptr<T>&& product,
+                             std::string const& tag,
+                             std::string const& productLabel)
 {
   iterator_t description = gf().moduleDescriptions_.find(tag);
   if (description == gf().moduleDescriptions_.end())
@@ -281,13 +276,13 @@ addProduct(std::unique_ptr<T> && product,
       << "Failed to find a module description for tag: "
       << tag << '\n';
 
-  Event temporaryEvent(*principal_, description->second);
+  Event temporaryEvent(*principal_, description->second, ConsumesRecorder::invalid());
   ProductID id = temporaryEvent.put(std::move(product), productLabel);
   EDProducer::commitEvent(*principal_, temporaryEvent);
   return id;
 }
 
-MPRGlobalTestFixture &
+MPRGlobalTestFixture&
 EventTestFixture::gf() {
   static MPRGlobalTestFixture gf_s;
   return gf_s;

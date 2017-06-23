@@ -10,6 +10,7 @@
 // ======================================================================
 
 #include "art/Framework/Principal/DataViewImpl.h"
+#include "art/Framework/Principal/ProductInfo.h"
 #include "art/Framework/Principal/fwd.h"
 #include "art/Utilities/ProductTokens.h"
 #include "canvas/Persistency/Common/Wrapper.h"
@@ -20,6 +21,10 @@
 #include <memory>
 #include <utility>
 
+namespace art {
+  class ConsumesRecorder;
+}
+
 class art::Run final : private art::DataViewImpl {
 public:
 
@@ -27,6 +32,7 @@ public:
 
   explicit Run(RunPrincipal const& rp,
                ModuleDescription const& md,
+               ConsumesRecorder& consumesRecorder,
                RangeSet const& rsForPuttingProducts = RangeSet::invalid());
 
   // AUX functions.

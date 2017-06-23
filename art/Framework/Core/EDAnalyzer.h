@@ -7,7 +7,6 @@
 //
 // ======================================================================
 
-#include "art/Framework/Core/ConsumerBase.h"
 #include "art/Framework/Core/EngineCreator.h"
 #include "art/Framework/Core/EventObserverBase.h"
 #include "art/Framework/Core/Frameworkfwd.h"
@@ -32,7 +31,6 @@ namespace art
   class MasterProductRegistry;
 
   class EDAnalyzer : public EventObserverBase,
-                     public ConsumerBase,
                      public EngineCreator
   {
   public:
@@ -95,6 +93,13 @@ namespace art
     std::string workerType() const {return "WorkerT<EDAnalyzer>";}
 
   protected:
+
+    template <typename T, BranchType BT = InEvent>
+    void consumes(InputTag const& it) { consumesRecorder_.consumes<T, BT>(it); }
+
+    template <typename T, BranchType BT = InEvent>
+    void consumesMany() { consumesRecorder_.consumesMany<T, BT>(); }
+
     // The returned pointer will be null unless the this is currently
     // executing its event loop function ('analyze').
     CurrentProcessingContext const* currentContext() const;
@@ -132,6 +137,7 @@ namespace art
       moduleDescription_ = md;
     }
 
+    ConsumesRecorder consumesRecorder_{};
     ModuleDescription moduleDescription_ {};
     CPC_exempt_ptr current_context_ {nullptr};
   };  // EDAnalyzer

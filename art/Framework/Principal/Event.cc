@@ -19,24 +19,28 @@ using namespace fhicl;
 
 namespace art {
 
-  // It only makes sense to track parents when putting a product onto
-  // the event.  That requires a non-const Event object.
-  constexpr bool record_parents(Event*) { return true; }
-  constexpr bool record_parents(Event const*) { return false; }
-
   namespace {
-    SubRun* newSubRun(EventPrincipal const& ep, ModuleDescription const& md)
+    // It only makes sense to track parents when putting a product
+    // onto the event.  That requires a non-const Event object.
+    constexpr bool record_parents(Event*) { return true; }
+    constexpr bool record_parents(Event const*) { return false; }
+
+    SubRun* newSubRun(EventPrincipal const& ep,
+                      ModuleDescription const& md,
+                      ConsumesRecorder& consumesRecorder)
     {
-      return ep.subRunPrincipalExemptPtr() ? new SubRun{ep.subRunPrincipal(), md} : nullptr;
+      return ep.subRunPrincipalExemptPtr() ? new SubRun{ep.subRunPrincipal(), md, consumesRecorder} : nullptr;
     }
   }
 
-  Event::Event(EventPrincipal const& ep, ModuleDescription const& md)
-    : DataViewImpl{ep, md, InEvent, record_parents(this)}
+  Event::Event(EventPrincipal const& ep,
+               ModuleDescription const& md,
+               ConsumesRecorder& consumesRecorder)
+    : DataViewImpl{ep, md, InEvent, record_parents(this), consumesRecorder}
     , aux_{ep.aux()}
-    , subRun_{newSubRun(ep, md)}
+    , subRun_{newSubRun(ep, md, consumesRecorder)}
     , eventPrincipal_{ep}
-  { }
+  {}
 
   EDProductGetter const*
   Event::productGetter(ProductID const pid) const {
@@ -97,18 +101,12 @@ namespace art {
     assert(&ep == &eventPrincipal_);
     checkPutProducts(checkProducts, expectedProducts, putProducts());
 
-    vector<ProductID> gotProductIDVector;
-    auto const& gotProductIDs = retrievedProducts();
-    if (!gotProductIDs.empty()) {
-      gotProductIDVector.reserve(gotProductIDs.size());
-      gotProductIDVector.assign(gotProductIDs.begin(), gotProductIDs.end());
-    }
-
+    auto const& parents = retrievedProductIDs();
     for (auto& elem : putProducts()) {
       auto const& bd = elem.second.bd;
       auto productProvenancePtr = make_unique<ProductProvenance const>(bd.productID(),
                                                                        productstatus::present(),
-                                                                       gotProductIDVector);
+                                                                       parents);
       ep.put(std::move(elem.second.prod),
              bd,
              std::move(productProvenancePtr));

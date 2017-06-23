@@ -11,6 +11,7 @@
 // ======================================================================
 
 #include "art/Framework/Principal/DataViewImpl.h"
+#include "art/Framework/Principal/ProductInfo.h"
 #include "art/Framework/Principal/ResultsPrincipal.h"
 #include "art/Framework/Principal/fwd.h"
 #include "canvas/Persistency/Common/Wrapper.h"
@@ -19,13 +20,16 @@
 #include <utility>
 
 namespace art {
+  class ConsumesRecorder;
   class Results;
 }
 
 class art::Results final : private art::DataViewImpl {
 public:
 
-  explicit Results(Principal const& p, ModuleDescription const& md);
+  explicit Results(Principal const& p,
+                   ModuleDescription const& md,
+                   ConsumesRecorder& consumesRecorder);
 
   using Base = DataViewImpl;
 
