@@ -36,11 +36,11 @@ void
 art::Run::commit_(RunPrincipal& rp)
 {
   for (auto& elem : putProducts()) {
-    auto const& bd = elem.second.bd;
-    auto productProvenancePtr = std::make_unique<ProductProvenance const>(bd.productID(),
+    auto const& pd = elem.second.pd;
+    auto productProvenancePtr = std::make_unique<ProductProvenance const>(pd.productID(),
                                                                           productstatus::present());
     rp.put(std::move(elem.second.prod),
-           bd,
+           pd,
            std::move(productProvenancePtr),
            std::move(elem.second.rs));
   }

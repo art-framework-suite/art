@@ -391,13 +391,13 @@ initFile(bool skipBadFiles, bool initMPR/*=false*/)
         << "Unable to find product listed in input file in MasterProductRegistry.\n"
         << "Please report this to artists@fnal.gov";
     }
-    auto const& bd = bd_it->second;
+    auto const& pd = bd_it->second;
 
-    bool const present {mpr_.presentWithFileIdx(bd.branchType(), bd.productID()) != MasterProductRegistry::DROPPED};
+    bool const present {mpr_.presentWithFileIdx(pd.branchType(), pd.productID()) != MasterProductRegistry::DROPPED};
 
-    rootFile_->treePointers()[bd.branchType()]->addBranch(prod.first,
-                                                          bd,
-                                                          bd.branchName(),
+    rootFile_->treePointers()[pd.branchType()]->addBranch(prod.first,
+                                                          pd,
+                                                          pd.branchName(),
                                                           present);
   }
 }
@@ -468,13 +468,13 @@ openSecondaryFile(int idx,
         << "Unable to find product listed in input file in MasterProductRegistry.\n"
         << "Please report this to artists@fnal.gov";
     }
-    auto& bd = bd_it->second;
+    auto& pd = bd_it->second;
 
-    bool const present = mpr_.presentWithFileIdx(bd.branchType(), bd.productID()) != MasterProductRegistry::DROPPED;
+    bool const present = mpr_.presentWithFileIdx(pd.branchType(), pd.productID()) != MasterProductRegistry::DROPPED;
 
-    rif->treePointers()[bd.branchType()]->addBranch(prod.first,
-                                                    bd,
-                                                    bd.branchName(),
+    rif->treePointers()[pd.branchType()]->addBranch(prod.first,
+                                                    pd,
+                                                    pd.branchName(),
                                                     present );
 
   }

@@ -28,34 +28,34 @@ public:
 
 protected:
 
-  AssnsGroup(BranchDescription const& bd,
+  AssnsGroup(BranchDescription const& pd,
              ProductID const& pid,
              RangeSet&& rs,
              TypeID const& primary_wrapper_type,
              TypeID const& partner_wrapper_type,
              std::unique_ptr<EDProduct>&& edp = nullptr,
              cet::exempt_ptr<Worker> productProducer = cet::exempt_ptr<Worker>())
-    : Group{bd, pid, std::move(rs), primary_wrapper_type, std::move(edp), productProducer}
+    : Group{pd, pid, std::move(rs), primary_wrapper_type, std::move(edp), productProducer}
     , partnerWrapperType_{partner_wrapper_type}
     , partnerProduct_{}
     {}
 
-  AssnsGroup(BranchDescription const& bd,
+  AssnsGroup(BranchDescription const& pd,
              ProductID const& pid,
              RangeSet&& rs,
              std::unique_ptr<EDProduct>&& edp,
              TypeID const& primary_wrapper_type,
              TypeID const& partner_wrapper_type)
-    : AssnsGroup{bd, pid, std::move(rs), primary_wrapper_type, partner_wrapper_type, std::move(edp)}
+    : AssnsGroup{pd, pid, std::move(rs), primary_wrapper_type, partner_wrapper_type, std::move(edp)}
     {}
 
-  AssnsGroup(BranchDescription const& bd,
+  AssnsGroup(BranchDescription const& pd,
              ProductID const& pid,
              RangeSet&& rs,
              cet::exempt_ptr<Worker> productProducer,
              TypeID const& primary_wrapper_type,
              TypeID const& partner_wrapper_type)
-    : AssnsGroup{bd, pid, std::move(rs), primary_wrapper_type, partner_wrapper_type, nullptr, productProducer}
+    : AssnsGroup{pd, pid, std::move(rs), primary_wrapper_type, partner_wrapper_type, nullptr, productProducer}
     {}
 
 public:

@@ -47,44 +47,44 @@ namespace art {
   }
 
   void
-  EventPrincipal::throwIfExistingGroup(BranchDescription const& bd) const
+  EventPrincipal::throwIfExistingGroup(BranchDescription const& pd) const
   {
-    if (auto group = getExistingGroup(bd.productID())) {
+    if (auto group = getExistingGroup(pd.productID())) {
       throw art::Exception(art::errors::ProductRegistrationFailure, "EventPrincipal::throwIfExistingGroup")
         << "Problem found while adding product provenance: "
         << "product already exists for ("
-        << bd.friendlyClassName()
+        << pd.friendlyClassName()
         << ","
-        << bd.moduleLabel()
+        << pd.moduleLabel()
         << ","
-        << bd.productInstanceName()
+        << pd.productInstanceName()
         << ","
-        << bd.processName()
+        << pd.processName()
         << ","
-        << bd.branchType()
+        << pd.branchType()
         << ")\n";
     }
   }
 
   void
-  EventPrincipal::fillGroup(BranchDescription const& bd)
+  EventPrincipal::fillGroup(BranchDescription const& pd)
   {
-    throwIfExistingGroup(bd);
-    Principal::fillGroup(gfactory::make_group(bd,
-                                              bd.productID(),
+    throwIfExistingGroup(pd);
+    Principal::fillGroup(gfactory::make_group(pd,
+                                              pd.productID(),
                                               RangeSet::invalid()));
   }
 
   void
   EventPrincipal::put(std::unique_ptr<EDProduct>&& edp,
-                      BranchDescription const& bd,
+                      BranchDescription const& pd,
                       std::unique_ptr<ProductProvenance const>&& productProvenance)
   {
     assert(edp);
     branchMapper().insert(std::move(productProvenance));
-    throwIfExistingGroup(bd);
-    Principal::fillGroup(gfactory::make_group(bd,
-                                              bd.productID(),
+    throwIfExistingGroup(pd);
+    Principal::fillGroup(gfactory::make_group(pd,
+                                              pd.productID(),
                                               RangeSet::invalid(),
                                               std::move(edp)));
   }

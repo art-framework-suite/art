@@ -103,12 +103,12 @@ namespace art {
 
     auto const& parents = retrievedProductIDs();
     for (auto& elem : putProducts()) {
-      auto const& bd = elem.second.bd;
-      auto productProvenancePtr = make_unique<ProductProvenance const>(bd.productID(),
+      auto const& pd = elem.second.pd;
+      auto productProvenancePtr = make_unique<ProductProvenance const>(pd.productID(),
                                                                        productstatus::present(),
                                                                        parents);
       ep.put(std::move(elem.second.prod),
-             bd,
+             pd,
              std::move(productProvenancePtr));
     };
 

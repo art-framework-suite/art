@@ -56,8 +56,8 @@ art::ProductRegistryHelper::registerProducts(MasterProductRegistry& mpr,
   if (productList_) {
     PerBranchTypePresence tp;
     for (auto const& val : *productList_) {
-      auto const& bd = val.second;
-      tp[bd.branchType()].emplace(bd.productID());
+      auto const& pd = val.second;
+      tp[pd.branchType()].emplace(pd.productID());
     }
     FileBlock const fb{{}, "ProductRegistryHelper"};
     mpr.initFromFirstPrimaryFile(*productList_, tp, fb);
@@ -67,8 +67,8 @@ art::ProductRegistryHelper::registerProducts(MasterProductRegistry& mpr,
   for (std::size_t ibt{}; ibt != NumBranchTypes; ++ibt) {
     auto bt = static_cast<BranchType>(ibt);
     for (auto const& val : typeLabelList_[bt]) {
-      auto bd = std::make_unique<art::BranchDescription>(bt, val, md);
-      mpr.addProduct(std::move(bd));
+      auto pd = std::make_unique<art::BranchDescription>(bt, val, md);
+      mpr.addProduct(std::move(pd));
     }
   }
 }

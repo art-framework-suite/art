@@ -34,15 +34,15 @@ public:
   //--------------------------------------------------
   // BranchSelectState associates a BranchDescription
   // (*desc) with a bool indicating whether or not the branch with
-  // that name is to be selected.  Note that parameter bd may not be null.
+  // that name is to be selected.  Note that parameter pd may not be null.
   struct BranchSelectState
   {
     BranchDescription const* desc;
     bool                     selectMe;
 
-    // N.B.: We assume bd is not null.
-    explicit BranchSelectState (BranchDescription const* bd) :
-      desc    (bd),
+    // N.B.: We assume pd is not null.
+    explicit BranchSelectState (BranchDescription const* pd) :
+      desc    (pd),
       selectMe(false)
     { }
   };  // BranchSelectState

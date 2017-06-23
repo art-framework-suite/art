@@ -155,7 +155,7 @@ namespace art {
       if (putProducts.find(typeLabel) != putProducts.cend()) continue;
 
       std::ostringstream desc;
-      desc << getBranchDescription(typeLabel.typeID(), typeLabel.productInstanceName());
+      desc << getProductDescription(typeLabel.typeID(), typeLabel.productInstanceName());
       missing.emplace_back(desc.str());
     }
 
@@ -197,7 +197,7 @@ namespace art {
   }
 
   BranchDescription const&
-  DataViewImpl::getBranchDescription(TypeID const& type,
+  DataViewImpl::getProductDescription(TypeID const& type,
                                      string const& productInstanceName) const
   {
     return get_ProductDescription(type,

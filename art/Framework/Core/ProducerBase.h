@@ -83,10 +83,10 @@ namespace art {
   ProducerBase::getProductID(ModuleDescription const& md,
                              std::string const& instanceName) const
   {
-    auto const& bd = get_ProductDescription<PROD>(B,
+    auto const& pd = get_ProductDescription<PROD>(B,
                                                  md.moduleLabel(),
                                                  instanceName);
-    return bd.productID();
+    return pd.productID();
   }
 
   template <typename T>

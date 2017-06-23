@@ -46,49 +46,49 @@ namespace art {
 inline
 std::unique_ptr<art::Group>
 art::gfactory::
-make_group(BranchDescription const& bd,
+make_group(BranchDescription const& pd,
            ProductID const& pid,
            RangeSet&& rs)
 {
-  return detail::make_group(bd, pid, std::move(rs));
+  return detail::make_group(pd, pid, std::move(rs));
 }
 
 inline
 std::unique_ptr<art::Group>
 art::gfactory::
-make_group(BranchDescription const& bd,
+make_group(BranchDescription const& pd,
            ProductID const& pid,
            RangeSet&& rs,
            cet::exempt_ptr<Worker> productProducer)
 {
-  return detail::make_group(bd, pid, std::move(rs), productProducer);
+  return detail::make_group(pd, pid, std::move(rs), productProducer);
 }
 
 inline
 std::unique_ptr<art::Group>
 art::gfactory::
-make_group(BranchDescription const& bd,
+make_group(BranchDescription const& pd,
            ProductID const& pid,
            RangeSet&& rs,
            std::unique_ptr<EDProduct>&& edp)
 {
-  return detail::make_group(bd, pid, std::move(rs), std::move(edp));
+  return detail::make_group(pd, pid, std::move(rs), std::move(edp));
 }
 
 // Where all the real work is done.
 template <typename ... ARGS>
 std::unique_ptr<art::Group>
 art::gfactory::detail::
-make_group(BranchDescription const & bd,
+make_group(BranchDescription const & pd,
            ARGS && ... args)
 {
   std::unique_ptr<Group> result;
-  auto tids = art::detail::getWrapperTIDs(bd);
+  auto tids = art::detail::getWrapperTIDs(pd);
   switch (tids.size()) {
   case 1ull: // Standard Group.
     // Can't use std::make_unique<> because Group's constructor is
     // protected.
-    result = std::unique_ptr<Group>(new Group(bd, std::forward<ARGS>(args)...,
+    result = std::unique_ptr<Group>(new Group(pd, std::forward<ARGS>(args)...,
                                               tids[0]));
     break;
   case 2ull: // Assns<A, B, void>.
@@ -96,14 +96,14 @@ make_group(BranchDescription const & bd,
     // protected.
     result =
       std::unique_ptr<AssnsGroup>
-      (new AssnsGroup(bd, std::forward<ARGS>(args)..., tids[0], tids[1]));
+      (new AssnsGroup(pd, std::forward<ARGS>(args)..., tids[0], tids[1]));
     break;
   case 4ull: // Assns<A, B, D>.
     // Can't use std::make_unique<> because AssnGroupWithData's
     // constructor is protected.
     result =
       std::unique_ptr<AssnsGroupWithData>
-      (new AssnsGroupWithData(bd, std::forward<ARGS>(args)...,
+      (new AssnsGroupWithData(pd, std::forward<ARGS>(args)...,
                               tids[0], tids[1], tids[2], tids[3]));
     break;
   default:

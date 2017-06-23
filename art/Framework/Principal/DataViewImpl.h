@@ -167,11 +167,11 @@ public:
     PMValue(std::unique_ptr<EDProduct>&& p,
             BranchDescription const& b,
             RangeSet const& r)
-      : prod{std::move(p)}, bd{b}, rs{r}
+      : prod{std::move(p)}, pd{b}, rs{r}
     {}
 
     std::unique_ptr<EDProduct> prod;
-    BranchDescription const& bd;
+    BranchDescription const& pd;
     RangeSet rs;
   };
 
@@ -188,11 +188,11 @@ protected:
 
   // Return the map of products that was retrieved via get*.  The
   // retrievedProducts_ member is used to form the sequence of
-  // BranchIDs that serve as the "parents" to any put products.
+  // ProductIDs that serve as the "parents" to any put products.
   RetrievedProductSet const& retrievedProducts() const {return retrievedProducts_;}
 
   // Convert the retrievedProducts_ member to just the sequence of
-  // BranchIDs corresponding to product parents.
+  // ProductIDs corresponding to product parents.
   RetrievedProductIDs retrievedProductIDs() const;
 
   void
@@ -208,7 +208,7 @@ protected:
                         std::string const& processName) const;
 
   BranchDescription const&
-  getBranchDescription(TypeID const& type, std::string const& productInstanceName) const;
+  getProductDescription(TypeID const& type, std::string const& productInstanceName) const;
 
   using GroupQueryResultVec = std::vector<GroupQueryResult>;
 

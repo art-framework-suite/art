@@ -230,22 +230,22 @@ art::SubRun::put_(std::unique_ptr<PROD>&& product,
       << "Please contact artists@fnal.gov.\n";
   }
 
-  auto const& bd = getBranchDescription(tid, productInstanceName);
+  auto const& pd = getProductDescription(tid, productInstanceName);
   auto wp = std::make_unique<Wrapper<PROD>>(std::move(product));
 
   auto result = putProducts().emplace(TypeLabel{tid, productInstanceName},
-                                      PMValue{std::move(wp), bd, rs});
+                                      PMValue{std::move(wp), pd, rs});
   if (!result.second) {
     throw art::Exception{art::errors::ProductPutFailure, "SubRun::put"}
       << "\nAttempt to put multiple products with the\n"
       << "following description onto the SubRun.\n"
       << "Products must be unique per SubRun.\n"
       << "=================================\n"
-      << bd
+      << pd
       << "=================================\n";
   }
 
-  return bd.productID();
+  return pd.productID();
 }
 
 #endif /* art_Framework_Principal_SubRun_h */

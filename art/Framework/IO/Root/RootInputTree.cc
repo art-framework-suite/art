@@ -64,18 +64,18 @@ namespace art {
   void
   RootInputTree::
   addBranch(BranchKey const& key,
-            BranchDescription const& bd,
+            BranchDescription const& pd,
             std::string const& branchName,
             bool const present)
   {
     assert(isValid());
     TBranch* branch = tree_->GetBranch(branchName.c_str());
     assert(present == (branch != 0));
-    input::BranchInfo info(bd);
+    input::BranchInfo info(pd);
     info.productBranch_ = 0;
     if (present) {
       info.productBranch_ = branch;
-      branchNames_.emplace_back(bd.branchName());
+      branchNames_.emplace_back(pd.branchName());
     }
     branches_->emplace(key, info);
   }

@@ -57,8 +57,8 @@ public: // TYPES
     BranchDescription const* branchDescription_ {nullptr};
     mutable void const* product_ {nullptr};
 
-    explicit OutputItem(BranchDescription const* bd)
-      : branchDescription_{bd}
+    explicit OutputItem(BranchDescription const* pd)
+      : branchDescription_{pd}
     {}
 
     std::string const& branchName() const

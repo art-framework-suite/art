@@ -136,11 +136,11 @@ art::Event::put(std::unique_ptr<PROD>&& product,
       << "The specified productInstanceName was '" << productInstanceName << "'.\n";
   }
 
-  auto const& bd = getBranchDescription(tid, productInstanceName);
+  auto const& pd = getProductDescription(tid, productInstanceName);
   auto wp = std::make_unique<Wrapper<PROD>>(std::move(product));
 
   auto result = putProducts().emplace(TypeLabel{tid, productInstanceName},
-                                      DataViewImpl::PMValue{std::move(wp), bd, RangeSet::invalid()});
+                                      DataViewImpl::PMValue{std::move(wp), pd, RangeSet::invalid()});
   if (!result.second) {
     HorizontalRule rule{30};
     throw art::Exception(art::errors::ProductPutFailure)
@@ -148,11 +148,11 @@ art::Event::put(std::unique_ptr<PROD>&& product,
       << "            following description onto the Event.\n"
       << "            Products must be unique per Event.\n"
       << rule('=') << '\n'
-      << bd
+      << pd
       << rule('=') << '\n';
   }
 
-  return bd.productID();
+  return pd.productID();
 }  // put<>()
 
 // ----------------------------------------------------------------------

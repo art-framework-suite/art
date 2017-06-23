@@ -174,9 +174,9 @@ namespace art {
 
   void
   RootOutputTree::
-  resetOutputBranchAddress(BranchDescription const& bd)
+  resetOutputBranchAddress(BranchDescription const& pd)
   {
-    TBranch* br = tree_->GetBranch(bd.branchName().c_str());
+    TBranch* br = tree_->GetBranch(pd.branchName().c_str());
     if (br == nullptr) {
       return;
     }
@@ -185,19 +185,19 @@ namespace art {
 
   void
   RootOutputTree::
-  setOutputBranchAddress(BranchDescription const& bd, void const*& pProd)
+  setOutputBranchAddress(BranchDescription const& pd, void const*& pProd)
   {
-    if (TBranch* br = tree_->GetBranch(bd.branchName().c_str())) {
+    if (TBranch* br = tree_->GetBranch(pd.branchName().c_str())) {
       br->SetAddress(&pProd);
     }
   }
 
   void
   RootOutputTree::
-  addOutputBranch(BranchDescription const& bd, void const*& pProd)
+  addOutputBranch(BranchDescription const& pd, void const*& pProd)
   {
-    TClassRef cls = TClass::GetClass(bd.wrappedName().c_str());
-    if (auto br = tree_->GetBranch(bd.branchName().c_str())) {
+    TClassRef cls = TClass::GetClass(pd.wrappedName().c_str());
+    if (auto br = tree_->GetBranch(pd.branchName().c_str())) {
       // Already have this branch, possibly update the branch address.
       if (pProd == nullptr) {
         // The OutputItem is freshly constructed and has not been
@@ -214,11 +214,11 @@ namespace art {
       }
       return;
     }
-    auto bsize = bd.basketSize();
+    auto bsize = pd.basketSize();
     if (bsize == BranchDescription::invalidBasketSize) {
       bsize = basketSize_;
     }
-    auto splitlvl = bd.splitLevel();
+    auto splitlvl = pd.splitLevel();
     if (splitlvl == BranchDescription::invalidSplitLevel) {
       splitlvl = splitLevel_;
     }
@@ -228,8 +228,8 @@ namespace art {
     }
     auto prod = reinterpret_cast<EDProduct*>(cls->New());
     pProd = prod;
-    TBranch* branch = tree_->Branch(bd.branchName().c_str(),
-                                    bd.wrappedName().c_str(),
+    TBranch* branch = tree_->Branch(pd.branchName().c_str(),
+                                    pd.wrappedName().c_str(),
                                     &pProd, bsize, splitlvl);
 
     // Note that root will have just allocated a dummy product as the
@@ -241,8 +241,8 @@ namespace art {
 
     pProd = nullptr;
     delete prod;
-    if (bd.compression() != BranchDescription::invalidCompression) {
-      branch->SetCompressionSettings(bd.compression());
+    if (pd.compression() != BranchDescription::invalidCompression) {
+      branch->SetCompressionSettings(pd.compression());
     }
     if (nEntries_ > 0) {
       // Backfill the branch with dummy entries to match the number
@@ -263,7 +263,7 @@ namespace art {
         }
       }
     }
-    if (bd.produced()) {
+    if (pd.produced()) {
       producedBranches_.push_back(branch);
     }
     else {

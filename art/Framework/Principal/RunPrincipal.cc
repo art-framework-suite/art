@@ -41,24 +41,24 @@ namespace art {
 
   void
   RunPrincipal::
-  fillGroup(BranchDescription const& bd)
+  fillGroup(BranchDescription const& pd)
   {
-    Principal::fillGroup(gfactory::make_group(bd,
-                                              bd.productID(),
+    Principal::fillGroup(gfactory::make_group(pd,
+                                              pd.productID(),
                                               RangeSet::invalid()));
   }
 
   void
   RunPrincipal::
   put(std::unique_ptr<EDProduct>&& edp,
-      BranchDescription const& bd,
+      BranchDescription const& pd,
       std::unique_ptr<ProductProvenance const>&& productProvenance,
       RangeSet&& rs)
   {
     assert(edp);
     branchMapper().insert(std::move(productProvenance));
-    Principal::fillGroup(gfactory::make_group(bd,
-                                              bd.productID(),
+    Principal::fillGroup(gfactory::make_group(pd,
+                                              pd.productID(),
                                               std::move(rs),
                                               std::move(edp)));
 

@@ -49,7 +49,7 @@ namespace art {
     //
     // Use GroupFactory to make.
     //
-    Group(BranchDescription const& bd,
+    Group(BranchDescription const& pd,
           ProductID const& pid,
           RangeSet&& rs,
           art::TypeID const& wrapper_type,
@@ -57,26 +57,26 @@ namespace art {
           cet::exempt_ptr<Worker> productProducer = cet::exempt_ptr<Worker> {})
       : wrapperType_{wrapper_type}
       , product_{std::move(edp)}
-      , branchDescription_{&bd}
+      , branchDescription_{&pd}
       , pid_{pid}
       , productProducer_{productProducer}
       , rangeOfValidity_{std::move(rs)}
       {}
 
-    Group(BranchDescription const& bd,
+    Group(BranchDescription const& pd,
           ProductID const& pid,
           RangeSet&& rs,
           cet::exempt_ptr<Worker> productProducer,
           art::TypeID const& wrapper_type)
-      : Group{bd, pid, std::move(rs), wrapper_type, nullptr, productProducer}
+      : Group{pd, pid, std::move(rs), wrapper_type, nullptr, productProducer}
       {}
 
-    Group(BranchDescription const& bd,
+    Group(BranchDescription const& pd,
           ProductID const& pid,
           RangeSet&& rs,
           std::unique_ptr<EDProduct>&& edp,
           art::TypeID const& wrapper_type)
-      : Group{bd, pid, std::move(rs), wrapper_type, std::move(edp)}
+      : Group{pd, pid, std::move(rs), wrapper_type, std::move(edp)}
       {}
 
   public:

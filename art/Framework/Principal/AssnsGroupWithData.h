@@ -26,7 +26,7 @@ public:
 
 protected:
 
-  AssnsGroupWithData(BranchDescription const & bd,
+  AssnsGroupWithData(BranchDescription const & pd,
                      ProductID const & pid,
                      RangeSet && rs,
                      TypeID const & primary_wrapper_type,
@@ -35,7 +35,7 @@ protected:
                      TypeID const & partner_base_wrapper_type,
                      std::unique_ptr<EDProduct>&& edp = nullptr,
                      cet::exempt_ptr<Worker> productProducer = cet::exempt_ptr<Worker>())
-    : AssnsGroup(bd, pid, std::move(rs),
+    : AssnsGroup(pd, pid, std::move(rs),
                  primary_wrapper_type,
                  partner_wrapper_type,
                  std::move(edp),
@@ -46,7 +46,7 @@ protected:
     , partnerBaseProduct_{}
     {}
 
-  AssnsGroupWithData(BranchDescription const& bd,
+  AssnsGroupWithData(BranchDescription const& pd,
                      ProductID const& pid,
                      RangeSet&& rs,
                      std::unique_ptr<EDProduct>&& edp,
@@ -54,7 +54,7 @@ protected:
                      TypeID const& partner_wrapper_type,
                      TypeID const& base_wrapper_type,
                      TypeID const& partner_base_wrapper_type)
-    : AssnsGroupWithData(bd, pid, std::move(rs),
+    : AssnsGroupWithData(pd, pid, std::move(rs),
                          primary_wrapper_type,
                          partner_wrapper_type,
                          base_wrapper_type,
@@ -62,7 +62,7 @@ protected:
                          std::move(edp))
     {}
 
-  AssnsGroupWithData(BranchDescription const& bd,
+  AssnsGroupWithData(BranchDescription const& pd,
                      ProductID const& pid,
                      RangeSet&& rs,
                      cet::exempt_ptr<Worker> productProducer,
@@ -70,7 +70,7 @@ protected:
                      TypeID const& partner_wrapper_type,
                      TypeID const& base_wrapper_type,
                      TypeID const& partner_base_wrapper_type)
-    : AssnsGroupWithData(bd, pid, std::move(rs),
+    : AssnsGroupWithData(pd, pid, std::move(rs),
                          primary_wrapper_type,
                          partner_wrapper_type,
                          base_wrapper_type,

@@ -65,7 +65,7 @@ namespace art {
     using Principal::getGroup;
 
     void put(std::unique_ptr<EDProduct>&& edp,
-             BranchDescription const& bd,
+             BranchDescription const& pd,
              std::unique_ptr<ProductProvenance const>&& productProvenance);
 
     void fillGroup(BranchDescription const&) override;
@@ -77,7 +77,7 @@ namespace art {
 
   private:
 
-    void throwIfExistingGroup(BranchDescription const& bd) const;
+    void throwIfExistingGroup(BranchDescription const& pd) const;
 
     ProcessHistoryID const&
     processHistoryID() const override

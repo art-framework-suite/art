@@ -766,12 +766,12 @@ art::RootOutputFile::fillBranches(Principal const& principal,
   auto const& principalRS = principal.seenRanges();
 
   for (auto const& val : selectedOutputItemList_[BT]) {
-    auto const* bd = val.branchDescription_;
-    auto const pid = bd->productID();
+    auto const* pd = val.branchDescription_;
+    auto const pid = pd->productID();
     branchesWithStoredHistory_.insert(pid);
-    bool const produced {bd->produced()};
+    bool const produced {pd->produced()};
     bool const resolveProd = (produced || !fastCloning ||
-                              treePointers_[BT]->uncloned(bd->branchName()));
+                              treePointers_[BT]->uncloned(pd->branchName()));
 
     // Update the kept provenance
     bool const keepProvenance = (dropMetaData_ == DropMetaData::DropNone ||
@@ -804,7 +804,7 @@ art::RootOutputFile::fillBranches(Principal const& principal,
         keptProvenance.setStatus(*prov, productstatus::unknown());
       }
 
-      auto const* product = getProduct<BT>(oh, rs, bd->wrappedName());
+      auto const* product = getProduct<BT>(oh, rs, pd->wrappedName());
       setProductRangeSetID<BT>(rs,
                                rootFileDB_,
                                const_cast<EDProduct*>(product),

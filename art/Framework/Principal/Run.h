@@ -232,22 +232,22 @@ art::Run::put_(std::unique_ptr<PROD>&& product,
       << "Please contact artists@fnal.gov.\n";
   }
 
-  auto const& bd = getBranchDescription(tid, productInstanceName);
+  auto const& pd = getProductDescription(tid, productInstanceName);
   auto wp = std::make_unique<Wrapper<PROD>>(std::move(product));
 
   auto result = putProducts().emplace(TypeLabel{tid, productInstanceName},
-                                      PMValue{std::move(wp), bd, rs});
+                                      PMValue{std::move(wp), pd, rs});
   if (!result.second) {
     throw Exception{errors::ProductPutFailure, "Run::put"}
       << "\nAttempt to put multiple products with the\n"
       << "following description onto the Run.\n"
       << "Products must be unique per Run.\n"
       << "=================================\n"
-      << bd
+      << pd
       << "=================================\n";
   }
 
-  return bd.productID();
+  return pd.productID();
 }
 
 #endif /* art_Framework_Principal_Run_h */

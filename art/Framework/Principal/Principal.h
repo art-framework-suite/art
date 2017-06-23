@@ -215,13 +215,13 @@ namespace art {
     void
     fillGroup(std::unique_ptr<Group>&& group)
     {
-      BranchDescription const& bd = group->productDescription();
-      assert(!bd.producedClassName().empty());
-      assert(!bd.friendlyClassName().empty());
-      assert(!bd.moduleLabel().empty());
-      assert(!bd.processName().empty());
+      BranchDescription const& pd = group->productDescription();
+      assert(!pd.producedClassName().empty());
+      assert(!pd.friendlyClassName().empty());
+      assert(!pd.moduleLabel().empty());
+      assert(!pd.processName().empty());
       group->setResolvers(branchMapper(), *store_);
-      groups_[bd.productID()] = std::move(group);
+      groups_[pd.productID()] = std::move(group);
     }
 
     int

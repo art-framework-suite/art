@@ -76,10 +76,10 @@ art::OutputModule::doSelectProducts()
   // GroupSelector for more information.
 
   for (auto const& val : pmd.productList()) {
-    BranchDescription const& bd = val.second;
-    auto const pid = bd.productID();
-    auto const bt = bd.branchType();
-    if (bd.transient()) {
+    BranchDescription const& pd = val.second;
+    auto const pid = pd.productID();
+    auto const bt = pd.branchType();
+    if (pd.transient()) {
       // Transient, skip it.
       continue;
     }
@@ -88,9 +88,9 @@ art::OutputModule::doSelectProducts()
       // Not produced in this process, and previously dropped, skip it.
       continue;
     }
-    if (groupSelector_.selected(bd)) {
+    if (groupSelector_.selected(pd)) {
       // Selected, keep it.
-      keptProducts_[bt].push_back(&bd);
+      keptProducts_[bt].push_back(&pd);
       continue;
     }
     // Newly dropped, skip it.

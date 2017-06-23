@@ -1007,36 +1007,36 @@ namespace art {
     // in a set of branches to be dropped.
     set<ProductID> branchesToDrop;
     for (auto const& prod : prodList) {
-      auto const& bd = prod.second;
-      if (!groupSelector.selected(bd)) {
+      auto const& pd = prod.second;
+      if (!groupSelector.selected(pd)) {
         if (dropDescendants) {
-          branchChildren_->appendToDescendants(bd.productID(), branchesToDrop);
+          branchChildren_->appendToDescendants(pd.productID(), branchesToDrop);
         }
         else {
-          branchesToDrop.insert(bd.productID());
+          branchesToDrop.insert(pd.productID());
         }
       }
     }
     // On this pass, actually drop the branches.
     auto branchesToDropEnd = branchesToDrop.cend();
     for (auto I = prodList.begin(), E = prodList.end(); I != E;) {
-      auto const& bd = I->second;
-      bool drop = branchesToDrop.find(bd.productID()) != branchesToDropEnd;
+      auto const& pd = I->second;
+      bool drop = branchesToDrop.find(pd.productID()) != branchesToDropEnd;
       if (!drop) {
         ++I;
         continue;
       }
-      if (groupSelector.selected(bd)) {
+      if (groupSelector.selected(pd)) {
         mf::LogWarning("RootInputFile")
           << "Branch '"
-          << bd.branchName()
+          << pd.branchName()
           << "' is being dropped from the input\n"
           << "of file '"
           << fileName_
           << "' because it is dependent on a branch\n"
           << "that was explicitly dropped.\n";
       }
-      treePointers_[bd.branchType()]->dropBranch(bd.branchName());
+      treePointers_[pd.branchType()]->dropBranch(pd.branchName());
       auto icopy = I++;
       prodList.erase(icopy);
     }

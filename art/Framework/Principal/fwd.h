@@ -47,7 +47,7 @@ namespace art {
     namespace detail {
       template <typename... ARGS>
       std::unique_ptr<Group>
-      make_group(BranchDescription const& bd,
+      make_group(BranchDescription const& pd,
                  ARGS&&... args);
     }
   }
