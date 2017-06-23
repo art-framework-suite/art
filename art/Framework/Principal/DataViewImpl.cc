@@ -173,12 +173,24 @@ namespace art {
     }
   }
 
+  BranchDescription const&
+  DataViewImpl::getProductDescription(TypeID const& type,
+                                      string const& productInstanceName) const
+  {
+    return get_ProductDescription(type,
+                                  md_.processName(),
+                                  ProductMetaData::instance().productList(),
+                                  branchType_,
+                                  md_.moduleLabel(),
+                                  productInstanceName);
+  }
+
   void
-  DataViewImpl::ensure_unique_product(std::size_t const  nFound,
-                                      TypeID      const& typeID,
-                                      std::string const& moduleLabel,
-                                      std::string const& productInstanceName,
-                                      std::string const& processName) const
+  DataViewImpl::ensureUniqueProduct_(std::size_t const  nFound,
+                                     TypeID      const& typeID,
+                                     std::string const& moduleLabel,
+                                     std::string const& productInstanceName,
+                                     std::string const& processName) const
   {
     if (nFound == 1) return;
 
@@ -194,18 +206,6 @@ namespace art {
     if (!processName.empty())
       e << "Looking for processName: "<< processName <<"\n";
     throw e;
-  }
-
-  BranchDescription const&
-  DataViewImpl::getProductDescription(TypeID const& type,
-                                     string const& productInstanceName) const
-  {
-    return get_ProductDescription(type,
-                                 md_.processName(),
-                                 ProductMetaData::instance().productList(),
-                                 branchType_,
-                                 md_.moduleLabel(),
-                                 productInstanceName);
   }
 
   void

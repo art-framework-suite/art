@@ -200,37 +200,22 @@ protected:
                    std::set<TypeLabel> const& expectedProducts,
                    TypeLabelMap const& putProducts);
 
-  void
-  ensure_unique_product(std::size_t nFound,
-                        TypeID const& typeID,
-                        std::string const& moduleLabel,
-                        std::string const& productInstanceName,
-                        std::string const& processName) const;
-
   BranchDescription const&
   getProductDescription(TypeID const& type, std::string const& productInstanceName) const;
 
   using GroupQueryResultVec = std::vector<GroupQueryResult>;
 
-  // The following 'get' functions serve to isolate the DataViewImpl class
-  // from the Principal class.
-  int
-  getMatchingSequenceByLabel_(TypeID const& elementType,
-                              std::string const& label,
-                              std::string const& productInstanceName,
-                              GroupQueryResultVec& results,
-                              bool stopIfProcessHasMatch) const;
-
-  int
-  getMatchingSequenceByLabel_(TypeID const& elementType,
-                              std::string const& label,
-                              std::string const& productInstanceName,
-                              std::string const& processName,
-                              GroupQueryResultVec& results,
-                              bool stopIfProcessHasMatch) const;
-
 private:
 
+  void
+  ensureUniqueProduct_(std::size_t nFound,
+                       TypeID const& typeID,
+                       std::string const& moduleLabel,
+                       std::string const& productInstanceName,
+                       std::string const& processName) const;
+
+  // The following 'get' functions serve to isolate the DataViewImpl class
+  // from the Principal class.
   GroupQueryResult
   get_(TypeID const& tid, SelectorBase const&) const;
 
@@ -257,6 +242,21 @@ private:
                        SelectorBase const& selector,
                        GroupQueryResultVec& results,
                        bool stopIfProcessHasMatch) const;
+
+  int
+  getMatchingSequenceByLabel_(TypeID const& elementType,
+                              std::string const& label,
+                              std::string const& productInstanceName,
+                              GroupQueryResultVec& results,
+                              bool stopIfProcessHasMatch) const;
+
+  int
+  getMatchingSequenceByLabel_(TypeID const& elementType,
+                              std::string const& label,
+                              std::string const& productInstanceName,
+                              std::string const& processName,
+                              GroupQueryResultVec& results,
+                              bool stopIfProcessHasMatch) const;
 
   template <typename ELEMENT>
   void
@@ -447,8 +447,8 @@ art::DataViewImpl::getManyByType(std::vector<Handle<PROD>>& results) const
 template <typename ELEMENT>
 std::size_t
 art::DataViewImpl::getView(std::string const& moduleLabel,
-                    std::string const& productInstanceName,
-                    std::vector<ELEMENT const*>& result) const
+                           std::string const& productInstanceName,
+                           std::vector<ELEMENT const*>& result) const
 {
   TypeID const typeID{typeid(ELEMENT)};
   GroupQueryResultVec bhv;
@@ -457,8 +457,8 @@ art::DataViewImpl::getView(std::string const& moduleLabel,
                                                  productInstanceName,
                                                  bhv,
                                                  true);
-  ensure_unique_product(nFound, typeID,
-                        moduleLabel, productInstanceName, std::string());
+  ensureUniqueProduct_(nFound, typeID,
+                       moduleLabel, productInstanceName, std::string());
 
   std::size_t const orig_size = result.size();
   fillView_(bhv[0], result);
@@ -468,7 +468,7 @@ art::DataViewImpl::getView(std::string const& moduleLabel,
 template <typename ELEMENT>
 std::size_t
 art::DataViewImpl::getView(InputTag const& tag,
-                    std::vector<ELEMENT const*>& result) const
+                           std::vector<ELEMENT const*>& result) const
 {
   if (tag.process().empty()) {
     return getView(tag.label(), tag.instance(), result);
@@ -482,8 +482,8 @@ art::DataViewImpl::getView(InputTag const& tag,
                                                  tag.process(),
                                                  bhv,
                                                  true);
-  ensure_unique_product(nFound, typeID,
-                        tag.label(), tag.instance(), tag.process());
+  ensureUniqueProduct_(nFound, typeID,
+                       tag.label(), tag.instance(), tag.process());
 
   std::size_t const orig_size = result.size();
   fillView_(bhv[0], result);
@@ -493,8 +493,8 @@ art::DataViewImpl::getView(InputTag const& tag,
 template <typename ELEMENT>
 bool
 art::DataViewImpl::getView(std::string const& moduleLabel,
-                    std::string const& productInstanceName,
-                    View<ELEMENT>& result) const
+                           std::string const& productInstanceName,
+                           View<ELEMENT>& result) const
 {
   TypeID const typeID{typeid(ELEMENT)};
   GroupQueryResultVec bhv;
@@ -503,8 +503,8 @@ art::DataViewImpl::getView(std::string const& moduleLabel,
                                                  productInstanceName,
                                                  bhv,
                                                  true);
-  ensure_unique_product(nFound, typeID,
-                        moduleLabel, productInstanceName, std::string());
+  ensureUniqueProduct_(nFound, typeID,
+                       moduleLabel, productInstanceName, std::string());
 
   fillView_(bhv[0], result.vals());
   result.set_innards(bhv[0].result()->productID(), bhv[0].result()->uniqueProduct());
@@ -527,8 +527,8 @@ art::DataViewImpl::getView(InputTag const& tag, View<ELEMENT>& result) const
                                                  tag.process(),
                                                  bhv,
                                                  true);
-  ensure_unique_product(nFound, typeID,
-                        tag.label(), tag.instance(), tag.process());
+  ensureUniqueProduct_(nFound, typeID,
+                       tag.label(), tag.instance(), tag.process());
 
   fillView_(bhv[0], result.vals());
   result.set_innards(bhv[0].result()->productID(), bhv[0].result()->uniqueProduct());
