@@ -10,21 +10,20 @@ using namespace cet;
 using namespace fhicl;
 using namespace std;
 
-
 namespace art {
 
   Path::Path(int const bitpos,
              string const& path_name,
              WorkersInPath&& workers,
-             TrigResPtr&& pathResults,
-             ActionTable& actions,
+             TrigResPtr pathResults,
+             ActionTable const& actions,
              ActivityRegistry& areg,
              bool const isEndPath):
     bitpos_{bitpos},
     name_{path_name},
-    trptr_{std::move(pathResults)},
+    trptr_{pathResults},
     actReg_{areg},
-    act_table_{&actions},
+    act_table_{actions},
     workers_{std::move(workers)},
     isEndPath_{isEndPath}
   {}
@@ -40,8 +39,8 @@ namespace art {
     // different exception behavior
 
     // If not processing an event, always rethrow.
-    actions::ActionCodes action = (isEvent ? act_table_->find(e.root_cause()) : actions::Rethrow);
-    assert (action != actions::FailModule);
+    actions::ActionCodes action = (isEvent ? act_table_.find(e.root_cause()) : actions::Rethrow);
+    assert(action != actions::FailModule);
     switch(action) {
       case actions::FailPath: {
           should_continue = false;

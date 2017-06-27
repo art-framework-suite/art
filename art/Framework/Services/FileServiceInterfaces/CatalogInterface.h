@@ -21,8 +21,8 @@
 
 namespace art {
   class CatalogInterface;
-
   class EventID;
+  class HLTGlobalStatus;
 }
 
 class art::CatalogInterface {

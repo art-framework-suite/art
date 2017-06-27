@@ -1,13 +1,6 @@
 #include "art/Framework/Core/PathManager.h"
-#include "art/Framework/Services/Registry/ServiceHandle.h"
-#include "art/Framework/Services/System/TriggerNamesService.h"
-#include "art/Version/GetReleaseVersion.h"
-#include "art/Utilities/HorizontalRule.h"
-#include "art/Utilities/bold_fontify.h"
 #include "canvas/Utilities/Exception.h"
-#include "canvas/Utilities/GetPassID.h"
 #include "cetlib/container_algorithms.h"
-#include "fhiclcpp/types/detail/validationException.h"
 
 #include <algorithm>
 #include <map>
@@ -122,20 +115,15 @@ art::PathManager::PathManager(ParameterSet const& procPS,
                               ActionTable& exceptActions,
                               ActivityRegistry& areg)
   :
-  procPS_(procPS),
-  preg_(preg),
-  exceptActions_(exceptActions),
-  areg_(areg),
-  trigger_paths_config_(findLegacyConfig(procPS_, "physics.trigger_paths")),
-  end_paths_config_(findLegacyConfig(procPS_, "physics.end_paths")),
-  fact_(),
-  allModules_(fillAllModules_()),
-  protoTrigPathMap_(),
-  protoEndPathInfo_(),
-  triggerPathNames_(processPathConfigs_()),
-  endPathInfo_(),
-  triggerPathsInfo_(),
-  configErrMsgs_()
+  procPS_{procPS},
+  preg_{preg},
+  exceptActions_{exceptActions},
+  areg_{areg},
+  trigger_paths_config_{findLegacyConfig(procPS_, "physics.trigger_paths")},
+  end_paths_config_{findLegacyConfig(procPS_, "physics.end_paths")},
+  allModules_{fillAllModules_()},
+  triggerPathNames_{processPathConfigs_()},
+  endPathInfo_{0, fact_, procPS_, preg_, exceptActions_, areg_}
 {
 }
 
@@ -143,12 +131,9 @@ art::PathsInfo&
 art::PathManager::endPathInfo()
 {
   if (!protoEndPathInfo_.empty() && endPathInfo_.pathPtrs().empty()) {
-    // Need to create path from proto information.
-    endPathInfo_.pathPtrs().emplace_back(fillWorkers_(0,
-                                                      "end_path",
-                                                      protoEndPathInfo_,
-                                                      nullptr, // End path, no trigger results needed.
-                                                      endPathInfo_.workers()));
+    // Need to create path from proto information.  No trigger results
+    // needed for end path.
+    endPathInfo_.makeAndAppendPath("end_path", protoEndPathInfo_, false);
   }
   return endPathInfo_;
 }
@@ -156,24 +141,18 @@ art::PathManager::endPathInfo()
 art::PathsInfo&
 art::PathManager::triggerPathsInfo(ScheduleID const sID)
 {
-  if (triggerPathNames_.empty())
-    return triggerPathsInfo_[sID]; // Empty.
-
   auto it = triggerPathsInfo_.find(sID);
-  if (it == triggerPathsInfo_.end()) {
-    it = triggerPathsInfo_.emplace(sID, PathsInfo()).first;
-    it->second.pathResults() = HLTGlobalStatus(triggerPathNames_.size());
-    cet::for_all_with_index(protoTrigPathMap_,
-                            [this, sID, it](int const bitpos, auto const& val)
-                            {
-                              it->second.pathPtrs().emplace_back(this->fillWorkers_(bitpos,
-                                                                                    val.first,
-                                                                                    val.second,
-                                                                                    Path::TrigResPtr(&it->second.pathResults()),
-                                                                                    it->second.workers()));
-                            });
-  }
-  return it->second;
+  if (it != triggerPathsInfo_.end())
+    return it->second;
+
+  it = triggerPathsInfo_.emplace(sID, PathsInfo{triggerPathNames_.size(), fact_, procPS_, preg_, exceptActions_, areg_}).first;
+  auto& pathsInfo = it->second;
+
+  for (auto const& val : protoTrigPathMap_) {
+    pathsInfo.makeAndAppendPath(val.first, val.second);
+  };
+
+  return pathsInfo;
 }
 
 art::detail::ModuleConfigInfoMap
@@ -409,94 +388,4 @@ art::PathManager::processOnePathConfig_(std::string const& path_name,
     }
   }
   return (cat == mod_cat_t::OBSERVER);
-}
-
-void
-art::PathManager::makeWorker_(detail::ModuleInPathInfo const& mipi,
-                              WorkerMap& workers,
-                              std::vector<WorkerInPath>& pathWorkers)
-{
-  auto w = makeWorker_(mipi.moduleConfigInfo(), workers);
-  pathWorkers.emplace_back(w, mipi.filterAction());
-}
-
-art::Worker*
-art::PathManager::makeWorker_(detail::ModuleConfigInfo const& mci,
-                              WorkerMap& workers)
-{
-  auto it = workers.find(mci.label());
-  if (it == workers.end()) { // Need worker.
-    auto moduleConfig = procPS_.get<ParameterSet>(mci.configPath() + '.' + mci.label());
-    WorkerParams const p {procPS_,
-                          moduleConfig,
-                          preg_,
-                          exceptActions_,
-                          ServiceHandle<TriggerNamesService const>{}->getProcessName()};
-    ModuleDescription const md {moduleConfig.id(),
-                                p.pset_.get<std::string>("module_type"),
-                                p.pset_.get<std::string>("module_label"),
-                                ProcessConfiguration{p.processName_,
-                                                     procPS_.id(),
-                                                     getReleaseVersion(),
-                                                     getPassID()}};
-    areg_.sPreModuleConstruction.invoke(md);
-    try {
-      auto worker = fact_.makeWorker(p, md);
-      areg_.sPostModuleConstruction.invoke(md);
-      it = workers.emplace(mci.label(), std::move(worker)).first;
-      it->second->setActivityRegistry(&areg_);
-    }
-    catch (fhicl::detail::validationException const& e) {
-      std::ostringstream err_stream;
-      err_stream << "\n\nModule label: " << detail::bold_fontify(md.moduleLabel())
-                 <<   "\nmodule_type : " << detail::bold_fontify(md.moduleName())
-                 << "\n\n" << e.what();
-      configErrMsgs_.push_back(err_stream.str());
-    }
-  }
-  return it->second.get();
-}
-
-// Precondition: !modInfos.empty();
-std::unique_ptr<art::Path>
-art::PathManager::fillWorkers_(int const bitpos,
-                               std::string const& pathName,
-                               ModInfos const& modInfos,
-                               Path::TrigResPtr pathResults,
-                               WorkerMap& workers)
-{
-  assert(!modInfos.empty());
-  std::vector<WorkerInPath> pathWorkers;
-  for (auto const& mci : modInfos) {
-    makeWorker_(mci, workers, pathWorkers);
-  }
-
-  if (!configErrMsgs_.empty()) {
-    constexpr HorizontalRule rule{100};
-    std::ostringstream err_msg;
-    err_msg << "\n"
-            << rule('=')
-            << "\n\n"
-            << "!! The following modules have been misconfigured: !!"
-            << "\n";
-    for (auto const& err : configErrMsgs_) {
-      err_msg << "\n"
-              << rule('-')
-              << "\n"
-              << err;
-    }
-    err_msg << "\n"
-            << rule('=')
-            << "\n\n";
-
-    throw art::Exception(art::errors::Configuration) << err_msg.str();
-  }
-
-  return std::make_unique<art::Path>(bitpos,
-                                     pathName,
-                                     std::move(pathWorkers),
-                                     std::move(pathResults),
-                                     exceptActions_,
-                                     areg_,
-                                     is_observer(modInfos.front().moduleConfigInfo().moduleType()));
 }

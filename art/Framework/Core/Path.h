@@ -40,8 +40,8 @@ public:
   Path(int bitpos,
        std::string const& path_name,
        WorkersInPath&& workers,
-       TrigResPtr&& pathResults,
-       ActionTable& actions,
+       TrigResPtr pathResults,
+       ActionTable const& actions,
        ActivityRegistry& reg,
        bool isEndPath);
 
@@ -78,7 +78,7 @@ private:
   std::string name_;
   TrigResPtr trptr_;
   ActivityRegistry& actReg_;
-  ActionTable* act_table_;
+  ActionTable const& act_table_;
 
   WorkersInPath workers_;
 

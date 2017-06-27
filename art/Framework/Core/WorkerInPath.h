@@ -11,6 +11,7 @@
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Principal/ExecutionCounts.h"
 #include "art/Framework/Principal/Worker.h"
+#include "cetlib/exempt_ptr.h"
 
 #include <memory>
 #include <utility>
@@ -23,8 +24,8 @@ namespace art {
   public:
     enum FilterAction { Normal=0, Ignore, Veto };
 
-    explicit WorkerInPath(Worker*);
-    WorkerInPath(Worker*, FilterAction theAction);
+    explicit WorkerInPath(cet::exempt_ptr<Worker>);
+    WorkerInPath(cet::exempt_ptr<Worker> worker, FilterAction theAction);
 
     template <typename T>
     bool runWorker(typename T::MyPrincipal&,
@@ -41,18 +42,18 @@ namespace art {
     std::size_t timesExcept() const { return counts_.times<stats::ExceptionThrown>(); }
 
     FilterAction filterAction() const { return filterAction_; }
-    Worker* getWorker() const { return worker_; }
+    cet::exempt_ptr<Worker> getWorker() const { return worker_; }
 
-    std::string const &label() const { return worker_->label(); }
+    std::string const& label() const { return worker_->label(); }
     bool modifiesEvent() const { return worker_->modifiesEvent(); }
 
   private:
 
     using Counts_t = ExecutionCounts<stats::Visited, stats::Passed, stats::Failed, stats::ExceptionThrown>;
-    Counts_t counts_ {};
+    Counts_t counts_{};
 
-    FilterAction filterAction_ {Normal};
-    Worker* worker_;
+    FilterAction filterAction_{Normal};
+    cet::exempt_ptr<Worker> worker_;
   };  // WorkerInPath
 
   template <typename T>

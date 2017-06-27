@@ -9,11 +9,11 @@
 
 using art::WorkerInPath;
 
-WorkerInPath::WorkerInPath(Worker* w, FilterAction const theFilterAction)
+WorkerInPath::WorkerInPath(cet::exempt_ptr<Worker> w, FilterAction const theFilterAction)
   : filterAction_{theFilterAction}
   , worker_{w}
 { }
 
-WorkerInPath::WorkerInPath(Worker* w)
+WorkerInPath::WorkerInPath(cet::exempt_ptr<Worker> w)
   : worker_{w}
 { }

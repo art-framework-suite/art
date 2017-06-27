@@ -3,7 +3,10 @@
 
 #include "art/Framework/Core/Path.h"
 #include "art/Framework/Core/WorkerMap.h"
+#include "art/Framework/Core/detail/ModuleFactory.h"
+#include "art/Framework/Core/detail/ModuleInPathInfo.h"
 #include "canvas/Persistency/Common/HLTGlobalStatus.h"
+#include "cetlib/exempt_ptr.h"
 
 namespace art {
   class PathsInfo;
@@ -12,10 +15,19 @@ namespace art {
 class art::PathsInfo {
 public:
 
-  WorkerMap& workers();
-  PathPtrs& pathPtrs();
-  HLTGlobalStatus& pathResults();
+  explicit PathsInfo(std::size_t const numPaths,
+                     detail::ModuleFactory& factory,
+                     fhicl::ParameterSet const& procPS,
+                     MasterProductRegistry& preg,
+                     ActionTable& actions,
+                     ActivityRegistry& areg);
 
+  HLTGlobalStatus& pathResults();
+  using ModInfos = std::vector<detail::ModuleInPathInfo>;
+
+  void makeAndAppendPath(std::string const& pathName,
+                         ModInfos const& modInfos,
+                         bool trigResultsNeeded = true);
   void addEvent();
   void addPass();
 
@@ -26,27 +38,28 @@ public:
   size_t totalEvents() const;
 
 private:
-  WorkerMap workers_ {};
-  PathPtrs pathPtrs_ {};
-  HLTGlobalStatus pathResults_ {};
 
-  size_t totalEvents_ {};
-  size_t passedEvents_ {};
+  void
+  makeWorker_(detail::ModuleInPathInfo const& mipi,
+              std::vector<WorkerInPath>& pathWorkers);
+
+  cet::exempt_ptr<Worker>
+  makeWorker_(detail::ModuleConfigInfo const& mci);
+
+  WorkerMap workers_{};
+  PathPtrs pathPtrs_{};
+  HLTGlobalStatus pathResults_;
+
+  size_t totalEvents_{};
+  size_t passedEvents_{};
+
+  detail::ModuleFactory& fact_;
+  fhicl::ParameterSet const& procPS_;
+  MasterProductRegistry& preg_;
+  ActionTable& exceptActions_;
+  ActivityRegistry& areg_;
+  std::vector<std::string> configErrMsgs_;
 };
-
-inline
-art::WorkerMap&
-art::PathsInfo::workers()
-{
-  return workers_;
-}
-
-inline
-art::PathPtrs&
-art::PathsInfo::pathPtrs()
-{
-  return pathPtrs_;
-}
 
 inline
 art::HLTGlobalStatus&
