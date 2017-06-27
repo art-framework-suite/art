@@ -42,6 +42,7 @@ TFileService::TFileService(ServiceTable<Config> const& config,
   file_ = new TFile{uniqueFilename_.c_str(), "RECREATE"};
   fstats_.recordFileOpen();
   // Activities to monitor in order to set the proper directory.
+  r.sPostOpenFile.watch([this](std::string const& fileName){ fstats_.recordInputFile(fileName); });
   r.sPreModuleRespondToOpenInputFile.watch   (this, &TFileService::setDirectoryName);
   r.sPreModuleRespondToCloseInputFile.watch  (this, &TFileService::setDirectoryName);
   r.sPreModuleRespondToOpenOutputFiles.watch (this, &TFileService::setDirectoryName);

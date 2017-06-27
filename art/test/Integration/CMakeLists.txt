@@ -260,6 +260,28 @@ cet_test(test_failingProducer_t.sh PREBUILT
   fcl/messageDefaults.fcl
 )
 
+# TFileService file-renaming
+cet_test(TFileService_FileRenaming_w HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --rethrow-all -c empty.fcl -o TFileService_FileRenaming.root
+  DATAFILES
+  fcl/empty.fcl)
+
+cet_test(TFileService_FileRenaming_t HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS
+  --rethrow-all
+  -c empty.fcl
+  -s ../TFileService_FileRenaming_w.d/TFileService_FileRenaming.root
+  -T "hists_for_%ifb.root"
+  DATAFILES
+  fcl/empty.fcl
+  TEST_PROPERTIES DEPENDS TFileService_FileRenaming_w)
+
+cet_test(TFileService_FileRenaming_verify.sh PREBUILT
+  TEST_PROPERTIES DEPENDS TFileService_FileRenaming_t)
+
+
 cet_test(test_unputtingProducer_t HANDBUILT
   TEST_EXEC art
   TEST_ARGS --rethrow-all -c test_unputtingProducer.fcl
