@@ -13,8 +13,8 @@
 art::BranchDescription const&
 art::get_ProductDescription(TypeID const tid,
                            BranchType const branch_type,
-                           std::string const &module_label,
-                           std::string const &instance_name)
+                           std::string const& module_label,
+                           std::string const& instance_name)
 {
   return get_ProductDescription(tid,
                                ServiceHandle<TriggerNamesService const>{}->getProcessName(),

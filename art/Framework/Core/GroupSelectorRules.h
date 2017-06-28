@@ -38,13 +38,12 @@ public:
   struct BranchSelectState
   {
     BranchDescription const* desc;
-    bool                     selectMe;
+    bool selectMe{false};
 
     // N.B.: We assume pd is not null.
     explicit BranchSelectState (BranchDescription const* pd) :
-      desc    (pd),
-      selectMe(false)
-    { }
+      desc{pd}
+    {}
   };  // BranchSelectState
 
   void applyToAll(std::vector<BranchSelectState>& branchstates) const;
@@ -75,13 +74,13 @@ private:
   private:
     // selectflag_ carries the value to which we should set the 'select
     // bit' if this rule matches.
-    bool        selectflag_;
+    bool selectflag_{false};
     BranchKey components_;
   };  // Rule
 
 private:
-  std::vector<Rule> rules_;
-  bool              keepAll_;
+  std::vector<Rule> rules_{};
+  bool keepAll_;
 };  // GroupSelectorRules
 
 // ======================================================================

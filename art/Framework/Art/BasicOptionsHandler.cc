@@ -87,7 +87,7 @@ doCheckOptions(bpo::variables_map const& vm)
   }
 
   if (vm.count("print-description")) {
-    detail::print_descriptions( vm["print-description"].as<std::vector<std::string>>());
+    detail::print_descriptions(vm["print-description"].as<std::vector<std::string>>());
     return 1;
   }
   if (vm.count("version")) {

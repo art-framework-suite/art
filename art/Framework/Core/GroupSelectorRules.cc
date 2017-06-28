@@ -59,9 +59,9 @@ namespace {
     "\"#\" is permissible in module labels.\n";
 
   art::BranchKey parseComponents(std::string s,
-                                 std::string const & parameterName,
-                                 std::string const & owner,
-                                 bool & selectflag)
+                                 std::string const& parameterName,
+                                 std::string const& owner,
+                                 bool& selectflag)
   {
     BranchKey components;
     std::smatch ruleMatch;
@@ -124,7 +124,7 @@ namespace {
         assert(btMatch.size() == static_cast<size_t>(art::NumBranchTypes) + 1ul);
         auto itFirstMatch = btMatch.begin();
         ++itFirstMatch;
-        auto it = std::find_if(itFirstMatch, btMatch.end(), [](auto & s){ return (s.length() > 0); });
+        auto it = std::find_if(itFirstMatch, btMatch.end(), [](auto& s){ return (s.length() > 0); });
         assert(it != btMatch.end()); // Should be true by construction.
         components.branchType_ = std::distance(itFirstMatch, it);
       } else {
@@ -146,10 +146,8 @@ namespace {
 GroupSelectorRules::Rule::Rule(string const& s,
                                string const& parameterName,
                                string const& owner) :
-  selectflag_(),
-  components_(parseComponents(s, parameterName, owner, selectflag_))
-{
-}
+  components_{parseComponents(s, parameterName, owner, selectflag_)}
+{}
 
 void
 GroupSelectorRules::Rule::applyToAll(vector<BranchSelectState>& branchstates) const
@@ -183,14 +181,13 @@ GroupSelectorRules::Rule::appliesTo(BranchDescription const* branch) const
     partial_match(static_cast<BranchType>(components_.branchType_), branch->branchType());
 }
 
-GroupSelectorRules::GroupSelectorRules(vector<string> const & commands,
+GroupSelectorRules::GroupSelectorRules(vector<string> const& commands,
                                        string const& parameterName,
-                                       string const& parameterOwnerName) :
-  rules_()
+                                       string const& parameterOwnerName)
 {
   rules_.reserve(commands.size());
-  for(auto const& cmd : commands) {
-    rules_.push_back(Rule(cmd, parameterName, parameterOwnerName));
+  for (auto const& cmd : commands) {
+    rules_.emplace_back(cmd, parameterName, parameterOwnerName);
   }
   keepAll_ = commands.size() == 1 && commands[0] == "keep *";
 }

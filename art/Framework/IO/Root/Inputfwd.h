@@ -33,19 +33,18 @@ namespace art {
     struct BranchInfo
     {
       BranchInfo(BranchDescription const& prod)
-        : branchDescription_(prod)
-        , productBranch_(0)
-      { }
+        : branchDescription_{prod}
+      {}
 
       BranchDescription const& branchDescription_;
-      TBranch * productBranch_;
+      TBranch* productBranch_{nullptr};
     };  // BranchInfo
 
     using BranchMap = std::map<BranchKey const, BranchInfo>;
     using EntryNumber = Long64_t;
     using EntryNumbers = std::vector<EntryNumber>;
-    Int_t getEntry(TBranch * branch, EntryNumber entryNumber);
-    Int_t getEntry(TTree * tree, EntryNumber entryNumber);
+    Int_t getEntry(TBranch* branch, EntryNumber entryNumber);
+    Int_t getEntry(TTree* tree, EntryNumber entryNumber);
 
   }  // input
 }  // art

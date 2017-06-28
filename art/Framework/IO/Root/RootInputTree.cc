@@ -14,12 +14,11 @@
 
 namespace art {
 
-  RootInputTree::
-  RootInputTree(cet::exempt_ptr<TFile> filePtr,
-           BranchType const branchType,
-           int64_t saveMemoryObjectThreshold,
-           cet::exempt_ptr<RootInputFile> primaryFile,
-           bool const missingOK)
+  RootInputTree::RootInputTree(cet::exempt_ptr<TFile> filePtr,
+                               BranchType const branchType,
+                               int64_t saveMemoryObjectThreshold,
+                               cet::exempt_ptr<RootInputFile> primaryFile,
+                               bool const missingOK)
     : filePtr_{filePtr}
     , branchType_{branchType}
     , saveMemoryObjectThreshold_{saveMemoryObjectThreshold}
@@ -45,8 +44,7 @@ namespace art {
   }
 
   bool
-  RootInputTree::
-  isValid() const
+  RootInputTree::isValid() const
   {
     if ((metaTree_ == 0) || (metaTree_->GetNbranches() == 0)) {
       return tree_ && auxBranch_ && (tree_->GetNbranches() == 1);
@@ -55,18 +53,16 @@ namespace art {
   }
 
   bool
-  RootInputTree::
-  hasBranch(std::string const& branchName) const
+  RootInputTree::hasBranch(std::string const& branchName) const
   {
     return tree_->GetBranch(branchName.c_str()) != 0;
   }
 
   void
-  RootInputTree::
-  addBranch(BranchKey const& key,
-            BranchDescription const& pd,
-            std::string const& branchName,
-            bool const present)
+  RootInputTree::addBranch(BranchKey const& key,
+                           BranchDescription const& pd,
+                           std::string const& branchName,
+                           bool const present)
   {
     assert(isValid());
     TBranch* branch = tree_->GetBranch(branchName.c_str());
@@ -81,8 +77,7 @@ namespace art {
   }
 
   void
-  RootInputTree::
-  dropBranch(std::string const& branchName)
+  RootInputTree::dropBranch(std::string const& branchName)
   {
     TBranch* branch = tree_->GetBranch(branchName.c_str());
     if (!branch) {
@@ -91,7 +86,7 @@ namespace art {
     TObjArray* leaves = tree_->GetListOfLeaves();
     int entries = leaves->GetEntries();
     for (int i = 0; i < entries; ++i) {
-      TLeaf* leaf = reinterpret_cast<TLeaf*>((*leaves)[i]);
+      auto leaf = reinterpret_cast<TLeaf*>((*leaves)[i]);
       if (leaf == nullptr) {
         continue;
       }
@@ -110,24 +105,22 @@ namespace art {
   }
 
   std::unique_ptr<DelayedReader>
-  RootInputTree::
-  makeDelayedReader(FileFormatVersion const fileFormatVersion,
-                    cet::exempt_ptr<BranchIDLists const> branchIDLists,
-                    BranchType const branchType,
-                    EntryNumbers const& entrySet,
-                    EventID const eID)
+  RootInputTree::makeDelayedReader(FileFormatVersion const fileFormatVersion,
+                                   cet::exempt_ptr<BranchIDLists const> branchIDLists,
+                                   BranchType const branchType,
+                                   EntryNumbers const& entrySet,
+                                   EventID const eID)
   {
     return makeDelayedReader(fileFormatVersion, nullptr, branchIDLists, branchType, entrySet, eID);
   }
 
   std::unique_ptr<DelayedReader>
-  RootInputTree::
-  makeDelayedReader(FileFormatVersion const fileFormatVersion,
-                    sqlite3* inputDB,
-                    cet::exempt_ptr<BranchIDLists const> branchIDLists,
-                    BranchType const branchType,
-                    EntryNumbers const& entrySet,
-                    EventID const eID)
+  RootInputTree::makeDelayedReader(FileFormatVersion const fileFormatVersion,
+                                   sqlite3* inputDB,
+                                   cet::exempt_ptr<BranchIDLists const> branchIDLists,
+                                   BranchType const branchType,
+                                   EntryNumbers const& entrySet,
+                                   EventID const eID)
   {
     return std::make_unique<RootDelayedReader>(fileFormatVersion,
                                                inputDB,
@@ -142,15 +135,13 @@ namespace art {
   }
 
   void
-  RootInputTree::
-  setCacheSize(unsigned int cacheSize) const
+  RootInputTree::setCacheSize(unsigned int cacheSize) const
   {
     tree_->SetCacheSize(static_cast<Long64_t>(cacheSize));
   }
 
   void
-  RootInputTree::
-  setTreeMaxVirtualSize(int treeMaxVirtualSize)
+  RootInputTree::setTreeMaxVirtualSize(int treeMaxVirtualSize)
   {
     if (treeMaxVirtualSize >= 0) {
       tree_->SetMaxVirtualSize(static_cast<Long64_t>(treeMaxVirtualSize));
@@ -158,8 +149,7 @@ namespace art {
   }
 
   void
-  RootInputTree::
-  setEntryNumber(EntryNumber theEntryNumber)
+  RootInputTree::setEntryNumber(EntryNumber theEntryNumber)
   {
     // Note: An entry number of -1 is ok, this can be used
     //       to put the tree an an invalid entry.
@@ -172,8 +162,7 @@ namespace art {
   }
 
   std::unique_ptr<BranchMapper>
-  RootInputTree::
-  makeBranchMapper() const
+  RootInputTree::makeBranchMapper() const
   {
     return std::make_unique<BranchMapperWithReader>(productProvenanceBranch_, entryNumber_);
   }
