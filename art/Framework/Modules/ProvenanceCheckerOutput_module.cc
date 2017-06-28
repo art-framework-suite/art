@@ -12,7 +12,6 @@
 #include "art/Persistency/Provenance/ProductMetaData.h"
 #include "art/Utilities/ConfigurationTable.h"
 #include "canvas/Persistency/Provenance/ProductID.h"
-#include "canvas/Persistency/Provenance/ProductList.h"
 #include "cetlib/exception.h"
 #include "cetlib/exempt_ptr.h"
 #include "fhiclcpp/ParameterSet.h"

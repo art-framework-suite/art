@@ -13,7 +13,6 @@
 #include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Utilities/ConfigurationTable.h"
 #include "canvas/Persistency/Provenance/IDNumber.h"
-#include "canvas/Persistency/Provenance/ProductList.h"
 #include "fhiclcpp/types/Sequence.h"
 #include "fhiclcpp/types/TupleAs.h"
 

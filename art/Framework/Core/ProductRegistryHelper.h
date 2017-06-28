@@ -25,7 +25,6 @@
 #include "art/Persistency/Provenance/detail/type_aliases.h"
 #include "canvas/Persistency/Common/Assns.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
-#include "canvas/Persistency/Provenance/ProductList.h"
 #include "canvas/Persistency/Provenance/TypeLabel.h"
 #include "canvas/Utilities/Exception.h"
 #include "canvas/Utilities/TypeID.h"

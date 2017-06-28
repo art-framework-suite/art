@@ -15,7 +15,6 @@
 #include "canvas/Persistency/Provenance/BranchKey.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
 #include "canvas/Persistency/Provenance/Compatibility/BranchIDList.h"
-#include "canvas/Persistency/Provenance/ProductList.h"
 #include "canvas/Persistency/Provenance/ProductID.h"
 #include "canvas/Persistency/Provenance/ProductIDStreamer.h"
 #include "canvas/Utilities/Exception.h"
