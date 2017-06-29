@@ -36,8 +36,7 @@ namespace {
                                                          moduleLabel,
                                                          art::ProcessConfiguration(processName,
                                                                                    fhicl::ParameterSet{}.id(),
-                                                                                   art::getReleaseVersion(),
-                                                                                   "")));
+                                                                                   art::getReleaseVersion())));
   }
 
   void apply_gs(art::GroupSelector const& gs,

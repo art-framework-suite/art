@@ -22,7 +22,6 @@
 #include "canvas/Persistency/Provenance/SubRunAuxiliary.h"
 #include "canvas/Persistency/Provenance/Timestamp.h"
 #include "canvas/Persistency/Provenance/TypeLabel.h"
-#include "canvas/Utilities/GetPassID.h"
 #include "canvas/Utilities/InputTag.h"
 #include "cetlib/container_algorithms.h"
 #include "fhiclcpp/ParameterSet.h"
@@ -106,7 +105,6 @@ MPRGlobalTestFixture::MPRGlobalTestFixture()
   ProcessConfiguration process;
   process.processName_    = processName;
   process.releaseVersion_ = getReleaseVersion();
-  process.passID_         = getPassID();
   process.parameterSetID_ = processParams.id();
 
   TypeID product_type(typeid(prod_t));
@@ -147,7 +145,6 @@ registerProduct(std::string const& tag,
   ProcessConfiguration process;
   process.processName_    = processName;
   process.releaseVersion_ = getReleaseVersion();
-  process.passID_         = getPassID();
   process.parameterSetID_ = processParams.id();
 
   ModuleDescription localModuleDescription(moduleParams.id(),
@@ -199,7 +196,6 @@ EventTestFixture::EventTestFixture()
   ProcessConfiguration processEarly;
   processEarly.processName_    = "EARLY";
   processEarly.releaseVersion_ = getReleaseVersion();
-  processEarly.passID_         = getPassID();
   processEarly.parameterSetID_ = processParamsEarly.id();
 
   ParameterSet moduleParamsLate;
@@ -216,7 +212,6 @@ EventTestFixture::EventTestFixture()
   ProcessConfiguration processLate;
   processLate.processName_    = "LATE";
   processLate.releaseVersion_ = getReleaseVersion();
-  processLate.passID_         = getPassID();
   processLate.parameterSetID_ = processParamsLate.id();
 
   ProcessHistory* processHistory = new ProcessHistory;

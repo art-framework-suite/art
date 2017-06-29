@@ -4,7 +4,6 @@
 #include "art/Utilities/HorizontalRule.h"
 #include "art/Utilities/bold_fontify.h"
 #include "art/Version/GetReleaseVersion.h"
-#include "canvas/Utilities/GetPassID.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/types/detail/validationException.h"
 
@@ -91,8 +90,7 @@ art::PathsInfo::makeWorker_(detail::ModuleConfigInfo const& mci)
                                 p.pset_.get<std::string>("module_label"),
                                 ProcessConfiguration{p.processName_,
                                                      procPS_.id(),
-                                                     getReleaseVersion(),
-                                                     getPassID()}};
+                                                     getReleaseVersion()}};
     areg_.sPreModuleConstruction.invoke(md);
     try {
       auto worker = fact_.makeWorker(p, md);

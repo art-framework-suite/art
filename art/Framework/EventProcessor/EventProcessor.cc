@@ -27,7 +27,6 @@
 #include "canvas/Persistency/Provenance/ProcessConfiguration.h"
 #include "canvas/Utilities/DebugMacros.h"
 #include "canvas/Utilities/Exception.h"
-#include "canvas/Utilities/GetPassID.h"
 #include "cetlib/container_algorithms.h"
 #include "fhiclcpp/types/detail/validationException.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
@@ -76,8 +75,7 @@ namespace {
           main_input.get<std::string>("module_label"),
           art::ProcessConfiguration{processName,
             params.id(),
-            art::getReleaseVersion(),
-            art::getPassID()}};
+            art::getReleaseVersion()}};
       sourceSpecified = true;
       art::InputSourceDescription isd{md, preg, areg};
       try {

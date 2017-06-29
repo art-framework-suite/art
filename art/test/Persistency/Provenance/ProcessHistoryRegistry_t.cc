@@ -4,7 +4,6 @@
 #include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
 #include "art/Version/GetReleaseVersion.h"
 #include "canvas/Persistency/Provenance/ProcessHistory.h"
-#include "canvas/Utilities/GetPassID.h"
 #include "cetlib/SimultaneousFunctionSpawner.h"
 #include "cetlib/container_algorithms.h"
 #include "cetlib/test_macros.h"
@@ -28,7 +27,7 @@ namespace {
     processParams.put("process_name", process_name);
     processParams.put(module_label, moduleParams);
 
-    return ProcessConfiguration{process_name, processParams.id(), getReleaseVersion(), getPassID()};
+    return ProcessConfiguration{process_name, processParams.id(), getReleaseVersion()};
   }
 }
 

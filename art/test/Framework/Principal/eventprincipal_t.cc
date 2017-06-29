@@ -31,7 +31,6 @@ Test of the EventPrincipal class.
 #include "canvas/Persistency/Provenance/Timestamp.h"
 #include "canvas/Persistency/Provenance/TypeLabel.h"
 #include "canvas/Utilities/Exception.h"
-#include "canvas/Utilities/GetPassID.h"
 #include "canvas/Utilities/TypeID.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/ParameterSetID.h"
@@ -56,8 +55,7 @@ private:
   fake_single_module_process(std::string const& tag,
                              std::string const& processName,
                              fhicl::ParameterSet const& moduleParams,
-                             std::string const& release = art::getReleaseVersion(),
-                             std::string const& pass = art::getPassID() );
+                             std::string const& release = art::getReleaseVersion());
 
   std::unique_ptr<art::BranchDescription>
   fake_single_process_branch(std::string const& tag,
@@ -89,8 +87,7 @@ MPRGlobalTestFixture::
 fake_single_module_process(std::string const& tag,
                            std::string const& processName,
                            fhicl::ParameterSet const& moduleParams,
-                           std::string const& release,
-                           std::string const& pass)
+                           std::string const& release)
 {
   fhicl::ParameterSet processParams;
   processParams.put(processName, moduleParams);
@@ -98,7 +95,7 @@ fake_single_module_process(std::string const& tag,
                                           processName);
 
   art::ProcessConfiguration* result =
-    new art::ProcessConfiguration(processName, processParams.id(), release, pass);
+    new art::ProcessConfiguration(processName, processParams.id(), release);
   processConfigurations_[tag] = result;
   return result;
 }

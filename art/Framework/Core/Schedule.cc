@@ -15,13 +15,11 @@
 #include "art/Framework/Core/WorkerT.h"
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Services/System/TriggerNamesService.h"
-#include "canvas/Persistency/Provenance/ModuleDescription.h"
-#include "canvas/Persistency/Provenance/PassID.h"
-#include "canvas/Persistency/Provenance/ProductList.h"
 #include "art/Persistency/Provenance/ProductMetaData.h"
-#include "canvas/Persistency/Provenance/ReleaseVersion.h"
-#include "canvas/Utilities/GetPassID.h"
 #include "art/Version/GetReleaseVersion.h"
+#include "canvas/Persistency/Provenance/ModuleDescription.h"
+#include "canvas/Persistency/Provenance/ProductList.h"
+#include "canvas/Persistency/Provenance/ReleaseVersion.h"
 #include "cetlib/exempt_ptr.h"
 
 #include <algorithm>
@@ -138,8 +136,7 @@ makeTriggerResultsInserter_(fhicl::ParameterSet const& trig_pset,
                        "TriggerResults",
                        ProcessConfiguration(processName_,
                                             process_pset_.id(),
-                                            getReleaseVersion(),
-                                            getPassID()));
+                                            getReleaseVersion()));
   areg.sPreModuleConstruction.invoke(md);
   auto producer = std::make_unique<TriggerResultInserter>(trig_pset, triggerPathsInfo_.pathResults());
   results_inserter_ = std::make_unique<WorkerT<EDProducer>>(std::move(producer), md, work_args);

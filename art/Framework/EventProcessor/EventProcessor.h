@@ -24,7 +24,6 @@
 #include "art/Persistency/Provenance/MasterProductRegistry.h"
 #include "art/Utilities/UnixSignalHandlers.h"
 #include "canvas/Persistency/Provenance/IDNumber.h"
-#include "canvas/Persistency/Provenance/PassID.h"
 #include "canvas/Persistency/Provenance/ReleaseVersion.h"
 #include "cetlib/cpu_timer.h"
 #include "cetlib/exception.h"

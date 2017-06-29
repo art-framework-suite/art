@@ -38,9 +38,8 @@ namespace {
                                                     "arttest::NOMOD",
                                                     moduleLabel,
                                                     art::ProcessConfiguration(processName,
-                                                                              fhicl::ParameterSet().id(),
-                                                                              art::getReleaseVersion(),
-                                                                              "")));
+                                                                              fhicl::ParameterSet{}.id(),
+                                                                              art::getReleaseVersion())));
   }
 }
 

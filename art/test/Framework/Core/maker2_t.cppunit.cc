@@ -1,4 +1,3 @@
-
 #include <iostream>
 
 #include "art/Framework/Principal/Actions.h"
@@ -8,7 +7,6 @@
 #include "art/Framework/Core/detail/ModuleFactory.h"
 #include "art/Framework/Principal/WorkerParams.h"
 #include "art/Framework/Core/WorkerT.h"
-#include "canvas/Utilities/GetPassID.h"
 #include "art/Version/GetReleaseVersion.h"
 #include "fhiclcpp/ParameterSet.h"
 
@@ -20,7 +18,7 @@ using fhicl::ParameterSet;
 namespace
 {
   ModuleDescription
-    createModuleDescription(WorkerParams const &p)
+  createModuleDescription(WorkerParams const &p)
   {
     ParameterSet const& procParams = p.procPset_;
     ParameterSet const& conf = p.pset_;
@@ -29,8 +27,7 @@ namespace
                              conf.get<std::string>("module_label"),
                              ProcessConfiguration(p.processName_,
                                                   procParams.id(),
-                                                  getReleaseVersion(),
-                                                  getPassID()));
+                                                  getReleaseVersion()));
   }
 } // namespace
 
@@ -38,9 +35,9 @@ namespace
 // ----------------------------------------------
 class testmaker2: public CppUnit::TestFixture
 {
-CPPUNIT_TEST_SUITE(testmaker2);
-CPPUNIT_TEST(maker2Test);
-CPPUNIT_TEST_SUITE_END();
+  CPPUNIT_TEST_SUITE(testmaker2);
+  CPPUNIT_TEST(maker2Test);
+  CPPUNIT_TEST_SUITE_END();
 public:
   void setUp(){}
   void tearDown(){}
@@ -72,5 +69,5 @@ void testmaker2::maker2Test()
   std::unique_ptr<Worker> w1 = fact.makeWorker(params1, createModuleDescription(params1));
   std::unique_ptr<Worker> w2 = fact.makeWorker(params2, createModuleDescription(params2));
 
-//  return 0;
+  //  return 0;
 }
