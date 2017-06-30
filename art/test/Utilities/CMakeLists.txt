@@ -28,14 +28,6 @@ foreach(test_cpp MallocOpts_t.cpp)
     )
 endforeach()
 
-foreach(cppunit_test HRTime_t.cpp)
-  get_filename_component(tname ${cppunit_test} NAME_WE )
-  cet_test(${tname}
-    SOURCES ${cppunit_test}
-    LIBRARIES ${default_art_test_libraries} ${CPPUNIT}
-    )
-endforeach()
-
 cet_test(ScheduleID_t USE_BOOST_UNIT)
 
 cet_test(parent_path_t USE_BOOST_UNIT
