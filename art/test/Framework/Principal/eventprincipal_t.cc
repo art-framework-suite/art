@@ -190,8 +190,8 @@ BOOST_FIXTURE_TEST_SUITE(eventprincipal_t, EventPrincipalTestFixture)
 BOOST_AUTO_TEST_CASE(failgetbyIdTest)
 {
   // Make test for invalid productID?
-  art::ProductID notpresent(0);
-  art::GroupQueryResult h(pEvent_->getByProductID(notpresent));
+  constexpr auto invalid = art::ProductID::invalid();
+  art::GroupQueryResult h(pEvent_->getByProductID(invalid));
   BOOST_CHECK(h.failed());
 }
 
