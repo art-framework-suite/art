@@ -148,7 +148,7 @@ RootInputFileSequence(fhicl::TableFragment<RootInputFileSequence::Config> const&
     duplicateChecker_ = std::make_shared<DuplicateChecker>(config().dc);
   }
   while (catalog_.getNextFile()) {
-    initFile(skipBadFiles_, /*initMPR=*/true);
+    initFile(skipBadFiles_);
     if (rootFile_) {
       // We found one, good, stop now.
       break;
@@ -292,7 +292,7 @@ closeFile_()
 
 void
 RootInputFileSequence::
-initFile(bool skipBadFiles, bool initMPR/*=false*/)
+initFile(bool const skipBadFiles)
 {
   // close the currently open file, any, and delete the RootInputFile object.
   closeFile_();
@@ -358,16 +358,10 @@ initFile(bool skipBadFiles, bool initMPR/*=false*/)
     fileIndexes_.resize(catalog_.currentIndex() + 1);
   }
   fileIndexes_[catalog_.currentIndex()] = rootFile_->fileIndexSharedPtr();
-  if (initMPR) {
-    mpr_.initFromFirstPrimaryFile(rootFile_->productList(),
-                                  rootFile_->perBranchTypePresence(),
-                                  *rootFile_->createFileBlock());
-  }
-  else {
-    mpr_.updateFromNewPrimaryFile(rootFile_->productList(),
-                                  rootFile_->perBranchTypePresence(),
-                                  *rootFile_->createFileBlock());
-  }
+
+  mpr_.updateFromPrimaryFile(rootFile_->productList(),
+                             rootFile_->perBranchTypePresence(),
+                             *rootFile_->createFileBlock());
 
   // Create branches to read the products from the input file.
   for (auto const& prod : rootFile_->productList()) {
@@ -463,8 +457,7 @@ openSecondaryFile(int idx,
     rif->treePointers()[pd.branchType()]->addBranch(prod.first,
                                                     pd,
                                                     pd.branchName(),
-                                                    present );
-
+                                                    present);
   }
 
   return std::move(rif);

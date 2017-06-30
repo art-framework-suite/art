@@ -220,7 +220,7 @@ public: // MEMBER FUNCTIONS
 private: // MEMBER FUNCTIONS
 
   void
-  initFile(bool skipBadFiles, bool initMPR = false);
+  initFile(bool skipBadFiles);
 
   bool
   nextFile();

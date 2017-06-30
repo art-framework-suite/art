@@ -171,10 +171,6 @@ void
 art::MasterProductRegistry::addProduct(std::unique_ptr<BranchDescription>&& bdp)
 {
   assert(bdp->produced());
-  if (frozen_) {
-    throw cet::exception("ProductRegistry", "addProduct")
-      << "Cannot modify the MasterProductRegistry because it is frozen.\n";
-  }
   CET_ASSERT_ONLY_ONE_THREAD();
 
   checkDicts_(*bdp);
@@ -198,35 +194,27 @@ art::MasterProductRegistry::addProduct(std::unique_ptr<BranchDescription>&& bdp)
 void
 art::MasterProductRegistry::setFrozen()
 {
-  if (frozen_) {
-    return;
-  }
-
   CET_ASSERT_ONLY_ONE_THREAD();
 
-  frozen_ = true;
   productLookup_.assign(1u,{}); // Seed with one empty vector
   elementLookup_.assign(1u,{}); // ""
   recreateLookups(productList_, productLookup_[0], elementLookup_[0]);
 }
 
 void
-art::MasterProductRegistry::initFromFirstPrimaryFile(ProductList const& pl,
-                                                     PerBranchTypePresence const& presList,
-                                                     FileBlock const& fb)
+art::MasterProductRegistry::updateFromPrimaryFile(ProductList const& pl,
+                                                  PerBranchTypePresence const& presList,
+                                                  FileBlock const& fb)
 {
   CET_ASSERT_ONLY_ONE_THREAD();
 
   resetPresenceFlags_(pl, presList);
+  perFileProds_.resize(1);
 
   // Set product lists and handle merging
   for (auto const& val: pl) {
     auto const& pd = val.second;
     assert(!pd.produced());
-    if (frozen_) {
-      throw cet::exception("ProductRegistry", "initFromFirstPrimaryFile")
-        << "Cannot modify the MasterProductRegistry because it is frozen.\n";
-    }
     checkDicts_(pd);
     auto bk = BranchKey{pd};
     auto I = productList_.find(bk);
@@ -246,67 +234,11 @@ art::MasterProductRegistry::initFromFirstPrimaryFile(ProductList const& pl,
     assert(combinable(J->second, pd));
     J->second.merge(pd);
   }
-  cet::for_all(productListUpdatedCallbacks_, [&fb](auto const& callback){ callback(fb); });
-}
 
-void
-art::MasterProductRegistry::updateFromNewPrimaryFile(ProductList const& other,
-                                                     PerBranchTypePresence const& presList,
-                                                     FileBlock const& fb)
-{
-  CET_ASSERT_ONLY_ONE_THREAD();
-
-  resetPresenceFlags_(other, presList);
-  perFileProds_.resize(1);
-
-  std::ostringstream msg;
-  auto I = productList_.begin();
-  auto E = productList_.end();
-  auto J = other.cbegin();
-  auto JE = other.cend();
-  // Loop over entries in the main product registry.
-  while ((I != E) || (J != JE)) {
-    if ((I != E) && I->second.produced()) {
-      // Skip branches produced by the current process.
-      ++I;
-      continue;
-    }
-    if ((I == E) || ((J != JE) && (J->first < I->first))) {
-      // We have found a product listed in the new input file product
-      // list which was not in the product list of any previous input
-      // file.
-      assert(!J->second.produced());
-      checkDicts_(J->second);
-      productList_.insert(*J);
-      perFileProds_[0].insert(*J);
-      ++J;
-      continue;
-    }
-    if ((J == JE) || ((I != E) && (I->first < J->first))) {
-      // We have found a product which was listed in at least one of
-      // the previous input files product lists but is not listed in
-      // the product list of the new file.  This is ok, products are
-      // allowed to be dropped.
-      ++I;
-      continue;
-    }
-    assert(!J->second.produced());
-
-    assert(I->first == J->first);
-    // Since the BranchKeys are guaranteed to be same, the
-    // BranchDescriptions will be combinable since:
-    //   - the branch names (as generated from the BranchKeys) are the same
-    //   - the branch types are the same
-    //   - the product IDs (as generated from the branch names) are the same
-    assert(combinable(I->second, J->second));
-    auto const& pd = J->second;
-    I->second.merge(pd);
-    ++I;
-    ++J;
-  }
   productLookup_.assign(1u,{}); // Seed with one empty vector
   elementLookup_.assign(1u,{}); // ""
   recreateLookups(productList_, productLookup_[0], elementLookup_[0]);
+
   cet::for_all(productListUpdatedCallbacks_, [&fb](auto const& callback){ callback(fb); });
 }
 
@@ -347,7 +279,6 @@ art::MasterProductRegistry::updateFromSecondaryFile(ProductList const& pl,
     // sets and process descriptions.
     assert(combinable(I->second, pd));
     I->second.merge(pd);
-    // Now repeat for the per-file prods list.
     auto J = perFileProds_.back().find(bk);
     if (J == perFileProds_.back().end()) {
       // New product.
@@ -359,6 +290,7 @@ art::MasterProductRegistry::updateFromSecondaryFile(ProductList const& pl,
     assert(combinable(J->second, pd));
     J->second.merge(pd);
   }
+
   productLookup_.resize(productLookup_.size()+1);
   elementLookup_.resize(elementLookup_.size()+1);
   recreateLookups(perFileProds_.back(), productLookup_.back(), elementLookup_.back());

@@ -58,10 +58,7 @@ public:
 
   void addProduct(std::unique_ptr<BranchDescription>&&);
   void setFrozen();
-  void initFromFirstPrimaryFile(ProductList const&, PerBranchTypePresence const&, FileBlock const&);
-  void updateFromNewPrimaryFile(ProductList const&,
-                                PerBranchTypePresence const&,
-                                FileBlock const&);
+  void updateFromPrimaryFile(ProductList const&, PerBranchTypePresence const&, FileBlock const&);
   void updateFromSecondaryFile(ProductList const&, PerBranchTypePresence const&, FileBlock const&);
   void registerProductListUpdatedCallback(ProductListUpdatedCallback cb);
 
@@ -86,23 +83,24 @@ public:
 private:
   void resetPresenceFlags_(ProductList const& pl,
                            PerBranchTypePresence const& presList);
-  void checkDicts_(BranchDescription const & productDesc);
-
-  ProductList productList_ {};
   bool frozen_ {false};
-  std::array<bool, NumBranchTypes> productProduced_ {{false}}; //filled by aggregation
-  std::vector<ProductList> perFileProds_ {{}}; // Fill with 1 empty list
+  void checkDicts_(BranchDescription const& productDesc);
 
-  PerBranchTypePresence  perBranchPresenceLookup_ {{}};
-  PerFilePresence perFilePresenceLookups_ {};
+  // Data members initialized once per process:
+  ProductList productList_{};
+  std::array<bool, NumBranchTypes> productProduced_{{false}}; //filled by aggregation
+  std::vector<ProductListUpdatedCallback> productListUpdatedCallbacks_{};
+  DictionaryChecker dictChecker_{};
+
+  // Data members reset per primary input file:
+  std::vector<ProductList> perFileProds_{{}}; // Fill with 1 empty list
+  PerBranchTypePresence  perBranchPresenceLookup_{{}};
+  PerFilePresence perFilePresenceLookups_{};
   // Support finding a ProductID by <product friendly class name, process name>.
-  std::vector<BranchTypeLookup> productLookup_ {};
+  std::vector<BranchTypeLookup> productLookup_{};
   // Support finding a ProductID by
   // <product::value_type friendly class name, process name>.
-  std::vector<BranchTypeLookup> elementLookup_ {};
-  std::vector<ProductListUpdatedCallback> productListUpdatedCallbacks_ {};
-
-  DictionaryChecker dictChecker_ {};
+  std::vector<BranchTypeLookup> elementLookup_{};
 };
 
 // Local Variables:

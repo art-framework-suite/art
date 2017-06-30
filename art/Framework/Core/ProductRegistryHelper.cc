@@ -60,7 +60,7 @@ art::ProductRegistryHelper::registerProducts(MasterProductRegistry& mpr,
       tp[pd.branchType()].emplace(pd.productID());
     }
     FileBlock const fb{{}, "ProductRegistryHelper"};
-    mpr.initFromFirstPrimaryFile(*productList_, tp, fb);
+    mpr.updateFromPrimaryFile(*productList_, tp, fb);
     productList_.reset(); // Reset, since we no longer need it.
   }
   check_for_duplicate_Assns(typeLabelList_[InEvent]);
