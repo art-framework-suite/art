@@ -39,8 +39,7 @@ namespace art {
                    std::unique_ptr<BranchMapper>&& mapper = std::make_unique<BranchMapper>(),
                    std::unique_ptr<DelayedReader>&& rtrv = std::make_unique<NoDelayedReader>(),
                    bool lastInSubRun = false,
-                   int idx = 0,
-                   cet::exempt_ptr<EventPrincipal const> = nullptr);
+                   int idx = 0);
 
     SubRunPrincipal const& subRunPrincipal() const;
 

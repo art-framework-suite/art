@@ -23,9 +23,8 @@ namespace art {
                                  std::unique_ptr<BranchMapper>&& mapper,
                                  std::unique_ptr<DelayedReader>&& rtrv,
                                  bool const lastInSubRun,
-                                 int const idx,
-                                 cet::exempt_ptr<EventPrincipal const> primaryPrincipal)
-  : Principal{pc, history->processHistoryID(), std::move(mapper), std::move(rtrv), idx, primaryPrincipal}
+                                 int const idx)
+  : Principal{pc, history->processHistoryID(), std::move(mapper), std::move(rtrv), idx}
   , aux_{aux}
   , history_{history}
   , lastInSubRun_{lastInSubRun}
@@ -49,7 +48,7 @@ namespace art {
   void
   EventPrincipal::throwIfExistingGroup(BranchDescription const& pd) const
   {
-    if (auto group = getExistingGroup(pd.productID())) {
+    if (auto group = getGroup(pd.productID())) {
       throw art::Exception(art::errors::ProductRegistrationFailure, "EventPrincipal::throwIfExistingGroup")
         << "Problem found while adding product provenance: "
         << "product already exists for ("

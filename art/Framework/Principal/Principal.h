@@ -64,8 +64,7 @@ namespace art {
               ProcessHistoryID const&,
               std::unique_ptr<BranchMapper>&&,
               std::unique_ptr<DelayedReader>&&,
-              int idx,
-              cet::exempt_ptr<Principal const>);
+              int idx);
 
     EDProductGetter const*
     productGetter(ProductID const pid) const;
@@ -228,15 +227,12 @@ namespace art {
     tryNextSecondaryFile() const;
 
     cet::exempt_ptr<Group const>
-    getExistingGroup(ProductID const pid) const;
+    getGroupForPtr(ProductID const pid) const;
 
-    cet::exempt_ptr<Group const> const
-    getGroupForPtr(BranchType const btype, ProductID const pid) const;
-
-    cet::exempt_ptr<Group const> const
+    cet::exempt_ptr<Group const>
     getGroup(ProductID const pid) const;
 
-    cet::exempt_ptr<Group const> const
+    cet::exempt_ptr<Group const>
     getResolvedGroup(ProductID const pid,
                      bool resolveProd) const;
 
@@ -304,9 +300,6 @@ namespace art {
     // Pointer to the reader that will be used to obtain EDProducts
     // from the persistent store.
     std::unique_ptr<DelayedReader> store_;
-
-    // Back pointer to the primary principal.
-    cet::exempt_ptr<Principal const> primaryPrincipal_;
 
     // Secondary principals.  Note that the lifetime of run and subRun
     // principals is the lifetime of the input file, while the

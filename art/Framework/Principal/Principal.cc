@@ -27,17 +27,14 @@ using namespace std;
 
 namespace art {
 
-Principal::
-Principal(ProcessConfiguration const& pc,
-          ProcessHistoryID const& hist,
-          std::unique_ptr<BranchMapper>&& mapper,
-          std::unique_ptr<DelayedReader>&& reader,
-          int const idx,
-          cet::exempt_ptr<Principal const> primaryPrincipal)
+Principal::Principal(ProcessConfiguration const& pc,
+                     ProcessHistoryID const& hist,
+                     std::unique_ptr<BranchMapper>&& mapper,
+                     std::unique_ptr<DelayedReader>&& reader,
+                     int const idx)
   : processConfiguration_{pc}
   , branchMapperPtr_{std::move(mapper)}
   , store_{std::move(reader)}
-  , primaryPrincipal_{primaryPrincipal}
   , secondaryIdx_{idx}
 {
   if (!hist.isValid()) {
@@ -111,7 +108,7 @@ Principal::getBySelector(TypeID const& productType, SelectorBase const& sel) con
 GroupQueryResult
 Principal::getByProductID(ProductID const pid) const
 {
-  if (auto const g = getGroupForPtr(art::InEvent, pid)) {
+  if (auto const g = getGroupForPtr(pid)) {
     return GroupQueryResult{g};
   }
   auto whyFailed = std::make_shared<art::Exception>(art::errors::ProductNotFound, "InvalidID");
@@ -223,7 +220,7 @@ getMatchingSequence(TypeID const& elementType, SelectorBase const& selector,
     if (I == el[branchType()].end()) {
       continue;
     }
-    if (auto ret = findGroups(I->second, selector, results, stopIfProcessHasMatch) ) {
+    if (auto ret = findGroups(I->second, selector, results, stopIfProcessHasMatch)) {
       return ret;
     }
   }
@@ -234,7 +231,7 @@ void
 Principal::
 removeCachedProduct(ProductID const pid) const
 {
-  if (auto g = getExistingGroup(pid)) {
+  if (auto g = getGroup(pid)) {
     g->removeCachedProduct();
     return;
   }
@@ -430,15 +427,14 @@ Principal::getForOutput(ProductID const pid, bool resolveProd) const
   return OutputHandle{g->anyProduct(), &g->productDescription(), g->productProvenancePtr(), g->rangeOfValidity()};
 }
 
-cet::exempt_ptr<Group const> const
-Principal::
-getResolvedGroup(ProductID const pid,
-                 bool const resolveProd) const
+cet::exempt_ptr<Group const>
+Principal::getResolvedGroup(ProductID const pid,
+                            bool const resolveProd) const
 {
   // FIXME: This reproduces the behavior of the original getGroup with
   // resolveProv == false but I am not sure this is correct in the case
   // of an unavailable product.
-  auto const g = getGroupForPtr(branchType(),pid);
+  auto const g = getGroupForPtr(pid);
   if (!g.get() || !resolveProd) {
     return g;
   }
@@ -451,47 +447,24 @@ getResolvedGroup(ProductID const pid,
 }
 
 cet::exempt_ptr<Group const>
-Principal::
-getExistingGroup(ProductID const pid) const
+Principal::getGroupForPtr(ProductID const pid) const
 {
-  auto I = groups_.find(pid);
-  if (I != groups_.end()) {
-    return I->second.get();
-  }
-  for (auto& p : secondaryPrincipals_) {
-    auto I = p->groups_.find(pid);
-    if (I != p->groups_.end()) {
-      return I->second.get();
-    }
-  }
-  return nullptr;
-}
-
-cet::exempt_ptr<Group const> const
-Principal::
-getGroupForPtr(BranchType const btype, ProductID const pid) const
-{
-  Principal const* pp = this;
-  if (primaryPrincipal_ != nullptr) {
-    pp = primaryPrincipal_.get();
-  }
-
-  std::size_t const index    = ProductMetaData::instance().presentWithFileIdx(btype, pid);
-  bool        const produced = ProductMetaData::instance().produced(btype, pid);
-  if ( produced || index == 0 ) {
-    auto it = pp->groups_.find(pid);
+  std::size_t const index    = ProductMetaData::instance().presentWithFileIdx(branchType(), pid);
+  bool        const produced = ProductMetaData::instance().produced(branchType(), pid);
+  if (produced || index == 0) {
+    auto it = groups_.find(pid);
     // Note: There will be groups for dropped products, so we
     //       must check for that.  We want the group where the
     //       product can actually be retrieved from.
-    return (it != pp->groups_.end()) ? it->second.get() : nullptr;
+    return (it != groups_.end()) ? it->second.get() : nullptr;
   }
-  else if ( index > 0 && ( index-1 < secondaryPrincipals_.size() ) ) {
+  else if (index > 0 && (index-1 < secondaryPrincipals_.size())) {
     auto const& groups = secondaryPrincipals_[index-1]->groups_;
     auto it = groups.find(pid);
     return (it != groups.end()) ? it->second.get() : nullptr;
   }
-  while (1) {
-    int err = tryNextSecondaryFile();
+  while (true) {
+    int const err = tryNextSecondaryFile();
     if (err == -2) {
       // No more files.
       return nullptr;
@@ -500,7 +473,7 @@ getGroupForPtr(BranchType const btype, ProductID const pid) const
       // Run, SubRun, or Event not found.
       continue;
     }
-    std::size_t const index = ProductMetaData::instance().presentWithFileIdx(btype, pid);
+    std::size_t const index = ProductMetaData::instance().presentWithFileIdx(branchType(), pid);
     if (index == MasterProductRegistry::DROPPED) continue;
     auto& p = secondaryPrincipals_[index-1];
     auto it = p->groups_.find(pid);
@@ -511,19 +484,12 @@ getGroupForPtr(BranchType const btype, ProductID const pid) const
   }
 }
 
-cet::exempt_ptr<Group const> const
-Principal::
-getGroup(ProductID const pid) const
+cet::exempt_ptr<Group const>
+Principal::getGroup(ProductID const pid) const
 {
-  const Principal* pp = this;
-  if (primaryPrincipal_ != nullptr) {
-    pp = primaryPrincipal_.get();
-  }
-  {
-    auto I = pp->groups_.find(pid);
-    if (I != pp->groups_.end()) {
-      return I->second.get();
-    }
+  auto I = groups_.find(pid);
+  if (I != groups_.end()) {
+    return I->second.get();
   }
   for (auto& p : secondaryPrincipals_) {
     auto I = p->groups_.find(pid);

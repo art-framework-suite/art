@@ -13,9 +13,8 @@ ResultsPrincipal(ResultsAuxiliary const& aux,
                  ProcessConfiguration const& pc,
                  std::unique_ptr<BranchMapper>&& mapper,
                  std::unique_ptr<DelayedReader>&& rtrv,
-                 int const idx,
-                 cet::exempt_ptr<ResultsPrincipal const> primaryPrincipal)
-  : Principal{pc, aux.processHistoryID_, std::move(mapper), std::move(rtrv), idx, primaryPrincipal}
+                 int const idx)
+  : Principal{pc, aux.processHistoryID_, std::move(mapper), std::move(rtrv), idx}
   , aux_{aux}
 {
   productReader().setGroupFinder(cet::exempt_ptr<EDProductGetterFinder const>{this});

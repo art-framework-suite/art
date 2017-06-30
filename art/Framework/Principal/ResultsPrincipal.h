@@ -34,8 +34,7 @@ public:
                    ProcessConfiguration const&,
                    std::unique_ptr<BranchMapper>&& mapper = std::make_unique<BranchMapper>(),
                    std::unique_ptr<DelayedReader>&& rtrv = std::make_unique<NoDelayedReader>(),
-                   int const idx = 0,
-                   cet::exempt_ptr<ResultsPrincipal const> = nullptr);
+                   int idx = 0);
 
   ResultsAuxiliary const& aux() const { return aux_; }
 

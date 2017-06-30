@@ -623,8 +623,7 @@ namespace art {
                                                                              entryNumbers.first,
                                                                              eventAux().id()),
                                                entryNumbers.second,
-                                               0,
-                                               nullptr);
+                                               0);
     eventTree().fillGroups(*ep);
     if (!delayedReadEventProducts_) {
       ep->readImmediate();
@@ -660,8 +659,7 @@ namespace art {
                                                                              entryNumbers.first,
                                                                              eventAux().id()),
                                                entryNumbers.second,
-                                               secondaryFileNameIdx_ + 1,
-                                               primaryFile_->primaryEP_);
+                                               secondaryFileNameIdx_ + 1);
     eventTree().fillGroups(*ep);
     primaryFile_->primaryEP_->addSecondaryPrincipal(move(ep));
     return true;
@@ -719,8 +717,7 @@ namespace art {
                                                                          InRun,
                                                                          entryNumbers,
                                                                          fiIter_->eventID_),
-                                             0,
-                                             nullptr);
+                                             0);
 
     runTree().fillGroups(*rp);
     if (!delayedReadRunProducts_) {
@@ -768,8 +765,7 @@ namespace art {
                                                                          InRun,
                                                                          entryNumbers,
                                                                          fiIter_->eventID_),
-                                             secondaryFileNameIdx_ + 1,
-                                             primaryFile_->primaryRP_);
+                                             secondaryFileNameIdx_ + 1);
 
     runTree().fillGroups(*rp);
     if (!delayedReadRunProducts_) {
@@ -833,8 +829,7 @@ namespace art {
                                                                                 InSubRun,
                                                                                 entryNumbers,
                                                                                 fiIter_->eventID_),
-                                                 0,
-                                                 nullptr);
+                                                 0);
 
     subRunTree().fillGroups(*srp);
     if (!delayedReadSubRunProducts_) {
@@ -881,8 +876,7 @@ namespace art {
                                                                                 InSubRun,
                                                                                 entryNumbers,
                                                                                 fiIter_->eventID_),
-                                                 secondaryFileNameIdx_ + 1,
-                                                 primaryFile_->primarySRP_);
+                                                 secondaryFileNameIdx_ + 1);
 
     subRunTree().fillGroups(*srp);
     if (!delayedReadSubRunProducts_) {
@@ -1068,8 +1062,7 @@ namespace art {
                                                                                 InResults,
                                                                                 entryNumbers,
                                                                                 EventID{}),
-                                                0,
-                                                nullptr);
+                                                0);
       resultsTree().fillGroups(*resp);
     } else { // Empty
       resp = std::make_unique<ResultsPrincipal>(ResultsAuxiliary{}, processConfiguration_);
