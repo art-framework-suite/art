@@ -142,7 +142,7 @@
 #include "art/Framework/IO/ProductMix/MixOpBase.h"
 #include "art/Framework/Services/Registry/ServiceRegistry.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
-#include "cetlib/detail/metaprogramming.h"
+#include "cetlib/metaprogramming.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include "TBranch.h"
@@ -156,7 +156,7 @@ namespace art {
 
   namespace detail {
     // Template metaprogramming.
-    using cet::detail::enable_if_function_exists_t;
+    using cet::enable_if_function_exists_t;
 
     ////////////////////////////////////////////////////////////////////
     // Does the detail object have a method void startEvent()?

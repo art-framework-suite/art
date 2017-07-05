@@ -13,7 +13,7 @@
 #include "art/Framework/Services/Registry/ServiceScope.h"
 #include "art/Utilities/ScheduleID.h"
 #include "cetlib/container_algorithms.h"
-#include "cetlib/detail/metaprogramming.h"
+#include "cetlib/metaprogramming.h"
 #include <memory>
 #include <type_traits>
 
@@ -23,7 +23,7 @@ namespace art {
 
   namespace detail {
 
-    using cet::detail::enable_if_function_exists_t;
+    using cet::enable_if_function_exists_t;
 
     // General template.
     template<typename T, ServiceScope SCOPE>

@@ -9,7 +9,7 @@
 
 #include "art/Utilities/ConfigurationTable.h"
 #include "boost/filesystem.hpp"
-#include "cetlib/detail/metaprogramming.h"
+#include "cetlib/metaprogramming.h"
 #include "fhiclcpp/types/Atom.h"
 #include "fhiclcpp/types/Table.h"
 #include "fhiclcpp/types/detail/optional_parameter_message.h"
@@ -43,7 +43,7 @@ namespace art {
     };
 
     template<class T>
-    struct AllowedConfiguration<T, cet::detail::enable_if_type_exists_t<typename T::Parameters>>
+    struct AllowedConfiguration<T, cet::enable_if_type_exists_t<typename T::Parameters>>
     {
       static std::unique_ptr<art::ConfigurationTable> get(std::string const& name)
       {
@@ -62,7 +62,7 @@ namespace art {
   extern "C"                                                            \
   std::unique_ptr<art::ConfigurationTable> allowed_configuration(std::string const& name) \
   {                                                                     \
-    return art::detail::AllowedConfiguration<klass>::get(name);       \
+    return art::detail::AllowedConfiguration<klass>::get(name);         \
   }
 
 #define PROVIDE_ALLOWED_CONFIGURATION_FUNCTION_TOOL()                   \

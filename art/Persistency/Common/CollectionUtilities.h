@@ -71,8 +71,8 @@
 #include "canvas/Persistency/Common/Ptr.h"
 #include "canvas/Persistency/Common/PtrVector.h"
 #include "canvas/Persistency/Provenance/ProductID.h"
-#include "cetlib/detail/metaprogramming.h"
 #include "cetlib/map_vector.h"
+#include "cetlib/metaprogramming.h"
 
 #include <cstddef>
 #include <type_traits>
@@ -84,8 +84,8 @@ namespace art {
 
   // Template metaprogramming.
   namespace detail {
-    using cet::detail::no_tag;
-    using cet::detail::yes_tag;
+    using cet::no_tag;
+    using cet::yes_tag;
 
     template <typename T, typename InIter, void (T::*)(InIter, InIter)> struct two_arg_insert_func;
     template <typename T, typename I> no_tag has_two_arg_insert_helper(...);

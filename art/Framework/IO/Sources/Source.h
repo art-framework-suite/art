@@ -97,8 +97,8 @@
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
 #include "canvas/Persistency/Provenance/ProcessConfiguration.h"
 #include "canvas/Persistency/Provenance/SubRunID.h"
-#include "cetlib/detail/metaprogramming.h"
 #include "cetlib/exempt_ptr.h"
+#include "cetlib/metaprogramming.h"
 #include "fhiclcpp/ParameterSet.h"
 
 #include <algorithm>
@@ -113,7 +113,7 @@ namespace art {
 
   namespace detail {
     // Template metaprogramming.
-    using cet::detail::enable_if_function_exists_t;
+    using cet::enable_if_function_exists_t;
 
     template <typename T, typename = void>
     struct has_hasMoreData : std::false_type {};

@@ -7,8 +7,8 @@
 #include "art/Framework/Principal/SubRun.h"
 #include "art/Framework/Principal/Handle.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
-#include "cetlib/detail/metaprogramming.h"
 #include "cetlib/exception.h"
+#include "cetlib/metaprogramming.h"
 #include "fhiclcpp/types/Atom.h"
 #include "fhiclcpp/ParameterSet.h"
 
@@ -23,13 +23,13 @@ namespace arttest {
     // member or is (effectively) convertible-to-V.
 
     template <typename V, typename P, V P::*> struct value_member;
-    template <typename V, typename P> cet::detail::no_tag  has_value_helper(...);
-    template <typename V, typename P> cet::detail::yes_tag has_value_helper(value_member<V, P, &P::value> *x);
+    template <typename V, typename P> cet::no_tag  has_value_helper(...);
+    template <typename V, typename P> cet::yes_tag has_value_helper(value_member<V, P, &P::value> *x);
 
     template <typename V, typename P>
     struct has_value_member
     {
-      static bool constexpr value {sizeof(has_value_helper<V, P>(nullptr)) == sizeof(cet::detail::yes_tag)};
+      static bool constexpr value {sizeof(has_value_helper<V, P>(nullptr)) == sizeof(cet::yes_tag)};
     };
 
     template <typename V, typename P>

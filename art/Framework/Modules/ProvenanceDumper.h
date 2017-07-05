@@ -116,8 +116,8 @@
 #include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Utilities/ConfigurationTable.h"
 #include "canvas/Utilities/Exception.h"
-#include "cetlib/detail/metaprogramming.h"
 #include "cetlib/exempt_ptr.h"
+#include "cetlib/metaprogramming.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/types/Atom.h"
 #include "fhiclcpp/types/Sequence.h"
@@ -136,7 +136,7 @@ namespace art {
   };
 
   template <typename DETAIL>
-  struct ProvenanceDumperConfig<DETAIL, cet::detail::enable_if_type_exists_t<typename DETAIL::Config>> {
+  struct ProvenanceDumperConfig<DETAIL, cet::enable_if_type_exists_t<typename DETAIL::Config>> {
     fhicl::TableFragment<art::OutputModule::Config> omConfig;
     fhicl::Atom<bool> wantPresentOnly { fhicl::Name("wantPresentOnly"), true };
     fhicl::Atom<bool> resolveProducts { fhicl::Name("resolveProducts"), true };
@@ -182,7 +182,7 @@ private:
 namespace art {
 
   template <typename DETAIL>
-  class ProvenanceDumper<DETAIL, cet::detail::enable_if_type_exists_t<typename DETAIL::Config>> :
+  class ProvenanceDumper<DETAIL, cet::enable_if_type_exists_t<typename DETAIL::Config>> :
     public OutputModule {
   public:
 
