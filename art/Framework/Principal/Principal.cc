@@ -48,8 +48,7 @@ Principal::Principal(ProcessConfiguration const& pc,
 }
 
 void
-Principal::
-addToProcessHistory()
+Principal::addToProcessHistory()
 {
   if (processHistoryModified_) {
     return;
@@ -166,16 +165,15 @@ Principal::getByLabel(TypeID const& productType,
 }
 
 void
-Principal::
-getMany(TypeID const& productType, SelectorBase const& sel,
-        GroupQueryResultVec& results) const
+Principal::getMany(TypeID const& productType,
+                   SelectorBase const& sel,
+                   GroupQueryResultVec& results) const
 {
   findGroupsForProduct(productType, sel, results, false);
 }
 
 int
-Principal::
-tryNextSecondaryFile() const
+Principal::tryNextSecondaryFile() const
 {
   int const err = store_->openNextSecondaryFile(nextSecondaryFileIdx_);
   if (err != -2) {
@@ -186,10 +184,10 @@ tryNextSecondaryFile() const
 }
 
 size_t
-Principal::
-getMatchingSequence(TypeID const& elementType, SelectorBase const& selector,
-                    GroupQueryResultVec& results,
-                    bool stopIfProcessHasMatch) const
+Principal::getMatchingSequence(TypeID const& elementType,
+                               SelectorBase const& selector,
+                               GroupQueryResultVec& results,
+                               bool const stopIfProcessHasMatch) const
 {
   for (auto const& el : ProductMetaData::instance().elementLookup()) {
     auto I = el[branchType()].find(elementType.friendlyClassName());
@@ -200,8 +198,8 @@ getMatchingSequence(TypeID const& elementType, SelectorBase const& selector,
       return ret;
     }
   }
-  while (1) {
-    int err = tryNextSecondaryFile();
+  while (true) {
+    int const err = tryNextSecondaryFile();
     if (err == -2) {
       // No more files.
       break;
@@ -211,9 +209,9 @@ getMatchingSequence(TypeID const& elementType, SelectorBase const& selector,
       continue;
     }
     // Note: The elementLookup vector element zero is for the primary
-    // file, the following elements are for the secondary files, so
-    // we use the incremented value of nextSecondaryFileIdx_ here
-    // because it is the correctly biased-up by one index into the
+    // file, the following elements are for the secondary files, so we
+    // use the incremented value of nextSecondaryFileIdx_ here because
+    // it is the correctly biased-up by one index into the
     // elementLookup vector for this secondary file.
     auto const& el = ProductMetaData::instance().elementLookup()[nextSecondaryFileIdx_];
     auto I = el[branchType()].find(elementType.friendlyClassName());
@@ -228,8 +226,7 @@ getMatchingSequence(TypeID const& elementType, SelectorBase const& selector,
 }
 
 void
-Principal::
-removeCachedProduct(ProductID const pid) const
+Principal::removeCachedProduct(ProductID const pid) const
 {
   if (auto g = getGroup(pid)) {
     g->removeCachedProduct();
@@ -241,11 +238,10 @@ removeCachedProduct(ProductID const pid) const
 }
 
 size_t
-Principal::
-findGroupsForProduct(TypeID const& wanted_product,
-                     SelectorBase const& selector,
-                     GroupQueryResultVec& results,
-                     bool stopIfProcessHasMatch) const
+Principal::findGroupsForProduct(TypeID const& wanted_product,
+                                SelectorBase const& selector,
+                                GroupQueryResultVec& results,
+                                bool const stopIfProcessHasMatch) const
 {
   TClass * cl = nullptr;
   ////////////////////////////////////
@@ -280,8 +276,8 @@ findGroupsForProduct(TypeID const& wanted_product,
       return ret;
     }
   }
-  while (1) {
-    int err = tryNextSecondaryFile();
+  while (true) {
+    int const err = tryNextSecondaryFile();
     if (err == -2) {
       // No more files.
       break;
@@ -318,30 +314,17 @@ findGroupsForProduct(TypeID const& wanted_product,
 }
 
 size_t
-Principal::
-findGroups(ProcessLookup const& pl, SelectorBase const& sel,
-           GroupQueryResultVec& res, bool stopIfProcessHasMatch,
-           TypeID wanted_wrapper/*=TypeID()*/) const
+Principal::findGroups(ProcessLookup const& pl,
+                      SelectorBase const& sel,
+                      GroupQueryResultVec& res,
+                      bool const stopIfProcessHasMatch,
+                      TypeID const wanted_wrapper/*=TypeID()*/) const
 {
-  // Handle groups for current process, note that we need to look at
-  // the current process even if it is not in the processHistory
-  // because of potential unscheduled (onDemand) production.
-  // [We don't support unscheduled production anymore, so I'm not sure
-  // how much the logic here should be adjusted. -KJK]
-  {
-    auto I = pl.find(processConfiguration_.processName());
-    if (I != pl.end()) {
-      findGroupsForProcess(I->second, sel, res, wanted_wrapper);
-    }
-  }
-  // Loop over processes in reverse time order.  Sometimes we want to stop
-  // after we find a process with matches so check for that at each step.
+  // Loop over processes in reverse time order.  Sometimes we want to
+  // stop after we find a process with matches so check for that at
+  // each step.
   for (auto I = processHistory().crbegin(), E = processHistory().crend();
        (I != E) && (res.empty() || !stopIfProcessHasMatch); ++I) {
-    // We just dealt with the current process before the loop so skip it
-    if (I->processName() == processConfiguration_.processName()) {
-      continue;
-    }
     auto J = pl.find(I->processName());
     if (J != pl.end()) {
       findGroupsForProcess(J->second, sel, res, wanted_wrapper);
@@ -351,13 +334,11 @@ findGroups(ProcessLookup const& pl, SelectorBase const& sel,
 }
 
 void
-Principal::
-findGroupsForProcess(std::vector<ProductID> const& vpid,
-                     SelectorBase const& sel,
-                     GroupQueryResultVec& res,
-                     TypeID wanted_wrapper) const
+Principal::findGroupsForProcess(std::vector<ProductID> const& vpid,
+                                SelectorBase const& sel,
+                                GroupQueryResultVec& res,
+                                TypeID const wanted_wrapper) const
 {
-
   for (auto const pid : vpid) {
     auto group = getGroup(pid);
     if (!group) {
@@ -397,7 +378,7 @@ Principal::deferredGetter_(ProductID const pid) const
 }
 
 OutputHandle
-Principal::getForOutput(ProductID const pid, bool resolveProd) const
+Principal::getForOutput(ProductID const pid, bool const resolveProd) const
 {
   auto const& g = getResolvedGroup(pid, resolveProd);
   if (g.get() == nullptr) {
@@ -453,9 +434,9 @@ Principal::getGroupForPtr(ProductID const pid) const
   bool        const produced = ProductMetaData::instance().produced(branchType(), pid);
   if (produced || index == 0) {
     auto it = groups_.find(pid);
-    // Note: There will be groups for dropped products, so we
-    //       must check for that.  We want the group where the
-    //       product can actually be retrieved from.
+    // Note: There will be groups for dropped products, so we must
+    //       check for that.  We want the group where the product can
+    //       actually be retrieved from.
     return (it != groups_.end()) ? it->second.get() : nullptr;
   }
   else if (index > 0 && (index-1 < secondaryPrincipals_.size())) {
@@ -477,9 +458,9 @@ Principal::getGroupForPtr(ProductID const pid) const
     if (index == MasterProductRegistry::DROPPED) continue;
     auto& p = secondaryPrincipals_[index-1];
     auto it = p->groups_.find(pid);
-    // Note: There will be groups for dropped products, so we
-    //       must check for that.  We want the group where the
-    //       product can actually be retrieved from.
+    // Note: There will be groups for dropped products, so we must
+    //       check for that.  We want the group where the product can
+    //       actually be retrieved from.
     return (it != p->groups_.end()) ? it->second.get() : nullptr;
   }
 }

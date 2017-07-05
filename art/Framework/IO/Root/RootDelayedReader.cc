@@ -20,41 +20,38 @@ using namespace std;
 
 namespace art {
 
-  RootDelayedReader::
-  RootDelayedReader(FileFormatVersion const version,
-                    sqlite3* db,
-                    std::vector<input::EntryNumber> const& entrySet,
-                    cet::exempt_ptr<input::BranchMap const> branches,
-                    cet::exempt_ptr<RootInputTree> tree,
-                    int64_t const saveMemoryObjectThreshold,
-                    cet::exempt_ptr<RootInputFile> primaryFile,
-                    cet::exempt_ptr<BranchIDLists const> bidLists,
-                    BranchType const branchType,
-                    EventID const eID)
-    : fileFormatVersion_{version}
-    , db_{db}
-    , entrySet_{entrySet}
-    , branches_{branches}
-    , tree_{tree}
-    , saveMemoryObjectThreshold_{saveMemoryObjectThreshold}
-    , primaryFile_{primaryFile}
-    , branchIDLists_{bidLists}
-    , branchType_{branchType}
-    , eventID_{eID}
+  RootDelayedReader::RootDelayedReader(FileFormatVersion const version,
+                                       sqlite3* db,
+                                       std::vector<input::EntryNumber> const& entrySet,
+                                       cet::exempt_ptr<input::BranchMap const> branches,
+                                       cet::exempt_ptr<RootInputTree> tree,
+                                       int64_t const saveMemoryObjectThreshold,
+                                       cet::exempt_ptr<RootInputFile> primaryFile,
+                                       cet::exempt_ptr<BranchIDLists const> bidLists,
+                                       BranchType const branchType,
+                                       EventID const eID)
+  : fileFormatVersion_{version}
+  , db_{db}
+  , entrySet_{entrySet}
+  , branches_{branches}
+  , tree_{tree}
+  , saveMemoryObjectThreshold_{saveMemoryObjectThreshold}
+  , primaryFile_{primaryFile}
+  , branchIDLists_{bidLists}
+  , branchType_{branchType}
+  , eventID_{eID}
   {}
 
   void
-  RootDelayedReader::
-  setGroupFinder_(cet::exempt_ptr<EDProductGetterFinder const> groupFinder)
+  RootDelayedReader::setGroupFinder_(cet::exempt_ptr<EDProductGetterFinder const> groupFinder)
   {
     groupFinder_ = groupFinder;
   }
 
   unique_ptr<EDProduct>
-  RootDelayedReader::
-  getProduct_(BranchKey const& bk,
-              TypeID const& ty,
-              RangeSet& rs) const
+  RootDelayedReader::getProduct_(BranchKey const& bk,
+                                 TypeID const& ty,
+                                 RangeSet& rs) const
   {
     auto iter = branches_->find(bk);
     assert(iter != branches_->end());
@@ -150,8 +147,7 @@ namespace art {
 
   // FIXME: This should be a member of RootInputFileSequence.
   int
-  RootDelayedReader::
-  openNextSecondaryFile_(int idx)
+  RootDelayedReader::openNextSecondaryFile_(int const idx)
   {
     // idx being a number we can actually use is a precondition of
     // this function.

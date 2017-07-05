@@ -66,18 +66,6 @@ namespace art {
   }
 
   int
-  DataViewImpl::getMatchingSequence_(TypeID const& elementType,
-                                     SelectorBase const& selector,
-                                     GroupQueryResultVec& results,
-                                     bool const stopIfProcessHasMatch) const
-  {
-    return principal_.getMatchingSequence(elementType,
-                                          selector,
-                                          results,
-                                          stopIfProcessHasMatch);
-  }
-
-  int
   DataViewImpl::getMatchingSequenceByLabel_(TypeID const& elementType,
                                             string const& label,
                                             string const& productInstanceName,

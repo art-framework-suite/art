@@ -238,12 +238,6 @@ private:
                  GroupQueryResultVec& results) const;
 
   int
-  getMatchingSequence_(TypeID const& elementType,
-                       SelectorBase const& selector,
-                       GroupQueryResultVec& results,
-                       bool stopIfProcessHasMatch) const;
-
-  int
   getMatchingSequenceByLabel_(TypeID const& elementType,
                               std::string const& label,
                               std::string const& productInstanceName,
