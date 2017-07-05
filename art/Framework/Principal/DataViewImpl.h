@@ -154,7 +154,6 @@ public:
   bool
   getView(InputTag const& tag, View<ELEMENT>& result) const;
 
-
   template <typename PROD>
   bool
   removeCachedProduct(Handle<PROD>& h) const;
@@ -237,20 +236,21 @@ private:
   getManyByType_(TypeID const& tid,
                  GroupQueryResultVec& results) const;
 
-  int
+  GroupQueryResultVec
   getMatchingSequenceByLabel_(TypeID const& elementType,
                               std::string const& label,
                               std::string const& productInstanceName,
-                              GroupQueryResultVec& results,
-                              bool stopIfProcessHasMatch) const;
+                              std::string const& processName) const;
 
-  int
-  getMatchingSequenceByLabel_(TypeID const& elementType,
-                              std::string const& label,
-                              std::string const& productInstanceName,
-                              std::string const& processName,
-                              GroupQueryResultVec& results,
-                              bool stopIfProcessHasMatch) const;
+
+
+  // If getView returns true, then result.isValid() is certain to be
+  // true -- but the View may still be empty.
+  template <typename ELEMENT>
+  GroupQueryResultVec
+  getView_(std::string const& moduleLabel,
+           std::string const& productInstanceName,
+           std::string const& processName) const;
 
   template <typename ELEMENT>
   void
@@ -439,21 +439,28 @@ art::DataViewImpl::getManyByType(std::vector<Handle<PROD>>& results) const
 }
 
 template <typename ELEMENT>
+art::DataViewImpl::GroupQueryResultVec
+art::DataViewImpl::getView_(std::string const& moduleLabel,
+                            std::string const& productInstanceName,
+                            std::string const& processName) const
+{
+  TypeID const typeID{typeid(ELEMENT)};
+  auto bhv = getMatchingSequenceByLabel_(typeID,
+                                         moduleLabel,
+                                         productInstanceName,
+                                         processName);
+  ensureUniqueProduct_(bhv.size(), typeID,
+                       moduleLabel, productInstanceName, processName);
+  return bhv;
+}  // getView_<>()
+
+template <typename ELEMENT>
 std::size_t
 art::DataViewImpl::getView(std::string const& moduleLabel,
                            std::string const& productInstanceName,
                            std::vector<ELEMENT const*>& result) const
 {
-  TypeID const typeID{typeid(ELEMENT)};
-  GroupQueryResultVec bhv;
-  int const nFound = getMatchingSequenceByLabel_(typeID,
-                                                 moduleLabel,
-                                                 productInstanceName,
-                                                 bhv,
-                                                 true);
-  ensureUniqueProduct_(nFound, typeID,
-                       moduleLabel, productInstanceName, std::string());
-
+  auto bhv = getView_<ELEMENT>(moduleLabel, productInstanceName, {});
   std::size_t const orig_size = result.size();
   fillView_(bhv[0], result);
   return result.size() - orig_size;
@@ -464,21 +471,7 @@ std::size_t
 art::DataViewImpl::getView(InputTag const& tag,
                            std::vector<ELEMENT const*>& result) const
 {
-  if (tag.process().empty()) {
-    return getView(tag.label(), tag.instance(), result);
-  }
-
-  TypeID const typeID{typeid(ELEMENT)};
-  GroupQueryResultVec bhv;
-  int const nFound = getMatchingSequenceByLabel_(typeID,
-                                                 tag.label(),
-                                                 tag.instance(),
-                                                 tag.process(),
-                                                 bhv,
-                                                 true);
-  ensureUniqueProduct_(nFound, typeID,
-                       tag.label(), tag.instance(), tag.process());
-
+  auto bhv = getView_<ELEMENT>(tag.label(), tag.instance(), tag.process());
   std::size_t const orig_size = result.size();
   fillView_(bhv[0], result);
   return result.size() - orig_size;
@@ -490,16 +483,7 @@ art::DataViewImpl::getView(std::string const& moduleLabel,
                            std::string const& productInstanceName,
                            View<ELEMENT>& result) const
 {
-  TypeID const typeID{typeid(ELEMENT)};
-  GroupQueryResultVec bhv;
-  int const nFound = getMatchingSequenceByLabel_(typeID,
-                                                 moduleLabel,
-                                                 productInstanceName,
-                                                 bhv,
-                                                 true);
-  ensureUniqueProduct_(nFound, typeID,
-                       moduleLabel, productInstanceName, std::string());
-
+  auto bhv = getView_<ELEMENT>(moduleLabel, productInstanceName, {});
   fillView_(bhv[0], result.vals());
   result.set_innards(bhv[0].result()->productID(), bhv[0].result()->uniqueProduct());
   return true;
@@ -509,21 +493,7 @@ template <typename ELEMENT>
 bool
 art::DataViewImpl::getView(InputTag const& tag, View<ELEMENT>& result) const
 {
-  if (tag.process().empty()) {
-    return getView(tag.label(), tag.instance(), result);
-  }
-
-  TypeID const typeID{typeid(ELEMENT)};
-  GroupQueryResultVec bhv;
-  int const nFound = getMatchingSequenceByLabel_(typeID,
-                                                 tag.label(),
-                                                 tag.instance(),
-                                                 tag.process(),
-                                                 bhv,
-                                                 true);
-  ensureUniqueProduct_(nFound, typeID,
-                       tag.label(), tag.instance(), tag.process());
-
+  auto bhv = getView_<ELEMENT>(tag.label(), tag.instance(), tag.process());
   fillView_(bhv[0], result.vals());
   result.set_innards(bhv[0].result()->productID(), bhv[0].result()->uniqueProduct());
   return true;
@@ -546,7 +516,6 @@ art::DataViewImpl::fillView_(GroupQueryResult& bh,
                      [](auto p) {
                        return static_cast<ELEMENT const*>(p);
                      });
-
   result.swap(vals);
 }
 

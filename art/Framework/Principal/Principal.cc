@@ -183,19 +183,18 @@ Principal::tryNextSecondaryFile() const
   return err;
 }
 
-size_t
+Principal::GroupQueryResultVec
 Principal::getMatchingSequence(TypeID const& elementType,
-                               SelectorBase const& selector,
-                               GroupQueryResultVec& results,
-                               bool const stopIfProcessHasMatch) const
+                               SelectorBase const& selector) const
 {
+  GroupQueryResultVec results;
   for (auto const& el : ProductMetaData::instance().elementLookup()) {
     auto I = el[branchType()].find(elementType.friendlyClassName());
     if (I == el[branchType()].end()) {
       continue;
     }
-    if (auto ret = findGroups(I->second, selector, results, stopIfProcessHasMatch)) {
-      return ret;
+    if (findGroups(I->second, selector, results, true) != 0) {
+      return results;
     }
   }
   while (true) {
@@ -218,11 +217,11 @@ Principal::getMatchingSequence(TypeID const& elementType,
     if (I == el[branchType()].end()) {
       continue;
     }
-    if (auto ret = findGroups(I->second, selector, results, stopIfProcessHasMatch)) {
-      return ret;
+    if (findGroups(I->second, selector, results, true) != 0) {
+      return results;
     }
   }
-  return 0;
+  return results;
 }
 
 void
@@ -243,7 +242,7 @@ Principal::findGroupsForProduct(TypeID const& wanted_product,
                                 GroupQueryResultVec& results,
                                 bool const stopIfProcessHasMatch) const
 {
-  TClass * cl = nullptr;
+  TClass* cl = nullptr;
   ////////////////////////////////////
   // Cannot do this here because some tests expect to be able to
   // call here requesting a wanted_product that does not have
@@ -271,7 +270,7 @@ Principal::findGroupsForProduct(TypeID const& wanted_product,
         << ".\n";
     }
     ret = findGroups(I->second, selector, results, stopIfProcessHasMatch,
-                     TypeID(cl->GetTypeInfo()));
+                     TypeID{cl->GetTypeInfo()});
     if (ret) {
       return ret;
     }
@@ -413,8 +412,8 @@ Principal::getResolvedGroup(ProductID const pid,
                             bool const resolveProd) const
 {
   // FIXME: This reproduces the behavior of the original getGroup with
-  // resolveProv == false but I am not sure this is correct in the case
-  // of an unavailable product.
+  // resolveProv == false but I am not sure this is correct in the
+  // case of an unavailable product.
   auto const g = getGroupForPtr(pid);
   if (!g.get() || !resolveProd) {
     return g;

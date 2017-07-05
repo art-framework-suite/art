@@ -14,8 +14,7 @@
 #include <string>
 
 art::ProductStatus
-art::Group::
-status() const
+art::Group::status() const
 {
   if (dropped()) {
     return productstatus::dropped();
@@ -47,8 +46,7 @@ status() const
 }
 
 bool
-art::Group::
-resolveProduct(TypeID const& wanted_wrapper_type) const
+art::Group::resolveProduct(TypeID const& wanted_wrapper_type) const
 {
   if (!productUnavailable()) {
     return resolveProductIfAvailable(wanted_wrapper_type);
@@ -64,8 +62,7 @@ resolveProduct(TypeID const& wanted_wrapper_type) const
 }
 
 bool
-art::Group::
-resolveProductIfAvailable(TypeID const& wanted_wrapper_type) const
+art::Group::resolveProductIfAvailable(TypeID const& wanted_wrapper_type) const
 {
   if (wanted_wrapper_type != wrapperType_) {
     throwResolveLogicError(wanted_wrapper_type);
@@ -81,8 +78,7 @@ resolveProductIfAvailable(TypeID const& wanted_wrapper_type) const
 }
 
 std::unique_ptr<art::EDProduct>
-art::Group::
-obtainDesiredProduct(TypeID const& wanted_wrapper_type) const
+art::Group::obtainDesiredProduct(TypeID const& wanted_wrapper_type) const
 {
   BranchKey const bk {productDescription()};
   return productResolver_->getProduct(bk,
@@ -91,8 +87,7 @@ obtainDesiredProduct(TypeID const& wanted_wrapper_type) const
 }
 
 bool
-art::Group::
-productUnavailable() const
+art::Group::productUnavailable() const
 {
   if (dropped()) {
     return true;
@@ -104,8 +99,7 @@ productUnavailable() const
 }
 
 cet::exempt_ptr<art::ProductProvenance const>
-art::Group::
-productProvenancePtr() const
+art::Group::productProvenancePtr() const
 {
   if (!ppResolver_) {
     return cet::exempt_ptr<ProductProvenance const>{};
@@ -114,8 +108,7 @@ productProvenancePtr() const
 }
 
 void
-art::Group::
-removeCachedProduct() const
+art::Group::removeCachedProduct() const
 {
   // This check should already have been done by the surrounding art
   // code, therefore this is a precondition and valid for an assertion
@@ -125,16 +118,14 @@ removeCachedProduct() const
 }
 
 void
-art::Group::
-setProduct(std::unique_ptr<EDProduct>&& prod) const
+art::Group::setProduct(std::unique_ptr<EDProduct>&& prod) const
 {
   assert(!product_.get());
   product_ = std::move(prod);
 }
 
 void
-art::Group::
-throwResolveLogicError(TypeID const & wanted_wrapper_type) const
+art::Group::throwResolveLogicError(TypeID const & wanted_wrapper_type) const
 {
   throw Exception(errors::LogicError, "INTERNAL ERROR: ")
     << cet::demangle_symbol(typeid(*this).name())
@@ -144,8 +135,7 @@ throwResolveLogicError(TypeID const & wanted_wrapper_type) const
 }
 
 bool
-art::Group::
-dropped() const
+art::Group::dropped() const
 {
   if (!branchDescription_ ) return false;
   auto const pid = branchDescription_->productID();
@@ -156,8 +146,7 @@ dropped() const
 }
 
 void
-art::Group::
-write(std::ostream& os) const
+art::Group::write(std::ostream& os) const
 {
   // This is grossly inadequate. It is also not critical for the
   // first pass.

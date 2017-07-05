@@ -65,40 +65,16 @@ namespace art {
     return principal_.getByLabel(tid, label, productInstanceName, processName);
   }
 
-  int
+  DataViewImpl::GroupQueryResultVec
   DataViewImpl::getMatchingSequenceByLabel_(TypeID const& elementType,
                                             string const& label,
                                             string const& productInstanceName,
-                                            GroupQueryResultVec& results,
-                                            bool const stopIfProcessHasMatch) const
+                                            string const& processName) const
   {
-    art::Selector sel(art::ModuleLabelSelector{label} &&
-                      art::ProductInstanceNameSelector{productInstanceName});
-
-    int const n = principal_.getMatchingSequence(elementType,
-                                                 sel,
-                                                 results,
-                                                 stopIfProcessHasMatch);
-    return n;
-  }
-
-  int
-  DataViewImpl::getMatchingSequenceByLabel_(TypeID const& elementType,
-                                            string const& label,
-                                            string const& productInstanceName,
-                                            string const& processName,
-                                            GroupQueryResultVec& results,
-                                            bool const stopIfProcessHasMatch) const
-  {
-    art::Selector sel(art::ModuleLabelSelector{label} &&
-                      art::ProductInstanceNameSelector{productInstanceName} &&
-                      art::ProcessNameSelector{processName});
-
-    int const n = principal_.getMatchingSequence(elementType,
-                                                 sel,
-                                                 results,
-                                                 stopIfProcessHasMatch);
-    return n;
+    art::Selector const sel(art::ModuleLabelSelector{label} &&
+                            art::ProductInstanceNameSelector{productInstanceName} &&
+                            art::ProcessNameSelector{processName});
+    return principal_.getMatchingSequence(elementType, sel);
   }
 
   ProcessHistory const&

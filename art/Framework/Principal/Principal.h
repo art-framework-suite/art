@@ -95,11 +95,9 @@ namespace art {
     //      this value_type,
     //   4. and which matches the given selector
 
-    size_t
+    std::vector<GroupQueryResult>
     getMatchingSequence(TypeID const& elementType,
-                        SelectorBase const&,
-                        std::vector<GroupQueryResult>& results,
-                        bool stopIfProcessHasMatch) const;
+                        SelectorBase const&) const;
 
     void
     removeCachedProduct(ProductID const pid) const;

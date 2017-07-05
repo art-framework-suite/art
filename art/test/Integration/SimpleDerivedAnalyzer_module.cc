@@ -26,7 +26,7 @@ namespace arttest {
 using arttest::SimpleDerivedAnalyzer;
 
 template <typename T>
-void check_for_conversion(art::View<T> const & v)
+void check_for_conversion(art::View<T> const& v)
 {
   assert(v.vals().size() > 0);
 }
@@ -38,44 +38,50 @@ void check_for_conversion(art::View<T> const & v)
 class arttest::SimpleDerivedAnalyzer
     : public art::EDAnalyzer {
 public:
-  typedef  std::vector<arttest::SimpleDerived>  SimpleDerivedProduct;
+  using SimpleDerivedProduct = std::vector<arttest::SimpleDerived>;
 
-  explicit SimpleDerivedAnalyzer(fhicl::ParameterSet const & p);
+  struct Config {
+    fhicl::Atom<std::string> input_label{fhicl::Name{"input_label"}};
+    fhicl::Atom<std::string> input_label2{fhicl::Name{"input_label2"}};
+    fhicl::Atom<std::size_t> nvalues{fhicl::Name{"nvalues"}};
+  };
+  using Parameters = art::EDAnalyzer::Table<Config>;
+  explicit SimpleDerivedAnalyzer(Parameters const& p);
 
-  void analyze(art::Event const & e) override;
+  void analyze(art::Event const& e) override;
 
 private:
-  void test_getView(art::Event const & e) const;
-  void test_getViewReturnFalse(art::Event const & e) const;
-  void test_getViewThrowing(art::Event const & e) const;
+  void test_getView(art::Event const& e) const;
+  void test_getViewReturnFalse(art::Event const& e) const;
+  void test_getViewThrowing(art::Event const& e) const;
 
   void
-  test_PtrVector(art::Event const & e) const;
+  test_PtrVector(art::Event const& e) const;
 
-  static constexpr size_t expectedSize() { return 16; }
+  static constexpr std::size_t expectedSize() { return 16; }
 
   template <typename DATA_TYPE>
   void
-  test_PtrVector(art::PtrVector<DATA_TYPE> const & v,
-                 int const event_num,
-                 size_t const nElements = expectedSize()) const;
+  test_PtrVector(art::PtrVector<DATA_TYPE> const& v,
+                 art::EventNumber_t event_num,
+                 std::size_t nElements = expectedSize()) const;
 
   std::string inputLabel_;
   std::string inputLabel2_;
-  unsigned    nvalues_;
+  std::size_t nvalues_;
 
 };  // SimpleDerivedAnalyzer
 
-SimpleDerivedAnalyzer::SimpleDerivedAnalyzer(fhicl::ParameterSet const & p)
-  : art::EDAnalyzer(p)
-  , inputLabel_(p.get<std::string>("input_label"))
-  , inputLabel2_(p.get<std::string>("input_label2"))
-  , nvalues_(p.get<int>("nvalues"))
+SimpleDerivedAnalyzer::SimpleDerivedAnalyzer(Parameters const& p)
+  : art::EDAnalyzer{p}
+  , inputLabel_{p().input_label()}
+  , inputLabel2_{p().input_label2()}
+  , nvalues_{p().nvalues()}
 {
 }
 
 void
-SimpleDerivedAnalyzer::analyze(art::Event const & e)
+SimpleDerivedAnalyzer::analyze(art::Event const& e)
 {
   test_getView(e);
   // TODO: uncomment this when getView is modified to return false
@@ -95,12 +101,12 @@ SimpleDerivedAnalyzer::analyze(art::Event const & e)
 }
 
 template <class T>
-void verify_elements(std::vector<T> const & ptrs,
-                     size_t sz,
+void verify_elements(std::vector<T> const& ptrs,
+                     std::size_t sz,
                      art::EventNumber_t event_num,
-                     size_t /*nvalues*/)
+                     std::size_t /*nvalues*/)
 {
-  for (size_t k = 0; k != sz; ++k) {
+  for (std::size_t k = 0; k != sz; ++k) {
     assert((unsigned)ptrs[k]->key == sz - k + event_num);
     double expect = 1.5 * k + 100.0;
     assert(ptrs[k]->value == expect);
@@ -110,14 +116,14 @@ void verify_elements(std::vector<T> const & ptrs,
 
 template <class T>
 void
-test_view(art::Event const & e,
-          std::string const & inputLabel,
-          unsigned nvalues)
+test_view(art::Event const& e,
+          std::string const& inputLabel,
+          std::size_t const nvalues)
 {
-  int event_num = e.id().event();
+  auto const event_num = e.id().event();
   art::InputTag tag(inputLabel, "derived", "DEVEL");
-  std::vector<T const *> ptrs;
-  unsigned sz = e.getView(inputLabel, "derived", ptrs);
+  std::vector<T const*> ptrs;
+  auto sz = e.getView(inputLabel, "derived", ptrs);
   assert(sz == nvalues);
   verify_elements(ptrs, sz, event_num, nvalues);
   ptrs.clear();
@@ -137,7 +143,7 @@ test_view(art::Event const & e,
   v.vals().front() = 0; // zero out the first pointer...
   art::PtrVector<T> pvec;
   v.fill(pvec);
-  for (size_t i = 0, sz = pvec.size(); i != sz; ++i)
+  for (std::size_t i = 0, sz = pvec.size(); i != sz; ++i)
   { assert(*pvec[i] == *v.vals()[i + 1]); }
 }
 
@@ -146,7 +152,7 @@ test_view(art::Event const & e,
 struct dummy {};
 
 void
-SimpleDerivedAnalyzer::test_getView(art::Event const & e) const
+SimpleDerivedAnalyzer::test_getView(art::Event const& e) const
 {
   // Make sure we can get views into products that are present.
   test_view<Simple>(e, inputLabel_, nvalues_);
@@ -154,13 +160,13 @@ SimpleDerivedAnalyzer::test_getView(art::Event const & e) const
 } // test_getView()
 
 void
-SimpleDerivedAnalyzer::test_getViewReturnFalse(art::Event const & e) const
+SimpleDerivedAnalyzer::test_getViewReturnFalse(art::Event const& e) const
 {
-  std::vector<int const *> ints;
+  std::vector<int const*> ints;
   try {
     assert(e.getView("nothing with this illegal label", ints) == false);
   }
-  catch (std::exception & e) {
+  catch (std::exception& e) {
     std::cerr << e.what() << '\n';
     assert("Unexpected exception thrown" == 0);
   }
@@ -170,16 +176,16 @@ SimpleDerivedAnalyzer::test_getViewReturnFalse(art::Event const & e) const
 }
 
 void
-SimpleDerivedAnalyzer::test_getViewThrowing(art::Event const & e) const
+SimpleDerivedAnalyzer::test_getViewThrowing(art::Event const& e) const
 {
   //  Make sure attempts to get views into products that are not there
   //  fail correctly.
-  std::vector<dummy const *> dummies;
+  std::vector<dummy const*> dummies;
   try {
     e.getView(inputLabel_, dummies);
     assert("Failed to throw required exception" == 0);
   }
-  catch (art::Exception & e) {
+  catch (art::Exception& e) {
     assert(e.categoryCode() == art::errors::ProductNotFound);
   }
   catch (...) {
@@ -189,15 +195,15 @@ SimpleDerivedAnalyzer::test_getViewThrowing(art::Event const & e) const
 
 
 void
-SimpleDerivedAnalyzer::test_PtrVector(art::Event const & e) const
+SimpleDerivedAnalyzer::test_PtrVector(art::Event const& e) const
 {
-  int event_num = e.id().event();
-  typedef art::PtrVector<arttest::SimpleDerived>  product_t;
-  typedef art::PtrVector<arttest::Simple> base_product_t;
+  auto const event_num = e.id().event();
+  using product_t = art::PtrVector<arttest::SimpleDerived>;
+  using base_product_t = art::PtrVector<arttest::Simple>;
+
   // Read the data.
-  art::Handle<product_t>  h;
-  e.getByLabel(inputLabel2_, h);
-  unsigned sz = h->size();
+  auto const& d = e.getByLabel<product_t>(art::InputTag{inputLabel2_});
+  auto const sz = d.size();
   if (sz != expectedSize()) {
     throw cet::exception("SizeMismatch")
       << "Expected a PtrVector of size " << expectedSize()
@@ -205,17 +211,17 @@ SimpleDerivedAnalyzer::test_PtrVector(art::Event const & e) const
       << '\n';
   }
   // Test the data
-  test_PtrVector(*h, event_num);
+  test_PtrVector(d, event_num);
   // Construct from PtrVector<U>
   {
-    base_product_t s(*h);
+    base_product_t s(d);
     test_PtrVector(s, event_num);
     product_t p(s);
     test_PtrVector(p, event_num);
   }
   // Construct from initializer list.
   {
-    auto i(h->cbegin());
+    auto i(d.cbegin());
     auto il = { *(i++), *i };
     base_product_t s(il);
     test_PtrVector(s, event_num, 2);
@@ -225,7 +231,7 @@ SimpleDerivedAnalyzer::test_PtrVector(art::Event const & e) const
   // Operator= from PtrVector<U>.
   {
     base_product_t s;
-    s = *h;
+    s = d;
     test_PtrVector(s, event_num);
     product_t p;
     p = s;
@@ -233,7 +239,7 @@ SimpleDerivedAnalyzer::test_PtrVector(art::Event const & e) const
   }
   // Operator= from initializer list.
   {
-    auto i(h->cbegin());
+    auto i(d.cbegin());
     base_product_t s;
     s = { *(i++), *i };
     test_PtrVector(s, event_num, 2);
@@ -243,8 +249,8 @@ SimpleDerivedAnalyzer::test_PtrVector(art::Event const & e) const
   }
   // Assign from Ptr<U>.
   {
-    base_product_t s(*h);
-    s.assign(1, h->front());
+    base_product_t s(d);
+    s.assign(1, d.front());
     test_PtrVector(s, event_num, 1);
     product_t p(s);
     p.assign(1, s.front());
@@ -252,8 +258,8 @@ SimpleDerivedAnalyzer::test_PtrVector(art::Event const & e) const
   }
   // Assign from iterators.
   {
-    base_product_t s(*h);
-    s.assign(h->cbegin(), h->cend());
+    base_product_t s(d);
+    s.assign(d.cbegin(), d.cend());
     test_PtrVector(s, event_num);
     product_t p(s);
     p.assign(s.cbegin(), s.cend());
@@ -261,8 +267,8 @@ SimpleDerivedAnalyzer::test_PtrVector(art::Event const & e) const
   }
   // Assign from initializer list.
   {
-    auto i(h->cbegin());
-    base_product_t s(*h);
+    auto i(d.cbegin());
+    base_product_t s(d);
     s.assign({ *(i++), *i });
     test_PtrVector(s, event_num, 2);
     product_t p(s);
@@ -272,7 +278,7 @@ SimpleDerivedAnalyzer::test_PtrVector(art::Event const & e) const
   // Push back.
   {
     base_product_t s;
-    s.push_back(h->front());
+    s.push_back(d.front());
     test_PtrVector(s, event_num, 1);
     product_t p;
     p.push_back(s.front());
@@ -280,8 +286,8 @@ SimpleDerivedAnalyzer::test_PtrVector(art::Event const & e) const
   }
   // Insert from Ptr<U>.
   {
-    base_product_t s({(*h)[1]});
-    s.insert(s.begin(), h->front());
+    base_product_t s({d[1]});
+    s.insert(s.begin(), d.front());
     test_PtrVector(s, event_num, 2);
     base_product_t p({s.back()});
     p.insert(p.begin(), s.front());
@@ -290,7 +296,7 @@ SimpleDerivedAnalyzer::test_PtrVector(art::Event const & e) const
   // Insert from iterators.
   {
     base_product_t s;
-    s.insert(s.begin(), h->cbegin(), h->cend());
+    s.insert(s.begin(), d.cbegin(), d.cend());
     test_PtrVector(s, event_num);
     product_t p;
     p.insert(p.begin(), s.cbegin(), s.cend());
@@ -298,7 +304,7 @@ SimpleDerivedAnalyzer::test_PtrVector(art::Event const & e) const
   }
   // Erase.
   {
-    base_product_t s(*h);
+    base_product_t s(d);
     s.erase(s.end() - 1);
     test_PtrVector(s, event_num, expectedSize() - 1);
     s.erase(s.begin() + 1, s.end());
@@ -308,10 +314,9 @@ SimpleDerivedAnalyzer::test_PtrVector(art::Event const & e) const
 
 template <typename DATA_TYPE>
 void
-SimpleDerivedAnalyzer::
-test_PtrVector(art::PtrVector<DATA_TYPE> const & v,
-               int const event_num,
-               size_t const nElements) const
+SimpleDerivedAnalyzer::test_PtrVector(art::PtrVector<DATA_TYPE> const& v,
+                                      art::EventNumber_t const event_num,
+                                      std::size_t const nElements) const
 {
   auto const sz(v.size());
   if (sz != nElements) {
@@ -322,13 +327,11 @@ test_PtrVector(art::PtrVector<DATA_TYPE> const & v,
       << sz
       << ".\n";
   }
-  for (auto
-         b = v.cbegin(),
-         i = b,
-         e = v.cbegin() + nElements;
-       i != e; ++i) {
-    int k = i - b;
-    if ((unsigned)(*i)->key != expectedSize() - k + event_num) {
+  auto const b = v.cbegin();
+  auto const e = v.cbegin() + nElements;
+  for (auto i = b; i != e ; ++i) {
+    std::size_t const k = i - b;
+    if (static_cast<std::size_t>((*i)->key) != expectedSize() - k + event_num) {
       throw cet::exception("KeyMismatch")
         << "At position " << k
         << " expected key " << expectedSize() - k + event_num
@@ -341,7 +344,7 @@ test_PtrVector(art::PtrVector<DATA_TYPE> const & v,
       assert(*(i) < *(i+1)); // Check operator <.
     }
 
-    double expect = 1.5 * k + 100.0;
+    double const expect{1.5 * k + 100.0};
     if ((*i)->value != expect) {
       throw cet::exception("ValueMismatch")
         << "At position " << k
