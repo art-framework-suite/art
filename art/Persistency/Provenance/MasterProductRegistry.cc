@@ -217,17 +217,7 @@ art::MasterProductRegistry::initFromFirstPrimaryFile(ProductList const& pl,
 {
   CET_ASSERT_ONLY_ONE_THREAD();
 
-  perFilePresenceLookups_.resize(1);
-
-  // Set presence flags
-  for (auto const& p : pl) {
-    auto const& pd = p.second;
-    auto const& presListForBT = presList[pd.branchType()];
-    auto const pid = pd.productID();
-    if (presListForBT.find(pid) != presListForBT.cend()) {
-      perFilePresenceLookups_[0][pd.branchType()].emplace(pid);
-    }
-  }
+  resetPresenceFlags_(pl, presList);
 
   // Set product lists and handle merging
   for (auto const& val: pl) {
@@ -267,18 +257,8 @@ art::MasterProductRegistry::updateFromNewPrimaryFile(ProductList const& other,
 {
   CET_ASSERT_ONLY_ONE_THREAD();
 
+  resetPresenceFlags_(other, presList);
   perFileProds_.resize(1);
-  perFilePresenceLookups_.assign(1u,{}); // Seed with one empty vector
-
-  // Set presence flags
-  for (auto const& p : other) {
-    auto const& pd = p.second;
-    auto const& presListForBT = presList[pd.branchType()];
-    auto const pid = pd.productID();
-    if (presListForBT.find(pid) != presListForBT.cend()) {
-      perFilePresenceLookups_[0][pd.branchType()].emplace(pid);
-    }
-  }
 
   std::ostringstream msg;
   auto I = productList_.begin();
@@ -416,6 +396,21 @@ art::MasterProductRegistry::print(std::ostream& os) const
   // TODO: Shouldn't we print the BranchKey too?
   for (auto const& val: productList_) {
     os << val.second << "\n-----\n";
+  }
+}
+
+void
+art::MasterProductRegistry::resetPresenceFlags_(ProductList const& pl,
+                                                PerBranchTypePresence const& presList)
+{
+  perFilePresenceLookups_.assign(1u, {}); // Seed with one empty vector.
+  for (auto const& p : pl) {
+    auto const& pd = p.second;
+    auto const& presListForBT = presList[pd.branchType()];
+    auto const pid = pd.productID();
+    if (presListForBT.find(pid) != presListForBT.cend()) {
+      perFilePresenceLookups_[0][pd.branchType()].emplace(pid);
+    }
   }
 }
 

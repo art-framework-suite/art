@@ -85,6 +85,8 @@ public:
   std::size_t presentWithFileIdx(BranchType, ProductID) const;
 
 private:
+  void resetPresenceFlags_(ProductList const& pl,
+                           PerBranchTypePresence const& presList);
   void checkDicts_(BranchDescription const & productDesc);
 
   ProductList productList_ {};
