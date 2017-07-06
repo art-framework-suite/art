@@ -72,8 +72,6 @@ namespace {
     BranchType bt() const { return bt_; }
     std::string const& fcn() const { return fcn_; }
     CheapTag const& ct() const { return ct_; }
-    std::string const& label() const { return ct_.label();}
-    std::string const& instance() const { return ct_.instance(); }
     std::string const& process() const { return ct_.process(); }
     ProductID pid() const { return pid_; }
   private:
@@ -141,8 +139,8 @@ namespace {
                                       pid);
         }
         else {
-          // Add our pid to the list of real Assns<A, B, void> products
-          // already registered.
+          // Add our pid to the list of real Assns<A, B, void>
+          // products already registered.
           insertedABVs.emplace(pid, CheapTag{moduleLabel, instanceName, procName});
         }
       }
@@ -248,7 +246,7 @@ art::MasterProductRegistry::initFromFirstPrimaryFile(ProductList const& pl,
       perFileProds_[0].emplace(bk, pd);
       continue;
     }
-    //    assert(false);
+
     // Already had this product, combine in the additional parameter
     // sets and process descriptions.
     assert(combinable(I->second, pd));
@@ -265,7 +263,7 @@ std::string
 art::MasterProductRegistry::updateFromNewPrimaryFile(ProductList const& other,
                                                      PerBranchTypePresence const& presList,
                                                      std::string const& fileName,
-                                                     BranchDescription::MatchMode m, FileBlock const& fb)
+                                                     FileBlock const& fb)
 {
   CET_ASSERT_ONLY_ONE_THREAD();
 
@@ -314,18 +312,14 @@ art::MasterProductRegistry::updateFromNewPrimaryFile(ProductList const& other,
       continue;
     }
     assert(!J->second.produced());
+
     // Check if the product listed in the new file matches the
     // product at the current position in our product list.
-    std::string err = match(I->second, J->second, fileName, m);
-    if (!err.empty()) {
-      // Did not match, complain, and skip it.
-      msg << err;
-    }
-    else if (m == BranchDescription::Permissive) {
-      // We had a match and we are permitting a branch description merge.
-      auto const& pd = J->second;
-      I->second.merge(pd);
-    }
+    std::string const errMsg [[gnu::unused]] {match(I->second, J->second, fileName)};
+    assert(errMsg.empty());
+    // We had a match and we are permitting a branch description merge.
+    auto const& pd = J->second;
+    I->second.merge(pd);
     ++I;
     ++J;
   }
@@ -368,6 +362,7 @@ art::MasterProductRegistry::updateFromSecondaryFile(ProductList const& pl,
       perFileProds_.back().emplace(bk, pd);
       continue;
     }
+
     // Already had this product, combine in the additional parameter
     // sets and process descriptions.
     assert(combinable(I->second, pd));

@@ -62,7 +62,6 @@ public:
   std::string updateFromNewPrimaryFile(ProductList const&,
                                        PerBranchTypePresence const&,
                                        std::string const& fileName,
-                                       BranchDescription::MatchMode,
                                        FileBlock const&);
   void updateFromSecondaryFile(ProductList const&, PerBranchTypePresence const&, FileBlock const&);
   void registerProductListUpdatedCallback(ProductListUpdatedCallback cb);

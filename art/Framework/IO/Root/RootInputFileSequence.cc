@@ -147,9 +147,6 @@ RootInputFileSequence(fhicl::TableFragment<RootInputFileSequence::Config> const&
   if (primary()) {
     duplicateChecker_ = std::make_shared<DuplicateChecker>(config().dc);
   }
-  if (config().fileMatchMode() == string("strict")) {
-    matchMode_ = BranchDescription::Strict;
-  }
   while (catalog_.getNextFile()) {
     initFile(skipBadFiles_, /*initMPR=*/true);
     if (rootFile_) {
@@ -371,7 +368,6 @@ initFile(bool skipBadFiles, bool initMPR/*=false*/)
     string const mergeInfo = mpr_.updateFromNewPrimaryFile(rootFile_->productList(),
                                                            rootFile_->perBranchTypePresence(),
                                                            catalog_.currentFile().fileName(),
-                                                           matchMode_,
                                                            *rootFile_->createFileBlock());
     if (!mergeInfo.empty()) {
       throw art::Exception(errors::MismatchedInputFiles,

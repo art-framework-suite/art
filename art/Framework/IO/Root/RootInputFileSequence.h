@@ -80,7 +80,6 @@ public: // MEMBER FUNCTIONS
     OptionalAtom<RunNumber_t>    hasFirstRun { Name("firstRun") };
     OptionalAtom<SubRunNumber_t> hasFirstSubRun { Name("firstSubRun") };
     OptionalAtom<EventNumber_t>  hasFirstEvent { Name("firstEvent") };
-    Atom<std::string> fileMatchMode { Name("fileMatchMode"), "permissive" };
     OptionalAtom<RunNumber_t> setRunNumber { Name("setRunNumber") };
 
   };
@@ -246,7 +245,6 @@ private: // MEMBER DATA
   InputFileCatalog& catalog_;
   bool firstFile_ {true};
   RootInputFileSharedPtr rootFile_ {nullptr};
-  BranchDescription::MatchMode matchMode_ {BranchDescription::Permissive};
   std::vector<std::shared_ptr<FileIndex>> fileIndexes_;
   int eventsRemainingInFile_ {};
   EventID origEventID_ {};
