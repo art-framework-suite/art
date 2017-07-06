@@ -1,21 +1,12 @@
-set(art_Persistency_Common_sources
+art_make_library(
+  LIBRARY_NAME
+  art_Persistency_Common
+  SOURCE
   DelayedReader.cc
   GroupQueryResult.cc
-  )
-
-set( art_Persistency_Common_libraries
+  LIBRARIES
   canvas
-  art_Persistency_Provenance
-  art_Utilities
-  ${ROOT_CORE}
-  ${Boost_THREAD_LIBRARY}
   )
 
-art_make_library(
-  LIBRARY_NAME art_Persistency_Common
-  SOURCE ${art_Persistency_Common_sources}
-  LIBRARIES ${art_Persistency_Common_libraries}
-  )
-
-install_headers(SUBDIRS detail)
-install_source(SUBDIRS detail)
+install_headers()
+install_source()

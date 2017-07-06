@@ -18,17 +18,12 @@ endif()
 art_make_library(SOURCE ${art_Utilities_sources}
   LIBRARIES canvas
   MF_MessageLogger
-  MF_Utilities
   fhiclcpp
   cetlib
   cetlib_except
   ${Boost_FILESYSTEM_LIBRARY}
-  ${Boost_REGEX_LIBRARY}
   ${Boost_SYSTEM_LIBRARY}
-  ${Boost_THREAD_LIBRARY}
-  ${ROOT_CORE}
-  ${TBB}
-  -lpthread
+  pthread
   ${CMAKE_DL_LIBS}
   )
 

@@ -67,24 +67,7 @@ art_make_library( LIBRARY_NAME art_Framework_Art
   art_Utilities canvas
   art_Version
   ${ROOT_HIST}
-  ${ROOT_MATRIX}
   )
-
-set (ART_EXEC_ROOT_LIBS
-  ${ROOT_CINTEX}
-  ${ROOT_PHYSICS}
-  ${ROOTSYS}/lib/libGraf.so
-  ${ROOT_TREE}
-  ${ROOT_HIST}
-  ${ROOT_MATRIX}
-  ${ROOT_NET}
-  ${ROOT_MATHCORE}
-  ${ROOT_RIO}
-  ${ROOT_THREAD}
-  ${ROOT_CORE}
-  ${ROOT_CINT}
-  ${ROOT_REFLEX}
-)
 
 # Build an art exec.
 macro(art_exec TARGET_STEM IN_STEM MAIN_FUNC)
@@ -99,9 +82,6 @@ macro(art_exec TARGET_STEM IN_STEM MAIN_FUNC)
     LIBRARIES
     ${AE_LIBRARIES}
     art_Framework_Art
-    # ROOT libraries added for use convenience ONLY -- they will go away
-    # eventually.
-    ${ART_EXEC_ROOT_LIBS}
     MF_MessageLogger
     )
 endmacro()

@@ -3,8 +3,8 @@ art_make(SUBDIRS detail
   art_Persistency_RootDB
   art_Utilities
   canvas
-  ${Boost_THREAD_LIBRARY}
   MF_MessageLogger
+  ${TBB} # Required from thread_safe_registry_via_id
   )
 
 install_headers(SUBDIRS detail)

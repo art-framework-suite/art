@@ -7,6 +7,7 @@ set(art_Framework_Services_Registry_sources
 art_make_library( LIBRARY_NAME art_Framework_Services_Registry
   SOURCE ${art_Framework_Services_Registry_sources}
   LIBRARIES ${TBB}
+  ${Boost_THREAD_LIBRARY}
   art_Utilities canvas
   )
 

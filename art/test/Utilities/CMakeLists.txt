@@ -5,8 +5,6 @@ set(default_art_test_libraries
   canvas
   cetlib
   MF_MessageLogger
-  ${ROOT_CINT}
-  ${ROOT_REFLEX}
   )
 
 

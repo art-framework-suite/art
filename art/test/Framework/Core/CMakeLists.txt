@@ -6,18 +6,6 @@ set(default_test_libraries
   art_Framework_Core
   art_Framework_Principal
   art_Utilities
-  ${Boost_FILESYSTEM_LIBRARY}
-  ${ROOT_CINTEX}
-  ${ROOT_TREE}
-  ${ROOT_HIST}
-  ${ROOT_MATRIX}
-  ${ROOT_NET}
-  ${ROOT_MATHCORE}
-  ${ROOT_RIO}
-  ${ROOT_THREAD}
-	${ROOT_CORE}
-  ${ROOT_CINT}
-	${ROOT_REFLEX}
   ${CPPUNIT}
   ${CMAKE_DL_LIBS}
  )

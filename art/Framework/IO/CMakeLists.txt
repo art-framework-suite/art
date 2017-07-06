@@ -2,7 +2,7 @@ art_make(LIB_LIBRARIES
   art_Persistency_Provenance canvas
   ${Boost_DATE_TIME_LIBRARY}
   ${Boost_FILESYSTEM_LIBRARY}
-  ${Boost_REGEXLIBRARY}
+  ${Boost_REGEX_LIBRARY}
 )
 
 install_headers()
