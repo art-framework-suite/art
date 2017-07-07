@@ -40,9 +40,17 @@ template <typename T, art::ServiceScope SCOPE>
 class art::ServiceHandle {
 public:
 
-  ServiceHandle()
+  ServiceHandle() try
     : instance{&ServiceRegistry::instance().get<std::remove_const_t<T>>()}
-  {}
+    {}
+  catch ( art::Exception const& x )
+    {
+      throw art::Exception(art::errors::ServiceNotFound)
+	<< "Unable to create ServiceHandle.\n"
+	<< "Perhaps the FHiCL configuration does not specify the necessary service?\n"
+	<< "The class of the service is noted below...\n"
+	<< x;
+    }
 
   T* operator->() const { return instance; }
   T& operator*() const { return *instance; }
@@ -57,9 +65,17 @@ template <typename T>
 class art::ServiceHandle<T, art::ServiceScope::PER_SCHEDULE> {
 public:
 
-  ServiceHandle(ScheduleID const sID)
+  explicit ServiceHandle(ScheduleID const sID) try
     : instance{&ServiceRegistry::instance().get<std::remove_const_t<T>>(sID)}
   {}
+  catch ( art::Exception const& x )
+    {
+      throw art::Exception(art::errors::ServiceNotFound)
+	<< "Unable to create ServiceHandle.\n"
+	<< "Perhaps the FHiCL configuration does not specify the necessary service?\n"
+	<< "The class of the service is noted below...\n"
+	<< x;
+    }
 
   T* operator->() const { return instance; }
   T& operator*() const { return *instance; }

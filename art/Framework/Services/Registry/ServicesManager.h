@@ -116,8 +116,8 @@ art::ServicesManager::get()
   // Find the correct ServiceCacheEntry object.
   auto it = factory_.find(TypeID{typeid(T)});
   if (it == factory_.end())
-    throw art::Exception(art::errors::ServiceNotFound, "Service")
-        << " unable to find requested service with compiler type name '"
+    throw art::Exception(art::errors::ServiceNotFound)
+        << "art::ServicesManager unable to find the service of type '"
         << cet::demangle_symbol(typeid(T).name()) << "'.\n";
   return it->second.get<T>(registry_, actualCreationOrder_);
 }  // get<>()
@@ -129,8 +129,8 @@ art::ServicesManager::get(ScheduleID const sID)
   // Find the correct ServiceCacheEntry object.
   auto it = factory_.find(TypeID{typeid(T)});
   if (it == factory_.end())
-    throw art::Exception(art::errors::ServiceNotFound, "Service")
-        << " unable to find requested service with compiler type name '"
+    throw art::Exception(art::errors::ServiceNotFound)
+        << "art::ServicesManager unable to find the service of type '"
         << cet::demangle_symbol(typeid(T).name()) << "'.\n";
   return it->second.get<T>(registry_, actualCreationOrder_, sID);
 }  // get<>()
