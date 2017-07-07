@@ -364,18 +364,10 @@ initFile(bool skipBadFiles, bool initMPR/*=false*/)
                                   *rootFile_->createFileBlock());
   }
   else {
-    // make sure the new product list is compatible with the main one
-    string const mergeInfo = mpr_.updateFromNewPrimaryFile(rootFile_->productList(),
-                                                           rootFile_->perBranchTypePresence(),
-                                                           catalog_.currentFile().fileName(),
-                                                           *rootFile_->createFileBlock());
-    if (!mergeInfo.empty()) {
-      throw art::Exception(errors::MismatchedInputFiles,
-                           "RootInputFileSequence::initFile()")
-        << mergeInfo;
-    }
+    mpr_.updateFromNewPrimaryFile(rootFile_->productList(),
+                                  rootFile_->perBranchTypePresence(),
+                                  *rootFile_->createFileBlock());
   }
-
 
   // Create branches to read the products from the input file.
   for (auto const& prod : rootFile_->productList()) {

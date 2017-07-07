@@ -178,8 +178,8 @@ art::MasterProductRegistry::addProduct(std::unique_ptr<BranchDescription>&& bdp)
   CET_ASSERT_ONLY_ONE_THREAD();
 
   checkDicts_(*bdp);
-  auto I = productList_.emplace(BranchKey{*bdp}, BranchDescription());
-  if (!I.second) {
+  auto it = productList_.emplace(BranchKey{*bdp}, BranchDescription{});
+  if (!it.second) {
     throw Exception(errors::Configuration)
       << "The process name "
       << bdp->processName()
@@ -187,7 +187,7 @@ art::MasterProductRegistry::addProduct(std::unique_ptr<BranchDescription>&& bdp)
       << "Please modify the configuration file to use a "
       << "distinct process name.\n";
   }
-  auto& productListEntry = *I.first;
+  auto& productListEntry = *it.first;
   auto& pd = productListEntry.second;
   pd.swap(*bdp);
   perFileProds_[0].insert(productListEntry);
@@ -228,7 +228,7 @@ art::MasterProductRegistry::initFromFirstPrimaryFile(ProductList const& pl,
         << "Cannot modify the MasterProductRegistry because it is frozen.\n";
     }
     checkDicts_(pd);
-    auto bk = BranchKey(pd);
+    auto bk = BranchKey{pd};
     auto I = productList_.find(bk);
     if (I == productList_.end()) {
       // New product.
@@ -249,10 +249,9 @@ art::MasterProductRegistry::initFromFirstPrimaryFile(ProductList const& pl,
   cet::for_all(productListUpdatedCallbacks_, [&fb](auto const& callback){ callback(fb); });
 }
 
-std::string
+void
 art::MasterProductRegistry::updateFromNewPrimaryFile(ProductList const& other,
                                                      PerBranchTypePresence const& presList,
-                                                     std::string const& fileName,
                                                      FileBlock const& fb)
 {
   CET_ASSERT_ONLY_ONE_THREAD();
@@ -273,9 +272,9 @@ art::MasterProductRegistry::updateFromNewPrimaryFile(ProductList const& other,
       continue;
     }
     if ((I == E) || ((J != JE) && (J->first < I->first))) {
-      // We have found a product listed in the new input file
-      // product list which was not in the product list of any
-      // previous input file.
+      // We have found a product listed in the new input file product
+      // list which was not in the product list of any previous input
+      // file.
       assert(!J->second.produced());
       checkDicts_(J->second);
       productList_.insert(*J);
@@ -284,20 +283,22 @@ art::MasterProductRegistry::updateFromNewPrimaryFile(ProductList const& other,
       continue;
     }
     if ((J == JE) || ((I != E) && (I->first < J->first))) {
-      // We have found a product which was listed in at least
-      // one of the previous input files product lists but
-      // is not listed in the product list of the new file.
-      // This is ok, products are allowed to be dropped.
+      // We have found a product which was listed in at least one of
+      // the previous input files product lists but is not listed in
+      // the product list of the new file.  This is ok, products are
+      // allowed to be dropped.
       ++I;
       continue;
     }
     assert(!J->second.produced());
 
-    // Check if the product listed in the new file matches the
-    // product at the current position in our product list.
-    std::string const errMsg [[gnu::unused]] {match(I->second, J->second, fileName)};
-    assert(errMsg.empty());
-    // We had a match and we are permitting a branch description merge.
+    assert(I->first == J->first);
+    // Since the BranchKeys are guaranteed to be same, the
+    // BranchDescriptions will be combinable since:
+    //   - the branch names (as generated from the BranchKeys) are the same
+    //   - the branch types are the same
+    //   - the product IDs (as generated from the branch names) are the same
+    assert(combinable(I->second, J->second));
     auto const& pd = J->second;
     I->second.merge(pd);
     ++I;
@@ -307,7 +308,6 @@ art::MasterProductRegistry::updateFromNewPrimaryFile(ProductList const& other,
   elementLookup_.assign(1u,{}); // ""
   recreateLookups(productList_, productLookup_[0], elementLookup_[0]);
   cet::for_all(productListUpdatedCallbacks_, [&fb](auto const& callback){ callback(fb); });
-  return msg.str();
 }
 
 void

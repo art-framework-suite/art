@@ -59,10 +59,9 @@ public:
   void addProduct(std::unique_ptr<BranchDescription>&&);
   void setFrozen();
   void initFromFirstPrimaryFile(ProductList const&, PerBranchTypePresence const&, FileBlock const&);
-  std::string updateFromNewPrimaryFile(ProductList const&,
-                                       PerBranchTypePresence const&,
-                                       std::string const& fileName,
-                                       FileBlock const&);
+  void updateFromNewPrimaryFile(ProductList const&,
+                                PerBranchTypePresence const&,
+                                FileBlock const&);
   void updateFromSecondaryFile(ProductList const&, PerBranchTypePresence const&, FileBlock const&);
   void registerProductListUpdatedCallback(ProductListUpdatedCallback cb);
 
