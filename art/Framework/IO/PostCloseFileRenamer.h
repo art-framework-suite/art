@@ -1,14 +1,13 @@
 #ifndef art_Framework_IO_PostCloseFileRenamer_h
 #define art_Framework_IO_PostCloseFileRenamer_h
 
+#include "boost/regex.hpp"
+#include <string>
+
 namespace art {
   class FileStatsCollector;
   class PostCloseFileRenamer;
 }
-
-#include "boost/regex.hpp"
-
-#include <string>
 
 class art::PostCloseFileRenamer {
 public:
