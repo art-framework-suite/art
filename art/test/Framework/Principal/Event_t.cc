@@ -119,9 +119,7 @@ MPRGlobalTestFixture::MPRGlobalTestFixture()
   availableProducts_->addProduct(std::make_unique<BranchDescription>(InEvent,
                                                                      art::TypeLabel{product_type, productInstanceName},
                                                                      *currentModuleDescription_));
-
-  // Freeze the product registry before we make the Event.
-  availableProducts_->setFrozen();
+  availableProducts_->finalizeForProcessing();
   ProductMetaData::create_instance(*availableProducts_);
 }
 

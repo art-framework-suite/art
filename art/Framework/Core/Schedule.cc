@@ -15,7 +15,6 @@
 #include "art/Framework/Core/WorkerT.h"
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Services/System/TriggerNamesService.h"
-#include "art/Persistency/Provenance/ProductMetaData.h"
 #include "art/Version/GetReleaseVersion.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
 #include "canvas/Persistency/Provenance/ReleaseVersion.h"
@@ -27,10 +26,13 @@
 
 using fhicl::ParameterSet;
 
-art::Schedule::
-Schedule(ScheduleID sID, PathManager& pm, ParameterSet const& proc_pset,
-         TriggerNamesService const& tns, MasterProductRegistry& mpr,
-         ActionTable& actions, ActivityRegistry& areg)
+art::Schedule::Schedule(ScheduleID const sID,
+                        PathManager& pm,
+                        ParameterSet const& proc_pset,
+                        TriggerNamesService const& tns,
+                        MasterProductRegistry& mpr,
+                        ActionTable& actions,
+                        ActivityRegistry& areg)
   : sID_{sID}
   , process_pset_{proc_pset}
   , act_table_{&actions}
@@ -41,93 +43,72 @@ Schedule(ScheduleID sID, PathManager& pm, ParameterSet const& proc_pset,
   if (!triggerPathsInfo_.pathPtrs().empty()) {
     makeTriggerResultsInserter_(tns.getTriggerPSet(), mpr, areg);
   }
-  mpr.setFrozen();
-  if (sID == ScheduleID::first()) {
-    ProductMetaData::create_instance(mpr);
-  }
 }
 
 void
-art::Schedule::
-endJob()
+art::Schedule::endJob()
 {
   bool failure = false;
   Exception error(errors::EndJobFailure);
   doForAllWorkers_
-  ([&failure, &error](Worker * w) {
-    try {
-      w->endJob();
-    }
-    catch (cet::exception& e) {
-      error << "cet::exception caught in Schedule::endJob\n"
-            << e.explain_self();
-      failure = true;
-    }
-    catch (std::exception& e) {
-      error << "Standard library exception caught in Schedule::endJob\n"
-            << e.what();
-      failure = true;
-    }
-    catch (...) {
-      error << "Unknown exception caught in Schedule::endJob\n";
-      failure = true;
-    }
-  });
+    ([&failure, &error](Worker * w) {
+      try {
+        w->endJob();
+      }
+      catch (cet::exception& e) {
+        error << "cet::exception caught in Schedule::endJob\n"
+              << e.explain_self();
+        failure = true;
+      }
+      catch (std::exception& e) {
+        error << "Standard library exception caught in Schedule::endJob\n"
+              << e.what();
+        failure = true;
+      }
+      catch (...) {
+        error << "Unknown exception caught in Schedule::endJob\n";
+        failure = true;
+      }
+    });
   if (failure) {
     throw error;
   }
 }
 
 void
-art::Schedule::
-respondToOpenInputFile(FileBlock const& fb)
+art::Schedule::respondToOpenInputFile(FileBlock const& fb)
 {
-  doForAllWorkers_([&fb](auto w) {
-    w->respondToOpenInputFile(fb);
-  });
+  doForAllWorkers_([&fb](auto w) { w->respondToOpenInputFile(fb); });
 }
 
 void
-art::Schedule::
-respondToCloseInputFile(FileBlock const& fb)
+art::Schedule::respondToCloseInputFile(FileBlock const& fb)
 {
-  doForAllWorkers_([&fb](auto w) {
-    w->respondToCloseInputFile(fb);
-  });
+  doForAllWorkers_([&fb](auto w) { w->respondToCloseInputFile(fb); });
 }
 
 void
-art::Schedule::
-respondToOpenOutputFiles(FileBlock const& fb)
+art::Schedule::respondToOpenOutputFiles(FileBlock const& fb)
 {
-  doForAllWorkers_([&fb](auto w) {
-    w->respondToOpenOutputFiles(fb);
-  });
+  doForAllWorkers_([&fb](auto w) { w->respondToOpenOutputFiles(fb); });
 }
 
 void
-art::Schedule::
-respondToCloseOutputFiles(FileBlock const& fb)
+art::Schedule::respondToCloseOutputFiles(FileBlock const& fb)
 {
-  doForAllWorkers_([&fb](auto w) {
-    w->respondToCloseOutputFiles(fb);
-  });
+  doForAllWorkers_([&fb](auto w) { w->respondToCloseOutputFiles(fb); });
 }
 
 void
-art::Schedule::
-beginJob()
+art::Schedule::beginJob()
 {
-  doForAllWorkers_([](auto w) {
-      w->beginJob();
-    });
+  doForAllWorkers_([](auto w) { w->beginJob(); });
 }
 
 void
-art::Schedule::
-makeTriggerResultsInserter_(fhicl::ParameterSet const& trig_pset,
-                            MasterProductRegistry& mpr,
-                            ActivityRegistry& areg)
+art::Schedule::makeTriggerResultsInserter_(fhicl::ParameterSet const& trig_pset,
+                                           MasterProductRegistry& mpr,
+                                           ActivityRegistry& areg)
 {
   WorkerParams const work_args{process_pset_, trig_pset, mpr, *act_table_, processName_};
   ModuleDescription md(trig_pset.id(),

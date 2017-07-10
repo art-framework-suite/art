@@ -170,8 +170,20 @@ namespace {
 void
 art::MasterProductRegistry::addProduct(std::unique_ptr<BranchDescription>&& bdp)
 {
-  assert(bdp->produced());
   CET_ASSERT_ONLY_ONE_THREAD();
+
+  // The below check exists primarily to ensure that the framework
+  // does not accidentally call addProduct at a time when it should
+  // not.
+  if (!allowExplicitRegistration_) {
+    throw Exception(errors::ProductRegistrationFailure)
+      << "An attempt to register the product\n"
+      << *bdp
+      << "was made after the product registry was frozen.\n"
+      << "Product registration can be done only in module constructors.\n";
+  }
+
+  assert(bdp->produced());
 
   checkDicts_(*bdp);
   auto it = productList_.emplace(BranchKey{*bdp}, BranchDescription{});
@@ -192,12 +204,15 @@ art::MasterProductRegistry::addProduct(std::unique_ptr<BranchDescription>&& bdp)
 }
 
 void
-art::MasterProductRegistry::setFrozen()
+art::MasterProductRegistry::finalizeForProcessing()
 {
   CET_ASSERT_ONLY_ONE_THREAD();
+  // Product registration can still happen implicitly whenever an
+  // input file is opened--via calls to updateFrom(Primary|Secondary)File.
+  allowExplicitRegistration_ = false;
 
-  productLookup_.assign(1u,{}); // Seed with one empty vector
-  elementLookup_.assign(1u,{}); // ""
+  productLookup_.assign(1u,{});
+  elementLookup_.assign(1u,{});
   recreateLookups(productList_, productLookup_[0], elementLookup_[0]);
 }
 
@@ -208,35 +223,14 @@ art::MasterProductRegistry::updateFromPrimaryFile(ProductList const& pl,
 {
   CET_ASSERT_ONLY_ONE_THREAD();
 
-  resetPresenceFlags_(pl, presList);
-  perFileProds_.resize(1);
+  perFileProds_.assign(1, {});
+  perFilePresenceLookups_.assign(1u, {}); // Seed with one empty vector.
+  productLookup_.assign(1u,{});
+  elementLookup_.assign(1u,{});
 
-  // Set product lists and handle merging
-  for (auto const& val: pl) {
-    auto const& pd = val.second;
-    assert(!pd.produced());
-    checkDicts_(pd);
-    auto bk = BranchKey{pd};
-    auto I = productList_.find(bk);
-    if (I == productList_.end()) {
-      // New product.
-      productList_.emplace(bk, pd);
-      perFileProds_[0].emplace(bk, pd);
-      continue;
-    }
+  setPresenceLookups_(pl, presList);
+  updateProductLists_(pl);
 
-    // Already had this product, combine in the additional parameter
-    // sets and process descriptions.
-    assert(combinable(I->second, pd));
-    I->second.merge(pd);
-    auto J = perFileProds_[0].find(bk);
-    assert(J != perFileProds_[0].end());
-    assert(combinable(J->second, pd));
-    J->second.merge(pd);
-  }
-
-  productLookup_.assign(1u,{}); // Seed with one empty vector
-  elementLookup_.assign(1u,{}); // ""
   recreateLookups(productList_, productLookup_[0], elementLookup_[0]);
 
   cet::for_all(productListUpdatedCallbacks_, [&fb](auto const& callback){ callback(fb); });
@@ -251,49 +245,14 @@ art::MasterProductRegistry::updateFromSecondaryFile(ProductList const& pl,
 
   perFileProds_.resize(perFileProds_.size()+1);
   perFilePresenceLookups_.resize(perFilePresenceLookups_.size()+1);
-
-  // Set presence flags
-  for (auto const& p : pl) {
-    auto const& pd = p.second;
-    auto const& presListForBT = presList[pd.branchType()];
-    auto const pid = pd.productID();
-    if (presListForBT.find(pid) != presListForBT.cend()) {
-      perFilePresenceLookups_.back()[pd.branchType()].emplace(pid);
-    }
-  }
-
-  for (auto const& val: pl) {
-    auto const& pd = val.second;
-    assert(!pd.produced());
-    checkDicts_(pd);
-    auto bk = BranchKey(pd);
-    auto I = productList_.find(bk);
-    if (I == productList_.end()) {
-      // New product.
-      productList_.emplace(bk, pd);
-      perFileProds_.back().emplace(bk, pd);
-      continue;
-    }
-
-    // Already had this product, combine in the additional parameter
-    // sets and process descriptions.
-    assert(combinable(I->second, pd));
-    I->second.merge(pd);
-    auto J = perFileProds_.back().find(bk);
-    if (J == perFileProds_.back().end()) {
-      // New product.
-      perFileProds_.back().emplace(bk, pd);
-      continue;
-    }
-    // Already had this product, combine in the additional parameter
-    // sets and process descriptions.
-    assert(combinable(J->second, pd));
-    J->second.merge(pd);
-  }
-
   productLookup_.resize(productLookup_.size()+1);
   elementLookup_.resize(elementLookup_.size()+1);
+
+  setPresenceLookups_(pl, presList);
+  updateProductLists_(pl);
+
   recreateLookups(perFileProds_.back(), productLookup_.back(), elementLookup_.back());
+
   cet::for_all(productListUpdatedCallbacks_, [&fb](auto const& callback){ callback(fb); });
 }
 
@@ -331,18 +290,51 @@ art::MasterProductRegistry::print(std::ostream& os) const
   }
 }
 
+//=====================================================================================
+// Private member functions
+
 void
-art::MasterProductRegistry::resetPresenceFlags_(ProductList const& pl,
+art::MasterProductRegistry::setPresenceLookups_(ProductList const& pl,
                                                 PerBranchTypePresence const& presList)
 {
-  perFilePresenceLookups_.assign(1u, {}); // Seed with one empty vector.
   for (auto const& p : pl) {
     auto const& pd = p.second;
     auto const& presListForBT = presList[pd.branchType()];
     auto const pid = pd.productID();
     if (presListForBT.find(pid) != presListForBT.cend()) {
-      perFilePresenceLookups_[0][pd.branchType()].emplace(pid);
+      perFilePresenceLookups_.back()[pd.branchType()].emplace(pid);
     }
+  }
+}
+
+void
+art::MasterProductRegistry::updateProductLists_(ProductList const& pl)
+{
+  for (auto const& val: pl) {
+    auto const& pd = val.second;
+    assert(!pd.produced());
+    checkDicts_(pd);
+    auto bk = BranchKey{pd};
+    auto I = productList_.find(bk);
+    if (I == productList_.end()) {
+      // New product.
+      productList_.emplace(bk, pd);
+      perFileProds_.back().emplace(bk, pd);
+      continue;
+    }
+
+    assert(combinable(I->second, pd));
+    I->second.merge(pd);
+    auto J = perFileProds_.back().find(bk);
+    if (J == perFileProds_.back().end()) {
+      // New product.
+      perFileProds_.back().emplace(bk, pd);
+      continue;
+    }
+    // Already had this product, combine in the additional parameter
+    // sets and process descriptions.
+    assert(combinable(J->second, pd));
+    J->second.merge(pd);
   }
 }
 
@@ -367,6 +359,7 @@ art::MasterProductRegistry::checkDicts_(BranchDescription const& productDesc)
   }
   dictChecker_.reportMissingDictionaries();
 }
+
 
 std::ostream&
 art::operator<<(std::ostream& os, MasterProductRegistry const& mpr)

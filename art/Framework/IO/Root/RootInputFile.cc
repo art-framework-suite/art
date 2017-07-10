@@ -997,8 +997,8 @@ namespace art {
     // This is the selector for drop on input.
     GroupSelector groupSelector;
     groupSelector.initialize(rules, prodList);
-    // Do drop on input. On the first pass, just fill
-    // in a set of branches to be dropped.
+    // Do drop on input. On the first pass, just fill in a set of
+    // branches to be dropped.
     set<ProductID> branchesToDrop;
     for (auto const& prod : prodList) {
       auto const& pd = prod.second;

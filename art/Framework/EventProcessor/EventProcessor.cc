@@ -20,6 +20,7 @@
 #include "art/Framework/Services/System/FloatingPointControl.h"
 #include "art/Framework/Services/System/ScheduleContext.h"
 #include "art/Framework/Services/System/TriggerNamesService.h"
+#include "art/Persistency/Provenance/ProductMetaData.h"
 #include "art/Utilities/ScheduleID.h"
 #include "art/Utilities/bold_fontify.h"
 #include "art/Version/GetReleaseVersion.h"
@@ -142,6 +143,10 @@ art::EventProcessor::EventProcessor(ParameterSet const& pset)
   // The MasterProductRegistry is frozen in the c'tor of the Schedule,
   // which owns all other producers and filters.
   initSchedules_(pset);
+
+  preg_.finalizeForProcessing();
+  ProductMetaData::create_instance(preg_);
+
   FDEBUG(2) << pset.to_string() << std::endl;
   servicesDeactivate_();
 }

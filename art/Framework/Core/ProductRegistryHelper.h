@@ -92,7 +92,7 @@ public:
   // Record the production of an object of type P, with optional
   // instance name, in the Event (by default), Run, or SubRun.
   template <typename P, BranchType B = InEvent>
-  void produces(std::string const& instanceName = std::string());
+  void produces(std::string const& instanceName = {});
 
   // Record the reconstitution of an object of type P, in either the
   // Run, SubRun, or Event, recording that this object was
@@ -101,7 +101,7 @@ public:
   template <typename P, BranchType B>
   TypeLabel const&
   reconstitutes(std::string const& modLabel,
-                std::string const& instanceName = std::string());
+                std::string const& instanceName = {});
 
   template <BranchType B = InEvent>
   std::set<TypeLabel> const&

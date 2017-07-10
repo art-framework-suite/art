@@ -57,10 +57,11 @@ public:
   MasterProductRegistry& operator=(MasterProductRegistry const&) = delete;
 
   void addProduct(std::unique_ptr<BranchDescription>&&);
-  void setFrozen();
+  void registerProductListUpdatedCallback(ProductListUpdatedCallback cb);
+
+  void finalizeForProcessing();
   void updateFromPrimaryFile(ProductList const&, PerBranchTypePresence const&, FileBlock const&);
   void updateFromSecondaryFile(ProductList const&, PerBranchTypePresence const&, FileBlock const&);
-  void registerProductListUpdatedCallback(ProductListUpdatedCallback cb);
 
   auto const& productList() const { return productList_; }
   auto size() const { return productList_.size(); }
@@ -81,10 +82,13 @@ public:
   std::size_t presentWithFileIdx(BranchType, ProductID) const;
 
 private:
-  void resetPresenceFlags_(ProductList const& pl,
+
+  void setPresenceLookups_(ProductList const& pl,
                            PerBranchTypePresence const& presList);
-  bool frozen_ {false};
+  void updateProductLists_(ProductList const& pl);
   void checkDicts_(BranchDescription const& productDesc);
+
+  bool allowExplicitRegistration_{true};
 
   // Data members initialized once per process:
   ProductList productList_{};
@@ -97,10 +101,10 @@ private:
   PerBranchTypePresence  perBranchPresenceLookup_{{}};
   PerFilePresence perFilePresenceLookups_{};
   // Support finding a ProductID by <product friendly class name, process name>.
-  std::vector<BranchTypeLookup> productLookup_{};
+  std::vector<BranchTypeLookup> productLookup_;
   // Support finding a ProductID by
   // <product::value_type friendly class name, process name>.
-  std::vector<BranchTypeLookup> elementLookup_{};
+  std::vector<BranchTypeLookup> elementLookup_;
 };
 
 // Local Variables:

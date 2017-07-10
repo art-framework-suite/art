@@ -1,8 +1,8 @@
 /*----------------------------------------------------------------------
 
-Test of the EventPrincipal class.
+  Test of the EventPrincipal class.
 
-----------------------------------------------------------------------*/
+  ----------------------------------------------------------------------*/
 
 #define BOOST_TEST_MODULE ( eventprincipal_t )
 #include "cetlib/quiet_unit_test.hpp"
@@ -41,14 +41,17 @@ Test of the EventPrincipal class.
 #include <string>
 #include <typeinfo>
 
+using namespace std::string_literals;
+
 class MPRGlobalTestFixture {
 public:
+
   MPRGlobalTestFixture();
 
-  typedef std::map<std::string, art::BranchKey> BKmap_t;
+  using BKmap_t = std::map<std::string, art::BranchKey>;
 
-  BKmap_t branchKeys_;
-  std::map<std::string, art::ProcessConfiguration*> processConfigurations_;
+  BKmap_t branchKeys_{};
+  std::map<std::string, art::ProcessConfiguration*> processConfigurations_{};
 
 private:
   art::ProcessConfiguration*
@@ -60,17 +63,13 @@ private:
   std::unique_ptr<art::BranchDescription>
   fake_single_process_branch(std::string const& tag,
                              std::string const& processName,
-                             std::string const& productInstanceName = std::string() );
+                             std::string const& productInstanceName = {});
 
-  art::MasterProductRegistry  productRegistry_;
+  art::MasterProductRegistry  productRegistry_{};
 };
 
 
 MPRGlobalTestFixture::MPRGlobalTestFixture()
-  :
-  branchKeys_(),
-  processConfigurations_(),
-  productRegistry_()
 {
   // We can only insert products registered in the MasterProductRegistry.
   productRegistry_.addProduct(fake_single_process_branch("hlt",  "HLT"));
@@ -78,65 +77,59 @@ MPRGlobalTestFixture::MPRGlobalTestFixture()
   productRegistry_.addProduct(fake_single_process_branch("test", "TEST"));
   productRegistry_.addProduct(fake_single_process_branch("user", "USER"));
   productRegistry_.addProduct(fake_single_process_branch("rick", "USER2", "rick"));
-  productRegistry_.setFrozen();
+  productRegistry_.finalizeForProcessing();
   art::ProductMetaData::create_instance(productRegistry_);
 }
 
 art::ProcessConfiguration*
-MPRGlobalTestFixture::
-fake_single_module_process(std::string const& tag,
-                           std::string const& processName,
-                           fhicl::ParameterSet const& moduleParams,
-                           std::string const& release)
+MPRGlobalTestFixture::fake_single_module_process(std::string const& tag,
+                                                 std::string const& processName,
+                                                 fhicl::ParameterSet const& moduleParams,
+                                                 std::string const& release)
 {
   fhicl::ParameterSet processParams;
   processParams.put(processName, moduleParams);
-  processParams.put<std::string>("process_name",
-                                          processName);
+  processParams.put("process_name", processName);
 
-  art::ProcessConfiguration* result =
-    new art::ProcessConfiguration(processName, processParams.id(), release);
+  auto* result = new art::ProcessConfiguration(processName, processParams.id(), release);
   processConfigurations_[tag] = result;
   return result;
 }
 
 std::unique_ptr<art::BranchDescription>
-MPRGlobalTestFixture::
-fake_single_process_branch(std::string const& tag,
-                           std::string const& processName,
-                           std::string const& productInstanceName)
+MPRGlobalTestFixture::fake_single_process_branch(std::string const& tag,
+                                                 std::string const& processName,
+                                                 std::string const& productInstanceName)
 {
-  std::string moduleLabel = processName + "dummyMod";
-  std::string moduleClass("DummyModule");
-  art::TypeID dummyType(typeid(arttest::DummyProduct));
+  std::string const moduleLabel{processName + "dummyMod"};
+  std::string const moduleClass{"DummyModule"};
+  art::TypeID const dummyType{typeid(arttest::DummyProduct)};
   fhicl::ParameterSet modParams;
-  modParams.put<std::string>("module_type", moduleClass);
-  modParams.put<std::string>("module_label", moduleLabel);
-  art::ModuleDescription mod(modParams.id(),
-                             moduleClass,
-                             moduleLabel,
-                             *fake_single_module_process(tag, processName, modParams));
+  modParams.put("module_type", moduleClass);
+  modParams.put("module_label", moduleLabel);
+  art::ModuleDescription const mod(modParams.id(),
+                                   moduleClass,
+                                   moduleLabel,
+                                   *fake_single_module_process(tag, processName, modParams));
 
-  auto result = new art::BranchDescription(art::InEvent,
-                                           art::TypeLabel{dummyType, productInstanceName},
-                                           mod);
+  auto* result = new art::BranchDescription(art::InEvent,
+                                            art::TypeLabel{dummyType, productInstanceName},
+                                            mod);
   branchKeys_.insert(std::make_pair(tag, art::BranchKey(*result)));
   return std::unique_ptr<art::BranchDescription>(result);
 }
 
 struct EventPrincipalTestFixture {
-  typedef MPRGlobalTestFixture::BKmap_t BKmap_t;
+  using BKmap_t = MPRGlobalTestFixture::BKmap_t;
 
   EventPrincipalTestFixture();
 
-  MPRGlobalTestFixture &gf();
+  MPRGlobalTestFixture& gf();
 
-  std::unique_ptr<art::EventPrincipal> pEvent_;
+  std::unique_ptr<art::EventPrincipal> pEvent_{nullptr};
 };
 
 EventPrincipalTestFixture::EventPrincipalTestFixture()
-  :
-  pEvent_()
 {
   (void) gf(); // Bootstrap MasterProductRegistry creation first time out.
 
@@ -148,7 +141,7 @@ EventPrincipalTestFixture::EventPrincipalTestFixture()
   // Put products we'll look for into the EventPrincipal.
   typedef arttest::DummyProduct PRODUCT_TYPE;
   typedef art::Wrapper<PRODUCT_TYPE> WDP;
-  std::unique_ptr<art::EDProduct>  product(new WDP(std::unique_ptr<PRODUCT_TYPE>(new PRODUCT_TYPE)));
+  std::unique_ptr<art::EDProduct>  product{new WDP(std::unique_ptr<PRODUCT_TYPE>(new PRODUCT_TYPE))};
 
   std::string tag("rick");
   BKmap_t::const_iterator i(gf().branchKeys_.find(tag));
@@ -179,7 +172,7 @@ EventPrincipalTestFixture::EventPrincipalTestFixture()
   BOOST_REQUIRE_EQUAL(pEvent_->size(), 1u);
 }
 
-MPRGlobalTestFixture &
+MPRGlobalTestFixture&
 EventPrincipalTestFixture::gf() {
   static MPRGlobalTestFixture gf_s;
   return gf_s;
@@ -199,8 +192,8 @@ BOOST_AUTO_TEST_CASE(failgetbySelectorTest)
 {
   // We don't put ProductIDs into the EventPrincipal,
   // so that's a type sure not to match any product.
-  art::ProductID dummy;
-  art::TypeID tid(dummy);
+  art::ProductID const dummy;
+  art::TypeID const tid{dummy};
 
   art::ProcessNameSelector pnsel("PROD");
   art::GroupQueryResult h(pEvent_->getBySelector(tid, pnsel));
@@ -211,12 +204,12 @@ BOOST_AUTO_TEST_CASE(failgetbyLabelTest)
 {
   // We don't put ProductIDs into the EventPrincipal,
   // so that's a type sure not to match any product.
-  art::ProductID dummy;
-  art::TypeID tid(dummy);
+  art::ProductID const dummy;
+  art::TypeID const tid{dummy};
 
   std::string label("this does not exist");
 
-  art::GroupQueryResult h(pEvent_->getByLabel(tid, label, std::string(), std::string()));
+  art::GroupQueryResult const h{pEvent_->getByLabel(tid, label, ""s, ""s)};
   BOOST_CHECK(h.failed());
 }
 
@@ -224,10 +217,10 @@ BOOST_AUTO_TEST_CASE(failgetManyTest)
 {
   // We don't put ProductIDs into the EventPrincipal,
   // so that's a type sure not to match any product.
-  art::ProductID dummy;
-  art::TypeID tid(dummy);
+  art::ProductID const dummy;
+  art::TypeID const tid{dummy};
 
-  art::ProcessNameSelector sel("PROD");
+  art::ProcessNameSelector const sel{"PROD"};
   std::vector<art::GroupQueryResult> handles;
   pEvent_->getMany(tid, sel, handles);
   BOOST_CHECK(handles.empty());
@@ -237,8 +230,8 @@ BOOST_AUTO_TEST_CASE(failgetManybyTypeTest)
 {
   // We don't put ProductIDs into the EventPrincipal, so that's a type
   // sure not to match any product.
-  art::ProductID dummy;
-  art::TypeID tid(dummy);
+  art::ProductID const dummy;
+  art::TypeID const tid{dummy};
 
   // getManyByType is achieved by providing a selector that matches
   // everything.

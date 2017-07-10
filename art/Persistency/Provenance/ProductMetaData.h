@@ -24,11 +24,11 @@ class MPRGlobalTestFixture;
 
 namespace art {
 
-  class Schedule;
+  class EventProcessor;
 
   class ProductMetaData {
 
-    friend class Schedule;
+    friend class EventProcessor;
 
     // Used for testing.
     friend class ::MPRGlobalTestFixture;
