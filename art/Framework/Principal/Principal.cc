@@ -406,7 +406,7 @@ Principal::getForOutput(ProductID const pid, bool const resolveProd) const
   return OutputHandle{g->anyProduct(), &g->productDescription(), g->productProvenancePtr(), g->rangeOfValidity()};
 }
 
-cet::exempt_ptr<Group const> const
+cet::exempt_ptr<Group const>
 Principal::getResolvedGroup(ProductID const pid,
                             bool const resolveProd) const
 {
