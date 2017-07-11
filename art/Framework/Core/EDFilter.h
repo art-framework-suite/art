@@ -51,7 +51,7 @@ namespace art
   protected:
 
     template <typename T, BranchType BT = InEvent>
-    void consumes(InputTag const& it) { consumesRecorder_.consumes<T, BT>(it); }
+    ProductToken<T> consumes(InputTag const& it) { return consumesRecorder_.consumes<T, BT>(it); }
 
     template <typename T, BranchType BT = InEvent>
     void consumesMany() { consumesRecorder_.consumesMany<T, BT>(); }
