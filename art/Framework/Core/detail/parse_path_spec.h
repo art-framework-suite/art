@@ -1,5 +1,5 @@
-#ifndef art_Framework_Core_detail_OutputModuleUtils_h
-#define art_Framework_Core_detail_OutputModuleUtils_h
+#ifndef art_Framework_Core_detail_parse_path_spec_h
+#define art_Framework_Core_detail_parse_path_spec_h
 
 #include <string>
 #include <utility>
@@ -12,7 +12,7 @@ namespace art {
   }
 }
 
-#endif /* art_Framework_Core_detail_OutputModuleUtils_h */
+#endif /* art_Framework_Core_detail_parse_path_spec_h */
 
 // Local Variables:
 // mode: c++

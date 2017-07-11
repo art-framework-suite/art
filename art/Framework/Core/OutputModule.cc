@@ -2,7 +2,7 @@
 
 #include "art/Framework/Core/CPCSentry.h"
 #include "art/Framework/Core/FileBlock.h"
-#include "art/Framework/Core/detail/OutputModuleUtils.h"
+#include "art/Framework/Core/detail/parse_path_spec.h"
 #include "art/Framework/Principal/CurrentProcessingContext.h"
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Principal/EventPrincipal.h"

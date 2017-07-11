@@ -1,6 +1,6 @@
 #include "art/Framework/Core/EventObserverBase.h"
 
-#include "art/Framework/Core/detail/OutputModuleUtils.h"
+#include "art/Framework/Core/detail/parse_path_spec.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/System/TriggerNamesService.h"
 #include "fhiclcpp/ParameterSet.h"

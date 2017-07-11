@@ -30,14 +30,6 @@ cet_test(PathManager_t USE_BOOST_UNIT
   cetlib
   )
 
-#########################################################################
-# Old (pre-ART fork) tests.
-
-simple_plugin(TestMod module NO_INSTALL ${CPPUNIT})
-
-# cppunit tests en masse.
-file(GLOB cppunit_files *.cppunit.cc)
-
 ########################################################################
 # If any cppunit tests require more libraries than the default, specify
 # them in a ${target}_libs variable.
@@ -50,12 +42,8 @@ set(maker2_t_libs
   )
 ########################################################################
 
-foreach(cppunit_source ${cppunit_files})
-  get_filename_component(test_name ${cppunit_source} NAME_WE )
-  cet_test(${test_name} SOURCES testRunner.cpp ${cppunit_source}
-    LIBRARIES ${${test_name}_libs} ${default_test_libraries} ${CPPUNIT}
-    )
-endforeach()
+simple_plugin(TestMod module NO_INSTALL)
+cet_test(maker2_t LIBRARIES ${maker2_t_libs} ${default_test_libraries})
 
 foreach(cpp_test
     EventSelector_t
@@ -64,7 +52,7 @@ foreach(cpp_test
     CurrentProcessingContext_t
     CPCSentry_t
     RegistryTemplate_t
-    OutputModuleUtilities_t)
+    parse_path_spec_t)
   cet_test(${cpp_test} SOURCES ${cpp_test}.cpp
     LIBRARIES ${default_test_libraries}
     )
