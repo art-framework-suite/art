@@ -14,7 +14,7 @@
 #include "art/Framework/Principal/ProductInfo.h"
 #include "art/Framework/Principal/Run.h"
 #include "art/Framework/Principal/fwd.h"
-#include "art/Utilities/ProductTokens.h"
+#include "art/Utilities/ProductSemantics.h"
 #include "canvas/Persistency/Common/Wrapper.h"
 #include "canvas/Persistency/Provenance/RunID.h"
 #include "canvas/Persistency/Provenance/SubRunAuxiliary.h"
@@ -61,15 +61,15 @@ public:
 
   // Put a new product
   template <typename PROD> ProductID put(std::unique_ptr<PROD>&&);
-  template <typename PROD> ProductID put(std::unique_ptr<PROD>&&, FullToken<Level::SubRun>);
-  template <typename PROD> ProductID put(std::unique_ptr<PROD>&&, FragmentToken<Level::SubRun>);
-  template <typename PROD> ProductID put(std::unique_ptr<PROD>&&, RangedFragmentToken<Level::SubRun>);
+  template <typename PROD> ProductID put(std::unique_ptr<PROD>&&, FullSemantic<Level::SubRun>);
+  template <typename PROD> ProductID put(std::unique_ptr<PROD>&&, FragmentSemantic<Level::SubRun>);
+  template <typename PROD> ProductID put(std::unique_ptr<PROD>&&, RangedFragmentSemantic<Level::SubRun>);
 
   // Put a new product with an instance name
   template <typename PROD> ProductID put(std::unique_ptr<PROD>&&, std::string const& instanceName);
-  template <typename PROD> ProductID put(std::unique_ptr<PROD>&&, std::string const& instanceName, FullToken<Level::SubRun>);
-  template <typename PROD> ProductID put(std::unique_ptr<PROD>&&, std::string const& instanceName, FragmentToken<Level::SubRun>);
-  template <typename PROD> ProductID put(std::unique_ptr<PROD>&&, std::string const& instanceName, RangedFragmentToken<Level::SubRun>);
+  template <typename PROD> ProductID put(std::unique_ptr<PROD>&&, std::string const& instanceName, FullSemantic<Level::SubRun>);
+  template <typename PROD> ProductID put(std::unique_ptr<PROD>&&, std::string const& instanceName, FragmentSemantic<Level::SubRun>);
+  template <typename PROD> ProductID put(std::unique_ptr<PROD>&&, std::string const& instanceName, RangedFragmentSemantic<Level::SubRun>);
 
   // Expert-level
   using Base::removeCachedProduct;
@@ -120,25 +120,25 @@ art::SubRun::put(std::unique_ptr<PROD>&& product)
 template <typename PROD>
 art::ProductID
 art::SubRun::put(std::unique_ptr<PROD>&& product,
-                 FullToken<Level::SubRun> const token)
+                 FullSemantic<Level::SubRun> const semantic)
 {
-  return put<PROD>(std::move(product), std::string{}, token);
+  return put<PROD>(std::move(product), std::string{}, semantic);
 }
 
 template <typename PROD>
 art::ProductID
 art::SubRun::put(std::unique_ptr<PROD>&& product,
-                 FragmentToken<Level::SubRun> const token)
+                 FragmentSemantic<Level::SubRun> const semantic)
 {
-  return put<PROD>(std::move(product), std::string{}, token);
+  return put<PROD>(std::move(product), std::string{}, semantic);
 }
 
 template <typename PROD>
 art::ProductID
 art::SubRun::put(std::unique_ptr<PROD>&& product,
-                 RangedFragmentToken<Level::SubRun> token)
+                 RangedFragmentSemantic<Level::SubRun> semantic)
 {
-  return put<PROD>(std::move(product), std::string{}, std::move(token));
+  return put<PROD>(std::move(product), std::string{}, std::move(semantic));
 }
 
 //----------------------------------------------------------------
@@ -157,7 +157,7 @@ template <typename PROD>
 art::ProductID
 art::SubRun::put(std::unique_ptr<PROD>&& product,
                  std::string const& productInstanceName,
-                 FullToken<Level::SubRun>)
+                 FullSemantic<Level::SubRun>)
 {
   return put_<PROD>(std::move(product), productInstanceName, RangeSet::forSubRun(id()));
 }
@@ -166,11 +166,11 @@ template <typename PROD>
 art::ProductID
 art::SubRun::put(std::unique_ptr<PROD>&& product,
                  std::string const& productInstanceName,
-                 FragmentToken<Level::SubRun>)
+                 FragmentSemantic<Level::SubRun>)
 {
   static_assert(detail::CanBeAggregated<PROD>::value,
                 "\n\n"
-                "art error: A SubRun product put with the token 'SubRunFragment'\n"
+                "art error: A SubRun product put with the semantic 'SubRunFragment'\n"
                 "           must be able to be aggregated. Please add the appropriate\n"
                 "              void aggregate(T const&)\n"
                 "           function to your class, or contact artists@fnal.gov.\n");
@@ -192,22 +192,22 @@ template <typename PROD>
 art::ProductID
 art::SubRun::put(std::unique_ptr<PROD>&& product,
                  std::string const& productInstanceName,
-                 RangedFragmentToken<Level::SubRun> token)
+                 RangedFragmentSemantic<Level::SubRun> semantic)
 {
   static_assert(detail::CanBeAggregated<PROD>::value,
                 "\n\n"
-                "art error: A SubRun product put with the token 'SubRunFragment'\n"
+                "art error: A SubRun product put with the semantic 'SubRunFragment'\n"
                 "           must be able to be aggregated. Please add the appropriate\n"
                 "              void aggregate(T const&)\n"
                 "           function to your class, or contact artists@fnal.gov.\n");
-  if (token.rs.collapse().is_full_subRun()) {
+  if (semantic.rs.collapse().is_full_subRun()) {
     throw Exception{errors::ProductPutFailure, "Run::put"}
       << "\nCannot put a product corresponding to a full SubRun using\n"
       << "art::subRunFragment(art::RangeSet&).  Please use:\n"
       << "   art::fullSubRun()\n"
       << "or contact artists@fnal.gov for assistance.\n";
   }
-  return put_<PROD>(std::move(product), productInstanceName, token.rs);
+  return put_<PROD>(std::move(product), productInstanceName, semantic.rs);
 }
 
 
