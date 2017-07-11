@@ -33,4 +33,8 @@ namespace art {
 
 }
 
-#endif
+#endif /* art_Framework_Principal_ProductToken_h */
+
+// Local Variables:
+// mode: c++
+// End:

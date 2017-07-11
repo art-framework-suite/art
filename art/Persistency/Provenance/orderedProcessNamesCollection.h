@@ -1,5 +1,5 @@
-#ifndef art_Framework_Principal_detail_orderedProcessNames_h
-#define art_Framework_Principal_detail_orderedProcessNames_h
+#ifndef art_Persistency_Provenance_orderedProcessNamesCollection_h
+#define art_Persistency_Provenance_orderedProcessNamesCollection_h
 
 #include <string>
 #include <vector>
@@ -12,7 +12,7 @@ namespace art {
   }
 }
 
-#endif /* art_Framework_Principal_detail_orderedProcessNames_h */
+#endif /* art_Persistency_Provenance_orderedProcessNamesCollection_h */
 
 // Local variables:
 // mode: c++
