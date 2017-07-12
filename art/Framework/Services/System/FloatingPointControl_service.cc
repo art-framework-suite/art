@@ -40,31 +40,54 @@
 // IE bit 0 Invalid Operation Flag
 #define ART_IE 0x0001
 
+// The following macros are defined below according to architecture:
+//
+// ART_FE_CONTROL_WORD /* Name of control word within fenv_t */
 
 extern "C" {
 #include <fenv.h>
 
 #if (defined(__i386__) || defined(__x86_64__))
 #ifdef __linux__
-#include <fpu_control.h>
-#define SET_CONTROL_EX(env,ex) env.__control_word = (ex)
-#else
-  // works on MAC OS X
-#include <architecture/i386/fpu.h>
+#define ART_FE_CONTROL_WORD __control_word
+#elif defined(__APPLE__)
 #ifndef __GNUC__
 #pragma STDC FENV_ACCESS ON
 #endif
-#define SET_CONTROL_EX(env,ex) env.__control = (ex)
+#define ART_FE_CONTROL_WORD __control
+#else
+#error OS not valid for FP control
 #endif
 #else
-#error architecture not valid
+#error Architecture not valid for FP control
 #endif
 }
 
 namespace {
-  char const* on_or_off [[gnu::unused]] (bool const b)
+  char const* on_or_off (bool const b)
   {
-    return b ? " on" : " off";
+    return b ? " on " : " off";
+  }
+
+  auto & fpcw(fenv_t & fe)
+  {
+#if defined __i386__ || defined __x86_64__
+#if defined __APPLE__
+    return fe.__control;
+#elif defined __linux__
+    return fe.__control_word;
+#else
+#error OS not valid for FP control
+#endif
+#else
+#error Architecture not valid for FP control
+#endif
+  }
+
+  auto fpcw_snapshot() {
+    fenv_t fe;
+    fegetenv(&fe);
+    return fpcw(fe);
   }
 }
 
@@ -81,9 +104,7 @@ art::FloatingPointControl::FloatingPointControl(Parameters const& c, ActivityReg
   reg.sPostEndJob.watch(this, &FloatingPointControl::postEndJob);
 
   // Get the state of the fpu to restore it after the job is done.
-  fenv_t fpuState;
-  fegetenv(&fpuState);
-  OSdefault_ = fpuState;
+  fegetenv(&OSdefault_);
 
   if (reportSettings_) {
     mf::LogVerbatim("FPE_Enable") << "\nOS's FP settings";
@@ -91,7 +112,7 @@ art::FloatingPointControl::FloatingPointControl(Parameters const& c, ActivityReg
   }
 
   // Update the state according to the user's configuration
-  controlFpe(fpuState);
+  controlFpe();
   if (reportSettings_) {
     mf::LogVerbatim("FPE_Enable") << "\nUpdated FP settings per user's configuration";
     echoState();
@@ -113,53 +134,47 @@ art::FloatingPointControl::postEndJob()
 // ----------------------------------------------------------------------
 
 void
-art::FloatingPointControl::controlFpe(fenv_t& fpuState)
+art::FloatingPointControl::controlFpe()
 {
-  unsigned short int const FE_PRECISION {1<<5};
-
-  // NB: We do not let users control signaling inexact (FE_INEXACT).
-
-  unsigned short int suppress {FE_PRECISION};
+  // NB: We do not let users control signaling of denormalized operand
+  // (ART_FE_DENORMALOPERAND) or inexact (FE_INEXACT).
+  unsigned short int enable_except {};
   unsigned short int enable_sse {};
 
-  if (!enableDivByZeroEx_)
-    suppress |= FE_DIVBYZERO;
-  else
+  if (enableDivByZeroEx_) {
+    enable_except |= FE_DIVBYZERO;
     enable_sse |= ART_ZM_MASK;
-
-  if (!enableInvalidEx_)
-    suppress |= FE_INVALID;
-  else
+  }
+  
+  if (enableInvalidEx_) {
+    enable_except |= FE_INVALID;
     enable_sse |= ART_IM_MASK;
-
-  if (!enableOverFlowEx_)
-    suppress |= FE_OVERFLOW;
-  else
+  }
+  
+  if (enableOverFlowEx_) {
+    enable_except |= FE_OVERFLOW;
     enable_sse |= ART_OM_MASK;
-
-  if (!enableUnderFlowEx_)
-    suppress |= FE_UNDERFLOW;
-  else
+  }
+  
+  if (enableUnderFlowEx_) {
+    enable_except |= FE_UNDERFLOW;
     enable_sse |= ART_UM_MASK;
+  }
 
+  fenv_t fpuState;
   fegetenv(&fpuState);
-  SET_CONTROL_EX(fpuState, suppress);
+  fpcw(fpuState) &= (~enable_except);
+
   // also set the bits in the SSE unit
   fpuState.__mxcsr &= ~enable_sse;
 
   fesetenv(&fpuState);
 
-#ifdef __linux__
-#ifdef __i386__
   if (setPrecisionDouble_) {
-    fpu_control_t cw;
-    _FPU_GETCW(cw);
-
-    cw = (cw & ~_FPU_EXTENDED) | _FPU_DOUBLE;
-    _FPU_SETCW(cw);
+    XPFPA_DECLARE();
+    XPFPA_SWITCH_DOUBLE();
   }
-#endif
-#endif
+
 }
 
 // ----------------------------------------------------------------------
@@ -167,9 +182,8 @@ art::FloatingPointControl::controlFpe(fenv_t& fpuState)
 void
 art::FloatingPointControl::echoState()
 {
-#ifdef __linux__
   if (reportSettings_) {
-    int const femask {fegetexcept()};
+    auto const femask { fpcw_snapshot() };
     mf::LogVerbatim("FPE_Enable")
       << "Floating point exception mask is "
       << std::showbase << std::hex << femask
@@ -179,7 +193,6 @@ art::FloatingPointControl::echoState()
       << "\tUnderFlow exception is" << on_or_off(femask & FE_UNDERFLOW)
       ;
   }
-#endif
 }
 
 // ======================================================================

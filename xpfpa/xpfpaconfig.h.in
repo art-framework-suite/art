@@ -1,0 +1,8 @@
+#ifndef xpfpa_xpfpaconfig_h_in
+#define xpfpa_xpfpaconfig_h_in
+#cmakedefine HAVE__FPU_SETCW
+#cmakedefine HAVE_FPSETPREC
+#cmakedefine HAVE__CONTROLFP
+#cmakedefine HAVE__CONTROLFP_S
+#cmakedefine HAVE_FPU_INLINE_ASM_X86
+#endif /* xpfpa_xpfpaconfig_h_in */

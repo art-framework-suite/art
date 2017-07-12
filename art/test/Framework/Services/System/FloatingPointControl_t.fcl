@@ -1,0 +1,7 @@
+destinations: {
+  TSTREAM_1: {
+    categories: { default: { limit: -1 } }
+    type: stringstream
+    threshold: INFO
+  }
+}

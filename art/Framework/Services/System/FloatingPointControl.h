@@ -44,7 +44,12 @@
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
 #include "fhiclcpp/types/Atom.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
+
+extern "C" {
+#include "xpfpa/xpfpa.h"
 #include <fenv.h>
+}
+
 #include <map>
 #include <stack>
 
@@ -80,7 +85,7 @@ public:
 private:
 
   void postEndJob();
-  void controlFpe(fenv_t&);
+  void controlFpe();
   void echoState();
 
   bool enableDivByZeroEx_;
@@ -91,6 +96,8 @@ private:
   bool reportSettings_;
 
   fenv_t OSdefault_ {}; // OS's fpu state on job startup
+
+  bool precisionSet_ {false}; // Keep track of whether we should restore
 
 };  // FloatingPointControl
 
