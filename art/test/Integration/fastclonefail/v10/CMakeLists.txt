@@ -98,7 +98,7 @@ DEPENDS
   ${CMAKE_CURRENT_SOURCE_DIR}/ClonedProd.h
   ${CMAKE_CURRENT_SOURCE_DIR}/LinkDef.h
 COMMENT
-  "Generating dictionary for v10 ..."
+  "Generating dictionary for ClonedProd v10 ..."
 VERBATIM
 )
 
