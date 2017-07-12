@@ -2,15 +2,15 @@
 Processing file: ../../../../Integration/Assns_w.d/out.root
 # Read SQLiteDB from file, total size: 40.0 KiB.
 
-TrivialFileTransfer: {
+DatabaseConnection: {
+}
+
+FileCatalogMetadata: {
 }
 
 TrivialFileDelivery: {
 }
 
-DatabaseConnection: {
-}
-
-FileCatalogMetadata: {
+TrivialFileTransfer: {
 }
 

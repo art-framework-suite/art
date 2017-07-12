@@ -1,18 +1,17 @@
+#include "art/Framework/IO/Root/GetFileFormatEra.h"
+#include "art/Persistency/RootDB/SQLite3Wrapper.h"
+#include "art/Persistency/RootDB/tkeyvfs.h"
+#include "canvas/Persistency/Provenance/rootNames.h"
+#include "canvas/Persistency/Provenance/FileFormatVersion.h"
+#include "canvas/Persistency/Provenance/ParameterSetMap.h"
+#include "canvas/Persistency/Provenance/ParameterSetBlob.h"
 #include "cetlib/container_algorithms.h"
-
+#include "cetlib/exempt_ptr.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/ParameterSetRegistry.h"
 #include "fhiclcpp/make_ParameterSet.h"
-#include "canvas/Persistency/Provenance/ParameterSetMap.h"
-#include "canvas/Persistency/Provenance/ParameterSetBlob.h"
 
 #include "boost/program_options.hpp"
-
-#include "art/Framework/IO/Root/GetFileFormatEra.h"
-#include "canvas/Persistency/Provenance/rootNames.h"
-#include "canvas/Persistency/Provenance/FileFormatVersion.h"
-#include "art/Persistency/RootDB/SQLite3Wrapper.h"
-#include "art/Persistency/RootDB/tkeyvfs.h"
 
 #include "TFile.h"
 #include "TTree.h"
@@ -83,8 +82,8 @@ db_size_hr(sqlite3 * db)
 }
 
 std::string
-want_pset(ParameterSet const & ps,
-          stringvec const & filters,
+want_pset(ParameterSet const& ps,
+          stringvec const& filters,
           PsetType mode) {
   string label;
   switch (mode) {
@@ -114,7 +113,7 @@ want_pset(ParameterSet const & ps,
 }
 
 ParameterSet
-strip_pset(ParameterSet const & ps, PsetType mode)
+strip_pset(ParameterSet const& ps, PsetType mode)
 {
   ParameterSet result(ps);
   switch (mode) {
@@ -138,8 +137,8 @@ strip_pset(ParameterSet const & ps, PsetType mode)
 
 // Read all the ParameterSets stored in 'file'. Write any error messages
 // to errors.  Return false on failure, and true on success.
-bool read_all_parameter_sets(TFile & file,
-                             ostream & errors)
+bool read_all_parameter_sets(TFile& file,
+                             ostream& errors)
 {
   ParameterSetMap psm;
   ParameterSetMap * psm_address = &psm;
@@ -223,14 +222,27 @@ int print_pset_from_file(TFile& file,
     return 1;
   }
 
-  for (auto const& pr : fhicl::ParameterSetRegistry::get()) {
+  // Print ParameterSets alphabetically according to the top-level
+  // name.  There is an additional request to sort according to
+  // chronology--i.e. presumably first according to process name, and
+  // then alphabetically within.
+  auto const& collection = fhicl::ParameterSetRegistry::get();
+
+  // Cache pointers to the ParameterSets to avoid exorbitant copying.
+  std::map<std::string, cet::exempt_ptr<fhicl::ParameterSet const>> sorted_pses;
+  for (auto const& pr : collection) {
     auto const& pset = pr.second;
-    std::string label {want_pset(pset, filters, mode)};
-    if (!label.empty()) {
-      output << label << ": {\n";
-      output << strip_pset(pset, mode).to_indented_string(1);
-      output << "}\n\n";
-    }
+    std::string const label {want_pset(pset, filters, mode)};
+    if (label.empty()) continue;
+
+    sorted_pses.emplace(label, &pset);
+  }
+
+  for (auto const& pr : sorted_pses) {
+    auto const& pset = *pr.second;
+    output << pr.first << ": {\n";
+    output << strip_pset(pset, mode).to_indented_string(1);
+    output << "}\n\n";
   }
 
   return 0;
@@ -306,7 +318,7 @@ int main(int argc, char * argv[])
                vm);
     bpo::notify(vm);
   }
-  catch (bpo::error const & e) {
+  catch (bpo::error const& e) {
     std::cerr << "Exception from command line processing in "
               << argv[0] << ": " << e.what() << "\n";
     return 2;

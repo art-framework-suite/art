@@ -2,6 +2,15 @@
 Processing file: ../../../../Integration/Assns_w.d/out.root
 # Read SQLiteDB from file, total size: 40.0 KiB.
 
+ap1: {
+   module_type: "AssnsProducer"
+}
+
+o1: {
+   fileName: "dummy.root"
+   module_type: "RootOutput"
+}
+
 o2: {
    fileName: "out.root"
    module_type: "RootOutput"
@@ -10,14 +19,5 @@ o2: {
 source: {
    maxEvents: 2
    module_type: "EmptyEvent"
-}
-
-o1: {
-   fileName: "dummy.root"
-   module_type: "RootOutput"
-}
-
-ap1: {
-   module_type: "AssnsProducer"
 }
 
