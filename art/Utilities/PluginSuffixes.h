@@ -43,12 +43,10 @@
   2. Require creating a free function that returns the full list of
      allowed suffixes.  Then for each
 
-        'Suffixes::{module,service,source,plugin,tool}()'
+        'Suffixes::{module,service,source,plugin,tool,mfPlugin}()'
 
      free function call, the full-list function would be called each
      time, which seems unnecessary.
-
-  KK, October 2015
 */
 
 #include "canvas/Utilities/Exception.h"
@@ -60,7 +58,7 @@
 
 namespace art {
 
-  enum class suffix_type {module, plugin, service, source, tool};
+  enum class suffix_type {module, plugin, service, source, tool, mfPlugin, mfStatsPlugin};
 
   inline std::ostream& operator<<(std::ostream& os, suffix_type const st)
   {
@@ -75,6 +73,8 @@ namespace art {
     static std::string const& service() { return suffixes_[suffix_type::service]; }
     static std::string const& source () { return suffixes_[suffix_type::source ]; }
     static std::string const& tool   () { return suffixes_[suffix_type::tool   ]; }
+    static std::string const& mfPlugin() { return suffixes_[suffix_type::mfPlugin]; }
+    static std::string const& mfStatsPlugin() { return suffixes_[suffix_type::mfStatsPlugin]; }
 
     static std::string const& get(suffix_type st) { return suffixes_[st]; }
 

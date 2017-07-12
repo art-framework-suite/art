@@ -104,10 +104,12 @@ namespace {
   std::string fhicl_name(suffix_type const st)
   {
     switch (st) {
-    case suffix_type::module: return "<module_label>";
-    case suffix_type::plugin: return "<plugin_label>";
-    case suffix_type::tool  : return "<tool_label>";
-    case suffix_type::source: return "source";
+    case suffix_type::module  : return "<module_label>";
+    case suffix_type::plugin  : return "<plugin_label>";
+    case suffix_type::tool    : return "<tool_label>";
+    case suffix_type::source  : return "source";
+    case suffix_type::mfPlugin: return "<destination_label>";
+    case suffix_type::mfStatsPlugin: return "<statistics_destination_label>";
     default :
       throw art::Exception(art::errors::LogicError)
         << "The '" << Suffixes::get(st) << "' suffix is not supported for function: " << __func__ << '\n';
@@ -201,11 +203,13 @@ art::detail::get_LibraryInfoCollection(suffix_type const st,
                                        bool const verbose)
 {
   switch(st) {
-  case suffix_type::module  : return getCollection<suffix_type::module >(pattern, verbose);
-  case suffix_type::service : return getCollection<suffix_type::service>(pattern, verbose);
-  case suffix_type::source  : return getCollection<suffix_type::source >(pattern, verbose);
-  case suffix_type::plugin  : return getCollection<suffix_type::plugin >(pattern, verbose);
-  case suffix_type::tool    : return getCollection<suffix_type::tool   >(pattern, verbose);
+  case suffix_type::module  : return getCollection<suffix_type::module  >(pattern, verbose);
+  case suffix_type::service : return getCollection<suffix_type::service >(pattern, verbose);
+  case suffix_type::source  : return getCollection<suffix_type::source  >(pattern, verbose);
+  case suffix_type::plugin  : return getCollection<suffix_type::plugin  >(pattern, verbose);
+  case suffix_type::tool    : return getCollection<suffix_type::tool    >(pattern, verbose);
+  case suffix_type::mfPlugin: return getCollection<suffix_type::mfPlugin>(pattern, verbose);
+  case suffix_type::mfStatsPlugin: return getCollection<suffix_type::mfStatsPlugin>(pattern, verbose);
     // No default - allow compiler to warn if missing suffix_type.
   }
   return {};
