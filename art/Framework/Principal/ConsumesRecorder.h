@@ -1,5 +1,5 @@
-#ifndef art_Framework_Core_ConsumesRecorder_h
-#define art_Framework_Core_ConsumesRecorder_h
+#ifndef art_Framework_Principal_ConsumesRecorder_h
+#define art_Framework_Principal_ConsumesRecorder_h
 
 //---------------------------------------------------------------------------
 // ConsumesRecorder: Records which products are intended to be retrieved.
@@ -78,7 +78,7 @@ void art::ConsumesRecorder::consumesMany()
   consumables_[BT].emplace_back(TypeID{typeid(T)});
 }
 
-#endif /* art_Framework_Core_ConsumesRecorder_h */
+#endif /* art_Framework_Principal_ConsumesRecorder_h */
 
 // Local Variables:
 // mode: c++

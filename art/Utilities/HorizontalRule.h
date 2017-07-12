@@ -13,4 +13,8 @@ namespace art {
   };
 }
 
-#endif
+#endif /* art_Utilities_HorizontalRule_h */
+
+// Local Variables:
+// mode: c++
+// End:

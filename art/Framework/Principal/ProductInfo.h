@@ -1,5 +1,5 @@
-#ifndef art_Framework_Core_ProductInfo_h
-#define art_Framework_Core_ProductInfo_h
+#ifndef art_Framework_Principal_ProductInfo_h
+#define art_Framework_Principal_ProductInfo_h
 
 #include "canvas/Persistency/Provenance/BranchType.h"
 #include "canvas/Utilities/TypeID.h"
@@ -49,7 +49,7 @@ namespace art {
 }
 
 
-#endif /* art_Framework_Core_ProductInfo_h */
+#endif /* art_Framework_Principal_ProductInfo_h */
 
 // Local Variables:
 // mode: c++

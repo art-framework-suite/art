@@ -1,5 +1,5 @@
-#ifndef art_Framework_Core_get_ProductDescription_h
-#define art_Framework_Core_get_ProductDescription_h
+#ifndef art_Framework_Principal_get_ProductDescription_h
+#define art_Framework_Principal_get_ProductDescription_h
 
 ////////////////////////////////////////////////////////////////////////
 // Helper class to find a product's BranchDescription in the
@@ -100,7 +100,7 @@ art::get_ProductDescription(Principal const& principal,
                                instance_name); // 4.
 }
 
-#endif /* art_Framework_Core_get_ProductDescription_h */
+#endif /* art_Framework_Principal_get_ProductDescription_h */
 
 // Local Variables:
 // mode: c++

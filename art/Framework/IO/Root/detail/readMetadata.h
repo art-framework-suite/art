@@ -40,4 +40,8 @@ namespace art {
   }
 }
 
-#endif
+#endif /* art_Framework_IO_Root_detail_readMetadata_h */
+
+// Local Variables:
+// mode: c++
+// End:

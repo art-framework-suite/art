@@ -1,5 +1,5 @@
-#ifndef art_test_Integration_ThrowAfterConfig_h
-#define art_test_Integration_ThrowAfterConfig_h
+#ifndef art_test_Integration_event_processor_ThrowAfterConfig_h
+#define art_test_Integration_event_processor_ThrowAfterConfig_h
 
 #include "fhiclcpp/types/Atom.h"
 #include <limits>
@@ -20,4 +20,8 @@ namespace art {
   }
 }
 
-#endif
+#endif /* art_test_Integration_event_processor_ThrowAfterConfig_h */
+
+// Local Variables:
+// mode: c++
+// End:

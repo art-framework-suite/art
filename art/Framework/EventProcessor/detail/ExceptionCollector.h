@@ -42,7 +42,7 @@ private:
   std::vector<std::exception_ptr> exceptions_{};
 };
 
-#endif /* art_Framework_EventProcessor_EventProcessor_h */
+#endif /* art_Framework_EventProcessor_detail_ExceptionCollector_h */
 
 // Local Variables:
 // mode: c++

@@ -24,6 +24,6 @@ namespace art {
 
 #endif /* art_Persistency_RootDB_TKeyVFSOpenPolicy_h */
 
-// Local variable:
+// Local Variables:
 // mode: c++
 // End:

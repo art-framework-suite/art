@@ -1,5 +1,5 @@
-#ifndef art_Framework_Services_Optional_detail_LinuxProcData_h
-#define art_Framework_Services_Optional_detail_LinuxProcData_h
+#ifndef art_Utilities_LinuxProcData_h
+#define art_Utilities_LinuxProcData_h
 
 //===================================================================
 //
@@ -111,7 +111,7 @@ namespace art {
   };
 
 }
-#endif /* art_Framework_Services_Optional_detail_LinuxProcData_h */
+#endif /* art_Utilities_LinuxProcData_h */
 
 // Local variables:
 // mode:c++
