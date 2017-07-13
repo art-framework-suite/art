@@ -84,11 +84,6 @@ namespace {
 #endif
   }
 
-  auto fpcw_snapshot() {
-    fenv_t fe;
-    fegetenv(&fe);
-    return fpcw(fe);
-  }
 }
 
 // ======================================================================
@@ -124,6 +119,9 @@ art::FloatingPointControl::FloatingPointControl(Parameters const& c, ActivityReg
 void
 art::FloatingPointControl::postEndJob()
 {
+  if (precisionSet_) {
+    XPFPA_RESTORE()
+      }
   fesetenv(&OSdefault_);
   if (reportSettings_) {
     mf::LogVerbatim("FPE_Enable") << "\nRestored to OS's FPE settings";
@@ -171,10 +169,9 @@ art::FloatingPointControl::controlFpe()
   fesetenv(&fpuState);
 
   if (setPrecisionDouble_) {
-    XPFPA_DECLARE();
+    precisionSet_ = true;
     XPFPA_SWITCH_DOUBLE();
   }
-
 }
 
 // ----------------------------------------------------------------------
@@ -183,7 +180,9 @@ void
 art::FloatingPointControl::echoState()
 {
   if (reportSettings_) {
-    auto const femask { fpcw_snapshot() };
+    fenv_t fe;
+    fegetenv(&fe);
+    auto const femask { fpcw(fe) };
     mf::LogVerbatim("FPE_Enable")
       << "Floating point exception mask is "
       << std::showbase << std::hex << femask

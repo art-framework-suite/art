@@ -8,7 +8,7 @@ cet_test(ScheduleContext_t
 
 cet_test(FloatingPointControl_t
   DATAFILES FloatingPointControl_t.fcl
-  TEST_ARGS FloatingPointControl_t.fcl -s
+  TEST_ARGS FloatingPointControl_t.fcl
   LIBRARIES
   mf_catch_main
   messagefacility_plugins_stringstream_mfPlugin

@@ -99,6 +99,7 @@ private:
 
   bool precisionSet_ {false}; // Keep track of whether we should restore
 
+  XPFPA_DECLARE()
 };  // FloatingPointControl
 
 // ======================================================================

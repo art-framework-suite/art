@@ -34,15 +34,7 @@ namespace {
 #endif
   }
 
-  auto fpcw_snapshot() {
-    fenv_t fe;
-    fegetenv(&fe);
-    return fpcw(fe);
-  }
-  
-  static auto const fpcw_ref = fpcw_snapshot();
-
-  static decltype(fpcw_ref) ART_FP_SINGLE_PREC =
+  static auto constexpr ART_FP_SINGLE_PREC =
 #if defined HAVE__CONTROLFP_S || defined HAVE__CONTROLFP
     _PC_24
 #elif defined HAVE__FPU_SETCW
@@ -52,7 +44,7 @@ namespace {
 #endif
     ;
   
-  static decltype(fpcw_ref) ART_FP_DOUBLE_PREC =
+  static auto constexpr ART_FP_DOUBLE_PREC =
 #if defined HAVE__CONTROLFP_S || defined HAVE__CONTROLFP
     _PC_53
 #elif defined HAVE__FPU_SETCW
@@ -62,7 +54,7 @@ namespace {
 #endif
     ;
   
-  static decltype(fpcw_ref) ART_FP_EXTENDED_PREC =
+  static auto constexpr ART_FP_EXTENDED_PREC =
 #if defined HAVE__CONTROLFP_S || defined HAVE__CONTROLFP
     _PC_64
 #elif defined HAVE__FPU_SETCW
@@ -72,11 +64,9 @@ namespace {
 #endif
     ;
   
-  static decltype(fpcw_ref) ART_FP_ALL =
+  static auto constexpr ART_FP_ALL =
     ART_FP_SINGLE_PREC | ART_FP_DOUBLE_PREC | ART_FP_EXTENDED_PREC;
 
-  auto const fpcw_ref_dp = (fpcw_ref & ~ ART_FP_ALL) | ART_FP_DOUBLE_PREC;
-  
   template <typename T, typename = std::enable_if_t<std::is_integral<T>::value>>
   class Hexable {
 public:
@@ -94,11 +84,13 @@ private:
   template <typename T>
   inline
   void
-  compare_equal(T const left,
-                decltype(left) right,
-                std::string msg = "Checking current FP state against expected"s)
+  compare_fpcw(T const right,
+               std::string msg = "Checking current FP state against expected"s)
   {
     INFO(msg);
+    fenv_t fe;
+    fegetenv(&fe);
+    auto const left = fpcw(fe);
     CHECK(hexit(left) == hexit(right));
   }
 
@@ -107,23 +99,24 @@ private:
     return b ? " on " : " off";
   }
 
-  auto const fmt = "DivByZero exception is%4s"
-    "\tInvalid exception is%4s"
-    "\tOverFlow exception is%4s"
-    "\tUnderFlow exception is%4s\n";
-
   template <typename INT, typename = std::enable_if_t<std::is_integral<INT>::value>>
   void
   verify_report(std::ostringstream const & os, INT mask) {
     auto test_string = os.str();
-    test_string = test_string.substr(test_string.rfind("DivByZero exception is "));
-    std::string ref(test_string.size(), 0);
-    snprintf(&*ref.begin(), ref.size() + 1, fmt,
-             on_or_off((~ mask) & FE_DIVBYZERO),
-             on_or_off((~ mask) & FE_INVALID),
-             on_or_off((~ mask) & FE_OVERFLOW),
-             on_or_off((~ mask) & FE_UNDERFLOW));
-    CHECK(test_string == ref);
+    auto const pos = test_string.rfind("DivByZero exception is ");
+    if (pos != std::string::npos) {
+      std::string const ref("DivByZero exception is"s +
+                            on_or_off((~ mask) & FE_DIVBYZERO) +
+                            "\tInvalid exception is" +
+                            on_or_off((~ mask) & FE_INVALID) +
+                            "\tOverFlow exception is" +
+                            on_or_off((~ mask) & FE_OVERFLOW) +
+                            "\tUnderFlow exception is" +
+                            on_or_off((~ mask) & FE_UNDERFLOW) + '\n');
+      CHECK(test_string.substr(pos) == ref);
+    } else {
+      CHECK(false);
+    }
   }
 
   void
@@ -131,14 +124,6 @@ private:
     verify_report(os, (decltype(FE_ALL_EXCEPT)) 0);
   }
 
-  void
-  verify_cleanup(art::ActivityRegistry & reg)
-  {
-      reg.sPostEndJob.invoke();
-      compare_equal(fpcw_snapshot(),
-                    fpcw_ref,
-                    "Checking final FP state against default"s);
-  }
 }
 
 namespace Catch {
@@ -166,14 +151,26 @@ SCENARIO("We wish to affect the floating point control on our system")
     auto & tstream = mf::getStringStream("TSTREAM_1");
     tstream.str("");
 
+    fenv_t fenv;
+    fegetenv(&fenv);
+    auto const fpcw_ref = fpcw(fenv);
+    auto const fpcw_ref_dp = (fpcw_ref & ~ ART_FP_ALL) | ART_FP_DOUBLE_PREC;
+
+    static auto verify_cleanup =
+      [fpcw_ref, &reg]()
+      {
+        reg.sPostEndJob.invoke();
+        compare_fpcw(fpcw_ref, "Checking final FP state against default"s);
+      };
+
     WHEN("We want the basic configuration")
     {
       art::FloatingPointControl fpc(ps, reg);
       THEN("The configuration is unchanged except for double precision math.")
       {
-        compare_equal(fpcw_snapshot(), fpcw_ref_dp);
+        compare_fpcw(fpcw_ref_dp);
         verify_report(tstream);
-        verify_cleanup(reg);
+        verify_cleanup();
       }
     }
 
@@ -183,9 +180,9 @@ SCENARIO("We wish to affect the floating point control on our system")
       art::FloatingPointControl fpc(ps, reg);
       THEN("The configuration shows suppressed divide-by-zero exceptions")
       {
-        compare_equal(fpcw_snapshot(), fpcw_ref_dp & ~ FE_DIVBYZERO);
+        compare_fpcw(fpcw_ref_dp & ~ FE_DIVBYZERO);
         verify_report(tstream, FE_DIVBYZERO);
-        verify_cleanup(reg);
+        verify_cleanup();
       }
     }
 
@@ -195,9 +192,9 @@ SCENARIO("We wish to affect the floating point control on our system")
       art::FloatingPointControl fpc(ps, reg);
       THEN("The configuration shows suppressed \"invalid\" exceptions")
       {
-        compare_equal(fpcw_snapshot(), fpcw_ref_dp & ~ FE_INVALID);
+        compare_fpcw(fpcw_ref_dp & ~ FE_INVALID);
         verify_report(tstream, FE_INVALID);
-        verify_cleanup(reg);
+        verify_cleanup();
       }
     }
   
@@ -207,9 +204,9 @@ SCENARIO("We wish to affect the floating point control on our system")
       art::FloatingPointControl fpc(ps, reg);
       THEN("The configuration shows suppressed overflow exceptions")
       {
-        compare_equal(fpcw_snapshot(), fpcw_ref_dp & ~ FE_OVERFLOW);
+        compare_fpcw(fpcw_ref_dp & ~ FE_OVERFLOW);
         verify_report(tstream, FE_OVERFLOW);
-        verify_cleanup(reg);
+        verify_cleanup();
       }
     }
 
@@ -219,9 +216,9 @@ SCENARIO("We wish to affect the floating point control on our system")
       art::FloatingPointControl fpc(ps, reg);
       THEN("The configuration shows suppressed underflow exceptions")
       {
-        compare_equal(fpcw_snapshot(), fpcw_ref_dp & ~ FE_UNDERFLOW);
+        compare_fpcw(fpcw_ref_dp & ~ FE_UNDERFLOW);
         verify_report(tstream, FE_UNDERFLOW);
-        verify_cleanup(reg);
+        verify_cleanup();
       }
     }
 
@@ -231,9 +228,9 @@ SCENARIO("We wish to affect the floating point control on our system")
       art::FloatingPointControl fpc(ps, reg);
       THEN("The configuration shows default precision")
       {
-        compare_equal(fpcw_snapshot(), fpcw_ref);
+        compare_fpcw(fpcw_ref);
         verify_report(tstream);
-        verify_cleanup(reg);
+        verify_cleanup();
       }
     }
   }
