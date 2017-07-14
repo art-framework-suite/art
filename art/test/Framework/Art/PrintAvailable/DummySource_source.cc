@@ -6,7 +6,7 @@
 #include "art/Framework/Principal/OpenRangeSetHandler.h"
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
-#include "art/Utilities/ConfigurationTable.h"
+#include "fhiclcpp/types/ConfigurationTable.h"
 #include "fhiclcpp/types/DelegatedParameter.h"
 
 namespace art {
@@ -26,7 +26,7 @@ public:
             "A job that uses this source WILL fail."}
     };
   };
-  using Parameters = WrappedTable<Config>;
+  using Parameters = fhicl::WrappedTable<Config>;
 
   DummySource(Parameters const&, art::InputSourceDescription& isd)
     : InputSource{isd.moduleDescription}

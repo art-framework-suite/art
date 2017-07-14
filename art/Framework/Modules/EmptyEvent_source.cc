@@ -9,7 +9,7 @@
 #include "art/Framework/Principal/SubRun.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Framework/Principal/OpenRangeSetHandler.h"
-#include "art/Utilities/ConfigurationTable.h"
+#include "fhiclcpp/types/ConfigurationTable.h"
 #include "canvas/Persistency/Provenance/EventAuxiliary.h"
 #include "canvas/Persistency/Provenance/EventID.h"
 #include "canvas/Persistency/Provenance/RunAuxiliary.h"
@@ -59,7 +59,7 @@ public:
 
   };
 
-  using Parameters = art::WrappedTable<Config, Config::KeysToIgnore>;
+  using Parameters = fhicl::WrappedTable<Config, Config::KeysToIgnore>;
 
   explicit EmptyEvent(Parameters const& config,
                       InputSourceDescription & desc);

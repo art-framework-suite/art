@@ -14,7 +14,7 @@
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Framework/Services/System/FileCatalogMetadata.h"
-#include "art/Utilities/ConfigurationTable.h"
+#include "fhiclcpp/types/ConfigurationTable.h"
 #include "fhiclcpp/ParameterSet.h"
 
 
@@ -29,7 +29,7 @@ public:
     fhicl::TableFragment<art::OutputModule::Config> omConfig;
   };
 
-  using Parameters = art::WrappedTable<Config, art::OutputModule::Config::KeysToIgnore>;
+  using Parameters = fhicl::WrappedTable<Config, art::OutputModule::Config::KeysToIgnore>;
   explicit PMTestOutput(Parameters const & p);
   virtual ~PMTestOutput();
 

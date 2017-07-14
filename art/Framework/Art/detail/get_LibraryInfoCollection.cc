@@ -90,7 +90,7 @@ namespace {
       result.emplace("[ none ]",
                      std::make_pair("message",""),
                      "[ See https://cdcvs.fnal.gov/redmine/projects/art/wiki/Messagefacility ]",
-                     std::unique_ptr<art::ConfigurationTable>{nullptr},
+                     std::unique_ptr<fhicl::ConfigurationTable>{nullptr},
                      "art",
                      "" );
       return true;

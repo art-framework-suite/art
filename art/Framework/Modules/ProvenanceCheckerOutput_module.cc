@@ -10,7 +10,7 @@
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Core/OutputModule.h"
 #include "art/Persistency/Provenance/ProductMetaData.h"
-#include "art/Utilities/ConfigurationTable.h"
+#include "fhiclcpp/types/ConfigurationTable.h"
 #include "canvas/Persistency/Provenance/ProductID.h"
 #include "cetlib/exception.h"
 #include "cetlib/exempt_ptr.h"
@@ -26,7 +26,7 @@ namespace art {
       fhicl::TableFragment<OutputModule::Config> omConfig;
     };
 
-    using Parameters = art::WrappedTable<Config, OutputModule::Config::KeysToIgnore>;
+    using Parameters = fhicl::WrappedTable<Config, OutputModule::Config::KeysToIgnore>;
     explicit ProvenanceCheckerOutput(Parameters const&);
 
   private:

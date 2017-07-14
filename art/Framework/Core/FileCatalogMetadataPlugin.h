@@ -33,16 +33,17 @@
 //
 ////////////////////////////////////////////////////////////////////////
 
-#include "art/Utilities/BasicHelperMacros.h"
 #include "art/Utilities/BasicPluginMacros.h"
-#include "cetlib/PluginTypeDeducer.h"
 #include "art/Framework/Services/System/FileCatalogMetadata.h"
+#include "cetlib/PluginTypeDeducer.h"
+#include "cetlib/ProvideFilePathMacro.h"
 #include "fhiclcpp/ParameterSet.h"
+#include "fhiclcpp/types/AllowedConfigurationMacro.h"
 
-#define DEFINE_ART_FILECATALOGMETADATA_PLUGIN(klass)  \
-  PROVIDE_FILE_PATH()                                 \
-  PROVIDE_ALLOWED_CONFIGURATION(klass)                          \
-  DEFINE_BASIC_PLUGIN(klass,                          \
+#define DEFINE_ART_FILECATALOGMETADATA_PLUGIN(klass)        \
+  CET_PROVIDE_FILE_PATH()                                   \
+  FHICL_PROVIDE_ALLOWED_CONFIGURATION(klass)                \
+  DEFINE_BASIC_PLUGIN(klass,                                \
                       art::FileCatalogMetadataPlugin)
 
 namespace art {

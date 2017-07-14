@@ -1,8 +1,8 @@
 #ifndef art_Utilities_ToolConfigTable_h
 #define art_Utilities_ToolConfigTable_h
 
-#include "art/Utilities/ConfigurationTable.h"
 #include "fhiclcpp/ParameterSet.h"
+#include "fhiclcpp/types/ConfigurationTable.h"
 #include "fhiclcpp/types/KeysToIgnore.h"
 #include "fhiclcpp/types/Table.h"
 #include "fhiclcpp/types/TableFragment.h"
@@ -21,7 +21,7 @@ namespace art {
   };
 
   template <typename UserConfig, typename UserKeysToIgnore = void>
-  class ToolConfigTable : public ConfigurationTable {
+  class ToolConfigTable : public fhicl::ConfigurationTable {
   public:
 
     ToolConfigTable(fhicl::Name&& name) : fullConfig_{std::move(name)} {}

@@ -30,5 +30,5 @@ art::CurrentModule::track_module(ModuleDescription const& desc)
 }
 
 // ======================================================================
-PROVIDE_FILE_PATH()
+CET_PROVIDE_FILE_PATH()
 // ======================================================================

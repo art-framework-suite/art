@@ -1,7 +1,7 @@
 #ifndef art_Framework_Art_detail_LibraryInfo_h
 #define art_Framework_Art_detail_LibraryInfo_h
 
-#include "art/Utilities/ConfigurationTable.h"
+#include "fhiclcpp/types/ConfigurationTable.h"
 
 #include <memory>
 #include <string>
@@ -18,7 +18,7 @@ namespace art {
       LibraryInfo(std::string const& so,
                   spec_pair_t const& specs,
                   std::string const& path,
-                  std::unique_ptr<art::ConfigurationTable>&& config,
+                  std::unique_ptr<fhicl::ConfigurationTable>&& config,
                   std::string const& prov,
                   std::string const& pt )
         : soName_{so}
@@ -38,7 +38,7 @@ namespace art {
       std::string const& short_spec()  const { return specs_.first; }
       std::string const& long_spec()   const { return specs_.second; }
       std::string const& path()        const { return path_; }
-      cet::exempt_ptr<art::ConfigurationTable const> allowed_config() const { return allowedConfig_.get(); }
+      cet::exempt_ptr<fhicl::ConfigurationTable const> allowed_config() const { return allowedConfig_.get(); }
       std::string const& provider()    const { return provider_; }
       std::string const& plugin_type() const { return pluginType_; }
 
@@ -47,7 +47,7 @@ namespace art {
       std::string soName_;
       spec_pair_t specs_;
       std::string path_;
-      std::unique_ptr<art::ConfigurationTable> allowedConfig_;
+      std::unique_ptr<fhicl::ConfigurationTable> allowedConfig_;
       std::string provider_;
       std::string pluginType_;
 

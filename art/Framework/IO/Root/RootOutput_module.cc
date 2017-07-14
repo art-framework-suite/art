@@ -19,13 +19,13 @@
 #include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Framework/Principal/SubRun.h"
 #include "art/Persistency/Provenance/ProductMetaData.h"
-#include "art/Utilities/ConfigurationTable.h"
 #include "art/Utilities/parent_path.h"
 #include "art/Utilities/unique_filename.h"
 #include "canvas/Persistency/Provenance/FileFormatVersion.h"
 #include "canvas/Utilities/Exception.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/types/Atom.h"
+#include "fhiclcpp/types/ConfigurationTable.h"
 #include "fhiclcpp/types/OptionalAtom.h"
 #include "fhiclcpp/types/Table.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
@@ -94,7 +94,7 @@ public:
 
   };
 
-  using Parameters = art::WrappedTable<Config,Config::KeysToIgnore>;
+  using Parameters = fhicl::WrappedTable<Config,Config::KeysToIgnore>;
 
   explicit RootOutput(Parameters const&);
 

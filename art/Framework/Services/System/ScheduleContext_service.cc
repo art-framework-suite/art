@@ -2,6 +2,7 @@
 
 #include "art/Framework/Core/detail/ScheduleTask.h"
 #include "canvas/Utilities/Exception.h"
+#include "cetlib/ProvideFilePathMacro.h"
 
 #include "tbb/task.h"
 
@@ -19,5 +20,5 @@ art::ScheduleContext::currentScheduleID() const
 }
 
 // ===============================
-PROVIDE_FILE_PATH()
+CET_PROVIDE_FILE_PATH()
 // ===============================

@@ -1,7 +1,7 @@
 #ifndef art_Framework_Services_Registry_ServiceTable_h
 #define art_Framework_Services_Registry_ServiceTable_h
 
-#include "art/Utilities/ConfigurationTable.h"
+#include "fhiclcpp/types/ConfigurationTable.h"
 #include "fhiclcpp/types/Table.h"
 #include "fhiclcpp/types/detail/validationException.h"
 
@@ -16,7 +16,7 @@ namespace fhicl {
 namespace art {
 
   template <typename T>
-  class ServiceTable : public ConfigurationTable {
+  class ServiceTable : public fhicl::ConfigurationTable {
   public:
 
     explicit ServiceTable(fhicl::Name&& name) : config_{std::move(name)} {}

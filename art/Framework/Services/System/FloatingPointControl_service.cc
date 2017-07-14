@@ -1,5 +1,7 @@
 #include "art/Framework/Services/System/FloatingPointControl.h"
 #include "cetlib/container_algorithms.h"
+#include "cetlib/ProvideFilePathMacro.h"
+#include "fhiclcpp/types/AllowedConfigurationMacro.h"
 
 // for the MMU (SSE), here are the bit definitions
 // Pnemonic Bit Location Description
@@ -100,17 +102,17 @@ art::FloatingPointControl::controlFpe()
     enable_except |= FE_DIVBYZERO;
     enable_sse |= ART_ZM_MASK;
   }
-  
+
   if (enableInvalidEx_) {
     enable_except |= FE_INVALID;
     enable_sse |= ART_IM_MASK;
   }
-  
+
   if (enableOverFlowEx_) {
     enable_except |= FE_OVERFLOW;
     enable_sse |= ART_OM_MASK;
   }
-  
+
   if (enableUnderFlowEx_) {
     enable_except |= FE_UNDERFLOW;
     enable_sse |= ART_UM_MASK;
@@ -153,5 +155,5 @@ art::FloatingPointControl::echoState()
 }
 
 // ======================================================================
-PROVIDE_FILE_PATH()
-PROVIDE_ALLOWED_CONFIGURATION(art::FloatingPointControl)
+CET_PROVIDE_FILE_PATH()
+FHICL_PROVIDE_ALLOWED_CONFIGURATION(art::FloatingPointControl)

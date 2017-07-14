@@ -15,7 +15,7 @@
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Framework/Principal/detail/orderedProcessNames.h"
-#include "art/Utilities/ConfigurationTable.h"
+#include "fhiclcpp/types/ConfigurationTable.h"
 #include "canvas/Utilities/Exception.h"
 #include "cetlib/column_width.h"
 #include "cetlib/lpad.h"
@@ -98,7 +98,7 @@ public:
     fhicl::Atom<bool> onlyIfPresent   { fhicl::Name("onlyIfPresent"), false };
   };
 
-  using Parameters = art::WrappedTable<Config, OutputModule::Config::KeysToIgnore>;
+  using Parameters = fhicl::WrappedTable<Config, OutputModule::Config::KeysToIgnore>;
 
   explicit FileDumperOutput(Parameters const&);
 

@@ -3,10 +3,10 @@
 
 #include "art/Framework/Art/detail/PrintFormatting.h"
 #include "art/Framework/Core/ModuleType.h"
-#include "art/Utilities/ConfigurationTable.h"
 #include "art/Utilities/PluginSuffixes.h"
 #include "boost/filesystem.hpp"
 #include "cetlib/LibraryManager.h"
+#include "fhiclcpp/types/ConfigurationTable.h"
 
 #include <iostream>
 #include <sstream>
@@ -61,11 +61,11 @@ namespace art {
     template <> std::string getType<suffix_type::tool>(cet::LibraryManager const& lm, std::string const& fullSpec);
 
     template <art::suffix_type>
-    std::unique_ptr<art::ConfigurationTable> getAllowedConfiguration(cet::LibraryManager const& lm,
+    std::unique_ptr<fhicl::ConfigurationTable> getAllowedConfiguration(cet::LibraryManager const& lm,
                                                                      std::string const& fullSpec,
                                                                      std::string const& name)
     {
-      using GetAllowedConfiguration_t = std::unique_ptr<art::ConfigurationTable>(std::string const&);
+      using GetAllowedConfiguration_t = std::unique_ptr<fhicl::ConfigurationTable>(std::string const&);
 
       auto description = [&lm, &fullSpec, &name] {
         GetAllowedConfiguration_t* symbolType{};
@@ -73,7 +73,7 @@ namespace art {
         return symbolType(name);
       };
 
-      return resolve_if_present(description, __func__, std::unique_ptr<art::ConfigurationTable>{nullptr});
+      return resolve_if_present(description, __func__, std::unique_ptr<fhicl::ConfigurationTable>{nullptr});
     }
 
   }

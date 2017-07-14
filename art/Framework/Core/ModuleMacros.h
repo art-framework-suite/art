@@ -18,9 +18,10 @@
 #include "art/Framework/Core/ModuleType.h"
 #include "art/Framework/Core/WorkerT.h"
 #include "art/Framework/Core/detail/ModuleTypeDeducer.h"
-#include "art/Utilities/BasicHelperMacros.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
+#include "cetlib/ProvideFilePathMacro.h"
 #include "fhiclcpp/ParameterSet.h"
+#include "fhiclcpp/types/AllowedConfigurationMacro.h"
 
 #include "art/Framework/Core/EventObserverBase.h"
 
@@ -39,8 +40,8 @@ namespace art {
 // Produce the injected functions
 #define DEFINE_ART_MODULE(klass)                                        \
   extern "C" {                                                          \
-    PROVIDE_FILE_PATH()                                                 \
-    PROVIDE_ALLOWED_CONFIGURATION(klass)                                \
+    CET_PROVIDE_FILE_PATH()                                             \
+    FHICL_PROVIDE_ALLOWED_CONFIGURATION(klass)                          \
     art::Worker*                                                        \
     make_worker(art::WorkerParams const& wp,                            \
                 art::ModuleDescription const& md)                       \

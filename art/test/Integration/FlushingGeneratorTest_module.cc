@@ -13,7 +13,7 @@
 #include "art/Framework/Principal/Handle.h"
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
-#include "art/Utilities/ConfigurationTable.h"
+#include "fhiclcpp/types/ConfigurationTable.h"
 
 #include <cassert>
 
@@ -28,7 +28,7 @@ public:
     fhicl::TableFragment<art::OutputModule::Config> omConfig;
   };
 
-  using Parameters = art::WrappedTable<Config, art::OutputModule::Config::KeysToIgnore>;
+  using Parameters = fhicl::WrappedTable<Config, art::OutputModule::Config::KeysToIgnore>;
   explicit FlushingGeneratorTest(Parameters const & p);
 
   void write(art::EventPrincipal & e) override;

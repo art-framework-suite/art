@@ -10,11 +10,11 @@
 #include "art/Framework/Core/detail/IgnoreModuleLabel.h"
 #include "art/Framework/Principal/fwd.h"
 #include "art/Framework/Principal/get_ProductDescription.h"
-#include "art/Utilities/ConfigurationTable.h"
 #include "art/Utilities/ProductTokens.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
 #include "canvas/Persistency/Provenance/ProductID.h"
 #include "fhiclcpp/types/Atom.h"
+#include "fhiclcpp/types/ConfigurationTable.h"
 #include "fhiclcpp/types/KeysToIgnore.h"
 #include "fhiclcpp/types/Table.h"
 #include "fhiclcpp/types/TableFragment.h"
@@ -44,7 +44,7 @@ namespace art {
 
     // Configuration
     template <typename UserConfig, typename UserKeysToIgnore = void>
-    class Table : public ConfigurationTable {
+    class Table : public fhicl::ConfigurationTable {
 
       template <typename T>
       struct FullConfig {

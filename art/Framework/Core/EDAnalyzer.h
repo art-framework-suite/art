@@ -13,8 +13,8 @@
 #include "art/Framework/Core/WorkerT.h"
 #include "art/Framework/Core/detail/IgnoreModuleLabel.h"
 #include "art/Framework/Principal/fwd.h"
-#include "art/Utilities/ConfigurationTable.h"
 #include "fhiclcpp/ParameterSet.h"
+#include "fhiclcpp/types/ConfigurationTable.h"
 #include "fhiclcpp/types/KeysToIgnore.h"
 #include "fhiclcpp/types/OptionalTable.h"
 #include "fhiclcpp/types/Table.h"
@@ -43,7 +43,7 @@ namespace art
     // Configuration
 
     template <typename UserConfig, typename UserKeysToIgnore = void>
-    class Table : public ConfigurationTable {
+    class Table : public fhicl::ConfigurationTable {
     public:
 
       explicit Table(fhicl::Name&& name) : fullConfig_{std::move(name)} {}

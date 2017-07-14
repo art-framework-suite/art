@@ -76,7 +76,8 @@
 
 #include "art/Framework/Services/Registry/detail/helper_macros.h"
 #include "art/Framework/Services/Registry/ServiceTable.h"
-#include "art/Utilities/BasicHelperMacros.h"
+#include "cetlib/ProvideFilePathMacro.h"
+#include "fhiclcpp/types/AllowedConfigurationMacro.h"
 
 ////////////////////////////////////////////////////////////////////////
 // User service macros, Service must provide a constructor with the
@@ -86,13 +87,13 @@
 // Multi-schedule-aware service declarations.
 
 // Declare and define a service.
-#define DECLARE_ART_SERVICE(svc,scope) \
+#define DECLARE_ART_SERVICE(svc,scope)          \
   DECLARE_ART_SERVICE_DETAIL(svc,scope)
 
-#define DEFINE_ART_SERVICE(svc) \
-  DEFINE_ART_SH_CREATE(svc)     \
-  PROVIDE_FILE_PATH()           \
-  PROVIDE_ALLOWED_CONFIGURATION(svc)
+#define DEFINE_ART_SERVICE(svc)                 \
+  DEFINE_ART_SH_CREATE(svc)                     \
+  CET_PROVIDE_FILE_PATH()                       \
+  FHICL_PROVIDE_ALLOWED_CONFIGURATION(svc)
 
 // Declare an interface.
 #define DECLARE_ART_SERVICE_INTERFACE(svc,scope) \

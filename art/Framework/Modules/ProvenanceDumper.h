@@ -114,7 +114,7 @@
 #include "art/Framework/Principal/Provenance.h"
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
-#include "art/Utilities/ConfigurationTable.h"
+#include "fhiclcpp/types/ConfigurationTable.h"
 #include "canvas/Utilities/Exception.h"
 #include "cetlib/exempt_ptr.h"
 #include "cetlib/metaprogramming.h"
@@ -186,7 +186,7 @@ namespace art {
     public OutputModule {
   public:
 
-    using Parameters = art::WrappedTable<ProvenanceDumperConfig<DETAIL>,
+    using Parameters = fhicl::WrappedTable<ProvenanceDumperConfig<DETAIL>,
                                          art::OutputModule::Config::KeysToIgnore>;
 
     explicit ProvenanceDumper(Parameters const & ps)

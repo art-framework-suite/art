@@ -73,9 +73,10 @@
 
 #include "art/Framework/Core/ProductRegistryHelper.h"
 #include "art/Framework/Core/RPWorkerT.h"
-#include "art/Utilities/BasicHelperMacros.h"
 #include "cetlib/PluginTypeDeducer.h"
+#include "cetlib/ProvideFilePathMacro.h"
 #include "fhiclcpp/ParameterSet.h"
+#include "fhiclcpp/types/AllowedConfigurationMacro.h"
 
 namespace art {
   class ResultsPrincipal;
@@ -222,18 +223,18 @@ doClear()
   clear();
 }
 
-#define DEFINE_ART_RESULTS_PLUGIN(klass)                           \
-  PROVIDE_FILE_PATH()                                              \
-  PROVIDE_ALLOWED_CONFIGURATION(klass)                                       \
-  DEFINE_BASIC_PLUGINTYPE_FUNC(art::ResultsProducer)               \
-  extern "C" {                                                     \
-    std::unique_ptr<art::RPWorker>                            \
-    makeRP(art::RPParams const & rpParams,                         \
-           fhicl::ParameterSet const & ps)                         \
-    {                                                              \
-      return                                                       \
-        std::make_unique<art::RPWorkerT<klass>>(rpParams, ps);     \
-    }                                                              \
+#define DEFINE_ART_RESULTS_PLUGIN(klass)                                \
+  extern "C" {                                                          \
+    CET_PROVIDE_FILE_PATH()                                             \
+    FHICL_PROVIDE_ALLOWED_CONFIGURATION(klass)                          \
+    DEFINE_BASIC_PLUGINTYPE_FUNC(art::ResultsProducer)                  \
+    std::unique_ptr<art::RPWorker>                                      \
+    makeRP(art::RPParams const & rpParams,                              \
+           fhicl::ParameterSet const & ps)                              \
+    {                                                                   \
+      return                                                            \
+        std::make_unique<art::RPWorkerT<klass>>(rpParams, ps);          \
+    }                                                                   \
   }
 
 

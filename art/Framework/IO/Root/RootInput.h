@@ -7,9 +7,9 @@
 #include "art/Framework/IO/Catalog/InputFileCatalog.h"
 #include "art/Framework/IO/Root/Inputfwd.h"
 #include "art/Framework/IO/Root/RootInputFileSequence.h"
-#include "art/Utilities/ConfigurationTable.h"
 #include "canvas/Persistency/Provenance/BranchDescription.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
+#include "fhiclcpp/types/ConfigurationTable.h"
 #include "fhiclcpp/types/KeysToIgnore.h"
 #include "fhiclcpp/types/Table.h"
 #include "fhiclcpp/types/TableFragment.h"
@@ -39,7 +39,7 @@ namespace art {
       };
     };
 
-    using Parameters = art::WrappedTable<Config, Config::KeysToIgnore>;
+    using Parameters = fhicl::WrappedTable<Config, Config::KeysToIgnore>;
 
     RootInput(Parameters const&, InputSourceDescription&);
     using DecrepitRelicInputSourceImplementation::runPrincipal;

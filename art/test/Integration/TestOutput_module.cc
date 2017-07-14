@@ -1,6 +1,6 @@
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Core/OutputModule.h"
-#include "art/Utilities/ConfigurationTable.h"
+#include "fhiclcpp/types/ConfigurationTable.h"
 #include "cetlib/exception.h"
 #include "fhiclcpp/types/Atom.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
@@ -19,7 +19,7 @@ public:
     fhicl::Atom<unsigned> shouldPass { fhicl::Name("shouldPass") };
   };
 
-  using Parameters = art::WrappedTable<Config, art::OutputModule::Config::KeysToIgnore>;
+  using Parameters = fhicl::WrappedTable<Config, art::OutputModule::Config::KeysToIgnore>;
   explicit TestOutput(Parameters const&);
 
 private:

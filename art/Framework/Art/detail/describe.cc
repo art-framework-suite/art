@@ -3,7 +3,7 @@
 #include "fhiclcpp/types/detail/optional_parameter_message.h"
 
 std::string
-art::detail::describe(cet::exempt_ptr<art::ConfigurationTable const> config, std::string const& tab)
+art::detail::describe(cet::exempt_ptr<fhicl::ConfigurationTable const> config, std::string const& tab)
 {
   std::ostringstream oss;
   if (config == nullptr) {

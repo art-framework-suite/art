@@ -11,7 +11,7 @@
 #include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
-#include "art/Utilities/ConfigurationTable.h"
+#include "fhiclcpp/types/ConfigurationTable.h"
 #include "canvas/Persistency/Provenance/IDNumber.h"
 #include "fhiclcpp/types/Sequence.h"
 #include "fhiclcpp/types/TupleAs.h"
@@ -104,7 +104,7 @@ namespace arttest {
         fhicl::Name("switchAfter"), fhicl::Comment(OUTPUT_COMMENT), std::vector<SwitchPoint>{}};
     };
 
-    using Parameters = WrappedTable<Config, OutputModule::Config::KeysToIgnore>;
+    using Parameters = fhicl::WrappedTable<Config, OutputModule::Config::KeysToIgnore>;
     explicit EventProcessorTestOutput(Parameters const& ps)
       : OutputModule{ps().omConfig, ps.get_PSet()}
       , switchPoints_{ps().switchAfter()}
