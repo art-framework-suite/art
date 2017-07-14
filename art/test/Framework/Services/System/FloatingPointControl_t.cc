@@ -2,71 +2,20 @@
 
 #include "art/Framework/Services/System/FloatingPointControl.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
+#include "art/Framework/Services/System/detail/fpControl.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 #include "messagefacility/plugins/stringstream.h"
-
-extern "C" {
-#include <fenv.h>
-#include "xpfpa/xpfpa.h"
-}
 
 #include <iomanip>
 #include <iostream>
 #include <sstream>
 #include <string>
+
 #include <type_traits>
 
 using namespace std::string_literals;
 
 namespace {
-  auto & fpcw(fenv_t & fe)
-  {
-#if defined __i386__ || defined __x86_64__
-#if defined __APPLE__
-    return fe.__control;
-#elif defined __linux__
-    return fe.__control_word;
-#else
-#error OS not valid for FP control
-#endif
-#else
-#error Architecture not valid for FP control
-#endif
-  }
-
-  static auto constexpr ART_FP_SINGLE_PREC =
-#if defined HAVE__CONTROLFP_S || defined HAVE__CONTROLFP
-    _PC_24
-#elif defined HAVE__FPU_SETCW
-    _FPU_SINGLE
-#elif defined HAVE_FPU_INLINE_ASM_X86
-    0x000
-#endif
-    ;
-  
-  static auto constexpr ART_FP_DOUBLE_PREC =
-#if defined HAVE__CONTROLFP_S || defined HAVE__CONTROLFP
-    _PC_53
-#elif defined HAVE__FPU_SETCW
-    _FPU_DOUBLE
-#elif defined HAVE_FPU_INLINE_ASM_X86
-    0x200
-#endif
-    ;
-  
-  static auto constexpr ART_FP_EXTENDED_PREC =
-#if defined HAVE__CONTROLFP_S || defined HAVE__CONTROLFP
-    _PC_64
-#elif defined HAVE__FPU_SETCW
-    _FPU_EXTENDED
-#elif defined HAVE_FPU_INLINE_ASM_X86
-    0x300
-#endif
-    ;
-  
-  static auto constexpr ART_FP_ALL =
-    ART_FP_SINGLE_PREC | ART_FP_DOUBLE_PREC | ART_FP_EXTENDED_PREC;
-
   template <typename T, typename = std::enable_if_t<std::is_integral<T>::value>>
   class Hexable {
 public:
@@ -81,17 +30,13 @@ private:
   Hexable<T> hexit(T const t)
   { return Hexable<T>(t); }
 
-  template <typename T>
   inline
   void
-  compare_fpcw(T const right,
+  compare_fpcw(art::detail::fpcw_t const right,
                std::string msg = "Checking current FP state against expected"s)
   {
     INFO(msg);
-    fenv_t fe;
-    fegetenv(&fe);
-    auto const left = fpcw(fe);
-    CHECK(hexit(left) == hexit(right));
+    CHECK(hexit(art::detail::getFPCW()) == hexit(right));
   }
 
   char const* on_or_off (bool const b)
@@ -99,9 +44,8 @@ private:
     return b ? " on " : " off";
   }
 
-  template <typename INT, typename = std::enable_if_t<std::is_integral<INT>::value>>
   void
-  verify_report(std::ostringstream const & os, INT mask) {
+  verify_report(std::ostringstream const & os, art::detail::fpcw_t mask) {
     auto test_string = os.str();
     auto const pos = test_string.rfind("DivByZero exception is ");
     if (pos != std::string::npos) {
@@ -121,7 +65,7 @@ private:
 
   void
   verify_report(std::ostringstream const & os) {
-    verify_report(os, (decltype(FE_ALL_EXCEPT)) 0);
+    verify_report(os, 0);
   }
 
 }
@@ -132,7 +76,7 @@ namespace Catch {
       {
         std::string result;
         std::ostringstream out;
-        out << "0x" << std::hex << t;
+        out << std::showbase << std::hex << t;
         result = out.str();
         return result;
       }
@@ -151,16 +95,15 @@ SCENARIO("We wish to affect the floating point control on our system")
     auto & tstream = mf::getStringStream("TSTREAM_1");
     tstream.str("");
 
-    fenv_t fenv;
-    fegetenv(&fenv);
-    auto const fpcw_ref = fpcw(fenv);
-    auto const fpcw_ref_dp = (fpcw_ref & ~ ART_FP_ALL) | ART_FP_DOUBLE_PREC;
+    auto const fpcw_def = art::detail::getFPCW();
+    auto const fpcw_ref = fpcw_def & ~ (fpControl_DENORMALOPERAND | FE_INEXACT);
+    auto const fpcw_ref_dp = (fpcw_ref & ~ fpControl_ALL_PREC) | fpControl_DOUBLE_PREC;
 
     static auto verify_cleanup =
-      [fpcw_ref, &reg]()
+      [fpcw_def, &reg]()
       {
         reg.sPostEndJob.invoke();
-        compare_fpcw(fpcw_ref, "Checking final FP state against default"s);
+        compare_fpcw(fpcw_def, "Checking final FP state against default"s);
       };
 
     WHEN("We want the basic configuration")

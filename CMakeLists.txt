@@ -78,9 +78,6 @@ add_subdirectory(perllib)
 # tools
 add_subdirectory(tools)
 
-# External headers for floating point precision manipulation.
-add_subdirectory(xpfpa)
-
 # source
 add_subdirectory (art)
 

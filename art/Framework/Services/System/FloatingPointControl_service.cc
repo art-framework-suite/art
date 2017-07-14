@@ -40,50 +40,11 @@
 // IE bit 0 Invalid Operation Flag
 #define ART_IE 0x0001
 
-// The following macros are defined below according to architecture:
-//
-// ART_FE_CONTROL_WORD /* Name of control word within fenv_t */
-
-extern "C" {
-#include <fenv.h>
-
-#if (defined(__i386__) || defined(__x86_64__))
-#ifdef __linux__
-#define ART_FE_CONTROL_WORD __control_word
-#elif defined(__APPLE__)
-#ifndef __GNUC__
-#pragma STDC FENV_ACCESS ON
-#endif
-#define ART_FE_CONTROL_WORD __control
-#else
-#error OS not valid for FP control
-#endif
-#else
-#error Architecture not valid for FP control
-#endif
-}
-
 namespace {
   char const* on_or_off (bool const b)
   {
     return b ? " on " : " off";
   }
-
-  auto & fpcw(fenv_t & fe)
-  {
-#if defined __i386__ || defined __x86_64__
-#if defined __APPLE__
-    return fe.__control;
-#elif defined __linux__
-    return fe.__control_word;
-#else
-#error OS not valid for FP control
-#endif
-#else
-#error Architecture not valid for FP control
-#endif
-  }
-
 }
 
 // ======================================================================
@@ -95,11 +56,9 @@ art::FloatingPointControl::FloatingPointControl(Parameters const& c, ActivityReg
   , enableUnderFlowEx_ {c().enableUnderFlowEx()}
   , setPrecisionDouble_{c().setPrecisionDouble()}
   , reportSettings_    {c().reportSettings()}
+  , OSdefault_(detail::getFPControl())
 {
   reg.sPostEndJob.watch(this, &FloatingPointControl::postEndJob);
-
-  // Get the state of the fpu to restore it after the job is done.
-  fegetenv(&OSdefault_);
 
   if (reportSettings_) {
     mf::LogVerbatim("FPE_Enable") << "\nOS's FP settings";
@@ -119,10 +78,7 @@ art::FloatingPointControl::FloatingPointControl(Parameters const& c, ActivityReg
 void
 art::FloatingPointControl::postEndJob()
 {
-  if (precisionSet_) {
-    XPFPA_RESTORE()
-      }
-  fesetenv(&OSdefault_);
+  (void) detail::setFPControl(OSdefault_);
   if (reportSettings_) {
     mf::LogVerbatim("FPE_Enable") << "\nRestored to OS's FPE settings";
     echoState();
@@ -135,8 +91,9 @@ void
 art::FloatingPointControl::controlFpe()
 {
   // NB: We do not let users control signaling of denormalized operand
-  // (ART_FE_DENORMALOPERAND) or inexact (FE_INEXACT).
-  unsigned short int enable_except {};
+  // (fpControl_DENORMALOPERAND) or inexact (FE_INEXACT), both of which
+  // are suppressed.
+  unsigned short int enable_except {fpControl_DENORMALOPERAND | FE_INEXACT};
   unsigned short int enable_sse {};
 
   if (enableDivByZeroEx_) {
@@ -159,19 +116,22 @@ art::FloatingPointControl::controlFpe()
     enable_sse |= ART_UM_MASK;
   }
 
-  fenv_t fpuState;
-  fegetenv(&fpuState);
-  fpcw(fpuState) &= (~enable_except);
+  auto fpControl = detail::getFPControl();
 
-  // also set the bits in the SSE unit
-  fpuState.__mxcsr &= ~enable_sse;
-
-  fesetenv(&fpuState);
+  fpControl.fpcw &= ~enable_except;
 
   if (setPrecisionDouble_) {
-    precisionSet_ = true;
-    XPFPA_SWITCH_DOUBLE();
+    // Set precision.
+    fpControl.fpcw = (fpControl.fpcw &~ (fpControl_ALL_PREC)) | fpControl_DOUBLE_PREC;
   }
+
+#ifdef fpControl_HAVE_MXCSR
+  // Also set the bits in the SSE unit.
+  fpControl.mxcsr &= ~enable_sse;
+#endif
+
+  // Write back.
+  (void) detail::setFPControl(fpControl);
 }
 
 // ----------------------------------------------------------------------
@@ -180,9 +140,7 @@ void
 art::FloatingPointControl::echoState()
 {
   if (reportSettings_) {
-    fenv_t fe;
-    fegetenv(&fe);
-    auto const femask { fpcw(fe) };
+    auto const femask { detail::getFPCW() };
     mf::LogVerbatim("FPE_Enable")
       << "Floating point exception mask is "
       << std::showbase << std::hex << femask

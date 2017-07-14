@@ -41,23 +41,10 @@
 
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/ServiceMacros.h"
+#include "art/Framework/Services/System/detail/fpControl.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
 #include "fhiclcpp/types/Atom.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
-
-extern "C" {
-#include "xpfpa/xpfpa.h"
-#include <fenv.h>
-}
-
-#include <map>
-#include <stack>
-
-#ifdef __linux__
-#ifdef __i386__
-#include <fpu_control.h>
-#endif
-#endif
 
 namespace art {
   class FloatingPointControl;
@@ -95,11 +82,8 @@ private:
   bool setPrecisionDouble_;
   bool reportSettings_;
 
-  fenv_t OSdefault_ {}; // OS's fpu state on job startup
+  detail::fp_control_t OSdefault_ {}; // OS's fpu state on job startup
 
-  bool precisionSet_ {false}; // Keep track of whether we should restore
-
-  XPFPA_DECLARE()
 };  // FloatingPointControl
 
 // ======================================================================
