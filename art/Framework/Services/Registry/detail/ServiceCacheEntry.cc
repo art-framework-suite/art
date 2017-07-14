@@ -9,7 +9,7 @@
 #include "art/Framework/Services/Registry/detail/ServiceStack.h"
 #include "art/Framework/Services/Registry/detail/ServiceWrapper.h"
 #include "art/Framework/Services/Registry/detail/ServiceHelper.h"
-#include "art/Utilities/HorizontalRule.h"
+#include "cetlib/HorizontalRule.h"
 #include "art/Utilities/bold_fontify.h"
 #include "canvas/Utilities/Exception.h"
 #include "cetlib_except/demangle.h"
@@ -95,7 +95,7 @@ makeAndCacheService(ActivityRegistry& reg) const
   catch (fhicl::detail::validationException const& e)
     {
       std::ostringstream err_stream;
-      constexpr HorizontalRule rule{100};
+      constexpr cet::HorizontalRule rule{100};
       err_stream << "\n"
                  << rule('=')
                  << "\n\n"

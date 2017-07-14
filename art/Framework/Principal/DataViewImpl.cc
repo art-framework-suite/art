@@ -5,7 +5,7 @@
 #include "art/Framework/Principal/Selector.h"
 #include "art/Framework/Principal/get_ProductDescription.h"
 #include "art/Persistency/Provenance/ProductMetaData.h"
-#include "art/Utilities/HorizontalRule.h"
+#include "cetlib/HorizontalRule.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
 #include "canvas/Persistency/Provenance/ProductProvenance.h"
 #include "canvas/Persistency/Provenance/ProductStatus.h"

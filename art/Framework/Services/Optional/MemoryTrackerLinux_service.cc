@@ -28,7 +28,7 @@
 #include "art/Framework/Services/Registry/ServiceMacros.h"
 #include "art/Framework/Services/Registry/ServiceTable.h"
 #include "art/Framework/Services/System/DatabaseConnection.h"
-#include "art/Utilities/HorizontalRule.h"
+#include "cetlib/HorizontalRule.h"
 #include "art/Utilities/LinuxProcData.h"
 #include "art/Utilities/LinuxProcMgr.h"
 #include "canvas/Persistency/Provenance/EventID.h"

@@ -2,7 +2,7 @@
 #include "art/Framework/IO/Root/detail/InfoDumperInputFile.h"
 #include "art/Persistency/RootDB/SQLite3Wrapper.h"
 #include "art/Persistency/RootDB/tkeyvfs.h"
-#include "art/Utilities/HorizontalRule.h"
+#include "cetlib/HorizontalRule.h"
 #include "boost/program_options.hpp"
 #include "canvas/Persistency/Provenance/rootNames.h"
 #include "canvas/Persistency/Provenance/FileFormatVersion.h"
@@ -216,7 +216,7 @@ int main(int argc, char * argv[])
     int rc {0};
     for (auto const& fn : file_names) {
       auto const& printed_name = options.test(FullPath) ? fn : fn.substr(fn.find_last_of('/')+1ul);
-      output << art::HorizontalRule{30}('=') << '\n'
+      output << cet::HorizontalRule{30}('=') << '\n'
              << "File: " <<  printed_name << '\n';
       InfoDumperInputFile const file{fn};
       if (options.test(PrintProcessHistory)) rc += print_process_history(file, output);

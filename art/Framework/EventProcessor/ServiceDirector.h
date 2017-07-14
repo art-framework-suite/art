@@ -2,7 +2,7 @@
 #define art_Framework_EventProcessor_ServiceDirector_h
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/ServiceToken.h"
-#include "art/Utilities/HorizontalRule.h"
+#include "cetlib/HorizontalRule.h"
 #include "art/Utilities/bold_fontify.h"
 #include "canvas/Utilities/Exception.h"
 #include "cetlib_except/demangle.h"
@@ -37,7 +37,7 @@ try {
   serviceToken_.add(std::make_unique<SERVICE>(std::forward<ARGS>(args)...));
 }
 catch (fhicl::detail::validationException const& e) {
-  constexpr HorizontalRule rule{100};
+  constexpr cet::HorizontalRule rule{100};
   throw art::Exception(art::errors::Configuration)
     << "\n"
     << rule('=')

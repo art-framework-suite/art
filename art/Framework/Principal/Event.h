@@ -17,7 +17,7 @@
 #include "art/Framework/Principal/fwd.h"
 #include "art/Persistency/Common/GroupQueryResult.h"
 #include "art/Persistency/Provenance/detail/type_aliases.h"
-#include "art/Utilities/HorizontalRule.h"
+#include "cetlib/HorizontalRule.h"
 #include "canvas/Persistency/Common/Wrapper.h"
 #include "canvas/Persistency/Provenance/EventAuxiliary.h"
 #include "canvas/Persistency/Provenance/EventID.h"
@@ -142,7 +142,7 @@ art::Event::put(std::unique_ptr<PROD>&& product,
   auto result = putProducts().emplace(TypeLabel{tid, productInstanceName},
                                       DataViewImpl::PMValue{std::move(wp), pd, RangeSet::invalid()});
   if (!result.second) {
-    HorizontalRule rule{30};
+    cet::HorizontalRule rule{30};
     throw art::Exception(art::errors::ProductPutFailure)
       << "Event::put: Attempt to put multiple products with the\n"
       << "            following description onto the Event.\n"

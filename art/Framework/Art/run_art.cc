@@ -7,7 +7,7 @@
 #include "art/Framework/EventProcessor/EventProcessor.h"
 #include "art/Framework/Services/Registry/ServiceToken.h"
 #include "art/Utilities/ExceptionMessages.h"
-#include "art/Utilities/HorizontalRule.h"
+#include "cetlib/HorizontalRule.h"
 #include "art/Utilities/RootHandlers.h"
 #include "art/Utilities/UnixSignalHandlers.h"
 #include "canvas/Utilities/Exception.h"
@@ -108,8 +108,8 @@ int art::run_art(int argc,
   try {
     make_ParameterSet(raw_config, main_pset);
   }
-  catch (cet::exception& e) {
-    HorizontalRule const rule{36};
+  catch (cet::exception const& e) {
+    constexpr cet::HorizontalRule rule{36};
     std::cerr << "ERROR: Failed to create a parameter set from parsed configuration with exception "
               << e.what()
               << ".\n";
@@ -156,7 +156,7 @@ int art::run_art_string_config(std::string const& config_string)
     make_ParameterSet(raw_config, main_pset);
   }
   catch (cet::exception& e) {
-    HorizontalRule const rule{36};
+    constexpr cet::HorizontalRule rule{36};
     std::cerr << "ERROR: Failed to create a parameter set from an input configuration string with exception "
               << e.what()
               << ".\n";

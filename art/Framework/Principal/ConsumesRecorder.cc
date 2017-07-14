@@ -1,5 +1,5 @@
 #include "art/Framework/Principal/ConsumesRecorder.h"
-#include "art/Utilities/HorizontalRule.h"
+#include "cetlib/HorizontalRule.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
 #include "cetlib/container_algorithms.h"
 #include "fhiclcpp/ParameterSet.h"
@@ -85,7 +85,7 @@ art::ConsumesRecorder::showMissingConsumes(ModuleDescription const& md) const
   if (std::all_of(std::cbegin(missingConsumes_), std::cend(missingConsumes_),
                   [](auto const& perBranch) { return perBranch.empty();})) return;
 
-  HorizontalRule const rule{60};
+  cet::HorizontalRule const rule{60};
   mf::LogAbsolute log{"ArtConsumes"};
   log << '\n' << rule('=') << '\n'
       << "The following consumes statements are missing from\n"

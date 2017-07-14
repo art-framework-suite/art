@@ -2,7 +2,7 @@
 #include "art/Framework/Art/detail/AllowedConfiguration.h"
 #include "art/Framework/Art/detail/get_MetadataCollector.h"
 #include "art/Framework/Art/detail/get_MetadataSummary.h"
-#include "art/Utilities/HorizontalRule.h"
+#include "cetlib/HorizontalRule.h"
 #include "art/Utilities/PluginSuffixes.h"
 #include "art/Utilities/bold_fontify.h"
 #include "cetlib/container_algorithms.h"
@@ -16,7 +16,7 @@ using std::cout;
 
 namespace {
 
-  constexpr art::HorizontalRule fixed_rule{100};
+  constexpr cet::HorizontalRule fixed_rule{100};
 
   std::vector<art::detail::PluginMetadata> matchesBySpec(std::string const& spec)
   {
@@ -71,7 +71,7 @@ art::detail::print_available_plugins(suffix_type const st,
 
   auto ms = get_MetadataSummary(st, coll);
 
-  HorizontalRule const rule{rule_size(ms->widths())};
+  cet::HorizontalRule const rule{rule_size(ms->widths())};
   cout << "\n" << rule('=') << "\n\n"
        << ms->header()
        << "\n" << rule('-') << '\n';

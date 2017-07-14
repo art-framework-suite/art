@@ -50,7 +50,7 @@ namespace art {
                << indent_1()  << "---------------------\n";
 
         std::string printedConfig {describe(li.allowed_config(), prefix)};
-        //        replace_type(printedConfig, li.short_spec(), regex_for_spec("type"));
+        replace_type(printedConfig, li.short_spec(), regex_for_spec("type"));
 
         result << printedConfig;
         return result.str();

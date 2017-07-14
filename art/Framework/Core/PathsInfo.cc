@@ -1,7 +1,7 @@
 #include "art/Framework/Core/PathsInfo.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/System/TriggerNamesService.h"
-#include "art/Utilities/HorizontalRule.h"
+#include "cetlib/HorizontalRule.h"
 #include "art/Utilities/bold_fontify.h"
 #include "art/Version/GetReleaseVersion.h"
 #include "fhiclcpp/ParameterSet.h"
@@ -34,7 +34,7 @@ art::PathsInfo::makeAndAppendPath(std::string const& pathName,
   }
 
   if (!configErrMsgs_.empty()) {
-    constexpr HorizontalRule rule{100};
+    constexpr cet::HorizontalRule rule{100};
     std::ostringstream err_msg;
     err_msg << "\n"
             << rule('=')
