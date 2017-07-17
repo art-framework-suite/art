@@ -2,14 +2,15 @@
 #include "art/Framework/Art/detail/AllowedConfiguration.h"
 #include "art/Framework/Art/detail/get_MetadataCollector.h"
 #include "art/Framework/Art/detail/get_MetadataSummary.h"
-#include "cetlib/HorizontalRule.h"
 #include "art/Utilities/PluginSuffixes.h"
 #include "art/Utilities/bold_fontify.h"
+#include "cetlib/HorizontalRule.h"
 #include "cetlib/container_algorithms.h"
 #include "fhiclcpp/types/detail/SearchAllowedConfiguration.h"
 
 #include <iomanip>
 #include <iostream>
+#include <tuple>
 
 using namespace art::detail;
 using std::cout;
@@ -18,16 +19,26 @@ namespace {
 
   constexpr cet::HorizontalRule fixed_rule{100};
 
-  std::vector<art::detail::PluginMetadata> matchesBySpec(std::string const& spec)
+  std::vector<art::detail::PluginMetadata> matchesBySpec(std::string const& specified_plugin_type, std::string const& instance_pattern)
   {
     std::vector<PluginMetadata> result;
-    for (auto const& pr : art::Suffixes::all()) {
-      auto mc = get_MetadataCollector(pr.first);
-      cet::transform_all(get_LibraryInfoCollection(pr.first, spec),
+    auto collect_metadata = [&result, &instance_pattern](art::suffix_type const st) {
+      auto mc = get_MetadataCollector(st);
+      cet::transform_all(get_LibraryInfoCollection(st, instance_pattern),
                          std::back_inserter(result),
                          [&mc](auto const& info){
                            return mc->collect(info, indent__2());
                          });
+    };
+
+    if (specified_plugin_type.empty()) {
+      // Search through all plugin types if the user has not specified one.
+      for (auto const& pr : art::Suffixes::all()) {
+        collect_metadata(pr.first);
+      }
+    }
+    else {
+      collect_metadata(art::Suffixes::get(specified_plugin_type));
     }
     return result;
   }
@@ -93,12 +104,12 @@ art::detail::print_available_plugins(suffix_type const st,
 }
 
 bool
-art::detail::supports_key(suffix_type const st, std::string const& spec, std::string const& key [[gnu::unused]])
+art::detail::supports_key(suffix_type const st, std::string const& spec, std::string const& key)
 {
   art::Exception e {art::errors::LogicError, "art::detail::has_key"};
   auto coll = get_LibraryInfoCollection(st, spec);
   if (coll.empty()) {
-    throw e << bold_fontify(spec) << " did not match any plugin.\n";
+    throw e << (spec.empty() ? "[Missing specification]" : bold_fontify(spec)) << " did not match any plugin.\n";
   }
   else if (coll.size() > 1ull) {
     throw e << bold_fontify(spec) << " matched more than one plugin.\n"
@@ -122,14 +133,46 @@ art::detail::print_description(std::vector<PluginMetadata> const& matches)
   }
 }
 
+namespace {
+  std::pair<std::string, std::string>
+  parse_specified_plugin(std::string const& spec)
+  {
+    // The specified plugin can be of the pattern:
+    //
+    //   [<plugin_type>:]<regex corresponding to plugin instance>
+    //
+    // If '<plugin_type>:' is omitted, then all plugin types are searched.
+    std::string specified_plugin_type{};
+    std::string instance_pattern{spec};
+    auto const pos = spec.find(":");
+    if (pos != std::string::npos) {
+      specified_plugin_type = spec.substr(0,pos);
+      if (specified_plugin_type.empty()) {
+        throw art::Exception{art::errors::Configuration, "Error while parsing specified plugins:\n"}
+        << "The specification '" << spec << "' is missing a module type before the colon (':').\n"
+             "If you intend to search through all plugin types, remove the colon; otherwise specify\n"
+             "one of the following plugin types:"
+        << art::Suffixes::print() << '\n';
+      }
+      instance_pattern = spec.substr(pos+1);
+    }
+    return std::make_pair(std::move(specified_plugin_type), std::move(instance_pattern));
+  }
+}
+
 void
-art::detail::print_descriptions(std::vector<std::string> const& plugins)
+art::detail::print_descriptions(std::vector<std::string> const& specs)
 {
   cout << '\n' << fixed_rule('=') << "\n\n";
-  for (auto const& plugin : plugins) {
-    auto matches = matchesBySpec(plugin);
+  for (auto const& spec : specs) {
+    std::string plugin_type{}, instance_pattern{};
+    std::tie(plugin_type, instance_pattern) = parse_specified_plugin(spec);
+
+    auto matches = matchesBySpec(plugin_type, instance_pattern);
     if (matches.empty()) {
-      cout << indent0() << bold_fontify(plugin) << " did not match any plugin.\n";
+      cout << indent0() << (instance_pattern.empty() ? "[Missing specification]" : bold_fontify(instance_pattern)) << " did not match any plugin";
+      cout << (plugin_type.empty() ? "" : " of type '"+plugin_type +"'");
+      cout << ".\n";
       cout << '\n' << fixed_rule('=') << "\n\n";
       continue;
     }

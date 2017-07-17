@@ -43,7 +43,7 @@
   2. Require creating a free function that returns the full list of
      allowed suffixes.  Then for each
 
-        'Suffixes::{module,service,source,plugin,tool,mfPlugin}()'
+        'Suffixes::{module,service,source,plugin,tool,mfPlugin,mfStatsPlugin}()'
 
      free function call, the full-list function would be called each
      time, which seems unnecessary.
@@ -86,9 +86,9 @@ namespace art {
       return result;
     }
 
-    static suffix_type const& get(std::string const& suffix) {
+    static suffix_type get(std::string const& suffix) {
       auto it = rSuffixes_.find(suffix);
-      if ( it == rSuffixes_.cend() ) {
+      if (it == rSuffixes_.cend()) {
         throw art::Exception(art::errors::NotFound)
           << " The suffix '" << suffix << "' is not supported.\n"
           << " Please choose from:"
