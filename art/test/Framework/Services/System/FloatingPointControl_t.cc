@@ -96,7 +96,7 @@ SCENARIO("We wish to affect the floating point control on our system")
     tstream.str("");
 
     auto const fpcw_def = art::detail::getFPCW();
-    auto const fpcw_ref = fpcw_def & ~ (fpControl_DENORMALOPERAND | FE_INEXACT);
+    auto const fpcw_ref = fpcw_def;
     auto const fpcw_ref_dp = (fpcw_ref & ~ fpControl_ALL_PREC) | fpControl_DOUBLE_PREC;
 
     static auto verify_cleanup =
