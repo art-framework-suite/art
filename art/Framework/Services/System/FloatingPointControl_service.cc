@@ -90,10 +90,10 @@ art::FloatingPointControl::postEndJob()
 void
 art::FloatingPointControl::controlFpe()
 {
-  // NB: We do not let users control signaling of denormalized operand
+  // NB: We do not let users configure signaling of denormalized operand
   // (fpControl_DENORMALOPERAND) or inexact (FE_INEXACT), both of which
   // are suppressed.
-  unsigned short int enable_except {fpControl_DENORMALOPERAND | FE_INEXACT};
+  unsigned short int enable_except {};
   unsigned short int enable_sse {};
 
   if (enableDivByZeroEx_) {
