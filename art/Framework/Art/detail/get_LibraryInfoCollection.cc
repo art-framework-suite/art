@@ -3,6 +3,7 @@
 #include "art/Framework/Art/detail/get_LibraryInfoCollection.h"
 #include "art/Utilities/PluginSuffixes.h"
 #include "cetlib/LibraryManager.h"
+#include "messagefacility/MessageLogger/MessageLoggerImpl.h"
 
 #include <iomanip>
 #include <iostream>
@@ -90,7 +91,7 @@ namespace {
       result.emplace("[ none ]",
                      std::make_pair("message",""),
                      "[ See https://cdcvs.fnal.gov/redmine/projects/art/wiki/Messagefacility ]",
-                     std::unique_ptr<fhicl::ConfigurationTable>{nullptr},
+                     std::make_unique<fhicl::WrappedTable<mf::MessageLoggerImpl::Config>>(fhicl::Name{"message"}),
                      "art",
                      "" );
       return true;

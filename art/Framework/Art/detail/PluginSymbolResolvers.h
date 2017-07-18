@@ -62,8 +62,8 @@ namespace art {
 
     template <art::suffix_type>
     std::unique_ptr<fhicl::ConfigurationTable> getAllowedConfiguration(cet::LibraryManager const& lm,
-                                                                     std::string const& fullSpec,
-                                                                     std::string const& name)
+                                                                       std::string const& fullSpec,
+                                                                       std::string const& name)
     {
       using GetAllowedConfiguration_t = std::unique_ptr<fhicl::ConfigurationTable>(std::string const&);
 

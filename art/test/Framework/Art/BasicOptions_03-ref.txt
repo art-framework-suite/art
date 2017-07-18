@@ -70,7 +70,81 @@
     Allowed configuration
     <separator (-)>
 
-        [ None provided ]
+        ## Any parameters prefaced with '#' are optional.
+
+        message: {
+
+           ## The 'debugModules' parameter is a sequence of strings that
+           ## enables logging of debug messages in the listed modules.
+           ## To enable debug-message logging for all modules, the '*' wildcard
+           ## can be used.  By default, the list is empty, implying that NO
+           ## debug messages are logged.
+
+           debugModules: [
+           ]
+
+           ## If a module label is shared between the 'suppress*' parameters
+           ## below, the suppression corresponding to the greatest severity is enabled.
+           ## 
+           ## The 'suppressDebug' is a sequence of strings that indicates
+           ## the modules for which messages of debug severity should be
+           ## suppressed.  The default list is empty, implying no suppressions.
+
+           suppressDebug: [
+           ]
+
+           ## The 'suppressInfo' is a sequence of strings that indicates
+           ## the modules for which messages of info severity should be
+           ## suppressed.  The default list is empty, implying no suppressions.
+
+           suppressInfo: [
+           ]
+
+           ## The 'suppressWarning' is a sequence of strings that indicates
+           ## the modules for which messages of warning severity should be
+           ## suppressed.  The default list is empty, implying no suppressions.
+
+           suppressWarning: [
+           ]
+
+           ## The 'destinations' parameter represents a FHiCL table of named
+           ## destinations, each of which are configured to specify how messages
+           ## are logged to a given target.  It has the general form of:
+           ## 
+           ##   destinations: {
+           ##     // Ordinary destinations
+           ##     dest1 : {...}
+           ##     dest2 : {...}
+           ##     ...
+           ##     statistics: { // optional
+           ##       // Statistics destinations
+           ##       stat1: {...}
+           ##       ...
+           ##     }
+           ##   }
+           ## 
+           ## For a listing of allowed ordinary destinations, type:
+           ## 
+           ##   art --print-available mfPlugin
+           ## 
+           ## The allowed configuration for a given destination type can be printed
+           ## by specifying:
+           ## 
+           ##   art --print-description mfPlugin:<destination type>
+           ## 
+           ## It is permitted to specify an ordinary destination called
+           ## 'statistics'. The 'statistics' destination is a FHiCL table that has
+           ## named statistics destinations, which can be used to encapsulate the
+           ## configuration related to statistics-tracking of messages logged to a
+           ## each ordinary destination.  To print out the allowed statistics
+           ## destinations and the allowed configuration corresponding to a given
+           ## statistics destination, replace the 'mfPlugin' specification with
+           ## 'mfStatsPlugin'.
+           ## 
+           ## If a value for 'destinations' is not supplied, one will be provided for you.
+
+         # destinations: << delegated >>
+        }
 
 <separator (=)>
 
