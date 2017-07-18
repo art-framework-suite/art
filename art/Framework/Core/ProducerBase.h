@@ -10,7 +10,6 @@
 #include "art/Framework/Core/detail/IgnoreModuleLabel.h"
 #include "art/Framework/Principal/fwd.h"
 #include "art/Framework/Principal/get_ProductDescription.h"
-#include "art/Utilities/ConfigurationTable.h"
 #include "art/Utilities/ProductSemantics.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
 #include "canvas/Persistency/Provenance/ProductID.h"
