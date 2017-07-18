@@ -41,6 +41,8 @@
 #define ART_DE 0x0002
 // IE bit 0 Invalid Operation Flag
 #define ART_IE 0x0001
+// All mask bits
+#define ART_ALL_SSE_EXCEPT 0x1f80
 
 namespace {
   char const* on_or_off (bool const b)
@@ -120,16 +122,19 @@ art::FloatingPointControl::controlFpe()
 
   auto fpControl = detail::getFPControl();
 
-  fpControl.fpcw &= ~enable_except;
+  // Reset exception mask before clearing the bits we care about.
+  fpControl.fpcw = (fpControl.fpcw | FE_ALL_EXCEPT) & (~ enable_except);
 
   if (setPrecisionDouble_) {
-    // Set precision.
-    fpControl.fpcw = (fpControl.fpcw &~ (fpControl_ALL_PREC)) | fpControl_DOUBLE_PREC;
+    // Clear precision bits before setting only the ones we care about.
+    fpControl.fpcw = (fpControl.fpcw & (~ fpControl_ALL_PREC)) |
+                     fpControl_DOUBLE_PREC;
   }
 
 #ifdef fpControl_HAVE_MXCSR
-  // Also set the bits in the SSE unit.
-  fpControl.mxcsr &= ~enable_sse;
+  // Reset exception mask before clearing the bits we care about.
+  fpControl.mxcsr = (fpControl.mxcsr | ART_ALL_SSE_EXCEPT) &
+                    (~ enable_sse);
 #endif
 
   // Write back.
