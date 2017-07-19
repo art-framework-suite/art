@@ -3,14 +3,13 @@
 #include "art/Framework/Art/BasicOptionsHandler.h"
 #include "art/Framework/Art/BasicPostProcessor.h"
 #include "art/Framework/Art/InitRootHandlers.h"
-#include "art/Framework/Art/detail/handle_deprecated_configs.h"
 #include "art/Framework/EventProcessor/EventProcessor.h"
 #include "art/Framework/Services/Registry/ServiceToken.h"
 #include "art/Utilities/ExceptionMessages.h"
-#include "cetlib/HorizontalRule.h"
 #include "art/Utilities/RootHandlers.h"
 #include "art/Utilities/UnixSignalHandlers.h"
 #include "canvas/Utilities/Exception.h"
+#include "cetlib/HorizontalRule.h"
 #include "cetlib/container_algorithms.h"
 #include "cetlib/exception.h"
 #include "fhiclcpp/ParameterSet.h"
@@ -56,10 +55,10 @@ int art::run_art(int argc,
           << boost::filesystem::path(argv[0]).filename().native()
           << " <-c <config-file>> <other-options> [<source-file>]+\n\n"
           << "Basic options";
-  bpo::options_description all_desc {descstr.str()};
+  bpo::options_description all_desc{descstr.str()};
   all_desc.add(in_desc);
   // BasicOptionsHandler should always be first in the list!
-  handlers.emplace(handlers.begin(), new BasicOptionsHandler(all_desc, lookupPolicy));
+  handlers.emplace(handlers.begin(), new BasicOptionsHandler{all_desc, lookupPolicy});
   // BasicPostProcessor should be last.
   handlers.emplace_back(new BasicPostProcessor);
   // This must be added separately: how to deal with any non-option arguments.
@@ -92,18 +91,9 @@ int art::run_art(int argc,
       return result;
     }
   }
-  // Handle deprecated configurations
-  try {
-    detail::handle_deprecated_configs(raw_config);
-  }
-  catch(art::Exception const& e) {
-    std::cerr << e.what();
-    return 89;
-  }
 
-  //
-  // Make the parameter set from the intermediate table:
-  //
+
+  // Make the parameter set from the intermediate table.
   fhicl::ParameterSet main_pset;
   try {
     make_ParameterSet(raw_config, main_pset);
@@ -125,6 +115,7 @@ int art::run_art(int argc,
               << '\n';
     return 91;
   }
+
   // Main parameter set must be placed in registry manually.
   try {
     fhicl::ParameterSetRegistry::put(main_pset);

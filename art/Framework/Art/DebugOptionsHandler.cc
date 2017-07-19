@@ -1,5 +1,6 @@
 #include "art/Framework/Art/DebugOptionsHandler.h"
 
+#include "art/Framework/Art/detail/exists_outside_prolog.h"
 #include "art/Framework/Art/detail/fhicl_key.h"
 #include "canvas/Utilities/Exception.h"
 #include "fhiclcpp/coding.h"
@@ -12,14 +13,14 @@
 using namespace std::string_literals;
 using art::detail::fhicl_key;
 
-art::DebugOptionsHandler::
-DebugOptionsHandler(bpo::options_description& desc,
-                    std::string const& basename,
-                    detail::DebugOutput& dbg)
+art::DebugOptionsHandler::DebugOptionsHandler(bpo::options_description& desc,
+                                              std::string const& basename,
+                                              detail::DebugOutput& dbg)
   : dbg_{dbg}
 {
   bpo::options_description debug_options{"Debugging options"};
   debug_options.add_options()
+    ("mt-diagnostics", bpo::value<std::string>(), "Log art-specific multi-threading diagnostics to the provided destination.")
     ("trace", "Activate tracing.")
     ("notrace", "Deactivate tracing.")
     ("timing", "Activate monitoring of time spent per event/module.")
@@ -38,8 +39,7 @@ DebugOptionsHandler(bpo::options_description& desc,
 }
 
 int
-art::DebugOptionsHandler::
-doCheckOptions(bpo::variables_map const & vm)
+art::DebugOptionsHandler::doCheckOptions(bpo::variables_map const& vm)
 {
   if (vm.count("trace") + vm.count("notrace") > 1) {
     throw Exception(errors::Configuration)
@@ -81,9 +81,8 @@ doCheckOptions(bpo::variables_map const & vm)
 }
 
 int
-art::DebugOptionsHandler::
-doProcessOptions(bpo::variables_map const & vm,
-                 fhicl::intermediate_table & raw_config)
+art::DebugOptionsHandler::doProcessOptions(bpo::variables_map const& vm,
+                                           fhicl::intermediate_table& raw_config)
 {
 
   using detail::DebugOutput;
@@ -138,6 +137,14 @@ doProcessOptions(bpo::variables_map const & vm,
   }
   else if (vm.count("nomemcheck")) {
     raw_config.erase("services.MemoryTracker");
+  }
+
+  // messagefacility configuration.
+  if (!detail::exists_outside_prolog(raw_config, "services.message")) {
+    raw_config.put("services.message.destinations.STDOUT.categories.ArtReport.limit", 100);
+    raw_config.put("services.message.destinations.STDOUT.categories.default.limit", -1);
+    raw_config.put("services.message.destinations.STDOUT.type", "cout");
+    raw_config.put("services.message.destinations.STDOUT.threshold", "INFO");
   }
   return 0;
 }

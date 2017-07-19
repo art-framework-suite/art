@@ -3,7 +3,7 @@
 #include "art/Framework/Art/BasicOutputOptionsHandler.h"
 #include "art/Framework/Art/BasicSourceOptionsHandler.h"
 #include "art/Framework/Art/DebugOptionsHandler.h"
-#include "art/Framework/Art/EventProcessingOptionsHandler.h"
+#include "art/Framework/Art/ProcessingOptionsHandler.h"
 #include "art/Framework/Art/FileCatalogOptionsHandler.h"
 #include "art/Framework/Art/OptionsHandlers.h"
 #include "art/Framework/Art/run_art.h"
@@ -13,27 +13,26 @@
 #include "boost/filesystem.hpp"
 #include "boost/program_options.hpp"
 
-namespace  bpo = boost::program_options;
-
 #include <iostream>
 #include <memory>
 #include <string>
 
+namespace bpo = boost::program_options;
+
 #cmakedefine01 ART_RETHROW_DEFAULT
 
-int @ART_MAIN_FUNC@(int argc, char * argv[])
+int @ART_MAIN_FUNC@(int argc, char* argv[])
 {
   // Configuration file lookup policy.
-  char const * fhicl_env = getenv("FHICL_FILE_PATH");
+  char const* fhicl_env = getenv("FHICL_FILE_PATH");
   std::string search_path;
   if (fhicl_env == nullptr) {
-    std::cerr
-        << "Expected environment variable FHICL_FILE_PATH is "
-        << "missing or empty: using \".\"\n";
+    std::cerr << "Expected environment variable FHICL_FILE_PATH is "
+              << "missing or empty: using \".\"\n";
     search_path = ".:";
   }
   else {
-    search_path = std::string(fhicl_env) + ":";
+    search_path = std::string{fhicl_env} + ":";
   }
   art::FirstAbsoluteOrLookupWithDotPolicy lookupPolicy(search_path);
   // Empty options_description.
@@ -43,20 +42,19 @@ int @ART_MAIN_FUNC@(int argc, char * argv[])
   handlers.reserve(5); // -ish.
   // Add new handlers here. Do *not* add a BasicOptionsHandler: it will
   // be done for you.
-  handlers.emplace_back(new art::BasicSourceOptionsHandler(all_desc));
-  handlers.emplace_back(new art::BasicOutputOptionsHandler(all_desc));
+  handlers.emplace_back(new art::BasicSourceOptionsHandler{all_desc});
+  handlers.emplace_back(new art::BasicOutputOptionsHandler{all_desc});
   art::detail::DebugOutput dbg;
-  handlers.emplace_back(new art::EventProcessingOptionsHandler(all_desc,
-                                                               ART_RETHROW_DEFAULT));
-  handlers.emplace_back(new art::DebugOptionsHandler(all_desc,
+  handlers.emplace_back(new art::ProcessingOptionsHandler{all_desc, ART_RETHROW_DEFAULT});
+  handlers.emplace_back(new art::DebugOptionsHandler{all_desc,
                                                      boost::filesystem::path(argv[0]).filename().native(),
-                                                     dbg));
+                                                     dbg});
 
-  handlers.emplace_back(new art::FileCatalogOptionsHandler(all_desc));
+  handlers.emplace_back(new art::FileCatalogOptionsHandler{all_desc});
   return art::run_art(argc, argv, all_desc, lookupPolicy, std::move(handlers), std::move(dbg));
 }
 
-int @ART_MAIN_FUNC@_string_config(const std::string& config_string)
+int @ART_MAIN_FUNC@_string_config(std::string const& config_string)
 {
   return art::run_art_string_config(config_string);
 }

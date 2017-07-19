@@ -13,15 +13,15 @@ namespace art {
 
 class art::DebugOptionsHandler : public art::OptionsHandler {
 public:
-  explicit DebugOptionsHandler(bpo::options_description & desc,
-                               std::string const & basename,
+  explicit DebugOptionsHandler(bpo::options_description& desc,
+                               std::string const& basename,
                                detail::DebugOutput& dbg);
 private:
   // Check selected options for consistency.
-  int doCheckOptions(bpo::variables_map const & vm) override;
+  int doCheckOptions(bpo::variables_map const& vm) override;
   // Act on selected options.
-  int doProcessOptions(bpo::variables_map const & vm,
-                       fhicl::intermediate_table & raw_config) override;
+  int doProcessOptions(bpo::variables_map const& vm,
+                       fhicl::intermediate_table& raw_config) override;
 
   detail::DebugOutput& dbg_;
 };

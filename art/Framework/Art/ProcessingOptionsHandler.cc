@@ -1,4 +1,4 @@
-#include "art/Framework/Art/EventProcessingOptionsHandler.h"
+#include "art/Framework/Art/ProcessingOptionsHandler.h"
 
 #include "art/Framework/Art/detail/exists_outside_prolog.h"
 #include "art/Framework/Art/detail/fhicl_key.h"
@@ -44,12 +44,11 @@ namespace {
 
 }
 
-art::EventProcessingOptionsHandler::
-EventProcessingOptionsHandler(bpo::options_description& desc,
-                              bool const rethrowDefault)
+art::ProcessingOptionsHandler::ProcessingOptionsHandler(bpo::options_description& desc,
+                                                        bool const rethrowDefault)
   : rethrowDefault_{rethrowDefault}
 {
-  bpo::options_description processing_options{"Event-processing options"};
+  bpo::options_description processing_options{"Processing options"};
   processing_options.add_options()
     ("default-exceptions", "Some exceptions may be handled differently by default (e.g. ProductNotFound).")
     ("rethrow-default", "All exceptions default to rethrow.")
@@ -66,8 +65,7 @@ EventProcessingOptionsHandler(bpo::options_description& desc,
 }
 
 int
-art::EventProcessingOptionsHandler::
-doCheckOptions(bpo::variables_map const& vm)
+art::ProcessingOptionsHandler::doCheckOptions(bpo::variables_map const& vm)
 {
   if ((vm.count("rethrow-all") +
        vm.count("rethrow-default") +
@@ -80,9 +78,8 @@ doCheckOptions(bpo::variables_map const& vm)
 }
 
 int
-art::EventProcessingOptionsHandler::
-doProcessOptions(bpo::variables_map const& vm,
-                 fhicl::intermediate_table& raw_config)
+art::ProcessingOptionsHandler::doProcessOptions(bpo::variables_map const& vm,
+                                                fhicl::intermediate_table& raw_config)
 {
   std::string const scheduler_key {"services.scheduler"};
 
