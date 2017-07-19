@@ -14,6 +14,7 @@
 #include <type_traits>
 
 using namespace std::string_literals;
+using namespace art::fp_detail;
 
 namespace {
   template <typename T, typename = std::enable_if_t<std::is_integral<T>::value>>
@@ -32,20 +33,15 @@ private:
 
   inline
   void
-  compare_fpcw(art::detail::fpcw_t const right,
+  compare_fpcw(fpcw_t const right,
                std::string msg = "Checking current FP state against expected"s)
   {
     INFO(msg);
-    CHECK(hexit(art::detail::getFPCW()) == hexit(right));
-  }
-
-  char const* on_or_off (bool const b)
-  {
-    return b ? " on " : " off";
+    CHECK(hexit(getFPCW()) == hexit(right));
   }
 
   void
-  verify_report(std::ostringstream const & os, art::detail::fpcw_t mask) {
+  verify_report(std::ostringstream const & os, fpcw_t mask) {
     auto test_string = os.str();
     auto const pos = test_string.rfind("DivByZero exception is ");
     if (pos != std::string::npos) {
@@ -95,7 +91,7 @@ SCENARIO("We wish to affect the floating point control on our system")
     auto & tstream = mf::getStringStream("TSTREAM_1");
     tstream.str("");
 
-    auto const fpcw_def = art::detail::getFPCW();
+    auto const fpcw_def = getFPCW();
     auto const fpcw_ref = fpcw_def;
     auto const fpcw_ref_dp = (fpcw_ref & ~ fpControl_ALL_PREC) | fpControl_DOUBLE_PREC;
 

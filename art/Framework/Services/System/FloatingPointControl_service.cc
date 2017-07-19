@@ -3,53 +3,7 @@
 #include "cetlib/ProvideFilePathMacro.h"
 #include "fhiclcpp/types/AllowedConfigurationMacro.h"
 
-// for the MMU (SSE), here are the bit definitions
-// Pnemonic Bit Location Description
-// FZ bit 15 Flush To Zero
-#define ART_FZ 0x8000
-// R+ bit 14 Round Positive
-#define ART_R_PLUS 0x4000
-// R- bit 13 Round Negative
-#define ART_R_MINUS 0x2000
-// RZ bits 13 and 14 Round To Zero
-#define ART_RZ (ART_R_PLUS|ART_R_MINUS)
-// RN bits 13 and 14 are 0 Round To Nearest
-#define ART_RN_MASK ART_RZ
-// PM bit 12 Precision Mask
-#define ART_PM_MASK (0x1000)
-// UM bit 11 Underflow Mask
-#define ART_UM_MASK (0x0800)
-// OM bit 10 Overflow Mask
-#define ART_OM_MASK (0x0400)
-// ZM bit 9 Divide By Zero Mask
-#define ART_ZM_MASK (0x0200)
-// DM bit 8 Denormal Mask
-#define ART_DM_MASK (0x0100)
-// IM bit 7 Invalid Operation Mask
-#define ART_IM_MASK (0x0080)
-// DAZ bit 6 Denormals Are Zero
-#define ART_DAX 0x0040
-// PE bit 5 Precision Flag
-#define ART_PE 0x0020
-// UE bit 4 Underflow Flag
-#define ART_UE 0x0010
-// OE bit 3 Overflow Flag
-#define ART_OE 0x0008
-// ZE bit 2 Divide By Zero Flag
-#define ART_ZE 0x0004
-// DE bit 1 Denormal Flag
-#define ART_DE 0x0002
-// IE bit 0 Invalid Operation Flag
-#define ART_IE 0x0001
-// All mask bits
-#define ART_ALL_SSE_EXCEPT 0x1f80
-
-namespace {
-  char const* on_or_off (bool const b)
-  {
-    return b ? " on " : " off";
-  }
-}
+using namespace art::fp_detail;
 
 // ======================================================================
 
@@ -60,7 +14,7 @@ art::FloatingPointControl::FloatingPointControl(Parameters const& c, ActivityReg
   , enableUnderFlowEx_ {c().enableUnderFlowEx()}
   , setPrecisionDouble_{c().setPrecisionDouble()}
   , reportSettings_    {c().reportSettings()}
-  , OSdefault_(detail::getFPControl())
+  , OSdefault_(getFPControl())
 {
   reg.sPostEndJob.watch(this, &FloatingPointControl::postEndJob);
 
@@ -82,7 +36,7 @@ art::FloatingPointControl::FloatingPointControl(Parameters const& c, ActivityReg
 void
 art::FloatingPointControl::postEndJob()
 {
-  (void) detail::setFPControl(OSdefault_);
+  (void) setFPControl(OSdefault_);
   if (reportSettings_) {
     mf::LogVerbatim("FPE_Enable") << "\nRestored to OS's FPE settings";
     echoState();
@@ -102,25 +56,25 @@ art::FloatingPointControl::controlFpe()
 
   if (enableDivByZeroEx_) {
     enable_except |= FE_DIVBYZERO;
-    enable_sse |= ART_ZM_MASK;
+    enable_sse |= fpControl_ZM_MASK;
   }
 
   if (enableInvalidEx_) {
     enable_except |= FE_INVALID;
-    enable_sse |= ART_IM_MASK;
+    enable_sse |= fpControl_IM_MASK;
   }
 
   if (enableOverFlowEx_) {
     enable_except |= FE_OVERFLOW;
-    enable_sse |= ART_OM_MASK;
+    enable_sse |= fpControl_OM_MASK;
   }
 
   if (enableUnderFlowEx_) {
     enable_except |= FE_UNDERFLOW;
-    enable_sse |= ART_UM_MASK;
+    enable_sse |= fpControl_UM_MASK;
   }
 
-  auto fpControl = detail::getFPControl();
+  auto fpControl = getFPControl();
 
   // Reset exception mask before clearing the bits we care about.
   fpControl.fpcw = (fpControl.fpcw | FE_ALL_EXCEPT) & (~ enable_except);
@@ -133,12 +87,12 @@ art::FloatingPointControl::controlFpe()
 
 #ifdef fpControl_HAVE_MXCSR
   // Reset exception mask before clearing the bits we care about.
-  fpControl.mxcsr = (fpControl.mxcsr | ART_ALL_SSE_EXCEPT) &
+  fpControl.mxcsr = (fpControl.mxcsr | fpControl_ALL_SSE_EXCEPT) &
                     (~ enable_sse);
 #endif
 
   // Write back.
-  (void) detail::setFPControl(fpControl);
+  (void) setFPControl(fpControl);
 }
 
 // ----------------------------------------------------------------------
@@ -147,7 +101,7 @@ void
 art::FloatingPointControl::echoState()
 {
   if (reportSettings_) {
-    auto const femask { detail::getFPCW() };
+    auto const femask { getFPCW() };
     mf::LogVerbatim("FPE_Enable")
       << "Floating point exception mask is "
       << std::showbase << std::hex << femask

@@ -4,9 +4,4 @@ destinations: {
     type: stringstream
     threshold: INFO
   }
-#  STDERR: {
-#    categories: { default: { limit: -1 } }
-#    type: cerr
-#    threshold: INFO
-#  }
 }

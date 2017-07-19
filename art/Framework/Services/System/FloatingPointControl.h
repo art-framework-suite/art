@@ -82,7 +82,7 @@ private:
   bool setPrecisionDouble_;
   bool reportSettings_;
 
-  detail::fp_control_t OSdefault_ {}; // OS's fpu state on job startup
+  fp_detail::fp_control_t OSdefault_ {}; // OS's fpu state on job startup
 
 };  // FloatingPointControl
 

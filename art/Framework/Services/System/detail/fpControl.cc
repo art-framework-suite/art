@@ -12,21 +12,28 @@
 #error OS not valid for FP control
 #endif
 #ifdef fpControl_HAVE_MXCSR
-#define fpControl_GETMXCSR(cw) __asm__ __volatile__ ("stmxcsr %0" : "=m" (*&cw));
-#define fpControl_SETMXCSR(cw) __asm__ __volatile__ ("ldmxcsr %0" : : "m" (*&cw));
+#define fpControl_GETMXCSR(cw) __asm__ __volatile__ ("stmxcsr %0" : "=m" (*&cw))
+#define fpControl_SETMXCSR(cw) __asm__ __volatile__ ("ldmxcsr %0" : : "m" (*&cw))
 #endif
 #endif
 
-art::detail::fpcw_t
-art::detail::getFPCW()
+art::fp_detail::fpsw_t
+art::fp_detail::getFPSW()
+{
+  fpsw_t result {static_cast<fpsw_t>(fetestexcept(FE_ALL_EXCEPT))};
+  return result;
+}
+
+art::fp_detail::fpcw_t
+art::fp_detail::getFPCW()
 {
   fpcw_t result;
   fpControl_GETFPCW(result);
   return result;
 }
 
-art::detail::fpcw_t
-art::detail::setFPCW(fpcw_t const fpcw)
+art::fp_detail::fpcw_t
+art::fp_detail::setFPCW(fpcw_t const fpcw)
 {
   fpcw_t result = getFPCW();
   fpControl_SETFPCW(fpcw);
@@ -34,16 +41,16 @@ art::detail::setFPCW(fpcw_t const fpcw)
 }
 
 #ifdef fpControl_HAVE_MXCSR
-art::detail::mxcsr_t
-art::detail::getMXCSR()
+art::fp_detail::mxcsr_t
+art::fp_detail::getMXCSR()
 {
   mxcsr_t result;
   fpControl_GETMXCSR(result);
   return result;
 }
 
-art::detail::mxcsr_t
-art::detail::setMXCSR(mxcsr_t const mxcsr)
+art::fp_detail::mxcsr_t
+art::fp_detail::setMXCSR(mxcsr_t const mxcsr)
 {
   mxcsr_t result = getMXCSR();
   fpControl_SETMXCSR(mxcsr);
