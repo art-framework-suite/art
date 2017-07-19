@@ -88,11 +88,11 @@ art::ConsumesRecorder::showMissingConsumes() const
   if (!trackConsumes_) return;
 
   // If none of the branches have missing consumes statements, exit early.
-  if (std::all_of(std::cbegin(missingConsumes_), std::cend(missingConsumes_),
+  if (std::all_of(cbegin(missingConsumes_), cend(missingConsumes_),
                   [](auto const& perBranch) { return perBranch.empty();})) return;
 
-  cet::HorizontalRule const rule{60};
-  mf::LogAbsolute log{"ArtConsumes"};
+  constexpr cet::HorizontalRule rule{60};
+  mf::LogPrint log{"MTdiagnostics"};
   log << '\n' << rule('=') << '\n'
       << "The following consumes statements are missing from\n"
       << "  module label: '" << moduleDescription_->moduleLabel() << "' of class type '"

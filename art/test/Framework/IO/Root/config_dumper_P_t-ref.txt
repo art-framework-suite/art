@@ -52,6 +52,9 @@ ASSNS: {
                   ArtReport: {
                      limit: 100
                   }
+                  MTdiagnostics: {
+                     limit: 0
+                  }
                   default: {
                      limit: -1
                   }

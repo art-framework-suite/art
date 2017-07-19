@@ -1,15 +1,15 @@
 <separator (=)>
 File: out_1.root
  Run: 1
-  SubRun: 0 Event range: [1,1778)
+  SubRun: 0 Event range: [1,1777)
 
 <separator (=)>
 File: out_2.root
  Run: 1
-  SubRun: 0 Event range: [1778,3554)
+  SubRun: 0 Event range: [1777,3553)
 
 <separator (=)>
 File: out_3.root
  Run: 1
-  SubRun: 0 Event range: [3554,4001)
+  SubRun: 0 Event range: [3553,4001)
 

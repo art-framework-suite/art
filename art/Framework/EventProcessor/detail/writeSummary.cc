@@ -8,7 +8,7 @@
 
 #include <iomanip>
 
-using mf::LogAbsolute;
+using mf::LogPrint;
 using std::right;
 using std::setw;
 using std::setprecision;
@@ -21,7 +21,7 @@ namespace {
                                   art::Path::WorkersInPath const& workersInPath)
   {
     for (auto const& workerInPath : workersInPath) {
-      LogAbsolute("ArtSummary") << "TrigReport "
+      LogPrint("ArtSummary") << "TrigReport "
                                 << right << setw(5)  << firstBit
                                 << right << setw(5)  << bitPosition << " "
                                 << right << setw(10) << workerInPath.timesVisited() << " "
@@ -39,7 +39,7 @@ namespace {
     for (auto const& workerInPath : workersInPath) {
       auto worker = workerInPath.getWorker();
       assert(worker->timesFailed()==0);
-      LogAbsolute("ArtSummary") << "TrigReport "
+      LogPrint("ArtSummary") << "TrigReport "
                                 << right << setw(5)  << firstBit
                                 << right << setw(5)  << bitPosition << " "
                                 << right << setw(10) << worker->timesRun() << " " // proxy for visited
@@ -56,11 +56,11 @@ art::detail::writeSummary(PathManager& pm, bool const wantSummary, cet::cpu_time
   // Still only assuming one schedule. Will need to loop when we get around to it.
   auto const& epi = pm.endPathInfo();
   auto const& tpi = pm.triggerPathsInfo(ScheduleID::first());
-  LogAbsolute("ArtSummary") << "";
+  LogPrint("ArtSummary") << "";
   triggerReport(epi, tpi, wantSummary);
-  LogAbsolute("ArtSummary") << "";
+  LogPrint("ArtSummary") << "";
   timeReport(jobTimer);
-  LogAbsolute("ArtSummary") << "";
+  LogPrint("ArtSummary") << "";
   memoryReport();
 }
 
@@ -69,16 +69,16 @@ art::detail::triggerReport(PathsInfo const& epi, PathsInfo const& tpi, bool cons
 {
   // The trigger report (pass/fail etc.):
   // Printed even if summary not requested, per issue #1864.
-  LogAbsolute("ArtSummary") << "TrigReport " << "---------- Event  Summary ------------";
-  LogAbsolute("ArtSummary") << "TrigReport"
+  LogPrint("ArtSummary") << "TrigReport " << "---------- Event  Summary ------------";
+  LogPrint("ArtSummary") << "TrigReport"
                             << " Events total = " << tpi.totalEvents()
                             << " passed = " << tpi.passedEvents()
                             << " failed = " << tpi.failedEvents()
                             << "";
   if (wantSummary) {
-    LogAbsolute("ArtSummary") << "";
-    LogAbsolute("ArtSummary") << "TrigReport " << "---------- Path   Summary ------------";
-    LogAbsolute("ArtSummary") << "TrigReport "
+    LogPrint("ArtSummary") << "";
+    LogPrint("ArtSummary") << "TrigReport " << "---------- Path   Summary ------------";
+    LogPrint("ArtSummary") << "TrigReport "
                               << right << setw(10) << "Trig Bit#" << " "
                               << right << setw(10) << "Run" << " "
                               << right << setw(10) << "Passed" << " "
@@ -86,7 +86,7 @@ art::detail::triggerReport(PathsInfo const& epi, PathsInfo const& tpi, bool cons
                               << right << setw(10) << "Error" << " "
                               << "Name" << "";
     for (auto const& path : tpi.pathPtrs()) {
-      LogAbsolute("ArtSummary") << "TrigReport "
+      LogPrint("ArtSummary") << "TrigReport "
                                 << right << setw(5) << 1
                                 << right << setw(5) << path->bitPosition() << " "
                                 << right << setw(10) << path->timesRun() << " "
@@ -95,9 +95,9 @@ art::detail::triggerReport(PathsInfo const& epi, PathsInfo const& tpi, bool cons
                                 << right << setw(10) << path->timesExcept() << " "
                                 << path->name() << "";
     }
-    LogAbsolute("ArtSummary") << "";
-    LogAbsolute("ArtSummary") << "TrigReport " << "-------End-Path   Summary ------------";
-    LogAbsolute("ArtSummary") << "TrigReport "
+    LogPrint("ArtSummary") << "";
+    LogPrint("ArtSummary") << "TrigReport " << "-------End-Path   Summary ------------";
+    LogPrint("ArtSummary") << "TrigReport "
                               << right << setw(10) << "Trig Bit#" << " "
                               << right << setw(10) << "Run" << " "
                               << right << setw(10) << "Success" << " "
@@ -105,7 +105,7 @@ art::detail::triggerReport(PathsInfo const& epi, PathsInfo const& tpi, bool cons
                               << "Name" << "";
     for (auto const& path : epi.pathPtrs()) {
       assert(path->timesFailed()==0);
-      LogAbsolute("ArtSummary") << "TrigReport "
+      LogPrint("ArtSummary") << "TrigReport "
                                 << right << setw(5) << 0
                                 << right << setw(5) << path->bitPosition() << " "
                                 << right << setw(10) << path->timesRun() << " "
@@ -114,9 +114,9 @@ art::detail::triggerReport(PathsInfo const& epi, PathsInfo const& tpi, bool cons
                                 << path->name() << "";
     }
     for (auto const& path : tpi.pathPtrs()) {
-      LogAbsolute("ArtSummary") << "";
-      LogAbsolute("ArtSummary") << "TrigReport " << "---------- Modules in Path: " << path->name() << " ------------";
-      LogAbsolute("ArtSummary") << "TrigReport "
+      LogPrint("ArtSummary") << "";
+      LogPrint("ArtSummary") << "TrigReport " << "---------- Modules in Path: " << path->name() << " ------------";
+      LogPrint("ArtSummary") << "TrigReport "
                                 << right << setw(10) << "Trig Bit#" << " "
                                 << right << setw(10) << "Visited" << " "
                                 << right << setw(10) << "Passed" << " "
@@ -129,9 +129,9 @@ art::detail::triggerReport(PathsInfo const& epi, PathsInfo const& tpi, bool cons
 
   // Printed even if summary not requested, per issue #1864.
   for (auto const& path : epi.pathPtrs()) {
-    LogAbsolute("ArtSummary") << "";
-    LogAbsolute("ArtSummary") << "TrigReport " << "------ Modules in End-Path: " << path->name() << " ------------";
-    LogAbsolute("ArtSummary") << "TrigReport "
+    LogPrint("ArtSummary") << "";
+    LogPrint("ArtSummary") << "TrigReport " << "------ Modules in End-Path: " << path->name() << " ------------";
+    LogPrint("ArtSummary") << "TrigReport "
                               << right << setw(10) << "Trig Bit#" << " "
                               << right << setw(10) << "Run" << " "
                               << right << setw(10) << "Success" << " "
@@ -143,9 +143,9 @@ art::detail::triggerReport(PathsInfo const& epi, PathsInfo const& tpi, bool cons
   if (wantSummary) {
     // This table can arguably be removed since all summary
     // information is better described aboved.
-    LogAbsolute("ArtSummary") << "";
-    LogAbsolute("ArtSummary") << "TrigReport " << "---------- Module Summary ------------";
-    LogAbsolute("ArtSummary") << "TrigReport "
+    LogPrint("ArtSummary") << "";
+    LogPrint("ArtSummary") << "TrigReport " << "---------- Module Summary ------------";
+    LogPrint("ArtSummary") << "TrigReport "
                               << right << setw(10) << "Visited" << " "
                               << right << setw(10) << "Run" << " "
                               << right << setw(10) << "Passed" << " "
@@ -154,7 +154,7 @@ art::detail::triggerReport(PathsInfo const& epi, PathsInfo const& tpi, bool cons
                               << "Name" << "";
 
     for (auto const& val: tpi.workers()) {
-      LogAbsolute("ArtSummary") << "TrigReport "
+      LogPrint("ArtSummary") << "TrigReport "
                                 << right << setw(10) << val.second->timesVisited() << " "
                                 << right << setw(10) << val.second->timesRun() << " "
                                 << right << setw(10) << val.second->timesPassed() << " "
@@ -167,7 +167,7 @@ art::detail::triggerReport(PathsInfo const& epi, PathsInfo const& tpi, bool cons
       // Instead of timesVisited(), which is confusing for the user
       // for end-path modules, we just report timesRun() as a proxy
       // for visited.
-      LogAbsolute("ArtSummary") << "TrigReport "
+      LogPrint("ArtSummary") << "TrigReport "
                                 << right << setw(10) << val.second->timesVisited() << " "
                                 << right << setw(10) << val.second->timesRun() << " "
                                 << right << setw(10) << val.second->timesPassed() << " "
@@ -181,8 +181,8 @@ art::detail::triggerReport(PathsInfo const& epi, PathsInfo const& tpi, bool cons
 void
 art::detail::timeReport(cet::cpu_timer const& timer)
 {
-  LogAbsolute("ArtSummary") << "TimeReport " << "---------- Time  Summary ---[sec]----";
-  LogAbsolute("ArtSummary") << "TimeReport"
+  LogPrint("ArtSummary") << "TimeReport " << "---------- Time  Summary ---[sec]----";
+  LogPrint("ArtSummary") << "TimeReport"
                             << setprecision(6) << fixed
                             << " CPU = " << timer.cpuTime() << " Real = " << timer.realTime();
 }

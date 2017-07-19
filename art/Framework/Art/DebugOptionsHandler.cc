@@ -12,6 +12,7 @@
 
 using namespace std::string_literals;
 using art::detail::fhicl_key;
+using table_t = fhicl::extended_value::table_t;
 
 art::DebugOptionsHandler::DebugOptionsHandler(bpo::options_description& desc,
                                               std::string const& basename,
@@ -97,11 +98,11 @@ art::DebugOptionsHandler::doProcessOptions(bpo::variables_map const& vm,
 
   // "debug-config" wins over ART_DEBUG_CONFIG
   if (vm.count("debug-config")) {
-    dbg_.set_filename( vm["debug-config"].as<std::string>() );
+    dbg_.set_filename(vm["debug-config"].as<std::string>());
   }
   else if (vm.count("config-out")) {
-    auto fn = vm["config-out"].as<std::string>().c_str();
-    raw_config.put("services.scheduler.configOut",fn);
+    auto fn = vm["config-out"].as<std::string>();
+    raw_config.put("services.scheduler.configOut", fn);
     dbg_.set_filename(fn);
     dbg_.set_preempting(false);
   }
@@ -123,7 +124,7 @@ art::DebugOptionsHandler::doProcessOptions(bpo::variables_map const& vm,
     raw_config.putEmptyTable("services.TimeTracker");
     if (timingdb)
       raw_config.put("services.TimeTracker.dbOutput.filename",
-                     vm["timing-db"].as<std::string>().data());
+                     vm["timing-db"].as<std::string>());
   }
   else if (vm.count("notiming")) {
     raw_config.erase("services.TimeTracker");
@@ -133,18 +134,37 @@ art::DebugOptionsHandler::doProcessOptions(bpo::variables_map const& vm,
     raw_config.putEmptyTable("services.MemoryTracker");
     if (memdb)
       raw_config.put("services.MemoryTracker.dbOutput.filename",
-                     vm["memcheck-db"].as<std::string>().data());
+                     vm["memcheck-db"].as<std::string>());
   }
   else if (vm.count("nomemcheck")) {
     raw_config.erase("services.MemoryTracker");
   }
 
   // messagefacility configuration.
-  if (!detail::exists_outside_prolog(raw_config, "services.message")) {
-    raw_config.put("services.message.destinations.STDOUT.categories.ArtReport.limit", 100);
-    raw_config.put("services.message.destinations.STDOUT.categories.default.limit", -1);
-    raw_config.put("services.message.destinations.STDOUT.type", "cout");
-    raw_config.put("services.message.destinations.STDOUT.threshold", "INFO");
+  auto const message_key = fhicl_key("services", "message");
+  auto const dests_key = fhicl_key(message_key, "destinations");
+  if (!detail::exists_outside_prolog(raw_config, message_key)) {
+    raw_config.put(fhicl_key(dests_key, "STDOUT.categories.ArtReport.limit"), 100);
+    raw_config.put(fhicl_key(dests_key, "STDOUT.categories.default.limit"), -1);
+    raw_config.put(fhicl_key(dests_key, "STDOUT.type"), "cout");
+    raw_config.put(fhicl_key(dests_key, "STDOUT.threshold"), "INFO");
   }
+  assert(detail::exists_outside_prolog(raw_config, dests_key));
+  auto const& dests = raw_config.get<table_t const&>(dests_key);
+
+  // By default, suppress all logging of messages of MTdiagnostics category.
+  for (auto const& p : dests) {
+    std::string const& dest_name = p.first;
+    raw_config.put(fhicl_key(dests_key, dest_name, "categories.MTdiagnostics.limit"), 0);
+  }
+
+  if (vm.count("mt-diagnostics") > 0) {
+    auto const mt_dest_key = fhicl_key(dests_key, "MTdiagnostics");
+    raw_config.put(fhicl_key(mt_dest_key, "type"), "file");
+    raw_config.put(fhicl_key(mt_dest_key, "filename"), vm["mt-diagnostics"].as<std::string>());
+    raw_config.put(fhicl_key(mt_dest_key, "categories.MTdiagnostics.limit"), -1);
+    raw_config.put(fhicl_key(mt_dest_key, "categories.default.limit"), 0);
+  }
+
   return 0;
 }
