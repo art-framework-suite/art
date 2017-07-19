@@ -31,7 +31,19 @@ art::FloatingPointControl::FloatingPointControl(Parameters const& c, ActivityReg
   }
 }
 
-// ----------------------------------------------------------------------
+auto
+art::FloatingPointControl::getPrecision() const
+-> precision_t
+{
+  return static_cast<precision_t>(getFPCW() & fpControl_ALL_PREC);
+}
+
+auto
+art::FloatingPointControl::getMask() const
+-> mask_t
+{
+  return static_cast<mask_t>(getFPCW() & FE_ALL_EXCEPT);
+}
 
 void
 art::FloatingPointControl::postEndJob()

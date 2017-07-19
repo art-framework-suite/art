@@ -21,7 +21,7 @@ extern "C" {
 #else
 #error OS not valid for FP control
 #endif
-#define fpControl_ALL_PREC fpControl_EXTENDED_PREC | fpControl_DOUBLE_PREC | fpControl_SINGLE_PREC
+#define fpControl_ALL_PREC (fpControl_EXTENDED_PREC | fpControl_DOUBLE_PREC | fpControl_SINGLE_PREC)
 #ifdef __x86_64__
 #define fpControl_HAVE_MXCSR
 // for the MMU (SSE), here are the bit definitions
@@ -74,6 +74,12 @@ extern "C" {
 
 namespace art {
   namespace fp_detail {
+
+    enum class precision_t {
+      SINGLE = fpControl_SINGLE_PREC,
+      DOUBLE = fpControl_DOUBLE_PREC,
+      EXTENDED = fpControl_EXTENDED_PREC
+    };
 
     using fpsw_t =
 #ifdef __linux__

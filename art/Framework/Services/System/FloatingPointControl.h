@@ -53,10 +53,21 @@ namespace art {
 // ----------------------------------------------------------------------
 
 class art::FloatingPointControl {
+public:
+  using precision_t = fp_detail::precision_t;
+  // Return the precision as an enum (SINGLE, DOUBLE, EXTENDED).
+  precision_t getPrecision() const;
+
+  // Return the exception mask (can be ANDed with e.g. FE_DIVBYZERO to
+  // look for specific exception bits).
+  using mask_t = unsigned short int;
+  mask_t getMask() const;
+
+private:
   FloatingPointControl(FloatingPointControl const&) = delete;
   FloatingPointControl& operator=(FloatingPointControl const&) = delete;
-public:
 
+public:
   struct Config {
     fhicl::Atom<bool> enableDivByZeroEx {fhicl::Name{"enableDivByZeroEx"}, false};
     fhicl::Atom<bool> enableInvalidEx {fhicl::Name{"enableInvalidEx"}, false};

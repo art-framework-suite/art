@@ -33,11 +33,15 @@ private:
 
   inline
   void
-  compare_fpcw(fpcw_t const right,
+  compare_fpcw(art::FloatingPointControl & fpc,
+               fpcw_t const right,
                std::string msg = "Checking current FP state against expected"s)
   {
     INFO(msg);
     CHECK(hexit(getFPCW()) == hexit(right));
+    CHECK(hexit(static_cast<unsigned short int>(fpc.getPrecision())) ==
+          hexit(right & fpControl_ALL_PREC));
+    CHECK(hexit(fpc.getMask()) == hexit(right & FE_ALL_EXCEPT));
   }
 
   void
@@ -96,10 +100,10 @@ SCENARIO("We wish to affect the floating point control on our system")
     auto const fpcw_ref_dp = (fpcw_ref & ~ fpControl_ALL_PREC) | fpControl_DOUBLE_PREC;
 
     static auto verify_cleanup =
-      [fpcw_def, &reg]()
+      [fpcw_def, &reg](auto & fpc)
       {
         reg.sPostEndJob.invoke();
-        compare_fpcw(fpcw_def, "Checking final FP state against default"s);
+        compare_fpcw(fpc, fpcw_def, "Checking final FP state against default"s);
       };
 
     WHEN("We want the basic configuration")
@@ -107,9 +111,9 @@ SCENARIO("We wish to affect the floating point control on our system")
       art::FloatingPointControl fpc(ps, reg);
       THEN("The configuration is unchanged except for double precision math.")
       {
-        compare_fpcw(fpcw_ref_dp);
+        compare_fpcw(fpc, fpcw_ref_dp);
         verify_report(tstream);
-        verify_cleanup();
+        verify_cleanup(fpc);
       }
     }
 
@@ -119,9 +123,9 @@ SCENARIO("We wish to affect the floating point control on our system")
       art::FloatingPointControl fpc(ps, reg);
       THEN("The configuration shows suppressed divide-by-zero exceptions")
       {
-        compare_fpcw(fpcw_ref_dp & ~ FE_DIVBYZERO);
+        compare_fpcw(fpc, fpcw_ref_dp & ~ FE_DIVBYZERO);
         verify_report(tstream, FE_DIVBYZERO);
-        verify_cleanup();
+        verify_cleanup(fpc);
       }
     }
 
@@ -131,9 +135,9 @@ SCENARIO("We wish to affect the floating point control on our system")
       art::FloatingPointControl fpc(ps, reg);
       THEN("The configuration shows suppressed \"invalid\" exceptions")
       {
-        compare_fpcw(fpcw_ref_dp & ~ FE_INVALID);
+        compare_fpcw(fpc, fpcw_ref_dp & ~ FE_INVALID);
         verify_report(tstream, FE_INVALID);
-        verify_cleanup();
+        verify_cleanup(fpc);
       }
     }
   
@@ -143,9 +147,9 @@ SCENARIO("We wish to affect the floating point control on our system")
       art::FloatingPointControl fpc(ps, reg);
       THEN("The configuration shows suppressed overflow exceptions")
       {
-        compare_fpcw(fpcw_ref_dp & ~ FE_OVERFLOW);
+        compare_fpcw(fpc, fpcw_ref_dp & ~ FE_OVERFLOW);
         verify_report(tstream, FE_OVERFLOW);
-        verify_cleanup();
+        verify_cleanup(fpc);
       }
     }
 
@@ -155,9 +159,9 @@ SCENARIO("We wish to affect the floating point control on our system")
       art::FloatingPointControl fpc(ps, reg);
       THEN("The configuration shows suppressed underflow exceptions")
       {
-        compare_fpcw(fpcw_ref_dp & ~ FE_UNDERFLOW);
+        compare_fpcw(fpc, fpcw_ref_dp & ~ FE_UNDERFLOW);
         verify_report(tstream, FE_UNDERFLOW);
-        verify_cleanup();
+        verify_cleanup(fpc);
       }
     }
 
@@ -167,9 +171,9 @@ SCENARIO("We wish to affect the floating point control on our system")
       art::FloatingPointControl fpc(ps, reg);
       THEN("The configuration shows default precision")
       {
-        compare_fpcw(fpcw_ref);
+        compare_fpcw(fpc, fpcw_ref);
         verify_report(tstream);
-        verify_cleanup();
+        verify_cleanup(fpc);
       }
     }
   }
