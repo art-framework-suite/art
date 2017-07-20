@@ -14,7 +14,6 @@
 #include "art/Framework/Principal/ResultsPrincipal.h"
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
-#include "art/Framework/Principal/detail/orderedProcessNames.h"
 #include "fhiclcpp/types/ConfigurationTable.h"
 #include "canvas/Utilities/Exception.h"
 #include "cetlib/column_width.h"
@@ -107,7 +106,6 @@ private:
   void writeRun(RunPrincipal& r) override;
   void writeSubRun(SubRunPrincipal& sr) override;
   void readResults(ResultsPrincipal const& resp) override;
-  void respondToCloseInputFile(FileBlock const& fb) override;
 
   template <typename P>
   void printPrincipal(P const& p);
@@ -116,7 +114,6 @@ private:
   bool wantProductFriendlyClassName_;
   bool wantResolveProducts_;
   bool wantPresentOnly_;
-  std::vector<std::string> orderedProcesses_ {dummyProcess()};
 };  // FileDumperOutput
 
 art::FileDumperOutput::
@@ -158,27 +155,11 @@ readResults(ResultsPrincipal const& resp)
   printPrincipal(resp);
 }
 
-void
-art::FileDumperOutput::respondToCloseInputFile(FileBlock const&)
-{
-  orderedProcesses_.clear();
-}
-
 template <typename P>
 void
 art::FileDumperOutput::printPrincipal(P const& p)
 {
   if (!p.size()) return;
-
-  // The current execution of art does not allow for input files with
-  // different process histories (to first order).  So re-populating
-  // the list of ordered process names for each input file, while
-  // unnecessary for current art, anticipates a future version of art
-  // that can accommodate different process histories for a collection
-  // of input files.
-  if (orderedProcesses_.size() == 1ull) {
-    cet::copy_all(detail::orderedProcessNames(), std::back_inserter(orderedProcesses_));
-  }
 
   size_t present {0};
   size_t not_present {0};
@@ -221,10 +202,11 @@ art::FileDumperOutput::printPrincipal(P const& p)
                                          columnWidth(products, &detail::ProductInfo::friendly_type, dinfo.friendly_type),
                                          columnWidth(products, &detail::ProductInfo::str_size, dinfo.str_size)};
 
-  for (auto const& process : orderedProcesses_) {
-    for (auto const& pi : products[process]) {
+  for (auto const& processConfig : p.processHistory()) {
+    auto const& processName = processConfig.processName();
+    for (auto const& pi : products[processName]) {
       std::ostringstream oss;
-      oss << cet::rpad(process, widths[0], '.') << " | "
+      oss << cet::rpad(processName, widths[0], '.') << " | "
           << cet::rpad(pi.module_label, widths[1], '.') << " | "
           << cet::rpad(pi.instance_name, widths[2], '.') << " | ";
       if (wantProductFullClassName_) oss << cet::rpad(pi.product_type, widths[3], '.') << " | ";

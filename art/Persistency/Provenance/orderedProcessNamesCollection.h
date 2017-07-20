@@ -7,7 +7,7 @@
 namespace art {
   namespace detail {
 
-    std::vector<std::string> orderedProcessNames();
+    std::vector<std::vector<std::string>> orderedProcessNamesCollection();
 
   }
 }

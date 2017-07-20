@@ -2,8 +2,8 @@
 #include "art/Framework/IO/Root/detail/resolveRangeSet.h"
 #include "art/Framework/IO/Root/detail/readFileIndex.h"
 #include "art/Framework/IO/Root/detail/readMetadata.h"
-#include "art/Framework/Principal/detail/orderedProcessNames.h"
 #include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
+#include "art/Persistency/Provenance/orderedProcessNamesCollection.h"
 #include "art/Persistency/RootDB/SQLite3Wrapper.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
 #include "canvas/Persistency/Provenance/rootNames.h"
@@ -86,11 +86,38 @@ art::detail::InfoDumperInputFile::print_file_index(std::ostream& os) const
 void
 art::detail::InfoDumperInputFile::print_process_history(std::ostream& os) const
 {
-  os << "\n Chronological list of process names for processes that\n"
-     << " produced this file.\n\n";
-  unsigned i {1u};
-  for (auto const& process : orderedProcessNames())
-    os << std::setw(5) << std::right << i++ << ". " << process << '\n';
+  auto const& processNamesCollection = orderedProcessNamesCollection();
+  bool printHistoryLabel{false};
+  if (processNamesCollection.empty()) {
+    os << "\n No process history was recorded for this file.\n";
+    return;
+  }
+  else if (processNamesCollection.size() > 1ull) {
+    printHistoryLabel = true;
+    os << "\n This file was produced with multiple processing histories.\n";
+  }
+
+  // Relying on a single character will be problematic if the
+  // process-names collection has more than 26 elements.  Hopefully,
+  // nobody will produce a job that involves the concatenation of more
+  // than 26 inconsistent process histories.  If so, we'll solve the
+  // process-history labeling below issue once we come to it.
+  char hl{'A'};
+
+  for (auto const& processNames : processNamesCollection) {
+    unsigned i{1u};
+    if (printHistoryLabel) {
+      os << "\n Chronological list of process names for process history: "
+         << hl++ << "\n\n";
+    }
+    else {
+      os << "\n Chronological list of process names for processes that\n"
+         << " produced this file.\n\n";
+    }
+    for (auto const& process : processNames) {
+      os << ' ' << std::setw(4) << std::right << i++ << ". " << process << '\n';
+    }
+  }
 }
 
 void
@@ -104,12 +131,18 @@ art::detail::InfoDumperInputFile::print_branchIDLists(std::ostream& os) const
     << oss.str();
   }
 
+  auto const& processNames = orderedProcessNamesCollection();
+  // For older file format versions, there cannot be more than one
+  // ordered process name, due to the compatibility requirements that
+  // were enforced in generating the file.
+  assert(processNames.size() == 1ull);
+
   os << "\n List of BranchIDs produced for this file.  The BranchIDs are\n"
      << " grouped according to the process in which they were produced.  The\n"
      << " processes are presented in chronological order; however within each process,\n"
      << " the order of listed BranchIDs is not meaningful.\n";
   unsigned i {};
-  for (auto const& process : orderedProcessNames()) {
+  for (auto const& process : processNames.front()) {
     os << "\n Process " <<  i+1 << ": " << process << '\n';
     for (auto const& bid : branchIDLists_[i]) {
       os << "    " << bid << '\n';
