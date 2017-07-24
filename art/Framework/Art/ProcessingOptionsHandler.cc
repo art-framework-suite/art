@@ -97,7 +97,7 @@ art::ProcessingOptionsHandler::doProcessOptions(bpo::variables_map const& vm,
     if (vm.count("rethrow-all") == 1) {
       raw_config.putEmptySequence(fhicl_key(scheduler_key, "IgnoreCompletely"));
       raw_config.putEmptySequence(fhicl_key(scheduler_key, "SkipEvent"));
-      raw_config.putEmptySequence(fhicl_key(scheduler_key, "FaileModule"));
+      raw_config.putEmptySequence(fhicl_key(scheduler_key, "FailModule"));
       raw_config.putEmptySequence(fhicl_key(scheduler_key, "FailPath"));
     }
   }

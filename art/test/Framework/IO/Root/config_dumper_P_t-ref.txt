@@ -65,8 +65,8 @@ ASSNS: {
          }
       }
       scheduler: {
+         FailModule: []
          FailPath: []
-         FaileModule: []
          IgnoreCompletely: []
          SkipEvent: []
          defaultExceptions: false
