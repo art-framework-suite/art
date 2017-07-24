@@ -48,7 +48,7 @@ namespace art {
   void
   EventPrincipal::throwIfExistingGroup(BranchDescription const& pd) const
   {
-    if (auto group = getGroup(pd.productID())) {
+    if (getGroup(pd.productID()) != nullptr) {
       throw art::Exception(art::errors::ProductRegistrationFailure, "EventPrincipal::throwIfExistingGroup")
         << "Problem found while adding product provenance: "
         << "product already exists for ("
