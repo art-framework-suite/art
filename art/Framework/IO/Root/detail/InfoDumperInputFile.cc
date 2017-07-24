@@ -65,10 +65,7 @@ art::detail::InfoDumperInputFile::InfoDumperInputFile(std::string const& filenam
   art::detail::readFileIndex(file_.get(), md.get(), findexPtr);
 
   // Read ProcessHistory
-  {
-    auto pHistMap = detail::readMetadata<ProcessHistoryMap>(md.get());
-    ProcessHistoryRegistry::put(pHistMap);
-  }
+  pHistMap_ = detail::readMetadata<ProcessHistoryMap>(md.get());
 }
 
 void
@@ -86,7 +83,7 @@ art::detail::InfoDumperInputFile::print_file_index(std::ostream& os) const
 void
 art::detail::InfoDumperInputFile::print_process_history(std::ostream& os) const
 {
-  auto const& processNamesCollection = orderedProcessNamesCollection();
+  auto const& processNamesCollection = orderedProcessNamesCollection(pHistMap_);
   bool printHistoryLabel{false};
   if (processNamesCollection.empty()) {
     os << "\n No process history was recorded for this file.\n";
@@ -131,7 +128,7 @@ art::detail::InfoDumperInputFile::print_branchIDLists(std::ostream& os) const
     << oss.str();
   }
 
-  auto const& processNames = orderedProcessNamesCollection();
+  auto const& processNames = orderedProcessNamesCollection(pHistMap_);
   // For older file format versions, there cannot be more than one
   // ordered process name, due to the compatibility requirements that
   // were enforced in generating the file.

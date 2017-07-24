@@ -9,6 +9,7 @@
 #include "canvas/Persistency/Provenance/Compatibility/BranchIDList.h"
 #include "canvas/Persistency/Provenance/FileFormatVersion.h"
 #include "canvas/Persistency/Provenance/FileIndex.h"
+#include "canvas/Persistency/Provenance/ProcessHistory.h"
 #include "canvas/Persistency/Provenance/RangeSet.h"
 #include "canvas/Persistency/Provenance/RunAuxiliary.h"
 
@@ -42,7 +43,8 @@ namespace art {
                            std::string const& filename) const;
 
       std::unique_ptr<TFile> file_;
-      BranchIDLists branchIDLists_ {};
+      BranchIDLists branchIDLists_{};
+      ProcessHistoryMap pHistMap_;
       FileIndex fileIndex_;
       FileFormatVersion fileFormatVersion_;
     };

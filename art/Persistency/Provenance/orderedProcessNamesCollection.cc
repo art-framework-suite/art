@@ -9,7 +9,7 @@
 #include <set>
 
 std::vector<std::vector<std::string>>
-art::detail::orderedProcessNamesCollection()
+art::detail::orderedProcessNamesCollection(ProcessHistoryMap const& histories)
 {
   std::vector<std::vector<std::string>> result;
 
@@ -29,7 +29,6 @@ art::detail::orderedProcessNamesCollection()
   // Since the ordering of the histories is determined by a hashed
   // value, we must compare each history in pairs to determine which
   // histories do not have descendants.
-  auto const& histories = ProcessHistoryRegistry::get();
   for (auto const& hist_i : histories) {
     bool found_descendent{false};
     for (auto const& hist_j : histories) {
