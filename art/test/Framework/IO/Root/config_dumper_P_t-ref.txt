@@ -71,6 +71,7 @@ ASSNS: {
          SkipEvent: []
          defaultExceptions: false
          errorOnFailureToPut: true
+         errorOnMissingConsumes: false
          errorOnSIGINT: true
       }
    }

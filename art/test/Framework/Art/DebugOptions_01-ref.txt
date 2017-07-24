@@ -33,6 +33,7 @@ services: {
    scheduler: {
       defaultExceptions: false
       errorOnFailureToPut: true
+      errorOnMissingConsumes: false
       errorOnSIGINT: true
       wantTracer: true
    }

@@ -34,12 +34,15 @@ namespace {
   void fillTable(std::string const& bpo_key,
                  std::string const& fhicl_key,
                  bpo::variables_map const& vm,
-                 fhicl::intermediate_table& config)
+                 fhicl::intermediate_table& config,
+                 bool const flag_value)
   {
-    if (vm.count(bpo_key))
+    if (vm.count(bpo_key)) {
       config.put(fhicl_key, vm[bpo_key].as<bool>());
-    else if (!exists_outside_prolog(config, fhicl_key))
-      config.put(fhicl_key, true);
+    }
+    else if (!exists_outside_prolog(config, fhicl_key)) {
+      config.put(fhicl_key, flag_value);
+    }
   }
 
 }
@@ -57,6 +60,10 @@ art::ProcessingOptionsHandler::ProcessingOptionsHandler(bpo::options_description
      "Global flag that controls the behavior upon failure to 'put' a product "
      "(declared by 'produces') onto the Event.  If 'true', per-module flags "
      "can override the value of the global flag.")
+    ("errorOnMissingConsumes", bpo::value<bool>()->implicit_value(true,"true"),
+     "If 'true', then an exception will be thrown if any module attempts to "
+     "retrieve a product via the 'getBy*' interface without specifying the "
+     "appropriate 'consumes<T>(...)' statement in the module constructor.")
     ("errorOnSIGINT", bpo::value<bool>()->implicit_value(true,"true"),
      "If 'true', a signal received from the user yields an art return code "
      "corresponding to an error; otherwise return 0.")
@@ -95,7 +102,8 @@ art::ProcessingOptionsHandler::doProcessOptions(bpo::variables_map const& vm,
     }
   }
 
-  fillTable("errorOnFailureToPut", fhicl_key(scheduler_key, "errorOnFailureToPut"), vm, raw_config);
-  fillTable("errorOnSIGINT"      , fhicl_key(scheduler_key, "errorOnSIGINT"      ), vm, raw_config);
+  fillTable("errorOnFailureToPut"   , fhicl_key(scheduler_key, "errorOnFailureToPut"   ), vm, raw_config, true);
+  fillTable("errorOnMissingConsumes", fhicl_key(scheduler_key, "errorOnMissingConsumes"), vm, raw_config, false);
+  fillTable("errorOnSIGINT"         , fhicl_key(scheduler_key, "errorOnSIGINT"         ), vm, raw_config, true);
   return 0;
 }

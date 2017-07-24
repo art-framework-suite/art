@@ -65,6 +65,7 @@ services: {
    }
    scheduler: {
       errorOnFailureToPut: true
+      errorOnMissingConsumes: false
       errorOnSIGINT: true
    }
 }
