@@ -43,7 +43,9 @@ arttest::HMRunProdProducer::HMRunProdProducer(fhicl::ParameterSet const & p)
   data_(N_BLOCKS)
 {
   for (unsigned short i = 0; i < N_BLOCKS; ++i) {
-    produces<HMLargeData, art::InRun>(std::string("block") + std::to_string(i));
+    std::string const instance_name = "block"+std::to_string(i);
+    produces<HMLargeData, art::InRun>(instance_name);
+    consumes<HMLargeData, art::InSubRun>(art::InputTag{inputLabel_,instance_name});
   }
 }
 

@@ -21,16 +21,16 @@ namespace {
   };
 
   class Reconstruction : public art::EDFilter {
-    art::InputTag inputTag_;
     double threshold_;
+    art::ProductToken<std::vector<double>> particleEnergiesTkn_;
     unsigned numerator_ {};
     unsigned denominator_ {};
   public:
 
     using Parameters = EDFilter::Table<Config>;
     explicit Reconstruction(Parameters const& config)
-      : inputTag_{config().inputTag()}
-      , threshold_{config().threshold()}
+      : threshold_{config().threshold()}
+      , particleEnergiesTkn_{consumes<std::vector<double>>(config().inputTag())}
     {
       produces<arttest::CalibConstants,art::InSubRun>("CalibConstants");
       produces<arttest::TrackEfficiency,art::InSubRun>("TrackEfficiency");
@@ -47,7 +47,7 @@ namespace {
 
     bool filter(art::Event& e) override
     {
-      auto const& particleEnergies = e.getByLabel<std::vector<double>>(inputTag_);
+      auto const& particleEnergies = *e.getByToken(particleEnergiesTkn_);
       bool const pass = std::any_of(particleEnergies.cbegin(),
                                     particleEnergies.cend(),
                                     [this](double const energy){

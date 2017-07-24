@@ -41,17 +41,18 @@ namespace {
 
   class ParticleSimulator : public art::EDProducer {
     engine_t gen_ {};
-    art::InputTag inputTag_;
     energyDist_t energyDist_;
+    art::ProductToken<std::vector<int>> genParticlesTkn_;
   public:
 
     using Parameters = EDProducer::Table<Config>;
     explicit ParticleSimulator(Parameters const& config)
-      : inputTag_{config().inputTag()}
-      , energyDist_{config().energies().lower(), config().energies().upper()}
+      : energyDist_{config().energies().lower(), config().energies().upper()}
+      , genParticlesTkn_{consumes<std::vector<int>>(config().inputTag())}
     {
       produces<std::vector<double>>("particleEnergies");
       produces<arttest::Geometry,art::InRun>("Geometry");
+
     }
 
     void beginRun(art::Run& r) override
@@ -61,7 +62,7 @@ namespace {
 
     void produce(art::Event& e) override
     {
-      auto const& genParticles = e.getValidHandle<std::vector<int>>(inputTag_);
+      auto const& genParticles = e.getByToken(genParticlesTkn_);
       e.put(get_energies(*genParticles, gen_, energyDist_), "particleEnergies");
     }
 

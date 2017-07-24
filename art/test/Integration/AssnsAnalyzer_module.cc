@@ -6,47 +6,52 @@
 // Generated at Wed Jul 13 14:36:05 2011 by Chris Green using artmod
 // from art v0_07_12.
 ////////////////////////////////////////////////////////////////////////
+#include "cetlib/quiet_unit_test.hpp"
 
 #include "art/Framework/Core/EDAnalyzer.h"
+#include "art/Framework/Core/ModuleMacros.h"
+#include "art/Framework/Principal/Event.h"
+#include "art/Framework/Principal/View.h"
+#include "art/test/TestObjects/AssnTestData.h"
 #include "canvas/Persistency/Common/FindMany.h"
 #include "canvas/Persistency/Common/FindManyP.h"
 #include "canvas/Persistency/Common/FindOne.h"
 #include "canvas/Persistency/Common/FindOneP.h"
-#include "art/Framework/Core/ModuleMacros.h"
-#include "art/Framework/Principal/Event.h"
-#include "art/Framework/Principal/View.h"
 #include "canvas/Persistency/Common/Assns.h"
 #include "canvas/Persistency/Common/Ptr.h"
 #include "canvas/Persistency/Common/PtrVector.h"
 #include "canvas/Utilities/InputTag.h"
 #include "cetlib/maybe_ref.h"
-#include "art/test/TestObjects/AssnTestData.h"
 
-#include "cetlib/quiet_unit_test.hpp"
 #include "boost/type_traits.hpp"
 
+#include <initializer_list>
+#include <iostream>
 #include <type_traits>
 
-#include <iostream>
-
 namespace arttest {
-   class AssnsAnalyzer;
+  class AssnsAnalyzer;
 }
-
-#include <initializer_list>
 
 class arttest::AssnsAnalyzer : public art::EDAnalyzer {
 public:
-  explicit AssnsAnalyzer(fhicl::ParameterSet const & p);
-
-  void analyze(art::Event const & e) override;
+  struct Config {
+    fhicl::Atom<std::string> input_label{fhicl::Name{"input_label"}};
+    fhicl::Atom<bool> test_AB{fhicl::Name{"test_AB"}, true};
+    fhicl::Atom<bool> test_BA{fhicl::Name{"test_BA"}, false};
+    fhicl::Atom<bool> bCollMissing{fhicl::Name{"bCollMissing"}, false};
+  };
+  using Parameters = Table<Config>;
+  explicit AssnsAnalyzer(Parameters const& p);
 
 private:
+  void analyze(art::Event const& e) override;
+
   template <template <typename, typename> class FO>
-  void testOne(art::Event const & e) const;
+  void testOne(art::Event const& e) const;
 
   template <template <typename, typename> class FM>
-  void testMany(art::Event const & e) const;
+  void testMany(art::Event const& e) const;
 
   std::string inputLabel_;
   bool testAB_;
@@ -68,15 +73,15 @@ namespace {
 
   // Common case, can dereference (eg Ptr<T>).
   template <typename T, template <typename> class WRAP>
-  std::enable_if_t<boost::has_dereference<WRAP<T> >::value, T const &>
-  dereference(WRAP<T> const & wrapper) {
+  std::enable_if_t<boost::has_dereference<WRAP<T> >::value, T const&>
+  dereference(WRAP<T> const& wrapper) {
      return *wrapper;
   }
 
   // maybe_ref<T>.
   template <typename T, template <typename> class WRAP>
-  std::enable_if_t<std::is_same<WRAP<T>, cet::maybe_ref<T> >::value, T const &>
-  dereference(WRAP<T> const & wrapper) {
+  std::enable_if_t<std::is_same<WRAP<T>, cet::maybe_ref<T> >::value, T const&>
+  dereference(WRAP<T> const& wrapper) {
      return wrapper.ref();
   }
 
@@ -91,7 +96,7 @@ namespace {
   // functions.
   template <typename I, typename D, typename F, typename FV>
   void
-  check_get_one_impl(F const & fA, FV const & fAV) {
+  check_get_one_impl(F const& fA, FV const& fAV) {
     I item;
     D data;
     for (size_t i = 0; i < 3; ++i) {
@@ -117,8 +122,8 @@ namespace {
   template <typename T, typename D,
             template <typename, typename> class FO>
   std::enable_if_t<std::is_same<FO<T, void>, art::FindOne<T, void> >::value>
-  check_get(FO<T, D> const & fA,
-            FO<T, void> const & fAV) {
+  check_get(FO<T, D> const& fA,
+            FO<T, void> const& fAV) {
     typedef cet::maybe_ref<typename FO<T, void>::assoc_t const> item_t;
     typedef cet::maybe_ref<typename FO<T, D>::data_t const> data_t;
     check_get_one_impl<item_t, data_t>(fA, fAV);
@@ -127,10 +132,9 @@ namespace {
   // check_get specialized for FindOneP
   template <typename T, typename D,
             template <typename, typename> class FO>
-  //std::enable_if_t<std::is_same<FO<T, void>, art::FindOneP<T, void> >::value>
   std::enable_if_t<std::is_same<FO<T, void>, art::FindOneP<T, void> >::value>
-  check_get(FO<T, D> const & fA,
-            FO<T, void> const & fAV) {
+  check_get(FO<T, D> const& fA,
+            FO<T, void> const& fAV) {
     typedef art::Ptr<typename FO<T, void>::assoc_t> item_t;
     typedef cet::maybe_ref<typename FO<T, D>::data_t const> data_t;
     check_get_one_impl<item_t, data_t>(fA, fAV);
@@ -140,8 +144,8 @@ namespace {
   template <typename T, typename D,
             template <typename, typename> class FM>
   std::enable_if_t<std::is_same<FM<T, void>, art::FindMany<T, void> >::value || std::is_same<FM<T, void>, art::FindManyP<T, void> >::value>
-  check_get(FM<T, D> const & fA,
-            FM<T, void> const & fAV) {
+  check_get(FM<T, D> const& fA,
+            FM<T, void> const& fAV) {
     typename FM<T, void>::value_type item;
     typename FM<T, D>::dataColl_t::value_type data;
     BOOST_CHECK_EQUAL((fAV.get(0ul, item)), 1ul);
@@ -154,18 +158,20 @@ namespace {
 }
 
 arttest::AssnsAnalyzer::
-AssnsAnalyzer(fhicl::ParameterSet const & p)
+AssnsAnalyzer(Parameters const& p)
   :
-  art::EDAnalyzer(p),
-  inputLabel_(p.get<std::string>("input_label")),
-  testAB_(p.get<bool>("test_AB", true)),
-  testBA_(p.get<bool>("test_BA", false)),
-  bCollMissing_(p.get<bool>("bCollMissing", false))
+  art::EDAnalyzer{p},
+  inputLabel_{p().input_label()},
+  testAB_{p().test_AB()},
+  testBA_{p().test_BA()},
+  bCollMissing_{p().bCollMissing()}
 {
+  consumes<AssnsAB_t>(inputLabel_);
+  consumes<AssnsABV_t>(inputLabel_);
 }
 
 void
-arttest::AssnsAnalyzer::analyze(art::Event const & e)
+arttest::AssnsAnalyzer::analyze(art::Event const& e)
 {
   testOne<art::FindOne>(e);
   testOne<art::FindOneP>(e);
@@ -177,7 +183,7 @@ arttest::AssnsAnalyzer::analyze(art::Event const & e)
 template <template <typename, typename = void> class FO>
 void
 arttest::AssnsAnalyzer::
-testOne(art::Event const & e) const
+testOne(art::Event const& e) const
 {
   // Behavior on missing bColl is different for FindOne vs FindOneP.
   static constexpr
@@ -186,8 +192,8 @@ testOne(art::Event const & e) const
   bool const extendedTestsOK = isFOP || (!bCollMissing_);
   art::Handle<AssnsAB_t> hAB;
   art::Handle<AssnsBA_t> hBA;
-  art::Handle<AssnsABV_t> hABV;
   art::Handle<AssnsBAV_t> hBAV;
+  art::Handle<AssnsABV_t> hABV;
   if (testAB_) {
     BOOST_REQUIRE(e.getByLabel(inputLabel_, hAB));
     BOOST_REQUIRE_EQUAL(hAB->size(), 3ul);
@@ -216,19 +222,19 @@ testOne(art::Event const & e) const
   // barfing immediately.
   FO<B_t, arttest::AssnTestData> foDead(hAcoll, e, "noModule");
   BOOST_REQUIRE(!foDead.isValid());
-  BOOST_REQUIRE_EXCEPTION(foDead.size(),                                \
-                          art::Exception,                               \
-                          [](art::Exception const & e)                  \
-                          {                                             \
-                            return e.categoryCode() == art::errors::LogicError && \
-                              e.history().back() == "ProductNotFound";  \
-                          });                                           \
-  BOOST_REQUIRE_EXCEPTION(foDead.data(0),                               \
-                          art::Exception,                               \
-                          [](art::Exception const & e)                  \
-                          {                                             \
-                            return e.categoryCode() == art::errors::LogicError && \
-                              e.history().back() == "ProductNotFound";  \
+  BOOST_REQUIRE_EXCEPTION(foDead.size(),
+                          art::Exception,
+                          [](art::Exception const& e)
+                          {
+                            return e.categoryCode() == art::errors::LogicError &&
+                              e.history().back() == "ProductNotFound";
+                          });
+  BOOST_REQUIRE_EXCEPTION(foDead.data(0),
+                          art::Exception,
+                          [](art::Exception const& e)
+                          {
+                            return e.categoryCode() == art::errors::LogicError &&
+                              e.history().back() == "ProductNotFound";
                           });
 
   // Now do our normal checks.
@@ -237,8 +243,8 @@ testOne(art::Event const & e) const
   std::unique_ptr<FO<A_t, arttest::AssnTestData> > foA;
   std::unique_ptr<FO<A_t> > foAV;
   if (! bCollMissing_) {
-    foA.reset(new FO<A_t, arttest::AssnTestData>(hBcoll, e, inputLabel_));
-    foAV.reset(new FO<A_t>(hBcoll, e, inputLabel_));
+    foA.reset(new FO<A_t, arttest::AssnTestData>{hBcoll, e, inputLabel_});
+    foAV.reset(new FO<A_t>{hBcoll, e, inputLabel_});
   }
   if (extendedTestsOK) {
     FO<B_t, arttest::AssnTestData> foB(hAcoll, e, inputLabel_);
@@ -285,7 +291,7 @@ testOne(art::Event const & e) const
         BOOST_CHECK_EQUAL(dereference(foAV->at(i)), BI[i]);
         BOOST_CHECK_NO_THROW(check_get(*foA, *foAV));
       }
-      for (auto const & f : { foB, foB2 } ) {
+      for (auto const& f : { foB, foB2 } ) {
         if (!bCollMissing_) {
           BOOST_CHECK_EQUAL(dereference(f.at(i)), std::string(X[AI[i]]));
         }
@@ -302,7 +308,7 @@ testOne(art::Event const & e) const
     std::unique_ptr<FO<A_t, arttest::AssnTestData> > foAv;
     if (!bCollMissing_) {
       BOOST_REQUIRE(e.getView(inputLabel_, vb));
-      foAv.reset(new FO<A_t, arttest::AssnTestData>(vb, e, inputLabel_));
+      foAv.reset(new FO<A_t, arttest::AssnTestData>{vb, e, inputLabel_});
       BOOST_REQUIRE(*foA == *foAv);
     }
     // Check FindOne on shuffled reference collection.
@@ -373,7 +379,7 @@ testOne(art::Event const & e) const
 template <template <typename, typename = void> class FM>
 void
 arttest::AssnsAnalyzer::
-testMany(art::Event const & e) const
+testMany(art::Event const& e) const
 {
   static constexpr
     bool isFMP [[gnu::unused]] =
@@ -385,19 +391,19 @@ testMany(art::Event const & e) const
   // barfing immediately.
   FM<B_t, arttest::AssnTestData> fmDead(hAcoll, e, "noModule");
   BOOST_REQUIRE(!fmDead.isValid());
-  BOOST_REQUIRE_EXCEPTION(fmDead.size(),                                \
-                          art::Exception,                               \
-                          [](art::Exception const & e)                  \
-                          {                                             \
-                            return e.categoryCode() == art::errors::LogicError && \
-                              e.history().back() == "ProductNotFound";  \
-                          });                                           \
-  BOOST_REQUIRE_EXCEPTION(fmDead.data(0),                               \
-                          art::Exception,                               \
-                          [](art::Exception const & e)                  \
-                          {                                             \
-                            return e.categoryCode() == art::errors::LogicError && \
-                              e.history().back() == "ProductNotFound";  \
+  BOOST_REQUIRE_EXCEPTION(fmDead.size(),
+                          art::Exception,
+                          [](art::Exception const& e)
+                          {
+                            return e.categoryCode() == art::errors::LogicError &&
+                              e.history().back() == "ProductNotFound";
+                          });
+  BOOST_REQUIRE_EXCEPTION(fmDead.data(0),
+                          art::Exception,
+                          [](art::Exception const& e)
+                          {
+                            return e.categoryCode() == art::errors::LogicError &&
+                              e.history().back() == "ProductNotFound";
                           });
 
   // Now do our normal checks.
@@ -407,7 +413,7 @@ testMany(art::Event const & e) const
   art::Ptr<A_t> larry(hAcoll, 0), curly(hAcoll, 1), mo(hAcoll, 2);
   FM<B_t, arttest::AssnTestData>
     fmB2({larry, curly, mo}, e, art::InputTag(inputLabel_, "many"));
-  for (auto const & f : { fmB, fmB2 }) {
+  for (auto const& f : { fmB, fmB2 }) {
     BOOST_REQUIRE_EQUAL(f.size(), 3ul);
     BOOST_CHECK_EQUAL(f.at(0).size(), 1ul);
     BOOST_CHECK_EQUAL(f.at(1).size(), 2ul);

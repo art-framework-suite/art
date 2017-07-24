@@ -31,19 +31,21 @@ namespace {
 
 class arttest::PtrmvAnalyzer : public art::EDAnalyzer {
 public:
-  explicit PtrmvAnalyzer(fhicl::ParameterSet const& p);
-
-  void analyze(art::Event const& e) override;
-
+  struct Config {
+    fhicl::Atom<std::string> input_label{fhicl::Name{"input_label"}};
+  };
+  using Parameters = Table<Config>;
+  explicit PtrmvAnalyzer(Parameters const& p);
 private:
+  void analyze(art::Event const& e) override;
   std::string inputLabel_;
 };
 
 
-arttest::PtrmvAnalyzer::PtrmvAnalyzer(fhicl::ParameterSet const& p)
+arttest::PtrmvAnalyzer::PtrmvAnalyzer(Parameters const& p)
   :
-  art::EDAnalyzer(p),
-  inputLabel_(p.get<std::string>("input_label"))
+  art::EDAnalyzer{p},
+  inputLabel_{p().input_label()}
 {
 }
 

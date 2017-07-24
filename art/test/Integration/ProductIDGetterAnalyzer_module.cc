@@ -38,7 +38,10 @@ private:
 art::test::ProductIDGetterAnalyzer::ProductIDGetterAnalyzer(Parameters const& p)
   : EDAnalyzer{p},
     input_label_{p().input_label()}
-{}
+{
+  consumes<art::Ptr<int>>(input_label_);
+  consumes<art::Ptr<int>, art::InSubRun>(input_label_);
+}
 
 void art::test::ProductIDGetterAnalyzer::beginSubRun(SubRun const& sr) {
   Handle<Ptr<int>> h;

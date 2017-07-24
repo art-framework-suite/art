@@ -42,6 +42,7 @@ arttest::TestResultAnalyzer::TestResultAnalyzer(fhicl::ParameterSet const& ps):
    expected_pathname_(ps.get<std::string>("pathname", "")),
    expected_modulelabel_(ps.get<std::string>("modlabel", ""))
 {
+  consumesMany<art::TriggerResults>();
 }
 
 void arttest::TestResultAnalyzer::analyze(art::Event const& e) {
