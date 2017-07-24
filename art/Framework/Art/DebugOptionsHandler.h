@@ -1,15 +1,14 @@
 #ifndef art_Framework_Art_DebugOptionsHandler_h
 #define art_Framework_Art_DebugOptionsHandler_h
 
-// Handle the file input options: source, source-list, etc.
-
+#include "art/Framework/Art/OptionsHandler.h"
 #include "art/Framework/Art/detail/DebugOutput.h"
+
+// Handle the debugging options
 
 namespace art {
   class DebugOptionsHandler;
 }
-
-#include "art/Framework/Art/OptionsHandler.h"
 
 class art::DebugOptionsHandler : public art::OptionsHandler {
 public:
