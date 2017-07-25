@@ -11,6 +11,7 @@
 #include "art/Framework/IO/Root/DropMetaData.h"
 #include "art/Framework/IO/Root/GetFileFormatEra.h"
 #include "art/Framework/IO/Root/GetFileFormatVersion.h"
+#include "art/Framework/IO/Root/checkDictionaries.h"
 #include "art/Framework/IO/Root/detail/KeptProvenance.h"
 #include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Principal/ResultsPrincipal.h"
@@ -397,6 +398,7 @@ art::RootOutputFile::selectProducts()
       // Persist Results products only if they have been produced by
       // the current process.
       if (bt == InResults && !pd->produced()) continue;
+      checkDictionaries(*pd);
       items.emplace(pd);
     }
 

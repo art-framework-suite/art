@@ -24,7 +24,6 @@
 
 #include "canvas/Persistency/Provenance/BranchDescription.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
-#include "canvas/Persistency/Provenance/DictionaryChecker.h"
 #include "canvas/Persistency/Provenance/ProductID.h"
 #include "canvas/Persistency/Provenance/ProductList.h"
 #include "art/Persistency/Provenance/detail/type_aliases.h"
@@ -86,7 +85,6 @@ private:
   void setPresenceLookups_(ProductList const& pl,
                            PerBranchTypePresence const& presList);
   void updateProductLists_(ProductList const& pl);
-  void checkDicts_(BranchDescription const& productDesc);
 
   bool allowExplicitRegistration_{true};
 
@@ -94,7 +92,6 @@ private:
   ProductList productList_{};
   std::array<bool, NumBranchTypes> productProduced_{{false}}; //filled by aggregation
   std::vector<ProductListUpdatedCallback> productListUpdatedCallbacks_{};
-  DictionaryChecker dictChecker_{};
 
   // Data members reset per primary input file:
   std::vector<ProductList> perFileProds_{{}}; // Fill with 1 empty list

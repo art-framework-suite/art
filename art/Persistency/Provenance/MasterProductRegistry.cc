@@ -185,7 +185,6 @@ art::MasterProductRegistry::addProduct(std::unique_ptr<BranchDescription>&& bdp)
 
   assert(bdp->produced());
 
-  checkDicts_(*bdp);
   auto it = productList_.emplace(BranchKey{*bdp}, BranchDescription{});
   if (!it.second) {
     throw Exception(errors::Configuration)
@@ -313,7 +312,6 @@ art::MasterProductRegistry::updateProductLists_(ProductList const& pl)
   for (auto const& val: pl) {
     auto const& pd = val.second;
     assert(!pd.produced());
-    checkDicts_(pd);
     auto bk = BranchKey{pd};
     auto I = productList_.find(bk);
     if (I == productList_.end()) {
@@ -337,29 +335,6 @@ art::MasterProductRegistry::updateProductLists_(ProductList const& pl)
     J->second.merge(pd);
   }
 }
-
-void
-art::MasterProductRegistry::checkDicts_(BranchDescription const& productDesc)
-{
-  auto const isTransient = productDesc.transient();
-
-  // Check product dictionaries.
-  dictChecker_.checkDictionaries(productDesc.wrappedName(), false);
-  dictChecker_.checkDictionaries(productDesc.producedClassName(), !isTransient);
-
-  // Check dictionaries for assnsPartner, if appropriate. This is only
-  // necessary for top-level checks so appropriate here rather than
-  // checkDictionaries itself.
-  if (!isTransient) {
-    auto const assnsPartner =
-      name_of_assns_partner(productDesc.producedClassName());
-    if (!assnsPartner.empty()) {
-      dictChecker_.checkDictionaries(wrappedClassName(assnsPartner), true);
-    }
-  }
-  dictChecker_.reportMissingDictionaries();
-}
-
 
 std::ostream&
 art::operator<<(std::ostream& os, MasterProductRegistry const& mpr)

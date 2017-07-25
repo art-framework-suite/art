@@ -6,6 +6,7 @@
 #include "art/Framework/IO/Root/DuplicateChecker.h"
 #include "art/Framework/IO/Root/FastCloningInfoProvider.h"
 #include "art/Framework/IO/Root/GetFileFormatEra.h"
+#include "art/Framework/IO/Root/checkDictionaries.h"
 #include "art/Framework/IO/Root/detail/readMetadata.h"
 #include "art/Framework/IO/Root/detail/readFileIndex.h"
 #include "art/Framework/Principal/EventPrincipal.h"
@@ -1006,6 +1007,7 @@ namespace art {
       bool drop = branchesToDrop.find(pd.productID()) != branchesToDropEnd;
       if (!drop) {
         ++I;
+        checkDictionaries(pd);
         continue;
       }
       if (groupSelector.selected(pd)) {
