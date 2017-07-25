@@ -44,7 +44,10 @@ BasicOptionsHandler(bpo::options_description& desc,
     ("print-available-services",
      "List all available services that can be invoked in a FHiCL file.")
     ("print-description",bpo::value<std::vector<std::string>>()->multitoken(),
-     "Print description of specified module, service, source, or other plugin (multiple OK).")
+     "Print description of specified module, service, source, or other plugin (multiple OK)."
+     "  Argument can be a regular expression used to match the plugin specification."
+     "  To narrow the search to plugins with a particular suffix, preface the regular expression"
+     "with the suffix (e.g. service:TFileService).")
     ("status-bar",
      "Provide status bar that reports the progress of retrieving "
      "plugin information for a 'print-available' command.")
