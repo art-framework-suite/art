@@ -10,7 +10,7 @@ namespace fhicl { class ParameterSet; }
 
 namespace art {
   namespace actions {
-    const char* actionName(ActionCodes code);
+    char const* actionName(ActionCodes code);
   }  // actions
 }
 
@@ -18,12 +18,10 @@ class art::ActionTable {
 public:
 
   ActionTable();
-  explicit ActionTable(const fhicl::ParameterSet&);
+  explicit ActionTable(fhicl::ParameterSet const&);
 
-  // use compiler-generated copy c'tor, copy assignment, and d'tor
-
-  void add(const std::string& category, actions::ActionCodes code);
-  actions::ActionCodes find(const std::string& category) const;
+  void add(std::string const& category, actions::ActionCodes code);
+  actions::ActionCodes find(std::string const& category) const;
 
 private:
   using ActionMap = std::map<std::string, actions::ActionCodes>;
@@ -32,7 +30,7 @@ private:
   void install_(actions::ActionCodes code, fhicl::ParameterSet const& scheduler);
 
   ActionMap map_;
-};  // ActionTable
+};
 
 #endif /* art_Framework_Principal_Actions_h */
 
