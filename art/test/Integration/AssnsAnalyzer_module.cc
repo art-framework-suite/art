@@ -168,6 +168,14 @@ AssnsAnalyzer(Parameters const& p)
 {
   consumes<AssnsAB_t>(inputLabel_);
   consumes<AssnsABV_t>(inputLabel_);
+  consumes<AssnsBA_t>(inputLabel_);
+  consumes<AssnsBAV_t>(inputLabel_);
+  consumes<std::vector<A_t>>(inputLabel_);
+  consumes<std::vector<B_t>>(inputLabel_);
+  consumes<AssnsAB_t>({inputLabel_, "many"});
+  consumes<AssnsAB_t>("noModule");
+  consumes<AssnsABV_t>({inputLabel_, "many"});
+  consumes<AssnsABV_t>({inputLabel_, "manymapvec"});
 }
 
 void
