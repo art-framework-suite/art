@@ -1,2 +1,0 @@
-process_name: chicken
-services.scheduler.fileMode: KITCHEN

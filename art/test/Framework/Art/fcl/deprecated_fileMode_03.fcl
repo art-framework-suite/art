@@ -1,2 +1,0 @@
-process_name: fulllumimerge
-services.scheduler.fileMode: FULLLUMIMERGE
