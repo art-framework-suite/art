@@ -215,6 +215,16 @@ cet_test(test_view_01_t.sh PREBUILT
   fcl/messageDefaults.fcl
 )
 
+# Test missing consumes
+cet_test(SimpleDerived_MissingConsumes_t HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --rethrow-all -c test_simplederived_01a.fcl --errorOnMissingConsumes --no-output
+  DATAFILES
+  fcl/test_simplederived_01a.fcl
+  TEST_PROPERTIES
+  PASS_REGULAR_EXPRESSION "ConsumesRecorder: an error occurred during validation of a retrieved product.*The following statement is missing from the constructor of your module:.*consumes<std::vector<arttest::SimpleDerived>>\\(\"m1a:derived\"\\)"
+)
+
 cet_test(SimpleDerived_01_w HANDBUILT
   TEST_EXEC art
   TEST_ARGS --rethrow-all -c test_simplederived_01a.fcl
