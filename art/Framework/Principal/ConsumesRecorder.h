@@ -6,8 +6,8 @@
 //---------------------------------------------------------------------------
 
 #include "art/Framework/Principal/ProductInfo.h"
-#include "art/Framework/Principal/ProductToken.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
+#include "canvas/Persistency/Provenance/ProductToken.h"
 #include "canvas/Persistency/Provenance/TypeLabel.h"
 #include "canvas/Utilities/InputTag.h"
 #include "canvas/Utilities/TypeID.h"

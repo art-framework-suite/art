@@ -81,6 +81,9 @@ public:
   EDProductGetter const*
   productGetter(ProductID const pid) const;
 
+  template <typename T>
+  using HandleT = Handle<T>;
+
 private:
   // commit_() is called to complete the transaction represented by
   // this DataViewImpl. The friendships required are gross, but any

@@ -29,6 +29,13 @@
 #include <iostream>
 #include <type_traits>
 
+typedef size_t A_t;
+typedef std::string B_t;
+typedef art::Assns<A_t, B_t, arttest::AssnTestData> AssnsAB_t;
+typedef art::Assns<B_t, size_t, arttest::AssnTestData> AssnsBA_t;
+typedef art::Assns<A_t, B_t> AssnsABV_t;
+typedef art::Assns<B_t, size_t> AssnsBAV_t;
+
 namespace arttest {
   class AssnsAnalyzer;
 }
@@ -57,15 +64,11 @@ private:
   bool testAB_;
   bool testBA_;
   bool bCollMissing_;
+  art::ProductToken<AssnsAB_t> mapVecToken1_;
+  art::ProductToken<AssnsBA_t> mapVecToken2_;
 };
 
 namespace {
-  typedef size_t A_t;
-  typedef std::string B_t;
-  typedef art::Assns<A_t, B_t, arttest::AssnTestData> AssnsAB_t;
-  typedef art::Assns<B_t, size_t, arttest::AssnTestData> AssnsBA_t;
-  typedef art::Assns<A_t, B_t> AssnsABV_t;
-  typedef art::Assns<B_t, size_t> AssnsBAV_t;
 
   // function template to allow us to dereference both maybe_ref<T>
   // objects and objects that have an operator*.
@@ -164,7 +167,9 @@ AssnsAnalyzer(Parameters const& p)
   inputLabel_{p().input_label()},
   testAB_{p().test_AB()},
   testBA_{p().test_BA()},
-  bCollMissing_{p().bCollMissing()}
+  bCollMissing_{p().bCollMissing()},
+  mapVecToken1_{consumes<AssnsAB_t>({inputLabel_, "mapvec"})},
+  mapVecToken2_{consumes<AssnsBA_t>({inputLabel_, "mapvec"})}
 {
   consumes<AssnsAB_t>(inputLabel_);
   consumes<AssnsABV_t>(inputLabel_);
@@ -362,8 +367,7 @@ testOne(art::Event const& e) const
 
     // Check FindOne looking into a map_vector.
     BOOST_REQUIRE(hAcoll.isValid());
-    art::InputTag tag(inputLabel_, "mapvec");
-    FO<B_t, arttest::AssnTestData> foBmv(hAcoll, e, tag);
+    FO<B_t, arttest::AssnTestData> foBmv(hAcoll, e, mapVecToken1_);
     if (! bCollMissing_) {
       BOOST_CHECK_EQUAL(dereference(foBmv.at(0)), dereference(foB.at(0)));
       BOOST_CHECK_EQUAL(dereference(foBmv.data(0)).label, dereference(foB.data(0)).label);
@@ -376,7 +380,7 @@ testOne(art::Event const& e) const
     art::View<B_t> vmvb;
     if (!bCollMissing_) {
       BOOST_REQUIRE(e.getView(inputLabel_, "mv", vmvb));
-      FO<A_t, arttest::AssnTestData> foAmvv(vmvb, e, tag);
+      FO<A_t, arttest::AssnTestData> foAmvv(vmvb, e, mapVecToken2_);
       for (std::size_t i = 0ul, sz = foAmvv.size(); i != sz; ++i) {
         BOOST_REQUIRE_EQUAL(dereference(foAmvv.at(i)), i);
       }
