@@ -44,7 +44,6 @@ physics: {
     }
   }
   e1: [ a3, a2, a1 ]
-  end_paths: [ e1 ]
 }
 
 process_name: READ

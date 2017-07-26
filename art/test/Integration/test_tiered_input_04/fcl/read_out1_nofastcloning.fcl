@@ -5,8 +5,6 @@ source: {
     fileNames: [
         "../test_tiered_input_04g_t.d/out1_nofastcloning.root"
     ]
-    #secondaryFileNames: [
-    #]
 }
 
 physics: {
@@ -28,5 +26,4 @@ physics: {
     }
   }
   e1: [ a3, a2, a1 ]
-  end_paths: [ e1 ]
 }

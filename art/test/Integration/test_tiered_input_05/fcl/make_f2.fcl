@@ -12,16 +12,7 @@ outputs: {
 }
 
 physics: {
-  producers: {
-  }
-  filters: {
-  }
-  p1: [ ]
-  trigger_paths: [ p1 ]
-  analyzers: {
-  }
   e1: [ out1 ]
-  end_paths: [ e1 ]
 }
 
 process_name: DROPM1A
