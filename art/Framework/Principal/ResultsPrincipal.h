@@ -33,8 +33,7 @@ public:
   ResultsPrincipal(ResultsAuxiliary const&,
                    ProcessConfiguration const&,
                    std::unique_ptr<BranchMapper>&& mapper = std::make_unique<BranchMapper>(),
-                   std::unique_ptr<DelayedReader>&& rtrv = std::make_unique<NoDelayedReader>(),
-                   int idx = 0);
+                   std::unique_ptr<DelayedReader>&& rtrv = std::make_unique<NoDelayedReader>());
 
   ResultsAuxiliary const& aux() const { return aux_; }
 

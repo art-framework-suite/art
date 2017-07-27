@@ -350,7 +350,6 @@ initFile(bool const skipBadFiles)
                                          dropDescendants_,
                                          readParameterSets_,
                                          /*primaryFile*/exempt_ptr<RootInputFile>{nullptr},
-                                         /*secondaryFileNameIdx*/-1,
                                          secondaryFileNames_.empty() ? empty_vs : secondaryFileNames_.at(catalog_.currentIndex()),
                                          this);
   assert(catalog_.currentIndex() != InputFileCatalog::indexEnd);
@@ -386,8 +385,7 @@ initFile(bool const skipBadFiles)
 
 std::unique_ptr<RootInputFile>
 RootInputFileSequence::
-openSecondaryFile(int idx,
-                  string const& name,
+openSecondaryFile(string const& name,
                   exempt_ptr<RootInputFile> primaryFile)
 {
   std::unique_ptr<TFile> filePtr;
@@ -433,7 +431,6 @@ openSecondaryFile(int idx,
                                              dropDescendants_,
                                              readParameterSets_,
                                              /*primaryFile*/primaryFile,
-                                             /*secondaryFileNameIdx*/idx,
                                              /*secondaryFileNames*/empty_vs,
                                              /*rifSequence*/this);
 

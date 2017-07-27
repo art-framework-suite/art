@@ -113,7 +113,6 @@ namespace art {
                 bool dropDescendants,
                 bool const readIncomingParameterSets,
                 exempt_ptr<RootInputFile> primaryFile,
-                int secondaryFileNameIdx,
                 vector<string> const& secondaryFileNames,
                 RootInputFileSequence* rifSequence)
     : fileName_{fileName}
@@ -136,7 +135,6 @@ namespace art {
     , noEventSort_{noEventSort}
     , duplicateChecker_{duplicateChecker}
     , primaryFile_{primaryFile ? primaryFile : this}
-    , secondaryFileNameIdx_{secondaryFileNameIdx}
     , secondaryFileNames_{secondaryFileNames}
     , rifSequence_{rifSequence}
   {
@@ -622,8 +620,7 @@ namespace art {
                                                                              InEvent,
                                                                              entryNumbers.first,
                                                                              eventAux().id()),
-                                               entryNumbers.second,
-                                               0);
+                                               entryNumbers.second);
     eventTree().fillGroups(*ep);
     if (!delayedReadEventProducts_) {
       ep->readImmediate();
@@ -658,8 +655,7 @@ namespace art {
                                                                              InEvent,
                                                                              entryNumbers.first,
                                                                              eventAux().id()),
-                                               entryNumbers.second,
-                                               secondaryFileNameIdx_ + 1);
+                                               entryNumbers.second);
     eventTree().fillGroups(*ep);
     primaryFile_->primaryEP_->addSecondaryPrincipal(move(ep));
     return true;
@@ -716,9 +712,7 @@ namespace art {
                                                                          nullptr,
                                                                          InRun,
                                                                          entryNumbers,
-                                                                         fiIter_->eventID_),
-                                             0);
-
+                                                                         fiIter_->eventID_));
     runTree().fillGroups(*rp);
     if (!delayedReadRunProducts_) {
       rp->readImmediate();
@@ -764,9 +758,7 @@ namespace art {
                                                                          nullptr,
                                                                          InRun,
                                                                          entryNumbers,
-                                                                         fiIter_->eventID_),
-                                             secondaryFileNameIdx_ + 1);
-
+                                                                         fiIter_->eventID_));
     runTree().fillGroups(*rp);
     if (!delayedReadRunProducts_) {
       rp->readImmediate();
@@ -828,9 +820,7 @@ namespace art {
                                                                                 nullptr,
                                                                                 InSubRun,
                                                                                 entryNumbers,
-                                                                                fiIter_->eventID_),
-                                                 0);
-
+                                                                                fiIter_->eventID_));
     subRunTree().fillGroups(*srp);
     if (!delayedReadSubRunProducts_) {
       srp->readImmediate();
@@ -875,9 +865,7 @@ namespace art {
                                                                                 nullptr,
                                                                                 InSubRun,
                                                                                 entryNumbers,
-                                                                                fiIter_->eventID_),
-                                                 secondaryFileNameIdx_ + 1);
-
+                                                                                fiIter_->eventID_));
     subRunTree().fillGroups(*srp);
     if (!delayedReadSubRunProducts_) {
       srp->readImmediate();
@@ -1040,8 +1028,7 @@ namespace art {
   RootInputFile::
   openSecondaryFile(int const idx)
   {
-    secondaryFiles_[idx] =
-      rifSequence_->openSecondaryFile(idx, secondaryFileNames_[idx], this);
+    secondaryFiles_[idx] = rifSequence_->openSecondaryFile(secondaryFileNames_[idx], this);
   }
 
   std::unique_ptr<art::ResultsPrincipal>
@@ -1061,8 +1048,7 @@ namespace art {
                                                                                 nullptr,
                                                                                 InResults,
                                                                                 entryNumbers,
-                                                                                EventID{}),
-                                                0);
+                                                                                EventID{}));
       resultsTree().fillGroups(*resp);
     } else { // Empty
       resp = std::make_unique<ResultsPrincipal>(ResultsAuxiliary{}, processConfiguration_);

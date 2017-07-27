@@ -22,9 +22,8 @@ namespace art {
                                  std::shared_ptr<History> history,
                                  std::unique_ptr<BranchMapper>&& mapper,
                                  std::unique_ptr<DelayedReader>&& rtrv,
-                                 bool const lastInSubRun,
-                                 int const idx)
-  : Principal{pc, history->processHistoryID(), std::move(mapper), std::move(rtrv), idx}
+                                 bool const lastInSubRun)
+  : Principal{pc, history->processHistoryID(), std::move(mapper), std::move(rtrv)}
   , aux_{aux}
   , history_{history}
   , lastInSubRun_{lastInSubRun}

@@ -34,8 +34,7 @@ namespace art {
     SubRunPrincipal(SubRunAuxiliary const&,
                     ProcessConfiguration const&,
                     std::unique_ptr<BranchMapper>&& = std::make_unique<BranchMapper>(),
-                    std::unique_ptr<DelayedReader>&& = std::make_unique<NoDelayedReader>(),
-                    int idx = 0);
+                    std::unique_ptr<DelayedReader>&& = std::make_unique<NoDelayedReader>());
 
     RunPrincipal const& runPrincipal() const;
 

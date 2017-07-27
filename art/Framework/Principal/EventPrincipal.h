@@ -38,8 +38,7 @@ namespace art {
                    std::shared_ptr<History> history = std::make_shared<History>(),
                    std::unique_ptr<BranchMapper>&& mapper = std::make_unique<BranchMapper>(),
                    std::unique_ptr<DelayedReader>&& rtrv = std::make_unique<NoDelayedReader>(),
-                   bool lastInSubRun = false,
-                   int idx = 0);
+                   bool lastInSubRun = false);
 
     SubRunPrincipal const& subRunPrincipal() const;
 

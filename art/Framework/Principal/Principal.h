@@ -63,8 +63,7 @@ namespace art {
     Principal(ProcessConfiguration const&,
               ProcessHistoryID const&,
               std::unique_ptr<BranchMapper>&&,
-              std::unique_ptr<DelayedReader>&&,
-              int idx);
+              std::unique_ptr<DelayedReader>&&);
 
     EDProductGetter const*
     productGetter(ProductID const pid) const;
@@ -303,10 +302,6 @@ namespace art {
     // principals is the lifetime of the input file, while the
     // lifetime of event principals ends at the next event read.
     std::vector<std::unique_ptr<Principal>> secondaryPrincipals_{};
-
-    // Index into the per-file lookup tables.  Each principal is read
-    // from particular secondary file.
-    int secondaryIdx_;
 
     // Index into the secondary file names vector of the next file
     // that a secondary principal should be created from.

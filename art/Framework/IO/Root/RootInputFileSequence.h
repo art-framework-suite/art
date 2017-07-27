@@ -97,7 +97,7 @@ public: // MEMBER FUNCTIONS
   readFile_();
 
   std::unique_ptr<RootInputFile>
-  openSecondaryFile(int idx, std::string const& name,
+  openSecondaryFile(std::string const& name,
                     cet::exempt_ptr<RootInputFile> primaryFile);
 
   void

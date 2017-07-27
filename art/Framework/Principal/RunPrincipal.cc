@@ -13,9 +13,8 @@ namespace art {
   RunPrincipal(RunAuxiliary const& aux,
                ProcessConfiguration const& pc,
                std::unique_ptr<BranchMapper>&& mapper,
-               std::unique_ptr<DelayedReader>&& rtrv,
-               int const idx)
-    : Principal{pc, aux.processHistoryID_, std::move(mapper), std::move(rtrv), idx}
+               std::unique_ptr<DelayedReader>&& rtrv)
+    : Principal{pc, aux.processHistoryID_, std::move(mapper), std::move(rtrv)}
     , aux_{aux}
   {
     productReader().setGroupFinder(cet::exempt_ptr<EDProductGetterFinder const>{this});

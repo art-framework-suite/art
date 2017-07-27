@@ -85,7 +85,6 @@ namespace art {
                   bool dropDescendantsOfDroppedProducts,
                   bool readIncomingParameterSets,
                   cet::exempt_ptr<RootInputFile> primaryFile,
-                  int secondaryFileNameIdx,
                   std::vector<std::string> const& secondaryFileNames,
                   RootInputFileSequence* rifSequence);
 
@@ -262,7 +261,6 @@ namespace art {
     bool noEventSort_;
     std::shared_ptr<DuplicateChecker> duplicateChecker_;
     cet::exempt_ptr<RootInputFile> primaryFile_;
-    int secondaryFileNameIdx_;
     std::vector<std::string> secondaryFileNames_;
     cet::exempt_ptr<RootInputFileSequence> rifSequence_;
 
