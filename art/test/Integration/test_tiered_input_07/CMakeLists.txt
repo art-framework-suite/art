@@ -50,7 +50,7 @@ set_tests_properties(test_tiered_input_07d_t
 
 cet_test(test_tiered_input_07e_t HANDBUILT
   TEST_EXEC file_info_dumper
-  TEST_ARGS --process-history ../test_tiered_input_07_t.d/out.root
+  TEST_ARGS --process-history ../test_tiered_input_07d_t.d/out.root
   REF "${CMAKE_CURRENT_SOURCE_DIR}/test_tiered_input_07-ref.txt"
   TEST_PROPERTIES
   DEPENDS test_tiered_input_07d_t
