@@ -243,58 +243,6 @@ art::MasterProductRegistry::updateFromSecondaryFile(ProductList const& pl,
 {
   CET_ASSERT_ONLY_ONE_THREAD();
 
-  // FIXME! Suppose a user has the following input-file dependency
-  // tree:
-  //
-  //   PrimaryFile --> SecondaryFile1 -> TertiaryFile
-  //               `-> SecondaryFile2
-  //
-  // Whenever each input file is opened, the product lookup tables are
-  // increased by 1 element.  However, the lookups are flat.  This is
-  // okay as long at the correct index is provided by the principals
-  // whenever product lookups are being done.
-  //
-  // Unfortunately, this is not the case--each of the principals has
-  // its own nextSecondaryFileIdx_ data member, which starts at 0 and
-  // is the index provided to the MasterProductRegistry to retrieve
-  // the "correct" lookup tables.
-  //
-  // To illustrate, if a product-lookup has failed using PrimaryFile,
-  // then SecondaryFile1 is opened.  The relevant Principal (created
-  // from PrimaryFile) has a nextSecondaryFileIdx_ member that is
-  // incremented from 0 to 1, and MasterProductRegistry's product
-  // lookups corresponding to index 1 are used for attempting to
-  // retrieve the product.
-  //
-  // Now suppose SecondaryFile1 does not contain the product in
-  // question, so TertiaryFile is opened.  The MasterProductRegistry's
-  // lookups are expanded to accommodate TertiaryFile, and so the
-  // index corresponding to TertiaryFile is 2 (according to the
-  // MasterProductRegistry).  However, the "secondary" Principal
-  // (created from SecondaryFile1) has a nextSecondaryFileIdx_ member
-  // that is increased from 0 to 1, which represents TertiaryFile.  So
-  // the index according to SecondaryFile1 for TertiaryFile is 1,
-  // whereas it should be 2 for the MasterProductRegistry.  So the
-  // lookups retrieved for TertiaryFile will be those of
-  // SecondaryFile1.
-  //
-  // Note there are two cases when this is *not* a problem:
-  //
-  // (1) If the process history of TertiaryFile is an ancestor of
-  //     SecondaryFile1, then the TertiaryFile's process history is a
-  //     subset of SecondaryFile1's, and the correct groups will be
-  //     queried (including those in SecondaryFile1 that are not part
-  //     of TertiaryFile).
-  //
-  // (2) If there are only secondary input files (i.e. just
-  //     SecondaryFile1 and SecondaryFile2 and no TertiaryFile), then
-  //     the indexing of the principals and that of the
-  //     MasterProductRegistry match.
-  //
-  // Ideally, this would be fixed by placing the lookups in the files
-  // themselves, thus avoiding the awkward caching with a global
-  // registry.
-
   perFileProds_.resize(perFileProds_.size()+1);
   perFilePresenceLookups_.resize(perFilePresenceLookups_.size()+1);
   productLookup_.resize(productLookup_.size()+1);

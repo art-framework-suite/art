@@ -210,19 +210,16 @@ Principal::getMatchingSequence(TypeID const& elementType,
     // use the incremented value of nextSecondaryFileIdx_ here because
     // it is the correctly biased-up by one index into the
     // elementLookup vector for this secondary file.
-    //
-    // SEE NOTES IN MasterProductRegistry::updateFromSecondaryFile(...)!
-    //
     auto const& el = ProductMetaData::instance().elementLookup()[nextSecondaryFileIdx_];
     auto I = el[branchType()].find(elementType.friendlyClassName());
     if (I == el[branchType()].end()) {
       continue;
     }
-    // If we get this far, we *assume* that we want the last secondary
-    // principal that we have added that we want to use.  That is the
-    // current implementation, but one might argue that we should
-    // allow the ability to open any specified secondary input file,
-    // and not necessarily just the "next" one.
+    // If we get this far, we *assume* that we want to use the last
+    // secondary principal that we have added.  That is the current
+    // implementation, but one might argue that we should allow the
+    // ability to open any specified secondary input file, and not
+    // necessarily just the "next" one.
     assert(!secondaryPrincipals_.empty());
     auto& secondaryPrincipal = secondaryPrincipals_.back();
     if (secondaryPrincipal->findGroups(I->second, selector, results, true) != 0) {
@@ -298,9 +295,6 @@ Principal::findGroupsForProduct(TypeID const& wanted_product,
     // we use the incremented value of nextSecondaryFileIdx_ here
     // because it is the correctly biased-up by one index into the
     // productLookup vector for this secondary file.
-    //
-    // SEE NOTES IN MasterProductRegistry::updateFromSecondaryFile(...)!
-    //
     auto const& pl = ProductMetaData::instance().productLookup()[nextSecondaryFileIdx_];
     auto I = pl[branchType()].find(wanted_product.friendlyClassName());
     if (I == pl[branchType()].end()) {
@@ -313,11 +307,11 @@ Principal::findGroupsForProduct(TypeID const& wanted_product,
         << wrappedClassName(wanted_product.className())
         << ".\n";
     }
-    // If we get this far, we *assume* that we want the last secondary
-    // principal that we have added that we want to use.  That is the
-    // current implementation, but one might argue that we should
-    // allow the ability to open any specified secondary input file,
-    // and not necessarily just the "next" one.
+    // If we get this far, we *assume* that we want to use the last
+    // secondary principal that we have added.  That is the current
+    // implementation, but one might argue that we should allow the
+    // ability to open any specified secondary input file, and not
+    // necessarily just the "next" one.
     assert(!secondaryPrincipals_.empty());
     auto& secondaryPrincipal = secondaryPrincipals_.back();
     ret = secondaryPrincipal->findGroups(I->second, selector, results, stopIfProcessHasMatch,
