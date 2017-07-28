@@ -45,7 +45,7 @@ public:
   using Base = DataViewImpl;
   explicit Event(EventPrincipal const& ep,
                  ModuleDescription const& md,
-                 ConsumesRecorder& consumesRecorder);
+                 cet::exempt_ptr<Consumer> consumer);
 
   // AUX functions.
   EventID   id() const {return aux_.id();}

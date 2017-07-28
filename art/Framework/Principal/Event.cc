@@ -27,18 +27,18 @@ namespace art {
 
     SubRun* newSubRun(EventPrincipal const& ep,
                       ModuleDescription const& md,
-                      ConsumesRecorder& consumesRecorder)
+                      cet::exempt_ptr<Consumer> consumer)
     {
-      return ep.subRunPrincipalExemptPtr() ? new SubRun{ep.subRunPrincipal(), md, consumesRecorder} : nullptr;
+      return ep.subRunPrincipalExemptPtr() ? new SubRun{ep.subRunPrincipal(), md, consumer} : nullptr;
     }
   }
 
   Event::Event(EventPrincipal const& ep,
                ModuleDescription const& md,
-               ConsumesRecorder& consumesRecorder)
-    : DataViewImpl{ep, md, InEvent, record_parents(this), consumesRecorder}
+               cet::exempt_ptr<Consumer> consumer)
+    : DataViewImpl{ep, md, InEvent, record_parents(this), consumer}
     , aux_{ep.aux()}
-    , subRun_{newSubRun(ep, md, consumesRecorder)}
+    , subRun_{newSubRun(ep, md, consumer)}
     , eventPrincipal_{ep}
   {}
 

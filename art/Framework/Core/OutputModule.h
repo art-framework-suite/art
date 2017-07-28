@@ -16,6 +16,7 @@
 #include "art/Framework/Core/OutputModuleDescription.h"
 #include "art/Framework/Core/OutputWorker.h"
 #include "art/Framework/Principal/fwd.h"
+#include "art/Framework/Principal/Consumer.h"
 #include "art/Framework/Principal/RangeSetHandler.h"
 #include "art/Framework/Services/FileServiceInterfaces/CatalogInterface.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
@@ -47,7 +48,8 @@ namespace art {
   class ResultsPrincipal;
 }
 
-class art::OutputModule : public EventObserverBase {
+class art::OutputModule : public EventObserverBase,
+                          public Consumer {
 public:
   OutputModule(OutputModule const&) = delete;
   OutputModule& operator=(OutputModule const&) = delete;

@@ -250,7 +250,7 @@ EventTestFixture::EventTestFixture()
   principal_ = std::make_unique<EventPrincipal>(eventAux, pc, history);
 
   principal_->setSubRunPrincipal(srp.get());
-  currentEvent_ = std::make_unique<Event>(*principal_, *gf().currentModuleDescription_, ConsumesRecorder::invalid());
+  currentEvent_ = std::make_unique<Event>(*principal_, *gf().currentModuleDescription_, Consumer::non_module_context());
 
   delete processHistory;
 }
@@ -269,7 +269,7 @@ EventTestFixture::addProduct(std::unique_ptr<T>&& product,
       << "Failed to find a module description for tag: "
       << tag << '\n';
 
-  Event temporaryEvent(*principal_, description->second, ConsumesRecorder::invalid());
+  Event temporaryEvent(*principal_, description->second, Consumer::non_module_context());
   ProductID id = temporaryEvent.put(std::move(product), productLabel);
   EDProducer::commitEvent(*principal_, temporaryEvent);
   return id;

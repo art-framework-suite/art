@@ -4,8 +4,8 @@
 
 art::Results::Results(Principal const& p,
                       ModuleDescription const& md,
-                      ConsumesRecorder& consumesRecorder) :
-  DataViewImpl{p, md, InResults, false, consumesRecorder},
+                      cet::exempt_ptr<Consumer> consumer) :
+  DataViewImpl{p, md, InResults, false, consumer},
   principal_{p}
 {
 }

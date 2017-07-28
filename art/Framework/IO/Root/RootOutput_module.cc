@@ -272,8 +272,7 @@ void
 art::RootOutput::readResults(ResultsPrincipal const& resp)
 {
   rpm_.for_each_RPWorker([&resp](RPWorker& w) {
-      Results const res {resp, w.moduleDescription(), ConsumesRecorder::invalid()};
-      w.rp().doReadResults(res);
+      w.rp().doReadResults(resp);
     } );
 }
 
@@ -343,8 +342,7 @@ art::RootOutput::startEndFile()
     resp->addToProcessHistory();
   }
   rpm_.for_each_RPWorker([&resp](RPWorker& w) {
-      Results res {*resp, w.moduleDescription(), ConsumesRecorder::invalid()};
-      w.rp().doWriteResults(*resp, res);
+      w.rp().doWriteResults(*resp);
     } );
   rootOutputFile_->writeResults(*resp);
 }
@@ -515,14 +513,14 @@ void
 art::RootOutput::endJob()
 {
   rpm_.invoke(&ResultsProducer::doEndJob);
+  showMissingConsumes();
 }
 
 void
 art::RootOutput::event(EventPrincipal const& ep)
 {
   rpm_.for_each_RPWorker([&ep](RPWorker& w) {
-      Event const e {ep, w.moduleDescription(), ConsumesRecorder::invalid()};
-      w.rp().doEvent(e);
+      w.rp().doEvent(ep);
     });
 }
 
@@ -530,8 +528,8 @@ void
 art::RootOutput::beginSubRun(art::SubRunPrincipal const& srp)
 {
   rpm_.for_each_RPWorker([&srp](RPWorker& w) {
-      SubRun const sr {srp, w.moduleDescription(), ConsumesRecorder::invalid()};
-      w.rp().doBeginSubRun(sr);
+      SubRun const sr {srp, w.moduleDescription(), Consumer::non_module_context()};
+      w.rp().doBeginSubRun(srp);
     });
 }
 
@@ -539,8 +537,7 @@ void
 art::RootOutput::endSubRun(art::SubRunPrincipal const& srp)
 {
   rpm_.for_each_RPWorker([&srp](RPWorker& w) {
-      SubRun const sr {srp, w.moduleDescription(), ConsumesRecorder::invalid()};
-      w.rp().doEndSubRun(sr);
+      w.rp().doEndSubRun(srp);
     });
 }
 
@@ -548,8 +545,7 @@ void
 art::RootOutput::beginRun(art::RunPrincipal const& rp)
 {
   rpm_.for_each_RPWorker([&rp](RPWorker& w) {
-      Run const r {rp, w.moduleDescription(), ConsumesRecorder::invalid()};
-      w.rp().doBeginRun(r);
+      w.rp().doBeginRun(rp);
     });
 }
 
@@ -557,8 +553,7 @@ void
 art::RootOutput::endRun(art::RunPrincipal const& rp)
 {
   rpm_.for_each_RPWorker([&rp](RPWorker& w) {
-      Run const r {rp, w.moduleDescription(), ConsumesRecorder::invalid()};
-      w.rp().doEndRun(r);
+      w.rp().doEndRun(rp);
     });
 }
 

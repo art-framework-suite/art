@@ -64,33 +64,33 @@ arttest::ToyProductAnalyzer::ToyProductAnalyzer(Parameters const& pset) :
 void
 arttest::ToyProductAnalyzer::beginRun(art::Run const& r)
 {
-  r.getByToken(brToken_);
-  r.getByToken(rToken_);
+  r.getValidHandle(brToken_);
+  r.getValidHandle(rToken_);
 }
 
 void
 arttest::ToyProductAnalyzer::beginSubRun(art::SubRun const& sr)
 {
-  sr.getByToken(bsrToken_);
-  sr.getByToken(srToken_);
+  sr.getValidHandle(bsrToken_);
+  sr.getValidHandle(srToken_);
 }
 
 void
 arttest::ToyProductAnalyzer::analyze(art::Event const& e)
 {
-  e.getByToken(eToken_);
+  e.getValidHandle(eToken_);
 }
 
 void
 arttest::ToyProductAnalyzer::endSubRun(art::SubRun const& sr)
 {
-  sr.getByToken(esrToken_);
+  sr.getValidHandle(esrToken_);
 }
 
 void
 arttest::ToyProductAnalyzer::endRun(art::Run const& r)
 {
-  r.getByToken(erToken_);
+  r.getValidHandle(erToken_);
 }
 
 DEFINE_ART_MODULE(arttest::ToyProductAnalyzer)

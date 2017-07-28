@@ -10,11 +10,12 @@
 //
 // ======================================================================
 
+#include "art/Framework/Principal/Consumer.h"
 #include "art/Framework/Core/EngineCreator.h"
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/ProducerBase.h"
 #include "art/Framework/Core/WorkerT.h"
-#include "art/Framework/Principal/ConsumesRecorder.h"
+#include "art/Framework/Principal/Consumer.h"
 #include "art/Framework/Principal/fwd.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
 #include "canvas/Persistency/Provenance/RangeSet.h"
@@ -29,6 +30,7 @@ namespace art
 {
 
   class EDFilter : public ProducerBase,
+                   public Consumer,
                    public EngineCreator
   {
   public:
@@ -49,12 +51,6 @@ namespace art
     using Table = ProducerBase::Table<UserConfig>;
 
   protected:
-
-    template <typename T, BranchType BT = InEvent>
-    ProductToken<T> consumes(InputTag const& it) { return consumesRecorder_.consumes<T, BT>(it); }
-
-    template <typename T, BranchType BT = InEvent>
-    void consumesMany() { consumesRecorder_.consumesMany<T, BT>(); }
 
     // The returned pointer will be null unless the this is currently
     // executing its event loop function ('filter').
@@ -93,14 +89,13 @@ namespace art
 
     void setModuleDescription(ModuleDescription const& md) {
       moduleDescription_ = md;
-      // Since the module description in the ConsumesRecorder class is
+      // Since the module description in the Consumer base class is
       // owned by pointer, we must give it the owned object of this
       // class--i.e. moduleDescription_, not md.
-      consumesRecorder_.setModuleDescription(moduleDescription_);
+      Consumer::setModuleDescription(moduleDescription_);
     }
 
     ModuleDescription moduleDescription_{};
-    ConsumesRecorder consumesRecorder_{};
     CPC_exempt_ptr current_context_{nullptr};
     bool checkPutProducts_{true};
   };  // EDFilter

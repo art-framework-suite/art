@@ -1,6 +1,6 @@
 #include "art/Framework/Principal/DataViewImpl.h"
 
-#include "art/Framework/Principal/ConsumesRecorder.h"
+#include "art/Framework/Principal/Consumer.h"
 #include "art/Framework/Principal/Principal.h"
 #include "art/Framework/Principal/Selector.h"
 #include "art/Framework/Principal/get_ProductDescription.h"
@@ -22,12 +22,12 @@ namespace art {
                              ModuleDescription const& md,
                              BranchType const branchType,
                              bool const recordParents,
-                             ConsumesRecorder& consumesRecorder) :
+                             cet::exempt_ptr<Consumer> consumer) :
     principal_{pcpl},
     md_{md},
     branchType_{branchType},
     recordParents_{recordParents},
-    consumesRecorder_{consumesRecorder}
+    consumer_{consumer}
   {}
 
   size_t

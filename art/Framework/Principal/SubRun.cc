@@ -9,20 +9,20 @@ namespace art {
     Run*
     newRun(SubRunPrincipal const& srp,
            ModuleDescription const& md,
-           ConsumesRecorder& consumesRecorder)
+           cet::exempt_ptr<Consumer> consumer)
     {
-      return srp.runPrincipalExemptPtr() ? new Run{srp.runPrincipal(), md, consumesRecorder} : nullptr;
+      return srp.runPrincipalExemptPtr() ? new Run{srp.runPrincipal(), md, consumer} : nullptr;
     }
   }
 
   SubRun::SubRun(SubRunPrincipal const& srp,
                  ModuleDescription const& md,
-                 ConsumesRecorder& consumesRecorder,
+                 cet::exempt_ptr<Consumer> consumer,
                  RangeSet const& rs) :
-    DataViewImpl{srp, md, InSubRun, false, consumesRecorder},
+    DataViewImpl{srp, md, InSubRun, false, consumer},
     principal_{srp},
     aux_{srp.aux()},
-    run_{newRun(srp, md, consumesRecorder)},
+    run_{newRun(srp, md, consumer)},
     productRangeSet_{rs}
   {}
 

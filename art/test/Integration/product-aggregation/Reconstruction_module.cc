@@ -23,8 +23,8 @@ namespace {
   class Reconstruction : public art::EDFilter {
     double threshold_;
     art::ProductToken<std::vector<double>> particleEnergiesTkn_;
-    unsigned numerator_ {};
-    unsigned denominator_ {};
+    unsigned numerator_{};
+    unsigned denominator_{};
   public:
 
     using Parameters = EDFilter::Table<Config>;
@@ -47,7 +47,7 @@ namespace {
 
     bool filter(art::Event& e) override
     {
-      auto const& particleEnergies = *e.getByToken(particleEnergiesTkn_);
+      auto const& particleEnergies = *e.getValidHandle(particleEnergiesTkn_);
       bool const pass = std::any_of(particleEnergies.cbegin(),
                                     particleEnergies.cend(),
                                     [this](double const energy){

@@ -20,7 +20,7 @@ namespace art
                     CountingStatistics& counts)
   {
     detail::CPCSentry sentry{current_context_, cpc};
-    Event e{ep, moduleDescription_, consumesRecorder_};
+    Event e{ep, moduleDescription_, this};
     counts.increment<stats::Run>();
     bool const rc = filter(e);
     e.commit_(ep, checkPutProducts_, expectedProducts());
@@ -37,20 +37,20 @@ namespace art
     auto const& scheduler_pset = fhicl::ParameterSetRegistry::get(mainID).get<fhicl::ParameterSet>("services.scheduler");
     auto const& module_pset = fhicl::ParameterSetRegistry::get(moduleDescription_.parameterSetID());
     checkPutProducts_ = detail::get_failureToPut_flag(scheduler_pset, module_pset);
-    consumesRecorder_.prepareForJob(scheduler_pset);
+    prepareForJob(scheduler_pset);
     beginJob();
   }
 
   void EDFilter::doEndJob() {
     endJob();
-    consumesRecorder_.showMissingConsumes();
+    showMissingConsumes();
   }
 
   bool
   EDFilter::doBeginRun(RunPrincipal & rp,
                        CPC_exempt_ptr cpc) {
     detail::CPCSentry sentry {current_context_, cpc};
-    Run r {rp, moduleDescription_, consumesRecorder_, RangeSet::forRun(rp.id())};
+    Run r {rp, moduleDescription_, this, RangeSet::forRun(rp.id())};
     bool const rc = beginRun(r);
     r.commit_(rp);
     return rc;
@@ -60,7 +60,7 @@ namespace art
   EDFilter::doEndRun(RunPrincipal & rp,
                      CPC_exempt_ptr cpc) {
     detail::CPCSentry sentry {current_context_, cpc};
-    Run r {rp, moduleDescription_, consumesRecorder_, rp.seenRanges()};
+    Run r {rp, moduleDescription_, this, rp.seenRanges()};
     bool const rc = endRun(r);
     r.commit_(rp);
     return rc;
@@ -70,7 +70,7 @@ namespace art
   EDFilter::doBeginSubRun(SubRunPrincipal & srp,
                           CPC_exempt_ptr cpc) {
     detail::CPCSentry sentry {current_context_, cpc};
-    SubRun sr {srp, moduleDescription_, consumesRecorder_, RangeSet::forSubRun(srp.id())};
+    SubRun sr {srp, moduleDescription_, this, RangeSet::forSubRun(srp.id())};
     bool const rc = beginSubRun(sr);
     sr.commit_(srp);
     return rc;
@@ -81,7 +81,7 @@ namespace art
                         CPC_exempt_ptr cpc)
   {
     detail::CPCSentry sentry {current_context_, cpc};
-    SubRun sr {srp, moduleDescription_, consumesRecorder_, srp.seenRanges()};
+    SubRun sr {srp, moduleDescription_, this, srp.seenRanges()};
     bool const rc = endSubRun(sr);
     sr.commit_(srp);
     return rc;

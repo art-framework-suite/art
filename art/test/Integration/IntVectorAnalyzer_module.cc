@@ -25,23 +25,22 @@ namespace {
 }
 
 namespace arttest {
-  class IntTestAnalyzer;
+  class IntVectorAnalyzer;
 }
 
 // ----------------------------------------------------------------------
 
-class arttest::IntTestAnalyzer
-  : public art::EDAnalyzer
-{
+class arttest::IntVectorAnalyzer : public art::EDAnalyzer {
 public:
-  typedef  std::vector<int>  intvector_t;
+  using intvector_t = std::vector<int>;
 
-  using Parameters = art::EDAnalyzer::Table<Config>;
-  explicit IntTestAnalyzer( art::EDAnalyzer::Table<Config> const & p )
-    : art::EDAnalyzer(p)
-    , moduleLabel_( p().input_label() )
-    , nvalues_    ( p().nvalues() )
-  { }
+  using Parameters = Table<Config>;
+  explicit IntVectorAnalyzer(Parameters const& p)
+    : art::EDAnalyzer{p}
+    , moduleLabel_{p().input_label()}
+    , nvalues_{p().nvalues()}
+    , viewToken_{consumesView<int>(moduleLabel_)}
+  {}
 
   void analyze(art::Event const& e) override
   {
@@ -52,19 +51,19 @@ public:
   void test_view(art::Event const& e)
   {
     art::View<int> vw;
-    e.getView(moduleLabel_, vw);
+    e.getView(viewToken_, vw);
     assert(vw.isValid());
 
     // Test that the range-for loop compiles.
     for (auto it : vw) { assert (*it >= 0); }
   }
 
-  void test_vector( art::Event const & e )
+  void test_vector(art::Event const& e)
   {
-    std::vector<int const *> ptrs;
+    std::vector<int const*> ptrs;
     size_t sz = e.getView(moduleLabel_, ptrs);
 
-    if( sz != nvalues_ ) {
+    if(sz != nvalues_) {
       std::cerr
         << "SizeMismatch expected a view of size " << nvalues_
         << " but the obtained size is " << sz
@@ -76,8 +75,8 @@ public:
     }
 
     art::EventNumber_t value_ = e.id().event();
-    for( size_t k = 0; k != sz; ++k ) {
-      if( *ptrs[k] != (int) (value_+k) ) {
+    for (size_t k = 0; k != sz; ++k) {
+      if (*ptrs[k] != (int) (value_+k)) {
         std::cerr
           << "ValueMismatch at position " << k
           << " expected value " << value_+k
@@ -95,12 +94,13 @@ public:
 private:
   std::string moduleLabel_;
   int         value_;
-  unsigned    nvalues_;
+  size_t      nvalues_;
+  art::ViewToken<int> viewToken_;
 
-};  // IntTestAnalyzer
+};  // IntVectorAnalyzer
 
 // ----------------------------------------------------------------------
 
-DEFINE_ART_MODULE(arttest::IntTestAnalyzer)
+DEFINE_ART_MODULE(arttest::IntVectorAnalyzer)
 
 // ======================================================================

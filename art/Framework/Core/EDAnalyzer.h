@@ -7,6 +7,7 @@
 //
 // ======================================================================
 
+#include "art/Framework/Principal/Consumer.h"
 #include "art/Framework/Core/EngineCreator.h"
 #include "art/Framework/Core/EventObserverBase.h"
 #include "art/Framework/Core/Frameworkfwd.h"
@@ -31,6 +32,7 @@ namespace art
   class MasterProductRegistry;
 
   class EDAnalyzer : public EventObserverBase,
+                     public Consumer,
                      public EngineCreator
   {
   public:
@@ -90,12 +92,6 @@ namespace art
 
   protected:
 
-    template <typename T, BranchType BT = InEvent>
-    ProductToken<T> consumes(InputTag const& it) { return consumesRecorder_.consumes<T, BT>(it); }
-
-    template <typename T, BranchType BT = InEvent>
-    void consumesMany() { consumesRecorder_.consumesMany<T, BT>(); }
-
     // The returned pointer will be null unless the this is currently
     // executing its event loop function ('analyze').
     CurrentProcessingContext const* currentContext() const;
@@ -132,14 +128,13 @@ namespace art
     void setModuleDescription(ModuleDescription const& md)
     {
       moduleDescription_ = md;
-      // Since the module description in the ConsumesRecorder class is
+      // Since the module description in the Consumer base class is
       // owned by pointer, we must give it the owned object of this
       // class--i.e. moduleDescription_, not md.
-      consumesRecorder_.setModuleDescription(moduleDescription_);
+      Consumer::setModuleDescription(moduleDescription_);
     }
 
     ModuleDescription moduleDescription_{};
-    ConsumesRecorder consumesRecorder_{};
     CPC_exempt_ptr current_context_{nullptr};
   };  // EDAnalyzer
 

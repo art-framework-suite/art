@@ -33,11 +33,11 @@ namespace art {
     constexpr static BranchActionType processing_action {BranchActionProcess};
     constexpr static Level level {L};
     static void preScheduleSignal(ActivityRegistry& a, EventPrincipal const& ep) {
-      Event const ev {ep, ModuleDescription{}, ConsumesRecorder::invalid()};
+      Event const ev {ep, ModuleDescription{}, Consumer::non_module_context()};
       a.sPreProcessEvent.invoke(ev);
     }
     static void postScheduleSignal(ActivityRegistry& a, EventPrincipal const& ep) {
-      Event const ev {ep, ModuleDescription{}, ConsumesRecorder::invalid()};
+      Event const ev {ep, ModuleDescription{}, Consumer::non_module_context()};
       a.sPostProcessEvent.invoke(ev);
     }
     static void prePathSignal(ActivityRegistry& a, std::string const& s) {
@@ -71,11 +71,11 @@ namespace art {
       constexpr static BranchActionType processing_action {BranchActionBegin};
 
       static void preScheduleSignal(ActivityRegistry& a, RunPrincipal const& rp) {
-        Run const run {rp, ModuleDescription{}, ConsumesRecorder::invalid()};
+        Run const run {rp, ModuleDescription{}, Consumer::non_module_context()};
         a.sPreBeginRun.invoke(run);
       }
       static void postScheduleSignal(ActivityRegistry& a, RunPrincipal const& rp) {
-        Run const run {rp, ModuleDescription{}, ConsumesRecorder::invalid()};
+        Run const run {rp, ModuleDescription{}, Consumer::non_module_context()};
         a.sPostBeginRun.invoke(run);
       }
       static void prePathSignal(ActivityRegistry& a, std::string const& s) {
@@ -103,7 +103,7 @@ namespace art {
         a.sPreEndRun.invoke(rp.id(), rp.endTime());
       }
       static void postScheduleSignal(ActivityRegistry& a, RunPrincipal const& rp) {
-        Run const run {rp, ModuleDescription{}, ConsumesRecorder::invalid()};
+        Run const run {rp, ModuleDescription{}, Consumer::non_module_context()};
         a.sPostEndRun.invoke(run);
       }
       static void prePathSignal(ActivityRegistry& a, std::string const& s) {
@@ -133,11 +133,11 @@ namespace art {
       constexpr static BranchActionType processing_action {BranchActionBegin};
 
       static void preScheduleSignal(ActivityRegistry& a, SubRunPrincipal const& srp) {
-        SubRun const sr {srp, ModuleDescription{}, ConsumesRecorder::invalid()};
+        SubRun const sr {srp, ModuleDescription{}, Consumer::non_module_context()};
         a.sPreBeginSubRun.invoke(sr);
       }
       static void postScheduleSignal(ActivityRegistry& a, SubRunPrincipal const& srp) {
-        SubRun const sr {srp, ModuleDescription{}, ConsumesRecorder::invalid()};
+        SubRun const sr {srp, ModuleDescription{}, Consumer::non_module_context()};
         a.sPostBeginSubRun.invoke(sr);
       }
       static void prePathSignal(ActivityRegistry& a, std::string const& s) {
@@ -165,7 +165,7 @@ namespace art {
         a.sPreEndSubRun.invoke(srp.id(), srp.endTime());
       }
       static void postScheduleSignal(ActivityRegistry& a, SubRunPrincipal const& srp) {
-        SubRun const sr {srp, ModuleDescription{}, ConsumesRecorder::invalid()};
+        SubRun const sr {srp, ModuleDescription{}, Consumer::non_module_context()};
         a.sPostEndSubRun.invoke(sr);
       }
       static void prePathSignal(ActivityRegistry& a, std::string const& s) {

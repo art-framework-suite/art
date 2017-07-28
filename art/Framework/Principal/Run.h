@@ -22,7 +22,7 @@
 #include <utility>
 
 namespace art {
-  class ConsumesRecorder;
+  class Consumer;
 }
 
 class art::Run final : private art::DataViewImpl {
@@ -32,7 +32,7 @@ public:
 
   explicit Run(RunPrincipal const& rp,
                ModuleDescription const& md,
-               ConsumesRecorder& consumesRecorder,
+               cet::exempt_ptr<Consumer> consumer,
                RangeSet const& rsForPuttingProducts = RangeSet::invalid());
 
   // AUX functions.

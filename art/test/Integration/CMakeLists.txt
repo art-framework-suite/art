@@ -222,7 +222,7 @@ cet_test(SimpleDerived_MissingConsumes_t HANDBUILT
   DATAFILES
   fcl/test_simplederived_01a.fcl
   TEST_PROPERTIES
-  PASS_REGULAR_EXPRESSION "ConsumesRecorder: an error occurred during validation of a retrieved product.*The following statement is missing from the constructor of your module:.*consumes<std::vector<arttest::SimpleDerived>>\\(\"m1a:derived\"\\)"
+  PASS_REGULAR_EXPRESSION "Consumer: an error occurred during validation of a retrieved product.*consumes<std::vector<arttest::SimpleDerived>>\\(\"m1a:derived\"\\)"
 )
 
 cet_test(SimpleDerived_01_w HANDBUILT

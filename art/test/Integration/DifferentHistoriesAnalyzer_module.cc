@@ -33,34 +33,41 @@ public:
   using Parameters = Table<Config>;
   explicit DifferentHistoriesAnalyzer(Parameters const& p);
 private:
+
   void beginSubRun(SubRun const& sr) override;
   void analyze(Event const& e) override;
 
-  template <typename T>
-  void expected_value_in_ptr(T const& t, int value);
+  using ProductTokens_t = std::vector<ProductToken<Ptr<int>>>;
 
-  std::string input_label_;
-  std::vector<std::string> process_names_;
+  template <typename T>
+  void expected_value_in_ptr(T const& t, ProductTokens_t const&, int expected_value);
+
+  ProductTokens_t srPtrTokens_;
+  ProductTokens_t ePtrTokens_;
 };
 
 
 art::test::DifferentHistoriesAnalyzer::DifferentHistoriesAnalyzer(Parameters const& p)
-  : EDAnalyzer{p},
-    input_label_{p().input_label()},
-    process_names_{p().process_names()}
-{}
+  : EDAnalyzer{p}
+{
+  auto const& input_label = p().input_label();
+  for (auto const& process_name : p().process_names()) {
+    srPtrTokens_.push_back(mayConsume<Ptr<int>, InSubRun>(InputTag{input_label, "", process_name}));
+    ePtrTokens_.push_back(mayConsume<Ptr<int>, InEvent>(InputTag{input_label, "", process_name}));
+  }
+}
 
 template <typename T>
 void
-art::test::DifferentHistoriesAnalyzer::expected_value_in_ptr(T const& t, int const value)
+art::test::DifferentHistoriesAnalyzer::expected_value_in_ptr(T const& t, ProductTokens_t const& tokens, int const expected_value)
 {
   unsigned present{}, not_present{};
 
-  for (auto const& process_name : process_names_) {
+  for (auto const& token : tokens) {
     Handle<Ptr<int>> h;
-    if (t.getByLabel(input_label_, "", process_name, h)) {
+    if (t.getByToken(token, h)) {
       ++present;
-      BOOST_REQUIRE_EQUAL(**h, value);
+      BOOST_REQUIRE_EQUAL(**h, expected_value);
     }
     else {
       ++not_present;
@@ -72,11 +79,11 @@ art::test::DifferentHistoriesAnalyzer::expected_value_in_ptr(T const& t, int con
 }
 
 void art::test::DifferentHistoriesAnalyzer::beginSubRun(SubRun const& sr) {
-  expected_value_in_ptr(sr, 5);
+  expected_value_in_ptr(sr, srPtrTokens_, 5);
 }
 
 void art::test::DifferentHistoriesAnalyzer::analyze(Event const& e) {
-  expected_value_in_ptr(e, 4);
+  expected_value_in_ptr(e, ePtrTokens_, 4);
 }
 
 DEFINE_ART_MODULE(art::test::DifferentHistoriesAnalyzer)

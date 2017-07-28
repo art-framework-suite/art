@@ -20,7 +20,7 @@ namespace art
                       CountingStatistics& counts)
   {
     detail::CPCSentry sentry{current_context_, cpc};
-    Event e{ep, moduleDescription_, consumesRecorder_};
+    Event e{ep, moduleDescription_, this};
     counts.increment<stats::Run>();
     produce(e);
     e.commit_(ep, checkPutProducts_, expectedProducts());
@@ -37,14 +37,14 @@ namespace art
     auto const& scheduler_pset = fhicl::ParameterSetRegistry::get(mainID).get<fhicl::ParameterSet>("services.scheduler");
     auto const& module_pset = fhicl::ParameterSetRegistry::get(moduleDescription_.parameterSetID());
     checkPutProducts_ = detail::get_failureToPut_flag(scheduler_pset, module_pset);
-    consumesRecorder_.prepareForJob(scheduler_pset);
+    prepareForJob(scheduler_pset);
     beginJob();
   }
 
   void
   EDProducer::doEndJob() {
     endJob();
-    consumesRecorder_.showMissingConsumes();
+    showMissingConsumes();
   }
 
   bool
@@ -52,7 +52,7 @@ namespace art
                          CPC_exempt_ptr cpc)
   {
     detail::CPCSentry sentry{current_context_, cpc};
-    Run r{rp, moduleDescription_, consumesRecorder_, RangeSet::forRun(rp.id())};
+    Run r{rp, moduleDescription_, this, RangeSet::forRun(rp.id())};
     beginRun(r);
     r.commit_(rp);
     return true;
@@ -63,7 +63,7 @@ namespace art
                        CPC_exempt_ptr cpc)
   {
     detail::CPCSentry sentry{current_context_, cpc};
-    Run r{rp, moduleDescription_, consumesRecorder_, rp.seenRanges()};
+    Run r{rp, moduleDescription_, this, rp.seenRanges()};
     endRun(r);
     r.commit_(rp);
     return true;
@@ -74,7 +74,7 @@ namespace art
                             CPC_exempt_ptr cpc)
   {
     detail::CPCSentry sentry{current_context_, cpc};
-    SubRun sr{srp, moduleDescription_, consumesRecorder_, RangeSet::forSubRun(srp.id())};
+    SubRun sr{srp, moduleDescription_, this, RangeSet::forSubRun(srp.id())};
     beginSubRun(sr);
     sr.commit_(srp);
     return true;
@@ -85,7 +85,7 @@ namespace art
                           CPC_exempt_ptr cpc)
   {
     detail::CPCSentry sentry{current_context_, cpc};
-    SubRun sr{srp, moduleDescription_, consumesRecorder_, srp.seenRanges()};
+    SubRun sr{srp, moduleDescription_, this, srp.seenRanges()};
     endSubRun(sr);
     sr.commit_(srp);
     return true;

@@ -141,7 +141,7 @@ art::OutputModule::doBeginRun(RunPrincipal const& rp,
   detail::CPCSentry sentry{current_context_, cpc};
   FDEBUG(2) << "beginRun called\n";
   beginRun(rp);
-  Run const r {rp, moduleDescription_, ConsumesRecorder::invalid()};
+  Run const r {rp, moduleDescription_, Consumer::non_module_context()};
   cet::for_all(plugins_, [&r](auto& p){ p->doBeginRun(r); });
   return true;
 }
@@ -153,7 +153,7 @@ art::OutputModule::doBeginSubRun(SubRunPrincipal const& srp,
   detail::CPCSentry sentry {current_context_, cpc};
   FDEBUG(2) << "beginSubRun called\n";
   beginSubRun(srp);
-  SubRun const sr {srp, moduleDescription_, ConsumesRecorder::invalid()};
+  SubRun const sr {srp, moduleDescription_, Consumer::non_module_context()};
   cet::for_all(plugins_, [&sr](auto& p){ p->doBeginSubRun(sr); });
   return true;
 }
@@ -163,7 +163,7 @@ art::OutputModule::doEvent(EventPrincipal const& ep, CurrentProcessingContext co
 {
   detail::CPCSentry sentry {current_context_, cpc};
   FDEBUG(2) << "doEvent called\n";
-  Event const e {ep, moduleDescription_, ConsumesRecorder::invalid()};
+  Event const e {ep, moduleDescription_, this};
   if (wantAllEvents() || wantEvent(e)) {
     // Run is incremented before event(ep); to properly count whenever
     // an exception is thrown in the user's module.
@@ -179,7 +179,7 @@ art::OutputModule::doWriteEvent(EventPrincipal& ep)
 {
   detail::PVSentry clearTriggerResults {cachedProducts()};
   FDEBUG(2) << "writeEvent called\n";
-  Event const e {ep, moduleDescription_, ConsumesRecorder::invalid()};
+  Event const e {ep, moduleDescription_, this};
   if (wantAllEvents() || wantEvent(e)) {
     write(ep); // Write the event.
     // Declare that the event was selected for write to the catalog
@@ -188,7 +188,11 @@ art::OutputModule::doWriteEvent(EventPrincipal& ep)
     auto const& trRef ( trHandle.isValid() ? static_cast<HLTGlobalStatus>(*trHandle) : HLTGlobalStatus{} );
     ci_->eventSelected(moduleDescription_.moduleLabel(), ep.id(), trRef);
     // ... and invoke the plugins:
-    cet::for_all(plugins_, [&e](auto& p){ p->doCollectMetadata(e); });
+    // ... The transactional object presented to the plugins is
+    //     different since the relevant context information is not the
+    //     same for the consumes functionality.
+    Event const we {ep, moduleDescription_, Consumer::non_module_context()};
+    cet::for_all(plugins_, [&we](auto& p){ p->doCollectMetadata(we); });
     // Finish.
     updateBranchParents(ep);
     if (remainingEvents_ > 0) {
@@ -210,7 +214,7 @@ art::OutputModule::doEndSubRun(SubRunPrincipal const& srp,
   detail::CPCSentry sentry{current_context_, cpc};
   FDEBUG(2) << "endSubRun called\n";
   endSubRun(srp);
-  SubRun const sr {srp, moduleDescription_, ConsumesRecorder::invalid()};
+  SubRun const sr {srp, moduleDescription_, Consumer::non_module_context()};
   cet::for_all(plugins_, [&sr](auto& p){ p->doEndSubRun(sr); });
   return true;
 }
@@ -236,7 +240,7 @@ art::OutputModule::doEndRun(RunPrincipal const& rp,
   detail::CPCSentry sentry {current_context_, cpc};
   FDEBUG(2) << "endRun called\n";
   endRun(rp);
-  Run const r {rp, moduleDescription_, ConsumesRecorder::invalid()};
+  Run const r {rp, moduleDescription_, Consumer::non_module_context()};
   cet::for_all(plugins_, [&r](auto& p){ p->doEndRun(r); });
   return true;
 }

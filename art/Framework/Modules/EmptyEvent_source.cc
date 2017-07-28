@@ -152,7 +152,7 @@ art::EmptyEvent::readRun_()
   newRun_ = false;
   auto rp_ptr = std::make_unique<RunPrincipal>(runAux, processConfiguration());
   if (plugin_) {
-    Run const r {*rp_ptr, moduleDescription(), ConsumesRecorder::invalid()};
+    Run const r {*rp_ptr, moduleDescription(), Consumer::non_module_context()};
     plugin_->doBeginRun(r);
   }
   return rp_ptr;
@@ -174,7 +174,7 @@ EmptyEvent::readSubRun_()
   SubRunAuxiliary const subRunAux {eventID_.subRunID(), ts, Timestamp::invalidTimestamp()};
   auto srp_ptr = std::make_unique<SubRunPrincipal>(subRunAux, processConfiguration());
   if (plugin_) {
-    SubRun const sr {*srp_ptr, moduleDescription(), ConsumesRecorder::invalid()};
+    SubRun const sr {*srp_ptr, moduleDescription(), Consumer::non_module_context()};
     plugin_->doBeginSubRun(sr);
   }
   newSubRun_ = false;

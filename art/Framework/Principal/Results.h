@@ -20,7 +20,7 @@
 #include <utility>
 
 namespace art {
-  class ConsumesRecorder;
+  class Consumer;
   class Results;
 }
 
@@ -29,7 +29,7 @@ public:
 
   explicit Results(Principal const& p,
                    ModuleDescription const& md,
-                   ConsumesRecorder& consumesRecorder);
+                   cet::exempt_ptr<Consumer> consumer);
 
   using Base = DataViewImpl;
 

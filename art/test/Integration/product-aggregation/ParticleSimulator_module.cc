@@ -62,7 +62,7 @@ namespace {
 
     void produce(art::Event& e) override
     {
-      auto const& genParticles = e.getByToken(genParticlesTkn_);
+      auto const& genParticles = e.getValidHandle(genParticlesTkn_);
       e.put(get_energies(*genParticles, gen_, energyDist_), "particleEnergies");
     }
 

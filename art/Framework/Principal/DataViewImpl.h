@@ -43,7 +43,7 @@
 
 #include "art/Framework/Principal/fwd.h"
 #include "art/Framework/Principal/Handle.h"
-#include "art/Framework/Principal/ConsumesRecorder.h"
+#include "art/Framework/Principal/Consumer.h"
 #include "art/Framework/Principal/ProductInfo.h"
 #include "art/Framework/Principal/Selector.h"
 #include "art/Persistency/Common/GroupQueryResult.h"
@@ -81,7 +81,7 @@ public:
                         ModuleDescription const& md,
                         BranchType bt,
                         bool recordParents,
-                        ConsumesRecorder& consumesRecorder);
+                        cet::exempt_ptr<Consumer> consumer);
 
   size_t size() const;
 
@@ -120,12 +120,16 @@ public:
   getPointerByLabel(InputTag const& tag) const;
 
   template <typename PROD>
+  bool
+  getByToken(ProductToken<PROD> const& token, Handle<PROD>& result) const;
+
+  template <typename PROD>
   ValidHandle<PROD>
   getValidHandle(InputTag const& tag) const;
 
   template <typename PROD>
   ValidHandle<PROD>
-  getByToken(ProductToken<PROD> const& token) const;
+  getValidHandle(ProductToken<PROD> const& token) const;
 
   template <typename PROD>
   void
@@ -149,6 +153,11 @@ public:
           std::vector<ELEMENT const*>& result) const;
 
   template <typename ELEMENT>
+  std::size_t
+  getView(ViewToken<ELEMENT> const& token,
+          std::vector<ELEMENT const*>& result) const;
+
+  template <typename ELEMENT>
   bool
   getView(std::string const& moduleLabel,
           std::string const& instanceName,
@@ -157,6 +166,10 @@ public:
   template <typename ELEMENT>
   bool
   getView(InputTag const& tag, View<ELEMENT>& result) const;
+
+  template <typename ELEMENT>
+  bool
+  getView(ViewToken<ELEMENT> const& tag, View<ELEMENT>& result) const;
 
   template <typename PROD>
   bool
@@ -292,9 +305,10 @@ private:
   // Should we record the parents for any products that will be put.
   bool const recordParents_;
 
-  // FIXME: Consumes stuff
-  bool const requireConsumes_{false};
-  ConsumesRecorder& consumesRecorder_;
+  // The consumer is access to validate that the product being
+  // retrieved has been declared in a user's module c'tor to be a
+  // consumable product..
+  cet::exempt_ptr<Consumer> consumer_;
 };
 
 template <typename PROD>
@@ -369,8 +383,8 @@ art::DataViewImpl::getByLabel(std::string const& label,
 {
   result.clear(); // Is this the correct thing to do if an exception is thrown?
   TypeID const tid{typeid(PROD)};
-  ProductInfo const pinfo{tid, label, productInstanceName, processName};
-  consumesRecorder_.validateConsumedProduct(branchType_, pinfo);
+  ProductInfo const pinfo{ProductInfo::ConsumableType::Product, tid, label, productInstanceName, processName};
+  consumer_->validateConsumedProduct(branchType_, pinfo);
   GroupQueryResult bh = getByLabel_(tid, label, productInstanceName, processName);
   convert_handle(bh, result);
   bool const ok{bh.succeeded() && !result.failedToGet()};
@@ -389,6 +403,15 @@ art::DataViewImpl::getByLabel(InputTag const& tag) const
   Handle<PROD> h;
   getByLabel(tag, h);
   return *h;
+}
+
+template <typename PROD>
+inline
+bool
+art::DataViewImpl::getByToken(ProductToken<PROD> const& token, Handle<PROD>& result) const
+{
+  auto const& tag = token.inputTag_;
+  return getByLabel(tag.label(), tag.instance(), tag.process(), result);
 }
 
 template <typename PROD>
@@ -414,9 +437,9 @@ art::DataViewImpl::getValidHandle(InputTag const& tag) const
 template <typename PROD>
 inline
 art::ValidHandle<PROD>
-art::DataViewImpl::getByToken(ProductToken<PROD> const& token) const
+art::DataViewImpl::getValidHandle(ProductToken<PROD> const& token) const
 {
-  return getValidHandle<PROD>(token.inputTag());
+  return getValidHandle<PROD>(token.inputTag_);
 }
 
 template <typename PROD>
@@ -426,7 +449,7 @@ art::DataViewImpl::getMany(SelectorBase const& sel,
                            std::vector<Handle<PROD>>& results) const
 {
   TypeID const tid{typeid(PROD)};
-  consumesRecorder_.validateConsumedProduct(branchType_, ProductInfo{tid});
+  consumer_->validateConsumedProduct(branchType_, ProductInfo{ProductInfo::ConsumableType::Many, tid});
   GroupQueryResultVec bhv;
   getMany_(tid, sel, bhv);
 
@@ -459,6 +482,12 @@ art::DataViewImpl::getView_(std::string const& moduleLabel,
                             std::string const& processName) const
 {
   TypeID const typeID{typeid(ELEMENT)};
+  ProductInfo const pinfo{ProductInfo::ConsumableType::ViewElement,
+      typeID,
+      moduleLabel,
+      productInstanceName,
+      processName};
+  consumer_->validateConsumedProduct(branchType_, pinfo);
   auto bhv = getMatchingSequenceByLabel_(typeID,
                                          moduleLabel,
                                          productInstanceName,
@@ -511,6 +540,13 @@ art::DataViewImpl::getView(InputTag const& tag, View<ELEMENT>& result) const
   fillView_(bhv[0], result.vals());
   result.set_innards(bhv[0].result()->productID(), bhv[0].result()->uniqueProduct());
   return true;
+}
+
+template <typename ELEMENT>
+bool
+art::DataViewImpl::getView(ViewToken<ELEMENT> const& token, View<ELEMENT>& result) const
+{
+  return getView(token.inputTag_, result);
 }
 
 // ----------------------------------------------------------------------

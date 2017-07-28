@@ -10,9 +10,9 @@ using fhicl::ParameterSetRegistry;
 
 art::Run::Run(RunPrincipal const& rp,
               ModuleDescription const& md,
-              ConsumesRecorder& consumesRecorder,
+              cet::exempt_ptr<Consumer> consumer,
               RangeSet const& rs) :
-  DataViewImpl{rp, md, InRun, false, consumesRecorder},
+  DataViewImpl{rp, md, InRun, false, consumer},
   principal_{rp},
   aux_{rp.aux()},
   productRangeSet_{rs}

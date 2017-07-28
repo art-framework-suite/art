@@ -25,7 +25,7 @@
 #include <utility>
 
 namespace art {
-  class ConsumesRecorder;
+  class Consumer;
 }
 
 class art::SubRun final : private art::DataViewImpl {
@@ -35,7 +35,7 @@ public:
 
   SubRun(SubRunPrincipal const& srp,
          ModuleDescription const& md,
-         ConsumesRecorder& consumesRecorder,
+         cet::exempt_ptr<Consumer> consumer,
          RangeSet const& rsForPuttingProducts = RangeSet::invalid());
 
   SubRunNumber_t subRun() const {return aux_.subRun();}

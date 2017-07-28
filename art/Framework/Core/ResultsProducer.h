@@ -73,19 +73,20 @@
 
 #include "art/Framework/Core/ProductRegistryHelper.h"
 #include "art/Framework/Core/RPWorkerT.h"
+#include "art/Framework/Principal/Consumer.h"
+#include "art/Framework/Principal/Event.h"
+#include "art/Framework/Principal/Results.h"
+#include "art/Framework/Principal/Run.h"
+#include "art/Framework/Principal/SubRun.h"
 #include "cetlib/PluginTypeDeducer.h"
 #include "cetlib/ProvideFilePathMacro.h"
 #include "fhiclcpp/ParameterSet.h"
+#include "fhiclcpp/ParameterSetRegistry.h"
 #include "fhiclcpp/types/AllowedConfigurationMacro.h"
 
 namespace art {
   class ResultsPrincipal;
   class ResultsProducer;
-
-  class Event;
-  class Results;
-  class Run;
-  class SubRun;
 }
 
 #include <memory>
@@ -97,7 +98,7 @@ namespace cet {
   };
 }
 
-class art::ResultsProducer : ProductRegistryHelper {
+class art::ResultsProducer : ProductRegistryHelper, public Consumer {
 protected:
   template <class P>
   void
@@ -108,22 +109,25 @@ public:
 
   void doBeginJob();
   void doEndJob();
-  void doBeginSubRun(SubRun const &);
-  void doEndSubRun(SubRun const &);
-  void doBeginRun(Run const &);
-  void doEndRun(Run const &);
-  void doEvent(Event const &);
-  void doReadResults(Results const &);
-  void doWriteResults(ResultsPrincipal &, Results &);
+  void doBeginSubRun(SubRunPrincipal const &);
+  void doEndSubRun(SubRunPrincipal const &);
+  void doBeginRun(RunPrincipal const &);
+  void doEndRun(RunPrincipal const &);
+  void doEvent(EventPrincipal const &);
+  void doReadResults(ResultsPrincipal const &);
+  void doWriteResults(ResultsPrincipal &);
   void doClear();
 
   void registerProducts(MasterProductRegistry & mpr,
                         ModuleDescription const & md)
   {
     ProductRegistryHelper::registerProducts(mpr, md);
+    moduleDescription_ = &md;
   }
 
 private:
+  cet::exempt_ptr<ModuleDescription const> moduleDescription_{nullptr};
+
   // Functions for implementation by subclasses.
   virtual void beginJob();
   virtual void endJob();
@@ -156,6 +160,13 @@ void
 art::ResultsProducer::
 doBeginJob()
 {
+  assert(moduleDescription_);
+  // Preparing the consumer for the job must be done after the
+  // constructer has been called.
+  auto const& mainID = moduleDescription_->mainParameterSetID();
+  auto const& scheduler_pset = fhicl::ParameterSetRegistry::get(mainID).get<fhicl::ParameterSet>("services.scheduler");
+  Consumer::setModuleDescription(*moduleDescription_);
+  prepareForJob(scheduler_pset);
   beginJob();
 }
 
@@ -165,53 +176,60 @@ art::ResultsProducer::
 doEndJob()
 {
   endJob();
+  showMissingConsumes();
 }
 
 inline
 void
 art::ResultsProducer::
-doBeginSubRun(SubRun const & sr)
+doBeginSubRun(SubRunPrincipal const & srp)
 {
+  SubRun const sr {srp, *moduleDescription_, this};
   beginSubRun(sr);
 }
 
 inline
 void
 art::ResultsProducer::
-doEndSubRun(SubRun const & sr)
+doEndSubRun(SubRunPrincipal const & srp)
 {
+  SubRun const sr {srp, *moduleDescription_, this};
   endSubRun(sr);
 }
 
 inline
 void
 art::ResultsProducer::
-doBeginRun(Run const & r)
+doBeginRun(RunPrincipal const & rp)
 {
+  Run const r {rp, *moduleDescription_, this};
   beginRun(r);
 }
 
 inline
 void
 art::ResultsProducer::
-doEndRun(Run const & r)
+doEndRun(RunPrincipal const & rp)
 {
+  Run const r {rp, *moduleDescription_, this};
   endRun(r);
 }
 
 inline
 void
 art::ResultsProducer::
-doEvent(Event const & e)
+doEvent(EventPrincipal const & ep)
 {
+  Event const e {ep, *moduleDescription_, this};
   event(e);
 }
 
 inline
 void
 art::ResultsProducer::
-doReadResults(Results const & res)
+doReadResults(ResultsPrincipal const & resp)
 {
+  Results const res {resp, *moduleDescription_, this};
   readResults(res);
 }
 

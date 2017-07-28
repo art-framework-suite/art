@@ -15,20 +15,29 @@ namespace art {
   class ProductInfo {
   public:
 
-    explicit ProductInfo(TypeID const& tid) :
+    enum class ConsumableType {Product, Many, ViewElement};
+
+    explicit ProductInfo(ConsumableType const consumableType,
+                         TypeID const& tid) :
+      consumableType_{consumableType},
       typeID_{tid}
     {}
 
-    explicit ProductInfo(TypeID const& tid,
+    explicit ProductInfo(ConsumableType const consumableType,
+                         TypeID const& tid,
                          std::string const& l,
                          std::string const& i,
                          std::string const& pr) :
-      typeID_{tid}, label_{l}, instance_{i}, process_{pr}
+      consumableType_{consumableType},
+      typeID_{tid},
+      label_{l},
+      instance_{i},
+      process_{pr}
     {}
 
-    bool typeOnly() const { return label_.empty() && instance_.empty() && process_.empty(); }
 
     //    private:
+    ConsumableType consumableType_;
     TypeID typeID_;
     std::string label_{};
     std::string instance_{};
@@ -37,8 +46,8 @@ namespace art {
 
   inline bool operator<(ProductInfo const& a, ProductInfo const& b)
   {
-    return std::tie(a.typeID_, a.label_, a.instance_, a.process_)
-         < std::tie(b.typeID_, b.label_, b.instance_, b.process_);
+    return std::tie(a.consumableType_, a.typeID_, a.label_, a.instance_, a.process_)
+         < std::tie(b.consumableType_, b.typeID_, b.label_, b.instance_, b.process_);
   }
 
   using ConsumableProductVectorPerBranch = std::vector<ProductInfo>;
