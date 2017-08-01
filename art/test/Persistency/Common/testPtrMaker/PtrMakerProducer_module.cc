@@ -19,19 +19,19 @@
 #include "fhiclcpp/ParameterSet.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
-#include "lardata/Utilities/PtrMaker.h"
+#include "art/Persistency/Common/PtrMaker.h"
 
 #include <iostream>
 #include <memory>
 #include <vector>
 
-namespace lartest {
+namespace arttest {
   class PtrMakerProducer;
 }
 
-using lartest::PtrMakerProducer;
+using arttest::PtrMakerProducer;
 
-class lartest::PtrMakerProducer : public art::EDProducer {
+class arttest::PtrMakerProducer : public art::EDProducer {
 public:
   typedef  std::vector<int>     intvector_t;
   typedef  art::PtrVector<int>  intPtrvector_t;
@@ -69,7 +69,7 @@ void PtrMakerProducer::produce(art::Event & e)
   std::cerr << "PtrMakerProducer::produce is running!\n";
   art::Handle<std::vector<int>> h;
   e.getByLabel(fInputLabel, h);
-  lar::PtrMaker<int> make_intptr(e, h.id());
+  art::PtrMaker<int> make_intptr(e, h.id());
   auto intptrs = std::make_unique<intPtrvector_t>();
   for ( size_t i = 0; i < h->size(); ++i ) {
     auto p = make_intptr(i);

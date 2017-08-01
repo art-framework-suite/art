@@ -16,7 +16,7 @@
 #include "canvas/Utilities/InputTag.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
-#include "lardata/Utilities/PtrMaker.h"
+#include "art/Persistency/Common/PtrMaker.h"
 #include <memory>
 
 class PtrMakerProducer2;
@@ -58,7 +58,7 @@ void PtrMakerProducer2::produce(art::Event & e)
   int value_ = e.id().event();
   std::unique_ptr<intvector_t> intvector(new intvector_t);
   auto intptrs = std::make_unique<intPtrvector_t>();
-  lar::PtrMaker<int> make_intptr(e, *this);
+  art::PtrMaker<int> make_intptr(e, *this);
 
   for( int i = 0; i != nvalues; ++i ) {
     intvector->push_back(value_ * i);

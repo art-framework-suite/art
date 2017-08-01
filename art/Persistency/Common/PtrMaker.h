@@ -1,13 +1,13 @@
 ////////////////////////////////////////////////////////////////////////
 // Class:       PtrMaker
-// File:        lardata/lardata/Utilities/PtrMaker.h
+// File:        art/art/Persistency/Common/PtrMaker.h
 // 
 // Author:      Saba Sehrish
 //
 // Description: A common pattern is to create a collection A, 
 // and a collection B, create art::Ptrs to the objects in each of 
 // the collection and then create associations between the objects 
-// in the two collections. The purpose of lar::PtrMaker is to simplify 
+// in the two collections. The purpose of art::PtrMaker is to simplify 
 // the process of creating art::Assns by providing a utility to create 
 // art::Ptrs. It is a two step process to create an art::Ptr with this 
 // approach. 
@@ -46,7 +46,7 @@
 
 #include <iostream>
 
-namespace lar {
+namespace art {
    // to create art::Ptrs in to a particular collection in an event
    template <class T>
    class PtrMaker {
