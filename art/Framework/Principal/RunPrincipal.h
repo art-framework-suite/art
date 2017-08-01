@@ -33,6 +33,8 @@ namespace art {
 
     RunPrincipal(RunAuxiliary const&,
                  ProcessConfiguration const&,
+                 BranchTypeLookups const& productLookup,
+                 BranchTypeLookups const& elementLookup,
                  std::unique_ptr<BranchMapper>&& = std::make_unique<BranchMapper>(),
                  std::unique_ptr<DelayedReader>&& = std::make_unique<NoDelayedReader>());
 

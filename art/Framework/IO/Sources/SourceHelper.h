@@ -9,7 +9,7 @@
 // -----------------------------------------------------------------
 
 #include "art/Framework/Principal/fwd.h"
-#include "art/Framework/Principal/EventPrincipal.h"
+#include "art/Framework/Principal/Principal.h"
 #include "canvas/Persistency/Common/Ptr.h"
 #include "canvas/Persistency/Provenance/BranchDescription.h"
 #include "canvas/Persistency/Provenance/EventAuxiliary.h"
@@ -32,12 +32,14 @@ namespace art {
 
 class art::SourceHelper {
 public:
-  explicit SourceHelper(ModuleDescription const& md);
+  explicit SourceHelper(ModuleDescription const& md,
+                        BranchTypeLookups const& productLookup,
+                        BranchTypeLookups const& elementLookup);
 
   template <typename T>
   Ptr<T>
   makePtr(TypeLabel const& t,
-          EventPrincipal const& ep,
+          Principal const& p,
           typename Ptr<T>::key_type key) const;
 
   RunPrincipal* makeRunPrincipal(RunAuxiliary const& runAux) const;
@@ -74,17 +76,19 @@ public:
 
 private:
   ModuleDescription md_;
+  BranchTypeLookups const& productLookup_;
+  BranchTypeLookups const& elementLookup_;
 };
 
 template <typename T>
 art::Ptr<T>
 art::SourceHelper::makePtr(TypeLabel const& tl,
-                           EventPrincipal const& ep,
+                           Principal const& p,
                            typename Ptr<T>::key_type key) const
 {
-  BranchDescription const pd{InEvent, tl, md_};
+  BranchDescription const pd{p.branchType(), tl, md_};
   ProductID const pid{pd.productID()};
-  return Ptr<T>(pid, key, ep.productGetter(pid));
+  return Ptr<T>{pid, key, p.productGetter(pid)};
 }
 
 

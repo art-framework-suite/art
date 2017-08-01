@@ -35,6 +35,8 @@ namespace art {
 
     EventPrincipal(EventAuxiliary const& aux,
                    ProcessConfiguration const& pc,
+                   BranchTypeLookups const& productLookup,
+                   BranchTypeLookups const& elementLookup,
                    std::shared_ptr<History> history = std::make_shared<History>(),
                    std::unique_ptr<BranchMapper>&& mapper = std::make_unique<BranchMapper>(),
                    std::unique_ptr<DelayedReader>&& rtrv = std::make_unique<NoDelayedReader>(),

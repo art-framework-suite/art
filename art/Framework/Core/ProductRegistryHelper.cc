@@ -3,6 +3,7 @@
 
 #include "art/Framework/Core/FileBlock.h"
 #include "art/Persistency/Provenance/MasterProductRegistry.h"
+#include "art/Persistency/Provenance/detail/fillLookups.h"
 #include "canvas/Persistency/Provenance/BranchDescription.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
 #include "canvas/Persistency/Provenance/TypeLabel.h"
@@ -53,16 +54,7 @@ void
 art::ProductRegistryHelper::registerProducts(MasterProductRegistry& mpr,
                                              ModuleDescription const& md)
 {
-  if (productList_) {
-    PerBranchTypePresence tp;
-    for (auto const& val : *productList_) {
-      auto const& pd = val.second;
-      tp[pd.branchType()].emplace(pd.productID());
-    }
-    FileBlock const fb{{}, "ProductRegistryHelper"};
-    mpr.updateFromPrimaryFile(*productList_, tp, fb);
-    productList_.reset(); // Reset, since we no longer need it.
-  }
+  mpr.updateFromModule(std::move(productList_));
   check_for_duplicate_Assns(typeLabelList_[InEvent]);
   for (std::size_t ibt{}; ibt != NumBranchTypes; ++ibt) {
     auto bt = static_cast<BranchType>(ibt);

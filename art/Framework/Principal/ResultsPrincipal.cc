@@ -11,9 +11,11 @@
 art::ResultsPrincipal::
 ResultsPrincipal(ResultsAuxiliary const& aux,
                  ProcessConfiguration const& pc,
+                 BranchTypeLookups const& productLookup,
+                 BranchTypeLookups const& elementLookup,
                  std::unique_ptr<BranchMapper>&& mapper,
                  std::unique_ptr<DelayedReader>&& rtrv)
-  : Principal{pc, aux.processHistoryID_, std::move(mapper), std::move(rtrv)}
+  : Principal{pc, aux.processHistoryID_, productLookup, elementLookup, std::move(mapper), std::move(rtrv)}
   , aux_{aux}
 {
   productReader().setGroupFinder(cet::exempt_ptr<EDProductGetterFinder const>{this});

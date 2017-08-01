@@ -93,6 +93,7 @@
 #include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Framework/Principal/OpenRangeSetHandler.h"
 #include "art/Persistency/Provenance/MasterProductRegistry.h"
+#include "art/Persistency/Provenance/ProductMetaData.h"
 #include "canvas/Persistency/Provenance/EventID.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
 #include "canvas/Persistency/Provenance/ProcessConfiguration.h"
@@ -234,7 +235,7 @@ art::Source<T>::Source(fhicl::ParameterSet const& p,
                        InputSourceDescription& d) :
   InputSource{d.moduleDescription},
   act_{&d.activityRegistry},
-  sourceHelper_{d.moduleDescription},
+  sourceHelper_{d.moduleDescription, ProductMetaData::instance().productLookup(), ProductMetaData::instance().elementLookup()},
   detail_{p, h_, sourceHelper_},
   fh_{p.get<std::vector<std::string>>("fileNames", std::vector<std::string>())}
 {

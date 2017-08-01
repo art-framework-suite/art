@@ -9,6 +9,7 @@
 #include "art/Framework/Principal/SubRun.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Framework/Principal/OpenRangeSetHandler.h"
+#include "art/Persistency/Provenance/ProductMetaData.h"
 #include "fhiclcpp/types/ConfigurationTable.h"
 #include "canvas/Persistency/Provenance/EventAuxiliary.h"
 #include "canvas/Persistency/Provenance/EventID.h"
@@ -150,7 +151,10 @@ art::EmptyEvent::readRun_()
     Timestamp::invalidTimestamp();
   RunAuxiliary const runAux {eventID_.runID(), ts, Timestamp::invalidTimestamp()};
   newRun_ = false;
-  auto rp_ptr = std::make_unique<RunPrincipal>(runAux, processConfiguration());
+  auto rp_ptr = std::make_unique<RunPrincipal>(runAux,
+                                               processConfiguration(),
+                                               ProductMetaData::instance().productLookup(),
+                                               ProductMetaData::instance().elementLookup());
   if (plugin_) {
     Run const r {*rp_ptr, moduleDescription(), Consumer::non_module_context()};
     plugin_->doBeginRun(r);
@@ -172,7 +176,10 @@ EmptyEvent::readSubRun_()
     plugin_->doBeginSubRunTimestamp(eventID_.subRunID()) :
     Timestamp::invalidTimestamp();
   SubRunAuxiliary const subRunAux {eventID_.subRunID(), ts, Timestamp::invalidTimestamp()};
-  auto srp_ptr = std::make_unique<SubRunPrincipal>(subRunAux, processConfiguration());
+  auto srp_ptr = std::make_unique<SubRunPrincipal>(subRunAux,
+                                                   processConfiguration(),
+                                                   ProductMetaData::instance().productLookup(),
+                                                   ProductMetaData::instance().elementLookup());
   if (plugin_) {
     SubRun const sr {*srp_ptr, moduleDescription(), Consumer::non_module_context()};
     plugin_->doBeginSubRun(sr);
@@ -219,6 +226,8 @@ void art::EmptyEvent::reallyReadEvent(bool const lastEventInSubRun) {
   EventAuxiliary const eventAux{eventID_, timestamp, eType_};
   ep_ = std::make_unique<EventPrincipal>(eventAux,
                                          processConfiguration(),
+                                         ProductMetaData::instance().productLookup(),
+                                         ProductMetaData::instance().elementLookup(),
                                          std::make_shared<History>(),
                                          std::make_unique<BranchMapper>(),
                                          std::make_unique<NoDelayedReader>(),

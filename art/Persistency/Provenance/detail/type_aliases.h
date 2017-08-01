@@ -19,10 +19,11 @@ namespace art {
   inline namespace process {
            // Used for indices to find branch IDs by branchType, class type and process.
            // ... the key is the process name.
-           using ProcessLookup    = std::map<std::string const, std::vector<ProductID>>;
+           using ProcessLookup     = std::map<std::string const, std::vector<ProductID>>;
            // ... the key is the friendly class name.
-           using TypeLookup       = std::map<std::string const, ProcessLookup>;
-           using BranchTypeLookup = std::array<TypeLookup, NumBranchTypes>;
+           using TypeLookup        = std::map<std::string const, ProcessLookup>;
+           using BranchTypeLookup  = std::array<TypeLookup, NumBranchTypes>;
+           using BranchTypeLookups = std::vector<BranchTypeLookup>;
 
            using ProductListUpdatedCallback = std::function<void(FileBlock const&)>;
   }

@@ -19,11 +19,13 @@ namespace art {
 
   EventPrincipal::EventPrincipal(EventAuxiliary const& aux,
                                  ProcessConfiguration const& pc,
+                                 BranchTypeLookups const& productLookup,
+                                 BranchTypeLookups const& elementLookup,
                                  std::shared_ptr<History> history,
                                  std::unique_ptr<BranchMapper>&& mapper,
                                  std::unique_ptr<DelayedReader>&& rtrv,
                                  bool const lastInSubRun)
-  : Principal{pc, history->processHistoryID(), std::move(mapper), std::move(rtrv)}
+  : Principal{pc, history->processHistoryID(), productLookup, elementLookup, std::move(mapper), std::move(rtrv)}
   , aux_{aux}
   , history_{history}
   , lastInSubRun_{lastInSubRun}

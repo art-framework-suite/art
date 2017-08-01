@@ -22,6 +22,7 @@
 #include "art/Framework/Principal/OpenRangeSetHandler.h"
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
+#include "art/Persistency/Provenance/ProductMetaData.h"
 #include "canvas/Persistency/Provenance/EventID.h"
 #include "canvas/Persistency/Provenance/FileFormatVersion.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
@@ -141,13 +142,19 @@ namespace arttest {
     std::unique_ptr<art::RunPrincipal> readRun() override
     {
       art::RunAuxiliary const aux {run_, nullTimestamp(), nullTimestamp()};
-      return std::make_unique<art::RunPrincipal>(aux, isd_.moduleDescription.processConfiguration());
+      return std::make_unique<art::RunPrincipal>(aux,
+                                                 isd_.moduleDescription.processConfiguration(),
+                                                 art::ProductMetaData::instance().productLookup(),
+                                                 art::ProductMetaData::instance().elementLookup());
     }
 
     std::unique_ptr<art::SubRunPrincipal> readSubRun(cet::exempt_ptr<art::RunPrincipal const> rp) override
     {
       art::SubRunAuxiliary const aux {subRun_, nullTimestamp(), nullTimestamp()};
-      auto srp = std::make_unique<art::SubRunPrincipal>(aux, isd_.moduleDescription.processConfiguration());
+      auto srp = std::make_unique<art::SubRunPrincipal>(aux,
+                                                        isd_.moduleDescription.processConfiguration(),
+                                                        art::ProductMetaData::instance().productLookup(),
+                                                        art::ProductMetaData::instance().elementLookup());
       srp->setRunPrincipal(rp);
       return std::move(srp);
     }
@@ -156,7 +163,10 @@ namespace arttest {
     std::unique_ptr<art::EventPrincipal> readEvent(cet::exempt_ptr<art::SubRunPrincipal const> srp) override
     {
       art::EventAuxiliary const aux {event_, nullTimestamp(), true};
-      auto ep = std::make_unique<art::EventPrincipal>(aux, isd_.moduleDescription.processConfiguration());
+      auto ep = std::make_unique<art::EventPrincipal>(aux,
+                                                      isd_.moduleDescription.processConfiguration(),
+                                                      art::ProductMetaData::instance().productLookup(),
+                                                      art::ProductMetaData::instance().elementLookup());
       ep->setSubRunPrincipal(srp);
       return std::move(ep);
     }

@@ -16,6 +16,8 @@
 #include "art/Framework/Services/System/DatabaseConnection.h"
 #include "art/Framework/Services/System/FileCatalogMetadata.h"
 #include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
+#include "art/Persistency/Provenance/ProductMetaData.h"
+#include "art/Persistency/Provenance/detail/fillLookups.h"
 #include "art/Persistency/RootDB/TKeyVFSOpenPolicy.h"
 #include "canvas/Persistency/Common/EDProduct.h"
 #include "canvas/Persistency/Provenance/BranchChildren.h"
@@ -274,8 +276,9 @@ namespace art {
 
     auto& prodList = productListHolder_->productList_;
 
-    fillPerBranchTypePresenceFlags(prodList);
     dropOnInput(groupSelectorRules, dropDescendants, /*unused*/dropMergeable, prodList);
+    fillPerBranchTypePresenceFlags(prodList);
+    detail::fillLookups(prodList, productLookup_, elementLookup_);
 
     // Determine if this file is fast clonable.
     fastClonable_ = setIfFastClonable(fcip);
@@ -614,6 +617,8 @@ namespace art {
     overrideRunNumber(const_cast<EventID&>(eventAux().id()), eventAux().isRealData());
     auto ep = std::make_unique<EventPrincipal>(eventAux(),
                                                processConfiguration_,
+                                               ProductMetaData::instance().productLookup(),
+                                               ProductMetaData::instance().elementLookup(),
                                                history_,
                                                eventTree().makeBranchMapper(),
                                                eventTree().makeDelayedReader(fileFormatVersion_,
@@ -649,6 +654,8 @@ namespace art {
                       eventAux().isRealData());
     auto ep = std::make_unique<EventPrincipal>(eventAux(),
                                                processConfiguration_,
+                                               ProductMetaData::instance().productLookup(),
+                                               ProductMetaData::instance().elementLookup(),
                                                history_,
                                                eventTree().makeBranchMapper(),
                                                eventTree().makeDelayedReader(fileFormatVersion_,
@@ -707,6 +714,8 @@ namespace art {
     }
     auto rp = std::make_unique<RunPrincipal>(runAux(),
                                              processConfiguration_,
+                                             ProductMetaData::instance().productLookup(),
+                                             ProductMetaData::instance().elementLookup(),
                                              runTree().makeBranchMapper(),
                                              runTree().makeDelayedReader(fileFormatVersion_,
                                                                          sqliteDB_,
@@ -753,6 +762,8 @@ namespace art {
     }
     auto rp = std::make_unique<RunPrincipal>(runAux(),
                                              processConfiguration_,
+                                             ProductMetaData::instance().productLookup(),
+                                             ProductMetaData::instance().elementLookup(),
                                              runTree().makeBranchMapper(),
                                              runTree().makeDelayedReader(fileFormatVersion_,
                                                                          sqliteDB_,
@@ -815,6 +826,8 @@ namespace art {
 
     auto srp = std::make_unique<SubRunPrincipal>(subRunAux(),
                                                  processConfiguration_,
+                                                 ProductMetaData::instance().productLookup(),
+                                                 ProductMetaData::instance().elementLookup(),
                                                  subRunTree().makeBranchMapper(),
                                                  subRunTree().makeDelayedReader(fileFormatVersion_,
                                                                                 sqliteDB_,
@@ -860,6 +873,8 @@ namespace art {
     }
     auto srp = std::make_unique<SubRunPrincipal>(subRunAux(),
                                                  processConfiguration_,
+                                                 ProductMetaData::instance().productLookup(),
+                                                 ProductMetaData::instance().elementLookup(),
                                                  subRunTree().makeBranchMapper(),
                                                  subRunTree().makeDelayedReader(fileFormatVersion_,
                                                                                 sqliteDB_,
@@ -1045,6 +1060,8 @@ namespace art {
       fillAuxiliary<InResults>(entryNumbers.front());
       resp = std::make_unique<ResultsPrincipal>(resultsAux(),
                                                 processConfiguration_,
+                                                ProductMetaData::instance().productLookup(),
+                                                ProductMetaData::instance().elementLookup(),
                                                 resultsTree().makeBranchMapper(),
                                                 resultsTree().makeDelayedReader(fileFormatVersion_,
                                                                                 nullptr,
@@ -1053,7 +1070,10 @@ namespace art {
                                                                                 EventID{}));
       resultsTree().fillGroups(*resp);
     } else { // Empty
-      resp = std::make_unique<ResultsPrincipal>(ResultsAuxiliary{}, processConfiguration_);
+      resp = std::make_unique<ResultsPrincipal>(ResultsAuxiliary{},
+                                                processConfiguration_,
+                                                ProductMetaData::instance().productLookup(),
+                                                ProductMetaData::instance().elementLookup());
     }
     return resp;
   }

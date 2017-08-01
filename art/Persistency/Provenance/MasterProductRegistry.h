@@ -59,8 +59,17 @@ public:
   void registerProductListUpdatedCallback(ProductListUpdatedCallback cb);
 
   void finalizeForProcessing();
-  void updateFromPrimaryFile(ProductList const&, PerBranchTypePresence const&, FileBlock const&);
-  void updateFromSecondaryFile(ProductList const&, PerBranchTypePresence const&, FileBlock const&);
+  void updateFromModule(std::unique_ptr<ProductList>&&);
+  void updateFromPrimaryFile(ProductList const&,
+                             PerBranchTypePresence const&,
+                             // BranchTypeLookup const& productLookup,
+                             // BranchTypeLookup const& elementLookup,
+                             FileBlock const&);
+  void updateFromSecondaryFile(ProductList const&,
+                               PerBranchTypePresence const&,
+                               // BranchTypeLookup const& productLookup,
+                               // BranchTypeLookup const& elementLookup,
+                               FileBlock const&);
 
   auto const& productList() const { return productList_; }
   auto size() const { return productList_.size(); }
@@ -82,8 +91,6 @@ public:
 
 private:
 
-  void setPresenceLookups_(ProductList const& pl,
-                           PerBranchTypePresence const& presList);
   void updateProductLists_(ProductList const& pl);
 
   bool allowExplicitRegistration_{true};
@@ -94,8 +101,7 @@ private:
   std::vector<ProductListUpdatedCallback> productListUpdatedCallbacks_{};
 
   // Data members reset per primary input file:
-  std::vector<ProductList> perFileProds_{{}}; // Fill with 1 empty list
-  PerBranchTypePresence  perBranchPresenceLookup_{{}};
+  PerBranchTypePresence  perBranchPresenceLookup_{{}}; // Fill with 1 empty list
   PerFilePresence perFilePresenceLookups_{};
   // Support finding a ProductID by <product friendly class name, process name>.
   std::vector<BranchTypeLookup> productLookup_;

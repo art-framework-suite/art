@@ -375,6 +375,8 @@ initFile(bool const skipBadFiles)
 
   mpr_.updateFromPrimaryFile(rootFile_->productList(),
                              rootFile_->perBranchTypePresence(),
+                             // rootFile_->productLookup(),
+                             // rootFile_->elementLookup(),
                              *rootFile_->createFileBlock());
 
   // Create branches to read the products from the input file.
@@ -451,6 +453,8 @@ openSecondaryFile(string const& name,
 
   mpr_.updateFromSecondaryFile(rif->productList(),
                                rif->perBranchTypePresence(),
+                               // rif->productLookup(),
+                               // rif->elementLookup(),
                                *rif->createFileBlock());
 
   for (auto const& prod : rif->productList()) {

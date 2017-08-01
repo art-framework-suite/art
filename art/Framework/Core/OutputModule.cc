@@ -274,7 +274,9 @@ art::OutputModule::doRespondToOpenInputFile(FileBlock const& fb)
   art::ResultsPrincipal const* respPtr = fb.resultsPrincipal();
   if (respPtr == nullptr) {
     respHolder = std::make_unique<ResultsPrincipal>(ResultsAuxiliary{},
-                                                    description().processConfiguration());
+                                                    description().processConfiguration(),
+                                                    ProductMetaData::instance().productLookup(),
+                                                    ProductMetaData::instance().elementLookup());
     respPtr = respHolder.get();
   }
   readResults(*respPtr);

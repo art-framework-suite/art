@@ -28,9 +28,13 @@ using namespace art;
 
 Principal::Principal(ProcessConfiguration const& pc,
                      ProcessHistoryID const& hist,
+                     BranchTypeLookups const& productLookup,
+                     BranchTypeLookups const& elementLookup,
                      std::unique_ptr<BranchMapper>&& mapper,
                      std::unique_ptr<DelayedReader>&& reader)
   : processConfiguration_{pc}
+  , productLookup_{productLookup}
+  , elementLookup_{elementLookup}
   , branchMapperPtr_{std::move(mapper)}
   , store_{std::move(reader)}
 {
@@ -185,7 +189,7 @@ Principal::getMatchingSequence(TypeID const& elementType,
                                SelectorBase const& selector) const
 {
   GroupQueryResultVec results;
-  for (auto const& el : ProductMetaData::instance().elementLookup()) {
+  for (auto const& el : elementLookup_) {
     auto I = el[branchType()].find(elementType.friendlyClassName());
     if (I == el[branchType()].end()) {
       continue;
@@ -209,7 +213,7 @@ Principal::getMatchingSequence(TypeID const& elementType,
     // use the incremented value of nextSecondaryFileIdx_ here because
     // it is the correctly biased-up by one index into the
     // elementLookup vector for this secondary file.
-    auto const& el = ProductMetaData::instance().elementLookup()[nextSecondaryFileIdx_];
+    auto const& el = elementLookup_[nextSecondaryFileIdx_];
     auto I = el[branchType()].find(elementType.friendlyClassName());
     if (I == el[branchType()].end()) {
       continue;
@@ -261,11 +265,12 @@ Principal::findGroupsForProduct(TypeID const& wanted_product,
   //}
   ////////////////////////////////////
   size_t ret = 0;
-  for (auto const& pl : ProductMetaData::instance().productLookup()) {
+  for (auto const& pl : productLookup_) {
     auto I = pl[branchType()].find(wanted_product.friendlyClassName());
     if (I == pl[branchType()].end()) {
       continue;
     }
+    // FIXME: Find a way to supply the wrapped TypeID without relying on ROOT.
     cl = TClass::GetClass(wrappedClassName(wanted_product.className()).c_str());
     if (!cl) {
       throw Exception(errors::DictionaryNotFound)
@@ -294,7 +299,7 @@ Principal::findGroupsForProduct(TypeID const& wanted_product,
     // we use the incremented value of nextSecondaryFileIdx_ here
     // because it is the correctly biased-up by one index into the
     // productLookup vector for this secondary file.
-    auto const& pl = ProductMetaData::instance().productLookup()[nextSecondaryFileIdx_];
+    auto const& pl = productLookup_[nextSecondaryFileIdx_];
     auto I = pl[branchType()].find(wanted_product.friendlyClassName());
     if (I == pl[branchType()].end()) {
       continue;

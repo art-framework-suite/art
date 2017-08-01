@@ -131,8 +131,9 @@ private:
 
   std::array<std::set<TypeLabel>, NumBranchTypes> typeLabelList_;
 
-  // Set by an input source for merging into the
-  // master product registry by registerProducts().
+  // Set by an input source for merging into the master product
+  // registry by registerProducts().  Ownership is released to
+  // MasterProductRegistry.
   std::unique_ptr<ProductList> productList_;
 };
 

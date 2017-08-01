@@ -108,6 +108,9 @@ namespace art {
       return productListHolder_->productList_;
     }
 
+    BranchTypeLookup const& productLookup() const { return productLookup_; }
+    BranchTypeLookup const& elementLookup() const { return elementLookup_; }
+
     RunAuxiliary& runAux() { return std::get<RunAuxiliary>(auxiliaries_); }
     ResultsAuxiliary& resultsAux() { return std::get<ResultsAuxiliary>(auxiliaries_); }
     SubRunAuxiliary& subRunAux() { return std::get<SubRunAuxiliary>(auxiliaries_); }
@@ -279,6 +282,9 @@ namespace art {
     std::unique_ptr<BranchIDLists> branchIDLists_{nullptr}; // Only used for maintaining backwards compatibility
 
     PerBranchTypePresence perBranchTypeProdPresence_ {{}}; // filled by aggregation
+    BranchTypeLookup productLookup_;
+    BranchTypeLookup elementLookup_;
+
     TTree* eventHistoryTree_ {nullptr};
     std::shared_ptr<History> history_ {std::make_shared<History>()};
     std::unique_ptr<BranchChildren> branchChildren_ {std::make_unique<BranchChildren>()};

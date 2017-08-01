@@ -28,8 +28,8 @@
 #include "canvas/Persistency/Provenance/ProductStatus.h"
 #include "canvas/Persistency/Provenance/ProvenanceFwd.h"
 #include "canvas/Persistency/Provenance/RangeSet.h"
-#include "canvas/Utilities/InputTag.h"
 #include "canvas/Persistency/Common/EDProductGetterFinder.h"
+#include "canvas/Utilities/InputTag.h"
 #include "canvas/Utilities/TypeID.h"
 #include "cetlib/exempt_ptr.h"
 
@@ -62,6 +62,8 @@ namespace art {
 
     Principal(ProcessConfiguration const&,
               ProcessHistoryID const&,
+              BranchTypeLookups const& productLookup,
+              BranchTypeLookups const& elementLookup,
               std::unique_ptr<BranchMapper>&&,
               std::unique_ptr<DelayedReader>&&);
 
@@ -280,10 +282,12 @@ namespace art {
     std::shared_ptr<ProcessHistory> processHistoryPtr_{std::make_shared<ProcessHistory>()};
 
     ProcessConfiguration const& processConfiguration_;
+    BranchTypeLookups const& productLookup_;
+    BranchTypeLookups const& elementLookup_;
 
     mutable
     std::map<ProductID, std::shared_ptr<DeferredProductGetter const>>
-    deferredGetters_ {};
+    deferredGetters_{};
 
     mutable bool processHistoryModified_{false};
 
