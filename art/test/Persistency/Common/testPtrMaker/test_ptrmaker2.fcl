@@ -1,0 +1,45 @@
+physics:
+{
+  producers:
+  {
+    pm1:
+    {
+      module_type: PtrMakerProducer2
+      nvalues: 16
+    }
+  }
+
+  analyzers:
+  {
+    am1: 
+    {
+      module_type: PtrMakerAnalyzer
+      input_label: pm1
+      nvalues: 16
+    }
+  }
+
+   p1: [ pm1 ]
+   e1: [ am1, out1 ]
+
+   trigger_paths: [ p1 ]
+   end_paths: [ e1 ]
+}
+
+outputs:
+{
+  out1:
+  {
+    module_type: RootOutput
+    fileName: "outint2.root"
+  }
+}
+
+source:
+{
+  module_type: EmptyEvent
+  # were in the global area before
+  maxEvents: 1
+}
+
+process_name: DEVEL2
