@@ -68,7 +68,7 @@ void PtrMakerAnalyzer::analyze(art::Event const & e)
   //now check the values
   intptrvector_t local(*h);
   for (int i = 0; i < nvalues; ++i) {
-    assert(*local[i] == eid*i);
+    assert(*local[i] == eid+i);
   }
 }
 

@@ -1,4 +1,3 @@
-simple_plugin(IntVectorProducer          "module"  NO_INSTALL cetlib_except )
 simple_plugin(PtrMakerProducer           "module"  NO_INSTALL cetlib_except )
 simple_plugin(PtrMakerProducer2          "module"  NO_INSTALL cetlib_except )
 simple_plugin(PtrMakerAnalyzer           "module"  NO_INSTALL cetlib_except )

@@ -37,14 +37,13 @@
 // 
 ////////////////////////////////////////////////////////////////////////
 
-#include "art/Framework/Core/EDProducer.h"
-#include "art/Framework/Core/ModuleMacros.h"
-#include "canvas/Persistency/Common/FindManyP.h"
+#include "canvas/Persistency/Common/Ptr.h"
+#include "canvas/Persistency/Provenance/ProductID.h"
 #include "cetlib/exception.h"
-#include "messagefacility/MessageLogger/MessageLogger.h"
-
 
 #include <iostream>
+#include <string>
+#include <vector>
 
 namespace art {
    // to create art::Ptrs in to a particular collection in an event
@@ -52,11 +51,12 @@ namespace art {
    class PtrMaker {
    public:
       //Creates a PtrMaker that creates Ptrs in to a collection of type C created by the module of type MODULETYPE, where the collection has instance name "instance"
-      template <class MODULETYPE, class C = std::vector<T>>
-      PtrMaker(art::Event const & evt, MODULETYPE const& module, std::string const& instance = std::string());
+      template <class EVENT, class MODULETYPE, class C = std::vector<T>>
+      PtrMaker(EVENT const & evt, MODULETYPE const& module, std::string const& instance = std::string());
       
       //use this constructor when making Ptrs to products created in other modules
-      PtrMaker(art::Event const & evt, const art::ProductID & prodId, std::string const& instance = std::string());
+      template <class EVENT>
+      PtrMaker(EVENT const & evt, const art::ProductID & prodId ); 
       
       //Creates a Ptr to an object in the slot indicated by "index"
       art::Ptr<T> operator()(std::size_t index) const;
@@ -67,14 +67,15 @@ namespace art {
    };
    
    template <class T>
-   template <class MODULETYPE, class C>
-   PtrMaker<T>::PtrMaker(art::Event const & evt, MODULETYPE const& module, std::string const & instance)
-   : prodId(module.template getProductID<C>(evt, instance))
+   template <class EVENT, class MODULETYPE, class C>
+   PtrMaker<T>::PtrMaker(EVENT const & evt, MODULETYPE const& module, std::string const & instance)
+   : prodId(module.template getProductID<C>(instance))
    , prodGetter(evt.productGetter(prodId))
    {  }
    
    template <class T>
-   PtrMaker<T>::PtrMaker(art::Event const & evt, const art::ProductID & pid, std::string const & instance)
+   template <class EVENT>
+   PtrMaker<T>::PtrMaker(EVENT const & evt, const art::ProductID & pid) 
    : prodId(pid)
    , prodGetter(evt.productGetter(pid))
    {  }
