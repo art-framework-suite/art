@@ -31,13 +31,5 @@ cet_test(test_tiered_input_06c_t HANDBUILT
   fcl/read.fcl
   )
 
-cet_test(test_tiered_input_06d_t HANDBUILT
-  TEST_EXEC file_info_dumper
-  TEST_ARGS --process-history ../test_tiered_input_06c_t.d/out.root
-  REF "${CMAKE_CURRENT_SOURCE_DIR}/test_tiered_input_06-ref.txt"
-  TEST_PROPERTIES
-  DEPENDS test_tiered_input_06c_t
-  )
-
 set_tests_properties(test_tiered_input_06c_t
   PROPERTIES DEPENDS "test_tiered_input_06a_t;test_tiered_input_06b_t")
