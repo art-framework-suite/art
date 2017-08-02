@@ -194,9 +194,13 @@ int art::run_art_common_(fhicl::ParameterSet const& main_pset, art::detail::Debu
     std::cerr << e.what() << '\n';
     return 69;
   }
+  catch (std::exception const& e) {
+    std::cerr << e.what() << '\n';
+    return 70;
+  }
   catch (...) {
     std::cerr << "Caught unknown exception while initializing the message facility.\n";
-    return 70;
+    return 71;
   }
 
 
