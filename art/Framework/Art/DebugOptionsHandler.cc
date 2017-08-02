@@ -156,7 +156,18 @@ art::DebugOptionsHandler::doProcessOptions(bpo::variables_map const& vm,
   // By default, suppress all logging of messages of MTdiagnostics category.
   for (auto const& p : dests) {
     std::string const& dest_name = p.first;
+    if (dest_name == "statistics"s) continue; // statistics are special -- see below
     raw_config.put(fhicl_key(dests_key, dest_name, "categories.MTdiagnostics.limit"), 0);
+  }
+
+  // The statistics destination represents a table of named destinations.
+  auto const& stats_dest_key = fhicl_key(dests_key, "statistics");
+  if (detail::exists_outside_prolog(raw_config, stats_dest_key)) {
+    auto const& stats_dests = raw_config.get<table_t const&>(stats_dest_key);
+    for (auto const& p : stats_dests) {
+      std::string const& dest_name = p.first;
+      raw_config.put(fhicl_key(stats_dest_key, dest_name, "categories.MTdiagnostics.limit"), 0);
+    }
   }
 
   if (vm.count("mt-diagnostics") > 0) {

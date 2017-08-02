@@ -187,7 +187,19 @@ int art::run_art_common_(fhicl::ParameterSet const& main_pset, art::detail::Debu
   //
   mf::MessageDrop::jobMode = std::string("analysis");
   mf::MessageDrop::instance()->iteration = std::string("JobSetup");
-  mf::StartMessageFacility(services_pset.get<fhicl::ParameterSet>("message",{}));
+  try {
+    mf::StartMessageFacility(services_pset.get<fhicl::ParameterSet>("message",{}));
+  }
+  catch (cet::exception const& e) {
+    std::cerr << e.what() << '\n';
+    return 69;
+  }
+  catch (...) {
+    std::cerr << "Caught unknown exception while initializing the message facility.\n";
+    return 70;
+  }
+
+
   mf::LogInfo("MF_INIT_OK") << "Messagelogger initialization complete.";
   //
   // Configuration output (non-preempting)
