@@ -12,11 +12,11 @@ cetbuildtools	v5_13_01	-	only_for_build
 catch		v1_9_6		-nq-	only_for_build
 end_product_list
 
-qualifier	canvas		hep_concurrency	notes
-e14:debug	e14:debug	e14:debug
-e14:prof	e14:prof	e14:prof
-nu:e14:debug	e14:nu:debug	e14:debug
-nu:e14:prof	e14:nu:prof	e14:prof
+qualifier	canvas		notes
+e14:debug	e14:debug	
+e14:prof	e14:prof	
+nu:e14:debug	e14:nu:debug	
+nu:e14:prof	e14:nu:prof	
 end_qualifier_list
 
 # Local Variables:
