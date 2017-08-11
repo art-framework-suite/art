@@ -175,7 +175,6 @@ Principal::getMany(TypeID const& productType,
 int
 Principal::tryNextSecondaryFile() const
 {
-  //
   int const err = store_->openNextSecondaryFile(nextSecondaryFileIdx_);
   if (err != -2) {
     // there are more files to try
@@ -188,16 +187,18 @@ Principal::GroupQueryResultVec
 Principal::getMatchingSequence(TypeID const& elementType,
                                SelectorBase const& selector) const
 {
-  GroupQueryResultVec results;
-  for (auto const& el : elementLookup_) {
-    auto I = el[branchType()].find(elementType.friendlyClassName());
-    if (I == el[branchType()].end()) {
-      continue;
-    }
-    if (findGroups(I->second, selector, results, true) != 0) {
+  auto results = getMatchingSequenceForPrincipal(elementType, selector);
+  if (!results.empty()) {
+    return results;
+  }
+
+  for (auto const& sp : secondaryPrincipals_) {
+    results = sp->getMatchingSequenceForPrincipal(elementType, selector);
+    if (!results.empty()) {
       return results;
     }
   }
+
   while (true) {
     int const err = tryNextSecondaryFile();
     if (err == -2) {
@@ -208,24 +209,28 @@ Principal::getMatchingSequence(TypeID const& elementType,
       // Run, SubRun, or Event not found.
       continue;
     }
-    // Note: The elementLookup vector element zero is for the primary
-    // file, the following elements are for the secondary files, so we
-    // use the incremented value of nextSecondaryFileIdx_ here because
-    // it is the correctly biased-up by one index into the
-    // elementLookup vector for this secondary file.
-    auto const& el = elementLookup_[nextSecondaryFileIdx_];
+    assert(!secondaryPrincipals_.empty());
+    auto& new_sp = secondaryPrincipals_.back();
+    results = new_sp->getMatchingSequenceForPrincipal(elementType, selector);
+    if (!results.empty()) {
+      return results;
+    }
+  }
+  return {};
+
+}
+
+Principal::GroupQueryResultVec
+Principal::getMatchingSequenceForPrincipal(TypeID const& elementType,
+                                           SelectorBase const& selector) const
+{
+  GroupQueryResultVec results;
+  for (auto const& el : elementLookup_) {
     auto I = el[branchType()].find(elementType.friendlyClassName());
     if (I == el[branchType()].end()) {
       continue;
     }
-    // If we get this far, we *assume* that we want to use the last
-    // secondary principal that we have added.  That is the current
-    // implementation, but one might argue that we should allow the
-    // ability to open any specified secondary input file, and not
-    // necessarily just the "next" one.
-    assert(!secondaryPrincipals_.empty());
-    auto& secondaryPrincipal = secondaryPrincipals_.back();
-    if (secondaryPrincipal->findGroups(I->second, selector, results, true) != 0) {
+    if (findGroups(I->second, selector, results, true) != 0) {
       return results;
     }
   }
@@ -239,6 +244,12 @@ Principal::removeCachedProduct(ProductID const pid) const
     g->removeCachedProduct();
     return;
   }
+  for (auto const& sp : secondaryPrincipals_) {
+    if (auto g = sp->getGroup(pid)) {
+      g->removeCachedProduct();
+      return;
+    }
+  }
   throw Exception(errors::ProductNotFound, "removeCachedProduct")
     << "Attempt to remove unknown product corresponding to ProductID: " << pid << '\n'
     << "Please contact artists@fnal.gov\n";
@@ -249,6 +260,43 @@ Principal::findGroupsForProduct(TypeID const& wanted_product,
                                 SelectorBase const& selector,
                                 GroupQueryResultVec& results,
                                 bool const stopIfProcessHasMatch) const
+{
+  size_t ret{};
+  ret = findGroupsForPrincipal(wanted_product, selector, results, stopIfProcessHasMatch);
+  if (ret) {
+    return ret;
+  }
+  for (auto const& sp : secondaryPrincipals_) {
+    ret = sp->findGroupsForPrincipal(wanted_product, selector, results, stopIfProcessHasMatch);
+    if (ret) {
+      return ret;
+    }
+  }
+  while (true) {
+    int const err = tryNextSecondaryFile();
+    if (err == -2) {
+      // No more files.
+      break;
+    }
+    if (err == -1) {
+      // Run, SubRun, or Event not found.
+      continue;
+    }
+    assert(!secondaryPrincipals_.empty());
+    auto& new_sp = secondaryPrincipals_.back();
+    ret = new_sp->findGroupsForPrincipal(wanted_product, selector, results, stopIfProcessHasMatch);
+    if (ret) {
+      return ret;
+    }
+  }
+  return 0;
+}
+
+size_t
+Principal::findGroupsForPrincipal(TypeID const& wanted_product,
+                                  SelectorBase const& selector,
+                                  GroupQueryResultVec& results,
+                                  bool const stopIfProcessHasMatch) const
 {
   TClass* cl = nullptr;
   ////////////////////////////////////
@@ -272,54 +320,9 @@ Principal::findGroupsForProduct(TypeID const& wanted_product,
     }
     // FIXME: Find a way to supply the wrapped TypeID without relying on ROOT.
     cl = TClass::GetClass(wrappedClassName(wanted_product.className()).c_str());
-    if (!cl) {
-      throw Exception(errors::DictionaryNotFound)
-        << "Dictionary not found for "
-        << wrappedClassName(wanted_product.className())
-        << ".\n";
-    }
+    assert(cl); // Will have already checked for dictionary when opening file.
     ret = findGroups(I->second, selector, results, stopIfProcessHasMatch,
                      TypeID{cl->GetTypeInfo()});
-    if (ret) {
-      return ret;
-    }
-  }
-  while (true) {
-    int const err = tryNextSecondaryFile();
-    if (err == -2) {
-      // No more files.
-      break;
-    }
-    if (err == -1) {
-      // Run, SubRun, or Event not found.
-      continue;
-    }
-    // Note: The productLookup vector element zero is for the primary
-    // file, the following elements are for the secondary files, so
-    // we use the incremented value of nextSecondaryFileIdx_ here
-    // because it is the correctly biased-up by one index into the
-    // productLookup vector for this secondary file.
-    auto const& pl = productLookup_[nextSecondaryFileIdx_];
-    auto I = pl[branchType()].find(wanted_product.friendlyClassName());
-    if (I == pl[branchType()].end()) {
-      continue;
-    }
-    cl = TClass::GetClass(wrappedClassName(wanted_product.className()).c_str());
-    if (!cl) {
-      throw Exception(errors::DictionaryNotFound)
-        << "Dictionary not found for "
-        << wrappedClassName(wanted_product.className())
-        << ".\n";
-    }
-    // If we get this far, we *assume* that we want to use the last
-    // secondary principal that we have added.  That is the current
-    // implementation, but one might argue that we should allow the
-    // ability to open any specified secondary input file, and not
-    // necessarily just the "next" one.
-    assert(!secondaryPrincipals_.empty());
-    auto& secondaryPrincipal = secondaryPrincipals_.back();
-    ret = secondaryPrincipal->findGroups(I->second, selector, results, stopIfProcessHasMatch,
-                                         TypeID(cl->GetTypeInfo()));
     if (ret) {
       return ret;
     }
@@ -447,16 +450,10 @@ Principal::getGroupForPtr(ProductID const pid) const
   std::size_t const index    = ProductMetaData::instance().presentWithFileIdx(branchType(), pid);
   bool        const produced = ProductMetaData::instance().produced(branchType(), pid);
   if (produced || index == 0) {
-    auto it = groups_.find(pid);
-    // Note: There will be groups for dropped products, so we must
-    //       check for that.  We want the group where the product can
-    //       actually be retrieved from.
-    return (it != groups_.end()) ? it->second.get() : nullptr;
+    return getGroup(pid);
   }
   else if (index > 0 && (index-1 < secondaryPrincipals_.size())) {
-    auto const& groups = secondaryPrincipals_[index-1]->groups_;
-    auto it = groups.find(pid);
-    return (it != groups.end()) ? it->second.get() : nullptr;
+    return secondaryPrincipals_[index-1]->getGroup(pid);
   }
   while (true) {
     int const err = tryNextSecondaryFile();
@@ -470,29 +467,15 @@ Principal::getGroupForPtr(ProductID const pid) const
     }
     std::size_t const index = ProductMetaData::instance().presentWithFileIdx(branchType(), pid);
     if (index == MasterProductRegistry::DROPPED) continue;
-    auto& p = secondaryPrincipals_[index-1];
-    auto it = p->groups_.find(pid);
-    // Note: There will be groups for dropped products, so we must
-    //       check for that.  We want the group where the product can
-    //       actually be retrieved from.
-    return (it != p->groups_.end()) ? it->second.get() : nullptr;
+    return secondaryPrincipals_[index-1]->getGroup(pid);
   }
 }
 
 cet::exempt_ptr<Group const>
 Principal::getGroup(ProductID const pid) const
 {
-  auto I = groups_.find(pid);
-  if (I != groups_.end()) {
-    return I->second.get();
-  }
-  for (auto& p : secondaryPrincipals_) {
-    auto I = p->groups_.find(pid);
-    if (I != p->groups_.end()) {
-      return I->second.get();
-    }
-  }
-  return nullptr;
+  auto it = groups_.find(pid);
+  return it != groups_.cend() ? it->second.get() : nullptr;
 }
 
 EDProductGetter const*

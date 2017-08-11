@@ -245,11 +245,21 @@ namespace art {
     void
     setProcessHistoryID(ProcessHistoryID const&) = 0;
 
+    std::vector<GroupQueryResult>
+    getMatchingSequenceForPrincipal(TypeID const& elementType,
+                                    SelectorBase const&) const;
+
     size_t
     findGroupsForProduct(TypeID const& wanted_product,
                          SelectorBase const&,
                          std::vector<GroupQueryResult>& results,
                          bool stopIfProcessHasMatch) const;
+
+    size_t
+    findGroupsForPrincipal(TypeID const& wanted_product,
+                           SelectorBase const&,
+                           std::vector<GroupQueryResult>& results,
+                           bool stopIfProcessHasMatch) const;
 
     size_t
     findGroups(ProcessLookup const&,
