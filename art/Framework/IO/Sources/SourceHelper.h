@@ -32,9 +32,7 @@ namespace art {
 
 class art::SourceHelper {
 public:
-  explicit SourceHelper(ModuleDescription const& md,
-                        BranchTypeLookups const& productLookup,
-                        BranchTypeLookups const& elementLookup);
+  explicit SourceHelper(ModuleDescription const& md);
 
   template <typename T>
   Ptr<T>
@@ -76,8 +74,6 @@ public:
 
 private:
   ModuleDescription md_;
-  BranchTypeLookups const& productLookup_;
-  BranchTypeLookups const& elementLookup_;
 };
 
 template <typename T>

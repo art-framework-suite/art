@@ -118,28 +118,28 @@ namespace art {
                 exempt_ptr<RootInputFile> primaryFile,
                 vector<string> const& secondaryFileNames,
                 RootInputFileSequence* rifSequence)
-    : fileName_{fileName}
-    , catalog_{catalogName}
-    , processConfiguration_{processConfiguration}
-    , logicalFileName_{logicalFileName}
-    , filePtr_{std::move(filePtr)}
-    , origEventID_{origEventID}
-    , eventsToSkip_{eventsToSkip}
-    , treePointers_ { // Order (and number) must match BranchTypes.h!
-      std::make_unique<RootInputTree>(filePtr_.get(), InEvent, saveMemoryObjectThreshold, this),
+  : fileName_{fileName}
+  , catalog_{catalogName}
+  , processConfiguration_{processConfiguration}
+  , logicalFileName_{logicalFileName}
+  , filePtr_{std::move(filePtr)}
+  , origEventID_{origEventID}
+  , eventsToSkip_{eventsToSkip}
+  , treePointers_ { // Order (and number) must match BranchTypes.h!
+    std::make_unique<RootInputTree>(filePtr_.get(), InEvent, saveMemoryObjectThreshold, this),
       std::make_unique<RootInputTree>(filePtr_.get(), InSubRun, saveMemoryObjectThreshold, this),
       std::make_unique<RootInputTree>(filePtr_.get(), InRun, saveMemoryObjectThreshold, this),
       std::make_unique<RootInputTree>(filePtr_.get(), InResults, saveMemoryObjectThreshold, this, true /* missingOK */) }
-    , delayedReadEventProducts_{delayedReadEventProducts}
-    , delayedReadSubRunProducts_{delayedReadSubRunProducts}
-    , delayedReadRunProducts_{delayedReadRunProducts}
-    , processingMode_{processingMode}
-    , forcedRunOffset_{forcedRunOffset}
-    , noEventSort_{noEventSort}
-    , duplicateChecker_{duplicateChecker}
-    , primaryFile_{primaryFile ? primaryFile : this}
-    , secondaryFileNames_{secondaryFileNames}
-    , rifSequence_{rifSequence}
+  , delayedReadEventProducts_{delayedReadEventProducts}
+  , delayedReadSubRunProducts_{delayedReadSubRunProducts}
+  , delayedReadRunProducts_{delayedReadRunProducts}
+  , processingMode_{processingMode}
+  , forcedRunOffset_{forcedRunOffset}
+  , noEventSort_{noEventSort}
+  , duplicateChecker_{duplicateChecker}
+  , primaryFile_{primaryFile ? primaryFile : this}
+  , secondaryFileNames_{secondaryFileNames}
+  , rifSequence_{rifSequence}
   {
     secondaryFiles_.resize(secondaryFileNames_.size());
     eventTree().setCacheSize(treeCacheSize);
@@ -617,8 +617,6 @@ namespace art {
     overrideRunNumber(const_cast<EventID&>(eventAux().id()), eventAux().isRealData());
     auto ep = std::make_unique<EventPrincipal>(eventAux(),
                                                processConfiguration_,
-                                               ProductMetaData::instance().productLookup(),
-                                               ProductMetaData::instance().elementLookup(),
                                                history_,
                                                eventTree().makeBranchMapper(),
                                                eventTree().makeDelayedReader(fileFormatVersion_,
@@ -627,6 +625,8 @@ namespace art {
                                                                              entryNumbers.first,
                                                                              eventAux().id()),
                                                entryNumbers.second);
+    ep->setProductLookups(ProductMetaData::instance().productLookup(),
+                          ProductMetaData::instance().elementLookup());
     eventTree().fillGroups(*ep);
     if (!delayedReadEventProducts_) {
       ep->readImmediate();
@@ -654,8 +654,6 @@ namespace art {
                       eventAux().isRealData());
     auto ep = std::make_unique<EventPrincipal>(eventAux(),
                                                processConfiguration_,
-                                               ProductMetaData::instance().productLookup(),
-                                               ProductMetaData::instance().elementLookup(),
                                                history_,
                                                eventTree().makeBranchMapper(),
                                                eventTree().makeDelayedReader(fileFormatVersion_,
@@ -664,6 +662,8 @@ namespace art {
                                                                              entryNumbers.first,
                                                                              eventAux().id()),
                                                entryNumbers.second);
+    ep->setProductLookups(ProductMetaData::instance().productLookup(),
+                          ProductMetaData::instance().elementLookup());
     eventTree().fillGroups(*ep);
     primaryFile_->primaryEP_->addSecondaryPrincipal(move(ep));
     return true;
@@ -714,8 +714,6 @@ namespace art {
     }
     auto rp = std::make_unique<RunPrincipal>(runAux(),
                                              processConfiguration_,
-                                             ProductMetaData::instance().productLookup(),
-                                             ProductMetaData::instance().elementLookup(),
                                              runTree().makeBranchMapper(),
                                              runTree().makeDelayedReader(fileFormatVersion_,
                                                                          sqliteDB_,
@@ -723,6 +721,8 @@ namespace art {
                                                                          InRun,
                                                                          entryNumbers,
                                                                          fiIter_->eventID_));
+    rp->setProductLookups(ProductMetaData::instance().productLookup(),
+                          ProductMetaData::instance().elementLookup());
     runTree().fillGroups(*rp);
     if (!delayedReadRunProducts_) {
       rp->readImmediate();
@@ -762,8 +762,6 @@ namespace art {
     }
     auto rp = std::make_unique<RunPrincipal>(runAux(),
                                              processConfiguration_,
-                                             ProductMetaData::instance().productLookup(),
-                                             ProductMetaData::instance().elementLookup(),
                                              runTree().makeBranchMapper(),
                                              runTree().makeDelayedReader(fileFormatVersion_,
                                                                          sqliteDB_,
@@ -771,6 +769,8 @@ namespace art {
                                                                          InRun,
                                                                          entryNumbers,
                                                                          fiIter_->eventID_));
+    rp->setProductLookups(ProductMetaData::instance().productLookup(),
+                          ProductMetaData::instance().elementLookup());
     runTree().fillGroups(*rp);
     if (!delayedReadRunProducts_) {
       rp->readImmediate();
@@ -826,8 +826,6 @@ namespace art {
 
     auto srp = std::make_unique<SubRunPrincipal>(subRunAux(),
                                                  processConfiguration_,
-                                                 ProductMetaData::instance().productLookup(),
-                                                 ProductMetaData::instance().elementLookup(),
                                                  subRunTree().makeBranchMapper(),
                                                  subRunTree().makeDelayedReader(fileFormatVersion_,
                                                                                 sqliteDB_,
@@ -835,6 +833,8 @@ namespace art {
                                                                                 InSubRun,
                                                                                 entryNumbers,
                                                                                 fiIter_->eventID_));
+    srp->setProductLookups(ProductMetaData::instance().productLookup(),
+                           ProductMetaData::instance().elementLookup());
     subRunTree().fillGroups(*srp);
     if (!delayedReadSubRunProducts_) {
       srp->readImmediate();
@@ -873,8 +873,6 @@ namespace art {
     }
     auto srp = std::make_unique<SubRunPrincipal>(subRunAux(),
                                                  processConfiguration_,
-                                                 ProductMetaData::instance().productLookup(),
-                                                 ProductMetaData::instance().elementLookup(),
                                                  subRunTree().makeBranchMapper(),
                                                  subRunTree().makeDelayedReader(fileFormatVersion_,
                                                                                 sqliteDB_,
@@ -882,6 +880,8 @@ namespace art {
                                                                                 InSubRun,
                                                                                 entryNumbers,
                                                                                 fiIter_->eventID_));
+    srp->setProductLookups(ProductMetaData::instance().productLookup(),
+                           ProductMetaData::instance().elementLookup());
     subRunTree().fillGroups(*srp);
     if (!delayedReadSubRunProducts_) {
       srp->readImmediate();
@@ -1060,8 +1060,6 @@ namespace art {
       fillAuxiliary<InResults>(entryNumbers.front());
       resp = std::make_unique<ResultsPrincipal>(resultsAux(),
                                                 processConfiguration_,
-                                                ProductMetaData::instance().productLookup(),
-                                                ProductMetaData::instance().elementLookup(),
                                                 resultsTree().makeBranchMapper(),
                                                 resultsTree().makeDelayedReader(fileFormatVersion_,
                                                                                 nullptr,
@@ -1069,11 +1067,11 @@ namespace art {
                                                                                 entryNumbers,
                                                                                 EventID{}));
       resultsTree().fillGroups(*resp);
+      resp->setProductLookups(ProductMetaData::instance().productLookup(),
+                              ProductMetaData::instance().elementLookup());
     } else { // Empty
       resp = std::make_unique<ResultsPrincipal>(ResultsAuxiliary{},
-                                                processConfiguration_,
-                                                ProductMetaData::instance().productLookup(),
-                                                ProductMetaData::instance().elementLookup());
+                                                processConfiguration_);
     }
     return resp;
   }

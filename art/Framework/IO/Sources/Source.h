@@ -235,7 +235,7 @@ art::Source<T>::Source(fhicl::ParameterSet const& p,
                        InputSourceDescription& d) :
   InputSource{d.moduleDescription},
   act_{&d.activityRegistry},
-  sourceHelper_{d.moduleDescription, ProductMetaData::instance().productLookup(), ProductMetaData::instance().elementLookup()},
+  sourceHelper_{d.moduleDescription},
   detail_{p, h_, sourceHelper_},
   fh_{p.get<std::vector<std::string>>("fileNames", std::vector<std::string>())}
 {
@@ -594,6 +594,8 @@ art::Source<T>::readRun()
         << "Error in Source<T>\n"
         << "readRun() called when no RunPrincipal exists\n"
         << "Please report this to the art developers\n";
+  newRP_->setProductLookups(ProductMetaData::instance().productLookup(),
+                            ProductMetaData::instance().elementLookup());
   cachedRP_ = newRP_.get();
   return std::move(newRP_);
 }
@@ -610,6 +612,8 @@ art::Source<T>::readSubRun(cet::exempt_ptr<RunPrincipal const>)
     if (haveSRLimit_) { --remainingSubRuns_; }
     subRunIsNew_ = false;
   }
+  newSRP_->setProductLookups(ProductMetaData::instance().productLookup(),
+                             ProductMetaData::instance().elementLookup());
   cachedSRP_ = newSRP_.get();
   return std::move(newSRP_);
 }
@@ -619,6 +623,8 @@ std::unique_ptr<art::EventPrincipal>
 art::Source<T>::readEvent(cet::exempt_ptr<SubRunPrincipal const>)
 {
   if (haveEventLimit_) { --remainingEvents_; }
+  newE_->setProductLookups(ProductMetaData::instance().productLookup(),
+                           ProductMetaData::instance().elementLookup());
   return std::move(newE_);
 }
 

@@ -10,7 +10,6 @@
 #include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Framework/Principal/OpenRangeSetHandler.h"
 #include "art/Persistency/Provenance/ProductMetaData.h"
-#include "fhiclcpp/types/ConfigurationTable.h"
 #include "canvas/Persistency/Provenance/EventAuxiliary.h"
 #include "canvas/Persistency/Provenance/EventID.h"
 #include "canvas/Persistency/Provenance/RunAuxiliary.h"
@@ -20,6 +19,7 @@
 #include "canvas/Persistency/Provenance/Timestamp.h"
 #include "cetlib/BasicPluginFactory.h"
 #include "fhiclcpp/types/Atom.h"
+#include "fhiclcpp/types/ConfigurationTable.h"
 #include "fhiclcpp/types/OptionalAtom.h"
 #include "fhiclcpp/types/TableFragment.h"
 #include "fhiclcpp/ParameterSet.h"
@@ -152,9 +152,9 @@ art::EmptyEvent::readRun_()
   RunAuxiliary const runAux {eventID_.runID(), ts, Timestamp::invalidTimestamp()};
   newRun_ = false;
   auto rp_ptr = std::make_unique<RunPrincipal>(runAux,
-                                               processConfiguration(),
-                                               ProductMetaData::instance().productLookup(),
-                                               ProductMetaData::instance().elementLookup());
+                                               processConfiguration());
+  rp_ptr->setProductLookups(ProductMetaData::instance().productLookup(),
+                            ProductMetaData::instance().elementLookup());
   if (plugin_) {
     Run const r {*rp_ptr, moduleDescription(), Consumer::non_module_context()};
     plugin_->doBeginRun(r);
@@ -177,9 +177,9 @@ EmptyEvent::readSubRun_()
     Timestamp::invalidTimestamp();
   SubRunAuxiliary const subRunAux {eventID_.subRunID(), ts, Timestamp::invalidTimestamp()};
   auto srp_ptr = std::make_unique<SubRunPrincipal>(subRunAux,
-                                                   processConfiguration(),
-                                                   ProductMetaData::instance().productLookup(),
-                                                   ProductMetaData::instance().elementLookup());
+                                                   processConfiguration());
+  srp_ptr->setProductLookups(ProductMetaData::instance().productLookup(),
+                             ProductMetaData::instance().elementLookup());
   if (plugin_) {
     SubRun const sr {*srp_ptr, moduleDescription(), Consumer::non_module_context()};
     plugin_->doBeginSubRun(sr);
@@ -226,12 +226,12 @@ void art::EmptyEvent::reallyReadEvent(bool const lastEventInSubRun) {
   EventAuxiliary const eventAux{eventID_, timestamp, eType_};
   ep_ = std::make_unique<EventPrincipal>(eventAux,
                                          processConfiguration(),
-                                         ProductMetaData::instance().productLookup(),
-                                         ProductMetaData::instance().elementLookup(),
                                          std::make_shared<History>(),
                                          std::make_unique<BranchMapper>(),
                                          std::make_unique<NoDelayedReader>(),
                                          lastEventInSubRun);
+  ep_->setProductLookups(ProductMetaData::instance().productLookup(),
+                         ProductMetaData::instance().elementLookup());
 }
 
 std::unique_ptr<art::EmptyEventTimestampPlugin>

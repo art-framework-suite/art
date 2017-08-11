@@ -32,8 +32,6 @@ public:
 
   ResultsPrincipal(ResultsAuxiliary const&,
                    ProcessConfiguration const&,
-                   BranchTypeLookups const& productLookup,
-                   BranchTypeLookups const& elementLookup,
                    std::unique_ptr<BranchMapper>&& mapper = std::make_unique<BranchMapper>(),
                    std::unique_ptr<DelayedReader>&& rtrv = std::make_unique<NoDelayedReader>());
 

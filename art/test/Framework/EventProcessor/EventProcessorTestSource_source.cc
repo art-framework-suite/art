@@ -142,20 +142,21 @@ namespace arttest {
     std::unique_ptr<art::RunPrincipal> readRun() override
     {
       art::RunAuxiliary const aux {run_, nullTimestamp(), nullTimestamp()};
-      return std::make_unique<art::RunPrincipal>(aux,
-                                                 isd_.moduleDescription.processConfiguration(),
-                                                 art::ProductMetaData::instance().productLookup(),
-                                                 art::ProductMetaData::instance().elementLookup());
+      auto rp = std::make_unique<art::RunPrincipal>(aux,
+                                                    isd_.moduleDescription.processConfiguration());
+      rp->setProductLookups(art::ProductMetaData::instance().productLookup(),
+                            art::ProductMetaData::instance().elementLookup());
+      return std::move(rp);
     }
 
     std::unique_ptr<art::SubRunPrincipal> readSubRun(cet::exempt_ptr<art::RunPrincipal const> rp) override
     {
       art::SubRunAuxiliary const aux {subRun_, nullTimestamp(), nullTimestamp()};
       auto srp = std::make_unique<art::SubRunPrincipal>(aux,
-                                                        isd_.moduleDescription.processConfiguration(),
-                                                        art::ProductMetaData::instance().productLookup(),
-                                                        art::ProductMetaData::instance().elementLookup());
+                                                        isd_.moduleDescription.processConfiguration());
       srp->setRunPrincipal(rp);
+      srp->setProductLookups(art::ProductMetaData::instance().productLookup(),
+                             art::ProductMetaData::instance().elementLookup());
       return std::move(srp);
     }
 
@@ -164,10 +165,10 @@ namespace arttest {
     {
       art::EventAuxiliary const aux {event_, nullTimestamp(), true};
       auto ep = std::make_unique<art::EventPrincipal>(aux,
-                                                      isd_.moduleDescription.processConfiguration(),
-                                                      art::ProductMetaData::instance().productLookup(),
-                                                      art::ProductMetaData::instance().elementLookup());
+                                                      isd_.moduleDescription.processConfiguration());
       ep->setSubRunPrincipal(srp);
+      ep->setProductLookups(art::ProductMetaData::instance().productLookup(),
+                            art::ProductMetaData::instance().elementLookup());
       return std::move(ep);
     }
 

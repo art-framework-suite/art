@@ -62,8 +62,6 @@ namespace art {
 
     Principal(ProcessConfiguration const&,
               ProcessHistoryID const&,
-              BranchTypeLookups const& productLookup,
-              BranchTypeLookups const& elementLookup,
               std::unique_ptr<BranchMapper>&&,
               std::unique_ptr<DelayedReader>&&);
 
@@ -107,6 +105,14 @@ namespace art {
     addSecondaryPrincipal(std::unique_ptr<Principal>&& val)
     {
       secondaryPrincipals_.emplace_back(std::move(val));
+    }
+
+    void
+    setProductLookups(BranchTypeLookups const& productLookups,
+                      BranchTypeLookups const& elementLookups)
+    {
+      productLookup_ = &productLookups;
+      elementLookup_ = &elementLookups;
     }
 
     void
@@ -292,8 +298,8 @@ namespace art {
     std::shared_ptr<ProcessHistory> processHistoryPtr_{std::make_shared<ProcessHistory>()};
 
     ProcessConfiguration const& processConfiguration_;
-    BranchTypeLookups const& productLookup_;
-    BranchTypeLookups const& elementLookup_;
+    cet::exempt_ptr<BranchTypeLookups const> productLookup_{nullptr};
+    cet::exempt_ptr<BranchTypeLookups const> elementLookup_{nullptr};
 
     mutable
     std::map<ProductID, std::shared_ptr<DeferredProductGetter const>>

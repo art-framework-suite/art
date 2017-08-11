@@ -28,13 +28,9 @@ using namespace art;
 
 Principal::Principal(ProcessConfiguration const& pc,
                      ProcessHistoryID const& hist,
-                     BranchTypeLookups const& productLookup,
-                     BranchTypeLookups const& elementLookup,
                      std::unique_ptr<BranchMapper>&& mapper,
                      std::unique_ptr<DelayedReader>&& reader)
   : processConfiguration_{pc}
-  , productLookup_{productLookup}
-  , elementLookup_{elementLookup}
   , branchMapperPtr_{std::move(mapper)}
   , store_{std::move(reader)}
 {
@@ -225,7 +221,8 @@ Principal::getMatchingSequenceForPrincipal(TypeID const& elementType,
                                            SelectorBase const& selector) const
 {
   GroupQueryResultVec results;
-  for (auto const& el : elementLookup_) {
+  assert(elementLookup_);
+  for (auto const& el : *elementLookup_) {
     auto I = el[branchType()].find(elementType.friendlyClassName());
     if (I == el[branchType()].end()) {
       continue;
@@ -313,7 +310,8 @@ Principal::findGroupsForPrincipal(TypeID const& wanted_product,
   //}
   ////////////////////////////////////
   size_t ret = 0;
-  for (auto const& pl : productLookup_) {
+  assert(productLookup_);
+  for (auto const& pl : *productLookup_) {
     auto I = pl[branchType()].find(wanted_product.friendlyClassName());
     if (I == pl[branchType()].end()) {
       continue;
