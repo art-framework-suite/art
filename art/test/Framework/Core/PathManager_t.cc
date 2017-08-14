@@ -15,11 +15,11 @@
 using art::PathManager;
 
 namespace {
-  bool verifyException(art::Exception const & e,
-                       art::errors::ErrorCodes category,
-                       std::string const &whatString)
+  bool verifyException(art::Exception const& e,
+                       art::errors::ErrorCodes const category,
+                       std::string const& whatString)
   {
-    auto const & cmp = e.what();
+    auto const& cmp = e.what();
     return e.categoryCode() == category &&
       cmp == whatString;
   }
@@ -27,21 +27,11 @@ namespace {
 }
 
 struct PathManagerTestFixture {
-  PathManagerTestFixture();
-
-  art::ActionTable atable;
-  art::MasterProductRegistry preg;
-  art::ActivityRegistry areg;
+  art::ActionTable atable{};
+  art::MasterProductRegistry preg{};
+  art::ActivityRegistry areg{};
 };
 
-PathManagerTestFixture::
-PathManagerTestFixture()
-:
-  atable(),
-  preg(),
-  areg()
-{
-}
 
 BOOST_FIXTURE_TEST_SUITE (PathManager_t, PathManagerTestFixture)
 
@@ -145,6 +135,31 @@ BOOST_AUTO_TEST_CASE ( Construct )
      "  and sequences.  Atomic configuration parameters are not allowed.\n"
      "  \n"
      "---- Configuration END\n"); // Incorrectly included parameter in "physics" block
+  test_sets.emplace_back
+    ("process_name: MisspecifiedEndPath\n"
+     "physics.analyzers.a1: {\n"
+     "   module_type: DummyAnalyzer\n"
+     "}\n"
+     "physics.e1: [a1]\n"
+     "physics.trigger_paths: [e1]\n",
+     art::errors::Configuration,
+     "---- Configuration BEGIN\n"
+     "  Path configuration: The following were encountered while processing path configurations:\n"
+     "    ERROR: Path 'e1' is configured as a trigger path but is actually an end path.\n"
+     "---- Configuration END\n"); // Incorrectly included end path as trigger path
+  test_sets.emplace_back
+    ("process_name: MisspecifiedTriggerPath\n"
+     "physics.producers.d1: {\n"
+     "   module_type: \"art/test/Framework/Art/PrintAvailable/DummyProducer\"\n"
+     "}\n"
+     "physics.p1: [d1]\n"
+     "physics.trigger_paths: [p1]\n",
+     art::errors::Configuration,
+     "---- Configuration BEGIN\n"
+     "  Path configuration: The following were encountered while processing path configurations:\n"
+     "    ERROR: Path 'p1' is configured as an end path but is actually a trigger path.\n"
+     "---- Configuration END\n"); // Incorrectly included trigger path as end path
+
   for (auto const & test : test_sets) {
     fhicl::ParameterSet ps;
     make_ParameterSet(std::get<0>(test), ps);

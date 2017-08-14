@@ -57,10 +57,10 @@ namespace {
                       std::ostream& error_stream)
   {
     art::PathManager::vstring missing_paths;
-    std::set_difference(specified_paths.cbegin(),
-                        specified_paths.cend(),
-                        path_names.cbegin(),
-                        path_names.cend(),
+    std::set_difference(cbegin(specified_paths),
+                        cend(specified_paths),
+                        cbegin(path_names),
+                        cend(path_names),
                         std::back_inserter(missing_paths));
     for (auto const& path : missing_paths) {
       error_stream
@@ -350,6 +350,16 @@ art::PathManager::processOnePathConfig_(std::string const& path_name,
             << "Path will be ignored.";
           return false;
         }
+        // Handle case where user accidentally specified a trigger
+        // path as an end path.
+        if (end_paths_config_ &&
+            (end_paths_config_->find(path_name) !=
+             end_paths_config_->cend())) {
+          error_stream
+            << "  ERROR: Path "
+            << "'" << path_name << "'"
+            << " is configured as an end path but is actually a trigger path.";
+        }
         trigger_path_names.push_back(path_name);
         protoTrigPathMap_[path_name].reserve(path_seq.size());
       }
@@ -365,8 +375,18 @@ art::PathManager::processOnePathConfig_(std::string const& path_name,
             << "Path will be ignored.";
           return false;
         }
+        // Handle case where user accidentally specified an end path
+        // as a trigger path.
+        if (trigger_paths_config_ &&
+            (trigger_paths_config_->find(path_name) !=
+             trigger_paths_config_->cend())) {
+          error_stream
+            << "  ERROR: Path "
+            << "'" << path_name << "'"
+            << " is configured as a trigger path but is actually an end path.";
+        }
         protoEndPathInfo_.reserve(protoEndPathInfo_.size() +
-                                   path_seq.size());
+                                  path_seq.size());
       }
     }
     else if (cat != mtype) {
