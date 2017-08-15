@@ -26,11 +26,45 @@ using namespace cet;
 using namespace std;
 using namespace art;
 
+namespace {
+
+  template <typename T>
+  class ReverseIteration;
+
+  template <typename T>
+  ReverseIteration<T> reverse_iteration(T const&);
+
+  template <typename T>
+  class ReverseIteration {
+    friend ReverseIteration reverse_iteration<>(T const&);
+    T const& t_;
+    ReverseIteration(T const& t) : t_{t} {};
+  public:
+    auto begin() const { return crbegin(t_); }
+    auto end() const { return crend(t_); }
+  };
+
+  template <typename T>
+  ReverseIteration<T> reverse_iteration(T const& t)
+  {
+    return ReverseIteration<T>{t};
+  }
+
+  auto ptr_for_empty_lookup()
+  {
+    static art::TypeLookup const emptyLookup{};
+    return &emptyLookup;
+  }
+
+}
+
 Principal::Principal(ProcessConfiguration const& pc,
                      ProcessHistoryID const& hist,
                      std::unique_ptr<BranchMapper>&& mapper,
                      std::unique_ptr<DelayedReader>&& reader)
   : processConfiguration_{pc}
+  , productLookup_{ptr_for_empty_lookup()}
+  , elementLookup_{ptr_for_empty_lookup()}
   , branchMapperPtr_{std::move(mapper)}
   , store_{std::move(reader)}
 {
@@ -80,14 +114,14 @@ GroupQueryResult
 Principal::getBySelector(TypeID const& productType, SelectorBase const& sel) const
 {
   GroupQueryResultVec results;
-  int nFound = findGroupsForProduct(productType, sel, results, true);
+  int const nFound = findGroupsForProduct(productType, sel, results, true);
   if (nFound == 0) {
     auto whyFailed = std::make_shared<art::Exception>(art::errors::ProductNotFound);
     *whyFailed << "getBySelector: Found zero products matching all criteria\n"
                << "Looking for type: "
                << productType
                << "\n";
-    return GroupQueryResult(whyFailed);
+    return GroupQueryResult{whyFailed};
   }
   if (nFound > 1) {
     throw art::Exception(art::errors::ProductNotFound)
@@ -183,54 +217,71 @@ Principal::GroupQueryResultVec
 Principal::getMatchingSequence(TypeID const& elementType,
                                SelectorBase const& selector) const
 {
-  auto results = getMatchingSequenceForPrincipal(elementType, selector);
-  if (!results.empty()) {
-    return results;
-  }
-
-  for (auto const& sp : secondaryPrincipals_) {
-    results = sp->getMatchingSequenceForPrincipal(elementType, selector);
-    if (!results.empty()) {
-      return results;
-    }
-  }
-
-  while (true) {
-    int const err = tryNextSecondaryFile();
-    if (err == -2) {
-      // No more files.
-      break;
-    }
-    if (err == -1) {
-      // Run, SubRun, or Event not found.
-      continue;
-    }
-    assert(!secondaryPrincipals_.empty());
-    auto& new_sp = secondaryPrincipals_.back();
-    results = new_sp->getMatchingSequenceForPrincipal(elementType, selector);
-    if (!results.empty()) {
-      return results;
-    }
-  }
-  return {};
-
-}
-
-Principal::GroupQueryResultVec
-Principal::getMatchingSequenceForPrincipal(TypeID const& elementType,
-                                           SelectorBase const& selector) const
-{
   GroupQueryResultVec results;
-  assert(elementLookup_);
-  for (auto const& el : *elementLookup_) {
-    auto I = el[branchType()].find(elementType.friendlyClassName());
-    if (I == el[branchType()].end()) {
+
+  // Find groups from current process
+  for (auto lookup : reverse_iteration(currentProcessElementLookups_)) {
+    auto I = lookup->find(elementType.friendlyClassName());
+    if (I == lookup->end()) {
       continue;
     }
     if (findGroups(I->second, selector, results, true) != 0) {
       return results;
     }
   }
+
+  // Look through currently opened input files
+  if (results.empty()) {
+    results = matchingSequenceFromInputFile(elementType, selector);
+    if (!results.empty()) {
+      return results;
+    }
+
+    for (auto const& sp : secondaryPrincipals_) {
+      results = sp->matchingSequenceFromInputFile(elementType, selector);
+      if (!results.empty()) {
+        return results;
+      }
+    }
+  }
+
+  // Open more secondary files if necessary
+  if (results.empty()) {
+    while (true) {
+      int const err = tryNextSecondaryFile();
+      if (err == -2) {
+        // No more files.
+        break;
+      }
+      if (err == -1) {
+        // Run, SubRun, or Event not found.
+        continue;
+      }
+      assert(!secondaryPrincipals_.empty());
+      auto& new_sp = secondaryPrincipals_.back();
+      results = new_sp->matchingSequenceFromInputFile(elementType, selector);
+      if (!results.empty()) {
+        return results;
+      }
+    }
+  }
+
+  return results;
+}
+
+Principal::GroupQueryResultVec
+Principal::matchingSequenceFromInputFile(TypeID const& elementType,
+                                         SelectorBase const& selector) const
+{
+  assert(elementLookup_);
+
+  auto it = elementLookup_->find(elementType.friendlyClassName());
+  if (it == elementLookup_->end()) {
+    return {};
+  }
+
+  GroupQueryResultVec results;
+  findGroups(it->second, selector, results, true);
   return results;
 }
 
@@ -259,16 +310,34 @@ Principal::findGroupsForProduct(TypeID const& wanted_product,
                                 bool const stopIfProcessHasMatch) const
 {
   size_t ret{};
-  ret = findGroupsForPrincipal(wanted_product, selector, results, stopIfProcessHasMatch);
+  // findGroupsFromSource
+
+  // Find groups from current process
+  for (auto lookup : reverse_iteration(currentProcessProductLookups_)) {
+    auto it = lookup->find(wanted_product.friendlyClassName());
+    if (it == lookup->end()) {
+      continue;
+    }
+    // FIXME: Find a way to supply the wrapped TypeID without relying on ROOT.
+    auto cl = TClass::GetClass(wrappedClassName(wanted_product.className()).c_str());
+    assert(cl); // Will have already checked for dictionary when opening file.
+    ret += findGroups(it->second, selector, results, stopIfProcessHasMatch,
+                      TypeID{cl->GetTypeInfo()});
+  }
+
+  // Find groups from source
+  ret += findGroupsForPrincipal(wanted_product, selector, results, stopIfProcessHasMatch);
   if (ret) {
     return ret;
   }
+
   for (auto const& sp : secondaryPrincipals_) {
     ret = sp->findGroupsForPrincipal(wanted_product, selector, results, stopIfProcessHasMatch);
     if (ret) {
       return ret;
     }
   }
+
   while (true) {
     int const err = tryNextSecondaryFile();
     if (err == -2) {
@@ -295,40 +364,20 @@ Principal::findGroupsForPrincipal(TypeID const& wanted_product,
                                   GroupQueryResultVec& results,
                                   bool const stopIfProcessHasMatch) const
 {
-  TClass* cl = nullptr;
-  ////////////////////////////////////
-  // Cannot do this here because some tests expect to be able to
-  // call here requesting a wanted_product that does not have
-  // a dictionary and be ok because the productLookup fails.
-  // See issue #8532.
-  //cl = TClass::GetClass(wrappedClassName(wanted_product.className()).c_str());
-  //if (!cl) {
-  //  throw Exception(errors::DictionaryNotFound)
-  //      << "Dictionary not found for "
-  //      << wrappedClassName(wanted_product.className())
-  //      << ".\n";
-  //}
-  ////////////////////////////////////
-  size_t ret = 0;
   assert(productLookup_);
-  for (auto const& pl : *productLookup_) {
-    auto I = pl[branchType()].find(wanted_product.friendlyClassName());
-    if (I == pl[branchType()].end()) {
-      continue;
-    }
-    // FIXME: Find a way to supply the wrapped TypeID without relying on ROOT.
-    cl = TClass::GetClass(wrappedClassName(wanted_product.className()).c_str());
-    assert(cl); // Will have already checked for dictionary when opening file.
-    ret = findGroups(I->second, selector, results, stopIfProcessHasMatch,
-                     TypeID{cl->GetTypeInfo()});
-    if (ret) {
-      return ret;
-    }
+  auto it = productLookup_->find(wanted_product.friendlyClassName());
+  if (it == productLookup_->end()) {
+    return 0;
   }
-  return 0;
+
+  // FIXME: Find a way to supply the wrapped TypeID without relying on ROOT.
+  auto cl = TClass::GetClass(wrappedClassName(wanted_product.className()).c_str());
+  assert(cl); // Will have already checked for dictionary when opening file.
+  return findGroups(it->second, selector, results, stopIfProcessHasMatch,
+                    TypeID{cl->GetTypeInfo()});
 }
 
-size_t
+std::size_t
 Principal::findGroups(ProcessLookup const& pl,
                       SelectorBase const& sel,
                       GroupQueryResultVec& res,
@@ -338,22 +387,24 @@ Principal::findGroups(ProcessLookup const& pl,
   // Loop over processes in reverse time order.  Sometimes we want to
   // stop after we find a process with matches so check for that at
   // each step.
-  for (auto I = processHistory().crbegin(), E = processHistory().crend();
-       (I != E) && (res.empty() || !stopIfProcessHasMatch); ++I) {
-    auto J = pl.find(I->processName());
-    if (J != pl.end()) {
-      findGroupsForProcess(J->second, sel, res, wanted_wrapper);
+  std::size_t found{};
+  for (auto const& h : reverse_iteration(processHistory())) {
+    auto it = pl.find(h.processName());
+    if (it != pl.end()) {
+      found += findGroupsForProcess(it->second, sel, res, wanted_wrapper);
     }
+    if (stopIfProcessHasMatch && !res.empty())  break;
   }
-  return res.size();
+  return found;
 }
 
-void
+std::size_t
 Principal::findGroupsForProcess(std::vector<ProductID> const& vpid,
                                 SelectorBase const& sel,
                                 GroupQueryResultVec& res,
                                 TypeID const wanted_wrapper) const
 {
+  std::size_t found{}; // Horrible hack that should go away
   for (auto const pid : vpid) {
     auto group = getGroup(pid);
     if (!group) {
@@ -378,7 +429,9 @@ Principal::findGroupsForProcess(std::vector<ProductID> const& vpid,
     }
     // Found a good match, save it.
     res.emplace_back(group);
+    ++found;
   }
+  return found;
 }
 
 EDProductGetter const*

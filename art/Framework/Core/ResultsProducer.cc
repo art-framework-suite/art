@@ -13,6 +13,7 @@ doWriteResults(ResultsPrincipal& resp)
   Results res {resp, *moduleDescription_, this};
   writeResults(res);
   res.commit_(resp);
+  resp.addLookups(productLookups<InResults>(), elementLookups<InResults>());
 }
 
 void

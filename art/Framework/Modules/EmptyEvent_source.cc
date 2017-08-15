@@ -63,7 +63,7 @@ public:
   using Parameters = fhicl::WrappedTable<Config, Config::KeysToIgnore>;
 
   explicit EmptyEvent(Parameters const& config,
-                      InputSourceDescription & desc);
+                      InputSourceDescription& desc);
 
   unsigned int numberEventsInRun() const { return numberEventsInRun_; }
   unsigned int numberEventsInSubRun() const { return numberEventsInSubRun_; }
@@ -90,7 +90,7 @@ private:
   void reallyReadEvent(bool const lastEventInSubRun);
 
   std::unique_ptr<EmptyEventTimestampPlugin>
-  makePlugin_(fhicl::ParameterSet const & pset);
+  makePlugin_(fhicl::ParameterSet const& pset);
 
   unsigned int numberEventsInRun_;
   unsigned int numberEventsInSubRun_;
@@ -117,7 +117,7 @@ using namespace art;
 
 //used for defaults
 
-art::EmptyEvent::EmptyEvent(art::EmptyEvent::Parameters const& config, InputSourceDescription & desc)
+art::EmptyEvent::EmptyEvent(art::EmptyEvent::Parameters const& config, InputSourceDescription& desc)
   :
   DecrepitRelicInputSourceImplementation{config().drisi_config, desc},
   numberEventsInRun_       {static_cast<uint32_t>(config().numberEventsInRun())},
@@ -153,8 +153,6 @@ art::EmptyEvent::readRun_()
   newRun_ = false;
   auto rp_ptr = std::make_unique<RunPrincipal>(runAux,
                                                processConfiguration());
-  rp_ptr->setProductLookups(ProductMetaData::instance().productLookup(),
-                            ProductMetaData::instance().elementLookup());
   if (plugin_) {
     Run const r {*rp_ptr, moduleDescription(), Consumer::non_module_context()};
     plugin_->doBeginRun(r);
@@ -178,8 +176,6 @@ EmptyEvent::readSubRun_()
   SubRunAuxiliary const subRunAux {eventID_.subRunID(), ts, Timestamp::invalidTimestamp()};
   auto srp_ptr = std::make_unique<SubRunPrincipal>(subRunAux,
                                                    processConfiguration());
-  srp_ptr->setProductLookups(ProductMetaData::instance().productLookup(),
-                             ProductMetaData::instance().elementLookup());
   if (plugin_) {
     SubRun const sr {*srp_ptr, moduleDescription(), Consumer::non_module_context()};
     plugin_->doBeginSubRun(sr);
@@ -230,13 +226,11 @@ void art::EmptyEvent::reallyReadEvent(bool const lastEventInSubRun) {
                                          std::make_unique<BranchMapper>(),
                                          std::make_unique<NoDelayedReader>(),
                                          lastEventInSubRun);
-  ep_->setProductLookups(ProductMetaData::instance().productLookup(),
-                         ProductMetaData::instance().elementLookup());
 }
 
 std::unique_ptr<art::EmptyEventTimestampPlugin>
 art::EmptyEvent::
-makePlugin_(fhicl::ParameterSet const & pset)
+makePlugin_(fhicl::ParameterSet const& pset)
 {
   std::unique_ptr<art::EmptyEventTimestampPlugin> result;
   try {
@@ -254,7 +248,7 @@ makePlugin_(fhicl::ParameterSet const & pset)
           << ".\n";
       }
     }
-  } catch (cet::exception & e) {
+  } catch (cet::exception& e) {
     throw Exception(errors::Configuration, "EmptyEvent: ", e)
       << "Exception caught while processing plugin spec.\n";
   }

@@ -1,7 +1,6 @@
 #include "art/Persistency/Provenance/MasterProductRegistry.h"
 // vim: set sw=2:
 
-#include "art/Persistency/Provenance/detail/fillLookups.h"
 #include "canvas/Persistency/Provenance/BranchKey.h"
 #include "cetlib/assert_only_one_thread.h"
 #include "cetlib/exception.h"
@@ -52,10 +51,6 @@ art::MasterProductRegistry::finalizeForProcessing()
   // Product registration can still happen implicitly whenever an
   // input file is opened--via calls to updateFrom(Primary|Secondary)File.
   allowExplicitRegistration_ = false;
-
-  productLookup_.assign(1u,{});
-  elementLookup_.assign(1u,{});
-  detail::fillLookups(productList_, productLookup_[0], elementLookup_[0]);
 }
 
 void
@@ -70,20 +65,12 @@ art::MasterProductRegistry::updateFromModule(std::unique_ptr<ProductList>&& pl)
 void
 art::MasterProductRegistry::updateFromPrimaryFile(ProductList const& pl,
                                                   PerBranchTypePresence const& presList,
-                                                  // BranchTypeLookup const& productLookup,
-                                                  // BranchTypeLookup const& elementLookup,
                                                   FileBlock const& fb)
 {
   CET_ASSERT_ONLY_ONE_THREAD();
 
   updateProductLists_(pl);
   perFilePresenceLookups_.assign(1u, presList);
-  // productLookup_.assign(1u, productLookup);
-  // elementLookup_.assign(1u, elementLookup);
-
-  productLookup_.assign(1u,{});
-  elementLookup_.assign(1u,{});
-  detail::fillLookups(productList_, productLookup_[0], elementLookup_[0]);
 
   cet::for_all(productListUpdatedCallbacks_, [&fb](auto const& callback){ callback(fb); });
 }
@@ -91,19 +78,12 @@ art::MasterProductRegistry::updateFromPrimaryFile(ProductList const& pl,
 void
 art::MasterProductRegistry::updateFromSecondaryFile(ProductList const& pl,
                                                     PerBranchTypePresence const& presList,
-                                                    // BranchTypeLookup const& productLookup,
-                                                    // BranchTypeLookup const& elementLookup,
                                                     FileBlock const& fb)
 {
   CET_ASSERT_ONLY_ONE_THREAD();
 
   updateProductLists_(pl);
-  // productLookup_.push_back(productLookup);
-  // elementLookup_.push_back(elementLookup);
   perFilePresenceLookups_.push_back(presList);
-  productLookup_.resize(productLookup_.size()+1);
-  elementLookup_.resize(elementLookup_.size()+1);
-  detail::fillLookups(pl, productLookup_.back(), elementLookup_.back());
 
   cet::for_all(productListUpdatedCallbacks_, [&fb](auto const& callback){ callback(fb); });
 }

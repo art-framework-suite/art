@@ -3,6 +3,7 @@
 #include "art/Framework/Core/CPCSentry.h"
 #include "art/Framework/Core/detail/get_failureToPut_flag.h"
 #include "art/Framework/Principal/Event.h"
+#include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Principal/Run.h"
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRun.h"
@@ -24,6 +25,7 @@ namespace art
     counts.increment<stats::Run>();
     bool const rc = filter(e);
     e.commit_(ep, checkPutProducts_, expectedProducts());
+    ep.addLookups(productLookups(), elementLookups());
     counts.update(rc);
     return rc;
   }
@@ -47,17 +49,18 @@ namespace art
   }
 
   bool
-  EDFilter::doBeginRun(RunPrincipal & rp,
+  EDFilter::doBeginRun(RunPrincipal& rp,
                        CPC_exempt_ptr cpc) {
     detail::CPCSentry sentry {current_context_, cpc};
     Run r {rp, moduleDescription_, this, RangeSet::forRun(rp.id())};
     bool const rc = beginRun(r);
     r.commit_(rp);
+    rp.addLookups(productLookups<InRun>(), elementLookups<InRun>());
     return rc;
   }
 
   bool
-  EDFilter::doEndRun(RunPrincipal & rp,
+  EDFilter::doEndRun(RunPrincipal& rp,
                      CPC_exempt_ptr cpc) {
     detail::CPCSentry sentry {current_context_, cpc};
     Run r {rp, moduleDescription_, this, rp.seenRanges()};
@@ -67,17 +70,18 @@ namespace art
   }
 
   bool
-  EDFilter::doBeginSubRun(SubRunPrincipal & srp,
+  EDFilter::doBeginSubRun(SubRunPrincipal& srp,
                           CPC_exempt_ptr cpc) {
     detail::CPCSentry sentry {current_context_, cpc};
     SubRun sr {srp, moduleDescription_, this, RangeSet::forSubRun(srp.id())};
     bool const rc = beginSubRun(sr);
     sr.commit_(srp);
+    srp.addLookups(productLookups<InSubRun>(), elementLookups<InSubRun>());
     return rc;
   }
 
   bool
-  EDFilter::doEndSubRun(SubRunPrincipal & srp,
+  EDFilter::doEndSubRun(SubRunPrincipal& srp,
                         CPC_exempt_ptr cpc)
   {
     detail::CPCSentry sentry {current_context_, cpc};

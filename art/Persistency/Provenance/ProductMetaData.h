@@ -95,19 +95,6 @@ namespace art {
       return mpr_->presentWithFileIdx(btype, pid);
     }
 
-    // Obtain lookup map to find a group by type of product.
-    std::vector<BranchTypeLookup> const& productLookup() const
-    {
-      return mpr_->productLookup();
-    }
-
-    // Obtain lookup map to find a group by type of element in a product
-    // which is a collection.
-    std::vector<BranchTypeLookup> const& elementLookup() const
-    {
-      return mpr_->elementLookup();
-    }
-
     // Return true if any product is produced in this process for
     // the given branch type.
     bool productProduced(BranchType which) const

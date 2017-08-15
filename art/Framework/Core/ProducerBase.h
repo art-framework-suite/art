@@ -35,6 +35,8 @@ namespace art {
     using ProductRegistryHelper::registerProducts;
     using ProductRegistryHelper::produces;
     using ProductRegistryHelper::expectedProducts;
+    using ProductRegistryHelper::productLookups;
+    using ProductRegistryHelper::elementLookups;
 
     bool modifiesEvent() const { return true; }
 

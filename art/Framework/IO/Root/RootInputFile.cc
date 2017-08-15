@@ -625,8 +625,7 @@ namespace art {
                                                                              entryNumbers.first,
                                                                              eventAux().id()),
                                                entryNumbers.second);
-    ep->setProductLookups(ProductMetaData::instance().productLookup(),
-                          ProductMetaData::instance().elementLookup());
+    ep->setProductLookups(&productLookup_[InEvent], &elementLookup_[InEvent]);
     eventTree().fillGroups(*ep);
     if (!delayedReadEventProducts_) {
       ep->readImmediate();
@@ -662,8 +661,7 @@ namespace art {
                                                                              entryNumbers.first,
                                                                              eventAux().id()),
                                                entryNumbers.second);
-    ep->setProductLookups(ProductMetaData::instance().productLookup(),
-                          ProductMetaData::instance().elementLookup());
+    ep->setProductLookups(&productLookup_[InEvent], &elementLookup_[InEvent]);
     eventTree().fillGroups(*ep);
     primaryFile_->primaryEP_->addSecondaryPrincipal(move(ep));
     return true;
@@ -721,8 +719,7 @@ namespace art {
                                                                          InRun,
                                                                          entryNumbers,
                                                                          fiIter_->eventID_));
-    rp->setProductLookups(ProductMetaData::instance().productLookup(),
-                          ProductMetaData::instance().elementLookup());
+    rp->setProductLookups(&productLookup_[InRun], &elementLookup_[InRun]);
     runTree().fillGroups(*rp);
     if (!delayedReadRunProducts_) {
       rp->readImmediate();
@@ -769,8 +766,7 @@ namespace art {
                                                                          InRun,
                                                                          entryNumbers,
                                                                          fiIter_->eventID_));
-    rp->setProductLookups(ProductMetaData::instance().productLookup(),
-                          ProductMetaData::instance().elementLookup());
+    rp->setProductLookups(&productLookup_[InRun], &elementLookup_[InRun]);
     runTree().fillGroups(*rp);
     if (!delayedReadRunProducts_) {
       rp->readImmediate();
@@ -833,8 +829,7 @@ namespace art {
                                                                                 InSubRun,
                                                                                 entryNumbers,
                                                                                 fiIter_->eventID_));
-    srp->setProductLookups(ProductMetaData::instance().productLookup(),
-                           ProductMetaData::instance().elementLookup());
+    srp->setProductLookups(&productLookup_[InSubRun], &elementLookup_[InSubRun]);
     subRunTree().fillGroups(*srp);
     if (!delayedReadSubRunProducts_) {
       srp->readImmediate();
@@ -880,8 +875,7 @@ namespace art {
                                                                                 InSubRun,
                                                                                 entryNumbers,
                                                                                 fiIter_->eventID_));
-    srp->setProductLookups(ProductMetaData::instance().productLookup(),
-                           ProductMetaData::instance().elementLookup());
+    srp->setProductLookups(&productLookup_[InSubRun], &elementLookup_[InSubRun]);
     subRunTree().fillGroups(*srp);
     if (!delayedReadSubRunProducts_) {
       srp->readImmediate();
@@ -1067,8 +1061,7 @@ namespace art {
                                                                                 entryNumbers,
                                                                                 EventID{}));
       resultsTree().fillGroups(*resp);
-      resp->setProductLookups(ProductMetaData::instance().productLookup(),
-                              ProductMetaData::instance().elementLookup());
+      resp->setProductLookups(&productLookup_[InResults], &elementLookup_[InResults]);
     } else { // Empty
       resp = std::make_unique<ResultsPrincipal>(ResultsAuxiliary{},
                                                 processConfiguration_);

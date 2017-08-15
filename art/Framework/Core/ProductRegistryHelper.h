@@ -29,6 +29,7 @@
 #include "canvas/Utilities/Exception.h"
 #include "canvas/Utilities/TypeID.h"
 #include "cetlib/exception.h"
+#include "cetlib/exempt_ptr.h"
 
 #include <memory>
 #include <set>
@@ -44,7 +45,7 @@ namespace {
 
   inline
   void
-  verifyFriendlyClassName(std::string const & fcn)
+  verifyFriendlyClassName(std::string const& fcn)
   {
     std::string errMsg;
     if (!art::detail::checkFriendlyName(fcn, errMsg)) {
@@ -57,7 +58,7 @@ namespace {
 
   inline
   void
-  verifyModuleLabel(std::string const & ml)
+  verifyModuleLabel(std::string const& ml)
   {
     std::string errMsg;
     if (!art::detail::checkModuleLabel(ml, errMsg)) {
@@ -68,7 +69,7 @@ namespace {
 
   inline
   void
-  verifyInstanceName(std::string const & instanceName)
+  verifyInstanceName(std::string const& instanceName)
   {
     std::string errMsg;
     if (!art::detail::checkInstanceName(instanceName, errMsg)) {
@@ -110,6 +111,12 @@ public:
     return typeLabelList_[B];
   }
 
+  template <BranchType B = InEvent>
+  cet::exempt_ptr<TypeLookup const> productLookups() { return &productLookup_[B]; }
+
+  template <BranchType B = InEvent>
+  cet::exempt_ptr<TypeLookup const> elementLookups() { return &elementLookup_[B]; }
+
 private:
 
   TypeLabel const&
@@ -130,6 +137,8 @@ private:
   }
 
   std::array<std::set<TypeLabel>, NumBranchTypes> typeLabelList_;
+  BranchTypeLookup productLookup_{{}};
+  BranchTypeLookup elementLookup_{{}};
 
   // Set by an input source for merging into the master product
   // registry by registerProducts().  Ownership is released to

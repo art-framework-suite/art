@@ -108,11 +108,19 @@ namespace art {
     }
 
     void
-    setProductLookups(BranchTypeLookups const& productLookups,
-                      BranchTypeLookups const& elementLookups)
+    addLookups(cet::exempt_ptr<TypeLookup const> productLookup,
+               cet::exempt_ptr<TypeLookup const> elementLookup)
     {
-      productLookup_ = &productLookups;
-      elementLookup_ = &elementLookups;
+      currentProcessProductLookups_.push_back(productLookup);
+      currentProcessElementLookups_.push_back(elementLookup);
+    }
+
+    void
+    setProductLookups(cet::exempt_ptr<TypeLookup const> productLookup,
+                      cet::exempt_ptr<TypeLookup const> elementLookup)
+    {
+      productLookup_ = productLookup;
+      elementLookup_ = elementLookup;
     }
 
     void
@@ -252,8 +260,8 @@ namespace art {
     setProcessHistoryID(ProcessHistoryID const&) = 0;
 
     std::vector<GroupQueryResult>
-    getMatchingSequenceForPrincipal(TypeID const& elementType,
-                                    SelectorBase const&) const;
+    matchingSequenceFromInputFile(TypeID const& elementType,
+                                  SelectorBase const&) const;
 
     size_t
     findGroupsForProduct(TypeID const& wanted_product,
@@ -274,7 +282,7 @@ namespace art {
                bool stopIfProcessHasMatch,
                TypeID wanted_wrapper = TypeID{}) const;
 
-    void
+    size_t
     findGroupsForProcess(std::vector<ProductID> const& vpid,
                          SelectorBase const& selector,
                          std::vector<GroupQueryResult>& results,
@@ -298,8 +306,10 @@ namespace art {
     std::shared_ptr<ProcessHistory> processHistoryPtr_{std::make_shared<ProcessHistory>()};
 
     ProcessConfiguration const& processConfiguration_;
-    cet::exempt_ptr<BranchTypeLookups const> productLookup_{nullptr};
-    cet::exempt_ptr<BranchTypeLookups const> elementLookup_{nullptr};
+    cet::exempt_ptr<TypeLookup const> productLookup_;
+    cet::exempt_ptr<TypeLookup const> elementLookup_;
+    std::vector<cet::exempt_ptr<TypeLookup const>> currentProcessProductLookups_{};
+    std::vector<cet::exempt_ptr<TypeLookup const>> currentProcessElementLookups_{};
 
     mutable
     std::map<ProductID, std::shared_ptr<DeferredProductGetter const>>

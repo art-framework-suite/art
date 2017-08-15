@@ -161,18 +161,12 @@ EventPrincipalTestFixture::EventPrincipalTestFixture()
   art::Timestamp now(1234567UL);
   art::RunAuxiliary runAux {eventID.run(), now, now};
   auto rp = std::make_unique<art::RunPrincipal>(runAux, *process);
-  rp->setProductLookups(art::ProductMetaData::instance().productLookup(),
-                        art::ProductMetaData::instance().elementLookup());
   art::SubRunAuxiliary subRunAux {rp->run(), eventID.subRun(), now, now};
   auto srp = std::make_unique<art::SubRunPrincipal>(subRunAux, *process);
   srp->setRunPrincipal(rp.get());
-  srp->setProductLookups(art::ProductMetaData::instance().productLookup(),
-                         art::ProductMetaData::instance().elementLookup());
   art::EventAuxiliary eventAux(eventID, now, true);
   pEvent_ = std::make_unique<art::EventPrincipal>(eventAux, *process);
   pEvent_->setSubRunPrincipal(srp.get());
-  pEvent_->setProductLookups(art::ProductMetaData::instance().productLookup(),
-                             art::ProductMetaData::instance().elementLookup());
   pEvent_->put(std::move(product), branchFromRegistry, std::move(productProvenancePtr));
 
   BOOST_REQUIRE_EQUAL(pEvent_->size(), 1u);

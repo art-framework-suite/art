@@ -62,24 +62,13 @@ public:
   void updateFromModule(std::unique_ptr<ProductList>&&);
   void updateFromPrimaryFile(ProductList const&,
                              PerBranchTypePresence const&,
-                             // BranchTypeLookup const& productLookup,
-                             // BranchTypeLookup const& elementLookup,
                              FileBlock const&);
   void updateFromSecondaryFile(ProductList const&,
                                PerBranchTypePresence const&,
-                               // BranchTypeLookup const& productLookup,
-                               // BranchTypeLookup const& elementLookup,
                                FileBlock const&);
 
   auto const& productList() const { return productList_; }
   auto size() const { return productList_.size(); }
-
-  // Obtain lookup map to find a group by type of product.
-  auto const& productLookup() const { return productLookup_; }
-
-  // Obtain lookup map to find a group by type of element in a product
-  // which is a collection.
-  auto const& elementLookup() const { return elementLookup_; }
 
   void print(std::ostream&) const;
 
@@ -104,10 +93,10 @@ private:
   PerBranchTypePresence  perBranchPresenceLookup_{{}}; // Fill with 1 empty list
   PerFilePresence perFilePresenceLookups_{};
   // Support finding a ProductID by <product friendly class name, process name>.
-  std::vector<BranchTypeLookup> productLookup_;
+  //    std::vector<BranchTypeLookup> productLookup_;
   // Support finding a ProductID by
   // <product::value_type friendly class name, process name>.
-  std::vector<BranchTypeLookup> elementLookup_;
+  //    std::vector<BranchTypeLookup> elementLookup_;
 };
 
 // Local Variables:

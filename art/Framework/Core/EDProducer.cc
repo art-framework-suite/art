@@ -3,6 +3,7 @@
 #include "art/Framework/Core/CPCSentry.h"
 #include "art/Framework/Core/detail/get_failureToPut_flag.h"
 #include "art/Framework/Principal/Event.h"
+#include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Principal/Run.h"
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRun.h"
@@ -24,6 +25,7 @@ namespace art
     counts.increment<stats::Run>();
     produce(e);
     e.commit_(ep, checkPutProducts_, expectedProducts());
+    ep.addLookups(productLookups(), elementLookups());
     counts.increment<stats::Passed>();
     return true;
   }
@@ -55,6 +57,7 @@ namespace art
     Run r{rp, moduleDescription_, this, RangeSet::forRun(rp.id())};
     beginRun(r);
     r.commit_(rp);
+    rp.addLookups(productLookups<InRun>(), elementLookups<InRun>());
     return true;
   }
 
@@ -77,6 +80,7 @@ namespace art
     SubRun sr{srp, moduleDescription_, this, RangeSet::forSubRun(srp.id())};
     beginSubRun(sr);
     sr.commit_(srp);
+    srp.addLookups(productLookups<InSubRun>(), elementLookups<InSubRun>());
     return true;
   }
 

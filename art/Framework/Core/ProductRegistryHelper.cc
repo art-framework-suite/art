@@ -56,11 +56,14 @@ art::ProductRegistryHelper::registerProducts(MasterProductRegistry& mpr,
 {
   mpr.updateFromModule(std::move(productList_));
   check_for_duplicate_Assns(typeLabelList_[InEvent]);
+  ProductList plist;
   for (std::size_t ibt{}; ibt != NumBranchTypes; ++ibt) {
     auto bt = static_cast<BranchType>(ibt);
     for (auto const& val : typeLabelList_[bt]) {
-      auto pd = std::make_unique<art::BranchDescription>(bt, val, md);
+      auto pd = std::make_unique<BranchDescription>(bt, val, md);
+      plist.emplace(BranchKey{*pd}, *pd);
       mpr.addProduct(std::move(pd));
     }
   }
+  detail::fillLookups(plist, productLookup_, elementLookup_);
 }

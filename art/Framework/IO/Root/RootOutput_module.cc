@@ -337,8 +337,6 @@ art::RootOutput::startEndFile()
 {
   auto resp = std::make_unique<ResultsPrincipal>(ResultsAuxiliary{},
                                                  description().processConfiguration());
-  resp->setProductLookups(ProductMetaData::instance().productLookup(),
-                          ProductMetaData::instance().elementLookup());
   if (ProductMetaData::instance().productProduced(InResults) ||
       hasNewlyDroppedBranch()[InResults]) {
     resp->addToProcessHistory();
