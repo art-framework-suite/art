@@ -123,7 +123,7 @@ art::Consumer::showMissingConsumes() const
   mf::LogPrint log{"MTdiagnostics"};
   log << '\n' << rule('=') << '\n'
       << "The following consumes (or mayConsume) statements are missing from\n"
-      << module_context(moduleDescription_)
+      << module_context(moduleDescription_) << '\n'
       << rule('-') << '\n';
 
   cet::for_all_with_index(missingConsumes_,
