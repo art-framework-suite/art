@@ -11,6 +11,7 @@
 #include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
 #include "art/Persistency/Provenance/ProductMetaData.h"
 #include "art/Version/GetReleaseVersion.h"
+#include "art/test/TestObjects/ToyProducts.h"
 #include "canvas/Persistency/Common/Wrapper.h"
 #include "canvas/Persistency/Provenance/BranchDescription.h"
 #include "canvas/Persistency/Provenance/EventAuxiliary.h"
@@ -25,7 +26,6 @@
 #include "canvas/Utilities/InputTag.h"
 #include "cetlib/container_algorithms.h"
 #include "fhiclcpp/ParameterSet.h"
-#include "art/test/TestObjects/ToyProducts.h"
 
 #include <algorithm>
 #include <fstream>
@@ -41,8 +41,9 @@ using namespace art;
 using fhicl::ParameterSet;
 
 namespace {
-  art::EventID   make_id() { return art::EventID{2112, 47, 25}; }
-  art::Timestamp make_timestamp() { return art::Timestamp{1}; }
+  art::EventID make_id() { return art::EventID{2112, 47, 25}; }
+  constexpr art::Timestamp make_timestamp() { return art::Timestamp{1}; }
+  std::string module_class_name() { return "IntProducer"; }
 }
 
 // This is a gross hack, to allow us to test the event
@@ -60,46 +61,59 @@ class MPRGlobalTestFixture {
 public:
   MPRGlobalTestFixture();
 
+  ModuleDescription currentModuleDescription_{};
+  // The following data member is a map that with the following semantics:
+  //   process_name <-> (module_name <-> module_configuration)
+  std::map<std::string, std::map<std::string, ParameterSet>> moduleConfigurations_{};
+  std::map<std::string, ModuleDescription> moduleDescriptions_{};
+
+private:
+
   template <typename T>
-  void registerProduct(std::string const& tag,
-                       std::string const& moduleLabel,
-                       std::string const& moduleClassName,
-                       std::string const& processName,
-                       std::string const& productInstanceName = std::string());
+  ModuleDescription const&
+  registerProduct(std::string const& tag,
+                  std::string const& moduleLabel,
+                  std::string const& processName,
+                  std::string const& productInstanceName = {});
 
-  std::unique_ptr<MasterProductRegistry> availableProducts_;
-  std::unique_ptr<ModuleDescription> currentModuleDescription_;
-  using modCache_t = std::map<std::string, ModuleDescription>;
-  using iterator_t = modCache_t::iterator;
-
-  modCache_t moduleDescriptions_;
+  std::unique_ptr<MasterProductRegistry> availableProducts_{std::make_unique<MasterProductRegistry>()};
 };
 
 MPRGlobalTestFixture::MPRGlobalTestFixture()
-  :
-  availableProducts_(new MasterProductRegistry()),
-  currentModuleDescription_(new ModuleDescription),
-  moduleDescriptions_()
 {
   using prod_t = arttest::IntProduct;
 
-  registerProduct<prod_t>("nolabel_tag",   "modOne",   "IntProducer",   "EARLY");
-  registerProduct<prod_t>("int1_tag",      "modMulti", "IntProducer",   "EARLY", "int1");
-  registerProduct<prod_t>("int1_tag_late", "modMulti", "IntProducer",   "LATE",  "int1");
-  registerProduct<prod_t>("int2_tag",      "modMulti", "IntProducer",   "EARLY", "int2");
-  registerProduct<prod_t>("int3_tag",      "modMulti", "IntProducer",   "EARLY");
+  // Register products for "EARLY" process
+  registerProduct<prod_t>("nolabel_tag", "modOne", "EARLY");
+  registerProduct<prod_t>("int1_tag", "modMulti", "EARLY", "int1");
+  registerProduct<prod_t>("int2_tag", "modMulti", "EARLY", "int2");
+  registerProduct<prod_t>("int3_tag", "modMulti", "EARLY");
 
-  // Fake up the production of a single IntProduct from an IntProducer
-  // module, run in the 'CURRENT' process.
+  // Register products for "LATE" process
+  registerProduct<prod_t>("int1_tag_late", "modMulti", "LATE", "int1");
+
+  // Register single IntProduct for the "CURRENT" process
+  currentModuleDescription_ = registerProduct<prod_t>("current_tag", "modMulti", "CURRENT", "int1");
+
+  availableProducts_->finalizeForProcessing();
+  ProductMetaData::create_instance(*availableProducts_);
+}
+
+template <class T>
+ModuleDescription const&
+MPRGlobalTestFixture::registerProduct(std::string const& tag,
+                                      std::string const& moduleLabel,
+                                      std::string const& processName,
+                                      std::string const& productInstanceName)
+{
   ParameterSet moduleParams;
-  std::string moduleLabel("modMulti");
-  std::string moduleClassName("IntProducer");
-  moduleParams.put<std::string>("module_type", moduleClassName);
-  moduleParams.put<std::string>("module_label", moduleLabel);
+  moduleParams.put("module_type", module_class_name());
+  moduleParams.put("module_label", moduleLabel);
+
+  moduleConfigurations_[processName][moduleLabel] = moduleParams;
 
   ParameterSet processParams;
-  std::string processName("CURRENT");
-  processParams.put<std::string>("process_name", processName);
+  processParams.put("process_name", processName);
   processParams.put(moduleLabel, moduleParams);
 
   ProcessConfiguration process;
@@ -107,55 +121,18 @@ MPRGlobalTestFixture::MPRGlobalTestFixture()
   process.releaseVersion_ = getReleaseVersion();
   process.parameterSetID_ = processParams.id();
 
-  TypeID product_type(typeid(prod_t));
+  ModuleDescription const localModuleDescription{moduleParams.id(),
+                                                 module_class_name(),
+                                                 moduleLabel,
+                                                 process};
 
-  currentModuleDescription_ = std::make_unique<ModuleDescription>(moduleParams.id(),
-                                                                  moduleClassName,
-                                                                  moduleLabel,
-                                                                  process);
-
-  std::string productInstanceName("int1");
-
-  availableProducts_->addProduct(std::make_unique<BranchDescription>(InEvent,
-                                                                     art::TypeLabel{product_type, productInstanceName},
-                                                                     *currentModuleDescription_));
-  availableProducts_->finalizeForProcessing();
-  ProductMetaData::create_instance(*availableProducts_);
-}
-
-template <class T>
-void
-MPRGlobalTestFixture::
-registerProduct(std::string const& tag,
-                std::string const& moduleLabel,
-                std::string const& moduleClassName,
-                std::string const& processName,
-                std::string const& productInstanceName)
-{
-  ParameterSet moduleParams;
-  moduleParams.put<std::string>("module_type", moduleClassName);
-  moduleParams.put<std::string>("module_label", moduleLabel);
-
-  ParameterSet processParams;
-  processParams.put<std::string>("process_name", processName);
-  processParams.put<ParameterSet>(moduleLabel, moduleParams);
-
-  ProcessConfiguration process;
-  process.processName_    = processName;
-  process.releaseVersion_ = getReleaseVersion();
-  process.parameterSetID_ = processParams.id();
-
-  ModuleDescription localModuleDescription(moduleParams.id(),
-                                           moduleClassName,
-                                           moduleLabel,
-                                           process);
-
-  TypeID product_type(typeid(T));
+  TypeID const product_type{typeid(T)};
 
   moduleDescriptions_[tag] = localModuleDescription;
   availableProducts_->addProduct(std::make_unique<BranchDescription>(InEvent,
                                                                      art::TypeLabel{product_type, productInstanceName},
                                                                      localModuleDescription));
+  return moduleDescriptions_[tag];
 }
 
 struct EventTestFixture {
@@ -164,113 +141,88 @@ struct EventTestFixture {
   template <class T>
   ProductID addProduct(std::unique_ptr<T>&& product,
                        std::string const& tag,
-                       std::string const& productLabel = std::string());
+                       std::string const& productLabel = {});
 
   MPRGlobalTestFixture& gf();
-  using modCache_t = MPRGlobalTestFixture::modCache_t;
-  using iterator_t = MPRGlobalTestFixture::iterator_t;
-
   std::unique_ptr<EventPrincipal> principal_{nullptr};
   std::unique_ptr<Event> currentEvent_{nullptr};
 };
 
 EventTestFixture::EventTestFixture()
 {
-  // First build a fake process history, that says there
-  // were previous processes named "EARLY" and "LATE".
-  // This takes several lines of code but other than
-  // the process names none of it is used or interesting.
-  ParameterSet moduleParamsEarly;
-  std::string moduleLabelEarly("currentModule");
-  std::string moduleClassNameEarly("IntProducer");
-  moduleParamsEarly.put<std::string>("module_type", moduleClassNameEarly);
-  moduleParamsEarly.put<std::string>("module_label", moduleLabelEarly);
+  // Construct process history for event.  This takes several lines of
+  // code but other than the process names none of it is used or
+  // interesting.
+  ProcessHistory processHistory;
+  for (auto const& process : gf().moduleConfigurations_) {
+    auto const& process_name = process.first;
+    // Skip current process since it is not yet part of the history.
+    if (process_name == "CURRENT") {
+      continue;
+    }
 
-  ParameterSet processParamsEarly;
-  std::string processNameEarly("EARLY");
-  processParamsEarly.put<std::string>("process_name", processNameEarly);
-  processParamsEarly.put(moduleLabelEarly, moduleParamsEarly);
+    // Construct the ParameterSet for each process
+    auto const& module_configurations = process.second;
+    ParameterSet processParameterSet;
+    processParameterSet.put("process_name", process_name);
+    for (auto const& modConfig : module_configurations) {
+      processParameterSet.put(modConfig.first, modConfig.second);
+    }
 
-  ProcessConfiguration processEarly;
-  processEarly.processName_    = "EARLY";
-  processEarly.releaseVersion_ = getReleaseVersion();
-  processEarly.parameterSetID_ = processParamsEarly.id();
+    ProcessConfiguration processConfiguration;
+    processConfiguration.processName_    = process.first;
+    processConfiguration.releaseVersion_ = getReleaseVersion();
+    processConfiguration.parameterSetID_ = processParameterSet.id();
+    processHistory.push_back(processConfiguration);
+  }
 
-  ParameterSet moduleParamsLate;
-  std::string moduleLabelLate("currentModule");
-  std::string moduleClassNameLate("IntProducer");
-  moduleParamsLate.put<std::string>("module_type", moduleClassNameLate);
-  moduleParamsLate.put<std::string>("module_label", moduleLabelLate);
+  auto const processHistoryID = processHistory.id();
+  ProcessHistoryRegistry::emplace(processHistoryID, processHistory);
 
-  ParameterSet processParamsLate;
-  std::string processNameLate("LATE");
-  processParamsLate.put<std::string>("process_name", processNameLate);
-  processParamsLate.put(moduleLabelLate, moduleParamsLate);
+  // When any new product is added to the event principal at commit,
+  // the "CURRENT" process will go into the ProcessHistory because the
+  // process name comes from the currentModuleDescription stored in
+  // the principal.  On the other hand, when addProduct is called
+  // another event is created with a fake moduleDescription containing
+  // the old process name and that is used to create the group in the
+  // principal used to look up the object.
 
-  ProcessConfiguration processLate;
-  processLate.processName_    = "LATE";
-  processLate.releaseVersion_ = getReleaseVersion();
-  processLate.parameterSetID_ = processParamsLate.id();
+  constexpr auto time = make_timestamp();
+  EventID const id{make_id()};
+  ProcessConfiguration const& pc = gf().currentModuleDescription_.processConfiguration();
 
-  ProcessHistory* processHistory = new ProcessHistory;
-  ProcessHistory& ph = *processHistory;
-  processHistory->push_back(processEarly);
-  processHistory->push_back(processLate);
-
-  ProcessHistoryRegistry::emplace(ph.id(), ph);
-
-  ProcessHistoryID processHistoryID = ph.id();
-
-  // Finally done with making a fake process history
-
-  // This is all a hack to make this test work, but here is some
-  // detail as to what is going on.  (this does not happen in real
-  // data processing).
-  // When any new product is added to the event principal at
-  // commit, the "CURRENT" process will go into the ProcessHistory
-  // even if we have faked it that the new product is associated
-  // with a previous process, because the process name comes from
-  // the currentModuleDescription stored in the principal.  On the
-  // other hand, when addProduct is called another event is created
-  // with a fake moduleDescription containing the old process name
-  // and that is used to create the group in the principal used to
-  // look up the object.
-
-  Timestamp time = make_timestamp();
-  EventID id = make_id();
-  ProcessConfiguration const& pc = gf().currentModuleDescription_->processConfiguration();
-  RunAuxiliary runAux(id.run(), time, time);
+  RunAuxiliary const runAux{id.run(), time, time};
   auto rp = std::make_unique<RunPrincipal>(runAux, pc);
-  SubRunAuxiliary subRunAux {rp->run(), 1u, time, time};
+
+  SubRunAuxiliary const subRunAux{rp->run(), 1u, time, time};
   auto srp = std::make_unique<SubRunPrincipal>(subRunAux, pc);
   srp->setRunPrincipal(rp.get());
-  EventAuxiliary eventAux(id, time, true);
+
+  EventAuxiliary const eventAux{id, time, true};
   auto history = std::make_shared<History>();
   const_cast<ProcessHistoryID&>(history->processHistoryID()) = processHistoryID;
   principal_ = std::make_unique<EventPrincipal>(eventAux, pc, history);
-
   principal_->setSubRunPrincipal(srp.get());
-  currentEvent_ = std::make_unique<Event>(*principal_, *gf().currentModuleDescription_, Consumer::non_module_context());
 
-  delete processHistory;
+  currentEvent_ = std::make_unique<Event>(*principal_, gf().currentModuleDescription_, Consumer::non_module_context());
 }
 
-// Add the given product, of type T, to the current event,
-// as if it came from the module specified by the given tag.
+// Add the given product, of type T, to the current event, as if it
+// came from the module specified by the given tag.
 template <class T>
 ProductID
 EventTestFixture::addProduct(std::unique_ptr<T>&& product,
                              std::string const& tag,
                              std::string const& productLabel)
 {
-  iterator_t description = gf().moduleDescriptions_.find(tag);
+  auto description = gf().moduleDescriptions_.find(tag);
   if (description == gf().moduleDescriptions_.end())
     throw art::Exception(errors::LogicError)
       << "Failed to find a module description for tag: "
       << tag << '\n';
 
-  Event temporaryEvent(*principal_, description->second, Consumer::non_module_context());
-  ProductID id = temporaryEvent.put(std::move(product), productLabel);
+  Event temporaryEvent{*principal_, description->second, Consumer::non_module_context()};
+  ProductID const id{temporaryEvent.put(std::move(product), productLabel)};
   EDProducer::commitEvent(*principal_, temporaryEvent);
   return id;
 }
@@ -293,7 +245,7 @@ BOOST_AUTO_TEST_CASE(emptyEvent)
 
 BOOST_AUTO_TEST_CASE(getBySelectorFromEmpty)
 {
-  ModuleLabelSelector byModuleLabel("mod1");
+  ModuleLabelSelector const byModuleLabel{"mod1"};
   Handle<int> nonesuch;
   BOOST_REQUIRE(!nonesuch.isValid());
   BOOST_REQUIRE(!currentEvent_->get(byModuleLabel, nonesuch));
@@ -325,8 +277,8 @@ BOOST_AUTO_TEST_CASE(putAndGetAnIntProduct)
   currentEvent_->put(std::move(four), "int1");
   EDProducer::commitEvent(*principal_, *currentEvent_);
 
-  ProcessNameSelector should_match("CURRENT");
-  ProcessNameSelector should_not_match("NONESUCH");
+  ProcessNameSelector const should_match{"CURRENT"};
+  ProcessNameSelector const should_not_match{"NONESUCH"};
   Handle<arttest::IntProduct> h;
   currentEvent_->get(should_match, h);
   BOOST_REQUIRE(h.isValid());
@@ -344,19 +296,17 @@ BOOST_AUTO_TEST_CASE(getByProductID)
   using handle_t  = Handle<product_t>;
 
   ProductID wanted;
-
   {
     auto one = std::make_unique<product_t>(1);
-    ProductID id1 = addProduct(std::move(one), "int1_tag", "int1");
-    BOOST_REQUIRE(id1 != ProductID());
+    auto const id1 = addProduct(std::move(one), "int1_tag", "int1");
+    BOOST_REQUIRE(id1 != ProductID{});
     wanted = id1;
 
     auto two = std::make_unique<product_t>(2);
-    ProductID id2 = addProduct(std::move(two), "int2_tag", "int2");
-    BOOST_REQUIRE(id2 != ProductID());
+    auto const id2 = addProduct(std::move(two), "int2_tag", "int2");
+    BOOST_REQUIRE(id2 != ProductID{});
     BOOST_REQUIRE(id2 != id1);
 
-    EDProducer::commitEvent(*principal_, *currentEvent_);
     BOOST_REQUIRE_EQUAL(currentEvent_->size(), 2u);
   }
 
@@ -366,7 +316,7 @@ BOOST_AUTO_TEST_CASE(getByProductID)
   BOOST_REQUIRE_EQUAL(h.id(), wanted);
   BOOST_REQUIRE_EQUAL(h->value, 1);
 
-  ProductID notpresent{};  // Need to make distinction about invalid vs. not present?
+  ProductID const notpresent{};
   BOOST_REQUIRE(!currentEvent_->get(notpresent, h));
   BOOST_REQUIRE(!h.isValid());
   BOOST_REQUIRE(h.failedToGet());
@@ -408,33 +358,34 @@ BOOST_AUTO_TEST_CASE(getByInstanceName)
 
   BOOST_REQUIRE_EQUAL(currentEvent_->size(), 4u);
 
-  Selector sel(ProductInstanceNameSelector("int2") &&
-               ModuleLabelSelector("modMulti"));
+  Selector const sel{ProductInstanceNameSelector{"int2"} &&
+                     ModuleLabelSelector{"modMulti"}};
   handle_t h;
   BOOST_REQUIRE(currentEvent_->get(sel, h));
   BOOST_REQUIRE_EQUAL(h->value, 2);
 
-  Selector sel2(ProductInstanceNameSelector("int2") ||
-                ProductInstanceNameSelector("int1"));
+  Selector const sel2{ProductInstanceNameSelector{"int2"} ||
+                      ProductInstanceNameSelector{"int1"}};
   handle_vec handles;
   currentEvent_->getMany(sel2, handles);
   BOOST_REQUIRE_EQUAL(handles.size(), std::size_t(2));
 
-  std::string instance;
-  Selector sel1(ProductInstanceNameSelector(instance) &&
-                ModuleLabelSelector("modMulti"));
+  std::string const instance;
+  Selector const sel1{ProductInstanceNameSelector{instance} &&
+                      ModuleLabelSelector{"modMulti"}};
 
   BOOST_REQUIRE(currentEvent_->get(sel1, h));
   BOOST_REQUIRE_EQUAL(h->value, 3);
 
   handles.clear();
-  currentEvent_->getMany(ModuleLabelSelector("modMulti"), handles);
+
+  currentEvent_->getMany(ModuleLabelSelector{"modMulti"}, handles);
   BOOST_REQUIRE_EQUAL(handles.size(), 3u);
   handles.clear();
-  currentEvent_->getMany(ModuleLabelSelector("nomatch"), handles);
+  currentEvent_->getMany(ModuleLabelSelector{"nomatch"}, handles);
   BOOST_REQUIRE(handles.empty());
   std::vector<Handle<int> > nomatches;
-  currentEvent_->getMany(ModuleLabelSelector("modMulti"), nomatches);
+  currentEvent_->getMany(ModuleLabelSelector{"modMulti"}, nomatches);
   BOOST_REQUIRE(nomatches.empty());
 }
 
@@ -453,9 +404,6 @@ BOOST_AUTO_TEST_CASE(getBySelector)
   addProduct(std::move(three), "int3_tag");
   addProduct(std::move(four),  "nolabel_tag");
 
-  //  std::unique_ptr<std::vector<arttest::Thing> > ap_vthing(new std::vector<arttest::Thing>);
-  //  addProduct(ap_vthing, "thing", "");
-
   auto oneHundred = std::make_unique<product_t>(100);
   addProduct(std::move(oneHundred), "int1_tag_late", "int1");
 
@@ -465,55 +413,55 @@ BOOST_AUTO_TEST_CASE(getBySelector)
 
   BOOST_REQUIRE_EQUAL(currentEvent_->size(), 6u);
 
-  Selector sel(ProductInstanceNameSelector("int2") &&
-               ModuleLabelSelector("modMulti") &&
-               ProcessNameSelector("EARLY"));
+  Selector const sel{ProductInstanceNameSelector{"int2"} &&
+                     ModuleLabelSelector{"modMulti"} &&
+                     ProcessNameSelector{"EARLY"}};
   handle_t h;
   BOOST_REQUIRE(currentEvent_->get(sel, h));
   BOOST_REQUIRE_EQUAL(h->value, 2);
 
-  Selector sel1(ProductInstanceNameSelector("nomatch") &&
-                ModuleLabelSelector("modMulti") &&
-                ProcessNameSelector("EARLY"));
+  Selector const sel1{ProductInstanceNameSelector{"nomatch"} &&
+                      ModuleLabelSelector{"modMulti"} &&
+                      ProcessNameSelector{"EARLY"}};
   BOOST_REQUIRE(!currentEvent_->get(sel1, h));
   BOOST_REQUIRE(!h.isValid());
   BOOST_REQUIRE_THROW(*h, cet::exception);
 
-  Selector sel2(ProductInstanceNameSelector("int2") &&
-                ModuleLabelSelector("nomatch") &&
-                ProcessNameSelector("EARLY"));
+  Selector const sel2{ProductInstanceNameSelector{"int2"} &&
+                      ModuleLabelSelector{"nomatch"} &&
+                      ProcessNameSelector{"EARLY"}};
   BOOST_REQUIRE(!currentEvent_->get(sel2, h));
   BOOST_REQUIRE(!h.isValid());
   BOOST_REQUIRE_THROW(*h, cet::exception);
 
-  Selector sel3(ProductInstanceNameSelector("int2") &&
-                ModuleLabelSelector("modMulti") &&
-                ProcessNameSelector("nomatch"));
+  Selector const sel3{ProductInstanceNameSelector{"int2"} &&
+                      ModuleLabelSelector{"modMulti"} &&
+                      ProcessNameSelector{"nomatch"}};
   BOOST_REQUIRE(!currentEvent_->get(sel3, h));
   BOOST_REQUIRE(!h.isValid());
   BOOST_REQUIRE_THROW(*h, cet::exception);
 
-  Selector sel4(ModuleLabelSelector("modMulti") &&
-                ProcessNameSelector("EARLY"));
+  Selector const sel4{ModuleLabelSelector{"modMulti"} &&
+                      ProcessNameSelector{"EARLY"}};
   //multiple selections throw
   BOOST_REQUIRE_THROW(currentEvent_->get(sel4, h), cet::exception);
 
-  Selector sel5(ModuleLabelSelector("modMulti") &&
-                ProcessNameSelector("LATE"));
+  Selector const sel5{ModuleLabelSelector{"modMulti"} &&
+                      ProcessNameSelector{"LATE"}};
   currentEvent_->get(sel5, h);
   BOOST_REQUIRE_EQUAL(h->value, 100);
 
-  Selector sel6(ModuleLabelSelector("modMulti") &&
-                ProcessNameSelector("CURRENT"));
+  Selector const sel6{ModuleLabelSelector{"modMulti"} &&
+                      ProcessNameSelector{"CURRENT"}};
   currentEvent_->get(sel6, h);
   BOOST_REQUIRE_EQUAL(h->value, 200);
 
-  Selector sel7(ModuleLabelSelector("modMulti"));
+  Selector const sel7{ModuleLabelSelector{"modMulti"}};
   currentEvent_->get(sel7, h);
   BOOST_REQUIRE_EQUAL(h->value, 200);
 
   handle_vec handles;
-  currentEvent_->getMany(ModuleLabelSelector("modMulti"), handles);
+  currentEvent_->getMany(ModuleLabelSelector{"modMulti"}, handles);
   BOOST_REQUIRE_EQUAL(handles.size(), 5u);
   int sum = 0;
   for (int k = 0; k < 5; ++k) sum += handles[k]->value;
@@ -555,15 +503,15 @@ BOOST_AUTO_TEST_CASE(getByLabel)
   BOOST_REQUIRE(!h.isValid());
   BOOST_REQUIRE_THROW(*h, cet::exception);
 
-  InputTag inputTag("modMulti", "int1");
+  InputTag const inputTag{"modMulti", "int1"};
   BOOST_REQUIRE(currentEvent_->getByLabel(inputTag, h));
   BOOST_REQUIRE_EQUAL(h->value, 200);
 
   GroupQueryResult bh =
-    principal_->getByLabel(TypeID(typeid(arttest::IntProduct)), "modMulti", "int1", "LATE");
+    principal_->getByLabel(TypeID{typeid(arttest::IntProduct)}, "modMulti", "int1", "LATE");
   convert_handle(bh, h);
   BOOST_REQUIRE_EQUAL(h->value, 100);
-  GroupQueryResult bh2(principal_->getByLabel(TypeID(typeid(arttest::IntProduct)), "modMulti", "int1", "nomatch"));
+  GroupQueryResult bh2{principal_->getByLabel(TypeID{typeid(arttest::IntProduct)}, "modMulti", "int1", "nomatch")};
   BOOST_REQUIRE(!bh2.succeeded());
 }
 
@@ -601,8 +549,8 @@ BOOST_AUTO_TEST_CASE(getManyByType)
 
 BOOST_AUTO_TEST_CASE(printHistory)
 {
-  ProcessHistory const& history = currentEvent_->processHistory();
-  std::ofstream out("history.log");
+  auto const& history = currentEvent_->processHistory();
+  std::ofstream out{"history.log"};
 
   cet::copy_all(history, std::ostream_iterator<ProcessHistory::const_iterator::value_type>(out, "\n"));
 }
