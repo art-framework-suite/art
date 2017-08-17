@@ -233,24 +233,29 @@ private:
   // The following 'get' functions serve to isolate the DataViewImpl class
   // from the Principal class.
   GroupQueryResult
-  get_(TypeID const& tid, SelectorBase const&) const;
+  get_(TypeID const& tid,
+       TypeID const& wrapped_tid,
+       SelectorBase const&) const;
 
   GroupQueryResult
   getByProductID_(ProductID const pid) const;
 
   GroupQueryResult
-  getByLabel_(TypeID const& tid,
+  getByLabel_(TypeID const& productType,
+              TypeID const& wrappedProductType,
               std::string const& label,
               std::string const& productInstanceName,
               std::string const& processName) const;
 
   void
-  getMany_(TypeID const& tid,
+  getMany_(TypeID const& productType,
+           TypeID const& wrappedProductType,
            SelectorBase const& sel,
            GroupQueryResultVec& results) const;
 
   void
-  getManyByType_(TypeID const& tid,
+  getManyByType_(TypeID const& productType,
+                 TypeID const& wrappedProductType,
                  GroupQueryResultVec& results) const;
 
   GroupQueryResultVec
@@ -331,7 +336,7 @@ art::DataViewImpl::get(SelectorBase const& sel,
 {
   result.clear(); // Is this the correct thing to do if an exception is thrown?
   // We do *not* track whether consumes was called for a SelectorBase.
-  GroupQueryResult bh = get_(TypeID{typeid(PROD)}, sel);
+  GroupQueryResult bh = get_(TypeID{typeid(PROD)}, TypeID{typeid(Wrapper<PROD>)}, sel);
   convert_handle(bh, result);
   bool const ok{bh.succeeded() && !result.failedToGet()};
   if (recordParents_ && ok) {
@@ -385,7 +390,7 @@ art::DataViewImpl::getByLabel(std::string const& label,
   TypeID const tid{typeid(PROD)};
   ProductInfo const pinfo{ProductInfo::ConsumableType::Product, tid, label, productInstanceName, processName};
   consumer_->validateConsumedProduct(branchType_, pinfo);
-  GroupQueryResult bh = getByLabel_(tid, label, productInstanceName, processName);
+  GroupQueryResult bh = getByLabel_(tid, TypeID{typeid(Wrapper<PROD>)}, label, productInstanceName, processName);
   convert_handle(bh, result);
   bool const ok{bh.succeeded() && !result.failedToGet()};
   if (recordParents_ && ok) {
@@ -451,7 +456,7 @@ art::DataViewImpl::getMany(SelectorBase const& sel,
   TypeID const tid{typeid(PROD)};
   consumer_->validateConsumedProduct(branchType_, ProductInfo{ProductInfo::ConsumableType::Many, tid});
   GroupQueryResultVec bhv;
-  getMany_(tid, sel, bhv);
+  getMany_(tid, TypeID{typeid(Wrapper<PROD>)}, sel, bhv);
 
   std::vector<Handle<PROD>> products;
   for (auto const& qr : bhv) {

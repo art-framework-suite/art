@@ -195,7 +195,7 @@ BOOST_AUTO_TEST_CASE(failgetbySelectorTest)
   art::TypeID const tid{dummy};
 
   art::ProcessNameSelector pnsel("PROD");
-  art::GroupQueryResult h(pEvent_->getBySelector(tid, pnsel));
+  art::GroupQueryResult h(pEvent_->getBySelector(tid, tid, pnsel));
   BOOST_CHECK(h.failed());
 }
 
@@ -208,7 +208,7 @@ BOOST_AUTO_TEST_CASE(failgetbyLabelTest)
 
   std::string label("this does not exist");
 
-  art::GroupQueryResult const h{pEvent_->getByLabel(tid, label, ""s, ""s)};
+  art::GroupQueryResult const h{pEvent_->getByLabel(tid, tid, label, ""s, ""s)};
   BOOST_CHECK(h.failed());
 }
 
@@ -221,7 +221,7 @@ BOOST_AUTO_TEST_CASE(failgetManyTest)
 
   art::ProcessNameSelector const sel{"PROD"};
   std::vector<art::GroupQueryResult> handles;
-  pEvent_->getMany(tid, sel, handles);
+  pEvent_->getMany(tid, tid, sel, handles);
   BOOST_CHECK(handles.empty());
 }
 
@@ -235,7 +235,7 @@ BOOST_AUTO_TEST_CASE(failgetManybyTypeTest)
   // getManyByType is achieved by providing a selector that matches
   // everything.
   std::vector<art::GroupQueryResult> handles;
-  pEvent_->getMany(tid, art::MatchAllSelector{}, handles);
+  pEvent_->getMany(tid, tid, art::MatchAllSelector{}, handles);
   BOOST_CHECK(handles.empty());
 }
 

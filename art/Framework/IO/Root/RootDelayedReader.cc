@@ -62,7 +62,7 @@ namespace art {
 
     configureProductIDStreamer(branchIDLists_);
     configureRefCoreStreamer(groupFinder_);
-    TClass* cl {TClass::GetClass(ty.typeInfo())};
+    TClass* cl{TClass::GetClass(ty.typeInfo())};
 
     auto get_product = [this, cl, br](auto entry){
       tree_->setEntryNumber(entry);

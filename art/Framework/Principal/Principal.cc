@@ -11,10 +11,8 @@
 #include "canvas/Persistency/Provenance/BranchMapper.h"
 #include "canvas/Persistency/Provenance/ProcessHistory.h"
 #include "canvas/Persistency/Provenance/ProductStatus.h"
-#include "canvas/Persistency/Provenance/TypeTools.h"
 #include "canvas/Utilities/Exception.h"
 #include "canvas/Utilities/TypeID.h"
-#include "canvas/Utilities/WrappedClassName.h"
 #include "cetlib/container_algorithms.h"
 
 #include <algorithm>
@@ -111,15 +109,17 @@ Principal::addToProcessHistory()
 }
 
 GroupQueryResult
-Principal::getBySelector(TypeID const& productType, SelectorBase const& sel) const
+Principal::getBySelector(TypeID const& product_type,
+                         TypeID const& wrapped_product_type,
+                         SelectorBase const& sel) const
 {
   GroupQueryResultVec results;
-  int const nFound = findGroupsForProduct(productType, sel, results, true);
+  int const nFound = findGroupsForProduct(product_type, wrapped_product_type, sel, results, true);
   if (nFound == 0) {
     auto whyFailed = std::make_shared<art::Exception>(art::errors::ProductNotFound);
     *whyFailed << "getBySelector: Found zero products matching all criteria\n"
                << "Looking for type: "
-               << productType
+               << product_type
                << "\n";
     return GroupQueryResult{whyFailed};
   }
@@ -129,7 +129,7 @@ Principal::getBySelector(TypeID const& productType, SelectorBase const& sel) con
       << nFound
       << " products rather than one which match all criteria\n"
       << "Looking for type: "
-      << productType
+      << product_type
       << "\n";
   }
   return results[0];
@@ -148,15 +148,16 @@ Principal::getByProductID(ProductID const pid) const
 
 GroupQueryResult
 Principal::getByLabel(TypeID const& productType,
+                      TypeID const& wrappedProductType,
                       string const& label,
                       string const& productInstanceName,
                       string const& processName) const
 {
   GroupQueryResultVec results;
-  Selector sel(ModuleLabelSelector{label} &&
-               ProductInstanceNameSelector{productInstanceName} &&
-               ProcessNameSelector{processName});
-  int const nFound = findGroupsForProduct(productType, sel, results, true);
+  Selector const sel(ModuleLabelSelector{label} &&
+                     ProductInstanceNameSelector{productInstanceName} &&
+                     ProcessNameSelector{processName});
+  int const nFound = findGroupsForProduct(productType, wrappedProductType, sel, results, true);
   if (nFound == 0) {
     auto whyFailed = std::make_shared<art::Exception>(art::errors::ProductNotFound);
     *whyFailed << "getByLabel: Found zero products matching all criteria\n"
@@ -196,10 +197,11 @@ Principal::getByLabel(TypeID const& productType,
 
 void
 Principal::getMany(TypeID const& productType,
+                   TypeID const& wrappedProductType,
                    SelectorBase const& sel,
                    GroupQueryResultVec& results) const
 {
-  findGroupsForProduct(productType, sel, results, false);
+  findGroupsForProduct(productType, wrappedProductType, sel, results, false);
 }
 
 int
@@ -304,7 +306,8 @@ Principal::removeCachedProduct(ProductID const pid) const
 }
 
 size_t
-Principal::findGroupsForProduct(TypeID const& wanted_product,
+Principal::findGroupsForProduct(TypeID const& product_type,
+                                TypeID const& wrapped_product_type,
                                 SelectorBase const& selector,
                                 GroupQueryResultVec& results,
                                 bool const stopIfProcessHasMatch) const
@@ -314,25 +317,29 @@ Principal::findGroupsForProduct(TypeID const& wanted_product,
 
   // Find groups from current process
   for (auto lookup : reverse_iteration(currentProcessProductLookups_)) {
-    auto it = lookup->find(wanted_product.friendlyClassName());
+    auto it = lookup->find(product_type.friendlyClassName());
     if (it == lookup->end()) {
       continue;
     }
-    // FIXME: Find a way to supply the wrapped TypeID without relying on ROOT.
-    auto cl = TClass::GetClass(wrappedClassName(wanted_product.className()).c_str());
-    assert(cl); // Will have already checked for dictionary when opening file.
-    ret += findGroups(it->second, selector, results, stopIfProcessHasMatch,
-                      TypeID{cl->GetTypeInfo()});
+    ret += findGroups(it->second, selector, results, stopIfProcessHasMatch, wrapped_product_type);
   }
 
   // Find groups from source
-  ret += findGroupsForPrincipal(wanted_product, selector, results, stopIfProcessHasMatch);
+  ret += findGroupsForPrincipal(product_type,
+                                wrapped_product_type,
+                                selector,
+                                results,
+                                stopIfProcessHasMatch);
   if (ret) {
     return ret;
   }
 
   for (auto const& sp : secondaryPrincipals_) {
-    ret = sp->findGroupsForPrincipal(wanted_product, selector, results, stopIfProcessHasMatch);
+    ret = sp->findGroupsForPrincipal(product_type,
+                                     wrapped_product_type,
+                                     selector,
+                                     results,
+                                     stopIfProcessHasMatch);
     if (ret) {
       return ret;
     }
@@ -350,7 +357,11 @@ Principal::findGroupsForProduct(TypeID const& wanted_product,
     }
     assert(!secondaryPrincipals_.empty());
     auto& new_sp = secondaryPrincipals_.back();
-    ret = new_sp->findGroupsForPrincipal(wanted_product, selector, results, stopIfProcessHasMatch);
+    ret = new_sp->findGroupsForPrincipal(product_type,
+                                         wrapped_product_type,
+                                         selector,
+                                         results,
+                                         stopIfProcessHasMatch);
     if (ret) {
       return ret;
     }
@@ -359,22 +370,18 @@ Principal::findGroupsForProduct(TypeID const& wanted_product,
 }
 
 size_t
-Principal::findGroupsForPrincipal(TypeID const& wanted_product,
+Principal::findGroupsForPrincipal(TypeID const& product_type,
+                                  TypeID const& wrapped_product_type,
                                   SelectorBase const& selector,
                                   GroupQueryResultVec& results,
                                   bool const stopIfProcessHasMatch) const
 {
   assert(productLookup_);
-  auto it = productLookup_->find(wanted_product.friendlyClassName());
+  auto it = productLookup_->find(product_type.friendlyClassName());
   if (it == productLookup_->end()) {
     return 0;
   }
-
-  // FIXME: Find a way to supply the wrapped TypeID without relying on ROOT.
-  auto cl = TClass::GetClass(wrappedClassName(wanted_product.className()).c_str());
-  assert(cl); // Will have already checked for dictionary when opening file.
-  return findGroups(it->second, selector, results, stopIfProcessHasMatch,
-                    TypeID{cl->GetTypeInfo()});
+  return findGroups(it->second, selector, results, stopIfProcessHasMatch, wrapped_product_type);
 }
 
 std::size_t

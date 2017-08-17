@@ -566,10 +566,10 @@ BOOST_AUTO_TEST_CASE(getByLabel)
   BOOST_REQUIRE_EQUAL(h->value, 200);
 
   GroupQueryResult bh =
-    principal_->getByLabel(TypeID{typeid(arttest::IntProduct)}, "modMulti", "int1", "LATE");
+    principal_->getByLabel(TypeID{typeid(arttest::IntProduct)}, TypeID{typeid(art::Wrapper<arttest::IntProduct>)}, "modMulti", "int1", "LATE");
   convert_handle(bh, h);
   BOOST_REQUIRE_EQUAL(h->value, 100);
-  GroupQueryResult bh2{principal_->getByLabel(TypeID{typeid(arttest::IntProduct)}, "modMulti", "int1", "nomatch")};
+  GroupQueryResult bh2{principal_->getByLabel(TypeID{typeid(arttest::IntProduct)}, TypeID{typeid(art::Wrapper<arttest::IntProduct>)}, "modMulti", "int1", "nomatch")};
   BOOST_REQUIRE(!bh2.succeeded());
 }
 

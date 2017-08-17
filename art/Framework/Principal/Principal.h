@@ -72,18 +72,22 @@ namespace art {
     getForOutput(ProductID const, bool resolveProd) const;
 
     GroupQueryResult
-    getBySelector(TypeID const&, SelectorBase const&) const;
+    getBySelector(TypeID const& product_type,
+                  TypeID const& wrapped_product_type,
+                  SelectorBase const&) const;
 
     GroupQueryResult getByProductID(ProductID const pid) const;
 
     GroupQueryResult
-    getByLabel(TypeID const&,
+    getByLabel(TypeID const& productType,
+               TypeID const& wrappedProductType,
                std::string const& label,
                std::string const& productInstanceName,
                std::string const& processName) const;
 
     void
-    getMany(TypeID const&,
+    getMany(TypeID const& productType,
+            TypeID const& wrappedProductType,
             SelectorBase const&,
             std::vector<GroupQueryResult>& results) const;
 
@@ -265,12 +269,14 @@ namespace art {
 
     size_t
     findGroupsForProduct(TypeID const& wanted_product,
+                         TypeID const& wanted_wrapped_product,
                          SelectorBase const&,
                          std::vector<GroupQueryResult>& results,
                          bool stopIfProcessHasMatch) const;
 
     size_t
     findGroupsForPrincipal(TypeID const& wanted_product,
+                           TypeID const& wanted_wrapped_product,
                            SelectorBase const&,
                            std::vector<GroupQueryResult>& results,
                            bool stopIfProcessHasMatch) const;
