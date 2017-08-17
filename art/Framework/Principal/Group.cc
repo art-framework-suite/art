@@ -139,7 +139,7 @@ art::Group::dropped() const
 {
   if (!branchDescription_ ) return false;
   auto const pid = branchDescription_->productID();
-  if (ProductMetaData::instance().produced(branchDescription_->branchType(), pid)) return false;
+  if (branchDescription_->produced()) return false;
 
   std::size_t const index = ProductMetaData::instance().presentWithFileIdx(branchDescription_->branchType(), pid);
   return index == MasterProductRegistry::DROPPED;

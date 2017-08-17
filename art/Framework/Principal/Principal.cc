@@ -453,13 +453,14 @@ Principal::getForOutput(ProductID const pid, bool const resolveProd) const
     return OutputHandle{RangeSet::invalid()};
   }
   auto const& pmd = ProductMetaData::instance();
-  auto const bt = g->productDescription().branchType();
+  auto const& pd = g->productDescription();
+  auto const bt = pd.branchType();
   if (resolveProd
       &&
       ((g->anyProduct() == nullptr) || !g->anyProduct()->isPresent())
       &&
       (pmd.presentWithFileIdx(bt, pid) != MasterProductRegistry::DROPPED ||
-       pmd.produced(bt, pid))
+       pd.produced())
       &&
       (bt == InEvent)
       &&

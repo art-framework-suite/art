@@ -83,7 +83,7 @@ art::OutputModule::doSelectProducts()
       // Transient, skip it.
       continue;
     }
-    if (!pmd.produced(bt, pid) &&
+    if (!pd.produced() &&
         pmd.presentWithFileIdx(bt, pid) == MasterProductRegistry::DROPPED) {
       // Not produced in this process, and previously dropped, skip it.
       continue;
