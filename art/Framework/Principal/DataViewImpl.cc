@@ -37,9 +37,9 @@ namespace art {
   }
 
   GroupQueryResult
-  DataViewImpl::get_(TypeID const& tid, TypeID const& wrapped_tid, SelectorBase const& sel) const
+  DataViewImpl::get_(WrappedTypeID const& wrapped, SelectorBase const& sel) const
   {
-    return principal_.getBySelector(tid, wrapped_tid, sel);
+    return principal_.getBySelector(wrapped, sel);
   }
 
   GroupQueryResult
@@ -49,22 +49,20 @@ namespace art {
   }
 
   void
-  DataViewImpl::getMany_(TypeID const& tid,
-                         TypeID const& wrapped_tid,
+  DataViewImpl::getMany_(WrappedTypeID const& wrapped,
                          SelectorBase const& sel,
                          GroupQueryResultVec& results) const
   {
-    principal_.getMany(tid, wrapped_tid, sel, results);
+    principal_.getMany(wrapped, sel, results);
   }
 
   GroupQueryResult
-  DataViewImpl::getByLabel_(TypeID const& tid,
-                            TypeID const& wrapped_tid,
+  DataViewImpl::getByLabel_(WrappedTypeID const& wrapped,
                             string const& label,
                             string const& productInstanceName,
                             string const& processName) const
   {
-    return principal_.getByLabel(tid, wrapped_tid, label, productInstanceName, processName);
+    return principal_.getByLabel(wrapped, label, productInstanceName, processName);
   }
 
   DataViewImpl::GroupQueryResultVec

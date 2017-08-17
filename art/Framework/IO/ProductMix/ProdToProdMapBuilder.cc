@@ -1,7 +1,5 @@
 #include "art/Framework/IO/ProductMix/ProdToProdMapBuilder.h"
 
-#include "Rtypes.h"
-#include "TTree.h"
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Principal/EventPrincipal.h"
 #include "canvas/Persistency/Provenance/rootNames.h"

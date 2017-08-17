@@ -48,6 +48,7 @@
 #include <map>
 #include <memory>
 #include <string>
+#include <tuple>
 #include <typeinfo>
 #include <vector>
 
@@ -128,10 +129,9 @@ MPRGlobalTestFixture::MPRGlobalTestFixture()
 
   // Fill the lookups for "source-like" products
   {
-    BranchTypeLookup throwAwayProductLookup;
-    BranchTypeLookup throwAwayElementLookup;
-    detail::fillLookups(productList_, throwAwayProductLookup, throwAwayElementLookup);
-    sourceProductLookup_ = throwAwayProductLookup[InEvent];
+    detail::ProductLookup_t productLookup;
+    std::tie(productLookup, std::ignore) = detail::fillLookups(productList_);
+    sourceProductLookup_ = productLookup[InEvent];
     productList_.clear();
   }
 
@@ -140,10 +140,9 @@ MPRGlobalTestFixture::MPRGlobalTestFixture()
 
   // Create the lookup that we will use for the current-process module
   {
-    BranchTypeLookup throwAwayProductLookup;
-    BranchTypeLookup throwAwayElementLookup;
-    detail::fillLookups(productList_, throwAwayProductLookup, throwAwayElementLookup);
-    currentProductLookup_ = throwAwayProductLookup[InEvent];
+    detail::ProductLookup_t productLookup;
+    std::tie(productLookup, std::ignore) = detail::fillLookups(productList_);
+    currentProductLookup_ = productLookup[InEvent];
     productList_.clear();
   }
 
@@ -442,7 +441,7 @@ BOOST_AUTO_TEST_CASE(getByInstanceName)
   handles.clear();
   currentEvent_->getMany(ModuleLabelSelector{"nomatch"}, handles);
   BOOST_REQUIRE(handles.empty());
-  std::vector<Handle<int> > nomatches;
+  std::vector<Handle<int>> nomatches;
   currentEvent_->getMany(ModuleLabelSelector{"modMulti"}, nomatches);
   BOOST_REQUIRE(nomatches.empty());
 }
@@ -565,11 +564,11 @@ BOOST_AUTO_TEST_CASE(getByLabel)
   BOOST_REQUIRE(currentEvent_->getByLabel(inputTag, h));
   BOOST_REQUIRE_EQUAL(h->value, 200);
 
-  GroupQueryResult bh =
-    principal_->getByLabel(TypeID{typeid(arttest::IntProduct)}, TypeID{typeid(art::Wrapper<arttest::IntProduct>)}, "modMulti", "int1", "LATE");
+  GroupQueryResult bh{principal_->getByLabel(WrappedTypeID::make<product_t>(), "modMulti", "int1", "LATE")};
   convert_handle(bh, h);
   BOOST_REQUIRE_EQUAL(h->value, 100);
-  GroupQueryResult bh2{principal_->getByLabel(TypeID{typeid(arttest::IntProduct)}, TypeID{typeid(art::Wrapper<arttest::IntProduct>)}, "modMulti", "int1", "nomatch")};
+
+  GroupQueryResult bh2{principal_->getByLabel(WrappedTypeID::make<product_t>(), "modMulti", "int1", "nomatch")};
   BOOST_REQUIRE(!bh2.succeeded());
 }
 

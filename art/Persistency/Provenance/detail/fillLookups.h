@@ -4,11 +4,13 @@
 #include "art/Persistency/Provenance/detail/type_aliases.h"
 #include "canvas/Persistency/Provenance/ProductList.h"
 
+#include <utility>
+
 namespace art {
   namespace detail {
-    void fillLookups(ProductList const& products,
-                     BranchTypeLookup& pl,
-                     BranchTypeLookup& el);
+    using ProductLookup_t = BranchTypeLookup;
+    using ElementLookup_t = BranchTypeLookup;
+    std::pair<ProductLookup_t, ElementLookup_t> fillLookups(ProductList const& products);
   }
 }
 

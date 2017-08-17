@@ -57,6 +57,7 @@
 #include "canvas/Persistency/Provenance/ProvenanceFwd.h"
 #include "canvas/Utilities/InputTag.h"
 #include "canvas/Utilities/TypeID.h"
+#include "canvas/Utilities/WrappedTypeID.h"
 
 #include <ostream>
 #include <memory>
@@ -233,29 +234,25 @@ private:
   // The following 'get' functions serve to isolate the DataViewImpl class
   // from the Principal class.
   GroupQueryResult
-  get_(TypeID const& tid,
-       TypeID const& wrapped_tid,
+  get_(WrappedTypeID const& wrapped,
        SelectorBase const&) const;
 
   GroupQueryResult
   getByProductID_(ProductID const pid) const;
 
   GroupQueryResult
-  getByLabel_(TypeID const& productType,
-              TypeID const& wrappedProductType,
+  getByLabel_(WrappedTypeID const& wrapped,
               std::string const& label,
               std::string const& productInstanceName,
               std::string const& processName) const;
 
   void
-  getMany_(TypeID const& productType,
-           TypeID const& wrappedProductType,
+  getMany_(WrappedTypeID const& wrapped,
            SelectorBase const& sel,
            GroupQueryResultVec& results) const;
 
   void
-  getManyByType_(TypeID const& productType,
-                 TypeID const& wrappedProductType,
+  getManyByType_(WrappedTypeID const& wrapped,
                  GroupQueryResultVec& results) const;
 
   GroupQueryResultVec
@@ -336,7 +333,7 @@ art::DataViewImpl::get(SelectorBase const& sel,
 {
   result.clear(); // Is this the correct thing to do if an exception is thrown?
   // We do *not* track whether consumes was called for a SelectorBase.
-  GroupQueryResult bh = get_(TypeID{typeid(PROD)}, TypeID{typeid(Wrapper<PROD>)}, sel);
+  GroupQueryResult bh = get_(WrappedTypeID::make<PROD>(), sel);
   convert_handle(bh, result);
   bool const ok{bh.succeeded() && !result.failedToGet()};
   if (recordParents_ && ok) {
@@ -387,10 +384,10 @@ art::DataViewImpl::getByLabel(std::string const& label,
                               Handle<PROD>& result) const
 {
   result.clear(); // Is this the correct thing to do if an exception is thrown?
-  TypeID const tid{typeid(PROD)};
-  ProductInfo const pinfo{ProductInfo::ConsumableType::Product, tid, label, productInstanceName, processName};
+  auto const wrapped = WrappedTypeID::make<PROD>();
+  ProductInfo const pinfo{ProductInfo::ConsumableType::Product, wrapped.product_type, label, productInstanceName, processName};
   consumer_->validateConsumedProduct(branchType_, pinfo);
-  GroupQueryResult bh = getByLabel_(tid, TypeID{typeid(Wrapper<PROD>)}, label, productInstanceName, processName);
+  GroupQueryResult bh = getByLabel_(wrapped, label, productInstanceName, processName);
   convert_handle(bh, result);
   bool const ok{bh.succeeded() && !result.failedToGet()};
   if (recordParents_ && ok) {
@@ -453,10 +450,10 @@ void
 art::DataViewImpl::getMany(SelectorBase const& sel,
                            std::vector<Handle<PROD>>& results) const
 {
-  TypeID const tid{typeid(PROD)};
-  consumer_->validateConsumedProduct(branchType_, ProductInfo{ProductInfo::ConsumableType::Many, tid});
+  auto const wrapped = WrappedTypeID::make<PROD>();
+  consumer_->validateConsumedProduct(branchType_, ProductInfo{ProductInfo::ConsumableType::Many, wrapped.product_type});
   GroupQueryResultVec bhv;
-  getMany_(tid, TypeID{typeid(Wrapper<PROD>)}, sel, bhv);
+  getMany_(wrapped, sel, bhv);
 
   std::vector<Handle<PROD>> products;
   for (auto const& qr : bhv) {

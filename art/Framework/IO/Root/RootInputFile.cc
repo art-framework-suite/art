@@ -54,6 +54,7 @@ extern "C" {
 
 #include <iostream>
 #include <string>
+#include <tuple>
 
 using namespace cet;
 using namespace std;
@@ -278,7 +279,7 @@ namespace art {
 
     dropOnInput(groupSelectorRules, dropDescendants, /*unused*/dropMergeable, prodList);
     fillPerBranchTypePresenceFlags(prodList);
-    detail::fillLookups(prodList, productLookup_, elementLookup_);
+    std::tie(productLookup_, elementLookup_) = detail::fillLookups(prodList);
 
     // Determine if this file is fast clonable.
     fastClonable_ = setIfFastClonable(fcip);

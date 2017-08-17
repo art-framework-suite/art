@@ -145,8 +145,6 @@
 #include "cetlib/metaprogramming.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
-#include "TBranch.h"
-
 #include <functional>
 #include <type_traits>
 

@@ -78,11 +78,11 @@ namespace {
 
 }
 
-void
-art::detail::fillLookups(ProductList const& prods,
-                         BranchTypeLookup& pl,
-                         BranchTypeLookup& el)
+std::pair<art::detail::ProductLookup_t, art::detail::ElementLookup_t>
+art::detail::fillLookups(ProductList const& prods)
 {
+  ProductLookup_t pl;
+  ElementLookup_t el;
   std::vector<PendingBTLEntry> pendingEntries;
   std::unordered_map<ProductID, CheapTag, ProductID::Hash> insertedABVs;
   for (auto const& val: prods) {
@@ -161,4 +161,5 @@ art::detail::fillLookups(ProductList const& prods,
                       pids.emplace_back(pe.pid());
                     }
                 });
+  return std::make_pair(pl, el);
 }

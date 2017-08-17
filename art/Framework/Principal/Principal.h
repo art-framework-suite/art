@@ -31,6 +31,7 @@
 #include "canvas/Persistency/Common/EDProductGetterFinder.h"
 #include "canvas/Utilities/InputTag.h"
 #include "canvas/Utilities/TypeID.h"
+#include "canvas/Utilities/WrappedTypeID.h"
 #include "cetlib/exempt_ptr.h"
 
 #include <cstdio>
@@ -72,22 +73,19 @@ namespace art {
     getForOutput(ProductID const, bool resolveProd) const;
 
     GroupQueryResult
-    getBySelector(TypeID const& product_type,
-                  TypeID const& wrapped_product_type,
+    getBySelector(WrappedTypeID const& wrapped,
                   SelectorBase const&) const;
 
     GroupQueryResult getByProductID(ProductID const pid) const;
 
     GroupQueryResult
-    getByLabel(TypeID const& productType,
-               TypeID const& wrappedProductType,
+    getByLabel(WrappedTypeID const& wrapped,
                std::string const& label,
                std::string const& productInstanceName,
                std::string const& processName) const;
 
     void
-    getMany(TypeID const& productType,
-            TypeID const& wrappedProductType,
+    getMany(WrappedTypeID const& wrapped,
             SelectorBase const&,
             std::vector<GroupQueryResult>& results) const;
 
@@ -268,15 +266,13 @@ namespace art {
                                   SelectorBase const&) const;
 
     size_t
-    findGroupsForProduct(TypeID const& wanted_product,
-                         TypeID const& wanted_wrapped_product,
+    findGroupsForProduct(WrappedTypeID const& wrapped,
                          SelectorBase const&,
                          std::vector<GroupQueryResult>& results,
                          bool stopIfProcessHasMatch) const;
 
     size_t
-    findGroupsForPrincipal(TypeID const& wanted_product,
-                           TypeID const& wanted_wrapped_product,
+    findGroupsForPrincipal(WrappedTypeID const& wrapped,
                            SelectorBase const&,
                            std::vector<GroupQueryResult>& results,
                            bool stopIfProcessHasMatch) const;

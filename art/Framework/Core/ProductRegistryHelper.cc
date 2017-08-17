@@ -15,6 +15,7 @@
 
 #include <cassert>
 #include <string>
+#include <tuple>
 
 namespace {
 
@@ -65,5 +66,5 @@ art::ProductRegistryHelper::registerProducts(MasterProductRegistry& mpr,
       mpr.addProduct(std::move(pd));
     }
   }
-  detail::fillLookups(plist, productLookup_, elementLookup_);
+  std::tie(productLookup_, elementLookup_) = detail::fillLookups(plist);
 }
