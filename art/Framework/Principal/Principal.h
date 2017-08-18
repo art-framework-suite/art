@@ -84,10 +84,9 @@ namespace art {
                std::string const& productInstanceName,
                std::string const& processName) const;
 
-    void
+    GroupQueryResultVec
     getMany(WrappedTypeID const& wrapped,
-            SelectorBase const&,
-            std::vector<GroupQueryResult>& results) const;
+            SelectorBase const&) const;
 
     // Return a vector of GroupQueryResults to the products which:
     //   1. are sequences,
@@ -96,7 +95,7 @@ namespace art {
     //      this value_type,
     //   4. and which matches the given selector
 
-    std::vector<GroupQueryResult>
+    GroupQueryResultVec
     getMatchingSequence(TypeID const& elementType,
                         SelectorBase const&) const;
 
@@ -261,33 +260,32 @@ namespace art {
     void
     setProcessHistoryID(ProcessHistoryID const&) = 0;
 
-    std::vector<GroupQueryResult>
+    GroupQueryResultVec
     matchingSequenceFromInputFile(TypeID const& elementType,
                                   SelectorBase const&) const;
 
-    size_t
+    GroupQueryResultVec
     findGroupsForProduct(WrappedTypeID const& wrapped,
                          SelectorBase const&,
-                         std::vector<GroupQueryResult>& results,
                          bool stopIfProcessHasMatch) const;
 
     size_t
-    findGroupsForPrincipal(WrappedTypeID const& wrapped,
-                           SelectorBase const&,
-                           std::vector<GroupQueryResult>& results,
-                           bool stopIfProcessHasMatch) const;
+    findGroupsFromInputFile(WrappedTypeID const& wrapped,
+                            SelectorBase const&,
+                            GroupQueryResultVec& results,
+                            bool stopIfProcessHasMatch) const;
 
     size_t
     findGroups(ProcessLookup const&,
                SelectorBase const&,
-               std::vector<GroupQueryResult>& results,
+               GroupQueryResultVec& results,
                bool stopIfProcessHasMatch,
                TypeID wanted_wrapper = TypeID{}) const;
 
     size_t
     findGroupsForProcess(std::vector<ProductID> const& vpid,
                          SelectorBase const& selector,
-                         std::vector<GroupQueryResult>& results,
+                         GroupQueryResultVec& results,
                          TypeID wanted_wrapper) const;
 
 

@@ -48,12 +48,11 @@ namespace art {
     return principal_.getByProductID(pid);
   }
 
-  void
+  DataViewImpl::GroupQueryResultVec
   DataViewImpl::getMany_(WrappedTypeID const& wrapped,
-                         SelectorBase const& sel,
-                         GroupQueryResultVec& results) const
+                         SelectorBase const& sel) const
   {
-    principal_.getMany(wrapped, sel, results);
+    return principal_.getMany(wrapped, sel);
   }
 
   GroupQueryResult

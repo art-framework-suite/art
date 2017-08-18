@@ -183,7 +183,7 @@ BOOST_FIXTURE_TEST_SUITE(eventprincipal_t, EventPrincipalTestFixture)
 BOOST_AUTO_TEST_CASE(failgetbyIdTest)
 {
   auto const invalid = art::ProductID::invalid();
-  art::GroupQueryResult const h{pEvent_->getByProductID(invalid)};
+  auto const& h = pEvent_->getByProductID(invalid);
   BOOST_CHECK(h.failed());
 }
 
@@ -191,10 +191,10 @@ BOOST_AUTO_TEST_CASE(failgetbySelectorTest)
 {
   // We don't put ProductIDs into the EventPrincipal, so that's a type
   // sure not to match any product.
-  auto const wrapped = art::WrappedTypeID::make<art::ProductID>();
+  auto const& wrapped = art::WrappedTypeID::make<art::ProductID>();
 
   art::ProcessNameSelector const pnsel{"PROD"};
-  art::GroupQueryResult const h{pEvent_->getBySelector(wrapped, pnsel)};
+  auto const& h = pEvent_->getBySelector(wrapped, pnsel);
   BOOST_CHECK(h.failed());
 }
 
@@ -202,11 +202,11 @@ BOOST_AUTO_TEST_CASE(failgetbyLabelTest)
 {
   // We don't put ProductIDs into the EventPrincipal, so that's a type
   // sure not to match any product.
-  auto const wrapped = art::WrappedTypeID::make<art::ProductID>();
+  auto const& wrapped = art::WrappedTypeID::make<art::ProductID>();
 
   std::string const label{"this does not exist"};
 
-  art::GroupQueryResult const h{pEvent_->getByLabel(wrapped, label, ""s, ""s)};
+  auto const& h = pEvent_->getByLabel(wrapped, label, ""s, ""s);
   BOOST_CHECK(h.failed());
 }
 
@@ -214,25 +214,23 @@ BOOST_AUTO_TEST_CASE(failgetManyTest)
 {
   // We don't put ProductIDs into the EventPrincipal, so that's a type
   // sure not to match any product.
-  auto const wrapped = art::WrappedTypeID::make<art::ProductID>();
+  auto const& wrapped = art::WrappedTypeID::make<art::ProductID>();
 
   art::ProcessNameSelector const sel{"PROD"};
-  std::vector<art::GroupQueryResult> handles;
-  pEvent_->getMany(wrapped, sel, handles);
-  BOOST_CHECK(handles.empty());
+  auto const& query_results = pEvent_->getMany(wrapped, sel);
+  BOOST_CHECK(query_results.empty());
 }
 
 BOOST_AUTO_TEST_CASE(failgetManybyTypeTest)
 {
   // We don't put ProductIDs into the EventPrincipal, so that's a type
   // sure not to match any product.
-  auto const wrapped = art::WrappedTypeID::make<art::ProductID>();
+  auto const& wrapped = art::WrappedTypeID::make<art::ProductID>();
 
   // getManyByType is achieved by providing a selector that matches
   // everything.
-  std::vector<art::GroupQueryResult> handles;
-  pEvent_->getMany(wrapped, art::MatchAllSelector{}, handles);
-  BOOST_CHECK(handles.empty());
+  auto const& query_results = pEvent_->getMany(wrapped, art::MatchAllSelector{});
+  BOOST_CHECK(query_results.empty());
 }
 
 BOOST_AUTO_TEST_SUITE_END()

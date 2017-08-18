@@ -246,22 +246,15 @@ private:
               std::string const& productInstanceName,
               std::string const& processName) const;
 
-  void
+  GroupQueryResultVec
   getMany_(WrappedTypeID const& wrapped,
-           SelectorBase const& sel,
-           GroupQueryResultVec& results) const;
-
-  void
-  getManyByType_(WrappedTypeID const& wrapped,
-                 GroupQueryResultVec& results) const;
+           SelectorBase const& sel) const;
 
   GroupQueryResultVec
   getMatchingSequenceByLabel_(TypeID const& elementType,
                               std::string const& label,
                               std::string const& productInstanceName,
                               std::string const& processName) const;
-
-
 
   // If getView returns true, then result.isValid() is certain to be
   // true -- but the View may still be empty.
@@ -452,11 +445,9 @@ art::DataViewImpl::getMany(SelectorBase const& sel,
 {
   auto const wrapped = WrappedTypeID::make<PROD>();
   consumer_->validateConsumedProduct(branchType_, ProductInfo{ProductInfo::ConsumableType::Many, wrapped.product_type});
-  GroupQueryResultVec bhv;
-  getMany_(wrapped, sel, bhv);
 
   std::vector<Handle<PROD>> products;
-  for (auto const& qr : bhv) {
+  for (auto const& qr : getMany_(wrapped, sel)) {
     Handle<PROD> result;
     convert_handle(qr, result);
     products.push_back(result);

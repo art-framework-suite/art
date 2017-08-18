@@ -94,14 +94,13 @@ Principal::addToProcessHistory()
     }
   }
   ph.push_back(processConfiguration_);
-  // OPTIMIZATION NOTE: As of 0_9_0_pre3
-  // For very simple Sources (e.g. EmptyEvent) this routine takes up
-  // nearly 50% of the time per event, and 96% of the time for this
-  // routine is spent in computing the ProcessHistory id which happens
-  // because we are reconstructing the ProcessHistory for each event.
-  // It would probably be better to move the ProcessHistory
-  // construction out to somewhere which persists for longer than one
-  // Event.
+  // OPTIMIZATION NOTE: As of 0_9_0_pre3 For very simple Sources
+  // (e.g. EmptyEvent) this routine takes up nearly 50% of the time
+  // per event, and 96% of the time for this routine is spent in
+  // computing the ProcessHistory id which happens because we are
+  // reconstructing the ProcessHistory for each event.  It would
+  // probably be better to move the ProcessHistory construction out to
+  // somewhere which persists for longer than one Event.
   ProcessHistoryRegistry::emplace(ph.id(), ph);
   setProcessHistoryID(ph.id());
   processHistoryModified_ = true;
@@ -111,9 +110,8 @@ GroupQueryResult
 Principal::getBySelector(WrappedTypeID const& wrapped,
                          SelectorBase const& sel) const
 {
-  GroupQueryResultVec results;
-  int const nFound = findGroupsForProduct(wrapped, sel, results, true);
-  if (nFound == 0) {
+  auto const& results = findGroupsForProduct(wrapped, sel, true);
+  if (results.empty()) {
     auto whyFailed = std::make_shared<art::Exception>(art::errors::ProductNotFound);
     *whyFailed << "getBySelector: Found zero products matching all criteria\n"
                << "Looking for type: "
@@ -121,10 +119,10 @@ Principal::getBySelector(WrappedTypeID const& wrapped,
                << "\n";
     return GroupQueryResult{whyFailed};
   }
-  if (nFound > 1) {
+  if (results.size() > 1) {
     throw art::Exception(art::errors::ProductNotFound)
       << "getBySelector: Found "
-      << nFound
+      << results.size()
       << " products rather than one which match all criteria\n"
       << "Looking for type: "
       << wrapped.product_type
@@ -150,12 +148,11 @@ Principal::getByLabel(WrappedTypeID const& wrapped,
                       string const& productInstanceName,
                       string const& processName) const
 {
-  GroupQueryResultVec results;
   Selector const sel(ModuleLabelSelector{label} &&
                      ProductInstanceNameSelector{productInstanceName} &&
                      ProcessNameSelector{processName});
-  int const nFound = findGroupsForProduct(wrapped, sel, results, true);
-  if (nFound == 0) {
+  auto const& results = findGroupsForProduct(wrapped, sel, true);
+  if (results.empty()) {
     auto whyFailed = std::make_shared<art::Exception>(art::errors::ProductNotFound);
     *whyFailed << "getByLabel: Found zero products matching all criteria\n"
                << "Looking for type: "
@@ -171,10 +168,10 @@ Principal::getByLabel(WrappedTypeID const& wrapped,
                << processName;
     return GroupQueryResult{whyFailed};
   }
-  if (nFound > 1) {
+  if (results.size() > 1) {
     throw art::Exception(art::errors::ProductNotFound)
       << "getByLabel: Found "
-      << nFound
+      << results.size()
       << " products rather than one which match all criteria\n"
       << "Looking for type: "
       << wrapped.product_type
@@ -192,12 +189,11 @@ Principal::getByLabel(WrappedTypeID const& wrapped,
   return results[0];
 }
 
-void
+Principal::GroupQueryResultVec
 Principal::getMany(WrappedTypeID const& wrapped,
-                   SelectorBase const& sel,
-                   GroupQueryResultVec& results) const
+                   SelectorBase const& sel) const
 {
-  findGroupsForProduct(wrapped, sel, results, false);
+  return findGroupsForProduct(wrapped, sel, false);
 }
 
 int
@@ -301,15 +297,14 @@ Principal::removeCachedProduct(ProductID const pid) const
     << "Please contact artists@fnal.gov\n";
 }
 
-size_t
+Principal::GroupQueryResultVec
 Principal::findGroupsForProduct(WrappedTypeID const& wrapped,
                                 SelectorBase const& selector,
-                                GroupQueryResultVec& results,
                                 bool const stopIfProcessHasMatch) const
 {
-  size_t ret{};
-  // findGroupsFromSource
+  GroupQueryResultVec results;
 
+  unsigned ret{};
   // Find groups from current process
   for (auto lookup : reverse_iteration(currentProcessProductLookups_)) {
     auto it = lookup->find(wrapped.product_type.friendlyClassName());
@@ -319,25 +314,19 @@ Principal::findGroupsForProduct(WrappedTypeID const& wrapped,
     ret += findGroups(it->second, selector, results, stopIfProcessHasMatch, wrapped.wrapped_product_type);
   }
 
-  // Find groups from source
-  ret += findGroupsForPrincipal(wrapped,
-                                selector,
-                                results,
-                                stopIfProcessHasMatch);
+  // Look through currently opened input files
+  ret += findGroupsFromInputFile(wrapped, selector, results, stopIfProcessHasMatch);
   if (ret) {
-    return ret;
+    return results;
   }
 
   for (auto const& sp : secondaryPrincipals_) {
-    ret = sp->findGroupsForPrincipal(wrapped,
-                                     selector,
-                                     results,
-                                     stopIfProcessHasMatch);
-    if (ret) {
-      return ret;
+    if (sp->findGroupsFromInputFile(wrapped, selector, results, stopIfProcessHasMatch)) {
+      return results;
     }
   }
 
+  // Open more secondary files if necessary
   while (true) {
     int const err = tryNextSecondaryFile();
     if (err == -2) {
@@ -350,22 +339,18 @@ Principal::findGroupsForProduct(WrappedTypeID const& wrapped,
     }
     assert(!secondaryPrincipals_.empty());
     auto& new_sp = secondaryPrincipals_.back();
-    ret = new_sp->findGroupsForPrincipal(wrapped,
-                                         selector,
-                                         results,
-                                         stopIfProcessHasMatch);
-    if (ret) {
-      return ret;
+    if (new_sp->findGroupsFromInputFile(wrapped, selector, results, stopIfProcessHasMatch)) {
+      return results;
     }
   }
-  return 0;
+  return results;
 }
 
-size_t
-Principal::findGroupsForPrincipal(WrappedTypeID const& wrapped,
-                                  SelectorBase const& selector,
-                                  GroupQueryResultVec& results,
-                                  bool const stopIfProcessHasMatch) const
+std::size_t
+Principal::findGroupsFromInputFile(WrappedTypeID const& wrapped,
+                                   SelectorBase const& selector,
+                                   GroupQueryResultVec& results,
+                                   bool const stopIfProcessHasMatch) const
 {
   assert(productLookup_);
   auto it = productLookup_->find(wrapped.product_type.friendlyClassName());
