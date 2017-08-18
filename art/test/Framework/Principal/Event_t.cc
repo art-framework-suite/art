@@ -181,7 +181,7 @@ MPRGlobalTestFixture::registerProduct(std::string const& tag,
 
   moduleDescriptions_[tag] = localModuleDescription;
   auto pd = std::make_unique<BranchDescription>(InEvent,
-                                                art::TypeLabel{product_type, productInstanceName},
+                                                art::TypeLabel{product_type, productInstanceName, MaybeFillView<T>::value},
                                                 localModuleDescription);
   productList_.emplace(BranchKey{*pd}, *pd);
   availableProducts_->addProduct(std::move(pd));

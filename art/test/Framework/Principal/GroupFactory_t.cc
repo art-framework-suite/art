@@ -24,22 +24,23 @@
 #include <string>
 
 namespace {
+  template <typename PROD>
   art::BranchDescription
   makeBranchDescription(art::BranchType bt,
                         std::string const &moduleLabel,
                         std::string const &processName,
                         std::string const &instanceName,
-                        fhicl::ParameterSet const &pset,
-                        art::TypeID const &producedType) {
-    return
-      art::BranchDescription(bt,
-                             art::TypeLabel{producedType, instanceName},
-                             art::ModuleDescription(pset.id(),
-                                                    "arttest::NOMOD",
-                                                    moduleLabel,
-                                                    art::ProcessConfiguration(processName,
-                                                                              fhicl::ParameterSet{}.id(),
-                                                                              art::getReleaseVersion())));
+                        fhicl::ParameterSet const &pset)
+  {
+    art::TypeID const producedType{typeid(PROD)};
+    return art::BranchDescription{bt,
+                                  art::TypeLabel{producedType, instanceName, art::MaybeFillView<PROD>::value},
+                                  art::ModuleDescription{pset.id(),
+                                                         "arttest::NOMOD",
+                                                         moduleLabel,
+                                                         art::ProcessConfiguration{processName,
+                                                                                   fhicl::ParameterSet{}.id(),
+                                                                                   art::getReleaseVersion()}}};
   }
 }
 
@@ -53,12 +54,11 @@ BOOST_FIXTURE_TEST_SUITE(GroupFactory_t, TestFixture)
 BOOST_AUTO_TEST_CASE(Group)
 {
   std::unique_ptr<art::Group>
-    g(art::gfactory::make_group(makeBranchDescription(art::InEvent,
-                                                      "GGen",
-                                                      "GEN",
-                                                      "G1",
-                                                      fhicl::ParameterSet{},
-                                                      art::TypeID{typeid(int)}),
+    g(art::gfactory::make_group(makeBranchDescription<int>(art::InEvent,
+                                                           "GGen",
+                                                           "GEN",
+                                                           "G1",
+                                                           fhicl::ParameterSet{}),
                                 art::ProductID{},
                                 art::RangeSet::invalid()));
   std::cerr
@@ -71,12 +71,11 @@ BOOST_AUTO_TEST_CASE(Group)
 BOOST_AUTO_TEST_CASE(AssnsGroup)
 {
   std::unique_ptr<art::Group>
-    g(art::gfactory::make_group(makeBranchDescription(art::InEvent,
-                                                      "AgGen",
-                                                      "GEN",
-                                                      "AG1",
-                                                      fhicl::ParameterSet{},
-                                                      art::TypeID{typeid(art::Assns<size_t, std::string>)}),
+    g(art::gfactory::make_group(makeBranchDescription<art::Assns<size_t, std::string>>(art::InEvent,
+                                                                                       "AgGen",
+                                                                                       "GEN",
+                                                                                       "AG1",
+                                                                                       fhicl::ParameterSet{}),
                                 art::ProductID{},
                                 art::RangeSet::invalid()));
   std::cerr

@@ -6,6 +6,7 @@
 #include "art/Framework/Core/GroupSelector.h"
 #include "art/Framework/Core/GroupSelectorRules.h"
 #include "canvas/Persistency/Common/Ptr.h"
+#include "canvas/Persistency/Common/traits.h"
 #include "canvas/Persistency/Provenance/BranchDescription.h"
 #include "canvas/Persistency/Provenance/BranchKey.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
@@ -21,16 +22,17 @@
 
 namespace {
 
+  template <typename PROD>
   art::BranchDescription
   makeBranchDescription(art::BranchType const bt,
                         std::string const& moduleLabel,
                         std::string const& processName,
                         std::string const& instanceName,
-                        fhicl::ParameterSet const& pset,
-                        art::TypeID const& producedType)
+                        fhicl::ParameterSet const& pset)
   {
+    art::TypeID const producedType{typeid(PROD)};
     return art::BranchDescription(bt,
-                                  art::TypeLabel{producedType, instanceName},
+                                  art::TypeLabel{producedType, instanceName, art::MaybeFillView<PROD>::value},
                                   art::ModuleDescription(pset.id(),
                                                          "arttest::NOMOD",
                                                          moduleLabel,
@@ -88,39 +90,23 @@ namespace {
       modAparams.put<int>("i", 2112);
       modAparams.put<std::string>("s", "hi");
 
-      auto b1 = makeBranchDescription(art::InEvent, "modA", "PROD", "i1",
-                                      modAparams,
-                                      art::TypeID{typeid(arttest::ProdTypeA<std::string>)});
-
-      auto b2 = makeBranchDescription(art::InEvent, "modA", "PROD", "i2",
-                                      modAparams,
-                                      art::TypeID{typeid(arttest::ProdTypeA<std::string>)});
+      auto b1 = makeBranchDescription<arttest::ProdTypeA<std::string>>(art::InEvent, "modA", "PROD", "i1", modAparams);
+      auto b2 = makeBranchDescription<arttest::ProdTypeA<std::string>>(art::InEvent, "modA", "PROD", "i2", modAparams);
 
       // Our second pretend module has only one product, and gives it no
       // instance name.
       fhicl::ParameterSet modBparams;
       modBparams.put<double>("d", 2.5);
 
-      auto b3 = makeBranchDescription(art::InRun, "modB", "HLT", "",
-                                      modBparams,
-                                      art::TypeID{typeid(arttest::ProdTypeB<std::string>)});
+      auto b3 = makeBranchDescription<arttest::ProdTypeB<std::string>>(art::InRun, "modB", "HLT", "", modBparams);
 
       // Our third pretend is like modA, except it has a processName_ of
       // "USER"
-      auto b4 = makeBranchDescription(art::InSubRun, "modA", "USER", "i1",
-                                      modAparams,
-                                      art::TypeID{typeid(arttest::ProdTypeA<std::string>)});
-      auto b5 = makeBranchDescription(art::InResults, "modA", "USER", "i2",
-                                      modAparams,
-                                      art::TypeID{typeid(arttest::ProdTypeA<std::string>)});
+      auto b4 = makeBranchDescription<arttest::ProdTypeA<std::string>>(art::InSubRun, "modA", "USER", "i1", modAparams);
+      auto b5 = makeBranchDescription<arttest::ProdTypeA<std::string>>(art::InResults, "modA", "USER", "i2", modAparams);
 
       // Extra tests.
-      auto b6 = makeBranchDescription(art::InRun,
-                                      "ptrmvWriter",
-                                      "PtrmvW",
-                                      "",
-                                      modAparams,
-                                      art::TypeID{typeid(art::Ptr<std::string>)});
+      auto b6 = makeBranchDescription<art::Ptr<std::string>>(art::InRun, "ptrmvWriter", "PtrmvW", "", modAparams);
 
       art::ProductList const result {
         // Ordered correctly for ease of deducing expected results.

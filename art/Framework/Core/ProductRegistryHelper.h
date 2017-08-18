@@ -24,6 +24,7 @@
 #include "art/Persistency/Provenance/detail/branchNameComponentChecking.h"
 #include "art/Persistency/Provenance/detail/type_aliases.h"
 #include "canvas/Persistency/Common/Assns.h"
+#include "canvas/Persistency/Common/traits.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
 #include "canvas/Persistency/Provenance/TypeLabel.h"
 #include "canvas/Utilities/Exception.h"
@@ -154,7 +155,7 @@ art::ProductRegistryHelper::produces(std::string const& instanceName)
   verifyInstanceName(instanceName);
   TypeID const productType{typeid(P)};
   verifyFriendlyClassName(productType.friendlyClassName());
-  insertOrThrow(B, TypeLabel{productType, instanceName});
+  insertOrThrow(B, TypeLabel{productType, instanceName, MaybeFillView<P>::value});
 }
 
 template<typename P, art::BranchType B>
@@ -166,7 +167,7 @@ art::ProductRegistryHelper::reconstitutes(std::string const& emulatedModule,
   verifyInstanceName(instanceName);
   TypeID const productType{typeid(P)};
   verifyFriendlyClassName(productType.friendlyClassName());
-  return insertOrThrow(B, TypeLabel{productType, instanceName, emulatedModule});
+  return insertOrThrow(B, TypeLabel{productType, instanceName, MaybeFillView<P>::value, emulatedModule});
 }
 
 #endif /* art_Framework_Core_ProductRegistryHelper_h */

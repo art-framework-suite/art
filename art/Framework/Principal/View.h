@@ -1,7 +1,7 @@
 #ifndef art_Framework_Principal_View_h
 #define art_Framework_Principal_View_h
 
-//
+// ====================================================================
 // The class template View<T> provides a means to obtain pointers (of
 // type T const*) into an arbitrary collection in an Event.
 //
@@ -14,7 +14,7 @@
 // While View<T> is not a persistent class, one can fill a
 // PtrVector<T> from a View<T>, as long as no new pointers have been
 // added to the View<T>.
-//
+// ====================================================================
 
 #include "art/Framework/Principal/fwd.h"
 #include "canvas/Persistency/Common/PtrVector.h"

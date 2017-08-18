@@ -113,7 +113,7 @@ MPRGlobalTestFixture::fake_single_process_branch(std::string const& tag,
                                    *fake_single_module_process(tag, processName, modParams));
 
   auto* result = new art::BranchDescription(art::InEvent,
-                                            art::TypeLabel{dummyType, productInstanceName},
+                                            art::TypeLabel{dummyType, productInstanceName, art::MaybeFillView<arttest::DummyProduct>::value},
                                             mod);
   branchKeys_.insert(std::make_pair(tag, art::BranchKey(*result)));
   return std::unique_ptr<art::BranchDescription>(result);

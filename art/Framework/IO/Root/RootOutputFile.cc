@@ -558,7 +558,7 @@ void
 art::RootOutputFile::writeFileFormatVersion()
 {
   FileFormatVersion const ver {getFileFormatVersion(), getFileFormatEra()};
-  FileFormatVersion const* pver = &ver;
+  auto const* pver = &ver;
   TBranch* b = metaDataTree_->Branch(metaBranchRootName<FileFormatVersion>(),
                                      &pver, basketSize_, 0);
   // FIXME: Turn this into a throw!

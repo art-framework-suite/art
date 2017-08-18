@@ -19,6 +19,7 @@
 #include "art/Persistency/Provenance/detail/type_aliases.h"
 #include "cetlib/HorizontalRule.h"
 #include "canvas/Persistency/Common/Wrapper.h"
+#include "canvas/Persistency/Common/traits.h"
 #include "canvas/Persistency/Provenance/EventAuxiliary.h"
 #include "canvas/Persistency/Provenance/EventID.h"
 #include "canvas/Persistency/Provenance/History.h"
@@ -140,7 +141,7 @@ art::Event::put(std::unique_ptr<PROD>&& product,
   auto const& pd = getProductDescription(tid, productInstanceName);
   auto wp = std::make_unique<Wrapper<PROD>>(std::move(product));
 
-  auto result = putProducts().emplace(TypeLabel{tid, productInstanceName},
+  auto result = putProducts().emplace(TypeLabel{tid, productInstanceName, MaybeFillView<PROD>::value},
                                       DataViewImpl::PMValue{std::move(wp), pd, RangeSet::invalid()});
   if (!result.second) {
     cet::HorizontalRule rule{30};

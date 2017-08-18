@@ -23,7 +23,6 @@ namespace art {
            // ... the key is the friendly class name.
            using TypeLookup        = std::map<std::string const, ProcessLookup>;
            using BranchTypeLookup  = std::array<TypeLookup, NumBranchTypes>;
-           using BranchTypeLookups = std::vector<BranchTypeLookup>;
 
            using ProductListUpdatedCallback = std::function<void(FileBlock const&)>;
   }

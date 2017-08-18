@@ -59,6 +59,7 @@
 #include "canvas/Utilities/TypeID.h"
 #include "canvas/Utilities/WrappedTypeID.h"
 
+#include <cassert>
 #include <ostream>
 #include <memory>
 #include <set>
@@ -476,10 +477,10 @@ art::DataViewImpl::getView_(std::string const& moduleLabel,
 {
   TypeID const typeID{typeid(ELEMENT)};
   ProductInfo const pinfo{ProductInfo::ConsumableType::ViewElement,
-      typeID,
-      moduleLabel,
-      productInstanceName,
-      processName};
+                          typeID,
+                          moduleLabel,
+                          productInstanceName,
+                          processName};
   consumer_->validateConsumedProduct(branchType_, pinfo);
   auto bhv = getMatchingSequenceByLabel_(typeID,
                                          moduleLabel,
@@ -550,7 +551,10 @@ art::DataViewImpl::fillView_(GroupQueryResult& bh,
                              std::vector<ELEMENT const*>& result) const
 {
   std::vector<void const*> erased_ptrs;
-  bh.result()->uniqueProduct()->fillView(erased_ptrs);
+  auto product = bh.result()->uniqueProduct();
+  // The lookups ensure that the retrieved product supports views.
+  assert(product->supportsView());
+  product->fillView(erased_ptrs);
   recordAsParent(Provenance{bh.result()});
 
   std::vector<ELEMENT const*> vals;

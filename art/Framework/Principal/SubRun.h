@@ -16,6 +16,7 @@
 #include "art/Framework/Principal/fwd.h"
 #include "art/Utilities/ProductSemantics.h"
 #include "canvas/Persistency/Common/Wrapper.h"
+#include "canvas/Persistency/Common/traits.h"
 #include "canvas/Persistency/Provenance/RunID.h"
 #include "canvas/Persistency/Provenance/SubRunAuxiliary.h"
 #include "canvas/Persistency/Provenance/SubRunID.h"
@@ -237,7 +238,7 @@ art::SubRun::put_(std::unique_ptr<PROD>&& product,
   auto const& pd = getProductDescription(tid, productInstanceName);
   auto wp = std::make_unique<Wrapper<PROD>>(std::move(product));
 
-  auto result = putProducts().emplace(TypeLabel{tid, productInstanceName},
+  auto result = putProducts().emplace(TypeLabel{tid, productInstanceName, MaybeFillView<PROD>::value},
                                       PMValue{std::move(wp), pd, rs});
   if (!result.second) {
     throw art::Exception{art::errors::ProductPutFailure, "SubRun::put"}
