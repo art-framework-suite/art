@@ -67,13 +67,12 @@ void
 art::OutputModule::doSelectProducts()
 {
   auto const& pmd = ProductMetaData::instance();
-  groupSelector_.initialize(groupSelectorRules_, pmd.productList());
-  for (auto& val : keptProducts_) {
-    val.clear();
-  }
-  // TODO: See if we can collapse keptProducts_ and groupSelector_
-  // into a single object. See the notes in the header for
-  // GroupSelector for more information.
+  GroupSelector const groupSelector{groupSelectorRules_, pmd.productList()};
+  keptProducts_ = {{}};
+
+  // TODO: See if we can collapse keptProducts_ and groupSelector into
+  // a single object. See the notes in the header for GroupSelector
+  // for more information.
 
   for (auto const& val : pmd.productList()) {
     BranchDescription const& pd = val.second;
@@ -88,7 +87,7 @@ art::OutputModule::doSelectProducts()
       // Not produced in this process, and previously dropped, skip it.
       continue;
     }
-    if (groupSelector_.selected(pd)) {
+    if (groupSelector.selected(pd)) {
       // Selected, keep it.
       keptProducts_[bt].push_back(&pd);
       continue;

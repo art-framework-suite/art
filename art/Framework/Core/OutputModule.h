@@ -98,7 +98,6 @@ public:
   // not appropriate).
   virtual std::string const& lastClosedFileName() const;
 
-  bool selected(BranchDescription const& desc) const;
   SelectionsArray const& keptProducts() const;
   std::array<bool, NumBranchTypes> const& hasNewlyDroppedBranch() const;
 
@@ -146,7 +145,6 @@ private:
   SelectionsArray keptProducts_ {{}}; // filled by aggregation
   std::array<bool, NumBranchTypes> hasNewlyDroppedBranch_ {{false}}; // filled by aggregation
   GroupSelectorRules groupSelectorRules_;
-  GroupSelector groupSelector_ {};
   int maxEvents_ {-1};
   int remainingEvents_ {maxEvents_};
 
@@ -301,13 +299,6 @@ int
 art::OutputModule::remainingEvents() const
 {
   return remainingEvents_;
-}
-
-inline
-bool
-art::OutputModule::selected(BranchDescription const& desc) const
-{
-  return groupSelector_.selected(desc);
 }
 
 inline

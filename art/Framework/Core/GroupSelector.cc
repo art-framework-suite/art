@@ -14,9 +14,8 @@ using namespace art;
 using namespace cet;
 using namespace std;
 
-void
-GroupSelector::initialize(GroupSelectorRules const& rules,
-                          ProductList const& branchDescriptions)
+GroupSelector::GroupSelector(GroupSelectorRules const& rules,
+                             ProductList const& branchDescriptions)
 {
   using BranchSelectState = GroupSelectorRules::BranchSelectState;
 
@@ -41,17 +40,11 @@ GroupSelector::initialize(GroupSelectorRules const& rules,
     }
   }
   sort_all(groupsToSelect_);
-  initialized_ = true;
 }
 
 bool
 GroupSelector::selected(BranchDescription const& desc) const
 {
-  if (!initialized_) {
-    throw art::Exception(art::errors::LogicError)
-      << "GroupSelector::selected() called prematurely\n"
-         "before the product registry has been frozen.\n";
-  }
   return binary_search_all(groupsToSelect_, &desc);
 }
 

@@ -56,8 +56,7 @@ namespace {
     std::string const parameterName{"outputCommands"};
     art::GroupSelectorRules gsr(params.get<std::vector<std::string>>(parameterName, {"keep *"}),
                                 parameterName, testname);
-    art::GroupSelector gs;
-    gs.initialize(gsr, pList);
+    art::GroupSelector const gs{gsr, pList};
 
     std::vector<bool> results;
     apply_gs(gs, pList, results);
