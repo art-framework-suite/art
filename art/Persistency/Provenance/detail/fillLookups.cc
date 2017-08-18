@@ -5,6 +5,7 @@
 #include "canvas/Persistency/Provenance/TypeTools.h"
 #include "canvas/Persistency/Provenance/TypeWithDict.h"
 #include "canvas/Utilities/TypeID.h"
+#include "canvas/Utilities/FriendlyName.h"
 #include "canvas/Utilities/WrappedClassName.h"
 
 #include <cassert>
@@ -81,8 +82,8 @@ namespace {
 std::pair<art::detail::ProductLookup_t, art::detail::ElementLookup_t>
 art::detail::fillLookups(ProductList const& prods)
 {
+  // Computing the product lookups does not rely on any ROOT facilities.
   ProductLookup_t pl;
-  ElementLookup_t el;
   std::vector<PendingBTLEntry> pendingEntries;
   std::unordered_map<ProductID, CheapTag, ProductID::Hash> insertedABVs;
   for (auto const& val: prods) {
@@ -91,6 +92,58 @@ art::detail::fillLookups(ProductList const& prods)
     auto const& prodFCN = val.first.friendlyClassName_;
     auto const bt = val.first.branchType_;
     pl[bt][prodFCN][procName].emplace_back(pid);
+
+    // Additional work only for Assns lookup
+    auto const& moduleLabel = val.first.moduleLabel_;
+    auto const& instanceName = val.first.productInstanceName_;
+    auto const& className = val.second.producedClassName();
+
+    if (!is_assns(className)) continue;
+
+    auto const baseName = name_of_assns_base(className);
+    if (!baseName.empty()) {
+      // We're an Assns<A, B, D>, with a base Assns<A, B>.
+      pendingEntries.emplace_back(static_cast<art::BranchType>(bt),
+                                  art::friendlyname::friendlyName(baseName),
+                                  moduleLabel,
+                                  instanceName,
+                                  procName,
+                                  pid);
+    }
+    else {
+      // Add our pid to the list of real Assns<A, B, void>
+      // products already registered.
+      insertedABVs.emplace(pid, CheapTag{moduleLabel, instanceName, procName});
+    }
+  }
+
+  auto const iend = insertedABVs.cend();
+  // Preserve useful ordering, only inserting if we don't already have
+  // a *real* Assns<A, B, void> for that module label / instance name
+  // combination.
+  std::for_each(pendingEntries.cbegin(),
+                pendingEntries.cend(),
+                [&pl, &insertedABVs, iend](auto const& pe)
+                {
+                  auto& pids = pl[pe.bt()][pe.fcn()][pe.process()];
+                  if (pids.empty() ||
+                      !std::any_of(pids.cbegin(), pids.cend(),
+                                   [&insertedABVs, &iend, &pe](ProductID const pid) {
+                                     auto i = insertedABVs.find(pid);
+                                     return i != iend && pe.ct() == i->second;
+                                   }))
+                    {
+                      pids.emplace_back(pe.pid());
+                    }
+                });
+
+  // Form element lookups for views.
+  ElementLookup_t el;
+  for (auto const& val: prods) {
+    auto const& procName = val.first.processName_;
+    auto const pid = val.second.productID();
+    auto const bt = val.first.branchType_;
+
     // Look in the class of the product for a typedef named "value_type",
     // if there is one allow lookups by that type name too (and by all
     // of its base class names as well).
@@ -116,50 +169,6 @@ art::detail::fillLookups(ProductList const& prods)
         }
       }
     }
-    auto const& moduleLabel = val.first.moduleLabel_;
-    auto const& instanceName = val.first.productInstanceName_;
-    if (is_assns(TY.id())) {
-      auto const TYName = TY.className();
-      auto const baseName = name_of_assns_base(TYName);
-      if (!baseName.empty()) {
-        // We're an Assns<A, B, D>, with a base Assns<A, B>.
-        TypeWithDict const base {baseName};
-        // Add this to the list of "second-tier" products to register
-        // later.
-        assert(base.category() == art::TypeWithDict::Category::CLASSTYPE);
-        auto const& baseFCN = base.friendlyClassName();
-        pendingEntries.emplace_back(static_cast<art::BranchType>(bt),
-                                    baseFCN,
-                                    moduleLabel,
-                                    instanceName,
-                                    procName,
-                                    pid);
-      }
-      else {
-        // Add our pid to the list of real Assns<A, B, void>
-        // products already registered.
-        insertedABVs.emplace(pid, CheapTag{moduleLabel, instanceName, procName});
-      }
-    }
   }
-  auto const iend = insertedABVs.cend();
-  // Preserve useful ordering, only inserting if we don't already have
-  // a *real* Assns<A, B, void> for that module label / instance name
-  // combination.
-  std::for_each(pendingEntries.cbegin(),
-                pendingEntries.cend(),
-                [&pl, &insertedABVs, iend](auto const& pe)
-                {
-                  auto& pids = pl[pe.bt()][pe.fcn()][pe.process()];
-                  if (pids.empty() ||
-                      !std::any_of(pids.cbegin(), pids.cend(),
-                                   [&insertedABVs, &iend, &pe](ProductID const pid) {
-                                     auto i = insertedABVs.find(pid);
-                                     return i != iend && pe.ct() == i->second;
-                                   }))
-                    {
-                      pids.emplace_back(pe.pid());
-                    }
-                });
   return std::make_pair(pl, el);
 }
