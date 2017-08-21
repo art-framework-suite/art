@@ -85,11 +85,6 @@ namespace art {
       mpr_->print(os);
     }
 
-    bool produced(BranchType const btype, ProductID const pid) const
-    {
-      return mpr_->produced(btype, pid);
-    }
-
     std::size_t presentWithFileIdx(BranchType const btype, ProductID const pid) const
     {
       return mpr_->presentWithFileIdx(btype, pid);

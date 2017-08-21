@@ -6,14 +6,16 @@
 #include "canvas/Persistency/Provenance/RunAuxiliary.h"
 #include "canvas/Persistency/Provenance/SubRunAuxiliary.h"
 
-art::SourceHelper::SourceHelper(ModuleDescription const& md) :
-  md_{md}
+art::SourceHelper::SourceHelper(ModuleDescription const& md,
+                                PerBranchTypePresence const& presentProducts) :
+  md_{md},
+  presentProducts_{presentProducts}
 {}
 
 art::RunPrincipal*
 art::SourceHelper::makeRunPrincipal(RunAuxiliary const& runAux) const
 {
-  return new RunPrincipal{runAux, md_.processConfiguration()};
+  return new RunPrincipal{runAux, md_.processConfiguration(), &presentProducts_[InRun]};
 }
 
 art::RunPrincipal*
@@ -21,7 +23,7 @@ art::SourceHelper::makeRunPrincipal(RunID const r,
                                     Timestamp const& startTime) const
 {
   RunAuxiliary const runAux {r, startTime, Timestamp::invalidTimestamp()};
-  return new RunPrincipal{runAux, md_.processConfiguration()};
+  return new RunPrincipal{runAux, md_.processConfiguration(), &presentProducts_[InRun]};
 }
 
 art::RunPrincipal*
@@ -34,7 +36,7 @@ art::SourceHelper::makeRunPrincipal(RunNumber_t const r,
 art::SubRunPrincipal*
 art::SourceHelper::makeSubRunPrincipal(SubRunAuxiliary const& subRunAux) const
 {
-  return new SubRunPrincipal{subRunAux, md_.processConfiguration()};
+  return new SubRunPrincipal{subRunAux, md_.processConfiguration(), &presentProducts_[InSubRun]};
 }
 
 art::SubRunPrincipal*
@@ -42,7 +44,7 @@ art::SourceHelper::makeSubRunPrincipal(SubRunID const& sr,
                                        Timestamp const& startTime) const
 {
   SubRunAuxiliary const subRunAux {sr, startTime, Timestamp::invalidTimestamp()};
-  return new SubRunPrincipal{subRunAux, md_.processConfiguration()};
+  return new SubRunPrincipal{subRunAux, md_.processConfiguration(), &presentProducts_[InSubRun]};
 }
 
 art::SubRunPrincipal*
@@ -57,7 +59,7 @@ art::EventPrincipal*
 art::SourceHelper::makeEventPrincipal(EventAuxiliary const& eventAux,
                                       std::shared_ptr<History>&& history) const
 {
-  return new EventPrincipal{eventAux, md_.processConfiguration(), history};
+  return new EventPrincipal{eventAux, md_.processConfiguration(), &presentProducts_[InEvent], history};
 }
 
 art::EventPrincipal*
@@ -67,7 +69,7 @@ art::SourceHelper::makeEventPrincipal(EventID const& e,
                                       EventAuxiliary::ExperimentType const eType) const
 {
   EventAuxiliary const eventAux {e, startTime, isRealData, eType};
-  return new EventPrincipal{eventAux, md_.processConfiguration()};
+  return new EventPrincipal{eventAux, md_.processConfiguration(), &presentProducts_[InEvent]};
 }
 
 art::EventPrincipal*

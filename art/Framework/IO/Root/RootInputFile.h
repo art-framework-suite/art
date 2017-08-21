@@ -80,7 +80,6 @@ namespace art {
                   int forcedRunOffset,
                   bool noEventSort,
                   GroupSelectorRules const& groupSelectorRules,
-                  bool dropMergeable,
                   std::shared_ptr<DuplicateChecker> duplicateChecker,
                   bool dropDescendantsOfDroppedProducts,
                   bool readIncomingParameterSets,
@@ -108,15 +107,13 @@ namespace art {
       return productListHolder_->productList_;
     }
 
-    BranchTypeLookup const& productLookup() const { return productLookup_; }
-    BranchTypeLookup const& elementLookup() const { return elementLookup_; }
+    ProductLookup_t const& productLookup() const { return productLookup_; }
+    ViewLookup_t const& viewLookup() const { return viewLookup_; }
 
     RunAuxiliary& runAux() { return std::get<RunAuxiliary>(auxiliaries_); }
     ResultsAuxiliary& resultsAux() { return std::get<ResultsAuxiliary>(auxiliaries_); }
     SubRunAuxiliary& subRunAux() { return std::get<SubRunAuxiliary>(auxiliaries_); }
     EventAuxiliary& eventAux() { return std::get<EventAuxiliary>(auxiliaries_); }
-
-    RootInputTreePtrArray& treePointers() { return treePointers_; }
 
     FileFormatVersion fileFormatVersion() const { return fileFormatVersion_; }
 
@@ -232,7 +229,6 @@ namespace art {
 
     void dropOnInput(GroupSelectorRules const& rules,
                      bool dropDescendants,
-                     bool dropMergeable,
                      ProductList& branchDescriptions);
 
     void readParentageTree(unsigned int treeCacheSize);
@@ -282,8 +278,8 @@ namespace art {
     std::unique_ptr<BranchIDLists> branchIDLists_{nullptr}; // Only used for maintaining backwards compatibility
 
     PerBranchTypePresence perBranchTypeProdPresence_ {{}}; // filled by aggregation
-    BranchTypeLookup productLookup_;
-    BranchTypeLookup elementLookup_;
+    ProductLookup_t productLookup_;
+    ViewLookup_t viewLookup_;
 
     TTree* eventHistoryTree_ {nullptr};
     std::shared_ptr<History> history_ {std::make_shared<History>()};

@@ -7,7 +7,6 @@
 #include "art/Persistency/Common/GroupQueryResult.h"
 #include "art/Persistency/Provenance/MasterProductRegistry.h"
 #include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
-#include "art/Persistency/Provenance/ProductMetaData.h"
 #include "canvas/Persistency/Provenance/BranchMapper.h"
 #include "canvas/Persistency/Provenance/ProcessHistory.h"
 #include "canvas/Persistency/Provenance/ProductStatus.h"
@@ -47,7 +46,13 @@ namespace {
     return ReverseIteration<T>{t};
   }
 
-  auto ptr_for_empty_lookup()
+  auto ptr_for_empty_product_lookup()
+  {
+    static art::TypeLookup const emptyLookup{};
+    return &emptyLookup;
+  }
+
+  auto ptr_for_empty_view_lookup()
   {
     static art::TypeLookup const emptyLookup{};
     return &emptyLookup;
@@ -57,11 +62,13 @@ namespace {
 
 Principal::Principal(ProcessConfiguration const& pc,
                      ProcessHistoryID const& hist,
+                     cet::exempt_ptr<PresenceSet const> presentProducts,
                      std::unique_ptr<BranchMapper>&& mapper,
                      std::unique_ptr<DelayedReader>&& reader)
   : processConfiguration_{pc}
-  , productLookup_{ptr_for_empty_lookup()}
-  , elementLookup_{ptr_for_empty_lookup()}
+  , productLookup_{ptr_for_empty_product_lookup()}
+  , viewLookup_{ptr_for_empty_view_lookup()}
+  , presentProducts_{presentProducts}
   , branchMapperPtr_{std::move(mapper)}
   , store_{std::move(reader)}
 {
@@ -214,7 +221,7 @@ Principal::getMatchingSequence(TypeID const& elementType,
   GroupQueryResultVec results;
 
   // Find groups from current process
-  for (auto lookup : reverse_iteration(currentProcessElementLookups_)) {
+  for (auto lookup : reverse_iteration(currentProcessViewLookups_)) {
     auto I = lookup->find(elementType.friendlyClassName());
     if (I == lookup->end()) {
       continue;
@@ -267,10 +274,10 @@ Principal::GroupQueryResultVec
 Principal::matchingSequenceFromInputFile(TypeID const& elementType,
                                          SelectorBase const& selector) const
 {
-  assert(elementLookup_);
+  assert(viewLookup_);
 
-  auto it = elementLookup_->find(elementType.friendlyClassName());
-  if (it == elementLookup_->end()) {
+  auto it = viewLookup_->find(elementType.friendlyClassName());
+  if (it == viewLookup_->end()) {
     return {};
   }
 
@@ -435,17 +442,13 @@ Principal::getForOutput(ProductID const pid, bool const resolveProd) const
   if (g.get() == nullptr) {
     return OutputHandle{RangeSet::invalid()};
   }
-  auto const& pmd = ProductMetaData::instance();
+
   auto const& pd = g->productDescription();
-  auto const bt = pd.branchType();
   if (resolveProd
       &&
       ((g->anyProduct() == nullptr) || !g->anyProduct()->isPresent())
       &&
-      (pmd.presentWithFileIdx(bt, pid) != MasterProductRegistry::DROPPED ||
-       pd.produced())
-      &&
-      (bt == InEvent)
+      (presentFromSource(pid) || pd.produced())
       &&
       productstatus::present(g->productProvenancePtr()->productStatus())) {
     throw Exception(errors::LogicError, "Principal::getForOutput\n")
@@ -479,17 +482,40 @@ Principal::getResolvedGroup(ProductID const pid,
   return g;
 }
 
+bool
+Principal::presentFromSource(ProductID const pid) const
+{
+  bool present{false};
+  if (presentProducts_) {
+    present = (presentProducts_->find(pid) != presentProducts_->cend());
+  }
+  return present;
+}
+
 cet::exempt_ptr<Group const>
 Principal::getGroupForPtr(ProductID const pid) const
 {
-  std::size_t const index    = ProductMetaData::instance().presentWithFileIdx(branchType(), pid);
-  bool        const produced = ProductMetaData::instance().produced(branchType(), pid);
-  if (produced || index == 0) {
+  bool produced{false};
+  for (auto prod : reverse_iteration(currentProcessProducedProducts_)) {
+    if (prod->find(pid) != prod->cend()) {
+      produced = true;
+      break;
+    }
+  }
+
+  // Look through current process and currently opened primary input file.
+  if (produced || presentFromSource(pid)) {
     return getGroup(pid);
   }
-  else if (index > 0 && (index-1 < secondaryPrincipals_.size())) {
-    return secondaryPrincipals_[index-1]->getGroup(pid);
+
+  // Look through secondary files
+  for (auto const& sp : secondaryPrincipals_) {
+    if (sp->presentFromSource(pid)) {
+      return sp->getGroup(pid);
+    }
   }
+
+  // Try new secondary files
   while (true) {
     int const err = tryNextSecondaryFile();
     if (err == -2) {
@@ -500,10 +526,14 @@ Principal::getGroupForPtr(ProductID const pid) const
       // Run, SubRun, or Event not found.
       continue;
     }
-    std::size_t const index = ProductMetaData::instance().presentWithFileIdx(branchType(), pid);
-    if (index == MasterProductRegistry::DROPPED) continue;
-    return secondaryPrincipals_[index-1]->getGroup(pid);
+    assert(!secondaryPrincipals_.empty());
+    auto& new_sp = secondaryPrincipals_.back();
+    if (new_sp->presentFromSource(pid)) {
+      return new_sp->getGroup(pid);
+    }
   }
+
+  return nullptr;
 }
 
 cet::exempt_ptr<Group const>

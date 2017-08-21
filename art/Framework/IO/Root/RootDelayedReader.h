@@ -38,7 +38,7 @@ namespace art {
     RootDelayedReader(FileFormatVersion,
                       sqlite3* db,
                       std::vector<input::EntryNumber> const& entrySet,
-                      cet::exempt_ptr<input::BranchMap const>,
+                      input::BranchMap const&,
                       cet::exempt_ptr<RootInputTree> tree,
                       int64_t saveMemoryObjectThreshold,
                       cet::exempt_ptr<RootInputFile> primaryFile,
@@ -60,7 +60,7 @@ namespace art {
     FileFormatVersion fileFormatVersion_;
     sqlite3* db_;
     std::vector<input::EntryNumber> const entrySet_;
-    cet::exempt_ptr<input::BranchMap const> branches_;
+    input::BranchMap const& branches_;
     cet::exempt_ptr<RootInputTree> tree_;
     int64_t saveMemoryObjectThreshold_;
     cet::exempt_ptr<EDProductGetterFinder const> groupFinder_;

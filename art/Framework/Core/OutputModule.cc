@@ -273,7 +273,8 @@ art::OutputModule::doRespondToOpenInputFile(FileBlock const& fb)
   art::ResultsPrincipal const* respPtr = fb.resultsPrincipal();
   if (respPtr == nullptr) {
     respHolder = std::make_unique<ResultsPrincipal>(ResultsAuxiliary{},
-                                                    description().processConfiguration());
+                                                    description().processConfiguration(),
+                                                    nullptr);
     respPtr = respHolder.get();
   }
   readResults(*respPtr);

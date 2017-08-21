@@ -360,7 +360,6 @@ initFile(bool const skipBadFiles)
                                          forcedRunOffset_,
                                          noEventSort_,
                                          groupSelectorRules_,
-                                         false,
                                          duplicateChecker_,
                                          dropDescendants_,
                                          readParameterSets_,
@@ -375,29 +374,7 @@ initFile(bool const skipBadFiles)
 
   mpr_.updateFromPrimaryFile(rootFile_->productList(),
                              rootFile_->perBranchTypePresence(),
-                             // rootFile_->productLookup(),
-                             // rootFile_->elementLookup(),
                              *rootFile_->createFileBlock());
-
-  // Create branches to read the products from the input file.
-  for (auto const& prod : rootFile_->productList()) {
-    auto const& input_bd = prod.second;
-    auto const& mpr_list = mpr_.productList();
-    auto bd_it = mpr_list.find(art::BranchKey{input_bd});
-    if (bd_it == mpr_list.end()) {
-      throw art::Exception(errors::LogicError, "RootInputFileSequence::initFile()" )
-        << "Unable to find product listed in input file in MasterProductRegistry.\n"
-        << "Please report this to artists@fnal.gov";
-    }
-    auto const& pd = bd_it->second;
-
-    bool const present {mpr_.presentWithFileIdx(pd.branchType(), pd.productID()) != MasterProductRegistry::DROPPED};
-
-    rootFile_->treePointers()[pd.branchType()]->addBranch(prod.first,
-                                                          pd,
-                                                          pd.branchName(),
-                                                          present);
-  }
 }
 
 std::unique_ptr<RootInputFile>
@@ -443,7 +420,6 @@ openSecondaryFile(string const& name,
                                              forcedRunOffset_,
                                              noEventSort_,
                                              groupSelectorRules_,
-                                             /*dropMergeable*/false,
                                              /*duplicateChecker_*/nullptr,
                                              dropDescendants_,
                                              readParameterSets_,
@@ -453,28 +429,7 @@ openSecondaryFile(string const& name,
 
   mpr_.updateFromSecondaryFile(rif->productList(),
                                rif->perBranchTypePresence(),
-                               // rif->productLookup(),
-                               // rif->elementLookup(),
                                *rif->createFileBlock());
-
-  for (auto const& prod : rif->productList()) {
-    auto const& input_bd = prod.second;
-    auto const& mpr_list = mpr_.productList();
-    auto bd_it = mpr_list.find(art::BranchKey(input_bd));
-    if (bd_it == mpr_list.end()) {
-      throw art::Exception(errors::LogicError, "RootInputFileSequence::openSecondaryFile()")
-        << "Unable to find product listed in input file in MasterProductRegistry.\n"
-        << "Please report this to artists@fnal.gov";
-    }
-    auto& pd = bd_it->second;
-
-    bool const present = mpr_.presentWithFileIdx(pd.branchType(), pd.productID()) != MasterProductRegistry::DROPPED;
-
-    rif->treePointers()[pd.branchType()]->addBranch(prod.first,
-                                                    pd,
-                                                    pd.branchName(),
-                                                    present);
-  }
 
   return std::move(rif);
 }

@@ -7,7 +7,6 @@
 #include "art/Persistency/Provenance/ProductMetaData.h"
 #include "canvas/Persistency/Provenance/BranchKey.h"
 #include "canvas/Persistency/Provenance/ProductStatus.h"
-#include "canvas/Persistency/Provenance/TypeTools.h"
 #include "cetlib_except/demangle.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 

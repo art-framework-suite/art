@@ -102,7 +102,7 @@ art::Results::put(std::unique_ptr<PROD>&& product, std::string const& productIns
   auto const& pd = getProductDescription(tid, productInstanceName);
   auto wp = std::make_unique<Wrapper<PROD>>(std::move(product));
 
-  auto result = putProducts().emplace(TypeLabel{tid, productInstanceName, MaybeFillView<PROD>::value},
+  auto result = putProducts().emplace(TypeLabel{tid, productInstanceName, SupportsView<PROD>::value},
                                       PMValue{std::move(wp), pd, RangeSet::invalid()});
   if (!result.second) {
     throw art::Exception(art::errors::ProductPutFailure)

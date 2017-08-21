@@ -46,7 +46,7 @@ namespace art {
   bool
   RootInputTree::isValid() const
   {
-    if ((metaTree_ == 0) || (metaTree_->GetNbranches() == 0)) {
+    if ((metaTree_ == nullptr) || (metaTree_->GetNbranches() == 0)) {
       return tree_ && auxBranch_ && (tree_->GetNbranches() == 1);
     }
     return tree_ && auxBranch_ && metaTree_ && productProvenanceBranch_;
@@ -55,25 +55,19 @@ namespace art {
   bool
   RootInputTree::hasBranch(std::string const& branchName) const
   {
-    return tree_->GetBranch(branchName.c_str()) != 0;
+    return tree_->GetBranch(branchName.c_str()) != nullptr;
   }
 
   void
   RootInputTree::addBranch(BranchKey const& key,
                            BranchDescription const& pd,
-                           std::string const& branchName,
-                           bool const present)
+                           bool const present [[gnu::unused]])
   {
     assert(isValid());
-    TBranch* branch = tree_->GetBranch(branchName.c_str());
-    assert(present == (branch != 0));
-    input::BranchInfo info(pd);
-    info.productBranch_ = 0;
-    if (present) {
-      info.productBranch_ = branch;
-      branchNames_.emplace_back(pd.branchName());
-    }
-    branches_->emplace(key, info);
+    TBranch* branch = tree_->GetBranch(pd.branchName().c_str());
+    assert(present == (branch != nullptr));
+    input::BranchInfo info{pd, branch};
+    branches_.emplace(key, std::move(info));
   }
 
   void
@@ -125,7 +119,7 @@ namespace art {
     return std::make_unique<RootDelayedReader>(fileFormatVersion,
                                                inputDB,
                                                entrySet,
-                                               branches_.get(),
+                                               branches_,
                                                this,
                                                saveMemoryObjectThreshold_,
                                                primaryFile_,

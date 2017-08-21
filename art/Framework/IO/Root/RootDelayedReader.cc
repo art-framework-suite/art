@@ -23,7 +23,7 @@ namespace art {
   RootDelayedReader::RootDelayedReader(FileFormatVersion const version,
                                        sqlite3* db,
                                        std::vector<input::EntryNumber> const& entrySet,
-                                       cet::exempt_ptr<input::BranchMap const> branches,
+                                       input::BranchMap const& branches,
                                        cet::exempt_ptr<RootInputTree> tree,
                                        int64_t const saveMemoryObjectThreshold,
                                        cet::exempt_ptr<RootInputFile> primaryFile,
@@ -53,8 +53,8 @@ namespace art {
                                  TypeID const& ty,
                                  RangeSet& rs) const
   {
-    auto iter = branches_->find(bk);
-    assert(iter != branches_->end());
+    auto iter = branches_.find(bk);
+    assert(iter != branches_.end());
 
     input::BranchInfo const& branchInfo = iter->second;
     TBranch* br {branchInfo.productBranch_};

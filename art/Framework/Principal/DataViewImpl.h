@@ -50,6 +50,7 @@
 #include "art/Persistency/Common/fwd.h"
 #include "art/Persistency/Provenance/detail/type_aliases.h"
 #include "canvas/Persistency/Common/EDProduct.h"
+#include "canvas/Persistency/Common/detail/maybeCastObj.h"
 #include "canvas/Persistency/Common/traits.h"
 #include "canvas/Persistency/Provenance/BranchDescription.h"
 #include "canvas/Persistency/Provenance/ProductID.h"
@@ -224,6 +225,10 @@ protected:
   using GroupQueryResultVec = std::vector<GroupQueryResult>;
 
 private:
+
+  void
+  removeNonViewableMatches_(TypeID const& requestedElementType,
+                            GroupQueryResultVec& results) const;
 
   void
   ensureUniqueProduct_(std::size_t nFound,
@@ -486,6 +491,7 @@ art::DataViewImpl::getView_(std::string const& moduleLabel,
                                          moduleLabel,
                                          productInstanceName,
                                          processName);
+  removeNonViewableMatches_(typeID, bhv);
   ensureUniqueProduct_(bhv.size(), typeID,
                        moduleLabel, productInstanceName, processName);
   return bhv;
@@ -552,8 +558,13 @@ art::DataViewImpl::fillView_(GroupQueryResult& bh,
 {
   std::vector<void const*> erased_ptrs;
   auto product = bh.result()->uniqueProduct();
-  // The lookups ensure that the retrieved product supports views.
+
+  // The lookups and the checking done in getView_ ensure that the
+  // retrieved product supports the requested view.
   assert(product->supportsView());
+  assert(product->typeInfo());
+  assert(detail::upcastAllowed(*product->typeInfo(), typeid(ELEMENT)));
+
   product->fillView(erased_ptrs);
   recordAsParent(Provenance{bh.result()});
 

@@ -80,13 +80,11 @@ namespace {
 }
 
 
-std::pair<art::detail::ProductLookup_t, art::detail::ElementLookup_t>
+std::pair<art::ProductLookup_t, art::ViewLookup_t>
 art::detail::fillLookups(ProductList const& prods)
 {
-  using ViewLookup_t = std::array<ProcessLookup, NumBranchTypes>;
   // Computing the product lookups does not rely on any ROOT facilities.
   ProductLookup_t pl;
-  ViewLookup_t vl;
   std::vector<PendingBTLEntry> pendingEntries;
   std::unordered_map<ProductID, CheapTag, ProductID::Hash> insertedABVs;
   for (auto const& val: prods) {
@@ -94,7 +92,6 @@ art::detail::fillLookups(ProductList const& prods)
     auto const pid = val.second.productID();
     auto const& prodFCN = val.first.friendlyClassName_;
     auto const bt = val.first.branchType_;
-    vl[bt][procName].emplace_back(pid);
     pl[bt][prodFCN][procName].emplace_back(pid);
 
     // Additional work only for Assns lookup
@@ -143,7 +140,7 @@ art::detail::fillLookups(ProductList const& prods)
 
   // Form element lookups for views.  Right now we rely on ROOT to
   // tell us the list of allowed base classes.
-  ElementLookup_t el;
+  ViewLookup_t vl;
   for (auto const& val: prods) {
     auto const& procName = val.first.processName_;
     auto const pid = val.second.productID();
@@ -163,17 +160,17 @@ art::detail::fillLookups(ProductList const& prods)
       // "value_type," so allow lookups by that type and all of its base
       // types too.
       auto const vtFCN = ET.friendlyClassName();
-      el[bt][vtFCN][procName].emplace_back(pid);
+      vl[bt][vtFCN][procName].emplace_back(pid);
       if (ET.category() == art::TypeWithDict::Category::CLASSTYPE) {
         // Repeat this for all public base classes of the value_type.
         std::vector<TClass*> bases;
         art::public_base_classes(ET.tClass(), bases);
         for (auto const BT: bases) {
           auto const btFCN = art::TypeID{BT->GetTypeInfo()}.friendlyClassName();
-          el[bt][btFCN][procName].emplace_back(pid);
+          vl[bt][btFCN][procName].emplace_back(pid);
         }
       }
     }
   }
-  return std::make_pair(pl, el);
+  return std::make_pair(pl, vl);
 }

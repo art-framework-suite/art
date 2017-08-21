@@ -75,7 +75,6 @@ public:
   bool productProduced(BranchType branchType) const {
     return productProduced_[branchType];
   }
-  bool produced(BranchType, ProductID) const;
   std::size_t presentWithFileIdx(BranchType, ProductID) const;
 
 private:
@@ -90,13 +89,7 @@ private:
   std::vector<ProductListUpdatedCallback> productListUpdatedCallbacks_{};
 
   // Data members reset per primary input file:
-  PerBranchTypePresence  perBranchPresenceLookup_{{}}; // Fill with 1 empty list
   PerFilePresence perFilePresenceLookups_{};
-  // Support finding a ProductID by <product friendly class name, process name>.
-  //    std::vector<BranchTypeLookup> productLookup_;
-  // Support finding a ProductID by
-  // <product::value_type friendly class name, process name>.
-  //    std::vector<BranchTypeLookup> elementLookup_;
 };
 
 // Local Variables:

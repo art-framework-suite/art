@@ -112,7 +112,6 @@ namespace art {
                 int forcedRunOffset,
                 bool noEventSort,
                 GroupSelectorRules const& groupSelectorRules,
-                bool dropMergeable,
                 shared_ptr<DuplicateChecker> duplicateChecker,
                 bool dropDescendants,
                 bool const readIncomingParameterSets,
@@ -277,9 +276,19 @@ namespace art {
 
     auto& prodList = productListHolder_->productList_;
 
-    dropOnInput(groupSelectorRules, dropDescendants, /*unused*/dropMergeable, prodList);
+    dropOnInput(groupSelectorRules, dropDescendants, prodList);
     fillPerBranchTypePresenceFlags(prodList);
-    std::tie(productLookup_, elementLookup_) = detail::fillLookups(prodList);
+    std::tie(productLookup_, viewLookup_) = detail::fillLookups(prodList);
+
+    // Add branches
+    for (auto const& prod : prodList) {
+      auto const& pd = prod.second;
+      auto const& presenceLookup = perBranchTypeProdPresence_[pd.branchType()];
+      bool const present {presenceLookup.find(pd.productID()) != cend(presenceLookup)};
+      treePointers_[pd.branchType()]->addBranch(prod.first,
+                                                pd,
+                                                present);
+    }
 
     // Determine if this file is fast clonable.
     fastClonable_ = setIfFastClonable(fcip);
@@ -618,6 +627,7 @@ namespace art {
     overrideRunNumber(const_cast<EventID&>(eventAux().id()), eventAux().isRealData());
     auto ep = std::make_unique<EventPrincipal>(eventAux(),
                                                processConfiguration_,
+                                               &perBranchTypeProdPresence_[InEvent],
                                                history_,
                                                eventTree().makeBranchMapper(),
                                                eventTree().makeDelayedReader(fileFormatVersion_,
@@ -626,7 +636,7 @@ namespace art {
                                                                              entryNumbers.first,
                                                                              eventAux().id()),
                                                entryNumbers.second);
-    ep->setProductLookups(&productLookup_[InEvent], &elementLookup_[InEvent]);
+    ep->setProductLookups(&productLookup_[InEvent], &viewLookup_[InEvent]);
     eventTree().fillGroups(*ep);
     if (!delayedReadEventProducts_) {
       ep->readImmediate();
@@ -654,6 +664,7 @@ namespace art {
                       eventAux().isRealData());
     auto ep = std::make_unique<EventPrincipal>(eventAux(),
                                                processConfiguration_,
+                                               &perBranchTypeProdPresence_[InEvent],
                                                history_,
                                                eventTree().makeBranchMapper(),
                                                eventTree().makeDelayedReader(fileFormatVersion_,
@@ -662,7 +673,7 @@ namespace art {
                                                                              entryNumbers.first,
                                                                              eventAux().id()),
                                                entryNumbers.second);
-    ep->setProductLookups(&productLookup_[InEvent], &elementLookup_[InEvent]);
+    ep->setProductLookups(&productLookup_[InEvent], &viewLookup_[InEvent]);
     eventTree().fillGroups(*ep);
     primaryFile_->primaryEP_->addSecondaryPrincipal(move(ep));
     return true;
@@ -713,6 +724,7 @@ namespace art {
     }
     auto rp = std::make_unique<RunPrincipal>(runAux(),
                                              processConfiguration_,
+                                             &perBranchTypeProdPresence_[InRun],
                                              runTree().makeBranchMapper(),
                                              runTree().makeDelayedReader(fileFormatVersion_,
                                                                          sqliteDB_,
@@ -720,7 +732,7 @@ namespace art {
                                                                          InRun,
                                                                          entryNumbers,
                                                                          fiIter_->eventID_));
-    rp->setProductLookups(&productLookup_[InRun], &elementLookup_[InRun]);
+    rp->setProductLookups(&productLookup_[InRun], &viewLookup_[InRun]);
     runTree().fillGroups(*rp);
     if (!delayedReadRunProducts_) {
       rp->readImmediate();
@@ -760,6 +772,7 @@ namespace art {
     }
     auto rp = std::make_unique<RunPrincipal>(runAux(),
                                              processConfiguration_,
+                                             &perBranchTypeProdPresence_[InRun],
                                              runTree().makeBranchMapper(),
                                              runTree().makeDelayedReader(fileFormatVersion_,
                                                                          sqliteDB_,
@@ -767,7 +780,7 @@ namespace art {
                                                                          InRun,
                                                                          entryNumbers,
                                                                          fiIter_->eventID_));
-    rp->setProductLookups(&productLookup_[InRun], &elementLookup_[InRun]);
+    rp->setProductLookups(&productLookup_[InRun], &viewLookup_[InRun]);
     runTree().fillGroups(*rp);
     if (!delayedReadRunProducts_) {
       rp->readImmediate();
@@ -823,6 +836,7 @@ namespace art {
 
     auto srp = std::make_unique<SubRunPrincipal>(subRunAux(),
                                                  processConfiguration_,
+                                                 &perBranchTypeProdPresence_[InSubRun],
                                                  subRunTree().makeBranchMapper(),
                                                  subRunTree().makeDelayedReader(fileFormatVersion_,
                                                                                 sqliteDB_,
@@ -830,7 +844,7 @@ namespace art {
                                                                                 InSubRun,
                                                                                 entryNumbers,
                                                                                 fiIter_->eventID_));
-    srp->setProductLookups(&productLookup_[InSubRun], &elementLookup_[InSubRun]);
+    srp->setProductLookups(&productLookup_[InSubRun], &viewLookup_[InSubRun]);
     subRunTree().fillGroups(*srp);
     if (!delayedReadSubRunProducts_) {
       srp->readImmediate();
@@ -869,6 +883,7 @@ namespace art {
     }
     auto srp = std::make_unique<SubRunPrincipal>(subRunAux(),
                                                  processConfiguration_,
+                                                 &perBranchTypeProdPresence_[InSubRun],
                                                  subRunTree().makeBranchMapper(),
                                                  subRunTree().makeDelayedReader(fileFormatVersion_,
                                                                                 sqliteDB_,
@@ -876,7 +891,7 @@ namespace art {
                                                                                 InSubRun,
                                                                                 entryNumbers,
                                                                                 fiIter_->eventID_));
-    srp->setProductLookups(&productLookup_[InSubRun], &elementLookup_[InSubRun]);
+    srp->setProductLookups(&productLookup_[InSubRun], &viewLookup_[InSubRun]);
     subRunTree().fillGroups(*srp);
     if (!delayedReadSubRunProducts_) {
       srp->readImmediate();
@@ -990,7 +1005,6 @@ namespace art {
   RootInputFile::
   dropOnInput(GroupSelectorRules const& rules,
               bool const dropDescendants,
-              bool const /*dropMergeable*/,
               ProductList& prodList)
   {
     // This is the selector for drop on input.
@@ -1054,17 +1068,19 @@ namespace art {
       fillAuxiliary<InResults>(entryNumbers.front());
       resp = std::make_unique<ResultsPrincipal>(resultsAux(),
                                                 processConfiguration_,
+                                                &perBranchTypeProdPresence_[InResults],
                                                 resultsTree().makeBranchMapper(),
                                                 resultsTree().makeDelayedReader(fileFormatVersion_,
                                                                                 nullptr,
                                                                                 InResults,
                                                                                 entryNumbers,
                                                                                 EventID{}));
+      resp->setProductLookups(&productLookup_[InResults], &viewLookup_[InResults]);
       resultsTree().fillGroups(*resp);
-      resp->setProductLookups(&productLookup_[InResults], &elementLookup_[InResults]);
     } else { // Empty
       resp = std::make_unique<ResultsPrincipal>(ResultsAuxiliary{},
-                                                processConfiguration_);
+                                                processConfiguration_,
+                                                nullptr);
     }
     return resp;
   }

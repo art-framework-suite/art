@@ -86,8 +86,8 @@ namespace art {
 
     bool isValid() const;
     bool hasBranch(std::string const& branchName) const;
-    void addBranch(BranchKey const&, BranchDescription const&,
-                   std::string const& branchName,
+    void addBranch(BranchKey const&,
+                   BranchDescription const&,
                    bool const presentInSomeFile);
     void dropBranch(std::string const& branchName);
 
@@ -109,7 +109,6 @@ namespace art {
     EntryNumber entries() const { return entries_; }
 
     void setEntryNumber(EntryNumber theEntryNumber);
-    std::vector<std::string> const& branchNames() const { return branchNames_; }
 
     void
     fillGroups(Principal& p)
@@ -118,7 +117,7 @@ namespace art {
         return;
       }
       // Loop over provenance
-      for (auto const& b : *branches_) {
+      for (auto const& b : branches_) {
         p.fillGroup(b.second.branchDescription_);
       }
     }
@@ -196,7 +195,6 @@ namespace art {
     void setCacheSize(unsigned int cacheSize) const;
     void setTreeMaxVirtualSize(int treeMaxVirtualSize);
 
-    BranchMap const& branches() const { return *branches_; }
     TBranch* productProvenanceBranch() const { return productProvenanceBranch_; }
 
   private:
@@ -212,8 +210,7 @@ namespace art {
     TBranch* productProvenanceBranch_ {nullptr};
     EntryNumber entries_ {0};
     EntryNumber entryNumber_ {-1};
-    std::vector<std::string> branchNames_ {};
-    std::unique_ptr<BranchMap> branches_ {std::make_unique<BranchMap>()};
+    BranchMap branches_{};
     cet::exempt_ptr<RootInputFile> primaryFile_;
   };
 

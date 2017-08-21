@@ -141,7 +141,7 @@ art::Event::put(std::unique_ptr<PROD>&& product,
   auto const& pd = getProductDescription(tid, productInstanceName);
   auto wp = std::make_unique<Wrapper<PROD>>(std::move(product));
 
-  auto result = putProducts().emplace(TypeLabel{tid, productInstanceName, MaybeFillView<PROD>::value},
+  auto result = putProducts().emplace(TypeLabel{tid, productInstanceName, SupportsView<PROD>::value},
                                       DataViewImpl::PMValue{std::move(wp), pd, RangeSet::invalid()});
   if (!result.second) {
     cet::HorizontalRule rule{30};

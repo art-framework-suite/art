@@ -25,7 +25,7 @@ namespace art
     counts.increment<stats::Run>();
     bool const rc = filter(e);
     e.commit_(ep, checkPutProducts_, expectedProducts());
-    ep.addLookups(productLookups(), elementLookups());
+    ep.addLookups(productLookups(), viewLookups(), producedProducts());
     counts.update(rc);
     return rc;
   }
@@ -53,9 +53,9 @@ namespace art
                        CPC_exempt_ptr cpc) {
     detail::CPCSentry sentry {current_context_, cpc};
     Run r {rp, moduleDescription_, this, RangeSet::forRun(rp.id())};
+    rp.addLookups(productLookups<InRun>(), viewLookups<InRun>(), producedProducts<InRun>());
     bool const rc = beginRun(r);
     r.commit_(rp);
-    rp.addLookups(productLookups<InRun>(), elementLookups<InRun>());
     return rc;
   }
 
@@ -74,9 +74,9 @@ namespace art
                           CPC_exempt_ptr cpc) {
     detail::CPCSentry sentry {current_context_, cpc};
     SubRun sr {srp, moduleDescription_, this, RangeSet::forSubRun(srp.id())};
+    srp.addLookups(productLookups<InSubRun>(), viewLookups<InSubRun>(), producedProducts<InSubRun>());
     bool const rc = beginSubRun(sr);
     sr.commit_(srp);
-    srp.addLookups(productLookups<InSubRun>(), elementLookups<InSubRun>());
     return rc;
   }
 

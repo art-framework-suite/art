@@ -41,7 +41,6 @@ art::MasterProductRegistry::addProduct(std::unique_ptr<BranchDescription>&& bdp)
   auto& pd = productListEntry.second;
   pd.swap(*bdp);
   productProduced_[pd.branchType()] = true;
-  perBranchPresenceLookup_[pd.branchType()].emplace(pd.productID());
 }
 
 void
@@ -93,13 +92,6 @@ art::MasterProductRegistry::registerProductListUpdatedCallback(ProductListUpdate
 {
   CET_ASSERT_ONLY_ONE_THREAD();
   productListUpdatedCallbacks_.push_back(cb);
-}
-
-bool
-art::MasterProductRegistry::produced(BranchType const branchType, ProductID const pid) const
-{
-  auto const& pLookup = perBranchPresenceLookup_[branchType];
-  return pLookup.find(pid) != pLookup.cend();
 }
 
 std::size_t

@@ -32,12 +32,14 @@ namespace art {
 
     struct BranchInfo
     {
-      BranchInfo(BranchDescription const& prod)
+      BranchInfo(BranchDescription const& prod,
+                 TBranch* const branch)
         : branchDescription_{prod}
+        , productBranch_{branch}
       {}
 
       BranchDescription const& branchDescription_;
-      TBranch* productBranch_{nullptr};
+      TBranch* productBranch_;
     };  // BranchInfo
 
     using BranchMap = std::map<BranchKey const, BranchInfo>;

@@ -3,7 +3,7 @@
 // vim: set sw=2:
 
 // -----------------------------------------------------------------
-//
+
 // ProductRegistryHelper: This class provides the produces()
 // and reconstitutes() function templates used by modules to
 // register what products they create or read in respectively.
@@ -116,7 +116,15 @@ public:
   cet::exempt_ptr<TypeLookup const> productLookups() { return &productLookup_[B]; }
 
   template <BranchType B = InEvent>
-  cet::exempt_ptr<TypeLookup const> elementLookups() { return &elementLookup_[B]; }
+  cet::exempt_ptr<TypeLookup const> viewLookups() { return &viewLookup_[B]; }
+
+  template <BranchType B = InEvent>
+  cet::exempt_ptr<ProducedSet const> producedProducts() { return &producedProducts_[B]; }
+
+  auto const& perBranchTypePresence() { return presentProducts_; }
+
+  template <BranchType B = InEvent>
+  cet::exempt_ptr<PresenceSet const> presentProducts() { return &presentProducts_[B]; }
 
 private:
 
@@ -138,8 +146,10 @@ private:
   }
 
   std::array<std::set<TypeLabel>, NumBranchTypes> typeLabelList_;
-  BranchTypeLookup productLookup_{{}};
-  BranchTypeLookup elementLookup_{{}};
+  ProductLookup_t productLookup_{{}};
+  ViewLookup_t viewLookup_{{}};
+  PerBranchTypeProduced producedProducts_{{}};
+  PerBranchTypePresence presentProducts_{{}};
 
   // Set by an input source for merging into the master product
   // registry by registerProducts().  Ownership is released to
@@ -155,7 +165,7 @@ art::ProductRegistryHelper::produces(std::string const& instanceName)
   verifyInstanceName(instanceName);
   TypeID const productType{typeid(P)};
   verifyFriendlyClassName(productType.friendlyClassName());
-  insertOrThrow(B, TypeLabel{productType, instanceName, MaybeFillView<P>::value});
+  insertOrThrow(B, TypeLabel{productType, instanceName, SupportsView<P>::value});
 }
 
 template<typename P, art::BranchType B>
@@ -167,7 +177,7 @@ art::ProductRegistryHelper::reconstitutes(std::string const& emulatedModule,
   verifyInstanceName(instanceName);
   TypeID const productType{typeid(P)};
   verifyFriendlyClassName(productType.friendlyClassName());
-  return insertOrThrow(B, TypeLabel{productType, instanceName, MaybeFillView<P>::value, emulatedModule});
+  return insertOrThrow(B, TypeLabel{productType, instanceName, SupportsView<P>::value, emulatedModule});
 }
 
 #endif /* art_Framework_Core_ProductRegistryHelper_h */

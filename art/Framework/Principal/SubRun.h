@@ -238,7 +238,7 @@ art::SubRun::put_(std::unique_ptr<PROD>&& product,
   auto const& pd = getProductDescription(tid, productInstanceName);
   auto wp = std::make_unique<Wrapper<PROD>>(std::move(product));
 
-  auto result = putProducts().emplace(TypeLabel{tid, productInstanceName, MaybeFillView<PROD>::value},
+  auto result = putProducts().emplace(TypeLabel{tid, productInstanceName, SupportsView<PROD>::value},
                                       PMValue{std::move(wp), pd, rs});
   if (!result.second) {
     throw art::Exception{art::errors::ProductPutFailure, "SubRun::put"}

@@ -152,7 +152,8 @@ art::EmptyEvent::readRun_()
   RunAuxiliary const runAux {eventID_.runID(), ts, Timestamp::invalidTimestamp()};
   newRun_ = false;
   auto rp_ptr = std::make_unique<RunPrincipal>(runAux,
-                                               processConfiguration());
+                                               processConfiguration(),
+                                               nullptr);
   if (plugin_) {
     Run const r {*rp_ptr, moduleDescription(), Consumer::non_module_context()};
     plugin_->doBeginRun(r);
@@ -175,7 +176,8 @@ EmptyEvent::readSubRun_()
     Timestamp::invalidTimestamp();
   SubRunAuxiliary const subRunAux {eventID_.subRunID(), ts, Timestamp::invalidTimestamp()};
   auto srp_ptr = std::make_unique<SubRunPrincipal>(subRunAux,
-                                                   processConfiguration());
+                                                   processConfiguration(),
+                                                   nullptr);
   if (plugin_) {
     SubRun const sr {*srp_ptr, moduleDescription(), Consumer::non_module_context()};
     plugin_->doBeginSubRun(sr);
@@ -222,6 +224,7 @@ void art::EmptyEvent::reallyReadEvent(bool const lastEventInSubRun) {
   EventAuxiliary const eventAux{eventID_, timestamp, eType_};
   ep_ = std::make_unique<EventPrincipal>(eventAux,
                                          processConfiguration(),
+                                         nullptr,
                                          std::make_shared<History>(),
                                          std::make_unique<BranchMapper>(),
                                          std::make_unique<NoDelayedReader>(),

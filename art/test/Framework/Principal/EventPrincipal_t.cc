@@ -113,7 +113,7 @@ MPRGlobalTestFixture::fake_single_process_branch(std::string const& tag,
                                    *fake_single_module_process(tag, processName, modParams));
 
   auto* result = new art::BranchDescription(art::InEvent,
-                                            art::TypeLabel{dummyType, productInstanceName, art::MaybeFillView<arttest::DummyProduct>::value},
+                                            art::TypeLabel{dummyType, productInstanceName, art::SupportsView<arttest::DummyProduct>::value},
                                             mod);
   branchKeys_.insert(std::make_pair(tag, art::BranchKey(*result)));
   return std::unique_ptr<art::BranchDescription>(result);
@@ -160,12 +160,12 @@ EventPrincipalTestFixture::EventPrincipalTestFixture()
   BOOST_REQUIRE(process);
   art::Timestamp now(1234567UL);
   art::RunAuxiliary runAux {eventID.run(), now, now};
-  auto rp = std::make_unique<art::RunPrincipal>(runAux, *process);
+  auto rp = std::make_unique<art::RunPrincipal>(runAux, *process, nullptr);
   art::SubRunAuxiliary subRunAux {rp->run(), eventID.subRun(), now, now};
-  auto srp = std::make_unique<art::SubRunPrincipal>(subRunAux, *process);
+  auto srp = std::make_unique<art::SubRunPrincipal>(subRunAux, *process, nullptr);
   srp->setRunPrincipal(rp.get());
   art::EventAuxiliary eventAux(eventID, now, true);
-  pEvent_ = std::make_unique<art::EventPrincipal>(eventAux, *process);
+  pEvent_ = std::make_unique<art::EventPrincipal>(eventAux, *process, nullptr);
   pEvent_->setSubRunPrincipal(srp.get());
   pEvent_->put(std::move(product), branchFromRegistry, std::move(productProvenancePtr));
 

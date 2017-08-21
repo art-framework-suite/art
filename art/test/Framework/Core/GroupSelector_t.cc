@@ -32,7 +32,7 @@ namespace {
   {
     art::TypeID const producedType{typeid(PROD)};
     return art::BranchDescription(bt,
-                                  art::TypeLabel{producedType, instanceName, art::MaybeFillView<PROD>::value},
+                                  art::TypeLabel{producedType, instanceName, art::SupportsView<PROD>::value},
                                   art::ModuleDescription(pset.id(),
                                                          "arttest::NOMOD",
                                                          moduleLabel,

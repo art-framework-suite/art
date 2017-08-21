@@ -63,6 +63,7 @@ namespace art {
 
     Principal(ProcessConfiguration const&,
               ProcessHistoryID const&,
+              cet::exempt_ptr<PresenceSet const> presentProducts,
               std::unique_ptr<BranchMapper>&&,
               std::unique_ptr<DelayedReader>&&);
 
@@ -88,7 +89,7 @@ namespace art {
     getMany(WrappedTypeID const& wrapped,
             SelectorBase const&) const;
 
-    // Return a vector of GroupQueryResults to the products which:
+    // ROOT-FIXME: Return a vector of GroupQueryResults to the products which:
     //   1. are sequences,
     //   2. and have the nested type 'value_type'
     //   3. and for which elementType is the same as or a public base of
@@ -96,8 +97,7 @@ namespace art {
     //   4. and which matches the given selector
 
     GroupQueryResultVec
-    getMatchingSequence(TypeID const& elementType,
-                        SelectorBase const&) const;
+    getMatchingSequence(TypeID const& elementType, SelectorBase const&) const;
 
     void
     removeCachedProduct(ProductID const pid) const;
@@ -110,18 +110,23 @@ namespace art {
 
     void
     addLookups(cet::exempt_ptr<TypeLookup const> productLookup,
-               cet::exempt_ptr<TypeLookup const> elementLookup)
+               cet::exempt_ptr<TypeLookup const> viewLookup,
+               cet::exempt_ptr<ProducedSet const> producedProducts)
     {
+      assert(producedProducts);
+      if (producedProducts->empty()) return;
+
       currentProcessProductLookups_.push_back(productLookup);
-      currentProcessElementLookups_.push_back(elementLookup);
+      currentProcessViewLookups_.push_back(viewLookup);
+      currentProcessProducedProducts_.push_back(producedProducts);
     }
 
     void
     setProductLookups(cet::exempt_ptr<TypeLookup const> productLookup,
-                      cet::exempt_ptr<TypeLookup const> elementLookup)
+                      cet::exempt_ptr<TypeLookup const> viewLookup)
     {
       productLookup_ = productLookup;
-      elementLookup_ = elementLookup;
+      viewLookup_ = viewLookup;
     }
 
     void
@@ -261,8 +266,7 @@ namespace art {
     setProcessHistoryID(ProcessHistoryID const&) = 0;
 
     GroupQueryResultVec
-    matchingSequenceFromInputFile(TypeID const& elementType,
-                                  SelectorBase const&) const;
+    matchingSequenceFromInputFile(TypeID const& elementType, SelectorBase const&) const;
 
     GroupQueryResultVec
     findGroupsForProduct(WrappedTypeID const& wrapped,
@@ -288,6 +292,8 @@ namespace art {
                          GroupQueryResultVec& results,
                          TypeID wanted_wrapper) const;
 
+    bool
+    presentFromSource(ProductID) const;
 
   private: // MEMBER DATA
 
@@ -307,9 +313,12 @@ namespace art {
 
     ProcessConfiguration const& processConfiguration_;
     cet::exempt_ptr<TypeLookup const> productLookup_;
-    cet::exempt_ptr<TypeLookup const> elementLookup_;
+    cet::exempt_ptr<TypeLookup const> viewLookup_;
+    cet::exempt_ptr<PresenceSet const> presentProducts_;
+
     std::vector<cet::exempt_ptr<TypeLookup const>> currentProcessProductLookups_{};
-    std::vector<cet::exempt_ptr<TypeLookup const>> currentProcessElementLookups_{};
+    std::vector<cet::exempt_ptr<TypeLookup const>> currentProcessViewLookups_{};
+    std::vector<cet::exempt_ptr<ProducedSet const>> currentProcessProducedProducts_{};
 
     mutable
     std::map<ProductID, std::shared_ptr<DeferredProductGetter const>>

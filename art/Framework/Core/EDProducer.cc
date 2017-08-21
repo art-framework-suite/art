@@ -23,9 +23,9 @@ namespace art
     detail::CPCSentry sentry{current_context_, cpc};
     Event e{ep, moduleDescription_, this};
     counts.increment<stats::Run>();
+    ep.addLookups(productLookups(), viewLookups(), producedProducts());
     produce(e);
     e.commit_(ep, checkPutProducts_, expectedProducts());
-    ep.addLookups(productLookups(), elementLookups());
     counts.increment<stats::Passed>();
     return true;
   }
@@ -55,9 +55,9 @@ namespace art
   {
     detail::CPCSentry sentry{current_context_, cpc};
     Run r{rp, moduleDescription_, this, RangeSet::forRun(rp.id())};
+    rp.addLookups(productLookups<InRun>(), viewLookups<InRun>(), producedProducts<InRun>());
     beginRun(r);
     r.commit_(rp);
-    rp.addLookups(productLookups<InRun>(), elementLookups<InRun>());
     return true;
   }
 
@@ -78,9 +78,12 @@ namespace art
   {
     detail::CPCSentry sentry{current_context_, cpc};
     SubRun sr{srp, moduleDescription_, this, RangeSet::forSubRun(srp.id())};
+    // FIXME: The produced-products list needs to be present in case
+    // someone creates an art::Ptr, which eventually calls down to
+    // getGroupForPtr.
+    srp.addLookups(productLookups<InSubRun>(), viewLookups<InSubRun>(), producedProducts<InSubRun>());
     beginSubRun(sr);
     sr.commit_(srp);
-    srp.addLookups(productLookups<InSubRun>(), elementLookups<InSubRun>());
     return true;
   }
 

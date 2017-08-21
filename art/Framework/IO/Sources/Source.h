@@ -172,32 +172,32 @@ private:
 
   cet::exempt_ptr<ActivityRegistry> act_;
 
-  ProductRegistryHelper h_ {};
+  ProductRegistryHelper h_{};
   SourceHelper sourceHelper_; // So it can be used by detail.
   SourceDetail detail_;
-  input::ItemType state_ {input::IsInvalid};
+  input::ItemType state_{input::IsInvalid};
 
   detail::FileNamesHandler<Source_wantFileServices<T>::value> fh_;
-  std::string currentFileName_ {};
+  std::string currentFileName_{};
 
-  std::unique_ptr<RunPrincipal> newRP_ {nullptr};
-  std::unique_ptr<SubRunPrincipal> newSRP_ {nullptr};
-  std::unique_ptr<EventPrincipal> newE_ {nullptr};
+  std::unique_ptr<RunPrincipal> newRP_{nullptr};
+  std::unique_ptr<SubRunPrincipal> newSRP_{nullptr};
+  std::unique_ptr<EventPrincipal> newE_{nullptr};
 
   // Cached Run and SubRun Principals used for users creating new
   // SubRun and Event Principals.  These are non owning!
-  cet::exempt_ptr<RunPrincipal> cachedRP_ {nullptr};
-  cet::exempt_ptr<SubRunPrincipal> cachedSRP_ {nullptr};
+  cet::exempt_ptr<RunPrincipal> cachedRP_{nullptr};
+  cet::exempt_ptr<SubRunPrincipal> cachedSRP_{nullptr};
 
-  bool pendingSubRun_ {false};
-  bool pendingEvent_ {false};
+  bool pendingSubRun_{false};
+  bool pendingEvent_{false};
 
-  bool subRunIsNew_ {false};
+  bool subRunIsNew_{false};
 
-  SubRunNumber_t remainingSubRuns_ {1};
-  bool haveSRLimit_ {false};
-  EventNumber_t remainingEvents_ {1};
-  bool haveEventLimit_ {false};
+  SubRunNumber_t remainingSubRuns_{1};
+  bool haveSRLimit_{false};
+  EventNumber_t remainingEvents_{1};
+  bool haveEventLimit_{false};
 
   // Called in the constructor, to finish the process of product
   // registration.
@@ -235,7 +235,7 @@ art::Source<T>::Source(fhicl::ParameterSet const& p,
                        InputSourceDescription& d) :
   InputSource{d.moduleDescription},
   act_{&d.activityRegistry},
-  sourceHelper_{d.moduleDescription},
+  sourceHelper_{d.moduleDescription, h_.perBranchTypePresence()},
   detail_{p, h_, sourceHelper_},
   fh_{p.get<std::vector<std::string>>("fileNames", std::vector<std::string>())}
 {
@@ -594,7 +594,8 @@ art::Source<T>::readRun()
         << "Error in Source<T>\n"
         << "readRun() called when no RunPrincipal exists\n"
         << "Please report this to the art developers\n";
-  newRP_->setProductLookups(h_.productLookups<InRun>(), h_.elementLookups<InRun>());
+  newRP_->setProductLookups(h_.productLookups<InRun>(),
+                            h_.viewLookups<InRun>());
   cachedRP_ = newRP_.get();
   return std::move(newRP_);
 }
@@ -611,7 +612,8 @@ art::Source<T>::readSubRun(cet::exempt_ptr<RunPrincipal const>)
     if (haveSRLimit_) { --remainingSubRuns_; }
     subRunIsNew_ = false;
   }
-  newSRP_->setProductLookups(h_.productLookups<InSubRun>(), h_.elementLookups<InSubRun>());
+  newSRP_->setProductLookups(h_.productLookups<InSubRun>(),
+                             h_.viewLookups<InSubRun>());
   cachedSRP_ = newSRP_.get();
   return std::move(newSRP_);
 }
@@ -621,7 +623,8 @@ std::unique_ptr<art::EventPrincipal>
 art::Source<T>::readEvent(cet::exempt_ptr<SubRunPrincipal const>)
 {
   if (haveEventLimit_) { --remainingEvents_; }
-  newE_->setProductLookups(h_.productLookups<InEvent>(), h_.elementLookups<InEvent>());
+  newE_->setProductLookups(h_.productLookups<InEvent>(),
+                           h_.viewLookups<InEvent>());
   return std::move(newE_);
 }
 

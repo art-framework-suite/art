@@ -63,8 +63,16 @@ art::ProductRegistryHelper::registerProducts(MasterProductRegistry& mpr,
     for (auto const& val : typeLabelList_[bt]) {
       auto pd = std::make_unique<BranchDescription>(bt, val, md);
       plist.emplace(BranchKey{*pd}, *pd);
+      if (val.hasEmulatedModule()) {
+        // Product is provided by the source.
+        presentProducts_[bt].insert(pd->productID());
+      }
+      else {
+        // Product is produced in current process.
+        producedProducts_[bt].insert(pd->productID());
+      }
       mpr.addProduct(std::move(pd));
     }
   }
-  std::tie(productLookup_, elementLookup_) = detail::fillLookups(plist);
+  std::tie(productLookup_, viewLookup_) = detail::fillLookups(plist);
 }

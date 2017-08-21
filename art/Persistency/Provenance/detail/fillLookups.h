@@ -8,9 +8,7 @@
 
 namespace art {
   namespace detail {
-    using ProductLookup_t = BranchTypeLookup;
-    using ElementLookup_t = BranchTypeLookup;
-    std::pair<ProductLookup_t, ElementLookup_t> fillLookups(ProductList const& products);
+    std::pair<ProductLookup_t, ViewLookup_t> fillLookups(ProductList const& products);
   }
 }
 

@@ -19,14 +19,15 @@ namespace art {
 
   EventPrincipal::EventPrincipal(EventAuxiliary const& aux,
                                  ProcessConfiguration const& pc,
+                                 cet::exempt_ptr<PresenceSet const> presentProducts,
                                  std::shared_ptr<History> history,
                                  std::unique_ptr<BranchMapper>&& mapper,
                                  std::unique_ptr<DelayedReader>&& rtrv,
                                  bool const lastInSubRun)
-  : Principal{pc, history->processHistoryID(), std::move(mapper), std::move(rtrv)}
-  , aux_{aux}
-  , history_{history}
-  , lastInSubRun_{lastInSubRun}
+    : Principal{pc, history->processHistoryID(), presentProducts, std::move(mapper), std::move(rtrv)}
+    , aux_{aux}
+    , history_{history}
+    , lastInSubRun_{lastInSubRun}
   {
     productReader().setGroupFinder(cet::exempt_ptr<EDProductGetterFinder const>{this});
     if (ProductMetaData::instance().productProduced(InEvent)) {

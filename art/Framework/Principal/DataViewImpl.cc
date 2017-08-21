@@ -148,6 +148,22 @@ namespace art {
   }
 
   void
+  DataViewImpl::removeNonViewableMatches_(TypeID const& requestedElementType,
+                                          GroupQueryResultVec& results) const
+  {
+    // To determine if the requested view is allowed, the matched
+    // 'results' (products) must be read.
+    auto view_disallowed = [&requestedElementType](auto const& query_result) {
+      auto p = query_result.result()->uniqueProduct();
+      bool const viewAllowed = p->supportsView() && detail::upcastAllowed(*p->typeInfo(),
+                                                                          requestedElementType.typeInfo());
+      return !viewAllowed;
+    };
+    results.erase(std::remove_if(begin(results), end(results), view_disallowed),
+                  end(results));
+  }
+
+  void
   DataViewImpl::ensureUniqueProduct_(std::size_t const  nFound,
                                      TypeID      const& typeID,
                                      std::string const& moduleLabel,

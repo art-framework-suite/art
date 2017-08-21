@@ -61,14 +61,20 @@ namespace {
   constexpr art::Timestamp make_timestamp() { return art::Timestamp{1}; }
   std::string module_class_name() { return "IntProducer"; }
 
-  TypeLookup const& empty_lookup() {
+  TypeLookup const& empty_product_lookup() {
     static TypeLookup const typeLookup{};
     return typeLookup;
   }
 
-  cet::exempt_ptr<TypeLookup const> ptr_for_empty_lookup()
+  ProducedSet const& empty_produced_set() {
+    static ProducedSet const producedSet{};
+    return producedSet;
+  }
+
+  auto ptr_for_empty_view_lookup()
   {
-    return &empty_lookup();
+    static TypeLookup const emptyLookup{};
+    return cet::make_exempt_ptr(&emptyLookup);
   }
 
 }
@@ -77,10 +83,15 @@ namespace {
 namespace art {
   class EDProducer {
   public:
-    static void commitEvent(EventPrincipal& ep, Event& e, TypeLookup const& lookup)
+    static void commitEvent(EventPrincipal& ep,
+                            Event& e,
+                            TypeLookup const& lookup,
+                            ProducedSet const& producedProducts)
     {
       e.commit_(ep, false, std::set<TypeLabel>{});
-      ep.addLookups(&lookup, ptr_for_empty_lookup());
+      ep.addLookups(&lookup,
+                    ptr_for_empty_view_lookup(),
+                    &producedProducts);
     }
   };
 }
@@ -100,6 +111,8 @@ public:
   ProductList productList_{};
   TypeLookup sourceProductLookup_{};
   TypeLookup currentProductLookup_{};
+  PresenceSet presentProducts_{};
+  ProducedSet producedProducts_{};
 
 private:
 
@@ -129,9 +142,12 @@ MPRGlobalTestFixture::MPRGlobalTestFixture()
 
   // Fill the lookups for "source-like" products
   {
-    detail::ProductLookup_t productLookup;
+    ProductLookup_t productLookup;
     std::tie(productLookup, std::ignore) = detail::fillLookups(productList_);
     sourceProductLookup_ = productLookup[InEvent];
+    for (auto const& prod : productList_) {
+      presentProducts_.insert(prod.second.productID());
+    }
     productList_.clear();
   }
 
@@ -140,9 +156,11 @@ MPRGlobalTestFixture::MPRGlobalTestFixture()
 
   // Create the lookup that we will use for the current-process module
   {
-    detail::ProductLookup_t productLookup;
+    ProductLookup_t productLookup;
     std::tie(productLookup, std::ignore) = detail::fillLookups(productList_);
     currentProductLookup_ = productLookup[InEvent];
+    assert(productList_.size() == 1ull);
+    producedProducts_.insert(cbegin(productList_)->second.productID());
     productList_.clear();
   }
 
@@ -181,7 +199,7 @@ MPRGlobalTestFixture::registerProduct(std::string const& tag,
 
   moduleDescriptions_[tag] = localModuleDescription;
   auto pd = std::make_unique<BranchDescription>(InEvent,
-                                                art::TypeLabel{product_type, productInstanceName, MaybeFillView<T>::value},
+                                                art::TypeLabel{product_type, productInstanceName, SupportsView<T>::value},
                                                 localModuleDescription);
   productList_.emplace(BranchKey{*pd}, *pd);
   availableProducts_->addProduct(std::move(pd));
@@ -199,7 +217,6 @@ struct EventTestFixture {
   MPRGlobalTestFixture& gf();
   std::unique_ptr<EventPrincipal> principal_{nullptr};
   std::unique_ptr<Event> currentEvent_{nullptr};
-  std::map<std::string, TypeLookup> eventLookup_{};
 };
 
 EventTestFixture::EventTestFixture()
@@ -246,18 +263,19 @@ EventTestFixture::EventTestFixture()
   ProcessConfiguration const& pc = gf().currentModuleDescription_.processConfiguration();
 
   RunAuxiliary const runAux{id.run(), time, time};
-  auto rp = std::make_unique<RunPrincipal>(runAux, pc);
+  auto rp = std::make_unique<RunPrincipal>(runAux, pc, nullptr);
 
   SubRunAuxiliary const subRunAux{rp->run(), 1u, time, time};
-  auto srp = std::make_unique<SubRunPrincipal>(subRunAux, pc);
+  auto srp = std::make_unique<SubRunPrincipal>(subRunAux, pc, nullptr);
   srp->setRunPrincipal(rp.get());
 
   EventAuxiliary const eventAux{id, time, true};
   auto history = std::make_shared<History>();
   const_cast<ProcessHistoryID&>(history->processHistoryID()) = processHistoryID;
-  principal_ = std::make_unique<EventPrincipal>(eventAux, pc, history);
+  principal_ = std::make_unique<EventPrincipal>(eventAux, pc, &gf().presentProducts_, history);
   principal_->setSubRunPrincipal(srp.get());
-  principal_->setProductLookups(&gf().sourceProductLookup_, ptr_for_empty_lookup());
+  principal_->setProductLookups(&gf().sourceProductLookup_,
+                                ptr_for_empty_view_lookup());
 
   currentEvent_ = std::make_unique<Event>(*principal_, gf().currentModuleDescription_, Consumer::non_module_context());
 }
@@ -281,7 +299,10 @@ EventTestFixture::addSourceProduct(std::unique_ptr<T>&& product,
 
   // The lookup tables have already been provided for source products;
   // therefore provide the empty lookup.
-  EDProducer::commitEvent(*principal_, temporaryEvent, empty_lookup());
+  EDProducer::commitEvent(*principal_,
+                          temporaryEvent,
+                          empty_product_lookup(),
+                          empty_produced_set());
   return id;
 }
 
@@ -325,7 +346,7 @@ BOOST_AUTO_TEST_CASE(putAnIntProduct)
   auto three = std::make_unique<arttest::IntProduct>(3);
   currentEvent_->put(std::move(three), "int1");
   BOOST_REQUIRE_EQUAL(currentEvent_->size(), 1u);
-  EDProducer::commitEvent(*principal_, *currentEvent_, gf().currentProductLookup_);
+  EDProducer::commitEvent(*principal_, *currentEvent_, gf().currentProductLookup_, gf().producedProducts_);
   BOOST_REQUIRE_EQUAL(currentEvent_->size(), 1u);
 }
 
@@ -333,7 +354,7 @@ BOOST_AUTO_TEST_CASE(putAndGetAnIntProduct)
 {
   auto four = std::make_unique<arttest::IntProduct>(4);
   currentEvent_->put(std::move(four), "int1");
-  EDProducer::commitEvent(*principal_, *currentEvent_, gf().currentProductLookup_);
+  EDProducer::commitEvent(*principal_, *currentEvent_, gf().currentProductLookup_, gf().producedProducts_);
 
   ProcessNameSelector const should_match{"CURRENT"};
   ProcessNameSelector const should_not_match{"NONESUCH"};
@@ -466,7 +487,7 @@ BOOST_AUTO_TEST_CASE(getBySelector)
 
   auto twoHundred = std::make_unique<product_t>(200);
   currentEvent_->put(std::move(twoHundred), "int1");
-  EDProducer::commitEvent(*principal_, *currentEvent_, gf().currentProductLookup_);
+  EDProducer::commitEvent(*principal_, *currentEvent_, gf().currentProductLookup_, gf().producedProducts_);
 
   BOOST_REQUIRE_EQUAL(currentEvent_->size(), 6u);
 
@@ -545,7 +566,7 @@ BOOST_AUTO_TEST_CASE(getByLabel)
 
   auto twoHundred = std::make_unique<product_t>(200);
   currentEvent_->put(std::move(twoHundred), "int1");
-  EDProducer::commitEvent(*principal_, *currentEvent_, gf().currentProductLookup_);
+  EDProducer::commitEvent(*principal_, *currentEvent_, gf().currentProductLookup_, gf().producedProducts_);
 
   BOOST_REQUIRE_EQUAL(currentEvent_->size(), 6u);
 
@@ -592,7 +613,7 @@ BOOST_AUTO_TEST_CASE(getManyByType)
 
   auto twoHundred = std::make_unique<product_t>(200);
   currentEvent_->put(std::move(twoHundred), "int1");
-  EDProducer::commitEvent(*principal_, *currentEvent_, gf().currentProductLookup_);
+  EDProducer::commitEvent(*principal_, *currentEvent_, gf().currentProductLookup_, gf().producedProducts_);
 
   BOOST_REQUIRE_EQUAL(currentEvent_->size(), 6u);
 
