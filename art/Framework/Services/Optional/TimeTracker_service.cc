@@ -10,20 +10,20 @@
 #include "art/Framework/Services/Registry/ServiceMacros.h"
 #include "art/Framework/Services/Registry/ServiceTable.h"
 #include "art/Framework/Services/System/DatabaseConnection.h"
-#include "cetlib/HorizontalRule.h"
 #include "art/Utilities/ScheduleID.h"
 #include "boost/format.hpp"
 #include "canvas/Persistency/Provenance/EventID.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
 #include "canvas/Persistency/Provenance/ProvenanceFwd.h"
+#include "cetlib/HorizontalRule.h"
 #include "cetlib/sqlite/Connection.h"
 #include "cetlib/sqlite/Ntuple.h"
 #include "cetlib/sqlite/helpers.h"
 #include "cetlib/sqlite/statistics.h"
-#include "messagefacility/MessageLogger/MessageLogger.h"
 #include "fhiclcpp/types/Atom.h"
 #include "fhiclcpp/types/Name.h"
 #include "fhiclcpp/types/Table.h"
+#include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include <algorithm>
 #include <chrono>
@@ -236,9 +236,12 @@ art::TimeTracker::postEndJob()
   }
 
   if (nEventRows == 0 && nModuleRows != 0) {
-    throw art::Exception(art::errors::LogicError)
-      << "Malformed TimeTracker database.  The TimeEvent table is empty, but\n"
-      << "the TimeModule table is not.  Please contact artists@fnal.gov.";
+    std::string const errMsg{"Malformed TimeTracker database.  The TimeEvent table is empty, but\n"
+                             "the TimeModule table is not.  This can happen if an exception has\n"
+                             "been thrown from a module while processing the first event.  Any saved\n"
+                             "database file is suspect and should not be used."};
+    mf::LogAbsolute("TimeTracker") << errMsg;
+    return;
   }
 
   using namespace std;
