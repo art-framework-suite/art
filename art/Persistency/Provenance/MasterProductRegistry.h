@@ -37,8 +37,6 @@
 
 namespace art {
 
-  class ProductID;
-  class BranchKey;
   class FileBlock;
   class MasterProductRegistry;
 
@@ -47,8 +45,6 @@ namespace art {
 
 class art::MasterProductRegistry {
 public:
-
-  static constexpr std::size_t DROPPED {std::numeric_limits<std::size_t>::max()};
 
   explicit MasterProductRegistry() = default;
 
@@ -60,12 +56,7 @@ public:
 
   void finalizeForProcessing();
   void updateFromModule(std::unique_ptr<ProductList>&&);
-  void updateFromPrimaryFile(ProductList const&,
-                             PerBranchTypePresence const&,
-                             FileBlock const&);
-  void updateFromSecondaryFile(ProductList const&,
-                               PerBranchTypePresence const&,
-                               FileBlock const&);
+  void updateFromInputFile(ProductList const&, FileBlock const&);
 
   auto const& productList() const { return productList_; }
   auto size() const { return productList_.size(); }
@@ -75,8 +66,6 @@ public:
   bool productProduced(BranchType branchType) const {
     return productProduced_[branchType];
   }
-  std::size_t presentWithFileIdx(BranchType, ProductID) const;
-
 private:
 
   void updateProductLists_(ProductList const& pl);
@@ -87,9 +76,6 @@ private:
   ProductList productList_{};
   std::array<bool, NumBranchTypes> productProduced_{{false}}; //filled by aggregation
   std::vector<ProductListUpdatedCallback> productListUpdatedCallbacks_{};
-
-  // Data members reset per primary input file:
-  PerFilePresence perFilePresenceLookups_{};
 };
 
 // Local Variables:

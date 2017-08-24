@@ -16,7 +16,6 @@
 #include "art/Framework/Services/System/DatabaseConnection.h"
 #include "art/Framework/Services/System/FileCatalogMetadata.h"
 #include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
-#include "art/Persistency/Provenance/ProductMetaData.h"
 #include "art/Persistency/Provenance/detail/fillLookups.h"
 #include "art/Persistency/RootDB/TKeyVFSOpenPolicy.h"
 #include "canvas/Persistency/Common/EDProduct.h"
@@ -126,7 +125,7 @@ namespace art {
   , origEventID_{origEventID}
   , eventsToSkip_{eventsToSkip}
   , treePointers_ { // Order (and number) must match BranchTypes.h!
-    std::make_unique<RootInputTree>(filePtr_.get(), InEvent, saveMemoryObjectThreshold, this),
+      std::make_unique<RootInputTree>(filePtr_.get(), InEvent, saveMemoryObjectThreshold, this),
       std::make_unique<RootInputTree>(filePtr_.get(), InSubRun, saveMemoryObjectThreshold, this),
       std::make_unique<RootInputTree>(filePtr_.get(), InRun, saveMemoryObjectThreshold, this),
       std::make_unique<RootInputTree>(filePtr_.get(), InResults, saveMemoryObjectThreshold, this, true /* missingOK */) }
@@ -281,13 +280,13 @@ namespace art {
     std::tie(productLookup_, viewLookup_) = detail::fillLookups(prodList);
 
     // Add branches
-    for (auto const& prod : prodList) {
-      auto const& pd = prod.second;
+    for (auto& prod : prodList) {
+      auto& pd = prod.second;
       auto const& presenceLookup = perBranchTypeProdPresence_[pd.branchType()];
       bool const present {presenceLookup.find(pd.productID()) != cend(presenceLookup)};
-      treePointers_[pd.branchType()]->addBranch(prod.first,
-                                                pd,
-                                                present);
+      auto const validity = present ? BranchDescription::Transients::PresentFromSource : BranchDescription::Transients::Dropped;
+      pd.setValidity(validity);
+      treePointers_[pd.branchType()]->addBranch(prod.first, pd);
     }
 
     // Determine if this file is fast clonable.

@@ -87,8 +87,7 @@ namespace art {
     bool isValid() const;
     bool hasBranch(std::string const& branchName) const;
     void addBranch(BranchKey const&,
-                   BranchDescription const&,
-                   bool const presentInSomeFile);
+                   BranchDescription const&);
     void dropBranch(std::string const& branchName);
 
     bool next() { return ++entryNumber_ < entries_; }

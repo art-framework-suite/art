@@ -85,11 +85,6 @@ namespace art {
       mpr_->print(os);
     }
 
-    std::size_t presentWithFileIdx(BranchType const btype, ProductID const pid) const
-    {
-      return mpr_->presentWithFileIdx(btype, pid);
-    }
-
     // Return true if any product is produced in this process for
     // the given branch type.
     bool productProduced(BranchType which) const

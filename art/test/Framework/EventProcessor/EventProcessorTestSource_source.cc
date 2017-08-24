@@ -22,7 +22,6 @@
 #include "art/Framework/Principal/OpenRangeSetHandler.h"
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
-#include "art/Persistency/Provenance/ProductMetaData.h"
 #include "canvas/Persistency/Provenance/EventID.h"
 #include "canvas/Persistency/Provenance/FileFormatVersion.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"

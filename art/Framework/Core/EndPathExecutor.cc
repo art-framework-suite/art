@@ -1,7 +1,6 @@
 #include "art/Framework/Core/EndPathExecutor.h"
 
 #include "art/Persistency/Provenance/MasterProductRegistry.h"
-#include "art/Persistency/Provenance/ProductMetaData.h"
 #include "art/Utilities/OutputFileInfo.h"
 #include "cetlib/container_algorithms.h"
 

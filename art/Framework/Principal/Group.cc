@@ -4,7 +4,6 @@
 #include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Principal/PrincipalPackages.h"
 #include "art/Framework/Principal/Worker.h"
-#include "art/Persistency/Provenance/ProductMetaData.h"
 #include "canvas/Persistency/Provenance/BranchKey.h"
 #include "canvas/Persistency/Provenance/ProductStatus.h"
 #include "cetlib_except/demangle.h"
@@ -136,12 +135,8 @@ art::Group::throwResolveLogicError(TypeID const & wanted_wrapper_type) const
 bool
 art::Group::dropped() const
 {
-  if (!branchDescription_ ) return false;
-  auto const pid = branchDescription_->productID();
-  if (branchDescription_->produced()) return false;
-
-  std::size_t const index = ProductMetaData::instance().presentWithFileIdx(branchDescription_->branchType(), pid);
-  return index == MasterProductRegistry::DROPPED;
+  assert(branchDescription_);
+  return branchDescription_->dropped();
 }
 
 void

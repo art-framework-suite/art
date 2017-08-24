@@ -41,7 +41,6 @@ namespace art {
            // Used for determining product presence information in input files
            using PresenceSet           = std::unordered_set<ProductID, ProductID::Hash>;
            using PerBranchTypePresence = std::array<PresenceSet, NumBranchTypes>;
-           using PerFilePresence       = std::vector<PerBranchTypePresence>;
   }
 
 }

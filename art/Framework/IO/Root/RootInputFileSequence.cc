@@ -372,9 +372,8 @@ initFile(bool const skipBadFiles)
   }
   fileIndexes_[catalog_.currentIndex()] = rootFile_->fileIndexSharedPtr();
 
-  mpr_.updateFromPrimaryFile(rootFile_->productList(),
-                             rootFile_->perBranchTypePresence(),
-                             *rootFile_->createFileBlock());
+  mpr_.updateFromInputFile(rootFile_->productList(),
+                           *rootFile_->createFileBlock());
 }
 
 std::unique_ptr<RootInputFile>
@@ -427,10 +426,8 @@ openSecondaryFile(string const& name,
                                              /*secondaryFileNames*/empty_vs,
                                              /*rifSequence*/this);
 
-  mpr_.updateFromSecondaryFile(rif->productList(),
-                               rif->perBranchTypePresence(),
-                               *rif->createFileBlock());
-
+  mpr_.updateFromInputFile(rif->productList(),
+                           *rif->createFileBlock());
   return std::move(rif);
 }
 

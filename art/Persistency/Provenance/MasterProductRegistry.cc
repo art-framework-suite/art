@@ -48,7 +48,7 @@ art::MasterProductRegistry::finalizeForProcessing()
 {
   CET_ASSERT_ONLY_ONE_THREAD();
   // Product registration can still happen implicitly whenever an
-  // input file is opened--via calls to updateFrom(Primary|Secondary)File.
+  // input file is opened--via calls to updateFromInputFile.
   allowExplicitRegistration_ = false;
 }
 
@@ -57,33 +57,15 @@ art::MasterProductRegistry::updateFromModule(std::unique_ptr<ProductList>&& pl)
 {
   CET_ASSERT_ONLY_ONE_THREAD();
   if (!pl) return;
-
   updateProductLists_(*pl);
 }
 
 void
-art::MasterProductRegistry::updateFromPrimaryFile(ProductList const& pl,
-                                                  PerBranchTypePresence const& presList,
-                                                  FileBlock const& fb)
+art::MasterProductRegistry::updateFromInputFile(ProductList const& pl,
+                                                FileBlock const& fb)
 {
   CET_ASSERT_ONLY_ONE_THREAD();
-
   updateProductLists_(pl);
-  perFilePresenceLookups_.assign(1u, presList);
-
-  cet::for_all(productListUpdatedCallbacks_, [&fb](auto const& callback){ callback(fb); });
-}
-
-void
-art::MasterProductRegistry::updateFromSecondaryFile(ProductList const& pl,
-                                                    PerBranchTypePresence const& presList,
-                                                    FileBlock const& fb)
-{
-  CET_ASSERT_ONLY_ONE_THREAD();
-
-  updateProductLists_(pl);
-  perFilePresenceLookups_.push_back(presList);
-
   cet::for_all(productListUpdatedCallbacks_, [&fb](auto const& callback){ callback(fb); });
 }
 
@@ -92,17 +74,6 @@ art::MasterProductRegistry::registerProductListUpdatedCallback(ProductListUpdate
 {
   CET_ASSERT_ONLY_ONE_THREAD();
   productListUpdatedCallbacks_.push_back(cb);
-}
-
-std::size_t
-art::MasterProductRegistry::presentWithFileIdx(BranchType const branchType, ProductID const pid) const
-{
-  for (std::size_t i{}; i != perFilePresenceLookups_.size() ; ++i) {
-    auto& pLookup = perFilePresenceLookups_[i][branchType];
-    if (pLookup.find(pid) != pLookup.cend())
-      return i;
-  }
-  return DROPPED;
 }
 
 void
@@ -126,7 +97,7 @@ art::MasterProductRegistry::updateProductLists_(ProductList const& pl)
     auto bk = BranchKey{pd};
     auto it = productList_.find(bk);
     if (it == productList_.end()) {
-      // Product from input file is not in the master product list.
+      // New product
       productList_.emplace(bk, pd);
       continue;
     }

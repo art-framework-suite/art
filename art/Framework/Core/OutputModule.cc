@@ -76,15 +76,9 @@ art::OutputModule::doSelectProducts()
 
   for (auto const& val : pmd.productList()) {
     BranchDescription const& pd = val.second;
-    auto const pid = pd.productID();
     auto const bt = pd.branchType();
     if (pd.transient()) {
       // Transient, skip it.
-      continue;
-    }
-    if (!pd.produced() &&
-        pmd.presentWithFileIdx(bt, pid) == MasterProductRegistry::DROPPED) {
-      // Not produced in this process, and previously dropped, skip it.
       continue;
     }
     if (groupSelector.selected(pd)) {

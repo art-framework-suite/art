@@ -60,12 +60,11 @@ namespace art {
 
   void
   RootInputTree::addBranch(BranchKey const& key,
-                           BranchDescription const& pd,
-                           bool const present [[gnu::unused]])
+                           BranchDescription const& pd)
   {
     assert(isValid());
     TBranch* branch = tree_->GetBranch(pd.branchName().c_str());
-    assert(present == (branch != nullptr));
+    assert(pd.present() == (branch != nullptr));
     input::BranchInfo info{pd, branch};
     branches_.emplace(key, std::move(info));
   }
