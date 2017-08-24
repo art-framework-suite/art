@@ -76,5 +76,5 @@ art::ProductRegistryHelper::registerProducts(MasterProductRegistry& mpr,
     }
   }
   productLookup_ = createProductLookups(plist);
-  viewLookup_ = root::createViewLookups(plist);
+  viewLookup_ = createViewLookups(plist);
 }

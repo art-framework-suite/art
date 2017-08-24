@@ -97,7 +97,7 @@ namespace art {
     //   4. and which matches the given selector
 
     GroupQueryResultVec
-    getMatchingSequence(TypeID const& elementType, SelectorBase const&) const;
+    getMatchingSequence(SelectorBase const&) const;
 
     void
     removeCachedProduct(ProductID const pid) const;
@@ -110,7 +110,7 @@ namespace art {
 
     void
     addLookups(cet::exempt_ptr<ProductLookup_t::value_type const> productLookup,
-               cet::exempt_ptr<root::ViewLookup_t::value_type const> viewLookup,
+               cet::exempt_ptr<ViewLookup_t::value_type const> viewLookup,
                cet::exempt_ptr<ProducedSet const> producedProducts)
     {
       assert(producedProducts);
@@ -123,7 +123,7 @@ namespace art {
 
     void
     setProductLookups(cet::exempt_ptr<ProductLookup_t::value_type const> productLookup,
-                      cet::exempt_ptr<root::ViewLookup_t::value_type const> viewLookup)
+                      cet::exempt_ptr<ViewLookup_t::value_type const> viewLookup)
     {
       productLookup_ = productLookup;
       viewLookup_ = viewLookup;
@@ -266,7 +266,7 @@ namespace art {
     setProcessHistoryID(ProcessHistoryID const&) = 0;
 
     GroupQueryResultVec
-    matchingSequenceFromInputFile(TypeID const& elementType, SelectorBase const&) const;
+    matchingSequenceFromInputFile(SelectorBase const&) const;
 
     GroupQueryResultVec
     findGroupsForProduct(WrappedTypeID const& wrapped,
@@ -313,11 +313,11 @@ namespace art {
 
     ProcessConfiguration const& processConfiguration_;
     cet::exempt_ptr<ProductLookup_t::value_type const> productLookup_;
-    cet::exempt_ptr<root::ViewLookup_t::value_type const> viewLookup_;
+    cet::exempt_ptr<ViewLookup_t::value_type const> viewLookup_;
     cet::exempt_ptr<PresenceSet const> presentProducts_;
 
     std::vector<cet::exempt_ptr<ProductLookup_t::value_type const>> currentProcessProductLookups_{};
-    std::vector<cet::exempt_ptr<root::ViewLookup_t::value_type const>> currentProcessViewLookups_{};
+    std::vector<cet::exempt_ptr<ViewLookup_t::value_type const>> currentProcessViewLookups_{};
     std::vector<cet::exempt_ptr<ProducedSet const>> currentProcessProducedProducts_{};
 
     mutable

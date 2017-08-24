@@ -279,7 +279,7 @@ namespace art {
     dropOnInput(groupSelectorRules, dropDescendants, prodList);
     fillPerBranchTypePresenceFlags(prodList);
     productLookup_ = createProductLookups(prodList);
-    viewLookup_ = root::createViewLookups(prodList);
+    viewLookup_ = createViewLookups(prodList);
 
     // Add branches
     for (auto& prod : prodList) {

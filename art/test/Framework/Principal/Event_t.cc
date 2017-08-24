@@ -73,7 +73,7 @@ namespace {
 
   auto ptr_for_empty_view_lookup()
   {
-    static art::root::ViewLookup_t::value_type const emptyLookup{};
+    static art::ViewLookup_t::value_type const emptyLookup{};
     return cet::make_exempt_ptr(&emptyLookup);
   }
 

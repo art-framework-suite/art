@@ -11,7 +11,7 @@ void
 art::checkDictionaries(BranchDescription const& productDesc)
 {
   CET_ASSERT_ONLY_ONE_THREAD();
-  static DictionaryChecker dictChecker{};
+  static root::DictionaryChecker dictChecker{};
 
   auto const isTransient = productDesc.transient();
 

@@ -54,7 +54,7 @@ namespace {
 
   auto ptr_for_empty_view_lookup()
   {
-    static art::root::ViewLookup_t::value_type const emptyLookup{};
+    static art::ViewLookup_t::value_type const emptyLookup{};
     return cet::make_exempt_ptr(&emptyLookup);
   }
 
@@ -215,31 +215,26 @@ Principal::tryNextSecondaryFile() const
 }
 
 Principal::GroupQueryResultVec
-Principal::getMatchingSequence(TypeID const& elementType,
-                               SelectorBase const& selector) const
+Principal::getMatchingSequence(SelectorBase const& selector) const
 {
   GroupQueryResultVec results;
 
   // Find groups from current process
   for (auto lookup : reverse_iteration(currentProcessViewLookups_)) {
-    auto I = lookup->find(elementType.friendlyClassName());
-    if (I == lookup->end()) {
-      continue;
-    }
-    if (findGroups(I->second, selector, results, true) != 0) {
+    if (findGroups(*lookup, selector, results, true) != 0) {
       return results;
     }
   }
 
   // Look through currently opened input files
   if (results.empty()) {
-    results = matchingSequenceFromInputFile(elementType, selector);
+    results = matchingSequenceFromInputFile(selector);
     if (!results.empty()) {
       return results;
     }
 
     for (auto const& sp : secondaryPrincipals_) {
-      results = sp->matchingSequenceFromInputFile(elementType, selector);
+      results = sp->matchingSequenceFromInputFile(selector);
       if (!results.empty()) {
         return results;
       }
@@ -260,7 +255,7 @@ Principal::getMatchingSequence(TypeID const& elementType,
       }
       assert(!secondaryPrincipals_.empty());
       auto& new_sp = secondaryPrincipals_.back();
-      results = new_sp->matchingSequenceFromInputFile(elementType, selector);
+      results = new_sp->matchingSequenceFromInputFile(selector);
       if (!results.empty()) {
         return results;
       }
@@ -271,18 +266,11 @@ Principal::getMatchingSequence(TypeID const& elementType,
 }
 
 Principal::GroupQueryResultVec
-Principal::matchingSequenceFromInputFile(TypeID const& elementType,
-                                         SelectorBase const& selector) const
+Principal::matchingSequenceFromInputFile(SelectorBase const& selector) const
 {
   assert(viewLookup_);
-
-  auto it = viewLookup_->find(elementType.friendlyClassName());
-  if (it == viewLookup_->end()) {
-    return {};
-  }
-
   GroupQueryResultVec results;
-  findGroups(it->second, selector, results, true);
+  findGroups(*viewLookup_, selector, results, true);
   return results;
 }
 

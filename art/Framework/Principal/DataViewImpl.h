@@ -257,8 +257,7 @@ private:
            SelectorBase const& sel) const;
 
   GroupQueryResultVec
-  getMatchingSequenceByLabel_(TypeID const& elementType,
-                              std::string const& label,
+  getMatchingSequenceByLabel_(std::string const& label,
                               std::string const& productInstanceName,
                               std::string const& processName) const;
 
@@ -487,8 +486,7 @@ art::DataViewImpl::getView_(std::string const& moduleLabel,
                           productInstanceName,
                           processName};
   consumer_->validateConsumedProduct(branchType_, pinfo);
-  auto bhv = getMatchingSequenceByLabel_(typeID,
-                                         moduleLabel,
+  auto bhv = getMatchingSequenceByLabel_(moduleLabel,
                                          productInstanceName,
                                          processName);
   removeNonViewableMatches_(typeID, bhv);

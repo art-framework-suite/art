@@ -1,6 +1,5 @@
 art_make(SUBDIRS detail
   LIB_LIBRARIES
-  MF_MessageLogger
   art_Utilities
   canvas
   root_Core # Required for TVersionCheck

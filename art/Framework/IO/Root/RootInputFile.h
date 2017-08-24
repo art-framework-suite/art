@@ -108,7 +108,7 @@ namespace art {
     }
 
     ProductLookup_t const& productLookup() const { return productLookup_; }
-    root::ViewLookup_t const& viewLookup() const { return viewLookup_; }
+    ViewLookup_t const& viewLookup() const { return viewLookup_; }
 
     RunAuxiliary& runAux() { return std::get<RunAuxiliary>(auxiliaries_); }
     ResultsAuxiliary& resultsAux() { return std::get<ResultsAuxiliary>(auxiliaries_); }
@@ -279,7 +279,7 @@ namespace art {
 
     PerBranchTypePresence perBranchTypeProdPresence_ {{}}; // filled by aggregation
     ProductLookup_t productLookup_;
-    root::ViewLookup_t viewLookup_;
+    ViewLookup_t viewLookup_;
 
     TTree* eventHistoryTree_ {nullptr};
     std::shared_ptr<History> history_ {std::make_shared<History>()};

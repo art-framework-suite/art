@@ -65,15 +65,14 @@ namespace art {
   }
 
   DataViewImpl::GroupQueryResultVec
-  DataViewImpl::getMatchingSequenceByLabel_(TypeID const& elementType,
-                                            string const& label,
+  DataViewImpl::getMatchingSequenceByLabel_(string const& label,
                                             string const& productInstanceName,
                                             string const& processName) const
   {
     Selector const sel{ModuleLabelSelector{label} &&
                        ProductInstanceNameSelector{productInstanceName} &&
                        ProcessNameSelector{processName}};
-    return principal_.getMatchingSequence(elementType, sel);
+    return principal_.getMatchingSequence(sel);
   }
 
   ProcessHistory const&
