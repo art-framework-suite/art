@@ -3,10 +3,11 @@
 
 #include "art/Framework/Core/FileBlock.h"
 #include "art/Persistency/Provenance/MasterProductRegistry.h"
-#include "art/Persistency/Provenance/detail/fillLookups.h"
 #include "canvas/Persistency/Provenance/BranchDescription.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
 #include "canvas/Persistency/Provenance/TypeLabel.h"
+#include "canvas/Persistency/Provenance/createProductLookups.h"
+#include "canvas/Persistency/Provenance/createViewLookups.h"
 #include "canvas/Utilities/DebugMacros.h"
 #include "canvas/Utilities/Exception.h"
 #include "cetlib/container_algorithms.h"
@@ -74,5 +75,6 @@ art::ProductRegistryHelper::registerProducts(MasterProductRegistry& mpr,
       mpr.addProduct(std::move(pd));
     }
   }
-  std::tie(productLookup_, viewLookup_) = detail::fillLookups(plist);
+  productLookup_ = createProductLookups(plist);
+  viewLookup_ = createViewLookups(plist);
 }

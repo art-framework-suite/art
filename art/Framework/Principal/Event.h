@@ -16,7 +16,6 @@
 #include "art/Framework/Principal/SubRun.h"
 #include "art/Framework/Principal/fwd.h"
 #include "art/Persistency/Common/GroupQueryResult.h"
-#include "art/Persistency/Provenance/detail/type_aliases.h"
 #include "cetlib/HorizontalRule.h"
 #include "canvas/Persistency/Common/Wrapper.h"
 #include "canvas/Persistency/Common/traits.h"

@@ -20,13 +20,13 @@
 // -----------------------------------------------------------------
 
 #include "art/Framework/Principal/fwd.h"
-#include "art/Persistency/Provenance/MasterProductRegistry.h"
 #include "art/Persistency/Provenance/detail/branchNameComponentChecking.h"
-#include "art/Persistency/Provenance/detail/type_aliases.h"
 #include "canvas/Persistency/Common/Assns.h"
 #include "canvas/Persistency/Common/traits.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
+#include "canvas/Persistency/Provenance/ProductList.h"
 #include "canvas/Persistency/Provenance/TypeLabel.h"
+#include "canvas/Persistency/Provenance/type_aliases.h"
 #include "canvas/Utilities/Exception.h"
 #include "canvas/Utilities/TypeID.h"
 #include "cetlib/exception.h"
@@ -37,9 +37,9 @@
 #include <string>
 
 namespace art {
-  class ProductRegistryHelper;
-
+  class MasterProductRegistry;
   class ModuleDescription;
+  class ProductRegistryHelper;
 }
 
 namespace {
@@ -84,9 +84,8 @@ namespace {
 class art::ProductRegistryHelper {
 public:
 
-  // Used by an input source to provide a product list
-  // to be merged into the master product registry
-  // later by registerProducts().
+  // Used by an input source to provide a product list to be merged
+  // into the master product registry later by registerProducts().
   void productList(ProductList* p) { productList_.reset(p); }
 
   void registerProducts(MasterProductRegistry& mpr,

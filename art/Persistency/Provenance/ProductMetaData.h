@@ -10,11 +10,11 @@
 //==========================================================
 
 #include "art/Persistency/Provenance/MasterProductRegistry.h"
-#include "art/Persistency/Provenance/detail/type_aliases.h"
 #include "cetlib/exempt_ptr.h"
 #include "canvas/Persistency/Provenance/ProductID.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
 #include "canvas/Persistency/Provenance/ProductList.h"
+#include "canvas/Persistency/Provenance/type_aliases.h"
 
 #include <ostream>
 #include <vector>

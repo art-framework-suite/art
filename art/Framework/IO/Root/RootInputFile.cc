@@ -16,7 +16,6 @@
 #include "art/Framework/Services/System/DatabaseConnection.h"
 #include "art/Framework/Services/System/FileCatalogMetadata.h"
 #include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
-#include "art/Persistency/Provenance/detail/fillLookups.h"
 #include "art/Persistency/RootDB/TKeyVFSOpenPolicy.h"
 #include "canvas/Persistency/Common/EDProduct.h"
 #include "canvas/Persistency/Provenance/BranchChildren.h"
@@ -29,6 +28,8 @@
 #include "canvas/Persistency/Provenance/ProductID.h"
 #include "canvas/Persistency/Provenance/ProductIDStreamer.h"
 #include "canvas/Persistency/Provenance/RunID.h"
+#include "canvas/Persistency/Provenance/createProductLookups.h"
+#include "canvas/Persistency/Provenance/createViewLookups.h"
 #include "canvas/Persistency/Provenance/rootNames.h"
 #include "canvas/Utilities/Exception.h"
 #include "canvas/Utilities/FriendlyName.h"
@@ -277,7 +278,8 @@ namespace art {
 
     dropOnInput(groupSelectorRules, dropDescendants, prodList);
     fillPerBranchTypePresenceFlags(prodList);
-    std::tie(productLookup_, viewLookup_) = detail::fillLookups(prodList);
+    productLookup_ = createProductLookups(prodList);
+    viewLookup_ = createViewLookups(prodList);
 
     // Add branches
     for (auto& prod : prodList) {

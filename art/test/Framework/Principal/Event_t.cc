@@ -23,7 +23,6 @@
 #include "art/Persistency/Provenance/MasterProductRegistry.h"
 #include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
 #include "art/Persistency/Provenance/ProductMetaData.h"
-#include "art/Persistency/Provenance/detail/fillLookups.h"
 #include "art/Version/GetReleaseVersion.h"
 #include "art/test/TestObjects/ToyProducts.h"
 #include "canvas/Persistency/Common/Wrapper.h"
@@ -37,6 +36,7 @@
 #include "canvas/Persistency/Provenance/SubRunAuxiliary.h"
 #include "canvas/Persistency/Provenance/Timestamp.h"
 #include "canvas/Persistency/Provenance/TypeLabel.h"
+#include "canvas/Persistency/Provenance/createProductLookups.h"
 #include "canvas/Utilities/InputTag.h"
 #include "cetlib/container_algorithms.h"
 #include "fhiclcpp/ParameterSet.h"
@@ -142,8 +142,7 @@ MPRGlobalTestFixture::MPRGlobalTestFixture()
 
   // Fill the lookups for "source-like" products
   {
-    ProductLookup_t productLookup;
-    std::tie(productLookup, std::ignore) = detail::fillLookups(productList_);
+    auto const& productLookup = createProductLookups(productList_);
     sourceProductLookup_ = productLookup[InEvent];
     for (auto const& prod : productList_) {
       presentProducts_.insert(prod.second.productID());
@@ -156,8 +155,7 @@ MPRGlobalTestFixture::MPRGlobalTestFixture()
 
   // Create the lookup that we will use for the current-process module
   {
-    ProductLookup_t productLookup;
-    std::tie(productLookup, std::ignore) = detail::fillLookups(productList_);
+    auto const& productLookup = createProductLookups(productList_);
     currentProductLookup_ = productLookup[InEvent];
     assert(productList_.size() == 1ull);
     producedProducts_.insert(cbegin(productList_)->second.productID());

@@ -12,7 +12,7 @@
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Persistency/Provenance/MasterProductRegistry.h"
-#include "art/Persistency/Provenance/detail/type_aliases.h"
+#include "canvas/Persistency/Provenance/type_aliases.h"
 #include "canvas/Persistency/Provenance/BranchChildren.h"
 #include "canvas/Persistency/Provenance/BranchMapper.h"
 #include "canvas/Persistency/Provenance/Compatibility/BranchIDList.h"
