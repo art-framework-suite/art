@@ -146,7 +146,7 @@ private:
 
   std::array<std::set<TypeLabel>, NumBranchTypes> typeLabelList_;
   ProductLookup_t productLookup_{{}};
-  ViewLookup_t viewLookup_{{}};
+  root::ViewLookup_t viewLookup_{{}};
   PerBranchTypeProduced producedProducts_{{}};
   PerBranchTypePresence presentProducts_{{}};
 
