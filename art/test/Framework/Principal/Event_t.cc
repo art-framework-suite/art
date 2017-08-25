@@ -61,19 +61,19 @@ namespace {
   constexpr art::Timestamp make_timestamp() { return art::Timestamp{1}; }
   std::string module_class_name() { return "IntProducer"; }
 
-  TypeLookup const& empty_product_lookup() {
-    static TypeLookup const typeLookup{};
-    return typeLookup;
+  auto const& empty_product_lookup() {
+    static art::ProductLookup_t::value_type const emptyLookup{};
+    return emptyLookup;
   }
 
-  ProducedSet const& empty_produced_set() {
+  auto const& empty_produced_set() {
     static ProducedSet const producedSet{};
     return producedSet;
   }
 
   auto ptr_for_empty_view_lookup()
   {
-    static TypeLookup const emptyLookup{};
+    static art::root::ViewLookup_t::value_type const emptyLookup{};
     return cet::make_exempt_ptr(&emptyLookup);
   }
 
@@ -85,7 +85,7 @@ namespace art {
   public:
     static void commitEvent(EventPrincipal& ep,
                             Event& e,
-                            TypeLookup const& lookup,
+                            ProductLookup_t::value_type const& lookup,
                             ProducedSet const& producedProducts)
     {
       e.commit_(ep, false, std::set<TypeLabel>{});
@@ -109,8 +109,8 @@ public:
   // The productList_ data member is used only to create the product
   // lookup tables.
   ProductList productList_{};
-  TypeLookup sourceProductLookup_{};
-  TypeLookup currentProductLookup_{};
+  ProductLookup_t::value_type sourceProductLookup_{};
+  ProductLookup_t::value_type currentProductLookup_{};
   PresenceSet presentProducts_{};
   ProducedSet producedProducts_{};
 

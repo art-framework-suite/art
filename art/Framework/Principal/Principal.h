@@ -109,8 +109,8 @@ namespace art {
     }
 
     void
-    addLookups(cet::exempt_ptr<TypeLookup const> productLookup,
-               cet::exempt_ptr<TypeLookup const> viewLookup,
+    addLookups(cet::exempt_ptr<ProductLookup_t::value_type const> productLookup,
+               cet::exempt_ptr<root::ViewLookup_t::value_type const> viewLookup,
                cet::exempt_ptr<ProducedSet const> producedProducts)
     {
       assert(producedProducts);
@@ -122,8 +122,8 @@ namespace art {
     }
 
     void
-    setProductLookups(cet::exempt_ptr<TypeLookup const> productLookup,
-                      cet::exempt_ptr<TypeLookup const> viewLookup)
+    setProductLookups(cet::exempt_ptr<ProductLookup_t::value_type const> productLookup,
+                      cet::exempt_ptr<root::ViewLookup_t::value_type const> viewLookup)
     {
       productLookup_ = productLookup;
       viewLookup_ = viewLookup;
@@ -312,12 +312,12 @@ namespace art {
     std::shared_ptr<ProcessHistory> processHistoryPtr_{std::make_shared<ProcessHistory>()};
 
     ProcessConfiguration const& processConfiguration_;
-    cet::exempt_ptr<TypeLookup const> productLookup_;
-    cet::exempt_ptr<TypeLookup const> viewLookup_;
+    cet::exempt_ptr<ProductLookup_t::value_type const> productLookup_;
+    cet::exempt_ptr<root::ViewLookup_t::value_type const> viewLookup_;
     cet::exempt_ptr<PresenceSet const> presentProducts_;
 
-    std::vector<cet::exempt_ptr<TypeLookup const>> currentProcessProductLookups_{};
-    std::vector<cet::exempt_ptr<TypeLookup const>> currentProcessViewLookups_{};
+    std::vector<cet::exempt_ptr<ProductLookup_t::value_type const>> currentProcessProductLookups_{};
+    std::vector<cet::exempt_ptr<root::ViewLookup_t::value_type const>> currentProcessViewLookups_{};
     std::vector<cet::exempt_ptr<ProducedSet const>> currentProcessProducedProducts_{};
 
     mutable

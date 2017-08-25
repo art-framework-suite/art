@@ -48,14 +48,14 @@ namespace {
 
   auto ptr_for_empty_product_lookup()
   {
-    static art::TypeLookup const emptyLookup{};
-    return &emptyLookup;
+    static art::ProductLookup_t::value_type const emptyLookup{};
+    return cet::make_exempt_ptr(&emptyLookup);
   }
 
   auto ptr_for_empty_view_lookup()
   {
-    static art::TypeLookup const emptyLookup{};
-    return &emptyLookup;
+    static art::root::ViewLookup_t::value_type const emptyLookup{};
+    return cet::make_exempt_ptr(&emptyLookup);
   }
 
 }

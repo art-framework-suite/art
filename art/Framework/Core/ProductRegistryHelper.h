@@ -112,18 +112,18 @@ public:
   }
 
   template <BranchType B = InEvent>
-  cet::exempt_ptr<TypeLookup const> productLookups() { return &productLookup_[B]; }
+  auto productLookups() { return cet::make_exempt_ptr(&productLookup_[B]); }
 
   template <BranchType B = InEvent>
-  cet::exempt_ptr<TypeLookup const> viewLookups() { return &viewLookup_[B]; }
+  auto viewLookups() { return cet::make_exempt_ptr(&viewLookup_[B]); }
 
   template <BranchType B = InEvent>
-  cet::exempt_ptr<ProducedSet const> producedProducts() { return &producedProducts_[B]; }
+  auto producedProducts() { return cet::make_exempt_ptr(&producedProducts_[B]); }
 
   auto const& perBranchTypePresence() { return presentProducts_; }
 
   template <BranchType B = InEvent>
-  cet::exempt_ptr<PresenceSet const> presentProducts() { return &presentProducts_[B]; }
+  auto presentProducts() { return cet::make_exempt_ptr(&presentProducts_[B]); }
 
 private:
 
