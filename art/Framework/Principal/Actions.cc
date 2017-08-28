@@ -56,20 +56,13 @@ namespace art {
 
   void ActionTable::addDefaults_()
   {
-    // populate defaults that are not 'Rethrow'
-    // 'Rethrow' is the default default.
-    add(art::Exception::codeToString(errors::ProductNotFound), actions::SkipEvent);
-    add(art::Exception::codeToString(errors::InvalidReference), actions::SkipEvent);
-    add(art::Exception::codeToString(errors::NullPointerError), actions::SkipEvent);
-    add(art::Exception::codeToString(errors::EventTimeout), actions::SkipEvent);
-    add(art::Exception::codeToString(errors::DataCorruption), actions::SkipEvent);
-    add(art::Exception::codeToString(errors::NotFound), actions::SkipEvent);
-    if (2 <= debugit()) {
-      for (auto const& pr : map_) {
-        cerr << pr.first << ',' << pr.second << '\n';
-      }
-      cerr << endl;
+    // This is where defaults that are not 'Rethrow' would be populated.
+    if (2 > debugit()) return;
+
+    for (auto const& pr : map_) {
+      cerr << pr.first << ',' << pr.second << '\n';
     }
+    cerr << endl;
   }
 
   void
