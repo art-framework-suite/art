@@ -72,8 +72,10 @@ namespace art {
     ProductMetaData(ProductMetaData const&) = delete;
     ProductMetaData& operator=(ProductMetaData const&) = delete;
 
-    // Accessors: this is the facade presented by ProductMetaData
-    // for the MasterProductRegistry.
+    // Accessors: this is the facade presented by ProductMetaData for
+    // the MasterProductRegistry.
+
+    // MT-FIXME: Handing out reference!
     ProductList const& productList() const
     {
       return mpr_->productList();
@@ -85,9 +87,9 @@ namespace art {
       mpr_->print(os);
     }
 
-    // Return true if any product is produced in this process for
-    // the given branch type.
-    bool productProduced(BranchType which) const
+    // Return true if any product is produced in this process for the
+    // given branch type.
+    bool productProduced(BranchType const which) const
     {
       return mpr_->productProduced(which);
     }

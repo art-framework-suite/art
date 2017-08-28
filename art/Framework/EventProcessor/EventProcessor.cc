@@ -132,7 +132,8 @@ art::EventProcessor::EventProcessor(ParameterSet const& pset)
   // System service FileCatalogMetadata needs to know about the process name.
   ServiceHandle<art::FileCatalogMetadata>{}->addMetadataString("process_name", processName);
 
-  ProductMetaData::create_instance(preg_);
+  input_ = makeInput(pset, processName, preg_, actReg_);
+  actReg_.sPostSourceConstruction.invoke(input_->moduleDescription());
   endPathExecutor_ = std::make_unique<EndPathExecutor>(pathManager_,
                                                        act_table_,
                                                        actReg_,
@@ -143,12 +144,8 @@ art::EventProcessor::EventProcessor(ParameterSet const& pset)
   // which owns all other producers and filters.
   initSchedules_(pset);
 
-  // The input source is created last since it will receive the
-  // product lookups for all products produced in the current process.
-  input_ = makeInput(pset, processName, preg_, actReg_);
-  actReg_.sPostSourceConstruction.invoke(input_->moduleDescription());
-
   preg_.finalizeForProcessing();
+  ProductMetaData::create_instance(preg_);
 
   FDEBUG(2) << pset.to_string() << std::endl;
   servicesDeactivate_();
