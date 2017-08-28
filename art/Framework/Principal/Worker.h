@@ -4,22 +4,22 @@
 // ======================================================================
 /*
 
-Worker: this is a basic scheduling unit - an abstract base class to
-something that is really a producer or filter.
+  Worker: this is a basic scheduling unit - an abstract base class to
+  something that is really a producer or filter.
 
 
-A worker will not actually call through to the module unless it is in
-a Ready state.  After a module is actually run, the state will not be
-Ready.  The Ready state can only be reestablished by doing a reset().
+  A worker will not actually call through to the module unless it is in
+  a Ready state.  After a module is actually run, the state will not be
+  Ready.  The Ready state can only be reestablished by doing a reset().
 
-Pre/post module signals are posted only in the Ready state.
+  Pre/post module signals are posted only in the Ready state.
 
-Execution statistics are kept here.
+  Execution statistics are kept here.
 
-If a module has thrown an exception during execution, that exception
-will be rethrown if the worker is entered again and the state is not
-Ready.  In other words, execution results (status) are cached and
-reused until the worker is reset().
+  If a module has thrown an exception during execution, that exception
+  will be rethrown if the worker is entered again and the state is not
+  Ready.  In other words, execution results (status) are cached and
+  reused until the worker is reset().
 
 */
 // ======================================================================
@@ -53,7 +53,7 @@ namespace art {
 
 class art::Worker {
 public:
-  enum State { Ready, Pass, Fail, Working, Exception };
+  enum State {Ready, Pass, Fail, Working, Exception};
 
   Worker(ModuleDescription const& iMD, WorkerParams const& iWP);
   virtual ~Worker() noexcept = default;
@@ -253,21 +253,21 @@ bool art::Worker::doWork(typename T::MyPrincipal& p,
       state_ = Pass;
       mf::LogWarning("IgnoreCompletely")
         << "Module ignored an exception\n"
-        << e.what() << "\n";
+        << e.what();
       break;
     }
     case actions::FailModule: {
       rc=true;
       mf::LogWarning("FailModule")
         << "Module failed due to an exception\n"
-        << e.what() << "\n";
+        << e.what();
       counts.template increment<stats::Failed>();
       state_ = Fail;
       break;
     }
     default: {
-      // We should not need to include the event/run/module names.
-      // The exception because the error logger will pick this up
+      // We should not need to include the event/run/module names in
+      // the exception because the error logger will pick this up
       // automatically.  I'm leaving it in until this is verified.
 
       // here we simply add a small amount of data to the exception to
@@ -277,7 +277,7 @@ bool art::Worker::doWork(typename T::MyPrincipal& p,
       counts.template increment<stats::ExceptionThrown>();
       state_ = Exception;
       e << "cet::exception going through module ";
-      //      detail::exceptionContext(md_, p, e);
+      detail::exceptionContext(md_, p, e);
       if (auto edmEx = dynamic_cast<art::Exception*>(&e)) {
         cached_exception_ = std::make_shared<art::Exception>(*edmEx);
       }
@@ -305,7 +305,7 @@ bool art::Worker::doWork(typename T::MyPrincipal& p,
     *cached_exception_
       << "A std::exception occurred during a call to the module ";
     detail::exceptionContext(md_, p, *cached_exception_) << "and cannot be repropagated.\n"
-                                                          << "Previous information:\n" << e.what();
+                                                         << "Previous information:\n" << e.what();
     throw *cached_exception_;
   }
   catch (std::string const& s) {
@@ -315,7 +315,7 @@ bool art::Worker::doWork(typename T::MyPrincipal& p,
     *cached_exception_
       << "A std::string thrown as an exception occurred during a call to the module ";
     detail::exceptionContext(md_, p, *cached_exception_) << "and cannot be repropagated.\n"
-                                                          << "Previous information:\n string = " << s;
+                                                         << "Previous information:\n string = " << s;
     throw *cached_exception_;
   }
   catch (char const* c) {
@@ -325,7 +325,7 @@ bool art::Worker::doWork(typename T::MyPrincipal& p,
     *cached_exception_
       << "A const char* thrown as an exception occurred during a call to the module ";
     detail::exceptionContext(md_, p, *cached_exception_) << "and cannot be repropagated.\n"
-                                                          << "Previous information:\n const char* = " << c << "\n";
+                                                         << "Previous information:\n const char* = " << c << "\n";
     throw *cached_exception_;
   }
   catch (...) {
