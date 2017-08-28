@@ -55,11 +55,11 @@ art::detail::writeSummary(PathManager& pm, bool const wantSummary, cet::cpu_time
   // Still only assuming one schedule. Will need to loop when we get around to it.
   auto const& epi = pm.endPathInfo();
   auto const& tpi = pm.triggerPathsInfo(ScheduleID::first());
-  LogPrint("ArtSummary");
+  LogPrint("ArtSummary") << "";
   triggerReport(epi, tpi, wantSummary);
-  LogPrint("ArtSummary");
+  LogPrint("ArtSummary") << "";
   timeReport(jobTimer);
-  LogPrint("ArtSummary");
+  LogPrint("ArtSummary") << "";
   memoryReport();
 }
 
