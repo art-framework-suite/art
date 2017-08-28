@@ -75,15 +75,6 @@ Begin processing the 6th record. run: 1 subRun: 0 event: 6 at <date-time>
 ++++ processing event:run: 1 subRun: 0 event: 6 time:0
 ++++++ processing path for event:end_path
 ++++++++ module for event:a1
-++++++++ finished for event:a1
-++++++ finished path for event:
-++++ finished event:
-++++source event
-Begin processing the 7th record. run: 1 subRun: 0 event: 7 at <date-time>
-++++finished: source event
-++++ processing event:run: 1 subRun: 0 event: 7 time:0
-++++++ processing path for event:end_path
-++++++++ module for event:a1
 ++++ processing end subRun:run: 1 subRun: 0 time:0
 ++++++ processing path for end subRun:end_path
 ++++++++ module for end subRun:a1
@@ -104,18 +95,18 @@ Begin processing the 7th record. run: 1 subRun: 0 event: 7 at <date-time>
 <separator (=)>
 TimeTracker printout (sec)            Min           Avg           Max         Median          RMS         nEvts   
 <separator (=)>
-Full event	<duration> <duration> <duration> <duration> <duration> 7     
+Full event	<duration> <duration> <duration> <duration> <duration> 6     
 <separator (-)>
-source:EmptyEvent(read)	<duration> <duration> <duration> <duration> <duration> 7     
-end_path:a1:ThrowingAnalyzer	<duration> <duration> <duration> <duration> <duration> 6     
+source:EmptyEvent(read)	<duration> <duration> <duration> <duration> <duration> 6     
+end_path:a1:ThrowingAnalyzer	<duration> <duration> <duration> <duration> <duration> 5     
 ++ Job ended
 
 TrigReport ---------- Event  Summary ------------
-TrigReport Events total = 7 passed = 7 failed = 0
+TrigReport Events total = 6 passed = 6 failed = 0
 
 TrigReport ------ Modules in End-Path: end_path ------------
 TrigReport  Trig Bit#        Run    Success      Error Name
-TrigReport     0    0          7          6          1 a1
+TrigReport     0    0          6          5          1 a1
 
 TimeReport ---------- Time  Summary ---[sec]----
 TimeReport CPU = <duration> Real = <duration>
@@ -131,7 +122,7 @@ cet::exception caught in art
         Path: ProcessingStopped.
         ---- OtherArt BEGIN
           Throw from analyze.
-          cet::exception going through module 
+          cet::exception going through module ThrowingAnalyzer/a1 run: 1 subRun: 0 event: 6
         ---- OtherArt END
         Exception going through path end_path
       ---- ScheduleExecutionFailure END

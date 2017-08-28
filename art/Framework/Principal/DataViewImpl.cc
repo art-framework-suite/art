@@ -5,10 +5,10 @@
 #include "art/Framework/Principal/Selector.h"
 #include "art/Framework/Principal/get_ProductDescription.h"
 #include "art/Persistency/Provenance/ProductMetaData.h"
-#include "cetlib/HorizontalRule.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
 #include "canvas/Persistency/Provenance/ProductProvenance.h"
 #include "canvas/Persistency/Provenance/ProductStatus.h"
+#include "cetlib/HorizontalRule.h"
 #include "cetlib/container_algorithms.h"
 
 #include <algorithm>
@@ -71,9 +71,9 @@ namespace art {
                                             string const& productInstanceName,
                                             string const& processName) const
   {
-    art::Selector const sel(art::ModuleLabelSelector{label} &&
-                            art::ProductInstanceNameSelector{productInstanceName} &&
-                            art::ProcessNameSelector{processName});
+    Selector const sel{ModuleLabelSelector{label} &&
+                       ProductInstanceNameSelector{productInstanceName} &&
+                       ProcessNameSelector{processName}};
     return principal_.getMatchingSequence(elementType, sel);
   }
 
@@ -90,7 +90,7 @@ namespace art {
       // If the product retrieved is transient, don't use its
       // ProductID; use the ProductID's of its parents.
       auto const& parents = prov.parents();
-      retrievedProducts_.insert(std::cbegin(parents), std::cend(parents));
+      retrievedProducts_.insert(cbegin(parents), cend(parents));
     }
     else {
       retrievedProducts_.insert(prov.productID());
@@ -102,7 +102,7 @@ namespace art {
   {
     std::vector<ProductID> result;
     result.reserve(retrievedProducts_.size());
-    result.assign(std::cbegin(retrievedProducts_), std::cend(retrievedProducts_));
+    result.assign(cbegin(retrievedProducts_), cend(retrievedProducts_));
     return result;
   }
 
@@ -157,7 +157,7 @@ namespace art {
   {
     if (nFound == 1) return;
 
-    art::Exception e(art::errors::ProductNotFound);
+    Exception e{errors::ProductNotFound};
     e << "getView: Found "
       << (nFound == 0 ? "no products"
           : "more than one product"

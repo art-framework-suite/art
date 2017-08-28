@@ -136,8 +136,7 @@ Principal::getByLabel(TypeID const& productType,
                << productInstanceName
                << "\n"
                << (processName.empty() ? "" : "Looking for process: ")
-               << processName
-               << "\n";
+               << processName;
     return GroupQueryResult{whyFailed};
   }
   if (nFound > 1) {
