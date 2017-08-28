@@ -38,6 +38,9 @@ namespace art {
         , productBranch_{branch}
       {}
 
+      // Ideally, a reference to the branch-description does not need
+      // to be retained.  It is used to fill the groups in the
+      // principal.
       BranchDescription const& branchDescription_;
       TBranch* productBranch_;
     };  // BranchInfo

@@ -11,7 +11,6 @@
 #include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
-#include "art/Persistency/Provenance/MasterProductRegistry.h"
 #include "cetlib/container_algorithms.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
@@ -365,15 +364,14 @@ initFile(bool const skipBadFiles)
                                          readParameterSets_,
                                          /*primaryFile*/exempt_ptr<RootInputFile>{nullptr},
                                          secondaryFileNames_.empty() ? empty_vs : secondaryFileNames_.at(catalog_.currentIndex()),
-                                         this);
+                                         this,
+                                         mpr_);
+
   assert(catalog_.currentIndex() != InputFileCatalog::indexEnd);
   if (catalog_.currentIndex() + 1 > fileIndexes_.size()) {
     fileIndexes_.resize(catalog_.currentIndex() + 1);
   }
   fileIndexes_[catalog_.currentIndex()] = rootFile_->fileIndexSharedPtr();
-
-  mpr_.updateFromInputFile(rootFile_->productList(),
-                           *rootFile_->createFileBlock());
 }
 
 std::unique_ptr<RootInputFile>
@@ -400,35 +398,32 @@ openSecondaryFile(string const& name,
         << " was not found or could not be opened.\n";
   }
   detail::logFileAction("Opened secondary input file ", name);
-  vector<string> empty_vs;
-  auto rif = std::make_unique<RootInputFile>(name,
-                                             /*url*/"",
-                                             processConfiguration(),
-                                             /*logicalFileName*/"",
-                                             std::move(filePtr),
-                                             origEventID_,
-                                             eventsToSkip_,
-                                             fastCloningInfo_,
-                                             treeCacheSize_,
-                                             treeMaxVirtualSize_,
-                                             saveMemoryObjectThreshold_,
-                                             delayedReadEventProducts_,
-                                             delayedReadSubRunProducts_,
-                                             delayedReadRunProducts_,
-                                             processingMode_,
-                                             forcedRunOffset_,
-                                             noEventSort_,
-                                             groupSelectorRules_,
-                                             /*duplicateChecker_*/nullptr,
-                                             dropDescendants_,
-                                             readParameterSets_,
-                                             /*primaryFile*/primaryFile,
-                                             /*secondaryFileNames*/empty_vs,
-                                             /*rifSequence*/this);
-
-  mpr_.updateFromInputFile(rif->productList(),
-                           *rif->createFileBlock());
-  return std::move(rif);
+  vector<string> empty_secondary_filenames;
+  return std::make_unique<RootInputFile>(name,
+                                         /*url*/"",
+                                         processConfiguration(),
+                                         /*logicalFileName*/"",
+                                         std::move(filePtr),
+                                         origEventID_,
+                                         eventsToSkip_,
+                                         fastCloningInfo_,
+                                         treeCacheSize_,
+                                         treeMaxVirtualSize_,
+                                         saveMemoryObjectThreshold_,
+                                         delayedReadEventProducts_,
+                                         delayedReadSubRunProducts_,
+                                         delayedReadRunProducts_,
+                                         processingMode_,
+                                         forcedRunOffset_,
+                                         noEventSort_,
+                                         groupSelectorRules_,
+                                         /*duplicateChecker_*/nullptr,
+                                         dropDescendants_,
+                                         readParameterSets_,
+                                         primaryFile,
+                                         empty_secondary_filenames,
+                                         this,
+                                         mpr_);
 }
 
 bool

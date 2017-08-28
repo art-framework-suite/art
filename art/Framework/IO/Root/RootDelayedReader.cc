@@ -57,7 +57,7 @@ namespace art {
     assert(iter != branches_.end());
 
     input::BranchInfo const& branchInfo = iter->second;
-    TBranch* br {branchInfo.productBranch_};
+    TBranch* br{branchInfo.productBranch_};
     assert(br != nullptr);
 
     configureProductIDStreamer(branchIDLists_);

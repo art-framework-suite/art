@@ -5,7 +5,6 @@
 #include "art/Framework/Principal/GroupFactory.h"
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "canvas/Persistency/Provenance/ProductID.h"
-#include "messagefacility/MessageLogger/MessageLogger.h"
 
 art::ResultsPrincipal::
 ResultsPrincipal(ResultsAuxiliary const& aux,

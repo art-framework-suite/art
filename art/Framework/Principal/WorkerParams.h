@@ -3,13 +3,12 @@
 
 // This struct is used to communicate parameters into the worker factory.
 
-#include "art/Persistency/Provenance/MasterProductRegistry.h"
 #include "fhiclcpp/ParameterSet.h"
 #include <string>
 
 namespace art {
   class ActionTable;
-
+  class MasterProductRegistry;
   struct WorkerParams;
 }
 
@@ -33,13 +32,12 @@ WorkerParams(fhicl::ParameterSet const& procPset,
              fhicl::ParameterSet const& pset,
              MasterProductRegistry& reg,
              ActionTable& actions,
-             std::string const& processName)
-  :
-  procPset_(procPset),
-  pset_(pset),
-  reg_(reg),
-  actions_(actions),
-  processName_(processName)
+             std::string const& processName) :
+  procPset_{procPset},
+  pset_{pset},
+  reg_{reg},
+  actions_{actions},
+  processName_{processName}
 {
 }
 

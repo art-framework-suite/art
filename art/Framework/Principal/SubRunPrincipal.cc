@@ -4,9 +4,8 @@
 #include "art/Framework/Principal/Group.h"
 #include "art/Framework/Principal/GroupFactory.h"
 #include "art/Framework/Principal/RunPrincipal.h"
-#include "canvas/Persistency/Provenance/ProductID.h"
 #include "art/Persistency/Provenance/ProductMetaData.h"
-#include "messagefacility/MessageLogger/MessageLogger.h"
+#include "canvas/Persistency/Provenance/ProductID.h"
 
 namespace art {
 

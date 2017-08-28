@@ -121,5 +121,5 @@ art::Schedule::makeTriggerResultsInserter_(fhicl::ParameterSet const& trig_pset,
   auto producer = std::make_unique<TriggerResultInserter>(trig_pset, triggerPathsInfo_.pathResults());
   results_inserter_ = std::make_unique<WorkerT<EDProducer>>(std::move(producer), md, work_args);
   areg.sPostModuleConstruction.invoke(md);
-  results_inserter_->setActivityRegistry(cet::exempt_ptr<ActivityRegistry>(&areg));
+  results_inserter_->setActivityRegistry(cet::make_exempt_ptr(&areg));
 }

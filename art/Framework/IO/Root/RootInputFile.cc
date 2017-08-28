@@ -15,6 +15,7 @@
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/System/DatabaseConnection.h"
 #include "art/Framework/Services/System/FileCatalogMetadata.h"
+#include "art/Persistency/Provenance/MasterProductRegistry.h"
 #include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
 #include "art/Persistency/RootDB/TKeyVFSOpenPolicy.h"
 #include "canvas/Persistency/Common/EDProduct.h"
@@ -117,7 +118,8 @@ namespace art {
                 bool const readIncomingParameterSets,
                 exempt_ptr<RootInputFile> primaryFile,
                 vector<string> const& secondaryFileNames,
-                RootInputFileSequence* rifSequence)
+                RootInputFileSequence* rifSequence,
+                MasterProductRegistry& mpr)
   : fileName_{fileName}
   , catalog_{catalogName}
   , processConfiguration_{processConfiguration}
@@ -174,13 +176,6 @@ namespace art {
     if (detail::readMetadata(metaDataTree, branchIDLists)) {
       branchIDLists_ = std::make_unique<BranchIDLists>(std::move(branchIDLists));
       configureProductIDStreamer(branchIDLists_.get());
-    }
-
-
-    // Read the ProductList
-    {
-      auto productList = detail::readMetadata<ProductRegistry>(metaDataTree);
-      productListHolder_ = std::make_unique<ProductRegistry>(std::move(productList));
     }
 
     // Read the ParameterSets if there are any on a branch.
@@ -274,9 +269,12 @@ namespace art {
     fiEnd_   = fileIndex_.end();
     readEventHistoryTree(treeCacheSize);
 
-    auto& prodList = productListHolder_->productList_;
-
+    // Read the ProductList
+    productListHolder_ = detail::readMetadata<ProductRegistry>(metaDataTree);
+    auto& prodList = productListHolder_.productList_;
     dropOnInput(groupSelectorRules, dropDescendants, prodList);
+
+    mpr.updateFromInputFile(prodList, *createFileBlock());
     fillPerBranchTypePresenceFlags(prodList);
     productLookup_ = createProductLookups(prodList);
     viewLookup_ = createViewLookups(prodList);
@@ -408,7 +406,7 @@ namespace art {
     return forcedRunOffset_;
   }
 
-  unique_ptr<FileBlock>
+  std::unique_ptr<FileBlock>
   RootInputFile::
   createFileBlock()
   {

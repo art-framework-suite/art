@@ -11,7 +11,6 @@
 #include "art/Framework/Principal/ResultsPrincipal.h"
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
-#include "art/Persistency/Provenance/MasterProductRegistry.h"
 #include "canvas/Persistency/Provenance/type_aliases.h"
 #include "canvas/Persistency/Provenance/BranchChildren.h"
 #include "canvas/Persistency/Provenance/BranchMapper.h"
@@ -46,6 +45,7 @@ namespace art {
   class DuplicateChecker;
   class EventRangeHandler;
   class GroupSelectorRules;
+  class MasterProductRegistry;
 
   class RootInputFile {
 
@@ -85,7 +85,8 @@ namespace art {
                   bool readIncomingParameterSets,
                   cet::exempt_ptr<RootInputFile> primaryFile,
                   std::vector<std::string> const& secondaryFileNames,
-                  RootInputFileSequence* rifSequence);
+                  RootInputFileSequence* rifSequence,
+                  MasterProductRegistry& mpr);
 
     void reportOpened();
 
@@ -101,11 +102,6 @@ namespace art {
     bool readEventForSecondaryFile(EventID eID);
 
     std::string const& fileName() const { return fileName_; }
-
-    ProductList const& productList() const
-    {
-      return productListHolder_->productList_;
-    }
 
     ProductLookup_t const& productLookup() const { return productLookup_; }
     ViewLookup_t const& viewLookup() const { return viewLookup_; }
@@ -273,8 +269,11 @@ namespace art {
     std::tuple<EventAuxiliary,
                SubRunAuxiliary,
                RunAuxiliary,
-               ResultsAuxiliary> auxiliaries_ {};   // Must be in same order as treePointers_ !
-    std::unique_ptr<ProductRegistry> productListHolder_ {std::make_unique<ProductRegistry>()};
+               ResultsAuxiliary> auxiliaries_{};   // Must be in same order as treePointers_ !
+
+    // The holder is necessary since references of its contents are
+    // passed to the RootDelayedReader.
+    ProductRegistry productListHolder_{};
     std::unique_ptr<BranchIDLists> branchIDLists_{nullptr}; // Only used for maintaining backwards compatibility
 
     PerBranchTypePresence perBranchTypeProdPresence_ {{}}; // filled by aggregation

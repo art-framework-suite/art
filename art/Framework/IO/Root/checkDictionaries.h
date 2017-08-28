@@ -1,5 +1,5 @@
-#ifndef art_Persistency_Provenance_checkDictionaries_h
-#define art_Persistency_Provenance_checkDictionaries_h
+#ifndef art_Framework_IO_Root_checkDictionaries_h
+#define art_Framework_IO_Root_checkDictionaries_h
 
 namespace art {
   class BranchDescription;
@@ -10,4 +10,4 @@ namespace art {
 // mode: c++
 // End:
 
-#endif
+#endif /* art_Framework_IO_Root_checkDictionaries_h */

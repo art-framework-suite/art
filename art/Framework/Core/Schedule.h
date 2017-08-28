@@ -34,7 +34,6 @@
 #include "art/Framework/Principal/fwd.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/ServiceRegistry.h"
-#include "art/Persistency/Provenance/MasterProductRegistry.h"
 #include "art/Utilities/ScheduleID.h"
 #include "canvas/Persistency/Common/HLTGlobalStatus.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
@@ -56,6 +55,7 @@
 namespace art {
 
 class ActivityRegistry;
+class MasterProductRegistry;
 class TriggerNamesService;
 class Schedule;
 
