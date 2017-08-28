@@ -131,7 +131,13 @@ art::Handle<T>::Handle(GroupQueryResult const& gqr) :
       dynamic_cast<Wrapper<T> const*>(gqr.result()->
                                       uniqueProduct(TypeID{typeid(Wrapper<T>)}));
     if (wrapperPtr == nullptr) {
-      whyFailed_ = std::make_shared<art::Exception const>(errors::LogicError, "Handle<T> c'tor");
+      Exception e{errors::LogicError};
+      e << "Product retrieval via Handle<T> succeeded for product:\n"
+        << prov_.productDescription()
+        << "but an attempt to interpret it as an object of type '"
+        << cet::demangle_symbol(typeid(T).name())
+        << "' failed.\n";
+      whyFailed_ = std::make_shared<art::Exception const>(std::move(e));
     } else {
       prod_ = wrapperPtr->product();
     }
