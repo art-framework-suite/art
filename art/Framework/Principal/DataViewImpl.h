@@ -559,10 +559,6 @@ art::DataViewImpl::fillView_(GroupQueryResult& bh,
 
   // The lookups and the checking done in getView_ ensure that the
   // retrieved product supports the requested view.
-  assert(product->supportsView());
-  assert(product->typeInfo());
-  assert(detail::upcastAllowed(*product->typeInfo(), typeid(ELEMENT)));
-
   product->fillView(erased_ptrs);
   recordAsParent(Provenance{bh.result()});
 

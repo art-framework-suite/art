@@ -54,18 +54,18 @@ set(art_Framework_Art_sources
   detail/get_MetadataSummary.cc
   )
 
-art_make_library( LIBRARY_NAME art_Framework_Art
-                  SOURCE ${art_Framework_Art_sources}
-                  LIBRARIES ${Boost_PROGRAM_OPTIONS_LIBRARY}
-  art_Framework_IO_Root
+art_make_library(LIBRARY_NAME art_Framework_Art
+                 SOURCE ${art_Framework_Art_sources}
+                 LIBRARIES ${Boost_PROGRAM_OPTIONS_LIBRARY}
   art_Framework_EventProcessor
   art_Framework_Core
-  art_Framework_Services_Registry
-  art_Persistency_Common
-  art_Persistency_Provenance canvas
-  art_Utilities canvas
+  art_Utilities
   art_Version
+  MF_MessageLogger
+  # The following are used for InitRootHandlers
+  art_Persistency_RootDB
   ${ROOT_HIST}
+  ${ROOT_TREE}
   )
 
 # Build an art exec.

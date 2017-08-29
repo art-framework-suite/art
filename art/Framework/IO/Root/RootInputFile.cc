@@ -276,8 +276,10 @@ namespace art {
 
     mpr.updateFromInputFile(prodList, *createFileBlock());
     fillPerBranchTypePresenceFlags(prodList);
-    productLookup_ = createProductLookups(prodList);
-    viewLookup_ = createViewLookups(prodList);
+
+    auto const& descriptions = make_product_descriptions(prodList);
+    productLookup_ = createProductLookups(descriptions);
+    viewLookup_ = createViewLookups(descriptions);
 
     // Add branches
     for (auto& prod : prodList) {

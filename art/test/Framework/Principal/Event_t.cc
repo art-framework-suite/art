@@ -106,9 +106,9 @@ public:
   //   process_name <-> (module_name <-> module_configuration)
   std::map<std::string, std::map<std::string, ParameterSet>> moduleConfigurations_{};
   std::map<std::string, ModuleDescription> moduleDescriptions_{};
-  // The productList_ data member is used only to create the product
+  // The descriptions_ data member is used only to create the product
   // lookup tables.
-  ProductList productList_{};
+  ProductDescriptions descriptions_{};
   ProductLookup_t::value_type sourceProductLookup_{};
   ProductLookup_t::value_type currentProductLookup_{};
   PresenceSet presentProducts_{};
@@ -142,12 +142,12 @@ MPRGlobalTestFixture::MPRGlobalTestFixture()
 
   // Fill the lookups for "source-like" products
   {
-    auto const& productLookup = createProductLookups(productList_);
+    auto const& productLookup = createProductLookups(descriptions_);
     sourceProductLookup_ = productLookup[InEvent];
-    for (auto const& prod : productList_) {
-      presentProducts_.insert(prod.second.productID());
+    for (auto const& pd : descriptions_) {
+      presentProducts_.insert(pd.productID());
     }
-    productList_.clear();
+    descriptions_.clear();
   }
 
   // Register single IntProduct for the "CURRENT" process
@@ -155,11 +155,11 @@ MPRGlobalTestFixture::MPRGlobalTestFixture()
 
   // Create the lookup that we will use for the current-process module
   {
-    auto const& productLookup = createProductLookups(productList_);
+    auto const& productLookup = createProductLookups(descriptions_);
     currentProductLookup_ = productLookup[InEvent];
-    assert(productList_.size() == 1ull);
-    producedProducts_.insert(cbegin(productList_)->second.productID());
-    productList_.clear();
+    assert(descriptions_.size() == 1ull);
+    producedProducts_.insert(cbegin(descriptions_)->productID());
+    descriptions_.clear();
   }
 
   availableProducts_.finalizeForProcessing();
@@ -196,11 +196,11 @@ MPRGlobalTestFixture::registerProduct(std::string const& tag,
   TypeID const product_type{typeid(T)};
 
   moduleDescriptions_[tag] = localModuleDescription;
-  auto pd = std::make_unique<BranchDescription>(InEvent,
-                                                art::TypeLabel{product_type, productInstanceName, SupportsView<T>::value},
-                                                localModuleDescription);
-  productList_.emplace(BranchKey{*pd}, *pd);
-  availableProducts_.addProduct(std::move(pd));
+  BranchDescription pd{InEvent,
+                       TypeLabel{product_type, productInstanceName, SupportsView<T>::value},
+                       localModuleDescription};
+  descriptions_.emplace_back(pd);
+  availableProducts_.addProductsFromModule({std::move(pd)});
   return moduleDescriptions_[tag];
 }
 

@@ -152,13 +152,16 @@ namespace art {
   {
     // To determine if the requested view is allowed, the matched
     // 'results' (products) must be read.
-    auto view_disallowed = [&requestedElementType](auto const& query_result) {
-      auto p = query_result.result()->uniqueProduct();
-      bool const viewAllowed = p->supportsView() && detail::upcastAllowed(*p->typeInfo(),
-                                                                          requestedElementType.typeInfo());
-      return !viewAllowed;
+    auto not_convertible = [&requestedElementType](auto const& query_result) {
+      // Assns collections do not support views; we therefore do not
+      // need to worry about an exception throw when calling
+      // uniqueProduct.
+      auto group = query_result.result();
+      assert(group->productDescription().supportsView());
+      auto p = group->uniqueProduct();
+      return !detail::upcastAllowed(*p->typeInfo(), requestedElementType.typeInfo());
     };
-    results.erase(std::remove_if(begin(results), end(results), view_disallowed),
+    results.erase(std::remove_if(begin(results), end(results), not_convertible),
                   end(results));
   }
 

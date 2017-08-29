@@ -51,10 +51,10 @@ public:
   MasterProductRegistry(MasterProductRegistry const&) = delete;
   MasterProductRegistry& operator=(MasterProductRegistry const&) = delete;
 
-  void addProduct(std::unique_ptr<BranchDescription>&&);
   void registerProductListUpdatedCallback(ProductListUpdatedCallback cb);
 
   void finalizeForProcessing();
+  void addProductsFromModule(ProductDescriptions&&);
   void updateFromModule(std::unique_ptr<ProductList>&&);
   void updateFromInputFile(ProductList const&, FileBlock const&);
 
@@ -68,6 +68,7 @@ public:
   }
 private:
 
+  void addProduct_(BranchDescription&&);
   void updateProductLists_(ProductList const& pl);
 
   bool allowExplicitRegistration_{true};

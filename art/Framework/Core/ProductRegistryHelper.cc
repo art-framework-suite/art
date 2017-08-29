@@ -56,25 +56,29 @@ void
 art::ProductRegistryHelper::registerProducts(MasterProductRegistry& mpr,
                                              ModuleDescription const& md)
 {
+  // First update the MPR with any extant products.
   mpr.updateFromModule(std::move(productList_));
+
+  // Now go through products that will be produced in the current process.
   check_for_duplicate_Assns(typeLabelList_[InEvent]);
-  ProductList plist;
+
+  ProductDescriptions descriptions;
   for (std::size_t ibt{}; ibt != NumBranchTypes; ++ibt) {
     auto const bt = static_cast<BranchType>(ibt);
     for (auto const& val : typeLabelList_[bt]) {
-      auto pd = std::make_unique<BranchDescription>(bt, val, md);
-      plist.emplace(BranchKey{*pd}, *pd);
+      BranchDescription pd{bt, val, md};
       if (val.hasEmulatedModule()) {
         // Product is provided by the source.
-        presentProducts_[bt].insert(pd->productID());
+        presentProducts_[bt].insert(pd.productID());
       }
       else {
         // Product is produced in current process.
-        producedProducts_[bt].insert(pd->productID());
+        producedProducts_[bt].insert(pd.productID());
       }
-      mpr.addProduct(std::move(pd));
+      descriptions.push_back(std::move(pd));
     }
   }
-  productLookup_ = createProductLookups(plist);
-  viewLookup_ = createViewLookups(plist);
+  productLookup_ = createProductLookups(descriptions);
+  viewLookup_ = createViewLookups(descriptions);
+  mpr.addProductsFromModule(move(descriptions));
 }

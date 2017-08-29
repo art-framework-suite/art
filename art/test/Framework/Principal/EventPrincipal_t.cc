@@ -48,9 +48,7 @@ public:
 
   MPRGlobalTestFixture();
 
-  using BKmap_t = std::map<std::string, art::BranchKey>;
-
-  BKmap_t branchKeys_{};
+  std::map<std::string, art::BranchKey> branchKeys_{};
   std::map<std::string, art::ProcessConfiguration*> processConfigurations_{};
 
 private:
@@ -60,7 +58,7 @@ private:
                              fhicl::ParameterSet const& moduleParams,
                              std::string const& release = art::getReleaseVersion());
 
-  std::unique_ptr<art::BranchDescription>
+  art::BranchDescription
   fake_single_process_branch(std::string const& tag,
                              std::string const& processName,
                              std::string const& productInstanceName = {});
@@ -72,11 +70,13 @@ private:
 MPRGlobalTestFixture::MPRGlobalTestFixture()
 {
   // We can only insert products registered in the MasterProductRegistry.
-  productRegistry_.addProduct(fake_single_process_branch("hlt",  "HLT"));
-  productRegistry_.addProduct(fake_single_process_branch("prod", "PROD"));
-  productRegistry_.addProduct(fake_single_process_branch("test", "TEST"));
-  productRegistry_.addProduct(fake_single_process_branch("user", "USER"));
-  productRegistry_.addProduct(fake_single_process_branch("rick", "USER2", "rick"));
+  std::vector<art::BranchDescription> descriptions;
+  descriptions.push_back(fake_single_process_branch("hlt",  "HLT"));
+  descriptions.push_back(fake_single_process_branch("prod", "PROD"));
+  descriptions.push_back(fake_single_process_branch("test", "TEST"));
+  descriptions.push_back(fake_single_process_branch("user", "USER"));
+  descriptions.push_back(fake_single_process_branch("rick", "USER2", "rick"));
+  productRegistry_.addProductsFromModule(move(descriptions));
   productRegistry_.finalizeForProcessing();
   art::ProductMetaData::create_instance(productRegistry_);
 }
@@ -96,7 +96,7 @@ MPRGlobalTestFixture::fake_single_module_process(std::string const& tag,
   return result;
 }
 
-std::unique_ptr<art::BranchDescription>
+art::BranchDescription
 MPRGlobalTestFixture::fake_single_process_branch(std::string const& tag,
                                                  std::string const& processName,
                                                  std::string const& productInstanceName)
@@ -107,25 +107,21 @@ MPRGlobalTestFixture::fake_single_process_branch(std::string const& tag,
   fhicl::ParameterSet modParams;
   modParams.put("module_type", moduleClass);
   modParams.put("module_label", moduleLabel);
-  art::ModuleDescription const mod(modParams.id(),
+  art::ModuleDescription const mod{modParams.id(),
                                    moduleClass,
                                    moduleLabel,
-                                   *fake_single_module_process(tag, processName, modParams));
+                                   *fake_single_module_process(tag, processName, modParams)};
 
-  auto* result = new art::BranchDescription(art::InEvent,
-                                            art::TypeLabel{dummyType, productInstanceName, art::SupportsView<arttest::DummyProduct>::value},
-                                            mod);
-  branchKeys_.insert(std::make_pair(tag, art::BranchKey(*result)));
-  return std::unique_ptr<art::BranchDescription>(result);
+  art::BranchDescription const result{art::InEvent,
+                                      art::TypeLabel{dummyType, productInstanceName, art::SupportsView<arttest::DummyProduct>::value},
+                                      mod};
+  branchKeys_.emplace(tag, art::BranchKey{result});
+  return result;
 }
 
 struct EventPrincipalTestFixture {
-  using BKmap_t = MPRGlobalTestFixture::BKmap_t;
-
   EventPrincipalTestFixture();
-
   MPRGlobalTestFixture& gf();
-
   std::unique_ptr<art::EventPrincipal> pEvent_{nullptr};
 };
 
@@ -139,13 +135,11 @@ EventPrincipalTestFixture::EventPrincipalTestFixture()
   // all here.
 
   // Put products we'll look for into the EventPrincipal.
-  typedef arttest::DummyProduct PRODUCT_TYPE;
-  typedef art::Wrapper<PRODUCT_TYPE> WDP;
-  std::unique_ptr<art::EDProduct>  product{new WDP(std::unique_ptr<PRODUCT_TYPE>(new PRODUCT_TYPE))};
+  std::unique_ptr<art::EDProduct> product = std::make_unique<art::Wrapper<arttest::DummyProduct>>();
 
   std::string tag("rick");
-  BKmap_t::const_iterator i(gf().branchKeys_.find(tag));
-  BOOST_REQUIRE( i != gf().branchKeys_.end());
+  auto i = gf().branchKeys_.find(tag);
+  BOOST_REQUIRE(i != gf().branchKeys_.end());
 
   auto it = art::ProductMetaData::instance().productList().find(i->second);
 

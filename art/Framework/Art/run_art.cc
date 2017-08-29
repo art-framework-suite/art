@@ -4,7 +4,6 @@
 #include "art/Framework/Art/BasicPostProcessor.h"
 #include "art/Framework/Art/InitRootHandlers.h"
 #include "art/Framework/EventProcessor/EventProcessor.h"
-#include "art/Framework/Services/Registry/ServiceToken.h"
 #include "art/Utilities/ExceptionMessages.h"
 #include "art/Utilities/RootHandlers.h"
 #include "art/Utilities/UnixSignalHandlers.h"

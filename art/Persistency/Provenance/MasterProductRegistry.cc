@@ -11,45 +11,21 @@
 using namespace art;
 
 void
-art::MasterProductRegistry::addProduct(std::unique_ptr<BranchDescription>&& bdp)
-{
-  CET_ASSERT_ONLY_ONE_THREAD();
-
-  // The below check exists primarily to ensure that the framework
-  // does not accidentally call addProduct at a time when it should
-  // not.
-  if (!allowExplicitRegistration_) {
-    throw Exception(errors::ProductRegistrationFailure)
-      << "An attempt to register the product\n"
-      << *bdp
-      << "was made after the product registry was frozen.\n"
-      << "Product registration can be done only in module constructors.\n";
-  }
-
-  assert(bdp->produced());
-
-  auto it = productList_.emplace(BranchKey{*bdp}, BranchDescription{});
-  if (!it.second) {
-    throw Exception(errors::Configuration)
-      << "The process name "
-      << bdp->processName()
-      << " was previously used on these products.\n"
-      << "Please modify the configuration file to use a "
-      << "distinct process name.\n";
-  }
-  auto& productListEntry = *it.first;
-  auto& pd = productListEntry.second;
-  pd.swap(*bdp);
-  productProduced_[pd.branchType()] = true;
-}
-
-void
 art::MasterProductRegistry::finalizeForProcessing()
 {
   CET_ASSERT_ONLY_ONE_THREAD();
   // Product registration can still happen implicitly whenever an
   // input file is opened--via calls to updateFromInputFile.
   allowExplicitRegistration_ = false;
+}
+
+void
+art::MasterProductRegistry::addProductsFromModule(ProductDescriptions&& descriptions)
+{
+  CET_ASSERT_ONLY_ONE_THREAD();
+  for (auto&& desc : descriptions) {
+    addProduct_(std::move(desc));
+  }
 }
 
 void
@@ -87,6 +63,39 @@ art::MasterProductRegistry::print(std::ostream& os) const
 
 //=====================================================================================
 // Private member functions
+
+void
+art::MasterProductRegistry::addProduct_(BranchDescription&& bdp)
+{
+  CET_ASSERT_ONLY_ONE_THREAD();
+
+  // The below check exists primarily to ensure that the framework
+  // does not accidentally call addProduct at a time when it should
+  // not.
+  if (!allowExplicitRegistration_) {
+    throw Exception(errors::ProductRegistrationFailure)
+      << "An attempt to register the product\n"
+      << bdp
+      << "was made after the product registry was frozen.\n"
+      << "Product registration can be done only in module constructors.\n";
+  }
+
+  assert(bdp.produced());
+
+  auto it = productList_.emplace(BranchKey{bdp}, BranchDescription{});
+  if (!it.second) {
+    throw Exception(errors::Configuration)
+      << "The process name "
+      << bdp.processName()
+      << " was previously used on these products.\n"
+      << "Please modify the configuration file to use a "
+      << "distinct process name.\n";
+  }
+  auto& productListEntry = *it.first;
+  auto& pd = productListEntry.second;
+  pd.swap(bdp);
+  productProduced_[pd.branchType()] = true;
+}
 
 void
 art::MasterProductRegistry::updateProductLists_(ProductList const& pl)
