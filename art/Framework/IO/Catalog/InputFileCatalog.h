@@ -48,7 +48,7 @@ namespace art {
     void   rewindTo(size_t index);
     bool   isSearchable()       {return searchable_;}
     bool   empty() const        {return fileCatalogItems_.empty();}
-
+    void finish(); // Dispose of the current file.
     std::vector<std::string> const& fileSources() const { return fileSources_; }
 
     static constexpr size_t indexEnd {std::numeric_limits<size_t>::max()};

@@ -147,6 +147,10 @@ RootInputFileSequence(fhicl::TableFragment<RootInputFileSequence::Config> const&
   if (primary()) {
     duplicateChecker_ = std::make_shared<DuplicateChecker>(config().dc);
   }
+  if (pendingClose_) {
+    throw Exception(errors::LogicError)
+      << "RootInputFileSequence looking for next file with a pending close!";
+  }
   while (catalog_.getNextFile()) {
     initFile(skipBadFiles_);
     if (rootFile_) {
@@ -278,6 +282,10 @@ void
 RootInputFileSequence::
 closeFile_()
 {
+  if (pendingClose_) {
+    catalog_.finish(); // We were expecting this
+    pendingClose_ = false;
+  }
   if (!rootFile_) return;
 
   // Account for events skipped in the file.
@@ -288,6 +296,13 @@ closeFile_()
   if (duplicateChecker_.get() != nullptr) {
     duplicateChecker_->inputFileClosed();
   }
+}
+
+void
+RootInputFileSequence::
+finish()
+{
+  pendingClose_ = true;
 }
 
 void

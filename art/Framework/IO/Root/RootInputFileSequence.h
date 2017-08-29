@@ -217,6 +217,8 @@ public: // MEMBER FUNCTIONS
     return  processingMode_;
   }
 
+  void finish();
+
 private: // MEMBER FUNCTIONS
 
   void
@@ -269,7 +271,7 @@ private: // MEMBER DATA
   ProcessConfiguration const& processConfiguration_;
   std::vector<std::vector<std::string>> secondaryFileNames_ {};
   MasterProductRegistry& mpr_;
-
+  bool pendingClose_ {false};
 };
 
 } // namespace art
