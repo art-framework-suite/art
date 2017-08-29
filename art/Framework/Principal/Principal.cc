@@ -78,7 +78,7 @@ Principal::Principal(ProcessConfiguration const& pc,
   ProcessHistory ph;
   bool const found [[gnu::unused]] {ProcessHistoryRegistry::get(hist, ph)};
   assert(found);
-  std::swap(*processHistoryPtr_ , ph);
+  std::swap(processHistory_ , ph);
 }
 
 void
@@ -87,9 +87,8 @@ Principal::addToProcessHistory()
   if (processHistoryModified_) {
     return;
   }
-  ProcessHistory& ph = *processHistoryPtr_;
   string const& processName = processConfiguration_.processName();
-  for (auto const& val : ph) {
+  for (auto const& val : processHistory_) {
     if (processName == val.processName()) {
       throw art::Exception(errors::Configuration)
         << "The process name "
@@ -99,7 +98,7 @@ Principal::addToProcessHistory()
         << "distinct process name.\n";
     }
   }
-  ph.push_back(processConfiguration_);
+  processHistory_.push_back(processConfiguration_);
   // OPTIMIZATION NOTE: As of 0_9_0_pre3 For very simple Sources
   // (e.g. EmptyEvent) this routine takes up nearly 50% of the time
   // per event, and 96% of the time for this routine is spent in
@@ -107,8 +106,9 @@ Principal::addToProcessHistory()
   // reconstructing the ProcessHistory for each event.  It would
   // probably be better to move the ProcessHistory construction out to
   // somewhere which persists for longer than one Event.
-  ProcessHistoryRegistry::emplace(ph.id(), ph);
-  setProcessHistoryID(ph.id());
+  auto const phid = processHistory_.id();
+  ProcessHistoryRegistry::emplace(phid, processHistory_);
+  setProcessHistoryID(phid);
   processHistoryModified_ = true;
 }
 

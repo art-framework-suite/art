@@ -153,7 +153,7 @@ namespace art {
     ProcessHistory const&
     processHistory() const
     {
-      return *processHistoryPtr_;
+      return processHistory_;
     }
 
     ProcessConfiguration const&
@@ -310,7 +310,7 @@ namespace art {
       return getByProductID(pid).result().get();
     }
 
-    std::shared_ptr<ProcessHistory> processHistoryPtr_{std::make_shared<ProcessHistory>()};
+    ProcessHistory processHistory_{};
 
     ProcessConfiguration const& processConfiguration_;
     cet::exempt_ptr<ProductLookup_t::value_type const> productLookup_;
