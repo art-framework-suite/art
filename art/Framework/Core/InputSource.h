@@ -18,8 +18,6 @@
 
 namespace art
 {
-  class MasterProductRegistry;
-
   namespace input {
     enum ItemType {IsInvalid, IsStop, IsFile, IsRun, IsSubRun, IsEvent};
     inline std::ostream& operator<<(std::ostream& os, ItemType const it)
@@ -80,7 +78,7 @@ namespace art
     virtual void doEndJob();
 
     virtual input::ItemType nextItemType() = 0;
-    virtual std::unique_ptr<FileBlock> readFile(MasterProductRegistry&) = 0;
+    virtual std::unique_ptr<FileBlock> readFile() = 0;
     virtual void closeFile() = 0;
     virtual std::unique_ptr<RunPrincipal> readRun() = 0;
     virtual std::unique_ptr<SubRunPrincipal> readSubRun(cet::exempt_ptr<RunPrincipal const> rp) = 0;

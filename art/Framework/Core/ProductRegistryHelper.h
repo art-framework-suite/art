@@ -3,7 +3,7 @@
 // vim: set sw=2:
 
 // -----------------------------------------------------------------
-
+//
 // ProductRegistryHelper: This class provides the produces()
 // and reconstitutes() function templates used by modules to
 // register what products they create or read in respectively.

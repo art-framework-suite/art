@@ -107,7 +107,6 @@
 // ----------------------------------------------------------------------
 
 namespace art {
-  class MasterProductRegistry;
 
   template <class T>
   class Source;
@@ -157,7 +156,7 @@ public:
 
   input::ItemType nextItemType() override;
 
-  std::unique_ptr<FileBlock> readFile(MasterProductRegistry& mpr) override;
+  std::unique_ptr<FileBlock> readFile() override;
   void closeFile() override;
 
   using InputSource::readEvent;
@@ -564,7 +563,7 @@ art::Source<T>::subRunRangeSetHandler()
 
 template <class T>
 std::unique_ptr<art::FileBlock>
-art::Source<T>::readFile(MasterProductRegistry&)
+art::Source<T>::readFile()
 {
   FileBlock* newF {nullptr};
   detail_.readFile(currentFileName_, newF);

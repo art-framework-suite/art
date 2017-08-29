@@ -65,7 +65,6 @@ Some examples of InputSource subclasses may be:
 namespace art
 {
   class ActivityRegistry;
-  class MasterProductRegistry;
 
   class DecrepitRelicInputSourceImplementation :
     public InputSource,
@@ -112,7 +111,7 @@ namespace art
     std::unique_ptr<RunPrincipal> readRun() override;
 
     /// Read next file
-    std::unique_ptr<FileBlock> readFile(MasterProductRegistry&) override;
+    std::unique_ptr<FileBlock> readFile() override;
 
     /// close current file
     void closeFile() override;

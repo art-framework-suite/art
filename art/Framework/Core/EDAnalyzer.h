@@ -29,8 +29,6 @@
 
 namespace art
 {
-  class MasterProductRegistry;
-
   class EDAnalyzer : public EventObserverBase,
                      public Consumer,
                      public EngineCreator

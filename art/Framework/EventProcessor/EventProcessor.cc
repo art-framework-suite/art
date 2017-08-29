@@ -547,7 +547,7 @@ art::EventProcessor::openInputFile()
 {
   actReg_.sPreOpenFile.invoke();
   FDEBUG(1) << spaces(8) << "openInputFile\n";
-  fb_ = input_->readFile(preg_);
+  fb_ = input_->readFile();
   if (!fb_) {
     throw Exception(errors::LogicError)
       << "Source readFile() did not return a valid FileBlock: FileBlock "

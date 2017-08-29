@@ -123,7 +123,7 @@ private:
                   std::string const& processName,
                   std::string const& productInstanceName = {});
 
-  std::unique_ptr<MasterProductRegistry> availableProducts_{std::make_unique<MasterProductRegistry>()};
+  MasterProductRegistry availableProducts_{};
 };
 
 MPRGlobalTestFixture::MPRGlobalTestFixture()
@@ -162,8 +162,8 @@ MPRGlobalTestFixture::MPRGlobalTestFixture()
     productList_.clear();
   }
 
-  availableProducts_->finalizeForProcessing();
-  ProductMetaData::create_instance(*availableProducts_);
+  availableProducts_.finalizeForProcessing();
+  ProductMetaData::create_instance(availableProducts_);
 }
 
 template <class T>
@@ -200,7 +200,7 @@ MPRGlobalTestFixture::registerProduct(std::string const& tag,
                                                 art::TypeLabel{product_type, productInstanceName, SupportsView<T>::value},
                                                 localModuleDescription);
   productList_.emplace(BranchKey{*pd}, *pd);
-  availableProducts_->addProduct(std::move(pd));
+  availableProducts_.addProduct(std::move(pd));
   return moduleDescriptions_[tag];
 }
 

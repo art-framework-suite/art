@@ -73,10 +73,6 @@ namespace {
 
 }
 
-namespace art {
-  class MasterProducerRegistry;
-}
-
 namespace arttest {
 
   class EventProcessorTestSource : public art::InputSource {
@@ -90,7 +86,7 @@ namespace arttest {
     {}
 
 
-    std::unique_ptr<art::FileBlock> readFile(art::MasterProductRegistry&) override
+    std::unique_ptr<art::FileBlock> readFile() override
     {
       inputFile_.open(currentName_);
       return std::make_unique<art::FileBlock>(art::FileFormatVersion{1,"EventProcessorTestSource_2017a"}, currentName_);

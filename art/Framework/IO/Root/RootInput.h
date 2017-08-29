@@ -23,8 +23,6 @@
 
 namespace art {
 
-  class MasterProductRegistry;
-
   class RootInput final : public DecrepitRelicInputSourceImplementation {
   public:
 
@@ -82,7 +80,6 @@ namespace art {
     InputFileCatalog  catalog_;
     std::unique_ptr<RootInputFileSequence> primaryFileSequence_;
     AccessState accessState_;
-    MasterProductRegistry& mpr_;
   private:
     void finish() override;
     input::ItemType nextItemType() override;
@@ -94,7 +91,7 @@ namespace art {
     std::unique_ptr<SubRunPrincipal> readSubRun_() override;
     std::unique_ptr<RunPrincipal> readRun() override;
     std::unique_ptr<RunPrincipal> readRun_() override;
-    std::unique_ptr<FileBlock> readFile(MasterProductRegistry&) override;
+    std::unique_ptr<FileBlock> readFile() override;
     std::unique_ptr<FileBlock> readFile_() override;
     std::unique_ptr<RangeSetHandler> runRangeSetHandler() override;
     std::unique_ptr<RangeSetHandler> subRunRangeSetHandler() override;

@@ -213,7 +213,7 @@ namespace art {
 
   // Return a dummy file block.
   std::unique_ptr<FileBlock>
-  DecrepitRelicInputSourceImplementation::readFile(MasterProductRegistry& /*mpr*/)
+  DecrepitRelicInputSourceImplementation::readFile()
   {
     assert(doneReadAhead_);
     assert(state_ == input::IsFile);

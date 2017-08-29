@@ -73,7 +73,6 @@ RootInput(RootInput::Parameters const& config, InputSourceDescription& desc)
                                                                  desc.productRegistry,
                                                                  processConfiguration()))
   , accessState_()
-  , mpr_(desc.productRegistry)
 {
 }
 
@@ -146,11 +145,11 @@ nextItemType()
 
 std::unique_ptr<FileBlock>
 RootInput::
-readFile(MasterProductRegistry& /*mpr*/)
+readFile()
 {
   switch (accessState_.state()) {
     case AccessState::SEQUENTIAL:
-      return DecrepitRelicInputSourceImplementation::readFile(mpr_);
+      return DecrepitRelicInputSourceImplementation::readFile();
     case AccessState::SEEKING_FILE:
       accessState_.setState(AccessState::SEEKING_RUN);
       return readFile_();
