@@ -2,26 +2,22 @@
 #define art_Framework_Principal_Worker_h
 
 // ======================================================================
-/*
-
-  Worker: this is a basic scheduling unit - an abstract base class to
-  something that is really a producer or filter.
-
-
-  A worker will not actually call through to the module unless it is in
-  a Ready state.  After a module is actually run, the state will not be
-  Ready.  The Ready state can only be reestablished by doing a reset().
-
-  Pre/post module signals are posted only in the Ready state.
-
-  Execution statistics are kept here.
-
-  If a module has thrown an exception during execution, that exception
-  will be rethrown if the worker is entered again and the state is not
-  Ready.  In other words, execution results (status) are cached and
-  reused until the worker is reset().
-
-*/
+// Worker: this is a basic scheduling unit - an abstract base class to
+// something that is really a producer or filter.
+//
+// A worker will not actually call through to the module unless it is
+// in a Ready state.  After a module is actually run, the state will
+// not be Ready.  The Ready state can only be reestablished by doing a
+// reset().
+//
+// Pre/post module signals are posted only in the Ready state.
+//
+// Execution statistics are kept here.
+//
+// If a module has thrown an exception during execution, that
+// exception will be rethrown if the worker is entered again and the
+// state is not Ready.  In other words, execution results (status) are
+// cached and reused until the worker is reset().
 // ======================================================================
 
 #include "art/Framework/Principal/Actions.h"
@@ -61,7 +57,7 @@ public:
   template <typename T>
   bool doWork(typename T::MyPrincipal&,
               CurrentProcessingContext const* cpc);
-  void beginJob() ;
+  void beginJob();
   void endJob();
   void respondToOpenInputFile(FileBlock const& fb);
   void respondToCloseInputFile(FileBlock const& fb);
@@ -118,13 +114,13 @@ private:
   virtual void implRespondToOpenOutputFiles(FileBlock const& fb) = 0;
   virtual void implRespondToCloseOutputFiles(FileBlock const& fb) = 0;
 
-  CountingStatistics counts_ {};
-  State state_ {Ready};
+  CountingStatistics counts_{};
+  State state_{Ready};
 
   ModuleDescription md_;
   ActionTable const& actions_;
-  std::shared_ptr<art::Exception> cached_exception_ {nullptr}; // if state is 'exception'
-  cet::exempt_ptr<ActivityRegistry> actReg_ {nullptr};
+  std::shared_ptr<art::Exception> cached_exception_{nullptr}; // if state is 'exception'
+  cet::exempt_ptr<ActivityRegistry> actReg_{nullptr};
 };
 
 namespace art {
@@ -186,7 +182,7 @@ template <typename T>
 bool art::Worker::doWork(typename T::MyPrincipal& p,
                          CurrentProcessingContext const* cpc)
 {
-  MaybeIncrementCounts<T::level, decltype(counts_)> counts {counts_};
+  MaybeIncrementCounts<T::level, decltype(counts_)> counts{counts_};
   counts.template increment<stats::Visited>();
 
   switch(state_) {

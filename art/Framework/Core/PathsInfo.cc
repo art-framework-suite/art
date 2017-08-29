@@ -80,17 +80,17 @@ art::PathsInfo::makeWorker_(detail::ModuleConfigInfo const& mci)
   auto it = workers_.find(mci.label());
   if (it == workers_.end()) { // Need worker.
     auto moduleConfig = procPS_.get<fhicl::ParameterSet>(mci.configPath() + '.' + mci.label());
-    WorkerParams const p {procPS_,
-                          moduleConfig,
-                          preg_,
-                          exceptActions_,
-                          ServiceHandle<TriggerNamesService const>{}->getProcessName()};
-    ModuleDescription const md {moduleConfig.id(),
-                                p.pset_.get<std::string>("module_type"),
-                                p.pset_.get<std::string>("module_label"),
-                                ProcessConfiguration{p.processName_,
-                                                     procPS_.id(),
-                                                     getReleaseVersion()}};
+    WorkerParams const p{procPS_,
+                         moduleConfig,
+                         preg_,
+                         exceptActions_,
+                         ServiceHandle<TriggerNamesService const>{}->getProcessName()};
+    ModuleDescription const md{moduleConfig.id(),
+                               p.pset_.get<std::string>("module_type"),
+                               p.pset_.get<std::string>("module_label"),
+                               ProcessConfiguration{p.processName_,
+                                                    procPS_.id(),
+                                                    getReleaseVersion()}};
     areg_.sPreModuleConstruction.invoke(md);
     try {
       auto worker = fact_.makeWorker(p, md);

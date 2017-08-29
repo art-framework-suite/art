@@ -162,21 +162,21 @@ private:
   ActionTable act_table_;
   ActivityRegistry actReg_;
   MFStatusUpdater mfStatusUpdater_;
-  MasterProductRegistry preg_ {};
-  ServiceToken serviceToken_ {ServiceToken::createInvalid()};
-  tbb::task_scheduler_init tbbManager_ {tbb::task_scheduler_init::deferred};
-  std::unique_ptr<ServiceRegistry::Operate> servicesSentry_ {};
+  MasterProductRegistry preg_{};
+  ServiceToken serviceToken_{ServiceToken::createInvalid()};
+  tbb::task_scheduler_init tbbManager_{tbb::task_scheduler_init::deferred};
+  std::unique_ptr<ServiceRegistry::Operate> servicesSentry_{};
   PathManager pathManager_; // Must outlive schedules.
   ServiceDirector serviceDirector_;
-  std::unique_ptr<InputSource> input_ {nullptr};
-  std::unique_ptr<Schedule> schedule_ {nullptr};
-  std::unique_ptr<EndPathExecutor> endPathExecutor_ {nullptr};
-  std::unique_ptr<FileBlock> fb_ {nullptr};
+  std::unique_ptr<InputSource> input_{nullptr};
+  std::unique_ptr<Schedule> schedule_{nullptr};
+  std::unique_ptr<EndPathExecutor> endPathExecutor_{nullptr};
+  std::unique_ptr<FileBlock> fb_{nullptr};
 
-  std::unique_ptr<RunPrincipal> runPrincipal_ {nullptr};
-  std::unique_ptr<SubRunPrincipal> subRunPrincipal_ {nullptr};
-  std::unique_ptr<EventPrincipal> eventPrincipal_ {nullptr};
-  bool shouldWeStop_ {false};
+  std::unique_ptr<RunPrincipal> runPrincipal_{nullptr};
+  std::unique_ptr<SubRunPrincipal> subRunPrincipal_{nullptr};
+  std::unique_ptr<EventPrincipal> eventPrincipal_{nullptr};
+  bool shouldWeStop_{false};
   bool const handleEmptyRuns_;
   bool const handleEmptySubRuns_;
 
@@ -192,7 +192,7 @@ try {
   endPathExecutor_->process<T>(p);
   T::postScheduleSignal(actReg_, p);
 }
-catch (cet::exception & ex) {
+catch (cet::exception const& ex) {
   actions::ActionCodes const action {
     T::level == Level::Event ? act_table_.find(ex.root_cause()) : actions::Rethrow
   };
@@ -209,7 +209,7 @@ catch (cet::exception & ex) {
                          ex};
   }
   }
-}
+ }
 catch (...) {
   mf::LogError("PassingThrough")
     << "an exception occurred during current event processing\n";

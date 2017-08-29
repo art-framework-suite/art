@@ -134,16 +134,12 @@ art::EventProcessor::EventProcessor(ParameterSet const& pset)
 
   input_ = makeInput(pset, processName, preg_, actReg_);
   actReg_.sPostSourceConstruction.invoke(input_->moduleDescription());
+
+  initSchedules_(pset);
   endPathExecutor_ = std::make_unique<EndPathExecutor>(pathManager_,
                                                        act_table_,
                                                        actReg_,
                                                        preg_);
-  // Schedules are created *after* the end-path executor to ensure
-  // that ResultsProducers (owned by RootOutput) can call produces<>.
-  // The MasterProductRegistry is frozen in the c'tor of the Schedule,
-  // which owns all other producers and filters.
-  initSchedules_(pset);
-
   preg_.finalizeForProcessing();
   ProductMetaData::create_instance(preg_);
 

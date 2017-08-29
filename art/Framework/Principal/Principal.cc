@@ -154,9 +154,9 @@ Principal::getByLabel(WrappedTypeID const& wrapped,
                       string const& productInstanceName,
                       string const& processName) const
 {
-  Selector const sel(ModuleLabelSelector{label} &&
+  Selector const sel{ModuleLabelSelector{label} &&
                      ProductInstanceNameSelector{productInstanceName} &&
-                     ProcessNameSelector{processName});
+                     ProcessNameSelector{processName}};
   auto const& results = findGroupsForProduct(wrapped, sel, true);
   if (results.empty()) {
     auto whyFailed = std::make_shared<art::Exception>(art::errors::ProductNotFound);

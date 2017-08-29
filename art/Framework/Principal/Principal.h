@@ -7,9 +7,10 @@
 //  Pure abstract base class for Run-, SubRun-, and EventPrincipal,
 //  the classes which manage data products.
 //
-//  The major internal component is the Group, which contains an EDProduct
-//  and its associated Provenance, along with ancillary transient information
-//  regarding the two.  Groups are handled through shared pointers.
+//  The major internal component is the Group, which contains an
+//  EDProduct and its associated Provenance, along with ancillary
+//  transient information regarding the two.  Groups are handled
+//  through shared pointers.
 //
 //  The Principal returns GroupQueryResult, rather than a shared
 //  pointer to a Group, when queried.

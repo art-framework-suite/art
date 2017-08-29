@@ -28,7 +28,7 @@ art::detail::ModuleFactory::moduleType(std::string const& libspec)
 std::unique_ptr<art::Worker>
 art::detail::ModuleFactory::makeWorker(WorkerParams const& p, ModuleDescription const& md)
 {
-  std::string libspec(p.pset_.get<std::string>("module_type"));
+  auto const& libspec = p.pset_.get<std::string>("module_type");
   WorkerMaker_t* symbol = nullptr;
   try {
     lm_.getSymbolByLibspec(libspec, "make_worker", symbol);
