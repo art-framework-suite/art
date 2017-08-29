@@ -87,9 +87,9 @@ private:
 
   // Private initialization helpers.
   void
-  makeTriggerResultsInserter_(fhicl::ParameterSet const & trig_pset,
-                              MasterProductRegistry & mpr,
-                              ActivityRegistry & areg);
+  makeTriggerResultsInserter_(fhicl::ParameterSet const& trig_pset,
+                              MasterProductRegistry& mpr,
+                              ActivityRegistry& areg);
 
   template<typename T>
   bool runTriggerPaths_(typename T::MyPrincipal&);
@@ -128,7 +128,7 @@ Schedule::process(typename T::MyPrincipal& principal)
     }
   }
   catch (cet::exception& e) {
-    actions::ActionCodes action = (T::level == Level::Event ? act_table_->find(e.root_cause()) : actions::Rethrow);
+    actions::ActionCodes const action = {T::level == Level::Event ? act_table_->find(e.root_cause()) : actions::Rethrow};
     assert(action != actions::IgnoreCompletely);
     assert(action != actions::FailPath);
     assert(action != actions::FailModule);

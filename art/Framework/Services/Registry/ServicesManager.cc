@@ -121,7 +121,7 @@ art::ServicesManager::fillCache_(ParameterSets const& psets, cet::LibraryManager
     // Insert the cache entry for the main service implementation. Note
     // we save the typeid of the implementation because we're about to
     // give away the helper.
-    TypeID service_typeid {service_helper->get_typeid()};
+    TypeID service_typeid{service_helper->get_typeid()};
     auto svc = insertImpl_(ps, std::move(service_helper));
     if (iface_helper) {
       insertInterface_(ps, std::move(iface_helper), svc.first);
@@ -136,7 +136,7 @@ art::ServicesManager::insertImpl_(fhicl::ParameterSet const& pset,
                                   std::unique_ptr<detail::ServiceHelperBase>&& helper)
 {
   // Need temporary because we can't guarantee the order of evaluation
-  // of the arguments to std::make_pair() below.
+  // of the arguments to emplace below.
   TypeID const sType {helper->get_typeid()};
   return factory_.emplace(sType,
                           detail::ServiceCacheEntry(pset,
@@ -149,7 +149,7 @@ art::ServicesManager::insertInterface_(fhicl::ParameterSet const& pset,
                                        detail::ServiceCache::iterator const implEntry)
 {
   // Need temporary because we can't guarantee the order of evaluation
-  // of the arguments to std::make_pair() below.
+  // of the arguments to emplace below.
   TypeID const iType {helper->get_typeid()};
   factory_.emplace(iType,
                    detail::ServiceCacheEntry(pset,
