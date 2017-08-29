@@ -84,6 +84,7 @@ namespace art {
     AccessState accessState_;
     MasterProductRegistry& mpr_;
   private:
+    void finish() override;
     input::ItemType nextItemType() override;
     using DecrepitRelicInputSourceImplementation::readEvent;
     std::unique_ptr<EventPrincipal> readEvent(cet::exempt_ptr<SubRunPrincipal const>) override;

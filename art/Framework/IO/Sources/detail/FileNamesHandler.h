@@ -21,6 +21,7 @@ namespace art {
                                 double waitBetweenAttempts = 5.0);
 
       std::string next();
+      void finish();
 
     private:
       FileServiceProxy fp_;
@@ -32,7 +33,9 @@ namespace art {
     public:
       explicit FileNamesHandler(std::vector<std::string> && fileNames,
                                 size_t = 0);
+
       std::string next();
+      void finish();
 
     private:
       std::vector<std::string> fileNames_;
@@ -53,11 +56,20 @@ FileNamesHandler(std::vector<std::string> && fileNames,
 {
 }
 
+inline
 std::string
 art::detail::FileNamesHandler<true>::
 next()
 {
   return fp_.next();
+}
+
+inline
+void
+art::detail::FileNamesHandler<true>::
+finish()
+{
+  fp_.finish();
 }
 
 art::detail::FileNamesHandler<false>::
@@ -69,11 +81,20 @@ FileNamesHandler(std::vector<std::string> && fileNames, size_t)
 {
 }
 
+inline
 std::string
 art::detail::FileNamesHandler<false>::
 next()
 {
   return (currentFile_ == end_) ? std::string() : *(currentFile_++);
+}
+
+inline
+void
+art::detail::FileNamesHandler<false>::
+finish()
+{
+  currentFile_ = end_;
 }
 #endif /* art_Framework_IO_Sources_detail_FileNamesHandler_h */
 

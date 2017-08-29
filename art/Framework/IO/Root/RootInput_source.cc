@@ -107,6 +107,13 @@ getNextItemType()
   return primaryFileSequence_->getNextItemType();
 }
 
+void
+RootInput::
+finish()
+{
+  primaryFileSequence_->finish();
+}
+
 input::ItemType
 RootInput::
 nextItemType()

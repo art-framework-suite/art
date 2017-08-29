@@ -175,6 +175,11 @@ namespace art
     void setTimestamp(Timestamp const& theTime) {time_ = theTime;}
 
     input::ItemType state() const {return state_;}
+
+    // Inform subclasses that they're going to be told to close the file
+    // for non-exceptional reasons (such as hitting the event limit).
+    virtual void finish() {}
+
     cet::exempt_ptr<RunPrincipal> runPrincipalExemptPtr() { return cachedRunPrincipal_; }
     cet::exempt_ptr<SubRunPrincipal> subRunPrincipalExemptPtr() { return cachedSubRunPrincipal_; }
 

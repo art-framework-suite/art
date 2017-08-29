@@ -27,16 +27,15 @@ art::detail::FileServiceProxy::
   }
 }
 
-std::string
+void
 art::detail::FileServiceProxy::
-next()
+finish()
 {
   if (currentItem_.ftStatus == FileTransferStatus::SUCCESS) {
     // File is complete.
     ci_->updateStatus(currentItem_.uri, FileDisposition::CONSUMED);
   }
   currentItem_ = FileEntity(attemptsPerPhase_);
-  return obtainURI_();
 }
 
 std::string

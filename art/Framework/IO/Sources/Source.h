@@ -491,6 +491,18 @@ art::Source<T>::nextItemType()
        state_ == input::IsSubRun) &&
       remainingSubRuns_ == 0)
   { state_ = input::IsStop; }
+  if (state_ == input::IsStop) {
+    // FIXME: upon the advent of a catalog system which can do something
+    // intelligent with the difference between whole-file success,
+    // partial-file success, partial-file failure and whole-file failure
+    // (such as file-open failure), we will need to communicate that
+    // difference here. The file disposition options as they are now
+    // (and the mapping to any concrete implementation we are are aware
+    // of currently) are not sufficient to the task, so we deliberately
+    // do not distinguish here between partial-file and whole-file
+    // success in particular.
+    fh_.finish();
+  }
   return state_;
 }
 
