@@ -1,9 +1,10 @@
 #include "art/Framework/Core/PathsInfo.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/System/TriggerNamesService.h"
-#include "cetlib/HorizontalRule.h"
 #include "art/Utilities/bold_fontify.h"
 #include "art/Version/GetReleaseVersion.h"
+#include "canvas/Persistency/Provenance/ProductList.h"
+#include "cetlib/HorizontalRule.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/types/detail/validationException.h"
 
@@ -11,12 +12,14 @@ art::PathsInfo::PathsInfo(std::size_t const numPaths,
                           detail::ModuleFactory& factory,
                           fhicl::ParameterSet const& procPS,
                           MasterProductRegistry& preg,
+                          ProductDescriptions& productsToProduce,
                           ActionTable& actions,
                           ActivityRegistry& areg) :
   pathResults_{numPaths},
   fact_{factory},
   procPS_{procPS},
   preg_{preg},
+  productsToProduce_{productsToProduce},
   exceptActions_{actions},
   areg_{areg}
 {}
@@ -83,6 +86,7 @@ art::PathsInfo::makeWorker_(detail::ModuleConfigInfo const& mci)
     WorkerParams const p{procPS_,
                          moduleConfig,
                          preg_,
+                         productsToProduce_,
                          exceptActions_,
                          ServiceHandle<TriggerNamesService const>{}->getProcessName()};
     ModuleDescription const md{moduleConfig.id(),

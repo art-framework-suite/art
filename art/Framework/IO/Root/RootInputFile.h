@@ -103,8 +103,8 @@ namespace art {
 
     std::string const& fileName() const { return fileName_; }
 
-    ProductLookup_t const& productLookup() const { return productLookup_; }
-    ViewLookup_t const& viewLookup() const { return viewLookup_; }
+    // ProductLookup_t const& productLookup() const { return productLookup_; }
+    // ViewLookup_t const& viewLookup() const { return viewLookup_; }
 
     RunAuxiliary& runAux() { return std::get<RunAuxiliary>(auxiliaries_); }
     ResultsAuxiliary& resultsAux() { return std::get<ResultsAuxiliary>(auxiliaries_); }
@@ -149,11 +149,6 @@ namespace art {
     void previousEntry() { --fiIter_; }
     void advanceEntry(std::size_t n) { while (n-- != 0) nextEntry(); }
 
-    PerBranchTypePresence perBranchTypePresence()
-    {
-      return perBranchTypeProdPresence_;
-    }
-
     unsigned int eventsToSkip() const { return eventsToSkip_; }
     int skipEvents(int offset);
     int setForcedRunOffset(RunNumber_t const& forcedRunNumber);
@@ -197,7 +192,7 @@ namespace art {
     void validateFile();
 
     void fillHistory();
-    void fillPerBranchTypePresenceFlags(ProductList const&);
+    std::array<AvailableProducts_t, NumBranchTypes> fillPerBranchTypePresenceFlags(ProductList const&);
 
     template <BranchType BT>
     void fillAuxiliary(EntryNumber const entry)
@@ -276,9 +271,7 @@ namespace art {
     ProductRegistry productListHolder_{};
     std::unique_ptr<BranchIDLists> branchIDLists_{nullptr}; // Only used for maintaining backwards compatibility
 
-    PerBranchTypePresence perBranchTypeProdPresence_ {{}}; // filled by aggregation
-    ProductLookup_t productLookup_;
-    ViewLookup_t viewLookup_;
+    ProductTables_t productTables_{{}};
 
     TTree* eventHistoryTree_ {nullptr};
     std::shared_ptr<History> history_ {std::make_shared<History>()};

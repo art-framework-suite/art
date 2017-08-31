@@ -17,6 +17,7 @@
 #include "art/Framework/Services/System/TriggerNamesService.h"
 #include "art/Version/GetReleaseVersion.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
+#include "canvas/Persistency/Provenance/ProductList.h"
 #include "canvas/Persistency/Provenance/ReleaseVersion.h"
 #include "cetlib/exempt_ptr.h"
 
@@ -31,6 +32,7 @@ art::Schedule::Schedule(ScheduleID const sID,
                         ParameterSet const& proc_pset,
                         TriggerNamesService const& tns,
                         MasterProductRegistry& mpr,
+                        ProductDescriptions& productsToProduce,
                         ActionTable& actions,
                         ActivityRegistry& areg)
   : sID_{sID}
@@ -41,7 +43,7 @@ art::Schedule::Schedule(ScheduleID const sID,
   , pathsEnabled_(triggerPathsInfo_.pathPtrs().size(), true)
 {
   if (!triggerPathsInfo_.pathPtrs().empty()) {
-    makeTriggerResultsInserter_(tns.getTriggerPSet(), mpr, areg);
+    makeTriggerResultsInserter_(tns.getTriggerPSet(), mpr, productsToProduce, areg);
   }
 }
 
@@ -108,9 +110,10 @@ art::Schedule::beginJob()
 void
 art::Schedule::makeTriggerResultsInserter_(fhicl::ParameterSet const& trig_pset,
                                            MasterProductRegistry& mpr,
+                                           ProductDescriptions& productsToProduce,
                                            ActivityRegistry& areg)
 {
-  WorkerParams const work_args{process_pset_, trig_pset, mpr, *act_table_, processName_};
+  WorkerParams const work_args{process_pset_, trig_pset, mpr, productsToProduce, *act_table_, processName_};
   ModuleDescription md(trig_pset.id(),
                        "TriggerResultInserter",
                        "TriggerResults",

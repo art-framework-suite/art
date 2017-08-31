@@ -33,7 +33,7 @@ namespace art {
 
     RunPrincipal(RunAuxiliary const&,
                  ProcessConfiguration const&,
-                 cet::exempt_ptr<PresenceSet const> presentProducts,
+                 cet::exempt_ptr<ProductTable const> presentProducts,
                  std::unique_ptr<BranchMapper>&& = std::make_unique<BranchMapper>(),
                  std::unique_ptr<DelayedReader>&& = std::make_unique<NoDelayedReader>());
 

@@ -15,6 +15,7 @@
 #include "art/Framework/Principal/SubRun.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
+#include "canvas/Persistency/Provenance/ProductTables.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 #include "fhiclcpp/ParameterSet.h"
 
@@ -82,7 +83,8 @@ namespace art {
     }
 
     // This must come LAST in the constructor.
-    registerProducts(desc.productRegistry, moduleDescription());
+    static ProductDescriptions emptyProducedProducts{};
+    registerProducts(desc.productRegistry, emptyProducedProducts, moduleDescription());
   }
 
   void

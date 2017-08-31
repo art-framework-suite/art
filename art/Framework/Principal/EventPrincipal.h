@@ -35,7 +35,7 @@ namespace art {
 
     EventPrincipal(EventAuxiliary const& aux,
                    ProcessConfiguration const& pc,
-                   cet::exempt_ptr<PresenceSet const> presentProducts,
+                   cet::exempt_ptr<ProductTable const> presentProducts,
                    std::shared_ptr<History> history = std::make_shared<History>(),
                    std::unique_ptr<BranchMapper>&& mapper = std::make_unique<BranchMapper>(),
                    std::unique_ptr<DelayedReader>&& rtrv = std::make_unique<NoDelayedReader>(),

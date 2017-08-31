@@ -26,6 +26,7 @@
 #include "art/Version/GetReleaseVersion.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
 #include "canvas/Persistency/Provenance/ProcessConfiguration.h"
+#include "canvas/Persistency/Provenance/createProductTables.h"
 #include "canvas/Utilities/DebugMacros.h"
 #include "canvas/Utilities/Exception.h"
 #include "cetlib/container_algorithms.h"
@@ -118,7 +119,7 @@ art::EventProcessor::EventProcessor(ParameterSet const& pset)
   act_table_{pset.get<ParameterSet>("services.scheduler")},
   actReg_(),
   mfStatusUpdater_{actReg_},
-  pathManager_{pset, preg_, act_table_, actReg_},
+  pathManager_{pset, preg_, productsToProduce_, act_table_, actReg_},
   serviceDirector_{initServices_(pset, actReg_, serviceToken_)},
   handleEmptyRuns_{pset.get<bool>("services.scheduler.handleEmptyRuns", true)},
   handleEmptySubRuns_{pset.get<bool>("services.scheduler.handleEmptySubRuns", true)}
@@ -143,6 +144,7 @@ art::EventProcessor::EventProcessor(ParameterSet const& pset)
   preg_.finalizeForProcessing();
   ProductMetaData::create_instance(preg_);
 
+  producedProducts_ = createProductTables(productsToProduce_);
   FDEBUG(2) << pset.to_string() << std::endl;
   servicesDeactivate_();
 }
@@ -192,6 +194,7 @@ art::EventProcessor::initSchedules_(ParameterSet const& pset)
                                          pset,
                                          *ServiceHandle<TriggerNamesService const>{},
                                          preg_,
+                                         productsToProduce_,
                                          act_table_,
                                          actReg_);
 }
@@ -668,6 +671,7 @@ art::EventProcessor::readRun()
   {
     actReg_.sPreSourceRun.invoke();
     runPrincipal_ = input_->readRun();
+    runPrincipal_->setProducedProducts(producedProducts_[InRun]);
     Run const r {*runPrincipal_, ModuleDescription{}, Consumer::non_module_context()};
     actReg_.sPostSourceRun.invoke(r);
   }
@@ -740,6 +744,7 @@ art::EventProcessor::readSubRun()
   {
     actReg_.sPreSourceSubRun.invoke();
     subRunPrincipal_ = input_->readSubRun(runPrincipal_.get());
+    subRunPrincipal_->setProducedProducts(producedProducts_[InSubRun]);
     SubRun const sr {*subRunPrincipal_, ModuleDescription{}, Consumer::non_module_context()};
     actReg_.sPostSourceSubRun.invoke(sr);
   }
@@ -814,6 +819,7 @@ art::EventProcessor::readEvent()
   {
     actReg_.sPreSourceEvent.invoke();
     eventPrincipal_ = input_->readEvent(subRunPrincipal_.get());
+    eventPrincipal_->setProducedProducts(producedProducts_[InEvent]);
     Event const e {*eventPrincipal_, ModuleDescription{}, Consumer::non_module_context()};
     actReg_.sPostSourceEvent.invoke(e);
   }

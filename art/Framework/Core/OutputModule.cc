@@ -101,9 +101,10 @@ art::OutputModule::selectProducts(FileBlock const& fb)
 
 void
 art::OutputModule::registerProducts(MasterProductRegistry& mpr,
+                                    ProductDescriptions& producedProducts,
                                     ModuleDescription const& md)
 {
-  doRegisterProducts(mpr, md);
+  doRegisterProducts(mpr, producedProducts, md);
 }
 
 void
@@ -116,6 +117,7 @@ art::OutputModule::postSelectProducts(FileBlock const&)
 
 void
 art::OutputModule::doRegisterProducts(MasterProductRegistry&,
+                                      ProductDescriptions&,
                                       ModuleDescription const&)
 {}
 

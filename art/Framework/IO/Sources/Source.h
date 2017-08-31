@@ -96,6 +96,7 @@
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
 #include "canvas/Persistency/Provenance/ProcessConfiguration.h"
 #include "canvas/Persistency/Provenance/SubRunID.h"
+#include "canvas/Persistency/Provenance/createProductTables.h"
 #include "cetlib/exempt_ptr.h"
 #include "cetlib/metaprogramming.h"
 #include "fhiclcpp/ParameterSet.h"
@@ -172,6 +173,7 @@ private:
   cet::exempt_ptr<ActivityRegistry> act_;
 
   ProductRegistryHelper h_{};
+  ProductTables_t presentProducts_{{}};
   SourceHelper sourceHelper_; // So it can be used by detail.
   SourceDetail detail_;
   input::ItemType state_{input::IsInvalid};
@@ -234,7 +236,7 @@ art::Source<T>::Source(fhicl::ParameterSet const& p,
                        InputSourceDescription& d) :
   InputSource{d.moduleDescription},
   act_{&d.activityRegistry},
-  sourceHelper_{d.moduleDescription, h_.perBranchTypePresence()},
+  sourceHelper_{d.moduleDescription, presentProducts_},
   detail_{p, h_, sourceHelper_},
   fh_{p.get<std::vector<std::string>>("fileNames", std::vector<std::string>())}
 {
@@ -593,8 +595,6 @@ art::Source<T>::readRun()
         << "Error in Source<T>\n"
         << "readRun() called when no RunPrincipal exists\n"
         << "Please report this to the art developers\n";
-  newRP_->setProductLookups(h_.productLookups<InRun>(),
-                            h_.viewLookups<InRun>());
   cachedRP_ = newRP_.get();
   return std::move(newRP_);
 }
@@ -611,8 +611,6 @@ art::Source<T>::readSubRun(cet::exempt_ptr<RunPrincipal const>)
     if (haveSRLimit_) { --remainingSubRuns_; }
     subRunIsNew_ = false;
   }
-  newSRP_->setProductLookups(h_.productLookups<InSubRun>(),
-                             h_.viewLookups<InSubRun>());
   cachedSRP_ = newSRP_.get();
   return std::move(newSRP_);
 }
@@ -622,8 +620,6 @@ std::unique_ptr<art::EventPrincipal>
 art::Source<T>::readEvent(cet::exempt_ptr<SubRunPrincipal const>)
 {
   if (haveEventLimit_) { --remainingEvents_; }
-  newE_->setProductLookups(h_.productLookups<InEvent>(),
-                           h_.viewLookups<InEvent>());
   return std::move(newE_);
 }
 
@@ -633,12 +629,15 @@ art::Source<T>::finishProductRegistration_(InputSourceDescription& d)
 {
   // These _xERROR_ strings should never appear in branch names; they
   // are here as tracers to help identify any failures in coding.
+  ProductDescriptions presentProducts{};
   h_.registerProducts(d.productRegistry,
+                      presentProducts,
                       ModuleDescription{fhicl::ParameterSet{}.id(), // Dummy
                                         "_NAMEERROR_",
                                         "_LABELERROR_",
                                         d.moduleDescription.processConfiguration(),
                                         ModuleDescription::invalidID()});
+  presentProducts_ = createProductTables(presentProducts);
 }
 
 #endif /* art_Framework_IO_Sources_Source_h */

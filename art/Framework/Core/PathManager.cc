@@ -112,18 +112,20 @@ namespace {
 
 art::PathManager::PathManager(ParameterSet const& procPS,
                               MasterProductRegistry& preg,
+                              ProductDescriptions& productsToProduce,
                               ActionTable& exceptActions,
                               ActivityRegistry& areg)
   :
   procPS_{procPS},
   preg_{preg},
+  productsToProduce_{productsToProduce},
   exceptActions_{exceptActions},
   areg_{areg},
   trigger_paths_config_{findLegacyConfig(procPS_, "physics.trigger_paths")},
   end_paths_config_{findLegacyConfig(procPS_, "physics.end_paths")},
   allModules_{fillAllModules_()},
   triggerPathNames_{processPathConfigs_()},
-  endPathInfo_{0, fact_, procPS_, preg_, exceptActions_, areg_}
+  endPathInfo_{0, fact_, procPS_, preg_, productsToProduce_, exceptActions_, areg_}
 {
 }
 
@@ -145,7 +147,8 @@ art::PathManager::triggerPathsInfo(ScheduleID const sID)
   if (it != triggerPathsInfo_.end())
     return it->second;
 
-  it = triggerPathsInfo_.emplace(sID, PathsInfo{triggerPathNames_.size(), fact_, procPS_, preg_, exceptActions_, areg_}).first;
+  it = triggerPathsInfo_.emplace(sID,
+                                 PathsInfo{triggerPathNames_.size(), fact_, procPS_, preg_, productsToProduce_, exceptActions_, areg_}).first;
   auto& pathsInfo = it->second;
 
   for (auto const& val : protoTrigPathMap_) {

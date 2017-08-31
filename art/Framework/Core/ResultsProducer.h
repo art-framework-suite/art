@@ -18,13 +18,13 @@
 //
 // * Subclasses *must* define:
 //
-//   Constructor(fhicl::ParameterSet const &);
+//   Constructor(fhicl::ParameterSet const&);
 //
 //     Declare data products to be put into the Results (via
 //     art::Results::put() in writeResults() below) using produces<>(),
 //     in a similar fashion to producers and filters.
 //
-//   void writeResults(art::Results &);
+//   void writeResults(art::Results&);
 //
 //     Called immediately prior to output file closure. Users should
 //     put() their declared products into the Results object. Using
@@ -49,17 +49,17 @@
 //
 //   void endJob();
 //
-//   void beginSubRun(SubRun const &);
+//   void beginSubRun(SubRun const&);
 //
-//   void endSubRun(SubRun const &);
+//   void endSubRun(SubRun const&);
 //
-//   void beginRun(Run const &);
+//   void beginRun(Run const&);
 //
-//   void endRun(Run const &);
+//   void endRun(Run const&);
 //
-//   void event(Event const &);
+//   void event(Event const&);
 //
-//   void readResults(art::Results const &);
+//   void readResults(art::Results const&);
 //
 //     Access any results-level products in input files here. The user
 //     is entirely responsible for combining information from possibly
@@ -109,19 +109,20 @@ public:
 
   void doBeginJob();
   void doEndJob();
-  void doBeginSubRun(SubRunPrincipal const &);
-  void doEndSubRun(SubRunPrincipal const &);
-  void doBeginRun(RunPrincipal const &);
-  void doEndRun(RunPrincipal const &);
-  void doEvent(EventPrincipal const &);
-  void doReadResults(ResultsPrincipal const &);
-  void doWriteResults(ResultsPrincipal &);
+  void doBeginSubRun(SubRunPrincipal const&);
+  void doEndSubRun(SubRunPrincipal const&);
+  void doBeginRun(RunPrincipal const&);
+  void doEndRun(RunPrincipal const&);
+  void doEvent(EventPrincipal const&);
+  void doReadResults(ResultsPrincipal const&);
+  void doWriteResults(ResultsPrincipal&);
   void doClear();
 
-  void registerProducts(MasterProductRegistry & mpr,
-                        ModuleDescription const & md)
+  void registerProducts(MasterProductRegistry& mpr,
+                        ProductDescriptions& producedProducts,
+                        ModuleDescription const& md)
   {
-    ProductRegistryHelper::registerProducts(mpr, md);
+    ProductRegistryHelper::registerProducts(mpr, producedProducts, md);
     moduleDescription_ = &md;
   }
 
@@ -132,16 +133,16 @@ private:
   virtual void beginJob();
   virtual void endJob();
 
-  virtual void beginSubRun(SubRun const &);
-  virtual void endSubRun(SubRun const &);
+  virtual void beginSubRun(SubRun const&);
+  virtual void endSubRun(SubRun const&);
 
-  virtual void beginRun(Run const &);
-  virtual void endRun(Run const &);
+  virtual void beginRun(Run const&);
+  virtual void endRun(Run const&);
 
-  virtual void event(Event const &);
+  virtual void event(Event const&);
 
-  virtual void readResults(Results const &);
-  virtual void writeResults(Results &) = 0;
+  virtual void readResults(Results const&);
+  virtual void writeResults(Results&) = 0;
 
   virtual void clear() = 0;
 };
@@ -150,7 +151,7 @@ template<class P>
 inline
 void
 art::ResultsProducer::
-produces(std::string const & instanceName)
+produces(std::string const& instanceName)
 {
   ProductRegistryHelper::produces<P, InResults>(instanceName);
 }
@@ -182,7 +183,7 @@ doEndJob()
 inline
 void
 art::ResultsProducer::
-doBeginSubRun(SubRunPrincipal const & srp)
+doBeginSubRun(SubRunPrincipal const& srp)
 {
   SubRun const sr {srp, *moduleDescription_, this};
   beginSubRun(sr);
@@ -191,7 +192,7 @@ doBeginSubRun(SubRunPrincipal const & srp)
 inline
 void
 art::ResultsProducer::
-doEndSubRun(SubRunPrincipal const & srp)
+doEndSubRun(SubRunPrincipal const& srp)
 {
   SubRun const sr {srp, *moduleDescription_, this};
   endSubRun(sr);
@@ -200,7 +201,7 @@ doEndSubRun(SubRunPrincipal const & srp)
 inline
 void
 art::ResultsProducer::
-doBeginRun(RunPrincipal const & rp)
+doBeginRun(RunPrincipal const& rp)
 {
   Run const r {rp, *moduleDescription_, this};
   beginRun(r);
@@ -209,7 +210,7 @@ doBeginRun(RunPrincipal const & rp)
 inline
 void
 art::ResultsProducer::
-doEndRun(RunPrincipal const & rp)
+doEndRun(RunPrincipal const& rp)
 {
   Run const r {rp, *moduleDescription_, this};
   endRun(r);
@@ -218,7 +219,7 @@ doEndRun(RunPrincipal const & rp)
 inline
 void
 art::ResultsProducer::
-doEvent(EventPrincipal const & ep)
+doEvent(EventPrincipal const& ep)
 {
   Event const e {ep, *moduleDescription_, this};
   event(e);
@@ -227,7 +228,7 @@ doEvent(EventPrincipal const & ep)
 inline
 void
 art::ResultsProducer::
-doReadResults(ResultsPrincipal const & resp)
+doReadResults(ResultsPrincipal const& resp)
 {
   Results const res {resp, *moduleDescription_, this};
   readResults(res);
@@ -247,8 +248,8 @@ doClear()
     FHICL_PROVIDE_ALLOWED_CONFIGURATION(klass)                          \
     DEFINE_BASIC_PLUGINTYPE_FUNC(art::ResultsProducer)                  \
     std::unique_ptr<art::RPWorker>                                      \
-    makeRP(art::RPParams const & rpParams,                              \
-           fhicl::ParameterSet const & ps)                              \
+    makeRP(art::RPParams const& rpParams,                               \
+           fhicl::ParameterSet const& ps)                               \
     {                                                                   \
       return                                                            \
         std::make_unique<art::RPWorkerT<klass>>(rpParams, ps);          \

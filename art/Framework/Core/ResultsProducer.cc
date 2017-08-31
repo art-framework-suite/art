@@ -11,7 +11,6 @@ art::ResultsProducer::
 doWriteResults(ResultsPrincipal& resp)
 {
   Results res {resp, *moduleDescription_, this};
-  resp.addLookups(productLookups<InResults>(), viewLookups<InResults>(), producedProducts<InResults>());
   writeResults(res);
   res.commit_(resp);
 }

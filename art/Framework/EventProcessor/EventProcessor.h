@@ -25,6 +25,7 @@
 #include "art/Utilities/UnixSignalHandlers.h"
 #include "canvas/Persistency/Provenance/IDNumber.h"
 #include "canvas/Persistency/Provenance/ReleaseVersion.h"
+#include "canvas/Persistency/Provenance/type_aliases.h"
 #include "cetlib/cpu_timer.h"
 #include "cetlib/exception.h"
 #include "cetlib/trim.h"
@@ -163,6 +164,7 @@ private:
   ActivityRegistry actReg_;
   MFStatusUpdater mfStatusUpdater_;
   MasterProductRegistry preg_{};
+  ProductDescriptions productsToProduce_{};
   ServiceToken serviceToken_{ServiceToken::createInvalid()};
   tbb::task_scheduler_init tbbManager_{tbb::task_scheduler_init::deferred};
   std::unique_ptr<ServiceRegistry::Operate> servicesSentry_{};
@@ -176,6 +178,7 @@ private:
   std::unique_ptr<RunPrincipal> runPrincipal_{nullptr};
   std::unique_ptr<SubRunPrincipal> subRunPrincipal_{nullptr};
   std::unique_ptr<EventPrincipal> eventPrincipal_{nullptr};
+  ProductTables_t producedProducts_{{}};
   bool shouldWeStop_{false};
   bool const handleEmptyRuns_;
   bool const handleEmptySubRuns_;

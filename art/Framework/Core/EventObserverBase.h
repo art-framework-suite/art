@@ -5,6 +5,7 @@
 // OutputModule and EDAnalyzer.
 
 #include "art/Framework/Core/CachedProducts.h"
+#include "canvas/Persistency/Provenance/BranchDescription.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/ParameterSetID.h"
 #include "fhiclcpp/types/Sequence.h"
@@ -13,10 +14,9 @@
 #include <string>
 
 namespace art {
+  class EventObserverBase;
   class MasterProductRegistry;
   class ModuleDescription;
-
-  class EventObserverBase;
 }
 
 class art::EventObserverBase {
@@ -26,7 +26,7 @@ public:
 
   // FIXME: One could obviate the need for this trivial implementation
   // by putting some type logic in WorkerT.
-  void registerProducts(MasterProductRegistry&, ModuleDescription const &) {}
+  void registerProducts(MasterProductRegistry&, ProductDescriptions&, ModuleDescription const &) {}
   //
   // SelectEvents handling
   //

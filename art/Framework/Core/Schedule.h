@@ -2,7 +2,7 @@
 #define art_Framework_Core_Schedule_h
 // vim: set sw=2:
 
-//
+// ======================================================================
 // Schedule
 //
 // A schedule is a sequence of trigger paths. After construction, events
@@ -21,7 +21,7 @@
 // Processing of an event happens by pushing the event through the
 // Paths. The scheduler performs the reset() on each of the workers
 // independent of the Path objects.
-//
+// ======================================================================
 
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/Path.h"
@@ -62,8 +62,8 @@ class Schedule;
 class Schedule {
 public:
   Schedule(ScheduleID, PathManager&, fhicl::ParameterSet const&,
-           TriggerNamesService const&, MasterProductRegistry&, ActionTable&,
-           ActivityRegistry&);
+           TriggerNamesService const&, MasterProductRegistry&, ProductDescriptions&,
+           ActionTable&, ActivityRegistry&);
 
   template<typename T>
   void process(typename T::MyPrincipal&);
@@ -89,6 +89,7 @@ private:
   void
   makeTriggerResultsInserter_(fhicl::ParameterSet const& trig_pset,
                               MasterProductRegistry& mpr,
+                              ProductDescriptions& productsToProduce,
                               ActivityRegistry& areg);
 
   template<typename T>

@@ -6,8 +6,7 @@
 #include "canvas/Persistency/Provenance/BranchDescription.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
 #include "canvas/Persistency/Provenance/TypeLabel.h"
-#include "canvas/Persistency/Provenance/createProductLookups.h"
-#include "canvas/Persistency/Provenance/createViewLookups.h"
+#include "canvas/Persistency/Provenance/createProductTables.h"
 #include "canvas/Utilities/DebugMacros.h"
 #include "canvas/Utilities/Exception.h"
 #include "cetlib/container_algorithms.h"
@@ -54,6 +53,7 @@ namespace {
 
 void
 art::ProductRegistryHelper::registerProducts(MasterProductRegistry& mpr,
+                                             ProductDescriptions& producedProducts,
                                              ModuleDescription const& md)
 {
   // First update the MPR with any extant products.
@@ -67,18 +67,9 @@ art::ProductRegistryHelper::registerProducts(MasterProductRegistry& mpr,
     auto const bt = static_cast<BranchType>(ibt);
     for (auto const& val : typeLabelList_[bt]) {
       BranchDescription pd{bt, val, md};
-      if (val.hasEmulatedModule()) {
-        // Product is provided by the source.
-        presentProducts_[bt].insert(pd.productID());
-      }
-      else {
-        // Product is produced in current process.
-        producedProducts_[bt].insert(pd.productID());
-      }
+      producedProducts.push_back(pd);
       descriptions.push_back(std::move(pd));
     }
   }
-  productLookup_ = createProductLookups(descriptions);
-  viewLookup_ = createViewLookups(descriptions);
   mpr.addProductsFromModule(move(descriptions));
 }

@@ -45,28 +45,14 @@ namespace {
     return ReverseIteration<T>{t};
   }
 
-  auto ptr_for_empty_product_lookup()
-  {
-    static art::ProductLookup_t::value_type const emptyLookup{};
-    return cet::make_exempt_ptr(&emptyLookup);
-  }
-
-  auto ptr_for_empty_view_lookup()
-  {
-    static art::ViewLookup_t::value_type const emptyLookup{};
-    return cet::make_exempt_ptr(&emptyLookup);
-  }
-
 }
 
 Principal::Principal(ProcessConfiguration const& pc,
                      ProcessHistoryID const& hist,
-                     cet::exempt_ptr<PresenceSet const> presentProducts,
+                     cet::exempt_ptr<ProductTable const> presentProducts,
                      std::unique_ptr<BranchMapper>&& mapper,
                      std::unique_ptr<DelayedReader>&& reader)
   : processConfiguration_{pc}
-  , productLookup_{ptr_for_empty_product_lookup()}
-  , viewLookup_{ptr_for_empty_view_lookup()}
   , presentProducts_{presentProducts}
   , branchMapperPtr_{std::move(mapper)}
   , store_{std::move(reader)}
@@ -219,8 +205,8 @@ Principal::getMatchingSequence(SelectorBase const& selector) const
   GroupQueryResultVec results;
 
   // Find groups from current process
-  for (auto lookup : reverse_iteration(currentProcessViewLookups_)) {
-    if (findGroups(*lookup, selector, results, true) != 0) {
+  if (producedProducts_) {
+    if (findGroups(producedProducts_->viewLookup, selector, results, true) != 0) {
       return results;
     }
   }
@@ -267,9 +253,12 @@ Principal::getMatchingSequence(SelectorBase const& selector) const
 Principal::GroupQueryResultVec
 Principal::matchingSequenceFromInputFile(SelectorBase const& selector) const
 {
-  assert(viewLookup_);
   GroupQueryResultVec results;
-  findGroups(*viewLookup_, selector, results, true);
+  if (!presentProducts_) {
+    return results;
+  }
+
+  findGroups(presentProducts_->viewLookup, selector, results, true);
   return results;
 }
 
@@ -300,12 +289,12 @@ Principal::findGroupsForProduct(WrappedTypeID const& wrapped,
 
   unsigned ret{};
   // Find groups from current process
-  for (auto lookup : reverse_iteration(currentProcessProductLookups_)) {
-    auto it = lookup->find(wrapped.product_type.friendlyClassName());
-    if (it == lookup->end()) {
-      continue;
+  if (producedProducts_) {
+    auto const& lookup = producedProducts_->productLookup;
+    auto it = lookup.find(wrapped.product_type.friendlyClassName());
+    if (it != lookup.end()) {
+      ret += findGroups(it->second, selector, results, stopIfProcessHasMatch, wrapped.wrapped_product_type);
     }
-    ret += findGroups(it->second, selector, results, stopIfProcessHasMatch, wrapped.wrapped_product_type);
   }
 
   // Look through currently opened input files
@@ -346,9 +335,12 @@ Principal::findGroupsFromInputFile(WrappedTypeID const& wrapped,
                                    GroupQueryResultVec& results,
                                    bool const stopIfProcessHasMatch) const
 {
-  assert(productLookup_);
-  auto it = productLookup_->find(wrapped.product_type.friendlyClassName());
-  if (it == productLookup_->end()) {
+  if (!presentProducts_) {
+    return 0;
+  }
+  auto const& lookup = presentProducts_->productLookup;
+  auto it = lookup.find(wrapped.product_type.friendlyClassName());
+  if (it == lookup.end()) {
     return 0;
   }
   return findGroups(it->second, selector, results, stopIfProcessHasMatch, wrapped.wrapped_product_type);
@@ -474,7 +466,8 @@ Principal::presentFromSource(ProductID const pid) const
 {
   bool present{false};
   if (presentProducts_) {
-    present = (presentProducts_->find(pid) != presentProducts_->cend());
+    auto const& lookup = presentProducts_->availableProducts;
+    present = (lookup.find(pid) != lookup.cend());
   }
   return present;
 }
@@ -483,10 +476,10 @@ cet::exempt_ptr<Group const>
 Principal::getGroupForPtr(ProductID const pid) const
 {
   bool produced{false};
-  for (auto prod : reverse_iteration(currentProcessProducedProducts_)) {
-    if (prod->find(pid) != prod->cend()) {
+  if (producedProducts_) {
+    auto const& availableProducts = producedProducts_->availableProducts;
+    if (availableProducts.find(pid) != availableProducts.cend()) {
       produced = true;
-      break;
     }
   }
 

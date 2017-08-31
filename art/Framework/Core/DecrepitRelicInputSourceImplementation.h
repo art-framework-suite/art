@@ -166,9 +166,6 @@ namespace art
     /// RunsSubRunsAndEvents (default), RunsAndSubRuns, or Runs.
     ProcessingMode processingMode() const {return processingMode_;}
 
-    using ProductRegistryHelper::reconstitutes;
-    using ProductRegistryHelper::expectedProducts;
-
   protected:
     /// To set the current time, as seen by the input source
     void setTimestamp(Timestamp const& theTime) {time_ = theTime;}

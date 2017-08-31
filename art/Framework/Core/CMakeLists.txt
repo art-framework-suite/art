@@ -13,6 +13,7 @@ art_make(
   MF_MessageLogger
   fhiclcpp
   cetlib
+  canvas
   ${CLHEP}
   ${TBB}
   )

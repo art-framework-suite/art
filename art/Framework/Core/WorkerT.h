@@ -68,7 +68,7 @@ namespace art {
     module_{std::move(module)}
   {
     module_->setModuleDescription(md);
-    module_->registerProducts(wp.reg_, md);
+    module_->registerProducts(wp.reg_, wp.producedProducts_, md);
   }
 
   template <typename T>

@@ -19,6 +19,7 @@ public:
                      detail::ModuleFactory& factory,
                      fhicl::ParameterSet const& procPS,
                      MasterProductRegistry& preg,
+                     ProductDescriptions& productsToProduce,
                      ActionTable& actions,
                      ActivityRegistry& areg);
 
@@ -56,6 +57,7 @@ private:
   detail::ModuleFactory& fact_;
   fhicl::ParameterSet const& procPS_;
   MasterProductRegistry& preg_;
+  ProductDescriptions& productsToProduce_;
   ActionTable& exceptActions_;
   ActivityRegistry& areg_;
   std::vector<std::string> configErrMsgs_;

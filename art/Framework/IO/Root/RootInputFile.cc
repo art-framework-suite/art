@@ -29,8 +29,7 @@
 #include "canvas/Persistency/Provenance/ProductID.h"
 #include "canvas/Persistency/Provenance/ProductIDStreamer.h"
 #include "canvas/Persistency/Provenance/RunID.h"
-#include "canvas/Persistency/Provenance/createProductLookups.h"
-#include "canvas/Persistency/Provenance/createViewLookups.h"
+#include "canvas/Persistency/Provenance/createProductTables.h"
 #include "canvas/Persistency/Provenance/rootNames.h"
 #include "canvas/Utilities/Exception.h"
 #include "canvas/Utilities/FriendlyName.h"
@@ -275,21 +274,18 @@ namespace art {
     dropOnInput(groupSelectorRules, dropDescendants, prodList);
 
     mpr.updateFromInputFile(prodList, *createFileBlock());
-    fillPerBranchTypePresenceFlags(prodList);
-
-    auto const& descriptions = make_product_descriptions(prodList);
-    productLookup_ = createProductLookups(descriptions);
-    viewLookup_ = createViewLookups(descriptions);
+    auto availableProducts = fillPerBranchTypePresenceFlags(prodList);
 
     // Add branches
     for (auto& prod : prodList) {
       auto& pd = prod.second;
-      auto const& presenceLookup = perBranchTypeProdPresence_[pd.branchType()];
+      auto const& presenceLookup = availableProducts[pd.branchType()];
       bool const present {presenceLookup.find(pd.productID()) != cend(presenceLookup)};
       auto const validity = present ? BranchDescription::Transients::PresentFromSource : BranchDescription::Transients::Dropped;
       pd.setValidity(validity);
       treePointers_[pd.branchType()]->addBranch(prod.first, pd);
     }
+    productTables_ = createProductTables(make_product_descriptions(prodList), availableProducts);
 
     // Determine if this file is fast clonable.
     fastClonable_ = setIfFastClonable(fcip);
@@ -628,7 +624,7 @@ namespace art {
     overrideRunNumber(const_cast<EventID&>(eventAux().id()), eventAux().isRealData());
     auto ep = std::make_unique<EventPrincipal>(eventAux(),
                                                processConfiguration_,
-                                               &perBranchTypeProdPresence_[InEvent],
+                                               &productTables_[InEvent],
                                                history_,
                                                eventTree().makeBranchMapper(),
                                                eventTree().makeDelayedReader(fileFormatVersion_,
@@ -637,7 +633,6 @@ namespace art {
                                                                              entryNumbers.first,
                                                                              eventAux().id()),
                                                entryNumbers.second);
-    ep->setProductLookups(&productLookup_[InEvent], &viewLookup_[InEvent]);
     eventTree().fillGroups(*ep);
     if (!delayedReadEventProducts_) {
       ep->readImmediate();
@@ -665,7 +660,7 @@ namespace art {
                       eventAux().isRealData());
     auto ep = std::make_unique<EventPrincipal>(eventAux(),
                                                processConfiguration_,
-                                               &perBranchTypeProdPresence_[InEvent],
+                                               &productTables_[InEvent],
                                                history_,
                                                eventTree().makeBranchMapper(),
                                                eventTree().makeDelayedReader(fileFormatVersion_,
@@ -674,7 +669,6 @@ namespace art {
                                                                              entryNumbers.first,
                                                                              eventAux().id()),
                                                entryNumbers.second);
-    ep->setProductLookups(&productLookup_[InEvent], &viewLookup_[InEvent]);
     eventTree().fillGroups(*ep);
     primaryFile_->primaryEP_->addSecondaryPrincipal(move(ep));
     return true;
@@ -725,7 +719,7 @@ namespace art {
     }
     auto rp = std::make_unique<RunPrincipal>(runAux(),
                                              processConfiguration_,
-                                             &perBranchTypeProdPresence_[InRun],
+                                             &productTables_[InRun],
                                              runTree().makeBranchMapper(),
                                              runTree().makeDelayedReader(fileFormatVersion_,
                                                                          sqliteDB_,
@@ -733,7 +727,6 @@ namespace art {
                                                                          InRun,
                                                                          entryNumbers,
                                                                          fiIter_->eventID_));
-    rp->setProductLookups(&productLookup_[InRun], &viewLookup_[InRun]);
     runTree().fillGroups(*rp);
     if (!delayedReadRunProducts_) {
       rp->readImmediate();
@@ -773,7 +766,7 @@ namespace art {
     }
     auto rp = std::make_unique<RunPrincipal>(runAux(),
                                              processConfiguration_,
-                                             &perBranchTypeProdPresence_[InRun],
+                                             &productTables_[InRun],
                                              runTree().makeBranchMapper(),
                                              runTree().makeDelayedReader(fileFormatVersion_,
                                                                          sqliteDB_,
@@ -781,7 +774,6 @@ namespace art {
                                                                          InRun,
                                                                          entryNumbers,
                                                                          fiIter_->eventID_));
-    rp->setProductLookups(&productLookup_[InRun], &viewLookup_[InRun]);
     runTree().fillGroups(*rp);
     if (!delayedReadRunProducts_) {
       rp->readImmediate();
@@ -837,7 +829,7 @@ namespace art {
 
     auto srp = std::make_unique<SubRunPrincipal>(subRunAux(),
                                                  processConfiguration_,
-                                                 &perBranchTypeProdPresence_[InSubRun],
+                                                 &productTables_[InSubRun],
                                                  subRunTree().makeBranchMapper(),
                                                  subRunTree().makeDelayedReader(fileFormatVersion_,
                                                                                 sqliteDB_,
@@ -845,7 +837,6 @@ namespace art {
                                                                                 InSubRun,
                                                                                 entryNumbers,
                                                                                 fiIter_->eventID_));
-    srp->setProductLookups(&productLookup_[InSubRun], &viewLookup_[InSubRun]);
     subRunTree().fillGroups(*srp);
     if (!delayedReadSubRunProducts_) {
       srp->readImmediate();
@@ -884,7 +875,7 @@ namespace art {
     }
     auto srp = std::make_unique<SubRunPrincipal>(subRunAux(),
                                                  processConfiguration_,
-                                                 &perBranchTypeProdPresence_[InSubRun],
+                                                 &productTables_[InSubRun],
                                                  subRunTree().makeBranchMapper(),
                                                  subRunTree().makeDelayedReader(fileFormatVersion_,
                                                                                 sqliteDB_,
@@ -892,7 +883,6 @@ namespace art {
                                                                                 InSubRun,
                                                                                 entryNumbers,
                                                                                 fiIter_->eventID_));
-    srp->setProductLookups(&productLookup_[InSubRun], &viewLookup_[InSubRun]);
     subRunTree().fillGroups(*srp);
     if (!delayedReadSubRunProducts_) {
       srp->readImmediate();
@@ -989,16 +979,18 @@ namespace art {
     return std::pair<EntryNumbers,bool>{entries, lastInSubRun};
   }
 
-  void
+  std::array<AvailableProducts_t, NumBranchTypes>
   RootInputFile::
   fillPerBranchTypePresenceFlags(ProductList const& prodList)
   {
+    std::array<AvailableProducts_t, NumBranchTypes> result{{}};
     for (auto const& prodpr : prodList){
       auto const& desc = prodpr.second;
       if (treePointers_[desc.branchType()]->hasBranch(desc.branchName())) {
-        perBranchTypeProdPresence_[desc.branchType()].emplace(desc.productID());
+        result[desc.branchType()].emplace(desc.productID());
       }
     }
+    return result;
   }
 
 
@@ -1069,14 +1061,13 @@ namespace art {
       fillAuxiliary<InResults>(entryNumbers.front());
       resp = std::make_unique<ResultsPrincipal>(resultsAux(),
                                                 processConfiguration_,
-                                                &perBranchTypeProdPresence_[InResults],
+                                                &productTables_[InResults],
                                                 resultsTree().makeBranchMapper(),
                                                 resultsTree().makeDelayedReader(fileFormatVersion_,
                                                                                 nullptr,
                                                                                 InResults,
                                                                                 entryNumbers,
                                                                                 EventID{}));
-      resp->setProductLookups(&productLookup_[InResults], &viewLookup_[InResults]);
       resultsTree().fillGroups(*resp);
     } else { // Empty
       resp = std::make_unique<ResultsPrincipal>(ResultsAuxiliary{},

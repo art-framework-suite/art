@@ -35,9 +35,9 @@ namespace art {
     using ProductRegistryHelper::registerProducts;
     using ProductRegistryHelper::produces;
     using ProductRegistryHelper::expectedProducts;
-    using ProductRegistryHelper::productLookups;
-    using ProductRegistryHelper::viewLookups;
-    using ProductRegistryHelper::producedProducts; // FIXME--some duplication wrt expectedProducts
+    // using ProductRegistryHelper::productLookups;
+    // using ProductRegistryHelper::viewLookups;
+    // using ProductRegistryHelper::producedProducts; // FIXME--some duplication wrt expectedProducts
 
     bool modifiesEvent() const { return true; }
 

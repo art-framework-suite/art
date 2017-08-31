@@ -22,6 +22,7 @@
 #include "art/Utilities/parent_path.h"
 #include "art/Utilities/unique_filename.h"
 #include "canvas/Persistency/Provenance/FileFormatVersion.h"
+#include "canvas/Persistency/Provenance/createProductTables.h"
 #include "canvas/Utilities/Exception.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/types/Atom.h"
@@ -145,20 +146,21 @@ private:
   void writeProductDependencies() override;
   void finishEndFile() override;
   void doRegisterProducts(MasterProductRegistry& mpr,
+                          ProductDescriptions& producedProducts,
                           ModuleDescription const& md) override;
 
 private:
 
   std::string const catalog_;
-  bool dropAllEvents_ {false};
+  bool dropAllEvents_{false};
   bool dropAllSubRuns_;
   std::string const moduleLabel_;
-  int inputFileCount_ {0};
-  std::unique_ptr<RootOutputFile> rootOutputFile_ {nullptr};
+  int inputFileCount_{0};
+  std::unique_ptr<RootOutputFile> rootOutputFile_{nullptr};
   FileStatsCollector fstats_;
   std::string const filePattern_;
   std::string tmpDir_;
-  std::string lastClosedFileName_ {};
+  std::string lastClosedFileName_{};
 
   // We keep this set of data members for the use of RootOutputFile.
   int const compressionLevel_;
@@ -171,7 +173,7 @@ private:
 
   // We keep this for the use of RootOutputFile and we also use it
   // during file open to make some choices.
-  bool fastCloningEnabled_ {true};
+  bool fastCloningEnabled_{true};
 
   // Set false only for cases where we are guaranteed never to need
   // historical ParameterSet information in the downstream file
@@ -180,6 +182,7 @@ private:
   ClosingCriteria fileProperties_;
 
   // ResultsProducer management.
+  ProductTable producedResultsProducts_{};
   RPManager rpm_;
 };
 
@@ -338,6 +341,7 @@ art::RootOutput::startEndFile()
   auto resp = std::make_unique<ResultsPrincipal>(ResultsAuxiliary{},
                                                  description().processConfiguration(),
                                                  nullptr);
+  resp->setProducedProducts(producedResultsProducts_);
   if (ProductMetaData::instance().productProduced(InResults) ||
       hasNewlyDroppedBranch()[InResults]) {
     resp->addToProcessHistory();
@@ -425,18 +429,24 @@ art::RootOutput::finishEndFile()
 
 void
 art::RootOutput::doRegisterProducts(MasterProductRegistry& mpr,
-                   ModuleDescription const& md)
+                                    ProductDescriptions& producedProducts,
+                                    ModuleDescription const& md)
 {
   // Register Results products from ResultsProducers.
-  rpm_.for_each_RPWorker([&mpr, &md](RPWorker& w) {
+  rpm_.for_each_RPWorker([&mpr, &producedProducts, &md](RPWorker& w) {
       auto const& params = w.params();
       w.setModuleDescription(ModuleDescription{params.rpPSetID,
             params.rpPluginType,
             md.moduleLabel() + '#' + params.rpLabel,
             md.processConfiguration(),
             ModuleDescription::invalidID()});
-      w.rp().registerProducts(mpr, w.moduleDescription());
+      w.rp().registerProducts(mpr, producedProducts, w.moduleDescription());
     });
+
+  // Form product table for Results products.  We do this here so we
+  // can appropriately set the product tables for the
+  // ResultsPrincipal.
+  producedResultsProducts_ = createProductTable(producedProducts, InResults);
 }
 
 void

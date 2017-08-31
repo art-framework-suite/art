@@ -89,7 +89,9 @@ public:
   void productList(ProductList* p) { productList_.reset(p); }
 
   void registerProducts(MasterProductRegistry& mpr,
+                        ProductDescriptions& producedProducts,
                         ModuleDescription const& md);
+
   // Record the production of an object of type P, with optional
   // instance name, in the Event (by default), Run, or SubRun.
   template <typename P, BranchType B = InEvent>
@@ -111,20 +113,6 @@ public:
     return typeLabelList_[B];
   }
 
-  template <BranchType B = InEvent>
-  auto productLookups() { return cet::make_exempt_ptr(&productLookup_[B]); }
-
-  template <BranchType B = InEvent>
-  auto viewLookups() { return cet::make_exempt_ptr(&viewLookup_[B]); }
-
-  template <BranchType B = InEvent>
-  auto producedProducts() { return cet::make_exempt_ptr(&producedProducts_[B]); }
-
-  auto const& perBranchTypePresence() { return presentProducts_; }
-
-  template <BranchType B = InEvent>
-  auto presentProducts() { return cet::make_exempt_ptr(&presentProducts_[B]); }
-
 private:
 
   TypeLabel const&
@@ -145,10 +133,6 @@ private:
   }
 
   std::array<std::set<TypeLabel>, NumBranchTypes> typeLabelList_;
-  ProductLookup_t productLookup_{{}};
-  ViewLookup_t viewLookup_{{}};
-  PerBranchTypeProduced producedProducts_{{}};
-  PerBranchTypePresence presentProducts_{{}};
 
   // Set by an input source for merging into the master product
   // registry by registerProducts().  Ownership is released to

@@ -12,7 +12,7 @@ namespace art {
   SubRunPrincipal::
   SubRunPrincipal(SubRunAuxiliary const& aux,
                   ProcessConfiguration const& pc,
-                  cet::exempt_ptr<PresenceSet const> presentProducts,
+                  cet::exempt_ptr<ProductTable const> presentProducts,
                   std::unique_ptr<BranchMapper>&& mapper,
                   std::unique_ptr<DelayedReader>&& rtrv)
     : Principal{pc, aux.processHistoryID_, presentProducts, std::move(mapper), std::move(rtrv)}

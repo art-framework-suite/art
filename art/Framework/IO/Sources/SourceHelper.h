@@ -23,17 +23,17 @@
 #include <memory>
 
 namespace art {
+  class ProductTables;
   class RunAuxiliary;
   class SubRunAuxiliary;
   class Timestamp;
-
   class SourceHelper;
 }
 
 class art::SourceHelper {
 public:
   explicit SourceHelper(ModuleDescription const& md,
-                        PerBranchTypePresence const& perBranchTypePresence);
+                        ProductTables_t const& presentProducts);
 
   template <typename T>
   Ptr<T>
@@ -75,7 +75,7 @@ public:
 
 private:
   ModuleDescription md_;
-  PerBranchTypePresence const& presentProducts_;
+  ProductTables_t const& presentProducts_;
 };
 
 template <typename T>

@@ -3,11 +3,12 @@
 #include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
+#include "canvas/Persistency/Provenance/ProductTables.h"
 #include "canvas/Persistency/Provenance/RunAuxiliary.h"
 #include "canvas/Persistency/Provenance/SubRunAuxiliary.h"
 
 art::SourceHelper::SourceHelper(ModuleDescription const& md,
-                                PerBranchTypePresence const& presentProducts) :
+                                ProductTables_t const& presentProducts) :
   md_{md},
   presentProducts_{presentProducts}
 {}

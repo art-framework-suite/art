@@ -5,6 +5,7 @@
 #include "art/Framework/Principal/WorkerParams.h"
 #include "art/Persistency/Provenance/MasterProductRegistry.h"
 #include "art/Version/GetReleaseVersion.h"
+#include "canvas/Persistency/Provenance/ProductList.h"
 #include "fhiclcpp/ParameterSet.h"
 
 using namespace art;
@@ -38,8 +39,9 @@ int main()
   art::ActionTable table;
 
   art::MasterProductRegistry preg;
-  art::WorkerParams const params1{p1, p1, preg, table, "PROD"};
-  art::WorkerParams const params2{p2, p2, preg, table, "PROD"};
+  art::ProductDescriptions producedProducts;
+  art::WorkerParams const params1{p1, p1, preg, producedProducts, table, "PROD"};
+  art::WorkerParams const params2{p2, p2, preg, producedProducts, table, "PROD"};
 
   detail::ModuleFactory fact;
   auto w1 = fact.makeWorker(params1, createModuleDescription(params1));

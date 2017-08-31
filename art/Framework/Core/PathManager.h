@@ -43,6 +43,7 @@ public:
 
   PathManager(fhicl::ParameterSet const& procPS,
               MasterProductRegistry& preg,
+              ProductDescriptions& productsToProduce,
               ActionTable& exceptActions,
               ActivityRegistry& areg);
 
@@ -68,6 +69,7 @@ private:
 
   fhicl::ParameterSet procPS_;
   MasterProductRegistry& preg_;
+  ProductDescriptions& productsToProduce_;
   ActionTable& exceptActions_;
   ActivityRegistry& areg_;
 

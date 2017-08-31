@@ -64,7 +64,7 @@ namespace art {
 
     Principal(ProcessConfiguration const&,
               ProcessHistoryID const&,
-              cet::exempt_ptr<PresenceSet const> presentProducts,
+              cet::exempt_ptr<ProductTable const> presentProducts,
               std::unique_ptr<BranchMapper>&&,
               std::unique_ptr<DelayedReader>&&);
 
@@ -110,24 +110,9 @@ namespace art {
     }
 
     void
-    addLookups(cet::exempt_ptr<ProductLookup_t::value_type const> productLookup,
-               cet::exempt_ptr<ViewLookup_t::value_type const> viewLookup,
-               cet::exempt_ptr<ProducedSet const> producedProducts)
+    setProducedProducts(ProductTable const& producedProducts)
     {
-      assert(producedProducts);
-      if (producedProducts->empty()) return;
-
-      currentProcessProductLookups_.push_back(productLookup);
-      currentProcessViewLookups_.push_back(viewLookup);
-      currentProcessProducedProducts_.push_back(producedProducts);
-    }
-
-    void
-    setProductLookups(cet::exempt_ptr<ProductLookup_t::value_type const> productLookup,
-                      cet::exempt_ptr<ViewLookup_t::value_type const> viewLookup)
-    {
-      productLookup_ = productLookup;
-      viewLookup_ = viewLookup;
+      producedProducts_ = cet::make_exempt_ptr(&producedProducts);
     }
 
     void
@@ -313,13 +298,8 @@ namespace art {
     ProcessHistory processHistory_{};
 
     ProcessConfiguration const& processConfiguration_;
-    cet::exempt_ptr<ProductLookup_t::value_type const> productLookup_;
-    cet::exempt_ptr<ViewLookup_t::value_type const> viewLookup_;
-    cet::exempt_ptr<PresenceSet const> presentProducts_;
-
-    std::vector<cet::exempt_ptr<ProductLookup_t::value_type const>> currentProcessProductLookups_{};
-    std::vector<cet::exempt_ptr<ViewLookup_t::value_type const>> currentProcessViewLookups_{};
-    std::vector<cet::exempt_ptr<ProducedSet const>> currentProcessProducedProducts_{};
+    cet::exempt_ptr<ProductTable const> presentProducts_;
+    cet::exempt_ptr<ProductTable const> producedProducts_{nullptr};
 
     mutable
     std::map<ProductID, std::shared_ptr<DeferredProductGetter const>>

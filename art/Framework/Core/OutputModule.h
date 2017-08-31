@@ -106,6 +106,7 @@ public:
   void selectProducts(FileBlock const&);
 
   void registerProducts(MasterProductRegistry&,
+                        ProductDescriptions&,
                         ModuleDescription const&);
 
 protected:
@@ -123,6 +124,7 @@ protected:
 
   // Called to register products if necessary.
   virtual void doRegisterProducts(MasterProductRegistry&,
+                                  ProductDescriptions&,
                                   ModuleDescription const&);
 
 private:
