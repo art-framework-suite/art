@@ -15,7 +15,6 @@
 #include "art/Framework/Principal/SubRun.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
-#include "canvas/Persistency/Provenance/ProductTables.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 #include "fhiclcpp/ParameterSet.h"
 
@@ -53,8 +52,8 @@ namespace art {
 
   DecrepitRelicInputSourceImplementation::
   DecrepitRelicInputSourceImplementation(fhicl::TableFragment<DRISI::Config> const& config,
-                                         InputSourceDescription& desc)
-    : InputSource{desc.moduleDescription}
+                                         ModuleDescription const& desc)
+    : InputSource{desc}
     , maxEvents_{config().maxEvents()}
     , maxSubRuns_{config().maxSubRuns()}
     , reportFrequency_{config().reportFrequency()}
@@ -63,8 +62,8 @@ namespace art {
       throw art::Exception(art::errors::Configuration)
         << "reportFrequency has a negative value, which is not meaningful.";
     }
-    std::string const runMode("Runs");
-    std::string const runSubRunMode("RunsAndSubRuns");
+    std::string const runMode{"Runs"};
+    std::string const runSubRunMode{"RunsAndSubRuns"};
     std::string const processingMode = config().processingMode();
     if (processingMode == runMode) {
       processingMode_ = Runs;
@@ -81,10 +80,6 @@ namespace art {
         << "', '" << runSubRunMode
         << "', or '" << runMode << "'.\n";
     }
-
-    // This must come LAST in the constructor.
-    static ProductDescriptions emptyProducedProducts{};
-    registerProducts(desc.productRegistry, emptyProducedProducts, moduleDescription());
   }
 
   void

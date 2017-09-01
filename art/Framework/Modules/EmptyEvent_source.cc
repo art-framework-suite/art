@@ -118,12 +118,12 @@ using namespace art;
 
 art::EmptyEvent::EmptyEvent(art::EmptyEvent::Parameters const& config, InputSourceDescription& desc)
   :
-  DecrepitRelicInputSourceImplementation{config().drisi_config, desc},
-  numberEventsInRun_       {static_cast<uint32_t>(config().numberEventsInRun())},
-  numberEventsInSubRun_    {static_cast<uint32_t>(config().numberEventsInSubRun())},
-  eventCreationDelay_      {config().eventCreationDelay()},
-  resetEventOnSubRun_      {config().resetEventOnSubRun()},
-  plugin_                  {makePlugin_(config.get_PSet().get<fhicl::ParameterSet>("timestampPlugin", { }))}
+  DecrepitRelicInputSourceImplementation{config().drisi_config, desc.moduleDescription},
+  numberEventsInRun_   {static_cast<uint32_t>(config().numberEventsInRun())},
+  numberEventsInSubRun_{static_cast<uint32_t>(config().numberEventsInSubRun())},
+  eventCreationDelay_  {config().eventCreationDelay()},
+  resetEventOnSubRun_  {config().resetEventOnSubRun()},
+  plugin_              {makePlugin_(config.get_PSet().get<fhicl::ParameterSet>("timestampPlugin", {}))}
 {
 
   RunNumber_t firstRun{};

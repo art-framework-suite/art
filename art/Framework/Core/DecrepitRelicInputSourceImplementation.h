@@ -46,7 +46,6 @@ Some examples of InputSource subclasses may be:
 #include "art/Framework/Principal/fwd.h"
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/InputSource.h"
-#include "art/Framework/Core/ProductRegistryHelper.h"
 #include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
@@ -66,10 +65,7 @@ namespace art
 {
   class ActivityRegistry;
 
-  class DecrepitRelicInputSourceImplementation :
-    public InputSource,
-    private ProductRegistryHelper
-  {
+  class DecrepitRelicInputSourceImplementation : public InputSource {
   public:
 
 
@@ -88,7 +84,7 @@ namespace art
     };
 
     DecrepitRelicInputSourceImplementation(fhicl::TableFragment<Config> const&,
-                                           InputSourceDescription &);
+                                           ModuleDescription const&);
 
     virtual ~DecrepitRelicInputSourceImplementation() noexcept = 0;
 

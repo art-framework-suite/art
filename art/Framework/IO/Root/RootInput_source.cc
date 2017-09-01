@@ -64,15 +64,15 @@ setRootFileForLastReadEvent(std::shared_ptr<RootInputFile> const& ptr)
 
 RootInput::
 RootInput(RootInput::Parameters const& config, InputSourceDescription& desc)
-  : DecrepitRelicInputSourceImplementation(config().drisi_config, desc)
-  , catalog_(config().ifc_config)
-  , primaryFileSequence_(std::make_unique<RootInputFileSequence>(config().rifs_config,
+  : DecrepitRelicInputSourceImplementation{config().drisi_config, desc.moduleDescription}
+  , catalog_{config().ifc_config}
+  , primaryFileSequence_{std::make_unique<RootInputFileSequence>(config().rifs_config,
                                                                  catalog_,
                                                                  FastCloningInfoProvider(cet::exempt_ptr<RootInput>(this)),
                                                                  processingMode(),
                                                                  desc.productRegistry,
-                                                                 processConfiguration()))
-  , accessState_()
+                                                                 processConfiguration())}
+  , accessState_{}
 {
 }
 
