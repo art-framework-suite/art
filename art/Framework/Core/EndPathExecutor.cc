@@ -35,7 +35,7 @@ EndPathExecutor(PathManager& pm,
   , workersEnabled_(endPathInfo_.workers().size(), true)
   , outputWorkersEnabled_(outputWorkers_.size(), true)
 {
-  mpr.registerProductListUpdatedCallback([this](auto const& fb){ this->selectProducts(fb); });
+  mpr.registerProductListUpdatedCallback([this](auto const& productList){ this->selectProducts(productList); });
 }
 
 bool art::EndPathExecutor::terminate() const
@@ -183,9 +183,9 @@ void art::EndPathExecutor::setAuxiliaryRangeSetID(RunPrincipal& rp)
   doForAllEnabledOutputWorkers_([&ranges](auto w){ w->setRunAuxiliaryRangeSetID(ranges); });
 }
 
-void art::EndPathExecutor::selectProducts(FileBlock const& fb)
+void art::EndPathExecutor::selectProducts(ProductList const& productList)
 {
-  doForAllEnabledOutputWorkers_([&fb](auto w) { w->selectProducts(fb); });
+  doForAllEnabledOutputWorkers_([&productList](auto w) { w->selectProducts(productList); });
 }
 
 void art::EndPathExecutor::recordOutputClosureRequests(Granularity const b)

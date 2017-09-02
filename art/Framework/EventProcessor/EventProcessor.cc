@@ -26,7 +26,6 @@
 #include "art/Version/GetReleaseVersion.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
 #include "canvas/Persistency/Provenance/ProcessConfiguration.h"
-#include "canvas/Persistency/Provenance/createProductTables.h"
 #include "canvas/Utilities/DebugMacros.h"
 #include "canvas/Utilities/Exception.h"
 #include "cetlib/container_algorithms.h"
@@ -144,7 +143,7 @@ art::EventProcessor::EventProcessor(ParameterSet const& pset)
   preg_.finalizeForProcessing();
   ProductMetaData::create_instance(preg_);
 
-  producedProducts_ = createProductTables(productsToProduce_);
+  producedProducts_ = ProductTables{productsToProduce_};
   FDEBUG(2) << pset.to_string() << std::endl;
   servicesDeactivate_();
 }
@@ -671,7 +670,7 @@ art::EventProcessor::readRun()
   {
     actReg_.sPreSourceRun.invoke();
     runPrincipal_ = input_->readRun();
-    runPrincipal_->setProducedProducts(producedProducts_[InRun]);
+    runPrincipal_->setProducedProducts(producedProducts_.get(InRun));
     Run const r {*runPrincipal_, ModuleDescription{}, Consumer::non_module_context()};
     actReg_.sPostSourceRun.invoke(r);
   }
@@ -744,7 +743,7 @@ art::EventProcessor::readSubRun()
   {
     actReg_.sPreSourceSubRun.invoke();
     subRunPrincipal_ = input_->readSubRun(runPrincipal_.get());
-    subRunPrincipal_->setProducedProducts(producedProducts_[InSubRun]);
+    subRunPrincipal_->setProducedProducts(producedProducts_.get(InSubRun));
     SubRun const sr {*subRunPrincipal_, ModuleDescription{}, Consumer::non_module_context()};
     actReg_.sPostSourceSubRun.invoke(sr);
   }
@@ -819,7 +818,7 @@ art::EventProcessor::readEvent()
   {
     actReg_.sPreSourceEvent.invoke();
     eventPrincipal_ = input_->readEvent(subRunPrincipal_.get());
-    eventPrincipal_->setProducedProducts(producedProducts_[InEvent]);
+    eventPrincipal_->setProducedProducts(producedProducts_.get(InEvent));
     Event const e {*eventPrincipal_, ModuleDescription{}, Consumer::non_module_context()};
     actReg_.sPostSourceEvent.invoke(e);
   }

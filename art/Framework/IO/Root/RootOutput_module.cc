@@ -22,7 +22,7 @@
 #include "art/Utilities/parent_path.h"
 #include "art/Utilities/unique_filename.h"
 #include "canvas/Persistency/Provenance/FileFormatVersion.h"
-#include "canvas/Persistency/Provenance/createProductTables.h"
+#include "canvas/Persistency/Provenance/ProductTables.h"
 #include "canvas/Utilities/Exception.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/types/Atom.h"
@@ -99,7 +99,7 @@ public:
 
   explicit RootOutput(Parameters const&);
 
-  void postSelectProducts(FileBlock const&) override;
+  void postSelectProducts() override;
 
   void beginJob() override;
   void endJob() override;
@@ -240,7 +240,7 @@ art::RootOutput::openFile(FileBlock const& fb)
 }
 
 void
-art::RootOutput::postSelectProducts(FileBlock const&)
+art::RootOutput::postSelectProducts()
 {
   if (isFileOpen()) {
     rootOutputFile_->selectProducts();
@@ -446,7 +446,7 @@ art::RootOutput::doRegisterProducts(MasterProductRegistry& mpr,
   // Form product table for Results products.  We do this here so we
   // can appropriately set the product tables for the
   // ResultsPrincipal.
-  producedResultsProducts_ = createProductTable(producedProducts, InResults);
+  producedResultsProducts_ = ProductTable{producedProducts, InResults};
 }
 
 void

@@ -2,18 +2,20 @@
 #define art_Framework_Principal_Principal_h
 // vim: set sw=2:
 
-//  Principal
+// =================================================================
+// Principal
 //
-//  Pure abstract base class for Run-, SubRun-, and EventPrincipal,
-//  the classes which manage data products.
+// Pure abstract base class for Run-, SubRun-, and EventPrincipal,
+// the classes which manage data products.
 //
-//  The major internal component is the Group, which contains an
-//  EDProduct and its associated Provenance, along with ancillary
-//  transient information regarding the two.  Groups are handled
-//  through shared pointers.
+// The major internal component is the Group, which contains an
+// EDProduct and its associated Provenance, along with ancillary
+// transient information regarding the two.  Groups are handled
+// through shared pointers.
 //
-//  The Principal returns GroupQueryResult, rather than a shared
-//  pointer to a Group, when queried.
+// The Principal returns GroupQueryResult, rather than a shared
+// pointer to a Group, when queried.
+// =================================================================
 
 #include "art/Framework/Principal/Group.h"
 #include "art/Framework/Principal/OutputHandle.h"
@@ -26,9 +28,9 @@
 #include "canvas/Persistency/Provenance/ProductID.h"
 #include "canvas/Persistency/Provenance/ProductProvenance.h"
 #include "canvas/Persistency/Provenance/ProductStatus.h"
+#include "canvas/Persistency/Provenance/ProductTables.h"
 #include "canvas/Persistency/Provenance/ProvenanceFwd.h"
 #include "canvas/Persistency/Provenance/RangeSet.h"
-#include "canvas/Persistency/Provenance/type_aliases.h"
 #include "canvas/Persistency/Common/EDProductGetterFinder.h"
 #include "canvas/Utilities/InputTag.h"
 #include "canvas/Utilities/TypeID.h"

@@ -17,6 +17,7 @@ art::MasterProductRegistry::finalizeForProcessing()
   // Product registration can still happen implicitly whenever an
   // input file is opened--via calls to updateFromInputFile.
   allowExplicitRegistration_ = false;
+  cet::for_all(productListUpdatedCallbacks_, [this](auto const& callback){ callback(productList_); });
 }
 
 void
@@ -37,12 +38,11 @@ art::MasterProductRegistry::updateFromModule(std::unique_ptr<ProductList>&& pl)
 }
 
 void
-art::MasterProductRegistry::updateFromInputFile(ProductList const& pl,
-                                                FileBlock const& fb)
+art::MasterProductRegistry::updateFromInputFile(ProductList const& pl)
 {
   CET_ASSERT_ONLY_ONE_THREAD();
   updateProductLists_(pl);
-  cet::for_all(productListUpdatedCallbacks_, [&fb](auto const& callback){ callback(fb); });
+  cet::for_all(productListUpdatedCallbacks_, [this](auto const& callback){ callback(productList_); });
 }
 
 void

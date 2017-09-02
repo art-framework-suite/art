@@ -95,8 +95,8 @@
 #include "canvas/Persistency/Provenance/EventID.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
 #include "canvas/Persistency/Provenance/ProcessConfiguration.h"
+#include "canvas/Persistency/Provenance/ProductTables.h"
 #include "canvas/Persistency/Provenance/SubRunID.h"
-#include "canvas/Persistency/Provenance/createProductTables.h"
 #include "cetlib/exempt_ptr.h"
 #include "cetlib/metaprogramming.h"
 #include "fhiclcpp/ParameterSet.h"
@@ -173,7 +173,7 @@ private:
   cet::exempt_ptr<ActivityRegistry> act_;
 
   ProductRegistryHelper h_{};
-  ProductTables_t presentProducts_{{}};
+  ProductTables presentProducts_{ProductTables::invalid()};
   SourceHelper sourceHelper_; // So it can be used by detail.
   SourceDetail detail_;
   input::ItemType state_{input::IsInvalid};
@@ -236,7 +236,7 @@ art::Source<T>::Source(fhicl::ParameterSet const& p,
                        InputSourceDescription& d) :
   InputSource{d.moduleDescription},
   act_{&d.activityRegistry},
-  sourceHelper_{d.moduleDescription, presentProducts_},
+  sourceHelper_{d.moduleDescription},
   detail_{p, h_, sourceHelper_},
   fh_{p.get<std::vector<std::string>>("fileNames", std::vector<std::string>())}
 {
@@ -629,15 +629,16 @@ art::Source<T>::finishProductRegistration_(InputSourceDescription& d)
 {
   // These _xERROR_ strings should never appear in branch names; they
   // are here as tracers to help identify any failures in coding.
-  ProductDescriptions presentProducts{};
+  ProductDescriptions descriptions{};
   h_.registerProducts(d.productRegistry,
-                      presentProducts,
+                      descriptions,
                       ModuleDescription{fhicl::ParameterSet{}.id(), // Dummy
                                         "_NAMEERROR_",
                                         "_LABELERROR_",
                                         d.moduleDescription.processConfiguration(),
                                         ModuleDescription::invalidID()});
-  presentProducts_ = createProductTables(presentProducts);
+  presentProducts_ = ProductTables{descriptions};
+  sourceHelper_.setPresentProducts(cet::make_exempt_ptr(&presentProducts_));
 }
 
 #endif /* art_Framework_IO_Sources_Source_h */

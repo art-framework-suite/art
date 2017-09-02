@@ -28,6 +28,7 @@
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
 #include "canvas/Persistency/Provenance/ParentageID.h"
 #include "canvas/Persistency/Provenance/ProductID.h"
+#include "canvas/Persistency/Provenance/ProductList.h"
 #include "cetlib/BasicPluginFactory.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/types/Atom.h"
@@ -103,7 +104,7 @@ public:
 
   BranchChildren const& branchChildren() const;
 
-  void selectProducts(FileBlock const&);
+  void selectProducts(ProductList const&);
 
   void registerProducts(MasterProductRegistry&,
                         ProductDescriptions&,
@@ -116,11 +117,8 @@ protected:
 
   ModuleDescription const& description() const;
 
-  // Called before selectProducts() has done its work.
-  virtual void preSelectProducts(FileBlock const&);
-
   // Called after selectProducts() has done its work.
-  virtual void postSelectProducts(FileBlock const&);
+  virtual void postSelectProducts();
 
   // Called to register products if necessary.
   virtual void doRegisterProducts(MasterProductRegistry&,
@@ -197,7 +195,7 @@ private:
   void doRespondToCloseInputFile(FileBlock const& fb);
   void doRespondToOpenOutputFiles(FileBlock const& fb);
   void doRespondToCloseOutputFiles(FileBlock const& fb);
-  void doSelectProducts();
+  void doSelectProducts(ProductList const&);
 
   std::string workerType() const {return "OutputWorker";}
 

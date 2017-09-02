@@ -29,7 +29,6 @@
 #include "canvas/Persistency/Provenance/ProductID.h"
 #include "canvas/Persistency/Provenance/ProductIDStreamer.h"
 #include "canvas/Persistency/Provenance/RunID.h"
-#include "canvas/Persistency/Provenance/createProductTables.h"
 #include "canvas/Persistency/Provenance/rootNames.h"
 #include "canvas/Utilities/Exception.h"
 #include "canvas/Utilities/FriendlyName.h"
@@ -273,7 +272,7 @@ namespace art {
     auto& prodList = productListHolder_.productList_;
     dropOnInput(groupSelectorRules, dropDescendants, prodList);
 
-    mpr.updateFromInputFile(prodList, *createFileBlock());
+    mpr.updateFromInputFile(prodList);
     auto availableProducts = fillPerBranchTypePresenceFlags(prodList);
 
     // Add branches
@@ -285,7 +284,8 @@ namespace art {
       pd.setValidity(validity);
       treePointers_[pd.branchType()]->addBranch(prod.first, pd);
     }
-    productTables_ = createProductTables(make_product_descriptions(prodList), availableProducts);
+    auto const& descriptions = make_product_descriptions(prodList);
+    presentProducts_ = ProductTables{descriptions, availableProducts};
 
     // Determine if this file is fast clonable.
     fastClonable_ = setIfFastClonable(fcip);
@@ -624,7 +624,7 @@ namespace art {
     overrideRunNumber(const_cast<EventID&>(eventAux().id()), eventAux().isRealData());
     auto ep = std::make_unique<EventPrincipal>(eventAux(),
                                                processConfiguration_,
-                                               &productTables_[InEvent],
+                                               &presentProducts_.get(InEvent),
                                                history_,
                                                eventTree().makeBranchMapper(),
                                                eventTree().makeDelayedReader(fileFormatVersion_,
@@ -660,7 +660,7 @@ namespace art {
                       eventAux().isRealData());
     auto ep = std::make_unique<EventPrincipal>(eventAux(),
                                                processConfiguration_,
-                                               &productTables_[InEvent],
+                                               &presentProducts_.get(InEvent),
                                                history_,
                                                eventTree().makeBranchMapper(),
                                                eventTree().makeDelayedReader(fileFormatVersion_,
@@ -719,7 +719,7 @@ namespace art {
     }
     auto rp = std::make_unique<RunPrincipal>(runAux(),
                                              processConfiguration_,
-                                             &productTables_[InRun],
+                                             &presentProducts_.get(InRun),
                                              runTree().makeBranchMapper(),
                                              runTree().makeDelayedReader(fileFormatVersion_,
                                                                          sqliteDB_,
@@ -766,7 +766,7 @@ namespace art {
     }
     auto rp = std::make_unique<RunPrincipal>(runAux(),
                                              processConfiguration_,
-                                             &productTables_[InRun],
+                                             &presentProducts_.get(InRun),
                                              runTree().makeBranchMapper(),
                                              runTree().makeDelayedReader(fileFormatVersion_,
                                                                          sqliteDB_,
@@ -829,7 +829,7 @@ namespace art {
 
     auto srp = std::make_unique<SubRunPrincipal>(subRunAux(),
                                                  processConfiguration_,
-                                                 &productTables_[InSubRun],
+                                                 &presentProducts_.get(InSubRun),
                                                  subRunTree().makeBranchMapper(),
                                                  subRunTree().makeDelayedReader(fileFormatVersion_,
                                                                                 sqliteDB_,
@@ -875,7 +875,7 @@ namespace art {
     }
     auto srp = std::make_unique<SubRunPrincipal>(subRunAux(),
                                                  processConfiguration_,
-                                                 &productTables_[InSubRun],
+                                                 &presentProducts_.get(InSubRun),
                                                  subRunTree().makeBranchMapper(),
                                                  subRunTree().makeDelayedReader(fileFormatVersion_,
                                                                                 sqliteDB_,
@@ -1061,7 +1061,7 @@ namespace art {
       fillAuxiliary<InResults>(entryNumbers.front());
       resp = std::make_unique<ResultsPrincipal>(resultsAux(),
                                                 processConfiguration_,
-                                                &productTables_[InResults],
+                                                &presentProducts_.get(InResults),
                                                 resultsTree().makeBranchMapper(),
                                                 resultsTree().makeDelayedReader(fileFormatVersion_,
                                                                                 nullptr,

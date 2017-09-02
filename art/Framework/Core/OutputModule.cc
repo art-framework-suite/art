@@ -13,7 +13,6 @@
 #include "art/Framework/Principal/SubRun.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Framework/Services/System/TriggerNamesService.h"
-#include "art/Persistency/Provenance/ProductMetaData.h"
 #include "canvas/Persistency/Provenance/BranchDescription.h"
 #include "canvas/Persistency/Provenance/ParentageRegistry.h"
 #include "canvas/Utilities/DebugMacros.h"
@@ -43,8 +42,8 @@ art::OutputModule::OutputModule(fhicl::TableFragment<Config> const& config,
 art::OutputModule::OutputModule(ParameterSet const& pset)
   : EventObserverBase{pset}
   , groupSelectorRules_{pset.get<vector<string>>("outputCommands", {"keep *"}),
-        "outputCommands",
-        "OutputModule"}
+                        "outputCommands",
+                        "OutputModule"}
   , configuredFileName_{pset.get<string>("fileName","")}
   , dataTier_{pset.get<string>("dataTier","")}
   , streamName_{pset.get<string>("streamName","")}
@@ -64,17 +63,16 @@ art::OutputModule::configure(OutputModuleDescription const& desc)
 }
 
 void
-art::OutputModule::doSelectProducts()
+art::OutputModule::doSelectProducts(ProductList const& productList)
 {
-  auto const& pmd = ProductMetaData::instance();
-  GroupSelector const groupSelector{groupSelectorRules_, pmd.productList()};
+  GroupSelector const groupSelector{groupSelectorRules_, productList};
   keptProducts_ = {{}};
 
   // TODO: See if we can collapse keptProducts_ and groupSelector into
   // a single object. See the notes in the header for GroupSelector
   // for more information.
 
-  for (auto const& val : pmd.productList()) {
+  for (auto const& val : productList) {
     BranchDescription const& pd = val.second;
     auto const bt = pd.branchType();
     if (pd.transient()) {
@@ -92,11 +90,10 @@ art::OutputModule::doSelectProducts()
 }
 
 void
-art::OutputModule::selectProducts(FileBlock const& fb)
+art::OutputModule::selectProducts(ProductList const& productList)
 {
-  preSelectProducts(fb);
-  doSelectProducts();
-  postSelectProducts(fb);
+  doSelectProducts(productList);
+  postSelectProducts();
 }
 
 void
@@ -108,11 +105,7 @@ art::OutputModule::registerProducts(MasterProductRegistry& mpr,
 }
 
 void
-art::OutputModule::preSelectProducts(FileBlock const&)
-{}
-
-void
-art::OutputModule::postSelectProducts(FileBlock const&)
+art::OutputModule::postSelectProducts()
 {}
 
 void
@@ -124,7 +117,6 @@ art::OutputModule::doRegisterProducts(MasterProductRegistry&,
 void
 art::OutputModule::doBeginJob()
 {
-  doSelectProducts();
   beginJob();
   cet::for_all(plugins_, [](auto& p){ p->doBeginJob(); });
 }
@@ -136,7 +128,7 @@ art::OutputModule::doBeginRun(RunPrincipal const& rp,
   detail::CPCSentry sentry{current_context_, cpc};
   FDEBUG(2) << "beginRun called\n";
   beginRun(rp);
-  Run const r {rp, moduleDescription_, Consumer::non_module_context()};
+  Run const r{rp, moduleDescription_, Consumer::non_module_context()};
   cet::for_all(plugins_, [&r](auto& p){ p->doBeginRun(r); });
   return true;
 }
@@ -145,10 +137,10 @@ bool
 art::OutputModule::doBeginSubRun(SubRunPrincipal const& srp,
                                  CurrentProcessingContext const* cpc)
 {
-  detail::CPCSentry sentry {current_context_, cpc};
+  detail::CPCSentry sentry{current_context_, cpc};
   FDEBUG(2) << "beginSubRun called\n";
   beginSubRun(srp);
-  SubRun const sr {srp, moduleDescription_, Consumer::non_module_context()};
+  SubRun const sr{srp, moduleDescription_, Consumer::non_module_context()};
   cet::for_all(plugins_, [&sr](auto& p){ p->doBeginSubRun(sr); });
   return true;
 }
@@ -156,9 +148,9 @@ art::OutputModule::doBeginSubRun(SubRunPrincipal const& srp,
 bool
 art::OutputModule::doEvent(EventPrincipal const& ep, CurrentProcessingContext const* cpc, CountingStatistics& counts)
 {
-  detail::CPCSentry sentry {current_context_, cpc};
+  detail::CPCSentry sentry{current_context_, cpc};
   FDEBUG(2) << "doEvent called\n";
-  Event const e {ep, moduleDescription_, this};
+  Event const e{ep, moduleDescription_, this};
   if (wantAllEvents() || wantEvent(e)) {
     // Run is incremented before event(ep); to properly count whenever
     // an exception is thrown in the user's module.
@@ -172,21 +164,21 @@ art::OutputModule::doEvent(EventPrincipal const& ep, CurrentProcessingContext co
 void
 art::OutputModule::doWriteEvent(EventPrincipal& ep)
 {
-  detail::PVSentry clearTriggerResults {cachedProducts()};
+  detail::PVSentry clearTriggerResults{cachedProducts()};
   FDEBUG(2) << "writeEvent called\n";
-  Event const e {ep, moduleDescription_, this};
+  Event const e{ep, moduleDescription_, this};
   if (wantAllEvents() || wantEvent(e)) {
     write(ep); // Write the event.
     // Declare that the event was selected for write to the catalog
     // interface
-    art::Handle<art::TriggerResults> trHandle {getTriggerResults(e)};
+    art::Handle<art::TriggerResults> trHandle{getTriggerResults(e)};
     auto const& trRef ( trHandle.isValid() ? static_cast<HLTGlobalStatus>(*trHandle) : HLTGlobalStatus{} );
     ci_->eventSelected(moduleDescription_.moduleLabel(), ep.id(), trRef);
     // ... and invoke the plugins:
     // ... The transactional object presented to the plugins is
     //     different since the relevant context information is not the
     //     same for the consumes functionality.
-    Event const we {ep, moduleDescription_, Consumer::non_module_context()};
+    Event const we{ep, moduleDescription_, Consumer::non_module_context()};
     cet::for_all(plugins_, [&we](auto& p){ p->doCollectMetadata(we); });
     // Finish.
     updateBranchParents(ep);
@@ -209,7 +201,7 @@ art::OutputModule::doEndSubRun(SubRunPrincipal const& srp,
   detail::CPCSentry sentry{current_context_, cpc};
   FDEBUG(2) << "endSubRun called\n";
   endSubRun(srp);
-  SubRun const sr {srp, moduleDescription_, Consumer::non_module_context()};
+  SubRun const sr{srp, moduleDescription_, Consumer::non_module_context()};
   cet::for_all(plugins_, [&sr](auto& p){ p->doEndSubRun(sr); });
   return true;
 }
@@ -232,10 +224,10 @@ bool
 art::OutputModule::doEndRun(RunPrincipal const& rp,
                             CurrentProcessingContext const* cpc)
 {
-  detail::CPCSentry sentry {current_context_, cpc};
+  detail::CPCSentry sentry{current_context_, cpc};
   FDEBUG(2) << "endRun called\n";
   endRun(rp);
-  Run const r {rp, moduleDescription_, Consumer::non_module_context()};
+  Run const r{rp, moduleDescription_, Consumer::non_module_context()};
   cet::for_all(plugins_, [&r](auto& p){ p->doEndRun(r); });
   return true;
 }
@@ -555,7 +547,7 @@ art::OutputModule::makePlugins_(ParameterSet const& top_pset)
   auto const psets = top_pset.get<vector<ParameterSet>>("FCMDPlugins", {});
   PluginCollection_t result;
   result.reserve(psets.size());
-  size_t count {0};
+  size_t count{0};
   try {
     for (auto const& pset : psets) {
       pluginNames_.emplace_back(pset.get<string>("plugin_type"));

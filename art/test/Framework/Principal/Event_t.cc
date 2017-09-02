@@ -32,11 +32,11 @@
 #include "canvas/Persistency/Provenance/History.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
 #include "canvas/Persistency/Provenance/ProcessHistory.h"
+#include "canvas/Persistency/Provenance/ProductTables.h"
 #include "canvas/Persistency/Provenance/RunAuxiliary.h"
 #include "canvas/Persistency/Provenance/SubRunAuxiliary.h"
 #include "canvas/Persistency/Provenance/Timestamp.h"
 #include "canvas/Persistency/Provenance/TypeLabel.h"
-#include "canvas/Persistency/Provenance/createProductTables.h"
 #include "canvas/Utilities/InputTag.h"
 #include "cetlib/container_algorithms.h"
 #include "fhiclcpp/ParameterSet.h"
@@ -119,12 +119,7 @@ MPRGlobalTestFixture::MPRGlobalTestFixture()
 
   // Fill the lookups for "source-like" products
   {
-    std::array<AvailableProducts_t, NumBranchTypes> presentProds;
-    for (auto const& pd : descriptions_) {
-      presentProds[InEvent].insert(pd.productID());
-    }
-    auto const& productTables = createProductTables(descriptions_, presentProds);
-    presentProducts_ = productTables[InEvent];
+    presentProducts_ = ProductTables{descriptions_}.get(InEvent);
     descriptions_.clear();
   }
 
@@ -133,11 +128,7 @@ MPRGlobalTestFixture::MPRGlobalTestFixture()
 
   // Create the lookup that we will use for the current-process module
   {
-    std::array<AvailableProducts_t, NumBranchTypes> producedProds;
-    assert(descriptions_.size() == 1ull);
-    producedProds[InEvent].insert(cbegin(descriptions_)->productID());
-    auto const& productTables = createProductTables(descriptions_, producedProds);
-    producedProducts_ = productTables[InEvent];
+    producedProducts_ = ProductTables{descriptions_}.get(InEvent);
     descriptions_.clear();
   }
 

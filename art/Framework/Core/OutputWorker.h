@@ -18,6 +18,7 @@ appear in one worker.
 #include "art/Framework/Core/WorkerT.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/FileServiceInterfaces/CatalogInterface.h"
+#include "canvas/Persistency/Provenance/ProductList.h"
 
 #include <memory>
 
@@ -59,11 +60,11 @@ namespace art {
 
     Granularity fileGranularity() const;
 
-    virtual void selectProducts(FileBlock const&);
+    virtual void selectProducts(ProductList const&);
 
 private:
     ServiceHandle<CatalogInterface> ci_;
-    Granularity fileGranularity_ {Granularity::Unset};
+    Granularity fileGranularity_{Granularity::Unset};
   };
 }
 

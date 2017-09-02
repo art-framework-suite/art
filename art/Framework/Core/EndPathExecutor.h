@@ -26,6 +26,7 @@
 #include "art/Framework/Principal/RangeSetHandler.h"
 #include "art/Framework/Principal/Worker.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
+#include "canvas/Persistency/Provenance/ProductList.h"
 #include "cetlib/trim.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
@@ -83,7 +84,7 @@ public:
   bool terminate() const;
 
   // Call selectProducts() on all OutputModules.
-  void selectProducts(FileBlock const&);
+  void selectProducts(ProductList const&);
 
 private:
   using OutputWorkers = std::vector<OutputWorker*>;

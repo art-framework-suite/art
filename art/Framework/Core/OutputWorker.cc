@@ -88,7 +88,7 @@ namespace art {
 
   void OutputWorker::configure(OutputModuleDescription const& desc) {module().configure(desc);}
 
-  void OutputWorker::selectProducts(FileBlock const& fb) { module().selectProducts(fb); }
+  void OutputWorker::selectProducts(ProductList const& productList) { module().selectProducts(productList); }
 
   Granularity OutputWorker::fileGranularity() const { return module().fileGranularity(); }
 

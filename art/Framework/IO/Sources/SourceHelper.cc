@@ -7,24 +7,41 @@
 #include "canvas/Persistency/Provenance/RunAuxiliary.h"
 #include "canvas/Persistency/Provenance/SubRunAuxiliary.h"
 
-art::SourceHelper::SourceHelper(ModuleDescription const& md,
-                                ProductTables_t const& presentProducts) :
-  md_{md},
-  presentProducts_{presentProducts}
+art::SourceHelper::SourceHelper(ModuleDescription const& md) :
+  md_{md}
 {}
+
+void
+art::SourceHelper::throwIfProductsNotRegistered_() const
+{
+  if (!presentProducts_) {
+    throw Exception(errors::ProductRegistrationFailure,
+                    "Error while attempting to create principal from SourceHelper.\n")
+      << "Principals cannot be created until product registration is complete.\n"
+      << "Perhaps you have attempted to create a Principal outside of your 'readNext'\n"
+      << "function.  Please contact artists@fnal.gov for guidance.";
+  }
+}
+
+void
+art::SourceHelper::setPresentProducts(cet::exempt_ptr<ProductTables const> presentProducts)
+{
+  presentProducts_ = presentProducts;
+}
 
 art::RunPrincipal*
 art::SourceHelper::makeRunPrincipal(RunAuxiliary const& runAux) const
 {
-  return new RunPrincipal{runAux, md_.processConfiguration(), &presentProducts_[InRun]};
+  throwIfProductsNotRegistered_();
+  return new RunPrincipal{runAux, md_.processConfiguration(), &presentProducts_->get(InRun)};
 }
 
 art::RunPrincipal*
 art::SourceHelper::makeRunPrincipal(RunID const r,
                                     Timestamp const& startTime) const
 {
-  RunAuxiliary const runAux {r, startTime, Timestamp::invalidTimestamp()};
-  return new RunPrincipal{runAux, md_.processConfiguration(), &presentProducts_[InRun]};
+  RunAuxiliary const runAux{r, startTime, Timestamp::invalidTimestamp()};
+  return makeRunPrincipal(runAux);
 }
 
 art::RunPrincipal*
@@ -37,15 +54,16 @@ art::SourceHelper::makeRunPrincipal(RunNumber_t const r,
 art::SubRunPrincipal*
 art::SourceHelper::makeSubRunPrincipal(SubRunAuxiliary const& subRunAux) const
 {
-  return new SubRunPrincipal{subRunAux, md_.processConfiguration(), &presentProducts_[InSubRun]};
+  throwIfProductsNotRegistered_();
+  return new SubRunPrincipal{subRunAux, md_.processConfiguration(), &presentProducts_->get(InSubRun)};
 }
 
 art::SubRunPrincipal*
 art::SourceHelper::makeSubRunPrincipal(SubRunID const& sr,
                                        Timestamp const& startTime) const
 {
-  SubRunAuxiliary const subRunAux {sr, startTime, Timestamp::invalidTimestamp()};
-  return new SubRunPrincipal{subRunAux, md_.processConfiguration(), &presentProducts_[InSubRun]};
+  SubRunAuxiliary const subRunAux{sr, startTime, Timestamp::invalidTimestamp()};
+  return makeSubRunPrincipal(subRunAux);
 }
 
 art::SubRunPrincipal*
@@ -60,7 +78,8 @@ art::EventPrincipal*
 art::SourceHelper::makeEventPrincipal(EventAuxiliary const& eventAux,
                                       std::shared_ptr<History>&& history) const
 {
-  return new EventPrincipal{eventAux, md_.processConfiguration(), &presentProducts_[InEvent], history};
+  throwIfProductsNotRegistered_();
+  return new EventPrincipal{eventAux, md_.processConfiguration(), &presentProducts_->get(InEvent), history};
 }
 
 art::EventPrincipal*
@@ -69,8 +88,9 @@ art::SourceHelper::makeEventPrincipal(EventID const& e,
                                       bool const isRealData,
                                       EventAuxiliary::ExperimentType const eType) const
 {
-  EventAuxiliary const eventAux {e, startTime, isRealData, eType};
-  return new EventPrincipal{eventAux, md_.processConfiguration(), &presentProducts_[InEvent]};
+  throwIfProductsNotRegistered_();
+  EventAuxiliary const eventAux{e, startTime, isRealData, eType};
+  return new EventPrincipal{eventAux, md_.processConfiguration(), &presentProducts_->get(InEvent)};
 }
 
 art::EventPrincipal*

@@ -19,10 +19,14 @@
 #include "canvas/Persistency/Provenance/RunID.h"
 #include "canvas/Persistency/Provenance/SubRunID.h"
 #include "canvas/Persistency/Provenance/TypeLabel.h"
+#include "cetlib/exempt_ptr.h"
 
 #include <memory>
 
 namespace art {
+  template <typename T>
+  class Source;
+
   class ProductTables;
   class RunAuxiliary;
   class SubRunAuxiliary;
@@ -32,8 +36,7 @@ namespace art {
 
 class art::SourceHelper {
 public:
-  explicit SourceHelper(ModuleDescription const& md,
-                        ProductTables_t const& presentProducts);
+  explicit SourceHelper(ModuleDescription const& md);
 
   template <typename T>
   Ptr<T>
@@ -74,8 +77,11 @@ public:
                                      EventAuxiliary::ExperimentType eType = EventAuxiliary::Data) const;
 
 private:
+  template <typename T> friend class Source;
+  void throwIfProductsNotRegistered_() const;
+  void setPresentProducts(cet::exempt_ptr<ProductTables const> presentProducts);
+  cet::exempt_ptr<ProductTables const> presentProducts_{nullptr};
   ModuleDescription md_;
-  ProductTables_t const& presentProducts_;
 };
 
 template <typename T>

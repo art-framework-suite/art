@@ -29,6 +29,7 @@
 #include "canvas/Persistency/Provenance/type_aliases.h"
 
 #include <array>
+#include <functional>
 #include <iosfwd>
 #include <limits>
 #include <memory>
@@ -37,8 +38,8 @@
 
 namespace art {
 
-  class FileBlock;
   class MasterProductRegistry;
+  using ProductListUpdatedCallback = std::function<void(ProductList const&)>;
 
   std::ostream& operator<<(std::ostream& os, MasterProductRegistry const& mpr);
 }
@@ -56,7 +57,7 @@ public:
   void finalizeForProcessing();
   void addProductsFromModule(ProductDescriptions&&);
   void updateFromModule(std::unique_ptr<ProductList>&&);
-  void updateFromInputFile(ProductList const&, FileBlock const&);
+  void updateFromInputFile(ProductList const&);
 
   auto const& productList() const { return productList_; }
   auto size() const { return productList_.size(); }

@@ -25,7 +25,7 @@
 #include "art/Utilities/UnixSignalHandlers.h"
 #include "canvas/Persistency/Provenance/IDNumber.h"
 #include "canvas/Persistency/Provenance/ReleaseVersion.h"
-#include "canvas/Persistency/Provenance/type_aliases.h"
+#include "canvas/Persistency/Provenance/ProductTables.h"
 #include "cetlib/cpu_timer.h"
 #include "cetlib/exception.h"
 #include "cetlib/trim.h"
@@ -49,7 +49,7 @@ public:
   //   0     successful completion
   //   3     signal received
   //  values are for historical reasons.
-  enum Status { epSuccess=0, epSignal=3 };
+  enum Status {epSuccess=0, epSignal=3};
 
   // Eventually, we might replace StatusCode with a class. This
   // class should have an automatic conversion to 'int'.
@@ -178,7 +178,7 @@ private:
   std::unique_ptr<RunPrincipal> runPrincipal_{nullptr};
   std::unique_ptr<SubRunPrincipal> subRunPrincipal_{nullptr};
   std::unique_ptr<EventPrincipal> eventPrincipal_{nullptr};
-  ProductTables_t producedProducts_{{}};
+  ProductTables producedProducts_{ProductTables::invalid()};
   bool shouldWeStop_{false};
   bool const handleEmptyRuns_;
   bool const handleEmptySubRuns_;
