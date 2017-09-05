@@ -26,7 +26,7 @@ namespace art {
   RootOutputTree::
   makeTTree(TFile* filePtr, string const& name, int splitLevel)
   {
-    TTree* tree = new TTree(name.c_str(), "", splitLevel);
+    auto tree = new TTree{name.c_str(), "", splitLevel};
     if (!tree) {
       throw art::Exception(art::errors::FatalRootError)
         << "Failed to create the tree: "
@@ -48,18 +48,17 @@ namespace art {
 
   bool
   RootOutputTree::
-  checkSplitLevelAndBasketSize(TTree* inputTree) const
+  checkSplitLevelAndBasketSize(cet::exempt_ptr<TTree const> inputTree) const
   {
     // Do the split level and basket size match in the input and output?
     if (inputTree == nullptr) {
       return false;
     }
-    for (auto const& val : readBranches_) {
-      TBranch* outputBranch = val;
+    for (auto outputBranch : readBranches_) {
       if (outputBranch == nullptr) {
         continue;
       }
-      TBranch* inputBranch = inputTree->GetBranch(outputBranch->GetName());
+      TBranch* inputBranch = const_cast<TTree*>(inputTree.get())->GetBranch(outputBranch->GetName());
       if (inputBranch == nullptr) {
         continue;
       }
@@ -99,7 +98,7 @@ namespace art {
 
   bool
   RootOutputTree::
-  fastCloneTree(TTree* intree)
+  fastCloneTree(cet::exempt_ptr<TTree const> intree)
   {
     unclonedReadBranches_.clear();
     unclonedReadBranchNames_.clear();
@@ -109,7 +108,7 @@ namespace art {
 
     bool cloned {false};
     if (intree->GetEntries() != 0) {
-      TTreeCloner cloner(intree, tree_, "", TTreeCloner::kIgnoreMissingTopLevel |
+      TTreeCloner cloner(const_cast<TTree*>(intree.get()), tree_, "", TTreeCloner::kIgnoreMissingTopLevel |
                          TTreeCloner::kNoWarnings | TTreeCloner::kNoFileCache);
       if (cloner.IsValid()) {
         tree_->SetEntries(tree_->GetEntries() + intree->GetEntries());

@@ -82,9 +82,9 @@ namespace art {
     addOutputBranch(BranchDescription const&, void const*& pProd);
 
     bool
-    checkSplitLevelAndBasketSize(TTree*) const;
+    checkSplitLevelAndBasketSize(cet::exempt_ptr<TTree const>) const;
 
-    bool fastCloneTree(TTree*);
+    bool fastCloneTree(cet::exempt_ptr<TTree const>);
     void fillTree();
     void writeTree() const;
 

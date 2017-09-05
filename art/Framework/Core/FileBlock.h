@@ -1,24 +1,21 @@
 #ifndef art_Framework_Core_FileBlock_h
 #define art_Framework_Core_FileBlock_h
 
-/*----------------------------------------------------------------------
-
-FileBlock: Properties of an input file.
-
-
-
-----------------------------------------------------------------------*/
+// =======================================================================
+// FileBlock: Properties of an input file.
+// =======================================================================
 
 #include "art/Framework/Principal/ResultsPrincipal.h"
 #include "canvas/Persistency/Provenance/FileFormatVersion.h"
 #include "canvas/Persistency/Provenance/BranchChildren.h"
-
-class TTree;
+//#include "cetlib/exempt_ptr.h"
 
 #include <memory>
 #include <map>
 #include <string>
 #include <vector>
+
+class TTree;
 
 namespace art {
   class BranchDescription;
@@ -34,23 +31,21 @@ namespace art {
     {}
 
     FileBlock(FileFormatVersion const& version,
-              TTree const* ev,
+              cet::exempt_ptr<TTree const> ev,
               bool fastCopy,
               std::string const& fileName,
               std::shared_ptr<BranchChildren> branchChildren,
-              std::unique_ptr<ResultsPrincipal> && resp = { }) :
+              std::unique_ptr<ResultsPrincipal>&& resp = {}) :
       fileFormatVersion_{version},
-      tree_{const_cast<TTree*>(ev)},
+      tree_{ev},
       fastCopyable_{fastCopy},
       fileName_{fileName},
       branchChildren_{branchChildren},
       resp_{std::move(resp)}
     {}
 
-    // use compiler-generated copy c'tor, copy assignment, and d'tor
-
     FileFormatVersion const& fileFormatVersion() const {return fileFormatVersion_;}
-    TTree * tree() const {return tree_;}
+    cet::exempt_ptr<TTree const> tree() const {return tree_;}
 
     bool fastClonable() const {return fastCopyable_;}
     std::string const& fileName() const {return fileName_;}
@@ -61,15 +56,14 @@ namespace art {
   private:
     // Friends only.
     friend class OutputModule;
-    ResultsPrincipal const * resultsPrincipal() const;
+    ResultsPrincipal const* resultsPrincipal() const;
 
-    FileFormatVersion fileFormatVersion_ {};
-    // We use bare pointers because ROOT owns these.
-    TTree * tree_ {nullptr};
-    bool fastCopyable_ {false};
-    std::string fileName_ {};
-    std::shared_ptr<BranchChildren> branchChildren_ {std::make_shared<BranchChildren>()};
-    std::unique_ptr<ResultsPrincipal> resp_ {};
+    FileFormatVersion fileFormatVersion_{};
+    cet::exempt_ptr<TTree const> tree_{nullptr}; // ROOT owns the tree
+    bool fastCopyable_{false};
+    std::string fileName_{};
+    std::shared_ptr<BranchChildren> branchChildren_{std::make_shared<BranchChildren>()};
+    std::unique_ptr<ResultsPrincipal> resp_{};
   };
 }
 

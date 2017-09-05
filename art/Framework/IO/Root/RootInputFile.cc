@@ -409,7 +409,7 @@ namespace art {
   createFileBlock()
   {
     return std::make_unique<FileBlock>(fileFormatVersion_,
-                                       eventTree().tree(),
+                                       cet::make_exempt_ptr(eventTree().tree()),
                                        fastClonable(),
                                        fileName_,
                                        std::move(branchChildren_),
