@@ -1,11 +1,11 @@
 #include "art/Framework/IO/Root/RootInputFile.h"
 // vim: set sw=2:
 
-#include "art/Framework/Core/FileBlock.h"
 #include "art/Framework/Core/GroupSelector.h"
 #include "art/Framework/IO/Root/DuplicateChecker.h"
 #include "art/Framework/IO/Root/FastCloningInfoProvider.h"
 #include "art/Framework/IO/Root/GetFileFormatEra.h"
+#include "art/Framework/IO/Root/RootFileBlock.h"
 #include "art/Framework/IO/Root/checkDictionaries.h"
 #include "art/Framework/IO/Root/detail/readMetadata.h"
 #include "art/Framework/IO/Root/detail/readFileIndex.h"
@@ -408,11 +408,11 @@ namespace art {
   RootInputFile::
   createFileBlock()
   {
-    return std::make_unique<FileBlock>(fileFormatVersion_,
-                                       fileName_,
-                                       readResults(),
-                                       cet::make_exempt_ptr(eventTree().tree()),
-                                       fastClonable());
+    return std::make_unique<RootFileBlock>(fileFormatVersion_,
+                                           fileName_,
+                                           readResults(),
+                                           cet::make_exempt_ptr(eventTree().tree()),
+                                           fastClonable());
   }
 
   FileIndex::EntryType

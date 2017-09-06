@@ -7,20 +7,18 @@
 
 #include "art/Framework/Principal/ResultsPrincipal.h"
 #include "canvas/Persistency/Provenance/FileFormatVersion.h"
-#include "canvas/Persistency/Provenance/BranchChildren.h"
 #include "cetlib/exempt_ptr.h"
 
 #include <memory>
 #include <string>
 
-class TTree;
-
 namespace art {
-  class BranchDescription;
+
   class FileBlock {
   public:
 
     FileBlock() = default;
+    virtual ~FileBlock() noexcept = default;
 
     FileBlock(FileFormatVersion const& version,
               std::string const& fileName) :
@@ -30,23 +28,17 @@ namespace art {
 
     FileBlock(FileFormatVersion const& version,
               std::string const& fileName,
-              std::unique_ptr<ResultsPrincipal>&& resp,
-              cet::exempt_ptr<TTree const> ev,
-              bool const fastCopy) :
+              std::unique_ptr<ResultsPrincipal>&& resp) :
       fileFormatVersion_{version},
       fileName_{fileName},
-      resp_{std::move(resp)},
-      tree_{ev},
-      fastCopyable_{fastCopy}
+      resp_{std::move(resp)}
     {}
 
     FileFormatVersion const& fileFormatVersion() const {return fileFormatVersion_;}
     std::string const& fileName() const {return fileName_;}
 
-    cet::exempt_ptr<TTree const> tree() const {return tree_;}
-    bool fastClonable() const {return fastCopyable_;}
-
   private:
+
     // Friends only.
     friend class OutputModule;
     ResultsPrincipal const* resultsPrincipal() const;
@@ -54,8 +46,6 @@ namespace art {
     FileFormatVersion fileFormatVersion_{};
     std::string fileName_{};
     std::unique_ptr<ResultsPrincipal> resp_{};
-    cet::exempt_ptr<TTree const> tree_{nullptr}; // ROOT owns the tree
-    bool fastCopyable_{false};
   };
 }
 

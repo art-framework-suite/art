@@ -44,6 +44,7 @@ namespace art {
   class SubRunAuxiliary;
   class RunAuxiliary;
   class ResultsAuxiliary;
+  class RootFileBlock;
 }
 
 class art::RootOutputFile {
@@ -110,7 +111,7 @@ public: // MEMBER FUNCTIONS
   void writeResults(ResultsPrincipal & resp);
   void setRunAuxiliaryRangeSetID(RangeSet const&);
   void setSubRunAuxiliaryRangeSetID(RangeSet const&);
-  void beginInputFile(FileBlock const&, bool fastClone);
+  void beginInputFile(RootFileBlock const*, bool fastClone);
   void incrementInputFileNumber();
   void respondToCloseInputFile(FileBlock const&);
   bool requestsToCloseFile();

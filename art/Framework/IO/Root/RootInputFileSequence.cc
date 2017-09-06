@@ -2,9 +2,9 @@
 // vim: set sw=2:
 
 #include "TFile.h"
-#include "art/Framework/Core/FileBlock.h"
 #include "art/Framework/IO/Catalog/FileCatalog.h"
 #include "art/Framework/IO/Catalog/InputFileCatalog.h"
+#include "art/Framework/IO/Root/RootFileBlock.h"
 #include "art/Framework/IO/Root/RootInputFile.h"
 #include "art/Framework/IO/Root/RootInputTree.h"
 #include "art/Framework/IO/detail/logFileAction.h"
@@ -272,7 +272,7 @@ readFile_()
     assert(false);
   }
   if (!rootFile_) {
-    return std::make_unique<FileBlock>();
+    return std::make_unique<RootFileBlock>();
   }
   return rootFile_->createFileBlock();
 }

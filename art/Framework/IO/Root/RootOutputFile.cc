@@ -6,11 +6,11 @@
 #include "TClass.h"
 #include "TFile.h"
 #include "TTree.h"
-#include "art/Framework/Core/FileBlock.h"
 #include "art/Framework/IO/FileStatsCollector.h"
 #include "art/Framework/IO/Root/DropMetaData.h"
 #include "art/Framework/IO/Root/GetFileFormatEra.h"
 #include "art/Framework/IO/Root/GetFileFormatVersion.h"
+#include "art/Framework/IO/Root/RootFileBlock.h"
 #include "art/Framework/IO/Root/checkDictionaries.h"
 #include "art/Framework/IO/Root/detail/KeptProvenance.h"
 #include "art/Framework/Principal/EventPrincipal.h"
@@ -409,20 +409,21 @@ art::RootOutputFile::selectProducts()
 }
 
 void
-art::RootOutputFile::beginInputFile(FileBlock const& fb, bool const fastCloneFromOutputModule)
+art::RootOutputFile::beginInputFile(RootFileBlock const* rfb, bool const fastCloneFromOutputModule)
 {
-  bool shouldFastClone {fastCloningEnabledAtConstruction_ && fastCloneFromOutputModule};
+  // FIXME: the logic here is nasty.
+  bool shouldFastClone {fastCloningEnabledAtConstruction_ && fastCloneFromOutputModule && rfb};
   // Create output branches, and then redo calculation to determine if
   // fast cloning should be done.
   selectProducts();
   if (shouldFastClone &&
-      !treePointers_[InEvent]->checkSplitLevelAndBasketSize(fb.tree())) {
+      !treePointers_[InEvent]->checkSplitLevelAndBasketSize(rfb->tree())) {
     mf::LogWarning("FastCloning")
       << "Fast cloning deactivated for this input file due to "
       << "splitting level and/or basket size.";
     shouldFastClone = false;
   }
-  else if (fb.tree() && fb.tree()->GetCurrentFile()->GetVersion() < 60001) {
+  else if (rfb && rfb->tree() && rfb->tree()->GetCurrentFile()->GetVersion() < 60001) {
     mf::LogWarning("FastCloning")
       << "Fast cloning deactivated for this input file due to "
       << "ROOT version used to write it (< 6.00/01)\n"
@@ -430,7 +431,7 @@ art::RootOutputFile::beginInputFile(FileBlock const& fb, bool const fastCloneFro
     shouldFastClone = false;
   }
 
-  if (shouldFastClone && fb.fileFormatVersion().value_ < 10) {
+  if (shouldFastClone && rfb->fileFormatVersion().value_ < 10) {
     mf::LogWarning("FastCloning")
       << "Fast cloning deactivated for this input file due to "
       << "reading in file that has a different ProductID schema.";
@@ -442,7 +443,8 @@ art::RootOutputFile::beginInputFile(FileBlock const& fb, bool const fastCloneFro
       << "Fast cloning reactivated for this input file.";
   }
   treePointers_[InEvent]->beginInputFile(shouldFastClone);
-  wasFastCloned_ = treePointers_[InEvent]->fastCloneTree(fb.tree());
+  auto tree = (rfb && rfb->tree()) ? rfb->tree() : nullptr;
+  wasFastCloned_ = treePointers_[InEvent]->fastCloneTree(tree);
 }
 
 void
