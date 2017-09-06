@@ -8,12 +8,10 @@
 #include "art/Framework/Principal/ResultsPrincipal.h"
 #include "canvas/Persistency/Provenance/FileFormatVersion.h"
 #include "canvas/Persistency/Provenance/BranchChildren.h"
-//#include "cetlib/exempt_ptr.h"
+#include "cetlib/exempt_ptr.h"
 
 #include <memory>
-#include <map>
 #include <string>
-#include <vector>
 
 class TTree;
 
@@ -31,27 +29,22 @@ namespace art {
     {}
 
     FileBlock(FileFormatVersion const& version,
-              cet::exempt_ptr<TTree const> ev,
-              bool fastCopy,
               std::string const& fileName,
-              std::shared_ptr<BranchChildren> branchChildren,
-              std::unique_ptr<ResultsPrincipal>&& resp = {}) :
+              std::unique_ptr<ResultsPrincipal>&& resp,
+              cet::exempt_ptr<TTree const> ev,
+              bool const fastCopy) :
       fileFormatVersion_{version},
-      tree_{ev},
-      fastCopyable_{fastCopy},
       fileName_{fileName},
-      branchChildren_{branchChildren},
-      resp_{std::move(resp)}
+      resp_{std::move(resp)},
+      tree_{ev},
+      fastCopyable_{fastCopy}
     {}
 
     FileFormatVersion const& fileFormatVersion() const {return fileFormatVersion_;}
-    cet::exempt_ptr<TTree const> tree() const {return tree_;}
-
-    bool fastClonable() const {return fastCopyable_;}
     std::string const& fileName() const {return fileName_;}
 
-    void setNotFastCopyable() {fastCopyable_ = false;}
-    BranchChildren const& branchChildren() const { return *branchChildren_; }
+    cet::exempt_ptr<TTree const> tree() const {return tree_;}
+    bool fastClonable() const {return fastCopyable_;}
 
   private:
     // Friends only.
@@ -59,11 +52,10 @@ namespace art {
     ResultsPrincipal const* resultsPrincipal() const;
 
     FileFormatVersion fileFormatVersion_{};
+    std::string fileName_{};
+    std::unique_ptr<ResultsPrincipal> resp_{};
     cet::exempt_ptr<TTree const> tree_{nullptr}; // ROOT owns the tree
     bool fastCopyable_{false};
-    std::string fileName_{};
-    std::shared_ptr<BranchChildren> branchChildren_{std::make_shared<BranchChildren>()};
-    std::unique_ptr<ResultsPrincipal> resp_{};
   };
 }
 

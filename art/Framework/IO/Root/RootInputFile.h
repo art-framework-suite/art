@@ -11,7 +11,6 @@
 #include "art/Framework/Principal/ResultsPrincipal.h"
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
-#include "canvas/Persistency/Provenance/BranchChildren.h"
 #include "canvas/Persistency/Provenance/BranchMapper.h"
 #include "canvas/Persistency/Provenance/Compatibility/BranchIDList.h"
 #include "canvas/Persistency/Provenance/EventAuxiliary.h"
@@ -102,9 +101,6 @@ namespace art {
     bool readEventForSecondaryFile(EventID eID);
 
     std::string const& fileName() const { return fileName_; }
-
-    // ProductLookup_t const& productLookup() const { return productLookup_; }
-    // ViewLookup_t const& viewLookup() const { return viewLookup_; }
 
     RunAuxiliary& runAux() { return std::get<RunAuxiliary>(auxiliaries_); }
     ResultsAuxiliary& resultsAux() { return std::get<ResultsAuxiliary>(auxiliaries_); }
@@ -272,20 +268,18 @@ namespace art {
     ProductTables presentProducts_{ProductTables::invalid()};
     std::unique_ptr<BranchIDLists> branchIDLists_{nullptr}; // Only used for maintaining backwards compatibility
 
-    TTree* eventHistoryTree_ {nullptr};
-    std::shared_ptr<History> history_ {std::make_shared<History>()};
-    std::unique_ptr<BranchChildren> branchChildren_ {std::make_unique<BranchChildren>()};
-    std::vector<std::unique_ptr<RootInputFile>> secondaryFiles_ {};
+    TTree* eventHistoryTree_{nullptr};
+    std::shared_ptr<History> history_{std::make_shared<History>()};
+    std::vector<std::unique_ptr<RootInputFile>> secondaryFiles_{};
     // We need to add the secondary principals to the primary
-    // principal when they are delay read, so we need to keep
-    // around a pointer to the primary.  Note that these are
-    // always used in a situation where we are guaranteed that
-    // primary exists.
-    cet::exempt_ptr<EventPrincipal> primaryEP_ {};
-    cet::exempt_ptr<RunPrincipal> primaryRP_ {};
-    cet::exempt_ptr<SubRunPrincipal> primarySRP_ {};
-    std::unique_ptr<RangeSetHandler> subRunRangeSetHandler_ {nullptr};
-    std::unique_ptr<RangeSetHandler> runRangeSetHandler_ {nullptr};
+    // principal when they are delay read, so we need to keep around a
+    // pointer to the primary.  Note that these are always used in a
+    // situation where we are guaranteed that primary exists.
+    cet::exempt_ptr<EventPrincipal> primaryEP_{};
+    cet::exempt_ptr<RunPrincipal> primaryRP_{};
+    cet::exempt_ptr<SubRunPrincipal> primarySRP_{};
+    std::unique_ptr<RangeSetHandler> subRunRangeSetHandler_{nullptr};
+    std::unique_ptr<RangeSetHandler> runRangeSetHandler_{nullptr};
 
   };
 

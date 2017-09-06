@@ -409,11 +409,10 @@ namespace art {
   createFileBlock()
   {
     return std::make_unique<FileBlock>(fileFormatVersion_,
-                                       cet::make_exempt_ptr(eventTree().tree()),
-                                       fastClonable(),
                                        fileName_,
-                                       std::move(branchChildren_),
-                                       readResults());
+                                       readResults(),
+                                       cet::make_exempt_ptr(eventTree().tree()),
+                                       fastClonable());
   }
 
   FileIndex::EntryType
@@ -1003,13 +1002,15 @@ namespace art {
     // This is the selector for drop on input.
     GroupSelector const groupSelector{rules, prodList};
     // Do drop on input. On the first pass, just fill in a set of
-    // branches to be dropped.
+    // branches to be dropped.  Use the BranchChildren class to
+    // assemble list of children to drop.
+    BranchChildren children;
     set<ProductID> branchesToDrop;
     for (auto const& prod : prodList) {
       auto const& pd = prod.second;
       if (!groupSelector.selected(pd)) {
         if (dropDescendants) {
-          branchChildren_->appendToDescendants(pd.productID(), branchesToDrop);
+          children.appendToDescendants(pd.productID(), branchesToDrop);
         }
         else {
           branchesToDrop.insert(pd.productID());
