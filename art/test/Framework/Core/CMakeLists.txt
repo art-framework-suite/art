@@ -33,17 +33,10 @@ cet_test(PathManager_t USE_BOOST_UNIT
 ########################################################################
 # If any cppunit tests require more libraries than the default, specify
 # them in a ${target}_libs variable.
-
-# We invoke MasterProductRegistry so we need some dictionaries.
-set(maker2_t_libs
-  canvas_Persistency_WrappedStdDictionaries_dict
-  canvas_Persistency_StdDictionaries_dict
-  canvas_Persistency_Common_dict
-  )
 ########################################################################
 
 simple_plugin(TestMod module NO_INSTALL)
-cet_test(maker2_t LIBRARIES ${maker2_t_libs} ${default_test_libraries})
+cet_test(maker2_t LIBRARIES $${default_test_libraries})
 
 foreach(cpp_test
     EventSelector_t
