@@ -1,4 +1,4 @@
-#include "art/Persistency/RootDB/SQLErrMsg.h"
+#include "art/Framework/IO/Root/RootDB/SQLErrMsg.h"
 
 #include "canvas/Utilities/Exception.h"
 

@@ -29,7 +29,7 @@ SET_TESTS_PROPERTIES(tkeyvfs_t_01r PROPERTIES DEPENDS tkeyvfs_t_01w)
 
 cet_test(tkeyvfs_t_02 NO_AUTO
   SOURCES test2.cc
-  LIBRARIES art_Persistency_RootDB
+  LIBRARIES art_Framework_IO_Root_RootDB
   )
 
 cet_test(tkeyvfs_t_02w HANDBUILT

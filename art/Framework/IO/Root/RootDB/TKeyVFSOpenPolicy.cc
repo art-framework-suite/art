@@ -1,5 +1,5 @@
-#include "art/Persistency/RootDB/TKeyVFSOpenPolicy.h"
-#include "art/Persistency/RootDB/tkeyvfs.h"
+#include "art/Framework/IO/Root/RootDB/TKeyVFSOpenPolicy.h"
+#include "art/Framework/IO/Root/RootDB/tkeyvfs.h"
 #include "canvas/Utilities/Exception.h"
 #include "cetlib/sqlite/helpers.h"
 

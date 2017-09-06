@@ -1,5 +1,5 @@
 #include "art/Framework/Art/InitRootHandlers.h"
-#include "art/Persistency/RootDB/tkeyvfs.h"
+#include "art/Framework/IO/Root/RootDB/tkeyvfs.h"
 #include "canvas/Persistency/Common/CacheStreamers.h"
 #include "canvas/Persistency/Common/detail/setPtrVectorBaseStreamer.h"
 #include "canvas/Persistency/Common/RefCoreStreamer.h"

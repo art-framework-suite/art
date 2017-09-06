@@ -63,7 +63,7 @@ art_make_library(LIBRARY_NAME art_Framework_Art
   art_Version
   MF_MessageLogger
   # The following are used for InitRootHandlers
-  art_Persistency_RootDB
+  art_Framework_IO_Root_RootDB
   ${ROOT_HIST}
   ${ROOT_TREE}
   )

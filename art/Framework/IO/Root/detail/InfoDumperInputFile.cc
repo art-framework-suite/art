@@ -4,7 +4,7 @@
 #include "art/Framework/IO/Root/detail/readMetadata.h"
 #include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
 #include "art/Persistency/Provenance/orderedProcessNamesCollection.h"
-#include "art/Persistency/RootDB/SQLite3Wrapper.h"
+#include "art/Framework/IO/Root/RootDB/SQLite3Wrapper.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
 #include "canvas/Persistency/Provenance/rootNames.h"
 #include "canvas/Utilities/Exception.h"
