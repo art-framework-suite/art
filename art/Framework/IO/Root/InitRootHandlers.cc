@@ -1,4 +1,4 @@
-#include "art/Framework/Art/InitRootHandlers.h"
+#include "art/Framework/IO/Root/InitRootHandlers.h"
 #include "art/Framework/IO/Root/RootDB/tkeyvfs.h"
 #include "canvas/Persistency/Common/CacheStreamers.h"
 #include "canvas/Persistency/Common/detail/setPtrVectorBaseStreamer.h"

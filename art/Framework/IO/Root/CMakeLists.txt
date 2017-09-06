@@ -58,10 +58,8 @@ art_make(EXCLUDE
   art_Framework_IO_Root_detail_sources
   cetlib
   canvas
-  ${ROOT_CINTEX}
-  ${ROOT_TREE}
-  ${ROOT_NET}
-  ${ROOT_MATHCORE}
+  root_Hist
+  root_Tree
 )
 
 simple_plugin(RootInput "source" art_Framework_IO_Root art_Framework_IO_Catalog)
