@@ -95,13 +95,13 @@ makeRPs_(fhicl::ParameterSet const & ps)
         std::size_t path_index = 0ull;
         for (auto const & l : path) {
           if (all_labels_set.find(l) == all_labels_set.end()) { // Bad label
-            errMsg += omLabel + ".results." + *path_key + '[' + path_index +
+            errMsg += omLabel + ".results." + *path_key + '[' + std::to_string(path_index) +
                       "] (" + l + ')' +
                       " is not defined in " + omLabel + ".results.producers.\n";
           } else {
             auto const ans = used_labels.emplace(l, *path_key);
             if (!ans.second) { // Duplicate
-              errMsg += omLabel + ".results." + *path_key + '[' + path_index +
+              errMsg += omLabel + ".results." + *path_key + '[' + std::to_string(path_index) +
                         "] (" + l + ')' +
                         " is a duplicate: previously used in path " +
                         ans.first->second + ".\n";
