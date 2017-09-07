@@ -7,7 +7,6 @@ art_make(LIB_LIBRARIES
   MF_MessageLogger
   fhiclcpp
   cetlib
-  ROOT_Core # necessary because Assns relies on ROOT
   SUBDIRS
   detail
 )

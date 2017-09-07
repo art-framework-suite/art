@@ -2,7 +2,6 @@ art_make(SUBDIRS detail
   LIB_LIBRARIES
   art_Utilities
   canvas
-  root_Core # Required for TVersionCheck
   tbb # Required from thread_safe_registry_via_id
   )
 
