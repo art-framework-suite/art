@@ -32,7 +32,7 @@ static ParameterSet empty_pset;
 
 MyService::MyService(ParameterSet const& pset, art::ActivityRegistry&)
 {
-  mf::LogVerbatim("DEBUG") << "-----> Begin MyService::MyService(ParameterSet const & pset, art::ActivityRegistry&)";
+  mf::LogVerbatim("DEBUG") << "Begin MyService::MyService(ParameterSet const & pset, art::ActivityRegistry&)";
   string val = pset.to_indented_string();
   mf::LogVerbatim("DEBUG") << "Contents of parameter set:";
   mf::LogVerbatim("DEBUG") << "";
@@ -41,7 +41,7 @@ MyService::MyService(ParameterSet const& pset, art::ActivityRegistry&)
     mf::LogVerbatim("DEBUG") << "key: " << key;
   }
   mf::LogVerbatim("DEBUG") << "this: 0x" << std::hex << this << std::dec;
-  mf::LogVerbatim("DEBUG") << "-----> End   MyService::MyService(ParameterSet const & pset, art::ActivityRegistry&)";
+  mf::LogVerbatim("DEBUG") << "End   MyService::MyService(ParameterSet const & pset, art::ActivityRegistry&)";
 }  // c'tor
 
 // ======================================================================

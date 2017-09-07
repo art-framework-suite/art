@@ -18,7 +18,7 @@
 #include "art/Framework/Core/EventSelector.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/ServiceRegistry.h"
-#include "art/Framework/Services/Registry/ServiceToken.h"
+#include "art/Framework/Services/Registry/ServicesManager.h"
 #include "art/Framework/Services/System/TriggerNamesService.h"
 #include "canvas/Persistency/Common/TriggerResults.h"
 #include "fhiclcpp/ParameterSet.h"
@@ -33,6 +33,7 @@
 
 using namespace art;
 using namespace fhicl;
+using namespace std;
 
 typedef std::vector< std::vector<bool> > Answers;
 
@@ -239,13 +240,10 @@ int main()
 
   art::ActivityRegistry aReg;
 
-  ServiceToken serviceToken_ =
-    ServiceRegistry::createSet(ServiceRegistry::ParameterSets(), aReg);
+  auto servicesManager_ = make_unique<ServicesManager>(ParameterSet{}, aReg);
+  ServiceRegistry::instance().setManager(servicesManager_.get());
 
-  serviceToken_.add(std::unique_ptr<TNS>(new TNS(proc_pset, trigger_path_names)));
-
-  //make the services available
-  ServiceRegistry::Operate operate(serviceToken_);
+  servicesManager_->put(std::unique_ptr<TNS>(new TNS(proc_pset, trigger_path_names)));
 
   // We are ready to run some tests
 

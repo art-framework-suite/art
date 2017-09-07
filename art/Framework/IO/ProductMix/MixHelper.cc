@@ -112,7 +112,7 @@ namespace {
     using namespace art;
     std::unique_ptr<CLHEP::RandFlat> result;
     if (readMode > MixHelper::Mode::SEQUENTIAL) {
-      if (ServiceRegistry::isAvailable<RandomNumberGenerator>()) {
+      if (ServiceRegistry::instance().isAvailable<RandomNumberGenerator>()) {
         result = std::make_unique<CLHEP::RandFlat>(ServiceHandle<RandomNumberGenerator>{}->getEngine());
       } else {
         throw Exception(errors::Configuration, "MixHelper")
@@ -362,6 +362,7 @@ art::MixHelper::openAndReadMetaData_(std::string filename)
 {
   // Open file.
   try {
+    //FIXME: threading: This is not thread-safe!!!
     currentFile_.reset(TFile::Open(filename.c_str()));
   }
   catch (std::exception const& e) {

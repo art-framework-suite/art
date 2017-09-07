@@ -69,9 +69,9 @@ namespace {
     , fullExpTrkEffs_{expectedEffs_.at(0).value(),
                       expectedEffs_.at(1).value()}
   {
-    consumes<arttest::TrackEfficiency, art::InSubRun>(trkEffTag_);
-    consumes<unsigned, art::InSubRun>(nParticlesTag_);
-    consumes<unsigned, art::InSubRun>(seenParticlesTag_);
+    //consumes<arttest::TrackEfficiency, art::InSubRun>(trkEffTag_);
+    //consumes<unsigned, art::InSubRun>(nParticlesTag_);
+    //consumes<unsigned, art::InSubRun>(seenParticlesTag_);
     produces<double,art::InSubRun>("TrkEffValue");
     produces<double,art::InSubRun>("ParticleRatio");
   }

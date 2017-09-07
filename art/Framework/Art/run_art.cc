@@ -1,13 +1,15 @@
 #include "art/Framework/Art/run_art.h"
+// vim: set sw=2 expandtab :
 
 #include "art/Framework/Art/BasicOptionsHandler.h"
 #include "art/Framework/Art/BasicPostProcessor.h"
 #include "art/Framework/Art/InitRootHandlers.h"
 #include "art/Framework/EventProcessor/EventProcessor.h"
-#include "art/Framework/Services/Registry/ServiceToken.h"
 #include "art/Utilities/ExceptionMessages.h"
 #include "art/Utilities/RootHandlers.h"
 #include "art/Utilities/UnixSignalHandlers.h"
+#include "boost/filesystem.hpp"
+#include "boost/program_options.hpp"
 #include "canvas/Utilities/Exception.h"
 #include "cetlib/HorizontalRule.h"
 #include "cetlib/container_algorithms.h"
@@ -19,8 +21,6 @@
 #include "fhiclcpp/parse.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
-#include "boost/filesystem.hpp"
-#include "boost/program_options.hpp"
 #include "TError.h"
 
 #include <exception>
@@ -29,29 +29,33 @@
 #include <string>
 #include <vector>
 
+#include <malloc.h>
+
 namespace bpo = boost::program_options;
 
-// -----------------------------------------------
 namespace {
-  struct RootErrorHandlerSentry {
-    RootErrorHandlerSentry(bool const reset) {
-      art::setRootErrorHandler(reset);
-    }
-    ~RootErrorHandlerSentry() {
-      SetErrorHandler(DefaultErrorHandler);
-    }
-  };
-} // namespace
 
-int art::run_art(int argc,
-                 char** argv,
-                 bpo::options_description& in_desc,
-                 cet::filepath_maker& lookupPolicy,
-                 art::OptionsHandlers&& handlers,
-                 art::detail::DebugOutput&& dbg)
+struct RootErrorHandlerSentry {
+  RootErrorHandlerSentry(bool const reset)
+  {
+    art::setRootErrorHandler(reset);
+  }
+  ~RootErrorHandlerSentry()
+  {
+    SetErrorHandler(DefaultErrorHandler);
+  }
+};
+
+} // unnamed namespace
+
+namespace art {
+
+int
+run_art(int argc, char** argv, bpo::options_description& in_desc, cet::filepath_maker& lookupPolicy, OptionsHandlers&& handlers,
+        detail::DebugOutput&& dbg)
 {
   std::ostringstream descstr;
-  descstr << '\n' << "Usage" << ": "
+  descstr << "\nUsage: "
           << boost::filesystem::path(argv[0]).filename().native()
           << " <-c <config-file>> <other-options> [<source-file>]+\n\n"
           << "Basic options";
@@ -72,8 +76,7 @@ int art::run_art(int argc,
     bpo::notify(vm);
   }
   catch (bpo::error const& e) {
-    std::cerr << "Exception from command line processing in " << argv[0]
-              << ": " << e.what() << "\n";
+    std::cerr << "Exception from command line processing in " << argv[0] << ": " << e.what() << "\n";
     return 88;
   }
   // Preliminary argument checking.
@@ -91,9 +94,9 @@ int art::run_art(int argc,
       return result;
     }
   }
-
-
-  // Make the parameter set from the intermediate table.
+  //
+  // Make the parameter set from the intermediate table:
+  //
   fhicl::ParameterSet main_pset;
   try {
     make_ParameterSet(raw_config, main_pset);
@@ -127,7 +130,8 @@ int art::run_art(int argc,
   return run_art_common_(main_pset, std::move(dbg));
 }
 
-int art::run_art_string_config(std::string const& config_string)
+int
+run_art_string_config(std::string const& config_string)
 {
   //
   // Make the parameter set from the configuration string:
@@ -137,12 +141,10 @@ int art::run_art_string_config(std::string const& config_string)
     // create an intermediate table from the input string
     fhicl::intermediate_table raw_config;
     parse_document(config_string, raw_config);
-
     // run post-processing
     bpo::variables_map vm;
     BasicPostProcessor bpp;
     bpp.processOptions(vm, raw_config);
-
     // create the parameter set
     make_ParameterSet(raw_config, main_pset);
   }
@@ -169,14 +171,20 @@ int art::run_art_string_config(std::string const& config_string)
     std::cerr << "Uncaught exception while inserting main parameter set into registry.\n";
     throw;
   }
-  return run_art_common_(main_pset, art::detail::DebugOutput{});
+  return run_art_common_(main_pset, detail::DebugOutput{});
 }
 
-int art::run_art_common_(fhicl::ParameterSet const& main_pset, art::detail::DebugOutput debug)
+int
+run_art_common_(fhicl::ParameterSet const& main_pset, detail::DebugOutput debug)
 {
-  auto const& services_pset = main_pset.get<fhicl::ParameterSet>("services",{});
-  auto const& scheduler_pset = services_pset.get<fhicl::ParameterSet>("scheduler",{});
-
+  // The the system memory allocator to only use one arena,
+  // they are 64 MiB in size, and the default is 8 * num_of_cores.
+  // Using the default means that when using 40 threads we get 40 arenas,
+  // which means we have 40 * 64 MiB = 2560 MiB of virtual address space
+  // devoted to per-thread heaps!!!
+  mallopt(M_ARENA_MAX, 1);
+  auto const& services_pset = main_pset.get<fhicl::ParameterSet>("services", {});
+  auto const& scheduler_pset = services_pset.get<fhicl::ParameterSet>("scheduler", {});
   if (debug && debug.preempting()) {
     std::cerr << debug.banner();
     debug.stream() << main_pset.to_indented_string(0, debug.mode());
@@ -202,8 +210,6 @@ int art::run_art_common_(fhicl::ParameterSet const& main_pset, art::detail::Debu
     std::cerr << "Caught unknown exception while initializing the message facility.\n";
     return 71;
   }
-
-
   mf::LogInfo("MF_INIT_OK") << "Messagelogger initialization complete.";
   //
   // Configuration output (non-preempting)
@@ -217,57 +223,58 @@ int art::run_art_common_(fhicl::ParameterSet const& main_pset, art::detail::Debu
     }
     else { // Error!
       throw Exception(errors::Configuration)
-        << "Unable to write post-processed configuration to specified file "
-        << debug.filename()
-        << ".\n";
+          << "Unable to write post-processed configuration to specified file "
+          << debug.filename()
+          << ".\n";
     }
   }
   //
   // Initialize:
   //   unix signal facility
-  art::setupSignals(scheduler_pset.get<bool>("enableSigInt", true));
+  setupSignals(scheduler_pset.get<bool>("enableSigInt", true));
   //   init root handlers facility
   if (scheduler_pset.get<bool>("unloadRootSigHandler", true)) {
-    art::unloadRootSigHandler();
+    unloadRootSigHandler();
   }
   RootErrorHandlerSentry re_sentry {scheduler_pset.get<bool>("resetRootErrHandler", true)};
   // Load all dictionaries.
   if (scheduler_pset.get<bool>("debugDictionaries", false)) {
     throw Exception(errors::UnimplementedFeature)
-      << "debugDictionaries not yet implemented for ROOT 6.\n";
+        << "debugDictionaries not yet implemented for ROOT 6.\n";
   }
-  art::completeRootHandlers();
-
-  int rc {0};
+  completeRootHandlers();
+  int rc = 0;
   try {
-    EventProcessor ep {main_pset};
+    EventProcessor ep{main_pset};
     if (ep.runToCompletion() == EventProcessor::epSignal) {
-      std::cerr << "Art has handled signal "
-                << art::shutdown_flag
-                << ".\n";
-      if (scheduler_pset.get<bool>("errorOnSIGINT"))
-        rc = 128 + art::shutdown_flag;
+      std::cerr << "Art has handled signal " << shutdown_flag << ".\n";
+      if (scheduler_pset.get<bool>("errorOnSIGINT")) {
+        rc = 128 + shutdown_flag;
+      }
     }
   }
-  catch (art::Exception const& e) {
+  catch (Exception const& e) {
     rc = e.returnCode();
-    art::printArtException(e, "art");
+    printArtException(e, "art");
   }
   catch (cet::exception const& e) {
     rc = 65;
-    art::printArtException(e, "art");
+    printArtException(e, "art");
   }
   catch (std::bad_alloc const& bda) {
     rc = 68;
-    art::printBadAllocException("art");
+    printBadAllocException("art");
   }
   catch (std::exception const& e) {
     rc = 66;
-    art::printStdException(e, "art");
+    printStdException(e, "art");
   }
   catch (...) {
     rc = 67;
-    art::printUnknownException("art");
+    printUnknownException("art");
   }
   return rc;
 }
+
+} // namespace art
+

@@ -73,28 +73,28 @@ AssnsReaderTest(fhicl::ParameterSet const & ps)
   , wantMany_(ps.get<bool>("wantMany", true))
   , wantAmbiguous_(ps.get<bool>("wantAmbiguous", false))
 {
-  consumes<AssnsABV_t>(inputLabel_);
-  consumes<AssnsBAV_t>(inputLabel_);
-  consumes<AssnsABV_t>({inputLabel_, "many"s});
-  consumes<AssnsBAV_t>({inputLabel_, "many"s});
-  consumes<AssnsABV_t>({inputLabel_, "mapvec"s});
-  consumes<AssnsBAV_t>({inputLabel_, "mapvec"s});
-  consumes<AssnsABV_t>({inputLabel_, "manymapvec"s});
-  consumes<AssnsBAV_t>({inputLabel_, "manymapvec"s});
+  //consumes<AssnsABV_t>(inputLabel_);
+  //consumes<AssnsBAV_t>(inputLabel_);
+  //consumes<AssnsABV_t>({inputLabel_, "many"s});
+  //consumes<AssnsBAV_t>({inputLabel_, "many"s});
+  //consumes<AssnsABV_t>({inputLabel_, "mapvec"s});
+  //consumes<AssnsBAV_t>({inputLabel_, "mapvec"s});
+  //consumes<AssnsABV_t>({inputLabel_, "manymapvec"s});
+  //consumes<AssnsBAV_t>({inputLabel_, "manymapvec"s});
 
-  consumes<AssnsABX_t>(inputLabel_);
-  consumes<AssnsBAX_t>(inputLabel_);
-  consumes<AssnsABX_t>({inputLabel_, "many"s});
-  consumes<AssnsBAX_t>({inputLabel_, "many"s});
-  consumes<AssnsABX_t>({inputLabel_, "mapvec"s});
-  consumes<AssnsBAX_t>({inputLabel_, "mapvec"s});
-  consumes<AssnsABX_t>({inputLabel_, "manymapvec"s});
-  consumes<AssnsBAX_t>({inputLabel_, "manymapvec"s});
+  //consumes<AssnsABX_t>(inputLabel_);
+  //consumes<AssnsBAX_t>(inputLabel_);
+  //consumes<AssnsABX_t>({inputLabel_, "many"s});
+  //consumes<AssnsBAX_t>({inputLabel_, "many"s});
+  //consumes<AssnsABX_t>({inputLabel_, "mapvec"s});
+  //consumes<AssnsBAX_t>({inputLabel_, "mapvec"s});
+  //consumes<AssnsABX_t>({inputLabel_, "manymapvec"s});
+  //consumes<AssnsBAX_t>({inputLabel_, "manymapvec"s});
 
-  consumesMany<AssnsABV_t>();
-  consumesMany<AssnsBAV_t>();
-  consumesMany<AssnsABX_t>();
-  consumesMany<AssnsBAX_t>();
+  //consumesMany<AssnsABV_t>();
+  //consumesMany<AssnsBAV_t>();
+  //consumesMany<AssnsABX_t>();
+  //consumesMany<AssnsBAX_t>();
 }
 
 namespace {

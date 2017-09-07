@@ -1,4 +1,3 @@
-#include "art/Framework/Principal/CurrentProcessingContext.h"
 #include "art/Framework/Core/EDAnalyzer.h"
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Principal/Event.h"
@@ -29,8 +28,6 @@ private:
    int    failed_;
    bool   dump_;
    int    numbits_;
-   std::string expected_pathname_; // if empty, we don't know
-   std::string expected_modulelabel_; // if empty, we don't know
 };
 
 arttest::TestResultAnalyzer::TestResultAnalyzer(fhicl::ParameterSet const& ps):
@@ -38,9 +35,7 @@ arttest::TestResultAnalyzer::TestResultAnalyzer(fhicl::ParameterSet const& ps):
    passed_(),
    failed_(),
    dump_(ps.get<bool>("dump",false)),
-   numbits_(ps.get<int>("numbits",-1)),
-   expected_pathname_(ps.get<std::string>("pathname", "")),
-   expected_modulelabel_(ps.get<std::string>("modlabel", ""))
+   numbits_(ps.get<int>("numbits",-1))
 {
   consumesMany<art::TriggerResults>();
 }
@@ -49,18 +44,6 @@ void arttest::TestResultAnalyzer::analyze(art::Event const& e) {
    typedef std::vector<art::Handle<art::TriggerResults> > Trig;
    Trig prod;
    e.getManyByType(prod);
-
-   art::CurrentProcessingContext const* cpc = currentContext();
-   assert( cpc != 0 );
-   assert( cpc->moduleDescription() != 0 );
-
-   if ( !expected_pathname_.empty() )
-      assert( expected_pathname_ == *(cpc->pathName()) );
-
-   if ( !expected_modulelabel_.empty() )
-      {
-         assert(expected_modulelabel_ == *(cpc->moduleLabel()) );
-      }
 
    if(prod.size() == 0) return;
    if(prod.size() > 1) {

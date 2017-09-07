@@ -1,91 +1,131 @@
 #ifndef art_Framework_Core_WorkerInPath_h
 #define art_Framework_Core_WorkerInPath_h
+// vim: set sw=2 expandtab :
 
-// ======================================================================
 //
-// WorkerInPath: A wrapper around a Worker, so that statistics can be
-//               managed per path.  A Path holds Workers as these things.
+// A wrapper around a Worker, so that statistics can be
+// managed per path.  A Path holds Workers as these things.
 //
-// ======================================================================
 
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Principal/ExecutionCounts.h"
 #include "art/Framework/Principal/Worker.h"
-#include "cetlib/exempt_ptr.h"
+#include "art/Utilities/Transition.h"
+#include "hep_concurrency/WaitingTask.h"
 
+#include <atomic>
 #include <memory>
 #include <utility>
-
-// ----------------------------------------------------------------------
+#include <vector>
 
 namespace art {
 
-  class WorkerInPath {
-  public:
-    enum FilterAction { Normal=0, Ignore, Veto };
+class WorkerInPath {
 
-    explicit WorkerInPath(cet::exempt_ptr<Worker>);
-    WorkerInPath(cet::exempt_ptr<Worker> worker, FilterAction theAction);
+public: // TYPES
 
-    template <typename T>
-    bool runWorker(typename T::MyPrincipal&,
-                   CurrentProcessingContext const* cpc);
+  enum FilterAction {
+      Normal = 0
+    , Ignore // 1
+    , Veto // 2
+  };
 
-    void clearCounters()
-    {
-      counts_ = Counts_t{};
-    }
+public: // MEMBER FUNCTIONS -- Special Member Functions
 
-    std::size_t timesVisited() const { return counts_.times<stats::Visited>(); }
-    std::size_t timesPassed() const { return counts_.times<stats::Passed>(); }
-    std::size_t timesFailed() const { return counts_.times<stats::Failed>(); }
-    std::size_t timesExcept() const { return counts_.times<stats::ExceptionThrown>(); }
+  ~WorkerInPath() noexcept;
 
-    FilterAction filterAction() const { return filterAction_; }
-    cet::exempt_ptr<Worker> getWorker() const { return worker_; }
+  explicit
+  WorkerInPath(Worker*) noexcept;
 
-    std::string const& label() const { return worker_->label(); }
-    bool modifiesEvent() const { return worker_->modifiesEvent(); }
+  WorkerInPath(Worker*, FilterAction) noexcept;
 
-  private:
+  WorkerInPath(WorkerInPath const&) = delete;
 
-    using Counts_t = ExecutionCounts<stats::Visited, stats::Passed, stats::Failed, stats::ExceptionThrown>;
-    Counts_t counts_{};
+  WorkerInPath(WorkerInPath&&) noexcept;
 
-    FilterAction filterAction_{Normal};
-    cet::exempt_ptr<Worker> worker_;
-  };  // WorkerInPath
+  WorkerInPath&
+  operator=(WorkerInPath const&) = delete;
 
-  template <typename T>
-  bool WorkerInPath::runWorker(typename T::MyPrincipal& ep,
-                               CurrentProcessingContext const* cpc)
-  {
-    MaybeIncrementCounts<T::level, decltype(counts_)> counts {counts_};
-    counts.template increment<stats::Visited>();
+  WorkerInPath&
+  operator=(WorkerInPath&&) noexcept;
 
-    bool rc {true};
-    try {
-      // may want to change the return value from the worker to be the
-      // Worker::FilterAction so conditions in the path will be easier
-      // to identify
-      rc = worker_->doWork<T>(ep, cpc);
-    }
-    catch (...) {
-      counts.template increment<stats::ExceptionThrown>();
-      throw;
-    }
+public: // MEMBER FUNCTIONS -- API for user
 
-    // Ignore return code for non-event (e.g. run, subRun) calls
-    if (T::level == Level::Event && filterAction_ == Veto) rc = !rc;
-    else if (T::level != Level::Event || filterAction_ == Ignore) rc = true;
+  Worker*
+  getWorker() const;
 
-    counts.update(rc);
-    return rc;
-  }  // runWorker<>()
+  FilterAction
+  filterAction() const;
 
-}  // art
+  // Used only by Path
+  bool
+  returnCode(int streamIndex) const;
 
-// ======================================================================
+  std::string const&
+  label() const;
+
+  bool
+  runWorker(Transition, Principal&, CurrentProcessingContext*);
+
+  void
+  runWorker_event_for_endpath(EventPrincipal&, int streamIndex, CurrentProcessingContext*);
+
+  void
+  runWorker_event(hep::concurrency::WaitingTask* workerDoneTask, EventPrincipal&, int streamIndex, CurrentProcessingContext*);
+
+  // Used only by Path
+  void
+  clearCounters();
+
+  // Used by writeSummary
+  std::size_t
+  timesVisited() const;
+
+  // Used by writeSummary
+  std::size_t
+  timesPassed() const;
+
+  // Used by writeSummary
+  std::size_t
+  timesFailed() const;
+
+  // Used by writeSummary
+  std::size_t
+  timesExcept() const;
+
+private: // MEMBER DATA
+
+  Worker*
+  worker_{nullptr};
+
+  FilterAction
+  filterAction_{Normal};
+
+private: // MEMBER DATA -- Per-stream
+
+  bool
+  returnCode_{false};
+
+  hep::concurrency::WaitingTaskList
+  waitingTasks_{};
+
+private: // MEMBER DATA -- Counts
+
+  std::atomic<std::size_t>
+  counts_visited_;
+
+  std::atomic<std::size_t>
+  counts_passed_;
+
+  std::atomic<std::size_t>
+  counts_failed_;
+
+  std::atomic<std::size_t>
+  counts_thrown_;
+
+};
+
+} // namespace art
 
 #endif /* art_Framework_Core_WorkerInPath_h */
 

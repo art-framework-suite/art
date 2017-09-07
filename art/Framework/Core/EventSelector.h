@@ -1,11 +1,6 @@
 #ifndef art_Framework_Core_EventSelector_h
 #define art_Framework_Core_EventSelector_h
-
-// ======================================================================
-//
-// EventSelector
-//
-// ======================================================================
+// vim: set sw=2 expandtab :
 
 #include "canvas/Persistency/Common/HLTPathStatus.h"
 #include "canvas/Persistency/Common/TriggerResults.h"
@@ -16,103 +11,149 @@
 #include <string>
 #include <vector>
 
-// ----------------------------------------------------------------------
-
 namespace art {
 
-  // possible return codes for the testSelectionOverlap
-  // method defined below.
-  namespace evtSel
-  {
-    enum OverlapResult {InvalidSelection = 0,
-                        NoOverlap = 1,
-                        PartialOverlap = 2,
-                        ExactMatch = 3};
-  }  // evtSel
+// possible return codes for the testSelectionOverlap
+// method defined below.
+namespace evtSel {
 
-  class EventSelector {
-  public:
+enum OverlapResult {
+  InvalidSelection = 0,
+  NoOverlap = 1,
+  PartialOverlap = 2,
+  ExactMatch = 3
+};
 
-    using Strings = std::vector<std::string>;
+} // namespace evtSel
 
-    EventSelector(Strings const& pathspecs,
-                  Strings const& names);
+class EventSelector {
 
-    explicit
-    EventSelector(Strings const& pathspecs);
+private: // TYPES
 
-    EventSelector(fhicl::ParameterSet const& pset,
-                  Strings const& triggernames);
+  struct BitInfo {
 
-    bool wantAll() const { return accept_all_; }
-    bool acceptEvent(TriggerResults const&);
-
-    std::shared_ptr<TriggerResults>
-    maskTriggerResults(TriggerResults const& inputResults);
-
-  private:
-
-    void init(Strings const& paths,
-              Strings const& triggernames);
-
-    struct BitInfo
+    BitInfo(unsigned const pos, bool const state)
+      : pos_{pos}
+      , accept_state_{state}
     {
-      BitInfo(unsigned const pos, bool const state): pos_{pos}, accept_state_{state} {}
-      unsigned int pos_ {};
-      bool accept_state_ {false};
-    };
+    }
 
-    using Bits = std::vector<BitInfo>;
+    unsigned int
+    pos_{};
 
-    bool accept_all_ {false};
-    Bits absolute_acceptors_ {};
-    Bits conditional_acceptors_ {};
-    Bits exception_acceptors_ {};
-    std::vector<Bits> all_must_fail_ {};
-    std::vector<Bits> all_must_fail_noex_ {};
+    bool
+    accept_state_{false};
 
-    bool results_from_current_process_ {true};
-    bool psetID_initialized_ {false};
-    fhicl::ParameterSetID psetID_ {};
+  };
 
-    Strings paths_ {};
+public: // MEMBER FUNCTIONS -- Special Member Functions
 
-    int nTriggerNames_ {0};
-    bool notStarPresent_ {false};
+  EventSelector(std::vector<std::string> const& pathspecs, std::vector<std::string> const& names);
 
-    bool acceptOneBit (Bits const & b,
-                       HLTGlobalStatus const & tr,
-                       hlt::HLTState const & s = hlt::Ready) const;
-    bool acceptAllBits (Bits const & b,
-                        HLTGlobalStatus const & tr) const;
+  explicit
+  EventSelector(std::vector<std::string> const& pathspecs);
 
-    bool containsExceptions(HLTGlobalStatus const & tr) const;
+  EventSelector(fhicl::ParameterSet const&, std::vector<std::string> const& triggernames);
 
-    bool selectionDecision(HLTGlobalStatus const & tr) const;
+public: // MEMBER FUNCTIONS
 
-    static std::vector< Strings::const_iterator >
-    matching_triggers(Strings const& trigs, std::string const& s);
+  bool
+  wantAll() const;
 
-    static bool identical (std::vector<bool> const & a,
-                           std::vector<bool> const & b);
-    static bool identical (EventSelector const & a,
-                           EventSelector const & b,
-                           unsigned int N);
-    static std::vector<bool> expandDecisionList (
-                Bits const & b,
-                bool PassOrFail,
-                unsigned int n);
-    static bool overlapping ( std::vector<bool> const& a,
-                              std::vector<bool> const& b );
-    static bool subset  ( std::vector<bool> const& a,
-                          std::vector<bool> const& b );
-    static std::vector<bool> combine ( std::vector<bool> const& a,
-                                       std::vector<bool> const& b );
-  };  // EventSelector
+  bool
+  acceptEvent(TriggerResults const&);
 
-}  // art
+  std::shared_ptr<TriggerResults>
+  maskTriggerResults(TriggerResults const& inputResults);
 
-// ======================================================================
+private: // MEMBER FUNCTIONS
+
+  void
+  init(std::vector<std::string> const& paths, std::vector<std::string> const& triggernames);
+
+  bool
+  acceptOneBit(std::vector<BitInfo> const&, HLTGlobalStatus const&, hlt::HLTState const& s = hlt::Ready) const;
+
+  bool
+  acceptAllBits(std::vector<BitInfo> const&, HLTGlobalStatus const&) const;
+
+  bool
+  containsExceptions(HLTGlobalStatus const&) const;
+
+  bool
+  selectionDecision(HLTGlobalStatus const&) const;
+
+private: // MEMBER FUNCTIONS -- Static interface
+
+  static
+  std::vector<std::vector<std::string>::const_iterator>
+  matching_triggers(std::vector<std::string> const& trigs, std::string const&);
+
+  static
+  bool
+  identical(std::vector<bool> const&, std::vector<bool> const&);
+
+  static
+  bool
+  identical(EventSelector const&, EventSelector const&, unsigned int);
+
+  static
+  std::vector<bool>
+  expandDecisionList(std::vector<BitInfo> const&, bool PassOrFail, unsigned int);
+
+  static
+  bool
+  overlapping(std::vector<bool> const&, std::vector<bool> const&);
+
+  static
+  bool
+  subset(std::vector<bool> const&, std::vector<bool> const&);
+
+  static
+  std::vector<bool>
+  combine(std::vector<bool> const&, std::vector<bool> const&);
+
+private: // MEMBER DATA
+
+  bool
+  accept_all_{false};
+
+  std::vector<BitInfo>
+  absolute_acceptors_{};
+
+  std::vector<BitInfo>
+  conditional_acceptors_{};
+
+  std::vector<BitInfo>
+  exception_acceptors_{};
+
+  std::vector<std::vector<BitInfo>>
+  all_must_fail_{};
+
+  std::vector<std::vector<BitInfo>>
+  all_must_fail_noex_{};
+
+  bool
+  results_from_current_process_{true};
+
+  bool
+  psetID_initialized_{false};
+
+  fhicl::ParameterSetID
+  psetID_{};
+
+  std::vector<std::string>
+  paths_{};
+
+  int
+  nTriggerNames_{0};
+
+  bool
+  notStarPresent_{false};
+
+};
+
+} // namespace art
 
 #endif /* art_Framework_Core_EventSelector_h */
 

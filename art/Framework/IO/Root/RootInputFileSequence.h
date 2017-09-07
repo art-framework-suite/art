@@ -118,19 +118,19 @@ public: // MEMBER FUNCTIONS
   input::ItemType
   getNextItemType();
 
-  std::unique_ptr<RunPrincipal>
+  void
   readIt(RunID const&);
 
   std::unique_ptr<RunPrincipal>
   readRun_();
 
-  std::unique_ptr<SubRunPrincipal>
-  readIt(SubRunID const&, cet::exempt_ptr<RunPrincipal>);
+  void
+  readIt(SubRunID const&);
 
   std::unique_ptr<SubRunPrincipal>
   readSubRun_(cet::exempt_ptr<RunPrincipal>);
 
-  std::unique_ptr<EventPrincipal>
+  void
   readIt(EventID const&, bool exact = false);
 
   std::unique_ptr<EventPrincipal>
@@ -243,11 +243,13 @@ private: // MEMBER FUNCTIONS
 private: // MEMBER DATA
 
   InputFileCatalog& catalog_;
-  bool firstFile_ {true};
-  RootInputFileSharedPtr rootFile_ {nullptr};
+  bool doInitMPR_{true};
+  bool firstFile_{true};
+  bool seekingFile_{false};
+  RootInputFileSharedPtr rootFile_{nullptr};
   std::vector<std::shared_ptr<FileIndex>> fileIndexes_;
-  int eventsRemainingInFile_ {};
-  EventID origEventID_ {};
+  int eventsRemainingInFile_{};
+  EventID origEventID_{};
   EventNumber_t eventsToSkip_;
   bool const noEventSort_;
   bool const skipBadFiles_;
@@ -257,17 +259,17 @@ private: // MEMBER DATA
   bool const delayedReadEventProducts_;
   bool const delayedReadSubRunProducts_;
   bool const delayedReadRunProducts_;
-  int forcedRunOffset_ {};
-  RunNumber_t setRun_ {};
+  int forcedRunOffset_{};
+  RunNumber_t setRun_{};
   GroupSelectorRules groupSelectorRules_;
-  std::shared_ptr<DuplicateChecker> duplicateChecker_ {nullptr};
+  std::shared_ptr<DuplicateChecker> duplicateChecker_{nullptr};
   bool const dropDescendants_;
   bool const readParameterSets_;
   RootInputFileSharedPtr rootFileForLastReadEvent_;
   FastCloningInfoProvider fastCloningInfo_;
   InputSource::ProcessingMode processingMode_;
   ProcessConfiguration const& processConfiguration_;
-  std::vector<std::vector<std::string>> secondaryFileNames_ {};
+  std::vector<std::vector<std::string>> secondaryFileNames_{};
   MasterProductRegistry& mpr_;
 
 };

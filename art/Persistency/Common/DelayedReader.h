@@ -1,6 +1,6 @@
 #ifndef art_Persistency_Common_DelayedReader_h
 #define art_Persistency_Common_DelayedReader_h
-// vim: set sw=2:
+// vim: set sw=2 expandtab :
 
 //
 // DelayedReader
@@ -11,63 +11,70 @@
 
 #include "art/Utilities/fwd.h"
 #include "canvas/Persistency/Common/EDProduct.h"
+#include "canvas/Persistency/Provenance/ProductID.h"
 #include "cetlib/exempt_ptr.h"
 
 #include <memory>
 
 namespace art {
 
-  class BranchKey;
-  class EDProductGetterFinder;
-  class RangeSet;
+class BranchKey;
+class Principal;
+class ProductProvenance;
+class RangeSet;
 
-  class DelayedReader {
+class DelayedReader {
 
-  public:
+public:
 
-    virtual ~DelayedReader();
+  virtual
+  ~DelayedReader() noexcept;
 
-    std::unique_ptr<EDProduct>
-    getProduct(BranchKey const& k,
-               TypeID const& wrapper_type,
-               RangeSet& rs) const
-    {
-      return getProduct_(k, wrapper_type, rs);
-    }
+  DelayedReader();
 
-    void
-    setGroupFinder(cet::exempt_ptr<EDProductGetterFinder const> ep)
-    {
-      setGroupFinder_(ep);
-    }
+  std::unique_ptr<EDProduct>
+  getProduct(BranchKey const&, TypeID const& wrapper_type, RangeSet&) const;
 
-    int
-    openNextSecondaryFile(int idx)
-    {
-      return openNextSecondaryFile_(idx);
-    }
+  void
+  setPrincipal(cet::exempt_ptr<Principal>);
 
-  private:
+  std::vector<ProductProvenance>
+  readProvenance() const;
 
-    virtual
-    std::unique_ptr<EDProduct>
-    getProduct_(BranchKey const&,
-                TypeID const&,
-                RangeSet&) const = 0;
+  bool
+  isAvailableAfterCombine(ProductID) const;
 
-    virtual
-    void
-    setGroupFinder_(cet::exempt_ptr<EDProductGetterFinder const>);
+  int
+  openNextSecondaryFile(int idx);
 
-    virtual
-    int
-    openNextSecondaryFile_(int idx);
+private:
 
-  };
+  virtual
+  std::unique_ptr<EDProduct>
+  getProduct_(BranchKey const&, TypeID const&, RangeSet&) const = 0;
+
+  virtual
+  void
+  setPrincipal_(cet::exempt_ptr<Principal>);
+
+  virtual
+  std::vector<ProductProvenance>
+  readProvenance_() const;
+
+  virtual
+  bool
+  isAvailableAfterCombine_(ProductID) const;
+
+  virtual
+  int
+  openNextSecondaryFile_(int idx);
+
+};
 
 } // namespace art
+
+#endif /* art_Persistency_Common_DelayedReader_h */
 
 // Local Variables:
 // mode: c++
 // End:
-#endif /* art_Persistency_Common_DelayedReader_h */

@@ -1,55 +1,51 @@
-// ======================================================================
-//
-// ServiceRegistry
-//
-// ======================================================================
+#include "art/Framework/Services/Registry/ServiceRegistry.h"
+// vim: set sw=2 expandtab :
 
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
-#include "art/Framework/Services/Registry/ServiceRegistry.h"
-
+#include "art/Framework/Services/Registry/ServiceScope.h"
+#include "art/Framework/Services/Registry/ServicesManager.h"
+#include "art/Framework/Services/Registry/detail/ServiceHelper.h"
+#include "art/Utilities/PluginSuffixes.h"
+#include "art/Utilities/ScheduleID.h"
 #include "boost/thread/tss.hpp"
+#include "cetlib/LibraryManager.h"
+#include "fhiclcpp/ParameterSet.h"
 
+#include <memory>
+#include <utility>
+#include <vector>
+
+using namespace std;
 using fhicl::ParameterSet;
-using art::ServiceRegistry;
-using art::ServiceToken;
 
-ServiceToken
-ServiceRegistry::setContext(ServiceToken const& iNewToken)
+namespace art {
+
+ServiceRegistry::
+~ServiceRegistry()
 {
-  ServiceToken result {manager_};
-  manager_ = iNewToken.manager_;
-  return result;
+  manager_ = nullptr;
 }
 
-void
-ServiceRegistry::unsetContext(ServiceToken const& iOldToken)
+ServiceRegistry::
+ServiceRegistry()
+  : manager_{nullptr}
 {
-  manager_ = iOldToken.manager_;
-}
-
-ServiceToken
-ServiceRegistry::presentToken() const
-{
-  return ServiceToken{manager_};
-}
-
-ServiceToken
-ServiceRegistry::createSet(ParameterSets const& iPS, ActivityRegistry& reg)
-{
-  auto result = std::make_shared<ServicesManager>(iPS,
-                                                  ServiceRegistry::instance().lm_,
-                                                  reg);
-  return ServiceToken{result};
 }
 
 ServiceRegistry&
-ServiceRegistry::instance()
+ServiceRegistry::
+instance()
 {
-  static boost::thread_specific_ptr<ServiceRegistry> s_registry;
-  if (nullptr == s_registry.get()) {
-    s_registry.reset(new ServiceRegistry);
-  }
-  return *s_registry;
+  static ServiceRegistry me;
+  return me;
 }
 
-// ======================================================================
+void
+ServiceRegistry::
+setManager(ServicesManager* mgr)
+{
+  manager_ = mgr;
+}
+
+} // namespace art
+

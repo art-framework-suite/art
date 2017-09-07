@@ -16,6 +16,7 @@
 #include "art/Framework/Principal/Provenance.h"
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
+#include "canvas/Utilities/Exception.h"
 #include "cetlib/metaprogramming.h"
 #include "fhiclcpp/ParameterSet.h"
 
@@ -58,7 +59,14 @@ namespace art {
         Group const & g = *pr.second;
         if (resolveProducts_) {
           try {
-            if (!g.resolveProduct(g.producedWrapperType()))
+            if (!g.productAvailable()) {
+              Exception e{errors::ProductNotFound, "InaccessibleProduct"};
+              e << "resolveProduct: product is not accessible\n"
+                << g.productDescription().branchName()
+                << '\n';
+              throw e;
+            }
+            if (!g.resolveProductIfAvailable())
               { throw Exception(errors::DataCorruption, "data corruption"); }
           }
           catch (art::Exception const & e) {

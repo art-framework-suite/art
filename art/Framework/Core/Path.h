@@ -1,133 +1,174 @@
 #ifndef art_Framework_Core_Path_h
 #define art_Framework_Core_Path_h
+// vim: set sw=2 expandtab :
 
-/*
-  An object of this type represents one path in a job configuration.
-  It holds the assigned bit position and the list of workers that are
-  an event must pass through when this parh is processed.  The workers
-  are held in WorkerInPath wrappers so that per path execution statistics
-  can be kept for each worker.
-*/
+//  An object of this type represents one path in a job configuration.
+//  It holds the assigned bit position and the list of workers that are
+//  an event must pass through when this parh is processed.  The workers
+//  are held in WorkerInPath wrappers so that per path execution statistics
+//  can be kept for each worker.
 
-#include "art/Framework/Principal/CurrentProcessingContext.h"
-#include "art/Framework/Principal/PrincipalPackages.h"
-#include "art/Framework/Principal/Worker.h"
 #include "art/Framework/Core/WorkerInPath.h"
+#include "art/Framework/Principal/Worker.h"
+#include "art/Utilities/CurrentProcessingContext.h"
+#include "art/Utilities/Transition.h"
+#include "canvas/Persistency/Common/HLTGlobalStatus.h"
+#include "canvas/Persistency/Common/HLTPathStatus.h"
 #include "canvas/Persistency/Common/HLTenums.h"
 #include "canvas/Persistency/Common/TriggerResults.h"
 #include "fhiclcpp/ParameterSet.h"
+#include "hep_concurrency/WaitingTask.h"
+#include "hep_concurrency/WaitingTaskList.h"
 
+#include <cstddef>
 #include <memory>
+#include <sstream>
 #include <string>
 #include <utility>
 #include <vector>
 
-// ----------------------------------------------------------------------
-
 namespace art {
-  class Path;
-  using PathPtrs = std::vector<std::unique_ptr<Path>>;
-}
 
-class art::Path {
-public:
-  using State = hlt::HLTState;
+class ActivityRegistry;
+class EventPrincipal;
 
-  using WorkersInPath = std::vector<WorkerInPath>;
-  using size_type = WorkersInPath::size_type;
-  using TrigResPtr = cet::exempt_ptr<HLTGlobalStatus>;
+class Path {
 
-  Path(int bitpos,
-       std::string const& path_name,
-       WorkersInPath&& workers,
-       TrigResPtr pathResults,
-       ActionTable const& actions,
-       ActivityRegistry& reg,
-       bool isEndPath);
+public: // MEMBER FUNCTIONS -- Special Member Functions
 
-  template <typename T>
-  void process(typename T::MyPrincipal&);
+  ~Path() noexcept;
 
-  int bitPosition() const { return bitpos_; }
-  std::string const& name() const { return name_; }
+  Path(ActionTable&, ActivityRegistry&, int const streamIndex, int const bitpos, bool const isEndPath,
+       std::string const& path_name, std::vector<WorkerInPath>&&, HLTGlobalStatus*) noexcept;
 
-  void clearCounters();
+  Path(Path const&) = delete;
 
-  std::size_t timesRun() const { return timesRun_; }
-  std::size_t timesPassed() const { return timesPassed_; }
-  std::size_t timesFailed() const { return timesFailed_; }
-  std::size_t timesExcept() const { return timesExcept_; }
-  State state() const { return state_; }
+  // FIXME: This is a hack, remove!
+  Path(Path&&) noexcept;
 
-  auto const& workersInPath() const { return workers_; }
+  Path&
+  operator=(Path const&) = delete;
 
-  void findEventModifiers(std::vector<std::string>& foundLabels) const;
-  void findEventObservers(std::vector<std::string>& foundLabels) const;
+  // FIXME: This is a hack, remove!
+  Path&
+  operator=(Path&&) noexcept;
 
-private:
+public: // MEMBER FUNCTIONS
 
-  void findByModifiesEvent(bool modifies, std::vector<std::string>& foundLabels) const;
+  int
+  streamIndex() const;
 
-  std::size_t timesRun_ {};
-  std::size_t timesPassed_ {};
-  std::size_t timesFailed_ {};
-  std::size_t timesExcept_ {};
-  State state_ {hlt::Ready};
+  int
+  bitPosition() const;
 
-  int bitpos_;
-  std::string name_;
-  TrigResPtr trptr_;
-  ActivityRegistry& actReg_;
-  ActionTable const& act_table_;
+  std::string const&
+  name() const;
 
-  WorkersInPath workers_;
+  std::vector<WorkerInPath> const&
+  workersInPath() const;
 
-  bool isEndPath_;
+  hlt::HLTState
+  state() const;
 
-  // Helper functions
-  // nwrwue = numWorkersRunWithoutUnhandledException (really!)
-  bool handleWorkerFailure(cet::exception const& e, int nwrwue, bool isEvent);
-  void recordUnknownException(int nwrwue, bool isEvent);
-  void recordStatus(int nwrwue, bool isEvent);
-  void updateCounters(bool succeed, bool isEvent);
+  std::size_t
+  timesRun() const;
+
+  std::size_t
+  timesPassed() const;
+
+  std::size_t
+  timesFailed() const;
+
+  std::size_t
+  timesExcept() const;
+
+  // Note: threading: Clears the counters of workersInPath.
+  void
+  clearCounters();
+
+  void
+  process(Transition, Principal&);
+
+  void
+  process_event_for_endpath(EventPrincipal&, int streamIndex);
+
+  void
+  process_event(hep::concurrency::WaitingTask* pathsDoneTask, EventPrincipal&, int streamIndex);
+
+private: // MEMBER FUNCTIONS -- Implementation details
+
+  void
+  process_event_idx_asynch(size_t idx, size_t const max_idx, EventPrincipal&, int si, bool should_continue,
+                           CurrentProcessingContext*);
+
+  void
+  process_event_idx(size_t const idx, size_t const max_idx, EventPrincipal&, int si, bool const should_continue, CurrentProcessingContext*);
+
+  void
+  process_event_workerFinished(size_t const idx, size_t const max_idx, EventPrincipal&, int si, bool const should_continue,
+                               CurrentProcessingContext*);
+
+  void
+  process_event_pathFinished(size_t const idx, EventPrincipal&, int si, bool const should_continue, CurrentProcessingContext*);
+
+private: // MEMBER DATA
+
+  ActionTable&
+  actionTable_;
+
+  ActivityRegistry&
+  actReg_;
+
+  int
+  streamIndex_;
+
+  int
+  bitpos_;
+
+  bool
+  isEndPath_;
+
+  std::string
+  name_;
+
+  // Note: threading: We clear their counters.
+  std::vector<WorkerInPath>
+  workers_;
+
+  // The PathManager trigger paths info actually owns this.
+  // Note: For the end path this will be the nullptr.
+  HLTGlobalStatus*
+  trptr_;
+
+  CurrentProcessingContext
+  cpc_;
+
+private: // MEMBER DATA -- Waiting tasks
+
+  // Tasks waiting for path workers to finish.
+  hep::concurrency::WaitingTaskList
+  waitingTasks_;
+
+private: // MEMBER DATA -- Atomic part, state and counts
+
+  std::atomic<hlt::HLTState>
+  state_{hlt::Ready};
+
+  std::atomic<std::size_t>
+  timesRun_{};
+
+  std::atomic<std::size_t>
+  timesPassed_{};
+
+  std::atomic<std::size_t>
+  timesFailed_{};
+
+  std::atomic<std::size_t>
+  timesExcept_{};
+
 };
 
-template <typename T>
-void art::Path::process(typename T::MyPrincipal& ep)
-{
-  int nwrwue {-1}; // numWorkersRunWithoutUnhandledException
-  T::prePathSignal(actReg_, name_);
-
-  if (T::level == Level::Event) {
-    ++timesRun_;
-  }
-  state_ = hlt::Ready;
-
-  bool should_continue {true};
-  CurrentProcessingContext cpc {&name_, bitPosition(), isEndPath_};
-
-  for (auto it = workers_.begin(), end = workers_.end(); it != end && should_continue; ++it) {
-    ++nwrwue;
-    try {
-      cpc.activate(nwrwue, it->getWorker()->descPtr());
-      should_continue = it->runWorker<T>(ep, &cpc);
-    }
-    catch (cet::exception& e) {
-      // handleWorkerFailure may throw a new exception.
-      should_continue = handleWorkerFailure(e, nwrwue, T::level == Level::Event);
-    }
-    catch (...) {
-      recordUnknownException(nwrwue, T::level == Level::Event);
-      throw;
-    }
-  }
-  updateCounters(should_continue, T::level == Level::Event);
-  recordStatus(nwrwue, T::level == Level::Event);
-  HLTPathStatus const status(state_, nwrwue);
-  T::postPathSignal(actReg_, name_, status);
-}
-
-// ======================================================================
+} // namespace art
 
 #endif /* art_Framework_Core_Path_h */
 

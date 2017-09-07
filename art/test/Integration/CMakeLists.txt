@@ -36,7 +36,7 @@ simple_plugin(BareStringAnalyzer          "module"  NO_INSTALL)
 simple_plugin(BareStringProducer          "module"  NO_INSTALL)
 simple_plugin(CompressedIntProducer       "module"  NO_INSTALL)
 simple_plugin(CompressedIntTestAnalyzer   "module"  NO_INSTALL)
-simple_plugin(ConcurrentEngineRetrieval   "module"  NO_INSTALL USE_BOOST_UNIT)
+#simple_plugin(ConcurrentEngineRetrieval   "module"  NO_INSTALL USE_BOOST_UNIT)
 simple_plugin(DeferredIsReadyWithAssnsAnalyzer "module"  NO_INSTALL)
 simple_plugin(DeferredIsReadyWithAssnsProducer "module"  NO_INSTALL)
 simple_plugin(DerivedPtrVectorProducer    "module"  NO_INSTALL)
@@ -101,6 +101,9 @@ simple_plugin(TestTimeTrackerFilter       "module"  NO_INSTALL)
 simple_plugin(TestTimeTrackerAnalyzer     "module"  NO_INSTALL)
 simple_plugin(Throwing                    "service" NO_INSTALL)
 simple_plugin(ToyProductAnalyzer          "module"  NO_INSTALL)
+simple_plugin(ToyProductFilter            "module"  NO_INSTALL)
+simple_plugin(ToyProductFilterStream      "module"  NO_INSTALL)
+simple_plugin(ToyProductFilterGlobal      "module"  NO_INSTALL)
 simple_plugin(ToyProductProducer          "module"  NO_INSTALL)
 simple_plugin(ToyProductProducerMultiput  "module"  NO_INSTALL)
 simple_plugin(ToyRawFileInput             "source"  NO_INSTALL USE_BOOST_UNIT art_test_Integration)
@@ -358,6 +361,27 @@ cet_test(FileDumperOutput_r HANDBUILT
   PASS_REGULAR_EXPRESSION "Total products \\(present, not present\\): 4 \\(3, 1\\)\\."
   DEPENDS FileDumperOutput_w
 )
+
+cet_test(ToyProductProducerFilter_t HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --rethrow-all -c toyProductProducerFilter_t.fcl
+  DATAFILES
+  fcl/toyProductProducerFilter_t.fcl
+  )
+
+cet_test(ToyProductProducerFilterStream_t HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --rethrow-all -c toyProductProducerFilterStream_t.fcl
+  DATAFILES
+  fcl/toyProductProducerFilterStream_t.fcl
+  )
+
+cet_test(ToyProductProducerFilterGlobal_t HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --rethrow-all -c toyProductProducerFilterGlobal_t.fcl
+  DATAFILES
+  fcl/toyProductProducerFilterGlobal_t.fcl
+  )
 
 cet_test(ToyProductProducerAnalyzer_t HANDBUILT
   TEST_EXEC art
@@ -909,12 +933,12 @@ endforeach()
 
 # Write a data file containing stored products and stored random number
 # states for subsequent tests.
-cet_test(RNGConcurrentAccess_t HANDBUILT
-  TEST_EXEC art_ut
-  TEST_ARGS -- --rethrow-all -c "RNGConcurrentAccess_t.fcl"
-  DATAFILES
-  fcl/RNGConcurrentAccess_t.fcl
-)
+#cet_test(RNGConcurrentAccess_t HANDBUILT
+#  TEST_EXEC art_ut
+#  TEST_ARGS -- --rethrow-all -c "RNGConcurrentAccess_t.fcl"
+#  DATAFILES
+#  fcl/RNGConcurrentAccess_t.fcl
+#)
 
 # Write a data file containing stored products and stored random number
 # states for subsequent tests.

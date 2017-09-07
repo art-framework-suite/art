@@ -1,5 +1,5 @@
 #include "art/Persistency/Provenance/MasterProductRegistry.h"
-// vim: set sw=2:
+// vim: set sw=2 expandtab :
 
 #include "canvas/Persistency/Provenance/BranchKey.h"
 #include "canvas/Persistency/Provenance/TypeTools.h"
@@ -15,185 +15,232 @@
 #include <sstream>
 #include <unordered_map>
 
-using namespace art;
+using namespace std;
+
+namespace art {
 
 namespace {
 
-  class CheapTag {
-  public:
-    CheapTag(std::string const& label,
-             std::string const& instance,
-             std::string const& process)
-      : label_{label}
-      , instance_{instance}
-      , process_{process}
-      {}
+class CheapTag {
 
-    std::string const& label() const { return label_;}
-    std::string const& instance() const { return instance_; }
-    std::string const& process() const { return process_; }
+public:
 
-  private:
-    std::string label_;
-    std::string instance_;
-    std::string process_;
-  };
-
-  inline
-  bool
-  operator==(CheapTag const& left, CheapTag const& right)
+  CheapTag(string const& label, string const& instance, string const& process)
+    : label_{label}
+    , instance_{instance}
+    , process_{process}
   {
-    return left.label() == right.label() &&
-      left.instance() == right.instance() &&
-      left.process() == right.process();
   }
 
-  inline
-  bool
-  operator!=(CheapTag const& left, CheapTag const& right)
+public:
+
+  string const&
+  label() const
   {
-    return !(left == right);
+    return label_;
   }
 
-  class PendingBTLEntry {
-  public:
-    PendingBTLEntry(BranchType const bt,
-                    std::string const& fcn,
-                    std::string const& moduleLabel,
-                    std::string const& instanceName,
-                    std::string const& procName,
-                    ProductID const pid)
-      : bt_{bt}
-      , fcn_{fcn}
-      , ct_{moduleLabel, instanceName, procName}
-      , pid_{pid}
-    {}
-
-    BranchType bt() const { return bt_; }
-    std::string const& fcn() const { return fcn_; }
-    CheapTag const& ct() const { return ct_; }
-    std::string const& process() const { return ct_.process(); }
-    ProductID pid() const { return pid_; }
-  private:
-    BranchType bt_;
-    std::string fcn_;
-    CheapTag ct_;
-    ProductID pid_;
-  };
-
-  void
-  recreateLookups(ProductList const& prods,
-                  BranchTypeLookup& pl,
-                  BranchTypeLookup& el)
+  string const&
+  instance() const
   {
-    std::vector<PendingBTLEntry> pendingEntries;
-    std::unordered_map<ProductID, CheapTag, ProductID::Hash> insertedABVs;
-    for (auto const& val: prods) {
-      auto const& procName = val.first.processName_;
-      auto const pid = val.second.productID();
-      auto const& prodFCN = val.first.friendlyClassName_;
-      auto const bt = val.first.branchType_;
-      pl[bt][prodFCN][procName].emplace_back(pid);
-      // Look in the class of the product for a typedef named "value_type",
-      // if there is one allow lookups by that type name too (and by all
-      // of its base class names as well).
-      art::TypeWithDict const TY {val.second.producedClassName()};
-      if (TY.category() != art::TypeWithDict::Category::CLASSTYPE) {
-        continue;
-      }
-      TClass* const TYc = TY.tClass();
-      auto ET = mapped_type_of(TYc);
-      if (ET || (ET = value_type_of(TYc))) {
-        // The class of the product has a nested type, "mapped_type," or,
-        // "value_type," so allow lookups by that type and all of its base
-        // types too.
-        auto const vtFCN = ET.friendlyClassName();
-        el[bt][vtFCN][procName].emplace_back(pid);
-        if (ET.category() == art::TypeWithDict::Category::CLASSTYPE) {
-          // Repeat this for all public base classes of the value_type.
-          std::vector<TClass*> bases;
-          art::public_base_classes(ET.tClass(), bases);
-          for (auto const BT: bases) {
-            auto const btFCN = art::TypeID{BT->GetTypeInfo()}.friendlyClassName();
-            el[bt][btFCN][procName].emplace_back(pid);
-          }
-        }
-      }
-      auto const& moduleLabel = val.first.moduleLabel_;
-      auto const& instanceName = val.first.productInstanceName_;
-      if (is_assns(TY.id())) {
-        auto const TYName = TY.className();
-        auto const baseName = name_of_assns_base(TYName);
-        if (!baseName.empty()) {
-          // We're an Assns<A, B, D>, with a base Assns<A, B>.
-          TypeWithDict const base {baseName};
-          // Add this to the list of "second-tier" products to register
-          // later.
-          assert(base.category() == art::TypeWithDict::Category::CLASSTYPE);
-          auto const& baseFCN = base.friendlyClassName();
-          pendingEntries.emplace_back(static_cast<art::BranchType>(bt),
-                                      baseFCN,
-                                      moduleLabel,
-                                      instanceName,
-                                      procName,
-                                      pid);
-        }
-        else {
-          // Add our pid to the list of real Assns<A, B, void>
-          // products already registered.
-          insertedABVs.emplace(pid, CheapTag{moduleLabel, instanceName, procName});
+    return instance_;
+  }
+
+  string const&
+  process() const
+  {
+    return process_;
+  }
+
+private:
+
+  string
+  label_;
+
+  string
+  instance_;
+
+  string
+  process_;
+
+};
+
+inline
+bool
+operator==(CheapTag const& left, CheapTag const& right)
+{
+  return (left.label() == right.label()) &&
+         (left.instance() == right.instance()) &&
+         (left.process() == right.process());
+}
+
+inline
+bool
+operator!=(CheapTag const& left, CheapTag const& right)
+{
+  return !(left == right);
+}
+
+class PendingBTLEntry {
+
+public:
+
+  PendingBTLEntry(BranchType const bt, string const& fcn, string const& moduleLabel, string const& instanceName,
+                  string const& procName, ProductID const pid)
+    : bt_{bt}
+    , fcn_{fcn}
+    , ct_{moduleLabel, instanceName, procName}
+    , pid_{pid}
+  {
+  }
+
+  BranchType
+  bt() const
+  {
+    return bt_;
+  }
+
+  string const&
+  fcn() const
+  {
+    return fcn_;
+  }
+
+  CheapTag const&
+  ct() const
+  {
+    return ct_;
+  }
+
+  string const&
+  process() const
+  {
+    return ct_.process();
+  }
+
+  ProductID
+  pid() const
+  {
+    return pid_;
+  }
+
+private:
+
+  BranchType
+  bt_;
+
+  string
+  fcn_;
+
+  CheapTag
+  ct_;
+
+  ProductID
+  pid_;
+
+};
+
+void
+recreateLookups(map<BranchKey, BranchDescription> const& prods,
+                array<map<string const, map<string const, vector<ProductID>>>, NumBranchTypes>& pl,
+                array<map<string const, map<string const, vector<ProductID>>>, NumBranchTypes>& el)
+{
+  vector<PendingBTLEntry> pendingEntries;
+  unordered_map<ProductID, CheapTag, ProductID::Hash> insertedABVs;
+  for (auto const& val : prods) {
+    auto const& procName = val.first.processName_;
+    auto const pid = val.second.productID();
+    auto const& prodFCN = val.first.friendlyClassName_;
+    auto const bt = val.first.branchType_;
+    pl[bt][prodFCN][procName].emplace_back(pid);
+    // Look in the class of the product for a typedef named "value_type",
+    // if there is one allow lookups by that type name too (and by all
+    // of its base class names as well).
+    TypeWithDict const TY{val.second.producedClassName()};
+    if (TY.category() != TypeWithDict::Category::CLASSTYPE) {
+      continue;
+    }
+    TClass* const TYc = TY.tClass();
+    auto ET = mapped_type_of(TYc);
+    if (ET || (ET = value_type_of(TYc))) {
+      // The class of the product has a nested type named "mapped_type" or
+      // "value_type", so allow lookups by that type and all of its base
+      // types too.
+      auto const vtFCN = ET.friendlyClassName();
+      el[bt][vtFCN][procName].emplace_back(pid);
+      if (ET.category() == TypeWithDict::Category::CLASSTYPE) {
+        // Repeat this for all public base classes of the value_type.
+        vector<TClass*> bases;
+        public_base_classes(ET.tClass(), bases);
+        for (auto const BT : bases) {
+          auto const btFCN = TypeID{BT->GetTypeInfo()} .friendlyClassName();
+          el[bt][btFCN][procName].emplace_back(pid);
         }
       }
     }
-    auto const iend = insertedABVs.cend();
-    // Preserve useful ordering, only inserting if we don't already have
-    // a *real* Assns<A, B, void> for that module label / instance name
-    // combination.
-    std::for_each(pendingEntries.cbegin(),
-                  pendingEntries.cend(),
-                  [&pl, &insertedABVs, iend](auto const& pe)
-                  {
-                    auto& pids = pl[pe.bt()][pe.fcn()][pe.process()];
-                    if (pids.empty() ||
-                        !std::any_of(pids.cbegin(), pids.cend(),
-                                     [&insertedABVs, &iend, &pe](ProductID const pid) {
-                                       auto i = insertedABVs.find(pid);
-                                       return i != iend && pe.ct() == i->second;
-                                     }))
-                    {
-                      pids.emplace_back(pe.pid());
-                    }
-                  });
+    auto const& moduleLabel = val.first.moduleLabel_;
+    auto const& instanceName = val.first.productInstanceName_;
+    if (is_assns(TY.id())) {
+      auto const TYName = TY.className();
+      auto const baseName = name_of_assns_base(TYName);
+      if (!baseName.empty()) {
+        // We're an Assns<A, B, D>, with a base Assns<A, B>.
+        TypeWithDict const base{baseName};
+        // Add this to the list of "second-tier" products to register later.
+        assert(base.category() == TypeWithDict::Category::CLASSTYPE);
+        auto const& baseFCN = base.friendlyClassName();
+        pendingEntries.emplace_back(static_cast<BranchType>(bt), baseFCN, moduleLabel, instanceName, procName, pid);
+      }
+      else {
+        // Add our pid to the list of real Assns<A, B, void>
+        // products already registered.
+        insertedABVs.emplace(pid, CheapTag{moduleLabel, instanceName, procName});
+      }
+    }
   }
+  auto const iend = insertedABVs.cend();
+  // Preserve useful ordering, only inserting if we don't already have
+  // a *real* Assns<A, B, void> for that module label / instance name
+  // combination.
+  for_each(pendingEntries.cbegin(), pendingEntries.cend(), [&pl, &insertedABVs, iend](auto const & pe) {
+    auto& pids = pl[pe.bt()][pe.fcn()][pe.process()];
+    if (
+      pids.empty() ||
+    !any_of(pids.cbegin(), pids.cend(), [&insertedABVs, &iend, &pe](ProductID const pid) {
+    auto i = insertedABVs.find(pid);
+      return (i != iend) && (pe.ct() == i->second);
+    })
+    ) {
+      pids.emplace_back(pe.pid());
+    }
+  });
 }
 
-void
-art::MasterProductRegistry::addProduct(std::unique_ptr<BranchDescription>&& bdp)
-{
-  CET_ASSERT_ONLY_ONE_THREAD();
+} // unnamed namespace
 
-  // The below check exists primarily to ensure that the framework
-  // does not accidentally call addProduct at a time when it should
-  // not.
+void
+MasterProductRegistry::
+addProduct(unique_ptr<BranchDescription>&& bdp)
+{
+  // The below check exists primarily to ensure that the framework does
+  // not accidentally call addProduct at a time when it should not.
   if (!allowExplicitRegistration_) {
     throw Exception(errors::ProductRegistrationFailure)
-      << "An attempt to register the product\n"
-      << *bdp
-      << "was made after the product registry was frozen.\n"
-      << "Product registration can be done only in module constructors.\n";
+        << "An attempt to register the product\n"
+        << *bdp
+        << "was made after the product registry was frozen.\n"
+        << "Product registration can be done only in module constructors.\n";
   }
-
   assert(bdp->produced());
-
   checkDicts_(*bdp);
   auto it = productList_.emplace(BranchKey{*bdp}, BranchDescription{});
   if (!it.second) {
     throw Exception(errors::Configuration)
-      << "The process name "
-      << bdp->processName()
-      << " was previously used on these products.\n"
-      << "Please modify the configuration file to use a "
-      << "distinct process name.\n";
+        << "The process name "
+        << bdp->processName()
+        << " was previously used on these products.\n"
+        << "Please modify the configuration file to use a "
+        << "distinct process name.\n";
   }
   auto& productListEntry = *it.first;
   auto& pd = productListEntry.second;
@@ -204,98 +251,81 @@ art::MasterProductRegistry::addProduct(std::unique_ptr<BranchDescription>&& bdp)
 }
 
 void
-art::MasterProductRegistry::finalizeForProcessing()
+MasterProductRegistry::
+finalizeForProcessing()
 {
-  CET_ASSERT_ONLY_ONE_THREAD();
-  // Product registration can still happen implicitly whenever an
-  // input file is opened--via calls to updateFrom(Primary|Secondary)File.
+  // Product registration can still happen implicitly whenever an input file is opened
+  // via calls to updateFrom(Primary|Secondary)File.
   allowExplicitRegistration_ = false;
-
-  productLookup_.assign(1u,{});
-  elementLookup_.assign(1u,{});
+  productLookup_.assign(1u, {});
+  elementLookup_.assign(1u, {});
   recreateLookups(productList_, productLookup_[0], elementLookup_[0]);
 }
 
 void
-art::MasterProductRegistry::updateFromPrimaryFile(ProductList const& pl,
-                                                  PerBranchTypePresence const& presList,
-                                                  FileBlock const& fb)
+MasterProductRegistry::
+updateFromPrimaryFile(map<BranchKey, BranchDescription> const& pl,
+                      array<unordered_set<ProductID, ProductID::Hash>, NumBranchTypes> const& presList)
 {
-  CET_ASSERT_ONLY_ONE_THREAD();
-
   perFileProds_.assign(1, {});
-  perFilePresenceLookups_.assign(1u, {}); // Seed with one empty vector.
-  productLookup_.assign(1u,{});
-  elementLookup_.assign(1u,{});
-
+  perFilePresenceLookups_.assign(1u, {});
+  productLookup_.assign(1u, {});
+  elementLookup_.assign(1u, {});
   setPresenceLookups_(pl, presList);
   updateProductLists_(pl);
-
   recreateLookups(productList_, productLookup_[0], elementLookup_[0]);
-
-  cet::for_all(productListUpdatedCallbacks_, [&fb](auto const& callback){ callback(fb); });
+  cet::for_all(productListUpdatedCallbacks_, [](auto const & callback) { callback(); });
 }
 
 void
-art::MasterProductRegistry::updateFromSecondaryFile(ProductList const& pl,
-                                                    PerBranchTypePresence const& presList,
-                                                    FileBlock const& fb)
+MasterProductRegistry::
+updateFromSecondaryFile(map<BranchKey, BranchDescription> const& pl,
+                        array<unordered_set<ProductID, ProductID::Hash>, NumBranchTypes> const& presList)
 {
   CET_ASSERT_ONLY_ONE_THREAD();
-
-  perFileProds_.resize(perFileProds_.size()+1);
-  perFilePresenceLookups_.resize(perFilePresenceLookups_.size()+1);
-  productLookup_.resize(productLookup_.size()+1);
-  elementLookup_.resize(elementLookup_.size()+1);
-
+  perFileProds_.resize(perFileProds_.size() + 1);
+  perFilePresenceLookups_.resize(perFilePresenceLookups_.size() + 1);
+  productLookup_.resize(productLookup_.size() + 1);
+  elementLookup_.resize(elementLookup_.size() + 1);
   setPresenceLookups_(pl, presList);
   updateProductLists_(pl);
-
   recreateLookups(perFileProds_.back(), productLookup_.back(), elementLookup_.back());
-
-  cet::for_all(productListUpdatedCallbacks_, [&fb](auto const& callback){ callback(fb); });
+  cet::for_all(productListUpdatedCallbacks_, [](auto const & callback) { callback(); });
 }
 
 void
-art::MasterProductRegistry::registerProductListUpdatedCallback(ProductListUpdatedCallback cb)
+MasterProductRegistry::
+registerProductListUpdatedCallback(ProductListUpdatedCallback cb)
 {
   CET_ASSERT_ONLY_ONE_THREAD();
   productListUpdatedCallbacks_.push_back(cb);
 }
 
 bool
-art::MasterProductRegistry::produced(BranchType const branchType, ProductID const pid) const
+MasterProductRegistry::
+produced(BranchType const branchType, ProductID const pid) const
 {
   auto const& pLookup = perBranchPresenceLookup_[branchType];
   return pLookup.find(pid) != pLookup.cend();
 }
 
-std::size_t
-art::MasterProductRegistry::presentWithFileIdx(BranchType const branchType, ProductID const pid) const
+size_t
+MasterProductRegistry::
+presentWithFileIdx(BranchType const branchType, ProductID const pid) const
 {
-  for (std::size_t i{}; i != perFilePresenceLookups_.size() ; ++i) {
+  for (size_t i = 0; i != perFilePresenceLookups_.size() ; ++i) {
     auto& pLookup = perFilePresenceLookups_[i][branchType];
-    if (pLookup.find(pid) != pLookup.cend())
+    if (pLookup.find(pid) != pLookup.cend()) {
       return i;
+    }
   }
   return DROPPED;
 }
 
 void
-art::MasterProductRegistry::print(std::ostream& os) const
-{
-  // TODO: Shouldn't we print the BranchKey too?
-  for (auto const& val: productList_) {
-    os << val.second << "\n-----\n";
-  }
-}
-
-//=====================================================================================
-// Private member functions
-
-void
-art::MasterProductRegistry::setPresenceLookups_(ProductList const& pl,
-                                                PerBranchTypePresence const& presList)
+MasterProductRegistry::
+setPresenceLookups_(map<BranchKey, BranchDescription> const& pl,
+                    array<unordered_set<ProductID, ProductID::Hash>, NumBranchTypes> const& presList)
 {
   for (auto const& p : pl) {
     auto const& pd = p.second;
@@ -308,9 +338,10 @@ art::MasterProductRegistry::setPresenceLookups_(ProductList const& pl,
 }
 
 void
-art::MasterProductRegistry::updateProductLists_(ProductList const& pl)
+MasterProductRegistry::
+updateProductLists_(map<BranchKey, BranchDescription> const& pl)
 {
-  for (auto const& val: pl) {
+  for (auto const& val : pl) {
     auto const& pd = val.second;
     assert(!pd.produced());
     checkDicts_(pd);
@@ -322,7 +353,6 @@ art::MasterProductRegistry::updateProductLists_(ProductList const& pl)
       perFileProds_.back().emplace(bk, pd);
       continue;
     }
-
     assert(combinable(I->second, pd));
     I->second.merge(pd);
     auto J = perFileProds_.back().find(bk);
@@ -339,14 +369,13 @@ art::MasterProductRegistry::updateProductLists_(ProductList const& pl)
 }
 
 void
-art::MasterProductRegistry::checkDicts_(BranchDescription const& productDesc)
+MasterProductRegistry::
+checkDicts_(BranchDescription const& productDesc)
 {
   auto const isTransient = productDesc.transient();
-
   // Check product dictionaries.
   dictChecker_.checkDictionaries(productDesc.wrappedName(), false);
   dictChecker_.checkDictionaries(productDesc.producedClassName(), !isTransient);
-
   // Check dictionaries for assnsPartner, if appropriate. This is only
   // necessary for top-level checks so appropriate here rather than
   // checkDictionaries itself.
@@ -360,10 +389,22 @@ art::MasterProductRegistry::checkDicts_(BranchDescription const& productDesc)
   dictChecker_.reportMissingDictionaries();
 }
 
+void
+MasterProductRegistry::
+print(ostream& os) const
+{
+  // TODO: Shouldn't we print the BranchKey too?
+  for (auto const& val : productList_) {
+    os << val.second << "\n-----\n";
+  }
+}
 
-std::ostream&
-art::operator<<(std::ostream& os, MasterProductRegistry const& mpr)
+ostream&
+operator<<(ostream& os, MasterProductRegistry const& mpr)
 {
   mpr.print(os);
   return os;
 }
+
+} // namespace art
+

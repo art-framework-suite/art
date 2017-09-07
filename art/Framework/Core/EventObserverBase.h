@@ -1,70 +1,118 @@
 #ifndef art_Framework_Core_EventObserverBase_h
 #define art_Framework_Core_EventObserverBase_h
+// vim: set sw=2 expandtab :
 
 // Common base class for module which do not modify events, such as
 // OutputModule and EDAnalyzer.
 
+#include "art/Framework/Core/ModuleBase.h"
 #include "art/Framework/Core/CachedProducts.h"
+#include "art/Framework/Core/ModuleType.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/ParameterSetID.h"
 #include "fhiclcpp/types/Sequence.h"
 #include "fhiclcpp/types/OptionalTable.h"
+#include "hep_concurrency/SerialTaskQueueChain.h"
 
+#include <set>
 #include <string>
 
 namespace art {
-  class MasterProductRegistry;
-  class ModuleDescription;
 
-  class EventObserverBase;
-}
+class MasterProductRegistry;
+class ModuleDescription;
 
-class art::EventObserverBase {
+class EventObserverBase : public ModuleBase {
+
+protected: // TYPES
+
+  struct EOConfig {
+
+    fhicl::Sequence<std::string>
+    selectEvents {
+      fhicl::Name("SelectEvents"),
+      fhicl::Comment("The following parameter is a user-provided list\n"
+                     "of filter paths. The default list is empty."),
+      std::vector<std::string>{}
+    };
+
+  };
+
+public: // MEMBER FUNCTIONS -- Special Member Functions
+
+  virtual
+  ~EventObserverBase();
+
+  EventObserverBase(EventObserverBase const&) = delete;
+
+  EventObserverBase(EventObserverBase&&) = delete;
+
+  EventObserverBase&
+  operator=(EventObserverBase const&) = delete;
+
+  EventObserverBase&
+  operator=(EventObserverBase&&) = delete;
+
+protected: // MEMBER FUNCTIONS -- Special Member Functions
+
+  explicit
+  EventObserverBase(fhicl::ParameterSet const& config);
+
+  explicit
+  EventObserverBase(std::vector<std::string> const& paths, fhicl::ParameterSet const& config);
+
 public:
 
-  bool modifiesEvent() const { return false; }
+  void
+  registerProducts(MasterProductRegistry&, ModuleDescription const&);
 
-  // FIXME: One could obviate the need for this trivial implementation
-  // by putting some type logic in WorkerT.
-  void registerProducts(MasterProductRegistry&, ModuleDescription const &) {}
-  //
-  // SelectEvents handling
-  //
-  std::string const& processName() const { return process_name_; }
-  bool wantAllEvents() const { return wantAllEvents_; }
-  bool wantEvent(Event const& e) { return selectors_.wantEvent(e); }
-  fhicl::ParameterSetID selectorConfig() const { return selector_config_id_; }
-  art::Handle<art::TriggerResults> getTriggerResults(Event const& e) const { return selectors_.getOneTriggerResults(e); }
+  std::string const&
+  processName() const;
+
+  bool
+  wantAllEvents() const;
+
+  bool
+  wantEvent(Event const& e);
+
+  fhicl::ParameterSetID
+  selectorConfig() const;
+
+  Handle<TriggerResults>
+  getTriggerResults(Event const& e) const;
 
 protected:
 
-  struct EOConfig {
-    fhicl::Sequence<std::string> selectEvents {
-      fhicl::Name("SelectEvents"),
-        fhicl::Comment("The following parameter is a user-provided list\n"
-                       "of filter paths. The default list is empty."),
-        std::vector<std::string>{} };
-  };
+  detail::CachedProducts&
+  cachedProducts();
 
-  explicit EventObserverBase(std::vector<std::string> const& paths, fhicl::ParameterSet const& config);
-  explicit EventObserverBase(fhicl::ParameterSet const& config);
-  detail::CachedProducts& cachedProducts() { return selectors_; }
+private: // MEMBER FUNCTIONS -- Implementation details.
 
-private:
+  void
+  init_(std::vector<std::string> const& paths);
+
+private: // MEMBER DATA
 
   // True if no selectors configured.
-  bool wantAllEvents_ {false};
+  bool
+  wantAllEvents_{false};
+
   // The process and event selectors, as specified by the SelectEvents
   // configuration parameter.
-  detail::CachedProducts selectors_ {};
-  std::string process_name_ {};
+  detail::CachedProducts
+  selectors_{};
+
+  std::string
+  process_name_{};
+
   // ID of the ParameterSet that configured the event selector
   // subsystem.
-  fhicl::ParameterSetID selector_config_id_;
-
-  void init_(std::vector<std::string> const& paths);
+  fhicl::ParameterSetID
+  selector_config_id_{};
 
 };
+
+} // namespace art
 
 #endif /* art_Framework_Core_EventObserverBase_h */
 

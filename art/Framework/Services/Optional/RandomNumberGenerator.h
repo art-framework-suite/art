@@ -1,13 +1,11 @@
 #ifndef art_Framework_Services_Optional_RandomNumberGenerator_h
 #define art_Framework_Services_Optional_RandomNumberGenerator_h
+// vim: set sw=2 expandtab :
 
-// ======================================================================
 //
 // A Service to maintain multiple independent random number engines.
 //
-// ======================================================================
 // Introduction
-// ------------
 //
 // Via this RandomNumberGenerator, the CLHEP random number engines are
 // made available such that a client module may establish and
@@ -18,9 +16,11 @@
 // Service as desired.  However, by design, source modules are
 // permitted to make no use of this Service.
 //
-// ======================================================================
 // Creating an engine
-// ------------------
+//
+// FIXME: threading: This will have to change because a module ctor
+// FIXME: threading: currently has no way of knowing what stream
+// FIXME: threading: (if any) it is being created for.
 //
 // Each engine to be used by a module must be created in that module's
 // constructor.  Creating an engine involves specifying:
@@ -57,9 +57,7 @@
 //
 //   CLHEP::RandFlat dist {createEngine(...)};
 //
-// ======================================================================
 // Creating the global engine
-// --------------------------
 //
 // CLHEP provides the notion of a global engine, and Geant4 makes use
 // of this feature.  It is recommended that the designated Geant4
@@ -72,9 +70,7 @@
 //
 //   createEngine(seed, "G4Engine");
 //
-// ======================================================================
 // Digression: obtaining a seed value
-// ----------------------------------
 //
 // As noted above, creating an engine involves specifying a seed
 // value.  Determining this value is at the discretion of the module
@@ -107,9 +103,7 @@
 //       createEngine(get_seed_value(pset,"seed"));
 //       createEngine(get_seed_value(pset,"seed",-1));
 //
-// ======================================================================
 // Service handles
-// ---------------
 //
 // To gain general access to this RandomNumberGenerator, a module uses
 // the facilities of the Service subsystem.  Thus, after #including
@@ -127,9 +121,7 @@
 // makes use of the reference returned by the createEngine() call will
 // also likely need obtain no handle.
 //
-// ======================================================================
 // Accessing an engine
-// -------------------
 //
 // To obtain access to a previously-established engine (see above),
 // call the Service's getEngine function.  The call takes a single
@@ -143,12 +135,10 @@
 // engine for the current module, using the label to disambiguate if
 // the module has established more than one engine.
 //
-// ======================================================================
 // Configuring the Service
-// -----------------------
 //
 // TODO: draft this section
-// ======================================================================
+//
 // TODO: assess the following remarks from the placeholder
 // implementation and determine whether they are still valid/useful.
 //
@@ -158,11 +148,9 @@
 // capable of restoring the state of the engines from the event in
 // order to be able to exactly reproduce the earlier process.
 //
-// ======================================================================
 
 #include "art/Framework/Services/Registry/ServiceMacros.h"
 #include "art/Framework/Services/Registry/ServiceTable.h"
-#include "art/Utilities/ScheduleID.h"
 #include "canvas/Persistency/Common/RNGsnapshot.h"
 #include "fhiclcpp/types/Atom.h"
 #include "fhiclcpp/types/Name.h"
@@ -172,55 +160,49 @@
 #include <string>
 #include <vector>
 
-namespace art {
-  class ActivityRegistry;
-  class Event;
-  class EventID;
-  class Timestamp;
-
-  class EngineCreator;      // to be granted friendship
-  class EventProcessor;     // to be granted friendship
-  class RandomNumberSaver;  // to be granted friendship
-
-  namespace test {
-    class ConcurrentEngineRetrieval; // to be granted friendship only for testing
-  }
-
-  class RandomNumberGenerator;
-}
-
 namespace CLHEP {
-  class HepRandomEngine;
-}
 
-// ======================================================================
+class HepRandomEngine;
 
-class art::RandomNumberGenerator {
-  friend class EngineCreator;
+} // namespace CLHEP
+
+namespace art {
+
+class ActivityRegistry;
+class Event;
+class EventID;
+class Timestamp;
+
+class EventProcessor;
+class ModuleBase;
+class RandomNumberSaver;
+
+namespace test {
+
+class ConcurrentEngineRetrieval;
+
+} // namespace test
+
+class RandomNumberGenerator {
+
   friend class EventProcessor;
+  friend class ModuleBase;
   friend class RandomNumberSaver;
   friend class test::ConcurrentEngineRetrieval;
 
-  // --- Prevent copying:
-  RandomNumberGenerator(RandomNumberGenerator const&) = delete;
-  RandomNumberGenerator& operator=(RandomNumberGenerator const&) = delete;
+public: // TYPES
+ 
+  // Used by createEngine.
+  // Used by restoreSnapshot_.
+  // Used by restoreFromFile_.
+  enum class EngineSource {
+      Seed = 1
+    , File
+    , Product
+  };
 
-public:
-  // --- CLHEP engine characteristics:
-  using base_engine_t  = CLHEP::HepRandomEngine;
-  using seed_t         = long;
-  using engine_state_t = RNGsnapshot::engine_state_t;
+public: // CONFIGURATION
 
-  // --- Internal state characteristics:
-  enum init_t {VIA_SEED=1, VIA_FILE, VIA_PRODUCT};
-  using label_t    = RNGsnapshot::label_t;
-  using eptr_t     = std::shared_ptr<base_engine_t>;
-  using dict_t     = std::map<label_t,eptr_t>;
-  using tracker_t  = std::map<label_t,init_t>;
-  using kind_t     = std::map<label_t,std::string>;
-  using snapshot_t = std::vector<RNGsnapshot>;
-
-  // --- Allowed configuration
   struct Config {
     fhicl::Atom<std::string> restoreStateLabel {fhicl::Name{"restoreStateLabel"}, ""};
     fhicl::Atom<std::string> saveTo            {fhicl::Name{"saveTo"}, ""};
@@ -230,84 +212,167 @@ public:
   };
 
   using Parameters = ServiceTable<Config>;
-  RandomNumberGenerator(Parameters const&, art::ActivityRegistry&);
 
-  // --- Engine access:
+public: // MEMBER FUNCTIONS -- Special Member Functions
+
+  RandomNumberGenerator(Parameters const&, ActivityRegistry&);
+
+  RandomNumberGenerator(RandomNumberGenerator const&) = delete;
+
+  RandomNumberGenerator(RandomNumberGenerator&&) = delete;
+
+  RandomNumberGenerator&
+  operator=(RandomNumberGenerator const&) = delete;
+
+  RandomNumberGenerator&
+  operator=(RandomNumberGenerator&&) = delete;
+
+public: // MEMBER FUNCTIONS -- Engine access
 
   // TODO: Could remove if we do not need to support access from
   //       engines restored from file.
-  base_engine_t& getEngine() const;
-  base_engine_t& getEngine(label_t const& engine_label) const;
 
-private:
+  CLHEP::HepRandomEngine&
+  getEngine() const;
 
-  // --- Engine establishment:
-  base_engine_t& createEngine(ScheduleID schedule_id, seed_t seed);
-  base_engine_t& createEngine(ScheduleID schedule_id, seed_t seed, std::string const& kind_of_engine_to_make);
-  base_engine_t& createEngine(ScheduleID schedule_id, seed_t seed, std::string kind_of_engine_to_make, label_t const& engine_label);
+  CLHEP::HepRandomEngine&
+  getEngine(std::string const& engine_label) const;
 
-  base_engine_t& getEngine(ScheduleID schedule_id, label_t const& engine_label = {}) const;
+private: // TYPES
+
+  // Per-stream data
+  struct ScheduleData {
+
+    // Indexed by engine label.
+    std::map<std::string, std::shared_ptr<CLHEP::HepRandomEngine>>
+    dict_{};
+
+    // Indexed by engine label.
+    // When EngineSource == Seed, this means an engine with the
+    // given label has been created by createEngine(si, seed, ...).
+    // When EngineSource == File, this means the engine was
+    // created by restoring it from a file.
+    // When EngineSource == Product, this means the engine was
+    // created by restoring it from a snapshot data product
+    // with module label "restoreStateLabel".
+    std::map<std::string, EngineSource> 
+    tracker_{};
+
+    // Indexed by engine label.
+    std::map<std::string, std::string>
+    kind_{};
+
+    std::vector<RNGsnapshot>
+    snapshot_{};
+
+  };
+
+private: // MEMBER FUNCTIONS -- Engine establishment
+
+  CLHEP::HepRandomEngine&
+  createEngine(int streamIndex, long seed);
+
+  CLHEP::HepRandomEngine&
+  createEngine(int streamIndex, long seed, std::string const& kind_of_engine_to_make);
+
+  CLHEP::HepRandomEngine&
+  createEngine(int streamIndex, long seed, std::string kind_of_engine_to_make, std::string const& engine_label);
+
+  CLHEP::HepRandomEngine&
+  getEngine(int streamIndex, std::string const& engine_label = {}) const;
 
   // --- MT-TODO: Only for testing
   //     For testing multi-schedule parallization of this service, the
   //     requested number of schedules is not expanded UNLESS the
   //     expandToNSchedules() function is called by a friend.
-  void expandToNSchedules(std::size_t const n) { data_.resize(n); }
-
-  // --- Snapshot management helpers:
-  void takeSnapshot_(ScheduleID scheduleID);
-  void restoreSnapshot_(ScheduleID scheduleID, art::Event const&);
-  snapshot_t const& accessSnapshot_(ScheduleID const schedule_id) const
+  void
+  expandToNSchedules(int const n)
   {
-    return data_[schedule_id.id()].snapshot_;
+    data_.resize(n);
   }
 
-  // --- File management helpers:
-  //     TODO: Determine if this facility is necessary.
-  void saveToFile_();
-  void restoreFromFile_();
+private: // MEMBER FUNCTIONS -- Snapshot management helpers
 
-  // --- Debugging helpers:
-  void print_() const;
-  bool invariant_holds_(ScheduleID::size_type scheduleID);
+  void
+  takeSnapshot_(int streamIndex);
 
-  // --- Callbacks:
-  void preProcessEvent(art::Event const&);
-  void postProcessEvent(art::Event const&);
-  void postBeginJob();
-  void postEndJob();
+  void
+  restoreSnapshot_(int streamIndex, Event const&);
 
-  // --- Guard against tardy engine creation:
-  bool engine_creation_is_okay_ {true};
+  std::vector<RNGsnapshot> const&
+  accessSnapshot_(int const streamIndex) const
+  {
+    return data_[streamIndex].snapshot_;
+  }
 
-  // Per-schedule information
-  struct ScheduleData {
-    // --- Per-module-instance information:
-    dict_t    dict_ {};
-    tracker_t tracker_ {};
-    kind_t    kind_ {};
+private: // MEMBER FUNCTIONS -- File management helpers
 
-    // --- Snapshot information:
-    snapshot_t snapshot_ {};
-  };
-  std::vector<ScheduleData> data_;
+  // TODO: Determine if this facility is necessary.
 
-  // --- Product key for restoring from a snapshot:
-  label_t const restoreStateLabel_;
+  void
+  saveToFile_();
 
-  // --- File names for saving/restoring state:
-  std::string const saveToFilename_;
-  std::string const restoreFromFilename_;
+  void
+  restoreFromFile_();
 
-  // --- Tracing and debug controls:
-  unsigned const nPrint_;
-  bool const debug_;
+private: // MEMBER FUNCTIONS -- Debugging helpers
 
-};  // RandomNumberGenerator
+  void
+  print_() const;
 
-// ======================================================================
+  bool
+  invariant_holds_(int streamIndex);
+
+private: // MEMBER FUNCTIONS -- Callbacks
+
+  void
+  preProcessEvent(Event const&);
+
+  void
+  postProcessEvent(Event const&);
+
+  void
+  postBeginJob();
+
+  void
+  postEndJob();
+
+private: // MEMBER DATA -- Guard against tardy engine creation
+
+  bool
+  engine_creation_is_okay_{true};
+
+private:
+
+  std::vector<ScheduleData>
+  data_;
+
+  // Product key for restoring from a snapshot
+  std::string const
+  restoreStateLabel_;
+
+  // File name for saving state
+  std::string const
+  saveToFilename_;
+
+  // File name for restoring state
+  std::string const
+  restoreFromFilename_;
+
+  // Tracing and debug controls
+  unsigned const
+  nPrint_;
+
+  // Tracing and debug controls
+  bool const
+  debug_;
+
+};
+
+} // namesapce art
 
 DECLARE_ART_SERVICE(art::RandomNumberGenerator, LEGACY)
+
 #endif /* art_Framework_Services_Optional_RandomNumberGenerator_h */
 
 // Local Variables:

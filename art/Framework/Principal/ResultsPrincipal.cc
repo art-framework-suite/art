@@ -1,64 +1,31 @@
 #include "art/Framework/Principal/ResultsPrincipal.h"
 // vim: set sw=2:
 
-#include "art/Framework/Principal/Group.h"
-#include "art/Framework/Principal/GroupFactory.h"
-#include "art/Framework/Principal/RunPrincipal.h"
-#include "canvas/Persistency/Provenance/ProductID.h"
-#include "art/Persistency/Provenance/ProductMetaData.h"
-#include "messagefacility/MessageLogger/MessageLogger.h"
+#include "art/Framework/Principal/Principal.h"
+#include "cetlib/exempt_ptr.h"
 
-art::ResultsPrincipal::
-ResultsPrincipal(ResultsAuxiliary const& aux,
-                 ProcessConfiguration const& pc,
-                 std::unique_ptr<BranchMapper>&& mapper,
-                 std::unique_ptr<DelayedReader>&& rtrv)
-  : Principal{pc, aux.processHistoryID_, std::move(mapper), std::move(rtrv)}
-  , aux_{aux}
+#include <memory>
+#include <utility>
+
+using namespace std;
+
+namespace art {
+
+class DelayedReader;
+class ProcessConfiguration;
+class ResultsAuxiliary;
+
+ResultsPrincipal::
+~ResultsPrincipal()
 {
-  productReader().setGroupFinder(cet::exempt_ptr<EDProductGetterFinder const>{this});
 }
 
-art::BranchType
-art::ResultsPrincipal::
-branchType() const
+ResultsPrincipal::
+ResultsPrincipal(ResultsAuxiliary const& aux, ProcessConfiguration const& pc,
+                 std::unique_ptr<DelayedReader>&& reader /*std::make_unique<NoDelayedReader>()*/)
+  : Principal{aux, pc, move(reader)}
 {
-  return InResults;
 }
 
-art::ProcessHistoryID const&
-art::ResultsPrincipal::
-processHistoryID() const
-{
-  return aux().processHistoryID_;
-}
+} // namespace art
 
-void
-art::ResultsPrincipal::
-setProcessHistoryID(ProcessHistoryID const& phid)
-{
-  aux().setProcessHistoryID(phid);
-}
-
-void
-art::ResultsPrincipal::
-fillGroup(BranchDescription const& pd)
-{
-  Principal::fillGroup(gfactory::make_group(pd,
-                                            pd.productID(),
-                                            RangeSet::invalid()));
-}
-
-void
-art::ResultsPrincipal::
-put(std::unique_ptr<EDProduct>&& edp,
-    BranchDescription const& pd,
-    std::unique_ptr<ProductProvenance const>&& productProvenance)
-{
-  assert(edp);
-  branchMapper().insert(std::move(productProvenance));
-  Principal::fillGroup(gfactory::make_group(pd,
-                                            pd.productID(),
-                                            RangeSet::invalid(),
-                                            std::move(edp)));
-}

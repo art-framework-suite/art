@@ -1,5 +1,6 @@
 #include "art/Framework/Services/Optional/TrivialFileDelivery.h"
 #include "art/Framework/Services/FileServiceInterfaces/FileDeliveryStatus.h"
+#include "canvas/Utilities/Exception.h"
 #include <cerrno>
 #include <cstdlib>
 #include <fstream>

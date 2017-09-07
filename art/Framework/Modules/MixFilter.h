@@ -7,6 +7,11 @@
 // mixing products from a secondary event (or subrun, or run) stream
 // into the primary event.
 //
+// FIXME: threading: What gets mixed is unpredictable when multiple
+// FIXME: threading: mixing modules run in parallel either because
+// FIXME: threading: of multiple trigger paths or because of streams
+// FIXME: threading: when the mixing mode is Mode::SEQUENTIAL.
+//
 // The MixFilter class template requires the use of a type T as its
 // template parameter; this type T must supply the following non-static
 // member functions:
@@ -140,6 +145,7 @@
 #include "art/Framework/IO/ProductMix/MixTypes.h"
 #include "art/Framework/IO/ProductMix/MixHelper.h"
 #include "art/Framework/IO/ProductMix/MixOpBase.h"
+#include "art/Framework/Services/Optional/RandomNumberGenerator.h"
 #include "art/Framework/Services/Registry/ServiceRegistry.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
 #include "cetlib/metaprogramming.h"
@@ -470,9 +476,16 @@ namespace art {
 
 template <class T>
 class art::MixFilter : public EDFilter {
-public:
+
+public: // TYPES
+
   typedef T MixDetail;
+
+public: // MEMBER FUNCTIONS -- Special Member Functions
+
   explicit MixFilter(fhicl::ParameterSet const & p);
+
+public: // MEMBER FUNCTIONS -- API required by EDFilter
 
   void beginJob() override;
   void respondToOpenInputFile(FileBlock const & fb) override;
@@ -485,11 +498,16 @@ public:
   bool beginRun(Run & r) override;
   bool endRun(Run & r) override;
 
-private:
+private: // MEMBER FUNCTIONS -- Implementation details
+
   fhicl::ParameterSet const &
   initEngine_(fhicl::ParameterSet const & p);
+
+private: // MEMBER DATA
+
   MixHelper helper_;
   MixDetail detail_;
+
 };
 
 template <class T>
@@ -646,7 +664,7 @@ fhicl::ParameterSet const &
 art::MixFilter<T>::initEngine_(fhicl::ParameterSet const & p) {
   // If we can't create one of these, the helper will deal with the
   // situation accordingly.
-  if (ServiceRegistry::isAvailable<RandomNumberGenerator>()) {
+  if (ServiceRegistry::instance().isAvailable<RandomNumberGenerator>()) {
     createEngine(get_seed_value(p));
   }
   return p;

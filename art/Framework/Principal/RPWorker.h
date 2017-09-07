@@ -1,5 +1,6 @@
 #ifndef art_Framework_Principal_RPWorker_h
 #define art_Framework_Principal_RPWorker_h
+// vim: set sw=2 expandtab :
 ////////////////////////////////////////////////////////////////////////
 // RPWorker
 //
@@ -14,69 +15,93 @@
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
 
 namespace art {
-  class RPWorker;
 
-  class ResultsProducer; // Forward declaration.
-}
+class ResultsProducer;
 
-class art::RPWorker {
+class RPWorker {
+
 public:
-  RPWorker(RPParams const & p);
-  virtual ~RPWorker() = default;
 
-  ResultsProducer & rp();
-  ResultsProducer const & rp() const;
+  virtual
+  ~RPWorker() = default;
 
-  RPParams const & params() const;
-  ModuleDescription const & moduleDescription() const;
+  RPWorker(RPParams const& p);
 
-  void setModuleDescription(ModuleDescription const &);
-  void setModuleDescription(ModuleDescription &&);
+public:
+
+  ResultsProducer&
+  rp();
+
+  ResultsProducer const&
+  rp() const;
+
+  RPParams const&
+  params() const;
+
+  ModuleDescription const&
+  moduleDescription() const;
+
+  void
+  setModuleDescription(ModuleDescription const&);
+
+  void
+  setModuleDescription(ModuleDescription&&);
 
 private:
-  virtual ResultsProducer & rp_() = 0;
-  virtual ResultsProducer const & rp_() const = 0;
 
-  RPParams p_;
-  ModuleDescription md_;
+  virtual
+  ResultsProducer&
+  rp_() = 0;
+
+  virtual
+  ResultsProducer const&
+  rp_() const = 0;
+
+private:
+
+  RPParams
+  p_;
+
+  ModuleDescription
+  md_;
+
 };
 
 inline
-art::RPWorker::
-RPWorker(RPParams const & p)
-:
-  p_(p),
-  md_()
+RPWorker::
+RPWorker(RPParams const& p)
+  : p_(p)
+  , md_()
 {
 }
 
 inline
-art::ResultsProducer &
-art::RPWorker::
+ResultsProducer&
+RPWorker::
 rp()
 {
   return rp_();
 }
 
 inline
-art::ResultsProducer const &
-art::RPWorker::
+ResultsProducer const&
+RPWorker::
 rp() const
 {
   return rp_();
 }
 
 inline
-art::RPParams const &
-art::RPWorker::
+RPParams const&
+RPWorker::
 params() const
 {
   return p_;
 }
 
 inline
-art::ModuleDescription const &
-art::RPWorker::
+ModuleDescription const&
+RPWorker::
 moduleDescription() const
 {
   return md_;
@@ -84,19 +109,21 @@ moduleDescription() const
 
 inline
 void
-art::RPWorker::
-setModuleDescription(art::ModuleDescription const & md)
+RPWorker::
+setModuleDescription(ModuleDescription const& md)
 {
   md_ = md;
 }
 
 inline
 void
-art::RPWorker::
-setModuleDescription(art::ModuleDescription && md)
+RPWorker::
+setModuleDescription(ModuleDescription&& md)
 {
   md_ = std::move(md);
 }
+
+} // namespace art
 
 #endif /* art_Framework_Principal_RPWorker_h */
 

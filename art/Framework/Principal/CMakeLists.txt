@@ -7,6 +7,7 @@ art_make(LIB_LIBRARIES
   MF_MessageLogger
   fhiclcpp
   cetlib
+  hep_concurrency
   SUBDIRS
   detail
 )

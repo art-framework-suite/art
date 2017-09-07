@@ -35,10 +35,10 @@ public:
   void writeSubRun(art::SubRunPrincipal & sr) override;
   void writeRun(art::RunPrincipal & r) override;
 
-  void beginRun(art::RunPrincipal const & r) override;
-  void beginSubRun(art::SubRunPrincipal const & sr) override;
-  void endRun(art::RunPrincipal const & r) override;
-  void endSubRun(art::SubRunPrincipal const & sr) override;
+  void beginRun(art::RunPrincipal& r) override;
+  void beginSubRun(art::SubRunPrincipal& sr) override;
+  void endRun(art::RunPrincipal& r) override;
+  void endSubRun(art::SubRunPrincipal& sr) override;
 
 private:
 };
@@ -52,37 +52,37 @@ arttest::FlushingGeneratorTest::FlushingGeneratorTest(arttest::FlushingGenerator
 
 void arttest::FlushingGeneratorTest::write(art::EventPrincipal & e)
 {
-  assert(!e.id().isFlush());
+  assert(!e.eventID().isFlush());
 }
 
 void arttest::FlushingGeneratorTest::writeSubRun(art::SubRunPrincipal & sr)
 {
-  assert(!sr.id().isFlush());
+  assert(!sr.subRunID().isFlush());
 }
 
 void arttest::FlushingGeneratorTest::writeRun(art::RunPrincipal & r)
 {
-  assert(!r.id().isFlush());
+  assert(!r.runID().isFlush());
 }
 
-void arttest::FlushingGeneratorTest::beginRun(art::RunPrincipal const & r)
+void arttest::FlushingGeneratorTest::beginRun(art::RunPrincipal& r)
 {
-  assert(!r.id().isFlush());
+  assert(!r.runID().isFlush());
 }
 
-void arttest::FlushingGeneratorTest::beginSubRun(art::SubRunPrincipal const & sr)
+void arttest::FlushingGeneratorTest::beginSubRun(art::SubRunPrincipal& sr)
 {
-  assert(!sr.id().isFlush());
+  assert(!sr.subRunID().isFlush());
 }
 
-void arttest::FlushingGeneratorTest::endRun(art::RunPrincipal const & r)
+void arttest::FlushingGeneratorTest::endRun(art::RunPrincipal& r)
 {
-  assert(!r.id().isFlush());
+  assert(!r.runID().isFlush());
 }
 
-void arttest::FlushingGeneratorTest::endSubRun(art::SubRunPrincipal const & sr)
+void arttest::FlushingGeneratorTest::endSubRun(art::SubRunPrincipal& sr)
 {
-  assert(!sr.id().isFlush());
+  assert(!sr.subRunID().isFlush());
 }
 
 DEFINE_ART_MODULE(arttest::FlushingGeneratorTest)

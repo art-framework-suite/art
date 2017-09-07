@@ -16,7 +16,7 @@ physics:
 
   analyzers:
   {
-    am1: 
+    am1:
     {
       module_type: PtrMakerAnalyzer
       input_label: pm2

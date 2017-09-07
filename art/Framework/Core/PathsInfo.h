@@ -1,121 +1,77 @@
 #ifndef art_Framework_Core_PathsInfo_h
 #define art_Framework_Core_PathsInfo_h
+// vim: set sw=2 expandtab :
 
 #include "art/Framework/Core/Path.h"
-#include "art/Framework/Core/WorkerMap.h"
-#include "art/Framework/Core/detail/ModuleFactory.h"
-#include "art/Framework/Core/detail/ModuleInPathInfo.h"
 #include "canvas/Persistency/Common/HLTGlobalStatus.h"
-#include "cetlib/exempt_ptr.h"
+
+#include <cstddef>
+#include <map>
+#include <string>
 
 namespace art {
-  class PathsInfo;
-}
 
-class art::PathsInfo {
+class PathsInfo {
+
 public:
 
-  explicit PathsInfo(std::size_t const numPaths,
-                     detail::ModuleFactory& factory,
-                     fhicl::ParameterSet const& procPS,
-                     MasterProductRegistry& preg,
-                     ActionTable& actions,
-                     ActivityRegistry& areg);
+  ~PathsInfo();
 
-  HLTGlobalStatus& pathResults();
-  using ModInfos = std::vector<detail::ModuleInPathInfo>;
+  PathsInfo();
 
-  void makeAndAppendPath(std::string const& pathName,
-                         ModInfos const& modInfos,
-                         bool trigResultsNeeded = true);
-  void addEvent();
-  void addPass();
+public:
 
-  WorkerMap const& workers() const;
-  PathPtrs const& pathPtrs() const;
-  size_t passedEvents() const;
-  size_t failedEvents() const;
-  size_t totalEvents() const;
+  std::map<std::string, Worker*>&
+  workers();
+
+  std::map<std::string, Worker*> const&
+  workers() const;
+
+  std::vector<Path*>&
+  paths();
+
+  std::vector<Path*> const&
+  paths() const;
+
+  HLTGlobalStatus&
+  pathResults();
+
+  void
+  incrementTotalEventCount();
+
+  void
+  incrementPassedEventCount();
+
+  std::size_t
+  passedEvents() const;
+
+  std::size_t
+  failedEvents() const;
+
+  std::size_t
+  totalEvents() const;
 
 private:
 
-  void
-  makeWorker_(detail::ModuleInPathInfo const& mipi,
-              std::vector<WorkerInPath>& pathWorkers);
+  // Maps module_label to Worker.
+  std::map<std::string, Worker*>
+  workers_{};
 
-  cet::exempt_ptr<Worker>
-  makeWorker_(detail::ModuleConfigInfo const& mci);
+  std::vector<Path*>
+  paths_{};
 
-  WorkerMap workers_{};
-  PathPtrs pathPtrs_{};
-  HLTGlobalStatus pathResults_;
+  HLTGlobalStatus
+  pathResults_{};
 
-  size_t totalEvents_{};
-  size_t passedEvents_{};
+  std::size_t
+  totalEvents_{};
 
-  detail::ModuleFactory& fact_;
-  fhicl::ParameterSet const& procPS_;
-  MasterProductRegistry& preg_;
-  ActionTable& exceptActions_;
-  ActivityRegistry& areg_;
-  std::vector<std::string> configErrMsgs_;
+  std::size_t
+  passedEvents_{};
+
 };
 
-inline
-art::HLTGlobalStatus&
-art::PathsInfo::pathResults()
-{
-  return pathResults_;
-}
-
-inline
-void
-art::PathsInfo::addEvent()
-{
-  ++totalEvents_;
-}
-
-inline
-void
-art::PathsInfo::addPass()
-{
-  ++passedEvents_;
-}
-
-inline
-art::WorkerMap const&
-art::PathsInfo::workers() const
-{
-  return workers_;
-}
-
-inline
-art::PathPtrs const&
-art::PathsInfo::pathPtrs() const
-{
-  return pathPtrs_;
-}
-
-inline
-size_t
-art::PathsInfo::passedEvents() const
-{
-  return passedEvents_;
-}
-
-inline
-size_t
-art::PathsInfo::failedEvents() const
-{
-  return totalEvents_ - passedEvents_;
-}
-
-inline
-size_t
-art::PathsInfo::totalEvents() const
-{
-  return totalEvents_;
-}
+} // namespace art
 
 #endif /* art_Framework_Core_PathsInfo_h */
 

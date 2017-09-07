@@ -125,7 +125,7 @@ namespace arttest {
     void write(EventPrincipal& ep) override
     {
       //      std::cout << __func__ << '\n';
-      requestsFileClose_ = activeSwitchPoint_.matches(currentInputFileName_, ep.id());
+      requestsFileClose_ = activeSwitchPoint_.matches(currentInputFileName_, ep.eventID());
       if (requestsFileClose_) {
         updateSwitchPoints();
       }
@@ -134,7 +134,7 @@ namespace arttest {
     void writeSubRun(SubRunPrincipal& srp) override
     {
       //      std::cout << __func__ << '\n';
-      requestsFileClose_ = activeSwitchPoint_.matches(currentInputFileName_, srp.id());
+      requestsFileClose_ = activeSwitchPoint_.matches(currentInputFileName_, srp.subRunID());
       if (requestsFileClose_) {
         updateSwitchPoints();
       }
@@ -143,7 +143,7 @@ namespace arttest {
     void writeRun(RunPrincipal& rp) override
     {
       //      std::cout << __func__ << '\n';
-      requestsFileClose_ = activeSwitchPoint_.matches(currentInputFileName_, rp.id());
+      requestsFileClose_ = activeSwitchPoint_.matches(currentInputFileName_, rp.runID());
       if (requestsFileClose_) {
         updateSwitchPoints();
       }

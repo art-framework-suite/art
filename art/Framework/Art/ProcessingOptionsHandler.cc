@@ -7,6 +7,7 @@
 #include "fhiclcpp/extended_value.h"
 #include "fhiclcpp/intermediate_table.h"
 #include "fhiclcpp/parse.h"
+#include "tbb/task_scheduler_init.h"
 
 #include <string>
 
@@ -53,6 +54,9 @@ art::ProcessingOptionsHandler::ProcessingOptionsHandler(bpo::options_description
 {
   bpo::options_description processing_options{"Processing options"};
   processing_options.add_options()
+    ("streams", bpo::value<int>()->default_value(1), "Number of execution engines to use for event processing (default = 1)")
+    // Note: tbb wants threads to be an int!
+    ("threads", bpo::value<int>()->default_value(1), "Number of threads to use for event processing (default = 1, 0 = all cores)")
     ("default-exceptions", "Some exceptions may be handled differently by default (e.g. ProductNotFound).")
     ("rethrow-default", "All exceptions default to rethrow.")
     ("rethrow-all", "All exceptions overridden to rethrow (cf rethrow-default).")
@@ -81,6 +85,27 @@ art::ProcessingOptionsHandler::doCheckOptions(bpo::variables_map const& vm)
       << "Options --default-exceptions, --rethrow-all and --rethrow-default \n"
       << "are mutually incompatible.\n";
   }
+  if (vm.count("threads")) {
+    if (vm["threads"].as<int>() < 0) {
+      throw Exception(errors::Configuration)
+        << "Option --threads must greater than or equal to 0.";
+    }
+    if (vm["threads"].as<int>() > tbb::task_scheduler_init::default_num_threads()) {
+      throw Exception(errors::Configuration)
+        << tbb::task_scheduler_init::default_num_threads() 
+        << " (available machine threads).";
+    }
+  }
+  if (vm.count("streams")) {
+    if (vm["streams"].as<int>() <= 0) {
+      throw Exception(errors::Configuration)
+        << "Option --streams must be at least 1.\n";
+    }
+    //if (vm.count("threads") && (vm["threads"].as<int>() < vm["streams"].as<int>())) {
+    //  throw Exception(errors::Configuration)
+    //    << "Option --threads must be at least as large as option --streams.\n";
+    //}
+  }
   return 0;
 }
 
@@ -105,5 +130,19 @@ art::ProcessingOptionsHandler::doProcessOptions(bpo::variables_map const& vm,
   fillTable("errorOnFailureToPut"   , fhicl_key(scheduler_key, "errorOnFailureToPut"   ), vm, raw_config, true);
   fillTable("errorOnMissingConsumes", fhicl_key(scheduler_key, "errorOnMissingConsumes"), vm, raw_config, false);
   fillTable("errorOnSIGINT"         , fhicl_key(scheduler_key, "errorOnSIGINT"         ), vm, raw_config, true);
+
+  if (vm.count("streams")) {
+    raw_config.put(fhicl_key(scheduler_key, "streams"), vm["streams"].as<int>());
+  }
+
+  if (vm.count("threads")) {
+    if (vm["threads"].as<int>() == 0) {
+      raw_config.put(fhicl_key(scheduler_key, "threads"), tbb::task_scheduler_init::default_num_threads());
+    }
+    else {
+      raw_config.put(fhicl_key(scheduler_key, "threads"), vm["threads"].as<int>());
+    }
+  }
+
   return 0;
 }

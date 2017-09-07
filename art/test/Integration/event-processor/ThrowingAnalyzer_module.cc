@@ -23,10 +23,10 @@ namespace art {
       }
 
       void analyze(Event const&) override {
+        ++count_;
         if (count_ > threshold_) {
           throw Exception{errors::OtherArt} << "Throw from analyze.\n";
         }
-        ++count_;
       }
 
     };

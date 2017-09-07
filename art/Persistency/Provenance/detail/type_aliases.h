@@ -14,8 +14,6 @@
 
 namespace art {
 
-  class FileBlock;
-
   inline namespace process {
            // Used for indices to find branch IDs by branchType, class type and process.
            // ... the key is the process name.
@@ -24,7 +22,7 @@ namespace art {
            using TypeLookup       = std::map<std::string const, ProcessLookup>;
            using BranchTypeLookup = std::array<TypeLookup, NumBranchTypes>;
 
-           using ProductListUpdatedCallback = std::function<void(FileBlock const&)>;
+           using ProductListUpdatedCallback = std::function<void()>;
   }
 
   inline namespace presence {

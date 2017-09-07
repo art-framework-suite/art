@@ -144,7 +144,7 @@ namespace arttest {
       return std::make_unique<art::RunPrincipal>(aux, isd_.moduleDescription.processConfiguration());
     }
 
-    std::unique_ptr<art::SubRunPrincipal> readSubRun(cet::exempt_ptr<art::RunPrincipal const> rp) override
+    std::unique_ptr<art::SubRunPrincipal> readSubRun(cet::exempt_ptr<art::RunPrincipal> rp) override
     {
       art::SubRunAuxiliary const aux {subRun_, nullTimestamp(), nullTimestamp()};
       auto srp = std::make_unique<art::SubRunPrincipal>(aux, isd_.moduleDescription.processConfiguration());
@@ -153,7 +153,7 @@ namespace arttest {
     }
 
     using art::InputSource::readEvent;
-    std::unique_ptr<art::EventPrincipal> readEvent(cet::exempt_ptr<art::SubRunPrincipal const> srp) override
+    std::unique_ptr<art::EventPrincipal> readEvent(cet::exempt_ptr<art::SubRunPrincipal> srp) override
     {
       art::EventAuxiliary const aux {event_, nullTimestamp(), true};
       auto ep = std::make_unique<art::EventPrincipal>(aux, isd_.moduleDescription.processConfiguration());

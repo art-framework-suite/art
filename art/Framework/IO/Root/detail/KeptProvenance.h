@@ -1,10 +1,11 @@
 #ifndef art_Framework_IO_Root_detail_KeptProvenance_h
 #define art_Framework_IO_Root_detail_KeptProvenance_h
+// vim: set sw=2 expandtab :
 
-// =============================================================
-// KeptProvenance: Auxiliary class to handle provenance
-//                 information...so I don't lose my mind in
-//                 RootOutputFile::fillBranches.
+//
+// Auxiliary class to handle provenance
+// information...so I don't lose my mind in
+// RootOutputFile::fillBranches.
 
 #include "art/Framework/IO/Root/DropMetaData.h"
 #include "canvas/Persistency/Provenance/ProductID.h"
@@ -14,36 +15,48 @@
 
 namespace art {
 
-  class Principal;
+class Principal;
 
-  namespace detail {
+namespace detail {
 
-    class KeptProvenance {
-    public:
-      KeptProvenance(DropMetaData dropMetaData,
-                     bool dropMetaDataForDroppedData,
-                     std::set<ProductID>& branchesWithStoredHistory);
+class KeptProvenance {
 
-      ProductProvenance const& insert(ProductProvenance const&);
-      ProductProvenance const& emplace(ProductID, ProductStatus);
-      void setStatus(ProductProvenance const&, ProductStatus);
+public:
 
-      auto begin() const { return provenance_.begin(); }
-      auto end() const { return provenance_.end(); }
+  ~KeptProvenance();
+  KeptProvenance(DropMetaData dropMetaData, bool dropMetaDataForDroppedData, std::set<ProductID>& branchesWithStoredHistory);
 
-      void insertAncestors(ProductProvenance const& iGetParents,
-                           Principal const& principal);
+public:
 
-    private:
-      bool const keepProvenance_ {true};
-      DropMetaData const dropMetaData_;
-      bool const dropMetaDataForDroppedData_;
-      std::set<ProductID>& branchesWithStoredHistory_;
-      std::set<ProductProvenance> provenance_ {};
-    };
+  ProductProvenance const& insert(ProductProvenance const&);
+  ProductProvenance const& emplace(ProductID, ProductStatus);
+  void setStatus(ProductProvenance const&, ProductStatus);
 
+  auto begin() const
+  {
+    return provenance_.begin();
   }
+
+  auto end() const
+  {
+    return provenance_.end();
+  }
+
+  void insertAncestors(ProductProvenance const& iGetParents, Principal const& principal);
+
+private:
+
+  bool const keepProvenance_{true};
+  DropMetaData const dropMetaData_;
+  bool const dropMetaDataForDroppedData_;
+  std::set<ProductID>& branchesWithStoredHistory_;
+  std::set<ProductProvenance> provenance_{};
+
+};
+
 }
+
+} // namespace art
 
 #endif /* art_Framework_IO_Root_detail_KeptProvenance_h */
 

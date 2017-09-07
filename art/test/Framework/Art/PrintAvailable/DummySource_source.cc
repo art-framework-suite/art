@@ -38,13 +38,13 @@ private:
   void closeFile() override {}
   art::input::ItemType nextItemType() override { return art::input::IsStop; }
   std::unique_ptr<art::RunPrincipal> readRun() override { return nullptr; }
-  std::unique_ptr<art::SubRunPrincipal> readSubRun(cet::exempt_ptr<art::RunPrincipal const>) override
+  std::unique_ptr<art::SubRunPrincipal> readSubRun(cet::exempt_ptr<art::RunPrincipal>) override
   {
     return nullptr;
   }
 
   using art::InputSource::readEvent;
-  std::unique_ptr<art::EventPrincipal> readEvent(cet::exempt_ptr<art::SubRunPrincipal const>) override
+  std::unique_ptr<art::EventPrincipal> readEvent(cet::exempt_ptr<art::SubRunPrincipal>) override
   {
     return nullptr;
   }

@@ -1,14 +1,15 @@
 #ifndef art_Framework_Principal_ClosedRangeSetHandler_h
 #define art_Framework_Principal_ClosedRangeSetHandler_h
+// vim: set sw=2 expandtab :
 
-// ====================================================================
+//
 // ClosedRangeSetHandler
 //
 // This class is used to track AND MANIPULATE RangeSets as inherited
 // from another source, such as RootInput.  The RangeSets are closed
 // in that the span of events/subruns encapsulated by a given RangeSet
 // can never grow.  The individual ranges, however, can be split if
-// necessitated by an output-file switch.  The 'rsIter_' member keeps
+// necessitated by an output-file switch.  The 'idx_' member keeps
 // track of the current EventRange.
 //
 // N.B. Event-filtering does not affect the calculation of the
@@ -32,7 +33,7 @@
 //      even though file A will contain only event 2 and file B will
 //      contain only event 4.  In this way, the inherited RangeSet is
 //      preserved across files.
-// ====================================================================
+//
 
 #include "art/Framework/Principal/RangeSetHandler.h"
 #include "canvas/Persistency/Provenance/EventID.h"
@@ -44,49 +45,118 @@
 
 namespace art {
 
-  class ClosedRangeSetHandler : public RangeSetHandler {
-  public:
+class ClosedRangeSetHandler final : public RangeSetHandler {
 
-    explicit ClosedRangeSetHandler(RangeSet const& inputRangeSet);
+public: // TYPES
 
-    // This class contains an iterator as a member.
-    // It should not be copied!
-    ClosedRangeSetHandler(ClosedRangeSetHandler const&) = delete;
-    ClosedRangeSetHandler& operator=(ClosedRangeSetHandler const&) = delete;
+  class EventInfo {
 
-    ClosedRangeSetHandler(ClosedRangeSetHandler&&) = default;
-    ClosedRangeSetHandler& operator=(ClosedRangeSetHandler&&) = default;
+  public: // MEMBER FUNCTIONS -- Special Member Functions
 
-  private:
+    ~EventInfo() noexcept;
 
-    auto begin() const { return ranges_.begin(); }
-    auto end() const { return ranges_.end(); }
-    RangeSet::const_iterator next_subrun_or_end() const;
+    EventInfo() noexcept;
 
-    RangeSet do_getSeenRanges() const override;
+    EventInfo(EventInfo const&) noexcept;
 
-    void do_update(EventID const&, bool lastInSubRun) override;
+    EventInfo(EventInfo&&) noexcept;
 
-    void do_flushRanges() override;
-    void do_maybeSplitRange() override;
-    void do_rebase() override;
+    ClosedRangeSetHandler::EventInfo&
+    operator=(EventInfo const&) noexcept;
 
-    struct EventInfo {
-      void set(EventID const& eid, bool const last)
-      {
-        id = eid;
-        lastInSubRun = last;
-      }
-      EventID id {EventID::invalidEvent()};
-      bool lastInSubRun {false};
-    };
+    ClosedRangeSetHandler::EventInfo&
+    operator=(EventInfo&&) noexcept;
 
-    RangeSet ranges_ {RangeSet::invalid()};
-    RangeSet::const_iterator rsIter_ {ranges_.begin()};
-    EventInfo eventInfo_ {};
+  public: // MEMBER FUNCTIONS -- API for the user
+
+    EventID const&
+    id() const;
+
+    bool
+    lastInSubRun() const;
+
+    void
+    set(EventID const& eid, bool const last);
+
+  private: // MEMBER DATA
+
+    EventID
+    id_{EventID::invalidEvent()};
+
+    bool
+    lastInSubRun_{false};
+
   };
 
-}
+public: // MEMBER FUNCTIONS -- Special Member Functions
+
+  virtual
+  ~ClosedRangeSetHandler();
+
+  explicit
+  ClosedRangeSetHandler(RangeSet const& inputRangeSet);
+
+  ClosedRangeSetHandler(ClosedRangeSetHandler const&);
+
+  ClosedRangeSetHandler(ClosedRangeSetHandler&&);
+
+  ClosedRangeSetHandler&
+  operator=(ClosedRangeSetHandler const&);
+
+  ClosedRangeSetHandler&
+  operator=(ClosedRangeSetHandler&&);
+
+public: // MEMBER FUNCTIONS -- API for the user
+
+  EventInfo const&
+  eventInfo() const;
+  
+private: // MEMBER FUNCTIONS -- Implementation details
+
+  std::size_t
+  begin_idx() const;
+
+  std::size_t
+  end_idx() const;
+
+private: // MEMBER FUNCTIONS -- API required by RangeSetHandler
+
+  HandlerType
+  do_type() const override;
+
+  RangeSet
+  do_getSeenRanges() const override;
+
+  void
+  do_update(EventID const&, bool lastInSubRun) override;
+
+  void
+  do_flushRanges() override;
+
+  void
+  do_maybeSplitRange() override;
+
+  void
+  do_rebase() override;
+
+  RangeSetHandler*
+  do_clone() const override;
+
+private: // MEMBER DATA
+
+  RangeSet
+  ranges_{RangeSet::invalid()};
+
+  std::size_t
+  idx_{0};
+
+  EventInfo
+  eventInfo_{};
+
+};
+
+} // namespace art
+
 #endif /* art_Framework_Principal_ClosedRangeSetHandler_h */
 
 // Local Variables:

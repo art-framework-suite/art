@@ -25,8 +25,8 @@ public:
 
   void readFile(std::string const & name, art::FileBlock *& fb);
 
-  bool readNext(art::RunPrincipal const* const inR,
-                art::SubRunPrincipal const* const inSR,
+  bool readNext(art::RunPrincipal* const inR,
+                art::SubRunPrincipal* const inSR,
                 art::RunPrincipal*& outR,
                 art::SubRunPrincipal*& outSR,
                 art::EventPrincipal*& outE);
@@ -68,8 +68,8 @@ readFile(std::string const & name, art::FileBlock *& fb)
 
 bool
 arttest::FlushingGeneratorDetail::
-readNext(art::RunPrincipal const* const inR,
-         art::SubRunPrincipal const* const inSR,
+readNext(art::RunPrincipal* const inR,
+         art::SubRunPrincipal* const inSR,
          art::RunPrincipal *& outR,
          art::SubRunPrincipal *& outSR,
          art::EventPrincipal *& outE)
@@ -79,7 +79,7 @@ readNext(art::RunPrincipal const* const inR,
     return false;
   }
   else if (ev_num_ == 3) { // Flush subrun, current run.
-    art::EventID const evid(art::EventID::flushEvent(inR->id()));
+    art::EventID const evid(art::EventID::flushEvent(inR->runID()));
     outSR = sHelper_.makeSubRunPrincipal(evid.subRunID(), runstart);
     outE = sHelper_.makeEventPrincipal(evid, runstart);
     curr_evid_ = curr_evid_.nextSubRun();
@@ -93,15 +93,15 @@ readNext(art::RunPrincipal const* const inR,
   }
   else if (ev_num_ == 11 || ev_num_ == 12 || ev_num_ == 16) { // Flush event. current run, next subrun
     outSR = sHelper_.makeSubRunPrincipal(curr_evid_.nextSubRun().subRunID(), runstart);
-    art::EventID const evid(art::EventID::flushEvent(outSR->id()));
+    art::EventID const evid(art::EventID::flushEvent(outSR->subRunID()));
     outE = sHelper_.makeEventPrincipal(evid, runstart);
     curr_evid_ = curr_evid_.nextSubRun();
   }
   else {
-    if (inR == nullptr || inR->id() != curr_evid_.runID()) {
+    if (inR == nullptr || inR->runID() != curr_evid_.runID()) {
       outR = sHelper_.makeRunPrincipal(curr_evid_.runID(), runstart);
     }
-    if (inSR == nullptr || inSR->id() != curr_evid_.subRunID()) {
+    if (inSR == nullptr || inSR->subRunID() != curr_evid_.subRunID()) {
       outSR = sHelper_.makeSubRunPrincipal(curr_evid_.subRunID(), runstart);
     }
     outE = sHelper_.makeEventPrincipal(curr_evid_, runstart);

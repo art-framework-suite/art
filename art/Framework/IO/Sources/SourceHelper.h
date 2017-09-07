@@ -58,7 +58,7 @@ public:
                                        Timestamp const& startTime) const;
 
   EventPrincipal* makeEventPrincipal(EventAuxiliary const& eventAux,
-                                     std::shared_ptr<History>&& history) const;
+                                     std::unique_ptr<History>&& history) const;
 
   EventPrincipal* makeEventPrincipal(EventID const& e,
                                      Timestamp const& startTime,

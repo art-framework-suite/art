@@ -1,9 +1,5 @@
-////////////////////////////////////////////////////////////////////////
-// ServiceCacheEntry
-//
-// Used by ServicesManager to handle creation and caching of services.
-
 #include "art/Framework/Services/Registry/detail/ServiceCacheEntry.h"
+// vim: set sw=2 expandtab :
 
 #include "art/Framework/Services/Registry/ServiceScope.h"
 #include "art/Framework/Services/Registry/detail/ServiceStack.h"
@@ -21,44 +17,38 @@
 #include <string>
 #include <utility>
 
-art::detail::ServiceCacheEntry::
-ServiceCacheEntry(fhicl::ParameterSet const& pset,
-                  std::unique_ptr<detail::ServiceHelperBase>&& helper)
-  :
-  config_{pset},
-  helper_{std::move(helper)}
+using namespace std;
+
+namespace art {
+namespace detail {
+
+ServiceCacheEntry::
+ServiceCacheEntry(fhicl::ParameterSet const& pset, unique_ptr<ServiceHelperBase>&& helper)
+  : config_{pset}
+  , helper_{move(helper)}
 {
 }
 
-// Service interface implementation.
-art::detail::ServiceCacheEntry::
-ServiceCacheEntry(fhicl::ParameterSet const& pset,
-                  std::unique_ptr<detail::ServiceHelperBase>&& helper,
-                  ServiceCacheEntry const& impl)
-  :
-  config_{pset},
-  helper_{std::move(helper)},
-  interface_impl_{&impl}
+ServiceCacheEntry::
+ServiceCacheEntry(fhicl::ParameterSet const& pset, unique_ptr<ServiceHelperBase>&& helper, ServiceCacheEntry const& impl)
+  : config_{pset}
+  , helper_{move(helper)}
+  , interface_impl_{&impl}
 {
 }
 
-// Pre-made service (1).
-art::detail::ServiceCacheEntry::
-ServiceCacheEntry(WrapperBase_ptr premade_service,
-                  std::unique_ptr<detail::ServiceHelperBase>&& helper)
-  :
-  helper_{std::move(helper)},
-  service_{premade_service}
+ServiceCacheEntry::
+ServiceCacheEntry(shared_ptr<ServiceWrapperBase> premade_service, unique_ptr<ServiceHelperBase>&& helper)
+  : helper_{move(helper)}
+  , service_{premade_service}
 {
 }
 
-// Create the service if necessary, and return the WrapperBase_ptr that
-// refers to it.
-art::detail::WrapperBase_ptr
-art::detail::ServiceCacheEntry::
-getService(ActivityRegistry& reg, detail::ServiceStack& creationOrder) const
+shared_ptr<ServiceWrapperBase>
+ServiceCacheEntry::
+getService(art::ActivityRegistry& reg, ServiceStack& creationOrder) const
 {
-  if (is_interface()) { // Service interface
+  if (is_interface()) {
     if (!service_) {
       // No cached instance, we need to make it.
       if (!interface_impl_->service_) {
@@ -69,28 +59,22 @@ getService(ActivityRegistry& reg, detail::ServiceStack& creationOrder) const
       // and use that as our cached instance.
       interface_impl_->convertService(service_);
     }
+    return service_;
   }
-  else { // Concrete service.
-    if (!service_) {
-      // No cached instance, we need to make it.
-      createService(reg, creationOrder);
-    }
+  if (!service_) {
+    // No cached instance, we need to make it.
+    createService(reg, creationOrder);
   }
   return service_;
 }
 
 void
-art::detail::ServiceCacheEntry::
-makeAndCacheService(ActivityRegistry& reg) const
+ServiceCacheEntry::
+makeAndCacheService(art::ActivityRegistry& reg) const
 {
   assert(is_impl() && "ServiceCacheEntry::makeAndCacheService called on a service interface!");
   try {
-    if (serviceScope() == ServiceScope::PER_SCHEDULE) {
-      service_ = dynamic_cast<detail::ServicePSMHelper&>(*helper_).make(config_, reg, nSchedules());
-    }
-    else {
-      service_ = dynamic_cast<detail::ServiceLGMHelper&>(*helper_).make(config_, reg);
-    }
+    service_ = dynamic_cast<ServiceLGMHelper&>(*helper_).make(config_, reg);
   }
   catch (fhicl::detail::validationException const& e)
     {
@@ -115,14 +99,14 @@ makeAndCacheService(ActivityRegistry& reg) const
         << cet::demangle_symbol(helper_->get_typeid().name())
         << ":\n";
   }
-  catch (std::exception& e) {
+  catch (exception& e) {
     throw Exception(errors::StdException, "ServiceCreation")
-        << "std::exception caught during construction of service type "
+        << "exception caught during construction of service type "
         << cet::demangle_symbol(helper_->get_typeid().name())
         << ": "
         << e.what();
   }
-  catch (std::string const& s) {
+  catch (string const& s) {
     throw Exception(errors::BadExceptionType)
         << "String exception during construction of service type "
         << cet::demangle_symbol(helper_->get_typeid().name())
@@ -136,3 +120,64 @@ makeAndCacheService(ActivityRegistry& reg) const
         << ":\n";
   }
 }
+
+void
+ServiceCacheEntry::
+forceCreation(art::ActivityRegistry& reg) const
+{
+  assert(is_impl() && "ServiceCacheEntry::forceCreation called on a service interface!");
+  if (!service_) {
+    makeAndCacheService(reg);
+  }
+}
+
+fhicl::ParameterSet const&
+ServiceCacheEntry::
+getParameterSet() const
+{
+  return config_;
+}
+
+void
+ServiceCacheEntry::
+createService(art::ActivityRegistry& reg, ServiceStack& creationOrder) const
+{
+  assert(is_impl() && "ServiceCacheEntry::createService called on a service interface!");
+  // When we actually create the Service object, we have to
+  // remember the order of creation.
+  makeAndCacheService(reg);
+  creationOrder.push(service_);
+}
+
+void
+ServiceCacheEntry::
+convertService(shared_ptr<ServiceWrapperBase>& swb) const
+{
+  assert(is_impl() && "ServiceCacheEntry::convertService called on a service interface!");
+  swb = dynamic_cast<ServiceInterfaceImplHelper&>(*helper_).convert(service_);
+}
+
+ServiceScope
+ServiceCacheEntry::
+serviceScope() const
+{
+  return helper_->scope();
+}
+
+bool
+ServiceCacheEntry::
+is_interface() const
+{
+  return helper_->is_interface();
+}
+
+bool
+ServiceCacheEntry::
+is_impl() const
+{
+  return !is_interface();
+}
+
+} // namespace detail
+} // namespace art
+

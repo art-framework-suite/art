@@ -17,7 +17,7 @@ namespace art {
       auto type = [&lm,&fullSpec] {
         ModuleTypeFunc_t* symbolType {nullptr};
         lm.getSymbolByLibspec(fullSpec, "moduleType", symbolType);
-        return art::to_string(symbolType());
+        return art::ModuleType_to_string(symbolType());
       };
 
       return resolve_if_present(type, __func__, "[ error ]"s);

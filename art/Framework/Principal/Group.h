@@ -1,6 +1,6 @@
 #ifndef art_Framework_Principal_Group_h
 #define art_Framework_Principal_Group_h
-// vim: set sw=2:
+// vim: set sw=2 expandtab :
 
 //
 //  A collection of information related to a single EDProduct.
@@ -8,10 +8,11 @@
 
 #include "art/Framework/Principal/fwd.h"
 #include "art/Persistency/Common/DelayedReader.h"
+#include "canvas/Persistency/Common/Assns.h"
 #include "canvas/Persistency/Common/EDProduct.h"
 #include "canvas/Persistency/Common/EDProductGetter.h"
 #include "canvas/Persistency/Provenance/BranchDescription.h"
-#include "canvas/Persistency/Provenance/BranchMapper.h"
+//#include "canvas/Persistency/Provenance/BranchMapper.h"
 #include "canvas/Persistency/Provenance/ProductID.h"
 #include "canvas/Persistency/Provenance/ProductProvenance.h"
 #include "canvas/Persistency/Provenance/RangeSet.h"
@@ -23,174 +24,215 @@
 #include <algorithm>
 #include <iostream>
 #include <memory>
+#include <mutex>
 #include <type_traits>
 
 namespace art {
 
+class Principal;
+
+class Group final : public EDProductGetter {
+
+private: // TYPES
+
+  enum class grouptype {
+      normal // 0
+    , assns // 1
+    , assnsWithData // 2
+  };
+  
+public: // MEMBER FUNCTIONS -- Special Member Functions
+
+  virtual
+  ~Group();
+
+  Group();
+
+  // normal
+  Group(Principal*, DelayedReader*, BranchDescription const&, std::unique_ptr<RangeSet>&&, TypeID const& wrapper_type,
+        std::unique_ptr<EDProduct>&& edp = nullptr);
+
+  // normal, put
+  Group(Principal*, DelayedReader*, BranchDescription const&, std::unique_ptr<RangeSet>&&, std::unique_ptr<EDProduct>&&,
+        art::TypeID const& wrapper_type);
+
+  // assns
+  Group(Principal*, DelayedReader*, BranchDescription const&, std::unique_ptr<RangeSet>&&, TypeID const& primary_wrapper_type,
+        TypeID const& partner_wrapper_type, std::unique_ptr<EDProduct>&& edp = nullptr);
+
+  // assns, put
+  Group(Principal*, DelayedReader*, BranchDescription const&, std::unique_ptr<RangeSet>&&, std::unique_ptr<EDProduct>&&,
+        TypeID const& primary_wrapper_type, TypeID const& partner_wrapper_type);
+
+  // assnsWithData
+  Group(Principal*, DelayedReader*, BranchDescription const&, std::unique_ptr<RangeSet>&&, TypeID const& primary_wrapper_type,
+        TypeID const& partner_wrapper_type, TypeID const& base_wrapper_type, TypeID const& partner_base_wrapper_type,
+        std::unique_ptr<EDProduct>&& edp = nullptr);
+
+  // assnsWithData, put
+  Group(Principal*, DelayedReader*, BranchDescription const&, std::unique_ptr<RangeSet>&&, std::unique_ptr<EDProduct>&&,
+        TypeID const& primary_wrapper_type, TypeID const& partner_wrapper_type, TypeID const& base_wrapper_type,
+        TypeID const& partner_base_wrapper_type);
+
+  Group(Group const&) = delete;
+
+  Group(Group&&) = delete;
+
+  Group&
+  operator=(Group const&) = delete;
+
+  Group&
+  operator=(Group&&) = delete;
+
+public: // MEMBER FUNCTIONS -- EDProductGetter interface
+
+  virtual
+  EDProduct const*
+  getIt_() const override;
+
+  EDProduct const*
+  anyProduct() const;
+
+  EDProduct const*
+  uniqueProduct() const;
+
+  EDProduct const*
+  uniqueProduct(TypeID const&) const;
+
+  bool
+  resolveProductIfAvailable(TypeID wanted_wrapper = TypeID{}) const;
+
+  bool
+  tryToResolveProduct(TypeID const&);
+
+public: // MEMBER FUNCTIONS -- Memory-saving API
+
+  // Allows user module to remove a large fetched data product
+  // after copying it.
+  void
+  removeCachedProduct();
+
+public: // MEMBER FUNCTIONS -- Metadata API
+
+  BranchDescription const&
+  productDescription() const;
+
+  RangeSet const&
+  rangeOfValidity() const;
+
+  bool
+  productAvailable() const;
+
+  cet::exempt_ptr<ProductProvenance const>
+  productProvenance() const;
+
+public: // MEMBER FUNCTIONS -- API for setting internal product provenance and product pointers.
+
+  // Called by Principal::ctor_read_provenance()
+  // Called by Principal::insert_pp
+  //   Called by RootDelayedReader::getProduct_
+  void
+  setProductProvenance(std::unique_ptr<ProductProvenance const>&&);
+
+  // Called by Principal::put
+  void
+  setProductAndProvenance(std::unique_ptr<ProductProvenance const>&&, std::unique_ptr<EDProduct>&&, std::unique_ptr<RangeSet>&&);
+
+private:
+
+  cet::exempt_ptr<BranchDescription const> const
+  branchDescription_{};
+
+  // Back pointer to the principal that owns us.
+  Principal* const
+  principal_{nullptr};
+
+  // Back pointer to the delayed reader in the principal that owns us.
+  cet::exempt_ptr<DelayedReader const> const
+  delayedReader_{};
+
+  // Used to serialize access to productProvenance_, product_, rangeSet_,
+  // partnerProduct_, baseProduct_, and partnerBaseProduct_.
+  // Note: threading: This is recursive because sometimes we may need to
+  // Note: threading: replace the product provenance when merging run or
+  // Note: threading: subRun data products while checking if the product
+  // Note: threading: is available, which we may do while resolving a
+  // Note: threading: a product with this mutex locked to make the updating
+  // Note: threading: of provenance and product pointers atomic.
+  mutable
+  std::recursive_mutex
+  mutex_;
+
+  // The product provenance for the data product.
+  // Note: Modified by setProductProvenance (called by Principal ctors and Principal::insert_pp (called by Principal::put).
+  std::atomic<ProductProvenance const*>
+  productProvenance_{nullptr};
+
+  // The wrapped data product itself.
+  // Note: Modified by setProduct (called by Principal::put)
+  // Note: Modified by removeCachedProduct.
+  // Note: Modified by resolveProductIfAvailable.
+  mutable
+  std::atomic<EDProduct*>
+  product_{nullptr};
+
+  // Note: Modified by setProduct (called by Principal put).
+  // Note: Modified by removeCachedProduct.
+  // Note: Modified by resolveProductIfAvailable.
+  mutable
+  std::atomic<RangeSet*>
+  rangeSet_{new RangeSet{}};
+  
+  // Are we normal, assns, or assnsWithData?
+  grouptype const
+  grpType_{grouptype::normal};
+
   //
-  // Noncopyable through inheritance from EDProductGetter.
+  //  Normal Group
   //
 
-  class Group : public EDProductGetter {
+  TypeID const
+  wrapperType_{};
 
-    // The operative part of the GroupFactory system.
-    template <typename ... ARGS>
-    friend
-    std::unique_ptr<Group>
-    gfactory::detail::
-    make_group(BranchDescription const&, ARGS&& ... args);
+  //
+  //  AssnsGroup
+  //
 
-  public:
+  TypeID const
+  partnerWrapperType_{};
 
-    Group() = default;
+  // Note: Modified by setProduct (called by Principal put).
+  // Note: Modified by removeCachedProduct.
+  // Note: Modified by resolveProductIfAvailable.
+  mutable
+  std::atomic<EDProduct*>
+  partnerProduct_{nullptr};
 
-  protected:
+  //
+  //  AssnsGroupWithData
+  //
 
-    //
-    // Use GroupFactory to make.
-    //
-    Group(BranchDescription const& pd,
-          ProductID const& pid,
-          RangeSet&& rs,
-          art::TypeID const& wrapper_type,
-          std::unique_ptr<EDProduct>&& edp = nullptr,
-          cet::exempt_ptr<Worker> productProducer = cet::exempt_ptr<Worker> {})
-      : wrapperType_{wrapper_type}
-      , product_{std::move(edp)}
-      , branchDescription_{&pd}
-      , pid_{pid}
-      , productProducer_{productProducer}
-      , rangeOfValidity_{std::move(rs)}
-      {}
+  TypeID const
+  baseWrapperType_{};
 
-    Group(BranchDescription const& pd,
-          ProductID const& pid,
-          RangeSet&& rs,
-          cet::exempt_ptr<Worker> productProducer,
-          art::TypeID const& wrapper_type)
-      : Group{pd, pid, std::move(rs), wrapper_type, nullptr, productProducer}
-      {}
+  TypeID const
+  partnerBaseWrapperType_{};
 
-    Group(BranchDescription const& pd,
-          ProductID const& pid,
-          RangeSet&& rs,
-          std::unique_ptr<EDProduct>&& edp,
-          art::TypeID const& wrapper_type)
-      : Group{pd, pid, std::move(rs), wrapper_type, std::move(edp)}
-      {}
+  // Note: Modified by setProduct.
+  // Note: Modified by removeCachedProduct.
+  // Note: Modified by resolveProductIfAvailable.
+  mutable
+  std::atomic<EDProduct*>
+  baseProduct_{nullptr};
 
-  public:
+  // Note: Modified by setProduct.
+  // Note: Modified by removeCachedProduct.
+  // Note: Modified by resolveProductIfAvailable.
+  mutable
+  std::atomic<EDProduct*>
+  partnerBaseProduct_{nullptr};
 
-    // product is not available (dropped or never created)
-    bool productUnavailable() const;
-
-    bool isReady() const override
-    {
-      return true;
-    }
-
-    EDProduct const* getIt() const override
-    {
-      resolveProductIfAvailable(producedWrapperType());
-      return product_.get();
-    }
-
-    EDProduct const* anyProduct() const override
-    {
-      return product_.get();
-    }
-
-    EDProduct const* uniqueProduct() const override
-    {
-      return product_.get();
-    }
-
-    EDProduct const* uniqueProduct(TypeID const&) const override
-    {
-      return product_.get();
-    }
-
-    cet::exempt_ptr<ProductProvenance const> productProvenancePtr() const;
-
-    BranchDescription const& productDescription() const
-    {
-      return *branchDescription_;
-    }
-
-    std::string const& moduleLabel() const
-    {
-      return branchDescription_->moduleLabel();
-    }
-
-    std::string const& productInstanceName() const
-    {
-      return branchDescription_->productInstanceName();
-    }
-
-    std::string const& processName() const
-    {
-      return branchDescription_->processName();
-    }
-
-    ProductStatus status() const;
-
-    void setResolvers(BranchMapper const& bm, DelayedReader const& dr)
-    {
-      ppResolver_.reset(&bm);
-      productResolver_.reset(&dr);
-    }
-
-    bool resolveProduct(TypeID const&) const override;
-
-    bool resolveProductIfAvailable(TypeID const&) const override;
-
-    void write(std::ostream& os) const;
-
-    ProductID const& productID() const
-    {
-      return pid_;
-    };
-
-    TypeID const& producedWrapperType() const
-    {
-      return wrapperType_;
-    }
-
-    virtual void removeCachedProduct() const;
-
-    RangeSet const& rangeOfValidity() const { return rangeOfValidity_; }
-
-  protected:
-
-    std::unique_ptr<EDProduct> obtainDesiredProduct(TypeID const&) const;
-
-    void setProduct(std::unique_ptr<EDProduct>&& prod) const;
-
-    [[noreturn]] void throwResolveLogicError (TypeID const& wanted_wrapper_type) const;
-
-  private:
-
-    bool dropped() const;
-
-  private:
-
-    TypeID wrapperType_ {};
-    cet::exempt_ptr<BranchMapper const> ppResolver_ {nullptr};
-    cet::exempt_ptr<DelayedReader const> productResolver_ {nullptr};
-    mutable std::unique_ptr<EDProduct> product_ {nullptr};
-    cet::exempt_ptr<BranchDescription const> branchDescription_ {nullptr};
-    mutable ProductID pid_ {};
-    cet::exempt_ptr<Worker> productProducer_ {nullptr};
-    mutable RangeSet rangeOfValidity_ {RangeSet::invalid()};
-  };  // Group
-
-  inline
-  std::ostream&
-  operator<<(std::ostream& os, Group const& g)
-  {
-    g.write(os);
-    return os;
-  }
+};
 
 } // namespace art
 

@@ -1,7 +1,8 @@
 #ifndef art_Framework_Principal_OpenRangeSetHandler_h
 #define art_Framework_Principal_OpenRangeSetHandler_h
+// vim: set sw=2 expandtab :
 
-// ===================================================================
+//
 // OpenRangeSetHandler
 //
 // This class is used to track the in-memory RangeSet for processes
@@ -27,7 +28,7 @@
 //        File B RangeSet = Run: 1 SubRun: 0 Event range: [11,20)
 //
 //      regardless of any events that may have failed a filter.
-// ===================================================================
+//
 
 #include "art/Framework/Principal/RangeSetHandler.h"
 #include "canvas/Persistency/Provenance/EventID.h"
@@ -39,33 +40,64 @@
 
 namespace art {
 
-  class OpenRangeSetHandler : public RangeSetHandler {
-  public:
+class OpenRangeSetHandler final : public RangeSetHandler {
 
-    explicit OpenRangeSetHandler(RunNumber_t r);
+public: // MEMBER FUNCTIONS -- Special Member Functions
 
-    // This class contains an iterator as a member.  It should not be
-    // copied!
-    OpenRangeSetHandler(OpenRangeSetHandler const&) = delete;
-    OpenRangeSetHandler& operator=(OpenRangeSetHandler const&) = delete;
+  virtual
+  ~OpenRangeSetHandler();
 
-    OpenRangeSetHandler(OpenRangeSetHandler&&) = default;
-    OpenRangeSetHandler& operator=(OpenRangeSetHandler&&) = default;
+  explicit
+  OpenRangeSetHandler(RunNumber_t r);
 
-  private:
+  explicit
+  OpenRangeSetHandler(RangeSet const&);
 
-    RangeSet do_getSeenRanges() const override;
+  OpenRangeSetHandler(OpenRangeSetHandler const&);
 
-    void do_update(EventID const&, bool lastInSubRun) override;
-    void do_flushRanges() override {}
-    void do_maybeSplitRange() override {}
-    void do_rebase() override;
+  OpenRangeSetHandler(OpenRangeSetHandler&&);
 
-    RangeSet ranges_ {RangeSet::invalid()};
-    RangeSet::const_iterator rsIter_ {ranges_.begin()};
-  };
+  OpenRangeSetHandler&
+  operator=(OpenRangeSetHandler const&);
 
-}
+  OpenRangeSetHandler&
+  operator=(OpenRangeSetHandler&&);
+
+private: // MEMBER FUNCTIONS -- API required by RangeSetHandler
+
+  HandlerType
+  do_type() const override;
+
+  RangeSet
+  do_getSeenRanges() const override;
+
+  void
+  do_update(EventID const&, bool lastInSubRun) override;
+
+  void
+  do_flushRanges() override;
+
+  void
+  do_maybeSplitRange() override;
+
+  void
+  do_rebase() override;
+
+  RangeSetHandler*
+  do_clone() const override;
+
+private: // MEMBER DATA
+
+  RangeSet
+  ranges_{RangeSet::invalid()};
+
+  std::size_t
+  idx_{0};
+
+};
+
+} // namespace art
+
 #endif /* art_Framework_Principal_OpenRangeSetHandler_h */
 
 // Local Variables:

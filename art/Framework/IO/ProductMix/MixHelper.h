@@ -30,6 +30,11 @@
 //     randomLimReplace -- events unique within a primary event
 //     randomNoReplace -- events guaranteed to be used once only.
 //
+// FIXME: threading: What gets mixed is unpredictable when multiple
+// FIXME: threading: mixing modules run in parallel either because
+// FIXME: threading: of multiple trigger paths or because of streams
+// FIXME: threading: when the mixing mode is Mode::SEQUENTIAL.
+//
 // coverageFraction (default 1.0).
 //
 //   Ratio of sampled to total events in a file. Used by randomReplace
@@ -440,7 +445,8 @@ declareMixOp(InputTag const& inputTag,
   else if (B == art::InRun) {
     haveRunMixOps_ = true;
   }
-  mixOps_.emplace_back(new MixOp<PROD, OPROD>(inputTag,
+  mixOps_.emplace_back(new MixOp<PROD, OPROD>(&producesProvider_.moduleDescription(),
+                                              inputTag,
                                               outputInstanceLabel,
                                               mixFunc,
                                               outputProduct,

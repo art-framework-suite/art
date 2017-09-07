@@ -1,45 +1,26 @@
 #ifndef art_Framework_Core_InputSourceFactory_h
 #define art_Framework_Core_InputSourceFactory_h
-
-// ======================================================================
-//
-// InputSourceFactory
-//
-// ======================================================================
-
-#include "art/Framework/Core/InputSource.h"
-#include "art/Utilities/PluginSuffixes.h"
-#include "cetlib/LibraryManager.h"
-#include "fhiclcpp/ParameterSet.h"
+// vim: set sw=2 expandtab :
 
 #include <memory>
 
+namespace fhicl {
+class ParameterSet;
+} // namespace fhicl
+
 namespace art {
-  class InputSourceFactory;
-}
 
-// ----------------------------------------------------------------------
+class InputSource;
+class InputSourceDescription;
 
-class art::InputSourceFactory {
-  InputSourceFactory(InputSourceFactory const&) = delete;
-  InputSourceFactory& operator=(InputSourceFactory const&) = delete;
+namespace InputSourceFactory {
 
- public:
+  std::unique_ptr<InputSource>
+  make(fhicl::ParameterSet const&, InputSourceDescription&);
 
-  static std::unique_ptr<InputSource> make(fhicl::ParameterSet const&,
-                                           InputSourceDescription&);
+} // namespace InputSourceFactory
 
-private:
-
-  explicit InputSourceFactory() = default;
-  static InputSourceFactory& instance();
-
-  cet::LibraryManager lm_ {Suffixes::source()};
-
-};  // InputSourceFactory
-
-
-// ======================================================================
+} // namespace art
 
 #endif /* art_Framework_Core_InputSourceFactory_h */
 

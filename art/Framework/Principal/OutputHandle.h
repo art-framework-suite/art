@@ -1,91 +1,101 @@
 #ifndef art_Framework_Principal_OutputHandle_h
 #define art_Framework_Principal_OutputHandle_h
+// vim: set sw=2 expandtab :
 
-/*----------------------------------------------------------------------
-
-Handle: Non-owning "smart pointer" for reference to EDProducts and
-their Provenances.
-
-This is a very preliminary version, and lacks safety features and
-elegance.
-
-If the pointed-to object or provenance destroyed, use of the
-Handle becomes undefined. There is no way to query the Handle to
-discover if this has happened.
-
-Handles can have:
-  -- Product and Provenance pointers both null;
-  -- Both pointers valid
-
-To check validity, one can use the isValid() function.
-
-If failedToGet() returns true then the requested data is not available
-If failedToGet() returns false but isValid() is also false then no attempt
-  to get data has occurred
-
-----------------------------------------------------------------------*/
+// Handle: Non-owning "smart pointer" for reference to EDProducts and
+// their Provenances.
+//
+// This is a very preliminary version, and lacks safety features and
+// elegance.
+//
+// If the pointed-to object or provenance destroyed, use of the
+// Handle becomes undefined. There is no way to query the Handle to
+// discover if this has happened.
+//
+// Handles can have:
+//   -- Product and Provenance pointers both null;
+//   -- Both pointers valid
+//
+// To check validity, one can use the isValid() function.
+//
+// If failedToGet() returns true then the requested data is not available
+// If failedToGet() returns false but isValid() is also false then no attempt
+//   to get data has occurred
 
 #include "canvas/Persistency/Provenance/BranchDescription.h"
 #include "canvas/Persistency/Provenance/ProductID.h"
 #include "canvas/Persistency/Provenance/ProductProvenance.h"
+#include "canvas/Persistency/Provenance/RangeSet.h"
 #include "cetlib/exception.h"
 #include "cetlib/exempt_ptr.h"
 
 #include <memory>
 
 namespace art {
-  class EDProduct;
-  class OutputHandle {
-  public:
 
-    OutputHandle(EDProduct const* prod,
-                 BranchDescription const* desc,
-                 cet::exempt_ptr<ProductProvenance const> productProvenance,
-                 RangeSet const& rs)
-      : wrap_{prod}
-      , desc_{desc}
-      , productProvenance_{productProvenance}
-      , rangeOfValidity_{rs}
-    {}
+class EDProduct;
 
-    ///Used when the attempt to get the data failed
-    OutputHandle(RangeSet const& rs)
-      : rangeOfValidity_{rs}
-    {}
+class OutputHandle {
 
-    // use compiler-generated copy c'tor, copy assignment, and d'tor
+public: // MEMBER FUNCTIONS -- Special Member Functions
 
-    void swap(OutputHandle& other) {
-      using std::swap;
-      swap(wrap_, other.wrap_);
-      swap(desc_, other.desc_);
-      swap(productProvenance_, other.productProvenance_);
-    }
+  ~OutputHandle();
 
-    bool isValid() const { return wrap_ && desc_ && productProvenance_; }
+  OutputHandle(EDProduct const*, BranchDescription const*, cet::exempt_ptr<ProductProvenance const>, RangeSet const&);
 
-    RangeSet const& rangeOfValidity() const { return rangeOfValidity_; }
+  ///Used when the attempt to get the data failed
+  OutputHandle(RangeSet const&);
 
-    EDProduct const* wrapper() const { return wrap_; }
+  OutputHandle(OutputHandle const&) = delete;
 
-    ProductProvenance const* productProvenance() const { return productProvenance_.get(); }
+  OutputHandle(OutputHandle&&) = default;
 
-    BranchDescription const* desc() const { return desc_; }
+  OutputHandle&
+  operator=(OutputHandle const&) = delete;
 
-  private:
-    EDProduct const* wrap_ {nullptr};
-    BranchDescription const* desc_ {nullptr};
-    cet::exempt_ptr<ProductProvenance const> productProvenance_ {nullptr};
-    RangeSet const& rangeOfValidity_;
-  };
+  OutputHandle&
+  operator=(OutputHandle&&) = delete;
 
-  // Free swap function
-  inline
+public: // MEMBER FUNCTIONS -- API for the user
+
+  bool
+  isValid() const;
+
+  BranchDescription const*
+  desc() const;
+
+  ProductProvenance const*
+  productProvenance() const;
+
+  EDProduct const*
+  wrapper() const;
+
+  RangeSet const&
+  rangeOfValidity() const;
+
   void
-  swap(OutputHandle& a, OutputHandle& b) {
-    a.swap(b);
-  }
-}
+  swap(OutputHandle&);
+
+private: // MEMBER DATA
+
+  BranchDescription const*
+  desc_{nullptr};
+
+  cet::exempt_ptr<ProductProvenance const>
+  productProvenance_{nullptr};
+
+  EDProduct const*
+  wrap_{nullptr};
+
+  RangeSet const&
+  rangeOfValidity_;
+
+};
+
+void
+swap(OutputHandle&, OutputHandle&);
+
+} // namespace art
 
 #endif /* art_Framework_Principal_OutputHandle_h */
 

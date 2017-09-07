@@ -1,15 +1,15 @@
 #ifndef art_Framework_Principal_View_h
 #define art_Framework_Principal_View_h
+// vim: set sw=2 expandtab :
 
 //
-// The class template View<T> provides a means to obtain pointers (of
-// type T const*) into an arbitrary collection in an Event.
+// The class template View<T> holds a vector<T const*> of
+// pointers to elements of a data product which is a container.
 //
-// A View<T> is *valid* if it refers to a product in an Event. Default
-// constructed Views are not valid. A valid View may still contain an
-// empty vector; this means that either the referenced collection was
-// empty, or that the View's vector was emptied after the View was
-// created.
+// A View<T> is *valid* if the container data product pointer is set.
+// A valid View may still hold an empty vector of pointes; this means
+// that either the referenced container was empty, or that the View's
+// vector was emptied after the View was created.
 //
 // While View<T> is not a persistent class, one can fill a
 // PtrVector<T> from a View<T>, as long as no new pointers have been
@@ -20,8 +20,14 @@
 #include "canvas/Persistency/Common/PtrVector.h"
 #include "cetlib/container_algorithms.h"
 
+namespace art {
+
 template <class T>
-class art::View {
+class View {
+
+  // Give access to set_innards.
+  friend class DataViewImpl;
+
 public:
 
   using collection_type = std::vector<T const*>;
@@ -30,49 +36,130 @@ public:
   using iterator = typename collection_type::iterator;
   using size_type = typename collection_type::size_type;
 
+public:
+
   View() = default;
-  collection_type&       vals()       { return vals_; }
-  collection_type const& vals() const { return vals_; }
+
+public:
+
+  collection_type&
+  vals()
+  {
+    return vals_;
+  }
+
+  collection_type const&
+  vals() const
+  {
+    return vals_;
+  }
 
   // return true if this view has been populated, and false if it
   // has not.
-  bool isValid() const { return prod_ != nullptr; }
+  bool
+  isValid() const
+  {
+    return prod_ != nullptr;
+  }
 
-  ProductID id() const { return id_; }
+  ProductID
+  id() const
+  {
+    return id_;
+  }
 
   // Fill the given PtrVector<T> to refer to the same elements as the
   // View does. It is only safe to call this if isValid() is true.
-  void fill(PtrVector<T>& pv) const;
+  // Fill a PtrVector<T> with Ptrs to each element
+  // of the container data product that can be
+  // reached from the internal vector<T const*>.
+  void
+  fill(PtrVector<T>& pv) const;
 
   // Conversion operators
-  operator collection_type& ()             { return vals_; }
-  operator collection_type const& () const { return vals_; }
+  operator collection_type&()
+  {
+    return vals_;
+  }
 
-  iterator begin() { return vals_.begin(); }
-  iterator end()   { return vals_.end(); }
-  const_iterator begin() const { return vals_.begin(); }
-  const_iterator end() const   { return vals_.end(); }
-  const_iterator cbegin() const { return vals_.cbegin(); }
-  const_iterator cend() const   { return vals_.cend(); }
+  operator collection_type const&() const
+  {
+    return vals_;
+  }
 
-  size_type size() const { return vals_.size(); }
+  iterator
+  begin()
+  {
+    return vals_.begin();
+  }
+
+  iterator
+  end()
+  {
+    return vals_.end();
+  }
+
+  const_iterator
+  begin() const
+  {
+    return vals_.begin();
+  }
+
+  const_iterator
+  end() const
+  {
+    return vals_.end();
+  }
+
+  const_iterator
+  cbegin() const
+  {
+    return vals_.cbegin();
+  }
+
+  const_iterator
+  cend() const
+  {
+    return vals_.cend();
+  }
+
+  size_type
+  size() const
+  {
+    return vals_.size();
+  }
 
 private:
-  collection_type  vals_{}; // we do not own the pointed-to elements
-  ProductID        id_{};
-  EDProduct const* prod_{nullptr}; // we do not own the product
 
-  friend class DataViewImpl;
-  void set_innards(ProductID const& id, EDProduct const* p);
+  void
+  set_innards(ProductID const&, EDProduct const*);
+
+private:
+
+  // we do not own the pointed-to elements
+  collection_type
+  vals_{};
+
+  ProductID
+  id_{};
+
+  // we do not own the product
+  EDProduct const*
+  prod_{nullptr};
+
 };
 
+// Fill a PtrVector<T> with Ptrs to each element
+// of the container data product that can be
+// reached from the internal vector<T const*>.
 template <class T>
 void
-art::View<T>::fill(PtrVector<T>& pv) const
+View<T>::
+fill(PtrVector<T>& pv) const
 {
   std::vector<void const*> addresses;
+  // Note: This calls Wrapper::fillView.
   prod_->fillView(addresses);
-
   std::size_t i{};
   for (auto a : addresses) {
     if (cet::search_all(vals_, a)) {
@@ -86,12 +173,14 @@ art::View<T>::fill(PtrVector<T>& pv) const
 template <class T>
 inline
 void
-art::View<T>::set_innards(ProductID const& id,
-                          EDProduct const* p)
+View<T>::
+set_innards(ProductID const& id, EDProduct const* p)
 {
   id_ = id;
   prod_ = p;
 }
+
+} // namespace art
 
 #endif /* art_Framework_Principal_View_h */
 

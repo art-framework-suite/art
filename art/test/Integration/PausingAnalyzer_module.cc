@@ -30,7 +30,7 @@ class art::test::PausingAnalyzer : public EDAnalyzer {
 public:
 
   struct Config {
-    fhicl::Atom<unsigned> pauseTime {fhicl::Name{"pauseTime"}, fhicl::Comment{"Pause time is in seconds."}, 5u};
+    fhicl::Atom<unsigned> pauseTime {fhicl::Name{"pauseTime"}, fhicl::Comment{"Pause time is in seconds."}, 1u};
   };
   using Parameters = EDAnalyzer::Table<Config>;
 

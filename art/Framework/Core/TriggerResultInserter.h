@@ -1,14 +1,13 @@
 #ifndef art_Framework_Core_TriggerResultInserter_h
 #define art_Framework_Core_TriggerResultInserter_h
+// vim: set sw=2 expandtab :
 
-// ======================================================================
 //
-// TriggerResultInserter - This is an unusual module in that it is always
-// present in the schedule and it is not configurable.  The ownership of
-// the bitmask is shared with the scheduler.  Its purpose is to create a
-// TriggerResults instance and insert it into the event.
+//  This is an unusual module in that it is always
+//  present in the schedule and it is not configurable.  The ownership of
+//  the bitmask is shared with the scheduler.  Its purpose is to create a
+//  TriggerResults instance and insert it into the event.
 //
-// ======================================================================
 
 #include "art/Framework/Core/EDProducer.h"
 #include "art/Framework/Principal/fwd.h"
@@ -16,34 +15,46 @@
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/ParameterSetID.h"
 
-// ----------------------------------------------------------------------
+#include <vector>
 
 namespace art {
-  class Event;
-  class HLTGlobalStatus;
 
-  class TriggerResultInserter
-    : public art::EDProducer
-  {
-  public:
-    typedef cet::exempt_ptr<HLTGlobalStatus> TrigResPtr;
+class Event;
+class HLTGlobalStatus;
 
-    // standard constructor not supported for this module
-    explicit TriggerResultInserter(fhicl::ParameterSet const& ps) = delete;
+class TriggerResultInserter : public EDProducer {
 
-    // the pset needed here is the one that defines the trigger path names
-    TriggerResultInserter(fhicl::ParameterSet const& ps, HLTGlobalStatus & pathResults);
+public: // MEMBER FUNCTIONS -- Special Member Functions
 
-    void produce(art::Event& e) override;
+  explicit
+  TriggerResultInserter(fhicl::ParameterSet const&) = delete;
 
-  private:
-    TrigResPtr trptr_;
-    fhicl::ParameterSetID pset_id_;
-  };  // TriggerResultInserter
+  explicit
+  TriggerResultInserter(fhicl::ParameterSet const&, int streamIndex) = delete;
 
-}  // art
+  // the pset needed here is the one that defines the trigger path names
+  explicit
+  TriggerResultInserter(fhicl::ParameterSet const&, int streamIndex, HLTGlobalStatus&);
 
-// ======================================================================
+public: // MEMBER FUNCTIONS -- EDProducer API
+
+  void
+  produce(Event&) override;
+
+  //void
+  //produce_in_stream(Event&, int streamIndex) override;
+
+private: // MEMBER DATA
+
+  fhicl::ParameterSetID
+  pset_id_;
+
+  cet::exempt_ptr<HLTGlobalStatus>
+  trptr_;
+
+};
+
+} // namespace art
 
 #endif /* art_Framework_Core_TriggerResultInserter_h */
 

@@ -72,8 +72,8 @@ namespace art {
     bool
     isValid() const;
 
-    void
-    setOutputBranchAddress(BranchDescription const& pd, void const*& pProd);
+    //void
+    //setOutputBranchAddress(BranchDescription const& bd, void const*& pProd);
 
     void
     resetOutputBranchAddress(BranchDescription const&);

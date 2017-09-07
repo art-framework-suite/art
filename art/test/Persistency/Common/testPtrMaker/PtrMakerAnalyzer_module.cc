@@ -23,7 +23,7 @@ class PtrMakerAnalyzer;
 class PtrMakerAnalyzer : public art::EDAnalyzer {
 public:
   typedef art::PtrVector<int> intptrvector_t;
- 
+
   explicit PtrMakerAnalyzer(fhicl::ParameterSet const & p);
   // The compiler-generated destructor is fine for non-base
   // classes without bare pointers or other resource use.
@@ -47,7 +47,7 @@ private:
 PtrMakerAnalyzer::PtrMakerAnalyzer(fhicl::ParameterSet const & p)
   : EDAnalyzer(p)
   , fInputLabel(p.get<std::string>("input_label"))
-  , nvalues    (p.get<int> ("nvalues")) 
+  , nvalues    (p.get<int> ("nvalues"))
 {}
 
 void PtrMakerAnalyzer::analyze(art::Event const & e)

@@ -24,10 +24,10 @@ namespace art {
 
       void produce(Event&) override
       {
+        ++count_;
         if (count_ >= threshold_) {
           throw Exception{errors::OtherArt} << "Throw from produce.\n";
         }
-        ++count_;
       }
 
     };

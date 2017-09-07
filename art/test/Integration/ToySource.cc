@@ -73,7 +73,7 @@ arttest::ToySource::readNext(art::RunPrincipal const* const inR,
       art::SubRunID newSRID;
       if (data_.get<bool>("newRunSameSubRunFault", false) && inSR)
         {
-          newSRID = inSR->id();
+          newSRID = inSR->subRunID();
         }
       else
         {

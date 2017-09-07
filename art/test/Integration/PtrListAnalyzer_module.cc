@@ -36,7 +36,7 @@ namespace art {
       input_label_{pset.get<std::string>("input_label")},
       num_expected_{pset.get<unsigned>("nvalues")}
     {
-      consumes<input_t>(input_label_);
+      //consumes<input_t>(input_label_);
     }
 
     void PtrListAnalyzer::analyze(art::Event const& ev)

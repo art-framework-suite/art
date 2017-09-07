@@ -1,6 +1,5 @@
 art_dictionary(NO_INSTALL)
 
-# Library link requirements for tests here
 set(default_test_libraries
   art_Framework_Services_Registry
   art_Framework_Core
@@ -9,11 +8,6 @@ set(default_test_libraries
   ${CPPUNIT}
   ${CMAKE_DL_LIBS}
  )
-
-#########################################################################
-# New tests (post-ART fork).
-####################################
-# cet_test macro
 
 foreach (type Analyzer Filter Output Producer)
   SET_SOURCE_FILES_PROPERTIES(PMTest${type}_module.cc
@@ -30,27 +24,12 @@ cet_test(PathManager_t USE_BOOST_UNIT
   cetlib
   )
 
-########################################################################
-# If any cppunit tests require more libraries than the default, specify
-# them in a ${target}_libs variable.
-
-# We invoke MasterProductRegistry so we need some dictionaries.
-set(maker2_t_libs
-  canvas_Persistency_WrappedStdDictionaries_dict
-  canvas_Persistency_StdDictionaries_dict
-  canvas_Persistency_Common_dict
-  )
-########################################################################
-
 simple_plugin(TestMod module NO_INSTALL)
-cet_test(maker2_t LIBRARIES ${maker2_t_libs} ${default_test_libraries})
 
 foreach(cpp_test
     EventSelector_t
     EventSelWildcard_t
     EventSelExc_t
-    CurrentProcessingContext_t
-    CPCSentry_t
     RegistryTemplate_t
     parse_path_spec_t)
   cet_test(${cpp_test} SOURCES ${cpp_test}.cpp

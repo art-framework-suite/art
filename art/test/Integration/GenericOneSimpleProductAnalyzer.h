@@ -76,14 +76,14 @@ public:
     branch_type_{art::BranchType(ps().branch_type())},
     require_presence_{ps().require_presence()}
   {
-    switch(branch_type_) {
-    case art::InEvent: consumes<P>(input_label_); break;
-    case art::InSubRun: consumes<P, art::InSubRun>(input_label_); break;
-    case art::InRun: consumes<P, art::InRun>(input_label_); break;
-    default:
-      throw cet::exception("BranchTypeMismatch")
-        << "Branch type: " << branch_type_ << "not supported for this module.";
-    }
+    //switch(branch_type_) {
+    //case art::InEvent: consumes<P>(input_label_); break;
+    //case art::InSubRun: consumes<P, art::InSubRun>(input_label_); break;
+    //case art::InRun: consumes<P, art::InRun>(input_label_); break;
+    //default:
+    //  throw cet::exception("BranchTypeMismatch")
+    //    << "Branch type: " << branch_type_ << " not supported for this module.";
+    //}
     if (require_presence_) {
       value_ = ps().expected_value();
     }

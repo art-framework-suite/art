@@ -1,61 +1,94 @@
 #include "art/Framework/IO/Root/detail/KeptProvenance.h"
+// vim: set sw=2 expandtab :
+
 #include "art/Framework/Principal/Principal.h"
 #include "canvas/Persistency/Provenance/Parentage.h"
 
-using namespace art;
+#include <set>
+#include <vector>
 
-detail::KeptProvenance::KeptProvenance(DropMetaData const dropMetaData,
-                                       bool const dropMetaDataForDroppedData,
-                                       std::set<ProductID>& branchesWithStoredHistory)
+using namespace std;
+
+namespace art {
+namespace detail {
+
+KeptProvenance::
+~KeptProvenance()
+{
+}
+
+KeptProvenance::
+KeptProvenance(DropMetaData const dropMetaData, bool const dropMetaDataForDroppedData,
+               set<ProductID>& branchesWithStoredHistory)
   : dropMetaData_{dropMetaData}
   , dropMetaDataForDroppedData_{dropMetaDataForDroppedData}
   , branchesWithStoredHistory_{branchesWithStoredHistory}
-{}
+{
+}
 
 ProductProvenance const&
-detail::KeptProvenance::insert(ProductProvenance const& pp)
+KeptProvenance::
+insert(ProductProvenance const& pp)
 {
   return *provenance_.insert(pp).first;
 }
 
 ProductProvenance const&
-detail::KeptProvenance::emplace(ProductID const pid, ProductStatus const status)
+KeptProvenance::
+emplace(ProductID const pid, ProductStatus const status)
 {
   return *provenance_.emplace(pid, status).first;
 }
 
-
 void
-detail::KeptProvenance::insertAncestors(ProductProvenance const& iGetParents,
-                                        Principal const& principal)
+KeptProvenance::
+insertAncestors(ProductProvenance const& pp, Principal const& principal)
 {
-  if (dropMetaData_ == DropMetaData::DropAll) {
-    return;
-  }
-  if (dropMetaDataForDroppedData_) {
-    return;
-  }
-  auto const& parents = iGetParents.parentage().parents();
-  for (auto const pid : parents) {
-    branchesWithStoredHistory_.insert(pid);
-    auto info = principal.branchMapper().branchToProductProvenance(pid);
-    if (!info || dropMetaData_ != DropMetaData::DropNone) {
-      continue;
+  vector<ProductProvenance const*> stacked_pp;
+  stacked_pp.push_back(&pp);
+  while (1) {
+    if (stacked_pp.size() == 0) {
+      break;
     }
-    auto const* pd = principal.getForOutput(info->productID(), false).desc();
-    if (pd && pd->produced() && provenance_.insert(*info).second) {
-      // FIXME: Remove recursion!
-      insertAncestors(*info, principal);
+    ProductProvenance const* current_pp = stacked_pp.back();
+    stacked_pp.pop_back();
+    for (auto const parent_pid : current_pp->parentage().parents()) {
+      branchesWithStoredHistory_.insert(parent_pid);
+      auto parent_pp = principal.branchMapper().branchToProductProvenance(parent_pid);
+      if (!parent_pp || (dropMetaData_ != DropMetaData::DropNone)) {
+        continue;
+      }
+      auto const* parent_bd = principal.getForOutput(parent_pp->productID(), false).desc();
+      if (!parent_bd) {
+        // FIXME: Is this an error condition?
+        continue;
+      }
+      if (!parent_bd->produced()) {
+        // We got it from the input, nothing to do.
+        continue;
+      }
+      if (!provenance_.insert(*parent_pp).second) {
+        // Already there, done.
+        continue;
+      }
+      if ((dropMetaData_ != DropMetaData::DropAll) && !dropMetaDataForDroppedData_) {
+        stacked_pp.push_back(parent_pp.get());
+      }
     }
   }
 }
 
 void
-detail::KeptProvenance::setStatus(ProductProvenance const& key,
-                                  ProductStatus const status)
+KeptProvenance::
+setStatus(ProductProvenance const& key, ProductStatus const status)
 {
-  if (provenance_.erase(key) != 1ull)
-    throw Exception(errors::LogicError, "detail::KeptProvenance::setStatus")
-      << "Attempt to set product status for product whose provenance is not being recorded.\n";
+  if (provenance_.erase(key) != 1ull) {
+    throw Exception(errors::LogicError, "KeptProvenance::setStatus")
+        << "Attempt to set product status for product whose provenance is not being recorded.\n";
+  }
   provenance_.emplace(key.productID(), status);
 }
+
+} // namespace detail
+} // namespace art
+

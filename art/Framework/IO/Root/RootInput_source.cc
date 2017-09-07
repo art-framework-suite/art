@@ -1,7 +1,6 @@
 #include "art/Framework/IO/Root/RootInput.h"
-// vim: set sw=2:
+// vim: set sw=2 expandtab :
 
-#include "TTreeCache.h"
 #include "art/Framework/Core/FileBlock.h"
 #include "art/Framework/Core/InputSourceDescription.h"
 #include "art/Framework/Core/InputSourceMacros.h"
@@ -14,64 +13,113 @@
 #include "canvas/Persistency/Provenance/EventID.h"
 #include "canvas/Utilities/Exception.h"
 
+#include "TTreeCache.h"
+
 #include <cassert>
 #include <memory>
 #include <set>
 
 using namespace art;
+using namespace std;
 
-RootInput::
-AccessState::
-AccessState() :
-  state_(SEQUENTIAL),
-  lastReadEventID_(),
-  rootFileForLastReadEvent_(),
-  wantedEventID_()
+
+RootInput::AccessState::
+~AccessState()
 {
 }
 
+RootInput::AccessState::
+AccessState()
+  : state_(SEQUENTIAL)
+  , lastReadEventID_()
+  , rootFileForLastReadEvent_()
+  , wantedEventID_()
+{
+}
+
+
+RootInput::AccessState::State
+RootInput::AccessState::
+state() const
+{
+  return state_;
+}
+
 void
-RootInput::
-AccessState::
+RootInput::AccessState::
+resetState()
+{
+  state_ = SEQUENTIAL;
+}
+
+EventID const&
+RootInput::AccessState::
+lastReadEventID() const
+{
+  return lastReadEventID_;
+}
+
+
+EventID const&
+RootInput::AccessState::
+wantedEventID() const
+{
+  return wantedEventID_;
+}
+
+shared_ptr<RootInputFile>
+RootInput::AccessState::
+rootFileForLastReadEvent() const
+{
+  return rootFileForLastReadEvent_;
+}
+
+void
+RootInput::AccessState::
 setState(State state)
 {
   state_ = state;
 }
 
 void
-RootInput::
-AccessState::
+RootInput::AccessState::
 setLastReadEventID(EventID const& eid)
 {
   lastReadEventID_ = eid;
 }
 
 void
-RootInput::
-AccessState::
+RootInput::AccessState::
 setWantedEventID(EventID const& eid)
 {
   wantedEventID_ = eid;
 }
 
 void
-RootInput::
-AccessState::
-setRootFileForLastReadEvent(std::shared_ptr<RootInputFile> const& ptr)
+RootInput::AccessState::
+setRootFileForLastReadEvent(shared_ptr<RootInputFile> const& ptr)
 {
   rootFileForLastReadEvent_ = ptr;
+}
+
+
+
+
+RootInput::
+~RootInput()
+{
 }
 
 RootInput::
 RootInput(RootInput::Parameters const& config, InputSourceDescription& desc)
   : DecrepitRelicInputSourceImplementation(config().drisi_config, desc)
   , catalog_(config().ifc_config)
-  , primaryFileSequence_(std::make_unique<RootInputFileSequence>(config().rifs_config,
-                                                                 catalog_,
-                                                                 FastCloningInfoProvider(cet::exempt_ptr<RootInput>(this)),
-                                                                 processingMode(),
-                                                                 desc.productRegistry,
-                                                                 processConfiguration()))
+  , primaryFileSequence_(make_unique<RootInputFileSequence>(config().rifs_config,
+                         catalog_,
+                         FastCloningInfoProvider(cet::exempt_ptr<RootInput>(this)),
+                         processingMode(),
+                         desc.productRegistry,
+                         processConfiguration()))
   , accessState_()
   , mpr_(desc.productRegistry)
 {
@@ -117,27 +165,24 @@ nextItemType()
     case AccessState::SEEKING_FILE:
       return input::IsFile;
     case AccessState::SEEKING_RUN:
-      setRunPrincipal(primaryFileSequence_->readIt(accessState_.wantedEventID().runID()));
+      primaryFileSequence_->readIt(accessState_.wantedEventID().runID());
       return input::IsRun;
     case AccessState::SEEKING_SUBRUN:
-      // RunPrincipal has been handed off to the EventProcessor by this point.  Used the cached pointer.
-      setSubRunPrincipal(primaryFileSequence_->readIt(accessState_.wantedEventID().subRunID(), runPrincipalExemptPtr()));
+      primaryFileSequence_->readIt(accessState_.wantedEventID().subRunID());
       return input::IsSubRun;
     case AccessState::SEEKING_EVENT: {
-      auto const wantedEventID = accessState_.wantedEventID();
-      setEventPrincipal(primaryFileSequence_->readIt(wantedEventID, true));
-      accessState_.setLastReadEventID(wantedEventID);
-      accessState_.setRootFileForLastReadEvent(primaryFileSequence_->rootFileForLastReadEvent());
-      return input::IsEvent;
-    }
+        primaryFileSequence_->readIt(accessState_.wantedEventID(), true);
+        accessState_.setLastReadEventID(accessState_.wantedEventID());
+        accessState_.setRootFileForLastReadEvent(primaryFileSequence_->rootFileForLastReadEvent());
+        return input::IsEvent;
+      }
     default:
       throw Exception(errors::LogicError)
-        << "RootInputSource::nextItemType encountered an "
-        "unknown AccessState.\n";
+          << "RootInputSource::nextItemType encountered an unknown AccessState.\n";
   }
 }
 
-std::unique_ptr<FileBlock>
+unique_ptr<FileBlock>
 RootInput::
 readFile(MasterProductRegistry& /*mpr*/)
 {
@@ -146,117 +191,113 @@ readFile(MasterProductRegistry& /*mpr*/)
       return DecrepitRelicInputSourceImplementation::readFile(mpr_);
     case AccessState::SEEKING_FILE:
       accessState_.setState(AccessState::SEEKING_RUN);
-      return readFile_();
+      setState(input::IsFile);
+      return DecrepitRelicInputSourceImplementation::readFile(mpr_);
     default:
       throw Exception(errors::LogicError)
-          << "RootInputSource::readFile encountered an "
-             "unknown or inappropriate AccessState.\n";
+          << "RootInputSource::readFile encountered an unknown or inappropriate AccessState.\n";
   }
 }
 
-std::unique_ptr<FileBlock>
+unique_ptr<FileBlock>
 RootInput::
 readFile_()
 {
   return primaryFileSequence_->readFile_();
 }
 
-std::unique_ptr<RunPrincipal>
+unique_ptr<RunPrincipal>
 RootInput::
 readRun()
 {
   switch (accessState_.state()) {
-  case AccessState::SEQUENTIAL:
-    return DecrepitRelicInputSourceImplementation::readRun();
-  case AccessState::SEEKING_RUN:
-    accessState_.setState(AccessState::SEEKING_SUBRUN);
-    return runPrincipal();
-  default:
-    throw Exception(errors::LogicError)
-      << "RootInputSource::readRun encountered an "
-         "unknown or inappropriate AccessState.\n";
+    case AccessState::SEQUENTIAL:
+      return DecrepitRelicInputSourceImplementation::readRun();
+    case AccessState::SEEKING_RUN:
+      accessState_.setState(AccessState::SEEKING_SUBRUN);
+      setState(input::IsRun);
+      return DecrepitRelicInputSourceImplementation::readRun();
+    default:
+      throw Exception(errors::LogicError)
+          << "RootInputSource::readRun encountered an unknown or inappropriate AccessState.\n";
   }
 }
 
-std::unique_ptr<RunPrincipal>
+unique_ptr<RunPrincipal>
 RootInput::
 readRun_()
 {
   return primaryFileSequence_->readRun_();
 }
 
-std::unique_ptr<RangeSetHandler>
+unique_ptr<RangeSetHandler>
 RootInput::runRangeSetHandler()
 {
   return primaryFileSequence_->runRangeSetHandler();
 }
 
-std::unique_ptr<SubRunPrincipal>
+unique_ptr<SubRunPrincipal>
 RootInput::
-readSubRun(cet::exempt_ptr<RunPrincipal const> rp)
+readSubRun(cet::exempt_ptr<RunPrincipal> rp)
 {
   switch (accessState_.state()) {
-  case AccessState::SEQUENTIAL:
-    return DecrepitRelicInputSourceImplementation::readSubRun(rp);
-  case AccessState::SEEKING_SUBRUN:
-    accessState_.setState(AccessState::SEEKING_EVENT);
-    return subRunPrincipal();
-  default:
-    throw Exception(errors::LogicError)
-      << "RootInputSource::readSubRun encountered an "
-         "unknown or inappropriate AccessState.\n";
+    case AccessState::SEQUENTIAL:
+      return DecrepitRelicInputSourceImplementation::readSubRun(rp);
+    case AccessState::SEEKING_SUBRUN:
+      accessState_.setState(AccessState::SEEKING_EVENT);
+      setState(input::IsSubRun);
+      return DecrepitRelicInputSourceImplementation::readSubRun(rp);
+    default:
+      throw Exception(errors::LogicError)
+          << "RootInputSource::readSubRun encountered an unknown or inappropriate AccessState.\n";
   }
 }
 
-std::unique_ptr<SubRunPrincipal>
+unique_ptr<SubRunPrincipal>
 RootInput::
-readSubRun_()
+readSubRun_(cet::exempt_ptr<RunPrincipal> rp)
 {
-  return primaryFileSequence_->readSubRun_(runPrincipalExemptPtr());
+  return primaryFileSequence_->readSubRun_(rp);
 }
 
-std::unique_ptr<RangeSetHandler>
+unique_ptr<RangeSetHandler>
 RootInput::subRunRangeSetHandler()
 {
   return primaryFileSequence_->subRunRangeSetHandler();
 }
 
-std::unique_ptr<EventPrincipal>
+unique_ptr<EventPrincipal>
 RootInput::
-readEvent(cet::exempt_ptr<SubRunPrincipal const> srp)
+readEvent(cet::exempt_ptr<SubRunPrincipal> srp)
 {
   return readEvent_(srp);
 }
 
-std::unique_ptr<EventPrincipal>
+unique_ptr<EventPrincipal>
 RootInput::
-readEvent_(cet::exempt_ptr<SubRunPrincipal const> srp)
+readEvent_(cet::exempt_ptr<SubRunPrincipal> srp)
 {
   switch (accessState_.state()) {
     case AccessState::SEQUENTIAL:
       return DecrepitRelicInputSourceImplementation::readEvent(srp);
     case AccessState::SEEKING_EVENT:
       accessState_.resetState();
-      return eventPrincipal();
+      setState(input::IsEvent);
+      return DecrepitRelicInputSourceImplementation::readEvent(srp);
     default:
       throw Exception(errors::LogicError)
-          << "RootInputSource::readEvent encountered an "
-             "unknown or inappropriate AccessState.\n";
+          << "RootInputSource::readEvent encountered an unknown or inappropriate AccessState.\n";
   }
 }
 
-std::unique_ptr<EventPrincipal>
+unique_ptr<EventPrincipal>
 RootInput::
 readEvent_()
 {
-  std::unique_ptr<EventPrincipal> result;
-  if (!result.get()) {
-    result = primaryFileSequence_->readEvent_();
-  }
+  unique_ptr<EventPrincipal> result = primaryFileSequence_->readEvent_();
   if (result.get()) {
-    accessState_.setLastReadEventID(result->id());
-    accessState_.setRootFileForLastReadEvent(
-      primaryFileSequence_->rootFileForLastReadEvent());
+    accessState_.setLastReadEventID(result->eventID());
+    accessState_.setRootFileForLastReadEvent(primaryFileSequence_->rootFileForLastReadEvent());
   }
   return result;
 }

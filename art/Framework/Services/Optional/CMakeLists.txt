@@ -40,6 +40,7 @@ simple_plugin(MemoryAdjuster "service"
 
 basic_plugin(MemoryTracker "service"
   art_Framework_Services_Optional
+  art_Framework_Principal
   art_Persistency_Provenance canvas
   cetlib
   SOURCE ${MemoryTrackerSource}
@@ -54,13 +55,14 @@ simple_plugin(TFileService "service"
   ${ROOT_THREAD})
 
 simple_plugin(TimeTracker "service"
+  art_Framework_Principal
   art_Persistency_Provenance canvas
   cetlib
   ${TBB}
   ${RT}
   )
 
-simple_plugin(Tracer "service" art_Persistency_Provenance canvas)
+simple_plugin(Tracer "service" art_Framework_Principal art_Persistency_Provenance canvas)
 
 simple_plugin(TrivialFileDelivery "service")
 

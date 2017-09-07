@@ -1,71 +1,103 @@
 #ifndef art_Framework_Core_OutputWorker_h
 #define art_Framework_Core_OutputWorker_h
+// vim: set sw=2 expandtab :
 
-/*----------------------------------------------------------------------
+//  The OutputModule as the schedule sees it.  The job of
+//  this object is to call the output module.
+//  
+//  According to our current definition, a single output module can only
+//  appear in one worker.
 
-OutputWorker: The OutputModule as the schedule sees it.  The job of
-this object is to call the output module.
-
-According to our current definition, a single output module can only
-appear in one worker.
-
-----------------------------------------------------------------------*/
-
-#include "art/Framework/Principal/fwd.h"
 #include "art/Framework/Core/Frameworkfwd.h"
-#include "art/Framework/Core/OutputFileStatus.h"
 #include "art/Framework/Core/OutputFileGranularity.h"
+#include "art/Framework/Core/OutputFileStatus.h"
 #include "art/Framework/Core/WorkerT.h"
-#include "art/Framework/Services/Registry/ServiceHandle.h"
+#include "art/Framework/Principal/fwd.h"
 #include "art/Framework/Services/FileServiceInterfaces/CatalogInterface.h"
+#include "art/Framework/Services/Registry/ServiceHandle.h"
 
 #include <memory>
 
 namespace art {
 
-  class RangeSet;
+class RangeSet;
 
-  class OutputWorker : public WorkerT<OutputModule> {
-  public:
-    OutputWorker(std::unique_ptr<OutputModule> && mod,
-                 ModuleDescription const&,
-                 WorkerParams const&);
+class OutputWorker : public WorkerT<OutputModule> {
 
-    virtual ~OutputWorker();
+public: // MEMBER FUNCTIONS -- Special Member Functions
 
-    std::string const & lastClosedFileName() const;
+  virtual
+  ~OutputWorker();
 
-    void closeFile();
+  // This is called directly by the make_worker function created
+  // by the DEFINE_ART_MODULE macro.
+  OutputWorker(OutputModule* mod, ModuleDescription const&, WorkerParams const&);
 
-    bool fileIsOpen() const;
-    void incrementInputFileNumber();
-    bool requestsToCloseFile() const;
+public:
 
-    bool wantAllEvents() const;
+  std::string const&
+  lastClosedFileName() const;
 
-    void openFile(FileBlock const& fb);
+  void
+  closeFile();
 
-    void writeRun(RunPrincipal& rp);
-    void writeSubRun(SubRunPrincipal& srp);
-    void writeEvent(EventPrincipal& ep);
+  bool
+  fileIsOpen() const;
 
-    void setRunAuxiliaryRangeSetID(RangeSet const&);
-    void setSubRunAuxiliaryRangeSetID(RangeSet const&);
+  void
+  incrementInputFileNumber();
 
-    bool limitReached() const;
-    void setFileStatus(OutputFileStatus);
+  bool
+  requestsToCloseFile() const;
 
-    void configure(OutputModuleDescription const& desc);
+  bool
+  wantAllEvents() const;
 
-    Granularity fileGranularity() const;
+  void
+  openFile(FileBlock const& fb);
 
-    virtual void selectProducts(FileBlock const&);
+  void
+  writeRun(RunPrincipal& rp);
+
+  void
+  writeSubRun(SubRunPrincipal& srp);
+
+  void
+  writeEvent(EventPrincipal& ep);
+
+  void
+  setRunAuxiliaryRangeSetID(RangeSet const&);
+
+  void
+  setSubRunAuxiliaryRangeSetID(RangeSet const&);
+
+  bool
+  limitReached() const;
+
+  void
+  setFileStatus(OutputFileStatus);
+
+  void
+  configure(OutputModuleDescription const& desc);
+
+  Granularity
+  fileGranularity() const;
+
+  virtual
+  void
+  selectProducts();
 
 private:
-    ServiceHandle<CatalogInterface> ci_;
-    Granularity fileGranularity_ {Granularity::Unset};
-  };
-}
+
+  ServiceHandle<CatalogInterface>
+  ci_;
+
+  Granularity
+  fileGranularity_{Granularity::Unset};
+
+};
+
+} // namespace art
 
 #endif /* art_Framework_Core_OutputWorker_h */
 

@@ -69,7 +69,7 @@ private:
   void writeSubRun(art::SubRunPrincipal&) override {}
   void writeRun(art::RunPrincipal&) override {}
 
-  void event(art::EventPrincipal const&) override;
+  void event(art::EventPrincipal&) override;
   void endJob() override;
 
   std::string name_ {};
@@ -88,15 +88,13 @@ arttest::TestBitsOutput::TestBitsOutput(arttest::TestBitsOutput::Parameters cons
 {
 }
 
-void arttest::TestBitsOutput::event(art::EventPrincipal const&)
+void arttest::TestBitsOutput::event(art::EventPrincipal&)
 {
-  assert(currentContext() != nullptr);
-  moduleDescription_ = *currentContext()->moduleDescription();
 }
 
 void arttest::TestBitsOutput::write(art::EventPrincipal& ep)
 {
-  Event const ev{ep, moduleDescription_, Consumer::non_module_context()};
+  Event const ev{ep, moduleDescription_};
   // There should not be a TriggerResults object in the event if all
   // three of the following requirements are met:
   //
@@ -165,7 +163,6 @@ void arttest::TestBitsOutput::write(art::EventPrincipal& ep)
 
 void arttest::TestBitsOutput::endJob()
 {
-  assert(currentContext() == nullptr);
 }
 
 DEFINE_ART_MODULE(arttest::TestBitsOutput)

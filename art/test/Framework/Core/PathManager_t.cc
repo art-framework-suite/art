@@ -76,7 +76,7 @@ BOOST_AUTO_TEST_CASE ( Construct )
      art::errors::Configuration,
      "---- Configuration BEGIN\n"
      "  The following were encountered while processing the module configurations:\n"
-     "    ERROR: Module label p has been used in physics.analyzers and physics.filters.\n"
+     "    ERROR: Module label p has been used in physics.filters and physics.analyzers.\n"
      "---- Configuration END\n"); // Duplicate label.
   test_sets.emplace_back
     ("process_name: \"test\" "

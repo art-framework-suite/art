@@ -1,119 +1,359 @@
 #include "art/Framework/Core/EDProducer.h"
+// vim: set sw=2 expandtab :
 
-#include "art/Framework/Core/CPCSentry.h"
+#include "art/Framework/Core/SharedResourcesRegistry.h"
 #include "art/Framework/Core/detail/get_failureToPut_flag.h"
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Principal/Run.h"
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRun.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
+#include "art/Utilities/CPCSentry.h"
 #include "canvas/Utilities/Exception.h"
 #include "cetlib_except/demangle.h"
 #include "fhiclcpp/ParameterSetRegistry.h"
+#include "hep_concurrency/SerialTaskQueueChain.h"
 
-namespace art
+#include <algorithm>
+#include <atomic>
+#include <cstddef>
+#include <string>
+#include <utility>
+#include <vector>
+
+using namespace hep::concurrency;
+using namespace std;
+
+namespace art {
+
+EDProducer::
+~EDProducer()
 {
+}
 
-  bool
-  EDProducer::doEvent(EventPrincipal& ep,
-                      CPC_exempt_ptr cpc,
-                      CountingStatistics& counts)
-  {
-    detail::CPCSentry sentry{current_context_, cpc};
-    Event e{ep, moduleDescription_, this};
-    counts.increment<stats::Run>();
+one::
+EDProducer::
+~EDProducer()
+{
+}
+
+stream::
+EDProducer::
+~EDProducer()
+{
+}
+
+global::
+EDProducer::
+~EDProducer()
+{
+}
+
+EDProducer::
+EDProducer()
+  : ProducerBase()
+  , checkPutProducts_{true}
+{
+}
+
+one::
+EDProducer::
+EDProducer()
+  : art::EDProducer()
+{
+}
+
+stream::
+EDProducer::
+EDProducer()
+  : art::EDProducer()
+{
+}
+
+global::
+EDProducer::
+EDProducer()
+  : art::EDProducer()
+{
+}
+
+string
+EDProducer::
+workerType() const
+{
+  return "WorkerT<EDProducer>";
+}
+
+void
+EDProducer::
+reconfigure(fhicl::ParameterSet const&)
+{
+}
+
+void
+EDProducer::
+doRespondToOpenInputFile(FileBlock const& fb)
+{
+  respondToOpenInputFile(fb);
+}
+
+void
+EDProducer::
+respondToOpenInputFile(FileBlock const&)
+{
+}
+
+void
+EDProducer::
+doRespondToCloseInputFile(FileBlock const& fb)
+{
+  respondToCloseInputFile(fb);
+}
+
+void
+EDProducer::
+respondToCloseInputFile(FileBlock const&)
+{
+}
+
+void
+EDProducer::
+doRespondToOpenOutputFiles(FileBlock const& fb)
+{
+  respondToOpenOutputFiles(fb);
+}
+
+void
+EDProducer::
+respondToOpenOutputFiles(FileBlock const&)
+{
+}
+
+void
+EDProducer::
+doRespondToCloseOutputFiles(FileBlock const& fb)
+{
+  respondToCloseOutputFiles(fb);
+}
+
+void
+EDProducer::
+respondToCloseOutputFiles(FileBlock const&)
+{
+}
+
+void
+EDProducer::
+doBeginJob()
+{
+  uses(SharedResourcesRegistry::kLegacy);
+  vector<string> names;
+  for_each(resourceNames_.cbegin(), resourceNames_.cend(), [&names](string const& s){names.emplace_back(s);});
+  //auto queues = SharedResourcesRegistry::instance()->createQueues(SharedResourcesRegistry::kLegacy);
+  auto queues = SharedResourcesRegistry::instance()->createQueues(names);
+  chain_.reset(new SerialTaskQueueChain{queues});
+  //cerr << "EDProducer::doBeginJob: chain_: " << hex << ((unsigned long*)chain_.get()) << dec << "\n";
+  // Note: checkPutProducts cannot be set by the ctor
+  // initialization list since moduleDescription is empty then.
+  auto const& mainID = moduleDescription().mainParameterSetID();
+  auto const& scheduler_pset = fhicl::ParameterSetRegistry::get(mainID).get<fhicl::ParameterSet>("services.scheduler");
+  auto const& module_pset = fhicl::ParameterSetRegistry::get(moduleDescription().parameterSetID());
+  checkPutProducts_ = detail::get_failureToPut_flag(scheduler_pset, module_pset);
+  //module_pset.get_if_present("errorOnMissingConsumes", requireConsumes_);
+  //// Now that we know we have seen all the consumes declarations,
+  //// sort the results for fast lookup later.
+  //for (auto& vecPI : consumables_) {
+  //  sort(vecPI.begin(), vecPI.end());
+  //}
+  beginJob();
+}
+
+void
+one::
+EDProducer::
+doBeginJob()
+{
+  //uses(SharedResourcesRegistry::kLegacy);
+  vector<string> names;
+  for_each(resourceNames_.cbegin(), resourceNames_.cend(), [&names](string const& s){names.emplace_back(s);});
+  //auto queues = SharedResourcesRegistry::instance()->createQueues(SharedResourcesRegistry::kLegacy);
+  auto queues = SharedResourcesRegistry::instance()->createQueues(names);
+  chain_.reset(new SerialTaskQueueChain{queues});
+  //cerr << "one::EDProducer::doBeginJob: chain_: " << hex << ((unsigned long*)chain_.get()) << dec << "\n";
+  // Note: checkPutProducts cannot be set by the ctor
+  // initialization list since moduleDescription is empty then.
+  auto const& mainID = moduleDescription().mainParameterSetID();
+  auto const& scheduler_pset = fhicl::ParameterSetRegistry::get(mainID).get<fhicl::ParameterSet>("services.scheduler");
+  auto const& module_pset = fhicl::ParameterSetRegistry::get(moduleDescription().parameterSetID());
+  //module_pset.get_if_present("errorOnMissingConsumes", requireConsumes_);
+  //// Now that we know we have seen all the consumes declarations,
+  //// sort the results for fast lookup later.
+  //for (auto& vecPI : consumables_) {
+  //  sort(vecPI.begin(), vecPI.end());
+  //}
+  checkPutProducts_ = detail::get_failureToPut_flag(scheduler_pset, module_pset);
+  beginJob();
+}
+
+void
+stream::
+EDProducer::
+doBeginJob()
+{
+  //cerr << "stream::EDProducer::doBeginJob: chain_: " << hex << ((unsigned long*)chain_.get()) << dec << "\n";
+  // Note: checkPutProducts cannot be set by the ctor
+  // initialization list since moduleDescription is empty then.
+  auto const& mainID = moduleDescription().mainParameterSetID();
+  auto const& scheduler_pset = fhicl::ParameterSetRegistry::get(mainID).get<fhicl::ParameterSet>("services.scheduler");
+  auto const& module_pset = fhicl::ParameterSetRegistry::get(moduleDescription().parameterSetID());
+  checkPutProducts_ = detail::get_failureToPut_flag(scheduler_pset, module_pset);
+  //module_pset.get_if_present("errorOnMissingConsumes", requireConsumes_);
+  //// Now that we know we have seen all the consumes declarations,
+  //// sort the results for fast lookup later.
+  //for (auto& vecPI : consumables_) {
+  //  sort(vecPI.begin(), vecPI.end());
+  //}
+  beginJob();
+}
+
+void
+global::
+EDProducer::
+doBeginJob()
+{
+  //cerr << "global::EDProducer::doBeginJob: chain_: " << hex << ((unsigned long*)chain_.get()) << dec << "\n";
+  // Note: checkPutProducts cannot be set by the ctor
+  // initialization list since moduleDescription is empty then.
+  auto const& mainID = moduleDescription().mainParameterSetID();
+  auto const& scheduler_pset = fhicl::ParameterSetRegistry::get(mainID).get<fhicl::ParameterSet>("services.scheduler");
+  auto const& module_pset = fhicl::ParameterSetRegistry::get(moduleDescription().parameterSetID());
+  checkPutProducts_ = detail::get_failureToPut_flag(scheduler_pset, module_pset);
+  //module_pset.get_if_present("errorOnMissingConsumes", requireConsumes_);
+  //// Now that we know we have seen all the consumes declarations,
+  //// sort the results for fast lookup later.
+  //for (auto& vecPI : consumables_) {
+  //  sort(vecPI.begin(), vecPI.end());
+  //}
+  beginJob();
+}
+
+void
+EDProducer::
+beginJob()
+{
+}
+
+void
+EDProducer::
+doEndJob()
+{
+  endJob();
+}
+
+void
+EDProducer::
+endJob()
+{
+}
+
+bool
+EDProducer::
+doBeginRun(RunPrincipal& rp, cet::exempt_ptr<CurrentProcessingContext const> cpc)
+{
+  detail::CPCSentry sentry{*cpc};
+  Run r{rp, moduleDescription(), RangeSet::forRun(rp.runID())};
+  beginRun(r);
+  //r.commit_(rp);
+  r.DataViewImpl::commit();
+  return true;
+}
+
+void
+EDProducer::
+beginRun(Run&)
+{
+}
+
+bool
+EDProducer::
+doEndRun(RunPrincipal& rp, cet::exempt_ptr<CurrentProcessingContext const> cpc)
+{
+  detail::CPCSentry sentry{*cpc};
+  Run r{rp, moduleDescription(), rp.seenRanges()};
+  endRun(r);
+  //r.commit_(rp);
+  r.DataViewImpl::commit();
+  return true;
+}
+
+void
+EDProducer::
+endRun(Run&)
+{
+}
+
+bool
+EDProducer::
+doBeginSubRun(SubRunPrincipal& srp, cet::exempt_ptr<CurrentProcessingContext const> cpc)
+{
+  detail::CPCSentry sentry{*cpc};
+  SubRun sr{srp, moduleDescription(), RangeSet::forSubRun(srp.subRunID())};
+  beginSubRun(sr);
+  //sr.commit_(srp);
+  sr.DataViewImpl::commit();
+  return true;
+}
+
+void
+EDProducer::
+beginSubRun(SubRun&)
+{
+}
+
+bool
+EDProducer::
+doEndSubRun(SubRunPrincipal& srp, cet::exempt_ptr<CurrentProcessingContext const> cpc)
+{
+  detail::CPCSentry sentry{*cpc};
+  SubRun sr{srp, moduleDescription(), srp.seenRanges()};
+  endSubRun(sr);
+  //sr.commit_(srp);
+  sr.DataViewImpl::commit();
+  return true;
+}
+
+void
+EDProducer::
+endSubRun(SubRun&)
+{
+}
+
+bool
+EDProducer::
+doEvent(EventPrincipal& ep, int /*si*/, CurrentProcessingContext const* cpc,
+        atomic<size_t>& counts_run,
+        atomic<size_t>& counts_passed,
+        atomic<size_t>& /*counts_failed*/)
+{
+  detail::CPCSentry sentry{*cpc};
+  Event e{ep, moduleDescription()};
+  ++counts_run;
+  //if (static_cast<ModuleThreadingType>(moduleDescription().moduleThreadingType()) == ModuleThreadingType::STREAM) {
+  //  produce_in_stream(e, si);
+  //}
+  //else {
     produce(e);
-    e.commit_(ep, checkPutProducts_, expectedProducts());
-    counts.increment<stats::Passed>();
-    return true;
-  }
+  //}
+  e.DataViewImpl::commit(checkPutProducts_, &expectedProducts());
+  ++counts_passed;
+  return true;
+}
 
-  void
-  EDProducer::doBeginJob()
-  {
-    // 'checkPutProducts_' cannot be set during the c'tor
-    // initialization list since 'moduleDescription_' is empty there.
-    auto const& mainID = moduleDescription_.mainParameterSetID();
-    auto const& scheduler_pset = fhicl::ParameterSetRegistry::get(mainID).get<fhicl::ParameterSet>("services.scheduler");
-    auto const& module_pset = fhicl::ParameterSetRegistry::get(moduleDescription_.parameterSetID());
-    checkPutProducts_ = detail::get_failureToPut_flag(scheduler_pset, module_pset);
-    prepareForJob(scheduler_pset);
-    beginJob();
-  }
+//void
+//EDProducer::
+//produce_in_stream(Event&, int /*si*/)
+//{
+//}
 
-  void
-  EDProducer::doEndJob() {
-    endJob();
-    showMissingConsumes();
-  }
+} // namespace art
 
-  bool
-  EDProducer::doBeginRun(RunPrincipal& rp,
-                         CPC_exempt_ptr cpc)
-  {
-    detail::CPCSentry sentry{current_context_, cpc};
-    Run r{rp, moduleDescription_, this, RangeSet::forRun(rp.id())};
-    beginRun(r);
-    r.commit_(rp);
-    return true;
-  }
-
-  bool
-  EDProducer::doEndRun(RunPrincipal& rp,
-                       CPC_exempt_ptr cpc)
-  {
-    detail::CPCSentry sentry{current_context_, cpc};
-    Run r{rp, moduleDescription_, this, rp.seenRanges()};
-    endRun(r);
-    r.commit_(rp);
-    return true;
-  }
-
-  bool
-  EDProducer::doBeginSubRun(SubRunPrincipal& srp,
-                            CPC_exempt_ptr cpc)
-  {
-    detail::CPCSentry sentry{current_context_, cpc};
-    SubRun sr{srp, moduleDescription_, this, RangeSet::forSubRun(srp.id())};
-    beginSubRun(sr);
-    sr.commit_(srp);
-    return true;
-  }
-
-  bool
-  EDProducer::doEndSubRun(SubRunPrincipal& srp,
-                          CPC_exempt_ptr cpc)
-  {
-    detail::CPCSentry sentry{current_context_, cpc};
-    SubRun sr{srp, moduleDescription_, this, srp.seenRanges()};
-    endSubRun(sr);
-    sr.commit_(srp);
-    return true;
-  }
-
-  void
-  EDProducer::doRespondToOpenInputFile(FileBlock const& fb) {
-    respondToOpenInputFile(fb);
-  }
-
-  void
-  EDProducer::doRespondToCloseInputFile(FileBlock const& fb) {
-    respondToCloseInputFile(fb);
-  }
-
-  void
-  EDProducer::doRespondToOpenOutputFiles(FileBlock const& fb) {
-    respondToOpenOutputFiles(fb);
-  }
-
-  void
-  EDProducer::doRespondToCloseOutputFiles(FileBlock const& fb) {
-    respondToCloseOutputFiles(fb);
-  }
-
-  CurrentProcessingContext const*
-  EDProducer::currentContext() const {
-    return current_context_.get();
-  }
-
-}  // art

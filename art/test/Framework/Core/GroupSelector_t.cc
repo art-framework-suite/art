@@ -34,6 +34,7 @@ namespace {
                                   art::ModuleDescription(pset.id(),
                                                          "arttest::NOMOD",
                                                          moduleLabel,
+                                                         1,
                                                          art::ProcessConfiguration(processName,
                                                                                    fhicl::ParameterSet{}.id(),
                                                                                    art::getReleaseVersion())));

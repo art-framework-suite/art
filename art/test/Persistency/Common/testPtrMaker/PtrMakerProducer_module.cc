@@ -51,7 +51,7 @@ public:
   void produce(art::Event & e) override;
 
 private:
-  
+
   // Declare member data here.
   std::string fInputLabel;
 

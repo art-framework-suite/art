@@ -34,6 +34,8 @@ services: {
       errorOnFailureToPut: true
       errorOnMissingConsumes: false
       errorOnSIGINT: true
+      streams: 1
+      threads: 1
    }
 }
 source: {

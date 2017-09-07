@@ -46,7 +46,6 @@ arttest::TestFilter::TestFilter(EDFilter::Table<Config> const& ps):
 bool arttest::TestFilter::filter(art::Event&)
 {
   ++count_;
-  assert( currentContext() != 0 );
   if(onlyOne_)
     return count_ % accept_rate_ ==0;
   else
@@ -55,7 +54,6 @@ bool arttest::TestFilter::filter(art::Event&)
 
 void arttest::TestFilter::endJob()
 {
-  assert(currentContext() == 0);
 }
 
 DEFINE_ART_MODULE(arttest::TestFilter)

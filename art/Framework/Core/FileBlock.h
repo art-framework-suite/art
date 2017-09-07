@@ -1,85 +1,77 @@
 #ifndef art_Framework_Core_FileBlock_h
 #define art_Framework_Core_FileBlock_h
+// vim: set sw=2 expandtab :
 
-/*----------------------------------------------------------------------
-
-FileBlock: Properties of an input file.
-
-
-
-----------------------------------------------------------------------*/
-
-#include "art/Framework/Principal/ResultsPrincipal.h"
 #include "canvas/Persistency/Provenance/FileFormatVersion.h"
-#include "canvas/Persistency/Provenance/BranchChildren.h"
+
+#include <memory>
+#include <string>
 
 class TTree;
 
-#include <memory>
-#include <map>
-#include <string>
-#include <vector>
-
 namespace art {
-  class BranchDescription;
-  class FileBlock {
-  public:
 
-    FileBlock() = default;
+class BranchDescription;
+class BranchChildren;
+class ResultsPrincipal;
 
-    FileBlock(FileFormatVersion const& version,
-              std::string const& fileName) :
-      fileFormatVersion_{version},
-      fileName_{fileName}
-    {}
+class FileBlock {
 
-    FileBlock(FileFormatVersion const& version,
-              TTree const* ev,
-              bool fastCopy,
-              std::string const& fileName,
-              std::shared_ptr<BranchChildren> branchChildren,
-              std::unique_ptr<ResultsPrincipal> && resp = { }) :
-      fileFormatVersion_{version},
-      tree_{const_cast<TTree*>(ev)},
-      fastCopyable_{fastCopy},
-      fileName_{fileName},
-      branchChildren_{branchChildren},
-      resp_{std::move(resp)}
-    {}
+public:
 
-    // use compiler-generated copy c'tor, copy assignment, and d'tor
+  ~FileBlock();
 
-    FileFormatVersion const& fileFormatVersion() const {return fileFormatVersion_;}
-    TTree * tree() const {return tree_;}
+  FileBlock();
 
-    bool fastClonable() const {return fastCopyable_;}
-    std::string const& fileName() const {return fileName_;}
+  FileBlock(FileFormatVersion const&, std::string const& fileName);
 
-    void setNotFastCopyable() {fastCopyable_ = false;}
-    BranchChildren const& branchChildren() const { return *branchChildren_; }
+  FileBlock(FileFormatVersion const&, TTree const*, bool fastCopy, std::string const& fileName,
+            std::shared_ptr<BranchChildren>, std::unique_ptr<ResultsPrincipal>&& = {});
 
-  private:
-    // Friends only.
-    friend class OutputModule;
-    ResultsPrincipal const * resultsPrincipal() const;
+  FileFormatVersion const&
+  fileFormatVersion() const;
 
-    FileFormatVersion fileFormatVersion_ {};
-    // We use bare pointers because ROOT owns these.
-    TTree * tree_ {nullptr};
-    bool fastCopyable_ {false};
-    std::string fileName_ {};
-    std::shared_ptr<BranchChildren> branchChildren_ {std::make_shared<BranchChildren>()};
-    std::unique_ptr<ResultsPrincipal> resp_ {};
-  };
-}
+  TTree*
+  tree() const;
 
-inline
-art::ResultsPrincipal const *
-art::FileBlock::
-resultsPrincipal() const
-{
-  return resp_.get();
-}
+  bool
+  fastClonable() const;
+
+  std::string const&
+  fileName() const;
+
+  void
+  setNotFastCopyable();
+
+  BranchChildren const&
+  branchChildren() const;
+
+  ResultsPrincipal*
+  resultsPrincipal() const;
+
+private:
+
+  FileFormatVersion
+  fileFormatVersion_;
+
+  TTree*
+  tree_;
+
+  bool
+  fastCopyable_;
+
+  std::string
+  fileName_;
+
+  std::shared_ptr<BranchChildren>
+  branchChildren_;
+
+  std::unique_ptr<ResultsPrincipal>
+  resp_;
+
+};
+
+} // namespace art
 
 #endif /* art_Framework_Core_FileBlock_h */
 

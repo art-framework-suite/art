@@ -1,45 +1,53 @@
 #ifndef art_Framework_Services_System_CurrentModule_h
 #define art_Framework_Services_System_CurrentModule_h
+// vim: set sw=2 expandtab :
 
-// ======================================================================
 //
-// CurrentModule: A Service to track and make available information re
-//                the currently-running module
+// A Service to track and make available information about
+// the currently-running module
 //
-// ======================================================================
 
 #include "art/Framework/Services/Registry/ServiceMacros.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
 #include <string>
 
 namespace art {
-  class ActivityRegistry;  // declaration only
-  class CurrentModule;     // defined below
-}
 
-// ----------------------------------------------------------------------
+class ActivityRegistry;
 
-class art::CurrentModule {
-
-  CurrentModule(CurrentModule const&) = delete;
-  CurrentModule operator=(CurrentModule const&) = delete;
+class CurrentModule {
 
 public:
 
+  CurrentModule(CurrentModule const&) = delete;
+
+  CurrentModule
+  operator=(CurrentModule const&) = delete;
+
   CurrentModule(art::ActivityRegistry& r);
 
-  std::string const& label() const { return desc_.moduleLabel(); }
+public:
+
+  std::string const&
+  label() const
+  {
+    return desc_.moduleLabel();
+  }
 
 private:
-  art::ModuleDescription desc_;
 
-  void track_module(art::ModuleDescription const& desc);
+  art::ModuleDescription
+  desc_;
 
-};  // CurrentModule
+  void
+  track_module(art::ModuleDescription const& desc);
 
-// ======================================================================
+};
+
+} // namespace art
 
 DECLARE_ART_SYSTEM_SERVICE(art::CurrentModule, LEGACY)
+
 #endif /* art_Framework_Services_System_CurrentModule_h */
 
 // Local Variables:

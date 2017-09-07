@@ -42,12 +42,10 @@ arttest::TestOutput::TestOutput(arttest::TestOutput::Parameters const& ps):
 void arttest::TestOutput::write(art::EventPrincipal&)
 {
   ++total_;
-  assert(currentContext() == nullptr);
 }
 
 void arttest::TestOutput::endJob()
 {
-  assert( currentContext() == 0 );
   mf::LogAbsolute("TestOutputReport")
     << "TestOutput: should pass " << num_pass_
     << ", did pass " << total_ << "\n";

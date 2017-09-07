@@ -1,14 +1,15 @@
 #ifndef art_Framework_Services_Registry_ServiceHandle_h
 #define art_Framework_Services_Registry_ServiceHandle_h
+// vim: set sw=2 expandtab :
 
-// ======================================================================
+//
 // ServiceHandle
 //
 // Smart pointer used to give easy access to Services.
 //
 // Note invocation only requires one template argument, but the
 // constructor will require zero or one arguments depending on the scope
-// of the service (LEGACY, GLOBAL or PER_SCHEDULE).
+// of the service (LEGACY, GLOBAL).
 //
 // Technical notes:
 //
@@ -19,73 +20,60 @@
 //    ServiceHandle<MyService const> as long as the const-ness of the
 //    template argument is stripped (via std::remove_const_t<T>)
 //    before serving as an argument to ServiceHelper.
-// ======================================================================
+//
 
-#include "art/Framework/Services/Registry/ServiceRegistry.h"
 #include "art/Framework/Services/Registry/ServiceScope.h"
-#include "art/Framework/Services/Registry/ServiceToken.h"
-#include "art/Framework/Services/Registry/ServicesManager.h"
+#include "art/Framework/Services/Registry/ServiceRegistry.h"
 #include "art/Framework/Services/Registry/detail/ServiceHelper.h"
 #include "art/Utilities/ScheduleID.h"
 
 #include <type_traits>
 
 namespace art {
-  template <typename T, ServiceScope SCOPE = art::detail::ServiceHelper<std::remove_const_t<T>>::scope_val> class ServiceHandle;
-  template <typename T> class ServiceHandle<T, art::ServiceScope::PER_SCHEDULE>;
-}
 
-// General template.
-template <typename T, art::ServiceScope SCOPE>
-class art::ServiceHandle {
+template <typename T, ServiceScope SCOPE = detail::ServiceHelper<std::remove_const_t<T>>::scope_val>
+class ServiceHandle {
+
 public:
 
   ServiceHandle() try
     : instance{&ServiceRegistry::instance().get<std::remove_const_t<T>>()}
-    {}
-  catch ( art::Exception const& x )
-    {
-      throw art::Exception(art::errors::ServiceNotFound)
-	<< "Unable to create ServiceHandle.\n"
-	<< "Perhaps the FHiCL configuration does not specify the necessary service?\n"
-	<< "The class of the service is noted below...\n"
-	<< x;
-    }
+  {
+  }
+  catch (Exception const& x) {
+    throw Exception(errors::ServiceNotFound)
+        << "Unable to create ServiceHandle.\n"
+        << "Perhaps the FHiCL configuration does not specify the necessary service?\n"
+        << "The class of the service is noted below...\n"
+        << x;
+  }
 
-  T* operator->() const { return instance; }
-  T& operator*() const { return *instance; }
-  T* get() const { return instance; }
+  T*
+  operator->() const
+  {
+    return instance;
+  }
 
-private:
-  T* instance;
-};
+  T&
+  operator*() const
+  {
+    return *instance;
+  }
 
-// Per-schedule template. SFINAE wouldn't work here.
-template <typename T>
-class art::ServiceHandle<T, art::ServiceScope::PER_SCHEDULE> {
-public:
-
-  explicit ServiceHandle(ScheduleID const sID) try
-    : instance{&ServiceRegistry::instance().get<std::remove_const_t<T>>(sID)}
-  {}
-  catch ( art::Exception const& x )
-    {
-      throw art::Exception(art::errors::ServiceNotFound)
-	<< "Unable to create ServiceHandle.\n"
-	<< "Perhaps the FHiCL configuration does not specify the necessary service?\n"
-	<< "The class of the service is noted below...\n"
-	<< x;
-    }
-
-  T* operator->() const { return instance; }
-  T& operator*() const { return *instance; }
-  T* get() const { return instance; }
+  T*
+  get() const
+  {
+    return instance;
+  }
 
 private:
-  T* instance;
+
+  T*
+  instance;
+
 };
 
-// ======================================================================
+} // namespace art
 
 #endif /* art_Framework_Services_Registry_ServiceHandle_h */
 

@@ -46,7 +46,7 @@ namespace art {
   // member functions
   //
   static void markAncestors(ProductProvenance const& iInfo,
-                            BranchMapper const& iMapper,
+                            EventPrincipal& e,
                             std::map<ProductID, bool>& oMap,
                             std::set<ProductID>& oMapperMissing)
   {
@@ -55,9 +55,9 @@ namespace art {
       if (oMap.find(parent) == oMap.end()) {
         //use side effect of calling operator[] which is if the item isn't there it will add it as 'false'
         oMap[parent];
-        cet::exempt_ptr<ProductProvenance const> pInfo = iMapper.branchToProductProvenance(parent);
+        cet::exempt_ptr<ProductProvenance const> pInfo = e.branchToProductProvenance(parent);
         if (pInfo.get()) {
-          markAncestors(*pInfo, iMapper, oMap, oMapperMissing);
+          markAncestors(*pInfo, e, oMap, oMapperMissing);
         } else {
           oMapperMissing.insert(parent);
         }
@@ -69,26 +69,23 @@ namespace art {
   ProvenanceCheckerOutput::write(EventPrincipal& e)
   {
     //check ProductProvenance's parents to see if they are in the ProductProvenance list
-    BranchMapper const& mapper = const_cast<EventPrincipal const&>(e).branchMapper();
 
     std::map<ProductID,bool> seenParentInPrincipal;
     std::set<ProductID> missingFromMapper;
     std::set<ProductID> missingProductProvenance;
 
     for (auto const& group : e) {
-      if (group.second && !group.second->productUnavailable()) {
-        //This call seems to have a side effect of filling the 'ProductProvenance' in the Group
+      if (group.second && group.second->productAvailable()) {
         e.getForOutput(group.first, false);
-
-        if (not group.second->productProvenancePtr().get() ) {
+        if (not group.second->productProvenance().get() ) {
           missingProductProvenance.insert(group.first);
           continue;
         }
-        cet::exempt_ptr<ProductProvenance const> pInfo = mapper.branchToProductProvenance(group.first);
+        cet::exempt_ptr<ProductProvenance const> pInfo = e.branchToProductProvenance(group.first);
         if (!pInfo.get()) {
           missingFromMapper.insert(group.first);
         }
-        markAncestors(*(group.second->productProvenancePtr()), mapper, seenParentInPrincipal, missingFromMapper);
+        markAncestors(*(group.second->productProvenance()), e, seenParentInPrincipal, missingFromMapper);
       }
       seenParentInPrincipal[group.first]=true;
     }

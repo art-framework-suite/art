@@ -19,6 +19,7 @@
 #include "art/Framework/Services/Registry/ServiceMacros.h"
 #include "art/Framework/Services/Registry/ServiceTable.h"
 #include "art/Utilities/SAMMetadataTranslators.h"
+#include "canvas/Utilities/Exception.h"
 #include "cetlib/assert_only_one_thread.h"
 #include "cetlib/canonical_string.h"
 #include "cetlib/container_algorithms.h"

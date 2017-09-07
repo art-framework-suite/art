@@ -30,7 +30,7 @@ Begin processing the 1st record. run: 1 subRun: 0 event: 1 at <date-time>
 ++++ processing event:run: 1 subRun: 0 event: 1 time:0
 ++++++ processing path for event:end_path
 ++++++++ module for event:pa
->> Pausing for 5 seconds.
+>> Pausing for 1 seconds.
 ++++++++ finished for event:pa
 ++++++ finished path for event:
 ++++ finished event:
@@ -63,6 +63,6 @@ TimeReport ---------- Time  Summary ---[sec]----
 TimeReport CPU = <duration> Real = <duration>
 
 Art has completed and will exit with status 143.
->> Pausing for 5 seconds.
+>> Pausing for 1 seconds.
 >> Pause complete.
 Art has handled signal 15.

@@ -2,73 +2,128 @@
 // vim: set sw=2:
 
 #include "art/Framework/Core/FileBlock.h"
+#include "art/Framework/Principal/fwd.h"
 #include "art/Persistency/Provenance/MasterProductRegistry.h"
+#include "art/Persistency/Provenance/detail/branchNameComponentChecking.h"
+#include "art/Persistency/Provenance/detail/type_aliases.h"
+#include "canvas/Persistency/Common/Assns.h"
 #include "canvas/Persistency/Provenance/BranchDescription.h"
+#include "canvas/Persistency/Provenance/BranchType.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
+#include "canvas/Persistency/Provenance/ProductList.h"
 #include "canvas/Persistency/Provenance/TypeLabel.h"
 #include "canvas/Utilities/DebugMacros.h"
 #include "canvas/Utilities/Exception.h"
+#include "canvas/Utilities/TypeID.h"
 #include "cetlib/container_algorithms.h"
+#include "cetlib/exception.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/ParameterSetRegistry.h"
 
 #include <cassert>
+#include <memory>
+#include <set>
 #include <string>
+
+using namespace std;
+
+namespace art {
 
 namespace {
 
-  // A user may wish to declare:
-  //
-  //   produces<Assns<A,B>>(instance_name);
-  //   produces<Assns<B,A>>(instance_name);
-  //
-  // in their module constructor.  If the instance names are the same
-  // for both produces declarations, then this is a logic error, since
-  // Assns<A,B> and Assns<B,A> correspond to the same set of
-  // associations.  This error can be detected by checking the
-  // friendlyClassName, which resolves to the same string for
-  // Assns<A,B> and Assns<B,A>.
-
-  void check_for_duplicate_Assns(std::set<art::TypeLabel> const& typeLabels){
-    std::map<std::string, std::set<std::string>> instanceToFriendlyNames;
-    for (auto const& tl : typeLabels) {
-      auto const& productInstanceName = tl.productInstanceName();
-      auto result = instanceToFriendlyNames[productInstanceName].emplace(tl.friendlyClassName());
-      if (!result.second) {
-        throw art::Exception(art::errors::LogicError, "check_for_duplicate_Assns: ")
+// A user may attempt to declare:
+//
+//   produces<Assns<A,B>>(instance_name);
+//   produces<Assns<B,A>>(instance_name);
+//
+// in their module constructor.  If the instance names are the same
+// for both produces declarations, then this is a logic error, since
+// Assns<A,B> and Assns<B,A> correspond to the same set of
+// associations.  This error can be detected by checking the
+// friendlyClassName, which resolves to the same string for
+// Assns<A,B> and Assns<B,A>.
+void
+check_for_duplicate_Assns(set<TypeLabel> const& typeLabels)
+{
+  map<string, set<string>> instanceToFriendlyNames;
+  for (auto const& tl : typeLabels) {
+    auto result = instanceToFriendlyNames[tl.productInstanceName()].emplace(tl.typeID().friendlyClassName());
+    if (!result.second) {
+      throw Exception(errors::LogicError, "check_for_duplicate_Assns: ")
           << "An attempt has been made to call the equivalent of\n\n"
-          << "   produces<" << tl.className() << ">(\"" << productInstanceName << "\")\n\n"
+          << "   produces<" << tl.typeID().className() << ">(\"" << tl.productInstanceName() << "\")\n\n"
           << "which results in a prepared (\"friendly\") name of:\n\n"
-          << "   "<< *result.first << "\n\n"
+          << "   " << *result.first << "\n\n"
           << "That friendly name has already been registered for this module.\n"
           << "Please check to make sure that produces<> has not already been\n"
           << "called for an Assns<> with reversed template arguments.  Such\n"
           << "behavior is not supported.  Contact artists@fnal.gov for guidance.\n";
-      }
     }
   }
 }
 
+} // unnamed namespace
+
+ProductRegistryHelper::
+~ProductRegistryHelper()
+{
+}
+
+ProductRegistryHelper::
+ProductRegistryHelper()
+{
+}
+
+// Used by an input source to provide a product list
+// to be merged into the master product registry
+// later by registerProducts().
 void
-art::ProductRegistryHelper::registerProducts(MasterProductRegistry& mpr,
-                                             ModuleDescription const& md)
+ProductRegistryHelper::
+productList(ProductList* p)
+{
+  productList_.reset(p);
+}
+
+void
+ProductRegistryHelper::
+registerProducts(MasterProductRegistry& mpr, ModuleDescription const& md)
 {
   if (productList_) {
     PerBranchTypePresence tp;
     for (auto const& val : *productList_) {
-      auto const& pd = val.second;
-      tp[pd.branchType()].emplace(pd.productID());
+      auto const& bd = val.second;
+      tp[bd.branchType()].emplace(bd.productID());
     }
-    FileBlock const fb{{}, "ProductRegistryHelper"};
-    mpr.updateFromPrimaryFile(*productList_, tp, fb);
+    mpr.updateFromPrimaryFile(*productList_, tp);
     productList_.reset(); // Reset, since we no longer need it.
   }
   check_for_duplicate_Assns(typeLabelList_[InEvent]);
-  for (std::size_t ibt{}; ibt != NumBranchTypes; ++ibt) {
+  for (size_t ibt{}; ibt != NumBranchTypes; ++ibt) {
     auto bt = static_cast<BranchType>(ibt);
     for (auto const& val : typeLabelList_[bt]) {
-      auto pd = std::make_unique<art::BranchDescription>(bt, val, md);
-      mpr.addProduct(std::move(pd));
+      auto bd = make_unique<BranchDescription>(bt, val, md);
+      mpr.addProduct(move(bd));
     }
   }
 }
+
+
+TypeLabel const&
+ProductRegistryHelper::
+insertOrThrow(BranchType const bt, TypeLabel const& tl)
+{
+  auto result = typeLabelList_[bt].insert(tl);
+  //if (!result.second) {
+    //throw Exception(errors::LogicError, "RegistrationFailure")
+        //<< "The module being constructed attempted to "
+        //<< "register conflicting products with:\n"
+        //<< "friendlyClassName: "
+        //<< tl.typeID().friendlyClassName()
+        //<< " and instanceName: "
+        //<< tl.productInstanceName()
+        //<< ".\n";
+  //}
+  return *result.first;
+}
+
+} // namespace art

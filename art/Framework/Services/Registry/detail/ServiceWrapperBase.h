@@ -1,13 +1,6 @@
 #ifndef art_Framework_Services_Registry_detail_ServiceWrapperBase_h
 #define art_Framework_Services_Registry_detail_ServiceWrapperBase_h
-
-////////////////////////////////////////////////////////////////////////
-// ServiceWrapperBase
-//
-// Base class through which the framework manages the lifetime of
-// ServiceWrapper<T> objects.
-//
-////////////////////////////////////////////////////////////////////////
+// vim: set sw=2 expandtab :
 
 #include "art/Framework/Services/Registry/ServiceScope.h"
 #include "fhiclcpp/ParameterSet.h"
@@ -15,24 +8,34 @@
 #include <memory>
 
 namespace art {
-  namespace detail {
-    class ServiceWrapperBase;
-    using WrapperBase_ptr = std::shared_ptr<detail::ServiceWrapperBase>;
-  }
-}
+namespace detail {
 
-class art::detail::ServiceWrapperBase {
+class ServiceWrapperBase {
+
 public:
 
-  explicit ServiceWrapperBase() = default;
+  virtual
+  ~ServiceWrapperBase() = default;
 
-  // Noncopyable
+  explicit
+  ServiceWrapperBase() = default;
+
   ServiceWrapperBase(ServiceWrapperBase const&) = delete;
-  ServiceWrapperBase& operator = (ServiceWrapperBase const&) = delete;
 
-  virtual ~ServiceWrapperBase() = default;
+  ServiceWrapperBase(ServiceWrapperBase&&) = delete;
 
-};  // ServiceWrapperBase
+  ServiceWrapperBase&
+  operator=(ServiceWrapperBase const&) = delete;
+
+  ServiceWrapperBase&
+  operator=(ServiceWrapperBase&&) = delete;
+
+};
+
+using WrapperBase_ptr = std::shared_ptr<ServiceWrapperBase>;
+
+} // namespace detail
+} // namespace art
 
 #endif /* art_Framework_Services_Registry_detail_ServiceWrapperBase_h */
 

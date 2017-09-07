@@ -1,5 +1,6 @@
 #ifndef art_Utilities_ScheduleID_h
 #define art_Utilities_ScheduleID_h
+// vim: set sw=2 expandtab :
 
 // Entity for identification of schedules and items attached thereto.
 
@@ -9,12 +10,12 @@
 #include <type_traits>
 
 namespace art {
-  class ScheduleID;
+class ScheduleID;
 
-  bool operator != (ScheduleID left, ScheduleID right);
-  bool operator <= (ScheduleID left, ScheduleID right);
-  bool operator > (ScheduleID left, ScheduleID right);
-  bool operator >= (ScheduleID left, ScheduleID right);
+bool operator != (ScheduleID left, ScheduleID right);
+bool operator <= (ScheduleID left, ScheduleID right);
+bool operator > (ScheduleID left, ScheduleID right);
+bool operator >= (ScheduleID left, ScheduleID right);
 }
 
 class art::ScheduleID {
@@ -43,8 +44,8 @@ public:
   static ScheduleID last();
 
   // Comparison operators.
-  bool operator == (ScheduleID const & other) const;
-  bool operator < (ScheduleID const & other) const;
+  bool operator == (ScheduleID const& other) const;
+  bool operator < (ScheduleID const& other) const;
 
 private:
   static constexpr id_type min_id_();
@@ -57,8 +58,8 @@ private:
 inline
 art::ScheduleID::ScheduleID(id_type const id) :
   id_{(id < min_id_() || id > max_id_())
-    ? throw std::out_of_range("art::ScheduleID: Invalid initializer.")
-    : id}
+      ? throw std::out_of_range("art::ScheduleID: Invalid initializer.")
+      : id}
 {
 }
 
@@ -80,7 +81,7 @@ inline
 art::ScheduleID
 art::ScheduleID::next() const
 {
-  return ScheduleID(id_+1);
+  return ScheduleID(id_ + 1);
 }
 
 inline
@@ -99,14 +100,14 @@ art::ScheduleID::last()
 
 inline
 bool
-art::ScheduleID::operator == (ScheduleID const & other) const
+art::ScheduleID::operator == (ScheduleID const& other) const
 {
   return id_ == other.id_;
 }
 
 inline
 bool
-art::ScheduleID::operator < (ScheduleID const & other) const
+art::ScheduleID::operator < (ScheduleID const& other) const
 {
   return id_ < other.id_;
 }

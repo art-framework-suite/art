@@ -2,7 +2,6 @@ art_make_library(
   LIBRARY_NAME art_Framework_IO_Root_detail_sources
   SOURCE
   detail/DummyProductCache.cc
-  detail/KeptProvenance.cc
   detail/getEntry.cc
   detail/resolveRangeSet.cc
   detail/rootFileSizeTools.cc
@@ -42,6 +41,7 @@ art_make(EXCLUDE
   file_info_dumper.cc
   product_sizes_dumper.cc
   sam_metadata_dumper.cc
+  RootInputTree.cc
   NO_PLUGINS
   LIB_LIBRARIES
   art_Framework_Core

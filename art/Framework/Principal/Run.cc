@@ -1,4 +1,6 @@
 #include "art/Framework/Principal/Run.h"
+// vim: set sw=2 expandtab :
+
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/ParameterSetID.h"
@@ -8,43 +10,25 @@ using fhicl::ParameterSet;
 using fhicl::ParameterSetID;
 using fhicl::ParameterSetRegistry;
 
-art::Run::Run(RunPrincipal const& rp,
-              ModuleDescription const& md,
-              cet::exempt_ptr<Consumer> consumer,
-              RangeSet const& rs) :
-  DataViewImpl{rp, md, InRun, false, consumer},
-  principal_{rp},
-  aux_{rp.aux()},
-  productRangeSet_{rs}
-{}
+namespace art {
 
-art::EDProductGetter const*
-art::Run::productGetter(ProductID const pid) const
+Run::
+~Run()
 {
-  return principal_.productGetter(pid);
 }
 
-bool
-art::Run::getProcessParameterSet(std::string const& /*processName*/,
-                                 std::vector<ParameterSet>& /*psets*/) const
+Run::
+Run(RunPrincipal& rp, ModuleDescription const& md, RangeSet const& rs /*= RangeSet::invalid()*/)
+  : DataViewImpl{InRun, rp, md, false, rs}
 {
-  // Unimplemented
-  return false;
 }
 
-void
-art::Run::commit_(RunPrincipal& rp)
+RunID const
+Run::
+id() const
 {
-  for (auto& elem : putProducts()) {
-    auto const& pd = elem.second.pd;
-    auto productProvenancePtr = std::make_unique<ProductProvenance const>(pd.productID(),
-                                                                          productstatus::present());
-    rp.put(std::move(elem.second.prod),
-           pd,
-           std::move(productProvenancePtr),
-           std::move(elem.second.rs));
-  }
-
-  // the cleanup is all or none
-  putProducts().clear();
+  return DataViewImpl::runID();
 }
+
+} // namespace art
+

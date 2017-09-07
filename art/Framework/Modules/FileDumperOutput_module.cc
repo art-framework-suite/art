@@ -7,7 +7,6 @@
 //
 // ======================================================================
 
-#include "art/Framework/Core/FileBlock.h"
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Core/OutputModule.h"
 #include "art/Framework/Principal/EventPrincipal.h"
@@ -105,10 +104,10 @@ private:
   void write(EventPrincipal& e) override;
   void writeRun(RunPrincipal& r) override;
   void writeSubRun(SubRunPrincipal& sr) override;
-  void readResults(ResultsPrincipal const& resp) override;
+  void readResults(ResultsPrincipal& resp) override;
 
   template <typename P>
-  void printPrincipal(P const& p);
+  void printPrincipal(P& p);
 
   bool wantProductFullClassName_;
   bool wantProductFriendlyClassName_;
@@ -150,14 +149,15 @@ writeSubRun(SubRunPrincipal& sr)
 
 void
 art::FileDumperOutput::
-readResults(ResultsPrincipal const& resp)
+readResults(ResultsPrincipal& resp)
 {
   printPrincipal(resp);
 }
 
 template <typename P>
 void
-art::FileDumperOutput::printPrincipal(P const& p)
+art::FileDumperOutput::
+printPrincipal(P& p)
 {
   if (!p.size()) return;
 
@@ -184,12 +184,12 @@ art::FileDumperOutput::printPrincipal(P const& p)
     }
 
     if (!wantPresentOnly_ || productPresent) {
-      auto pi = detail::ProductInfo{g.moduleLabel(),
-                                    g.productInstanceName(),
+      auto pi = detail::ProductInfo{g.productDescription().moduleLabel(),
+                                    g.productDescription().productInstanceName(),
                                     g.productDescription().producedClassName(),
                                     g.productDescription().friendlyClassName(),
                                     product_size(product, productPresent)};
-      products[g.processName()].emplace_back(std::move(pi));
+      products[g.productDescription().processName()].emplace_back(std::move(pi));
     }
   }
 
