@@ -17,7 +17,6 @@
 #include "art/Framework/Services/System/TriggerNamesService.h"
 #include "art/Version/GetReleaseVersion.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
-#include "canvas/Persistency/Provenance/ProductList.h"
 #include "canvas/Persistency/Provenance/ReleaseVersion.h"
 #include "cetlib/exempt_ptr.h"
 
