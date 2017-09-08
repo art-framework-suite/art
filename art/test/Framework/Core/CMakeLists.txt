@@ -36,7 +36,7 @@ cet_test(PathManager_t USE_BOOST_UNIT
 ########################################################################
 
 simple_plugin(TestMod module NO_INSTALL)
-cet_test(maker2_t LIBRARIES $${default_test_libraries})
+cet_test(maker2_t LIBRARIES ${default_test_libraries})
 
 foreach(cpp_test
     EventSelector_t
