@@ -21,86 +21,85 @@ using fhicl::ParameterSet;
 
 namespace art {
 
-namespace actions {
+  namespace actions {
 
-char const*
-actionName(ActionCodes code)
-{
-  vector<const char*>
-  names{
-      "IgnoreCompletely"
-    , "Rethrow"
-    , "SkipEvent"
-    , "FailModule"
-    , "FailPath"
-  };
-  return (static_cast<size_t>(code) < names.size()) ? names[code] : "UnknownAction";
-}
+    char const*
+    actionName(ActionCodes code)
+    {
+      vector<const char*>
+        names{
+        "IgnoreCompletely"
+          , "Rethrow"
+          , "SkipEvent"
+          , "FailModule"
+          , "FailPath"
+          };
+      return (static_cast<size_t>(code) < names.size()) ? names[code] : "UnknownAction";
+    }
 
-} // namespace actions
+  } // namespace actions
 
-ActionTable::
-~ActionTable()
-{
-}
+  ActionTable::
+  ~ActionTable()
+  {
+  }
 
-ActionTable::
-ActionTable()
-  : map_()
-{
-  addDefaults_();
-}
-
-ActionTable::
-ActionTable(const ParameterSet& scheduleOpts)
-  : map_()
-{
-  if (scheduleOpts.get<bool>("defaultExceptions", true)) {
+  ActionTable::
+  ActionTable()
+    : map_()
+  {
     addDefaults_();
   }
-  install_(actions::IgnoreCompletely, scheduleOpts);
-  install_(actions::Rethrow, scheduleOpts);
-  install_(actions::SkipEvent, scheduleOpts);
-  install_(actions::FailModule, scheduleOpts);
-  install_(actions::FailPath, scheduleOpts);
-}
 
-void
-ActionTable::
-addDefaults_()
-{
-  map_[Exception::codeToString(errors::ProductNotFound)] = actions::SkipEvent;
-  map_[Exception::codeToString(errors::InvalidReference)] = actions::SkipEvent;
-  map_[Exception::codeToString(errors::NullPointerError)] = actions::SkipEvent;
-  map_[Exception::codeToString(errors::EventTimeout)] = actions::SkipEvent;
-  map_[Exception::codeToString(errors::DataCorruption)] = actions::SkipEvent;
-  map_[Exception::codeToString(errors::NotFound)] = actions::SkipEvent;
-}
+  ActionTable::
+  ActionTable(const ParameterSet& scheduleOpts)
+    : map_()
+  {
+    if (scheduleOpts.get<bool>("defaultExceptions", true)) {
+      addDefaults_();
+    }
+    install_(actions::IgnoreCompletely, scheduleOpts);
+    install_(actions::Rethrow, scheduleOpts);
+    install_(actions::SkipEvent, scheduleOpts);
+    install_(actions::FailModule, scheduleOpts);
+    install_(actions::FailPath, scheduleOpts);
+  }
 
-void
-ActionTable::
-install_(actions::ActionCodes code, const ParameterSet& scheduler)
-{
-  //using namespace boost::lambda;
-  vector<string> v(scheduler.get<vector<string>>(actions::actionName(code), vector<string>()));
-  //for_all(v, var(map_)[boost::lambda::_1] = code);
-  for_each(v.begin(), v.end(), [this, code](auto const& val) mutable { map_[val] = code; });
-}
+  void
+  ActionTable::
+  addDefaults_()
+  {
+    map_[Exception::codeToString(errors::ProductNotFound)] = actions::SkipEvent;
+    map_[Exception::codeToString(errors::InvalidReference)] = actions::SkipEvent;
+    map_[Exception::codeToString(errors::NullPointerError)] = actions::SkipEvent;
+    map_[Exception::codeToString(errors::EventTimeout)] = actions::SkipEvent;
+    map_[Exception::codeToString(errors::DataCorruption)] = actions::SkipEvent;
+    map_[Exception::codeToString(errors::NotFound)] = actions::SkipEvent;
+  }
 
-void
-ActionTable::
-add(const string& category, actions::ActionCodes code)
-{
-  map_[category] = code;
-}
+  void
+  ActionTable::
+  install_(actions::ActionCodes code, const ParameterSet& scheduler)
+  {
+    //using namespace boost::lambda;
+    vector<string> v(scheduler.get<vector<string>>(actions::actionName(code), vector<string>()));
+    //for_all(v, var(map_)[boost::lambda::_1] = code);
+    for_each(v.begin(), v.end(), [this, code](auto const& val) mutable { map_[val] = code; });
+  }
 
-actions::ActionCodes
-ActionTable::
-find(string const& category) const
-{
-  auto I = map_.find(category);
-  return (I != map_.end()) ? I->second : actions::Rethrow;
-}
+  void
+  ActionTable::
+  add(const string& category, actions::ActionCodes code)
+  {
+    map_[category] = code;
+  }
+
+  actions::ActionCodes
+  ActionTable::
+  find(string const& category) const
+  {
+    auto I = map_.find(category);
+    return (I != map_.end()) ? I->second : actions::Rethrow;
+  }
 
 } // namespace art
-

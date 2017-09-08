@@ -60,263 +60,263 @@
 
 namespace art {
 
-class ActivityRegistry;
-class MasterProductRegistry;
+  class ActivityRegistry;
+  class MasterProductRegistry;
 
-class DecrepitRelicInputSourceImplementation : public InputSource, private ProductRegistryHelper {
+  class DecrepitRelicInputSourceImplementation : public InputSource, private ProductRegistryHelper {
 
-public: // CONFIGURATION
+  public: // CONFIGURATION
 
-  struct Config {
+    struct Config {
 
-    ~Config();
-    Config();
-    Config(Config const&) = delete;
-    Config(Config&&) = delete;
-    Config& operator=(Config const&) = delete;
-    Config& operator=(Config&&) = delete;
+      ~Config();
+      Config();
+      Config(Config const&) = delete;
+      Config(Config&&) = delete;
+      Config& operator=(Config const&) = delete;
+      Config& operator=(Config&&) = delete;
 
-    static char const* defaultMode();
+      static char const* defaultMode();
 
-    fhicl::Atom<int> maxEvents;
-    fhicl::Atom<int> maxSubRuns;
-    fhicl::Atom<int> reportFrequency;
-    fhicl::Atom<bool> errorOnFailureToPut;
-    fhicl::Atom<std::string> processingMode;
+      fhicl::Atom<int> maxEvents;
+      fhicl::Atom<int> maxSubRuns;
+      fhicl::Atom<int> reportFrequency;
+      fhicl::Atom<bool> errorOnFailureToPut;
+      fhicl::Atom<std::string> processingMode;
+
+    };
+
+  public: // MEMBER FUNCTIONS -- Special Member Functions
+
+    virtual
+    ~DecrepitRelicInputSourceImplementation() noexcept;
+
+    DecrepitRelicInputSourceImplementation(fhicl::TableFragment<Config> const&, InputSourceDescription&);
+
+    DecrepitRelicInputSourceImplementation(DecrepitRelicInputSourceImplementation const&) = delete;
+
+    DecrepitRelicInputSourceImplementation(DecrepitRelicInputSourceImplementation&&) = delete;
+
+    DecrepitRelicInputSourceImplementation&
+    operator=(DecrepitRelicInputSourceImplementation const&) = delete;
+
+    DecrepitRelicInputSourceImplementation&
+    operator=(DecrepitRelicInputSourceImplementation&&) = delete;
+
+  public: // MEMBER FUNCTIONS -- ProductRegistryHelper Interface
+
+    using ProductRegistryHelper::reconstitutes;
+    using ProductRegistryHelper::expectedProducts;
+
+  public: // MEMBER FUNCTIONS -- Serial Access Interface
+
+    virtual
+    input::ItemType
+    nextItemType() override;
+
+    // Open next file
+    virtual
+    std::unique_ptr<FileBlock>
+    readFile(MasterProductRegistry&) override;
+
+    // Close current file
+    virtual
+    void
+    closeFile() override;
+
+    // Read next run.
+    virtual
+    std::unique_ptr<RunPrincipal>
+    readRun() override;
+
+    // Read next subRun
+    virtual
+    std::unique_ptr<SubRunPrincipal>
+    readSubRun(cet::exempt_ptr<RunPrincipal>) override;
+
+    // Read next event
+    // Indicate inability to get a new event by returning a null unique_ptr.
+    virtual
+    std::unique_ptr<EventPrincipal>
+    readEvent(cet::exempt_ptr<SubRunPrincipal>) override;
+
+    // Not implemented.
+    //virtual
+    //std::unique_ptr<RangeSetHandler>
+    //runRangeSetHandler() = 0;
+
+    // Not implemented.
+    //virtual
+    //std::unique_ptr<RangeSetHandler>
+    //subRunRangeSetHandler() = 0;
+
+  public: // MEMBER FUNCTIONS -- Job Interface
+
+    // Called by framework at beginning of job
+    virtual
+    void
+    doBeginJob() override;
+
+    // Called by framework at end of job
+    virtual
+    void
+    doEndJob() override;
+
+  public: // MEMBER FUNCTIONS -- Random Access Interface
+
+    // Read a specific event
+    virtual
+    std::unique_ptr<EventPrincipal>
+    readEvent(EventID const&) override;
+
+    // Skip the number of events specified.
+    // Offset may be negative.
+    virtual
+    void
+    skipEvents(int offset) override;
+
+    // Begin again at the first event
+    virtual
+    void
+    rewind() override;
+
+  public: // MEMBER FUNCTIONS -- DecrepitRelicInputSourceImplementation specific interface
+
+    // RunsSubRunsAndEvents (default), RunsAndSubRuns, or Runs.
+    ProcessingMode
+    processingMode() const;
+
+    // Accessor for maximum number of events to be read.
+    // -1 is used for unlimited.
+    int
+    maxEvents() const;
+
+    // Accessor for remaining number of events to be read.
+    // -1 is used for unlimited.
+    int
+    remainingEvents() const;
+
+    // Accessor for maximum number of subRuns to be read.
+    // -1 is used for unlimited.
+    int
+    maxSubRuns() const;
+
+    // Accessor for remaining number of subRuns to be read.
+    // -1 is used for unlimited.
+    int
+    remainingSubRuns() const;
+
+    // Accessor for the current time, as seen by the input source
+    Timestamp const&
+    timestamp() const;
+
+  public: // MEMBER FUNCTIONS -- DecrepitRelicInputSourceImplementation specific interface
+
+    // Reset the remaining number of events/subRuns to the maximum number.
+    void
+    repeat_();
+
+    // issue an event report
+    void
+    issueReports(EventID const& eventID);
+
+  protected: // MEMBER FUNCTIONS -- Utility Functions for Subclasses
+
+    /// To set the current time, as seen by the input source
+    void
+    setTimestamp(Timestamp const& theTime);
+
+    input::ItemType
+    state() const;
+
+    void
+    setState(input::ItemType);
+
+    cet::exempt_ptr<SubRunPrincipal>
+    subRunPrincipalExemptPtr();
+
+    std::unique_ptr<SubRunPrincipal>
+    subRunPrincipal();
+
+    std::unique_ptr<EventPrincipal>
+    eventPrincipal();
+
+    void
+    setSubRunPrincipal(std::unique_ptr<SubRunPrincipal>&& srp);
+
+    void
+    setEventPrincipal(std::unique_ptr<EventPrincipal>&& ep);
+
+    void
+    resetSubRunPrincipal();
+
+    void
+    resetEventPrincipal();
+
+    void
+    reset();
+
+  private: // MEMBER FUNCTIONS -- Required Interface for Subclasses
+
+    virtual
+    input::ItemType
+    getNextItemType() = 0;
+
+    virtual
+    std::unique_ptr<RunPrincipal>
+    readRun_() = 0;
+
+    virtual
+    std::unique_ptr<SubRunPrincipal>
+    readSubRun_(cet::exempt_ptr<RunPrincipal>) = 0;
+
+    virtual
+    std::unique_ptr<EventPrincipal>
+    readEvent_() = 0;
+
+  private: // MEMBER FUNCTIONS -- Optional Serial Interface for Subclasses
+
+    virtual
+    std::unique_ptr<FileBlock>
+    readFile_();
+
+    virtual
+    void
+    closeFile_();
+
+  private: // MEMBER FUNCTIONS -- Optional Job Interface for Subclasses
+
+    virtual
+    void
+    beginJob();
+
+    virtual
+    void
+    endJob();
+
+  private: // MEMBER FUNCTIONS -- Optional Random Access Interface for Subclasses
+
+    virtual
+    void
+    skip(int);
+
+    virtual
+    void
+    rewind_();
+
+  private: // MEMBER DATA
+
+    ProcessingMode processingMode_{RunsSubRunsAndEvents};
+    int maxEvents_{};
+    int maxSubRuns_{};
+    int const reportFrequency_{};
+    int remainingEvents_{maxEvents_};
+    int remainingSubRuns_{maxSubRuns_};
+    int numberOfEventsRead_{};
+    Timestamp timestamp_{Timestamp::invalidTimestamp()};
+    input::ItemType state_{input::IsInvalid};
 
   };
-
-public: // MEMBER FUNCTIONS -- Special Member Functions
-
-  virtual
-  ~DecrepitRelicInputSourceImplementation() noexcept;
-
-  DecrepitRelicInputSourceImplementation(fhicl::TableFragment<Config> const&, InputSourceDescription&);
-
-  DecrepitRelicInputSourceImplementation(DecrepitRelicInputSourceImplementation const&) = delete;
-
-  DecrepitRelicInputSourceImplementation(DecrepitRelicInputSourceImplementation&&) = delete;
-
-  DecrepitRelicInputSourceImplementation&
-  operator=(DecrepitRelicInputSourceImplementation const&) = delete;
-
-  DecrepitRelicInputSourceImplementation&
-  operator=(DecrepitRelicInputSourceImplementation&&) = delete;
-
-public: // MEMBER FUNCTIONS -- ProductRegistryHelper Interface
-
-  using ProductRegistryHelper::reconstitutes;
-  using ProductRegistryHelper::expectedProducts;
-
-public: // MEMBER FUNCTIONS -- Serial Access Interface
-
-  virtual
-  input::ItemType
-  nextItemType() override;
-
-  // Open next file
-  virtual
-  std::unique_ptr<FileBlock>
-  readFile(MasterProductRegistry&) override;
-
-  // Close current file
-  virtual
-  void
-  closeFile() override;
-
-  // Read next run.
-  virtual
-  std::unique_ptr<RunPrincipal>
-  readRun() override;
-
-  // Read next subRun
-  virtual
-  std::unique_ptr<SubRunPrincipal>
-  readSubRun(cet::exempt_ptr<RunPrincipal>) override;
-
-  // Read next event
-  // Indicate inability to get a new event by returning a null unique_ptr.
-  virtual
-  std::unique_ptr<EventPrincipal>
-  readEvent(cet::exempt_ptr<SubRunPrincipal>) override;
-
-  // Not implemented.
-  //virtual
-  //std::unique_ptr<RangeSetHandler>
-  //runRangeSetHandler() = 0;
-
-  // Not implemented.
-  //virtual
-  //std::unique_ptr<RangeSetHandler>
-  //subRunRangeSetHandler() = 0;
-
-public: // MEMBER FUNCTIONS -- Job Interface
-
-  // Called by framework at beginning of job
-  virtual
-  void
-  doBeginJob() override;
-
-  // Called by framework at end of job
-  virtual
-  void
-  doEndJob() override;
-
-public: // MEMBER FUNCTIONS -- Random Access Interface
-
-  // Read a specific event
-  virtual
-  std::unique_ptr<EventPrincipal>
-  readEvent(EventID const&) override;
-
-  // Skip the number of events specified.
-  // Offset may be negative.
-  virtual
-  void
-  skipEvents(int offset) override;
-
-  // Begin again at the first event
-  virtual
-  void
-  rewind() override;
-
-public: // MEMBER FUNCTIONS -- DecrepitRelicInputSourceImplementation specific interface
-
-  // RunsSubRunsAndEvents (default), RunsAndSubRuns, or Runs.
-  ProcessingMode
-  processingMode() const;
-
-  // Accessor for maximum number of events to be read.
-  // -1 is used for unlimited.
-  int
-  maxEvents() const;
-
-  // Accessor for remaining number of events to be read.
-  // -1 is used for unlimited.
-  int
-  remainingEvents() const;
-
-  // Accessor for maximum number of subRuns to be read.
-  // -1 is used for unlimited.
-  int
-  maxSubRuns() const;
-
-  // Accessor for remaining number of subRuns to be read.
-  // -1 is used for unlimited.
-  int
-  remainingSubRuns() const;
-
-  // Accessor for the current time, as seen by the input source
-  Timestamp const&
-  timestamp() const;
-
-public: // MEMBER FUNCTIONS -- DecrepitRelicInputSourceImplementation specific interface
-
-  // Reset the remaining number of events/subRuns to the maximum number.
-  void
-  repeat_();
-
-  // issue an event report
-  void
-  issueReports(EventID const& eventID);
-
-protected: // MEMBER FUNCTIONS -- Utility Functions for Subclasses
-
-  /// To set the current time, as seen by the input source
-  void
-  setTimestamp(Timestamp const& theTime);
-
-  input::ItemType
-  state() const;
-
-  void
-  setState(input::ItemType);
-
-  cet::exempt_ptr<SubRunPrincipal>
-  subRunPrincipalExemptPtr();
-
-  std::unique_ptr<SubRunPrincipal>
-  subRunPrincipal();
-
-  std::unique_ptr<EventPrincipal>
-  eventPrincipal();
-
-  void
-  setSubRunPrincipal(std::unique_ptr<SubRunPrincipal>&& srp);
-
-  void
-  setEventPrincipal(std::unique_ptr<EventPrincipal>&& ep);
-
-  void
-  resetSubRunPrincipal();
-
-  void
-  resetEventPrincipal();
-
-  void
-  reset();
-
-private: // MEMBER FUNCTIONS -- Required Interface for Subclasses
-
-  virtual
-  input::ItemType
-  getNextItemType() = 0;
-
-  virtual
-  std::unique_ptr<RunPrincipal>
-  readRun_() = 0;
-
-  virtual
-  std::unique_ptr<SubRunPrincipal>
-  readSubRun_(cet::exempt_ptr<RunPrincipal>) = 0;
-
-  virtual
-  std::unique_ptr<EventPrincipal>
-  readEvent_() = 0;
- 
-private: // MEMBER FUNCTIONS -- Optional Serial Interface for Subclasses
-
-  virtual
-  std::unique_ptr<FileBlock>
-  readFile_();
-
-  virtual
-  void
-  closeFile_();
-
-private: // MEMBER FUNCTIONS -- Optional Job Interface for Subclasses
-
-  virtual
-  void
-  beginJob();
-
-  virtual
-  void
-  endJob();
-
-private: // MEMBER FUNCTIONS -- Optional Random Access Interface for Subclasses
-
-  virtual
-  void
-  skip(int);
-
-  virtual
-  void
-  rewind_();
-
-private: // MEMBER DATA
-
-  ProcessingMode processingMode_{RunsSubRunsAndEvents};
-  int maxEvents_{};
-  int maxSubRuns_{};
-  int const reportFrequency_{};
-  int remainingEvents_{maxEvents_};
-  int remainingSubRuns_{maxSubRuns_};
-  int numberOfEventsRead_{};
-  Timestamp timestamp_{Timestamp::invalidTimestamp()};
-  input::ItemType state_{input::IsInvalid};
-
-};
 
 } // namespace art
 

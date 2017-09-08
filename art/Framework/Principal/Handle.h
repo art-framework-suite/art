@@ -2,8 +2,7 @@
 #define art_Framework_Principal_Handle_h
 // vim: set sw=2 expandtab :
 
-
-//
+//==========================================================================
 //  Handle: Non-owning "smart pointer" for reference to EDProducts and
 //          their Provenances.
 //
@@ -26,8 +25,7 @@
 //  If failedToGet() returns true then the requested data is not available
 //  If failedToGet() returns false but isValid() is also false then no
 //  attempt to get data has occurred
-//
-
+//==========================================================================
 
 #include "art/Framework/Principal/Group.h"
 #include "art/Framework/Principal/Provenance.h"
@@ -43,49 +41,49 @@
 
 namespace art {
 
-template<typename T> class Handle;
-template<typename T> class ValidHandle;
-template<class T> void swap(Handle<T>& a, Handle<T>& b);
-template<class T> void swap(ValidHandle<T>& a, ValidHandle<T>& b);
-template<class T> void convert_handle(GroupQueryResult const&, Handle<T>&);
+  template<typename T> class Handle;
+  template<typename T> class ValidHandle;
+  template<class T> void swap(Handle<T>& a, Handle<T>& b);
+  template<class T> void swap(ValidHandle<T>& a, ValidHandle<T>& b);
+  template<class T> void convert_handle(GroupQueryResult const&, Handle<T>&);
 
-class EDProduct;
-template<typename T> class Wrapper;
+  class EDProduct;
+  template<typename T> class Wrapper;
 
-namespace detail {
+  namespace detail {
 
-inline
-void
-throw_if_invalid(std::string const&)
-{
-}
+    inline
+    void
+    throw_if_invalid(std::string const&)
+    {
+    }
 
-template<typename H, typename ... T>
-void throw_if_invalid(std::string const& msg, H const& h, T const& ... t)
-{
-  if (!h.isValid()) {
-    throw Exception{art::errors::NullPointerError} << msg << '\n';
-  }
-  throw_if_invalid(msg, t...);
-}
+    template<typename H, typename ... T>
+    void throw_if_invalid(std::string const& msg, H const& h, T const& ... t)
+    {
+      if (!h.isValid()) {
+        throw Exception{art::errors::NullPointerError} << msg << '\n';
+      }
+      throw_if_invalid(msg, t...);
+    }
 
-} // namespace detail
+  } // namespace detail
 
-template<class T>
-std::enable_if_t<detail::is_handle<T>::value, RangeSet const&>
-range_of_validity(T const& h);
+  template<class T>
+  std::enable_if_t<detail::is_handle<T>::value, RangeSet const&>
+  range_of_validity(T const& h);
 
-template<class T, class U>
-std::enable_if_t<detail::are_handles<T, U>::value, bool>
-same_ranges(T const& a, U const& b);
+  template<class T, class U>
+  std::enable_if_t<detail::are_handles<T, U>::value, bool>
+  same_ranges(T const& a, U const& b);
 
-template<class T, class U>
-std::enable_if_t<detail::are_handles<T, U>::value, bool>
-disjoint_ranges(T const& a, U const& b);
+  template<class T, class U>
+  std::enable_if_t<detail::are_handles<T, U>::value, bool>
+  disjoint_ranges(T const& a, U const& b);
 
-template<class T, class U>
-std::enable_if_t<detail::are_handles<T, U>::value, bool>
-overlapping_ranges(T const& a, U const& b);
+  template<class T, class U>
+  std::enable_if_t<detail::are_handles<T, U>::value, bool>
+  overlapping_ranges(T const& a, U const& b);
 
 } // namespace art
 
@@ -164,7 +162,7 @@ product() const
   }
   if (prod_ == nullptr)
     throw Exception(art::errors::NullPointerError)
-        << "Attempt to de-reference product that points to 'nullptr'";
+      << "Attempt to de-reference product that points to 'nullptr'";
   return prod_;
 }
 
@@ -292,7 +290,7 @@ art::ValidHandle<T>::ValidHandle(T const* prod, Provenance prov) :
 {
   if (prod == nullptr)
     throw Exception(art::errors::NullPointerError)
-        << "Attempt to create ValidHandle with null pointer";
+      << "Attempt to create ValidHandle with null pointer";
 }
 
 template<class T>
