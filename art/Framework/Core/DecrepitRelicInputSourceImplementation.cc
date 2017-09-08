@@ -78,15 +78,11 @@ namespace art {
   DecrepitRelicInputSourceImplementation(fhicl::TableFragment<DecrepitRelicInputSourceImplementation::Config> const& config,
                                          InputSourceDescription& desc)
     : InputSource{desc.moduleDescription}
-    , processingMode_{RunsSubRunsAndEvents}
     , maxEvents_{config().maxEvents()}
     , maxSubRuns_{config().maxSubRuns()}
     , reportFrequency_{config().reportFrequency()}
     , remainingEvents_{maxEvents_}
     , remainingSubRuns_{maxSubRuns_}
-    , numberOfEventsRead_{}
-    , timestamp_{Timestamp::invalidTimestamp()}
-    , state_{input::IsInvalid}
   {
     if (reportFrequency_ < 0) {
       throw art::Exception(art::errors::Configuration)
@@ -107,8 +103,6 @@ namespace art {
         << "'\n"
         << "Legal values are 'RunsSubRunsAndEvents', 'RunsAndSubRuns', or 'Runs'.\n";
     }
-    // This must come last.
-    registerProducts(desc.productRegistry, moduleDescription());
   }
 
   input::ItemType
@@ -252,7 +246,6 @@ namespace art {
         --remainingEvents_;
       }
       ++numberOfEventsRead_;
-      setTimestamp(ep->time());
       if ((reportFrequency_ > 0) && !(numberOfEventsRead_ % reportFrequency_)) {
         issueReports(ep->eventID());
       }
@@ -378,14 +371,6 @@ namespace art {
     return remainingSubRuns_;
   }
 
-  // Accessor for the current time, as seen by the input source
-  Timestamp const&
-  DecrepitRelicInputSourceImplementation::
-  timestamp() const
-  {
-    return timestamp_;
-  }
-
   // Reset the remaining number of events/subRuns to the maximum number.
   void
   DecrepitRelicInputSourceImplementation::
@@ -407,14 +392,6 @@ namespace art {
       << suffix(numberOfEventsRead_) << " record. " << eventID
       << " at " << ts;
     // At some point we may want to initiate checkpointing here
-  }
-
-  /// To set the current time, as seen by the input source
-  void
-  DecrepitRelicInputSourceImplementation::
-  setTimestamp(Timestamp const& timestamp)
-  {
-    timestamp_ = timestamp;
   }
 
   input::ItemType

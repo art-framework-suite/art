@@ -240,10 +240,10 @@ private: // MEMBER FUNCTIONS -- DecrepitRelicInputSourceImplementation interface
 
 private: // MEMBER DATA
 
-  unsigned const numberEventsInRun_{};
-  unsigned const numberEventsInSubRun_{};
+  unsigned const numberEventsInRun_;
+  unsigned const numberEventsInSubRun_;
   // microseconds
-  unsigned const eventCreationDelay_{};
+  unsigned const eventCreationDelay_;
   unsigned numberEventsInThisRun_{};
   unsigned numberEventsInThisSubRun_{};
   EventID origEventID_{};
@@ -252,10 +252,10 @@ private: // MEMBER DATA
   bool newFile_{true};
   bool newRun_{true};
   bool newSubRun_{true};
-  bool const resetEventOnSubRun_{true};
+  bool const resetEventOnSubRun_;
   EventAuxiliary::ExperimentType eType_{EventAuxiliary::Any};
   cet::BasicPluginFactory pluginFactory_{};
-  unique_ptr<EmptyEventTimestampPlugin> plugin_;
+  unique_ptr<EmptyEventTimestampPlugin> plugin_{nullptr};
 
 };
 
@@ -271,18 +271,7 @@ EmptyEvent(EmptyEvent::Parameters const& config, InputSourceDescription& desc)
   , numberEventsInRun_{static_cast<uint32_t>(config().numberEventsInRun())}
   , numberEventsInSubRun_{static_cast<uint32_t>(config().numberEventsInSubRun())}
   , eventCreationDelay_{config().eventCreationDelay()}
-  , numberEventsInThisRun_{}
-  , numberEventsInThisSubRun_{}
-  , origEventID_{}
-  , eventID_{}
-  , firstTime_{true}
-  , newFile_{true}
-  , newRun_{true}
-  , newSubRun_{true}
   , resetEventOnSubRun_{config().resetEventOnSubRun()}
-  , eType_{EventAuxiliary::Any}
-  , pluginFactory_{}
-  , plugin_{}
 {
   //makePlugin_(fhicl::ParameterSet const& pset)
   {
@@ -556,7 +545,6 @@ rewind_()
   if (plugin_) {
     plugin_->doRewind();
   }
-  setTimestamp(Timestamp::invalidTimestamp());
   firstTime_ = true;
   newFile_ = true;
   newRun_ = true;
@@ -569,4 +557,3 @@ rewind_()
 } // namespace art
 
 DEFINE_ART_INPUT_SOURCE(art::EmptyEvent)
-

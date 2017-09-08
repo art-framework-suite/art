@@ -210,10 +210,6 @@ namespace art {
     int
     remainingSubRuns() const;
 
-    // Accessor for the current time, as seen by the input source
-    Timestamp const&
-    timestamp() const;
-
   public: // MEMBER FUNCTIONS -- DecrepitRelicInputSourceImplementation specific interface
 
     // Reset the remaining number of events/subRuns to the maximum number.
@@ -226,36 +222,11 @@ namespace art {
 
   protected: // MEMBER FUNCTIONS -- Utility Functions for Subclasses
 
-    /// To set the current time, as seen by the input source
-    void
-    setTimestamp(Timestamp const& theTime);
-
     input::ItemType
     state() const;
 
     void
     setState(input::ItemType);
-
-    cet::exempt_ptr<SubRunPrincipal>
-    subRunPrincipalExemptPtr();
-
-    std::unique_ptr<SubRunPrincipal>
-    subRunPrincipal();
-
-    std::unique_ptr<EventPrincipal>
-    eventPrincipal();
-
-    void
-    setSubRunPrincipal(std::unique_ptr<SubRunPrincipal>&& srp);
-
-    void
-    setEventPrincipal(std::unique_ptr<EventPrincipal>&& ep);
-
-    void
-    resetSubRunPrincipal();
-
-    void
-    resetEventPrincipal();
 
     void
     reset();
@@ -311,13 +282,12 @@ namespace art {
   private: // MEMBER DATA
 
     ProcessingMode processingMode_{RunsSubRunsAndEvents};
-    int maxEvents_{};
-    int maxSubRuns_{};
-    int const reportFrequency_{};
-    int remainingEvents_{maxEvents_};
-    int remainingSubRuns_{maxSubRuns_};
+    int maxEvents_;
+    int maxSubRuns_;
+    int const reportFrequency_;
+    int remainingEvents_;
+    int remainingSubRuns_;
     int numberOfEventsRead_{};
-    Timestamp timestamp_{Timestamp::invalidTimestamp()};
     input::ItemType state_{input::IsInvalid};
 
   };

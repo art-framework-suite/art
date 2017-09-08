@@ -112,16 +112,15 @@ RootInput::
 
 RootInput::
 RootInput(RootInput::Parameters const& config, InputSourceDescription& desc)
-  : DecrepitRelicInputSourceImplementation(config().drisi_config, desc)
-  , catalog_(config().ifc_config)
-  , primaryFileSequence_(make_unique<RootInputFileSequence>(config().rifs_config,
-                         catalog_,
-                         FastCloningInfoProvider(cet::exempt_ptr<RootInput>(this)),
-                         processingMode(),
-                         desc.productRegistry,
-                         processConfiguration()))
-  , accessState_()
-  , mpr_(desc.productRegistry)
+  : DecrepitRelicInputSourceImplementation{config().drisi_config, desc}
+  , catalog_{config().ifc_config}
+  , primaryFileSequence_{make_unique<RootInputFileSequence>(config().rifs_config,
+                                                            catalog_,
+                                                            FastCloningInfoProvider(cet::exempt_ptr<RootInput>(this)),
+                                                            processingMode(),
+                                                            desc.productRegistry,
+                                                            processConfiguration())}
+  , mpr_{desc.productRegistry}
 {
 }
 

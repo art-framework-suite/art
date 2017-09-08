@@ -250,7 +250,7 @@ namespace art {
 
     InputFileCatalog catalog_;
     std::unique_ptr<RootInputFileSequence> primaryFileSequence_;
-    AccessState accessState_;
+    AccessState accessState_{};
     MasterProductRegistry& mpr_;
 
   };
