@@ -2,10 +2,9 @@
 // vim: set sw=2 expandtab :
 
 #include "art/Framework/Principal/ActionCodes.h"
-//#include "boost/lambda/lambda.hpp"
 #include "canvas/Utilities/DebugMacros.h"
 #include "canvas/Utilities/Exception.h"
-//#include "cetlib/container_algorithms.h"
+#include "cetlib/container_algorithms.h"
 #include "fhiclcpp/ParameterSet.h"
 
 #include <algorithm>
@@ -69,22 +68,21 @@ namespace art {
   ActionTable::
   addDefaults_()
   {
-    map_[Exception::codeToString(errors::ProductNotFound)] = actions::SkipEvent;
-    map_[Exception::codeToString(errors::InvalidReference)] = actions::SkipEvent;
-    map_[Exception::codeToString(errors::NullPointerError)] = actions::SkipEvent;
-    map_[Exception::codeToString(errors::EventTimeout)] = actions::SkipEvent;
-    map_[Exception::codeToString(errors::DataCorruption)] = actions::SkipEvent;
-    map_[Exception::codeToString(errors::NotFound)] = actions::SkipEvent;
+    // This is where defaults that are not 'Rethrow' would be populated.
+    if (2 > debugit()) return;
+
+    for (auto const& pr : map_) {
+      cerr << pr.first << ',' << pr.second << '\n';
+    }
+    cerr << endl;
   }
 
   void
   ActionTable::
   install_(actions::ActionCodes code, const ParameterSet& scheduler)
   {
-    //using namespace boost::lambda;
-    vector<string> v(scheduler.get<vector<string>>(actions::actionName(code), vector<string>()));
-    //for_all(v, var(map_)[boost::lambda::_1] = code);
-    for_each(v.begin(), v.end(), [this, code](auto const& val) mutable { map_[val] = code; });
+    auto const& action_names = scheduler.get<vector<string>>(actionName(code), {});
+    for_all(action_names, [this, code](auto const& action_name) { this->add(action_name, code); });
   }
 
   void

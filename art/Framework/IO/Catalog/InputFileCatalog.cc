@@ -87,13 +87,7 @@ namespace art {
   bool InputFileCatalog::retrieveNextFile(FileCatalogItem & item, int attempts, bool transferOnly) {
 
     // Tell the service the current opened file (if theres one) is consumed
-    if( fileIdx_!=indexEnd             // there is a current file
-        && !currentFile().skipped()    // not skipped
-        && !currentFile().consumed() ) // not consumed
-    {
-      ci_->updateStatus( currentFile().uri(), FileDisposition::CONSUMED );
-      fileCatalogItems_[fileIdx_].consume();
-    }
+    finish();
 
     // retrieve (deliver and transfer) next file from service
     // or, do the transfer only
@@ -224,6 +218,19 @@ namespace art {
     }
 
     fileIdx_ = index;
+  }
+
+  void
+  InputFileCatalog::
+  finish()
+  {
+    if( fileIdx_!=indexEnd             // there is a current file
+        && !currentFile().skipped()    // not skipped
+        && !currentFile().consumed() ) // not consumed
+    {
+      ci_->updateStatus( currentFile().uri(), FileDisposition::CONSUMED );
+      fileCatalogItems_[fileIdx_].consume();
+    }
   }
 
 }  // art

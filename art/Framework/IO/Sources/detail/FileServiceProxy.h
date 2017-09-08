@@ -25,6 +25,7 @@ public:
   ~FileServiceProxy();
 
   std::string next();
+  void finish();
 
 private:
   std::string obtainURI_();
@@ -51,6 +52,15 @@ private:
   size_t const attemptsPerPhase_;
   double const waitBetweenAttempts_;
 };
+
+inline
+std::string
+art::detail::FileServiceProxy::
+next()
+{
+  finish();
+  return obtainURI_();
+}
 
 #endif /* art_Framework_IO_Sources_detail_FileServiceProxy_h */
 

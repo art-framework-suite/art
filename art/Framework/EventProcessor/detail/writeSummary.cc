@@ -11,14 +11,17 @@
 #include <iomanip>
 #include <vector>
 
-using namespace std;
-
 using mf::LogPrint;
+using std::setw;
+using std::setprecision;
+using std::fixed;
 
 namespace {
 
+  using WorkersInPath = std::vector<art::WorkerInPath>;
+
   void
-  workersInPathTriggerReport(int const firstBit, int const bitPosition, vector<WorkerInPath> const& workersInPath)
+  workersInPathTriggerReport(int const firstBit, int const bitPosition, WorkersInPath const& workersInPath)
   {
     for (auto const& workerInPath : workersInPath) {
       LogPrint("ArtSummary") << "TrigReport "
@@ -28,23 +31,23 @@ namespace {
                              << std::right << setw(10) << workerInPath.timesPassed() << " "
                              << std::right << setw(10) << workerInPath.timesFailed() << " "
                              << std::right << setw(10) << workerInPath.timesExcept() << " "
-                             << workerInPath.getWorker()->description().moduleLabel() << "";
+                             << workerInPath.getWorker()->description().moduleLabel();
     }
   }
 
-  void
-  workersInEndPathTriggerReport(int const firstBit, int const bitPosition, vector<WorkerInPath> const& workersInPath)
+  void workersInEndPathTriggerReport(int const firstBit,
+                                     int const bitPosition,
+                                     WorkersInPath const& workersInPath)
   {
     for (auto const& workerInPath : workersInPath) {
       auto worker = workerInPath.getWorker();
-      assert(worker->timesFailed()==0);
       LogPrint("ArtSummary") << "TrigReport "
                              << std::right << setw(5)  << firstBit
                              << std::right << setw(5)  << bitPosition << " "
                              << std::right << setw(10) << worker->timesRun() << " " // proxy for visited
                              << std::right << setw(10) << worker->timesPassed() << " "
                              << std::right << setw(10) << worker->timesExcept() << " "
-                             << worker->description().moduleLabel() << "";
+                             << worker->description().moduleLabel();
     }
   }
 
@@ -73,8 +76,7 @@ art::detail::triggerReport(PathsInfo const& epi, PathsInfo const& tpi, bool cons
   LogPrint("ArtSummary") << "TrigReport"
                          << " Events total = " << tpi.totalEvents()
                          << " passed = " << tpi.passedEvents()
-                         << " failed = " << tpi.failedEvents()
-                         << "";
+                         << " failed = " << tpi.failedEvents();
   if (wantSummary) {
     LogPrint("ArtSummary") << "";
     LogPrint("ArtSummary") << "TrigReport " << "---------- Path   Summary ------------";
@@ -84,16 +86,16 @@ art::detail::triggerReport(PathsInfo const& epi, PathsInfo const& tpi, bool cons
                            << std::right << setw(10) << "Passed" << " "
                            << std::right << setw(10) << "Failed" << " "
                            << std::right << setw(10) << "Error" << " "
-                           << "Name" << "";
+                           << "Name";
     for (auto const& path : tpi.paths()) {
       LogPrint("ArtSummary") << "TrigReport "
                              << std::right << setw(5) << 1
-                             << std::right << setw(5)  << path->bitPosition() << " "
+                             << std::right << setw(5) << path->bitPosition() << " "
                              << std::right << setw(10) << path->timesRun() << " "
                              << std::right << setw(10) << path->timesPassed() << " "
                              << std::right << setw(10) << path->timesFailed() << " "
                              << std::right << setw(10) << path->timesExcept() << " "
-                             << path->name() << "";
+                             << path->name();
     }
     LogPrint("ArtSummary") << "";
     LogPrint("ArtSummary") << "TrigReport " << "-------End-Path   Summary ------------";
@@ -102,16 +104,15 @@ art::detail::triggerReport(PathsInfo const& epi, PathsInfo const& tpi, bool cons
                            << std::right << setw(10) << "Run" << " "
                            << std::right << setw(10) << "Success" << " "
                            << std::right << setw(10) << "Error" << " "
-                           << "Name" << "";
+                           << "Name";
     for (auto const& path : epi.paths()) {
-      assert(path->timesFailed()==0);
       LogPrint("ArtSummary") << "TrigReport "
                              << std::right << setw(5) << 0
                              << std::right << setw(5) << path->bitPosition() << " "
                              << std::right << setw(10) << path->timesRun() << " "
                              << std::right << setw(10) << path->timesPassed() << " "
                              << std::right << setw(10) << path->timesExcept() << " "
-                             << path->name() << "";
+                             << path->name();
     }
     for (auto const& path : tpi.paths()) {
       LogPrint("ArtSummary") << "";
@@ -122,7 +123,7 @@ art::detail::triggerReport(PathsInfo const& epi, PathsInfo const& tpi, bool cons
                              << std::right << setw(10) << "Passed" << " "
                              << std::right << setw(10) << "Failed" << " "
                              << std::right << setw(10) << "Error" << " "
-                             << "Name" << "";
+                             << "Name";
       workersInPathTriggerReport(1, path->bitPosition(), path->workersInPath());
     }
   }
@@ -136,7 +137,7 @@ art::detail::triggerReport(PathsInfo const& epi, PathsInfo const& tpi, bool cons
                            << std::right << setw(10) << "Run" << " "
                            << std::right << setw(10) << "Success" << " "
                            << std::right << setw(10) << "Error" << " "
-                           << "Name" << "";
+                           << "Name";
     workersInEndPathTriggerReport(0, path->bitPosition(), path->workersInPath());
   }
 
@@ -151,7 +152,7 @@ art::detail::triggerReport(PathsInfo const& epi, PathsInfo const& tpi, bool cons
                            << std::right << setw(10) << "Passed" << " "
                            << std::right << setw(10) << "Failed" << " "
                            << std::right << setw(10) << "Error" << " "
-                           << "Name" << "";
+                           << "Name";
 
     for (auto const& val: tpi.workers()) {
       LogPrint("ArtSummary") << "TrigReport "
@@ -160,7 +161,7 @@ art::detail::triggerReport(PathsInfo const& epi, PathsInfo const& tpi, bool cons
                              << std::right << setw(10) << val.second->timesPassed() << " "
                              << std::right << setw(10) << val.second->timesFailed() << " "
                              << std::right << setw(10) << val.second->timesExcept() << " "
-                             << val.first << "";
+                             << val.first;
     }
 
     for (auto const& val: epi.workers()) {
@@ -173,7 +174,7 @@ art::detail::triggerReport(PathsInfo const& epi, PathsInfo const& tpi, bool cons
                              << std::right << setw(10) << val.second->timesPassed() << " "
                              << std::right << setw(10) << val.second->timesFailed() << " "
                              << std::right << setw(10) << val.second->timesExcept() << " "
-                             << val.first << "";
+                             << val.first;
     }
   }
 }
@@ -182,7 +183,7 @@ void
 art::detail::timeReport(cet::cpu_timer const& timer)
 {
   LogPrint("ArtSummary") << "TimeReport " << "---------- Time  Summary ---[sec]----";
-  LogPrint("ArtSummary") << "TimeReport"
+  LogPrint("ArtSummary") << "TimeReport "
                          << setprecision(6) << fixed
-                         << " CPU = " << timer.cpuTime() << " Real = " << timer.realTime();
+                         << "CPU = " << timer.cpuTime() << " Real = " << timer.realTime();
 }

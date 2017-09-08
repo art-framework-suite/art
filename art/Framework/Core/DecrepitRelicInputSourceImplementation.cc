@@ -146,6 +146,16 @@ namespace art {
     }
     if (newState == input::IsStop) {
       state_ = input::IsStop;
+      // FIXME: upon the advent of a catalog system which can do
+      // something intelligent with the difference between whole-file
+      // success, partial-file success, partial-file failure and
+      // whole-file failure (such as file-open failure), we will need to
+      // communicate that difference here. The file disposition options
+      // as they are now (and the mapping to any concrete implementation
+      // we are are aware of currently) are not sufficient to the task,
+      // so we deliberately do not distinguish here between partial-file
+      // and whole-file success in particular.
+      finish();
       return state_;
     }
     else if (newState == input::IsFile || oldState == input::IsInvalid) {

@@ -84,8 +84,8 @@ public:
       // not.  We therefore have to change the default flag setting
       // for 'OutputModule::Config::fileName'.
       using namespace fhicl::detail;
-      ParameterBase* adjustFilename {const_cast<fhicl::Atom<string>*>(&omConfig().fileName)};
-      adjustFilename->set_value_type(fhicl::value_type::REQUIRED);
+      ParameterBase* adjustFilename {const_cast<fhicl::Atom<std::string>*>(&omConfig().fileName)};
+      adjustFilename->set_par_style(fhicl::par_style::REQUIRED);
     }
 
     struct KeysToIgnore {

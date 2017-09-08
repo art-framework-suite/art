@@ -36,7 +36,6 @@ namespace art {
                         MasterProductRegistry& mpr,
                         ProcessConfiguration const& processConfig)
     : catalog_{catalog}
-    , doInitMPR_{true}
     , firstFile_{true}
     , seekingFile_{false}
     , fileIndexes_(fileCatalogItems().size())
@@ -150,15 +149,19 @@ namespace art {
     if (primary()) {
       duplicateChecker_ = std::make_shared<DuplicateChecker>(config().dc);
     }
-    config().setRunNumber(setRun_);
+    if (pendingClose_) {
+      throw Exception(errors::LogicError)
+        << "RootInputFileSequence looking for next file with a pending close!";
+    }
+
     while (catalog_.getNextFile()) {
       initFile(skipBadFiles_);
       if (rootFile_) {
         // We found one, good, stop now.
-        doInitMPR_ = false;
         break;
       }
     }
+
     if (!rootFile_) {
       // We could not open any input files, stop.
       return;
@@ -277,7 +280,6 @@ namespace art {
         initFile(skipBadFiles_);
         if (rootFile_) {
           // We found one, good, stop now.
-          doInitMPR_ = false;
           break;
         }
       }
@@ -344,6 +346,14 @@ namespace art {
       duplicateChecker_->inputFileClosed();
     }
   }
+
+  void
+  RootInputFileSequence::
+  finish()
+  {
+    pendingClose_ = true;
+  }
+
 
   void
   RootInputFileSequence::

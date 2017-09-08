@@ -19,6 +19,7 @@
 #include "canvas/Persistency/Provenance/ProductList.h"
 #include "canvas/Persistency/Provenance/ProductProvenance.h"
 #include "canvas/Persistency/Provenance/ProductStatus.h"
+#include "cetlib/HorizontalRule.h"
 #include "cetlib/container_algorithms.h"
 #include "cetlib/HorizontalRule.h"
 #include "fhiclcpp/ParameterSet.h"
@@ -54,7 +55,7 @@ namespace art {
     , principal_{principal}
     , md_{md}
     , recordParents_{recordParents}
-    , gotProductIDs_{}
+    , retrievedProducts_{}
     , putProducts_{}
     , rangeSet_{rs}
   {
@@ -151,6 +152,8 @@ namespace art {
     return principal_.history().processHistoryID();
   }
 
+  // FIXME: This accessor is suspicious, and should be considered for
+  // removable or updating.
   size_t
   DataViewImpl::
   size() const
@@ -230,7 +233,9 @@ namespace art {
   getMatchingSequenceByLabel_(TypeID const& elem, string const& label, string const& instance, string const& process,
                               std::vector<GroupQueryResult>& res) const
   {
-    Selector sel(ModuleLabelSelector{label} && ProductInstanceNameSelector{instance} && ProcessNameSelector{process});
+    Selector const sel{ModuleLabelSelector{label} &&
+                       ProductInstanceNameSelector{instance} &&
+                       ProcessNameSelector{process}};
     return principal_.getMatchingSequence(elem, sel, res);
   }
 
@@ -245,14 +250,14 @@ namespace art {
   DataViewImpl::
   addToGotProductIDs(Provenance const& prov) const
   {
-    if (!prov.productDescription().transient()) {
-      gotProductIDs_.insert(prov.productID());
-    }
-    else {
+    if (prov.productDescription().transient()) {
       // If the product retrieved is transient, don't use its
       // ProductID; use the ProductID's of its parents.
-      auto const& pids = prov.parents();
-      gotProductIDs_.insert(pids.begin(), pids.end());
+      auto const& parents = prov.parents();
+      retrievedProducts_.insert(cbegin(parents), cend(parents));
+    }
+    else {
+      retrievedProducts_.insert(prov.productID());
     }
   }
 
@@ -295,9 +300,9 @@ namespace art {
       unique_ptr<ProductProvenance const> pp;
       if (branchType_ == InEvent) {
         vector<ProductID> gotPIDs;
-        if (!gotProductIDs_.empty()) {
-          gotPIDs.reserve(gotProductIDs_.size());
-          gotPIDs.assign(gotProductIDs_.begin(), gotProductIDs_.end());
+        if (!retrievedProducts_.empty()) {
+          gotPIDs.reserve(retrievedProducts_.size());
+          gotPIDs.assign(retrievedProducts_.begin(), retrievedProducts_.end());
         }
         pp = make_unique<ProductProvenance const>(pmvalue.bd.productID(), productstatus::present(), gotPIDs);
       }
@@ -340,7 +345,7 @@ namespace art {
     if (nFound == 1) {
       return;
     }
-    Exception e(errors::ProductNotFound);
+    Exception e{errors::ProductNotFound};
     e << "getView: Found "
       << (nFound == 0 ? "no products" : "more than one product")
       << " matching all criteria\n"

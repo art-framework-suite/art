@@ -401,10 +401,10 @@ private: // MEMBER DATA -- Mine, all mine!
   recordParents_;
 
   // must be mutable because it records all 'gets',
-  // which do not logically modify the DataViewImpl. gotProductIDs_ is
+  // which do not logically modify the DataViewImpl. retrievedProducts_ is
   // merely a cache reflecting what has been retrieved from the
   // Principal class.
-  mutable std::set<ProductID> gotProductIDs_{};
+  mutable std::set<ProductID> retrievedProducts_{};
 
   // holding pen for EDProducts inserted into this
   // DataViewImpl. Pointers in these collections own the products to

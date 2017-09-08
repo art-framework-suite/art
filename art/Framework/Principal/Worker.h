@@ -2,10 +2,9 @@
 #define art_Framework_Principal_Worker_h
 // vim: set sw=2 expandtab :
 
-//
+// ======================================================================
 // Worker: this is a basic scheduling unit - an abstract base class to
-// something that is really a producer or filter.
-//
+//         something that is really a producer or filter.
 //
 // A worker will not actually call through to the module unless it is in
 // a Ready state.  After a module is actually run, the state will not be
@@ -19,7 +18,7 @@
 // will be rethrown if the worker is entered again and the state is not
 // Ready.  In other words, execution results (status) are cached and
 // reused until the worker is reset().
-//
+// ======================================================================
 
 #include "art/Framework/Core/ModuleType.h"
 #include "art/Framework/Principal/Actions.h"

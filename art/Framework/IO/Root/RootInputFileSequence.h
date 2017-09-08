@@ -217,6 +217,8 @@ public: // MEMBER FUNCTIONS
     return  processingMode_;
   }
 
+  void finish();
+
 private: // MEMBER FUNCTIONS
 
   void
@@ -243,7 +245,6 @@ private: // MEMBER FUNCTIONS
 private: // MEMBER DATA
 
   InputFileCatalog& catalog_;
-  bool doInitMPR_{true};
   bool firstFile_{true};
   bool seekingFile_{false};
   RootInputFileSharedPtr rootFile_{nullptr};
@@ -271,7 +272,7 @@ private: // MEMBER DATA
   ProcessConfiguration const& processConfiguration_;
   std::vector<std::vector<std::string>> secondaryFileNames_{};
   MasterProductRegistry& mpr_;
-
+  bool pendingClose_ {false};
 };
 
 } // namespace art

@@ -22,7 +22,7 @@
 #include "hep_concurrency/SerialTaskQueueChain.h"
 #include "hep_concurrency/WaitingTask.h"
 #include "hep_concurrency/WaitingTaskList.h"
-#include "hep_concurrency/WaitingTaskList.h" 
+#include "hep_concurrency/WaitingTaskList.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include <atomic>
@@ -431,6 +431,7 @@ doWork(Transition trans, Principal& principal, CurrentProcessingContext* cpc)
   catch (cet::exception& e) {
     state_ = ExceptionThrown;
     e << "cet::exception going through module ";
+    detail::exceptionContext(md_, principal, e);
     if (auto edmEx = dynamic_cast<art::Exception*>(&e)) {
       cached_exception_ = std::make_exception_ptr(*edmEx);
     }
@@ -540,6 +541,7 @@ doWork_event(EventPrincipal& p, int si, CurrentProcessingContext* cpc)
       state_ = ExceptionThrown;
       ++counts_thrown_;
       e << "cet::exception going through module ";
+      detail::exceptionContext(md_, p, e);
       if (auto edmEx = dynamic_cast<Exception*>(&e)) {
         cached_exception_ = make_exception_ptr(*edmEx);
       }
@@ -783,4 +785,3 @@ doWork_event(WaitingTask* workerInPathDoneTask, EventPrincipal& p, int si, Curre
 }
 
 } // namespace art
-

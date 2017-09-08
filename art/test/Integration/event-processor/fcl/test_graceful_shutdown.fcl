@@ -3,6 +3,6 @@ source.maxEvents: 7
 
 physics.analyzers.a1: {
   module_type: ThrowingAnalyzer
-  throwAfter: 6
+  throwAfter: 5
 }
 physics.e1: [a1]

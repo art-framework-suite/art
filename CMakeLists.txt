@@ -54,6 +54,7 @@ find_ups_boost()
 find_ups_product(cppunit)
 find_ups_product(sqlite)
 find_ups_product(cetbuildtools)
+find_ups_product(hep_concurrency)
 
 # define CLHEP
 cet_find_library( CLHEP  NAMES CLHEP   PATHS ENV CLHEP_LIB_DIR NO_DEFAULT_PATH )

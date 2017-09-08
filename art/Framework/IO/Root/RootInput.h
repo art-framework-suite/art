@@ -135,6 +135,8 @@ namespace art {
 
   private: // MEMBER FUNCTIONS -- Serial Interface
 
+    void finish() override;
+
     virtual
     input::ItemType
     nextItemType() override;

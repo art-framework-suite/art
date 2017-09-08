@@ -77,7 +77,7 @@
 #include "art/Framework/Core/ProductRegistryHelper.h"
 #include "art/Framework/Core/RPWorkerT.h"
 #include "cetlib/PluginTypeDeducer.h"
-#include "cetlib/cetlib/ProvideFilePathMacro.h"
+#include "cetlib/ProvideFilePathMacro.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/types/AllowedConfigurationMacro.h"
 #include "hep_concurrency/SerialTaskQueueChain.h"

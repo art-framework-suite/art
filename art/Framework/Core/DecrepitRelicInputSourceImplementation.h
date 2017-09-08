@@ -110,6 +110,10 @@ namespace art {
 
   public: // MEMBER FUNCTIONS -- Serial Access Interface
 
+    // Inform subclasses that they're going to be told to close the file
+    // for non-exceptional reasons (such as hitting the event limit).
+    virtual void finish() {}
+
     virtual
     input::ItemType
     nextItemType() override;
