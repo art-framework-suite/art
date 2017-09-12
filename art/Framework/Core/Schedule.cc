@@ -40,8 +40,14 @@ using fhicl::ParameterSet;
 namespace art {
 
 Schedule::
-Schedule(int stream, PathManager& pm, string const& processName, ParameterSet const& proc_pset, MasterProductRegistry& mpr,
-         ActionTable& actions, ActivityRegistry& actReg)
+Schedule(int stream,
+         PathManager& pm,
+         string const& processName,
+         ParameterSet const& proc_pset,
+         MasterProductRegistry& mpr,
+         ProductDescriptions& productsToProduce,
+         ActionTable& actions,
+         ActivityRegistry& actReg)
   : stream_{stream}
   , process_pset_{proc_pset}
   , mpr_{mpr}
@@ -57,7 +63,7 @@ Schedule(int stream, PathManager& pm, string const& processName, ParameterSet co
       ServiceHandle<TriggerNamesService const> tns;
       auto const& trig_pset = tns->getTriggerPSet();
       WorkerParams const
-      wp{process_pset_, trig_pset, mpr_, actionTable_, actReg_, processName_, ModuleThreadingType::STREAM, stream};
+        wp{process_pset_, trig_pset, mpr_, productsToProduce, actReg_, actionTable_, processName_, ModuleThreadingType::STREAM, stream};
       ModuleDescription
       md{trig_pset.id(), "TriggerResultInserter", "TriggerResults", static_cast<int>(ModuleThreadingType::STREAM),
          ProcessConfiguration(processName_, process_pset_.id(), getReleaseVersion())};
@@ -353,4 +359,3 @@ process_event_pathsDone(WaitingTask* endPathTask, EventPrincipal& principal, int
 }
 
 } // namespace art
-

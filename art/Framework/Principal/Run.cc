@@ -18,7 +18,7 @@ Run::
 }
 
 Run::
-Run(RunPrincipal& rp, ModuleDescription const& md, RangeSet const& rs /*= RangeSet::invalid()*/)
+Run(RunPrincipal const& rp, ModuleDescription const& md, RangeSet const& rs /*= RangeSet::invalid()*/)
   : DataViewImpl{InRun, rp, md, false, rs}
 {
 }
@@ -31,4 +31,3 @@ id() const
 }
 
 } // namespace art
-

@@ -3,7 +3,7 @@
 #include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
-#include "art/Persistency/Provenance/ProductMetaData.h"
+#include "canvas/Persistency/Provenance/ProductTables.h"
 #include "canvas/Persistency/Provenance/RunAuxiliary.h"
 #include "canvas/Persistency/Provenance/SubRunAuxiliary.h"
 
@@ -17,53 +17,38 @@ art::SourceHelper::SourceHelper(ModuleDescription const& md) :
   md_{md}
 {}
 
+void
+art::SourceHelper::throwIfProductsNotRegistered_() const
+{
+  if (!presentProducts_ || !productList_) {
+    throw Exception(errors::ProductRegistrationFailure,
+                    "Error while attempting to create principal from SourceHelper.\n")
+      << "Principals cannot be created until product registration is complete.\n"
+      << "Perhaps you have attempted to create a Principal outside of your 'readNext'\n"
+      << "function.  Please contact artists@fnal.gov for guidance.";
+  }
+}
+
+void
+art::SourceHelper::setPresentProducts(cet::exempt_ptr<ProductList const> productList,
+                                      cet::exempt_ptr<ProductTables const> presentProducts)
+{
+  productList_ = productList;
+  presentProducts_ = presentProducts;
+}
+
 art::RunPrincipal*
 art::SourceHelper::makeRunPrincipal(RunAuxiliary const& runAux) const
 {
-  auto rp = new RunPrincipal{runAux, md_.processConfiguration()};
-  // Add in groups for produced products so that we do not need deferred product getters anymore.
-  //{
-  //  auto const& pmd = ProductMetaData::instance();
-  //  for (auto const& val : pmd.productList()) {
-  //    auto const& bd = val.second;
-  //    if ((bd.branchType() == InRun) && bd.produced()) {
-  //      cout
-  //          << "-----> SourceHelper::makeRunPrincipal: Creating group for produced product: "
-  //          << "pid: "
-  //          << bd.productID()
-  //          << " branchName: "
-  //          << bd.branchName()
-  //          << endl;
-  //      rp->Principal::fillGroup(rp, bd, RangeSet::invalid());
-  //    }
-  //  }
-  //}
-  return rp;
+  throwIfProductsNotRegistered_();
+  return new RunPrincipal{runAux, md_.processConfiguration(), *productList_, &presentProducts_->get(InRun)};
 }
 
 art::RunPrincipal*
 art::SourceHelper::makeRunPrincipal(RunID const r, Timestamp const& startTime) const
 {
-  RunAuxiliary const runAux {r, startTime, Timestamp::invalidTimestamp()};
-  auto rp = new RunPrincipal{runAux, md_.processConfiguration()};
-  // Add in groups for produced products so that we do not need deferred product getters anymore.
-  //{
-  //  auto const& pmd = ProductMetaData::instance();
-  //  for (auto const& val : pmd.productList()) {
-  //    auto const& bd = val.second;
-  //    if ((bd.branchType() == InRun) && bd.produced()) {
-  //      cout
-  //          << "-----> SourceHelper::makeRunPrincipal: Creating group for produced product: "
-  //          << "pid: "
-  //          << bd.productID()
-  //          << " branchName: "
-  //          << bd.branchName()
-  //          << endl;
-  //      rp->Principal::fillGroup(rp, bd, RangeSet::invalid());
-  //    }
-  //  }
-  //}
-  return rp;
+  RunAuxiliary const runAux{r, startTime, Timestamp::invalidTimestamp()};
+  return makeRunPrincipal(runAux);
 }
 
 art::RunPrincipal*
@@ -76,50 +61,15 @@ art::SourceHelper::makeRunPrincipal(RunNumber_t const r, Timestamp const& startT
 art::SubRunPrincipal*
 art::SourceHelper::makeSubRunPrincipal(SubRunAuxiliary const& subRunAux) const
 {
-  auto srp = new SubRunPrincipal{subRunAux, md_.processConfiguration()};
-  // Add in groups for produced products so that we do not need deferred product getters anymore.
-  //{
-  //  auto const& pmd = ProductMetaData::instance();
-  //  for (auto const& val : pmd.productList()) {
-  //    auto const& bd = val.second;
-  //    if ((bd.branchType() == InSubRun) && bd.produced()) {
-  //      cout
-  //          << "-----> SourceHelper::makeSubRunPrincipal: Creating group for produced product: "
-  //          << "pid: "
-  //          << bd.productID()
-  //          << " branchName: "
-  //          << bd.branchName()
-  //          << endl;
-  //      srp->Principal::fillGroup(srp, bd, RangeSet::invalid());
-  //    }
-  //  }
-  //}
-  return srp;
+  throwIfProductsNotRegistered_();
+  return new SubRunPrincipal{subRunAux, md_.processConfiguration(), *productList_, &presentProducts_->get(InSubRun)};
 }
 
 art::SubRunPrincipal*
 art::SourceHelper::makeSubRunPrincipal(SubRunID const& sr, Timestamp const& startTime) const
 {
-  SubRunAuxiliary const subRunAux {sr, startTime, Timestamp::invalidTimestamp()};
-  auto srp = new SubRunPrincipal{subRunAux, md_.processConfiguration()};
-  // Add in groups for produced products so that we do not need deferred product getters anymore.
-  //{
-  //  auto const& pmd = ProductMetaData::instance();
-  //  for (auto const& val : pmd.productList()) {
-  //    auto const& bd = val.second;
-  //    if ((bd.branchType() == InSubRun) && bd.produced()) {
-  //      cout
-  //          << "-----> SourceHelper::makeSubRunPrincipal: Creating group for produced product: "
-  //          << "pid: "
-  //          << bd.productID()
-  //          << " branchName: "
-  //          << bd.branchName()
-  //          << endl;
-  //      srp->Principal::fillGroup(srp, bd, RangeSet::invalid());
-  //    }
-  //  }
-  //}
-  return srp;
+  SubRunAuxiliary const subRunAux{sr, startTime, Timestamp::invalidTimestamp()};
+  return makeSubRunPrincipal(subRunAux);
 }
 
 art::SubRunPrincipal*
@@ -131,51 +81,17 @@ art::SourceHelper::makeSubRunPrincipal(RunNumber_t const r, SubRunNumber_t const
 art::EventPrincipal*
 art::SourceHelper::makeEventPrincipal(EventAuxiliary const& eventAux, std::unique_ptr<History>&& history) const
 {
-  auto ep = new EventPrincipal{eventAux, md_.processConfiguration(), std::move(history)};
-  // Add in groups for produced products so that we do not need deferred product getters anymore.
-  //{
-  //  auto const& pmd = ProductMetaData::instance();
-  //  for (auto const& val : pmd.productList()) {
-  //    auto const& bd = val.second;
-  //    if ((bd.branchType() == InEvent) && bd.produced()) {
-  //      cout
-  //          << "-----> SourceHelper::makeEventPrincipal: Creating group for produced product: "
-  //          << "pid: "
-  //          << bd.productID()
-  //          << " branchName: "
-  //          << bd.branchName()
-  //          << endl;
-  //      ep->Principal::fillGroup(ep, bd, RangeSet::invalid());
-  //    }
-  //  }
-  //}
-  return ep;
+  throwIfProductsNotRegistered_();
+  return new EventPrincipal{eventAux, md_.processConfiguration(), *productList_, &presentProducts_->get(InEvent), std::move(history)};
 }
 
 art::EventPrincipal*
 art::SourceHelper::makeEventPrincipal(EventID const& e, Timestamp const& startTime, bool const isRealData,
                                       EventAuxiliary::ExperimentType const eType) const
 {
-  EventAuxiliary const eventAux {e, startTime, isRealData, eType};
-  auto ep = new EventPrincipal{eventAux, md_.processConfiguration()};
-  // Add in groups for produced products so that we do not need deferred product getters anymore.
-  //{
-  //  auto const& pmd = ProductMetaData::instance();
-  //  for (auto const& val : pmd.productList()) {
-  //    auto const& bd = val.second;
-  //    if ((bd.branchType() == InEvent) && bd.produced()) {
-  //      cout
-  //          << "-----> SourceHelper::makeEventPrincipal: Creating group for produced product: "
-  //          << "pid: "
-  //          << bd.productID()
-  //          << " branchName: "
-  //          << bd.branchName()
-  //          << endl;
-  //      ep->Principal::fillGroup(ep, bd, RangeSet::invalid());
-  //    }
-  //  }
-  //}
-  return ep;
+  throwIfProductsNotRegistered_();
+  EventAuxiliary const eventAux{e, startTime, isRealData, eType};
+  return new EventPrincipal{eventAux, md_.processConfiguration(), *productList_, &presentProducts_->get(InEvent)};
 }
 
 art::EventPrincipal*
@@ -185,4 +101,3 @@ art::SourceHelper::makeEventPrincipal(RunNumber_t const r, SubRunNumber_t const 
 {
   return makeEventPrincipal(EventID{r, sr, e}, startTime, isRealData, eType);
 }
-

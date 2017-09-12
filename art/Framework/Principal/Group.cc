@@ -3,14 +3,11 @@
 
 #include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Principal/Worker.h"
-#include "art/Persistency/Provenance/ProductMetaData.h"
 #include "canvas/Persistency/Provenance/BranchDescription.h"
 #include "canvas/Persistency/Provenance/BranchKey.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
 #include "canvas/Persistency/Provenance/ProductStatus.h"
-#include "canvas/Persistency/Provenance/TypeTools.h"
 #include "cetlib_except/demangle.h"
-#include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include <iostream>
 #include <string>
@@ -18,29 +15,6 @@
 using namespace std;
 
 namespace art {
-
-namespace {
-
-bool
-notProducedAndNotPresentInProductList(BranchDescription const* bd)
-{
-  if (!bd) {
-    // We do not have a branch description at all.
-    throw Exception(errors::LogicError, "Group::notProducedAndNotPresentInProductList():")
-        << "branchDescription_ is the nullptr!\n";
-  }
-  if (ProductMetaData::instance().produced(bd->branchType(), bd->productID())) {
-    // Product is produced in this process, done.
-    return false;
-  }
-  if (ProductMetaData::instance().presentWithFileIdx(bd->branchType(), bd->productID()) != MasterProductRegistry::DROPPED) {
-    // Is present in an input file, done.
-    return false;
-  }
-  return true;
-}
-
-} // unnamed namespace
 
 Group::
 ~Group()
@@ -260,6 +234,13 @@ productDescription() const
   return *branchDescription_;
 }
 
+ProductID
+Group::
+productID() const
+{
+  return branchDescription_->productID();
+}
+
 RangeSet const&
 Group::
 rangeOfValidity() const
@@ -335,8 +316,14 @@ bool
 Group::
 productAvailable() const
 {
+  if (!branchDescription_) {
+    // We do not have a branch description at all.
+    throw Exception(errors::LogicError, "Group::productAvailable():")
+      << "branchDescription_ is the nullptr!\n";
+  }
+
   lock_guard<recursive_mutex> lock_holder{mutex_};
-  if (notProducedAndNotPresentInProductList(branchDescription_.get())) {
+  if (branchDescription_->dropped()) {
     // Not a product we are producing this time around, and it is not
     // present in any of the input files we have opened so far.
     return false;
@@ -345,13 +332,13 @@ productAvailable() const
   if ((branchDescription_->branchType() == InSubRun) || (branchDescription_->branchType() == InRun)) {
     availableAfterCombine = delayedReader_->isAvailableAfterCombine(branchDescription_->productID());
     if (!availableAfterCombine) {
-      // This is a run or subrun product and none of the available fragments
-      // has a product that is present.
-      // If this is not a produced product, then we are now sure that
-      // it is not available. Otherwise either the product has not been
-      // put yet, in which case it is unavailable, or we must check
-      // the status in the provenance of the put product; we check these
-      // two cases later.
+      // This is a run or subrun product and none of the available
+      // fragments has a product that is present.  If this is not a
+      // produced product, then we are now sure that it is not
+      // available. Otherwise either the product has not been put yet,
+      // in which case it is unavailable, or we must check the status
+      // in the provenance of the put product; we check these two
+      // cases later.
       if (!branchDescription_->produced()) {
         // Not produced and not in any available fragments, not available.
         return false;
@@ -360,26 +347,29 @@ productAvailable() const
   }
   auto status = productstatus::uninitialized();
   if (productProvenance_ == nullptr) {
-    // No provenance, must be a produced product which has not been put yet,
-    // or a non-produced product that is available after combine (agggregation)
-    // and not yet read, or a non-produced product in a secondary file that has
-    // not yet been opened.
+    // No provenance, must be a produced product which has not been
+    // put yet, or a non-produced product that is available after
+    // combine (agggregation) and not yet read, or a non-produced
+    // product in a secondary file that has not yet been opened.
     if (!branchDescription_->produced()) {
       if (availableAfterCombine) {
-        // No provenance, not produced, but we can get it from the input,
-        // we just have not done so yet.  Claim the product is available.
+        // No provenance, not produced, but we can get it from the
+        // input, we just have not done so yet.  Claim the product is
+        // available.
         return true;
       }
-      // Not produced, not availableAfterCombine, must be in a secondary file
-      // that has not yet been opened. We report it as not available so that
-      // the Principal getBy* routines will try the next secondary file.
+      // Not produced, not availableAfterCombine, must be in a
+      // secondary file that has not yet been opened. We report it as
+      // not available so that the Principal getBy* routines will try
+      // the next secondary file.
       return false;
     }
     if (product_) {
       throw Exception(errors::LogicError, "Group::status():")
           << "We have a produced product, the product has been put(), but there is no provenance!\n";
     }
-    // We have a product product which has not been put(), and has no provenance (as it should be).
+    // We have a product product which has not been put(), and has no
+    // provenance (as it should be).
     status = productstatus::neverCreated();
   }
   else {
@@ -518,4 +508,3 @@ tryToResolveProduct(TypeID const& wanted_wrapper)
 }
 
 } // namespace art
-

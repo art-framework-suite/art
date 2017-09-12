@@ -4,6 +4,7 @@
 #include "art/Framework/Core/SharedResourcesRegistry.h"
 #include "art/Framework/Core/detail/get_failureToPut_flag.h"
 #include "art/Framework/Principal/Event.h"
+#include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Principal/Run.h"
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRun.h"
@@ -263,8 +264,7 @@ doBeginRun(RunPrincipal& rp, cet::exempt_ptr<CurrentProcessingContext const> cpc
   detail::CPCSentry sentry{*cpc};
   Run r{rp, moduleDescription(), RangeSet::forRun(rp.runID())};
   beginRun(r);
-  //r.commit_(rp);
-  r.DataViewImpl::commit();
+  r.DataViewImpl::commit(rp);
   return true;
 }
 
@@ -281,8 +281,7 @@ doEndRun(RunPrincipal& rp, cet::exempt_ptr<CurrentProcessingContext const> cpc)
   detail::CPCSentry sentry{*cpc};
   Run r{rp, moduleDescription(), rp.seenRanges()};
   endRun(r);
-  //r.commit_(rp);
-  r.DataViewImpl::commit();
+  r.DataViewImpl::commit(rp);
   return true;
 }
 
@@ -299,8 +298,7 @@ doBeginSubRun(SubRunPrincipal& srp, cet::exempt_ptr<CurrentProcessingContext con
   detail::CPCSentry sentry{*cpc};
   SubRun sr{srp, moduleDescription(), RangeSet::forSubRun(srp.subRunID())};
   beginSubRun(sr);
-  //sr.commit_(srp);
-  sr.DataViewImpl::commit();
+  sr.DataViewImpl::commit(srp);
   return true;
 }
 
@@ -317,8 +315,7 @@ doEndSubRun(SubRunPrincipal& srp, cet::exempt_ptr<CurrentProcessingContext const
   detail::CPCSentry sentry{*cpc};
   SubRun sr{srp, moduleDescription(), srp.seenRanges()};
   endSubRun(sr);
-  //sr.commit_(srp);
-  sr.DataViewImpl::commit();
+  sr.DataViewImpl::commit(srp);
   return true;
 }
 
@@ -338,22 +335,10 @@ doEvent(EventPrincipal& ep, int /*si*/, CurrentProcessingContext const* cpc,
   detail::CPCSentry sentry{*cpc};
   Event e{ep, moduleDescription()};
   ++counts_run;
-  //if (static_cast<ModuleThreadingType>(moduleDescription().moduleThreadingType()) == ModuleThreadingType::STREAM) {
-  //  produce_in_stream(e, si);
-  //}
-  //else {
-    produce(e);
-  //}
-  e.DataViewImpl::commit(checkPutProducts_, &expectedProducts());
+  produce(e);
+  e.DataViewImpl::commit(ep, checkPutProducts_, &expectedProducts());
   ++counts_passed;
   return true;
 }
 
-//void
-//EDProducer::
-//produce_in_stream(Event&, int /*si*/)
-//{
-//}
-
 } // namespace art
-

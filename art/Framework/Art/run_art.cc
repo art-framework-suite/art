@@ -104,18 +104,15 @@ run_art(int argc, char** argv, bpo::options_description& in_desc, cet::filepath_
   catch (cet::exception const& e) {
     constexpr cet::HorizontalRule rule{36};
     std::cerr << "ERROR: Failed to create a parameter set from parsed configuration with exception "
-              << e.what()
-              << ".\n";
+              << e.what()  << ".\n";
     std::cerr << "       Intermediate configuration state follows:\n"
-              << rule('-')
-              << rule('-')
-              << '\n';
+              << rule('-') << '\n'
+              << rule('-') << '\n';
     for (auto const& item : raw_config) {
       std::cerr << item.first << ": " << item.second.to_string() << '\n';
     }
-    std::cerr << rule('-')
-              << rule('-')
-              << '\n';
+    std::cerr << rule('-') << '\n'
+              << rule('-') << '\n';
     return 91;
   }
 

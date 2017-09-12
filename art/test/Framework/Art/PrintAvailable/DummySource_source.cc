@@ -10,7 +10,6 @@
 #include "fhiclcpp/types/DelegatedParameter.h"
 
 namespace art {
-  class MasterProducerRegistry;
   namespace test {
     class DummySource;
   }
@@ -34,17 +33,17 @@ public:
 
 private:
 
-  std::unique_ptr<art::FileBlock> readFile(art::MasterProductRegistry&) override { return nullptr; }
+  std::unique_ptr<art::FileBlock> readFile() override { return nullptr; }
   void closeFile() override {}
   art::input::ItemType nextItemType() override { return art::input::IsStop; }
   std::unique_ptr<art::RunPrincipal> readRun() override { return nullptr; }
-  std::unique_ptr<art::SubRunPrincipal> readSubRun(cet::exempt_ptr<art::RunPrincipal>) override
+  std::unique_ptr<art::SubRunPrincipal> readSubRun(cet::exempt_ptr<art::RunPrincipal const>) override
   {
     return nullptr;
   }
 
   using art::InputSource::readEvent;
-  std::unique_ptr<art::EventPrincipal> readEvent(cet::exempt_ptr<art::SubRunPrincipal>) override
+  std::unique_ptr<art::EventPrincipal> readEvent(cet::exempt_ptr<art::SubRunPrincipal const>) override
   {
     return nullptr;
   }

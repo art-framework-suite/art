@@ -4,7 +4,7 @@
 
 //  The OutputModule as the schedule sees it.  The job of
 //  this object is to call the output module.
-//  
+//
 //  According to our current definition, a single output module can only
 //  appear in one worker.
 
@@ -15,6 +15,7 @@
 #include "art/Framework/Principal/fwd.h"
 #include "art/Framework/Services/FileServiceInterfaces/CatalogInterface.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
+#include "canvas/Persistency/Provenance/ProductList.h"
 
 #include <memory>
 
@@ -85,12 +86,12 @@ public:
 
   virtual
   void
-  selectProducts();
+  selectProducts(ProductList const&);
 
 private:
 
   ServiceHandle<CatalogInterface>
-  ci_;
+  ci_{};
 
   Granularity
   fileGranularity_{Granularity::Unset};

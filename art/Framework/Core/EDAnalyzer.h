@@ -27,8 +27,6 @@
 
 namespace art {
 
-class MasterProductRegistry;
-
 class EDAnalyzer : public EventObserverBase {
 
   // Allow the WorkerT<T> ctor to call setModuleDescription() and workerType().

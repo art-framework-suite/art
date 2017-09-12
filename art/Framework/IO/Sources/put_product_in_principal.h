@@ -56,7 +56,9 @@ put_product_in_principal(std::unique_ptr<T>&& product, P& principal, std::string
         << instance_name
         << "'.\n";
   }
+
   BranchDescription const& desc = get_ProductDescription<T>(principal, module_label, instance_name);
+
   std::unique_ptr<EDProduct> wp = std::make_unique<Wrapper<T>>(std::move(product));
   principal.put(desc,
                 std::move(std::make_unique<ProductProvenance const>(desc.productID(), productstatus::present())),
@@ -80,7 +82,9 @@ put_product_in_principal(std::unique_ptr<T>&& product, P& principal, std::string
         << instance_name
         << "'.\n";
   }
+
   BranchDescription const& desc = get_ProductDescription<T>(principal, module_label, instance_name);
+
   // If the provided RangeSet is invalid, assign it a RangeSet
   // corresponding to the full (Sub)Run.
   if (!rs.is_valid()) {

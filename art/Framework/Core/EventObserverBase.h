@@ -8,6 +8,7 @@
 #include "art/Framework/Core/ModuleBase.h"
 #include "art/Framework/Core/CachedProducts.h"
 #include "art/Framework/Core/ModuleType.h"
+#include "canvas/Persistency/Provenance/BranchDescription.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/ParameterSetID.h"
 #include "fhiclcpp/types/Sequence.h"
@@ -40,8 +41,9 @@ protected: // TYPES
 
 public: // MEMBER FUNCTIONS -- Special Member Functions
 
-  virtual
-  ~EventObserverBase();
+  // FIXME: This class need not be virtual.
+
+  virtual ~EventObserverBase();
 
   EventObserverBase(EventObserverBase const&) = delete;
 
@@ -63,8 +65,9 @@ protected: // MEMBER FUNCTIONS -- Special Member Functions
 
 public:
 
-  void
-  registerProducts(MasterProductRegistry&, ModuleDescription const&);
+  // FIXME: One could obviate the need for this trivial implementation
+  // by putting some type logic in WorkerT.
+  void registerProducts(MasterProductRegistry&, ProductDescriptions&, ModuleDescription const&);
 
   std::string const&
   processName() const;

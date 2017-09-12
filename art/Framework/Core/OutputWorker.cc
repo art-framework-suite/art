@@ -17,8 +17,7 @@ OutputWorker::
 // by the DEFINE_ART_MODULE macro.
 OutputWorker::
 OutputWorker(OutputModule* mod, ModuleDescription const& md, WorkerParams const& wp)
-  : WorkerT<OutputModule>(mod, md, wp)
-  , ci_()
+  : WorkerT<OutputModule>{mod, md, wp}
 {
   ci_->outputModuleInitiated(label(), fhicl::ParameterSetRegistry::get(description().parameterSetID()));
 }
@@ -132,9 +131,9 @@ configure(OutputModuleDescription const& desc)
 
 void
 OutputWorker::
-selectProducts()
+selectProducts(ProductList const& productList)
 {
-  module().selectProducts();
+  module().selectProducts(productList);
 }
 
 Granularity
@@ -145,4 +144,3 @@ fileGranularity() const
 }
 
 } // namespace art
-

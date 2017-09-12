@@ -9,24 +9,29 @@
 // -----------------------------------------------------------------
 
 #include "art/Framework/Principal/fwd.h"
-#include "art/Framework/Principal/EventPrincipal.h"
+#include "art/Framework/Principal/Principal.h"
 #include "canvas/Persistency/Common/Ptr.h"
 #include "canvas/Persistency/Provenance/BranchDescription.h"
 #include "canvas/Persistency/Provenance/EventAuxiliary.h"
 #include "canvas/Persistency/Provenance/EventID.h"
 #include "canvas/Persistency/Provenance/History.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
+#include "canvas/Persistency/Provenance/ProductList.h"
 #include "canvas/Persistency/Provenance/RunID.h"
 #include "canvas/Persistency/Provenance/SubRunID.h"
 #include "canvas/Persistency/Provenance/TypeLabel.h"
+#include "cetlib/exempt_ptr.h"
 
 #include <memory>
 
 namespace art {
+  template <typename T>
+  class Source;
+
+  class ProductTables;
   class RunAuxiliary;
   class SubRunAuxiliary;
   class Timestamp;
-
   class SourceHelper;
 }
 
@@ -37,7 +42,7 @@ public:
   template <typename T>
   Ptr<T>
   makePtr(TypeLabel const& t,
-          EventPrincipal const& ep,
+          Principal const& p,
           typename Ptr<T>::key_type key) const;
 
   RunPrincipal* makeRunPrincipal(RunAuxiliary const& runAux) const;
@@ -73,18 +78,24 @@ public:
                                      EventAuxiliary::ExperimentType eType = EventAuxiliary::Data) const;
 
 private:
+  template <typename T> friend class Source;
+  void throwIfProductsNotRegistered_() const;
+  void setPresentProducts(cet::exempt_ptr<ProductList const> productList,
+                          cet::exempt_ptr<ProductTables const> presentProducts);
+  cet::exempt_ptr<ProductList const> productList_{nullptr};
+  cet::exempt_ptr<ProductTables const> presentProducts_{nullptr};
   ModuleDescription md_;
 };
 
 template <typename T>
 art::Ptr<T>
 art::SourceHelper::makePtr(TypeLabel const& tl,
-                           EventPrincipal const& ep,
+                           Principal const& p,
                            typename Ptr<T>::key_type key) const
 {
-  BranchDescription const pd{InEvent, tl, md_};
+  BranchDescription const pd{p.branchType(), tl, md_};
   ProductID const pid{pd.productID()};
-  return Ptr<T>(pid, key, ep.productGetter(pid));
+  return Ptr<T>{pid, key, p.productGetter(pid)};
 }
 
 

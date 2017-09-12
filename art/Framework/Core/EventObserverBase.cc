@@ -71,7 +71,7 @@ init_(vector<string> const& paths)
 
 void
 EventObserverBase::
-registerProducts(MasterProductRegistry&, ModuleDescription const&)
+registerProducts(MasterProductRegistry&, ProductDescriptions&, ModuleDescription const&)
 {
 }
 
@@ -118,4 +118,3 @@ cachedProducts()
 }
 
 } // namespace art
-

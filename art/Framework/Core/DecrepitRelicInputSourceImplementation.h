@@ -43,7 +43,6 @@
 
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/InputSource.h"
-#include "art/Framework/Core/ProductRegistryHelper.h"
 #include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
@@ -61,9 +60,8 @@
 namespace art {
 
   class ActivityRegistry;
-  class MasterProductRegistry;
 
-  class DecrepitRelicInputSourceImplementation : public InputSource, private ProductRegistryHelper {
+  class DecrepitRelicInputSourceImplementation : public InputSource {
 
   public: // CONFIGURATION
 
@@ -91,7 +89,7 @@ namespace art {
     virtual
     ~DecrepitRelicInputSourceImplementation() noexcept;
 
-    DecrepitRelicInputSourceImplementation(fhicl::TableFragment<Config> const&, InputSourceDescription&);
+    DecrepitRelicInputSourceImplementation(fhicl::TableFragment<Config> const&, ModuleDescription const&);
 
     DecrepitRelicInputSourceImplementation(DecrepitRelicInputSourceImplementation const&) = delete;
 
@@ -103,11 +101,6 @@ namespace art {
     DecrepitRelicInputSourceImplementation&
     operator=(DecrepitRelicInputSourceImplementation&&) = delete;
 
-  public: // MEMBER FUNCTIONS -- ProductRegistryHelper Interface
-
-    using ProductRegistryHelper::reconstitutes;
-    using ProductRegistryHelper::expectedProducts;
-
   public: // MEMBER FUNCTIONS -- Serial Access Interface
 
     // Inform subclasses that they're going to be told to close the file
@@ -118,15 +111,14 @@ namespace art {
     input::ItemType
     nextItemType() override;
 
-    // Open next file
-    virtual
-    std::unique_ptr<FileBlock>
-    readFile(MasterProductRegistry&) override;
-
     // Close current file
     virtual
     void
     closeFile() override;
+
+    /// Read next file
+    std::unique_ptr<FileBlock>
+    readFile() override;
 
     // Read next run.
     virtual
@@ -136,13 +128,13 @@ namespace art {
     // Read next subRun
     virtual
     std::unique_ptr<SubRunPrincipal>
-    readSubRun(cet::exempt_ptr<RunPrincipal>) override;
+    readSubRun(cet::exempt_ptr<RunPrincipal const>) override;
 
     // Read next event
     // Indicate inability to get a new event by returning a null unique_ptr.
     virtual
     std::unique_ptr<EventPrincipal>
-    readEvent(cet::exempt_ptr<SubRunPrincipal>) override;
+    readEvent(cet::exempt_ptr<SubRunPrincipal const>) override;
 
     // Not implemented.
     //virtual
@@ -243,7 +235,7 @@ namespace art {
 
     virtual
     std::unique_ptr<SubRunPrincipal>
-    readSubRun_(cet::exempt_ptr<RunPrincipal>) = 0;
+    readSubRun_(cet::exempt_ptr<RunPrincipal const>) = 0;
 
     virtual
     std::unique_ptr<EventPrincipal>

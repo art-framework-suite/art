@@ -152,11 +152,9 @@ collectConsumes(std::string const& module_label, std::array<std::vector<ProductI
 
 void
 ConsumesInfo::
-validateConsumedProduct(BranchType const bt, ModuleDescription const& md, ProductInfo::ConsumableType ct, std::type_info const& ti,
-                        std::string const& label, std::string const& instance, std::string const& process)
+validateConsumedProduct(BranchType const bt, ModuleDescription const& md, ProductInfo const& productInfo)
 {
-  ProductInfo const pi{ct, TypeID(ti), label, instance, process};
-  if (binary_search(consumables_[md.moduleLabel()][bt].cbegin(), consumables_[md.moduleLabel()][bt].cend(), pi)) {
+  if (binary_search(consumables_[md.moduleLabel()][bt].cbegin(), consumables_[md.moduleLabel()][bt].cend(), productInfo)) {
     // Found it, everything is ok.
     return;
   }
@@ -166,10 +164,10 @@ validateConsumedProduct(BranchType const bt, ModuleDescription const& md, Produc
         << module_context(md)
         << ":\n\n"
         << "  "
-        << assemble_consumes_statement(bt, pi)
+        << assemble_consumes_statement(bt, productInfo)
         << "\n\n";
   }
-  missingConsumes_[md.moduleLabel()][bt].insert(pi);
+  missingConsumes_[md.moduleLabel()][bt].insert(productInfo);
 }
 
 void
@@ -245,4 +243,3 @@ setStreams(int streams)
 }
 
 } // namespace art
-

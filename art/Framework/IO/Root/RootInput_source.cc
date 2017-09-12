@@ -112,15 +112,14 @@ RootInput::
 
 RootInput::
 RootInput(RootInput::Parameters const& config, InputSourceDescription& desc)
-  : DecrepitRelicInputSourceImplementation{config().drisi_config, desc}
+  : DecrepitRelicInputSourceImplementation{config().drisi_config, desc.moduleDescription}
   , catalog_{config().ifc_config}
-  , primaryFileSequence_{make_unique<RootInputFileSequence>(config().rifs_config,
-                                                            catalog_,
-                                                            FastCloningInfoProvider(cet::exempt_ptr<RootInput>(this)),
-                                                            processingMode(),
-                                                            desc.productRegistry,
-                                                            processConfiguration())}
-  , mpr_{desc.productRegistry}
+  , primaryFileSequence_{std::make_unique<RootInputFileSequence>(config().rifs_config,
+                                                                 catalog_,
+                                                                 FastCloningInfoProvider{cet::make_exempt_ptr(this)},
+                                                                 processingMode(),
+                                                                 desc.productRegistry,
+                                                                 processConfiguration())}
 {
 }
 
@@ -190,15 +189,15 @@ nextItemType()
 
 unique_ptr<FileBlock>
 RootInput::
-readFile(MasterProductRegistry& /*mpr*/)
+readFile()
 {
   switch (accessState_.state()) {
     case AccessState::SEQUENTIAL:
-      return DecrepitRelicInputSourceImplementation::readFile(mpr_);
+      return DecrepitRelicInputSourceImplementation::readFile();
     case AccessState::SEEKING_FILE:
       accessState_.setState(AccessState::SEEKING_RUN);
       setState(input::IsFile);
-      return DecrepitRelicInputSourceImplementation::readFile(mpr_);
+      return DecrepitRelicInputSourceImplementation::readFile();
     default:
       throw Exception(errors::LogicError)
           << "RootInputSource::readFile encountered an unknown or inappropriate AccessState.\n";
@@ -244,7 +243,7 @@ RootInput::runRangeSetHandler()
 
 unique_ptr<SubRunPrincipal>
 RootInput::
-readSubRun(cet::exempt_ptr<RunPrincipal> rp)
+readSubRun(cet::exempt_ptr<RunPrincipal const> rp)
 {
   switch (accessState_.state()) {
     case AccessState::SEQUENTIAL:
@@ -261,7 +260,7 @@ readSubRun(cet::exempt_ptr<RunPrincipal> rp)
 
 unique_ptr<SubRunPrincipal>
 RootInput::
-readSubRun_(cet::exempt_ptr<RunPrincipal> rp)
+readSubRun_(cet::exempt_ptr<RunPrincipal const> rp)
 {
   return primaryFileSequence_->readSubRun_(rp);
 }
@@ -274,14 +273,14 @@ RootInput::subRunRangeSetHandler()
 
 unique_ptr<EventPrincipal>
 RootInput::
-readEvent(cet::exempt_ptr<SubRunPrincipal> srp)
+readEvent(cet::exempt_ptr<SubRunPrincipal const> srp)
 {
   return readEvent_(srp);
 }
 
 unique_ptr<EventPrincipal>
 RootInput::
-readEvent_(cet::exempt_ptr<SubRunPrincipal> srp)
+readEvent_(cet::exempt_ptr<SubRunPrincipal const> srp)
 {
   switch (accessState_.state()) {
     case AccessState::SEQUENTIAL:

@@ -125,8 +125,7 @@ public: // MEMBER FUNCTIONS -- API for user
 
   // This is used by get*() in DataViewImpl.
   void
-  validateConsumedProduct(BranchType const, ModuleDescription const&, ProductInfo::ConsumableType, std::type_info const&,
-                          std::string const& label, std::string const& instance, std::string const& process);
+  validateConsumedProduct(BranchType const, ModuleDescription const&, ProductInfo const& productInfo);
 
   void
   showMissingConsumes() const;
@@ -196,7 +195,7 @@ private: // MEMBER DATA
 
   int
   threads_{1};
- 
+
   int
   streams_{1};
 

@@ -19,8 +19,6 @@
 
 namespace art {
 
-class MasterProductRegistry;
-
 namespace input {
 
 enum ItemType {
@@ -98,7 +96,7 @@ public: // MEMBER FUNCTIONS -- Serial Access Interface
 
   virtual
   std::unique_ptr<FileBlock>
-  readFile(MasterProductRegistry&) = 0;
+  readFile() = 0;
 
   virtual
   void
@@ -110,11 +108,11 @@ public: // MEMBER FUNCTIONS -- Serial Access Interface
 
   virtual
   std::unique_ptr<SubRunPrincipal>
-  readSubRun(cet::exempt_ptr<RunPrincipal> rp) = 0;
+  readSubRun(cet::exempt_ptr<RunPrincipal const> rp) = 0;
 
   virtual
   std::unique_ptr<EventPrincipal>
-  readEvent(cet::exempt_ptr<SubRunPrincipal> srp) = 0;
+  readEvent(cet::exempt_ptr<SubRunPrincipal const> srp) = 0;
 
   virtual
   std::unique_ptr<RangeSetHandler>

@@ -29,7 +29,6 @@
 #include "art/Persistency/Provenance/Selections.h"
 #include "art/Utilities/CPCSentry.h"
 #include "art/Utilities/CurrentProcessingContext.h"
-#include "canvas/Persistency/Provenance/BranchChildren.h"
 #include "canvas/Persistency/Provenance/BranchDescription.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
 #include "canvas/Persistency/Provenance/IDNumber.h"
@@ -129,10 +128,12 @@ OutputModule(fhicl::TableFragment<Config> const& config, ParameterSet const& con
 OutputModule::
 OutputModule(ParameterSet const& pset)
   : EventObserverBase{pset}
-  , groupSelectorRules_{pset.get<vector<string>>("outputCommands", {"keep *"}), "outputCommands", "OutputModule"}
-  , configuredFileName_{pset.get<string>("fileName", "")}
-  , dataTier_{pset.get<string>("dataTier", "")}
-  , streamName_{pset.get<string>("streamName", "")}
+  , groupSelectorRules_{pset.get<vector<string>>("outputCommands", {"keep *"}),
+                        "outputCommands",
+                        "OutputModule"}
+  , configuredFileName_{pset.get<string>("fileName","")}
+  , dataTier_{pset.get<string>("dataTier","")}
+  , streamName_{pset.get<string>("streamName","")}
   , plugins_{makePlugins_(pset)}
 {
 }
@@ -207,66 +208,56 @@ configure(OutputModuleDescription const& desc)
 }
 
 void
-OutputModule::
-doSelectProducts()
+art::OutputModule::doSelectProducts(ProductList const& productList)
 {
-  auto const& pmd = ProductMetaData::instance();
-  groupSelector_.initialize(groupSelectorRules_, pmd.productList());
-  for (auto& val : keptProducts_) {
-    val.clear();
-  }
-  // TODO: See if we can collapse keptProducts_ and groupSelector_ into a
-  // single object. See the notes in the header for GroupSelector
+  GroupSelector const groupSelector{groupSelectorRules_, productList};
+  keptProducts_ = {{}};
+
+  // TODO: See if we can collapse keptProducts_ and groupSelector into
+  // a single object. See the notes in the header for GroupSelector
   // for more information.
-  for (auto const& val : pmd.productList()) {
-    BranchDescription const& bd = val.second;
-    auto const pid = bd.productID();
-    auto const bt = bd.branchType();
-    if (bd.transient()) {
+
+  for (auto const& val : productList) {
+    BranchDescription const& pd = val.second;
+    auto const bt = pd.branchType();
+    if (pd.transient()) {
       // Transient, skip it.
       continue;
     }
-    if (!pmd.produced(bt, pid) &&
-        pmd.presentWithFileIdx(bt, pid) == MasterProductRegistry::DROPPED) {
-      // Not produced in this process, and previously dropped, skip it.
-      continue;
-    }
-    if (groupSelector_.selected(bd)) {
+    if (groupSelector.selected(pd)) {
       // Selected, keep it.
-      keptProducts_[bt].push_back(&bd);
+      keptProducts_[bt].push_back(&pd);
       continue;
     }
     // Newly dropped, skip it.
     hasNewlyDroppedBranch_[bt] = true;
   }
+}
+
+void
+art::OutputModule::selectProducts(ProductList const& productList)
+{
+  doSelectProducts(productList);
   postSelectProducts();
 }
 
 void
-OutputModule::
-selectProducts()
+art::OutputModule::postSelectProducts()
+{}
+
+void
+art::OutputModule::registerProducts(MasterProductRegistry& mpr,
+                                    ProductDescriptions& producedProducts,
+                                    ModuleDescription const& md)
 {
-  doSelectProducts();
+  doRegisterProducts(mpr, producedProducts, md);
 }
 
 void
-OutputModule::
-postSelectProducts()
-{
-}
-
-void
-OutputModule::
-registerProducts(MasterProductRegistry& mpr, ModuleDescription const& md)
-{
-  doRegisterProducts(mpr, md);
-}
-
-void
-OutputModule::
-doRegisterProducts(MasterProductRegistry&, ModuleDescription const&)
-{
-}
+art::OutputModule::doRegisterProducts(MasterProductRegistry&,
+                                      ProductDescriptions&,
+                                      ModuleDescription const&)
+{}
 
 void
 OutputModule::
@@ -277,13 +268,6 @@ doBeginJob()
   for_each(resourceNames_.cbegin(), resourceNames_.cend(), [&names](string const& s){names.emplace_back(s);});
   auto queues = SharedResourcesRegistry::instance()->createQueues(SharedResourcesRegistry::kLegacy);
   chain_.reset(new SerialTaskQueueChain{queues});
-  //cerr << "OutputModule::doBeginJob: chain_: " << hex << ((unsigned long*)chain_.get()) << dec << "\n";
-  //// Now that we know we have seen all the consumes declarations,
-  //// sort the results for fast lookup later.
-  //for (auto& vecPI : consumables_) {
-  //  sort(vecPI.begin(), vecPI.end());
-  //}
-  doSelectProducts();
   beginJob();
   cet::for_all(plugins_, [](auto & p) { p->doBeginJob(); });
 }
@@ -293,18 +277,10 @@ one::
 OutputModule::
 doBeginJob()
 {
-  //uses(SharedResourcesRegistry::kLegacy);
   vector<string> names;
   for_each(resourceNames_.cbegin(), resourceNames_.cend(), [&names](string const& s){names.emplace_back(s);});
   auto queues = SharedResourcesRegistry::instance()->createQueues(SharedResourcesRegistry::kLegacy);
   chain_.reset(new SerialTaskQueueChain{queues});
-  //cerr << "one::OutputModule::doBeginJob: chain_: " << hex << ((unsigned long*)chain_.get()) << dec << "\n";
-  //// Now that we know we have seen all the consumes declarations,
-  //// sort the results for fast lookup later.
-  //for (auto& vecPI : consumables_) {
-  //  sort(vecPI.begin(), vecPI.end());
-  //}
-  doSelectProducts();
   beginJob();
   cet::for_all(plugins_, [](auto & p) { p->doBeginJob(); });
 }
@@ -314,13 +290,6 @@ stream::
 OutputModule::
 doBeginJob()
 {
-  //cerr << "stream::OutputModule::doBeginJob: chain_: " << hex << ((unsigned long*)chain_.get()) << dec << "\n";
-  //// Now that we know we have seen all the consumes declarations,
-  //// sort the results for fast lookup later.
-  //for (auto& vecPI : consumables_) {
-  //  sort(vecPI.begin(), vecPI.end());
-  //}
-  doSelectProducts();
   beginJob();
   cet::for_all(plugins_, [](auto & p) { p->doBeginJob(); });
 }
@@ -330,13 +299,6 @@ global::
 OutputModule::
 doBeginJob()
 {
-  //cerr << "global::OutputModule::doBeginJob: chain_: " << hex << ((unsigned long*)chain_.get()) << dec << "\n";
-  //// Now that we know we have seen all the consumes declarations,
-  //// sort the results for fast lookup later.
-  //for (auto& vecPI : consumables_) {
-  //  sort(vecPI.begin(), vecPI.end());
-  //}
-  doSelectProducts();
   beginJob();
   cet::for_all(plugins_, [](auto & p) { p->doBeginJob(); });
 }
@@ -377,12 +339,7 @@ doEvent(EventPrincipal& ep, int /*si*/, CurrentProcessingContext const* cpc,
   Event const e{ep, moduleDescription()};
   if (wantAllEvents() || wantEvent(e)) {
     ++counts_run;
-    //if (static_cast<ModuleThreadingType>(moduleDescription().moduleThreadingType()) == ModuleThreadingType::STREAM) {
-      //event_in_stream(ep, si);
-    //}
-    //else {
-      event(ep);
-    //}
+    event(ep);
     ++counts_passed;
   }
   return true;
@@ -401,7 +358,12 @@ doWriteEvent(EventPrincipal& ep)
     Handle<TriggerResults> trHandle{getTriggerResults(e)};
     auto const& trRef(trHandle.isValid() ? static_cast<HLTGlobalStatus>(*trHandle) : HLTGlobalStatus{});
     ci_->eventSelected(moduleDescription().moduleLabel(), ep.eventID(), trRef);
-    cet::for_all(plugins_, [&e](auto & p) { p->doCollectMetadata(e); });
+    // ... and invoke the plugins:
+    // ... The transactional object presented to the plugins is
+    //     different since the relevant context information is not the
+    //     same for the consumes functionality.
+    Event const we{ep, moduleDescription()};
+    cet::for_all(plugins_, [&we](auto & p) { p->doCollectMetadata(we); });
     updateBranchParents(ep);
     if (remainingEvents_ > 0) {
       --remainingEvents_;
@@ -487,7 +449,10 @@ doRespondToOpenInputFile(FileBlock const& fb)
   unique_ptr<ResultsPrincipal> respHolder;
   ResultsPrincipal* respPtr = fb.resultsPrincipal();
   if (respPtr == nullptr) {
-    respHolder = make_unique<ResultsPrincipal>(ResultsAuxiliary{}, moduleDescription().processConfiguration());
+    respHolder = make_unique<ResultsPrincipal>(ResultsAuxiliary{},
+                                               moduleDescription().processConfiguration(),
+                                               ProductList{},
+                                               nullptr);
     respPtr = respHolder.get();
   }
   readResults(*respPtr);
@@ -860,7 +825,7 @@ makePlugins_(ParameterSet const& top_pset)
   auto const psets = top_pset.get<vector<ParameterSet>>("FCMDPlugins", {});
   PluginCollection_t result;
   result.reserve(psets.size());
-  size_t count = 0;
+  size_t count{0};
   try {
     for (auto const& pset : psets) {
       pluginNames_.emplace_back(pset.get<string>("plugin_type"));
@@ -901,13 +866,6 @@ remainingEvents() const
   return remainingEvents_;
 }
 
-bool
-OutputModule::
-selected(BranchDescription const& desc) const
-{
-  return groupSelector_.selected(desc);
-}
-
 SelectionsArray const&
 OutputModule::
 keptProducts() const
@@ -937,4 +895,3 @@ limitReached() const
 }
 
 } // namespace art
-

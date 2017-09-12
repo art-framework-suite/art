@@ -21,7 +21,6 @@
 
 #include "art/Framework/Principal/Group.h"
 #include "canvas/Persistency/Provenance/BranchDescription.h"
-//#include "canvas/Persistency/Provenance/BranchMapper.h"
 #include "canvas/Persistency/Provenance/Parentage.h"
 #include "canvas/Persistency/Provenance/ProductID.h"
 #include "canvas/Persistency/Provenance/ProductProvenance.h"
@@ -93,8 +92,7 @@ public: // MEMBER FUNCTIONS -- Metadata about the product's origin
 
 public: // MEMBER FUNCTIONS -- Identifiers corresponding to this product, necessary for Ptr support.
 
-  ProductID const&
-  productID() const;
+  ProductID productID() const;
 
 public: // MEMBER FUNCTIONS -- Functions for querying the validity/presence of a product.
 

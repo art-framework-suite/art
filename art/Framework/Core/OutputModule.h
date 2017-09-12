@@ -27,6 +27,7 @@
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
 #include "canvas/Persistency/Provenance/ParentageID.h"
 #include "canvas/Persistency/Provenance/ProductID.h"
+#include "canvas/Persistency/Provenance/ProductList.h"
 #include "cetlib/BasicPluginFactory.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/types/Atom.h"
@@ -127,9 +128,6 @@ public: // MEMBER FUNCTIONS -- Special Member Functions
 
 public: // MEMBER FUNCTIONS
 
-  void
-  registerProducts(MasterProductRegistry&, ModuleDescription const&);
-
   // Accessor for maximum number of events to be written.
   // -1 is used for unlimited.
   int
@@ -152,30 +150,32 @@ public: // MEMBER FUNCTIONS
   std::string const&
   lastClosedFileName() const;
 
-  bool
-  selected(BranchDescription const& desc) const;
-
   SelectionsArray const&
   keptProducts() const;
 
   std::array<bool, NumBranchTypes> const&
   hasNewlyDroppedBranch() const;
 
+  void
+  selectProducts(ProductList const&);
+
+  void
+  doSelectProducts(ProductList const&);
+
+  void registerProducts(MasterProductRegistry&,
+                        ProductDescriptions&,
+                        ModuleDescription const&);
   BranchChildren const&
   branchChildren() const;
-
-  void
-  selectProducts();
-
-  void
-  doSelectProducts();
 
 protected:
 
   // Called to register products if necessary.
   virtual
   void
-  doRegisterProducts(MasterProductRegistry&, ModuleDescription const&);
+  doRegisterProducts(MasterProductRegistry&,
+                     ProductDescriptions&,
+                     ModuleDescription const&);
 
 private: // MEMBER FUNCTIONS -- API required by EventProcessor, Schedule, and EndPathExecutor
 
@@ -185,6 +185,11 @@ private: // MEMBER FUNCTIONS -- API required by EventProcessor, Schedule, and En
   virtual
   void
   doBeginJob();
+
+  // Called after selectProducts() has done its work.
+  virtual
+  void
+  postSelectProducts();
 
   void
   doEndJob();
@@ -359,10 +364,6 @@ protected: // MEMBER FUNCTIONS -- Implementation API, intended to be provided by
   bool
   isFileOpen() const;
 
-  virtual
-  void
-  postSelectProducts();
-
   void
   updateBranchParents(EventPrincipal& ep);
 
@@ -438,6 +439,8 @@ protected: // MEMBER FUNCTIONS -- Implementation API, intended to be provided by
   PluginCollection_t
   makePlugins_(fhicl::ParameterSet const& top_pset);
 
+// FIXME: Make these private data members.
+
 protected: // MEMBER DATA -- For derived classes
 
   // TODO: Give OutputModule an interface (protected?) that supplies
@@ -463,9 +466,6 @@ protected: // MEMBER DATA -- For derived classes
   GroupSelectorRules
   groupSelectorRules_;
 
-  GroupSelector
-  groupSelector_{};
-
   int
   maxEvents_{-1};
 
@@ -478,7 +478,7 @@ protected: // MEMBER DATA -- For derived classes
   branchParents_{};
 
   BranchChildren
-  branchChildren_ {};
+  branchChildren_{};
 
   std::string
   configuredFileName_;

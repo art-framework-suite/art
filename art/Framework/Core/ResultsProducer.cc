@@ -4,7 +4,10 @@
 #include "art/Framework/Core/ProductRegistryHelper.h"
 #include "art/Framework/Core/RPWorkerT.h"
 #include "art/Framework/Core/SharedResourcesRegistry.h"
+#include "art/Framework/Principal/Event.h"
 #include "art/Framework/Principal/Results.h"
+#include "art/Framework/Principal/Run.h"
+#include "art/Framework/Principal/SubRun.h"
 #include "cetlib/PluginTypeDeducer.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "hep_concurrency/SerialTaskQueueChain.h"
@@ -21,154 +24,126 @@ cet::PluginTypeDeducer<art::ResultsProducer>::value = "ResultsProducer";
 
 namespace art {
 
-ResultsProducer::
-~ResultsProducer()
-{
-}
+  void
+  ResultsProducer::registerProducts(MasterProductRegistry& mpr,
+                                    ProductDescriptions& productsToProduce,
+                                    ModuleDescription const& md)
+  {
+    ProductRegistryHelper::registerProducts(mpr, productsToProduce, md);
+    setModuleDescription(md);
+  }
 
-ResultsProducer::
-ResultsProducer()
-  : ModuleBase()
-  , ProductRegistryHelper()
-{
-}
+  void
+  ResultsProducer::doBeginJob()
+  {
+    vector<string> names;
+    for_each(resourceNames_.cbegin(), resourceNames_.cend(), [&names](string const& s){names.emplace_back(s);});
+    auto queues = SharedResourcesRegistry::instance()->createQueues(names);
+    beginJob();
+  }
 
-void
-ResultsProducer::
-registerProducts(MasterProductRegistry& mpr, ModuleDescription const& md)
-{
-  ProductRegistryHelper::registerProducts(mpr, md);
-}
+  void
+  ResultsProducer::doEndJob()
+  {
+    endJob();
+  }
 
-void
-ResultsProducer::
-doBeginJob()
-{
-  vector<string> names;
-  for_each(resourceNames_.cbegin(), resourceNames_.cend(), [&names](string const& s){names.emplace_back(s);});
-  auto queues = SharedResourcesRegistry::instance()->createQueues(names);
-  //auto const& module_pset = fhicl::ParameterSetRegistry::get(moduleDescription().parameterSetID());
-  //module_pset.get_if_present("errorOnMissingConsumes", requireConsumes_);
-  //// Now that we know we have seen all the consumes declarations,
-  /// sort the results for fast lookup later.
-  //for (auto& vecPI : consumables_) {
-  //  sort(vecPI.begin(), vecPI.end());
-  //}
-  beginJob();
-}
+  void
+  ResultsProducer::doBeginRun(RunPrincipal const& rp)
+  {
+    Run const r{rp, moduleDescription()};
+    beginRun(r);
+  }
 
-void
-ResultsProducer::
-beginJob()
-{
-}
+  void
+  ResultsProducer::doEndRun(RunPrincipal const& rp)
+  {
+    Run const r{rp, moduleDescription()};
+    endRun(r);
+  }
 
-void
-ResultsProducer::
-doEndJob()
-{
-  endJob();
-}
+  void
+  ResultsProducer::doBeginSubRun(SubRunPrincipal const& srp)
+  {
+    SubRun const sr{srp, moduleDescription()};
+    beginSubRun(sr);
+  }
 
-void
-ResultsProducer::
-endJob()
-{
-}
+  void
+  ResultsProducer::doEndSubRun(SubRunPrincipal const& srp)
+  {
+    SubRun const sr{srp, moduleDescription()};
+    endSubRun(sr);
+  }
 
-void
-ResultsProducer::
-doBeginRun(Run const& r)
-{
-  beginRun(r);
-}
+  void
+  ResultsProducer::doEvent(EventPrincipal const& ep)
+  {
+    Event const e{ep, moduleDescription()};
+    event(e);
+  }
 
-void
-ResultsProducer::
-beginRun(Run const&)
-{
-}
+  void
+  ResultsProducer::doReadResults(ResultsPrincipal const& resp)
+  {
+    Results const res{resp, moduleDescription()};
+    readResults(res);
+  }
 
-void
-ResultsProducer::
-doEndRun(Run const& r)
-{
-  endRun(r);
-}
+  void
+  ResultsProducer::doWriteResults(ResultsPrincipal& resp)
+  {
+    Results res{resp, moduleDescription()};
+    writeResults(res);
+    res.DataViewImpl::commit(resp);
+  }
 
-void
-ResultsProducer::
-endRun(Run const&)
-{
-}
+  void
+  ResultsProducer::doClear()
+  {
+    clear();
+  }
 
-void
-ResultsProducer::
-doBeginSubRun(SubRun const& sr)
-{
-  beginSubRun(sr);
-}
+  // Virtual functions to be overridden by users
 
-void
-ResultsProducer::
-beginSubRun(SubRun const&)
-{
-}
+  void
+  ResultsProducer::beginJob()
+  {
+  }
 
-void
-ResultsProducer::
-doEndSubRun(SubRun const& sr)
-{
-  endSubRun(sr);
-}
+  void
+  ResultsProducer::endJob()
+  {
+  }
 
-void
-ResultsProducer::
-endSubRun(SubRun const&)
-{
-}
+  void
+  ResultsProducer::beginRun(Run const&)
+  {
+  }
 
-void
-ResultsProducer::
-doEvent(Event const& e)
-{
-  event(e);
-}
+  void
+  ResultsProducer::endRun(Run const&)
+  {
+  }
 
-void
-ResultsProducer::
-event(Event const&)
-{
-}
+  void
+  ResultsProducer::beginSubRun(SubRun const&)
+  {
+  }
 
-void
-ResultsProducer::
-doReadResults(Results const& res)
-{
-  readResults(res);
-}
+  void
+  ResultsProducer::endSubRun(SubRun const&)
+  {
+  }
 
-void
-ResultsProducer::
-readResults(Results const&)
-{
-}
+  void
+  ResultsProducer::event(Event const&)
+  {
+  }
 
-void
-ResultsProducer::
-doWriteResults(ResultsPrincipal& /*rp*/, Results& res)
-{
-  writeResults(res);
-  //res.commit_(rp);
-  res.DataViewImpl::commit();
-}
-
-void
-ResultsProducer::
-doClear()
-{
-  clear();
-}
+  void
+  ResultsProducer::readResults(Results const&)
+  {
+  }
 
 } // namespace art
-

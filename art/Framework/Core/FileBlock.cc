@@ -2,7 +2,6 @@
 // vim: set sw=2 expandtab :
 
 #include "art/Framework/Principal/ResultsPrincipal.h"
-#include "canvas/Persistency/Provenance/BranchChildren.h"
 #include "canvas/Persistency/Provenance/FileFormatVersion.h"
 
 #include <memory>
@@ -15,44 +14,24 @@ using namespace std;
 namespace art {
 
 FileBlock::
-~FileBlock()
-{
-  tree_ = nullptr;
-}
+FileBlock(FileFormatVersion const& version,
+          std::string const& fileName) :
+  fileFormatVersion_{version},
+  fileName_{fileName}
+{}
 
 FileBlock::
-FileBlock()
-  : fileFormatVersion_{}
-  , tree_{nullptr}
-  , fastCopyable_{false}
-  , fileName_{}
-  , branchChildren_{make_shared<BranchChildren>()}
-  , resp_{}
-{
-}
-
-FileBlock::
-FileBlock(FileFormatVersion const& version, string const& fileName)
-  : fileFormatVersion_{version}
-  , tree_{nullptr}
-  , fastCopyable_{false}
-  , fileName_{fileName}
-  , branchChildren_{make_shared<BranchChildren>()}
-  , resp_{}
-{
-}
-
-FileBlock::
-FileBlock(FileFormatVersion const& version, TTree const* ev, bool fastCopy, string const& fileName,
-          shared_ptr<BranchChildren> branchChildren, unique_ptr<ResultsPrincipal>&& resp /*= {}*/)
-  : fileFormatVersion_{version}
-  , tree_{const_cast<TTree*>(ev)}
-  , fastCopyable_{fastCopy}
-  , fileName_{fileName}
-  , branchChildren_{branchChildren}
-  , resp_{move(resp)}
-{
-}
+FileBlock(FileFormatVersion const& version,
+          std::string const& fileName,
+          std::unique_ptr<ResultsPrincipal>&& resp,
+          cet::exempt_ptr<TTree const> ev,
+          bool const fastCopy) :
+  fileFormatVersion_{version},
+  fileName_{fileName},
+  resp_{std::move(resp)},
+  tree_{ev},
+  fastCopyable_{fastCopy}
+{}
 
 FileFormatVersion const&
 FileBlock::
@@ -61,7 +40,7 @@ fileFormatVersion() const
   return fileFormatVersion_;
 }
 
-TTree*
+cet::exempt_ptr<TTree const>
 FileBlock::
 tree() const
 {
@@ -89,13 +68,6 @@ setNotFastCopyable()
   fastCopyable_ = false;
 }
 
-BranchChildren const&
-FileBlock::
-branchChildren() const
-{
-  return *branchChildren_;
-}
-
 ResultsPrincipal*
 FileBlock::
 resultsPrincipal() const
@@ -104,4 +76,3 @@ resultsPrincipal() const
 }
 
 } // namespace art
-

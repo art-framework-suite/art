@@ -4,20 +4,21 @@
 
 // ======================================================================
 // Worker: this is a basic scheduling unit - an abstract base class to
-//         something that is really a producer or filter.
+// something that is really a producer or filter.
 //
-// A worker will not actually call through to the module unless it is in
-// a Ready state.  After a module is actually run, the state will not be
-// Ready.  The Ready state can only be reestablished by doing a reset().
+// A worker will not actually call through to the module unless it is
+// in a Ready state.  After a module is actually run, the state will
+// not be Ready.  The Ready state can only be reestablished by doing a
+// reset().
 //
 // Pre/post module signals are posted only in the Ready state.
 //
 // Execution statistics are kept here.
 //
-// If a module has thrown an exception during execution, that exception
-// will be rethrown if the worker is entered again and the state is not
-// Ready.  In other words, execution results (status) are cached and
-// reused until the worker is reset().
+// If a module has thrown an exception during execution, that
+// exception will be rethrown if the worker is entered again and the
+// state is not Ready.  In other words, execution results (status) are
+// cached and reused until the worker is reset().
 // ======================================================================
 
 #include "art/Framework/Core/ModuleType.h"

@@ -32,12 +32,17 @@ namespace art {
 
     struct BranchInfo
     {
-      BranchInfo(BranchDescription const& prod)
+      BranchInfo(BranchDescription const& prod,
+                 TBranch* const branch)
         : branchDescription_{prod}
+        , productBranch_{branch}
       {}
 
+      // Ideally, a reference to the branch-description does not need
+      // to be retained.  It is used to fill the groups in the
+      // principal.
       BranchDescription const& branchDescription_;
-      TBranch* productBranch_{nullptr};
+      TBranch* productBranch_;
     };  // BranchInfo
 
     using BranchMap = std::map<BranchKey const, BranchInfo>;

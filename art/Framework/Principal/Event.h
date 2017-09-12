@@ -14,8 +14,8 @@
 #include "art/Framework/Principal/SubRun.h"
 #include "art/Framework/Principal/fwd.h"
 #include "art/Persistency/Common/GroupQueryResult.h"
-#include "art/Persistency/Provenance/detail/type_aliases.h"
 #include "canvas/Persistency/Common/Wrapper.h"
+#include "canvas/Persistency/Common/traits.h"
 #include "canvas/Persistency/Provenance/EventAuxiliary.h"
 #include "canvas/Persistency/Provenance/EventID.h"
 #include "canvas/Persistency/Provenance/History.h"
@@ -49,7 +49,7 @@ public:
   ~Event();
 
   explicit
-  Event(EventPrincipal& ep, ModuleDescription const& md);
+  Event(EventPrincipal const& ep, ModuleDescription const& md);
 
   Event(Event const&) = delete;
 

@@ -88,7 +88,7 @@ processName() const
   return group_->productDescription().processName();
 }
 
-ProductID const&
+ProductID
 Provenance::
 productID() const
 {
@@ -183,4 +183,3 @@ operator<<(ostream& os, Provenance const& p)
 }
 
 } // namespace art
-

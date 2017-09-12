@@ -73,10 +73,6 @@ namespace {
 
 }
 
-namespace art {
-  class MasterProducerRegistry;
-}
-
 namespace arttest {
 
   class EventProcessorTestSource : public art::InputSource {
@@ -90,7 +86,7 @@ namespace arttest {
     {}
 
 
-    std::unique_ptr<art::FileBlock> readFile(art::MasterProductRegistry&) override
+    std::unique_ptr<art::FileBlock> readFile() override
     {
       inputFile_.open(currentName_);
       return std::make_unique<art::FileBlock>(art::FileFormatVersion{1,"EventProcessorTestSource_2017a"}, currentName_);
@@ -141,22 +137,32 @@ namespace arttest {
     std::unique_ptr<art::RunPrincipal> readRun() override
     {
       art::RunAuxiliary const aux {run_, nullTimestamp(), nullTimestamp()};
-      return std::make_unique<art::RunPrincipal>(aux, isd_.moduleDescription.processConfiguration());
+      auto rp = std::make_unique<art::RunPrincipal>(aux,
+                                                    isd_.moduleDescription.processConfiguration(),
+                                                    art::ProductList{},
+                                                    nullptr);
+      return std::move(rp);
     }
 
-    std::unique_ptr<art::SubRunPrincipal> readSubRun(cet::exempt_ptr<art::RunPrincipal> rp) override
+    std::unique_ptr<art::SubRunPrincipal> readSubRun(cet::exempt_ptr<art::RunPrincipal const> rp) override
     {
       art::SubRunAuxiliary const aux {subRun_, nullTimestamp(), nullTimestamp()};
-      auto srp = std::make_unique<art::SubRunPrincipal>(aux, isd_.moduleDescription.processConfiguration());
+      auto srp = std::make_unique<art::SubRunPrincipal>(aux,
+                                                        isd_.moduleDescription.processConfiguration(),
+                                                        art::ProductList{},
+                                                        nullptr);
       srp->setRunPrincipal(rp);
       return std::move(srp);
     }
 
     using art::InputSource::readEvent;
-    std::unique_ptr<art::EventPrincipal> readEvent(cet::exempt_ptr<art::SubRunPrincipal> srp) override
+    std::unique_ptr<art::EventPrincipal> readEvent(cet::exempt_ptr<art::SubRunPrincipal const> srp) override
     {
       art::EventAuxiliary const aux {event_, nullTimestamp(), true};
-      auto ep = std::make_unique<art::EventPrincipal>(aux, isd_.moduleDescription.processConfiguration());
+      auto ep = std::make_unique<art::EventPrincipal>(aux,
+                                                      isd_.moduleDescription.processConfiguration(),
+                                                      art::ProductList{},
+                                                      nullptr);
       ep->setSubRunPrincipal(srp);
       return std::move(ep);
     }
@@ -174,12 +180,12 @@ namespace arttest {
 
   private:
     art::InputSourceDescription const isd_;
-    std::ifstream inputFile_ {};
-    std::string currentName_ {};
+    std::ifstream inputFile_{};
+    std::string currentName_{};
     std::vector<std::string> fileNames_{};
-    art::RunID run_ {};
-    art::SubRunID subRun_ {};
-    art::EventID event_ {};
+    art::RunID run_{};
+    art::SubRunID subRun_{};
+    art::EventID event_{};
   };
 
 }

@@ -7,6 +7,7 @@
 #include "art/Framework/Core/WorkerT.h"
 #include "art/Framework/Core/detail/get_failureToPut_flag.h"
 #include "art/Framework/Principal/Event.h"
+#include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Principal/Run.h"
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRun.h"
@@ -271,8 +272,7 @@ doBeginRun(RunPrincipal& rp, cet::exempt_ptr<CurrentProcessingContext const> cpc
   detail::CPCSentry sentry{*cpc};
   Run r{rp, moduleDescription(), RangeSet::forRun(rp.runID())};
   bool const rc = beginRun(r);
-  //r.commit_(rp);
-  r.DataViewImpl::commit();
+  r.DataViewImpl::commit(rp);
   return rc;
 }
 
@@ -290,8 +290,7 @@ doEndRun(RunPrincipal& rp, cet::exempt_ptr<CurrentProcessingContext const> cpc)
   detail::CPCSentry sentry{*cpc};
   Run r{rp, moduleDescription(), rp.seenRanges()};
   bool const rc = endRun(r);
-  //r.commit_(rp);
-  r.DataViewImpl::commit();
+  r.DataViewImpl::commit(rp);
   return rc;
 }
 
@@ -309,8 +308,7 @@ doBeginSubRun(SubRunPrincipal& srp, cet::exempt_ptr<CurrentProcessingContext con
   detail::CPCSentry sentry{*cpc};
   SubRun sr{srp, moduleDescription(), RangeSet::forSubRun(srp.subRunID())};
   bool const rc = beginSubRun(sr);
-  //sr.commit_(srp);
-  sr.DataViewImpl::commit();
+  sr.DataViewImpl::commit(srp);
   return rc;
 }
 
@@ -328,8 +326,7 @@ doEndSubRun(SubRunPrincipal& srp, cet::exempt_ptr<CurrentProcessingContext const
   detail::CPCSentry sentry{*cpc};
   SubRun sr{srp, moduleDescription(), srp.seenRanges()};
   bool const rc = endSubRun(sr);
-  //sr.commit_(srp);
-  sr.DataViewImpl::commit();
+  sr.DataViewImpl::commit(srp);
   return rc;
 }
 
@@ -351,13 +348,8 @@ doEvent(EventPrincipal& ep, int /*si*/, CurrentProcessingContext const* cpc,
   Event e{ep, moduleDescription()};
   ++counts_run;
   bool rc = false;
-  //if (static_cast<ModuleThreadingType>(moduleDescription().moduleThreadingType()) == ModuleThreadingType::STREAM) {
-    //rc = filter_in_stream(e, si);
-  //}
-  //else {
-    rc = filter(e);
-  //}
-  e.DataViewImpl::commit(checkPutProducts_, &expectedProducts());
+  rc = filter(e);
+  e.DataViewImpl::commit(ep, checkPutProducts_, &expectedProducts());
   if (rc) {
     ++counts_passed;
   }
@@ -367,12 +359,4 @@ doEvent(EventPrincipal& ep, int /*si*/, CurrentProcessingContext const* cpc,
   return rc;
 }
 
-//bool
-//EDFilter::
-//filter_in_stream(Event&, int /*si*/)
-//{
-//  return true;
-//}
-
 } // namespace art
-

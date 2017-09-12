@@ -23,15 +23,10 @@ public:
 
 public:
 
-  // Used by EventProcessor
-  // Used by RootInputFile
-  // Used by EmptyEvent_source
-  ~RunPrincipal();
-
-  // Used by SourceHelper
-  // Used by RootInputFile
-  // Used by EmptyEvent_source
-  RunPrincipal(RunAuxiliary const&, ProcessConfiguration const&,
+  RunPrincipal(RunAuxiliary const&,
+               ProcessConfiguration const&,
+               ProductList const&,
+               cet::exempt_ptr<ProductTable const>,
                std::unique_ptr<DelayedReader>&& = std::make_unique<NoDelayedReader>());
 
 };

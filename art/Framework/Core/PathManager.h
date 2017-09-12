@@ -26,8 +26,8 @@
 #include "art/Framework/Principal/Worker.h"
 #include "art/Framework/Principal/WorkerParams.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
-#include "art/Persistency/Provenance/MasterProductRegistry.h"
 #include "art/Utilities/PluginSuffixes.h"
+#include "art/Utilities/ScheduleID.h"
 #include "art/Version/GetReleaseVersion.h"
 #include "canvas/Persistency/Common/HLTGlobalStatus.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
@@ -44,6 +44,8 @@
 #include <vector>
 
 namespace art {
+
+class MasterProductRegistry;
 
 class PathManager {
 
@@ -63,7 +65,11 @@ public:
 
   ~PathManager();
 
-  PathManager(fhicl::ParameterSet const& procPS, MasterProductRegistry& preg, ActionTable& exceptActions, ActivityRegistry& areg);
+  PathManager(fhicl::ParameterSet const& procPS,
+              MasterProductRegistry& preg,
+              ProductDescriptions& productsToProduce,
+              ActionTable& exceptActions,
+              ActivityRegistry& areg);
 
   PathManager(PathManager const&) = delete;
 
@@ -94,7 +100,7 @@ public:
 
   Worker*
   triggerResultsInserter(int streamIndex) const;
-  
+
   void
   setTriggerResultsInserter(int streamIndex, std::unique_ptr<WorkerT<EDProducer>>&&);
 
@@ -136,6 +142,9 @@ private:
   std::vector<std::unique_ptr<WorkerT<EDProducer>>>
   triggerResultsInserter_{};
 
+  ProductDescriptions&
+  productsToProduce_;
+
   //
   //  The following data members are only needed
   //  to delay the creation of modules until after
@@ -159,7 +168,6 @@ private:
 
   std::vector<ModuleConfigInfo>
   protoEndPathInfo_{};
-
 };
 
 } // namespace art

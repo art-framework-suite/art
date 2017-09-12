@@ -8,6 +8,7 @@
 #include "art/Framework/IO/Root/GetFileFormatEra.h"
 #include "art/Framework/IO/Root/GetFileFormatVersion.h"
 #include "art/Framework/IO/Root/RootOutputClosingCriteria.h"
+#include "art/Framework/IO/Root/checkDictionaries.h"
 #include "art/Framework/IO/Root/detail/KeptProvenance.h"
 #include "art/Framework/IO/Root/detail/resolveRangeSet.h"
 #include "art/Framework/Principal/EventPrincipal.h"
@@ -368,21 +369,21 @@ RootOutputFile(OutputModule* om,
   , fastCloningEnabledAtConstruction_{fastCloningRequested}
   , filePtr_{TFile::Open(file_.c_str(), "recreate", "", compressionLevel)}
   , treePointers_ { // Order (and number) must match BranchTypes.h!
-  std::make_unique<RootOutputTree>(filePtr_.get(), InEvent, pEventAux_,
-  pEventProductProvenanceVector_, basketSize, splitLevel,
-  treeMaxVirtualSize, saveMemoryObjectThreshold),
-  std::make_unique<RootOutputTree>(filePtr_.get(), InSubRun, pSubRunAux_,
-  pSubRunProductProvenanceVector_, basketSize, splitLevel,
-  treeMaxVirtualSize, saveMemoryObjectThreshold),
-  std::make_unique<RootOutputTree>(filePtr_.get(), InRun, pRunAux_,
-  pRunProductProvenanceVector_, basketSize, splitLevel,
-  treeMaxVirtualSize, saveMemoryObjectThreshold),
-  std::make_unique<RootOutputTree>(filePtr_.get(), InResults, pResultsAux_,
-  pResultsProductProvenanceVector_, basketSize, splitLevel,
-  treeMaxVirtualSize, saveMemoryObjectThreshold) }
-, rootFileDB_{ServiceHandle<DatabaseConnection>{}->get<TKeyVFSOpenPolicy>("RootFileDB",
-              filePtr_.get(),
-              SQLITE_OPEN_CREATE | SQLITE_OPEN_READWRITE)}
+    std::make_unique<RootOutputTree>(filePtr_.get(), InEvent, pEventAux_,
+                                     pEventProductProvenanceVector_, basketSize, splitLevel,
+                                     treeMaxVirtualSize, saveMemoryObjectThreshold),
+    std::make_unique<RootOutputTree>(filePtr_.get(), InSubRun, pSubRunAux_,
+                                     pSubRunProductProvenanceVector_, basketSize, splitLevel,
+                                     treeMaxVirtualSize, saveMemoryObjectThreshold),
+    std::make_unique<RootOutputTree>(filePtr_.get(), InRun, pRunAux_,
+                                     pRunProductProvenanceVector_, basketSize, splitLevel,
+                                     treeMaxVirtualSize, saveMemoryObjectThreshold),
+    std::make_unique<RootOutputTree>(filePtr_.get(), InResults, pResultsAux_,
+                                     pResultsProductProvenanceVector_, basketSize, splitLevel,
+                                     treeMaxVirtualSize, saveMemoryObjectThreshold) }
+  , rootFileDB_{ServiceHandle<DatabaseConnection>{}->get<TKeyVFSOpenPolicy>("RootFileDB",
+                                                                            filePtr_.get(),
+                                                                            SQLITE_OPEN_CREATE | SQLITE_OPEN_READWRITE)}
 {
   // Don't split metadata tree or event description tree
   metaDataTree_ = RootOutputTree::makeTTree(filePtr_.get(), rootNames::metaDataTreeName(), 0);
@@ -429,12 +430,17 @@ selectProducts()
 {
   for (int i = InEvent; i < NumBranchTypes; ++i) {
     auto bt = static_cast<BranchType>(i);
+    auto& items = selectedOutputItemList_[bt];
+
     for (auto const& pd : om_->keptProducts()[bt]) {
-      if ((bt != InResults) || pd->produced()) {
-        selectedOutputItemList_[bt].emplace(pd);
-      }
+      // Persist Results products only if they have been produced by
+      // the current process.
+      if (bt == InResults && !pd->produced()) continue;
+      checkDictionaries(*pd);
+      items.emplace(pd);
     }
-    for (auto const& val : selectedOutputItemList_[bt]) {
+
+    for (auto const& val : items) {
       treePointers_[bt]->addOutputBranch(*val.branchDescription_, val.product_);
     }
   }
@@ -598,7 +604,7 @@ RootOutputFile::
 writeFileFormatVersion()
 {
   FileFormatVersion const ver {getFileFormatVersion(), getFileFormatEra()};
-  FileFormatVersion const* pver = &ver;
+  auto const* pver = &ver;
   TBranch* b = metaDataTree_->Branch(metaBranchRootName<FileFormatVersion>(),
                                      &pver, basketSize_, 0);
   // FIXME: Turn this into a throw!
@@ -868,33 +874,24 @@ RootOutputFile::
 fillBranches(Principal const& principal, vector<ProductProvenance>* vpp)
 {
   bool const fastCloning = ((BT == InEvent) && wasFastCloned_);
-  //detail::KeptProvenance keptProvenance{dropMetaData_, dropMetaDataForDroppedData_, branchesWithStoredHistory_};
   map<unsigned, unsigned> checksumToIndex;
   auto const& principalRS = principal.seenRanges();
   set<ProductProvenance> keptprv;
   for (auto const& val : selectedOutputItemList_[BT]) {
     auto const* bd = val.branchDescription_;
     auto const pid = bd->productID();
-    ///if (BT != InEvent) {
-    ///  cout << "-----> RootOutputFile::fillBranches(...) ... pid: " << pid << " branchName: " << bd->branchName() << " ..." << endl;
-    ///}
     branchesWithStoredHistory_.insert(pid);
     bool const produced = bd->produced();
     bool const resolveProd = (produced || !fastCloning || treePointers_[BT]->uncloned(bd->branchName()));
     // Update the kept provenance
     bool const keepProvenance = ((dropMetaData_ == DropMetaData::DropNone) ||
                                  (produced && (dropMetaData_ == DropMetaData::DropPrior)));
-    ///if (BT != InEvent) {
-    ///  cout << "-----> RootOutputFile::fillBranches(...) ... pid: " << pid << " branchName: " << bd->branchName() << " ... Calling principal.getForOutput(pid, resolveProd)" << endl;
-    ///}
     auto const& oh = principal.getForOutput(pid, resolveProd);
     auto prov = keptprv.begin();
     if (keepProvenance) {
       if (oh.productProvenance()) {
-        //prov = std::make_unique<ProductProvenance>(keptProvenance.insert(*oh.productProvenance()));
         prov = keptprv.insert(*oh.productProvenance()).first;
         if ((dropMetaData_ != DropMetaData::DropAll) && !dropMetaDataForDroppedData_) {
-          //keptProvenance.insertAncestors(*oh.productProvenance(), principal);
           {
             vector<ProductProvenance const*> stacked_pp;
             stacked_pp.push_back(&*oh.productProvenance());
@@ -932,126 +929,46 @@ fillBranches(Principal const& principal, vector<ProductProvenance>* vpp)
         }
       }
       else {
-        // No provenance, product was either not produced,
-        // or was dropped, create provenance to remember that.
+        // No provenance: product was either not produced, or was
+        // dropped; create provenance to remember that.
         auto status = productstatus::dropped();
         if (produced) {
           status = productstatus::neverCreated();
         }
-        //prov = std::make_unique<ProductProvenance>(keptProvenance.emplace(pid, status));
         prov = keptprv.emplace(pid, status).first;
       }
     }
     // Resolve the product if we are going to attempt to write it out.
     if (resolveProd) {
-      // Product was either produced, or we are not cloning the whole file
-      // and the product branch was not cloned so we should be able to get
-      // a pointer to it from the passed principal and write it out.
-      ///if (BT != InEvent) {
-      ///  cout << "-----> RootOutputFile::fillBranches(...) ... pid: " << pid << " branchName: " << bd->branchName() << " calling getRangeSet<BT>(...) (might invalidate rs!)" << endl;
-      ///}
+      // Product was either produced, or we are not cloning the whole
+      // file and the product branch was not cloned so we should be
+      // able to get a pointer to it from the passed principal and
+      // write it out.
       auto const& rs = getRangeSet<BT>(oh, principalRS, produced);
-      ///if (BT != InEvent) {
-      ///  ostringstream buf;
-      ///  buf << rs;
-      ///  auto tmp = buf.str();
-      ///  auto p = string::npos;
-      ///  while ((p = tmp.find('\n')) != string::npos) {
-      ///    tmp.erase(p, 1);
-      ///  }
-      ///  cout << "-----> RootOutputFile::fillBranches(...) ... pid: " << pid << " branchName: " << bd->branchName() << " new rs: " << tmp << endl;
-      ///}
       if (RangeSetsSupported<BT>::value && !rs.is_valid()) {
-        ///if (BT != InEvent) {
-        ///  cout << "-----> RootOutputFile::fillBranches(...) ... pid: " << pid << " branchName: " << bd->branchName() << " rs is invalid" << endl;
-        ///}
         // At this point we are now going to write out a dummy product
         // whose Wrapper present flag is false because the range set
         // got invalidated to present double counting when combining
         // run or subrun products from multiple fragments.  We change
         // the provenance status that we are going to write out to
-        // dummyToPreventDoubleCount to flag this case.  Note that
-        // the requirement is only that the status not be
+        // dummyToPreventDoubleCount to flag this case.  Note that the
+        // requirement is only that the status not be
         // productstatus::present().  We use a special code to make it
         // easier for humans to tell what is going on.
-        {
-          auto prov_bid = prov->productID();
-          if (keptprv.erase(*prov) != 1ull) {
-            throw Exception(errors::LogicError, "KeptProvenance::setStatus")
-                << "Attempt to set product status for product whose provenance is not being recorded.\n";
-          }
-          ///if (BT != InEvent) {
-          ///  cout << "-----> RootOutputFile::fillBranches(...) ... product rangeset was invalidated, changing status to unknown! pid: " << pid << " branchName: " << bd->branchName() << endl;
-          ///}
-          prov = keptprv.emplace(prov_bid, productstatus::dummyToPreventDoubleCount()).first;
+        auto prov_bid = prov->productID();
+        if (keptprv.erase(*prov) != 1ull) {
+          throw Exception(errors::LogicError, "KeptProvenance::setStatus")
+            << "Attempt to set product status for product whose provenance is not being recorded.\n";
         }
+        prov = keptprv.emplace(prov_bid, productstatus::dummyToPreventDoubleCount()).first;
       }
-      ///if (BT != InEvent) {
-      ///  cout << "-----> RootOutputFile::fillBranches(...) ... pid: " << pid << " branchName: " << bd->branchName() << " calling getProduct<BT>(...)" << endl;
-      ///}
       auto const* product = getProduct<BT>(oh, rs, bd->wrappedName());
-      ///if (BT != InEvent) {
-      ///  cout << "-----> RootOutputFile::fillBranches(...) ... pid: " << pid << " branchName: " << bd->branchName() << " present: " << product->isPresent() << " rsid: " << product->getRangeSetID() << " calling setProductRangeSetID<BT>(...)" << endl;
-      ///  //if (product->getRangeSetID() == -1u) {
-      ///  //  cout << "-----> RootOutputFile::fillBranches(...) ... pid: " << pid << " branchName: " << bd->branchName() << " present: " << product->isPresent() << " rsid: " << product->getRangeSetID() << " rs: invalid, calling setProductRangeSetID<BT>(...)" << endl;
-      ///  //}
-      ///  //else {
-      ///  //  auto myrs = detail::resolveRangeSet(rootFileDB_, "RootOutputFile::fillBranches(...)", BT, product->getRangeSetID());
-      ///  //  ostringstream buf;
-      ///  //  buf << myrs;
-      ///  //  auto tmp = buf.str();
-      ///  //  auto p = string::npos;
-      ///  //  while ((p = tmp.find('\n')) != string::npos) {
-      ///  //    tmp.erase(p, 1);
-      ///  //  }
-      ///  //  cout << "-----> RootOutputFile::fillBranches(...) ... pid: " << pid << " branchName: " << bd->branchName() << " present: " << product->isPresent() << " rsid: " << product->getRangeSetID() << " rs: " << tmp << ", calling setProductRangeSetID<BT>(...)" << endl;
-      ///  //}
-      ///}
       setProductRangeSetID<BT>(rs, rootFileDB_, const_cast<EDProduct*>(product), checksumToIndex);
-      ///if (BT != InEvent) {
-      ///  cout << "-----> RootOutputFile::fillBranches(...) ... pid: " << pid << " branchName: " << bd->branchName() << " present: " << product->isPresent() << " rsid: " << product->getRangeSetID() << " status: " << ((int) prov->productStatus()) << endl;
-      ///  //if (product->getRangeSetID() == -1u) {
-      ///  //  cout << "-----> RootOutputFile::fillBranches(...) ... pid: " << pid << " branchName: " << bd->branchName() << " present: " << product->isPresent() << " rsid: " << product->getRangeSetID() << " rs: invalid" << endl;
-      ///  //}
-      ///  //else {
-      ///  //  auto myrs = detail::resolveRangeSet(rootFileDB_, "RootOutputFile::fillBranches(...)", BT, product->getRangeSetID());
-      ///  //  ostringstream buf;
-      ///  //  buf << myrs;
-      ///  //  auto tmp = buf.str();
-      ///  //  auto p = string::npos;
-      ///  //  while ((p = tmp.find('\n')) != string::npos) {
-      ///  //    tmp.erase(p, 1);
-      ///  //  }
-      ///  //  cout << "-----> RootOutputFile::fillBranches(...) ... pid: " << pid << " branchName: " << bd->branchName() << " present: " << product->isPresent() << " rsid: " << product->getRangeSetID() << " rs: " << tmp << endl;
-      ///  //}
-      ///}
       val.product_ = product;
-      ///if (BT != InEvent) {
-      ///  if (product->isPresent() && (prov->productStatus() == productstatus::unknown())) {
-      ///    cout << "-|-|-> RootOutputFile::fillBranches(...) ... About to write product which is present and product status is unknown! pid: " << pid << " rsid: " << product->getRangeSetID() << " branchName: " << bd->branchName() << endl;
-      ///  }
-      ///  else if (!product->isPresent() && (prov->productStatus() == productstatus::unknown())) {
-      ///    cout << "-|-|-> RootOutputFile::fillBranches(...) ... About to write product which is not present and product status is unknown! pid: " << pid << " rsid: " << product->getRangeSetID() << " branchName: " << bd->branchName() << endl;
-      ///  }
-      ///}
-      ///(void) (2==2);
     }
-    ///if (BT != InEvent) {
-    ///  cout << "-----> RootOutputFile::fillBranches(...) ... pid: " << pid << " branchName: " << bd->branchName() << " end" << endl;
-    ///}
   }
-  //vpp->assign(keptProvenance.begin(), keptProvenance.end());
   vpp->assign(keptprv.begin(), keptprv.end());
   for (auto const& val : *vpp) {
-    ///if (BT != InEvent) {
-    ///  if (val.productStatus() == productstatus::unknown()) {
-    ///    cout << "-|-|-> RootOutputFile::fillBranches(...) vpp loop ... About to write provenance with product status unknown! pid: " << val.productID().id() << endl;
-    ///  }
-    ///}
-    //if (val.productStatus() == productstatus::unknown()) {
-    //  throw Exception(errors::LogicError, "RootOutputFile::fillBranches(principal, vpp):")
-    //      << "Attempt to write a product with unknown provenance!\n";
-    //}
     if (val.productStatus() == productstatus::uninitialized()) {
       throw Exception(errors::LogicError, "RootOutputFile::fillBranches(principal, vpp):")
           << "Attempt to write a product with uninitialized provenance!\n";
@@ -1062,4 +979,3 @@ fillBranches(Principal const& principal, vector<ProductProvenance>* vpp)
 }
 
 } // namespace art
-

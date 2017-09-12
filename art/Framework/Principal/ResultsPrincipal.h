@@ -32,9 +32,10 @@ public:
 
 public:
 
-  ~ResultsPrincipal();
-
-  ResultsPrincipal(ResultsAuxiliary const&, ProcessConfiguration const&,
+  ResultsPrincipal(ResultsAuxiliary const&,
+                   ProcessConfiguration const&,
+                   ProductList const&,
+                   cet::exempt_ptr<ProductTable const> presentProducts,
                    std::unique_ptr<DelayedReader>&& reader = std::make_unique<NoDelayedReader>());
 
 };

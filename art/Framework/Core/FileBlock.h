@@ -2,7 +2,13 @@
 #define art_Framework_Core_FileBlock_h
 // vim: set sw=2 expandtab :
 
+// =======================================================================
+// FileBlock: Properties of an input file.
+// =======================================================================
+
+#include "art/Framework/Principal/ResultsPrincipal.h"
 #include "canvas/Persistency/Provenance/FileFormatVersion.h"
+#include "cetlib/exempt_ptr.h"
 
 #include <memory>
 #include <string>
@@ -12,30 +18,29 @@ class TTree;
 namespace art {
 
 class BranchDescription;
-class BranchChildren;
 class ResultsPrincipal;
 
 class FileBlock {
 
 public:
 
-  ~FileBlock();
+  FileBlock() = default;
 
-  FileBlock();
+  FileBlock(FileFormatVersion const&,
+            std::string const& fileName);
 
-  FileBlock(FileFormatVersion const&, std::string const& fileName);
-
-  FileBlock(FileFormatVersion const&, TTree const*, bool fastCopy, std::string const& fileName,
-            std::shared_ptr<BranchChildren>, std::unique_ptr<ResultsPrincipal>&& = {});
+  FileBlock(FileFormatVersion const&,
+            std::string const& fileName,
+            std::unique_ptr<ResultsPrincipal>&&,
+            cet::exempt_ptr<TTree const> eventTree,
+            bool fastCopy);
 
   FileFormatVersion const&
   fileFormatVersion() const;
 
-  TTree*
-  tree() const;
+  cet::exempt_ptr<TTree const> tree() const;
 
-  bool
-  fastClonable() const;
+  bool fastClonable() const;
 
   std::string const&
   fileName() const;
@@ -43,31 +48,17 @@ public:
   void
   setNotFastCopyable();
 
-  BranchChildren const&
-  branchChildren() const;
-
-  ResultsPrincipal*
-  resultsPrincipal() const;
-
 private:
 
-  FileFormatVersion
-  fileFormatVersion_;
+  // Friends only.
+  friend class OutputModule;
+  ResultsPrincipal* resultsPrincipal() const;
 
-  TTree*
-  tree_;
-
-  bool
-  fastCopyable_;
-
-  std::string
-  fileName_;
-
-  std::shared_ptr<BranchChildren>
-  branchChildren_;
-
-  std::unique_ptr<ResultsPrincipal>
-  resp_;
+  FileFormatVersion fileFormatVersion_{};
+  std::string fileName_{};
+  std::unique_ptr<ResultsPrincipal> resp_{nullptr};
+  cet::exempt_ptr<TTree const> tree_{nullptr}; // ROOT owns the tree
+  bool fastCopyable_{false};
 
 };
 

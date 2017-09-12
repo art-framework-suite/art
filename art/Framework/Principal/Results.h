@@ -2,17 +2,18 @@
 #define art_Framework_Principal_Results_h
 // vim: set sw=2 expandtab :
 
-//
+// ==================================================================
 //  This is the primary interface for accessing results-level
 //  EDProducts and inserting new results-level EDProducts.
 //
 //  For its usage, see "art/Framework/Principal/DataViewImpl.h"
-//
+// ==================================================================
 
 #include "art/Framework/Principal/DataViewImpl.h"
 #include "art/Framework/Principal/ResultsPrincipal.h"
 #include "art/Framework/Principal/fwd.h"
 #include "canvas/Persistency/Common/Wrapper.h"
+#include "canvas/Persistency/Common/traits.h"
 #include "canvas/Utilities/TypeID.h"
 
 #include <memory>
@@ -27,7 +28,7 @@ public:
   ~Results();
 
   explicit
-  Results(ResultsPrincipal& p, ModuleDescription const& md);
+  Results(ResultsPrincipal const& p, ModuleDescription const& md);
 
   Results(Results const&) = delete;
 

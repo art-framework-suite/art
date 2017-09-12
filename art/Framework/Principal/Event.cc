@@ -31,7 +31,7 @@ record_parents(Event const*)
   return false;
 }
 
-} // unnamed namespace 
+} // unnamed namespace
 
 Event::
 ~Event()
@@ -39,7 +39,7 @@ Event::
 }
 
 Event::
-Event(EventPrincipal& ep, ModuleDescription const& md)
+Event(EventPrincipal const& ep, ModuleDescription const& md)
   : DataViewImpl{InEvent, ep, md, record_parents(this), RangeSet::invalid()}
   , subRun_{ep.subRunPrincipalExemptPtr() ? new SubRun{ep.subRunPrincipal(), md} : nullptr}
 {
@@ -71,4 +71,3 @@ getRun() const
 }
 
 } // namespace art
-

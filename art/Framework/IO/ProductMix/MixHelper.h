@@ -347,8 +347,7 @@ private:
   MixHelper(MixHelper const&) = delete;
   MixHelper& operator=(MixHelper const&) = delete;
 
-  typedef std::vector<std::unique_ptr<MixOpBase>> MixOpList;
-  typedef MixOpList::iterator MixOpIter;
+  using MixOpList = std::vector<std::unique_ptr<MixOpBase>>;
 
   Mode initReadMode_(std::string const& mode) const;
 

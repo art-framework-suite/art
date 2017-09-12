@@ -49,7 +49,10 @@ namespace art {
   }
 
   DataViewImpl::
-  DataViewImpl(BranchType const bt, Principal& principal, ModuleDescription const& md, bool const recordParents,
+  DataViewImpl(BranchType const bt,
+               Principal const& principal,
+               ModuleDescription const& md,
+               bool const recordParents,
                RangeSet const& rs /* = RangeSet::invalid() */)
     : branchType_{bt}
     , principal_{principal}
@@ -193,10 +196,9 @@ namespace art {
   }
 
   GroupQueryResult
-  DataViewImpl::
-  get_(TypeID const& tid, SelectorBase const& sel) const
+  DataViewImpl::get_(WrappedTypeID const& wrapped, SelectorBase const& sel) const
   {
-    return principal_.getBySelector(tid, sel);
+    return principal_.getBySelector(wrapped, sel);
   }
 
   GroupQueryResult
@@ -206,37 +208,31 @@ namespace art {
     return principal_.getByProductID(pid);
   }
 
-  void
-  DataViewImpl::
-  getMany_(TypeID const& tid, SelectorBase const& sel, std::vector<GroupQueryResult>& results) const
+  DataViewImpl::GroupQueryResultVec
+  DataViewImpl::getMany_(WrappedTypeID const& wrapped,
+                         SelectorBase const& sel) const
   {
-    principal_.getMany(tid, sel, results);
+    return principal_.getMany(wrapped, sel);
   }
 
   GroupQueryResult
-  DataViewImpl::
-  getByLabel_(TypeID const& tid, string const& label, string const& instance, string const& process) const
+  DataViewImpl::getByLabel_(WrappedTypeID const& wrapped,
+                            string const& label,
+                            string const& productInstanceName,
+                            string const& processName) const
   {
-    return principal_.getByLabel(tid, label, instance, process);
+    return principal_.getByLabel(wrapped, label, productInstanceName, processName);
   }
 
-  int
-  DataViewImpl::
-  getMatchingSequenceByLabel_(TypeID const& elem, string const& label, string const& instance, std::vector<GroupQueryResult>& res) const
-  {
-    Selector sel(ModuleLabelSelector{label} && ProductInstanceNameSelector{instance});
-    return principal_.getMatchingSequence(elem, sel, res);
-  }
-
-  int
-  DataViewImpl::
-  getMatchingSequenceByLabel_(TypeID const& elem, string const& label, string const& instance, string const& process,
-                              std::vector<GroupQueryResult>& res) const
+  DataViewImpl::GroupQueryResultVec
+  DataViewImpl::getMatchingSequenceByLabel_(string const& label,
+                                            string const& productInstanceName,
+                                            string const& processName) const
   {
     Selector const sel{ModuleLabelSelector{label} &&
-                       ProductInstanceNameSelector{instance} &&
-                       ProcessNameSelector{process}};
-    return principal_.getMatchingSequence(elem, sel, res);
+                       ProductInstanceNameSelector{productInstanceName} &&
+                       ProcessNameSelector{processName}};
+    return principal_.getMatchingSequence(sel);
   }
 
   ProcessHistory const&
@@ -248,7 +244,7 @@ namespace art {
 
   void
   DataViewImpl::
-  addToGotProductIDs(Provenance const& prov) const
+  recordAsParent(Provenance const& prov) const
   {
     if (prov.productDescription().transient()) {
       // If the product retrieved is transient, don't use its
@@ -290,7 +286,7 @@ namespace art {
 
   void
   DataViewImpl::
-  commit(bool const checkProducts, set<TypeLabel> const* expectedProducts)
+  commit(Principal& principal, bool const checkProducts, set<TypeLabel> const* expectedProducts)
   {
     if (checkProducts) {
       checkPutProducts(*expectedProducts);
@@ -310,37 +306,57 @@ namespace art {
         pp = make_unique<ProductProvenance const>(pmvalue.bd.productID(), productstatus::present());
       }
       if ((branchType_ == InRun) || (branchType_ == InSubRun)) {
-        principal_.put(pmvalue.bd, move(pp), move(pmvalue.prod), move(make_unique<RangeSet>(pmvalue.rs)));
+        principal.put(pmvalue.bd, move(pp), move(pmvalue.prod), make_unique<RangeSet>(pmvalue.rs));
       }
       else {
-        principal_.put(pmvalue.bd, move(pp), move(pmvalue.prod), move(make_unique<RangeSet>()));
+        principal.put(pmvalue.bd, move(pp), move(pmvalue.prod), make_unique<RangeSet>());
       }
     };
     putProducts_.clear();
   }
 
   void
-  DataViewImpl::
-  commit()
+  DataViewImpl::removeNonViewableMatches_(TypeID const& requestedElementType,
+                                          GroupQueryResultVec& results) const
+  {
+    // To determine if the requested view is allowed, the matched
+    // 'results' (products) must be read.
+    auto not_convertible = [&requestedElementType](auto const& query_result) {
+      // Assns collections do not support views; we therefore do not
+      // need to worry about an exception throw when calling
+      // uniqueProduct.
+      auto group = query_result.result();
+      assert(group->productDescription().supportsView());
+      auto p = group->uniqueProduct();
+      return !detail::upcastAllowed(*p->typeInfo(), requestedElementType.typeInfo());
+    };
+    results.erase(std::remove_if(begin(results), end(results), not_convertible),
+                  end(results));
+  }
+
+  void
+  DataViewImpl::commit(Principal& principal)
   {
     for (auto& type_label_and_pmvalue : putProducts_) {
       auto& pmvalue = type_label_and_pmvalue.second;
       unique_ptr<ProductProvenance const> pp;
       pp = make_unique<ProductProvenance const>(pmvalue.bd.productID(), productstatus::present());
       if ((branchType_ == InRun) || (branchType_ == InSubRun)) {
-        principal_.put(pmvalue.bd, move(pp), move(pmvalue.prod), move(make_unique<RangeSet>(pmvalue.rs)));
+        principal.put(pmvalue.bd, move(pp), move(pmvalue.prod), make_unique<RangeSet>(pmvalue.rs));
       }
       else {
-        principal_.put(pmvalue.bd, move(pp), move(pmvalue.prod), move(make_unique<RangeSet>()));
+        principal.put(pmvalue.bd, move(pp), move(pmvalue.prod), make_unique<RangeSet>());
       }
     };
     putProducts_.clear();
   }
 
   void
-  DataViewImpl::
-  ensure_unique_product(size_t const nFound, TypeID const& typeID, string const& moduleLabel,
-                        string const& instance, string const& processName) const
+  DataViewImpl::ensureUniqueProduct_(std::size_t const  nFound,
+                                     TypeID      const& typeID,
+                                     std::string const& moduleLabel,
+                                     std::string const& productInstanceName,
+                                     std::string const& processName) const
   {
     if (nFound == 1) {
       return;
@@ -351,7 +367,7 @@ namespace art {
       << " matching all criteria\n"
       << "Looking for sequence of type: " << typeID << "\n"
       << "Looking for module label: " << moduleLabel << "\n"
-      << "Looking for productInstanceName: " << instance << "\n";
+      << "Looking for productInstanceName: " << productInstanceName << "\n";
     if (!processName.empty()) {
       e << "Looking for processName: " << processName << "\n";
     }

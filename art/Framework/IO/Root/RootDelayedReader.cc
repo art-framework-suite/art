@@ -84,6 +84,7 @@ readProvenance_() const
   return ppv;
 }
 
+// FIXME: The following function may need to go somewhere outside of RootDelayedReader.
 // For run and subrun products check to see if attempting
 // to read them will result in a combination with a valid
 // range set.  If not report to the caller that they can
@@ -118,8 +119,8 @@ isAvailableAfterCombine_(ProductID bid) const
           }
         }
       }
-      // Note: If this is a produced product then it might not be in any
-      // of the fragments, this is not an error.
+      // Note: If this is a produced product then it might not be in
+      // any of the fragments, this is not an error.
       if (prov != nullptr) {
         if (prov->productStatus() == productstatus::present()) {
           // We found a usable product in the set of fragments,

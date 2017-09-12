@@ -128,7 +128,7 @@ public: // MEMBER FUNCTIONS
   readIt(SubRunID const&);
 
   std::unique_ptr<SubRunPrincipal>
-  readSubRun_(cet::exempt_ptr<RunPrincipal>);
+  readSubRun_(cet::exempt_ptr<RunPrincipal const>);
 
   void
   readIt(EventID const&, bool exact = false);

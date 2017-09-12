@@ -3,144 +3,54 @@
 // vim: set sw=2 expandtab :
 
 #include "canvas/Persistency/Provenance/BranchDescription.h"
-#include "canvas/Persistency/Provenance/BranchKey.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
-#include "canvas/Persistency/Provenance/DictionaryChecker.h"
-#include "canvas/Persistency/Provenance/ProductID.h"
 #include "canvas/Persistency/Provenance/ProductList.h"
-#include "art/Persistency/Provenance/detail/type_aliases.h"
+#include "canvas/Persistency/Provenance/type_aliases.h"
 
-#include <cstddef>
 #include <array>
+#include <functional>
 #include <iosfwd>
-#include <limits>
 #include <memory>
 #include <string>
-#include <vector>
 
 namespace art {
 
-class MasterProductRegistry {
+  using ProductListUpdatedCallback = std::function<void(ProductList const&)>;
 
-public:
+  class MasterProductRegistry {
+  public:
 
-  static constexpr std::size_t DROPPED{std::numeric_limits<std::size_t>::max()};
+    explicit MasterProductRegistry() = default;
+    MasterProductRegistry(MasterProductRegistry const&) = delete;
 
-public:
+    void registerProductListUpdatedCallback(ProductListUpdatedCallback cb);
 
-  explicit MasterProductRegistry() = default;
+    void finalizeForProcessing();
+    void addProductsFromModule(ProductDescriptions&&);
+    void updateFromModule(std::unique_ptr<ProductList>&&);
+    void updateFromInputFile(ProductList const&);
 
-  MasterProductRegistry(MasterProductRegistry const&) = delete;
+    auto const& productList() const { return productList_; }
 
-  MasterProductRegistry&
-  operator=(MasterProductRegistry const&) = delete;
+    void print(std::ostream&) const;
 
-public:
+    bool productProduced(BranchType branchType) const { return productProduced_[branchType]; }
 
-  void
-  addProduct(std::unique_ptr<BranchDescription>&&);
+  private:
 
-  void
-  registerProductListUpdatedCallback(std::function<void()>);
+    void addProduct_(BranchDescription&&);
+    void updateProductLists_(ProductList const& pl);
 
-  void
-  finalizeForProcessing();
+    bool allowExplicitRegistration_{true};
 
-  void
-  updateFromPrimaryFile(std::map<BranchKey, BranchDescription> const&, std::array<std::unordered_set<ProductID, ProductID::Hash>, NumBranchTypes> const&);
+    // Data members initialized once per process:
+    ProductList productList_{};
+    std::array<bool, NumBranchTypes> productProduced_{{false}}; //filled by aggregation
+    std::vector<ProductListUpdatedCallback> productListUpdatedCallbacks_{};
+  };
 
-  void
-  updateFromSecondaryFile(std::map<BranchKey, BranchDescription> const&, std::array<std::unordered_set<ProductID, ProductID::Hash>, NumBranchTypes> const&);
-
-  auto const&
-  productList() const
-  {
-    return productList_;
-  }
-
-  std::size_t
-  size() const
-  {
-    return productList_.size();
-  }
-
-  // Obtain lookup map to find a group by type of product.
-  std::vector<std::array<std::map<std::string const, std::map<std::string const, std::vector<ProductID>>>, NumBranchTypes>> const&
-  productLookup() const
-  {
-    return productLookup_;
-  }
-
-  // Obtain lookup map to find a group by type of element in a product
-  // which is a collection.
-  std::vector<std::array<std::map<std::string const, std::map<std::string const, std::vector<ProductID>>>, NumBranchTypes>> const&
-  elementLookup() const
-  {
-    return elementLookup_;
-  }
-
-  void
-  print(std::ostream&) const;
-
-  bool
-  productProduced(BranchType branchType) const
-  {
-    return productProduced_[branchType];
-  }
-
-  bool
-  produced(BranchType, ProductID) const;
-
-  std::size_t
-  presentWithFileIdx(BranchType, ProductID) const;
-
-private:
-
-  void
-  setPresenceLookups_(std::map<BranchKey, BranchDescription> const& pl, PerBranchTypePresence const& presList);
-
-  void
-  updateProductLists_(std::map<BranchKey, BranchDescription> const& pl);
-
-  void
-  checkDicts_(BranchDescription const& productDesc);
-
-  bool
-  allowExplicitRegistration_{true};
-
-private:
-
-  std::map<BranchKey, BranchDescription>
-  productList_{};
-
-  std::array<bool, NumBranchTypes>
-  productProduced_{{false}};
-
-  std::vector<std::function<void()>>
-  productListUpdatedCallbacks_{};
-
-  DictionaryChecker
-  dictChecker_{};
-
-  std::vector<std::map<BranchKey, BranchDescription>>
-  perFileProds_{{}};
-
-  std::array<std::unordered_set<ProductID, ProductID::Hash>, NumBranchTypes>
-  perBranchPresenceLookup_{{}};
-
-  std::vector<std::array<std::unordered_set<ProductID, ProductID::Hash>, NumBranchTypes>>
-  perFilePresenceLookups_{};
-
-  std::vector<std::array<std::map<std::string const, std::map<std::string const, std::vector<ProductID>>>, NumBranchTypes>>
-  productLookup_;
-
-  std::vector<std::array<std::map<std::string const, std::map<std::string const, std::vector<ProductID>>>, NumBranchTypes>>
-  elementLookup_;
-
-};
-
-std::ostream&
-operator<<(std::ostream&, MasterProductRegistry const&);
+  std::ostream&
+  operator<<(std::ostream&, MasterProductRegistry const&);
 
 } // namespace art
 

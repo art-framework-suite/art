@@ -12,9 +12,6 @@
 #include "art/Framework/Principal/ResultsPrincipal.h"
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
-#include "art/Persistency/Provenance/MasterProductRegistry.h"
-#include "art/Persistency/Provenance/detail/type_aliases.h"
-#include "canvas/Persistency/Provenance/BranchChildren.h"
 #include "canvas/Persistency/Provenance/Compatibility/BranchIDList.h"
 #include "canvas/Persistency/Provenance/EventAuxiliary.h"
 #include "canvas/Persistency/Provenance/FileFormatVersion.h"
@@ -25,11 +22,13 @@
 #include "canvas/Persistency/Provenance/ProductProvenance.h"
 #include "canvas/Persistency/Provenance/ProductRegistry.h"
 #include "canvas/Persistency/Provenance/ProductStatus.h"
+#include "canvas/Persistency/Provenance/ProductTables.h"
 #include "canvas/Persistency/Provenance/ProvenanceFwd.h"
 #include "canvas/Persistency/Provenance/ResultsAuxiliary.h"
 #include "canvas/Persistency/Provenance/RunAuxiliary.h"
 #include "canvas/Persistency/Provenance/SubRunAuxiliary.h"
 #include "canvas/Persistency/Provenance/SubRunID.h"
+#include "canvas/Persistency/Provenance/type_aliases.h"
 #include "cetlib/exempt_ptr.h"
 #include "cetlib/sqlite/Connection.h"
 
@@ -58,6 +57,7 @@ mergeAuxiliary(SubRunAuxiliary& left, SubRunAuxiliary const& right);
 class DuplicateChecker;
 class EventRangeHandler;
 class GroupSelectorRules;
+  class MasterProductRegistry;
 
 class RootInputFile {
 
@@ -111,7 +111,7 @@ private: // TYPES
     branches() const;
 
     void
-    addBranch(BranchKey const&, BranchDescription const&, std::string const& branchName, bool const presentInSomeFile);
+    addBranch(BranchKey const&, BranchDescription const&);
 
     void
     dropBranch(std::string const& branchName);
@@ -133,12 +133,7 @@ private: // TYPES
     EntryNumber
     entries_{0};
 
-    std::vector<std::string>
-    branchNames_{};
-
-    std::unique_ptr<BranchMap>
-    branches_{std::make_unique<BranchMap>()};
-
+    BranchMap branches_{};
   };
 
 public: // TYPES
@@ -179,13 +174,13 @@ public: // MEMBER FUNCTIONS -- Special Member Functions
                 int forcedRunOffset,
                 bool noEventSort,
                 GroupSelectorRules const& groupSelectorRules,
-                bool dropMergeable,
                 std::shared_ptr<DuplicateChecker> duplicateChecker,
                 bool dropDescendantsOfDroppedProducts,
                 bool readIncomingParameterSets,
                 cet::exempt_ptr<RootInputFile> primaryFile,
                 std::vector<std::string> const& secondaryFileNames,
-                RootInputFileSequence* rifSequence);
+                RootInputFileSequence* rifSequence,
+                MasterProductRegistry& mpr);
 
 public: // MEMBER FUNCTIONS
 
@@ -202,7 +197,7 @@ public: // MEMBER FUNCTIONS
   readRun();
 
   std::unique_ptr<SubRunPrincipal>
-  readSubRun(cet::exempt_ptr<RunPrincipal>);
+  readSubRun(cet::exempt_ptr<RunPrincipal const>);
 
   std::unique_ptr<EventPrincipal>
   readEvent();
@@ -218,9 +213,6 @@ public: // MEMBER FUNCTIONS
 
   std::string const&
   fileName() const;
-
-  ProductList const&
-  productList() const;
 
   //RunAuxiliary&
   //runAux();
@@ -269,9 +261,6 @@ public: // MEMBER FUNCTIONS
 
   void
   advanceEntry(std::size_t n);
-
-  PerBranchTypePresence
-  perBranchTypePresence();
 
   unsigned
   eventsToSkip() const;
@@ -347,7 +336,7 @@ private: // MEMBER FUNCTIONS -- Implementation details
   void
   fillHistory(EntryNumber const entry, History&);
 
-  void
+  std::array<AvailableProducts_t, NumBranchTypes>
   fillPerBranchTypePresenceFlags(ProductList const&);
 
   void
@@ -378,7 +367,7 @@ private: // MEMBER FUNCTIONS -- Implementation details
   overrideRunNumber(EventID& id, bool isRealData);
 
   void
-  dropOnInput(GroupSelectorRules const& rules, bool dropDescendants, bool dropMergeable, ProductList& branchDescriptions);
+  dropOnInput(GroupSelectorRules const& rules, bool dropDescendants, ProductList& branchDescriptions);
 
   void
   readParentageTree(unsigned int treeCacheSize);
@@ -396,7 +385,7 @@ private: // MEMBER FUNCTIONS -- Implementation details
   readCurrentRun(EntryNumbers const&);
 
   std::unique_ptr<SubRunPrincipal>
-  readCurrentSubRun(EntryNumbers const&, cet::exempt_ptr<RunPrincipal>);
+  readCurrentSubRun(EntryNumbers const&, cet::exempt_ptr<RunPrincipal const>);
 
   std::unique_ptr<EventPrincipal>
   readCurrentEvent(std::pair<EntryNumbers, bool> const&);
@@ -494,20 +483,16 @@ private: // MEMBER DATA
   ResultsAuxiliary
   resultsAux_{};
 
-  std::unique_ptr<ProductRegistry>
-  productListHolder_{std::make_unique<ProductRegistry>()};
+  ProductRegistry productListHolder_{};
+
+  ProductTables
+  presentProducts_{ProductTables::invalid()};
 
   std::unique_ptr<BranchIDLists>
   branchIDLists_{};
 
-  PerBranchTypePresence
-  perBranchTypeProdPresence_{{}};
-
   TTree*
   eventHistoryTree_{nullptr};
-
-  std::unique_ptr<BranchChildren>
-  branchChildren_{std::make_unique<BranchChildren>()};
 
   std::vector<std::unique_ptr<RootInputFile>>
   secondaryFiles_{};

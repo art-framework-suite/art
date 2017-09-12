@@ -2,17 +2,20 @@
 #define art_Framework_Principal_Principal_h
 // vim: set sw=2 expandtab :
 
-//  Principal
+// =================================================================
+// Principal
 //
-//  Pure abstract base class for Run-, SubRun-, and EventPrincipal,
-//  the classes which manage data products.
+// Pure abstract base class for Run-, SubRun-, and EventPrincipal,
+// the classes which manage data products.
 //
-//  The major internal component is the Group, which contains an EDProduct
-//  and its associated Provenance, along with ancillary transient information
-//  regarding the two.  Groups are handled through shared pointers.
+// The major internal component is the Group, which contains an
+// EDProduct and its associated Provenance, along with ancillary
+// transient information regarding the two.  Groups are handled
+// through shared pointers.
 //
-//  The Principal returns GroupQueryResult, rather than a shared
-//  pointer to a Group, when queried.
+// The Principal returns GroupQueryResult, rather than a shared
+// pointer to a Group, when queried.
+// =================================================================
 
 #include "art/Framework/Principal/Group.h"
 #include "art/Framework/Principal/NoDelayedReader.h"
@@ -21,7 +24,6 @@
 #include "art/Framework/Principal/fwd.h"
 #include "art/Persistency/Common/DelayedReader.h"
 #include "art/Persistency/Common/GroupQueryResult.h"
-#include "art/Persistency/Provenance/detail/type_aliases.h"
 #include "canvas/Persistency/Common/PrincipalBase.h"
 #include "canvas/Persistency/Common/Wrapper.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
@@ -30,8 +32,10 @@
 #include "canvas/Persistency/Provenance/History.h"
 #include "canvas/Persistency/Provenance/ProcessHistory.h"
 #include "canvas/Persistency/Provenance/ProductID.h"
+#include "canvas/Persistency/Provenance/ProductList.h"
 #include "canvas/Persistency/Provenance/ProductProvenance.h"
 #include "canvas/Persistency/Provenance/ProductStatus.h"
+#include "canvas/Persistency/Provenance/ProductTables.h"
 #include "canvas/Persistency/Provenance/ProvenanceFwd.h"
 #include "canvas/Persistency/Provenance/RangeSet.h"
 #include "canvas/Persistency/Provenance/ResultsAuxiliary.h"
@@ -40,6 +44,7 @@
 #include "canvas/Persistency/Provenance/SubRunAuxiliary.h"
 #include "canvas/Utilities/InputTag.h"
 #include "canvas/Utilities/TypeID.h"
+#include "canvas/Utilities/WrappedTypeID.h"
 #include "cetlib/exempt_ptr.h"
 #include "cetlib/value_ptr.h"
 #include "tbb/concurrent_unordered_map.h"
@@ -54,11 +59,10 @@
 namespace art {
 
 class EDProduct;
-class EmptyEvent;
-class OutputModule;
+
+// FIXME!  RootDelayedReader should not have to be singled out for
+// Principal usage.
 class RootDelayedReader;
-class RootOutput;
-class SourceHelper;
 
 class Principal : public PrincipalBase {
 
@@ -70,42 +74,52 @@ public: // TYPES
   //using GroupCollection = std::map<ProductID, std::unique_ptr<Group>>;
   using GroupCollection = tbb::concurrent_unordered_map<ProductID, std::unique_ptr<Group>>;
   using const_iterator = GroupCollection::const_iterator;
+  using GroupQueryResultVec = std::vector<GroupQueryResult>;
 
 public: // MEMBER FUNCTIONS -- Special Member Functions
 
-  virtual
-  ~Principal() noexcept;
+  virtual ~Principal() noexcept;
 
-  Principal(BranchType, ProcessConfiguration const&, ProcessHistoryID const&,
+  Principal(BranchType,
+            ProcessConfiguration const&,
+            ProductList const&,
+            cet::exempt_ptr<ProductTable const> presentProducts,
+            ProcessHistoryID const&,
             std::unique_ptr<DelayedReader>&&);
 
   // Run
-  Principal(RunAuxiliary const&, ProcessConfiguration const&,
+  Principal(RunAuxiliary const&,
+            ProcessConfiguration const&,
+            ProductList const&,
+            cet::exempt_ptr<ProductTable const> presentProducts,
             std::unique_ptr<DelayedReader>&& reader = std::make_unique<NoDelayedReader>());
 
   // SubRun
-  Principal(SubRunAuxiliary const&, ProcessConfiguration const&,
+  Principal(SubRunAuxiliary const&,
+            ProcessConfiguration const&,
+            ProductList const&,
+            cet::exempt_ptr<ProductTable const> presentProducts,
             std::unique_ptr<DelayedReader>&& reader = std::make_unique<NoDelayedReader>());
 
   // Event
-  Principal(EventAuxiliary const&, ProcessConfiguration const&,
+  Principal(EventAuxiliary const&,
+            ProcessConfiguration const&,
+            ProductList const&,
+            cet::exempt_ptr<ProductTable const> presentProducts,
             std::unique_ptr<History>&& history = std::make_unique<History>(),
             std::unique_ptr<DelayedReader>&& reader = std::make_unique<NoDelayedReader>(),
             bool lastInSubRun = false);
 
   // Results
-  Principal(ResultsAuxiliary const&, ProcessConfiguration const&,
+  Principal(ResultsAuxiliary const&,
+            ProcessConfiguration const&,
+            ProductList const&,
+            cet::exempt_ptr<ProductTable const> presentProducts,
             std::unique_ptr<DelayedReader>&& reader = std::make_unique<NoDelayedReader>());
 
+  // Disable copying
   Principal(Principal const&) = delete;
-
-  Principal(Principal&&) = delete;
-
-  Principal&
-  operator=(Principal const&) = delete;
-
-  Principal&
-  operator=(Principal&&) = delete;
+  Principal& operator=(Principal const&) = delete;
 
 public: // MEMBER FUNCTIONS -- Interface for DataViewImpl<T>
 
@@ -113,22 +127,29 @@ public: // MEMBER FUNCTIONS -- Interface for DataViewImpl<T>
   // Used by Principal::productGetter(ProductID const pid) const
   //   Used by (Run,SubRun,Event,Results)::productGetter (advanced user-facing api)
   GroupQueryResult
-  getByProductID(ProductID const&) const;
+  getByProductID(ProductID const pid) const;
 
   GroupQueryResult
-  getBySelector(TypeID const&, SelectorBase const&) const;
+  getBySelector(WrappedTypeID const& wrapped,
+                SelectorBase const&) const;
 
   GroupQueryResult
-  getByLabel(TypeID const&, std::string const& label, std::string const& productInstanceName, std::string const& processName) const;
+  getByLabel(WrappedTypeID const& wrapped,
+             std::string const& label,
+             std::string const& productInstanceName,
+             std::string const& processName) const;
 
-  void
-  getMany(TypeID const&, SelectorBase const&, std::vector<GroupQueryResult>& results) const;
+  GroupQueryResultVec
+  getMany(WrappedTypeID const& wrapped,
+          SelectorBase const&) const;
 
   // Used only by DataViewImpl<T> to implement getView.
-  // Return a vector of GroupQueryResult to products which are sequences, have a nested type named 'value_type', and
-  // where elementType the same as, or a public base of, this value_type, and which match the given selector.
-  size_t
-  getMatchingSequence(TypeID const& elementType, SelectorBase const&, std::vector<GroupQueryResult>&) const;
+  // FIXME COMMENT: Return a vector of GroupQueryResult to products
+  // which are sequences, have a nested type named 'value_type', and
+  // where elementType the same as, or a public base of, this
+  // value_type, and which match the given selector.
+  GroupQueryResultVec
+  getMatchingSequence(SelectorBase const&) const;
 
   // Note: Used only by DataViewImpl::ProductGetter!
   // Note: LArSoft uses this extensively to create a Ptr by hand.
@@ -142,7 +163,7 @@ public: // MEMBER FUNCTIONS -- Interface for DataViewImpl<T>
   // large data product, makes a copy, and would like to release
   // the memory held by the original immediately.
   void
-  removeCachedProduct(ProductID const&) const;
+  removeCachedProduct(ProductID const) const;
 
 public: // MEMBER FUNCTIONS -- Interface for other parts of art
 
@@ -159,6 +180,19 @@ public: // MEMBER FUNCTIONS -- Interface for other parts of art
   // Used only by RootInputFile::Read(Run,SubRun,Event)ForSecondaryFile
   void
   addSecondaryPrincipal(std::unique_ptr<Principal>&&);
+
+  void
+  setProducedProducts(ProductDescriptions const& descriptions,
+                      ProductTables const& producedProducts)
+  {
+    for (auto const& pd : descriptions) {
+      if (pd.branchType() != branchType_) {
+        continue;
+      }
+      fillGroup(pd);
+    }
+    producedProducts_ = cet::make_exempt_ptr(&producedProducts.get(branchType_));
+  }
 
   // Used only by RootInputFile to implement the delayedRead*Products config options.
   // Read all data products and provenance immediately, if available.
@@ -185,15 +219,15 @@ public: // MEMBER FUNCTIONS -- Interface for other parts of art
   const_iterator
   begin() const;
 
-  //const_iterator
-  //cbegin() const;
+  const_iterator
+  cbegin() const;
 
   // Note: Used only by OutputModule::updateBranchChildren and some dumper/checker output modules.
   const_iterator
   end() const;
 
-  //const_iterator
-  //cend() const;
+  const_iterator
+  cend() const;
 
   // Used by (Run, SubRun, Event)Principal
   // Used by RootOutput_module (for ResultsPrincipal, and drop on output)
@@ -273,23 +307,23 @@ public: // MEMBER FUNCTIONS -- Used to be in subclasses
   void
   updateSeenRanges(RangeSet const& rs);
 
-  RunPrincipal&
+  RunPrincipal const&
   runPrincipal() const;
 
-  SubRunPrincipal&
+  SubRunPrincipal const&
   subRunPrincipal() const;
 
-  cet::exempt_ptr<RunPrincipal>
+  cet::exempt_ptr<RunPrincipal const>
   runPrincipalExemptPtr() const;
 
-  cet::exempt_ptr<SubRunPrincipal>
+  cet::exempt_ptr<SubRunPrincipal const>
   subRunPrincipalExemptPtr() const;
 
   void
-  setRunPrincipal(cet::exempt_ptr<RunPrincipal> rp);
+  setRunPrincipal(cet::exempt_ptr<RunPrincipal const> rp);
 
   void
-  setSubRunPrincipal(cet::exempt_ptr<SubRunPrincipal> srp);
+  setSubRunPrincipal(cet::exempt_ptr<SubRunPrincipal const> srp);
 
   EventAuxiliary::ExperimentType
   ExperimentType() const;
@@ -310,7 +344,7 @@ private: // MEMBER FUNCTIONS
 
   // Used by our ctors.
   void
-  ctor_create_groups();
+  ctor_create_groups(ProductList const&);
 
   // Used by our ctors.
   void
@@ -328,17 +362,48 @@ private: // MEMBER FUNCTIONS
   // Used by insert_pp.
   // Used by branchToProductProvenance.
   // Used by put.
-  cet::exempt_ptr<Group> const
+  cet::exempt_ptr<Group>
   getGroupLocal(ProductID const) const;
 
   // Used by RootDelayedReader to insert the data product provenance.
   void
   insert_pp(std::unique_ptr<ProductProvenance const>&&);
 
-  // Implementation of the DataViewImpl<T> API.
+  // BEGIN MERGED API
+  GroupQueryResultVec
+  matchingSequenceFromInputFile(SelectorBase const&) const;
+
   size_t
-  findGroupsForProduct(bool const byElementType, TypeID const& wanted_product, SelectorBase const&,
-                       std::vector<GroupQueryResult>&, bool stopIfProcessHasMatch) const;
+  findGroupsFromInputFile(WrappedTypeID const& wrapped,
+                          SelectorBase const&,
+                          GroupQueryResultVec& results,
+                          bool stopIfProcessHasMatch) const;
+
+  size_t
+  findGroups(ProcessLookup const&,
+             SelectorBase const&,
+             GroupQueryResultVec& results,
+             bool stopIfProcessHasMatch,
+             TypeID wanted_wrapper = TypeID{}) const;
+
+  size_t
+  findGroupsForProcess(std::vector<ProductID> const& vpid,
+                       SelectorBase const& selector,
+                       GroupQueryResultVec& results,
+                       TypeID wanted_wrapper) const;
+
+  bool
+  presentFromSource(ProductID) const;
+  // END MERGED API
+
+  int
+  tryNextSecondaryFile() const;
+
+  // Implementation of the DataViewImpl<T> API.
+  GroupQueryResultVec
+  findGroupsForProduct(WrappedTypeID const& wrapped,
+                       SelectorBase const&,
+                       bool stopIfProcessHasMatch) const;
 
   // Note: Used only by canvas RefCoreStreamer.cc through PrincipalBase::getEDProductGetter!
   virtual
@@ -353,8 +418,8 @@ private: // MEMBER FUNCTIONS
   //   Used by RootOutputFile to fetch products being written to disk.
   //   Used by FileDumperOutput_module.
   //   Used by ProvenanceCheckerOutput_module.
-  cet::exempt_ptr<Group const> const
-  getGroupTryAllFiles(ProductID const&) const;
+  cet::exempt_ptr<Group const>
+  getGroupTryAllFiles(ProductID const) const;
 
 protected: // MEMBER DATA -- For used by derived types
 
@@ -371,8 +436,7 @@ protected: // MEMBER DATA -- For used by derived types
 
 private: // MEMBER DATA -- Mine, all mine!
 
-  std::shared_ptr<ProcessHistory>
-  processHistoryPtr_{std::make_shared<ProcessHistory>()};
+  ProcessHistory processHistory_{};
 
   mutable
   std::atomic<bool>
@@ -380,6 +444,10 @@ private: // MEMBER DATA -- Mine, all mine!
 
   ProcessConfiguration const&
   processConfiguration_;
+
+  // Product-lookuyp tables
+  cet::exempt_ptr<ProductTable const> presentProducts_;
+  cet::exempt_ptr<ProductTable const> producedProducts_{nullptr};
 
   tbb::concurrent_unordered_map<ProductID, std::unique_ptr<Group>>
   groups_{};
@@ -389,10 +457,9 @@ private: // MEMBER DATA -- Mine, all mine!
   std::unique_ptr<DelayedReader>
   delayedReader_{nullptr};
 
-  // Secondary principals.  Note that the lifetime of run
-  // and subRun principals is the lifetime of the input file,
-  // while the lifetime of event principals ends at the next
-  // event read.
+  // Secondary principals.  Note that the lifetimes of Results, Run,
+  // and SubRun principals do not exceed the lifetime of the input
+  // file.
   std::vector<std::unique_ptr<Principal>>
   secondaryPrincipals_{};
 
@@ -417,14 +484,14 @@ private: // MEMBER DATA -- Mine, all mine!
   ResultsAuxiliary
   resultsAux_{};
 
-  cet::exempt_ptr<RunPrincipal>
+  cet::exempt_ptr<RunPrincipal const>
   runPrincipal_{nullptr};
 
-  cet::exempt_ptr<SubRunPrincipal>
+  cet::exempt_ptr<SubRunPrincipal const>
   subRunPrincipal_{nullptr};
 
   std::unique_ptr<History>
-  history_{};
+  history_{nullptr};
 
   bool lastInSubRun_{false};
 

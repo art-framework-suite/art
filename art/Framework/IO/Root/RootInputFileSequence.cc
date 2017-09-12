@@ -11,7 +11,6 @@
 #include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
-#include "art/Persistency/Provenance/MasterProductRegistry.h"
 #include "cetlib/container_algorithms.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
@@ -389,7 +388,8 @@ namespace art {
         << " was not found or could not be opened, and will be skipped.\n";
       return;
     }
-    detail::logFileAction("Opened input file ", catalog_.currentFile().fileName());
+    detail::logFileAction("Opened input file ",
+                          catalog_.currentFile().fileName());
     vector<string> empty_vs;
     rootFile_ = make_shared<RootInputFile>(catalog_.currentFile().fileName(),
                                            catalog_.url(),
@@ -409,33 +409,19 @@ namespace art {
                                            forcedRunOffset_,
                                            noEventSort_,
                                            groupSelectorRules_,
-                                           false,
                                            duplicateChecker_,
                                            dropDescendants_,
                                            readParameterSets_,
                                            /*primaryFile*/exempt_ptr<RootInputFile>{nullptr},
                                            secondaryFileNames_.empty() ? empty_vs : secondaryFileNames_.at(catalog_.currentIndex()),
-                                           this);
+                                           this,
+                                           mpr_);
+
     assert(catalog_.currentIndex() != InputFileCatalog::indexEnd);
     if (catalog_.currentIndex() + 1 > fileIndexes_.size()) {
       fileIndexes_.resize(catalog_.currentIndex() + 1);
     }
     fileIndexes_[catalog_.currentIndex()] = rootFile_->fileIndexSharedPtr();
-    mpr_.updateFromPrimaryFile(rootFile_->productList(), rootFile_->perBranchTypePresence());
-    // Create branches to read the products from the input file.
-    for (auto const& prod : rootFile_->productList()) {
-      auto const& input_bd = prod.second;
-      auto const& mpr_list = mpr_.productList();
-      auto bd_it = mpr_list.find(art::BranchKey{input_bd});
-      if (bd_it == mpr_list.end()) {
-        throw art::Exception(errors::LogicError, "RootInputFileSequence::initFile()" )
-          << "Unable to find product listed in input file in MasterProductRegistry.\n"
-          << "Please report this to artists@fnal.gov";
-      }
-      auto const& pd = bd_it->second;
-      bool const present {mpr_.presentWithFileIdx(pd.branchType(), pd.productID()) != MasterProductRegistry::DROPPED};
-      rootFile_->treePointers()[pd.branchType()]->addBranch(prod.first, pd, pd.branchName(), present);
-    }
   }
 
   std::unique_ptr<RootInputFile>
@@ -459,49 +445,34 @@ namespace art {
         << "RootInputFileSequence::openSecondaryFile(): Input file "
         << name
         << " was not found or could not be opened.\n";
-    }
+  }
     detail::logFileAction("Opened secondary input file ", name);
-    vector<string> empty_vs;
-    auto rif = std::make_unique<RootInputFile>(name,
-                                               /*url*/"",
-                                               processConfiguration(),
-                                               /*logicalFileName*/"",
-                                               std::move(filePtr),
-                                               origEventID_,
-                                               eventsToSkip_,
-                                               fastCloningInfo_,
-                                               treeCacheSize_,
-                                               treeMaxVirtualSize_,
-                                               saveMemoryObjectThreshold_,
-                                               delayedReadEventProducts_,
-                                               delayedReadSubRunProducts_,
-                                               delayedReadRunProducts_,
-                                               processingMode_,
-                                               forcedRunOffset_,
-                                               noEventSort_,
-                                               groupSelectorRules_,
-                                               /*dropMergeable*/false,
-                                               /*duplicateChecker_*/nullptr,
-                                               dropDescendants_,
-                                               readParameterSets_,
-                                               /*primaryFile*/primaryFile,
-                                               /*secondaryFileNames*/empty_vs,
-                                               /*rifSequence*/this);
-    mpr_.updateFromSecondaryFile(rif->productList(), rif->perBranchTypePresence());
-    for (auto const& prod : rif->productList()) {
-      auto const& input_bd = prod.second;
-      auto const& mpr_list = mpr_.productList();
-      auto bd_it = mpr_list.find(art::BranchKey(input_bd));
-      if (bd_it == mpr_list.end()) {
-        throw art::Exception(errors::LogicError, "RootInputFileSequence::openSecondaryFile()")
-          << "Unable to find product listed in input file in MasterProductRegistry.\n"
-          << "Please report this to artists@fnal.gov";
-      }
-      auto& pd = bd_it->second;
-      bool const present = mpr_.presentWithFileIdx(pd.branchType(), pd.productID()) != MasterProductRegistry::DROPPED;
-      rif->treePointers()[pd.branchType()]->addBranch(prod.first, pd, pd.branchName(), present );
-    }
-    return std::move(rif);
+    vector<string> empty_secondary_filenames;
+    return std::make_unique<RootInputFile>(name,
+                                           /*url*/"",
+                                           processConfiguration(),
+                                           /*logicalFileName*/"",
+                                           std::move(filePtr),
+                                           origEventID_,
+                                           eventsToSkip_,
+                                           fastCloningInfo_,
+                                           treeCacheSize_,
+                                           treeMaxVirtualSize_,
+                                           saveMemoryObjectThreshold_,
+                                           delayedReadEventProducts_,
+                                           delayedReadSubRunProducts_,
+                                           delayedReadRunProducts_,
+                                           processingMode_,
+                                           forcedRunOffset_,
+                                           noEventSort_,
+                                           groupSelectorRules_,
+                                           /*duplicateChecker_*/nullptr,
+                                           dropDescendants_,
+                                           readParameterSets_,
+                                           primaryFile,
+                                           empty_secondary_filenames,
+                                           this,
+                                           mpr_);
   }
 
   bool
@@ -649,7 +620,7 @@ namespace art {
 
   std::unique_ptr<SubRunPrincipal>
   RootInputFileSequence::
-  readSubRun_(cet::exempt_ptr<RunPrincipal> rp)
+  readSubRun_(cet::exempt_ptr<RunPrincipal const> rp)
   {
     return rootFile_->readSubRun(rp);
   }

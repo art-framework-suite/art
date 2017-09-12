@@ -12,41 +12,41 @@
 // 3.
 art::BranchDescription const&
 art::get_ProductDescription(TypeID const tid,
-                           BranchType const branch_type,
-                           std::string const& module_label,
-                           std::string const& instance_name)
+                            BranchType const branch_type,
+                            std::string const& module_label,
+                            std::string const& instance_name)
 {
   return get_ProductDescription(tid,
-                               ServiceHandle<TriggerNamesService const>{}->getProcessName(),
-                               ProductMetaData::instance().productList(),
-                               branch_type,
-                               module_label,
-                               instance_name); // 5.
+                                ServiceHandle<TriggerNamesService const>{}->getProcessName(),
+                                ProductMetaData::instance().productList(),
+                                branch_type,
+                                module_label,
+                                instance_name); // 5.
 }
 
 // 4.
 art::BranchDescription const&
 art::get_ProductDescription(TypeID const type_id,
-                           Principal const& principal,
-                           std::string const& module_label,
-                           std::string const& instance_name)
+                            Principal const& principal,
+                            std::string const& module_label,
+                            std::string const& instance_name)
 {
   return get_ProductDescription(type_id,
-                               principal.processConfiguration().processName(),
-                               ProductMetaData::instance().productList(),
-                               principal.branchType(),
-                               module_label,
-                               instance_name); // 5.
+                                principal.processConfiguration().processName(),
+                                ProductMetaData::instance().productList(),
+                                principal.branchType(),
+                                module_label,
+                                instance_name); // 5.
 }
 
 // 5.
 art::BranchDescription const&
 art::get_ProductDescription(TypeID const type_id,
-                           std::string const& process_name,
-                           ProductList const& product_list,
-                           BranchType const branch_type,
-                           std::string const& module_label,
-                           std::string const& instance_name)
+                            std::string const& process_name,
+                            ProductList const& product_list,
+                            BranchType const branch_type,
+                            std::string const& module_label,
+                            std::string const& instance_name)
 {
   BranchKey const bk {type_id.friendlyClassName(),
       module_label,
@@ -56,12 +56,12 @@ art::get_ProductDescription(TypeID const type_id,
   auto const it = product_list.find(bk);
   if (it == product_list.end()) {
     throw art::Exception{art::errors::ProductRegistrationFailure, "art::get_ProductDescription"}
-      << "No product is registered for\n"
-      << "  process name:                '" << bk.processName_ << "'\n"
-      << "  module label:                '" << bk.moduleLabel_ << "'\n"
-      << "  product friendly class name: '" << bk.friendlyClassName_ << "'\n"
-      << "  product instance name:       '" << bk.productInstanceName_ << "'\n"
-      << "  branch type:                 '" << branch_type << "'\n";
+    << "No product is registered for\n"
+         << "  process name:                '" << bk.processName_ << "'\n"
+         << "  module label:                '" << bk.moduleLabel_ << "'\n"
+         << "  product friendly class name: '" << bk.friendlyClassName_ << "'\n"
+         << "  product instance name:       '" << bk.productInstanceName_ << "'\n"
+         << "  branch type:                 '" << branch_type << "'\n";
   }
   return it->second;
 }

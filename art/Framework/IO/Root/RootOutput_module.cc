@@ -25,6 +25,7 @@
 #include "art/Utilities/parent_path.h"
 #include "art/Utilities/unique_filename.h"
 #include "canvas/Persistency/Provenance/FileFormatVersion.h"
+#include "canvas/Persistency/Provenance/ProductTables.h"
 #include "canvas/Utilities/Exception.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/types/ConfigurationTable.h"
@@ -105,8 +106,7 @@ public:
 
   ~RootOutput();
 
-  explicit
-  RootOutput(Parameters const&);
+  explicit RootOutput(Parameters const&);
 
   RootOutput(RootOutput const&) = delete;
 
@@ -171,7 +171,10 @@ private:
 
   void writeProductDependencies() override;
   void finishEndFile() override;
-  void doRegisterProducts(MasterProductRegistry& mpr, ModuleDescription const& md) override;
+
+  void doRegisterProducts(MasterProductRegistry& mpr,
+                          ProductDescriptions& productsToProduce,
+                          ModuleDescription const& md) override;
 
 private:
 
@@ -197,7 +200,7 @@ private:
 
   // We keep this for the use of RootOutputFile and we also use it
   // during file open to make some choices.
-  bool fastCloningEnabled_ {true};
+  bool fastCloningEnabled_{true};
 
   // Set false only for cases where we are guaranteed never to need
   // historical ParameterSet information in the downstream file
@@ -206,6 +209,8 @@ private:
   ClosingCriteria fileProperties_;
 
   // ResultsProducer management.
+  ProductDescriptions productsToProduce_{};
+  ProductTables producedResultsProducts_{ProductTables::invalid()};
   RPManager rpm_;
 
 };
@@ -308,8 +313,7 @@ RootOutput::
 readResults(ResultsPrincipal& resp)
 {
   rpm_.for_each_RPWorker([&resp](RPWorker& w) {
-    Results const res{resp, w.moduleDescription()};
-    w.rp().doReadResults(res);
+    w.rp().doReadResults(resp);
   });
 }
 
@@ -366,44 +370,30 @@ setRunAuxiliaryRangeSetID(RangeSet const& rs)
 
 void
 RootOutput::
-writeRun(RunPrincipal& r)
+writeRun(RunPrincipal& rp)
 {
   if (hasNewlyDroppedBranch()[InRun]) {
-    r.addToProcessHistory();
+    rp.addToProcessHistory();
   }
-  rootOutputFile_->writeRun(r);
-  fstats_.recordRun(r.runID());
+  rootOutputFile_->writeRun(rp);
+  fstats_.recordRun(rp.runID());
 }
 
 void
-RootOutput::
-startEndFile()
+art::RootOutput::startEndFile()
 {
-  auto resp = make_unique<ResultsPrincipal>(ResultsAuxiliary{}, moduleDescription().processConfiguration());
-  // Add in groups for produced products so that we do not need deferred product getters anymore.
-  //{
-  //  auto const& pmd = ProductMetaData::instance();
-  //  for (auto const& val : pmd.productList()) {
-  //    auto const& bd = val.second;
-  //    if ((bd.branchType() == InResults) && bd.produced()) {
-  //      cout
-  //          << "-----> RootOutput::startEndFile: Creating group for produced product: "
-  //          << "pid: "
-  //          << bd.productID()
-  //          << " branchName: "
-  //          << bd.branchName()
-  //          << endl;
-  //      resp->Principal::fillGroup(resp.get(), bd, RangeSet::invalid());
-  //    }
-  //  }
-  //}
-  if (ProductMetaData::instance().productProduced(InResults) || hasNewlyDroppedBranch()[InResults]) {
+  auto resp = std::make_unique<ResultsPrincipal>(ResultsAuxiliary{},
+                                                 moduleDescription().processConfiguration(),
+                                                 ProductList{},
+                                                 nullptr);
+  resp->setProducedProducts(productsToProduce_, producedResultsProducts_);
+  if (ProductMetaData::instance().productProduced(InResults) ||
+      hasNewlyDroppedBranch()[InResults]) {
     resp->addToProcessHistory();
   }
   rpm_.for_each_RPWorker([&resp](RPWorker& w) {
-    Results res{*resp, w.moduleDescription()};
-    w.rp().doWriteResults(*resp, res);
-  });
+      w.rp().doWriteResults(*resp);
+    });
   rootOutputFile_->writeResults(*resp);
 }
 
@@ -493,10 +483,12 @@ RootOutput::finishEndFile()
 
 void
 RootOutput::
-doRegisterProducts(MasterProductRegistry& mpr, ModuleDescription const& md)
+doRegisterProducts(MasterProductRegistry& mpr,
+                   ProductDescriptions& producedProducts,
+                   ModuleDescription const& md)
 {
   // Register Results products from ResultsProducers.
-  rpm_.for_each_RPWorker([&mpr, &md](RPWorker& w) {
+  rpm_.for_each_RPWorker([&mpr, &producedProducts, &md](RPWorker& w) {
     auto const& params = w.params();
     w.setModuleDescription(ModuleDescription{params.rpPSetID,
                            params.rpPluginType,
@@ -504,8 +496,14 @@ doRegisterProducts(MasterProductRegistry& mpr, ModuleDescription const& md)
                            static_cast<int>(ModuleThreadingType::LEGACY),
                            md.processConfiguration(),
                            ModuleDescription::invalidID()});
-    w.rp().registerProducts(mpr, w.moduleDescription());
+    w.rp().registerProducts(mpr, producedProducts, w.moduleDescription());
   });
+
+  // Form product table for Results products.  We do this here so we
+  // can appropriately set the product tables for the
+  // ResultsPrincipal.
+  productsToProduce_ = producedProducts;
+  producedResultsProducts_ = ProductTables{productsToProduce_};
 }
 
 void
@@ -599,42 +597,34 @@ endJob()
 }
 
 void
-RootOutput::
-event(EventPrincipal& ep)
+RootOutput::event(EventPrincipal& ep)
 {
   rpm_.for_each_RPWorker([&ep](RPWorker& w) {
-    Event const e{ep, w.moduleDescription()};
-    w.rp().doEvent(e);
+    w.rp().doEvent(ep);
   });
 }
 
 void
-RootOutput::
-beginSubRun(SubRunPrincipal& srp)
+RootOutput::beginSubRun(SubRunPrincipal& srp)
 {
   rpm_.for_each_RPWorker([&srp](RPWorker& w) {
-    SubRun const sr{srp, w.moduleDescription()};
-    w.rp().doBeginSubRun(sr);
+    w.rp().doBeginSubRun(srp);
   });
 }
 
 void
-RootOutput::
-endSubRun(SubRunPrincipal& srp)
+RootOutput::endSubRun(SubRunPrincipal& srp)
 {
   rpm_.for_each_RPWorker([&srp](RPWorker& w) {
-    SubRun const sr{srp, w.moduleDescription()};
-    w.rp().doEndSubRun(sr);
+    w.rp().doEndSubRun(srp);
   });
 }
 
 void
-RootOutput::
-beginRun(RunPrincipal& rp)
+RootOutput::beginRun(RunPrincipal& rp)
 {
   rpm_.for_each_RPWorker([&rp](RPWorker& w) {
-    Run const r{rp, w.moduleDescription()};
-    w.rp().doBeginRun(r);
+    w.rp().doBeginRun(rp);
   });
 }
 
@@ -643,8 +633,7 @@ RootOutput::
 endRun(RunPrincipal& rp)
 {
   rpm_.for_each_RPWorker([&rp](RPWorker& w) {
-    Run const r{rp, w.moduleDescription()};
-    w.rp().doEndRun(r);
+    w.rp().doEndRun(rp);
   });
 }
 

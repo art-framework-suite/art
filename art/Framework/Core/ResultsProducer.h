@@ -18,13 +18,13 @@
 //
 //  * Subclasses *must* define:
 //
-//    Constructor(fhicl::ParameterSet const &);
+//    Constructor(fhicl::ParameterSet const&);
 //
 //      Declare data products to be put into the Results (via
 //      art::Results::put() in writeResults() below) using produces<>(),
 //      in a similar fashion to producers and filters.
 //
-//    void writeResults(art::Results &);
+//    void writeResults(art::Results&);
 //
 //      Called immediately prior to output file closure. Users should
 //      put() their declared products into the Results object. Using
@@ -88,105 +88,97 @@
 
 namespace art {
 
-class ResultsPrincipal;
+  class EventPrincipal;
+  class ResultsPrincipal;
+  class RunPrincipal;
+  class SubRunPrincipal;
 
-class Event;
-class Results;
-class Run;
-class SubRun;
+  class Event;
+  class Results;
+  class Run;
+  class SubRun;
 
-class ResultsProducer : public ModuleBase, private ProductRegistryHelper {
+  class ResultsProducer : public ModuleBase, private ProductRegistryHelper {
 
-public: // MEMBER FUNCTIONS -- Special Member Functions
+  public: // MEMBER FUNCTIONS -- Special Member Functions
 
-  virtual
-  ~ResultsProducer();
+    virtual ~ResultsProducer() noexcept = default;
 
-  ResultsProducer();
+  protected:
 
-protected:
+    template <class P>
+    void
+    produces(std::string const& instanceName = {});
 
-  template <class P>
-  void
-  produces(std::string const& instanceName = {});
+  public:
 
-public:
+    void doBeginJob();
+    void doEndJob();
 
-  void
-  registerProducts(MasterProductRegistry& mpr, ModuleDescription const& md);
+    void doBeginRun(RunPrincipal const&);
+    void doEndRun(RunPrincipal const&);
 
-public:
+    void doBeginSubRun(SubRunPrincipal const&);
+    void doEndSubRun(SubRunPrincipal const&);
 
-  void doBeginJob();
-  void doEndJob();
+    void doEvent(EventPrincipal const&);
 
-  void doBeginRun(Run const&);
-  void doEndRun(Run const&);
+    void doReadResults(ResultsPrincipal const&);
+    void doWriteResults(ResultsPrincipal&);
+    void doClear();
 
-  void doBeginSubRun(SubRun const&);
-  void doEndSubRun(SubRun const&);
+    void registerProducts(MasterProductRegistry& mpr,
+                          ProductDescriptions& producedProducts,
+                          ModuleDescription const& md);
 
-  void doEvent(Event const&);
+  private: // MEMBER FUNCTIONS -- API to be provided by derived classes
 
-public:
+    virtual void readResults(Results const&);
+    virtual void writeResults(Results&) = 0;
 
-  void doReadResults(Results const&);
-  void doWriteResults(ResultsPrincipal&, Results&);
+    virtual void clear() = 0;
 
-  void doClear();
+    virtual void beginJob();
+    virtual void endJob();
 
-private: // MEMBER FUNCTIONS -- API to be provided by derived classes
+    virtual void beginRun(Run const&);
+    virtual void endRun(Run const&);
 
-  virtual void beginJob();
-  virtual void endJob();
+    virtual void beginSubRun(SubRun const&);
+    virtual void endSubRun(SubRun const&);
 
-  virtual void beginRun(Run const&);
-  virtual void endRun(Run const&);
+    virtual void event(Event const&);
 
-  virtual void beginSubRun(SubRun const&);
-  virtual void endSubRun(SubRun const&);
+  };
 
-  virtual void event(Event const&);
-
-private: // MEMBER FUNCTIONS -- API to be provided by derived classes
-
-  virtual void readResults(Results const&);
-  virtual void writeResults(Results&) = 0;
-
-  virtual void clear() = 0;
-
-};
+} // namespace art
 
 template<class P>
 inline
 void
-ResultsProducer::
+art::ResultsProducer::
 produces(std::string const& instanceName)
 {
   ProductRegistryHelper::produces<P, InResults>(instanceName);
 }
 
-} // namespace art
-
 namespace cet {
-
-template <>
-struct PluginTypeDeducer<art::ResultsProducer> {
-  static std::string const value;
-};
-
+  template <>
+  struct PluginTypeDeducer<art::ResultsProducer> {
+    static std::string const value;
+  };
 } // namespace cet
 
-#define DEFINE_ART_RESULTS_PLUGIN(klass) \
-  extern "C" { \
-    CET_PROVIDE_FILE_PATH() \
-    FHICL_PROVIDE_ALLOWED_CONFIGURATION(klass) \
-    DEFINE_BASIC_PLUGINTYPE_FUNC(art::ResultsProducer) \
-    std::unique_ptr<art::RPWorker> \
+#define DEFINE_ART_RESULTS_PLUGIN(klass)                                \
+  extern "C" {                                                          \
+    CET_PROVIDE_FILE_PATH()                                             \
+    FHICL_PROVIDE_ALLOWED_CONFIGURATION(klass)                          \
+    DEFINE_BASIC_PLUGINTYPE_FUNC(art::ResultsProducer)                  \
+    std::unique_ptr<art::RPWorker>                                      \
     makeRP(art::RPParams const& rpParams, fhicl::ParameterSet const& ps) \
-    { \
-      return std::make_unique<art::RPWorkerT<klass>>(rpParams, ps); \
-    } \
+    {                                                                   \
+      return std::make_unique<art::RPWorkerT<klass>>(rpParams, ps);     \
+    }                                                                   \
   }
 
 #endif /* art_Framework_Core_ResultsProducer_h */

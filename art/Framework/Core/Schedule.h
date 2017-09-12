@@ -2,6 +2,8 @@
 #define art_Framework_Core_Schedule_h
 // vim: set sw=2 expandtab :
 
+// ======================================================================
+// Schedule
 //
 //  A schedule is a sequence of trigger paths. After construction, events
 //  can be fed to the object and passed through all the modules in the
@@ -11,15 +13,15 @@
 //  The trigger results producer is generated and managed here. This
 //  class also manages calls to endjob and beginjob.
 //
-//  A TriggerResults object will always be inserted into the event for
-//  any schedule. The producer of the TriggerResults EDProduct is always
-//  the last module in the trigger path. The TriggerResultInserter is
-//  given a fixed label of "TriggerResults".
+// A TriggerResults object will always be inserted into the event for
+// any schedule. The producer of the TriggerResults EDProduct is always
+// the last module in the trigger path. The TriggerResultInserter is
+// given a fixed label of "TriggerResults".
 //
-//  Processing of an event happens by pushing the event through the
-//  Paths. The scheduler performs the reset() on each of the workers
-//  independent of the Path objects.
-//
+// Processing of an event happens by pushing the event through the
+// Paths. The scheduler performs the reset() on each of the workers
+// independent of the Path objects.
+// ======================================================================
 
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/Path.h"
@@ -31,8 +33,8 @@
 #include "art/Framework/Principal/fwd.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/ServiceRegistry.h"
-#include "art/Persistency/Provenance/MasterProductRegistry.h"
 #include "art/Utilities/Transition.h"
+#include "art/Utilities/ScheduleID.h"
 #include "canvas/Persistency/Common/HLTGlobalStatus.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
 #include "canvas/Persistency/Provenance/ProvenanceFwd.h"
@@ -54,6 +56,7 @@
 namespace art {
 
 class ActivityRegistry;
+class MasterProductRegistry;
 class TriggerNamesService;
 class Schedule;
 
@@ -61,8 +64,14 @@ class Schedule {
 
 public:
 
-  Schedule(int stream, PathManager&, std::string const& processName, fhicl::ParameterSet const& proc_pset, MasterProductRegistry&,
-           ActionTable&, ActivityRegistry&);
+  Schedule(int stream,
+           PathManager&,
+           std::string const& processName,
+           fhicl::ParameterSet const& proc_pset,
+           MasterProductRegistry&,
+           ProductDescriptions&,
+           ActionTable&,
+           ActivityRegistry&);
 
   void
   process(Transition, Principal&);
@@ -120,7 +129,6 @@ private:
   results_inserter_{};
 
 };
-
 } // namespace art
 
 // Local Variables:

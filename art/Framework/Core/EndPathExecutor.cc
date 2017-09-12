@@ -15,7 +15,6 @@
 #include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Framework/Principal/Worker.h"
 #include "art/Persistency/Provenance/MasterProductRegistry.h"
-#include "art/Persistency/Provenance/ProductMetaData.h"
 #include "art/Utilities/Globals.h"
 #include "art/Utilities/OutputFileInfo.h"
 #include "art/Utilities/Transition.h"
@@ -63,7 +62,7 @@ EndPathExecutor(PathManager& pm, ActionTable& actionTable, ActivityRegistry& are
     }
   }
   outputWorkersToOpen_.insert(outputWorkers_.cbegin(), outputWorkers_.cend());
-  mpr.registerProductListUpdatedCallback([this]() { this->selectProducts(); });
+  mpr.registerProductListUpdatedCallback([this](auto const& productList) { this->selectProducts(productList); });
 }
 
 //
@@ -114,10 +113,10 @@ endJob()
 
 void
 EndPathExecutor::
-selectProducts()
+selectProducts(ProductList const& productList)
 {
   for (auto ow : outputWorkers_) {
-    ow->selectProducts();
+    ow->selectProducts(productList);
   }
 }
 
@@ -799,4 +798,3 @@ allAtLimit() const
 }
 
 } // namespace art
-

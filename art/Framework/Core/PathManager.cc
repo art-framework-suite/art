@@ -11,8 +11,6 @@
 #include "art/Framework/Principal/Worker.h"
 #include "art/Framework/Principal/WorkerParams.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
-//#include "art/Framework/Services/Registry/ServiceHandle.h"
-//#include "art/Framework/Services/System/TriggerNamesService.h"
 #include "art/Persistency/Provenance/MasterProductRegistry.h"
 #include "art/Utilities/CPCSentry.h"
 #include "art/Utilities/Globals.h"
@@ -70,27 +68,18 @@ PathManager::
 }
 
 PathManager::
-PathManager(ParameterSet const& procPS, MasterProductRegistry& mpr, ActionTable& exceptActions, ActivityRegistry& actReg)
-  : mpr_(mpr)
-  , exceptActions_(exceptActions)
-  , actReg_(actReg)
+PathManager(ParameterSet const& procPS,
+            MasterProductRegistry& mpr,
+            ProductDescriptions& productsToProduce,
+            ActionTable& exceptActions,
+            ActivityRegistry& actReg)
+  : mpr_{mpr}
+  , exceptActions_{exceptActions}
+  , actReg_{actReg}
   , lm_{Suffixes::module()}
-  , procPS_(procPS)
-  , triggerPathNames_()
-  , workerSet_{}
-  , triggerPathsInfo_()
-  , endPathInfo_()
-  , triggerResultsInserter_()
-  //  The following data members are only needed
-  //  to delay the creation of modules until after
-  //  the service system has started.  We can move
-  //  them back to the ctor once that is fixed.
-  , processName_(procPS.get<std::string>("process_name"s, ""s))
-  , allModules_{}
-  , trigger_paths_config_{}
-  , end_paths_config_{}
-  , protoTrigPathMap_{}
-  , protoEndPathInfo_{}
+  , procPS_{procPS}
+  , productsToProduce_{productsToProduce}
+  , processName_{procPS.get<std::string>("process_name"s, ""s)}
 {
   // FIXME: Option processing already defaults this to 1.
   // FIXME: Option processing already checks to make sure
@@ -491,7 +480,7 @@ createModulesAndWorkers()
           ModuleDescription const
           md{modPS.id(), module_type, module_label, static_cast<int>(module_threading_type),
              ProcessConfiguration{processName_, procPS_.id(), getReleaseVersion()}};
-          WorkerParams const wp{procPS_, modPS, mpr_, exceptActions_, actReg_, processName_, module_threading_type, si};
+          WorkerParams const wp{procPS_, modPS, mpr_, productsToProduce_, actReg_, exceptActions_, processName_, module_threading_type, si};
           if (module == nullptr) {
             detail::ModuleMaker_t* module_factory_func = nullptr;
             try {
@@ -607,7 +596,7 @@ createModulesAndWorkers()
             //path name == string
             val.first,
             //vector<WorkerInPath>
-            move(wips), 
+            move(wips),
             //HLTGlobalStatus*
             &pinfo.pathResults()
           }
@@ -687,13 +676,12 @@ triggerResultsInserter(int si) const
 {
   return triggerResultsInserter_.at(si).get();
 }
-  
+
 void
 PathManager::
 setTriggerResultsInserter(int si, std::unique_ptr<WorkerT<EDProducer>>&& w)
 {
   triggerResultsInserter_.at(si) = move(w);
 }
-  
-} // namespace art
 
+} // namespace art

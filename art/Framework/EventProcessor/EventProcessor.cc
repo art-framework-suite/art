@@ -145,7 +145,7 @@ EventProcessor(ParameterSet const& pset)
   , mfStatusUpdater_{actReg_}
   , mpr_{}
   , servicesManager_{initServices_(pset, actReg_)}
-  , pathManager_{pset, mpr_, act_table_, actReg_}
+  , pathManager_{pset, mpr_, productsToProduce_, act_table_, actReg_}
   , input_{}
   , schedule_{}
   , endPathExecutor_{}
@@ -199,12 +199,14 @@ EventProcessor(ParameterSet const& pset)
   pathManager_.createModulesAndWorkers();
   endPathExecutor_ = make_unique<EndPathExecutor>(pathManager_, act_table_, actReg_, mpr_);
   for (auto I = 0; I < streams; ++I) {
-    schedule_.emplace_back(I, pathManager_, processName, pset, mpr_, act_table_, actReg_);
+    schedule_.emplace_back(I, pathManager_, processName, pset, mpr_, productsToProduce_, act_table_, actReg_);
   }
   FDEBUG(2) << pset.to_string() << endl;
   mpr_.finalizeForProcessing();
   // Allow read-only access to the mpr now.
   ProductMetaData::create_instance(mpr_);
+
+  producedProducts_ = ProductTables{productsToProduce_};
 }
 
 ServicesManager*
@@ -871,6 +873,7 @@ processAllEventsAsync_readAndProcess_after_possible_output_switch(int si)
         actReg_.sPreSourceEvent.invoke();
         TDEBUG(5) << "-----> EventProcessor::processAllEventsAsync_readAndProcess_after_possible_output_switch (" << si << ") ... Calling input_->readEvent(subRunPrincipal_.get())\n";
         eventPrincipal_[si] = input_->readEvent(subRunPrincipal_.get());
+        eventPrincipal_[si]->setProducedProducts(productsToProduce_, producedProducts_);
         Event const e{*eventPrincipal_[si], ModuleDescription{}};
         actReg_.sPostSourceEvent.invoke(e);
       }
@@ -1374,7 +1377,7 @@ EventProcessor::openInputFile()
 {
   actReg_.sPreOpenFile.invoke();
   FDEBUG(1) << spaces(8) << "openInputFile\n";
-  fb_ = input_->readFile(mpr_);
+  fb_ = input_->readFile();
   if (!fb_) {
     throw Exception(errors::LogicError)
         << "Source readFile() did not return a valid FileBlock: FileBlock "
@@ -1503,6 +1506,7 @@ EventProcessor::readRun()
   {
     actReg_.sPreSourceRun.invoke();
     runPrincipal_ = input_->readRun();
+    runPrincipal_->setProducedProducts(productsToProduce_, producedProducts_);
     Run const r {*runPrincipal_, ModuleDescription{}};
     actReg_.sPostSourceRun.invoke(r);
   }
@@ -1624,6 +1628,7 @@ EventProcessor::readSubRun()
   {
     actReg_.sPreSourceSubRun.invoke();
     subRunPrincipal_ = input_->readSubRun(runPrincipal_.get());
+    subRunPrincipal_->setProducedProducts(productsToProduce_, producedProducts_);
     SubRun const sr {*subRunPrincipal_, ModuleDescription{}};
     actReg_.sPostSourceSubRun.invoke(sr);
   }
@@ -1729,7 +1734,6 @@ EventProcessor::writeSubRun()
   assert(!sr.isFlush());
   endPathExecutor_->writeSubRun(*subRunPrincipal_);
   FDEBUG(1) << spaces(8) << "writeSubRun.................(" << sr << ")\n";
-  ///cout << "-----> EventProcessor::writeSubRun() ... end" << endl;
 }
 
 void
@@ -1743,4 +1747,3 @@ try
 catch (...)
 {
 }
-

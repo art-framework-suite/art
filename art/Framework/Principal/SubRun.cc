@@ -13,7 +13,7 @@ SubRun::
 }
 
 SubRun::
-SubRun(SubRunPrincipal& srp, ModuleDescription const& md, RangeSet const& rs /* = RangeSet::invalid() */)
+SubRun(SubRunPrincipal const& srp, ModuleDescription const& md, RangeSet const& rs /* = RangeSet::invalid() */)
   : DataViewImpl{InSubRun, srp, md, false, rs}
   , run_{srp.runPrincipalExemptPtr() ? new Run{srp.runPrincipal(), md} : nullptr}
 {
@@ -38,4 +38,3 @@ getRun() const
 }
 
 } // namespace art
-

@@ -43,6 +43,7 @@ basic_plugin(MemoryTracker "service"
   art_Framework_Principal
   art_Persistency_Provenance canvas
   cetlib
+  sqlite3
   SOURCE ${MemoryTrackerSource}
   )
 
@@ -60,6 +61,7 @@ simple_plugin(TimeTracker "service"
   cetlib
   ${TBB}
   ${RT}
+  sqlite3
   )
 
 simple_plugin(Tracer "service" art_Framework_Principal art_Persistency_Provenance canvas)

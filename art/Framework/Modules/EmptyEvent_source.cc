@@ -12,7 +12,6 @@
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRun.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
-#include "art/Persistency/Provenance/ProductMetaData.h"
 #include "canvas/Persistency/Provenance/EventAuxiliary.h"
 #include "canvas/Persistency/Provenance/EventID.h"
 #include "canvas/Persistency/Provenance/RunAuxiliary.h"
@@ -66,19 +65,13 @@ public: // CONFIGURATION
 
 public: // MEMBER FUNCTIONS -- Special Member Functions
 
-  ~EmptyEvent();
-
   EmptyEvent(Parameters const& config, InputSourceDescription& desc);
 
   EmptyEvent(EmptyEvent const&) = delete;
-
   EmptyEvent(EmptyEvent&&) = delete;
 
-  EmptyEvent&
-  operator=(EmptyEvent const&) = delete;
-
-  EmptyEvent&
-  operator=(EmptyEvent&&) = delete;
+  EmptyEvent& operator=(EmptyEvent const&) = delete;
+  EmptyEvent& operator=(EmptyEvent&&) = delete;
 
 public: // MEMBER FUNCTIONS
 
@@ -205,7 +198,7 @@ private: // MEMBER FUNCTIONS -- DecrepitRelicInputSourceImplementation required 
   readRun_() override;
 
   unique_ptr<SubRunPrincipal>
-  readSubRun_(cet::exempt_ptr<RunPrincipal>) override;
+  readSubRun_(cet::exempt_ptr<RunPrincipal const>) override;
 
   unique_ptr<EventPrincipal>
   readEvent_() override;
@@ -238,6 +231,9 @@ private: // MEMBER FUNCTIONS -- DecrepitRelicInputSourceImplementation interface
   void
   rewind_() override;
 
+  std::unique_ptr<EmptyEventTimestampPlugin>
+  makePlugin_(fhicl::ParameterSet const& pset);
+
 private: // MEMBER DATA
 
   unsigned const numberEventsInRun_;
@@ -255,49 +251,19 @@ private: // MEMBER DATA
   bool const resetEventOnSubRun_;
   EventAuxiliary::ExperimentType eType_{EventAuxiliary::Any};
   cet::BasicPluginFactory pluginFactory_{};
-  unique_ptr<EmptyEventTimestampPlugin> plugin_{nullptr};
-
+  unique_ptr<EmptyEventTimestampPlugin> plugin_;
 };
 
+} // namespace art
 
-EmptyEvent::
-~EmptyEvent()
-{
-}
-
-EmptyEvent::
-EmptyEvent(EmptyEvent::Parameters const& config, InputSourceDescription& desc)
-  : DecrepitRelicInputSourceImplementation{config().drisi_config, desc}
+art::EmptyEvent::EmptyEvent(Parameters const& config, InputSourceDescription& desc)
+  : DecrepitRelicInputSourceImplementation{config().drisi_config, desc.moduleDescription}
   , numberEventsInRun_{static_cast<uint32_t>(config().numberEventsInRun())}
   , numberEventsInSubRun_{static_cast<uint32_t>(config().numberEventsInSubRun())}
   , eventCreationDelay_{config().eventCreationDelay()}
   , resetEventOnSubRun_{config().resetEventOnSubRun()}
+  , plugin_{makePlugin_(config.get_PSet().get<fhicl::ParameterSet>("timestampPlugin", {}))}
 {
-  //makePlugin_(fhicl::ParameterSet const& pset)
-  {
-    try {
-      auto const& pset = config.get_PSet().get<fhicl::ParameterSet>("timestampPlugin", {});
-      if (!pset.is_empty()) {
-        auto const libspec = pset.get<string>("plugin_type");
-        auto const pluginType = pluginFactory_.pluginType(libspec);
-        if (pluginType == cet::PluginTypeDeducer<EmptyEventTimestampPlugin>::value) {
-          plugin_ = pluginFactory_.makePlugin<unique_ptr<EmptyEventTimestampPlugin>>(libspec, pset);
-        }
-        else {
-          throw Exception(errors::Configuration, "EmptyEvent: ")
-              << "unrecognized plugin type "
-              << pluginType
-              << "for plugin "
-              << libspec
-              << ".\n";
-        }
-      }
-    }
-    catch (cet::exception& e) {
-      throw Exception(errors::Configuration, "EmptyEvent: ", e)
-          << "Exception caught while processing plugin spec.\n";
-    }
-  }
   RunNumber_t firstRun{};
   bool haveFirstRun = config().firstRun(firstRun);
   SubRunNumber_t firstSubRun{};
@@ -312,9 +278,8 @@ EmptyEvent(EmptyEvent::Parameters const& config, InputSourceDescription& desc)
   eventID_ = origEventID_;
 }
 
-input::ItemType
-EmptyEvent::
-getNextItemType()
+art::input::ItemType
+art::EmptyEvent::getNextItemType()
 {
   // First check for sanity because skip(offset) can be abused and so can the ctor.
   if (!eventID_.runID().isValid()) {
@@ -390,32 +355,17 @@ getNextItemType()
   return input::IsEvent;
 }
 
-unique_ptr<RunPrincipal>
-EmptyEvent::
-readRun_()
+unique_ptr<art::RunPrincipal>
+art::EmptyEvent::readRun_()
 {
   unique_ptr<RunPrincipal> result;
   auto ts = plugin_ ?  plugin_->doBeginRunTimestamp(eventID_.runID()) : Timestamp::invalidTimestamp();
   RunAuxiliary const runAux{eventID_.runID(), ts, Timestamp::invalidTimestamp()};
-  result = make_unique<RunPrincipal>(runAux, processConfiguration());
+  result = make_unique<RunPrincipal>(runAux,
+                                     processConfiguration(),
+                                     ProductList{},
+                                     nullptr);
   assert(result.get() != nullptr);
-  // Add in groups for produced products so that we do not need deferred product getters anymore.
-  //{
-  //  auto const& pmd = ProductMetaData::instance();
-  //  for (auto const& val : pmd.productList()) {
-  //    auto const& bd = val.second;
-  //    if ((bd.branchType() == InRun) && bd.produced()) {
-  //      //cout
-  //      //    << "-----> EmptyEvent::readRun_: Creating group for produced product: "
-  //      //    << "pid: "
-  //      //    << bd.productID()
-  //      //    << " branchName: "
-  //      //    << bd.branchName()
-  //      //    << endl;
-  //      result->Principal::fillGroup(result.get(), bd, RangeSet::invalid());
-  //    }
-  //  }
-  //}
   if (plugin_) {
     Run const r{*result, moduleDescription()};
     plugin_->doBeginRun(r);
@@ -423,9 +373,8 @@ readRun_()
   return result;
 }
 
-unique_ptr<SubRunPrincipal>
-EmptyEvent::
-readSubRun_(cet::exempt_ptr<RunPrincipal> rp)
+unique_ptr<art::SubRunPrincipal>
+art::EmptyEvent::readSubRun_(cet::exempt_ptr<RunPrincipal const> rp)
 {
   unique_ptr<SubRunPrincipal> result;
   if (processingMode() == Runs) {
@@ -433,26 +382,12 @@ readSubRun_(cet::exempt_ptr<RunPrincipal> rp)
   }
   auto ts = plugin_ ?  plugin_->doBeginSubRunTimestamp(eventID_.subRunID()) : Timestamp::invalidTimestamp();
   SubRunAuxiliary const subRunAux{eventID_.subRunID(), ts, Timestamp::invalidTimestamp()};
-  result = make_unique<SubRunPrincipal>(subRunAux, processConfiguration());
+  result = make_unique<SubRunPrincipal>(subRunAux,
+                                        processConfiguration(),
+                                        ProductList{},
+                                        nullptr);
   assert(result.get() != nullptr);
   result->setRunPrincipal(rp);
-  // Add in groups for produced products so that we do not need deferred product getters anymore.
-  //{
-  //  auto const& pmd = ProductMetaData::instance();
-  //  for (auto const& val : pmd.productList()) {
-  //    auto const& bd = val.second;
-  //    if ((bd.branchType() == InSubRun) && bd.produced()) {
-  //      //cout
-  //      //    << "-----> EmptyEvent::readSubRun_: Creating group for produced product: "
-  //      //    << "pid: "
-  //      //    << bd.productID()
-  //      //    << " branchName: "
-  //      //    << bd.branchName()
-  //      //    << endl;
-  //      result->Principal::fillGroup(result.get(), bd, RangeSet::invalid());
-  //    }
-  //  }
-  //}
   if (plugin_) {
     SubRun const sr{*result, moduleDescription()};
     plugin_->doBeginSubRun(sr);
@@ -460,9 +395,8 @@ readSubRun_(cet::exempt_ptr<RunPrincipal> rp)
   return result;
 }
 
-unique_ptr<EventPrincipal>
-EmptyEvent::
-readEvent_()
+unique_ptr<art::EventPrincipal>
+art::EmptyEvent::readEvent_()
 {
   unique_ptr<EventPrincipal> result;
   if (processingMode() != RunsSubRunsAndEvents) {
@@ -470,47 +404,31 @@ readEvent_()
   }
   auto timestamp = plugin_ ?  plugin_->doEventTimestamp(eventID_) : Timestamp::invalidTimestamp();
   EventAuxiliary const eventAux{eventID_, timestamp, eType_};
-  result = make_unique<EventPrincipal>(eventAux, processConfiguration(), make_unique<History>(),
-                                       //make_unique<BranchMapper>(),
-                                       make_unique<NoDelayedReader>(), numberEventsInThisSubRun_ == numberEventsInSubRun_);
+  result = make_unique<EventPrincipal>(eventAux,
+                                       processConfiguration(),
+                                       ProductList{},
+                                       nullptr,
+                                       make_unique<History>(),
+                                       make_unique<NoDelayedReader>(),
+                                       numberEventsInThisSubRun_ == numberEventsInSubRun_);
   assert(result.get() != nullptr);
-  // Add in groups for produced products so that we do not need deferred product getters anymore.
-  //{
-  //  auto const& pmd = ProductMetaData::instance();
-  //  for (auto const& val : pmd.productList()) {
-  //    auto const& bd = val.second;
-  //    if ((bd.branchType() == InEvent) && bd.produced()) {
-  //      //cout
-  //      //    << "-----> EmptyEvent::readEvent_: Creating group for produced product: "
-  //      //    << "pid: "
-  //      //    << bd.productID()
-  //      //    << " branchName: "
-  //      //    << bd.branchName()
-  //      //    << endl;
-  //      result->Principal::fillGroup(result.get(), bd, RangeSet::invalid());
-  //    }
-  //  }
-  //}
   return result;
 }
 
-unique_ptr<RangeSetHandler>
-EmptyEvent::
-runRangeSetHandler()
+unique_ptr<art::RangeSetHandler>
+art::EmptyEvent::runRangeSetHandler()
 {
   return make_unique<OpenRangeSetHandler>(eventID_.run());
 }
 
-unique_ptr<RangeSetHandler>
-EmptyEvent::
-subRunRangeSetHandler()
+unique_ptr<art::RangeSetHandler>
+art::EmptyEvent::subRunRangeSetHandler()
 {
   return make_unique<OpenRangeSetHandler>(eventID_.run());
 }
 
 void
-EmptyEvent::
-beginJob()
+art::EmptyEvent::beginJob()
 {
   if (plugin_) {
     plugin_->doBeginJob();
@@ -518,17 +436,40 @@ beginJob()
 }
 
 void
-EmptyEvent::
-endJob()
+art::EmptyEvent::endJob()
 {
   if (plugin_) {
     plugin_->doEndJob();
   }
 }
 
-void
-EmptyEvent::
-skip(int offset)
+std::unique_ptr<art::EmptyEventTimestampPlugin>
+art::EmptyEvent::makePlugin_(fhicl::ParameterSet const& pset)
+{
+  std::unique_ptr<EmptyEventTimestampPlugin> result;
+  try {
+    if (!pset.is_empty()) {
+      auto const libspec = pset.get<std::string>("plugin_type");
+      auto const pluginType = pluginFactory_.pluginType(libspec);
+      if (pluginType == cet::PluginTypeDeducer<EmptyEventTimestampPlugin>::value) {
+        result = pluginFactory_.makePlugin<decltype(result)>(libspec, pset);
+      } else {
+        throw Exception(errors::Configuration, "EmptyEvent: ")
+          << "unrecognized plugin type "
+          << pluginType
+          << "for plugin "
+          << libspec
+          << ".\n";
+      }
+    }
+  } catch (cet::exception& e) {
+    throw Exception(errors::Configuration, "EmptyEvent: ", e)
+      << "Exception caught while processing plugin spec.\n";
+  }
+  return result;
+}
+
+void art::EmptyEvent::skip(int offset)
 {
   for (; offset < 0; ++offset) {
     eventID_ = eventID_.previous();
@@ -539,8 +480,7 @@ skip(int offset)
 }
 
 void
-EmptyEvent::
-rewind_()
+art::EmptyEvent::rewind_()
 {
   if (plugin_) {
     plugin_->doRewind();
@@ -553,7 +493,5 @@ rewind_()
   numberEventsInThisSubRun_ = 0;
   eventID_ = origEventID_;
 }
-
-} // namespace art
 
 DEFINE_ART_INPUT_SOURCE(art::EmptyEvent)

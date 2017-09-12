@@ -23,8 +23,6 @@
 
 namespace art {
 
-  class MasterProductRegistry;
-
   class RootInput final : public DecrepitRelicInputSourceImplementation {
 
   public: // CONFIGURATION
@@ -143,7 +141,7 @@ namespace art {
 
     virtual
     std::unique_ptr<FileBlock>
-    readFile(MasterProductRegistry&) override;
+    readFile() override;
 
     // Not Implemented
     //virtual
@@ -156,11 +154,11 @@ namespace art {
 
     virtual
     std::unique_ptr<SubRunPrincipal>
-    readSubRun(cet::exempt_ptr<RunPrincipal>) override;
+    readSubRun(cet::exempt_ptr<RunPrincipal const>) override;
 
     virtual
     std::unique_ptr<EventPrincipal>
-    readEvent(cet::exempt_ptr<SubRunPrincipal>) override;
+    readEvent(cet::exempt_ptr<SubRunPrincipal const>) override;
 
     virtual
     std::unique_ptr<RangeSetHandler>
@@ -211,7 +209,7 @@ namespace art {
 
     virtual
     std::unique_ptr<SubRunPrincipal>
-    readSubRun_(cet::exempt_ptr<RunPrincipal>) override;
+    readSubRun_(cet::exempt_ptr<RunPrincipal const>) override;
 
     virtual
     std::unique_ptr<EventPrincipal>
@@ -234,7 +232,7 @@ namespace art {
   private: // MEMBER FUNCTIONS
 
     std::unique_ptr<EventPrincipal>
-    readEvent_(cet::exempt_ptr<SubRunPrincipal>);
+    readEvent_(cet::exempt_ptr<SubRunPrincipal const>);
 
   private:
 
@@ -251,7 +249,6 @@ namespace art {
     InputFileCatalog catalog_;
     std::unique_ptr<RootInputFileSequence> primaryFileSequence_;
     AccessState accessState_{};
-    MasterProductRegistry& mpr_;
 
   };
 

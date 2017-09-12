@@ -12,7 +12,6 @@
 #include "art/Framework/Principal/DataViewImpl.h"
 #include "art/Framework/Principal/fwd.h"
 #include "canvas/Persistency/Common/Wrapper.h"
-#include "canvas/Persistency/Provenance/ProductToken.h"
 #include "canvas/Persistency/Provenance/RunAuxiliary.h"
 #include "canvas/Persistency/Provenance/RunID.h"
 #include "canvas/Utilities/TypeID.h"
@@ -30,7 +29,7 @@ public: // MEMBER FUNCTIONS -- Special Member Functions
   ~Run();
 
   explicit
-  Run(RunPrincipal&, ModuleDescription const&, RangeSet const& rs = RangeSet::invalid());
+  Run(RunPrincipal const&, ModuleDescription const&, RangeSet const& rs = RangeSet::invalid());
 
   Run(Run const&) = delete;
 

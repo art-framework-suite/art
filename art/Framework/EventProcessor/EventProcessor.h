@@ -25,6 +25,7 @@
 #include "art/Utilities/UnixSignalHandlers.h"
 #include "canvas/Persistency/Provenance/IDNumber.h"
 #include "canvas/Persistency/Provenance/ReleaseVersion.h"
+#include "canvas/Persistency/Provenance/ProductTables.h"
 #include "cetlib/cpu_timer.h"
 #include "cetlib/exception.h"
 #include "cetlib/trim.h"
@@ -48,10 +49,11 @@ class EventProcessor {
 
 public: // TYPES
 
-  enum Status {
-      epSuccess = 0 // successful completion
-    , epSignal = 3 // signal received
-  };
+  // Status codes:
+  //   0     successful completion
+  //   3     signal received
+  //  values are for historical reasons.
+  enum Status {epSuccess=0, epSignal=3};
 
   using StatusCode = Status;
 
@@ -290,6 +292,9 @@ private: // MEMBER DATA
   MasterProductRegistry
   mpr_{};
 
+  ProductDescriptions
+  productsToProduce_{};
+
   // The service subsystem.
   std::unique_ptr<ServicesManager>
   servicesManager_{};
@@ -326,6 +331,9 @@ private: // MEMBER DATA
   // Note: threading: This will need to be a vector when we implement streams.
   std::vector<std::unique_ptr<EventPrincipal>>
   eventPrincipal_{};
+
+  ProductTables
+  producedProducts_{ProductTables::invalid()};
 
   bool const
   handleEmptyRuns_;

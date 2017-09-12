@@ -16,7 +16,6 @@
 //
 // Era / Version   Comments
 //
-//    -       11   As forked from CMS.
 // ART_2011a   1   Initial ART-only format
 // ART_2011a   2   No FileID in ROOT file.
 // ART_2011a   3   Bunch crossing, orbit number and store number removed
@@ -35,10 +34,11 @@
 //                 deprecated).
 // ART_2011a  10   Remove persistence of BranchIDListRegistry.
 //                 ProductID schema change to storing checksum.
+// ART_2011a  11   BranchDescription gains supportView_ data member.
 //
 ////////////////////////////////////////////////////////////////////////
 
 namespace art
 {
-  int getFileFormatVersion() { return 10; }
+  int getFileFormatVersion() { return 11; }
 }

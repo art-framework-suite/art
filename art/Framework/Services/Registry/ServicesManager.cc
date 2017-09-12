@@ -157,10 +157,12 @@ ServicesManager(ParameterSet&& servicesPSet, ActivityRegistry& actReg)
     // we save the typeid of the implementation because we're about to
     // give away the helper.
     TypeID service_typeid{service_helper->get_typeid()};
+
     // Need temporary because we can't guarantee the order of evaluation
     // of the arguments to make_pair() below.
     TypeID const sType{service_helper->get_typeid()};
     auto svc = factory_.emplace(sType, detail::ServiceCacheEntry(ps, move(service_helper)));
+
     if (iface_helper) {
       // Need temporary because we can't guarantee the order of evaluation
       // of the arguments to make_pair() below.
@@ -177,7 +179,7 @@ getParameterSets(std::vector<fhicl::ParameterSet>& out) const
 {
   std::vector<fhicl::ParameterSet> tmp;
   for (auto const& typeID_and_ServiceCacheEntry : factory_) {
-    auto const& sce = typeID_and_ServiceCacheEntry.second;  
+    auto const& sce = typeID_and_ServiceCacheEntry.second;
     tmp.push_back(sce.getParameterSet());
   }
   tmp.swap(out);
@@ -190,11 +192,10 @@ forceCreation()
   for (auto const& typeID : requestedCreationOrder_) {
     auto I = factory_.find(typeID);
     if (I != factory_.end()) {
-      auto const& sce = I->second;  
+      auto const& sce = I->second;
       sce.forceCreation(actReg_);
     }
   }
 }
 
 } // namespace art
-

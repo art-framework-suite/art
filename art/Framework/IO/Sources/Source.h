@@ -93,10 +93,10 @@
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Framework/Principal/OpenRangeSetHandler.h"
-#include "art/Persistency/Provenance/MasterProductRegistry.h"
 #include "canvas/Persistency/Provenance/EventID.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
 #include "canvas/Persistency/Provenance/ProcessConfiguration.h"
+#include "canvas/Persistency/Provenance/ProductTables.h"
 #include "canvas/Persistency/Provenance/SubRunID.h"
 #include "cetlib/exempt_ptr.h"
 #include "cetlib/metaprogramming.h"
@@ -172,7 +172,7 @@ namespace art {
     nextItemType() override;
 
     std::unique_ptr<FileBlock>
-    readFile(MasterProductRegistry& mpr) override;
+    readFile() override;
 
     void
     closeFile() override;
@@ -183,10 +183,10 @@ namespace art {
     readRun() override;
 
     std::unique_ptr<SubRunPrincipal>
-    readSubRun(cet::exempt_ptr<RunPrincipal> rp) override;
+    readSubRun(cet::exempt_ptr<RunPrincipal const> rp) override;
 
     std::unique_ptr<EventPrincipal>
-    readEvent(cet::exempt_ptr<SubRunPrincipal> srp) override;
+    readEvent(cet::exempt_ptr<SubRunPrincipal const> srp) override;
 
     std::unique_ptr<RangeSetHandler>
     runRangeSetHandler() override;
@@ -233,11 +233,14 @@ namespace art {
 
   private: // MEMBER DATA
 
-    cet::exempt_ptr<ActivityRegistry>
-    act_;
-
     ProductRegistryHelper
     h_{};
+
+    ProductList
+    productList_{};
+
+    ProductTables
+    presentProducts_{ProductTables::invalid()};
 
     // So it can be used by detail.
     SourceHelper
@@ -299,7 +302,6 @@ namespace art {
   Source<T>::
   Source(fhicl::ParameterSet const& p, InputSourceDescription& d)
     : InputSource{d.moduleDescription}
-    , act_{&d.activityRegistry}
     , sourceHelper_{d.moduleDescription}
     , detail_{p, h_, sourceHelper_}
     , fh_{p.get<std::vector<std::string>>("fileNames", std::vector<std::string>())}
@@ -315,10 +317,6 @@ namespace art {
     if (maxEvents_par > -1) {
       remainingEvents_ = maxEvents_par;
       haveEventLimit_ = true;
-    }
-    // Verify we got a real ActivityRegistry.
-    if (!act_) {
-      throw Exception(errors::LogicError) << "no ActivityRegistry\n";
     }
     // Finish product registration.
     finishProductRegistration_(d);
@@ -644,7 +642,7 @@ namespace art {
   template <class T>
   std::unique_ptr<FileBlock>
   Source<T>::
-  readFile(MasterProductRegistry&)
+  readFile()
   {
     FileBlock* newF {nullptr};
     detail_.readFile(currentFileName_, newF);
@@ -684,7 +682,7 @@ namespace art {
   template <class T>
   std::unique_ptr<SubRunPrincipal>
   Source<T>::
-  readSubRun(cet::exempt_ptr<RunPrincipal>)
+  readSubRun(cet::exempt_ptr<RunPrincipal const>)
   {
     if (!newSRP_)
       throw Exception(errors::LogicError)
@@ -704,7 +702,7 @@ namespace art {
   template <class T>
   std::unique_ptr<EventPrincipal>
   Source<T>::
-  readEvent(cet::exempt_ptr<SubRunPrincipal>)
+  readEvent(cet::exempt_ptr<SubRunPrincipal const>)
   {
     if (haveEventLimit_) {
       --remainingEvents_;
@@ -714,18 +712,27 @@ namespace art {
 
   template <class T>
   void
-  Source<T>::
-  finishProductRegistration_(InputSourceDescription& d)
+  Source<T>::finishProductRegistration_(InputSourceDescription& d)
   {
     // These _xERROR_ strings should never appear in branch names; they
     // are here as tracers to help identify any failures in coding.
+    ProductDescriptions descriptions;
     h_.registerProducts(d.productRegistry,
+                        descriptions,
                         ModuleDescription{fhicl::ParameterSet{}.id(), // Dummy
                                           "_NAMEERROR_",
                                           "_LABELERROR_",
                                           1,
                                           d.moduleDescription.processConfiguration(),
                                           ModuleDescription::invalidID()});
+    presentProducts_ = ProductTables{descriptions};
+
+    for (auto const& pd : descriptions) {
+      productList_.emplace(BranchKey{pd}, pd);
+    }
+
+    sourceHelper_.setPresentProducts(cet::make_exempt_ptr(&productList_),
+                                     cet::make_exempt_ptr(&presentProducts_));
   }
 
 } // namespace art

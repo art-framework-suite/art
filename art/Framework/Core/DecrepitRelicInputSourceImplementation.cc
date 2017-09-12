@@ -76,8 +76,8 @@ namespace art {
 
   DecrepitRelicInputSourceImplementation::
   DecrepitRelicInputSourceImplementation(fhicl::TableFragment<DecrepitRelicInputSourceImplementation::Config> const& config,
-                                         InputSourceDescription& desc)
-    : InputSource{desc.moduleDescription}
+                                         ModuleDescription const& desc)
+    : InputSource{desc}
     , maxEvents_{config().maxEvents()}
     , maxSubRuns_{config().maxSubRuns()}
     , reportFrequency_{config().reportFrequency()}
@@ -88,8 +88,10 @@ namespace art {
       throw art::Exception(art::errors::Configuration)
         << "reportFrequency has a negative value, which is not meaningful.";
     }
-    string const processingMode = config().processingMode();
-    if (processingMode == "Runs") {
+    std::string const runMode{"Runs"};
+    std::string const runSubRunMode{"RunsAndSubRuns"};
+    std::string const processingMode = config().processingMode();
+    if (processingMode == runMode) {
       processingMode_ = Runs;
     }
     else if (processingMode == "RunsAndSubRuns") {
@@ -99,9 +101,10 @@ namespace art {
       throw art::Exception(art::errors::Configuration)
         << "DecrepitRelicInputSourceImplementation::DecrepitRelicInputSourceImplementation()\n"
         << "The 'processingMode' parameter for sources has an illegal value '"
-        << processingMode
-        << "'\n"
-        << "Legal values are 'RunsSubRunsAndEvents', 'RunsAndSubRuns', or 'Runs'.\n";
+        << processingMode << "'\n"
+        << "Legal values are '" << Config::defaultMode()
+        << "', '" << runSubRunMode
+        << "', or '" << runMode << "'.\n";
     }
   }
 
@@ -171,9 +174,8 @@ namespace art {
   }
 
   // Return a dummy file block.
-  unique_ptr<FileBlock>
-  DecrepitRelicInputSourceImplementation::
-  readFile(MasterProductRegistry& /*mpr*/)
+  std::unique_ptr<FileBlock>
+  DecrepitRelicInputSourceImplementation::readFile()
   {
     assert(state_ == input::IsFile);
     assert((remainingEvents_ != 0) && (remainingSubRuns_ != 0));
@@ -218,7 +220,7 @@ namespace art {
 
   unique_ptr<SubRunPrincipal>
   DecrepitRelicInputSourceImplementation::
-  readSubRun(cet::exempt_ptr<RunPrincipal> rp)
+  readSubRun(cet::exempt_ptr<RunPrincipal const> rp)
   {
     // Note: For the moment, we do not support saving and restoring the state of the
     // random number generator if random numbers are generated during processing of subRuns
@@ -233,7 +235,7 @@ namespace art {
 
   unique_ptr<EventPrincipal>
   DecrepitRelicInputSourceImplementation::
-  readEvent(cet::exempt_ptr<SubRunPrincipal> srp)
+  readEvent(cet::exempt_ptr<SubRunPrincipal const> srp)
   {
     assert(state_ == input::IsEvent);
     assert(remainingEvents_ != 0);

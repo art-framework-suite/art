@@ -1,12 +1,6 @@
 #include "art/Framework/Principal/RunPrincipal.h"
 // vim: set sw=2 expandtab :
 
-#include "art/Framework/Principal/Principal.h"
-#include "cetlib/exempt_ptr.h"
-
-#include <memory>
-#include <utility>
-
 using namespace std;
 
 namespace art {
@@ -16,16 +10,13 @@ class ProcessConfiguration;
 class RunAuxiliary;
 
 RunPrincipal::
-~RunPrincipal()
-{
-}
-
-RunPrincipal::
-RunPrincipal(RunAuxiliary const& aux, ProcessConfiguration const& pc,
+RunPrincipal(RunAuxiliary const& aux,
+             ProcessConfiguration const& pc,
+             ProductList const& productList,
+             cet::exempt_ptr<ProductTable const> presentProducts,
              std::unique_ptr<DelayedReader>&& reader /*= std::make_unique<NoDelayedReader>()*/)
-  : Principal{aux, pc, move(reader)}
+  : Principal{aux, pc, productList, presentProducts, move(reader)}
 {
 }
 
 } // namespace art
-

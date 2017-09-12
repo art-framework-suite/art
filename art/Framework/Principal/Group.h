@@ -40,7 +40,7 @@ private: // TYPES
     , assns // 1
     , assnsWithData // 2
   };
-  
+
 public: // MEMBER FUNCTIONS -- Special Member Functions
 
   virtual
@@ -117,6 +117,9 @@ public: // MEMBER FUNCTIONS -- Metadata API
   BranchDescription const&
   productDescription() const;
 
+  ProductID
+  productID() const;
+
   RangeSet const&
   rangeOfValidity() const;
 
@@ -182,7 +185,7 @@ private:
   mutable
   std::atomic<RangeSet*>
   rangeSet_{new RangeSet{}};
-  
+
   // Are we normal, assns, or assnsWithData?
   grouptype const
   grpType_{grouptype::normal};

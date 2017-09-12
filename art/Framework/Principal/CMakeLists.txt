@@ -8,6 +8,7 @@ art_make(LIB_LIBRARIES
   fhiclcpp
   cetlib
   hep_concurrency
+  ROOT_Core # necessary because Assns relies on ROOT
   SUBDIRS
   detail
 )

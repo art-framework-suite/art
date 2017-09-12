@@ -56,7 +56,7 @@ namespace art {
                void (DETAIL:: *func)(art::Provenance const &)) const
     {
       for (auto const& pr : p) {
-        Group const & g = *pr.second;
+        Group const& g = *pr.second;
         if (resolveProducts_) {
           try {
             if (!g.productAvailable()) {
@@ -78,7 +78,7 @@ namespace art {
           }
         }
         bool wantCallFunc = true;
-        Provenance const prov {cet::exempt_ptr<Group const>{&g}};
+        Provenance const prov {cet::make_exempt_ptr(&g)};
         if (wantResolvedOnly_) {
           wantCallFunc = (g.anyProduct() != nullptr);
         } else if (wantPresentOnly_) {

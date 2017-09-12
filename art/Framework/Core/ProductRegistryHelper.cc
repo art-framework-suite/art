@@ -1,11 +1,8 @@
 #include "art/Framework/Core/ProductRegistryHelper.h"
 // vim: set sw=2:
 
-#include "art/Framework/Core/FileBlock.h"
-#include "art/Framework/Principal/fwd.h"
 #include "art/Persistency/Provenance/MasterProductRegistry.h"
 #include "art/Persistency/Provenance/detail/branchNameComponentChecking.h"
-#include "art/Persistency/Provenance/detail/type_aliases.h"
 #include "canvas/Persistency/Common/Assns.h"
 #include "canvas/Persistency/Provenance/BranchDescription.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
@@ -24,6 +21,7 @@
 #include <memory>
 #include <set>
 #include <string>
+#include <tuple>
 
 using namespace std;
 
@@ -85,26 +83,26 @@ productList(ProductList* p)
 }
 
 void
-ProductRegistryHelper::
-registerProducts(MasterProductRegistry& mpr, ModuleDescription const& md)
+ProductRegistryHelper::registerProducts(MasterProductRegistry& mpr,
+                                        ProductDescriptions& producedProducts,
+                                        ModuleDescription const& md)
 {
-  if (productList_) {
-    PerBranchTypePresence tp;
-    for (auto const& val : *productList_) {
-      auto const& bd = val.second;
-      tp[bd.branchType()].emplace(bd.productID());
-    }
-    mpr.updateFromPrimaryFile(*productList_, tp);
-    productList_.reset(); // Reset, since we no longer need it.
-  }
+  // First update the MPR with any extant products.
+  mpr.updateFromModule(std::move(productList_));
+
+  // Now go through products that will be produced in the current process.
   check_for_duplicate_Assns(typeLabelList_[InEvent]);
-  for (size_t ibt{}; ibt != NumBranchTypes; ++ibt) {
-    auto bt = static_cast<BranchType>(ibt);
+
+  ProductDescriptions descriptions;
+  for (std::size_t ibt{}; ibt != NumBranchTypes; ++ibt) {
+    auto const bt = static_cast<BranchType>(ibt);
     for (auto const& val : typeLabelList_[bt]) {
-      auto bd = make_unique<BranchDescription>(bt, val, md);
-      mpr.addProduct(move(bd));
+      BranchDescription pd{bt, val, md};
+      producedProducts.push_back(pd);
+      descriptions.push_back(std::move(pd));
     }
   }
+  mpr.addProductsFromModule(move(descriptions));
 }
 
 
@@ -113,16 +111,6 @@ ProductRegistryHelper::
 insertOrThrow(BranchType const bt, TypeLabel const& tl)
 {
   auto result = typeLabelList_[bt].insert(tl);
-  //if (!result.second) {
-    //throw Exception(errors::LogicError, "RegistrationFailure")
-        //<< "The module being constructed attempted to "
-        //<< "register conflicting products with:\n"
-        //<< "friendlyClassName: "
-        //<< tl.typeID().friendlyClassName()
-        //<< " and instanceName: "
-        //<< tl.productInstanceName()
-        //<< ".\n";
-  //}
   return *result.first;
 }
 

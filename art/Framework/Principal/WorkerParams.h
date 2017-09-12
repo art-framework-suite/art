@@ -7,6 +7,7 @@
 //
 
 #include "art/Framework/Core/ModuleType.h"
+#include "canvas/Persistency/Provenance/BranchDescription.h"
 #include "fhiclcpp/ParameterSet.h"
 
 #include <string>
@@ -19,49 +20,39 @@ class MasterProductRegistry;
 
 struct WorkerParams {
 
-  WorkerParams(fhicl::ParameterSet& procPset, fhicl::ParameterSet const& pset, MasterProductRegistry& reg,
-               ActionTable& actions, ActivityRegistry& actReg, std::string const& processName,
-               ModuleThreadingType moduleThreadingType, int streamIndex)
-    : procPset_(procPset)
-    , pset_(pset)
-    , reg_(reg)
-    , actions_(actions)
-    , actReg_(actReg)
-    , processName_(processName)
+  WorkerParams(fhicl::ParameterSet const& procPset,
+               fhicl::ParameterSet const& pset,
+               MasterProductRegistry& reg,
+               ProductDescriptions& producedProducts,
+               ActivityRegistry& actReg,
+               ActionTable& actions,
+               std::string const& processName,
+               ModuleThreadingType const moduleThreadingType,
+               int const streamIndex)
+    : procPset_{procPset}
+    , pset_{pset}
+    , reg_{reg}
+    , producedProducts_{producedProducts}
+    , actReg_{actReg}
+    , actions_{actions}
+    , processName_{processName}
     , moduleThreadingType_(moduleThreadingType)
     , streamIndex_(streamIndex)
-  {
-  }
+  {}
 
-  fhicl::ParameterSet const&
-  procPset_;
-
-  fhicl::ParameterSet
-  pset_;
-
-  MasterProductRegistry&
-  reg_;
-
-  ActionTable&
-  actions_;
-
-  ActivityRegistry&
-  actReg_;
-
-  std::string const
-  processName_;
-
-  ModuleThreadingType
-  moduleThreadingType_;
-
-  int
-  streamIndex_;
+  fhicl::ParameterSet const& procPset_;
+  fhicl::ParameterSet const pset_;
+  MasterProductRegistry& reg_;
+  ProductDescriptions& producedProducts_;
+  ActivityRegistry& actReg_;
+  ActionTable& actions_;
+  std::string const processName_;
+  ModuleThreadingType moduleThreadingType_;
+  int streamIndex_;
 
 };
 
-
 } // namespace art
-
 #endif /* art_Framework_Principal_WorkerParams_h */
 
 // Local Variables:

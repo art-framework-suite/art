@@ -18,16 +18,17 @@
 //
 
 #include "art/Framework/Principal/fwd.h"
-#include "art/Persistency/Provenance/MasterProductRegistry.h"
 #include "art/Persistency/Provenance/detail/branchNameComponentChecking.h"
-#include "art/Persistency/Provenance/detail/type_aliases.h"
 #include "canvas/Persistency/Common/Assns.h"
+#include "canvas/Persistency/Common/traits.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
 #include "canvas/Persistency/Provenance/ProductList.h"
+#include "canvas/Persistency/Provenance/ProductTables.h"
 #include "canvas/Persistency/Provenance/TypeLabel.h"
 #include "canvas/Utilities/Exception.h"
 #include "canvas/Utilities/TypeID.h"
 #include "cetlib/exception.h"
+#include "cetlib/exempt_ptr.h"
 
 #include <array>
 #include <memory>
@@ -36,6 +37,7 @@
 
 namespace art {
 
+class MasterProductRegistry;
 class ModuleDescription;
 
 namespace {
@@ -47,9 +49,9 @@ verifyFriendlyClassName(std::string const& fcn)
   std::string errMsg;
   if (!detail::checkFriendlyName(fcn, errMsg)) {
     throw Exception(errors::Configuration)
-        << errMsg
-        << "In particular, underscores are not permissible anywhere in the fully-scoped\n"
-        "class name, including namespaces.\n";
+      << errMsg
+      << "In particular, underscores are not permissible anywhere in the fully-scoped\n"
+         "class name, including namespaces.\n";
   }
 }
 
@@ -60,7 +62,7 @@ verifyModuleLabel(std::string const& ml)
   std::string errMsg;
   if (!detail::checkModuleLabel(ml, errMsg)) {
     throw Exception(errors::Configuration)
-        << errMsg;
+      << errMsg;
   }
 }
 
@@ -71,7 +73,7 @@ verifyInstanceName(std::string const& instanceName)
   std::string errMsg;
   if (!detail::checkInstanceName(instanceName, errMsg)) {
     throw Exception(errors::Configuration)
-        << errMsg;
+      << errMsg;
   }
 }
 
@@ -98,14 +100,14 @@ public: // MEMBER FUNCTIONS
 
 public: // MEMBER FUNCTIONS
 
-  // Used by an input source to provide a product list
-  // to be merged into the master product registry
-  // later by registerProducts().
+  // Used by an input source to provide a product list to be merged
+  // into the master product registry later by registerProducts().
   void
   productList(ProductList* p);
 
-  void
-  registerProducts(MasterProductRegistry& mpr, ModuleDescription const& md);
+  void registerProducts(MasterProductRegistry& mpr,
+                        ProductDescriptions& producedProducts,
+                        ModuleDescription const& md);
 
   // Record the production of an object of type P, with optional
   // instance name, in the Event (by default), Run, or SubRun.
@@ -127,6 +129,7 @@ public: // MEMBER FUNCTIONS
 
 private: // MEMBER FUNCTIONS
 
+  // FIXME: The following function no longer throws!  Is this intentional?
   TypeLabel const&
   insertOrThrow(BranchType const bt, TypeLabel const& tl);
 
@@ -135,11 +138,10 @@ private: // MEMBER DATA
   std::array<std::set<TypeLabel>, NumBranchTypes>
   typeLabelList_;
 
-  // Set by an input source for merging into the
-  // master product registry by registerProducts().
-  std::unique_ptr<ProductList>
-  productList_;
-
+  // Set by an input source for merging into the master product
+  // registry by registerProducts().  Ownership is released to
+  // MasterProductRegistry.
+  std::unique_ptr<ProductList> productList_;
 };
 
 template <BranchType B = InEvent>
@@ -160,7 +162,7 @@ produces(std::string const& instanceName)
   verifyInstanceName(instanceName);
   TypeID const productType{typeid(P)};
   verifyFriendlyClassName(productType.friendlyClassName());
-  insertOrThrow(B, TypeLabel{productType, instanceName});
+  insertOrThrow(B, TypeLabel{productType, instanceName, SupportsView<P>::value});
 }
 
 template<typename P, BranchType B>
@@ -172,7 +174,7 @@ reconstitutes(std::string const& emulatedModule, std::string const& instanceName
   verifyInstanceName(instanceName);
   TypeID const productType{typeid(P)};
   verifyFriendlyClassName(productType.friendlyClassName());
-  return insertOrThrow(B, TypeLabel{productType, instanceName, emulatedModule});
+  return insertOrThrow(B, TypeLabel{productType, instanceName, SupportsView<P>::value, emulatedModule});
 }
 
 } // namespace art

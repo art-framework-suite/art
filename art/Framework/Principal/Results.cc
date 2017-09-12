@@ -12,10 +12,9 @@ Results::
 }
 
 Results::
-Results(ResultsPrincipal& p, ModuleDescription const& md)
+Results(ResultsPrincipal const& p, ModuleDescription const& md)
   : DataViewImpl{InResults, p, md, false, RangeSet::invalid()}
 {
 }
 
 } // namespace art
-

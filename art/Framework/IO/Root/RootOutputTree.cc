@@ -32,15 +32,15 @@ makeTTree(TFile* filePtr, string const& name, int splitLevel)
   TTree* tree = new TTree(name.c_str(), "", splitLevel);
   if (!tree) {
     throw art::Exception(art::errors::FatalRootError)
-        << "Failed to create the tree: "
-        << name
-        << "\n";
+      << "Failed to create the tree: "
+      << name
+      << "\n";
   }
   if (tree->IsZombie()) {
     throw art::Exception(art::errors::FatalRootError)
-        << "Tree: "
-        << name
-        << " is a zombie.\n";
+      << "Tree: "
+      << name
+      << " is a zombie.\n";
   }
   tree->SetDirectory(filePtr);
   // Turn off autosave because it leaves too many deleted tree
@@ -51,26 +51,25 @@ makeTTree(TFile* filePtr, string const& name, int splitLevel)
 
 bool
 RootOutputTree::
-checkSplitLevelAndBasketSize(TTree* inputTree) const
+checkSplitLevelAndBasketSize(cet::exempt_ptr<TTree const> inputTree) const
 {
   // Do the split level and basket size match in the input and output?
   if (inputTree == nullptr) {
     return false;
   }
-  for (auto const& val : readBranches_) {
-    TBranch* outputBranch = val;
+  for (auto outputBranch : readBranches_) {
     if (outputBranch == nullptr) {
       continue;
     }
-    TBranch* inputBranch = inputTree->GetBranch(outputBranch->GetName());
+    TBranch* inputBranch = const_cast<TTree*>(inputTree.get())->GetBranch(outputBranch->GetName());
     if (inputBranch == nullptr) {
       continue;
     }
     if ((inputBranch->GetSplitLevel() != outputBranch->GetSplitLevel()) ||
         (inputBranch->GetBasketSize() != outputBranch->GetBasketSize())) {
       mf::LogInfo("FastCloning")
-          << "Fast Cloning disabled because split level or basket size "
-          "do not match";
+        << "Fast Cloning disabled because split level or basket size "
+        "do not match";
       return false;
     }
   }
@@ -102,7 +101,7 @@ writeTree() const
 
 bool
 RootOutputTree::
-fastCloneTree(TTree* intree)
+fastCloneTree(cet::exempt_ptr<TTree const> intree)
 {
   unclonedReadBranches_.clear();
   unclonedReadBranchNames_.clear();
@@ -112,7 +111,7 @@ fastCloneTree(TTree* intree)
 
   bool cloned {false};
   if (intree->GetEntries() != 0) {
-    TTreeCloner cloner(intree, tree_, "", TTreeCloner::kIgnoreMissingTopLevel |
+    TTreeCloner cloner(const_cast<TTree*>(intree.get()), tree_, "", TTreeCloner::kIgnoreMissingTopLevel |
                        TTreeCloner::kNoWarnings | TTreeCloner::kNoFileCache);
     if (cloner.IsValid()) {
       tree_->SetEntries(tree_->GetEntries() + intree->GetEntries());
@@ -122,14 +121,14 @@ fastCloneTree(TTree* intree)
     else {
       fastCloningEnabled_ = false;
       mf::LogInfo("fastCloneTree")
-          << "INFO: Unable to fast clone tree "
-          << intree->GetName()
-          << '\n'
-          << "INFO: ROOT reason is:\n"
-          << "INFO: "
-          << cloner.GetWarning()
-          << '\n'
-          << "INFO: Processing will continue, tree will be slow cloned.";
+        << "INFO: Unable to fast clone tree "
+        << intree->GetName()
+        << '\n'
+        << "INFO: ROOT reason is:\n"
+        << "INFO: "
+        << cloner.GetWarning()
+        << '\n'
+        << "INFO: Processing will continue, tree will be slow cloned.";
     }
   }
   for (auto const& val : readBranches_) {

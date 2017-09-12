@@ -13,7 +13,6 @@
 #include "art/Framework/Principal/Run.h"
 #include "art/Framework/Principal/fwd.h"
 #include "canvas/Persistency/Common/Wrapper.h"
-#include "canvas/Persistency/Provenance/ProductToken.h"
 #include "canvas/Persistency/Provenance/RunID.h"
 #include "canvas/Persistency/Provenance/SubRunAuxiliary.h"
 #include "canvas/Persistency/Provenance/SubRunID.h"
@@ -30,7 +29,7 @@ public:
 
   ~SubRun();
 
-  SubRun(SubRunPrincipal& srp, ModuleDescription const& md, RangeSet const& rs = RangeSet::invalid());
+  SubRun(SubRunPrincipal const& srp, ModuleDescription const& md, RangeSet const& rs = RangeSet::invalid());
 
   SubRun(SubRun const&) = delete;
 

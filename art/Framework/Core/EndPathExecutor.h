@@ -2,19 +2,19 @@
 #define art_Framework_Core_EndPathExecutor_h
 // vim: set sw=2 expandtab :
 
+// =========================================================================
+// Class to handle the execution of the end path. Invoked in all the
+// right places by the event processor.
 //
-//  Class to handle the execution of the end path. Invoked in all the
-//  right places by the event processor.
-//
-//  The RangeSetHandlers manage the RangeSets that are to be assigned
-//  to (a) the (Sub)RunAuxiliaries and (b) the (Sub)Run products
-//  produced in the current process.  Since all (Sub)Run
-//  products/auxiliaries produced in the current process are written to
-//  all output modules during write(Sub)Run, there is only one relevant
-//  RangeSet for the (Sub)Run at any given time.  RangeSets
-//  corresponding to multiple (Sub)Run fragments are aggregated on
-//  input.
-//
+// The RangeSetHandlers manage the RangeSets that are to be assigned
+// to (a) the (Sub)RunAuxiliaries and (b) the (Sub)Run products
+// produced in the current process.  Since all (Sub)Run
+// products/auxiliaries produced in the current process are written to
+// all output modules during write(Sub)Run, there is only one relevant
+// RangeSet for the (Sub)Run at any given time.  RangeSets
+// corresponding to multiple (Sub)Run fragments are aggregated on
+// input.
+// =========================================================================
 
 #include "art/Framework/Core/OutputFileGranularity.h"
 #include "art/Framework/Core/OutputFileStatus.h"
@@ -29,6 +29,7 @@
 #include "art/Framework/Principal/Worker.h"
 #include "art/Utilities/Transition.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
+#include "canvas/Persistency/Provenance/ProductList.h"
 #include "cetlib/trim.h"
 #include "hep_concurrency/WaitingTask.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
@@ -60,7 +61,7 @@ public: // MEMBER FUNCTIONS -- Input File Open/Close.
 
   // Called by MasterProductRegistry product list updaters (on input file open).
   void
-  selectProducts();
+  selectProducts(ProductList const&);
 
   // Called by EventProcessor::openInputFile()
   //   Called by EventProcessor::begin<Level::InputFile>()

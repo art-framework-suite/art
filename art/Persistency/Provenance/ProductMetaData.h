@@ -10,11 +10,11 @@
 //==========================================================
 
 #include "art/Persistency/Provenance/MasterProductRegistry.h"
-#include "art/Persistency/Provenance/detail/type_aliases.h"
 #include "cetlib/exempt_ptr.h"
 #include "canvas/Persistency/Provenance/ProductID.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
 #include "canvas/Persistency/Provenance/ProductList.h"
+#include "canvas/Persistency/Provenance/type_aliases.h"
 
 #include <ostream>
 #include <vector>
@@ -72,8 +72,10 @@ namespace art {
     ProductMetaData(ProductMetaData const&) = delete;
     ProductMetaData& operator=(ProductMetaData const&) = delete;
 
-    // Accessors: this is the facade presented by ProductMetaData
-    // for the MasterProductRegistry.
+    // Accessors: this is the facade presented by ProductMetaData for
+    // the MasterProductRegistry.
+
+    // MT-FIXME: Handing out reference!
     ProductList const& productList() const
     {
       return mpr_->productList();
@@ -85,32 +87,9 @@ namespace art {
       mpr_->print(os);
     }
 
-    bool produced(BranchType const btype, ProductID const pid) const
-    {
-      return mpr_->produced(btype, pid);
-    }
-
-    std::size_t presentWithFileIdx(BranchType const btype, ProductID const pid) const
-    {
-      return mpr_->presentWithFileIdx(btype, pid);
-    }
-
-    // Obtain lookup map to find a group by type of product.
-    std::vector<BranchTypeLookup> const& productLookup() const
-    {
-      return mpr_->productLookup();
-    }
-
-    // Obtain lookup map to find a group by type of element in a product
-    // which is a collection.
-    std::vector<BranchTypeLookup> const& elementLookup() const
-    {
-      return mpr_->elementLookup();
-    }
-
-    // Return true if any product is produced in this process for
-    // the given branch type.
-    bool productProduced(BranchType which) const
+    // Return true if any product is produced in this process for the
+    // given branch type.
+    bool productProduced(BranchType const which) const
     {
       return mpr_->productProduced(which);
     }

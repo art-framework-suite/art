@@ -24,10 +24,10 @@ public:
 
 public:
 
-  ~EventPrincipal();
-
   EventPrincipal(EventAuxiliary const& aux,
                  ProcessConfiguration const& pc,
+                 ProductList const&,
+                 cet::exempt_ptr<ProductTable const> presentProducts,
                  std::unique_ptr<History>&& history = std::make_unique<History>(),
                  std::unique_ptr<DelayedReader>&& rtrv = std::make_unique<NoDelayedReader>(),
                  bool lastInSubRun = false);
