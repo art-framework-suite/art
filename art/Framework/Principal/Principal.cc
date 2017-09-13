@@ -16,6 +16,7 @@
 #include "art/Persistency/Provenance/ProductMetaData.h"
 #include "canvas/Persistency/Common/PrincipalBase.h"
 #include "canvas/Persistency/Common/Wrapper.h"
+#include "canvas/Persistency/Common/detail/getWrapperTIDs.h"
 #include "canvas/Persistency/Provenance/BranchDescription.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
 #include "canvas/Persistency/Provenance/EventAuxiliary.h"
@@ -94,67 +95,11 @@ namespace art {
 
   namespace {
 
-    void
-    maybeThrowLateDictionaryError(root::TypeWithDict const& twd, std::string const& tname)
-    {
-      if (!twd) {
-        art::root::throwLateDictionaryError(tname);
-      }
-    }
-
-    // FIXME: Use of this function should go away, so as to break
-    //        dependence on ROOT.
-    vector<TypeID>
-    getWrapperTIDs(string const& productClassName)
-    {
-      vector<TypeID> result;
-      // Type of product.
-      root::TypeWithDict const ta(productClassName);
-      maybeThrowLateDictionaryError(ta, productClassName);
-      // Wrapper of product.
-      auto const twName = wrappedClassName(productClassName);
-      root::TypeWithDict const tw(twName);
-      maybeThrowLateDictionaryError(tw, twName);
-      result.emplace_back(tw.id());
-      if (ta.category() == root::TypeWithDict::Category::CLASSTYPE && root::is_instantiation_of(ta.tClass(), "art::Assns")) {
-        // Type of assns partner.
-        auto const tpName = name_of_assns_partner(productClassName);
-        root::TypeWithDict const tp(tpName);
-        maybeThrowLateDictionaryError(tp, tpName);
-        // Wrapper of assns partner.
-        auto const twpName = wrappedClassName(tpName);
-        root::TypeWithDict const twp(twpName);
-        maybeThrowLateDictionaryError(twp, twpName);
-        result.emplace_back(twp.id());
-        auto const baseName = name_of_assns_base(productClassName);
-        if (!baseName.empty()) {
-          // Type of assns base.
-          root::TypeWithDict const base(baseName);
-          maybeThrowLateDictionaryError(base, baseName);
-          // Wrapper of assns base.
-          auto const basewName = wrappedClassName(baseName);
-          root::TypeWithDict const basew(basewName);
-          maybeThrowLateDictionaryError(basew, basewName);
-          result.emplace_back(basew.id());
-          // Type of assns base partner.
-          auto const basepName = name_of_assns_partner(baseName);
-          root::TypeWithDict const basep(basepName);
-          maybeThrowLateDictionaryError(basep, basepName);
-          // Wrapper of assns base partner.
-          auto const basewpName = wrappedClassName(basepName);
-          root::TypeWithDict const basewp(basewpName);
-          maybeThrowLateDictionaryError(basewp, basewpName);
-          result.emplace_back(basewp.id());
-        }
-      }
-      return result;
-    }
-
     unique_ptr<Group>
     create_group(Principal* principal, DelayedReader* reader, BranchDescription const& bd)
     {
       unique_ptr<Group> result;
-      auto tids = getWrapperTIDs(bd.producedClassName());
+      auto tids = detail::getWrapperTIDs(bd.producedClassName());
       switch (tids.size()) {
       case 1ull:
         // Standard Group.
@@ -1009,7 +954,7 @@ namespace art {
           << bd.branchName()
           << '\n';
       }
-      group->setProductAndProvenance(move(pp), move(edp), move(make_unique<RangeSet>()));
+      group->setProductAndProvenance(move(pp), move(edp), make_unique<RangeSet>());
     }
   }
 

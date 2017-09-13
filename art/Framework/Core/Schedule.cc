@@ -71,7 +71,7 @@ Schedule(int stream,
       EDProducer* producer = new TriggerResultInserter(trig_pset, stream, triggerPathsInfo_.pathResults());
       producer->setModuleDescription(md);
       producer->setStreamIndex(stream);
-      pm.setTriggerResultsInserter(stream, move(make_unique<WorkerT<EDProducer>>(producer, md, wp)));
+      pm.setTriggerResultsInserter(stream, make_unique<WorkerT<EDProducer>>(producer, md, wp));
       results_inserter_ = pm.triggerResultsInserter(stream);
       actReg_.sPostModuleConstruction.invoke(md);
     }

@@ -35,22 +35,6 @@ Group::
 
 Group::
 Group()
-  : EDProductGetter()
-  , branchDescription_{}
-  , principal_{nullptr}
-  , delayedReader_{}
-  , mutex_{}
-  , productProvenance_{nullptr}
-  , product_{nullptr}
-  , rangeSet_{new RangeSet{}}
-  , grpType_{grouptype::normal}
-  , wrapperType_{}
-  , partnerWrapperType_{}
-  , partnerProduct_{nullptr}
-  , baseWrapperType_{}
-  , partnerBaseWrapperType_{}
-  , baseProduct_{nullptr}
-  , partnerBaseProduct_{nullptr}
 {
 }
 
@@ -58,22 +42,12 @@ Group()
 Group::
 Group(Principal* principal, DelayedReader* reader, BranchDescription const& bd, unique_ptr<RangeSet>&& rs,
       TypeID const& wrapper_type, unique_ptr<EDProduct>&& edp /*= nullptr*/)
-  : EDProductGetter()
-  , branchDescription_{&bd}
+  : branchDescription_{&bd}
   , principal_{principal}
   , delayedReader_{reader}
-  , mutex_{}
-  , productProvenance_{nullptr}
   , product_{edp.release()}
   , rangeSet_{rs.release()}
-  , grpType_{grouptype::normal}
   , wrapperType_{wrapper_type}
-  , partnerWrapperType_{}
-  , partnerProduct_{nullptr}
-  , baseWrapperType_{}
-  , partnerBaseWrapperType_{}
-  , baseProduct_{nullptr}
-  , partnerBaseProduct_{nullptr}
 {
 }
 
@@ -89,22 +63,14 @@ Group(Principal* principal, DelayedReader* reader, BranchDescription const& bd, 
 Group::
 Group(Principal* principal, DelayedReader* reader, BranchDescription const& bd, unique_ptr<RangeSet>&& rs,
       TypeID const& primary_wrapper_type, TypeID const& partner_wrapper_type, unique_ptr<EDProduct>&& edp /*= nullptr*/)
-  : EDProductGetter()
-  , branchDescription_{&bd}
+  : branchDescription_{&bd}
   , principal_{principal}
   , delayedReader_{reader}
-  , mutex_{}
-  , productProvenance_{nullptr}
   , product_{edp.release()}
   , rangeSet_{rs.release()}
   , grpType_{grouptype::assns}
   , wrapperType_{primary_wrapper_type}
   , partnerWrapperType_{partner_wrapper_type}
-  , partnerProduct_{nullptr}
-  , baseWrapperType_{}
-  , partnerBaseWrapperType_{}
-  , baseProduct_{nullptr}
-  , partnerBaseProduct_{nullptr}
 {
 }
 
@@ -121,22 +87,16 @@ Group::
 Group(Principal* principal, DelayedReader* reader, BranchDescription const& bd, unique_ptr<RangeSet>&& rs,
       TypeID const& primary_wrapper_type, TypeID const& partner_wrapper_type, TypeID const& base_wrapper_type,
       TypeID const& partner_base_wrapper_type, unique_ptr<EDProduct>&& edp /*= nullptr*/)
-  : EDProductGetter()
-  , branchDescription_{&bd}
+  : branchDescription_{&bd}
   , principal_{principal}
   , delayedReader_{reader}
-  , mutex_{}
-  , productProvenance_{nullptr}
   , product_{edp.release()}
   , rangeSet_{rs.release()}
   , grpType_{grouptype::assnsWithData}
   , wrapperType_{primary_wrapper_type}
   , partnerWrapperType_{partner_wrapper_type}
-  , partnerProduct_{nullptr}
   , baseWrapperType_{base_wrapper_type}
   , partnerBaseWrapperType_{partner_base_wrapper_type}
-  , baseProduct_{nullptr}
-  , partnerBaseProduct_{nullptr}
 {
 }
 

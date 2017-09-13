@@ -164,7 +164,7 @@ private:
   // Note: threading: of provenance and product pointers atomic.
   mutable
   std::recursive_mutex
-  mutex_;
+  mutex_{};
 
   // The product provenance for the data product.
   // Note: Modified by setProductProvenance (called by Principal ctors and Principal::insert_pp (called by Principal::put).
