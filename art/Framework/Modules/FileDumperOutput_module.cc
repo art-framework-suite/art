@@ -104,10 +104,10 @@ private:
   void write(EventPrincipal& e) override;
   void writeRun(RunPrincipal& r) override;
   void writeSubRun(SubRunPrincipal& sr) override;
-  void readResults(ResultsPrincipal& resp) override;
+  void readResults(ResultsPrincipal const& resp) override;
 
   template <typename P>
-  void printPrincipal(P& p);
+  void printPrincipal(P const& p);
 
   bool wantProductFullClassName_;
   bool wantProductFriendlyClassName_;
@@ -149,7 +149,7 @@ writeSubRun(SubRunPrincipal& sr)
 
 void
 art::FileDumperOutput::
-readResults(ResultsPrincipal& resp)
+readResults(ResultsPrincipal const& resp)
 {
   printPrincipal(resp);
 }
@@ -157,7 +157,7 @@ readResults(ResultsPrincipal& resp)
 template <typename P>
 void
 art::FileDumperOutput::
-printPrincipal(P& p)
+printPrincipal(P const& p)
 {
   if (!p.size()) return;
 

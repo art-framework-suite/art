@@ -3,13 +3,12 @@
 
 #include "art/Framework/Core/SharedResourcesRegistry.h"
 #include "art/Framework/IO/Root/RootInputFile.h"
-//#include "art/Framework/IO/Root/RootInputTree.h"
 #include "art/Framework/IO/Root/detail/resolveRangeSet.h"
 #include "art/Framework/Principal/Principal.h"
-#include "canvas/Persistency/Common/RefCoreStreamer.h"
+#include "canvas/IO/Root/Common/RefCoreStreamer.h"
+#include "canvas/IO/Root/Provenance/ProductIDStreamer.h"
 #include "canvas/Persistency/Provenance/BranchDescription.h"
 #include "canvas/Persistency/Provenance/Compatibility/BranchIDList.h"
-#include "canvas/Persistency/Provenance/ProductIDStreamer.h"
 #include "canvas/Persistency/Provenance/ProductProvenance.h"
 #include "canvas/Persistency/Provenance/RangeSet.h"
 #include "canvas/Utilities/TypeID.h"
@@ -31,17 +30,11 @@ using namespace std;
 namespace art {
 
 RootDelayedReader::
-~RootDelayedReader()
-{
-}
-
-RootDelayedReader::
 RootDelayedReader(FileFormatVersion const version,
                   sqlite3* db,
                   vector<input::EntryNumber> const& entrySet,
                   cet::exempt_ptr<input::BranchMap const> branches,
                   TBranch* provenanceBranch,
-                  //cet::exempt_ptr<RootInputTree> /*tree*/,
                   int64_t const saveMemoryObjectThreshold,
                   cet::exempt_ptr<RootInputFile> primaryFile,
                   cet::exempt_ptr<BranchIDLists const> bidLists,
@@ -53,7 +46,6 @@ RootDelayedReader(FileFormatVersion const version,
   , entrySet_{entrySet}
   , branches_{branches}
   , provenanceBranch_{provenanceBranch}
-  //, tree_{tree}
   , saveMemoryObjectThreshold_{saveMemoryObjectThreshold}
   , primaryFile_{primaryFile}
   , branchIDLists_{bidLists}

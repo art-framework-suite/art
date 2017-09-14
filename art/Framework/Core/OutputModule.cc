@@ -447,7 +447,7 @@ doRespondToOpenInputFile(FileBlock const& fb)
 {
   respondToOpenInputFile(fb);
   unique_ptr<ResultsPrincipal> respHolder;
-  ResultsPrincipal* respPtr = fb.resultsPrincipal();
+  ResultsPrincipal const* respPtr = fb.resultsPrincipal();
   if (respPtr == nullptr) {
     respHolder = make_unique<ResultsPrincipal>(ResultsAuxiliary{},
                                                moduleDescription().processConfiguration(),
@@ -637,7 +637,7 @@ respondToOpenInputFile(FileBlock const&)
 
 void
 OutputModule::
-readResults(ResultsPrincipal&)
+readResults(ResultsPrincipal const&)
 {
 }
 

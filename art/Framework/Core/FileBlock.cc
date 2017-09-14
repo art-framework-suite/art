@@ -23,14 +23,10 @@ FileBlock(FileFormatVersion const& version,
 FileBlock::
 FileBlock(FileFormatVersion const& version,
           std::string const& fileName,
-          std::unique_ptr<ResultsPrincipal>&& resp,
-          cet::exempt_ptr<TTree const> ev,
-          bool const fastCopy) :
+          std::unique_ptr<ResultsPrincipal>&& resp) :
   fileFormatVersion_{version},
   fileName_{fileName},
-  resp_{std::move(resp)},
-  tree_{ev},
-  fastCopyable_{fastCopy}
+  resp_{std::move(resp)}
 {}
 
 FileFormatVersion const&
@@ -40,20 +36,6 @@ fileFormatVersion() const
   return fileFormatVersion_;
 }
 
-cet::exempt_ptr<TTree const>
-FileBlock::
-tree() const
-{
-  return tree_;
-}
-
-bool
-FileBlock::
-fastClonable() const
-{
-  return fastCopyable_;
-}
-
 string const&
 FileBlock::
 fileName() const
@@ -61,14 +43,7 @@ fileName() const
   return fileName_;
 }
 
-void
-FileBlock::
-setNotFastCopyable()
-{
-  fastCopyable_ = false;
-}
-
-ResultsPrincipal*
+ResultsPrincipal const*
 FileBlock::
 resultsPrincipal() const
 {

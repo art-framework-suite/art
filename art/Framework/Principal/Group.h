@@ -12,7 +12,6 @@
 #include "canvas/Persistency/Common/EDProduct.h"
 #include "canvas/Persistency/Common/EDProductGetter.h"
 #include "canvas/Persistency/Provenance/BranchDescription.h"
-//#include "canvas/Persistency/Provenance/BranchMapper.h"
 #include "canvas/Persistency/Provenance/ProductID.h"
 #include "canvas/Persistency/Provenance/ProductProvenance.h"
 #include "canvas/Persistency/Provenance/RangeSet.h"
@@ -22,6 +21,7 @@
 #include "cetlib/exempt_ptr.h"
 
 #include <algorithm>
+#include <atomic>
 #include <iostream>
 #include <memory>
 #include <mutex>

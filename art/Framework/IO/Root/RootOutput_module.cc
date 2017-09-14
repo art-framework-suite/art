@@ -1,6 +1,5 @@
 // vim: set sw=2 expandtab :
 
-#include "art/Framework/Core/FileBlock.h"
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Core/OutputModule.h"
 #include "art/Framework/Core/RPManager.h"
@@ -8,6 +7,7 @@
 #include "art/Framework/IO/FileStatsCollector.h"
 #include "art/Framework/IO/PostCloseFileRenamer.h"
 #include "art/Framework/IO/Root/DropMetaData.h"
+#include "art/Framework/IO/Root/RootFileBlock.h"
 #include "art/Framework/IO/Root/RootOutputClosingCriteria.h"
 #include "art/Framework/IO/Root/RootOutputFile.h"
 #include "art/Framework/IO/Root/detail/rootOutputConfigurationTools.h"
@@ -143,7 +143,7 @@ private:
 
   void openFile(FileBlock const&) override;
   void respondToOpenInputFile(FileBlock const&) override;
-  void readResults(ResultsPrincipal& resp) override;
+  void readResults(ResultsPrincipal const& resp) override;
   void respondToCloseInputFile(FileBlock const&) override;
   void incrementInputFileNumber() override;
   void write(EventPrincipal&) override;
@@ -287,30 +287,31 @@ RootOutput::
 respondToOpenInputFile(FileBlock const& fb)
 {
   ++inputFileCount_;
-  if (!isFileOpen()) {
-    return;
-  }
-  bool fastCloneThisOne = fastCloningEnabled_ && (fb.tree() != nullptr) &&
+  if (!isFileOpen()) return;
+
+  auto const* rfb = dynamic_cast<RootFileBlock const*>(&fb);
+
+  bool fastCloneThisOne = fastCloningEnabled_ && rfb && (rfb->tree() != nullptr) &&
                           ((remainingEvents() < 0) ||
-                           (remainingEvents() >= fb.tree()->GetEntries()));
+                           (remainingEvents() >= rfb->tree()->GetEntries()));
   if (fastCloningEnabled_ && !fastCloneThisOne) {
     mf::LogWarning("FastCloning")
         << "Fast cloning deactivated for this input file due to "
         << "empty event tree and/or event limits.";
   }
-  if (fastCloneThisOne && !fb.fastClonable()) {
+  if (fastCloneThisOne && !rfb->fastClonable()) {
     mf::LogWarning("FastCloning")
         << "Fast cloning deactivated for this input file due to "
         << "information in FileBlock.";
     fastCloneThisOne = false;
   }
-  rootOutputFile_->beginInputFile(fb, fastCloneThisOne);
+  rootOutputFile_->beginInputFile(rfb, fastCloneThisOne);
   fstats_.recordInputFile(fb.fileName());
 }
 
 void
 RootOutput::
-readResults(ResultsPrincipal& resp)
+readResults(ResultsPrincipal const& resp)
 {
   rpm_.for_each_RPWorker([&resp](RPWorker& w) {
     w.rp().doReadResults(resp);

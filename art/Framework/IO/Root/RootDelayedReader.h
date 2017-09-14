@@ -35,8 +35,6 @@ class RootDelayedReader final : public DelayedReader {
 
 public: // MEMBER FUNCTIONS
 
-  ~RootDelayedReader();
-
   RootDelayedReader(RootDelayedReader const&) = delete;
   RootDelayedReader& operator=(RootDelayedReader const&) = delete;
   RootDelayedReader(RootDelayedReader&&) = delete;
@@ -47,7 +45,6 @@ public: // MEMBER FUNCTIONS
                     std::vector<input::EntryNumber> const& entrySet,
                     cet::exempt_ptr<input::BranchMap const>,
                     TBranch* provenanceBranch,
-                    //cet::exempt_ptr<RootInputTree> tree,
                     int64_t saveMemoryObjectThreshold,
                     cet::exempt_ptr<RootInputFile> primaryFile,
                     cet::exempt_ptr<BranchIDLists const> branchIDLists,

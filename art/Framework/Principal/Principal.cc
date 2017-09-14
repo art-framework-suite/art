@@ -33,8 +33,6 @@
 #include "canvas/Persistency/Provenance/RunAuxiliary.h"
 #include "canvas/Persistency/Provenance/RunID.h"
 #include "canvas/Persistency/Provenance/SubRunAuxiliary.h"
-#include "canvas/Persistency/Provenance/TypeTools.h"
-#include "canvas/Persistency/Provenance/TypeWithDict.h"
 #include "canvas/Utilities/Exception.h"
 #include "canvas/Utilities/InputTag.h"
 #include "canvas/Utilities/TypeID.h"

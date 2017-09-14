@@ -13,56 +13,31 @@
 #include <memory>
 #include <string>
 
-class TTree;
-
 namespace art {
 
-class BranchDescription;
-class ResultsPrincipal;
+  class FileBlock {
+  public:
 
-class FileBlock {
+    FileBlock() = default;
+    virtual ~FileBlock() noexcept = default;
 
-public:
+    FileBlock(FileFormatVersion const& version, std::string const& fileName);
+    FileBlock(FileFormatVersion const& version, std::string const& fileName, std::unique_ptr<ResultsPrincipal>&& resp);
 
-  FileBlock() = default;
+    FileFormatVersion const& fileFormatVersion() const;
+    std::string const& fileName() const;
 
-  FileBlock(FileFormatVersion const&,
-            std::string const& fileName);
+  private:
 
-  FileBlock(FileFormatVersion const&,
-            std::string const& fileName,
-            std::unique_ptr<ResultsPrincipal>&&,
-            cet::exempt_ptr<TTree const> eventTree,
-            bool fastCopy);
+    // Friends only.
+    friend class OutputModule;
+    ResultsPrincipal const* resultsPrincipal() const;
 
-  FileFormatVersion const&
-  fileFormatVersion() const;
-
-  cet::exempt_ptr<TTree const> tree() const;
-
-  bool fastClonable() const;
-
-  std::string const&
-  fileName() const;
-
-  void
-  setNotFastCopyable();
-
-private:
-
-  // Friends only.
-  friend class OutputModule;
-  ResultsPrincipal* resultsPrincipal() const;
-
-  FileFormatVersion fileFormatVersion_{};
-  std::string fileName_{};
-  std::unique_ptr<ResultsPrincipal> resp_{nullptr};
-  cet::exempt_ptr<TTree const> tree_{nullptr}; // ROOT owns the tree
-  bool fastCopyable_{false};
-
-};
-
-} // namespace art
+    FileFormatVersion fileFormatVersion_{};
+    std::string fileName_{};
+    std::unique_ptr<ResultsPrincipal> resp_{};
+  };
+}
 
 #endif /* art_Framework_Core_FileBlock_h */
 

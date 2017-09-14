@@ -1,3 +1,5 @@
+add_subdirectory(RootDB)
+
 art_make_library(
   LIBRARY_NAME art_Framework_IO_Root_detail_sources
   SOURCE
@@ -8,7 +10,7 @@ art_make_library(
   detail/rootOutputConfigurationTools.cc
   LIBRARIES
   art_Framework_Principal
-  art_Persistency_RootDB
+  art_Framework_IO_Root_RootDB
   art_Utilities
   canvas
   MF_MessageLogger
@@ -28,7 +30,7 @@ art_make_library(
   detail/InfoDumperInputFile.cc
   LIBRARIES
   art_Framework_IO_Root_detail_sources
-  art_Persistency_RootDB
+  art_Framework_IO_Root_RootDB
   canvas
   cetlib
   )
@@ -56,10 +58,8 @@ art_make(EXCLUDE
   art_Framework_IO_Root_detail_sources
   cetlib
   canvas
-  ${ROOT_CINTEX}
-  ${ROOT_TREE}
-  ${ROOT_NET}
-  ${ROOT_MATHCORE}
+  root_Hist
+  root_Tree
 )
 
 simple_plugin(RootInput "source" art_Framework_IO_Root art_Framework_IO_Catalog)

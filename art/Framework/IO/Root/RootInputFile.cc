@@ -1,13 +1,13 @@
 #include "art/Framework/IO/Root/RootInputFile.h"
 // vim: set sw=2 expandtab :
 
-#include "art/Framework/Core/FileBlock.h"
 #include "art/Framework/Core/GroupSelector.h"
 #include "art/Framework/IO/Root/DuplicateChecker.h"
 #include "art/Framework/IO/Root/FastCloningInfoProvider.h"
 #include "art/Framework/IO/Root/GetFileFormatEra.h"
 #include "art/Framework/IO/Root/Inputfwd.h"
 #include "art/Framework/IO/Root/RootDelayedReader.h"
+#include "art/Framework/IO/Root/RootFileBlock.h"
 #include "art/Framework/IO/Root/checkDictionaries.h"
 #include "art/Framework/IO/Root/detail/readFileIndex.h"
 #include "art/Framework/IO/Root/detail/readMetadata.h"
@@ -23,8 +23,9 @@
 #include "art/Framework/Services/System/FileCatalogMetadata.h"
 #include "art/Persistency/Provenance/MasterProductRegistry.h"
 #include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
-#include "art/Persistency/RootDB/TKeyVFSOpenPolicy.h"
+#include "art/Framework/IO/Root/RootDB/TKeyVFSOpenPolicy.h"
 #include "canvas/Persistency/Common/EDProduct.h"
+#include "canvas/IO/Root/Provenance/ProductIDStreamer.h"
 #include "canvas/Persistency/Provenance/BranchChildren.h"
 #include "canvas/Persistency/Provenance/BranchDescription.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
@@ -33,7 +34,6 @@
 #include "canvas/Persistency/Provenance/ParameterSetMap.h"
 #include "canvas/Persistency/Provenance/ParentageRegistry.h"
 #include "canvas/Persistency/Provenance/ProductID.h"
-#include "canvas/Persistency/Provenance/ProductIDStreamer.h"
 #include "canvas/Persistency/Provenance/ProductList.h"
 #include "canvas/Persistency/Provenance/RunID.h"
 #include "canvas/Persistency/Provenance/rootNames.h"
@@ -898,11 +898,11 @@ namespace art {
   RootInputFile::
   createFileBlock()
   {
-    return std::make_unique<FileBlock>(fileFormatVersion_,
-                                       fileName_,
-                                       readResults(),
-                                       cet::make_exempt_ptr(eventTree().tree()),
-                                       fastClonable());
+    return std::make_unique<RootFileBlock>(fileFormatVersion_,
+                                           fileName_,
+                                           readResults(),
+                                           cet::make_exempt_ptr(eventTree().tree()),
+                                           fastClonable());
   }
 
   FileIndex::EntryType

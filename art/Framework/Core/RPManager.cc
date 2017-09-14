@@ -53,7 +53,7 @@ RPManager(fhicl::ParameterSet const& ps)
       if (all_labels_set.find(l) == all_labels_set.end()) {
         // Bad label
         errMsg += omLabel + ".results."s + *path_key + '[' + to_string(idx) + "] ("s + l + ')' + " is not defined in "s + omLabel +
-                  ".results.producers.\n"s;
+          ".results.producers.\n"s;
         ++idx;
         continue;
       }
@@ -61,7 +61,7 @@ RPManager(fhicl::ParameterSet const& ps)
       if (!ans.second) {
         // Duplicate
         errMsg += omLabel + ".results." + *path_key + '[' + to_string(idx) + "] (" + l + ')' +
-                  " is a duplicate: previously used in path " + ans.first->second + ".\n";
+          " is a duplicate: previously used in path " + ans.first->second + ".\n";
       }
       ++idx;
     }
@@ -117,4 +117,3 @@ for_each_RPWorker(on_rpworker_t wfunc)
 }
 
 } // namespace art
-

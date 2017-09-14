@@ -37,7 +37,6 @@ set(art_Framework_Art_sources
   DebugOptionsHandler.cc
   ProcessingOptionsHandler.cc
   FileCatalogOptionsHandler.cc
-  InitRootHandlers.cc
   OptionsHandler.cc
   ${CMAKE_CURRENT_BINARY_DIR}/artapp.cc
   ${CMAKE_CURRENT_BINARY_DIR}/mu2eapp.cc
@@ -63,7 +62,8 @@ art_make_library(LIBRARY_NAME art_Framework_Art
   art_Version
   MF_MessageLogger
   # The following are used for InitRootHandlers
-  art_Persistency_RootDB
+  art_Framework_IO_Root
+  art_Framework_IO_Root_RootDB
   ${ROOT_HIST}
   ${ROOT_TREE}
   )

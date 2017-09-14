@@ -1,6 +1,6 @@
 art_make_library(
   LIBRARY_NAME
-  art_Persistency_RootDB
+  art_Framework_IO_Root_RootDB
   SOURCE
   SQLErrMsg.cc
   SQLite3Wrapper.cc

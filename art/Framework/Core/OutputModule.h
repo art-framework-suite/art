@@ -346,7 +346,7 @@ protected: // MEMBER FUNCTIONS -- Implementation API, intended to be provided by
 
   virtual
   void
-  readResults(ResultsPrincipal& resp);
+  readResults(ResultsPrincipal const& resp);
 
   virtual
   void

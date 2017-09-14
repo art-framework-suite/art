@@ -3,8 +3,8 @@
 
 #include "art/Framework/Art/BasicOptionsHandler.h"
 #include "art/Framework/Art/BasicPostProcessor.h"
-#include "art/Framework/Art/InitRootHandlers.h"
 #include "art/Framework/EventProcessor/EventProcessor.h"
+#include "art/Framework/IO/Root/InitRootHandlers.h"
 #include "art/Utilities/ExceptionMessages.h"
 #include "art/Utilities/RootHandlers.h"
 #include "art/Utilities/UnixSignalHandlers.h"
