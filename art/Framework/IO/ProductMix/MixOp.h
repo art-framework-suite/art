@@ -11,8 +11,6 @@
 #include "art/Framework/Services/System/CurrentModule.h"
 #include "art/Framework/Services/System/TriggerNamesService.h"
 #include "art/Persistency/Provenance/ProductMetaData.h"
-#include "canvas/IO/Root/Common/RefCoreStreamer.h"
-#include "canvas/IO/Root/Provenance/ProductIDStreamer.h"
 #include "canvas/Persistency/Provenance/BranchKey.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
 #include "canvas/Persistency/Provenance/Compatibility/BranchIDList.h"
@@ -224,10 +222,7 @@ readFromFile(EntryNumberSequence const & seq, cet::exempt_ptr<BranchIDLists cons
     throw Exception(errors::LogicError)
         << "Branch not initialized for read.\n";
   }
-  // Make sure the schema evolution is ready for ProductID
-  configureProductIDStreamer(branchIDLists);
-  // Make sure we don't have a ProductGetter set.
-  configureRefCoreStreamer();
+  configureStreamers(branchIDLists);
   // Assume the sequence is ordered per
   // MixHelper::generateEventSequence.
   auto const b = seq.cbegin(), e = seq.cend();

@@ -6,7 +6,7 @@
 #include "art/Framework/Principal/AssnsGroup.h"
 #include "art/Framework/Principal/AssnsGroupWithData.h"
 #include "art/Framework/Principal/Group.h"
-#include "canvas/Persistency/Common/detail/getWrapperTIDs.h"
+#include "canvas_root_io/Utilities/getWrapperTIDs.h"
 #include "canvas/Utilities/TypeID.h"
 #include "cetlib/exempt_ptr.h"
 
@@ -83,7 +83,7 @@ make_group(BranchDescription const & pd,
            ARGS && ... args)
 {
   std::unique_ptr<Group> result;
-  auto tids = art::detail::getWrapperTIDs(pd);
+  auto tids = art::root::getWrapperTIDs(pd);
   switch (tids.size()) {
   case 1ull: // Standard Group.
     // Can't use std::make_unique<> because Group's constructor is

@@ -8,10 +8,10 @@
 #include "art/Framework/IO/Root/RootInputTree.h"
 #include "art/Framework/IO/Root/detail/resolveRangeSet.h"
 #include "canvas/Persistency/Provenance/BranchDescription.h"
-#include "canvas/IO/Root/Common/RefCoreStreamer.h"
-#include "canvas/IO/Root/Provenance/ProductIDStreamer.h"
 #include "canvas/Persistency/Provenance/RangeSet.h"
 #include "canvas/Utilities/TypeID.h"
+#include "canvas_root_io/Streamers/RefCoreStreamer.h"
+#include "canvas_root_io/Streamers/ProductIDStreamer.h"
 #include "cetlib/crc32.h"
 
 #include <cassert>

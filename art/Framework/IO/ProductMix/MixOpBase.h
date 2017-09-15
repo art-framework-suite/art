@@ -6,6 +6,7 @@
 #include "art/Framework/IO/ProductMix/MixTypes.h"
 #include "art/Framework/IO/Root/RootBranchInfoList.h"
 #include "art/Utilities/fwd.h"
+#include "canvas/Persistency/Provenance/BranchType.h"
 #include "canvas/Persistency/Provenance/Compatibility/BranchIDList.h"
 #include "canvas/Persistency/Provenance/FileIndex.h"
 #include "canvas/Persistency/Provenance/ProductID.h"
@@ -56,6 +57,10 @@ public:
   virtual
   BranchType
   branchType() const = 0;
+
+protected:
+
+  void configureStreamers(cet::exempt_ptr<BranchIDLists const> branchIDLists);
 
 };
 #endif /* art_Framework_IO_ProductMix_MixOpBase_h */
