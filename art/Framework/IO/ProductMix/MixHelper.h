@@ -347,7 +347,6 @@ private:
   Mode initReadMode_(std::string const& mode) const;
 
   void openAndReadMetaData_(std::string fileName);
-  void buildEventIDIndex_(FileIndex const& fileIndex);
   bool openNextFile_();
   void buildProductIDTransMap_(ProdToProdMapBuilder::ProductIDTransMap& transMap);
 
