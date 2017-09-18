@@ -16,7 +16,6 @@
 #include "art/Persistency/Provenance/ProductMetaData.h"
 #include "canvas/Persistency/Common/PrincipalBase.h"
 #include "canvas/Persistency/Common/Wrapper.h"
-#include "canvas/Persistency/Common/detail/getWrapperTIDs.h"
 #include "canvas/Persistency/Provenance/BranchDescription.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
 #include "canvas/Persistency/Provenance/EventAuxiliary.h"
@@ -38,6 +37,7 @@
 #include "canvas/Utilities/TypeID.h"
 #include "canvas/Utilities/WrappedClassName.h"
 #include "canvas/Utilities/Exception.h"
+#include "canvas_root_io/Utilities/getWrapperTIDs.h"
 #include "cetlib/container_algorithms.h"
 #include "cetlib/exempt_ptr.h"
 #include "cetlib/value_ptr.h"
@@ -97,7 +97,7 @@ namespace art {
     create_group(Principal* principal, DelayedReader* reader, BranchDescription const& bd)
     {
       unique_ptr<Group> result;
-      auto tids = detail::getWrapperTIDs(bd.producedClassName());
+      auto tids = root::getWrapperTIDs(bd.producedClassName());
       switch (tids.size()) {
       case 1ull:
         // Standard Group.

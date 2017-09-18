@@ -3,14 +3,15 @@
 #include "art/Framework/IO/Root/GetFileFormatEra.h"
 #include "art/Framework/IO/Root/detail/readFileIndex.h"
 #include "art/Framework/IO/Root/detail/readMetadata.h"
+
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Services/Optional/RandomNumberGenerator.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/Registry/ServiceRegistry.h"
 #include "canvas/Persistency/Provenance/FileIndex.h"
 #include "canvas/Persistency/Provenance/History.h"
-#include "canvas/IO/Root/Provenance/ProductIDStreamer.h"
 #include "canvas/Persistency/Provenance/rootNames.h"
+#include "canvas_root_io/Streamers/ProductIDStreamer.h"
 #include "cetlib/container_algorithms.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
@@ -25,13 +26,17 @@
 #include "Rtypes.h"
 
 namespace {
-  class EventIDIndexBuilder : public std::unary_function<art::FileIndex::Element const&, void> {
-  public:
-    EventIDIndexBuilder(art::EventIDIndex& index);
-    result_type operator()(argument_type element) const;
-  private:
-    art::EventIDIndex& index_;
-  };
+
+  art::EventIDIndex
+  buildEventIDIndex(art::FileIndex const& fileIndex)
+  {
+    art::EventIDIndex result;
+    for (auto const& element : fileIndex) {
+      if (element.getEntryType() != art::FileIndex::kEvent) continue;
+      result.emplace(element.entry_, element.eventID_);
+    }
+    return result;
+  }
 
   class EventIDLookup : public std::unary_function<Long64_t, art::EventID> {
   public:
@@ -58,22 +63,6 @@ namespace {
     return result;
   }
 }  // namespace
-
-inline
-EventIDIndexBuilder::EventIDIndexBuilder(art::EventIDIndex& index)
-  :
-  index_(index)
-{
-  index_.clear();
-}
-
-EventIDIndexBuilder::result_type
-EventIDIndexBuilder::operator()(argument_type element) const
-{
-  if (element.getEntryType() == art::FileIndex::kEvent) {
-    index_[element.entry_] = element.eventID_;
-  }
-}
 
 inline
 EventIDLookup::EventIDLookup(art::EventIDIndex const& index)
@@ -423,7 +412,7 @@ art::MixHelper::openAndReadMetaData_(std::string filename)
     ++dbCount;
   }
 
-  buildEventIDIndex_(currentFileIndex_);
+  eventIDIndex_ = buildEventIDIndex(currentFileIndex_);
   ProdToProdMapBuilder::ProductIDTransMap transMap;
   buildProductIDTransMap_(transMap);
   ptpBuilder_.prepareTranslationTables(transMap);
@@ -436,12 +425,6 @@ art::MixHelper::openAndReadMetaData_(std::string filename)
                         [this](EntryNumberSequence::difference_type const& n)
                         { return dist_.get()->fireInt(n); });
   }
-}
-
-void
-art::MixHelper::buildEventIDIndex_(FileIndex const& fileIndex)
-{
-  cet::for_all(fileIndex, EventIDIndexBuilder(eventIDIndex_));
 }
 
 bool

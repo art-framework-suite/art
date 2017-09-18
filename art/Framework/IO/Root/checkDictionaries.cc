@@ -1,12 +1,12 @@
 #include "art/Framework/IO/Root/checkDictionaries.h"
 // vim: set sw=2:
 
-#include "canvas/IO/Root/Common/AssnsStreamer.h"
-#include "canvas/IO/Root/Provenance/BranchDescriptionStreamer.h"
-#include "canvas/IO/Root/Provenance/DictionaryChecker.h"
-#include "canvas/IO/Root/Provenance/TypeTools.h"
 #include "canvas/Persistency/Provenance/BranchDescription.h"
 #include "canvas/Utilities/WrappedClassName.h"
+#include "canvas_root_io/Streamers/AssnsStreamer.h"
+#include "canvas_root_io/Streamers/BranchDescriptionStreamer.h"
+#include "canvas_root_io/Utilities/DictionaryChecker.h"
+#include "canvas_root_io/Utilities/TypeTools.h"
 #include "cetlib/assert_only_one_thread.h"
 
 void
