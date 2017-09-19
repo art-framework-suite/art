@@ -22,7 +22,6 @@ project(art)
 find_package(cetbuildtools REQUIRED)
 
 list(APPEND CMAKE_MODULE_PATH
-  $ENV{CANVAS_DIR}/Modules
   $ENV{CANVAS_ROOT_IO_DIR}/Modules
   ${CMAKE_CURRENT_SOURCE_DIR}/Modules)
 
