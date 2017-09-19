@@ -18,20 +18,53 @@ using std::fixed;
 
 namespace {
 
+  struct SummaryCounts {
+    std::size_t total{};
+    std::size_t passed{};
+    std::size_t failed{};
+  };
+
+  struct TriggerCounts {
+    int bitPosition{};
+    std::size_t run{};
+    std::size_t passed{};
+    std::size_t failed{};
+    std::size_t except{};
+  };
+
+  struct WorkerInPathCounts {
+    std::string moduleLabel{};
+    std::size_t visited{};
+    std::size_t passed{};
+    std::size_t failed{};
+    std::size_t except{};
+  };
+
+  struct ModuleCounts {
+    std::size_t visited{};
+    std::size_t run{};
+    std::size_t passed{};
+    std::size_t failed{};
+    std::size_t except{};
+  };
+
   using WorkersInPath = std::vector<art::WorkerInPath>;
+  using WorkersInPathCounts = std::vector<WorkerInPathCounts>;
 
   void
-  workersInPathTriggerReport(int const firstBit, int const bitPosition, WorkersInPath const& workersInPath)
+  workersInPathTriggerReport(int const firstBit,
+                             int const bitPosition,
+                             WorkersInPathCounts const& workersInPathCounts)
   {
-    for (auto const& workerInPath : workersInPath) {
+    for (auto const& wip_counts : workersInPathCounts) {
       LogPrint("ArtSummary") << "TrigReport "
                              << std::right << setw(5)  << firstBit
                              << std::right << setw(5)  << bitPosition << " "
-                             << std::right << setw(10) << workerInPath.timesVisited() << " "
-                             << std::right << setw(10) << workerInPath.timesPassed() << " "
-                             << std::right << setw(10) << workerInPath.timesFailed() << " "
-                             << std::right << setw(10) << workerInPath.timesExcept() << " "
-                             << workerInPath.getWorker()->description().moduleLabel();
+                             << std::right << setw(10) << wip_counts.visited << " "
+                             << std::right << setw(10) << wip_counts.passed << " "
+                             << std::right << setw(10) << wip_counts.failed << " "
+                             << std::right << setw(10) << wip_counts.except << " "
+                             << wip_counts.moduleLabel;
     }
   }
 
@@ -56,11 +89,10 @@ namespace {
 void
 art::detail::writeSummary(PathManager& pm, bool const wantSummary, cet::cpu_timer const& jobTimer)
 {
-  // Still only assuming one schedule. Will need to loop when we get around to it.
   auto const& epi = pm.endPathInfo();
-  auto const& tpi = pm.triggerPathsInfo(0);
+  auto const& tpis = pm.triggerPathsInfo();
   LogPrint("ArtSummary") << "";
-  triggerReport(epi, tpi, wantSummary);
+  triggerReport(epi, tpis, wantSummary);
   LogPrint("ArtSummary") << "";
   timeReport(jobTimer);
   LogPrint("ArtSummary") << "";
@@ -68,15 +100,22 @@ art::detail::writeSummary(PathManager& pm, bool const wantSummary, cet::cpu_time
 }
 
 void
-art::detail::triggerReport(PathsInfo const& epi, PathsInfo const& tpi, bool const wantSummary)
+art::detail::triggerReport(PathsInfo const& epi, std::vector<PathsInfo> const& tpis, bool const wantSummary)
 {
+  SummaryCounts total_counts{};
+  for (auto const& tpi : tpis) {
+    total_counts.total  += tpi.totalEvents();
+    total_counts.passed += tpi.passedEvents();
+    total_counts.failed += tpi.failedEvents();
+  }
+
   // The trigger report (pass/fail etc.):
   // Printed even if summary not requested, per issue #1864.
   LogPrint("ArtSummary") << "TrigReport " << "---------- Event  Summary ------------";
   LogPrint("ArtSummary") << "TrigReport"
-                         << " Events total = " << tpi.totalEvents()
-                         << " passed = " << tpi.passedEvents()
-                         << " failed = " << tpi.failedEvents();
+                         << " Events total = " << total_counts.total
+                         << " passed = " << total_counts.passed
+                         << " failed = " << total_counts.failed;
   if (wantSummary) {
     LogPrint("ArtSummary") << "";
     LogPrint("ArtSummary") << "TrigReport " << "---------- Path   Summary ------------";
@@ -87,15 +126,28 @@ art::detail::triggerReport(PathsInfo const& epi, PathsInfo const& tpi, bool cons
                            << std::right << setw(10) << "Failed" << " "
                            << std::right << setw(10) << "Error" << " "
                            << "Name";
-    for (auto const& path : tpi.paths()) {
+    std::map<std::string, TriggerCounts> counts_per_path{};
+    for (auto const& tpi : tpis) {
+      for (auto const& path : tpi.paths()) {
+        auto& counts = counts_per_path[path->name()];
+        counts.bitPosition = path->bitPosition(); // No increment!
+        counts.run += path->timesRun();
+        counts.passed += path->timesPassed();
+        counts.failed += path->timesFailed();
+        counts.except += path->timesExcept();
+      }
+    }
+    for (auto const& pr : counts_per_path) {
+      auto const& path_name = pr.first;
+      auto const& counts = pr.second;
       LogPrint("ArtSummary") << "TrigReport "
                              << std::right << setw(5) << 1
-                             << std::right << setw(5) << path->bitPosition() << " "
-                             << std::right << setw(10) << path->timesRun() << " "
-                             << std::right << setw(10) << path->timesPassed() << " "
-                             << std::right << setw(10) << path->timesFailed() << " "
-                             << std::right << setw(10) << path->timesExcept() << " "
-                             << path->name();
+                             << std::right << setw(5)  << counts.bitPosition << " "
+                             << std::right << setw(10) << counts.run << " "
+                             << std::right << setw(10) << counts.passed << " "
+                             << std::right << setw(10) << counts.failed << " "
+                             << std::right << setw(10) << counts.except << " "
+                             << path_name;
     }
     LogPrint("ArtSummary") << "";
     LogPrint("ArtSummary") << "TrigReport " << "-------End-Path   Summary ------------";
@@ -114,9 +166,41 @@ art::detail::triggerReport(PathsInfo const& epi, PathsInfo const& tpi, bool cons
                              << std::right << setw(10) << path->timesExcept() << " "
                              << path->name();
     }
-    for (auto const& path : tpi.paths()) {
+
+    // std::tuple<...> guarantees weak-ordering, so it is a suitable
+    // key type for an std::map.
+    using path_data_t = std::tuple<std::string, int>; // path-name, bit position
+    std::map<path_data_t, WorkersInPathCounts> counts_per_worker_in_path;
+    for (auto const& tpi : tpis) {
+      for (auto const& path : tpi.paths()) {
+        path_data_t const path_data{path->name(), path->bitPosition()};
+        auto& counts_per_worker = counts_per_worker_in_path[path_data];
+        if (counts_per_worker.empty() && !path->workersInPath().empty()) {
+          counts_per_worker.resize(path->workersInPath().size());
+        }
+        std::size_t i{};
+        for (auto const& workerInPath : path->workersInPath()) {
+          auto const* worker = workerInPath.getWorker();
+          auto& counts = counts_per_worker[i];
+          if (counts.moduleLabel.empty()) {
+            counts.moduleLabel = worker->description().moduleLabel();
+          }
+          counts.visited += workerInPath.timesVisited();
+          counts.passed  += workerInPath.timesPassed();
+          counts.failed  += workerInPath.timesFailed();
+          counts.except  += workerInPath.timesExcept();
+          ++i;
+        }
+      }
+    }
+
+    for (auto const& pr : counts_per_worker_in_path) {
+      auto const& path_data = pr.first;
+      auto const& path_name = std::get<std::string>(path_data);
+      auto const& bit_position = std::get<int>(path_data);
+      auto const& worker_in_path_counts = pr.second;
       LogPrint("ArtSummary") << "";
-      LogPrint("ArtSummary") << "TrigReport " << "---------- Modules in Path: " << path->name() << " ------------";
+      LogPrint("ArtSummary") << "TrigReport " << "---------- Modules in Path: " << path_name << " ------------";
       LogPrint("ArtSummary") << "TrigReport "
                              << std::right << setw(10) << "Trig Bit#" << " "
                              << std::right << setw(10) << "Visited" << " "
@@ -124,7 +208,7 @@ art::detail::triggerReport(PathsInfo const& epi, PathsInfo const& tpi, bool cons
                              << std::right << setw(10) << "Failed" << " "
                              << std::right << setw(10) << "Error" << " "
                              << "Name";
-      workersInPathTriggerReport(1, path->bitPosition(), path->workersInPath());
+      workersInPathTriggerReport(1, bit_position, worker_in_path_counts);
     }
   }
 
@@ -154,14 +238,29 @@ art::detail::triggerReport(PathsInfo const& epi, PathsInfo const& tpi, bool cons
                            << std::right << setw(10) << "Error" << " "
                            << "Name";
 
-    for (auto const& val: tpi.workers()) {
+    std::map<std::string, ModuleCounts> counts_per_module;
+    for (auto const& tpi : tpis) {
+      for (auto const& pr : tpi.workers()) {
+        auto const& module_label = pr.first;
+        auto const& module_counts = *pr.second;
+        auto& counts = counts_per_module[module_label];
+        counts.visited += module_counts.timesVisited();
+        counts.run     += module_counts.timesRun();
+        counts.passed  += module_counts.timesPassed();
+        counts.failed  += module_counts.timesFailed();
+        counts.except  += module_counts.timesExcept();
+      }
+    }
+    for (auto const& pr : counts_per_module) {
+      auto const& module_label = pr.first;
+      auto const& module_counts = pr.second;
       LogPrint("ArtSummary") << "TrigReport "
-                             << std::right << setw(10) << val.second->timesVisited() << " "
-                             << std::right << setw(10) << val.second->timesRun() << " "
-                             << std::right << setw(10) << val.second->timesPassed() << " "
-                             << std::right << setw(10) << val.second->timesFailed() << " "
-                             << std::right << setw(10) << val.second->timesExcept() << " "
-                             << val.first;
+                             << std::right << setw(10) << module_counts.visited << " "
+                             << std::right << setw(10) << module_counts.run << " "
+                             << std::right << setw(10) << module_counts.passed << " "
+                             << std::right << setw(10) << module_counts.failed << " "
+                             << std::right << setw(10) << module_counts.except << " "
+                             << module_label;
     }
 
     for (auto const& val: epi.workers()) {
