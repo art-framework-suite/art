@@ -109,6 +109,10 @@ private:
   template <typename P>
   void printPrincipal(P const& p);
 
+  void printProductInfo(std::vector<std::size_t> const& columnWidths,
+                        std::string const& processName,
+                        detail::ProductInfo const& pi) const;
+
   bool wantProductFullClassName_;
   bool wantProductFriendlyClassName_;
   bool wantResolveProducts_;
@@ -201,17 +205,12 @@ art::FileDumperOutput::printPrincipal(P const& p)
                                          columnWidth(products, &detail::ProductInfo::friendly_type, dinfo.friendly_type),
                                          columnWidth(products, &detail::ProductInfo::str_size, dinfo.str_size)};
 
+  // Print banner
+  printProductInfo(widths, dummyProcess(), dummyInfo());
   for (auto const& processConfig : p.processHistory()) {
     auto const& processName = processConfig.processName();
     for (auto const& pi : products[processName]) {
-      std::ostringstream oss;
-      oss << cet::rpad(processName, widths[0], '.') << " | "
-          << cet::rpad(pi.module_label, widths[1], '.') << " | "
-          << cet::rpad(pi.instance_name, widths[2], '.') << " | ";
-      if (wantProductFullClassName_) oss << cet::rpad(pi.product_type, widths[3], '.') << " | ";
-      if (wantProductFriendlyClassName_) oss << cet::rpad(pi.friendly_type, widths[4], '.') << " | ";
-      oss << cet::lpad(pi.str_size, widths[5], '.');
-      std::cout << oss.str() << '\n';
+      printProductInfo(widths, processName, pi);
     }
   }
 
@@ -222,6 +221,21 @@ art::FileDumperOutput::printPrincipal(P const& p)
             << ", "
             << not_present
             << ").\n\n";
+}
+
+void
+art::FileDumperOutput::printProductInfo(std::vector<std::size_t> const& widths,
+                                        std::string const& processName,
+                                        detail::ProductInfo const& pi) const
+{
+  std::ostringstream oss;
+  oss << cet::rpad(processName, widths[0], '.') << " | "
+      << cet::rpad(pi.module_label, widths[1], '.') << " | "
+      << cet::rpad(pi.instance_name, widths[2], '.') << " | ";
+  if (wantProductFullClassName_) oss << cet::rpad(pi.product_type, widths[3], '.') << " | ";
+  if (wantProductFriendlyClassName_) oss << cet::rpad(pi.friendly_type, widths[4], '.') << " | ";
+  oss << cet::lpad(pi.str_size, widths[5], '.');
+  std::cout << oss.str() << '\n';
 }
 
 DEFINE_ART_MODULE(art::FileDumperOutput)
