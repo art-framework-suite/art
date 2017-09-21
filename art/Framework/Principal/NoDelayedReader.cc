@@ -2,7 +2,6 @@
 // vim: set sw=2 expandtab :
 
 #include "canvas/Persistency/Common/EDProduct.h"
-#include "canvas/Persistency/Provenance/BranchKey.h"
 #include "canvas/Utilities/Exception.h"
 
 #include <memory>
@@ -22,13 +21,12 @@ NoDelayedReader()
 
 std::unique_ptr<EDProduct>
 NoDelayedReader::
-getProduct_(BranchKey const& k, TypeID const&, RangeSet&) const
+getProduct_(ProductID const pid, TypeID const&, RangeSet&) const
 {
   throw Exception(errors::LogicError, "NoDelayedReader")
-      << "getProduct() called for branchkey: "
-      << k
+      << "getProduct() called for ProductID: "
+      << pid
       << "\n";
 }
 
 } // namespace art
-

@@ -128,17 +128,13 @@ isAvailableAfterCombine_(ProductID bid) const
 }
 
 unique_ptr<EDProduct>
-RootDelayedReader::
-getProduct_(BranchKey const& bk,
-            TypeID const& ty,
-            RangeSet& rs) const
+RootDelayedReader::getProduct_(ProductID const pid, TypeID const& ty, RangeSet& rs) const
 {
-  auto iter = branches_->find(bk);
+  auto iter = branches_->find(pid);
   assert(iter != branches_->end());
   input::BranchInfo const& branchInfo = iter->second;
   TBranch* br = branchInfo.productBranch_;
   assert(br != nullptr);
-  auto bid = branchInfo.branchDescription_.productID();
   // Note: It is not an error to attempt to delay read a produced
   // run or subrun product because there might be many of them spread
   // across multiple fragments of the same run or subrun which will
@@ -196,7 +192,7 @@ getProduct_(BranchKey const& bk,
     provenanceBranch_->SetAddress(&p_ppv);
     input::getEntry(provenanceBranch_, entrySet_[0]);
     for (auto const& val : ppv) {
-      if (val.productID() == bid) {
+      if (val.productID() == pid) {
         prov.reset(new ProductProvenance(val));
         break;
       }
@@ -225,7 +221,7 @@ getProduct_(BranchKey const& bk,
       provenanceBranch_->SetAddress(&p_ppv);
       input::getEntry(provenanceBranch_, *it);
       for (auto const& val : new_ppv) {
-        if (val.productID() == bid) {
+        if (val.productID() == pid) {
           new_prov.reset(new ProductProvenance(val));
           break;
         }
@@ -287,7 +283,7 @@ getProduct_(BranchKey const& bk,
     else if (art::overlapping_ranges(mergedRangeSet, newRS)) {
       throw Exception{errors::ProductCannotBeAggregated, "RootDelayedReader::getProduct_"}
           << "\nThe following ranges corresponding to the product:\n"
-          << "   '" << bk << "'"
+          << "   '" << branchInfo.branchDescription_ << "'"
           << "\ncannot be aggregated\n"
           << mergedRangeSet
           << " and\n"

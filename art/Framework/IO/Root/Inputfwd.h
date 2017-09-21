@@ -18,9 +18,9 @@ class TTree;
 
 namespace art {
   class BranchDescription;
-  class BranchKey;
   class FileFormatVersion;
   class FastCloningInfoProvider;
+  class ProductID;
   class RootInputFile;
   class RootDelayedReader;
   class RootInputTree;
@@ -45,7 +45,7 @@ namespace art {
       TBranch* productBranch_;
     };  // BranchInfo
 
-    using BranchMap = std::map<BranchKey const, BranchInfo>;
+    using BranchMap = std::map<ProductID, BranchInfo>;
     using EntryNumber = Long64_t;
     using EntryNumbers = std::vector<EntryNumber>;
     Int_t getEntry(TBranch* branch, EntryNumber entryNumber);

@@ -11,7 +11,6 @@
 
 namespace art {
 
-class BranchKey;
 class RangeSet;
 class TypeID;
 
@@ -26,7 +25,7 @@ private:
 
   [[noreturn]]
   std::unique_ptr<EDProduct>
-  getProduct_(BranchKey const&, TypeID const&, RangeSet&) const;
+  getProduct_(ProductID, TypeID const&, RangeSet&) const;
 
 };
 

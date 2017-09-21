@@ -4,7 +4,6 @@
 #include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Principal/Worker.h"
 #include "canvas/Persistency/Provenance/BranchDescription.h"
-#include "canvas/Persistency/Provenance/BranchKey.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
 #include "canvas/Persistency/Provenance/ProductStatus.h"
 #include "cetlib_except/demangle.h"
@@ -411,7 +410,7 @@ resolveProductIfAvailable(TypeID wanted_wrapper_type /*= TypeID{}*/) const
     // Now try to read it.
     // Note: threading: This may call back to us to update the product provenance if run or subRun
     // Note: threading: data product merging creates a new provenance.
-    product_ = delayedReader_->getProduct(BranchKey{*branchDescription_}, wrapperType_, *rangeSet_).release();
+    product_ = delayedReader_->getProduct(branchDescription_->productID(), wrapperType_, *rangeSet_).release();
     if (product_ == nullptr) {
       // We failed to get the master product, hopeless.
       return false;

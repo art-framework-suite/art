@@ -25,9 +25,9 @@ DelayedReader()
 
 std::unique_ptr<EDProduct>
 DelayedReader::
-getProduct(BranchKey const& k, TypeID const& wrapper_type, RangeSet& rs) const
+getProduct(ProductID const pid, TypeID const& wrapper_type, RangeSet& rs) const
 {
-  return getProduct_(k, wrapper_type, rs);
+  return getProduct_(pid, wrapper_type, rs);
 }
 
 void
@@ -87,4 +87,3 @@ openNextSecondaryFile_(int /*idx*/)
 }
 
 } // namespace art
-

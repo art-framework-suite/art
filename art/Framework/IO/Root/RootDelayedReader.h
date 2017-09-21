@@ -4,11 +4,11 @@
 
 #include "art/Framework/IO/Root/Inputfwd.h"
 #include "art/Persistency/Common/DelayedReader.h"
-#include "canvas/Persistency/Provenance/BranchKey.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
 #include "canvas/Persistency/Provenance/Compatibility/BranchIDList.h"
 #include "canvas/Persistency/Provenance/EventID.h"
 #include "canvas/Persistency/Provenance/FileFormatVersion.h"
+#include "canvas/Persistency/Provenance/ProductID.h"
 #include "canvas/Persistency/Provenance/RangeSet.h"
 
 #include <atomic>
@@ -55,7 +55,7 @@ public: // MEMBER FUNCTIONS
 private: // MEMBER FUNCTIONS
 
   std::unique_ptr<EDProduct>
-  getProduct_(BranchKey const&, TypeID const&, RangeSet&) const override;
+  getProduct_(ProductID, TypeID const&, RangeSet&) const override;
 
   void
   setPrincipal_(cet::exempt_ptr<Principal>) override;

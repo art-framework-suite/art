@@ -18,7 +18,6 @@
 
 namespace art {
 
-class BranchKey;
 class Principal;
 class ProductProvenance;
 class RangeSet;
@@ -33,7 +32,7 @@ public:
   DelayedReader();
 
   std::unique_ptr<EDProduct>
-  getProduct(BranchKey const&, TypeID const& wrapper_type, RangeSet&) const;
+  getProduct(ProductID, TypeID const& wrapper_type, RangeSet&) const;
 
   void
   setPrincipal(cet::exempt_ptr<Principal>);
@@ -51,7 +50,7 @@ private:
 
   virtual
   std::unique_ptr<EDProduct>
-  getProduct_(BranchKey const&, TypeID const&, RangeSet&) const = 0;
+  getProduct_(ProductID, TypeID const&, RangeSet&) const = 0;
 
   virtual
   void

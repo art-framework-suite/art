@@ -15,7 +15,6 @@
 #include "art/Framework/Principal/get_ProductDescription.h"
 #include "canvas/Persistency/Common/EDProduct.h"
 #include "canvas/Persistency/Provenance/BranchDescription.h"
-#include "canvas/Persistency/Provenance/BranchKey.h"
 #include "canvas/Persistency/Provenance/ProductProvenance.h"
 #include "canvas/Persistency/Provenance/ProductStatus.h"
 #include "canvas/Utilities/Exception.h"

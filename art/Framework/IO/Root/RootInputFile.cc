@@ -208,7 +208,7 @@ namespace art {
     assert(bd.present() == (branch != nullptr));
     assert(bd.dropped() == (branch == nullptr));
     input::BranchInfo info{bd, branch};
-    branches_.emplace(BranchKey{bd}, std::move(info));
+    branches_.emplace(bd.productID(), std::move(info));
   }
 
   void
