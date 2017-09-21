@@ -363,7 +363,6 @@ art::EmptyEvent::readRun_()
   RunAuxiliary const runAux{eventID_.runID(), ts, Timestamp::invalidTimestamp()};
   result = make_unique<RunPrincipal>(runAux,
                                      processConfiguration(),
-                                     ProductList{},
                                      nullptr);
   assert(result.get() != nullptr);
   if (plugin_) {
@@ -384,7 +383,6 @@ art::EmptyEvent::readSubRun_(cet::exempt_ptr<RunPrincipal const> rp)
   SubRunAuxiliary const subRunAux{eventID_.subRunID(), ts, Timestamp::invalidTimestamp()};
   result = make_unique<SubRunPrincipal>(subRunAux,
                                         processConfiguration(),
-                                        ProductList{},
                                         nullptr);
   assert(result.get() != nullptr);
   result->setRunPrincipal(rp);
@@ -406,7 +404,6 @@ art::EmptyEvent::readEvent_()
   EventAuxiliary const eventAux{eventID_, timestamp, eType_};
   result = make_unique<EventPrincipal>(eventAux,
                                        processConfiguration(),
-                                       ProductList{},
                                        nullptr,
                                        make_unique<History>(),
                                        make_unique<NoDelayedReader>(),

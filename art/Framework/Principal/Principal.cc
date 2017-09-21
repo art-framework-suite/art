@@ -128,8 +128,10 @@ namespace art {
   }
 
   void
-  Principal::ctor_create_groups(ProductList const& productList)
+  Principal::ctor_create_groups(cet::exempt_ptr<ProductTable const> presentProducts)
   {
+    if (!presentProducts) return;
+
     // Note: Dropped products are a problem. We should not create
     //       groups for them now because later we may open a secondary
     //       file which actually contains them and we want the
@@ -137,12 +139,9 @@ namespace art {
     //       code expects to be able to find a group for dropped
     //       products, so getGroupTryAllFiles ignores groups for
     //       dropped products instead.
-    for (auto const& val : productList) {
-      auto const& bd = val.second;
-      if (bd.branchType() != branchType_) {
-        continue;
-      }
-      fillGroup(bd);
+    for (auto const& pd : presentProducts->descriptions) {
+      assert(pd.branchType() == branchType_);
+      fillGroup(pd);
     }
   }
 
@@ -187,7 +186,6 @@ namespace art {
 
   Principal::Principal(BranchType branchType,
                        ProcessConfiguration const& pc,
-                       ProductList const& productList,
                        cet::exempt_ptr<ProductTable const> presentProducts,
                        ProcessHistoryID const& hist,
                        std::unique_ptr<DelayedReader>&& reader)
@@ -197,7 +195,7 @@ namespace art {
     , delayedReader_{std::move(reader)}
   {
     delayedReader_->setPrincipal(this);
-    ctor_create_groups(productList);
+    ctor_create_groups(presentProducts);
     ctor_read_provenance();
     ctor_fetch_process_history(hist);
   }
@@ -205,7 +203,6 @@ namespace art {
   // Run
   Principal::Principal(RunAuxiliary const& aux,
                        ProcessConfiguration const& pc,
-                       ProductList const& productList,
                        cet::exempt_ptr<ProductTable const> presentProducts,
                        std::unique_ptr<DelayedReader>&& reader /* = std::make_unique<NoDelayedReader>() */)
     : branchType_{InRun}
@@ -215,7 +212,7 @@ namespace art {
     , runAux_{aux}
   {
     delayedReader_->setPrincipal(this);
-    ctor_create_groups(productList);
+    ctor_create_groups(presentProducts);
     ctor_read_provenance();
     ctor_fetch_process_history(runAux_.processHistoryID());
     ctor_add_to_process_history();
@@ -224,7 +221,6 @@ namespace art {
   // SubRun
   Principal::Principal(SubRunAuxiliary const& aux,
                        ProcessConfiguration const& pc,
-                       ProductList const& productList,
                        cet::exempt_ptr<ProductTable const> presentProducts,
                        std::unique_ptr<DelayedReader>&& reader /* = std::make_unique<NoDelayedReader>() */)
     : branchType_{InSubRun}
@@ -234,7 +230,7 @@ namespace art {
     , subRunAux_{aux}
   {
     delayedReader_->setPrincipal(this);
-    ctor_create_groups(productList);
+    ctor_create_groups(presentProducts);
     ctor_read_provenance();
     ctor_fetch_process_history(subRunAux_.processHistoryID());
     ctor_add_to_process_history();
@@ -243,7 +239,6 @@ namespace art {
   // Event
   Principal::Principal(EventAuxiliary const& aux,
                        ProcessConfiguration const& pc,
-                       ProductList const& productList,
                        cet::exempt_ptr<ProductTable const> presentProducts,
                        std::unique_ptr<History>&& history /* = std::make_unique<History>() */,
                        std::unique_ptr<DelayedReader>&& reader /* = std::make_unique<NoDelayedReader>() */,
@@ -257,7 +252,7 @@ namespace art {
     , lastInSubRun_{lastInSubRun}
   {
     delayedReader_->setPrincipal(this);
-    ctor_create_groups(productList);
+    ctor_create_groups(presentProducts);
     ctor_read_provenance();
     ctor_fetch_process_history(history_->processHistoryID());
     ctor_add_to_process_history();
@@ -266,7 +261,6 @@ namespace art {
   // Results
   Principal::Principal(ResultsAuxiliary const& aux,
                        ProcessConfiguration const& pc,
-                       ProductList const& productList,
                        cet::exempt_ptr<ProductTable const> presentProducts,
                        std::unique_ptr<DelayedReader>&& reader /* = std::make_unique<NoDelayedReader>() */)
     : branchType_{InResults}
@@ -276,7 +270,7 @@ namespace art {
     , resultsAux_{aux}
   {
     delayedReader_->setPrincipal(this);
-    ctor_create_groups(productList);
+    ctor_create_groups(presentProducts);
     ctor_read_provenance();
     ctor_fetch_process_history(resultsAux_.processHistoryID());
   }

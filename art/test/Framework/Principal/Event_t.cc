@@ -101,10 +101,8 @@ public:
   // The descriptions_ data member is used only to create the product
   // lookup tables.
   ProductDescriptions descriptions_{};
-  ProductDescriptions producedProductDescriptions_{};
   ProductTables producedProducts_{ProductTables::invalid()};
 
-  ProductList presentProductList_{};
   ProductTable presentProducts_{};
 
 private:
@@ -135,9 +133,6 @@ MPRGlobalTestFixture::MPRGlobalTestFixture()
   // Fill the lookups for "source-like" products
   {
     presentProducts_ = ProductTables{descriptions_}.get(InEvent);
-    for (auto const& pd : descriptions_) {
-      presentProductList_.emplace(BranchKey{pd}, pd);
-    }
     descriptions_.clear();
   }
 
@@ -147,7 +142,6 @@ MPRGlobalTestFixture::MPRGlobalTestFixture()
   // Create the lookup that we will use for the current-process module
   {
     producedProducts_ = ProductTables{descriptions_};
-    producedProductDescriptions_ = descriptions_;
     descriptions_.clear();
   }
 
@@ -250,10 +244,10 @@ EventTestFixture()
   ProcessConfiguration const& pc = gf().currentModuleDescription_.processConfiguration();
 
   RunAuxiliary const runAux{id.run(), time, time};
-  auto rp = std::make_unique<RunPrincipal>(runAux, pc, ProductList{}, nullptr);
+  auto rp = std::make_unique<RunPrincipal>(runAux, pc, nullptr);
 
   SubRunAuxiliary const subRunAux{rp->run(), 1u, time, time};
-  auto srp = std::make_unique<SubRunPrincipal>(subRunAux, pc, ProductList{}, nullptr);
+  auto srp = std::make_unique<SubRunPrincipal>(subRunAux, pc, nullptr);
   srp->setRunPrincipal(rp.get());
 
   EventAuxiliary const eventAux{id, time, true};
@@ -261,11 +255,10 @@ EventTestFixture()
   const_cast<ProcessHistoryID&>(history->processHistoryID()) = processHistoryID;
   principal_ = std::make_unique<EventPrincipal>(eventAux,
                                                 pc,
-                                                gf().presentProductList_,
                                                 &gf().presentProducts_,
                                                 std::move(history));
   principal_->setSubRunPrincipal(srp.get());
-  principal_->setProducedProducts(gf().producedProductDescriptions_, gf().producedProducts_);
+  principal_->setProducedProducts(gf().producedProducts_);
 
   currentEvent_ = std::make_unique<Event>(*principal_, gf().currentModuleDescription_);
 }

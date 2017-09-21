@@ -36,22 +36,12 @@ class Path {
 
 public: // MEMBER FUNCTIONS -- Special Member Functions
 
-  ~Path() noexcept;
-
   Path(ActionTable&, ActivityRegistry&, int const streamIndex, int const bitpos, bool const isEndPath,
        std::string const& path_name, std::vector<WorkerInPath>&&, HLTGlobalStatus*) noexcept;
 
   Path(Path const&) = delete;
 
-  // FIXME: This is a hack, remove!
-  Path(Path&&) noexcept;
-
-  Path&
-  operator=(Path const&) = delete;
-
-  // FIXME: This is a hack, remove!
-  Path&
-  operator=(Path&&) noexcept;
+  Path& operator=(Path const&) = delete;
 
 public: // MEMBER FUNCTIONS
 

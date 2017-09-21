@@ -32,7 +32,6 @@
 #include "canvas/Persistency/Provenance/History.h"
 #include "canvas/Persistency/Provenance/ProcessHistory.h"
 #include "canvas/Persistency/Provenance/ProductID.h"
-#include "canvas/Persistency/Provenance/ProductList.h"
 #include "canvas/Persistency/Provenance/ProductProvenance.h"
 #include "canvas/Persistency/Provenance/ProductStatus.h"
 #include "canvas/Persistency/Provenance/ProductTables.h"
@@ -82,7 +81,6 @@ public: // MEMBER FUNCTIONS -- Special Member Functions
 
   Principal(BranchType,
             ProcessConfiguration const&,
-            ProductList const&,
             cet::exempt_ptr<ProductTable const> presentProducts,
             ProcessHistoryID const&,
             std::unique_ptr<DelayedReader>&&);
@@ -90,21 +88,18 @@ public: // MEMBER FUNCTIONS -- Special Member Functions
   // Run
   Principal(RunAuxiliary const&,
             ProcessConfiguration const&,
-            ProductList const&,
             cet::exempt_ptr<ProductTable const> presentProducts,
             std::unique_ptr<DelayedReader>&& reader = std::make_unique<NoDelayedReader>());
 
   // SubRun
   Principal(SubRunAuxiliary const&,
             ProcessConfiguration const&,
-            ProductList const&,
             cet::exempt_ptr<ProductTable const> presentProducts,
             std::unique_ptr<DelayedReader>&& reader = std::make_unique<NoDelayedReader>());
 
   // Event
   Principal(EventAuxiliary const&,
             ProcessConfiguration const&,
-            ProductList const&,
             cet::exempt_ptr<ProductTable const> presentProducts,
             std::unique_ptr<History>&& history = std::make_unique<History>(),
             std::unique_ptr<DelayedReader>&& reader = std::make_unique<NoDelayedReader>(),
@@ -113,7 +108,6 @@ public: // MEMBER FUNCTIONS -- Special Member Functions
   // Results
   Principal(ResultsAuxiliary const&,
             ProcessConfiguration const&,
-            ProductList const&,
             cet::exempt_ptr<ProductTable const> presentProducts,
             std::unique_ptr<DelayedReader>&& reader = std::make_unique<NoDelayedReader>());
 
@@ -182,16 +176,16 @@ public: // MEMBER FUNCTIONS -- Interface for other parts of art
   addSecondaryPrincipal(std::unique_ptr<Principal>&&);
 
   void
-  setProducedProducts(ProductDescriptions const& descriptions,
-                      ProductTables const& producedProducts)
+  setProducedProducts(ProductTables const& producedProducts)
   {
-    for (auto const& pd : descriptions) {
-      if (pd.branchType() != branchType_) {
-        continue;
-      }
+    auto const& produced = producedProducts.get(branchType_);
+    if (produced.descriptions.empty()) return;
+
+    producedProducts_ = cet::make_exempt_ptr(&produced);
+    for (auto const& pd : produced.descriptions) {
+      assert(pd.branchType() == branchType_);
       fillGroup(pd);
     }
-    producedProducts_ = cet::make_exempt_ptr(&producedProducts.get(branchType_));
   }
 
   // Used only by RootInputFile to implement the delayedRead*Products config options.
@@ -344,7 +338,7 @@ private: // MEMBER FUNCTIONS
 
   // Used by our ctors.
   void
-  ctor_create_groups(ProductList const&);
+  ctor_create_groups(cet::exempt_ptr<ProductTable const>);
 
   // Used by our ctors.
   void

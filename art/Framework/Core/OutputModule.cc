@@ -451,7 +451,6 @@ doRespondToOpenInputFile(FileBlock const& fb)
   if (respPtr == nullptr) {
     respHolder = make_unique<ResultsPrincipal>(ResultsAuxiliary{},
                                                moduleDescription().processConfiguration(),
-                                               ProductList{},
                                                nullptr);
     respPtr = respHolder.get();
   }

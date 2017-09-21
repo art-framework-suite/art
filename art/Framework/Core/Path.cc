@@ -41,12 +41,6 @@ namespace art {
 class EventPrincipal;
 
 Path::
-~Path() noexcept
-{
-  //TDEBUG(5) << "Path dtor: 0x" << hex << ((unsigned long)this) << dec << "\n";
-}
-
-Path::
 Path(ActionTable& actions, ActivityRegistry& actReg, int const si, int const bitpos, bool const isEndPath, string const& path_name,
      vector<WorkerInPath>&& workers, HLTGlobalStatus* pathResults) noexcept
   : actionTable_{actions}
@@ -61,83 +55,6 @@ Path(ActionTable& actions, ActivityRegistry& actReg, int const si, int const bit
   , waitingTasks_{}
 {
   TDEBUG(5) << "Path ctor: 0x" << hex << ((unsigned long)this) << dec << "\n";
-}
-
-
-//Path::
-//Path(Path const& rhs)
-//  : actionTable_{rhs.actionTable_}
-//  , actReg_{rhs.actReg_}
-//  , streamIndex_{rhs.streamIndex_}
-//  , bitpos_{rhs.bitpos_}
-//  , isEndPath_{rhs.isEndPath_}
-//  , name_{rhs.name_}
-//  , workers_{rhs.workers_}
-//  , trptr_{rhs.trptr_}
-//  , cpc_{rhs.cpc_}
-//  // You really cannot copy one of these, but we only do this in
-//  // when PathManager is asked to created the paths, so oh well.
-//  , waitingTasks_{}
-//{
-//}
-
-Path::
-Path(Path&& rhs) noexcept
-  : actionTable_{rhs.actionTable_}
-  , actReg_{rhs.actReg_}
-  , streamIndex_{move(rhs.streamIndex_)}
-  , bitpos_{move(rhs.bitpos_)}
-  , isEndPath_{move(rhs.isEndPath_)}
-  , name_{move(rhs.name_)}
-  , workers_{move(rhs.workers_)}
-  , trptr_{move(rhs.trptr_)}
-  , cpc_{move(rhs.cpc_)}
-  // You really cannot move one of these, but we only do this in
-  // when PathManager is asked to created the paths, so oh well.
-  , waitingTasks_{}
-{
-  TDEBUG(5) << "Path move ctor: 0x" << hex << ((unsigned long)this) << dec << "\n";
-}
-
-//Path&
-//Path::
-//operator=(Path const& rhs)
-//{
-//  if (this != &rhs) {
-//    //actionTable_ = rhs.actionTable_;
-//    //actReg_ = rhs.actReg_;
-//    streamIndex_ = rhs.streamIndex_;
-//    bitpos_ = rhs.bitpos_;
-//    isEndPath_ = rhs.isEndPath_;
-//    name_ = rhs.name_;
-//    workers_ = rhs.workers_;
-//    trptr_ = rhs.trptr_;
-//    cpc_ = rhs.cpc_;
-//    // You really cannot copy one of these, but we only do this in
-//    // when PathManager is asked to created the paths, so oh well.
-//    waitingTasks_.reset();
-//  }
-//  return *this;
-//}
-
-Path&
-Path::
-operator=(Path&& rhs) noexcept
-{
-  TDEBUG(5) << "Path move operator=: 0x" << hex << ((unsigned long)this) << dec << "\n";
-  //actionTable_ = move(rhs.actionTable_);
-  //actReg_ = move(rhs.actReg_);
-  streamIndex_ = move(rhs.streamIndex_);
-  bitpos_ = move(rhs.bitpos_);
-  isEndPath_ = move(rhs.isEndPath_);
-  name_ = move(rhs.name_);
-  workers_ = move(rhs.workers_);
-  trptr_ = move(rhs.trptr_);
-  cpc_ = move(rhs.cpc_);
-  // You really cannot move one of these, but we only do this in
-  // when PathManager is asked to created the paths, so oh well.
-  waitingTasks_.reset();
-  return *this;
 }
 
 int
@@ -496,7 +413,7 @@ Path::
 process_event_workerFinished(size_t const idx, size_t const max_idx, EventPrincipal& ep, int si, bool const should_continue,
                              CurrentProcessingContext* cpc)
 {
-  TDEBUG(4) << "-----> Begin Path::process_event_workerFinished: si: " << si << " idx: " << idx << " max_idx: " << max_idx << 
+  TDEBUG(4) << "-----> Begin Path::process_event_workerFinished: si: " << si << " idx: " << idx << " max_idx: " << max_idx <<
           " should_continue: " << should_continue << " ...\n";
   auto new_idx = idx;
   // Move on to the next worker.

@@ -20,7 +20,7 @@ art::SourceHelper::SourceHelper(ModuleDescription const& md) :
 void
 art::SourceHelper::throwIfProductsNotRegistered_() const
 {
-  if (!presentProducts_ || !productList_) {
+  if (!presentProducts_) {
     throw Exception(errors::ProductRegistrationFailure,
                     "Error while attempting to create principal from SourceHelper.\n")
       << "Principals cannot be created until product registration is complete.\n"
@@ -30,10 +30,8 @@ art::SourceHelper::throwIfProductsNotRegistered_() const
 }
 
 void
-art::SourceHelper::setPresentProducts(cet::exempt_ptr<ProductList const> productList,
-                                      cet::exempt_ptr<ProductTables const> presentProducts)
+art::SourceHelper::setPresentProducts(cet::exempt_ptr<ProductTables const> presentProducts)
 {
-  productList_ = productList;
   presentProducts_ = presentProducts;
 }
 
@@ -41,7 +39,7 @@ art::RunPrincipal*
 art::SourceHelper::makeRunPrincipal(RunAuxiliary const& runAux) const
 {
   throwIfProductsNotRegistered_();
-  return new RunPrincipal{runAux, md_.processConfiguration(), *productList_, &presentProducts_->get(InRun)};
+  return new RunPrincipal{runAux, md_.processConfiguration(), &presentProducts_->get(InRun)};
 }
 
 art::RunPrincipal*
@@ -62,7 +60,7 @@ art::SubRunPrincipal*
 art::SourceHelper::makeSubRunPrincipal(SubRunAuxiliary const& subRunAux) const
 {
   throwIfProductsNotRegistered_();
-  return new SubRunPrincipal{subRunAux, md_.processConfiguration(), *productList_, &presentProducts_->get(InSubRun)};
+  return new SubRunPrincipal{subRunAux, md_.processConfiguration(), &presentProducts_->get(InSubRun)};
 }
 
 art::SubRunPrincipal*
@@ -82,7 +80,7 @@ art::EventPrincipal*
 art::SourceHelper::makeEventPrincipal(EventAuxiliary const& eventAux, std::unique_ptr<History>&& history) const
 {
   throwIfProductsNotRegistered_();
-  return new EventPrincipal{eventAux, md_.processConfiguration(), *productList_, &presentProducts_->get(InEvent), std::move(history)};
+  return new EventPrincipal{eventAux, md_.processConfiguration(), &presentProducts_->get(InEvent), std::move(history)};
 }
 
 art::EventPrincipal*
@@ -91,7 +89,7 @@ art::SourceHelper::makeEventPrincipal(EventID const& e, Timestamp const& startTi
 {
   throwIfProductsNotRegistered_();
   EventAuxiliary const eventAux{e, startTime, isRealData, eType};
-  return new EventPrincipal{eventAux, md_.processConfiguration(), *productList_, &presentProducts_->get(InEvent)};
+  return new EventPrincipal{eventAux, md_.processConfiguration(), &presentProducts_->get(InEvent)};
 }
 
 art::EventPrincipal*

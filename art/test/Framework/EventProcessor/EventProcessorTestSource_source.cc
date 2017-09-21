@@ -139,7 +139,6 @@ namespace arttest {
       art::RunAuxiliary const aux {run_, nullTimestamp(), nullTimestamp()};
       auto rp = std::make_unique<art::RunPrincipal>(aux,
                                                     isd_.moduleDescription.processConfiguration(),
-                                                    art::ProductList{},
                                                     nullptr);
       return std::move(rp);
     }
@@ -149,7 +148,6 @@ namespace arttest {
       art::SubRunAuxiliary const aux {subRun_, nullTimestamp(), nullTimestamp()};
       auto srp = std::make_unique<art::SubRunPrincipal>(aux,
                                                         isd_.moduleDescription.processConfiguration(),
-                                                        art::ProductList{},
                                                         nullptr);
       srp->setRunPrincipal(rp);
       return std::move(srp);
@@ -161,7 +159,6 @@ namespace arttest {
       art::EventAuxiliary const aux {event_, nullTimestamp(), true};
       auto ep = std::make_unique<art::EventPrincipal>(aux,
                                                       isd_.moduleDescription.processConfiguration(),
-                                                      art::ProductList{},
                                                       nullptr);
       ep->setSubRunPrincipal(srp);
       return std::move(ep);

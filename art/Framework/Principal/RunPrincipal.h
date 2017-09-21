@@ -25,7 +25,6 @@ public:
 
   RunPrincipal(RunAuxiliary const&,
                ProcessConfiguration const&,
-               ProductList const&,
                cet::exempt_ptr<ProductTable const>,
                std::unique_ptr<DelayedReader>&& = std::make_unique<NoDelayedReader>());
 

@@ -236,9 +236,6 @@ namespace art {
     ProductRegistryHelper
     h_{};
 
-    ProductList
-    productList_{};
-
     ProductTables
     presentProducts_{ProductTables::invalid()};
 
@@ -726,13 +723,7 @@ namespace art {
                                           d.moduleDescription.processConfiguration(),
                                           ModuleDescription::invalidID()});
     presentProducts_ = ProductTables{descriptions};
-
-    for (auto const& pd : descriptions) {
-      productList_.emplace(BranchKey{pd}, pd);
-    }
-
-    sourceHelper_.setPresentProducts(cet::make_exempt_ptr(&productList_),
-                                     cet::make_exempt_ptr(&presentProducts_));
+    sourceHelper_.setPresentProducts(cet::make_exempt_ptr(&presentProducts_));
   }
 
 } // namespace art

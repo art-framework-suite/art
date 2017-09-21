@@ -385,9 +385,8 @@ art::RootOutput::startEndFile()
 {
   auto resp = std::make_unique<ResultsPrincipal>(ResultsAuxiliary{},
                                                  moduleDescription().processConfiguration(),
-                                                 ProductList{},
                                                  nullptr);
-  resp->setProducedProducts(productsToProduce_, producedResultsProducts_);
+  resp->setProducedProducts(producedResultsProducts_);
   if (ProductMetaData::instance().productProduced(InResults) ||
       hasNewlyDroppedBranch()[InResults]) {
     resp->addToProcessHistory();

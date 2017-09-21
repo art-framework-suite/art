@@ -201,14 +201,14 @@ namespace art {
 
   void
   RootInputFile::RootInputTree::
-  addBranch(BranchKey const& key, BranchDescription const& bd)
+  addBranch(BranchDescription const& bd)
   {
     assert(isValid());
     TBranch* branch = tree_->GetBranch(bd.branchName().c_str());
     assert(bd.present() == (branch != nullptr));
     assert(bd.dropped() == (branch == nullptr));
     input::BranchInfo info{bd, branch};
-    branches_.emplace(key, std::move(info));
+    branches_.emplace(BranchKey{bd}, std::move(info));
   }
 
   void
@@ -407,7 +407,7 @@ namespace art {
                << finalize_status
                << ").\n";
         }
-        art::ServiceHandle<art::FileCatalogMetadata> {}->setMetadataFromInput(md);
+        art::ServiceHandle<art::FileCatalogMetadata>{}->setMetadataFromInput(md);
       }
     }
     validateFile();
@@ -424,28 +424,37 @@ namespace art {
     readEventHistoryTree(treeCacheSize);
 
     // Read the ProductList
-    productListHolder_ = detail::readMetadata<ProductRegistry>(metaDataTree);
-    auto& prodList = productListHolder_.productList_;
-    dropOnInput(groupSelectorRules, dropDescendants, prodList);
+    // Note: we only need the product list, not the ProductRegistry
+    // object.
+    auto productList = detail::readMetadata<ProductRegistry>(metaDataTree).productList_;
+    dropOnInput(groupSelectorRules, dropDescendants, productList);
 
-    auto availableProducts = fillPerBranchTypePresenceFlags(prodList);
+    auto availableProducts = fillPerBranchTypePresenceFlags(productList);
 
-    // Add branches
-    for (auto& prod : prodList) {
+    // Adjust validity of BranchDescription objects
+    for (auto& prod : productList) {
       auto& pd = prod.second;
       auto const& presenceLookup = availableProducts[pd.branchType()];
       bool const present{presenceLookup.find(pd.productID()) != cend(presenceLookup)};
       auto const validity = present ? BranchDescription::Transients::PresentFromSource : BranchDescription::Transients::Dropped;
       pd.setValidity(validity);
-      treePointers_[pd.branchType()]->addBranch(prod.first, pd);
     }
 
     // Update MasterProductRegistry, with adjusted BranchDescription
     // validity values.
-    mpr.updateFromInputFile(prodList);
+    mpr.updateFromInputFile(productList);
 
-    auto const& descriptions = make_product_descriptions(prodList);
+    // Create product table for present products
+    auto const& descriptions = make_product_descriptions(productList);
     presentProducts_ = ProductTables{descriptions, availableProducts};
+
+    // Add branches
+    for (std::size_t i{}; i < NumBranchTypes; ++i) {
+      auto const bt = static_cast<BranchType>(i);
+      for (auto const& pd : presentProducts_.get(bt).descriptions) {
+        treePointers_[bt]->addBranch(pd);
+      }
+    }
 
     // Determine if this file is fast clonable.
     fastClonable_ = setIfFastClonable(fcip);
@@ -1108,7 +1117,6 @@ namespace art {
     overrideRunNumber(const_cast<EventID&>(eventAux_.eventID()), eventAux_.isRealData());
     auto ep = make_unique<EventPrincipal>(eventAux_,
                                           processConfiguration_,
-                                          productListHolder_.productList_,
                                           &presentProducts_.get(InEvent),
                                           move(history),
                                           make_unique<RootDelayedReader>(fileFormatVersion_,
@@ -1150,7 +1158,6 @@ namespace art {
                       eventAux_.isRealData());
     auto ep = make_unique<EventPrincipal>(eventAux_,
                                           processConfiguration_,
-                                          productListHolder_.productList_,
                                           &presentProducts_.get(InEvent),
                                           move(history),
                                           make_unique<RootDelayedReader>(fileFormatVersion_,
@@ -1200,7 +1207,6 @@ namespace art {
     }
     auto rp = make_unique<RunPrincipal>(runAux_,
                                         processConfiguration_,
-                                        productListHolder_.productList_,
                                         &presentProducts_.get(InRun),
                                         make_unique<RootDelayedReader>(fileFormatVersion_,
                                                                        sqliteDB_,
@@ -1243,7 +1249,6 @@ namespace art {
     }
     auto rp = make_unique<RunPrincipal>(runAux_,
                                         processConfiguration_,
-                                        productListHolder_.productList_,
                                         &presentProducts_.get(InRun),
                                         make_unique<RootDelayedReader>(fileFormatVersion_,
                                                                        sqliteDB_,
@@ -1294,7 +1299,6 @@ namespace art {
     }
     auto srp = make_unique<SubRunPrincipal>(subRunAux_,
                                             processConfiguration_,
-                                            productListHolder_.productList_,
                                             &presentProducts_.get(InSubRun),
                                             make_unique<RootDelayedReader>(fileFormatVersion_,
                                                                            sqliteDB_,
@@ -1336,7 +1340,6 @@ namespace art {
     }
     auto srp = make_unique<SubRunPrincipal>(subRunAux_,
                                             processConfiguration_,
-                                            productListHolder_.productList_,
                                             &presentProducts_.get(InSubRun),
                                             make_unique<RootDelayedReader>(fileFormatVersion_,
                                                                            sqliteDB_,
@@ -1521,7 +1524,6 @@ namespace art {
     if (!resultsTree().isValid()) {
       resp = make_unique<ResultsPrincipal>(ResultsAuxiliary{},
                                            processConfiguration_,
-                                           ProductList{},
                                            nullptr);
       return resp;
     }
@@ -1531,7 +1533,6 @@ namespace art {
     fillAuxiliary_Results(entryNumbers.front());
     resp = std::make_unique<ResultsPrincipal>(resultsAux_,
                                               processConfiguration_,
-                                              productListHolder_.productList_,
                                               &presentProducts_.get(InResults),
                                               make_unique<RootDelayedReader>(fileFormatVersion_,
                                                                              nullptr,

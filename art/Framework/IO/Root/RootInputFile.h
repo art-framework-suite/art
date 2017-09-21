@@ -111,7 +111,7 @@ private: // TYPES
     branches() const;
 
     void
-    addBranch(BranchKey const&, BranchDescription const&);
+    addBranch(BranchDescription const&);
 
     void
     dropBranch(std::string const& branchName);
@@ -482,8 +482,6 @@ private: // MEMBER DATA
 
   ResultsAuxiliary
   resultsAux_{};
-
-  ProductRegistry productListHolder_{};
 
   ProductTables
   presentProducts_{ProductTables::invalid()};

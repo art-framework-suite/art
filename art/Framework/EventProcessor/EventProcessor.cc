@@ -249,36 +249,25 @@ template <Level L>
 bool
 EventProcessor::levelsToProcess()
 {
-  //cerr << "-----> EventProcessor::levelsToProcess<" << L << ">(): Begin ...\n";
   if (nextLevel_ == Level::ReadyToAdvance) {
     nextLevel_ = advanceItemType();
     // Consider reading right here?
   }
   if (nextLevel_ == L) {
     nextLevel_ = Level::ReadyToAdvance;
-    ///cout << "-----> EventProcessor::levelsToProcess<L>() ... calling endPathExecutor_->outputsToClose()" << endl;
     if (endPathExecutor_->outputsToClose()) {
-      //cerr << "EventProcessor::levelsToProcess<" << L << ">: Begin output file switch.\n";
-      ///cout << "-----> EventProcessor::levelsToProcess<L>() ... calling setOutputFileStatus(OutputFileStatus::Switching)" << endl;
       setOutputFileStatus(OutputFileStatus::Switching);
-      ///cout << "-----> EventProcessor::levelsToProcess<L>() ... calling finalizeContainingLevels<L>()" << endl;
       finalizeContainingLevels<L>();
-      ///cout << "-----> EventProcessor::levelsToProcess<L>() ... calling closeSomeOutputFiles()" << endl;
       closeSomeOutputFiles();
-      //cerr << "EventProcessor::levelsToProcess<" << L << ">: End   output file switch.\n";
     }
-    //cerr << "-----> EventProcessor::levelsToProcess<" << L << ">(): End    READY TO ADVANCE true\n";
     return true;
   }
   else if (nextLevel_ < L) {
-    //cerr << "-----> EventProcessor::levelsToProcess<" << L << ">(): End    POPUP false\n";
     return false;
   }
   else if (nextLevel_ == highest_level()) {
-    //cerr << "-----> EventProcessor::levelsToProcess<" << L << ">(): End    JOB false\n";
     return false;
   }
-  //cerr << "-----> EventProcessor::levelsToProcess<" << L << ">(): End    EXCEPTION incorrent level hierarchy\n";
   throw Exception{errors::LogicError} << "Incorrect level hierarchy.";
 }
 
@@ -290,180 +279,124 @@ namespace art {
 template <>
 inline void EventProcessor::begin<Level::Job>()
 {
-  ///cout << "-----> EventProcessor::begin<Level::Job>() ..." << endl;
   timer_.start();
-  ///cout << "-----> EventProcessor::begin<Level::Job>() ... calling beginJob()" << endl;
   beginJob();
-  ///cout << "-----> EventProcessor::begin<Level::Job>() ... end" << endl;
 }
 
 template <>
 inline void EventProcessor::begin<Level::InputFile>()
 {
-  ///cout << "-----> EventProcessor::begin<Level::InputFile>() ..." << endl;
-  ///cout << "-----> EventProcessor::begin<Level::InputFile>() ... calling openInputFile()" << endl;
   openInputFile();
-  ///cout << "-----> EventProcessor::begin<Level::InputFile>() ... end" << endl;
 }
 
 template <>
 void EventProcessor::begin<Level::Run>()
 {
-  //cerr << "-----> EventProcessor::begin<Level::Run>(): Begin ...\n";
   finalizeRunEnabled_ = true;
-  ///cout << "-----> EventProcessor::begin<Level::Run>() ... calling readRun()" << endl;
   readRun();
   if (handleEmptyRuns_) {
-    ///cout << "-----> EventProcessor::begin<Level::Run>() ... calling beginRun()" << endl;
     beginRun();
   }
-  //cerr << "-----> EventProcessor::begin<Level::Run>(): End   ...\n";
 }
 
 template <>
 void EventProcessor::begin<Level::SubRun>()
 {
-  //cerr << "-----> EventProcessor::begin<Level::SubRun>(): Begin ...\n";
   finalizeSubRunEnabled_ = true;
   assert(runPrincipal_);
   assert(runPrincipal_->runID().isValid());
-  ///cout << "-----> EventProcessor::begin<Level::SubRun>() ... calling readSubRun()" << endl;
   readSubRun();
   if (handleEmptySubRuns_) {
-    ///cout << "-----> EventProcessor::begin<Level::SubRun>() ... calling beginRunIfNotDoneAlready()" << endl;
     beginRunIfNotDoneAlready();
-    ///cout << "-----> EventProcessor::begin<Level::SubRun>() ... calling beginSubRun()" << endl;
     beginSubRun();
   }
-  //cerr << "-----> EventProcessor::begin<Level::SubRun>(): End   ...\n";
 }
 
 template <>
 void EventProcessor::finalize<Level::SubRun>()
 {
-  //cerr << "-----> EventProcessor::finalize<Level::SubRun>(): Begin ...\n";
   assert(subRunPrincipal_);
   if (!finalizeSubRunEnabled_) {
-    ///cout << "-----> EventProcessor::finalize<Level::SubRun>() ... end" << endl;
-    //cerr << "-----> EventProcessor::finalize<Level::SubRun>(): End   ...\n";
     return;
   }
   if (subRunPrincipal_->subRunID().isFlush()) {
-    ///cout << "-----> EventProcessor::finalize<Level::SubRun>() ... end" << endl;
-    //cerr << "-----> EventProcessor::finalize<Level::SubRun>(): End   ...\n";
     return;
   }
-  ///cout << "-----> EventProcessor::finalize<Level::SubRun>() ... calling openSomeOutputFiles()" << endl;
-  //cerr << "-----> EventProcessor::finalize<Level::SubRun>(): ... calling openSomeOutputFiles()\n";
   openSomeOutputFiles();
-  ///cout << "-----> EventProcessor::finalize<Level::SubRun>() ... calling setSubRunAuxiliaryRangeSetID()" << endl;
   setSubRunAuxiliaryRangeSetID();
   if (beginSubRunCalled_) {
-    ///cout << "-----> EventProcessor::finalize<Level::SubRun>() ... calling endSubRun()" << endl;
     endSubRun();
   }
-  ///cout << "-----> EventProcessor::finalize<Level::SubRun>() ... calling writeSubRun()" << endl;
   writeSubRun();
   finalizeSubRunEnabled_ = false;
-  //cerr << "-----> EventProcessor::finalize<Level::SubRun>(): End   ...\n";
 }
 
 template <>
 void EventProcessor::finalize<Level::Run>()
 {
-  //cerr << "-----> EventProcessor::finalize<Level::Run>(): Begin ...\n";
   assert(runPrincipal_);
   if (!finalizeRunEnabled_) {
-    ///cout << "-----> EventProcessor::finalize<Level::Run>() ... end" << endl;
-    //cerr << "-----> EventProcessor::finalize<Level::Run>(): End   ...\n";
     return;
   }
   if (runPrincipal_->runID().isFlush()) {
-    ///cout << "-----> EventProcessor::finalize<Level::Run>() ... end" << endl;
-    //cerr << "-----> EventProcessor::finalize<Level::Run>(): End   ...\n";
     return;
   }
-  ///cout << "-----> EventProcessor::finalize<Level::Run>() ... calling openSomeOutputFiles()" << endl;
   openSomeOutputFiles();
-  ///cout << "-----> EventProcessor::finalize<Level::Run>() ... calling setRunAuxiliaryRangeSetID()" << endl;
   setRunAuxiliaryRangeSetID();
   if (beginRunCalled_) {
-    ///cout << "-----> EventProcessor::finalize<Level::Run>() ... calling endRun()" << endl;
     endRun();
   }
-  ///cout << "-----> EventProcessor::finalize<Level::Run>() ... calling writeRun()" << endl;
   writeRun();
   finalizeRunEnabled_ = false;
-  //cerr << "-----> EventProcessor::finalize<Level::Run>(): End   ...\n";
 }
 
 template <>
 void EventProcessor::finalize<Level::InputFile>()
 {
-  ///cout << "-----> EventProcessor::finalize<Level::InputFile>() ..." << endl;
   if (nextLevel_ == Level::Job) {
-    ///cout << "-----> EventProcessor::finalize<Level::InputFile>() ... calling closeAllFiles()" << endl;
     closeAllFiles();
   }
   else {
-    ///cout << "-----> EventProcessor::finalize<Level::InputFile>() ... calling closeInputFile()" << endl;
     closeInputFile();
   }
-  ///cout << "-----> EventProcessor::finalize<Level::InputFile>() ... end" << endl;
 }
 
 template <>
 inline void EventProcessor::finalize<Level::Job>()
 {
-  ///cout << "-----> EventProcessor::finalize<Level::Job>() ..." << endl;
-  ///cout << "-----> EventProcessor::finalize<Level::Job>() ... calling endJob()" << endl;
   endJob();
   timer_.stop();
-  ///cout << "-----> EventProcessor::finalize<Level::Job>() ... end" << endl;
 }
 
 template <>
 inline void EventProcessor::finalizeContainingLevels<Level::SubRun>()
 {
-  ///cout << "-----> EventProcessor::finalizeContainingLevels<Level::SubRun>() ..." << endl;
-  ///cout << "-----> EventProcessor::finalizeContainingLevels<Level::SubRun>() ... calling finalize<Level::Run>()" << endl;
   finalize<Level::Run>();
-  ///cout << "-----> EventProcessor::finalizeContainingLevels<Level::SubRun>() ... end" << endl;
 }
 
 template <>
 inline void EventProcessor::finalizeContainingLevels<Level::Event>()
 {
-  ///cout << "-----> EventProcessor::finalizeContainingLevels<Level::Event>() ..." << endl;
-  ///cout << "-----> EventProcessor::finalizeContainingLevels<Level::Event>() ... calling finalize<Level::SubRun>()" << endl;
   finalize<Level::SubRun>();
-  ///cout << "-----> EventProcessor::finalizeContainingLevels<Level::Event>() ... calling finalize<Level::Run>()" << endl;
   finalize<Level::Run>();
-  ///cout << "-----> EventProcessor::finalizeContainingLevels<Level::Event>() ... end" << endl;
 }
 
 template <>
 inline void EventProcessor::recordOutputModuleClosureRequests<Level::Run>()
 {
-  ///cout << "-----> EventProcessor::recordOutputModuleClosureRequests<Level::Run>() ..." << endl;
   endPathExecutor_->recordOutputClosureRequests(Granularity::Run);
-  ///cout << "-----> EventProcessor::recordOutputModuleClosureRequests<Level::Run>() ... end" << endl;
 }
 
 template <>
 inline void EventProcessor::recordOutputModuleClosureRequests<Level::SubRun>()
 {
-  ///cout << "-----> EventProcessor::recordOutputModuleClosureRequests<Level::SubRun>() ..." << endl;
   endPathExecutor_->recordOutputClosureRequests(Granularity::SubRun);
-  ///cout << "-----> EventProcessor::recordOutputModuleClosureRequests<Level::SubRun>() ... end" << endl;
 }
 
 template <>
 inline void EventProcessor::recordOutputModuleClosureRequests<Level::Event>()
 {
-  ///cout << "-----> EventProcessor::recordOutputModuleClosureRequests<Level::Event>() ..." << endl;
   endPathExecutor_->recordOutputClosureRequests(Granularity::Event);
-  ///cout << "-----> EventProcessor::recordOutputModuleClosureRequests<Level::Event>() ... end" << endl;
 }
 
 template <>
@@ -481,7 +414,6 @@ void EventProcessor::process<most_deeply_nested_level()>()
   //FIXME: Hacked this in while trying to get thread-safe
   //FIXME: file output switching working.  This should be
   //FIXME: somewhere else probably!!!
-  //openSomeOutputFiles();
   // Note: This loop is to allow output file switching to
   // happen in the main thread.
   bool done = false;
@@ -514,7 +446,6 @@ void EventProcessor::process<most_deeply_nested_level()>()
       done = true;
       continue;
     }
-    //cerr << "EventProcessor::process<Event>: Begin output file switch.\n";
     setOutputFileStatus(OutputFileStatus::Switching);
     finalizeContainingLevels<most_deeply_nested_level()/*Event*/>();
     // FIXME: Need to notify all streams!
@@ -522,17 +453,13 @@ void EventProcessor::process<most_deeply_nested_level()>()
     {
       endPathExecutor_->closeSomeOutputFiles();
       FDEBUG(1) << spaces(8) << "closeSomeOutputFiles\n";
-      //endPathExecutor_->openSomeOutputFiles(*fb_);
-      //FDEBUG(1) << spaces(8) << "openSomeOutputFiles\n";
     }
     // FIXME: Need to notify all streams!
-    //respondToOpenOutputFiles();
     // We started the switch after advancing the file index
     // iterator, we must make sure that we read that event
     // before advancing the iterator again.
     firstEvent_ = true;
     fileSwitchInProgress_ = false;
-    //cerr << "EventProcessor::process<Event>: End   output file switch.\n";
   }
 }
 
@@ -815,7 +742,6 @@ processAllEventsAsync_readAndProcess_after_possible_output_switch(int si)
       // If we are switching output files every event in an
       // attempt to create single event files, this really does
       // not work out too well.
-      //cerr << "EventProcessor::processAllEventsAsync_readAndProcess_after_possible_output_switch (" << si << ") ... SWITCH\n";
       TDEBUG(4) << "-----> End   EventProcessor::processAllEventsAsync_readAndProcess (" << si << ") ...\n";
       return;
     }
@@ -827,7 +753,6 @@ processAllEventsAsync_readAndProcess_after_possible_output_switch(int si)
     auto expected = true;
     if (firstEvent_.compare_exchange_strong(expected, false)) {
       // Do not advance the item type on the first event.
-      //cerr << "EventProcessor::processAllEventsAsync_readAndProcess_after_possible_output_switch (" << si << ") ... skipped advance\n";
     }
     else {
       // Do the advance item type.
@@ -840,7 +765,6 @@ processAllEventsAsync_readAndProcess_after_possible_output_switch(int si)
           (nextLevel_ == highest_level()/*File*/)) {
         // We are popping up, end event processing and this task.
         TDEBUG(4) << "-----> End   EventProcessor::processAllEventsAsync_readAndProcess_after_possible_output_switch (" << si << ") ... END OF SUBRUN\n";
-        //cerr << "EventProcessor::processAllEventsAsync_readAndProcess_after_possible_output_switch (" << si << "): End   ... END OF SUBRUN\n";
         return;
       }
       if (nextLevel_ != most_deeply_nested_level()/*Event*/) {
@@ -856,7 +780,6 @@ processAllEventsAsync_readAndProcess_after_possible_output_switch(int si)
       // a different stream.
       if (endPathExecutor_->outputsToClose()) {
         TDEBUG(5) << "-----> EventProcessor::processAllEventsAsync_readAndProcess (" << si << ") ... there are outputs to close\n";
-        //cerr << "EventProcessor::processAllEventsAsync_readAndProcess_after_possible_output_switch (" << si << ") ... SWITCH FIRST\n";
         fileSwitchInProgress_ = true;
         TDEBUG(4) << "-----> End   EventProcessor::processAllEventsAsync_readAndProcess (" << si << ") ...\n";
         return;
@@ -873,7 +796,7 @@ processAllEventsAsync_readAndProcess_after_possible_output_switch(int si)
         actReg_.sPreSourceEvent.invoke();
         TDEBUG(5) << "-----> EventProcessor::processAllEventsAsync_readAndProcess_after_possible_output_switch (" << si << ") ... Calling input_->readEvent(subRunPrincipal_.get())\n";
         eventPrincipal_[si] = input_->readEvent(subRunPrincipal_.get());
-        eventPrincipal_[si]->setProducedProducts(productsToProduce_, producedProducts_);
+        eventPrincipal_[si]->setProducedProducts(producedProducts_);
         Event const e{*eventPrincipal_[si], ModuleDescription{}};
         actReg_.sPostSourceEvent.invoke(e);
       }
@@ -912,11 +835,9 @@ processAllEventsAsync_processEvent(int si)
 {
   TDEBUG(4) << "-----> Begin EventProcessor::processAllEventsAsync_processEvent (" << si << ") ...\n";
   auto eventLoopTask = tbb::task::self().parent();
-  //processEvent();
   {
     assert(eventPrincipal_[si]);
     assert(!eventPrincipal_[si]->eventID().isFlush());
-    //process_<ProcessPackage<Level::Event>>(*eventPrincipal_);
     {
       try {
         auto endPathFunctor = [this, si](exception_ptr const* ex) mutable {
@@ -1158,11 +1079,9 @@ processAllEventsAsync_finishEvent(int si)
     //  Now we can write the results of processing
     //  to the outputs.
     //
-    //finalize<most_deeply_nested_level()/*Event*/>();
     {
       assert(eventPrincipal_[si]);
       if (!eventPrincipal_[si]->eventID().isFlush()) {
-        //openSomeOutputFiles();
         {
           TDEBUG(5) << "-----> EventProcessor::processAllEventsAsync_finishEvent (" << si << ") ... calling endPathExecutor_->outputsToOpen()\n";
           if (endPathExecutor_->outputsToOpen()) {
@@ -1172,7 +1091,6 @@ processAllEventsAsync_finishEvent(int si)
             respondToOpenOutputFiles();
           }
         }
-        //writeEvent();
         {
           assert(eventPrincipal_[si]);
           assert(!eventPrincipal_[si]->eventID().isFlush());
@@ -1183,14 +1101,9 @@ processAllEventsAsync_finishEvent(int si)
         }
       }
     }
-    //recordOutputModuleClosureRequests<most_deeply_nested_level()/*Event*/>();
     {
       TDEBUG(5) << "-----> EventProcessor::processAllEventsAsync_finishEvent (" << si << ") ... calling endPathExecutor_->recordOutputClosureRequests(Granularity::Event)\n";
-      //cerr << "EventProcessor::processAllEventsAsync_finishEvent (" << si << "): calling endPathExecutor_->recordOutputClosureRequests(Granularity::Event)\n";
       endPathExecutor_->recordOutputClosureRequests(Granularity::Event);
-      if (endPathExecutor_->outputsToClose()) {
-        //cerr << "EventProcessor::processAllEventsAsync_finishEvent (" << si << "): there are outputs to close after event write\n";
-      }
     }
   }
   catch (cet::exception& e) {
@@ -1405,7 +1318,6 @@ EventProcessor::closeInputFile()
   // specialization of recordOutputModuleClosureRequests<>.
   endPathExecutor_->recordOutputClosureRequests(Granularity::InputFile);
   if (endPathExecutor_->outputsToClose()) {
-    //cerr << "EventProcessor::closeInputFile: ... calling closeSomeOutputFiles().\n";
     closeSomeOutputFiles();
   }
   respondToCloseInputFile();
@@ -1502,28 +1414,24 @@ EventProcessor::respondToCloseOutputFiles()
 void
 EventProcessor::readRun()
 {
-  ///cout << "-----> EventProcessor::readRun() ..." << endl;
   {
     actReg_.sPreSourceRun.invoke();
     runPrincipal_ = input_->readRun();
-    runPrincipal_->setProducedProducts(productsToProduce_, producedProducts_);
+    runPrincipal_->setProducedProducts(producedProducts_);
     Run const r {*runPrincipal_, ModuleDescription{}};
     actReg_.sPostSourceRun.invoke(r);
   }
   endPathExecutor_->seedRunRangeSet(input_->runRangeSetHandler());
   assert(runPrincipal_);
   FDEBUG(1) << spaces(8) << "readRun.....................(" << runPrincipal_->runID() << ")\n";
-  ///cout << "-----> EventProcessor::readRun() ... end" << endl;
 }
 
 void
 EventProcessor::beginRun()
 {
-  ///cout << "-----> EventProcessor::beginRun() ..." << endl;
   assert(runPrincipal_);
   RunID const r{runPrincipal_->runID()};
   if (r.isFlush()) {
-    ///cout << "-----> EventProcessor::beginRun() ... end" << endl;
     return;
   }
   finalizeRunEnabled_ = true;
@@ -1551,7 +1459,6 @@ EventProcessor::beginRun()
   }
   FDEBUG(1) << spaces(8) << "beginRun....................(" << r << ")\n";
   beginRunCalled_ = true;
-  ///cout << "-----> EventProcessor::beginRun() ... end" << endl;
 }
 
 void
@@ -1573,7 +1480,6 @@ EventProcessor::setRunAuxiliaryRangeSetID()
 void
 EventProcessor::endRun()
 {
-  ///cout << "-----> EventProcessor::endRun() ..." << endl;
   assert(runPrincipal_);
   // Precondition: The RunID does not correspond to a flush ID. --
   // N.B. The flush flag is not explicitly checked here since endRun
@@ -1602,20 +1508,17 @@ EventProcessor::endRun()
   }
   FDEBUG(1) << spaces(8) << "endRun......................(" << run << ")\n";
   beginRunCalled_ = false;
-  ///cout << "-----> EventProcessor::endRun() ... end" << endl;
 }
 
 void
 EventProcessor::writeRun()
 {
-  ///cout << "-----> EventProcessor::writeRun() ..." << endl;
   assert(runPrincipal_);
   // Precondition: The RunID does not correspond to a flush ID.
   RunID const r {runPrincipal_->runID()};
   assert(!r.isFlush());
   endPathExecutor_->writeRun(*runPrincipal_);
   FDEBUG(1) << spaces(8) << "writeRun....................(" << r << ")\n";
-  ///cout << "-----> EventProcessor::writeRun() ... end" << endl;
 }
 
 //=============================================
@@ -1624,28 +1527,24 @@ EventProcessor::writeRun()
 void
 EventProcessor::readSubRun()
 {
-  ///cout << "-----> EventProcessor::readSubRun() ..." << endl;
   {
     actReg_.sPreSourceSubRun.invoke();
     subRunPrincipal_ = input_->readSubRun(runPrincipal_.get());
-    subRunPrincipal_->setProducedProducts(productsToProduce_, producedProducts_);
+    subRunPrincipal_->setProducedProducts(producedProducts_);
     SubRun const sr {*subRunPrincipal_, ModuleDescription{}};
     actReg_.sPostSourceSubRun.invoke(sr);
   }
   endPathExecutor_->seedSubRunRangeSet(input_->subRunRangeSetHandler());
   assert(subRunPrincipal_);
   FDEBUG(1) << spaces(8) << "readSubRun..................(" << subRunPrincipal_->subRunID() << ")\n";
-  ///cout << "-----> EventProcessor::readSubRun() ... end" << endl;
 }
 
 void
 EventProcessor::beginSubRun()
 {
-  ///cout << "-----> EventProcessor::beginSubRun() ..." << endl;
   assert(subRunPrincipal_);
   SubRunID const sr{subRunPrincipal_->subRunID()};
   if (sr.isFlush()) {
-    ///cout << "-----> EventProcessor::beginSubRun() ... end" << endl;
     return;
   }
   finalizeSubRunEnabled_ = true;
@@ -1670,7 +1569,6 @@ EventProcessor::beginSubRun()
   }
   FDEBUG(1) << spaces(8) << "beginSubRun.................(" << sr << ")\n";
   beginSubRunCalled_ = true;
-  ///cout << "-----> EventProcessor::beginSubRun() ... end" << endl;
 }
 
 void
@@ -1692,7 +1590,6 @@ EventProcessor::setSubRunAuxiliaryRangeSetID()
 void
 EventProcessor::endSubRun()
 {
-  ///cout << "-----> EventProcessor::endSubRun() ..." << endl;
   assert(subRunPrincipal_);
   // Precondition: The SubRunID does not correspond to a flush ID.
   // Note: the flush flag is not explicitly checked here since
@@ -1721,13 +1618,11 @@ EventProcessor::endSubRun()
   }
   FDEBUG(1) << spaces(8) << "endSubRun...................(" << sr << ")\n";
   beginSubRunCalled_ = false;
-  ///cout << "-----> EventProcessor::endSubRun() ... end" << endl;
 }
 
 void
 EventProcessor::writeSubRun()
 {
-  ///cout << "-----> EventProcessor::writeSubRun() ..." << endl;
   assert(subRunPrincipal_);
   // Precondition: The SubRunID does not correspond to a flush ID.
   SubRunID const& sr {subRunPrincipal_->subRunID()};

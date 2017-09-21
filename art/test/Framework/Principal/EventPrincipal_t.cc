@@ -52,7 +52,6 @@ public: // MEMBER FUNCTIONS -- Special Member Functions
   MPRGlobalTestFixture();
 
   art::MasterProductRegistry productRegistry_{};
-  art::ProductDescriptions productsToProduce_{};
   ProductTables producedProducts_{ProductTables::invalid()};
   std::map<std::string, art::BranchKey> branchKeys_{};
   std::map<std::string, art::ProcessConfiguration*> processConfigurations_{};
@@ -80,7 +79,6 @@ MPRGlobalTestFixture()
   descriptions.push_back(fake_single_process_branch("test", "TEST"));
   descriptions.push_back(fake_single_process_branch("user", "USER"));
   descriptions.push_back(fake_single_process_branch("rick", "USER2", "rick"));
-  productsToProduce_ = descriptions;
   producedProducts_ = ProductTables{descriptions};
   productRegistry_.addProductsFromModule(move(descriptions));
   productRegistry_.finalizeForProcessing();
@@ -158,14 +156,14 @@ EventPrincipalTestFixture()
   BOOST_REQUIRE(process);
   art::Timestamp now(1234567UL);
   art::RunAuxiliary runAux {eventID.run(), now, now};
-  auto rp = std::make_unique<art::RunPrincipal>(runAux, *process, art::ProductList{}, nullptr);
+  auto rp = std::make_unique<art::RunPrincipal>(runAux, *process, nullptr);
   art::SubRunAuxiliary subRunAux {rp->run(), eventID.subRun(), now, now};
-  auto srp = std::make_unique<art::SubRunPrincipal>(subRunAux, *process, art::ProductList{}, nullptr);
+  auto srp = std::make_unique<art::SubRunPrincipal>(subRunAux, *process, nullptr);
   srp->setRunPrincipal(rp.get());
   art::EventAuxiliary eventAux(eventID, now, true);
-  pEvent_ = std::make_unique<art::EventPrincipal>(eventAux, *process, art::ProductList{}, nullptr);
+  pEvent_ = std::make_unique<art::EventPrincipal>(eventAux, *process, nullptr);
   pEvent_->setSubRunPrincipal(srp.get());
-  pEvent_->setProducedProducts(gf().productsToProduce_, gf().producedProducts_);
+  pEvent_->setProducedProducts(gf().producedProducts_);
   pEvent_->put(pd, move(productProvenancePtr), move(product), make_unique<RangeSet>());
   BOOST_REQUIRE_EQUAL(pEvent_->size(), 5u);
 }

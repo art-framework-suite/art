@@ -80,9 +80,7 @@ public:
 private:
   template <typename T> friend class Source;
   void throwIfProductsNotRegistered_() const;
-  void setPresentProducts(cet::exempt_ptr<ProductList const> productList,
-                          cet::exempt_ptr<ProductTables const> presentProducts);
-  cet::exempt_ptr<ProductList const> productList_{nullptr};
+  void setPresentProducts(cet::exempt_ptr<ProductTables const> presentProducts);
   cet::exempt_ptr<ProductTables const> presentProducts_{nullptr};
   ModuleDescription md_;
 };
