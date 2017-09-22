@@ -378,7 +378,7 @@ namespace art {
   DataViewImpl::
   getBranchDescription(TypeID const& type, string const& instance) const
   {
-    return get_ProductDescription(type, md_.processName(), ProductMetaData::instance().productList(), branchType_, md_.moduleLabel(),
+    return get_ProductDescription(type, md_.processName(), ProductMetaData::instance().productLists()[branchType_], branchType_, md_.moduleLabel(),
                                   instance);
   }
 

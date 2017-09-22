@@ -766,11 +766,15 @@ writeProductDescriptionRegistry()
   // removing any transient or pruned products.
   auto end = branchesWithStoredHistory_.end();
   ProductRegistry reg;
-  for (auto const& pr : ProductMetaData::instance().productList()) {
-    if (branchesWithStoredHistory_.find(pr.second.productID()) == end) {
-      continue;
+  for (std::size_t i{}; i < NumBranchTypes; ++i) {
+    auto const bt = static_cast<BranchType>(i);
+    for (auto const& pr : ProductMetaData::instance().productLists()[bt]) {
+      auto const& desc = pr.second;
+      if (branchesWithStoredHistory_.find(desc.productID()) == end) {
+        continue;
+      }
+      reg.productList_.emplace_hint(reg.productList_.end(), BranchKey{desc}, desc);
     }
-    reg.productList_.emplace_hint(reg.productList_.end(), pr);
   }
   ProductRegistry const* regp = &reg;
   TBranch* b = metaDataTree_->Branch(metaBranchRootName<ProductRegistry>(),

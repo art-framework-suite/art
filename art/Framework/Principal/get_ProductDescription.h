@@ -66,7 +66,7 @@ namespace art {
   BranchDescription const&
   get_ProductDescription(TypeID tid,
                         std::string const& process_name,
-                        ProductList const& product_list,
+                        ProductDescriptionsByID const& product_list,
                         BranchType branch_type,
                         std::string const& module_label,
                         std::string const& instance_name);

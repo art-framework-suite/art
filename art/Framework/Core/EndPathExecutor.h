@@ -27,6 +27,7 @@
 #include "art/Framework/Principal/OpenRangeSetHandler.h"
 #include "art/Framework/Principal/RangeSetHandler.h"
 #include "art/Framework/Principal/Worker.h"
+#include "art/Persistency/Provenance/MasterProductRegistry.h"
 #include "art/Utilities/Transition.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
 #include "canvas/Persistency/Provenance/ProductList.h"
@@ -38,8 +39,6 @@
 #include <vector>
 
 namespace art {
-
-class MasterProductRegistry;
 
 class EndPathExecutor {
 
@@ -61,7 +60,7 @@ public: // MEMBER FUNCTIONS -- Input File Open/Close.
 
   // Called by MasterProductRegistry product list updaters (on input file open).
   void
-  selectProducts(ProductList const&);
+  selectProducts(ProductLists const&);
 
   // Called by EventProcessor::openInputFile()
   //   Called by EventProcessor::begin<Level::InputFile>()

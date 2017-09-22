@@ -15,7 +15,8 @@
 
 namespace art {
 
-  using ProductListUpdatedCallback = std::function<void(ProductList const&)>;
+  using ProductLists = std::array<ProductDescriptionsByID, NumBranchTypes>;
+  using ProductListUpdatedCallback = std::function<void(ProductLists const&)>;
 
   class MasterProductRegistry {
   public:
@@ -27,10 +28,10 @@ namespace art {
 
     void finalizeForProcessing();
     void addProductsFromModule(ProductDescriptions&&);
-    void updateFromModule(std::unique_ptr<ProductList>&&);
-    void updateFromInputFile(ProductList const&);
+    void updateFromModule(std::unique_ptr<ProductLists>&&);
+    void updateFromInputFile(ProductLists const&);
 
-    auto const& productList() const { return productList_; }
+    auto const& productLists() const { return productLists_; }
 
     void print(std::ostream&) const;
 
@@ -39,12 +40,13 @@ namespace art {
   private:
 
     void addProduct_(BranchDescription&&);
-    void updateProductLists_(ProductList const& pl);
+    void updateProductLists_(ProductDescriptionsByID const& pl);
+    void updateProductLists_(ProductLists const& pl);
 
     bool allowExplicitRegistration_{true};
 
     // Data members initialized once per process:
-    ProductList productList_{};
+    ProductLists productLists_{};
     std::array<bool, NumBranchTypes> productProduced_{{false}}; //filled by aggregation
     std::vector<ProductListUpdatedCallback> productListUpdatedCallbacks_{};
   };

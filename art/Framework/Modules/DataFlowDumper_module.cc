@@ -120,7 +120,7 @@ void write_product_node(art::ProductID const pid,
   }
   // Access to the productList is cheap, so not really worth caching.
   auto const& pmd = art::ProductMetaData::instance();
-  auto const& plist = pmd.productList(); // note this is a map
+  auto const& plist = pmd.productLists()[art::InEvent]; // note this is a map
   // The mapped_type in the map contains all the information we want,
   // but we have to do a linear search through the map to find the one
   // with the right ProductID.

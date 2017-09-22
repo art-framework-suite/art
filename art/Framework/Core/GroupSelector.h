@@ -30,7 +30,7 @@ public:
 
   // N.B.: we assume there are not null pointers in the vector allBranches.
   explicit GroupSelector(GroupSelectorRules const& rules,
-                         ProductList const& branchDescriptions);
+                         ProductDescriptionsByID const& descriptions);
 
   bool selected(BranchDescription const& desc) const;
 

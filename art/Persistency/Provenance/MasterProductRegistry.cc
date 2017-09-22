@@ -17,7 +17,7 @@ art::MasterProductRegistry::finalizeForProcessing()
   // Product registration can still happen implicitly whenever an
   // input file is opened--via calls to updateFromInputFile.
   allowExplicitRegistration_ = false;
-  cet::for_all(productListUpdatedCallbacks_, [this](auto const& callback){ callback(productList_); });
+  cet::for_all(productListUpdatedCallbacks_, [this](auto const& callback){ callback(productLists_); });
 }
 
 void
@@ -30,7 +30,7 @@ art::MasterProductRegistry::addProductsFromModule(ProductDescriptions&& descript
 }
 
 void
-art::MasterProductRegistry::updateFromModule(std::unique_ptr<ProductList>&& pl)
+art::MasterProductRegistry::updateFromModule(std::unique_ptr<ProductLists>&& pl)
 {
   CET_ASSERT_ONLY_ONE_THREAD();
   if (!pl) return;
@@ -38,7 +38,7 @@ art::MasterProductRegistry::updateFromModule(std::unique_ptr<ProductList>&& pl)
 }
 
 void
-art::MasterProductRegistry::updateFromInputFile(ProductList const& pl)
+art::MasterProductRegistry::updateFromInputFile(ProductLists const& pl)
 {
   CET_ASSERT_ONLY_ONE_THREAD();
   updateProductLists_(pl);
@@ -56,8 +56,10 @@ void
 art::MasterProductRegistry::print(std::ostream& os) const
 {
   // TODO: Shouldn't we print the BranchKey too?
-  for (auto const& val: productList_) {
-    os << val.second << "\n-----\n";
+  for (auto const& list : productLists_) {
+    for (auto const& val : list ) {
+      os << val.second << "\n-----\n";
+    }
   }
 }
 
@@ -82,7 +84,7 @@ art::MasterProductRegistry::addProduct_(BranchDescription&& bdp)
 
   // assert(bdp.produced());
 
-  auto it = productList_.emplace(BranchKey{bdp}, BranchDescription{});
+  auto it = productLists_[bdp.branchType()].emplace(bdp.productID(), BranchDescription{});
   if (!it.second) {
     throw Exception(errors::Configuration)
       << "The process name "
@@ -98,21 +100,30 @@ art::MasterProductRegistry::addProduct_(BranchDescription&& bdp)
 }
 
 void
-art::MasterProductRegistry::updateProductLists_(ProductList const& pl)
+art::MasterProductRegistry::updateProductLists_(ProductDescriptionsByID const& pl)
 {
   for (auto const& val : pl) {
     auto const& pd = val.second;
     assert(!pd.produced());
-    auto bk = BranchKey{pd};
-    auto it = productList_.find(bk);
-    if (it == productList_.end()) {
+    auto& productList = productLists_[pd.branchType()];
+    auto const pid = pd.productID();
+    auto it = productList.find(pid);
+    if (it == productList.end()) {
       // New product
-      productList_.emplace(bk, pd);
+      productList.emplace(pid, pd);
       continue;
     }
     auto& found_pd = it->second;
     assert(combinable(found_pd, pd));
     found_pd.merge(pd);
+  }
+}
+
+void
+art::MasterProductRegistry::updateProductLists_(ProductLists const& lists)
+{
+  for (auto const& list : lists) {
+    updateProductLists_(list);
   }
 }
 

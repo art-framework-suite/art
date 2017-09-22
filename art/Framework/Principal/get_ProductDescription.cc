@@ -7,6 +7,7 @@
 #include "canvas/Persistency/Provenance/BranchKey.h"
 #include "canvas/Persistency/Provenance/BranchDescription.h"
 #include "canvas/Persistency/Provenance/ProductList.h"
+#include "canvas/Persistency/Provenance/canonicalProductName.h"
 #include "canvas/Utilities/Exception.h"
 
 // 3.
@@ -18,7 +19,7 @@ art::get_ProductDescription(TypeID const tid,
 {
   return get_ProductDescription(tid,
                                 ServiceHandle<TriggerNamesService const>{}->getProcessName(),
-                                ProductMetaData::instance().productList(),
+                                ProductMetaData::instance().productLists()[branch_type],
                                 branch_type,
                                 module_label,
                                 instance_name); // 5.
@@ -33,7 +34,7 @@ art::get_ProductDescription(TypeID const type_id,
 {
   return get_ProductDescription(type_id,
                                 principal.processConfiguration().processName(),
-                                ProductMetaData::instance().productList(),
+                                ProductMetaData::instance().productLists()[principal.branchType()],
                                 principal.branchType(),
                                 module_label,
                                 instance_name); // 5.
@@ -43,24 +44,24 @@ art::get_ProductDescription(TypeID const type_id,
 art::BranchDescription const&
 art::get_ProductDescription(TypeID const type_id,
                             std::string const& process_name,
-                            ProductList const& product_list,
+                            ProductDescriptionsByID const& descriptions,
                             BranchType const branch_type,
                             std::string const& module_label,
                             std::string const& instance_name)
 {
-  BranchKey const bk {type_id.friendlyClassName(),
-      module_label,
-      instance_name,
-      process_name,
-      branch_type};
-  auto const it = product_list.find(bk);
-  if (it == product_list.end()) {
+  auto const& product_name = canonicalProductName(type_id.friendlyClassName(),
+                                                  module_label,
+                                                  instance_name,
+                                                  process_name);
+  ProductID const pid{product_name};
+  auto const it = descriptions.find(pid);
+  if (it == descriptions.end()) {
     throw art::Exception{art::errors::ProductRegistrationFailure, "art::get_ProductDescription"}
     << "No product is registered for\n"
-         << "  process name:                '" << bk.processName_ << "'\n"
-         << "  module label:                '" << bk.moduleLabel_ << "'\n"
-         << "  product friendly class name: '" << bk.friendlyClassName_ << "'\n"
-         << "  product instance name:       '" << bk.productInstanceName_ << "'\n"
+         << "  process name:                '" << process_name << "'\n"
+         << "  module label:                '" << module_label << "'\n"
+         << "  product friendly class name: '" << type_id.friendlyClassName() << "'\n"
+         << "  product instance name:       '" << instance_name << "'\n"
          << "  branch type:                 '" << branch_type << "'\n";
   }
   return it->second;

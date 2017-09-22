@@ -157,10 +157,10 @@ public: // MEMBER FUNCTIONS
   hasNewlyDroppedBranch() const;
 
   void
-  selectProducts(ProductList const&);
+  selectProducts(ProductLists const&);
 
   void
-  doSelectProducts(ProductList const&);
+  doSelectProducts(ProductLists const&);
 
   void registerProducts(MasterProductRegistry&,
                         ProductDescriptions&,

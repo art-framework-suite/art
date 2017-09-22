@@ -15,6 +15,7 @@
 #include "art/Framework/Principal/fwd.h"
 #include "art/Framework/Services/FileServiceInterfaces/CatalogInterface.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
+#include "art/Persistency/Provenance/MasterProductRegistry.h"
 #include "canvas/Persistency/Provenance/ProductList.h"
 
 #include <memory>
@@ -86,7 +87,7 @@ public:
 
   virtual
   void
-  selectProducts(ProductList const&);
+  selectProducts(ProductLists const&);
 
 private:
 

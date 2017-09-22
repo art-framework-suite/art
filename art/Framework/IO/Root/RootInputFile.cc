@@ -427,7 +427,16 @@ namespace art {
     // Note: we only need the product list, not the ProductRegistry
     // object.
     auto productList = detail::readMetadata<ProductRegistry>(metaDataTree).productList_;
-    dropOnInput(groupSelectorRules, dropDescendants, productList);
+
+    // Prepare product lists for MasterProductRegistry
+    ProductLists descriptionsPerBranch{{}};
+    for (auto const& pr : productList) {
+      auto const& pd = pr.second;
+      descriptionsPerBranch[pd.branchType()].emplace(pd.productID(), pd);
+    }
+
+
+    dropOnInput(groupSelectorRules, dropDescendants, descriptionsPerBranch);
 
     // Adjust validity of BranchDescription objects: if the branch
     // does not exist in the input file, but its BranchDescription is
@@ -446,7 +455,7 @@ namespace art {
 
     // Update MasterProductRegistry, with adjusted BranchDescription
     // validity values.
-    mpr.updateFromInputFile(productList);
+    mpr.updateFromInputFile(descriptionsPerBranch);
 
     // Create product table for present products
     auto const& descriptions = make_product_descriptions(productList);
@@ -1450,50 +1459,55 @@ namespace art {
   RootInputFile::
   dropOnInput(GroupSelectorRules const& rules,
               bool const dropDescendants,
-              ProductList& prodList)
+              ProductLists& prodLists)
   {
-    // This is the selector for drop on input.
-    GroupSelector const groupSelector{rules, prodList};
-    // Do drop on input. On the first pass, just fill in a set of
-    // branches to be dropped.  Use the BranchChildren class to
-    // assemble list of children to drop.
-    BranchChildren children;
-    set<ProductID> branchesToDrop;
-    for (auto const& prod : prodList) {
-      auto const& pd = prod.second;
-      if (!groupSelector.selected(pd)) {
-        if (dropDescendants) {
-          children.appendToDescendants(pd.productID(), branchesToDrop);
-        }
-        else {
-          branchesToDrop.insert(pd.productID());
-        }
-      }
-    }
+    for (std::size_t i{}; i < NumBranchTypes; ++i ) {
+      auto const bt = static_cast<BranchType>(i);
+      auto& prodList = prodLists[bt];
 
-    // On this pass, actually drop the branches.
-    auto branchesToDropEnd = branchesToDrop.cend();
-    for (auto I = prodList.begin(), E = prodList.end(); I != E;) {
-      auto const& bd = I->second;
-      bool drop = branchesToDrop.find(bd.productID()) != branchesToDropEnd;
-      if (!drop) {
-        ++I;
-        checkDictionaries(bd);
-        continue;
+      // This is the selector for drop on input.
+      GroupSelector const groupSelector{rules, prodList};
+      // Do drop on input. On the first pass, just fill in a set of
+      // branches to be dropped.  Use the BranchChildren class to
+      // assemble list of children to drop.
+      BranchChildren children;
+      set<ProductID> branchesToDrop;
+      for (auto const& prod : prodList) {
+        auto const& pd = prod.second;
+        if (!groupSelector.selected(pd)) {
+          if (dropDescendants) {
+            children.appendToDescendants(pd.productID(), branchesToDrop);
+          }
+          else {
+            branchesToDrop.insert(pd.productID());
+          }
+        }
       }
-      if (groupSelector.selected(bd)) {
-        mf::LogWarning("RootInputFile")
-          << "Branch '"
-          << bd.branchName()
-          << "' is being dropped from the input\n"
-          << "of file '"
-          << fileName_
-          << "' because it is dependent on a branch\n"
-          << "that was explicitly dropped.\n";
+
+      // On this pass, actually drop the branches.
+      auto branchesToDropEnd = branchesToDrop.cend();
+      for (auto I = prodList.begin(), E = prodList.end(); I != E;) {
+        auto const& bd = I->second;
+        bool drop = branchesToDrop.find(bd.productID()) != branchesToDropEnd;
+        if (!drop) {
+          ++I;
+          checkDictionaries(bd);
+          continue;
+        }
+        if (groupSelector.selected(bd)) {
+          mf::LogWarning("RootInputFile")
+            << "Branch '"
+            << bd.branchName()
+            << "' is being dropped from the input\n"
+            << "of file '"
+            << fileName_
+            << "' because it is dependent on a branch\n"
+            << "that was explicitly dropped.\n";
+        }
+        treePointers_[bt]->dropBranch(bd.branchName());
+        auto icopy = I++;
+        prodList.erase(icopy);
       }
-      treePointers_[bd.branchType()]->dropBranch(bd.branchName());
-      auto icopy = I++;
-      prodList.erase(icopy);
     }
   }
 

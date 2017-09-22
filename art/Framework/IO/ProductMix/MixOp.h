@@ -16,6 +16,7 @@
 #include "canvas/Persistency/Provenance/Compatibility/BranchIDList.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
 #include "canvas/Persistency/Provenance/ProductID.h"
+#include "canvas/Persistency/Provenance/canonicalProductName.h"
 #include "canvas/Utilities/Exception.h"
 #include "canvas/Utilities/InputTag.h"
 #include "cetlib/exempt_ptr.h"
@@ -219,15 +220,17 @@ outgoingProductID() const
   if (outputProduct_) {
     TypeID const outputType(typeid(OPROD));
     // Note: Outgoing product must be InEvent.
-    BranchKey key(outputType.friendlyClassName(), md_->moduleLabel(), outputInstanceLabel_, processName_, InEvent);
-    auto I = ProductMetaData::instance().productList().find(key);
-    if (I == ProductMetaData::instance().productList().end()) {
+    auto const productName = canonicalProductName(outputType.friendlyClassName(), md_->moduleLabel(), outputInstanceLabel_, processName_);
+    ProductID const pid{productName};
+    auto I = ProductMetaData::instance().productLists()[InEvent].find(pid);
+    if (I == ProductMetaData::instance().productLists()[InEvent].end()) {
       throw Exception(errors::LogicError)
           << "MixOp unable to find branch id for a product ("
           << outputType.className()
           << ") that should have been registered!\n";
     }
     result = I->second.productID();
+    assert(pid == result);
   }
   return result;
 }

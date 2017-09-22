@@ -202,54 +202,57 @@ configure(OutputModuleDescription const& desc)
 }
 
 void
-art::OutputModule::doSelectProducts(ProductList const& productList)
+art::OutputModule::doSelectProducts(ProductLists const& productLists)
 {
   // Note: The keptProducts_ data member records all of the
   // BranchDescription objects that may be persisted to disk.  Since
   // we do not reset it, the list never shrinks.  This behavior should
   // be reconsidered for future use cases of art.
 
-  GroupSelector const groupSelector{groupSelectorRules_, productList};
+  for (std::size_t i{}; i < NumBranchTypes; ++i) {
+    auto const bt = static_cast<BranchType>(i);
+    auto const& productList = productLists[i];
+    GroupSelector const groupSelector{groupSelectorRules_, productList};
 
-  // TODO: See if we can collapse keptProducts_ and groupSelector into
-  // a single object. See the notes in the header for GroupSelector
-  // for more information.
+    // TODO: See if we can collapse keptProducts_ and groupSelector into
+    // a single object. See the notes in the header for GroupSelector
+    // for more information.
 
-  for (auto const& val : productList) {
-    BranchDescription const& pd = val.second;
-    auto const bt = pd.branchType();
-    if (pd.transient()) {
-      // Transient, skip it.
-      continue;
-    }
-    if (groupSelector.selected(pd)) {
-      // Selected, keep it.  Here, we take care to merge the
-      // BranchDescription objects if one was already present in the
-      // keptProducts list.
-
-      // FIXME: Should change to ownership via std::shared_ptr!
-      auto& keptProducts = keptProducts_[bt];
-      auto it = keptProducts.find(pd.productID());
-      if (it == end(keptProducts)) {
-        // New product
-        keptProducts.emplace(pd.productID(), pd);
+    for (auto const& val : productList) {
+      BranchDescription const& pd = val.second;
+      if (pd.transient()) {
+        // Transient, skip it.
+        continue;
       }
-      else {
-        auto& found_pd = it->second;
-        assert(combinable(found_pd, pd));
-        found_pd.merge(pd);
+      if (groupSelector.selected(pd)) {
+        // Selected, keep it.  Here, we take care to merge the
+        // BranchDescription objects if one was already present in the
+        // keptProducts list.
+
+        // FIXME: Should change to ownership via std::shared_ptr!
+        auto& keptProducts = keptProducts_[bt];
+        auto it = keptProducts.find(pd.productID());
+        if (it == end(keptProducts)) {
+          // New product
+          keptProducts.emplace(pd.productID(), pd);
+        }
+        else {
+          auto& found_pd = it->second;
+          assert(combinable(found_pd, pd));
+          found_pd.merge(pd);
+        }
+        continue;
       }
-      continue;
+      // Newly dropped, skip it.
+      hasNewlyDroppedBranch_[bt] = true;
     }
-    // Newly dropped, skip it.
-    hasNewlyDroppedBranch_[bt] = true;
   }
 }
 
 void
-art::OutputModule::selectProducts(ProductList const& productList)
+art::OutputModule::selectProducts(ProductLists const& productLists)
 {
-  doSelectProducts(productList);
+  doSelectProducts(productLists);
   postSelectProducts();
 }
 

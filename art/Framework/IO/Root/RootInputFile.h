@@ -12,6 +12,7 @@
 #include "art/Framework/Principal/ResultsPrincipal.h"
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
+#include "art/Persistency/Provenance/MasterProductRegistry.h"
 #include "canvas/Persistency/Provenance/Compatibility/BranchIDList.h"
 #include "canvas/Persistency/Provenance/EventAuxiliary.h"
 #include "canvas/Persistency/Provenance/FileFormatVersion.h"
@@ -364,7 +365,7 @@ private: // MEMBER FUNCTIONS -- Implementation details
   overrideRunNumber(EventID& id, bool isRealData);
 
   void
-  dropOnInput(GroupSelectorRules const& rules, bool dropDescendants, ProductList& branchDescriptions);
+  dropOnInput(GroupSelectorRules const& rules, bool dropDescendants, ProductLists& branchDescriptions);
 
   void
   readParentageTree(unsigned int treeCacheSize);

@@ -76,10 +76,7 @@ namespace art {
     // the MasterProductRegistry.
 
     // MT-FIXME: Handing out reference!
-    ProductList const& productList() const
-    {
-      return mpr_->productList();
-    }
+    auto const& productLists() const { return mpr_->productLists(); }
 
     // Print all the BranchDescriptions we contain.
     void printBranchDescriptions(std::ostream& os) const

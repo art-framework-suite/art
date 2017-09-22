@@ -91,7 +91,7 @@ namespace art {
     }
 
     //Determine what ProductIDs are in the product registry
-    auto const& prodList = ProductMetaData::instance().productList();
+    auto const& prodList = ProductMetaData::instance().productLists()[InEvent];
     std::set<ProductID> branchesInReg;
     for (auto const& prod : prodList) {
       branchesInReg.insert(prod.second.productID());

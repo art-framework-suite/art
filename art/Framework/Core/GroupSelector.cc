@@ -15,15 +15,15 @@ using namespace cet;
 using namespace std;
 
 GroupSelector::GroupSelector(GroupSelectorRules const& rules,
-                             ProductList const& branchDescriptions)
+                             ProductDescriptionsByID const& descriptions)
 {
   using BranchSelectState = GroupSelectorRules::BranchSelectState;
 
   // Get a BranchSelectState for each branch, containing the branch
   // name, with its 'select bit' set to false.
   vector<BranchSelectState> branchstates;
-  branchstates.reserve(branchDescriptions.size());
-  for (auto const& pr : branchDescriptions) {
+  branchstates.reserve(descriptions.size());
+  for (auto const& pr : descriptions) {
     branchstates.push_back(BranchSelectState{&pr.second});
   }
 
