@@ -25,28 +25,15 @@
 #include "canvas/Persistency/Provenance/RangeSet.h"
 #include "canvas/Persistency/Provenance/RunID.h"
 #include "canvas/Utilities/Exception.h"
-#include "canvas/Utilities/TypeID.h"
 #include "canvas/Utilities/WrappedClassName.h"
 #include "canvas/Utilities/Exception.h"
 #include "canvas_root_io/Utilities/getWrapperTIDs.h"
 #include "cetlib/container_algorithms.h"
-#include "cetlib/exempt_ptr.h"
 
 #include <algorithm>
-#include <atomic>
 #include <cassert>
-#include <cstddef>
-#include <cstdio>
-#include <iomanip>
-#include <iostream>
-#include <map>
-#include <memory>
 #include <mutex>
-#include <sstream>
-#include <stdexcept>
-#include <string>
 #include <utility>
-#include <vector>
 
 using namespace cet;
 using namespace std;
@@ -1123,13 +1110,8 @@ namespace art {
       return false;
     }
 
-    auto& descriptions = producedProducts_->descriptions;
-    auto it = descriptions.find(pid);
-    if (it == descriptions.cend()) {
-      return false;
-    }
-
-    return it->second.produced();
+    auto pd = producedProducts_->description(pid);
+    return pd == nullptr ? false : pd->produced();
   }
 
   bool
@@ -1139,13 +1121,8 @@ namespace art {
       return false;
     }
 
-    auto& descriptions = presentProducts_->descriptions;
-    auto it = descriptions.find(pid);
-    if (it == descriptions.cend()) {
-      return false;
-    }
-
-    return it->second.present();
+    auto pd = presentProducts_->description(pid);
+    return pd == nullptr ? false : pd->present();
   }
 
   // Used by art::DataViewImpl<T>::get(ProductID const pid, Handle<T>& result) const. (easy user-facing api)

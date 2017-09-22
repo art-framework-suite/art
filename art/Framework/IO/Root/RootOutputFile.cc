@@ -836,18 +836,9 @@ template <BranchType BT>
 std::enable_if_t < !RangeSetsSupported<BT>::value, EDProduct const* >
 RootOutputFile::getProduct(OutputHandle const& oh, RangeSet const& /*prunedProductRS*/, std::string const& wrappedName)
 {
-  ///if (BT != InEvent) {
-  ///  cout << "-----> RootOutputFile::getProduct(" << wrappedName << ") event ..." << endl;
-  ///}
   if (oh.isValid()) {
-    ///if (BT != InEvent) {
-    ///  cout << "-----> RootOutputFile::getProduct(" << wrappedName << ") event ... end valid" << endl;
-    ///}
     return oh.wrapper();
   }
-  ///if (BT != InEvent) {
-  ///  cout << "-----> RootOutputFile::getProduct(" << wrappedName << ") event ... end dummy" << endl;
-  ///}
   return dummyProductCache_.product(wrappedName);
 }
 
@@ -855,18 +846,9 @@ template <BranchType BT>
 std::enable_if_t<RangeSetsSupported<BT>::value, EDProduct const*>
 RootOutputFile::getProduct(OutputHandle const& oh, RangeSet const& prunedProductRS, std::string const& wrappedName)
 {
-  ///if (BT != InEvent) {
-  ///  cout << "-----> RootOutputFile::getProduct(" << wrappedName << ") run or subrun ..." << endl;
-  ///}
   if (oh.isValid() && prunedProductRS.is_valid()) {
-    ///if (BT != InEvent) {
-    ///  cout << "-----> RootOutputFile::getProduct(" << wrappedName << ") run or subrun ... end valid & product rs valid" << endl;
-    ///}
     return oh.wrapper();
   }
-  ///if (BT != InEvent) {
-  ///  cout << "-----> RootOutputFile::getProduct(" << wrappedName << ") run or subrun ... end dummy" << endl;
-  ///}
   return dummyProductCache_.product(wrappedName);
 }
 
@@ -882,6 +864,10 @@ fillBranches(Principal const& principal, vector<ProductProvenance>* vpp)
   for (auto const& val : selectedOutputItemList_[BT]) {
     auto const* bd = val.branchDescription_;
     auto const pid = bd->productID();
+    // Note: recording branches with stored history according to its
+    //       ProductID value is circumspect since ProductIDs do not
+    //       include the BranchType value in its checksum calculation.
+    //       This should be fixed.
     branchesWithStoredHistory_.insert(pid);
     bool const produced = bd->produced();
     bool const resolveProd = (produced || !fastCloning || treePointers_[BT]->uncloned(bd->branchName()));
@@ -904,7 +890,22 @@ fillBranches(Principal const& principal, vector<ProductProvenance>* vpp)
               auto current_pp = stacked_pp.back();
               stacked_pp.pop_back();
               for (auto const parent_bid : current_pp->parentage().parents()) {
+
+                // FIXME: Suppose the parent ProductID corresponds to
+                //        product that has been requested to be
+                //        "dropped"--i.e. someone has specified "drop
+                //        *_m1a_*_*" in their configuration, and
+                //        although a given product matching this
+                //        pattern will not be included in the
+                //        selectedProducts_ list, one of the parents
+                //        of a selected product can match the
+                //        "dropping" pattern and its BranchDescription
+                //        will still be written to disk since it is
+                //        inserted into the branchesWithStoredHistory_
+                //        data member.  Is this metadata behavior
+                //        desired?
                 branchesWithStoredHistory_.insert(parent_bid);
+
                 auto parent_pp = principal.branchToProductProvenance(parent_bid);
                 if (!parent_pp || (dropMetaData_ != DropMetaData::DropNone)) {
                   continue;

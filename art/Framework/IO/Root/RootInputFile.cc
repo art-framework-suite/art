@@ -6,6 +6,7 @@
 #include "art/Framework/IO/Root/FastCloningInfoProvider.h"
 #include "art/Framework/IO/Root/GetFileFormatEra.h"
 #include "art/Framework/IO/Root/Inputfwd.h"
+#include "art/Framework/IO/Root/RootDB/TKeyVFSOpenPolicy.h"
 #include "art/Framework/IO/Root/RootDelayedReader.h"
 #include "art/Framework/IO/Root/RootFileBlock.h"
 #include "art/Framework/IO/Root/checkDictionaries.h"
@@ -23,7 +24,6 @@
 #include "art/Framework/Services/System/FileCatalogMetadata.h"
 #include "art/Persistency/Provenance/MasterProductRegistry.h"
 #include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
-#include "art/Framework/IO/Root/RootDB/TKeyVFSOpenPolicy.h"
 #include "canvas/Persistency/Common/EDProduct.h"
 #include "canvas/Persistency/Provenance/BranchChildren.h"
 #include "canvas/Persistency/Provenance/BranchDescription.h"
@@ -429,15 +429,19 @@ namespace art {
     auto productList = detail::readMetadata<ProductRegistry>(metaDataTree).productList_;
     dropOnInput(groupSelectorRules, dropDescendants, productList);
 
-    auto availableProducts = fillPerBranchTypePresenceFlags(productList);
-
-    // Adjust validity of BranchDescription objects
+    // Adjust validity of BranchDescription objects: if the branch
+    // does not exist in the input file, but its BranchDescription is
+    // still persisted to disk (and read here), the product must be
+    // marked as "dropped".  See notes in RootOutputFile.cc
+    // (particularly for branchesWithStoredHistory_ insertion) to see
+    // how this can happen.
     for (auto& prod : productList) {
       auto& pd = prod.second;
-      auto const& presenceLookup = availableProducts[pd.branchType()];
-      bool const present{presenceLookup.find(pd.productID()) != cend(presenceLookup)};
-      auto const validity = present ? BranchDescription::Transients::PresentFromSource : BranchDescription::Transients::Dropped;
-      pd.setValidity(validity);
+      auto const bt = pd.branchType();
+      if (treePointers_[bt]->tree()->GetBranch(pd.branchName().c_str()) == nullptr) {
+        std::cout << "Dropped branch: " << pd.branchName() << '\n';
+        pd.setValidity(BranchDescription::Transients::Dropped);
+      }
     }
 
     // Update MasterProductRegistry, with adjusted BranchDescription
@@ -1440,22 +1444,6 @@ namespace art {
     }
     bool const lastInSubRun{(iter == fiEnd_) || (iter->eventID_.subRun() != eid.subRun())};
     return pair<EntryNumbers, bool>{enumbers, lastInSubRun};
-  }
-
-  std::array<AvailableProducts_t, NumBranchTypes>
-  RootInputFile::
-  fillPerBranchTypePresenceFlags(ProductList const& prodList)
-  {
-    std::array<AvailableProducts_t, NumBranchTypes> result;
-    for (auto const& bk_and_bd : prodList) {
-      auto const& bd = bk_and_bd.second;
-      auto const bt = bd.branchType();
-      auto const& pid = bd.productID();
-      if (treePointers_[bt]->tree()->GetBranch(bd.branchName().c_str()) != nullptr) {
-        result[bt].emplace(pid);
-      }
-    }
-    return result;
   }
 
   void

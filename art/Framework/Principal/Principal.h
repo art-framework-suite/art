@@ -44,8 +44,6 @@
 #include "tbb/concurrent_unordered_map.h"
 
 #include <atomic>
-#include <cstdio>
-#include <map>
 #include <memory>
 #include <string>
 #include <vector>
@@ -65,7 +63,6 @@ class Principal : public PrincipalBase {
 
 public: // TYPES
 
-  //using GroupCollection = std::map<ProductID, std::unique_ptr<Group>>;
   using GroupCollection = tbb::concurrent_unordered_map<ProductID, std::unique_ptr<Group>>;
   using const_iterator = GroupCollection::const_iterator;
   using GroupQueryResultVec = std::vector<GroupQueryResult>;

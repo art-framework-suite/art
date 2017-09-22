@@ -336,9 +336,6 @@ private: // MEMBER FUNCTIONS -- Implementation details
   void
   fillHistory(EntryNumber const entry, History&);
 
-  std::array<AvailableProducts_t, NumBranchTypes>
-  fillPerBranchTypePresenceFlags(ProductList const&);
-
   void
   fillAuxiliary_Event(EntryNumber const entry);
 
