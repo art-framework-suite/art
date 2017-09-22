@@ -43,17 +43,13 @@ using namespace art;
 
 class MPRGlobalTestFixture {
 
-public: // TYPES
-
-  using BKmap_t = map<string, BranchKey>;
-
 public: // MEMBER FUNCTIONS -- Special Member Functions
 
   MPRGlobalTestFixture();
 
   art::MasterProductRegistry productRegistry_{};
   ProductTables producedProducts_{ProductTables::invalid()};
-  std::map<std::string, art::BranchKey> branchKeys_{};
+  std::map<std::string, art::ProductID> productIDs_{};
   std::map<std::string, art::ProcessConfiguration*> processConfigurations_{};
 
   art::BranchDescription
@@ -119,7 +115,7 @@ MPRGlobalTestFixture::fake_single_process_branch(std::string const& tag,
   art::BranchDescription const result{art::InEvent,
                                       art::TypeLabel{dummyType, productInstanceName, art::SupportsView<arttest::DummyProduct>::value},
                                       mod};
-  branchKeys_.emplace(tag, art::BranchKey{result});
+  productIDs_.emplace(tag, result.productID());
   return result;
 }
 
@@ -139,16 +135,15 @@ EventPrincipalTestFixture()
   // Put products we'll look for into the EventPrincipal.
   std::unique_ptr<art::EDProduct> product = std::make_unique<art::Wrapper<arttest::DummyProduct>>();
 
-  std::string tag("rick");
-  auto i = gf().branchKeys_.find(tag);
-  BOOST_REQUIRE(i != gf().branchKeys_.end());
+  std::string const tag{"rick"};
+  auto i = gf().productIDs_.find(tag);
+  BOOST_REQUIRE(i != gf().productIDs_.end());
 
-  auto it = art::ProductMetaData::instance().productList().find(i->second);
-
-  art::BranchDescription const& pd(it->second);
+  auto pd = gf().producedProducts_.get(InEvent).description(i->second);
+  BOOST_REQUIRE(pd != nullptr);
 
   auto entryDescriptionPtr = std::make_shared<art::Parentage>();
-  auto productProvenancePtr = std::make_unique<art::ProductProvenance const>(pd.productID(),
+  auto productProvenancePtr = std::make_unique<art::ProductProvenance const>(pd->productID(),
                                                                              art::productstatus::present(),
                                                                              entryDescriptionPtr->parents());
 
@@ -164,7 +159,7 @@ EventPrincipalTestFixture()
   pEvent_ = std::make_unique<art::EventPrincipal>(eventAux, *process, nullptr);
   pEvent_->setSubRunPrincipal(srp.get());
   pEvent_->setProducedProducts(gf().producedProducts_);
-  pEvent_->put(pd, move(productProvenancePtr), move(product), make_unique<RangeSet>());
+  pEvent_->put(*pd, move(productProvenancePtr), move(product), make_unique<RangeSet>());
   BOOST_REQUIRE_EQUAL(pEvent_->size(), 5u);
 }
 
