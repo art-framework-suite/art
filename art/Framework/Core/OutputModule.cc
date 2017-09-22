@@ -40,13 +40,7 @@
 #include "canvas/Utilities/Exception.h"
 #include "cetlib/BasicPluginFactory.h"
 #include "cetlib/canonical_string.h"
-#include "cetlib/exempt_ptr.h"
-#include "cetlib_except/demangle.h"
 #include "fhiclcpp/ParameterSet.h"
-#include "fhiclcpp/types/Atom.h"
-#include "fhiclcpp/types/OptionalTable.h"
-#include "fhiclcpp/types/Sequence.h"
-#include "fhiclcpp/types/TableFragment.h"
 #include "hep_concurrency/SerialTaskQueueChain.h"
 #include "rapidjson/document.h"
 #include "rapidjson/error/en.h"
@@ -210,6 +204,11 @@ configure(OutputModuleDescription const& desc)
 void
 art::OutputModule::doSelectProducts(ProductList const& productList)
 {
+  // Note: The keptProducts_ data member records all of the
+  // BranchDescription objects that may be persisted to disk.  Since
+  // we do not reset it, the list never shrinks.  This behavior should
+  // be reconsidered for future use cases of art.
+
   GroupSelector const groupSelector{groupSelectorRules_, productList};
 
   // TODO: See if we can collapse keptProducts_ and groupSelector into
@@ -224,9 +223,22 @@ art::OutputModule::doSelectProducts(ProductList const& productList)
       continue;
     }
     if (groupSelector.selected(pd)) {
-      // Selected, keep it.
+      // Selected, keep it.  Here, we take care to merge the
+      // BranchDescription objects if one was already present in the
+      // keptProducts list.
+
       // FIXME: Should change to ownership via std::shared_ptr!
-      keptProducts_[bt].insert(pd);
+      auto& keptProducts = keptProducts_[bt];
+      auto it = keptProducts.find(pd.productID());
+      if (it == end(keptProducts)) {
+        // New product
+        keptProducts.emplace(pd.productID(), pd);
+      }
+      else {
+        auto& found_pd = it->second;
+        assert(combinable(found_pd, pd));
+        found_pd.merge(pd);
+      }
       continue;
     }
     // Newly dropped, skip it.
@@ -747,7 +759,7 @@ collectStreamSpecificMetadata(vector<unique_ptr<FileCatalogMetadataPlugin>> cons
     FileCatalogMetadata::collection_type tmp = plugin->doProduceMetadata();
     ssmd.reserve(tmp.size() + ssmd.size());
     for (auto && entry : tmp) {
-      if (ServiceHandle<FileCatalogMetadata const> {}->wantCheckSyntax()) {
+      if (ServiceHandle<FileCatalogMetadata const>{}->wantCheckSyntax()) {
         rapidjson::Document d;
         string checkString("{ ");
         checkString += cet::canonical_string(entry.first) + " : " + entry.second + " }";

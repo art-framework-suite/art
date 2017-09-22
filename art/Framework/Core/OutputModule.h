@@ -453,10 +453,9 @@ protected: // MEMBER DATA -- For derived classes
   // use the newly-introduced interface.  TODO: Consider using shared
   // pointers here?
   //
-  // keptProducts_ are pointers to the BranchDescription objects
+  // keptProducts_ are BranchDescription objects OWNED BY VALUE
   // describing the branches we are to write.
-  //
-  // We do not own the BranchDescriptions to which we point.
+
   SelectionsArray
   keptProducts_{{}};
 

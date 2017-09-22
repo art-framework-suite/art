@@ -432,7 +432,8 @@ selectProducts()
     auto bt = static_cast<BranchType>(i);
     auto& items = selectedOutputItemList_[bt];
 
-    for (auto const& pd : om_->keptProducts()[bt]) {
+    for (auto const& pr : om_->keptProducts()[bt]) {
+      auto const& pd = pr.second;
       // Persist Results products only if they have been produced by
       // the current process.
       if (bt == InResults && !pd.produced()) continue;
