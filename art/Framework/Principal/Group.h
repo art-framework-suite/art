@@ -43,10 +43,7 @@ private: // TYPES
 
 public: // MEMBER FUNCTIONS -- Special Member Functions
 
-  virtual
   ~Group();
-
-  Group();
 
   // normal
   Group(Principal*, DelayedReader*, BranchDescription const&, std::unique_ptr<RangeSet>&&, TypeID const& wrapper_type,
@@ -143,8 +140,7 @@ public: // MEMBER FUNCTIONS -- API for setting internal product provenance and p
 
 private:
 
-  cet::exempt_ptr<BranchDescription const> const
-  branchDescription_{};
+  BranchDescription const& branchDescription_;
 
   // Back pointer to the principal that owns us.
   Principal* const

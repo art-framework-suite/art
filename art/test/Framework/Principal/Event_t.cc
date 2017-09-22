@@ -107,7 +107,10 @@ public:
 
 private:
 
-  template <typename T>
+  // The 'Present' non-type parameter refers to if the product is
+  // present from the source (true) or if the product is produced
+  // (false).
+  template <typename T, bool Present>
   ModuleDescription const&
   registerProduct(std::string const& tag,
                   std::string const& moduleLabel,
@@ -120,15 +123,17 @@ private:
 MPRGlobalTestFixture::MPRGlobalTestFixture()
 {
   using product_t = arttest::IntProduct;
+  constexpr bool presentFromSource{true};
+  constexpr bool produced{false};
 
   // Register products for "EARLY" process
-  registerProduct<product_t>("nolabel_tag", "modOne", "EARLY");
-  registerProduct<product_t>("int1_tag", "modMulti", "EARLY", "int1");
-  registerProduct<product_t>("int2_tag", "modMulti", "EARLY", "int2");
-  registerProduct<product_t>("int3_tag", "modMulti", "EARLY");
+  registerProduct<product_t, presentFromSource>("nolabel_tag", "modOne", "EARLY");
+  registerProduct<product_t, presentFromSource>("int1_tag", "modMulti", "EARLY", "int1");
+  registerProduct<product_t, presentFromSource>("int2_tag", "modMulti", "EARLY", "int2");
+  registerProduct<product_t, presentFromSource>("int3_tag", "modMulti", "EARLY");
 
   // Register products for "LATE" process
-  registerProduct<product_t>("int1_tag_late", "modMulti", "LATE", "int1");
+  registerProduct<product_t, presentFromSource>("int1_tag_late", "modMulti", "LATE", "int1");
 
   // Fill the lookups for "source-like" products
   {
@@ -137,7 +142,7 @@ MPRGlobalTestFixture::MPRGlobalTestFixture()
   }
 
   // Register single IntProduct for the "CURRENT" process
-  currentModuleDescription_ = registerProduct<product_t>("current_tag", "modMulti", "CURRENT", "int1");
+  currentModuleDescription_ = registerProduct<product_t, produced>("current_tag", "modMulti", "CURRENT", "int1");
 
   // Create the lookup that we will use for the current-process module
   {
@@ -149,7 +154,7 @@ MPRGlobalTestFixture::MPRGlobalTestFixture()
   ProductMetaData::create_instance(availableProducts_);
 }
 
-template <class T>
+template <class T, bool Present>
 ModuleDescription const&
 MPRGlobalTestFixture::registerProduct(std::string const& tag,
                                       std::string const& moduleLabel,
@@ -176,10 +181,12 @@ MPRGlobalTestFixture::registerProduct(std::string const& tag,
   TypeID const product_type{typeid(T)};
 
   moduleDescriptions_[tag] = localModuleDescription;
-  BranchDescription pd{InEvent,
-                       TypeLabel{product_type, productInstanceName, SupportsView<T>::value},
-                       localModuleDescription};
-  descriptions_.emplace_back(pd);
+  TypeLabel typeLabel{product_type, productInstanceName, SupportsView<T>::value};
+  if (Present) {
+    typeLabel = TypeLabel{product_type, productInstanceName, SupportsView<T>::value, moduleLabel};
+  }
+  BranchDescription pd{InEvent, typeLabel, localModuleDescription};
+  descriptions_.push_back(pd);
   availableProducts_.addProductsFromModule({std::move(pd)});
   return moduleDescriptions_[tag];
 }

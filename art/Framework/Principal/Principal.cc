@@ -2,7 +2,6 @@
 // vim: set sw=2 expandtab :
 
 #include "art/Framework/Principal/Group.h"
-#include "art/Framework/Principal/NoDelayedReader.h"
 #include "art/Framework/Principal/OutputHandle.h"
 #include "art/Framework/Principal/Principal.h"
 #include "art/Framework/Principal/Provenance.h"
@@ -14,12 +13,8 @@
 #include "art/Persistency/Common/GroupQueryResult.h"
 #include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
 #include "art/Persistency/Provenance/ProductMetaData.h"
-#include "canvas/Persistency/Common/PrincipalBase.h"
-#include "canvas/Persistency/Common/Wrapper.h"
 #include "canvas/Persistency/Provenance/BranchDescription.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
-#include "canvas/Persistency/Provenance/EventAuxiliary.h"
-#include "canvas/Persistency/Provenance/EventRange.h"
 #include "canvas/Persistency/Provenance/History.h"
 #include "canvas/Persistency/Provenance/Parentage.h"
 #include "canvas/Persistency/Provenance/ProcessHistory.h"
@@ -28,21 +23,14 @@
 #include "canvas/Persistency/Provenance/ProductStatus.h"
 #include "canvas/Persistency/Provenance/ProvenanceFwd.h"
 #include "canvas/Persistency/Provenance/RangeSet.h"
-#include "canvas/Persistency/Provenance/ResultsAuxiliary.h"
-#include "canvas/Persistency/Provenance/RunAuxiliary.h"
 #include "canvas/Persistency/Provenance/RunID.h"
-#include "canvas/Persistency/Provenance/SubRunAuxiliary.h"
 #include "canvas/Utilities/Exception.h"
-#include "canvas/Utilities/InputTag.h"
 #include "canvas/Utilities/TypeID.h"
 #include "canvas/Utilities/WrappedClassName.h"
 #include "canvas/Utilities/Exception.h"
 #include "canvas_root_io/Utilities/getWrapperTIDs.h"
 #include "cetlib/container_algorithms.h"
 #include "cetlib/exempt_ptr.h"
-#include "cetlib/value_ptr.h"
-#include "messagefacility/MessageLogger/MessageLogger.h"
-#include "tbb/concurrent_unordered_map.h"
 
 #include <algorithm>
 #include <atomic>
@@ -139,7 +127,8 @@ namespace art {
     //       code expects to be able to find a group for dropped
     //       products, so getGroupTryAllFiles ignores groups for
     //       dropped products instead.
-    for (auto const& pd : presentProducts->descriptions) {
+    for (auto const& pr : presentProducts->descriptions) {
+      auto const& pd = pr.second;
       assert(pd.branchType() == branchType_);
       fillGroup(pd);
     }
@@ -917,17 +906,20 @@ namespace art {
   }
 
   void
-  Principal::put(BranchDescription const& bd, unique_ptr<ProductProvenance const>&& pp, unique_ptr<EDProduct>&& edp, unique_ptr<RangeSet>&& rs)
+  Principal::put(BranchDescription const& bd,
+                 unique_ptr<ProductProvenance const>&& pp,
+                 unique_ptr<EDProduct>&& edp,
+                 unique_ptr<RangeSet>&& rs)
   {
     assert(edp);
-    if (!bd.produced()) {
-      throw art::Exception(art::errors::ProductRegistrationFailure, "Principal::put:")
-        << "Problem found during put of "
-        << branchType_
-        << " product: attempt to put a product not declared as produced for "
-        << bd.branchName()
-        << '\n';
-    }
+    // if (!bd.produced()) {
+    //   throw art::Exception(art::errors::ProductRegistrationFailure, "Principal::put:")
+    //     << "Problem found during put of "
+    //     << branchType_
+    //     << " product: attempt to put a product not declared as produced for "
+    //     << bd.branchName()
+    //     << '\n';
+    // }
     if ((branchType_ == InRun) || (branchType_ == InSubRun)) {
       // Note: We intentionally allow group and provenance replacement
       //       for run and subrun products.
@@ -1125,14 +1117,35 @@ namespace art {
   }
 
   bool
+  Principal::producedInProcess(ProductID const pid) const
+  {
+    if (!producedProducts_) {
+      return false;
+    }
+
+    auto& descriptions = producedProducts_->descriptions;
+    auto it = descriptions.find(pid);
+    if (it == descriptions.cend()) {
+      return false;
+    }
+
+    return it->second.produced();
+  }
+
+  bool
   Principal::presentFromSource(ProductID const pid) const
   {
-    bool present{false};
-    if (presentProducts_) {
-      auto const& lookup = presentProducts_->availableProducts;
-      present = (lookup.find(pid) != lookup.cend());
+    if (!presentProducts_) {
+      return false;
     }
-    return present;
+
+    auto& descriptions = presentProducts_->descriptions;
+    auto it = descriptions.find(pid);
+    if (it == descriptions.cend()) {
+      return false;
+    }
+
+    return it->second.present();
   }
 
   // Used by art::DataViewImpl<T>::get(ProductID const pid, Handle<T>& result) const. (easy user-facing api)
@@ -1167,16 +1180,16 @@ namespace art {
   cet::exempt_ptr<Group const>
   Principal::getGroupTryAllFiles(ProductID const pid) const
   {
-    bool produced{false};
-    if (producedProducts_) {
-      auto const& availableProducts = producedProducts_->availableProducts;
-      if (availableProducts.find(pid) != availableProducts.cend()) {
-        produced = true;
-      }
-    }
+    // bool produced{false};
+    // if (producedProducts_) {
+    //   auto const& availableProducts = producedProducts_->availableProducts;
+    //   if (availableProducts.find(pid) != availableProducts.cend()) {
+    //     produced = true;
+    //   }
+    // }
 
     // Look through current process and currently opened primary input file.
-    if (produced || presentFromSource(pid)) {
+    if (producedInProcess(pid) || presentFromSource(pid)) {
       return getGroupLocal(pid);
     }
 

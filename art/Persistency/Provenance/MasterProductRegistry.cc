@@ -80,7 +80,7 @@ art::MasterProductRegistry::addProduct_(BranchDescription&& bdp)
       << "Product registration can be done only in module constructors.\n";
   }
 
-  assert(bdp.produced());
+  // assert(bdp.produced());
 
   auto it = productList_.emplace(BranchKey{bdp}, BranchDescription{});
   if (!it.second) {

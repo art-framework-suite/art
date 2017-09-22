@@ -20,12 +20,10 @@
 #include "art/Framework/Principal/Group.h"
 #include "art/Framework/Principal/NoDelayedReader.h"
 #include "art/Framework/Principal/OutputHandle.h"
-#include "art/Framework/Principal/Principal.h"
 #include "art/Framework/Principal/fwd.h"
 #include "art/Persistency/Common/DelayedReader.h"
 #include "art/Persistency/Common/GroupQueryResult.h"
 #include "canvas/Persistency/Common/PrincipalBase.h"
-#include "canvas/Persistency/Common/Wrapper.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
 #include "canvas/Persistency/Provenance/EventAuxiliary.h"
 #include "canvas/Persistency/Provenance/EventRange.h"
@@ -39,13 +37,10 @@
 #include "canvas/Persistency/Provenance/RangeSet.h"
 #include "canvas/Persistency/Provenance/ResultsAuxiliary.h"
 #include "canvas/Persistency/Provenance/RunAuxiliary.h"
-#include "canvas/Persistency/Provenance/RunID.h"
 #include "canvas/Persistency/Provenance/SubRunAuxiliary.h"
-#include "canvas/Utilities/InputTag.h"
 #include "canvas/Utilities/TypeID.h"
 #include "canvas/Utilities/WrappedTypeID.h"
 #include "cetlib/exempt_ptr.h"
-#include "cetlib/value_ptr.h"
 #include "tbb/concurrent_unordered_map.h"
 
 #include <atomic>
@@ -182,7 +177,8 @@ public: // MEMBER FUNCTIONS -- Interface for other parts of art
     if (produced.descriptions.empty()) return;
 
     producedProducts_ = cet::make_exempt_ptr(&produced);
-    for (auto const& pd : produced.descriptions) {
+    for (auto const& pr : produced.descriptions) {
+      auto const& pd = pr.second;
       assert(pd.branchType() == branchType_);
       fillGroup(pd);
     }
@@ -363,7 +359,6 @@ private: // MEMBER FUNCTIONS
   void
   insert_pp(std::unique_ptr<ProductProvenance const>&&);
 
-  // BEGIN MERGED API
   GroupQueryResultVec
   matchingSequenceFromInputFile(SelectorBase const&) const;
 
@@ -387,13 +382,15 @@ private: // MEMBER FUNCTIONS
                        TypeID wanted_wrapper) const;
 
   bool
+  producedInProcess(ProductID) const;
+
+  bool
   presentFromSource(ProductID) const;
-  // END MERGED API
 
   int
   tryNextSecondaryFile() const;
 
-  // Implementation of the DataViewImpl<T> API.
+  // Implementation of the DataViewImpl API.
   GroupQueryResultVec
   findGroupsForProduct(WrappedTypeID const& wrapped,
                        SelectorBase const&,
@@ -415,10 +412,7 @@ private: // MEMBER FUNCTIONS
   cet::exempt_ptr<Group const>
   getGroupTryAllFiles(ProductID const) const;
 
-protected: // MEMBER DATA -- For used by derived types
-
-  BranchType
-  branchType_{};
+protected: // MEMBER FUNCTIONS -- For use by derived types
 
   // Used to deal with TriggerResults.
   void
@@ -429,6 +423,9 @@ protected: // MEMBER DATA -- For used by derived types
   setProcessHistoryIDcombined(ProcessHistoryID const&);
 
 private: // MEMBER DATA -- Mine, all mine!
+
+  BranchType
+  branchType_{};
 
   ProcessHistory processHistory_{};
 

@@ -32,16 +32,11 @@ Group::
   partnerBaseProduct_ = nullptr;
 }
 
-Group::
-Group()
-{
-}
-
 // normal
 Group::
 Group(Principal* principal, DelayedReader* reader, BranchDescription const& bd, unique_ptr<RangeSet>&& rs,
       TypeID const& wrapper_type, unique_ptr<EDProduct>&& edp /*= nullptr*/)
-  : branchDescription_{&bd}
+  : branchDescription_{bd}
   , principal_{principal}
   , delayedReader_{reader}
   , product_{edp.release()}
@@ -62,7 +57,7 @@ Group(Principal* principal, DelayedReader* reader, BranchDescription const& bd, 
 Group::
 Group(Principal* principal, DelayedReader* reader, BranchDescription const& bd, unique_ptr<RangeSet>&& rs,
       TypeID const& primary_wrapper_type, TypeID const& partner_wrapper_type, unique_ptr<EDProduct>&& edp /*= nullptr*/)
-  : branchDescription_{&bd}
+  : branchDescription_{bd}
   , principal_{principal}
   , delayedReader_{reader}
   , product_{edp.release()}
@@ -86,7 +81,7 @@ Group::
 Group(Principal* principal, DelayedReader* reader, BranchDescription const& bd, unique_ptr<RangeSet>&& rs,
       TypeID const& primary_wrapper_type, TypeID const& partner_wrapper_type, TypeID const& base_wrapper_type,
       TypeID const& partner_base_wrapper_type, unique_ptr<EDProduct>&& edp /*= nullptr*/)
-  : branchDescription_{&bd}
+  : branchDescription_{bd}
   , principal_{principal}
   , delayedReader_{reader}
   , product_{edp.release()}
@@ -190,14 +185,14 @@ BranchDescription const&
 Group::
 productDescription() const
 {
-  return *branchDescription_;
+  return branchDescription_;
 }
 
 ProductID
 Group::
 productID() const
 {
-  return branchDescription_->productID();
+  return branchDescription_.productID();
 }
 
 RangeSet const&
@@ -247,7 +242,7 @@ Group::
 removeCachedProduct()
 {
   lock_guard<recursive_mutex> lock_holder{mutex_};
-  if (branchDescription_->produced()) {
+  if (branchDescription_.produced()) {
     throw Exception(errors::LogicError, "Group::removeCachedProduct():")
         << "Attempt to remove a produced product!\n"
         << "This routine should only be used to remove large data products "
@@ -275,42 +270,26 @@ bool
 Group::
 productAvailable() const
 {
-  if (!branchDescription_) {
-    // We do not have a branch description at all.
-    throw Exception(errors::LogicError, "Group::productAvailable():")
-      << "branchDescription_ is the nullptr!\n";
-  }
-
-  lock_guard<recursive_mutex> lock_holder{mutex_};
-  if (branchDescription_->dropped()) {
+  if (branchDescription_.dropped()) {
     // Not a product we are producing this time around, and it is not
     // present in any of the input files we have opened so far.
     return false;
   }
-  bool availableAfterCombine = false;
-  if ((branchDescription_->branchType() == InSubRun) || (branchDescription_->branchType() == InRun)) {
-    availableAfterCombine = delayedReader_->isAvailableAfterCombine(branchDescription_->productID());
-    if (!availableAfterCombine) {
-      // This is a run or subrun product and none of the available
-      // fragments has a product that is present.  If this is not a
-      // produced product, then we are now sure that it is not
-      // available. Otherwise either the product has not been put yet,
-      // in which case it is unavailable, or we must check the status
-      // in the provenance of the put product; we check these two
-      // cases later.
-      if (!branchDescription_->produced()) {
-        // Not produced and not in any available fragments, not available.
-        return false;
-      }
-    }
+  assert(branchDescription_.present() || branchDescription_.produced());
+
+  lock_guard<recursive_mutex> lock_holder{mutex_};
+  bool availableAfterCombine{false};
+  if ((branchDescription_.branchType() == InSubRun) || (branchDescription_.branchType() == InRun)) {
+    availableAfterCombine = delayedReader_->isAvailableAfterCombine(branchDescription_.productID());
   }
+
   auto status = productstatus::uninitialized();
   if (productProvenance_ == nullptr) {
     // No provenance, must be a produced product which has not been
     // put yet, or a non-produced product that is available after
     // combine (agggregation) and not yet read, or a non-produced
     // product in a secondary file that has not yet been opened.
-    if (!branchDescription_->produced()) {
+    if (!branchDescription_.produced()) {
       if (availableAfterCombine) {
         // No provenance, not produced, but we can get it from the
         // input, we just have not done so yet.  Claim the product is
@@ -332,17 +311,19 @@ productAvailable() const
     status = productstatus::neverCreated();
   }
   else {
-    // Not a produced product, and not yet delay read, use the status from the on-file provenance.
+    // Not a produced product, and not yet delay read, use the status
+    // from the on-file provenance.
     status = productProvenance_.load()->productStatus();
   }
-  if ((branchDescription_->branchType() == InSubRun) || (branchDescription_->branchType() == InRun)) {
+  if ((branchDescription_.branchType() == InSubRun) || (branchDescription_.branchType() == InRun)) {
     if (!availableAfterCombine) {
-      // We know this is a produced run or subrun product which is not present in any fragments.
+      // We know this is a produced run or subrun product which is not
+      // present in any fragments.
       return status == productstatus::present();
     }
   }
-  // We now know we are either an event or results product, or we are a
-  // run or subrun product that can become valid through product
+  // We now know we are either an event or results product, or we are
+  // a run or subrun product that can become valid through product
   // combination (aggregation).
   if (status == productstatus::dummyToPreventDoubleCount()) {
     // We now know that we are a run or subrun product that can become
@@ -350,17 +331,19 @@ productAvailable() const
     // this and report the product as available even though the the
     // provenance product status is a special flag that is not the
     // present status.
+
     // This is here to allow fetching of a product specially marked by
     // RootOutputFile as a dummy with an invalid range set created to
-    // prevent double-counting when combining run/subrun products.
-    // We allow the fetch to happen because the call to isPossiblyAvailable
-    // above determined that the fetch will result in a valid and present
-    // product, even though this particular dummy one is not.
+    // prevent double-counting when combining run/subrun products.  We
+    // allow the fetch to happen because the call to
+    // isPossiblyAvailable above determined that the fetch will result
+    // in a valid and present product, even though this particular
+    // dummy one is not.
     return true;
   }
-  // Note: Technically this is not necessary since the Wrapper present flag
-  //       covers this case, but this way we never do the I/O on the product
-  //       if we already have the provenance.
+  // Note: Technically this is not necessary since the Wrapper present
+  //       flag covers this case, but this way we never do the I/O on
+  //       the product if we already have the provenance.
   return status == productstatus::present();
 }
 
@@ -399,7 +382,7 @@ resolveProductIfAvailable(TypeID wanted_wrapper_type /*= TypeID{}*/) const
   // Now try to get the master product.
   if (product_ == nullptr) {
     // Not already resolved.
-    if (branchDescription_->produced()) {
+    if (branchDescription_.produced()) {
       // Never produced, hopeless.
       return false;
     }
@@ -410,7 +393,7 @@ resolveProductIfAvailable(TypeID wanted_wrapper_type /*= TypeID{}*/) const
     // Now try to read it.
     // Note: threading: This may call back to us to update the product provenance if run or subRun
     // Note: threading: data product merging creates a new provenance.
-    product_ = delayedReader_->getProduct(branchDescription_->productID(), wrapperType_, *rangeSet_).release();
+    product_ = delayedReader_->getProduct(branchDescription_.productID(), wrapperType_, *rangeSet_).release();
     if (product_ == nullptr) {
       // We failed to get the master product, hopeless.
       return false;

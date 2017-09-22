@@ -446,13 +446,13 @@ namespace art {
 
     // Create product table for present products
     auto const& descriptions = make_product_descriptions(productList);
-    presentProducts_ = ProductTables{descriptions, availableProducts};
+    presentProducts_ = ProductTables{descriptions};
 
     // Add branches
     for (std::size_t i{}; i < NumBranchTypes; ++i) {
       auto const bt = static_cast<BranchType>(i);
-      for (auto const& pd : presentProducts_.get(bt).descriptions) {
-        treePointers_[bt]->addBranch(pd);
+      for (auto const& pr : presentProducts_.get(bt).descriptions) {
+        treePointers_[bt]->addBranch(pr.second);
       }
     }
 
