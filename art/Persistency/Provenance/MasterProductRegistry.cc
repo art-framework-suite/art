@@ -42,7 +42,7 @@ art::MasterProductRegistry::updateFromInputFile(ProductList const& pl)
 {
   CET_ASSERT_ONLY_ONE_THREAD();
   updateProductLists_(pl);
-  cet::for_all(productListUpdatedCallbacks_, [this](auto const& callback){ callback(productList_); });
+  cet::for_all(productListUpdatedCallbacks_, [&pl](auto const& callback){ callback(pl); });
 }
 
 void

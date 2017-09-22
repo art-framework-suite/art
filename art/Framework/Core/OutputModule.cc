@@ -211,7 +211,6 @@ void
 art::OutputModule::doSelectProducts(ProductList const& productList)
 {
   GroupSelector const groupSelector{groupSelectorRules_, productList};
-  keptProducts_ = {{}};
 
   // TODO: See if we can collapse keptProducts_ and groupSelector into
   // a single object. See the notes in the header for GroupSelector
@@ -226,7 +225,8 @@ art::OutputModule::doSelectProducts(ProductList const& productList)
     }
     if (groupSelector.selected(pd)) {
       // Selected, keep it.
-      keptProducts_[bt].push_back(&pd);
+      // FIXME: Should change to ownership via std::shared_ptr!
+      keptProducts_[bt].insert(pd);
       continue;
     }
     // Newly dropped, skip it.

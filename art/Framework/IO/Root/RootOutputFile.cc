@@ -435,13 +435,13 @@ selectProducts()
     for (auto const& pd : om_->keptProducts()[bt]) {
       // Persist Results products only if they have been produced by
       // the current process.
-      if (bt == InResults && !pd->produced()) continue;
-      checkDictionaries(*pd);
+      if (bt == InResults && !pd.produced()) continue;
+      checkDictionaries(pd);
       items.emplace(pd);
     }
 
     for (auto const& val : items) {
-      treePointers_[bt]->addOutputBranch(*val.branchDescription_, val.product_);
+      treePointers_[bt]->addOutputBranch(val.branchDescription_, val.product_);
     }
   }
 }
@@ -862,15 +862,15 @@ fillBranches(Principal const& principal, vector<ProductProvenance>* vpp)
   auto const& principalRS = principal.seenRanges();
   set<ProductProvenance> keptprv;
   for (auto const& val : selectedOutputItemList_[BT]) {
-    auto const* bd = val.branchDescription_;
-    auto const pid = bd->productID();
+    auto const& bd = val.branchDescription_;
+    auto const pid = bd.productID();
     // Note: recording branches with stored history according to its
     //       ProductID value is circumspect since ProductIDs do not
     //       include the BranchType value in its checksum calculation.
     //       This should be fixed.
     branchesWithStoredHistory_.insert(pid);
-    bool const produced = bd->produced();
-    bool const resolveProd = (produced || !fastCloning || treePointers_[BT]->uncloned(bd->branchName()));
+    bool const produced = bd.produced();
+    bool const resolveProd = (produced || !fastCloning || treePointers_[BT]->uncloned(bd.branchName()));
     // Update the kept provenance
     bool const keepProvenance = ((dropMetaData_ == DropMetaData::DropNone) ||
                                  (produced && (dropMetaData_ == DropMetaData::DropPrior)));
@@ -965,7 +965,7 @@ fillBranches(Principal const& principal, vector<ProductProvenance>* vpp)
         }
         prov = keptprv.emplace(prov_bid, productstatus::dummyToPreventDoubleCount()).first;
       }
-      auto const* product = getProduct<BT>(oh, rs, bd->wrappedName());
+      auto const* product = getProduct<BT>(oh, rs, bd.wrappedName());
       setProductRangeSetID<BT>(rs, rootFileDB_, const_cast<EDProduct*>(product), checksumToIndex);
       val.product_ = product;
     }

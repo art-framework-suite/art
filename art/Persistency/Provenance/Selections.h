@@ -4,11 +4,11 @@
 #include "canvas/Persistency/Provenance/BranchType.h"
 
 #include <array>
-#include <vector>
+#include <set>
 
 namespace art {
   class BranchDescription;
-  using Selections = std::vector<BranchDescription const *>;
+  using Selections = std::set<BranchDescription>;
   using SelectionsArray = std::array<Selections, NumBranchTypes>;
 }
 

@@ -64,29 +64,26 @@ public: // TYPES
       ~OutputItem() = default;
 
       explicit
-      OutputItem(BranchDescription const* bd)
-        : branchDescription_{bd}
-        , product_{nullptr}
-      {
-      }
+      OutputItem(BranchDescription const& bd) : branchDescription_{bd}
+      {}
 
     public: // MEMBER FUNCTIONS
 
       std::string const&
       branchName() const
       {
-        return branchDescription_->branchName();
+        return branchDescription_.branchName();
       }
 
       bool
       operator<(OutputItem const& rh) const
       {
-        return *branchDescription_ < *rh.branchDescription_;
+        return branchDescription_ < rh.branchDescription_;
       }
 
     public: // MEMBER DATA
 
-      BranchDescription const* branchDescription_{nullptr};
+      BranchDescription const branchDescription_;
       mutable void const* product_{nullptr};
 
   };
