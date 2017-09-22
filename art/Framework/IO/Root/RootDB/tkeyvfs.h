@@ -1,5 +1,5 @@
-#ifndef art_Persistency_RootDB_tkeyvfs_h
-#define art_Persistency_RootDB_tkeyvfs_h
+#ifndef art_Framework_IO_Root_RootDB_tkeyvfs_h
+#define art_Framework_IO_Root_RootDB_tkeyvfs_h
 
 /*
  * Save db to root file on close.
@@ -20,7 +20,7 @@ extern "C" {
                      );
 }
 
-#endif /* art_Persistency_RootDB_tkeyvfs_h */
+#endif /* art_Framework_IO_Root_RootDB_tkeyvfs_h */
 
 // Local Variables:
 // mode: c++

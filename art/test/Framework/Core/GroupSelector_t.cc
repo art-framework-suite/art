@@ -5,7 +5,6 @@
 
 #include "art/Framework/Core/GroupSelector.h"
 #include "art/Framework/Core/GroupSelectorRules.h"
-#include "art/Persistency/Provenance/MasterProductRegistry.h"
 #include "art/Version/GetReleaseVersion.h"
 #include "canvas/Persistency/Common/Ptr.h"
 #include "canvas/Persistency/Common/traits.h"

@@ -9,7 +9,6 @@
 // A large amount of boilerplate is required to construct an
 // art::Event object.  Required items include:
 //
-//   - Correct initialization of the MasterProductRegistry
 //   - A well-formed ProcessHistory
 //   - Properly-constructed product-lookup tables
 //
@@ -24,7 +23,6 @@
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/Selector.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
-#include "art/Persistency/Provenance/MasterProductRegistry.h"
 #include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
 #include "art/Version/GetReleaseVersion.h"
 #include "art/test/TestObjects/ToyProducts.h"
@@ -86,10 +84,10 @@ namespace art {
 
 } // namespace art
 
-class MPRGlobalTestFixture {
+class ProductTablesFixture {
 public:
 
-  MPRGlobalTestFixture();
+  ProductTablesFixture();
 
   ModuleDescription currentModuleDescription_{};
   // The moduleConfigurations_ data member is a map that with the
@@ -97,11 +95,11 @@ public:
   //   process_name <-> (module_name <-> module_configuration)
   std::map<std::string, std::map<std::string, ParameterSet>> moduleConfigurations_{};
   std::map<std::string, ModuleDescription> moduleDescriptions_{};
+
   // The descriptions_ data member is used only to create the product
   // lookup tables.
   ProductDescriptions descriptions_{};
   ProductTables producedProducts_{ProductTables::invalid()};
-
   ProductTable presentProducts_{};
 
 private:
@@ -115,11 +113,9 @@ private:
                   std::string const& moduleLabel,
                   std::string const& processName,
                   std::string const& productInstanceName = {});
-
-  MasterProductRegistry availableProducts_{};
 };
 
-MPRGlobalTestFixture::MPRGlobalTestFixture()
+ProductTablesFixture::ProductTablesFixture()
 {
   using product_t = arttest::IntProduct;
   constexpr bool presentFromSource{true};
@@ -148,13 +144,11 @@ MPRGlobalTestFixture::MPRGlobalTestFixture()
     producedProducts_ = ProductTables{descriptions_};
     descriptions_.clear();
   }
-
-  availableProducts_.finalizeForProcessing(producedProducts_);
 }
 
 template <class T, bool Present>
 ModuleDescription const&
-MPRGlobalTestFixture::registerProduct(std::string const& tag,
+ProductTablesFixture::registerProduct(std::string const& tag,
                                       std::string const& moduleLabel,
                                       std::string const& processName,
                                       std::string const& productInstanceName)
@@ -189,31 +183,27 @@ MPRGlobalTestFixture::registerProduct(std::string const& tag,
 }
 
 struct EventTestFixture {
-
 public:
 
   EventTestFixture();
-
-public:
 
   template <class T>
   ProductID addSourceProduct(std::unique_ptr<T>&& product,
                              std::string const& tag,
                              std::string const& instanceName = {});
 
-  MPRGlobalTestFixture& gf();
+  ProductTablesFixture& ptf();
   std::unique_ptr<EventPrincipal> principal_{nullptr};
   std::unique_ptr<Event> currentEvent_{nullptr};
 };
 
-EventTestFixture::
-EventTestFixture()
+EventTestFixture::EventTestFixture()
 {
   // Construct process history for event.  This takes several lines of
   // code but other than the process names none of it is used or
   // interesting.
   ProcessHistory processHistory;
-  for (auto const& process : gf().moduleConfigurations_) {
+  for (auto const& process : ptf().moduleConfigurations_) {
     auto const& process_name = process.first;
     // Skip current process since it is not yet part of the history.
     if (process_name == "CURRENT") {
@@ -245,7 +235,7 @@ EventTestFixture()
 
   constexpr auto time = make_timestamp();
   EventID const id{make_id()};
-  ProcessConfiguration const& pc = gf().currentModuleDescription_.processConfiguration();
+  ProcessConfiguration const& pc = ptf().currentModuleDescription_.processConfiguration();
 
   RunAuxiliary const runAux{id.run(), time, time};
   auto rp = std::make_unique<RunPrincipal>(runAux, pc, nullptr);
@@ -259,12 +249,12 @@ EventTestFixture()
   const_cast<ProcessHistoryID&>(history->processHistoryID()) = processHistoryID;
   principal_ = std::make_unique<EventPrincipal>(eventAux,
                                                 pc,
-                                                &gf().presentProducts_,
+                                                &ptf().presentProducts_,
                                                 std::move(history));
   principal_->setSubRunPrincipal(srp.get());
-  principal_->setProducedProducts(gf().producedProducts_);
+  principal_->setProducedProducts(ptf().producedProducts_);
 
-  currentEvent_ = std::make_unique<Event>(*principal_, gf().currentModuleDescription_);
+  currentEvent_ = std::make_unique<Event>(*principal_, ptf().currentModuleDescription_);
 }
 
 // Add the given product, of type T, to the current event, as if it
@@ -275,8 +265,8 @@ EventTestFixture::addSourceProduct(std::unique_ptr<T>&& product,
                                    std::string const& tag,
                                    std::string const& instanceName)
 {
-  auto description = gf().moduleDescriptions_.find(tag);
-  if (description == gf().moduleDescriptions_.end())
+  auto description = ptf().moduleDescriptions_.find(tag);
+  if (description == ptf().moduleDescriptions_.end())
     throw art::Exception(errors::LogicError)
       << "Failed to find a module description for tag: "
       << tag << '\n';
@@ -288,12 +278,11 @@ EventTestFixture::addSourceProduct(std::unique_ptr<T>&& product,
   return id;
 }
 
-MPRGlobalTestFixture&
-EventTestFixture::
-gf()
+ProductTablesFixture&
+EventTestFixture::ptf()
 {
-  static MPRGlobalTestFixture gf_s;
-  return gf_s;
+  static ProductTablesFixture ptf_s;
+  return ptf_s;
 }
 
 BOOST_FIXTURE_TEST_SUITE(Event_t, EventTestFixture)

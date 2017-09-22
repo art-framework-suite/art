@@ -44,13 +44,12 @@ using namespace std::string_literals;
 using fhicl::ParameterSet;
 
 namespace art {
+  class EventObserverBase;
+  class ProducerBase;
+  class ResultsProducer;
+}
 
-class EventObserverBase;
-class ProducerBase;
-class ResultsProducer;
-
-PathManager::
-~PathManager()
+art::PathManager:: ~PathManager()
 {
   for (auto& label_And_worker : workerSet_) {
     delete label_And_worker.second;
@@ -67,12 +66,11 @@ PathManager::
   }
 }
 
-PathManager::
-PathManager(ParameterSet const& procPS,
-            MasterProductRegistry& mpr,
-            ProductDescriptions& productsToProduce,
-            ActionTable& exceptActions,
-            ActivityRegistry& actReg)
+art::PathManager::PathManager(ParameterSet const& procPS,
+                              MasterProductRegistry& mpr,
+                              ProductDescriptions& productsToProduce,
+                              ActionTable& exceptActions,
+                              ActivityRegistry& actReg)
   : mpr_{mpr}
   , exceptActions_{exceptActions}
   , actReg_{actReg}
@@ -138,15 +136,15 @@ PathManager(ParameterSet const& procPS,
           auto actualModType = mod_type_func();
           if (actualModType != mci.moduleType_) {
             es
-                << "  ERROR: Module with label "
-                << mci.label_
-                << " of type "
-                << mci.libSpec_
-                << " is configured as a "
-                << ModuleType_to_string(mci.moduleType_)
-                << " but defined in code as a "
-                << ModuleType_to_string(actualModType)
-                << ".\n";
+              << "  ERROR: Module with label "
+              << mci.label_
+              << " of type "
+              << mci.libSpec_
+              << " is configured as a "
+              << ModuleType_to_string(mci.moduleType_)
+              << " but defined in code as a "
+              << ModuleType_to_string(actualModType)
+              << ".\n";
           }
           //
           //  Search for the module library and get the module threading type function pointer from it.
@@ -169,29 +167,29 @@ PathManager(ParameterSet const& procPS,
           auto result = allModules_.emplace(mci.label_, mci);
           if (!result.second) {
             es
-                << "  ERROR: Module label "
-                << mci.label_
-                << " has been used in "
-                << result.first->second.configPath_
-                << " and "
-                << path_table_name
-                << ".\n";
+              << "  ERROR: Module label "
+              << mci.label_
+              << " has been used in "
+              << result.first->second.configPath_
+              << " and "
+              << path_table_name
+              << ".\n";
           }
         }
         catch (exception const& e) {
           es
-              << "  ERROR: Configuration of module with label "
-              << module_label
-              << " encountered the following error:\n"
-              << e.what()
-              << "\n";
+            << "  ERROR: Configuration of module with label "
+            << module_label
+            << " encountered the following error:\n"
+            << e.what()
+            << "\n";
         }
       }
     }
     if (!es.str().empty()) {
       throw Exception(errors::Configuration)
-          << "The following were encountered while processing the module configurations:\n"
-          << es.str();
+        << "The following were encountered while processing the module configurations:\n"
+        << es.str();
     }
   }
   //
@@ -254,13 +252,13 @@ PathManager(ParameterSet const& procPS,
       }
       if (!bad_names.empty()) {
         string msg = "\nYou have specified the following unsupported parameters in the\n"
-                     "\"physics\" block of your configuration:\n\n";
+          "\"physics\" block of your configuration:\n\n";
         for_each(bad_names.cbegin(), bad_names.cend(),
-          [&msg](auto const& name)
-          {
-            msg.append("   \"physics." + name.first + "\"   (" + name.second + ")\n");
-          }
-        );
+                 [&msg](auto const& name)
+                 {
+                   msg.append("   \"physics." + name.first + "\"   (" + name.second + ")\n");
+                 }
+                 );
         msg.append("\n");
         msg.append("Supported parameters include the following tables:\n");
         msg.append("   \"physics.producers\"\n");
@@ -291,13 +289,13 @@ PathManager(ParameterSet const& procPS,
           auto iter = allModules_.find(label);
           if (iter == allModules_.end()) {
             es
-                << "  ERROR: Entry "
-                << modname_filterAction
-                << " in path "
-                << path_name
-                << " refers to a module label "
-                << label
-                << " which is not configured.\n";
+              << "  ERROR: Entry "
+              << modname_filterAction
+              << " in path "
+              << path_name
+              << " refers to a module label "
+              << label
+              << " which is not configured.\n";
             continue;
           }
           //std::map<std::string, ModuleConfigInfo>
@@ -306,11 +304,11 @@ PathManager(ParameterSet const& procPS,
           if ((cat != mod_cat_t::UNSET) && (cat != mtype)) {
             // Warn on mixed module types.
             es
-                << "  ERROR: Entry " << modname_filterAction << " in path " << path_name << " is a"
-                << (cat == mod_cat_t::OBSERVER ? " modifier" : "n observer")
-                << " while previous entries in the same path are all "
-                << (cat == mod_cat_t::OBSERVER ? "observers" : "modifiers")
-                << ".\n";
+              << "  ERROR: Entry " << modname_filterAction << " in path " << path_name << " is a"
+              << (cat == mod_cat_t::OBSERVER ? " modifier" : "n observer")
+              << " while previous entries in the same path are all "
+              << (cat == mod_cat_t::OBSERVER ? "observers" : "modifiers")
+              << ".\n";
           }
           if (cat == mod_cat_t::UNSET) {
             // We now know path is not empty, categorize it.
@@ -319,10 +317,10 @@ PathManager(ParameterSet const& procPS,
             if (cat == mod_cat_t::MODIFIER) {
               if (trigger_paths_config_ && (trigger_paths_config_->find(path_name) == trigger_paths_config_->cend())) {
                 mf::LogInfo("DeactivatedPath")
-                    << "Detected trigger path \""
-                    << path_name
-                    << "\" which was not found in\n"
-                    << "parameter \"physics.trigger_paths\". Path will be ignored.";
+                  << "Detected trigger path \""
+                  << path_name
+                  << "\" which was not found in\n"
+                  << "parameter \"physics.trigger_paths\". Path will be ignored.";
                 break;
               }
               // FIXME: The error message here should say something more like
@@ -338,11 +336,11 @@ PathManager(ParameterSet const& procPS,
             else {
               if (end_paths_config_ && (end_paths_config_->find(path_name) == end_paths_config_->cend())) {
                 mf::LogInfo("DeactivatedPath")
-                    << "Detected end path \""
-                    << path_name
-                    << "\" which was not found in\n"
-                    << "parameter \"physics.end_paths\". "
-                    << "Path will be ignored.";
+                  << "Detected end path \""
+                  << path_name
+                  << "\" which was not found in\n"
+                  << "parameter \"physics.end_paths\". "
+                  << "Path will be ignored.";
                 break;
               }
               // FIXME: The error message here should say something more like
@@ -365,30 +363,22 @@ PathManager(ParameterSet const& procPS,
           if (cat == mod_cat_t::MODIFIER) {
             // Trigger path.
             mci.filterAction_ = filteract;
-            //std::map<std::string, std::vector<detail::ModuleConfigInfo>>
             protoTrigPathMap_[path_name].emplace_back(mci);
           }
           else {
             // End path.
             mci.filterAction_ = filteract;
-            //std::vector<detail::ModuleConfigInfo>
             protoEndPathInfo_.emplace_back(mci);
           }
         }
         if (cat == mod_cat_t::OBSERVER) {
           ++num_end_paths;
         }
-        //else {
-        //  ++num_trig_paths;
-        //}
       }
-      //if (num_trig_paths > 1) {
-      //  cerr << "=== num_trig_paths: " << num_trig_paths << "\n";
-      //}
       if (num_end_paths > 1) {
         mf::LogInfo("PathConfiguration")
-            << "Multiple end paths have been combined into one end path,\n"
-            << "\"end_path\" since order is irrelevant.\n";
+          << "Multiple end paths have been combined into one end path,\n"
+          << "\"end_path\" since order is irrelevant.\n";
       }
     }
     //
@@ -415,8 +405,8 @@ PathManager(ParameterSet const& procPS,
           us << ", '" << *i << "'";
         }
         mf::LogInfo("path")
-            << us.str()
-            << "\n";
+          << us.str()
+          << "\n";
       }
     }
     //
@@ -424,131 +414,127 @@ PathManager(ParameterSet const& procPS,
     //
     if (!es.str().empty()) {
       throw Exception(errors::Configuration, "Path configuration: ")
-          << "The following were encountered while processing path configurations:\n"
-          << es.str();
+        << "The following were encountered while processing path configurations:\n"
+        << es.str();
     }
   }
 }
 
 vector<string> const&
-PathManager::
-triggerPathNames() const
+art::PathManager::triggerPathNames() const
 {
   return triggerPathNames_;
 }
 
 void
-PathManager::
-createModulesAndWorkers()
+art::PathManager::createModulesAndWorkers()
 {
   auto const streams = Globals::instance()->streams();
   auto fillWorkers_ = [this](int si, int pi, vector<ModuleConfigInfo> const& mci_list, map<string, Worker*>& allStreamWorkers,
                              vector<WorkerInPath>& wips, map<string, Worker*>& workers)
-  {
-    vector<string> configErrMsgs;
-    for (auto const& mci : mci_list) {
-      auto const& modPS = mci.modPS_;
-      auto const& module_label = mci.label_;
-      auto const& module_type = mci.libSpec_;
-      auto const& module_threading_type = mci.moduleThreadingType_;
-      auto const& filterAction = mci.filterAction_;
-      //modPS.put("injected_module_label", module_label);
-      //modPS.put("injected_streamIndex", si);
-      ModuleBase* module = nullptr;
-      // All modules are singletons except for stream modules,
-      // enforce that.
-      if (module_threading_type != ModuleThreadingType::STREAM) {
-        auto iter = moduleSet_.find(module_label);
-        if (iter != moduleSet_.end()) {
-          // We have already constructed this module, reuse it.
-          TDEBUG(5) << "Reusing module 0x" << hex << ((unsigned long)iter->second) << dec <<" (" << si << ") path: " << pi << " type: " << module_type << " label: " << module_label << "\n";
-          module = iter->second;
+    {
+      vector<string> configErrMsgs;
+      for (auto const& mci : mci_list) {
+        auto const& modPS = mci.modPS_;
+        auto const& module_label = mci.label_;
+        auto const& module_type = mci.libSpec_;
+        auto const& module_threading_type = mci.moduleThreadingType_;
+        auto const& filterAction = mci.filterAction_;
+        ModuleBase* module = nullptr;
+        // All modules are singletons except for stream modules,
+        // enforce that.
+        if (module_threading_type != ModuleThreadingType::STREAM) {
+          auto iter = moduleSet_.find(module_label);
+          if (iter != moduleSet_.end()) {
+            // We have already constructed this module, reuse it.
+            TDEBUG(5) << "Reusing module 0x" << hex << ((unsigned long)iter->second) << dec <<" (" << si << ") path: " << pi << " type: " << module_type << " label: " << module_label << "\n";
+            module = iter->second;
+          }
         }
-      }
-      Worker* worker = nullptr;
-      // Workers which are present on multiple paths should be
-      // shared so that their work is only done once per stream.
-      {
-        auto iter = allStreamWorkers.find(module_label);
-        if (iter != allStreamWorkers.end()) {
-          TDEBUG(5) << "Reusing worker 0x" << hex << ((unsigned long)iter->second) << dec << " (" << si << ") path: " << pi << " type: " << module_type << " label: " << module_label << "\n";
-          worker = iter->second;
+        Worker* worker = nullptr;
+        // Workers which are present on multiple paths should be
+        // shared so that their work is only done once per stream.
+        {
+          auto iter = allStreamWorkers.find(module_label);
+          if (iter != allStreamWorkers.end()) {
+            TDEBUG(5) << "Reusing worker 0x" << hex << ((unsigned long)iter->second) << dec << " (" << si << ") path: " << pi << " type: " << module_type << " label: " << module_label << "\n";
+            worker = iter->second;
+          }
         }
-      }
-      if (worker == nullptr) {
-        try {
-          ModuleDescription const
-          md{modPS.id(), module_type, module_label, static_cast<int>(module_threading_type),
-             ProcessConfiguration{processName_, procPS_.id(), getReleaseVersion()}};
-          WorkerParams const wp{procPS_, modPS, mpr_, productsToProduce_, actReg_, exceptActions_, processName_, module_threading_type, si};
-          if (module == nullptr) {
-            detail::ModuleMaker_t* module_factory_func = nullptr;
+        if (worker == nullptr) {
+          try {
+            ModuleDescription const
+              md{modPS.id(), module_type, module_label, static_cast<int>(module_threading_type),
+                ProcessConfiguration{processName_, procPS_.id(), getReleaseVersion()}};
+            WorkerParams const wp{procPS_, modPS, mpr_, productsToProduce_, actReg_, exceptActions_, processName_, module_threading_type, si};
+            if (module == nullptr) {
+              detail::ModuleMaker_t* module_factory_func = nullptr;
+              try {
+                lm_.getSymbolByLibspec(module_type, "make_module", module_factory_func);
+              }
+              catch (art::Exception& e) {
+                cet::detail::wrapLibraryManagerException(e, "Module", module_type, getReleaseVersion());
+              }
+              if (module_factory_func == nullptr) {
+                throw art::Exception(errors::Configuration, "BadPluginLibrary: ")
+                  << "Module " << module_type << " with version " << getReleaseVersion()
+                  << " has internal symbol definition problems: consult an expert.";
+              }
+              string pathName{"ctor"};
+              CurrentProcessingContext cpc{0, &pathName, 0, false};
+              cpc.activate(0, &md);
+              detail::CPCSentry cpc_sentry{cpc};
+              actReg_.sPreModuleConstruction.invoke(md);
+              module = module_factory_func(md, wp);
+              moduleSet_.emplace(module_label, module);
+              TDEBUG(5) << "Made module 0x" << hex << ((unsigned long)module) << dec << " (" << si << ") path: " << pi << " type: " << module_type << " label: " << module_label << "\n";
+              actReg_.sPostModuleConstruction.invoke(md);
+              module->sortConsumables();
+              ConsumesInfo::instance()->collectConsumes(module_label, module->getConsumables());
+            }
+            detail::WorkerFromModuleMaker_t* worker_from_module_factory_func = nullptr;
             try {
-              lm_.getSymbolByLibspec(module_type, "make_module", module_factory_func);
+              lm_.getSymbolByLibspec(module_type, "make_worker_from_module", worker_from_module_factory_func);
             }
             catch (art::Exception& e) {
               cet::detail::wrapLibraryManagerException(e, "Module", module_type, getReleaseVersion());
             }
-            if (module_factory_func == nullptr) {
+            if (worker_from_module_factory_func == nullptr) {
               throw art::Exception(errors::Configuration, "BadPluginLibrary: ")
                 << "Module " << module_type << " with version " << getReleaseVersion()
                 << " has internal symbol definition problems: consult an expert.";
             }
-            string pathName{"ctor"};
-            CurrentProcessingContext cpc{0, &pathName, 0, false};
-            cpc.activate(0, &md);
-            detail::CPCSentry cpc_sentry{cpc};
-            actReg_.sPreModuleConstruction.invoke(md);
-            module = module_factory_func(md, wp);
-            moduleSet_.emplace(module_label, module);
-            TDEBUG(5) << "Made module 0x" << hex << ((unsigned long)module) << dec << " (" << si << ") path: " << pi << " type: " << module_type << " label: " << module_label << "\n";
-            actReg_.sPostModuleConstruction.invoke(md);
-            module->sortConsumables();
-            ConsumesInfo::instance()->collectConsumes(module_label, module->getConsumables());
+            worker = worker_from_module_factory_func(module, md, wp);
+            workerSet_.emplace(module_label, worker);
+            allStreamWorkers.emplace(module_label, worker);
+            TDEBUG(5) << "Made worker 0x" << hex << ((unsigned long)worker) << dec << " (" << si << ") path: " << pi << " type: " << module_type << " label: " << module_label << "\n";
           }
-          detail::WorkerFromModuleMaker_t* worker_from_module_factory_func = nullptr;
-          try {
-            lm_.getSymbolByLibspec(module_type, "make_worker_from_module", worker_from_module_factory_func);
+          catch (fhicl::detail::validationException const& e) {
+            ostringstream es;
+            es
+              << "\n\nModule label: "
+              << detail::bold_fontify(module_label)
+              << "\nmodule_type : "
+              << detail::bold_fontify(module_type)
+              << "\n\n"
+              << e.what();
+            configErrMsgs.push_back(es.str());
           }
-          catch (art::Exception& e) {
-            cet::detail::wrapLibraryManagerException(e, "Module", module_type, getReleaseVersion());
-          }
-          if (worker_from_module_factory_func == nullptr) {
-            throw art::Exception(errors::Configuration, "BadPluginLibrary: ")
-              << "Module " << module_type << " with version " << getReleaseVersion()
-              << " has internal symbol definition problems: consult an expert.";
-          }
-          worker = worker_from_module_factory_func(module, md, wp);
-          workerSet_.emplace(module_label, worker);
-          allStreamWorkers.emplace(module_label, worker);
-          TDEBUG(5) << "Made worker 0x" << hex << ((unsigned long)worker) << dec << " (" << si << ") path: " << pi << " type: " << module_type << " label: " << module_label << "\n";
         }
-        catch (fhicl::detail::validationException const& e) {
-          ostringstream es;
-          es
-            << "\n\nModule label: "
-            << detail::bold_fontify(module_label)
-            << "\nmodule_type : "
-            << detail::bold_fontify(module_type)
-            << "\n\n"
-            << e.what();
-          configErrMsgs.push_back(es.str());
+        workers.emplace(module_label, worker);
+        wips.emplace_back(worker, filterAction);
+      }
+      if (!configErrMsgs.empty()) {
+        constexpr cet::HorizontalRule rule{100};
+        ostringstream msg;
+        msg << "\n" << rule('=') << "\n\n" << "!! The following modules have been misconfigured: !!" << "\n";
+        for (auto const& err : configErrMsgs) {
+          msg << "\n" << rule('-') << "\n" << err;
         }
+        msg << "\n" << rule('=') << "\n\n";
+        throw Exception(errors::Configuration) << msg.str();
       }
-      workers.emplace(module_label, worker);
-      wips.emplace_back(worker, filterAction);
-    }
-    if (!configErrMsgs.empty()) {
-      constexpr cet::HorizontalRule rule{100};
-      ostringstream msg;
-      msg << "\n" << rule('=') << "\n\n" << "!! The following modules have been misconfigured: !!" << "\n";
-      for (auto const& err : configErrMsgs) {
-        msg << "\n" << rule('-') << "\n" << err;
-      }
-      msg << "\n" << rule('=') << "\n\n";
-      throw Exception(errors::Configuration) << msg.str();
-    }
-  };
+    };
   //
   //  For each configured stream, create the trigger paths and the workers on each path.
   //
@@ -558,52 +544,31 @@ createModulesAndWorkers()
   {
     triggerPathsInfo_.resize(streams);
     for (auto streamIndex = 0; streamIndex < streams; ++streamIndex) {
-      //vector<PathsInfo>
-      //triggerPathsInfo_.emplace_back();
       auto& pinfo = triggerPathsInfo_[streamIndex];
       pinfo.pathResults() = HLTGlobalStatus(triggerPathNames_.size());
       int bitPos = 0;
       map<string, Worker*> allStreamWorkers;
-      //map<string, vector<ModuleConfigInfo>>
-      for_each(protoTrigPathMap_.cbegin(), protoTrigPathMap_.cend(),
-               [this, &fillWorkers_, streamIndex, &pinfo, &bitPos, &allStreamWorkers](auto const& val) {
-        // We have a trigger path, val.first = path_name, val.second = mci
+      for (auto const& val : protoTrigPathMap_) {
+        auto const& path_name = val.first;
+        auto const& module_config_infos = val.second;
         vector<WorkerInPath> wips;
-        fillWorkers_(
-          //int == streamIndex
-          streamIndex,
-          //int == pathIndex
-          bitPos,
-          //vector<ModuleConfigInfo>
-          val.second,
-          //map<string, Worker*>
-          allStreamWorkers,
-          //vector<WorkerInPath>
-          wips,
-          //map<string, Worker*>
-          pinfo.workers()
-        );
-        //vector<Path*>
-        pinfo.paths().push_back(new Path{
-            exceptActions_,
-            actReg_,
-            //int == streamIndex
-            streamIndex,
-            //bitpos
-            bitPos,
-            // is_end_path
-            false,
-            //path name == string
-            val.first,
-            //vector<WorkerInPath>
-            move(wips),
-            //HLTGlobalStatus*
-            &pinfo.pathResults()
-          }
-        );
+        fillWorkers_(streamIndex,
+                     bitPos,
+                     module_config_infos,
+                     allStreamWorkers,
+                     wips,
+                     pinfo.workers());
+        pinfo.paths().push_back(new Path{exceptActions_,
+                                         actReg_,
+                                         streamIndex,
+                                         bitPos,
+                                         false, // is_end_path
+                                         path_name,
+                                         move(wips),
+                                         &pinfo.pathResults()});
         TDEBUG(5) << "Made path 0x" << hex << ((unsigned long)pinfo.paths().back()) << dec << " (" << streamIndex << ") bitPos: " << bitPos << " name: " << val.first << "\n";
         ++bitPos;
-      });
+      }
     }
   }
   //
@@ -613,75 +578,51 @@ createModulesAndWorkers()
     if (!protoEndPathInfo_.empty()) {
       map<string, Worker*> allStreamWorkers;
       vector<WorkerInPath> wips;
-      fillWorkers_(
-          //int == streamIndex
-          0,
-          //int == pathIndex
-          0,
-          //vector<ModuleConfigInfo>
-          protoEndPathInfo_,
-          //map<string, Worker*>
-          allStreamWorkers,
-          wips,
-          //map<string, Worker*>
-          endPathInfo_.workers()
-        );
-      //vector<Path*>
-      endPathInfo_.paths().push_back(new Path{
-          exceptActions_,
-          actReg_,
-          //int == streamIndex
-          0,
-          //bitpos
-          0,
-          // is_end_path
-          true,
-          //path name == std::string
-          "end_path",
-          //vector<WorkerInPath>
-          move(wips),
-          //HLTGlobalStatus*
-          nullptr
-        }
-      );
+      fillWorkers_(0, // stream index
+                   0, // bit position
+                   protoEndPathInfo_,
+                   allStreamWorkers,
+                   wips,
+                   endPathInfo_.workers());
+      endPathInfo_.paths().push_back(new Path{exceptActions_,
+                                              actReg_,
+                                              0, // stream index
+                                              0, // bit position
+                                              true, // is_end_path
+                                              "end_path",
+                                              move(wips),
+                                              nullptr}); // HLTGlobalStatus*
       TDEBUG(5) << "Made end path 0x" << hex << ((unsigned long)endPathInfo_.paths().back()) << dec << "\n";
     }
   }
 }
 
-PathsInfo&
-PathManager::
-triggerPathsInfo(int stream)
+art::PathsInfo&
+art::PathManager::triggerPathsInfo(int stream)
 {
   return triggerPathsInfo_.at(stream);
 }
 
-vector<PathsInfo>&
-PathManager::
-triggerPathsInfo()
+vector<art::PathsInfo>&
+art::PathManager::triggerPathsInfo()
 {
   return triggerPathsInfo_;
 }
 
-PathsInfo&
-PathManager::
-endPathInfo()
+art::PathsInfo&
+art::PathManager::endPathInfo()
 {
   return endPathInfo_;
 }
 
-Worker*
-PathManager::
-triggerResultsInserter(int si) const
+art::Worker*
+art::PathManager::triggerResultsInserter(int si) const
 {
   return triggerResultsInserter_.at(si).get();
 }
 
 void
-PathManager::
-setTriggerResultsInserter(int si, std::unique_ptr<WorkerT<EDProducer>>&& w)
+art::PathManager::setTriggerResultsInserter(int si, std::unique_ptr<WorkerT<EDProducer>>&& w)
 {
   triggerResultsInserter_.at(si) = move(w);
 }
-
-} // namespace art

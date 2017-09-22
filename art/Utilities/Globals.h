@@ -1,5 +1,5 @@
-#ifndef art_Utilites_Globals_h
-#define art_Utilites_Globals_h
+#ifndef art_Utilities_Globals_h
+#define art_Utilities_Globals_h
 // vim: set sw=2 expandtab :
 
 #include "canvas/Persistency/Provenance/BranchType.h"
@@ -207,4 +207,4 @@ private: // MEMBER DATA
 // mode: c++
 // End:
 
-#endif /* art_Utilites_Globals_h */
+#endif /* art_Utilities_Globals_h */

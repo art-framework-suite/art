@@ -63,8 +63,8 @@ Schedule(int stream,
       WorkerParams const
         wp{process_pset_, trig_pset, mpr_, productsToProduce, actReg_, actionTable_, processName_, ModuleThreadingType::STREAM, stream};
       ModuleDescription
-      md{trig_pset.id(), "TriggerResultInserter", "TriggerResults", static_cast<int>(ModuleThreadingType::STREAM),
-         ProcessConfiguration(processName_, process_pset_.id(), getReleaseVersion())};
+        md{trig_pset.id(), "TriggerResultInserter", "TriggerResults", static_cast<int>(ModuleThreadingType::STREAM),
+          ProcessConfiguration{processName_, process_pset_.id(), getReleaseVersion()}};
       actReg_.sPreModuleConstruction.invoke(md);
       EDProducer* producer = new TriggerResultInserter(trig_pset, stream, triggerPathsInfo_.pathResults());
       producer->setModuleDescription(md);

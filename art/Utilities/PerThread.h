@@ -1,5 +1,5 @@
-#ifndef art_Framework_Utilities_PerThread_h
-#define art_Framework_Utilities_PerThread_h
+#ifndef art_Utilities_PerThread_h
+#define art_Utilities_PerThread_h
 // vim: set sw=2 expandtab :
 
 #include "art/Utilities/CurrentProcessingContext.h"
@@ -55,4 +55,4 @@ private: // MEMBER DATA
 // mode: c++
 // End:
 
-#endif /* art_Framework_Utilities_PerThread_h */
+#endif /* art_Utilities_PerThread_h */

@@ -1,5 +1,5 @@
-#ifndef art_Persistency_RootDB_SQLErrMsg_h
-#define art_Persistency_RootDB_SQLErrMsg_h
+#ifndef art_Framework_IO_Root_RootDB_SQLErrMsg_h
+#define art_Framework_IO_Root_RootDB_SQLErrMsg_h
 
 // Little class to handle the management of an SQLite3 error message.
 
@@ -38,7 +38,7 @@ private:
 };
 
 
-#endif /* art_Persistency_RootDB_SQLErrMsg_h */
+#endif /* art_Framework_IO_Root_RootDB_SQLErrMsg_h */
 
 // Local Variables:
 // mode: c++

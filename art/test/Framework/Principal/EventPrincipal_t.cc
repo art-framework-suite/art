@@ -9,7 +9,6 @@
 #include "art/Framework/Principal/Selector.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Persistency/Common/GroupQueryResult.h"
-#include "art/Persistency/Provenance/MasterProductRegistry.h"
 #include "art/Version/GetReleaseVersion.h"
 #include "art/test/TestObjects/ToyProducts.h"
 #include "canvas/Persistency/Common/Wrapper.h"
@@ -40,16 +39,16 @@ using namespace std;
 using namespace std::string_literals;
 using namespace art;
 
-class MPRGlobalTestFixture {
-
+class ProductTablesFixture {
 public: // MEMBER FUNCTIONS -- Special Member Functions
 
-  MPRGlobalTestFixture();
+  ProductTablesFixture();
 
-  art::MasterProductRegistry productRegistry_{};
   ProductTables producedProducts_{ProductTables::invalid()};
   std::map<std::string, art::ProductID> productIDs_{};
   std::map<std::string, art::ProcessConfiguration*> processConfigurations_{};
+
+private:
 
   art::BranchDescription
   fake_single_process_branch(std::string const& tag,
@@ -64,10 +63,9 @@ public: // MEMBER FUNCTIONS -- Special Member Functions
 };
 
 
-MPRGlobalTestFixture::
-MPRGlobalTestFixture()
+ProductTablesFixture::ProductTablesFixture()
 {
-  // We can only insert products registered in the MasterProductRegistry.
+  // We can only insert products registered in the product tables
   ProductDescriptions descriptions;
   descriptions.push_back(fake_single_process_branch("hlt",  "HLT"));
   descriptions.push_back(fake_single_process_branch("prod", "PROD"));
@@ -75,24 +73,24 @@ MPRGlobalTestFixture()
   descriptions.push_back(fake_single_process_branch("user", "USER"));
   descriptions.push_back(fake_single_process_branch("rick", "USER2", "rick"));
   producedProducts_ = ProductTables{descriptions};
-  productRegistry_.finalizeForProcessing(producedProducts_);
 }
 
 ProcessConfiguration*
-MPRGlobalTestFixture::
-fake_single_module_process(string const& tag, string const& processName, fhicl::ParameterSet const& moduleParams,
-                           string const& release)
+ProductTablesFixture::fake_single_module_process(string const& tag,
+                                                 string const& processName,
+                                                 fhicl::ParameterSet const& moduleParams,
+                                                 string const& release)
 {
   fhicl::ParameterSet processParams;
   processParams.put(processName, moduleParams);
   processParams.put("process_name", processName);
-  auto* result = new ProcessConfiguration(processName, processParams.id(), release);
+  auto result = new ProcessConfiguration(processName, processParams.id(), release);
   processConfigurations_[tag] = result;
   return result;
 }
 
 art::BranchDescription
-MPRGlobalTestFixture::fake_single_process_branch(std::string const& tag,
+ProductTablesFixture::fake_single_process_branch(std::string const& tag,
                                                  std::string const& processName,
                                                  std::string const& productInstanceName)
 {
@@ -118,25 +116,24 @@ MPRGlobalTestFixture::fake_single_process_branch(std::string const& tag,
 
 struct EventPrincipalTestFixture {
   EventPrincipalTestFixture();
-  MPRGlobalTestFixture& gf();
+  ProductTablesFixture& ptf();
   std::unique_ptr<art::EventPrincipal> pEvent_{nullptr};
 };
 
-EventPrincipalTestFixture::
-EventPrincipalTestFixture()
+EventPrincipalTestFixture::EventPrincipalTestFixture()
 {
-  (void) gf(); // Bootstrap MasterProductRegistry creation first time out.
-  EventID eventID(101, 87, 20);
+  (void) ptf(); // Bootstrap ProductTables creation first time out.
+  EventID const eventID{101, 87, 20};
 
-  // Making a functional EventPrincipal is not trivial, so we do it all here.
-  // Put products we'll look for into the EventPrincipal.
+  // Making a functional EventPrincipal is not trivial, so we do it
+  // all here.  Put products we'll look for into the EventPrincipal.
   std::unique_ptr<art::EDProduct> product = std::make_unique<art::Wrapper<arttest::DummyProduct>>();
 
   std::string const tag{"rick"};
-  auto i = gf().productIDs_.find(tag);
-  BOOST_REQUIRE(i != gf().productIDs_.end());
+  auto i = ptf().productIDs_.find(tag);
+  BOOST_REQUIRE(i != ptf().productIDs_.end());
 
-  auto pd = gf().producedProducts_.get(InEvent).description(i->second);
+  auto pd = ptf().producedProducts_.get(InEvent).description(i->second);
   BOOST_REQUIRE(pd != nullptr);
 
   auto entryDescriptionPtr = std::make_shared<art::Parentage>();
@@ -144,28 +141,31 @@ EventPrincipalTestFixture()
                                                                              art::productstatus::present(),
                                                                              entryDescriptionPtr->parents());
 
-  art::ProcessConfiguration* process = gf().processConfigurations_[tag];
+  art::ProcessConfiguration* process = ptf().processConfigurations_[tag];
   BOOST_REQUIRE(process);
-  art::Timestamp now(1234567UL);
+
+  constexpr art::Timestamp now{1234567UL};
+
   art::RunAuxiliary runAux {eventID.run(), now, now};
   auto rp = std::make_unique<art::RunPrincipal>(runAux, *process, nullptr);
+
   art::SubRunAuxiliary subRunAux {rp->run(), eventID.subRun(), now, now};
   auto srp = std::make_unique<art::SubRunPrincipal>(subRunAux, *process, nullptr);
   srp->setRunPrincipal(rp.get());
+
   art::EventAuxiliary eventAux(eventID, now, true);
   pEvent_ = std::make_unique<art::EventPrincipal>(eventAux, *process, nullptr);
   pEvent_->setSubRunPrincipal(srp.get());
-  pEvent_->setProducedProducts(gf().producedProducts_);
+  pEvent_->setProducedProducts(ptf().producedProducts_);
   pEvent_->put(*pd, move(productProvenancePtr), move(product), make_unique<RangeSet>());
   BOOST_REQUIRE_EQUAL(pEvent_->size(), 5u);
 }
 
-MPRGlobalTestFixture&
-EventPrincipalTestFixture::
-gf()
+ProductTablesFixture&
+EventPrincipalTestFixture::ptf()
 {
-  static MPRGlobalTestFixture gf_s;
-  return gf_s;
+  static ProductTablesFixture ptf_s;
+  return ptf_s;
 }
 
 BOOST_FIXTURE_TEST_SUITE(eventprincipal_t, EventPrincipalTestFixture)

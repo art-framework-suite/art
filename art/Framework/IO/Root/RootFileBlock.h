@@ -1,5 +1,5 @@
-#ifndef art_Framework_Core_RootFileBlock_h
-#define art_Framework_Core_RootFileBlock_h
+#ifndef art_Framework_IO_Root_RootFileBlock_h
+#define art_Framework_IO_Root_RootFileBlock_h
 
 // =======================================================================
 // RootFileBlock: Properties of a ROOT input file.
@@ -39,7 +39,7 @@ namespace art {
   };
 }
 
-#endif /* art_Framework_Core_RootFileBlock_h */
+#endif /* art_Framework_IO_Root_RootFileBlock_h */
 
 // Local Variables:
 // mode: c++

@@ -1198,14 +1198,6 @@ namespace art {
   cet::exempt_ptr<Group const>
   Principal::getGroupTryAllFiles(ProductID const pid) const
   {
-    // bool produced{false};
-    // if (producedProducts_) {
-    //   auto const& availableProducts = producedProducts_->availableProducts;
-    //   if (availableProducts.find(pid) != availableProducts.cend()) {
-    //     produced = true;
-    //   }
-    // }
-
     // Look through current process and currently opened primary input file.
     if (producedInProcess(pid) || presentFromSource(pid)) {
       return getGroupLocal(pid);

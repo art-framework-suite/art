@@ -1,5 +1,5 @@
-#ifndef art_Utilities_Transitions_h
-#define art_Utilities_Transitions_h
+#ifndef art_Utilities_Transition_h
+#define art_Utilities_Transition_h
 // vim: set sw=2 expandtab :
 
 namespace art {
@@ -19,7 +19,7 @@ enum class Transition {
 
 } // namespace art
 
-#endif /* art_Utilities_Transitions_h */
+#endif /* art_Utilities_Transition_h */
 
 // Local Variables:
 // mode: c++

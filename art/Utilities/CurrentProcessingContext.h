@@ -1,5 +1,5 @@
-#ifndef art_Framework_Principal_CurrentProcessingContext_h
-#define art_Framework_Principal_CurrentProcessingContext_h
+#ifndef art_Utilities_CurrentProcessingContext_h
+#define art_Utilities_CurrentProcessingContext_h
 // vim: set sw=2 expandtab :
 
 // CurrentProcessingContext is a class that carries information about
@@ -118,7 +118,7 @@ private: // MEMBER DATA -- Module info
 
 } // namespace art
 
-#endif /* art_Framework_Principal_CurrentProcessingContext_h */
+#endif /* art_Utilities_CurrentProcessingContext_h */
 
 // Local Variables:
 // mode: c++
