@@ -347,7 +347,7 @@ cet_test(FileDumperOutput_w HANDBUILT
   TEST_EXEC art
   TEST_ARGS --rethrow-all -c FileDumperOutputTest_w.fcl
   TEST_PROPERTIES
-  PASS_REGULAR_EXPRESSION "Total products \\(present, not present\\): 4 \\(4, 0\\)\\."
+  PASS_REGULAR_EXPRESSION "PROCESS NAME.*Total products \\(present, not present\\): 4 \\(4, 0\\)\\."
   DATAFILES
   fcl/FileDumperOutputTest_w.fcl
 )
@@ -358,7 +358,7 @@ cet_test(FileDumperOutput_r HANDBUILT
   DATAFILES
   fcl/FileDumperOutputTest_r.fcl
   TEST_PROPERTIES
-  PASS_REGULAR_EXPRESSION "Total products \\(present, not present\\): 4 \\(3, 1\\)\\."
+  PASS_REGULAR_EXPRESSION "PROCESS NAME.*Total products \\(present, not present\\): 4 \\(3, 1\\)\\."
   DEPENDS FileDumperOutput_w
 )
 
