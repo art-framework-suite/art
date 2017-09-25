@@ -60,7 +60,7 @@ public: // MEMBER FUNCTIONS -- Input File Open/Close.
 
   // Called by MasterProductRegistry product list updaters (on input file open).
   void
-  selectProducts(ProductLists const&);
+  selectProducts(ProductTables const&);
 
   // Called by EventProcessor::openInputFile()
   //   Called by EventProcessor::begin<Level::InputFile>()

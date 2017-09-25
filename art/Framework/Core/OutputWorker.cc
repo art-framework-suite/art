@@ -131,9 +131,9 @@ configure(OutputModuleDescription const& desc)
 
 void
 OutputWorker::
-selectProducts(ProductLists const& productLists)
+selectProducts(ProductTables const& tables)
 {
-  module().selectProducts(productLists);
+  module().selectProducts(tables);
 }
 
 Granularity

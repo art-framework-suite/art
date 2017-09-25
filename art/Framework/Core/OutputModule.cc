@@ -202,16 +202,15 @@ configure(OutputModuleDescription const& desc)
 }
 
 void
-art::OutputModule::doSelectProducts(ProductLists const& productLists)
+art::OutputModule::doSelectProducts(ProductTables const& tables)
 {
   // Note: The keptProducts_ data member records all of the
   // BranchDescription objects that may be persisted to disk.  Since
   // we do not reset it, the list never shrinks.  This behavior should
   // be reconsidered for future use cases of art.
 
-  for (std::size_t i{}; i < NumBranchTypes; ++i) {
-    auto const bt = static_cast<BranchType>(i);
-    auto const& productList = productLists[i];
+  auto selectProductForBranchType = [this, &tables](BranchType const bt) {
+    auto const& productList = tables.get(bt).descriptions;
     GroupSelector const groupSelector{groupSelectorRules_, productList};
 
     // TODO: See if we can collapse keptProducts_ and groupSelector into
@@ -246,13 +245,14 @@ art::OutputModule::doSelectProducts(ProductLists const& productLists)
       // Newly dropped, skip it.
       hasNewlyDroppedBranch_[bt] = true;
     }
-  }
+  };
+  for_each_branch_type(selectProductForBranchType);
 }
 
 void
-art::OutputModule::selectProducts(ProductLists const& productLists)
+art::OutputModule::selectProducts(ProductTables const& tables)
 {
-  doSelectProducts(productLists);
+  doSelectProducts(tables);
   postSelectProducts();
 }
 

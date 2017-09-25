@@ -62,7 +62,7 @@ EndPathExecutor(PathManager& pm, ActionTable& actionTable, ActivityRegistry& are
     }
   }
   outputWorkersToOpen_.insert(outputWorkers_.cbegin(), outputWorkers_.cend());
-  mpr.registerProductListUpdatedCallback([this](auto const& productLists) { this->selectProducts(productLists); });
+  mpr.registerProductListUpdatedCallback([this](auto const& tables) { this->selectProducts(tables); });
 }
 
 //
@@ -113,10 +113,10 @@ endJob()
 
 void
 EndPathExecutor::
-selectProducts(ProductLists const& productLists)
+selectProducts(ProductTables const& tables)
 {
   for (auto ow : outputWorkers_) {
-    ow->selectProducts(productLists);
+    ow->selectProducts(tables);
   }
 }
 

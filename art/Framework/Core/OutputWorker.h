@@ -87,7 +87,7 @@ public:
 
   virtual
   void
-  selectProducts(ProductLists const&);
+  selectProducts(ProductTables const&);
 
 private:
 

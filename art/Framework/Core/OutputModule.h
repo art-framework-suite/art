@@ -28,6 +28,7 @@
 #include "canvas/Persistency/Provenance/ParentageID.h"
 #include "canvas/Persistency/Provenance/ProductID.h"
 #include "canvas/Persistency/Provenance/ProductList.h"
+#include "canvas/Persistency/Provenance/ProductTables.h"
 #include "cetlib/BasicPluginFactory.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/types/Atom.h"
@@ -157,10 +158,10 @@ public: // MEMBER FUNCTIONS
   hasNewlyDroppedBranch() const;
 
   void
-  selectProducts(ProductLists const&);
+  selectProducts(ProductTables const&);
 
   void
-  doSelectProducts(ProductLists const&);
+  doSelectProducts(ProductTables const&);
 
   void registerProducts(MasterProductRegistry&,
                         ProductDescriptions&,

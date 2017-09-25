@@ -462,12 +462,12 @@ namespace art {
     presentProducts_ = ProductTables{descriptions};
 
     // Add branches
-    for (std::size_t i{}; i < NumBranchTypes; ++i) {
-      auto const bt = static_cast<BranchType>(i);
+    auto addBranches = [this](BranchType const bt) {
       for (auto const& pr : presentProducts_.get(bt).descriptions) {
         treePointers_[bt]->addBranch(pr.second);
       }
-    }
+    };
+    for_each_branch_type(addBranches);
 
     // Determine if this file is fast clonable.
     fastClonable_ = setIfFastClonable(fcip);
@@ -1461,8 +1461,7 @@ namespace art {
               bool const dropDescendants,
               ProductLists& prodLists)
   {
-    for (std::size_t i{}; i < NumBranchTypes; ++i ) {
-      auto const bt = static_cast<BranchType>(i);
+    auto dropOnInputForBranchType = [this, &rules, dropDescendants, &prodLists](BranchType const bt) {
       auto& prodList = prodLists[bt];
 
       // This is the selector for drop on input.
@@ -1508,7 +1507,8 @@ namespace art {
         auto icopy = I++;
         prodList.erase(icopy);
       }
-    }
+    };
+    for_each_branch_type(dropOnInputForBranchType);
   }
 
   void

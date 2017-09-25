@@ -428,10 +428,8 @@ void
 RootOutputFile::
 selectProducts()
 {
-  for (int i = InEvent; i < NumBranchTypes; ++i) {
-    auto bt = static_cast<BranchType>(i);
+  auto selectProductsToWrite = [this](BranchType const bt) {
     auto& items = selectedOutputItemList_[bt];
-
     for (auto const& pr : om_->keptProducts()[bt]) {
       auto const& pd = pr.second;
       // Persist Results products only if they have been produced by
@@ -444,7 +442,8 @@ selectProducts()
     for (auto const& val : items) {
       treePointers_[bt]->addOutputBranch(val.branchDescription_, val.product_);
     }
-  }
+  };
+  for_each_branch_type(selectProductsToWrite);
 }
 
 void
@@ -764,18 +763,18 @@ writeProductDescriptionRegistry()
 {
   // Make a local copy of the MasterProductRegistry's ProductList,
   // removing any transient or pruned products.
-  auto end = branchesWithStoredHistory_.end();
   ProductRegistry reg;
-  for (std::size_t i{}; i < NumBranchTypes; ++i) {
-    auto const bt = static_cast<BranchType>(i);
+  auto productDescriptionsToWrite = [this, &reg](BranchType const bt) {
     for (auto const& pr : ProductMetaData::instance().productLists()[bt]) {
       auto const& desc = pr.second;
-      if (branchesWithStoredHistory_.find(desc.productID()) == end) {
+      if (branchesWithStoredHistory_.find(desc.productID()) == cend(branchesWithStoredHistory_)) {
         continue;
       }
       reg.productList_.emplace_hint(reg.productList_.end(), BranchKey{desc}, desc);
     }
-  }
+  };
+  for_each_branch_type(productDescriptionsToWrite);
+
   ProductRegistry const* regp = &reg;
   TBranch* b = metaDataTree_->Branch(metaBranchRootName<ProductRegistry>(),
                                      &regp, basketSize_, 0);
@@ -810,11 +809,7 @@ RootOutputFile::writeTTrees()
   RootOutputTree::writeTTree(metaDataTree_);
   RootOutputTree::writeTTree(fileIndexTree_);
   RootOutputTree::writeTTree(parentageTree_);
-  // Write out the tree corresponding to each BranchType
-  for (int i = InEvent; i < NumBranchTypes; ++i) {
-    auto const branchType = static_cast<BranchType>(i);
-    treePointers_[branchType]->writeTree();
-  }
+  for_each_branch_type([this](BranchType const bt){ treePointers_[bt]->writeTree(); });
 }
 
 void

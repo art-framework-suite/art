@@ -5,6 +5,7 @@
 #include "canvas/Persistency/Provenance/BranchDescription.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
 #include "canvas/Persistency/Provenance/ProductList.h"
+#include "canvas/Persistency/Provenance/ProductTables.h"
 #include "canvas/Persistency/Provenance/type_aliases.h"
 
 #include <array>
@@ -16,7 +17,7 @@
 namespace art {
 
   using ProductLists = std::array<ProductDescriptionsByID, NumBranchTypes>;
-  using ProductListUpdatedCallback = std::function<void(ProductLists const&)>;
+  using ProductListUpdatedCallback = std::function<void(ProductTables const&)>;
 
   class MasterProductRegistry {
   public:

@@ -10,6 +10,21 @@
 
 using namespace std;
 
+namespace {
+  auto make_descriptions(art::ProductLists const& productLists)
+  {
+    art::ProductDescriptions result;
+    auto makeDescriptions = [&result, &productLists](art::BranchType const bt) {
+      for (auto const& pr : productLists[bt]) {
+        auto const& pd = pr.second;
+        result.emplace_back(pd);
+      }
+    };
+    art::for_each_branch_type(makeDescriptions);
+    return result;
+  }
+}
+
 void
 art::MasterProductRegistry::finalizeForProcessing()
 {
@@ -17,7 +32,8 @@ art::MasterProductRegistry::finalizeForProcessing()
   // Product registration can still happen implicitly whenever an
   // input file is opened--via calls to updateFromInputFile.
   allowExplicitRegistration_ = false;
-  cet::for_all(productListUpdatedCallbacks_, [this](auto const& callback){ callback(productLists_); });
+  ProductTables const tables{make_descriptions(productLists_)};
+  cet::for_all(productListUpdatedCallbacks_, [&tables](auto const& callback){ callback(tables); });
 }
 
 void
@@ -42,7 +58,8 @@ art::MasterProductRegistry::updateFromInputFile(ProductLists const& pl)
 {
   CET_ASSERT_ONLY_ONE_THREAD();
   updateProductLists_(pl);
-  cet::for_all(productListUpdatedCallbacks_, [&pl](auto const& callback){ callback(pl); });
+  ProductTables const tables{make_descriptions(pl)};
+  cet::for_all(productListUpdatedCallbacks_, [&tables](auto const& callback){ callback(tables); });
 }
 
 void
@@ -82,9 +99,8 @@ art::MasterProductRegistry::addProduct_(BranchDescription&& bdp)
       << "Product registration can be done only in module constructors.\n";
   }
 
-  // assert(bdp.produced());
-
-  auto it = productLists_[bdp.branchType()].emplace(bdp.productID(), BranchDescription{});
+  auto& descriptions = productLists_[bdp.branchType()];
+  auto it = descriptions.emplace(bdp.productID(), BranchDescription{});
   if (!it.second) {
     throw Exception(errors::Configuration)
       << "The process name "
