@@ -118,17 +118,17 @@ void write_product_node(art::ProductID const pid,
   if (debug > 0) {
     os << "# write_product_node for pid: " << pid << '\n';
   }
-  // Access to the productList is cheap, so not really worth caching.
-  auto const& pmd = art::ProductMetaData::instance();
-  auto const& plist = pmd.productLists()[art::InEvent]; // note this is a map
+  // Access to the product descriptions is cheap, so not really worth
+  // caching.
+  auto const& descs = art::ProductMetaData::instance().productDescriptions(art::InEvent); // note this is a map
   // The mapped_type in the map contains all the information we want,
   // but we have to do a linear search through the map to find the one
   // with the right ProductID.
-  auto it = std::find_if(begin(plist), end(plist),
+  auto it = std::find_if(cbegin(descs), cend(descs),
                          [&pid](auto const& keyval) {
                            return keyval.second.productID() == pid;
                          });
-  if (it == plist.end()) {
+  if (it == cend(descs)) {
     os << "#Missing information for product with id " << pid << '\n';
     return;
   }

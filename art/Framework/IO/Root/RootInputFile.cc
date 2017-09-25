@@ -428,48 +428,37 @@ namespace art {
     // object.
     auto productList = detail::readMetadata<ProductRegistry>(metaDataTree).productList_;
 
-    // Prepare product lists for MasterProductRegistry
-    ProductLists descriptionsPerBranch{{}};
-    for (auto const& pr : productList) {
-      auto const& pd = pr.second;
-      descriptionsPerBranch[pd.branchType()].emplace(pd.productID(), pd);
-    }
-
-    dropOnInput(groupSelectorRules, dropDescendants, descriptionsPerBranch);
+    // Create product table for present products
+    auto const& descriptions = make_product_descriptions(productList);
+    presentProducts_ = ProductTables{descriptions};
+    dropOnInput(groupSelectorRules, dropDescendants, presentProducts_);
 
     // Adjust validity of BranchDescription objects: if the branch
     // does not exist in the input file, but its BranchDescription is
     // still persisted to disk (and read here), the product must be
     // marked as "dropped".  See notes in RootOutputFile.cc
     // (particularly for branchesWithStoredHistory_ insertion) to see
-    // how this can happen.
-    for (auto& prod : productList) {
-      auto& pd = prod.second;
-      auto const bt = pd.branchType();
-      if (treePointers_[bt]->tree()->GetBranch(pd.branchName().c_str()) == nullptr) {
-        pd.setValidity(BranchDescription::Transients::Dropped);
+    // how this can happen.  We then add the branch to the tree using
+    // the updated validity of the product.
+    auto set_validity_then_add_branch = [this](BranchType const bt) {
+      for (auto& prod : presentProducts_.get(bt).descriptions) {
+        auto& pd = prod.second;
+        if (treePointers_[bt]->tree()->GetBranch(pd.branchName().c_str()) == nullptr) {
+          pd.setValidity(BranchDescription::Transients::Dropped);
+        }
+        treePointers_[bt]->addBranch(pd);
       }
-    }
-
-    // Create product table for present products
-    auto const& descriptions = make_product_descriptions(productList);
-    presentProducts_ = ProductTables{descriptions};
+    };
+    for_each_branch_type(set_validity_then_add_branch);
 
     // Update MasterProductRegistry, with adjusted BranchDescription
     // validity values.
     mpr.updateFromInputFile(presentProducts_);
 
-    // Add branches
-    auto addBranches = [this](BranchType const bt) {
-      for (auto const& pr : presentProducts_.descriptions(bt)) {
-        treePointers_[bt]->addBranch(pr.second);
-      }
-    };
-    for_each_branch_type(addBranches);
-
     // Determine if this file is fast clonable.
     fastClonable_ = setIfFastClonable(fcip);
     reportOpened();
+
     // FIXME: This probably is unnecessary!
     configureProductIDStreamer();
   }
@@ -1457,10 +1446,10 @@ namespace art {
   RootInputFile::
   dropOnInput(GroupSelectorRules const& rules,
               bool const dropDescendants,
-              ProductLists& prodLists)
+              ProductTables& tables)
   {
-    auto dropOnInputForBranchType = [this, &rules, dropDescendants, &prodLists](BranchType const bt) {
-      auto& prodList = prodLists[bt];
+    auto dropOnInputForBranchType = [this, &rules, dropDescendants, &tables](BranchType const bt) {
+      auto& prodList = tables.get(bt).descriptions;
 
       // This is the selector for drop on input.
       GroupSelector const groupSelector{rules, prodList};

@@ -29,10 +29,10 @@ namespace art {
 
     void finalizeForProcessing(ProductTables const&);
     void addProductsFromModule(ProductDescriptions&&);
-    void updateFromModule(std::unique_ptr<ProductLists>&&);
+    void updateFromModule(std::unique_ptr<ProductTables>&&);
     void updateFromInputFile(ProductTables const&);
 
-    auto const& productLists() const { return productLists_; }
+    auto const& productTables() const { return productTables_; }
 
     void print(std::ostream&) const;
 
@@ -41,13 +41,13 @@ namespace art {
   private:
 
     void addProduct_(BranchDescription&&);
-    void updateProductLists_(ProductDescriptionsByID const& pl);
-    void updateProductLists_(ProductTables const& pl);
+    void updateProductTables_(ProductDescriptionsByID const& pl);
+    void updateProductTables_(ProductTables const& pl);
 
     bool allowExplicitRegistration_{true};
 
     // Data members initialized once per process:
-    ProductLists productLists_{};
+    ProductTables productTables_{ProductTables::invalid()};
     std::array<bool, NumBranchTypes> productProduced_{{false}}; //filled by aggregation
     std::vector<ProductListUpdatedCallback> productListUpdatedCallbacks_{};
   };

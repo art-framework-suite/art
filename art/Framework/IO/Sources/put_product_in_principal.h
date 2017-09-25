@@ -13,6 +13,7 @@
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Framework/Principal/get_ProductDescription.h"
+#include "art/Persistency/Provenance/ProductMetaData.h"
 #include "canvas/Persistency/Common/EDProduct.h"
 #include "canvas/Persistency/Provenance/BranchDescription.h"
 #include "canvas/Persistency/Provenance/ProductProvenance.h"
@@ -44,8 +45,8 @@ std::enable_if_t<(P::branch_type == InEvent) || (P::branch_type == InResults)>
 put_product_in_principal(std::unique_ptr<T>&& product, P& principal, std::string const& module_label,
                          std::string const& instance_name = {})
 {
+  TypeID const typeID{typeid(T)};
   if (product.get() == nullptr) {
-    TypeID const typeID{typeid(T)};
     throw Exception(errors::NullPointerError)
         << "put_product_in_principal: A null unique_ptr was passed to 'put'.\n"
         << "The pointer is of type "
@@ -56,7 +57,12 @@ put_product_in_principal(std::unique_ptr<T>&& product, P& principal, std::string
         << "'.\n";
   }
 
-  BranchDescription const& desc = get_ProductDescription<T>(principal, module_label, instance_name);
+  BranchDescription const& desc = get_ProductDescription(typeID,
+                                                         principal.processConfiguration().processName(),
+                                                         ProductMetaData::instance().productDescriptions(P::branch_type),
+                                                         P::branch_type,
+                                                         module_label,
+                                                         instance_name);
 
   std::unique_ptr<EDProduct> wp = std::make_unique<Wrapper<T>>(std::move(product));
   principal.put(desc,
@@ -70,8 +76,8 @@ std::enable_if_t<(P::branch_type == InSubRun) || (P::branch_type == InRun)>
 put_product_in_principal(std::unique_ptr<T>&& product, P& principal, std::string const& module_label,
                          std::string const& instance_name = {}, RangeSet&& rs = RangeSet::invalid())
 {
+  TypeID const typeID{typeid(T)};
   if (product.get() == nullptr) {
-    TypeID const typeID{typeid(T)};
     throw Exception(errors::NullPointerError)
         << "put_product_in_principal: A null unique_ptr was passed to 'put'.\n"
         << "The pointer is of type "
@@ -82,7 +88,12 @@ put_product_in_principal(std::unique_ptr<T>&& product, P& principal, std::string
         << "'.\n";
   }
 
-  BranchDescription const& desc = get_ProductDescription<T>(principal, module_label, instance_name);
+  BranchDescription const& desc = get_ProductDescription(typeID,
+                                                         principal.processConfiguration().processName(),
+                                                         ProductMetaData::instance().productDescriptions(P::branch_type),
+                                                         P::branch_type,
+                                                         module_label,
+                                                         instance_name);
 
   // If the provided RangeSet is invalid, assign it a RangeSet
   // corresponding to the full (Sub)Run.

@@ -222,8 +222,8 @@ outgoingProductID() const
     // Note: Outgoing product must be InEvent.
     auto const productName = canonicalProductName(outputType.friendlyClassName(), md_->moduleLabel(), outputInstanceLabel_, processName_);
     ProductID const pid{productName};
-    auto I = ProductMetaData::instance().productLists()[InEvent].find(pid);
-    if (I == ProductMetaData::instance().productLists()[InEvent].end()) {
+    auto I = ProductMetaData::instance().productDescriptions(InEvent).find(pid);
+    if (I == ProductMetaData::instance().productDescriptions(InEvent).end()) {
       throw Exception(errors::LogicError)
           << "MixOp unable to find branch id for a product ("
           << outputType.className()

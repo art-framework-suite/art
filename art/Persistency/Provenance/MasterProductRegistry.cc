@@ -10,21 +10,6 @@
 
 using namespace std;
 
-namespace {
-  auto make_descriptions(art::ProductLists const& productLists)
-  {
-    art::ProductDescriptions result;
-    auto makeDescriptions = [&result, &productLists](art::BranchType const bt) {
-      for (auto const& pr : productLists[bt]) {
-        auto const& pd = pr.second;
-        result.emplace_back(pd);
-      }
-    };
-    art::for_each_branch_type(makeDescriptions);
-    return result;
-  }
-}
-
 void
 art::MasterProductRegistry::finalizeForProcessing(ProductTables const& productsToProduce)
 {
@@ -45,19 +30,18 @@ art::MasterProductRegistry::addProductsFromModule(ProductDescriptions&& descript
 }
 
 void
-art::MasterProductRegistry::updateFromModule(std::unique_ptr<ProductLists>&& pl)
+art::MasterProductRegistry::updateFromModule(std::unique_ptr<ProductTables>&& tables)
 {
   CET_ASSERT_ONLY_ONE_THREAD();
-  if (!pl) return;
-  ProductTables const tables{make_descriptions(*pl)};
-  updateProductLists_(tables);
+  if (!tables) return;
+  updateProductTables_(*tables);
 }
 
 void
 art::MasterProductRegistry::updateFromInputFile(ProductTables const& tables)
 {
   CET_ASSERT_ONLY_ONE_THREAD();
-  updateProductLists_(tables);
+  updateProductTables_(tables);
   cet::for_all(productListUpdatedCallbacks_, [&tables](auto const& callback){ callback(tables); });
 }
 
@@ -71,11 +55,12 @@ art::MasterProductRegistry::registerProductListUpdatedCallback(ProductListUpdate
 void
 art::MasterProductRegistry::print(std::ostream& os) const
 {
-  for (auto const& list : productLists_) {
-    for (auto const& val : list ) {
+  auto print_products = [this, &os](BranchType const bt) {
+    for (auto const& val : productTables_.descriptions(bt)) {
       os << val.second << "\n-----\n";
     }
-  }
+  };
+  for_each_branch_type(print_products);
 }
 
 //=====================================================================================
@@ -97,7 +82,7 @@ art::MasterProductRegistry::addProduct_(BranchDescription&& bdp)
       << "Product registration can be done only in module constructors.\n";
   }
 
-  auto& descriptions = productLists_[bdp.branchType()];
+  auto& descriptions = productTables_.get(bdp.branchType()).descriptions;
   auto it = descriptions.emplace(bdp.productID(), BranchDescription{});
   if (!it.second) {
     throw Exception(errors::Configuration)
@@ -114,12 +99,12 @@ art::MasterProductRegistry::addProduct_(BranchDescription&& bdp)
 }
 
 void
-art::MasterProductRegistry::updateProductLists_(ProductDescriptionsByID const& pl)
+art::MasterProductRegistry::updateProductTables_(ProductDescriptionsByID const& pl)
 {
   for (auto const& val : pl) {
     auto const& pd = val.second;
     assert(!pd.produced());
-    auto& productList = productLists_[pd.branchType()];
+    auto& productList = productTables_.get(pd.branchType()).descriptions;
     auto const pid = pd.productID();
     auto it = productList.find(pid);
     if (it == productList.end()) {
@@ -134,9 +119,9 @@ art::MasterProductRegistry::updateProductLists_(ProductDescriptionsByID const& p
 }
 
 void
-art::MasterProductRegistry::updateProductLists_(ProductTables const& tables)
+art::MasterProductRegistry::updateProductTables_(ProductTables const& tables)
 {
-  for_each_branch_type([this, &tables](BranchType const bt){ this->updateProductLists_(tables.descriptions(bt)); });
+  for_each_branch_type([this, &tables](BranchType const bt){ this->updateProductTables_(tables.descriptions(bt)); });
 }
 
 std::ostream&

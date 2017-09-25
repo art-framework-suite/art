@@ -19,23 +19,8 @@ art::get_ProductDescription(TypeID const tid,
 {
   return get_ProductDescription(tid,
                                 ServiceHandle<TriggerNamesService const>{}->getProcessName(),
-                                ProductMetaData::instance().productLists()[branch_type],
+                                ProductMetaData::instance().productDescriptions(branch_type),
                                 branch_type,
-                                module_label,
-                                instance_name); // 5.
-}
-
-// 4.
-art::BranchDescription const&
-art::get_ProductDescription(TypeID const type_id,
-                            Principal const& principal,
-                            std::string const& module_label,
-                            std::string const& instance_name)
-{
-  return get_ProductDescription(type_id,
-                                principal.processConfiguration().processName(),
-                                ProductMetaData::instance().productLists()[principal.branchType()],
-                                principal.branchType(),
                                 module_label,
                                 instance_name); // 5.
 }

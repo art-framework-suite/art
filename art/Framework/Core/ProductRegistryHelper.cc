@@ -88,16 +88,16 @@ ProductRegistryHelper::registerProducts(MasterProductRegistry& mpr,
                                         ModuleDescription const& md)
 {
   // First update the MPR with any extant products.
-  std::unique_ptr<ProductLists> descriptionsByID{nullptr};
+  std::unique_ptr<ProductTables> existingProducts{nullptr};
   if (productList_) {
-    descriptionsByID = std::make_unique<ProductLists>();
+    ProductDescriptions existingProdDescs;
     for (auto const& pr : *productList_) {
-      auto const& pd = pr.second;
-      (*descriptionsByID)[pd.branchType()].emplace(pd.productID(), pd);
+      existingProdDescs.emplace_back(pr.second);
     }
+    existingProducts = std::make_unique<ProductTables>(existingProdDescs);
   }
 
-  mpr.updateFromModule(std::move(descriptionsByID));
+  mpr.updateFromModule(std::move(existingProducts));
 
   // Now go through products that will be produced in the current process.
   check_for_duplicate_Assns(typeLabelList_[InEvent]);

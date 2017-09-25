@@ -365,7 +365,7 @@ private: // MEMBER FUNCTIONS -- Implementation details
   overrideRunNumber(EventID& id, bool isRealData);
 
   void
-  dropOnInput(GroupSelectorRules const& rules, bool dropDescendants, ProductLists& branchDescriptions);
+  dropOnInput(GroupSelectorRules const& rules, bool dropDescendants, ProductTables& tables);
 
   void
   readParentageTree(unsigned int treeCacheSize);

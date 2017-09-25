@@ -765,7 +765,7 @@ writeProductDescriptionRegistry()
   // removing any transient or pruned products.
   ProductRegistry reg;
   auto productDescriptionsToWrite = [this, &reg](BranchType const bt) {
-    for (auto const& pr : ProductMetaData::instance().productLists()[bt]) {
+    for (auto const& pr : ProductMetaData::instance().productDescriptions(bt)) {
       auto const& desc = pr.second;
       if (branchesWithStoredHistory_.find(desc.productID()) == cend(branchesWithStoredHistory_)) {
         continue;
