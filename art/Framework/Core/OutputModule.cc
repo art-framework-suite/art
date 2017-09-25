@@ -210,7 +210,7 @@ art::OutputModule::doSelectProducts(ProductTables const& tables)
   // be reconsidered for future use cases of art.
 
   auto selectProductForBranchType = [this, &tables](BranchType const bt) {
-    auto const& productList = tables.get(bt).descriptions;
+    auto const& productList = tables.descriptions(bt);
     GroupSelector const groupSelector{groupSelectorRules_, productList};
 
     // TODO: See if we can collapse keptProducts_ and groupSelector into

@@ -65,7 +65,7 @@ namespace {
 
     for (std::size_t i{}; i < art::NumBranchTypes; ++i) {
       auto const bt = static_cast<art::BranchType>(i);
-      auto const& descriptions = pTables.get(bt).descriptions;
+      auto const& descriptions = pTables.descriptions(bt);
       art::GroupSelector const gs{gsr, descriptions};
       apply_gs(gs, descriptions, results);
     }

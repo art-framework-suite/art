@@ -49,15 +49,15 @@ art::MasterProductRegistry::updateFromModule(std::unique_ptr<ProductLists>&& pl)
 {
   CET_ASSERT_ONLY_ONE_THREAD();
   if (!pl) return;
-  updateProductLists_(*pl);
+  ProductTables const tables{make_descriptions(*pl)};
+  updateProductLists_(tables);
 }
 
 void
-art::MasterProductRegistry::updateFromInputFile(ProductLists const& pl)
+art::MasterProductRegistry::updateFromInputFile(ProductTables const& tables)
 {
   CET_ASSERT_ONLY_ONE_THREAD();
-  updateProductLists_(pl);
-  ProductTables const tables{make_descriptions(pl)};
+  updateProductLists_(tables);
   cet::for_all(productListUpdatedCallbacks_, [&tables](auto const& callback){ callback(tables); });
 }
 
@@ -71,7 +71,6 @@ art::MasterProductRegistry::registerProductListUpdatedCallback(ProductListUpdate
 void
 art::MasterProductRegistry::print(std::ostream& os) const
 {
-  // TODO: Shouldn't we print the BranchKey too?
   for (auto const& list : productLists_) {
     for (auto const& val : list ) {
       os << val.second << "\n-----\n";
@@ -135,11 +134,9 @@ art::MasterProductRegistry::updateProductLists_(ProductDescriptionsByID const& p
 }
 
 void
-art::MasterProductRegistry::updateProductLists_(ProductLists const& lists)
+art::MasterProductRegistry::updateProductLists_(ProductTables const& tables)
 {
-  for (auto const& list : lists) {
-    updateProductLists_(list);
-  }
+  for_each_branch_type([this, &tables](BranchType const bt){ this->updateProductLists_(tables.descriptions(bt)); });
 }
 
 std::ostream&

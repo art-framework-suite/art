@@ -727,12 +727,7 @@ namespace art {
                                           d.moduleDescription.processConfiguration(),
                                           ModuleDescription::invalidID()});
     presentProducts_ = ProductTables{descriptions};
-    ProductLists lists{{}};
-    auto fill_lists = [this, &lists](BranchType const bt) {
-      lists[bt] = presentProducts_.get(bt).descriptions;
-    };
-    for_each_branch_type(fill_lists);
-    mpr_.updateFromInputFile(lists);
+    mpr_.updateFromInputFile(presentProducts_);
     sourceHelper_.setPresentProducts(cet::make_exempt_ptr(&presentProducts_));
   }
 

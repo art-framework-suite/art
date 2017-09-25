@@ -30,7 +30,7 @@ namespace art {
     void finalizeForProcessing(ProductTables const&);
     void addProductsFromModule(ProductDescriptions&&);
     void updateFromModule(std::unique_ptr<ProductLists>&&);
-    void updateFromInputFile(ProductLists const&);
+    void updateFromInputFile(ProductTables const&);
 
     auto const& productLists() const { return productLists_; }
 
@@ -42,7 +42,7 @@ namespace art {
 
     void addProduct_(BranchDescription&&);
     void updateProductLists_(ProductDescriptionsByID const& pl);
-    void updateProductLists_(ProductLists const& pl);
+    void updateProductLists_(ProductTables const& pl);
 
     bool allowExplicitRegistration_{true};
 

@@ -451,17 +451,17 @@ namespace art {
       }
     }
 
-    // Update MasterProductRegistry, with adjusted BranchDescription
-    // validity values.
-    mpr.updateFromInputFile(descriptionsPerBranch);
-
     // Create product table for present products
     auto const& descriptions = make_product_descriptions(productList);
     presentProducts_ = ProductTables{descriptions};
 
+    // Update MasterProductRegistry, with adjusted BranchDescription
+    // validity values.
+    mpr.updateFromInputFile(presentProducts_);
+
     // Add branches
     auto addBranches = [this](BranchType const bt) {
-      for (auto const& pr : presentProducts_.get(bt).descriptions) {
+      for (auto const& pr : presentProducts_.descriptions(bt)) {
         treePointers_[bt]->addBranch(pr.second);
       }
     };
