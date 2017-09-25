@@ -93,6 +93,7 @@
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Framework/Principal/OpenRangeSetHandler.h"
+#include "art/Persistency/Provenance/MasterProductRegistry.h"
 #include "canvas/Persistency/Provenance/EventID.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
 #include "canvas/Persistency/Provenance/ProcessConfiguration.h"
@@ -236,6 +237,8 @@ namespace art {
     ProductRegistryHelper
     h_{};
 
+    MasterProductRegistry& mpr_;
+
     ProductTables
     presentProducts_{ProductTables::invalid()};
 
@@ -299,6 +302,7 @@ namespace art {
   Source<T>::
   Source(fhicl::ParameterSet const& p, InputSourceDescription& d)
     : InputSource{d.moduleDescription}
+    , mpr_{d.productRegistry}
     , sourceHelper_{d.moduleDescription}
     , detail_{p, h_, sourceHelper_}
     , fh_{p.get<std::vector<std::string>>("fileNames", std::vector<std::string>())}
@@ -723,6 +727,12 @@ namespace art {
                                           d.moduleDescription.processConfiguration(),
                                           ModuleDescription::invalidID()});
     presentProducts_ = ProductTables{descriptions};
+    ProductLists lists{{}};
+    auto fill_lists = [this, &lists](BranchType const bt) {
+      lists[bt] = presentProducts_.get(bt).descriptions;
+    };
+    for_each_branch_type(fill_lists);
+    mpr_.updateFromInputFile(lists);
     sourceHelper_.setPresentProducts(cet::make_exempt_ptr(&presentProducts_));
   }
 

@@ -227,8 +227,6 @@ art::OutputModule::doSelectProducts(ProductTables const& tables)
         // Selected, keep it.  Here, we take care to merge the
         // BranchDescription objects if one was already present in the
         // keptProducts list.
-
-        // FIXME: Should change to ownership via std::shared_ptr!
         auto& keptProducts = keptProducts_[bt];
         auto it = keptProducts.find(pd.productID());
         if (it == end(keptProducts)) {

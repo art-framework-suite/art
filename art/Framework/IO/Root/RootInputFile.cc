@@ -435,7 +435,6 @@ namespace art {
       descriptionsPerBranch[pd.branchType()].emplace(pd.productID(), pd);
     }
 
-
     dropOnInput(groupSelectorRules, dropDescendants, descriptionsPerBranch);
 
     // Adjust validity of BranchDescription objects: if the branch
@@ -448,7 +447,6 @@ namespace art {
       auto& pd = prod.second;
       auto const bt = pd.branchType();
       if (treePointers_[bt]->tree()->GetBranch(pd.branchName().c_str()) == nullptr) {
-        std::cout << "Dropped branch: " << pd.branchName() << '\n';
         pd.setValidity(BranchDescription::Transients::Dropped);
       }
     }

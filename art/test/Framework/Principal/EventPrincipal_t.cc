@@ -77,7 +77,7 @@ MPRGlobalTestFixture()
   descriptions.push_back(fake_single_process_branch("rick", "USER2", "rick"));
   producedProducts_ = ProductTables{descriptions};
   productRegistry_.addProductsFromModule(move(descriptions));
-  productRegistry_.finalizeForProcessing();
+  productRegistry_.finalizeForProcessing(producedProducts_);
   ProductMetaData::create_instance(productRegistry_);
 }
 

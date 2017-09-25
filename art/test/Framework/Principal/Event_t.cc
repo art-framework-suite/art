@@ -150,7 +150,7 @@ MPRGlobalTestFixture::MPRGlobalTestFixture()
     descriptions_.clear();
   }
 
-  availableProducts_.finalizeForProcessing();
+  availableProducts_.finalizeForProcessing(producedProducts_);
   ProductMetaData::create_instance(availableProducts_);
 }
 

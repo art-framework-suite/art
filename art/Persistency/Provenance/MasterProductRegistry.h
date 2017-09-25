@@ -27,7 +27,7 @@ namespace art {
 
     void registerProductListUpdatedCallback(ProductListUpdatedCallback cb);
 
-    void finalizeForProcessing();
+    void finalizeForProcessing(ProductTables const&);
     void addProductsFromModule(ProductDescriptions&&);
     void updateFromModule(std::unique_ptr<ProductLists>&&);
     void updateFromInputFile(ProductLists const&);

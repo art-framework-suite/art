@@ -26,14 +26,13 @@ namespace {
 }
 
 void
-art::MasterProductRegistry::finalizeForProcessing()
+art::MasterProductRegistry::finalizeForProcessing(ProductTables const& productsToProduce)
 {
   CET_ASSERT_ONLY_ONE_THREAD();
   // Product registration can still happen implicitly whenever an
   // input file is opened--via calls to updateFromInputFile.
   allowExplicitRegistration_ = false;
-  ProductTables const tables{make_descriptions(productLists_)};
-  cet::for_all(productListUpdatedCallbacks_, [&tables](auto const& callback){ callback(tables); });
+  cet::for_all(productListUpdatedCallbacks_, [&productsToProduce](auto const& callback){ callback(productsToProduce); });
 }
 
 void

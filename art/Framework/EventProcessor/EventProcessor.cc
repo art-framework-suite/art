@@ -194,19 +194,25 @@ EventProcessor(ParameterSet const& pset)
   // now.  Now actually create them.
   servicesManager_->forceCreation();
   ServiceHandle<FileCatalogMetadata>{}->addMetadataString("process_name", processName);
-  input_ = makeInput(pset, processName, mpr_, actReg_);
-  actReg_.sPostSourceConstruction.invoke(input_->moduleDescription());
+
   pathManager_.createModulesAndWorkers();
   endPathExecutor_ = make_unique<EndPathExecutor>(pathManager_, act_table_, actReg_, mpr_);
   for (auto I = 0; I < streams; ++I) {
     schedule_.emplace_back(I, pathManager_, processName, pset, mpr_, productsToProduce_, act_table_, actReg_);
   }
   FDEBUG(2) << pset.to_string() << endl;
-  mpr_.finalizeForProcessing();
-  // Allow read-only access to the mpr now.
-  ProductMetaData::create_instance(mpr_);
+
+  // The input source must be made *after* the end-path executor has
+  // been made: the end-path executor registers a callback that must
+  // be invoked once the first input file is opened.
+  input_ = makeInput(pset, processName, mpr_, actReg_);
+  actReg_.sPostSourceConstruction.invoke(input_->moduleDescription());
 
   producedProducts_ = ProductTables{productsToProduce_};
+  mpr_.finalizeForProcessing(producedProducts_);
+
+  // Allow read-only access to the mpr now.
+  ProductMetaData::create_instance(mpr_);
 }
 
 ServicesManager*
