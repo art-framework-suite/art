@@ -308,6 +308,20 @@ namespace art {
   }
 
   void
+  Principal::setProducedProducts(ProductTables const& producedProducts)
+  {
+    auto const& produced = producedProducts.get(branchType_);
+    if (produced.descriptions.empty()) return;
+
+    producedProducts_ = cet::make_exempt_ptr(&produced);
+    for (auto const& pr : produced.descriptions) {
+      auto const& pd = pr.second;
+      assert(pd.branchType() == branchType_);
+      fillGroup(pd);
+    }
+  }
+
+  void
   Principal::readImmediate() const
   {
     // Read all data products and provenance immediately, if
@@ -899,14 +913,6 @@ namespace art {
                  unique_ptr<RangeSet>&& rs)
   {
     assert(edp);
-    // if (!bd.produced()) {
-    //   throw art::Exception(art::errors::ProductRegistrationFailure, "Principal::put:")
-    //     << "Problem found during put of "
-    //     << branchType_
-    //     << " product: attempt to put a product not declared as produced for "
-    //     << bd.branchName()
-    //     << '\n';
-    // }
     if ((branchType_ == InRun) || (branchType_ == InSubRun)) {
       // Note: We intentionally allow group and provenance replacement
       //       for run and subrun products.
@@ -969,6 +975,32 @@ namespace art {
       return OutputHandle{g->rangeOfValidity()};
     }
     return OutputHandle{g->anyProduct(), &g->productDescription(), g->productProvenance(), g->rangeOfValidity()};
+  }
+
+  cet::exempt_ptr<BranchDescription const>
+  Principal::getProductDescription(ProductID const pid) const
+  {
+    // Find groups from current process
+    if (producedProducts_) {
+      if (auto result = producedProducts_->description(pid)) {
+        return result;
+      }
+    }
+
+    if (presentProducts_) {
+      // Look through currently opened input files
+      if (auto result = presentProducts_->description(pid)) {
+        return result;
+      }
+    }
+
+    for (auto const& sp : secondaryPrincipals_) {
+      if (auto result = sp->getProductDescription(pid)) {
+        return result;
+      }
+    }
+
+    return nullptr;
   }
 
   BranchType

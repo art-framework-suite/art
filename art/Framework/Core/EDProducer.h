@@ -58,12 +58,6 @@ public: // MEMBER FUNCTIONS -- Special Member Functions
   EDProducer&
   operator=(EDProducer&&) = delete;
 
-public: // MEMBER FUNCTIONS
-
-  template <typename PROD, BranchType B = InEvent>
-  ProductID
-  getProductID(std::string const& instanceName = {}) const;
-
 protected: // MEMBER FUNCTIONS
 
   std::string
@@ -172,15 +166,6 @@ protected: // MEMBER DATA -- For derived classes
   checkPutProducts_{true};
 
 };
-
-template <typename PROD, BranchType B>
-inline
-ProductID
-EDProducer::
-getProductID(std::string const& instanceName /*= {}*/) const
-{
-  return ProducerBase::getProductID<PROD, B>(moduleDescription(), instanceName);
-}
 
 namespace one {
 

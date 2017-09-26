@@ -12,7 +12,6 @@
 #include "art/Framework/Core/ProductRegistryHelper.h"
 #include "art/Framework/Core/detail/IgnoreModuleLabel.h"
 #include "art/Framework/Principal/fwd.h"
-#include "art/Framework/Principal/get_ProductDescription.h"
 #include "art/Utilities/ProductSemantics.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
 #include "canvas/Persistency/Provenance/ProductID.h"
@@ -131,12 +130,6 @@ public: // MEMBER FUNCTIONS -- Product Registry Helper API
   using ProductRegistryHelper::produces;
   using ProductRegistryHelper::expectedProducts;
 
-public: // MEMBER FUNCTIONS
-
-  template <typename PROD, BranchType B>
-  ProductID
-  getProductID(ModuleDescription const&, std::string const& instanceName) const;
-
 };
 
 template <typename T>
@@ -147,14 +140,6 @@ operator<<(std::ostream& os, ProducerBase::Table<T> const& t)
   std::ostringstream config;
   t.print_allowed_configuration(config, std::string(3, ' '));
   return os << config.str();
-}
-
-template <typename PROD, BranchType B>
-ProductID
-ProducerBase::
-getProductID(ModuleDescription const& md, std::string const& instanceName) const
-{
-  return get_ProductDescription<PROD>(B, md.moduleLabel(), instanceName).productID();
 }
 
 } // namespace art

@@ -37,11 +37,11 @@ namespace arttest {
 
 class arttest::AssnsProducer : public art::EDProducer {
 public:
-  explicit AssnsProducer(fhicl::ParameterSet const &p);
-
-  void produce(art::Event &e) override;
+  explicit AssnsProducer(fhicl::ParameterSet const& p);
 
 private:
+  void produce(art::Event& e) override;
+
   std::string const wantVoid_; // "ALL," "NONE," or "SOME."
   bool const wantMV_; // Produce mapvector and derived Assns.
   bool const wantMany_; // Produce many-to-many associations.
@@ -50,17 +50,17 @@ private:
 };
 
 namespace {
-  typedef art::Assns<size_t, string, arttest::AssnTestData> AssnsABX_t;
-  typedef art::Assns<size_t, string, string> AssnsABY_t;
-  typedef art::Assns<size_t, string> AssnsVoid_t;
+  using AssnsABX_t = art::Assns<size_t, string, arttest::AssnTestData>;
+  using AssnsABY_t = art::Assns<size_t, string, string>;
+  using AssnsVoid_t = art::Assns<size_t, string>;
 }
 
-arttest::AssnsProducer::AssnsProducer(fhicl::ParameterSet const & ps)
-  : wantVoid_(ps.get<std::string>("wantVoid", "ALL"))
-  , wantMV_(ps.get<bool>("wantMV", true))
-  , wantMany_(ps.get<bool>("wantMany", true))
-  , dinkVoid_(ps.get<bool>("dinkVoid", false))
-  , wantAmbiguous_(ps.get<bool>("wantAmbiguous", false))
+arttest::AssnsProducer::AssnsProducer(fhicl::ParameterSet const& ps)
+  : wantVoid_{ps.get<std::string>("wantVoid", "ALL")}
+  , wantMV_{ps.get<bool>("wantMV", true)}
+  , wantMany_{ps.get<bool>("wantMany", true)}
+  , dinkVoid_{ps.get<bool>("dinkVoid", false)}
+  , wantAmbiguous_{ps.get<bool>("wantAmbiguous", false)}
 {
   produces<uintvec>();
   produces<stringvec>();
@@ -92,11 +92,11 @@ arttest::AssnsProducer::AssnsProducer(fhicl::ParameterSet const & ps)
   }
 }
 
-void arttest::AssnsProducer::produce(art::Event &e) {
+void arttest::AssnsProducer::produce(art::Event& e) {
 
   // Create the data products among which we will make associations.
-  auto vui = make_unique<uintvec>(uintvec { 2, 0, 1 } );
-  auto vs = make_unique<stringvec>(stringvec {"one", "two", "zero"});
+  auto vui = make_unique<uintvec>(uintvec{2, 0, 1});
+  auto vs = make_unique<stringvec>(stringvec{"one", "two", "zero"});
 
   // Making a map_vector is hard.
   auto mvs = make_unique<mapvec>();
@@ -114,8 +114,8 @@ void arttest::AssnsProducer::produce(art::Event &e) {
   }
 
   // We will need the product IDs of the data products.
-  ProductID vui_pid = getProductID<uintvec>();
-  ProductID vs_pid = getProductID<stringvec>();
+  ProductID const vui_pid{e.getProductID<uintvec>()};
+  ProductID const vs_pid{e.getProductID<stringvec>()};
 
   // Create the association objects.
   // Assns into vectors.
@@ -133,34 +133,34 @@ void arttest::AssnsProducer::produce(art::Event &e) {
   auto addS =
     [&e](auto& x,
          auto& xv,
-         ProductID id1, int slot1,
-         ProductID id2, int slot2,
+         ProductID const id1, size_t const slot1,
+         ProductID const id2, size_t const slot2,
          auto td)
     {
-      auto const p1 = Ptr<size_t>(id1, slot1, e.productGetter(id1));
-      auto const p2 = Ptr<string>(id2, slot2, e.productGetter(id2));
+      Ptr<size_t> const p1{id1, slot1, e.productGetter(id1)};
+      Ptr<string> const p2{id2, slot2, e.productGetter(id2)};
       x->addSingle(p1, p2, td);
       xv->addSingle(p1, p2);
     };
   // AddSV adds only to x, and has no td.
   auto addSV =
     [&e](auto& x,
-         ProductID id1, int slot1,
-         ProductID id2, int slot2)
+         ProductID const id1, size_t const slot1,
+         ProductID const id2, size_t const slot2)
     {
-      auto const p1 = Ptr<size_t>(id1, slot1, e.productGetter(id1));
-      auto const p2 = Ptr<string>(id2, slot2, e.productGetter(id2));
+      Ptr<size_t> const p1{id1, slot1, e.productGetter(id1)};
+      Ptr<string> const p2{id2, slot2, e.productGetter(id2)};
       x->addSingle(p1, p2);
     };
   // AddSS adds only to x (with td).
   auto addSS =
     [&e](auto& x,
-         ProductID id1, int slot1,
-         ProductID id2, int slot2,
+         ProductID const id1, size_t const slot1,
+         ProductID const id2, size_t const slot2,
          auto td)
     {
-      auto const p1 = Ptr<size_t>(id1, slot1, e.productGetter(id1));
-      auto const p2 = Ptr<string>(id2, slot2, e.productGetter(id2));
+      Ptr<size_t> const p1{id1, slot1, e.productGetter(id1)};
+      Ptr<string> const p2{id2, slot2, e.productGetter(id2)};
       x->addSingle(p1, p2, td);
     };
 
@@ -192,7 +192,7 @@ void arttest::AssnsProducer::produce(art::Event &e) {
   std::unique_ptr<AssnsVoid_t> bvm;
 
   if (wantMV_) {
-    ProductID mvs_pid = getProductID<mapvec>("mv");
+    ProductID const mvs_pid{e.getProductID<mapvec>("mv")};
     addS(b, bv, vui_pid, 1, mvs_pid, 0, AssnTestData(1,0,"A"));
     addS(b, bv, vui_pid, 2, mvs_pid, 11, AssnTestData(2,11,"B"));
     addS(b, bv, vui_pid, 0, mvs_pid, 22, AssnTestData(0,22,"C"));

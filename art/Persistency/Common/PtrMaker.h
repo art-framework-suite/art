@@ -86,8 +86,8 @@ private: // MEMBER DATA
 template <class T>
 template <class EVENT, class MODULETYPE, class C>
 PtrMaker<T>::
-PtrMaker(EVENT const& evt, MODULETYPE const& module, std::string const& instance)
-  : prodID_{module.template getProductID<C>(instance)}
+PtrMaker(EVENT const& evt, MODULETYPE const& /*module*/, std::string const& instance)
+  : prodID_{evt.template getProductID<C>(instance)}
   , prodGetter_{evt.productGetter(prodID_)}
 {
 }

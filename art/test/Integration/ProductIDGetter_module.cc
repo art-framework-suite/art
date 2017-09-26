@@ -50,7 +50,7 @@ void art::test::ProductIDGetter::beginSubRun(art::SubRun& sr)
   vip->push_back(5);
   vip->push_back(7);
 
-  art::ProductID const pv{getProductID<std::vector<int>>()};
+  art::ProductID const pv{sr.getProductID<std::vector<int>>()};
   auto ptr = std::make_unique<art::Ptr<int>>(pv, 2, sr.productGetter(pv));
 
   BOOST_REQUIRE(ptr->id().isValid());
@@ -67,7 +67,7 @@ void art::test::ProductIDGetter::beginSubRun(art::SubRun& sr)
 void art::test::ProductIDGetter::produce(art::Event& e)
 {
   // Test that getting a ProductID for an unregistered product yields an exception.
-  BOOST_REQUIRE_EXCEPTION(getProductID<int>(),
+  BOOST_REQUIRE_EXCEPTION(e.getProductID<int>(),
                           art::Exception,
                           [](art::Exception const& e) {
                             return e.categoryCode() == art::errors::ProductRegistrationFailure;
@@ -79,7 +79,7 @@ void art::test::ProductIDGetter::produce(art::Event& e)
   vip->push_back(4);
   vip->push_back(6);
 
-  art::ProductID const pv{getProductID<std::vector<int>>()};
+  art::ProductID const pv{e.getProductID<std::vector<int>>()};
   auto ptr = std::make_unique<art::Ptr<int>>(pv, 2, e.productGetter(pv));
 
   BOOST_REQUIRE(ptr->id().isValid());

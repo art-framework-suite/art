@@ -33,11 +33,11 @@ art::test::ProductIDGetterNoPut::ProductIDGetterNoPut(fhicl::ParameterSet const&
   produces<int>("i1");
 }
 
-void art::test::ProductIDGetterNoPut::produce(Event&)
+void art::test::ProductIDGetterNoPut::produce(Event& e)
 {
-  ProductID const p1{getProductID<int>()};
+  ProductID const p1{e.getProductID<int>()};
   BOOST_REQUIRE(p1.isValid());
-  ProductID const p2{getProductID<int>("i1")};
+  ProductID const p2{e.getProductID<int>("i1")};
   BOOST_REQUIRE(p2.isValid());
   BOOST_REQUIRE_NE(p1, p2);
 }

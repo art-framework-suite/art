@@ -12,12 +12,12 @@
 
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
-#include "art/Framework/Principal/get_ProductDescription.h"
 #include "art/Persistency/Provenance/ProductMetaData.h"
 #include "canvas/Persistency/Common/EDProduct.h"
 #include "canvas/Persistency/Provenance/BranchDescription.h"
 #include "canvas/Persistency/Provenance/ProductProvenance.h"
 #include "canvas/Persistency/Provenance/ProductStatus.h"
+#include "canvas/Persistency/Provenance/canonicalProductName.h"
 #include "canvas/Utilities/Exception.h"
 #include "canvas/Utilities/TypeID.h"
 
@@ -57,18 +57,29 @@ put_product_in_principal(std::unique_ptr<T>&& product, P& principal, std::string
         << "'.\n";
   }
 
-  BranchDescription const& desc = get_ProductDescription(typeID,
-                                                         principal.processConfiguration().processName(),
-                                                         ProductMetaData::instance().productDescriptions(P::branch_type),
-                                                         P::branch_type,
-                                                         module_label,
-                                                         instance_name);
+  auto const& process_name = principal.processConfiguration().processName();
+  auto const& product_name = canonicalProductName(typeID.friendlyClassName(),
+                                                  module_label,
+                                                  instance_name,
+                                                  process_name);
+  ProductID const pid{product_name};
+  auto desc = principal.getProductDescription(pid);
+  if (!desc) {
+    throw art::Exception(art::errors::ProductPutFailure,
+                         "put_product_in_principal: error while trying to retrieve product description:\n")
+      << "No product is registered for\n"
+      << "  process name:                '" << process_name << "'\n"
+      << "  module label:                '" << module_label << "'\n"
+      << "  product friendly class name: '" << typeID.friendlyClassName() << "'\n"
+      << "  product instance name:       '" << instance_name << "'\n"
+      << "  branch type:                 '" << principal.branchType() << "'\n";
+  }
 
   std::unique_ptr<EDProduct> wp = std::make_unique<Wrapper<T>>(std::move(product));
-  principal.put(desc,
-                std::move(std::make_unique<ProductProvenance const>(desc.productID(), productstatus::present())),
-                std::move(wp),
-                std::move(std::make_unique<RangeSet>()));
+  principal.put(*desc,
+                move(std::make_unique<ProductProvenance const>(desc->productID(), productstatus::present())),
+                move(wp),
+                move(std::make_unique<RangeSet>()));
 }
 
 template <typename T, typename P>
@@ -88,12 +99,23 @@ put_product_in_principal(std::unique_ptr<T>&& product, P& principal, std::string
         << "'.\n";
   }
 
-  BranchDescription const& desc = get_ProductDescription(typeID,
-                                                         principal.processConfiguration().processName(),
-                                                         ProductMetaData::instance().productDescriptions(P::branch_type),
-                                                         P::branch_type,
-                                                         module_label,
-                                                         instance_name);
+  auto const& process_name = principal.processConfiguration().processName();
+  auto const& product_name = canonicalProductName(typeID.friendlyClassName(),
+                                                  module_label,
+                                                  instance_name,
+                                                  process_name);
+  ProductID const pid{product_name};
+  auto desc = principal.getProductDescription(pid);
+  if (!desc) {
+    throw art::Exception(art::errors::ProductPutFailure,
+                         "put_product_in_principal: error while trying to retrieve product description:\n")
+      << "No product is registered for\n"
+      << "  process name:                '" << process_name << "'\n"
+      << "  module label:                '" << module_label << "'\n"
+      << "  product friendly class name: '" << typeID.friendlyClassName() << "'\n"
+      << "  product instance name:       '" << instance_name << "'\n"
+      << "  branch type:                 '" << principal.branchType() << "'\n";
+  }
 
   // If the provided RangeSet is invalid, assign it a RangeSet
   // corresponding to the full (Sub)Run.
@@ -101,10 +123,10 @@ put_product_in_principal(std::unique_ptr<T>&& product, P& principal, std::string
     rs = rangeSetFor(principal);
   }
   std::unique_ptr<EDProduct> wp = std::make_unique<Wrapper<T>>(std::move(product));
-  principal.put(desc,
-                std::move(std::make_unique<ProductProvenance const>(desc.productID(), productstatus::present())),
-                std::move(wp),
-                std::move(std::make_unique<RangeSet>(rs)));
+  principal.put(*desc,
+                move(std::make_unique<ProductProvenance const>(desc->productID(), productstatus::present())),
+                move(wp),
+                move(std::make_unique<RangeSet>(rs)));
 }
 
 } // namespace art

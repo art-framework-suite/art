@@ -126,6 +126,9 @@ public: // MEMBER FUNCTIONS -- Metadata API
   cet::exempt_ptr<ProductProvenance const>
   productProvenance() const;
 
+  cet::exempt_ptr<BranchDescription const>
+  productDescription(ProductID) const;
+
 public: // MEMBER FUNCTIONS -- API for setting internal product provenance and product pointers.
 
   // Called by Principal::ctor_read_provenance()

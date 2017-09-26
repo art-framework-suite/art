@@ -83,8 +83,15 @@ art::MasterProductRegistry::addProduct_(BranchDescription&& bdp)
   }
 
   auto& descriptions = productTables_.get(bdp.branchType()).descriptions;
-  auto it = descriptions.emplace(bdp.productID(), BranchDescription{});
-  if (!it.second) {
+  auto it = descriptions.emplace(bdp.productID(), bdp);
+  if (it.second) {
+    productProduced_[it.first->second.branchType()] = true;
+    return;
+  }
+
+  // The 'combinable' call does not require that the processing
+  // history be the same, which is not what we are checking for here.
+  if (combinable(it.first->second, bdp)) {
     throw Exception(errors::Configuration)
       << "The process name "
       << bdp.processName()
@@ -92,10 +99,15 @@ art::MasterProductRegistry::addProduct_(BranchDescription&& bdp)
       << "Please modify the configuration file to use a "
       << "distinct process name.\n";
   }
-  auto& productListEntry = *it.first;
-  auto& pd = productListEntry.second;
-  pd.swap(bdp);
-  productProduced_[pd.branchType()] = true;
+
+  throw Exception(errors::ProductRegistrationFailure)
+    << "The product ID " << bdp.productID()
+    << " of the new product:\n"
+    << bdp
+    << " collides with the product ID of the already-existing product:\n"
+    << it.first->second
+    << "Please modify the instance name of the new product so as to avoid the product ID collision.\n"
+    << "In addition, please notify artists@fnal.gov of this error.\n";
 }
 
 void

@@ -33,103 +33,55 @@
 
 namespace art {
 
-class Provenance {
+  class Provenance {
+  public:
 
-public: // MEMBER FUNCTIONS -- Special Member Functions
+    // Special Member Functions
+    explicit Provenance() = default;
+    explicit Provenance(cet::exempt_ptr<Group const> g);
 
-  ~Provenance();
+    // Full product description
+    BranchDescription const& productDescription() const;
 
-  explicit
-  Provenance();
+    // Selected components of the product description
+    std::string const& branchName() const;
+    std::string const& producedClassName() const;
+    std::string const& friendlyClassName() const;
+    std::string const& moduleLabel() const;
+    std::string const& productInstanceName() const;
+    std::string const& processName() const;
+    InputTag inputTag() const;
 
-  explicit
-  Provenance(cet::exempt_ptr<Group const> g);
+    // Metadata about the product's origin
+    RangeSet const& rangeOfValidity() const;
+    Parentage const& parentage() const;
+    std::vector<ProductID> const& parents() const;
+    fhicl::ParameterSet const& parameterSet() const;
+    std::set<fhicl::ParameterSetID> const& psetIDs() const;
 
-public: // MEMBER FUNCTIONS -- Full product description
+    // Identifiers corresponding to this product, necessary for Ptr
+    // support.
+    ProductID productID() const;
 
-  BranchDescription const&
-  productDescription() const;
+    // Functions for querying the validity/presence of a product.
+    bool isValid() const;
+    bool isPresent() const;
+    bool produced() const;
+    ProductStatus const& productStatus() const;
 
-public: // MEMBER FUNCTIONS -- Selected components of the product description
+    // General utilities
+    bool equals(Provenance const&) const;
+    std::ostream& write(std::ostream&) const;
 
-  std::string const&
-  branchName() const;
-
-  std::string const&
-  producedClassName() const;
-
-  std::string const&
-  friendlyClassName() const;
-
-  std::string const&
-  moduleLabel() const;
-
-  std::string const&
-  productInstanceName() const;
-
-  std::string const&
-  processName() const;
-
-  InputTag
-  inputTag() const;
-
-public: // MEMBER FUNCTIONS -- Metadata about the product's origin
-
-  RangeSet const&
-  rangeOfValidity() const;
-
-  Parentage const&
-  parentage() const;
-
-  std::vector<ProductID> const&
-  parents() const;
-
-  fhicl::ParameterSet const&
-  parameterSet() const;
-
-  std::set<fhicl::ParameterSetID> const&
-  psetIDs() const;
-
-public: // MEMBER FUNCTIONS -- Identifiers corresponding to this product, necessary for Ptr support.
-
-  ProductID productID() const;
-
-public: // MEMBER FUNCTIONS -- Functions for querying the validity/presence of a product.
+  private:
+    cet::exempt_ptr<Group const> group_{nullptr};
+  };
 
   bool
-  isValid() const;
-
-  bool
-  isPresent() const;
-
-  bool
-  produced() const;
-
-  ProductStatus const&
-  productStatus() const;
-
-public: // MEMBER FUNCTIONS -- General utilities
-
-  bool
-  equals(Provenance const&) const;
+  operator==(Provenance const& a, Provenance const& b);
 
   std::ostream&
-  write(std::ostream&) const;
-
-private: // MEMBER DATA
-
-  cet::exempt_ptr<Group const>
-  group_{nullptr};
-
-};
-
-//void swap(Provenance& x, Provenance& y);
-
-bool
-operator==(Provenance const& a, Provenance const& b);
-
-std::ostream&
-operator<<(std::ostream& os, Provenance const& p);
+  operator<<(std::ostream& os, Provenance const& p);
 
 } // namespace art
 

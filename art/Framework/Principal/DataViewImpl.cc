@@ -8,7 +8,6 @@
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/Selector.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
-#include "art/Framework/Principal/get_ProductDescription.h"
 #include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
 #include "art/Persistency/Provenance/ProductMetaData.h"
 #include "art/Utilities/Globals.h"
@@ -19,6 +18,7 @@
 #include "canvas/Persistency/Provenance/ProductList.h"
 #include "canvas/Persistency/Provenance/ProductProvenance.h"
 #include "canvas/Persistency/Provenance/ProductStatus.h"
+#include "canvas/Persistency/Provenance/canonicalProductName.h"
 #include "cetlib/HorizontalRule.h"
 #include "cetlib/container_algorithms.h"
 #include "cetlib/HorizontalRule.h"
@@ -58,11 +58,8 @@ namespace art {
     , principal_{principal}
     , md_{md}
     , recordParents_{recordParents}
-    , retrievedProducts_{}
-    , putProducts_{}
     , rangeSet_{rs}
-  {
-  }
+  {}
 
   RunID
   DataViewImpl::
@@ -267,7 +264,7 @@ namespace art {
         continue;
       }
       ostringstream desc;
-      desc << getBranchDescription(typeLabel.typeID(), typeLabel.productInstanceName());
+      desc << getProductDescription_(typeLabel.typeID(), typeLabel.productInstanceName());
       missing.emplace_back(desc.str());
     }
     if (!missing.empty()) {
@@ -374,16 +371,56 @@ namespace art {
     throw e;
   }
 
-  BranchDescription const&
-  DataViewImpl::
-  getBranchDescription(TypeID const& type, string const& instance) const
+  // FIXME: Clean up next couple functions.
+
+  ProductID
+  DataViewImpl::getProductID_(TypeID const& type, string const& instance) const
   {
-    return get_ProductDescription(type,
-                                  md_.processName(),
-                                  ProductMetaData::instance().productDescriptions(branchType_),
-                                  branchType_,
-                                  md_.moduleLabel(),
-                                  instance);
+    auto const& product_name = canonicalProductName(type.friendlyClassName(),
+                                                    md_.moduleLabel(),
+                                                    instance,
+                                                    md_.processName());
+    ProductID const pid{product_name};
+    auto desc = principal_.getProductDescription(pid);
+    if (!desc) {
+      throw art::Exception(art::errors::ProductRegistrationFailure,
+                           "DataViewImpl::getProductID_: error while trying to retrieve product description:\n")
+        << "No product is registered for\n"
+        << "  process name:                '" << md_.processName() << "'\n"
+        << "  module label:                '" << md_.moduleLabel() << "'\n"
+        << "  product friendly class name: '" << type.friendlyClassName() << "'\n"
+        << "  product instance name:       '" << instance << "'\n"
+        << "  branch type:                 '" << branchType_ << "'\n";
+    }
+    // The description object is owned by either the source or the
+    // event processor, whose lifetimes exceed that of the
+    // DataViewImpl object.  It is therefore safe to dereference.
+    return desc->productID();
+  }
+
+  BranchDescription const&
+  DataViewImpl::getProductDescription_(TypeID const& type, string const& instance) const
+  {
+    auto const& product_name = canonicalProductName(type.friendlyClassName(),
+                                                    md_.moduleLabel(),
+                                                    instance,
+                                                    md_.processName());
+    ProductID const pid{product_name};
+    auto desc = principal_.getProductDescription(pid);
+    if (!desc) {
+      throw art::Exception(art::errors::ProductRegistrationFailure,
+                           "DataViewImpl::getProductDescription_: error while trying to retrieve product description:\n")
+        << "No product is registered for\n"
+        << "  process name:                '" << md_.processName() << "'\n"
+        << "  module label:                '" << md_.moduleLabel() << "'\n"
+        << "  product friendly class name: '" << type.friendlyClassName() << "'\n"
+        << "  product instance name:       '" << instance << "'\n"
+        << "  branch type:                 '" << branchType_ << "'\n";
+    }
+    // The description object is owned by either the source or the
+    // event processor, whose lifetimes exceed that of the
+    // DataViewImpl object.  It is therefore safe to dereference.
+    return *desc;
   }
 
   void

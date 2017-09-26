@@ -276,6 +276,14 @@ namespace art {
     bool
     getView(ViewToken<ELEMENT> const& , View<ELEMENT>& result) const;
 
+    template <typename T>
+    ProductID
+    getProductID() const;
+
+    template <typename T>
+    ProductID
+    getProductID(std::string const& instance_name) const;
+
   public: // MEMBER FUNCTIONS -- User-facing API -- put*
 
     template <typename PROD>
@@ -373,10 +381,13 @@ namespace art {
     checkPutProducts(std::set<TypeLabel> const& expectedProducts);
 
     BranchDescription const&
-    getBranchDescription(TypeID const& type, std::string const& instance) const;
+    getProductDescription_(TypeID const& type, std::string const& instance) const;
 
     void
     recordAsParent(Provenance const& prov) const;
+
+    ProductID
+    getProductID_(TypeID const& type, std::string const& instance) const;
 
     GroupQueryResult
     getByLabel_(WrappedTypeID const& wrapped,
@@ -608,10 +619,10 @@ art::DataViewImpl::getView_(std::string const& moduleLabel,
 {
   TypeID const typeID{typeid(ELEMENT)};
   ProductInfo const pinfo{ProductInfo::ConsumableType::ViewElement,
-      typeID,
-      moduleLabel,
-      productInstanceName,
-      processName};
+                          typeID,
+                          moduleLabel,
+                          productInstanceName,
+                          processName};
   ConsumesInfo::instance()->validateConsumedProduct(branchType_, md_, pinfo);
   auto bhv = getMatchingSequenceByLabel_(moduleLabel,
                                          productInstanceName,
@@ -689,6 +700,22 @@ art::DataViewImpl::fillView_(GroupQueryResult& bh, std::vector<ELEMENT const*>& 
   std::vector<ELEMENT const*> vals;
   cet::transform_all(erased_ptrs, std::back_inserter(vals), [](auto p) { return static_cast<ELEMENT const*>(p); });
   result.swap(vals);
+}
+
+template <typename PROD>
+art::ProductID
+art::DataViewImpl::getProductID() const
+{
+  TypeID const type{typeid(PROD)};
+  return getProductID_(type, "");
+}
+
+template <typename PROD>
+art::ProductID
+art::DataViewImpl::getProductID(std::string const& instance_name) const
+{
+  TypeID const type{typeid(PROD)};
+  return getProductID_(type, instance_name);
 }
 
 template<typename PROD>
@@ -868,7 +895,7 @@ art::DataViewImpl::put(std::unique_ptr<PROD>&& edp, std::string const& instance)
       << instance
       << "'.\n";
   }
-  auto const& bd = getBranchDescription(tid, instance);
+  auto const& bd = getProductDescription_(tid, instance);
   auto wp = std::make_unique<Wrapper<PROD>>(std::move(edp));
   bool result = false;
   if ((branchType_ == InRun) || (branchType_ == InSubRun)) {
@@ -915,7 +942,7 @@ art::DataViewImpl::put(std::unique_ptr<PROD>&& edp, std::string const& instance,
     << "\nCannot put a product with an invalid RangeSet.\n"
          << "Please contact artists@fnal.gov.\n";
   }
-  auto const& bd = getBranchDescription(tid, instance);
+  auto const& bd = getProductDescription_(tid, instance);
   auto wp = std::make_unique<Wrapper<PROD>>(std::move(edp));
   auto result = putProducts_.emplace(TypeLabel{tid, instance, SupportsView<PROD>::value},
                                      PMValue{std::move(wp), bd, rs});

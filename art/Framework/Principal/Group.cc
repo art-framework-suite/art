@@ -15,8 +15,7 @@ using namespace std;
 
 namespace art {
 
-Group::
-~Group()
+Group::~Group()
 {
   delete productProvenance_;
   productProvenance_ = nullptr;
@@ -33,8 +32,7 @@ Group::
 }
 
 // normal
-Group::
-Group(Principal* principal, DelayedReader* reader, BranchDescription const& bd, unique_ptr<RangeSet>&& rs,
+Group::Group(Principal* principal, DelayedReader* reader, BranchDescription const& bd, unique_ptr<RangeSet>&& rs,
       TypeID const& wrapper_type, unique_ptr<EDProduct>&& edp /*= nullptr*/)
   : branchDescription_{bd}
   , principal_{principal}
@@ -46,16 +44,14 @@ Group(Principal* principal, DelayedReader* reader, BranchDescription const& bd, 
 }
 
 // normal, put
-Group::
-Group(Principal* principal, DelayedReader* reader, BranchDescription const& bd, unique_ptr<RangeSet>&& rs,
+Group::Group(Principal* principal, DelayedReader* reader, BranchDescription const& bd, unique_ptr<RangeSet>&& rs,
       unique_ptr<EDProduct>&& edp, TypeID const& wrapper_type)
   : Group{principal, reader, bd, move(rs), wrapper_type, move(edp)}
 {
 }
 
 // assns
-Group::
-Group(Principal* principal, DelayedReader* reader, BranchDescription const& bd, unique_ptr<RangeSet>&& rs,
+Group::Group(Principal* principal, DelayedReader* reader, BranchDescription const& bd, unique_ptr<RangeSet>&& rs,
       TypeID const& primary_wrapper_type, TypeID const& partner_wrapper_type, unique_ptr<EDProduct>&& edp /*= nullptr*/)
   : branchDescription_{bd}
   , principal_{principal}
@@ -69,16 +65,14 @@ Group(Principal* principal, DelayedReader* reader, BranchDescription const& bd, 
 }
 
 // assns, put
-Group::
-Group(Principal* principal, DelayedReader* reader, BranchDescription const& bd, unique_ptr<RangeSet>&& rs,
+Group::Group(Principal* principal, DelayedReader* reader, BranchDescription const& bd, unique_ptr<RangeSet>&& rs,
       unique_ptr<EDProduct>&& edp, TypeID const& primary_wrapper_type, TypeID const& partner_wrapper_type)
   : Group{principal, reader, bd, move(rs), primary_wrapper_type, partner_wrapper_type, move(edp)}
 {
 }
 
 // assnsWithData
-Group::
-Group(Principal* principal, DelayedReader* reader, BranchDescription const& bd, unique_ptr<RangeSet>&& rs,
+Group::Group(Principal* principal, DelayedReader* reader, BranchDescription const& bd, unique_ptr<RangeSet>&& rs,
       TypeID const& primary_wrapper_type, TypeID const& partner_wrapper_type, TypeID const& base_wrapper_type,
       TypeID const& partner_base_wrapper_type, unique_ptr<EDProduct>&& edp /*= nullptr*/)
   : branchDescription_{bd}
@@ -95,8 +89,7 @@ Group(Principal* principal, DelayedReader* reader, BranchDescription const& bd, 
 }
 
 // assnsWithData, put
-Group::
-Group(Principal* principal, DelayedReader* reader, BranchDescription const& bd, unique_ptr<RangeSet>&& rs,
+Group::Group(Principal* principal, DelayedReader* reader, BranchDescription const& bd, unique_ptr<RangeSet>&& rs,
       unique_ptr<EDProduct>&& edp, TypeID const& primary_wrapper_type, TypeID const& partner_wrapper_type,
       TypeID const& base_wrapper_type, TypeID const& partner_base_wrapper_type)
   : Group(principal, reader, bd, move(rs), primary_wrapper_type, partner_wrapper_type, base_wrapper_type, partner_base_wrapper_type,
@@ -105,8 +98,7 @@ Group(Principal* principal, DelayedReader* reader, BranchDescription const& bd, 
 }
 
 EDProduct const*
-Group::
-getIt_() const
+Group::getIt_() const
 {
   lock_guard<recursive_mutex> lock_holder{mutex_};
   if (grpType_ == grouptype::normal) {
@@ -117,8 +109,7 @@ getIt_() const
 }
 
 EDProduct const*
-Group::
-anyProduct() const
+Group::anyProduct() const
 {
   lock_guard<recursive_mutex> lock_holder{mutex_};
   if (grpType_ == grouptype::normal) {
@@ -142,8 +133,7 @@ anyProduct() const
 }
 
 EDProduct const*
-Group::
-uniqueProduct() const
+Group::uniqueProduct() const
 {
   lock_guard<recursive_mutex> lock_holder{mutex_};
   if (grpType_ == grouptype::normal) {
@@ -156,8 +146,7 @@ uniqueProduct() const
 }
 
 EDProduct const*
-Group::
-uniqueProduct(TypeID const& wanted_wrapper_type) const
+Group::uniqueProduct(TypeID const& wanted_wrapper_type) const
 {
   lock_guard<recursive_mutex> lock_holder{mutex_};
   if (grpType_ == grouptype::normal) {
@@ -182,41 +171,43 @@ uniqueProduct(TypeID const& wanted_wrapper_type) const
 }
 
 BranchDescription const&
-Group::
-productDescription() const
+Group::productDescription() const
 {
   return branchDescription_;
 }
 
 ProductID
-Group::
-productID() const
+Group::productID() const
 {
   return branchDescription_.productID();
 }
 
 RangeSet const&
-Group::
-rangeOfValidity() const
+Group::rangeOfValidity() const
 {
   lock_guard<recursive_mutex> lock_holder{mutex_};
   return *rangeSet_;
 }
 
-cet::exempt_ptr<const art::ProductProvenance>
-Group::
-productProvenance() const
+cet::exempt_ptr<ProductProvenance const>
+Group::productProvenance() const
 {
   lock_guard<recursive_mutex> lock_holder{mutex_};
   return productProvenance_.load();
+}
+
+cet::exempt_ptr<BranchDescription const>
+Group::productDescription(ProductID const pid) const
+{
+  // No lock required here; principal must be valid.
+  return principal_->getProductDescription(pid);
 }
 
 // Called by Principal::ctor_read_provenance()
 // Called by Principal::insert_pp
 //   Called by RootDelayedReader::getProduct_
 void
-Group::
-setProductProvenance(unique_ptr<ProductProvenance const>&& pp)
+Group::setProductProvenance(unique_ptr<ProductProvenance const>&& pp)
 {
   lock_guard<recursive_mutex> lock_holder{mutex_};
   delete productProvenance_;
@@ -225,8 +216,7 @@ setProductProvenance(unique_ptr<ProductProvenance const>&& pp)
 
 // Called by Principal::put
 void
-Group::
-setProductAndProvenance(unique_ptr<ProductProvenance const>&& pp, unique_ptr<EDProduct>&& edp, unique_ptr<RangeSet>&& rs)
+Group::setProductAndProvenance(unique_ptr<ProductProvenance const>&& pp, unique_ptr<EDProduct>&& edp, unique_ptr<RangeSet>&& rs)
 {
   lock_guard<recursive_mutex> lock_holder{mutex_};
   delete productProvenance_;
@@ -238,8 +228,7 @@ setProductAndProvenance(unique_ptr<ProductProvenance const>&& pp, unique_ptr<EDP
 }
 
 void
-Group::
-removeCachedProduct()
+Group::removeCachedProduct()
 {
   lock_guard<recursive_mutex> lock_holder{mutex_};
   if (branchDescription_.produced()) {
@@ -267,8 +256,7 @@ removeCachedProduct()
 }
 
 bool
-Group::
-productAvailable() const
+Group::productAvailable() const
 {
   if (branchDescription_.dropped()) {
     // Not a product we are producing this time around, and it is not
@@ -348,8 +336,7 @@ productAvailable() const
 }
 
 bool
-Group::
-resolveProductIfAvailable(TypeID wanted_wrapper_type /*= TypeID{}*/) const
+Group::resolveProductIfAvailable(TypeID wanted_wrapper_type /*= TypeID{}*/) const
 {
   // Validate wanted_wrapper_type.
   auto throwResolveLogicError = [this, &wanted_wrapper_type]() {
@@ -432,8 +419,7 @@ resolveProductIfAvailable(TypeID wanted_wrapper_type /*= TypeID{}*/) const
 }
 
 bool
-Group::
-tryToResolveProduct(TypeID const& wanted_wrapper)
+Group::tryToResolveProduct(TypeID const& wanted_wrapper)
 {
   lock_guard<recursive_mutex> lock_holder{mutex_};
   if (wanted_wrapper) {

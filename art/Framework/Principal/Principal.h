@@ -163,30 +163,26 @@ public: // MEMBER FUNCTIONS -- Interface for other parts of art
   OutputHandle
   getForOutput(ProductID const&, bool resolveProd) const;
 
+  // Used to provide access to the product descriptions
+  cet::exempt_ptr<BranchDescription const>
+  getProductDescription(ProductID) const;
+
   // Used only by RootInputFile::Read(Run,SubRun,Event)ForSecondaryFile
   void
   addSecondaryPrincipal(std::unique_ptr<Principal>&&);
 
+  // The product tables data member for produced products is set by
+  // the EventProcessor after the Principal is provided by the input
+  // source.
   void
-  setProducedProducts(ProductTables const& producedProducts)
-  {
-    auto const& produced = producedProducts.get(branchType_);
-    if (produced.descriptions.empty()) return;
-
-    producedProducts_ = cet::make_exempt_ptr(&produced);
-    for (auto const& pr : produced.descriptions) {
-      auto const& pd = pr.second;
-      assert(pd.branchType() == branchType_);
-      fillGroup(pd);
-    }
-  }
+  setProducedProducts(ProductTables const& producedProducts);
 
   // Used only by RootInputFile to implement the delayedRead*Products config options.
   // Read all data products and provenance immediately, if available.
   void
   readImmediate() const;
 
-  // Used only by get_ProductDescription.
+  // Used only by getProductDescription.
   ProcessConfiguration const&
   processConfiguration() const;
 
