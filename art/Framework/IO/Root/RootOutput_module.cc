@@ -21,7 +21,6 @@
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRun.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
-#include "art/Persistency/Provenance/ProductMetaData.h"
 #include "art/Utilities/parent_path.h"
 #include "art/Utilities/unique_filename.h"
 #include "canvas/Persistency/Provenance/FileFormatVersion.h"
@@ -172,8 +171,7 @@ private:
   void writeProductDependencies() override;
   void finishEndFile() override;
 
-  void doRegisterProducts(MasterProductRegistry& mpr,
-                          ProductDescriptions& productsToProduce,
+  void doRegisterProducts(ProductDescriptions& productsToProduce,
                           ModuleDescription const& md) override;
 
 private:
@@ -387,7 +385,7 @@ art::RootOutput::startEndFile()
                                                  moduleDescription().processConfiguration(),
                                                  nullptr);
   resp->setProducedProducts(producedResultsProducts_);
-  if (ProductMetaData::instance().productProduced(InResults) ||
+  if (!producedResultsProducts_.descriptions(InResults).empty() ||
       hasNewlyDroppedBranch()[InResults]) {
     resp->addToProcessHistory();
   }
@@ -483,12 +481,11 @@ RootOutput::finishEndFile()
 
 void
 RootOutput::
-doRegisterProducts(MasterProductRegistry& mpr,
-                   ProductDescriptions& producedProducts,
+doRegisterProducts(ProductDescriptions& producedProducts,
                    ModuleDescription const& md)
 {
   // Register Results products from ResultsProducers.
-  rpm_.for_each_RPWorker([&mpr, &producedProducts, &md](RPWorker& w) {
+  rpm_.for_each_RPWorker([&producedProducts, &md](RPWorker& w) {
     auto const& params = w.params();
     w.setModuleDescription(ModuleDescription{params.rpPSetID,
                            params.rpPluginType,
@@ -496,7 +493,7 @@ doRegisterProducts(MasterProductRegistry& mpr,
                            static_cast<int>(ModuleThreadingType::LEGACY),
                            md.processConfiguration(),
                            ModuleDescription::invalidID()});
-    w.rp().registerProducts(mpr, producedProducts, w.moduleDescription());
+    w.rp().registerProducts(producedProducts, w.moduleDescription());
   });
 
   // Form product table for Results products.  We do this here so we

@@ -10,7 +10,6 @@
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/System/TriggerNamesService.h"
-#include "art/Persistency/Provenance/ProductMetaData.h"
 #include "canvas/Persistency/Provenance/BranchKey.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
 #include "canvas/Persistency/Provenance/Compatibility/BranchIDList.h"
@@ -85,7 +84,7 @@ private: // MEMBER DATA
   mixFunc_;
 
   SpecProdList
-  inProducts_;
+  inProducts_{};
 
   std::string const
   processName_;
@@ -94,7 +93,7 @@ private: // MEMBER DATA
   md_;
 
   RootBranchInfo
-  branchInfo_;
+  branchInfo_{};
 
   bool const
   outputProduct_;
@@ -109,60 +108,56 @@ private: // MEMBER DATA
 
 template <typename PROD, typename OPROD>
 template <typename FUNC>
-MixOp<PROD, OPROD>::
-MixOp(ModuleDescription const* md, InputTag const& inputTag, std::string const& outputInstanceLabel, FUNC mixFunc,
-      bool outputProduct, bool compactMissingProducts, BranchType bt)
-  : MixOpBase()
-  , inputTag_(inputTag)
-  , inputType_(typeid(PROD))
-  , outputInstanceLabel_(outputInstanceLabel)
-  , mixFunc_(mixFunc)
-  , inProducts_()
-  , processName_(ServiceHandle<TriggerNamesService const> {}->getProcessName())
-  , md_(md)
-  , branchInfo_()
-  , outputProduct_(outputProduct)
-  , compactMissingProducts_(compactMissingProducts)
-  , branchType_(bt)
+MixOp<PROD, OPROD>::MixOp(ModuleDescription const* md,
+                          InputTag const& inputTag,
+                          std::string const& outputInstanceLabel,
+                          FUNC mixFunc,
+                          bool const outputProduct,
+                          bool const compactMissingProducts,
+                          BranchType const bt)
+  : inputTag_{inputTag}
+  , inputType_{typeid(PROD)}
+  , outputInstanceLabel_{outputInstanceLabel}
+  , mixFunc_{mixFunc}
+  , processName_{ServiceHandle<TriggerNamesService const>{}->getProcessName()}
+  , md_{md}
+  , outputProduct_{outputProduct}
+  , compactMissingProducts_{compactMissingProducts}
+  , branchType_{bt}
 {
 }
 
 template <typename PROD, typename OPROD>
 InputTag const&
-MixOp<PROD, OPROD>::
-inputTag() const
+MixOp<PROD, OPROD>::inputTag() const
 {
   return inputTag_;
 }
 
 template <typename PROD, typename OPROD>
 TypeID const&
-MixOp<PROD, OPROD>::
-inputType() const
+MixOp<PROD, OPROD>::inputType() const
 {
   return inputType_;
 }
 
 template <typename PROD, typename OPROD>
 std::string const&
-MixOp<PROD, OPROD>::
-outputInstanceLabel() const
+MixOp<PROD, OPROD>::outputInstanceLabel() const
 {
   return outputInstanceLabel_;
 }
 
 template <typename PROD, typename OPROD>
 void
-MixOp<PROD, OPROD>::
-mixAndPut(Event& e, PtrRemapper const& remap) const
+MixOp<PROD, OPROD>::mixAndPut(Event& e, PtrRemapper const& remap) const
 {
-  std::unique_ptr<OPROD> rProd{new OPROD{}};
+  auto rProd = std::make_unique<OPROD>();
   std::vector<PROD const*> inConverted;
   inConverted.reserve(inProducts_.size());
   try {
-    auto const endIter = inProducts_.cend();
-    for (auto i = inProducts_.cbegin(); i != endIter; ++i) {
-      auto const prod = (*i)->product();
+    for (auto const& ptr : inProducts_) {
+      auto const prod = ptr->product();
       if (prod || ! compactMissingProducts_) {
         inConverted.emplace_back(prod);
       }
@@ -180,18 +175,17 @@ mixAndPut(Event& e, PtrRemapper const& remap) const
           << "declared with outputProduct=false.\n";
     }
     if (outputInstanceLabel_.empty()) {
-      e.put(std::move(rProd));
+      e.put(move(rProd));
     }
     else {
-      e.put(std::move(rProd), outputInstanceLabel_);
+      e.put(move(rProd), outputInstanceLabel_);
     }
   }
 }
 
 template <typename PROD, typename OPROD>
 void
-MixOp<PROD, OPROD>::
-initializeBranchInfo(RootBranchInfoList const& branchInfo_List)
+MixOp<PROD, OPROD>::initializeBranchInfo(RootBranchInfoList const& branchInfo_List)
 {
   if (!branchInfo_List.findBranchInfo(inputType_, inputTag_, branchInfo_)) {
     throw Exception(errors::ProductNotFound)
@@ -205,40 +199,28 @@ initializeBranchInfo(RootBranchInfoList const& branchInfo_List)
 
 template <typename PROD, typename OPROD>
 ProductID
-MixOp<PROD, OPROD>::
-incomingProductID() const
+MixOp<PROD, OPROD>::incomingProductID() const
 {
   return ProductID{branchInfo_.branchName()};
 }
 
 template <typename PROD, typename OPROD>
 ProductID
-MixOp<PROD, OPROD>::
-outgoingProductID() const
+MixOp<PROD, OPROD>::outgoingProductID() const
 {
   ProductID result;
   if (outputProduct_) {
-    TypeID const outputType(typeid(OPROD));
+    TypeID const outputType{typeid(OPROD)};
     // Note: Outgoing product must be InEvent.
     auto const productName = canonicalProductName(outputType.friendlyClassName(), md_->moduleLabel(), outputInstanceLabel_, processName_);
-    ProductID const pid{productName};
-    auto I = ProductMetaData::instance().productDescriptions(InEvent).find(pid);
-    if (I == ProductMetaData::instance().productDescriptions(InEvent).end()) {
-      throw Exception(errors::LogicError)
-          << "MixOp unable to find branch id for a product ("
-          << outputType.className()
-          << ") that should have been registered!\n";
-    }
-    result = I->second.productID();
-    assert(pid == result);
+    result = ProductID{productName};
   }
   return result;
 }
 
 template <typename PROD, typename OPROD>
 void
-MixOp<PROD, OPROD>::
-readFromFile(EntryNumberSequence const& seq, cet::exempt_ptr<BranchIDLists const> branchIDLists)
+MixOp<PROD, OPROD>::readFromFile(EntryNumberSequence const& seq, cet::exempt_ptr<BranchIDLists const> branchIDLists)
 {
   inProducts_.clear();
   inProducts_.reserve(seq.size());
@@ -271,8 +253,7 @@ readFromFile(EntryNumberSequence const& seq, cet::exempt_ptr<BranchIDLists const
 template <typename PROD, typename OPROD>
 inline
 BranchType
-MixOp<PROD, OPROD>::
-branchType() const
+MixOp<PROD, OPROD>::branchType() const
 {
   return branchType_;
 }

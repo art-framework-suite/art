@@ -20,7 +20,6 @@
 
 namespace art {
 
-class MasterProductRegistry;
 class ModuleDescription;
 
 class EventObserverBase : public ModuleBase {
@@ -67,7 +66,7 @@ public:
 
   // FIXME: One could obviate the need for this trivial implementation
   // by putting some type logic in WorkerT.
-  void registerProducts(MasterProductRegistry&, ProductDescriptions&, ModuleDescription const&);
+  void registerProducts(ProductDescriptions&, ModuleDescription const&);
 
   std::string const&
   processName() const;

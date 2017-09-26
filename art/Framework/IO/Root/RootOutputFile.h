@@ -176,7 +176,7 @@ private: // MEMBER DATA
   OutputModule const* om_{nullptr};
   std::string file_;
   ClosingCriteria fileSwitchCriteria_;
-  OutputFileStatus status_ {OutputFileStatus::Closed};
+  OutputFileStatus status_{OutputFileStatus::Closed};
   int const compressionLevel_;
   int64_t const saveMemoryObjectThreshold_;
   int64_t const treeMaxVirtualSize_;
@@ -185,39 +185,43 @@ private: // MEMBER DATA
   DropMetaData dropMetaData_;
   bool dropMetaDataForDroppedData_;
   bool fastCloningEnabledAtConstruction_;
-  bool wasFastCloned_ {false};
+  bool wasFastCloned_{false};
   std::unique_ptr<TFile> filePtr_; // File closed when d'tor called
-  FileIndex fileIndex_ {};
-  FileProperties fp_ {};
-  TTree* metaDataTree_ {nullptr};
-  TTree* fileIndexTree_ {nullptr};
-  TTree* parentageTree_ {nullptr};
-  TTree* eventHistoryTree_ {nullptr};
-  EventAuxiliary const* pEventAux_ {nullptr};
-  SubRunAuxiliary const* pSubRunAux_ {nullptr};
-  RunAuxiliary const* pRunAux_ {nullptr};
-  ResultsAuxiliary const* pResultsAux_ {nullptr};
-  ProductProvenances eventProductProvenanceVector_ {};
-  ProductProvenances subRunProductProvenanceVector_ {};
-  ProductProvenances runProductProvenanceVector_ {};
-  ProductProvenances resultsProductProvenanceVector_ {};
-  ProductProvenances* pEventProductProvenanceVector_ {&eventProductProvenanceVector_};
-  ProductProvenances* pSubRunProductProvenanceVector_ {&subRunProductProvenanceVector_};
-  ProductProvenances* pRunProductProvenanceVector_ {&runProductProvenanceVector_};
-  ProductProvenances* pResultsProductProvenanceVector_ {&resultsProductProvenanceVector_};
-  History const* pHistory_ {nullptr};
+  FileIndex fileIndex_{};
+  FileProperties fp_{};
+  TTree* metaDataTree_{nullptr};
+  TTree* fileIndexTree_{nullptr};
+  TTree* parentageTree_{nullptr};
+  TTree* eventHistoryTree_{nullptr};
+  EventAuxiliary const* pEventAux_{nullptr};
+  SubRunAuxiliary const* pSubRunAux_{nullptr};
+  RunAuxiliary const* pRunAux_{nullptr};
+  ResultsAuxiliary const* pResultsAux_{nullptr};
+  ProductProvenances eventProductProvenanceVector_{};
+  ProductProvenances subRunProductProvenanceVector_{};
+  ProductProvenances runProductProvenanceVector_{};
+  ProductProvenances resultsProductProvenanceVector_{};
+  ProductProvenances* pEventProductProvenanceVector_{&eventProductProvenanceVector_};
+  ProductProvenances* pSubRunProductProvenanceVector_{&subRunProductProvenanceVector_};
+  ProductProvenances* pRunProductProvenanceVector_{&runProductProvenanceVector_};
+  ProductProvenances* pResultsProductProvenanceVector_{&resultsProductProvenanceVector_};
+  History const* pHistory_{nullptr};
   RootOutputTreePtrArray treePointers_;
-  bool dataTypeReported_ {false};
-  std::set<ProductID> branchesWithStoredHistory_ {};
-  cet::sqlite::Connection rootFileDB_; // Connection closed when d'tor
-  // called.  DB written to file
-  // when sqlite3_close is
-  // called.
+  bool dataTypeReported_{false};
+
+  // The descriptions are owned by the OutputModule base class, so we
+  // are guaranteed that the pointers will remain valid for the
+  // lifetime of the RootOutputFile.
+  std::array<std::map<ProductID, cet::exempt_ptr<BranchDescription const>>, NumBranchTypes> descriptionsToPersist_{{}};
+
+  // Connection closed when d'tor called.  DB written to file when
+  // sqlite3_close is called.
+  cet::sqlite::Connection rootFileDB_;
   std::array<std::set<OutputItem>, NumBranchTypes> selectedOutputItemList_{{}};
-  detail::DummyProductCache dummyProductCache_ {};
-  unsigned subRunRSID_ {-1u};
-  unsigned runRSID_ {-1u};
-  std::chrono::steady_clock::time_point beginTime_ {std::chrono::steady_clock::now()};
+  detail::DummyProductCache dummyProductCache_{};
+  unsigned subRunRSID_{-1u};
+  unsigned runRSID_{-1u};
+  std::chrono::steady_clock::time_point beginTime_{std::chrono::steady_clock::now()};
 };
 
 } // namespace art

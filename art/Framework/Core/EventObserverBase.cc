@@ -71,7 +71,7 @@ init_(vector<string> const& paths)
 
 void
 EventObserverBase::
-registerProducts(MasterProductRegistry&, ProductDescriptions&, ModuleDescription const&)
+registerProducts(ProductDescriptions&, ModuleDescription const&)
 {
 }
 

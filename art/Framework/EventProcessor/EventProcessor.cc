@@ -20,7 +20,6 @@
 #include "art/Framework/Services/System/FileCatalogMetadata.h"
 #include "art/Framework/Services/System/FloatingPointControl.h"
 #include "art/Framework/Services/System/TriggerNamesService.h"
-#include "art/Persistency/Provenance/ProductMetaData.h"
 #include "art/Utilities/Globals.h"
 #include "art/Utilities/ScheduleID.h"
 #include "art/Utilities/Transition.h"
@@ -208,11 +207,9 @@ EventProcessor(ParameterSet const& pset)
   input_ = makeInput(pset, processName, mpr_, actReg_);
   actReg_.sPostSourceConstruction.invoke(input_->moduleDescription());
 
+  // Create product tables used for product retrieval within modules.
   producedProducts_ = ProductTables{productsToProduce_};
   mpr_.finalizeForProcessing(producedProducts_);
-
-  // Allow read-only access to the mpr now.
-  ProductMetaData::create_instance(mpr_);
 }
 
 ServicesManager*

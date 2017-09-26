@@ -163,8 +163,7 @@ public: // MEMBER FUNCTIONS
   void
   doSelectProducts(ProductTables const&);
 
-  void registerProducts(MasterProductRegistry&,
-                        ProductDescriptions&,
+  void registerProducts(ProductDescriptions&,
                         ModuleDescription const&);
   BranchChildren const&
   branchChildren() const;
@@ -174,8 +173,7 @@ protected:
   // Called to register products if necessary.
   virtual
   void
-  doRegisterProducts(MasterProductRegistry&,
-                     ProductDescriptions&,
+  doRegisterProducts(ProductDescriptions&,
                      ModuleDescription const&);
 
 private: // MEMBER FUNCTIONS -- API required by EventProcessor, Schedule, and EndPathExecutor

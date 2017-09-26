@@ -67,14 +67,14 @@ namespace {
 inline
 EventIDLookup::EventIDLookup(art::EventIDIndex const& index)
   :
-  index_(index)
+  index_{index}
 {}
 
 EventIDLookup::result_type
 EventIDLookup::operator()(argument_type entry) const
 {
   auto i = index_.find(entry);
-  if (i == index_.end()) {
+  if (i == cend(index_)) {
     throw art::Exception(art::errors::LogicError)
         << "MixHelper could not find entry number "
         << entry
@@ -119,7 +119,7 @@ art::MixHelper::MixHelper(fhicl::ParameterSet const& pset,
                           ProducerBase& producesProvider)
   :
   producesProvider_{producesProvider},
-  filenames_{pset.get<std::vector<std::string> >("fileNames", { })},
+  filenames_{pset.get<std::vector<std::string> >("fileNames", {})},
   compactMissingProducts_{pset.get<bool>("compactMissingProducts", false)},
   fileIter_{filenames_.begin()},
   readMode_{initReadMode_(pset.get<std::string>("readMode", "sequential"))},
@@ -207,7 +207,7 @@ art::MixHelper::generateEventSequence(size_t const nSecondaries,
       << ". Contact the art developers.\n";
   }
   cet::transform_all(enSeq,
-                     std::back_inserter(eIDseq),
+                     back_inserter(eIDseq),
                      EventIDLookup{eventIDIndex_});
   return true;
 }
@@ -247,16 +247,15 @@ art::MixHelper::mixAndPut(EntryNumberSequence const& eventEntries,
 {
   // Populate the remapper in case we need to remap any Ptrs.
   ptpBuilder_.populateRemapper(ptrRemapper_, e);
-  // Dummy remapper in case we need it.
-  static PtrRemapper const nopRemapper;
-  // Create required info only if we're likely to need it:
+
+  // Create required info only if we're likely to need it.
   EntryNumberSequence subRunEntries;
   EntryNumberSequence runEntries;
   if (haveSubRunMixOps_) {
     subRunEntries.reserve(eIDseq.size());
     for (auto const& eID : eIDseq) {
       auto const it = currentFileIndex_.findPosition(eID.subRunID(), true);
-      if (it != currentFileIndex_.cend()) {
+      if (it != std::cend(currentFileIndex_)) {
         subRunEntries.emplace_back(it->entry_);
       } else {
         throw Exception(errors::NotFound, "NO_SUBRUN")
@@ -271,7 +270,7 @@ art::MixHelper::mixAndPut(EntryNumberSequence const& eventEntries,
     runEntries.reserve(eIDseq.size());
     for (auto const& eID : eIDseq) {
       auto const it = currentFileIndex_.findPosition(eID.runID(), true);
-      if (it != currentFileIndex_.cend()) {
+      if (it != std::cend(currentFileIndex_)) {
         runEntries.emplace_back(it->entry_);
       } else {
         throw Exception(errors::NotFound, "NO_RUN")
@@ -282,6 +281,10 @@ art::MixHelper::mixAndPut(EntryNumberSequence const& eventEntries,
       }
     }
   }
+
+  // Dummy remapper in case we need it.
+  static PtrRemapper const nopRemapper;
+
   // Do the branch-wise read, mix and put.
   for (auto const& op : mixOps_) {
     switch (op->branchType()) {
@@ -306,6 +309,7 @@ art::MixHelper::mixAndPut(EntryNumberSequence const& eventEntries,
         << ".\n";
     }
   }
+
   nEventsReadThisFile_ += eventEntries.size();
   totalEventsRead_ += eventEntries.size();
 }
@@ -413,8 +417,7 @@ art::MixHelper::openAndReadMetaData_(std::string filename)
   }
 
   eventIDIndex_ = buildEventIDIndex(currentFileIndex_);
-  ProdToProdMapBuilder::ProductIDTransMap transMap;
-  buildProductIDTransMap_(transMap);
+  auto transMap = buildProductIDTransMap_(mixOps_);
   ptpBuilder_.prepareTranslationTables(transMap);
   if (readMode_ == Mode::RANDOM_NO_REPLACE) {
     // Prepare shuffled event sequence.
@@ -460,26 +463,15 @@ art::MixHelper::openNextFile_()
   return true;
 }
 
-void
-art::MixHelper::buildProductIDTransMap_(ProdToProdMapBuilder::ProductIDTransMap& transMap)
+art::ProdToProdMapBuilder::ProductIDTransMap
+art::MixHelper::buildProductIDTransMap_(MixOpList& mixOps)
 {
-  for (auto& mixOp : mixOps_) {
+  ProdToProdMapBuilder::ProductIDTransMap transMap;
+  for (auto& mixOp : mixOps) {
     auto const bt = mixOp->branchType();
     mixOp->initializeBranchInfo(dataBranches_[bt]);
-#if ART_DEBUG_PTRREMAPPER
-    std::cerr << "BranchIDTransMap: "
-              << std::hex
-              << std::setfill('0')
-              << std::setw(8)
-              << mixOp->incomingProductID()
-              << " -> "
-              << std::setw(8)
-              << mixOp->outgoingProductID()
-              << std::dec
-              << ".\n";
-#endif
-    if (bt == InEvent) {
-      transMap[mixOp->incomingProductID()] = mixOp->outgoingProductID();
-    }
+    if (bt != InEvent) continue;
+    transMap[mixOp->incomingProductID()] = mixOp->outgoingProductID();
   }
+  return transMap;
 }

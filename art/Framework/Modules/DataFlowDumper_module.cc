@@ -5,11 +5,9 @@
 // information naming each data product in the event, what module that
 // product was created by, and what data products were read by that
 // module (the 'parents' of the original data product).
-//
 
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Modules/ProvenanceDumper.h"
-#include "art/Persistency/Provenance/ProductMetaData.h"
 #include "canvas/Persistency/Provenance/ProductID.h"
 #include "canvas/Utilities/Exception.h"
 #include "fhiclcpp/types/Atom.h"
@@ -110,32 +108,6 @@ void write_product_node(art::Provenance const& p,
   }
   write_id(p,os);
   format_product_node(p.friendlyClassName(), p.productInstanceName(), os);
-}
-
-void write_product_node(art::ProductID const pid,
-                        std::ostream& os,
-                        int debug) {
-  if (debug > 0) {
-    os << "# write_product_node for pid: " << pid << '\n';
-  }
-  // Access to the product descriptions is cheap, so not really worth
-  // caching.
-  auto const& descs = art::ProductMetaData::instance().productDescriptions(art::InEvent); // note this is a map
-  // The mapped_type in the map contains all the information we want,
-  // but we have to do a linear search through the map to find the one
-  // with the right ProductID.
-  auto it = std::find_if(cbegin(descs), cend(descs),
-                         [&pid](auto const& keyval) {
-                           return keyval.second.productID() == pid;
-                         });
-  if (it == cend(descs)) {
-    os << "#Missing information for product with id " << pid << '\n';
-    return;
-  }
-  write_id(pid, os);
-  format_product_node(it->second.friendlyClassName(),
-                      it->second.productInstanceName(),
-                      os);
 }
 
 void write_module_id(art::Provenance const& p, std::ostream& os) {

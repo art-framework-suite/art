@@ -127,8 +127,7 @@ namespace art {
     void doWriteResults(ResultsPrincipal&);
     void doClear();
 
-    void registerProducts(MasterProductRegistry& mpr,
-                          ProductDescriptions& producedProducts,
+    void registerProducts(ProductDescriptions& producedProducts,
                           ModuleDescription const& md);
 
   private: // MEMBER FUNCTIONS -- API to be provided by derived classes

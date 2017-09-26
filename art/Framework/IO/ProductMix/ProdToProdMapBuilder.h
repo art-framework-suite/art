@@ -21,7 +21,7 @@ public:
   using ProductIDTransMap = std::map<ProductID, ProductID>;
 
   void prepareTranslationTables(ProductIDTransMap& transMap);
-  void populateRemapper(PtrRemapper& mapper, Event& e) const;
+  void populateRemapper(PtrRemapper& mapper, Event const& e) const;
 
 private:
 

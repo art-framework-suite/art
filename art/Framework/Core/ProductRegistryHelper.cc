@@ -1,7 +1,6 @@
 #include "art/Framework/Core/ProductRegistryHelper.h"
 // vim: set sw=2:
 
-#include "art/Persistency/Provenance/MasterProductRegistry.h"
 #include "art/Persistency/Provenance/detail/branchNameComponentChecking.h"
 #include "canvas/Persistency/Common/Assns.h"
 #include "canvas/Persistency/Provenance/BranchDescription.h"
@@ -72,34 +71,11 @@ ProductRegistryHelper()
 {
 }
 
-// Used by an input source to provide a product list
-// to be merged into the master product registry
-// later by registerProducts().
 void
-ProductRegistryHelper::
-productList(ProductList* p)
-{
-  productList_.reset(p);
-}
-
-void
-ProductRegistryHelper::registerProducts(MasterProductRegistry& mpr,
-                                        ProductDescriptions& producedProducts,
+ProductRegistryHelper::registerProducts(ProductDescriptions& producedProducts,
                                         ModuleDescription const& md)
 {
-  // First update the MPR with any extant products.
-  std::unique_ptr<ProductTables> existingProducts{nullptr};
-  if (productList_) {
-    ProductDescriptions existingProdDescs;
-    for (auto const& pr : *productList_) {
-      existingProdDescs.emplace_back(pr.second);
-    }
-    existingProducts = std::make_unique<ProductTables>(existingProdDescs);
-  }
-
-  mpr.updateFromModule(std::move(existingProducts));
-
-  // Now go through products that will be produced in the current process.
+  // Go through products that will be produced in the current process.
   check_for_duplicate_Assns(typeLabelList_[InEvent]);
 
   ProductDescriptions descriptions;
@@ -111,7 +87,6 @@ ProductRegistryHelper::registerProducts(MasterProductRegistry& mpr,
       descriptions.push_back(std::move(pd));
     }
   }
-  mpr.addProductsFromModule(move(descriptions));
 }
 
 

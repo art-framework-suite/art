@@ -13,7 +13,6 @@
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/System/TriggerNamesService.h"
-#include "art/Persistency/Provenance/ProductMetaData.h"
 #include "art/Utilities/Transition.h"
 #include "art/Version/GetReleaseVersion.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"

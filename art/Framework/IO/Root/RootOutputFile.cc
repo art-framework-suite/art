@@ -17,7 +17,6 @@
 #include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Framework/Services/System/DatabaseConnection.h"
 #include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
-#include "art/Persistency/Provenance/ProductMetaData.h"
 #include "art/Framework/IO/Root/RootDB/SQLErrMsg.h"
 #include "art/Framework/IO/Root/RootDB/TKeyVFSOpenPolicy.h"
 #include "art/Version/GetReleaseVersion.h"
@@ -765,12 +764,10 @@ writeProductDescriptionRegistry()
   // removing any transient or pruned products.
   ProductRegistry reg;
   auto productDescriptionsToWrite = [this, &reg](BranchType const bt) {
-    for (auto const& pr : ProductMetaData::instance().productDescriptions(bt)) {
-      auto const& desc = pr.second;
-      if (branchesWithStoredHistory_.find(desc.productID()) == cend(branchesWithStoredHistory_)) {
-        continue;
-      }
-      reg.productList_.emplace_hint(reg.productList_.end(), BranchKey{desc}, desc);
+    for (auto const& pr : descriptionsToPersist_[bt]) {
+      assert(pr.second);
+      auto const& desc = *pr.second;
+      reg.productList_.emplace(BranchKey{desc}, desc);
     }
   };
   for_each_branch_type(productDescriptionsToWrite);
@@ -864,11 +861,7 @@ fillBranches(Principal const& principal, vector<ProductProvenance>* vpp)
   for (auto const& val : selectedOutputItemList_[BT]) {
     auto const& bd = val.branchDescription_;
     auto const pid = bd.productID();
-    // Note: recording branches with stored history according to its
-    //       ProductID value is circumspect since ProductIDs do not
-    //       include the BranchType value in its checksum calculation.
-    //       This should be fixed.
-    branchesWithStoredHistory_.insert(pid);
+    descriptionsToPersist_[BT].emplace(pid, cet::make_exempt_ptr(&bd));
     bool const produced = bd.produced();
     bool const resolveProd = (produced || !fastCloning || treePointers_[BT]->uncloned(bd.branchName()));
     // Update the kept provenance
@@ -883,7 +876,7 @@ fillBranches(Principal const& principal, vector<ProductProvenance>* vpp)
           {
             vector<ProductProvenance const*> stacked_pp;
             stacked_pp.push_back(&*oh.productProvenance());
-            while (1) {
+            while (true) {
               if (stacked_pp.size() == 0) {
                 break;
               }
@@ -891,32 +884,31 @@ fillBranches(Principal const& principal, vector<ProductProvenance>* vpp)
               stacked_pp.pop_back();
               for (auto const parent_bid : current_pp->parentage().parents()) {
 
-                // FIXME: Suppose the parent ProductID corresponds to
-                //        product that has been requested to be
-                //        "dropped"--i.e. someone has specified "drop
-                //        *_m1a_*_*" in their configuration, and
-                //        although a given product matching this
-                //        pattern will not be included in the
-                //        selectedProducts_ list, one of the parents
-                //        of a selected product can match the
-                //        "dropping" pattern and its BranchDescription
-                //        will still be written to disk since it is
-                //        inserted into the branchesWithStoredHistory_
-                //        data member.  Is this metadata behavior
-                //        desired?
-                branchesWithStoredHistory_.insert(parent_bid);
-
-                auto parent_pp = principal.branchToProductProvenance(parent_bid);
-                if (!parent_pp || (dropMetaData_ != DropMetaData::DropNone)) {
-                  continue;
-                }
-                auto const* parent_bd = principal.getForOutput(parent_pp->productID(), false).desc();
+                // Note: Suppose the parent ProductID corresponds to
+                //       product that has been requested to be
+                //       "dropped"--i.e. someone has specified "drop
+                //       *_m1a_*_*" in their configuration, and
+                //       although a given product matching this
+                //       pattern will not be included in the
+                //       selectedProducts_ list, one of the parents of
+                //       a selected product can match the "dropping"
+                //       pattern and its BranchDescription will still
+                //       be written to disk since it is inserted into
+                //       the descriptionsToPersist_ data member.
+                auto parent_bd = principal.getProductDescription(parent_bid);
                 if (!parent_bd) {
                   // FIXME: Is this an error condition?
                   continue;
                 }
+                descriptionsToPersist_[BT].emplace(parent_bid, parent_bd);
+
                 if (!parent_bd->produced()) {
                   // We got it from the input, nothing to do.
+                  continue;
+                }
+
+                auto parent_pp = principal.branchToProductProvenance(parent_bid);
+                if (!parent_pp || (dropMetaData_ != DropMetaData::DropNone)) {
                   continue;
                 }
                 if (!keptprv.insert(*parent_pp).second) {

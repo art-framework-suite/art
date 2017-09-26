@@ -42,9 +42,10 @@
 //
 // wrapFiles (default false).
 //
-//   Re-start from fileNames[0] after secondary events are exhausted. If
-//   this is false, exhausting the secondary file stream will result in
-//   the filter returning false for the remainder of the job.
+//   Re-start from fileNames[0] after secondary events are
+//   exhausted. If this is false, exhausting the secondary file stream
+//   will result in the filter returning false for the remainder of
+//   the job.
 //
 // compactMissingProducts (default false).
 //
@@ -64,10 +65,10 @@
 // mixing. This should be called from the constructor of your detail
 // object.
 //
-// <function> must be convertible to std::function<std::string ()>. A
+// <function> must be convertible to std::function<std::string()>. A
 // free function taking no arguments and returning std::string, a
-// functor whose operator () has the same signature, or a bound free or
-// member function whose signature after binding is std::string () are
+// functor whose operator() has the same signature, or a bound free or
+// member function whose signature after binding is std::string() are
 // all convertible to std::function<std::string()>.
 //
 // E.g. for a detail class with member function std::string getMixFile():
@@ -82,21 +83,22 @@
 // 2. If the file name provider returns a string which is empty, the
 // MixFilter shall thenceforth return false.
 //
-// 3. If the file name provider returns a non-empty string that does not
-// correspond to a readable file, an exception shall be thrown.
+// 3. If the file name provider returns a non-empty string that does
+// not correspond to a readable file, an exception shall be thrown.
 //
 ////////////////////////////////////////////////////////////////////////
 // declareMixOp templates.
 //
-// These function templates should be used by writers of product-mixing
-// "detail" classes to declare each product mix operation.
+// These function templates should be used by writers of
+// product-mixing "detail" classes to declare each product mix
+// operation.
 //
 // All of the declareMixOp(...) function templates have the following
 // template arguments:
 //
 // 1. The BranchType (defaults to art::InEvent). Specify explicitly if
-//    you wish to mix subrun or run products, or if you need to specify
-//    explicitly any of the other template arguments.
+//    you wish to mix subrun or run products, or if you need to
+//    specify explicitly any of the other template arguments.
 //
 // 2. The incoming product type (deduced from the provided callable
 //    mixer argument).
@@ -165,16 +167,16 @@
 //   1. Provide an InputTag and a mixer that is a free function or
 //      function object.
 //
-//   2. Provide an InputTag, an output instance label, and a mixer that
-//      is a free function or function object.
+//   2. Provide an InputTag, an output instance label, and a mixer
+//      that is a free function or function object.
 //
-//   3. Provide an InputTag, a mixer that is a non-const member function
-//      (of any class), and an object to which that member function should
-//      be bound.
+//   3. Provide an InputTag, a mixer that is a non-const member
+//      function (of any class), and an object to which that member
+//      function should be bound.
 //
-//   4. Provide an InputTag, an output instance label, a mixer that is a
-//      non-const member function (of any class), and an object to which
-//      that member function should be bound.
+//   4. Provide an InputTag, an output instance label, a mixer that is
+//      a non-const member function (of any class), and an object to
+//      which that member function should be bound.
 //
 //   5. Same as 3, but providing a mixer that is a const member function.
 //
@@ -353,7 +355,9 @@ private:
 
   void openAndReadMetaData_(std::string fileName);
   bool openNextFile_();
-  void buildProductIDTransMap_(ProdToProdMapBuilder::ProductIDTransMap& transMap);
+
+  ProdToProdMapBuilder::ProductIDTransMap
+  buildProductIDTransMap_(MixOpList& mixOps);
 
   ProducerBase& producesProvider_;
   std::vector<std::string> const filenames_;

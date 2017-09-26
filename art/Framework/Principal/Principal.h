@@ -177,6 +177,12 @@ public: // MEMBER FUNCTIONS -- Interface for other parts of art
   void
   setProducedProducts(ProductTables const& producedProducts);
 
+  void
+  markProcessHistoryAsModified()
+  {
+    processHistoryModified_ = true;
+  }
+
   // Used only by RootInputFile to implement the delayedRead*Products config options.
   // Read all data products and provenance immediately, if available.
   void
@@ -326,20 +332,9 @@ public: // MEMBER FUNCTIONS -- Used to be in subclasses
 private: // MEMBER FUNCTIONS
 
   // Used by our ctors.
-  void
-  ctor_create_groups(cet::exempt_ptr<ProductTable const>);
-
-  // Used by our ctors.
-  void
-  ctor_read_provenance();
-
-  // Used by our ctors.
-  void
-  ctor_fetch_process_history(ProcessHistoryID const&);
-
-  // Used by our ctors.
-  void
-  ctor_add_to_process_history();
+  void ctor_create_groups(cet::exempt_ptr<ProductTable const>);
+  void ctor_read_provenance();
+  void ctor_fetch_process_history(ProcessHistoryID const&);
 
   // Used by our ctors.
   // Used by insert_pp.
@@ -415,19 +410,16 @@ protected: // MEMBER FUNCTIONS -- For use by derived types
   void
   setProcessHistoryIDcombined(ProcessHistoryID const&);
 
-private: // MEMBER DATA -- Mine, all mine!
+private: // MEMBER DATA
 
   BranchType
   branchType_{};
 
   ProcessHistory processHistory_{};
 
-  mutable
-  std::atomic<bool>
-  processHistoryModified_{false};
+  std::atomic<bool> processHistoryModified_{false};
 
-  ProcessConfiguration const&
-  processConfiguration_;
+  ProcessConfiguration const& processConfiguration_;
 
   // Product-lookuyp tables
   cet::exempt_ptr<ProductTable const> presentProducts_;

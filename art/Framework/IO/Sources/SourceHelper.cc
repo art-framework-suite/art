@@ -3,6 +3,7 @@
 #include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
+#include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
 #include "canvas/Persistency/Provenance/ProductTables.h"
 #include "canvas/Persistency/Provenance/RunAuxiliary.h"
 #include "canvas/Persistency/Provenance/SubRunAuxiliary.h"
@@ -12,6 +13,17 @@
 #include <utility>
 
 using namespace std;
+
+namespace {
+  art::ProcessHistoryID insert_process_history(art::ProcessConfiguration const& pc)
+  {
+    art::ProcessHistory processHistory{};
+    processHistory.push_back(pc);
+    auto const phid = processHistory.id();
+    art::ProcessHistoryRegistry::emplace(phid, processHistory);
+    return phid;
+  }
+}
 
 art::SourceHelper::SourceHelper(ModuleDescription const& md) :
   md_{md}
@@ -39,7 +51,10 @@ art::RunPrincipal*
 art::SourceHelper::makeRunPrincipal(RunAuxiliary const& runAux) const
 {
   throwIfProductsNotRegistered_();
-  return new RunPrincipal{runAux, md_.processConfiguration(), &presentProducts_->get(InRun)};
+  runAux.processHistoryID() = insert_process_history(md_.processConfiguration());
+  auto principal = new RunPrincipal{runAux, md_.processConfiguration(), &presentProducts_->get(InRun)};
+  principal->markProcessHistoryAsModified();
+  return principal;
 }
 
 art::RunPrincipal*
@@ -60,7 +75,11 @@ art::SubRunPrincipal*
 art::SourceHelper::makeSubRunPrincipal(SubRunAuxiliary const& subRunAux) const
 {
   throwIfProductsNotRegistered_();
-  return new SubRunPrincipal{subRunAux, md_.processConfiguration(), &presentProducts_->get(InSubRun)};
+  auto phid = insert_process_history(md_.processConfiguration());
+  subRunAux.setProcessHistoryID(phid);
+  auto principal = new SubRunPrincipal{subRunAux, md_.processConfiguration(), &presentProducts_->get(InSubRun)};
+  principal->markProcessHistoryAsModified();
+  return principal;
 }
 
 art::SubRunPrincipal*
@@ -76,20 +95,25 @@ art::SourceHelper::makeSubRunPrincipal(RunNumber_t const r, SubRunNumber_t const
   return makeSubRunPrincipal(SubRunID{r, sr}, startTime);
 }
 
+// FIXME: What happens if history is nullptr?
+
 art::EventPrincipal*
 art::SourceHelper::makeEventPrincipal(EventAuxiliary const& eventAux, std::unique_ptr<History>&& history) const
 {
   throwIfProductsNotRegistered_();
-  return new EventPrincipal{eventAux, md_.processConfiguration(), &presentProducts_->get(InEvent), std::move(history)};
+  auto const phid = insert_process_history(md_.processConfiguration());
+  history->setProcessHistoryID(phid);
+  auto principal = new EventPrincipal{eventAux, md_.processConfiguration(), &presentProducts_->get(InEvent), std::move(history)};
+  principal->markProcessHistoryAsModified();
+  return principal;
 }
 
 art::EventPrincipal*
 art::SourceHelper::makeEventPrincipal(EventID const& e, Timestamp const& startTime, bool const isRealData,
                                       EventAuxiliary::ExperimentType const eType) const
 {
-  throwIfProductsNotRegistered_();
   EventAuxiliary const eventAux{e, startTime, isRealData, eType};
-  return new EventPrincipal{eventAux, md_.processConfiguration(), &presentProducts_->get(InEvent)};
+  return makeEventPrincipal(eventAux, std::make_unique<History>());
 }
 
 art::EventPrincipal*

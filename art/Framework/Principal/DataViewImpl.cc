@@ -9,7 +9,6 @@
 #include "art/Framework/Principal/Selector.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
-#include "art/Persistency/Provenance/ProductMetaData.h"
 #include "art/Utilities/Globals.h"
 #include "art/Utilities/ProductSemantics.h"
 #include "canvas/Persistency/Provenance/BranchType.h"

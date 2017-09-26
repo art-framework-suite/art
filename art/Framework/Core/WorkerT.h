@@ -119,7 +119,7 @@ WorkerT(T* module, ModuleDescription const& md, WorkerParams const& wp)
   if (wp.streamIndex_ == 0) {
     // We only want to register the products once,
     // not once for every stream!
-    module_->registerProducts(wp.reg_, wp.producedProducts_, md);
+    module_->registerProducts(wp.producedProducts_, md);
   }
 }
 

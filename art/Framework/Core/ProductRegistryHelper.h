@@ -37,7 +37,6 @@
 
 namespace art {
 
-class MasterProductRegistry;
 class ModuleDescription;
 
 namespace {
@@ -100,13 +99,7 @@ public: // MEMBER FUNCTIONS
 
 public: // MEMBER FUNCTIONS
 
-  // Used by an input source to provide a product list to be merged
-  // into the master product registry later by registerProducts().
-  void
-  productList(ProductList* p);
-
-  void registerProducts(MasterProductRegistry& mpr,
-                        ProductDescriptions& producedProducts,
+  void registerProducts(ProductDescriptions& producedProducts,
                         ModuleDescription const& md);
 
   // Record the production of an object of type P, with optional
@@ -135,13 +128,7 @@ private: // MEMBER FUNCTIONS
 
 private: // MEMBER DATA
 
-  std::array<std::set<TypeLabel>, NumBranchTypes>
-  typeLabelList_;
-
-  // Set by an input source for merging into the master product
-  // registry by registerProducts().  Ownership is released to
-  // MasterProductRegistry.
-  std::unique_ptr<ProductList> productList_;
+  std::array<std::set<TypeLabel>, NumBranchTypes> typeLabelList_;
 };
 
 template <BranchType B = InEvent>

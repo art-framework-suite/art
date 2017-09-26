@@ -12,7 +12,6 @@
 #include "art/Persistency/Common/DelayedReader.h"
 #include "art/Persistency/Common/GroupQueryResult.h"
 #include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
-#include "art/Persistency/Provenance/ProductMetaData.h"
 #include "canvas/Persistency/Provenance/BranchDescription.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
 #include "canvas/Persistency/Provenance/History.h"
@@ -152,14 +151,6 @@ namespace art {
     std::swap(processHistory_, processHistory);
   }
 
-  void
-  Principal::ctor_add_to_process_history()
-  {
-    if (ProductMetaData::instance().productProduced(branchType_)) {
-      addToProcessHistory();
-    }
-  }
-
   Principal::Principal(BranchType branchType,
                        ProcessConfiguration const& pc,
                        cet::exempt_ptr<ProductTable const> presentProducts,
@@ -191,7 +182,6 @@ namespace art {
     ctor_create_groups(presentProducts);
     ctor_read_provenance();
     ctor_fetch_process_history(runAux_.processHistoryID());
-    ctor_add_to_process_history();
   }
 
   // SubRun
@@ -209,7 +199,6 @@ namespace art {
     ctor_create_groups(presentProducts);
     ctor_read_provenance();
     ctor_fetch_process_history(subRunAux_.processHistoryID());
-    ctor_add_to_process_history();
   }
 
   // Event
@@ -231,7 +220,6 @@ namespace art {
     ctor_create_groups(presentProducts);
     ctor_read_provenance();
     ctor_fetch_process_history(history_->processHistoryID());
-    ctor_add_to_process_history();
   }
 
   // Results
@@ -252,10 +240,34 @@ namespace art {
   }
 
   void
-  Principal::fillGroup(BranchDescription const& bd)
+  Principal::fillGroup(BranchDescription const& pd)
   {
-    unique_ptr<Group> group = create_group(this, delayedReader_.get(), bd);
-    groups_[bd.productID()] = move(group);
+    auto it = groups_.find(pd.productID());
+    if (it != std::cend(groups_)) {
+      // The 'combinable' call does not require that the processing
+      // history be the same, which is not what we are checking for here.
+      auto const& found_pd = it->second->productDescription();
+      if (combinable(found_pd, pd)) {
+        throw Exception(errors::Configuration)
+          << "The process name "
+          << pd.processName()
+          << " was previously used on these products.\n"
+          << "Please modify the configuration file to use a "
+          << "distinct process name.\n";
+      }
+
+      throw Exception(errors::ProductRegistrationFailure)
+        << "The product ID " << pd.productID()
+        << " of the new product:\n"
+        << pd
+        << " collides with the product ID of the already-existing product:\n"
+        << found_pd
+        << "Please modify the instance name of the new product so as to avoid the product ID collision.\n"
+        << "In addition, please notify artists@fnal.gov of this error.\n";
+    }
+
+    unique_ptr<Group> group = create_group(this, delayedReader_.get(), pd);
+    groups_[pd.productID()] = move(group);
   }
 
   // Used by addToProcessHistory()
@@ -312,6 +324,10 @@ namespace art {
   {
     auto const& produced = producedProducts.get(branchType_);
     if (produced.descriptions.empty()) return;
+
+    // The process history is expanded if there is a product that is
+    // produced in this process.
+    addToProcessHistory();
 
     producedProducts_ = cet::make_exempt_ptr(&produced);
     for (auto const& pr : produced.descriptions) {
@@ -590,8 +606,8 @@ namespace art {
                         string const& processName) const
   {
     Selector const sel{ModuleLabelSelector{label} &&
-                                                    ProductInstanceNameSelector{productInstanceName} &&
-                                                                                                       ProcessNameSelector{processName}};
+                       ProductInstanceNameSelector{productInstanceName} &&
+                       ProcessNameSelector{processName}};
     auto const& results = findGroupsForProduct(wrapped, sel, true);
     if (results.empty()) {
       auto whyFailed = std::make_shared<art::Exception>(art::errors::ProductNotFound);
@@ -1035,11 +1051,6 @@ namespace art {
     return resultsAux_;
   }
 
-  // Used by EDFilter
-  // Used by EDProducer
-  // Used by EventProcessor
-  // Used by RootInputFile
-  // Used by RootOutput_module
   RunID const&
   Principal::runID() const
   {
@@ -1058,8 +1069,6 @@ namespace art {
     return eventAux_.id();
   }
 
-  // Used by test -- art/art/test/Integration/ToySource.cc
-  // Used by test -- art/art/test/Integration/GeneratorTest_source.cc
   RunNumber_t
   Principal::run() const
   {

@@ -25,11 +25,10 @@ cet::PluginTypeDeducer<art::ResultsProducer>::value = "ResultsProducer";
 namespace art {
 
   void
-  ResultsProducer::registerProducts(MasterProductRegistry& mpr,
-                                    ProductDescriptions& productsToProduce,
+  ResultsProducer::registerProducts(ProductDescriptions& productsToProduce,
                                     ModuleDescription const& md)
   {
-    ProductRegistryHelper::registerProducts(mpr, productsToProduce, md);
+    ProductRegistryHelper::registerProducts(productsToProduce, md);
     setModuleDescription(md);
   }
 

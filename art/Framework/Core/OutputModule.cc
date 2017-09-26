@@ -25,7 +25,6 @@
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/System/FileCatalogMetadata.h"
 #include "art/Framework/Services/System/TriggerNamesService.h"
-#include "art/Persistency/Provenance/ProductMetaData.h"
 #include "art/Persistency/Provenance/Selections.h"
 #include "art/Utilities/CPCSentry.h"
 #include "art/Utilities/CurrentProcessingContext.h"
@@ -259,16 +258,14 @@ art::OutputModule::postSelectProducts()
 {}
 
 void
-art::OutputModule::registerProducts(MasterProductRegistry& mpr,
-                                    ProductDescriptions& producedProducts,
+art::OutputModule::registerProducts(ProductDescriptions& producedProducts,
                                     ModuleDescription const& md)
 {
-  doRegisterProducts(mpr, producedProducts, md);
+  doRegisterProducts(producedProducts, md);
 }
 
 void
-art::OutputModule::doRegisterProducts(MasterProductRegistry&,
-                                      ProductDescriptions&,
+art::OutputModule::doRegisterProducts(ProductDescriptions&,
                                       ModuleDescription const&)
 {}
 

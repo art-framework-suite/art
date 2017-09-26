@@ -718,8 +718,7 @@ namespace art {
     // These _xERROR_ strings should never appear in branch names; they
     // are here as tracers to help identify any failures in coding.
     ProductDescriptions descriptions;
-    h_.registerProducts(d.productRegistry,
-                        descriptions,
+    h_.registerProducts(descriptions,
                         ModuleDescription{fhicl::ParameterSet{}.id(), // Dummy
                                           "_NAMEERROR_",
                                           "_LABELERROR_",

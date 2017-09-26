@@ -13,10 +13,9 @@ namespace art {
   class PtrRemapper;
 
   template <typename PROD, typename OPROD = PROD>
-  using MixFunc =
-    std::function<bool (std::vector<PROD const *> const &,
-                        OPROD &,
-                        PtrRemapper const &)>;
+  using MixFunc = std::function<bool(std::vector<PROD const*> const&,
+                                     OPROD&,
+                                     PtrRemapper const&)>;
 
   using EventIDIndex = std::map<FileIndex::EntryNumber_t, EventID>;
   using SubRunIDIndex = std::map<SubRunID, FileIndex::EntryNumber_t>;

@@ -26,7 +26,6 @@
 #include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Persistency/Provenance/MasterProductRegistry.h"
 #include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
-#include "art/Persistency/Provenance/ProductMetaData.h"
 #include "art/Version/GetReleaseVersion.h"
 #include "art/test/TestObjects/ToyProducts.h"
 #include "canvas/Persistency/Common/Wrapper.h"
@@ -151,7 +150,6 @@ MPRGlobalTestFixture::MPRGlobalTestFixture()
   }
 
   availableProducts_.finalizeForProcessing(producedProducts_);
-  ProductMetaData::create_instance(availableProducts_);
 }
 
 template <class T, bool Present>
@@ -187,7 +185,6 @@ MPRGlobalTestFixture::registerProduct(std::string const& tag,
   }
   BranchDescription pd{InEvent, typeLabel, localModuleDescription};
   descriptions_.push_back(pd);
-  availableProducts_.addProductsFromModule({std::move(pd)});
   return moduleDescriptions_[tag];
 }
 

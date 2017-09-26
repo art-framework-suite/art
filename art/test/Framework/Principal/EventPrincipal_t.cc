@@ -10,7 +10,6 @@
 #include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Persistency/Common/GroupQueryResult.h"
 #include "art/Persistency/Provenance/MasterProductRegistry.h"
-#include "art/Persistency/Provenance/ProductMetaData.h"
 #include "art/Version/GetReleaseVersion.h"
 #include "art/test/TestObjects/ToyProducts.h"
 #include "canvas/Persistency/Common/Wrapper.h"
@@ -76,9 +75,7 @@ MPRGlobalTestFixture()
   descriptions.push_back(fake_single_process_branch("user", "USER"));
   descriptions.push_back(fake_single_process_branch("rick", "USER2", "rick"));
   producedProducts_ = ProductTables{descriptions};
-  productRegistry_.addProductsFromModule(move(descriptions));
   productRegistry_.finalizeForProcessing(producedProducts_);
-  ProductMetaData::create_instance(productRegistry_);
 }
 
 ProcessConfiguration*
