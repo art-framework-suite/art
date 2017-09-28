@@ -13,6 +13,7 @@
 #include "art/Framework/IO/Root/RootFileBlock.h"
 #include "art/Framework/IO/Root/checkDictionaries.h"
 #include "art/Framework/IO/Root/detail/KeptProvenance.h"
+#include "art/Framework/IO/Root/detail/getObjectRequireDict.h"
 #include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Principal/ResultsPrincipal.h"
 #include "art/Framework/Principal/RunPrincipal.h"
@@ -40,6 +41,7 @@
 #include "canvas/Persistency/Provenance/RunAuxiliary.h"
 #include "canvas/Persistency/Provenance/SubRunAuxiliary.h"
 #include "canvas/Utilities/Exception.h"
+#include "canvas_root_io/Utilities/DictionaryChecker.h"
 #include "cetlib/canonical_string.h"
 #include "cetlib/container_algorithms.h"
 #include "cetlib/exempt_ptr.h"
@@ -53,8 +55,6 @@
 #include "fhiclcpp/ParameterSetRegistry.h"
 
 #include <algorithm>
-#include <iomanip>
-#include <sstream>
 #include <utility>
 #include <utility>
 #include <vector>
@@ -363,6 +363,14 @@ art::RootOutputFile::RootOutputFile(OutputModule* om,
   delete pHistory_;
   pHistory_ = nullptr;
 
+  // Check that dictionaries for the auxiliaries exist
+  root::DictionaryChecker checker{};
+  checker.checkDictionaries<EventAuxiliary>();
+  checker.checkDictionaries<SubRunAuxiliary>();
+  checker.checkDictionaries<RunAuxiliary>();
+  checker.checkDictionaries<ResultsAuxiliary>();
+  checker.reportMissingDictionaries();
+
   createDatabaseTables();
 }
 
@@ -531,22 +539,24 @@ art::RootOutputFile::writeRun(RunPrincipal const& r)
 void
 art::RootOutputFile::writeParentageRegistry()
 {
-  ParentageID const* hash = new ParentageID;
+  auto pid = root::getObjectRequireDict<ParentageID>();
+  ParentageID const* hash = &pid;
   if (!parentageTree_->Branch(rootNames::parentageIDBranchName().c_str(),
                               &hash, basketSize_, 0)) {
-    throw art::Exception(art::errors::FatalRootError)
+    throw Exception(errors::FatalRootError)
       << "Failed to create a branch for ParentageIDs in the output file";
   }
-  delete hash;
   hash = nullptr;
-  Parentage const* desc = new Parentage;
+
+  auto par = root::getObjectRequireDict<Parentage>();
+  Parentage const* desc = &par;
   if (!parentageTree_->Branch(rootNames::parentageBranchName().c_str(), &desc,
                               basketSize_, 0)) {
     throw art::Exception(art::errors::FatalRootError)
       << "Failed to create a branch for Parentages in the output file";
   }
-  delete desc;
   desc = nullptr;
+
   for (auto const& pr : ParentageRegistry::get()) {
     hash = &pr.first;
     desc = &pr.second;

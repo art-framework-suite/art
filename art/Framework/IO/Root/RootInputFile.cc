@@ -7,8 +7,9 @@
 #include "art/Framework/IO/Root/GetFileFormatEra.h"
 #include "art/Framework/IO/Root/RootFileBlock.h"
 #include "art/Framework/IO/Root/checkDictionaries.h"
-#include "art/Framework/IO/Root/detail/readMetadata.h"
+#include "art/Framework/IO/Root/detail/getObjectRequireDict.h"
 #include "art/Framework/IO/Root/detail/readFileIndex.h"
+#include "art/Framework/IO/Root/detail/readMetadata.h"
 #include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
@@ -32,6 +33,7 @@
 #include "canvas/Utilities/Exception.h"
 #include "canvas/Utilities/FriendlyName.h"
 #include "canvas_root_io/Streamers/ProductIDStreamer.h"
+#include "canvas_root_io/Utilities/DictionaryChecker.h"
 #include "cetlib/container_algorithms.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/ParameterSetID.h"
@@ -290,6 +292,16 @@ namespace art {
     // Determine if this file is fast clonable.
     fastClonable_ = setIfFastClonable(fcip);
     reportOpened();
+
+    // Check if dictionaries exist for the auxiliary objects
+    root::DictionaryChecker checker{};
+    checker.checkDictionaries<EventAuxiliary>();
+    checker.checkDictionaries<SubRunAuxiliary>();
+    checker.checkDictionaries<RunAuxiliary>();
+    checker.checkDictionaries<ResultsAuxiliary>();
+    checker.reportMissingDictionaries();
+
+    // FIXME: This probably is unnecessary!
     configureProductIDStreamer();
   }
 
@@ -306,10 +318,11 @@ namespace art {
       << couldNotFindTree(rootNames::parentageTreeName());
     }
     parentageTree->SetCacheSize(static_cast<Long64_t>(treeCacheSize));
-    ParentageID idBuffer;
+    auto idBuffer = root::getObjectRequireDict<ParentageID>();
     auto pidBuffer = &idBuffer;
     parentageTree->SetBranchAddress(rootNames::parentageIDBranchName().c_str(), &pidBuffer);
-    Parentage parentageBuffer;
+
+    auto parentageBuffer = root::getObjectRequireDict<Parentage>();
     auto pParentageBuffer = &parentageBuffer;
     parentageTree->SetBranchAddress(rootNames::parentageBranchName().c_str(), &pParentageBuffer);
 
