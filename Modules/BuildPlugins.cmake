@@ -54,7 +54,6 @@ function(simple_plugin name type)
       art_Framework_Core
       art_Framework_Principal
       art_Persistency_Common
-      art_Persistency_Provenance
       art_Utilities
       canvas
       fhiclcpp
