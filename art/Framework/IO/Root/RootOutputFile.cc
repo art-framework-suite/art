@@ -11,7 +11,6 @@
 #include "art/Framework/IO/Root/checkDictionaries.h"
 #include "art/Framework/IO/Root/detail/KeptProvenance.h"
 #include "art/Framework/IO/Root/detail/getObjectRequireDict.h"
-#include "art/Framework/IO/Root/detail/resolveRangeSet.h"
 #include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Principal/ResultsPrincipal.h"
 #include "art/Framework/Principal/RunPrincipal.h"
