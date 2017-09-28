@@ -16,13 +16,13 @@ namespace art {
 
 class ActionTable;
 class ActivityRegistry;
-class MasterProductRegistry;
+class UpdateOutputCallbacks;
 
 struct WorkerParams {
 
   WorkerParams(fhicl::ParameterSet const& procPset,
                fhicl::ParameterSet const& pset,
-               MasterProductRegistry& reg,
+               UpdateOutputCallbacks& reg,
                ProductDescriptions& producedProducts,
                ActivityRegistry& actReg,
                ActionTable& actions,
@@ -42,7 +42,7 @@ struct WorkerParams {
 
   fhicl::ParameterSet const& procPset_;
   fhicl::ParameterSet const pset_;
-  MasterProductRegistry& reg_;
+  UpdateOutputCallbacks& reg_;
   ProductDescriptions& producedProducts_;
   ActivityRegistry& actReg_;
   ActionTable& actions_;

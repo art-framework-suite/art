@@ -45,7 +45,7 @@
 
 namespace art {
 
-class MasterProductRegistry;
+class UpdateOutputCallbacks;
 
 class PathManager {
 
@@ -66,7 +66,7 @@ public:
   ~PathManager();
 
   PathManager(fhicl::ParameterSet const& procPS,
-              MasterProductRegistry& preg,
+              UpdateOutputCallbacks& preg,
               ProductDescriptions& productsToProduce,
               ActionTable& exceptActions,
               ActivityRegistry& areg);
@@ -106,8 +106,8 @@ public:
 
 private:
 
-  MasterProductRegistry&
-  mpr_;
+  UpdateOutputCallbacks&
+  outputCallbacks_;
 
   ActionTable&
   exceptActions_;

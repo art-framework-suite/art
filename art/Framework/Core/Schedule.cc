@@ -42,13 +42,13 @@ Schedule(int stream,
          PathManager& pm,
          string const& processName,
          ParameterSet const& proc_pset,
-         MasterProductRegistry& mpr,
+         UpdateOutputCallbacks& outputCallbacks,
          ProductDescriptions& productsToProduce,
          ActionTable& actions,
          ActivityRegistry& actReg)
   : stream_{stream}
   , process_pset_{proc_pset}
-  , mpr_{mpr}
+  , outputCallbacks_{outputCallbacks}
   , actionTable_{actions}
   , actReg_{actReg}
   , processName_{processName}
@@ -61,7 +61,7 @@ Schedule(int stream,
       ServiceHandle<TriggerNamesService const> tns;
       auto const& trig_pset = tns->getTriggerPSet();
       WorkerParams const
-        wp{process_pset_, trig_pset, mpr_, productsToProduce, actReg_, actionTable_, processName_, ModuleThreadingType::STREAM, stream};
+        wp{process_pset_, trig_pset, outputCallbacks_, productsToProduce, actReg_, actionTable_, processName_, ModuleThreadingType::STREAM, stream};
       ModuleDescription
         md{trig_pset.id(), "TriggerResultInserter", "TriggerResults", static_cast<int>(ModuleThreadingType::STREAM),
           ProcessConfiguration{processName_, process_pset_.id(), getReleaseVersion()}};

@@ -12,7 +12,7 @@
 #include "art/Framework/Principal/ResultsPrincipal.h"
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
-#include "art/Persistency/Provenance/MasterProductRegistry.h"
+#include "art/Framework/Core/UpdateOutputCallbacks.h"
 #include "canvas/Persistency/Provenance/Compatibility/BranchIDList.h"
 #include "canvas/Persistency/Provenance/EventAuxiliary.h"
 #include "canvas/Persistency/Provenance/FileFormatVersion.h"
@@ -58,7 +58,7 @@ mergeAuxiliary(SubRunAuxiliary& left, SubRunAuxiliary const& right);
 class DuplicateChecker;
 class EventRangeHandler;
 class GroupSelectorRules;
-  class MasterProductRegistry;
+class UpdateOutputCallbacks;
 
 class RootInputFile {
 
@@ -181,7 +181,7 @@ public: // MEMBER FUNCTIONS -- Special Member Functions
                 cet::exempt_ptr<RootInputFile> primaryFile,
                 std::vector<std::string> const& secondaryFileNames,
                 RootInputFileSequence* rifSequence,
-                MasterProductRegistry& mpr);
+                UpdateOutputCallbacks& outputCallbacks);
 
 public: // MEMBER FUNCTIONS
 

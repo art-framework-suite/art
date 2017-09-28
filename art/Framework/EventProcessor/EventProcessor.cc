@@ -59,7 +59,7 @@ using fhicl::ParameterSet;
 namespace {
 
 unique_ptr<InputSource>
-makeInput(ParameterSet const& params, string const& processName, MasterProductRegistry& mpr, ActivityRegistry& areg)
+makeInput(ParameterSet const& params, string const& processName, UpdateOutputCallbacks& callbacks, ActivityRegistry& areg)
 {
   unique_ptr<InputSource> source;
   ParameterSet defaultEmptySource;
@@ -76,13 +76,13 @@ makeInput(ParameterSet const& params, string const& processName, MasterProductRe
     }
     // Fill in "ModuleDescription", in case the input source
     // produces any EDproducts, which would be registered in the
-    // MasterProductRegistry.  Also fill in the process history item
+    // UpdateOutputCallbacks.  Also fill in the process history item
     // for this process.
     ModuleDescription const md{main_input.id(), main_input.get<string>("module_type"),
           main_input.get<string>("module_label"), static_cast<int>(ModuleThreadingType::LEGACY),
           ProcessConfiguration{processName, params.id(), getReleaseVersion()}};
     sourceSpecified = true;
-    InputSourceDescription isd{md, mpr, areg};
+    InputSourceDescription isd{md, callbacks, areg};
     try {
       source = InputSourceFactory::make(main_input, isd);
     }
@@ -142,9 +142,9 @@ EventProcessor(ParameterSet const& pset)
   , act_table_{pset.get<ParameterSet>("services.scheduler")}
   , actReg_()
   , mfStatusUpdater_{actReg_}
-  , mpr_{}
+  , outputCallbacks_{}
   , servicesManager_{initServices_(pset, actReg_)}
-  , pathManager_{pset, mpr_, productsToProduce_, act_table_, actReg_}
+  , pathManager_{pset, outputCallbacks_, productsToProduce_, act_table_, actReg_}
   , input_{}
   , schedule_{}
   , endPathExecutor_{}
@@ -195,21 +195,21 @@ EventProcessor(ParameterSet const& pset)
   ServiceHandle<FileCatalogMetadata>{}->addMetadataString("process_name", processName);
 
   pathManager_.createModulesAndWorkers();
-  endPathExecutor_ = make_unique<EndPathExecutor>(pathManager_, act_table_, actReg_, mpr_);
+  endPathExecutor_ = make_unique<EndPathExecutor>(pathManager_, act_table_, actReg_, outputCallbacks_);
   for (auto I = 0; I < streams; ++I) {
-    schedule_.emplace_back(I, pathManager_, processName, pset, mpr_, productsToProduce_, act_table_, actReg_);
+    schedule_.emplace_back(I, pathManager_, processName, pset, outputCallbacks_, productsToProduce_, act_table_, actReg_);
   }
   FDEBUG(2) << pset.to_string() << endl;
 
   // The input source must be made *after* the end-path executor has
   // been made: the end-path executor registers a callback that must
   // be invoked once the first input file is opened.
-  input_ = makeInput(pset, processName, mpr_, actReg_);
+  input_ = makeInput(pset, processName, outputCallbacks_, actReg_);
   actReg_.sPostSourceConstruction.invoke(input_->moduleDescription());
 
   // Create product tables used for product retrieval within modules.
   producedProducts_ = ProductTables{productsToProduce_};
-  mpr_.finalizeForProcessing(producedProducts_);
+  outputCallbacks_.invoke(producedProducts_);
 }
 
 ServicesManager*

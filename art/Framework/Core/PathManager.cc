@@ -11,7 +11,7 @@
 #include "art/Framework/Principal/Worker.h"
 #include "art/Framework/Principal/WorkerParams.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
-#include "art/Persistency/Provenance/MasterProductRegistry.h"
+#include "art/Framework/Core/UpdateOutputCallbacks.h"
 #include "art/Utilities/CPCSentry.h"
 #include "art/Utilities/Globals.h"
 #include "art/Utilities/PluginSuffixes.h"
@@ -28,12 +28,8 @@
 #include "fhiclcpp/types/detail/validationException.h"
 
 #include <algorithm>
-#include <iomanip>
-#include <iostream>
 #include <map>
 #include <memory>
-#include <set>
-#include <sstream>
 #include <string>
 #include <utility>
 #include <vector>
@@ -67,11 +63,11 @@ art::PathManager:: ~PathManager()
 }
 
 art::PathManager::PathManager(ParameterSet const& procPS,
-                              MasterProductRegistry& mpr,
+                              UpdateOutputCallbacks& outputCallbacks,
                               ProductDescriptions& productsToProduce,
                               ActionTable& exceptActions,
                               ActivityRegistry& actReg)
-  : mpr_{mpr}
+  : outputCallbacks_{outputCallbacks}
   , exceptActions_{exceptActions}
   , actReg_{actReg}
   , lm_{Suffixes::module()}
@@ -466,7 +462,7 @@ art::PathManager::createModulesAndWorkers()
             ModuleDescription const
               md{modPS.id(), module_type, module_label, static_cast<int>(module_threading_type),
                 ProcessConfiguration{processName_, procPS_.id(), getReleaseVersion()}};
-            WorkerParams const wp{procPS_, modPS, mpr_, productsToProduce_, actReg_, exceptActions_, processName_, module_threading_type, si};
+            WorkerParams const wp{procPS_, modPS, outputCallbacks_, productsToProduce_, actReg_, exceptActions_, processName_, module_threading_type, si};
             if (module == nullptr) {
               detail::ModuleMaker_t* module_factory_func = nullptr;
               try {

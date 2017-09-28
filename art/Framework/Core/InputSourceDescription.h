@@ -16,24 +16,24 @@ so that the non-const reference data members can be used correctly.
 namespace art
 {
   class ActivityRegistry;
-  class MasterProductRegistry;
+  class UpdateOutputCallbacks;
   class ModuleDescription;
 
   struct InputSourceDescription
   {
     InputSourceDescription(ModuleDescription const&,
-                           MasterProductRegistry&,
+                           UpdateOutputCallbacks&,
                            ActivityRegistry&);
 
 
     ModuleDescription const& moduleDescription;
-    MasterProductRegistry&   productRegistry;
+    UpdateOutputCallbacks&   productRegistry;
     ActivityRegistry&        activityRegistry;
   };
 
   inline
   InputSourceDescription::InputSourceDescription(ModuleDescription const& md,
-                                                MasterProductRegistry& preg,
+                                                UpdateOutputCallbacks& preg,
                                                 ActivityRegistry& areg) :
     moduleDescription(md),
     productRegistry(preg),

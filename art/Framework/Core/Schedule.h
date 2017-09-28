@@ -56,7 +56,7 @@
 namespace art {
 
 class ActivityRegistry;
-class MasterProductRegistry;
+class UpdateOutputCallbacks;
 class TriggerNamesService;
 class Schedule;
 
@@ -68,7 +68,7 @@ public:
            PathManager&,
            std::string const& processName,
            fhicl::ParameterSet const& proc_pset,
-           MasterProductRegistry&,
+           UpdateOutputCallbacks&,
            ProductDescriptions&,
            ActionTable&,
            ActivityRegistry&);
@@ -110,8 +110,8 @@ private:
   fhicl::ParameterSet
   process_pset_;
 
-  MasterProductRegistry&
-  mpr_;
+  UpdateOutputCallbacks&
+  outputCallbacks_;
 
   ActionTable&
   actionTable_;

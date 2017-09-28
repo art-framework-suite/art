@@ -32,7 +32,7 @@ namespace art {
                         InputFileCatalog& catalog,
                         FastCloningInfoProvider const& fcip,
                         InputSource::ProcessingMode pMode,
-                        MasterProductRegistry& mpr,
+                        UpdateOutputCallbacks& outputCallbacks,
                         ProcessConfiguration const& processConfig)
     : catalog_{catalog}
     , firstFile_{true}
@@ -53,7 +53,7 @@ namespace art {
     , fastCloningInfo_{fcip}
     , processingMode_{pMode}
     , processConfiguration_{processConfig}
-    , mpr_{mpr}
+    , outputCallbacks_{outputCallbacks}
   {
     auto const& primaryFileNames = catalog_.fileSources();
 
@@ -415,7 +415,7 @@ namespace art {
                                            /*primaryFile*/exempt_ptr<RootInputFile>{nullptr},
                                            secondaryFileNames_.empty() ? empty_vs : secondaryFileNames_.at(catalog_.currentIndex()),
                                            this,
-                                           mpr_);
+                                           outputCallbacks_);
 
     assert(catalog_.currentIndex() != InputFileCatalog::indexEnd);
     if (catalog_.currentIndex() + 1 > fileIndexes_.size()) {
@@ -472,7 +472,7 @@ namespace art {
                                            primaryFile,
                                            empty_secondary_filenames,
                                            this,
-                                           mpr_);
+                                           outputCallbacks_);
   }
 
   bool

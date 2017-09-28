@@ -30,7 +30,7 @@ class DuplicateChecker;
 class FileCatalogItem;
 class FileIndex;
 class InputFileCatalog;
-class MasterProductRegistry;
+class UpdateOutputCallbacks;
 class RootInputFile;
 
 class RootInputFileSequence {
@@ -88,7 +88,7 @@ public: // MEMBER FUNCTIONS
                         InputFileCatalog&,
                         FastCloningInfoProvider const&,
                         InputSource::ProcessingMode,
-                        MasterProductRegistry&,
+                        UpdateOutputCallbacks&,
                         ProcessConfiguration const&);
   void
   endJob();
@@ -271,8 +271,8 @@ private: // MEMBER DATA
   InputSource::ProcessingMode processingMode_;
   ProcessConfiguration const& processConfiguration_;
   std::vector<std::vector<std::string>> secondaryFileNames_{};
-  MasterProductRegistry& mpr_;
-  bool pendingClose_ {false};
+  UpdateOutputCallbacks& outputCallbacks_;
+  bool pendingClose_{false};
 };
 
 } // namespace art

@@ -14,7 +14,7 @@
 //
 // The constructors of an InputSource should call reconstitutes()
 // for each product if and only if it does not update the
-// MasterProductRegistry with a product list.
+// UpdateOutputCallbacks with a product list.
 //
 
 #include "art/Framework/Principal/fwd.h"

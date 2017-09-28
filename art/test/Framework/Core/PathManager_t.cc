@@ -4,7 +4,7 @@
 #include "art/Framework/Principal/Actions.h"
 #include "art/Framework/Core/PathManager.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
-#include "art/Persistency/Provenance/MasterProductRegistry.h"
+#include "art/Framework/Core/UpdateOutputCallbacks.h"
 #include "canvas/Utilities/Exception.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/make_ParameterSet.h"
@@ -28,7 +28,7 @@ namespace {
 
 struct PathManagerTestFixture {
   art::ActionTable atable{};
-  art::MasterProductRegistry preg{};
+  art::UpdateOutputCallbacks preg{};
   art::ProductDescriptions productsToProduce{};
   art::ActivityRegistry areg{};
 };

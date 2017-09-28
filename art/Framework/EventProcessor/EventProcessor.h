@@ -20,7 +20,7 @@
 #include "art/Framework/Principal/fwd.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/ServicesManager.h"
-#include "art/Persistency/Provenance/MasterProductRegistry.h"
+#include "art/Framework/Core/UpdateOutputCallbacks.h"
 #include "art/Utilities/Transition.h"
 #include "art/Utilities/UnixSignalHandlers.h"
 #include "canvas/Persistency/Provenance/IDNumber.h"
@@ -285,12 +285,10 @@ private: // MEMBER DATA
   MFStatusUpdater
   mfStatusUpdater_{actReg_};
 
-  // Master list of BranchDescriptions, indexed
-  // by BranchKey.
-  // Filled by the product list read from  input
-  // files and by produces() calls.
-  MasterProductRegistry
-  mpr_{};
+  // List of callbacks which, when invoked, can update the state of
+  // any output modules.
+  UpdateOutputCallbacks
+  outputCallbacks_{};
 
   ProductDescriptions
   productsToProduce_{};

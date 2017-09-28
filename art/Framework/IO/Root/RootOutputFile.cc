@@ -760,7 +760,7 @@ void
 RootOutputFile::
 writeProductDescriptionRegistry()
 {
-  // Make a local copy of the MasterProductRegistry's ProductList,
+  // Make a local copy of the UpdateOutputCallbacks's ProductList,
   // removing any transient or pruned products.
   ProductRegistry reg;
   auto productDescriptionsToWrite = [this, &reg](BranchType const bt) {

@@ -14,7 +14,7 @@
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Framework/Principal/Worker.h"
-#include "art/Persistency/Provenance/MasterProductRegistry.h"
+#include "art/Framework/Core/UpdateOutputCallbacks.h"
 #include "art/Utilities/Globals.h"
 #include "art/Utilities/OutputFileInfo.h"
 #include "art/Utilities/Transition.h"
@@ -38,8 +38,10 @@ using namespace std;
 
 namespace art {
 
-EndPathExecutor::
-EndPathExecutor(PathManager& pm, ActionTable& actionTable, ActivityRegistry& areg, MasterProductRegistry& mpr)
+EndPathExecutor::EndPathExecutor(PathManager& pm,
+                                 ActionTable& actionTable,
+                                 ActivityRegistry& areg,
+                                 UpdateOutputCallbacks& outputCallbacks)
   : actionTable_{actionTable}
   , actReg_{areg}
   , endPathInfo_{pm.endPathInfo()}
@@ -62,7 +64,7 @@ EndPathExecutor(PathManager& pm, ActionTable& actionTable, ActivityRegistry& are
     }
   }
   outputWorkersToOpen_.insert(outputWorkers_.cbegin(), outputWorkers_.cend());
-  mpr.registerProductListUpdatedCallback([this](auto const& tables) { this->selectProducts(tables); });
+  outputCallbacks.registerCallback([this](auto const& tables) { this->selectProducts(tables); });
 }
 
 //

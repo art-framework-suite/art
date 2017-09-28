@@ -22,7 +22,7 @@
 #include "art/Framework/Services/Registry/ServiceRegistry.h"
 #include "art/Framework/Services/System/DatabaseConnection.h"
 #include "art/Framework/Services/System/FileCatalogMetadata.h"
-#include "art/Persistency/Provenance/MasterProductRegistry.h"
+#include "art/Framework/Core/UpdateOutputCallbacks.h"
 #include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
 #include "canvas/Persistency/Common/EDProduct.h"
 #include "canvas/Persistency/Provenance/BranchChildren.h"
@@ -274,7 +274,7 @@ namespace art {
                 exempt_ptr<RootInputFile> primaryFile,
                 vector<string> const& secondaryFileNames,
                 RootInputFileSequence* rifSequence,
-                MasterProductRegistry& mpr)
+                UpdateOutputCallbacks& outputCallbacks)
   : fileName_{fileName}
   , catalog_{catalogName}
   , processConfiguration_{processConfiguration}
@@ -451,9 +451,9 @@ namespace art {
     };
     for_each_branch_type(set_validity_then_add_branch);
 
-    // Update MasterProductRegistry, with adjusted BranchDescription
+    // Invoke output callbacks with adjusted BranchDescription
     // validity values.
-    mpr.updateFromInputFile(presentProducts_);
+    outputCallbacks.invoke(presentProducts_);
 
     // Determine if this file is fast clonable.
     fastClonable_ = setIfFastClonable(fcip);

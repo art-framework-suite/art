@@ -27,7 +27,7 @@
 #include "art/Framework/Principal/OpenRangeSetHandler.h"
 #include "art/Framework/Principal/RangeSetHandler.h"
 #include "art/Framework/Principal/Worker.h"
-#include "art/Persistency/Provenance/MasterProductRegistry.h"
+#include "art/Framework/Core/UpdateOutputCallbacks.h"
 #include "art/Utilities/Transition.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
 #include "canvas/Persistency/Provenance/ProductList.h"
@@ -44,7 +44,7 @@ class EndPathExecutor {
 
 public:
 
-  EndPathExecutor(PathManager& pm, ActionTable& actions, ActivityRegistry& areg, MasterProductRegistry& mpr);
+  EndPathExecutor(PathManager& pm, ActionTable& actions, ActivityRegistry& areg, UpdateOutputCallbacks& callbacks);
 
 public: // MEMBER FUNCTIONS -- Begin/End Job
 
@@ -58,7 +58,7 @@ public: // MEMBER FUNCTIONS -- Begin/End Job
 
 public: // MEMBER FUNCTIONS -- Input File Open/Close.
 
-  // Called by MasterProductRegistry product list updaters (on input file open).
+  // Called by UpdateOutputCallbacks product list updaters (on input file open).
   void
   selectProducts(ProductTables const&);
 

@@ -117,7 +117,7 @@ public: // MEMBER FUNCTIONS -- Serial Access Interface -- NOT IMPLEMENTED
   // Open next file
   //virtual
   //std::unique_ptr<FileBlock>
-  //readFile(MasterProductRegistry&) override;
+  //readFile(UpdateOutputCallbacks&) override;
 
   // Not Implemented
   // Close current file

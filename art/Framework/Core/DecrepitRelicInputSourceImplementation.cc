@@ -184,7 +184,7 @@ namespace art {
 
   // Return a dummy file block.
   // This function must be overridden for any input source that reads a file
-  // containing Products. Such a function should update the MasterProductRegistry
+  // containing Products. Such a function should update the UpdateOutputCallbacks
   // to reflect the products found in this new file.
   unique_ptr<FileBlock>
   DecrepitRelicInputSourceImplementation::
