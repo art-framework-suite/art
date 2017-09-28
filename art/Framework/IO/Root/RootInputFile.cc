@@ -10,6 +10,7 @@
 #include "art/Framework/IO/Root/RootDelayedReader.h"
 #include "art/Framework/IO/Root/RootFileBlock.h"
 #include "art/Framework/IO/Root/checkDictionaries.h"
+#include "art/Framework/IO/Root/detail/getObjectRequireDict.h"
 #include "art/Framework/IO/Root/detail/readFileIndex.h"
 #include "art/Framework/IO/Root/detail/readMetadata.h"
 #include "art/Framework/IO/Root/detail/resolveRangeSet.h"
@@ -39,6 +40,7 @@
 #include "canvas/Utilities/Exception.h"
 #include "canvas/Utilities/FriendlyName.h"
 #include "canvas_root_io/Streamers/ProductIDStreamer.h"
+#include "canvas_root_io/Utilities/DictionaryChecker.h"
 #include "cetlib/container_algorithms.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/ParameterSetID.h"
@@ -459,6 +461,14 @@ namespace art {
     fastClonable_ = setIfFastClonable(fcip);
     reportOpened();
 
+    // Check if dictionaries exist for the auxiliary objects
+    root::DictionaryChecker checker{};
+    checker.checkDictionaries<EventAuxiliary>();
+    checker.checkDictionaries<SubRunAuxiliary>();
+    checker.checkDictionaries<RunAuxiliary>();
+    checker.checkDictionaries<ResultsAuxiliary>();
+    checker.reportMissingDictionaries();
+
     // FIXME: This probably is unnecessary!
     configureProductIDStreamer();
   }
@@ -556,14 +566,9 @@ namespace art {
   RootInputFile::
   fillAuxiliary_Event(EntryNumber const entry)
   {
-    //using AUX = tuple_element_t<InEvent, decltype(auxiliaries_)>;
-    //auto& aux = get<InEvent>(auxiliaries_);
-    //aux = treePointers_[InEvent]->getAux_Event(entry);
-    //eventAux_ = treePointers_[InEvent]->getAux_Event(entry);
     auto auxbr = treePointers_[InEvent]->auxBranch();
     auto pAux = &eventAux_;
     auxbr->SetAddress(&pAux);
-    //setEntryNumber(entry);
     input::getEntry(auxbr, entry);
   }
 
@@ -571,14 +576,9 @@ namespace art {
   RootInputFile::
   fillAuxiliary_SubRun(EntryNumber const entry)
   {
-    //using AUX = tuple_element_t<InSubRun, decltype(auxiliaries_)>;
-    //auto& aux = get<InSubRun>(auxiliaries_);
-    //aux = treePointers_[InSubRun]->getAux_SubRun(entry);
-    //subRunAux_ = treePointers_[InSubRun]->getAux_SubRun(entry);
     auto auxbr = treePointers_[InSubRun]->auxBranch();
     auto pAux = &subRunAux_;
     auxbr->SetAddress(&pAux);
-    //setEntryNumber(entry);
     input::getEntry(auxbr, entry);
   }
 
@@ -586,14 +586,9 @@ namespace art {
   RootInputFile::
   fillAuxiliary_Run(EntryNumber const entry)
   {
-    //using AUX = tuple_element_t<InRun, decltype(auxiliaries_)>;
-    //auto& aux = get<InRun>(auxiliaries_);
-    //aux = treePointers_[InRun]->getAux_Run(entry);
-    //runAux_ = treePointers_[InRun]->getAux_Run(entry);
     auto auxbr = treePointers_[InRun]->auxBranch();
     auto pAux = &runAux_;
     auxbr->SetAddress(&pAux);
-    //setEntryNumber(entry);
     input::getEntry(auxbr, entry);
   }
 
@@ -601,14 +596,9 @@ namespace art {
   RootInputFile::
   fillAuxiliary_Results(EntryNumber const entry)
   {
-    //using AUX = tuple_element_t<InResults, decltype(auxiliaries_)>;
-    //auto& aux = get<InResults>(auxiliaries_);
-    //aux = treePointers_[InResults]->getAux_Results(entry);
-    //resultsAux_ = treePointers_[InResults]->getAux_Results(entry);
     auto auxbr = treePointers_[InResults]->auxBranch();
     auto pAux = &resultsAux_;
     auxbr->SetAddress(&pAux);
-    //setEntryNumber(entry);
     input::getEntry(auxbr, entry);
   }
 
@@ -616,17 +606,11 @@ namespace art {
   RootInputFile::
   fillAuxiliary_SubRun(EntryNumbers const& entries)
   {
-    //using AUX = tuple_element_t<InSubRun, decltype(auxiliaries_)>;
-    //auto& aux = get<InSubRun>(auxiliaries_);
-    //return treePointers_[InSubRun]->fillAux_SubRun(fileFormatVersion_, entries, sqliteDB_, fileName_, aux);
-    //return treePointers_[InSubRun]->fillAux_SubRun(fileFormatVersion_, entries, sqliteDB_, fileName_, subRunAux_);
-    //auto auxResult = getAux_SubRun(entries[0]);
     SubRunAuxiliary auxResult{};
     {
       auto auxbr = treePointers_[InSubRun]->auxBranch();
       auto pAux = &auxResult;
       auxbr->SetAddress(&pAux);
-      //setEntryNumber(entry);
       input::getEntry(auxbr, entries[0]);
     }
     if (fileFormatVersion_.value_ < 9) {
@@ -638,13 +622,11 @@ namespace art {
     };
     auto rangeSetInfo = resolve_info(auxResult.rangeSetID());
     for (auto i = entries.cbegin() + 1, e = entries.cend(); i != e; ++i) {
-      //auto const& tmpAux = getAux_SubRun(*i);
       SubRunAuxiliary tmpAux{};
       {
         auto auxbr = treePointers_[InSubRun]->auxBranch();
         auto pAux = &tmpAux;
         auxbr->SetAddress(&pAux);
-        //setEntryNumber(entry);
         input::getEntry(auxbr, *i);
       }
       detail::mergeAuxiliary(auxResult, tmpAux);
@@ -659,16 +641,11 @@ namespace art {
   RootInputFile::
   fillAuxiliary_Run(EntryNumbers const& entries)
   {
-    //using AUX = tuple_element_t<InRun, decltype(auxiliaries_)>;
-    //auto& aux = get<InRun>(auxiliaries_);
-    //return treePointers_[InRun]->fillAux_Run(fileFormatVersion_, entries, sqliteDB_, fileName_, aux);
-    //auto auxResult = getAux_Run(entries[0]);
     RunAuxiliary auxResult{};
     {
       auto auxbr = treePointers_[InRun]->auxBranch();
       auto pAux = &auxResult;
       auxbr->SetAddress(&pAux);
-      //setEntryNumber(entry);
       input::getEntry(auxbr, entries[0]);
     }
     if (fileFormatVersion_.value_ < 9) {
@@ -680,13 +657,11 @@ namespace art {
     };
     auto rangeSetInfo = resolve_info(auxResult.rangeSetID());
     for (auto i = entries.cbegin() + 1, e = entries.cend(); i != e; ++i) {
-      //auto const& tmpAux = getAux_Run(*i);
       RunAuxiliary tmpAux{};
       {
         auto auxbr = treePointers_[InRun]->auxBranch();
         auto pAux = &tmpAux;
         auxbr->SetAddress(&pAux);
-        //setEntryNumber(entry);
         input::getEntry(auxbr, *i);
       }
       detail::mergeAuxiliary(auxResult, tmpAux);
@@ -809,10 +784,11 @@ namespace art {
       << couldNotFindTree(rootNames::parentageTreeName());
     }
     parentageTree->SetCacheSize(static_cast<Long64_t>(treeCacheSize));
-    ParentageID idBuffer;
+    auto idBuffer = root::getObjectRequireDict<ParentageID>();
     auto pidBuffer = &idBuffer;
     parentageTree->SetBranchAddress(rootNames::parentageIDBranchName().c_str(), &pidBuffer);
-    Parentage parentageBuffer;
+
+    auto parentageBuffer = root::getObjectRequireDict<Parentage>();
     auto pParentageBuffer = &parentageBuffer;
     parentageTree->SetBranchAddress(rootNames::parentageBranchName().c_str(), &pParentageBuffer);
     // Fill the registry

@@ -5,6 +5,7 @@ art_make_library(
   SOURCE
   detail/DummyProductCache.cc
   detail/getEntry.cc
+  detail/getObjectRequireDict.cc
   detail/resolveRangeSet.cc
   detail/rootFileSizeTools.cc
   detail/rootOutputConfigurationTools.cc

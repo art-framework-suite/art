@@ -1,7 +1,9 @@
 #ifndef art_Framework_IO_Root_detail_readMetadata_h
 #define art_Framework_IO_Root_detail_readMetadata_h
 
+#include "art/Framework/IO/Root/detail/getObjectRequireDict.h"
 #include "canvas/Persistency/Provenance/rootNames.h"
+#include "canvas/Utilities/TypeID.h"
 #include "TBranch.h"
 
 namespace art {
@@ -12,7 +14,7 @@ namespace art {
       auto branch = md->GetBranch(art::rootNames::metaBranchRootName<T>());
       assert(branch != nullptr);
 
-      T mdField{};
+      auto mdField = root::getObjectRequireDict<T>();
       auto field_ptr = &mdField;
       branch->SetAddress(&field_ptr);
       input::getEntry(branch, 0);
@@ -28,7 +30,7 @@ namespace art {
         return false;
       }
 
-      T mdField{};
+      auto mdField = root::getObjectRequireDict<T>();
       auto field_ptr = &mdField;
       branch->SetAddress(&field_ptr);
       input::getEntry(branch, 0);
