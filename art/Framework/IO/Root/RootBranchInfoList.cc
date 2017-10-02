@@ -42,9 +42,9 @@ void art::RootBranchInfoList::reset(TTree *tree) {
 }
 
 bool
-art::RootBranchInfoList::findBranchInfo(TypeID const &type,
-                                        InputTag const &tag,
-                                        RootBranchInfo &rbInfo) const
+art::RootBranchInfoList::findBranchInfo(TypeID const& type,
+                                        InputTag const& tag,
+                                        RootBranchInfo& rbInfo) const
 {
   std::ostringstream pat_s;
   pat_s << '^'

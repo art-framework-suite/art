@@ -20,21 +20,20 @@ public:
   void reset(TTree *tree);
 
   template <class PROD>
-  bool findBranchInfo(InputTag const &tag, RootBranchInfo &rbInfo) const;
+  bool findBranchInfo(InputTag const& tag, RootBranchInfo& rbInfo) const;
 
-  bool findBranchInfo(TypeID const &type,
-                      InputTag const &tag,
-                      RootBranchInfo &rbInfo) const;
+  bool findBranchInfo(TypeID const& type,
+                      InputTag const& tag,
+                      RootBranchInfo& rbInfo) const;
 private:
-  typedef std::vector<RootBranchInfo> Data_t;
-  Data_t data_;
+  std::vector<RootBranchInfo> data_;
 };
 
 template <class PROD>
 bool
-art::RootBranchInfoList::findBranchInfo(InputTag const &tag,
-                                        RootBranchInfo &rbInfo) const {
-  return findBranchInfo(TypeID(typeid(PROD)),
+art::RootBranchInfoList::findBranchInfo(InputTag const& tag,
+                                        RootBranchInfo& rbInfo) const {
+  return findBranchInfo(TypeID{typeid(PROD)},
                         tag,
                         rbInfo);
 }

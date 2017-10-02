@@ -1,6 +1,11 @@
-art_make_library( LIBRARY_NAME art_Framework_IO_ProductMix
-                  SOURCE MixHelper.cc MixOpBase.cc ProdToProdMapBuilder.cc
-                  LIBRARIES art_Framework_IO_Root
+art_make_library(LIBRARY_NAME art_Framework_IO_ProductMix
+  SOURCE
+  MixHelper.cc
+  MixOpBase.cc
+  ProdToProdMapBuilder.cc
+  detail/checkForMissingDictionaries.cc
+  LIBRARIES
+  art_Framework_IO_Root
   art_Framework_Services_System_CurrentModule_service
   art_Framework_Services_System_TriggerNamesService_service
   art_Framework_Services_Optional_RandomNumberGenerator_service
@@ -12,8 +17,9 @@ art_make_library( LIBRARY_NAME art_Framework_IO_ProductMix
   art_Utilities
   MF_MessageLogger
   fhiclcpp
-  cetlib
-  )
+  canvas
+  canvas_root_io
+  cetlib)
 
 art_dictionary(DICTIONARY_LIBRARIES art_Persistency_Provenance canvas)
 

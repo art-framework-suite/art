@@ -270,11 +270,7 @@ namespace art {
     readEventHistoryTree(treeCacheSize);
 
     // Read the ProductList
-    // -- The 'false' value signifies that we do not check for a
-    //    dictionary here.  The reason is that the BranchDescription
-    //    class has an enumeration data member, and current checking
-    //    for enum dictionaries is problematic.
-    productListHolder_ = detail::readMetadata<ProductRegistry>(metaDataTree, false);
+    productListHolder_ = detail::readMetadata<ProductRegistry>(metaDataTree);
     auto& prodList = productListHolder_.productList_;
     dropOnInput(groupSelectorRules, dropDescendants, prodList);
 

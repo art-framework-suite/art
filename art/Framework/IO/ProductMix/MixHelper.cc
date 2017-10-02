@@ -74,7 +74,7 @@ EventIDLookup::result_type
 EventIDLookup::operator()(argument_type entry) const
 {
   auto i = index_.find(entry);
-  if (i == index_.end()) {
+  if (i == cend(index_)) {
     throw art::Exception(art::errors::LogicError)
         << "MixHelper could not find entry number "
         << entry
@@ -173,7 +173,7 @@ art::MixHelper::generateEventSequence(size_t const nSecondaries,
   case Mode::RANDOM_REPLACE:
     std::generate_n(std::back_inserter(enSeq),
                     nSecondaries,
-                    [this]() { return dist_.get()->fireInt(nEventsInFile_); });
+                    [this] { return dist_.get()->fireInt(nEventsInFile_); });
     std::sort(enSeq.begin(), enSeq.end());
     break;
   case Mode::RANDOM_LIM_REPLACE:
@@ -182,10 +182,10 @@ art::MixHelper::generateEventSequence(size_t const nSecondaries,
     while (entries.size() < nSecondaries) {
       std::generate_n(std::inserter(entries, entries.begin()),
                       nSecondaries - entries.size(),
-                      [this]() { return dist_.get()->fireInt(nEventsInFile_); });
+                      [this] { return dist_.get()->fireInt(nEventsInFile_); });
     }
-    enSeq.assign(entries.cbegin(), entries.cend());
-    std::sort(enSeq.begin(), enSeq.end());
+    enSeq.assign(cbegin(entries), cend(entries));
+    std::sort(begin(enSeq), end(enSeq));
     // Since we need to sort at the end anyway, it's unclear whether
     // unordered_set is faster than set even though inserts are
     // approximately linear time. Since the complexity of the sort is
@@ -196,7 +196,7 @@ art::MixHelper::generateEventSequence(size_t const nSecondaries,
   break;
   case Mode::RANDOM_NO_REPLACE:
   {
-    auto i = shuffledSequence_.cbegin() + nEventsReadThisFile_;
+    auto i = cbegin(shuffledSequence_) + nEventsReadThisFile_;
     enSeq.assign(i, i + nSecondaries);
   }
   break;
@@ -224,10 +224,9 @@ art::MixHelper::generateEventAuxiliarySequence(EntryNumberSequence const& enseq,
   for (auto const entry : enseq) {
     auto err = eventTree->LoadTree(entry);
     if (err == -2) {
-      // FIXME: Throw an error here!
+      // FIXME: Throw an error here, taking care to disconnect the
+      // branch from the i/o buffer.
       // FIXME: -2 means entry number too big.
-      // Disconnect the branch from the i/o buffer.
-      //auxBranch->SetAddress(0);
     }
     // Note: Root will overwrite the old event
     //       auxiliary with the new one.
@@ -237,7 +236,7 @@ art::MixHelper::generateEventAuxiliarySequence(EntryNumberSequence const& enseq,
     auxseq.push_back(*pAux);
   }
   // Disconnect the branch from the i/o buffer.
-  auxBranch->SetAddress(0);
+  auxBranch->SetAddress(nullptr);
 }
 
 void
