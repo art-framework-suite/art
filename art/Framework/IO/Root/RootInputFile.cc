@@ -426,9 +426,11 @@ namespace art {
     readEventHistoryTree(treeCacheSize);
 
     // Read the ProductList
-    // Note: we only need the product list, not the ProductRegistry
-    // object.
-    auto productList = detail::readMetadata<ProductRegistry>(metaDataTree).productList_;
+    // -- The 'false' value signifies that we do not check for a
+    //    dictionary here.  The reason is that the BranchDescription
+    //    class has an enumeration data member, and current checking
+    //    for enum dictionaries is problematic.
+    auto productList = detail::readMetadata<ProductRegistry>(metaDataTree, false).productList_;
 
     // Create product table for present products
     auto const& descriptions = make_product_descriptions(productList);
