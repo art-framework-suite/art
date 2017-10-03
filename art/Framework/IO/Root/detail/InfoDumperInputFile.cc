@@ -149,7 +149,7 @@ art::detail::InfoDumperInputFile::print_branchIDLists(std::ostream& os) const
 }
 
 void
-art::detail::InfoDumperInputFile::print_range_sets(std::ostream& os) const
+art::detail::InfoDumperInputFile::print_range_sets(std::ostream& os, bool const compactRanges) const
 {
   if (fileFormatVersion_.value_ < 9) {
     std::ostringstream oss;
@@ -160,7 +160,7 @@ art::detail::InfoDumperInputFile::print_range_sets(std::ostream& os) const
   }
 
   auto* tree = static_cast<TTree*>(file_->Get(BranchTypeToProductTreeName(InRun).c_str()));
-  SQLite3Wrapper db {file_.get(), "RootFileDB"};
+  SQLite3Wrapper db{file_.get(), "RootFileDB"};
 
   auto it = fileIndex_.cbegin();
   auto const cend = fileIndex_.cend();
@@ -171,7 +171,7 @@ art::detail::InfoDumperInputFile::print_range_sets(std::ostream& os) const
       continue;
     }
     auto const& entries = getEntryNumbers(it, cend);
-    auto const& rs = getRangeSet(tree, entries, db, file_->GetName());
+    auto const& rs = getRangeSet(tree, entries, db, file_->GetName(), compactRanges);
     os << rs << '\n';
   }
 }
@@ -192,19 +192,20 @@ art::RangeSet
 art::detail::InfoDumperInputFile::getRangeSet(TTree* tree,
                                               EntryNumbers const& entries,
                                               sqlite3* db,
-                                              std::string const& filename) const
+                                              std::string const& filename,
+                                              bool const compactRanges) const
 {
-  auto resolve_info = [db,&filename](auto const id) {
-    return detail::resolveRangeSetInfo(db, filename, InRun, id);
+  auto resolve_info = [db,&filename](auto const id, bool const compact) {
+    return detail::resolveRangeSetInfo(db, filename, InRun, id, compact);
   };
 
   auto auxResult = getAuxiliary(tree, entries[0]);
-  auto rangeSetInfo = resolve_info(auxResult.rangeSetID());
+  auto rangeSetInfo = resolve_info(auxResult.rangeSetID(), compactRanges);
 
   for(auto i = entries.cbegin()+1, e = entries.cend(); i!=e; ++i) {
     auto const& tmpAux = getAuxiliary(tree, *i);
     auxResult.mergeAuxiliary(tmpAux);
-    rangeSetInfo.update(resolve_info(tmpAux.rangeSetID()));
+    rangeSetInfo.update(resolve_info(tmpAux.rangeSetID(), compactRanges));
   }
 
   return resolveRangeSet(rangeSetInfo);

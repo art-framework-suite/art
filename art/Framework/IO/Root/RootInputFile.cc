@@ -102,6 +102,7 @@ namespace art {
                 unique_ptr<TFile>&& filePtr,
                 EventID const& origEventID,
                 unsigned int eventsToSkip,
+                bool const compactSubRunRanges,
                 FastCloningInfoProvider const& fcip,
                 unsigned int treeCacheSize,
                 int64_t treeMaxVirtualSize,
@@ -127,11 +128,12 @@ namespace art {
   , filePtr_{std::move(filePtr)}
   , origEventID_{origEventID}
   , eventsToSkip_{eventsToSkip}
+  , compactSubRunRanges_{compactSubRunRanges}
   , treePointers_ { // Order (and number) must match BranchTypes.h!
-      std::make_unique<RootInputTree>(filePtr_.get(), InEvent, saveMemoryObjectThreshold, this),
-      std::make_unique<RootInputTree>(filePtr_.get(), InSubRun, saveMemoryObjectThreshold, this),
-      std::make_unique<RootInputTree>(filePtr_.get(), InRun, saveMemoryObjectThreshold, this),
-      std::make_unique<RootInputTree>(filePtr_.get(), InResults, saveMemoryObjectThreshold, this, true /* missingOK */) }
+      std::make_unique<RootInputTree>(filePtr_.get(), InEvent, saveMemoryObjectThreshold, this, false, compactSubRunRanges_),
+      std::make_unique<RootInputTree>(filePtr_.get(), InSubRun, saveMemoryObjectThreshold, this, false, compactSubRunRanges_),
+      std::make_unique<RootInputTree>(filePtr_.get(), InRun, saveMemoryObjectThreshold, this, false, compactSubRunRanges_),
+      std::make_unique<RootInputTree>(filePtr_.get(), InResults, saveMemoryObjectThreshold, this, true /* missingOK */, compactSubRunRanges_)}
   , delayedReadEventProducts_{delayedReadEventProducts}
   , delayedReadSubRunProducts_{delayedReadSubRunProducts}
   , delayedReadRunProducts_{delayedReadRunProducts}

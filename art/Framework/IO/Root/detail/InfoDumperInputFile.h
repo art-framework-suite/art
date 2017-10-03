@@ -28,7 +28,7 @@ namespace art {
 
       InfoDumperInputFile(std::string const& filename);
       void print_process_history(std::ostream&) const;
-      void print_range_sets(std::ostream&) const;
+      void print_range_sets(std::ostream&, bool compactRanges) const;
       void print_event_list(std::ostream&) const;
       void print_file_index(std::ostream&) const;
       void print_branchIDLists(std::ostream& os) const;
@@ -40,7 +40,8 @@ namespace art {
       RangeSet getRangeSet(TTree* tree,
                            EntryNumbers const& entries,
                            sqlite3* db,
-                           std::string const& filename) const;
+                           std::string const& filename,
+                           bool compactRanges) const;
 
       std::unique_ptr<TFile> file_;
       BranchIDLists branchIDLists_{};

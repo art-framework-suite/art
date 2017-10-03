@@ -18,11 +18,13 @@ namespace art {
                                BranchType const branchType,
                                int64_t saveMemoryObjectThreshold,
                                cet::exempt_ptr<RootInputFile> primaryFile,
+                               bool const compactSubRunRanges,
                                bool const missingOK)
     : filePtr_{filePtr}
     , branchType_{branchType}
     , saveMemoryObjectThreshold_{saveMemoryObjectThreshold}
     , primaryFile_{primaryFile}
+    , compactSubRunRanges_{compactSubRunRanges}
   {
     if (filePtr_) {
       tree_ = static_cast<TTree*>(filePtr->Get(BranchTypeToProductTreeName(branchType).c_str()));
@@ -124,7 +126,8 @@ namespace art {
                                                primaryFile_,
                                                branchIDLists,
                                                branchType,
-                                               eID);
+                                               eID,
+                                               compactSubRunRanges_);
   }
 
   void

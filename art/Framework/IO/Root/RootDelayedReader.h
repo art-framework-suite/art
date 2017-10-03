@@ -44,7 +44,8 @@ namespace art {
                       cet::exempt_ptr<RootInputFile> primaryFile,
                       cet::exempt_ptr<BranchIDLists const> branchIDLists,
                       BranchType branchType,
-                      EventID);
+                      EventID,
+                      bool compactSubRunRanges);
 
 
   private: // MEMBER FUNCTIONS
@@ -68,6 +69,7 @@ namespace art {
     cet::exempt_ptr<BranchIDLists const> branchIDLists_; // Only for backwards compatibility
     BranchType branchType_;
     EventID eventID_;
+    bool const compactSubRunRanges_;
 
   };
 

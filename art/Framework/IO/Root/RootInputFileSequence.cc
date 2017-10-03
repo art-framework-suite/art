@@ -37,6 +37,7 @@ RootInputFileSequence(fhicl::TableFragment<RootInputFileSequence::Config> const&
   : catalog_{catalog}
   , fileIndexes_(fileCatalogItems().size())
   , eventsToSkip_{config().skipEvents()}
+  , compactSubRunRanges_{config().compactSubRunRanges()}
   , noEventSort_{config().noEventSort()}
   , skipBadFiles_{config().skipBadFiles()}
   , treeCacheSize_{config().cacheSize()}
@@ -348,6 +349,7 @@ initFile(bool const skipBadFiles)
                                          std::move(filePtr),
                                          origEventID_,
                                          eventsToSkip_,
+                                         compactSubRunRanges_,
                                          fastCloningInfo_,
                                          treeCacheSize_,
                                          treeMaxVirtualSize_,
@@ -406,6 +408,7 @@ openSecondaryFile(string const& name,
                                          std::move(filePtr),
                                          origEventID_,
                                          eventsToSkip_,
+                                         compactSubRunRanges_,
                                          fastCloningInfo_,
                                          treeCacheSize_,
                                          treeMaxVirtualSize_,

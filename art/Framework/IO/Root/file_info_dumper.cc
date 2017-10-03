@@ -33,7 +33,7 @@ using stringvec = vector<string>;
 
 
 int print_process_history(InfoDumperInputFile const& file, ostream& output);
-int print_range_sets(InfoDumperInputFile const& file, ostream& output);
+int print_range_sets(InfoDumperInputFile const& file, ostream& output, bool compact);
 int print_event_list(InfoDumperInputFile const& file, ostream& output);
 int print_file_index(InfoDumperInputFile const& file, ostream& output);
 int print_branchIDLists(InfoDumperInputFile const& file, ostream& output);
@@ -135,7 +135,10 @@ int main(int argc, char * argv[])
       ("event-list", "print event-list for each input file")
       ("file-index", "prints FileIndex object for each input file")
       ("process-history", "prints list of processes that produced this file (output given in chronological order)")
-      ("range-of-validity,R", "prints range of validity for each input file")
+      ("range-of-validity", bpo::value<string>()->implicit_value("full"),
+       "prints range of validity for each input file.  Allowed values are\n"
+       "  \"full\" (default)\n"
+       "  \"compact\"")
       ("branch-ids,B", "prints BranchID lists stored in the file")
       ("db-to-file",
        ("Writes RootFileDB to external SQLite database with the same base name as the input file and the suffix '.db'.\n"s +
@@ -179,7 +182,8 @@ int main(int argc, char * argv[])
     cet::copy_all(vm["source"].as<stringvec>(), std::back_inserter(file_names));
 
     enum options_t {PrintProcessHistory=0,
-                    PrintRangeSets,
+                    PrintRangeSetsFull,
+                    PrintRangeSetsCompact,
                     PrintEventList,
                     PrintFileIndex,
                     SaveDBtoFile,
@@ -189,7 +193,22 @@ int main(int argc, char * argv[])
 
     std::bitset<NumOptions> options;
     options[PrintProcessHistory] = vm.count("process-history") > 0;
-    options[PrintRangeSets] = vm.count("range-of-validity") > 0;
+    if (vm.count("range-of-validity") > 0) {
+      auto const& rov_value = vm["range-of-validity"].as<std::string>();
+      if (rov_value == "full") {
+        options.set(PrintRangeSetsFull);
+      }
+      else if (rov_value == "compact") {
+        options.set(PrintRangeSetsCompact);
+      }
+      else {
+        std::cerr << "Incorrect argument value supplied for the 'range-of-validity'\n"
+                  << "program option.  Allowed values are:\n"
+                  << "  \"full\" (default)\n"
+                  << "  \"compact\"\n";
+        return 4;
+      }
+    }
     options[PrintEventList] = vm.count("event-list") > 0;
     options[PrintFileIndex] = vm.count("file-index") > 0;
     options[SaveDBtoFile] = vm.count("db-to-file") > 0;
@@ -199,12 +218,12 @@ int main(int argc, char * argv[])
     if (options.none()) {
       std::cerr << "No options were specified for processing input files.\n"
                 << "For usage and options list, please do '"<< argv[0] << " --help'.\n";
-      return 4;
+      return 5;
     }
 
     if (options.test(PrintEventList) && options.test(PrintFileIndex)) {
       std::cerr << "The --event-list and --file-index options are mutually exclusive.\n";
-      return 5;
+      return 6;
     }
 
     SetErrorHandler(RootErrorHandler);
@@ -220,7 +239,8 @@ int main(int argc, char * argv[])
              << "File: " <<  printed_name << '\n';
       InfoDumperInputFile const file{fn};
       if (options.test(PrintProcessHistory)) rc += print_process_history(file, output);
-      if (options.test(PrintRangeSets)) rc += print_range_sets(file, output);
+      if (options.test(PrintRangeSetsFull)) rc += print_range_sets(file, output, false);
+      if (options.test(PrintRangeSetsCompact)) rc += print_range_sets(file, output, true);
       if (options.test(PrintFileIndex)) rc += print_file_index(file, output);
       if (options.test(PrintEventList)) rc += print_event_list(file, output);
       if (options.test(SaveDBtoFile)) rc += db_to_file(file, output, errors);
@@ -246,9 +266,10 @@ int print_process_history(InfoDumperInputFile const& file,
 }
 
 int print_range_sets(InfoDumperInputFile const& file,
-                     ostream& output)
+                     ostream& output,
+                     bool const compactRanges)
 {
-  file.print_range_sets(output);
+  file.print_range_sets(output, compactRanges);
   return 0;
 }
 

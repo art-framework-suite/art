@@ -63,14 +63,16 @@ namespace art {
     RangeSetInfo resolveRangeSetInfo(sqlite3*,
                                      std::string const& filename,
                                      BranchType,
-                                     unsigned RangeSetID);
+                                     unsigned RangeSetID,
+                                     bool compact);
 
     RangeSet resolveRangeSet(RangeSetInfo const& rs);
 
     RangeSet resolveRangeSet(sqlite3*,
                              std::string const& filename,
                              BranchType,
-                             unsigned rangeSetID);
+                             unsigned rangeSetID,
+                             bool compact);
 
   }
 }

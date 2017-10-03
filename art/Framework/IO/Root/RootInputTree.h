@@ -75,10 +75,11 @@ namespace art {
     using EntryNumbers = input::EntryNumbers;
 
     RootInputTree(cet::exempt_ptr<TFile>,
-             BranchType,
-             int64_t saveMemoryObjectThreshold,
-             cet::exempt_ptr<RootInputFile>,
-             bool missingOK = false);
+                  BranchType,
+                  int64_t saveMemoryObjectThreshold,
+                  cet::exempt_ptr<RootInputFile>,
+                  bool compactSubRunRanges = false,
+                  bool missingOK = false);
     RootInputTree(RootInputTree const&) = delete;
     RootInputTree& operator=(RootInputTree const&) = delete;
 
@@ -172,15 +173,15 @@ namespace art {
         return std::make_unique<OpenRangeSetHandler>(aux.run());
       }
 
-      auto resolve_info = [db,&filename](auto const id) {
-        return detail::resolveRangeSetInfo(db, filename, AUX::branch_type, id);
+      auto resolve_info = [db, &filename](auto const id, bool const compactSubRunRanges) {
+        return detail::resolveRangeSetInfo(db, filename, AUX::branch_type, id, compactSubRunRanges);
       };
 
-      auto rangeSetInfo = resolve_info(auxResult.rangeSetID());
+      auto rangeSetInfo = resolve_info(auxResult.rangeSetID(), compactSubRunRanges_);
       for (auto i = entries.cbegin()+1, e = entries.cend(); i!=e; ++i) {
         auto const& tmpAux = getAux<AUX>(*i);
         detail::mergeAuxiliary(auxResult, tmpAux);
-        rangeSetInfo.update(resolve_info(tmpAux.rangeSetID()));
+        rangeSetInfo.update(resolve_info(tmpAux.rangeSetID(), compactSubRunRanges_));
       }
 
       auxResult.setRangeSetID(-1u); // Range set of new auxiliary is invalid
@@ -211,6 +212,7 @@ namespace art {
     EntryNumber entryNumber_ {-1};
     BranchMap branches_{};
     cet::exempt_ptr<RootInputFile> primaryFile_;
+    bool const compactSubRunRanges_;
   };
 
 } // namespace art

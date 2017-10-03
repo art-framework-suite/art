@@ -29,7 +29,8 @@ namespace art {
                                        cet::exempt_ptr<RootInputFile> primaryFile,
                                        cet::exempt_ptr<BranchIDLists const> bidLists,
                                        BranchType const branchType,
-                                       EventID const eID)
+                                       EventID const eID,
+                                       bool const compactSubRunRanges)
   : fileFormatVersion_{version}
   , db_{db}
   , entrySet_{entrySet}
@@ -40,6 +41,7 @@ namespace art {
   , branchIDLists_{bidLists}
   , branchType_{branchType}
   , eventID_{eID}
+  , compactSubRunRanges_{compactSubRunRanges}
   {}
 
   void
@@ -104,13 +106,14 @@ namespace art {
       RangeSet mergedRangeSet = detail::resolveRangeSet(db_,
                                                         "SomeInput"s,
                                                         branchType_,
-                                                        result->getRangeSetID());
+                                                        result->getRangeSetID(),
+                                                        compactSubRunRanges_);
 
       for (auto it = entrySet_.cbegin()+1, e = entrySet_.cend(); it!= e; ++it) {
         auto p = get_product(*it);
         auto const id = p->getRangeSetID();
 
-        RangeSet const& newRS = detail::resolveRangeSet(db_, "SomeInput"s, branchType_, id);
+        RangeSet const& newRS = detail::resolveRangeSet(db_, "SomeInput"s, branchType_, id, compactSubRunRanges_);
         if (!mergedRangeSet.is_valid() && newRS.is_valid()) {
           mergedRangeSet = newRS;
           std::swap(result, p);

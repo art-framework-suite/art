@@ -59,6 +59,7 @@ public: // MEMBER FUNCTIONS
 
     TableFragment<DuplicateChecker::Config> dc;
     Atom<EventNumber_t> skipEvents { Name("skipEvents"), 0 };
+    Atom<bool> compactSubRunRanges { Name("compactEventRanges"), false }; // FIXME--add comment.
     Atom<bool> noEventSort { Name("noEventSort"), false };
     Atom<bool> skipBadFiles { Name("skipBadFiles"), false };
     Atom<unsigned> cacheSize { Name("cacheSize"), 0u };
@@ -251,6 +252,7 @@ private: // MEMBER DATA
   int eventsRemainingInFile_ {};
   EventID origEventID_ {};
   EventNumber_t eventsToSkip_;
+  bool const compactSubRunRanges_;
   bool const noEventSort_;
   bool const skipBadFiles_;
   unsigned int const treeCacheSize_;

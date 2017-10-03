@@ -48,7 +48,8 @@ art::detail::RangeSetInfo
 art::detail::resolveRangeSetInfo(sqlite3* db,
                                  std::string const& filename,
                                  BranchType const bt,
-                                 unsigned const rangeSetID)
+                                 unsigned const rangeSetID,
+                                 bool const compact)
 {
   // Invalid rangeSetID check
   if (rangeSetID == std::numeric_limits<unsigned>::max())
@@ -65,9 +66,12 @@ art::detail::resolveRangeSetInfo(sqlite3* db,
   rc = sqlite3_finalize(stmt);
   successful_finalize(rc, sqlite3_errmsg(db), filename);
 
-  std::string const ddl {"SELECT SubRun, begin, end FROM EventRanges WHERE rowid IN"
+  std::string const result_column_begin{compact ? "min(begin)" : "begin"};
+  std::string const result_column_end{compact ? "max(end)" : "end"};
+  std::string const maybe_suffix{compact ? " GROUP BY SubRun" : ""};
+  std::string const ddl{"SELECT SubRun,"+result_column_begin+','+result_column_end+" FROM EventRanges WHERE rowid IN"
       "(SELECT EventRangesID FROM "+BranchTypeToString(bt)+"RangeSets_EventRanges WHERE RangeSetsID=="
-      + std::to_string(rangeSetID) + ");"};
+      + std::to_string(rangeSetID) + ')' + maybe_suffix + ';'};
   rc = sqlite3_prepare_v2(db, ddl.c_str(), -1, &stmt, nullptr);
   successful_prepare(rc, filename, ddl);
 
@@ -98,8 +102,9 @@ art::RangeSet
 art::detail::resolveRangeSet(sqlite3* db,
                              std::string const& filename,
                              BranchType const bt,
-                             unsigned const rangeSetID)
+                             unsigned const rangeSetID,
+                             bool const compact)
 {
-  auto const& rsInfo = resolveRangeSetInfo(db, filename, bt, rangeSetID);
+  auto const& rsInfo = resolveRangeSetInfo(db, filename, bt, rangeSetID, compact);
   return resolveRangeSet(rsInfo);
 }
