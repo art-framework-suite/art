@@ -7,6 +7,7 @@ art_make_library(
   detail/KeptProvenance.cc
   detail/getEntry.cc
   detail/getObjectRequireDict.cc
+  detail/rangeSetFromFileIndex.cc
   detail/resolveRangeSet.cc
   detail/rootFileSizeTools.cc
   detail/rootOutputConfigurationTools.cc

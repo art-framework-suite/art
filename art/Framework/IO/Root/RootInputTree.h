@@ -11,9 +11,9 @@
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/IO/Root/BranchMapperWithReader.h"
 #include "art/Framework/IO/Root/Inputfwd.h"
+#include "art/Framework/IO/Root/detail/rangeSetFromFileIndex.h"
 #include "art/Framework/IO/Root/detail/resolveRangeSet.h"
 #include "art/Framework/Principal/ClosedRangeSetHandler.h"
-#include "art/Framework/Principal/OpenRangeSetHandler.h"
 #include "art/Framework/Principal/Principal.h"
 #include "canvas/Persistency/Provenance/BranchKey.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
@@ -163,14 +163,15 @@ namespace art {
     template<typename AUX>
     std::unique_ptr<RangeSetHandler> fillAux(FileFormatVersion const fileFormatVersion,
                                              EntryNumbers const& entries,
+                                             FileIndex const& fileIndex,
                                              sqlite3* db,
                                              std::string const& filename,
                                              AUX& aux)
     {
       auto auxResult = getAux<AUX>(entries[0]);
       if (fileFormatVersion.value_ < 9) {
-        std::swap(aux, auxResult);
-        return std::make_unique<OpenRangeSetHandler>(aux.run());
+        auto const& rs = detail::rangeSetFromFileIndex(fileIndex, auxResult.id(), compactSubRunRanges_);
+        return std::make_unique<ClosedRangeSetHandler>(rs);
       }
 
       auto resolve_info = [db, &filename](auto const id, bool const compactSubRunRanges) {

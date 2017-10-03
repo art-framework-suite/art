@@ -52,6 +52,8 @@ namespace art {
     OpenRangeSetHandler(OpenRangeSetHandler&&) = default;
     OpenRangeSetHandler& operator=(OpenRangeSetHandler&&) = default;
 
+    void addRange(EventRange const& range);
+
   private:
 
     RangeSet do_getSeenRanges() const override;
@@ -61,8 +63,8 @@ namespace art {
     void do_maybeSplitRange() override {}
     void do_rebase() override;
 
-    RangeSet ranges_ {RangeSet::invalid()};
-    RangeSet::const_iterator rsIter_ {ranges_.begin()};
+    RangeSet ranges_{RangeSet::invalid()};
+    RangeSet::const_iterator rsIter_{ranges_.begin()};
   };
 
 }

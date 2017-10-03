@@ -206,6 +206,7 @@ namespace art {
       auto& aux = std::get<BT>(auxiliaries_);
       return treePointers_[BT]->fillAux<AUX>(fileFormatVersion_,
                                              entries,
+                                             fileIndex_,
                                              sqliteDB_,
                                              fileName_,
                                              aux);

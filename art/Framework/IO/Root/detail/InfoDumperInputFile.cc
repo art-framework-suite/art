@@ -1,15 +1,20 @@
 #include "art/Framework/IO/Root/detail/InfoDumperInputFile.h"
 #include "art/Framework/IO/Root/detail/resolveRangeSet.h"
+#include "art/Framework/IO/Root/detail/rangeSetFromFileIndex.h"
 #include "art/Framework/IO/Root/detail/readFileIndex.h"
 #include "art/Framework/IO/Root/detail/readMetadata.h"
+#include "art/Framework/Principal/OpenRangeSetHandler.h"
 #include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
 #include "art/Persistency/Provenance/orderedProcessNamesCollection.h"
 #include "art/Framework/IO/Root/RootDB/SQLite3Wrapper.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
 #include "canvas/Persistency/Provenance/rootNames.h"
 #include "canvas/Utilities/Exception.h"
+#include "cetlib/HorizontalRule.h"
 
+#include <algorithm>
 #include <iomanip>
+#include <iostream>
 
 namespace {
 
@@ -151,25 +156,33 @@ art::detail::InfoDumperInputFile::print_branchIDLists(std::ostream& os) const
 void
 art::detail::InfoDumperInputFile::print_range_sets(std::ostream& os, bool const compactRanges) const
 {
+  auto it = fileIndex_.cbegin();
+  auto const cend = fileIndex_.cend();
+
   if (fileFormatVersion_.value_ < 9) {
-    std::ostringstream oss;
-    oss << "Range-set information is not available for art/ROOT files with a format\n"
-        << "version of \"" << fileFormatVersion_ << "\".\n";
-    throw Exception{errors::FileReadError, "InfoDumperInputFile::print_range_sets"}
-    << oss.str();
+    os << '\n'
+       << "*** This file has a format version of \"" << fileFormatVersion_ << "\" and therefore\n"
+       << "*** does not contain range-set information.  The printout below is\n"
+       << "*** the range set art would assign to this file.\n\n"
+       << cet::HorizontalRule{80}('=') << '\n';
+
+    for (auto const& element : fileIndex_) {
+      if (element.getEntryType() != art::FileIndex::kRun) continue;
+      auto const& rs = rangeSetFromFileIndex(fileIndex_, element.eventID_.runID(), compactRanges);
+      os << rs << '\n';
+    }
+    return;
   }
 
   auto* tree = static_cast<TTree*>(file_->Get(BranchTypeToProductTreeName(InRun).c_str()));
   SQLite3Wrapper db{file_.get(), "RootFileDB"};
-
-  auto it = fileIndex_.cbegin();
-  auto const cend = fileIndex_.cend();
 
   while (it != cend) {
     if (it->getEntryType() != art::FileIndex::kRun) {
       ++it;
       continue;
     }
+    // getEntryNumbers increments iterator!
     auto const& entries = getEntryNumbers(it, cend);
     auto const& rs = getRangeSet(tree, entries, db, file_->GetName(), compactRanges);
     os << rs << '\n';
