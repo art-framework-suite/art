@@ -130,10 +130,10 @@ namespace art {
   , eventsToSkip_{eventsToSkip}
   , compactSubRunRanges_{compactSubRunRanges}
   , treePointers_ { // Order (and number) must match BranchTypes.h!
-      std::make_unique<RootInputTree>(filePtr_.get(), InEvent, saveMemoryObjectThreshold, this, false, compactSubRunRanges_),
-      std::make_unique<RootInputTree>(filePtr_.get(), InSubRun, saveMemoryObjectThreshold, this, false, compactSubRunRanges_),
-      std::make_unique<RootInputTree>(filePtr_.get(), InRun, saveMemoryObjectThreshold, this, false, compactSubRunRanges_),
-      std::make_unique<RootInputTree>(filePtr_.get(), InResults, saveMemoryObjectThreshold, this, true /* missingOK */, compactSubRunRanges_)}
+      std::make_unique<RootInputTree>(filePtr_.get(), InEvent, saveMemoryObjectThreshold, this, compactSubRunRanges_, false),
+      std::make_unique<RootInputTree>(filePtr_.get(), InSubRun, saveMemoryObjectThreshold, this, compactSubRunRanges_, false),
+      std::make_unique<RootInputTree>(filePtr_.get(), InRun, saveMemoryObjectThreshold, this, compactSubRunRanges_, false),
+      std::make_unique<RootInputTree>(filePtr_.get(), InResults, saveMemoryObjectThreshold, this, compactSubRunRanges_, true /* missingOK */)}
   , delayedReadEventProducts_{delayedReadEventProducts}
   , delayedReadSubRunProducts_{delayedReadSubRunProducts}
   , delayedReadRunProducts_{delayedReadRunProducts}

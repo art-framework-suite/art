@@ -3,7 +3,6 @@
 #include "art/Framework/IO/Root/detail/rangeSetFromFileIndex.h"
 #include "art/Framework/IO/Root/detail/readFileIndex.h"
 #include "art/Framework/IO/Root/detail/readMetadata.h"
-#include "art/Framework/Principal/OpenRangeSetHandler.h"
 #include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
 #include "art/Persistency/Provenance/orderedProcessNamesCollection.h"
 #include "art/Framework/IO/Root/RootDB/SQLite3Wrapper.h"
@@ -217,8 +216,7 @@ art::detail::InfoDumperInputFile::getRangeSet(TTree* tree,
 
   for(auto i = entries.cbegin()+1, e = entries.cend(); i!=e; ++i) {
     auto const& tmpAux = getAuxiliary(tree, *i);
-    auxResult.mergeAuxiliary(tmpAux);
-    rangeSetInfo.update(resolve_info(tmpAux.rangeSetID(), compactRanges));
+    rangeSetInfo.update(resolve_info(tmpAux.rangeSetID(), compactRanges), compactRanges);
   }
 
   return resolveRangeSet(rangeSetInfo);

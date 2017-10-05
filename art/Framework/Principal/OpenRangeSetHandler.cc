@@ -22,13 +22,6 @@ namespace art {
   }
 
   void
-  OpenRangeSetHandler::addRange(EventRange const& range)
-  {
-    ranges_.emplace_range(range);
-    rsIter_ = ranges_.end();
-  }
-
-  void
   OpenRangeSetHandler::do_update(EventID const& id, bool const /*lastInSubRun*/)
   {
     ranges_.update(id);

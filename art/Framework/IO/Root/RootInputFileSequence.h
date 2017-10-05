@@ -50,6 +50,7 @@ public: // MEMBER FUNCTIONS
   struct Config {
 
     using Name = fhicl::Name;
+    using Comment = fhicl::Comment;
     template <typename T> using Atom = fhicl::Atom<T>;
     template <typename T> using OptionalAtom     = fhicl::OptionalAtom<T>;
     template <typename T> using OptionalSequence = fhicl::OptionalSequence<T>;
@@ -59,7 +60,6 @@ public: // MEMBER FUNCTIONS
 
     TableFragment<DuplicateChecker::Config> dc;
     Atom<EventNumber_t> skipEvents { Name("skipEvents"), 0 };
-    Atom<bool> compactSubRunRanges { Name("compactEventRanges"), false }; // FIXME--add comment.
     Atom<bool> noEventSort { Name("noEventSort"), false };
     Atom<bool> skipBadFiles { Name("skipBadFiles"), false };
     Atom<unsigned> cacheSize { Name("cacheSize"), 0u };
@@ -82,6 +82,15 @@ public: // MEMBER FUNCTIONS
     OptionalAtom<SubRunNumber_t> hasFirstSubRun { Name("firstSubRun") };
     OptionalAtom<EventNumber_t>  hasFirstEvent { Name("firstEvent") };
     OptionalAtom<RunNumber_t> setRunNumber { Name("setRunNumber") };
+    Atom<bool> compactSubRunRanges { Name("compactEventRanges"),
+        Comment("If users can guarantee that SubRuns do not span multiple input\n"
+                "files, the 'compactEventRanges' parameter can be set to 'true'\n"
+                "to ensure the most compact representation of event-ranges associated\n"
+                "with all Runs and SubRuns stored in the input file.\n\n"
+                "WARNING: Enabling compact event ranges creates a history that can\n"
+                "         cause file concatenation problems if a given SubRun spans\n"
+                "         multiple input files.  Use with care."),
+        false };
 
   };
 

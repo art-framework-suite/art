@@ -37,7 +37,7 @@
 #include <string>
 #include <vector>
 
-class TFile;
+#include "TFile.h"
 
 namespace art {
 

@@ -251,9 +251,11 @@ int main(int argc, char * argv[])
   }
   catch (cet::exception const& e) {
     std::cerr << e.what() << '\n';
+    return 7;
   }
   catch (...) {
     std::cerr << "Exception thrown for the last processed file.  Please remove it from the file list.\n";
+    return 8;
   }
 
 //============================================================================

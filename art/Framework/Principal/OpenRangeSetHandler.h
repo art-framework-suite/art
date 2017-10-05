@@ -52,8 +52,6 @@ namespace art {
     OpenRangeSetHandler(OpenRangeSetHandler&&) = default;
     OpenRangeSetHandler& operator=(OpenRangeSetHandler&&) = default;
 
-    void addRange(EventRange const& range);
-
   private:
 
     RangeSet do_getSeenRanges() const override;

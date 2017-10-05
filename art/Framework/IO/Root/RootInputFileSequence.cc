@@ -193,8 +193,14 @@ RootInputFileSequence(fhicl::TableFragment<RootInputFileSequence::Config> const&
     mf::LogWarning("PROVENANCE")
       << "Source parameter readParameterSets was set to false: parameter set provenance\n"
       << "will NOT be available in this or subsequent jobs using output from this job.\n"
-      << "Check your experiment's policy on this issue  to avoid future problems\n"
+      << "Check your experiment's policy on this issue to avoid future problems\n"
       << "with analysis reproducibility.\n";
+  }
+  if (compactSubRunRanges_) {
+    mf::LogWarning("PROVENANCE")
+      << "Source parameter compactEventRanges was set to true: enabling compact event ranges\n"
+      << "creates a history that can cause file concatenation problems if a given SubRun spans\n"
+      << "multiple input files.  Use with care.\n";
   }
 }
 

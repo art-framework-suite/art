@@ -182,7 +182,7 @@ namespace art {
       for (auto i = entries.cbegin()+1, e = entries.cend(); i!=e; ++i) {
         auto const& tmpAux = getAux<AUX>(*i);
         detail::mergeAuxiliary(auxResult, tmpAux);
-        rangeSetInfo.update(resolve_info(tmpAux.rangeSetID(), compactSubRunRanges_));
+        rangeSetInfo.update(resolve_info(tmpAux.rangeSetID(), compactSubRunRanges_), compactSubRunRanges_);
       }
 
       auxResult.setRangeSetID(-1u); // Range set of new auxiliary is invalid
