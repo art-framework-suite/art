@@ -157,13 +157,16 @@ art::detail::InfoDumperInputFile::print_range_sets(std::ostream& os, bool const 
 {
   auto it = fileIndex_.cbegin();
   auto const cend = fileIndex_.cend();
+  constexpr cet::HorizontalRule rule{30};
+  std::string const rep{compactRanges ? "compact" : "full (default)"};
 
   if (fileFormatVersion_.value_ < 9) {
     os << '\n'
        << "*** This file has a format version of \"" << fileFormatVersion_ << "\" and therefore\n"
        << "*** does not contain range-set information.  The printout below is\n"
        << "*** the range set art would assign to this file.\n\n"
-       << cet::HorizontalRule{80}('=') << '\n';
+       << "Representation: " << rep << '\n'
+       << rule('-') << '\n';
 
     for (auto const& element : fileIndex_) {
       if (element.getEntryType() != art::FileIndex::kRun) continue;
@@ -176,6 +179,8 @@ art::detail::InfoDumperInputFile::print_range_sets(std::ostream& os, bool const 
   auto* tree = static_cast<TTree*>(file_->Get(BranchTypeToProductTreeName(InRun).c_str()));
   SQLite3Wrapper db{file_.get(), "RootFileDB"};
 
+  os << "Representation: " << rep << '\n'
+     << rule('-') << '\n';
   while (it != cend) {
     if (it->getEntryType() != art::FileIndex::kRun) {
       ++it;
