@@ -1,6 +1,7 @@
 #include "art/Utilities/ToolMacros.h"
 #include "art/Utilities/ToolConfigTable.h"
 #include "art/test/Utilities/tools/OperationBase.h"
+#include "fhiclcpp/types/Atom.h"
 
 namespace fhicl { class ParameterSet; }
 
